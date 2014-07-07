@@ -1,12 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: VIRTIO/VHOST maintainer availability for 3.16/3.17
-Date: Sun, 6 Jul 2014 10:44:14 +0300
-Message-ID: <20140706074414.GA17130@redhat.com>
+From: Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH v2 2/2] virtio: rng: ensure reads happen after successful
+	probe
+Date: Sun, 6 Jul 2014 21:38:36 -0700
+Message-ID: <CAGXu5jK1wL9DCnH0RcqhantcCvyJhwZfkw+_L7VQi8wfY2Nt_g@mail.gmail.com>
+References: <cover.1404538109.git.amit.shah@redhat.com>
+	<f64852e0dd8a439193db4c7da1d3022d029cc85d.1404538109.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <f64852e0dd8a439193db4c7da1d3022d029cc85d.1404538109.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,27 +19,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, netdev@vger.kernel.org
+To: Amit Shah <amit.shah@redhat.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, LKML <linux-kernel@vger.kernel.org>, "# 3.4.x" <stable@vger.kernel.org>, Virtualization List <virtualization@lists.linux-foundation.org>, Jason Cooper <jason@lakedaemon.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi guys,
-This is just to let you know that I'll be traveling starting Tuesday,
-July 8 and until July 27. I won't be able to attend the KVM developers
-conference call or other meetings, but I plan to check mail every 1-2
-days so this should be transparent to you, and there should be no
-problem in case there are high priority bugfixes.
+On Fri, Jul 4, 2014 at 10:34 PM, Amit Shah <amit.shah@redhat.com> wrote:
+> The hwrng core asks for random data in the hwrng_register() call itself
+> from commit d9e7972619.  This doesn't play well with virtio -- the
+> DRIVER_OK bit is only set by virtio core on a successful probe, and
+> we're not yet out of our probe routine when this call is made.  This
+> causes the host to not acknowledge any requests we put in the virtqueue,
+> and the insmod or kernel boot process just waits for data to arrive from
+> the host, which never happens.
 
-However, please do the following to make it less likely for me to miss
-an important patch from you:
-- cc me on the patches that need my attention
-- tag patches appropriately with for-3.16/for-3.17 in the subject
-- tag patches that aren't for 3.16/3.17 as RFC in the subject,
-  and plan to repost as non RFC later
+Doesn't this mean that virtio-rng won't ever contribute entropy to the system?
 
-I plan to be online as usual from July 28, should be just in time for
-3.16 release and 3.17 merge window.
+-Kees
 
-Ciao,
+>
+> CC: Kees Cook <keescook@chromium.org>
+> CC: Jason Cooper <jason@lakedaemon.net>
+> CC: Herbert Xu <herbert@gondor.apana.org.au>
+> CC: <stable@vger.kernel.org> # For v3.15+
+> Signed-off-by: Amit Shah <amit.shah@redhat.com>
+> ---
+>  drivers/char/hw_random/core.c       |  6 ++++++
+>  drivers/char/hw_random/virtio-rng.c | 10 ++++++++++
+>  2 files changed, 16 insertions(+)
+>
+> diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
+> index df95e2f..50f5b76 100644
+> --- a/drivers/char/hw_random/core.c
+> +++ b/drivers/char/hw_random/core.c
+> @@ -68,6 +68,12 @@ static void add_early_randomness(struct hwrng *rng)
+>         unsigned char bytes[16];
+>         int bytes_read;
+>
+> +       /*
+> +        * Currently only virtio-rng cannot return data during device
+> +        * probe, and that's handled in virtio-rng.c itself.  If there
+> +        * are more such devices, this call to rng_get_data can be
+> +        * made conditional here instead of doing it per-device.
+> +        */
+>         bytes_read = rng_get_data(rng, bytes, sizeof(bytes), 1);
+>         if (bytes_read > 0)
+>                 add_device_randomness(bytes, bytes_read);
+> diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
+> index f3e7150..157f27c 100644
+> --- a/drivers/char/hw_random/virtio-rng.c
+> +++ b/drivers/char/hw_random/virtio-rng.c
+> @@ -38,6 +38,8 @@ struct virtrng_info {
+>         int index;
+>  };
+>
+> +bool probe_done;
+> +
+>  static void random_recv_done(struct virtqueue *vq)
+>  {
+>         struct virtrng_info *vi = vq->vdev->priv;
+> @@ -67,6 +69,13 @@ static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
+>         int ret;
+>         struct virtrng_info *vi = (struct virtrng_info *)rng->priv;
+>
+> +       /*
+> +        * Don't ask host for data till we're setup.  This call can
+> +        * happen during hwrng_register(), after commit d9e7972619.
+> +        */
+> +       if (unlikely(!probe_done))
+> +               return 0;
+> +
+>         if (!vi->busy) {
+>                 vi->busy = true;
+>                 init_completion(&vi->have_data);
+> @@ -137,6 +146,7 @@ static int probe_common(struct virtio_device *vdev)
+>                 return err;
+>         }
+>
+> +       probe_done = true;
+>         return 0;
+>  }
+>
+> --
+> 1.9.3
+>
+
+
 
 -- 
-MST
+Kees Cook
+Chrome OS Security
