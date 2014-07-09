@@ -1,14 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH v2 0/2] block: virtio-blk: support multi vq per virtio-blk
-Date: Wed, 09 Jul 2014 10:31:08 +0930
-Message-ID: <87ion75orv.fsf@rustcorp.com.au>
-References: <1403748526-1923-1-git-send-email-ming.lei@canonical.com>
-	<53ABAA34.6070006@kernel.dk>
+From: Jason Cooper <jason@lakedaemon.net>
+Subject: Re: [PATCH v2 1/2] hwrng: fetch randomness only after device init
+Date: Wed, 9 Jul 2014 07:53:17 -0400
+Message-ID: <20140709115317.GM13433@titan.lakedaemon.net>
+References: <cover.1404538109.git.amit.shah@redhat.com>
+	<515a12ecc5fca5452bf0bfda4d54546d8fb5829c.1404538109.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <53ABAA34.6070006@kernel.dk>
+Content-Disposition: inline
+In-Reply-To: <515a12ecc5fca5452bf0bfda4d54546d8fb5829c.1404538109.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,22 +19,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jens Axboe <axboe@kernel.dk>, Ming Lei <ming.lei@canonical.com>, linux-kernel@vger.kernel.org
-Cc: linux-api@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>
+Cc: herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org, stable@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>, keescook@chromium.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jens Axboe <axboe@kernel.dk> writes:
-> Rusty, do you want to ack this (and I'll slurp it up for 3.17) or take 
-> this yourself? Or something else?
+On Sat, Jul 05, 2014 at 11:04:52AM +0530, Amit Shah wrote:
+> Commit d9e7972619334 "hwrng: add randomness to system from rng sources"
+> added a call to rng_get_data() from the hwrng_register() function.
+> However, some rng devices need initialization before data can be read
+> from them.
+> 
+> This commit makes the call to rng_get_data() depend on no init fn
+> pointer being registered by the device.  If an init function is
+> registered, this call is made after device init.
+> 
+> CC: Kees Cook <keescook@chromium.org>
+> CC: Jason Cooper <jason@lakedaemon.net>
+> CC: Herbert Xu <herbert@gondor.apana.org.au>
+> CC: <stable@vger.kernel.org> # For v3.15+
+> Signed-off-by: Amit Shah <amit.shah@redhat.com>
+> ---
+>  drivers/char/hw_random/core.c | 31 +++++++++++++++++++++++++------
+>  1 file changed, 25 insertions(+), 6 deletions(-)
 
-I'm happy with the idea, and importantly, the new feature bit.  So once
-the implementation is tweaked, please add:
+Thanks for cleaning this up!
 
-        Acked-by: Rusty Russell <rusty@rustcorp.com.au>
+Reviewed-by: Jason Cooper <jason@lakedaemon.net>
 
-The new feature bit takes us outside the current standard (which is
-hopefully now frozen), but I'll just add it to the pile of things to
-revisit for 1.1.
+thx,
 
-Thanks,
-Rusty,
+Jason.
