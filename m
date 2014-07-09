@@ -1,14 +1,14 @@
-From: Varka Bhadram <varkabhadram@gmail.com>
-Subject: Re: [RFC V2 4/7] VSOCK: Introduce virtio-vsock.ko
-Date: Sat, 05 Jul 2014 09:14:17 +0530
-Message-ID: <53B77491.6080107__36424.8199658052$1404866826$gmane$org@gmail.com>
-References: <cover.1404529115.git.asias.hejun@gmail.com>
-	<f546c3430cbd8b141f7b6aaf4327907909479ae2.1404529115.git.asias.hejun@gmail.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH v2 0/2] block: virtio-blk: support multi vq per virtio-blk
+Date: Wed, 09 Jul 2014 10:31:08 +0930
+Message-ID: <87ion75orv.fsf@rustcorp.com.au>
+References: <1403748526-1923-1-git-send-email-ming.lei@canonical.com>
+	<53ABAA34.6070006@kernel.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <f546c3430cbd8b141f7b6aaf4327907909479ae2.1404529115.git.asias.hejun@gmail.com>
+In-Reply-To: <53ABAA34.6070006@kernel.dk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,24 +18,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias.hejun@gmail.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>, Ming Lei <ming.lei@canonical.com>, linux-kernel@vger.kernel.org
+Cc: linux-api@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+Jens Axboe <axboe@kernel.dk> writes:
+> Rusty, do you want to ack this (and I'll slurp it up for 3.17) or take 
+> this yourself? Or something else?
 
-On Saturday 05 July 2014 08:53 AM, Asias He wrote:
-> From: Asias He <asias@redhat.com>
->
-> VM sockets virtio transport implementation. This module runs in guest
-> kernel.
->
-> Signed-off-by: Asias He <asias@redhat.com>
-> ---
->   net/vmw_vsock/virtio_transport.c | 448 +++++++++++++++++++++++++++++++++++++++
->   1 file changed, 448 insertions(+)
->   create mode 100644 net/vmw_vsock/virtio_transport.c
+I'm happy with the idea, and importantly, the new feature bit.  So once
+the implementation is tweaked, please add:
 
-This patch also having the coding style problems..
+        Acked-by: Rusty Russell <rusty@rustcorp.com.au>
 
--- 
-Regards,
-Varka Bhadram
+The new feature bit takes us outside the current standard (which is
+hopefully now frozen), but I'll just add it to the pile of things to
+revisit for 1.1.
+
+Thanks,
+Rusty,
