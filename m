@@ -1,17 +1,13 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 05/11] qspinlock: Optimize for smaller NR_CPUS
-Date: Mon, 07 Jul 2014 18:10:30 +0200
-Message-ID: <53BAC676.5030804@redhat.com>
-References: <20140615124657.264658593@chello.nl>
-	<20140615130153.483502389@chello.nl> <53A17A88.7090705@redhat.com>
-	<20140707143503.GS6758@twins.programming.kicks-ass.net>
-	<53BAB7E1.4010506@redhat.com>
-	<20140707153552.GE19379@twins.programming.kicks-ass.net>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH RFC 1/2] virtio: support for urgent descriptors
+Date: Wed, 09 Jul 2014 09:58:43 +0930
+Message-ID: <87y4w35q9w.fsf@rustcorp.com.au>
+References: <1404203661-7521-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140707153552.GE19379@twins.programming.kicks-ass.net>
+In-Reply-To: <1404203661-7521-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,20 +17,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Waiman.Long@hp.com, linux-arch@vger.kernel.org, riel@redhat.com, gleb@redhat.com, kvm@vger.kernel.org, konrad.wilk@oracle.com, boris.ostrovsky@oracle.com, scott.norton@hp.com, raghavendra.kt@linux.vnet.ibm.com, paolo.bonzini@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chegu_vinod@hp.com, david.vrabel@citrix.com, oleg@redhat.com, xen-devel@lists.xenproject.org, tglx@linutronix.de, paulmck@linux.vnet.ibm.com, torvalds@linux-foundation.org, mingo@kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 07/07/2014 17:35, Peter Zijlstra ha scritto:
->> > Unlike the change in patch 4, clear_pending_set_locked doesn't change how
->> > qspinlock moves from a state to the next.
-> True, but its where we start to break up into smaller functions. And the
-> only reason we break them out is because we'll get different
-> implementations depending on NR_CPUS.
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> Below should be useful for some experiments Jason is doing.
+> I thought I'd send it out for early review/feedback.
 >
-> So we can view the breakout of xchg_tail and clear_and_set_pending as
-> preparatory work for introducing the NR_CPUS thing.
+> Compiled-only at this point.
 
-That's a different reasoning, but it's fine by me too.
+It's not a terrible idea, but it will come down to how effective it is
+in practice.
 
-Paolo
+I'm tempted to make it v1.0 only though.
+
+Cheers,
+Rusty.
