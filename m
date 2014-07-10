@@ -1,18 +1,11 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH v2 2/2] virtio: rng: ensure reads happen after successful
-	probe
-Date: Thu, 10 Jul 2014 15:23:11 +0530
-Message-ID: <20140710095311.GH3375@grmbl.mre>
-References: <cover.1404538109.git.amit.shah@redhat.com>
-	<f64852e0dd8a439193db4c7da1d3022d029cc85d.1404538109.git.amit.shah@redhat.com>
-	<20140709161836.GQ13433@titan.lakedaemon.net>
-	<20140710084514.GA15418@gondor.apana.org.au>
+Subject: [PATCH v3 0/2] hwrng, virtio-rng: init-time fixes
+Date: Thu, 10 Jul 2014 15:42:33 +0530
+Message-ID: <cover.1404987133.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20140710084514.GA15418@gondor.apana.org.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,42 +15,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Jason Cooper <jason@lakedaemon.net>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>, keescook@chromium.org
+To: linux-kernel@vger.kernel.org
+Cc: jason@lakedaemon.net, keescook@chromium.org, Virtualization List <virtualization@lists.linux-foundation.org>, Amit Shah <amit.shah@redhat.com>, herbert@gondor.apana.org.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Thu) 10 Jul 2014 [16:45:14], Herbert Xu wrote:
-> On Wed, Jul 09, 2014 at 12:18:36PM -0400, Jason Cooper wrote:
-> > On Sat, Jul 05, 2014 at 11:04:53AM +0530, Amit Shah wrote:
-> > > The hwrng core asks for random data in the hwrng_register() call itself
-> > > from commit d9e7972619.  This doesn't play well with virtio -- the
-> > > DRIVER_OK bit is only set by virtio core on a successful probe, and
-> > > we're not yet out of our probe routine when this call is made.  This
-> > > causes the host to not acknowledge any requests we put in the virtqueue,
-> > > and the insmod or kernel boot process just waits for data to arrive from
-> > > the host, which never happens.
-> > > 
-> > > CC: Kees Cook <keescook@chromium.org>
-> > > CC: Jason Cooper <jason@lakedaemon.net>
-> > > CC: Herbert Xu <herbert@gondor.apana.org.au>
-> > > CC: <stable@vger.kernel.org> # For v3.15+
-> > > Signed-off-by: Amit Shah <amit.shah@redhat.com>
-> > > ---
-> > >  drivers/char/hw_random/core.c       |  6 ++++++
-> > >  drivers/char/hw_random/virtio-rng.c | 10 ++++++++++
-> > >  2 files changed, 16 insertions(+)
-> > 
-> > Yeah, I don't think there's any viable way to get random data out of
-> > virtio-rng at probe time...  :-(
-> > 
-> > Reviewed-by: Jason Cooper <jason@lakedaemon.net>
-> 
-> OK, if there are no more objections I will take these two patches.
+v3:
+ - Kees Cook pointed out a weird side-effect: devices which have
+   ->init() registered get their randomness added to the system each
+   time they're switched in, but devices that don't have the init
+   callback don't contribute to system randomness more than once.  The
+   weirdness is resolved here by using the randomness each time
+   hwrng_init() is attempted, irrespective of the existence of the
+   device's ->init() callback.
 
-Please wait for the v3 -- I like that one better as it doesn't have
-the init weirdness that Kees pointed out.  I'm sending that out in a
-few mins.
+v2:
+ - this now separates both the patches; the virtio-rng fix is self-contained
+ - re-work hwrng core to fetch randomness at device init time if
+   ->init() is registered by the device, instead of not calling it at all.
+ - virtio-rng: introduce a probe_done bool to ensure we don't ask host
+   for data before successful probe
 
-Thanks!
+Hi,
 
-		Amit
+When booting a recent kernel under KVM with the virtio-rng device
+enabled, the boot process was stalling.  Bisect pointed to a commit
+made during the 3.15 window to fetch randomness from newly-registered
+devices in the hwrng core.  The details are in the patches.
+
+Turns out there were two bugs: the initial randomness was being
+fetched w/o the device being initialized in cases where the init
+callback was registered and the device wasn't the first device being
+added to the hwrng core (unrelated to the virtio-rng case).  The
+second bug is virtio can't communicate with the host without the
+device probe is successfully completed.
+
+The impact of this change is that a sole virtio-rng device in a system 
+won't be able to contribute to the initial randomness.  If a second 
+virtio-rng device is hot-plugged, its input will be used.  Though that 
+scenario is extremely unlikely (why have two virtio-rng devices at 
+all?). 
+
+This isn't any different from the current behaviour, though - virtio-rng 
+currently doesn't contribute to initial system randomness, and continues 
+not to do so.  A better way to get virtio-rng to contribute initially
+to the system random pool can be worked out later.
+
+Please apply,
+
+Amit Shah (2):
+  hwrng: fetch randomness only after device init
+  virtio: rng: ensure reads happen after successful probe
+
+ drivers/char/hw_random/core.c       | 47 ++++++++++++++++++++++++++++++-------
+ drivers/char/hw_random/virtio-rng.c | 10 ++++++++
+ 2 files changed, 49 insertions(+), 8 deletions(-)
+
+-- 
+1.9.3
