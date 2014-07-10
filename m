@@ -1,8 +1,8 @@
-From: Amit Shah <amit.shah@redhat.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Subject: Re: [PATCH v2 2/2] virtio: rng: ensure reads happen after successful
 	probe
-Date: Thu, 10 Jul 2014 14:22:15 +0530
-Message-ID: <20140710085215.GD3375@grmbl.mre>
+Date: Thu, 10 Jul 2014 16:45:14 +0800
+Message-ID: <20140710084514.GA15418__37915.2156449438$1404983702$gmane$org@gondor.apana.org.au>
 References: <cover.1404538109.git.amit.shah@redhat.com>
 	<f64852e0dd8a439193db4c7da1d3022d029cc85d.1404538109.git.amit.shah@redhat.com>
 	<20140709161836.GQ13433@titan.lakedaemon.net>
@@ -22,10 +22,10 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jason Cooper <jason@lakedaemon.net>
-Cc: herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org, stable@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>, keescook@chromium.org
+Cc: keescook@chromium.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Wed) 09 Jul 2014 [12:18:36], Jason Cooper wrote:
+On Wed, Jul 09, 2014 at 12:18:36PM -0400, Jason Cooper wrote:
 > On Sat, Jul 05, 2014 at 11:04:53AM +0530, Amit Shah wrote:
 > > The hwrng core asks for random data in the hwrng_register() call itself
 > > from commit d9e7972619.  This doesn't play well with virtio -- the
@@ -50,6 +50,10 @@ On (Wed) 09 Jul 2014 [12:18:36], Jason Cooper wrote:
 > 
 > Reviewed-by: Jason Cooper <jason@lakedaemon.net>
 
-Thanks!
+OK, if there are no more objections I will take these two patches.
 
-		Amit
+Thanks!
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
