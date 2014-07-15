@@ -1,22 +1,15 @@
-From: Kees Cook <keescook@chromium.org>
-Subject: Re: [RFC PATCH] hwrng: sysfs entry rng_seed_kernel, was: "Re: [PATCH
-	v2 1/2] hwrng: fetch randomness only after device init"
-Date: Mon, 14 Jul 2014 14:50:48 -0700
-Message-ID: <CAGXu5j+yUBvju5f=czeppNeEQEM1Z=8-H6Ao=BFgTuvQxyEBtw@mail.gmail.com>
-References: <cover.1404538109.git.amit.shah@redhat.com>
-	<515a12ecc5fca5452bf0bfda4d54546d8fb5829c.1404538109.git.amit.shah@redhat.com>
-	<20140709115317.GM13433@titan.lakedaemon.net>
-	<20140709130822.GA4553@grmbl.mre>
-	<20140709131737.GO13433@titan.lakedaemon.net>
-	<20140709132524.GB4667@grmbl.mre>
-	<20140709160725.GP13433@titan.lakedaemon.net>
-	<20140711132626.GB17415@grmbl.mre>
-	<20140711154407.GD13108@titan.lakedaemon.net>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH v3 0/2] hwrng, virtio-rng: init-time fixes
+Date: Tue, 15 Jul 2014 10:10:28 +0530
+Message-ID: <20140715044028.GA26186@grmbl.mre>
+References: <cover.1404987133.git.amit.shah@redhat.com>
+	<20140714125006.GA9958@gondor.apana.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140711154407.GD13108@titan.lakedaemon.net>
+Content-Disposition: inline
+In-Reply-To: <20140714125006.GA9958@gondor.apana.org.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,66 +19,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Cooper <jason@lakedaemon.net>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, LKML <linux-kernel@vger.kernel.org>, "# 3.4.x" <stable@vger.kernel.org>, Virtualization List <virtualization@lists.linux-foundation.org>, Amit Shah <amit.shah@redhat.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: jason@lakedaemon.net, linux-kernel@vger.kernel.org, keescook@chromium.org, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jul 11, 2014 at 8:44 AM, Jason Cooper <jason@lakedaemon.net> wrote:
-> On Fri, Jul 11, 2014 at 06:56:26PM +0530, Amit Shah wrote:
->> On (Wed) 09 Jul 2014 [12:07:25], Jason Cooper wrote:
->> > Amit, Kees,
->>
->> (snip)
->>
->> > I'm cooling to the idea of the init function for virtio-rng, and it
->> > might be best just to admit that there's no way to seed the entropy pool
->> > from the virtio-rng at probe time.  After all, once userspace is up, the
->> > system should take advantage of /dev/hwrng for the generation of
->> > long-term keys.  Either via rngd feeding /dev/random, or directly.
->> >
->> > As for the follow-on patch you asked about, I think that's fine.  More
->> > entropy can't hurt.
->> >
->> > The below patch might be worth considering so that the user of a system
->> > with only virtio-rng can kick the entropy pool as they see fit.  It's
->> > probably not too kosher as is, but if the idea is liked, I could clean
->> > it up and submit.
->> >
->> > The advantage is that users don't need to have rngd installed and
->> > running on the system in order to jump-start the entropy pool.
->>
->> ... so a udev rule that looks for the new sysfs file, and asks the
->> kernel to do its thing?
->
-> Or, as simple as:
->
-> [ -e /sys/.../rng_seed_kernel ] && echo "0" >/sys/.../rng_seed_kernel
->
-> in the initrd.  It needs to run *before* any init scripts which may create
-> keys.
->
->> And maybe even a patch to rngd that looks for this file and does a
->> similar thing?
->
-> I'm not opposed to that, but it doesn't fit the problem I'm trying to
-> solve.  Basically, average systems, not trying to be Ft Knox-secure, but
-> needing to generate long-term keys at first boot.  These systems won't
-> have an hwrng installed, but should use one if available.  eg
-> virtio-rng, or any of the on-die SoC hwrngs.
->
->> There's also the option to use a delayed workqueue item, that will
->> succeed if probe has finished.  This method doesn't have userspace
->> dependencies.
->
-> Hmm, I like that idea better.  No ABI change to maintain, no userspace
-> changes...  You obviously know virtio-rng better than I do, care to take
-> a crack at it?
+On (Mon) 14 Jul 2014 [20:50:06], Herbert Xu wrote:
+> On Thu, Jul 10, 2014 at 03:42:33PM +0530, Amit Shah wrote:
+> > v3:
+> >  - Kees Cook pointed out a weird side-effect: devices which have
+> >    ->init() registered get their randomness added to the system each
+> >    time they're switched in, but devices that don't have the init
+> >    callback don't contribute to system randomness more than once.  The
+> >    weirdness is resolved here by using the randomness each time
+> >    hwrng_init() is attempted, irrespective of the existence of the
+> >    device's ->init() callback.
+> 
+> All applied to crypto.  Thanks!
 
-I like this idea too. It's much nicer to just have the kernel Do The
-Right Thing automatically. :)
+Thanks, Herbert.  I didn't mention it, but pls queue it up for 3.16.
 
--Kees
 
--- 
-Kees Cook
-Chrome OS Security
+		Amit
