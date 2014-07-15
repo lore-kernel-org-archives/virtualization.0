@@ -1,12 +1,14 @@
 From: Kamal Mostafa <kamal@canonical.com>
-Subject: [3.13.y.z extended stable] Patch "block: virtio_blk: don't hold spin
-	lock during world switch" has been added to staging queue
-Date: Tue, 15 Jul 2014 14:29:27 -0700
-Message-ID: <1405459767-9649-1-git-send-email-kamal__15625.9499876343$1405520890$gmane$org@canonical.com>
+Subject: [PATCH 3.13 077/198] block: virtio_blk: don't hold spin lock during
+	world switch
+Date: Tue, 15 Jul 2014 14:29:07 -0700
+Message-ID: <1405459868-15089-78-git-send-email-kamal__5990.44610648907$1405520897$gmane$org@canonical.com>
+References: <1405459868-15089-1-git-send-email-kamal@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1405459868-15089-1-git-send-email-kamal@canonical.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,36 +18,15 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ming Lei <ming.lei@canonical.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Kamal Mostafa <kamal@canonical.com>, virtualization@lists.linux-foundation.org, Jens Axboe <axboe@fb.com>, kernel-team@lists.ubuntu.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org, kernel-team@lists.ubuntu.com
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Ming Lei <ming.lei@canonical.com>, virtualization@lists.linux-foundation.org, Jens Axboe <axboe@fb.com>, Kamal Mostafa <kamal@canonical.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a note to let you know that I have just added a patch titled
+3.13.11.5 -stable review patch.  If anyone has any objections, please let me know.
 
-    block: virtio_blk: don't hold spin lock during world switch
+------------------
 
-to the linux-3.13.y-queue branch of the 3.13.y.z extended stable tree 
-which can be found at:
-
- http://kernel.ubuntu.com/git?p=ubuntu/linux.git;a=shortlog;h=refs/heads/linux-3.13.y-queue
-
-This patch is scheduled to be released in version 3.13.11.5.
-
-If you, or anyone else, feels it should not be added to this tree, please 
-reply to this email.
-
-For more information about the 3.13.y.z tree, see
-https://wiki.ubuntu.com/Kernel/Dev/ExtendedStable
-
-Thanks.
--Kamal
-
-------
-
-From 7e3901f7d16885eed2126c03feb1ad993d86f207 Mon Sep 17 00:00:00 2001
 From: Ming Lei <ming.lei@canonical.com>
-Date: Fri, 30 May 2014 10:49:29 +0800
-Subject: block: virtio_blk: don't hold spin lock during world switch
 
 commit e8edca6f7f92234202d6dd163c118ef495244d7c upstream.
 
@@ -96,13 +77,13 @@ index 9b734f2..53e3db6 100644
  	const bool last = (req->cmd_flags & REQ_END) != 0;
  	int err;
 +	bool notify = false;
-
+ 
  	BUG_ON(req->nr_phys_segments + 2 > vblk->sg_elems);
-
+ 
 @@ -211,10 +212,12 @@ static int virtio_queue_rq(struct blk_mq_hw_ctx *hctx, struct request *req)
  		return BLK_MQ_RQ_QUEUE_ERROR;
  	}
-
+ 
 -	if (last)
 -		virtqueue_kick(vblk->vq);
 -
@@ -114,6 +95,6 @@ index 9b734f2..53e3db6 100644
 +		virtqueue_notify(vblk->vq);
  	return BLK_MQ_RQ_QUEUE_OK;
  }
-
---
+ 
+-- 
 1.9.1
