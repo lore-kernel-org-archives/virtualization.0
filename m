@@ -1,17 +1,14 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH 10/11] qspinlock: Paravirt support
-Date: Tue, 15 Jul 2014 10:23:05 -0400
-Message-ID: <20140715142305.GA3403@laptop.dumpdata.com>
-References: <20140615124657.264658593@chello.nl>
-	<20140615130154.213923590@chello.nl>
-	<20140620134608.GA11545@laptop.dumpdata.com>
-	<20140707152734.GX6758@twins.programming.kicks-ass.net>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next] virtio-net: rx busy polling support
+Date: Wed, 16 Jul 2014 10:44:46 +0800
+Message-ID: <53C5E71E.7050706@redhat.com>
+References: <1405417265-13103-1-git-send-email-jasowang@redhat.com>
+	<1405419703.10255.26.camel@edumazet-glaptop2.roam.corp.google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20140707152734.GX6758@twins.programming.kicks-ass.net>
+In-Reply-To: <1405419703.10255.26.camel@edumazet-glaptop2.roam.corp.google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,47 +18,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Waiman.Long@hp.com, linux-arch@vger.kernel.org, riel@redhat.com, gleb@redhat.com, kvm@vger.kernel.org, boris.ostrovsky@oracle.com, scott.norton@hp.com, raghavendra.kt@linux.vnet.ibm.com, paolo.bonzini@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chegu_vinod@hp.com, david.vrabel@citrix.com, oleg@redhat.com, xen-devel@lists.xenproject.org, tglx@linutronix.de, paulmck@linux.vnet.ibm.com, torvalds@linux-foundation.org, mingo@kernel.org
+To: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: Vlad Yasevich <vyasevic@redhat.com>, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 07, 2014 at 05:27:34PM +0200, Peter Zijlstra wrote:
-> On Fri, Jun 20, 2014 at 09:46:08AM -0400, Konrad Rzeszutek Wilk wrote:
-> > I dug in the code and I have some comments about it, but before
-> > I post them I was wondering if you have any plans to run any performance
-> > tests against the PV ticketlock with normal and over-committed scenarios?
-> 
-> I can barely boot a guest.. I'm not sure I can make them do anything
-> much at all yet. All this virt crap is totally painful.
+On 07/15/2014 06:21 PM, Eric Dumazet wrote:
+> On Tue, 2014-07-15 at 17:41 +0800, Jason Wang wrote:
+>> Add basic support for rx busy polling.
+>>
+>> 1 byte netperf tcp_rr on mlx4 shows 116% improvement: the transaction
+>> rate was increased from 9151.94 to 19787.37.
+> This is a misleading changelog.
+>
+> You forgot to describe how you allowed busy polling, as it is not
+> 'automatic'
+>
+> If not, this patch adds two spinlock/unlock pairs in fast path.
 
-HA!
+Ok.
+> Also, it looks like you could split this in smaller patches.
+>
+> virtnet_napi_disable_all() & virtnet_napi_enable_all() could be added in
+> a separate patch for example.
 
-The reason I asked about that is from a pen-and-paper view it looks
-suboptimal in the worst case scenario compared to PV ticketlock.
+Sure, will split this patch into smaller ones in V2.
 
-The 'worst case scenario' is when we over-commit (more CPUs than there
-are physical CPUs) or have to delay guests (the sum of all virtual
-CPUs > physical CPUs and all of the guests are compiling kernels).
-
-In those cases the PV ticketlock goes to sleep and gets woken up
-once the ticket holder has finished. In the PV qspinlock we do
-wake up the first in queue, but we also wake the next one in queue
-so it can progress further. And so on.
-
-Perhaps a better mechanism is just ditch the queue part and utilize
-the byte part and under KVM and Xen just do bytelocking (since we
-have 8 bits). For the PV halt/waking we can stash in the 'struct mcs'
-the current lock that each CPU is waiting for. And the unlocker
-can iterate over all of those and wake them all up. Perhaps make
-the iteration random. Anyhow, that is how the old PV bytelock under
-Xen worked (before 3.11) and it had worked pretty well (it didn't
-do it random thought - always started with 'for_each_online_cpu').
-
-Squashing in the ticketlock concept in qspinlock for PV looks
-scary.
-
-And as I said - this is all pen-and-paper - so it might be that this
-'wake-up-go-sleep-on-the-queue' kick is actually not that bad?
-
-Lastly - thank you for taking a stab at this.
-> 
+Thanks
