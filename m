@@ -1,14 +1,11 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next] virtio-net: rx busy polling support
-Date: Wed, 16 Jul 2014 10:44:46 +0800
-Message-ID: <53C5E71E.7050706@redhat.com>
-References: <1405417265-13103-1-git-send-email-jasowang@redhat.com>
-	<1405419703.10255.26.camel@edumazet-glaptop2.roam.corp.google.com>
+Subject: [PATCH net-next V2 0/3] rx busy polling support for virtio-net
+Date: Wed, 16 Jul 2014 14:21:44 +0800
+Message-ID: <1405491707-22706-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1405419703.10255.26.camel@edumazet-glaptop2.roam.corp.google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,29 +15,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: Vlad Yasevich <vyasevic@redhat.com>, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/15/2014 06:21 PM, Eric Dumazet wrote:
-> On Tue, 2014-07-15 at 17:41 +0800, Jason Wang wrote:
->> Add basic support for rx busy polling.
->>
->> 1 byte netperf tcp_rr on mlx4 shows 116% improvement: the transaction
->> rate was increased from 9151.94 to 19787.37.
-> This is a misleading changelog.
->
-> You forgot to describe how you allowed busy polling, as it is not
-> 'automatic'
->
-> If not, this patch adds two spinlock/unlock pairs in fast path.
+Hi all:
 
-Ok.
-> Also, it looks like you could split this in smaller patches.
->
-> virtnet_napi_disable_all() & virtnet_napi_enable_all() could be added in
-> a separate patch for example.
+This series introduces the support for rx busy polling support. This
+was useful for reduing the latency for a kvm guest. Patch 1-2
+introduces helpers which is used for rx busy polling. Patch 3
+implement the main function.
 
-Sure, will split this patch into smaller ones in V2.
+Test was done between a kvm guest and an external host. Two hosts were
+connected through 40gb mlx4 cards. With both busy_poll and busy_read are
+set to 50 in guest, 1 byte netperf tcp_rr shows 116% improvement:
+transaction rate was increased from 9151.94 to 19787.37.
 
-Thanks
+Changes from V1:
+- split the patch info smaller ones
+- add more details about test setup/configuration
+
+Please review.
+
+Jason Wang (3):
+  virtio-net: introduce helpers to enable and disable all NAPIs
+  virtio-net: introduce virtnet_receive()
+  virtio-net: rx busy polling support
+
+ drivers/net/virtio_net.c | 234 ++++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 221 insertions(+), 13 deletions(-)
+
+-- 
+1.8.3.1
