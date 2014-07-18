@@ -1,20 +1,11 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [RFC PATCH 1/3] hw_random: allow RNG devices to give early
-	randomness after a delay
-Date: Fri, 18 Jul 2014 14:57:37 +0530
-Message-ID: <20140718092737.GD15020@grmbl.mre>
-References: <cover.1405277045.git.amit.shah@redhat.com>
-	<685be569a29015d3ee56cc3f782d81cae06d52b9.1405277045.git.amit.shah@redhat.com>
-	<20140714123700.GP13108@titan.lakedaemon.net>
-	<20140714124246.GA1520@grmbl.mre>
-	<20140718085626.GA15020@grmbl.mre>
-	<20140718091408.GA17266@gondor.apana.org.au>
+From: Benoit Taine <benoit.taine@lip6.fr>
+Subject: [PATCH 0/25] Replace DEFINE_PCI_DEVICE_TABLE macro use
+Date: Fri, 18 Jul 2014 17:26:47 +0200
+Message-ID: <1405697232-11785-1-git-send-email-benoit.taine__19578.6555101678$1405698823$gmane$org@lip6.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20140718091408.GA17266@gondor.apana.org.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,31 +15,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Virtualization List <virtualization@lists.linux-foundation.org>, Jason Cooper <jason@lakedaemon.net>, keescook@chromium.org, linux-kernel@vger.kernel.org
+To: linux-pci@vger.kernel.org
+Cc: linux-mips@linux-mips.org, linux-fbdev@vger.kernel.org, linux-mmc@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, benoit.taine@lip6.fr, ath5k-devel@venema.h4ckr.net, linux-acenic@sunsite.dk, linux-scsi@vger.kernel.org, linux-rdma@vger.kernel.org, ath10k@lists.infradead.org, linux-hippi@sunsite.dk, industrypack-devel@lists.sourceforge.net, xen-devel@lists.xenproject.org, MPT-FusionLinux.pdl@avagotech.com, virtualization@lists.linux-foundation.org, ath9k-devel@venema.h4ckr.net, wil6210@qca.qualcomm.com, linux-pcmcia@lists.infradead.org, linux-can@vger.kernel.org, platform-driver-x86@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, users@rt2x00.serialmonkey.com, e1000-devel@lists.sourceforge.net, linux-crypto@vger.kernel.org, devel@linuxdriverproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Fri) 18 Jul 2014 [17:14:08], Herbert Xu wrote:
-> On Fri, Jul 18, 2014 at 02:26:26PM +0530, Amit Shah wrote:
-> >
-> > > Sounds like a good idea to me.  Though, changes in core.c that
-> > > increase the time in hwrng_register() or hwrng_init() may not get
-> > > noticed by rng drivers and they may suddenly start failing for no
-> > > apparent reason.  Seems like a far stretch, though.  Does anyone else
-> > > have an opinion on this?
-> > 
-> > Herbert, do you have any preference?
-> 
-> So it's only virtio-rng that's a problem, right? How about if we
-> abuse the scan hook in virtio and move the hwrng_register there?
+We should prefer `const struct pci_device_id` over
+`DEFINE_PCI_DEVICE_TABLE` to meet kernel coding style guidelines.
+This issue was reported by checkpatch.
 
-Oops, I had completely missed the scan hook, and looks like it was
-added for exactly the purpose we want here (so we won't even be
-abusing it!)
+A simplified version of the semantic patch that makes this change is as
+follows (http://coccinelle.lip6.fr/):
 
-Thanks!
+// <smpl>
 
-I'll post the patches when the one to revert gets an upstream commit
-id.
+@@
+identifier i;
+declarer name DEFINE_PCI_DEVICE_TABLE;
+initializer z;
+@@
 
-		Amit
+- DEFINE_PCI_DEVICE_TABLE(i)
++ const struct pci_device_id i[]
+= z;
+
+// </smpl>
+
+I have 103 patches ready, and will only send a few for you to judge if
+it is useful enough, and to prevent from spamming too much.
+
+Thanks.
