@@ -1,15 +1,15 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 0/25] Replace DEFINE_PCI_DEVICE_TABLE macro use
-Date: Fri, 18 Jul 2014 11:05:39 -0700
-Message-ID: <1405706739.14358.68.camel__11057.6316169047$1405719837$gmane$org@joe-AO725>
-References: <1405697232-11785-1-git-send-email-benoit.taine@lip6.fr>
-	<20140718162213.GC31114@tuxdriver.com>
-	<20140718164340.GA24960@kroah.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next V2 3/3] virtio-net: rx busy polling support
+Date: Sun, 20 Jul 2014 23:31:11 +0300
+Message-ID: <20140720203111.GE2536@redhat.com>
+References: <1405491707-22706-1-git-send-email-jasowang@redhat.com>
+	<1405491707-22706-4-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140718164340.GA24960@kroah.com>
+Content-Disposition: inline
+In-Reply-To: <1405491707-22706-4-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,51 +19,323 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <greg@kroah.com>
-Cc: linux-mips@linux-mips.org, linux-fbdev@vger.kernel.org, linux-pci@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Benoit Taine <benoit.taine@lip6.fr>, ath5k-devel@venema.h4ckr.net, linux-acenic@sunsite.dk, linux-scsi@vger.kernel.org, users@rt2x00.serialmonkey.com, linux-rdma@vger.kernel.org, ath10k@lists.infradead.org, linux-hippi@sunsite.dk, industrypack-devel@lists.sourceforge.net, linux-wireless@vger.kernel.org, xen-devel@lists.xenproject.org, MPT-FusionLinux.pdl@avagotech.com, ath9k-devel@venema.h4ckr.net, wil6210@qca.qualcomm.com, linux-pcmcia@lists.infradead.org, "John W. Linville" <linville@tuxdriver.com>, linux-can@vger.kernel.org, platform-driver-x86@vger.kernel.org, netdev@vger.kernel.org, linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org, e1000-devel@lists.sourceforge.net, linux-crypto@vger.kernel.orgdevel
+To: Jason Wang <jasowang@redhat.com>
+Cc: Vlad Yasevich <vyasevic@redhat.com>, Eric Dumazet <eric.dumazet@gmail.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2014-07-18 at 09:43 -0700, Greg KH wrote:
-> On Fri, Jul 18, 2014 at 12:22:13PM -0400, John W. Linville wrote:
-> > On Fri, Jul 18, 2014 at 05:26:47PM +0200, Benoit Taine wrote:
-> > > We should prefer `const struct pci_device_id` over
-> > > `DEFINE_PCI_DEVICE_TABLE` to meet kernel coding style guidelines.
-> > > This issue was reported by checkpatch.
-> >  scripts/checkpatch.pl | 4 ++--
-> > Honestly, I prefer the macro -- it stands-out more.  Maybe the style
-> > guidelines and/or checkpatch should change instead?
+On Wed, Jul 16, 2014 at 02:21:47PM +0800, Jason Wang wrote:
+> Add basic support for rx busy polling.
 > 
-> The macro is horrid, no other bus has this type of thing just to save a
-> few characters in typing, so why should PCI be "special" in this regard
-> anymore?
+> Test was done between a kvm guest and an external host. Two hosts were
+> connected through 40gb mlx4 cards. With both busy_poll and busy_read
+> are set to 50 in guest, 1 byte netperf tcp_rr shows 116% improvement:
+> transaction rate was increased from 9151.94 to 19787.37.
 
-I think it doesn't matter much.
+Pls include data about non polling tests: any effect on
+cpu utilization there?
+There could be as we are adding locking.
 
-The PCI_DEVICE and PCI_VDEVICE macro uses are somewhat similar
-and are frequently used with PCI_DEVICE_TABLE, so there's some
-commonality there.
+> 
+> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Cc: Vlad Yasevich <vyasevic@redhat.com>
+> Cc: Eric Dumazet <eric.dumazet@gmail.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/net/virtio_net.c | 190 ++++++++++++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 187 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index e417d93..4830713 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -27,6 +27,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/cpu.h>
+>  #include <linux/average.h>
+> +#include <net/busy_poll.h>
+>  
+>  static int napi_weight = NAPI_POLL_WEIGHT;
+>  module_param(napi_weight, int, 0444);
+> @@ -94,8 +95,143 @@ struct receive_queue {
+>  
+>  	/* Name of this receive queue: input.$index */
+>  	char name[40];
+> +
+> +#ifdef CONFIG_NET_RX_BUSY_POLL
+> +	unsigned int state;
+> +#define VIRTNET_RQ_STATE_IDLE        0
+> +#define VIRTNET_RQ_STATE_NAPI	     1    /* NAPI or refill owns this RQ */
+> +#define VIRTNET_RQ_STATE_POLL	     2    /* poll owns this RQ */
+> +#define VIRTNET_RQ_STATE_DISABLED    4    /* RQ is disabled */
+> +#define VIRTNET_RQ_OWNED (VIRTNET_RQ_STATE_NAPI | VIRTNET_RQ_STATE_POLL)
+> +#define VIRTNET_RQ_LOCKED (VIRTNET_RQ_OWNED | VIRTNET_RQ_STATE_DISABLED)
+> +#define VIRTNET_RQ_STATE_NAPI_YIELD  8    /* NAPI or refill yielded this RQ */
+> +#define VIRTNET_RQ_STATE_POLL_YIELD  16   /* poll yielded this RQ */
+> +	spinlock_t lock;
+> +#endif  /* CONFIG_NET_RX_BUSY_POLL */
 
-The checkpatch message could be made --strict/CHK instead of
-WARN so most people would never see it.
+do we have to have a new state? no way to reuse the napi state
+for this? two lock/unlock operations for a poll seems
+excessive.
 
-Of course it could be removed altogether too.  I don't care.
----
-(suggested patch is for -next)
+>  };
+>  
+> +#ifdef CONFIG_NET_RX_BUSY_POLL
+> +static inline void virtnet_rq_init_lock(struct receive_queue *rq)
+> +{
+> +
+> +	spin_lock_init(&rq->lock);
+> +	rq->state = VIRTNET_RQ_STATE_IDLE;
+> +}
+> +
+> +/* called from the device poll routine or refill routine to get ownership of a
+> + * receive queue.
+> + */
+> +static inline bool virtnet_rq_lock_napi_refill(struct receive_queue *rq)
+> +{
+> +	int rc = true;
+> +
+> +	spin_lock(&rq->lock);
+> +	if (rq->state & VIRTNET_RQ_LOCKED) {
+> +		WARN_ON(rq->state & VIRTNET_RQ_STATE_NAPI);
+> +		rq->state |= VIRTNET_RQ_STATE_NAPI_YIELD;
+> +		rc = false;
+> +	} else
+> +		/* we don't care if someone yielded */
+> +		rq->state = VIRTNET_RQ_STATE_NAPI;
+> +	spin_unlock(&rq->lock);
+> +	return rc;
+> +}
+> +
+> +/* returns true is someone tried to get the rq while napi or refill had it */
 
- 1 file changed, 2 insertions(+), 2 deletions(-)
+s/is/if/
 
-diff --git a/scripts/checkpatch.pl b/scripts/checkpatch.pl
-index dc72a9b..754fbf2 100755
---- a/scripts/checkpatch.pl
-+++ b/scripts/checkpatch.pl
-@@ -3018,8 +3018,8 @@ sub process {
- 
- # check for uses of DEFINE_PCI_DEVICE_TABLE
- 		if ($line =~ /\bDEFINE_PCI_DEVICE_TABLE\s*\(\s*(\w+)\s*\)\s*=/) {
--			if (WARN("DEFINE_PCI_DEVICE_TABLE",
--				 "Prefer struct pci_device_id over deprecated DEFINE_PCI_DEVICE_TABLE\n" . $herecurr) &&
-+			if (CHK("DEFINE_PCI_DEVICE_TABLE",
-+				"Prefer struct pci_device_id over deprecated DEFINE_PCI_DEVICE_TABLE\n" . $herecurr) &&
- 			    $fix) {
- 				$fixed[$fixlinenr] =~ s/\b(?:static\s+|)DEFINE_PCI_DEVICE_TABLE\s*\(\s*(\w+)\s*\)\s*=\s*/static const struct pci_device_id $1\[\] = /;
- 			}
+> +static inline bool virtnet_rq_unlock_napi_refill(struct receive_queue *rq)
+> +{
+> +	int rc = false;
+> +
+> +	spin_lock(&rq->lock);
+> +	WARN_ON(rq->state & (VIRTNET_RQ_STATE_POLL |
+> +			     VIRTNET_RQ_STATE_NAPI_YIELD));
+> +
+> +	if (rq->state & VIRTNET_RQ_STATE_POLL_YIELD)
+> +		rc = true;
+> +	/* will reset state to idle, unless RQ is disabled */
+> +	rq->state &= VIRTNET_RQ_STATE_DISABLED;
+> +	spin_unlock(&rq->lock);
+> +	return rc;
+> +}
+> +
+> +/* called from virtnet_low_latency_recv() */
+> +static inline bool virtnet_rq_lock_poll(struct receive_queue *rq)
+> +{
+> +	int rc = true;
+> +
+> +	spin_lock_bh(&rq->lock);
+> +	if ((rq->state & VIRTNET_RQ_LOCKED)) {
+> +		rq->state |= VIRTNET_RQ_STATE_POLL_YIELD;
+> +		rc = false;
+> +	} else
+> +		/* preserve yield marks */
+> +		rq->state |= VIRTNET_RQ_STATE_POLL;
+> +	spin_unlock_bh(&rq->lock);
+> +	return rc;
+> +}
+> +
+> +/* returns true if someone tried to get the receive queue while it was locked */
+> +static inline bool virtnet_rq_unlock_poll(struct receive_queue *rq)
+> +{
+> +	int rc = false;
+> +
+> +	spin_lock_bh(&rq->lock);
+> +	WARN_ON(rq->state & (VIRTNET_RQ_STATE_NAPI));
+> +
+> +	if (rq->state & VIRTNET_RQ_STATE_POLL_YIELD)
+> +		rc = true;
+> +	/* will reset state to idle, unless RQ is disabled */
+> +	rq->state &= VIRTNET_RQ_STATE_DISABLED;
+> +	spin_unlock_bh(&rq->lock);
+> +	return rc;
+> +}
+> +
+> +/* return false if RQ is currently owned */
+> +static inline bool virtnet_rq_disable(struct receive_queue *rq)
+> +{
+> +	int rc = true;
+> +
+> +	spin_lock_bh(&rq->lock);
+> +	if (rq->state & VIRTNET_RQ_OWNED)
+> +		rc = false;
+> +	rq->state |= VIRTNET_RQ_STATE_DISABLED;
+> +	spin_unlock_bh(&rq->lock);
+> +
+> +	return rc;
+> +}
+> +
+> +#else /* CONFIG_NET_RX_BUSY_POLL */
+> +static inline void virtnet_rq_init_lock(struct receive_queue *rq)
+> +{
+> +}
+> +
+> +static inline bool virtnet_rq_lock_napi_refill(struct receive_queue *rq)
+> +{
+> +	return true;
+> +}
+> +
+> +static inline bool virtnet_rq_unlock_napi_refill(struct receive_queue *rq)
+> +{
+> +	return false;
+> +}
+> +
+> +static inline bool virtnet_rq_lock_poll(struct receive_queue *rq)
+> +{
+> +	return false;
+> +}
+> +
+> +static inline bool virtnet_rq_unlock_poll(struct receive_queue *rq)
+> +{
+> +	return false;
+> +}
+> +
+> +static inline bool virtnet_rq_disable(struct receive_queue *rq)
+> +{
+> +	return true;
+> +}
+> +
+> +#endif /* CONFIG_NET_RX_BUSY_POLL */
+> +
+>  struct virtnet_info {
+>  	struct virtio_device *vdev;
+>  	struct virtqueue *cvq;
+> @@ -521,6 +657,8 @@ static void receive_buf(struct receive_queue *rq, void *buf, unsigned int len)
+>  		skb_shinfo(skb)->gso_segs = 0;
+>  	}
+>  
+> +	skb_mark_napi_id(skb, &rq->napi);
+> +
+>  	netif_receive_skb(skb);
+>  	return;
+>  
+> @@ -714,7 +852,12 @@ static void refill_work(struct work_struct *work)
+>  		struct receive_queue *rq = &vi->rq[i];
+>  
+>  		napi_disable(&rq->napi);
+> +		if (!virtnet_rq_lock_napi_refill(rq)) {
+> +			virtnet_napi_enable(rq);
+> +			continue;
+> +		}
+>  		still_empty = !try_fill_recv(rq, GFP_KERNEL);
+> +		virtnet_rq_unlock_napi_refill(rq);
+>  		virtnet_napi_enable(rq);
+>  
+>  		/* In theory, this can happen: if we don't get any buffers in
+> @@ -752,8 +895,13 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
+>  	unsigned int r, received = 0;
+>  
+>  again:
+> +	if (!virtnet_rq_lock_napi_refill(rq))
+> +		return budget;
+> +
+>  	received += virtnet_receive(rq, budget);
+>  
+> +	virtnet_rq_unlock_napi_refill(rq);
+> +
+>  	/* Out of packets? */
+>  	if (received < budget) {
+>  		r = virtqueue_enable_cb_prepare(rq->vq);
+> @@ -770,20 +918,50 @@ again:
+>  	return received;
+>  }
+>  
+> +#ifdef CONFIG_NET_RX_BUSY_POLL
+> +/* must be called with local_bh_disable()d */
+> +static int virtnet_low_latency_recv(struct napi_struct *napi)
+
+let's call it busy poll :)
+
+> +{
+> +	struct receive_queue *rq =
+> +		container_of(napi, struct receive_queue, napi);
+> +	struct virtnet_info *vi = rq->vq->vdev->priv;
+> +	int received;
+> +
+> +	if (!(vi->status & VIRTIO_NET_S_LINK_UP))
+> +		return LL_FLUSH_FAILED;
+> +
+> +	if (!virtnet_rq_lock_poll(rq))
+> +		return LL_FLUSH_BUSY;
+> +
+> +	received = virtnet_receive(rq, 4);
+
+Hmm why 4 exactly?
+
+> +
+> +	virtnet_rq_unlock_poll(rq);
+> +
+> +	return received;
+> +}
+> +#endif	/* CONFIG_NET_RX_BUSY_POLL */
+> +
+>  static void virtnet_napi_enable_all(struct virtnet_info *vi)
+>  {
+>  	int i;
+>  
+> -	for (i = 0; i < vi->max_queue_pairs; i++)
+> +	for (i = 0; i < vi->max_queue_pairs; i++) {
+> +		virtnet_rq_init_lock(&vi->rq[i]);
+>  		virtnet_napi_enable(&vi->rq[i]);
+> +	}
+>  }
+>  
+>  static void virtnet_napi_disable_all(struct virtnet_info *vi)
+>  {
+>  	int i;
+>  
+> -	for (i = 0; i < vi->max_queue_pairs; i++)
+> +	for (i = 0; i < vi->max_queue_pairs; i++) {
+>  		napi_disable(&vi->rq[i].napi);
+> +		while (!virtnet_rq_disable(&vi->rq[i])) {
+> +			pr_info("RQ %d locked\n", i);
+> +			usleep_range(1000, 20000);
+
+What's going on here, exactly?
+
+> +		}
+> +	}
+>  }
+>  
+>  static int virtnet_open(struct net_device *dev)
+> @@ -1372,6 +1550,9 @@ static const struct net_device_ops virtnet_netdev = {
+>  #ifdef CONFIG_NET_POLL_CONTROLLER
+>  	.ndo_poll_controller = virtnet_netpoll,
+>  #endif
+> +#ifdef CONFIG_NET_RX_BUSY_POLL
+> +	.ndo_busy_poll		= virtnet_low_latency_recv,
+> +#endif
+>  };
+>  
+>  static void virtnet_config_changed_work(struct work_struct *work)
+> @@ -1577,6 +1758,7 @@ static int virtnet_alloc_queues(struct virtnet_info *vi)
+>  		vi->rq[i].pages = NULL;
+>  		netif_napi_add(vi->dev, &vi->rq[i].napi, virtnet_poll,
+>  			       napi_weight);
+> +		napi_hash_add(&vi->rq[i].napi);
+>  
+>  		sg_init_table(vi->rq[i].sg, ARRAY_SIZE(vi->rq[i].sg));
+>  		ewma_init(&vi->rq[i].mrg_avg_pkt_len, 1, RECEIVE_AVG_WEIGHT);
+> @@ -1880,8 +2062,10 @@ static int virtnet_freeze(struct virtio_device *vdev)
+>  
+>  	if (netif_running(vi->dev)) {
+>  		virtnet_napi_disable_all(vi);
+> -		for (i = 0; i < vi->max_queue_pairs; i++)
+> +		for (i = 0; i < vi->max_queue_pairs; i++) {
+> +			napi_hash_del(&vi->rq[i].napi);
+>  			netif_napi_del(&vi->rq[i].napi);
+> +		}
+>  	}
+>  
+>  	remove_vq_common(vi);
+> -- 
+> 1.8.3.1
