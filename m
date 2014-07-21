@@ -1,13 +1,15 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 0/25] Replace DEFINE_PCI_DEVICE_TABLE macro use
-Date: Sun, 20 Jul 2014 21:18:13 -0700 (PDT)
-Message-ID: <20140720.211813.942862864883062133.davem__14209.4792369337$1405916309$gmane$org@davemloft.net>
-References: <1405697232-11785-1-git-send-email-benoit.taine@lip6.fr>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PATCH 1/3] virtio: rng: remove unused struct element
+Date: Mon, 21 Jul 2014 15:00:59 +0530
+Message-ID: <4895429ba7a3cca4622f2fcf28fbbd40d1aca401.1405934853.git.amit.shah@redhat.com>
+References: <cover.1405934853.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1405697232-11785-1-git-send-email-benoit.taine@lip6.fr>
+In-Reply-To: <cover.1405934853.git.amit.shah@redhat.com>
+In-Reply-To: <cover.1405934853.git.amit.shah@redhat.com>
+References: <cover.1405934853.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,36 +19,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: benoit.taine@lip6.fr
-Cc: linux-mips@linux-mips.org, linux-fbdev@vger.kernel.org, linux-pci@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, ath5k-devel@venema.h4ckr.net, linux-acenic@sunsite.dk, linux-scsi@vger.kernel.org, linux-rdma@vger.kernel.org, ath10k@lists.infradead.org, linux-hippi@sunsite.dk, industrypack-devel@lists.sourceforge.net, linux-mmc@vger.kernel.org, MPT-FusionLinux.pdl@avagotech.com, virtualization@lists.linux-foundation.org, ath9k-devel@venema.h4ckr.net, wil6210@qca.qualcomm.com, linux-pcmcia@lists.infradead.org, linux-can@vger.kernel.org, xen-devel@lists.xenproject.org, platform-driver-x86@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, users@rt2x00.serialmonkey.com, e1000-devel@lists.sourceforge.net, linux-crypto@vger.kernel.org, devel@linuxdriverproject.org
+To: linux-kernel@vger.kernel.org
+Cc: jason@lakedaemon.net, keescook@chromium.org, Virtualization List <virtualization@lists.linux-foundation.org>, Amit Shah <amit.shah@redhat.com>, herbert@gondor.apana.org.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Benoit Taine <benoit.taine@lip6.fr>
-Date: Fri, 18 Jul 2014 17:26:47 +0200
+vdev is unused in struct virtrng_info, remove it.
 
-> We should prefer `const struct pci_device_id` over
-> `DEFINE_PCI_DEVICE_TABLE` to meet kernel coding style guidelines.
-> This issue was reported by checkpatch.
-> 
-> A simplified version of the semantic patch that makes this change is as
-> follows (http://coccinelle.lip6.fr/):
-> 
-> // <smpl>
-> 
-> @@
-> identifier i;
-> declarer name DEFINE_PCI_DEVICE_TABLE;
-> initializer z;
-> @@
-> 
-> - DEFINE_PCI_DEVICE_TABLE(i)
-> + const struct pci_device_id i[]
-> = z;
-> 
-> // </smpl>
-> 
-> I have 103 patches ready, and will only send a few for you to judge if
-> it is useful enough, and to prevent from spamming too much.
+CC: Amos Kong <akong@redhat.com>
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+---
+ drivers/char/hw_random/virtio-rng.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-I'm fine with this wrt. the networking changes, but I don't think this should
-be merged via my tree.
+diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
+index e9b15bc..d8ffebd 100644
+--- a/drivers/char/hw_random/virtio-rng.c
++++ b/drivers/char/hw_random/virtio-rng.c
+@@ -28,7 +28,6 @@
+ static DEFINE_IDA(rng_index_ida);
+ 
+ struct virtrng_info {
+-	struct virtio_device *vdev;
+ 	struct hwrng hwrng;
+ 	struct virtqueue *vq;
+ 	unsigned int data_avail;
+-- 
+1.9.3
