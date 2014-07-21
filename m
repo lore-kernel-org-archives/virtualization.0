@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next V2 0/3] rx busy polling support for virtio-net
-Date: Sun, 20 Jul 2014 23:34:17 +0300
-Message-ID: <20140720203417.GF2536@redhat.com>
-References: <1405491707-22706-1-git-send-email-jasowang@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 23/25] virtio: Replace DEFINE_PCI_DEVICE_TABLE macro use
+Date: Mon, 21 Jul 2014 10:52:48 +0930
+Message-ID: <87oawjzes7.fsf@rustcorp.com.au>
+References: <1405697232-11785-1-git-send-email-benoit.taine@lip6.fr>
+	<1405697232-11785-24-git-send-email-benoit.taine@lip6.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1405491707-22706-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <1405697232-11785-24-git-send-email-benoit.taine@lip6.fr>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,42 +18,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: benoit.taine@lip6.fr, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 16, 2014 at 02:21:44PM +0800, Jason Wang wrote:
-> Hi all:
-> 
-> This series introduces the support for rx busy polling support. This
-> was useful for reduing the latency for a kvm guest. Patch 1-2
-> introduces helpers which is used for rx busy polling. Patch 3
-> implement the main function.
-> 
-> Test was done between a kvm guest and an external host. Two hosts were
-> connected through 40gb mlx4 cards. With both busy_poll and busy_read are
-> set to 50 in guest, 1 byte netperf tcp_rr shows 116% improvement:
-> transaction rate was increased from 9151.94 to 19787.37.
-> 
-> Changes from V1:
-> - split the patch info smaller ones
-> - add more details about test setup/configuration
-> 
-> Please review.
+Benoit Taine <benoit.taine@lip6.fr> writes:
+> We should prefer `struct pci_device_id` over `DEFINE_PCI_DEVICE_TABLE` to meet
+> kernel coding style guidelines. This issue was reported by checkpatch.
+>
+> Signed-off-by: Benoit Taine <benoit.taine@lip6.fr>
 
-Generally I think we should let host know we are polling.
-For example, kick the rq or something. Or maybe add another
-io address.
-Something like this would need a new feature flag though, so I'm fine
-with just polling in guest until that is available.
+Thanks, applied.
 
-> Jason Wang (3):
->   virtio-net: introduce helpers to enable and disable all NAPIs
->   virtio-net: introduce virtnet_receive()
->   virtio-net: rx busy polling support
-> 
->  drivers/net/virtio_net.c | 234 ++++++++++++++++++++++++++++++++++++++++++++---
->  1 file changed, 221 insertions(+), 13 deletions(-)
-> 
-> -- 
-> 1.8.3.1
+Cheers,
+Rusty.
