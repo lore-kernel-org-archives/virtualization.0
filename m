@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v2 3/4] virtio: rng: delay hwrng_register() till driver is
-	ready
-Date: Mon, 21 Jul 2014 17:15:51 +0530
-Message-ID: <91cb7c5b87cf2ba5ef1bacd55a7ee7bc827293a2.1405942162.git.amit.shah@redhat.com>
+Subject: [PATCH v2 4/4] Revert "hwrng: virtio - ensure reads happen after
+	successful probe"
+Date: Mon, 21 Jul 2014 17:15:52 +0530
+Message-ID: <89b24452bd0f3038b8170ad7c5095a243e6d5217.1405942162.git.amit.shah__33447.5674586885$1405943258$gmane$org@redhat.com>
 References: <cover.1405942162.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,94 +24,70 @@ To: linux-kernel@vger.kernel.org
 Cc: jason@lakedaemon.net, keescook@chromium.org, Virtualization List <virtualization@lists.linux-foundation.org>, Amit Shah <amit.shah@redhat.com>, herbert@gondor.apana.org.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-Instead of calling hwrng_register() in the probe routing, call it in the
-scan routine.  This ensures that when hwrng_register() is successful,
-and it requests a few random bytes to seed the kernel's pool at init,
-we're ready to service that request.
+This reverts commit e052dbf554610e2104c5a7518c4d8374bed701bb.
 
-This will also enable us to remove the workaround added previously to
-check whether probe was completed, and only then ask for data from the
-host.  The revert follows in the next commit.
+Now that we use the virtio ->scan() function to register with the hwrng
+core, we will not get read requests till probe is successfully finished.
 
-There's a slight behaviour change here on unsuccessful hwrng_register().
-Previously, when hwrng_unregister() failed, the probe() routine would
-fail, and the vqs would be torn down, and driver would be marked not
-initialized.  Now, the vqs will remain initialized, driver would be
-marked initialized as well, but won't be available in the list of RNGs
-available to hwrng core.  To fix the failures, the procedure remains the
-same, i.e. unload and re-load the module, and hope things succeed the
-next time around.
+So revert the workaround we had in place to refuse read requests while
+we were not yet setup completely.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/hw_random/virtio-rng.c | 25 +++++++++++++++----------
- 1 file changed, 15 insertions(+), 10 deletions(-)
+ drivers/char/hw_random/core.c       | 6 ------
+ drivers/char/hw_random/virtio-rng.c | 9 ---------
+ 2 files changed, 15 deletions(-)
 
+diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
+index c4419ea..2a451b1 100644
+--- a/drivers/char/hw_random/core.c
++++ b/drivers/char/hw_random/core.c
+@@ -68,12 +68,6 @@ static void add_early_randomness(struct hwrng *rng)
+ 	unsigned char bytes[16];
+ 	int bytes_read;
+ 
+-	/*
+-	 * Currently only virtio-rng cannot return data during device
+-	 * probe, and that's handled in virtio-rng.c itself.  If there
+-	 * are more such devices, this call to rng_get_data can be
+-	 * made conditional here instead of doing it per-device.
+-	 */
+ 	bytes_read = rng_get_data(rng, bytes, sizeof(bytes), 1);
+ 	if (bytes_read > 0)
+ 		add_device_randomness(bytes, bytes_read);
 diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
-index a156284..d9927eb 100644
+index d9927eb..0027137 100644
 --- a/drivers/char/hw_random/virtio-rng.c
 +++ b/drivers/char/hw_random/virtio-rng.c
-@@ -35,6 +35,7 @@ struct virtrng_info {
- 	unsigned int data_avail;
- 	int index;
- 	bool busy;
-+	bool hwrng_register_done;
+@@ -38,7 +38,6 @@ struct virtrng_info {
+ 	bool hwrng_register_done;
  };
  
- static bool probe_done;
-@@ -136,15 +137,6 @@ static int probe_common(struct virtio_device *vdev)
+-static bool probe_done;
+ 
+ static void random_recv_done(struct virtqueue *vq)
+ {
+@@ -69,13 +68,6 @@ static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
+ 	int ret;
+ 	struct virtrng_info *vi = (struct virtrng_info *)rng->priv;
+ 
+-	/*
+-	 * Don't ask host for data till we're setup.  This call can
+-	 * happen during hwrng_register(), after commit d9e7972619.
+-	 */
+-	if (unlikely(!probe_done))
+-		return 0;
+-
+ 	if (!vi->busy) {
+ 		vi->busy = true;
+ 		init_completion(&vi->have_data);
+@@ -137,7 +129,6 @@ static int probe_common(struct virtio_device *vdev)
  		return err;
  	}
  
--	err = hwrng_register(&vi->hwrng);
--	if (err) {
--		vdev->config->del_vqs(vdev);
--		vi->vq = NULL;
--		kfree(vi);
--		ida_simple_remove(&rng_index_ida, index);
--		return err;
--	}
--
- 	probe_done = true;
+-	probe_done = true;
  	return 0;
  }
-@@ -152,9 +144,11 @@ static int probe_common(struct virtio_device *vdev)
- static void remove_common(struct virtio_device *vdev)
- {
- 	struct virtrng_info *vi = vdev->priv;
-+
- 	vdev->config->reset(vdev);
- 	vi->busy = false;
--	hwrng_unregister(&vi->hwrng);
-+	if (vi->hwrng_register_done)
-+		hwrng_unregister(&vi->hwrng);
- 	vdev->config->del_vqs(vdev);
- 	ida_simple_remove(&rng_index_ida, vi->index);
- 	kfree(vi);
-@@ -170,6 +164,16 @@ static void virtrng_remove(struct virtio_device *vdev)
- 	remove_common(vdev);
- }
  
-+static void virtrng_scan(struct virtio_device *vdev)
-+{
-+	struct virtrng_info *vi = vdev->priv;
-+	int err;
-+
-+	err = hwrng_register(&vi->hwrng);
-+	if (!err)
-+		vi->hwrng_register_done = true;
-+}
-+
- #ifdef CONFIG_PM_SLEEP
- static int virtrng_freeze(struct virtio_device *vdev)
- {
-@@ -194,6 +198,7 @@ static struct virtio_driver virtio_rng_driver = {
- 	.id_table =	id_table,
- 	.probe =	virtrng_probe,
- 	.remove =	virtrng_remove,
-+	.scan =		virtrng_scan,
- #ifdef CONFIG_PM_SLEEP
- 	.freeze =	virtrng_freeze,
- 	.restore =	virtrng_restore,
 -- 
 1.9.3
