@@ -1,14 +1,13 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next V2 0/3] rx busy polling support for virtio-net
-Date: Mon, 21 Jul 2014 11:15:00 +0800
-Message-ID: <53CC85B4.8070203@redhat.com>
-References: <1405491707-22706-1-git-send-email-jasowang@redhat.com>
-	<20140720203417.GF2536@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH 0/25] Replace DEFINE_PCI_DEVICE_TABLE macro use
+Date: Sun, 20 Jul 2014 21:18:13 -0700 (PDT)
+Message-ID: <20140720.211813.942862864883062133.davem__14209.4792369337$1405916309$gmane$org@davemloft.net>
+References: <1405697232-11785-1-git-send-email-benoit.taine@lip6.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140720203417.GF2536@redhat.com>
+In-Reply-To: <1405697232-11785-1-git-send-email-benoit.taine@lip6.fr>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,52 +17,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: benoit.taine@lip6.fr
+Cc: linux-mips@linux-mips.org, linux-fbdev@vger.kernel.org, linux-pci@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, ath5k-devel@venema.h4ckr.net, linux-acenic@sunsite.dk, linux-scsi@vger.kernel.org, linux-rdma@vger.kernel.org, ath10k@lists.infradead.org, linux-hippi@sunsite.dk, industrypack-devel@lists.sourceforge.net, linux-mmc@vger.kernel.org, MPT-FusionLinux.pdl@avagotech.com, virtualization@lists.linux-foundation.org, ath9k-devel@venema.h4ckr.net, wil6210@qca.qualcomm.com, linux-pcmcia@lists.infradead.org, linux-can@vger.kernel.org, xen-devel@lists.xenproject.org, platform-driver-x86@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, users@rt2x00.serialmonkey.com, e1000-devel@lists.sourceforge.net, linux-crypto@vger.kernel.org, devel@linuxdriverproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/21/2014 04:34 AM, Michael S. Tsirkin wrote:
-> On Wed, Jul 16, 2014 at 02:21:44PM +0800, Jason Wang wrote:
->> Hi all:
->>
->> This series introduces the support for rx busy polling support. This
->> was useful for reduing the latency for a kvm guest. Patch 1-2
->> introduces helpers which is used for rx busy polling. Patch 3
->> implement the main function.
->>
->> Test was done between a kvm guest and an external host. Two hosts were
->> connected through 40gb mlx4 cards. With both busy_poll and busy_read are
->> set to 50 in guest, 1 byte netperf tcp_rr shows 116% improvement:
->> transaction rate was increased from 9151.94 to 19787.37.
->>
->> Changes from V1:
->> - split the patch info smaller ones
->> - add more details about test setup/configuration
->>
->> Please review.
-> Generally I think we should let host know we are polling.
-> For example, kick the rq or something. Or maybe add another
-> io address.
+From: Benoit Taine <benoit.taine@lip6.fr>
+Date: Fri, 18 Jul 2014 17:26:47 +0200
 
-Yes, I'm also working on busy polling for tun and vhost which may also
-help here.
-> Something like this would need a new feature flag though, so I'm fine
-> with just polling in guest until that is available.
+> We should prefer `const struct pci_device_id` over
+> `DEFINE_PCI_DEVICE_TABLE` to meet kernel coding style guidelines.
+> This issue was reported by checkpatch.
+> 
+> A simplified version of the semantic patch that makes this change is as
+> follows (http://coccinelle.lip6.fr/):
+> 
+> // <smpl>
+> 
+> @@
+> identifier i;
+> declarer name DEFINE_PCI_DEVICE_TABLE;
+> initializer z;
+> @@
+> 
+> - DEFINE_PCI_DEVICE_TABLE(i)
+> + const struct pci_device_id i[]
+> = z;
+> 
+> // </smpl>
+> 
+> I have 103 patches ready, and will only send a few for you to judge if
+> it is useful enough, and to prevent from spamming too much.
 
-Yes.
->
->> Jason Wang (3):
->>   virtio-net: introduce helpers to enable and disable all NAPIs
->>   virtio-net: introduce virtnet_receive()
->>   virtio-net: rx busy polling support
->>
->>  drivers/net/virtio_net.c | 234 ++++++++++++++++++++++++++++++++++++++++++++---
->>  1 file changed, 221 insertions(+), 13 deletions(-)
->>
->> -- 
->> 1.8.3.1
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I'm fine with this wrt. the networking changes, but I don't think this should
+be merged via my tree.
