@@ -1,18 +1,14 @@
 From: Jason Cooper <jason@lakedaemon.net>
-Subject: Re: [PATCH v2 3/4] virtio: rng: delay hwrng_register() till driver
-	is ready
-Date: Tue, 22 Jul 2014 07:43:20 -0400
-Message-ID: <20140722114320.GB18750@titan.lakedaemon.net>
+Subject: Re: [PATCH v2 0/4] virtio-rng: contribute to early randomness requests
+Date: Tue, 22 Jul 2014 07:46:23 -0400
+Message-ID: <20140722114623.GC18750@titan.lakedaemon.net>
 References: <cover.1405942162.git.amit.shah@redhat.com>
-	<91cb7c5b87cf2ba5ef1bacd55a7ee7bc827293a2.1405942162.git.amit.shah@redhat.com>
-	<20140721121116.GA18750@titan.lakedaemon.net>
-	<20140721124124.GA7846@gondor.apana.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20140721124124.GA7846@gondor.apana.org.au>
+In-Reply-To: <cover.1405942162.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,34 +18,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: keescook@chromium.org, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>, Amit Shah <amit.shah@redhat.com>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>, keescook@chromium.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 21, 2014 at 08:41:24PM +0800, Herbert Xu wrote:
-> On Mon, Jul 21, 2014 at 08:11:16AM -0400, Jason Cooper wrote:
-> >
-> > > @@ -136,15 +137,6 @@ static int probe_common(struct virtio_device *vdev)
-> > >  		return err;
-> > >  	}
-> > >  
-> > > -	err = hwrng_register(&vi->hwrng);
-> > > -	if (err) {
-> > > -		vdev->config->del_vqs(vdev);
-> > > -		vi->vq = NULL;
-> > > -		kfree(vi);
-> > > -		ida_simple_remove(&rng_index_ida, index);
-> > > -		return err;
-> > > -	}
-> > > -
-> > 
-> > This needs to stay.  register, and failure to do so, should occur in the
-> > probe routine.
+On Mon, Jul 21, 2014 at 05:15:48PM +0530, Amit Shah wrote:
+> v2:
+>  - update patch 3 to store the hwrng_register_done bool per-device
+>    rather than global
+>  - add patch 2 that re-arranges struct elems for better packing.
 > 
-> Why? 
+> Hi,
+> 
+> This series enables virtio-rng to service the early randomness
+> requests made by the hwrng core (patch 3), with Herbert's idea of
+> using the scan routine.
+> 
+> Patch 4 reverts the previous restriction, which no longer applies, to
+> not send read requests to the host before successful probe.
+> 
+> Patches 1 and 2 are minor cleanups.
+> 
+> Please review and apply,
+> 
+> Amit Shah (4):
+>   virtio: rng: remove unused struct element
+>   virtio: rng: re-arrange struct elements for better packing
+>   virtio: rng: delay hwrng_register() till driver is ready
+>   Revert "hwrng: virtio - ensure reads happen after successful probe"
+> 
+>  drivers/char/hw_random/core.c       |  6 ------
+>  drivers/char/hw_random/virtio-rng.c | 39 ++++++++++++++++---------------------
+>  2 files changed, 17 insertions(+), 28 deletions(-)
 
-hmm, yes. On reviewing the code, my objection was silly.  It mostly
-stemmed from the commit message's mentioning of reduced error handling.
+fwiw,
+
+Reviewed-by: Jason Cooper <jason@lakedaemon.net>
+
+Thanks for putting this together Amit!
 
 thx,
 
