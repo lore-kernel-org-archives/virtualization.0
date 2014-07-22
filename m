@@ -1,15 +1,16 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH v2 0/4] virtio-rng: contribute to early randomness requests
-Date: Tue, 22 Jul 2014 20:38:15 +0530
-Message-ID: <20140722150815.GF32103@grmbl.mre>
+Subject: Re: [PATCH v2 3/4] virtio: rng: delay hwrng_register() till driver
+	is ready
+Date: Tue, 22 Jul 2014 22:38:34 +0530
+Message-ID: <20140722170834.GA23129@grmbl.mre>
 References: <cover.1405942162.git.amit.shah@redhat.com>
-	<20140722114623.GC18750@titan.lakedaemon.net>
+	<91cb7c5b87cf2ba5ef1bacd55a7ee7bc827293a2.1405942162.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20140722114623.GC18750@titan.lakedaemon.net>
+In-Reply-To: <91cb7c5b87cf2ba5ef1bacd55a7ee7bc827293a2.1405942162.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,46 +20,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Cooper <jason@lakedaemon.net>
-Cc: herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>, keescook@chromium.org
+To: linux-kernel@vger.kernel.org
+Cc: jason@lakedaemon.net, keescook@chromium.org, Virtualization List <virtualization@lists.linux-foundation.org>, herbert@gondor.apana.org.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Tue) 22 Jul 2014 [07:46:23], Jason Cooper wrote:
-> On Mon, Jul 21, 2014 at 05:15:48PM +0530, Amit Shah wrote:
-> > v2:
-> >  - update patch 3 to store the hwrng_register_done bool per-device
-> >    rather than global
-> >  - add patch 2 that re-arranges struct elems for better packing.
-> > 
-> > Hi,
-> > 
-> > This series enables virtio-rng to service the early randomness
-> > requests made by the hwrng core (patch 3), with Herbert's idea of
-> > using the scan routine.
-> > 
-> > Patch 4 reverts the previous restriction, which no longer applies, to
-> > not send read requests to the host before successful probe.
-> > 
-> > Patches 1 and 2 are minor cleanups.
-> > 
-> > Please review and apply,
-> > 
-> > Amit Shah (4):
-> >   virtio: rng: remove unused struct element
-> >   virtio: rng: re-arrange struct elements for better packing
-> >   virtio: rng: delay hwrng_register() till driver is ready
-> >   Revert "hwrng: virtio - ensure reads happen after successful probe"
-> > 
-> >  drivers/char/hw_random/core.c       |  6 ------
-> >  drivers/char/hw_random/virtio-rng.c | 39 ++++++++++++++++---------------------
-> >  2 files changed, 17 insertions(+), 28 deletions(-)
+On (Mon) 21 Jul 2014 [17:15:51], Amit Shah wrote:
+> Instead of calling hwrng_register() in the probe routing, call it in the
+> scan routine.  This ensures that when hwrng_register() is successful,
+> and it requests a few random bytes to seed the kernel's pool at init,
+> we're ready to service that request.
 > 
-> fwiw,
+> This will also enable us to remove the workaround added previously to
+> check whether probe was completed, and only then ask for data from the
+> host.  The revert follows in the next commit.
 > 
-> Reviewed-by: Jason Cooper <jason@lakedaemon.net>
-> 
-> Thanks for putting this together Amit!
+> There's a slight behaviour change here on unsuccessful hwrng_register().
+> Previously, when hwrng_unregister() failed, the probe() routine would
 
-Thanks, Jason!
+typo: should be hwrng_register().
+
+Please fix this up when picking up the patch.
+
+Thanks,
+
+> fail, and the vqs would be torn down, and driver would be marked not
+> initialized.  Now, the vqs will remain initialized, driver would be
+> marked initialized as well, but won't be available in the list of RNGs
+> available to hwrng core.  To fix the failures, the procedure remains the
+> same, i.e. unload and re-load the module, and hope things succeed the
+> next time around.
+> 
+> Signed-off-by: Amit Shah <amit.shah@redhat.com>
 
 		Amit
