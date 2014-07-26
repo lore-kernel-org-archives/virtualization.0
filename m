@@ -1,7 +1,8 @@
 From: Yijing Wang <wangyijing@huawei.com>
-Subject: [RFC PATCH 07/11] PCI/MSI: Mask MSI-X entry in msix_setup_entries()
-Date: Sat, 26 Jul 2014 11:08:44 +0800
-Message-ID: <1406344128-27055-8-git-send-email-wangyijing__16124.3939343423$1406349819$gmane$org@huawei.com>
+Subject: [RFC PATCH 08/11] PCI/MSI: Introduce new struct msi_irqs and struct
+	msi_ops
+Date: Sat, 26 Jul 2014 11:08:45 +0800
+Message-ID: <1406344128-27055-9-git-send-email-wangyijing__31772.0728613951$1406349830$gmane$org@huawei.com>
 References: <1406344128-27055-1-git-send-email-wangyijing@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,75 +22,92 @@ To: linux-kernel@vger.kernel.org
 Cc: linux-arch@vger.kernel.org, Russell King <linux@arm.linux.org.uk>, Paul.Mundt@huawei.com, linux-pci@vger.kernel.org, "James E.J. Bottomley" <jejb@parisc-linux.org>, virtualization@lists.linux-foundation.org, Xinwei Hu <huxinwei@huawei.com>, Yijing Wang <wangyijing@huawei.com>, Hanjun Guo <guohanjun@huawei.com>, Bjorn Helgaas <bhelgaas@google.com>, Wuyun <wuyun.wu@huawei.com>, arnab.basu@freescale.com, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Save the MSI-X entry initial mask status in
-msix_setup_entries(), also mask the entry.
-This is preparation for generic MSI.
+Currently, MSI driver is bonding with PCI everywhere.
+Now introduce a new struct msi_irqs to manage all MSI
+related informations in a MSI support device. In addition,
+we introduce struct msi_ops to hook all device specific
+MSI operations. Then MSI driver can be decoupled with
+PCI.
 
 Signed-off-by: Yijing Wang <wangyijing@huawei.com>
 ---
- drivers/pci/msi.c |   21 +++++++++++----------
- 1 files changed, 11 insertions(+), 10 deletions(-)
+ include/linux/msi.h |   30 +++++++++++++++++++++++++++++-
+ include/linux/pci.h |    7 +------
+ 2 files changed, 30 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
-index f96dd38..41c33da 100644
---- a/drivers/pci/msi.c
-+++ b/drivers/pci/msi.c
-@@ -672,7 +672,7 @@ static int msix_setup_entries(struct pci_dev *dev, void __iomem *base,
- 			      struct msix_entry *entries, int nvec)
- {
- 	struct msi_desc *entry;
--	int i;
-+	int i, offset;
+diff --git a/include/linux/msi.h b/include/linux/msi.h
+index 3ad8416..5a672d3 100644
+--- a/include/linux/msi.h
++++ b/include/linux/msi.h
+@@ -10,6 +10,34 @@ struct msi_msg {
+ 	u32	data;		/* 16 bits of msi message data */
+ };
  
- 	for (i = 0; i < nvec; i++) {
- 		entry = alloc_msi_entry(dev);
-@@ -691,6 +691,15 @@ static int msix_setup_entries(struct pci_dev *dev, void __iomem *base,
- 		entry->msi_attrib.default_irq	= dev->irq;
- 		entry->mask_base		= base;
- 
-+		msix_clear_and_set_ctrl(dev, 0, 
-+				PCI_MSIX_FLAGS_MASKALL | PCI_MSIX_FLAGS_ENABLE);
-+		offset = entries[i].entry * PCI_MSIX_ENTRY_SIZE +
-+						PCI_MSIX_ENTRY_VECTOR_CTRL;
-+		entry->masked = readl(entry->mask_base + offset);
-+		msix_mask_irq(entry, 1);
-+		msix_clear_and_set_ctrl(dev, 
-+				PCI_MSIX_FLAGS_MASKALL | PCI_MSIX_FLAGS_ENABLE, 0);
++struct msi_ops;
 +
- 		list_add_tail(&entry->list, &dev->msi_list);
- 	}
++struct msi_irqs {
++	u8 msi_enabled:1;
++	u8 msix_enabled:1;
++	int node;
++	struct list_head msi_list;
++	void *data;
++	struct msi_ops *ops;
++};
++
++struct msix_entry {
++	u32	vector;	/* kernel uses to write allocated vector */
++	u16	entry;	/* driver uses to specify entry, OS writes */
++};
++
++struct msi_ops {
++	void (*msi_set_enable)(struct msi_irqs *msi, int enable, int type);
++	struct msi_desc *(*msi_setup_entry)(struct msi_irqs *msi);
++	int (*msix_setup_entries)(struct msi_irqs *msi, void __iomem *base,
++			struct msix_entry *entries, int nvec);
++	u32 (*msi_mask_irq)(struct msi_desc *desc, u32 mask, u32 flag);
++	u32 (*msix_mask_irq)(struct msi_desc *desc, u32 flag);
++	void (*msi_read_message)(struct msi_desc *desc, struct msi_msg *msg);
++	void (*msi_write_message)(struct msi_desc *desc, struct msi_msg *msg);
++	void (*msi_set_intx)(struct msi_irqs *msi, int enable);
++};
++
+ /* Helper functions */
+ struct irq_data;
+ struct msi_desc;
+@@ -42,7 +70,7 @@ struct msi_desc {
+ 		void __iomem *mask_base;
+ 		u8 mask_pos;
+ 	};
+-	struct pci_dev *dev;
++	struct msi_irqs *msi;
  
-@@ -704,13 +713,8 @@ static void msix_program_entries(struct pci_dev *dev,
- 	int i = 0;
+ 	/* Last set MSI message */
+ 	struct msi_msg msg;
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index c6c01ae..c7bca1c 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -32,8 +32,8 @@
+ #include <uapi/linux/pci.h>
  
- 	list_for_each_entry(entry, &dev->msi_list, list) {
--		int offset = entries[i].entry * PCI_MSIX_ENTRY_SIZE +
--						PCI_MSIX_ENTRY_VECTOR_CTRL;
+ #include <linux/pci_ids.h>
 -
- 		entries[i].vector = entry->irq;
- 		irq_set_msi_desc(entry->irq, entry);
--		entry->masked = readl(entry->mask_base + offset);
--		msix_mask_irq(entry, 1);
- 		i++;
- 	}
- }
-@@ -746,16 +750,13 @@ static int msix_capability_init(struct pci_dev *dev, void __iomem *base,
- 	 * MSI-X registers.  We need to mask all the vectors to prevent
- 	 * interrupts coming in before they're fully set up.
- 	 */
--	msix_clear_and_set_ctrl(dev, 0,
--				PCI_MSIX_FLAGS_MASKALL | PCI_MSIX_FLAGS_ENABLE);
+ #include <linux/msi.h>
++
+ /*
+  * The PCI interface treats multi-function devices as independent
+  * devices.  The slot/function address of each device is encoded
+@@ -1182,11 +1182,6 @@ enum pci_dma_burst_strategy {
+ 				   strategy_parameter byte boundaries */
+ };
+ 
+-struct msix_entry {
+-	u32	vector;	/* kernel uses to write allocated vector */
+-	u16	entry;	/* driver uses to specify entry, OS writes */
+-};
 -
- 	msix_program_entries(dev, entries);
  
- 	/* Set MSI-X enabled bits and unmask the function */
- 	pci_intx_for_msi(dev, 0);
- 	dev->msix_enabled = 1;
- 
--	msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_MASKALL, 0);
-+	msix_clear_and_set_ctrl(dev, 0, PCI_MSIX_FLAGS_ENABLE);
- 
- 	return 0;
- 
+ #ifdef CONFIG_PCI_MSI
+ int pci_msi_vec_count(struct pci_dev *dev);
 -- 
 1.7.1
