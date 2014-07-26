@@ -1,14 +1,14 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: KVM Forum 2014 Call for Participation (reminder)
-Date: Thu, 24 Jul 2014 18:21:48 +0200
-Message-ID: <53D1329C.402@redhat.com>
-References: <539F166E.5040803@redhat.com>
-Reply-To: kvm-forum-2014-pc@redhat.com
+From: Yijing Wang <wangyijing@huawei.com>
+Subject: [RFC PATCH 01/11] PCI/MSI: Use pci_dev->msi_cap instead of
+	msi_desc->msi_attrib.pos
+Date: Sat, 26 Jul 2014 11:08:38 +0800
+Message-ID: <1406344128-27055-2-git-send-email-wangyijing__9180.0898117528$1406349749$gmane$org@huawei.com>
+References: <1406344128-27055-1-git-send-email-wangyijing@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <539F166E.5040803@redhat.com>
+In-Reply-To: <1406344128-27055-1-git-send-email-wangyijing@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,204 +18,89 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: linux-kernel@vger.kernel.org
+Cc: linux-arch@vger.kernel.org, Russell King <linux@arm.linux.org.uk>, Paul.Mundt@huawei.com, linux-pci@vger.kernel.org, "James E.J. Bottomley" <jejb@parisc-linux.org>, virtualization@lists.linux-foundation.org, Xinwei Hu <huxinwei@huawei.com>, Yijing Wang <wangyijing@huawei.com>, Hanjun Guo <guohanjun@huawei.com>, Bjorn Helgaas <bhelgaas@google.com>, Wuyun <wuyun.wu@huawei.com>, arnab.basu@freescale.com, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The deadline is coming in three days!
+PCI devices save the msi and msix capability offset in pci_dev->msi_cap
+and pci_dev->msix_cap. When we access PCI device MSI and MSIX
+registers, we can use msi_cap and msix_cap in pci_dev directly.
+Remove the pos member in msi_attrib.
 
-Paolo
+Signed-off-by: Yijing Wang <wangyijing@huawei.com>
+---
+ arch/mips/pci/msi-octeon.c         |    4 ++--
+ drivers/pci/host/pcie-designware.c |    2 +-
+ drivers/pci/msi.c                  |    2 --
+ include/linux/msi.h                |    1 -
+ 4 files changed, 3 insertions(+), 6 deletions(-)
 
-Il 16/06/2014 18:08, Paolo Bonzini ha scritto:
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> KVM Forum 2014: Call For Participation
-> October 14-16, 2014 - Congress Centre D=FCsseldorf - D=FCsseldorf, Germany
-> =
-
-> (All submissions must be received before midnight July 27, 2014)
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> =
-
-> KVM is an industry leading open source hypervisor that provides an ideal
-> platform for datacenter virtualization, virtual desktop infrastructure,
-> and cloud computing.  Once again, it's time to bring together the
-> community of developers and users that define the KVM ecosystem for
-> our annual technical conference.  We will discuss the current state of
-> affairs and plan for the future of KVM, its surrounding infrastructure,
-> and management tools.  Mark your calendar and join us in advancing KVM.
-> http://events.linuxfoundation.org/events/kvm-forum/
-> =
-
-> Once again we are colocated with the Linux Foundation's LinuxCon Europe,
-> CloudOpen Europe, Embedded Linux Conference (ELC) Europe, and this year,
-> the
-> Linux Plumbers Conference. KVM Forum attendees will be able to attend
-> LinuxCon + CloudOpen + ELC for a discounted rate.
-> http://events.linuxfoundation.org/events/kvm-forum/attend/register
-> =
-
-> We invite you to lead part of the discussion by submitting a speaking
-> proposal for KVM Forum 2014.
-> http://events.linuxfoundation.org/cfp
-> =
-
-> Suggested topics:
-> =
-
->  KVM/Kernel
->  - Scaling and optimizations
->  - Nested virtualization
->  - Linux kernel performance improvements
->  - Resource management (CPU, I/O, memory)
->  - Hardening and security
->  - VFIO: SR-IOV, GPU, platform device assignment
->  - Architecture ports
-> =
-
->  QEMU
->  - Management interfaces: QOM and QMP
->  - New devices, new boards, new architectures
->  - Scaling and optimizations
->  - Desktop virtualization and SPICE
->  - Virtual GPU
->  - virtio and vhost, including non-Linux or non-virtualized uses
->  - Hardening and security
->  - New storage features
->  - Live migration and fault tolerance
->  - High availability and continuous backup
->  - Real-time guest support
->  - Emulation and TCG
->  - Firmware: ACPI, UEFI, coreboot, u-Boot, etc.
->  - Testing
-> =
-
->  Management and infrastructure
->  - Managing KVM: Libvirt, OpenStack, oVirt, etc.
->  - Storage: glusterfs, Ceph, etc.
->  - Software defined networking: Open vSwitch, OpenDaylight, etc.
->  - Network Function Virtualization
->  - Security
->  - Provisioning
->  - Performance tuning
-> =
-
-> =
-
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> SUBMITTING YOUR PROPOSAL
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> Abstracts due: July 27, 2014
-> =
-
-> Please submit a short abstract (~150 words) describing your presentation
-> proposal. Slots vary in length up to 45 minutes.  Also include in your
-> proposal
-> the proposal type -- one of:
-> - technical talk
-> - end-user talk
-> =
-
-> Submit your proposal here:
-> http://events.linuxfoundation.org/cfp
-> Please only use the categories "presentation" and "panel discussion"
-> =
-
-> You will receive a notification whether or not your presentation proposal
-> was accepted by Aug 20th.
-> =
-
-> Speakers will receive a complimentary pass for the event. In the instance
-> that your submission has multiple presenters, only the primary speaker
-> for a
-> proposal will receive a complementary event pass. For panel discussions,
-> all
-> panelists will receive a complimentary event pass.
-> =
-
-> TECHNICAL TALKS
-> =
-
-> A good technical talk should not just report on what has happened over
-> the last year; it should present a concrete problem and how it impacts
-> the user and/or developer community. Whenever applicable, it should
-> focus on the work that needs to be done or the difficulties that haven't
-> yet
-> been solved.  Summarizing recent developments is okay but it should
-> not be more than a small portion of the overall talk.
-> =
-
-> END-USER TALKS
-> =
-
-> One of the big challenges as developers is to know what, where and how
-> people actually use our software.  We will reserve a few slots for end
-> users talking about their deployment challenges and achievements.
-> =
-
-> If you are using KVM in production you are encouraged submit a speaking
-> proposal.  Simply mark it as an end-user talk.  As an end user, this is a
-> unique opportunity to get your input to developers.
-> =
-
-> HANDS-ON / BOF SESSIONS
-> =
-
-> We will reserve some time for people to get together and discuss
-> strategic decisions as well as other topics that are best solved within
-> smaller groups. This time can also be used for hands-on hacking
-> sessions if you have concrete code problems to solve.
-> =
-
-> These sessions will be announced during the event. If you are interested
-> in organizing such a session, please add it to the list at
-> =
-
->   http://www.linux-kvm.org/page/KVM_Forum_2014_BOF
-> =
-
-> Let people you think might be interested know about it, and encourage
-> them to add their names to the wiki page as well. Please try to
-> add your ideas to the list before KVM Forum starts.
-> =
-
-> PANEL DISCUSSIONS
-> =
-
-> If you are proposing a panel discussion, please make sure that you list
-> all of
-> your potential  panelists in your abstract. We will request full
-> biographies
-> if a panel is accepted.
-> =
-
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> HOTEL / TRAVEL
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> The KVM Forum 2014 will be held in D=FCsseldorf, Germany at
-> Congress Centre D=FCsseldorf
-> =
-
-> http://events.linuxfoundation.org/events/kvm-forum/attend/hotel-and-travel
-> =
-
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> IMPORTANT DATES
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> Notification: August 20, 2014
-> Schedule announced: August 29, 2014
-> Event dates: October 14-16, 2014
-> =
-
-> =
-
-> Thank you for your interest in KVM.  We're looking forward to your
-> submissions and seeing you at the KVM Forum 2014 in October!
-> =
-
-> -your KVM Forum 2014 Program Committee
-> =
-
-> Please contact us with any questions or comments.
+diff --git a/arch/mips/pci/msi-octeon.c b/arch/mips/pci/msi-octeon.c
+index ab0c5d1..6a6a99f 100644
+--- a/arch/mips/pci/msi-octeon.c
++++ b/arch/mips/pci/msi-octeon.c
+@@ -73,7 +73,7 @@ int arch_setup_msi_irq(struct pci_dev *dev, struct msi_desc *desc)
+ 	 * wants.  Most devices only want 1, which will give
+ 	 * configured_private_bits and request_private_bits equal 0.
+ 	 */
+-	pci_read_config_word(dev, desc->msi_attrib.pos + PCI_MSI_FLAGS,
++	pci_read_config_word(dev, dev->msi_cap + PCI_MSI_FLAGS,
+ 			     &control);
+ 
+ 	/*
+@@ -176,7 +176,7 @@ msi_irq_allocated:
+ 	/* Update the number of IRQs the device has available to it */
+ 	control &= ~PCI_MSI_FLAGS_QSIZE;
+ 	control |= request_private_bits << 4;
+-	pci_write_config_word(dev, desc->msi_attrib.pos + PCI_MSI_FLAGS,
++	pci_write_config_word(dev, dev->msi_cap + PCI_MSI_FLAGS,
+ 			      control);
+ 
+ 	irq_set_msi_desc(irq, desc);
+diff --git a/drivers/pci/host/pcie-designware.c b/drivers/pci/host/pcie-designware.c
+index 1eaf4df..04339cd 100644
+--- a/drivers/pci/host/pcie-designware.c
++++ b/drivers/pci/host/pcie-designware.c
+@@ -335,7 +335,7 @@ static int dw_msi_setup_irq(struct msi_chip *chip, struct pci_dev *pdev,
+ 		return -EINVAL;
+ 	}
+ 
+-	pci_read_config_word(pdev, desc->msi_attrib.pos+PCI_MSI_FLAGS,
++	pci_read_config_word(pdev, pdev->msi_cap + PCI_MSI_FLAGS,
+ 				&msg_ctr);
+ 	msgvec = (msg_ctr&PCI_MSI_FLAGS_QSIZE) >> 4;
+ 	if (msgvec == 0)
+diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
+index 5a40516..e67acd1 100644
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -595,7 +595,6 @@ static struct msi_desc *msi_setup_entry(struct pci_dev *dev)
+ 	entry->msi_attrib.entry_nr	= 0;
+ 	entry->msi_attrib.maskbit	= !!(control & PCI_MSI_FLAGS_MASKBIT);
+ 	entry->msi_attrib.default_irq	= dev->irq;	/* Save IOAPIC IRQ */
+-	entry->msi_attrib.pos		= dev->msi_cap;
+ 	entry->msi_attrib.multi_cap	= (control & PCI_MSI_FLAGS_QMASK) >> 1;
+ 
+ 	if (control & PCI_MSI_FLAGS_64BIT)
+@@ -699,7 +698,6 @@ static int msix_setup_entries(struct pci_dev *dev, void __iomem *base,
+ 		entry->msi_attrib.is_64		= 1;
+ 		entry->msi_attrib.entry_nr	= entries[i].entry;
+ 		entry->msi_attrib.default_irq	= dev->irq;
+-		entry->msi_attrib.pos		= dev->msix_cap;
+ 		entry->mask_base		= base;
+ 
+ 		list_add_tail(&entry->list, &dev->msi_list);
+diff --git a/include/linux/msi.h b/include/linux/msi.h
+index 8103f32..ce88c5b 100644
+--- a/include/linux/msi.h
++++ b/include/linux/msi.h
+@@ -29,7 +29,6 @@ struct msi_desc {
+ 		__u8	multi_cap : 3;	/* log2 num of messages supported */
+ 		__u8	maskbit	: 1;	/* mask-pending bit supported ? */
+ 		__u8	is_64	: 1;	/* Address size: 0=32bit 1=64bit */
+-		__u8	pos;		/* Location of the msi capability */
+ 		__u16	entry_nr;	/* specific enabled entry */
+ 		unsigned default_irq;	/* default pre-assigned irq */
+ 	} msi_attrib;
+-- 
+1.7.1
