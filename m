@@ -1,17 +1,11 @@
-From: Amos Kong <akong@redhat.com>
-Subject: Re: When I boot two virtio-rng devices, guest will hang
-Date: Mon, 28 Jul 2014 20:11:20 +0800
-Message-ID: <20140728121120.GI2683@z.redhat.com>
-References: <20140728073242.GD2683@z.redhat.com>
-	<20140728075514.GB3797@grmbl.mre>
-	<20140728084920.GF2683@z.redhat.com>
-	<20140728091213.GC3797@grmbl.mre>
+From: Eduardo Habkost <ehabkost@redhat.com>
+Subject: [PATCH] x86, paravirt: BUG_ON on {rd,wr}msr exceptions
+Date: Mon, 28 Jul 2014 16:04:38 -0300
+Message-ID: <1406574278-23946-1-git-send-email-ehabkost@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20140728091213.GC3797@grmbl.mre>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,41 +15,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, kvm@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
+To: virtualization@lists.linux-foundation.org
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Alok Kataria <akataria@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 28, 2014 at 02:42:13PM +0530, Amit Shah wrote:
-> On (Mon) 28 Jul 2014 [16:49:20], Amos Kong wrote:
-> > On Mon, Jul 28, 2014 at 01:25:14PM +0530, Amit Shah wrote:
-> > > On (Mon) 28 Jul 2014 [15:32:42], Amos Kong wrote:
-> > > > QEMU commandline:
-> > > > 
-> > > > ./x86_64-softmmu/qemu-system-x86_64 --enable-kvm   -m 2000 -drive file=/images/nolvm.qcow2 --kernel /home/devel/linux/arch/x86/boot/bzImage -append "ro root=/dev/sda1 console=ttyS0,115200"  -monitor unix:/tmp/m,nowait,server -device virtio-net-pci,netdev=h0,vectors=17,mq=on,id=n0 -netdev tap,id=h0,queues=8 -device virtio-net-pci,netdev=h1,vectors=0,mq=on,id=n1 -netdev tap,id=h1,queues=8  -vnc :0 -mon chardev=qmp,mode=control,pretty=on -chardev socket,id=qmp,host=localhost,port=1234,server,nowait -serial stdio -object rng-random,filename=/dev/urandom,id=rng0   -device virtio-rng-pci,rng=rng0,id=h0 -object rng-random,filename=/dev/urandom,id=rng1   -device virtio-rng-pci,rng=rng1,id=h1
-> > > > 
-> > > > It works when I only add one virtio-rng device. Did you touch this
-> > > > problem?
-> > > > 
-> > > > I'm using latest net-next/master (ac3d2e5a9ef2f4d8f57c50070c4883ecb7cec29f)
-> >  
-> > Hi Amit,
-> > 
-> > > <snip>
-> > > > [    0.223503] Non-volatile memory driver v1.3
-> > > > [    1.172293] tsc: Refined TSC clocksource calibration: 2893.436 MHz
-> > > > qemu: terminating on signal 2           <---------- (I have to cancel QEMU process by Ctrl + C)
-> > > 
-> > > This looks similar to what I saw when driver asks for randomness from the host
-> > > before probe is completed.
-> > > 
-> > > Does the following patch help?
-> > 
-> > This patch was already inclued in latest net-next/master
-> > patch commit: e052dbf554610e2104c5a7518c4d8374bed701bb
-> 
-> No, it's a different one, goes on top of the commit you referenced.
- 
-Thanks. This patch fixed the problem.
+When CONFIG_PARAVIRT is enabled, the kernel is ignoring exceptions on
+the {rd,wr}msr instructions. This makes serious issues (either on the
+guest kernel, or on the host) be silently ignored, and is different from
+the native MSR code (which does not ignore the exceptions).
 
+As paravirt.h already includes linux/bug.h, I don't see what was the
+original issue preventing BUG_ON from being used.
+
+Change rdmsr(), wrmsr(), and rdmsrl() to BUG_ON() on errors.
+
+Signed-off-by: Eduardo Habkost <ehabkost@redhat.com>
+---
+* Build-tested using allyesconfig, with no build errors.
+
+* Tested by being able to detect the following host bug:
+  https://bugzilla.redhat.com/show_bug.cgi?id=1025868
+  (#GP exception on wrmsr(0x410, 0xfffffffffffffbff) during MCE
+  initialization)
+---
+ arch/x86/include/asm/paravirt.h | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+index cd6e161..7d42ca4 100644
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -133,24 +133,27 @@ static inline int paravirt_write_msr(unsigned msr, unsigned low, unsigned high)
+ 	return PVOP_CALL3(int, pv_cpu_ops.write_msr, msr, low, high);
+ }
+ 
+-/* These should all do BUG_ON(_err), but our headers are too tangled. */
+ #define rdmsr(msr, val1, val2)			\
+ do {						\
+ 	int _err;				\
+ 	u64 _l = paravirt_read_msr(msr, &_err);	\
++	BUG_ON(_err);				\
+ 	val1 = (u32)_l;				\
+ 	val2 = _l >> 32;			\
+ } while (0)
+ 
+-#define wrmsr(msr, val1, val2)			\
+-do {						\
+-	paravirt_write_msr(msr, val1, val2);	\
++#define wrmsr(msr, val1, val2)				\
++do {							\
++	int _err;					\
++	_err = paravirt_write_msr(msr, val1, val2);	\
++	BUG_ON(_err);					\
+ } while (0)
+ 
+ #define rdmsrl(msr, val)			\
+ do {						\
+ 	int _err;				\
+ 	val = paravirt_read_msr(msr, &_err);	\
++	BUG_ON(_err);				\
+ } while (0)
+ 
+ #define wrmsrl(msr, val)	wrmsr(msr, (u32)((u64)(val)), ((u64)(val))>>32)
 -- 
-			Amos.
+1.9.3
