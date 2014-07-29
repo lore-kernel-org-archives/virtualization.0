@@ -1,15 +1,13 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] x86, paravirt: BUG_ON on {rd,wr}msr exceptions
-Date: Mon, 28 Jul 2014 13:43:36 -0700
-Message-ID: <5961f265-e3d0-4122-87b8-10151e1ee4d6@email.android.com>
-References: <1406574278-23946-1-git-send-email-ehabkost@redhat.com>
-	<53D6A1F2.5070404@zytor.com>
-	<20140728203955.GA4611@thinpad.lan.raisama.net>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [RFC PATCH 00/11] Refactor MSI to support Non-PCI device
+Date: Tue, 29 Jul 2014 16:08:27 +0200
+Message-ID: <1748052.OMBQJiOLYT@wuerfel>
+References: <1406344128-27055-1-git-send-email-wangyijing@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140728203955.GA4611@thinpad.lan.raisama.net>
+In-Reply-To: <1406344128-27055-1-git-send-email-wangyijing@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,52 +17,100 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Eduardo Habkost <ehabkost@redhat.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Alok Kataria <akataria@vmware.com>
+To: linux-arm-kernel@lists.infradead.org
+Cc: linux-arch@vger.kernel.org, Wuyun <wuyun.wu@huawei.com>, Russell King <linux@arm.linux.org.uk>, Paul.Mundt@huawei.com, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, "James E.J. Bottomley" <jejb@parisc-linux.org>, Xinwei Hu <huxinwei@huawei.com>, Bjorn Helgaas <bhelgaas@google.com>, Hanjun Guo <guohanjun@huawei.com>, Yijing Wang <wangyijing@huawei.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-As much as I hate adding new pvops, it might be the better answer, especially since those are the real native ops.
+On Saturday 26 July 2014 11:08:37 Yijing Wang wrote:
+>         The series is a draft of generic MSI driver that supports PCI
+> and Non-PCI device which have MSI capability. If you're not interested
+> it, sorry for the noise.
 
+I've finally managed to take some time to look at the series. Overall,
+the concept looks good to me, and the patches look very well implemented.
 
-On July 28, 2014 1:39:55 PM PDT, Eduardo Habkost <ehabkost@redhat.com> wrote:
->On Mon, Jul 28, 2014 at 12:18:10PM -0700, H. Peter Anvin wrote:
->> On 07/28/2014 12:04 PM, Eduardo Habkost wrote:
->> > When CONFIG_PARAVIRT is enabled, the kernel is ignoring exceptions
->on
->> > the {rd,wr}msr instructions. This makes serious issues (either on
->the
->> > guest kernel, or on the host) be silently ignored, and is different
->from
->> > the native MSR code (which does not ignore the exceptions).
->> > 
->> > As paravirt.h already includes linux/bug.h, I don't see what was
->the
->> > original issue preventing BUG_ON from being used.
->> > 
->> > Change rdmsr(), wrmsr(), and rdmsrl() to BUG_ON() on errors.
->> 
->> How much does this bloat the kernel?
->
->It seems to add 8 bytes to each {wr,rd}msr() call (4 extra
->instructions:
->test, jmp, ud2, jmp).
->
->allyesconfig, paravirt enabled, before:
->
->  text    data     bss     dec     hex filename
->108368312       23500872        55705600        187574784       b2e2a00
->vmlinux
->
->allyesconfig, paravirt enabled, after:
->
->   text    data     bss     dec     hex filename
->108384438       23500904        55717888        187603230       b2e991e
->vmlinux
->
->allyesconfig vmlinux is 28446 bytes larger.
->
->An alternative is to add read_msr_unsafe() & write_msr_unsafe() fields
->to pv_cpu_ops, pointing to native_read_msr() & native_write_msr().
+The part I'm not sure about is the interface we want to end up with
+at the end of the series. More on that below
 
--- 
-Sent from my mobile phone.  Please pardon brevity and lack of formatting.
+> The series is based on Linux-3.16-rc1.
+> 
+> MSI was introduced in PCI Spec 2.2. Currently, kernel MSI 
+> driver codes are bonding with PCI device. Because MSI has a lot
+> advantages in design. More and more non-PCI devices want to
+> use MSI as their default interrupt. The existing MSI device
+> include HPET. HPET driver provide its own MSI code to initialize
+> and process MSI interrupts. In the latest GIC v3 spec, legacy device
+> can deliver MSI by the help of a relay device named consolidator.
+> Consolidator can translate the legacy interrupts connected to it
+> to MSI/MSI-X. And new non-PCI device will be designed to 
+> support MSI in future. So make the MSI driver code be generic will 
+> help the non-PCI device use MSI more simply.
+> 
+> The new data struct for generic MSI driver.
+> struct msi_irqs {
+>         u8 msi_enabled:1; /* Enable flag */
+>         u8 msix_enabled:1;
+>         struct list_head msi_list; /* MSI desc list */
+>         void *data;     /* help to find the MSI device */
+>         struct msi_ops *ops; /* MSI device specific hook */
+> };
+> struct msi_irqs is used to manage MSI related informations. Every device supports
+> MSI should contain this data struct and allocate it.
+
+I think you should have a stronger association with the 'struct
+device' here. Can you replace the 'void *data' with 'struct device *dev'?
+
+The other part I'm not completely sure about is how you want to
+have MSIs map into normal IRQ descriptors. At the moment, all
+MSI users are based on IRQ numbers, but this has known scalability
+problems. I wonder if we can do the interface in a way that
+hides the interrupt number from generic device drivers and just
+passes a 'struct irq_desc'. Note that there are long-term plans to
+get rid of IRQ numbers entirely, but those plans have existed for
+a long time already without anybody seriously addressing the device
+driver interfaces so far, so it might never really happen.
+
+> struct msi_ops {
+>         struct msi_desc *(*msi_setup_entry)(struct msi_irqs *msi, struct msi_desc *entry);
+>         int msix_setup_entries(struct msi_irqs *msi, struct msix_entry *entries);
+>         u32 (*msi_mask_irq)(struct msi_desc *desc, u32 mask, u32 flag);
+>         u32 (*msix_mask_irq)(struct msi_desc *desc, u32 flag);
+>         void (*msi_read_message)(struct msi_desc *desc, struct msi_msg *msg);
+>         void (*msi_write_message)(struct msi_desc *desc, struct msi_msg *msg);
+>         void (*msi_set_intx)(struct msi_irqs *msi, int enable);
+> };
+> struct msi_ops provides several hook functions, generic MSI driver will call
+> the hook functions to access device specific registers. PCI devices will share
+> the same msi_ops, because they have the same way to access MSI hardware registers.
+> 
+> Generic MSI layer export msi_capability_init() and msix_capability_init() functions
+> to drivers. msi/x_capability_init() will initialize MSI capability data struct msi_desc
+> and alloc the irq, then write the msi address/data value to hardware registers.
+> 
+> This series only did compile test, we will test it in x86 and arm platform later.
+
+For the generic drivers, I don't see much point in differentiating between
+MSI and MSI-X, as I believe the difference is something internal to the PCI
+implementation.
+
+With the other operations, I think they should all take a 'struct device *'
+as the first argument for convenience and consistency. I don't think you actually
+need msi_read_message(), and we could avoid msi_write_message() by doing it
+the other way round.
+
+What I'd envision as the API from the device driver perspective is something
+as simple like this:
+
+struct msi_desc *msi_request(struct msi_chip *chip, irq_handler_t handler,
+			unsigned long flags, const char *name, struct device *dev);
+
+which would get an msi descriptor that is valid for this device (dev)
+connected to a particular msi_chip, and associate a handler function
+with it. The device driver can call that function and retrieve the
+address/message pair from the msi_desc in order to store it in its own
+device specific registers. The request_irq() can be handled internally
+to msi_request().
+
+Would that work for you?
+
+	Arnd
