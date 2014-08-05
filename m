@@ -1,14 +1,15 @@
-From: "arnab.basu@freescale.com" <arnab.basu@freescale.com>
-Subject: RE: [RFC PATCH 00/11] Refactor MSI to support Non-PCI device
-Date: Fri, 1 Aug 2014 10:27:46 +0000
-Message-ID: <c6d34fe1bbe9457ea8cff7dcd97902b8__44350.0446308919$1407168074$gmane$org@DM2PR03MB317.namprd03.prod.outlook.com>
+From: Yijing Wang <wangyijing@huawei.com>
+Subject: Re: [RFC PATCH 00/11] Refactor MSI to support Non-PCI device
+Date: Tue, 5 Aug 2014 10:12:01 +0800
+Message-ID: <53E03D71.5080800@huawei.com>
 References: <1406344128-27055-1-git-send-email-wangyijing@huawei.com>
+	<201408011552.32135.arnd@arndb.de> <53DF2B7B.4000605@huawei.com>
+	<201408041659.31364.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1406344128-27055-1-git-send-email-wangyijing@huawei.com>
-Content-Language: en-US
+In-Reply-To: <201408041659.31364.arnd@arndb.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,50 +19,95 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yijing Wang <wangyijing@huawei.com>
-Cc: "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, Russell King <linux@arm.linux.org.uk>, "Paul.Mundt@huawei.com" <Paul.Mundt@huawei.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Xinwei Hu <huxinwei@huawei.com>, Hanjun Guo <guohanjun@huawei.com>, Bjorn Helgaas <bhelgaas@google.com>, Wuyun <wuyun.wu@huawei.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-arch@vger.kernel.org, Wuyun <wuyun.wu@huawei.com>, Russell King <linux@arm.linux.org.uk>, Paul.Mundt@huawei.com, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, "James E.J. Bottomley" <jejb@parisc-linux.org>, Xinwei Hu <huxinwei@huawei.com>, Hanjun Guo <guohanjun@huawei.com>, Bjorn Helgaas <bhelgaas@google.com>, virtualization@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Yijing
-
-> -----Original Message-----
-> From: Yijing Wang [mailto:wangyijing@huawei.com]
-> Sent: Saturday, July 26, 2014 8:39 AM
-> To: linux-kernel@vger.kernel.org
-> Cc: Xinwei Hu; Wuyun; Bjorn Helgaas; linux-pci@vger.kernel.org;
-> Paul.Mundt@huawei.com; James E.J. Bottomley; Marc Zyngier; linux-arm-
-> kernel@lists.infradead.org; Russell King; linux-arch@vger.kernel.org;
-> Basu Arnab-B45036; virtualization@lists.linux-foundation.org; Hanjun Guo;
-> Yijing Wang
-> Subject: [RFC PATCH 00/11] Refactor MSI to support Non-PCI device
+>>> The method you describe here makes sense for PCI devices that are required to support
+>>> legacy interrupts and may or may not support MSI on a given system, but not so much
+>>> for platform devices for which we know exactly whether we want to use MSI
+>>> or legacy interrupts.
+>>>
+>>> In particular if you have a device that can only do MSI, the entire pci_enable_msi
+>>> step is pointless: all we need to do is program the correct MSI target address/message
+>>> pair into the device and register the handler.
+>>
+>> Yes, I almost agree if we won't change the existing hundreds of drivers, what
+>> I worried about is some drivers may want to know the IRQ numbers, and use the IRQ
+>> number to process different things, as I mentioned in another reply.
+>> But we can also provide the interface which integrate MSI configuration and request_irq(),
+>> if most drivers don't care the IRQ number.
 > 
-> Hi all,
-> 	The series is a draft of generic MSI driver that supports PCI and
-> Non-PCI device which have MSI capability. If you're not interested it,
-> sorry for the noise.
+> The driver would still have the option of getting the IRQ number for now: With
+> the interface I imagine, you would get a 'struct msi_desc' pointer, from which
+> you can look up the 'struct irq_desc' pointer (either embedded in msi_desc,
+> or using a pointer from a member of msi_desc), and you can already get the
+> interrupt number from the irq_desc.
+> 
+> My point was that a well-written driver already does not care about the interrupt
+> number: the only information a driver needs in the interrupt handler is a pointer
+> to its own context, which we already derive from the irq_desc.
+
+Agree, I will try to introduce this similar interface in next version, thanks!
+
+> 
+> The main interface that currently requires the irq number is free_irq(), but
+> I would argue that we can just add a wrapper that takes the msi_desc pointer
+> as its first argument so the driver does not have to worry about it.
+> 
+> We can add additional wrappers like that as needed.
+
+OK
+
+>>>> This is a huge change for device drivers, and some device drivers don't know which msi_chip
+>>>> their MSI irq deliver to. I'm reworking the msi_chip, and try to use msi_chip to eliminate
+>>>> all arch_msi_xxx() under every arch in kernel. And the important point is how to create the
+>>>> binding for the MSI device to the target msi_chip.
+>>>
+>>> Which drivers are you thinking of? Again, I wouldn't expect to change any PCI drivers,
+>>> but only platform drivers that do native MSI, so we only have to change drivers that
+>>> do not support any MSI at all yet and that need to be changed anyway in order to add
+>>> support.
+>>
+>> I mean platform device drivers, because we can find the target msi_chip by some platform
+>> interfaces(like the existing of_pci_find_msi_chip_by_node()). So we no need to explicitly
+>> provide the msi_chip as the function argument.
+> 
+> Right, that works too. I was thinking we might need an interface that allows us to
+> pick a particular msi_chip if there are several alternatives (e.g. one in the GIC
+> and one in the PCI host), but you are right: we should normally be able to hardwire
+> that information in DT or elsewhere, and just need the 'struct device pointer' which
+> should probably be the first argument here.
+> 
+> As you pointed out, it's common to have multiple MSIs for a single device, so we
+> also need a context to pass around, so my suggestion would become something like:
+> 
+> struct msi_desc *msi_request(struct device *dev, irq_handler_t handler,
+>  			unsigned long flags, const char *name, void *data);
+> 
+> It's possible that we have to add one or two more arguments here.
+
+Good suggestion, thanks!
+
+> 
+>>> A degenerate case of this would be a system where a PCI device sends its MSI into
+>>> the host controller, that generates a legacy interrupt and that in turn gets 
+>>> sent to an irqchip which turns it back into an MSI for the GICv3. This would of
+>>> course be very inefficient, but I think we should be able to express this with
+>>> both the binding and the in-kernel framework just to be on the safe side.
+>>
+>> Yes, the best way to tell the kernel which msi_chip should deliver to is describe
+>> the binding in DTS file. If a real degenerate case found, we can update the platform
+>> interface which is responsible for getting the match msi_chip in future.
+> 
+> Ok.
+> 
+> 	Arnd
+> 
+> .
 > 
 
-Thanks for sending out these patches, I have some (very basic) questions.
 
-> The series is based on Linux-3.16-rc1.
-> 
-> MSI was introduced in PCI Spec 2.2. Currently, kernel MSI driver codes
-> are bonding with PCI device. Because MSI has a lot advantages in design.
-> More and more non-PCI devices want to use MSI as their default interrupt.
-> The existing MSI device include HPET. HPET driver provide its own MSI
-> code to initialize and process MSI interrupts. In the latest GIC v3 spec,
-> legacy device can deliver MSI by the help of a relay device named
-> consolidator.
-> Consolidator can translate the legacy interrupts connected to it to
-> MSI/MSI-X. And new non-PCI device will be designed to support MSI in
-> future. So make the MSI driver code be generic will help the non-PCI
-> device use MSI more simply.
-
-As per my understanding the GICv3 provides a service that will convert writes to a specified address to IRQs delivered to the core and as you mention above MSIs are part of the PCI spec. So I can see a strong case for non-PCI devices to want MSI like functionality without being fully compliant with the requirements of the MSI spec.
-
-My question is do we necessarily want to rework so much of the PCI-MSI layer to support non PCI devices? Or will it be sufficient to create a framework to allow non PCI devices to hook up with a device that can convert their writes to an IRQ to the core.
-
-As I understand it, the msi_chip is (almost) such a framework. The only problem being that it makes some PCI specific assumptions (such as PCI specific writes from within msi_chip functions). Won't it be sufficient to make the msi_chip framework generic enough to be used by non-PCI devices and let each bus/device manage any additional requirements (such as configuration flow, bit definitions etc) that it places on message based interrupts?
-
-Thanks
-Arnab
+-- 
+Thanks!
+Yijing
