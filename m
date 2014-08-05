@@ -1,18 +1,11 @@
 From: Amos Kong <akong@redhat.com>
-Subject: Re: When I boot two virtio-rng devices, guest will hang
-Date: Tue, 5 Aug 2014 18:28:54 +0800
-Message-ID: <20140805102854.GA7958@z.redhat.com>
-References: <20140728073242.GD2683@z.redhat.com>
-	<20140728075514.GB3797@grmbl.mre>
-	<20140728084920.GF2683@z.redhat.com>
-	<20140728091213.GC3797@grmbl.mre>
-	<20140728121120.GI2683@z.redhat.com>
+Subject: [PATCH] virtio-rng: complete have_data completion in removing device
+Date: Wed,  6 Aug 2014 01:35:15 +0800
+Message-ID: <1407260115-26767-1-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20140728121120.GI2683@z.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,34 +15,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, kvm@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
+To: virtualization@lists.linux-foundation.org
+Cc: amit.shah@redhat.com, stable@vger.kernel.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-3.16 (guest hangs with two rng devices)
-3.16 + quick fix (can startup with two rng devices) (hotplug issue 1 + hotplug issue 2 exist)
-lates torvalds/linux.git + amit 4 patches (can startup with two rng devices) (only hotplug issue 2 exists)
+When we try to hot-remove a busy virtio-rng device from QEMU monitor,
+the device can't be hot-removed. Because virtio-rng driver hangs at
+wait_for_completion_killable().
 
-However, the 4 patches also fixed the hang issue, the hotplug issue was fixed a little.
-The hotplug issue is effected by the backend, or maybe it's not a real issue, because
-the rng device can be hot-removed after dd process is killed.
+This patch fixed the hang by completing have_data completion before
+unregistering a virtio-rng device.
 
+Signed-off-by: Amos Kong <akong@redhat.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/char/hw_random/virtio-rng.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Hotplug issue 1:
-  1. boot up guest with two rng device (rng0 uses /dev/urandom, rng1 uses /dev/random)
-  2. read data by dd in guest
-  3 (option 1). hot-remove rng0, then hot-remove rng1 -> result: _only rng1_ can't be removed until dd process is killed
-  3 (option 2). hot-remove rng1, then hot-remove rng0 -> result: two devices can be removed successfully, dd process will exit automatically.
-
-  If we use /dev/urandom for rng0 and rng1, _rng0 & rng1_ can be removed, dd process will exit automatically.
-
-Hotplug issue 2:
-  If we use /dev/random for rng0 and rng1, _rng0 & rng1_ can't be removed until dd process is killed.
-
-Hotplug issue 3:
-  If we use /dev/random for rng0 and rng1, _only rng1_ can't be removed until dd process is killed.
-
-
-(The difference between /dev/random and /dev/urandom is the speed.)
-
-Thanks, Amos
+diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
+index 0027137..416b15c 100644
+--- a/drivers/char/hw_random/virtio-rng.c
++++ b/drivers/char/hw_random/virtio-rng.c
+@@ -137,6 +137,7 @@ static void remove_common(struct virtio_device *vdev)
+ 	struct virtrng_info *vi = vdev->priv;
+ 
+ 	vdev->config->reset(vdev);
++	complete(&vi->have_data);
+ 	vi->busy = false;
+ 	if (vi->hwrng_register_done)
+ 		hwrng_unregister(&vi->hwrng);
+-- 
+1.9.3
