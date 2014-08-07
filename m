@@ -1,11 +1,16 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 0/2] rng-tools: add udev rule for virtio-rng
-Date: Thu,  7 Aug 2014 18:38:58 +0530
-Message-ID: <cover.1407416628.git.amit.shah@redhat.com>
+Subject: [PATCH 1/2] rngd: add udev rule to source from hwrng if virtio-rng
+	present
+Date: Thu,  7 Aug 2014 18:38:59 +0530
+Message-ID: <dd2ddb8458e5ab5cffceb7fac2e3f71e9e2197f3.1407416628.git.amit.shah@redhat.com>
+References: <cover.1407416628.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <cover.1407416628.git.amit.shah@redhat.com>
+In-Reply-To: <cover.1407416628.git.amit.shah@redhat.com>
+References: <cover.1407416628.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,31 +24,22 @@ To: jgarzik@bitpay.com
 Cc: linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>, Amit Shah <amit.shah@redhat.com>, hpa@linux.intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello,
+On KVM guests where the virtio-rng device is available, and set as the
+current rng, this udev rule will start rngd which will feed in the
+host-provided entropy to /dev/random.
 
-I didn't find a mailing list for rng-tools, so CC'ing the kernel lists
-and the last few committers.
-
-The first patch in this series adds a udev rule to start rngd for
-guests that have a virtio-rng device available.
-
-The second patch attempts to add autoconf magic to install the udev
-rule in the system dirs.  However, installing as non-root will
-obviously fail.  Prefixes are also not honoured.  I don't know of a
-better way, and we probably should leave this to distributions.
-However, if someone has a better idea on how to expand this, please
-suggest.
-
-
-Amit Shah (2):
-  rngd: add udev rule to source from hwrng if virtio-rng present
-  Install udev rules in system-default directory
-
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+---
  90-virtio-rng.rules | 1 +
- Makefile.am         | 1 +
- configure.ac        | 8 ++++++++
- 3 files changed, 10 insertions(+)
+ 1 file changed, 1 insertion(+)
  create mode 100644 90-virtio-rng.rules
 
+diff --git a/90-virtio-rng.rules b/90-virtio-rng.rules
+new file mode 100644
+index 0000000..07f2f9c
+--- /dev/null
++++ b/90-virtio-rng.rules
+@@ -0,0 +1 @@
++KERNEL=="hw_random", ATTR{rng_current}=="virtio*", RUN+="/sbin/rngd -r /dev/hwrng"
 -- 
 1.9.3
