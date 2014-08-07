@@ -1,8 +1,7 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 1/2] rngd: add udev rule to source from hwrng if virtio-rng
-	present
-Date: Thu,  7 Aug 2014 18:38:59 +0530
-Message-ID: <dd2ddb8458e5ab5cffceb7fac2e3f71e9e2197f3.1407416628.git.amit.shah@redhat.com>
+Subject: [PATCH 2/2] Install udev rules in system-default directory
+Date: Thu,  7 Aug 2014 18:39:00 +0530
+Message-ID: <3df55388b1b3acd142f391494f102c3ddb2270ed.1407416628.git.amit.shah__45224.3810439997$1407417016$gmane$org@redhat.com>
 References: <cover.1407416628.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,22 +23,42 @@ To: jgarzik@bitpay.com
 Cc: linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>, Amit Shah <amit.shah@redhat.com>, hpa@linux.intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On KVM guests where the virtio-rng device is available, and set as the
-current rng, this udev rule will start rngd which will feed in the
-host-provided entropy to /dev/random.
-
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
+not-quite-Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- 90-virtio-rng.rules | 1 +
- 1 file changed, 1 insertion(+)
- create mode 100644 90-virtio-rng.rules
+ Makefile.am  | 1 +
+ configure.ac | 8 ++++++++
+ 2 files changed, 9 insertions(+)
 
-diff --git a/90-virtio-rng.rules b/90-virtio-rng.rules
-new file mode 100644
-index 0000000..07f2f9c
---- /dev/null
-+++ b/90-virtio-rng.rules
-@@ -0,0 +1 @@
-+KERNEL=="hw_random", ATTR{rng_current}=="virtio*", RUN+="/sbin/rngd -r /dev/hwrng"
+diff --git a/Makefile.am b/Makefile.am
+index f8490a3..a2b8173 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -8,6 +8,7 @@ sbin_PROGRAMS	 = rngd
+ bin_PROGRAMS	 = rngtest
+ man_MANS	 = rngd.8 rngtest.1
+ noinst_LIBRARIES = librngd.a
++udevrules_DATA	 = 90-virtio-rng.rules
+ 
+ rngd_SOURCES	= rngd.h rngd.c	rngd_entsource.h rngd_entsource.c	\
+ 		  rngd_linux.h rngd_linux.c util.c 			\
+diff --git a/configure.ac b/configure.ac
+index 27a2dba..4187aca 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -32,6 +32,14 @@ AC_ARG_WITH([libgcrypt],
+ 	[with_libgcrypt=check]
+ )
+ 
++PKG_PROG_PKG_CONFIG
++
++AC_ARG_WITH([udevrulesdir],
++	AS_HELP_STRING([--with-udevrulesdir=DIR], [Directory for udev rules]),
++	[],
++	[with_udevrulesdir=$($PKG_CONFIG --variable=udevdir udev)"/rules.d"])
++AC_SUBST([udevrulesdir], [$with_udevrulesdir])
++
+ dnl Make sure anyone changing configure.ac/Makefile.am has a clue
+ AM_MAINTAINER_MODE
+ 
 -- 
 1.9.3
