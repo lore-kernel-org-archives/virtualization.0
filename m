@@ -1,11 +1,17 @@
-From: "ML" <marialemos72@gmail.com>
-Subject: [WorldCIST'15]: Call for Workshops Proposals - Proceedings by Springer
-Date: Fri, 8 Aug 2014 00:33:35 +0100
-Message-ID: <201408072333.s77NX9Ti001653@smtp2.dei.uc.pt>
-Reply-To: worldcist@gmail.com
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH 1/2] rngd: add udev rule to source from hwrng if
+	virtio-rng present
+Date: Fri, 8 Aug 2014 14:37:15 +0530
+Message-ID: <20140808090715.GG14400@grmbl.mre>
+References: <cover.1407416628.git.amit.shah@redhat.com>
+	<dd2ddb8458e5ab5cffceb7fac2e3f71e9e2197f3.1407416628.git.amit.shah@redhat.com>
+	<53E3D3FF.70707@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1882595283644830287=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <53E3D3FF.70707@linux.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,109 +21,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: "H. Peter Anvin" <hpa@linux.intel.com>
+Cc: jgarzik@bitpay.com, Ricardo Neri <ricardo.neri-calderon@linux.intel.com>, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============1882595283644830287==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On (Thu) 07 Aug 2014 [12:31:11], H. Peter Anvin wrote:
+> On 08/07/2014 06:08 AM, Amit Shah wrote:
+> > On KVM guests where the virtio-rng device is available, and set as the
+> > current rng, this udev rule will start rngd which will feed in the
+> > host-provided entropy to /dev/random.
+> > 
+> > Signed-off-by: Amit Shah <amit.shah@redhat.com>
+> > ---
+> >  90-virtio-rng.rules | 1 +
+> >  1 file changed, 1 insertion(+)
+> >  create mode 100644 90-virtio-rng.rules
+> > 
+> > diff --git a/90-virtio-rng.rules b/90-virtio-rng.rules
+> > new file mode 100644
+> > index 0000000..07f2f9c
+> > --- /dev/null
+> > +++ b/90-virtio-rng.rules
+> > @@ -0,0 +1 @@
+> > +KERNEL=="hw_random", ATTR{rng_current}=="virtio*", RUN+="/sbin/rngd -r /dev/hwrng"
+> > 
+> 
+> I'm not sure this is really right.  rngd can receive input from a number
+> of sources, and I suspect it would be better to rngd to be started much
+> earlier and perhaps get sent a SIGHUP to reconfigure when a hw_random
+> device appears ... not just the virtio one.
 
-------
-WorldCIST'15 - 3rd World Conference on Information Systems and Technol=
-ogies=20
-Ponta Delgada, S=E3o Miguel, Azores *, Portugal
-1st-3rd of April 2015.
-http://www.aisti.eu/worldcist15/
-------
-* Azores is ranked as the second most beautiful archipelago in the wor=
-ld by National Geographic.
-------------
+Right - yea.  Modern distros do start rngd by default (at least Fedora
+and RHEL do), so this does make sense.
 
-WORKSHOP FORMAT
+But as you note below, not all distros may start rngd...
 
-The Information Systems and Technologies research and industrial commu=
-nity is invited to submit proposals of Workshops for WorldCIST'15 =96 =
-3rd World Conference on Information Systems and Technologies to be hel=
-d at S=E3o Miguel, Azores, Portugal, 1st-3rd of April 2015.
+> Currently rngd exits if there is no daemon.  There are a few ways to
+> deal with that: one is to run rngd on changes and leave a pid file
+> around; the rngd can try to signal the old rngd or launch itself;
+> another option would be to have a different rngd for each source.
 
-Workshops should focus on a specific scientific subject on the scope o=
-f WorldCIST'15 but not directly included on the main conference areas.=
- Each workshop will be coordinated by an Organizing Committee composed=
- of, at least, two researchers in the field, preferably from different=
- institutions and different countries. The organizers should create an=
- international Program Committee for the Workshop, with recognized res=
-earchers within the specific Workshop scientific area. Each workshop s=
-hould have at least 10 submissions and 5 accepted papers in order to b=
-e conducted at WorldCIST'15.
+Currently the kernel can only have one rng_current, which is a pity.
+So in the current case, rngd only needs one instance -- and it'll
+always accept stuff from /dev/hwrng and it doesn't matter if the
+rng_current is changed as long as there's some rng there.
 
-The selection of Workshops will be performed by WorldCIST'15 Conferenc=
-e/Workshop Chairs. Workshops full and short papers will be published i=
-n the conference main proceedings in specific Workshop chapters publis=
-hed by Springer in a book of the AISC series. Proceedings will be subm=
-itted for indexation by ISI Thomson, SCOPUS, DBLP, EI-Compendex among =
-several other scientific databases. Extended versions of best selected=
- papers will be published in journals indexed by ISI and SCOPUS. Detai=
-led and up-to-date information may be found at WorldCIST'15 website: h=
-ttp://www.aisti.eu/worldcist15/
+>  To
+> some degree the above is obsolete when we get khwrngd widely deployed,
+> but that is a new-kernel-only kind of thing.
 
-WORKSHOP ORGANIZATION
+Right - I'm wondering if any such changes as propsed here are now
+obsolted already by khwrngd?
 
-The Organizing Committee of each Workshop will be responsible for:
--    Producing and distributing the Workshop Call for Papers (CFP);
--    Coordinating the review and selection process for the papers subm=
-itted to the Workshop, as Workshop chairs (on the paper submission sys=
-tem installed for all the Workshops);
--    Delivering the final versions of the papers accepted for the Work=
-shop in accordance with the guidelines and deadlines defined by WorldC=
-IST'15 organizers;
--    Coordinating and chairing the Workshop sessions at the conference.
-WorldCIST'15 organizers reserve the right to cancel any Workshop if de=
-adlines are missed or if the number of registered attendees is too low=
- to support the costs associated with the Workshop.
+Thanks,
 
-PROPOSAL CONTENT
-
-Workshop proposals should contain the following information:
--    Workshop title;
--    Brief description of the specific scientific scope of the Workshop;
--    List of topics of interest (max 15 topics);
--    Reasons the Workshop should be held within WorldCIST=9215;
--    Name, postal address, phone and email of all the members of the W=
-orkshop Organizing Committee;
--    Proposal for the Workshop Program Committee (Names and affiliatio=
-ns).
-
-Proposals should be submitted electronically by email to worldcist at =
-gmail.com (cc: lpreis at dsi.uminho.pt), in PDF, (in English), by Sept=
-ember 15, 2014.
-
-IMPORTANT DATES
-
--    Deadline for Workshop proposals: September 15, 2014
--    Notification of Workshop acceptance: September 25, 2014
--    Deadline for paper submission: November 30, 2014
--    Notification of paper acceptance: December 28, 2014
--    Deadline for final versions and conference registration: January =
-06, 2015
--    Conference dates: April 01-03, 2015
-
-CHAIR
-Luis Paulo Reis, University of Minho
-
-Regards,
-WorldCIST'15 Organizing Committee
-http://www.aisti.eu/worldcist15/
-
-
-
---===============1882595283644830287==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1882595283644830287==--
+		Amit
