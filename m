@@ -1,11 +1,18 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PULL] virtio-next
-Date: Mon, 11 Aug 2014 11:58:50 +0930
-Message-ID: <87vbpzahel.fsf@rustcorp.com.au>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH 1/2] rngd: add udev rule to source from hwrng if
+	virtio-rng present
+Date: Mon, 11 Aug 2014 12:45:27 +0530
+Message-ID: <20140811071527.GB4184@grmbl.mre>
+References: <cover.1407416628.git.amit.shah@redhat.com>
+	<dd2ddb8458e5ab5cffceb7fac2e3f71e9e2197f3.1407416628.git.amit.shah@redhat.com>
+	<53E3D3FF.70707@linux.intel.com> <20140808090715.GG14400@grmbl.mre>
+	<53E54533.8030109@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <53E54533.8030109@linux.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,42 +22,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Fabian Frederick <fabf@skynet.be>, Benoit Taine <benoit.taine@lip6.fr>, Amit Shah <amit.shah@redhat.com>
+To: "H. Peter Anvin" <hpa@linux.intel.com>
+Cc: jgarzik@bitpay.com, Ricardo Neri <ricardo.neri-calderon@linux.intel.com>, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>, duwe@lst.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 15ba2236f3556fc01b9ca91394465152b5ea74b6:
+On (Fri) 08 Aug 2014 [14:46:27], H. Peter Anvin wrote:
+> On 08/08/2014 02:07 AM, Amit Shah wrote:
+> >
+> > 
+> >>  To
+> >> some degree the above is obsolete when we get khwrngd widely deployed,
+> >> but that is a new-kernel-only kind of thing.
+> > 
+> > Right - I'm wondering if any such changes as propsed here are now
+> > obsolted already by khwrngd?
+> > 
+> 
+> In this case, yes, khwrngd would be a better solution for current kernels.
 
-  Merge git://git.kernel.org/pub/scm/linux/kernel/git/davem/net (2014-07-21 22:46:01 -0700)
+I think that's OK with me.
 
-are available in the git repository at:
+What's the suggested value for rng->quality, though, for virtio-rng
+that I can use to ensure the kthread starts?
+
+Should I use the 700 (70%) as proposed in the original patchset?  I'm
+not exactly sure how that value will be used as well..
 
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/rusty/linux.git tags/virtio-next-for-linus
-
-for you to fetch changes up to eeec626366ffe558fc3d5685bd2b49a962acf57d:
-
-  Revert "hwrng: virtio - ensure reads happen after successful probe" (2014-07-27 21:07:20 +0930)
-
-----------------------------------------------------------------
-Cheers,
-Rusty.
-
-----------------------------------------------------------------
-Amit Shah (4):
-      virtio: rng: remove unused struct element
-      virtio: rng: re-arrange struct elements for better packing
-      virtio: rng: delay hwrng_register() till driver is ready
-      Revert "hwrng: virtio - ensure reads happen after successful probe"
-
-Benoit Taine (1):
-      virtio: Replace DEFINE_PCI_DEVICE_TABLE macro use
-
-Fabian Frederick (1):
-      virtio: console: remove unnecessary null test before debugfs_remove_recursive
-
- drivers/char/hw_random/core.c       |  6 ------
- drivers/char/hw_random/virtio-rng.c | 39 ++++++++++++++++---------------------
- drivers/char/virtio_console.c       |  6 ++----
- drivers/virtio/virtio_pci.c         |  2 +-
- 4 files changed, 20 insertions(+), 33 deletions(-)
+		Amit
