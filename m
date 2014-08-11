@@ -1,19 +1,11 @@
-From: Torsten Duwe <duwe@lst.de>
-Subject: Re: [PATCH 1/2] rngd: add udev rule to source from hwrng if
-	virtio-rng present
-Date: Mon, 11 Aug 2014 15:30:30 +0200
-Message-ID: <20140811133030.GA27247__539.892601273273$1407776733$gmane$org@lst.de>
-References: <cover.1407416628.git.amit.shah@redhat.com>
-	<dd2ddb8458e5ab5cffceb7fac2e3f71e9e2197f3.1407416628.git.amit.shah@redhat.com>
-	<53E3D3FF.70707@linux.intel.com> <20140808090715.GG14400@grmbl.mre>
-	<53E54533.8030109@linux.intel.com>
-	<20140811071527.GB4184@grmbl.mre>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PATCH 1/1] virtio: rng: add derating factor for use by hwrng core
+Date: Tue, 12 Aug 2014 00:19:42 +0530
+Message-ID: <6f2df652355d6e78da846d06e32489b7d9cdfcc2.1407782982.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20140811071527.GB4184@grmbl.mre>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,25 +15,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: jgarzik@bitpay.com, Ricardo Neri <ricardo.neri-calderon@linux.intel.com>, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@linux.intel.com>
+To: linux-kernel@vger.kernel.org
+Cc: jgarzik@bitpay.com, tytso@mit.edu, herbert@gondor.apana.org.au, kvm list <kvm@vger.kernel.org>, ricardo.neri-calderon@linux.intel.com, Virtualization List <virtualization@lists.linux-foundation.org>, duwe@lst.de, Amit Shah <amit.shah@redhat.com>, hpa@linux.intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Aug 11, 2014 at 12:45:27PM +0530, Amit Shah wrote:
-> 
-> What's the suggested value for rng->quality, though, for virtio-rng
-> that I can use to ensure the kthread starts?
-> 
-> Should I use the 700 (70%) as proposed in the original patchset?  I'm
-> not exactly sure how that value will be used as well..
+The khwrngd thread is started when a hwrng device of sufficient
+quality is registered.  The virtio-rng device is backed by the
+hypervisor, and we trust the hypervisor to provide real entropy.  A
+malicious hypervisor is a scenario that's ruled out, so we are certain
+the quality of randomness we receive is perfectly trustworthy.  Hence,
+we use 100% for the factor, indicating maximum confidence in the source.
 
-There is no such thing as a suggested value, every number is wrong
-to some degree.  The quality is an estimation of how random your
-source really is; it's a property of your hardware. If the device is
-virtual you're in trouble ;-)
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
 
-Either you have a way to query the underlying real hardware, or
-you do your whitening and entropy estimation in the backend driver --
-then you can claim 100%.
+---
+Pretty small and contained patch; would be great if it is picked up for
+3.17.
+---
+ drivers/char/hw_random/virtio-rng.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-	Torsten
+diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
+index 0027137..2e3139e 100644
+--- a/drivers/char/hw_random/virtio-rng.c
++++ b/drivers/char/hw_random/virtio-rng.c
+@@ -116,6 +116,7 @@ static int probe_common(struct virtio_device *vdev)
+ 		.cleanup = virtio_cleanup,
+ 		.priv = (unsigned long)vi,
+ 		.name = vi->name,
++		.quality = 1000,
+ 	};
+ 	vdev->priv = vi;
+ 
+-- 
+1.9.3
