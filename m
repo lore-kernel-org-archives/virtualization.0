@@ -1,11 +1,18 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: [3.16 stable PATCH 1/1] virtio-rng: fix multi-device startup
-Date: Mon, 11 Aug 2014 18:11:47 +0530
-Message-ID: <5ef3aa4ea1932b7655d9db5a0139b8a2922af0db.1407760907.git.amit.shah@redhat.com>
+From: "H. Peter Anvin" <hpa@linux.intel.com>
+Subject: Re: [PATCH 1/2] rngd: add udev rule to source from hwrng if virtio-rng
+	present
+Date: Mon, 11 Aug 2014 09:50:20 -0700
+Message-ID: <53E8F44C.7030803@linux.intel.com>
+References: <cover.1407416628.git.amit.shah@redhat.com>
+	<dd2ddb8458e5ab5cffceb7fac2e3f71e9e2197f3.1407416628.git.amit.shah@redhat.com>
+	<53E3D3FF.70707@linux.intel.com> <20140808090715.GG14400@grmbl.mre>
+	<53E54533.8030109@linux.intel.com>
+	<20140811071527.GB4184@grmbl.mre> <20140811133030.GA27247@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20140811133030.GA27247@lst.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,59 +22,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: stable@vger.kernel.org
-Cc: Amit Shah <amit.shah@redhat.com>, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
+To: Torsten Duwe <duwe@lst.de>, Amit Shah <amit.shah@redhat.com>
+Cc: jgarzik@bitpay.com, Ricardo Neri <ricardo.neri-calderon@linux.intel.com>, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a 3.16-only patch.  The linux.git fix is
-5c06273401f2eb7b290cadbae18ee00f8f65e893, which fixes this issue in a
-different way.
+On 08/11/2014 06:30 AM, Torsten Duwe wrote:
+> On Mon, Aug 11, 2014 at 12:45:27PM +0530, Amit Shah wrote:
+>>
+>> What's the suggested value for rng->quality, though, for virtio-rng
+>> that I can use to ensure the kthread starts?
+>>
+>> Should I use the 700 (70%) as proposed in the original patchset?  I'm
+>> not exactly sure how that value will be used as well..
+> 
+> There is no such thing as a suggested value, every number is wrong
+> to some degree.  The quality is an estimation of how random your
+> source really is; it's a property of your hardware. If the device is
+> virtual you're in trouble ;-)
+> 
+> Either you have a way to query the underlying real hardware, or
+> you do your whitening and entropy estimation in the backend driver --
+> then you can claim 100%.
+> 
 
-Amos reported using multiple virtio-rng devices cause boot to freeze
-even after the recent fixes.  We need the probe_done test per device
-rather than just once for the driver.
+virtio-rng I feel we could rank at 100%; it is supposed to feed
+/dev/random-quality randomness from the VMM.  If the VMM is hostile you
+have already lost anyway.
 
-Reported-by: Amos Kong <akong@redhat.com>
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
----
- drivers/char/hw_random/virtio-rng.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
-index e9b15bc..124cac5 100644
---- a/drivers/char/hw_random/virtio-rng.c
-+++ b/drivers/char/hw_random/virtio-rng.c
-@@ -34,12 +34,11 @@ struct virtrng_info {
- 	unsigned int data_avail;
- 	struct completion have_data;
- 	bool busy;
-+	bool probe_done;
- 	char name[25];
- 	int index;
- };
- 
--static bool probe_done;
--
- static void random_recv_done(struct virtqueue *vq)
- {
- 	struct virtrng_info *vi = vq->vdev->priv;
-@@ -73,7 +72,7 @@ static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
- 	 * Don't ask host for data till we're setup.  This call can
- 	 * happen during hwrng_register(), after commit d9e7972619.
- 	 */
--	if (unlikely(!probe_done))
-+	if (unlikely(!vi->probe_done))
- 		return 0;
- 
- 	if (!vi->busy) {
-@@ -146,7 +145,7 @@ static int probe_common(struct virtio_device *vdev)
- 		return err;
- 	}
- 
--	probe_done = true;
-+	vi->probe_done = true;
- 	return 0;
- }
- 
--- 
-1.9.3
+	-hpa
