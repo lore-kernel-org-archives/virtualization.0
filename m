@@ -1,16 +1,17 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [3.16 stable PATCH 1/2] virtio: rng: delay hwrng_register() till
-	driver is ready
-Date: Tue, 12 Aug 2014 13:24:33 +0530
-Message-ID: <20140812075433.GN4184@grmbl.mre>
-References: <76f5c012de1f6adeb1f8c105db5dc21a6e99fbc4.1407827215.git.amit.shah@redhat.com>
-	<20140812074135.GB22911@kroah.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] vhost: Add polling mode
+Date: Tue, 12 Aug 2014 11:18:50 +0200
+Message-ID: <20140812091850.GD6440@redhat.com>
+References: <1407659404-razya@il.ibm.com>
+	<20140810083035.0CF58380729@moren.haifa.ibm.com>
+	<20140810194559.GA4344@redhat.com>
+	<20140811.124621.576073630604147753.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20140812074135.GB22911@kroah.com>
+In-Reply-To: <20140811.124621.576073630604147753.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,45 +21,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, stable@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
+To: David Miller <davem@davemloft.net>
+Cc: ERANRA@il.ibm.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, razya@il.ibm.com, GLIKSON@il.ibm.com, YOSSIKU@il.ibm.com, abel.gordon@gmail.com, JOELN@il.ibm.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Tue) 12 Aug 2014 [15:41:35], Greg KH wrote:
-> On Tue, Aug 12, 2014 at 12:36:54PM +0530, Amit Shah wrote:
-> > Instead of calling hwrng_register() in the probe routing, call it in the
-> > scan routine.  This ensures that when hwrng_register() is successful,
-> > and it requests a few random bytes to seed the kernel's pool at init,
-> > we're ready to service that request.
-> > 
-> > This will also enable us to remove the workaround added previously to
-> > check whether probe was completed, and only then ask for data from the
-> > host.  The revert follows in the next commit.
-> > 
-> > There's a slight behaviour change here on unsuccessful hwrng_register().
-> > Previously, when hwrng_register() failed, the probe() routine would
-> > fail, and the vqs would be torn down, and driver would be marked not
-> > initialized.  Now, the vqs will remain initialized, driver would be
-> > marked initialized as well, but won't be available in the list of RNGs
-> > available to hwrng core.  To fix the failures, the procedure remains the
-> > same, i.e. unload and re-load the module, and hope things succeed the
-> > next time around.
-> > 
-> > Signed-off-by: Amit Shah <amit.shah@redhat.com>
-> > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> > (cherry picked from commit 5c06273401f2eb7b290cadbae18ee00f8f65e893)
-> > Signed-off-by: Amit Shah <amit.shah@redhat.com>
-> > 
-> > Conflicts:
-> > 	drivers/char/hw_random/virtio-rng.c
-> > 
-> >   Context conflict due to not backporting two commits that changed
-> >   struct layout.
+On Mon, Aug 11, 2014 at 12:46:21PM -0700, David Miller wrote:
+> From: "Michael S. Tsirkin" <mst@redhat.com>
+> Date: Sun, 10 Aug 2014 21:45:59 +0200
 > 
-> What is this "Conflicts:" stuff for?  I don't need that...
+> > On Sun, Aug 10, 2014 at 11:30:35AM +0300, Razya Ladelsky wrote:
+>  ...
+> > And, did your tests actually produce 100% load on both host CPUs?
+>  ...
+> 
+> Michael, please do not quote an entire patch just to ask a one line
+> question.
+> 
+> I truly, truly, wish it was simpler in modern email clients to delete
+> the unrelated quoted material because I bet when people do this they
+> are simply being lazy.
+> 
+> Thank you.
 
-To note the patch didn't cherry-pick as-is; anyway, sent a v2 without
-that text.
+Lazy - mea culpa, though I'm using mutt so it isn't even hard.
 
-Thanks,
-		Amit
+The question still stands: the test results are only valid
+if CPU was at 100% in all configurations.
+This is the reason I generally prefer it when people report
+throughput divided by CPU (power would be good too but it still
+isn't easy for people to get that number).
+
+-- 
+MST
