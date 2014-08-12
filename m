@@ -1,15 +1,11 @@
-From: "H. Peter Anvin" <hpa@linux.intel.com>
-Subject: Re: [PATCH 1/1] virtio: rng: add derating factor for use by hwrng core
-Date: Tue, 12 Aug 2014 07:59:32 -0700
-Message-ID: <53EA2BD4.2040903@linux.intel.com>
-References: <6f2df652355d6e78da846d06e32489b7d9cdfcc2.1407782982.git.amit.shah@redhat.com>
-	<53E93F77.9030305@linux.intel.com>
-	<20140812052759.GI4184@grmbl.mre>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PATCH v2 1/1] virtio: rng: add derating factor for use by hwrng core
+Date: Tue, 12 Aug 2014 20:39:45 +0530
+Message-ID: <2a8aa965eb956f97a82865adce61c46d9982842d.1407856185.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140812052759.GI4184@grmbl.mre>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,30 +15,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: jgarzik@bitpay.com, tytso@mit.edu, herbert@gondor.apana.org.au, kvm list <kvm@vger.kernel.org>, ricardo.neri-calderon@linux.intel.com, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>, duwe@lst.de
+To: linux-kernel@vger.kernel.org
+Cc: jgarzik@bitpay.com, tytso@mit.edu, herbert@gondor.apana.org.au, kvm list <kvm@vger.kernel.org>, ricardo.neri-calderon@linux.intel.com, Virtualization List <virtualization@lists.linux-foundation.org>, duwe@lst.de, Amit Shah <amit.shah@redhat.com>, hpa@linux.intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/11/2014 10:27 PM, Amit Shah wrote:
-> On (Mon) 11 Aug 2014 [15:11:03], H. Peter Anvin wrote:
->> On 08/11/2014 11:49 AM, Amit Shah wrote:
->>> The khwrngd thread is started when a hwrng device of sufficient
->>> quality is registered.  The virtio-rng device is backed by the
->>> hypervisor, and we trust the hypervisor to provide real entropy.  A
->>> malicious hypervisor is a scenario that's ruled out, so we are certain
->>> the quality of randomness we receive is perfectly trustworthy.  Hence,
->>> we use 100% for the factor, indicating maximum confidence in the source.
->>>
->>> Signed-off-by: Amit Shah <amit.shah@redhat.com>
->>
->> It isn't "ruled out", it is just irrelevant: if the hypervisor is
->> malicious, the quality of your random number source is the least of your
->> problems.
-> 
-> Yea; I meant ruled out in that sense.  Should the commit msg be more
-> verbose?
-> 
+The khwrngd thread is started when a hwrng device of sufficient
+quality is registered.  The virtio-rng device is backed by the
+hypervisor, and we trust the hypervisor to provide real entropy.
 
-Yes, as it is written it is misleading.
+A malicious hypervisor is a scenario that's irrelevant -- such a setup
+is bound to cause all sorts of badness, and a compromised hwrng is not
+the biggest threat.
 
-	-hpa
+Given this, we are certain the quality of randomness we receive is
+perfectly trustworthy.  Hence, we use 100% for the factor, indicating
+maximum confidence in the source.
+
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+
+---
+Pretty small and contained patch; would be great if it is picked up for
+3.17.
+
+v2: re-word commit msg
+---
+ drivers/char/hw_random/virtio-rng.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
+index 0027137..2e3139e 100644
+--- a/drivers/char/hw_random/virtio-rng.c
++++ b/drivers/char/hw_random/virtio-rng.c
+@@ -116,6 +116,7 @@ static int probe_common(struct virtio_device *vdev)
+ 		.cleanup = virtio_cleanup,
+ 		.priv = (unsigned long)vi,
+ 		.name = vi->name,
++		.quality = 1000,
+ 	};
+ 	vdev->priv = vi;
+ 
+-- 
+1.9.3
