@@ -1,17 +1,12 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [3.16 stable PATCH 1/1] virtio-rng: fix multi-device startup
-Date: Tue, 12 Aug 2014 12:23:23 +0530
-Message-ID: <20140812065323.GL4184@grmbl.mre>
-References: <5ef3aa4ea1932b7655d9db5a0139b8a2922af0db.1407760907.git.amit.shah@redhat.com>
-	<20140811225527.GB10721@kroah.com>
-	<20140812053158.GJ4184@grmbl.mre>
-	<20140812055548.GB12762@kroah.com>
+Subject: [3.16 stable PATCH 1/2] virtio: rng: delay hwrng_register() till
+	driver is ready
+Date: Tue, 12 Aug 2014 12:36:54 +0530
+Message-ID: <76f5c012de1f6adeb1f8c105db5dc21a6e99fbc4.1407827215.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20140812055548.GB12762@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,41 +16,107 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, stable@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
+To: stable@vger.kernel.org
+Cc: Amit Shah <amit.shah@redhat.com>, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Tue) 12 Aug 2014 [13:55:48], Greg KH wrote:
-> On Tue, Aug 12, 2014 at 11:01:58AM +0530, Amit Shah wrote:
-> > On (Tue) 12 Aug 2014 [06:55:27], Greg KH wrote:
-> > > On Mon, Aug 11, 2014 at 06:11:47PM +0530, Amit Shah wrote:
-> > > > This is a 3.16-only patch.  The linux.git fix is
-> > > > 5c06273401f2eb7b290cadbae18ee00f8f65e893, which fixes this issue in a
-> > > > different way.
-> > > 
-> > > Why "different"?  Why can't I take that original patch instead?  What is
-> > > different in this patch, and why?
-> > 
-> > The commit referenced moves the hwrng_register() call to the ->scan()
-> > callback instead of it being in probe().  This was done to ensure the
-> > virtio-rng devices can contribute to the initial system entropy
-> > introduced in commit d9e7972619334.
-> > 
-> > That patch is quite small too, but will need a slight conflict
-> > resolution due to the previous two code-shuffling patches, and also
-> > the following revert.
-> > 
-> > However, I decided against the backport of the ->scan() method, since
-> > it wasn't designed to solve this regression, it happens to solve it,
-> > and it actually introduces new functionality.  I would be happy to
-> > provide a backport of the relevant patches, if you think that would be
-> > alright.
-> 
-> I almost always want "original" patches as it causes less bugs overall,
-> and less confusion for everyone involved.  Taking 2-3 patches is just as
-> easy as 1 patch, and even easier if I don't have to review it as "hard"
-> due to it not differing from what is in Linus's tree.
+Instead of calling hwrng_register() in the probe routing, call it in the
+scan routine.  This ensures that when hwrng_register() is successful,
+and it requests a few random bytes to seed the kernel's pool at init,
+we're ready to service that request.
 
-Thanks; I'll send a backport of the patches, then.
+This will also enable us to remove the workaround added previously to
+check whether probe was completed, and only then ask for data from the
+host.  The revert follows in the next commit.
 
-		Amit
+There's a slight behaviour change here on unsuccessful hwrng_register().
+Previously, when hwrng_register() failed, the probe() routine would
+fail, and the vqs would be torn down, and driver would be marked not
+initialized.  Now, the vqs will remain initialized, driver would be
+marked initialized as well, but won't be available in the list of RNGs
+available to hwrng core.  To fix the failures, the procedure remains the
+same, i.e. unload and re-load the module, and hope things succeed the
+next time around.
+
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+(cherry picked from commit 5c06273401f2eb7b290cadbae18ee00f8f65e893)
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+
+Conflicts:
+	drivers/char/hw_random/virtio-rng.c
+
+  Context conflict due to not backporting two commits that changed
+  struct layout.
+---
+ drivers/char/hw_random/virtio-rng.c | 25 +++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
+index e9b15bc..f4e04f3 100644
+--- a/drivers/char/hw_random/virtio-rng.c
++++ b/drivers/char/hw_random/virtio-rng.c
+@@ -36,6 +36,7 @@ struct virtrng_info {
+ 	bool busy;
+ 	char name[25];
+ 	int index;
++	bool hwrng_register_done;
+ };
+ 
+ static bool probe_done;
+@@ -137,15 +138,6 @@ static int probe_common(struct virtio_device *vdev)
+ 		return err;
+ 	}
+ 
+-	err = hwrng_register(&vi->hwrng);
+-	if (err) {
+-		vdev->config->del_vqs(vdev);
+-		vi->vq = NULL;
+-		kfree(vi);
+-		ida_simple_remove(&rng_index_ida, index);
+-		return err;
+-	}
+-
+ 	probe_done = true;
+ 	return 0;
+ }
+@@ -153,9 +145,11 @@ static int probe_common(struct virtio_device *vdev)
+ static void remove_common(struct virtio_device *vdev)
+ {
+ 	struct virtrng_info *vi = vdev->priv;
++
+ 	vdev->config->reset(vdev);
+ 	vi->busy = false;
+-	hwrng_unregister(&vi->hwrng);
++	if (vi->hwrng_register_done)
++		hwrng_unregister(&vi->hwrng);
+ 	vdev->config->del_vqs(vdev);
+ 	ida_simple_remove(&rng_index_ida, vi->index);
+ 	kfree(vi);
+@@ -171,6 +165,16 @@ static void virtrng_remove(struct virtio_device *vdev)
+ 	remove_common(vdev);
+ }
+ 
++static void virtrng_scan(struct virtio_device *vdev)
++{
++	struct virtrng_info *vi = vdev->priv;
++	int err;
++
++	err = hwrng_register(&vi->hwrng);
++	if (!err)
++		vi->hwrng_register_done = true;
++}
++
+ #ifdef CONFIG_PM_SLEEP
+ static int virtrng_freeze(struct virtio_device *vdev)
+ {
+@@ -195,6 +199,7 @@ static struct virtio_driver virtio_rng_driver = {
+ 	.id_table =	id_table,
+ 	.probe =	virtrng_probe,
+ 	.remove =	virtrng_remove,
++	.scan =		virtrng_scan,
+ #ifdef CONFIG_PM_SLEEP
+ 	.freeze =	virtrng_freeze,
+ 	.restore =	virtrng_restore,
+-- 
+1.9.3
