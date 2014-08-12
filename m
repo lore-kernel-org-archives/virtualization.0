@@ -1,17 +1,15 @@
-From: Razya Ladelsky <razya@il.ibm.com>
-Subject: Re: [PATCH] vhost: Add polling mode
-Date: Tue, 12 Aug 2014 13:57:05 +0300
-Message-ID: <OF93E480CE.EFA0854D-ONC2257D32.003BE092-C2257D32.003C1F49@il.ibm.com>
-References: <1407659404-razya@il.ibm.com>
-	<20140810083035.0CF58380729@moren.haifa.ibm.com>
-	<20140810194559.GA4344@redhat.com>
-	<20140811.124621.576073630604147753.davem@davemloft.net>
-	<20140812091850.GD6440@redhat.com>
+From: "H. Peter Anvin" <hpa@linux.intel.com>
+Subject: Re: [PATCH 1/1] virtio: rng: add derating factor for use by hwrng core
+Date: Tue, 12 Aug 2014 07:59:32 -0700
+Message-ID: <53EA2BD4.2040903@linux.intel.com>
+References: <6f2df652355d6e78da846d06e32489b7d9cdfcc2.1407782982.git.amit.shah@redhat.com>
+	<53E93F77.9030305@linux.intel.com>
+	<20140812052759.GI4184@grmbl.mre>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140812091850.GD6440@redhat.com>
+In-Reply-To: <20140812052759.GI4184@grmbl.mre>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,62 +19,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Eran Raichstein <ERANRA@il.ibm.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, abel.gordon@gmail.com, Alex Glikson <GLIKSON@il.ibm.com>, Yossi Kuperman1 <YOSSIKU@il.ibm.com>, Joel Nider <JOELN@il.ibm.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: jgarzik@bitpay.com, tytso@mit.edu, herbert@gondor.apana.org.au, kvm list <kvm@vger.kernel.org>, ricardo.neri-calderon@linux.intel.com, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>, duwe@lst.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> wrote on 12/08/2014 12:18:50 PM:
-
-> From: "Michael S. Tsirkin" <mst@redhat.com>
-> To: David Miller <davem@davemloft.net>
-> Cc: Razya Ladelsky/Haifa/IBM@IBMIL, kvm@vger.kernel.org, Alex 
-> Glikson/Haifa/IBM@IBMIL, Eran Raichstein/Haifa/IBM@IBMIL, Yossi 
-> Kuperman1/Haifa/IBM@IBMIL, Joel Nider/Haifa/IBM@IBMIL, 
-> abel.gordon@gmail.com, linux-kernel@vger.kernel.org, 
-> netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
-> Date: 12/08/2014 12:18 PM
-> Subject: Re: [PATCH] vhost: Add polling mode
+On 08/11/2014 10:27 PM, Amit Shah wrote:
+> On (Mon) 11 Aug 2014 [15:11:03], H. Peter Anvin wrote:
+>> On 08/11/2014 11:49 AM, Amit Shah wrote:
+>>> The khwrngd thread is started when a hwrng device of sufficient
+>>> quality is registered.  The virtio-rng device is backed by the
+>>> hypervisor, and we trust the hypervisor to provide real entropy.  A
+>>> malicious hypervisor is a scenario that's ruled out, so we are certain
+>>> the quality of randomness we receive is perfectly trustworthy.  Hence,
+>>> we use 100% for the factor, indicating maximum confidence in the source.
+>>>
+>>> Signed-off-by: Amit Shah <amit.shah@redhat.com>
+>>
+>> It isn't "ruled out", it is just irrelevant: if the hypervisor is
+>> malicious, the quality of your random number source is the least of your
+>> problems.
 > 
-> On Mon, Aug 11, 2014 at 12:46:21PM -0700, David Miller wrote:
-> > From: "Michael S. Tsirkin" <mst@redhat.com>
-> > Date: Sun, 10 Aug 2014 21:45:59 +0200
-> > 
-> > > On Sun, Aug 10, 2014 at 11:30:35AM +0300, Razya Ladelsky wrote:
-> >  ...
-> > > And, did your tests actually produce 100% load on both host CPUs?
-> >  ...
-> > 
-> > Michael, please do not quote an entire patch just to ask a one line
-> > question.
-> > 
-> > I truly, truly, wish it was simpler in modern email clients to delete
-> > the unrelated quoted material because I bet when people do this they
-> > are simply being lazy.
-> > 
-> > Thank you.
-> 
-> Lazy - mea culpa, though I'm using mutt so it isn't even hard.
-> 
-> The question still stands: the test results are only valid
-> if CPU was at 100% in all configurations.
-> This is the reason I generally prefer it when people report
-> throughput divided by CPU (power would be good too but it still
-> isn't easy for people to get that number).
+> Yea; I meant ruled out in that sense.  Should the commit msg be more
+> verbose?
 > 
 
-Hi Michael,
+Yes, as it is written it is misleading.
 
-Sorry for the delay, had some problems with my mailbox, and I realized 
-just now that 
-my reply wasn't sent.
-The vm indeed ALWAYS utilized 100% cpu, whether polling was enabled or 
-not.
-The vhost thread utilized less than 100% (of the other cpu) when polling 
-was disabled.
-Enabling polling increased its utilization to 100% (in which case both 
-cpus were 100% utilized). 
-
-
-> -- 
-> MST
-> 
+	-hpa
