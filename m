@@ -1,21 +1,14 @@
-From: Razya Ladelsky <RAZYA@il.ibm.com>
-Subject: Re: [PATCH] vhost: Add polling mode
-Date: Tue, 19 Aug 2014 11:36:31 +0300
-Message-ID: <OFB79DEF3C.1ADC0F14-ONC2257D39.002F0F0A-C2257D39.002F3CBC@il.ibm.com>
-References: <1407659404-razya@il.ibm.com>
-	<20140810083035.0CF58380729@moren.haifa.ibm.com>
-	<20140810194559.GA4344@redhat.com>
-	<20140811.124621.576073630604147753.davem@davemloft.net>
-	<20140812091850.GD6440@redhat.com>
-	<OF93E480CE.EFA0854D-ONC2257D32.003BE092-C2257D32.003C1F49@il.ibm.com>
-	<20140813121550.GA21026@redhat.com>
-	<OFFB3DD9F0.3A92A6A0-ONC2257D37.0043D722-C2257D37.004522A0@il.ibm.com>
-	<20140817125809.GA22213@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 2/2] Install udev rules in system-default directory
+Date: Tue, 19 Aug 2014 19:20:20 +0200
+Message-ID: <53F38754.2050808@redhat.com>
+References: <cover.1407416628.git.amit.shah@redhat.com>
+	<3df55388b1b3acd142f391494f102c3ddb2270ed.1407416628.git.amit.shah__45224.3810439997$1407417016$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140817125809.GA22213@redhat.com>
+In-Reply-To: <3df55388b1b3acd142f391494f102c3ddb2270ed.1407416628.git.amit.shah__45224.3810439997$1407417016$gmane$org@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,31 +18,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Eran Raichstein <ERANRA@il.ibm.com>, kvm-owner@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, abel.gordon@gmail.com, Alex Glikson <GLIKSON@il.ibm.com>, Yossi Kuperman1 <YOSSIKU@il.ibm.com>, Joel Nider <JOELN@il.ibm.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
+To: Amit Shah <amit.shah@redhat.com>, jgarzik@bitpay.com
+Cc: hpa@linux.intel.com, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> That was just one example. There many other possibilities.  Either
-> actually make the systems load all host CPUs equally, or divide
-> throughput by host CPU.
-> 
+Il 07/08/2014 15:09, Amit Shah ha scritto:
+> +udevrules_DATA	 = 90-virtio-rng.rules
 
-The polling patch adds this capability to vhost, reducing costly exit 
-overhead when the vm is loaded.
+If rng-tools is packaged with "make dist" you need this to be
 
-In order to load the vm I ran netperf  with msg size of 256:
+dist_udevrules_DATA	 = 90-virtio-rng.rules
 
-Without polling:  2480 Mbits/sec,  utilization: vm - 100%   vhost - 64% 
-With Polling: 4160 Mbits/sec,  utilization: vm - 100%   vhost - 100% 
+or alternatively
 
-Therefore, throughput/cpu without polling is 15.1, and 20.8 with polling.
+EXTRA_DIST = 90-virtio-rng.rules
+udevrules_DATA	 = 90-virtio-rng.rules
 
-My intention was to load vhost as close as possible to 100% utilization 
-without polling, in order to compare it to the polling utilization case 
-(where vhost is always 100%). 
-The best use case, of course, would be when the shared vhost thread work 
-(TBD) is integrated and then vhost will actually be using its polling 
-cycles to handle requests of multiple devices (even from multiple vms).
+> +AC_ARG_WITH([udevrulesdir],
+> +	AS_HELP_STRING([--with-udevrulesdir=DIR], [Directory for udev rules]),
+> +	[],
+> +	[with_udevrulesdir=$($PKG_CONFIG --variable=udevdir udev)"/rules.d"])
+> +AC_SUBST([udevrulesdir], [$with_udevrulesdir])
+
+You can use AM_CONDITIONAL to skip the installation if
+$with_udevrulesdir is "no" (aka --without-udevrulesdir).  Then you'd have
+
+EXTRA_DIST = 90-virtio-rng.rules
+if INSTALL_UDEV_RULES
+udevrules_DATA	 = 90-virtio-rng.rules
+endif
+
+I don't know offhand if this works:
+
+if INSTALL_UDEV_RULES
+dist_udevrules_DATA	 = 90-virtio-rng.rules
+endif
+
+but I think so; you can check with "./configure --without-udevrulesdir
+&& make && make dist".
 
 Thanks,
-Razya
+
+Paolo
