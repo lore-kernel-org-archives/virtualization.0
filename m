@@ -1,18 +1,14 @@
-From: Yijing Wang <wangyijing@huawei.com>
-Subject: Re: [RFC PATCH 00/11] Refactor MSI to support Non-PCI device
-Date: Wed, 20 Aug 2014 15:55:46 +0800
-Message-ID: <53F45482.4020505__41250.9318710819$1408521479$gmane$org@huawei.com>
-References: <1406344128-27055-1-git-send-email-wangyijing@huawei.com>
-	<c6d34fe1bbe9457ea8cff7dcd97902b8@DM2PR03MB317.namprd03.prod.outlook.com>
-	<53DEF80C.1010608@huawei.com>
-	<8a2b4e237f2d4c7e95ef72867658b53a@BLUPR03MB566.namprd03.prod.outlook.com>
-	<53F44022.6030706@huawei.com>
-	<c3b2bd89ef3d462cb302f6ede56a0d44@BLUPR03MB566.namprd03.prod.outlook.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH] vhost: Add polling mode
+Date: Wed, 20 Aug 2014 10:41:32 +0200
+Message-ID: <53F45F3C.5000207@de.ibm.com>
+References: <1407659404-razya@il.ibm.com>
+	<20140810083035.0CF58380729@moren.haifa.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <c3b2bd89ef3d462cb302f6ede56a0d44@BLUPR03MB566.namprd03.prod.outlook.com>
+In-Reply-To: <20140810083035.0CF58380729@moren.haifa.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,145 +18,100 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Bharat.Bhushan@freescale.com" <Bharat.Bhushan@freescale.com>, "arnab.basu@freescale.com" <arnab.basu@freescale.com>
-Cc: "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, Russell King <linux@arm.linux.org.uk>, "Paul.Mundt@huawei.com" <Paul.Mundt@huawei.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Xinwei Hu <huxinwei@huawei.com>, Hanjun Guo <guohanjun@huawei.com>, Bjorn Helgaas <bhelgaas@google.com>, Wuyun <wuyun.wu@huawei.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+To: Razya Ladelsky <razya@il.ibm.com>, mst@redhat.com, kvm@vger.kernel.org
+Cc: ERANRA@il.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, GLIKSON@il.ibm.com, YOSSIKU@il.ibm.com, abel.gordon@gmail.com, JOELN@il.ibm.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
->>> We in Freescale will be using MSI for the devices behind a new-bus (which is
->> not PCI based), We have a separate bus driver for same. And this new bus driver
->> register/provide its own address/data write function which is based on that
->> specific bus protocol.
->>
->> Hi Bharat, I'm glad to know your MSI device working mode.
->> Provide the private MSI setup functions in bus-driver layer can't apply to all
->> Non-PCI MSI devices, because we can not guarantee Non-PCI MSI devices are always
->> on a bus. The existing HPET, DMAR device both have no bus bind.
+On 10/08/14 10:30, Razya Ladelsky wrote:
+> From: Razya Ladelsky <razya@il.ibm.com>
+> Date: Thu, 31 Jul 2014 09:47:20 +0300
+> Subject: [PATCH] vhost: Add polling mode
 > 
-> Yes, that's why I was not sure of bus-driver or device-driver model.
+> When vhost is waiting for buffers from the guest driver (e.g., more packets to
+> send in vhost-net's transmit queue), it normally goes to sleep and waits for the
+> guest to "kick" it. This kick involves a PIO in the guest, and therefore an exit
+> (and possibly userspace involvement in translating this PIO exit into a file
+> descriptor event), all of which hurts performance.
 > 
->> I'm working on a
->> new MSI setup framework, as you mentioned before, in device-driver model.
->>
->> I abstracted a new virtual device (called struct msi_dev), this msi_dev will
->> manage all MSI info,
+> If the system is under-utilized (has cpu time to spare), vhost can continuously
+> poll the virtqueues for new buffers, and avoid asking the guest to kick us.
+> This patch adds an optional polling mode to vhost, that can be enabled via a
+> kernel module parameter, "poll_start_rate".
 > 
-> Will this "struct msi_dev" will be part of "struct device"?
+> When polling is active for a virtqueue, the guest is asked to disable
+> notification (kicks), and the worker thread continuously checks for new buffers.
+> When it does discover new buffers, it simulates a "kick" by invoking the
+> underlying backend driver (such as vhost-net), which thinks it got a real kick
+> from the guest, and acts accordingly. If the underlying driver asks not to be
+> kicked, we disable polling on this virtqueue.
+> 
+> We start polling on a virtqueue when we notice it has work to do. Polling on
+> this virtqueue is later disabled after 3 seconds of polling turning up no new
+> work, as in this case we are better off returning to the exit-based notification
+> mechanism. The default timeout of 3 seconds can be changed with the
+> "poll_stop_idle" kernel module parameter.
+> 
+> This polling approach makes lot of sense for new HW with posted-interrupts for
+> which we have exitless host-to-guest notifications. But even with support for
+> posted interrupts, guest-to-host communication still causes exits. Polling adds
+> the missing part.
+> 
+> When systems are overloaded, there won't be enough cpu time for the various
+> vhost threads to poll their guests' devices. For these scenarios, we plan to add
+> support for vhost threads that can be shared by multiple devices, even of
+> multiple vms.
+> Our ultimate goal is to implement the I/O acceleration features described in:
+> KVM Forum 2013: Efficient and Scalable Virtio (by Abel Gordon)
+> https://www.youtube.com/watch?v=9EyweibHfEs
+> and
+> https://www.mail-archive.com/kvm@vger.kernel.org/msg98179.html
+> 
+> I ran some experiments with TCP stream netperf and filebench (having 2 threads
+> performing random reads) benchmarks on an IBM System x3650 M4.
+> I have two machines, A and B. A hosts the vms, B runs the netserver.
+> The vms (on A) run netperf, its destination server is running on B.
+> All runs loaded the guests in a way that they were (cpu) saturated. For example,
+> I ran netperf with 64B messages, which is heavily loading the vm (which is why
+> its throughput is low).
+> The idea was to get it 100% loaded, so we can see that the polling is getting it
+> to produce higher throughput.
+> 
+> The system had two cores per guest, as to allow for both the vcpu and the vhost
+> thread to run concurrently for maximum throughput (but I didn't pin the threads
+> to specific cores).
+> My experiments were fair in a sense that for both cases, with or without
+> polling, I run both threads, vcpu and vhost, on 2 cores (set their affinity that
+> way). The only difference was whether polling was enabled/disabled.
+> 
+> Results:
+> 
+> Netperf, 1 vm:
+> The polling patch improved throughput by ~33% (1516 MB/sec -> 2046 MB/sec).
+> Number of exits/sec decreased 6x.
+> The same improvement was shown when I tested with 3 vms running netperf
+> (4086 MB/sec -> 5545 MB/sec).
+> 
+> filebench, 1 vm:
+> ops/sec improved by 13% with the polling patch. Number of exits was reduced by
+> 31%.
+> The same experiment with 3 vms running filebench showed similar numbers.
+> 
+> Signed-off-by: Razya Ladelsky <razya@il.ibm.com>
 
-struct msi_dev contains the struct device
-
-piece code:
-
-struct msi_dev {
-    u8 type;
-    u8 enabled;
-    u8 nvec;
-    u8 nvec_retry;
-    char *id;
-    void __iomem *base;
-    struct msix_entry *entries;
-    struct list_head msi_list;
-    struct device dev;
-    void *msi_data;
-    struct msi_driver *driver;
-    const struct attribute_group **irq_groups;
-};
-
-
-struct msi_driver {
-    const char *name;
-    char *id;
-    void (*msi_set_enable)(struct msi_dev *dev, int enable);
-    int (*msi_setup_entry)(struct msi_dev *dev, struct msi_desc *entry);
-    int (*msix_setup_entries)(struct msi_dev *dev, struct msi_desc *entry, int index);
-    u32 (*msi_mask_irq)(struct msi_desc *desc, u32 mask, u32 flag);
-    u32 (*msix_mask_irq)(struct msi_desc *desc, u32 flag);
-    void (*msi_read_message)(struct msi_desc *desc, struct msi_msg *msg);
-    void (*msi_write_message)(struct msi_desc *desc, struct msi_msg *msg);
-    void (*msi_set_legacy_irq)(struct msi_dev *dev, int enable);
-    struct device_driver driver;
-};
-
-Thanks!
-Yijing.
-
-> 
->> and a new bus named msi_bus, also introduced a new driver
->> msi_driver, msi_bus is responsible for binding msi_dev and msi_driver.
->> All MSI devices will be classified into different MSI device types, like
->> MSI_TYPE_PCI, MSI_TYPE_HPET, MSI_TYPE_DMAR, etc..
->>
->> Each MSI type device should provide a private struct msi_driver. msi_driver
->> should contain the type specific MSI ops functions to help setup and enable MSI
->> device, request MSI irq.
->>
->> I almost finish the first draft, and will post out next week in plan :)
-> 
-> Will be looking forward to next version.
-> 
-> Thanks
-> -Bharat
-> 
->>
->>
->> Thanks!
->> Yijing.
->>
->>>
->>> Thanks
->>> -Bharat
->>>
->>>>
->>>> My patchset is just a RFC draft, I will update it later, all we want
->>>> to do is make kernel support Non-PCI MSI devices.
->>>>
->>>> Thanks!
->>>> Yijing.
->>>>
->>>>
->>>>>
->>>>> Thanks
->>>>> Arnab
->>>>> --
->>>>> To unsubscribe from this list: send the line "unsubscribe
->>>>> linux-kernel" in the body of a message to majordomo@vger.kernel.org
->>>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>>>> Please read the FAQ at  http://www.tux.org/lkml/
->>>>>
->>>>> .
->>>>>
->>>>
->>>>
->>>> --
->>>> Thanks!
->>>> Yijing
->>>>
->>>> --
->>>> To unsubscribe from this list: send the line "unsubscribe linux-pci"
->>>> in the body of a message to majordomo@vger.kernel.org More majordomo
->>>> info at http://vger.kernel.org/majordomo-info.html
->>>
->>> .
->>>
->>
->>
->> --
->> Thanks!
->> Yijing
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-pci" in the body
->> of a message to majordomo@vger.kernel.org More majordomo info at
->> http://vger.kernel.org/majordomo-info.html
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> .
-> 
+Gave it a quick try on s390/kvm. As expected it makes no difference for big streaming workload like iperf.
+uperf with a 1-1 round robin got indeed faster by about 30%.
+The high CPU consumption is something that bothers me though, as virtualized systems tend to be full.
 
 
--- 
-Thanks!
-Yijing
+> +static int poll_start_rate = 0;
+> +module_param(poll_start_rate, int, S_IRUGO|S_IWUSR);
+> +MODULE_PARM_DESC(poll_start_rate, "Start continuous polling of virtqueue when rate of events is at least this number per jiffy. If 0, never start polling.");
+> +
+> +static int poll_stop_idle = 3*HZ; /* 3 seconds */
+> +module_param(poll_stop_idle, int, S_IRUGO|S_IWUSR);
+> +MODULE_PARM_DESC(poll_stop_idle, "Stop continuous polling of virtqueue after this many jiffies of no work.");
+
+This seems ridicoudly high. Even one jiffie is an eternity, so setting it to 1 as a default would reduce the CPU overhead for most cases.
+If we dont have a packet in one millisecond, we can surely go back to the kick approach, I think.
+
+Christian
