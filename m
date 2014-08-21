@@ -1,17 +1,14 @@
-From: David Laight <David.Laight@ACULAB.COM>
-Subject: RE: [PATCH] vhost: Add polling mode
-Date: Thu, 21 Aug 2014 14:29:41 +0000
-Message-ID: <063D6719AE5E284EB5DD2968C1650D6D1747D7F3@AcuExch.aculab.com>
-References: <1407659404-razya@il.ibm.com>
-	<20140810083035.0CF58380729@moren.haifa.ibm.com>
-	<20140820105710.GC17371@redhat.com>
-	<OFBE98487F.0F49BDD7-ONC2257D3B.004C908C-C2257D3B.004F09FD@il.ibm.com>
+From: Christopher Covington <cov@codeaurora.org>
+Subject: Re: [Qemu-devel] QEMU dies on any attempt to load a Linux kernel
+	module when using a 9P rootfs
+Date: Thu, 21 Aug 2014 15:50:58 -0400
+Message-ID: <53F64DA2.3060308@codeaurora.org>
+References: <5293718E.4090508@gentoo.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <OFBE98487F.0F49BDD7-ONC2257D3B.004C908C-C2257D3B.004F09FD@il.ibm.com>
-Content-Language: en-US
+In-Reply-To: <5293718E.4090508@gentoo.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,55 +18,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: 'Razya Ladelsky' <RAZYA@il.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Eran Raichstein <ERANRA@il.ibm.com>, Alex Glikson <GLIKSON@il.ibm.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "abel.gordon@gmail.com" <abel.gordon@gmail.com>, Yossi Kuperman1 <YOSSIKU@il.ibm.com>, Joel Nider <JOELN@il.ibm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Richard Yao <ryao@gentoo.org>
+Cc: kernel@gentoo.org, v9fs-developer@lists.sourceforge.net, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Razya Ladelsky
-> "Michael S. Tsirkin" <mst@redhat.com> wrote on 20/08/2014 01:57:10 PM:
-> 
-> > > Results:
-> > >
-> > > Netperf, 1 vm:
-> > > The polling patch improved throughput by ~33% (1516 MB/sec -> 2046 MB/sec).
-> > > Number of exits/sec decreased 6x.
-> > > The same improvement was shown when I tested with 3 vms running netperf
-> > > (4086 MB/sec -> 5545 MB/sec).
-> > >
-> > > filebench, 1 vm:
-> > > ops/sec improved by 13% with the polling patch. Number of exits
-> > > was reduced by 31%.
-> > > The same experiment with 3 vms running filebench showed similar numbers.
-> > >
-> > > Signed-off-by: Razya Ladelsky <razya@il.ibm.com>
-> >
-> > This really needs more thourough benchmarking report, including
-> > system data.  One good example for a related patch:
-> > http://lwn.net/Articles/551179/
-> > though for virtualization, we need data about host as well, and if you
-> > want to look at streaming benchmarks, you need to test different message
-> > sizes and measure packet size.
-> >
-> 
-> Hi Michael,
-> I have already tried running netperf with several message sizes:
-> 64,128,256,512,600,800...
-> But the results are inconsistent even in the baseline/unpatched
-> configuration.
-> For smaller msg sizes, I get consistent numbers. However, at some point,
-> when I increase the msg size
-> I get unstable results. For example, for a 512B msg, I get two scenarios:
-> vm utilization 100%, vhost utilization 75%, throughput ~6300
-> vm utilization 80%, vhost utilization 13%, throughput ~9400 (line rate)
-> 
-> I don't know why vhost is behaving that way for certain message sizes.
-> Do you have any insight to why this is happening?
+Hi Richard,
 
-Have you tried looking at the actual ethernet packet sizes.
-It may well jump between using small packets (the size of the writes)
-and full sized ones.
+On 11/25/2013 10:49 AM, Richard Yao wrote:
+> I booted a Gentoo Linux installation in QEMU with a 9P rootfs as follows:
+> 
+> sudo qemu-kvm -cpu host -m 1024 -kernel
+> /mnt/test/usr/src/linux-3.13-rc1/arch/x86/boot/bzImage -append
+> 'root=/dev/root rootfstype=9p rootflags=trans=virtio,version=9p2000.L ro
+> console=ttyS0' -serial stdio -fsdev
+> local,id=root,path=/mnt/test,security_model=none -device
+> virtio-9p-pci,fsdev=root,mount_tag=/dev/root
+> 
+> The system boots fine, but attempting to load any module will fail:
+> 
+> localhost ~ # modprobe crc32
+> qemu-system-x86_64: virtio: trying to map MMIO memory
+> 
+> The behavior is consistent no matter what combination of things that I
+> try. So far, I have tried Linux 3.10.7-gentoo (Gentoo patchset) and
+> Linux 3.13-rc1. I have tried QEMU 1.4.2, QEMU 1.6.1 and QEMU HEAD. I
+> have also tried booting without KVM, but the behavior is the same:
+> 
+> sudo qemu-kvm --no-kvm -m 1024 -kernel
+> /mnt/test/usr/src/linux-3.13-rc1/arch/x86/boot/bzImage -append
+> 'root=/dev/root rootfstype=9p rootflags=trans=virtio,version=9p2000.L ro
+> console=ttyS0' -serial stdio -fsdev
+> local,id=root,path=/mnt/test,security_model=none -device
+> virtio-9p-pci,fsdev=root,mount_tag=/dev/root
 
-If you are trying to measure ethernet packet 'cost' you need to use UDP.
-However that probably uses different code paths.
+Have you used this setup recently?
 
-	David
+With my 3.15.0+ kernel, qemu-system-x86_64 substituted for qemu-kvm, and the
+path changed from your arguments I get:
+
+9pnet_virtio: no channels available
+VFS: Cannot open root device "root" or unknown-block(0,0): error -2
+Please append a correct "root=" boot option; here are the available partitions:
+0b00         1048575 sr0  driver: sr
+Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0)
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+rel-1.7.5-0-ge51488c-20140602_164612-nilsson.home.kraxel.org 04/01/2014
+
+Thanks,
+Christopher
+
+-- 
+Employee of Qualcomm Innovation Center, Inc.
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+hosted by the Linux Foundation.
