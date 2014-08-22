@@ -1,14 +1,15 @@
-From: Richard Yao <ryao@gentoo.org>
-Subject: Re: [Qemu-devel] QEMU dies on any attempt to load a Linux kernel
-	module when using a 9P rootfs
-Date: Thu, 21 Aug 2014 22:00:43 -0500
-Message-ID: <D7F0E6B9-FA40-4E84-B4D3-C3AB7FA30C6D__46743.7737192542$1408677019$gmane$org@gentoo.org>
+From: Christopher Covington <cov@codeaurora.org>
+Subject: Re: [V9fs-developer] [Qemu-devel] QEMU dies on any attempt to load
+	a Linux kernel module when using a 9P rootfs
+Date: Fri, 22 Aug 2014 08:37:52 -0400
+Message-ID: <53F739A0.4070106@codeaurora.org>
 References: <5293718E.4090508@gentoo.org> <53F64DA2.3060308@codeaurora.org>
-Mime-Version: 1.0 (1.0)
+	<20140822062744.GA12382@u-barrelet>
+Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <53F64DA2.3060308@codeaurora.org>
+In-Reply-To: <20140822062744.GA12382@u-barrelet>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,60 +19,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christopher Covington <cov@codeaurora.org>
-Cc: "kernel@gentoo.org" <kernel@gentoo.org>, "v9fs-developer@lists.sourceforge.net" <v9fs-developer@lists.sourceforge.net>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>
+To: Dominique Martinet <dominique.martinet@cea.fr>
+Cc: Richard Yao <ryao@gentoo.org>, qemu-devel@nongnu.org, kernel@gentoo.org, v9fs-developer@lists.sourceforge.net, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-I use it all the time, but I have not updated to a more recent kernel yet. I am at LinuxCon, so I am unlikely to try it until I get home.
+Hi Dominique,
 
-> On Aug 21, 2014, at 2:50 PM, Christopher Covington <cov@codeaurora.org> wrote:
+On 08/22/2014 02:27 AM, Dominique Martinet wrote:
+> Hi,
 > 
-> Hi Richard,
+> Christopher Covington wrote on Thu, Aug 21, 2014 at 03:50:58PM -0400:
+>> With my 3.15.0+ kernel, qemu-system-x86_64 substituted for qemu-kvm, and the
+>> path changed from your arguments I get:
+>>
+>> 9pnet_virtio: no channels available
+>> VFS: Cannot open root device "root" or unknown-block(0,0): error -2
+>> Please append a correct "root=" boot option; here are the available partitions:
+>> 0b00         1048575 sr0  driver: sr
+>> Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0)
+>> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+>> rel-1.7.5-0-ge51488c-20140602_164612-nilsson.home.kraxel.org 04/01/2014
 > 
->> On 11/25/2013 10:49 AM, Richard Yao wrote:
->> I booted a Gentoo Linux installation in QEMU with a 9P rootfs as follows:
->> 
->> sudo qemu-kvm -cpu host -m 1024 -kernel
->> /mnt/test/usr/src/linux-3.13-rc1/arch/x86/boot/bzImage -append
->> 'root=/dev/root rootfstype=9p rootflags=trans=virtio,version=9p2000.L ro
->> console=ttyS0' -serial stdio -fsdev
->> local,id=root,path=/mnt/test,security_model=none -device
->> virtio-9p-pci,fsdev=root,mount_tag=/dev/root
->> 
->> The system boots fine, but attempting to load any module will fail:
->> 
->> localhost ~ # modprobe crc32
->> qemu-system-x86_64: virtio: trying to map MMIO memory
->> 
->> The behavior is consistent no matter what combination of things that I
->> try. So far, I have tried Linux 3.10.7-gentoo (Gentoo patchset) and
->> Linux 3.13-rc1. I have tried QEMU 1.4.2, QEMU 1.6.1 and QEMU HEAD. I
->> have also tried booting without KVM, but the behavior is the same:
->> 
->> sudo qemu-kvm --no-kvm -m 1024 -kernel
->> /mnt/test/usr/src/linux-3.13-rc1/arch/x86/boot/bzImage -append
->> 'root=/dev/root rootfstype=9p rootflags=trans=virtio,version=9p2000.L ro
->> console=ttyS0' -serial stdio -fsdev
->> local,id=root,path=/mnt/test,security_model=none -device
->> virtio-9p-pci,fsdev=root,mount_tag=/dev/root
+> I'm pretty sure that's the same problem that's been reported a few times
+> here, could you try again after cherry-picking this commit:
 > 
-> Have you used this setup recently?
+> commit f15844e0777fec936f87a87f97394f83911dacd3
+> Author: Dominique Martinet <dominique.martinet@cea.fr>
+> Date:   Wed May 21 10:02:12 2014 +0200
 > 
-> With my 3.15.0+ kernel, qemu-system-x86_64 substituted for qemu-kvm, and the
-> path changed from your arguments I get:
+>     9P: fix return value in v9fs_fid_xattr_set
+>     
+>     v9fs_fid_xattr_set is supposed to return 0 on success.
+>     
+>     This corrects the behaviour introduced in commit
+>     bdd5c28dcb8330b9074404cc92a0b83aae5606a
+>     "9p: fix return value in case in v9fs_fid_xattr_set()"
+>     
+>     (The function returns a negative error on error, as expected)
+>     
+>     Signed-off-by: Dominique Martinet <dominique.martinet@cea.fr>
+>     Signed-off-by: Eric Van Hensbergen <ericvh@gmail.com>
 > 
-> 9pnet_virtio: no channels available
-> VFS: Cannot open root device "root" or unknown-block(0,0): error -2
-> Please append a correct "root=" boot option; here are the available partitions:
-> 0b00         1048575 sr0  driver: sr
-> Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0)
-> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-> rel-1.7.5-0-ge51488c-20140602_164612-nilsson.home.kraxel.org 04/01/2014
 > 
-> Thanks,
-> Christopher
-> 
-> -- 
-> Employee of Qualcomm Innovation Center, Inc.
-> Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-> hosted by the Linux Foundation.
+> It has gotten in in v3.16-rc1, so your 3.15.0+ proably doesn't have it.
+
+Thanks for the pointer to this patch. I think I started this kernel half way
+through the 3.16 merge window. The last non-cherry-picked patch I have is:
+
+commit 6d87c225f5d82d29243dc124f1ffcbb0e14ec358
+Merge: 338c09a 22001f6
+Author: Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Thu Jun 12 23:06:23 2014 -0700
+
+    Merge branch 'for-linus' of
+git://git.kernel.org/pub/scm/linux/kernel/git/sage/ceph-client
+
+So I do have the change you pointed out. Nevertheless, I'll reconfirm with the
+latest torvalds/master.
+
+Thanks,
+Christopher
+
+-- 
+Employee of Qualcomm Innovation Center, Inc.
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+hosted by the Linux Foundation.
