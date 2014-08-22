@@ -1,15 +1,17 @@
 From: Christopher Covington <cov@codeaurora.org>
 Subject: Re: [V9fs-developer] [Qemu-devel] QEMU dies on any attempt to load
 	a Linux kernel module when using a 9P rootfs
-Date: Fri, 22 Aug 2014 08:37:52 -0400
-Message-ID: <53F739A0.4070106@codeaurora.org>
+Date: Fri, 22 Aug 2014 13:54:14 -0400
+Message-ID: <53F783C6.2030409@codeaurora.org>
 References: <5293718E.4090508@gentoo.org> <53F64DA2.3060308@codeaurora.org>
 	<20140822062744.GA12382@u-barrelet>
+	<53F739A0.4070106@codeaurora.org>
+	<20140822124906.GA13229@u-galfione>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140822062744.GA12382@u-barrelet>
+In-Reply-To: <20140822124906.GA13229@u-galfione>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,59 +27,66 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Hi Dominique,
 
-On 08/22/2014 02:27 AM, Dominique Martinet wrote:
+On 08/22/2014 08:49 AM, Dominique Martinet wrote:
 > Hi,
 > 
-> Christopher Covington wrote on Thu, Aug 21, 2014 at 03:50:58PM -0400:
->> With my 3.15.0+ kernel, qemu-system-x86_64 substituted for qemu-kvm, and the
->> path changed from your arguments I get:
+> Christopher Covington wrote on Fri, Aug 22, 2014 at 08:37:52AM -0400:
+>> Thanks for the pointer to this patch. I think I started this kernel half way
+>> through the 3.16 merge window. The last non-cherry-picked patch I have is:
 >>
->> 9pnet_virtio: no channels available
->> VFS: Cannot open root device "root" or unknown-block(0,0): error -2
->> Please append a correct "root=" boot option; here are the available partitions:
->> 0b00         1048575 sr0  driver: sr
->> Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0)
->> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
->> rel-1.7.5-0-ge51488c-20140602_164612-nilsson.home.kraxel.org 04/01/2014
+>> commit 6d87c225f5d82d29243dc124f1ffcbb0e14ec358
+>>
+>> So I do have the change you pointed out. Nevertheless, I'll reconfirm with the
+>> latest torvalds/master.
 > 
-> I'm pretty sure that's the same problem that's been reported a few times
-> here, could you try again after cherry-picking this commit:
+> Right, so you already do have it. I don't think there's been anything
+> else 9P related recently, so it probably will not help much -- sorry for
+> blindly assuming it would be this.
 > 
-> commit f15844e0777fec936f87a87f97394f83911dacd3
-> Author: Dominique Martinet <dominique.martinet@cea.fr>
-> Date:   Wed May 21 10:02:12 2014 +0200
+> Actually reading the error message now, "no channels available" is
+> printed when virtio doesn't find any match in device name so it would
+> look like the mount name doesn't match maybe?
 > 
->     9P: fix return value in v9fs_fid_xattr_set
->     
->     v9fs_fid_xattr_set is supposed to return 0 on success.
->     
->     This corrects the behaviour introduced in commit
->     bdd5c28dcb8330b9074404cc92a0b83aae5606a
->     "9p: fix return value in case in v9fs_fid_xattr_set()"
->     
->     (The function returns a negative error on error, as expected)
->     
->     Signed-off-by: Dominique Martinet <dominique.martinet@cea.fr>
->     Signed-off-by: Eric Van Hensbergen <ericvh@gmail.com>
-> 
-> 
-> It has gotten in in v3.16-rc1, so your 3.15.0+ proably doesn't have it.
+> Could we get your exact qemu command line to confirm? (the name that
+> needs to match is /dev/root here, used for booting as root= and for qemu
+> as mount_tag)
 
-Thanks for the pointer to this patch. I think I started this kernel half way
-through the 3.16 merge window. The last non-cherry-picked patch I have is:
+I re-transposed Richard's command line to my environment and it worked. Thanks
+for pointing me in that direction. For the record, I used:
 
-commit 6d87c225f5d82d29243dc124f1ffcbb0e14ec358
-Merge: 338c09a 22001f6
-Author: Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Thu Jun 12 23:06:23 2014 -0700
+$dir/bin/x86_64-linux-gnu/qemu-system-x86_64 \
+  -m 1024 \
+  -kernel $dir/boot/x86_64-linux-gnu/bzImage-x86_64 \
+  -append 'root=/dev/root init=/sbin/x86_64-linux-gnu/init rootfstype=9p
+rootflags=trans=virtio,version=9p2000.L ro console=ttyS0' \
+  -serial stdio \
+  -fsdev local,id=root,path=$dir,security_model=none \
+  -device virtio-9p-pci,fsdev=root,mount_tag=/dev/root \
+  -monitor none
 
-    Merge branch 'for-linus' of
-git://git.kernel.org/pub/scm/linux/kernel/git/sage/ceph-client
+$dir/bin/x86_64-linux-gnu/qemu-system-arm \
+  -M virt \
+  -cpu cortex-a15 \
+  -m 1024 \
+  -kernel $dir/boot/arm-linux-gnueabihf/Image \
+  -append 'root=/dev/root init=/sbin/arm-linux-gnueabihf/init rootfstype=9p
+rootflags=trans=virtio,version=9p2000.L ro console=ttyAMA0' \
+  -serial stdio \
+  -fsdev local,id=root,path=$dir,security_model=none \
+  -device virtio-9p-device,fsdev=root,mount_tag=/dev/root \
+  -monitor none
 
-So I do have the change you pointed out. Nevertheless, I'll reconfirm with the
-latest torvalds/master.
+$dir/bin/x86_64-linux-gnu/qemu-system-aarch64 \
+  -M virt \
+  -cpu cortex-a57 \
+  -m 1024 \
+  -kernel $dir/boot/aarch64-linux-gnu/Image \
+  -append 'root=/dev/root init=/sbin/aarch64-linux-gnu/init rootfstype=9p
+rootflags=trans=virtio,version=9p2000.L ro console=ttyAMA0' \
+  -serial stdio \
+  -fsdev local,id=root,path=$dir,security_model=none \
+  -device virtio-9p-device,fsdev=root,mount_tag=/dev/root -monitor none
 
-Thanks,
 Christopher
 
 -- 
