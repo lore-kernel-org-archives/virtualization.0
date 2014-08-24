@@ -1,17 +1,17 @@
-From: Christopher Covington <cov@codeaurora.org>
-Subject: Re: [V9fs-developer] [Qemu-devel] QEMU dies on any attempt to load
-	a Linux kernel module when using a 9P rootfs
-Date: Fri, 22 Aug 2014 13:54:14 -0400
-Message-ID: <53F783C6.2030409@codeaurora.org>
-References: <5293718E.4090508@gentoo.org> <53F64DA2.3060308@codeaurora.org>
-	<20140822062744.GA12382@u-barrelet>
-	<53F739A0.4070106@codeaurora.org>
-	<20140822124906.GA13229@u-galfione>
+From: Razya Ladelsky <RAZYA@il.ibm.com>
+Subject: RE: [PATCH] vhost: Add polling mode
+Date: Sun, 24 Aug 2014 15:26:34 +0300
+Message-ID: <OF3F9F58DB.FFDF5B60-ONC2257D3E.00443320-C2257D3E.004449BE@il.ibm.com>
+References: <1407659404-razya@il.ibm.com>
+	<20140810083035.0CF58380729@moren.haifa.ibm.com>
+	<20140820105710.GC17371@redhat.com>
+	<OFBE98487F.0F49BDD7-ONC2257D3B.004C908C-C2257D3B.004F09FD@il.ibm.com>
+	<063D6719AE5E284EB5DD2968C1650D6D1747D7F3@AcuExch.aculab.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140822124906.GA13229@u-galfione>
+In-Reply-To: <063D6719AE5E284EB5DD2968C1650D6D1747D7F3@AcuExch.aculab.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,75 +21,87 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dominique Martinet <dominique.martinet@cea.fr>
-Cc: Richard Yao <ryao@gentoo.org>, qemu-devel@nongnu.org, kernel@gentoo.org, v9fs-developer@lists.sourceforge.net, virtualization@lists.linux-foundation.org
+To: David Laight <David.Laight@ACULAB.COM>
+Cc: Eran Raichstein <ERANRA@il.ibm.com>, Alex Glikson <GLIKSON@il.ibm.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "abel.gordon@gmail.com" <abel.gordon@gmail.com>, Yossi Kuperman1 <YOSSIKU@il.ibm.com>, Joel Nider <JOELN@il.ibm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Dominique,
+David Laight <David.Laight@ACULAB.COM> wrote on 21/08/2014 05:29:41 PM:
 
-On 08/22/2014 08:49 AM, Dominique Martinet wrote:
-> Hi,
+> From: David Laight <David.Laight@ACULAB.COM>
+> To: Razya Ladelsky/Haifa/IBM@IBMIL, "Michael S. Tsirkin" 
+<mst@redhat.com>
+> Cc: "abel.gordon@gmail.com" <abel.gordon@gmail.com>, Alex Glikson/
+> Haifa/IBM@IBMIL, Eran Raichstein/Haifa/IBM@IBMIL, Joel Nider/Haifa/
+> IBM@IBMIL, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-
+> kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
+> "netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
+> "virtualization@lists.linux-foundation.org" 
+> <virtualization@lists.linux-foundation.org>, Yossi 
+Kuperman1/Haifa/IBM@IBMIL
+> Date: 21/08/2014 05:31 PM
+> Subject: RE: [PATCH] vhost: Add polling mode
 > 
-> Christopher Covington wrote on Fri, Aug 22, 2014 at 08:37:52AM -0400:
->> Thanks for the pointer to this patch. I think I started this kernel half way
->> through the 3.16 merge window. The last non-cherry-picked patch I have is:
->>
->> commit 6d87c225f5d82d29243dc124f1ffcbb0e14ec358
->>
->> So I do have the change you pointed out. Nevertheless, I'll reconfirm with the
->> latest torvalds/master.
+> From: Razya Ladelsky
+> > "Michael S. Tsirkin" <mst@redhat.com> wrote on 20/08/2014 01:57:10 PM:
+> > 
+> > > > Results:
+> > > >
+> > > > Netperf, 1 vm:
+> > > > The polling patch improved throughput by ~33% (1516 MB/sec -> 
+> 2046 MB/sec).
+> > > > Number of exits/sec decreased 6x.
+> > > > The same improvement was shown when I tested with 3 vms running 
+netperf
+> > > > (4086 MB/sec -> 5545 MB/sec).
+> > > >
+> > > > filebench, 1 vm:
+> > > > ops/sec improved by 13% with the polling patch. Number of exits
+> > > > was reduced by 31%.
+> > > > The same experiment with 3 vms running filebench showed similar 
+numbers.
+> > > >
+> > > > Signed-off-by: Razya Ladelsky <razya@il.ibm.com>
+> > >
+> > > This really needs more thourough benchmarking report, including
+> > > system data.  One good example for a related patch:
+> > > http://lwn.net/Articles/551179/
+> > > though for virtualization, we need data about host as well, and if 
+you
+> > > want to look at streaming benchmarks, you need to test different 
+message
+> > > sizes and measure packet size.
+> > >
+> > 
+> > Hi Michael,
+> > I have already tried running netperf with several message sizes:
+> > 64,128,256,512,600,800...
+> > But the results are inconsistent even in the baseline/unpatched
+> > configuration.
+> > For smaller msg sizes, I get consistent numbers. However, at some 
+point,
+> > when I increase the msg size
+> > I get unstable results. For example, for a 512B msg, I get two 
+scenarios:
+> > vm utilization 100%, vhost utilization 75%, throughput ~6300
+> > vm utilization 80%, vhost utilization 13%, throughput ~9400 (line 
+rate)
+> > 
+> > I don't know why vhost is behaving that way for certain message sizes.
+> > Do you have any insight to why this is happening?
 > 
-> Right, so you already do have it. I don't think there's been anything
-> else 9P related recently, so it probably will not help much -- sorry for
-> blindly assuming it would be this.
+> Have you tried looking at the actual ethernet packet sizes.
+> It may well jump between using small packets (the size of the writes)
+> and full sized ones.
+
+I will check it,
+Thanks,
+Razya
+
 > 
-> Actually reading the error message now, "no channels available" is
-> printed when virtio doesn't find any match in device name so it would
-> look like the mount name doesn't match maybe?
+> If you are trying to measure ethernet packet 'cost' you need to use UDP.
+> However that probably uses different code paths.
 > 
-> Could we get your exact qemu command line to confirm? (the name that
-> needs to match is /dev/root here, used for booting as root= and for qemu
-> as mount_tag)
-
-I re-transposed Richard's command line to my environment and it worked. Thanks
-for pointing me in that direction. For the record, I used:
-
-$dir/bin/x86_64-linux-gnu/qemu-system-x86_64 \
-  -m 1024 \
-  -kernel $dir/boot/x86_64-linux-gnu/bzImage-x86_64 \
-  -append 'root=/dev/root init=/sbin/x86_64-linux-gnu/init rootfstype=9p
-rootflags=trans=virtio,version=9p2000.L ro console=ttyS0' \
-  -serial stdio \
-  -fsdev local,id=root,path=$dir,security_model=none \
-  -device virtio-9p-pci,fsdev=root,mount_tag=/dev/root \
-  -monitor none
-
-$dir/bin/x86_64-linux-gnu/qemu-system-arm \
-  -M virt \
-  -cpu cortex-a15 \
-  -m 1024 \
-  -kernel $dir/boot/arm-linux-gnueabihf/Image \
-  -append 'root=/dev/root init=/sbin/arm-linux-gnueabihf/init rootfstype=9p
-rootflags=trans=virtio,version=9p2000.L ro console=ttyAMA0' \
-  -serial stdio \
-  -fsdev local,id=root,path=$dir,security_model=none \
-  -device virtio-9p-device,fsdev=root,mount_tag=/dev/root \
-  -monitor none
-
-$dir/bin/x86_64-linux-gnu/qemu-system-aarch64 \
-  -M virt \
-  -cpu cortex-a57 \
-  -m 1024 \
-  -kernel $dir/boot/aarch64-linux-gnu/Image \
-  -append 'root=/dev/root init=/sbin/aarch64-linux-gnu/init rootfstype=9p
-rootflags=trans=virtio,version=9p2000.L ro console=ttyAMA0' \
-  -serial stdio \
-  -fsdev local,id=root,path=$dir,security_model=none \
-  -device virtio-9p-device,fsdev=root,mount_tag=/dev/root -monitor none
-
-Christopher
-
--- 
-Employee of Qualcomm Innovation Center, Inc.
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-hosted by the Linux Foundation.
+>    David
+> 
+> 
+> 
