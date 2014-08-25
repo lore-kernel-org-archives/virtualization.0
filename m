@@ -1,14 +1,11 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: virtio DMA API?
-Date: Mon, 25 Aug 2014 12:20:53 -0700
-Message-ID: <CALCETrXz2nc0VKyGT8h_CdaNUusuaxVEWPxzNrLSQ_Ubz3DO0g@mail.gmail.com>
-References: <CALCETrXaNYA=ffd1M0jUM+Z9Yz_Nhs7W=XCxe9N+0FYT558X6g@mail.gmail.com>
-	<20140825185441.GB14061@laptop.dumpdata.com>
+From: Chris Friesen <chris.friesen@windriver.com>
+Subject: help? looking for limits on in-flight write operations for virtio-blk
+Date: Mon, 25 Aug 2014 13:42:53 -0600
+Message-ID: <53FB91BD.40403@windriver.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140825185441.GB14061@laptop.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,44 +15,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Aug 25, 2014 at 11:54 AM, Konrad Rzeszutek Wilk
-<konrad.wilk@oracle.com> wrote:
-> On Mon, Aug 25, 2014 at 10:18:46AM -0700, Andy Lutomirski wrote:
->> Currently, a lot of the virtio code assumes that bus (i.e. hypervisor)
->> addresses are the same as physical address.  This is false on Xen, so
->> virtio is completely broken.  I wouldn't be surprised if it also
->> becomes a problem the first time that someone sticks a physical
->> "virtio" device on a 32-bit bus on an ARM SOC with more than 4G RAM.
->>
->> Would you accept patches to convert virtio_ring and virtio_pci to use
->> the DMA APIs?  I think that the only real catch will be that
->> virtio_ring's approach to freeing indirect blocks is currently
->> incompatible with the DMA API -- it assumes that knowing the bus
->> address is enough to call kfree, and I don't think that the DMA API
->> provides a reverse mapping like that.
->
-> If you use the dma_map/unmap_sg all of that ends up being stuck in the
-> sg structure (sg->dma_address ends with the DMA addr, sg_phys(sg) gives
-> you the physical address).
+Hi,
 
-Unfortunately, virtio_ring doesn't hang on to the sg structure until
-complation.  I don't think it can, either -- if I read it right, the
-virtio_net driver uses one scatterlist per queue instead of one
-scatterlist per pending skb, so the sg entries could be overwritten by
-the time virtio_ring should unmap it.  Fortunately, I think that
-dma_unmap_single can handle this case just fine.
+I'm trying to figure out what controls the number if in-flight virtio 
+block operations when running linux in qemu on top of a linux host.
 
-I have a WIP here:
+The problem is that we're trying to run as many VMs as possible, using 
+ceph/rbd for the rootfs.  We've tripped over the fact the the memory 
+consumption of qemu can spike noticeably when doing I/O (something as 
+simple as "dd" from /dev/zero to a file can cause the memory consumption 
+to go up by 200MB--with dozens of VMs this can add up enough to trigger 
+the OOM killer.
 
-https://git.kernel.org/cgit/linux/kernel/git/luto/linux.git/log/?h=virtio_ring_xen
+It looks like the rbd driver in qemu allocates a number of buffers for 
+each request, one of which is the full amount of data to read/write. 
+Monitoring the "inflight" numbers in the guest I've seen it go as high 
+as 184.
 
-It works, but it's mostly missing unmap calls.  If there's no iommu or
-swiotlb, then there's nothing to leak, so it's okay.  If you do, then
-this driver will eventually explode.  I'll send patches once I have it
-fixed up.
+I'm trying to figure out if there are any limits on how high the 
+inflight numbers can go, but I'm not having much luck.
 
---Andy
+I was hopeful when I saw qemu calling virtio_add_queue() with a queue 
+size, but the queue size was 128 which didn't match the inflight numbers 
+I was seeing, and after changing the queue size down to 16 I still saw 
+the number of inflight requests go up to 184 and then the guest took a 
+kernel panic in virtqueue_add_buf().
+
+Can someone with more knowledge of how virtio block works point me in 
+the right direction?
+
+Thanks,
+Chris
