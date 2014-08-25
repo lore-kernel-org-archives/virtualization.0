@@ -1,17 +1,12 @@
-From: Razya Ladelsky <RAZYA@il.ibm.com>
-Subject: RE: [PATCH] vhost: Add polling mode
-Date: Sun, 24 Aug 2014 15:26:34 +0300
-Message-ID: <OF3F9F58DB.FFDF5B60-ONC2257D3E.00443320-C2257D3E.004449BE@il.ibm.com>
-References: <1407659404-razya@il.ibm.com>
-	<20140810083035.0CF58380729@moren.haifa.ibm.com>
-	<20140820105710.GC17371@redhat.com>
-	<OFBE98487F.0F49BDD7-ONC2257D3B.004C908C-C2257D3B.004F09FD@il.ibm.com>
-	<063D6719AE5E284EB5DD2968C1650D6D1747D7F3@AcuExch.aculab.com>
+From: "ML" <marialemos72@gmail.com>
+Subject: [WorldCIST'15]: Call for Workshops Proposals; Proceedings by
+	Springer - Indexed by ISI, Scopus, DBLP, etc.
+Date: Mon, 25 Aug 2014 18:09:26 +0100
+Message-ID: <20140825171456.768E2A07@mail.linuxfoundation.org>
+Reply-To: worldcist@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============6958322792193682079=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <063D6719AE5E284EB5DD2968C1650D6D1747D7F3@AcuExch.aculab.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,87 +16,108 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Laight <David.Laight@ACULAB.COM>
-Cc: Eran Raichstein <ERANRA@il.ibm.com>, Alex Glikson <GLIKSON@il.ibm.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "abel.gordon@gmail.com" <abel.gordon@gmail.com>, Yossi Kuperman1 <YOSSIKU@il.ibm.com>, Joel Nider <JOELN@il.ibm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-David Laight <David.Laight@ACULAB.COM> wrote on 21/08/2014 05:29:41 PM:
+--===============6958322792193682079==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> From: David Laight <David.Laight@ACULAB.COM>
-> To: Razya Ladelsky/Haifa/IBM@IBMIL, "Michael S. Tsirkin" 
-<mst@redhat.com>
-> Cc: "abel.gordon@gmail.com" <abel.gordon@gmail.com>, Alex Glikson/
-> Haifa/IBM@IBMIL, Eran Raichstein/Haifa/IBM@IBMIL, Joel Nider/Haifa/
-> IBM@IBMIL, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-
-> kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
-> "netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
-> "virtualization@lists.linux-foundation.org" 
-> <virtualization@lists.linux-foundation.org>, Yossi 
-Kuperman1/Haifa/IBM@IBMIL
-> Date: 21/08/2014 05:31 PM
-> Subject: RE: [PATCH] vhost: Add polling mode
-> 
-> From: Razya Ladelsky
-> > "Michael S. Tsirkin" <mst@redhat.com> wrote on 20/08/2014 01:57:10 PM:
-> > 
-> > > > Results:
-> > > >
-> > > > Netperf, 1 vm:
-> > > > The polling patch improved throughput by ~33% (1516 MB/sec -> 
-> 2046 MB/sec).
-> > > > Number of exits/sec decreased 6x.
-> > > > The same improvement was shown when I tested with 3 vms running 
-netperf
-> > > > (4086 MB/sec -> 5545 MB/sec).
-> > > >
-> > > > filebench, 1 vm:
-> > > > ops/sec improved by 13% with the polling patch. Number of exits
-> > > > was reduced by 31%.
-> > > > The same experiment with 3 vms running filebench showed similar 
-numbers.
-> > > >
-> > > > Signed-off-by: Razya Ladelsky <razya@il.ibm.com>
-> > >
-> > > This really needs more thourough benchmarking report, including
-> > > system data.  One good example for a related patch:
-> > > http://lwn.net/Articles/551179/
-> > > though for virtualization, we need data about host as well, and if 
-you
-> > > want to look at streaming benchmarks, you need to test different 
-message
-> > > sizes and measure packet size.
-> > >
-> > 
-> > Hi Michael,
-> > I have already tried running netperf with several message sizes:
-> > 64,128,256,512,600,800...
-> > But the results are inconsistent even in the baseline/unpatched
-> > configuration.
-> > For smaller msg sizes, I get consistent numbers. However, at some 
-point,
-> > when I increase the msg size
-> > I get unstable results. For example, for a 512B msg, I get two 
-scenarios:
-> > vm utilization 100%, vhost utilization 75%, throughput ~6300
-> > vm utilization 80%, vhost utilization 13%, throughput ~9400 (line 
-rate)
-> > 
-> > I don't know why vhost is behaving that way for certain message sizes.
-> > Do you have any insight to why this is happening?
-> 
-> Have you tried looking at the actual ethernet packet sizes.
-> It may well jump between using small packets (the size of the writes)
-> and full sized ones.
+------
+WorldCIST'15 - 3rd World Conference on Information Systems and Technol=
+ogies=20
+Ponta Delgada, Azores *, Portugal
+1 - 3 April 2015.
+http://www.aisti.eu/worldcist15/
+------
+* Azores is ranked as the second most beautiful archipelago in the wor=
+ld by National Geographic.
+------------
 
-I will check it,
-Thanks,
-Razya
+WORKSHOP FORMAT
 
-> 
-> If you are trying to measure ethernet packet 'cost' you need to use UDP.
-> However that probably uses different code paths.
-> 
->    David
-> 
-> 
-> 
+The Information Systems and Technologies research and industrial commu=
+nity is invited to submit proposals of Workshops for WorldCIST'15 =96 =
+3rd World Conference on Information Systems and Technologies to be hel=
+d at S=E3o Miguel, Azores, Portugal, 1st-3rd of April 2015.
+
+Workshops should focus on a specific scientific subject on the scope o=
+f WorldCIST'15 but not directly included on the main conference areas.=
+ Each workshop will be coordinated by an Organizing Committee composed=
+ of, at least, two researchers in the field, preferably from different=
+ institutions and different countries. The organizers should create an=
+ international Program Committee for the Workshop, with recognized res=
+earchers within the specific Workshop scientific area. Each workshop s=
+hould have at least 10 submissions and 5 accepted papers in order to b=
+e conducted at WorldCIST'15.
+
+The selection of Workshops will be performed by WorldCIST'15 Conferenc=
+e/Workshop Chairs. Workshops full and short papers will be published i=
+n the conference main proceedings in specific Workshop chapters publis=
+hed by Springer in a book of the AISC series. Proceedings will be subm=
+itted for indexation by ISI Thomson, SCOPUS, DBLP, EI-Compendex among =
+several other scientific databases. Extended versions of best selected=
+ papers will be published in journals indexed by ISI and SCOPUS. Detai=
+led and up-to-date information may be found at WorldCIST'15 website: h=
+ttp://www.aisti.eu/worldcist15/
+
+WORKSHOP ORGANIZATION
+
+The Organizing Committee of each Workshop will be responsible for:
+-    Producing and distributing the Workshop Call for Papers (CFP);
+-    Coordinating the review and selection process for the papers subm=
+itted to the Workshop, as Workshop chairs (on the paper submission sys=
+tem installed for all the Workshops);
+-    Delivering the final versions of the papers accepted for the Work=
+shop in accordance with the guidelines and deadlines defined by WorldC=
+IST'15 organizers;
+-    Coordinating and chairing the Workshop sessions at the conference.
+WorldCIST'15 organizers reserve the right to cancel any Workshop if de=
+adlines are missed or if the number of registered attendees is too low=
+ to support the costs associated with the Workshop.
+
+PROPOSAL CONTENT
+
+Workshop proposals should contain the following information:
+-    Workshop title;
+-    Brief description of the specific scientific scope of the Workshop;
+-    List of topics of interest (max 15 topics);
+-    Reasons the Workshop should be held within WorldCIST=9215;
+-    Name, postal address, phone and email of all the members of the W=
+orkshop Organizing Committee;
+-    Proposal for the Workshop Program Committee (Names and affiliatio=
+ns).
+
+Proposals should be submitted electronically by email to worldcist at =
+gmail.com (cc: lpreis at dsi.uminho.pt), in PDF, (in English), by Sept=
+ember 15, 2014.
+
+IMPORTANT DATES
+
+-    Deadline for Workshop proposals: September 15, 2014
+-    Notification of Workshop acceptance: September 25, 2014
+-    Deadline for paper submission: November 30, 2014
+-    Notification of paper acceptance: December 28, 2014
+-    Deadline for final versions and conference registration: January =
+06, 2015
+-    Conference dates: April 01-03, 2015
+
+CHAIR
+Luis Paulo Reis, University of Minho
+
+Regards,
+WorldCIST'15 Organizing Committee
+http://www.aisti.eu/worldcist15/
+
+
+--===============6958322792193682079==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6958322792193682079==--
