@@ -1,11 +1,10 @@
-From: "ML" <marialemos72@gmail.com>
-Subject: [WorldCIST'15]: Call for Workshops Proposals; Proceedings by
-	Springer - Indexed by ISI, Scopus, DBLP, etc.
-Date: Mon, 25 Aug 2014 18:09:26 +0100
-Message-ID: <20140825171456.768E2A07@mail.linuxfoundation.org>
-Reply-To: worldcist@gmail.com
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: virtio DMA API?
+Date: Mon, 25 Aug 2014 10:18:46 -0700
+Message-ID: <CALCETrXaNYA=ffd1M0jUM+Z9Yz_Nhs7W=XCxe9N+0FYT558X6g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6958322792193682079=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,108 +15,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============6958322792193682079==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Currently, a lot of the virtio code assumes that bus (i.e. hypervisor)
+addresses are the same as physical address.  This is false on Xen, so
+virtio is completely broken.  I wouldn't be surprised if it also
+becomes a problem the first time that someone sticks a physical
+"virtio" device on a 32-bit bus on an ARM SOC with more than 4G RAM.
 
-------
-WorldCIST'15 - 3rd World Conference on Information Systems and Technol=
-ogies=20
-Ponta Delgada, Azores *, Portugal
-1 - 3 April 2015.
-http://www.aisti.eu/worldcist15/
-------
-* Azores is ranked as the second most beautiful archipelago in the wor=
-ld by National Geographic.
-------------
+Would you accept patches to convert virtio_ring and virtio_pci to use
+the DMA APIs?  I think that the only real catch will be that
+virtio_ring's approach to freeing indirect blocks is currently
+incompatible with the DMA API -- it assumes that knowing the bus
+address is enough to call kfree, and I don't think that the DMA API
+provides a reverse mapping like that.
 
-WORKSHOP FORMAT
+--Andy
 
-The Information Systems and Technologies research and industrial commu=
-nity is invited to submit proposals of Workshops for WorldCIST'15 =96 =
-3rd World Conference on Information Systems and Technologies to be hel=
-d at S=E3o Miguel, Azores, Portugal, 1st-3rd of April 2015.
-
-Workshops should focus on a specific scientific subject on the scope o=
-f WorldCIST'15 but not directly included on the main conference areas.=
- Each workshop will be coordinated by an Organizing Committee composed=
- of, at least, two researchers in the field, preferably from different=
- institutions and different countries. The organizers should create an=
- international Program Committee for the Workshop, with recognized res=
-earchers within the specific Workshop scientific area. Each workshop s=
-hould have at least 10 submissions and 5 accepted papers in order to b=
-e conducted at WorldCIST'15.
-
-The selection of Workshops will be performed by WorldCIST'15 Conferenc=
-e/Workshop Chairs. Workshops full and short papers will be published i=
-n the conference main proceedings in specific Workshop chapters publis=
-hed by Springer in a book of the AISC series. Proceedings will be subm=
-itted for indexation by ISI Thomson, SCOPUS, DBLP, EI-Compendex among =
-several other scientific databases. Extended versions of best selected=
- papers will be published in journals indexed by ISI and SCOPUS. Detai=
-led and up-to-date information may be found at WorldCIST'15 website: h=
-ttp://www.aisti.eu/worldcist15/
-
-WORKSHOP ORGANIZATION
-
-The Organizing Committee of each Workshop will be responsible for:
--    Producing and distributing the Workshop Call for Papers (CFP);
--    Coordinating the review and selection process for the papers subm=
-itted to the Workshop, as Workshop chairs (on the paper submission sys=
-tem installed for all the Workshops);
--    Delivering the final versions of the papers accepted for the Work=
-shop in accordance with the guidelines and deadlines defined by WorldC=
-IST'15 organizers;
--    Coordinating and chairing the Workshop sessions at the conference.
-WorldCIST'15 organizers reserve the right to cancel any Workshop if de=
-adlines are missed or if the number of registered attendees is too low=
- to support the costs associated with the Workshop.
-
-PROPOSAL CONTENT
-
-Workshop proposals should contain the following information:
--    Workshop title;
--    Brief description of the specific scientific scope of the Workshop;
--    List of topics of interest (max 15 topics);
--    Reasons the Workshop should be held within WorldCIST=9215;
--    Name, postal address, phone and email of all the members of the W=
-orkshop Organizing Committee;
--    Proposal for the Workshop Program Committee (Names and affiliatio=
-ns).
-
-Proposals should be submitted electronically by email to worldcist at =
-gmail.com (cc: lpreis at dsi.uminho.pt), in PDF, (in English), by Sept=
-ember 15, 2014.
-
-IMPORTANT DATES
-
--    Deadline for Workshop proposals: September 15, 2014
--    Notification of Workshop acceptance: September 25, 2014
--    Deadline for paper submission: November 30, 2014
--    Notification of paper acceptance: December 28, 2014
--    Deadline for final versions and conference registration: January =
-06, 2015
--    Conference dates: April 01-03, 2015
-
-CHAIR
-Luis Paulo Reis, University of Minho
-
-Regards,
-WorldCIST'15 Organizing Committee
-http://www.aisti.eu/worldcist15/
-
-
---===============6958322792193682079==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6958322792193682079==--
+-- 
+Andy Lutomirski
+AMA Capital Management, LLC
