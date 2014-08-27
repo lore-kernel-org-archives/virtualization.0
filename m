@@ -1,17 +1,14 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 0/3] virtio: Clean up scatterlists and use the DMA API
-Date: Wed, 27 Aug 2014 22:52:46 +0200
-Message-ID: <53FE451E.9090906@de.ibm.com>
-References: <cover.1409087794.git.luto@amacapital.net>
-	<CAJSP0QUcXQ+JV0wys2Mr-+OsFKt=hTGbUxNqfpk-JuyULiQABQ@mail.gmail.com>
-	<CALCETrUWR8p7XSiTALd19LL4mTgkXu_XEewobouz6Jbkb4KjLw@mail.gmail.com>
-	<20140827154537.GB18900@redhat.com>
-	<CALCETrVUg3fCQS0rjOD1BbauXHfnydPyP3mNMeiGu4NqBgLK6A@mail.gmail.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: virtio DMA API?
+Date: Thu, 28 Aug 2014 07:31:16 +1000
+Message-ID: <1409175076.25772.156.camel@pasglop>
+References: <CALCETrXaNYA=ffd1M0jUM+Z9Yz_Nhs7W=XCxe9N+0FYT558X6g@mail.gmail.com>
+	<87iole89xg.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CALCETrVUg3fCQS0rjOD1BbauXHfnydPyP3mNMeiGu4NqBgLK6A@mail.gmail.com>
+In-Reply-To: <87iole89xg.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,77 +18,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@amacapital.net>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "linux390@de.ibm.com" <linux390@de.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Andy Lutomirski <luto@amacapital.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 27/08/14 17:50, Andy Lutomirski wrote:
-> On Wed, Aug 27, 2014 at 8:45 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
->> On Wed, Aug 27, 2014 at 08:11:15AM -0700, Andy Lutomirski wrote:
->>> On Aug 26, 2014 11:46 PM, "Stefan Hajnoczi" <stefanha@gmail.com> wrote:
->>>>
->>>> On Tue, Aug 26, 2014 at 10:16 PM, Andy Lutomirski <luto@amacapital.net> wrote:
->>>>> There are two outstanding issues.  virtio_net warns if DMA debugging
->>>>> is on because it does DMA from the stack.  (The warning is correct.)
->>>>> This also is likely to do something unpleasant to s390.
->>>>> (Maintainers are cc'd -- I don't know what to do about it.)
->>>>
->>>> This changes the semantics of vring and breaks existing guests when
->>>> bus address != physical address.
->>>>
->>>> Can you use a transport feature bit to indicate that bus addresses are
->>>> used?  That way both approaches can be supported.
->>>
->>> I can try to support both styles of addressing, but I don't think that
->>> this can be negotiated between the device (i.e. host or physical
->>> virtio-speaking device) and the guest.  In the Xen case that I care
->>> about (Linux on Xen on KVM), the host doesn't know about the
->>> translation at all -- Xen is an intermediate layer that only the guest
->>> is aware of.  In this case, there are effectively two layers of
->>> virtualization, and only the inner one (Xen) knows about the
->>> translation despite the fact that the the outer layer is the one
->>> providing the virtio device.
->>>
->>> I could change virtio_ring to use the DMA API only if requested by the
->>> lower driver (virtio_pci, etc) and to have only virtio_pci enable that
->>> feature.  Will that work for all cases?
->>>
->>> On s390, this shouldn't work just like the current code.  On x86, I
->>> think that if QEMU ever starts exposing an IOMMU attached to a
->>> virtio-pci device, then QEMU should expect that IOMMU to be used.  If
->>> QEMU expects to see physical addresses, then it shouldn't advertise an
->>> IOMMU.  Since QEMU doesn't currently support guest IOMMUs, this should
->>> be fine for everything that uses QEMU.
->>>
->>> At least x86's implementation of the DMA ops for devices that aren't
->>> behind an IOMMU should be very fast.
->>>
->>> Are there any other weird cases for which this might be a problem?
->>>
->>>>
->>>> Please also update the virtio specification:
->>>> https://tools.oasis-open.org/version-control/browse/wsvn/virtio/
->>>>
->>>
->>> I'm not sure it will need an update.  Perhaps a note in the PCI
->>> section indicating that, if the host expects the guest to program an
->>> IOMMU, then it should use the appropriate platform-specific mechanism
->>> to expose that IOMMU.
->>>
->>> --Andy
->>
->> If there's no virtio mechanism to negotate enabling/disabling
->> translations, then specification does not need an extension.
-> 
-> It wouldn't shock me if someone wants to negotiate this for
-> virtio_mmio some day, but that might be more of a device tree thing.
-> I have no idea how that works, but I think it can wait until someone
-> wants it.
-> 
-> I updated the patches, and I'll send them out after I try to test-boot
-> s390 under QEMU :)
+On Wed, 2014-08-27 at 20:40 +0930, Rusty Russell wrote:
 
-The emulation of several parts of s390 including the ccw stuff is currently 
-broken in QEMU. I can test new version.
+> Hi Andy,
+> 
+>         This has long been a source of contention.  virtio assumes that
+> the hypervisor can decode guest-physical addresses.
+> 
+>         PowerPC, in particular, doesn't want to pay the cost of IOMMU
+> manipulations, and all arguments presented so far for using an IOMMU for
+> a virtio device are weak.  And changing to use DMA APIs would break them
+> anyway.
+> 
+>         Of course, it's Just A Matter of Code, so it's possible to
+> create a Xen-specific variant which uses the DMA APIs.  I'm not sure
+> what that would look like in the virtio standard, however.
 
-Christian
+So this has popped up in the past a few times already from people who
+want to use virtio as a transport between physical systems connected
+via a bus like PCI using non-transparent bridges for example.
+
+There's a way to get both here that isn't too nasty... we can make the
+virtio drivers use the dma_map_* APIs and just switch the dma_ops in
+the struct device based on the hypervisor requirements. IE. For KVM we
+could attach a set of ops that basically just return the physical
+address, real PCI transport would use the normal callbacks etc...
+
+The only problem at the moment is that the dma_map_ops, while
+defined generically, aren't plumbed into the generic struct device
+but instead on some architectures dev_archdata. This includes
+powerpc, ARM and x86 (under a CONFIG option for the latter which
+is only enabled on x86_64 and some oddball i386 variant).
+
+So either we switch to have all architectures we care about always
+use the generic DMA ops and move the pointer to struct device, or
+we create another inline "indirection" to deal with the cases
+without the dma_map_ops...
+
+Cheers,
+Ben.
