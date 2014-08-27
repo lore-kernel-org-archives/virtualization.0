@@ -1,14 +1,11 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: virtio DMA API?
-Date: Thu, 28 Aug 2014 07:32:23 +1000
-Message-ID: <1409175143.25772.157.camel@pasglop>
-References: <CALCETrXaNYA=ffd1M0jUM+Z9Yz_Nhs7W=XCxe9N+0FYT558X6g@mail.gmail.com>
-	<87iole89xg.fsf@rustcorp.com.au> <20140827115249.GA16850@redhat.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: [PATCH v2 0/4] virtio: Clean up scatterlists and use the DMA API
+Date: Wed, 27 Aug 2014 14:50:53 -0700
+Message-ID: <cover.1409176034.git.luto@amacapital.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140827115249.GA16850@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,22 +15,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Andy Lutomirski <luto@amacapital.net>
+To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-s390@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Andy Lutomirski <luto@amacapital.net>, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2014-08-27 at 13:52 +0200, Michael S. Tsirkin wrote:
+This fixes virtio on Xen guests as well as on any other platform
+that uses virtio_pci on which physical addresses don't match bus
+addresses.
 
-> For x86 as of QEMU 2.0 there's no iommu.
-> So a reasonable thing to do for that platform
-> might be to always use iommu *if it's there*.
-> My understanding is this isn't the case for powerpc?
+This can be tested with:
 
-All 64-bit powerpc have an iommu but not all 32-bit ones.
+    virtme-run --xen xen --kimg arch/x86/boot/bzImage --console
 
-Also using/emulating one has a cost. Whatever we do shouldn't
-impair the fast path of virtio-on-kvm doing direct physical
-access.
+using virtme from here:
 
-Cheers,
-Ben.
+    https://git.kernel.org/cgit/utils/kernel/virtme/virtme.git
+
+Without these patches, the guest hangs forever.  With these patches,
+everything works.
+
+This should be safe on all platforms that I'm aware of.  That
+doesn't mean that there isn't anything that I missed.
+
+Changes from v1:
+ - Using the DMA API is optional now.  It would be nice to improve the
+   DMA API to the point that it could be used unconditionally, but s390
+   proves that we're not there yet.
+ - Includes patch 4, which fixes DMA debugging warnings from virtio_net.
+
+Andy Lutomirski (4):
+  virtio_ring: Remove sg_next indirection
+  virtio_ring: Support DMA APIs if requested
+  virtio_pci: Use the DMA API for virtqueues
+  virtio_net: Stop doing DMA from the stack
+
+ drivers/lguest/lguest_device.c         |   3 +-
+ drivers/misc/mic/card/mic_virtio.c     |   2 +-
+ drivers/net/virtio_net.c               |  53 +++++---
+ drivers/remoteproc/remoteproc_virtio.c |   4 +-
+ drivers/s390/kvm/kvm_virtio.c          |   2 +-
+ drivers/s390/kvm/virtio_ccw.c          |   4 +-
+ drivers/virtio/virtio_mmio.c           |   5 +-
+ drivers/virtio/virtio_pci.c            |  35 ++++--
+ drivers/virtio/virtio_ring.c           | 219 ++++++++++++++++++++++++++-------
+ include/linux/virtio_ring.h            |   1 +
+ tools/virtio/linux/virtio.h            |   1 +
+ tools/virtio/virtio_test.c             |   2 +-
+ tools/virtio/vringh_test.c             |   3 +-
+ 13 files changed, 253 insertions(+), 81 deletions(-)
+
+-- 
+1.9.3
