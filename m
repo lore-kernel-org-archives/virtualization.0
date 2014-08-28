@@ -1,18 +1,15 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [virtio-dev] Re: [PATCH v2 0/4] virtio: Clean up scatterlists
-	and use the DMA API
-Date: Thu, 28 Aug 2014 21:18:46 +0200
-Message-ID: <53FF8096.6020005@de.ibm.com>
-References: <cover.1409176034.git.luto@amacapital.net>
-	<53FEDDF5.3030903@de.ibm.com>
-	<CALCETrXxFJQsZyLmbrjYyXK6LKmRuBK=KMas2Db8vCVaBwe9yQ@mail.gmail.com>
-	<53FF751D.2040006@de.ibm.com> <53FF7B1A.2050307@redhat.com>
-	<CALCETrUb__cfwx1N-ZrrYJz0ffvD8jgRPwXOY3_oSb-8MCb3-Q@mail.gmail.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: GET_RNG_SEED hypercall ABI? (Re: [PATCH v5 0/5] random,x86,kvm:
+	Rework arch RNG seeds and get some from kvm)
+Date: Thu, 28 Aug 2014 21:46:42 +0200
+Message-ID: <53FF8722.6080302@redhat.com>
+References: <CALCETrV5U61C-gkikZtddd5RtZWFVRpkjVk69B+ymvy=xauLaQ@mail.gmail.com>	<20140828141704.GI18167@minantech.com>
+	<CALCETrXDygWbKwPNux=qEbqVCCk28Lu7q+gJte=6ZwpCNsbd8w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CALCETrUb__cfwx1N-ZrrYJz0ffvD8jgRPwXOY3_oSb-8MCb3-Q@mail.gmail.com>
+In-Reply-To: <CALCETrXDygWbKwPNux=qEbqVCCk28Lu7q+gJte=6ZwpCNsbd8w@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,45 +19,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@amacapital.net>, Paolo Bonzini <pbonzini@redhat.com>
-Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, "linux390@de.ibm.com" <linux390@de.ibm.com>
+To: Andy Lutomirski <luto@amacapital.net>, Gleb Natapov <gleb@kernel.org>
+Cc: X86 ML <x86@kernel.org>, Theodore Ts'o <tytso@mit.edu>, Kees Cook <keescook@chromium.org>, kvm list <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Andrew Honig <ahonig@google.com>, Haiyang Zhang <haiyangz@microsoft.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Daniel Borkmann <dborkman@redhat.com>, Bandan Das <bsd@redhat.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Alok Kataria <akataria@vmware.com>, "H. Peter Anvin" <hpa@zytor.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 28/08/14 21:03, Andy Lutomirski wrote:
-> [removed virtio-dev -- I'm sick of bounces]
-> 
-> On Thu, Aug 28, 2014 at 11:55 AM, Paolo Bonzini <pbonzini@redhat.com> wrote:
->> Il 28/08/2014 20:29, Christian Borntraeger ha scritto:
->>>>>>> block seems to work, with net a simple ping works, iperf causes this:
->>>>>
->>>>> I neither see the bug, nor can I reproduce it on x86_64 on KVM.  I
->>>>> doubt that dma vs. non-dma is relevant.  I tried -net user a -net tap
->>>>> with iperf running in both directions.  I also tried switching
->>>>> virtio_pci into non-DMA-API mode.  No errors.
->>>>>
->>>>> Is there any chance that you could instrument that BUG_ON to print n,
->>>>> i, in_sgs, out_sgs, total_sg, total_in, and total_out?  I assume this
->>>>> is some oddity with patch 1, but I'm mystified.
->>> Yes, its triggered by patch 1.
->>
->> What version of QEMU?  Can you two cat the "features" file in the
->> virtio-net device's sysfs directory?
-> 
-> With vhost=on:
-> 
-> # cat /sys/class/net/eth0/device/features
-> 0000011000000001111101010001110000000000000000000000000000000000
-  > 
-> Without vhost=on:
-> 
-> # cat /sys/class/net/eth0/device/features
-> 0000011000000001111101010001110000000000000000000000000000000000
-> 
-> Instrumenting the code says that indirect=1.
-> 
-> --Andy
-> 
+Il 28/08/2014 18:22, Andy Lutomirski ha scritto:
+> Is there a non-cpuid interface between QEMU and KVM for this?
 
-I have 
+No.
 
-1100011111111111111101010001110000000000000000000000000000000000
+> AFAICT, even turning off cpuid bits for things like async pf doesn't
+> actually disable the MSRs (which is arguably an attack surface issue).
+
+No, it doesn't.  You cannot disable instructions even if you hide CPUID
+bits, so KVM just extends this to MSRs (both native and paravirtual). It
+sometimes helps too, for example with a particular guest OS that does
+not necessary check CPUID for bits that are always present on Apple
+hardware...
+
+Paolo
