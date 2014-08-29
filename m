@@ -1,13 +1,16 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v3 0/5] virtio: Clean up scatterlists and use the DMA API
-Date: Fri, 29 Aug 2014 09:43:55 +0200
-Message-ID: <54002F3B.2040100@de.ibm.com>
-References: <cover.1409269667.git.luto@amacapital.net>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: virtio DMA API?
+Date: Fri, 29 Aug 2014 11:06:42 -0400
+Message-ID: <20140829150642.GA7706@laptop.dumpdata.com>
+References: <CALCETrXaNYA=ffd1M0jUM+Z9Yz_Nhs7W=XCxe9N+0FYT558X6g@mail.gmail.com>
+	<87iole89xg.fsf@rustcorp.com.au>
+	<1409175076.25772.156.camel@pasglop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1409269667.git.luto@amacapital.net>
+Content-Disposition: inline
+In-Reply-To: <1409175076.25772.156.camel@pasglop>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,74 +20,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@amacapital.net>, Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-s390@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, linux390@de.ibm.com
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Andy Lutomirski <luto@amacapital.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 29/08/14 01:51, Andy Lutomirski wrote:
-> This fixes virtio on Xen guests as well as on any other platform
-> that uses virtio_pci on which physical addresses don't match bus
-> addresses.
+On Thu, Aug 28, 2014 at 07:31:16AM +1000, Benjamin Herrenschmidt wrote:
+> On Wed, 2014-08-27 at 20:40 +0930, Rusty Russell wrote:
 > 
-> This can be tested with:
+> > Hi Andy,
+> > 
+> >         This has long been a source of contention.  virtio assumes that
+> > the hypervisor can decode guest-physical addresses.
+> > 
+> >         PowerPC, in particular, doesn't want to pay the cost of IOMMU
+> > manipulations, and all arguments presented so far for using an IOMMU for
+> > a virtio device are weak.  And changing to use DMA APIs would break them
+> > anyway.
+> > 
+> >         Of course, it's Just A Matter of Code, so it's possible to
+> > create a Xen-specific variant which uses the DMA APIs.  I'm not sure
+> > what that would look like in the virtio standard, however.
 > 
->     virtme-run --xen xen --kimg arch/x86/boot/bzImage --console
+> So this has popped up in the past a few times already from people who
+> want to use virtio as a transport between physical systems connected
+> via a bus like PCI using non-transparent bridges for example.
 > 
-> using virtme from here:
-> 
->     https://git.kernel.org/cgit/utils/kernel/virtme/virtme.git
-> 
-> Without these patches, the guest hangs forever.  With these patches,
-> everything works.
-> 
-> This should be safe on all platforms that I'm aware of.  That
-> doesn't mean that there isn't anything that I missed.
-> 
-> Patches 4 and 5 are optional cleanups.  I strongly encourage the
-> virtio maintainers to apply patch 4, since it should be a very minor
-> speedup as well as a cleanup, and patch 4 is critical fix if patch 5
-> is applied.
-> 
-> Patch 5 is last for ease of reversion in case it causes problems.
-> It is not necessary for DMA mappings to work, and it does not fix
-> any bugs that I know of.  It's just a cleanup.
-> 
-> Thanks to everyone for putting up with the development of this
-> series.  Hopefully it'll be the end of DMA issues in virtio. :)
-> 
-> Changes from v2:
->  - Reordered patches.
->  - Fixed a virtio_net OOPS.
-> 
-> Changes from v1:
->  - Using the DMA API is optional now.  It would be nice to improve the
->    DMA API to the point that it could be used unconditionally, but s390
->    proves that we're not there yet.
->  - Includes patch 4, which fixes DMA debugging warnings from virtio_net.
-> 
-> Andy Lutomirski (5):
->   virtio_ring: Support DMA APIs if requested
->   virtio_pci: Use the DMA API for virtqueues
->   virtio_net: Stop doing DMA from the stack
->   virtio_net: Don't set the end flag on reusable sg entries
->   virtio_ring: Remove sg_next indirection
-> 
->  drivers/lguest/lguest_device.c         |   3 +-
->  drivers/misc/mic/card/mic_virtio.c     |   2 +-
->  drivers/net/virtio_net.c               |  59 ++++++---
->  drivers/remoteproc/remoteproc_virtio.c |   4 +-
->  drivers/s390/kvm/kvm_virtio.c          |   2 +-
->  drivers/s390/kvm/virtio_ccw.c          |   4 +-
->  drivers/virtio/virtio_mmio.c           |   5 +-
->  drivers/virtio/virtio_pci.c            |  35 ++++--
->  drivers/virtio/virtio_ring.c           | 219 ++++++++++++++++++++++++++-------
->  include/linux/virtio_ring.h            |   1 +
->  tools/virtio/linux/virtio.h            |   1 +
->  tools/virtio/virtio_test.c             |   2 +-
->  tools/virtio/vringh_test.c             |   3 +-
->  13 files changed, 256 insertions(+), 84 deletions(-)
-> 
+> There's a way to get both here that isn't too nasty... we can make the
+> virtio drivers use the dma_map_* APIs and just switch the dma_ops in
+> the struct device based on the hypervisor requirements. IE. For KVM we
+> could attach a set of ops that basically just return the physical
+> address, real PCI transport would use the normal callbacks etc...
 
-This series seems to work fine on s390-ccw. Thanks for the quick updates.
+Right.
+> 
+> The only problem at the moment is that the dma_map_ops, while
+> defined generically, aren't plumbed into the generic struct device
+> but instead on some architectures dev_archdata. This includes
+> powerpc, ARM and x86 (under a CONFIG option for the latter which
+> is only enabled on x86_64 and some oddball i386 variant).
 
-Christian
+I am not following the interaction between 'struct device', 'struct
+dev_archdata' and 'struct dma_map_ops' ? The 'struct dma_ops' should
+be able to exist without having to exist in the other structures?
+Naturally the implementation of 'struct dma_ops' has to use 
+'struct device' otherwise it can't get the details such as dma_mapping.
+
+> 
+> So either we switch to have all architectures we care about always
+> use the generic DMA ops and move the pointer to struct device, or
+> we create another inline "indirection" to deal with the cases
+> without the dma_map_ops...
+
+Or you implement an passthrough 'dma_map_ops' that you suggested?
+
+Thought I feel I am not groking something from your email. Hmm, time
+to get some more coffee.
+> 
+> Cheers,
+> Ben.
+> 
+> 
