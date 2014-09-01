@@ -1,17 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC] virtio-pci: share config interrupt between virtio
-	devices
-Date: Mon, 1 Sep 2014 11:12:17 +0300
-Message-ID: <20140901081217.GC20700@redhat.com>
-References: <1409550114-8186-1-git-send-email-akong@redhat.com>
-	<20140901063730.GB20186@redhat.com>
-	<20140901075802.GB3546@zen.nay.redhat.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [PATCH 1/3] virtio_ring: Remove sg_next indirection
+Date: Mon, 1 Sep 2014 10:15:12 -0700
+Message-ID: <CALCETrWye0jFCH7CGwLr9ch7cdRXvhvo75wpiO+byB+xa6MPyA@mail.gmail.com>
+References: <cover.1409087794.git.luto@amacapital.net>
+	<37f797f9f79ae57f88b6b5ca9d0b28ce56f7e701.1409087794.git.luto@amacapital.net>
+	<87fvgckvg0.fsf@rustcorp.com.au>
+	<CALCETrVd5F50vFzBD5FeH7EynnZ3+EFr3MT_22DmZWKDWfCfiQ@mail.gmail.com>
+	<20140901065953.GA20700@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20140901075802.GB3546@zen.nay.redhat.com>
+In-Reply-To: <20140901065953.GA20700@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,151 +21,110 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amos Kong <akong@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, "linux390@de.ibm.com" <linux390@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 01, 2014 at 03:58:02PM +0800, Amos Kong wrote:
-> On Mon, Sep 01, 2014 at 09:37:30AM +0300, Michael S. Tsirkin wrote:
+On Sep 1, 2014 12:00 AM, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+>
+> On Sun, Aug 31, 2014 at 06:42:38PM -0700, Andy Lutomirski wrote:
+> > On Sun, Aug 31, 2014 at 5:58 PM, Rusty Russell <rusty@rustcorp.com.au> wrote:
+> > > Andy Lutomirski <luto@amacapital.net> writes:
+> > >> The only unusual thing about virtio's use of scatterlists is that
+> > >> two of the APIs accept scatterlists that might not be terminated.
+> > >> Using function pointers to handle this case is overkill; for_each_sg
+> > >> can do it.
+> > >>
+> > >> There's a small subtlely here: for_each_sg assumes that the provided
+> > >> count is correct, but, because of the way that virtio_ring handles
+> > >> multiple scatterlists at once, the count is only an upper bound if
+> > >> there is more than one scatterlist.  This is easily solved by
+> > >> checking the sg pointer for NULL on each iteration.
+> > >
+> > > Hi Andy,
+> > >
+> > >         (Sorry for the delayed response; I was still catching up from
+> > > my week at KS.)
 > >
-> 
-> Hi Michael,
-> 
-> > On Mon, Sep 01, 2014 at 01:41:54PM +0800, Amos Kong wrote:
-> > > One VM only has 128 msix interrupt, virtio-config interrupt
-> > > has less workload. This patch shares one normal interrupt
-> 
-> Thanks for your quick reply.
-> 
-> > normal == INT#x? Please don't call it normal. The proper name is
-> > "legacy INT#x".
->  
-> OK
-> 
-> > So you are trying to use legacy INT#x at the same time
-> > with MSI-X?  This does not work: the PCI spec says:
-> > 	While enabled for MSI or MSI-X
-> > 	operation, a function is prohibited from using its INTx# pin (if
-> > 	implemented) to request
-> > 	service (MSI, MSI-X, and INTx# are mutually exclusive).
-> 
-> It means we can't use interrupt and triggered-interrupt together for
-> one PCI device. I will study this problem.
->  
-> > does the patch work for you? If it does it might be a (minor) spec
-> > violation in kvm.
-> 
-> I did some basic testing (multiple nics, scp, ping, etc), it works.
+> > No problem.  In the grand scheme of maintainer response time, I think
+> > you're near the top. :)
+> >
+> > >
+> > > Unfortunately the reason we dance through so many hoops here is that
+> > > it has a measurable performance impact :(  Those indirect calls get inlined.
+> >
+> > gcc inlines that?  That must nearly double the size of the object file. :-/
+> >
+> > >
+> > > There's only one place which actually uses a weirdly-formed sg now,
+> > > and that's virtio_net.  It's pretty trivial to fix.
+>
+> This path in virtio net is also unused on modern hypervisors, so we probably
+> don't care how well does it perform: why not apply it anyway?
+> It's the virtio_ring changes that we need to worry about.
+>
+> > > However, vring_bench drops 15% when we do this.  There's a larger
+> > > question as to how much difference that makes in Real Life, of course.
+> > > I'll measure that today.
+> >
+> > Weird.  sg_next shouldn't be nearly that slow.  Weird.
+>
+> I think that's down to the fact that it's out of line,
+> so it prevents inlining of the caller.
+>
+> > >
+> > > Here are my two patches, back-to-back (it cam out of of an earlier
+> > > concern about reducing stack usage, hence the stack measurements).
+> > >
+> >
+> > I like your version better than mine, except that I suspect that your
+> > version will blow up for the same reason that my v2 patches blow up:
+> > you probably need the skb_to_sgvec_nomark fix, too.
+> >
+> > IOW, what happens if you apply patches 1-4 from my v3 series and then
+> > apply your patches on top of that?
+> >
+> > There'll be a hit on some virtio_pci machines due to use of the DMA
+> > API.  I would argue that, if this is measurable, the right fix is to
+> > prod the DMA API maintainers, whoever they are, to fix it.  The DMA
+> > API really out to be very fast on identity-mapped devices, but I don't
+> > know whether it is in practice.
+> >
+> > --Andy
+>
+> Right but we'd have to fix that before applying the patches
+> to avoid performance regressions.
 
-It's quite likely there were no config interrupts in your
-basic test. Trigger some event that requires a config interrupt
-to function. For example, drop link and see if guest notices this.
+My pathetic attempt to benchmark it came up with no difference.
+What's the right benchmark?  I'm having trouble compiling anything in
+tools/virtio -- my patch breaks that code, but it seems like it's
+already broken.  The next version of my patches will at least not make
+the problem worse.
 
-> > Besides, INT#x really leads to terrible performance because
-> > sharing is forced even if there aren't many devices.
-> > 
-> > Why do we need INT#x?
-> > How about setting IRQF_SHARED for the config interrupt
-> > while using MSI-X?
-> > You'd have to read ISR to check that the interrupt was
-> > intended for your device.
->  
-> I have a draft patch to share one MSI-X for all virtio-config, it has
-> some problem in hotplugging devices. I will continue this way.
->  
-> > > for configuration between virtio devices.
-> > > 
-> > > Signed-off-by: Amos Kong <akong@redhat.com>
-> > > ---
-> > >  drivers/virtio/virtio_pci.c | 41 ++++++++++++++++-------------------------
-> > >  1 file changed, 16 insertions(+), 25 deletions(-)
-> > > 
-> > > diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-> > > index 3d1463c..b1263b3 100644
-> > > --- a/drivers/virtio/virtio_pci.c
-> > > +++ b/drivers/virtio/virtio_pci.c
-> > > @@ -52,6 +52,7 @@ struct virtio_pci_device
-> > >  	/* Name strings for interrupts. This size should be enough,
-> > >  	 * and I'm too lazy to allocate each name separately. */
-> > >  	char (*msix_names)[256];
-> > > +	char config_msix_name[256];
-> > >  	/* Number of available vectors */
-> > >  	unsigned msix_vectors;
-> > >  	/* Vectors allocated, excluding per-vq vectors if any */
-> > > @@ -282,12 +283,6 @@ static void vp_free_vectors(struct virtio_device *vdev)
-> > >  			free_cpumask_var(vp_dev->msix_affinity_masks[i]);
-> > >  
-> > >  	if (vp_dev->msix_enabled) {
-> > > -		/* Disable the vector used for configuration */
-> > > -		iowrite16(VIRTIO_MSI_NO_VECTOR,
-> > > -			  vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
-> > > -		/* Flush the write out to device */
-> > > -		ioread16(vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
-> > > -
-> > >  		pci_disable_msix(vp_dev->pci_dev);
-> > >  		vp_dev->msix_enabled = 0;
-> > >  	}
-> > > @@ -339,24 +334,18 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
-> > >  		goto error;
-> > >  	vp_dev->msix_enabled = 1;
-> > >  
-> > > -	/* Set the vector used for configuration */
-> > > -	v = vp_dev->msix_used_vectors;
-> > > -	snprintf(vp_dev->msix_names[v], sizeof *vp_dev->msix_names,
-> > > +	/* Set shared IRQ for configuration */
-> > > +	snprintf(vp_dev->config_msix_name, sizeof(*vp_dev->msix_names),
-> > >  		 "%s-config", name);
-> > > -	err = request_irq(vp_dev->msix_entries[v].vector,
-> > > -			  vp_config_changed, 0, vp_dev->msix_names[v],
-> > > +	err = request_irq(vp_dev->pci_dev->irq,
-> > > +			  vp_config_changed,
-> > > +			  IRQF_SHARED,
-> > > +			  vp_dev->config_msix_name,
-> > >  			  vp_dev);
-> > > -	if (err)
-> > > -		goto error;
-> > > -	++vp_dev->msix_used_vectors;
-> > > -
-> > > -	iowrite16(v, vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
-> > > -	/* Verify we had enough resources to assign the vector */
-> > > -	v = ioread16(vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
-> > > -	if (v == VIRTIO_MSI_NO_VECTOR) {
-> > > -		err = -EBUSY;
-> > > +	if (!err)
-> > > +		vp_dev->intx_enabled = 1;
-> > > +	else
-> > >  		goto error;
-> > > -	}
-> > >  
-> > >  	if (!per_vq_vectors) {
-> > >  		/* Shared vector for all VQs */
-> > > @@ -535,14 +524,16 @@ static int vp_try_to_find_vqs(struct virtio_device *vdev, unsigned nvqs,
-> > >  			goto error_request;
-> > >  	} else {
-> > >  		if (per_vq_vectors) {
-> > > -			/* Best option: one for change interrupt, one per vq. */
-> > > -			nvectors = 1;
-> > > +			/* Best option: one normal interrupt for change,
-> > > +			   one msix per vq. */
-> > > +			nvectors = 0;
-> > >  			for (i = 0; i < nvqs; ++i)
-> > >  				if (callbacks[i])
-> > >  					++nvectors;
-> > >  		} else {
-> > > -			/* Second best: one for change, shared for all vqs. */
-> > > -			nvectors = 2;
-> > > +			/* Second best: one normal interrupt for
-> > > +			   change, share one msix for all vqs. */
-> > > +			nvectors = 1;
-> > >  		}
-> > >  
-> > >  		err = vp_request_msix_vectors(vdev, nvectors, per_vq_vectors);
-> > > -- 
-> > > 1.9.3
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe kvm" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-> -- 
-> 			Amos.
+I think that we can eliminate any possibility of a meaningful
+performance hit due to the streaming part of the mappings by checking
+PCI_DMA_BUS_IS_PHYS.  I'll test and send out a version of the patches
+that does that.
+
+For what it's worth, there's another possible performance hit: on some
+architectures, coherent memory could be uncached.  This might not
+matter for anyone, though.  I think that x86 uses normal memory for
+coherent mappings.  ARM is unlikely to make serious use of virtio_pci,
+since AFAIK virtio_mmio is strongly preferred on ARM.  s390 should be
+unaffected for much the same reason.  Are there other architectures on
+which this could be a problem?
+
+It's possible that the weak barrier flag could be used to disable the
+use of coherent memory, but it might require some DMA API trickery.
+In particular, the only API I see is DMA_BIDIRECTIONAL, and we'll end
+up with ugly code in virtio_pci to get it working.
+
+Ultimately, I think that hypervisors need a way to tell their guests
+that certain PCI devices are emulated and therefore fully coherent
+regardless our normal architectural considerations.
+
+--Andy
+
+>
+> --
+> MST
