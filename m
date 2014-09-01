@@ -1,15 +1,11 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [PATCH 1/3] virtio_ring: Remove sg_next indirection
-Date: Sun, 31 Aug 2014 18:42:38 -0700
-Message-ID: <CALCETrVd5F50vFzBD5FeH7EynnZ3+EFr3MT_22DmZWKDWfCfiQ@mail.gmail.com>
-References: <cover.1409087794.git.luto@amacapital.net>
-	<37f797f9f79ae57f88b6b5ca9d0b28ce56f7e701.1409087794.git.luto@amacapital.net>
-	<87fvgckvg0.fsf@rustcorp.com.au>
+From: Amos Kong <akong@redhat.com>
+Subject: [PATCH RFC] virtio-pci: share config interrupt between virtio devices
+Date: Mon,  1 Sep 2014 13:41:54 +0800
+Message-ID: <1409550114-8186-1-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87fvgckvg0.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,63 +15,98 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, "linux390@de.ibm.com" <linux390@de.ibm.com>
+To: virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Aug 31, 2014 at 5:58 PM, Rusty Russell <rusty@rustcorp.com.au> wrote:
-> Andy Lutomirski <luto@amacapital.net> writes:
->> The only unusual thing about virtio's use of scatterlists is that
->> two of the APIs accept scatterlists that might not be terminated.
->> Using function pointers to handle this case is overkill; for_each_sg
->> can do it.
->>
->> There's a small subtlely here: for_each_sg assumes that the provided
->> count is correct, but, because of the way that virtio_ring handles
->> multiple scatterlists at once, the count is only an upper bound if
->> there is more than one scatterlist.  This is easily solved by
->> checking the sg pointer for NULL on each iteration.
->
-> Hi Andy,
->
->         (Sorry for the delayed response; I was still catching up from
-> my week at KS.)
+One VM only has 128 msix interrupt, virtio-config interrupt
+has less workload. This patch shares one normal interrupt
+for configuration between virtio devices.
 
-No problem.  In the grand scheme of maintainer response time, I think
-you're near the top. :)
+Signed-off-by: Amos Kong <akong@redhat.com>
+---
+ drivers/virtio/virtio_pci.c | 41 ++++++++++++++++-------------------------
+ 1 file changed, 16 insertions(+), 25 deletions(-)
 
->
-> Unfortunately the reason we dance through so many hoops here is that
-> it has a measurable performance impact :(  Those indirect calls get inlined.
-
-gcc inlines that?  That must nearly double the size of the object file. :-/
-
->
-> There's only one place which actually uses a weirdly-formed sg now,
-> and that's virtio_net.  It's pretty trivial to fix.
->
-> However, vring_bench drops 15% when we do this.  There's a larger
-> question as to how much difference that makes in Real Life, of course.
-> I'll measure that today.
-
-Weird.  sg_next shouldn't be nearly that slow.  Weird.
-
->
-> Here are my two patches, back-to-back (it cam out of of an earlier
-> concern about reducing stack usage, hence the stack measurements).
->
-
-I like your version better than mine, except that I suspect that your
-version will blow up for the same reason that my v2 patches blow up:
-you probably need the skb_to_sgvec_nomark fix, too.
-
-IOW, what happens if you apply patches 1-4 from my v3 series and then
-apply your patches on top of that?
-
-There'll be a hit on some virtio_pci machines due to use of the DMA
-API.  I would argue that, if this is measurable, the right fix is to
-prod the DMA API maintainers, whoever they are, to fix it.  The DMA
-API really out to be very fast on identity-mapped devices, but I don't
-know whether it is in practice.
-
---Andy
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index 3d1463c..b1263b3 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -52,6 +52,7 @@ struct virtio_pci_device
+ 	/* Name strings for interrupts. This size should be enough,
+ 	 * and I'm too lazy to allocate each name separately. */
+ 	char (*msix_names)[256];
++	char config_msix_name[256];
+ 	/* Number of available vectors */
+ 	unsigned msix_vectors;
+ 	/* Vectors allocated, excluding per-vq vectors if any */
+@@ -282,12 +283,6 @@ static void vp_free_vectors(struct virtio_device *vdev)
+ 			free_cpumask_var(vp_dev->msix_affinity_masks[i]);
+ 
+ 	if (vp_dev->msix_enabled) {
+-		/* Disable the vector used for configuration */
+-		iowrite16(VIRTIO_MSI_NO_VECTOR,
+-			  vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
+-		/* Flush the write out to device */
+-		ioread16(vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
+-
+ 		pci_disable_msix(vp_dev->pci_dev);
+ 		vp_dev->msix_enabled = 0;
+ 	}
+@@ -339,24 +334,18 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
+ 		goto error;
+ 	vp_dev->msix_enabled = 1;
+ 
+-	/* Set the vector used for configuration */
+-	v = vp_dev->msix_used_vectors;
+-	snprintf(vp_dev->msix_names[v], sizeof *vp_dev->msix_names,
++	/* Set shared IRQ for configuration */
++	snprintf(vp_dev->config_msix_name, sizeof(*vp_dev->msix_names),
+ 		 "%s-config", name);
+-	err = request_irq(vp_dev->msix_entries[v].vector,
+-			  vp_config_changed, 0, vp_dev->msix_names[v],
++	err = request_irq(vp_dev->pci_dev->irq,
++			  vp_config_changed,
++			  IRQF_SHARED,
++			  vp_dev->config_msix_name,
+ 			  vp_dev);
+-	if (err)
+-		goto error;
+-	++vp_dev->msix_used_vectors;
+-
+-	iowrite16(v, vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
+-	/* Verify we had enough resources to assign the vector */
+-	v = ioread16(vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
+-	if (v == VIRTIO_MSI_NO_VECTOR) {
+-		err = -EBUSY;
++	if (!err)
++		vp_dev->intx_enabled = 1;
++	else
+ 		goto error;
+-	}
+ 
+ 	if (!per_vq_vectors) {
+ 		/* Shared vector for all VQs */
+@@ -535,14 +524,16 @@ static int vp_try_to_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 			goto error_request;
+ 	} else {
+ 		if (per_vq_vectors) {
+-			/* Best option: one for change interrupt, one per vq. */
+-			nvectors = 1;
++			/* Best option: one normal interrupt for change,
++			   one msix per vq. */
++			nvectors = 0;
+ 			for (i = 0; i < nvqs; ++i)
+ 				if (callbacks[i])
+ 					++nvectors;
+ 		} else {
+-			/* Second best: one for change, shared for all vqs. */
+-			nvectors = 2;
++			/* Second best: one normal interrupt for
++			   change, share one msix for all vqs. */
++			nvectors = 1;
+ 		}
+ 
+ 		err = vp_request_msix_vectors(vdev, nvectors, per_vq_vectors);
+-- 
+1.9.3
