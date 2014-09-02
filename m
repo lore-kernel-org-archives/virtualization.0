@@ -1,14 +1,11 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [PATCH v4 0/4] virtio: Clean up scatterlists and use the DMA API
-Date: Mon, 1 Sep 2014 22:55:29 -0700
-Message-ID: <CALCETrVHSjaCe5TN6+Gr9W9uT8XEZC97ne_dZUazMDyLr0Wetw@mail.gmail.com>
-References: <cover.1409593066.git.luto@amacapital.net>
-	<1409609814.30640.11.camel@pasglop>
+From: Andy King <acking@vmware.com>
+Subject: [PATCH] VMXNET3: Check for map error in vmxnet3_set_mc
+Date: Tue,  2 Sep 2014 09:30:08 -0700
+Message-ID: <1409675408-8440-1-git-send-email-acking@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1409609814.30640.11.camel@pasglop>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,91 +15,88 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>
+To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: pv-drivers@vmware.com, penguin-kernel@I-love.SAKURA.ne.jp, Andy King <acking@vmware.com>, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 1, 2014 at 3:16 PM, Benjamin Herrenschmidt
-<benh@kernel.crashing.org> wrote:
-> On Mon, 2014-09-01 at 10:39 -0700, Andy Lutomirski wrote:
->> Changes from v1:
->>  - Using the DMA API is optional now.  It would be nice to improve the
->>    DMA API to the point that it could be used unconditionally, but s390
->>    proves that we're not there yet.
->>  - Includes patch 4, which fixes DMA debugging warnings from virtio_net.
->
-> I'm not sure if you saw my reply on the other thread but I have a few
-> comments based on the above "it would be nice if ..."
->
+We should check if the map of the table actually succeeds, and also free
+resources accordingly. This fixes the kernel panic reported by Tetsuo
+Handa.
 
-Yeah, sorry, I sort of thought I responded, but I didn't do a very good job.
+Version bumped to 1.2.1.0
 
-> So here we have both a yes and a no :-)
->
-> It would be nice to avoid those if () games all over and indeed just
-> use the DMA API, *however* we most certainly don't want to actually
-> create IOMMU mappings for the KVM virio case. This would be a massive
-> loss in performances on several platforms and generally doesn't make
-> much sense.
->
-> However, we can still use the API without that on any architecture
-> where the dma mapping API ends up calling the generic dma_map_ops,
-> it becomes just a matter of virtio setting up some special "nop" ops
-> when needed.
+Acked-by: Shelley Gong <shelleygong@vmware.com>
+Acked-by: Bhavesh Davda <bhavesh@vmware.com>
+Signed-off-by: Andy King <acking@vmware.com>
+---
+ drivers/net/vmxnet3/vmxnet3_drv.c |   14 ++++++++------
+ drivers/net/vmxnet3/vmxnet3_int.h |    4 ++--
+ 2 files changed, 10 insertions(+), 8 deletions(-)
 
-I'm not quite convinced that this is a good idea.  I think that there
-are three relevant categories of virtio devices:
-
-a) Any virtio device where the normal DMA ops are nops.  This includes
-x86 without an IOMMU (e.g. in a QEMU/KVM guest), 32-bit ARM, and
-probably many other architectures.  In this case, what we do only
-matters for performance, not for correctness.  Ideally the arch DMA
-ops are fast.
-
-b) Virtio devices that use physical addressing on systems where DMA
-ops either don't exist at all (most s390) or do something nontrivial.
-In this case, we must either override the DMA ops or just not use
-them.
-
-c) Virtio devices that use bus addressing.  This includes everything
-on Xen (because the "physical" addresses are nonsense) and any actual
-physical PCI device that speaks virtio on a system with an IOMMU.  In
-this case, we must use the DMA ops.
-
-The issue is that, on systems with DMA ops that do something, we need
-to make sure that we know whether we're in case (b) or (c).  In these
-patches, I've made the assumption that, if the virtio devices lives on
-the PCI bus, then it uses the same type of addressing that any other
-device on that PCI bus would use.
-
-On x86, at least, I doubt that we'll ever see a physically addressed
-PCI virtio device for which ACPI advertises an IOMMU, since any sane
-hypervisor will just not advertise an IOMMU for the virtio device.
-But are there arm64 or PPC guests that use virtio_pci, that have
-IOMMUs, and that will malfunction if the virtio_pci driver ends up
-using the IOMMU?  I certainly hope not, since these systems might be
-very hard-pressed to work right if someone plugged in a physical
-virtio-speaking PCI device.
-
->
-> The difficulty here resides in the fact that we have never completely
-> made the dma_map_ops generic. The ops themselves are defined generically
-> as are the dma_map_* interfaces based on them, but the location of the
-> ops pointer is still more/less arch specific and some architectures
-> still chose not to use that indirection at all I believe.
->
-
-I'd be happy to update the patches if someone does this, but I don't
-really want to attack the DMA API on all architectures right now.  In
-the mean time, at least s390 requires that we be able to compile out
-the DMA API calls.  I'd rather see s390 provide working no-op dma ops
-for all of the struct devices that provide virtio interfaces.
-
-On a related note, shouldn't virtio be doing something to provide dma
-ops to the virtio device and any of its children?  I don't know how it
-would even try to do this, given how architecture-dependent this code
-currently is.  Calling dma_map_single on the virtio device (as opposed
-to its parent) is currently likely to crash on x86.  Fortunately,
-nothing does this.
-
---Andy
+diff --git a/drivers/net/vmxnet3/vmxnet3_drv.c b/drivers/net/vmxnet3/vmxnet3_drv.c
+index d6e90c7..f450010 100644
+--- a/drivers/net/vmxnet3/vmxnet3_drv.c
++++ b/drivers/net/vmxnet3/vmxnet3_drv.c
+@@ -2056,7 +2056,6 @@ vmxnet3_set_mc(struct net_device *netdev)
+ 		if (!netdev_mc_empty(netdev)) {
+ 			new_table = vmxnet3_copy_mc(netdev);
+ 			if (new_table) {
+-				new_mode |= VMXNET3_RXM_MCAST;
+ 				rxConf->mfTableLen = cpu_to_le16(
+ 					netdev_mc_count(netdev) * ETH_ALEN);
+ 				new_table_pa = dma_map_single(
+@@ -2064,15 +2063,18 @@ vmxnet3_set_mc(struct net_device *netdev)
+ 							new_table,
+ 							rxConf->mfTableLen,
+ 							PCI_DMA_TODEVICE);
++			}
++
++			if (new_table_pa) {
++				new_mode |= VMXNET3_RXM_MCAST;
+ 				rxConf->mfTablePA = cpu_to_le64(new_table_pa);
+ 			} else {
+-				netdev_info(netdev, "failed to copy mcast list"
+-					    ", setting ALL_MULTI\n");
++				netdev_info(netdev,
++					    "failed to copy mcast list, setting ALL_MULTI\n");
+ 				new_mode |= VMXNET3_RXM_ALL_MULTI;
+ 			}
+ 		}
+ 
+-
+ 	if (!(new_mode & VMXNET3_RXM_MCAST)) {
+ 		rxConf->mfTableLen = 0;
+ 		rxConf->mfTablePA = 0;
+@@ -2091,11 +2093,11 @@ vmxnet3_set_mc(struct net_device *netdev)
+ 			       VMXNET3_CMD_UPDATE_MAC_FILTERS);
+ 	spin_unlock_irqrestore(&adapter->cmd_lock, flags);
+ 
+-	if (new_table) {
++	if (new_table_pa)
+ 		dma_unmap_single(&adapter->pdev->dev, new_table_pa,
+ 				 rxConf->mfTableLen, PCI_DMA_TODEVICE);
++	if (new_table)
+ 		kfree(new_table);
+-	}
+ }
+ 
+ void
+diff --git a/drivers/net/vmxnet3/vmxnet3_int.h b/drivers/net/vmxnet3/vmxnet3_int.h
+index 29ee77f2..3759479 100644
+--- a/drivers/net/vmxnet3/vmxnet3_int.h
++++ b/drivers/net/vmxnet3/vmxnet3_int.h
+@@ -69,10 +69,10 @@
+ /*
+  * Version numbers
+  */
+-#define VMXNET3_DRIVER_VERSION_STRING   "1.2.0.0-k"
++#define VMXNET3_DRIVER_VERSION_STRING   "1.2.1.0-k"
+ 
+ /* a 32-bit int, each byte encode a verion number in VMXNET3_DRIVER_VERSION */
+-#define VMXNET3_DRIVER_VERSION_NUM      0x01020000
++#define VMXNET3_DRIVER_VERSION_NUM      0x01020100
+ 
+ #if defined(CONFIG_PCI_MSI)
+ 	/* RSS only makes sense if MSI-X is supported. */
+-- 
+1.7.4.1
