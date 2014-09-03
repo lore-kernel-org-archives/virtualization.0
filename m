@@ -1,11 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 0/3] virtio: simplify virtio_ring.
-Date: Wed,  3 Sep 2014 13:59:13 +0930
-Message-ID: <1409718556-3041-1-git-send-email-rusty__18160.9158441008$1409718652$gmane$org@rustcorp.com.au>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [PATCH 1/3] virtio_net: pass well-formed sgs to virtqueue_add_*()
+Date: Tue, 2 Sep 2014 21:54:11 -0700
+Message-ID: <CALCETrUv4_p2drPJBbs901+Kq-86rOSUzQu1DrkvJyCLvmz9nQ__16749.7059949257$1409720091$gmane$org@mail.gmail.com>
+References: <1409718556-3041-1-git-send-email-rusty@rustcorp.com.au>
+	<1409718556-3041-2-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1409718556-3041-2-git-send-email-rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,23 +18,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev <netdev@vger.kernel.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Andy Lutomirski <luto@amacapital.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: netdev <netdev@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-I resurrected these patches after prompting from Andy Lutomirski's
-recent patches.  I put them on the back-burner because vring_bench
-had a 15% slowdown on my laptop: pktgen testing revealed a speedup,
-if anything, so I've cleaned them up.
+On Tue, Sep 2, 2014 at 9:29 PM, Rusty Russell <rusty@rustcorp.com.au> wrote:
+> This is the only driver which doesn't hand virtqueue_add_inbuf and
+> virtqueue_add_outbuf a well-formed, well-terminated sg.  Fix it,
+> so we can make virtio_add_* simpler.
 
-Rusty Russell (3):
-  virtio_net: pass well-formed sgs to virtqueue_add_*()
-  virtio_ring: assume sgs are always well-formed.
-  virtio_ring: unify direct/indirect code paths.
+OK, I get it now: you're reinitializing the table every time, clearing
+old end marks.  There's room to microoptimize this, but it's probably
+not worth it.
 
- drivers/net/virtio_net.c     |   5 +-
- drivers/virtio/virtio_ring.c | 185 +++++++++++++++----------------------------
- 2 files changed, 69 insertions(+), 121 deletions(-)
+IOW, looks good to me.
 
--- 
-1.9.1
+--Andy
