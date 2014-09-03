@@ -1,11 +1,17 @@
-From: =?ks_c_5601-1987?B?sKG0z726?= <ganis@etri.re.kr>
-Subject: Setting up VHost without QEMU?
-Date: Wed, 3 Sep 2014 05:44:03 +0000
-Message-ID: <56354052-553D-42CC-A03C-8C8E820CC153@etri.re.kr>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH v4 0/4] virtio: Clean up scatterlists and use the DMA API
+Date: Wed, 03 Sep 2014 16:12:01 +0930
+Message-ID: <874mwpkxxi.fsf@rustcorp.com.au>
+References: <cover.1409593066.git.luto@amacapital.net>
+	<1409609814.30640.11.camel@pasglop>
+	<CALCETrVHSjaCe5TN6+Gr9W9uT8XEZC97ne_dZUazMDyLr0Wetw@mail.gmail.com>
+	<1409691213.30640.37.camel@pasglop>
+	<CALCETrWNqksZWjotVXfWVWOaJ-tN=uBuMaRe+JmmPjacb6KDOg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1319413169429545746=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Language: ko-KR
+In-Reply-To: <CALCETrWNqksZWjotVXfWVWOaJ-tN=uBuMaRe+JmmPjacb6KDOg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,88 +21,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Andy Lutomirski <luto@amacapital.net>, Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============1319413169429545746==
-Content-Language: ko-KR
-Content-Type: multipart/alternative;
-	boundary="_000_56354052553D42CCA03C8C8E820CC153etrirekr_"
+Andy Lutomirski <luto@amacapital.net> writes:
+> There really are virtio devices that are pieces of silicon and not
+> figments of a hypervisor's imagination [1].
 
---_000_56354052553D42CCA03C8C8E820CC153etrirekr_
-Content-Type: text/plain; charset="ks_c_5601-1987"
-Content-Transfer-Encoding: base64
+Hi Andy,
 
-RGVhciBhbGwsDQoNCkkgaGF2ZSBhIGZldyBxdWVzdGlvbnMuIFZob3N0IGlzIHRha2luZyBvdXQg
-UUVNVSBpbiB2aXJ0aW8gZGV2aWNlIGVtdWxhdGlvbi4gQnV0IGluIEtWTSwgVmhvc3QgbmVlZHMg
-UUVNVSBmb3Igc2V0dGluZyB1cCB2aXJ0cXVldWUuIFdoeSBpdCBjYW4ndCBiZSBkb25lIGluIGtl
-cm5lbD8gSXMgaXQgYmVjYXVzZSB0aGUgZ3Vlc3QgVk1zIGFyZSBydW5uaW5nIGluIFFFTVU/DQoN
-CkkgYW5kIG15IHRlYW0gYXJlIGRldmVsb3Bpbmcgb3VyIG93biBoeXBlcnZpc29yLiBBbmQgb3Vy
-IGd1ZXN0IFZNcyBhcmUgbm90IHJ1bm5pbmcgaW4gUUVNVS4gSXMgdGhlcmUgYW55IGltcGxlbWVu
-dGF0aW9uIG91dCB0aGVyZSB3aGljaCBpbXBsZW1lbnQgVmhvc3Qgd2l0aG91dCBuZWVkaW5nIFFF
-TVUgYXQgYWxsPw0KDQpUaGFuayB5b3UgZm9yIHlvdXIgdGltZS4gSGF2ZSBhIG5pY2UgZGF5L2V2
-ZW5pbmchDQoNCg0KR2FuaXMNCg==
+        As you're discovering, there's a reason no one has done the DMA
+API before.
 
---_000_56354052553D42CCA03C8C8E820CC153etrirekr_
-Content-Type: text/html; charset="ks_c_5601-1987"
-Content-ID: <036B83684D1F09459EFA286351FFB74B@etri.re.kr>
-Content-Transfer-Encoding: quoted-printable
+So the problem is that ppc64's IOMMU is a platform thing, not a bus
+thing.  They really do carve out an exception for virtio devices,
+because performance (LOTS of performance).  It remains to be seen if
+other platforms have the same performance issues, but in absence of
+other evidence, the answer is yes.
 
-<html>
-<head>
-<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dks_c_5601=
--1987">
-</head>
-<body style=3D"word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-lin=
-e-break: after-white-space;">
-Dear all,
-<div><br>
-</div>
-<div>I have a few questions. Vhost is taking out QEMU in virtio device emul=
-ation. But in KVM, Vhost needs QEMU&nbsp;for setting up virtqueue. Why it c=
-an't be done in kernel? Is it because the guest VMs are running in QEMU?</d=
-iv>
-<div>
-<div><br>
-</div>
-<div>I and my team are developing our own hypervisor. And our guest VMs are=
- not running in QEMU. Is there any implementation out there which implement=
- Vhost without needing QEMU at all?</div>
-<div>
-<div><br>
-Thank you for your time. Have a nice day/evening!<br>
-<div apple-content-edited=3D"true">
-<div style=3D"color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px;=
- font-style: normal; font-variant: normal; font-weight: normal; letter-spac=
-ing: normal; line-height: normal; orphans: auto; text-align: start; text-in=
-dent: 0px; text-transform: none; white-space: normal; widows: auto; word-sp=
-acing: 0px; -webkit-text-stroke-width: 0px;">
-<br class=3D"Apple-interchange-newline">
-</div>
-<br>
-<div style=3D"color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px;=
- font-style: normal; font-variant: normal; font-weight: normal; letter-spac=
-ing: normal; line-height: normal; orphans: auto; text-align: start; text-in=
-dent: 0px; text-transform: none; white-space: normal; widows: auto; word-sp=
-acing: 0px; -webkit-text-stroke-width: 0px;">
-Ganis&nbsp;</div>
-</div>
-</div>
-</div>
-</div>
-</body>
-</html>
+It's a hack.  But having specific virtual-only devices are an even
+bigger hack.
 
---_000_56354052553D42CCA03C8C8E820CC153etrirekr_--
+Physical virtio devices have been talked about, but don't actually exist
+in Real Life.  And someone a virtio PCI card is going to have serious
+performance issues: mainly because they'll want the rings in the card's
+MMIO region, not allocated by the driver.  Being broken on PPC is really
+the least of their problems.
 
---===============1319413169429545746==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+So, what do we do?  It'd be nice if Linux virtio Just Worked under Xen,
+though Xen's IOMMU is outside the virtio spec.  Since virtio_pci can be
+a module, obvious hacks like having xen_arch_setup initialize a dma_ops pointer
+exposed by virtio_pci.c is out.
 
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1319413169429545746==--
+I think the best approach is to have a new feature bit (25 is free),
+VIRTIO_F_USE_BUS_MAPPING which indicates that a device really wants to
+use the mapping for the bus it is on.  A real device would set this,
+or it won't work behind an IOMMU.  A Xen device would also set this.
+
+Thoughts?
+Rusty.
+
+PS.  I cc'd OASIS virtio-dev: it's subscriber only for IP reasons (to
+     subscribe you have to promise we can use your suggestion in the
+     standard).  Feel free to remove in any replies, but it's part of
+     the world we live in...
