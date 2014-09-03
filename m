@@ -1,17 +1,18 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH v4 0/4] virtio: Clean up scatterlists and use the DMA API
-Date: Wed, 03 Sep 2014 16:12:01 +0930
-Message-ID: <874mwpkxxi.fsf@rustcorp.com.au>
-References: <cover.1409593066.git.luto@amacapital.net>
-	<1409609814.30640.11.camel@pasglop>
-	<CALCETrVHSjaCe5TN6+Gr9W9uT8XEZC97ne_dZUazMDyLr0Wetw@mail.gmail.com>
-	<1409691213.30640.37.camel@pasglop>
-	<CALCETrWNqksZWjotVXfWVWOaJ-tN=uBuMaRe+JmmPjacb6KDOg@mail.gmail.com>
+From: Yijing Wang <wangyijing@huawei.com>
+Subject: Re: [RFC PATCH 00/11] Refactor MSI to support Non-PCI device
+Date: Wed, 3 Sep 2014 15:15:11 +0800
+Message-ID: <5406BFFF.9000505__29108.1118085005$1409728771$gmane$org@huawei.com>
+References: <1406344128-27055-1-git-send-email-wangyijing@huawei.com>
+	<c6d34fe1bbe9457ea8cff7dcd97902b8@DM2PR03MB317.namprd03.prod.outlook.com>
+	<53DEF80C.1010608@huawei.com>
+	<8a2b4e237f2d4c7e95ef72867658b53a@BLUPR03MB566.namprd03.prod.outlook.com>
+	<53F44022.6030706@huawei.com>
+	<c3b2bd89ef3d462cb302f6ede56a0d44@BLUPR03MB566.namprd03.prod.outlook.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CALCETrWNqksZWjotVXfWVWOaJ-tN=uBuMaRe+JmmPjacb6KDOg@mail.gmail.com>
+In-Reply-To: <c3b2bd89ef3d462cb302f6ede56a0d44@BLUPR03MB566.namprd03.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,48 +22,109 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@amacapital.net>, Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, virtio-dev@lists.oasis-open.org
+To: "Bharat.Bhushan@freescale.com" <Bharat.Bhushan@freescale.com>, "arnab.basu@freescale.com" <arnab.basu@freescale.com>
+Cc: "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, Russell King <linux@arm.linux.org.uk>, "Paul.Mundt@huawei.com" <Paul.Mundt@huawei.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Xinwei Hu <huxinwei@huawei.com>, Hanjun Guo <guohanjun@huawei.com>, Bjorn Helgaas <bhelgaas@google.com>, Wuyun <wuyun.wu@huawei.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andy Lutomirski <luto@amacapital.net> writes:
-> There really are virtio devices that are pieces of silicon and not
-> figments of a hypervisor's imagination [1].
+>> Provide the private MSI setup functions in bus-driver layer can't apply to all
+>> Non-PCI MSI devices, because we can not guarantee Non-PCI MSI devices are always
+>> on a bus. The existing HPET, DMAR device both have no bus bind.
+> 
+> Yes, that's why I was not sure of bus-driver or device-driver model.
+> 
+>> I'm working on a
+>> new MSI setup framework, as you mentioned before, in device-driver model.
+>>
+>> I abstracted a new virtual device (called struct msi_dev), this msi_dev will
+>> manage all MSI info,
+> 
+> Will this "struct msi_dev" will be part of "struct device"?
+> 
+>> and a new bus named msi_bus, also introduced a new driver
+>> msi_driver, msi_bus is responsible for binding msi_dev and msi_driver.
+>> All MSI devices will be classified into different MSI device types, like
+>> MSI_TYPE_PCI, MSI_TYPE_HPET, MSI_TYPE_DMAR, etc..
+>>
+>> Each MSI type device should provide a private struct msi_driver. msi_driver
+>> should contain the type specific MSI ops functions to help setup and enable MSI
+>> device, request MSI irq.
+>>
+>> I almost finish the first draft, and will post out next week in plan :)
+> 
+> Will be looking forward to next version.
 
-Hi Andy,
+Hi Bharat, I'm sorry I had to delay to send out the new version :(. I found some risks in the
+new MSI framework, i.e. DMAR MSI initialized the MSI before the linux device-driver tree be built.
+And we also found some problems during test. So I think I need more time to review and test.
 
-        As you're discovering, there's a reason no one has done the DMA
-API before.
+Thanks!
+Yijing.
 
-So the problem is that ppc64's IOMMU is a platform thing, not a bus
-thing.  They really do carve out an exception for virtio devices,
-because performance (LOTS of performance).  It remains to be seen if
-other platforms have the same performance issues, but in absence of
-other evidence, the answer is yes.
+> 
+> Thanks
+> -Bharat
+> 
+>>
+>>
+>> Thanks!
+>> Yijing.
+>>
+>>>
+>>> Thanks
+>>> -Bharat
+>>>
+>>>>
+>>>> My patchset is just a RFC draft, I will update it later, all we want
+>>>> to do is make kernel support Non-PCI MSI devices.
+>>>>
+>>>> Thanks!
+>>>> Yijing.
+>>>>
+>>>>
+>>>>>
+>>>>> Thanks
+>>>>> Arnab
+>>>>> --
+>>>>> To unsubscribe from this list: send the line "unsubscribe
+>>>>> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>>>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>>>> Please read the FAQ at  http://www.tux.org/lkml/
+>>>>>
+>>>>> .
+>>>>>
+>>>>
+>>>>
+>>>> --
+>>>> Thanks!
+>>>> Yijing
+>>>>
+>>>> --
+>>>> To unsubscribe from this list: send the line "unsubscribe linux-pci"
+>>>> in the body of a message to majordomo@vger.kernel.org More majordomo
+>>>> info at http://vger.kernel.org/majordomo-info.html
+>>>
+>>> .
+>>>
+>>
+>>
+>> --
+>> Thanks!
+>> Yijing
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-pci" in the body
+>> of a message to majordomo@vger.kernel.org More majordomo info at
+>> http://vger.kernel.org/majordomo-info.html
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> .
+> 
 
-It's a hack.  But having specific virtual-only devices are an even
-bigger hack.
 
-Physical virtio devices have been talked about, but don't actually exist
-in Real Life.  And someone a virtio PCI card is going to have serious
-performance issues: mainly because they'll want the rings in the card's
-MMIO region, not allocated by the driver.  Being broken on PPC is really
-the least of their problems.
-
-So, what do we do?  It'd be nice if Linux virtio Just Worked under Xen,
-though Xen's IOMMU is outside the virtio spec.  Since virtio_pci can be
-a module, obvious hacks like having xen_arch_setup initialize a dma_ops pointer
-exposed by virtio_pci.c is out.
-
-I think the best approach is to have a new feature bit (25 is free),
-VIRTIO_F_USE_BUS_MAPPING which indicates that a device really wants to
-use the mapping for the bus it is on.  A real device would set this,
-or it won't work behind an IOMMU.  A Xen device would also set this.
-
-Thoughts?
-Rusty.
-
-PS.  I cc'd OASIS virtio-dev: it's subscriber only for IP reasons (to
-     subscribe you have to promise we can use your suggestion in the
-     standard).  Feel free to remove in any replies, but it's part of
-     the world we live in...
+-- 
+Thanks!
+Yijing
