@@ -1,21 +1,14 @@
 From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [PATCH v4 0/4] virtio: Clean up scatterlists and use the DMA API
-Date: Wed, 3 Sep 2014 13:38:43 -0700
-Message-ID: <CALCETrVjaCRJohh0y44tLeB=HKD4cefaqsFLJzCvo97yJVmd3g@mail.gmail.com>
-References: <CALCETrWNqksZWjotVXfWVWOaJ-tN=uBuMaRe+JmmPjacb6KDOg@mail.gmail.com>
-	<1409695810.30640.57.camel@pasglop>
-	<CALCETrXA0Po5mhLWDn41_sT+zBwbo7Rzm5Nqxdmao-MbtfKvmQ@mail.gmail.com>
-	<1409700010.30640.67.camel@pasglop>
-	<CALCETrWTwoBLj6onvNWOrwvY_n3-rWx0KifR0xP7091Vd-xHbg@mail.gmail.com>
-	<1409703942.30640.71.camel@pasglop> <5406C77B.1000809@redhat.com>
-	<1409731536.30640.95.camel@pasglop> <54070555.70608@redhat.com>
-	<CALCETrUW_T-KcpDXP+JYLW8sZ_dp3DiXAjEf_gF9iCHOsEsRxQ@mail.gmail.com>
-	<20140903163924.GA2587@redhat.com>
+Subject: Re: [PATCH 3/3] virtio_ring: unify direct/indirect code paths.
+Date: Wed, 3 Sep 2014 18:59:33 -0700
+Message-ID: <CALCETrVCR+Zm9RtF7gGmO-XcMAb4fLsxKMG-aEABqhbywF9+Jw@mail.gmail.com>
+References: <1409718556-3041-1-git-send-email-rusty@rustcorp.com.au>
+	<1409718556-3041-4-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140903163924.GA2587@redhat.com>
+In-Reply-To: <1409718556-3041-4-git-send-email-rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,48 +18,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Benjamin Herrenschmidt <benh@au1.ibm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: netdev <netdev@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Sep 3, 2014 at 9:39 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Wed, Sep 03, 2014 at 08:07:15AM -0700, Andy Lutomirski wrote:
->> On Sep 3, 2014 5:11 AM, "Paolo Bonzini" <pbonzini@redhat.com> wrote:
->> >
->> > Il 03/09/2014 10:05, Benjamin Herrenschmidt ha scritto:
->> > > On Wed, 2014-09-03 at 09:47 +0200, Paolo Bonzini wrote:
->> > >>
->> > >> IOMMU support for x86 is going to go in this week.
->> > >
->> > > But won't that break virtio on x86 ? Or will virtio continue bypassing
->> > > it ? IE, the guest side virtio doesn't expect an IOMMU and doesn't call
->> > > the dma mappings ops.
->> > >
->> > >> However, it is and likely will remain niche enough that I don't really
->> > >> care about performance loss from IOMMU support.  If you enable it, you
->> > >> want it.
->> > >>
->> > >> So from the QEMU point of view we can simply add the direct-ram-access
->> > >> property, and have the pseries machine turn it on by default (while
->> > >> other machines can leave it off by default---they have no IOMMU and
->> > >> thus no performance cost).
->> > >
->> > > Well, it's only for virtio and should be on by default on x86 as well if
->> > > an iommu is installed no ?
->> >
->> > Yes, only for virtio---but for x86 I think it should be off by default,
->> > even if that means virtio+IOMMU requires a new kernel.
->>
->> Just to clarify: is "it" the direct-ram-access property?  If so, I
->> think I might agree.
->>
->> Alternatively, could QEMU easily teach the IOMMU code to generate the
->> ACPI tables such that virtio-pci devices aren't advertised as living
->> behind the IOMMU?  This would work both with and without my patches.
+On Tue, Sep 2, 2014 at 9:29 PM, Rusty Russell <rusty@rustcorp.com.au> wrote:
+> virtqueue_add() populates the virtqueue descriptor table from the sgs
+> given.  If it uses an indirect descriptor table, then it puts a single
+> descriptor in the descriptor table pointing to the kmalloc'ed indirect
+> table where the sg is populated.
 >
-> How exactly does this look in ACPI?
+> Previously vring_add_indirect() did the allocation and the simple
+> linear layout.  We replace that with alloc_indirect() which allocates
+> the indirect table then chains it like the normal descriptor table so
+> we can reuse the core logic.
+>
 
-I think that all you need is a PCI device or segment that isn't
-included in the scope of any DRHD.  I could be wrong.
+> +       if (vq->indirect && total_sg > 1 && vq->vq.num_free)
+> +               desc = alloc_indirect(total_sg, gfp);
+> +       else
+> +               desc = NULL;
+> +
+> +       if (desc) {
+> +               /* Use a single buffer which doesn't continue */
+> +               vq->vring.desc[head].flags = VRING_DESC_F_INDIRECT;
+> +               vq->vring.desc[head].addr = virt_to_phys(desc);
+> +               /* avoid kmemleak false positive (hidden by virt_to_phys) */
+> +               kmemleak_ignore(desc);
+> +               vq->vring.desc[head].len = total_sg * sizeof(struct vring_desc);
+> +
+> +               /* Set up rest to use this indirect table. */
+> +               i = 0;
+> +               total_sg = 1;
+
+This is a little too magical for me.  Would it make sense to add a new
+variable for this (total_root_descs or something)?
 
 --Andy
