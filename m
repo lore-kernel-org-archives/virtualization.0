@@ -1,12 +1,20 @@
-From: Jingoo Han <jg1.han@samsung.com>
-Subject: [PATCH] virtio: pci: Use SIMPLE_DEV_PM_OPS macro
-Date: Fri, 05 Sep 2014 12:52:00 +0900
-Message-ID: <003a01cfc8bc$bf48cd60$3dda6820$%han@samsung.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH v4 0/4] virtio: Clean up scatterlists and use the DMA API
+Date: Fri, 05 Sep 2014 15:16:27 +1000
+Message-ID: <1409894187.4246.115.camel@pasglop>
+References: <cover.1409593066.git.luto@amacapital.net>
+	<1409609814.30640.11.camel@pasglop>
+	<CALCETrVHSjaCe5TN6+Gr9W9uT8XEZC97ne_dZUazMDyLr0Wetw@mail.gmail.com>
+	<1409691213.30640.37.camel@pasglop>
+	<CALCETrWNqksZWjotVXfWVWOaJ-tN=uBuMaRe+JmmPjacb6KDOg@mail.gmail.com>
+	<874mwpkxxi.fsf@rustcorp.com.au>
+	<CALCETrWMc6TQy02kLXLcLwMJbPkpY4yv7U-As6jv0Frx34nuww@mail.gmail.com>
+	<87lhpykdbu.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-language: ko
+In-Reply-To: <87lhpykdbu.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,44 +24,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: 'Rusty Russell' <rusty@rustcorp.com.au>
-Cc: 'Jingoo Han' <jg1.han@samsung.com>, virtualization@lists.linux-foundation.org, "'Michael S. Tsirkin'" <mst@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andy Lutomirski <luto@amacapital.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use SIMPLE_DEV_PM_OPS macro in order to make the code simpler.
+On Fri, 2014-09-05 at 12:01 +0930, Rusty Russell wrote:
+> If the answers are both "yes", then x86 is going to be able to use
+> virtio+IOMMU, so PPC looks like the odd one out. 
 
-Signed-off-by: Jingoo Han <jg1.han@samsung.com>
----
- drivers/virtio/virtio_pci.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+Well, yes and no ... ppc will be able to do that too, it's just
+pointless and will suck performances.
 
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index 3d1463c6b120..c5fbdb4023d1 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -810,20 +810,17 @@ static int virtio_pci_restore(struct device *dev)
- 
- 	return ret;
- }
--
--static const struct dev_pm_ops virtio_pci_pm_ops = {
--	SET_SYSTEM_SLEEP_PM_OPS(virtio_pci_freeze, virtio_pci_restore)
--};
- #endif
- 
-+static SIMPLE_DEV_PM_OPS(virtio_pci_pm_ops, virtio_pci_freeze,
-+			 virtio_pci_restore);
-+
- static struct pci_driver virtio_pci_driver = {
- 	.name		= "virtio-pci",
- 	.id_table	= virtio_pci_id_table,
- 	.probe		= virtio_pci_probe,
- 	.remove		= virtio_pci_remove,
--#ifdef CONFIG_PM_SLEEP
- 	.driver.pm	= &virtio_pci_pm_ops,
--#endif
- };
- 
- module_pci_driver(virtio_pci_driver);
--- 
-2.0.0
+Additionally, it will be incompatible with existing guests since
+today, the guest assumes physical (doesn't use the dma mapping
+routines), so even if x86 grows the ability to have virtio behind an
+iommu in qemu, that will break existing guests.
+
+>  Otherwise it looks
+> like we're really going to want to stick with the "ignore IOMMU" rule
+> until (handwave future), and we make an exception for Xen.
+
+Either that or we have a capability that can be negociated.
+
+There are other reasons for wanting to allow the use of the DMA ops,
+such as people using virtio as a transport between two physically
+connected machines (such as a CPU running a PCIe endpoint to a CPU
+running a PCIe host, or two hosts connected to a non-transparent switch,
+essentially using PCIe as a fast network fabric).
+
+Cheers,
+Ben.
