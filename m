@@ -1,14 +1,14 @@
-From: Jesper Dangaard Brouer <brouer@redhat.com>
-Subject: Re: [PATCH 1/3] virtio_net: pass well-formed sgs to virtqueue_add_*()
-Date: Wed, 3 Sep 2014 12:23:50 +0200
-Message-ID: <20140903122350.1c365bee__21044.1485899084$1409932539$gmane$org@redhat.com>
-References: <1409718556-3041-1-git-send-email-rusty@rustcorp.com.au>
-	<1409718556-3041-2-git-send-email-rusty@rustcorp.com.au>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] VMXNET3: Check for map error in vmxnet3_set_mc
+Date: Fri, 05 Sep 2014 11:50:53 -0700 (PDT)
+Message-ID: <20140905.115053.660994166240082520.davem@davemloft.net>
+References: <1409688824-32619-1-git-send-email-acking@vmware.com>
+	<1409688824-32619-2-git-send-email-acking@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1409718556-3041-2-git-send-email-rusty@rustcorp.com.au>
+In-Reply-To: <1409688824-32619-2-git-send-email-acking@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,33 +18,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: netdev <netdev@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, brouer@redhat.com
+To: acking@vmware.com
+Cc: sergei.shtylyov@cogentembedded.com, pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, penguin-kernel@I-love.SAKURA.ne.jp
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed,  3 Sep 2014 13:59:14 +0930
-Rusty Russell <rusty@rustcorp.com.au> wrote:
+From: Andy King <acking@vmware.com>
+Date: Tue,  2 Sep 2014 13:13:44 -0700
 
-> pktgen results:
-> 	modprobe pktgen
-> 	echo 'add_device eth0' > /proc/net/pktgen/kpktgend_0
-> 	echo nowait 1 > /proc/net/pktgen/eth0
-
-Maybe your pktgen "nowait" (patch) should be a flag instead?
-
- echo "flag EXIT_NO_WAIT" > /proc/net/pktgen/eth0
-
-> 	echo count 1000000 > /proc/net/pktgen/eth0
-> 	echo clone_skb 100000 > /proc/net/pktgen/eth0
-> 	echo dst_mac 4e:14:25:a9:30:ac > /proc/net/pktgen/eth0
-> 	echo dst 192.168.1.2 > /proc/net/pktgen/eth0
-> 	for i in `seq 20`; do echo start > /proc/net/pktgen/pgctrl; tail -n1 /proc/net/pktgen/eth0; done
+> We should check if the map of the table actually succeeds, and also free
+> resources accordingly.
 > 
+> Version bumped to 1.2.1.0
+> 
+> Acked-by: Shelley Gong <shelleygong@vmware.com>
+> Acked-by: Bhavesh Davda <bhavesh@vmware.com>
+> Signed-off-by: Andy King <acking@vmware.com>
+> Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-
--- 
-Best regards,
-  Jesper Dangaard Brouer
-  MSc.CS, Sr. Network Kernel Developer at Red Hat
-  Author of http://www.iptv-analyzer.org
-  LinkedIn: http://www.linkedin.com/in/brouer
+Applied, thanks.
