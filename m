@@ -1,13 +1,11 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 0/3] virtio: simplify virtio_ring.
-Date: Fri, 05 Sep 2014 14:27:45 -0700 (PDT)
-Message-ID: <20140905.142745.359233584859651695.davem__38435.2923407734$1409952481$gmane$org@davemloft.net>
-References: <1409718556-3041-1-git-send-email-rusty@rustcorp.com.au>
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH] virtio_blk: merge S/G list entries by default
+Date: Sat,  6 Sep 2014 16:09:54 -0700
+Message-ID: <1410044994-14943-1-git-send-email-hch@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1409718556-3041-1-git-send-email-rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,20 +15,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au
-Cc: netdev@vger.kernel.org, mst@redhat.com, virtualization@lists.linux-foundation.org, luto@amacapital.net
+To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Rusty Russell <rusty@rustcorp.com.au>
-Date: Wed,  3 Sep 2014 13:59:13 +0930
+Most virtio setups have a fairly limited number of ring entries available.
+Enable S/G entry merging by default to fit into less of them.  This restores
+the behavior at time of the virtio-blk blk-mq conversion, which was changed
+by commit "block: add queue flag for disabling SG merging" which made the
+behavior optional, but didn't update the existing drivers to keep their
+previous behavior.
 
-> I resurrected these patches after prompting from Andy Lutomirski's
-> recent patches.  I put them on the back-burner because vring_bench
-> had a 15% slowdown on my laptop: pktgen testing revealed a speedup,
-> if anything, so I've cleaned them up.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ drivers/block/virtio_blk.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-If you want to merge this via your virtio tree that's fine with me.
-
-For virtio_net:
-
-Acked-by: David S. Miller <davem@davemloft.net>
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 0a58140..311b857 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -634,7 +634,7 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	vblk->tag_set.ops = &virtio_mq_ops;
+ 	vblk->tag_set.queue_depth = virtblk_queue_depth;
+ 	vblk->tag_set.numa_node = NUMA_NO_NODE;
+-	vblk->tag_set.flags = BLK_MQ_F_SHOULD_MERGE;
++	vblk->tag_set.flags = BLK_MQ_F_SHOULD_MERGE | BLK_MQ_F_SG_MERGE;
+ 	vblk->tag_set.cmd_size =
+ 		sizeof(struct virtblk_req) +
+ 		sizeof(struct scatterlist) * sg_elems;
+-- 
+1.9.1
