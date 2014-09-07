@@ -1,14 +1,13 @@
-From: Amos Kong <akong@redhat.com>
-Subject: RFC virtio-rng: fail to read sysfs of a busy device
-Date: Tue, 9 Sep 2014 23:23:07 +0800
-Message-ID: <20140909152307.GB17178@zen.redhat.com>
-References: <20140909151844.GA17178@zen.redhat.com>
+From: Ming Lei <tom.leiming@gmail.com>
+Subject: Re: [PATCH] virtio_blk: merge S/G list entries by default
+Date: Sun, 7 Sep 2014 18:32:26 +0800
+Message-ID: <CACVXFVMRqgEh7EFQ0cDEatsqtxsgBrbSQNH9b6UZTsSD+=OWdA__14121.5735966854$1410309057$gmane$org@mail.gmail.com>
+References: <1410044994-14943-1-git-send-email-hch@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20140909151844.GA17178@zen.redhat.com>
+In-Reply-To: <1410044994-14943-1-git-send-email-hch@lst.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,88 +17,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: amit.shah@redhat.com, herbert@gondor.apana.org.au, kvm@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-(Resend to fix the subject)
+On Sun, Sep 7, 2014 at 7:09 AM, Christoph Hellwig <hch@lst.de> wrote:
+> Most virtio setups have a fairly limited number of ring entries available.
+> Enable S/G entry merging by default to fit into less of them.  This restores
+> the behavior at time of the virtio-blk blk-mq conversion, which was changed
+> by commit "block: add queue flag for disabling SG merging" which made the
+> behavior optional, but didn't update the existing drivers to keep their
+> previous behavior.
 
-Hi Amit, Rusty
+It is a good idea to disable SG merge for vq incapable of indirect because
+there are very limited direct descriptors.
 
-RHBZ: https://bugzilla.redhat.com/show_bug.cgi?id=1127062
-steps:
-- Read random data by 'dd if=/dev/hwrng of=/dev/null' in guest
-- check sysfs files in the same time, 'cat /sys/class/misc/hw_random/rng_*'
+For vq capable of indirect, it should be better to not do SG merge at default
+because:
 
-Result: cat process will get stuck, it will return if we kill dd process.
+- from hypervisor view, no matter how many segments one req has, all are
+submitted to host kernel by one syscall, such as readv/io_submit
 
-We have some static variables (eg, current_rng, data_avail, etc) in hw_random/core.c,
-they are protected by rng_mutex. I try to workaround this issue by undelay(100)
-after mutex_unlock() in rng_dev_read(). This gives chance for hwrng_attr_*_show()
-to get mutex.
+- host kernel still need to do the same merge again
 
-This patch also contains some cleanup, moving some code out of mutex
-protection.
+From my test(virtio-blk over null_blk), looks enabling SG merge may cause
+throughput a little drop(~3%).
 
-Do you have some suggestion? Thanks.
+>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  drivers/block/virtio_blk.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 0a58140..311b857 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -634,7 +634,7 @@ static int virtblk_probe(struct virtio_device *vdev)
+>         vblk->tag_set.ops = &virtio_mq_ops;
+>         vblk->tag_set.queue_depth = virtblk_queue_depth;
+>         vblk->tag_set.numa_node = NUMA_NO_NODE;
+> -       vblk->tag_set.flags = BLK_MQ_F_SHOULD_MERGE;
+> +       vblk->tag_set.flags = BLK_MQ_F_SHOULD_MERGE | BLK_MQ_F_SG_MERGE;
+>         vblk->tag_set.cmd_size =
+>                 sizeof(struct virtblk_req) +
+>                 sizeof(struct scatterlist) * sg_elems;
+> --
+> 1.9.1
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 
-diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
-index aa30a25..fa69020 100644
---- a/drivers/char/hw_random/core.c
-+++ b/drivers/char/hw_random/core.c
-@@ -194,6 +194,7 @@ static ssize_t rng_dev_read(struct file *filp, char __user *buf,
- 		}
- 
- 		mutex_unlock(&rng_mutex);
-+		udelay(100);
- 
- 		if (need_resched())
- 			schedule_timeout_interruptible(1);
-@@ -233,10 +234,10 @@ static ssize_t hwrng_attr_current_store(struct device *dev,
- 	int err;
- 	struct hwrng *rng;
- 
-+	err = -ENODEV;
- 	err = mutex_lock_interruptible(&rng_mutex);
- 	if (err)
- 		return -ERESTARTSYS;
--	err = -ENODEV;
- 	list_for_each_entry(rng, &rng_list, list) {
- 		if (strcmp(rng->name, buf) == 0) {
- 			if (rng == current_rng) {
-@@ -270,8 +271,8 @@ static ssize_t hwrng_attr_current_show(struct device *dev,
- 		return -ERESTARTSYS;
- 	if (current_rng)
- 		name = current_rng->name;
--	ret = snprintf(buf, PAGE_SIZE, "%s\n", name);
- 	mutex_unlock(&rng_mutex);
-+	ret = snprintf(buf, PAGE_SIZE, "%s\n", name);
- 
- 	return ret;
- }
-@@ -284,19 +285,19 @@ static ssize_t hwrng_attr_available_show(struct device *dev,
- 	ssize_t ret = 0;
- 	struct hwrng *rng;
- 
-+	buf[0] = '\0';
- 	err = mutex_lock_interruptible(&rng_mutex);
- 	if (err)
- 		return -ERESTARTSYS;
--	buf[0] = '\0';
- 	list_for_each_entry(rng, &rng_list, list) {
- 		strncat(buf, rng->name, PAGE_SIZE - ret - 1);
- 		ret += strlen(rng->name);
- 		strncat(buf, " ", PAGE_SIZE - ret - 1);
- 		ret++;
- 	}
-+	mutex_unlock(&rng_mutex);
- 	strncat(buf, "\n", PAGE_SIZE - ret - 1);
- 	ret++;
--	mutex_unlock(&rng_mutex);
- 
- 	return ret;
- }
-
+Thanks,
 -- 
-			Amos.
+Ming Lei
