@@ -1,14 +1,15 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH] virtio_blk: merge S/G list entries by default
-Date: Mon, 08 Sep 2014 18:21:03 +0200
-Message-ID: <540DD76F.3030106@redhat.com>
-References: <1410044994-14943-1-git-send-email-hch@lst.de>
-	<20140907114153.GB26569@redhat.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [PATCH 3/3] virtio_ring: unify direct/indirect code paths.
+Date: Mon, 8 Sep 2014 10:32:07 -0700
+Message-ID: <CALCETrUY1=jkJTQvCLSSOYw5O9M2N3o1AiT9AnzYE3zQU319TQ@mail.gmail.com>
+References: <1409718556-3041-1-git-send-email-rusty@rustcorp.com.au>
+	<1409718556-3041-4-git-send-email-rusty@rustcorp.com.au>
+	<540996A9.4060100@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140907114153.GB26569@redhat.com>
+In-Reply-To: <540996A9.4060100@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,54 +19,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: netdev <netdev@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 07/09/2014 13:41, Michael S. Tsirkin ha scritto:
-> On Sat, Sep 06, 2014 at 04:09:54PM -0700, Christoph Hellwig wrote:
->> Most virtio setups have a fairly limited number of ring entries available.
-> 
-> Seems a bit vague: QEMU at least has pretty large queues.
-> Which hypervisor do you have in mind?
-> This could be a gain everywhere if you manage to make descriptors
-> completely linear, so they fit in a single s/g.
-> ATM __virtblk_add_req always adds an s/g for the header:
-> is there a chance linux can pre-allocate a bit of memory
-> in front of the buffer to stick the header in?
+On Sep 5, 2014 3:55 AM, "Paolo Bonzini" <pbonzini@redhat.com> wrote:
+>
+> Il 03/09/2014 06:29, Rusty Russell ha scritto:
+> > +     desc = kmalloc(total_sg * sizeof(struct vring_desc), gfp);
+> > +     if (!desc)
+> > +             return NULL;
+> >
+> > -     return head;
+> > +     for (i = 0; i < total_sg; i++)
+> > +             desc[i].next = i+1;
+> > +     return desc;
+> >  }
+>
+> Would it make sense to keep a cache of a few (say) 8- or 16-element
+> indirect descriptors?  You'd only have to do this ugly (and slowish) for
+> loop on the first allocation.
+>
+> Also, since this is mostly an aesthetic patch,
+>
+> > +     if (indirect)
+> > +             vq->free_head = vq->vring.desc[head].next;
+> > +     else
+> > +             vq->free_head = i;
+>
+> I'd move the indirect case above, where the vring.desc[head] is actually
+> allocated.
+>
 
-Nope, the buffer usually comes directly from the page cache and will be
-page aligned.
+Please don't: I'll just have to undo it for the DMA API stuff, since
+descriptor setup will be able to fail.
 
-Paolo
-
->> Enable S/G entry merging by default to fit into less of them.  This restores
->> the behavior at time of the virtio-blk blk-mq conversion, which was changed
->> by commit "block: add queue flag for disabling SG merging" which made the
->> behavior optional, but didn't update the existing drivers to keep their
->> previous behavior.
->>
->> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> 
-> OK so this is an optimization patch right?
-> What kind of performance gain is observed with it?
-> 
->> ---
->>  drivers/block/virtio_blk.c | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
->> index 0a58140..311b857 100644
->> --- a/drivers/block/virtio_blk.c
->> +++ b/drivers/block/virtio_blk.c
->> @@ -634,7 +634,7 @@ static int virtblk_probe(struct virtio_device *vdev)
->>  	vblk->tag_set.ops = &virtio_mq_ops;
->>  	vblk->tag_set.queue_depth = virtblk_queue_depth;
->>  	vblk->tag_set.numa_node = NUMA_NO_NODE;
->> -	vblk->tag_set.flags = BLK_MQ_F_SHOULD_MERGE;
->> +	vblk->tag_set.flags = BLK_MQ_F_SHOULD_MERGE | BLK_MQ_F_SG_MERGE;
->>  	vblk->tag_set.cmd_size =
->>  		sizeof(struct virtblk_req) +
->>  		sizeof(struct scatterlist) * sg_elems;
->> -- 
->> 1.9.1
+--Andy
