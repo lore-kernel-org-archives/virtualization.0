@@ -1,17 +1,14 @@
-From: Amos Kong <akong@redhat.com>
-Subject: Re: [PATCH] virtio-rng: complete have_data completion in removing
-	device
-Date: Mon, 8 Sep 2014 23:29:51 +0800
-Message-ID: <20140908152951.GA28459@zen.redhat.com>
-References: <1407260115-26767-1-git-send-email-akong@redhat.com>
-	<20140806080541.GA3304@z.redhat.com>
-	<20140806082529.GC25951@grmbl.mre>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH] virtio_blk: merge S/G list entries by default
+Date: Mon, 08 Sep 2014 18:21:03 +0200
+Message-ID: <540DD76F.3030106@redhat.com>
+References: <1410044994-14943-1-git-send-email-hch@lst.de>
+	<20140907114153.GB26569@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20140806082529.GC25951@grmbl.mre>
+In-Reply-To: <20140907114153.GB26569@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,108 +18,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: kvm@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 06, 2014 at 01:55:29PM +0530, Amit Shah wrote:
-> On (Wed) 06 Aug 2014 [16:05:41], Amos Kong wrote:
-> > On Wed, Aug 06, 2014 at 01:35:15AM +0800, Amos Kong wrote:
-> > > When we try to hot-remove a busy virtio-rng device from QEMU monitor,
-> > > the device can't be hot-removed. Because virtio-rng driver hangs at
-> > > wait_for_completion_killable().
-> > > 
-> > > This patch fixed the hang by completing have_data completion before
-> > > unregistering a virtio-rng device.
-> > 
-> > Hi Amit,
-> > 
-> > Before applying this patch, it's blocking insider wait_for_completion_killable()                     
-> > Applied this patch, wait_for_completion_killable() returns 0,
-> > and vi->data_avail becomes 0, then rng_get_date() will return 0.
+Il 07/09/2014 13:41, Michael S. Tsirkin ha scritto:
+> On Sat, Sep 06, 2014 at 04:09:54PM -0700, Christoph Hellwig wrote:
+>> Most virtio setups have a fairly limited number of ring entries available.
 > 
-> Thanks for checking this.
+> Seems a bit vague: QEMU at least has pretty large queues.
+> Which hypervisor do you have in mind?
+> This could be a gain everywhere if you manage to make descriptors
+> completely linear, so they fit in a single s/g.
+> ATM __virtblk_add_req always adds an s/g for the header:
+> is there a chance linux can pre-allocate a bit of memory
+> in front of the buffer to stick the header in?
+
+Nope, the buffer usually comes directly from the page cache and will be
+page aligned.
+
+Paolo
+
+>> Enable S/G entry merging by default to fit into less of them.  This restores
+>> the behavior at time of the virtio-blk blk-mq conversion, which was changed
+>> by commit "block: add queue flag for disabling SG merging" which made the
+>> behavior optional, but didn't update the existing drivers to keep their
+>> previous behavior.
+>>
+>> Signed-off-by: Christoph Hellwig <hch@lst.de>
 > 
-> > Is it expected result?
+> OK so this is an optimization patch right?
+> What kind of performance gain is observed with it?
 > 
-> I think what will happen is vi->data_avail will be set to whatever it
-> was set last.  In case of a previous successful read request, the
-> data_avail will be set to whatever number of bytes the host gave.  On
-> doing a hot-unplug on the succeeding wait, the value in data_avail
-> will be re-used, and the hwrng core will wrongly take some bytes in
-> the buffer as input from the host.
-> 
-> So, I think we need to set vi->data_avail = 0; before calling
-> wait_event_completion_killable().
-> 
-> 		Amit
-
-In my latest debugging, I found the hang is caused by unexpected reading
-when we started to remove the device.
-
-I have two draft fix, 1) is skip unexpected reading by checking a
-remove flag. 2) is unregistering device at the beginning of
-remove_common(). I think second patch is better if it won't cause
-new problem.
-
-The original patch (complete in remove_common()) is still necessary.
-
-Test results: hotplug issue disappeared (dd process will quit).
-
-
-diff --git a/drivers/char/hw_random/virtio-rng.c
-b/drivers/char/hw_random/virtio-rng.c
-index 2e3139e..028797c 100644
---- a/drivers/char/hw_random/virtio-rng.c
-+++ b/drivers/char/hw_random/virtio-rng.c
-@@ -35,6 +35,7 @@ struct virtrng_info {
-        unsigned int data_avail;
-        int index;
-        bool busy;
-+        bool remove;
-        bool hwrng_register_done;
- };
- 
-@@ -68,6 +69,9 @@ static int virtio_read(struct hwrng *rng, void *buf,
-size_t size, bool wait)
-        int ret;
-        struct virtrng_info *vi = (struct virtrng_info *)rng->priv;
- 
-+        if (vi->remove)
-+               return 0;
-+
-        if (!vi->busy) {
-                vi->busy = true;
-                init_completion(&vi->have_data);
-@@ -137,6 +141,8 @@ static void remove_common(struct virtio_device
-*vdev)
- {
-        struct virtrng_info *vi = vdev->priv;
- 
-+       vi->remove = true;
-+       complete(&vi->have_data);
-        vdev->config->reset(vdev);
-        vi->busy = false;
-        if (vi->hwrng_register_done)
-
-
-diff --git a/drivers/char/hw_random/virtio-rng.c
-b/drivers/char/hw_random/virtio-rng.c
-index 2e3139e..9b8c2ce 100644
---- a/drivers/char/hw_random/virtio-rng.c
-+++ b/drivers/char/hw_random/virtio-rng.c
-@@ -137,10 +137,11 @@ static void remove_common(struct virtio_device
-*vdev)
- {
-        struct virtrng_info *vi = vdev->priv;
- 
--       vdev->config->reset(vdev);
--       vi->busy = false;
-        if (vi->hwrng_register_done)
-                hwrng_unregister(&vi->hwrng);
-+       complete(&vi->have_data);
-+       vdev->config->reset(vdev);
-+       vi->busy = false;
-        vdev->config->del_vqs(vdev);
-        ida_simple_remove(&rng_index_ida, vi->index);
-        kfree(vi);
+>> ---
+>>  drivers/block/virtio_blk.c | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+>> index 0a58140..311b857 100644
+>> --- a/drivers/block/virtio_blk.c
+>> +++ b/drivers/block/virtio_blk.c
+>> @@ -634,7 +634,7 @@ static int virtblk_probe(struct virtio_device *vdev)
+>>  	vblk->tag_set.ops = &virtio_mq_ops;
+>>  	vblk->tag_set.queue_depth = virtblk_queue_depth;
+>>  	vblk->tag_set.numa_node = NUMA_NO_NODE;
+>> -	vblk->tag_set.flags = BLK_MQ_F_SHOULD_MERGE;
+>> +	vblk->tag_set.flags = BLK_MQ_F_SHOULD_MERGE | BLK_MQ_F_SG_MERGE;
+>>  	vblk->tag_set.cmd_size =
+>>  		sizeof(struct virtblk_req) +
+>>  		sizeof(struct scatterlist) * sg_elems;
+>> -- 
+>> 1.9.1
