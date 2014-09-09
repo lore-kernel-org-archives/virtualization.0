@@ -1,16 +1,13 @@
-From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH] virtio_blk: merge S/G list entries by default
-Date: Mon, 8 Sep 2014 22:15:57 +0200
-Message-ID: <20140908201557.GA1378@lst.de>
-References: <1410044994-14943-1-git-send-email-hch@lst.de>
-	<20140907114153.GB26569@redhat.com> <20140907184745.GA23026@lst.de>
-	<20140908081830.GA32268@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio: pci: Use SIMPLE_DEV_PM_OPS macro
+Date: Tue, 09 Sep 2014 09:43:42 +0930
+Message-ID: <8761gxk5vt.fsf@rustcorp.com.au>
+References: <003a01cfc8bc$bf48cd60$3dda6820$%han@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20140908081830.GA32268@redhat.com>
+In-Reply-To: <003a01cfc8bc$bf48cd60$3dda6820$%han@samsung.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,12 +17,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>, Ming Lei <tom.leiming@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>
+Cc: 'Jingoo Han' <jg1.han@samsung.com>, virtualization@lists.linux-foundation.org, "'Michael S. Tsirkin'" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 08, 2014 at 11:18:30AM +0300, Michael S. Tsirkin wrote:
-> Could you respond to Ming Lei's mail, who benchmarked the patch, please?
+Jingoo Han <jg1.han@samsung.com> writes:
+> Use SIMPLE_DEV_PM_OPS macro in order to make the code simpler.
+>
+> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 
-I don't really have any additional data or disagreement, not sure what
-I should respond there.
+This patch is obviously wrong.  It won't compile without
+CONFIG_PM_SLEEP.
+
+Cheers,
+Rusty.
+
+> ---
+>  drivers/virtio/virtio_pci.c | 9 +++------
+>  1 file changed, 3 insertions(+), 6 deletions(-)
+>
+> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+> index 3d1463c6b120..c5fbdb4023d1 100644
+> --- a/drivers/virtio/virtio_pci.c
+> +++ b/drivers/virtio/virtio_pci.c
+> @@ -810,20 +810,17 @@ static int virtio_pci_restore(struct device *dev)
+>  
+>  	return ret;
+>  }
+> -
+> -static const struct dev_pm_ops virtio_pci_pm_ops = {
+> -	SET_SYSTEM_SLEEP_PM_OPS(virtio_pci_freeze, virtio_pci_restore)
+> -};
+>  #endif
+>  
+> +static SIMPLE_DEV_PM_OPS(virtio_pci_pm_ops, virtio_pci_freeze,
+> +			 virtio_pci_restore);
+> +
+>  static struct pci_driver virtio_pci_driver = {
+>  	.name		= "virtio-pci",
+>  	.id_table	= virtio_pci_id_table,
+>  	.probe		= virtio_pci_probe,
+>  	.remove		= virtio_pci_remove,
+> -#ifdef CONFIG_PM_SLEEP
+>  	.driver.pm	= &virtio_pci_pm_ops,
+> -#endif
+>  };
+>  
+>  module_pci_driver(virtio_pci_driver);
+> -- 
+> 2.0.0
