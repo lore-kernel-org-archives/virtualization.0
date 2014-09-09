@@ -1,13 +1,18 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio: pci: Use SIMPLE_DEV_PM_OPS macro
-Date: Tue, 09 Sep 2014 09:43:42 +0930
-Message-ID: <8761gxk5vt.fsf@rustcorp.com.au>
-References: <003a01cfc8bc$bf48cd60$3dda6820$%han@samsung.com>
+From: Amos Kong <akong@redhat.com>
+Subject: Re: [PATCH] virtio-rng: complete have_data completion in removing
+	device
+Date: Tue, 9 Sep 2014 18:47:42 +0800
+Message-ID: <20140909104742.GA30700@zen.redhat.com>
+References: <1407260115-26767-1-git-send-email-akong@redhat.com>
+	<20140806080541.GA3304@z.redhat.com>
+	<20140806082529.GC25951@grmbl.mre>
+	<20140908152951.GA28459@zen.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <003a01cfc8bc$bf48cd60$3dda6820$%han@samsung.com>
+Content-Disposition: inline
+In-Reply-To: <20140908152951.GA28459@zen.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,51 +22,91 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: 'Jingoo Han' <jg1.han@samsung.com>, virtualization@lists.linux-foundation.org, "'Michael S. Tsirkin'" <mst@redhat.com>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: stable@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jingoo Han <jg1.han@samsung.com> writes:
-> Use SIMPLE_DEV_PM_OPS macro in order to make the code simpler.
->
-> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
-
-This patch is obviously wrong.  It won't compile without
-CONFIG_PM_SLEEP.
-
-Cheers,
-Rusty.
-
-> ---
->  drivers/virtio/virtio_pci.c | 9 +++------
->  1 file changed, 3 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-> index 3d1463c6b120..c5fbdb4023d1 100644
-> --- a/drivers/virtio/virtio_pci.c
-> +++ b/drivers/virtio/virtio_pci.c
-> @@ -810,20 +810,17 @@ static int virtio_pci_restore(struct device *dev)
->  
->  	return ret;
->  }
-> -
-> -static const struct dev_pm_ops virtio_pci_pm_ops = {
-> -	SET_SYSTEM_SLEEP_PM_OPS(virtio_pci_freeze, virtio_pci_restore)
-> -};
->  #endif
->  
-> +static SIMPLE_DEV_PM_OPS(virtio_pci_pm_ops, virtio_pci_freeze,
-> +			 virtio_pci_restore);
-> +
->  static struct pci_driver virtio_pci_driver = {
->  	.name		= "virtio-pci",
->  	.id_table	= virtio_pci_id_table,
->  	.probe		= virtio_pci_probe,
->  	.remove		= virtio_pci_remove,
-> -#ifdef CONFIG_PM_SLEEP
->  	.driver.pm	= &virtio_pci_pm_ops,
-> -#endif
->  };
->  
->  module_pci_driver(virtio_pci_driver);
-> -- 
-> 2.0.0
+T24gTW9uLCBTZXAgMDgsIDIwMTQgYXQgMTE6Mjk6NTFQTSArMDgwMCwgQW1vcyBLb25nIHdyb3Rl
+Ogo+IE9uIFdlZCwgQXVnIDA2LCAyMDE0IGF0IDAxOjU1OjI5UE0gKzA1MzAsIEFtaXQgU2hhaCB3
+cm90ZToKPiA+IE9uIChXZWQpIDA2IEF1ZyAyMDE0IFsxNjowNTo0MV0sIEFtb3MgS29uZyB3cm90
+ZToKPiA+ID4gT24gV2VkLCBBdWcgMDYsIDIwMTQgYXQgMDE6MzU6MTVBTSArMDgwMCwgQW1vcyBL
+b25nIHdyb3RlOgo+ID4gPiA+IFdoZW4gd2UgdHJ5IHRvIGhvdC1yZW1vdmUgYSBidXN5IHZpcnRp
+by1ybmcgZGV2aWNlIGZyb20gUUVNVSBtb25pdG9yLAo+ID4gPiA+IHRoZSBkZXZpY2UgY2FuJ3Qg
+YmUgaG90LXJlbW92ZWQuIEJlY2F1c2UgdmlydGlvLXJuZyBkcml2ZXIgaGFuZ3MgYXQKPiA+ID4g
+PiB3YWl0X2Zvcl9jb21wbGV0aW9uX2tpbGxhYmxlKCkuCj4gPiA+ID4gCj4gPiA+ID4gVGhpcyBw
+YXRjaCBmaXhlZCB0aGUgaGFuZyBieSBjb21wbGV0aW5nIGhhdmVfZGF0YSBjb21wbGV0aW9uIGJl
+Zm9yZQo+ID4gPiA+IHVucmVnaXN0ZXJpbmcgYSB2aXJ0aW8tcm5nIGRldmljZS4KPiA+ID4gCj4g
+PiA+IEhpIEFtaXQsCj4gPiA+IAo+ID4gPiBCZWZvcmUgYXBwbHlpbmcgdGhpcyBwYXRjaCwgaXQn
+cyBibG9ja2luZyBpbnNpZGVyIHdhaXRfZm9yX2NvbXBsZXRpb25fa2lsbGFibGUoKSAgICAgICAg
+ICAgICAgICAgICAgIAo+ID4gPiBBcHBsaWVkIHRoaXMgcGF0Y2gsIHdhaXRfZm9yX2NvbXBsZXRp
+b25fa2lsbGFibGUoKSByZXR1cm5zIDAsCj4gPiA+IGFuZCB2aS0+ZGF0YV9hdmFpbCBiZWNvbWVz
+IDAsIHRoZW4gcm5nX2dldF9kYXRlKCkgd2lsbCByZXR1cm4gMC4KPiA+IAo+ID4gVGhhbmtzIGZv
+ciBjaGVja2luZyB0aGlzLgo+ID4gCj4gPiA+IElzIGl0IGV4cGVjdGVkIHJlc3VsdD8KPiA+IAoK
+SGkgQW1pdAoKPiA+IEkgdGhpbmsgd2hhdCB3aWxsIGhhcHBlbiBpcyB2aS0+ZGF0YV9hdmFpbCB3
+aWxsIGJlIHNldCB0byB3aGF0ZXZlciBpdAo+ID4gd2FzIHNldCBsYXN0LiAgSW4gY2FzZSBvZiBh
+IHByZXZpb3VzIHN1Y2Nlc3NmdWwgcmVhZCByZXF1ZXN0LCB0aGUKPiA+IGRhdGFfYXZhaWwgd2ls
+bCBiZSBzZXQgdG8gd2hhdGV2ZXIgbnVtYmVyIG9mIGJ5dGVzIHRoZSBob3N0IGdhdmUuICBPbgo+
+ID4gZG9pbmcgYSBob3QtdW5wbHVnIG9uIHRoZSBzdWNjZWVkaW5nIHdhaXQsIHRoZSB2YWx1ZSBp
+biBkYXRhX2F2YWlsCj4gPiB3aWxsIGJlIHJlLXVzZWQsIGFuZCB0aGUgaHdybmcgY29yZSB3aWxs
+IHdyb25nbHkgdGFrZSBzb21lIGJ5dGVzIGluCj4gPiB0aGUgYnVmZmVyIGFzIGlucHV0IGZyb20g
+dGhlIGhvc3QuCj4gPiAKPiA+IFNvLCBJIHRoaW5rIHdlIG5lZWQgdG8gc2V0IHZpLT5kYXRhX2F2
+YWlsID0gMDsgYmVmb3JlIGNhbGxpbmcKPiA+IHdhaXRfZXZlbnRfY29tcGxldGlvbl9raWxsYWJs
+ZSgpLgoKSSBmaW5hbGx5IHVuZGVyc3RhbmQgY29udGVudCwgd2UgbmVlZCB0byBzZXQgdmktPmRh
+dGFfYXZhaWwgdG8gMApiZWZvcmUgcmV0dXJuaW5nIHZpcnRpb19yZWFkKCksIGl0IG1pZ2h0IGVu
+dGVyIHdhaXRfZXZlbnRfY29tcGxldGlvbl9raWxsYWJsZSgpCndoZW4gd2UgdHJ5IHRvIHJlbW92
+ZSB0aGUgZGV2aWNlLgoKV2UgY2FsbCBjb21wbGV0ZSgpIGluIHJlbW92ZV9jb21tb24oKSwgdGhl
+biB3YWl0X2V2ZW50X2NvbXBsZXRpb25fa2lsbGFibGUoKQp3aWxsIGV4aXQsIGJ1dCB2aXJ0aW9f
+cmVhZCgpIHdpbGwgYmUgcmUtZW50ZXJlZCBpZiB0aGUgZGV2aWNlIHN0aWxsCmlzbid0IHVucmVn
+aXN0ZXJlZCwgdGhlbiByZS1zdHVjayBpbnNpZGUgd2FpdF9ldmVudF9jb21wbGV0aW9uX2tpbGxh
+YmxlKCkuCgpJIHRlc3RlZCBzb21lIGNvbXBsZXggY29uZGl0aW9uIChib3RoIHF1aWNrL3Nsb3cg
+YmFja2VuZCksIEkgZm91bmQKc29tZSBwcm9ibGVtIGluIGJlbG93IHR3byBwYXRjaGVzLgoKSSB3
+aWxsIHBvc3QgYW5vdGhlciBmaXggbGF0ZXIuIFRoZSB0ZXN0IHJlc3VsdCBpcyBleHBlY3RlZC4K
+CjEuIEhvdHBsdWcgcmVtb3ZlIHZpcnRpby1ybmcwLCBkZCBwcm9jZXNzIHdpbGwgZXhpdCB3aXRo
+IGFuIGVycm9yOgogICAgImRkOiBlcnJvciByZWFkaW5nIOKAmC9kZXYvaHdybmfigJk6IE9wZXJh
+dGlvbiBub3QgcGVybWl0dGVkIgogICB2aXJ0aW8tcm5nMCBkaXNhcHBlYXIgZnJvbSAnaW5mbyBw
+Y2knCiAKMi4gUmUtcmVhZCBieSBkZCwgaG90cGx1ZyB2aXJ0aW8tcm5nMSwgZGQgcHJvY2VzcyBl
+eGl0IHdpdGggc2FtZQogICBlcnJvciwgdmlydGlvLXJuZzEgZGlzYXBwZWFyCgoKVGhhbmtzLCBB
+bW9zCgo+ID4gCj4gPiAJCUFtaXQKPiAKPiBJbiBteSBsYXRlc3QgZGVidWdnaW5nLCBJIGZvdW5k
+IHRoZSBoYW5nIGlzIGNhdXNlZCBieSB1bmV4cGVjdGVkIHJlYWRpbmcKPiB3aGVuIHdlIHN0YXJ0
+ZWQgdG8gcmVtb3ZlIHRoZSBkZXZpY2UuCj4gCj4gSSBoYXZlIHR3byBkcmFmdCBmaXgsIDEpIGlz
+IHNraXAgdW5leHBlY3RlZCByZWFkaW5nIGJ5IGNoZWNraW5nIGEKPiByZW1vdmUgZmxhZy4gMikg
+aXMgdW5yZWdpc3RlcmluZyBkZXZpY2UgYXQgdGhlIGJlZ2lubmluZyBvZgo+IHJlbW92ZV9jb21t
+b24oKS4gSSB0aGluayBzZWNvbmQgcGF0Y2ggaXMgYmV0dGVyIGlmIGl0IHdvbid0IGNhdXNlCj4g
+bmV3IHByb2JsZW0uCj4gCj4gVGhlIG9yaWdpbmFsIHBhdGNoIChjb21wbGV0ZSBpbiByZW1vdmVf
+Y29tbW9uKCkpIGlzIHN0aWxsIG5lY2Vzc2FyeS4KPiAKPiBUZXN0IHJlc3VsdHM6IGhvdHBsdWcg
+aXNzdWUgZGlzYXBwZWFyZWQgKGRkIHByb2Nlc3Mgd2lsbCBxdWl0KS4KPiAKPiAKPiBkaWZmIC0t
+Z2l0IGEvZHJpdmVycy9jaGFyL2h3X3JhbmRvbS92aXJ0aW8tcm5nLmMKPiBiL2RyaXZlcnMvY2hh
+ci9od19yYW5kb20vdmlydGlvLXJuZy5jCj4gaW5kZXggMmUzMTM5ZS4uMDI4Nzk3YyAxMDA2NDQK
+PiAtLS0gYS9kcml2ZXJzL2NoYXIvaHdfcmFuZG9tL3ZpcnRpby1ybmcuYwo+ICsrKyBiL2RyaXZl
+cnMvY2hhci9od19yYW5kb20vdmlydGlvLXJuZy5jCj4gQEAgLTM1LDYgKzM1LDcgQEAgc3RydWN0
+IHZpcnRybmdfaW5mbyB7Cj4gICAgICAgICB1bnNpZ25lZCBpbnQgZGF0YV9hdmFpbDsKPiAgICAg
+ICAgIGludCBpbmRleDsKPiAgICAgICAgIGJvb2wgYnVzeTsKPiArICAgICAgICBib29sIHJlbW92
+ZTsKPiAgICAgICAgIGJvb2wgaHdybmdfcmVnaXN0ZXJfZG9uZTsKPiAgfTsKPiAgCj4gQEAgLTY4
+LDYgKzY5LDkgQEAgc3RhdGljIGludCB2aXJ0aW9fcmVhZChzdHJ1Y3QgaHdybmcgKnJuZywgdm9p
+ZCAqYnVmLAo+IHNpemVfdCBzaXplLCBib29sIHdhaXQpCj4gICAgICAgICBpbnQgcmV0Owo+ICAg
+ICAgICAgc3RydWN0IHZpcnRybmdfaW5mbyAqdmkgPSAoc3RydWN0IHZpcnRybmdfaW5mbyAqKXJu
+Zy0+cHJpdjsKPiAgCj4gKyAgICAgICAgaWYgKHZpLT5yZW1vdmUpCj4gKyAgICAgICAgICAgICAg
+IHJldHVybiAwOwo+ICsKPiAgICAgICAgIGlmICghdmktPmJ1c3kpIHsKPiAgICAgICAgICAgICAg
+ICAgdmktPmJ1c3kgPSB0cnVlOwo+ICAgICAgICAgICAgICAgICBpbml0X2NvbXBsZXRpb24oJnZp
+LT5oYXZlX2RhdGEpOwo+IEBAIC0xMzcsNiArMTQxLDggQEAgc3RhdGljIHZvaWQgcmVtb3ZlX2Nv
+bW1vbihzdHJ1Y3QgdmlydGlvX2RldmljZQo+ICp2ZGV2KQo+ICB7Cj4gICAgICAgICBzdHJ1Y3Qg
+dmlydHJuZ19pbmZvICp2aSA9IHZkZXYtPnByaXY7Cj4gIAo+ICsgICAgICAgdmktPnJlbW92ZSA9
+IHRydWU7Cj4gKyAgICAgICBjb21wbGV0ZSgmdmktPmhhdmVfZGF0YSk7Cj4gICAgICAgICB2ZGV2
+LT5jb25maWctPnJlc2V0KHZkZXYpOwo+ICAgICAgICAgdmktPmJ1c3kgPSBmYWxzZTsKPiAgICAg
+ICAgIGlmICh2aS0+aHdybmdfcmVnaXN0ZXJfZG9uZSkKPiAKPiAKPiBkaWZmIC0tZ2l0IGEvZHJp
+dmVycy9jaGFyL2h3X3JhbmRvbS92aXJ0aW8tcm5nLmMKPiBiL2RyaXZlcnMvY2hhci9od19yYW5k
+b20vdmlydGlvLXJuZy5jCj4gaW5kZXggMmUzMTM5ZS4uOWI4YzJjZSAxMDA2NDQKPiAtLS0gYS9k
+cml2ZXJzL2NoYXIvaHdfcmFuZG9tL3ZpcnRpby1ybmcuYwo+ICsrKyBiL2RyaXZlcnMvY2hhci9o
+d19yYW5kb20vdmlydGlvLXJuZy5jCj4gQEAgLTEzNywxMCArMTM3LDExIEBAIHN0YXRpYyB2b2lk
+IHJlbW92ZV9jb21tb24oc3RydWN0IHZpcnRpb19kZXZpY2UKPiAqdmRldikKPiAgewo+ICAgICAg
+ICAgc3RydWN0IHZpcnRybmdfaW5mbyAqdmkgPSB2ZGV2LT5wcml2Owo+ICAKPiAtICAgICAgIHZk
+ZXYtPmNvbmZpZy0+cmVzZXQodmRldik7Cj4gLSAgICAgICB2aS0+YnVzeSA9IGZhbHNlOwo+ICAg
+ICAgICAgaWYgKHZpLT5od3JuZ19yZWdpc3Rlcl9kb25lKQo+ICAgICAgICAgICAgICAgICBod3Ju
+Z191bnJlZ2lzdGVyKCZ2aS0+aHdybmcpOwo+ICsgICAgICAgY29tcGxldGUoJnZpLT5oYXZlX2Rh
+dGEpOwo+ICsgICAgICAgdmRldi0+Y29uZmlnLT5yZXNldCh2ZGV2KTsKPiArICAgICAgIHZpLT5i
+dXN5ID0gZmFsc2U7Cj4gICAgICAgICB2ZGV2LT5jb25maWctPmRlbF92cXModmRldik7Cj4gICAg
+ICAgICBpZGFfc2ltcGxlX3JlbW92ZSgmcm5nX2luZGV4X2lkYSwgdmktPmluZGV4KTsKPiAgICAg
+ICAgIGtmcmVlKHZpKTsKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
+bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
+bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
