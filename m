@@ -1,12 +1,14 @@
 From: Amos Kong <akong@redhat.com>
-Subject: mutex
-Date: Tue, 9 Sep 2014 23:18:44 +0800
-Message-ID: <20140909151844.GA17178@zen.redhat.com>
+Subject: RFC virtio-rng: fail to read sysfs of a busy device
+Date: Tue, 9 Sep 2014 23:23:07 +0800
+Message-ID: <20140909152307.GB17178@zen.redhat.com>
+References: <20140909151844.GA17178@zen.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <20140909151844.GA17178@zen.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,6 +21,8 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
 Cc: amit.shah@redhat.com, herbert@gondor.apana.org.au, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
+
+(Resend to fix the subject)
 
 Hi Amit, Rusty
 
@@ -96,3 +100,6 @@ index aa30a25..fa69020 100644
  
  	return ret;
  }
+
+-- 
+			Amos.
