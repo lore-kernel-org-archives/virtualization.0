@@ -1,11 +1,12 @@
 From: Amos Kong <akong@redhat.com>
-Subject: [PATCH v2] virtio-rng: fix stuck of hot-unplugging busy device
-Date: Tue,  9 Sep 2014 19:14:02 +0800
-Message-ID: <1410261242-16328-1-git-send-email-akong@redhat.com>
+Subject: mutex
+Date: Tue, 9 Sep 2014 23:18:44 +0800
+Message-ID: <20140909151844.GA17178@zen.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,40 +17,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
-Cc: amit.shah@redhat.com, stable@vger.kernel.org, kvm@vger.kernel.org
+Cc: amit.shah@redhat.com, herbert@gondor.apana.org.au, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-V2hlbiB3ZSB0cnkgdG8gaG90LXJlbW92ZSBhIGJ1c3kgdmlydGlvLXJuZyBkZXZpY2UgZnJvbSBR
-RU1VIG1vbml0b3IsCnRoZSBkZXZpY2UgY2FuJ3QgYmUgaG90LXJlbW92ZWQuIEJlY2F1c2Ugdmly
-dGlvLXJuZyBkcml2ZXIgaGFuZ3MgYXQKd2FpdF9mb3JfY29tcGxldGlvbl9raWxsYWJsZSgpLgoK
-VGhpcyBwYXRjaCBleGl0cyB0aGUgd2FpdGluZyBieSBjb21wbGV0aW5nIGhhdmVfZGF0YSBjb21w
-bGV0aW9uIGJlZm9yZQp1bnJlZ2lzdGVyaW5nLCByZXNldHMgZGF0YV9hdmFpbCB0byBhdm9pZCB0
-aGUgaHdybmcgY29yZSB1c2Ugd3JvbmcKYnVmZmVyIGJ5dGVzLiBCZWZvcmUgcmVhbCB1bnJlZ2lz
-dGVyaW5nIHdlIHNob3VsZCByZXR1cm4gLUVOT0RFViBmb3IKcmVhZGluZy4KCldoZW4gd2UgaG90
-LXVucGx1ZyB0aGUgZGV2aWNlLCBkZCBwcm9jZXNzIGluIGd1ZXN0IHdpbGwgZXhpdC4KICAkIGRk
-IGlmPS9kZXYvaHdybmcgb2Y9L2Rldi9udWxsCiAgZGQ6IGVycm9yIHJlYWRpbmcg4oCYL2Rldi9o
-d3JuZ+KAmTogTm8gc3VjaCBkZXZpY2UKClNpZ25lZC1vZmYtYnk6IEFtb3MgS29uZyA8YWtvbmdA
-cmVkaGF0LmNvbT4KQ2M6IHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmcKLS0tClYyOiByZXNldCBkYXRh
-X2F2YWlsIChBbWl0KQogICAgYWRqdXN0IHVucmVnaXN0ZXIgb3JkZXIKLS0tCiBkcml2ZXJzL2No
-YXIvaHdfcmFuZG9tL3ZpcnRpby1ybmcuYyB8IDEwICsrKysrKysrKy0KIDEgZmlsZSBjaGFuZ2Vk
-LCA5IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2No
-YXIvaHdfcmFuZG9tL3ZpcnRpby1ybmcuYyBiL2RyaXZlcnMvY2hhci9od19yYW5kb20vdmlydGlv
-LXJuZy5jCmluZGV4IDJlMzEzOWUuLmU3NjQzM2IgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvY2hhci9o
-d19yYW5kb20vdmlydGlvLXJuZy5jCisrKyBiL2RyaXZlcnMvY2hhci9od19yYW5kb20vdmlydGlv
-LXJuZy5jCkBAIC02OCw2ICs2OCwxMCBAQCBzdGF0aWMgaW50IHZpcnRpb19yZWFkKHN0cnVjdCBo
-d3JuZyAqcm5nLCB2b2lkICpidWYsIHNpemVfdCBzaXplLCBib29sIHdhaXQpCiAJaW50IHJldDsK
-IAlzdHJ1Y3QgdmlydHJuZ19pbmZvICp2aSA9IChzdHJ1Y3QgdmlydHJuZ19pbmZvICopcm5nLT5w
-cml2OwogCisJaWYgKCF2aS0+aHdybmdfcmVnaXN0ZXJfZG9uZSkgeworCQlyZXR1cm4gLUVOT0RF
-VjsKKwl9CisKIAlpZiAoIXZpLT5idXN5KSB7CiAJCXZpLT5idXN5ID0gdHJ1ZTsKIAkJaW5pdF9j
-b21wbGV0aW9uKCZ2aS0+aGF2ZV9kYXRhKTsKQEAgLTEzNywxMCArMTQxLDE0IEBAIHN0YXRpYyB2
-b2lkIHJlbW92ZV9jb21tb24oc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCiB7CiAJc3RydWN0
-IHZpcnRybmdfaW5mbyAqdmkgPSB2ZGV2LT5wcml2OwogCisJdmktPmRhdGFfYXZhaWwgPSAwOwor
-CWNvbXBsZXRlKCZ2aS0+aGF2ZV9kYXRhKTsKIAl2ZGV2LT5jb25maWctPnJlc2V0KHZkZXYpOwog
-CXZpLT5idXN5ID0gZmFsc2U7Ci0JaWYgKHZpLT5od3JuZ19yZWdpc3Rlcl9kb25lKQorCWlmICh2
-aS0+aHdybmdfcmVnaXN0ZXJfZG9uZSkgeworCQl2aS0+aHdybmdfcmVnaXN0ZXJfZG9uZSA9IGZh
-bHNlOwogCQlod3JuZ191bnJlZ2lzdGVyKCZ2aS0+aHdybmcpOworCX0KIAl2ZGV2LT5jb25maWct
-PmRlbF92cXModmRldik7CiAJaWRhX3NpbXBsZV9yZW1vdmUoJnJuZ19pbmRleF9pZGEsIHZpLT5p
-bmRleCk7CiAJa2ZyZWUodmkpOwotLSAKMS45LjMKCl9fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
-aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
-bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Hi Amit, Rusty
+
+RHBZ: https://bugzilla.redhat.com/show_bug.cgi?id=1127062
+steps:
+- Read random data by 'dd if=/dev/hwrng of=/dev/null' in guest
+- check sysfs files in the same time, 'cat /sys/class/misc/hw_random/rng_*'
+
+Result: cat process will get stuck, it will return if we kill dd process.
+
+We have some static variables (eg, current_rng, data_avail, etc) in hw_random/core.c,
+they are protected by rng_mutex. I try to workaround this issue by undelay(100)
+after mutex_unlock() in rng_dev_read(). This gives chance for hwrng_attr_*_show()
+to get mutex.
+
+This patch also contains some cleanup, moving some code out of mutex
+protection.
+
+Do you have some suggestion? Thanks.
+
+
+diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
+index aa30a25..fa69020 100644
+--- a/drivers/char/hw_random/core.c
++++ b/drivers/char/hw_random/core.c
+@@ -194,6 +194,7 @@ static ssize_t rng_dev_read(struct file *filp, char __user *buf,
+ 		}
+ 
+ 		mutex_unlock(&rng_mutex);
++		udelay(100);
+ 
+ 		if (need_resched())
+ 			schedule_timeout_interruptible(1);
+@@ -233,10 +234,10 @@ static ssize_t hwrng_attr_current_store(struct device *dev,
+ 	int err;
+ 	struct hwrng *rng;
+ 
++	err = -ENODEV;
+ 	err = mutex_lock_interruptible(&rng_mutex);
+ 	if (err)
+ 		return -ERESTARTSYS;
+-	err = -ENODEV;
+ 	list_for_each_entry(rng, &rng_list, list) {
+ 		if (strcmp(rng->name, buf) == 0) {
+ 			if (rng == current_rng) {
+@@ -270,8 +271,8 @@ static ssize_t hwrng_attr_current_show(struct device *dev,
+ 		return -ERESTARTSYS;
+ 	if (current_rng)
+ 		name = current_rng->name;
+-	ret = snprintf(buf, PAGE_SIZE, "%s\n", name);
+ 	mutex_unlock(&rng_mutex);
++	ret = snprintf(buf, PAGE_SIZE, "%s\n", name);
+ 
+ 	return ret;
+ }
+@@ -284,19 +285,19 @@ static ssize_t hwrng_attr_available_show(struct device *dev,
+ 	ssize_t ret = 0;
+ 	struct hwrng *rng;
+ 
++	buf[0] = '\0';
+ 	err = mutex_lock_interruptible(&rng_mutex);
+ 	if (err)
+ 		return -ERESTARTSYS;
+-	buf[0] = '\0';
+ 	list_for_each_entry(rng, &rng_list, list) {
+ 		strncat(buf, rng->name, PAGE_SIZE - ret - 1);
+ 		ret += strlen(rng->name);
+ 		strncat(buf, " ", PAGE_SIZE - ret - 1);
+ 		ret++;
+ 	}
++	mutex_unlock(&rng_mutex);
+ 	strncat(buf, "\n", PAGE_SIZE - ret - 1);
+ 	ret++;
+-	mutex_unlock(&rng_mutex);
+ 
+ 	return ret;
+ }
