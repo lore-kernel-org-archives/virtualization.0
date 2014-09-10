@@ -1,13 +1,14 @@
-From: Amos Kong <akong@redhat.com>
-Subject: [PATCH 2/2] virtio-rng: fix stuck in catting hwrng attributes
-Date: Wed, 10 Sep 2014 17:07:07 +0800
-Message-ID: <1410340027-15373-3-git-send-email-akong@redhat.com>
-References: <1410340027-15373-1-git-send-email-akong@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH] virtio_blk: merge S/G list entries by default
+Date: Wed, 10 Sep 2014 17:18:23 +0200
+Message-ID: <54106BBF.7010907@redhat.com>
+References: <1410044994-14943-1-git-send-email-hch@lst.de>
+	<CACVXFVMRqgEh7EFQ0cDEatsqtxsgBrbSQNH9b6UZTsSD+=OWdA__14121.5735966854$1410309057$gmane$org@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1410340027-15373-1-git-send-email-akong@redhat.com>
+In-Reply-To: <CACVXFVMRqgEh7EFQ0cDEatsqtxsgBrbSQNH9b6UZTsSD+=OWdA__14121.5735966854$1410309057$gmane$org@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,39 +18,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: amit.shah@redhat.com, kvm@vger.kernel.org
+To: Ming Lei <tom.leiming@gmail.com>, Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, "Michael S. Tsirkin" <mst@redhat.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When I check hwrng attributes in sysfs, cat process always gets
-stuck if guest has only 1 vcpu and uses a slow rng backend.
+Il 07/09/2014 12:32, Ming Lei ha scritto:
+> It is a good idea to disable SG merge for vq incapable of indirect because
+> there are very limited direct descriptors.
 
-Currently we check if there is any tasks waiting to be run on
-current cpu in rng_dev_read() by need_resched(). But need_resched()
-doesn't work because rng_dev_read() is executing in user context.
+I think you mean _enabling_ SG merge if indirect descriptors are not there.
 
-This patch removed need_resched() and increase delay to 10 jiffies,
-then other tasks can have chance to execute protected code.
-Delaying 1 jiffy also works, but 10 jiffies is safer.
+> For vq capable of indirect, it should be better to not do SG merge at default
+> because:
+> 
+> - from hypervisor view, no matter how many segments one req has, all are
+> submitted to host kernel by one syscall, such as readv/io_submit
+> 
+> - host kernel still need to do the same merge again
 
-Signed-off-by: Amos Kong <akong@redhat.com>
----
- drivers/char/hw_random/core.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Here we agree.
 
-diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
-index c591d7e..b5d1b6f 100644
---- a/drivers/char/hw_random/core.c
-+++ b/drivers/char/hw_random/core.c
-@@ -195,8 +195,7 @@ static ssize_t rng_dev_read(struct file *filp, char __user *buf,
- 
- 		mutex_unlock(&rng_mutex);
- 
--		if (need_resched())
--			schedule_timeout_interruptible(1);
-+		schedule_timeout_interruptible(10);
- 
- 		if (signal_pending(current)) {
- 			err = -ERESTARTSYS;
--- 
-1.9.3
+Paolo
+
+> From my test(virtio-blk over null_blk), looks enabling SG merge may cause
+> throughput a little drop(~3%).
