@@ -1,13 +1,14 @@
-From: Ming Lei <tom.leiming@gmail.com>
-Subject: Re: [PATCH] virtio_blk: merge S/G list entries by default
-Date: Sun, 7 Sep 2014 18:32:26 +0800
-Message-ID: <CACVXFVMRqgEh7EFQ0cDEatsqtxsgBrbSQNH9b6UZTsSD+=OWdA__14121.5735966854$1410309057$gmane$org@mail.gmail.com>
-References: <1410044994-14943-1-git-send-email-hch@lst.de>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH v2] virtio-rng: fix stuck of hot-unplugging busy device
+Date: Wed, 10 Sep 2014 11:04:54 +0530
+Message-ID: <20140910053454.GA29832@grmbl.mre>
+References: <1410261242-16328-1-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1410044994-14943-1-git-send-email-hch@lst.de>
+Content-Disposition: inline
+In-Reply-To: <1410261242-16328-1-git-send-email-akong@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,61 +18,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
+To: Amos Kong <akong@redhat.com>
+Cc: stable@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Sep 7, 2014 at 7:09 AM, Christoph Hellwig <hch@lst.de> wrote:
-> Most virtio setups have a fairly limited number of ring entries available.
-> Enable S/G entry merging by default to fit into less of them.  This restores
-> the behavior at time of the virtio-blk blk-mq conversion, which was changed
-> by commit "block: add queue flag for disabling SG merging" which made the
-> behavior optional, but didn't update the existing drivers to keep their
-> previous behavior.
-
-It is a good idea to disable SG merge for vq incapable of indirect because
-there are very limited direct descriptors.
-
-For vq capable of indirect, it should be better to not do SG merge at default
-because:
-
-- from hypervisor view, no matter how many segments one req has, all are
-submitted to host kernel by one syscall, such as readv/io_submit
-
-- host kernel still need to do the same merge again
-
-From my test(virtio-blk over null_blk), looks enabling SG merge may cause
-throughput a little drop(~3%).
-
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  drivers/block/virtio_blk.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 0a58140..311b857 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -634,7 +634,7 @@ static int virtblk_probe(struct virtio_device *vdev)
->         vblk->tag_set.ops = &virtio_mq_ops;
->         vblk->tag_set.queue_depth = virtblk_queue_depth;
->         vblk->tag_set.numa_node = NUMA_NO_NODE;
-> -       vblk->tag_set.flags = BLK_MQ_F_SHOULD_MERGE;
-> +       vblk->tag_set.flags = BLK_MQ_F_SHOULD_MERGE | BLK_MQ_F_SG_MERGE;
->         vblk->tag_set.cmd_size =
->                 sizeof(struct virtblk_req) +
->                 sizeof(struct scatterlist) * sg_elems;
-> --
-> 1.9.1
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
-Thanks,
--- 
-Ming Lei
+SGkgQW1vcywKCk9uIChUdWUpIDA5IFNlcCAyMDE0IFsxOToxNDowMl0sIEFtb3MgS29uZyB3cm90
+ZToKPiBXaGVuIHdlIHRyeSB0byBob3QtcmVtb3ZlIGEgYnVzeSB2aXJ0aW8tcm5nIGRldmljZSBm
+cm9tIFFFTVUgbW9uaXRvciwKPiB0aGUgZGV2aWNlIGNhbid0IGJlIGhvdC1yZW1vdmVkLiBCZWNh
+dXNlIHZpcnRpby1ybmcgZHJpdmVyIGhhbmdzIGF0Cj4gd2FpdF9mb3JfY29tcGxldGlvbl9raWxs
+YWJsZSgpLgo+IAo+IFRoaXMgcGF0Y2ggZXhpdHMgdGhlIHdhaXRpbmcgYnkgY29tcGxldGluZyBo
+YXZlX2RhdGEgY29tcGxldGlvbiBiZWZvcmUKPiB1bnJlZ2lzdGVyaW5nLCByZXNldHMgZGF0YV9h
+dmFpbCB0byBhdm9pZCB0aGUgaHdybmcgY29yZSB1c2Ugd3JvbmcKPiBidWZmZXIgYnl0ZXMuIEJl
+Zm9yZSByZWFsIHVucmVnaXN0ZXJpbmcgd2Ugc2hvdWxkIHJldHVybiAtRU5PREVWIGZvcgo+IHJl
+YWRpbmcuCj4gCj4gV2hlbiB3ZSBob3QtdW5wbHVnIHRoZSBkZXZpY2UsIGRkIHByb2Nlc3MgaW4g
+Z3Vlc3Qgd2lsbCBleGl0Lgo+ICAgJCBkZCBpZj0vZGV2L2h3cm5nIG9mPS9kZXYvbnVsbAo+ICAg
+ZGQ6IGVycm9yIHJlYWRpbmcg4oCYL2Rldi9od3JuZ+KAmTogTm8gc3VjaCBkZXZpY2UKPiAKPiBT
+aWduZWQtb2ZmLWJ5OiBBbW9zIEtvbmcgPGFrb25nQHJlZGhhdC5jb20+Cj4gQ2M6IHN0YWJsZUB2
+Z2VyLmtlcm5lbC5vcmcKPiAtLS0KPiBWMjogcmVzZXQgZGF0YV9hdmFpbCAoQW1pdCkKPiAgICAg
+YWRqdXN0IHVucmVnaXN0ZXIgb3JkZXIKClRoYW5rcywgdGhpcyBsb29rcyBnb29kLgoKQ2FuIHlv
+dSBwbGVhc2Ugc3BsaXQgaW50byB0d28gcGFydHMsIHRoZSBjb21wbGV0ZSgpIGluIG9uZSwgYW5k
+IHRoZQpod3JuZ19yZWdpc3Rlcl9kb25lIHN0dWZmIGludG8gYW5vdGhlcj8KClRoYW5rcywKCgkJ
+QW1pdApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
+dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
+dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
+Zm8vdmlydHVhbGl6YXRpb24=
