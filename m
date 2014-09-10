@@ -1,15 +1,16 @@
 From: Amos Kong <akong@redhat.com>
-Subject: Re: [PATCH v2] virtio-rng: fix stuck of hot-unplugging busy device
-Date: Wed, 10 Sep 2014 14:12:57 +0800
-Message-ID: <20140910061257.GA30285@zen.redhat.com>
-References: <1410261242-16328-1-git-send-email-akong@redhat.com>
-	<20140910053454.GA29832@grmbl.mre>
+Subject: Re: RFC virtio-rng: fail to read sysfs of a busy device
+Date: Wed, 10 Sep 2014 14:49:38 +0800
+Message-ID: <20140910064938.GB30285@zen.redhat.com>
+References: <20140909151844.GA17178@zen.redhat.com>
+	<20140909152307.GB17178@zen.redhat.com>
+	<20140910055212.GB29832@grmbl.mre>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20140910053454.GA29832@grmbl.mre>
+In-Reply-To: <20140910055212.GB29832@grmbl.mre>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,30 +21,151 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Amit Shah <amit.shah@redhat.com>
-Cc: stable@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: herbert@gondor.apana.org.au, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBTZXAgMTAsIDIwMTQgYXQgMTE6MDQ6NTRBTSArMDUzMCwgQW1pdCBTaGFoIHdyb3Rl
-Ogo+IEhpIEFtb3MsCj4gCj4gT24gKFR1ZSkgMDkgU2VwIDIwMTQgWzE5OjE0OjAyXSwgQW1vcyBL
-b25nIHdyb3RlOgo+ID4gV2hlbiB3ZSB0cnkgdG8gaG90LXJlbW92ZSBhIGJ1c3kgdmlydGlvLXJu
-ZyBkZXZpY2UgZnJvbSBRRU1VIG1vbml0b3IsCj4gPiB0aGUgZGV2aWNlIGNhbid0IGJlIGhvdC1y
-ZW1vdmVkLiBCZWNhdXNlIHZpcnRpby1ybmcgZHJpdmVyIGhhbmdzIGF0Cj4gPiB3YWl0X2Zvcl9j
-b21wbGV0aW9uX2tpbGxhYmxlKCkuCj4gPiAKPiA+IFRoaXMgcGF0Y2ggZXhpdHMgdGhlIHdhaXRp
-bmcgYnkgY29tcGxldGluZyBoYXZlX2RhdGEgY29tcGxldGlvbiBiZWZvcmUKPiA+IHVucmVnaXN0
-ZXJpbmcsIHJlc2V0cyBkYXRhX2F2YWlsIHRvIGF2b2lkIHRoZSBod3JuZyBjb3JlIHVzZSB3cm9u
-Zwo+ID4gYnVmZmVyIGJ5dGVzLiBCZWZvcmUgcmVhbCB1bnJlZ2lzdGVyaW5nIHdlIHNob3VsZCBy
-ZXR1cm4gLUVOT0RFViBmb3IKPiA+IHJlYWRpbmcuCj4gPiAKPiA+IFdoZW4gd2UgaG90LXVucGx1
-ZyB0aGUgZGV2aWNlLCBkZCBwcm9jZXNzIGluIGd1ZXN0IHdpbGwgZXhpdC4KPiA+ICAgJCBkZCBp
-Zj0vZGV2L2h3cm5nIG9mPS9kZXYvbnVsbAo+ID4gICBkZDogZXJyb3IgcmVhZGluZyDigJgvZGV2
-L2h3cm5n4oCZOiBObyBzdWNoIGRldmljZQo+ID4gCj4gPiBTaWduZWQtb2ZmLWJ5OiBBbW9zIEtv
-bmcgPGFrb25nQHJlZGhhdC5jb20+Cj4gPiBDYzogc3RhYmxlQHZnZXIua2VybmVsLm9yZwo+ID4g
-LS0tCj4gPiBWMjogcmVzZXQgZGF0YV9hdmFpbCAoQW1pdCkKPiA+ICAgICBhZGp1c3QgdW5yZWdp
-c3RlciBvcmRlcgo+IAo+IFRoYW5rcywgdGhpcyBsb29rcyBnb29kLgo+IAo+IENhbiB5b3UgcGxl
-YXNlIHNwbGl0IGludG8gdHdvIHBhcnRzLCB0aGUgY29tcGxldGUoKSBpbiBvbmUsIGFuZCB0aGUK
-PiBod3JuZ19yZWdpc3Rlcl9kb25lIHN0dWZmIGludG8gYW5vdGhlcj8KCkkganVzdCBwb3N0ZWQg
-dGhlIFYzLCBzcGxpdCB0byB0d28gcGF0Y2hlcywgYW5kIHVwZGF0ZWQgdGhlIGNvbW1pdGxvZwp0
-byBkZXNjcmliZSB3aHkgd2UgbmVlZCB0byByZXR1cm4gRU5PREVWIGZvciByZWFkaW5nLgogCj4g
-VGhhbmtzLAo+IAo+IAkJQW1pdAoKLS0gCgkJCUFtb3MuCl9fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
-dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
-Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Wed, Sep 10, 2014 at 11:22:12AM +0530, Amit Shah wrote:
+> On (Tue) 09 Sep 2014 [23:23:07], Amos Kong wrote:
+> > (Resend to fix the subject)
+> > 
+> > Hi Amit, Rusty
+> > 
+> > RHBZ: https://bugzilla.redhat.com/show_bug.cgi?id=1127062
+> > steps:
+> > - Read random data by 'dd if=/dev/hwrng of=/dev/null' in guest
+> > - check sysfs files in the same time, 'cat /sys/class/misc/hw_random/rng_*'
+> > 
+> > Result: cat process will get stuck, it will return if we kill dd process.
+> 
+> How common is it going to be to have a long-running 'dd' process on
+> /dev/hwrng?
+
+Not a common usage, but we have this strict testing.
+ 
+> Also, with the new khwrng thread, reading from /dev/hwrng isn't
+> required -- just use /dev/random?
+
+Yes.
+ 
+> (This doesn't mean we shouldn't fix the issue here...)
+
+Completely agree :-)
+ 
+> > We have some static variables (eg, current_rng, data_avail, etc) in hw_random/core.c,
+> > they are protected by rng_mutex. I try to workaround this issue by undelay(100)
+> > after mutex_unlock() in rng_dev_read(). This gives chance for hwrng_attr_*_show()
+> > to get mutex.
+> > 
+> > This patch also contains some cleanup, moving some code out of mutex
+> > protection.
+> > 
+> > Do you have some suggestion? Thanks.
+> > 
+> > 
+> > diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
+> > index aa30a25..fa69020 100644
+> > --- a/drivers/char/hw_random/core.c
+> > +++ b/drivers/char/hw_random/core.c
+> > @@ -194,6 +194,7 @@ static ssize_t rng_dev_read(struct file *filp, char __user *buf,
+> >  		}
+> >  
+> >  		mutex_unlock(&rng_mutex);
+> > +		udelay(100);
+> 
+> We have a need_resched() right below.  Why doesn't that work?
+
+need_resched() is giving chance for userspace to 
+ 
+> >  		if (need_resched())
+
+It never success in my debugging.
+
+If we remove this check and always call schedule_timeout_interruptible(1),
+problem also disappears.
+
+diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
+index aa30a25..263a370 100644
+--- a/drivers/char/hw_random/core.c
++++ b/drivers/char/hw_random/core.c
+@@ -195,8 +195,7 @@ static ssize_t rng_dev_read(struct file *filp,
+char __user *buf,
+ 
+                mutex_unlock(&rng_mutex);
+ 
+-               if (need_resched())
+-                       schedule_timeout_interruptible(1);
++               schedule_timeout_interruptible(1);
+ 
+                if (signal_pending(current)) {
+                        err = -ERESTARTSYS;
+
+> >  			schedule_timeout_interruptible(1);
+> > @@ -233,10 +234,10 @@ static ssize_t hwrng_attr_current_store(struct device *dev,
+> >  	int err;
+> >  	struct hwrng *rng;
+ 
+> The following hunk doesn't work:
+> 
+> > +	err = -ENODEV;
+> >  	err = mutex_lock_interruptible(&rng_mutex);
+> 
+> err is being set to another value in the next line!
+> 
+> >  	if (err)
+> >  		return -ERESTARTSYS;
+> > -	err = -ENODEV;
+> 
+> And all usage of err below now won't have -ENODEV but some other value.
+
+Oops!
+ 
+> >  	list_for_each_entry(rng, &rng_list, list) {
+> >  		if (strcmp(rng->name, buf) == 0) {
+> >  			if (rng == current_rng) {
+> > @@ -270,8 +271,8 @@ static ssize_t hwrng_attr_current_show(struct device *dev,
+> >  		return -ERESTARTSYS;
+> >  	if (current_rng)
+> >  		name = current_rng->name;
+> > -	ret = snprintf(buf, PAGE_SIZE, "%s\n", name);
+> >  	mutex_unlock(&rng_mutex);
+> > +	ret = snprintf(buf, PAGE_SIZE, "%s\n", name);
+> 
+> This looks OK...
+> 
+> >  
+> >  	return ret;
+> >  }
+> > @@ -284,19 +285,19 @@ static ssize_t hwrng_attr_available_show(struct device *dev,
+> >  	ssize_t ret = 0;
+> >  	struct hwrng *rng;
+> >  
+> > +	buf[0] = '\0';
+> >  	err = mutex_lock_interruptible(&rng_mutex);
+> >  	if (err)
+> >  		return -ERESTARTSYS;
+> >
+> > -	buf[0] = '\0';
+> >  	list_for_each_entry(rng, &rng_list, list) {
+> >  		strncat(buf, rng->name, PAGE_SIZE - ret - 1);
+> >  		ret += strlen(rng->name);
+> >  		strncat(buf, " ", PAGE_SIZE - ret - 1);
+> >  		ret++;
+> >  	}
+> > +	mutex_unlock(&rng_mutex);
+> >  	strncat(buf, "\n", PAGE_SIZE - ret - 1);
+> >  	ret++;
+> > -	mutex_unlock(&rng_mutex);
+> 
+> But this isn't resulting in savings; the majority of the time is being
+> spent in the for loop, and that writes to the buffer.
+
+Right
+ 
+> BTW I don't expect strcat'ing to the buf in each of these scenarios is
+> a long operation, so this reworking doesn't strike to me as something
+> we should pursue.
+> 
+> 		Amit
+
+-- 
+			Amos.
