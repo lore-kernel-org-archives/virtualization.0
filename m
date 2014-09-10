@@ -1,22 +1,16 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [PATCH v4 0/4] virtio: Clean up scatterlists and use the DMA API
-Date: Wed, 10 Sep 2014 09:15:10 -0700
-Message-ID: <CALCETrV=w_-heYpzxMDpNW8MtB-R2HB98bOsyyk5ojRoc7zgBQ@mail.gmail.com>
-References: <cover.1409593066.git.luto@amacapital.net>
-	<1409609814.30640.11.camel@pasglop>
-	<CALCETrVHSjaCe5TN6+Gr9W9uT8XEZC97ne_dZUazMDyLr0Wetw@mail.gmail.com>
-	<1409691213.30640.37.camel@pasglop>
-	<CALCETrWNqksZWjotVXfWVWOaJ-tN=uBuMaRe+JmmPjacb6KDOg@mail.gmail.com>
-	<874mwpkxxi.fsf@rustcorp.com.au>
-	<CALCETrWMc6TQy02kLXLcLwMJbPkpY4yv7U-As6jv0Frx34nuww@mail.gmail.com>
-	<87lhpykdbu.fsf@rustcorp.com.au>
-	<CALCETrX7feY6f-iVEgdxp-YPNNPctRjQr=KyByyPRgiW1xKUdA@mail.gmail.com>
-	<54107013.2030701@codeaurora.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio_blk: merge S/G list entries by default
+Date: Wed, 10 Sep 2014 19:43:37 +0300
+Message-ID: <20140910164337.GD14199@redhat.com>
+References: <1410044994-14943-1-git-send-email-hch@lst.de>
+	<20140907114153.GB26569@redhat.com> <20140907184745.GA23026@lst.de>
+	<20140908081830.GA32268@redhat.com> <20140908201557.GA1378@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <54107013.2030701@codeaurora.org>
+Content-Disposition: inline
+In-Reply-To: <20140908201557.GA1378@lst.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,41 +20,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christopher Covington <cov@codeaurora.org>
-Cc: virtio-dev@lists.oasis-open.org, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Ming Lei <tom.leiming@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Sep 10, 2014 at 8:36 AM, Christopher Covington
-<cov@codeaurora.org> wrote:
-> On 09/04/2014 10:57 PM, Andy Lutomirski wrote:
->> There's a third option: try to make virtio-mmio work everywhere
->> (except s390), at least in the long run.  This other benefits: it
->> makes minimal hypervisors simpler, I think it'll get rid of the limits
->> on the number of virtio devices in a system.  ARM is already going
->> this direction, and I imagine that PPC support would be
->> straightforward (it's already using devicetree).
->
-> In my opinion, a uniform "virt" machine for every instruction set would be
-> very beneficial. I would guess that MMIO is more universally available than
-> PCI, and as you point out, simpler to implement.
+On Mon, Sep 08, 2014 at 10:15:57PM +0200, Christoph Hellwig wrote:
+> On Mon, Sep 08, 2014 at 11:18:30AM +0300, Michael S. Tsirkin wrote:
+> > Could you respond to Ming Lei's mail, who benchmarked the patch, please?
+> 
+> I don't really have any additional data or disagreement, not sure what
+> I should respond there.
 
-Except for x86 :(  That's presumably fixable, though.
-
->
->> Does virtio-mmio have any reasonable way of doing hotplug?  It could
->> also eventually make sense to have a standard for virtio on virtio.
->
-> I don't think so, but it seems possible. My bystander understanding is that
-> QEMU allocates some fixed number of VirtIO-MMIO devices, maybe a dozen, in the
-> device tree. The ones that don't actually get hooked up to something real like
-> a block device or network interface are populated with a dummy device. One
-> naive approach might be to allow the dummy devices to tell the kernel that
-> they are now changing to a real device.
-
-My thought (which I completely failed to articulate) was to have a
-spec for a virtio device that exposes a complete virtio bus along with
-hotplug and per-cpu interrupts (a la MSI-X).  This might be a bit
-complicated, but it would work everywhere without any firmware or
-platform issues.
-
---Andy
+Hmm Ming Lei measured a slowdown with your patch.
+Is that expected?
