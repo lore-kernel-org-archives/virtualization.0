@@ -1,14 +1,15 @@
 From: Amos Kong <akong@redhat.com>
-Subject: [PATCH v3 2/2] virtio-rng: skip reading when we start to remove the
-	device
-Date: Wed, 10 Sep 2014 14:11:37 +0800
-Message-ID: <1410329497-14349-3-git-send-email-akong__26190.3917337351$1410329532$gmane$org@redhat.com>
-References: <1410329497-14349-1-git-send-email-akong@redhat.com>
+Subject: Re: [PATCH v2] virtio-rng: fix stuck of hot-unplugging busy device
+Date: Wed, 10 Sep 2014 14:12:57 +0800
+Message-ID: <20140910061257.GA30285@zen.redhat.com>
+References: <1410261242-16328-1-git-send-email-akong@redhat.com>
+	<20140910053454.GA29832@grmbl.mre>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1410329497-14349-1-git-send-email-akong@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20140910053454.GA29832@grmbl.mre>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,49 +19,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: amit.shah@redhat.com, stable@vger.kernel.org, kvm@vger.kernel.org
+To: Amit Shah <amit.shah@redhat.com>
+Cc: stable@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Before we really unregister the hwrng device, reading will get stuck if
-the virtio device is reset. We should return error for reading when we
-start to remove the device.
-
-Signed-off-by: Amos Kong <akong@redhat.com>
-Cc: stable@vger.kernel.org
----
- drivers/char/hw_random/virtio-rng.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
-index 849b228..132c9cc 100644
---- a/drivers/char/hw_random/virtio-rng.c
-+++ b/drivers/char/hw_random/virtio-rng.c
-@@ -36,6 +36,7 @@ struct virtrng_info {
- 	int index;
- 	bool busy;
- 	bool hwrng_register_done;
-+	bool hwrng_removed;
- };
- 
- 
-@@ -68,6 +69,9 @@ static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
- 	int ret;
- 	struct virtrng_info *vi = (struct virtrng_info *)rng->priv;
- 
-+	if (vi->hwrng_removed)
-+		return -ENODEV;
-+
- 	if (!vi->busy) {
- 		vi->busy = true;
- 		init_completion(&vi->have_data);
-@@ -137,6 +141,7 @@ static void remove_common(struct virtio_device *vdev)
- {
- 	struct virtrng_info *vi = vdev->priv;
- 
-+	vi->hwrng_removed = true;
- 	vi->data_avail = 0;
- 	complete(&vi->have_data);
- 	vdev->config->reset(vdev);
--- 
-1.9.3
+T24gV2VkLCBTZXAgMTAsIDIwMTQgYXQgMTE6MDQ6NTRBTSArMDUzMCwgQW1pdCBTaGFoIHdyb3Rl
+Ogo+IEhpIEFtb3MsCj4gCj4gT24gKFR1ZSkgMDkgU2VwIDIwMTQgWzE5OjE0OjAyXSwgQW1vcyBL
+b25nIHdyb3RlOgo+ID4gV2hlbiB3ZSB0cnkgdG8gaG90LXJlbW92ZSBhIGJ1c3kgdmlydGlvLXJu
+ZyBkZXZpY2UgZnJvbSBRRU1VIG1vbml0b3IsCj4gPiB0aGUgZGV2aWNlIGNhbid0IGJlIGhvdC1y
+ZW1vdmVkLiBCZWNhdXNlIHZpcnRpby1ybmcgZHJpdmVyIGhhbmdzIGF0Cj4gPiB3YWl0X2Zvcl9j
+b21wbGV0aW9uX2tpbGxhYmxlKCkuCj4gPiAKPiA+IFRoaXMgcGF0Y2ggZXhpdHMgdGhlIHdhaXRp
+bmcgYnkgY29tcGxldGluZyBoYXZlX2RhdGEgY29tcGxldGlvbiBiZWZvcmUKPiA+IHVucmVnaXN0
+ZXJpbmcsIHJlc2V0cyBkYXRhX2F2YWlsIHRvIGF2b2lkIHRoZSBod3JuZyBjb3JlIHVzZSB3cm9u
+Zwo+ID4gYnVmZmVyIGJ5dGVzLiBCZWZvcmUgcmVhbCB1bnJlZ2lzdGVyaW5nIHdlIHNob3VsZCBy
+ZXR1cm4gLUVOT0RFViBmb3IKPiA+IHJlYWRpbmcuCj4gPiAKPiA+IFdoZW4gd2UgaG90LXVucGx1
+ZyB0aGUgZGV2aWNlLCBkZCBwcm9jZXNzIGluIGd1ZXN0IHdpbGwgZXhpdC4KPiA+ICAgJCBkZCBp
+Zj0vZGV2L2h3cm5nIG9mPS9kZXYvbnVsbAo+ID4gICBkZDogZXJyb3IgcmVhZGluZyDigJgvZGV2
+L2h3cm5n4oCZOiBObyBzdWNoIGRldmljZQo+ID4gCj4gPiBTaWduZWQtb2ZmLWJ5OiBBbW9zIEtv
+bmcgPGFrb25nQHJlZGhhdC5jb20+Cj4gPiBDYzogc3RhYmxlQHZnZXIua2VybmVsLm9yZwo+ID4g
+LS0tCj4gPiBWMjogcmVzZXQgZGF0YV9hdmFpbCAoQW1pdCkKPiA+ICAgICBhZGp1c3QgdW5yZWdp
+c3RlciBvcmRlcgo+IAo+IFRoYW5rcywgdGhpcyBsb29rcyBnb29kLgo+IAo+IENhbiB5b3UgcGxl
+YXNlIHNwbGl0IGludG8gdHdvIHBhcnRzLCB0aGUgY29tcGxldGUoKSBpbiBvbmUsIGFuZCB0aGUK
+PiBod3JuZ19yZWdpc3Rlcl9kb25lIHN0dWZmIGludG8gYW5vdGhlcj8KCkkganVzdCBwb3N0ZWQg
+dGhlIFYzLCBzcGxpdCB0byB0d28gcGF0Y2hlcywgYW5kIHVwZGF0ZWQgdGhlIGNvbW1pdGxvZwp0
+byBkZXNjcmliZSB3aHkgd2UgbmVlZCB0byByZXR1cm4gRU5PREVWIGZvciByZWFkaW5nLgogCj4g
+VGhhbmtzLAo+IAo+IAkJQW1pdAoKLS0gCgkJCUFtb3MuCl9fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
+dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
+Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
