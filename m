@@ -1,14 +1,14 @@
 From: Eric Blake <eblake@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH 1/2] virtio-gpu/2d: add hardware spec include
-	file
-Date: Thu, 11 Sep 2014 09:19:16 -0600
-Message-ID: <5411BD74.80608__32478.367110207$1410450844$gmane$org@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH 2/2] virtio-gpu/2d: add
+	docs/specs/virtio-gpu.txt
+Date: Thu, 11 Sep 2014 09:30:01 -0600
+Message-ID: <5411BFF9.9030102__17632.9219867059$1410450847$gmane$org@redhat.com>
 References: <1410448173-12960-1-git-send-email-kraxel@redhat.com>
-	<1410448173-12960-2-git-send-email-kraxel@redhat.com>
+	<1410448173-12960-3-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1354838407656242522=="
+Content-Type: multipart/mixed; boundary="===============9055635558133522845=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1410448173-12960-2-git-send-email-kraxel@redhat.com>
+In-Reply-To: <1410448173-12960-3-git-send-email-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,76 +23,96 @@ Cc: Dave Airlie <airlied@redhat.com>, virtio-dev@lists.oasis-open.org, virtualiz
 List-Id: virtualization@lists.linuxfoundation.org
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============1354838407656242522==
+--===============9055635558133522845==
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="fEoCf1awPbSnoUcl5vj19WK7LNbCoMbf7"
+ boundary="QKFlxGEC3dSAwVedQsrCfLbQqAfGxtUtG"
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---fEoCf1awPbSnoUcl5vj19WK7LNbCoMbf7
+--QKFlxGEC3dSAwVedQsrCfLbQqAfGxtUtG
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
 On 09/11/2014 09:09 AM, Gerd Hoffmann wrote:
-> This patch adds the header file with structs and defines for
-> the virtio based gpu device.  Covers 2d operations only.
->=20
 > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 > ---
->  include/hw/virtio/virtgpu_hw.h | 158 +++++++++++++++++++++++++++++++++=
+>  docs/specs/virtio-gpu.txt | 165 ++++++++++++++++++++++++++++++++++++++=
 ++++++++
->  1 file changed, 158 insertions(+)
->  create mode 100644 include/hw/virtio/virtgpu_hw.h
+>  1 file changed, 165 insertions(+)
+>  create mode 100644 docs/specs/virtio-gpu.txt
 >=20
-> diff --git a/include/hw/virtio/virtgpu_hw.h b/include/hw/virtio/virtgpu=
-_hw.h
+> diff --git a/docs/specs/virtio-gpu.txt b/docs/specs/virtio-gpu.txt
 > new file mode 100644
-> index 0000000..461f452
+> index 0000000..9455383
 > --- /dev/null
-> +++ b/include/hw/virtio/virtgpu_hw.h
-> @@ -0,0 +1,158 @@
-> +#ifndef VIRTGPU_HW_H
-> +#define VIRTGPU_HW_H
+> +++ b/docs/specs/virtio-gpu.txt
+> @@ -0,0 +1,165 @@
+> +virtio-gpu specification
 
-Non-trivial file, deserves a copyright and license notice.
-
-> +
-> +enum virtgpu_ctrl_type {
-> +        VIRTGPU_UNDEFINED =3D 0,
-> +
-> +        /* 2d commands */
-> +        VIRTGPU_CMD_GET_DISPLAY_INFO =3D 0x0100,
-
-Please consider also adding:
-
-#define VIRTGPU_CMD_GET_DISPLAY_INFO VIRTGPU_CMD_GET_DISPLAY_INFO
-
-and friends.  It makes it MUCH nicer for application software to probe
-for later extensions if every member of the enum is also associated with
-a preprocessor macro.
+I know you are just following existing bad practice in this directory,
+but it would be nice to declare copyright and license on this file.
 
 
 > +
-> +struct virtgpu_ctrl_hdr {
-> +        uint32_t type;
-> +        uint32_t flags;
-> +        uint64_t fence_id;
-> +        uint32_t ctx_id;
-> +        uint32_t padding;
-> +};
-> +
+> +The two members events_read and events_clear are used to signal events=
 
-Is the padding to ensure that this is aligned regardless of 32-bit or
-64-bit hosts?  Is it worth adding a compile-time assertion about the
-size of the struct to ensure the compiler doesn't add any additional
-padding?
+> +to the driver.  Currently one event is defined for a display
+> +change. When a config space interrupt is received the driver should
+> +read the events_read field.  The events processed should be written to=
+
+> +the events_clear field.  The device will clear the bits in events_read=
+
+> +then, mimicing write-to-clear behavior.
+
+s/mimicing/mimicking/ (stupid English rule that any verb ending in 'ic'
+becomes 'ick' when adding 'ed' or 'ing')
+
+> +Both queues have the same format.  Each request and each response have=
+
+> +a fixed header (struct virtgpu_ctrl_hdr), followed by command specific=
+
+> +data fieds.  The separate cursor queue is the "fast track" for
+
+s/fieds/fields/
+
+> +The virtio-gpu is based around the concept of resources private to the=
+
+> +host, the guest must DMA transfer into these resources. This is a
+> +design requirement in order to interface with future 3D rendering. In
+> +the unaccelerated there is no support for DMA transfers from
+
+s/unaccelerated/unaccelerated mode/
+
+> +  This creates a 2D resource on the host with the specified width,
+> +  height and format. Only a small subset of formats are support. The
+
+s/support/supported/
+and can you delineate that subset?
+
+
+> +  This sets the scanout parameters for a single scanout. The
+> +  resource_id is the resource to be scanned out from, along with a
+> +  rectangle specified by x, y, width and height.
+
+Is it worth a mention here or generically up front where 0,0 is in
+relation to the screen, and in which direction positive numbers move?
+I'm assuming 0,0 is top left, and larger x moves right, larger y moves do=
+wn.
+
+Are there restrictions against rectangles that overlap beyond screen
+boundaries?
+
+
+> +  This assign an array of guest pages (struct virtgpu_mem_entry) as
+
+s/assign/assigns/
 
 --=20
 Eric Blake   eblake redhat com    +1-919-301-3266
 Libvirt virtualization library http://libvirt.org
 
 
---fEoCf1awPbSnoUcl5vj19WK7LNbCoMbf7
+--QKFlxGEC3dSAwVedQsrCfLbQqAfGxtUtG
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -101,18 +121,18 @@ Content-Disposition: attachment; filename="signature.asc"
 Version: GnuPG v1
 Comment: Public key at http://people.redhat.com/eblake/eblake.gpg
 
-iQEcBAEBCAAGBQJUEb10AAoJEKeha0olJ0Nq/YEH/2LapO7FOnlYn2iuhka1udDK
-h2YzFXgdlpqNhJL/lbIctob8XeBNdroz1pRdHXOEwWHEnkrGRBRZtwbsDH7xwOgG
-hJpW2vr9NgHCPFeJmnaY30194/kiEU5o4QkPhX2YjWCVZLdd+T2kLv7jDPN4h6nl
-nN3g29kiCjhy67BKTFgCoB8DkVsn7TaMBjjjb/8ib5Yd8nQ/rTLBdBgiIPtsJMKZ
-gQ8BsizfHGmVTlwk0vecvl7k0TF32+DcIHg08NvdHjgDUnNtMoijYq7uMAODavG3
-x0t9aONY3RNwumYwH2Ho0BDJ1vnxsMvK/NZzfM4ew9spAFoC3xgC4sxOgSywVAo=
-=Zenb
+iQEcBAEBCAAGBQJUEb/5AAoJEKeha0olJ0NqLY8H/ihYDRlQb8BRGfJBFsYDlUzf
+uNVZFw5BW+o+OSqbjuAmi7fxbMjweVoBkvFBTeTqDVwy3r+fMr9n1aSqacImq8n0
+KyQD2v9TTyjS+neP1IeycI6yQtzQUeZ1LAcYZq2GXleowUHeCB2bsu2bDSXWzuAH
+aoyanm9lcc10T3eBtwfLsMze1y43gAuvMZOQyQhJ6BwgyArXufWdKkJ3TxqIxzMt
+91Ht3JJgRtD/EgSdqWBZ0Mv7Yr9rN1NJilFrnALr16AbnuZ9m9Ko0dW1P5GBq1ev
+5ezQq3U+BJ7xpKR0GbHay70b2QxFJ/OEERzqRdLdffBJf6BV2lrDuKUGi8z4ll0=
+=Hal3
 -----END PGP SIGNATURE-----
 
---fEoCf1awPbSnoUcl5vj19WK7LNbCoMbf7--
+--QKFlxGEC3dSAwVedQsrCfLbQqAfGxtUtG--
 
---===============1354838407656242522==
+--===============9055635558133522845==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -122,4 +142,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1354838407656242522==--
+--===============9055635558133522845==--
