@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: Rusty away 18th September -- 11th October
-Date: Thu, 11 Sep 2014 14:43:51 +0300
-Message-ID: <20140911114351.GA25736@redhat.com>
-References: <87oaunht4b.fsf@rustcorp.com.au>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 2/2] virtio-rng: fix stuck in catting hwrng attributes
+Date: Thu, 11 Sep 2014 21:08:03 +0930
+Message-ID: <8738byie04.fsf@rustcorp.com.au>
+References: <1410340027-15373-1-git-send-email-akong@redhat.com>
+	<1410340027-15373-3-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87oaunht4b.fsf@rustcorp.com.au>
+In-Reply-To: <1410340027-15373-3-git-send-email-akong@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,23 +18,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: netdev <netdev@vger.kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Amos Kong <akong@redhat.com>, virtualization@lists.linux-foundation.org
+Cc: amit.shah@redhat.com, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 11, 2014 at 10:26:52AM +0930, Rusty Russell wrote:
-> Hi all,
-> 
->         Probably won't read mail.  Linus, I'll have pull requests early
-> next week; if there's anything needed I'm sure Michael Tsirkin can
-> handle it.
+Amos Kong <akong@redhat.com> writes:
+> When I check hwrng attributes in sysfs, cat process always gets
+> stuck if guest has only 1 vcpu and uses a slow rng backend.
+>
+> Currently we check if there is any tasks waiting to be run on
+> current cpu in rng_dev_read() by need_resched(). But need_resched()
+> doesn't work because rng_dev_read() is executing in user context.
 
-Sure.
-Rusty, there's a small chance virtio 1.0 bits will be ready in time.
-I started working on them based on your virtio-pci-new-layout branch.
+I don't understand this explanation?  I'd expect the sysfs process to be
+woken by the mutex_unlock().
 
-If ready before the merge window, are you ok with me merging this
-support (without you having the opportunity to review first)?
+If we're really high priority (vs. the sysfs process) then I can see why
+we'd need schedule_timeout_interruptible() instead of just schedule(),
+and in that case, need_resched() would be false too.
 
--- 
-MST
+You could argue that's intended behaviour, but I can't see how it
+happens in the normal case anyway.
+
+What am I missing?
+
+Thanks,
+Rusty.
+
+> This patch removed need_resched() and increase delay to 10 jiffies,
+> then other tasks can have chance to execute protected code.
+> Delaying 1 jiffy also works, but 10 jiffies is safer.
+>
+> Signed-off-by: Amos Kong <akong@redhat.com>
+> ---
+>  drivers/char/hw_random/core.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+>
+> diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
+> index c591d7e..b5d1b6f 100644
+> --- a/drivers/char/hw_random/core.c
+> +++ b/drivers/char/hw_random/core.c
+> @@ -195,8 +195,7 @@ static ssize_t rng_dev_read(struct file *filp, char __user *buf,
+>  
+>  		mutex_unlock(&rng_mutex);
+>  
+> -		if (need_resched())
+> -			schedule_timeout_interruptible(1);
+> +		schedule_timeout_interruptible(10);
+>  
+>  		if (signal_pending(current)) {
+>  			err = -ERESTARTSYS;
+> -- 
+> 1.9.3
