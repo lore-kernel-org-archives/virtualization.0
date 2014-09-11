@@ -1,16 +1,15 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH 1/2] virtio-rng cleanup: move some code out of mutex
-	protection
-Date: Thu, 11 Sep 2014 11:37:15 +0530
-Message-ID: <20140911060715.GE19202@grmbl.mre>
+Subject: Re: [PATCH 2/2] virtio-rng: fix stuck in catting hwrng attributes
+Date: Thu, 11 Sep 2014 11:38:38 +0530
+Message-ID: <20140911060838.GF19202@grmbl.mre>
 References: <1410340027-15373-1-git-send-email-akong@redhat.com>
-	<1410340027-15373-2-git-send-email-akong@redhat.com>
+	<1410340027-15373-3-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1410340027-15373-2-git-send-email-akong@redhat.com>
+In-Reply-To: <1410340027-15373-3-git-send-email-akong@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,56 +23,47 @@ To: Amos Kong <akong@redhat.com>
 Cc: herbert.xu@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Wed) 10 Sep 2014 [17:07:06], Amos Kong wrote:
-> It doesn't save too much cpu time as expected, just a cleanup.
+On (Wed) 10 Sep 2014 [17:07:07], Amos Kong wrote:
+> When I check hwrng attributes in sysfs, cat process always gets
+> stuck if guest has only 1 vcpu and uses a slow rng backend.
+> 
+> Currently we check if there is any tasks waiting to be run on
+> current cpu in rng_dev_read() by need_resched(). But need_resched()
+> doesn't work because rng_dev_read() is executing in user context.
+> 
+> This patch removed need_resched() and increase delay to 10 jiffies,
+> then other tasks can have chance to execute protected code.
+> Delaying 1 jiffy also works, but 10 jiffies is safer.
 
-Frankly I won't bother with this.  It doesn't completely remove all
-copying from the mutex, so it's not worthwhile.
+I'd prefer two patches for this one: one to remove the need_resched()
+check, and the other to increase the timeout.
 
+Anyway,
+
+Reviewed-by: Amit Shah <amit.shah@redhat.com>
+
+> 
 > Signed-off-by: Amos Kong <akong@redhat.com>
 > ---
->  drivers/char/hw_random/core.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+>  drivers/char/hw_random/core.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
 > 
 > diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
-> index aa30a25..c591d7e 100644
+> index c591d7e..b5d1b6f 100644
 > --- a/drivers/char/hw_random/core.c
 > +++ b/drivers/char/hw_random/core.c
-> @@ -270,8 +270,8 @@ static ssize_t hwrng_attr_current_show(struct device *dev,
->  		return -ERESTARTSYS;
->  	if (current_rng)
->  		name = current_rng->name;
-> -	ret = snprintf(buf, PAGE_SIZE, "%s\n", name);
->  	mutex_unlock(&rng_mutex);
-> +	ret = snprintf(buf, PAGE_SIZE, "%s\n", name);
+> @@ -195,8 +195,7 @@ static ssize_t rng_dev_read(struct file *filp, char __user *buf,
 >  
->  	return ret;
->  }
-> @@ -284,19 +284,19 @@ static ssize_t hwrng_attr_available_show(struct device *dev,
->  	ssize_t ret = 0;
->  	struct hwrng *rng;
+>  		mutex_unlock(&rng_mutex);
 >  
-> +	buf[0] = '\0';
->  	err = mutex_lock_interruptible(&rng_mutex);
->  	if (err)
->  		return -ERESTARTSYS;
-> -	buf[0] = '\0';
->  	list_for_each_entry(rng, &rng_list, list) {
->  		strncat(buf, rng->name, PAGE_SIZE - ret - 1);
->  		ret += strlen(rng->name);
->  		strncat(buf, " ", PAGE_SIZE - ret - 1);
->  		ret++;
->  	}
-> +	mutex_unlock(&rng_mutex);
->  	strncat(buf, "\n", PAGE_SIZE - ret - 1);
->  	ret++;
-> -	mutex_unlock(&rng_mutex);
+> -		if (need_resched())
+> -			schedule_timeout_interruptible(1);
+> +		schedule_timeout_interruptible(10);
 >  
->  	return ret;
->  }
+>  		if (signal_pending(current)) {
+>  			err = -ERESTARTSYS;
 > -- 
 > 1.9.3
 > 
-
 
 		Amit
