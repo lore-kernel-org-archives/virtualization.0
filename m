@@ -1,16 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio_blk: merge S/G list entries by default
-Date: Wed, 10 Sep 2014 19:43:37 +0300
-Message-ID: <20140910164337.GD14199@redhat.com>
-References: <1410044994-14943-1-git-send-email-hch@lst.de>
-	<20140907114153.GB26569@redhat.com> <20140907184745.GA23026@lst.de>
-	<20140908081830.GA32268@redhat.com> <20140908201557.GA1378@lst.de>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Rusty away 18th September -- 11th October
+Date: Thu, 11 Sep 2014 10:26:52 +0930
+Message-ID: <87oaunht4b.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20140908201557.GA1378@lst.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,16 +15,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, Ming Lei <tom.leiming@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: netdev <netdev@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 08, 2014 at 10:15:57PM +0200, Christoph Hellwig wrote:
-> On Mon, Sep 08, 2014 at 11:18:30AM +0300, Michael S. Tsirkin wrote:
-> > Could you respond to Ming Lei's mail, who benchmarked the patch, please?
-> 
-> I don't really have any additional data or disagreement, not sure what
-> I should respond there.
+Hi all,
 
-Hmm Ming Lei measured a slowdown with your patch.
-Is that expected?
+        Probably won't read mail.  Linus, I'll have pull requests early
+next week; if there's anything needed I'm sure Michael Tsirkin can
+handle it.
+
+Cheers,
+Rusty.
+PS.  England and Italy for a holiday; my daughter chose them (somehow I
+     forgot to inform her of the existence of Euro Disney...)
