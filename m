@@ -1,14 +1,11 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 2/2] virtio-rng: fix stuck in catting hwrng attributes
-Date: Thu, 11 Sep 2014 21:08:03 +0930
-Message-ID: <8738byie04.fsf@rustcorp.com.au>
-References: <1410340027-15373-1-git-send-email-akong@redhat.com>
-	<1410340027-15373-3-git-send-email-akong@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 0/2] virtio-gpu: hardware specification
+Date: Thu, 11 Sep 2014 17:09:31 +0200
+Message-ID: <1410448173-12960-1-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1410340027-15373-3-git-send-email-akong@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,55 +15,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amos Kong <akong@redhat.com>, virtualization@lists.linux-foundation.org
-Cc: amit.shah@redhat.com, kvm@vger.kernel.org
+To: qemu-devel@nongnu.org
+Cc: Dave Airlie <airlied@redhat.com>, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Amos Kong <akong@redhat.com> writes:
-> When I check hwrng attributes in sysfs, cat process always gets
-> stuck if guest has only 1 vcpu and uses a slow rng backend.
->
-> Currently we check if there is any tasks waiting to be run on
-> current cpu in rng_dev_read() by need_resched(). But need_resched()
-> doesn't work because rng_dev_read() is executing in user context.
+  Hi folks,
 
-I don't understand this explanation?  I'd expect the sysfs process to be
-woken by the mutex_unlock().
+Lets kick off the virtio-gpu review process, starting with the virtio
+protocol.
 
-If we're really high priority (vs. the sysfs process) then I can see why
-we'd need schedule_timeout_interruptible() instead of just schedule(),
-and in that case, need_resched() would be false too.
+This is a tiny patch series for qemu.  Patch #1 carries the header file
+describing the virtual hardware: config space, command structs being
+sent over the rings, defines etc.  Patch #2 adds a text file describing
+virtio-gpu to docs/specs/.  It covers 2D support only for now.
 
-You could argue that's intended behaviour, but I can't see how it
-happens in the normal case anyway.
+For anybody who wants to dig a bit deeper:  Here are the branches for
+qemu and the linux kernel:
 
-What am I missing?
+  https://www.kraxel.org/cgit/qemu/log/?h=rebase/vga-wip
+  https://www.kraxel.org/cgit/linux/log/?h=virtio-gpu-rebase
 
-Thanks,
-Rusty.
+The qemu patches are in a reasonable state.  The linux kernel patches
+are not cleaned up yet, you probably want to look at the final tree
+only.
 
-> This patch removed need_resched() and increase delay to 10 jiffies,
-> then other tasks can have chance to execute protected code.
-> Delaying 1 jiffy also works, but 10 jiffies is safer.
->
-> Signed-off-by: Amos Kong <akong@redhat.com>
-> ---
->  drivers/char/hw_random/core.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
->
-> diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
-> index c591d7e..b5d1b6f 100644
-> --- a/drivers/char/hw_random/core.c
-> +++ b/drivers/char/hw_random/core.c
-> @@ -195,8 +195,7 @@ static ssize_t rng_dev_read(struct file *filp, char __user *buf,
->  
->  		mutex_unlock(&rng_mutex);
->  
-> -		if (need_resched())
-> -			schedule_timeout_interruptible(1);
-> +		schedule_timeout_interruptible(10);
->  
->  		if (signal_pending(current)) {
->  			err = -ERESTARTSYS;
-> -- 
-> 1.9.3
+Work has been done by Dave Airlie <airlied@redhat.com> and me.  The
+authorship info in git got lost in the qemu patch cleanup process
+though.  Suggestions how to handle that best?  Simply add both mine
+and Dave's signed-off-by to all virtio-gpu qemu patches?  Is that fine
+with you Dave?  Anyone has better ideas?
+
+please review,
+  Gerd Hoffmann
+
+Gerd Hoffmann (2):
+  virtio-gpu/2d: add hardware spec include file
+  virtio-gpu/2d: add docs/specs/virtio-gpu.txt
+
+ docs/specs/virtio-gpu.txt      | 165 +++++++++++++++++++++++++++++++++++++++++
+ include/hw/virtio/virtgpu_hw.h | 158 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 323 insertions(+)
+ create mode 100644 docs/specs/virtio-gpu.txt
+ create mode 100644 include/hw/virtio/virtgpu_hw.h
+
+-- 
+1.8.3.1
