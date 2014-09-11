@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 1/2] virtio-gpu/2d: add hardware spec include file
-Date: Thu, 11 Sep 2014 17:09:32 +0200
-Message-ID: <1410448173-12960-2-git-send-email-kraxel@redhat.com>
+Subject: [PATCH 2/2] virtio-gpu/2d: add docs/specs/virtio-gpu.txt
+Date: Thu, 11 Sep 2014 17:09:33 +0200
+Message-ID: <1410448173-12960-3-git-send-email-kraxel@redhat.com>
 References: <1410448173-12960-1-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,157 +21,39 @@ To: qemu-devel@nongnu.org
 Cc: Dave Airlie <airlied@redhat.com>, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds the header file with structs and defines for
-the virtio based gpu device.  Covers 2d operations only.
-
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- include/hw/virtio/virtgpu_hw.h | 158 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 158 insertions(+)
- create mode 100644 include/hw/virtio/virtgpu_hw.h
+ docs/specs/virtio-gpu.txt | 165 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 165 insertions(+)
+ create mode 100644 docs/specs/virtio-gpu.txt
 
-diff --git a/include/hw/virtio/virtgpu_hw.h b/include/hw/virtio/virtgpu_hw.h
+diff --git a/docs/specs/virtio-gpu.txt b/docs/specs/virtio-gpu.txt
 new file mode 100644
-index 0000000..461f452
+index 0000000..9455383
 --- /dev/null
-+++ b/include/hw/virtio/virtgpu_hw.h
-@@ -0,0 +1,158 @@
-+#ifndef VIRTGPU_HW_H
-+#define VIRTGPU_HW_H
++++ b/docs/specs/virtio-gpu.txt
+@@ -0,0 +1,165 @@
++virtio-gpu specification
++========================
 +
-+enum virtgpu_ctrl_type {
-+        VIRTGPU_UNDEFINED = 0,
++virtio-gpu is a virtio based graphics adapter.  It can operate in 2D
++mode and in 3D (virgl) mode.  3D mode will offload rendering ops to
++the host gpu and therefore requires a gpu with 3D support on the host
++machine.
 +
-+        /* 2d commands */
-+        VIRTGPU_CMD_GET_DISPLAY_INFO = 0x0100,
-+        VIRTGPU_CMD_RESOURCE_CREATE_2D,
-+        VIRTGPU_CMD_RESOURCE_UNREF,
-+        VIRTGPU_CMD_SET_SCANOUT,
-+        VIRTGPU_CMD_RESOURCE_FLUSH,
-+        VIRTGPU_CMD_TRANSFER_TO_HOST_2D,
-+        VIRTGPU_CMD_RESOURCE_ATTACH_BACKING,
-+        VIRTGPU_CMD_RESOURCE_INVAL_BACKING,
++The initial version will have 2D mode only.  It provides support for
++ARGB Hardware cursors and multiple scanouts (aka heads).
 +
-+        /* cursor commands */
-+        VIRTGPU_CMD_UPDATE_CURSOR = 0x0300,
-+        VIRTGPU_CMD_MOVE_CURSOR,
 +
-+        /* success responses */
-+        VIRTGPU_RESP_OK_NODATA = 0x1100,
-+        VIRTGPU_RESP_OK_DISPLAY_INFO,
++features
++--------
 +
-+        /* error responses */
-+        VIRTGPU_RESP_ERR_UNSPEC = 0x1200,
-+};
++There are no feature bits (yet).
++There will be one in the future for 3D mode support.
 +
-+#define VIRTGPU_FLAG_FENCE (1 << 0)
 +
-+struct virtgpu_ctrl_hdr {
-+        uint32_t type;
-+        uint32_t flags;
-+        uint64_t fence_id;
-+        uint32_t ctx_id;
-+        uint32_t padding;
-+};
-+
-+/* data passed in the cursor vq */
-+
-+struct virtgpu_cursor_pos {
-+        uint32_t scanout_id;
-+        uint32_t x, y;
-+};
-+
-+/* VIRTGPU_CMD_UPDATE_CURSOR, VIRTGPU_CMD_MOVE_CURSOR */
-+struct virtgpu_update_cursor {
-+        struct virtgpu_ctrl_hdr hdr;
-+        struct virtgpu_cursor_pos pos;  /* update & move */
-+        uint32_t resource_id;           /* update only */
-+        uint32_t hot_x, hot_y;          /* update only */
-+};
-+
-+/* data passed in the control vq, 2d related */
-+
-+/* VIRTGPU_CMD_RESOURCE_UNREF */
-+struct virtgpu_resource_unref {
-+        struct virtgpu_ctrl_hdr hdr;
-+        uint32_t resource_id;
-+};
-+
-+/* VIRTGPU_CMD_RESOURCE_CREATE_2D: create a simple 2d resource with a format */
-+struct virtgpu_resource_create_2d {
-+        struct virtgpu_ctrl_hdr hdr;
-+        uint32_t resource_id;
-+        uint32_t format;
-+        uint32_t width;
-+        uint32_t height;
-+};
-+
-+/* VIRTGPU_CMD_SET_SCANOUT */
-+struct virtgpu_set_scanout {
-+        struct virtgpu_ctrl_hdr hdr;
-+        uint32_t scanout_id;
-+        uint32_t resource_id;
-+        uint32_t width;
-+        uint32_t height;
-+        uint32_t x;
-+        uint32_t y;
-+};
-+
-+/* VIRTGPU_CMD_RESOURCE_FLUSH */
-+struct virtgpu_resource_flush {
-+        struct virtgpu_ctrl_hdr hdr;
-+        uint32_t resource_id;
-+        uint32_t width;
-+        uint32_t height;
-+        uint32_t x;
-+        uint32_t y;
-+};
-+
-+/* VIRTGPU_CMD_TRANSFER_TO_HOST_2D: simple transfer to_host */
-+struct virtgpu_transfer_to_host_2d {
-+        struct virtgpu_ctrl_hdr hdr;
-+        uint32_t resource_id;
-+        uint32_t offset;
-+        uint32_t width;
-+        uint32_t height;
-+        uint32_t x;
-+        uint32_t y;
-+};
-+
-+struct virtgpu_mem_entry {
-+        uint64_t addr;
-+        uint32_t length;
-+        uint32_t pad;
-+};
-+
-+/* VIRTGPU_CMD_RESOURCE_ATTACH_BACKING */
-+struct virtgpu_resource_attach_backing {
-+        struct virtgpu_ctrl_hdr hdr;
-+        uint32_t resource_id;
-+        uint32_t nr_entries;
-+};
-+
-+/* VIRTGPU_CMD_RESOURCE_INVAL_BACKING */
-+struct virtgpu_resource_inval_backing {
-+        struct virtgpu_ctrl_hdr hdr;
-+        uint32_t resource_id;
-+};
-+
-+/* VIRTGPU_RESP_OK_DISPLAY_INFO */
-+#define VIRTGPU_MAX_SCANOUTS 16
-+struct virtgpu_resp_display_info {
-+        struct virtgpu_ctrl_hdr hdr;
-+        struct virtgpu_display_one {
-+                uint32_t enabled;
-+                uint32_t width;
-+                uint32_t height;
-+                uint32_t x;
-+                uint32_t y;
-+                uint32_t flags;
-+        } pmodes[VIRTGPU_MAX_SCANOUTS];
-+};
-+
-+#define VIRTGPU_EVENT_DISPLAY (1 << 0)
++config space
++------------
 +
 +struct virtgpu_config {
 +        uint32_t events_read;
@@ -180,19 +62,141 @@ index 0000000..461f452
 +        uint32_t reserved;
 +};
 +
-+/* simple formats for fbcon/X use */
-+enum virtgpu_formats {
-+        VIRGL_FORMAT_B8G8R8A8_UNORM          = 1,
-+        VIRGL_FORMAT_B8G8R8X8_UNORM          = 2,
-+        VIRGL_FORMAT_A8R8G8B8_UNORM          = 3,
-+        VIRGL_FORMAT_X8R8G8B8_UNORM          = 4,
++The two members events_read and events_clear are used to signal events
++to the driver.  Currently one event is defined for a display
++change. When a config space interrupt is received the driver should
++read the events_read field.  The events processed should be written to
++the events_clear field.  The device will clear the bits in events_read
++then, mimicing write-to-clear behavior.
 +
-+        VIRGL_FORMAT_B5G5R5A1_UNORM          = 5,
-+        VIRGL_FORMAT_B5G6R5_UNORM            = 7,
++num_scanouts specifies the number of scanouts supported by the device.
 +
-+        VIRGL_FORMAT_R8_UNORM                = 64,
-+};
++The fourth field is reserved (3D mode will need this in the future).
 +
-+#endif
++
++virt queues
++-----------
++
++The virtio-gpu exposes 2 virtio queues to the guest:
++
++ (1) control vq - guest->host queue for sending commands and getting
++     responses when required.
++ (2) cursor vq - guest->host queue for sending cursor position and
++     resource updates
++
++Both queues have the same format.  Each request and each response have
++a fixed header (struct virtgpu_ctrl_hdr), followed by command specific
++data fieds.  The separate cursor queue is the "fast track" for
++cursor-related commands, so they go though without being possibly
++delayed by other commands in the control queue.
++
++
++drive virtio-gpu in 2D mode
++---------------------------
++
++The virtio-gpu is based around the concept of resources private to the
++host, the guest must DMA transfer into these resources. This is a
++design requirement in order to interface with future 3D rendering. In
++the unaccelerated there is no support for DMA transfers from
++resources, just to them.
++
++Resources are initially simple 2D resources, consisting of a width,
++height and format along with an identifier. The guest must then attach
++backing store to the resources in order for DMA transfers to
++work. This is like a GART in a real GPU.
++
++A typical guest user would create a 2D resource using
++VIRTGPU_CMD_RESOURCE_CREATE_2D, attach backing store using
++VIRTGPU_CMD_RESOURCE_ATTACH_BACKING, then attach the resource to a
++scanout using VIRTGPU_CMD_SET_SCANOUT, then use
++VIRTGPU_CMD_TRANSFER_SEND_2D to send updates to the resource, and
++finally VIRTGPU_CMD_RESOURCE_FLUSH to flush the scanout buffers to
++screen.
++
++
++control queue commands (2D)
++---------------------------
++
++VIRTGPU_CMD_GET_DISPLAY_INFO:
++  Command: none (just struct virtgpu_ctrl_hdr).
++  Returns: struct virtgpu_resp_display_info.
++
++  Retrieve the current output configuration.
++
++VIRTGPU_CMD_RESOURCE_CREATE_2D:
++  Command: struct virtgpu_resource_create_2d
++
++  Create a 2D resource on the host.
++
++  This creates a 2D resource on the host with the specified width,
++  height and format. Only a small subset of formats are support. The
++  resource ids are generated by the guest.
++
++VIRTGPU_CMD_RESOURCE_UNREF:
++  Command: struct virtgpu_resource_unref
++
++  Destroy a resource.
++
++  This informs the host that a resource is no longer required by the
++  guest.
++
++VIRTGPU_CMD_SET_SCANOUT:
++  Command: struct virtgpu_set_scanout
++
++  Set the scanout parameters for a single output.
++
++  This sets the scanout parameters for a single scanout. The
++  resource_id is the resource to be scanned out from, along with a
++  rectangle specified by x, y, width and height.
++
++VIRTGPU_CMD_RESOURCE_FLUSH:
++  Command: struct virtgpu_resource_flush
++
++  Flush a scanout resource.
++
++  This flushes a resource to screen, it takes a rectangle and a
++  resource id, and flushes any scanouts the resource is being used on.
++
++VIRTGPU_CMD_TRANSFER_TO_HOST_2D:
++  Command: struct virtgpu_transfer_to_host_2d
++
++  Transfer from guest memory to host resource.
++
++  This takes a resource id along with an destination offset into the
++  resource, and a box to transfer from the host backing for the
++  resource.
++
++VIRTGPU_CMD_RESOURCE_ATTACH_BACKING:
++  Command: struct virtgpu_resource_attach_backing
++
++  Assign backing pages to a resource.
++
++  This assign an array of guest pages (struct virtgpu_mem_entry) as
++  the backing store for a resource. These pages are then used for the
++  transfer operations for that resource from that point on.
++
++VIRTGPU_CMD_RESOURCE_INVAL_BACKING:
++  Command: struct virtgpu_resource_inval_backing
++
++  Detach backing pages from a resource.
++
++  This detaches any backing pages from a resource, to be used in case of
++  guest swapping or object destruction.
++
++
++cursor queue commands
++---------------------
++
++VIRTGPU_CMD_UPDATE_CURSOR
++  Command: struct virtgpu_update_cursor
++
++  Update cursor from the specified resource id.  The driver must
++  transfer the cursor into the resource beforehand (using control
++  queue commands)
++
++VIRTGPU_CMD_MOVE_CURSOR
++  Command: struct virtgpu_update_cursor
++
++  Move cursor.  Only virtgpu_update_cursor.pos field is used.
 -- 
 1.8.3.1
