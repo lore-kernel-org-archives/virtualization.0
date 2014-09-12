@@ -1,16 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH v3 2/2] virtio-rng: skip reading when we start to remove
-	the device
-Date: Fri, 12 Sep 2014 11:07:26 +0930
-Message-ID: <87r3zhhb55.fsf@rustcorp.com.au>
-References: <1410329497-14349-1-git-send-email-akong@redhat.com>
-	<1410329497-14349-3-git-send-email-akong@redhat.com>
-	<20140910070444.GD29832@grmbl.mre>
+Subject: Re: Rusty away 18th September -- 11th October
+Date: Fri, 12 Sep 2014 10:58:03 +0930
+Message-ID: <87tx4dhbks.fsf@rustcorp.com.au>
+References: <87oaunht4b.fsf@rustcorp.com.au>
+	<20140911114351.GA25736@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140910070444.GD29832@grmbl.mre>
+In-Reply-To: <20140911114351.GA25736@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,25 +18,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>, Amos Kong <akong@redhat.com>
-Cc: stable@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev <netdev@vger.kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Amit Shah <amit.shah@redhat.com> writes:
-> On (Wed) 10 Sep 2014 [14:11:37], Amos Kong wrote:
->> Before we really unregister the hwrng device, reading will get stuck if
->> the virtio device is reset. We should return error for reading when we
->> start to remove the device.
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> On Thu, Sep 11, 2014 at 10:26:52AM +0930, Rusty Russell wrote:
+>> Hi all,
 >> 
->> Signed-off-by: Amos Kong <akong@redhat.com>
->> Cc: stable@vger.kernel.org
+>>         Probably won't read mail.  Linus, I'll have pull requests early
+>> next week; if there's anything needed I'm sure Michael Tsirkin can
+>> handle it.
 >
-> Reviewed-by: Amit Shah <amit.shah@redhat.com>
+> Sure.
+> Rusty, there's a small chance virtio 1.0 bits will be ready in time.
+> I started working on them based on your virtio-pci-new-layout branch.
+>
+> If ready before the merge window, are you ok with me merging this
+> support (without you having the opportunity to review first)?
 
-Thanks, applied.
+Sorry, absolutely not.  I *really* want to review this in depth; if we
+make a mistake, it's going to hurt us significantly.
 
-They're sitting in my fixes branch.  If there are no screams from
-linux-next, I'll push to Linus Monday.
+And until we have the qemu bits ready, it's really hard to tell if we've
+got this right.  So I'd rather delay and make sure we're solid.
 
-Cheers,
+Thanks,
 Rusty.
