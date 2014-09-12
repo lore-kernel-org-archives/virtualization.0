@@ -1,13 +1,16 @@
-From: Dave Airlie <airlied@gmail.com>
-Subject: Re: [virtio-dev] [PATCH 0/2] virtio-gpu: hardware specification
-Date: Sat, 13 Sep 2014 07:18:53 +1000
-Message-ID: <CAPM=9tx+vRdu2oHNxx+6prggJJTRNu+znf3bFencZU6385O7nw@mail.gmail.com>
-References: <1410448173-12960-1-git-send-email-kraxel@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH v3 2/2] virtio-rng: skip reading when we start to remove
+	the device
+Date: Fri, 12 Sep 2014 11:07:26 +0930
+Message-ID: <87r3zhhb55.fsf@rustcorp.com.au>
+References: <1410329497-14349-1-git-send-email-akong@redhat.com>
+	<1410329497-14349-3-git-send-email-akong@redhat.com>
+	<20140910070444.GD29832@grmbl.mre>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1410448173-12960-1-git-send-email-kraxel@redhat.com>
+In-Reply-To: <20140910070444.GD29832@grmbl.mre>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,38 +20,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Dave Airlie <airlied@redhat.com>, virtualization@lists.linux-foundation.org, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, virtio-dev@lists.oasis-open.org
+To: Amit Shah <amit.shah@redhat.com>, Amos Kong <akong@redhat.com>
+Cc: stable@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12 September 2014 01:09, Gerd Hoffmann <kraxel@redhat.com> wrote:
->   Hi folks,
+Amit Shah <amit.shah@redhat.com> writes:
+> On (Wed) 10 Sep 2014 [14:11:37], Amos Kong wrote:
+>> Before we really unregister the hwrng device, reading will get stuck if
+>> the virtio device is reset. We should return error for reading when we
+>> start to remove the device.
+>> 
+>> Signed-off-by: Amos Kong <akong@redhat.com>
+>> Cc: stable@vger.kernel.org
 >
-> Lets kick off the virtio-gpu review process, starting with the virtio
-> protocol.
->
-> This is a tiny patch series for qemu.  Patch #1 carries the header file
-> describing the virtual hardware: config space, command structs being
-> sent over the rings, defines etc.  Patch #2 adds a text file describing
-> virtio-gpu to docs/specs/.  It covers 2D support only for now.
->
-> For anybody who wants to dig a bit deeper:  Here are the branches for
-> qemu and the linux kernel:
->
->   https://www.kraxel.org/cgit/qemu/log/?h=rebase/vga-wip
->   https://www.kraxel.org/cgit/linux/log/?h=virtio-gpu-rebase
->
-> The qemu patches are in a reasonable state.  The linux kernel patches
-> are not cleaned up yet, you probably want to look at the final tree
-> only.
->
-> Work has been done by Dave Airlie <airlied@redhat.com> and me.  The
-> authorship info in git got lost in the qemu patch cleanup process
-> though.  Suggestions how to handle that best?  Simply add both mine
-> and Dave's signed-off-by to all virtio-gpu qemu patches?  Is that fine
-> with you Dave?  Anyone has better ideas?
+> Reviewed-by: Amit Shah <amit.shah@redhat.com>
 
-I don't mind just adding a line in the commit msgs with Authors in it,
-along with both signoffs.
+Thanks, applied.
 
-Dave.
+They're sitting in my fixes branch.  If there are no screams from
+linux-next, I'll push to Linus Monday.
+
+Cheers,
+Rusty.
