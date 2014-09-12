@@ -1,14 +1,16 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [virtio-dev] [PATCH 2/2] virtio-gpu/2d: add
-	docs/specs/virtio-gpu.txt
-Date: Fri, 12 Sep 2014 10:10:11 +0100
-Message-ID: <20140912091011.GC1614@stefanha-thinkpad.redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH 1/2] virtio-gpu/2d: add hardware spec
+	include file
+Date: Fri, 12 Sep 2014 12:44:56 +0200
+Message-ID: <1410518696.30411.9.camel@nilsson.home.kraxel.org>
 References: <1410448173-12960-1-git-send-email-kraxel@redhat.com>
-	<1410448173-12960-3-git-send-email-kraxel@redhat.com>
+	<1410448173-12960-2-git-send-email-kraxel@redhat.com>
+	<5411BD74.80608@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8356345565334677129=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1410448173-12960-3-git-send-email-kraxel@redhat.com>
+In-Reply-To: <5411BD74.80608@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,127 +20,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Dave Airlie <airlied@redhat.com>, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, virtio-dev@lists.oasis-open.org
+To: Eric Blake <eblake@redhat.com>
+Cc: Dave Airlie <airlied@redhat.com>, virtio-dev@lists.oasis-open.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+  Hi,
 
---===============8356345565334677129==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GZVR6ND4mMseVXL/"
-Content-Disposition: inline
+> > @@ -0,0 +1,158 @@
+> > +#ifndef VIRTGPU_HW_H
+> > +#define VIRTGPU_HW_H
+> 
+> Non-trivial file, deserves a copyright and license notice.
 
+Added.
 
---GZVR6ND4mMseVXL/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> > +
+> > +enum virtgpu_ctrl_type {
+> > +        VIRTGPU_UNDEFINED = 0,
+> > +
+> > +        /* 2d commands */
+> > +        VIRTGPU_CMD_GET_DISPLAY_INFO = 0x0100,
+> 
+> Please consider also adding:
+> 
+> #define VIRTGPU_CMD_GET_DISPLAY_INFO VIRTGPU_CMD_GET_DISPLAY_INFO
+> 
+> and friends.  It makes it MUCH nicer for application software to probe
+> for later extensions if every member of the enum is also associated with
+> a preprocessor macro.
 
-On Thu, Sep 11, 2014 at 05:09:33PM +0200, Gerd Hoffmann wrote:
-> diff --git a/docs/specs/virtio-gpu.txt b/docs/specs/virtio-gpu.txt
-> new file mode 100644
-> index 0000000..9455383
-> --- /dev/null
-> +++ b/docs/specs/virtio-gpu.txt
-> @@ -0,0 +1,165 @@
-> +virtio-gpu specification
-> +========================
+I don't think this will ever be shipped as library header for external
+users ...
 
-This document refers to the implementation for structs and does not
-fully document the semantics of the virtqueue commands.
+> > +struct virtgpu_ctrl_hdr {
+> > +        uint32_t type;
+> > +        uint32_t flags;
+> > +        uint64_t fence_id;
+> > +        uint32_t ctx_id;
+> > +        uint32_t padding;
+> > +};
+> > +
+> 
+> Is the padding to ensure that this is aligned regardless of 32-bit or
+> 64-bit hosts?
 
-Mixing the implementation and specification is risky since
-implementation changes cannot be checked against the specification.  In
-order to make this document self-contained you need to define the struct
-layouts.
+Yes.
 
-Error conditions and corner cases are not documented for the virtqueue
-commands.  I've asked about a few of them below, but there more are
-required to make this specification complete enough so someone else
-could write a compatible implementation.
+> Is it worth adding a compile-time assertion about the
+> size of the struct to ensure the compiler doesn't add any additional
+> padding?
 
-> +drive virtio-gpu in 2D mode
-> +---------------------------
-> +
-> +The virtio-gpu is based around the concept of resources private to the
-> +host, the guest must DMA transfer into these resources. This is a
-> +design requirement in order to interface with future 3D rendering. In
-> +the unaccelerated there is no support for DMA transfers from
+Makes sense.  What is the usual trick to do that?
 
-"the unaccelerated case"?
-
-> +VIRTGPU_CMD_RESOURCE_CREATE_2D:
-> +  Command: struct virtgpu_resource_create_2d
-> +
-> +  Create a 2D resource on the host.
-> +
-> +  This creates a 2D resource on the host with the specified width,
-> +  height and format. Only a small subset of formats are support. The
-> +  resource ids are generated by the guest.
-
-Can the host refuse due to lack of resources?
-
-> +VIRTGPU_CMD_SET_SCANOUT:
-> +  Command: struct virtgpu_set_scanout
-> +
-> +  Set the scanout parameters for a single output.
-> +
-> +  This sets the scanout parameters for a single scanout. The
-> +  resource_id is the resource to be scanned out from, along with a
-> +  rectangle specified by x, y, width and height.
-
-What if x, y, width, and height are out-of-range for the given resource?
-
-What if width and height exceed the scanout width and height?
-
-Is it possible to unset the scanout for a resource?  Can a resource be
-set on multiple scanouts?
-
-Does VIRTGPU_CMD_SET_SCANOUT need to be called between every
-VIRTGPU_CMD_RESOURCE_FLUSH or is does the assignment persist?
-
-> +VIRTGPU_CMD_RESOURCE_ATTACH_BACKING:
-> +  Command: struct virtgpu_resource_attach_backing
-> +
-> +  Assign backing pages to a resource.
-> +
-> +  This assign an array of guest pages (struct virtgpu_mem_entry) as
-
-"assigns"
-
-> +  the backing store for a resource. These pages are then used for the
-> +  transfer operations for that resource from that point on.
-> +
-> +VIRTGPU_CMD_RESOURCE_INVAL_BACKING:
-> +  Command: struct virtgpu_resource_inval_backing
-
-Why is it called INVAL_BACKING instead of DETACH_BACKING?  "Detach" is
-logical since there is also an "attach" command.
-
---GZVR6ND4mMseVXL/
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQEcBAEBAgAGBQJUErhzAAoJEJykq7OBq3PIDfYIAKea9WD8rgMIH2Pz5W7V6IQO
-e85s1gWWTNGmmwyH6gTMIu+CTKlURWM/ux6f4SYuQpJxbZgj6cCsI0m1VK9MiSNP
-jC+l9w2Ua4PdgjrRMnDE7xXqPJlFDtT+1KM66Uvfpqn5SN+o3KxG2vSQOpDqII5/
-ffB3ZM1+qJph2VAyrivR1IV+I5cqldV9h5NsfGvYmpUDZIiePKkZ6gnlnMI1cnSV
-2h2Jv779Ropd5dWd78J5p39L7pz1UZy2YTdytt4k75h1nvWXyzO3ZmYwszSgJvlF
-AtIqv83XzThPNSMqSXGp3PrkKMejr5AfucFnFLWvoroHkDkyaMveNN1lWQY6dfM=
-=HtDS
------END PGP SIGNATURE-----
-
---GZVR6ND4mMseVXL/--
-
---===============8356345565334677129==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8356345565334677129==--
+thanks,
+  Gerd
