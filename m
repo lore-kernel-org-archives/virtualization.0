@@ -1,18 +1,16 @@
-From: Amos Kong <akong@redhat.com>
-Subject: Re: [PATCH 2/2] virtio-rng: fix stuck in catting hwrng attributes
-Date: Sun, 14 Sep 2014 10:25:53 +0800
-Message-ID: <20140914022553.GC1032@zen.redhat.com>
-References: <1410340027-15373-1-git-send-email-akong@redhat.com>
-	<1410340027-15373-3-git-send-email-akong@redhat.com>
-	<8738byie04.fsf@rustcorp.com.au>
-	<20140913171258.GB12276@zen.redhat.com>
-	<20140914011208.GA1032@zen.redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: Rusty away 18th September -- 11th October
+Date: Sun, 14 Sep 2014 09:21:17 +0300
+Message-ID: <20140914062116.GA23868@redhat.com>
+References: <87oaunht4b.fsf@rustcorp.com.au>
+	<20140911114351.GA25736@redhat.com>
+	<87tx4dhbks.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20140914011208.GA1032@zen.redhat.com>
+In-Reply-To: <87tx4dhbks.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,35 +21,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: amit.shah@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: netdev <netdev@vger.kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Sep 14, 2014 at 09:12:08AM +0800, Amos Kong wrote:
+On Fri, Sep 12, 2014 at 10:58:03AM +0930, Rusty Russell wrote:
+> "Michael S. Tsirkin" <mst@redhat.com> writes:
+> > On Thu, Sep 11, 2014 at 10:26:52AM +0930, Rusty Russell wrote:
+> >> Hi all,
+> >> 
+> >>         Probably won't read mail.  Linus, I'll have pull requests early
+> >> next week; if there's anything needed I'm sure Michael Tsirkin can
+> >> handle it.
+> >
+> > Sure.
+> > Rusty, there's a small chance virtio 1.0 bits will be ready in time.
+> > I started working on them based on your virtio-pci-new-layout branch.
+> >
+> > If ready before the merge window, are you ok with me merging this
+> > support (without you having the opportunity to review first)?
+> 
+> Sorry, absolutely not.  I *really* want to review this in depth; if we
+> make a mistake, it's going to hurt us significantly.
 
-...
-> > > > diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
-> > > > index c591d7e..b5d1b6f 100644
-> > > > --- a/drivers/char/hw_random/core.c
-> > > > +++ b/drivers/char/hw_random/core.c
-> > > > @@ -195,8 +195,7 @@ static ssize_t rng_dev_read(struct file *filp, char __user *buf,
-> > > >  
-> > > >  		mutex_unlock(&rng_mutex);
-> > > >  
-> > > > -		if (need_resched())
-> > > > -			schedule_timeout_interruptible(1);
-> > > > +		schedule_timeout_interruptible(10);
+Right but it's only a merge window - we can fix bugs and even disable
+the new driver afterwards, can't we?
 
-Problem only occurred in non-smp guest, we can improve it to:
+> And until we have the qemu bits ready, it's really hard to tell if we've
+> got this right.
 
-                        if(!is_smp())
-                                schedule_timeout_interruptible(10);
+Sure, I meant if qemu bits are ready too, and if things work together.
+It wouldn't do to merge a driver that isn't ready.
 
-is_smp() is only available for arm arch, we need a general one.
 
-> > > >  
-> > > >  		if (signal_pending(current)) {
-> > > >  			err = -ERESTARTSYS;
-> > > > -- 
+>  So I'd rather delay and make sure we're solid.
+> 
+> Thanks,
+> Rusty.
+
+Something else we can do, is refactoring that splits driver
+out to common and legacy bits, and changes APIs.
+No?
 
 -- 
-			Amos.
+MSt
