@@ -1,8 +1,7 @@
 From: Amos Kong <akong@redhat.com>
-Subject: [PATCH v2 1/3] virtio-rng cleanup: move some code out of mutex
-	protection
-Date: Tue, 16 Sep 2014 00:02:27 +0800
-Message-ID: <1410796949-2221-2-git-send-email-akong@redhat.com>
+Subject: [PATCH v2 2/3] hw_random: fix stuck in catting hwrng attributes
+Date: Tue, 16 Sep 2014 00:02:28 +0800
+Message-ID: <1410796949-2221-3-git-send-email-akong@redhat.com>
 References: <1410796949-2221-1-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,48 +21,51 @@ To: virtualization@lists.linux-foundation.org
 Cc: herbert@gondor.apana.org.au, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, m@bues.ch, mpm@selenic.com, amit.shah@redhat.com, mb@bu3sch.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-It doesn't save too much cpu time as expected, just a cleanup.
+I started a QEMU (non-smp) guest with one virtio-rng device, and read
+random data from /dev/hwrng by dd:
+
+ # dd if=/dev/hwrng of=/dev/null &
+
+In the same time, if I check hwrng attributes from sysfs by cat:
+
+ # cat /sys/class/misc/hw_random/rng_*
+
+The cat process always gets stuck with slow backend (5 k/s), if we
+use a quick backend (1.2 M/s), the cat process will cost 1 to 2
+minutes. The stuck doesn't exist for smp guest.
+
+Reading syscall enters kernel and call rng_dev_read(), it's user
+context. We used need_resched() to check if other tasks need to
+be run, but it almost always return false, and re-hold the mutex
+lock. The attributes accessing process always fails to hold the
+lock, so the cat gets stuck.
+
+User context doesn't allow other user contexts run on that CPU,
+unless the kernel code sleeps for some reason. This is why the
+need_reshed() always return false here.
+
+This patch removed need_resched() and always schedule other tasks
+then other tasks can have chance to hold the lock and execute
+protected code.
 
 Signed-off-by: Amos Kong <akong@redhat.com>
 ---
- drivers/char/hw_random/core.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/char/hw_random/core.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
-index aa30a25..c591d7e 100644
+index c591d7e..263a370 100644
 --- a/drivers/char/hw_random/core.c
 +++ b/drivers/char/hw_random/core.c
-@@ -270,8 +270,8 @@ static ssize_t hwrng_attr_current_show(struct device *dev,
- 		return -ERESTARTSYS;
- 	if (current_rng)
- 		name = current_rng->name;
--	ret = snprintf(buf, PAGE_SIZE, "%s\n", name);
- 	mutex_unlock(&rng_mutex);
-+	ret = snprintf(buf, PAGE_SIZE, "%s\n", name);
+@@ -195,8 +195,7 @@ static ssize_t rng_dev_read(struct file *filp, char __user *buf,
  
- 	return ret;
- }
-@@ -284,19 +284,19 @@ static ssize_t hwrng_attr_available_show(struct device *dev,
- 	ssize_t ret = 0;
- 	struct hwrng *rng;
+ 		mutex_unlock(&rng_mutex);
  
-+	buf[0] = '\0';
- 	err = mutex_lock_interruptible(&rng_mutex);
- 	if (err)
- 		return -ERESTARTSYS;
--	buf[0] = '\0';
- 	list_for_each_entry(rng, &rng_list, list) {
- 		strncat(buf, rng->name, PAGE_SIZE - ret - 1);
- 		ret += strlen(rng->name);
- 		strncat(buf, " ", PAGE_SIZE - ret - 1);
- 		ret++;
- 	}
-+	mutex_unlock(&rng_mutex);
- 	strncat(buf, "\n", PAGE_SIZE - ret - 1);
- 	ret++;
--	mutex_unlock(&rng_mutex);
+-		if (need_resched())
+-			schedule_timeout_interruptible(1);
++		schedule_timeout_interruptible(1);
  
- 	return ret;
- }
+ 		if (signal_pending(current)) {
+ 			err = -ERESTARTSYS;
 -- 
 1.9.3
