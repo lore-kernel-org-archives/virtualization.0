@@ -1,8 +1,7 @@
 From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: [PATCH] virtio_pci: properly clean up MSI-X state when initialization
-	fails
-Date: Sun, 14 Sep 2014 20:23:26 -0700
-Message-ID: <1410751406-10039-1-git-send-email-anthony@codemonkey.ws>
+Subject: [PATCH] virtio-pci: also bind to Amazon PCI vendor ID
+Date: Sun, 14 Sep 2014 20:29:33 -0700
+Message-ID: <1410751773-10519-1-git-send-email-anthony@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -22,48 +21,34 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Anthony Liguori <aliguori@amazon.com>
 
-If MSI-X initialization fails after setting msix_enabled = 1, then
-the device is left in an inconsistent state.  This would normally
-only happen if there was a bug in the device emulation but it still
-should be handled correctly.
+See https://issues.oasis-open.org/browse/VIRTIO-16 although it
+was prematurely closed.
+
+Red Hat has non-redistributable Windows drivers and Microsoft
+will not allow anyone else to WHQL certify drivers using that
+vendor ID.  That makes it impossible to use virtio drivers with
+a Windows guest without changing the vendor ID.
 
 Cc: Matt Wilson <msw@amazon.com>
 Cc: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Michael Tsirkin <mst@redhat.com>
 Signed-off-by: Anthony Liguori <aliguori@amazon.com>
 ---
- drivers/virtio/virtio_pci.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/virtio/virtio_pci.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index 9cbac33..3d2c2a5 100644
+index 101db3f..9cbac33 100644
 --- a/drivers/virtio/virtio_pci.c
 +++ b/drivers/virtio/virtio_pci.c
-@@ -357,7 +357,7 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
- 	v = ioread16(vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
- 	if (v == VIRTIO_MSI_NO_VECTOR) {
- 		err = -EBUSY;
--		goto error;
-+		goto error_msix_used;
- 	}
+@@ -93,6 +93,8 @@ struct virtio_pci_vq_info
+ /* Qumranet donated their vendor ID for devices 0x1000 thru 0x10FF. */
+ static DEFINE_PCI_DEVICE_TABLE(virtio_pci_id_table) = {
+ 	{ PCI_DEVICE(0x1af4, PCI_ANY_ID) },
++	/* Amazon.com vendor ID */
++	{ PCI_DEVICE(0x1d0f, PCI_ANY_ID) },
+ 	{ 0 }
+ };
  
- 	if (!per_vq_vectors) {
-@@ -369,11 +369,15 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
- 				  vp_vring_interrupt, 0, vp_dev->msix_names[v],
- 				  vp_dev);
- 		if (err)
--			goto error;
-+			goto error_msix_used;
- 		++vp_dev->msix_used_vectors;
- 	}
- 	return 0;
-+error_msix_used:
-+	v = --vp_dev->msix_used_vectors;
-+	free_irq(vp_dev->msix_entries[v].vector, vp_dev);
- error:
-+	vp_dev->msix_enabled = 0;
- 	vp_free_vectors(vdev);
- 	return err;
- }
 -- 
 1.7.9.5
