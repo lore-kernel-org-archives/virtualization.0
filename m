@@ -1,17 +1,13 @@
-From: Matt Wilson <msw@linux.com>
-Subject: Re: [PATCH] virtio-pci: also bind to Amazon PCI vendor ID
-Date: Mon, 15 Sep 2014 10:58:06 -0700
-Message-ID: <20140915175805.GA28557@u109add4315675089e695.ant.amazon.com>
-References: <1410751773-10519-1-git-send-email-anthony@codemonkey.ws>
-	<20140915082015.GB6480@redhat.com>
-	<CA+aC4kvj8B3vsxfq8FSSc9AzQc=4+4poY=Ro2tbH7Yt2FFGFQw@mail.gmail.com>
-	<20140915162308.GC11644@redhat.com>
+From: Ioan Raicu <iraicu@cs.iit.edu>
+Subject: CFP: IEEE/ACM Int. Symposium on Big Data Computing (BDC) 2014 --
+	1 week deadline extension
+Date: Mon, 15 Sep 2014 16:12:09 -0500
+Message-ID: <54175629.7050502@cs.iit.edu>
+Reply-To: iraicu@cs.iit.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20140915162308.GC11644@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,236 +17,183 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Anthony Liguori <aliguori@amazon.com>, linux-kernel@vger.kernel.org, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
+To: publicity@hipeac.net, virtualization@lists.linux-foundation.org, micro_publicity@crhc.uiuc.edu, performance@merlot.usc.edu, sigplan-l@acm.uiuc.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 15, 2014 at 07:23:08PM +0300, Michael S. Tsirkin wrote:
-> On Mon, Sep 15, 2014 at 07:24:33AM -0700, Anthony Liguori wrote:
-> > Hi Michael,
-> > 
-> > On Mon, Sep 15, 2014 at 1:20 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > On Sun, Sep 14, 2014 at 08:29:33PM -0700, Anthony Liguori wrote:
-> > >> From: Anthony Liguori <aliguori@amazon.com>
-> > >>
-> > >> See https://issues.oasis-open.org/browse/VIRTIO-16 although it
-> > >> was prematurely closed.
-> > >
-> > > The reason it was closed is described in the comments. and I quote:
-> > > " I think anyone can use a different subsystem vendor id and whql the
-> > > driver. virtio-102 will make this even easier, by making the subsystem
-> > > id flexible. Let's close this and re-open if someone tries to do this
-> > > and runs into a problem. "
-> > >
-> > > Look here for example:
-> > > https://github.com/YanVugenfirer/kvm-guest-drivers-windows/blob/master/NetKVM/NDIS5/wxp/netkvm.inf
-> > > Replace SUBSYS_00011AF4 with SUBSYS_00011D0F, and you will get
-> > > a virtio-net driver that (I think) you should be able to WHQL.
-> > 
-> > The string you are referencing is the device description which is part
-> > of what forms the device instance id.  You can read more at
-> > http://msdn.microsoft.com/en-us/library/windows/hardware/ff541327%28v=vs.85%29.aspx.
-> > Including a SUBSYS entry is mandatory in modern Windows drivers.
-> 
-> Good. So there won't be conflicts as long as you don't
-> try to use the same SUBSYS as someone else.
-> 
-> > But this is independent of WHQL certification.  My understanding is
-> > that Microsoft will only allow the owner of the PCI Vendor ID to WHQL
-> > drivers.  As best as I know, this is not a publicly documented
-> > process.
-> 
-> WHQL process seems to be documented:
-> http://download.microsoft.com/download/4/D/D/4DD894CD-62C8-488F-944D-4E5F8BA40114/hardware-certification-policies-processes-hck2-1.docx
-> > Do you have any examples of anyone else successfuling WHQL'ing drivers
-> > by just changing the subsystem ID?
-> 
-> I don't have such examples to hand, sorry.
-> I do think it's worth trying as I don't see any problems
-> this could cause anyone.
-> 
-> 
-> In particular maybe this applies (from link above):
-> 
-> 	If a reseller wants to control distribution for its product, take the
-> 	following steps:
-> 	1. Revise the PnP ID of the product to include the subvendor ID.
-> 	2. Submit a Driver Update Submission that revises the information (.inf)
-> 	file to reflect the new PnP ID.
-> 	If a reseller wants to change the driver binary for a device, a new
-> 	initial device submission must be made (with full testing).
-> 	All reseller submissions are subject to audit.
-> 
-> Seems to say you can do this.
+Call for Papers
 
-This is part of the Reseller Submission Policy, and only applies if
-there is a "parent submission" that has gone through the WHQL process.
+IEEE/ACM International Symposium on Big Data Computing (BDC) 2014
+December 8-11, 2014, London, UK
+http://www.cloudbus.org/bdc2014
 
-> >  Microsoft has specific rules about
-> > the usage of the subsystem ID.  See
-> > http://msdn.microsoft.com/en-us/library/windows/hardware/dn653567%28v=vs.85%29.aspx.
-> > I don't think it is intended to enable a totally different
-> > implementation of the driver based on subsystem ID.
-> > Certainly, this is not expected with typical PCI devices.
-> 
-> Why not? Changing device ID doesn't seem to be very different.
-> It's not uncommon for devices with specific subsystem ID
-> to have different bugs, or be supported by different driver versions,
-> or just be tested only with a specific driver.
-> 
-> One of these from the list above might fit the bill:
-> 
-> -	Driver packages submitted by an OEM for logo (must be tested on
-> 	the OEM hardware and must not contain a VID/DID entry)
-> -	Driver packages submitted by an independent hardware vendor providing
-> 	customizations for an OEM (must be tested on the OEM hardware and must
-> 	not contain a VID/DID entry)
-> -	Driver packages with a bug fix for a specific implementation
-> 		for example, you can rip out all kid of
-> 		compatibility code for old hosts.
+In conjunction with:
+7th IEEE/ACM International Conference on Utility and Cloud Computing (UCC 2014)
+Sponsored by: IEEE Computer Society and ACM (Association for Computing Machinery)
 
-I think that the best technical solution would be to use a different
-subsystem vendor ID, so long as both the WHQL process and Windows
-Update supports this approach.
+Introduction
+===============================================================================
+Rapid advances in digital sensors, networks, storage, and computation along
+with their availability at low cost is leading to the creation of huge
+collections of data -- dubbed as Big Data. This data has the potential for
+enabling new insights that can change the way business, science, and
+governments deliver services to their consumers and can impact society as a
+whole. This has led to the emergence of the Big Data Computing paradigm
+focusing on sensing, collection, storage, management and analysis of data from
+variety of sources to enable new value and insights.
 
-> > > On the host side, you will need a QEMU patch to allow libvirt control of
-> > > the subsystem vendor ID.
-> > >
-> > > All this while all Linux guests will keep working without changes,
-> > > which seems like a better approach.
-> > >
-> > > Looking on the web, I found:
-> > > http://download.microsoft.com/download/1/6/1/161ba512-40e2-4cc9-843a-923143f3456c/pciidspec-11.doc
-> > > "Test will read and properly concatenate PCI IDs and verify uniqueness"
-> > > this is likely what you are running into: IDs must be unique,
-> > > so if you want to put your driver in Microsoft's database,
-> > > it must match a different set of IDs.
-> > > But you should not need to change the vendor ID to make them unique,
-> > > changing subsystem vendor ID will do.
-> > >
-> > > Did you try this?
-> > 
-> > You cannot submit a modified kvm-guest-drivers.git for WHQL
-> > certification
-> 
-> Sorry about being unclear, that github link was just an example to give
-> you the idea.  The point is to change the subsystem ID *of the device*.
-> 
-> > as the licensing is constructed in such a way as to
-> > prevent that.
-> >
-> > >> Red Hat has non-redistributable Windows drivers and Microsoft
-> > >> will not allow anyone else to WHQL certify drivers using that
-> > >> vendor ID.
-> > >
-> > > Don't see what Red Hat's windows drivers have to do with Linux really.
-> > > Amazon.com can do whatever it wants with its vendor ID, and if there is a
-> > > hypervisor with a different vendor ID that can use the virtio drivers, this
-> > > patch is required.
-> > > The following would be a reasonable commit log in that case:
-> > >
-> > > "Amazon.com uses PV devices with vendor ID 0x1d0f that are otherwise
-> > >  compatible with Linux virtio drivers. Add 0x1d0f ID to the list
-> > >  to make Linux work with these devices."
-> > > Feel free to use :)
-> > >
-> > >
-> > > But I'd like to note that by doing this on the hypervisor side,
-> > > you lose the ability to run older Linux guests,
-> > > and create work for all distros who now need to update their
-> > > kernels to work with your ID, apparently for no good reason.
-> > >
-> > > So if this isn't out in the field yet, I would suggest examining
-> > > the alternative listed above.
-> > 
-> > I am very happy to use any alternative mechanism that allows for
-> > virtio to be used with a wide variety of guests.
-> 
-> I hope my idea above can work - it would be best for everyone.  I would
-> try to explore it before giving up and changing the vendor ID.
-> As I said this is just friendly advice, and not a nak to the patch,
-> if your hypervisor has devices with your own ID, go ahead and
-> add the ID to driver.
-> 
-> > Many other companies
-> > have also struggled with this and AFAIK no one has had much success.
-> 
-> Question remains what the problem is.
-> Until we have an explicit report saying "we tried XYZ and
-> it failed" we are just shooting in the dark, aren't we?
-> 
-> 
-> > > OTOH if it *is* decided this is going to be out there in the field, please add
-> > > the new devices to the PCI IDs list.
-> > > http://pci-ids.ucw.cz/
-> > > Otherwise there's no way to be sure someone won't try to
-> > > use these IDs for something else.
-> > 
-> > PCI-SIG assigns vendor IDs and 0x1d0f is assigned to Amazon.  See
-> > https://www.pcisig.com/membership/vid_search/
-> > 
-> > Vendors self-manage device IDs and we have allocated 0x1000-0x103f to
-> > virtio devices.
-> > 
-> > >> That makes it impossible to use virtio drivers with
-> > >> a Windows guest without changing the vendor ID.
-> > >
-> > > Hardly impossible: virtio drivers are available from a
-> > > variety of sources.
-> > 
-> > Examples?
-> > 
-> > Regards,
-> > 
-> > Anthony Liguori
-> 
-> Fedora has drivers.
-> Most other linux distros have drivers.
-> Maybe not as good as RHEL ones but they are there, and
-> their existance is the most likely reason no one bothered
-> re-writing drivers.
+To realize the full potential of Big Data Computing, we need to address
+several challenges and develop suitable conceptual and technological solutions
+for dealing them. These include life-cycle management of data, large-scale
+storage, flexible processing infrastructure, data modelling, scalable machine
+learning and data analysis algorithms, techniques for sampling and making
+trade-off between data processing time and accuracy, and dealing with privacy
+and ethical issues involved in data sensing, storage, processing, and actions.
 
-Why not BSD license the drivers and get them into Windows Update?
-Citrix donated their drivers to the Xen Project and licensed them
-under the BSD license. It makes this process a lot easier...
+The IEEE/ACM International Symposium on Big Data Computing (BDC) 2014 -- held
+in conjunction with 7th IEEE/ACM International Conference on Utility and Cloud
+Computing (UCC 2014), December 8-11, 2014, London, UK, aims at bringing
+together international researchers, developers, policy makers, and users and
+to provide an international forum to present leading research activities,
+technical solutions, and results on a broad range of topics related to Big
+Data Computing paradigms, platforms and their applications. The conference
+features keynotes, technical presentations, posters, workshops, tutorials, as
+well as competitions featuring live demonstrations.
 
-See win-* prefixed projects in https://github.com/xenserver, now
-moved to pvdrivers/win repositories in http://xenbits.xen.org/gitweb 
+Topics
+===============================================================================
+Topics of interest include, but are not limited to:
+I. Big Data Science
+* Analytics
+* Algorithms for Big Data
+* Energy-efficient Algorithms
+* Big Data Search
+* Big Data Acquisition, Integration, Cleaning, and Best Practices
+* Visualization of Big Data
 
---msw
+II. Big Data Infrastructures and Platforms
+* Programming Systems
+* Cyber-Infrastructure
+* Performance evaluation
+* Fault tolerance and reliability
+* I/O and Data management
+* Storage Systems (including file systems, NoSQL, and RDBMS)
+* Resource management
+* Many-Task Computing
+* Many-core computing and accelerators
 
-> Which does not mean you shouldn't do it. Be my guest.
-> 
-> My only point is commit log should not say "impossible to use".
-> 
-> 
-> > >
-> > > But this is IMO beside the point.
-> > >
-> > >> Cc: Matt Wilson <msw@amazon.com>
-> > >> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> > >> Cc: Michael Tsirkin <mst@redhat.com>
-> > >> Signed-off-by: Anthony Liguori <aliguori@amazon.com>
-> > >
-> > > I'd like to see the response/confirmation of the above, and/or the
-> > > commit log replaced before this patch is applied.
-> > >
-> > > Thanks!
-> > >
-> > >> ---
-> > >>  drivers/virtio/virtio_pci.c |    2 ++
-> > >>  1 file changed, 2 insertions(+)
-> > >>
-> > >> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-> > >> index 101db3f..9cbac33 100644
-> > >> --- a/drivers/virtio/virtio_pci.c
-> > >> +++ b/drivers/virtio/virtio_pci.c
-> > >> @@ -93,6 +93,8 @@ struct virtio_pci_vq_info
-> > >>  /* Qumranet donated their vendor ID for devices 0x1000 thru 0x10FF. */
-> > >>  static DEFINE_PCI_DEVICE_TABLE(virtio_pci_id_table) = {
-> > >>       { PCI_DEVICE(0x1af4, PCI_ANY_ID) },
-> > >> +     /* Amazon.com vendor ID */
-> > >> +     { PCI_DEVICE(0x1d0f, PCI_ANY_ID) },
-> > >>       { 0 }
-> > >>  };
-> > >>
+III. Big Data Security and Policy
+* Management Policies
+* Data Privacy
+* Data Security
+* Big Data Archival and Preservation
+* Big Data Provenance
+
+IV. Big Data Applications
+* Scientific application cases studies on Cloud infrastructure
+* Big Data Applications at Scale
+* Experience Papers with Big Data Application Deployments
+* Data streaming applications
+* Big Data in Social Networks
+* Healthcare Applications
+* Enterprise Applications
+
+IMPORTANT DATES
+===============================================================================
+* Abstracts Due: 		September 15th, 2014
+* Papers Due: 			September 22nd, 2014
+* Notification of Acceptance: 	October 15th, 2014
+* Camera Ready Papers Due: 	October 31st, 2014
+
+Note: Those who submit an abstract by the deadline will be given 1 week to upload
+the final paper.
+
+PAPER SUBMISSION
+===============================================================================
+Authors are invited to submit papers electronically. Submitted manuscripts
+should be structured as technical papers and may not exceed 10 letter size
+(8.5 x 11) pages including figures, tables and references using the IEEE format
+for conference proceedings (print area of 6-1/2 inches (16.51 cm) wide by 8-7/8
+inches (22.51 cm) high, two-column format with columns 3-1/16 inches (7.85 cm)
+wide with a 3/8 inch (0.81 cm) space between them, single-spaced 10-point Times
+fully justified text). Submissions not conforming to these guidelines may be
+returned without review. Authors should submit the manuscript in PDF format and
+make sure that the file will print on a printer that uses letter size (8.5 x 11)
+paper. The official language of the meeting is English. All manuscripts will be
+reviewed and will be judged on correctness, originality, technical strength,
+significance, quality of presentation, and interest and relevance to the
+conference attendees. Papers conforming to the above guidelines can be
+submitted through the BDC 2014 paper submission system
+(https://www.easychair.org/conferences/?conf=bdc2014).
+
+Submitted papers must represent original unpublished research that is not
+currently under review for any other conference or journal. Papers not
+following these guidelines will be rejected without review and further action
+may be taken, including (but not limited to) notifications sent to the heads
+of the institutions of the authors and sponsors of the conference. Submissions
+received after the due date, exceeding length limit, or not appropriately
+structured may also not be considered. Authors may contact the conference PC
+Chair for more information. The proceedings will be published through the IEEE
+Computer Society Press, USA and will be made online through the IEEE Digital
+Library. Selected papers from BDC 2014 will be invited to extend and submit to
+the Special Issue on Many-Task Computing in the Cloud in the IEEE Transaction
+on Cloud Computing (http://datasys.cs.iit.edu/events/TCC-MTC15/CFP_TCC-MTC15.pdf)
+
+CHAIRS & COMMITTEES
+===============================================================================
+General Co-Chairs:
+* Rajkumar Buyya, University of Melbourne, Australia
+* Divyakant Agrawal, University of California at Santa Barbara, USA
+
+Program Co-Chairs:
+* Ioan Raicu, Illinois Institute of Technology and Argonne National Lab., USA
+* Manish Parashar, Rutgers, The State University of New Jersey, USA
+
+Area Track Co-Chairs:
+* Big Data Science
+   o Omer F. Rana, Cardiff University, UK
+   o Ilkay Altintas, University of California, San Diego, USA
+
+* Big Data Infrastructures and Platforms
+   o Amy Apon, Clemson University, USA
+   o Jiannong Cao, Honk Kong Polytechnic University
+
+* Big Data Security and Policy
+   o Bogdan Carbunar, Florida International University
+
+* Big Data Applications
+   o Dennis Gannon, Microsoft Research, USA
+
+Cyber Chair
+* Amir Vahid, University of Melbourne, Australia
+
+Publicity Chairs
+* Carlos Westphall, Federal University of Santa Catarina, Brazil
+* Ching-Hsien Hsu, Chung Hua Univ., Taiwan & Tianjin Univ. of Technology, China
+* Rong Ge, Marquette University, USA
+* Giuliano Casale, Imperial College London, UK
+
+Organizing Chair:
+* Ashiq Anjum, University of Derby, UK
+
+
+-- 
+=================================================================
+Ioan Raicu, Ph.D.
+Assistant Professor, Illinois Institute of Technology (IIT)
+Guest Research Faculty, Argonne National Laboratory (ANL)
+=================================================================
+Data-Intensive Distributed Systems Laboratory, CS/IIT
+Distributed Systems Laboratory, MCS/ANL
+=================================================================
+Editor: IEEE TCC, Springer Cluster, Springer JoCCASA
+Chair:  IEEE/ACM MTAGS, ACM ScienceCloud
+=================================================================
+Cel:      1-847-722-0876
+Office:   1-312-567-5704
+Email:    iraicu@cs.iit.edu
+Web:      http://www.cs.iit.edu/~iraicu/
+Web:      http://datasys.cs.iit.edu/
+LinkedIn: http://www.linkedin.com/in/ioanraicu
+Google:   http://scholar.google.com/citations?user=jE73HYAAAAAJ
+=================================================================
+=================================================================
