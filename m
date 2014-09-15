@@ -1,24 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH 1/2] virtio-gpu/2d: add hardware spec
-	include file
-Date: Sun, 14 Sep 2014 19:31:57 +0300
-Message-ID: <20140914163156.GB28042@redhat.com>
-References: <1410448173-12960-1-git-send-email-kraxel@redhat.com>
-	<1410448173-12960-2-git-send-email-kraxel@redhat.com>
-	<5411BD74.80608@redhat.com>
-	<1410518696.30411.9.camel@nilsson.home.kraxel.org>
-	<20140914134622.GB27315@redhat.com>
-	<CAFEAcA8f8kKoDwCd4-rVYHQZXJQSXZcJiqMVRMVzWRvFwUDNRA@mail.gmail.com>
-	<20140914141158.GA27836@redhat.com>
-	<CAFEAcA_qOoC+C9O-JF_uOD+YRr9fkz35Ju1Q=veFeTSM_XjMtg@mail.gmail.com>
-	<20140914150931.GA28042@redhat.com>
-	<CAFEAcA8oTXRFN3Ug5pXiELMOmSM4ROHNuzgADVrxEfLb+7UTJg@mail.gmail.com>
+From: Anthony Liguori <anthony@codemonkey.ws>
+Subject: [PATCH] virtio_pci: properly clean up MSI-X state when initialization
+	fails
+Date: Sun, 14 Sep 2014 20:23:26 -0700
+Message-ID: <1410751406-10039-1-git-send-email-anthony@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAFEAcA8oTXRFN3Ug5pXiELMOmSM4ROHNuzgADVrxEfLb+7UTJg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,36 +16,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Maydell <peter.maydell@linaro.org>
-Cc: QEMU Developers <qemu-devel@nongnu.org>, Dave Airlie <airlied@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: virtualization@lists.linux-foundation.org
+Cc: kernel@vger.kernel.org, Matt Wilson <msw@amazon.com>, Anthony Liguori <aliguori@amazon.com>, Michael Tsirkin <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Sep 14, 2014 at 09:11:45AM -0700, Peter Maydell wrote:
-> On 14 September 2014 08:09, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > On Sun, Sep 14, 2014 at 07:32:21AM -0700, Peter Maydell wrote:
-> >> Who owns the "master" copy of the header and commits
-> >> to making sure it builds on other things than Linux+gcc
-> >> in that case?
-> 
-> > For most of virtio neither linux nor QEMU are the master.
-> > syncing them has been done manually in the past.
-> > As we are copying other headers from Linux anyway,
-> > I think it would be better for everyone if we make
-> > the Linux headers the master for QEMU going forward.
-> 
-> That's problematic because our copies of the linux headers
-> are only (and can only) be included in our include path
-> on Linux hosts. I had this problem with the PSCI headers
-> for ARM (I can't say I really like the solution I came up
-> with there, so if we can do better that would be cool).
-> 
-> -- PMM
+From: Anthony Liguori <aliguori@amazon.com>
 
-Right. My idea was to add stuff that's used on all platforms
-to some other directory (besides linux-headers).
-I didn't try to implement this yet so I don't know whether
-there are any issues with this.
-Should be better than duplicating it manually.
+If MSI-X initialization fails after setting msix_enabled = 1, then
+the device is left in an inconsistent state.  This would normally
+only happen if there was a bug in the device emulation but it still
+should be handled correctly.
 
+Cc: Matt Wilson <msw@amazon.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Michael Tsirkin <mst@redhat.com>
+Signed-off-by: Anthony Liguori <aliguori@amazon.com>
+---
+ drivers/virtio/virtio_pci.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index 9cbac33..3d2c2a5 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -357,7 +357,7 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
+ 	v = ioread16(vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
+ 	if (v == VIRTIO_MSI_NO_VECTOR) {
+ 		err = -EBUSY;
+-		goto error;
++		goto error_msix_used;
+ 	}
+ 
+ 	if (!per_vq_vectors) {
+@@ -369,11 +369,15 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
+ 				  vp_vring_interrupt, 0, vp_dev->msix_names[v],
+ 				  vp_dev);
+ 		if (err)
+-			goto error;
++			goto error_msix_used;
+ 		++vp_dev->msix_used_vectors;
+ 	}
+ 	return 0;
++error_msix_used:
++	v = --vp_dev->msix_used_vectors;
++	free_irq(vp_dev->msix_entries[v].vector, vp_dev);
+ error:
++	vp_dev->msix_enabled = 0;
+ 	vp_free_vectors(vdev);
+ 	return err;
+ }
 -- 
-MST
+1.7.9.5
