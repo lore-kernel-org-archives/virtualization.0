@@ -1,19 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 1/2] virtio-gpu/2d: add hardware spec include file
-Date: Mon, 15 Sep 2014 13:55:06 +0300
-Message-ID: <20140915105506.GA10190@redhat.com>
-References: <1410448173-12960-1-git-send-email-kraxel@redhat.com>
-	<1410448173-12960-2-git-send-email-kraxel@redhat.com>
-	<5411BD74.80608@redhat.com>
-	<1410518696.30411.9.camel@nilsson.home.kraxel.org>
-	<20140914134622.GB27315@redhat.com>
-	<1410777607.30598.7.camel@nilsson.home.kraxel.org>
+From: Matt Wilson <msw@linux.com>
+Subject: Re: [PATCH] virtio_pci: properly clean up MSI-X state when
+	initialization fails
+Date: Sun, 14 Sep 2014 20:43:07 -0700
+Message-ID: <20140915034307.GB4546@u109add4315675089e695.ant.amazon.com>
+References: <1410751406-10039-1-git-send-email-anthony@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1410777607.30598.7.camel@nilsson.home.kraxel.org>
+In-Reply-To: <1410751406-10039-1-git-send-email-anthony@codemonkey.ws>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,34 +19,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Dave Airlie <airlied@redhat.com>, virtualization@lists.linux-foundation.org, Eric Blake <eblake@redhat.com>, qemu-devel@nongnu.org, virtio-dev@lists.oasis-open.org
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: Anthony Liguori <aliguori@amazon.com>, Michael Tsirkin <mst@redhat.com>, kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Matt Wilson <msw@amazon.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 15, 2014 at 12:40:07PM +0200, Gerd Hoffmann wrote:
-> > > > > +
-> > > > > +enum virtgpu_ctrl_type {
-> > > > > +        VIRTGPU_UNDEFINED = 0,
-> > > > > +
-> > > > > +        /* 2d commands */
-> > > > > +        VIRTGPU_CMD_GET_DISPLAY_INFO = 0x0100,
-> > > > 
-> > > > Please consider also adding:
-> > 
-> > VIRTIO_GPU_ everywhere to make it consistent with other
-> > virtio headers?
+On Sun, Sep 14, 2014 at 08:23:26PM -0700, Anthony Liguori wrote:
+> From: Anthony Liguori <aliguori@amazon.com>
 > 
-> The names are already pretty long as-is, especially considering the
-> 80cols rule in our codestyle.  I'd prefer to keep them the way they are
-> now.
+> If MSI-X initialization fails after setting msix_enabled = 1, then
+> the device is left in an inconsistent state.  This would normally
+> only happen if there was a bug in the device emulation but it still
+> should be handled correctly.
 > 
-> cheers,
->   Gerd
+> Cc: Matt Wilson <msw@amazon.com>
+> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> Cc: Michael Tsirkin <mst@redhat.com>
+> Signed-off-by: Anthony Liguori <aliguori@amazon.com>
+
+Reviewed-by: Matt Wilson <msw@amazon.com>
+
+--msw
+
+> ---
+>  drivers/virtio/virtio_pci.c |    8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
 > 
-
-VIRTIO_GPU_ is not longer than VIRTIO_NET_ is it?
-
-VIRTGRU seems too generic.
-
--- 
-MST
+> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+> index 9cbac33..3d2c2a5 100644
+> --- a/drivers/virtio/virtio_pci.c
+> +++ b/drivers/virtio/virtio_pci.c
+> @@ -357,7 +357,7 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
+>  	v = ioread16(vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
+>  	if (v == VIRTIO_MSI_NO_VECTOR) {
+>  		err = -EBUSY;
+> -		goto error;
+> +		goto error_msix_used;
+>  	}
+>  
+>  	if (!per_vq_vectors) {
+> @@ -369,11 +369,15 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
+>  				  vp_vring_interrupt, 0, vp_dev->msix_names[v],
+>  				  vp_dev);
+>  		if (err)
+> -			goto error;
+> +			goto error_msix_used;
+>  		++vp_dev->msix_used_vectors;
+>  	}
+>  	return 0;
+> +error_msix_used:
+> +	v = --vp_dev->msix_used_vectors;
+> +	free_irq(vp_dev->msix_entries[v].vector, vp_dev);
+>  error:
+> +	vp_dev->msix_enabled = 0;
+>  	vp_free_vectors(vdev);
+>  	return err;
+>  }
