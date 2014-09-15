@@ -1,18 +1,21 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [virtio-dev] [PATCH 2/2] virtio-gpu/2d: add
-	docs/specs/virtio-gpu.txt
-Date: Mon, 15 Sep 2014 12:14:45 +0200
-Message-ID: <1410776085.30598.1.camel@nilsson.home.kraxel.org>
+Subject: Re: [Qemu-devel] [PATCH 1/2] virtio-gpu/2d: add hardware spec
+	include file
+Date: Mon, 15 Sep 2014 12:36:59 +0200
+Message-ID: <1410777419.30598.5.camel@nilsson.home.kraxel.org>
 References: <1410448173-12960-1-git-send-email-kraxel@redhat.com>
-	<1410448173-12960-3-git-send-email-kraxel@redhat.com>
-	<20140912091011.GC1614@stefanha-thinkpad.redhat.com>
-	<1410521887.30411.13.camel@nilsson.home.kraxel.org>
-	<CAPM=9ty=xhETM++JebrkKoSoPQHGdvNcC_wU2jytZVo_wqETQA@mail.gmail.com>
+	<1410448173-12960-2-git-send-email-kraxel@redhat.com>
+	<5411BD74.80608@redhat.com>
+	<1410518696.30411.9.camel@nilsson.home.kraxel.org>
+	<20140914134622.GB27315@redhat.com>
+	<CAFEAcA8f8kKoDwCd4-rVYHQZXJQSXZcJiqMVRMVzWRvFwUDNRA@mail.gmail.com>
+	<20140914141158.GA27836@redhat.com>
+	<CAFEAcA_qOoC+C9O-JF_uOD+YRr9fkz35Ju1Q=veFeTSM_XjMtg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAPM=9ty=xhETM++JebrkKoSoPQHGdvNcC_wU2jytZVo_wqETQA@mail.gmail.com>
+In-Reply-To: <CAFEAcA_qOoC+C9O-JF_uOD+YRr9fkz35Ju1Q=veFeTSM_XjMtg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,32 +25,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dave Airlie <airlied@gmail.com>
-Cc: Dave Airlie <airlied@redhat.com>, virtualization@lists.linux-foundation.org, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, Stefan Hajnoczi <stefanha@redhat.com>, virtio-dev@lists.oasis-open.org
+To: Peter Maydell <peter.maydell@linaro.org>
+Cc: Dave Airlie <airlied@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, QEMU Developers <qemu-devel@nongnu.org>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sa, 2014-09-13 at 07:14 +1000, Dave Airlie wrote:
-> >> Can the host refuse due to lack of resources?
-> >
-> > Yes.  virtgpu_ctrl_hdr.type in the response will be set to
-> > VIRTGPU_RESP_ERR_* then.  Current implementation does that only on
-> > malloc() failure, there is no accounting (yet) to limit the amout of
-> > memory the guest is allowed to allocate.
+  Hi,
+
+> >>
+> >> Why do you think that? We have several header files which
+> >> use QEMU_BUILD_BUG_ON and I don't see any reason why
+> >> it would have to be invoked from a .c file.
 > 
-> We do probably need to work out some sort of accounting system, it can
-> probably reliably only be a total value of resources, since we've no
-> idea if the host driver will store them in VRAM or main memory. Quite
-> how to fail gracefully is a question, probably need to report to the
-> guest what context did the allocation and see if we can destroy it.
+> > Because Gerd wants to share this with linux uapi, and
+> > you can't use BUILD_BUG_ON in uapi headers on linux.
+> 
+> Who owns the "master" copy of the header and commits
+> to making sure it builds on other things than Linux+gcc
+> in that case?
 
-Best would be if virgilrenderer.so just fails
-virgl_renderer_resource_create() calls.
-
-> Not reason I can remember, I think I was thinking of having separate
-> inval and detach at one point, but it didn't really make any sense, so
-> renaming to detach is fine with me.
-
-Done.
+In my personal repo the master copy is in the linux tree and qemu gets
+synced.  I've placed the QEMU_BUILD_BUG_ON calls in the (qemu-only)
+virtio-gpu.c now.
 
 cheers,
   Gerd
