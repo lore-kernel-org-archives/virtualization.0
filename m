@@ -1,15 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio_pci: properly clean up MSI-X state when
-	initialization fails
-Date: Mon, 15 Sep 2014 11:32:20 +0300
-Message-ID: <20140915083220.GC6480@redhat.com>
-References: <1410751406-10039-1-git-send-email-anthony@codemonkey.ws>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [virtio-dev] [PATCH 2/2] virtio-gpu/2d: add
+	docs/specs/virtio-gpu.txt
+Date: Mon, 15 Sep 2014 12:14:45 +0200
+Message-ID: <1410776085.30598.1.camel@nilsson.home.kraxel.org>
+References: <1410448173-12960-1-git-send-email-kraxel@redhat.com>
+	<1410448173-12960-3-git-send-email-kraxel@redhat.com>
+	<20140912091011.GC1614@stefanha-thinkpad.redhat.com>
+	<1410521887.30411.13.camel@nilsson.home.kraxel.org>
+	<CAPM=9ty=xhETM++JebrkKoSoPQHGdvNcC_wU2jytZVo_wqETQA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1410751406-10039-1-git-send-email-anthony@codemonkey.ws>
+In-Reply-To: <CAPM=9ty=xhETM++JebrkKoSoPQHGdvNcC_wU2jytZVo_wqETQA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,76 +22,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: kernel@vger.kernel.org, Matt Wilson <msw@amazon.com>, Anthony Liguori <aliguori@amazon.com>, virtualization@lists.linux-foundation.org
+To: Dave Airlie <airlied@gmail.com>
+Cc: Dave Airlie <airlied@redhat.com>, virtualization@lists.linux-foundation.org, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, Stefan Hajnoczi <stefanha@redhat.com>, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Sep 14, 2014 at 08:23:26PM -0700, Anthony Liguori wrote:
-> From: Anthony Liguori <aliguori@amazon.com>
+On Sa, 2014-09-13 at 07:14 +1000, Dave Airlie wrote:
+> >> Can the host refuse due to lack of resources?
+> >
+> > Yes.  virtgpu_ctrl_hdr.type in the response will be set to
+> > VIRTGPU_RESP_ERR_* then.  Current implementation does that only on
+> > malloc() failure, there is no accounting (yet) to limit the amout of
+> > memory the guest is allowed to allocate.
 > 
-> If MSI-X initialization fails after setting msix_enabled = 1, then
-> the device is left in an inconsistent state.  This would normally
-> only happen if there was a bug in the device emulation but it still
-> should be handled correctly.
+> We do probably need to work out some sort of accounting system, it can
+> probably reliably only be a total value of resources, since we've no
+> idea if the host driver will store them in VRAM or main memory. Quite
+> how to fail gracefully is a question, probably need to report to the
+> guest what context did the allocation and see if we can destroy it.
 
-This might happen if host runs out of resources when trying
-to map VQs to vectors, so doesn't have to be a bug.
+Best would be if virgilrenderer.so just fails
+virgl_renderer_resource_create() calls.
 
-But I don't see what the problem is:
-msix_used_vectors reflects the number of used vectors
-and msix_enabled is set, thus vp_free_vectors
-will free all IRQs and then disable MSIX.
+> Not reason I can remember, I think I was thinking of having separate
+> inval and detach at one point, but it didn't really make any sense, so
+> renaming to detach is fine with me.
 
-Where is the inconsistency you speak about?
+Done.
 
-
-> 
-> Cc: Matt Wilson <msw@amazon.com>
-> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: Michael Tsirkin <mst@redhat.com>
-> Signed-off-by: Anthony Liguori <aliguori@amazon.com>
-> ---
->  drivers/virtio/virtio_pci.c |    8 ++++++--
->  1 file changed, 6 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-> index 9cbac33..3d2c2a5 100644
-> --- a/drivers/virtio/virtio_pci.c
-> +++ b/drivers/virtio/virtio_pci.c
-> @@ -357,7 +357,7 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
->  	v = ioread16(vp_dev->ioaddr + VIRTIO_MSI_CONFIG_VECTOR);
->  	if (v == VIRTIO_MSI_NO_VECTOR) {
->  		err = -EBUSY;
-> -		goto error;
-> +		goto error_msix_used;
->  	}
->  
->  	if (!per_vq_vectors) {
-> @@ -369,11 +369,15 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
->  				  vp_vring_interrupt, 0, vp_dev->msix_names[v],
->  				  vp_dev);
->  		if (err)
-> -			goto error;
-> +			goto error_msix_used;
->  		++vp_dev->msix_used_vectors;
->  	}
->  	return 0;
-> +error_msix_used:
-> +	v = --vp_dev->msix_used_vectors;
-> +	free_irq(vp_dev->msix_entries[v].vector, vp_dev);
->  error:
-> +	vp_dev->msix_enabled = 0;
-
-As far as I can see, if you do this, guest will not call
-pci_disable_msix thus leaving the device with MSIX enabled.
-I'm not sure this won't break drivers if they then 
-try to use the device without MSIX, and it
-definitely seems less elegant than reverting the
-device to the original state.
-
-
->  	vp_free_vectors(vdev);
->  	return err;
->  }
-> -- 
-> 1.7.9.5
+cheers,
+  Gerd
