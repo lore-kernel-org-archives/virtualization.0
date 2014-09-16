@@ -1,15 +1,20 @@
 From: Amos Kong <akong@redhat.com>
-Subject: Re: [PATCH v2 1/3] virtio-rng cleanup: move some code out of mutex
-	protection
-Date: Tue, 16 Sep 2014 08:30:31 +0800
-Message-ID: <20140916003031.GB5671@zen>
-References: <1410796949-2221-1-git-send-email-akong@redhat.com>
-	<1410796949-2221-2-git-send-email-akong@redhat.com>
-	<20140915181320.28f642d6@wiggum>
+Subject: Re: [PATCH 2/2] virtio-rng: fix stuck in catting hwrng attributes
+Date: Tue, 16 Sep 2014 08:50:03 +0800
+Message-ID: <20140916005003.GC5671@zen>
+References: <1410340027-15373-1-git-send-email-akong@redhat.com>
+	<1410340027-15373-3-git-send-email-akong@redhat.com>
+	<8738byie04.fsf@rustcorp.com.au>
+	<20140913171258.GB12276@zen.redhat.com>
+	<20140914011208.GA1032@zen.redhat.com>
+	<20140914022553.GC1032@zen.redhat.com>
+	<20140915164846.GA29862@potion.brq.redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3432774347148227851=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140915181320.28f642d6@wiggum>
+Content-Disposition: inline
+In-Reply-To: <20140915164846.GA29862@potion.brq.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,120 +24,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michael =?iso-8859-1?Q?B=FCsch?= <m@bues.ch>
-Cc: herbert@gondor.apana.org.au, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mpm@selenic.com, amit.shah@redhat.com
+To: Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>
+Cc: herbert@gondor.apana.org.au, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, m@bues.ch, mpm@selenic.com, amit.shah@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-
---===============3432774347148227851==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FkmkrVfFsRoUs1wW"
-Content-Disposition: inline
-
-
---FkmkrVfFsRoUs1wW
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Sep 15, 2014 at 06:13:20PM +0200, Michael B=FCsch wrote:
-> On Tue, 16 Sep 2014 00:02:27 +0800
-> Amos Kong <akong@redhat.com> wrote:
->=20
-> > It doesn't save too much cpu time as expected, just a cleanup.
-> >=20
-> > Signed-off-by: Amos Kong <akong@redhat.com>
-> > ---
-> >  drivers/char/hw_random/core.c | 6 +++---
-> >  1 file changed, 3 insertions(+), 3 deletions(-)
-> >=20
-> > diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/cor=
-e.c
-> > index aa30a25..c591d7e 100644
-> > --- a/drivers/char/hw_random/core.c
-> > +++ b/drivers/char/hw_random/core.c
-> > @@ -270,8 +270,8 @@ static ssize_t hwrng_attr_current_show(struct devic=
-e *dev,
-> >  		return -ERESTARTSYS;
-> >  	if (current_rng)
-> >  		name =3D current_rng->name;
-> > -	ret =3D snprintf(buf, PAGE_SIZE, "%s\n", name);
-> >  	mutex_unlock(&rng_mutex);
-> > +	ret =3D snprintf(buf, PAGE_SIZE, "%s\n", name);
->=20
-> I'm not sure this is safe.
-> Name is just a pointer.
-> What if the hwrng gets unregistered after unlock and just before the snpr=
-intf?
-
-Oh, it points to protected current_rng->name, I will drop this
-cleanup. Thanks.
-=20
-> >  	return ret;
-> >  }
-> > @@ -284,19 +284,19 @@ static ssize_t hwrng_attr_available_show(struct d=
-evice *dev,
-> >  	ssize_t ret =3D 0;
-> >  	struct hwrng *rng;
-> > =20
-> > +	buf[0] =3D '\0';
-> >  	err =3D mutex_lock_interruptible(&rng_mutex);
-> >  	if (err)
-> >  		return -ERESTARTSYS;
-> > -	buf[0] =3D '\0';
-> >  	list_for_each_entry(rng, &rng_list, list) {
-> >  		strncat(buf, rng->name, PAGE_SIZE - ret - 1);
-> >  		ret +=3D strlen(rng->name);
-> >  		strncat(buf, " ", PAGE_SIZE - ret - 1);
-> >  		ret++;
-> >  	}
-> > +	mutex_unlock(&rng_mutex);
-> >  	strncat(buf, "\n", PAGE_SIZE - ret - 1);
-> >  	ret++;
-> > -	mutex_unlock(&rng_mutex);
-> > =20
-> >  	return ret;
-> >  }
->=20
-> This looks ok.
->=20
-> --=20
-> Michael
-
---=20
-			Amos.
-
---FkmkrVfFsRoUs1wW
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUF4SnAAoJELxSv6I5vP9jzHMQAJxY4AWJytK6Trofz2Jmna3L
-SHyftIR/Rg6ZZi1uHuIQDnJTyeN7SR9nycVpK/YUfGX7/xJKMGOxFF2zkchfjOPJ
-pCbpvyqr50hbRE+C/JTTagqKyQdjpChV7/zzJUXwJ9uuJ1B9/M0ps8878QSNU8Aa
-MoKEKd0ZAUIrL1Sw8EmTMvGk6xQOScnFnBEOIA2WJd5TbzT0b5SHP9Vbk+oPBnLa
-3mS1A4YcU9qGJvVm0OD4UdrgCZHu6VkBfWFzguqC5ZK8lWEtbE7IL83P4yS1LzbP
-/YfsZw1kVKupatTf7OKh6oSe0dxH7tum6fBmu3EFuxFYBf+SFYafLdHs6bNPEoyI
-HTt3qil4LOHw+OU9+r3F8jwaVxn1aKTx3cqHhphefOxABWo6qv9omSX62N3wpn0b
-tict/1zSB7FtVPEed61yuHEB5I1bOaAktpqVfPM/MTNhtrSoCMt0HHvJKI6ALLpP
-n4Tg3L/lxX3YlQ/Vru4VbanSXbxizxQeuHVbMgx+I9u6qBdBHpGBcJklf56GEHtn
-2hHY4hQabNpyUioW06W0DwYHK4a2HFblDPkw/2IogEnru4DkKhvaDRP6AtbtvwnD
-8yD2hyPT1pbguEc3Kjk3vcXiyAVwbC/D+K2uznhNF/uAYbkdFlSsRQ0dvxvLXJHf
-TG7rl6ReyUF9iMacjGqS
-=n9X0
------END PGP SIGNATURE-----
-
---FkmkrVfFsRoUs1wW--
-
---===============3432774347148227851==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3432774347148227851==--
+Q0MgbGludXgta2VybmVsCgpPcmlnaW5hbCB0aHJlYWQ6IGh0dHA6Ly9jb21tZW50cy5nbWFuZS5v
+cmcvZ21hbmUubGludXgua2VybmVsLnZpcnR1YWxpemF0aW9uLzIyNzc1CgpPbiBNb24sIFNlcCAx
+NSwgMjAxNCBhdCAwNjo0ODo0NlBNICswMjAwLCBSYWRpbSBLcsSNbcOhxZkgd3JvdGU6Cj4gMjAx
+NC0wOS0xNCAxMDoyNSswODAwLCBBbW9zIEtvbmc6Cj4gPiBPbiBTdW4sIFNlcCAxNCwgMjAxNCBh
+dCAwOToxMjowOEFNICswODAwLCBBbW9zIEtvbmcgd3JvdGU6Cj4gPiAKPiA+IC4uLgo+ID4gPiA+
+ID4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9jaGFyL2h3X3JhbmRvbS9jb3JlLmMgYi9kcml2ZXJz
+L2NoYXIvaHdfcmFuZG9tL2NvcmUuYwo+ID4gPiA+ID4gPiBpbmRleCBjNTkxZDdlLi5iNWQxYjZm
+IDEwMDY0NAo+ID4gPiA+ID4gPiAtLS0gYS9kcml2ZXJzL2NoYXIvaHdfcmFuZG9tL2NvcmUuYwo+
+ID4gPiA+ID4gPiArKysgYi9kcml2ZXJzL2NoYXIvaHdfcmFuZG9tL2NvcmUuYwo+ID4gPiA+ID4g
+PiBAQCAtMTk1LDggKzE5NSw3IEBAIHN0YXRpYyBzc2l6ZV90IHJuZ19kZXZfcmVhZChzdHJ1Y3Qg
+ZmlsZSAqZmlscCwgY2hhciBfX3VzZXIgKmJ1ZiwKPiA+ID4gPiA+ID4gIAo+ID4gPiA+ID4gPiAg
+CQltdXRleF91bmxvY2soJnJuZ19tdXRleCk7Cj4gPiA+ID4gPiA+ICAKPiA+ID4gPiA+ID4gLQkJ
+aWYgKG5lZWRfcmVzY2hlZCgpKQo+ID4gPiA+ID4gPiAtCQkJc2NoZWR1bGVfdGltZW91dF9pbnRl
+cnJ1cHRpYmxlKDEpOwo+ID4gPiA+ID4gPiArCQlzY2hlZHVsZV90aW1lb3V0X2ludGVycnVwdGli
+bGUoMTApOwo+IAo+IElmIGNvbmRfcmVzY2hlZCgpIGRvZXMgbm90IHdvcmssIGl0IGlzIGEgYnVn
+IGVsc2V3ZWhlcmUuCgpUaGFua3MgZm9yIHlvdXIgcmVwbHksIEphc29uIGFsc28gdG9sZCBtZSB0
+aGUgVElGX05FRURfUkVTQ0hFRCBzaG91bGQKYmUgc2V0IGluIHRoaXMgY2FzZSwgdGhlbiBuZWVk
+X3Jlc2NoZWQoKSByZXR1cm5zIHRydWUuCgpJIHdpbGwgaW52ZXN0aWdhdGUgdGhlIGlzc3VlIGFu
+ZCByZXBseSB5b3UgbGF0ZXIuCiAKPiA+IFByb2JsZW0gb25seSBvY2N1cnJlZCBpbiBub24tc21w
+IGd1ZXN0LCB3ZSBjYW4gaW1wcm92ZSBpdCB0bzoKPiA+IAo+ID4gICAgICAgICAgICAgICAgICAg
+ICAgICAgaWYoIWlzX3NtcCgpKQo+ID4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBz
+Y2hlZHVsZV90aW1lb3V0X2ludGVycnVwdGlibGUoMTApOwo+ID4gCj4gPiBpc19zbXAoKSBpcyBv
+bmx5IGF2YWlsYWJsZSBmb3IgYXJtIGFyY2gsIHdlIG5lZWQgYSBnZW5lcmFsIG9uZS4KPiAKPiAo
+SXQgaXMgbnVtX29ubGluZV9jcHVzKCkgPiAxLikKCi0tIAoJCQlBbW9zLgpfX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
+IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
+aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
