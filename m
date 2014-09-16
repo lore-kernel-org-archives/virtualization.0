@@ -1,15 +1,17 @@
-From: Michael =?UTF-8?B?QsO8c2No?= <m@bues.ch>
-Subject: Re: [PATCH v2 3/3] hw_random: increase schedule timeout in
-	rng_dev_read()
-Date: Tue, 16 Sep 2014 17:01:16 +0200
-Message-ID: <20140916170116.65f8d883@wiggum>
-References: <1410796949-2221-1-git-send-email-akong@redhat.com>
-	<1410796949-2221-4-git-send-email-akong@redhat.com>
-	<20140915181331.4e3f5fed@wiggum> <20140916002740.GA5671@zen>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 2/2] virtio-rng: fix stuck in catting hwrng attributes
+Date: Wed, 17 Sep 2014 01:05:27 +0930
+Message-ID: <87lhpjfuio.fsf@rustcorp.com.au>
+References: <1410340027-15373-1-git-send-email-akong@redhat.com>
+	<1410340027-15373-3-git-send-email-akong@redhat.com>
+	<8738byie04.fsf@rustcorp.com.au>
+	<20140913171258.GB12276@zen.redhat.com>
+	<20140914011208.GA1032@zen.redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4557979610729294036=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140916002740.GA5671@zen>
+In-Reply-To: <20140914011208.GA1032@zen.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,61 +22,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Amos Kong <akong@redhat.com>
-Cc: herbert@gondor.apana.org.au, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mpm@selenic.com, amit.shah@redhat.com
+Cc: amit.shah@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============4557979610729294036==
-Content-Type: multipart/signed; micalg=pgp-sha1;
- boundary="Sig_/7=Ee=1KEUuR5Fsm=4e3N5nX"; protocol="application/pgp-signature"
+Amos Kong <akong@redhat.com> writes:
+> On Sun, Sep 14, 2014 at 01:12:58AM +0800, Amos Kong wrote:
+>> On Thu, Sep 11, 2014 at 09:08:03PM +0930, Rusty Russell wrote:
+>> > Amos Kong <akong@redhat.com> writes:
+>> > > When I check hwrng attributes in sysfs, cat process always gets
+>> > > stuck if guest has only 1 vcpu and uses a slow rng backend.
+>> > >
+>> > > Currently we check if there is any tasks waiting to be run on
+>> > > current cpu in rng_dev_read() by need_resched(). But need_resched()
+>> > > doesn't work because rng_dev_read() is executing in user context.
+>> > 
+>> > I don't understand this explanation?  I'd expect the sysfs process to be
+>> > woken by the mutex_unlock().
+>> 
+>> But actually sysfs process's not woken always, this is they the
+>> process gets stuck.
+>
+> %s/they/why/
+>
+> Hi Rusty,
+>
+>
+> Reference:
+> http://www.linuxgrill.com/anonymous/fire/netfilter/kernel-hacking-HOWTO-2.html
 
---Sig_/7=Ee=1KEUuR5Fsm=4e3N5nX
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Sure, that was true when I wrote it, and is still true when preempt is
+off.
 
-On Tue, 16 Sep 2014 08:27:40 +0800
-Amos Kong <akong@redhat.com> wrote:
+> read() syscall of /dev/hwrng will enter into kernel, the read operation is
+> rng_dev_read(), it's userspace context (not interrupt context).
+>
+> Userspace context doesn't allow other user contexts run on that CPU,
+> unless the kernel code sleeps for some reason.
 
-> Set timeout to 10:
->   non-smp guest with quick backend (1.2M/s) -> about 490K/s)
+This is true assuming preempt is off, yes.
 
-That sounds like an awful lot. This is a 60% loss in throughput.
-I don't think we can live with that.
+> In this case, the need_resched() doesn't work.
 
---=20
-Michael
+This is exactly what need_resched() is for: it should return true if
+there's another process of sufficient priority waiting to be run.  It
+implies that schedule() would run it.
 
---Sig_/7=Ee=1KEUuR5Fsm=4e3N5nX
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
+git blame doesn't offer any enlightenment here, as to why we use
+schedule_timeout_interruptible() at all.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+I would expect mutex_unlock() to wake the other reader.  The code
+certainly seems to, so it should now be runnable and need_resched()
+should return true.
 
-iQIcBAEBAgAGBQJUGFC8AAoJEPUyvh2QjYsO1rQP/3BUqE2P6lKKSVE6J0l47J/1
-dgNKWEyQBPEa4wz7jcaQkniVEfTRbn5xZVFuVtdWGVLcLa3XCYWgveo3Jo4f/Aon
-6t0nUZXEeENbi4hBYYrZ8LnG+12SqcYvaVSNCrTL4fCmfcYEv3OUdUiEYh5iw1Py
-iFKDfUzohhbKlObgm2rMOCNXTv3ZPwKalE6cxvbKpbaAe/wVXHgVWhK9rGnQmzpA
-Lk56gn/G7cDJ7G+HMT06p0qe2/QyFAJLNKVr8aOqCHMftRBkw8VhFYKX6P0EW7RI
-ARH100K8ZPjxyyYjy3+rPbBSTEGX5ioddqAm1nwzMlRkXc9xB/Q34rlt0eoMRKmF
-eiU9DcKu5DvrVsnmvj8cO1Htz2lYUMQsYRn2K5RIw0Ogej4buZHf0fkiSDwUupAV
-CdTnekusbz58CwQSjAnikBvL0HykytmiQmjt43/BW41D4J5v6AETmO9pcqPORxle
-CNTnPvAdeRlO5iEhyw3XTKzBidDHVi4h8uH311gWeXtq/NcfRcUpRHYWHBd6BB8w
-pEYw0ukyxNkHFIDu0a7h88DgcwfvmViK5Cvl3z1djkIKaPRrONCkaXv+mLCz6LrO
-kcf9lM8LMhWvyzo8/+gs3miFMROCNG+u7W3r1cBraZ8MlD+ZOp1Je9rvEuXFHe1M
-45cPqwNkbt4hswTlBjCl
-=8+vG
------END PGP SIGNATURE-----
+I suspect something else is happening which makes this "work".
 
---Sig_/7=Ee=1KEUuR5Fsm=4e3N5nX--
-
---===============4557979610729294036==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4557979610729294036==--
+Cheers,
+Rusty.
