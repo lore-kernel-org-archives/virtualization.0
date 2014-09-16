@@ -1,17 +1,16 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 2/2] virtio-rng: fix stuck in catting hwrng attributes
-Date: Wed, 17 Sep 2014 01:05:27 +0930
-Message-ID: <87lhpjfuio.fsf@rustcorp.com.au>
-References: <1410340027-15373-1-git-send-email-akong@redhat.com>
-	<1410340027-15373-3-git-send-email-akong@redhat.com>
-	<8738byie04.fsf@rustcorp.com.au>
-	<20140913171258.GB12276@zen.redhat.com>
-	<20140914011208.GA1032@zen.redhat.com>
+Subject: Re: Rusty away 18th September -- 11th October
+Date: Wed, 17 Sep 2014 01:23:46 +0930
+Message-ID: <87a95zfto5.fsf@rustcorp.com.au>
+References: <87oaunht4b.fsf@rustcorp.com.au>
+	<20140911114351.GA25736@redhat.com>
+	<87tx4dhbks.fsf@rustcorp.com.au>
+	<20140914062116.GA23868@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140914011208.GA1032@zen.redhat.com>
+In-Reply-To: <20140914062116.GA23868@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,60 +20,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amos Kong <akong@redhat.com>
-Cc: amit.shah@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev <netdev@vger.kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Amos Kong <akong@redhat.com> writes:
-> On Sun, Sep 14, 2014 at 01:12:58AM +0800, Amos Kong wrote:
->> On Thu, Sep 11, 2014 at 09:08:03PM +0930, Rusty Russell wrote:
->> > Amos Kong <akong@redhat.com> writes:
->> > > When I check hwrng attributes in sysfs, cat process always gets
->> > > stuck if guest has only 1 vcpu and uses a slow rng backend.
->> > >
->> > > Currently we check if there is any tasks waiting to be run on
->> > > current cpu in rng_dev_read() by need_resched(). But need_resched()
->> > > doesn't work because rng_dev_read() is executing in user context.
->> > 
->> > I don't understand this explanation?  I'd expect the sysfs process to be
->> > woken by the mutex_unlock().
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> On Fri, Sep 12, 2014 at 10:58:03AM +0930, Rusty Russell wrote:
+>> "Michael S. Tsirkin" <mst@redhat.com> writes:
+>> > On Thu, Sep 11, 2014 at 10:26:52AM +0930, Rusty Russell wrote:
+>> >> Hi all,
+>> >> 
+>> >>         Probably won't read mail.  Linus, I'll have pull requests early
+>> >> next week; if there's anything needed I'm sure Michael Tsirkin can
+>> >> handle it.
+>> >
+>> > Sure.
+>> > Rusty, there's a small chance virtio 1.0 bits will be ready in time.
+>> > I started working on them based on your virtio-pci-new-layout branch.
+>> >
+>> > If ready before the merge window, are you ok with me merging this
+>> > support (without you having the opportunity to review first)?
 >> 
->> But actually sysfs process's not woken always, this is they the
->> process gets stuck.
+>> Sorry, absolutely not.  I *really* want to review this in depth; if we
+>> make a mistake, it's going to hurt us significantly.
 >
-> %s/they/why/
+> Right but it's only a merge window - we can fix bugs and even disable
+> the new driver afterwards, can't we?
+
+Yes, but if we get something wrong we have to live with it.  We made
+that mistake with virtio-pci the first time around...
+
+It isn't enough that the code 'works', it has to match the spec.  And
+that requires careful thought and review.
+
+>> And until we have the qemu bits ready, it's really hard to tell if we've
+>> got this right.
 >
-> Hi Rusty,
+> Sure, I meant if qemu bits are ready too, and if things work together.
+> It wouldn't do to merge a driver that isn't ready.
 >
 >
-> Reference:
-> http://www.linuxgrill.com/anonymous/fire/netfilter/kernel-hacking-HOWTO-2.html
-
-Sure, that was true when I wrote it, and is still true when preempt is
-off.
-
-> read() syscall of /dev/hwrng will enter into kernel, the read operation is
-> rng_dev_read(), it's userspace context (not interrupt context).
+>>  So I'd rather delay and make sure we're solid.
+>> 
+>> Thanks,
+>> Rusty.
 >
-> Userspace context doesn't allow other user contexts run on that CPU,
-> unless the kernel code sleeps for some reason.
+> Something else we can do, is refactoring that splits driver
+> out to common and legacy bits, and changes APIs.
+> No?
 
-This is true assuming preempt is off, yes.
-
-> In this case, the need_resched() doesn't work.
-
-This is exactly what need_resched() is for: it should return true if
-there's another process of sufficient priority waiting to be run.  It
-implies that schedule() would run it.
-
-git blame doesn't offer any enlightenment here, as to why we use
-schedule_timeout_interruptible() at all.
-
-I would expect mutex_unlock() to wake the other reader.  The code
-certainly seems to, so it should now be runnable and need_resched()
-should return true.
-
-I suspect something else is happening which makes this "work".
+Yes, for sure.  But there's no hurry to get those into the merge window.
 
 Cheers,
 Rusty.
