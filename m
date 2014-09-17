@@ -1,15 +1,16 @@
-From: Jingoo Han <jg1.han@samsung.com>
-Subject: Re: [PATCH] virtio: pci: Use SIMPLE_DEV_PM_OPS macro
-Date: Wed, 17 Sep 2014 18:52:07 +0900
-Message-ID: <000d01cfd25d$0add23d0$20976b70$%han@samsung.com>
-References: <003a01cfc8bc$bf48cd60$3dda6820$%han@samsung.com>
-	<8761gxk5vt.fsf@rustcorp.com.au>
+From: Ming Lei <tom.leiming@gmail.com>
+Subject: Re: blk-mq crash under KVM in multiqueue block code (with virtio-blk
+	and ext4)
+Date: Wed, 17 Sep 2014 18:01:28 +0800
+Message-ID: <CACVXFVOjoAo1d86S=7a3x27aCGVZh03HvVq4dVdRk8VQ+Ou5-w@mail.gmail.com>
+References: <541178D6.6010303@de.ibm.com>
+	<CACVXFVO7Oo9GeagPhejngfoeySxOP4EqWz_GN6kYv2956-Wtxg@mail.gmail.com>
+	<541352ED.7030800@de.ibm.com> <54193F4F.9060508@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-reply-to: <8761gxk5vt.fsf@rustcorp.com.au>
-Content-language: ko
+In-Reply-To: <54193F4F.9060508@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,100 +20,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: 'Rusty Russell' <rusty@rustcorp.com.au>
-Cc: 'Jingoo Han' <jg1.han@samsung.com>, virtualization@lists.linux-foundation.org, "'Michael S. Tsirkin'" <mst@redhat.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Jens Axboe <axboe@kernel.dk>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org >> Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>, Virtualization List <virtualization@lists.linux-foundation.org>, David Hildenbrand <dahi@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday, September 09, 2014 9:14 AM, Rusty Russell wrote:
-> Jingoo Han <jg1.han@samsung.com> writes:
-> > Use SIMPLE_DEV_PM_OPS macro in order to make the code simpler.
-> >
-> > Signed-off-by: Jingoo Han <jg1.han@samsung.com>
-> 
-> This patch is obviously wrong.  It won't compile without
-> CONFIG_PM_SLEEP.
+On Wed, Sep 17, 2014 at 3:59 PM, Christian Borntraeger
+<borntraeger@de.ibm.com> wrote:
+> On 09/12/2014 10:09 PM, Christian Borntraeger wrote:
+>> On 09/12/2014 01:54 PM, Ming Lei wrote:
+>>> On Thu, Sep 11, 2014 at 6:26 PM, Christian Borntraeger
+>>> <borntraeger@de.ibm.com> wrote:
+>>>> Folks,
+>>>>
+>>>> we have seen the following bug with 3.16 as a KVM guest. It suspect the blk-mq rework that happened between 3.15 and 3.16, but it can be something completely different.
+>>>>
+>>>
+>>> Care to share how you reproduce the issue?
+>>
+>> Host with 16GB RAM 32GB swap. 15 guest all with 2 GB RAM (and varying amount of CPUs). All do heavy file I/O.
+>> It did not happen with 3.15/3.15 in guest/host and does happen with 3.16/3.16. So our next step is to check
+>> 3.15/3.16 and 3.16/3.15 to identify if its host memory mgmt or guest block layer.
+>
+> The crashed happen pretty randomly, but when they happen it seems that its the same trace as below. This makes memory corruption by host vm less likely and some thing wrong in blk-mq more likely I guess
+>
 
-No, there is no compile issue.
-When, CONFIG_PM_SLEEP=n, there is no build error.
+Maybe you can try these patches because atomic op
+can be reordered on S390:
 
-'SIMPLE_DEV_PM_OPS' macro is defined as follows.
+http://marc.info/?l=linux-kernel&m=141094730828533&w=2
+http://marc.info/?l=linux-kernel&m=141094730828534&w=2
 
-#define SIMPLE_DEV_PM_OPS(name, suspend_fn, resume_fn) \
-const struct dev_pm_ops name = { \
-        SET_SYSTEM_SLEEP_PM_OPS(suspend_fn, resume_fn) \
-}
-
-In addition, 'SET_SYSTEM_SLEEP_PM_OPS' is defined as follows.
-
-#ifdef CONFIG_PM_SLEEP
-#define SET_SYSTEM_SLEEP_PM_OPS(suspend_fn, resume_fn) \
-        .suspend = suspend_fn, \
-        .resume = resume_fn, \
-        .freeze = suspend_fn, \
-        .thaw = resume_fn, \
-        .poweroff = suspend_fn, \
-        .restore = resume_fn,
-#else
-#define SET_SYSTEM_SLEEP_PM_OPS(suspend_fn, resume_fn)
-#endif
-
-So, when CONFIG_PM_SLEEP is NOT enabled, SIMPLE_DEV_PM_OPS can be
-changed as below. The members of virtio_pci_pm_ops can be NULL.
-Thus, there is no build error, when CONFIG_PM_SLEEP=n.
-
-However, if you want, I will just change SET_SYSTEM_SLEEP_PM_OPS
-into SIMPLE_DEV_PM_OPS macro, without any change about
-'#ifdef CONFIG_PM_SLEEP' guards.
-
-const struct dev_pm_ops virtio_pci_pm_ops = {
-};
-
-static struct pci_driver virtio_pci_driver = {
- 	.name		= "virtio-pci",
- 	.id_table	= virtio_pci_id_table,
- 	.probe		= virtio_pci_probe,
- 	.remove		= virtio_pci_remove,
- 	.driver.pm	= &virtio_pci_pm_ops,
-};
-
-Best regards,
-Jingoo Han
-
-> 
-> Cheers,
-> Rusty.
-> 
-> > ---
-> >  drivers/virtio/virtio_pci.c | 9 +++------
-> >  1 file changed, 3 insertions(+), 6 deletions(-)
-> >
-> > diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-> > index 3d1463c6b120..c5fbdb4023d1 100644
-> > --- a/drivers/virtio/virtio_pci.c
-> > +++ b/drivers/virtio/virtio_pci.c
-> > @@ -810,20 +810,17 @@ static int virtio_pci_restore(struct device *dev)
-> >
-> >  	return ret;
-> >  }
-> > -
-> > -static const struct dev_pm_ops virtio_pci_pm_ops = {
-> > -	SET_SYSTEM_SLEEP_PM_OPS(virtio_pci_freeze, virtio_pci_restore)
-> > -};
-> >  #endif
-> >
-> > +static SIMPLE_DEV_PM_OPS(virtio_pci_pm_ops, virtio_pci_freeze,
-> > +			 virtio_pci_restore);
-> > +
-> >  static struct pci_driver virtio_pci_driver = {
-> >  	.name		= "virtio-pci",
-> >  	.id_table	= virtio_pci_id_table,
-> >  	.probe		= virtio_pci_probe,
-> >  	.remove		= virtio_pci_remove,
-> > -#ifdef CONFIG_PM_SLEEP
-> >  	.driver.pm	= &virtio_pci_pm_ops,
-> > -#endif
-> >  };
-> >
-> >  module_pci_driver(virtio_pci_driver);
-> > --
-> > 2.0.0
+Thanks
+-- 
+Ming Lei
