@@ -1,14 +1,15 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH v2 0/3] fix stuck in accessing hwrng attributes
-Date: Wed, 17 Sep 2014 17:30:04 +0800
-Message-ID: <20140917093004.GB1213@gondor.apana.org.au>
-References: <1410796949-2221-1-git-send-email-akong@redhat.com>
+From: Jingoo Han <jg1.han@samsung.com>
+Subject: Re: [PATCH] virtio: pci: Use SIMPLE_DEV_PM_OPS macro
+Date: Wed, 17 Sep 2014 18:52:07 +0900
+Message-ID: <000d01cfd25d$0add23d0$20976b70$%han@samsung.com>
+References: <003a01cfc8bc$bf48cd60$3dda6820$%han@samsung.com>
+	<8761gxk5vt.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1410796949-2221-1-git-send-email-akong@redhat.com>
+In-reply-to: <8761gxk5vt.fsf@rustcorp.com.au>
+Content-language: ko
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,27 +19,100 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amos Kong <akong@redhat.com>
-Cc: m@bues.ch, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mb@bu3sch.de, mpm@selenic.com, amit.shah@redhat.com
+To: 'Rusty Russell' <rusty@rustcorp.com.au>
+Cc: 'Jingoo Han' <jg1.han@samsung.com>, virtualization@lists.linux-foundation.org, "'Michael S. Tsirkin'" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Sep 16, 2014 at 12:02:26AM +0800, Amos Kong wrote:
-> If we read hwrng by long-running dd process, it takes too much cpu
-> time and almost hold the mutex lock. When we check hwrng attributes
-> from sysfs by cat, it gets stuck in waiting the lock releaseing.
-> The problem can only be reproduced with non-smp guest with slow backend.
+On Tuesday, September 09, 2014 9:14 AM, Rusty Russell wrote:
+> Jingoo Han <jg1.han@samsung.com> writes:
+> > Use SIMPLE_DEV_PM_OPS macro in order to make the code simpler.
+> >
+> > Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 > 
-> This patchset resolves the issue by changing rng_dev_read() to always
-> schedule 10 jiffies after release mutex lock, then cat process can
-> have chance to get the lock and execute protected code without stuck.
+> This patch is obviously wrong.  It won't compile without
+> CONFIG_PM_SLEEP.
 
-Sorry I'm not going to accept your fix which simply papers over
-the problem.
+No, there is no compile issue.
+When, CONFIG_PM_SLEEP=n, there is no build error.
 
-Please bite the bullet and convert this over to RCU.
+'SIMPLE_DEV_PM_OPS' macro is defined as follows.
 
-Cheers,
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+#define SIMPLE_DEV_PM_OPS(name, suspend_fn, resume_fn) \
+const struct dev_pm_ops name = { \
+        SET_SYSTEM_SLEEP_PM_OPS(suspend_fn, resume_fn) \
+}
+
+In addition, 'SET_SYSTEM_SLEEP_PM_OPS' is defined as follows.
+
+#ifdef CONFIG_PM_SLEEP
+#define SET_SYSTEM_SLEEP_PM_OPS(suspend_fn, resume_fn) \
+        .suspend = suspend_fn, \
+        .resume = resume_fn, \
+        .freeze = suspend_fn, \
+        .thaw = resume_fn, \
+        .poweroff = suspend_fn, \
+        .restore = resume_fn,
+#else
+#define SET_SYSTEM_SLEEP_PM_OPS(suspend_fn, resume_fn)
+#endif
+
+So, when CONFIG_PM_SLEEP is NOT enabled, SIMPLE_DEV_PM_OPS can be
+changed as below. The members of virtio_pci_pm_ops can be NULL.
+Thus, there is no build error, when CONFIG_PM_SLEEP=n.
+
+However, if you want, I will just change SET_SYSTEM_SLEEP_PM_OPS
+into SIMPLE_DEV_PM_OPS macro, without any change about
+'#ifdef CONFIG_PM_SLEEP' guards.
+
+const struct dev_pm_ops virtio_pci_pm_ops = {
+};
+
+static struct pci_driver virtio_pci_driver = {
+ 	.name		= "virtio-pci",
+ 	.id_table	= virtio_pci_id_table,
+ 	.probe		= virtio_pci_probe,
+ 	.remove		= virtio_pci_remove,
+ 	.driver.pm	= &virtio_pci_pm_ops,
+};
+
+Best regards,
+Jingoo Han
+
+> 
+> Cheers,
+> Rusty.
+> 
+> > ---
+> >  drivers/virtio/virtio_pci.c | 9 +++------
+> >  1 file changed, 3 insertions(+), 6 deletions(-)
+> >
+> > diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+> > index 3d1463c6b120..c5fbdb4023d1 100644
+> > --- a/drivers/virtio/virtio_pci.c
+> > +++ b/drivers/virtio/virtio_pci.c
+> > @@ -810,20 +810,17 @@ static int virtio_pci_restore(struct device *dev)
+> >
+> >  	return ret;
+> >  }
+> > -
+> > -static const struct dev_pm_ops virtio_pci_pm_ops = {
+> > -	SET_SYSTEM_SLEEP_PM_OPS(virtio_pci_freeze, virtio_pci_restore)
+> > -};
+> >  #endif
+> >
+> > +static SIMPLE_DEV_PM_OPS(virtio_pci_pm_ops, virtio_pci_freeze,
+> > +			 virtio_pci_restore);
+> > +
+> >  static struct pci_driver virtio_pci_driver = {
+> >  	.name		= "virtio-pci",
+> >  	.id_table	= virtio_pci_id_table,
+> >  	.probe		= virtio_pci_probe,
+> >  	.remove		= virtio_pci_remove,
+> > -#ifdef CONFIG_PM_SLEEP
+> >  	.driver.pm	= &virtio_pci_pm_ops,
+> > -#endif
+> >  };
+> >
+> >  module_pci_driver(virtio_pci_driver);
+> > --
+> > 2.0.0
