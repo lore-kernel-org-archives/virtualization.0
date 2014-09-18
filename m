@@ -1,14 +1,11 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH v2 2/3] hw_random: fix stuck in catting hwrng attributes
-Date: Thu, 18 Sep 2014 12:13:08 +0930
-Message-ID: <87wq91odhf.fsf@rustcorp.com.au>
-References: <1410796949-2221-1-git-send-email-akong@redhat.com>
-	<1410796949-2221-3-git-send-email-akong@redhat.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Standardizing an MSR or other hypercall to get an RNG seed?
+Date: Wed, 17 Sep 2014 19:50:42 -0700
+Message-ID: <CALCETrX66iDM+eG56hpMN4TcuXtzbEr5nB_f6JE-2XETSMWV5w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1410796949-2221-3-git-send-email-akong@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,81 +15,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amos Kong <akong@redhat.com>, virtualization@lists.linux-foundation.org
-Cc: herbert@gondor.apana.org.au, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, m@bues.ch, mpm@selenic.com, amit.shah@redhat.com, Linus Torvalds <torvalds@linux-foundation.org>, mb@bu3sch.de
+To: Linux Virtualization <virtualization@lists.linux-foundation.org>, kvm list <kvm@vger.kernel.org>
+Cc: Gleb Natapov <gleb@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Theodore Ts'o <tytso@mit.edu>, "H. Peter Anvin" <hpa@zytor.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Amos Kong <akong@redhat.com> writes:
+Hi all-
 
-> I started a QEMU (non-smp) guest with one virtio-rng device, and read
-> random data from /dev/hwrng by dd:
->
->  # dd if=/dev/hwrng of=/dev/null &
->
-> In the same time, if I check hwrng attributes from sysfs by cat:
->
->  # cat /sys/class/misc/hw_random/rng_*
->
-> The cat process always gets stuck with slow backend (5 k/s), if we
-> use a quick backend (1.2 M/s), the cat process will cost 1 to 2
-> minutes. The stuck doesn't exist for smp guest.
->
-> Reading syscall enters kernel and call rng_dev_read(), it's user
-> context. We used need_resched() to check if other tasks need to
-> be run, but it almost always return false, and re-hold the mutex
-> lock. The attributes accessing process always fails to hold the
-> lock, so the cat gets stuck.
->
-> User context doesn't allow other user contexts run on that CPU,
-> unless the kernel code sleeps for some reason. This is why the
-> need_reshed() always return false here.
->
-> This patch removed need_resched() and always schedule other tasks
-> then other tasks can have chance to hold the lock and execute
-> protected code.
+I would like to standardize on a very simple protocol by which a guest
+OS can obtain an RNG seed early in boot.
 
-OK, this is going to be a rant.
+The main design requirements are:
 
-Your explanation doesn't make sense at all.  Worse, your solution breaks
-the advice of Kernighan & Plaugher: "Don't patch bad code - rewrite
-it.".
+ - The interface should be very easy to use.  Linux, at least, will
+want to use it extremely early in boot as part of kernel ASLR.  This
+means that PCI and ACPI will not work.
 
-But worst of all, this detailed explanation might have convinced me you
-understood the problem better than I did, and applied your patch.
+ - It should be synchronous.  We don't want to delay boot while
+waiting for a slow host RNG.  (On Linux, at least, we have a separate
+interface for that: virtio-rng.  I think that Windows has some support
+for virtio-rng as well.)
 
-I did some tests.  For me, as expected, the process spends its time
-inside the virtio rng read function, holding the mutex and thus blocking
-sysfs access; it's not a failure of this code at all.
+ - Random numbers obtained through this interface should be
+best-effort.  We want the best quality randomness that the host can
+provide immediately.
 
-Your schedule_timeout() "fix" probably just helps by letting the host
-refresh entropy, so we spend less time waiting in the read fn.
+It seems to me that the best interface for the actual request for a
+random number is rdmsr.  This is supported on all hypervisors and all
+virtualization technologies.  It can return a 64 bit random number,
+and it is easy to rdmsr the same register more than once to get a
+larger random number.
 
-I will post a series, which unfortunately is only lightly tested, then
-I'm going to have some beer to begin my holiday.  That may help me
-forget my disappointment at seeing respected fellow developers
-monkey-patching random code they don't understand.
+The main questions are what MSR index to use and how to detect the
+presence of the MSR.  I've played with two approaches:
 
-Grrr....
-Rusty.
+1. Use CPUID to detect the presence of this feature.  This is very
+easy for KVM to implement by using a KVM-specific CPUID feature.  The
+problem is that this will necessarily be KVM-specific, as the guest
+must first probe for KVM and then probe for the KVM feature.  I doubt
+that Hyper-V, for example, wants to claim to be KVM.  If we could
+standardize a non-hypervisor-specific CPUID feature, then this problem
+would go away.
 
-> Signed-off-by: Amos Kong <akong@redhat.com>
-> ---
->  drivers/char/hw_random/core.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
->
-> diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
-> index c591d7e..263a370 100644
-> --- a/drivers/char/hw_random/core.c
-> +++ b/drivers/char/hw_random/core.c
-> @@ -195,8 +195,7 @@ static ssize_t rng_dev_read(struct file *filp, char __user *buf,
->  
->  		mutex_unlock(&rng_mutex);
->  
-> -		if (need_resched())
-> -			schedule_timeout_interruptible(1);
-> +		schedule_timeout_interruptible(1);
->  
->  		if (signal_pending(current)) {
->  			err = -ERESTARTSYS;
-> -- 
-> 1.9.3
+2. Detect the existence of the MSR by trying to read it and handling
+the #GP(0) that will occur if the MSR is not present.  Linux, at
+least, is okay with doing this, and I have code to enable an IDT and
+an rdmsr fixup early enough in boot to use it for ASLR.  I don't know
+whether other operating systems can do this, though.
+
+The major questions, then, are what enumeration mechanism should be
+used and what MSR index should be used.
+
+For the MSR index, we could use an MSR from the Intel range if Intel
+were to give explicit approval, thus guaranteeing that nothing would
+conflict.  Or we could try to agree on an MSR index in the
+0x40000000-0x4fffffff range that is unlikely to conflict with
+anything.
+
+For enumeration, we could just probe the MSR if all relevant guests
+are okay with this or we could standardize on a CPUID-based mechanism.
+If we do the latter, I don't know what that mechanism would be.
+
+NB: This thread will be cc'd to Microsoft and possibly Hyper-V people
+shortly.  I very much appreciate Jun Nakajima's help with this!
+
+Thanks,
+Andy
+
+-- 
+Andy Lutomirski
+AMA Capital Management, LLC
