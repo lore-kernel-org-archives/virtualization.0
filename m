@@ -1,7 +1,8 @@
 From: Amos Kong <akong@redhat.com>
-Subject: [PATCH v2 5/6] hw_random: don't double-check old_rng.
-Date: Thu, 18 Sep 2014 20:37:46 +0800
-Message-ID: <1411043867-21109-6-git-send-email-akong@redhat.com>
+Subject: [PATCH v2 6/6] hw_random: don't init list element we're about to add
+	to list.
+Date: Thu, 18 Sep 2014 20:37:47 +0800
+Message-ID: <1411043867-21109-7-git-send-email-akong__38757.1241627031$1411043948$gmane$org@redhat.com>
 References: <1411043867-21109-1-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,33 +24,24 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Rusty Russell <rusty@rustcorp.com.au>
 
-Interesting anti-pattern.
+Another interesting anti-pattern.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/char/hw_random/core.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/char/hw_random/core.c | 1 -
+ 1 file changed, 1 deletion(-)
 
 diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
-index 9f6f5bb..6420409 100644
+index 6420409..12187dd 100644
 --- a/drivers/char/hw_random/core.c
 +++ b/drivers/char/hw_random/core.c
-@@ -473,14 +473,13 @@ int hwrng_register(struct hwrng *rng)
- 	}
- 
- 	old_rng = current_rng;
-+	err = 0;
- 	if (!old_rng) {
- 		err = hwrng_init(rng);
- 		if (err)
+@@ -486,7 +486,6 @@ int hwrng_register(struct hwrng *rng)
  			goto out_unlock;
- 		set_current_rng(rng);
--	}
--	err = 0;
--	if (!old_rng) {
-+
- 		err = register_miscdev();
- 		if (err) {
- 			drop_current_rng();
+ 		}
+ 	}
+-	INIT_LIST_HEAD(&rng->list);
+ 	list_add_tail(&rng->list, &rng_list);
+ 
+ 	if (old_rng && !rng->init) {
 -- 
 1.9.3
