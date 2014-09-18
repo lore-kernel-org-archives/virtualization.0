@@ -1,11 +1,14 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Standardizing an MSR or other hypercall to get an RNG seed?
-Date: Wed, 17 Sep 2014 19:50:42 -0700
-Message-ID: <CALCETrX66iDM+eG56hpMN4TcuXtzbEr5nB_f6JE-2XETSMWV5w@mail.gmail.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH 3/5] hw_random: fix unregister race.
+Date: Thu, 18 Sep 2014 12:18:24 +0930
+Message-ID: <1411008506-28349-3-git-send-email-rusty@rustcorp.com.au>
+References: <87wq91odhf.fsf@rustcorp.com.au>
+	<1411008506-28349-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1411008506-28349-1-git-send-email-rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,72 +18,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linux Virtualization <virtualization@lists.linux-foundation.org>, kvm list <kvm@vger.kernel.org>
-Cc: Gleb Natapov <gleb@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Theodore Ts'o <tytso@mit.edu>, "H. Peter Anvin" <hpa@zytor.com>
+To: Amos Kong <akong@redhat.com>, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, herbert@gondor.apana.org.au, m@bues.ch, mb@bu3sch.de, mpm@selenic.com, amit.shah@redhat.com, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi all-
+The previous patch added one potential problem: we can still be
+reading from a hwrng when it's unregistered.  Add a wait for zero
+in the hwrng_unregister path.
 
-I would like to standardize on a very simple protocol by which a guest
-OS can obtain an RNG seed early in boot.
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ drivers/char/hw_random/core.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-The main design requirements are:
-
- - The interface should be very easy to use.  Linux, at least, will
-want to use it extremely early in boot as part of kernel ASLR.  This
-means that PCI and ACPI will not work.
-
- - It should be synchronous.  We don't want to delay boot while
-waiting for a slow host RNG.  (On Linux, at least, we have a separate
-interface for that: virtio-rng.  I think that Windows has some support
-for virtio-rng as well.)
-
- - Random numbers obtained through this interface should be
-best-effort.  We want the best quality randomness that the host can
-provide immediately.
-
-It seems to me that the best interface for the actual request for a
-random number is rdmsr.  This is supported on all hypervisors and all
-virtualization technologies.  It can return a 64 bit random number,
-and it is easy to rdmsr the same register more than once to get a
-larger random number.
-
-The main questions are what MSR index to use and how to detect the
-presence of the MSR.  I've played with two approaches:
-
-1. Use CPUID to detect the presence of this feature.  This is very
-easy for KVM to implement by using a KVM-specific CPUID feature.  The
-problem is that this will necessarily be KVM-specific, as the guest
-must first probe for KVM and then probe for the KVM feature.  I doubt
-that Hyper-V, for example, wants to claim to be KVM.  If we could
-standardize a non-hypervisor-specific CPUID feature, then this problem
-would go away.
-
-2. Detect the existence of the MSR by trying to read it and handling
-the #GP(0) that will occur if the MSR is not present.  Linux, at
-least, is okay with doing this, and I have code to enable an IDT and
-an rdmsr fixup early enough in boot to use it for ASLR.  I don't know
-whether other operating systems can do this, though.
-
-The major questions, then, are what enumeration mechanism should be
-used and what MSR index should be used.
-
-For the MSR index, we could use an MSR from the Intel range if Intel
-were to give explicit approval, thus guaranteeing that nothing would
-conflict.  Or we could try to agree on an MSR index in the
-0x40000000-0x4fffffff range that is unlikely to conflict with
-anything.
-
-For enumeration, we could just probe the MSR if all relevant guests
-are okay with this or we could standardize on a CPUID-based mechanism.
-If we do the latter, I don't know what that mechanism would be.
-
-NB: This thread will be cc'd to Microsoft and possibly Hyper-V people
-shortly.  I very much appreciate Jun Nakajima's help with this!
-
-Thanks,
-Andy
-
+diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
+index dc9092a1075d..b4a21e9521cf 100644
+--- a/drivers/char/hw_random/core.c
++++ b/drivers/char/hw_random/core.c
+@@ -60,6 +60,7 @@ static DEFINE_MUTEX(rng_mutex);
+ static DEFINE_MUTEX(reading_mutex);
+ static int data_avail;
+ static u8 *rng_buffer, *rng_fillbuf;
++static DECLARE_WAIT_QUEUE_HEAD(rng_done);
+ static unsigned short current_quality;
+ static unsigned short default_quality; /* = 0; default to "off" */
+ 
+@@ -98,6 +99,7 @@ static inline void cleanup_rng(struct kref *kref)
+ 
+ 	if (rng->cleanup)
+ 		rng->cleanup(rng);
++	wake_up_all(&rng_done);
+ }
+ 
+ static void set_current_rng(struct hwrng *rng)
+@@ -529,6 +531,9 @@ void hwrng_unregister(struct hwrng *rng)
+ 	}
+ 
+ 	mutex_unlock(&rng_mutex);
++
++	/* Just in case rng is reading right now, wait. */
++	wait_event(rng_done, atomic_read(&rng->ref.refcount) == 0);
+ }
+ EXPORT_SYMBOL_GPL(hwrng_unregister);
+ 
 -- 
-Andy Lutomirski
-AMA Capital Management, LLC
+1.9.1
