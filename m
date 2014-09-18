@@ -1,7 +1,7 @@
 From: Amos Kong <akong@redhat.com>
-Subject: [PATCH v2 4/6] hw_random: fix unregister race.
-Date: Thu, 18 Sep 2014 20:37:45 +0800
-Message-ID: <1411043867-21109-5-git-send-email-akong@redhat.com>
+Subject: [PATCH v2 5/6] hw_random: don't double-check old_rng.
+Date: Thu, 18 Sep 2014 20:37:46 +0800
+Message-ID: <1411043867-21109-6-git-send-email-akong@redhat.com>
 References: <1411043867-21109-1-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,34 +23,33 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Rusty Russell <rusty@rustcorp.com.au>
 
-The previous patch added one potential problem: we can still be
-reading from a hwrng when it's unregistered.  Add a wait for zero
-in the hwrng_unregister path.
+Interesting anti-pattern.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/char/hw_random/core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/char/hw_random/core.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
-index ee9e504..9f6f5bb 100644
+index 9f6f5bb..6420409 100644
 --- a/drivers/char/hw_random/core.c
 +++ b/drivers/char/hw_random/core.c
-@@ -60,6 +60,7 @@ static DEFINE_MUTEX(rng_mutex);
- static DEFINE_MUTEX(reading_mutex);
- static int data_avail;
- static u8 *rng_buffer, *rng_fillbuf;
-+static DECLARE_WAIT_QUEUE_HEAD(rng_done);
- static unsigned short current_quality;
- static unsigned short default_quality; /* = 0; default to "off" */
+@@ -473,14 +473,13 @@ int hwrng_register(struct hwrng *rng)
+ 	}
  
-@@ -98,6 +99,7 @@ static inline void cleanup_rng(struct kref *kref)
- 
- 	if (rng->cleanup)
- 		rng->cleanup(rng);
-+	wake_up_all(&rng_done);
- }
- 
- static void set_current_rng(struct hwrng *rng)
+ 	old_rng = current_rng;
++	err = 0;
+ 	if (!old_rng) {
+ 		err = hwrng_init(rng);
+ 		if (err)
+ 			goto out_unlock;
+ 		set_current_rng(rng);
+-	}
+-	err = 0;
+-	if (!old_rng) {
++
+ 		err = register_miscdev();
+ 		if (err) {
+ 			drop_current_rng();
 -- 
 1.9.3
