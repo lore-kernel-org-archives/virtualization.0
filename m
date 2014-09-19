@@ -1,17 +1,23 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
+From: Theodore Ts'o <tytso@mit.edu>
 Subject: Re: Standardizing an MSR or other hypercall to get an RNG seed?
-Date: Fri, 19 Sep 2014 14:46:40 -0700
-Message-ID: <541CA440.8080909@zytor.com>
-References: <CALCETrX66iDM+eG56hpMN4TcuXtzbEr5nB_f6JE-2XETSMWV5w@mail.gmail.com>
-	<541C765B.5050705@codeaurora.org>
-	<CALCETrU_r90=ve4v6xKfZHR_2O5+f05URqD5fzkbSpcuV4tb8A@mail.gmail.com>
-	<15C8041A-3488-4693-B329-3A9FE77A0CB9@gmail.com>
-	<CALCETrXq2FJ4c6MeEHCVeY7muV6C1NpuKpmtr+PcnHV2DpF3Zg@mail.gmail.com>
+Date: Fri, 19 Sep 2014 18:05:37 -0400
+Message-ID: <20140919220537.GR26995@thunk.org>
+References: <1969371640.51211843.1411066715223.JavaMail.zimbra@redhat.com>
+	<CALCETrUGS_V2h_beStbVyoTC8vuKiudmJwt55Q2BJg=S2KCNKw@mail.gmail.com>
+	<0180a8dfcad746a895755c4374853c16@BY2PR03MB585.namprd03.prod.outlook.com>
+	<541B5553.7020203@zytor.com>
+	<CALCETrUq71jpO1de4pwbVo+hnE-D2FkuqBDFbdyLiDQzNdENEQ@mail.gmail.com>
+	<CAL54oT1Q8kABge=t4s5REVWWakboON-6vfszMRkVz=ks_3vRoA@mail.gmail.com>
+	<CALCETrUXz1B=x6rjkQri_qU5Tv-XM5du=rUr-=E-EfNSvOnThg@mail.gmail.com>
+	<CALCETrWZ1cF23aT82yGfTKS48d2G+_Od7hEkAzDWzDhqpHNVqA@mail.gmail.com>
+	<CAL54oT0sibBiLSHf+eajdRgxqs1jgSzdTTCWBUH9M25ZL10EzA@mail.gmail.com>
+	<541C5C8A.6030304@zytor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CALCETrXq2FJ4c6MeEHCVeY7muV6C1NpuKpmtr+PcnHV2DpF3Zg@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <541C5C8A.6030304@zytor.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,22 +27,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@amacapital.net>, Nadav Amit <nadav.amit@gmail.com>
-Cc: Theodore Ts'o <tytso@mit.edu>, kvm list <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Paolo Bonzini <pbonzini@redhat.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Mathew John <mathewj@microsoft.com>, kvm list <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Niels Ferguson <niels@microsoft.com>, Andy Lutomirski <luto@amacapital.net>, David Hepkin <davidhep@microsoft.com>, Jake Oshins <jakeo@microsoft.com>, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, John Starks <John.Starks@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMDkvMTkvMjAxNCAwMTo0NiBQTSwgQW5keSBMdXRvbWlyc2tpIHdyb3RlOgo+Pgo+PiBIb3dl
-dmVyLCBpdCBzb3VuZHMgdG8gbWUgdGhhdCBhdCBsZWFzdCBmb3IgS1ZNLCBpdCBpcyB2ZXJ5IGVh
-c3kganVzdCB0byBlbXVsYXRlIHRoZSBSRFJBTkQgaW5zdHJ1Y3Rpb24uIFRoZSBoeXBlcnZpc29y
-IHdvdWxkIHJlcG9ydCB0byB0aGUgZ3Vlc3QgdGhhdCBSRFJBTkQgaXMgc3VwcG9ydGVkIGluIENQ
-VUlEIGFuZCB0aGUgZW11bGF0ZSB0aGUgaW5zdHJ1Y3Rpb24gd2hlbiBndWVzdCBleGVjdXRlcyBp
-dC4gS1ZNIGFscmVhZHkgdHJhcHMgZ3Vlc3QgI1VEICh3aGljaCB3b3VsZCBvY2N1ciBpZiBSRFJB
-TkQgZXhlY3V0ZWQgd2hpbGUgaXQgaXMgbm90IHN1cHBvcnRlZCkgLSBzbyB0aGlzIHNjaGVtZSB3
-b3VsZG7igJl0IGludHJvZHVjZSBhZGRpdGlvbmFsIG92ZXJoZWFkIG92ZXIgUkRNU1IuCj4gCj4g
-QmVjYXVzZSB0aGVuIGd1ZXN0IHVzZXIgY29kZSB3aWxsIHRoaW5rIHRoYXQgcmRyYW5kIGlzIHRo
-ZXJlIGFuZCB3aWxsCj4gdHJ5IHRvIHVzZSBpdCwgcmVzdWx0aW5nIGluIGFieXNtYWwgcGVyZm9y
-bWFuY2UuCj4gCgpZZXMsIHRoZSBwcmVzZW5jZSBvZiBSRFJBTkQgaW1wbGllcyBhIGNoZWFwIGFu
-ZCBpbmV4aGF1c3RpYmxlIGVudHJvcHkKc291cmNlLgoKCS1ocGEKCgpfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
-c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
-cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Fri, Sep 19, 2014 at 09:40:42AM -0700, H. Peter Anvin wrote:
+> 
+> There is a huge disadvantage to the fact that CPUID is a user space
+> instruction, though.
+
+But if the goal is to provide something like getrandom(2) direct from
+the Host OS, it's not necessarily harmful to allow the Guest ring 3
+code to be able to fetch randomness in that way.  The hypervisor can
+implement rate limiting to protect against the guest using this too
+frequently, but this is something that you should be doing for guest
+ring 0 code anyway, since from the POV of the hypervisor Guest ring 0
+is not necessarily any more trusted than Guest ring 3.
+
+       		       	    	    	       - Ted
