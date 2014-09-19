@@ -1,20 +1,14 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: Standardizing an MSR or other hypercall to get an RNG seed?
-Date: Fri, 19 Sep 2014 11:20:49 -0700
-Message-ID: <CALCETrX=HFB01rg_iCNNfEd8mEoj20hK2K-bU6FbgOkWF7fO-A@mail.gmail.com>
-References: <0180a8dfcad746a895755c4374853c16@BY2PR03MB585.namprd03.prod.outlook.com>
-	<CALCETrUgcJt7p_aS0njtHmvPQ=XxNdonFHtPzFgVNpAE4U=R3Q@mail.gmail.com>
-	<20140919163749.GI26540@minantech.com> <541C5C67.6040608@zytor.com>
-	<20140919165349.GJ26540@minantech.com> <541C6304.3080903@zytor.com>
-	<20140919171545.GK26540@minantech.com> <541C656D.5040808@zytor.com>
-	<20140919174942.GL26540@minantech.com>
-	<CALCETrXGd0Qu4ES7T4Hx_ozsT5zUAvk0WtZ4DXq=CY7YS9vzbQ@mail.gmail.com>
-	<20140919181248.GN26540@minantech.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [PATCH v5 0/3] virtio: Use the DMA API when appropriate
+Date: Fri, 19 Sep 2014 14:25:47 -0400
+Message-ID: <20140919182547.GA11449@laptop.dumpdata.com>
+References: <cover.1410931077.git.luto@amacapital.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140919181248.GN26540@minantech.com>
+Content-Disposition: inline
+In-Reply-To: <cover.1410931077.git.luto@amacapital.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,108 +18,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gleb Natapov <gleb@kernel.org>
-Cc: Mathew John <mathewj@microsoft.com>, Theodore Ts'o <tytso@mit.edu>, David Hepkin <davidhep@microsoft.com>, kvm list <kvm@vger.kernel.org>, Niels Ferguson <niels@microsoft.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Jake Oshins <jakeo@microsoft.com>, Paolo Bonzini <pbonzini@redhat.com>, Alok N Kataria <akataria@vmware.com>, John Starks <John.Starks@microsoft.com>
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-[cc: Alok Kataria at VMware]
+On Tue, Sep 16, 2014 at 10:22:25PM -0700, Andy Lutomirski wrote:
+> This fixes virtio on Xen guests as well as on any other platform
+> that uses virtio_pci on which physical addresses don't match bus
+> addresses.
 
-On Fri, Sep 19, 2014 at 11:12 AM, Gleb Natapov <gleb@kernel.org> wrote:
-> On Fri, Sep 19, 2014 at 11:02:38AM -0700, Andy Lutomirski wrote:
->> On Fri, Sep 19, 2014 at 10:49 AM, Gleb Natapov <gleb@kernel.org> wrote:
->> > On Fri, Sep 19, 2014 at 10:18:37AM -0700, H. Peter Anvin wrote:
->> >> On 09/19/2014 10:15 AM, Gleb Natapov wrote:
->> >> > On Fri, Sep 19, 2014 at 10:08:20AM -0700, H. Peter Anvin wrote:
->> >> >> On 09/19/2014 09:53 AM, Gleb Natapov wrote:
->> >> >>> On Fri, Sep 19, 2014 at 09:40:07AM -0700, H. Peter Anvin wrote:
->> >> >>>> On 09/19/2014 09:37 AM, Gleb Natapov wrote:
->> >> >>>>>
->> >> >>>>> Linux detects what hypervior it runs on very early
->> >> >>>>
->> >> >>>> Not anywhere close to early enough.  We're talking for uses like kASLR.
->> >> >>>>
->> >> >>> Still to early to do:
->> >> >>>
->> >> >>>    h = cpuid(HYPERVIOR_SIGNATURE)
->> >> >>>    if (h == KVMKVMKVM) {
->> >> >>>       if (cpuid(kvm_features) & kvm_rnd)
->> >> >>>          rdmsr(kvm_rnd)
->> >> >>>    else (h == HyperV) {
->> >> >>>       if (cpuid(hv_features) & hv_rnd)
->> >> >>>         rdmsr(hv_rnd)
->> >> >>>    else (h == XenXenXen) {
->> >> >>>       if (cpuid(xen_features) & xen_rnd)
->> >> >>>         rdmsr(xen_rnd)
->> >> >>>   }
->> >> >>>
->> >> >>
->> >> >> If we need to do chase loops, especially not so...
->> >> >>
->> >> > What loops exactly? As a non native English speaker I fail to understand
->> >> > if your answer is "yes" or "no" ;)
->> >> >
->> >>
->> >> The above isn't actually the full algorithm used.
->> >>
->> > What part of actually algorithm cannot be implemented? Loop that searches
->> > for KVM leaf in case KVM pretend to be HyperV (is this what you called
->> > "chase loops"?)? First of all there is no need to implement it, if KVM
->> > pretends to be HyperV use HyperV's way to obtain RNG, but what is the
->> > problem with the loop?
->> >
->>
->> It can be implemented, and I've done it.  But it's a mess.  Almost the
->> very first thing we do in boot (even before decompressing the kernel)
->> will be to scan a bunch of cpuid leaves looking for a hypervisor with
->> an rng source that we can use for kASLR.  And we'll have to update
->> that code and make it bigger every time another hypervisor adds
->> exactly the same feature.
-> IMO implementing this feature is in hypervisor's best interest, so the task
-> of updating the code will scale by virtue of hypervisor's developers each
-> adding it for hypervisor he cares about.
-
-I assume that you mean guest, not hypervisor.
-
->
->>
->> And then we have another copy of almost exactly the same code in the
->> normal post-boot part of the kernel.
->>
->> We can certainly do this, but I'd much rather solve the problem once
->> and let all of the hypervisors and guests opt in and immediately be
->> compatible with each other.
->>
->> > I "forgot" VMware because I do not see VMware people to be CCed. They may
->> > be even less excited about them being told _how_ this feature need to be
->> > implemented (e.g implement HyperV leafs for the feature detection). I
->> > do not want to and cannot speak for VMware, but my guess is that for
->> > them it would be much easier to add an else clause for VMware in above
->> > "if" then to coordinate with all hypervisor developers about MSR/cpuid
->> > details. And since this is security feature implementing it for Linux
->> > is in their best interest.
->>
->> Do you know any of them who should be cc'd?
->>
-> No, not anyone in particular. git log arch/x86/kernel/cpu/vmware.c may help.
->
-> But VMware is an elephant in the room here. There are other hypervisors out there.
-> VirtualBox, bhyve...
-
-Exactly.  The amount of effort to get everything to be compatible with
-everything scales quadratically in the number of hypervisors, and the
-probability that some combination is broken also increases.
-
-If we can get everyone to back something common here then this problem
-goes away.
-
---Andy
-
->
-> --
->                         Gleb.
+I can do 'Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>'
+but not sure through whom this patch should go through?
 
 
-
--- 
-Andy Lutomirski
-AMA Capital Management, LLC
+> 
+> This can be tested with:
+> 
+>     virtme-run --xen xen --kimg arch/x86/boot/bzImage --console
+> 
+> using virtme from here:
+> 
+>     https://git.kernel.org/cgit/utils/kernel/virtme/virtme.git
+> 
+> Without these patches, the guest hangs forever.  With these patches,
+> everything works.
+> 
+> This should be safe on all platforms that I'm aware of.  That
+> doesn't mean that there isn't anything that I missed.
+> 
+> Applies to net-next.
+> 
+> Changes from v4:
+>  - Rebased onto net-next.
+>  - Dropped the sg end mark changes from virtio_net, as that issue
+>    is solved differently in net-next.
+>  - virtio_pci does not use the DMA API on powerpc, for reasons that
+>    are explained in a detailed comment in virtio_ring.
+> 
+> Changes from v3:
+>  - virtio_pci only asks virtio_ring to use the DMA API if
+>    !PCI_DMA_BUS_IS_PHYS.
+>  - Reduce tools/virtio breakage.  It's now merely as broken as before
+>    instead of being even more broken.
+>  - Drop the sg_next changes -- Rusty's version is better.
+> 
+> Changes from v2:
+>  - Reordered patches.
+>  - Fixed a virtio_net OOPS.
+> 
+> Changes from v1:
+>  - Using the DMA API is optional now.  It would be nice to improve the
+>    DMA API to the point that it could be used unconditionally, but s390
+>    proves that we're not there yet.
+>  - Includes patch 4, which fixes DMA debugging warnings from virtio_net.
+> 
+> Andy Lutomirski (3):
+>   virtio_ring: Support DMA APIs if requested
+>   virtio_pci: Use the DMA API for virtqueues when possible
+>   virtio_net: Stop doing DMA from the stack
+> 
+>  drivers/lguest/lguest_device.c         |   3 +-
+>  drivers/misc/mic/card/mic_virtio.c     |   2 +-
+>  drivers/net/virtio_net.c               |  53 ++++++---
+>  drivers/remoteproc/remoteproc_virtio.c |   4 +-
+>  drivers/s390/kvm/kvm_virtio.c          |   2 +-
+>  drivers/s390/kvm/virtio_ccw.c          |   4 +-
+>  drivers/virtio/virtio_mmio.c           |   5 +-
+>  drivers/virtio/virtio_pci.c            |  91 ++++++++++++++--
+>  drivers/virtio/virtio_ring.c           | 194 +++++++++++++++++++++++++++------
+>  include/linux/virtio_ring.h            |   1 +
+>  tools/virtio/linux/dma-mapping.h       |  17 +++
+>  tools/virtio/linux/virtio.h            |   1 +
+>  tools/virtio/virtio_test.c             |   2 +-
+>  tools/virtio/vringh_test.c             |   3 +-
+>  14 files changed, 314 insertions(+), 68 deletions(-)
+>  create mode 100644 tools/virtio/linux/dma-mapping.h
+> 
+> -- 
+> 1.9.3
+> 
