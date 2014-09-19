@@ -1,16 +1,20 @@
-From: Andy Lutomirski <luto@amacapital.net>
+From: Gleb Natapov <gleb@kernel.org>
 Subject: Re: Standardizing an MSR or other hypercall to get an RNG seed?
-Date: Fri, 19 Sep 2014 13:46:33 -0700
-Message-ID: <CALCETrXq2FJ4c6MeEHCVeY7muV6C1NpuKpmtr+PcnHV2DpF3Zg@mail.gmail.com>
-References: <CALCETrX66iDM+eG56hpMN4TcuXtzbEr5nB_f6JE-2XETSMWV5w@mail.gmail.com>
-	<541C765B.5050705@codeaurora.org>
-	<CALCETrU_r90=ve4v6xKfZHR_2O5+f05URqD5fzkbSpcuV4tb8A@mail.gmail.com>
-	<15C8041A-3488-4693-B329-3A9FE77A0CB9@gmail.com>
+Date: Fri, 19 Sep 2014 23:53:42 +0300
+Message-ID: <20140919205342.GO26540@minantech.com>
+References: <20140919163749.GI26540@minantech.com> <541C5C67.6040608@zytor.com>
+	<20140919165349.GJ26540@minantech.com> <541C6304.3080903@zytor.com>
+	<20140919171545.GK26540@minantech.com> <541C656D.5040808@zytor.com>
+	<20140919174942.GL26540@minantech.com>
+	<CALCETrXGd0Qu4ES7T4Hx_ozsT5zUAvk0WtZ4DXq=CY7YS9vzbQ@mail.gmail.com>
+	<20140919181248.GN26540@minantech.com>
+	<CALCETrX=HFB01rg_iCNNfEd8mEoj20hK2K-bU6FbgOkWF7fO-A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <15C8041A-3488-4693-B329-3A9FE77A0CB9@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <CALCETrX=HFB01rg_iCNNfEd8mEoj20hK2K-bU6FbgOkWF7fO-A@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,44 +24,106 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nadav Amit <nadav.amit@gmail.com>
-Cc: Theodore Ts'o <tytso@mit.edu>, kvm list <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: Mathew John <mathewj@microsoft.com>, Theodore Ts'o <tytso@mit.edu>, David Hepkin <davidhep@microsoft.com>, kvm list <kvm@vger.kernel.org>, Niels Ferguson <niels@microsoft.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Jake Oshins <jakeo@microsoft.com>, Paolo Bonzini <pbonzini@redhat.com>, Alok N Kataria <akataria@vmware.com>, John Starks <John.Starks@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCBTZXAgMTksIDIwMTQgYXQgMToyMSBQTSwgTmFkYXYgQW1pdCA8bmFkYXYuYW1pdEBn
-bWFpbC5jb20+IHdyb3RlOgo+Cj4gT24gU2VwIDE5LCAyMDE0LCBhdCA5OjQyIFBNLCBBbmR5IEx1
-dG9taXJza2kgPGx1dG9AYW1hY2FwaXRhbC5uZXQ+IHdyb3RlOgo+Cj4+IE9uIEZyaSwgU2VwIDE5
-LCAyMDE0IGF0IDExOjMwIEFNLCBDaHJpc3RvcGhlciBDb3Zpbmd0b24KPj4gPGNvdkBjb2RlYXVy
-b3JhLm9yZz4gd3JvdGU6Cj4+PiBPbiAwOS8xNy8yMDE0IDEwOjUwIFBNLCBBbmR5IEx1dG9taXJz
-a2kgd3JvdGU6Cj4+Pj4gSGkgYWxsLQo+Pj4+Cj4+Pj4gSSB3b3VsZCBsaWtlIHRvIHN0YW5kYXJk
-aXplIG9uIGEgdmVyeSBzaW1wbGUgcHJvdG9jb2wgYnkgd2hpY2ggYSBndWVzdAo+Pj4+IE9TIGNh
-biBvYnRhaW4gYW4gUk5HIHNlZWQgZWFybHkgaW4gYm9vdC4KPj4+Pgo+Pj4+IFRoZSBtYWluIGRl
-c2lnbiByZXF1aXJlbWVudHMgYXJlOgo+Pj4+Cj4+Pj4gLSBUaGUgaW50ZXJmYWNlIHNob3VsZCBi
-ZSB2ZXJ5IGVhc3kgdG8gdXNlLiAgTGludXgsIGF0IGxlYXN0LCB3aWxsCj4+Pj4gd2FudCB0byB1
-c2UgaXQgZXh0cmVtZWx5IGVhcmx5IGluIGJvb3QgYXMgcGFydCBvZiBrZXJuZWwgQVNMUi4gIFRo
-aXMKPj4+PiBtZWFucyB0aGF0IFBDSSBhbmQgQUNQSSB3aWxsIG5vdCB3b3JrLgo+Pj4KPj4+IEhv
-dyBkbyBub24tdmlydHVhbCBzeXN0ZW1zIGdldCBlbnRyb3B5IHRoaXMgZWFybHk/IFJEUkFORC9Q
-YWRsb2NrPyBUcnVlcmFuZD8KPj4+IENvdWxkIGh5cGVydmlzb3JzIGFuZCBzaW11bGF0b3JzIHNp
-bXBseSBtYWtlIHN1cmUgdGhlc2Ugd29yaz8KPj4+Cj4+Cj4+IElmIFJEUkFORCBpcyBhdmFpbGFi
-bGUsIHRoZW4gTGludXgsIGF0IGxlYXN0LCB3aWxsIHVzZSBpdC4gIFRoZSByZXN0Cj4+IGFyZSB0
-b28gY29tcGxpY2F0ZWQgZm9yIGVhcmx5IHVzZS4gIExpbnV4IG9uIHg4NiBwbGF5cyBzb21lIHZh
-Z3VlbHkKPj4gY2xldmVyIGdhbWVzIHdpdGggcmR0c2MgYW5kIHBva2luZyBhdCB0aGUgaTgyNTQg
-cG9ydC4KPj4KPj4gSSB0aGluayB0aGF0IHRoZXNlIHRyaWNrcyBhcmUgZXZlbiBsZXNzIHVzZWZ1
-bCBhcyBhIGd1ZXN0IHRoYW4gdGhleQo+PiBhcmUgb24gbWV0YWwsIGFuZCB3ZSBjYW4gdXNlIHBh
-cmF2aXJ0IG1lY2hhbmlzbXMgdG8gbWFrZSBndWVzdCBlYXJseQo+PiBib290IHJuZ3MgbXVjaCBz
-dHJvbmdlci4KPgo+IFNvcnJ5IGZvciBpbnRlcnJ1cHRpbmcsIGFzIEkgdW5kZXJzdGFuZCB0aGUg
-ZGlzY3Vzc2lvbiB0cmllcyB0byBiZSBnZW5lcmljLgo+Cj4gSG93ZXZlciwgaXQgc291bmRzIHRv
-IG1lIHRoYXQgYXQgbGVhc3QgZm9yIEtWTSwgaXQgaXMgdmVyeSBlYXN5IGp1c3QgdG8gZW11bGF0
-ZSB0aGUgUkRSQU5EIGluc3RydWN0aW9uLiBUaGUgaHlwZXJ2aXNvciB3b3VsZCByZXBvcnQgdG8g
-dGhlIGd1ZXN0IHRoYXQgUkRSQU5EIGlzIHN1cHBvcnRlZCBpbiBDUFVJRCBhbmQgdGhlIGVtdWxh
-dGUgdGhlIGluc3RydWN0aW9uIHdoZW4gZ3Vlc3QgZXhlY3V0ZXMgaXQuIEtWTSBhbHJlYWR5IHRy
-YXBzIGd1ZXN0ICNVRCAod2hpY2ggd291bGQgb2NjdXIgaWYgUkRSQU5EIGV4ZWN1dGVkIHdoaWxl
-IGl0IGlzIG5vdCBzdXBwb3J0ZWQpIC0gc28gdGhpcyBzY2hlbWUgd291bGRu4oCZdCBpbnRyb2R1
-Y2UgYWRkaXRpb25hbCBvdmVyaGVhZCBvdmVyIFJETVNSLgoKQmVjYXVzZSB0aGVuIGd1ZXN0IHVz
-ZXIgY29kZSB3aWxsIHRoaW5rIHRoYXQgcmRyYW5kIGlzIHRoZXJlIGFuZCB3aWxsCnRyeSB0byB1
-c2UgaXQsIHJlc3VsdGluZyBpbiBhYnlzbWFsIHBlcmZvcm1hbmNlLgoKLS1BbmR5Cgo+Cj4gTmFk
-YXYKCgoKLS0gCkFuZHkgTHV0b21pcnNraQpBTUEgQ2FwaXRhbCBNYW5hZ2VtZW50LCBMTEMKX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
-b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
-Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
-YWxpemF0aW9u
+On Fri, Sep 19, 2014 at 11:20:49AM -0700, Andy Lutomirski wrote:
+> [cc: Alok Kataria at VMware]
+> 
+> On Fri, Sep 19, 2014 at 11:12 AM, Gleb Natapov <gleb@kernel.org> wrote:
+> > On Fri, Sep 19, 2014 at 11:02:38AM -0700, Andy Lutomirski wrote:
+> >> On Fri, Sep 19, 2014 at 10:49 AM, Gleb Natapov <gleb@kernel.org> wrote:
+> >> > On Fri, Sep 19, 2014 at 10:18:37AM -0700, H. Peter Anvin wrote:
+> >> >> On 09/19/2014 10:15 AM, Gleb Natapov wrote:
+> >> >> > On Fri, Sep 19, 2014 at 10:08:20AM -0700, H. Peter Anvin wrote:
+> >> >> >> On 09/19/2014 09:53 AM, Gleb Natapov wrote:
+> >> >> >>> On Fri, Sep 19, 2014 at 09:40:07AM -0700, H. Peter Anvin wrote:
+> >> >> >>>> On 09/19/2014 09:37 AM, Gleb Natapov wrote:
+> >> >> >>>>>
+> >> >> >>>>> Linux detects what hypervior it runs on very early
+> >> >> >>>>
+> >> >> >>>> Not anywhere close to early enough.  We're talking for uses like kASLR.
+> >> >> >>>>
+> >> >> >>> Still to early to do:
+> >> >> >>>
+> >> >> >>>    h = cpuid(HYPERVIOR_SIGNATURE)
+> >> >> >>>    if (h == KVMKVMKVM) {
+> >> >> >>>       if (cpuid(kvm_features) & kvm_rnd)
+> >> >> >>>          rdmsr(kvm_rnd)
+> >> >> >>>    else (h == HyperV) {
+> >> >> >>>       if (cpuid(hv_features) & hv_rnd)
+> >> >> >>>         rdmsr(hv_rnd)
+> >> >> >>>    else (h == XenXenXen) {
+> >> >> >>>       if (cpuid(xen_features) & xen_rnd)
+> >> >> >>>         rdmsr(xen_rnd)
+> >> >> >>>   }
+> >> >> >>>
+> >> >> >>
+> >> >> >> If we need to do chase loops, especially not so...
+> >> >> >>
+> >> >> > What loops exactly? As a non native English speaker I fail to understand
+> >> >> > if your answer is "yes" or "no" ;)
+> >> >> >
+> >> >>
+> >> >> The above isn't actually the full algorithm used.
+> >> >>
+> >> > What part of actually algorithm cannot be implemented? Loop that searches
+> >> > for KVM leaf in case KVM pretend to be HyperV (is this what you called
+> >> > "chase loops"?)? First of all there is no need to implement it, if KVM
+> >> > pretends to be HyperV use HyperV's way to obtain RNG, but what is the
+> >> > problem with the loop?
+> >> >
+> >>
+> >> It can be implemented, and I've done it.  But it's a mess.  Almost the
+> >> very first thing we do in boot (even before decompressing the kernel)
+> >> will be to scan a bunch of cpuid leaves looking for a hypervisor with
+> >> an rng source that we can use for kASLR.  And we'll have to update
+> >> that code and make it bigger every time another hypervisor adds
+> >> exactly the same feature.
+> > IMO implementing this feature is in hypervisor's best interest, so the task
+> > of updating the code will scale by virtue of hypervisor's developers each
+> > adding it for hypervisor he cares about.
+> 
+> I assume that you mean guest, not hypervisor.
+> 
+Yes, I mean guest support for hypervisor he cares about.
+
+> >
+> >>
+> >> And then we have another copy of almost exactly the same code in the
+> >> normal post-boot part of the kernel.
+> >>
+> >> We can certainly do this, but I'd much rather solve the problem once
+> >> and let all of the hypervisors and guests opt in and immediately be
+> >> compatible with each other.
+> >>
+> >> > I "forgot" VMware because I do not see VMware people to be CCed. They may
+> >> > be even less excited about them being told _how_ this feature need to be
+> >> > implemented (e.g implement HyperV leafs for the feature detection). I
+> >> > do not want to and cannot speak for VMware, but my guess is that for
+> >> > them it would be much easier to add an else clause for VMware in above
+> >> > "if" then to coordinate with all hypervisor developers about MSR/cpuid
+> >> > details. And since this is security feature implementing it for Linux
+> >> > is in their best interest.
+> >>
+> >> Do you know any of them who should be cc'd?
+> >>
+> > No, not anyone in particular. git log arch/x86/kernel/cpu/vmware.c may help.
+> >
+> > But VMware is an elephant in the room here. There are other hypervisors out there.
+> > VirtualBox, bhyve...
+> 
+> Exactly.  The amount of effort to get everything to be compatible with
+> everything scales quadratically in the number of hypervisors, and the
+> probability that some combination is broken also increases.
+> 
+The effort is distributed equally among hypervisor developers. If they
+want Linux to be more secure on their hypervisor they contribute guest
+code. They do need to write hypervisor part anyway. On cpus with RDRAND
+instruction this MSR is not even needed and some hypervisors may decide
+that support for old cpus does not worth the effort. Unified interface
+does not help if hypervisor does not implement it.
+
+--
+			Gleb.
