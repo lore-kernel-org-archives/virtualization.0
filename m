@@ -1,17 +1,17 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH v5 2/3] virtio_pci: Use the DMA API for virtqueues when
-	possible
-Date: Sat, 20 Sep 2014 07:33:26 +1000
-Message-ID: <1411162406.30672.64.camel@pasglop>
-References: <cover.1410931077.git.luto@amacapital.net>
-	<6c31406005160303a7ee291a933c267f8e55fa85.1410931077.git.luto@amacapital.net>
-	<1410955351.30672.27.camel@pasglop> <20140917141639.GA13684@redhat.com>
-	<CALCETrULv=zj_+rA2sRgf0Pxw3P6RDBzmM5C40=OHWwpYtEuJQ@mail.gmail.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Standardizing an MSR or other hypercall to get an RNG seed?
+Date: Fri, 19 Sep 2014 14:46:40 -0700
+Message-ID: <541CA440.8080909@zytor.com>
+References: <CALCETrX66iDM+eG56hpMN4TcuXtzbEr5nB_f6JE-2XETSMWV5w@mail.gmail.com>
+	<541C765B.5050705@codeaurora.org>
+	<CALCETrU_r90=ve4v6xKfZHR_2O5+f05URqD5fzkbSpcuV4tb8A@mail.gmail.com>
+	<15C8041A-3488-4693-B329-3A9FE77A0CB9@gmail.com>
+	<CALCETrXq2FJ4c6MeEHCVeY7muV6C1NpuKpmtr+PcnHV2DpF3Zg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CALCETrULv=zj_+rA2sRgf0Pxw3P6RDBzmM5C40=OHWwpYtEuJQ@mail.gmail.com>
+In-Reply-To: <CALCETrXq2FJ4c6MeEHCVeY7muV6C1NpuKpmtr+PcnHV2DpF3Zg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,37 +21,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, David Woodhouse <dwmw2@infradead.org>
+To: Andy Lutomirski <luto@amacapital.net>, Nadav Amit <nadav.amit@gmail.com>
+Cc: Theodore Ts'o <tytso@mit.edu>, kvm list <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2014-09-17 at 09:07 -0700, Andy Lutomirski wrote:
-> It shouldn't.  That being said, at some point this problem will need
-> solving on PPC, and this patch doesn't help much, other than adding
-> the virtio_ring piece.
-> 
-> I'd really like to see the generic or arch IOMMU code handle this so
-> that the PPC special case in the virtio-pci driver can go away.
-> 
-> Another reason that this kind of special casing doesn't belong in
-> virtio-pci: if anyone ever binds vfio to a virtio-pci device, if the
-> DMA API doesn't work right, then the kernel will go boom or be
-> compromised.
-
-Well, that's also for these reasons that I think your patch shouldn't go
-through those virtio_* variants that test that "use_dma_api" flag or
-whatever you called it last time I looked :-)
-
-You should just unconditionally call the DMA API and we should fixup the
-special cases by overriding the hooks.
-
-I can help you do the override hack for PPC for now, until we can do
-something saner accross all architectures.
-
-The main problem is s390 but I had a quick chat with Utz Bacher earlier
-this week and he seemed to think having s390 use the DMA API shouldn't
-be a big deal, they can also hookup some transparent set of ops if
-necessary.
-
-Cheers,
-Ben.
+T24gMDkvMTkvMjAxNCAwMTo0NiBQTSwgQW5keSBMdXRvbWlyc2tpIHdyb3RlOgo+Pgo+PiBIb3dl
+dmVyLCBpdCBzb3VuZHMgdG8gbWUgdGhhdCBhdCBsZWFzdCBmb3IgS1ZNLCBpdCBpcyB2ZXJ5IGVh
+c3kganVzdCB0byBlbXVsYXRlIHRoZSBSRFJBTkQgaW5zdHJ1Y3Rpb24uIFRoZSBoeXBlcnZpc29y
+IHdvdWxkIHJlcG9ydCB0byB0aGUgZ3Vlc3QgdGhhdCBSRFJBTkQgaXMgc3VwcG9ydGVkIGluIENQ
+VUlEIGFuZCB0aGUgZW11bGF0ZSB0aGUgaW5zdHJ1Y3Rpb24gd2hlbiBndWVzdCBleGVjdXRlcyBp
+dC4gS1ZNIGFscmVhZHkgdHJhcHMgZ3Vlc3QgI1VEICh3aGljaCB3b3VsZCBvY2N1ciBpZiBSRFJB
+TkQgZXhlY3V0ZWQgd2hpbGUgaXQgaXMgbm90IHN1cHBvcnRlZCkgLSBzbyB0aGlzIHNjaGVtZSB3
+b3VsZG7igJl0IGludHJvZHVjZSBhZGRpdGlvbmFsIG92ZXJoZWFkIG92ZXIgUkRNU1IuCj4gCj4g
+QmVjYXVzZSB0aGVuIGd1ZXN0IHVzZXIgY29kZSB3aWxsIHRoaW5rIHRoYXQgcmRyYW5kIGlzIHRo
+ZXJlIGFuZCB3aWxsCj4gdHJ5IHRvIHVzZSBpdCwgcmVzdWx0aW5nIGluIGFieXNtYWwgcGVyZm9y
+bWFuY2UuCj4gCgpZZXMsIHRoZSBwcmVzZW5jZSBvZiBSRFJBTkQgaW1wbGllcyBhIGNoZWFwIGFu
+ZCBpbmV4aGF1c3RpYmxlIGVudHJvcHkKc291cmNlLgoKCS1ocGEKCgpfX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
+c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
+cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
