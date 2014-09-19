@@ -1,8 +1,10 @@
-From: Andy Lutomirski <luto@amacapital.net>
+From: Paolo Bonzini <pbonzini@redhat.com>
 Subject: Re: Standardizing an MSR or other hypercall to get an RNG seed?
-Date: Thu, 18 Sep 2014 18:28:08 -0700
-Message-ID: <CALCETrWZ1cF23aT82yGfTKS48d2G+_Od7hEkAzDWzDhqpHNVqA__39826.8228550025$1411090125$gmane$org@mail.gmail.com>
+Date: Fri, 19 Sep 2014 08:04:44 +0200
+Message-ID: <541BC77C.6060607@redhat.com>
 References: <CALCETrX66iDM+eG56hpMN4TcuXtzbEr5nB_f6JE-2XETSMWV5w@mail.gmail.com>
+	<2aa00301e9af4826b5781e01709f81e7@BY2PR0301MB0711.namprd03.prod.outlook.com>
+	<541AEF7D.2010007@zytor.com>
 	<CALCETrVPAEdQjFaBzk6F5wKScHDAwwyzVCC--iMSHJjrbz4EqQ@mail.gmail.com>
 	<5b9c7dcde3824e49a25f3ee00844b868@BY2PR0301MB0711.namprd03.prod.outlook.com>
 	<CAL54oT0W4H0VUX+UARphWRm+c9YNz+pOngLNMxFVSTZ05s6OZA@mail.gmail.com>
@@ -10,18 +12,15 @@ References: <CALCETrX66iDM+eG56hpMN4TcuXtzbEr5nB_f6JE-2XETSMWV5w@mail.gmail.com>
 	<b697ef83ae594d8fb34347339dd52dfa@BY2PR0301MB0711.namprd03.prod.outlook.com>
 	<CAL54oT1nFrbffotNmLSE0+TVBSR3OChfe5Zu1yPNz0ponznVOQ@mail.gmail.com>
 	<CALCETrWCKe2Pfmgu1gi6jMqdyqQ78kCpKawoLbAFgaN2USMksw@mail.gmail.com>
-	<1969371640.51211843.1411066715223.JavaMail.zimbra@redhat.com>
-	<CALCETrUGS_V2h_beStbVyoTC8vuKiudmJwt55Q2BJg=S2KCNKw@mail.gmail.com>
-	<0180a8dfcad746a895755c4374853c16@BY2PR03MB585.namprd03.prod.outlook.com>
-	<541B5553.7020203@zytor.com>
-	<CALCETrUq71jpO1de4pwbVo+hnE-D2FkuqBDFbdyLiDQzNdENEQ@mail.gmail.com>
-	<CAL54oT1Q8kABge=t4s5REVWWakboON-6vfszMRkVz=ks_3vRoA@mail.gmail.com>
-	<CALCETrUXz1B=x6rjkQri_qU5Tv-XM5du=rUr-=E-EfNSvOnThg@mail.gmail.com>
+	<f879d1d0-8444-4653-a25a-d2216bcd7312@email.android.com>
+	<e2ac32426deb468b97bd1445091e351a@BL2PR03MB243.namprd03.prod.outlook.com>
+	<CALCETrXbV1qLZOt3aDbXRSSxApS0Qvb1WFPmkOrn8o1zyGVK6w@mail.gmail.com>
+	<572ba53a2e1e4278823f718a421e2c1d@BY2PR03MB585.namprd03.prod.outlook.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CALCETrUXz1B=x6rjkQri_qU5Tv-XM5du=rUr-=E-EfNSvOnThg@mail.gmail.com>
+In-Reply-To: <572ba53a2e1e4278823f718a421e2c1d@BY2PR03MB585.namprd03.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -31,52 +30,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: Mathew John <mathewj@microsoft.com>, Theodore Ts'o <tytso@mit.edu>, John Starks <John.Starks@microsoft.com>, kvm list <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Niels Ferguson <niels@microsoft.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Hepkin <davidhep@microsoft.com>, "H. Peter Anvin" <hpa@zytor.com>, Jake Oshins <jakeo@microsoft.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: David Hepkin <davidhep@microsoft.com>, Andy Lutomirski <luto@amacapital.net>, Niels Ferguson <niels@microsoft.com>
+Cc: Mathew John <mathewj@microsoft.com>, Theodore Ts'o <tytso@mit.edu>, John Starks <John.Starks@microsoft.com>, kvm list <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Jake Oshins <jakeo@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 18, 2014 at 6:03 PM, Andy Lutomirski <luto@amacapital.net> wrote:
-> On Thu, Sep 18, 2014 at 5:49 PM, Nakajima, Jun <jun.nakajima@intel.com> wrote:
->> On Thu, Sep 18, 2014 at 3:07 PM, Andy Lutomirski <luto@amacapital.net> wrote:
->>
->>> So, as a concrete straw-man:
->>>
->>> CPUID leaf 0x48000000 would return a maximum leaf number in EAX (e.g.
->>> 0x48000001) along with a signature value (e.g. "CrossHVPara\0") in
->>> EBX, ECX, and EDX.
->>>
->>> CPUID 0x48000001.EAX would contain an MSR number to read to get a
->>> random number if supported and zero if not supported.
->>>
->>> Questions:
->>>
->>> 1. Can we use a fixed MSR number?  This would be a little bit simpler,
->>> but it would depend on getting a wider MSR range from Intel.
->>>
->>
->> Why do you need a wider MSR range if you always detect the feature by
->> CPUID.0x48000001?
->> Or are you still trying to avoid the detection by CPUID?
->
-> Detecting the feature is one thing, but figuring out the MSR index is
-> another.  We could shove the index into the cpuid leaf, but that seems
-> unnecessarily indirect.  I'd much rather just say that CPUID leaves
-> *and* MSR indexes 0x48000000-0x4800ffff or so are reserved for the
-> cross-HV mechanism, but we can't do that without either knowingly
-> violating the SDM assignments or asking Intel to consider allocating
-> more MSR indexes.
->
-> Also, KVM is already conflicting with the SDM right now in its MSR
-> choice :(  I *think* that KVM could be changed to fix that, but 256
-> MSRs is rather confining given that KVM currently implements its own
-> MSR index *and* part of the Hyper-V index.
+Il 18/09/2014 23:54, David Hepkin ha scritto:
+> The chief advantage I see to using a hypercall based mechanism is
+> that it would work across more architectures.  MSR's and CPUID's are
+> specific to X86.  If we ever wanted this same mechanism to be
+> available on an architecture that doesn't support MSR's,  a hypercall
+> based approach would allow for a more consistent mechanism across the
+> architectures.
+> 
+> I agree, though, that converging on a common hypercall interface that
+> would be implemented by all of the hypervisors would likely be much
+> harder to achieve.
 
-Correction and update:
+There are differences between architectures at the hypercall level,
+starting with the calling convention.  So I don't think it makes much
+sense to use a hypercall.
 
-KVM currently implements its own MSRs and, optionally, some of the
-Hyper-V MSRs.  By my count, Linux knows about 68 Hyper-V MSRs (in a
-header file), and there are current 7 KVM MSRs, so over 1/4 of the
-available MSR indices are taken (and even more would be taken if KVM
-were to move its MSRs into the correct range).
-
---Andy
+Paolo
