@@ -1,20 +1,18 @@
-From: Gleb Natapov <gleb@kernel.org>
-Subject: Re: Standardizing an MSR or other hypercall to get an RNG seed?
-Date: Fri, 19 Sep 2014 23:53:42 +0300
-Message-ID: <20140919205342.GO26540@minantech.com>
-References: <20140919163749.GI26540@minantech.com> <541C5C67.6040608@zytor.com>
-	<20140919165349.GJ26540@minantech.com> <541C6304.3080903@zytor.com>
-	<20140919171545.GK26540@minantech.com> <541C656D.5040808@zytor.com>
-	<20140919174942.GL26540@minantech.com>
-	<CALCETrXGd0Qu4ES7T4Hx_ozsT5zUAvk0WtZ4DXq=CY7YS9vzbQ@mail.gmail.com>
-	<20140919181248.GN26540@minantech.com>
-	<CALCETrX=HFB01rg_iCNNfEd8mEoj20hK2K-bU6FbgOkWF7fO-A@mail.gmail.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH v5 2/3] virtio_pci: Use the DMA API for virtqueues when
+	possible
+Date: Sat, 20 Sep 2014 07:28:33 +1000
+Message-ID: <1411162113.30672.60.camel@pasglop>
+References: <cover.1410931077.git.luto@amacapital.net>
+	<6c31406005160303a7ee291a933c267f8e55fa85.1410931077.git.luto@amacapital.net>
+	<1410955351.30672.27.camel@pasglop> <20140917141639.GA13684@redhat.com>
+	<CALCETrULv=zj_+rA2sRgf0Pxw3P6RDBzmM5C40=OHWwpYtEuJQ@mail.gmail.com>
+	<1410972571.12562.24.camel@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CALCETrX=HFB01rg_iCNNfEd8mEoj20hK2K-bU6FbgOkWF7fO-A@mail.gmail.com>
+In-Reply-To: <1410972571.12562.24.camel@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,106 +22,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: Mathew John <mathewj@microsoft.com>, Theodore Ts'o <tytso@mit.edu>, David Hepkin <davidhep@microsoft.com>, kvm list <kvm@vger.kernel.org>, Niels Ferguson <niels@microsoft.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Jake Oshins <jakeo@microsoft.com>, Paolo Bonzini <pbonzini@redhat.com>, Alok N Kataria <akataria@vmware.com>, John Starks <John.Starks@microsoft.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Andy Lutomirski <luto@amacapital.net>, Christian Borntraeger <borntraeger@de.ibm.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 19, 2014 at 11:20:49AM -0700, Andy Lutomirski wrote:
-> [cc: Alok Kataria at VMware]
+On Wed, 2014-09-17 at 09:49 -0700, David Woodhouse wrote:
+> On Wed, 2014-09-17 at 09:07 -0700, Andy Lutomirski wrote:
+> > 
+> > I still think that this is a property of the bus, not the device.  x86
+> > has such a mechanism, and this patch uses it transparently.
 > 
-> On Fri, Sep 19, 2014 at 11:12 AM, Gleb Natapov <gleb@kernel.org> wrote:
-> > On Fri, Sep 19, 2014 at 11:02:38AM -0700, Andy Lutomirski wrote:
-> >> On Fri, Sep 19, 2014 at 10:49 AM, Gleb Natapov <gleb@kernel.org> wrote:
-> >> > On Fri, Sep 19, 2014 at 10:18:37AM -0700, H. Peter Anvin wrote:
-> >> >> On 09/19/2014 10:15 AM, Gleb Natapov wrote:
-> >> >> > On Fri, Sep 19, 2014 at 10:08:20AM -0700, H. Peter Anvin wrote:
-> >> >> >> On 09/19/2014 09:53 AM, Gleb Natapov wrote:
-> >> >> >>> On Fri, Sep 19, 2014 at 09:40:07AM -0700, H. Peter Anvin wrote:
-> >> >> >>>> On 09/19/2014 09:37 AM, Gleb Natapov wrote:
-> >> >> >>>>>
-> >> >> >>>>> Linux detects what hypervior it runs on very early
-> >> >> >>>>
-> >> >> >>>> Not anywhere close to early enough.  We're talking for uses like kASLR.
-> >> >> >>>>
-> >> >> >>> Still to early to do:
-> >> >> >>>
-> >> >> >>>    h = cpuid(HYPERVIOR_SIGNATURE)
-> >> >> >>>    if (h == KVMKVMKVM) {
-> >> >> >>>       if (cpuid(kvm_features) & kvm_rnd)
-> >> >> >>>          rdmsr(kvm_rnd)
-> >> >> >>>    else (h == HyperV) {
-> >> >> >>>       if (cpuid(hv_features) & hv_rnd)
-> >> >> >>>         rdmsr(hv_rnd)
-> >> >> >>>    else (h == XenXenXen) {
-> >> >> >>>       if (cpuid(xen_features) & xen_rnd)
-> >> >> >>>         rdmsr(xen_rnd)
-> >> >> >>>   }
-> >> >> >>>
-> >> >> >>
-> >> >> >> If we need to do chase loops, especially not so...
-> >> >> >>
-> >> >> > What loops exactly? As a non native English speaker I fail to understand
-> >> >> > if your answer is "yes" or "no" ;)
-> >> >> >
-> >> >>
-> >> >> The above isn't actually the full algorithm used.
-> >> >>
-> >> > What part of actually algorithm cannot be implemented? Loop that searches
-> >> > for KVM leaf in case KVM pretend to be HyperV (is this what you called
-> >> > "chase loops"?)? First of all there is no need to implement it, if KVM
-> >> > pretends to be HyperV use HyperV's way to obtain RNG, but what is the
-> >> > problem with the loop?
-> >> >
-> >>
-> >> It can be implemented, and I've done it.  But it's a mess.  Almost the
-> >> very first thing we do in boot (even before decompressing the kernel)
-> >> will be to scan a bunch of cpuid leaves looking for a hypervisor with
-> >> an rng source that we can use for kASLR.  And we'll have to update
-> >> that code and make it bigger every time another hypervisor adds
-> >> exactly the same feature.
-> > IMO implementing this feature is in hypervisor's best interest, so the task
-> > of updating the code will scale by virtue of hypervisor's developers each
-> > adding it for hypervisor he cares about.
-> 
-> I assume that you mean guest, not hypervisor.
-> 
-Yes, I mean guest support for hypervisor he cares about.
+> Right. A device driver should use the DMA API. Always.
 
-> >
-> >>
-> >> And then we have another copy of almost exactly the same code in the
-> >> normal post-boot part of the kernel.
-> >>
-> >> We can certainly do this, but I'd much rather solve the problem once
-> >> and let all of the hypervisors and guests opt in and immediately be
-> >> compatible with each other.
-> >>
-> >> > I "forgot" VMware because I do not see VMware people to be CCed. They may
-> >> > be even less excited about them being told _how_ this feature need to be
-> >> > implemented (e.g implement HyperV leafs for the feature detection). I
-> >> > do not want to and cannot speak for VMware, but my guess is that for
-> >> > them it would be much easier to add an else clause for VMware in above
-> >> > "if" then to coordinate with all hypervisor developers about MSR/cpuid
-> >> > details. And since this is security feature implementing it for Linux
-> >> > is in their best interest.
-> >>
-> >> Do you know any of them who should be cc'd?
-> >>
-> > No, not anyone in particular. git log arch/x86/kernel/cpu/vmware.c may help.
-> >
-> > But VMware is an elephant in the room here. There are other hypervisors out there.
-> > VirtualBox, bhyve...
-> 
-> Exactly.  The amount of effort to get everything to be compatible with
-> everything scales quadratically in the number of hypervisors, and the
-> probability that some combination is broken also increases.
-> 
-The effort is distributed equally among hypervisor developers. If they
-want Linux to be more secure on their hypervisor they contribute guest
-code. They do need to write hypervisor part anyway. On cpus with RDRAND
-instruction this MSR is not even needed and some hypervisors may decide
-that support for old cpus does not worth the effort. Unified interface
-does not help if hypervisor does not implement it.
+I do agree, and that's why I suggested that instead of doing what it
+does, that patch should instead:
 
---
-			Gleb.
+  - Always use dma_map_*
+
+  - Make the dma "ops" of the virtio bus/device point to a set of "null
+ops" when necessary.
+
+This would also make my life easier on powerpc since I will too have
+cases where I will want virtio to use the dma mapping API, it's just
+that the *current* implementation is such that qemu always bypasses
+iommus and we want to keep that mode of operations as an option (even
+the default) for performances.
+
+But qemu isn't the only other implementation of virtio ...
+ 
+> The platform's implementation of the DMA API is then free to observe
+> that the device in question isn't actually served by any IOMMU and give
+> a trivial 1:1 mapping.
+
+Right.
+
+> > > > The virtio device should advertise whether it's using that bypass
+> > > > mode of operation and virtio_pci should react accordingly.
+> > >
+> > > Well if there's a way to detect that - that's outside the
+> > > device, then we probably shouldn't use device-specific
+> > > interfaces for this capability.
+> > 
+> > (NB: According to David Woodhouse about ten minutes ago, this should
+> > work with a bit of care right now on x86 via ACPI as long as QEMU
+> > configures the tables correctly.)
+> 
+> Well, we don't currently expose a virtual IOMMU to x86 guests at the
+> moment although we're going to want to in the near future.
+> 
+> My answer was based on the assumption that it'll actually be an Intel
+> IOMMU that we expose, rather than some paravirtualised IOMMU interface
+> which allows us to support both AMD and Intel hosts. That may not be a
+> valid assumption; I don't think we've really explored this at all.
+> 
+> But *given* that assumption, the VT-d ACPI tables allow a given IOMMU
+> unit to be associated either with a list of specific devices, *or* to
+> have a 'catch-all' bit set which means that it owns all
+> otherwise-unmatched devices in that PCI domain.
+> 
+> So... if you want some devices to be seen as *not* behind an IOMMU then
+> they need to be in a PCI domain which *doesn't* have a catch-all IOMMU
+> unit. So either you put them in a separate PCI domain all by themselves,
+> or you explicitly list all (possible) PCI BDFs under the IOMMU unit and
+> don't use the catch-all facility.
+>  
+> Having said that... don't. Just put the damn thing behind an IOMMU. The
+> guest OS doesn't *have* to use it; it either eschew the IOMMU completely
+> or it can choose to use pass-through mode for specific devices.
+
+Ben.
