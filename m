@@ -1,14 +1,13 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH v5 0/3] virtio: Use the DMA API when appropriate
-Date: Fri, 19 Sep 2014 14:25:47 -0400
-Message-ID: <20140919182547.GA11449@laptop.dumpdata.com>
-References: <cover.1410931077.git.luto@amacapital.net>
+From: Christopher Covington <cov@codeaurora.org>
+Subject: Re: Standardizing an MSR or other hypercall to get an RNG seed?
+Date: Fri, 19 Sep 2014 14:30:51 -0400
+Message-ID: <541C765B.5050705@codeaurora.org>
+References: <CALCETrX66iDM+eG56hpMN4TcuXtzbEr5nB_f6JE-2XETSMWV5w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <cover.1410931077.git.luto@amacapital.net>
+In-Reply-To: <CALCETrX66iDM+eG56hpMN4TcuXtzbEr5nB_f6JE-2XETSMWV5w@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,81 +18,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andy Lutomirski <luto@amacapital.net>
-Cc: linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, linux390@de.ibm.com
+Cc: Theodore Ts'o <tytso@mit.edu>, kvm list <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Sep 16, 2014 at 10:22:25PM -0700, Andy Lutomirski wrote:
-> This fixes virtio on Xen guests as well as on any other platform
-> that uses virtio_pci on which physical addresses don't match bus
-> addresses.
+On 09/17/2014 10:50 PM, Andy Lutomirski wrote:
+> Hi all-
+> 
+> I would like to standardize on a very simple protocol by which a guest
+> OS can obtain an RNG seed early in boot.
+> 
+> The main design requirements are:
+> 
+>  - The interface should be very easy to use.  Linux, at least, will
+> want to use it extremely early in boot as part of kernel ASLR.  This
+> means that PCI and ACPI will not work.
 
-I can do 'Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>'
-but not sure through whom this patch should go through?
+How do non-virtual systems get entropy this early? RDRAND/Padlock? Truerand?
+Could hypervisors and simulators simply make sure these work?
 
+Christopher
 
-> 
-> This can be tested with:
-> 
->     virtme-run --xen xen --kimg arch/x86/boot/bzImage --console
-> 
-> using virtme from here:
-> 
->     https://git.kernel.org/cgit/utils/kernel/virtme/virtme.git
-> 
-> Without these patches, the guest hangs forever.  With these patches,
-> everything works.
-> 
-> This should be safe on all platforms that I'm aware of.  That
-> doesn't mean that there isn't anything that I missed.
-> 
-> Applies to net-next.
-> 
-> Changes from v4:
->  - Rebased onto net-next.
->  - Dropped the sg end mark changes from virtio_net, as that issue
->    is solved differently in net-next.
->  - virtio_pci does not use the DMA API on powerpc, for reasons that
->    are explained in a detailed comment in virtio_ring.
-> 
-> Changes from v3:
->  - virtio_pci only asks virtio_ring to use the DMA API if
->    !PCI_DMA_BUS_IS_PHYS.
->  - Reduce tools/virtio breakage.  It's now merely as broken as before
->    instead of being even more broken.
->  - Drop the sg_next changes -- Rusty's version is better.
-> 
-> Changes from v2:
->  - Reordered patches.
->  - Fixed a virtio_net OOPS.
-> 
-> Changes from v1:
->  - Using the DMA API is optional now.  It would be nice to improve the
->    DMA API to the point that it could be used unconditionally, but s390
->    proves that we're not there yet.
->  - Includes patch 4, which fixes DMA debugging warnings from virtio_net.
-> 
-> Andy Lutomirski (3):
->   virtio_ring: Support DMA APIs if requested
->   virtio_pci: Use the DMA API for virtqueues when possible
->   virtio_net: Stop doing DMA from the stack
-> 
->  drivers/lguest/lguest_device.c         |   3 +-
->  drivers/misc/mic/card/mic_virtio.c     |   2 +-
->  drivers/net/virtio_net.c               |  53 ++++++---
->  drivers/remoteproc/remoteproc_virtio.c |   4 +-
->  drivers/s390/kvm/kvm_virtio.c          |   2 +-
->  drivers/s390/kvm/virtio_ccw.c          |   4 +-
->  drivers/virtio/virtio_mmio.c           |   5 +-
->  drivers/virtio/virtio_pci.c            |  91 ++++++++++++++--
->  drivers/virtio/virtio_ring.c           | 194 +++++++++++++++++++++++++++------
->  include/linux/virtio_ring.h            |   1 +
->  tools/virtio/linux/dma-mapping.h       |  17 +++
->  tools/virtio/linux/virtio.h            |   1 +
->  tools/virtio/virtio_test.c             |   2 +-
->  tools/virtio/vringh_test.c             |   3 +-
->  14 files changed, 314 insertions(+), 68 deletions(-)
->  create mode 100644 tools/virtio/linux/dma-mapping.h
-> 
-> -- 
-> 1.9.3
-> 
+-- 
+Employee of Qualcomm Innovation Center, Inc.
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+hosted by the Linux Foundation.
