@@ -1,7 +1,7 @@
 From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: Standardizing an MSR or other hypercall to get an RNG seed?
 Date: Fri, 19 Sep 2014 10:18:37 -0700
-Message-ID: <541C656D.9030400@zytor.com>
+Message-ID: <541C656D.5040808@zytor.com>
 References: <CAL54oT1nFrbffotNmLSE0+TVBSR3OChfe5Zu1yPNz0ponznVOQ@mail.gmail.com>
 	<CALCETrWCKe2Pfmgu1gi6jMqdyqQ78kCpKawoLbAFgaN2USMksw@mail.gmail.com>
 	<1969371640.51211843.1411066715223.JavaMail.zimbra@redhat.com>
