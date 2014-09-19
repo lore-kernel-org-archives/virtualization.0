@@ -1,15 +1,16 @@
-From: Nadav Amit <nadav.amit@gmail.com>
+From: Andy Lutomirski <luto@amacapital.net>
 Subject: Re: Standardizing an MSR or other hypercall to get an RNG seed?
-Date: Fri, 19 Sep 2014 23:21:15 +0300
-Message-ID: <15C8041A-3488-4693-B329-3A9FE77A0CB9__29646.7778309763$1411159199$gmane$org@gmail.com>
+Date: Fri, 19 Sep 2014 13:46:33 -0700
+Message-ID: <CALCETrXq2FJ4c6MeEHCVeY7muV6C1NpuKpmtr+PcnHV2DpF3Zg@mail.gmail.com>
 References: <CALCETrX66iDM+eG56hpMN4TcuXtzbEr5nB_f6JE-2XETSMWV5w@mail.gmail.com>
 	<541C765B.5050705@codeaurora.org>
 	<CALCETrU_r90=ve4v6xKfZHR_2O5+f05URqD5fzkbSpcuV4tb8A@mail.gmail.com>
-Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.6\))
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
+	<15C8041A-3488-4693-B329-3A9FE77A0CB9@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CALCETrU_r90=ve4v6xKfZHR_2O5+f05URqD5fzkbSpcuV4tb8A@mail.gmail.com>
+In-Reply-To: <15C8041A-3488-4693-B329-3A9FE77A0CB9@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,54 +20,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@amacapital.net>
+To: Nadav Amit <nadav.amit@gmail.com>
 Cc: Theodore Ts'o <tytso@mit.edu>, kvm list <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-On Sep 19, 2014, at 9:42 PM, Andy Lutomirski <luto@amacapital.net> wrote:
-
-> On Fri, Sep 19, 2014 at 11:30 AM, Christopher Covington
-> <cov@codeaurora.org> wrote:
->> On 09/17/2014 10:50 PM, Andy Lutomirski wrote:
->>> Hi all-
->>> =
-
->>> I would like to standardize on a very simple protocol by which a guest
->>> OS can obtain an RNG seed early in boot.
->>> =
-
->>> The main design requirements are:
->>> =
-
->>> - The interface should be very easy to use.  Linux, at least, will
->>> want to use it extremely early in boot as part of kernel ASLR.  This
->>> means that PCI and ACPI will not work.
->> =
-
->> How do non-virtual systems get entropy this early? RDRAND/Padlock? Truer=
-and?
->> Could hypervisors and simulators simply make sure these work?
->> =
-
-> =
-
-> If RDRAND is available, then Linux, at least, will use it.  The rest
-> are too complicated for early use.  Linux on x86 plays some vaguely
-> clever games with rdtsc and poking at the i8254 port.
-> =
-
-> I think that these tricks are even less useful as a guest than they
-> are on metal, and we can use paravirt mechanisms to make guest early
-> boot rngs much stronger.
-
-Sorry for interrupting, as I understand the discussion tries to be generic.
-
-However, it sounds to me that at least for KVM, it is very easy just to emu=
-late the RDRAND instruction. The hypervisor would report to the guest that =
-RDRAND is supported in CPUID and the emulate the instruction when guest exe=
-cutes it. KVM already traps guest #UD (which would occur if RDRAND executed=
- while it is not supported) - so this scheme wouldn=92t introduce additiona=
-l overhead over RDMSR.
-
-Nadav
+T24gRnJpLCBTZXAgMTksIDIwMTQgYXQgMToyMSBQTSwgTmFkYXYgQW1pdCA8bmFkYXYuYW1pdEBn
+bWFpbC5jb20+IHdyb3RlOgo+Cj4gT24gU2VwIDE5LCAyMDE0LCBhdCA5OjQyIFBNLCBBbmR5IEx1
+dG9taXJza2kgPGx1dG9AYW1hY2FwaXRhbC5uZXQ+IHdyb3RlOgo+Cj4+IE9uIEZyaSwgU2VwIDE5
+LCAyMDE0IGF0IDExOjMwIEFNLCBDaHJpc3RvcGhlciBDb3Zpbmd0b24KPj4gPGNvdkBjb2RlYXVy
+b3JhLm9yZz4gd3JvdGU6Cj4+PiBPbiAwOS8xNy8yMDE0IDEwOjUwIFBNLCBBbmR5IEx1dG9taXJz
+a2kgd3JvdGU6Cj4+Pj4gSGkgYWxsLQo+Pj4+Cj4+Pj4gSSB3b3VsZCBsaWtlIHRvIHN0YW5kYXJk
+aXplIG9uIGEgdmVyeSBzaW1wbGUgcHJvdG9jb2wgYnkgd2hpY2ggYSBndWVzdAo+Pj4+IE9TIGNh
+biBvYnRhaW4gYW4gUk5HIHNlZWQgZWFybHkgaW4gYm9vdC4KPj4+Pgo+Pj4+IFRoZSBtYWluIGRl
+c2lnbiByZXF1aXJlbWVudHMgYXJlOgo+Pj4+Cj4+Pj4gLSBUaGUgaW50ZXJmYWNlIHNob3VsZCBi
+ZSB2ZXJ5IGVhc3kgdG8gdXNlLiAgTGludXgsIGF0IGxlYXN0LCB3aWxsCj4+Pj4gd2FudCB0byB1
+c2UgaXQgZXh0cmVtZWx5IGVhcmx5IGluIGJvb3QgYXMgcGFydCBvZiBrZXJuZWwgQVNMUi4gIFRo
+aXMKPj4+PiBtZWFucyB0aGF0IFBDSSBhbmQgQUNQSSB3aWxsIG5vdCB3b3JrLgo+Pj4KPj4+IEhv
+dyBkbyBub24tdmlydHVhbCBzeXN0ZW1zIGdldCBlbnRyb3B5IHRoaXMgZWFybHk/IFJEUkFORC9Q
+YWRsb2NrPyBUcnVlcmFuZD8KPj4+IENvdWxkIGh5cGVydmlzb3JzIGFuZCBzaW11bGF0b3JzIHNp
+bXBseSBtYWtlIHN1cmUgdGhlc2Ugd29yaz8KPj4+Cj4+Cj4+IElmIFJEUkFORCBpcyBhdmFpbGFi
+bGUsIHRoZW4gTGludXgsIGF0IGxlYXN0LCB3aWxsIHVzZSBpdC4gIFRoZSByZXN0Cj4+IGFyZSB0
+b28gY29tcGxpY2F0ZWQgZm9yIGVhcmx5IHVzZS4gIExpbnV4IG9uIHg4NiBwbGF5cyBzb21lIHZh
+Z3VlbHkKPj4gY2xldmVyIGdhbWVzIHdpdGggcmR0c2MgYW5kIHBva2luZyBhdCB0aGUgaTgyNTQg
+cG9ydC4KPj4KPj4gSSB0aGluayB0aGF0IHRoZXNlIHRyaWNrcyBhcmUgZXZlbiBsZXNzIHVzZWZ1
+bCBhcyBhIGd1ZXN0IHRoYW4gdGhleQo+PiBhcmUgb24gbWV0YWwsIGFuZCB3ZSBjYW4gdXNlIHBh
+cmF2aXJ0IG1lY2hhbmlzbXMgdG8gbWFrZSBndWVzdCBlYXJseQo+PiBib290IHJuZ3MgbXVjaCBz
+dHJvbmdlci4KPgo+IFNvcnJ5IGZvciBpbnRlcnJ1cHRpbmcsIGFzIEkgdW5kZXJzdGFuZCB0aGUg
+ZGlzY3Vzc2lvbiB0cmllcyB0byBiZSBnZW5lcmljLgo+Cj4gSG93ZXZlciwgaXQgc291bmRzIHRv
+IG1lIHRoYXQgYXQgbGVhc3QgZm9yIEtWTSwgaXQgaXMgdmVyeSBlYXN5IGp1c3QgdG8gZW11bGF0
+ZSB0aGUgUkRSQU5EIGluc3RydWN0aW9uLiBUaGUgaHlwZXJ2aXNvciB3b3VsZCByZXBvcnQgdG8g
+dGhlIGd1ZXN0IHRoYXQgUkRSQU5EIGlzIHN1cHBvcnRlZCBpbiBDUFVJRCBhbmQgdGhlIGVtdWxh
+dGUgdGhlIGluc3RydWN0aW9uIHdoZW4gZ3Vlc3QgZXhlY3V0ZXMgaXQuIEtWTSBhbHJlYWR5IHRy
+YXBzIGd1ZXN0ICNVRCAod2hpY2ggd291bGQgb2NjdXIgaWYgUkRSQU5EIGV4ZWN1dGVkIHdoaWxl
+IGl0IGlzIG5vdCBzdXBwb3J0ZWQpIC0gc28gdGhpcyBzY2hlbWUgd291bGRu4oCZdCBpbnRyb2R1
+Y2UgYWRkaXRpb25hbCBvdmVyaGVhZCBvdmVyIFJETVNSLgoKQmVjYXVzZSB0aGVuIGd1ZXN0IHVz
+ZXIgY29kZSB3aWxsIHRoaW5rIHRoYXQgcmRyYW5kIGlzIHRoZXJlIGFuZCB3aWxsCnRyeSB0byB1
+c2UgaXQsIHJlc3VsdGluZyBpbiBhYnlzbWFsIHBlcmZvcm1hbmNlLgoKLS1BbmR5Cgo+Cj4gTmFk
+YXYKCgoKLS0gCkFuZHkgTHV0b21pcnNraQpBTUEgQ2FwaXRhbCBNYW5hZ2VtZW50LCBMTEMKX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
+b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
+Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
+YWxpemF0aW9u
