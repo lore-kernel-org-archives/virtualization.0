@@ -1,18 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC 2/2] vhost: support urgent descriptors
-Date: Mon, 22 Sep 2014 14:24:57 +0300
-Message-ID: <20140922112457.GH14882@redhat.com>
-References: <1404203661-7521-1-git-send-email-mst@redhat.com>
-	<1404203661-7521-2-git-send-email-mst@redhat.com>
-	<541BD6E9.2010707@redhat.com> <541D503B.3070507@redhat.com>
-	<541F97CF.7000305@redhat.com> <20140922065539.GA12057@redhat.com>
-	<541FF20B.4080201@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH] virtio: unify config_changed handling
+Date: Mon, 22 Sep 2014 13:45:22 +0200
+Message-ID: <54200BD2.3040204@de.ibm.com>
+References: <1411370391-12291-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <541FF20B.4080201@redhat.com>
+In-Reply-To: <1411370391-12291-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,90 +17,174 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Siva Yerramreddy <yshivakrishna@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sudeep Dutt <sudeep.dutt@intel.com>, virtualization@lists.linux-foundation.org, Ashutosh Dixit <ashutosh.dixit@intel.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 22, 2014 at 05:55:23PM +0800, Jason Wang wrote:
-> On 09/22/2014 02:55 PM, Michael S. Tsirkin wrote:
-> > On Mon, Sep 22, 2014 at 11:30:23AM +0800, Jason Wang wrote:
-> >> On 09/20/2014 06:00 PM, Paolo Bonzini wrote:
-> >>> Il 19/09/2014 09:10, Jason Wang ha scritto:
-> >>>>>>  
-> >>>>>> -	if (!vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX)) {
-> >>>>>> +	if (vq->urgent || !vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX)) {
-> >>>> So the urgent descriptor only work when event index was not enabled?
-> >>>> This seems suboptimal, we may still want to benefit from event index
-> >>>> even if urgent descriptor is used. Looks like we need return true here
-> >>>> when vq->urgent is true?
-> >>> Its ||, not &&.
-> >>>
-> >>> Without event index, all descriptors are treated as urgent.
-> >>>
-> >>> Paolo
-> >>>
-> >> The problem is if vq->urgent is true, the patch checks
-> >> VRING_AVAIL_F_NO_INTERRUPT bit. This bit were set unconditionally in
-> >> virtqueue_enable_cb() regardless of event index feature and cleared
-> >> unconditionally in virtqueue_disable_cb().
-> > The reverse actually, right?
+On 09/22/2014 09:20 AM, Michael S. Tsirkin wrote:
+> Replace duplicated code in all transports with a single wrapper in
+> virtio.c.
 > 
-> Ah, right.
-> >
-> >> So virtqueue_enable_cb() was
-> >> used to not only publish a new event index but also enable the urgent
-> >> descriptor. And virtqueue_disable_cb() disabled all interrupts including
-> >> the urgent descriptor. Guest won't get urgent interrupts by just adding
-> >> virtqueue_add_outbuf_urgent() since what it needs is to enable and
-> >> disable interrupt for !urgent descriptor.
-> > Right, we want a new API that advances event index but does not
-> > set VRING_AVAIL_F_NO_INTERRUPT.
-> > IMO still want to set VRING_AVAIL_F_NO_INTERRUPT when handling tx
-> > interrupts, to avoid interrupt storms.
+> The only functional change is in virtio_mmio.c: if a buggy device sends
+> us an interrupt before driver is set, we previously returned IRQ_NONE,
+> now we return IRQ_HANDLED.
 > 
-> I see, so urgent descriptor needs to be disabled in this case. But vhost
-> parts need a little big changes, we could not just check
-> VRING_AVAIL_F_NO_INTERRUPT when vq->urgent is true. If event index is
-> enabled, we still need to check used event to make sure the current tx
-> delayed interrupt works.
+> As this must not happen in practice, this does not look like a big deal.
 > 
-> But just re-using VRING_AVAIL_F_NO_INTERRUPT for urgent descriptor may
-> not work in some case. I see codes of virtqueue_get_buf() that may
-> breaks this:
+> See also commit 3fff0179e33cd7d0a688dab65700c46ad089e934
+> 	virtio-pci: do not oops on config change if driver not loaded.
+> for the original motivation behind the driver check.
 > 
->         /* If we expect an interrupt for the next entry, tell
-> host                                                                                                       
-> 
->          * by writing event index and flush out the write
-> before                                                                                                         
-> 
->          * the read in the next get_buf call. */
->         if (!(vq->vring.avail->flags & VRING_AVAIL_F_NO_INTERRUPT)) {
->                 vring_used_event(&vq->vring) = vq->last_used_idx;
->                 virtio_mb(vq->weak_barriers);
->         }
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
+please fold in the whitespace fix, 
 
-Right, we need to change this path to use a private flag.
+Reviewed-by: Christian Borntraeger <borntraeger@d.ibm.com> # s390 parts
 
-> Consider if only urgent descriptor is enabled, this will publish used
-> event which in fact enable lots of unnecessary interrupt. In fact I
-> don't quite understand how the above lines is used. Virtio-net stop the
-> queue before enable the tx interrupt in start_xmit(), so the above lines
-> will not run at all.
-
-True - this code is for drivers which process VQ without
-disabling interrupts first. No rule says this is not allowed.
-
-> >> Btw, not sure "urgent" is a suitable name, since interrupt is often slow
-> >> in kvm guest. And in fact virtio-net will probably use "urgent"
-> >> descriptor for those packets (e.g stream packets who can be delayed a
-> >> little bit to batch more bytes from userspace) who was not urgent
-> >> compared to other packets.
-> >>
-> > Yes but we are asking for an interrupt before event index is reached
-> > because something is waiting for the packet to be transmitted.
-> > I couldn't come up with a better name.
-> >
+> ---
+>  include/linux/virtio.h             |  2 ++
+>  drivers/misc/mic/card/mic_virtio.c |  6 +-----
+>  drivers/s390/kvm/kvm_virtio.c      |  9 +--------
+>  drivers/s390/kvm/virtio_ccw.c      |  6 +-----
+>  drivers/virtio/virtio.c            | 10 ++++++++++
+>  drivers/virtio/virtio_mmio.c       |  7 ++-----
+>  drivers/virtio/virtio_pci.c        |  6 +-----
+>  7 files changed, 18 insertions(+), 28 deletions(-)
 > 
-> Ok.
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index b46671e..3c19bd3 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -108,6 +108,8 @@ void unregister_virtio_device(struct virtio_device *dev);
+> 
+>  void virtio_break_device(struct virtio_device *dev);
+> 
+> +void virtio_config_changed(struct virtio_device *dev);
+> +
+>  /**
+>   * virtio_driver - operations for a virtio I/O driver
+>   * @driver: underlying device driver (populate name and owner).
+> diff --git a/drivers/misc/mic/card/mic_virtio.c b/drivers/misc/mic/card/mic_virtio.c
+> index f14b600..e647947 100644
+> --- a/drivers/misc/mic/card/mic_virtio.c
+> +++ b/drivers/misc/mic/card/mic_virtio.c
+> @@ -462,16 +462,12 @@ static void mic_handle_config_change(struct mic_device_desc __iomem *d,
+>  	struct mic_device_ctrl __iomem *dc
+>  		= (void __iomem *)d + mic_aligned_desc_size(d);
+>  	struct mic_vdev *mvdev = (struct mic_vdev *)ioread64(&dc->vdev);
+> -	struct virtio_driver *drv;
+> 
+>  	if (ioread8(&dc->config_change) != MIC_VIRTIO_PARAM_CONFIG_CHANGED)
+>  		return;
+> 
+>  	dev_dbg(mdrv->dev, "%s %d\n", __func__, __LINE__);
+> -	drv = container_of(mvdev->vdev.dev.driver,
+> -				struct virtio_driver, driver);
+> -	if (drv->config_changed)
+> -		drv->config_changed(&mvdev->vdev);
+> +	virtio_config_changed(&mvdev->vdev);
+>  	iowrite8(1, &dc->guest_ack);
+>  }
+> 
+> diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
+> index a134965..6431290 100644
+> --- a/drivers/s390/kvm/kvm_virtio.c
+> +++ b/drivers/s390/kvm/kvm_virtio.c
+> @@ -406,15 +406,8 @@ static void kvm_extint_handler(struct ext_code ext_code,
+> 
+>  	switch (param) {
+>  	case VIRTIO_PARAM_CONFIG_CHANGED:
+> -	{
+> -		struct virtio_driver *drv;
+> -		drv = container_of(vq->vdev->dev.driver,
+> -				   struct virtio_driver, driver);
+> -		if (drv->config_changed)
+> -			drv->config_changed(vq->vdev);
+> -
+> +		virtio_config_changed(vq->vdev);
+>  		break;
+> -	}
+>  	case VIRTIO_PARAM_DEV_ADD:
+>  		schedule_work(&hotplug_work);
+>  		break;
+> diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+> index d2c0b44..6cbe6ef 100644
+> --- a/drivers/s390/kvm/virtio_ccw.c
+> +++ b/drivers/s390/kvm/virtio_ccw.c
+> @@ -940,11 +940,7 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
+>  		vring_interrupt(0, vq);
+>  	}
+>  	if (test_bit(0, &vcdev->indicators2)) {
+> -		drv = container_of(vcdev->vdev.dev.driver,
+> -				   struct virtio_driver, driver);
+> -
+> -		if (drv && drv->config_changed)
+> -			drv->config_changed(&vcdev->vdev);
+> +		virtio_config_changed(&vcdev->vdev);
+>  		clear_bit(0, &vcdev->indicators2);
+>  	}
+>  }
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index fed0ce1..470b74f 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -239,6 +239,16 @@ void unregister_virtio_device(struct virtio_device *dev)
+>  }
+>  EXPORT_SYMBOL_GPL(unregister_virtio_device);
+> 
+> +void virtio_config_changed(struct virtio_device *dev)
+> +{
+> +        struct virtio_driver *drv = container_of(dev->dev.driver,
+> +						 struct virtio_driver, driver);
+> +
+> +	if (drv && drv->config_changed)
+> +		drv->config_changed(dev);
+> +}
+> +EXPORT_SYMBOL_GPL(virtio_config_changed);
+> +
+>  static int virtio_init(void)
+>  {
+>  	if (bus_register(&virtio_bus) != 0)
+> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> index c600ccf..ef9a165 100644
+> --- a/drivers/virtio/virtio_mmio.c
+> +++ b/drivers/virtio/virtio_mmio.c
+> @@ -234,8 +234,6 @@ static irqreturn_t vm_interrupt(int irq, void *opaque)
+>  {
+>  	struct virtio_mmio_device *vm_dev = opaque;
+>  	struct virtio_mmio_vq_info *info;
+> -	struct virtio_driver *vdrv = container_of(vm_dev->vdev.dev.driver,
+> -			struct virtio_driver, driver);
+>  	unsigned long status;
+>  	unsigned long flags;
+>  	irqreturn_t ret = IRQ_NONE;
+> @@ -244,9 +242,8 @@ static irqreturn_t vm_interrupt(int irq, void *opaque)
+>  	status = readl(vm_dev->base + VIRTIO_MMIO_INTERRUPT_STATUS);
+>  	writel(status, vm_dev->base + VIRTIO_MMIO_INTERRUPT_ACK);
+> 
+> -	if (unlikely(status & VIRTIO_MMIO_INT_CONFIG)
+> -			&& vdrv && vdrv->config_changed) {
+> -		vdrv->config_changed(&vm_dev->vdev);
+> +	if (unlikely(status & VIRTIO_MMIO_INT_CONFIG)) {
+> +		virtio_config_changed(&vm_dev->vdev);
+>  		ret = IRQ_HANDLED;
+>  	}
+> 
+> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+> index 3d1463c..58f7e45 100644
+> --- a/drivers/virtio/virtio_pci.c
+> +++ b/drivers/virtio/virtio_pci.c
+> @@ -211,12 +211,8 @@ static bool vp_notify(struct virtqueue *vq)
+>  static irqreturn_t vp_config_changed(int irq, void *opaque)
+>  {
+>  	struct virtio_pci_device *vp_dev = opaque;
+> -	struct virtio_driver *drv;
+> -	drv = container_of(vp_dev->vdev.dev.driver,
+> -			   struct virtio_driver, driver);
+> 
+> -	if (drv && drv->config_changed)
+> -		drv->config_changed(&vp_dev->vdev);
+> +	virtio_config_changed(&vp_dev->vdev);
+>  	return IRQ_HANDLED;
+>  }
+> 
