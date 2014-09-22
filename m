@@ -1,18 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC] virtio-pci: share config interrupt between virtio
-	devices
-Date: Sun, 21 Sep 2014 20:53:37 +0300
-Message-ID: <20140921175337.GA28640@redhat.com>
-References: <1409550114-8186-1-git-send-email-akong@redhat.com>
-	<20140901063730.GB20186@redhat.com> <11860049.kd4R4PIiz4@k>
-	<20140921080914.GA2489@redhat.com> <541ED707.4050100@oracle.com>
-	<20140921150259.GA27059@redhat.com> <541EEC88.5070804@oracle.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH RFC 2/2] vhost: support urgent descriptors
+Date: Mon, 22 Sep 2014 11:30:23 +0800
+Message-ID: <541F97CF.7000305@redhat.com>
+References: <1404203661-7521-1-git-send-email-mst@redhat.com>	<1404203661-7521-2-git-send-email-mst@redhat.com>
+	<541BD6E9.2010707@redhat.com> <541D503B.3070507@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <541EEC88.5070804@oracle.com>
+In-Reply-To: <541D503B.3070507@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,71 +18,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <sasha.levin@oracle.com>
-Cc: kvm@vger.kernel.org, will.deacon@arm.com, virtualization@lists.linux-foundation.org, Stefan Fritsch <sf@sfritsch.de>, penberg@iki.fi
+To: Paolo Bonzini <pbonzini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Sep 21, 2014 at 11:19:36AM -0400, Sasha Levin wrote:
-> On 09/21/2014 11:02 AM, Michael S. Tsirkin wrote:
-> > On Sun, Sep 21, 2014 at 09:47:51AM -0400, Sasha Levin wrote:
-> >> > On 09/21/2014 04:09 AM, Michael S. Tsirkin wrote:
-> >>>> > >> The virtio 0.9.5 spec says that ISR is "unused" when in MSI-X mode. I 
-> >>>>> > >> > don't think that you can depend on the device to set the configuration 
-> >>>>> > >> > changed bit.
-> >>>>> > >> > The virtio 1.0 spec seems to have fixed that.
-> >>> > > Yes, virtio 0.9.5 has this bug. But in practice qemu always set this
-> >>> > > bit, so for qemu we could do that unconditionally.  Pekka's lkvm tool
-> >>> > > doesn't unfortunately.  It's easy to fix that, but it would be nicer to
-> >>> > > additionally probe for old versions of the tool, and disable IRQF_SHARED
-> >>> > > in that case.
-> >>> > >
-> >>> > > To complicate things, lkvm does not use a distinct subsystem vendor ID,
-> >>> > > in spite of the fact the virtio spec always required this explicitly.
-> >> > 
-> >> > I think I may be a bit confused here, but AFAIK we do set subsystem vendor
-> >> > ID properly for our virtio-pci devices?
-> >> > 
-> >> >         vpci->pci_hdr = (struct pci_device_header) {
-> >> >                 .vendor_id              = cpu_to_le16(PCI_VENDOR_ID_REDHAT_QUMRANET),
-> >> >                 .device_id              = cpu_to_le16(device_id),
-> >> > 		[...]
-> >> >                 .subsys_vendor_id       = cpu_to_le16(PCI_SUBSYSTEM_VENDOR_ID_REDHAT_QUMRANET),
-> >> > 
-> >> > 
-> >> > Thanks,
-> >> > Sasha
-> > 
-> > Yes but the spec says:
-> > 	The Subsystem Vendor ID should reflect the PCI Vendor ID of the environment.
-> > 
-> > IOW lkvm shouldn't reuse the ID from qemu, it should have its own
-> > (qemu and lkvm hypervisors being a different environment).
-> > 
-> > virtio 1.0 have weakened this requirement:
-> > 	The PCI Subsystem Vendor ID and the PCI Subsystem Device ID MAY
-> > 	reflect the PCI Vendor and Device
-> > 	ID of the environment (for informational purposes by the driver).
-> > 
-> > I reasoned that since it's for informational purposes only, there's no
-> > reason to make it a SHOULD.
-> > 
-> > It might or might not be a good idea to change it back, worth
-> > considering.
-> 
-> Ow. The 0.9.5 spec also says:
-> 
-> 	"(it's currently only used for informational purposes by the guest)."
-> 
-> That and the combination of "should" rather then "must" (recommended rather than
-> required) prompted us to just put something that works in there and leave it be.
-> 
-> 
-> Thanks,
-> Sasha
+On 09/20/2014 06:00 PM, Paolo Bonzini wrote:
+> Il 19/09/2014 09:10, Jason Wang ha scritto:
+>>>>  
+>>>> -	if (!vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX)) {
+>>>> +	if (vq->urgent || !vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX)) {
+>> So the urgent descriptor only work when event index was not enabled?
+>> This seems suboptimal, we may still want to benefit from event index
+>> even if urgent descriptor is used. Looks like we need return true here
+>> when vq->urgent is true?
+> Its ||, not &&.
+>
+> Without event index, all descriptors are treated as urgent.
+>
+> Paolo
+>
 
-Note "currently" as well as "should" which means "before you don't, make
-sure you understand the implications".
+The problem is if vq->urgent is true, the patch checks
+VRING_AVAIL_F_NO_INTERRUPT bit. This bit were set unconditionally in
+virtqueue_enable_cb() regardless of event index feature and cleared
+unconditionally in virtqueue_disable_cb(). So virtqueue_enable_cb() was
+used to not only publish a new event index but also enable the urgent
+descriptor. And virtqueue_disable_cb() disabled all interrupts including
+the urgent descriptor. Guest won't get urgent interrupts by just adding
+virtqueue_add_outbuf_urgent() since what it needs is to enable and
+disable interrupt for !urgent descriptor.
 
-
--- 
-MST
+Btw, not sure "urgent" is a suitable name, since interrupt is often slow
+in kvm guest. And in fact virtio-net will probably use "urgent"
+descriptor for those packets (e.g stream packets who can be delayed a
+little bit to batch more bytes from userspace) who was not urgent
+compared to other packets.
