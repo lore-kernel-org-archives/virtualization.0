@@ -1,18 +1,12 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Standardizing an MSR or other hypercall to get an RNG seed?
-Date: Mon, 22 Sep 2014 16:01:28 -0700
-Message-ID: <4A3BC619-679D-4FEF-B25A-D6D733498C18@zytor.com>
-References: <CALCETrX66iDM+eG56hpMN4TcuXtzbEr5nB_f6JE-2XETSMWV5w@mail.gmail.com>
-	<541C765B.5050705@codeaurora.org>
-	<CALCETrU_r90=ve4v6xKfZHR_2O5+f05URqD5fzkbSpcuV4tb8A@mail.gmail.com>
-	<15C8041A-3488-4693-B329-3A9FE77A0CB9@gmail.com>
-	<CALCETrXq2FJ4c6MeEHCVeY7muV6C1NpuKpmtr+PcnHV2DpF3Zg@mail.gmail.com>
-	<541CA440.8080909@zytor.com> <542024CB.2070704@codeaurora.org>
-Mime-Version: 1.0 (1.0)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH RFC] virtio_pci: fix virtio spec compliance on restore
+Date: Tue, 23 Sep 2014 13:32:22 +0300
+Message-ID: <1411468217-18130-1-git-send-email-mst@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <542024CB.2070704@codeaurora.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,31 +16,93 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christopher Covington <cov@codeaurora.org>
-Cc: Theodore Ts'o <tytso@mit.edu>, kvm list <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Paolo Bonzini <pbonzini@redhat.com>, Andy Lutomirski <luto@amacapital.net>, Nadav Amit <nadav.amit@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Amit Shah <amit.shah@redhat.com>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Tm90IHJlYWxseSwgbm8uCgpTZW50IGZyb20gbXkgdGFibGV0LCBwYXJkb24gYW55IGZvcm1hdHRp
-bmcgcHJvYmxlbXMuCgo+IE9uIFNlcCAyMiwgMjAxNCwgYXQgMDY6MzEsIENocmlzdG9waGVyIENv
-dmluZ3RvbiA8Y292QGNvZGVhdXJvcmEub3JnPiB3cm90ZToKPiAKPj4gT24gMDkvMTkvMjAxNCAw
-NTo0NiBQTSwgSC4gUGV0ZXIgQW52aW4gd3JvdGU6Cj4+IE9uIDA5LzE5LzIwMTQgMDE6NDYgUE0s
-IEFuZHkgTHV0b21pcnNraSB3cm90ZToKPj4+PiAKPj4+PiBIb3dldmVyLCBpdCBzb3VuZHMgdG8g
-bWUgdGhhdCBhdCBsZWFzdCBmb3IgS1ZNLCBpdCBpcyB2ZXJ5IGVhc3kganVzdCB0byBlbXVsYXRl
-IHRoZSBSRFJBTkQgaW5zdHJ1Y3Rpb24uIFRoZSBoeXBlcnZpc29yIHdvdWxkIHJlcG9ydCB0byB0
-aGUgZ3Vlc3QgdGhhdCBSRFJBTkQgaXMgc3VwcG9ydGVkIGluIENQVUlEIGFuZCB0aGUgZW11bGF0
-ZSB0aGUgaW5zdHJ1Y3Rpb24gd2hlbiBndWVzdCBleGVjdXRlcyBpdC4gS1ZNIGFscmVhZHkgdHJh
-cHMgZ3Vlc3QgI1VEICh3aGljaCB3b3VsZCBvY2N1ciBpZiBSRFJBTkQgZXhlY3V0ZWQgd2hpbGUg
-aXQgaXMgbm90IHN1cHBvcnRlZCkgLSBzbyB0aGlzIHNjaGVtZSB3b3VsZG7igJl0IGludHJvZHVj
-ZSBhZGRpdGlvbmFsIG92ZXJoZWFkIG92ZXIgUkRNU1IuCj4+PiAKPj4+IEJlY2F1c2UgdGhlbiBn
-dWVzdCB1c2VyIGNvZGUgd2lsbCB0aGluayB0aGF0IHJkcmFuZCBpcyB0aGVyZSBhbmQgd2lsbAo+
-Pj4gdHJ5IHRvIHVzZSBpdCwgcmVzdWx0aW5nIGluIGFieXNtYWwgcGVyZm9ybWFuY2UuCj4+IAo+
-PiBZZXMsIHRoZSBwcmVzZW5jZSBvZiBSRFJBTkQgaW1wbGllcyBhIGNoZWFwIGFuZCBpbmV4aGF1
-c3RpYmxlIGVudHJvcHkKPj4gc291cmNlLgo+IAo+IEEgZ3Vlc3Qga2VybmVsIGNvdWxkbid0IG1h
-a2UgaXQgbG9vayBsaWtlIFJEUkFORCBpcyBub3QgcHJlc2VudCB0byBndWVzdAo+IHVzZXJzcGFj
-ZT8KPiAKPiBDaHJpc3RvcGhlcgo+IAo+IC0tIAo+IEVtcGxveWVlIG9mIFF1YWxjb21tIElubm92
-YXRpb24gQ2VudGVyLCBJbmMuCj4gUXVhbGNvbW0gSW5ub3ZhdGlvbiBDZW50ZXIsIEluYy4gaXMg
-YSBtZW1iZXIgb2YgQ29kZSBBdXJvcmEgRm9ydW0sCj4gaG9zdGVkIGJ5IHRoZSBMaW51eCBGb3Vu
-ZGF0aW9uLgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
-aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
-bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
-dGluZm8vdmlydHVhbGl6YXRpb24=
+On restore, virtio pci does the following:
++ set features
++ init vqs etc - device can be used at this point!
++ set ACKNOWLEDGE,DRIVER and DRIVER_OK status bits
+
+This is in violation of the virtio spec, which
+requires the following order:
+- ACKNOWLEDGE
+- DRIVER
+- init vqs
+- DRIVER_OK
+
+Cc: stable@vger.kernel.org
+Cc: Amit Shah <amit.shah@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+
+Lightly tested.
+Will repost as non-RFC once testing is done, sending
+out now for early flames/comments.
+
+Thanks!
+
+ drivers/virtio/virtio_pci.c | 36 ++++++++++++++++++++++++++++++++----
+ 1 file changed, 32 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index 58f7e45..58cbf6e 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -785,6 +785,7 @@ static int virtio_pci_restore(struct device *dev)
+ 	struct pci_dev *pci_dev = to_pci_dev(dev);
+ 	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
+ 	struct virtio_driver *drv;
++	unsigned status = 0;
+ 	int ret;
+ 
+ 	drv = container_of(vp_dev->vdev.dev.driver,
+@@ -795,14 +796,41 @@ static int virtio_pci_restore(struct device *dev)
+ 		return ret;
+ 
+ 	pci_set_master(pci_dev);
++	/* We always start by resetting the device, in case a previous
++	 * driver messed it up. */
++	vp_reset(&vp_dev->vdev);
++
++	/* Acknowledge that we've seen the device. */
++	status |= VIRTIO_CONFIG_S_ACKNOWLEDGE;
++	vp_set_status(&vp_dev->vdev, status);
++
++	/* Maybe driver failed before freeze.
++	 * Restore the failed status, for debugging. */
++	status |= vp_dev->saved_status & VIRTIO_CONFIG_S_FAILED;
++	vp_set_status(&vp_dev->vdev, status);
++
++	if (!drv)
++		return 0;
++
++	/* We have a driver! */
++	status |= VIRTIO_CONFIG_S_DRIVER;
++	vp_set_status(&vp_dev->vdev, status);
++
+ 	vp_finalize_features(&vp_dev->vdev);
+ 
+-	if (drv && drv->restore)
+-		ret = drv->restore(&vp_dev->vdev);
++	if (!drv->restore)
++		return 0;
++
++	ret = drv->restore(&vp_dev->vdev);
++	if (ret) {
++		status |= VIRTIO_CONFIG_S_FAILED;
++		vp_set_status(&vp_dev->vdev, status);
++		return ret;
++	}
+ 
+ 	/* Finally, tell the device we're all set */
+-	if (!ret)
+-		vp_set_status(&vp_dev->vdev, vp_dev->saved_status);
++	status |= VIRTIO_CONFIG_S_DRIVER_OK;
++	vp_set_status(&vp_dev->vdev, status);
+ 
+ 	return ret;
+ }
+-- 
+MST
