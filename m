@@ -1,14 +1,20 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH RFC] virtio_pci: fix virtio spec compliance on restore
-Date: Wed, 24 Sep 2014 17:57:00 +0530
-Message-ID: <20140924122700.GB7982@grmbl.mre>
-References: <1411468217-18130-1-git-send-email-mst@redhat.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [PATCH v5 2/3] virtio_pci: Use the DMA API for virtqueues when
+	possible
+Date: Wed, 24 Sep 2014 14:41:48 -0700
+Message-ID: <CALCETrUDMxsdPsZjRZj-T-Tc4OH697mGH1r4Vj6hPu8tjvmfew@mail.gmail.com>
+References: <cover.1410931077.git.luto@amacapital.net>
+	<6c31406005160303a7ee291a933c267f8e55fa85.1410931077.git.luto@amacapital.net>
+	<1410955351.30672.27.camel@pasglop> <20140917141639.GA13684@redhat.com>
+	<CALCETrULv=zj_+rA2sRgf0Pxw3P6RDBzmM5C40=OHWwpYtEuJQ@mail.gmail.com>
+	<1411162406.30672.64.camel@pasglop>
+	<CALCETrUSRXv9wPoNF54GuXT+kKnLAdJmRPEsOjeFNfSE4QueoA@mail.gmail.com>
+	<1411275788.30672.79.camel@pasglop> <1411275943.30672.81.camel@pasglop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1411468217-18130-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1411275943.30672.81.camel@pasglop>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,99 +24,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, David Woodhouse <dwmw2@infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Tue) 23 Sep 2014 [13:32:22], Michael S. Tsirkin wrote:
-> On restore, virtio pci does the following:
-> + set features
-> + init vqs etc - device can be used at this point!
-> + set ACKNOWLEDGE,DRIVER and DRIVER_OK status bits
-> 
-> This is in violation of the virtio spec, which
-> requires the following order:
-> - ACKNOWLEDGE
-> - DRIVER
-> - init vqs
-> - DRIVER_OK
-> 
-> Cc: stable@vger.kernel.org
-> Cc: Amit Shah <amit.shah@redhat.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
-> 
-> Lightly tested.
-> Will repost as non-RFC once testing is done, sending
-> out now for early flames/comments.
+On Sat, Sep 20, 2014 at 10:05 PM, Benjamin Herrenschmidt
+<benh@kernel.crashing.org> wrote:
+> On Sun, 2014-09-21 at 15:03 +1000, Benjamin Herrenschmidt wrote:
+>
+>> The exception I mentioned is that I would really like the virtio device
+>> to expose via whatever transport we chose to use (though capability
+>> exchange sounds like a reasonable one) whether the "server"
+>> implementation is bypassing IOMMUs or not instead on relying on client
+>> side heuristics.
+>>
+>> IE. Basically, we are trying to "guess" with an ifdef CONFIG_PPC, what
+>> is essentially an attribute of the server-side, ie, whether is bypasses
+>> the iommu for the PCI bus it resides on.
+>
+>> I believe all the arguments about whether this should be a bus property
+>> or whether the x86 case can be worked around via ACPI tables etc... are
+>> all moot. Today, qemu implementation can put virtio devices on busses
+>> with an iommu and bypass it, so at the very least for backward
+>> compatibility, we should expose that appropriately from the "server"
+>> side.
+>
+> And of course, since we are talking about backward compatibility with
+> existing qemus here, the capability should be the opposite, ie "honor
+> iommu", with the assumption that without it, the implementation bypasses
+> it, which reflects what the current qemu implementation does on any
+> architecture, whether you configure the bus to have an iommu emulated on
+> it or not.
 
-What tests are you running?
+Can PPC do this using a new devicetree property?
 
-> Thanks!
-> 
->  drivers/virtio/virtio_pci.c | 36 ++++++++++++++++++++++++++++++++----
->  1 file changed, 32 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-> index 58f7e45..58cbf6e 100644
-> --- a/drivers/virtio/virtio_pci.c
-> +++ b/drivers/virtio/virtio_pci.c
-> @@ -785,6 +785,7 @@ static int virtio_pci_restore(struct device *dev)
->  	struct pci_dev *pci_dev = to_pci_dev(dev);
->  	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
->  	struct virtio_driver *drv;
-> +	unsigned status = 0;
->  	int ret;
->  
->  	drv = container_of(vp_dev->vdev.dev.driver,
-> @@ -795,14 +796,41 @@ static int virtio_pci_restore(struct device *dev)
->  		return ret;
->  
->  	pci_set_master(pci_dev);
-> +	/* We always start by resetting the device, in case a previous
-> +	 * driver messed it up. */
-> +	vp_reset(&vp_dev->vdev);
-> +
-> +	/* Acknowledge that we've seen the device. */
-> +	status |= VIRTIO_CONFIG_S_ACKNOWLEDGE;
-> +	vp_set_status(&vp_dev->vdev, status);
-> +
-> +	/* Maybe driver failed before freeze.
-> +	 * Restore the failed status, for debugging. */
-> +	status |= vp_dev->saved_status & VIRTIO_CONFIG_S_FAILED;
-> +	vp_set_status(&vp_dev->vdev, status);
-> +
-> +	if (!drv)
-> +		return 0;
-> +
-> +	/* We have a driver! */
-> +	status |= VIRTIO_CONFIG_S_DRIVER;
-> +	vp_set_status(&vp_dev->vdev, status);
-> +
->  	vp_finalize_features(&vp_dev->vdev);
->  
-> -	if (drv && drv->restore)
-> -		ret = drv->restore(&vp_dev->vdev);
-> +	if (!drv->restore)
-> +		return 0;
-
-So in this case DRIVER_OK will never be set?
-
-> +
-> +	ret = drv->restore(&vp_dev->vdev);
-> +	if (ret) {
-> +		status |= VIRTIO_CONFIG_S_FAILED;
-> +		vp_set_status(&vp_dev->vdev, status);
-> +		return ret;
-> +	}
->  
->  	/* Finally, tell the device we're all set */
-> -	if (!ret)
-> -		vp_set_status(&vp_dev->vdev, vp_dev->saved_status);
-> +	status |= VIRTIO_CONFIG_S_DRIVER_OK;
-> +	vp_set_status(&vp_dev->vdev, status);
->  
->  	return ret;
->  }
-
-		Amit
+--Andy
