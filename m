@@ -1,14 +1,16 @@
-From: Tejun Heo <tj@kernel.org>
-Subject: Re: [PATCH] virtio_balloon: Convert "vballon" kthread into a workqueue
-Date: Sun, 28 Sep 2014 08:43:18 -0400
-Message-ID: <20140928124318.GA3736@mtj.dyndns.org>
-References: <1411662041-10986-1-git-send-email-pmladek@suse.cz>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [PATCH v5 2/3] virtio_pci: Use the DMA API for virtqueues when
+	possible
+Date: Mon, 29 Sep 2014 11:55:45 -0700
+Message-ID: <CALCETrW1mD5EuPbJDhnQPDSJwy9L=dh6rSSTj_wEOmFJNHBeUQ@mail.gmail.com>
+References: <cover.1410931077.git.luto@amacapital.net>
+	<6c31406005160303a7ee291a933c267f8e55fa85.1410931077.git.luto@amacapital.net>
+	<1410955351.30672.27.camel@pasglop> <20140917141639.GA13684@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1411662041-10986-1-git-send-email-pmladek@suse.cz>
+In-Reply-To: <20140917141639.GA13684@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,32 +20,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Petr Mladek <pmladek@suse.cz>
-Cc: Jiri Kosina <jkosina@suse.cz>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 25, 2014 at 06:20:41PM +0200, Petr Mladek wrote:
-...
->     1st create_freezable_workqueue("vballoon_wq");
+On Wed, Sep 17, 2014 at 7:16 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Wed, Sep 17, 2014 at 08:02:31AM -0400, Benjamin Herrenschmidt wrote:
+>> On Tue, 2014-09-16 at 22:22 -0700, Andy Lutomirski wrote:
+>> > On non-PPC systems, virtio_pci should use the DMA API.  This fixes
+>> > virtio_pci on Xen.  On PPC, using the DMA API would break things, so
+>> > we need to preserve the old behavior.
+>> >
+>> > The big comment in this patch explains the considerations in more
+>> > detail.
+>>
+>> I still disagree with using CONFIG_PPC as a trigger here.
+>>
+>> Fundamentally, the qemu implementation today bypasses IOMMUs on all
+>> platforms as far as I can tell.
+>>
+>> If that changes, we'll have a backward compatibility problem.
+>>
+>> The virtio device should advertise whether it's using that bypass
+>> mode of operation and virtio_pci should react accordingly.
+>
+> Well if there's a way to detect that - that's outside the
+> device, then we probably shouldn't use device-specific
+> interfaces for this capability.
+>
+>
+>> There is a demand for being able to operate on top of an IOMMU on
+>> powerpc as well for some embedded stuff using PCI as a transport so your
+>> patch precludes that.
+>>
+>> Cheers,
+>> Ben.
+>
+> As far as I can see, nothing changes on PPC so this patch
+> does not preclude anything that was working?
 
-All create_*workqueue() interfaces are deprecated.  Please don't
-create new usages.  They map to alloc_*workqueue() anyway.
+Rusty and Michael, what's the status of this?
 
->     2nd alloc_workqueue("vballoon_wq", WQ_FREEZABLE | WQ_MEM_RECLAIM, 0);
+I think that (aside from the trivial DMI/DMA typo) the only real issue
+here is that the situation on PPC is ugly.  We're failing to enable
+physical virtio hardware on PPC with these patches, but that never
+worked anyway.  I don't think that there are any regressions other
+than ugliness.
 
-Is WQ_MEM_RECLAIM necessary here?  Does virtio_balloon depended upon
-from memory allocation path?
+My preference would be to apply the patches as is (or with "DMA"
+spelled correctly), and then to:
 
-...
-> The 2nd way to create the workqueue has about the same results as kthread.
-> This is why it is used in the patch.
+ - Make sure that all virtio-mmio systems have working DMA ops so that
+virtio-mmio can the DMA API
 
-You're testing WQ_UNBOUND vs. !WQ_UNBOUND and yes for most use cases,
-!WQ_UNBOUND will be more efficient.  The right thing to do in most
-cases is using alloc_workqueue() w/ as minimum extra flags as
-possible.
+ - Fix the DMA API on s390 (probably easy) and on PPC (not necessarily so easy)
 
-Thanks!
+ - Remove the non-DMA-API code, which would be a very small change on
+top of these patches.
 
--- 
-tejun
+--Andy
