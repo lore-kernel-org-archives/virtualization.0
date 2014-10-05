@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 10/16] virtio: add API to enable VQs early
-Date: Sun, 5 Oct 2014 19:07:19 +0300
-Message-ID: <1412525038-15871-11-git-send-email-mst__5313.77324737168$1412525096$gmane$org@redhat.com>
+Subject: [PATCH 11/16] virtio_net: minor cleanup
+Date: Sun, 5 Oct 2014 19:07:21 +0300
+Message-ID: <1412525038-15871-12-git-send-email-mst@redhat.com>
 References: <1412525038-15871-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,50 +19,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio spec requires DRIVER_OK to be set before
-VQs are used, but some drivers use VQs before probe
-function returns.
-Since DRIVER_OK is set after probe, this violates the spec.
-
-Add API for drivers to call before using VQs.
-
-Sets DRIVER_OK internally.
+	goto done;
+done:
+	return;
+is ugly, it was put there to make diff review easier.
+replace by open-coded return.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- include/linux/virtio_config.h | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ drivers/net/virtio_net.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index e8f8f71..6127fc8 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -109,6 +109,23 @@ struct virtqueue *virtio_find_single_vq(struct virtio_device *vdev,
- 	return vq;
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index d80fef4..4c8c314 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1403,7 +1403,7 @@ static void virtnet_config_changed_work(struct work_struct *work)
+ 
+ 	if (virtio_cread_feature(vi->vdev, VIRTIO_NET_F_STATUS,
+ 				 struct virtio_net_config, status, &v) < 0)
+-		goto done;
++		return;
+ 
+ 	if (v & VIRTIO_NET_S_ANNOUNCE) {
+ 		netdev_notify_peers(vi->dev);
+@@ -1414,7 +1414,7 @@ static void virtnet_config_changed_work(struct work_struct *work)
+ 	v &= VIRTIO_NET_S_LINK_UP;
+ 
+ 	if (vi->status == v)
+-		goto done;
++		return;
+ 
+ 	vi->status = v;
+ 
+@@ -1425,8 +1425,6 @@ static void virtnet_config_changed_work(struct work_struct *work)
+ 		netif_carrier_off(vi->dev);
+ 		netif_tx_stop_all_queues(vi->dev);
+ 	}
+-done:
+-	return;
  }
  
-+/**
-+ * virtio_early_enable_vqs - enable vq use in probe function
-+ * @vdev: the device
-+ *
-+ * Driver must call this to use vqs in the probe function.
-+ *
-+ * Note: vqs are enabled automatically after probe returns.
-+ */
-+static inline
-+void virtio_early_enable_vqs(struct virtio_device *dev)
-+{
-+	unsigned status = dev->config->get_status(dev);
-+
-+	BUG_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
-+	dev->config->set_status(dev, status | VIRTIO_CONFIG_S_DRIVER_OK);
-+}
-+
- static inline
- const char *virtio_bus_name(struct virtio_device *vdev)
- {
+ static void virtnet_config_changed(struct virtio_device *vdev)
 -- 
 MST
