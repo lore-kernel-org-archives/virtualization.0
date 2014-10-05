@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 14/16] virtio_console: enable VQs early
-Date: Sun, 5 Oct 2014 19:07:30 +0300
-Message-ID: <1412525038-15871-15-git-send-email-mst__17832.9164199114$1412525136$gmane$org@redhat.com>
+Subject: [PATCH 16/16] virtio_net: fix use after free on allocation failure
+Date: Sun, 5 Oct 2014 19:07:38 +0300
+Message-ID: <1412525038-15871-17-git-send-email-mst__4689.16474278576$1412525144$gmane$org@redhat.com>
 References: <1412525038-15871-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,33 +19,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: Amit Shah <amit.shah@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio spec requires drivers to set DRIVER_OK before using VQs.
-This is set automatically after probe returns, virtio console violated this
-rule by adding inbufs, which causes the VQ to be used directly within
-probe.
+In the extremely unlikely event that driver initialization fails after
+RX buffers are added, virtio net frees RX buffers while VQs are
+still active, potentially causing device to use a freed buffer.
 
-To fix, call virtio_early_enable_vqs before using VQs.
+To fix, reset device first - same as we do on device removal.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/char/virtio_console.c | 2 ++
+ drivers/net/virtio_net.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index b585b47..8605009 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -1449,6 +1449,8 @@ static int add_port(struct ports_device *portdev, u32 id)
- 	spin_lock_init(&port->outvq_lock);
- 	init_waitqueue_head(&port->waitqueue);
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 7afc990..85e6098 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1830,6 +1830,8 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	return 0;
  
-+	virtio_early_enable_vqs(portdev->vdev);
+ free_recv_bufs:
++	vi->vdev->config->reset(vdev);
 +
- 	/* Fill the in_vq with buffers so the host can send us data. */
- 	nr_added_bufs = fill_queue(port->in_vq, &port->inbuf_lock);
- 	if (!nr_added_bufs) {
+ 	free_receive_bufs(vi);
+ 	unregister_netdev(dev);
+ free_vqs:
 -- 
 MST
