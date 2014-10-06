@@ -1,18 +1,14 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH 06/16] virtio_blk: drop config_enable
-Date: Mon, 6 Oct 2014 14:55:05 +0200
-Message-ID: <20141006145505.697bc5ca.cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH 10/16] virtio: add API to enable VQs early
+Date: Mon, 6 Oct 2014 16:08:16 +0200
+Message-ID: <20141006160816.68490a49.cornelia.huck@de.ibm.com>
 References: <1412525038-15871-1-git-send-email-mst@redhat.com>
-	<1412525038-15871-7-git-send-email-mst@redhat.com>
-	<20141006134229.45465bf7.cornelia.huck@de.ibm.com>
-	<20141006120953.GA26549@redhat.com>
-	<20141006142038.07ea01f0.cornelia.huck@de.ibm.com>
-	<20141006123110.GA26815@redhat.com>
+	<1412525038-15871-11-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141006123110.GA26815@redhat.com>
+In-Reply-To: <1412525038-15871-11-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,67 +22,57 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 6 Oct 2014 15:31:10 +0300
+On Sun, 5 Oct 2014 19:07:19 +0300
 "Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-> On Mon, Oct 06, 2014 at 02:20:38PM +0200, Cornelia Huck wrote:
-> > On Mon, 6 Oct 2014 15:09:53 +0300
-> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > 
-> > > On Mon, Oct 06, 2014 at 01:42:29PM +0200, Cornelia Huck wrote:
-> > > > On Sun, 5 Oct 2014 19:07:07 +0300
-> > > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > 
-> > > > > Now that virtio core ensures config changes don't
-> > > > > arrive during probing, drop config_enable flag
-> > > > > in virtio blk.
-> > > > > On removal, flush is now sufficient to guarantee that
-> > > > > no change work is queued.
-> > > > > 
-> > > > > This help simplify the driver, and will allow
-> > > > > setting DRIVER_OK earlier without losing config
-> > > > > change notifications.
-> > > > > 
-> > > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > > > ---
-> > > > >  drivers/block/virtio_blk.c | 19 ++-----------------
-> > > > >  1 file changed, 2 insertions(+), 17 deletions(-)
-> > > > > 
-> > > > > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> > > > > index 0a58140..c8cf6a1 100644
-> > > > > --- a/drivers/block/virtio_blk.c
-> > > > > +++ b/drivers/block/virtio_blk.c
-> > > > 
-> > > > > @@ -772,9 +766,7 @@ static void virtblk_remove(struct virtio_device *vdev)
-> > > > >  	int refc;
-> > > > > 
-> > > > >  	/* Prevent config work handler from accessing the device. */
-> > > > 
-> > > > /* Common code ensures no further work will be queued. */
-> > > > 
-> > > > instead?
-> > > 
-> > > No, I think you missed the point:
-> > > this comment now refers to the flush below: flush is required to
-> > > ensure work handler is not running.
-> > > 
-> > > Agree?
-> > 
-> > I think we both mean the same thing.
-> > 
-> > Preventing the handler from access sounds to me more like "when the
-> > handler starts running, it is prevented from accessing the
-> > device" (like with setting config_enable, as the code did before). What
-> > I meant was "common code has already ensured that our work-queueing
-> > function will not be called, therefore flushing the workqueue is
-> > enough."
-> > 
-> > (same for net)
-> 
-> OK so I'll rewrite this to
-> 	/* Make sure no work handler is accessing the device. */
-> ?
-> I prefer not duplicating core guarantees in all devices.
-> 
+> virtio spec requires DRIVER_OK to be set before
+> VQs are used, but some drivers use VQs before probe
+> function returns.
+> Since DRIVER_OK is set after probe, this violates the spec.
 
-Sounds good to me.
+"Even though transitional devices support this behaviour, we want to
+make it possible for those early callers to become spec compliant."
+
+?
+
+> 
+> Add API for drivers to call before using VQs.
+> 
+> Sets DRIVER_OK internally.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  include/linux/virtio_config.h | 17 +++++++++++++++++
+>  1 file changed, 17 insertions(+)
+> 
+> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+> index e8f8f71..6127fc8 100644
+> --- a/include/linux/virtio_config.h
+> +++ b/include/linux/virtio_config.h
+> @@ -109,6 +109,23 @@ struct virtqueue *virtio_find_single_vq(struct virtio_device *vdev,
+>  	return vq;
+>  }
+> 
+> +/**
+> + * virtio_early_enable_vqs - enable vq use in probe function
+> + * @vdev: the device
+> + *
+> + * Driver must call this to use vqs in the probe function.
+> + *
+> + * Note: vqs are enabled automatically after probe returns.
+> + */
+> +static inline
+> +void virtio_early_enable_vqs(struct virtio_device *dev)
+> +{
+> +	unsigned status = dev->config->get_status(dev);
+> +
+> +	BUG_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
+> +	dev->config->set_status(dev, status | VIRTIO_CONFIG_S_DRIVER_OK);
+> +}
+> +
+
+Maybe virtio_enable_vqs_early() instead?
+
+>  static inline
+>  const char *virtio_bus_name(struct virtio_device *vdev)
+>  {
