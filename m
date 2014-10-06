@@ -1,18 +1,14 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH v5 2/3] virtio_pci: Use the DMA API for virtqueues when
-	possible
-Date: Mon, 06 Oct 2014 21:48:26 +1100
-Message-ID: <1412592506.30859.74.camel@pasglop>
-References: <cover.1410931077.git.luto@amacapital.net>
-	<6c31406005160303a7ee291a933c267f8e55fa85.1410931077.git.luto@amacapital.net>
-	<1410955351.30672.27.camel@pasglop> <20140917141639.GA13684@redhat.com>
-	<CALCETrW1mD5EuPbJDhnQPDSJwy9L=dh6rSSTj_wEOmFJNHBeUQ@mail.gmail.com>
-	<543267FC.4030900@de.ibm.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH 04/16] virtio-pci: move freeze/restore to virtio core
+Date: Mon, 6 Oct 2014 12:54:35 +0200
+Message-ID: <20141006125435.12c69ab1.cornelia.huck@de.ibm.com>
+References: <1412525038-15871-1-git-send-email-mst@redhat.com>
+	<1412525038-15871-5-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <543267FC.4030900@de.ibm.com>
+In-Reply-To: <1412525038-15871-5-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,25 +18,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Andy Lutomirski <luto@amacapital.net>, Paolo Bonzini <pbonzini@redhat.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2014-10-06 at 11:59 +0200, Christian Borntraeger wrote:
-> Just as a comment: On s390 we always considered the memory access as
-> access to real memory (not device memory) for virtio accesses. I
-> prefer to not touch the DMA API on s390 as it is quite s390-PCI
-> specific but it is somewhat strange for CCW devices.
+On Sun, 5 Oct 2014 19:07:02 +0300
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
+
+> This is in preparation to extending config changed event handling
+> in core.
+> Wrapping these in an API also seems to make for a cleaner code.
 > 
-> We would basically have two kinds of DMA mappings on s390 then, one
-> iommu like for the PCI devices and one that maps DMA memory 1:1 to
-> real memory. We would also need some buy-in from the s390 arch
-> maintainers then.
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  include/linux/virtio.h      |  6 +++++
+>  drivers/virtio/virtio.c     | 53 +++++++++++++++++++++++++++++++++++++++++++
+>  drivers/virtio/virtio_pci.c | 55 ++-------------------------------------------
+>  3 files changed, 61 insertions(+), 53 deletions(-)
+> 
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index 3c19bd3..8df7ba8 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -78,6 +78,7 @@ bool virtqueue_is_broken(struct virtqueue *vq);
+>  /**
+>   * virtio_device - representation of a device using virtio
+>   * @index: unique position on the virtio bus
+> + * @failed: saved value for CONFIG_S_FAILED bit (for restore)
+>   * @dev: underlying device.
+>   * @id: the device type identification (used to match it with a driver).
+>   * @config: the configuration ops for this device.
 
-It's pretty standard to have the dma API go via dma-ops hanging off
-struct device, you can then easily make them to the right thing for the
-type of device... Provided we have a way to identify "bypass everyting"
-virtio vs. virtio going through normal PCI translation.
+The only minor gripe I have is with the naming of this field: To a
+cursory reader, it might indicate the current 'failed' status of the
+device. What about 'saved_failed'?
 
-Cheers,
-Ben.
+Otherwise, moving this into common virtio code makes sense.
+
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
