@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2 08/15] virtio-net: drop config_mutex
-Date: Mon, 6 Oct 2014 18:11:08 +0300
-Message-ID: <1412608214-31944-9-git-send-email-mst__12563.0292146981$1412608199$gmane$org@redhat.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH v2 02/15] virtio: unify config_changed handling
+Date: Mon, 6 Oct 2014 17:16:14 +0200
+Message-ID: <20141006171614.376ba255.cornelia.huck@de.ibm.com>
 References: <1412608214-31944-1-git-send-email-mst@redhat.com>
+	<1412608214-31944-3-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1412608214-31944-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1412608214-31944-3-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,64 +18,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Sudeep Dutt <sudeep.dutt@intel.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Siva Yerramreddy <yshivakrishna@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ashutosh Dixit <ashutosh.dixit@intel.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-config_mutex served two purposes: prevent multiple concurrent config
-change handlers, and synchronize access to config_enable flag.
+On Mon, 6 Oct 2014 18:10:44 +0300
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-Since commit dbf2576e37da0fcc7aacbfbb9fd5d3de7888a3c1
-    workqueue: make all workqueues non-reentrant
-all workqueues are non-reentrant, and config_enable
-is now gone.
+> Replace duplicated code in all transports with a single wrapper in
+> virtio.c.
+> 
+> The only functional change is in virtio_mmio.c: if a buggy device sends
+> us an interrupt before driver is set, we previously returned IRQ_NONE,
+> now we return IRQ_HANDLED.
+> 
+> As this must not happen in practice, this does not look like a big deal.
+> 
+> See also commit 3fff0179e33cd7d0a688dab65700c46ad089e934
+> 	virtio-pci: do not oops on config change if driver not loaded.
+> for the original motivation behind the driver check.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  include/linux/virtio.h             | 2 ++
+>  drivers/misc/mic/card/mic_virtio.c | 6 +-----
+>  drivers/s390/kvm/kvm_virtio.c      | 9 +--------
+>  drivers/s390/kvm/virtio_ccw.c      | 6 +-----
+>  drivers/virtio/virtio.c            | 9 +++++++++
+>  drivers/virtio/virtio_mmio.c       | 7 ++-----
+>  drivers/virtio/virtio_pci.c        | 6 +-----
+>  7 files changed, 17 insertions(+), 28 deletions(-)
 
-Get rid of the unnecessary lock.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
----
- drivers/net/virtio_net.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 743fb04..23e4a69 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -132,9 +132,6 @@ struct virtnet_info {
- 	/* Work struct for config space updates */
- 	struct work_struct config_work;
- 
--	/* Lock for config space updates */
--	struct mutex config_lock;
--
- 	/* Does the affinity hint is set for virtqueues? */
- 	bool affinity_hint_set;
- 
-@@ -1404,7 +1401,6 @@ static void virtnet_config_changed_work(struct work_struct *work)
- 		container_of(work, struct virtnet_info, config_work);
- 	u16 v;
- 
--	mutex_lock(&vi->config_lock);
- 	if (virtio_cread_feature(vi->vdev, VIRTIO_NET_F_STATUS,
- 				 struct virtio_net_config, status, &v) < 0)
- 		goto done;
-@@ -1430,7 +1426,7 @@ static void virtnet_config_changed_work(struct work_struct *work)
- 		netif_tx_stop_all_queues(vi->dev);
- 	}
- done:
--	mutex_unlock(&vi->config_lock);
-+	return;
- }
- 
- static void virtnet_config_changed(struct virtio_device *vdev)
-@@ -1751,7 +1747,6 @@ static int virtnet_probe(struct virtio_device *vdev)
- 		u64_stats_init(&virtnet_stats->rx_syncp);
- 	}
- 
--	mutex_init(&vi->config_lock);
- 	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
- 
- 	/* If we can receive ANY GSO packets, we must allocate large ones. */
--- 
-MST
