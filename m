@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2 12/15] virtio_blk: enable VQs early
-Date: Mon, 6 Oct 2014 18:11:22 +0300
-Message-ID: <1412608214-31944-13-git-send-email-mst@redhat.com>
+Subject: [PATCH v2 13/15] virtio_console: enable VQs early
+Date: Mon, 6 Oct 2014 18:11:25 +0300
+Message-ID: <1412608214-31944-14-git-send-email-mst__23991.1148361445$1412608176$gmane$org@redhat.com>
 References: <1412608214-31944-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,33 +19,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 virtio spec requires drivers to set DRIVER_OK before using VQs.
-This is set automatically after probe returns, virtio block violated this
-rule by calling add_disk, which causes the VQ to be used directly within
+This is set automatically after probe returns, virtio console violated this
+rule by adding inbufs, which causes the VQ to be used directly within
 probe.
 
 To fix, call virtio_enable_vqs_early before using VQs.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/block/virtio_blk.c | 2 ++
+ drivers/char/virtio_console.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 89ba8d6..46b04bf 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -719,6 +719,8 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	if (!err && opt_io_size)
- 		blk_queue_io_opt(q, blk_size * opt_io_size);
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index b585b47..6ebe8f6 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1449,6 +1449,8 @@ static int add_port(struct ports_device *portdev, u32 id)
+ 	spin_lock_init(&port->outvq_lock);
+ 	init_waitqueue_head(&port->waitqueue);
  
-+	virtio_enable_vqs_early(vdev);
++	virtio_enable_vqs_early(portdev->vdev);
 +
- 	add_disk(vblk->disk);
- 	err = device_create_file(disk_to_dev(vblk->disk), &dev_attr_serial);
- 	if (err)
+ 	/* Fill the in_vq with buffers so the host can send us data. */
+ 	nr_added_bufs = fill_queue(port->in_vq, &port->inbuf_lock);
+ 	if (!nr_added_bufs) {
 -- 
 MST
