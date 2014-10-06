@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 16/16] virtio_net: fix use after free on allocation failure
-Date: Sun, 5 Oct 2014 19:07:38 +0300
-Message-ID: <1412525038-15871-17-git-send-email-mst__4689.16474278576$1412525144$gmane$org@redhat.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH 02/16] virtio: unify config_changed handling
+Date: Mon, 6 Oct 2014 11:20:16 +0200
+Message-ID: <20141006112016.0227d0d3.cornelia.huck@de.ibm.com>
 References: <1412525038-15871-1-git-send-email-mst@redhat.com>
+	<1412525038-15871-3-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1412525038-15871-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1412525038-15871-3-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,33 +18,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-s390@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Siva Yerramreddy <yshivakrishna@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Sudeep Dutt <sudeep.dutt@intel.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-In the extremely unlikely event that driver initialization fails after
-RX buffers are added, virtio net frees RX buffers while VQs are
-still active, potentially causing device to use a freed buffer.
+On Sun, 5 Oct 2014 19:06:52 +0300
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-To fix, reset device first - same as we do on device removal.
+> Replace duplicated code in all transports with a single wrapper in
+> virtio.c.
+> 
+> The only functional change is in virtio_mmio.c: if a buggy device sends
+> us an interrupt before driver is set, we previously returned IRQ_NONE,
+> now we return IRQ_HANDLED.
+> 
+> As this must not happen in practice, this does not look like a big deal.
+> 
+> See also commit 3fff0179e33cd7d0a688dab65700c46ad089e934
+> 	virtio-pci: do not oops on config change if driver not loaded.
+> for the original motivation behind the driver check.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  include/linux/virtio.h             |  2 ++
+>  drivers/misc/mic/card/mic_virtio.c |  6 +-----
+>  drivers/s390/kvm/kvm_virtio.c      |  9 +--------
+>  drivers/s390/kvm/virtio_ccw.c      |  6 +-----
+>  drivers/virtio/virtio.c            | 10 ++++++++++
+>  drivers/virtio/virtio_mmio.c       |  7 ++-----
+>  drivers/virtio/virtio_pci.c        |  6 +-----
+>  7 files changed, 18 insertions(+), 28 deletions(-)
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/net/virtio_net.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 7afc990..85e6098 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1830,6 +1830,8 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	return 0;
- 
- free_recv_bufs:
-+	vi->vdev->config->reset(vdev);
-+
- 	free_receive_bufs(vi);
- 	unregister_netdev(dev);
- free_vqs:
--- 
-MST
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
