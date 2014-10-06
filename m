@@ -1,14 +1,14 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH 07/16] virtio-blk: drop config_mutex
-Date: Mon, 6 Oct 2014 13:48:45 +0200
-Message-ID: <20141006134845.157ba74f.cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH 08/16] virtio_net: drop config_enable
+Date: Mon, 6 Oct 2014 13:50:36 +0200
+Message-ID: <20141006135036.77fea7de.cornelia.huck@de.ibm.com>
 References: <1412525038-15871-1-git-send-email-mst@redhat.com>
-	<1412525038-15871-8-git-send-email-mst@redhat.com>
+	<1412525038-15871-9-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1412525038-15871-8-git-send-email-mst@redhat.com>
+In-Reply-To: <1412525038-15871-9-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,26 +19,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 5 Oct 2014 19:07:10 +0300
+On Sun, 5 Oct 2014 19:07:13 +0300
 "Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-> config_mutex served two purposes: prevent multiple concurrent config
-> change handlers, and synchronize access to config_enable flag.
+> Now that virtio core ensures config changes don't arrive during probing,
+> drop config_enable flag in virtio net.
+> On removal, flush is now sufficient to guarantee that no change work is
+> queued.
 > 
-> Since commit dbf2576e37da0fcc7aacbfbb9fd5d3de7888a3c1
->     workqueue: make all workqueues non-reentrant
-> all workqueues are non-reentrant, and config_enable
-> is now gone.
-> 
-> Get rid of the unnecessary lock.
+> This help simplify the driver, and will allow setting DRIVER_OK earlier
+> without losing config change notifications.
 > 
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > ---
->  drivers/block/virtio_blk.c | 8 --------
->  1 file changed, 8 deletions(-)
+>  drivers/net/virtio_net.c | 23 ++---------------------
+>  1 file changed, 2 insertions(+), 21 deletions(-)
 > 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 59caa06..fa17afa 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
 
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> @@ -1876,16 +1869,12 @@ static void virtnet_remove(struct virtio_device *vdev)
+>  	unregister_hotcpu_notifier(&vi->nb);
+> 
+>  	/* Prevent config work handler from accessing the device. */
+
+Same comment as for the equivalent comment in the virtio-blk code.
+
+> -	mutex_lock(&vi->config_lock);
+> -	vi->config_enable = false;
+> -	mutex_unlock(&vi->config_lock);
+> +	flush_work(&vi->config_work);
+> 
+>  	unregister_netdev(vi->dev);
+> 
+>  	remove_vq_common(vi);
+> 
+> -	flush_work(&vi->config_work);
+> -
+>  	free_percpu(vi->stats);
+>  	free_netdev(vi->dev);
+>  }
+> @@ -1899,9 +1888,7 @@ static int virtnet_freeze(struct virtio_device *vdev)
+>  	unregister_hotcpu_notifier(&vi->nb);
+> 
+>  	/* Prevent config work handler from accessing the device */
+
+dito
+
+> -	mutex_lock(&vi->config_lock);
+> -	vi->config_enable = false;
+> -	mutex_unlock(&vi->config_lock);
+> +	flush_work(&vi->config_work);
+> 
+>  	netif_device_detach(vi->dev);
+>  	cancel_delayed_work_sync(&vi->refill);
