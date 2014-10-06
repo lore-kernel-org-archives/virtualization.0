@@ -1,14 +1,14 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH 06/16] virtio_blk: drop config_enable
-Date: Mon, 6 Oct 2014 13:42:29 +0200
-Message-ID: <20141006134229.45465bf7.cornelia.huck@de.ibm.com>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [PATCH 09/16] virtio-net: drop config_mutex
+Date: Mon, 06 Oct 2014 15:46:15 +0400
+Message-ID: <54328107.5090400@cogentembedded.com>
 References: <1412525038-15871-1-git-send-email-mst@redhat.com>
-	<1412525038-15871-7-git-send-email-mst@redhat.com>
+	<1412525038-15871-10-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1412525038-15871-7-git-send-email-mst@redhat.com>
+In-Reply-To: <1412525038-15871-10-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,61 +18,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 5 Oct 2014 19:07:07 +0300
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+Hello.
 
-> Now that virtio core ensures config changes don't
-> arrive during probing, drop config_enable flag
-> in virtio blk.
-> On removal, flush is now sufficient to guarantee that
-> no change work is queued.
-> 
-> This help simplify the driver, and will allow
-> setting DRIVER_OK earlier without losing config
-> change notifications.
-> 
+On 10/5/2014 8:07 PM, Michael S. Tsirkin wrote:
+
+> config_mutex served two purposes: prevent multiple concurrent config
+> change handlers, and synchronize access to config_enable flag.
+
+> Since commit dbf2576e37da0fcc7aacbfbb9fd5d3de7888a3c1
+>      workqueue: make all workqueues non-reentrant
+> all workqueues are non-reentrant, and config_enable
+> is now gone.
+
+> Get rid of the unnecessary lock.
+
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > ---
->  drivers/block/virtio_blk.c | 19 ++-----------------
->  1 file changed, 2 insertions(+), 17 deletions(-)
-> 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 0a58140..c8cf6a1 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
+>   drivers/net/virtio_net.c | 7 +------
+>   1 file changed, 1 insertion(+), 6 deletions(-)
 
-> @@ -772,9 +766,7 @@ static void virtblk_remove(struct virtio_device *vdev)
->  	int refc;
-> 
->  	/* Prevent config work handler from accessing the device. */
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index fa17afa..d80fef4 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+[...]
+> @@ -1430,7 +1426,7 @@ static void virtnet_config_changed_work(struct work_struct *work)
+>   		netif_tx_stop_all_queues(vi->dev);
+>   	}
+>   done:
+> -	mutex_unlock(&vi->config_lock);
+> +	return;
 
-/* Common code ensures no further work will be queued. */
+    There's no need for this *return*.
 
-instead?
+>   }
+>
+>   static void virtnet_config_changed(struct virtio_device *vdev)
 
-> -	mutex_lock(&vblk->config_lock);
-> -	vblk->config_enable = false;
-> -	mutex_unlock(&vblk->config_lock);
-> +	flush_work(&vblk->config_work);
-> 
->  	del_gendisk(vblk->disk);
->  	blk_cleanup_queue(vblk->disk->queue);
-
-> @@ -806,10 +796,6 @@ static int virtblk_freeze(struct virtio_device *vdev)
->  	vdev->config->reset(vdev);
-> 
->  	/* Prevent config work handler from accessing the device. */
-
-dito on the comment
-
-> -	mutex_lock(&vblk->config_lock);
-> -	vblk->config_enable = false;
-> -	mutex_unlock(&vblk->config_lock);
-> -
->  	flush_work(&vblk->config_work);
-> 
->  	blk_mq_stop_hw_queues(vblk->disk->queue);
+WBR, Sergei
