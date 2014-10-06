@@ -1,14 +1,14 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH 04/16] virtio-pci: move freeze/restore to virtio core
-Date: Mon, 6 Oct 2014 12:54:35 +0200
-Message-ID: <20141006125435.12c69ab1.cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH 05/16] virtio: defer config changed notifications
+Date: Mon, 6 Oct 2014 13:33:38 +0200
+Message-ID: <20141006133338.236a1175.cornelia.huck@de.ibm.com>
 References: <1412525038-15871-1-git-send-email-mst@redhat.com>
-	<1412525038-15871-5-git-send-email-mst@redhat.com>
+	<1412525038-15871-6-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1412525038-15871-5-git-send-email-mst@redhat.com>
+In-Reply-To: <1412525038-15871-6-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,37 +22,75 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 5 Oct 2014 19:07:02 +0300
+On Sun, 5 Oct 2014 19:07:05 +0300
 "Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-> This is in preparation to extending config changed event handling
-> in core.
-> Wrapping these in an API also seems to make for a cleaner code.
+> Defer config changed notifications that arrive during
+> probe/scan/freeze/restore.
+> 
+> This will allow drivers to set DRIVER_OK earlier, without worrying about
+> racing with config change interrupts.
+> 
+> This change will also benefit old hypervisors (before 2009)
+> that send interrupts without checking DRIVER_OK: previously,
+> the callback could race with driver-specific initialization.
+> 
+> This will also help simplify drivers.
 > 
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > ---
->  include/linux/virtio.h      |  6 +++++
->  drivers/virtio/virtio.c     | 53 +++++++++++++++++++++++++++++++++++++++++++
->  drivers/virtio/virtio_pci.c | 55 ++-------------------------------------------
->  3 files changed, 61 insertions(+), 53 deletions(-)
+>  include/linux/virtio.h  |  6 ++++++
+>  drivers/virtio/virtio.c | 55 +++++++++++++++++++++++++++++++++++++++++--------
+>  2 files changed, 52 insertions(+), 9 deletions(-)
 > 
-> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> index 3c19bd3..8df7ba8 100644
-> --- a/include/linux/virtio.h
-> +++ b/include/linux/virtio.h
-> @@ -78,6 +78,7 @@ bool virtqueue_is_broken(struct virtqueue *vq);
->  /**
->   * virtio_device - representation of a device using virtio
->   * @index: unique position on the virtio bus
-> + * @failed: saved value for CONFIG_S_FAILED bit (for restore)
->   * @dev: underlying device.
->   * @id: the device type identification (used to match it with a driver).
->   * @config: the configuration ops for this device.
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index 657f817..578e02d 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -117,6 +117,40 @@ void virtio_check_driver_offered_feature(const struct virtio_device *vdev,
+>  }
+>  EXPORT_SYMBOL_GPL(virtio_check_driver_offered_feature);
+> 
+> +static void __virtio_config_changed(struct virtio_device *dev)
+> +{
+> +	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
+> +
+> +	if (!dev->config_enabled)
+> +		dev->config_changed = true;
+> +	else if (drv && drv->config_changed)
+> +		drv->config_changed(dev);
+> +}
+> +
+> +void virtio_config_changed(struct virtio_device *dev)
+> +{
+> +	spin_lock_irq(&dev->config_lock);
+> +	__virtio_config_changed(dev);
+> +	spin_unlock_irq(&dev->config_lock);
 
-The only minor gripe I have is with the naming of this field: To a
-cursory reader, it might indicate the current 'failed' status of the
-device. What about 'saved_failed'?
+Hm, isn't this function called from the interrupt handler?
 
-Otherwise, moving this into common virtio code makes sense.
+> +}
+> +EXPORT_SYMBOL_GPL(virtio_config_changed);
+> +
+> +static void virtio_config_disable(struct virtio_device *dev)
+> +{
+> +	spin_lock_irq(&dev->config_lock);
+> +	dev->config_enabled = false;
+> +	spin_unlock_irq(&dev->config_lock);
+> +}
+> +
+> +static void virtio_config_enable(struct virtio_device *dev)
+> +{
+> +	spin_lock_irq(&dev->config_lock);
+> +	dev->config_enabled = true;
+> +	__virtio_config_changed(dev);
+> +	dev->config_changed = false;
+> +	spin_unlock_irq(&dev->config_lock);
+> +}
+> +
 
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Maybe call these virtio_config_change_{dis,en}able()?
+
+>  static int virtio_dev_probe(struct device *_d)
+>  {
+>  	int err, i;
