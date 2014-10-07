@@ -1,17 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 08/16] virtio_net: drop config_enable
-Date: Tue, 7 Oct 2014 18:42:33 +0300
-Message-ID: <20141007154233.GA9635@redhat.com>
-References: <1412525038-15871-9-git-send-email-mst@redhat.com>
-	<20141006.150238.2180269239953265506.davem@davemloft.net>
-	<20141007064915.GA2424@redhat.com>
-	<20141007.113643.1462528588440998168.davem@davemloft.net>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH v2 01/15] virtio_pci: fix virtio spec compliance on restore
+Date: Tue, 7 Oct 2014 22:24:39 +0530
+Message-ID: <20141007165439.GB823__35301.4509579681$1412700902$gmane$org@grmbl.mre>
+References: <1412608214-31944-1-git-send-email-mst@redhat.com>
+	<1412608214-31944-2-git-send-email-mst@redhat.com>
+	<20141007125355.GA5974@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20141007.113643.1462528588440998168.davem@davemloft.net>
+In-Reply-To: <20141007125355.GA5974@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,49 +20,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: stable@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Oct 07, 2014 at 11:36:43AM -0400, David Miller wrote:
-> From: "Michael S. Tsirkin" <mst@redhat.com>
-> Date: Tue, 7 Oct 2014 09:49:15 +0300
-> 
-> > On Mon, Oct 06, 2014 at 03:02:38PM -0400, David Miller wrote:
-> >> From: "Michael S. Tsirkin" <mst@redhat.com>
-> >> Date: Sun, 5 Oct 2014 19:07:13 +0300
-> >> 
-> >> > Now that virtio core ensures config changes don't arrive during probing,
-> >> > drop config_enable flag in virtio net.
-> >> > On removal, flush is now sufficient to guarantee that no change work is
-> >> > queued.
-> >> > 
-> >> > This help simplify the driver, and will allow setting DRIVER_OK earlier
-> >> > without losing config change notifications.
-> >> > 
-> >> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> >> 
-> >> It's hard for people on the networking side to review these changes
-> >> since you haven't CC:'d them on any of the postings necessary to
-> >> understand the context of the net/ and drivers/net/ changes.
-> >> 
-> >> Please at a minimum CC: everyone on your header [PATCH 0/N] posting
-> >> so we know at least at a high level what is going on, and why.
-> >> 
-> >> Thanks.
+On (Tue) 07 Oct 2014 [15:53:55], Michael S. Tsirkin wrote:
+> On Mon, Oct 06, 2014 at 06:10:40PM +0300, Michael S. Tsirkin wrote:
+> > On restore, virtio pci does the following:
+> > + set features
+> > + init vqs etc - device can be used at this point!
+> > + set ACKNOWLEDGE,DRIVER and DRIVER_OK status bits
 > > 
-> > It's a bit tricky for large patchsets - if I add everyone to 0/N
-> > then vger isn't happy with Cc list that is too large.
+> > This is in violation of the virtio spec, which
+> > requires the following order:
+> > - ACKNOWLEDGE
+> > - DRIVER
+> > - init vqs
+> > - DRIVER_OK
 > > 
-> > What is your advice here? Cc just mailing lists on 0/N?
-> > 
-> > FWIW this patchset is inteded for the virtio tree.
+> > This behaviour will break with hypervisors that assume spec compliant
+> > behaviour.  It seems like a good idea to have this patch applied to
+> > stable branches to reduce the support butden for the hypervisors.
 > 
-> CC: mailing lists and "focus" developers, a small carefully selected
-> group of people who would be strongly interested in this change.
-> 
-> I really don't understand why this is so complicated, I've never run
-> into a situation where I had to CC: 200 people in my two decades of
-> kernel development :-/
+> Tested suspend to ram with virtio net and blk.
 
-Will do for the next version, thanks!
+I'd recommend running a continuous ping for virtio-net and a dd
+process running across s3/s4 for testing.
+
+That's what I had run while doing the original set of patches.
+
+		Amit
