@@ -1,13 +1,13 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC 05/11] virtio: introduce legacy virtio devices
-Date: Tue,  7 Oct 2014 16:40:01 +0200
-Message-ID: <1412692807-12398-6-git-send-email-cornelia.huck@de.ibm.com>
-References: <1412692807-12398-1-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC 03/11] virtio: endianess conversion helpers
+Date: Tue,  7 Oct 2014 16:39:44 +0200
+Message-ID: <1412692792-12325-4-git-send-email-cornelia.huck__11601.9226880328$1412704455$gmane$org@de.ibm.com>
+References: <1412692792-12325-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1412692807-12398-1-git-send-email-cornelia.huck@de.ibm.com>
+In-Reply-To: <1412692792-12325-1-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,77 +21,109 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.k
 Cc: thuth@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Introduce a helper function to indicate  whether a virtio device is
-operating in legacy or virtio standard mode.
+Provide helper functions that convert from/to LE for virtio devices that
+are not operating in legacy mode. We check for the VERSION_1 feature bit
+to determine that.
 
-It may be used to make decisions about the endianess of virtio accesses
-and other virtio-1 specific changes, enabling us to support transitional
-devices.
+Based on original patches by Rusty Russell and Thomas Huth.
 
-Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/virtio/virtio.c                |    6 +++++-
- include/hw/virtio/virtio-access.h |    4 ++++
- include/hw/virtio/virtio.h        |   13 +++++++++++--
- 3 files changed, 20 insertions(+), 3 deletions(-)
+ drivers/virtio/virtio.c            |    4 ++++
+ include/linux/virtio.h             |   40 ++++++++++++++++++++++++++++++++++++
+ include/uapi/linux/virtio_config.h |    3 +++
+ 3 files changed, 47 insertions(+)
 
-diff --git a/hw/virtio/virtio.c b/hw/virtio/virtio.c
-index 7aaa953..e6ae3a0 100644
---- a/hw/virtio/virtio.c
-+++ b/hw/virtio/virtio.c
-@@ -883,7 +883,11 @@ static bool virtio_device_endian_needed(void *opaque)
-     VirtIODevice *vdev = opaque;
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index cfd5d00..8f74cd6 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -144,6 +144,10 @@ static int virtio_dev_probe(struct device *_d)
+ 		if (device_features & (1ULL << i))
+ 			dev->features |= (1ULL << i);
  
-     assert(vdev->device_endian != VIRTIO_DEVICE_ENDIAN_UNKNOWN);
--    return vdev->device_endian != virtio_default_endian();
-+    if (virtio_device_is_legacy(vdev)) {
-+        return vdev->device_endian != virtio_default_endian();
-+    }
-+    /* Devices conforming to VIRTIO 1.0 or later are always LE. */
-+    return vdev->device_endian != VIRTIO_DEVICE_ENDIAN_LITTLE;
++	/* Version 1.0 compliant devices set the VIRTIO_F_VERSION_1 bit */
++	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
++		dev->features |= (1ULL << VIRTIO_F_VERSION_1);
++
+ 	dev->config->finalize_features(dev);
+ 
+ 	err = drv->probe(dev);
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index a24b41f..68cadd4 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -9,6 +9,7 @@
+ #include <linux/mod_devicetable.h>
+ #include <linux/gfp.h>
+ #include <linux/vringh.h>
++#include <uapi/linux/virtio_config.h>
+ 
+ /**
+  * virtqueue - a queue to register buffers for sending or receiving.
+@@ -102,6 +103,11 @@ static inline struct virtio_device *dev_to_virtio(struct device *_dev)
+ 	return container_of(_dev, struct virtio_device, dev);
  }
  
- static const VMStateDescription vmstate_virtio_device_endian = {
-diff --git a/include/hw/virtio/virtio-access.h b/include/hw/virtio/virtio-access.h
-index 46456fd..c123ee0 100644
---- a/include/hw/virtio/virtio-access.h
-+++ b/include/hw/virtio/virtio-access.h
-@@ -19,6 +19,10 @@
- 
- static inline bool virtio_access_is_big_endian(VirtIODevice *vdev)
- {
-+    if (!virtio_device_is_legacy(vdev)) {
-+        /* Devices conforming to VIRTIO 1.0 or later are always LE. */
-+        return false;
-+    }
- #if defined(TARGET_IS_BIENDIAN)
-     return virtio_is_big_endian(vdev);
- #elif defined(TARGET_WORDS_BIGENDIAN)
-diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
-index b408166..40e567c 100644
---- a/include/hw/virtio/virtio.h
-+++ b/include/hw/virtio/virtio.h
-@@ -275,9 +275,18 @@ void virtio_queue_set_host_notifier_fd_handler(VirtQueue *vq, bool assign,
- void virtio_queue_notify_vq(VirtQueue *vq);
- void virtio_irq(VirtQueue *vq);
- 
-+static inline bool virtio_device_is_legacy(VirtIODevice *vdev)
++static inline bool virtio_device_legacy(const struct virtio_device *dev)
 +{
-+    return !(vdev->guest_features[1] & (1 << (VIRTIO_F_VERSION_1 - 32)));
++	return !(dev->features & (1ULL << VIRTIO_F_VERSION_1));
 +}
 +
- static inline bool virtio_is_big_endian(VirtIODevice *vdev)
- {
--    assert(vdev->device_endian != VIRTIO_DEVICE_ENDIAN_UNKNOWN);
--    return vdev->device_endian == VIRTIO_DEVICE_ENDIAN_BIG;
-+    if (virtio_device_is_legacy(vdev)) {
-+        assert(vdev->device_endian != VIRTIO_DEVICE_ENDIAN_UNKNOWN);
-+        return vdev->device_endian == VIRTIO_DEVICE_ENDIAN_BIG;
-+    }
-+    /* Devices conforming to VIRTIO 1.0 or later are always LE. */
-+    return false;
- }
- #endif
+ int register_virtio_device(struct virtio_device *dev);
+ void unregister_virtio_device(struct virtio_device *dev);
+ 
+@@ -149,4 +155,38 @@ void unregister_virtio_driver(struct virtio_driver *drv);
+ #define module_virtio_driver(__virtio_driver) \
+ 	module_driver(__virtio_driver, register_virtio_driver, \
+ 			unregister_virtio_driver)
++
++/*
++ * v1.0 specifies LE headers, legacy was native endian. Therefore, we must
++ * convert from/to LE if and only if vdev is not legacy.
++ */
++static inline u16 virtio_to_cpu_u16(const struct virtio_device *vdev, u16 v)
++{
++	return virtio_device_legacy(vdev) ? v : le16_to_cpu(v);
++}
++
++static inline u32 virtio_to_cpu_u32(const struct virtio_device *vdev, u32 v)
++{
++	return virtio_device_legacy(vdev) ? v : le32_to_cpu(v);
++}
++
++static inline u64 virtio_to_cpu_u64(const struct virtio_device *vdev, u64 v)
++{
++	return virtio_device_legacy(vdev) ? v : le64_to_cpu(v);
++}
++
++static inline u16 cpu_to_virtio_u16(const struct virtio_device *vdev, u16 v)
++{
++	return virtio_device_legacy(vdev) ? v : cpu_to_le16(v);
++}
++
++static inline u32 cpu_to_virtio_u32(const struct virtio_device *vdev, u32 v)
++{
++	return virtio_device_legacy(vdev) ? v : cpu_to_le32(v);
++}
++
++static inline u64 cpu_to_virtio_u64(const struct virtio_device *vdev, u64 v)
++{
++	return virtio_device_legacy(vdev) ? v : cpu_to_le64(v);
++}
+ #endif /* _LINUX_VIRTIO_H */
+diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+index 3ce768c..80e7381 100644
+--- a/include/uapi/linux/virtio_config.h
++++ b/include/uapi/linux/virtio_config.h
+@@ -54,4 +54,7 @@
+ /* Can the device handle any descriptor layout? */
+ #define VIRTIO_F_ANY_LAYOUT		27
+ 
++/* v1.0 compliant. */
++#define VIRTIO_F_VERSION_1		32
++
+ #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
 -- 
 1.7.9.5
