@@ -1,8 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC 01/11] linux-headers/virtio_config: Update with
-	VIRTIO_F_VERSION_1
-Date: Tue,  7 Oct 2014 16:39:57 +0200
-Message-ID: <1412692807-12398-2-git-send-email-cornelia.huck__36317.0628239915$1412705076$gmane$org@de.ibm.com>
+Subject: [PATCH RFC 11/11] s390x/virtio-ccw: enable virtio 1.0
+Date: Tue,  7 Oct 2014 16:40:07 +0200
+Message-ID: <1412692807-12398-12-git-send-email-cornelia.huck__19459.1808053248$1412705287$gmane$org@de.ibm.com>
 References: <1412692807-12398-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,28 +21,26 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.k
 Cc: thuth@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Thomas Huth <thuth@linux.vnet.ibm.com>
+virtio-ccw should now have everything in place to operate virtio 1.0
+devices, so let's enable revision 1.
 
-Add the new VIRTIO_F_VERSION_1 definition to the virtio_config.h
-linux header.
-
-Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- linux-headers/linux/virtio_config.h |    3 +++
- 1 file changed, 3 insertions(+)
+ hw/s390x/virtio-ccw.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/linux-headers/linux/virtio_config.h b/linux-headers/linux/virtio_config.h
-index 75dc20b..16aa289 100644
---- a/linux-headers/linux/virtio_config.h
-+++ b/linux-headers/linux/virtio_config.h
-@@ -54,4 +54,7 @@
- /* Can the device handle any descriptor layout? */
- #define VIRTIO_F_ANY_LAYOUT		27
+diff --git a/hw/s390x/virtio-ccw.h b/hw/s390x/virtio-ccw.h
+index 03d5955..08edd8d 100644
+--- a/hw/s390x/virtio-ccw.h
++++ b/hw/s390x/virtio-ccw.h
+@@ -73,7 +73,7 @@ typedef struct VirtIOCCWDeviceClass {
+ #define VIRTIO_CCW_FEATURE_SIZE NR_VIRTIO_FEATURE_WORDS
  
-+/* v1.0 compliant. */
-+#define VIRTIO_F_VERSION_1		32
-+
- #endif /* _LINUX_VIRTIO_CONFIG_H */
+ /* The maximum virtio revision we support. */
+-#define VIRTIO_CCW_REV_MAX 0
++#define VIRTIO_CCW_REV_MAX 1
+ 
+ /* Performance improves when virtqueue kick processing is decoupled from the
+  * vcpu thread using ioeventfd for some devices. */
 -- 
 1.7.9.5
