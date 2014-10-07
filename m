@@ -1,15 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 01/15] virtio_pci: fix virtio spec compliance on restore
-Date: Tue, 7 Oct 2014 15:53:55 +0300
-Message-ID: <20141007125355.GA5974@redhat.com>
-References: <1412608214-31944-1-git-send-email-mst@redhat.com>
-	<1412608214-31944-2-git-send-email-mst@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH 08/16] virtio_net: drop config_enable
+Date: Tue, 07 Oct 2014 11:36:43 -0400 (EDT)
+Message-ID: <20141007.113643.1462528588440998168.davem@davemloft.net>
+References: <1412525038-15871-9-git-send-email-mst@redhat.com>
+	<20141006.150238.2180269239953265506.davem@davemloft.net>
+	<20141007064915.GA2424@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1412608214-31944-2-git-send-email-mst@redhat.com>
+In-Reply-To: <20141007064915.GA2424@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,100 +19,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Amit Shah <amit.shah@redhat.com>, stable@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: mst@redhat.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Oct 06, 2014 at 06:10:40PM +0300, Michael S. Tsirkin wrote:
-> On restore, virtio pci does the following:
-> + set features
-> + init vqs etc - device can be used at this point!
-> + set ACKNOWLEDGE,DRIVER and DRIVER_OK status bits
-> 
-> This is in violation of the virtio spec, which
-> requires the following order:
-> - ACKNOWLEDGE
-> - DRIVER
-> - init vqs
-> - DRIVER_OK
-> 
-> This behaviour will break with hypervisors that assume spec compliant
-> behaviour.  It seems like a good idea to have this patch applied to
-> stable branches to reduce the support butden for the hypervisors.
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Tue, 7 Oct 2014 09:49:15 +0300
 
-Tested suspend to ram with virtio net and blk.
-
+> On Mon, Oct 06, 2014 at 03:02:38PM -0400, David Miller wrote:
+>> From: "Michael S. Tsirkin" <mst@redhat.com>
+>> Date: Sun, 5 Oct 2014 19:07:13 +0300
+>> 
+>> > Now that virtio core ensures config changes don't arrive during probing,
+>> > drop config_enable flag in virtio net.
+>> > On removal, flush is now sufficient to guarantee that no change work is
+>> > queued.
+>> > 
+>> > This help simplify the driver, and will allow setting DRIVER_OK earlier
+>> > without losing config change notifications.
+>> > 
+>> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>> 
+>> It's hard for people on the networking side to review these changes
+>> since you haven't CC:'d them on any of the postings necessary to
+>> understand the context of the net/ and drivers/net/ changes.
+>> 
+>> Please at a minimum CC: everyone on your header [PATCH 0/N] posting
+>> so we know at least at a high level what is going on, and why.
+>> 
+>> Thanks.
 > 
-> Cc: stable@vger.kernel.org
-> Cc: Amit Shah <amit.shah@redhat.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/virtio/virtio_pci.c | 36 ++++++++++++++++++++++++++++++++----
->  1 file changed, 32 insertions(+), 4 deletions(-)
+> It's a bit tricky for large patchsets - if I add everyone to 0/N
+> then vger isn't happy with Cc list that is too large.
 > 
-> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-> index 3d1463c..0f2db51 100644
-> --- a/drivers/virtio/virtio_pci.c
-> +++ b/drivers/virtio/virtio_pci.c
-> @@ -789,6 +789,7 @@ static int virtio_pci_restore(struct device *dev)
->  	struct pci_dev *pci_dev = to_pci_dev(dev);
->  	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
->  	struct virtio_driver *drv;
-> +	unsigned status = 0;
->  	int ret;
->  
->  	drv = container_of(vp_dev->vdev.dev.driver,
-> @@ -799,14 +800,41 @@ static int virtio_pci_restore(struct device *dev)
->  		return ret;
->  
->  	pci_set_master(pci_dev);
-> +	/* We always start by resetting the device, in case a previous
-> +	 * driver messed it up. */
-> +	vp_reset(&vp_dev->vdev);
-> +
-> +	/* Acknowledge that we've seen the device. */
-> +	status |= VIRTIO_CONFIG_S_ACKNOWLEDGE;
-> +	vp_set_status(&vp_dev->vdev, status);
-> +
-> +	/* Maybe driver failed before freeze.
-> +	 * Restore the failed status, for debugging. */
-> +	status |= vp_dev->saved_status & VIRTIO_CONFIG_S_FAILED;
-> +	vp_set_status(&vp_dev->vdev, status);
-> +
-> +	if (!drv)
-> +		return 0;
-> +
-> +	/* We have a driver! */
-> +	status |= VIRTIO_CONFIG_S_DRIVER;
-> +	vp_set_status(&vp_dev->vdev, status);
-> +
->  	vp_finalize_features(&vp_dev->vdev);
->  
-> -	if (drv && drv->restore)
-> -		ret = drv->restore(&vp_dev->vdev);
-> +	if (!drv->restore)
-> +		return 0;
-
-As Amit points out, this is a bug: for a driver without restore
-callback we should still set DRIVER_OK.
-Will post v3.
-
-> +
-> +	ret = drv->restore(&vp_dev->vdev);
-> +	if (ret) {
-> +		status |= VIRTIO_CONFIG_S_FAILED;
-> +		vp_set_status(&vp_dev->vdev, status);
-> +		return ret;
-> +	}
->  
->  	/* Finally, tell the device we're all set */
-> -	if (!ret)
-> -		vp_set_status(&vp_dev->vdev, vp_dev->saved_status);
-> +	status |= VIRTIO_CONFIG_S_DRIVER_OK;
-> +	vp_set_status(&vp_dev->vdev, status);
->  
->  	return ret;
->  }
-> -- 
-> MST
+> What is your advice here? Cc just mailing lists on 0/N?
 > 
+> FWIW this patchset is inteded for the virtio tree.
+
+CC: mailing lists and "focus" developers, a small carefully selected
+group of people who would be strongly interested in this change.
+
+I really don't understand why this is so complicated, I've never run
+into a situation where I had to CC: 200 people in my two decades of
+kernel development :-/
