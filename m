@@ -1,13 +1,13 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC 06/11] virtio: allow virtio-1 queue layout
-Date: Tue,  7 Oct 2014 16:40:02 +0200
-Message-ID: <1412692807-12398-7-git-send-email-cornelia.huck@de.ibm.com>
-References: <1412692807-12398-1-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC 05/11] virtio_config: endian conversion for v1.0.
+Date: Tue,  7 Oct 2014 16:39:46 +0200
+Message-ID: <1412692792-12325-6-git-send-email-cornelia.huck@de.ibm.com>
+References: <1412692792-12325-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1412692807-12398-1-git-send-email-cornelia.huck@de.ibm.com>
+In-Reply-To: <1412692792-12325-1-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,62 +21,63 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.k
 Cc: thuth@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-For virtio-1 devices, we allow a more complex queue layout that doesn't
-require descriptor table and rings on a physically-contigous memory area:
-add virtio_queue_set_rings() to allow transports to set this up.
+From: Rusty Russell <rusty@rustcorp.com.au>
 
+Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/virtio/virtio.c         |   16 ++++++++++++++++
- include/hw/virtio/virtio.h |    2 ++
- 2 files changed, 18 insertions(+)
+ include/linux/virtio_config.h |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/hw/virtio/virtio.c b/hw/virtio/virtio.c
-index e6ae3a0..147d227 100644
---- a/hw/virtio/virtio.c
-+++ b/hw/virtio/virtio.c
-@@ -96,6 +96,13 @@ static void virtqueue_init(VirtQueue *vq)
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index a0e16d8..ca22e3a 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -222,12 +222,13 @@ static inline u16 virtio_cread16(struct virtio_device *vdev,
  {
-     hwaddr pa = vq->pa;
- 
-+    if (pa == -1ULL) {
-+        /*
-+         * This is a virtio-1 style vq that has already been setup
-+         * in virtio_queue_set.
-+         */
-+        return;
-+    }
-     vq->vring.desc = pa;
-     vq->vring.avail = pa + vq->vring.num * sizeof(VRingDesc);
-     vq->vring.used = vring_align(vq->vring.avail +
-@@ -719,6 +726,15 @@ hwaddr virtio_queue_get_addr(VirtIODevice *vdev, int n)
-     return vdev->vq[n].pa;
+ 	u16 ret;
+ 	vdev->config->get(vdev, offset, &ret, sizeof(ret));
+-	return ret;
++	return virtio_to_cpu_u16(vdev, ret);
  }
  
-+void virtio_queue_set_rings(VirtIODevice *vdev, int n, hwaddr desc,
-+                            hwaddr avail, hwaddr used)
-+{
-+    vdev->vq[n].pa = -1ULL;
-+    vdev->vq[n].vring.desc = desc;
-+    vdev->vq[n].vring.avail = avail;
-+    vdev->vq[n].vring.used = used;
-+}
-+
- void virtio_queue_set_num(VirtIODevice *vdev, int n, int num)
+ static inline void virtio_cwrite16(struct virtio_device *vdev,
+ 				   unsigned int offset, u16 val)
  {
-     /* Don't allow guest to flip queue between existent and
-diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
-index 40e567c..f840320 100644
---- a/include/hw/virtio/virtio.h
-+++ b/include/hw/virtio/virtio.h
-@@ -227,6 +227,8 @@ void virtio_queue_set_addr(VirtIODevice *vdev, int n, hwaddr addr);
- hwaddr virtio_queue_get_addr(VirtIODevice *vdev, int n);
- void virtio_queue_set_num(VirtIODevice *vdev, int n, int num);
- int virtio_queue_get_num(VirtIODevice *vdev, int n);
-+void virtio_queue_set_rings(VirtIODevice *vdev, int n, hwaddr desc,
-+                            hwaddr avail, hwaddr used);
- void virtio_queue_set_align(VirtIODevice *vdev, int n, int align);
- void virtio_queue_notify(VirtIODevice *vdev, int n);
- uint16_t virtio_queue_vector(VirtIODevice *vdev, int n);
++	val = cpu_to_virtio_u16(vdev, val);
+ 	vdev->config->set(vdev, offset, &val, sizeof(val));
+ }
+ 
+@@ -236,12 +237,13 @@ static inline u32 virtio_cread32(struct virtio_device *vdev,
+ {
+ 	u32 ret;
+ 	vdev->config->get(vdev, offset, &ret, sizeof(ret));
+-	return ret;
++	return virtio_to_cpu_u32(vdev, ret);
+ }
+ 
+ static inline void virtio_cwrite32(struct virtio_device *vdev,
+ 				   unsigned int offset, u32 val)
+ {
++	val = cpu_to_virtio_u32(vdev, val);
+ 	vdev->config->set(vdev, offset, &val, sizeof(val));
+ }
+ 
+@@ -250,12 +252,13 @@ static inline u64 virtio_cread64(struct virtio_device *vdev,
+ {
+ 	u64 ret;
+ 	vdev->config->get(vdev, offset, &ret, sizeof(ret));
+-	return ret;
++	return virtio_to_cpu_u64(vdev, ret);
+ }
+ 
+ static inline void virtio_cwrite64(struct virtio_device *vdev,
+ 				   unsigned int offset, u64 val)
+ {
++	val = cpu_to_virtio_u64(vdev, val);
+ 	vdev->config->set(vdev, offset, &val, sizeof(val));
+ }
+ 
 -- 
 1.7.9.5
