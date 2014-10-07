@@ -1,13 +1,13 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC 07/11] virtio_net: use v1.0 endian.
-Date: Tue,  7 Oct 2014 16:39:48 +0200
-Message-ID: <1412692792-12325-8-git-send-email-cornelia.huck__23686.4138082185$1412704403$gmane$org@de.ibm.com>
-References: <1412692792-12325-1-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC 02/11] virtio: cull virtio_bus_set_vdev_features
+Date: Tue,  7 Oct 2014 16:39:58 +0200
+Message-ID: <1412692807-12398-3-git-send-email-cornelia.huck__21438.8447384865$1412704413$gmane$org@de.ibm.com>
+References: <1412692807-12398-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1412692792-12325-1-git-send-email-cornelia.huck@de.ibm.com>
+In-Reply-To: <1412692807-12398-1-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,117 +21,71 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.k
 Cc: thuth@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Rusty Russell <rusty@rustcorp.com.au>
+The only user of this function was virtio-ccw, and it should use
+virtio_set_features() like everybody else: We need to make sure
+that bad features are masked out properly, which this function did
+not do.
 
-[Cornelia Huck: converted some missed fields]
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- drivers/net/virtio_net.c |   31 +++++++++++++++++++------------
- 1 file changed, 19 insertions(+), 12 deletions(-)
+ hw/s390x/virtio-ccw.c          |    3 +--
+ hw/virtio/virtio-bus.c         |   14 --------------
+ include/hw/virtio/virtio-bus.h |    3 ---
+ 3 files changed, 1 insertion(+), 19 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 59caa06..cd18946 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -353,13 +353,14 @@ err:
+diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
+index e7d3ea1..7833dd2 100644
+--- a/hw/s390x/virtio-ccw.c
++++ b/hw/s390x/virtio-ccw.c
+@@ -400,8 +400,7 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
+                                        ccw.cda + sizeof(features.features));
+             features.features = ldl_le_phys(&address_space_memory, ccw.cda);
+             if (features.index < ARRAY_SIZE(dev->host_features)) {
+-                virtio_bus_set_vdev_features(&dev->bus, features.features);
+-                vdev->guest_features = features.features;
++                virtio_set_features(vdev, features.features);
+             } else {
+                 /*
+                  * If the guest supports more feature bits, assert that it
+diff --git a/hw/virtio/virtio-bus.c b/hw/virtio/virtio-bus.c
+index eb77019..a8ffa07 100644
+--- a/hw/virtio/virtio-bus.c
++++ b/hw/virtio/virtio-bus.c
+@@ -109,20 +109,6 @@ uint32_t virtio_bus_get_vdev_features(VirtioBusState *bus,
+     return k->get_features(vdev, requested_features);
  }
  
- static struct sk_buff *receive_mergeable(struct net_device *dev,
-+					 struct virtnet_info *vi,
- 					 struct receive_queue *rq,
- 					 unsigned long ctx,
- 					 unsigned int len)
+-/* Set the features of the plugged device. */
+-void virtio_bus_set_vdev_features(VirtioBusState *bus,
+-                                      uint32_t requested_features)
+-{
+-    VirtIODevice *vdev = virtio_bus_get_device(bus);
+-    VirtioDeviceClass *k;
+-
+-    assert(vdev != NULL);
+-    k = VIRTIO_DEVICE_GET_CLASS(vdev);
+-    if (k->set_features != NULL) {
+-        k->set_features(vdev, requested_features);
+-    }
+-}
+-
+ /* Get bad features of the plugged device. */
+ uint32_t virtio_bus_get_vdev_bad_features(VirtioBusState *bus)
  {
- 	void *buf = mergeable_ctx_to_buf_address(ctx);
- 	struct skb_vnet_hdr *hdr = buf;
--	int num_buf = hdr->mhdr.num_buffers;
-+	u16 num_buf = virtio_to_cpu_u16(rq->vq->vdev, hdr->mhdr.num_buffers);
- 	struct page *page = virt_to_head_page(buf);
- 	int offset = buf - page_address(page);
- 	unsigned int truesize = max(len, mergeable_ctx_to_buf_truesize(ctx));
-@@ -375,7 +376,9 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
- 		ctx = (unsigned long)virtqueue_get_buf(rq->vq, &len);
- 		if (unlikely(!ctx)) {
- 			pr_debug("%s: rx error: %d buffers out of %d missing\n",
--				 dev->name, num_buf, hdr->mhdr.num_buffers);
-+				 dev->name, num_buf,
-+				 virtio_to_cpu_u16(rq->vq->vdev,
-+						   hdr->mhdr.num_buffers));
- 			dev->stats.rx_length_errors++;
- 			goto err_buf;
- 		}
-@@ -460,7 +463,7 @@ static void receive_buf(struct receive_queue *rq, void *buf, unsigned int len)
- 	}
- 
- 	if (vi->mergeable_rx_bufs)
--		skb = receive_mergeable(dev, rq, (unsigned long)buf, len);
-+		skb = receive_mergeable(dev, vi, rq, (unsigned long)buf, len);
- 	else if (vi->big_packets)
- 		skb = receive_big(dev, rq, buf, len);
- 	else
-@@ -479,8 +482,8 @@ static void receive_buf(struct receive_queue *rq, void *buf, unsigned int len)
- 	if (hdr->hdr.flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
- 		pr_debug("Needs csum!\n");
- 		if (!skb_partial_csum_set(skb,
--					  hdr->hdr.csum_start,
--					  hdr->hdr.csum_offset))
-+			  virtio_to_cpu_u16(vi->vdev, hdr->hdr.csum_start),
-+			  virtio_to_cpu_u16(vi->vdev, hdr->hdr.csum_offset)))
- 			goto frame_err;
- 	} else if (hdr->hdr.flags & VIRTIO_NET_HDR_F_DATA_VALID) {
- 		skb->ip_summed = CHECKSUM_UNNECESSARY;
-@@ -511,7 +514,8 @@ static void receive_buf(struct receive_queue *rq, void *buf, unsigned int len)
- 		if (hdr->hdr.gso_type & VIRTIO_NET_HDR_GSO_ECN)
- 			skb_shinfo(skb)->gso_type |= SKB_GSO_TCP_ECN;
- 
--		skb_shinfo(skb)->gso_size = hdr->hdr.gso_size;
-+		skb_shinfo(skb)->gso_size = virtio_to_cpu_u16(vi->vdev,
-+							      hdr->hdr.gso_size);
- 		if (skb_shinfo(skb)->gso_size == 0) {
- 			net_warn_ratelimited("%s: zero gso size.\n", dev->name);
- 			goto frame_err;
-@@ -871,16 +875,19 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
- 
- 	if (skb->ip_summed == CHECKSUM_PARTIAL) {
- 		hdr->hdr.flags = VIRTIO_NET_HDR_F_NEEDS_CSUM;
--		hdr->hdr.csum_start = skb_checksum_start_offset(skb);
--		hdr->hdr.csum_offset = skb->csum_offset;
-+		hdr->hdr.csum_start = cpu_to_virtio_u16(vi->vdev,
-+						skb_checksum_start_offset(skb));
-+		hdr->hdr.csum_offset = cpu_to_virtio_u16(vi->vdev,
-+							 skb->csum_offset);
- 	} else {
- 		hdr->hdr.flags = 0;
- 		hdr->hdr.csum_offset = hdr->hdr.csum_start = 0;
- 	}
- 
- 	if (skb_is_gso(skb)) {
--		hdr->hdr.hdr_len = skb_headlen(skb);
--		hdr->hdr.gso_size = skb_shinfo(skb)->gso_size;
-+		hdr->hdr.hdr_len = cpu_to_virtio_u16(vi->vdev, skb_headlen(skb));
-+		hdr->hdr.gso_size = cpu_to_virtio_u16(vi->vdev,
-+						      skb_shinfo(skb)->gso_size);
- 		if (skb_shinfo(skb)->gso_type & SKB_GSO_TCPV4)
- 			hdr->hdr.gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
- 		else if (skb_shinfo(skb)->gso_type & SKB_GSO_TCPV6)
-@@ -1181,7 +1188,7 @@ static void virtnet_set_rx_mode(struct net_device *dev)
- 	sg_init_table(sg, 2);
- 
- 	/* Store the unicast list and count in the front of the buffer */
--	mac_data->entries = uc_count;
-+	mac_data->entries = cpu_to_virtio_u32(vi->vdev, uc_count);
- 	i = 0;
- 	netdev_for_each_uc_addr(ha, dev)
- 		memcpy(&mac_data->macs[i++][0], ha->addr, ETH_ALEN);
-@@ -1192,7 +1199,7 @@ static void virtnet_set_rx_mode(struct net_device *dev)
- 	/* multicast list and count fill the end */
- 	mac_data = (void *)&mac_data->macs[uc_count][0];
- 
--	mac_data->entries = mc_count;
-+	mac_data->entries = cpu_to_virtio_u32(vi->vdev, mc_count);
- 	i = 0;
- 	netdev_for_each_mc_addr(ha, dev)
- 		memcpy(&mac_data->macs[i++][0], ha->addr, ETH_ALEN);
+diff --git a/include/hw/virtio/virtio-bus.h b/include/hw/virtio/virtio-bus.h
+index 0756545..0d2e7b4 100644
+--- a/include/hw/virtio/virtio-bus.h
++++ b/include/hw/virtio/virtio-bus.h
+@@ -84,9 +84,6 @@ size_t virtio_bus_get_vdev_config_len(VirtioBusState *bus);
+ /* Get the features of the plugged device. */
+ uint32_t virtio_bus_get_vdev_features(VirtioBusState *bus,
+                                     uint32_t requested_features);
+-/* Set the features of the plugged device. */
+-void virtio_bus_set_vdev_features(VirtioBusState *bus,
+-                                  uint32_t requested_features);
+ /* Get bad features of the plugged device. */
+ uint32_t virtio_bus_get_vdev_bad_features(VirtioBusState *bus);
+ /* Get config of the plugged device. */
 -- 
 1.7.9.5
