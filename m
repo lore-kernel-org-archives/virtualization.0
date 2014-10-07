@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC 09/11] KVM: s390: Set virtio-ccw transport revision
-Date: Tue,  7 Oct 2014 16:39:50 +0200
-Message-ID: <1412692792-12325-10-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC 08/11] virtio_blk: use virtio v1.0 endian
+Date: Tue,  7 Oct 2014 16:39:49 +0200
+Message-ID: <1412692792-12325-9-git-send-email-cornelia.huck__17058.7790817537$1412704546$gmane$org@de.ibm.com>
 References: <1412692792-12325-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,136 +21,29 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.k
 Cc: thuth@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Thomas Huth <thuth@linux.vnet.ibm.com>
+Note that we care only about the fields still in use for virtio v1.0.
 
-With the new SET-VIRTIO-REVISION command of the virtio 1.0 standard, we
-can now negotiate the virtio-ccw revision after setting a channel online.
-
-Note that we don't negotiate version 1 yet.
-
-[Cornelia Huck: reworked revision loop a bit]
+Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- drivers/s390/kvm/virtio_ccw.c |   63 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 63 insertions(+)
+ drivers/block/virtio_blk.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-index 4173b59..cbe2ba8 100644
---- a/drivers/s390/kvm/virtio_ccw.c
-+++ b/drivers/s390/kvm/virtio_ccw.c
-@@ -55,6 +55,7 @@ struct virtio_ccw_device {
- 	struct ccw_device *cdev;
- 	__u32 curr_io;
- 	int err;
-+	unsigned int revision; /* Transport revision */
- 	wait_queue_head_t wait_q;
- 	spinlock_t lock;
- 	struct list_head virtqueues;
-@@ -86,6 +87,15 @@ struct virtio_thinint_area {
- 	u8 isc;
- } __packed;
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 0a58140..08a8012 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -119,6 +119,10 @@ static int __virtblk_add_req(struct virtqueue *vq,
+ 	sg_init_one(&status, &vbr->status, sizeof(vbr->status));
+ 	sgs[num_out + num_in++] = &status;
  
-+struct virtio_rev_info {
-+	__u16 revision;
-+	__u16 length;
-+	__u8 data[];
-+};
++	/* we only care about fields valid for virtio-1 */
++	vbr->out_hdr.type = cpu_to_virtio_u32(vq->vdev, vbr->out_hdr.type);
++	vbr->out_hdr.sector = cpu_to_virtio_u64(vq->vdev, vbr->out_hdr.sector);
 +
-+/* the highest virtio-ccw revision we support */
-+#define VIRTIO_CCW_REV_MAX 0
-+
- struct virtio_ccw_vq_info {
- 	struct virtqueue *vq;
- 	int num;
-@@ -122,6 +132,7 @@ static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
- #define CCW_CMD_WRITE_STATUS 0x31
- #define CCW_CMD_READ_VQ_CONF 0x32
- #define CCW_CMD_SET_IND_ADAPTER 0x73
-+#define CCW_CMD_SET_VIRTIO_REV 0x83
- 
- #define VIRTIO_CCW_DOING_SET_VQ 0x00010000
- #define VIRTIO_CCW_DOING_RESET 0x00040000
-@@ -134,6 +145,7 @@ static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
- #define VIRTIO_CCW_DOING_READ_VQ_CONF 0x02000000
- #define VIRTIO_CCW_DOING_SET_CONF_IND 0x04000000
- #define VIRTIO_CCW_DOING_SET_IND_ADAPTER 0x08000000
-+#define VIRTIO_CCW_DOING_SET_VIRTIO_REV 0x10000000
- #define VIRTIO_CCW_INTPARM_MASK 0xffff0000
- 
- static struct virtio_ccw_device *to_vc_device(struct virtio_device *vdev)
-@@ -934,6 +946,7 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
- 		case VIRTIO_CCW_DOING_RESET:
- 		case VIRTIO_CCW_DOING_READ_VQ_CONF:
- 		case VIRTIO_CCW_DOING_SET_IND_ADAPTER:
-+		case VIRTIO_CCW_DOING_SET_VIRTIO_REV:
- 			vcdev->curr_io &= ~activity;
- 			wake_up(&vcdev->wait_q);
- 			break;
-@@ -1053,6 +1066,51 @@ static int virtio_ccw_offline(struct ccw_device *cdev)
- 	return 0;
+ 	return virtqueue_add_sgs(vq, sgs, num_out, num_in, vbr, GFP_ATOMIC);
  }
  
-+static int virtio_ccw_set_transport_rev(struct virtio_ccw_device *vcdev)
-+{
-+	struct virtio_rev_info *rev;
-+	struct ccw1 *ccw;
-+	int ret;
-+
-+	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
-+	if (!ccw)
-+		return -ENOMEM;
-+	rev = kzalloc(sizeof(*rev), GFP_DMA | GFP_KERNEL);
-+	if (!rev) {
-+		kfree(ccw);
-+		return -ENOMEM;
-+	}
-+
-+	/* Set transport revision */
-+	ccw->cmd_code = CCW_CMD_SET_VIRTIO_REV;
-+	ccw->flags = 0;
-+	ccw->count = sizeof(*rev);
-+	ccw->cda = (__u32)(unsigned long)rev;
-+
-+	vcdev->revision = VIRTIO_CCW_REV_MAX;
-+	do {
-+		rev->revision = vcdev->revision;
-+		/* none of our supported revisions carry payload */
-+		rev->length = 0;
-+		ret = ccw_io_helper(vcdev, ccw,
-+				    VIRTIO_CCW_DOING_SET_VIRTIO_REV);
-+		if (ret == -EOPNOTSUPP) {
-+			if (vcdev->revision == 0)
-+				/*
-+				 * The host device does not support setting
-+				 * the revision: let's operate it in legacy
-+				 * mode.
-+				 */
-+				ret = 0;
-+			else
-+				vcdev->revision--;
-+		}
-+	} while (ret == -EOPNOTSUPP);
-+
-+	kfree(ccw);
-+	kfree(rev);
-+	return ret;
-+}
- 
- static int virtio_ccw_online(struct ccw_device *cdev)
- {
-@@ -1093,6 +1151,11 @@ static int virtio_ccw_online(struct ccw_device *cdev)
- 	spin_unlock_irqrestore(get_ccwdev_lock(cdev), flags);
- 	vcdev->vdev.id.vendor = cdev->id.cu_type;
- 	vcdev->vdev.id.device = cdev->id.cu_model;
-+
-+	ret = virtio_ccw_set_transport_rev(vcdev);
-+	if (ret)
-+		goto out_free;
-+
- 	ret = register_virtio_device(&vcdev->vdev);
- 	if (ret) {
- 		dev_warn(&cdev->dev, "Failed to register virtio device: %d\n",
 -- 
 1.7.9.5
