@@ -1,7 +1,8 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC 04/11] s390x/virtio-ccw: fix check for WRITE_FEAT
-Date: Tue,  7 Oct 2014 16:40:00 +0200
-Message-ID: <1412692807-12398-5-git-send-email-cornelia.huck__37941.4045172327$1412708741$gmane$org@de.ibm.com>
+Subject: [PATCH RFC 08/11] s390x/css: Add a callback for when subchannel gets
+	disabled
+Date: Tue,  7 Oct 2014 16:40:04 +0200
+Message-ID: <1412692807-12398-9-git-send-email-cornelia.huck__32013.0100161352$1412708823$gmane$org@de.ibm.com>
 References: <1412692807-12398-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,28 +22,73 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.k
 Cc: thuth@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-We need to check guest feature size, not host feature size to find
-out whether we should call virtio_set_features(). This check is
-possible now that vdev->guest_features is an array.
+From: Thomas Huth <thuth@linux.vnet.ibm.com>
 
-Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+We need a possibility to run code when a subchannel gets disabled.
+This patch adds the necessary infrastructure.
+
+Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/s390x/virtio-ccw.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ hw/s390x/css.c |   12 ++++++++++++
+ hw/s390x/css.h |    1 +
+ 2 files changed, 13 insertions(+)
 
-diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
-index 8aa79a7..69add47 100644
---- a/hw/s390x/virtio-ccw.c
-+++ b/hw/s390x/virtio-ccw.c
-@@ -399,7 +399,7 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
-             features.index = ldub_phys(&address_space_memory,
-                                        ccw.cda + sizeof(features.features));
-             features.features = ldl_le_phys(&address_space_memory, ccw.cda);
--            if (features.index < ARRAY_SIZE(dev->host_features)) {
-+            if (features.index < ARRAY_SIZE(vdev->guest_features)) {
-                 virtio_set_features(vdev, features.index, features.features);
-             } else {
-                 /*
+diff --git a/hw/s390x/css.c b/hw/s390x/css.c
+index b67c039..735ec55 100644
+--- a/hw/s390x/css.c
++++ b/hw/s390x/css.c
+@@ -588,6 +588,7 @@ int css_do_msch(SubchDev *sch, SCHIB *orig_schib)
+ {
+     SCSW *s = &sch->curr_status.scsw;
+     PMCW *p = &sch->curr_status.pmcw;
++    uint16_t oldflags;
+     int ret;
+     SCHIB schib;
+ 
+@@ -610,6 +611,7 @@ int css_do_msch(SubchDev *sch, SCHIB *orig_schib)
+     copy_schib_from_guest(&schib, orig_schib);
+     /* Only update the program-modifiable fields. */
+     p->intparm = schib.pmcw.intparm;
++    oldflags = p->flags;
+     p->flags &= ~(PMCW_FLAGS_MASK_ISC | PMCW_FLAGS_MASK_ENA |
+                   PMCW_FLAGS_MASK_LM | PMCW_FLAGS_MASK_MME |
+                   PMCW_FLAGS_MASK_MP);
+@@ -625,6 +627,12 @@ int css_do_msch(SubchDev *sch, SCHIB *orig_schib)
+             (PMCW_CHARS_MASK_MBFC | PMCW_CHARS_MASK_CSENSE);
+     sch->curr_status.mba = schib.mba;
+ 
++    /* Has the channel been disabled? */
++    if (sch->disable_cb && (oldflags & PMCW_FLAGS_MASK_ENA) != 0
++        && (p->flags & PMCW_FLAGS_MASK_ENA) == 0) {
++        sch->disable_cb(sch);
++    }
++
+     ret = 0;
+ 
+ out:
+@@ -1443,6 +1451,10 @@ void css_reset_sch(SubchDev *sch)
+ {
+     PMCW *p = &sch->curr_status.pmcw;
+ 
++    if ((p->flags & PMCW_FLAGS_MASK_ENA) != 0 && sch->disable_cb) {
++        sch->disable_cb(sch);
++    }
++
+     p->intparm = 0;
+     p->flags &= ~(PMCW_FLAGS_MASK_ISC | PMCW_FLAGS_MASK_ENA |
+                   PMCW_FLAGS_MASK_LM | PMCW_FLAGS_MASK_MME |
+diff --git a/hw/s390x/css.h b/hw/s390x/css.h
+index 33104ac..7fa807b 100644
+--- a/hw/s390x/css.h
++++ b/hw/s390x/css.h
+@@ -81,6 +81,7 @@ struct SubchDev {
+     uint8_t ccw_no_data_cnt;
+     /* transport-provided data: */
+     int (*ccw_cb) (SubchDev *, CCW1);
++    void (*disable_cb)(SubchDev *);
+     SenseId id;
+     void *driver_data;
+ };
 -- 
 1.7.9.5
