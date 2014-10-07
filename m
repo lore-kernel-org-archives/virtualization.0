@@ -1,16 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 08/16] virtio_net: drop config_enable
-Date: Tue, 7 Oct 2014 09:49:15 +0300
-Message-ID: <20141007064915.GA2424@redhat.com>
-References: <1412525038-15871-1-git-send-email-mst@redhat.com>
-	<1412525038-15871-9-git-send-email-mst@redhat.com>
-	<20141006.150238.2180269239953265506.davem@davemloft.net>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH v2 01/15] virtio_pci: fix virtio spec compliance on restore
+Date: Tue, 7 Oct 2014 17:35:13 +0530
+Message-ID: <20141007120513.GA823@grmbl.mre>
+References: <1412608214-31944-1-git-send-email-mst@redhat.com>
+	<1412608214-31944-2-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20141006.150238.2180269239953265506.davem@davemloft.net>
+In-Reply-To: <1412608214-31944-2-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,39 +19,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: stable@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Oct 06, 2014 at 03:02:38PM -0400, David Miller wrote:
-> From: "Michael S. Tsirkin" <mst@redhat.com>
-> Date: Sun, 5 Oct 2014 19:07:13 +0300
+On (Mon) 06 Oct 2014 [18:10:40], Michael S. Tsirkin wrote:
+> On restore, virtio pci does the following:
+> + set features
+> + init vqs etc - device can be used at this point!
+> + set ACKNOWLEDGE,DRIVER and DRIVER_OK status bits
 > 
-> > Now that virtio core ensures config changes don't arrive during probing,
-> > drop config_enable flag in virtio net.
-> > On removal, flush is now sufficient to guarantee that no change work is
-> > queued.
-> > 
-> > This help simplify the driver, and will allow setting DRIVER_OK earlier
-> > without losing config change notifications.
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> This is in violation of the virtio spec, which
+> requires the following order:
+> - ACKNOWLEDGE
+> - DRIVER
+> - init vqs
+> - DRIVER_OK
 > 
-> It's hard for people on the networking side to review these changes
-> since you haven't CC:'d them on any of the postings necessary to
-> understand the context of the net/ and drivers/net/ changes.
+> This behaviour will break with hypervisors that assume spec compliant
+> behaviour.  It seems like a good idea to have this patch applied to
+> stable branches to reduce the support butden for the hypervisors.
 > 
-> Please at a minimum CC: everyone on your header [PATCH 0/N] posting
-> so we know at least at a high level what is going on, and why.
-> 
-> Thanks.
+> Cc: stable@vger.kernel.org
+> Cc: Amit Shah <amit.shah@redhat.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-It's a bit tricky for large patchsets - if I add everyone to 0/N
-then vger isn't happy with Cc list that is too large.
+I didn't see my previous questions answered from the initial posting
+-- can you please respond to them?
 
-What is your advice here? Cc just mailing lists on 0/N?
-
-FWIW this patchset is inteded for the virtio tree.
-
--- 
-MST
+		Amit
