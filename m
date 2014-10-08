@@ -1,14 +1,11 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH RFC 00/11] qemu: towards virtio-1 host support
-Date: Wed, 8 Oct 2014 11:04:28 +0200
-Message-ID: <20141008110428.6fc78115.cornelia.huck@de.ibm.com>
-References: <1412692807-12398-1-git-send-email-cornelia.huck@de.ibm.com>
-	<54349246.6000905@amacapital.net>
+From: "Denis V. Lunev" <den@parallels.com>
+Subject: [PATCH 0/2] shrink virtio baloon on OOM in guest
+Date: Wed,  8 Oct 2014 14:21:07 +0400
+Message-ID: <1412763669-2980-1-git-send-email-den@parallels.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <54349246.6000905@amacapital.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,28 +15,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: den@openvz.org, virtualization@lists.linux-foundation.org, Raushaniya Maksudova <rmaksudova@parallels.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 07 Oct 2014 18:24:22 -0700
-Andy Lutomirski <luto@amacapital.net> wrote:
+Excessive virtio_balloon inflation can cause invocation of OOM-killer, when
+Linux is under severe memory pressure. Various mechanisms are responsible for
+correct virtio_balloon memory management. Nevertheless it is often the case
+that these control tools does not have enough time to react on fast changing
+memory load. As a result OS runs out of memory and invokes OOM-killer.
+The balancing of memory by use of the virtio balloon should not cause the
+termination of processes while there are pages in the balloon. Now there is
+no way for virtio balloon driver to free memory at the last moment before
+some process get killed by OOM-killer.
 
-> On 10/07/2014 07:39 AM, Cornelia Huck wrote:
-> > This patchset aims to get us some way to implement virtio-1 compliant
-> > and transitional devices in qemu. Branch available at
-> > 
-> > git://github.com/cohuck/qemu virtio-1
-> > 
-> > I've mainly focused on:
-> > - endianness handling
-> > - extended feature bits
-> > - virtio-ccw new/changed commands
-> 
-> At the risk of some distraction, would it be worth thinking about a
-> solution to the IOMMU bypassing mess as part of this?
+This does not provide a security breach as baloon itself is running
+inside guest OS and is working in the cooperation with the host. Thus
+some improvements from guest side should be considered as normal.
 
-I think that is a whole different issue. virtio-1 is basically done - we
-just need to implement it - while the IOMMU/DMA stuff certainly needs
-more discussion. Therefore, I'd like to defer to the other discussion
-thread here.
+To solve the problem, introduce a virtio_balloon callback which is expected
+to be called from the oom notifier call chain in out_of_memory() function.
+If virtio balloon could release some memory, it will make the system to
+return and retry the allocation that forced the out of memory killer to run.
+
+Patch 1 of this series adds support for implementation of virtio_balloon
+callback, so now leak_balloon() function returns number of freed pages.
+Patch 2 implements virtio_balloon callback itself.
+
+Signed-off-by: Raushaniya Maksudova <rmaksudova@parallels.com>
+Signed-off-by: Denis V. Lunev <den@openvz.org>
+CC: Rusty Russell <rusty@rustcorp.com.au>
+CC: Michael S. Tsirkin <mst@redhat.com>
+CC: virtualization@lists.linux-foundation.org
