@@ -1,16 +1,14 @@
-From: Alexey Lapitsky <lex.public@gmail.com>
-Subject: Re: BUG_ON in virtio-ring.c
-Date: Tue, 7 Oct 2014 17:46:56 +0200
-Message-ID: <CAAts5mM_+Mj=vjWyJc8wZCvZehfK5dZxeA0Y9eowHwFDiWxo9Q__17211.7996066392$1412809576$gmane$org@mail.gmail.com>
-References: <CAPM=9tyLrJ8VAdGCw_1guRS-ogCPE1Qp7faE_nrx_dAm2gvHLQ@mail.gmail.com>
-	<87vc65p5a7.fsf@rustcorp.com.au>
-	<CAPM=9tzw8jEv8yoLr7ktjO2DHCDzA+mURmJ-DXby_nsWUUNoyg@mail.gmail.com>
-	<87li71oucu.fsf@rustcorp.com.au>
+From: "Denis V. Lunev" <den@parallels.com>
+Subject: [PATCH 1/2] virtio_balloon: return the amount of freed memory from
+	leak_balloon()
+Date: Wed,  8 Oct 2014 14:21:08 +0400
+Message-ID: <1412763669-2980-2-git-send-email-den@parallels.com>
+References: <1412763669-2980-1-git-send-email-den@parallels.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87li71oucu.fsf@rustcorp.com.au>
+In-Reply-To: <1412763669-2980-1-git-send-email-den@parallels.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,121 +18,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Dave Airlie <airlied@gmail.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+Cc: den@openvz.org, virtualization@lists.linux-foundation.org, Raushaniya Maksudova <rmaksudova@parallels.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+From: Raushaniya Maksudova <rmaksudova@parallels.com>
 
-I'm hitting this bug with both ext4 and btrfs.
+This value would be useful in the next patch to provide the amount of
+the freed memory for OOM killer.
 
-Here's an example of the backtrace:
-https://gist.github.com/vzctl/e888a821333979120932
+Accessing to vb->num_pfns outside of vb->balloon_lock is wrong and unsafe.
 
-I tried raising this BUG only for direct ring and it solved the problem:
+Signed-off-by: Raushaniya Maksudova <rmaksudova@parallels.com>
+Signed-off-by: Denis V. Lunev <den@openvz.org>
+CC: Rusty Russell <rusty@rustcorp.com.au>
+CC: Michael S. Tsirkin <mst@redhat.com>
+CC: virtualization@lists.linux-foundation.org
+---
+ drivers/virtio/virtio_balloon.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
- -       BUG_ON(total_sg > vq->vring.num);
-+       BUG_ON(total_sg > vq->vring.num && !vq->indirect);
-
-Shall I submit the patch or is a more elaborate fix required?
-
---
-
-Alexey
-
-
-
-On Mon, May 27, 2013 at 7:38 AM, Rusty Russell <rusty@rustcorp.com.au> wrote:
-> Dave Airlie <airlied@gmail.com> writes:
->>>> correct.
->>>>
->>>> If I have an indirect ring and I'm adding sgs to it and the host is
->>>> delayed (say I've got a thread consuming things from the vring and its
->>>> off doing something interesting),
->>>> I'd really like to get ENOSPC back from virtqueue_add. However if the
->>>> indirect addition fails due to free_sg being 0, we hit the BUG_ON
->>>> before we ever get to the ENOSPC check.
->>>
->>> It is correct for the moment: drivers can't assume indirect buffer
->>> support in the transport.
->>>
->>> BUT for a new device, we could say "this depends on indirect descriptor
->>> support", put the appropriate check in the device init, and then remove
->>> the BUG_ON().
->>
->> But if the transport has indirect buffer support, can it change its
->> mind at runtime?
->
-> It's a layering violation.  The current rule is simple:
->
->         A driver should never submit a buffer which can't fit in the
->         ring.
->
-> This has the nice property that OOM (ie. indirect buffer alloction
-> fail) just slows things down, doesn't break things.
->
->> In this case we have vq->indirect set, but the device has run out of
->> free buffers,
->> but it isn't a case that in+out would overflow it if it had free
->> buffers since it would use
->> an indirect and succeed.
->
-> OK, but when do you re-xmit?  What if the ring is empty, and you
-> submitted a buffer that needs indirect?  You won't get interrupted
-> again, because the device has consumed all the buffers.  You need to
-> have your own timer or something equally hackish.
->
->> Getting -ENOSPC is definitely what should happen from what I can see,
->> not a BUG_ON,
->> I should get a BUG_ON only if the device reports no indirect support.
->
-> I think we should return -ENOMEM if we can't indirect because of failed
-> allocation and it doesn't fit in the ring, ie:
->
-> This:
->         BUG_ON(total_sg > vq->vring.num);
->         BUG_ON(total_sg == 0);
->
->         if (vq->vq.num_free < total_sg) {
->                 pr_debug("Can't add buf len %i - avail = %i\n",
->                          total_sg, vq->vq.num_free);
->                 /* FIXME: for historical reasons, we force a notify here if
->                  * there are outgoing parts to the buffer.  Presumably the
->                  * host should service the ring ASAP. */
->                 if (out_sgs)
->                         vq->notify(&vq->vq);
->                 END_USE(vq);
->                 return -ENOSPC;
->         }
->
-> Becomes (untested):
->
->         BUG_ON(total_sg == 0);
->
->         if (vq->vq.num_free < total_sg) {
->                 if (total_sg > vq->vring.num) {
->                         BUG_ON(!vq->indirect);
->                        /* Return -ENOMEM only if we have nothing else to do */
->                        if (vq->vq.num_free == vq->vring.num)
->                                return -ENOMEM;
->                 }
->                 pr_debug("Can't add buf len %i - avail = %i\n",
->                          total_sg, vq->vq.num_free);
->                 /* FIXME: for historical reasons, we force a notify here if
->                  * there are outgoing parts to the buffer.  Presumably the
->                  * host should service the ring ASAP. */
->                 if (out_sgs)
->                         vq->notify(&vq->vq);
->                 END_USE(vq);
->                 return -ENOSPC;
->         }
->
-> Cheers,
-> Rusty.
->
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 25ebe8e..213da41 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -168,8 +168,9 @@ static void release_pages_by_pfn(const u32 pfns[], unsigned int num)
+ 	}
+ }
+ 
+-static void leak_balloon(struct virtio_balloon *vb, size_t num)
++static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
+ {
++	unsigned num_freed_pages;
+ 	struct page *page;
+ 	struct balloon_dev_info *vb_dev_info = vb->vb_dev_info;
+ 
+@@ -186,6 +187,7 @@ static void leak_balloon(struct virtio_balloon *vb, size_t num)
+ 		vb->num_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
+ 	}
+ 
++	num_freed_pages = vb->num_pfns;
+ 	/*
+ 	 * Note that if
+ 	 * virtio_has_feature(vdev, VIRTIO_BALLOON_F_MUST_TELL_HOST);
+@@ -195,6 +197,7 @@ static void leak_balloon(struct virtio_balloon *vb, size_t num)
+ 		tell_host(vb, vb->deflate_vq);
+ 	mutex_unlock(&vb->balloon_lock);
+ 	release_pages_by_pfn(vb->pfns, vb->num_pfns);
++	return num_freed_pages;
+ }
+ 
+ static inline void update_stat(struct virtio_balloon *vb, int idx,
+-- 
+1.9.1
