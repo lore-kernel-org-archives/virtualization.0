@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 17/25] virtio_blk: enable VQs early on restore
-Date: Sun, 12 Oct 2014 14:47:56 +0300
-Message-ID: <1413114332-626-18-git-send-email-mst__40790.6830813319$1413114376$gmane$org@redhat.com>
+Subject: [PATCH v3 18/25] virtio_scsi: enable VQs early on restore
+Date: Sun, 12 Oct 2014 14:48:01 +0300
+Message-ID: <1413114332-626-19-git-send-email-mst@redhat.com>
 References: <1413114332-626-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,41 +19,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Amit Shah <amit.shah@redhat.com>, v9fs-developer@lists.sourceforge.net, "David S. Miller" <davem@davemloft.net>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, netdev@vger.kernel.org, "James E.J. Bottomley" <JBottomley@parallels.com>, virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Amit Shah <amit.shah@redhat.com>, v9fs-developer@lists.sourceforge.net, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
 virtio spec requires drivers to set DRIVER_OK before using VQs.
-This is set automatically after restore returns, virtio block violated
-this rule on restore by restarting queues, which might in theory
-cause the VQ to be used directly within restore.
+This is set automatically after restore returns, virtio scsi violated
+this rule on restore by kicking event vq within restore.
 
-To fix, call virtio_enable_vqs_early before using starting queues.
+To fix, call virtio_enable_vqs_early before using event queue.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/block/virtio_blk.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/scsi/virtio_scsi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 46b04bf..1c95af5 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -804,10 +804,13 @@ static int virtblk_restore(struct virtio_device *vdev)
- 	int ret;
+diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+index 0642ce3..2b565b3 100644
+--- a/drivers/scsi/virtio_scsi.c
++++ b/drivers/scsi/virtio_scsi.c
+@@ -1054,6 +1054,8 @@ static int virtscsi_restore(struct virtio_device *vdev)
+ 		return err;
+ 	}
  
- 	ret = init_vq(vdev->priv);
--	if (!ret)
--		blk_mq_start_stopped_hw_queues(vblk->disk->queue, true);
-+	if (ret)
-+		return ret;
-+
 +	virtio_enable_vqs_early(vdev);
- 
--	return ret;
-+	blk_mq_start_stopped_hw_queues(vblk->disk->queue, true);
-+	return 0;
- }
- #endif
++
+ 	if (virtio_has_feature(vdev, VIRTIO_SCSI_F_HOTPLUG))
+ 		virtscsi_kick_event_all(vscsi);
  
 -- 
 MST
