@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 12/25] virtio_blk: enable VQs early
-Date: Sun, 12 Oct 2014 14:47:27 +0300
-Message-ID: <1413114332-626-13-git-send-email-mst__14350.5836990245$1413114322$gmane$org@redhat.com>
+Subject: [PATCH v3 14/25] 9p/trans_virtio: enable VQs early
+Date: Sun, 12 Oct 2014 14:47:39 +0300
+Message-ID: <1413114332-626-15-git-send-email-mst__46471.698760479$1413114336$gmane$org@redhat.com>
 References: <1413114332-626-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,34 +19,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Amit Shah <amit.shah@redhat.com>, v9fs-developer@lists.sourceforge.net, "David S. Miller" <davem@davemloft.net>
+Cc: linux-s390@vger.kernel.org, Ron Minnich <rminnich@sandia.gov>, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Eric Van Hensbergen <ericvh@gmail.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Amit Shah <amit.shah@redhat.com>, v9fs-developer@lists.sourceforge.net, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
 virtio spec requires drivers to set DRIVER_OK before using VQs.
-This is set automatically after probe returns, virtio block violated this
-rule by calling add_disk, which causes the VQ to be used directly within
-probe.
+This is set automatically after probe returns, but virtio 9p device
+adds self to channel list within probe, at which point VQ can be
+used in violation of the spec.
 
 To fix, call virtio_enable_vqs_early before using VQs.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- drivers/block/virtio_blk.c | 2 ++
+ net/9p/trans_virtio.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 89ba8d6..46b04bf 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -719,6 +719,8 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	if (!err && opt_io_size)
- 		blk_queue_io_opt(q, blk_size * opt_io_size);
+diff --git a/net/9p/trans_virtio.c b/net/9p/trans_virtio.c
+index 6940d8f..766ba48 100644
+--- a/net/9p/trans_virtio.c
++++ b/net/9p/trans_virtio.c
+@@ -575,6 +575,8 @@ static int p9_virtio_probe(struct virtio_device *vdev)
+ 	/* Ceiling limit to avoid denial of service attacks */
+ 	chan->p9_max_pages = nr_free_buffer_pages()/4;
  
 +	virtio_enable_vqs_early(vdev);
 +
- 	add_disk(vblk->disk);
- 	err = device_create_file(disk_to_dev(vblk->disk), &dev_attr_serial);
- 	if (err)
+ 	mutex_lock(&virtio_9p_lock);
+ 	list_add_tail(&chan->chan_list, &virtio_chan_list);
+ 	mutex_unlock(&virtio_9p_lock);
 -- 
 MST
