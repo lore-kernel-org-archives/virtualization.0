@@ -1,15 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next RFC 1/3] virtio: support for urgent descriptors
-Date: Sun, 12 Oct 2014 12:27:44 +0300
-Message-ID: <20141012092744.GA9567@redhat.com>
-References: <1413011806-3813-1-git-send-email-jasowang@redhat.com>
-	<1413011806-3813-2-git-send-email-jasowang@redhat.com>
+Subject: [PATCH v3 00/25] virtio: fix spec compliance issues
+Date: Sun, 12 Oct 2014 14:46:08 +0300
+Message-ID: <1413114332-626-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1413011806-3813-2-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,285 +16,89 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-api@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Amit Shah <amit.shah@redhat.com>, v9fs-developer@lists.sourceforge.net, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Oct 11, 2014 at 03:16:44PM +0800, Jason Wang wrote:
-> Below should be useful for some experiments Jason is doing.
-> I thought I'd send it out for early review/feedback.
-> 
-> event idx feature allows us to defer interrupts until
-> a specific # of descriptors were used.
-> Sometimes it might be useful to get an interrupt after
-> a specific descriptor, regardless.
-> This adds a descriptor flag for this, and an API
-> to create an urgent output descriptor.
-> This is still an RFC:
-> we'll need a feature bit for drivers to detect this,
-> but we've run out of feature bits for virtio 0.X.
-> For experimentation purposes, drivers can assume
-> this is set, or add a driver-specific feature bit.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+Rusty, please review this, and consider for this merge window.
 
-I see that as compared to my original patch, you have
-added a new flag: VRING_AVAIL_F_NO_URGENT_INTERRUPT
-I don't think it's necessary, see below.
+This fixes the following virtio spec compliance issues:
+1. on restore, drivers use device before setting ACKNOWLEDGE and DRIVER bits
+2. on probe, drivers aren't prepared to handle config interrupts
+   arriving before probe returns
+3. on probe, drivers use device before DRIVER_OK it set
 
-As such, I think this patch should be split:
-- original patch adding support for urgent descriptors
-- a patch adding virtqueue_enable/disable_cb_urgent(_prepare)?
+Note that 1 is a clear violation of virtio spec 0.9 and 1.0,
+so I am proposing the fix for stable. OTOH 2 is against 1.0 rules but
+is a known documented bug in many drivers, so let's fix it going
+forward, but it does not seem to be worth it to backport
+the changes.
 
+An error handling bugfix for virtio-net and a fix for a
+theoretical race condition in virtio scsi is also included.
 
+2 is merely a theoretical race condition, but it seems important
+to address to make sure that changes to address 3 do not introduce
+instability.
 
+I also included patch to drop scan callback use from virtio
+scsi: using this callback creates asymmetry between probe
+and resume, and we actually had to add code comments so
+people can figure out the flow. Code flow becomes clearer
+with the new API.
 
-> ---
->  drivers/virtio/virtio_ring.c     | 75 +++++++++++++++++++++++++++++++++++++---
->  include/linux/virtio.h           | 14 ++++++++
->  include/uapi/linux/virtio_ring.h |  5 ++-
->  3 files changed, 89 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 4d08f45a..a5188c6 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -115,6 +115,7 @@ static inline struct scatterlist *sg_next_arr(struct scatterlist *sg,
->  
->  /* Set up an indirect table of descriptors and add it to the queue. */
->  static inline int vring_add_indirect(struct vring_virtqueue *vq,
-> +				     bool urgent,
->  				     struct scatterlist *sgs[],
->  				     struct scatterlist *(*next)
->  				       (struct scatterlist *, unsigned int *),
-> @@ -173,6 +174,8 @@ static inline int vring_add_indirect(struct vring_virtqueue *vq,
->  	/* Use a single buffer which doesn't continue */
->  	head = vq->free_head;
->  	vq->vring.desc[head].flags = VRING_DESC_F_INDIRECT;
-> +	if (urgent)
-> +		vq->vring.desc[head].flags |= VRING_DESC_F_URGENT;
->  	vq->vring.desc[head].addr = virt_to_phys(desc);
->  	/* kmemleak gives a false positive, as it's hidden by virt_to_phys */
->  	kmemleak_ignore(desc);
-> @@ -185,6 +188,7 @@ static inline int vring_add_indirect(struct vring_virtqueue *vq,
->  }
->  
->  static inline int virtqueue_add(struct virtqueue *_vq,
-> +			        bool urgent,
->  				struct scatterlist *sgs[],
->  				struct scatterlist *(*next)
->  				  (struct scatterlist *, unsigned int *),
-> @@ -227,7 +231,7 @@ static inline int virtqueue_add(struct virtqueue *_vq,
->  	/* If the host supports indirect descriptor tables, and we have multiple
->  	 * buffers, then go indirect. FIXME: tune this threshold */
->  	if (vq->indirect && total_sg > 1 && vq->vq.num_free) {
-> -		head = vring_add_indirect(vq, sgs, next, total_sg, total_out,
-> +		head = vring_add_indirect(vq, urgent, sgs, next, total_sg, total_out,
->  					  total_in,
->  					  out_sgs, in_sgs, gfp);
->  		if (likely(head >= 0))
-> @@ -256,6 +260,10 @@ static inline int virtqueue_add(struct virtqueue *_vq,
->  	for (n = 0; n < out_sgs; n++) {
->  		for (sg = sgs[n]; sg; sg = next(sg, &total_out)) {
->  			vq->vring.desc[i].flags = VRING_DESC_F_NEXT;
-> +			if (urgent) {
-> +				vq->vring.desc[head].flags |= VRING_DESC_F_URGENT;
-> +				urgent = false;
-> +			}
->  			vq->vring.desc[i].addr = sg_phys(sg);
->  			vq->vring.desc[i].len = sg->length;
->  			prev = i;
-> @@ -265,6 +273,10 @@ static inline int virtqueue_add(struct virtqueue *_vq,
->  	for (; n < (out_sgs + in_sgs); n++) {
->  		for (sg = sgs[n]; sg; sg = next(sg, &total_in)) {
->  			vq->vring.desc[i].flags = VRING_DESC_F_NEXT|VRING_DESC_F_WRITE;
-> +			if (urgent) {
-> +				vq->vring.desc[head].flags |= VRING_DESC_F_URGENT;
-> +				urgent = false;
-> +			}
->  			vq->vring.desc[i].addr = sg_phys(sg);
->  			vq->vring.desc[i].len = sg->length;
->  			prev = i;
-> @@ -305,6 +317,8 @@ add_head:
->  
->  /**
->   * virtqueue_add_sgs - expose buffers to other end
-> + * @urgent: in case virtqueue_enable_cb_delayed was called, cause an interrupt
-> + *          after this descriptor was completed
->   * @vq: the struct virtqueue we're talking about.
->   * @sgs: array of terminated scatterlists.
->   * @out_num: the number of scatterlists readable by other side
-> @@ -337,7 +351,7 @@ int virtqueue_add_sgs(struct virtqueue *_vq,
->  		for (sg = sgs[i]; sg; sg = sg_next(sg))
->  			total_in++;
->  	}
-> -	return virtqueue_add(_vq, sgs, sg_next_chained,
-> +	return virtqueue_add(_vq, false, sgs, sg_next_chained,
->  			     total_out, total_in, out_sgs, in_sgs, data, gfp);
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_add_sgs);
-> @@ -360,11 +374,35 @@ int virtqueue_add_outbuf(struct virtqueue *vq,
->  			 void *data,
->  			 gfp_t gfp)
->  {
-> -	return virtqueue_add(vq, &sg, sg_next_arr, num, 0, 1, 0, data, gfp);
-> +	return virtqueue_add(vq, false, &sg, sg_next_arr, num, 0, 1, 0, data, gfp);
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_add_outbuf);
->  
->  /**
-> + * virtqueue_add_outbuf - expose output buffers to other end
-> + *          in case virtqueue_enable_cb_delayed was called, cause an interrupt
-> + *          after this descriptor was completed
-> + * @vq: the struct virtqueue we're talking about.
-> + * @sgs: array of scatterlists (need not be terminated!)
-> + * @num: the number of scatterlists readable by other side
-> + * @data: the token identifying the buffer.
-> + * @gfp: how to do memory allocations (if necessary).
-> + *
-> + * Caller must ensure we don't call this with other virtqueue operations
-> + * at the same time (except where noted).
-> + *
-> + * Returns zero or a negative error (ie. ENOSPC, ENOMEM, EIO).
-> + */
-> +int virtqueue_add_outbuf_urgent(struct virtqueue *vq,
-> +			 struct scatterlist sg[], unsigned int num,
-> +			 void *data,
-> +			 gfp_t gfp)
-> +{
-> +	return virtqueue_add(vq, true, &sg, sg_next_arr, num, 0, 1, 0, data, gfp);
-> +}
-> +EXPORT_SYMBOL_GPL(virtqueue_add_outbuf_urgent);
-> +
-> +/**
->   * virtqueue_add_inbuf - expose input buffers to other end
->   * @vq: the struct virtqueue we're talking about.
->   * @sgs: array of scatterlists (need not be terminated!)
-> @@ -382,7 +420,7 @@ int virtqueue_add_inbuf(struct virtqueue *vq,
->  			void *data,
->  			gfp_t gfp)
->  {
-> -	return virtqueue_add(vq, &sg, sg_next_arr, 0, num, 0, 1, data, gfp);
-> +	return virtqueue_add(vq, false, &sg, sg_next_arr, 0, num, 0, 1, data, gfp);
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_add_inbuf);
->  
-> @@ -595,6 +633,14 @@ void virtqueue_disable_cb(struct virtqueue *_vq)
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_disable_cb);
->  
-> +void virtqueue_disable_cb_urgent(struct virtqueue *_vq)
-> +{
-> +	struct vring_virtqueue *vq = to_vvq(_vq);
-> +
-> +	vq->vring.avail->flags |= VRING_AVAIL_F_NO_URGENT_INTERRUPT;
-> +}
-> +EXPORT_SYMBOL_GPL(virtqueue_disable_cb_urgent);
-> +
->  /**
->   * virtqueue_enable_cb_prepare - restart callbacks after disable_cb
->   * @vq: the struct virtqueue we're talking about.
-> @@ -626,6 +672,19 @@ unsigned virtqueue_enable_cb_prepare(struct virtqueue *_vq)
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_enable_cb_prepare);
->  
-> +unsigned virtqueue_enable_cb_prepare_urgent(struct virtqueue *_vq)
-> +{
-> +	struct vring_virtqueue *vq = to_vvq(_vq);
-> +	u16 last_used_idx;
-> +
-> +	START_USE(vq);
-> +	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_URGENT_INTERRUPT;
-> +	last_used_idx = vq->last_used_idx;
-> +	END_USE(vq);
-> +	return last_used_idx;
-> +}
-> +EXPORT_SYMBOL_GPL(virtqueue_enable_cb_prepare_urgent);
-> +
+After this change, the only user of the scan callback is virtio rng.
+It's possible to modify it trivially and then drop scan callback
+from core, but I'm rather inclined to look at ways to
+make some rng core changes so that we don't need to
+have so many variables tracking device state.
+So this is deferred for now.
 
-You can implement virtqueue_enable_cb_prepare_urgent
-simply by clearing ~VRING_AVAIL_F_NO_INTERRUPT.
+Michael S. Tsirkin (24):
+  virtio_pci: fix virtio spec compliance on restore
+  virtio: unify config_changed handling
+  virtio-pci: move freeze/restore to virtio core
+  virtio: defer config changed notifications
+  virtio_blk: drop config_enable
+  virtio-blk: drop config_mutex
+  virtio_net: drop config_enable
+  virtio-net: drop config_mutex
+  virtio_net: minor cleanup
+  virtio: add API to enable VQs early
+  virtio_net: enable VQs early
+  virtio_blk: enable VQs early
+  virtio_console: enable VQs early
+  9p/trans_virtio: enable VQs early
+  virtio_net: fix use after free on allocation failure
+  virtio_scsi: move kick event out from virtscsi_init
+  virtio_blk: enable VQs early on restore
+  virtio_scsi: enable VQs early on restore
+  virtio_console: enable VQs early on restore
+  virtio_net: enable VQs early on restore
+  virtio_scsi: fix race on device removal
+  virtio_balloon: enable VQs early on restore
+  virtio_scsi: drop scan callback
+  virtio-rng: refactor probe error handling
 
-The effect is same: host sends interrupts only if there
-is an urgent descriptor.
+Paolo Bonzini (1):
+  virito_scsi: use freezable WQ for events
 
->  /**
->   * virtqueue_poll - query pending used buffers
->   * @vq: the struct virtqueue we're talking about.
-> @@ -662,6 +721,14 @@ bool virtqueue_enable_cb(struct virtqueue *_vq)
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_enable_cb);
->  
-> +bool virtqueue_enable_cb_urgent(struct virtqueue *_vq)
-> +{
-> +	unsigned last_used_idx = virtqueue_enable_cb_prepare_urgent(_vq);
-> +
-> +	return !virtqueue_poll(_vq, last_used_idx);
-> +}
-> +EXPORT_SYMBOL_GPL(virtqueue_enable_cb_urgent);
-> +
->  /**
->   * virtqueue_enable_cb_delayed - restart callbacks after disable_cb.
->   * @vq: the struct virtqueue we're talking about.
-> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> index b46671e..68be5f2 100644
-> --- a/include/linux/virtio.h
-> +++ b/include/linux/virtio.h
-> @@ -39,6 +39,12 @@ int virtqueue_add_outbuf(struct virtqueue *vq,
->  			 void *data,
->  			 gfp_t gfp);
->  
-> +int virtqueue_add_outbuf_urgent(struct virtqueue *vq,
-> +				struct scatterlist sg[], unsigned int num,
-> +				void *data,
-> +				gfp_t gfp);
-> +
-> +
->  int virtqueue_add_inbuf(struct virtqueue *vq,
->  			struct scatterlist sg[], unsigned int num,
->  			void *data,
-> @@ -61,10 +67,18 @@ void *virtqueue_get_buf(struct virtqueue *vq, unsigned int *len);
->  
->  void virtqueue_disable_cb(struct virtqueue *vq);
->  
-> +void virtqueue_disable_cb_urgent(struct virtqueue *vq);
-> +
->  bool virtqueue_enable_cb(struct virtqueue *vq);
->  
-> +bool virtqueue_enable_cb_urgent(struct virtqueue *vq);
-> +
-> +bool virtqueue_enable_cb_urgent(struct virtqueue *vq);
-> +
->  unsigned virtqueue_enable_cb_prepare(struct virtqueue *vq);
->  
-> +unsigned virtqueue_enable_cb_prepare_urgent(struct virtqueue *vq);
-> +
->  bool virtqueue_poll(struct virtqueue *vq, unsigned);
->  
->  bool virtqueue_enable_cb_delayed(struct virtqueue *vq);
-> diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
-> index a99f9b7..daf5bb0 100644
-> --- a/include/uapi/linux/virtio_ring.h
-> +++ b/include/uapi/linux/virtio_ring.h
-> @@ -39,6 +39,9 @@
->  #define VRING_DESC_F_WRITE	2
->  /* This means the buffer contains a list of buffer descriptors. */
->  #define VRING_DESC_F_INDIRECT	4
-> +/* This means the descriptor should cause an interrupt
-> + * ignoring avail event idx. */
-> +#define VRING_DESC_F_URGENT	8
->  
->  /* The Host uses this in used->flags to advise the Guest: don't kick me when
->   * you add a buffer.  It's unreliable, so it's simply an optimization.  Guest
-> @@ -48,7 +51,7 @@
->   * when you consume a buffer.  It's unreliable, so it's simply an
->   * optimization.  */
->  #define VRING_AVAIL_F_NO_INTERRUPT	1
-> -
-> +#define VRING_AVAIL_F_NO_URGENT_INTERRUPT	2
->  /* We support indirect buffer descriptors */
->  #define VIRTIO_RING_F_INDIRECT_DESC	28
->  
-> -- 
-> 1.8.3.1
+ include/linux/virtio.h              |  14 +++++
+ include/linux/virtio_config.h       |  17 ++++++
+ drivers/block/virtio_blk.c          |  40 ++++----------
+ drivers/char/hw_random/virtio-rng.c |  15 +++---
+ drivers/char/virtio_console.c       |   4 ++
+ drivers/misc/mic/card/mic_virtio.c  |   6 +--
+ drivers/net/virtio_net.c            |  44 +++++-----------
+ drivers/s390/kvm/kvm_virtio.c       |   9 +---
+ drivers/s390/kvm/virtio_ccw.c       |   6 +--
+ drivers/scsi/virtio_scsi.c          |  42 +++++++++------
+ drivers/virtio/virtio.c             | 102 ++++++++++++++++++++++++++++++++++++
+ drivers/virtio/virtio_balloon.c     |   2 +
+ drivers/virtio/virtio_mmio.c        |   7 +--
+ drivers/virtio/virtio_pci.c         |  33 ++----------
+ net/9p/trans_virtio.c               |   2 +
+ 15 files changed, 206 insertions(+), 137 deletions(-)
+
+-- 
+MST
