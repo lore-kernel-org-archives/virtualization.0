@@ -1,15 +1,15 @@
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Subject: Re: [PATCH net-next RFC 3/3] virtio-net: conditionally enable tx
-	interrupt
-Date: Sat, 11 Oct 2014 07:48:19 -0700
-Message-ID: <1413038899.9362.43.camel@edumazet-glaptop2.roam.corp.google.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next RFC 1/3] virtio: support for urgent descriptors
+Date: Sun, 12 Oct 2014 12:27:44 +0300
+Message-ID: <20141012092744.GA9567@redhat.com>
 References: <1413011806-3813-1-git-send-email-jasowang@redhat.com>
-	<1413011806-3813-4-git-send-email-jasowang@redhat.com>
+	<1413011806-3813-2-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1413011806-3813-4-git-send-email-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1413011806-3813-2-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,133 +20,284 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-api@vger.kernel.org
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-api@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 2014-10-11 at 15:16 +0800, Jason Wang wrote:
-> We free transmitted packets in ndo_start_xmit() in the past to get better
-> performance in the past. One side effect is that skb_orphan() needs to be
-> called in ndo_start_xmit() which makes sk_wmem_alloc not accurate in
-> fact. For TCP protocol, this means several optimization could not work well
-> such as TCP small queue and auto corking. This can lead extra low
-> throughput of small packets stream.
+On Sat, Oct 11, 2014 at 03:16:44PM +0800, Jason Wang wrote:
+> Below should be useful for some experiments Jason is doing.
+> I thought I'd send it out for early review/feedback.
 > 
-> Thanks to the urgent descriptor support. This patch tries to solve this
-> issue by enable the tx interrupt selectively for stream packets. This means
-> we don't need to orphan TCP stream packets in ndo_start_xmit() but enable
-> tx interrupt for those packets. After we get tx interrupt, a tx napi was
-> scheduled to free those packets.
+> event idx feature allows us to defer interrupts until
+> a specific # of descriptors were used.
+> Sometimes it might be useful to get an interrupt after
+> a specific descriptor, regardless.
+> This adds a descriptor flag for this, and an API
+> to create an urgent output descriptor.
+> This is still an RFC:
+> we'll need a feature bit for drivers to detect this,
+> but we've run out of feature bits for virtio 0.X.
+> For experimentation purposes, drivers can assume
+> this is set, or add a driver-specific feature bit.
 > 
-> With this method, sk_wmem_alloc of TCP socket were more accurate than in
-> the past which let TCP can batch more through TSQ and auto corking.
-> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
+
+I see that as compared to my original patch, you have
+added a new flag: VRING_AVAIL_F_NO_URGENT_INTERRUPT
+I don't think it's necessary, see below.
+
+As such, I think this patch should be split:
+- original patch adding support for urgent descriptors
+- a patch adding virtqueue_enable/disable_cb_urgent(_prepare)?
+
+
+
+
 > ---
->  drivers/net/virtio_net.c | 164 ++++++++++++++++++++++++++++++++++++-----------
->  1 file changed, 128 insertions(+), 36 deletions(-)
+>  drivers/virtio/virtio_ring.c     | 75 +++++++++++++++++++++++++++++++++++++---
+>  include/linux/virtio.h           | 14 ++++++++
+>  include/uapi/linux/virtio_ring.h |  5 ++-
+>  3 files changed, 89 insertions(+), 5 deletions(-)
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 5810841..b450fc4 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -72,6 +72,8 @@ struct send_queue {
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 4d08f45a..a5188c6 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -115,6 +115,7 @@ static inline struct scatterlist *sg_next_arr(struct scatterlist *sg,
 >  
->  	/* Name of the send queue: output.$index */
->  	char name[40];
-> +
-> +	struct napi_struct napi;
->  };
->  
->  /* Internal representation of a receive virtqueue */
-> @@ -217,15 +219,40 @@ static struct page *get_a_page(struct receive_queue *rq, gfp_t gfp_mask)
->  	return p;
+>  /* Set up an indirect table of descriptors and add it to the queue. */
+>  static inline int vring_add_indirect(struct vring_virtqueue *vq,
+> +				     bool urgent,
+>  				     struct scatterlist *sgs[],
+>  				     struct scatterlist *(*next)
+>  				       (struct scatterlist *, unsigned int *),
+> @@ -173,6 +174,8 @@ static inline int vring_add_indirect(struct vring_virtqueue *vq,
+>  	/* Use a single buffer which doesn't continue */
+>  	head = vq->free_head;
+>  	vq->vring.desc[head].flags = VRING_DESC_F_INDIRECT;
+> +	if (urgent)
+> +		vq->vring.desc[head].flags |= VRING_DESC_F_URGENT;
+>  	vq->vring.desc[head].addr = virt_to_phys(desc);
+>  	/* kmemleak gives a false positive, as it's hidden by virt_to_phys */
+>  	kmemleak_ignore(desc);
+> @@ -185,6 +188,7 @@ static inline int vring_add_indirect(struct vring_virtqueue *vq,
 >  }
 >  
-> +static int free_old_xmit_skbs(struct send_queue *sq, int budget)
+>  static inline int virtqueue_add(struct virtqueue *_vq,
+> +			        bool urgent,
+>  				struct scatterlist *sgs[],
+>  				struct scatterlist *(*next)
+>  				  (struct scatterlist *, unsigned int *),
+> @@ -227,7 +231,7 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+>  	/* If the host supports indirect descriptor tables, and we have multiple
+>  	 * buffers, then go indirect. FIXME: tune this threshold */
+>  	if (vq->indirect && total_sg > 1 && vq->vq.num_free) {
+> -		head = vring_add_indirect(vq, sgs, next, total_sg, total_out,
+> +		head = vring_add_indirect(vq, urgent, sgs, next, total_sg, total_out,
+>  					  total_in,
+>  					  out_sgs, in_sgs, gfp);
+>  		if (likely(head >= 0))
+> @@ -256,6 +260,10 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+>  	for (n = 0; n < out_sgs; n++) {
+>  		for (sg = sgs[n]; sg; sg = next(sg, &total_out)) {
+>  			vq->vring.desc[i].flags = VRING_DESC_F_NEXT;
+> +			if (urgent) {
+> +				vq->vring.desc[head].flags |= VRING_DESC_F_URGENT;
+> +				urgent = false;
+> +			}
+>  			vq->vring.desc[i].addr = sg_phys(sg);
+>  			vq->vring.desc[i].len = sg->length;
+>  			prev = i;
+> @@ -265,6 +273,10 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+>  	for (; n < (out_sgs + in_sgs); n++) {
+>  		for (sg = sgs[n]; sg; sg = next(sg, &total_in)) {
+>  			vq->vring.desc[i].flags = VRING_DESC_F_NEXT|VRING_DESC_F_WRITE;
+> +			if (urgent) {
+> +				vq->vring.desc[head].flags |= VRING_DESC_F_URGENT;
+> +				urgent = false;
+> +			}
+>  			vq->vring.desc[i].addr = sg_phys(sg);
+>  			vq->vring.desc[i].len = sg->length;
+>  			prev = i;
+> @@ -305,6 +317,8 @@ add_head:
+>  
+>  /**
+>   * virtqueue_add_sgs - expose buffers to other end
+> + * @urgent: in case virtqueue_enable_cb_delayed was called, cause an interrupt
+> + *          after this descriptor was completed
+>   * @vq: the struct virtqueue we're talking about.
+>   * @sgs: array of terminated scatterlists.
+>   * @out_num: the number of scatterlists readable by other side
+> @@ -337,7 +351,7 @@ int virtqueue_add_sgs(struct virtqueue *_vq,
+>  		for (sg = sgs[i]; sg; sg = sg_next(sg))
+>  			total_in++;
+>  	}
+> -	return virtqueue_add(_vq, sgs, sg_next_chained,
+> +	return virtqueue_add(_vq, false, sgs, sg_next_chained,
+>  			     total_out, total_in, out_sgs, in_sgs, data, gfp);
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_add_sgs);
+> @@ -360,11 +374,35 @@ int virtqueue_add_outbuf(struct virtqueue *vq,
+>  			 void *data,
+>  			 gfp_t gfp)
+>  {
+> -	return virtqueue_add(vq, &sg, sg_next_arr, num, 0, 1, 0, data, gfp);
+> +	return virtqueue_add(vq, false, &sg, sg_next_arr, num, 0, 1, 0, data, gfp);
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_add_outbuf);
+>  
+>  /**
+> + * virtqueue_add_outbuf - expose output buffers to other end
+> + *          in case virtqueue_enable_cb_delayed was called, cause an interrupt
+> + *          after this descriptor was completed
+> + * @vq: the struct virtqueue we're talking about.
+> + * @sgs: array of scatterlists (need not be terminated!)
+> + * @num: the number of scatterlists readable by other side
+> + * @data: the token identifying the buffer.
+> + * @gfp: how to do memory allocations (if necessary).
+> + *
+> + * Caller must ensure we don't call this with other virtqueue operations
+> + * at the same time (except where noted).
+> + *
+> + * Returns zero or a negative error (ie. ENOSPC, ENOMEM, EIO).
+> + */
+> +int virtqueue_add_outbuf_urgent(struct virtqueue *vq,
+> +			 struct scatterlist sg[], unsigned int num,
+> +			 void *data,
+> +			 gfp_t gfp)
 > +{
-> +	struct sk_buff *skb;
-> +	unsigned int len;
-> +	struct virtnet_info *vi = sq->vq->vdev->priv;
-> +	struct virtnet_stats *stats = this_cpu_ptr(vi->stats);
-> +	int sent = 0;
-> +
-> +	while (sent < budget &&
-> +	       (skb = virtqueue_get_buf(sq->vq, &len)) != NULL) {
-> +		pr_debug("Sent skb %p\n", skb);
-> +
-> +		u64_stats_update_begin(&stats->tx_syncp);
-> +		stats->tx_bytes += skb->len;
-> +		stats->tx_packets++;
-> +		u64_stats_update_end(&stats->tx_syncp);
-> +
-> +		dev_kfree_skb_any(skb);
-> +		sent++;
-> +	}
-> +
-
-You could accumulate skb->len in a totlen var, and perform a single
-
-	u64_stats_update_begin(&stats->tx_syncp);
-	stats->tx_bytes += totlen;
-	stats->tx_packets += sent;
-	u64_stats_update_end(&stats->tx_syncp);
-
-after the loop.
-
-
-> +	return sent;
+> +	return virtqueue_add(vq, true, &sg, sg_next_arr, num, 0, 1, 0, data, gfp);
 > +}
+> +EXPORT_SYMBOL_GPL(virtqueue_add_outbuf_urgent);
 > +
-
-...
-
-> +
-> +static bool virtnet_skb_needs_intr(struct sk_buff *skb)
-> +{
-> +	union {
-> +		unsigned char *network;
-> +		struct iphdr *ipv4;
-> +		struct ipv6hdr *ipv6;
-> +	} hdr;
-> +	struct tcphdr *th = tcp_hdr(skb);
-> +	u16 payload_len;
-> +
-> +	hdr.network = skb_network_header(skb);
-> +
-> +	/* Only IPv4/IPv6 with TCP is supported */
-
-	Oh well, yet another packet flow dissector :)
-
-	If most packets were caught by your implementation, you could use it
-for fast patj and fallback to skb_flow_dissect() for encapsulated
-traffic.
-
-	struct flow_keys keys;   
-
-	if (!skb_flow_dissect(skb, &keys)) 
-		return false;
-
-	if (keys.ip_proto != IPPROTO_TCP)
-		return false;
-
-	then check __skb_get_poff() how to get th, and check if there is some
-payload...
-
-
-> +	if ((skb->protocol == htons(ETH_P_IP)) &&
-> +	    hdr.ipv4->protocol == IPPROTO_TCP) {
-> +		payload_len = ntohs(hdr.ipv4->tot_len) - hdr.ipv4->ihl * 4 -
-> +			      th->doff * 4;
-> +	} else if ((skb->protocol == htons(ETH_P_IPV6) ||
-> +		   hdr.ipv6->nexthdr == IPPROTO_TCP)) {
-> +		payload_len = ntohs(hdr.ipv6->payload_len) - th->doff * 4;
-> +	} else {
-> +		return false;
-> +	}
-> +
-> +	/* We don't want to dealy packet with PUSH bit and pure ACK packet */
-> +	if (!th->psh && payload_len)
-> +		return true;
-> +
-> +	return false;
+> +/**
+>   * virtqueue_add_inbuf - expose input buffers to other end
+>   * @vq: the struct virtqueue we're talking about.
+>   * @sgs: array of scatterlists (need not be terminated!)
+> @@ -382,7 +420,7 @@ int virtqueue_add_inbuf(struct virtqueue *vq,
+>  			void *data,
+>  			gfp_t gfp)
+>  {
+> -	return virtqueue_add(vq, &sg, sg_next_arr, 0, num, 0, 1, data, gfp);
+> +	return virtqueue_add(vq, false, &sg, sg_next_arr, 0, num, 0, 1, data, gfp);
 >  }
+>  EXPORT_SYMBOL_GPL(virtqueue_add_inbuf);
+>  
+> @@ -595,6 +633,14 @@ void virtqueue_disable_cb(struct virtqueue *_vq)
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_disable_cb);
+>  
+> +void virtqueue_disable_cb_urgent(struct virtqueue *_vq)
+> +{
+> +	struct vring_virtqueue *vq = to_vvq(_vq);
+> +
+> +	vq->vring.avail->flags |= VRING_AVAIL_F_NO_URGENT_INTERRUPT;
+> +}
+> +EXPORT_SYMBOL_GPL(virtqueue_disable_cb_urgent);
+> +
+>  /**
+>   * virtqueue_enable_cb_prepare - restart callbacks after disable_cb
+>   * @vq: the struct virtqueue we're talking about.
+> @@ -626,6 +672,19 @@ unsigned virtqueue_enable_cb_prepare(struct virtqueue *_vq)
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_enable_cb_prepare);
+>  
+> +unsigned virtqueue_enable_cb_prepare_urgent(struct virtqueue *_vq)
+> +{
+> +	struct vring_virtqueue *vq = to_vvq(_vq);
+> +	u16 last_used_idx;
+> +
+> +	START_USE(vq);
+> +	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_URGENT_INTERRUPT;
+> +	last_used_idx = vq->last_used_idx;
+> +	END_USE(vq);
+> +	return last_used_idx;
+> +}
+> +EXPORT_SYMBOL_GPL(virtqueue_enable_cb_prepare_urgent);
+> +
+
+You can implement virtqueue_enable_cb_prepare_urgent
+simply by clearing ~VRING_AVAIL_F_NO_INTERRUPT.
+
+The effect is same: host sends interrupts only if there
+is an urgent descriptor.
+
+>  /**
+>   * virtqueue_poll - query pending used buffers
+>   * @vq: the struct virtqueue we're talking about.
+> @@ -662,6 +721,14 @@ bool virtqueue_enable_cb(struct virtqueue *_vq)
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_enable_cb);
+>  
+> +bool virtqueue_enable_cb_urgent(struct virtqueue *_vq)
+> +{
+> +	unsigned last_used_idx = virtqueue_enable_cb_prepare_urgent(_vq);
+> +
+> +	return !virtqueue_poll(_vq, last_used_idx);
+> +}
+> +EXPORT_SYMBOL_GPL(virtqueue_enable_cb_urgent);
+> +
+>  /**
+>   * virtqueue_enable_cb_delayed - restart callbacks after disable_cb.
+>   * @vq: the struct virtqueue we're talking about.
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index b46671e..68be5f2 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -39,6 +39,12 @@ int virtqueue_add_outbuf(struct virtqueue *vq,
+>  			 void *data,
+>  			 gfp_t gfp);
+>  
+> +int virtqueue_add_outbuf_urgent(struct virtqueue *vq,
+> +				struct scatterlist sg[], unsigned int num,
+> +				void *data,
+> +				gfp_t gfp);
+> +
+> +
+>  int virtqueue_add_inbuf(struct virtqueue *vq,
+>  			struct scatterlist sg[], unsigned int num,
+>  			void *data,
+> @@ -61,10 +67,18 @@ void *virtqueue_get_buf(struct virtqueue *vq, unsigned int *len);
+>  
+>  void virtqueue_disable_cb(struct virtqueue *vq);
+>  
+> +void virtqueue_disable_cb_urgent(struct virtqueue *vq);
+> +
+>  bool virtqueue_enable_cb(struct virtqueue *vq);
+>  
+> +bool virtqueue_enable_cb_urgent(struct virtqueue *vq);
+> +
+> +bool virtqueue_enable_cb_urgent(struct virtqueue *vq);
+> +
+>  unsigned virtqueue_enable_cb_prepare(struct virtqueue *vq);
+>  
+> +unsigned virtqueue_enable_cb_prepare_urgent(struct virtqueue *vq);
+> +
+>  bool virtqueue_poll(struct virtqueue *vq, unsigned);
+>  
+>  bool virtqueue_enable_cb_delayed(struct virtqueue *vq);
+> diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
+> index a99f9b7..daf5bb0 100644
+> --- a/include/uapi/linux/virtio_ring.h
+> +++ b/include/uapi/linux/virtio_ring.h
+> @@ -39,6 +39,9 @@
+>  #define VRING_DESC_F_WRITE	2
+>  /* This means the buffer contains a list of buffer descriptors. */
+>  #define VRING_DESC_F_INDIRECT	4
+> +/* This means the descriptor should cause an interrupt
+> + * ignoring avail event idx. */
+> +#define VRING_DESC_F_URGENT	8
+>  
+>  /* The Host uses this in used->flags to advise the Guest: don't kick me when
+>   * you add a buffer.  It's unreliable, so it's simply an optimization.  Guest
+> @@ -48,7 +51,7 @@
+>   * when you consume a buffer.  It's unreliable, so it's simply an
+>   * optimization.  */
+>  #define VRING_AVAIL_F_NO_INTERRUPT	1
+> -
+> +#define VRING_AVAIL_F_NO_URGENT_INTERRUPT	2
+>  /* We support indirect buffer descriptors */
+>  #define VIRTIO_RING_F_INDIRECT_DESC	28
+>  
+> -- 
+> 1.8.3.1
