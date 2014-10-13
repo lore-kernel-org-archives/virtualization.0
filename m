@@ -1,16 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next RFC 1/3] virtio: support for urgent descriptors
-Date: Mon, 13 Oct 2014 10:16:19 +0300
-Message-ID: <20141013071619.GA10178@redhat.com>
-References: <1413011806-3813-1-git-send-email-jasowang@redhat.com>
-	<1413011806-3813-2-git-send-email-jasowang@redhat.com>
-	<20141012092744.GA9567@redhat.com> <543B6F94.2090107@redhat.com>
+Subject: Re: [PATCH 2/2] virtio_balloon: free some memory from baloon on OOM
+Date: Mon, 13 Oct 2014 10:22:01 +0300
+Message-ID: <20141013072201.GB10178@redhat.com>
+References: <1412763669-2980-1-git-send-email-den@parallels.com>
+	<1412763669-2980-3-git-send-email-den@parallels.com>
+	<87iojoedq3.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <543B6F94.2090107@redhat.com>
+In-Reply-To: <87iojoedq3.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,73 +20,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-api@vger.kernel.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: den@openvz.org, "Denis V. Lunev" <den@parallels.com>, Raushaniya Maksudova <rmaksudova@parallels.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Oct 13, 2014 at 02:22:12PM +0800, Jason Wang wrote:
-> On 10/12/2014 05:27 PM, Michael S. Tsirkin wrote:
-> > On Sat, Oct 11, 2014 at 03:16:44PM +0800, Jason Wang wrote:
-> >> Below should be useful for some experiments Jason is doing.
-> >> I thought I'd send it out for early review/feedback.
-> >>
-> >> event idx feature allows us to defer interrupts until
-> >> a specific # of descriptors were used.
-> >> Sometimes it might be useful to get an interrupt after
-> >> a specific descriptor, regardless.
-> >> This adds a descriptor flag for this, and an API
-> >> to create an urgent output descriptor.
-> >> This is still an RFC:
-> >> we'll need a feature bit for drivers to detect this,
-> >> but we've run out of feature bits for virtio 0.X.
-> >> For experimentation purposes, drivers can assume
-> >> this is set, or add a driver-specific feature bit.
-> >>
-> >> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> >> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > I see that as compared to my original patch, you have
-> > added a new flag: VRING_AVAIL_F_NO_URGENT_INTERRUPT
-> > I don't think it's necessary, see below.
+On Mon, Oct 13, 2014 at 04:02:52PM +1030, Rusty Russell wrote:
+> "Denis V. Lunev" <den@parallels.com> writes:
+> > From: Raushaniya Maksudova <rmaksudova@parallels.com>
 > >
-> > As such, I think this patch should be split:
-> > - original patch adding support for urgent descriptors
-> > - a patch adding virtqueue_enable/disable_cb_urgent(_prepare)?
+> > Excessive virtio_balloon inflation can cause invocation of OOM-killer,
+> > when Linux is under severe memory pressure. Various mechanisms are
+> > responsible for correct virtio_balloon memory management. Nevertheless
+> > it is often the case that these control tools does not have enough time
+> > to react on fast changing memory load. As a result OS runs out of memory
+> > and invokes OOM-killer. The balancing of memory by use of the virtio
+> > balloon should not cause the termination of processes while there are
+> > pages in the balloon. Now there is no way for virtio balloon driver to
+> > free some memory at the last moment before some process will be get
+> > killed by OOM-killer.
 > 
-> Not sure this is a good idea, since the api of first patch is in-completed.
-> >
-> >> ---
-> >>  drivers/virtio/virtio_ring.c     | 75 +++++++++++++++++++++++++++++++++++++---
-> >>  include/linux/virtio.h           | 14 ++++++++
-> >>  include/uapi/linux/virtio_ring.h |  5 ++-
-> >>  3 files changed, 89 insertions(+), 5 deletions(-)
-> >>
-> [...]
-> >>  
-> >> +unsigned virtqueue_enable_cb_prepare_urgent(struct virtqueue *_vq)
-> >> +{
-> >> +	struct vring_virtqueue *vq = to_vvq(_vq);
-> >> +	u16 last_used_idx;
-> >> +
-> >> +	START_USE(vq);
-> >> +	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_URGENT_INTERRUPT;
-> >> +	last_used_idx = vq->last_used_idx;
-> >> +	END_USE(vq);
-> >> +	return last_used_idx;
-> >> +}
-> >> +EXPORT_SYMBOL_GPL(virtqueue_enable_cb_prepare_urgent);
-> >> +
-> > You can implement virtqueue_enable_cb_prepare_urgent
-> > simply by clearing ~VRING_AVAIL_F_NO_INTERRUPT.
-> >
-> > The effect is same: host sends interrupts only if there
-> > is an urgent descriptor.
+> This makes some amount of sense.
+
+This reminds me of the balloon fs that Google once proposed.
+This really needs to be controlled from host though.
+At the moment host does not expect guest to deflate before
+requests.
+So as a minimum, add a feature bit for this.  what if you want a mix of
+mandatory and optional balooning? I guess we can use multiple balloons,
+is that the idea?
+
+
+> But I suggest a few minor changes:
 > 
-> Seems not, consider the case when event index was disabled. This will
-> turn on all interrupts.
-
-This means that a legacy device without event index support
-will get more interrupts.
-Sounds reasonable.
-
--- 
-MST
+> > +static int oom_vballoon_pages = OOM_VBALLOON_DEFAULT_PAGES;
+> > +module_param(oom_vballoon_pages, int, S_IRUSR | S_IWUSR);
+> > +MODULE_PARM_DESC(oom_vballoon_pages, "pages to free on OOM");
+> 
+> Since this is already prefixed with "virtio_balloon." I suggest just
+> calling it "oom_pages".
+> 
+> > +static int virtballoon_oom_notify(struct notifier_block *self,
+> > +				  unsigned long dummy, void *parm)
+> > +{
+> > +	unsigned int num_freed_pages;
+> > +	unsigned long *freed = (unsigned long *)parm;
+> > +	struct virtio_balloon *vb = container_of((struct notifier_block *)self,
+> > +						 struct virtio_balloon, nb);
+> 
+> Why cast self here?
+> 
+> > +	num_freed_pages = leak_balloon(vb, oom_vballoon_pages);
+> > +	update_balloon_size(vb);
+> > +	*freed += num_freed_pages;
+> > +
+> > +	return NOTIFY_OK;
+> > +}
+> 
+> Cheers,
+> Rusty.
