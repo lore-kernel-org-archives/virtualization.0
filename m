@@ -1,14 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 2/2] virtio_balloon: free some memory from baloon on OOM
-Date: Mon, 13 Oct 2014 16:02:52 +1030
-Message-ID: <87iojoedq3.fsf@rustcorp.com.au>
-References: <1412763669-2980-1-git-send-email-den@parallels.com>
-	<1412763669-2980-3-git-send-email-den@parallels.com>
+Subject: Re: [PATCH v3 10/25] virtio: add API to enable VQs early
+Date: Mon, 13 Oct 2014 17:22:39 +1030
+Message-ID: <8738asea14.fsf@rustcorp.com.au>
+References: <1413114332-626-1-git-send-email-mst@redhat.com>
+	<1413114332-626-11-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1412763669-2980-3-git-send-email-den@parallels.com>
+In-Reply-To: <1413114332-626-11-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,51 +18,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Denis V. Lunev" <den@parallels.com>
-Cc: den@openvz.org, virtualization@lists.linux-foundation.org, Raushaniya Maksudova <rmaksudova@parallels.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, kvm@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Amit Shah <amit.shah@redhat.com>, v9fs-developer@lists.sourceforge.net, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Denis V. Lunev" <den@parallels.com> writes:
-> From: Raushaniya Maksudova <rmaksudova@parallels.com>
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> virtio spec 0.9.X requires DRIVER_OK to be set before
+> VQs are used, but some drivers use VQs before probe
+> function returns.
+> Since DRIVER_OK is set after probe, this violates the spec.
 >
-> Excessive virtio_balloon inflation can cause invocation of OOM-killer,
-> when Linux is under severe memory pressure. Various mechanisms are
-> responsible for correct virtio_balloon memory management. Nevertheless
-> it is often the case that these control tools does not have enough time
-> to react on fast changing memory load. As a result OS runs out of memory
-> and invokes OOM-killer. The balancing of memory by use of the virtio
-> balloon should not cause the termination of processes while there are
-> pages in the balloon. Now there is no way for virtio balloon driver to
-> free some memory at the last moment before some process will be get
-> killed by OOM-killer.
+> Even though under virtio 1.0 transitional devices support this
+> behaviour, we want to make it possible for those early callers to become
+> spec compliant and eventually support non-transitional devices.
+>
+> Add API for drivers to call before using VQs.
+>
+> Sets DRIVER_OK internally.
+>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-This makes some amount of sense.
+OK, this all looks good, but I think we should do two things:
 
-But I suggest a few minor changes:
-
-> +static int oom_vballoon_pages = OOM_VBALLOON_DEFAULT_PAGES;
-> +module_param(oom_vballoon_pages, int, S_IRUSR | S_IWUSR);
-> +MODULE_PARM_DESC(oom_vballoon_pages, "pages to free on OOM");
-
-Since this is already prefixed with "virtio_balloon." I suggest just
-calling it "oom_pages".
-
-> +static int virtballoon_oom_notify(struct notifier_block *self,
-> +				  unsigned long dummy, void *parm)
-> +{
-> +	unsigned int num_freed_pages;
-> +	unsigned long *freed = (unsigned long *)parm;
-> +	struct virtio_balloon *vb = container_of((struct notifier_block *)self,
-> +						 struct virtio_balloon, nb);
-
-Why cast self here?
-
-> +	num_freed_pages = leak_balloon(vb, oom_vballoon_pages);
-> +	update_balloon_size(vb);
-> +	*freed += num_freed_pages;
-> +
-> +	return NOTIFY_OK;
-> +}
+1) rename virtio_enable_vqs_early() to virtio_device_ready().
+2) Add a BUG_ON in the virtio_ring code to make sure device is ready
+   before any ops are called.
 
 Cheers,
 Rusty.
