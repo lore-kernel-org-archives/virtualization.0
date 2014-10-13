@@ -1,15 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next RFC 1/3] virtio: support for urgent descriptors
-Date: Mon, 13 Oct 2014 14:22:12 +0800
-Message-ID: <543B6F94.2090107@redhat.com>
-References: <1413011806-3813-1-git-send-email-jasowang@redhat.com>
-	<1413011806-3813-2-git-send-email-jasowang@redhat.com>
-	<20141012092744.GA9567@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH RFC 03/11] virtio: support more feature bits
+Date: Mon, 13 Oct 2014 16:23:58 +1030
+Message-ID: <87bnpgecqx.fsf@rustcorp.com.au>
+References: <1412692807-12398-1-git-send-email-cornelia.huck@de.ibm.com>
+	<1412692807-12398-4-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141012092744.GA9567@redhat.com>
+In-Reply-To: <1412692807-12398-4-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,65 +18,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-api@vger.kernel.org
+To: Cornelia Huck <cornelia.huck@de.ibm.com>, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.kernel.org
+Cc: thuth@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/12/2014 05:27 PM, Michael S. Tsirkin wrote:
-> On Sat, Oct 11, 2014 at 03:16:44PM +0800, Jason Wang wrote:
->> Below should be useful for some experiments Jason is doing.
->> I thought I'd send it out for early review/feedback.
->>
->> event idx feature allows us to defer interrupts until
->> a specific # of descriptors were used.
->> Sometimes it might be useful to get an interrupt after
->> a specific descriptor, regardless.
->> This adds a descriptor flag for this, and an API
->> to create an urgent output descriptor.
->> This is still an RFC:
->> we'll need a feature bit for drivers to detect this,
->> but we've run out of feature bits for virtio 0.X.
->> For experimentation purposes, drivers can assume
->> this is set, or add a driver-specific feature bit.
->>
->> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> I see that as compared to my original patch, you have
-> added a new flag: VRING_AVAIL_F_NO_URGENT_INTERRUPT
-> I don't think it's necessary, see below.
->
-> As such, I think this patch should be split:
-> - original patch adding support for urgent descriptors
-> - a patch adding virtqueue_enable/disable_cb_urgent(_prepare)?
+Cornelia Huck <cornelia.huck@de.ibm.com> writes:
+> With virtio-1, we support more than 32 feature bits. Let's make
+> vdev->guest_features depend on the number of supported feature bits,
+> allowing us to grow the feature bits automatically.
 
-Not sure this is a good idea, since the api of first patch is in-completed.
->
->> ---
->>  drivers/virtio/virtio_ring.c     | 75 +++++++++++++++++++++++++++++++++++++---
->>  include/linux/virtio.h           | 14 ++++++++
->>  include/uapi/linux/virtio_ring.h |  5 ++-
->>  3 files changed, 89 insertions(+), 5 deletions(-)
->>
-[...]
->>  
->> +unsigned virtqueue_enable_cb_prepare_urgent(struct virtqueue *_vq)
->> +{
->> +	struct vring_virtqueue *vq = to_vvq(_vq);
->> +	u16 last_used_idx;
->> +
->> +	START_USE(vq);
->> +	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_URGENT_INTERRUPT;
->> +	last_used_idx = vq->last_used_idx;
->> +	END_USE(vq);
->> +	return last_used_idx;
->> +}
->> +EXPORT_SYMBOL_GPL(virtqueue_enable_cb_prepare_urgent);
->> +
-> You can implement virtqueue_enable_cb_prepare_urgent
-> simply by clearing ~VRING_AVAIL_F_NO_INTERRUPT.
->
-> The effect is same: host sends interrupts only if there
-> is an urgent descriptor.
+It's a judgement call, but I would say that simply using uint64_t
+will be sufficient for quite a while.
 
-Seems not, consider the case when event index was disabled. This will
-turn on all interrupts.
+Cheers,
+Rusty.
