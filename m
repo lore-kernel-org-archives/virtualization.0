@@ -1,17 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: BUG_ON in virtio-ring.c
-Date: Mon, 13 Oct 2014 16:09:18 +1030
-Message-ID: <87fvesedfd.fsf@rustcorp.com.au>
-References: <CAPM=9tyLrJ8VAdGCw_1guRS-ogCPE1Qp7faE_nrx_dAm2gvHLQ@mail.gmail.com>
-	<87vc65p5a7.fsf@rustcorp.com.au>
-	<CAPM=9tzw8jEv8yoLr7ktjO2DHCDzA+mURmJ-DXby_nsWUUNoyg@mail.gmail.com>
-	<87li71oucu.fsf@rustcorp.com.au>
-	<CAAts5mM_+Mj=vjWyJc8wZCvZehfK5dZxeA0Y9eowHwFDiWxo9Q@mail.gmail.com>
+Subject: Re: [PATCH 2/2] virtio_balloon: free some memory from baloon on OOM
+Date: Mon, 13 Oct 2014 16:02:52 +1030
+Message-ID: <87iojoedq3.fsf@rustcorp.com.au>
+References: <1412763669-2980-1-git-send-email-den@parallels.com>
+	<1412763669-2980-3-git-send-email-den@parallels.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAAts5mM_+Mj=vjWyJc8wZCvZehfK5dZxeA0Y9eowHwFDiWxo9Q@mail.gmail.com>
+In-Reply-To: <1412763669-2980-3-git-send-email-den@parallels.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,54 +18,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alexey Lapitsky <lex.public@gmail.com>
-Cc: Dave Airlie <airlied@gmail.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: "Denis V. Lunev" <den@parallels.com>
+Cc: den@openvz.org, virtualization@lists.linux-foundation.org, Raushaniya Maksudova <rmaksudova@parallels.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Alexey Lapitsky <lex.public@gmail.com> writes:
-> Hi,
+"Denis V. Lunev" <den@parallels.com> writes:
+> From: Raushaniya Maksudova <rmaksudova@parallels.com>
 >
-> I'm hitting this bug with both ext4 and btrfs.
->
-> Here's an example of the backtrace:
-> https://gist.github.com/vzctl/e888a821333979120932
->
-> I tried raising this BUG only for direct ring and it solved the problem:
->
->  -       BUG_ON(total_sg > vq->vring.num);
-> +       BUG_ON(total_sg > vq->vring.num && !vq->indirect);
->
-> Shall I submit the patch or is a more elaborate fix required?
+> Excessive virtio_balloon inflation can cause invocation of OOM-killer,
+> when Linux is under severe memory pressure. Various mechanisms are
+> responsible for correct virtio_balloon memory management. Nevertheless
+> it is often the case that these control tools does not have enough time
+> to react on fast changing memory load. As a result OS runs out of memory
+> and invokes OOM-killer. The balancing of memory by use of the virtio
+> balloon should not cause the termination of processes while there are
+> pages in the balloon. Now there is no way for virtio balloon driver to
+> free some memory at the last moment before some process will be get
+> killed by OOM-killer.
 
-This is wrong.  It looks like the block layer is spending down
-more sg elements than we have ring entries, yet we tell it not to:
+This makes some amount of sense.
 
-	blk_queue_max_segments(q, vblk->sg_elems-2);
+But I suggest a few minor changes:
 
-If you apply this patch, what happens?  Here it prints:
+> +static int oom_vballoon_pages = OOM_VBALLOON_DEFAULT_PAGES;
+> +module_param(oom_vballoon_pages, int, S_IRUSR | S_IWUSR);
+> +MODULE_PARM_DESC(oom_vballoon_pages, "pages to free on OOM");
 
-[    0.616564] virtqueue elements = 128, max_segments = 126 (1 queues)
-[    0.621244]  vda: vda1 vda2 < vda5 >
-[    0.632290] virtqueue elements = 128, max_segments = 126 (1 queues)
-[    0.683526]  vdb: vdb1 vdb2 < vdb5 >
+Since this is already prefixed with "virtio_balloon." I suggest just
+calling it "oom_pages".
+
+> +static int virtballoon_oom_notify(struct notifier_block *self,
+> +				  unsigned long dummy, void *parm)
+> +{
+> +	unsigned int num_freed_pages;
+> +	unsigned long *freed = (unsigned long *)parm;
+> +	struct virtio_balloon *vb = container_of((struct notifier_block *)self,
+> +						 struct virtio_balloon, nb);
+
+Why cast self here?
+
+> +	num_freed_pages = leak_balloon(vb, oom_vballoon_pages);
+> +	update_balloon_size(vb);
+> +	*freed += num_freed_pages;
+> +
+> +	return NOTIFY_OK;
+> +}
 
 Cheers,
 Rusty.
-
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 0a581400de0f..aa9d4d313587 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -683,6 +683,13 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	/* We can handle whatever the host told us to handle. */
- 	blk_queue_max_segments(q, vblk->sg_elems-2);
- 
-+	printk("virtqueue elements = %u, max_segments = %u (%u queues)", 
-+	       virtqueue_get_vring_size(vblk->vqs[0].vq),
-+	       vblk->sg_elems-2,
-+	       vblk->num_vqs);
-+
-+	BUG_ON(vblk->sg_elems-2 > virtqueue_get_vring_size(vblk->vqs[0].vq));
-+
- 	/* No need to bounce any requests */
- 	blk_queue_bounce_limit(q, BLK_BOUNCE_ANY);
