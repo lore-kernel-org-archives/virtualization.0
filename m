@@ -1,14 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH RFC 03/11] virtio: support more feature bits
-Date: Mon, 13 Oct 2014 16:23:58 +1030
-Message-ID: <87bnpgecqx.fsf@rustcorp.com.au>
-References: <1412692807-12398-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1412692807-12398-4-git-send-email-cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH RFC 08/11] virtio_blk: use virtio v1.0 endian
+Date: Mon, 13 Oct 2014 16:28:32 +1030
+Message-ID: <878ukkecjb.fsf__22725.6761667833$1413183304$gmane$org@rustcorp.com.au>
+References: <1412692792-12325-1-git-send-email-cornelia.huck@de.ibm.com>
+	<1412692792-12325-9-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1412692807-12398-4-git-send-email-cornelia.huck@de.ibm.com>
+In-Reply-To: <1412692792-12325-9-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,12 +23,17 @@ Cc: thuth@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 Cornelia Huck <cornelia.huck@de.ibm.com> writes:
-> With virtio-1, we support more than 32 feature bits. Let's make
-> vdev->guest_features depend on the number of supported feature bits,
-> allowing us to grow the feature bits automatically.
+> Note that we care only about the fields still in use for virtio v1.0.
+>
+> Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+> Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-It's a judgement call, but I would say that simply using uint64_t
-will be sufficient for quite a while.
+Hi Cornelia,
 
-Cheers,
+        These patches all look good; I'm a bit nervous about our testing
+missing some conversion, so we'll need qemu patches for PCI so we can
+test on other platforms too.
+
+Thanks,
 Rusty.
