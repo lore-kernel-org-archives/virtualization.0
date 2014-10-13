@@ -1,14 +1,17 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH RFC 08/11] virtio_blk: use virtio v1.0 endian
-Date: Mon, 13 Oct 2014 16:28:32 +1030
-Message-ID: <878ukkecjb.fsf__22725.6761667833$1413183304$gmane$org@rustcorp.com.au>
-References: <1412692792-12325-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1412692792-12325-9-git-send-email-cornelia.huck@de.ibm.com>
+Subject: Re: BUG_ON in virtio-ring.c
+Date: Mon, 13 Oct 2014 16:09:18 +1030
+Message-ID: <87fvesedfd.fsf@rustcorp.com.au>
+References: <CAPM=9tyLrJ8VAdGCw_1guRS-ogCPE1Qp7faE_nrx_dAm2gvHLQ@mail.gmail.com>
+	<87vc65p5a7.fsf@rustcorp.com.au>
+	<CAPM=9tzw8jEv8yoLr7ktjO2DHCDzA+mURmJ-DXby_nsWUUNoyg@mail.gmail.com>
+	<87li71oucu.fsf@rustcorp.com.au>
+	<CAAts5mM_+Mj=vjWyJc8wZCvZehfK5dZxeA0Y9eowHwFDiWxo9Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1412692792-12325-9-git-send-email-cornelia.huck@de.ibm.com>
+In-Reply-To: <CAAts5mM_+Mj=vjWyJc8wZCvZehfK5dZxeA0Y9eowHwFDiWxo9Q@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,22 +21,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.kernel.org
-Cc: thuth@linux.vnet.ibm.com
+To: Alexey Lapitsky <lex.public@gmail.com>
+Cc: Dave Airlie <airlied@gmail.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cornelia Huck <cornelia.huck@de.ibm.com> writes:
-> Note that we care only about the fields still in use for virtio v1.0.
+Alexey Lapitsky <lex.public@gmail.com> writes:
+> Hi,
 >
-> Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
-> Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> I'm hitting this bug with both ext4 and btrfs.
+>
+> Here's an example of the backtrace:
+> https://gist.github.com/vzctl/e888a821333979120932
+>
+> I tried raising this BUG only for direct ring and it solved the problem:
+>
+>  -       BUG_ON(total_sg > vq->vring.num);
+> +       BUG_ON(total_sg > vq->vring.num && !vq->indirect);
+>
+> Shall I submit the patch or is a more elaborate fix required?
 
-Hi Cornelia,
+This is wrong.  It looks like the block layer is spending down
+more sg elements than we have ring entries, yet we tell it not to:
 
-        These patches all look good; I'm a bit nervous about our testing
-missing some conversion, so we'll need qemu patches for PCI so we can
-test on other platforms too.
+	blk_queue_max_segments(q, vblk->sg_elems-2);
 
-Thanks,
+If you apply this patch, what happens?  Here it prints:
+
+[    0.616564] virtqueue elements = 128, max_segments = 126 (1 queues)
+[    0.621244]  vda: vda1 vda2 < vda5 >
+[    0.632290] virtqueue elements = 128, max_segments = 126 (1 queues)
+[    0.683526]  vdb: vdb1 vdb2 < vdb5 >
+
+Cheers,
 Rusty.
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 0a581400de0f..aa9d4d313587 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -683,6 +683,13 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	/* We can handle whatever the host told us to handle. */
+ 	blk_queue_max_segments(q, vblk->sg_elems-2);
+ 
++	printk("virtqueue elements = %u, max_segments = %u (%u queues)", 
++	       virtqueue_get_vring_size(vblk->vqs[0].vq),
++	       vblk->sg_elems-2,
++	       vblk->num_vqs);
++
++	BUG_ON(vblk->sg_elems-2 > virtqueue_get_vring_size(vblk->vqs[0].vq));
++
+ 	/* No need to bounce any requests */
+ 	blk_queue_bounce_limit(q, BLK_BOUNCE_ANY);
