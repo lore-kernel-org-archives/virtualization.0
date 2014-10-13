@@ -1,16 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 2/2] virtio_balloon: free some memory from baloon on OOM
-Date: Mon, 13 Oct 2014 10:22:01 +0300
-Message-ID: <20141013072201.GB10178@redhat.com>
-References: <1412763669-2980-1-git-send-email-den@parallels.com>
-	<1412763669-2980-3-git-send-email-den@parallels.com>
-	<87iojoedq3.fsf@rustcorp.com.au>
+Subject: Re: [PATCH v3 10/25] virtio: add API to enable VQs early
+Date: Mon, 13 Oct 2014 10:35:44 +0300
+Message-ID: <20141013073544.GA10433@redhat.com>
+References: <1413114332-626-1-git-send-email-mst@redhat.com>
+	<1413114332-626-11-git-send-email-mst@redhat.com>
+	<8738asea14.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87iojoedq3.fsf@rustcorp.com.au>
+In-Reply-To: <8738asea14.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,60 +21,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: den@openvz.org, "Denis V. Lunev" <den@parallels.com>, Raushaniya Maksudova <rmaksudova@parallels.com>, virtualization@lists.linux-foundation.org
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Amit Shah <amit.shah@redhat.com>, v9fs-developer@lists.sourceforge.net, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Oct 13, 2014 at 04:02:52PM +1030, Rusty Russell wrote:
-> "Denis V. Lunev" <den@parallels.com> writes:
-> > From: Raushaniya Maksudova <rmaksudova@parallels.com>
+On Mon, Oct 13, 2014 at 05:22:39PM +1030, Rusty Russell wrote:
+> "Michael S. Tsirkin" <mst@redhat.com> writes:
+> > virtio spec 0.9.X requires DRIVER_OK to be set before
+> > VQs are used, but some drivers use VQs before probe
+> > function returns.
+> > Since DRIVER_OK is set after probe, this violates the spec.
 > >
-> > Excessive virtio_balloon inflation can cause invocation of OOM-killer,
-> > when Linux is under severe memory pressure. Various mechanisms are
-> > responsible for correct virtio_balloon memory management. Nevertheless
-> > it is often the case that these control tools does not have enough time
-> > to react on fast changing memory load. As a result OS runs out of memory
-> > and invokes OOM-killer. The balancing of memory by use of the virtio
-> > balloon should not cause the termination of processes while there are
-> > pages in the balloon. Now there is no way for virtio balloon driver to
-> > free some memory at the last moment before some process will be get
-> > killed by OOM-killer.
+> > Even though under virtio 1.0 transitional devices support this
+> > behaviour, we want to make it possible for those early callers to become
+> > spec compliant and eventually support non-transitional devices.
+> >
+> > Add API for drivers to call before using VQs.
+> >
+> > Sets DRIVER_OK internally.
+> >
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 > 
-> This makes some amount of sense.
+> OK, this all looks good, but I think we should do two things:
+> 
+> 1) rename virtio_enable_vqs_early() to virtio_device_ready().
 
-This reminds me of the balloon fs that Google once proposed.
-This really needs to be controlled from host though.
-At the moment host does not expect guest to deflate before
-requests.
-So as a minimum, add a feature bit for this.  what if you want a mix of
-mandatory and optional balooning? I guess we can use multiple balloons,
-is that the idea?
+I considered this, I was concerned that the usage isn't clear from name:
+- this has to be called before VQs are used
+- this is optional, happens automatically after probe
 
+device_ready seems to imply driver is fully initialized,
+if it was it could just call probe.
 
-> But I suggest a few minor changes:
-> 
-> > +static int oom_vballoon_pages = OOM_VBALLOON_DEFAULT_PAGES;
-> > +module_param(oom_vballoon_pages, int, S_IRUSR | S_IWUSR);
-> > +MODULE_PARM_DESC(oom_vballoon_pages, "pages to free on OOM");
-> 
-> Since this is already prefixed with "virtio_balloon." I suggest just
-> calling it "oom_pages".
-> 
-> > +static int virtballoon_oom_notify(struct notifier_block *self,
-> > +				  unsigned long dummy, void *parm)
-> > +{
-> > +	unsigned int num_freed_pages;
-> > +	unsigned long *freed = (unsigned long *)parm;
-> > +	struct virtio_balloon *vb = container_of((struct notifier_block *)self,
-> > +						 struct virtio_balloon, nb);
-> 
-> Why cast self here?
-> 
-> > +	num_freed_pages = leak_balloon(vb, oom_vballoon_pages);
-> > +	update_balloon_size(vb);
-> > +	*freed += num_freed_pages;
-> > +
-> > +	return NOTIFY_OK;
-> > +}
+But it's easy enough to make the change, so I'll go ahead and
+post V4. It will be up to you which one to apply then.
+
+> 2) Add a BUG_ON in the virtio_ring code to make sure device is ready
+>    before any ops are called.
 > 
 > Cheers,
 > Rusty.
+
+On kick? This seems too expensive, especially considering that
+we don't track the status.
+
+Anyway, can be a patch on top?
+
+-- 
+MST
