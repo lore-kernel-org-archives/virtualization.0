@@ -1,16 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 2/2] virtio_balloon: free some memory from baloon on OOM
-Date: Tue, 14 Oct 2014 10:14:05 +1030
-Message-ID: <87oatfcz7e.fsf@rustcorp.com.au>
-References: <1412763669-2980-1-git-send-email-den@parallels.com>
-	<1412763669-2980-3-git-send-email-den@parallels.com>
-	<87iojoedq3.fsf@rustcorp.com.au>
-	<20141013072201.GB10178@redhat.com>
+Subject: Re: [PATCH v4 04/25] virtio: defer config changed notifications
+Date: Tue, 14 Oct 2014 11:01:12 +1030
+Message-ID: <87lhojcx0v.fsf@rustcorp.com.au>
+References: <1413114332-626-1-git-send-email-mst-v4@redhat.com>
+	<1413114332-626-5-git-send-email-mst-v4@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141013072201.GB10178@redhat.com>
+In-Reply-To: <1413114332-626-5-git-send-email-mst-v4@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,42 +18,90 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: den@openvz.org, "Denis V. Lunev" <den@parallels.com>, Raushaniya Maksudova <rmaksudova@parallels.com>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, kvm@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Amit Shah <amit.shah@redhat.com>, v9fs-developer@lists.sourceforge.net, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
 "Michael S. Tsirkin" <mst@redhat.com> writes:
-
-> On Mon, Oct 13, 2014 at 04:02:52PM +1030, Rusty Russell wrote:
->> "Denis V. Lunev" <den@parallels.com> writes:
->> > From: Raushaniya Maksudova <rmaksudova@parallels.com>
->> >
->> > Excessive virtio_balloon inflation can cause invocation of OOM-killer,
->> > when Linux is under severe memory pressure. Various mechanisms are
->> > responsible for correct virtio_balloon memory management. Nevertheless
->> > it is often the case that these control tools does not have enough time
->> > to react on fast changing memory load. As a result OS runs out of memory
->> > and invokes OOM-killer. The balancing of memory by use of the virtio
->> > balloon should not cause the termination of processes while there are
->> > pages in the balloon. Now there is no way for virtio balloon driver to
->> > free some memory at the last moment before some process will be get
->> > killed by OOM-killer.
->> 
->> This makes some amount of sense.
+> Defer config changed notifications that arrive during
+> probe/scan/freeze/restore.
 >
-> This reminds me of the balloon fs that Google once proposed.
-> This really needs to be controlled from host though.
-> At the moment host does not expect guest to deflate before
-> requests.
-> So as a minimum, add a feature bit for this.  what if you want a mix of
-> mandatory and optional balooning? I guess we can use multiple balloons,
-> is that the idea?
+> This will allow drivers to set DRIVER_OK earlier, without worrying about
+> racing with config change interrupts.
+>
+> This change will also benefit old hypervisors (before 2009)
+> that send interrupts without checking DRIVER_OK: previously,
+> the callback could race with driver-specific initialization.
+>
+> This will also help simplify drivers.
 
-Trying to claw back some pages on OOM is almost certainly correct,
-even if the host doesn't expect it.  It's roughly equivalent to not
-giving up pages in the first place.
+But AFAICT you never *read* dev->config_changed.
+
+You unconditionally trigger a config_changed event in
+virtio_config_enable().  That's a bit weird, but probably OK.
+
+How about the following change (on top of your patch).  I
+think the renaming is clearer, and note the added if() test in
+virtio_config_enable().
+
+If you approve, I'll fold it in.
 
 Cheers,
 Rusty.
-PS.  Yes, a real guest-driven balloon is preferable, but that's a much
-     larger task.
+
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index 2536701b098b..df598dd8c5c8 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -122,7 +122,7 @@ static void __virtio_config_changed(struct virtio_device *dev)
+ 	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
+ 
+ 	if (!dev->config_enabled)
+-		dev->config_changed = true;
++		dev->config_change_pending = true;
+ 	else if (drv && drv->config_changed)
+ 		drv->config_changed(dev);
+ }
+@@ -148,8 +148,9 @@ static void virtio_config_enable(struct virtio_device *dev)
+ {
+ 	spin_lock_irq(&dev->config_lock);
+ 	dev->config_enabled = true;
+-	__virtio_config_changed(dev);
+-	dev->config_changed = false;
++	if (dev->config_change_pending)
++		__virtio_config_changed(dev);
++	dev->config_change_pending = false;
+ 	spin_unlock_irq(&dev->config_lock);
+ }
+ 
+@@ -253,7 +254,7 @@ int register_virtio_device(struct virtio_device *dev)
+ 
+ 	spin_lock_init(&dev->config_lock);
+ 	dev->config_enabled = false;
+-	dev->config_changed = false;
++	dev->config_change_pending = false;
+ 
+ 	/* We always start by resetting the device, in case a previous
+ 	 * driver messed it up.  This also tests that code path a little. */
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 5636b119dc25..65261a7244fc 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -80,7 +80,7 @@ bool virtqueue_is_broken(struct virtqueue *vq);
+  * @index: unique position on the virtio bus
+  * @failed: saved value for CONFIG_S_FAILED bit (for restore)
+  * @config_enabled: configuration change reporting enabled
+- * @config_changed: configuration change reported while disabled
++ * @config_change_pending: configuration change reported while disabled
+  * @config_lock: protects configuration change reporting
+  * @dev: underlying device.
+  * @id: the device type identification (used to match it with a driver).
+@@ -94,7 +94,7 @@ struct virtio_device {
+ 	int index;
+ 	bool failed;
+ 	bool config_enabled;
+-	bool config_changed;
++	bool config_change_pending;
+ 	spinlock_t config_lock;
+ 	struct device dev;
+ 	struct virtio_device_id id;
