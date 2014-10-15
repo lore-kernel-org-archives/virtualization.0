@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC v2 3/3] virtio-net: optimize free_old_xmit_skbs stats
-Date: Wed, 15 Oct 2014 17:32:09 +0300
-Message-ID: <1413383116-30977-4-git-send-email-mst__49271.5779728771$1413383339$gmane$org@redhat.com>
-References: <1413383116-30977-1-git-send-email-mst@redhat.com>
+From: "Denis V. Lunev" <den@openvz.org>
+Subject: [PATCH 1/2] virtio_balloon: return the amount of freed memory from
+	leak_balloon()
+Date: Wed, 15 Oct 2014 19:47:43 +0400
+Message-ID: <1413388064-5354-2-git-send-email-den@openvz.org>
+References: <1413388064-5354-1-git-send-email-den@openvz.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1413383116-30977-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1413388064-5354-1-git-send-email-den@openvz.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,58 +18,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Raushaniya Maksudova <rmaksudova@parallels.com>, "Denis V. Lunev" <den@openvz.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
+From: Raushaniya Maksudova <rmaksudova@parallels.com>
 
-We already have counters for sent packets and sent bytes.
-Use them to reduce the number of u64_stats_update_begin/end().
+This value would be useful in the next patch to provide the amount of
+the freed memory for OOM killer.
 
-Take care not to bother with stats update when called
-speculatively.
-
-Based on a patch by Jason Wang.
-
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Raushaniya Maksudova <rmaksudova@parallels.com>
+Signed-off-by: Denis V. Lunev <den@openvz.org>
+CC: Rusty Russell <rusty@rustcorp.com.au>
+CC: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/net/virtio_net.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/virtio/virtio_balloon.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 8dea411..4e12023 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -233,16 +233,22 @@ static unsigned int free_old_xmit_skbs(struct netdev_queue *txq,
- 	       (skb = virtqueue_get_buf(sq->vq, &len)) != NULL) {
- 		pr_debug("Sent skb %p\n", skb);
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index f893148..66cac10 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -168,8 +168,9 @@ static void release_pages_by_pfn(const u32 pfns[], unsigned int num)
+ 	}
+ }
  
--		u64_stats_update_begin(&stats->tx_syncp);
--		stats->tx_bytes += skb->len;
- 		bytes += skb->len;
--		stats->tx_packets++;
--		u64_stats_update_end(&stats->tx_syncp);
-+		packets++;
+-static void leak_balloon(struct virtio_balloon *vb, size_t num)
++static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
+ {
++	unsigned num_freed_pages;
+ 	struct page *page;
+ 	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
  
- 		dev_kfree_skb_any(skb);
--		packets++;
+@@ -186,6 +187,7 @@ static void leak_balloon(struct virtio_balloon *vb, size_t num)
+ 		vb->num_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
  	}
  
-+	/* Avoid overhead when no packets have been processed
-+	 * happens when called speculatively from start_xmit. */
-+	if (!packets)
-+		return 0;
-+
-+	u64_stats_update_begin(&stats->tx_syncp);
-+	stats->tx_bytes += bytes;
-+	stats->tx_packets += packets;
-+	u64_stats_update_end(&stats->tx_syncp);
-+
- 	netdev_tx_completed_queue(txq, packets, bytes);
++	num_freed_pages = vb->num_pfns;
+ 	/*
+ 	 * Note that if
+ 	 * virtio_has_feature(vdev, VIRTIO_BALLOON_F_MUST_TELL_HOST);
+@@ -195,6 +197,7 @@ static void leak_balloon(struct virtio_balloon *vb, size_t num)
+ 		tell_host(vb, vb->deflate_vq);
+ 	mutex_unlock(&vb->balloon_lock);
+ 	release_pages_by_pfn(vb->pfns, vb->num_pfns);
++	return num_freed_pages;
+ }
  
- 	return packets;
+ static inline void update_stat(struct virtio_balloon *vb, int idx,
 -- 
-MST
+1.9.1
