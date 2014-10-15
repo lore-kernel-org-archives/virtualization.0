@@ -1,14 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH net-next RFC 1/3] virtio: support for urgent descriptors
-Date: Wed, 15 Oct 2014 16:10:02 +1030
-Message-ID: <877g01c2ml.fsf@rustcorp.com.au>
-References: <1413011806-3813-1-git-send-email-jasowang@redhat.com>
-	<1413011806-3813-2-git-send-email-jasowang@redhat.com>
+Subject: Re: [PATCH] virtio_balloon: Convert "vballon" kthread into a workqueue
+Date: Wed, 15 Oct 2014 15:40:41 +1030
+Message-ID: <87lhohc3zi.fsf@rustcorp.com.au>
+References: <1411662041-10986-1-git-send-email-pmladek@suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1413011806-3813-2-git-send-email-jasowang@redhat.com>
+In-Reply-To: <1411662041-10986-1-git-send-email-pmladek@suse.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,32 +17,112 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: linux-api@vger.kernel.org, kvm@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Tejun Heo <tj@kernel.org>, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, Petr Mladek <pmladek@suse.cz>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jason Wang <jasowang@redhat.com> writes:
-> Below should be useful for some experiments Jason is doing.
-> I thought I'd send it out for early review/feedback.
->
-> event idx feature allows us to defer interrupts until
-> a specific # of descriptors were used.
-> Sometimes it might be useful to get an interrupt after
-> a specific descriptor, regardless.
-> This adds a descriptor flag for this, and an API
-> to create an urgent output descriptor.
-> This is still an RFC:
-> we'll need a feature bit for drivers to detect this,
-> but we've run out of feature bits for virtio 0.X.
-> For experimentation purposes, drivers can assume
-> this is set, or add a driver-specific feature bit.
->
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+Petr Mladek <pmladek@suse.cz> writes:
+> Workqueues have clean and rich API for all basic operations. The code is usually
+> easier and better readable. It can be easily tuned for the given purpose.
 
-The new VRING_DESC_F_URGENT bit is theoretically nicer, but for
-networking (which tends to take packets in order) couldn't we just set
-the event counter to give us a tx interrupt at the packet we want?
+OK, sure.
 
-Cheers,
+> -static void fill_balloon(struct virtio_balloon *vb, size_t num)
+> +static void fill_balloon(struct virtio_balloon *vb, size_t diff)
+>  {
+>  	struct balloon_dev_info *vb_dev_info = vb->vb_dev_info;
+> +	size_t num;
+> +	bool done;
+>  
+>  	/* We can only do one array worth at a time. */
+> -	num = min(num, ARRAY_SIZE(vb->pfns));
+> +	num = min(diff, ARRAY_SIZE(vb->pfns));
+> +	done = (num == diff) ? true : false;
+>  
+>  	mutex_lock(&vb->balloon_lock);
+>  	for (vb->num_pfns = 0; vb->num_pfns < num;
+> @@ -143,6 +143,7 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
+>  					     VIRTIO_BALLOON_PAGES_PER_PAGE);
+>  			/* Sleep for at least 1/5 of a second before retry. */
+>  			msleep(200);
+> +			done = false;
+>  			break;
+>  		}
+>  		set_page_pfns(vb->pfns + vb->num_pfns, page);
+> @@ -154,6 +155,9 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
+>  	if (vb->num_pfns != 0)
+>  		tell_host(vb, vb->inflate_vq);
+>  	mutex_unlock(&vb->balloon_lock);
+> +
+> +	if (!done)
+> +		queue_work(vb->wq, &vb->wq_work);
+>  }
+
+Hmm, this is a bit convoluted.  I would spell it out by keeping a
+num_done counter:
+
+        if (num_done < diff)
+                queue_work(vb->wq, &vb->wq_work);
+
+>  static void release_pages_by_pfn(const u32 pfns[], unsigned int num)
+> @@ -168,20 +172,25 @@ static void release_pages_by_pfn(const u32 pfns[], unsigned int num)
+>  	}
+>  }
+>  
+> -static void leak_balloon(struct virtio_balloon *vb, size_t num)
+> +static void leak_balloon(struct virtio_balloon *vb, size_t diff)
+>  {
+>  	struct page *page;
+>  	struct balloon_dev_info *vb_dev_info = vb->vb_dev_info;
+> +	size_t num;
+> +	bool done;
+>  
+>  	/* We can only do one array worth at a time. */
+> -	num = min(num, ARRAY_SIZE(vb->pfns));
+> +	num = min(diff, ARRAY_SIZE(vb->pfns));
+> +	done = (num == diff) ? true : false;
+>  
+>  	mutex_lock(&vb->balloon_lock);
+>  	for (vb->num_pfns = 0; vb->num_pfns < num;
+>  	     vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
+>  		page = balloon_page_dequeue(vb_dev_info);
+> -		if (!page)
+> +		if (!page) {
+> +			done = false;
+>  			break;
+> +		}
+>  		set_page_pfns(vb->pfns + vb->num_pfns, page);
+>  		vb->num_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
+>  	}
+> @@ -195,6 +204,9 @@ static void leak_balloon(struct virtio_balloon *vb, size_t num)
+>  		tell_host(vb, vb->deflate_vq);
+>  	mutex_unlock(&vb->balloon_lock);
+>  	release_pages_by_pfn(vb->pfns, vb->num_pfns);
+> +
+> +	if (!done)
+> +		queue_work(vb->wq, &vb->wq_work);
+>  }
+
+Here too.
+
+> @@ -471,11 +469,13 @@ static int virtballoon_probe(struct virtio_device *vdev)
+>  	if (err)
+>  		goto out_free_vb_mapping;
+>  
+> -	vb->thread = kthread_run(balloon, vb, "vballoon");
+> -	if (IS_ERR(vb->thread)) {
+> -		err = PTR_ERR(vb->thread);
+> +	vb->wq = alloc_workqueue("vballoon_wq",
+> +				 WQ_FREEZABLE | WQ_MEM_RECLAIM, 0);
+> +	if (!vb->wq) {
+> +		err = -ENOMEM;
+>  		goto out_del_vqs;
+>  	}
+> +	INIT_WORK(&vb->wq_work, balloon);
+
+That looks racy to me; shouldn't we init vq-work before allocating wq?
+
+Otherwise, looks good!
+
+Thanks,
 Rusty.
