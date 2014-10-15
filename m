@@ -1,14 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC] virtio_net: enable tx interrupt
-Date: Wed, 15 Oct 2014 02:11:54 +0300
-Message-ID: <20141014231154.GA23806@redhat.com>
-References: <1413323524-23380-1-git-send-email-mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next RFC 0/3] virtio-net: Conditionally enable tx
+	interrupt
+Date: Wed, 15 Oct 2014 11:24:32 +0800
+Message-ID: <543DE8F0.2040305@redhat.com>
+References: <1413011806-3813-1-git-send-email-jasowang@redhat.com>
+	<20141014.145327.365091739350390288.davem@davemloft.net>
+	<20141014215133.GA23344@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1413323524-23380-1-git-send-email-mst@redhat.com>
+In-Reply-To: <20141014215133.GA23344@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,30 +20,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, David Miller <davem@davemloft.net>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-api@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Oct 15, 2014 at 12:53:59AM +0300, Michael S. Tsirkin wrote:
->  static void skb_xmit_done(struct virtqueue *vq)
->  {
->  	struct virtnet_info *vi = vq->vdev->priv;
-> +	struct send_queue *sq = &vi->sq[vq2txq(vq)];
->  
-> -	/* Suppress further interrupts. */
-> -	virtqueue_disable_cb(vq);
-> -
+On 10/15/2014 05:51 AM, Michael S. Tsirkin wrote:
+> On Tue, Oct 14, 2014 at 02:53:27PM -0400, David Miller wrote:
+>> From: Jason Wang <jasowang@redhat.com>
+>> Date: Sat, 11 Oct 2014 15:16:43 +0800
+>>
+>>> We free old transmitted packets in ndo_start_xmit() currently, so any
+>>> packet must be orphaned also there. This was used to reduce the overhead of
+>>> tx interrupt to achieve better performance. But this may not work for some
+>>> protocols such as TCP stream. TCP depends on the value of sk_wmem_alloc to
+>>> implement various optimization for small packets stream such as TCP small
+>>> queue and auto corking. But orphaning packets early in ndo_start_xmit()
+>>> disable such things more or less since sk_wmem_alloc was not accurate. This
+>>> lead extra low throughput for TCP stream of small writes.
+>>>
+>>> This series tries to solve this issue by enable tx interrupts for all TCP
+>>> packets other than the ones with push bit or pure ACK. This is done through
+>>> the support of urgent descriptor which can force an interrupt for a
+>>> specified packet. If tx interrupt was enabled for a packet, there's no need
+>>> to orphan it in ndo_start_xmit(), we can free it tx napi which is scheduled
+>>> by tx interrupt. Then sk_wmem_alloc was more accurate than before and TCP
+>>> can batch more for small write. More larger skb was produced by TCP in this
+>>> case to improve both throughput and cpu utilization.
+>>>
+>>> Test shows great improvements on small write tcp streams. For most of the
+>>> other cases, the throughput and cpu utilization are the same in the
+>>> past. Only few cases, more cpu utilization was noticed which needs more
+>>> investigation.
+>>>
+>>> Review and comments are welcomed.
+>> I think proper accounting and queueing (at all levels, not just TCP
+>> sockets) is more important than trying to skim a bunch of cycles by
+>> avoiding TX interrupts.
+>>
+>> Having an event to free the SKB is absolutely essential for the stack
+>> to operate correctly.
+>>
+>> And with virtio-net you don't even have the excuse of "the HW
+>> unfortunately doesn't have an appropriate TX event."
+>>
+>> So please don't play games, and instead use TX interrupts all the
+>> time.  You can mitigate them in various ways, but don't turn them on
+>> selectively based upon traffic type, that's terrible.
+> This got me thinking: how about using virtqueue_enable_cb_delayed
+> for this mitigation?
 
-One note here: current code seems racy because of doing
-virtqueue_disable_cb from skb_xmit_done that I'm dropping here: there's
-no guarantee we don't get an interrupt while tx ring is running, and if
-that happens we can end up with interrupts disabled forever.
-
-> -	/* We were probably waiting for more output buffers. */
-> -	netif_wake_subqueue(vi->dev, vq2txq(vq));
-> +	if (napi_schedule_prep(&sq->napi)) {
-> +		__napi_schedule(&sq->napi);
-> +	}
->  }
->  
->  static unsigned int mergeable_ctx_to_buf_truesize(unsigned long mrg_ctx)
+Should work, another possible solution is interrupt coalescing, which
+can speed up also the case without event index.
+> It's pretty easy to implement - I'll send a proof of concept patch
+> separately.
