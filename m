@@ -1,14 +1,18 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC PATCH net-next 0/6] Always use tx interrupt for virtio-net
-Date: Wed, 15 Oct 2014 19:14:14 +0800
-Message-ID: <543E5706.10305@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC PATCH net-next 1/6] virtio: make sure used event never go
+	backwards
+Date: Wed, 15 Oct 2014 14:38:59 +0300
+Message-ID: <20141015113859.GA26918@redhat.com>
 References: <1413357930-45302-1-git-send-email-jasowang@redhat.com>
-	<20141015102553.GF25776@redhat.com>
+	<1413357930-45302-2-git-send-email-jasowang@redhat.com>
+	<20141015093432.GB25776@redhat.com> <543E48BF.4080502@redhat.com>
+	<20141015103232.GG25776@redhat.com> <543E5019.9020507@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141015102553.GF25776@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <543E5019.9020507@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,51 +22,125 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
 Cc: eric.dumazet@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/15/2014 06:25 PM, Michael S. Tsirkin wrote:
-> On Wed, Oct 15, 2014 at 03:25:24PM +0800, Jason Wang wrote:
->> According to David, proper accounting and queueing (at all levels, not
->> just TCP sockets) is more important than trying to skim a bunch of
->> cycles by avoiding TX interrupts.
-> He also mentioned we should find other ways to batch
->
+On Wed, Oct 15, 2014 at 06:44:41PM +0800, Jason Wang wrote:
+> On 10/15/2014 06:32 PM, Michael S. Tsirkin wrote:
+> > On Wed, Oct 15, 2014 at 06:13:19PM +0800, Jason Wang wrote:
+> >> On 10/15/2014 05:34 PM, Michael S. Tsirkin wrote:
+> >>> On Wed, Oct 15, 2014 at 03:25:25PM +0800, Jason Wang wrote:
+> >>>> This patch checks the new event idx to make sure used event idx never
+> >>>> goes back. This is used to synchronize the calls between
+> >>>> virtqueue_enable_cb_delayed() and virtqueue_enable_cb().
+> >>>>
+> >>>> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> >>>> Cc: Michael S. Tsirkin <mst@redhat.com>
+> >>>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> >>> the implication being that moving event idx back might cause some race
+> >>> condition?  
+> >> This will cause race condition when tx interrupt is enabled. Consider
+> >> the following cases
+> >>
+> >> 1) tx napi was scheduled
+> >> 2) start_xmit() call virtqueue_enable_cb_delayed() and disable cb, [used
+> >> event is vq->last_used_idx + 3/4 pendg bufs]
+> >> 3) tx napi enable the callback by virtqueue_enable_cb() [ used event is
+> >> vq->last_used_idx ]
+> >>  
+> >> After step 3, used event was moved back, unnecessary tx interrupt was
+> >> triggered.
+> > Well unnecessary interrupts are safe.
+> 
+> But it that is what we want to reduce.
 
-Right.
->> Having an event to free the SKB is
->> absolutely essential for the stack to operate correctly.
->>
->> This series tries to enable tx interrupt for virtio-net. The idea is
->> simple: enable tx interrupt and schedule a tx napi to free old xmit
->> skbs.
->>
->> Several notes:
->> - Tx interrupt storm avoidance when queue is about to be full is
->>   kept.
-> But queue is typically *not* full. More important to avoid interrupt
-> storms in that case IMO.
+It's all about correctness. I don't think mixing enable_cb
+and enable_cb_delayed makes sense, let's just make
+virtio behave correctly if that happens, no need to
+optimize for that.
 
-Yes.
->> Since we may enable callbacks in both ndo_start_xmit() and tx
->>   napi, patch 1 adds a check to make sure used event never go
->>   back. This will let the napi not enable the callbacks wrongly after
->>   delayed callbacks was used.
-> So why not just use delayed callbacks?
 
-This means the tx interrupt are coalesced in a somewhat adaptive way.
-Need benchmark to see its effect.
->
->> - For bulk dequeuing, there's no need to enable tx interrupt for each
->>   packet. The last patch only enable tx interrupt for the final skb in
->>   the chain through xmit_more and a new helper to publish current avail
->>   idx as used event.
->>
->> This series fixes several issues of original rfc pointed out by Michael.
-> Could you list the issues, for ease of review?
+> > With your patch caller of virtqueue_enable_cb will not get an
+> > interrupt on the next buffer which is not safe.
+> >
+> > If you don't want an interrupt on the next buffer, don't
+> > call virtqueue_enable_cb.
+> 
+> So something like this patch should be done in virtio core somewhere
+> else. Virtio-net can not do this since it does not have the knowledge of
+> event index.
 
-Probably just one:
+Take a look at my patch - no calls to enable_cb, only
+enable_cb_delayed, so we should be fine.
 
-- Move the virtqueue_disable_cb() from skb_xmit_done() into
-virtnet_poll_tx() under tx lock.
+> >
+> >>> If yes but please describe the race explicitly.
+> >>> Is there a bug we need to fix on stable?
+> >> Looks not, current code does not have such race condition.
+> >>> Please also explicitly describe a configuration that causes event idx
+> >>> to go back.
+> >>>
+> >>> All this info should go in the commit log.
+> >> Will do this.
+> >>>> ---
+> >>>>  drivers/virtio/virtio_ring.c |    7 +++++--
+> >>>>  1 files changed, 5 insertions(+), 2 deletions(-)
+> >>>>
+> >>>> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> >>>> index 3b1f89b..1b3929f 100644
+> >>>> --- a/drivers/virtio/virtio_ring.c
+> >>>> +++ b/drivers/virtio/virtio_ring.c
+> >>>> @@ -559,14 +559,17 @@ unsigned virtqueue_enable_cb_prepare(struct virtqueue *_vq)
+> >>>>  	u16 last_used_idx;
+> >>>>  
+> >>>>  	START_USE(vq);
+> >>>> -
+> >>>> +	last_used_idx = vq->last_used_idx;
+> >>>>  	/* We optimistically turn back on interrupts, then check if there was
+> >>>>  	 * more to do. */
+> >>>>  	/* Depending on the VIRTIO_RING_F_EVENT_IDX feature, we need to
+> >>>>  	 * either clear the flags bit or point the event index at the next
+> >>>>  	 * entry. Always do both to keep code simple. */
+> >>>>  	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
+> >>>> -	vring_used_event(&vq->vring) = last_used_idx = vq->last_used_idx;
+> >>>> +	/* Make sure used event never go backwards */
+> >>> s/go/goes/
+> >>>
+> >>>> +	if (!vring_need_event(vring_used_event(&vq->vring),
+> >>>> +			      vq->vring.avail->idx, last_used_idx))
+> >>>> +		vring_used_event(&vq->vring) = last_used_idx;
+> >>> The result will be that driver will *not* get an interrupt
+> >>> on the next consumed buffer, which is likely not what driver
+> >>> intended when it called virtqueue_enable_cb.
+> >> This will only happen when we want to delay the interrupt for next few
+> >> consumed buffers (virtqueue_enable_cb_delayed() was called). For the
+> >> other case, vq->last_used_idx should be ahead of previous used event. Do
+> >> you see any other case?
+> > Call virtqueue_enable_cb_delayed, later call virtqueue_enable_cb.  If
+> > event index is not updated in virtqueue_enable_cb, driver will not get
+> > an interrupt on the next buffer.
+> 
+> This is just what we want I think. The interrupt was not lost but fired
+> after 3/4 pending buffers were consumed. Do you see any real issue on this?
+
+Yes, this violates the API. For example device might never
+consume the rest of buffers.
+
+
+> >
+> >>> Instead, how about we simply document the requirement that drivers either
+> >>> always call virtqueue_enable_cb_delayed or virtqueue_enable_cb
+> >>> but not both?
+> >> We need call them both when tx interrupt is enabled I believe.
+> > Can you pls reply to my patch and document issues you see?
+> >
+> 
+> In the previous reply you said you're using
+> virtuqueue_enable_cb_delayed(), so no race in your patch.
+
+OK so you think my patch is also correct, but that yours gives better
+efficiency?
+
+-- 
+MST
