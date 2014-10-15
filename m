@@ -1,14 +1,11 @@
 From: "Denis V. Lunev" <den@openvz.org>
-Subject: [PATCH 1/2] virtio_balloon: return the amount of freed memory from
-	leak_balloon()
-Date: Wed, 15 Oct 2014 19:47:43 +0400
-Message-ID: <1413388064-5354-2-git-send-email-den@openvz.org>
-References: <1413388064-5354-1-git-send-email-den@openvz.org>
+Subject: [PATCH v3 0/2] shrink virtio baloon on OOM in guest
+Date: Wed, 15 Oct 2014 19:47:42 +0400
+Message-ID: <1413388064-5354-1-git-send-email-den@openvz.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1413388064-5354-1-git-send-email-den@openvz.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,49 +18,35 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Raushaniya Maksudova <rmaksudova@parallels.com>, "Denis V. Lunev" <den@openvz.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Raushaniya Maksudova <rmaksudova@parallels.com>
+Excessive virtio_balloon inflation can cause invocation of OOM-killer, when
+Linux is under severe memory pressure. Various mechanisms are responsible for
+correct virtio_balloon memory management. Nevertheless it is often the case
+that these control tools does not have enough time to react on fast changing
+memory load. As a result OS runs out of memory and invokes OOM-killer.
+The balancing of memory by use of the virtio balloon should not cause the
+termination of processes while there are pages in the balloon. Now there is
+no way for virtio balloon driver to free memory at the last moment before
+some process get killed by OOM-killer.
 
-This value would be useful in the next patch to provide the amount of
-the freed memory for OOM killer.
+This does not provide a security breach as baloon itself is running
+inside guest OS and is working in the cooperation with the host. Thus
+some improvements from guest side should be considered as normal.
+
+To solve the problem, introduce a virtio_balloon callback which is expected
+to be called from the oom notifier call chain in out_of_memory() function.
+If virtio balloon could release some memory, it will make the system to
+return and retry the allocation that forced the out of memory killer to run.
+
+Patch 1 of this series adds support for implementation of virtio_balloon
+callback, so now leak_balloon() function returns number of freed pages.
+Patch 2 implements virtio_balloon callback itself.
+
+Changes from v2:
+- added feature bit to control OOM baloon behavior from host
+Changes from v1:
+- minor cosmetic tweaks suggested by rusty@
 
 Signed-off-by: Raushaniya Maksudova <rmaksudova@parallels.com>
 Signed-off-by: Denis V. Lunev <den@openvz.org>
 CC: Rusty Russell <rusty@rustcorp.com.au>
 CC: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/virtio/virtio_balloon.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index f893148..66cac10 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -168,8 +168,9 @@ static void release_pages_by_pfn(const u32 pfns[], unsigned int num)
- 	}
- }
- 
--static void leak_balloon(struct virtio_balloon *vb, size_t num)
-+static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
- {
-+	unsigned num_freed_pages;
- 	struct page *page;
- 	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
- 
-@@ -186,6 +187,7 @@ static void leak_balloon(struct virtio_balloon *vb, size_t num)
- 		vb->num_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
- 	}
- 
-+	num_freed_pages = vb->num_pfns;
- 	/*
- 	 * Note that if
- 	 * virtio_has_feature(vdev, VIRTIO_BALLOON_F_MUST_TELL_HOST);
-@@ -195,6 +197,7 @@ static void leak_balloon(struct virtio_balloon *vb, size_t num)
- 		tell_host(vb, vb->deflate_vq);
- 	mutex_unlock(&vb->balloon_lock);
- 	release_pages_by_pfn(vb->pfns, vb->num_pfns);
-+	return num_freed_pages;
- }
- 
- static inline void update_stat(struct virtio_balloon *vb, int idx,
--- 
-1.9.1
