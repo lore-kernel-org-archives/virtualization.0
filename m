@@ -1,7 +1,7 @@
 From: Waiman Long <Waiman.Long@hp.com>
-Subject: [PATCH v12 10/11] pvqspinlock, x86: Enable PV qspinlock for KVM
-Date: Thu, 16 Oct 2014 14:10:39 -0400
-Message-ID: <1413483040-58399-11-git-send-email-Waiman.Long__34255.7576405399$1413483229$gmane$org@hp.com>
+Subject: [PATCH v12 06/11] qspinlock: Use a simple write to grab the lock
+Date: Thu, 16 Oct 2014 14:10:35 -0400
+Message-ID: <1413483040-58399-7-git-send-email-Waiman.Long__38594.2628061914$1413483238$gmane$org@hp.com>
 References: <1413483040-58399-1-git-send-email-Waiman.Long@hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -17,283 +17,193 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>
-Cc: linux-arch@vger.kernel.org, Waiman Long <Waiman.Long@hp.com>, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Vrabel <david.vrabel@citrix.com>, Oleg Nesterov <oleg@redhat.com>, xen-devel@lists.xenproject.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Douglas Hatch <doug.hatch@hp.com>
+To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-arch@vger.kernel.org, Waiman Long <Waiman.Long@hp.com>, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Vrabel <david.vrabel@citrix.com>, Oleg Nesterov <oleg@redhat.com>, xen-devel@lists.xenproject.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Douglas Hatch <doug.hatch@hp.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds the necessary KVM specific code to allow KVM to
-support the CPU halting and kicking operations needed by the queue
-spinlock PV code.
+Currently, atomic_cmpxchg() is used to get the lock. However, this
+is not really necessary if there is more than one task in the queue
+and the queue head don't need to reset the tail code. For that case,
+a simple write to set the lock bit is enough as the queue head will
+be the only one eligible to get the lock as long as it checks that
+both the lock and pending bits are not set. The current pending bit
+waiting code will ensure that the bit will not be set as soon as the
+tail code in the lock is set.
 
-Two KVM guests of 20 CPU cores (2 nodes) were created for performance
-testing in one of the following three configurations:
- 1) Only 1 VM is active
- 2) Both VMs are active and they share the same 20 physical CPUs
-    (200% overcommit)
+With that change, the are some slight improvement in the performance
+of the queue spinlock in the 5M loop micro-benchmark run on a 4-socket
+Westere-EX machine as shown in the tables below.
 
-The tests run included the disk workload of the AIM7 benchmark on
-both ext4 and xfs RAM disks at 3000 users on a 3.17 based kernel. The
-"ebizzy -m" test and futextest was was also run and its performance
-data were recorded.  With two VMs running, the "idle=poll" kernel
-option was added to simulate a busy guest. If PV qspinlock is not
-enabled, unfairlock will be used automically in a guest.
+		[Standalone/Embedded - same node]
+  # of tasks	Before patch	After patch	%Change
+  ----------	-----------	----------	-------
+       3	 2324/2321	2248/2265	 -3%/-2%
+       4	 2890/2896	2819/2831	 -2%/-2%
+       5	 3611/3595	3522/3512	 -2%/-2%
+       6	 4281/4276	4173/4160	 -3%/-3%
+       7	 5018/5001	4875/4861	 -3%/-3%
+       8	 5759/5750	5563/5568	 -3%/-3%
 
-                AIM7 XFS Disk Test (no overcommit)
+		[Standalone/Embedded - different nodes]
+  # of tasks	Before patch	After patch	%Change
+  ----------	-----------	----------	-------
+       3	12242/12237	12087/12093	 -1%/-1%
+       4	10688/10696	10507/10521	 -2%/-2%
+
+It was also found that this change produced a much bigger performance
+improvement in the newer IvyBridge-EX chip and was essentially to close
+the performance gap between the ticket spinlock and queue spinlock.
+
+The disk workload of the AIM7 benchmark was run on a 4-socket
+Westmere-EX machine with both ext4 and xfs RAM disks at 3000 users
+on a 3.14 based kernel. The results of the test runs were:
+
+                AIM7 XFS Disk Test
   kernel                 JPM    Real Time   Sys Time    Usr Time
   -----                  ---    ---------   --------    --------
-  PV ticketlock         2542373    7.08       98.95       5.44
-  PV qspinlock          2549575    7.06       98.63       5.40
-  unfairlock	        2616279    6.91       97.05       5.42
+  ticketlock            5678233    3.17       96.61       5.81
+  qspinlock             5750799    3.13       94.83       5.97
 
-                AIM7 XFS Disk Test (200% overcommit)
+                AIM7 EXT4 Disk Test
   kernel                 JPM    Real Time   Sys Time    Usr Time
   -----                  ---    ---------   --------    --------
-  PV ticketlock         644468    27.93      415.22       6.33
-  PV qspinlock          645624    27.88      419.84       0.39
-  unfairlock	        695518    25.88      377.40       4.09
+  ticketlock            1114551   16.15      509.72       7.11
+  qspinlock             2184466    8.24      232.99       6.01
 
-                AIM7 EXT4 Disk Test (no overcommit)
-  kernel                 JPM    Real Time   Sys Time    Usr Time
-  -----                  ---    ---------   --------    --------
-  PV ticketlock         1995565    9.02      103.67       5.76
-  PV qspinlock          2011173    8.95      102.15       5.40
-  unfairlock	        2066590    8.71       98.13       5.46
+The ext4 filesystem run had a much higher spinlock contention than
+the xfs filesystem run.
 
-                AIM7 EXT4 Disk Test (200% overcommit)
-  kernel                 JPM    Real Time   Sys Time    Usr Time
-  -----                  ---    ---------   --------    --------
-  PV ticketlock         478341    37.63      495.81      30.78
-  PV qspinlock          474058    37.97      475.74      30.95
-  unfairlock	        560224    32.13      398.43      26.27
+The "ebizzy -m" test was also run with the following results:
 
-For the AIM7 disk workload, both PV ticketlock and qspinlock have
-about the same performance. The unfairlock performs slightly better
-than the PV lock.
-
-                EBIZZY-m Test (no overcommit)
-  kernel                Rec/s   Real Time   Sys Time    Usr Time
-  -----                 -----   ---------   --------    --------
-  PV ticketlock         3255      10.00       60.65       3.62
-  PV qspinlock          3318      10.00       54.27       3.60
-  unfairlock	        2833      10.00       26.66       3.09
-
-                EBIZZY-m Test (200% overcommit)
-  kernel                Rec/s   Real Time   Sys Time    Usr Time
-  -----                 -----   ---------   --------    --------
-  PV ticketlock          841      10.00       71.03       2.37
-  PV qspinlock           834      10.00       68.27       2.39
-  unfairlock	         865      10.00       27.08       1.51
-
-  futextest (no overcommit)
-  kernel               kops/s
-  -----                ------
-  PV ticketlock        11523
-  PV qspinlock         12328
-  unfairlock	        9478
-
-  futextest (200% overcommit)
-  kernel               kops/s
-  -----                ------
-  PV ticketlock         7276
-  PV qspinlock          7095
-  unfairlock	        5614
-
-The ebizzy and futextest have much higher spinlock contention than
-the AIM7 disk workload. In this case, the unfairlock performs worse
-than both the PV ticketlock and qspinlock. The performance of the 2
-PV locks are comparable.
+  kernel               records/s  Real Time   Sys Time    Usr Time
+  -----                ---------  ---------   --------    --------
+  ticketlock             2075       10.00      216.35       3.49
+  qspinlock              3023       10.00      198.20       4.80
 
 Signed-off-by: Waiman Long <Waiman.Long@hp.com>
+Signed-off-by: Peter Zijlstra <peterz@infradead.org>
 ---
- arch/x86/kernel/kvm.c |  138 ++++++++++++++++++++++++++++++++++++++++++++++++-
- kernel/Kconfig.locks  |    2 +-
- 2 files changed, 138 insertions(+), 2 deletions(-)
+ kernel/locking/qspinlock.c |   59 ++++++++++++++++++++++++++++++++------------
+ 1 files changed, 43 insertions(+), 16 deletions(-)
 
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index bc11fb5..9fb9015 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -560,7 +560,7 @@ arch_initcall(activate_jump_labels);
- #ifdef CONFIG_PARAVIRT_SPINLOCKS
+diff --git a/kernel/locking/qspinlock.c b/kernel/locking/qspinlock.c
+index 7c127b4..fb0e988 100644
+--- a/kernel/locking/qspinlock.c
++++ b/kernel/locking/qspinlock.c
+@@ -103,24 +103,33 @@ static inline struct mcs_spinlock *decode_tail(u32 tail)
+  * By using the whole 2nd least significant byte for the pending bit, we
+  * can allow better optimization of the lock acquisition for the pending
+  * bit holder.
++ *
++ * This internal structure is also used by the set_locked function which
++ * is not restricted to _Q_PENDING_BITS == 8.
+  */
+-#if _Q_PENDING_BITS == 8
+-
+ struct __qspinlock {
+ 	union {
+ 		atomic_t val;
+-		struct {
+ #ifdef __LITTLE_ENDIAN
++		u8	 locked;
++		struct {
+ 			u16	locked_pending;
+ 			u16	tail;
++		};
+ #else
++		struct {
+ 			u16	tail;
+ 			u16	locked_pending;
+-#endif
+ 		};
++		struct {
++			u8	reserved[3];
++			u8	locked;
++		};
++#endif
+ 	};
+ };
  
- /* Kick a cpu by its apicid. Used to wake up a halted vcpu */
--static void kvm_kick_cpu(int cpu)
-+void kvm_kick_cpu(int cpu)
- {
- 	int apicid;
- 	unsigned long flags = 0;
-@@ -568,7 +568,9 @@ static void kvm_kick_cpu(int cpu)
- 	apicid = per_cpu(x86_cpu_to_apicid, cpu);
- 	kvm_hypercall2(KVM_HC_KICK_CPU, flags, apicid);
- }
-+PV_CALLEE_SAVE_REGS_THUNK(kvm_kick_cpu);
++#if _Q_PENDING_BITS == 8
+ /**
+  * clear_pending_set_locked - take ownership and clear the pending bit.
+  * @lock: Pointer to queue spinlock structure
+@@ -207,6 +216,19 @@ static __always_inline u32 xchg_tail(struct qspinlock *lock, u32 tail)
+ #endif /* _Q_PENDING_BITS == 8 */
  
-+#ifndef CONFIG_QUEUE_SPINLOCK
- enum kvm_contention_stat {
- 	TAKEN_SLOW,
- 	TAKEN_SLOW_PICKUP,
-@@ -796,6 +798,132 @@ static void kvm_unlock_kick(struct arch_spinlock *lock, __ticket_t ticket)
- 		}
- 	}
- }
-+#else /* !CONFIG_QUEUE_SPINLOCK */
-+
-+#ifdef CONFIG_KVM_DEBUG_FS
-+static struct dentry *d_spin_debug;
-+static struct dentry *d_kvm_debug;
-+static u32 kick_nohlt_stats;	/* Kick but not halt count	*/
-+static u32 halt_qhead_stats;	/* Queue head halting count	*/
-+static u32 halt_qnode_stats;	/* Queue node halting count	*/
-+static u32 halt_abort_stats;	/* Halting abort count		*/
-+static u32 wake_kick_stats;	/* Wakeup by kicking count	*/
-+static u32 wake_spur_stats;	/* Spurious wakeup count	*/
-+static u64 time_blocked;	/* Total blocking time		*/
-+
-+static int __init kvm_spinlock_debugfs(void)
-+{
-+	d_kvm_debug = debugfs_create_dir("kvm-guest", NULL);
-+	if (!d_kvm_debug) {
-+		printk(KERN_WARNING
-+		       "Could not create 'kvm' debugfs directory\n");
-+		return -ENOMEM;
-+	}
-+	d_spin_debug = debugfs_create_dir("spinlocks", d_kvm_debug);
-+
-+	debugfs_create_u32("kick_nohlt_stats",
-+			   0644, d_spin_debug, &kick_nohlt_stats);
-+	debugfs_create_u32("halt_qhead_stats",
-+			   0644, d_spin_debug, &halt_qhead_stats);
-+	debugfs_create_u32("halt_qnode_stats",
-+			   0644, d_spin_debug, &halt_qnode_stats);
-+	debugfs_create_u32("halt_abort_stats",
-+			   0644, d_spin_debug, &halt_abort_stats);
-+	debugfs_create_u32("wake_kick_stats",
-+			   0644, d_spin_debug, &wake_kick_stats);
-+	debugfs_create_u32("wake_spur_stats",
-+			   0644, d_spin_debug, &wake_spur_stats);
-+	debugfs_create_u64("time_blocked",
-+			   0644, d_spin_debug, &time_blocked);
-+	return 0;
-+}
-+
-+static inline void kvm_halt_stats(enum pv_lock_stats type)
-+{
-+	if (type == PV_HALT_QHEAD)
-+		add_smp(&halt_qhead_stats, 1);
-+	else if (type == PV_HALT_QNODE)
-+		add_smp(&halt_qnode_stats, 1);
-+	else /* type == PV_HALT_ABORT */
-+		add_smp(&halt_abort_stats, 1);
-+}
-+
-+void kvm_lock_stats(enum pv_lock_stats type)
-+{
-+	if (type == PV_WAKE_KICKED)
-+		add_smp(&wake_kick_stats, 1);
-+	else if (type == PV_WAKE_SPURIOUS)
-+		add_smp(&wake_spur_stats, 1);
-+	else /* type == PV_KICK_NOHALT */
-+		add_smp(&kick_nohlt_stats, 1);
-+}
-+PV_CALLEE_SAVE_REGS_THUNK(kvm_lock_stats);
-+
-+static inline u64 spin_time_start(void)
-+{
-+	return sched_clock();
-+}
-+
-+static inline void spin_time_accum_blocked(u64 start)
-+{
-+	u64 delta;
-+
-+	delta = sched_clock() - start;
-+	add_smp(&time_blocked, delta);
-+}
-+
-+fs_initcall(kvm_spinlock_debugfs);
-+
-+#else /* CONFIG_KVM_DEBUG_FS */
-+static inline void kvm_halt_stats(enum pv_lock_stats type)
-+{
-+}
-+
-+static inline u64 spin_time_start(void)
-+{
-+	return 0;
-+}
-+
-+static inline void spin_time_accum_blocked(u64 start)
-+{
-+}
-+#endif /* CONFIG_KVM_DEBUG_FS */
-+
-+/*
-+ * Halt the current CPU & release it back to the host
+ /**
++ * set_locked - Set the lock bit and own the lock
++ * @lock: Pointer to queue spinlock structure
++ *
++ * *,*,0 -> *,0,1
 + */
-+void kvm_halt_cpu(u8 *lockbyte)
++static __always_inline void set_locked(struct qspinlock *lock)
 +{
-+	unsigned long flags;
-+	u64 start;
++	struct __qspinlock *l = (void *)lock;
 +
-+	if (in_nmi())
-+		return;
-+
-+	/*
-+	 * Make sure an interrupt handler can't upset things in a
-+	 * partially setup state.
-+	 */
-+	local_irq_save(flags);
-+	/*
-+	 * Don't halt if the lock byte is defined and is free
-+	 */
-+	if (lockbyte && !ACCESS_ONCE(*lockbyte)) {
-+		kvm_halt_stats(PV_HALT_ABORT);
-+		goto out;
-+	}
-+	start = spin_time_start();
-+	kvm_halt_stats(lockbyte ? PV_HALT_QHEAD : PV_HALT_QNODE);
-+	if (arch_irqs_disabled_flags(flags))
-+		halt();
-+	else
-+		safe_halt();
-+	spin_time_accum_blocked(start);
-+out:
-+	local_irq_restore(flags);
++	ACCESS_ONCE(l->locked) = _Q_LOCKED_VAL;
 +}
-+PV_CALLEE_SAVE_REGS_THUNK(kvm_halt_cpu);
-+#endif /* !CONFIG_QUEUE_SPINLOCK */
++
++/**
+  * queue_spin_lock_slowpath - acquire the queue spinlock
+  * @lock: Pointer to queue spinlock structure
+  * @val: Current value of the queue spinlock 32-bit word
+@@ -339,10 +361,13 @@ queue:
+ 	/*
+ 	 * we're at the head of the waitqueue, wait for the owner & pending to
+ 	 * go away.
++	 * Load-acquired is used here because the set_locked()
++	 * function below may not be a full memory barrier.
+ 	 *
+ 	 * *,x,y -> *,0,0
+ 	 */
+-	while ((val = atomic_read(&lock->val)) & _Q_LOCKED_PENDING_MASK)
++	while ((val = smp_load_acquire(&lock->val.counter)) &
++			_Q_LOCKED_PENDING_MASK)
+ 		cpu_relax();
  
- /*
-  * Setup pv_lock_ops to exploit KVM_FEATURE_PV_UNHALT if present.
-@@ -808,8 +936,16 @@ void __init kvm_spinlock_init(void)
- 	if (!kvm_para_has_feature(KVM_FEATURE_PV_UNHALT))
- 		return;
+ 	/*
+@@ -350,15 +375,19 @@ queue:
+ 	 *
+ 	 * n,0,0 -> 0,0,1 : lock, uncontended
+ 	 * *,0,0 -> *,0,1 : lock, contended
++	 *
++	 * If the queue head is the only one in the queue (lock value == tail),
++	 * clear the tail code and grab the lock. Otherwise, we only need
++	 * to grab the lock.
+ 	 */
+ 	for (;;) {
+-		new = _Q_LOCKED_VAL;
+-		if (val != tail)
+-			new |= val;
+-
+-		old = atomic_cmpxchg(&lock->val, val, new);
+-		if (old == val)
++		if (val != tail) {
++			set_locked(lock);
+ 			break;
++		}
++		old = atomic_cmpxchg(&lock->val, val, _Q_LOCKED_VAL);
++		if (old == val)
++			goto release;	/* No contention */
  
-+#ifdef CONFIG_QUEUE_SPINLOCK
-+	pv_lock_ops.kick_cpu = PV_CALLEE_SAVE(kvm_kick_cpu);
-+	pv_lock_ops.lockwait = PV_CALLEE_SAVE(kvm_halt_cpu);
-+#ifdef CONFIG_KVM_DEBUG_FS
-+	pv_lock_ops.lockstat = PV_CALLEE_SAVE(kvm_lock_stats);
-+#endif
-+#else
- 	pv_lock_ops.lock_spinning = PV_CALLEE_SAVE(kvm_lock_spinning);
- 	pv_lock_ops.unlock_kick = kvm_unlock_kick;
-+#endif
- }
+ 		val = old;
+ 	}
+@@ -366,12 +395,10 @@ queue:
+ 	/*
+ 	 * contended path; wait for next, release.
+ 	 */
+-	if (new != _Q_LOCKED_VAL) {
+-		while (!(next = ACCESS_ONCE(node->next)))
+-			cpu_relax();
++	while (!(next = ACCESS_ONCE(node->next)))
++		cpu_relax();
  
- static __init int kvm_spinlock_init_jump(void)
-diff --git a/kernel/Kconfig.locks b/kernel/Kconfig.locks
-index 9215fab..57301de 100644
---- a/kernel/Kconfig.locks
-+++ b/kernel/Kconfig.locks
-@@ -236,7 +236,7 @@ config ARCH_USE_QUEUE_SPINLOCK
+-		arch_mcs_spin_unlock_contended(&next->locked);
+-	}
++	arch_mcs_spin_unlock_contended(&next->locked);
  
- config QUEUE_SPINLOCK
- 	def_bool y if ARCH_USE_QUEUE_SPINLOCK
--	depends on SMP && !PARAVIRT_SPINLOCKS
-+	depends on SMP && (!PARAVIRT_SPINLOCKS || !XEN)
- 
- config ARCH_USE_QUEUE_RWLOCK
- 	bool
+ release:
+ 	/*
 -- 
 1.7.1
