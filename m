@@ -1,15 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next RFC 1/3] virtio: support for urgent descriptors
-Date: Fri, 17 Oct 2014 13:23:42 +0800
-Message-ID: <5440A7DE.5030806@redhat.com>
-References: <1413011806-3813-1-git-send-email-jasowang@redhat.com>
-	<1413011806-3813-2-git-send-email-jasowang@redhat.com>
-	<877g01c2ml.fsf@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio_net: fix use after free
+Date: Fri, 17 Oct 2014 12:20:11 +0300
+Message-ID: <20141017092011.GA31313@redhat.com>
+References: <1413378878-28118-1-git-send-email-mst@redhat.com>
+	<20141015.164727.298073723527552510.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <877g01c2ml.fsf@rustcorp.com.au>
+Content-Disposition: inline
+In-Reply-To: <20141015.164727.298073723527552510.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,34 +19,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: linux-api@vger.kernel.org, kvm@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/15/2014 01:40 PM, Rusty Russell wrote:
-> Jason Wang <jasowang@redhat.com> writes:
->> Below should be useful for some experiments Jason is doing.
->> I thought I'd send it out for early review/feedback.
->>
->> event idx feature allows us to defer interrupts until
->> a specific # of descriptors were used.
->> Sometimes it might be useful to get an interrupt after
->> a specific descriptor, regardless.
->> This adds a descriptor flag for this, and an API
->> to create an urgent output descriptor.
->> This is still an RFC:
->> we'll need a feature bit for drivers to detect this,
->> but we've run out of feature bits for virtio 0.X.
->> For experimentation purposes, drivers can assume
->> this is set, or add a driver-specific feature bit.
->>
->> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> The new VRING_DESC_F_URGENT bit is theoretically nicer, but for
-> networking (which tends to take packets in order) couldn't we just set
-> the event counter to give us a tx interrupt at the packet we want?
->
-> Cheers,
-> Rusty.
+On Wed, Oct 15, 2014 at 04:47:27PM -0400, David Miller wrote:
+> From: "Michael S. Tsirkin" <mst@redhat.com>
+> Date: Wed, 15 Oct 2014 16:23:28 +0300
+> 
+> > You used __netif_subqueue_stopped but that seems to use
+> > a slightly more expensive test_bit internally.
+> 
+> More expensive in what sense?  It should be roughly the same
+> as "x & y" sans the volatile.
 
-Yes, we could. Recent RFC of enabling tx interrupt use this.
+I really just meant volatile - this might prevent some compiler
+optimizations. I have't actually checked the produced binary so
+I don't know for sure.
+
+> Anyways I'm ambivalent and I want to see this bug fixes, so I'll
+> apply your patch.
+> 
+> Thanks!
