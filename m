@@ -1,11 +1,18 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PULL] More virtio fun
-Date: Fri, 17 Oct 2014 09:41:26 +1030
-Message-ID: <87r3y7a9up.fsf@rustcorp.com.au>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC PATCH net-next 1/6] virtio: make sure used event never go
+	backwards
+Date: Fri, 17 Oct 2014 13:04:44 +0800
+Message-ID: <5440A36C.8050700@redhat.com>
+References: <1413357930-45302-1-git-send-email-jasowang@redhat.com>
+	<1413357930-45302-2-git-send-email-jasowang@redhat.com>
+	<20141015093432.GB25776@redhat.com> <543E48BF.4080502@redhat.com>
+	<20141015103232.GG25776@redhat.com> <543E5019.9020507@redhat.com>
+	<20141015113859.GA26918@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20141015113859.GA26918@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,74 +22,121 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: eric.dumazet@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 7ec62d421bdf29cb31101ae2689f7f3a9906289a:
+On 10/15/2014 07:38 PM, Michael S. Tsirkin wrote:
+> On Wed, Oct 15, 2014 at 06:44:41PM +0800, Jason Wang wrote:
+>> On 10/15/2014 06:32 PM, Michael S. Tsirkin wrote:
+>>> On Wed, Oct 15, 2014 at 06:13:19PM +0800, Jason Wang wrote:
+>>>> On 10/15/2014 05:34 PM, Michael S. Tsirkin wrote:
+>>>>> On Wed, Oct 15, 2014 at 03:25:25PM +0800, Jason Wang wrote:
+>>>>>> This patch checks the new event idx to make sure used event idx never
+>>>>>> goes back. This is used to synchronize the calls between
+>>>>>> virtqueue_enable_cb_delayed() and virtqueue_enable_cb().
+>>>>>>
+>>>>>> Cc: Rusty Russell <rusty@rustcorp.com.au>
+>>>>>> Cc: Michael S. Tsirkin <mst@redhat.com>
+>>>>>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+>>>>> the implication being that moving event idx back might cause some race
+>>>>> condition?  
+>>>> This will cause race condition when tx interrupt is enabled. Consider
+>>>> the following cases
+>>>>
+>>>> 1) tx napi was scheduled
+>>>> 2) start_xmit() call virtqueue_enable_cb_delayed() and disable cb, [used
+>>>> event is vq->last_used_idx + 3/4 pendg bufs]
+>>>> 3) tx napi enable the callback by virtqueue_enable_cb() [ used event is
+>>>> vq->last_used_idx ]
+>>>>  
+>>>> After step 3, used event was moved back, unnecessary tx interrupt was
+>>>> triggered.
+>>> Well unnecessary interrupts are safe.
+>> But it that is what we want to reduce.
+> It's all about correctness. I don't think mixing enable_cb
+> and enable_cb_delayed makes sense, let's just make
+> virtio behave correctly if that happens, no need to
+> optimize for that.
 
-  Merge branch 'for_linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jack/linux-fs (2014-09-10 14:04:17 -0700)
+Then as you said, need document or add WARN_ON() or BUG() in case both
+of the two are used.
+>
+>
+>>> With your patch caller of virtqueue_enable_cb will not get an
+>>> interrupt on the next buffer which is not safe.
+>>>
+>>> If you don't want an interrupt on the next buffer, don't
+>>> call virtqueue_enable_cb.
+>> So something like this patch should be done in virtio core somewhere
+>> else. Virtio-net can not do this since it does not have the knowledge of
+>> event index.
+> Take a look at my patch - no calls to enable_cb, only
+> enable_cb_delayed, so we should be fine.
+>
+>>>>> If yes but please describe the race explicitly.
+>>>>> Is there a bug we need to fix on stable?
+>>>> Looks not, current code does not have such race condition.
+>>>>> Please also explicitly describe a configuration that causes event idx
+>>>>> to go back.
+>>>>>
+>>>>> All this info should go in the commit log.
+>>>> Will do this.
+>>>>>> ---
+>>>>>>  drivers/virtio/virtio_ring.c |    7 +++++--
+>>>>>>  1 files changed, 5 insertions(+), 2 deletions(-)
+>>>>>>
+>>>>>> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+>>>>>> index 3b1f89b..1b3929f 100644
+>>>>>> --- a/drivers/virtio/virtio_ring.c
+>>>>>> +++ b/drivers/virtio/virtio_ring.c
+>>>>>> @@ -559,14 +559,17 @@ unsigned virtqueue_enable_cb_prepare(struct virtqueue *_vq)
+>>>>>>  	u16 last_used_idx;
+>>>>>>  
+>>>>>>  	START_USE(vq);
+>>>>>> -
+>>>>>> +	last_used_idx = vq->last_used_idx;
+>>>>>>  	/* We optimistically turn back on interrupts, then check if there was
+>>>>>>  	 * more to do. */
+>>>>>>  	/* Depending on the VIRTIO_RING_F_EVENT_IDX feature, we need to
+>>>>>>  	 * either clear the flags bit or point the event index at the next
+>>>>>>  	 * entry. Always do both to keep code simple. */
+>>>>>>  	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
+>>>>>> -	vring_used_event(&vq->vring) = last_used_idx = vq->last_used_idx;
+>>>>>> +	/* Make sure used event never go backwards */
+>>>>> s/go/goes/
+>>>>>
+>>>>>> +	if (!vring_need_event(vring_used_event(&vq->vring),
+>>>>>> +			      vq->vring.avail->idx, last_used_idx))
+>>>>>> +		vring_used_event(&vq->vring) = last_used_idx;
+>>>>> The result will be that driver will *not* get an interrupt
+>>>>> on the next consumed buffer, which is likely not what driver
+>>>>> intended when it called virtqueue_enable_cb.
+>>>> This will only happen when we want to delay the interrupt for next few
+>>>> consumed buffers (virtqueue_enable_cb_delayed() was called). For the
+>>>> other case, vq->last_used_idx should be ahead of previous used event. Do
+>>>> you see any other case?
+>>> Call virtqueue_enable_cb_delayed, later call virtqueue_enable_cb.  If
+>>> event index is not updated in virtqueue_enable_cb, driver will not get
+>>> an interrupt on the next buffer.
+>> This is just what we want I think. The interrupt was not lost but fired
+>> after 3/4 pending buffers were consumed. Do you see any real issue on this?
+> Yes, this violates the API. For example device might never
+> consume the rest of buffers.
 
-are available in the git repository at:
+Then it should be a bug of device which is out of the control of guest.
+If not, device might never also consume 3/4 rest of buffers.
+>
+>>>>> Instead, how about we simply document the requirement that drivers either
+>>>>> always call virtqueue_enable_cb_delayed or virtqueue_enable_cb
+>>>>> but not both?
+>>>> We need call them both when tx interrupt is enabled I believe.
+>>> Can you pls reply to my patch and document issues you see?
+>>>
+>> In the previous reply you said you're using
+>> virtuqueue_enable_cb_delayed(), so no race in your patch.
+> OK so you think my patch is also correct, but that yours gives better
+> efficiency?
+>
 
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/rusty/linux.git tags/virtio-next-for-linus
-
-for you to fetch changes up to 1bbc26062754b012656d34103215f7552e02b999:
-
-  virtio-rng: refactor probe error handling (2014-10-15 10:25:14 +1030)
-
-----------------------------------------------------------------
-One cc: stable commit, the rest are a series of minor cleanups which have
-been sitting in MST's tree during my vacation.  I changed a function name
-and made one trivial change, then they spent two days in linux-next.
-
-Thanks,
-Rusty.
-
-----------------------------------------------------------------
-Michael S. Tsirkin (24):
-      virtio_pci: fix virtio spec compliance on restore
-      virtio: unify config_changed handling
-      virtio-pci: move freeze/restore to virtio core
-      virtio: defer config changed notifications
-      virtio_blk: drop config_enable
-      virtio-blk: drop config_mutex
-      virtio_net: drop config_enable
-      virtio-net: drop config_mutex
-      virtio_net: minor cleanup
-      virtio: add API to enable VQs early
-      virtio_net: enable VQs early
-      virtio_blk: enable VQs early
-      virtio_console: enable VQs early
-      9p/trans_virtio: enable VQs early
-      virtio_net: fix use after free on allocation failure
-      virtio_scsi: move kick event out from virtscsi_init
-      virtio_blk: enable VQs early on restore
-      virtio_scsi: enable VQs early on restore
-      virtio_console: enable VQs early on restore
-      virtio_net: enable VQs early on restore
-      virtio_scsi: fix race on device removal
-      virtio_balloon: enable VQs early on restore
-      virtio_scsi: drop scan callback
-      virtio-rng: refactor probe error handling
-
-Paolo Bonzini (1):
-      virito_scsi: use freezable WQ for events
-
- drivers/block/virtio_blk.c          |  40 ++++----------
- drivers/char/hw_random/virtio-rng.c |  15 +++---
- drivers/char/virtio_console.c       |   4 ++
- drivers/misc/mic/card/mic_virtio.c  |   6 +--
- drivers/net/virtio_net.c            |  44 +++++----------
- drivers/s390/kvm/kvm_virtio.c       |   9 +---
- drivers/s390/kvm/virtio_ccw.c       |   6 +--
- drivers/scsi/virtio_scsi.c          |  42 +++++++++------
- drivers/virtio/virtio.c             | 103 ++++++++++++++++++++++++++++++++++++
- drivers/virtio/virtio_balloon.c     |   2 +
- drivers/virtio/virtio_mmio.c        |   7 +--
- drivers/virtio/virtio_pci.c         |  33 ++----------
- include/linux/virtio.h              |  14 +++++
- include/linux/virtio_config.h       |  17 ++++++
- net/9p/trans_virtio.c               |   2 +
- 15 files changed, 207 insertions(+), 137 deletions(-)
+Need some benchmark to see the difference I think.
