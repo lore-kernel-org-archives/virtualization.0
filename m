@@ -1,14 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC v3 3/3] virtio-net: optimize free_old_xmit_skbs stats
-Date: Mon, 20 Oct 2014 09:52:41 +0300
-Message-ID: <1413787824-16130-4-git-send-email-mst__44904.2435888716$1413787776$gmane$org@redhat.com>
-References: <1413787824-16130-1-git-send-email-mst@redhat.com>
+Subject: Re: [PATCH v3 0/2] shrink virtio baloon on OOM in guest
+Date: Mon, 20 Oct 2014 09:55:41 +0300
+Message-ID: <20141020065541.GA16212@redhat.com>
+References: <1413388064-5354-1-git-send-email-den@openvz.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1413787824-16130-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1413388064-5354-1-git-send-email-den@openvz.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,58 +18,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Denis V. Lunev" <den@openvz.org>
+Cc: linux-kernel@vger.kernel.org, Raushaniya Maksudova <rmaksudova@parallels.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
+On Wed, Oct 15, 2014 at 07:47:42PM +0400, Denis V. Lunev wrote:
+> Excessive virtio_balloon inflation can cause invocation of OOM-killer, when
+> Linux is under severe memory pressure. Various mechanisms are responsible for
+> correct virtio_balloon memory management. Nevertheless it is often the case
+> that these control tools does not have enough time to react on fast changing
+> memory load. As a result OS runs out of memory and invokes OOM-killer.
+> The balancing of memory by use of the virtio balloon should not cause the
+> termination of processes while there are pages in the balloon. Now there is
+> no way for virtio balloon driver to free memory at the last moment before
+> some process get killed by OOM-killer.
+> 
+> This does not provide a security breach as baloon itself is running
+> inside guest OS and is working in the cooperation with the host. Thus
+> some improvements from guest side should be considered as normal.
+> 
+> To solve the problem, introduce a virtio_balloon callback which is expected
+> to be called from the oom notifier call chain in out_of_memory() function.
+> If virtio balloon could release some memory, it will make the system to
+> return and retry the allocation that forced the out of memory killer to run.
+> 
+> Patch 1 of this series adds support for implementation of virtio_balloon
+> callback, so now leak_balloon() function returns number of freed pages.
+> Patch 2 implements virtio_balloon callback itself.
+> 
+> Changes from v2:
+> - added feature bit to control OOM baloon behavior from host
+> Changes from v1:
+> - minor cosmetic tweaks suggested by rusty@
+> 
+> Signed-off-by: Raushaniya Maksudova <rmaksudova@parallels.com>
+> Signed-off-by: Denis V. Lunev <den@openvz.org>
+> CC: Rusty Russell <rusty@rustcorp.com.au>
+> CC: Michael S. Tsirkin <mst@redhat.com>
 
-We already have counters for sent packets and sent bytes.
-Use them to reduce the number of u64_stats_update_begin/end().
+With the feature bit, I think it's fine.
 
-Take care not to bother with stats update when called
-speculatively.
-
-Based on a patch by Jason Wang.
-
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/net/virtio_net.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index b83d39d..c2b69f8 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -233,16 +233,22 @@ static unsigned int free_old_xmit_skbs(struct netdev_queue *txq,
- 	       (skb = virtqueue_get_buf(sq->vq, &len)) != NULL) {
- 		pr_debug("Sent skb %p\n", skb);
- 
--		u64_stats_update_begin(&stats->tx_syncp);
--		stats->tx_bytes += skb->len;
- 		bytes += skb->len;
--		stats->tx_packets++;
--		u64_stats_update_end(&stats->tx_syncp);
-+		packets++;
- 
- 		dev_kfree_skb_any(skb);
--		packets++;
- 	}
- 
-+	/* Avoid overhead when no packets have been processed
-+	 * happens when called speculatively from start_xmit. */
-+	if (!packets)
-+		return 0;
-+
-+	u64_stats_update_begin(&stats->tx_syncp);
-+	stats->tx_bytes += bytes;
-+	stats->tx_packets += packets;
-+	u64_stats_update_end(&stats->tx_syncp);
-+
- 	netdev_tx_completed_queue(txq, packets, bytes);
- 
- 	if (sq->vq->num_free >= 2+MAX_SKB_FRAGS)
--- 
-MST
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
