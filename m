@@ -1,17 +1,17 @@
 From: Thomas Graf <tgraf@suug.ch>
 Subject: Re: [PATCH v4 13/25] virtio_console: enable VQs early
-Date: Mon, 20 Oct 2014 14:10:52 +0100
-Message-ID: <20141020131052.GB18561__44923.9056710669$1413820916$gmane$org@casper.infradead.org>
+Date: Mon, 20 Oct 2014 14:12:20 +0100
+Message-ID: <20141020131220.GC18561__37475.4281285734$1413820921$gmane$org@casper.infradead.org>
 References: <1413114332-626-1-git-send-email-mst-v4@redhat.com>
 	<1413114332-626-14-git-send-email-mst-v4@redhat.com>
 	<20141020120750.GA18561@casper.infradead.org>
-	<20141020144223.5655dcbc.cornelia.huck@de.ibm.com>
+	<20141020131016.GA20489@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20141020144223.5655dcbc.cornelia.huck@de.ibm.com>
+In-Reply-To: <20141020131016.GA20489@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,14 +21,12 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Paolo Bonzini <pbonzini@redhat.com>, Amit Shah <amit.shah@redhat.com>, v9fs-developer@lists.sourceforge.net, "David S. Miller" <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Paolo Bonzini <pbonzini@redhat.com>, Amit Shah <amit.shah@redhat.com>, v9fs-developer@lists.sourceforge.net, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/20/14 at 02:42pm, Cornelia Huck wrote:
-> On Mon, 20 Oct 2014 13:07:50 +0100
-> Thomas Graf <tgraf@suug.ch> wrote:
-> 
+On 10/20/14 at 04:10pm, Michael S. Tsirkin wrote:
+> On Mon, Oct 20, 2014 at 01:07:50PM +0100, Thomas Graf wrote:
 > > On 10/13/14 at 10:50am, Michael S. Tsirkin wrote:
 > > > virtio spec requires drivers to set DRIVER_OK before using VQs.
 > > > This is set automatically after probe returns, virtio console violated this
@@ -55,15 +53,37 @@ On 10/20/14 at 02:42pm, Cornelia Huck wrote:
 > > >  	/* Fill the in_vq with buffers so the host can send us data. */
 > > >  	nr_added_bufs = fill_queue(port->in_vq, &port->inbuf_lock);
 > > >  	if (!nr_added_bufs) {
-> > 
-> > Seems like probe and add_port() now both set VIRTIO_CONFIG_S_DRIVER_OK
 > 
-> I think we need to set this in the probe function instead, otherwise we
-> fail for multiqueue (which also wants to use the control queue early).
-> 
-> Completely untested patch below; I can send this with proper s-o-b if
-> it helps.
+> I see Cornelia sent a patch already.
+> I'd like to reproduce this though - could you send me
+> the command line please?
 
-virtio_dev_probe() already sets DRIVER_OK if ->probe() returned
-without an error. I assume Michael added it to add_port() because
-probing doesn't always occur first. Can we just remove the BUG_ON()?
+1. Invoke qemu:
+
+/usr/bin/qemu-system-x86_64 -machine accel=kvm -name f20-2 -S -machine
+pc-i440fx-1.4,accel=kvm,usb=off -m 2048 -realtime mlock=off -smp
+4,sockets=4,cores=1,threads=1 -uuid
+dd45ec4c-7c26-4b73-9b6b-81f2912c5235 -no-user-config -nodefaults
+-chardev
+socket,id=charmonitor,path=/var/lib/libvirt/qemu/f20-2.monitor,server,nowait
+-mon chardev=charmonitor,id=monitor,mode=control -rtc base=utc
+-no-shutdown -device piix3-usb-uhci,id=usb,bus=pci.0,addr=0x1.0x2
+-device virtio-serial-pci,id=virtio-serial0,bus=pci.0,addr=0x5 -drive
+file=/virt/f20n2-clone,if=none,id=drive-virtio-disk0,format=raw
+-device
+virtio-blk-pci,scsi=off,bus=pci.0,addr=0x6,drive=drive-virtio-disk0,id=virtio-disk0,bootindex=1
+-netdev tap,fd=24,id=hostnet0,vhost=on,vhostfd=25 -device
+virtio-net-pci,netdev=hostnet0,id=net0,mac=52:54:00:ef:72:4e,bus=pci.0,addr=0x3
+-chardev pty,id=charserial0 -device
+isa-serial,chardev=charserial0,id=serial0 -chardev
+spicevmc,id=charchannel0,name=vdagent -device
+virtserialport,bus=virtio-serial0.0,nr=1,chardev=charchannel0,id=channel0,name=com.redhat.spice.0
+-device usb-tablet,id=input0 -spice
+port=5900,addr=127.0.0.1,disable-ticketing,seamless-migration=on
+-device
+qxl-vga,id=video0,ram_size=67108864,vram_size=67108864,bus=pci.0,addr=0x2
+-device intel-hda,id=sound0,bus=pci.0,addr=0x4 -device
+hda-duplex,id=sound0-codec0,bus=sound0.0,cad=0 -device
+virtio-balloon-pci,id=balloon0,bus=pci.0,addr=0x7
+
+2. Attach console right away: virsh console f20-2
