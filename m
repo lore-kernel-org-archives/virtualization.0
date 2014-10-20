@@ -1,14 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 0/2] shrink virtio baloon on OOM in guest
-Date: Mon, 20 Oct 2014 09:55:41 +0300
-Message-ID: <20141020065541.GA16212@redhat.com>
-References: <1413388064-5354-1-git-send-email-den@openvz.org>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH] virtio_ccw: remove unsued variable
+Date: Mon, 20 Oct 2014 13:05:29 +0200
+Message-ID: <20141020130529.4056e855.cornelia.huck@de.ibm.com>
+References: <alpine.LFD.2.11.1410201242390.1601@denkbrett>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1413388064-5354-1-git-send-email-den@openvz.org>
+In-Reply-To: <alpine.LFD.2.11.1410201242390.1601@denkbrett>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,44 +17,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Denis V. Lunev" <den@openvz.org>
-Cc: linux-kernel@vger.kernel.org, Raushaniya Maksudova <rmaksudova@parallels.com>, virtualization@lists.linux-foundation.org
+To: Sebastian Ott <sebott@linux.vnet.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Oct 15, 2014 at 07:47:42PM +0400, Denis V. Lunev wrote:
-> Excessive virtio_balloon inflation can cause invocation of OOM-killer, when
-> Linux is under severe memory pressure. Various mechanisms are responsible for
-> correct virtio_balloon memory management. Nevertheless it is often the case
-> that these control tools does not have enough time to react on fast changing
-> memory load. As a result OS runs out of memory and invokes OOM-killer.
-> The balancing of memory by use of the virtio balloon should not cause the
-> termination of processes while there are pages in the balloon. Now there is
-> no way for virtio balloon driver to free memory at the last moment before
-> some process get killed by OOM-killer.
-> 
-> This does not provide a security breach as baloon itself is running
-> inside guest OS and is working in the cooperation with the host. Thus
-> some improvements from guest side should be considered as normal.
-> 
-> To solve the problem, introduce a virtio_balloon callback which is expected
-> to be called from the oom notifier call chain in out_of_memory() function.
-> If virtio balloon could release some memory, it will make the system to
-> return and retry the allocation that forced the out of memory killer to run.
-> 
-> Patch 1 of this series adds support for implementation of virtio_balloon
-> callback, so now leak_balloon() function returns number of freed pages.
-> Patch 2 implements virtio_balloon callback itself.
-> 
-> Changes from v2:
-> - added feature bit to control OOM baloon behavior from host
-> Changes from v1:
-> - minor cosmetic tweaks suggested by rusty@
-> 
-> Signed-off-by: Raushaniya Maksudova <rmaksudova@parallels.com>
-> Signed-off-by: Denis V. Lunev <den@openvz.org>
-> CC: Rusty Russell <rusty@rustcorp.com.au>
-> CC: Michael S. Tsirkin <mst@redhat.com>
-
-With the feature bit, I think it's fine.
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+T24gTW9uLCAyMCBPY3QgMjAxNCAxMjo0ODoxOCArMDIwMCAoQ0VTVCkKU2ViYXN0aWFuIE90dCA8
+c2Vib3R0QGxpbnV4LnZuZXQuaWJtLmNvbT4gd3JvdGU6Cgo+IEhpLAo+IAo+IDAxNmM5OGM2ZiB2
+aXJ0aW86IHVuaWZ5IGNvbmZpZ19jaGFuZ2VkIGhhbmRsaW5nCj4gCj4gaW50cm9kdWNlZCBhIHdh
+cm5pbmcgaW4gdmlydGlvX2NjdyB3aGljaCBpcyBmaXhlZCBieSB0aGUgZm9sbG93aW5nIHBhdGNo
+Lgo+IAo+IFJlZ2FyZHMsCj4gU2ViYXN0aWFuCj4gLS0tCj4gdmlydGlvX2NjdzogcmVtb3ZlIHVu
+c3VlZCB2YXJpYWJsZQo+IAo+IEZpeCB0aGlzIHdhcm5pbmc6Cj4gZHJpdmVycy9zMzkwL2t2bS92
+aXJ0aW9fY2N3LmM6IEluIGZ1bmN0aW9uIOKAmHZpcnRpb19jY3dfaW50X2hhbmRsZXLigJk6Cj4g
+ZHJpdmVycy9zMzkwL2t2bS92aXJ0aW9fY2N3LmM6ODkxOjI0OiB3YXJuaW5nOiB1bnVzZWQgdmFy
+aWFibGUg4oCYZHJ24oCZIFstV3VudXNlZC12YXJpYWJsZV0KPiAgICAgc3RydWN0IHZpcnRpb19k
+cml2ZXIgKmRydjsKPiAKPiBTaWduZWQtb2ZmLWJ5OiBTZWJhc3RpYW4gT3R0IDxzZWJvdHRAbGlu
+dXgudm5ldC5pYm0uY29tPgo+IC0tLQo+ICBkcml2ZXJzL3MzOTAva3ZtL3ZpcnRpb19jY3cuYyB8
+IDEgLQo+ICAxIGZpbGUgY2hhbmdlZCwgMSBkZWxldGlvbigtKQoKQWNrZWQtYnk6IENvcm5lbGlh
+IEh1Y2sgPGNvcm5lbGlhLmh1Y2tAZGUuaWJtLmNvbT4KClJ1c3R5OiBXaWxsIHlvdSB0YWtlIHRo
+aXMgdGhyb3VnaCB0aGUgdmlydGlvIHRyZWUsIG9yIHNob3VsZCBJIHB1c2gKdGhpcyB0aHJvdWdo
+IHRoZSBrdm0vczM5MCB0cmVlPwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
+c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
+Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
