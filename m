@@ -1,14 +1,18 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 2/2] virtio_balloon: free some memory from balloon on OOM
-Date: Mon, 20 Oct 2014 10:01:37 +1030
-Message-ID: <87d29nab6u.fsf@rustcorp.com.au>
-References: <1413388064-5354-1-git-send-email-den@openvz.org>
-	<1413388064-5354-3-git-send-email-den@openvz.org>
+From: Amos Kong <akong@redhat.com>
+Subject: Re: [PATCH v2 3/6] hw_random: use reference counts on each struct
+	hwrng.
+Date: Mon, 20 Oct 2014 05:58:30 +0200
+Message-ID: <20141020035830.GA3982@air.redhat.com>
+References: <1411043867-21109-1-git-send-email-akong@redhat.com>
+	<1411043867-21109-4-git-send-email-akong@redhat.com>
+	<20140918170813.GA30440@air.redhat.com>
+	<871tq3a9b8.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1413388064-5354-3-git-send-email-den@openvz.org>
+Content-Disposition: inline
+In-Reply-To: <871tq3a9b8.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,125 +22,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: "Denis V. Lunev" <den@openvz.org>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Raushaniya Maksudova <rmaksudova@parallels.com>, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: herbert@gondor.apana.org.au, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, m@bues.ch, mpm@selenic.com, amit.shah@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Denis V. Lunev" <den@openvz.org> writes:
+On Mon, Oct 20, 2014 at 10:42:11AM +1030, Rusty Russell wrote:
+> Amos Kong <akong@redhat.com> writes:
+> > We got a warning in boot stage when above set_current_rng() is executed,
+> > it can be fixed by init rng->ref in hwrng_init().
+> >
+> >
+> > @@ -166,6 +169,8 @@ static inline int hwrng_init(struct hwrng *rng)
+> >         if (current_quality > 0 && !hwrng_fill)
+> >                 start_khwrngd();
+> >  
+> > +       kref_init(&rng->ref);
+> > +
+> >         return 0;
+> >  }
+> 
+> OK, I folded this fix on.
 
-> From: Raushaniya Maksudova <rmaksudova@parallels.com>
->
-> Excessive virtio_balloon inflation can cause invocation of OOM-killer,
-> when Linux is under severe memory pressure. Various mechanisms are
-> responsible for correct virtio_balloon memory management. Nevertheless
-> it is often the case that these control tools does not have enough time
-> to react on fast changing memory load. As a result OS runs out of memory
-> and invokes OOM-killer. The balancing of memory by use of the virtio
-> balloon should not cause the termination of processes while there are
-> pages in the balloon. Now there is no way for virtio balloon driver to
-> free some memory at the last moment before some process will be get
-> killed by OOM-killer.
->
-> This does not provide a security breach as balloon itself is running
-> inside guest OS and is working in the cooperation with the host. Thus
-> some improvements from guest side should be considered as normal.
->
-> To solve the problem, introduce a virtio_balloon callback which is
-> expected to be called from the oom notifier call chain in out_of_memory()
-> function. If virtio balloon could release some memory, it will make
-> the system to return and retry the allocation that forced the out of
-> memory killer to run.
->
-> Allocate virtio  feature bit for this: it is not set by default,
-> the the guest will not deflate virtio balloon on OOM without explicit
-> permission from host.
->
-> Signed-off-by: Raushaniya Maksudova <rmaksudova@parallels.com>
-> Signed-off-by: Denis V. Lunev <den@openvz.org>
-> CC: Rusty Russell <rusty@rustcorp.com.au>
-> CC: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/virtio/virtio_balloon.c     | 52 +++++++++++++++++++++++++++++++++++++
->  include/uapi/linux/virtio_balloon.h |  1 +
->  2 files changed, 53 insertions(+)
->
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 66cac10..88d73a0 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -28,6 +28,7 @@
->  #include <linux/slab.h>
->  #include <linux/module.h>
->  #include <linux/balloon_compaction.h>
-> +#include <linux/oom.h>
->  
->  /*
->   * Balloon device works in 4K page units.  So each page is pointed to by
-> @@ -36,6 +37,12 @@
->   */
->  #define VIRTIO_BALLOON_PAGES_PER_PAGE (unsigned)(PAGE_SIZE >> VIRTIO_BALLOON_PFN_SHIFT)
->  #define VIRTIO_BALLOON_ARRAY_PFNS_MAX 256
-> +#define OOM_VBALLOON_DEFAULT_PAGES 256
-> +#define VIRTBALLOON_OOM_NOTIFY_PRIORITY 80
-> +
-> +static int oom_pages = OOM_VBALLOON_DEFAULT_PAGES;
-> +module_param(oom_pages, int, S_IRUSR | S_IWUSR);
-> +MODULE_PARM_DESC(oom_pages, "pages to free on OOM");
->  
->  struct virtio_balloon
->  {
-> @@ -71,6 +78,9 @@ struct virtio_balloon
->  	/* Memory statistics */
->  	int need_stats_update;
->  	struct virtio_balloon_stat stats[VIRTIO_BALLOON_S_NR];
-> +
-> +	/* To register callback in oom notifier call chain */
-> +	struct notifier_block nb;
->  };
->  
->  static struct virtio_device_id id_table[] = {
-> @@ -290,6 +300,38 @@ static void update_balloon_size(struct virtio_balloon *vb)
->  		      &actual);
->  }
->  
-> +/*
-> + * virtballoon_oom_notify - release pages when system is under severe
-> + *			    memory pressure (called from out_of_memory())
-> + * @self : notifier block struct
-> + * @dummy: not used
-> + * @parm : returned - number of freed pages
-> + *
-> + * The balancing of memory by use of the virtio balloon should not cause
-> + * the termination of processes while there are pages in the balloon.
-> + * If virtio balloon manages to release some memory, it will make the
-> + * system return and retry the allocation that forced the OOM killer
-> + * to run.
-> + */
-> +static int virtballoon_oom_notify(struct notifier_block *self,
-> +				  unsigned long dummy, void *parm)
-> +{
-> +	struct virtio_balloon *vb;
-> +	unsigned long *freed;
-> +	unsigned num_freed_pages;
-> +
-> +	vb = container_of(self, struct virtio_balloon, nb);
-> +	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
-> +		return NOTIFY_OK;
-> +
-> +	freed = parm;
-> +	num_freed_pages = leak_balloon(vb, oom_pages);
-> +	update_balloon_size(vb);
-> +	*freed += num_freed_pages;
-> +
-> +	return NOTIFY_OK;
-> +}
-> +
->  static int balloon(void *_vballoon)
->  {
->  	struct virtio_balloon *vb = _vballoon;
+Thanks.
 
-OK, I applied these.  I thought it a bit weird that you're checking the
-feature in the callback, rather than only registering the callback
-if the feature exists.  But it's clear enough.
-
-Thanks,
-Rusty.
+Reviewed-by: Amos Kong <akong@redhat.com>
+ 
+> Thanks,
+> Rusty.
+> 
+> hw_random: use reference counts on each struct hwrng.
+> 
+> current_rng holds one reference, and we bump it every time we want
+> to do a read from it.
+> 
+> This means we only hold the rng_mutex to grab or drop a reference,
+> so accessing /sys/devices/virtual/misc/hw_random/rng_current doesn't
+> block on read of /dev/hwrng.
+> 
+> Using a kref is overkill (we're always under the rng_mutex), but
+> a standard pattern.
+> 
+> This also solves the problem that the hwrng_fillfn thread was
+> accessing current_rng without a lock, which could change (eg. to NULL)
+> underneath it.
+> 
+> v3: initialize kref (thanks Amos Kong)
+> v2: fix missing put_rng() on exit path (thanks Amos Kong)
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> 
+> diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
+> index a0905c818e13..0ecac38da954 100644
+> --- a/drivers/char/hw_random/core.c
+> +++ b/drivers/char/hw_random/core.c
+....
