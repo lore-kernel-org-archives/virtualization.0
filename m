@@ -1,13 +1,15 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH] virtio_ccw: remove unsued variable
-Date: Mon, 20 Oct 2014 13:05:29 +0200
-Message-ID: <20141020130529.4056e855.cornelia.huck@de.ibm.com>
-References: <alpine.LFD.2.11.1410201242390.1601@denkbrett>
+Subject: Re: [PATCH v4 13/25] virtio_console: enable VQs early
+Date: Mon, 20 Oct 2014 14:42:23 +0200
+Message-ID: <20141020144223.5655dcbc.cornelia.huck@de.ibm.com>
+References: <1413114332-626-1-git-send-email-mst-v4@redhat.com>
+	<1413114332-626-14-git-send-email-mst-v4@redhat.com>
+	<20141020120750.GA18561@casper.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.LFD.2.11.1410201242390.1601@denkbrett>
+In-Reply-To: <20141020120750.GA18561@casper.infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,25 +19,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sebastian Ott <sebott@linux.vnet.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Thomas Graf <tgraf@suug.ch>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Paolo Bonzini <pbonzini@redhat.com>, Amit Shah <amit.shah@redhat.com>, v9fs-developer@lists.sourceforge.net, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCAyMCBPY3QgMjAxNCAxMjo0ODoxOCArMDIwMCAoQ0VTVCkKU2ViYXN0aWFuIE90dCA8
-c2Vib3R0QGxpbnV4LnZuZXQuaWJtLmNvbT4gd3JvdGU6Cgo+IEhpLAo+IAo+IDAxNmM5OGM2ZiB2
-aXJ0aW86IHVuaWZ5IGNvbmZpZ19jaGFuZ2VkIGhhbmRsaW5nCj4gCj4gaW50cm9kdWNlZCBhIHdh
-cm5pbmcgaW4gdmlydGlvX2NjdyB3aGljaCBpcyBmaXhlZCBieSB0aGUgZm9sbG93aW5nIHBhdGNo
-Lgo+IAo+IFJlZ2FyZHMsCj4gU2ViYXN0aWFuCj4gLS0tCj4gdmlydGlvX2NjdzogcmVtb3ZlIHVu
-c3VlZCB2YXJpYWJsZQo+IAo+IEZpeCB0aGlzIHdhcm5pbmc6Cj4gZHJpdmVycy9zMzkwL2t2bS92
-aXJ0aW9fY2N3LmM6IEluIGZ1bmN0aW9uIOKAmHZpcnRpb19jY3dfaW50X2hhbmRsZXLigJk6Cj4g
-ZHJpdmVycy9zMzkwL2t2bS92aXJ0aW9fY2N3LmM6ODkxOjI0OiB3YXJuaW5nOiB1bnVzZWQgdmFy
-aWFibGUg4oCYZHJ24oCZIFstV3VudXNlZC12YXJpYWJsZV0KPiAgICAgc3RydWN0IHZpcnRpb19k
-cml2ZXIgKmRydjsKPiAKPiBTaWduZWQtb2ZmLWJ5OiBTZWJhc3RpYW4gT3R0IDxzZWJvdHRAbGlu
-dXgudm5ldC5pYm0uY29tPgo+IC0tLQo+ICBkcml2ZXJzL3MzOTAva3ZtL3ZpcnRpb19jY3cuYyB8
-IDEgLQo+ICAxIGZpbGUgY2hhbmdlZCwgMSBkZWxldGlvbigtKQoKQWNrZWQtYnk6IENvcm5lbGlh
-IEh1Y2sgPGNvcm5lbGlhLmh1Y2tAZGUuaWJtLmNvbT4KClJ1c3R5OiBXaWxsIHlvdSB0YWtlIHRo
-aXMgdGhyb3VnaCB0aGUgdmlydGlvIHRyZWUsIG9yIHNob3VsZCBJIHB1c2gKdGhpcyB0aHJvdWdo
-IHRoZSBrdm0vczM5MCB0cmVlPwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
-c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
-Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Mon, 20 Oct 2014 13:07:50 +0100
+Thomas Graf <tgraf@suug.ch> wrote:
+
+> On 10/13/14 at 10:50am, Michael S. Tsirkin wrote:
+> > virtio spec requires drivers to set DRIVER_OK before using VQs.
+> > This is set automatically after probe returns, virtio console violated this
+> > rule by adding inbufs, which causes the VQ to be used directly within
+> > probe.
+> > 
+> > To fix, call virtio_device_ready before using VQs.
+> > 
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> >  drivers/char/virtio_console.c | 2 ++
+> >  1 file changed, 2 insertions(+)
+> > 
+> > diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> > index b585b47..6ebe8f6 100644
+> > --- a/drivers/char/virtio_console.c
+> > +++ b/drivers/char/virtio_console.c
+> > @@ -1449,6 +1449,8 @@ static int add_port(struct ports_device *portdev, u32 id)
+> >  	spin_lock_init(&port->outvq_lock);
+> >  	init_waitqueue_head(&port->waitqueue);
+> >  
+> > +	virtio_device_ready(portdev->vdev);
+> > +
+> >  	/* Fill the in_vq with buffers so the host can send us data. */
+> >  	nr_added_bufs = fill_queue(port->in_vq, &port->inbuf_lock);
+> >  	if (!nr_added_bufs) {
+> 
+> Seems like probe and add_port() now both set VIRTIO_CONFIG_S_DRIVER_OK
+
+I think we need to set this in the probe function instead, otherwise we
+fail for multiqueue (which also wants to use the control queue early).
+
+Completely untested patch below; I can send this with proper s-o-b if
+it helps.
+
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index bfa6400..cf7a561 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1449,8 +1449,6 @@ static int add_port(struct ports_device *portdev, u32 id)
+ 	spin_lock_init(&port->outvq_lock);
+ 	init_waitqueue_head(&port->waitqueue);
+ 
+-	virtio_device_ready(portdev->vdev);
+-
+ 	/* Fill the in_vq with buffers so the host can send us data. */
+ 	nr_added_bufs = fill_queue(port->in_vq, &port->inbuf_lock);
+ 	if (!nr_added_bufs) {
+@@ -2026,6 +2024,8 @@ static int virtcons_probe(struct virtio_device *vdev)
+ 	spin_lock_init(&portdev->ports_lock);
+ 	INIT_LIST_HEAD(&portdev->ports);
+ 
++	virtio_device_ready(portdev->vdev);
++
+ 	if (multiport) {
+ 		unsigned int nr_added_bufs;
