@@ -1,15 +1,16 @@
-From: Josh Boyer <jwboyer@fedoraproject.org>
-Subject: Re: [PATCH] virtio_console: move early VQ enablement
-Date: Mon, 20 Oct 2014 13:09:14 -0400
-Message-ID: <CA+5PVA7QgM9PGExjyZG-TQGYZWrWOKM+7dQGh2RWnJCfZ3aw+A@mail.gmail.com>
-References: <20141020133555.GA27111@redhat.com>
-	<1413813529-11044-1-git-send-email-cornelia.huck@de.ibm.com>
-	<20141020140508.GA11004@redhat.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH 3/5] hw_random: fix unregister race.
+Date: Tue, 21 Oct 2014 22:15:23 +0800
+Message-ID: <20141021141523.GA18345@gondor.apana.org.au>
+References: <87wq91odhf.fsf@rustcorp.com.au>
+	<1411008506-28349-1-git-send-email-rusty@rustcorp.com.au>
+	<1411008506-28349-3-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141020140508.GA11004@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1411008506-28349-3-git-send-email-rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,67 +20,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: KVM list <kvm@vger.kernel.org>, "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Thomas Graf <tgraf@suug.ch>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: m@bues.ch, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mb@bu3sch.de, mpm@selenic.com, amit.shah@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Oct 20, 2014 at 10:05 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Mon, Oct 20, 2014 at 03:58:49PM +0200, Cornelia Huck wrote:
->> Commit f5866db6 (virtio_console: enable VQs early) tried to make
->> sure that DRIVER_OK was set when virtio_console started using its
->> virtqueues. Doing this in add_port(), however, means that we try
->> to set DRIVER_OK again when when a port is dynamically added after
->> the probe function is done.
->>
->> Let's move virtio_device_ready() to the probe function just before
->> trying to use the virtqueues instead. This is fine as nothing can
->> fail inbetween.
->>
->> Reported-by: Thomas Graf <tgraf@suug.ch>
->> Reviewed-by: Michael S. Tsirkin <mst@redhat.com>
->> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
->
-> Thanks!
->
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> Tested-by: Michael S. Tsirkin <mst@redhat.com>
+On Thu, Sep 18, 2014 at 12:18:24PM +0930, Rusty Russell wrote:
+> The previous patch added one potential problem: we can still be
+> reading from a hwrng when it's unregistered.  Add a wait for zero
+> in the hwrng_unregister path.
+> 
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> ---
+>  drivers/char/hw_random/core.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
+> index dc9092a1075d..b4a21e9521cf 100644
+> --- a/drivers/char/hw_random/core.c
+> +++ b/drivers/char/hw_random/core.c
+> @@ -60,6 +60,7 @@ static DEFINE_MUTEX(rng_mutex);
+>  static DEFINE_MUTEX(reading_mutex);
+>  static int data_avail;
+>  static u8 *rng_buffer, *rng_fillbuf;
+> +static DECLARE_WAIT_QUEUE_HEAD(rng_done);
+>  static unsigned short current_quality;
+>  static unsigned short default_quality; /* = 0; default to "off" */
+>  
+> @@ -98,6 +99,7 @@ static inline void cleanup_rng(struct kref *kref)
+>  
+>  	if (rng->cleanup)
+>  		rng->cleanup(rng);
+> +	wake_up_all(&rng_done);
+>  }
+>  
+>  static void set_current_rng(struct hwrng *rng)
+> @@ -529,6 +531,9 @@ void hwrng_unregister(struct hwrng *rng)
+>  	}
+>  
+>  	mutex_unlock(&rng_mutex);
+> +
+> +	/* Just in case rng is reading right now, wait. */
+> +	wait_event(rng_done, atomic_read(&rng->ref.refcount) == 0);
 
-This fixed my KVM guest boot issue with 3.18-rc1.  Thanks for such a quick fix.
+While it's obviously better than what we have now, I don't believe
+this is 100% safe as the cleanup function might still be running
+even after the ref count hits zero.  Once we return from this function
+the module may be unloaded so we need to ensure that nothing is
+running at this point.
 
-Tested-by: Josh Boyer <jwboyer@fedoraproject.org>
-
-josh
-
->> ---
->>  drivers/char/virtio_console.c | 4 ++--
->>  1 file changed, 2 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
->> index bfa6400..cf7a561 100644
->> --- a/drivers/char/virtio_console.c
->> +++ b/drivers/char/virtio_console.c
->> @@ -1449,8 +1449,6 @@ static int add_port(struct ports_device *portdev, u32 id)
->>       spin_lock_init(&port->outvq_lock);
->>       init_waitqueue_head(&port->waitqueue);
->>
->> -     virtio_device_ready(portdev->vdev);
->> -
->>       /* Fill the in_vq with buffers so the host can send us data. */
->>       nr_added_bufs = fill_queue(port->in_vq, &port->inbuf_lock);
->>       if (!nr_added_bufs) {
->> @@ -2026,6 +2024,8 @@ static int virtcons_probe(struct virtio_device *vdev)
->>       spin_lock_init(&portdev->ports_lock);
->>       INIT_LIST_HEAD(&portdev->ports);
->>
->> +     virtio_device_ready(portdev->vdev);
->> +
->>       if (multiport) {
->>               unsigned int nr_added_bufs;
->>
->> --
->> 1.8.5.5
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Cheers,
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
