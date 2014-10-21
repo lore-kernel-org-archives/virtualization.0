@@ -1,13 +1,14 @@
-From: =?UTF-8?B?VG9yYWxmIEbDtnJzdGVy?= <toralf.foerster@gmx.de>
+From: Josh Boyer <jwboyer@fedoraproject.org>
 Subject: Re: v3.18-rc1 32 bit KVM hangs early in boot process
-Date: Tue, 21 Oct 2014 18:10:51 +0200
-Message-ID: <5446858B.3040107__21272.1333992251$1413908173$gmane$org@gmx.de>
+Date: Tue, 21 Oct 2014 12:40:10 -0400
+Message-ID: <CA+5PVA5MCRhwnkbNXpMmLzeM4G=aau0kuRU_wma-5T59M+2vkA@mail.gmail.com>
 References: <5445479C.4030201@gmx.de>
+	<5446858B.3040107@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5445479C.4030201@gmx.de>
+In-Reply-To: <5446858B.3040107@gmx.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,19 +18,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+To: =?ISO-8859-1?Q?Toralf_F=F6rster?= <toralf.foerster@gmx.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMTAvMjAvMjAxNCAwNzozNCBQTSwgVG9yYWxmIEbDtnJzdGVyIHdyb3RlOgo+IEkgdXBsb2Fk
-ZWQgdGhlIHNjcmVlbiBzaG90cyBmcm9tIHRoZSB2aXJ0LW1hbmFnZXIgdG8gWzFdIGFuZCBbMl0K
-PiAKPiBGV0lXIGU1NmQ5ZmNjYiB3YXMgZmluZSBzbyB0aGUgYnVnIHNsaXBwZWQgaW4gYWZ0ZXIg
-dGhhdC4KPiAKCj4gCj4gWzFdIGh0dHA6Ly93d3cuZGlyZWN0dXBsb2FkLm5ldC9maWxlL2QvMzc4
-MS9qOW13cnRwcV9qcGcuaHRtCj4gWzJdIGh0dHA6Ly93d3cuZGlyZWN0dXBsb2FkLm5ldC9maWxl
-L2QvMzc4MS8yOXRyYzU2dl9qcGcuaHRtCj4gCkl0IG1pZ2h0IGJlIHZpcnRpby1jb25zb2xlIHJl
-bGF0ZWQsIHdoZW4gdGhlIHVldmV0bnMgYXJlIHByb2Nlc3NlZDoKCmh0dHA6Ly93d3cuZGlyZWN0
-dXBsb2FkLm5ldC9maWxlL2QvMzc4Mi82bGc1eWloaF9qcGcuaHRtCgotLSAKVG9yYWxmCnBncCBr
-ZXk6IDAwNzYgRTk0RQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Tue, Oct 21, 2014 at 12:10 PM, Toralf F=F6rster <toralf.foerster@gmx.de>=
+ wrote:
+> On 10/20/2014 07:34 PM, Toralf F=F6rster wrote:
+>> I uploaded the screen shots from the virt-manager to [1] and [2]
+>>
+>> FWIW e56d9fccb was fine so the bug slipped in after that.
+>>
+>
+>>
+>> [1] http://www.directupload.net/file/d/3781/j9mwrtpq_jpg.htm
+>> [2] http://www.directupload.net/file/d/3781/29trc56v_jpg.htm
+>>
+> It might be virtio-console related, when the uevetns are processed:
+>
+> http://www.directupload.net/file/d/3782/6lg5yihh_jpg.htm
+
+Try
+http://mid.gmane.org/1413813529-11044-1-git-send-email-cornelia.huck@de.ibm=
+.com
+
+josh
