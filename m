@@ -1,8 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC v3 08/16] virtio: allow transports to get avail/used
-	addresses
-Date: Wed, 22 Oct 2014 21:44:40 +0300
-Message-ID: <1414003404-505-9-git-send-email-mst@redhat.com>
+Subject: [PATCH RFC v3 07/16] virtio_config: endian conversion for v1.0
+Date: Wed, 22 Oct 2014 21:44:37 +0300
+Message-ID: <1414003404-505-8-git-send-email-mst@redhat.com>
 References: <1414003404-505-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,65 +19,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, David Hildenbrand <dahi@linux.vnet.ibm.com>
+Cc: David Hildenbrand <dahi@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-
-For virtio-1, we can theoretically have a more complex virtqueue
-layout with avail and used buffers not on a contiguous memory area
-with the descriptor table. For now, it's fine for a transport driver
-to stay with the old layout: It needs, however, a way to access
-the locations of the avail/used rings so it can register them with
-the host.
+We (ab)use virtio conversion functions for device-specific
+config space accesses.
 
 Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- include/linux/virtio.h       |  3 +++
- drivers/virtio/virtio_ring.c | 16 ++++++++++++++++
- 2 files changed, 19 insertions(+)
+ include/linux/virtio_config.h | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 149284e..d6359a5 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -75,6 +75,9 @@ unsigned int virtqueue_get_vring_size(struct virtqueue *vq);
- 
- bool virtqueue_is_broken(struct virtqueue *vq);
- 
-+void *virtqueue_get_avail(struct virtqueue *vq);
-+void *virtqueue_get_used(struct virtqueue *vq);
-+
- /**
-  * virtio_device - representation of a device using virtio
-  * @index: unique position on the virtio bus
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 9f5dfe3..1db44ba 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -829,4 +829,20 @@ void virtio_break_device(struct virtio_device *dev)
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index be0f6dd..09cd89c 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -255,12 +255,13 @@ static inline u16 virtio_cread16(struct virtio_device *vdev,
+ {
+ 	u16 ret;
+ 	vdev->config->get(vdev, offset, &ret, sizeof(ret));
+-	return ret;
++	return virtio16_to_cpu(vdev, (__force __virtio16)ret);
  }
- EXPORT_SYMBOL_GPL(virtio_break_device);
  
-+void *virtqueue_get_avail(struct virtqueue *_vq)
-+{
-+	struct vring_virtqueue *vq = to_vvq(_vq);
-+
-+	return vq->vring.avail;
-+}
-+EXPORT_SYMBOL_GPL(virtqueue_get_avail);
-+
-+void *virtqueue_get_used(struct virtqueue *_vq)
-+{
-+	struct vring_virtqueue *vq = to_vvq(_vq);
-+
-+	return vq->vring.used;
-+}
-+EXPORT_SYMBOL_GPL(virtqueue_get_used);
-+
- MODULE_LICENSE("GPL");
+ static inline void virtio_cwrite16(struct virtio_device *vdev,
+ 				   unsigned int offset, u16 val)
+ {
++	val = (__force u16)cpu_to_virtio16(vdev, val);
+ 	vdev->config->set(vdev, offset, &val, sizeof(val));
+ }
+ 
+@@ -269,12 +270,13 @@ static inline u32 virtio_cread32(struct virtio_device *vdev,
+ {
+ 	u32 ret;
+ 	vdev->config->get(vdev, offset, &ret, sizeof(ret));
+-	return ret;
++	return virtio32_to_cpu(vdev, (__force __virtio32)ret);
+ }
+ 
+ static inline void virtio_cwrite32(struct virtio_device *vdev,
+ 				   unsigned int offset, u32 val)
+ {
++	val = (__force u32)cpu_to_virtio32(vdev, val);
+ 	vdev->config->set(vdev, offset, &val, sizeof(val));
+ }
+ 
+@@ -283,12 +285,13 @@ static inline u64 virtio_cread64(struct virtio_device *vdev,
+ {
+ 	u64 ret;
+ 	vdev->config->get(vdev, offset, &ret, sizeof(ret));
+-	return ret;
++	return virtio64_to_cpu(vdev, (__force __virtio64)ret);
+ }
+ 
+ static inline void virtio_cwrite64(struct virtio_device *vdev,
+ 				   unsigned int offset, u64 val)
+ {
++	val = (__force u64)cpu_to_virtio64(vdev, val);
+ 	vdev->config->set(vdev, offset, &val, sizeof(val));
+ }
+ 
 -- 
 MST
