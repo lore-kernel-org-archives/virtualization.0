@@ -1,16 +1,17 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH RFC 04/11] virtio_ring: implement endian reversal based
-	on VERSION_1 feature.
-Date: Wed, 22 Oct 2014 16:28:34 +0200
-Message-ID: <20141022162834.17f39f0d.cornelia.huck@de.ibm.com>
-References: <1412692792-12325-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1412692792-12325-5-git-send-email-cornelia.huck@de.ibm.com>
-	<20141022140226.GA12171@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RFC 00/11] qemu: towards virtio-1 host support
+Date: Wed, 22 Oct 2014 17:36:00 +0300
+Message-ID: <20141022143600.GA14260@redhat.com>
+References: <1412692807-12398-1-git-send-email-cornelia.huck@de.ibm.com>
+	<54349246.6000905@amacapital.net>
+	<20141008110428.6fc78115.cornelia.huck@de.ibm.com>
+	<20141022084438.GA8051@redhat.com> <5447BC84.1010402@siemens.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141022140226.GA12171@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <5447BC84.1010402@siemens.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,104 +21,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jan Kiszka <jan.kiszka@siemens.com>
+Cc: thuth@linux.vnet.ibm.com, kvm@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, qemu-devel@nongnu.org, Andy Lutomirski <luto@amacapital.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 22 Oct 2014 17:02:26 +0300
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> On Tue, Oct 07, 2014 at 04:39:45PM +0200, Cornelia Huck wrote:
-> > From: Rusty Russell <rusty@rustcorp.com.au>
+On Wed, Oct 22, 2014 at 04:17:40PM +0200, Jan Kiszka wrote:
+> On 2014-10-22 10:44, Michael S. Tsirkin wrote:
+> > On Wed, Oct 08, 2014 at 11:04:28AM +0200, Cornelia Huck wrote:
+> >> On Tue, 07 Oct 2014 18:24:22 -0700
+> >> Andy Lutomirski <luto@amacapital.net> wrote:
+> >>
+> >>> On 10/07/2014 07:39 AM, Cornelia Huck wrote:
+> >>>> This patchset aims to get us some way to implement virtio-1 compliant
+> >>>> and transitional devices in qemu. Branch available at
+> >>>>
+> >>>> git://github.com/cohuck/qemu virtio-1
+> >>>>
+> >>>> I've mainly focused on:
+> >>>> - endianness handling
+> >>>> - extended feature bits
+> >>>> - virtio-ccw new/changed commands
+> >>>
+> >>> At the risk of some distraction, would it be worth thinking about a
+> >>> solution to the IOMMU bypassing mess as part of this?
+> >>
+> >> I think that is a whole different issue. virtio-1 is basically done - we
+> >> just need to implement it - while the IOMMU/DMA stuff certainly needs
+> >> more discussion. Therefore, I'd like to defer to the other discussion
+> >> thread here.
 > > 
-> > [Cornelia Huck: we don't need the vq->vring.num -> vq->ring_mask change]
-> > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> > ---
-> >  drivers/virtio/virtio_ring.c |  195 ++++++++++++++++++++++++++++++------------
-> >  1 file changed, 138 insertions(+), 57 deletions(-)
-> > 
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index 1cfb5ba..350c39b 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -145,42 +145,54 @@ static inline int vring_add_indirect(struct vring_virtqueue *vq,
-> >  	i = 0;
-> >  	for (n = 0; n < out_sgs; n++) {
-> >  		for (sg = sgs[n]; sg; sg = next(sg, &total_out)) {
-> > -			desc[i].flags = VRING_DESC_F_NEXT;
-> > -			desc[i].addr = sg_phys(sg);
-> > -			desc[i].len = sg->length;
-> > -			desc[i].next = i+1;
-> > +			desc[i].flags = cpu_to_virtio16(vq->vq.vdev,
-> > +							  VRING_DESC_F_NEXT);
-> > +			desc[i].addr = cpu_to_virtio64(vq->vq.vdev,
-> > +							 sg_phys(sg));
-> > +			desc[i].len = cpu_to_virtio32(vq->vq.vdev,
-> > +							sg->length);
-> > +			desc[i].next = cpu_to_virtio16(vq->vq.vdev,
-> > +							 i+1);
-> >  			i++;
-> >  		}
-> >  	}
-> >  	for (; n < (out_sgs + in_sgs); n++) {
-> >  		for (sg = sgs[n]; sg; sg = next(sg, &total_in)) {
-> > -			desc[i].flags = VRING_DESC_F_NEXT|VRING_DESC_F_WRITE;
-> > -			desc[i].addr = sg_phys(sg);
-> > -			desc[i].len = sg->length;
-> > -			desc[i].next = i+1;
-> > +			desc[i].flags =	cpu_to_virtio16(vq->vq.vdev,
-> > +							  VRING_DESC_F_NEXT|
-> > +							  VRING_DESC_F_WRITE);
-> > +			desc[i].addr = cpu_to_virtio64(vq->vq.vdev,
-> > +							 sg_phys(sg));
-> > +			desc[i].len = cpu_to_virtio32(vq->vq.vdev,
-> > +							sg->length);
-> > +			desc[i].next = cpu_to_virtio16(vq->vq.vdev, i+1);
-> >  			i++;
-> >  		}
-> >  	}
-> > -	BUG_ON(i != total_sg);
-> >  
-> >  	/* Last one doesn't continue. */
-> > -	desc[i-1].flags &= ~VRING_DESC_F_NEXT;
-> > +	desc[i-1].flags &= ~cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT);
-> >  	desc[i-1].next = 0;
-> >  
-> > -	/* We're about to use a buffer */
-> > -	vq->vq.num_free--;
-> > -
-> >  	/* Use a single buffer which doesn't continue */
-> >  	head = vq->free_head;
-> > -	vq->vring.desc[head].flags = VRING_DESC_F_INDIRECT;
-> > -	vq->vring.desc[head].addr = virt_to_phys(desc);
-> > +	vq->vring.desc[head].flags =
-> > +		cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_INDIRECT);
-> > +	vq->vring.desc[head].addr =
-> > +		cpu_to_virtio64(vq->vq.vdev, virt_to_phys(desc));
-> >  	/* kmemleak gives a false positive, as it's hidden by virt_to_phys */
-> >  	kmemleak_ignore(desc);
-> > -	vq->vring.desc[head].len = i * sizeof(struct vring_desc);
-> > +	vq->vring.desc[head].len =
-> > +		cpu_to_virtio32(vq->vq.vdev, i * sizeof(struct vring_desc));
-> >  
-> > -	/* Update free pointer */
-> > +	BUG_ON(i != total_sg);
-> > +
+> > I agree, let's do a separate thread for this.
+> > I also think it's up to the hypervisors at this point.
+> > People talked about using ACPI to report IOMMU bypass
+> > to guest.
+> > If that happens, we don't need a feature bit.
 > 
-> Why move the BUG_ON here?
-> I think I'll move it back ...
+> I thought about this again, and I'm not sure anymore if we can use ACPI
+> to "black-list" the incompatible virtio devices. Reason: hotplug. To my
+> understanding, the ACPI DRHD tables won't change during runtime when a
+> device shows up or disappears. We would have to isolate virtio devices
+> from the rest of the system by using separate buses for it (and avoid
+> listing those in any DRHD table) and enforce that they only get plugged
+> into those buses. I suppose that is not desirable.
 
-IIRC this was in the original patch I applied - but you're right, the
-statement can stay in the old place.
+That's reasonable I think.
 
+> Maybe it's better to fix virtio /wrt IOMMUs.
 > 
-> > +	/* Update free pointer (we store this in native endian) */
-> >  	vq->free_head = vq->vring.desc[head].next;
-> >  
-> > +	/* We've just used a buffer */
-> > +	vq->vq.num_free--;
-> > +
-> >  	return head;
-> >  }
-> >  
+> Jan
+
+Yes but this seems unlikely for 2.2:
+
+The wish to run old guests with iommu remains.
+So we'll need to support iommu bypass on the host, and so as
+a minimum new guest needs to detect such bypass host and fail.
+
+Unrelated: we also need to teach vhost and dataplane virtio
+to get mappings from the iommu.
+
+> -- 
+> Siemens AG, Corporate Technology, CT RTC ITP SES-DE
+> Corporate Competence Center Embedded Linux
