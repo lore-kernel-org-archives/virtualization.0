@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC v2 07/16] virtio_config: endian conversion for v1.0
-Date: Wed, 22 Oct 2014 18:50:40 +0300
-Message-ID: <1413992894-22976-8-git-send-email-mst@redhat.com>
+Subject: [PATCH RFC v2 09/16] virtio: set FEATURES_OK
+Date: Wed, 22 Oct 2014 18:50:48 +0300
+Message-ID: <1413992894-22976-10-git-send-email-mst@redhat.com>
 References: <1413992894-22976-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,68 +19,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: David Hildenbrand <dahi@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org
+Cc: linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We (ab)use virtio conversion functions for device-specific
-config space accesses.
+set FEATURES_OK as per virtio 1.0 spec
 
-Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- include/linux/virtio_config.h | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ include/uapi/linux/virtio_config.h |  2 ++
+ drivers/virtio/virtio.c            | 29 ++++++++++++++++++++++-------
+ 2 files changed, 24 insertions(+), 7 deletions(-)
 
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index be0f6dd..09cd89c 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -255,12 +255,13 @@ static inline u16 virtio_cread16(struct virtio_device *vdev,
- {
- 	u16 ret;
- 	vdev->config->get(vdev, offset, &ret, sizeof(ret));
--	return ret;
-+	return virtio16_to_cpu(vdev, (__force __virtio16)ret);
+diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+index f3fe33a..a6d0cde 100644
+--- a/include/uapi/linux/virtio_config.h
++++ b/include/uapi/linux/virtio_config.h
+@@ -38,6 +38,8 @@
+ #define VIRTIO_CONFIG_S_DRIVER		2
+ /* Driver has used its parts of the config, and is happy */
+ #define VIRTIO_CONFIG_S_DRIVER_OK	4
++/* Driver has finished configuring features */
++#define VIRTIO_CONFIG_S_FEATURES_OK	8
+ /* We've given up on this device. */
+ #define VIRTIO_CONFIG_S_FAILED		0x80
+ 
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index d213567..a3df817 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -160,6 +160,7 @@ static int virtio_dev_probe(struct device *_d)
+ 	struct virtio_device *dev = dev_to_virtio(_d);
+ 	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
+ 	u64 device_features;
++	unsigned status;
+ 
+ 	/* We have a driver! */
+ 	add_status(dev, VIRTIO_CONFIG_S_DRIVER);
+@@ -183,18 +184,32 @@ static int virtio_dev_probe(struct device *_d)
+ 
+ 	dev->config->finalize_features(dev);
+ 
++	if (virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
++		add_status(dev, VIRTIO_CONFIG_S_FEATURES_OK);
++		status = dev->config->get_status(dev);
++		if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
++			printk(KERN_ERR "virtio: device refuses features: %x\n",
++			       status);
++			err = -ENODEV;
++			goto err;
++		}
++	}
++
+ 	err = drv->probe(dev);
+ 	if (err)
+-		add_status(dev, VIRTIO_CONFIG_S_FAILED);
+-	else {
+-		add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
+-		if (drv->scan)
+-			drv->scan(dev);
++		goto err;
+ 
+-		virtio_config_enable(dev);
+-	}
++	add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
++	if (drv->scan)
++		drv->scan(dev);
++
++	virtio_config_enable(dev);
+ 
++	return 0;
++err:
++	add_status(dev, VIRTIO_CONFIG_S_FAILED);
+ 	return err;
++
  }
  
- static inline void virtio_cwrite16(struct virtio_device *vdev,
- 				   unsigned int offset, u16 val)
- {
-+	val = (__force u16)cpu_to_virtio16(vdev, val);
- 	vdev->config->set(vdev, offset, &val, sizeof(val));
- }
- 
-@@ -269,12 +270,13 @@ static inline u32 virtio_cread32(struct virtio_device *vdev,
- {
- 	u32 ret;
- 	vdev->config->get(vdev, offset, &ret, sizeof(ret));
--	return ret;
-+	return virtio32_to_cpu(vdev, (__force __virtio32)ret);
- }
- 
- static inline void virtio_cwrite32(struct virtio_device *vdev,
- 				   unsigned int offset, u32 val)
- {
-+	val = (__force u32)cpu_to_virtio32(vdev, val);
- 	vdev->config->set(vdev, offset, &val, sizeof(val));
- }
- 
-@@ -283,12 +285,13 @@ static inline u64 virtio_cread64(struct virtio_device *vdev,
- {
- 	u64 ret;
- 	vdev->config->get(vdev, offset, &ret, sizeof(ret));
--	return ret;
-+	return virtio64_to_cpu(vdev, (__force __virtio64)ret);
- }
- 
- static inline void virtio_cwrite64(struct virtio_device *vdev,
- 				   unsigned int offset, u64 val)
- {
-+	val = (__force u64)cpu_to_virtio64(vdev, val);
- 	vdev->config->set(vdev, offset, &val, sizeof(val));
- }
- 
+ static int virtio_dev_remove(struct device *_d)
 -- 
 MST
