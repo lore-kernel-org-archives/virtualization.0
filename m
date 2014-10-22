@@ -1,18 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC 04/11] virtio_ring: implement endian reversal based
-	on VERSION_1 feature.
-Date: Wed, 22 Oct 2014 17:37:11 +0300
-Message-ID: <20141022143711.GB14260@redhat.com>
-References: <1412692792-12325-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1412692792-12325-5-git-send-email-cornelia.huck@de.ibm.com>
-	<20141022140226.GA12171@redhat.com>
-	<20141022162834.17f39f0d.cornelia.huck@de.ibm.com>
+From: Hannes Frederic Sowa <hannes@stressinduktion.org>
+Subject: Re: IPv6 UFO for VMs
+Date: Wed, 22 Oct 2014 11:35:41 +0200
+Message-ID: <1413970541.2337.16.camel__43155.8660734028$1413989492$gmane$org@localhost>
+References: <1413935045.5994.2.camel@decadent.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20141022162834.17f39f0d.cornelia.huck@de.ibm.com>
+In-Reply-To: <1413935045.5994.2.camel@decadent.org.uk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,109 +17,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Ben Hutchings <ben@decadent.org.uk>
+Cc: netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Oct 22, 2014 at 04:28:34PM +0200, Cornelia Huck wrote:
-> On Wed, 22 Oct 2014 17:02:26 +0300
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Mi, 2014-10-22 at 00:44 +0100, Ben Hutchings wrote:
+> There are several ways that VMs can take advantage of UFO and get the
+> host to do fragmentation for them:
 > 
-> > On Tue, Oct 07, 2014 at 04:39:45PM +0200, Cornelia Huck wrote:
-> > > From: Rusty Russell <rusty@rustcorp.com.au>
-> > > 
-> > > [Cornelia Huck: we don't need the vq->vring.num -> vq->ring_mask change]
-> > > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> > > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> > > ---
-> > >  drivers/virtio/virtio_ring.c |  195 ++++++++++++++++++++++++++++++------------
-> > >  1 file changed, 138 insertions(+), 57 deletions(-)
-> > > 
-> > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > > index 1cfb5ba..350c39b 100644
-> > > --- a/drivers/virtio/virtio_ring.c
-> > > +++ b/drivers/virtio/virtio_ring.c
-> > > @@ -145,42 +145,54 @@ static inline int vring_add_indirect(struct vring_virtqueue *vq,
-> > >  	i = 0;
-> > >  	for (n = 0; n < out_sgs; n++) {
-> > >  		for (sg = sgs[n]; sg; sg = next(sg, &total_out)) {
-> > > -			desc[i].flags = VRING_DESC_F_NEXT;
-> > > -			desc[i].addr = sg_phys(sg);
-> > > -			desc[i].len = sg->length;
-> > > -			desc[i].next = i+1;
-> > > +			desc[i].flags = cpu_to_virtio16(vq->vq.vdev,
-> > > +							  VRING_DESC_F_NEXT);
-> > > +			desc[i].addr = cpu_to_virtio64(vq->vq.vdev,
-> > > +							 sg_phys(sg));
-> > > +			desc[i].len = cpu_to_virtio32(vq->vq.vdev,
-> > > +							sg->length);
-> > > +			desc[i].next = cpu_to_virtio16(vq->vq.vdev,
-> > > +							 i+1);
-> > >  			i++;
-> > >  		}
-> > >  	}
-> > >  	for (; n < (out_sgs + in_sgs); n++) {
-> > >  		for (sg = sgs[n]; sg; sg = next(sg, &total_in)) {
-> > > -			desc[i].flags = VRING_DESC_F_NEXT|VRING_DESC_F_WRITE;
-> > > -			desc[i].addr = sg_phys(sg);
-> > > -			desc[i].len = sg->length;
-> > > -			desc[i].next = i+1;
-> > > +			desc[i].flags =	cpu_to_virtio16(vq->vq.vdev,
-> > > +							  VRING_DESC_F_NEXT|
-> > > +							  VRING_DESC_F_WRITE);
-> > > +			desc[i].addr = cpu_to_virtio64(vq->vq.vdev,
-> > > +							 sg_phys(sg));
-> > > +			desc[i].len = cpu_to_virtio32(vq->vq.vdev,
-> > > +							sg->length);
-> > > +			desc[i].next = cpu_to_virtio16(vq->vq.vdev, i+1);
-> > >  			i++;
-> > >  		}
-> > >  	}
-> > > -	BUG_ON(i != total_sg);
-> > >  
-> > >  	/* Last one doesn't continue. */
-> > > -	desc[i-1].flags &= ~VRING_DESC_F_NEXT;
-> > > +	desc[i-1].flags &= ~cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT);
-> > >  	desc[i-1].next = 0;
-> > >  
-> > > -	/* We're about to use a buffer */
-> > > -	vq->vq.num_free--;
-> > > -
-> > >  	/* Use a single buffer which doesn't continue */
-> > >  	head = vq->free_head;
-> > > -	vq->vring.desc[head].flags = VRING_DESC_F_INDIRECT;
-> > > -	vq->vring.desc[head].addr = virt_to_phys(desc);
-> > > +	vq->vring.desc[head].flags =
-> > > +		cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_INDIRECT);
-> > > +	vq->vring.desc[head].addr =
-> > > +		cpu_to_virtio64(vq->vq.vdev, virt_to_phys(desc));
-> > >  	/* kmemleak gives a false positive, as it's hidden by virt_to_phys */
-> > >  	kmemleak_ignore(desc);
-> > > -	vq->vring.desc[head].len = i * sizeof(struct vring_desc);
-> > > +	vq->vring.desc[head].len =
-> > > +		cpu_to_virtio32(vq->vq.vdev, i * sizeof(struct vring_desc));
-> > >  
-> > > -	/* Update free pointer */
-> > > +	BUG_ON(i != total_sg);
-> > > +
-> > 
-> > Why move the BUG_ON here?
-> > I think I'll move it back ...
+> drivers/net/macvtap.c:                  gso_type = SKB_GSO_UDP;
+> drivers/net/tun.c:                      skb_shinfo(skb)->gso_type = SKB_GSO_UDP;
+> drivers/net/virtio_net.c:                       skb_shinfo(skb)->gso_type = SKB_GSO_UDP;
 > 
-> IIRC this was in the original patch I applied - but you're right, the
-> statement can stay in the old place.
+> Our implementation of UFO for IPv6 does:
+> 
+> 		fptr = (struct frag_hdr *)(skb_network_header(skb) + unfrag_ip6hlen);
+> 		fptr->nexthdr = nexthdr;
+> 		fptr->reserved = 0;
+> 		fptr->identification = skb_shinfo(skb)->ip6_frag_id;
+> 
+> which assumes ip6_frag_id has been set.  That's only true if the local
+> stack constructed the skb; otherwise it appears we get zero.
+> 
+> This seems to be a regression as a result of:
+> 
+> commit 916e4cf46d0204806c062c8c6c4d1f633852c5b6
+> Author: Hannes Frederic Sowa <hannes@stressinduktion.org>
+> Date:   Fri Feb 21 02:55:35 2014 +0100
+> 
+>     ipv6: reuse ip6_frag_id from ip6_ufo_append_data
+> 
+> However, that change seems reasonable - we *shouldn't* be choosing IDs
+> for any other stack.  Any paravirt net driver that can use IPv6 UFO
+> needs to have some way of passing a fragmentation ID to put in
+> skb_shared_info::ip6_frag_id.
 
-I think I'll do it more gradually: mechanically add accessors
-everywhere as a 1st step. Split long lines and other cleanup
-as a second step.
+Do we really gain a lot of performance by enabling UFO on those devices
+or would it make sense to just drop support? It only helps fragmenting
+large UDP packets, so I don't think it is worth it.
 
-> > 
-> > > +	/* Update free pointer (we store this in native endian) */
-> > >  	vq->free_head = vq->vring.desc[head].next;
-> > >  
-> > > +	/* We've just used a buffer */
-> > > +	vq->vq.num_free--;
-> > > +
-> > >  	return head;
-> > >  }
-> > >  
+Otherwise I agree with Ben, we need to pass a fragmentation id from the
+host over to the system segmenting the gso frame. Fragmentation ids must
+be generated by the end system.
+
+Hmm...
+
+Bye,
+Hannes
