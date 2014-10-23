@@ -1,16 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC 4/4] virtio_net: bigger header when VERSION_1 is set
-Date: Fri, 24 Oct 2014 00:28:10 +0300
-Message-ID: <1414099656-28090-4-git-send-email-mst@redhat.com>
-References: <1414099656-28090-1-git-send-email-mst@redhat.com>
-	<1414099656-28090-2-git-send-email-mst@redhat.com>
-	<1414099656-28090-3-git-send-email-mst@redhat.com>
+Subject: Re: [PATCH RFC 00/11] qemu: towards virtio-1 host support
+Date: Fri, 24 Oct 2014 00:42:20 +0300
+Message-ID: <20141023214158.GA29716@redhat.com>
+References: <1412692807-12398-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1414099656-28090-3-git-send-email-mst@redhat.com>
+In-Reply-To: <1412692807-12398-1-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,31 +18,86 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-With VERSION_1 virtio_net uses same header size
-whether mergeable buffers are enabled or not.
+On Tue, Oct 07, 2014 at 04:39:56PM +0200, Cornelia Huck wrote:
+> This patchset aims to get us some way to implement virtio-1 compliant
+> and transitional devices in qemu. Branch available at
+> 
+> git://github.com/cohuck/qemu virtio-1
+> 
+> I've mainly focused on:
+> - endianness handling
+> - extended feature bits
+> - virtio-ccw new/changed commands
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/net/virtio_net.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+So issues identified so far:
+- devices not converted yet should not advertize 1.0
+- blk has some features removed under 1.0,
+  specifically CONFIG_WCE.
+- net header is different for 1.0
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 9c6d50f..a2fe340 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1764,7 +1764,8 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
- 		vi->mergeable_rx_bufs = true;
- 
--	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
-+	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF) ||
-+	    virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
- 		vi->hdr_len = sizeof(struct virtio_net_hdr_mrg_rxbuf);
- 	else
- 		vi->hdr_len = sizeof(struct virtio_net_hdr);
--- 
-MST
+
+> Thanks go to Thomas for some preliminary work in this area.
+> 
+> I've been able to start guests both with and without the virtio-1 patches
+> in the linux guest patchset, with virtio-net and virtio-blk devices (with
+> and without dataplane). virtio-ccw only :) vhost, migration and loads of
+> other things have been ignored for now.
+> 
+> I'd like to know whether I walk into the right direction, so let's consider
+> this as a starting point.
+> 
+> Cornelia Huck (8):
+>   virtio: cull virtio_bus_set_vdev_features
+>   virtio: support more feature bits
+>   s390x/virtio-ccw: fix check for WRITE_FEAT
+>   virtio: introduce legacy virtio devices
+>   virtio: allow virtio-1 queue layout
+>   dataplane: allow virtio-1 devices
+>   s390x/virtio-ccw: support virtio-1 set_vq format
+>   s390x/virtio-ccw: enable virtio 1.0
+> 
+> Thomas Huth (3):
+>   linux-headers/virtio_config: Update with VIRTIO_F_VERSION_1
+>   s390x/css: Add a callback for when subchannel gets disabled
+>   s390x/virtio-ccw: add virtio set-revision call
+> 
+>  hw/9pfs/virtio-9p-device.c          |    7 +-
+>  hw/block/dataplane/virtio-blk.c     |    3 +-
+>  hw/block/virtio-blk.c               |    9 +-
+>  hw/char/virtio-serial-bus.c         |    9 +-
+>  hw/net/virtio-net.c                 |   38 ++++---
+>  hw/s390x/css.c                      |   12 +++
+>  hw/s390x/css.h                      |    1 +
+>  hw/s390x/s390-virtio-bus.c          |    9 +-
+>  hw/s390x/virtio-ccw.c               |  188 +++++++++++++++++++++++++++--------
+>  hw/s390x/virtio-ccw.h               |    7 +-
+>  hw/scsi/vhost-scsi.c                |    7 +-
+>  hw/scsi/virtio-scsi-dataplane.c     |    2 +-
+>  hw/scsi/virtio-scsi.c               |    8 +-
+>  hw/virtio/Makefile.objs             |    2 +-
+>  hw/virtio/dataplane/Makefile.objs   |    2 +-
+>  hw/virtio/dataplane/vring.c         |   95 ++++++++++--------
+>  hw/virtio/virtio-balloon.c          |    8 +-
+>  hw/virtio/virtio-bus.c              |   23 +----
+>  hw/virtio/virtio-mmio.c             |    9 +-
+>  hw/virtio/virtio-pci.c              |   13 +--
+>  hw/virtio/virtio-rng.c              |    2 +-
+>  hw/virtio/virtio.c                  |   51 +++++++---
+>  include/hw/virtio/dataplane/vring.h |   64 +++++++++++-
+>  include/hw/virtio/virtio-access.h   |    4 +
+>  include/hw/virtio/virtio-bus.h      |   10 +-
+>  include/hw/virtio/virtio.h          |   34 +++++--
+>  linux-headers/linux/virtio_config.h |    3 +
+>  27 files changed, 442 insertions(+), 178 deletions(-)
+> 
+> -- 
+> 1.7.9.5
+> 
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
