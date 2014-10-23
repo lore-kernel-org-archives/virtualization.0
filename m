@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC v4 06/17] virtio: make endian-ness depend on virtio 1.0
-Date: Thu, 23 Oct 2014 19:24:28 +0300
-Message-ID: <1414081380-14623-7-git-send-email-mst@redhat.com>
+Subject: [PATCH RFC v4 05/17] virtio: add virtio 1.0 feature bit
+Date: Thu, 23 Oct 2014 19:24:25 +0300
+Message-ID: <1414081380-14623-6-git-send-email-mst@redhat.com>
 References: <1414081380-14623-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,33 +19,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+Cc: linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio 1.0 is LE, virtio without 1.0 is native endian.
+Based on original patches by Rusty Russell, Thomas Huth
+and Cornelia Huck.
+
+Note: at this time, we do not negotiate this feature bit
+in core, drivers have to declare VERSION_1 support explicitly.
+
+After all drivers are converted, we will be able to
+move VERSION_1 to core and drop it from all drivers.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- include/linux/virtio_config.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/uapi/linux/virtio_config.h | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index 4bc2ebe..952b6d7 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -157,11 +157,11 @@ int virtqueue_set_affinity(struct virtqueue *vq, int cpu)
- #define DEFINE_VIRTIO_XX_TO_CPU(bits) \
- static inline u##bits virtio##bits##_to_cpu(struct virtio_device *vdev, __virtio##bits val) \
- { \
--	return __virtio##bits##_to_cpu(false, val); \
-+	return __virtio##bits##_to_cpu(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val); \
- } \
- static inline __virtio##bits cpu_to_virtio##bits(struct virtio_device *vdev, u##bits val) \
- { \
--	return __cpu_to_virtio##bits(false, val); \
-+	return __cpu_to_virtio##bits(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val); \
- }
+diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+index 3ce768c..f3fe33a 100644
+--- a/include/uapi/linux/virtio_config.h
++++ b/include/uapi/linux/virtio_config.h
+@@ -41,11 +41,11 @@
+ /* We've given up on this device. */
+ #define VIRTIO_CONFIG_S_FAILED		0x80
  
- static inline u16 virtio16_to_cpu(struct virtio_device *vdev, __virtio16 val)
+-/* Some virtio feature bits (currently bits 28 through 31) are reserved for the
++/* Some virtio feature bits (currently bits 28 through 32) are reserved for the
+  * transport being used (eg. virtio_ring), the rest are per-device feature
+  * bits. */
+ #define VIRTIO_TRANSPORT_F_START	28
+-#define VIRTIO_TRANSPORT_F_END		32
++#define VIRTIO_TRANSPORT_F_END		33
+ 
+ /* Do we get callbacks when the ring is completely used, even if we've
+  * suppressed them? */
+@@ -54,4 +54,7 @@
+ /* Can the device handle any descriptor layout? */
+ #define VIRTIO_F_ANY_LAYOUT		27
+ 
++/* v1.0 compliant. */
++#define VIRTIO_F_VERSION_1		32
++
+ #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
 -- 
 MST
