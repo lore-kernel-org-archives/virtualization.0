@@ -1,18 +1,13 @@
-From: Mike Galbraith <umgwanakikbuti@gmail.com>
-Subject: Re: [PATCH v12 09/11] pvqspinlock, x86: Add para-virtualization
-	support
-Date: Sat, 25 Oct 2014 06:30:24 +0200
-Message-ID: <1414211424.5196.29.camel__22592.8533626304$1414417102$gmane$org@marge.simpson.net>
-References: <1413483040-58399-1-git-send-email-Waiman.Long@hp.com>
-	<1413483040-58399-10-git-send-email-Waiman.Long@hp.com>
-	<20141024084738.GU21513@worktop.programming.kicks-ass.net>
-	<544ABC47.2000700@hp.com>
-	<20141024220423.GB10501@worktop.programming.kicks-ass.net>
+From: "john.liuli" <john.liuli@huawei.com>
+Subject: [RFC PATCH 2/2] Assign a new irq handler while irqfd enabled
+Date: Sat, 25 Oct 2014 16:24:54 +0800
+Message-ID: <1414225494-2208-3-git-send-email-john.liuli__31016.4985749454$1414417106$gmane$org@huawei.com>
+References: <1414225494-2208-1-git-send-email-john.liuli@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141024220423.GB10501@worktop.programming.kicks-ass.net>
+In-Reply-To: <1414225494-2208-1-git-send-email-john.liuli@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,22 +17,80 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Waiman Long <waiman.long@hp.com>, linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Oleg Nesterov <oleg@redhat.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Douglas Hatch <doug.hatch@hp.com>
+To: linux-kernel@vger.kernel.org
+Cc: joel.schopp@amd.com, yingshiuan.pan@gmail.com, mst@redhat.com, Li Liu <john.liuli@huawei.com>, remy.gauguey@cea.fr, qemu-devel@nongnu.org, n.nikolaev@virtualopensystems.com, virtualization@lists.linux-foundation.org, peter.huangpeng@huawei.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 2014-10-25 at 00:04 +0200, Peter Zijlstra wrote: 
-> On Fri, Oct 24, 2014 at 04:53:27PM -0400, Waiman Long wrote:
-> > The additional register pressure may just cause a few more register moves
-> > which should be negligible in the overall performance . The additional
-> > icache pressure, however, may have some impact on performance. I was trying
-> > to balance the performance of the pv and non-pv versions so that we won't
-> > penalize the pv code too much for a bit more performance in the non-pv code.
-> > Doing it your way will add a lot of function call and register
-> > saving/restoring to the pv code.
-> 
-> If people care about performance they should not be using virt crap :-)
+From: Li Liu <john.liuli@huawei.com>
 
-I tried some benching recently.. where did they hide the fastpaths? :)
+This irq handler will get the interrupt reason from a
+shared memory. And will be assigned only while irqfd
+enabled.
 
--Mike
+Signed-off-by: Li Liu <john.liuli@huawei.com>
+---
+ drivers/virtio/virtio_mmio.c |   34 ++++++++++++++++++++++++++++++++--
+ 1 file changed, 32 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 28ddb55..7229605 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -259,7 +259,31 @@ static irqreturn_t vm_interrupt(int irq, void *opaque)
+ 	return ret;
+ }
+ 
++/* Notify all virtqueues on an interrupt. */
++static irqreturn_t vm_interrupt_irqfd(int irq, void *opaque)
++{
++	struct virtio_mmio_device *vm_dev = opaque;
++	struct virtio_mmio_vq_info *info;
++	unsigned long status;
++	unsigned long flags;
++	irqreturn_t ret = IRQ_NONE;
+ 
++	/* Read the interrupt reason and reset it */
++	status = *vm_dev->isr_mem;
++	*vm_dev->isr_mem = 0x0;
++
++	if (unlikely(status & VIRTIO_MMIO_INT_CONFIG)) {
++		virtio_config_changed(&vm_dev->vdev);
++		ret = IRQ_HANDLED;
++	}
++
++	spin_lock_irqsave(&vm_dev->lock, flags);
++	list_for_each_entry(info, &vm_dev->virtqueues, node)
++		ret |= vring_interrupt(irq, info->vq);
++	spin_unlock_irqrestore(&vm_dev->lock, flags);
++
++	return ret;
++}
+ 
+ static void vm_del_vq(struct virtqueue *vq)
+ {
+@@ -391,6 +415,7 @@ error_available:
+ 	return ERR_PTR(err);
+ }
+ 
++#define VIRTIO_MMIO_F_IRQFD        (1 << 7)
+ static int vm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 		       struct virtqueue *vqs[],
+ 		       vq_callback_t *callbacks[],
+@@ -400,8 +425,13 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 	unsigned int irq = platform_get_irq(vm_dev->pdev, 0);
+ 	int i, err;
+ 
+-	err = request_irq(irq, vm_interrupt, IRQF_SHARED,
+-			dev_name(&vdev->dev), vm_dev);
++	if (*vm_dev->isr_mem & VIRTIO_MMIO_F_IRQFD) {
++		err = request_irq(irq, vm_interrupt_irqfd, IRQF_SHARED,
++				  dev_name(&vdev->dev), vm_dev);
++	} else {
++		err = request_irq(irq, vm_interrupt, IRQF_SHARED,
++				  dev_name(&vdev->dev), vm_dev);
++	}
+ 	if (err)
+ 		return err;
+ 
+-- 
+1.7.9.5
