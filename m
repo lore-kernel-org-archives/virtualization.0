@@ -1,11 +1,10 @@
-From: Ioan Raicu <iraicu@cs.iit.edu>
-Subject: CFP: IEEE Cluster 2015 -- Chicago IL September 8-11 2015
-Date: Fri, 24 Oct 2014 18:55:56 -0500
-Message-ID: <544AE70C.5020908@cs.iit.edu>
-Reply-To: iraicu@cs.iit.edu
+From: "ML" <marialemos72@gmail.com>
+Subject: Call for Papers - WorldCIST'15 - Azores, 1 - 3 April 2015
+Date: Sat, 25 Oct 2014 21:26:17 +0100
+Message-ID: <20141025202624.376488B4@mail.linuxfoundation.org>
+Reply-To: worldcist@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/mixed; boundary="===============6232317716852301504=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,171 +15,209 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: publicity@hipeac.net, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-IEEE International Conference on Cluster Computing
-September 8-11, 2015
-Chicago, IL, USA
-https://press3.mcs.anl.gov/ieeecluster2015/
+--===============6232317716852301504==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-----------------------------------------------
-...Follow us on Facebook athttps://www.facebook.com/ieee.cluster
-...Follow us on Twitter athttps://twitter.com/IEEECluster
-...Follow us on Linkedin at
-https://www.linkedin.com/groups/IEEE-International-Conference-on-Cluster-74=
-28925
-...Follow us on RenRen athttp://page.renren.com/601871401
+------
+WorldCIST'15 - 3rd World Conference on Information Systems and Technol=
+ogies=20
+Ponta Delgada, Azores *, Portugal
+1 - 3 April 2015
+http://www.aisti.eu/worldcist15/
+------
+* Azores is ranked as the second most beautiful archipelago in the wor=
+ld by National Geographic.
+------------
 
-----------------------------------------------
-CALL FOR PAPERS
 
-Following the successes of the series of Cluster conferences, for 2015
-we solicit high-quality original papers presenting work that advances
-the state-of-the-art in clusters and closely related fields. All
-papers will be rigorously peer-reviewed for their originality,
-technical depth and correctness, potential impact, relevance to the
-conference, and quality of presentation. Research papers must clearly
-demonstrate research contributions and novelty, while papers reporting
-experience must clearly describe lessons learned and impact, along
-with the utility of the approach compared to the ones in the past.
+SCOPE
 
-PAPER TRACKS
-  *  Applications, Algorithms, and Libraries
-  *  Architecture, Networks/Communication, and Management
-  *  Programming and Systems Software
-  *  Data, Storage, and Visualization
+The WorldCIST'15 - 3rd World Conference on Information Systems and Tec=
+hnologies, to be held at Ponta Delgada, S=E3o Miguel, Azores, Portugal=
+, 1 - 3 April 2015, is a global forum for researchers and practitioner=
+s to present and discuss the most recent innovations, trends, results,=
+ experiences and concerns in the several perspectives of Information S=
+ystems and Technologies.
 
-PROCEEDINGS:
-Proceedings of the conference and workshops will be available online
-when the conference starts and will be submitted to IEEE Xplore and
-for EI indexing.
+Azores is ranked as the second most beautiful archipelago in the world=
+ by National Geographic. Consisting of nine distinct islands, each of =
+them special, is in fact a place in the world to be visited.
 
-SPECIAL JOURNAL ISSUE:
-The best papers of Cluster 2015 will be included in a Special Issue on
-advances in topics related to cluster computing of the Elsevier
-International Journal of Parallel Computing (PARCO), edited by Pavan
-Balaji, Satoshi Matsuoka, and Michela Taufer. This special issue is
-dedicated for the papers accepted in the Cluster 2015 conference. The
-submission to this special issue is by invitation only.
+We are pleased to invite you to submit your papers to WorldCISTI'15. A=
+ll submissions will be reviewed on the basis of relevance, originality=
+, importance and clarity.
+
+
+THEMES
+
+Submitted papers should be related with one or more of the main themes=
+ proposed for the Conference:
+
+A) Information and Knowledge Management (IKM);
+B) Organizational Models and Information Systems (OMIS);
+C) Intelligent and Decision Support Systems (IDSS);
+D) Big Data Analytics and Applications (BDAA);
+E) Software Systems, Architectures, Applications and Tools (SSAAT);
+F) Multimedia Systems and Applications (MSA);
+G) Computer Networks, Mobility and Pervasive Systems (CNMPS);
+H) Human-Computer Interaction (HCI);
+I) Health Informatics (HIS);
+J) Information Technologies in Education (ITE).
+K) Information Technologies in Radiocommunications (ITR)
+
+
+TYPES OF SUBMISSIONS AND DECISIONS
+
+Four types of papers can be submitted:
+
+- Full paper: Finished or consolidated R&D works, to be included in on=
+e of the Conference themes. These papers are assigned a 10-page limit.
+
+- Short paper: Ongoing works with relevant preliminary results, open t=
+o discussion. These papers are assigned a 7-page limit.
+
+- Poster paper: Initial work with relevant ideas, open to discussion. =
+These papers are assigned to a 4-page limit.
+
+- Company paper: Companies' papers that show practical experience, R &=
+ D, tools, etc., focused on some topics of the conference. These paper=
+s are assigned to a 4-page limit.
+
+Submitted papers must comply with the format of Advances in Intelligen=
+t Systems and Computing Series (see Instructions for Authors at Spring=
+er Website or download a DOC example) be written in English, must not =
+have been published before, not be under review for any other conferen=
+ce or publication and not include any information leading to the autho=
+rs=92 identification. Therefore, the authors=92 names, affiliations an=
+d bibliographic references should not be included in the version for e=
+valuation by the Program Committee. This information should only be in=
+cluded in the camera-ready version, saved in Word or Latex format and =
+also in PDF format. These files must be accompanied by the Consent to =
+Publication form filled out, in a ZIP file, and uploaded at the confer=
+ence management system.
+
+All papers will be subjected to a =93double-blind review=94 by at leas=
+t two members of the Program Committee.
+
+Based on Program Committee evaluation, a paper can be rejected or acce=
+pted by the Conference Chairs. In the later case, it can be accepted a=
+s the type originally submitted or as another type. Thus, full papers =
+can be accepted as short papers or poster papers only. Similarly, shor=
+t papers can be accepted as poster papers only. In these cases, the au=
+thors will be allowed to maintain the original number of pages in the =
+camera-ready version.
+
+The authors of accepted poster papers must also build and print a post=
+er to be exhibited during the Conference. This poster must follow an A=
+1 or A2 vertical format. The Conference can includes Work Sessions whe=
+re these posters are presented and orally discussed, with a 5 minute l=
+imit per poster.
+
+The authors of accepted full papers will have 15 minutes to present th=
+eir work in a Conference Work Session; approximately 5 minutes of disc=
+ussion will follow each presentation. The authors of accepted short pa=
+pers and company papers will have 11 minutes to present their work in =
+a Conference Work Session; approximately 4 minutes of discussion will =
+follow each presentation.
+
+
+PUBLICATION & INDEXING
+
+To ensure that a full paper, short paper, poster paper or company pape=
+r is published in the Proceedings, at least one of the authors must be=
+ fully registered by the 6th of January 2015, and the paper must compl=
+y with the suggested layout and page-limit. Additionally, all recommen=
+ded changes must be addressed by the authors before they submit the ca=
+mera-ready version.
+
+No more than one paper per registration will be published in the Confe=
+rence Proceedings. An extra fee must be paid for publication of additi=
+onal papers, with a maximum of one additional paper per registration.
+
+Full and short papers will be published in Proceedings by Springer, in=
+ Advances in Intelligent Systems and Computing Series. Poster and comp=
+any papers will be published by AISTI.
+
+Published full and short papers will be submitted for indexation by IS=
+I, EI-Compendex, SCOPUS and DBLP, among others, and will be available =
+in the SpringerLink Digital Library.
+
+The authors of the best selected papers will be invited to extend them=
+ for publication in international journals indexed by ISI/SCI, SCOPUS =
+and DBLP, among others, such as:
+
+- Engineering Applications of Artificial Intelligence (IF: 1.962)
+
+- IEEE Intelligent Systems (IF: 1.92)
+
+- Online Information Review (IF: 1.443)
+
+- Journal of Medical Systems (IF: 1.372)
+
+- Electronic Commerce Research and Applications (IF: 1.304)
+
+- Business & Information Systems Engineering (IF: 1.095)
+
+- Multimedia Tools and Applications (IF: 1.058)
+
+- Cluster Computing (IF: 0.949)
+
+- IEEE Security & Privacy (IF: 0.721)
+
+- Computer Science and Information Systems (IF: 0.575)
+
+- Ethics and Information Technology (IF: 0.520)
+
+- Journal of Global Information Management (IF: 0,483)
+
+- Journal of Web Engineering (IF: 0.444)
+
+- Journal of Internet Technology (IF: 0.418)
+
+- Universal Access in the Information Society (IF: 0,397)
+
+- Computer Methods in Biomechanics and Biomedical Engineering: Imaging=
+ & Visualization
+
+- EAI Transactions on e-Learning
+
+- International Journal of Interactive Multimedia and Artificial Intel=
+ligence
+
+- Journal of Big Data
+
 
 IMPORTANT DATES
-September 27, 2014 .... Submissions open for Workshops
-January 1, 2015 ........... Submissions open for Papers, Posters, and Tutor=
-ials
-February 27, 2015 ....... Papers Submission Deadline
-April 23, 2015 ............... Papers Acceptance Notification
-May 1, 2015 ................. Posters Submission Deadline
-May 1, 2015 ................. Submissions open for Student Mentoring Program
-June 1, 2015 ................ Student Mentoring Program Notification (Round=
- 1)
-June 15, 2015 .............. Posters Acceptance Notification
-June 15, 2015 .............. Student Mentoring Program Notification (Round =
-2)
-June 29, 2015 .............. Student Mentoring Program Notification (Round =
-3)
-July 13, 2015 ............... Student Mentoring Program Notification (Round=
- 4)
-July 13, 2015 ............... Student Mentoring Program NSF Grant Notificat=
-ion
-August 1, 2015 ............ Camera-ready Copy Deadline for Papers,
-Posters, and Workshops
 
-Workshop/Tutorial proposals are selected and notifications are sent on
-a first-come basis.
+Paper Submission: November 23, 2014
 
-SUBMISSION GUIDELINES
-Authors are invited to submit papers electronically in PDF format.
-Submitted manuscripts should be structured as technical papers and may
-not exceed 10 letter-size (8.5 x 11) pages including figures, tables
-and references using the IEEE format for conference proceedings.
-Submissions not conforming to these guidelines may be returned without
-review. Authors should make sure that their file will print on a
-printer that uses letter-size (8.5 x 11) paper. The official language
-of the conference is English. All manuscripts will be reviewed and
-will be judged on correctness, originality, technical strength,
-significance, quality of presentation, and interest and relevance to
-the conference attendees.
+Notification of Acceptance: December 28, 2014
 
-Paper submissions are limited to 10 pages in 2-column IEEE format
-including all figures and references. Submitted manuscripts exceeding
-this limit will be returned without review. For the final camera-ready
-version, authors with accepted papers may purchase additional pages at
-the following rates: 200 USD for each of two additional pages. See
-formatting templates for details:
-  *  LaTex Package
-http://datasys.cs.iit.edu/events/CCGrid2014/IEEECS_confs_LaTeX.zip
-  *  Word Template
-http://datasys.cs.iit.edu/events/CCGrid2014/instruct8.5x11x2.doc
+Camera-ready Submission: January 11, 2015
 
-Submitted papers must represent original unpublished research that is
-not currently under review for any other conference or journal. Papers
-not following these guidelines will be rejected without review and
-further action may be taken, including (but not limited to)
-notifications sent to the heads of the institutions of the authors and
-sponsors of the conference. Submissions received after the due date,
-exceeding the page limit, or not appropriately structured may not be
-considered. Authors may contact the conference chairs for more
-information. The proceedings will be published through the IEEE
-Computer Society Conference Publishing Services.
+Payment of Registration, to ensure the inclusion of an accepted paper =
+in the conference proceedings: January 9, 2015.
 
-ORGANIZATION::
--    General Co-chairs: Pavan Balaji (Argonne National Laboratory,
-USA), Michela Taufer (University of Delaware, USA)
--    Program Chair:  Satoshi Matsuoka (Tokyo Institute of Technology, USA)
--    Posters Chair:  Seetharami Seelam (IBM, USA)
--    Proceedings Chair:  Antonino Tumeo (Pacific Northwest National
-Laboratory, USA)
--    Workshops and Tutorials Chair:  Bronis de Supinski (Lawrence
-Livermore National Laboratory, USA)
--    Panels Chair:  Alice Koniges (Lawrence Berkeley National Laboratory, U=
-SA)
--    Mentoring Program Chair:  Luc Boug=E9 (=C9cole Normale Sup=E9rieure de
-Rennes, France)
--    Track Chairs:
-       * Applications, Algorithms, and Libraries - Richard Vuduc
-(Georgia Tech, USA)
-       * Architecture, Networks/Communication, and Management - Todd
-Gamblin (Lawrence Livermore National Laboratory, USA)
-       * Programming and System Software - Naoya Maruyama (Riken AICS, Japa=
-n)
-       * Data, Storage, and Visualization  - Gabriel Antoniu (INRIA, France)
 
-MORE INFORMATION:
-For more information, contact Pavan Balaji (balaji@anl.gov) or Michela
-Taufer (taufer@udel.edu).
+Best regards,
 
--- =
+WorldCIST'15 Organizing Committee
+http://www.aisti.eu/worldcist15/
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-Ioan Raicu, Ph.D.
-Assistant Professor, Illinois Institute of Technology (IIT)
-Guest Research Faculty, Argonne National Laboratory (ANL)
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-Data-Intensive Distributed Systems Laboratory, CS/IIT
-Distributed Systems Laboratory, MCS/ANL
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-Editor: IEEE TCC, Springer Cluster, Springer JoCCASA
-Chair:  IEEE/ACM MTAGS, ACM ScienceCloud
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-Cel:      1-847-722-0876
-Office:   1-312-567-5704
-Email:    iraicu@cs.iit.edu
-Web:      http://www.cs.iit.edu/~iraicu/
-Web:      http://datasys.cs.iit.edu/
-LinkedIn: http://www.linkedin.com/in/ioanraicu
-Google:   http://scholar.google.com/citations?user=3DjE73HYAAAAAJ
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+
+--===============6232317716852301504==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6232317716852301504==--
