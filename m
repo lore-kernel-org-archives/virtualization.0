@@ -1,15 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH 2/2] Assign a new irq handler while irqfd enabled
-Date: Sun, 26 Oct 2014 13:56:46 +0200
-Message-ID: <20141026115646.GB5497@redhat.com>
+Subject: Re: [RFC PATCH 1/2] Add a new register offset let interrupt reason
+	available
+Date: Sun, 26 Oct 2014 14:01:03 +0200
+Message-ID: <20141026120103.GC5497@redhat.com>
 References: <1414225494-2208-1-git-send-email-john.liuli@huawei.com>
-	<1414225494-2208-3-git-send-email-john.liuli@huawei.com>
+	<1414225494-2208-2-git-send-email-john.liuli@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1414225494-2208-3-git-send-email-john.liuli@huawei.com>
+In-Reply-To: <1414225494-2208-2-git-send-email-john.liuli@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,93 +24,99 @@ To: "john.liuli" <john.liuli@huawei.com>
 Cc: joel.schopp@amd.com, yingshiuan.pan@gmail.com, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, remy.gauguey@cea.fr, peter.huangpeng@huawei.com, n.nikolaev@virtualopensystems.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Oct 25, 2014 at 04:24:54PM +0800, john.liuli wrote:
+On Sat, Oct 25, 2014 at 04:24:53PM +0800, john.liuli wrote:
 > From: Li Liu <john.liuli@huawei.com>
 > 
-> This irq handler will get the interrupt reason from a
-> shared memory. And will be assigned only while irqfd
-> enabled.
+> Add a new register offset VIRTIO_MMIO_ISRMEM which help to
+> estblish a shared memory region between virtio-mmio driver
+> and qemu with two purposes:
+> 
+> 1.Guest virtio-mmio driver can get the interrupt reason.
+> 2.Check irqfd enabled or not to register different irq handler.
 > 
 > Signed-off-by: Li Liu <john.liuli@huawei.com>
 > ---
->  drivers/virtio/virtio_mmio.c |   34 ++++++++++++++++++++++++++++++++--
->  1 file changed, 32 insertions(+), 2 deletions(-)
+>  drivers/virtio/virtio_mmio.c |   21 ++++++++++++++++++++-
+>  include/linux/virtio_mmio.h  |    3 +++
+>  2 files changed, 23 insertions(+), 1 deletion(-)
 > 
 > diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index 28ddb55..7229605 100644
+> index ef9a165..28ddb55 100644
 > --- a/drivers/virtio/virtio_mmio.c
 > +++ b/drivers/virtio/virtio_mmio.c
-> @@ -259,7 +259,31 @@ static irqreturn_t vm_interrupt(int irq, void *opaque)
->  	return ret;
->  }
->  
-> +/* Notify all virtqueues on an interrupt. */
-> +static irqreturn_t vm_interrupt_irqfd(int irq, void *opaque)
-> +{
-> +	struct virtio_mmio_device *vm_dev = opaque;
-> +	struct virtio_mmio_vq_info *info;
-> +	unsigned long status;
-> +	unsigned long flags;
-> +	irqreturn_t ret = IRQ_NONE;
->  
-> +	/* Read the interrupt reason and reset it */
-> +	status = *vm_dev->isr_mem;
-> +	*vm_dev->isr_mem = 0x0;
-
-you are reading and modifying shared memory
-without atomics and any memory barriers.
-Why is this safe?
-
+> @@ -122,6 +122,8 @@ struct virtio_mmio_device {
+>  	/* a list of queues so we can dispatch IRQs */
+>  	spinlock_t lock;
+>  	struct list_head virtqueues;
 > +
-> +	if (unlikely(status & VIRTIO_MMIO_INT_CONFIG)) {
-> +		virtio_config_changed(&vm_dev->vdev);
-> +		ret = IRQ_HANDLED;
+> +	uint8_t *isr_mem;
+>  };
+>  
+>  struct virtio_mmio_vq_info {
+> @@ -443,6 +445,7 @@ static int virtio_mmio_probe(struct platform_device *pdev)
+>  	struct virtio_mmio_device *vm_dev;
+>  	struct resource *mem;
+>  	unsigned long magic;
+> +	int err;
+>  
+>  	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>  	if (!mem)
+> @@ -481,6 +484,15 @@ static int virtio_mmio_probe(struct platform_device *pdev)
+>  		return -ENXIO;
+>  	}
+>  
+> +	vm_dev->isr_mem = alloc_pages_exact(PAGE_SIZE, GFP_KERNEL|__GFP_ZERO);
+> +	if (vm_dev->isr_mem == NULL) {
+> +		dev_err(&pdev->dev, "Allocate isr memory failed!\n");
+> +		return -ENOMEM;
 > +	}
 > +
-> +	spin_lock_irqsave(&vm_dev->lock, flags);
-> +	list_for_each_entry(info, &vm_dev->virtqueues, node)
-> +		ret |= vring_interrupt(irq, info->vq);
-> +	spin_unlock_irqrestore(&vm_dev->lock, flags);
+> +	writel(virt_to_phys(vm_dev->isr_mem),
+> +	       vm_dev->base + VIRTIO_MMIO_ISRMEM);
 > +
-> +	return ret;
-> +}
+
+What happens to existing devices?
+then might not expect writes at this address.
+
+>  	vm_dev->vdev.id.device = readl(vm_dev->base + VIRTIO_MMIO_DEVICE_ID);
+>  	vm_dev->vdev.id.vendor = readl(vm_dev->base + VIRTIO_MMIO_VENDOR_ID);
 >  
->  static void vm_del_vq(struct virtqueue *vq)
+> @@ -488,13 +500,20 @@ static int virtio_mmio_probe(struct platform_device *pdev)
+>  
+>  	platform_set_drvdata(pdev, vm_dev);
+>  
+> -	return register_virtio_device(&vm_dev->vdev);
+> +	err = register_virtio_device(&vm_dev->vdev);
+> +	if (err) {
+> +		free_pages_exact(vm_dev->isr_mem, PAGE_SIZE);
+> +		vm_dev->isr_mem = NULL;
+> +	}
+> +
+> +	return err;
+>  }
+>  
+>  static int virtio_mmio_remove(struct platform_device *pdev)
 >  {
-
-So you invoke callbacks for all VQs.
-This won't scale well as the number of VQs grows, will it?
-
-> @@ -391,6 +415,7 @@ error_available:
->  	return ERR_PTR(err);
->  }
+>  	struct virtio_mmio_device *vm_dev = platform_get_drvdata(pdev);
 >  
-> +#define VIRTIO_MMIO_F_IRQFD        (1 << 7)
->  static int vm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  		       struct virtqueue *vqs[],
->  		       vq_callback_t *callbacks[],
-> @@ -400,8 +425,13 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  	unsigned int irq = platform_get_irq(vm_dev->pdev, 0);
->  	int i, err;
+> +	free_pages_exact(vm_dev->isr_mem, PAGE_SIZE);
+>  	unregister_virtio_device(&vm_dev->vdev);
 >  
-> -	err = request_irq(irq, vm_interrupt, IRQF_SHARED,
-> -			dev_name(&vdev->dev), vm_dev);
-> +	if (*vm_dev->isr_mem & VIRTIO_MMIO_F_IRQFD) {
-> +		err = request_irq(irq, vm_interrupt_irqfd, IRQF_SHARED,
-> +				  dev_name(&vdev->dev), vm_dev);
-> +	} else {
-> +		err = request_irq(irq, vm_interrupt, IRQF_SHARED,
-> +				  dev_name(&vdev->dev), vm_dev);
-> +	}
->  	if (err)
->  		return err;
-
-
-So still a single interrupt for all VQs.
-Again this doesn't scale: a single CPU has to handle
-interrupts for all of them.
-I think you need to find a way to get per-VQ interrupts.
-
+>  	return 0;
+> diff --git a/include/linux/virtio_mmio.h b/include/linux/virtio_mmio.h
+> index 5c7b6f0..b1e3ec7 100644
+> --- a/include/linux/virtio_mmio.h
+> +++ b/include/linux/virtio_mmio.h
+> @@ -95,6 +95,9 @@
+>  /* Device status register - Read Write */
+>  #define VIRTIO_MMIO_STATUS		0x070
+>  
+> +/* Allocate ISRMEM for interrupt reason - Write Only */
+> +#define VIRTIO_MMIO_ISRMEM		0x080
+> +
+>  /* The config space is defined by each driver as
+>   * the per-driver configuration space - Read Write */
+>  #define VIRTIO_MMIO_CONFIG		0x100
 > -- 
 > 1.7.9.5
 > 
