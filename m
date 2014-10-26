@@ -1,11 +1,15 @@
-From: "ML" <marialemos72@gmail.com>
-Subject: Call for Papers - WorldCIST'15 - Azores, 1 - 3 April 2015
-Date: Sat, 25 Oct 2014 21:26:17 +0100
-Message-ID: <20141025202624.376488B4@mail.linuxfoundation.org>
-Reply-To: worldcist@gmail.com
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC PATCH 0/2] virtio-mmio: add irqfd support for vhost-net
+	based on virtio-mmio
+Date: Sun, 26 Oct 2014 13:52:10 +0200
+Message-ID: <20141026115210.GA5497@redhat.com>
+References: <1414225494-2208-1-git-send-email-john.liuli@huawei.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6232317716852301504=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1414225494-2208-1-git-send-email-john.liuli@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,209 +19,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: "john.liuli" <john.liuli@huawei.com>
+Cc: joel.schopp@amd.com, yingshiuan.pan@gmail.com, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, remy.gauguey@cea.fr, peter.huangpeng@huawei.com, n.nikolaev@virtualopensystems.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============6232317716852301504==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Sat, Oct 25, 2014 at 04:24:52PM +0800, john.liuli wrote:
+> From: Li Liu <john.liuli@huawei.com>
+> 
+> This set of patches try to implemet irqfd support of vhost-net 
+> based on virtio-mmio.
+> 
+> I had posted a mail to talking about the status of vhost-net 
+> on kvm-arm refer to http://www.spinics.net/lists/kvm-arm/msg10804.html.
+> Some dependent patches are listed in the mail too. Basically the 
+> vhost-net brings great performance improvements, almost 50%+.
+> 
+> It's easy to implement irqfd support with PCI MSI-X. But till 
+> now arm32 do not provide equivalent mechanism to let a device 
+> allocate multiple interrupts. And even the aarch64 provid LPI
+> but also not available in a short time.
+> 
+> As Gauguey Remy said "Vhost does not emulate a complete virtio 
+> adapter but only manage virtqueue operations". Vhost module
+> don't update the ISR register, so if with only one irq then it's 
+> no way to get the interrupt reason even we can inject the 
+> irq correctly.  
 
-------
-WorldCIST'15 - 3rd World Conference on Information Systems and Technol=
-ogies=20
-Ponta Delgada, Azores *, Portugal
-1 - 3 April 2015
-http://www.aisti.eu/worldcist15/
-------
-* Azores is ranked as the second most beautiful archipelago in the wor=
-ld by National Geographic.
-------------
+Well guests don't read ISR in MSI-X mode so why does it help
+to set the ISR bit?
 
-
-SCOPE
-
-The WorldCIST'15 - 3rd World Conference on Information Systems and Tec=
-hnologies, to be held at Ponta Delgada, S=E3o Miguel, Azores, Portugal=
-, 1 - 3 April 2015, is a global forum for researchers and practitioner=
-s to present and discuss the most recent innovations, trends, results,=
- experiences and concerns in the several perspectives of Information S=
-ystems and Technologies.
-
-Azores is ranked as the second most beautiful archipelago in the world=
- by National Geographic. Consisting of nine distinct islands, each of =
-them special, is in fact a place in the world to be visited.
-
-We are pleased to invite you to submit your papers to WorldCISTI'15. A=
-ll submissions will be reviewed on the basis of relevance, originality=
-, importance and clarity.
-
-
-THEMES
-
-Submitted papers should be related with one or more of the main themes=
- proposed for the Conference:
-
-A) Information and Knowledge Management (IKM);
-B) Organizational Models and Information Systems (OMIS);
-C) Intelligent and Decision Support Systems (IDSS);
-D) Big Data Analytics and Applications (BDAA);
-E) Software Systems, Architectures, Applications and Tools (SSAAT);
-F) Multimedia Systems and Applications (MSA);
-G) Computer Networks, Mobility and Pervasive Systems (CNMPS);
-H) Human-Computer Interaction (HCI);
-I) Health Informatics (HIS);
-J) Information Technologies in Education (ITE).
-K) Information Technologies in Radiocommunications (ITR)
-
-
-TYPES OF SUBMISSIONS AND DECISIONS
-
-Four types of papers can be submitted:
-
-- Full paper: Finished or consolidated R&D works, to be included in on=
-e of the Conference themes. These papers are assigned a 10-page limit.
-
-- Short paper: Ongoing works with relevant preliminary results, open t=
-o discussion. These papers are assigned a 7-page limit.
-
-- Poster paper: Initial work with relevant ideas, open to discussion. =
-These papers are assigned to a 4-page limit.
-
-- Company paper: Companies' papers that show practical experience, R &=
- D, tools, etc., focused on some topics of the conference. These paper=
-s are assigned to a 4-page limit.
-
-Submitted papers must comply with the format of Advances in Intelligen=
-t Systems and Computing Series (see Instructions for Authors at Spring=
-er Website or download a DOC example) be written in English, must not =
-have been published before, not be under review for any other conferen=
-ce or publication and not include any information leading to the autho=
-rs=92 identification. Therefore, the authors=92 names, affiliations an=
-d bibliographic references should not be included in the version for e=
-valuation by the Program Committee. This information should only be in=
-cluded in the camera-ready version, saved in Word or Latex format and =
-also in PDF format. These files must be accompanied by the Consent to =
-Publication form filled out, in a ZIP file, and uploaded at the confer=
-ence management system.
-
-All papers will be subjected to a =93double-blind review=94 by at leas=
-t two members of the Program Committee.
-
-Based on Program Committee evaluation, a paper can be rejected or acce=
-pted by the Conference Chairs. In the later case, it can be accepted a=
-s the type originally submitted or as another type. Thus, full papers =
-can be accepted as short papers or poster papers only. Similarly, shor=
-t papers can be accepted as poster papers only. In these cases, the au=
-thors will be allowed to maintain the original number of pages in the =
-camera-ready version.
-
-The authors of accepted poster papers must also build and print a post=
-er to be exhibited during the Conference. This poster must follow an A=
-1 or A2 vertical format. The Conference can includes Work Sessions whe=
-re these posters are presented and orally discussed, with a 5 minute l=
-imit per poster.
-
-The authors of accepted full papers will have 15 minutes to present th=
-eir work in a Conference Work Session; approximately 5 minutes of disc=
-ussion will follow each presentation. The authors of accepted short pa=
-pers and company papers will have 11 minutes to present their work in =
-a Conference Work Session; approximately 4 minutes of discussion will =
-follow each presentation.
-
-
-PUBLICATION & INDEXING
-
-To ensure that a full paper, short paper, poster paper or company pape=
-r is published in the Proceedings, at least one of the authors must be=
- fully registered by the 6th of January 2015, and the paper must compl=
-y with the suggested layout and page-limit. Additionally, all recommen=
-ded changes must be addressed by the authors before they submit the ca=
-mera-ready version.
-
-No more than one paper per registration will be published in the Confe=
-rence Proceedings. An extra fee must be paid for publication of additi=
-onal papers, with a maximum of one additional paper per registration.
-
-Full and short papers will be published in Proceedings by Springer, in=
- Advances in Intelligent Systems and Computing Series. Poster and comp=
-any papers will be published by AISTI.
-
-Published full and short papers will be submitted for indexation by IS=
-I, EI-Compendex, SCOPUS and DBLP, among others, and will be available =
-in the SpringerLink Digital Library.
-
-The authors of the best selected papers will be invited to extend them=
- for publication in international journals indexed by ISI/SCI, SCOPUS =
-and DBLP, among others, such as:
-
-- Engineering Applications of Artificial Intelligence (IF: 1.962)
-
-- IEEE Intelligent Systems (IF: 1.92)
-
-- Online Information Review (IF: 1.443)
-
-- Journal of Medical Systems (IF: 1.372)
-
-- Electronic Commerce Research and Applications (IF: 1.304)
-
-- Business & Information Systems Engineering (IF: 1.095)
-
-- Multimedia Tools and Applications (IF: 1.058)
-
-- Cluster Computing (IF: 0.949)
-
-- IEEE Security & Privacy (IF: 0.721)
-
-- Computer Science and Information Systems (IF: 0.575)
-
-- Ethics and Information Technology (IF: 0.520)
-
-- Journal of Global Information Management (IF: 0,483)
-
-- Journal of Web Engineering (IF: 0.444)
-
-- Journal of Internet Technology (IF: 0.418)
-
-- Universal Access in the Information Society (IF: 0,397)
-
-- Computer Methods in Biomechanics and Biomedical Engineering: Imaging=
- & Visualization
-
-- EAI Transactions on e-Learning
-
-- International Journal of Interactive Multimedia and Artificial Intel=
-ligence
-
-- Journal of Big Data
-
-
-IMPORTANT DATES
-
-Paper Submission: November 23, 2014
-
-Notification of Acceptance: December 28, 2014
-
-Camera-ready Submission: January 11, 2015
-
-Payment of Registration, to ensure the inclusion of an accepted paper =
-in the conference proceedings: January 9, 2015.
-
-
-Best regards,
-
-WorldCIST'15 Organizing Committee
-http://www.aisti.eu/worldcist15/
-
-
-
---===============6232317716852301504==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6232317716852301504==--
+> To get the interrupt reason to support such VIRTIO_NET_F_STATUS 
+> features I add a new register offset VIRTIO_MMIO_ISRMEM which 
+> will help to establish a shared memory region between qemu and 
+> virtio-mmio device. Then the interrupt reason can be accessed by
+> guest driver through this region. At the same time, the virtio-mmio 
+> dirver check this region to see irqfd is supported or not during 
+> the irq handler registration, and different handler will be assigned.
+> 
+> I want to know it's the right direction? Does it comply with the 
+> virtio-mmio spec.? Or anyone have more good ideas to emulate mis-x 
+> based on virtio-mmio? I hope to get feedback and guidance.
+> Thx for any help.
+> 
+> Li Liu (2):
+>   Add a new register offset let interrupt reason available
+>   Assign a new irq handler while irqfd enabled
+> 
+>  drivers/virtio/virtio_mmio.c |   55 +++++++++++++++++++++++++++++++++++++++---
+>  include/linux/virtio_mmio.h  |    3 +++
+>  2 files changed, 55 insertions(+), 3 deletions(-)
+> 
+> -- 
+> 1.7.9.5
+> 
