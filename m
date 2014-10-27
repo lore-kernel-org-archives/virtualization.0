@@ -1,16 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH 1/2] Add a new register offset let interrupt reason
-	available
-Date: Sun, 26 Oct 2014 14:01:03 +0200
-Message-ID: <20141026120103.GC5497@redhat.com>
-References: <1414225494-2208-1-git-send-email-john.liuli@huawei.com>
-	<1414225494-2208-2-git-send-email-john.liuli@huawei.com>
+From: Ben Hutchings <ben@decadent.org.uk>
+Subject: Re: IPv6 UFO for VMs
+Date: Mon, 27 Oct 2014 03:21:50 +0000
+Message-ID: <1414380110.16849.16.camel__15662.1349663057$1414380144$gmane$org@decadent.org.uk>
+References: <1413935045.5994.2.camel@decadent.org.uk>
+	<1413970541.2337.16.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============3194208048383997525=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1414225494-2208-2-git-send-email-john.liuli@huawei.com>
+In-Reply-To: <1413970541.2337.16.camel@localhost>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,103 +17,109 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "john.liuli" <john.liuli@huawei.com>
-Cc: joel.schopp@amd.com, yingshiuan.pan@gmail.com, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, remy.gauguey@cea.fr, peter.huangpeng@huawei.com, n.nikolaev@virtualopensystems.com, virtualization@lists.linux-foundation.org
+To: Hannes Frederic Sowa <hannes@stressinduktion.org>
+Cc: netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Oct 25, 2014 at 04:24:53PM +0800, john.liuli wrote:
-> From: Li Liu <john.liuli@huawei.com>
-> 
-> Add a new register offset VIRTIO_MMIO_ISRMEM which help to
-> estblish a shared memory region between virtio-mmio driver
-> and qemu with two purposes:
-> 
-> 1.Guest virtio-mmio driver can get the interrupt reason.
-> 2.Check irqfd enabled or not to register different irq handler.
-> 
-> Signed-off-by: Li Liu <john.liuli@huawei.com>
-> ---
->  drivers/virtio/virtio_mmio.c |   21 ++++++++++++++++++++-
->  include/linux/virtio_mmio.h  |    3 +++
->  2 files changed, 23 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index ef9a165..28ddb55 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -122,6 +122,8 @@ struct virtio_mmio_device {
->  	/* a list of queues so we can dispatch IRQs */
->  	spinlock_t lock;
->  	struct list_head virtqueues;
-> +
-> +	uint8_t *isr_mem;
->  };
->  
->  struct virtio_mmio_vq_info {
-> @@ -443,6 +445,7 @@ static int virtio_mmio_probe(struct platform_device *pdev)
->  	struct virtio_mmio_device *vm_dev;
->  	struct resource *mem;
->  	unsigned long magic;
-> +	int err;
->  
->  	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->  	if (!mem)
-> @@ -481,6 +484,15 @@ static int virtio_mmio_probe(struct platform_device *pdev)
->  		return -ENXIO;
->  	}
->  
-> +	vm_dev->isr_mem = alloc_pages_exact(PAGE_SIZE, GFP_KERNEL|__GFP_ZERO);
-> +	if (vm_dev->isr_mem == NULL) {
-> +		dev_err(&pdev->dev, "Allocate isr memory failed!\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	writel(virt_to_phys(vm_dev->isr_mem),
-> +	       vm_dev->base + VIRTIO_MMIO_ISRMEM);
-> +
 
-What happens to existing devices?
-then might not expect writes at this address.
+--===============3194208048383997525==
+Content-Type: multipart/signed; micalg="pgp-sha512";
+	protocol="application/pgp-signature"; boundary="=-7i80+877sVJHHQLhCjSq"
 
->  	vm_dev->vdev.id.device = readl(vm_dev->base + VIRTIO_MMIO_DEVICE_ID);
->  	vm_dev->vdev.id.vendor = readl(vm_dev->base + VIRTIO_MMIO_VENDOR_ID);
->  
-> @@ -488,13 +500,20 @@ static int virtio_mmio_probe(struct platform_device *pdev)
->  
->  	platform_set_drvdata(pdev, vm_dev);
->  
-> -	return register_virtio_device(&vm_dev->vdev);
-> +	err = register_virtio_device(&vm_dev->vdev);
-> +	if (err) {
-> +		free_pages_exact(vm_dev->isr_mem, PAGE_SIZE);
-> +		vm_dev->isr_mem = NULL;
-> +	}
-> +
-> +	return err;
->  }
->  
->  static int virtio_mmio_remove(struct platform_device *pdev)
->  {
->  	struct virtio_mmio_device *vm_dev = platform_get_drvdata(pdev);
->  
-> +	free_pages_exact(vm_dev->isr_mem, PAGE_SIZE);
->  	unregister_virtio_device(&vm_dev->vdev);
->  
->  	return 0;
-> diff --git a/include/linux/virtio_mmio.h b/include/linux/virtio_mmio.h
-> index 5c7b6f0..b1e3ec7 100644
-> --- a/include/linux/virtio_mmio.h
-> +++ b/include/linux/virtio_mmio.h
-> @@ -95,6 +95,9 @@
->  /* Device status register - Read Write */
->  #define VIRTIO_MMIO_STATUS		0x070
->  
-> +/* Allocate ISRMEM for interrupt reason - Write Only */
-> +#define VIRTIO_MMIO_ISRMEM		0x080
-> +
->  /* The config space is defined by each driver as
->   * the per-driver configuration space - Read Write */
->  #define VIRTIO_MMIO_CONFIG		0x100
-> -- 
-> 1.7.9.5
-> 
+
+--=-7i80+877sVJHHQLhCjSq
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, 2014-10-22 at 11:35 +0200, Hannes Frederic Sowa wrote:
+> On Mi, 2014-10-22 at 00:44 +0100, Ben Hutchings wrote:
+> > There are several ways that VMs can take advantage of UFO and get the
+> > host to do fragmentation for them:
+> >=20
+> > drivers/net/macvtap.c:                  gso_type =3D SKB_GSO_UDP;
+> > drivers/net/tun.c:                      skb_shinfo(skb)->gso_type =3D S=
+KB_GSO_UDP;
+> > drivers/net/virtio_net.c:                       skb_shinfo(skb)->gso_ty=
+pe =3D SKB_GSO_UDP;
+> >=20
+> > Our implementation of UFO for IPv6 does:
+> >=20
+> > 		fptr =3D (struct frag_hdr *)(skb_network_header(skb) + unfrag_ip6hlen=
+);
+> > 		fptr->nexthdr =3D nexthdr;
+> > 		fptr->reserved =3D 0;
+> > 		fptr->identification =3D skb_shinfo(skb)->ip6_frag_id;
+> >=20
+> > which assumes ip6_frag_id has been set.  That's only true if the local
+> > stack constructed the skb; otherwise it appears we get zero.
+> >=20
+> > This seems to be a regression as a result of:
+> >=20
+> > commit 916e4cf46d0204806c062c8c6c4d1f633852c5b6
+> > Author: Hannes Frederic Sowa <hannes@stressinduktion.org>
+> > Date:   Fri Feb 21 02:55:35 2014 +0100
+> >=20
+> >     ipv6: reuse ip6_frag_id from ip6_ufo_append_data
+> >=20
+> > However, that change seems reasonable - we *shouldn't* be choosing IDs
+> > for any other stack.  Any paravirt net driver that can use IPv6 UFO
+> > needs to have some way of passing a fragmentation ID to put in
+> > skb_shared_info::ip6_frag_id.
+>=20
+> Do we really gain a lot of performance by enabling UFO on those devices
+> or would it make sense to just drop support? It only helps fragmenting
+> large UDP packets, so I don't think it is worth it.
+
+It's not been important enough for anyone to bother implementing it in
+hardware/firmware aside from Neterion.
+
+I'll shortly post patches to disable it.
+
+Ben.
+
+> Otherwise I agree with Ben, we need to pass a fragmentation id from the
+> host over to the system segmenting the gso frame. Fragmentation ids must
+> be generated by the end system.
+>=20
+> Hmm...
+
+--=20
+Ben Hutchings
+Theory and practice are closer in theory than in practice.
+                                - John Levine, moderator of comp.compilers
+
+--=-7i80+877sVJHHQLhCjSq
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIVAwUAVE26Vee/yOyVhhEJAQrWBhAAkvWnz0moz9bRMKuMAZsMW72fdUHhUmME
+GRXQTobc+MVngYwZhTj+joTmUPACzG1Z0BP6o+oVc+P+uZYj0+rM5QeA62Ducpew
+Cd1mTj6SKoKNPyyYkZg0Wf+kCFuM0U3Z/d+PxPfJI4wV6ErJt5KZTynq8Cy8QWdO
+J21IKHGPJuTmjfLAuWO7I81ZJLeHZX9cU1WG7i09kCl979cZzl2fGtLkhH8+zcYp
+b/y7j8UspDDnsoHG3ME2JEjWTY3JIMMdArwaMM1avPLmDx+aL5nZbUHtimYOmIpb
+Yrk+eDavSI6yyN98XK7qs2GWBSm/Mujwf8uKwx8IHVXcTO3eGVcfEp+VOi2Ua5FY
+z9N6IoWtEylTdei3S0a2eO4xhPvWo7bOP8KpG74xtrdZ/pyvsQiPaslOHfBBj3ck
+wKe7a7qDcQtr5u9Rf99pDpF1CEiZRnQ1QShZ50IOLFmuDyEapqZAnxFftuldbhL3
+RODNYkruTUK4wfy/hao9kOhBxw8YhKHW9rDFPfsBBkjgRPlulCSngqTztEsLri13
+iNVZYi/Ho50AQKjH9j6oepURKkqSjQznA4c8lPUGWsuJQeHgexWdeGeCMypOmANG
+eEiUKlNp9U4RliRHKOinN1KOtUfBCTLy6oVx6pD5Nyb7CLTBme5rUSq6p31pcnsO
++4jKsehuXTw=
+=IqMa
+-----END PGP SIGNATURE-----
+
+--=-7i80+877sVJHHQLhCjSq--
+
+--===============3194208048383997525==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3194208048383997525==--
