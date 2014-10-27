@@ -1,8 +1,8 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+From: Peter Zijlstra <peterz@infradead.org>
 Subject: Re: [PATCH v12 09/11] pvqspinlock, x86: Add para-virtualization
 	support
-Date: Mon, 27 Oct 2014 14:02:52 -0400
-Message-ID: <20141027180252.GC12989@laptop.dumpdata.com>
+Date: Mon, 27 Oct 2014 19:04:39 +0100
+Message-ID: <20141027180439.GL3337__20356.2944698662$1414434286$gmane$org@twins.programming.kicks-ass.net>
 References: <1413483040-58399-1-git-send-email-Waiman.Long@hp.com>
 	<1413483040-58399-10-git-send-email-Waiman.Long@hp.com>
 	<20141024085437.GV21513@worktop.programming.kicks-ass.net>
@@ -23,7 +23,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Waiman Long <waiman.long@hp.com>
-Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, kvm@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Douglas Hatch <doug.hatch@hp.com>
+Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Oleg Nesterov <oleg@redhat.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Douglas Hatch <doug.hatch@hp.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 On Mon, Oct 27, 2014 at 01:38:20PM -0400, Waiman Long wrote:
@@ -83,16 +83,9 @@ On Mon, Oct 27, 2014 at 01:38:20PM -0400, Waiman Long wrote:
 > patch all of them in reasonable time? How about a kernel module loaded later
 > at run time?
 
-It has too. When the modules are loaded the .paravirt symbols are exposed
-and the module loader patches that.
+modules should be fine, see arch/x86/kernel/module.c:module_finalize()
+-> apply_paravirt().
 
-And during bootup time (before modules are loaded) it also patches everything
-- when it only runs on one CPU.
-> 
-> So I think we may still need to disable unlock function inlining even if we
-> used your way kernel site patching.
-
-No need. Inline should (And is) working just fine.
-> 
-> Regards,
-> Longman
+Also note that the 'default' text is an indirect call into the paravirt
+ops table which routes to the 'right' function, so even if the text
+patching would be 'late' calls would 'work' as expected, just slower.
