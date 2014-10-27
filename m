@@ -1,14 +1,14 @@
-From: Varka Bhadram <varkabhadram@gmail.com>
-Subject: Re: [PATCH net 1/2] drivers/net: Disable UFO through virtio
-Date: Mon, 27 Oct 2014 10:15:56 +0530
-Message-ID: <544DCE04.50403@gmail.com>
-References: <1414383425.16849.18.camel@decadent.org.uk>
-	<1414383748.16849.21.camel@decadent.org.uk>
+From: Peter Maydell <peter.maydell@linaro.org>
+Subject: Re: [Qemu-devel] [RFC PATCH 0/2] virtio-mmio: add irqfd support for
+	vhost-net based on virtio-mmio
+Date: Mon, 27 Oct 2014 09:37:09 +0000
+Message-ID: <CAFEAcA9o8ZsbUvZb7Yp9JeO__bRLOrYcyfj4Ug4Se_rDF0y4TA@mail.gmail.com>
+References: <1414225494-2208-1-git-send-email-john.liuli@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1414383748.16849.21.camel@decadent.org.uk>
+In-Reply-To: <1414225494-2208-1-git-send-email-john.liuli@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,112 +18,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ben Hutchings <ben@decadent.org.uk>, netdev@vger.kernel.org
-Cc: Hannes Frederic Sowa <hannes@stressinduktion.org>, virtualization@lists.linux-foundation.org
+To: "john.liuli" <john.liuli@huawei.com>
+Cc: Joel Schopp <joel.schopp@amd.com>, Yingshiuan Pan <yingshiuan.pan@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, remy.gauguey@cea.fr, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Nikolay Nikolaev <n.nikolaev@virtualopensystems.com>, QEMU Developers <qemu-devel@nongnu.org>, peter.huangpeng@huawei.com, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/27/2014 09:52 AM, Ben Hutchings wrote:
-> IPv6 does not allow fragmentation by routers, so there is no
-> fragmentation ID in the fixed header.  UFO for IPv6 requires the ID to
-> be passed separately, but there is no provision for this in the virtio
-> net protocol.
->
-> Until recently our software implementation of UFO/IPv6 generated a new
-> ID, but this was a bug.  Now we will use ID=0 for any UFO/IPv6 packet
-> passed through a tap, which is even worse.
->
-> Unfortunately there is no distinction between UFO/IPv4 and v6
-> features, so disable UFO on taps and virtio_net completely until we
-> have a proper solution.
->
-> We cannot depend on VM managers respecting the tap feature flags, so
-> keep accepting UFO packets but log a warning the first time we do
-> this.
+On 25 October 2014 09:24, john.liuli <john.liuli@huawei.com> wrote:
+> To get the interrupt reason to support such VIRTIO_NET_F_STATUS
+> features I add a new register offset VIRTIO_MMIO_ISRMEM which
+> will help to establish a shared memory region between qemu and
+> virtio-mmio device. Then the interrupt reason can be accessed by
+> guest driver through this region. At the same time, the virtio-mmio
+> dirver check this region to see irqfd is supported or not during
+> the irq handler registration, and different handler will be assigned.
 
-(...)
+If you want to add a new register you should probably propose
+an update to the virtio spec. However, it seems to me it would
+be better to get generic PCI/PCIe working on the ARM virt
+board instead; then we can let virtio-mmio quietly fade away.
+This has been on the todo list for ages (and there have been
+RFC patches posted for plain PCI), it's just nobody's had time
+to work on it.
 
-> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> index 186ce54..e8b949a 100644
-> --- a/drivers/net/tun.c
-> +++ b/drivers/net/tun.c
-> @@ -174,7 +174,7 @@ struct tun_struct {
->   	struct net_device	*dev;
->   	netdev_features_t	set_features;
->   #define TUN_USER_FEATURES (NETIF_F_HW_CSUM|NETIF_F_TSO_ECN|NETIF_F_TSO| \
-> -			  NETIF_F_TSO6|NETIF_F_UFO)
-> +			  NETIF_F_TSO6)
->   
->   	int			vnet_hdr_sz;
->   	int			sndbuf;
-> @@ -1149,8 +1149,17 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
->   			skb_shinfo(skb)->gso_type = SKB_GSO_TCPV6;
->   			break;
->   		case VIRTIO_NET_HDR_GSO_UDP:
-> +		{
-> +			static bool warned;
-
-one line space after declaration..
-
-> +			if (!warned) {
-> +				warned = true;
-> +				netdev_warn(tun->dev,
-> +					    "%s: using disabled UFO feature; please fix this program\n",
-> +					    current->comm);
-> +			}
->   			skb_shinfo(skb)->gso_type = SKB_GSO_UDP;
->   			break;
-> +		}
->   		default:
->   			tun->dev->stats.rx_frame_errors++;
->   			kfree_skb(skb);
-> @@ -1251,8 +1260,6 @@ static ssize_t tun_put_user(struct tun_struct *tun,
->   				gso.gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
->   			else if (sinfo->gso_type & SKB_GSO_TCPV6)
->   				gso.gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
-> -			else if (sinfo->gso_type & SKB_GSO_UDP)
-> -				gso.gso_type = VIRTIO_NET_HDR_GSO_UDP;
->   			else {
->   				pr_err("unexpected GSO type: "
->   				       "0x%x, gso_size %d, hdr_len %d\n",
-> @@ -1762,11 +1769,6 @@ static int set_offload(struct tun_struct *tun, unsigned long arg)
->   				features |= NETIF_F_TSO6;
->   			arg &= ~(TUN_F_TSO4|TUN_F_TSO6);
->   		}
-> -
-> -		if (arg & TUN_F_UFO) {
-> -			features |= NETIF_F_UFO;
-> -			arg &= ~TUN_F_UFO;
-> -		}
->   	}
->   
->   	/* This gives the user a way to test for new features in future by
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index d75256bd..e9e269d 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -491,8 +491,16 @@ static void receive_buf(struct receive_queue *rq, void *buf, unsigned int len)
->   			skb_shinfo(skb)->gso_type = SKB_GSO_TCPV4;
->   			break;
->   		case VIRTIO_NET_HDR_GSO_UDP:
-> +		{
-> +			static bool warned;
-
-dto...
-
-> +			if (!warned) {
-> +				warned = true;
-> +				netdev_warn(dev,
-> +					    "host using disabled UFO feature; please fix it\n");
-> +			}
->   			skb_shinfo(skb)->gso_type = SKB_GSO_UDP;
->   			break;
-> +		}
->   
-
-(...)
-
->
->
--- 
-Thanks and Regards,
-Varka Bhadram.
+thanks
+-- PMM
