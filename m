@@ -1,14 +1,15 @@
-From: "john.liuli" <john.liuli@huawei.com>
-Subject: [RFC PATCH 1/2] Add a new register offset let interrupt reason
-	available
-Date: Sat, 25 Oct 2014 16:24:53 +0800
-Message-ID: <1414225494-2208-2-git-send-email-john.liuli__5824.99704692072$1414417125$gmane$org@huawei.com>
+From: Li Liu <john.liuli@huawei.com>
+Subject: Re: [RFC PATCH 0/2] virtio-mmio: add irqfd support for vhost-net
+	based on virtio-mmio
+Date: Mon, 27 Oct 2014 17:19:23 +0800
+Message-ID: <544E0E1B.1060104__32314.9306852885$1414417136$gmane$org@huawei.com>
 References: <1414225494-2208-1-git-send-email-john.liuli@huawei.com>
+	<20141026115210.GA5497@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1414225494-2208-1-git-send-email-john.liuli@huawei.com>
+In-Reply-To: <20141026115210.GA5497@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,97 +19,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: joel.schopp@amd.com, yingshiuan.pan@gmail.com, mst@redhat.com, Li Liu <john.liuli@huawei.com>, remy.gauguey@cea.fr, qemu-devel@nongnu.org, n.nikolaev@virtualopensystems.com, virtualization@lists.linux-foundation.org, peter.huangpeng@huawei.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: joel.schopp@amd.com, yingshiuan.pan@gmail.com, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, remy.gauguey@cea.fr, peter.huangpeng@huawei.com, n.nikolaev@virtualopensystems.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Li Liu <john.liuli@huawei.com>
 
-Add a new register offset VIRTIO_MMIO_ISRMEM which help to
-estblish a shared memory region between virtio-mmio driver
-and qemu with two purposes:
 
-1.Guest virtio-mmio driver can get the interrupt reason.
-2.Check irqfd enabled or not to register different irq handler.
+On 2014/10/26 19:52, Michael S. Tsirkin wrote:
+> On Sat, Oct 25, 2014 at 04:24:52PM +0800, john.liuli wrote:
+>> From: Li Liu <john.liuli@huawei.com>
+>>
+>> This set of patches try to implemet irqfd support of vhost-net 
+>> based on virtio-mmio.
+>>
+>> I had posted a mail to talking about the status of vhost-net 
+>> on kvm-arm refer to http://www.spinics.net/lists/kvm-arm/msg10804.html.
+>> Some dependent patches are listed in the mail too. Basically the 
+>> vhost-net brings great performance improvements, almost 50%+.
+>>
+>> It's easy to implement irqfd support with PCI MSI-X. But till 
+>> now arm32 do not provide equivalent mechanism to let a device 
+>> allocate multiple interrupts. And even the aarch64 provid LPI
+>> but also not available in a short time.
+>>
+>> As Gauguey Remy said "Vhost does not emulate a complete virtio 
+>> adapter but only manage virtqueue operations". Vhost module
+>> don't update the ISR register, so if with only one irq then it's 
+>> no way to get the interrupt reason even we can inject the 
+>> irq correctly.  
+> 
+> Well guests don't read ISR in MSI-X mode so why does it help
+> to set the ISR bit?
 
-Signed-off-by: Li Liu <john.liuli@huawei.com>
----
- drivers/virtio/virtio_mmio.c |   21 ++++++++++++++++++++-
- include/linux/virtio_mmio.h  |    3 +++
- 2 files changed, 23 insertions(+), 1 deletion(-)
+Yeah, vhost don't need to set ISR under MSI-X mode. But for ARM
+without MSI-X kind mechanism guest can't get the interrupt reason
+through the only one irq hanlder (with one gsi resource).
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index ef9a165..28ddb55 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -122,6 +122,8 @@ struct virtio_mmio_device {
- 	/* a list of queues so we can dispatch IRQs */
- 	spinlock_t lock;
- 	struct list_head virtqueues;
-+
-+	uint8_t *isr_mem;
- };
- 
- struct virtio_mmio_vq_info {
-@@ -443,6 +445,7 @@ static int virtio_mmio_probe(struct platform_device *pdev)
- 	struct virtio_mmio_device *vm_dev;
- 	struct resource *mem;
- 	unsigned long magic;
-+	int err;
- 
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (!mem)
-@@ -481,6 +484,15 @@ static int virtio_mmio_probe(struct platform_device *pdev)
- 		return -ENXIO;
- 	}
- 
-+	vm_dev->isr_mem = alloc_pages_exact(PAGE_SIZE, GFP_KERNEL|__GFP_ZERO);
-+	if (vm_dev->isr_mem == NULL) {
-+		dev_err(&pdev->dev, "Allocate isr memory failed!\n");
-+		return -ENOMEM;
-+	}
-+
-+	writel(virt_to_phys(vm_dev->isr_mem),
-+	       vm_dev->base + VIRTIO_MMIO_ISRMEM);
-+
- 	vm_dev->vdev.id.device = readl(vm_dev->base + VIRTIO_MMIO_DEVICE_ID);
- 	vm_dev->vdev.id.vendor = readl(vm_dev->base + VIRTIO_MMIO_VENDOR_ID);
- 
-@@ -488,13 +500,20 @@ static int virtio_mmio_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, vm_dev);
- 
--	return register_virtio_device(&vm_dev->vdev);
-+	err = register_virtio_device(&vm_dev->vdev);
-+	if (err) {
-+		free_pages_exact(vm_dev->isr_mem, PAGE_SIZE);
-+		vm_dev->isr_mem = NULL;
-+	}
-+
-+	return err;
- }
- 
- static int virtio_mmio_remove(struct platform_device *pdev)
- {
- 	struct virtio_mmio_device *vm_dev = platform_get_drvdata(pdev);
- 
-+	free_pages_exact(vm_dev->isr_mem, PAGE_SIZE);
- 	unregister_virtio_device(&vm_dev->vdev);
- 
- 	return 0;
-diff --git a/include/linux/virtio_mmio.h b/include/linux/virtio_mmio.h
-index 5c7b6f0..b1e3ec7 100644
---- a/include/linux/virtio_mmio.h
-+++ b/include/linux/virtio_mmio.h
-@@ -95,6 +95,9 @@
- /* Device status register - Read Write */
- #define VIRTIO_MMIO_STATUS		0x070
- 
-+/* Allocate ISRMEM for interrupt reason - Write Only */
-+#define VIRTIO_MMIO_ISRMEM		0x080
-+
- /* The config space is defined by each driver as
-  * the per-driver configuration space - Read Write */
- #define VIRTIO_MMIO_CONFIG		0x100
--- 
-1.7.9.5
+So I build a shared memory region to provide the interrupt reason
+instead of ISR regiser by qemu without bothering vhost. Then even
+there's only one irq with only one irq hanlder, it still can
+distinguish why irq occur.
+
+Li.
+
+> 
+>> To get the interrupt reason to support such VIRTIO_NET_F_STATUS 
+>> features I add a new register offset VIRTIO_MMIO_ISRMEM which 
+>> will help to establish a shared memory region between qemu and 
+>> virtio-mmio device. Then the interrupt reason can be accessed by
+>> guest driver through this region. At the same time, the virtio-mmio 
+>> dirver check this region to see irqfd is supported or not during 
+>> the irq handler registration, and different handler will be assigned.
+>>
+>> I want to know it's the right direction? Does it comply with the 
+>> virtio-mmio spec.? Or anyone have more good ideas to emulate mis-x 
+>> based on virtio-mmio? I hope to get feedback and guidance.
+>> Thx for any help.
+>>
+>> Li Liu (2):
+>>   Add a new register offset let interrupt reason available
+>>   Assign a new irq handler while irqfd enabled
+>>
+>>  drivers/virtio/virtio_mmio.c |   55 +++++++++++++++++++++++++++++++++++++++---
+>>  include/linux/virtio_mmio.h  |    3 +++
+>>  2 files changed, 55 insertions(+), 3 deletions(-)
+>>
+>> -- 
+>> 1.7.9.5
+>>
+> 
+> .
+> 
