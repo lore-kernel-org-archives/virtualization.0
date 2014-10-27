@@ -1,16 +1,16 @@
-From: Peter Maydell <peter.maydell@linaro.org>
-Subject: Re: [Qemu-devel] [RFC PATCH 0/2] virtio-mmio: add irqfd support for
-	vhost-net based on virtio-mmio
-Date: Mon, 27 Oct 2014 11:58:26 +0000
-Message-ID: <CAFEAcA8JgebH8B4i7aoSxdeon7B-eunXzZJhwOCXQr-ypSgfsQ@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC PATCH 2/2] Assign a new irq handler while irqfd enabled
+Date: Mon, 27 Oct 2014 14:03:54 +0200
+Message-ID: <20141027120354.GA19169@redhat.com>
 References: <1414225494-2208-1-git-send-email-john.liuli@huawei.com>
-	<CAFEAcA9o8ZsbUvZb7Yp9JeO__bRLOrYcyfj4Ug4Se_rDF0y4TA@mail.gmail.com>
-	<544E2B18.8010702@huawei.com>
+	<1414225494-2208-3-git-send-email-john.liuli@huawei.com>
+	<20141026115646.GB5497@redhat.com> <544E26AB.6090200@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <544E2B18.8010702@huawei.com>
+Content-Disposition: inline
+In-Reply-To: <544E26AB.6090200@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,13 +21,115 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Li Liu <john.liuli@huawei.com>
-Cc: Joel Schopp <joel.schopp@amd.com>, Yingshiuan Pan <yingshiuan.pan@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, remy.gauguey@cea.fr, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Nikolay Nikolaev <n.nikolaev@virtualopensystems.com>, QEMU Developers <qemu-devel@nongnu.org>, peter.huangpeng@huawei.com, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Cc: joel.schopp@amd.com, yingshiuan.pan@gmail.com, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, remy.gauguey@cea.fr, peter.huangpeng@huawei.com, n.nikolaev@virtualopensystems.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 27 October 2014 11:23, Li Liu <john.liuli@huawei.com> wrote:
-> So you mean virtio-mmio will be replaced by PCI/PCIe on ARM at last?
+On Mon, Oct 27, 2014 at 07:04:11PM +0800, Li Liu wrote:
+> 
+> 
+> On 2014/10/26 19:56, Michael S. Tsirkin wrote:
+> > On Sat, Oct 25, 2014 at 04:24:54PM +0800, john.liuli wrote:
+> >> From: Li Liu <john.liuli@huawei.com>
+> >>
+> >> This irq handler will get the interrupt reason from a
+> >> shared memory. And will be assigned only while irqfd
+> >> enabled.
+> >>
+> >> Signed-off-by: Li Liu <john.liuli@huawei.com>
+> >> ---
+> >>  drivers/virtio/virtio_mmio.c |   34 ++++++++++++++++++++++++++++++++--
+> >>  1 file changed, 32 insertions(+), 2 deletions(-)
+> >>
+> >> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> >> index 28ddb55..7229605 100644
+> >> --- a/drivers/virtio/virtio_mmio.c
+> >> +++ b/drivers/virtio/virtio_mmio.c
+> >> @@ -259,7 +259,31 @@ static irqreturn_t vm_interrupt(int irq, void *opaque)
+> >>  	return ret;
+> >>  }
+> >>  
+> >> +/* Notify all virtqueues on an interrupt. */
+> >> +static irqreturn_t vm_interrupt_irqfd(int irq, void *opaque)
+> >> +{
+> >> +	struct virtio_mmio_device *vm_dev = opaque;
+> >> +	struct virtio_mmio_vq_info *info;
+> >> +	unsigned long status;
+> >> +	unsigned long flags;
+> >> +	irqreturn_t ret = IRQ_NONE;
+> >>  
+> >> +	/* Read the interrupt reason and reset it */
+> >> +	status = *vm_dev->isr_mem;
+> >> +	*vm_dev->isr_mem = 0x0;
+> > 
+> > you are reading and modifying shared memory
+> > without atomics and any memory barriers.
+> > Why is this safe?
+> > 
+> 
+> good catch, a stupid mistake.
+> 
+> >> +
+> >> +	if (unlikely(status & VIRTIO_MMIO_INT_CONFIG)) {
+> >> +		virtio_config_changed(&vm_dev->vdev);
+> >> +		ret = IRQ_HANDLED;
+> >> +	}
+> >> +
+> >> +	spin_lock_irqsave(&vm_dev->lock, flags);
+> >> +	list_for_each_entry(info, &vm_dev->virtqueues, node)
+> >> +		ret |= vring_interrupt(irq, info->vq);
+> >> +	spin_unlock_irqrestore(&vm_dev->lock, flags);
+> >> +
+> >> +	return ret;
+> >> +}
+> >>  
+> >>  static void vm_del_vq(struct virtqueue *vq)
+> >>  {
+> > 
+> > So you invoke callbacks for all VQs.
+> > This won't scale well as the number of VQs grows, will it?
+> > 
+> >> @@ -391,6 +415,7 @@ error_available:
+> >>  	return ERR_PTR(err);
+> >>  }
+> >>  
+> >> +#define VIRTIO_MMIO_F_IRQFD        (1 << 7)
+> >>  static int vm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+> >>  		       struct virtqueue *vqs[],
+> >>  		       vq_callback_t *callbacks[],
+> >> @@ -400,8 +425,13 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+> >>  	unsigned int irq = platform_get_irq(vm_dev->pdev, 0);
+> >>  	int i, err;
+> >>  
+> >> -	err = request_irq(irq, vm_interrupt, IRQF_SHARED,
+> >> -			dev_name(&vdev->dev), vm_dev);
+> >> +	if (*vm_dev->isr_mem & VIRTIO_MMIO_F_IRQFD) {
+> >> +		err = request_irq(irq, vm_interrupt_irqfd, IRQF_SHARED,
+> >> +				  dev_name(&vdev->dev), vm_dev);
+> >> +	} else {
+> >> +		err = request_irq(irq, vm_interrupt, IRQF_SHARED,
+> >> +				  dev_name(&vdev->dev), vm_dev);
+> >> +	}
+> >>  	if (err)
+> >>  		return err;
+> > 
+> > 
+> > So still a single interrupt for all VQs.
+> > Again this doesn't scale: a single CPU has to handle
+> > interrupts for all of them.
+> > I think you need to find a way to get per-VQ interrupts.
+> 
+> Yeah, AFAIK it's impossible to distribute works to different CPUs with
+> only one irq without MSI-X kind mechanism. Assign multiple gsis to one
+> device, obviously it's consumptive and not scalable.
 
-That is the plan, yes. I can't make any promises on
-timescales at the moment, though...
+Why not? How many gsis are there on ARM?
 
--- PMM
+> Any ideas? Thx.
+> 
+> > 
+> >> -- 
+> >> 1.7.9.5
+> >>
+> > 
+> > .
+> > 
