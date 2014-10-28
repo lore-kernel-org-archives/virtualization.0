@@ -1,16 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC 00/11] qemu: towards virtio-1 host support
-Date: Tue, 28 Oct 2014 06:43:29 +0200
-Message-ID: <20141028044329.GA18689@redhat.com>
-References: <1412692807-12398-1-git-send-email-cornelia.huck@de.ibm.com>
-	<20141023214158.GA29716@redhat.com>
-	<20141024103839.7162b93f.cornelia.huck@de.ibm.com>
+From: Sebastian Ott <sebott@linux.vnet.ibm.com>
+Subject: Re: [PATCH] virtio_ccw: remove unsued variable
+Date: Tue, 28 Oct 2014 16:39:12 +0100 (CET)
+Message-ID: <alpine.LFD.2.11.1410281634560.1567@denkbrett>
+References: <alpine.LFD.2.11.1410201242390.1601@denkbrett>
+	<20141020141931.GB11062@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED;
+	BOUNDARY="-1744176940-282550839-1414510753=:1567"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20141024103839.7162b93f.cornelia.huck@de.ibm.com>
+In-Reply-To: <20141020141931.GB11062@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,179 +18,80 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Oct 24, 2014 at 10:38:39AM +0200, Cornelia Huck wrote:
-> On Fri, 24 Oct 2014 00:42:20 +0300
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> > On Tue, Oct 07, 2014 at 04:39:56PM +0200, Cornelia Huck wrote:
-> > > This patchset aims to get us some way to implement virtio-1 compliant
-> > > and transitional devices in qemu. Branch available at
-> > > 
-> > > git://github.com/cohuck/qemu virtio-1
-> > > 
-> > > I've mainly focused on:
-> > > - endianness handling
-> > > - extended feature bits
-> > > - virtio-ccw new/changed commands
-> > 
-> > So issues identified so far:
-> 
-> Thanks for taking a look.
-> 
-> > - devices not converted yet should not advertize 1.0
-> 
-> Neither should an uncoverted transport. So we either can
-> - have transport set the bit and rely on devices ->get_features
->   callback to mask it out
->   (virtio-ccw has to change the calling order for get_features, btw.)
-> - have device set the bit and the transport mask it out later. Feels a
->   bit weird, as virtio-1 is a transport feature bit.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
+---1744176940-282550839-1414510753=:1567
+Content-Type: TEXT/PLAIN; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-I thought more about it, I think the right thing
-would be for unconverted transports to clear
-high bits on ack and get features.
+On Mon, 20 Oct 2014, Michael S. Tsirkin wrote:
+> On Mon, Oct 20, 2014 at 12:48:18PM +0200, Sebastian Ott wrote:
+> > Hi,
+> >=20
+> > 016c98c6f virtio: unify config_changed handling
+> >=20
+> > introduced a warning in virtio_ccw which is fixed by the following pa=
+tch.
+> >=20
+> > Regards,
+> > Sebastian
+> > ---
+> > virtio_ccw: remove unsued variable
+>=20
+> s/unsued/unused/
+>=20
 
-So bit 32 is set, but not exposed to guests.
-In fact at least for PCI, we have a 32 bit field for
-features in 0.9 so it's automatic.
-Didn't check mmio yet.
+Totally forgot to send an updated version..sry. Here it is.
 
+Regards,
+Sebastian
 
+---
+virtio_ccw: remove unused variable
 
-> I'm tending towards the first option; smth like this (on top of my
-> branch):
-> 
-> diff --git a/hw/9pfs/virtio-9p-device.c b/hw/9pfs/virtio-9p-device.c
-> index c29c8c8..f6501ea 100644
-> --- a/hw/9pfs/virtio-9p-device.c
-> +++ b/hw/9pfs/virtio-9p-device.c
-> @@ -24,6 +24,9 @@
->  static uint32_t virtio_9p_get_features(VirtIODevice *vdev, unsigned int index,
->                                         uint32_t features)
->  {
-> +    if (index == 1) {
-> +        features &= ~(1 << (VIRTIO_F_VERSION_1 - 32));
-> +    }
->      if (index > 0) {
->          return features;
->      }
-> diff --git a/hw/char/virtio-serial-bus.c b/hw/char/virtio-serial-bus.c
-> index 0d843fe..07a7a6f 100644
-> --- a/hw/char/virtio-serial-bus.c
-> +++ b/hw/char/virtio-serial-bus.c
-> @@ -472,6 +472,9 @@ static uint32_t get_features(VirtIODevice *vdev, unsigned int index,
->  {
->      VirtIOSerial *vser;
->  
-> +    if (index == 1) {
-> +        features &= ~(1 << (VIRTIO_F_VERSION_1 - 32));
-> +    }
->      if (index > 0) {
->          return features;
->      }
-> diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
-> index 67f91c0..4b75105 100644
-> --- a/hw/net/virtio-net.c
-> +++ b/hw/net/virtio-net.c
-> @@ -447,6 +447,9 @@ static uint32_t virtio_net_get_features(VirtIODevice *vdev, unsigned int index,
->      VirtIONet *n = VIRTIO_NET(vdev);
->      NetClientState *nc = qemu_get_queue(n->nic);
->  
-> +    if (index == 1 && get_vhost_net(nc->peer)) {
-> +        features &= ~(1 << (VIRTIO_F_VERSION_1 - 32));
-> +    }
->      if (index > 0) {
->          return features;
->      }
-> diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
-> index 80efe88..07fbf40 100644
-> --- a/hw/s390x/virtio-ccw.c
-> +++ b/hw/s390x/virtio-ccw.c
-> @@ -839,16 +839,16 @@ static int virtio_ccw_device_init(VirtioCcwDevice *dev, VirtIODevice *vdev)
->      dev->revision = -1;
->  
->      /* Set default feature bits that are offered by the host. */
-> +    dev->host_features[0] = 0x1 << VIRTIO_F_NOTIFY_ON_EMPTY;
-> +    dev->host_features[0] |= 0x1 << VIRTIO_F_BAD_FEATURE;
-> +
-> +    dev->host_features[1] = 1 << (VIRTIO_F_VERSION_1 - 32);
-> +
->      for (i = 0; i < ARRAY_SIZE(dev->host_features); i++) {
->          dev->host_features[i] =
->              virtio_bus_get_vdev_features(&dev->bus, i, dev->host_features[i]);
->      }
->  
-> -    dev->host_features[0] |= 0x1 << VIRTIO_F_NOTIFY_ON_EMPTY;
-> -    dev->host_features[0] |= 0x1 << VIRTIO_F_BAD_FEATURE;
-> -
-> -    dev->host_features[1] = 1 << (VIRTIO_F_VERSION_1 - 32);
-> -
->      css_generate_sch_crws(sch->cssid, sch->ssid, sch->schid,
->                            parent->hotplugged, 1);
->      return 0;
-> diff --git a/hw/scsi/vhost-scsi.c b/hw/scsi/vhost-scsi.c
-> index 8e1afa0..8a8fdb9 100644
-> --- a/hw/scsi/vhost-scsi.c
-> +++ b/hw/scsi/vhost-scsi.c
-> @@ -155,6 +155,9 @@ static uint32_t vhost_scsi_get_features(VirtIODevice *vdev, unsigned int index,
->  {
->      VHostSCSI *s = VHOST_SCSI(vdev);
->  
-> +    if (index == 1) {
-> +        features &= ~(1 << (VIRTIO_F_VERSION_1 - 32));
-> +    }
->      if (index > 0) {
->          return features;
->      }
-> diff --git a/hw/scsi/virtio-scsi.c b/hw/scsi/virtio-scsi.c
-> index 088e688..378783f 100644
-> --- a/hw/scsi/virtio-scsi.c
-> +++ b/hw/scsi/virtio-scsi.c
-> @@ -611,6 +611,9 @@ static void virtio_scsi_set_config(VirtIODevice *vdev,
->  static uint32_t virtio_scsi_get_features(VirtIODevice *vdev, unsigned int index,
->                                           uint32_t requested_features)
->  {
-> +    if (index == 1) {
-> +        requested_features &= ~(1 << (VIRTIO_F_VERSION_1 - 32));
-> +    }
->      return requested_features;
->  }
->  
-> diff --git a/hw/virtio/virtio-balloon.c b/hw/virtio/virtio-balloon.c
-> index 5af17e2..bd52845 100644
-> --- a/hw/virtio/virtio-balloon.c
-> +++ b/hw/virtio/virtio-balloon.c
-> @@ -306,6 +306,9 @@ static void virtio_balloon_set_config(VirtIODevice *vdev,
->  static uint32_t virtio_balloon_get_features(VirtIODevice *vdev,
->                                              unsigned int index, uint32_t f)
->  {
-> +    if (index == 1) {
-> +        f &= ~(1 << (VIRTIO_F_VERSION_1 - 32));
-> +    }
->      if (index > 0) {
->          return f;
->      }
-> diff --git a/hw/virtio/virtio-rng.c b/hw/virtio/virtio-rng.c
-> index 2814017..bf6101d 100644
-> --- a/hw/virtio/virtio-rng.c
-> +++ b/hw/virtio/virtio-rng.c
-> @@ -101,6 +101,9 @@ static void handle_input(VirtIODevice *vdev, VirtQueue *vq)
->  
->  static uint32_t get_features(VirtIODevice *vdev, unsigned int index, uint32_t f)
->  {
-> +    if (index == 1) {
-> +        f &= ~(1 << (VIRTIO_F_VERSION_1 - 32));
-> +    }
->      return f;
->  }
->  
-> 
-> 
-> > - blk has some features removed under 1.0,
-> >   specifically CONFIG_WCE.
-> > - net header is different for 1.0
+Fix this warning:
+drivers/s390/kvm/virtio_ccw.c: In function =E2=80=98virtio_ccw_int_handle=
+r=E2=80=99:
+drivers/s390/kvm/virtio_ccw.c:891:24: warning: unused variable =E2=80=98d=
+rv=E2=80=99 [-Wunused-variable]
+    struct virtio_driver *drv;
+
+Signed-off-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ drivers/s390/kvm/virtio_ccw.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.=
+c
+index 6cbe6ef..bda52f1 100644
+--- a/drivers/s390/kvm/virtio_ccw.c
++++ b/drivers/s390/kvm/virtio_ccw.c
+@@ -888,7 +888,6 @@ static void virtio_ccw_int_handler(struct ccw_device =
+*cdev,
+ 	struct virtio_ccw_device *vcdev =3D dev_get_drvdata(&cdev->dev);
+ 	int i;
+ 	struct virtqueue *vq;
+-	struct virtio_driver *drv;
+=20
+ 	if (!vcdev)
+ 		return;
+--=20
+1.8.4.2
+
+---1744176940-282550839-1414510753=:1567
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+---1744176940-282550839-1414510753=:1567--
