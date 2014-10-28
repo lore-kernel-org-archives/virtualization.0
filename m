@@ -1,13 +1,16 @@
-From: Pawel Moll <pawel.moll@arm.com>
-Subject: Re: VirtIO-MMIO on MMU-less System
-Date: Tue, 28 Oct 2014 16:48:13 +0000
-Message-ID: <1414514893.15353.1.camel@arm.com>
-References: <544FC762.5060507@codeaurora.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio_ccw: remove unsued variable
+Date: Tue, 28 Oct 2014 19:37:58 +0200
+Message-ID: <20141028173758.GA24566@redhat.com>
+References: <alpine.LFD.2.11.1410201242390.1601@denkbrett>
+	<20141020141931.GB11062@redhat.com>
+	<alpine.LFD.2.11.1410281634560.1567@denkbrett>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <544FC762.5060507@codeaurora.org>
+Content-Disposition: inline
+In-Reply-To: <alpine.LFD.2.11.1410281634560.1567@denkbrett>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,20 +20,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christopher Covington <cov@codeaurora.org>
-Cc: Peter Maydell <peter.maydell@linaro.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Sebastian Ott <sebott@linux.vnet.ibm.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2014-10-28 at 16:42 +0000, Christopher Covington wrote:
-> Just out of curiosity, could VirtIO-MMIO peripherals work on an MMU-less
-> system, such as a hypothetical M-flavor QEMU TCG virt machine?
-
-The interface is using physical addresses (or physical page numbers), so
-MMU or not - it doesn't care.
-
-Now, whether the existing implementation of the drivers (or host-side
-implementation of the virtoo device) would work, that's another
-question. I see nothing in virtio-mmio driver that clearly wouldn't
-work, but you never know...
-
-Pawel
+T24gVHVlLCBPY3QgMjgsIDIwMTQgYXQgMDQ6Mzk6MTJQTSArMDEwMCwgU2ViYXN0aWFuIE90dCB3
+cm90ZToKPiBPbiBNb24sIDIwIE9jdCAyMDE0LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4g
+PiBPbiBNb24sIE9jdCAyMCwgMjAxNCBhdCAxMjo0ODoxOFBNICswMjAwLCBTZWJhc3RpYW4gT3R0
+IHdyb3RlOgo+ID4gPiBIaSwKPiA+ID4gCj4gPiA+IDAxNmM5OGM2ZiB2aXJ0aW86IHVuaWZ5IGNv
+bmZpZ19jaGFuZ2VkIGhhbmRsaW5nCj4gPiA+IAo+ID4gPiBpbnRyb2R1Y2VkIGEgd2FybmluZyBp
+biB2aXJ0aW9fY2N3IHdoaWNoIGlzIGZpeGVkIGJ5IHRoZSBmb2xsb3dpbmcgcGF0Y2guCj4gPiA+
+IAo+ID4gPiBSZWdhcmRzLAo+ID4gPiBTZWJhc3RpYW4KPiA+ID4gLS0tCj4gPiA+IHZpcnRpb19j
+Y3c6IHJlbW92ZSB1bnN1ZWQgdmFyaWFibGUKPiA+IAo+ID4gcy91bnN1ZWQvdW51c2VkLwo+ID4g
+Cj4gCj4gVG90YWxseSBmb3Jnb3QgdG8gc2VuZCBhbiB1cGRhdGVkIHZlcnNpb24uLnNyeS4gSGVy
+ZSBpdCBpcy4KPiAKPiBSZWdhcmRzLAo+IFNlYmFzdGlhbgo+IAo+IC0tLQo+IHZpcnRpb19jY3c6
+IHJlbW92ZSB1bnVzZWQgdmFyaWFibGUKPiAKPiBGaXggdGhpcyB3YXJuaW5nOgo+IGRyaXZlcnMv
+czM5MC9rdm0vdmlydGlvX2Njdy5jOiBJbiBmdW5jdGlvbiDigJh2aXJ0aW9fY2N3X2ludF9oYW5k
+bGVy4oCZOgo+IGRyaXZlcnMvczM5MC9rdm0vdmlydGlvX2Njdy5jOjg5MToyNDogd2FybmluZzog
+dW51c2VkIHZhcmlhYmxlIOKAmGRyduKAmSBbLVd1bnVzZWQtdmFyaWFibGVdCj4gICAgIHN0cnVj
+dCB2aXJ0aW9fZHJpdmVyICpkcnY7Cj4gCj4gU2lnbmVkLW9mZi1ieTogU2ViYXN0aWFuIE90dCA8
+c2Vib3R0QGxpbnV4LnZuZXQuaWJtLmNvbT4KPiBBY2tlZC1ieTogQ29ybmVsaWEgSHVjayA8Y29y
+bmVsaWEuaHVja0BkZS5pYm0uY29tPgoKQWNrZWQtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0
+QHJlZGhhdC5jb20+Cgo+IC0tLQo+ICBkcml2ZXJzL3MzOTAva3ZtL3ZpcnRpb19jY3cuYyB8IDEg
+LQo+ICAxIGZpbGUgY2hhbmdlZCwgMSBkZWxldGlvbigtKQo+IAo+IGRpZmYgLS1naXQgYS9kcml2
+ZXJzL3MzOTAva3ZtL3ZpcnRpb19jY3cuYyBiL2RyaXZlcnMvczM5MC9rdm0vdmlydGlvX2Njdy5j
+Cj4gaW5kZXggNmNiZTZlZi4uYmRhNTJmMSAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3MzOTAva3Zt
+L3ZpcnRpb19jY3cuYwo+ICsrKyBiL2RyaXZlcnMvczM5MC9rdm0vdmlydGlvX2Njdy5jCj4gQEAg
+LTg4OCw3ICs4ODgsNiBAQCBzdGF0aWMgdm9pZCB2aXJ0aW9fY2N3X2ludF9oYW5kbGVyKHN0cnVj
+dCBjY3dfZGV2aWNlICpjZGV2LAo+ICAJc3RydWN0IHZpcnRpb19jY3dfZGV2aWNlICp2Y2RldiA9
+IGRldl9nZXRfZHJ2ZGF0YSgmY2Rldi0+ZGV2KTsKPiAgCWludCBpOwo+ICAJc3RydWN0IHZpcnRx
+dWV1ZSAqdnE7Cj4gLQlzdHJ1Y3QgdmlydGlvX2RyaXZlciAqZHJ2Owo+ICAKPiAgCWlmICghdmNk
+ZXYpCj4gIAkJcmV0dXJuOwo+IC0tIAo+IDEuOC40LjIKCl9fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
+dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
+Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
