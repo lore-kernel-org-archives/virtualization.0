@@ -1,7 +1,7 @@
-From: Peter Maydell <peter.maydell@linaro.org>
+From: Pawel Moll <pawel.moll@arm.com>
 Subject: Re: VirtIO-MMIO on MMU-less System
-Date: Tue, 28 Oct 2014 16:51:44 +0000
-Message-ID: <CAFEAcA8C1DCQFzbNkPaPR9TFV=oG63W_DH+9Q=oXvXfEs+oUAA@mail.gmail.com>
+Date: Tue, 28 Oct 2014 16:48:13 +0000
+Message-ID: <1414514893.15353.1.camel@arm.com>
 References: <544FC762.5060507@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,15 +18,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Christopher Covington <cov@codeaurora.org>
-Cc: Pawel Moll <Pawel.Moll@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Cc: Peter Maydell <peter.maydell@linaro.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 28 October 2014 16:42, Christopher Covington <cov@codeaurora.org> wrote:
+On Tue, 2014-10-28 at 16:42 +0000, Christopher Covington wrote:
 > Just out of curiosity, could VirtIO-MMIO peripherals work on an MMU-less
 > system, such as a hypothetical M-flavor QEMU TCG virt machine?
 
-No inherent reason, I think. If you care about M profile emulation
-you should be aware that it's not currently very high quality,
-though...
+The interface is using physical addresses (or physical page numbers), so
+MMU or not - it doesn't care.
 
--- PMM
+Now, whether the existing implementation of the drivers (or host-side
+implementation of the virtoo device) would work, that's another
+question. I see nothing in virtio-mmio driver that clearly wouldn't
+work, but you never know...
+
+Pawel
