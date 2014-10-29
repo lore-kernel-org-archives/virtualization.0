@@ -1,13 +1,13 @@
-From: Ian Jackson <Ian.Jackson@eu.citrix.com>
-Subject: Re: [Xen-devel] [RFC] Hypervisor RNG and enumeration
-Date: Wed, 29 Oct 2014 15:14:21 +0000
-Message-ID: <21585.1101.912184.610549@mariner.uk.xensource.com>
-References: <CALCETrUuSApjNk+xdB1XEPH+Lz2PGY0gnreHwx5Z6xQ0Vj74tw@mail.gmail.com>
+From: Josh Triplett <josh@joshtriplett.org>
+Subject: [PATCH v3 1/3] x86: process: Unify 32-bit and 64-bit copy_thread I/O
+	bitmap handling
+Date: Wed, 29 Oct 2014 09:02:43 -0700
+Message-ID: <7159269982aac3b732af2c33a2e3d04e2048bdfb.1414598511.git.josh@joshtriplett.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CALCETrUuSApjNk+xdB1XEPH+Lz2PGY0gnreHwx5Z6xQ0Vj74tw@mail.gmail.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,74 +17,177 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: Mathew John <mathewj@microsoft.com>, Theodore Ts'o <tytso@mit.edu>, Jim Mattson <jmattson@vmware.com>, kvm list <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Niels Ferguson <niels@microsoft.com>, David Hepkin <davidhep@microsoft.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Doug Covelli <dcovelli@vmware.com>, Paolo Bonzini <pbonzini@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Jake Oshins <jakeo@microsoft.com>, xen-devel@lists.xenproject.org, Alok Kataria <akataria@vmware.com>, John Starks <John.Starks@microsoft.com>
+To: "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, Kees Cook <keescook@chromium.org>, Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, x86@kernel.org, xen-devel@lists.xenproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andy Lutomirski writes ("[Xen-devel] [RFC] Hypervisor RNG and enumeration"):
-> Here's a draft CommonHV spec.  It's also on github:
-> https://github.com/amluto/CommonHV
+The 32-bit and 64-bit versions of copy_thread have functionally
+identical handling for copying the I/O bitmap, modulo differences in
+error handling.  Clean up the error paths in both by moving the copy of
+the I/O bitmap to the end, to eliminate the need to free it if
+subsequent copy steps fail; move the resulting identical code to a
+static inline in a common header.
 
-This a worthwhile direction to investigate, and an interesting
-proposal.  From a Xen point of view I have some concerns, though.
+Signed-off-by: Josh Triplett <josh@joshtriplett.org>
+Acked-by: Kees Cook <keescook@chromium.org>
+---
+v3: No changes in this patch, only in patch 3/3.
 
-I think in Xen we would want to implement the bulk of the provision of
-random numbers to guests outside the hypervisor.  That is, the
-hypervisor itself should not have random number pool code, associated
-policy, and so on.  We would like to avoid adding too much code to the
-hypervisor.
+ arch/x86/kernel/process-io.h | 22 ++++++++++++++++++++++
+ arch/x86/kernel/process_32.c | 28 ++++++++--------------------
+ arch/x86/kernel/process_64.c | 25 +++++--------------------
+ 3 files changed, 35 insertions(+), 40 deletions(-)
+ create mode 100644 arch/x86/kernel/process-io.h
 
-That functionality should live in the lower toolstack layers.  For the
-benefit of people who want to do radical disaggregation (for security
-reasons), it should be capable of being provided by a different domain
-to dom0.
-
-I think a fully general interface based purely on MSRs makes that
-difficult in a number of ways:
-
- * Currently I don't think there is any way in Xen to cause MSR
-   accesses to be passed to toolstack support programs.
-
- * In some configurations, Xen PV domains do not have a suitable
-   longrunning service process to handle requests of this kind.
-
- * MSR reads of this kind might be expected to be fast but if they
-   involve trapping to a service domain they might be very slow.
-
- * This interface is very x86-specific.
-
-
-It seems to me that the real need for this facility is to provide a
-good seed for the guest's own cryptographic PRNG.  If we restrict
-ourselves to that use case, we can sidestep the difficulties.
-
-In particular, the parts of this proposal that are most difficult are:
-
- * The facility for the guest to provide random numbers back to the
-   host.  I think this can be dealt with easily by hypervisor-specific
-   mechanisms, if it is desirable.
-
- * The implication that a hypervisor ought to be providing a unbounded
-   stream of random numbers, rather than a fixed amount of seed.
-
-
-I think the most obvious approach would be to provide the VM, at
-startup, with a page containing a fixed amount of random number seed,
-along with some metatdata.
-
-Some platform-specific way of discovering the location of the page
-would have to be defined.  (That might an MSR but more likely it would
-be Device Tree or ACPI.)
-
-After the guest has read the page, it would be free to treat it as
-normal memory.
-
-The metadata need do little more than specify the length and the
-amount of provided entropy.  There should be some room for expansion.
-
-The specification should say that the provided seed MUST be
-cryptographically secure, MUST have as much entropy as stated and that
-that amount of entropy MUST be at least (say) 64 bits and SHOULD be at
-least (say) 256 bits.
-
-Ian.
+diff --git a/arch/x86/kernel/process-io.h b/arch/x86/kernel/process-io.h
+new file mode 100644
+index 0000000..d884444
+--- /dev/null
++++ b/arch/x86/kernel/process-io.h
+@@ -0,0 +1,22 @@
++#ifndef _X86_KERNEL_PROCESS_IO_H
++#define _X86_KERNEL_PROCESS_IO_H
++
++static inline int copy_io_bitmap(struct task_struct *me,
++				 struct task_struct *p)
++{
++	if (unlikely(test_tsk_thread_flag(me, TIF_IO_BITMAP))) {
++		p->thread.io_bitmap_ptr = kmemdup(me->thread.io_bitmap_ptr,
++						  IO_BITMAP_BYTES, GFP_KERNEL);
++		if (!p->thread.io_bitmap_ptr) {
++			p->thread.io_bitmap_max = 0;
++			return -ENOMEM;
++		}
++		set_tsk_thread_flag(p, TIF_IO_BITMAP);
++	} else {
++		p->thread.io_bitmap_ptr = NULL;
++	}
++
++	return 0;
++}
++
++#endif /* _X86_KERNEL_PROCESS_IO_H */
+diff --git a/arch/x86/kernel/process_32.c b/arch/x86/kernel/process_32.c
+index 8f3ebfe..07550ff 100644
+--- a/arch/x86/kernel/process_32.c
++++ b/arch/x86/kernel/process_32.c
+@@ -55,6 +55,8 @@
+ #include <asm/debugreg.h>
+ #include <asm/switch_to.h>
+ 
++#include "process-io.h"
++
+ asmlinkage void ret_from_fork(void) __asm__("ret_from_fork");
+ asmlinkage void ret_from_kernel_thread(void) __asm__("ret_from_kernel_thread");
+ 
+@@ -134,7 +136,6 @@ int copy_thread(unsigned long clone_flags, unsigned long sp,
+ {
+ 	struct pt_regs *childregs = task_pt_regs(p);
+ 	struct task_struct *tsk;
+-	int err;
+ 
+ 	p->thread.sp = (unsigned long) childregs;
+ 	p->thread.sp0 = (unsigned long) (childregs+1);
+@@ -166,32 +167,19 @@ int copy_thread(unsigned long clone_flags, unsigned long sp,
+ 
+ 	p->thread.io_bitmap_ptr = NULL;
+ 	tsk = current;
+-	err = -ENOMEM;
+-
+-	if (unlikely(test_tsk_thread_flag(tsk, TIF_IO_BITMAP))) {
+-		p->thread.io_bitmap_ptr = kmemdup(tsk->thread.io_bitmap_ptr,
+-						IO_BITMAP_BYTES, GFP_KERNEL);
+-		if (!p->thread.io_bitmap_ptr) {
+-			p->thread.io_bitmap_max = 0;
+-			return -ENOMEM;
+-		}
+-		set_tsk_thread_flag(p, TIF_IO_BITMAP);
+-	}
+-
+-	err = 0;
+ 
+ 	/*
+ 	 * Set a new TLS for the child thread?
+ 	 */
+-	if (clone_flags & CLONE_SETTLS)
++	if (clone_flags & CLONE_SETTLS) {
++		int err;
+ 		err = do_set_thread_area(p, -1,
+ 			(struct user_desc __user *)childregs->si, 0);
+-
+-	if (err && p->thread.io_bitmap_ptr) {
+-		kfree(p->thread.io_bitmap_ptr);
+-		p->thread.io_bitmap_max = 0;
++		if(err)
++			return err;
+ 	}
+-	return err;
++
++	return copy_io_bitmap(tsk, p);
+ }
+ 
+ void
+diff --git a/arch/x86/kernel/process_64.c b/arch/x86/kernel/process_64.c
+index 3ed4a68..b1babb4 100644
+--- a/arch/x86/kernel/process_64.c
++++ b/arch/x86/kernel/process_64.c
+@@ -50,6 +50,8 @@
+ #include <asm/debugreg.h>
+ #include <asm/switch_to.h>
+ 
++#include "process-io.h"
++
+ asmlinkage extern void ret_from_fork(void);
+ 
+ __visible DEFINE_PER_CPU(unsigned long, old_rsp);
+@@ -154,7 +156,6 @@ static inline u32 read_32bit_tls(struct task_struct *t, int tls)
+ int copy_thread(unsigned long clone_flags, unsigned long sp,
+ 		unsigned long arg, struct task_struct *p)
+ {
+-	int err;
+ 	struct pt_regs *childregs;
+ 	struct task_struct *me = current;
+ 
+@@ -191,21 +192,11 @@ int copy_thread(unsigned long clone_flags, unsigned long sp,
+ 	if (sp)
+ 		childregs->sp = sp;
+ 
+-	err = -ENOMEM;
+-	if (unlikely(test_tsk_thread_flag(me, TIF_IO_BITMAP))) {
+-		p->thread.io_bitmap_ptr = kmemdup(me->thread.io_bitmap_ptr,
+-						  IO_BITMAP_BYTES, GFP_KERNEL);
+-		if (!p->thread.io_bitmap_ptr) {
+-			p->thread.io_bitmap_max = 0;
+-			return -ENOMEM;
+-		}
+-		set_tsk_thread_flag(p, TIF_IO_BITMAP);
+-	}
+-
+ 	/*
+ 	 * Set a new TLS for the child thread?
+ 	 */
+ 	if (clone_flags & CLONE_SETTLS) {
++		int err;
+ #ifdef CONFIG_IA32_EMULATION
+ 		if (test_thread_flag(TIF_IA32))
+ 			err = do_set_thread_area(p, -1,
+@@ -214,16 +205,10 @@ int copy_thread(unsigned long clone_flags, unsigned long sp,
+ #endif
+ 			err = do_arch_prctl(p, ARCH_SET_FS, childregs->r8);
+ 		if (err)
+-			goto out;
+-	}
+-	err = 0;
+-out:
+-	if (err && p->thread.io_bitmap_ptr) {
+-		kfree(p->thread.io_bitmap_ptr);
+-		p->thread.io_bitmap_max = 0;
++			return err;
+ 	}
+ 
+-	return err;
++	return copy_io_bitmap(me, p);
+ }
+ 
+ static void
+-- 
+2.1.1
