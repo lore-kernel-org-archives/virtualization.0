@@ -1,7 +1,7 @@
 From: Waiman Long <Waiman.Long@hp.com>
-Subject: [PATCH v13 07/11] qspinlock: Revert to test-and-set on hypervisors
-Date: Wed, 29 Oct 2014 16:19:07 -0400
-Message-ID: <1414613951-32532-8-git-send-email-Waiman.Long__7558.42653238705$1414614057$gmane$org@hp.com>
+Subject: [PATCH v13 08/11] qspinlock, x86: Rename paravirt_ticketlocks_enabled
+Date: Wed, 29 Oct 2014 16:19:08 -0400
+Message-ID: <1414613951-32532-9-git-send-email-Waiman.Long__18872.4985965111$1414614070$gmane$org@hp.com>
 References: <1414613951-32532-1-git-send-email-Waiman.Long@hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,83 +21,77 @@ To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Pe
 Cc: linux-arch@vger.kernel.org, Waiman Long <Waiman.Long@hp.com>, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Vrabel <david.vrabel@citrix.com>, Oleg Nesterov <oleg@redhat.com>, xen-devel@lists.xenproject.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Douglas Hatch <doug.hatch@hp.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+This patch renames the paravirt_ticketlocks_enabled static key to a
+more generic paravirt_spinlocks_enabled name.
 
-When we detect a hypervisor (!paravirt, see qspinlock paravirt support
-patches), revert to a simple test-and-set lock to avoid the horrors
-of queue preemption.
-
-Signed-off-by: Peter Zijlstra <peterz@infradead.org>
 Signed-off-by: Waiman Long <Waiman.Long@hp.com>
+Signed-off-by: Peter Zijlstra <peterz@infradead.org>
 ---
- arch/x86/include/asm/qspinlock.h |   14 ++++++++++++++
- include/asm-generic/qspinlock.h  |    7 +++++++
- kernel/locking/qspinlock.c       |    3 +++
- 3 files changed, 24 insertions(+), 0 deletions(-)
+ arch/x86/include/asm/spinlock.h      |    4 ++--
+ arch/x86/kernel/kvm.c                |    2 +-
+ arch/x86/kernel/paravirt-spinlocks.c |    4 ++--
+ arch/x86/xen/spinlock.c              |    2 +-
+ 4 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/include/asm/qspinlock.h b/arch/x86/include/asm/qspinlock.h
-index a6a8762..05a77fe 100644
---- a/arch/x86/include/asm/qspinlock.h
-+++ b/arch/x86/include/asm/qspinlock.h
-@@ -1,6 +1,7 @@
- #ifndef _ASM_X86_QSPINLOCK_H
- #define _ASM_X86_QSPINLOCK_H
+diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
+index 5899483..928751e 100644
+--- a/arch/x86/include/asm/spinlock.h
++++ b/arch/x86/include/asm/spinlock.h
+@@ -39,7 +39,7 @@
+ /* How long a lock should spin before we consider blocking */
+ #define SPIN_THRESHOLD	(1 << 15)
  
-+#include <asm/cpufeature.h>
- #include <asm-generic/qspinlock_types.h>
+-extern struct static_key paravirt_ticketlocks_enabled;
++extern struct static_key paravirt_spinlocks_enabled;
+ static __always_inline bool static_key_false(struct static_key *key);
  
- #ifndef CONFIG_X86_PPRO_FENCE
-@@ -20,6 +21,19 @@ static inline void queue_spin_unlock(struct qspinlock *lock)
+ #ifdef CONFIG_QUEUE_SPINLOCK
+@@ -150,7 +150,7 @@ static inline void __ticket_unlock_slowpath(arch_spinlock_t *lock,
+ static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
+ {
+ 	if (TICKET_SLOWPATH_FLAG &&
+-	    static_key_false(&paravirt_ticketlocks_enabled)) {
++	    static_key_false(&paravirt_spinlocks_enabled)) {
+ 		arch_spinlock_t prev;
  
- #endif /* !CONFIG_X86_PPRO_FENCE */
+ 		prev = *lock;
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index f6945be..eaa064c 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -827,7 +827,7 @@ static __init int kvm_spinlock_init_jump(void)
+ 	if (!kvm_para_has_feature(KVM_FEATURE_PV_UNHALT))
+ 		return 0;
  
-+#define virt_queue_spin_lock virt_queue_spin_lock
-+
-+static inline bool virt_queue_spin_lock(struct qspinlock *lock)
-+{
-+	if (!static_cpu_has(X86_FEATURE_HYPERVISOR))
-+		return false;
-+
-+	while (atomic_cmpxchg(&lock->val, 0, _Q_LOCKED_VAL) != 0)
-+		cpu_relax();
-+
-+	return true;
-+}
-+
- #include <asm-generic/qspinlock.h>
+-	static_key_slow_inc(&paravirt_ticketlocks_enabled);
++	static_key_slow_inc(&paravirt_spinlocks_enabled);
+ 	printk(KERN_INFO "KVM setup paravirtual spinlock\n");
  
- #endif /* _ASM_X86_QSPINLOCK_H */
-diff --git a/include/asm-generic/qspinlock.h b/include/asm-generic/qspinlock.h
-index e8a7ae8..a53a7bb 100644
---- a/include/asm-generic/qspinlock.h
-+++ b/include/asm-generic/qspinlock.h
-@@ -98,6 +98,13 @@ static __always_inline void queue_spin_unlock(struct qspinlock *lock)
+ 	return 0;
+diff --git a/arch/x86/kernel/paravirt-spinlocks.c b/arch/x86/kernel/paravirt-spinlocks.c
+index bbb6c73..e434f24 100644
+--- a/arch/x86/kernel/paravirt-spinlocks.c
++++ b/arch/x86/kernel/paravirt-spinlocks.c
+@@ -16,5 +16,5 @@ struct pv_lock_ops pv_lock_ops = {
+ };
+ EXPORT_SYMBOL(pv_lock_ops);
+ 
+-struct static_key paravirt_ticketlocks_enabled = STATIC_KEY_INIT_FALSE;
+-EXPORT_SYMBOL(paravirt_ticketlocks_enabled);
++struct static_key paravirt_spinlocks_enabled = STATIC_KEY_INIT_FALSE;
++EXPORT_SYMBOL(paravirt_spinlocks_enabled);
+diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
+index 23b45eb..d332ae0 100644
+--- a/arch/x86/xen/spinlock.c
++++ b/arch/x86/xen/spinlock.c
+@@ -293,7 +293,7 @@ static __init int xen_init_spinlocks_jump(void)
+ 	if (!xen_domain())
+ 		return 0;
+ 
+-	static_key_slow_inc(&paravirt_ticketlocks_enabled);
++	static_key_slow_inc(&paravirt_spinlocks_enabled);
+ 	return 0;
  }
- #endif
- 
-+#ifndef virt_queue_spin_lock
-+static __always_inline bool virt_queue_spin_lock(struct qspinlock *lock)
-+{
-+	return false;
-+}
-+#endif
-+
- /*
-  * Initializier
-  */
-diff --git a/kernel/locking/qspinlock.c b/kernel/locking/qspinlock.c
-index fb0e988..1c1926a 100644
---- a/kernel/locking/qspinlock.c
-+++ b/kernel/locking/qspinlock.c
-@@ -257,6 +257,9 @@ void queue_spin_lock_slowpath(struct qspinlock *lock, u32 val)
- 
- 	BUILD_BUG_ON(CONFIG_NR_CPUS >= (1U << _Q_TAIL_CPU_BITS));
- 
-+	if (virt_queue_spin_lock(lock))
-+		return;
-+
- 	/*
- 	 * wait for in-progress pending->locked hand-overs
- 	 *
+ early_initcall(xen_init_spinlocks_jump);
 -- 
 1.7.1
