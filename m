@@ -1,7 +1,7 @@
 From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: [Xen-devel] [RFC] Hypervisor RNG and enumeration
-Date: Wed, 29 Oct 2014 09:07:53 -0700
-Message-ID: <545110D9.6000703@zytor.com>
+Date: Wed, 29 Oct 2014 09:07:52 -0700
+Message-ID: <545110D8.2030209@zytor.com>
 References: <CALCETrUuSApjNk+xdB1XEPH+Lz2PGY0gnreHwx5Z6xQ0Vj74tw@mail.gmail.com>
 	<5450C35D.1030907@citrix.com>
 Mime-Version: 1.0
