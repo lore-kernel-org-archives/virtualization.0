@@ -1,14 +1,14 @@
 From: Andy Lutomirski <luto@amacapital.net>
 Subject: Re: [Xen-devel] [RFC] Hypervisor RNG and enumeration
-Date: Wed, 29 Oct 2014 09:13:15 -0700
-Message-ID: <CALCETrWup0JS6a8CJcHLtrqHtKfMeA9ZwRABUY2F88z0qwkOVw@mail.gmail.com>
+Date: Wed, 29 Oct 2014 09:23:28 -0700
+Message-ID: <CALCETrUZFOhVj69h7TLfyqsXFDf_sYUF5SF4146UDArRJ71DDw@mail.gmail.com>
 References: <CALCETrUuSApjNk+xdB1XEPH+Lz2PGY0gnreHwx5Z6xQ0Vj74tw@mail.gmail.com>
-	<21585.1101.912184.610549@mariner.uk.xensource.com>
+	<5450C35D.1030907@citrix.com> <545110D8.8060501@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <21585.1101.912184.610549@mariner.uk.xensource.com>
+In-Reply-To: <545110D8.8060501@zytor.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,112 +18,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ian Jackson <Ian.Jackson@eu.citrix.com>
-Cc: Mathew John <mathewj@microsoft.com>, Theodore Ts'o <tytso@mit.edu>, David Hepkin <davidhep@microsoft.com>, kvm list <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Niels Ferguson <niels@microsoft.com>, Jim Mattson <jmattson@vmware.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Doug Covelli <dcovelli@vmware.com>, xen-devel@lists.xenproject.org, "H. Peter Anvin" <hpa@zytor.com>, Jake Oshins <jakeo@microsoft.com>, Paolo Bonzini <pbonzini@redhat.com>, Alok Kataria <akataria@vmware.com>, John Starks <John.Starks@microsoft.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Mathew John <mathewj@microsoft.com>, Theodore Ts'o <tytso@mit.edu>, Jim Mattson <jmattson@vmware.com>, kvm list <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Andrew Cooper <andrew.cooper3@citrix.com>, David Hepkin <davidhep@microsoft.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Doug Covelli <dcovelli@vmware.com>, Paolo Bonzini <pbonzini@redhat.com>, Niels Ferguson <niels@microsoft.com>, Jake Oshins <jakeo@microsoft.com>, xen-devel@lists.xenproject.org, Alok Kataria <akataria@vmware.com>, John Starks <John.Starks@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Oct 29, 2014 8:17 AM, "Ian Jackson" <Ian.Jackson@eu.citrix.com> wrote:
+On Wed, Oct 29, 2014 at 9:07 AM, H. Peter Anvin <hpa@zytor.com> wrote:
+> On 10/29/2014 03:37 AM, Andrew Cooper wrote:
+>>>
+>>> CPUID with EAX = 0x4F000001 and ECX >= N MUST return all zeros.
+>>>
+>>> To the extent that the hypervisor prefers a given interface, it should
+>>> specify that interface earlier in the list.  For example, KVM might place
+>>> its "KVMKVMKVM" signature first in the list to indicate that it should be
+>>> used by guests in preference to other supported interfaces.  Other hypervisors
+>>> would likely use a different order.
+>>>
+>>> The exact semantics of the ordering of the list is beyond the scope of
+>>> this specification.
+>>
+>> How do you evaluate N?
+>>
+>> It would make more sense for CPUID.4F000001[ECX=0] to return N in one
+>> register, and perhaps "prefered interface index" in another.  The
+>> signatures can then be obtained from CPUID.4F000001[ECX={1 to N}].
+>>
+>> That way, a consumer can be confident that they have found all the
+>> signatures, without relying on an unbounded loop and checking for zeroes
 >
-> Andy Lutomirski writes ("[Xen-devel] [RFC] Hypervisor RNG and enumeration"):
-> > Here's a draft CommonHV spec.  It's also on github:
-> > https://github.com/amluto/CommonHV
->
-> This a worthwhile direction to investigate, and an interesting
-> proposal.  From a Xen point of view I have some concerns, though.
->
-> I think in Xen we would want to implement the bulk of the provision of
-> random numbers to guests outside the hypervisor.  That is, the
-> hypervisor itself should not have random number pool code, associated
-> policy, and so on.  We would like to avoid adding too much code to the
-> hypervisor.
->
-> That functionality should live in the lower toolstack layers.  For the
-> benefit of people who want to do radical disaggregation (for security
-> reasons), it should be capable of being provided by a different domain
-> to dom0.
->
-> I think a fully general interface based purely on MSRs makes that
-> difficult in a number of ways:
->
->  * Currently I don't think there is any way in Xen to cause MSR
->    accesses to be passed to toolstack support programs.
->
->  * In some configurations, Xen PV domains do not have a suitable
->    longrunning service process to handle requests of this kind.
->
->  * MSR reads of this kind might be expected to be fast but if they
->    involve trapping to a service domain they might be very slow.
-
-I have no objection to specifying that these reads may be quite slow.
-Guests should only use them at boot and if they have some reason to
-distrust their RNG pool.
-
-The latter can legitimately happen after various types of suspend or
-after migration (detected by VM Generation ID, for example).
-
->
->  * This interface is very x86-specific.
+> Yes.  Specifically, it should return it in EAX.  That is the preferred
+> interface and we are trying to push for that going forward.
 >
 
-Agreed.
+I'm okay with that.
 
-Part of the motivation is to allow guests to use this mechanism very
-early in boot for stack canaries, ASLR, etc.  I don't know a good way
-to do that without something very platform specific.
+I'm inclined to leave EBX, ECX, and EDX reserved for now, though.
+Barring an actual use case in which the order of the list isn't
+sufficient to determine preference, I don't see the need to give
+another preference indication.
 
->
-> It seems to me that the real need for this facility is to provide a
-> good seed for the guest's own cryptographic PRNG.  If we restrict
-> ourselves to that use case, we can sidestep the difficulties.
->
-> In particular, the parts of this proposal that are most difficult are:
->
->  * The facility for the guest to provide random numbers back to the
->    host.  I think this can be dealt with easily by hypervisor-specific
->    mechanisms, if it is desirable.
-
-Xen can implement this is a no-op.  If we use feature bits, wrmsr
-support could be separately enumerated.
-
->
->  * The implication that a hypervisor ought to be providing a unbounded
->    stream of random numbers, rather than a fixed amount of seed.
->
-
-I don't expect hypervisors to estimate the entropy available through
-this mechanism.  Given that, the length of the stream is largely
-irrelevant, except that an unbounded stream allowed reseeding after
-boot.
-
->
-> I think the most obvious approach would be to provide the VM, at
-> startup, with a page containing a fixed amount of random number seed,
-> along with some metatdata.
->
-> Some platform-specific way of discovering the location of the page
-> would have to be defined.  (That might an MSR but more likely it would
-> be Device Tree or ACPI.)
->
-> After the guest has read the page, it would be free to treat it as
-> normal memory.
->
-> The metadata need do little more than specify the length and the
-> amount of provided entropy.  There should be some room for expansion.
-
-ACPI is not useful early in boot.  DT might be, but that could be a
-separate spec.
-
->
-> The specification should say that the provided seed MUST be
-> cryptographically secure, MUST have as much entropy as stated and that
-> that amount of entropy MUST be at least (say) 64 bits and SHOULD be at
-> least (say) 256 bits.
-
-I don't think this is practical.  It will require hypervisors to
-throttle guest startup to ensure that they have that much entropy.
-
-I'm not fundamentally opposed to allowing hypervisors to provide more
-than 64 bits of data per invocation, which would help when the trap is
-very slow, but I don't know of a suitably simple way to do that.
+I updated the copy of github to make this change and to use an
+explicit feature bit for the RNG.
 
 --Andy
+
+>         -hpa
+>
+>
+
+
+
+-- 
+Andy Lutomirski
+AMA Capital Management, LLC
