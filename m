@@ -1,13 +1,19 @@
-From: Waiman Long <Waiman.Long@hp.com>
-Subject: [PATCH v13 11/11] pvqspinlock, x86: Enable PV qspinlock for XEN
-Date: Wed, 29 Oct 2014 16:19:11 -0400
-Message-ID: <1414613951-32532-12-git-send-email-Waiman.Long__13090.3612160639$1414614097$gmane$org@hp.com>
-References: <1414613951-32532-1-git-send-email-Waiman.Long@hp.com>
+From: Waiman Long <waiman.long@hp.com>
+Subject: Re: [PATCH v12 09/11] pvqspinlock,
+	x86: Add para-virtualization support
+Date: Wed, 29 Oct 2014 16:25:09 -0400
+Message-ID: <54514D25.4020207__16984.0921219022$1414614338$gmane$org@hp.com>
+References: <1413483040-58399-1-git-send-email-Waiman.Long@hp.com>
+	<1413483040-58399-10-git-send-email-Waiman.Long@hp.com>
+	<20141024085437.GV21513@worktop.programming.kicks-ass.net>
+	<544E830C.6070307@hp.com>
+	<20141027180439.GL3337@twins.programming.kicks-ass.net>
+	<544EB79E.6020200@hp.com> <54513A90.3080108@hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1414613951-32532-1-git-send-email-Waiman.Long@hp.com>
+In-Reply-To: <54513A90.3080108@hp.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,239 +23,124 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>
-Cc: linux-arch@vger.kernel.org, Waiman Long <Waiman.Long@hp.com>, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Vrabel <david.vrabel@citrix.com>, Oleg Nesterov <oleg@redhat.com>, xen-devel@lists.xenproject.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Douglas Hatch <doug.hatch@hp.com>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Oleg Nesterov <oleg@redhat.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Douglas Hatch <doug.hatch@hp.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds the necessary XEN specific code to allow XEN to
-support the CPU halting and kicking operations needed by the queue
-spinlock PV code.
+On 10/29/2014 03:05 PM, Waiman Long wrote:
+> On 10/27/2014 05:22 PM, Waiman Long wrote:
+>> On 10/27/2014 02:04 PM, Peter Zijlstra wrote:
+>>> On Mon, Oct 27, 2014 at 01:38:20PM -0400, Waiman Long wrote:
+>>>> On 10/24/2014 04:54 AM, Peter Zijlstra wrote:
+>>>>> On Thu, Oct 16, 2014 at 02:10:38PM -0400, Waiman Long wrote:
+>>>>>
+>>>>>> Since enabling paravirt spinlock will disable unlock function 
+>>>>>> inlining,
+>>>>>> a jump label can be added to the unlock function without adding 
+>>>>>> patch
+>>>>>> sites all over the kernel.
+>>>>> But you don't have to. My patches allowed for the inline to remain,
+>>>>> again reducing the overhead of enabling PV spinlocks while running 
+>>>>> on a
+>>>>> real machine.
+>>>>>
+>>>>> Look at:
+>>>>>
+>>>>>    http://lkml.kernel.org/r/20140615130154.213923590@chello.nl
+>>>>>
+>>>>> In particular this hunk:
+>>>>>
+>>>>> Index: linux-2.6/arch/x86/kernel/paravirt_patch_64.c
+>>>>> ===================================================================
+>>>>> --- linux-2.6.orig/arch/x86/kernel/paravirt_patch_64.c
+>>>>> +++ linux-2.6/arch/x86/kernel/paravirt_patch_64.c
+>>>>> @@ -22,6 +22,10 @@ DEF_NATIVE(pv_cpu_ops, swapgs, "swapgs")
+>>>>>   DEF_NATIVE(, mov32, "mov %edi, %eax");
+>>>>>   DEF_NATIVE(, mov64, "mov %rdi, %rax");
+>>>>>
+>>>>> +#if defined(CONFIG_PARAVIRT_SPINLOCKS)&&   
+>>>>> defined(CONFIG_QUEUE_SPINLOCK)
+>>>>> +DEF_NATIVE(pv_lock_ops, queue_unlock, "movb $0, (%rdi)");
+>>>>> +#endif
+>>>>> +
+>>>>>   unsigned paravirt_patch_ident_32(void *insnbuf, unsigned len)
+>>>>>   {
+>>>>>          return paravirt_patch_insns(insnbuf, len,
+>>>>> @@ -61,6 +65,9 @@ unsigned native_patch(u8 type, u16 clobb
+>>>>>                  PATCH_SITE(pv_cpu_ops, clts);
+>>>>>                  PATCH_SITE(pv_mmu_ops, flush_tlb_single);
+>>>>>                  PATCH_SITE(pv_cpu_ops, wbinvd);
+>>>>> +#if defined(CONFIG_PARAVIRT_SPINLOCKS)&&   
+>>>>> defined(CONFIG_QUEUE_SPINLOCK)
+>>>>> +               PATCH_SITE(pv_lock_ops, queue_unlock);
+>>>>> +#endif
+>>>>>
+>>>>>          patch_site:
+>>>>>                  ret = paravirt_patch_insns(ibuf, len, start, end);
+>>>>>
+>>>>>
+>>>>> That makes sure to overwrite the callee-saved call to the
+>>>>> pv_lock_ops::queue_unlock with the immediate asm "movb $0, (%rdi)".
+>>>>>
+>>>>>
+>>>>> Therefore you can retain the inlined unlock with hardly (there 
+>>>>> might be
+>>>>> some NOP padding) any overhead at all. On PV it reverts to a callee
+>>>>> saved function call.
+>>>> My concern is that spin_unlock() can be called in many places, 
+>>>> including
+>>>> loadable kernel modules. Can the paravirt_patch_ident_32() function 
+>>>> able to
+>>>> patch all of them in reasonable time? How about a kernel module 
+>>>> loaded later
+>>>> at run time?
+>>> modules should be fine, see arch/x86/kernel/module.c:module_finalize()
+>>> ->  apply_paravirt().
+>>>
+>>> Also note that the 'default' text is an indirect call into the paravirt
+>>> ops table which routes to the 'right' function, so even if the text
+>>> patching would be 'late' calls would 'work' as expected, just slower.
+>>
+>> Thanks for letting me know about that. I have this concern because 
+>> your patch didn't change the current configuration of disabling 
+>> unlock inlining when paravirt_spinlock is enabled. With that, I think 
+>> it is worthwhile to reduce the performance delta between the PV and 
+>> non-PV kernel on bare metal.
+>
+> I am sorry that the unlock call sites patching code doesn't work in a 
+> virtual guest. Your pvqspinlock patch did an unconditional patching 
+> even in a virtual guest. I added check for the 
+> paravirt_spinlocks_enabled, but it turned out that some spin_unlock() 
+> seemed to be called before paravirt_spinlocks_enabled is set. As a 
+> result, some call sites were still patched resulting in missed wake 
+> up's and system hang.
+>
+> At this point, I am going to leave out that change from my patch set 
+> until we can figure out a better way of doing that.
+>
 
-Signed-off-by: Waiman Long <Waiman.Long@hp.com>
----
- arch/x86/xen/spinlock.c |  149 +++++++++++++++++++++++++++++++++++++++++++++--
- kernel/Kconfig.locks    |    2 +-
- 2 files changed, 145 insertions(+), 6 deletions(-)
+Below was a partial kernel log with the unlock call site patch code in a 
+KVM guest:
 
-diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
-index d332ae0..401d7a6 100644
---- a/arch/x86/xen/spinlock.c
-+++ b/arch/x86/xen/spinlock.c
-@@ -17,6 +17,12 @@
- #include "xen-ops.h"
- #include "debugfs.h"
- 
-+static DEFINE_PER_CPU(int, lock_kicker_irq) = -1;
-+static DEFINE_PER_CPU(char *, irq_name);
-+static bool xen_pvspin = true;
-+
-+#ifndef CONFIG_QUEUE_SPINLOCK
-+
- enum xen_contention_stat {
- 	TAKEN_SLOW,
- 	TAKEN_SLOW_PICKUP,
-@@ -100,12 +106,9 @@ struct xen_lock_waiting {
- 	__ticket_t want;
- };
- 
--static DEFINE_PER_CPU(int, lock_kicker_irq) = -1;
--static DEFINE_PER_CPU(char *, irq_name);
- static DEFINE_PER_CPU(struct xen_lock_waiting, lock_waiting);
- static cpumask_t waiting_cpus;
- 
--static bool xen_pvspin = true;
- __visible void xen_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
- {
- 	int irq = __this_cpu_read(lock_kicker_irq);
-@@ -213,6 +216,118 @@ static void xen_unlock_kick(struct arch_spinlock *lock, __ticket_t next)
- 	}
- }
- 
-+#else /* CONFIG_QUEUE_SPINLOCK */
-+
-+#ifdef CONFIG_XEN_DEBUG_FS
-+static u32 kick_nohlt_stats;		/* Kick but not halt count	*/
-+static u32 halt_qhead_stats;		/* Queue head halting count	*/
-+static u32 halt_qnode_stats;		/* Queue node halting count	*/
-+static u32 halt_abort_stats;		/* Halting abort count		*/
-+static u32 wake_kick_stats;		/* Wakeup by kicking count	*/
-+static u32 wake_spur_stats;		/* Spurious wakeup count	*/
-+static u64 time_blocked;		/* Total blocking time		*/
-+
-+static inline void xen_halt_stats(enum pv_lock_stats type)
-+{
-+	if (type == PV_HALT_QHEAD)
-+		add_smp(&halt_qhead_stats, 1);
-+	else if (type == PV_HALT_QNODE)
-+		add_smp(&halt_qnode_stats, 1);
-+	else /* type == PV_HALT_ABORT */
-+		add_smp(&halt_abort_stats, 1);
-+}
-+
-+void xen_lock_stats(enum pv_lock_stats type)
-+{
-+	if (type == PV_WAKE_KICKED)
-+		add_smp(&wake_kick_stats, 1);
-+	else if (type == PV_WAKE_SPURIOUS)
-+		add_smp(&wake_spur_stats, 1);
-+	else /* type == PV_KICK_NOHALT */
-+		add_smp(&kick_nohlt_stats, 1);
-+}
-+PV_CALLEE_SAVE_REGS_THUNK(xen_lock_stats);
-+
-+static inline u64 spin_time_start(void)
-+{
-+	return sched_clock();
-+}
-+
-+static inline void spin_time_accum_blocked(u64 start)
-+{
-+	u64 delta;
-+
-+	delta = sched_clock() - start;
-+	add_smp(&time_blocked, delta);
-+}
-+#else /* CONFIG_XEN_DEBUG_FS */
-+static inline void xen_halt_stats(enum pv_lock_stats type)
-+{
-+}
-+
-+static inline u64 spin_time_start(void)
-+{
-+	return 0;
-+}
-+
-+static inline void spin_time_accum_blocked(u64 start)
-+{
-+}
-+#endif /* CONFIG_XEN_DEBUG_FS */
-+
-+void xen_kick_cpu(int cpu)
-+{
-+	xen_send_IPI_one(cpu, XEN_SPIN_UNLOCK_VECTOR);
-+}
-+PV_CALLEE_SAVE_REGS_THUNK(xen_kick_cpu);
-+
-+/*
-+ * Halt the current CPU & release it back to the host
-+ */
-+void xen_halt_cpu(u8 *lockbyte)
-+{
-+	int irq = __this_cpu_read(lock_kicker_irq);
-+	unsigned long flags;
-+	u64 start;
-+
-+	/* If kicker interrupts not initialized yet, just spin */
-+	if (irq == -1)
-+		return;
-+
-+	/*
-+	 * Make sure an interrupt handler can't upset things in a
-+	 * partially setup state.
-+	 */
-+	local_irq_save(flags);
-+	start = spin_time_start();
-+
-+	xen_halt_stats(lockbyte ? PV_HALT_QHEAD : PV_HALT_QNODE);
-+	/* clear pending */
-+	xen_clear_irq_pending(irq);
-+
-+	/* Allow interrupts while blocked */
-+	local_irq_restore(flags);
-+	/*
-+	 * Don't halt if the lock is now available
-+	 */
-+	if (lockbyte && !ACCESS_ONCE(*lockbyte)) {
-+		xen_halt_stats(PV_HALT_ABORT);
-+		return;
-+	}
-+	/*
-+	 * If an interrupt happens here, it will leave the wakeup irq
-+	 * pending, which will cause xen_poll_irq() to return
-+	 * immediately.
-+	 */
-+
-+	/* Block until irq becomes pending (or perhaps a spurious wakeup) */
-+	xen_poll_irq(irq);
-+	spin_time_accum_blocked(start);
-+}
-+PV_CALLEE_SAVE_REGS_THUNK(xen_halt_cpu);
-+
-+#endif /* CONFIG_QUEUE_SPINLOCK */
-+
- static irqreturn_t dummy_handler(int irq, void *dev_id)
- {
- 	BUG();
-@@ -258,7 +373,6 @@ void xen_uninit_lock_cpu(int cpu)
- 	per_cpu(irq_name, cpu) = NULL;
- }
- 
--
- /*
-  * Our init of PV spinlocks is split in two init functions due to us
-  * using paravirt patching and jump labels patching and having to do
-@@ -275,8 +389,17 @@ void __init xen_init_spinlocks(void)
- 		return;
- 	}
- 	printk(KERN_DEBUG "xen: PV spinlocks enabled\n");
-+
-+#ifdef CONFIG_QUEUE_SPINLOCK
-+	pv_lock_ops.kick_cpu = PV_CALLEE_SAVE(xen_kick_cpu);
-+	pv_lock_ops.lockwait = PV_CALLEE_SAVE(xen_halt_cpu);
-+#ifdef CONFIG_XEN_DEBUG_FS
-+	pv_lock_ops.lockstat = PV_CALLEE_SAVE(xen_lock_stats);
-+#endif
-+#else
- 	pv_lock_ops.lock_spinning = PV_CALLEE_SAVE(xen_lock_spinning);
- 	pv_lock_ops.unlock_kick = xen_unlock_kick;
-+#endif
- }
- 
- /*
-@@ -321,6 +444,7 @@ static int __init xen_spinlock_debugfs(void)
- 
- 	d_spin_debug = debugfs_create_dir("spinlocks", d_xen);
- 
-+#ifndef CONFIG_QUEUE_SPINLOCK
- 	debugfs_create_u8("zero_stats", 0644, d_spin_debug, &zero_stats);
- 
- 	debugfs_create_u32("taken_slow", 0444, d_spin_debug,
-@@ -340,7 +464,22 @@ static int __init xen_spinlock_debugfs(void)
- 
- 	debugfs_create_u32_array("histo_blocked", 0444, d_spin_debug,
- 				spinlock_stats.histo_spin_blocked, HISTO_BUCKETS + 1);
--
-+#else /* CONFIG_QUEUE_SPINLOCK */
-+	debugfs_create_u32("kick_nohlt_stats",
-+			   0644, d_spin_debug, &kick_nohlt_stats);
-+	debugfs_create_u32("halt_qhead_stats",
-+			   0644, d_spin_debug, &halt_qhead_stats);
-+	debugfs_create_u32("halt_qnode_stats",
-+			   0644, d_spin_debug, &halt_qnode_stats);
-+	debugfs_create_u32("halt_abort_stats",
-+			   0644, d_spin_debug, &halt_abort_stats);
-+	debugfs_create_u32("wake_kick_stats",
-+			   0644, d_spin_debug, &wake_kick_stats);
-+	debugfs_create_u32("wake_spur_stats",
-+			   0644, d_spin_debug, &wake_spur_stats);
-+	debugfs_create_u64("time_blocked",
-+			   0644, d_spin_debug, &time_blocked);
-+#endif /* CONFIG_QUEUE_SPINLOCK */
- 	return 0;
- }
- fs_initcall(xen_spinlock_debugfs);
-diff --git a/kernel/Kconfig.locks b/kernel/Kconfig.locks
-index 57301de..1e66280 100644
---- a/kernel/Kconfig.locks
-+++ b/kernel/Kconfig.locks
-@@ -236,7 +236,7 @@ config ARCH_USE_QUEUE_SPINLOCK
- 
- config QUEUE_SPINLOCK
- 	def_bool y if ARCH_USE_QUEUE_SPINLOCK
--	depends on SMP && (!PARAVIRT_SPINLOCKS || !XEN)
-+	depends on SMP
- 
- config ARCH_USE_QUEUE_RWLOCK
- 	bool
--- 
-1.7.1
+[    0.438006] native_patch: patch out pv_queue_unlock!
+[    0.438565] native_patch: patch out pv_queue_unlock!
+[    0.439006] native_patch: patch out pv_queue_unlock!
+[    0.439638] native_patch: patch out pv_queue_unlock!
+[    0.440052] native_patch: patch out pv_queue_unlock!
+[    0.441006] native_patch: patch out pv_queue_unlock!
+[    0.441566] native_patch: patch out pv_queue_unlock!
+[    0.442035] ftrace: allocating 24168 entries in 95 pages
+[    0.451208] Switched APIC routing to physical flat.
+[    0.453202] ..TIMER: vector=0x30 apic1=0 pin1=2 apic2=-1 pin2=-1
+[    0.454002] smpboot: CPU0: Intel QEMU Virtual CPU version 1.5.3 (fam: 
+06, model: 06, stepping: 03)
+[    0.456000] Performance Events: Broken PMU hardware detected, using 
+software events only.
+[    0.456003] Failed to access perfctr msr (MSR c1 is 0)
+[    0.457151] KVM setup paravirtual spinlock
+[    0.460039] NMI watchdog: disabled (cpu0): hardware events not enabled
+
+It could be seen that some unlock call sites were patched before the KVM 
+setup code set the paravirt_spinlocks_enabled flag.
+
+-Longman
