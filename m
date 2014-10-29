@@ -1,16 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio_ccw: remove unsued variable
-Date: Tue, 28 Oct 2014 19:37:58 +0200
-Message-ID: <20141028173758.GA24566@redhat.com>
-References: <alpine.LFD.2.11.1410201242390.1601@denkbrett>
-	<20141020141931.GB11062@redhat.com>
-	<alpine.LFD.2.11.1410281634560.1567@denkbrett>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: [RFC] Hypervisor RNG and enumeration
+Date: Tue, 28 Oct 2014 22:19:00 -0700
+Message-ID: <CALCETrUuSApjNk+xdB1XEPH+Lz2PGY0gnreHwx5Z6xQ0Vj74tw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.LFD.2.11.1410281634560.1567@denkbrett>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,37 +15,169 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sebastian Ott <sebott@linux.vnet.ibm.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Linux Virtualization <virtualization@lists.linux-foundation.org>
+Cc: Mathew John <mathewj@microsoft.com>, Theodore Ts'o <tytso@mit.edu>, kvm list <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Gleb Natapov <gleb@kernel.org>, Niels Ferguson <niels@microsoft.com>, Jim Mattson <jmattson@vmware.com>, Doug Covelli <dcovelli@vmware.com>, xen-devel@lists.xenproject.org, David Hepkin <davidhep@microsoft.com>, "H. Peter Anvin" <hpa@zytor.com>, Jake Oshins <jakeo@microsoft.com>, Paolo Bonzini <pbonzini@redhat.com>, Alok Kataria <akataria@vmware.com>, John Starks <John.Starks@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBPY3QgMjgsIDIwMTQgYXQgMDQ6Mzk6MTJQTSArMDEwMCwgU2ViYXN0aWFuIE90dCB3
-cm90ZToKPiBPbiBNb24sIDIwIE9jdCAyMDE0LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4g
-PiBPbiBNb24sIE9jdCAyMCwgMjAxNCBhdCAxMjo0ODoxOFBNICswMjAwLCBTZWJhc3RpYW4gT3R0
-IHdyb3RlOgo+ID4gPiBIaSwKPiA+ID4gCj4gPiA+IDAxNmM5OGM2ZiB2aXJ0aW86IHVuaWZ5IGNv
-bmZpZ19jaGFuZ2VkIGhhbmRsaW5nCj4gPiA+IAo+ID4gPiBpbnRyb2R1Y2VkIGEgd2FybmluZyBp
-biB2aXJ0aW9fY2N3IHdoaWNoIGlzIGZpeGVkIGJ5IHRoZSBmb2xsb3dpbmcgcGF0Y2guCj4gPiA+
-IAo+ID4gPiBSZWdhcmRzLAo+ID4gPiBTZWJhc3RpYW4KPiA+ID4gLS0tCj4gPiA+IHZpcnRpb19j
-Y3c6IHJlbW92ZSB1bnN1ZWQgdmFyaWFibGUKPiA+IAo+ID4gcy91bnN1ZWQvdW51c2VkLwo+ID4g
-Cj4gCj4gVG90YWxseSBmb3Jnb3QgdG8gc2VuZCBhbiB1cGRhdGVkIHZlcnNpb24uLnNyeS4gSGVy
-ZSBpdCBpcy4KPiAKPiBSZWdhcmRzLAo+IFNlYmFzdGlhbgo+IAo+IC0tLQo+IHZpcnRpb19jY3c6
-IHJlbW92ZSB1bnVzZWQgdmFyaWFibGUKPiAKPiBGaXggdGhpcyB3YXJuaW5nOgo+IGRyaXZlcnMv
-czM5MC9rdm0vdmlydGlvX2Njdy5jOiBJbiBmdW5jdGlvbiDigJh2aXJ0aW9fY2N3X2ludF9oYW5k
-bGVy4oCZOgo+IGRyaXZlcnMvczM5MC9rdm0vdmlydGlvX2Njdy5jOjg5MToyNDogd2FybmluZzog
-dW51c2VkIHZhcmlhYmxlIOKAmGRyduKAmSBbLVd1bnVzZWQtdmFyaWFibGVdCj4gICAgIHN0cnVj
-dCB2aXJ0aW9fZHJpdmVyICpkcnY7Cj4gCj4gU2lnbmVkLW9mZi1ieTogU2ViYXN0aWFuIE90dCA8
-c2Vib3R0QGxpbnV4LnZuZXQuaWJtLmNvbT4KPiBBY2tlZC1ieTogQ29ybmVsaWEgSHVjayA8Y29y
-bmVsaWEuaHVja0BkZS5pYm0uY29tPgoKQWNrZWQtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0
-QHJlZGhhdC5jb20+Cgo+IC0tLQo+ICBkcml2ZXJzL3MzOTAva3ZtL3ZpcnRpb19jY3cuYyB8IDEg
-LQo+ICAxIGZpbGUgY2hhbmdlZCwgMSBkZWxldGlvbigtKQo+IAo+IGRpZmYgLS1naXQgYS9kcml2
-ZXJzL3MzOTAva3ZtL3ZpcnRpb19jY3cuYyBiL2RyaXZlcnMvczM5MC9rdm0vdmlydGlvX2Njdy5j
-Cj4gaW5kZXggNmNiZTZlZi4uYmRhNTJmMSAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3MzOTAva3Zt
-L3ZpcnRpb19jY3cuYwo+ICsrKyBiL2RyaXZlcnMvczM5MC9rdm0vdmlydGlvX2Njdy5jCj4gQEAg
-LTg4OCw3ICs4ODgsNiBAQCBzdGF0aWMgdm9pZCB2aXJ0aW9fY2N3X2ludF9oYW5kbGVyKHN0cnVj
-dCBjY3dfZGV2aWNlICpjZGV2LAo+ICAJc3RydWN0IHZpcnRpb19jY3dfZGV2aWNlICp2Y2RldiA9
-IGRldl9nZXRfZHJ2ZGF0YSgmY2Rldi0+ZGV2KTsKPiAgCWludCBpOwo+ICAJc3RydWN0IHZpcnRx
-dWV1ZSAqdnE7Cj4gLQlzdHJ1Y3QgdmlydGlvX2RyaXZlciAqZHJ2Owo+ICAKPiAgCWlmICghdmNk
-ZXYpCj4gIAkJcmV0dXJuOwo+IC0tIAo+IDEuOC40LjIKCl9fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
-dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
-Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Here's a draft CommonHV spec.  It's also on github:
+
+https://github.com/amluto/CommonHV
+
+So far, this provides a two-way RNG interface, a way to detect it, and
+a way to detect other hypervisor leaves.  The latter is because, after
+both the enormous public thread and some private discussions, it seems
+that detection of existing CPUID paravirt leaves is annoying and
+inefficient.  If we're going to define some cross-vendor CPUID leaves,
+it seems like it would be useful to offer a way to quickly enumerate
+other leaves.
+
+I've been told the AMD intends to update their manual to match Intel's
+so that hypervisors can use the entire 0x4F?????? CPUID range.  I have
+intentionally not fixed an MSR value for the RNG because the range of
+allowed MSRs is very small in both the Intel and AMD manuals.  If any
+given hypervisor wants to ignore that small range and advertise a
+higher-numbered MSR, it is welcome to, but I don't want to codify
+something that doesn't comply with the manuals.
+
+Here's the draft.  Comments?  To the people who work on various
+hypervisors: Would you implement this?  Do you like it?  Is there
+anything, major or minor, that you'd like to see changed?  Do you
+think that this is a good idea at all?
+
+I've tried to get good coverage of various hypervisors.  There are
+Hyper-V, VMWare, KVM, and Xen people on the cc list.
+
+Thanks,
+Andy
+
+
+
+CommonHV, a common hypervisor interface
+=======================================
+
+This is CommonHV draft 1.
+
+The CommonHV specification is Copyright (c) 2014 Andrew Lutomirski.
+
+Licensing will be determined soon.  The license is expected to be extremely
+liberal.  I am currently leaning towards CC-BY-SA for the specification and
+an explicit license permitting anyone to implement the specification
+with no restrictions whatsoever.
+
+I have not patented, nor do I intend to patent, anything required to implement
+this specification.  I am not aware of any current or future intellectual
+property rights that would prevent a royalty-free implementation of
+this specification.
+
+I would like to find a stable, neutral steward of this specification
+going forward.  Help with this would be much appreciated.
+
+Scope
+-----
+
+CommonHV is a simple interface for communication
+between hypervisors and their guests.
+
+CommonHV is intended to be very simple and to avoid interfering with
+existing paravirtual interfaces.  To that end, its scope is limited.
+CommonHV does only two types of things:
+
+  * It provides a way to enumerate other paravirtual interfaces.
+  * It provides a small, extensible set of paravirtual features that do not
+    modify or replace standard system functionality.
+
+For example, CommonHV does not and will not define anything related to
+interrupt handling or virtual CPU management.
+
+For now, CommonHV is only applicable to the x86 platform.
+
+Discovery
+---------
+
+A CommonHV hypervisor MUST set the hypervisor bit (bit 31 in CPUID.1H.0H.ECX)
+and provide the CPUID leaf 4F000000H, containing:
+
+  * CPUID.4F000000H.0H.EAX = max_commonhv_leaf
+  * CPUID.4F000000H.0H.EBX = 0x6D6D6F43
+  * CPUID.4F000000H.0H.ECX = 0x56486E6F
+  * CPUID.4F000000H.0H.EDX = 0x66746e49
+
+EBX, ECX, and EDX form the string "CommonHVIntf" in little-endian ASCII.
+
+max_commonhv_leaf MUST be a number between 0x4F000000 and 0x4FFFFFFF.  It
+indicates the largest leaf defined in this specification that is provided.
+Any leaves described in this specification with EAX values that exceed
+max_commonhv_leaf MUST be handled by guests as though they contain
+all zeros.
+
+CPUID leaf 4F000001H: hypervisor interface enumeration
+------------------------------------------------------
+
+If max_commonhv_leaf >= 0x4F000001, CommonHV provides a list of tuples
+(location, signature).  Each tuple indicates the presence of another
+paravirtual interface identified by the signature at the indicated
+CPUID location.  It is expected that CPUID.location.0H will have
+(EBX, ECX, EDX) == signature, although whether this is required
+is left to the specification associated with the given signature.
+
+If the list contains N tuples, then, for each 0 <= i < N:
+
+  * CPUID.4F000001H.i.EBX, CPUID.4F000001H.i.ECX, and CPUID.4F000001H.i.EDX
+    are the signature.
+  * CPUID.4F000001H.i.EAX is the location.
+
+CPUID with EAX = 0x4F000001 and ECX >= N MUST return all zeros.
+
+To the extent that the hypervisor prefers a given interface, it should
+specify that interface earlier in the list.  For example, KVM might place
+its "KVMKVMKVM" signature first in the list to indicate that it should be
+used by guests in preference to other supported interfaces.  Other hypervisors
+would likely use a different order.
+
+The exact semantics of the ordering of the list is beyond the scope of
+this specification.
+
+CPUID leaf 4F000002H: miscellaneous features
+--------------------------------------------
+
+CPUID.4F000002H.EAX is nonzero if the CommonHV RNG interface is available.
+CPUID.4F000002H.EBX, CPUID.4F000002H.ECX, and CPUID.4F000002H.EDX are reserved
+and must be zero in hypervisors compliant with this version of the CommonHV
+specification.
+
+### CommonHV RNG
+
+If CPUID.4F000002H.EAX is nonzero, then it contains an MSR index used to
+communicate with a hypervisor random number generator.  This MSR is
+referred to as MSR_COMMONHV_RNG.
+
+rdmsr(MSR_COMMONHV_RNG) returns a 64-bit best-effort random number.  If the
+hypervisor is able to generate a 64-bit cryptographically secure random number,
+it SHOULD return it.  If not, then the hypervisor SHOULD do its best to return
+a random number suitable for seeding a cryptographic RNG.
+
+A guest is expected to read MSR_COMMONHV_RNG several times in a row.
+The hypervisor SHOULD return different values each time.
+
+rdmsr(MSR_COMMONHV_RNG) MUST NOT result in an exception, but guests MUST
+NOT assume that its return value is indeed secure.  For example, a hypervisor
+is free to return zero in response to rdmsr(MSR_COMMONHV_RNG).
+
+wrmsr(MSR_COMMONHV_RNG) offers the hypervisor up to 64 bits of entropy.
+The hypervisor MAY use it as it sees fit to improve its own random number
+generator.  A hypervisor SHOULD make a reasonable effort to avoid making
+values written to MSR_COMMONHV_RNG visible to untrusted parties, but
+guests SHOULD NOT write sensitive values to wrmsr(MSR_COMMONHV_RNG).
+
+A hypervisor is free to ignore wrmsr(MSR_COMMONHV_RNG), but wrmsr to
+MSR_COMMONHV_RNG MUST NOT result in an exception.
+
+Note that the CommonHV RNG is not intended to replace stronger, asynchronous
+paravirtual random number generator interfaces.  It is intended primarily
+for seeding guest RNGs early in boot.
+
+Future extension
+----------------
+
+CPUID leaves beyond those defined in this version of the CommonHV specification
+should be ignored by guests written for this version of the specification.
