@@ -1,15 +1,14 @@
-From: Josh Triplett <josh@joshtriplett.org>
-Subject: [PATCH v3 2/3] x86: tss: Eliminate fragile calculation of TSS
-	segment limit
-Date: Wed, 29 Oct 2014 09:03:07 -0700
-Message-ID: <8982dc6cc6beadae9488830d566fb1c8cf42d4ee.1414598511.git.josh@joshtriplett.org>
-References: <7159269982aac3b732af2c33a2e3d04e2048bdfb.1414598511.git.josh@joshtriplett.org>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [Xen-devel] [RFC] Hypervisor RNG and enumeration
+Date: Wed, 29 Oct 2014 09:07:52 -0700
+Message-ID: <545110D8.8060501@zytor.com>
+References: <CALCETrUuSApjNk+xdB1XEPH+Lz2PGY0gnreHwx5Z6xQ0Vj74tw@mail.gmail.com>
+	<5450C35D.1030907@citrix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <7159269982aac3b732af2c33a2e3d04e2048bdfb.1414598511.git.josh@joshtriplett.org>
+In-Reply-To: <5450C35D.1030907@citrix.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,64 +18,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, Kees Cook <keescook@chromium.org>, Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, x86@kernel.org, xen-devel@lists.xenproject.org
+To: Andrew Cooper <andrew.cooper3@citrix.com>, Andy Lutomirski <luto@amacapital.net>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+Cc: Mathew John <mathewj@microsoft.com>, Theodore Ts'o <tytso@mit.edu>, Jim Mattson <jmattson@vmware.com>, kvm list <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Niels Ferguson <niels@microsoft.com>, David Hepkin <davidhep@microsoft.com>, Doug Covelli <dcovelli@vmware.com>, Paolo Bonzini <pbonzini@redhat.com>, Jake Oshins <jakeo@microsoft.com>, xen-devel@lists.xenproject.org, Alok Kataria <akataria@vmware.com>, John Starks <John.Starks@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-__set_tss_desc has a complex calculation of the TSS segment limit,
-duplicating the quirky details of the I/O bitmap array length, and
-requiring a complex comment to explain.  Replace that calculation with a
-simpler one based on the offsetof the "stack" field that follows the
-array.
+On 10/29/2014 03:37 AM, Andrew Cooper wrote:
+>>
+>> CPUID with EAX = 0x4F000001 and ECX >= N MUST return all zeros.
+>>
+>> To the extent that the hypervisor prefers a given interface, it should
+>> specify that interface earlier in the list.  For example, KVM might place
+>> its "KVMKVMKVM" signature first in the list to indicate that it should be
+>> used by guests in preference to other supported interfaces.  Other hypervisors
+>> would likely use a different order.
+>>
+>> The exact semantics of the ordering of the list is beyond the scope of
+>> this specification.
+> 
+> How do you evaluate N?
+> 
+> It would make more sense for CPUID.4F000001[ECX=0] to return N in one
+> register, and perhaps "prefered interface index" in another.  The
+> signatures can then be obtained from CPUID.4F000001[ECX={1 to N}].
+> 
+> That way, a consumer can be confident that they have found all the
+> signatures, without relying on an unbounded loop and checking for zeroes
 
-That then removes the last use of IO_BITMAP_OFFSET, so delete it.
+Yes.  Specifically, it should return it in EAX.  That is the preferred
+interface and we are trying to push for that going forward.
 
-Signed-off-by: Josh Triplett <josh@joshtriplett.org>
-Acked-by: Alexander van Heukelum <heukelum@fastmail.fm>
----
-v3: No changes in this patch, only in patch 3/3.
-
- arch/x86/include/asm/desc.h      | 11 +----------
- arch/x86/include/asm/processor.h |  4 +++-
- 2 files changed, 4 insertions(+), 11 deletions(-)
-
-diff --git a/arch/x86/include/asm/desc.h b/arch/x86/include/asm/desc.h
-index 50d033a..f8dc455 100644
---- a/arch/x86/include/asm/desc.h
-+++ b/arch/x86/include/asm/desc.h
-@@ -177,16 +177,7 @@ static inline void __set_tss_desc(unsigned cpu, unsigned int entry, void *addr)
- 	struct desc_struct *d = get_cpu_gdt_table(cpu);
- 	tss_desc tss;
- 
--	/*
--	 * sizeof(unsigned long) coming from an extra "long" at the end
--	 * of the iobitmap. See tss_struct definition in processor.h
--	 *
--	 * -1? seg base+limit should be pointing to the address of the
--	 * last valid byte
--	 */
--	set_tssldt_descriptor(&tss, (unsigned long)addr, DESC_TSS,
--			      IO_BITMAP_OFFSET + IO_BITMAP_BYTES +
--			      sizeof(unsigned long) - 1);
-+	set_tssldt_descriptor(&tss, (unsigned long)addr, DESC_TSS, TSS_LIMIT);
- 	write_gdt_entry(d, entry, &tss, DESC_TSS);
- }
- 
-diff --git a/arch/x86/include/asm/processor.h b/arch/x86/include/asm/processor.h
-index eb71ec7..76751cd 100644
---- a/arch/x86/include/asm/processor.h
-+++ b/arch/x86/include/asm/processor.h
-@@ -258,9 +258,11 @@ struct x86_hw_tss {
- #define IO_BITMAP_BITS			65536
- #define IO_BITMAP_BYTES			(IO_BITMAP_BITS/8)
- #define IO_BITMAP_LONGS			(IO_BITMAP_BYTES/sizeof(long))
--#define IO_BITMAP_OFFSET		offsetof(struct tss_struct, io_bitmap)
- #define INVALID_IO_BITMAP_OFFSET	0x8000
- 
-+/* Segment limits point to the last valid byte, hence the -1 */
-+#define TSS_LIMIT	(offsetof(struct tss_struct, stack) - 1)
-+
- struct tss_struct {
- 	/*
- 	 * The hardware state:
--- 
-2.1.1
+	-hpa
