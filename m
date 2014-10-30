@@ -1,15 +1,15 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH v3 3/3] x86: Support compiling out userspace I/O (iopl
-	and ioperm)
-Date: Wed, 29 Oct 2014 22:00:54 +0100 (CET)
-Message-ID: <alpine.DEB.2.11.1410292155300.5308@nanos>
-References: <7159269982aac3b732af2c33a2e3d04e2048bdfb.1414598511.git.josh@joshtriplett.org>
-	<9d77d0e4df8feb2cb55fb21689e016a3145cb7f8.1414598511.git.josh@joshtriplett.org>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [Qemu-devel] [PATCH RFC 07/11] dataplane: allow virtio-1 devices
+Date: Thu, 30 Oct 2014 10:18:38 +0100
+Message-ID: <20141030101838.2ddee2dc.cornelia.huck@de.ibm.com>
+References: <1412692807-12398-1-git-send-email-cornelia.huck@de.ibm.com>
+	<1412692807-12398-8-git-send-email-cornelia.huck@de.ibm.com>
+	<20141028162254.2a4f2cf4@bahia.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <9d77d0e4df8feb2cb55fb21689e016a3145cb7f8.1414598511.git.josh@joshtriplett.org>
+In-Reply-To: <20141028162254.2a4f2cf4@bahia.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,23 +19,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Josh Triplett <josh@joshtriplett.org>
-Cc: Kees Cook <keescook@chromium.org>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org
+To: Greg Kurz <gkurz@linux.vnet.ibm.com>
+Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 29 Oct 2014, Josh Triplett wrote:
-> v3: Eliminated several #ifdefs, and in particular almost all #ifdefs in
->     .c files, by adding a macro INIT_SET_IOPL_MASK to use in place of
->     the initializer for set_iopl_mask, and using __maybe_unused rather
->     than wrapping function definitions in #ifdef.  Rebased on v3.18-rc1.
->     Recomputed bloat-o-meter.
-
-Can you please split this patch into smaller pieces?
-
-    - Seperate the code move to header files
-    - Seperate the macro stuff
-    - Add the #ifdef CONFIG_.... changes
-
-Thanks,
-
-	tglx
+T24gVHVlLCAyOCBPY3QgMjAxNCAxNjoyMjo1NCArMDEwMApHcmVnIEt1cnogPGdrdXJ6QGxpbnV4
+LnZuZXQuaWJtLmNvbT4gd3JvdGU6Cgo+IE9uIFR1ZSwgIDcgT2N0IDIwMTQgMTY6NDA6MDMgKzAy
+MDAKPiBDb3JuZWxpYSBIdWNrIDxjb3JuZWxpYS5odWNrQGRlLmlibS5jb20+IHdyb3RlOgo+IAo+
+ID4gSGFuZGxlIGVuZGlhbm5lc3MgY29udmVyc2lvbiBmb3IgdmlydGlvLTEgdmlydHF1ZXVlcyBj
+b3JyZWN0bHkuCj4gPiAKPiA+IE5vdGUgdGhhdCBkYXRhcGxhbmUgbm93IG5lZWRzIHRvIGJlIGJ1
+aWx0IHBlci10YXJnZXQuCj4gPiAKPiAKPiBJdCBhbHNvIGFmZmVjdHMgaHcvdmlydGlvL3ZpcnRp
+by1wY2kuYzoKPiAKPiBJbiBmaWxlIGluY2x1ZGVkIGZyb20gaW5jbHVkZS9ody92aXJ0aW8vZGF0
+YXBsYW5lL3ZyaW5nLmg6MjM6MCwKPiAgICAgICAgICAgICAgICAgIGZyb20gaW5jbHVkZS9ody92
+aXJ0aW8vdmlydGlvLXNjc2kuaDoyMSwKPiAgICAgICAgICAgICAgICAgIGZyb20gaHcvdmlydGlv
+L3ZpcnRpby1wY2kuYzoyNDoKPiBpbmNsdWRlL2h3L3ZpcnRpby92aXJ0aW8tYWNjZXNzLmg6IElu
+IGZ1bmN0aW9uIOKAmHZpcnRpb19hY2Nlc3NfaXNfYmlnX2VuZGlhbuKAmToKPiBpbmNsdWRlL2h3
+L3ZpcnRpby92aXJ0aW8tYWNjZXNzLmg6Mjg6MTU6IGVycm9yOiBhdHRlbXB0IHRvIHVzZSBwb2lz
+b25lZCAiVEFSR0VUX1dPUkRTX0JJR0VORElBTiIKPiAgI2VsaWYgZGVmaW5lZChUQVJHRVRfV09S
+RFNfQklHRU5ESUFOKQo+ICAgICAgICAgICAgICAgIF4KPiAKPiBGV0lXIHdoZW4gSSBhZGRlZCBl
+bmRpYW4gYW1iaXZhbGVudCBzdXBwb3J0IHRvIHZpcnRpbywgSSByZW1lbWJlciAqc29tZSBwZW9w
+bGUqCj4gZ2V0dGluZyBhbmdyeSBhdCB0aGUgaWRlYSBvZiB0dXJuaW5nIGNvbW1vbiBjb2RlIGlu
+dG8gcGVyLXRhcmdldC4uLiA6KQoKV2VsbCwgaXQgcHJvYmFibHkgY2FuJ3QgYmUgaGVscGVkIGZv
+ciBzb21ldGhpbmcgdGhhdCBpcwplbmRpYW4tc2Vuc2l0aXZlIGxpa2UgdmlydGlvIDooIChBbHRo
+b3VnaCB3ZSBzaG91bGQgdHJ5IHRvIGtlZXAgaXQgYXMKbG9jYWwgYXMgcG9zc2libGUuKQoKPiAK
+PiBTZWUgY29tbWVudCBiZWxvdy4KPiAKPiA+IFNpZ25lZC1vZmYtYnk6IENvcm5lbGlhIEh1Y2sg
+PGNvcm5lbGlhLmh1Y2tAZGUuaWJtLmNvbT4KPiA+IC0tLQo+ID4gIGh3L2Jsb2NrL2RhdGFwbGFu
+ZS92aXJ0aW8tYmxrLmMgICAgIHwgICAgMyArLQo+ID4gIGh3L3Njc2kvdmlydGlvLXNjc2ktZGF0
+YXBsYW5lLmMgICAgIHwgICAgMiArLQo+ID4gIGh3L3ZpcnRpby9NYWtlZmlsZS5vYmpzICAgICAg
+ICAgICAgIHwgICAgMiArLQo+ID4gIGh3L3ZpcnRpby9kYXRhcGxhbmUvTWFrZWZpbGUub2JqcyAg
+IHwgICAgMiArLQo+ID4gIGh3L3ZpcnRpby9kYXRhcGxhbmUvdnJpbmcuYyAgICAgICAgIHwgICA4
+NSArKysrKysrKysrKysrKysrKysrLS0tLS0tLS0tLS0tLS0tLQo+ID4gIGluY2x1ZGUvaHcvdmly
+dGlvL2RhdGFwbGFuZS92cmluZy5oIHwgICA2NCArKysrKysrKysrKysrKysrKysrKysrKystLQo+
+ID4gIDYgZmlsZXMgY2hhbmdlZCwgMTEzIGluc2VydGlvbnMoKyksIDQ1IGRlbGV0aW9ucygtKQo+
+ID4gCgo+ID4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvaHcvdmlydGlvL2RhdGFwbGFuZS92cmluZy5o
+IGIvaW5jbHVkZS9ody92aXJ0aW8vZGF0YXBsYW5lL3ZyaW5nLmgKPiA+IGluZGV4IGQzZTA4NmEu
+LmZkZTE1ZjMgMTAwNjQ0Cj4gPiAtLS0gYS8gCj4gPiArKysgYi9pbmNsdWRlL2h3L3ZpcnRpby9k
+YXRhcGxhbmUvdnJpbmcuaAo+ID4gQEAgLTIwLDYgKzIwLDcgQEAKPiA+ICAjaW5jbHVkZSAicWVt
+dS1jb21tb24uaCIKPiA+ICAjaW5jbHVkZSAiaHcvdmlydGlvL3ZpcnRpb19yaW5nLmgiCj4gPiAg
+I2luY2x1ZGUgImh3L3ZpcnRpby92aXJ0aW8uaCIKPiA+ICsjaW5jbHVkZSAiaHcvdmlydGlvL3Zp
+cnRpby1hY2Nlc3MuaCIKPiA+IAo+IAo+IFNpbmNlIHRoZSBmb2xsb3dpbmcgY29tbWl0Ogo+IAo+
+IGNvbW1pdCAyNDRlMjg5OGI3YTc3MzViM2RhMTE0YzEyMGFiZTIwNmFmNTZhMTY3Cj4gQXV0aG9y
+OiBGYW0gWmhlbmcgPGZhbXpAcmVkaGF0LmNvbT4KPiBEYXRlOiAgIFdlZCBTZXAgMjQgMTU6MjE6
+NDEgMjAxNCArMDgwMAo+IAo+ICAgICB2aXJ0aW8tc2NzaTogQWRkIFZpcnRJT1NDU0lWcmluZyBp
+biBWaXJ0SU9TQ1NJUmVxCj4gCj4gVGhlIGluY2x1ZGUvaHcvdmlydGlvL2RhdGFwbGFuZS92cmlu
+Zy5oIGhlYWRlciBpcyBpbmRpcmVjdGx5IGluY2x1ZGVkCj4gYnkgaHcvdmlydGlvL3ZpcnRpby1w
+Y2kuYy4gV2h5IGRvbid0IHlvdSBtb3ZlIGFsbCB0aGlzIHRhcmdldCBkZXBlbmRlbnQKPiBoZWxw
+ZXJzIHRvIGFub3RoZXIgaGVhZGVyID8KCkFoLCB0aGlzIHNlZW1zIHRvIGhhdmUgY29tZSBpbiBh
+ZnRlciBJIGhhY2tlZCBvbiB0aGF0IGNvZGUgLSBJJ2xsIHRha2UgYQpsb29rIGF0IHNwbGl0dGlu
+ZyBvZmYgdGhlIGFjY2Vzc29ycy4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
+aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
+cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
