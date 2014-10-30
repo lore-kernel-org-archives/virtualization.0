@@ -1,16 +1,11 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [Qemu-devel] [PATCH RFC 05/11] virtio: introduce legacy virtio
-	devices
-Date: Thu, 30 Oct 2014 19:02:01 +0100
-Message-ID: <20141030190201.41e8940d.cornelia.huck@de.ibm.com>
-References: <1412692807-12398-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1412692807-12398-6-git-send-email-cornelia.huck@de.ibm.com>
-	<20141028164018.29d73d9f@bahia.local>
+From: Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH v2 net 0/2] drivers/net,ipv6: Fix IPv6 fragment ID selection
+	for virtio
+Date: Thu, 30 Oct 2014 18:26:32 +0000
+Message-ID: <1414693592.16849.61.camel__30887.2433416129$1414693622$gmane$org@decadent.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============5947955048384641097=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141028164018.29d73d9f@bahia.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,56 +15,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: Hannes Frederic Sowa <hannes@stressinduktion.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 28 Oct 2014 16:40:18 +0100
-Greg Kurz <gkurz@linux.vnet.ibm.com> wrote:
 
-> On Tue,  7 Oct 2014 16:40:01 +0200
-> Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
-> 
-> > Introduce a helper function to indicate  whether a virtio device is
-> > operating in legacy or virtio standard mode.
-> > 
-> > It may be used to make decisions about the endianess of virtio accesses
-> > and other virtio-1 specific changes, enabling us to support transitional
-> > devices.
-> > 
-> > Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
-> > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> > ---
-> >  hw/virtio/virtio.c                |    6 +++++-
-> >  include/hw/virtio/virtio-access.h |    4 ++++
-> >  include/hw/virtio/virtio.h        |   13 +++++++++++--
-> >  3 files changed, 20 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/hw/virtio/virtio.c b/hw/virtio/virtio.c
-> > index 7aaa953..e6ae3a0 100644
-> > --- a/hw/virtio/virtio.c
-> > +++ b/hw/virtio/virtio.c
-> > @@ -883,7 +883,11 @@ static bool virtio_device_endian_needed(void *opaque)
-> >      VirtIODevice *vdev = opaque;
-> > 
-> >      assert(vdev->device_endian != VIRTIO_DEVICE_ENDIAN_UNKNOWN);
-> > -    return vdev->device_endian != virtio_default_endian();
-> > +    if (virtio_device_is_legacy(vdev)) {
-> > +        return vdev->device_endian != virtio_default_endian();
-> > +    }
-> > +    /* Devices conforming to VIRTIO 1.0 or later are always LE. */
-> > +    return vdev->device_endian != VIRTIO_DEVICE_ENDIAN_LITTLE;
-> >  }
-> > 
-> 
-> Shouldn't we have some code doing the following somewhere ?
-> 
-> if (!virtio_device_is_legacy(vdev)) {
->     vdev->device_endian = VIRTIO_DEVICE_ENDIAN_LITTLE;
-> }
-> 
-> also, since virtio-1 is LE only, do we expect device_endian to
-> be different from VIRTIO_DEVICE_ENDIAN_LITTLE ?
+--===============5947955048384641097==
+Content-Type: multipart/signed; micalg="pgp-sha512";
+	protocol="application/pgp-signature"; boundary="=-ENpuRQMmnWEC8ORQlhJI"
 
-device_endian should not depend on whether the device is legacy or not.
-virtio_is_big_endian always returns false for virtio-1 devices, though.
+
+--=-ENpuRQMmnWEC8ORQlhJI
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+The virtio net protocol supports UFO but does not provide for passing a
+fragment ID for fragmentation of IPv6 packets.  We used to generate a
+fragment ID wherever such a packet was fragmented, but currently we
+always use ID=3D0!
+
+v2: Add blank lines after declarations
+
+Ben.
+
+Ben Hutchings (2):
+  drivers/net: Disable UFO through virtio
+  drivers/net,ipv6: Select IPv6 fragment idents for virtio UFO packets
+
+ drivers/net/macvtap.c    | 16 ++++++++--------
+ drivers/net/tun.c        | 25 ++++++++++++++++---------
+ drivers/net/virtio_net.c | 24 ++++++++++++++----------
+ include/net/ipv6.h       |  2 ++
+ net/ipv6/output_core.c   | 34 ++++++++++++++++++++++++++++++++++
+ 5 files changed, 74 insertions(+), 27 deletions(-)
+
+--=20
+Ben Hutchings
+The program is absolutely right; therefore, the computer must be wrong.
+
+--=-ENpuRQMmnWEC8ORQlhJI
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIVAwUAVFKC3ee/yOyVhhEJAQouJA/8DDnny3CmqaJVX4ZazV3Xck2xMGRVaIYD
+o394JZdrGTBZBrrQ1JNy98+yOHpydoe2eQK3DuGKAEIaDXdaURVUDISjb5xRZvoM
+Cfm/tyXrZ/Nif+vgLfgBgVcQBN8bvRV9XnjHr2kUoXS/RnDE0Nhp5E28Q6s5UNKS
+iXn0FtX1jgKGgHWtq1LzBM2EUCH8bCpQoSd5KSPqechYutTGVPC6iyJuxs4PBrvc
+ydsNhLuHCqmrStrKbv63XOSLEQZZq8hVX4V26HWzJLDyAnhL+Y8g1dUj91kXdWny
+bk4hA2ENR6MT6YmiqyWb+DQBwP2WfRn2Jz20yltkbhmOGQFHXPd/oK4p8oOVRuvb
+QYdTwa6vK/HQeqWCyMP0lRhjJypnbDtjAXayrXiODHMLzb7ujbxWT6Wvp88QIxSk
+2vCeFTQj7k+pjACrdBx3vFldYLWlg8j9g83zozwZ61NKZWr9a1SroztrORbr41w7
+QZsNXcVmvlalngUjwUx8tcBkmkiO9GknmTy8lH92kMs9BsDDJFptyixqtOxTE/Qg
+QPukGE6CZtGX+AMb1iD7+lS9ZwDqD6JNYw+2RS52w8VWdnRxhYwCim4kADH98gS/
+HLNypkp9lAqNzmBwhPn46M1hgOPTqkfWPYXxjSyDoQ41vR215XGsNEAqESItFBqs
+EgLMbpxVWRc=
+=Hqcq
+-----END PGP SIGNATURE-----
+
+--=-ENpuRQMmnWEC8ORQlhJI--
+
+--===============5947955048384641097==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5947955048384641097==--
