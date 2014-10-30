@@ -1,16 +1,16 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH] virtio_ccw: remove unsued variable
-Date: Thu, 30 Oct 2014 18:51:26 +0100
-Message-ID: <20141030185126.1da79c12.cornelia.huck@de.ibm.com>
-References: <alpine.LFD.2.11.1410201242390.1601@denkbrett>
-	<20141020141931.GB11062@redhat.com>
-	<alpine.LFD.2.11.1410281634560.1567@denkbrett>
-	<20141028173758.GA24566@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH RFC 05/11] virtio: introduce legacy virtio
+	devices
+Date: Thu, 30 Oct 2014 19:02:01 +0100
+Message-ID: <20141030190201.41e8940d.cornelia.huck@de.ibm.com>
+References: <1412692807-12398-1-git-send-email-cornelia.huck@de.ibm.com>
+	<1412692807-12398-6-git-send-email-cornelia.huck@de.ibm.com>
+	<20141028164018.29d73d9f@bahia.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141028173758.GA24566@redhat.com>
+In-Reply-To: <20141028164018.29d73d9f@bahia.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,33 +20,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: Greg Kurz <gkurz@linux.vnet.ibm.com>
+Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCAyOCBPY3QgMjAxNCAxOTozNzo1OCArMDIwMAoiTWljaGFlbCBTLiBUc2lya2luIiA8
-bXN0QHJlZGhhdC5jb20+IHdyb3RlOgoKPiBPbiBUdWUsIE9jdCAyOCwgMjAxNCBhdCAwNDozOTox
-MlBNICswMTAwLCBTZWJhc3RpYW4gT3R0IHdyb3RlOgoKPiA+IHZpcnRpb19jY3c6IHJlbW92ZSB1
-bnVzZWQgdmFyaWFibGUKPiA+IAo+ID4gRml4IHRoaXMgd2FybmluZzoKPiA+IGRyaXZlcnMvczM5
-MC9rdm0vdmlydGlvX2Njdy5jOiBJbiBmdW5jdGlvbiDigJh2aXJ0aW9fY2N3X2ludF9oYW5kbGVy
-4oCZOgo+ID4gZHJpdmVycy9zMzkwL2t2bS92aXJ0aW9fY2N3LmM6ODkxOjI0OiB3YXJuaW5nOiB1
-bnVzZWQgdmFyaWFibGUg4oCYZHJ24oCZIFstV3VudXNlZC12YXJpYWJsZV0KPiA+ICAgICBzdHJ1
-Y3QgdmlydGlvX2RyaXZlciAqZHJ2Owo+ID4gCj4gPiBTaWduZWQtb2ZmLWJ5OiBTZWJhc3RpYW4g
-T3R0IDxzZWJvdHRAbGludXgudm5ldC5pYm0uY29tPgo+ID4gQWNrZWQtYnk6IENvcm5lbGlhIEh1
-Y2sgPGNvcm5lbGlhLmh1Y2tAZGUuaWJtLmNvbT4KPiAKPiBBY2tlZC1ieTogTWljaGFlbCBTLiBU
-c2lya2luIDxtc3RAcmVkaGF0LmNvbT4KPiAKPiA+IC0tLQo+ID4gIGRyaXZlcnMvczM5MC9rdm0v
-dmlydGlvX2Njdy5jIHwgMSAtCj4gPiAgMSBmaWxlIGNoYW5nZWQsIDEgZGVsZXRpb24oLSkKPiA+
-IAo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvczM5MC9rdm0vdmlydGlvX2Njdy5jIGIvZHJpdmVy
-cy9zMzkwL2t2bS92aXJ0aW9fY2N3LmMKPiA+IGluZGV4IDZjYmU2ZWYuLmJkYTUyZjEgMTAwNjQ0
-Cj4gPiAtLS0gYS9kcml2ZXJzL3MzOTAva3ZtL3ZpcnRpb19jY3cuYwo+ID4gKysrIGIvZHJpdmVy
-cy9zMzkwL2t2bS92aXJ0aW9fY2N3LmMKPiA+IEBAIC04ODgsNyArODg4LDYgQEAgc3RhdGljIHZv
-aWQgdmlydGlvX2Njd19pbnRfaGFuZGxlcihzdHJ1Y3QgY2N3X2RldmljZSAqY2RldiwKPiA+ICAJ
-c3RydWN0IHZpcnRpb19jY3dfZGV2aWNlICp2Y2RldiA9IGRldl9nZXRfZHJ2ZGF0YSgmY2Rldi0+
-ZGV2KTsKPiA+ICAJaW50IGk7Cj4gPiAgCXN0cnVjdCB2aXJ0cXVldWUgKnZxOwo+ID4gLQlzdHJ1
-Y3QgdmlydGlvX2RyaXZlciAqZHJ2Owo+ID4gIAo+ID4gIAlpZiAoIXZjZGV2KQo+ID4gIAkJcmV0
-dXJuOwoKKnBva2VzIFJ1c3R5KgoKRG8geW91IHdhbnQgdG8gc2VuZCB0aGlzIHZpYSB0aGUgdmly
-dGlvIHRyZWU/IE90aGVyd2lzZSwgSSdsbCBxdWV1ZQp0aGlzIHdpdGgga3ZtL3MzOTAuCgpfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
-biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
-aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
-bGl6YXRpb24=
+On Tue, 28 Oct 2014 16:40:18 +0100
+Greg Kurz <gkurz@linux.vnet.ibm.com> wrote:
+
+> On Tue,  7 Oct 2014 16:40:01 +0200
+> Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
+> 
+> > Introduce a helper function to indicate  whether a virtio device is
+> > operating in legacy or virtio standard mode.
+> > 
+> > It may be used to make decisions about the endianess of virtio accesses
+> > and other virtio-1 specific changes, enabling us to support transitional
+> > devices.
+> > 
+> > Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+> > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> > ---
+> >  hw/virtio/virtio.c                |    6 +++++-
+> >  include/hw/virtio/virtio-access.h |    4 ++++
+> >  include/hw/virtio/virtio.h        |   13 +++++++++++--
+> >  3 files changed, 20 insertions(+), 3 deletions(-)
+> > 
+> > diff --git a/hw/virtio/virtio.c b/hw/virtio/virtio.c
+> > index 7aaa953..e6ae3a0 100644
+> > --- a/hw/virtio/virtio.c
+> > +++ b/hw/virtio/virtio.c
+> > @@ -883,7 +883,11 @@ static bool virtio_device_endian_needed(void *opaque)
+> >      VirtIODevice *vdev = opaque;
+> > 
+> >      assert(vdev->device_endian != VIRTIO_DEVICE_ENDIAN_UNKNOWN);
+> > -    return vdev->device_endian != virtio_default_endian();
+> > +    if (virtio_device_is_legacy(vdev)) {
+> > +        return vdev->device_endian != virtio_default_endian();
+> > +    }
+> > +    /* Devices conforming to VIRTIO 1.0 or later are always LE. */
+> > +    return vdev->device_endian != VIRTIO_DEVICE_ENDIAN_LITTLE;
+> >  }
+> > 
+> 
+> Shouldn't we have some code doing the following somewhere ?
+> 
+> if (!virtio_device_is_legacy(vdev)) {
+>     vdev->device_endian = VIRTIO_DEVICE_ENDIAN_LITTLE;
+> }
+> 
+> also, since virtio-1 is LE only, do we expect device_endian to
+> be different from VIRTIO_DEVICE_ENDIAN_LITTLE ?
+
+device_endian should not depend on whether the device is legacy or not.
+virtio_is_big_endian always returns false for virtio-1 devices, though.
