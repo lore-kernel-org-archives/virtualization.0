@@ -1,16 +1,16 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH RFC 00/11] qemu: towards virtio-1 host support
-Date: Thu, 30 Oct 2014 17:52:51 +0100
-Message-ID: <20141030175251.4f28d2a8.cornelia.huck@de.ibm.com>
-References: <1412692807-12398-1-git-send-email-cornelia.huck@de.ibm.com>
-	<20141023214158.GA29716@redhat.com>
-	<20141024103839.7162b93f.cornelia.huck@de.ibm.com>
-	<20141028044329.GA18689@redhat.com>
+Subject: Re: [PATCH] virtio_ccw: remove unsued variable
+Date: Thu, 30 Oct 2014 18:51:26 +0100
+Message-ID: <20141030185126.1da79c12.cornelia.huck@de.ibm.com>
+References: <alpine.LFD.2.11.1410201242390.1601@denkbrett>
+	<20141020141931.GB11062@redhat.com>
+	<alpine.LFD.2.11.1410281634560.1567@denkbrett>
+	<20141028173758.GA24566@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141028044329.GA18689@redhat.com>
+In-Reply-To: <20141028173758.GA24566@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,55 +20,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtualization@lists.linux-foundation.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 28 Oct 2014 06:43:29 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> On Fri, Oct 24, 2014 at 10:38:39AM +0200, Cornelia Huck wrote:
-> > On Fri, 24 Oct 2014 00:42:20 +0300
-> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > 
-> > > On Tue, Oct 07, 2014 at 04:39:56PM +0200, Cornelia Huck wrote:
-> > > > This patchset aims to get us some way to implement virtio-1 compliant
-> > > > and transitional devices in qemu. Branch available at
-> > > > 
-> > > > git://github.com/cohuck/qemu virtio-1
-> > > > 
-> > > > I've mainly focused on:
-> > > > - endianness handling
-> > > > - extended feature bits
-> > > > - virtio-ccw new/changed commands
-> > > 
-> > > So issues identified so far:
-> > 
-> > Thanks for taking a look.
-> > 
-> > > - devices not converted yet should not advertize 1.0
-> > 
-> > Neither should an uncoverted transport. So we either can
-> > - have transport set the bit and rely on devices ->get_features
-> >   callback to mask it out
-> >   (virtio-ccw has to change the calling order for get_features, btw.)
-> > - have device set the bit and the transport mask it out later. Feels a
-> >   bit weird, as virtio-1 is a transport feature bit.
-> 
-> 
-> I thought more about it, I think the right thing
-> would be for unconverted transports to clear
-> high bits on ack and get features.
-
-This should work out of the box with my patches (virtio-pci and
-virtio-mmio return 0 for high feature bits).
-
-> 
-> So bit 32 is set, but not exposed to guests.
-> In fact at least for PCI, we have a 32 bit field for
-> features in 0.9 so it's automatic.
-> Didn't check mmio yet.
-
-We still to make sure the bit is not set for unconverted devices,
-though. But you're probably right that having the device set the bit is
-less error-prone.
+T24gVHVlLCAyOCBPY3QgMjAxNCAxOTozNzo1OCArMDIwMAoiTWljaGFlbCBTLiBUc2lya2luIiA8
+bXN0QHJlZGhhdC5jb20+IHdyb3RlOgoKPiBPbiBUdWUsIE9jdCAyOCwgMjAxNCBhdCAwNDozOTox
+MlBNICswMTAwLCBTZWJhc3RpYW4gT3R0IHdyb3RlOgoKPiA+IHZpcnRpb19jY3c6IHJlbW92ZSB1
+bnVzZWQgdmFyaWFibGUKPiA+IAo+ID4gRml4IHRoaXMgd2FybmluZzoKPiA+IGRyaXZlcnMvczM5
+MC9rdm0vdmlydGlvX2Njdy5jOiBJbiBmdW5jdGlvbiDigJh2aXJ0aW9fY2N3X2ludF9oYW5kbGVy
+4oCZOgo+ID4gZHJpdmVycy9zMzkwL2t2bS92aXJ0aW9fY2N3LmM6ODkxOjI0OiB3YXJuaW5nOiB1
+bnVzZWQgdmFyaWFibGUg4oCYZHJ24oCZIFstV3VudXNlZC12YXJpYWJsZV0KPiA+ICAgICBzdHJ1
+Y3QgdmlydGlvX2RyaXZlciAqZHJ2Owo+ID4gCj4gPiBTaWduZWQtb2ZmLWJ5OiBTZWJhc3RpYW4g
+T3R0IDxzZWJvdHRAbGludXgudm5ldC5pYm0uY29tPgo+ID4gQWNrZWQtYnk6IENvcm5lbGlhIEh1
+Y2sgPGNvcm5lbGlhLmh1Y2tAZGUuaWJtLmNvbT4KPiAKPiBBY2tlZC1ieTogTWljaGFlbCBTLiBU
+c2lya2luIDxtc3RAcmVkaGF0LmNvbT4KPiAKPiA+IC0tLQo+ID4gIGRyaXZlcnMvczM5MC9rdm0v
+dmlydGlvX2Njdy5jIHwgMSAtCj4gPiAgMSBmaWxlIGNoYW5nZWQsIDEgZGVsZXRpb24oLSkKPiA+
+IAo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvczM5MC9rdm0vdmlydGlvX2Njdy5jIGIvZHJpdmVy
+cy9zMzkwL2t2bS92aXJ0aW9fY2N3LmMKPiA+IGluZGV4IDZjYmU2ZWYuLmJkYTUyZjEgMTAwNjQ0
+Cj4gPiAtLS0gYS9kcml2ZXJzL3MzOTAva3ZtL3ZpcnRpb19jY3cuYwo+ID4gKysrIGIvZHJpdmVy
+cy9zMzkwL2t2bS92aXJ0aW9fY2N3LmMKPiA+IEBAIC04ODgsNyArODg4LDYgQEAgc3RhdGljIHZv
+aWQgdmlydGlvX2Njd19pbnRfaGFuZGxlcihzdHJ1Y3QgY2N3X2RldmljZSAqY2RldiwKPiA+ICAJ
+c3RydWN0IHZpcnRpb19jY3dfZGV2aWNlICp2Y2RldiA9IGRldl9nZXRfZHJ2ZGF0YSgmY2Rldi0+
+ZGV2KTsKPiA+ICAJaW50IGk7Cj4gPiAgCXN0cnVjdCB2aXJ0cXVldWUgKnZxOwo+ID4gLQlzdHJ1
+Y3QgdmlydGlvX2RyaXZlciAqZHJ2Owo+ID4gIAo+ID4gIAlpZiAoIXZjZGV2KQo+ID4gIAkJcmV0
+dXJuOwoKKnBva2VzIFJ1c3R5KgoKRG8geW91IHdhbnQgdG8gc2VuZCB0aGlzIHZpYSB0aGUgdmly
+dGlvIHRyZWU/IE90aGVyd2lzZSwgSSdsbCBxdWV1ZQp0aGlzIHdpdGgga3ZtL3MzOTAuCgpfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
+biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
+aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
+bGl6YXRpb24=
