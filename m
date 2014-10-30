@@ -1,11 +1,13 @@
-From: =?ISO-8859-15?Q?Luk=E1=A8_Czerner?= <lczerner@redhat.com>
-Subject: kernel BUG at drivers/block/virtio_blk.c:172
-Date: Thu, 30 Oct 2014 15:33:18 +0100 (CET)
-Message-ID: <alpine.LFD.2.00.1410301517090.2372@localhost.localdomain>
+From: =?windows-1252?Q?Roger_Pau_Monn=E9?= <roger.pau@citrix.com>
+Subject: Re: [Xen-devel] [RFC] Hypervisor RNG and enumeration
+Date: Thu, 30 Oct 2014 15:33:26 +0100
+Message-ID: <54524C36.8050203__38735.2028316402$1414680791$gmane$org@citrix.com>
+References: <CALCETrUuSApjNk+xdB1XEPH+Lz2PGY0gnreHwx5Z6xQ0Vj74tw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <CALCETrUuSApjNk+xdB1XEPH+Lz2PGY0gnreHwx5Z6xQ0Vj74tw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,86 +17,178 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: axboe@kernel.dk, hch@lst.de
+To: Andy Lutomirski <luto@amacapital.net>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+Cc: Mathew John <mathewj@microsoft.com>, Theodore Ts'o <tytso@mit.edu>, Jim Mattson <jmattson@vmware.com>, kvm list <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Niels Ferguson <niels@microsoft.com>, David Hepkin <davidhep@microsoft.com>, Doug Covelli <dcovelli@vmware.com>, freebsd-virtualization@freebsd.org, Paolo Bonzini <pbonzini@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Jake Oshins <jakeo@microsoft.com>, xen-devel@lists.xenproject.org, Alok Kataria <akataria@vmware.com>, John Starks <John.Starks@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+Adding the bhyve guys.
 
-I've just hit this BUG at drivers/block/virtio_blk.c when updated to
-the kernel from the top of the Linus git tree.
-
-commit a7ca10f263d7e673c74d8e0946d6b9993405cc9c
-
-This is my virtual machine running on RHEL7 guest
-
-qemu-kvm-1.5.3-60.el7.x86_64
-
-The last upstream kernel (3.17.0-rc4) worked well. I'll try to
-bisect, but meanwhile this is a backtrace I got very early in the boot.
-The root fs on that guest is xfs and I am using raw disk image and virtio
-driver.
-
-Let me know if you need more information.
-
-Thanks!
--Lukas
-
-
-[    2.806242] ------------[ cut here ]------------
-[    2.807018] kernel BUG at drivers/block/virtio_blk.c:172!
-[    2.807018] invalid opcode: 0000 [#1] SMP
-[    2.807018] Modules linked in: xfs libcrc32c sd_mod qxl ata_generic pata_acpi drm_kms_helper ttm drm ata_piix virtio_net virtio_blk libata virtio_pci floppy virtio_ring i2c_core virtio dm_mirror dm_region_hash dm_log dm_mod
-[    2.807018] CPU: 2 PID: 580 Comm: mount Not tainted 3.18.0-rc2+ #4
-[    2.807018] Hardware name: Red Hat KVM, BIOS Bochs 01/01/2011
-[    2.807018] task: ffff880035e3b640 ti: ffff880034d24000 task.ti: ffff880034d24000
-[    2.807018] RIP: 0010:[<ffffffffa0034737>]  [<ffffffffa0034737>] virtio_queue_rq+0x277/0x280 [virtio_blk]
-[    2.807018] RSP: 0018:ffff880034d277b8  EFLAGS: 00010202
-[    2.807018] RAX: 0000000000000082 RBX: ffff88022f2f0000 RCX: dead000000200200
-[    2.807018] RDX: 0000000000000001 RSI: ffff88022f2f0000 RDI: ffff88022f2e3400
-[    2.807018] RBP: ffff880034d277f8 R08: ffff88022f2f0000 R09: ffff880034d27820
-[    2.807018] R10: 0000000000000000 R11: 0000000000001000 R12: ffff880034d27820
-[    2.807018] R13: ffff88022f2e3400 R14: ffff880035dca480 R15: 0000000000000000
-[    2.807018] FS:  00007f23686e0880(0000) GS:ffff880237240000(0000) knlGS:0000000000000000
-[    2.807018] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    2.807018] CR2: 00007f8c71668000 CR3: 0000000035d8e000 CR4: 00000000000006e0
-[    2.807018] Stack:
-[    2.807018]  ffff880000000001 ffff88022f2f0170 0000000000000000 ffff88022f2e3400
-[    2.807018]  ffff880034d27820 0000000000000000 ffff88022f2f0000 ffff88022f2e3408
-[    2.807018]  ffff880034d27868 ffffffff812e0628 ffff88022e8c0000 0000000000000003
-[    2.807018] Call Trace:
-[    2.807018]  [<ffffffff812e0628>] __blk_mq_run_hw_queue+0x1c8/0x330
-[    2.807018]  [<ffffffff812d233f>] ? part_round_stats+0x4f/0x60
-[    2.807018]  [<ffffffff812e0da0>] blk_mq_run_hw_queue+0x70/0xa0
-[    2.807018]  [<ffffffff812e1e68>] blk_sq_make_request+0x258/0x380
-[    2.807018]  [<ffffffff812d32e0>] generic_make_request+0xe0/0x130
-[    2.807018]  [<ffffffff812d33a8>] submit_bio+0x78/0x160
-[    2.807018]  [<ffffffffa01c3516>] _xfs_buf_ioapply+0x2e6/0x430 [xfs]
-[    2.807018]  [<ffffffffa01eacd8>] ? xlog_bread_noalign+0xa8/0xe0 [xfs]
-[    2.807018]  [<ffffffffa01c5081>] xfs_buf_submit_wait+0x61/0x1d0 [xfs]
-[    2.807018]  [<ffffffffa01eacd8>] xlog_bread_noalign+0xa8/0xe0 [xfs]
-[    2.807018]  [<ffffffffa01eb6e7>] xlog_bread+0x27/0x60 [xfs]
-[    2.807018]  [<ffffffffa01efd01>] xlog_find_verify_cycle+0xf1/0x1b0 [xfs]
-[    2.807018]  [<ffffffffa01f02d1>] xlog_find_head+0x2f1/0x3e0 [xfs]
-[    2.807018]  [<ffffffffa01f03fc>] xlog_find_tail+0x3c/0x410 [xfs]
-[    2.807018]  [<ffffffffa01f07fd>] xlog_recover+0x2d/0x130 [xfs]
-[    2.807018]  [<ffffffffa01f199f>] ? xfs_trans_ail_init+0xaf/0xe0 [xfs]
-[    2.807018]  [<ffffffffa01e444a>] xfs_log_mount+0xea/0x2c0 [xfs]
-[    2.807018]  [<ffffffffa01dbbfc>] xfs_mountfs+0x46c/0x7a0 [xfs]
-[    2.807018]  [<ffffffffa01df10a>] xfs_fs_fill_super+0x2ba/0x330 [xfs]
-[    2.807018]  [<ffffffff811ee510>] mount_bdev+0x1b0/0x1f0
-[    2.807018]  [<ffffffffa01dee50>] ? xfs_parseargs+0xbf0/0xbf0 [xfs]
-[    2.807018]  [<ffffffffa01dd085>] xfs_fs_mount+0x15/0x20 [xfs]
-[    2.807018]  [<ffffffff811eee89>] mount_fs+0x39/0x1b0
-[    2.807018]  [<ffffffff81194505>] ? __alloc_percpu+0x15/0x20
-[    2.807018]  [<ffffffff8120ab2b>] vfs_kern_mount+0x6b/0x110
-[    2.807018]  [<ffffffff8120d91c>] do_mount+0x22c/0xb30
-[    2.807018]  [<ffffffff8118f2b6>] ? memdup_user+0x46/0x80
-[    2.807018]  [<ffffffff8120e562>] SyS_mount+0xa2/0x110
-[    2.807018]  [<ffffffff81671269>] system_call_fastpath+0x12/0x17
-[    2.807018] Code: fe ff ff 90 0f b7 86 f4 00 00 00 c7 86 78 01 00 00 02 00 00 00 48 c7 86 80 01 00 00 00 00 00 00 89 86 7c 01 00 00 e9 12 fe ff ff <0f> 0b 0f 1f 80 00 00 00 00 0f 1f 44 00 00 55 31 f6 b9 08 00 00
-[    2.807018] RIP  [<ffffffffa0034737>] virtio_queue_rq+0x277/0x280 [virtio_blk]
-[    2.807018]  RSP <ffff880034d277b8>
-[    2.887706] ---[ end trace e667b0f035973c7a ]---
-[    2.888781] Kernel panic - not syncing: Fatal exception
-[    2.889765] Kernel Offset: 0x0 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffff9fffffff)
+El 29/10/14 a les 6.19, Andy Lutomirski ha escrit:
+> Here's a draft CommonHV spec.  It's also on github:
+> 
+> https://github.com/amluto/CommonHV
+> 
+> So far, this provides a two-way RNG interface, a way to detect it, and
+> a way to detect other hypervisor leaves.  The latter is because, after
+> both the enormous public thread and some private discussions, it seems
+> that detection of existing CPUID paravirt leaves is annoying and
+> inefficient.  If we're going to define some cross-vendor CPUID leaves,
+> it seems like it would be useful to offer a way to quickly enumerate
+> other leaves.
+> 
+> I've been told the AMD intends to update their manual to match Intel's
+> so that hypervisors can use the entire 0x4F?????? CPUID range.  I have
+> intentionally not fixed an MSR value for the RNG because the range of
+> allowed MSRs is very small in both the Intel and AMD manuals.  If any
+> given hypervisor wants to ignore that small range and advertise a
+> higher-numbered MSR, it is welcome to, but I don't want to codify
+> something that doesn't comply with the manuals.
+> 
+> Here's the draft.  Comments?  To the people who work on various
+> hypervisors: Would you implement this?  Do you like it?  Is there
+> anything, major or minor, that you'd like to see changed?  Do you
+> think that this is a good idea at all?
+> 
+> I've tried to get good coverage of various hypervisors.  There are
+> Hyper-V, VMWare, KVM, and Xen people on the cc list.
+> 
+> Thanks,
+> Andy
+> 
+> 
+> 
+> CommonHV, a common hypervisor interface
+> =======================================
+> 
+> This is CommonHV draft 1.
+> 
+> The CommonHV specification is Copyright (c) 2014 Andrew Lutomirski.
+> 
+> Licensing will be determined soon.  The license is expected to be extremely
+> liberal.  I am currently leaning towards CC-BY-SA for the specification and
+> an explicit license permitting anyone to implement the specification
+> with no restrictions whatsoever.
+> 
+> I have not patented, nor do I intend to patent, anything required to implement
+> this specification.  I am not aware of any current or future intellectual
+> property rights that would prevent a royalty-free implementation of
+> this specification.
+> 
+> I would like to find a stable, neutral steward of this specification
+> going forward.  Help with this would be much appreciated.
+> 
+> Scope
+> -----
+> 
+> CommonHV is a simple interface for communication
+> between hypervisors and their guests.
+> 
+> CommonHV is intended to be very simple and to avoid interfering with
+> existing paravirtual interfaces.  To that end, its scope is limited.
+> CommonHV does only two types of things:
+> 
+>   * It provides a way to enumerate other paravirtual interfaces.
+>   * It provides a small, extensible set of paravirtual features that do not
+>     modify or replace standard system functionality.
+> 
+> For example, CommonHV does not and will not define anything related to
+> interrupt handling or virtual CPU management.
+> 
+> For now, CommonHV is only applicable to the x86 platform.
+> 
+> Discovery
+> ---------
+> 
+> A CommonHV hypervisor MUST set the hypervisor bit (bit 31 in CPUID.1H.0H.ECX)
+> and provide the CPUID leaf 4F000000H, containing:
+> 
+>   * CPUID.4F000000H.0H.EAX = max_commonhv_leaf
+>   * CPUID.4F000000H.0H.EBX = 0x6D6D6F43
+>   * CPUID.4F000000H.0H.ECX = 0x56486E6F
+>   * CPUID.4F000000H.0H.EDX = 0x66746e49
+> 
+> EBX, ECX, and EDX form the string "CommonHVIntf" in little-endian ASCII.
+> 
+> max_commonhv_leaf MUST be a number between 0x4F000000 and 0x4FFFFFFF.  It
+> indicates the largest leaf defined in this specification that is provided.
+> Any leaves described in this specification with EAX values that exceed
+> max_commonhv_leaf MUST be handled by guests as though they contain
+> all zeros.
+> 
+> CPUID leaf 4F000001H: hypervisor interface enumeration
+> ------------------------------------------------------
+> 
+> If max_commonhv_leaf >= 0x4F000001, CommonHV provides a list of tuples
+> (location, signature).  Each tuple indicates the presence of another
+> paravirtual interface identified by the signature at the indicated
+> CPUID location.  It is expected that CPUID.location.0H will have
+> (EBX, ECX, EDX) == signature, although whether this is required
+> is left to the specification associated with the given signature.
+> 
+> If the list contains N tuples, then, for each 0 <= i < N:
+> 
+>   * CPUID.4F000001H.i.EBX, CPUID.4F000001H.i.ECX, and CPUID.4F000001H.i.EDX
+>     are the signature.
+>   * CPUID.4F000001H.i.EAX is the location.
+> 
+> CPUID with EAX = 0x4F000001 and ECX >= N MUST return all zeros.
+> 
+> To the extent that the hypervisor prefers a given interface, it should
+> specify that interface earlier in the list.  For example, KVM might place
+> its "KVMKVMKVM" signature first in the list to indicate that it should be
+> used by guests in preference to other supported interfaces.  Other hypervisors
+> would likely use a different order.
+> 
+> The exact semantics of the ordering of the list is beyond the scope of
+> this specification.
+> 
+> CPUID leaf 4F000002H: miscellaneous features
+> --------------------------------------------
+> 
+> CPUID.4F000002H.EAX is nonzero if the CommonHV RNG interface is available.
+> CPUID.4F000002H.EBX, CPUID.4F000002H.ECX, and CPUID.4F000002H.EDX are reserved
+> and must be zero in hypervisors compliant with this version of the CommonHV
+> specification.
+> 
+> ### CommonHV RNG
+> 
+> If CPUID.4F000002H.EAX is nonzero, then it contains an MSR index used to
+> communicate with a hypervisor random number generator.  This MSR is
+> referred to as MSR_COMMONHV_RNG.
+> 
+> rdmsr(MSR_COMMONHV_RNG) returns a 64-bit best-effort random number.  If the
+> hypervisor is able to generate a 64-bit cryptographically secure random number,
+> it SHOULD return it.  If not, then the hypervisor SHOULD do its best to return
+> a random number suitable for seeding a cryptographic RNG.
+> 
+> A guest is expected to read MSR_COMMONHV_RNG several times in a row.
+> The hypervisor SHOULD return different values each time.
+> 
+> rdmsr(MSR_COMMONHV_RNG) MUST NOT result in an exception, but guests MUST
+> NOT assume that its return value is indeed secure.  For example, a hypervisor
+> is free to return zero in response to rdmsr(MSR_COMMONHV_RNG).
+> 
+> wrmsr(MSR_COMMONHV_RNG) offers the hypervisor up to 64 bits of entropy.
+> The hypervisor MAY use it as it sees fit to improve its own random number
+> generator.  A hypervisor SHOULD make a reasonable effort to avoid making
+> values written to MSR_COMMONHV_RNG visible to untrusted parties, but
+> guests SHOULD NOT write sensitive values to wrmsr(MSR_COMMONHV_RNG).
+> 
+> A hypervisor is free to ignore wrmsr(MSR_COMMONHV_RNG), but wrmsr to
+> MSR_COMMONHV_RNG MUST NOT result in an exception.
+> 
+> Note that the CommonHV RNG is not intended to replace stronger, asynchronous
+> paravirtual random number generator interfaces.  It is intended primarily
+> for seeding guest RNGs early in boot.
+> 
+> Future extension
+> ----------------
+> 
+> CPUID leaves beyond those defined in this version of the CommonHV specification
+> should be ignored by guests written for this version of the specification.
+> 
+> _______________________________________________
+> Xen-devel mailing list
+> Xen-devel@lists.xen.org
+> http://lists.xen.org/xen-devel
+> 
