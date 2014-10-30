@@ -1,14 +1,15 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v2 net 0/2] drivers/net,ipv6: Fix IPv6 fragment ID
-	selection for virtio
-Date: Thu, 30 Oct 2014 20:02:04 -0400 (EDT)
-Message-ID: <20141030.200204.1241966215662909080.davem@davemloft.net>
-References: <1414693592.16849.61.camel@decadent.org.uk>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH v2 4/6] hw_random: fix unregister race.
+Date: Fri, 31 Oct 2014 10:28:00 +1030
+Message-ID: <87y4rx860n.fsf@rustcorp.com.au>
+References: <1411043867-21109-1-git-send-email-akong@redhat.com>
+	<1411043867-21109-5-git-send-email-akong@redhat.com>
+	<20141021141745.GA18511@gondor.apana.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1414693592.16849.61.camel@decadent.org.uk>
+In-Reply-To: <20141021141745.GA18511@gondor.apana.org.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,18 +19,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: ben@decadent.org.uk
-Cc: netdev@vger.kernel.org, hannes@stressinduktion.org, virtualization@lists.linux-foundation.org
+To: Herbert Xu <herbert@gondor.apana.org.au>, Amos Kong <akong@redhat.com>
+Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, m@bues.ch, mpm@selenic.com, amit.shah@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Ben Hutchings <ben@decadent.org.uk>
-Date: Thu, 30 Oct 2014 18:26:32 +0000
+Herbert Xu <herbert@gondor.apana.org.au> writes:
+> On Thu, Sep 18, 2014 at 08:37:45PM +0800, Amos Kong wrote:
+>> From: Rusty Russell <rusty@rustcorp.com.au>
+>> 
+>> The previous patch added one potential problem: we can still be
+>> reading from a hwrng when it's unregistered.  Add a wait for zero
+>> in the hwrng_unregister path.
+>> 
+>> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+>
+> You totally corrupted Rusty's patch.  If you're going to repost
+> his series you better make sure that you've got the right patches.
+>
+> Just as well though as it made me think a little more about this
+> patch :)
 
-> The virtio net protocol supports UFO but does not provide for passing a
-> fragment ID for fragmentation of IPv6 packets.  We used to generate a
-> fragment ID wherever such a packet was fragmented, but currently we
-> always use ID=0!
-> 
-> v2: Add blank lines after declarations
+OK Amos, can you please repost the complete series?
 
-Series applied and queued up for -stable, thanks Ben.
+Thanks,
+Rusty.
