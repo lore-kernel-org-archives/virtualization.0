@@ -1,15 +1,13 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [Qemu-devel] [PATCH RFC 07/11] dataplane: allow virtio-1 devices
-Date: Thu, 30 Oct 2014 10:18:38 +0100
-Message-ID: <20141030101838.2ddee2dc.cornelia.huck@de.ibm.com>
-References: <1412692807-12398-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1412692807-12398-8-git-send-email-cornelia.huck@de.ibm.com>
-	<20141028162254.2a4f2cf4@bahia.local>
+From: David Vrabel <david.vrabel@citrix.com>
+Subject: Re: [Xen-devel] [RFC] Hypervisor RNG and enumeration
+Date: Thu, 30 Oct 2014 12:21:20 +0000
+Message-ID: <54522D40.8040405@citrix.com>
+References: <CALCETrUuSApjNk+xdB1XEPH+Lz2PGY0gnreHwx5Z6xQ0Vj74tw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141028162254.2a4f2cf4@bahia.local>
+In-Reply-To: <CALCETrUuSApjNk+xdB1XEPH+Lz2PGY0gnreHwx5Z6xQ0Vj74tw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,54 +17,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Andy Lutomirski <luto@amacapital.net>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+Cc: Mathew John <mathewj@microsoft.com>, Theodore Ts'o <tytso@mit.edu>, Jim Mattson <jmattson@vmware.com>, kvm list <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Niels Ferguson <niels@microsoft.com>, David Hepkin <davidhep@microsoft.com>, Doug Covelli <dcovelli@vmware.com>, Paolo Bonzini <pbonzini@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Jake Oshins <jakeo@microsoft.com>, xen-devel@lists.xenproject.org, Alok Kataria <akataria@vmware.com>, John Starks <John.Starks@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCAyOCBPY3QgMjAxNCAxNjoyMjo1NCArMDEwMApHcmVnIEt1cnogPGdrdXJ6QGxpbnV4
-LnZuZXQuaWJtLmNvbT4gd3JvdGU6Cgo+IE9uIFR1ZSwgIDcgT2N0IDIwMTQgMTY6NDA6MDMgKzAy
-MDAKPiBDb3JuZWxpYSBIdWNrIDxjb3JuZWxpYS5odWNrQGRlLmlibS5jb20+IHdyb3RlOgo+IAo+
-ID4gSGFuZGxlIGVuZGlhbm5lc3MgY29udmVyc2lvbiBmb3IgdmlydGlvLTEgdmlydHF1ZXVlcyBj
-b3JyZWN0bHkuCj4gPiAKPiA+IE5vdGUgdGhhdCBkYXRhcGxhbmUgbm93IG5lZWRzIHRvIGJlIGJ1
-aWx0IHBlci10YXJnZXQuCj4gPiAKPiAKPiBJdCBhbHNvIGFmZmVjdHMgaHcvdmlydGlvL3ZpcnRp
-by1wY2kuYzoKPiAKPiBJbiBmaWxlIGluY2x1ZGVkIGZyb20gaW5jbHVkZS9ody92aXJ0aW8vZGF0
-YXBsYW5lL3ZyaW5nLmg6MjM6MCwKPiAgICAgICAgICAgICAgICAgIGZyb20gaW5jbHVkZS9ody92
-aXJ0aW8vdmlydGlvLXNjc2kuaDoyMSwKPiAgICAgICAgICAgICAgICAgIGZyb20gaHcvdmlydGlv
-L3ZpcnRpby1wY2kuYzoyNDoKPiBpbmNsdWRlL2h3L3ZpcnRpby92aXJ0aW8tYWNjZXNzLmg6IElu
-IGZ1bmN0aW9uIOKAmHZpcnRpb19hY2Nlc3NfaXNfYmlnX2VuZGlhbuKAmToKPiBpbmNsdWRlL2h3
-L3ZpcnRpby92aXJ0aW8tYWNjZXNzLmg6Mjg6MTU6IGVycm9yOiBhdHRlbXB0IHRvIHVzZSBwb2lz
-b25lZCAiVEFSR0VUX1dPUkRTX0JJR0VORElBTiIKPiAgI2VsaWYgZGVmaW5lZChUQVJHRVRfV09S
-RFNfQklHRU5ESUFOKQo+ICAgICAgICAgICAgICAgIF4KPiAKPiBGV0lXIHdoZW4gSSBhZGRlZCBl
-bmRpYW4gYW1iaXZhbGVudCBzdXBwb3J0IHRvIHZpcnRpbywgSSByZW1lbWJlciAqc29tZSBwZW9w
-bGUqCj4gZ2V0dGluZyBhbmdyeSBhdCB0aGUgaWRlYSBvZiB0dXJuaW5nIGNvbW1vbiBjb2RlIGlu
-dG8gcGVyLXRhcmdldC4uLiA6KQoKV2VsbCwgaXQgcHJvYmFibHkgY2FuJ3QgYmUgaGVscGVkIGZv
-ciBzb21ldGhpbmcgdGhhdCBpcwplbmRpYW4tc2Vuc2l0aXZlIGxpa2UgdmlydGlvIDooIChBbHRo
-b3VnaCB3ZSBzaG91bGQgdHJ5IHRvIGtlZXAgaXQgYXMKbG9jYWwgYXMgcG9zc2libGUuKQoKPiAK
-PiBTZWUgY29tbWVudCBiZWxvdy4KPiAKPiA+IFNpZ25lZC1vZmYtYnk6IENvcm5lbGlhIEh1Y2sg
-PGNvcm5lbGlhLmh1Y2tAZGUuaWJtLmNvbT4KPiA+IC0tLQo+ID4gIGh3L2Jsb2NrL2RhdGFwbGFu
-ZS92aXJ0aW8tYmxrLmMgICAgIHwgICAgMyArLQo+ID4gIGh3L3Njc2kvdmlydGlvLXNjc2ktZGF0
-YXBsYW5lLmMgICAgIHwgICAgMiArLQo+ID4gIGh3L3ZpcnRpby9NYWtlZmlsZS5vYmpzICAgICAg
-ICAgICAgIHwgICAgMiArLQo+ID4gIGh3L3ZpcnRpby9kYXRhcGxhbmUvTWFrZWZpbGUub2JqcyAg
-IHwgICAgMiArLQo+ID4gIGh3L3ZpcnRpby9kYXRhcGxhbmUvdnJpbmcuYyAgICAgICAgIHwgICA4
-NSArKysrKysrKysrKysrKysrKysrLS0tLS0tLS0tLS0tLS0tLQo+ID4gIGluY2x1ZGUvaHcvdmly
-dGlvL2RhdGFwbGFuZS92cmluZy5oIHwgICA2NCArKysrKysrKysrKysrKysrKysrKysrKystLQo+
-ID4gIDYgZmlsZXMgY2hhbmdlZCwgMTEzIGluc2VydGlvbnMoKyksIDQ1IGRlbGV0aW9ucygtKQo+
-ID4gCgo+ID4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvaHcvdmlydGlvL2RhdGFwbGFuZS92cmluZy5o
-IGIvaW5jbHVkZS9ody92aXJ0aW8vZGF0YXBsYW5lL3ZyaW5nLmgKPiA+IGluZGV4IGQzZTA4NmEu
-LmZkZTE1ZjMgMTAwNjQ0Cj4gPiAtLS0gYS8gCj4gPiArKysgYi9pbmNsdWRlL2h3L3ZpcnRpby9k
-YXRhcGxhbmUvdnJpbmcuaAo+ID4gQEAgLTIwLDYgKzIwLDcgQEAKPiA+ICAjaW5jbHVkZSAicWVt
-dS1jb21tb24uaCIKPiA+ICAjaW5jbHVkZSAiaHcvdmlydGlvL3ZpcnRpb19yaW5nLmgiCj4gPiAg
-I2luY2x1ZGUgImh3L3ZpcnRpby92aXJ0aW8uaCIKPiA+ICsjaW5jbHVkZSAiaHcvdmlydGlvL3Zp
-cnRpby1hY2Nlc3MuaCIKPiA+IAo+IAo+IFNpbmNlIHRoZSBmb2xsb3dpbmcgY29tbWl0Ogo+IAo+
-IGNvbW1pdCAyNDRlMjg5OGI3YTc3MzViM2RhMTE0YzEyMGFiZTIwNmFmNTZhMTY3Cj4gQXV0aG9y
-OiBGYW0gWmhlbmcgPGZhbXpAcmVkaGF0LmNvbT4KPiBEYXRlOiAgIFdlZCBTZXAgMjQgMTU6MjE6
-NDEgMjAxNCArMDgwMAo+IAo+ICAgICB2aXJ0aW8tc2NzaTogQWRkIFZpcnRJT1NDU0lWcmluZyBp
-biBWaXJ0SU9TQ1NJUmVxCj4gCj4gVGhlIGluY2x1ZGUvaHcvdmlydGlvL2RhdGFwbGFuZS92cmlu
-Zy5oIGhlYWRlciBpcyBpbmRpcmVjdGx5IGluY2x1ZGVkCj4gYnkgaHcvdmlydGlvL3ZpcnRpby1w
-Y2kuYy4gV2h5IGRvbid0IHlvdSBtb3ZlIGFsbCB0aGlzIHRhcmdldCBkZXBlbmRlbnQKPiBoZWxw
-ZXJzIHRvIGFub3RoZXIgaGVhZGVyID8KCkFoLCB0aGlzIHNlZW1zIHRvIGhhdmUgY29tZSBpbiBh
-ZnRlciBJIGhhY2tlZCBvbiB0aGF0IGNvZGUgLSBJJ2xsIHRha2UgYQpsb29rIGF0IHNwbGl0dGlu
-ZyBvZmYgdGhlIGFjY2Vzc29ycy4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
-cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On 29/10/14 05:19, Andy Lutomirski wrote:
+> CPUID leaf 4F000002H: miscellaneous features
+> --------------------------------------------
+> 
+[...]
+> ### CommonHV RNG
+> 
+> If CPUID.4F000002H.EAX is nonzero, then it contains an MSR index used to
+> communicate with a hypervisor random number generator.  This MSR is
+> referred to as MSR_COMMONHV_RNG.
+> 
+> rdmsr(MSR_COMMONHV_RNG) returns a 64-bit best-effort random number.  If the
+> hypervisor is able to generate a 64-bit cryptographically secure random number,
+> it SHOULD return it.  If not, then the hypervisor SHOULD do its best to return
+> a random number suitable for seeding a cryptographic RNG.
+> 
+> A guest is expected to read MSR_COMMONHV_RNG several times in a row.
+> The hypervisor SHOULD return different values each time.
+> 
+> rdmsr(MSR_COMMONHV_RNG) MUST NOT result in an exception, but guests MUST
+> NOT assume that its return value is indeed secure.  For example, a hypervisor
+> is free to return zero in response to rdmsr(MSR_COMMONHV_RNG).
+
+I would add:
+
+  If the hypervisor's pool of random data is exhausted, it MAY
+  return 0.  The hypervisor MUST provide at least 4 (?) non-zero
+  numbers to each guest.
+
+Xen does not have a continual source of entropy and the only feasible
+way is for the toolstack to provide each guest with a fixed size pool of
+random data during guest creation.
+
+The fixed size pool could be refilled by the guest if further random
+data is needed (e.g., before an in-guest kexec).
+
+> wrmsr(MSR_COMMONHV_RNG) offers the hypervisor up to 64 bits of entropy.
+> The hypervisor MAY use it as it sees fit to improve its own random number
+> generator.  A hypervisor SHOULD make a reasonable effort to avoid making
+> values written to MSR_COMMONHV_RNG visible to untrusted parties, but
+> guests SHOULD NOT write sensitive values to wrmsr(MSR_COMMONHV_RNG).
+
+I don't think unprivileged guests should be able to influence the
+hypervisor's RNG. Unless the intention here is it only affects the
+numbers returned to this guest?
+
+But since the write is optional, I don't object to it.
+
+David
