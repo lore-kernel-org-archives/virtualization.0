@@ -1,18 +1,15 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH] virtio_ccw: remove unsued variable
-Date: Fri, 31 Oct 2014 09:10:05 +0100
-Message-ID: <20141031091005.5afd702b.cornelia.huck@de.ibm.com>
-References: <alpine.LFD.2.11.1410201242390.1601@denkbrett>
-	<20141020141931.GB11062@redhat.com>
-	<alpine.LFD.2.11.1410281634560.1567@denkbrett>
-	<20141028173758.GA24566@redhat.com>
-	<20141030185126.1da79c12.cornelia.huck@de.ibm.com>
-	<87sii585v4.fsf@rustcorp.com.au>
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Subject: Re: [PATCH] virtio_net: fix use after free
+Date: Fri, 31 Oct 2014 05:24:13 -0700
+Message-ID: <1414758253.499.8.camel@edumazet-glaptop2.roam.corp.google.com>
+References: <1413378878-28118-1-git-send-email-mst@redhat.com>
+	<1414726609.499.6.camel@edumazet-glaptop2.roam.corp.google.com>
+	<5453270F.3090300@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87sii585v4.fsf@rustcorp.com.au>
+In-Reply-To: <5453270F.3090300@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,40 +19,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCAzMSBPY3QgMjAxNCAxMDozMToxOSArMTAzMApSdXN0eSBSdXNzZWxsIDxydXN0eUBy
-dXN0Y29ycC5jb20uYXU+IHdyb3RlOgoKPiBDb3JuZWxpYSBIdWNrIDxjb3JuZWxpYS5odWNrQGRl
-LmlibS5jb20+IHdyaXRlczoKPiA+IE9uIFR1ZSwgMjggT2N0IDIwMTQgMTk6Mzc6NTggKzAyMDAK
-PiA+ICJNaWNoYWVsIFMuIFRzaXJraW4iIDxtc3RAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPgo+ID4+
-IE9uIFR1ZSwgT2N0IDI4LCAyMDE0IGF0IDA0OjM5OjEyUE0gKzAxMDAsIFNlYmFzdGlhbiBPdHQg
-d3JvdGU6Cj4gPgo+ID4+ID4gdmlydGlvX2NjdzogcmVtb3ZlIHVudXNlZCB2YXJpYWJsZQo+ID4+
-ID4gCj4gPj4gPiBGaXggdGhpcyB3YXJuaW5nOgo+ID4+ID4gZHJpdmVycy9zMzkwL2t2bS92aXJ0
-aW9fY2N3LmM6IEluIGZ1bmN0aW9uIOKAmHZpcnRpb19jY3dfaW50X2hhbmRsZXLigJk6Cj4gPj4g
-PiBkcml2ZXJzL3MzOTAva3ZtL3ZpcnRpb19jY3cuYzo4OTE6MjQ6IHdhcm5pbmc6IHVudXNlZCB2
-YXJpYWJsZSDigJhkcnbigJkgWy1XdW51c2VkLXZhcmlhYmxlXQo+ID4+ID4gICAgIHN0cnVjdCB2
-aXJ0aW9fZHJpdmVyICpkcnY7Cj4gPj4gPiAKPiA+PiA+IFNpZ25lZC1vZmYtYnk6IFNlYmFzdGlh
-biBPdHQgPHNlYm90dEBsaW51eC52bmV0LmlibS5jb20+Cj4gPj4gPiBBY2tlZC1ieTogQ29ybmVs
-aWEgSHVjayA8Y29ybmVsaWEuaHVja0BkZS5pYm0uY29tPgo+ID4+IAo+ID4+IEFja2VkLWJ5OiBN
-aWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgo+ID4+IAo+ID4+ID4gLS0tCj4gPj4g
-PiAgZHJpdmVycy9zMzkwL2t2bS92aXJ0aW9fY2N3LmMgfCAxIC0KPiA+PiA+ICAxIGZpbGUgY2hh
-bmdlZCwgMSBkZWxldGlvbigtKQo+ID4+ID4gCj4gPj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9z
-MzkwL2t2bS92aXJ0aW9fY2N3LmMgYi9kcml2ZXJzL3MzOTAva3ZtL3ZpcnRpb19jY3cuYwo+ID4+
-ID4gaW5kZXggNmNiZTZlZi4uYmRhNTJmMSAxMDA2NDQKPiA+PiA+IC0tLSBhL2RyaXZlcnMvczM5
-MC9rdm0vdmlydGlvX2Njdy5jCj4gPj4gPiArKysgYi9kcml2ZXJzL3MzOTAva3ZtL3ZpcnRpb19j
-Y3cuYwo+ID4+ID4gQEAgLTg4OCw3ICs4ODgsNiBAQCBzdGF0aWMgdm9pZCB2aXJ0aW9fY2N3X2lu
-dF9oYW5kbGVyKHN0cnVjdCBjY3dfZGV2aWNlICpjZGV2LAo+ID4+ID4gIAlzdHJ1Y3QgdmlydGlv
-X2Njd19kZXZpY2UgKnZjZGV2ID0gZGV2X2dldF9kcnZkYXRhKCZjZGV2LT5kZXYpOwo+ID4+ID4g
-IAlpbnQgaTsKPiA+PiA+ICAJc3RydWN0IHZpcnRxdWV1ZSAqdnE7Cj4gPj4gPiAtCXN0cnVjdCB2
-aXJ0aW9fZHJpdmVyICpkcnY7Cj4gPj4gPiAgCj4gPj4gPiAgCWlmICghdmNkZXYpCj4gPj4gPiAg
-CQlyZXR1cm47Cj4gPgo+ID4gKnBva2VzIFJ1c3R5Kgo+ID4KPiA+IERvIHlvdSB3YW50IHRvIHNl
-bmQgdGhpcyB2aWEgdGhlIHZpcnRpbyB0cmVlPyBPdGhlcndpc2UsIEknbGwgcXVldWUKPiA+IHRo
-aXMgd2l0aCBrdm0vczM5MC4KPiAKPiAqUnVzdHkgd2FrZXMqLgo+IAo+IEkgYXNzdW1lZCB5b3Ug
-d291bGQgdGFrZSBpdCB3aGVuIEkgc2tpbW1lZCB0aGUgcGF0Y2gsIGJ1dCB0byBiZSBmb3JtYWw6
-Cj4gCj4gQWNrZWQtYnk6IFJ1c3R5IFJ1c3NlbGwgPHJ1c3R5QHJ1c3Rjb3JwLmNvbS5hdT4KCkFw
-cGxpZWQuCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
-aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
-bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
-dGluZm8vdmlydHVhbGl6YXRpb24=
+On Fri, 2014-10-31 at 14:07 +0800, Jason Wang wrote:
+
+> Since they are called before the possible free_old_xmit_skbs(), skb
+> won't get freed at this time.
+
+Oh right, I forgot there is no completion handler yet, timer based or
+whatever.
+
+Thanks.
