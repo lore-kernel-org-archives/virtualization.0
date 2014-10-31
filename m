@@ -1,16 +1,14 @@
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Subject: Re: [PATCH v2 net 1/2] drivers/net: Disable UFO through virtio
-Date: Thu, 30 Oct 2014 16:16:26 -0700
-Message-ID: <1414710986.15352.15.camel@edumazet-glaptop2.roam.corp.google.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH v2 net 0/2] drivers/net,ipv6: Fix IPv6 fragment ID
+	selection for virtio
+Date: Thu, 30 Oct 2014 20:02:04 -0400 (EDT)
+Message-ID: <20141030.200204.1241966215662909080.davem@davemloft.net>
 References: <1414693592.16849.61.camel@decadent.org.uk>
-	<1414693632.16849.62.camel@decadent.org.uk>
-	<1414694849.15352.3.camel@edumazet-glaptop2.roam.corp.google.com>
-	<1414707602.16849.70.camel@decadent.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1414707602.16849.70.camel@decadent.org.uk>
+In-Reply-To: <1414693592.16849.61.camel@decadent.org.uk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,12 +18,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ben Hutchings <ben@decadent.org.uk>
-Cc: netdev@vger.kernel.org, Hannes Frederic Sowa <hannes@stressinduktion.org>, virtualization@lists.linux-foundation.org
+To: ben@decadent.org.uk
+Cc: netdev@vger.kernel.org, hannes@stressinduktion.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2014-10-30 at 22:20 +0000, Ben Hutchings wrote:
+From: Ben Hutchings <ben@decadent.org.uk>
+Date: Thu, 30 Oct 2014 18:26:32 +0000
 
-> Could do.  I'm trying to make small fixes that are suitable for stable.
+> The virtio net protocol supports UFO but does not provide for passing a
+> fragment ID for fragmentation of IPv6 packets.  We used to generate a
+> fragment ID wherever such a packet was fragmented, but currently we
+> always use ID=0!
+> 
+> v2: Add blank lines after declarations
 
-Oh right, makes sense ;)
+Series applied and queued up for -stable, thanks Ben.
