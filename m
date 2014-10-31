@@ -1,17 +1,13 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio_ccw: remove unsued variable
-Date: Fri, 31 Oct 2014 10:31:19 +1030
-Message-ID: <87sii585v4.fsf@rustcorp.com.au>
-References: <alpine.LFD.2.11.1410201242390.1601@denkbrett>
-	<20141020141931.GB11062@redhat.com>
-	<alpine.LFD.2.11.1410281634560.1567@denkbrett>
-	<20141028173758.GA24566@redhat.com>
-	<20141030185126.1da79c12.cornelia.huck@de.ibm.com>
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Subject: Re: [PATCH] virtio_net: fix use after free
+Date: Thu, 30 Oct 2014 20:36:49 -0700
+Message-ID: <1414726609.499.6.camel@edumazet-glaptop2.roam.corp.google.com>
+References: <1413378878-28118-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141030185126.1da79c12.cornelia.huck@de.ibm.com>
+In-Reply-To: <1413378878-28118-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,37 +17,88 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: virtualization@lists.linux-foundation.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Q29ybmVsaWEgSHVjayA8Y29ybmVsaWEuaHVja0BkZS5pYm0uY29tPiB3cml0ZXM6Cj4gT24gVHVl
-LCAyOCBPY3QgMjAxNCAxOTozNzo1OCArMDIwMAo+ICJNaWNoYWVsIFMuIFRzaXJraW4iIDxtc3RA
-cmVkaGF0LmNvbT4gd3JvdGU6Cj4KPj4gT24gVHVlLCBPY3QgMjgsIDIwMTQgYXQgMDQ6Mzk6MTJQ
-TSArMDEwMCwgU2ViYXN0aWFuIE90dCB3cm90ZToKPgo+PiA+IHZpcnRpb19jY3c6IHJlbW92ZSB1
-bnVzZWQgdmFyaWFibGUKPj4gPiAKPj4gPiBGaXggdGhpcyB3YXJuaW5nOgo+PiA+IGRyaXZlcnMv
-czM5MC9rdm0vdmlydGlvX2Njdy5jOiBJbiBmdW5jdGlvbiDigJh2aXJ0aW9fY2N3X2ludF9oYW5k
-bGVy4oCZOgo+PiA+IGRyaXZlcnMvczM5MC9rdm0vdmlydGlvX2Njdy5jOjg5MToyNDogd2Fybmlu
-ZzogdW51c2VkIHZhcmlhYmxlIOKAmGRyduKAmSBbLVd1bnVzZWQtdmFyaWFibGVdCj4+ID4gICAg
-IHN0cnVjdCB2aXJ0aW9fZHJpdmVyICpkcnY7Cj4+ID4gCj4+ID4gU2lnbmVkLW9mZi1ieTogU2Vi
-YXN0aWFuIE90dCA8c2Vib3R0QGxpbnV4LnZuZXQuaWJtLmNvbT4KPj4gPiBBY2tlZC1ieTogQ29y
-bmVsaWEgSHVjayA8Y29ybmVsaWEuaHVja0BkZS5pYm0uY29tPgo+PiAKPj4gQWNrZWQtYnk6IE1p
-Y2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+Cj4+IAo+PiA+IC0tLQo+PiA+ICBkcml2
-ZXJzL3MzOTAva3ZtL3ZpcnRpb19jY3cuYyB8IDEgLQo+PiA+ICAxIGZpbGUgY2hhbmdlZCwgMSBk
-ZWxldGlvbigtKQo+PiA+IAo+PiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3MzOTAva3ZtL3ZpcnRp
-b19jY3cuYyBiL2RyaXZlcnMvczM5MC9rdm0vdmlydGlvX2Njdy5jCj4+ID4gaW5kZXggNmNiZTZl
-Zi4uYmRhNTJmMSAxMDA2NDQKPj4gPiAtLS0gYS9kcml2ZXJzL3MzOTAva3ZtL3ZpcnRpb19jY3cu
-Ywo+PiA+ICsrKyBiL2RyaXZlcnMvczM5MC9rdm0vdmlydGlvX2Njdy5jCj4+ID4gQEAgLTg4OCw3
-ICs4ODgsNiBAQCBzdGF0aWMgdm9pZCB2aXJ0aW9fY2N3X2ludF9oYW5kbGVyKHN0cnVjdCBjY3df
-ZGV2aWNlICpjZGV2LAo+PiA+ICAJc3RydWN0IHZpcnRpb19jY3dfZGV2aWNlICp2Y2RldiA9IGRl
-dl9nZXRfZHJ2ZGF0YSgmY2Rldi0+ZGV2KTsKPj4gPiAgCWludCBpOwo+PiA+ICAJc3RydWN0IHZp
-cnRxdWV1ZSAqdnE7Cj4+ID4gLQlzdHJ1Y3QgdmlydGlvX2RyaXZlciAqZHJ2Owo+PiA+ICAKPj4g
-PiAgCWlmICghdmNkZXYpCj4+ID4gIAkJcmV0dXJuOwo+Cj4gKnBva2VzIFJ1c3R5Kgo+Cj4gRG8g
-eW91IHdhbnQgdG8gc2VuZCB0aGlzIHZpYSB0aGUgdmlydGlvIHRyZWU/IE90aGVyd2lzZSwgSSds
-bCBxdWV1ZQo+IHRoaXMgd2l0aCBrdm0vczM5MC4KCipSdXN0eSB3YWtlcyouCgpJIGFzc3VtZWQg
-eW91IHdvdWxkIHRha2UgaXQgd2hlbiBJIHNraW1tZWQgdGhlIHBhdGNoLCBidXQgdG8gYmUgZm9y
-bWFsOgoKQWNrZWQtYnk6IFJ1c3R5IFJ1c3NlbGwgPHJ1c3R5QHJ1c3Rjb3JwLmNvbS5hdT4KClNv
-cnJ5IGZvciB0aGUgZGVsYXksClJ1c3R5LgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
-b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Wed, 2014-10-15 at 16:23 +0300, Michael S. Tsirkin wrote:
+> commit 0b725a2ca61bedc33a2a63d0451d528b268cf975
+>     net: Remove ndo_xmit_flush netdev operation, use signalling instead.
+> 
+> added code that looks at skb->xmit_more after the skb has
+> been put in TX VQ. Since some paths process the ring and free the skb
+> immediately, this can cause use after free.
+> 
+> Fix by storing xmit_more in a local variable.
+> 
+> Cc: David S. Miller <davem@davemloft.net>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+> 
+> David, am I using the API correctly?
+> Seems to work for me.
+> You used __netif_subqueue_stopped but that seems to use
+> a slightly more expensive test_bit internally.
+> The reason I added a variable for the txq here is because it's handy for
+> BQL patch later on.
+> 
+> 
+>  drivers/net/virtio_net.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 3d0ce44..13d0a8b 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -920,6 +920,8 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>  	int qnum = skb_get_queue_mapping(skb);
+>  	struct send_queue *sq = &vi->sq[qnum];
+>  	int err;
+> +	struct netdev_queue *txq = netdev_get_tx_queue(dev, qnum);
+> +	bool kick = !skb->xmit_more;
+>  
+>  	/* Free up any pending old buffers before queueing new ones. */
+>  	free_old_xmit_skbs(sq);
+> @@ -956,7 +958,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>  		}
+>  	}
+>  
+> -	if (__netif_subqueue_stopped(dev, qnum) || !skb->xmit_more)
+> +	if (kick || netif_xmit_stopped(txq))
+>  		virtqueue_kick(sq->vq);
+>  
+>  	return NETDEV_TX_OK;
+
+I must say I am kind of confused by this patch.
+
+Why the skb_orphan(skb) & nf_reset(skb) do not have the same issue ?
+
+
+It looks like following patch is needed ?
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index ec2a8b41ed41..17cc42c6a559 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -927,6 +927,10 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	/* Free up any pending old buffers before queueing new ones. */
+ 	free_old_xmit_skbs(sq);
+ 
++	/* Don't wait up for transmitted skbs to be freed. */
++	skb_orphan(skb);
++	nf_reset(skb);
++
+ 	/* Try to transmit */
+ 	err = xmit_skb(sq, skb);
+ 
+@@ -941,10 +945,6 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 		return NETDEV_TX_OK;
+ 	}
+ 
+-	/* Don't wait up for transmitted skbs to be freed. */
+-	skb_orphan(skb);
+-	nf_reset(skb);
+-
+ 	/* Apparently nice girls don't return TX_BUSY; stop the queue
+ 	 * before it gets out of hand.  Naturally, this wastes entries. */
+ 	if (sq->vq->num_free < 2+MAX_SKB_FRAGS) {
