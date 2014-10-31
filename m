@@ -1,13 +1,14 @@
-From: Ming Lei <tom.leiming@gmail.com>
-Subject: Re: Re: kernel BUG at drivers/block/virtio_blk.c:172
-Date: Fri, 31 Oct 2014 12:40:00 +0800
-Message-ID: <CACVXFVPVdTqJ7X6xokq-8X8CTh3A59xwGNdwTm+SW1dOB-xxLQ@mail.gmail.com>
-References: <54524D50.50509@kernel.dk>
-	<54524D68.7080509@kernel.dk>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] virtio_net: fix use after free
+Date: Fri, 31 Oct 2014 14:07:11 +0800
+Message-ID: <5453270F.3090300@redhat.com>
+References: <1413378878-28118-1-git-send-email-mst@redhat.com>
+	<1414726609.499.6.camel@edumazet-glaptop2.roam.corp.google.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=001a113ccd4ef510fd0506b09614
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <54524D68.7080509@kernel.dk>
+In-Reply-To: <1414726609.499.6.camel@edumazet-glaptop2.roam.corp.google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,90 +18,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jens Axboe <axboe@kernel.dk>
-Cc: =?UTF-8?B?THVrw6HFoSBDemVybmVy?= <lczerner@redhat.com>, Christoph Hellwig <hch@lst.de>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: Eric Dumazet <eric.dumazet@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
---001a113ccd4ef510fd0506b09614
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Oct 30, 2014 at 10:38 PM, Jens Axboe <axboe@kernel.dk> wrote:
-> Forgot to CC you...
+On 10/31/2014 11:36 AM, Eric Dumazet wrote:
+> On Wed, 2014-10-15 at 16:23 +0300, Michael S. Tsirkin wrote:
+>> commit 0b725a2ca61bedc33a2a63d0451d528b268cf975
+>>     net: Remove ndo_xmit_flush netdev operation, use signalling instead.
+>>
+>> added code that looks at skb->xmit_more after the skb has
+>> been put in TX VQ. Since some paths process the ring and free the skb
+>> immediately, this can cause use after free.
+>>
+>> Fix by storing xmit_more in a local variable.
+>>
+>> Cc: David S. Miller <davem@davemloft.net>
+>> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>> ---
+>>
+>> David, am I using the API correctly?
+>> Seems to work for me.
+>> You used __netif_subqueue_stopped but that seems to use
+>> a slightly more expensive test_bit internally.
+>> The reason I added a variable for the txq here is because it's handy for
+>> BQL patch later on.
+>>
+>>
+>>  drivers/net/virtio_net.c | 4 +++-
+>>  1 file changed, 3 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index 3d0ce44..13d0a8b 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -920,6 +920,8 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>>  	int qnum = skb_get_queue_mapping(skb);
+>>  	struct send_queue *sq = &vi->sq[qnum];
+>>  	int err;
+>> +	struct netdev_queue *txq = netdev_get_tx_queue(dev, qnum);
+>> +	bool kick = !skb->xmit_more;
+>>  
+>>  	/* Free up any pending old buffers before queueing new ones. */
+>>  	free_old_xmit_skbs(sq);
+>> @@ -956,7 +958,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>>  		}
+>>  	}
+>>  
+>> -	if (__netif_subqueue_stopped(dev, qnum) || !skb->xmit_more)
+>> +	if (kick || netif_xmit_stopped(txq))
+>>  		virtqueue_kick(sq->vq);
+>>  
+>>  	return NETDEV_TX_OK;
+> I must say I am kind of confused by this patch.
 >
+> Why the skb_orphan(skb) & nf_reset(skb) do not have the same issue ?
 >
-> -------- Forwarded Message --------
-> Subject: Re: kernel BUG at drivers/block/virtio_blk.c:172
-> Date: Thu, 30 Oct 2014 08:38:08 -0600
-> From: Jens Axboe <axboe@kernel.dk>
-> To: Luk=C3=A1=C5=A1 Czerner <lczerner@redhat.com>,
-> virtualization@lists.linux-foundation.org
-> CC: hch@lst.de
->
-> On 2014-10-30 08:33, Luk=C3=A1=C5=A1 Czerner wrote:
->>
->> Hi,
->>
->> I've just hit this BUG at drivers/block/virtio_blk.c when updated to
->> the kernel from the top of the Linus git tree.
->>
->> commit a7ca10f263d7e673c74d8e0946d6b9993405cc9c
->>
->> This is my virtual machine running on RHEL7 guest
->>
->> qemu-kvm-1.5.3-60.el7.x86_64
->>
->> The last upstream kernel (3.17.0-rc4) worked well. I'll try to
->> bisect, but meanwhile this is a backtrace I got very early in the boot.
->> The root fs on that guest is xfs and I am using raw disk image and virti=
-o
->> driver.
->>
->> Let me know if you need more information.
->
->
-> Ming, looks like this still isn't really fixed. The above upstream
-> commit has the latest fixup as well for the segments being wrong, so
-> nothing else should be pending.
 
-That looks weird, and I can't reproduce with mkfs.xfs & mount
-in my environment.
-
-Luk=C3=A1=C5=A1, could you reproduce the issue with attached debug patch
-and post the result? BTW, do you pass 'scsi=3Doff' in the qemu
-command line for the virito-blk device?
-
-
-
-Thanks,
---=20
-Ming Lei
-
---001a113ccd4ef510fd0506b09614
-Content-Type: text/x-patch; charset=US-ASCII; name="blk-seg.patch"
-Content-Disposition: attachment; filename="blk-seg.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_i1x1xox20
-
-ZGlmZiAtLWdpdCBhL2Jsb2NrL2Jsay1tZXJnZS5jIGIvYmxvY2svYmxrLW1lcmdlLmMKaW5kZXgg
-YjNhYzQwYS4uOTFmMzI3NSAxMDA2NDQKLS0tIGEvYmxvY2svYmxrLW1lcmdlLmMKKysrIGIvYmxv
-Y2svYmxrLW1lcmdlLmMKQEAgLTExMyw2ICsxMTMsMTUgQEAgdm9pZCBibGtfcmVjb3VudF9zZWdt
-ZW50cyhzdHJ1Y3QgcmVxdWVzdF9xdWV1ZSAqcSwgc3RydWN0IGJpbyAqYmlvKQogCQliaW8tPmJp
-X25leHQgPSBueHQ7CiAJfQogCisJaWYgKG5vX3NnX21lcmdlICYmIChiaW8tPmJpX3BoeXNfc2Vn
-bWVudHMgPj0gcXVldWVfbWF4X3NlZ21lbnRzKHEpKSkKKwkJcHJpbnRrKCIlczogJWQtJWQtJWQg
-dmNudC0lZCBzZWdzLSVkXG4iLAorCQkJCV9fZnVuY19fLAorCQkJCW5vX3NnX21lcmdlLAorCQkJ
-CSFiaW9fZmxhZ2dlZChiaW8sIEJJT19DTE9ORUQpLAorCQkJCW1lcmdlX25vdF9uZWVkLAorCQkJ
-CWJpby0+YmlfdmNudCwKKwkJCQliaW8tPmJpX3BoeXNfc2VnbWVudHMpOworCiAJYmlvLT5iaV9m
-bGFncyB8PSAoMSA8PCBCSU9fU0VHX1ZBTElEKTsKIH0KIEVYUE9SVF9TWU1CT0woYmxrX3JlY291
-bnRfc2VnbWVudHMpOwo=
---001a113ccd4ef510fd0506b09614
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---001a113ccd4ef510fd0506b09614--
+Since they are called before the possible free_old_xmit_skbs(), skb
+won't get freed at this time.
