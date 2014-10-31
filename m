@@ -1,17 +1,18 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH v2 4/6] hw_random: fix unregister race.
-Date: Fri, 31 Oct 2014 15:23:21 +0800
-Message-ID: <20141031072321.GB7563@gondor.apana.org.au>
-References: <1411043867-21109-1-git-send-email-akong@redhat.com>
-	<1411043867-21109-5-git-send-email-akong@redhat.com>
-	<20141021141745.GA18511@gondor.apana.org.au>
-	<87y4rx860n.fsf@rustcorp.com.au>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH] virtio_ccw: remove unsued variable
+Date: Fri, 31 Oct 2014 09:10:05 +0100
+Message-ID: <20141031091005.5afd702b.cornelia.huck@de.ibm.com>
+References: <alpine.LFD.2.11.1410201242390.1601@denkbrett>
+	<20141020141931.GB11062@redhat.com>
+	<alpine.LFD.2.11.1410281634560.1567@denkbrett>
+	<20141028173758.GA24566@redhat.com>
+	<20141030185126.1da79c12.cornelia.huck@de.ibm.com>
+	<87sii585v4.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87y4rx860n.fsf@rustcorp.com.au>
+In-Reply-To: <87sii585v4.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,32 +23,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, m@bues.ch, mpm@selenic.com, amit.shah@redhat.com
+Cc: virtualization@lists.linux-foundation.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Oct 31, 2014 at 10:28:00AM +1030, Rusty Russell wrote:
-> Herbert Xu <herbert@gondor.apana.org.au> writes:
-> > On Thu, Sep 18, 2014 at 08:37:45PM +0800, Amos Kong wrote:
-> >> From: Rusty Russell <rusty@rustcorp.com.au>
-> >> 
-> >> The previous patch added one potential problem: we can still be
-> >> reading from a hwrng when it's unregistered.  Add a wait for zero
-> >> in the hwrng_unregister path.
-> >> 
-> >> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> >
-> > You totally corrupted Rusty's patch.  If you're going to repost
-> > his series you better make sure that you've got the right patches.
-> >
-> > Just as well though as it made me think a little more about this
-> > patch :)
-> 
-> OK Amos, can you please repost the complete series?
-
-Please fix the unregister race I identified first.
-
-Thanks,
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+T24gRnJpLCAzMSBPY3QgMjAxNCAxMDozMToxOSArMTAzMApSdXN0eSBSdXNzZWxsIDxydXN0eUBy
+dXN0Y29ycC5jb20uYXU+IHdyb3RlOgoKPiBDb3JuZWxpYSBIdWNrIDxjb3JuZWxpYS5odWNrQGRl
+LmlibS5jb20+IHdyaXRlczoKPiA+IE9uIFR1ZSwgMjggT2N0IDIwMTQgMTk6Mzc6NTggKzAyMDAK
+PiA+ICJNaWNoYWVsIFMuIFRzaXJraW4iIDxtc3RAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPgo+ID4+
+IE9uIFR1ZSwgT2N0IDI4LCAyMDE0IGF0IDA0OjM5OjEyUE0gKzAxMDAsIFNlYmFzdGlhbiBPdHQg
+d3JvdGU6Cj4gPgo+ID4+ID4gdmlydGlvX2NjdzogcmVtb3ZlIHVudXNlZCB2YXJpYWJsZQo+ID4+
+ID4gCj4gPj4gPiBGaXggdGhpcyB3YXJuaW5nOgo+ID4+ID4gZHJpdmVycy9zMzkwL2t2bS92aXJ0
+aW9fY2N3LmM6IEluIGZ1bmN0aW9uIOKAmHZpcnRpb19jY3dfaW50X2hhbmRsZXLigJk6Cj4gPj4g
+PiBkcml2ZXJzL3MzOTAva3ZtL3ZpcnRpb19jY3cuYzo4OTE6MjQ6IHdhcm5pbmc6IHVudXNlZCB2
+YXJpYWJsZSDigJhkcnbigJkgWy1XdW51c2VkLXZhcmlhYmxlXQo+ID4+ID4gICAgIHN0cnVjdCB2
+aXJ0aW9fZHJpdmVyICpkcnY7Cj4gPj4gPiAKPiA+PiA+IFNpZ25lZC1vZmYtYnk6IFNlYmFzdGlh
+biBPdHQgPHNlYm90dEBsaW51eC52bmV0LmlibS5jb20+Cj4gPj4gPiBBY2tlZC1ieTogQ29ybmVs
+aWEgSHVjayA8Y29ybmVsaWEuaHVja0BkZS5pYm0uY29tPgo+ID4+IAo+ID4+IEFja2VkLWJ5OiBN
+aWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgo+ID4+IAo+ID4+ID4gLS0tCj4gPj4g
+PiAgZHJpdmVycy9zMzkwL2t2bS92aXJ0aW9fY2N3LmMgfCAxIC0KPiA+PiA+ICAxIGZpbGUgY2hh
+bmdlZCwgMSBkZWxldGlvbigtKQo+ID4+ID4gCj4gPj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9z
+MzkwL2t2bS92aXJ0aW9fY2N3LmMgYi9kcml2ZXJzL3MzOTAva3ZtL3ZpcnRpb19jY3cuYwo+ID4+
+ID4gaW5kZXggNmNiZTZlZi4uYmRhNTJmMSAxMDA2NDQKPiA+PiA+IC0tLSBhL2RyaXZlcnMvczM5
+MC9rdm0vdmlydGlvX2Njdy5jCj4gPj4gPiArKysgYi9kcml2ZXJzL3MzOTAva3ZtL3ZpcnRpb19j
+Y3cuYwo+ID4+ID4gQEAgLTg4OCw3ICs4ODgsNiBAQCBzdGF0aWMgdm9pZCB2aXJ0aW9fY2N3X2lu
+dF9oYW5kbGVyKHN0cnVjdCBjY3dfZGV2aWNlICpjZGV2LAo+ID4+ID4gIAlzdHJ1Y3QgdmlydGlv
+X2Njd19kZXZpY2UgKnZjZGV2ID0gZGV2X2dldF9kcnZkYXRhKCZjZGV2LT5kZXYpOwo+ID4+ID4g
+IAlpbnQgaTsKPiA+PiA+ICAJc3RydWN0IHZpcnRxdWV1ZSAqdnE7Cj4gPj4gPiAtCXN0cnVjdCB2
+aXJ0aW9fZHJpdmVyICpkcnY7Cj4gPj4gPiAgCj4gPj4gPiAgCWlmICghdmNkZXYpCj4gPj4gPiAg
+CQlyZXR1cm47Cj4gPgo+ID4gKnBva2VzIFJ1c3R5Kgo+ID4KPiA+IERvIHlvdSB3YW50IHRvIHNl
+bmQgdGhpcyB2aWEgdGhlIHZpcnRpbyB0cmVlPyBPdGhlcndpc2UsIEknbGwgcXVldWUKPiA+IHRo
+aXMgd2l0aCBrdm0vczM5MC4KPiAKPiAqUnVzdHkgd2FrZXMqLgo+IAo+IEkgYXNzdW1lZCB5b3Ug
+d291bGQgdGFrZSBpdCB3aGVuIEkgc2tpbW1lZCB0aGUgcGF0Y2gsIGJ1dCB0byBiZSBmb3JtYWw6
+Cj4gCj4gQWNrZWQtYnk6IFJ1c3R5IFJ1c3NlbGwgPHJ1c3R5QHJ1c3Rjb3JwLmNvbS5hdT4KCkFw
+cGxpZWQuCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
+aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
+bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
+dGluZm8vdmlydHVhbGl6YXRpb24=
