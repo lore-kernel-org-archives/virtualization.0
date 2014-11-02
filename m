@@ -1,20 +1,13 @@
-From: Amos Kong <akong@redhat.com>
-Subject: Re: [PATCH v2 4/6] hw_random: fix unregister race.
-Date: Sun, 2 Nov 2014 23:14:21 +0800
-Message-ID: <20141102151421.GB31178@air.redhat.com>
-References: <1411043867-21109-1-git-send-email-akong@redhat.com>
-	<1411043867-21109-5-git-send-email-akong@redhat.com>
-	<20141021141745.GA18511@gondor.apana.org.au>
-	<87y4rx860n.fsf@rustcorp.com.au>
-	<20141031072321.GB7563@gondor.apana.org.au>
-	<20141102150613.GA31178@air.redhat.com>
-	<20141102150809.GA23717@gondor.apana.org.au>
+From: Josh Triplett <josh@joshtriplett.org>
+Subject: [PATCH v4 00/10] x86: Support compiling out userspace IO (iopl and
+	ioperm)
+Date: Sun, 2 Nov 2014 09:31:22 -0800
+Message-ID: <cover.1414870871.git.josh@joshtriplett.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20141102150809.GA23717@gondor.apana.org.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,40 +17,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, m@bues.ch, mpm@selenic.com, amit.shah@redhat.com
+To: "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, Kees Cook <keescook@chromium.org>, Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, x86@kernel.org, xen-devel@lists.xenproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Nov 02, 2014 at 11:08:09PM +0800, Herbert Xu wrote:
-> On Sun, Nov 02, 2014 at 11:06:13PM +0800, Amos Kong wrote:
-> > On Fri, Oct 31, 2014 at 03:23:21PM +0800, Herbert Xu wrote:
-> > > On Fri, Oct 31, 2014 at 10:28:00AM +1030, Rusty Russell wrote:
-> > > > Herbert Xu <herbert@gondor.apana.org.au> writes:
-> > > > > On Thu, Sep 18, 2014 at 08:37:45PM +0800, Amos Kong wrote:
-> > > > >> From: Rusty Russell <rusty@rustcorp.com.au>
-> > > > >> 
-> > > > >> The previous patch added one potential problem: we can still be
-> > > > >> reading from a hwrng when it's unregistered.  Add a wait for zero
-> > > > >> in the hwrng_unregister path.
-> > > > >> 
-> > > > >> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> > > > >
-> > > > > You totally corrupted Rusty's patch.  If you're going to repost
-> > > > > his series you better make sure that you've got the right patches.
-> > > > >
-> > > > > Just as well though as it made me think a little more about this
-> > > > > patch :)
-> > > > 
-> > > > OK Amos, can you please repost the complete series?
-> > > 
-> > > Please fix the unregister race I identified first.
-> > 
-> > Ok, I redownload the patches from https://patchwork.kernel.org/project/LKML/list/?submitter=5
-> > and rebase fixes of me and rusty on it. I will post a V4 later. Thanks.
-> 
-> Please fix the unregister race I pointed out before doing a v4.
+This patch series makes it possible to compile out the userspace IO system
+calls, iopl and ioperm.
 
-Thanks for the remind, I got it right now  :-)
+The first patch does some 32/64 unification in copy_thread to make subsequent
+changes easier.  The second patch simplifies the complex calculation of the TSS
+segment limit, which also makes it easier to change in the last patch.  Patches
+3-9 introduce helpers to make it easier to compile out IO.  The last patch adds
+and uses the new CONFIG_X86_IOPORT to support compiling out userspace IO.
+
+v3 had patches 3-10 as a single patch; v4 splits out the various helpers and
+macros into separate patches, as requested by Thomas Gleixner.
+
+I've verified that this compiles after each patch.
+
+Josh Triplett (10):
+  x86: process: Unify 32-bit and 64-bit copy_thread I/O bitmap handling
+  x86: tss: Eliminate fragile calculation of TSS segment limit
+  x86: processor.h: Introduce macros to initialize IO fields of thread
+    and TSS
+  x86: paravirt: Wrap initialization of set_iopl_mask in a macro
+  x86: cpu: Add helper function unifying 32-bit and 64-bit IO init in
+    cpu_init
+  x86: process: Introduce helper to clear a thread's IO bitmap
+  x86: process: Introduce helper to switch iopl mask
+  x86: process: Introduce helper for IO-related bits of exit_thread
+  x86: process: Introduce helper to switch IO bitmap
+  x86: Support compiling out userspace IO (iopl and ioperm)
+
+ arch/x86/Kconfig                      | 10 ++++
+ arch/x86/include/asm/desc.h           | 11 +----
+ arch/x86/include/asm/paravirt.h       |  2 +
+ arch/x86/include/asm/paravirt_types.h |  5 ++
+ arch/x86/include/asm/processor.h      | 55 +++++++++++++++++----
+ arch/x86/include/asm/syscalls.h       |  3 ++
+ arch/x86/kernel/Makefile              |  3 +-
+ arch/x86/kernel/cpu/common.c          | 12 +----
+ arch/x86/kernel/entry_64.S            |  9 ++--
+ arch/x86/kernel/paravirt.c            |  2 +-
+ arch/x86/kernel/process-io.h          | 93 +++++++++++++++++++++++++++++++++++
+ arch/x86/kernel/process.c             | 34 ++-----------
+ arch/x86/kernel/process_32.c          | 41 +++++----------
+ arch/x86/kernel/process_64.c          | 27 +++-------
+ arch/x86/kernel/ptrace.c              |  8 +++
+ arch/x86/xen/enlighten.c              |  4 +-
+ drivers/tty/vt/vt_ioctl.c             |  2 +-
+ kernel/sys_ni.c                       |  5 ++
+ 18 files changed, 208 insertions(+), 118 deletions(-)
+ create mode 100644 arch/x86/kernel/process-io.h
 
 -- 
-			Amos.
+2.1.1
