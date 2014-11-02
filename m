@@ -1,17 +1,18 @@
-From: Josh Triplett <josh@joshtriplett.org>
-Subject: Re: [PATCH v3 3/3] x86: Support compiling out userspace I/O (iopl
-	and ioperm)
-Date: Sat, 1 Nov 2014 12:41:52 -0700
-Message-ID: <20141101194151.GA11810@thin>
-References: <7159269982aac3b732af2c33a2e3d04e2048bdfb.1414598511.git.josh@joshtriplett.org>
-	<9d77d0e4df8feb2cb55fb21689e016a3145cb7f8.1414598511.git.josh@joshtriplett.org>
-	<alpine.DEB.2.11.1410292155300.5308@nanos>
+From: Amos Kong <akong@redhat.com>
+Subject: Re: [PATCH v2 4/6] hw_random: fix unregister race.
+Date: Sun, 2 Nov 2014 23:06:13 +0800
+Message-ID: <20141102150613.GA31178@air.redhat.com>
+References: <1411043867-21109-1-git-send-email-akong@redhat.com>
+	<1411043867-21109-5-git-send-email-akong@redhat.com>
+	<20141021141745.GA18511@gondor.apana.org.au>
+	<87y4rx860n.fsf@rustcorp.com.au>
+	<20141031072321.GB7563@gondor.apana.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.11.1410292155300.5308@nanos>
+In-Reply-To: <20141031072321.GB7563@gondor.apana.org.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,24 +22,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Kees Cook <keescook@chromium.org>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, m@bues.ch, mpm@selenic.com, amit.shah@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Oct 29, 2014 at 10:00:54PM +0100, Thomas Gleixner wrote:
-> On Wed, 29 Oct 2014, Josh Triplett wrote:
-> > v3: Eliminated several #ifdefs, and in particular almost all #ifdefs in
-> >     .c files, by adding a macro INIT_SET_IOPL_MASK to use in place of
-> >     the initializer for set_iopl_mask, and using __maybe_unused rather
-> >     than wrapping function definitions in #ifdef.  Rebased on v3.18-rc1.
-> >     Recomputed bloat-o-meter.
+On Fri, Oct 31, 2014 at 03:23:21PM +0800, Herbert Xu wrote:
+> On Fri, Oct 31, 2014 at 10:28:00AM +1030, Rusty Russell wrote:
+> > Herbert Xu <herbert@gondor.apana.org.au> writes:
+> > > On Thu, Sep 18, 2014 at 08:37:45PM +0800, Amos Kong wrote:
+> > >> From: Rusty Russell <rusty@rustcorp.com.au>
+> > >> 
+> > >> The previous patch added one potential problem: we can still be
+> > >> reading from a hwrng when it's unregistered.  Add a wait for zero
+> > >> in the hwrng_unregister path.
+> > >> 
+> > >> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> > >
+> > > You totally corrupted Rusty's patch.  If you're going to repost
+> > > his series you better make sure that you've got the right patches.
+> > >
+> > > Just as well though as it made me think a little more about this
+> > > patch :)
+> > 
+> > OK Amos, can you please repost the complete series?
 > 
-> Can you please split this patch into smaller pieces?
-> 
->     - Seperate the code move to header files
->     - Seperate the macro stuff
->     - Add the #ifdef CONFIG_.... changes
+> Please fix the unregister race I identified first.
 
-Done; sending v4 now.
+Ok, I redownload the patches from https://patchwork.kernel.org/project/LKML/list/?submitter=5
+and rebase fixes of me and rusty on it. I will post a V4 later. Thanks.
 
-- Josh Triplett
+-- 
+			Amos.
