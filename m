@@ -1,8 +1,7 @@
 From: Josh Triplett <josh@joshtriplett.org>
-Subject: [PATCH v4 08/10] x86: process: Introduce helper for IO-related bits
-	of exit_thread
-Date: Sun, 2 Nov 2014 09:32:48 -0800
-Message-ID: <0a47e59dec909be4e6b4fd7769e371a5fb14e3e4.1414870871.git.josh__15981.2543578029$1414949616$gmane$org@joshtriplett.org>
+Subject: [PATCH v4 09/10] x86: process: Introduce helper to switch IO bitmap
+Date: Sun, 2 Nov 2014 09:32:55 -0800
+Message-ID: <7da73a194a9856de21cf9cf035be29239ce88ef3.1414870871.git.josh__26033.3055783578$1414949622$gmane$org@joshtriplett.org>
 References: <cover.1414870871.git.josh@joshtriplett.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,82 +21,70 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, Kees Cook <keescook@chromium.org>, Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, x86@kernel.org, xen-devel@lists.xenproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This makes the two major functions of exit_thread (IO and FPU) more
-obvious, and will make it easier to make IO optional later.
+This simplifies __switch_to_xtra, and will make it easier to make IO
+optional later.
 
 Signed-off-by: Josh Triplett <josh@joshtriplett.org>
 ---
- arch/x86/kernel/process-io.h | 20 ++++++++++++++++++++
- arch/x86/kernel/process.c    | 20 +++-----------------
- 2 files changed, 23 insertions(+), 17 deletions(-)
+ arch/x86/kernel/process-io.h | 23 +++++++++++++++++++++++
+ arch/x86/kernel/process.c    | 14 +-------------
+ 2 files changed, 24 insertions(+), 13 deletions(-)
 
 diff --git a/arch/x86/kernel/process-io.h b/arch/x86/kernel/process-io.h
-index 6d4f147..012c1d5 100644
+index 012c1d5..e48d5c9 100644
 --- a/arch/x86/kernel/process-io.h
 +++ b/arch/x86/kernel/process-io.h
-@@ -24,6 +24,26 @@ static inline int copy_io_bitmap(struct task_struct *me,
- 	return 0;
+@@ -57,4 +57,27 @@ static inline void switch_iopl_mask(struct thread_struct *prev,
+                 set_iopl_mask(next->iopl);
  }
  
-+static inline void exit_thread_io(struct task_struct *me)
++static inline void switch_io_bitmap(struct tss_struct *tss,
++				    struct task_struct *prev_p,
++				    struct task_struct *next_p)
 +{
-+        struct thread_struct *t = &me->thread;
-+        unsigned long *bp = t->io_bitmap_ptr;
++        struct thread_struct *prev, *next;
++        prev = &prev_p->thread;
++        next = &next_p->thread;
 +
-+        if (bp) {
-+                struct tss_struct *tss = &per_cpu(init_tss, get_cpu());
-+
-+                t->io_bitmap_ptr = NULL;
-+                clear_thread_flag(TIF_IO_BITMAP);
++        if (test_tsk_thread_flag(next_p, TIF_IO_BITMAP)) {
 +                /*
-+                 * Careful, clear this in the TSS too:
++                 * Copy the relevant range of the IO bitmap.
++                 * Normally this is 128 bytes or less:
 +                 */
-+                memset(tss->io_bitmap, 0xff, t->io_bitmap_max);
-+                t->io_bitmap_max = 0;
-+                put_cpu();
-+                kfree(bp);
++                memcpy(tss->io_bitmap, next->io_bitmap_ptr,
++                       max(prev->io_bitmap_max, next->io_bitmap_max));
++        } else if (test_tsk_thread_flag(prev_p, TIF_IO_BITMAP)) {
++                /*
++                 * Clear any possible leftover bits:
++                 */
++                memset(tss->io_bitmap, 0xff, prev->io_bitmap_max);
 +        }
 +}
 +
- static inline void switch_iopl_mask(struct thread_struct *prev,
- 				    struct thread_struct *next)
- {
+ #endif /* _X86_KERNEL_PROCESS_IO_H */
 diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
-index e127dda..37b45ca 100644
+index 37b45ca..7ac01bf 100644
 --- a/arch/x86/kernel/process.c
 +++ b/arch/x86/kernel/process.c
-@@ -29,6 +29,8 @@
- #include <asm/debugreg.h>
- #include <asm/nmi.h>
+@@ -211,19 +211,7 @@ void __switch_to_xtra(struct task_struct *prev_p, struct task_struct *next_p,
+ 			hard_enable_TSC();
+ 	}
  
-+#include "process-io.h"
-+
- /*
-  * per-CPU TSS segments. Threads are completely 'soft' on Linux,
-  * no more per-task TSS's. The TSS size is kept cacheline-aligned
-@@ -104,23 +106,7 @@ void arch_task_cache_init(void)
- void exit_thread(void)
- {
- 	struct task_struct *me = current;
--	struct thread_struct *t = &me->thread;
--	unsigned long *bp = t->io_bitmap_ptr;
--
--	if (bp) {
--		struct tss_struct *tss = &per_cpu(init_tss, get_cpu());
--
--		t->io_bitmap_ptr = NULL;
--		clear_thread_flag(TIF_IO_BITMAP);
+-	if (test_tsk_thread_flag(next_p, TIF_IO_BITMAP)) {
 -		/*
--		 * Careful, clear this in the TSS too:
+-		 * Copy the relevant range of the IO bitmap.
+-		 * Normally this is 128 bytes or less:
 -		 */
--		memset(tss->io_bitmap, 0xff, t->io_bitmap_max);
--		t->io_bitmap_max = 0;
--		put_cpu();
--		kfree(bp);
+-		memcpy(tss->io_bitmap, next->io_bitmap_ptr,
+-		       max(prev->io_bitmap_max, next->io_bitmap_max));
+-	} else if (test_tsk_thread_flag(prev_p, TIF_IO_BITMAP)) {
+-		/*
+-		 * Clear any possible leftover bits:
+-		 */
+-		memset(tss->io_bitmap, 0xff, prev->io_bitmap_max);
 -	}
--
-+	exit_thread_io(me);
- 	drop_fpu(me);
++	switch_io_bitmap(tss, prev_p, next_p);
+ 	propagate_user_return_notify(prev_p, next_p);
  }
  
 -- 
