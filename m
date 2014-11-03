@@ -1,15 +1,15 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH v4 4/6] hw_random: fix unregister race.
-Date: Mon, 10 Nov 2014 21:47:27 +0800
-Message-ID: <20141110134727.GA8578@gondor.apana.org.au>
-References: <1415030186-18303-1-git-send-email-akong@redhat.com>
-	<1415030186-18303-5-git-send-email-akong@redhat.com>
+From: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH v4 10/10] x86: Support compiling out userspace IO (iopl
+	and ioperm)
+Date: Mon, 3 Nov 2014 12:10:49 +0000
+Message-ID: <20141103121049.2f0c81a9__38353.3208202154$1415631706$gmane$org@alan.etchedpixels.co.uk>
+References: <cover.1414870871.git.josh@joshtriplett.org>
+	<ec10c497d3a7f44f335dbc267edd6de5b4acd671.1414870871.git.josh@joshtriplett.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1415030186-18303-5-git-send-email-akong@redhat.com>
+In-Reply-To: <ec10c497d3a7f44f335dbc267edd6de5b4acd671.1414870871.git.josh@joshtriplett.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,23 +19,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amos Kong <akong@redhat.com>
-Cc: m@bues.ch, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mb@bu3sch.de, mpm@selenic.com, amit.shah@redhat.com
+To: Josh Triplett <josh@joshtriplett.org>
+Cc: Kees Cook <keescook@chromium.org>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Nov 03, 2014 at 11:56:24PM +0800, Amos Kong wrote:
->
-> @@ -98,6 +99,8 @@ static inline void cleanup_rng(struct kref *kref)
->  
->  	if (rng->cleanup)
->  		rng->cleanup(rng);
+On Sun, 2 Nov 2014 09:33:01 -0800
+Josh Triplett <josh@joshtriplett.org> wrote:
 
-You need a compiler barrier here to prevent reordering.
+> On the vast majority of modern systems, no processes will use the
+> userspsace IO syscalls, iopl and ioperm.  Add a new config option,
+> CONFIG_X86_IOPORT, to support configuring them out of the kernel
+> entirely.  Most current systems do not run programs using these
+> syscalls, so X86_IOPORT does not depend on EXPERT, though it does still
+> default to y.
 
-> +	rng->cleanup_done = true;
+This isn't unreasonable but there are drivers with userspace helpers that
+use iopl/ioperm type functionality where you should be doing a SELECT of
+X86_IOPORT. The one that comes to mind is the uvesa driver. From a quick
+scan it may these days be the only mainstream one that needs the select
+adding.
 
-Thanks,
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Some X servers for legacy cards still use io port access. There are also
+a couple of other highly non-obvious userspace users that hang on for
+some systems - eg some older servers DMI and error records can only by
+read via a real mode BIOS call so management tools have no choice but to
+go the lrmi/io path.
+
+Still makes sense IMHO.
+
+From a code perspective however you could define IO_BITMAP_LONGS to 0,
+add an IO_BITMAP_SIZE (defined as LONGS + 1 or 0) and as far as I can see
+gcc would then optimise out a lot of the code you are ifdeffing
+
+Alan
