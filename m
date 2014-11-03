@@ -1,18 +1,17 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [Qemu-devel] [PATCH RFC 05/11] virtio: introduce legacy virtio
-	devices
-Date: Mon, 3 Nov 2014 12:44:59 +0100
-Message-ID: <20141103124459.553cb103.cornelia.huck__41440.4255142019$1415015127$gmane$org@de.ibm.com>
-References: <1412692807-12398-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1412692807-12398-6-git-send-email-cornelia.huck@de.ibm.com>
-	<20141028164018.29d73d9f@bahia.local>
-	<20141030190201.41e8940d.cornelia.huck@de.ibm.com>
-	<20141030232950.00ee96e4@bahia.local>
+From: Josh Triplett <josh@joshtriplett.org>
+Subject: Re: [PATCH v4 10/10] x86: Support compiling out userspace IO (iopl
+	and ioperm)
+Date: Mon, 3 Nov 2014 06:13:58 -0800
+Message-ID: <20141103141357.GC21818@thin>
+References: <cover.1414870871.git.josh@joshtriplett.org>
+	<ec10c497d3a7f44f335dbc267edd6de5b4acd671.1414870871.git.josh@joshtriplett.org>
+	<20141103121049.2f0c81a9@alan.etchedpixels.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141030232950.00ee96e4@bahia.local>
+Content-Disposition: inline
+In-Reply-To: <20141103121049.2f0c81a9@alan.etchedpixels.co.uk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,71 +21,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+Cc: Kees Cook <keescook@chromium.org>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 30 Oct 2014 23:29:50 +0100
-Greg Kurz <gkurz@linux.vnet.ibm.com> wrote:
-
-> On Thu, 30 Oct 2014 19:02:01 +0100
-> Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
+On Mon, Nov 03, 2014 at 12:10:49PM +0000, One Thousand Gnomes wrote:
+> On Sun, 2 Nov 2014 09:33:01 -0800
+> Josh Triplett <josh@joshtriplett.org> wrote:
 > 
-> > On Tue, 28 Oct 2014 16:40:18 +0100
-> > Greg Kurz <gkurz@linux.vnet.ibm.com> wrote:
-> > 
-> > > On Tue,  7 Oct 2014 16:40:01 +0200
-> > > Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
-> > > 
-> > > > Introduce a helper function to indicate  whether a virtio device is
-> > > > operating in legacy or virtio standard mode.
-> > > > 
-> > > > It may be used to make decisions about the endianess of virtio accesses
-> > > > and other virtio-1 specific changes, enabling us to support transitional
-> > > > devices.
-> > > > 
-> > > > Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
-> > > > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> > > > ---
-> > > >  hw/virtio/virtio.c                |    6 +++++-
-> > > >  include/hw/virtio/virtio-access.h |    4 ++++
-> > > >  include/hw/virtio/virtio.h        |   13 +++++++++++--
-> > > >  3 files changed, 20 insertions(+), 3 deletions(-)
-> > > > 
-> > > > diff --git a/hw/virtio/virtio.c b/hw/virtio/virtio.c
-> > > > index 7aaa953..e6ae3a0 100644
-> > > > --- a/hw/virtio/virtio.c
-> > > > +++ b/hw/virtio/virtio.c
-> > > > @@ -883,7 +883,11 @@ static bool virtio_device_endian_needed(void *opaque)
-> > > >      VirtIODevice *vdev = opaque;
-> > > > 
-> > > >      assert(vdev->device_endian != VIRTIO_DEVICE_ENDIAN_UNKNOWN);
-> > > > -    return vdev->device_endian != virtio_default_endian();
-> > > > +    if (virtio_device_is_legacy(vdev)) {
-> > > > +        return vdev->device_endian != virtio_default_endian();
-> > > > +    }
-> > > > +    /* Devices conforming to VIRTIO 1.0 or later are always LE. */
-> > > > +    return vdev->device_endian != VIRTIO_DEVICE_ENDIAN_LITTLE;
-> > > >  }
-> > > > 
-> > > 
-> > > Shouldn't we have some code doing the following somewhere ?
-> > > 
-> > > if (!virtio_device_is_legacy(vdev)) {
-> > >     vdev->device_endian = VIRTIO_DEVICE_ENDIAN_LITTLE;
-> > > }
-> > > 
-> > > also, since virtio-1 is LE only, do we expect device_endian to
-> > > be different from VIRTIO_DEVICE_ENDIAN_LITTLE ?
-> > 
-> > device_endian should not depend on whether the device is legacy or not.
-> > virtio_is_big_endian always returns false for virtio-1 devices, though.
+> > On the vast majority of modern systems, no processes will use the
+> > userspsace IO syscalls, iopl and ioperm.  Add a new config option,
+> > CONFIG_X86_IOPORT, to support configuring them out of the kernel
+> > entirely.  Most current systems do not run programs using these
+> > syscalls, so X86_IOPORT does not depend on EXPERT, though it does still
+> > default to y.
 > 
-> Sorry, I had missed the virtio_is_big_endian() change: it that makes
-> device_endian a legacy virtio only matter. 
-> So why would we care to migrate the endian subsection when we have a
-> virtio-1 device ?  Shouldn't virtio_device_endian_needed() return false
-> for virtio-1 ?
+> This isn't unreasonable but there are drivers with userspace helpers that
+> use iopl/ioperm type functionality where you should be doing a SELECT of
+> X86_IOPORT. The one that comes to mind is the uvesa driver. From a quick
+> scan it may these days be the only mainstream one that needs the select
+> adding.
 
-Indeeed, we can just leave device_endian at the default value for
-virtio-1 devices.
+Should kernel drivers really express dependencies that only their
+(current instances of) corresponding userspace components need?
+Something seems wrong about that.
+
+> Some X servers for legacy cards still use io port access.
+
+Sure, X servers using UMS rather than KMS seem like a common reason to
+need this.
+
+> There are also
+> a couple of other highly non-obvious userspace users that hang on for
+> some systems - eg some older servers DMI and error records can only by
+> read via a real mode BIOS call so management tools have no choice but to
+> go the lrmi/io path.
+
+As with any userspace interface, some callers may potentially still
+exist.  And this still has "default y", too, to avoid user surprises.
+
+> Still makes sense IMHO.
+> 
+> From a code perspective however you could define IO_BITMAP_LONGS to 0,
+> add an IO_BITMAP_SIZE (defined as LONGS + 1 or 0) and as far as I can see
+> gcc would then optimise out a lot of the code you are ifdeffing
+
+IO_BITMAP_LONGS already gets defined to (0/sizeof(long)).  And as far as
+I can tell, that would only work for init_tss_io, not anything else.
+Even then, that would only work with a zero-size array left around in
+tss_struct, which doesn't seem appropriate.  The remaining ifdefs wrap
+code that GCC could not constant-fold away, and making that code
+constant-foldable seems significantly more invasive than the ifdefs.
+
+- Josh Triplett
