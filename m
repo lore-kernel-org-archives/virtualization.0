@@ -1,15 +1,17 @@
 From: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
 Subject: Re: [PATCH v4 10/10] x86: Support compiling out userspace IO (iopl
 	and ioperm)
-Date: Mon, 3 Nov 2014 12:10:49 +0000
-Message-ID: <20141103121049.2f0c81a9__38353.3208202154$1415631706$gmane$org@alan.etchedpixels.co.uk>
+Date: Mon, 3 Nov 2014 15:27:48 +0000
+Message-ID: <20141103152748.327032f8__48592.4517423429$1415631716$gmane$org@alan.etchedpixels.co.uk>
 References: <cover.1414870871.git.josh@joshtriplett.org>
 	<ec10c497d3a7f44f335dbc267edd6de5b4acd671.1414870871.git.josh@joshtriplett.org>
+	<20141103121049.2f0c81a9@alan.etchedpixels.co.uk>
+	<20141103141357.GC21818@thin>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <ec10c497d3a7f44f335dbc267edd6de5b4acd671.1414870871.git.josh@joshtriplett.org>
+In-Reply-To: <20141103141357.GC21818@thin>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,32 +25,25 @@ To: Josh Triplett <josh@joshtriplett.org>
 Cc: Kees Cook <keescook@chromium.org>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 2 Nov 2014 09:33:01 -0800
-Josh Triplett <josh@joshtriplett.org> wrote:
+> > This isn't unreasonable but there are drivers with userspace helpers that
+> > use iopl/ioperm type functionality where you should be doing a SELECT of
+> > X86_IOPORT. The one that comes to mind is the uvesa driver. From a quick
+> > scan it may these days be the only mainstream one that needs the select
+> > adding.
+> 
+> Should kernel drivers really express dependencies that only their
+> (current instances of) corresponding userspace components need?
+> Something seems wrong about that.
 
-> On the vast majority of modern systems, no processes will use the
-> userspsace IO syscalls, iopl and ioperm.  Add a new config option,
-> CONFIG_X86_IOPORT, to support configuring them out of the kernel
-> entirely.  Most current systems do not run programs using these
-> syscalls, so X86_IOPORT does not depend on EXPERT, though it does still
-> default to y.
+uvesafb will always need X86_IOPORT. It's kind of implicit in the design.
+I'm not suggesting that fbdev should select X86_IOPORT but in the uvesafb
+case at least it's completely useless to have one and not the other.
 
-This isn't unreasonable but there are drivers with userspace helpers that
-use iopl/ioperm type functionality where you should be doing a SELECT of
-X86_IOPORT. The one that comes to mind is the uvesa driver. From a quick
-scan it may these days be the only mainstream one that needs the select
-adding.
+> IO_BITMAP_LONGS already gets defined to (0/sizeof(long)).  And as far as
+> I can tell, that would only work for init_tss_io, not anything else.
+> Even then, that would only work with a zero-size array left around in
+> tss_struct, which doesn't seem appropriate.  The remaining ifdefs wrap
+> code that GCC could not constant-fold away, and making that code
+> constant-foldable seems significantly more invasive than the ifdefs.
 
-Some X servers for legacy cards still use io port access. There are also
-a couple of other highly non-obvious userspace users that hang on for
-some systems - eg some older servers DMI and error records can only by
-read via a real mode BIOS call so management tools have no choice but to
-go the lrmi/io path.
-
-Still makes sense IMHO.
-
-From a code perspective however you could define IO_BITMAP_LONGS to 0,
-add an IO_BITMAP_SIZE (defined as LONGS + 1 or 0) and as far as I can see
-gcc would then optimise out a lot of the code you are ifdeffing
-
-Alan
+OK
