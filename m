@@ -1,7 +1,7 @@
 From: Amos Kong <akong@redhat.com>
-Subject: [PATCH v4 3/6] hw_random: use reference counts on each struct hwrng.
-Date: Mon,  3 Nov 2014 23:56:23 +0800
-Message-ID: <1415030186-18303-4-git-send-email-akong@redhat.com>
+Subject: [PATCH v4 4/6] hw_random: fix unregister race.
+Date: Mon,  3 Nov 2014 23:56:24 +0800
+Message-ID: <1415030186-18303-5-git-send-email-akong@redhat.com>
 References: <1415030186-18303-1-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,300 +23,61 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Rusty Russell <rusty@rustcorp.com.au>
 
-current_rng holds one reference, and we bump it every time we want
-to do a read from it.
+The previous patch added one potential problem: we can still be
+reading from a hwrng when it's unregistered.  Add a wait for zero
+in the hwrng_unregister path.
 
-This means we only hold the rng_mutex to grab or drop a reference,
-so accessing /sys/devices/virtual/misc/hw_random/rng_current doesn't
-block on read of /dev/hwrng.
+v4: add cleanup_done flag to insure that cleanup is done
 
-Using a kref is overkill (we're always under the rng_mutex), but
-a standard pattern.
-
-This also solves the problem that the hwrng_fillfn thread was
-accessing current_rng without a lock, which could change (eg. to NULL)
-underneath it.
-
-v4: decrease last reference for triggering the cleanup
-v3: initialize kref (thanks Amos Kong)
-v2: fix missing put_rng() on exit path (thanks Amos Kong)
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Amos Kong <akong@redhat.com>
 ---
- drivers/char/hw_random/core.c | 142 +++++++++++++++++++++++++++++-------------
- include/linux/hw_random.h     |   2 +
- 2 files changed, 101 insertions(+), 43 deletions(-)
+ drivers/char/hw_random/core.c | 8 ++++++++
+ include/linux/hw_random.h     | 1 +
+ 2 files changed, 9 insertions(+)
 
 diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
-index a0905c8..27ad6b4 100644
+index 27ad6b4..c31bf91 100644
 --- a/drivers/char/hw_random/core.c
 +++ b/drivers/char/hw_random/core.c
-@@ -42,6 +42,7 @@
- #include <linux/delay.h>
- #include <linux/slab.h>
- #include <linux/random.h>
-+#include <linux/err.h>
- #include <asm/uaccess.h>
+@@ -60,6 +60,7 @@ static DEFINE_MUTEX(rng_mutex);
+ static DEFINE_MUTEX(reading_mutex);
+ static int data_avail;
+ static u8 *rng_buffer, *rng_fillbuf;
++static DECLARE_WAIT_QUEUE_HEAD(rng_done);
+ static unsigned short current_quality;
+ static unsigned short default_quality; /* = 0; default to "off" */
  
+@@ -98,6 +99,8 @@ static inline void cleanup_rng(struct kref *kref)
  
-@@ -91,6 +92,65 @@ static void add_early_randomness(struct hwrng *rng)
- 		add_device_randomness(bytes, bytes_read);
+ 	if (rng->cleanup)
+ 		rng->cleanup(rng);
++	rng->cleanup_done = true;
++	wake_up_all(&rng_done);
  }
  
-+static inline void cleanup_rng(struct kref *kref)
-+{
-+	struct hwrng *rng = container_of(kref, struct hwrng, ref);
-+
-+	if (rng->cleanup)
-+		rng->cleanup(rng);
-+}
-+
-+static void set_current_rng(struct hwrng *rng)
-+{
-+	BUG_ON(!mutex_is_locked(&rng_mutex));
-+	kref_get(&rng->ref);
-+	current_rng = rng;
-+}
-+
-+static void drop_current_rng(void)
-+{
-+	struct hwrng *rng = current_rng;
-+
-+	BUG_ON(!mutex_is_locked(&rng_mutex));
-+	if (!current_rng)
-+		return;
-+
-+	/* release current_rng reference */
-+	kref_put(&current_rng->ref, cleanup_rng);
-+	current_rng = NULL;
-+
-+	/* decrease last reference for triggering the cleanup */
-+	kref_put(&rng->ref, cleanup_rng);
-+}
-+
-+/* Returns ERR_PTR(), NULL or refcounted hwrng */
-+static struct hwrng *get_current_rng(void)
-+{
-+	struct hwrng *rng;
-+
-+	if (mutex_lock_interruptible(&rng_mutex))
-+		return ERR_PTR(-ERESTARTSYS);
-+
-+	rng = current_rng;
-+	if (rng)
-+		kref_get(&rng->ref);
-+
-+	mutex_unlock(&rng_mutex);
-+	return rng;
-+}
-+
-+static void put_rng(struct hwrng *rng)
-+{
-+	/*
-+	 * Hold rng_mutex here so we serialize in case they set_current_rng
-+	 * on rng again immediately.
-+	 */
-+	mutex_lock(&rng_mutex);
-+	if (rng)
-+		kref_put(&rng->ref, cleanup_rng);
-+	mutex_unlock(&rng_mutex);
-+}
-+
- static inline int hwrng_init(struct hwrng *rng)
- {
- 	if (rng->init) {
-@@ -110,13 +170,9 @@ static inline int hwrng_init(struct hwrng *rng)
- 	if (current_quality > 0 && !hwrng_fill)
- 		start_khwrngd();
- 
--	return 0;
--}
-+	kref_init(&rng->ref);
- 
--static inline void hwrng_cleanup(struct hwrng *rng)
--{
--	if (rng && rng->cleanup)
--		rng->cleanup(rng);
-+	return 0;
- }
- 
- static int rng_dev_open(struct inode *inode, struct file *filp)
-@@ -154,21 +210,22 @@ static ssize_t rng_dev_read(struct file *filp, char __user *buf,
- 	ssize_t ret = 0;
- 	int err = 0;
- 	int bytes_read, len;
-+	struct hwrng *rng;
- 
- 	while (size) {
--		if (mutex_lock_interruptible(&rng_mutex)) {
--			err = -ERESTARTSYS;
-+		rng = get_current_rng();
-+		if (IS_ERR(rng)) {
-+			err = PTR_ERR(rng);
- 			goto out;
- 		}
--
--		if (!current_rng) {
-+		if (!rng) {
- 			err = -ENODEV;
--			goto out_unlock;
-+			goto out;
- 		}
- 
- 		mutex_lock(&reading_mutex);
- 		if (!data_avail) {
--			bytes_read = rng_get_data(current_rng, rng_buffer,
-+			bytes_read = rng_get_data(rng, rng_buffer,
- 				rng_buffer_size(),
- 				!(filp->f_flags & O_NONBLOCK));
- 			if (bytes_read < 0) {
-@@ -200,8 +257,8 @@ static ssize_t rng_dev_read(struct file *filp, char __user *buf,
- 			ret += len;
- 		}
- 
--		mutex_unlock(&rng_mutex);
- 		mutex_unlock(&reading_mutex);
-+		put_rng(rng);
- 
- 		if (need_resched())
- 			schedule_timeout_interruptible(1);
-@@ -213,12 +270,11 @@ static ssize_t rng_dev_read(struct file *filp, char __user *buf,
- 	}
- out:
- 	return ret ? : err;
--out_unlock:
--	mutex_unlock(&rng_mutex);
--	goto out;
-+
- out_unlock_reading:
- 	mutex_unlock(&reading_mutex);
--	goto out_unlock;
-+	put_rng(rng);
-+	goto out;
- }
- 
- 
-@@ -257,8 +313,8 @@ static ssize_t hwrng_attr_current_store(struct device *dev,
- 			err = hwrng_init(rng);
- 			if (err)
- 				break;
--			hwrng_cleanup(current_rng);
--			current_rng = rng;
-+			drop_current_rng();
-+			set_current_rng(rng);
- 			err = 0;
- 			break;
- 		}
-@@ -272,17 +328,15 @@ static ssize_t hwrng_attr_current_show(struct device *dev,
- 				       struct device_attribute *attr,
- 				       char *buf)
- {
--	int err;
- 	ssize_t ret;
--	const char *name = "none";
-+	struct hwrng *rng;
- 
--	err = mutex_lock_interruptible(&rng_mutex);
--	if (err)
--		return -ERESTARTSYS;
--	if (current_rng)
--		name = current_rng->name;
--	ret = snprintf(buf, PAGE_SIZE, "%s\n", name);
--	mutex_unlock(&rng_mutex);
-+	rng = get_current_rng();
-+	if (IS_ERR(rng))
-+		return PTR_ERR(rng);
-+
-+	ret = snprintf(buf, PAGE_SIZE, "%s\n", rng ? rng->name : "none");
-+	put_rng(rng);
- 
- 	return ret;
- }
-@@ -357,12 +411,16 @@ static int hwrng_fillfn(void *unused)
- 	long rc;
- 
- 	while (!kthread_should_stop()) {
--		if (!current_rng)
-+		struct hwrng *rng;
-+
-+		rng = get_current_rng();
-+		if (IS_ERR(rng) || !rng)
- 			break;
- 		mutex_lock(&reading_mutex);
--		rc = rng_get_data(current_rng, rng_fillbuf,
-+		rc = rng_get_data(rng, rng_fillbuf,
- 				  rng_buffer_size(), 1);
- 		mutex_unlock(&reading_mutex);
-+		put_rng(rng);
- 		if (rc <= 0) {
- 			pr_warn("hwrng: no data available\n");
- 			msleep_interruptible(10000);
-@@ -423,14 +481,13 @@ int hwrng_register(struct hwrng *rng)
- 		err = hwrng_init(rng);
- 		if (err)
- 			goto out_unlock;
--		current_rng = rng;
-+		set_current_rng(rng);
- 	}
- 	err = 0;
- 	if (!old_rng) {
- 		err = register_miscdev();
- 		if (err) {
--			hwrng_cleanup(rng);
--			current_rng = NULL;
-+			drop_current_rng();
- 			goto out_unlock;
- 		}
- 	}
-@@ -457,22 +514,21 @@ EXPORT_SYMBOL_GPL(hwrng_register);
- 
- void hwrng_unregister(struct hwrng *rng)
- {
--	int err;
--
- 	mutex_lock(&rng_mutex);
- 
- 	list_del(&rng->list);
- 	if (current_rng == rng) {
--		hwrng_cleanup(rng);
--		if (list_empty(&rng_list)) {
--			current_rng = NULL;
--		} else {
--			current_rng = list_entry(rng_list.prev, struct hwrng, list);
--			err = hwrng_init(current_rng);
--			if (err)
--				current_rng = NULL;
-+		drop_current_rng();
-+		if (!list_empty(&rng_list)) {
-+			struct hwrng *tail;
-+
-+			tail = list_entry(rng_list.prev, struct hwrng, list);
-+
-+			if (hwrng_init(tail) == 0)
-+				set_current_rng(tail);
- 		}
- 	}
-+
- 	if (list_empty(&rng_list)) {
+ static void set_current_rng(struct hwrng *rng)
+@@ -536,6 +539,11 @@ void hwrng_unregister(struct hwrng *rng)
+ 			kthread_stop(hwrng_fill);
+ 	} else
  		mutex_unlock(&rng_mutex);
- 		unregister_miscdev();
++
++	/* Just in case rng is reading right now, wait. */
++	wait_event(rng_done, rng->cleanup_done &&
++		   atomic_read(&rng->ref.refcount) == 0);
++
+ }
+ EXPORT_SYMBOL_GPL(hwrng_unregister);
+ 
 diff --git a/include/linux/hw_random.h b/include/linux/hw_random.h
-index 914bb08..c212e71 100644
+index c212e71..7832e50 100644
 --- a/include/linux/hw_random.h
 +++ b/include/linux/hw_random.h
-@@ -14,6 +14,7 @@
- 
- #include <linux/types.h>
- #include <linux/list.h>
-+#include <linux/kref.h>
- 
- /**
-  * struct hwrng - Hardware Random Number Generator driver
-@@ -44,6 +45,7 @@ struct hwrng {
- 
+@@ -46,6 +46,7 @@ struct hwrng {
  	/* internal. */
  	struct list_head list;
-+	struct kref ref;
+ 	struct kref ref;
++	bool cleanup_done;
  };
  
  /** Register a new Hardware Random Number Generator driver. */
