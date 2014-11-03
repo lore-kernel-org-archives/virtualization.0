@@ -1,17 +1,17 @@
-From: Josh Triplett <josh@joshtriplett.org>
-Subject: Re: [PATCH v4 10/10] x86: Support compiling out userspace IO (iopl
-	and ioperm)
-Date: Mon, 3 Nov 2014 06:13:58 -0800
-Message-ID: <20141103141357.GC21818@thin>
-References: <cover.1414870871.git.josh@joshtriplett.org>
-	<ec10c497d3a7f44f335dbc267edd6de5b4acd671.1414870871.git.josh@joshtriplett.org>
-	<20141103121049.2f0c81a9@alan.etchedpixels.co.uk>
+From: Amos Kong <akong@redhat.com>
+Subject: Re: [PATCH 3/5] hw_random: fix unregister race.
+Date: Mon, 3 Nov 2014 23:24:04 +0800
+Message-ID: <20141103152404.GA6620@air.redhat.com>
+References: <87wq91odhf.fsf@rustcorp.com.au>
+	<1411008506-28349-1-git-send-email-rusty@rustcorp.com.au>
+	<1411008506-28349-3-git-send-email-rusty@rustcorp.com.au>
+	<20141021141523.GA18345@gondor.apana.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20141103121049.2f0c81a9@alan.etchedpixels.co.uk>
+In-Reply-To: <20141021141523.GA18345@gondor.apana.org.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,56 +21,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
-Cc: Kees Cook <keescook@chromium.org>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: m@bues.ch, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mb@bu3sch.de, mpm@selenic.com, amit.shah@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Nov 03, 2014 at 12:10:49PM +0000, One Thousand Gnomes wrote:
-> On Sun, 2 Nov 2014 09:33:01 -0800
-> Josh Triplett <josh@joshtriplett.org> wrote:
-> 
-> > On the vast majority of modern systems, no processes will use the
-> > userspsace IO syscalls, iopl and ioperm.  Add a new config option,
-> > CONFIG_X86_IOPORT, to support configuring them out of the kernel
-> > entirely.  Most current systems do not run programs using these
-> > syscalls, so X86_IOPORT does not depend on EXPERT, though it does still
-> > default to y.
-> 
-> This isn't unreasonable but there are drivers with userspace helpers that
-> use iopl/ioperm type functionality where you should be doing a SELECT of
-> X86_IOPORT. The one that comes to mind is the uvesa driver. From a quick
-> scan it may these days be the only mainstream one that needs the select
-> adding.
+On Tue, Oct 21, 2014 at 10:15:23PM +0800, Herbert Xu wrote:
+> On Thu, Sep 18, 2014 at 12:18:24PM +0930, Rusty Russell wrote:
+> > The previous patch added one potential problem: we can still be
+> > reading from a hwrng when it's unregistered.  Add a wait for zero
+> > in the hwrng_unregister path.
+> > 
+> > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> > ---
+> >  drivers/char/hw_random/core.c | 5 +++++
+> >  1 file changed, 5 insertions(+)
+> > 
+> > diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
+> > index dc9092a1075d..b4a21e9521cf 100644
+> > --- a/drivers/char/hw_random/core.c
+> > +++ b/drivers/char/hw_random/core.c
+> > @@ -60,6 +60,7 @@ static DEFINE_MUTEX(rng_mutex);
+> >  static DEFINE_MUTEX(reading_mutex);
+> >  static int data_avail;
+> >  static u8 *rng_buffer, *rng_fillbuf;
+> > +static DECLARE_WAIT_QUEUE_HEAD(rng_done);
+> >  static unsigned short current_quality;
+> >  static unsigned short default_quality; /* = 0; default to "off" */
+> >  
+> > @@ -98,6 +99,7 @@ static inline void cleanup_rng(struct kref *kref)
+> >  
+> >  	if (rng->cleanup)
+> >  		rng->cleanup(rng);
 
-Should kernel drivers really express dependencies that only their
-(current instances of) corresponding userspace components need?
-Something seems wrong about that.
+        rng->cleanup_done = true;
 
-> Some X servers for legacy cards still use io port access.
+> > +	wake_up_all(&rng_done);
+> >  }
+> >  
+> >  static void set_current_rng(struct hwrng *rng)
+> > @@ -529,6 +531,9 @@ void hwrng_unregister(struct hwrng *rng)
+> >  	}
+> >  
+> >  	mutex_unlock(&rng_mutex);
+> > +
+> > +	/* Just in case rng is reading right now, wait. */
+> > +	wait_event(rng_done, atomic_read(&rng->ref.refcount) == 0);
 
-Sure, X servers using UMS rather than KMS seem like a common reason to
-need this.
+Hi Rusty,
+ 
+After initializing (kref_init()), the refcount is 1, so we need one
+more kref_put() after each drop_current_rng() to release last
+reference count, then cleanup function will be called.
 
-> There are also
-> a couple of other highly non-obvious userspace users that hang on for
-> some systems - eg some older servers DMI and error records can only by
-> read via a real mode BIOS call so management tools have no choice but to
-> go the lrmi/io path.
 
-As with any userspace interface, some callers may potentially still
-exist.  And this still has "default y", too, to avoid user surprises.
+> While it's obviously better than what we have now, I don't believe
+> this is 100% safe as the cleanup function might still be running
+> even after the ref count hits zero.  Once we return from this function
+> the module may be unloaded so we need to ensure that nothing is
+> running at this point.
 
-> Still makes sense IMHO.
-> 
-> From a code perspective however you could define IO_BITMAP_LONGS to 0,
-> add an IO_BITMAP_SIZE (defined as LONGS + 1 or 0) and as far as I can see
-> gcc would then optimise out a lot of the code you are ifdeffing
+I found wait_event() can still pass and finish unregister even cleanup
+function isn't called (wake_up_all() isn't called). So I added a flag
+cleanup_done to indicate that the rng device is cleaned up.
 
-IO_BITMAP_LONGS already gets defined to (0/sizeof(long)).  And as far as
-I can tell, that would only work for init_tss_io, not anything else.
-Even then, that would only work with a zero-size array left around in
-tss_struct, which doesn't seem appropriate.  The remaining ifdefs wrap
-code that GCC could not constant-fold away, and making that code
-constant-foldable seems significantly more invasive than the ifdefs.
 
-- Josh Triplett
++       /* Just in case rng is reading right now, wait. */
++       wait_event(rng_done, rng->cleanup_done &&
++                  atomic_read(&rng->ref.refcount) == 0);
+
+I will post the new v4 later.
+ 
+> Cheers,
+> -- 
+> Email: Herbert Xu <herbert@gondor.apana.org.au>
+> Home Page: http://gondor.apana.org.au/~herbert/
+> PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+-- 
+			Amos.
