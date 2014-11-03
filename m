@@ -1,15 +1,16 @@
-From: Josh Triplett <josh@joshtriplett.org>
-Subject: [PATCH v4 10/10] x86: Support compiling out userspace IO (iopl and
-	ioperm)
-Date: Sun, 2 Nov 2014 09:33:01 -0800
-Message-ID: <ec10c497d3a7f44f335dbc267edd6de5b4acd671.1414870871.git.josh__33395.3083878898$1414949633$gmane$org@joshtriplett.org>
-References: <cover.1414870871.git.josh@joshtriplett.org>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v13 09/11] pvqspinlock, x86: Add para-virtualization
+	support
+Date: Mon, 3 Nov 2014 11:35:05 +0100
+Message-ID: <20141103103505.GZ23531@worktop.programming.kicks-ass.net>
+References: <1414613951-32532-1-git-send-email-Waiman.Long@hp.com>
+	<1414613951-32532-10-git-send-email-Waiman.Long@hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <cover.1414870871.git.josh@joshtriplett.org>
+In-Reply-To: <1414613951-32532-10-git-send-email-Waiman.Long@hp.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,394 +20,136 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, Kees Cook <keescook@chromium.org>, Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, x86@kernel.org, xen-devel@lists.xenproject.org
+To: Waiman Long <Waiman.Long@hp.com>
+Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Oleg Nesterov <oleg@redhat.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Douglas Hatch <doug.hatch@hp.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On the vast majority of modern systems, no processes will use the
-userspsace IO syscalls, iopl and ioperm.  Add a new config option,
-CONFIG_X86_IOPORT, to support configuring them out of the kernel
-entirely.  Most current systems do not run programs using these
-syscalls, so X86_IOPORT does not depend on EXPERT, though it does still
-default to y.
+On Wed, Oct 29, 2014 at 04:19:09PM -0400, Waiman Long wrote:
+>  arch/x86/include/asm/pvqspinlock.h    |  411 +++++++++++++++++++++++++++++++++
 
-In addition to saving a significant amount of space, this also reduces
-the size of several major kernel data structures, drops a bit of code
-from several task-related hot paths, and reduces the attack surface of
-the kernel.
+I do wonder why all this needs to live in x86..
 
-bloat-o-meter results:
+>  
+> +#ifdef CONFIG_QUEUE_SPINLOCK
+> +
+> +static __always_inline void pv_kick_cpu(int cpu)
+> +{
+> +	PVOP_VCALLEE1(pv_lock_ops.kick_cpu, cpu);
+> +}
+> +
+> +static __always_inline void pv_lockwait(u8 *lockbyte)
+> +{
+> +	PVOP_VCALLEE1(pv_lock_ops.lockwait, lockbyte);
+> +}
+> +
+> +static __always_inline void pv_lockstat(enum pv_lock_stats type)
+> +{
+> +	PVOP_VCALLEE1(pv_lock_ops.lockstat, type);
+> +}
 
-add/remove: 0/4 grow/shrink: 4/9 up/down: 83/-9074 (-8991)
-function                                     old     new   delta
-drop_fpu                                      80     160     +80
-perf_event_init_task                         638     639      +1
-perf_event_exec                              192     193      +1
-perf_event_aux                               132     133      +1
-test_tsk_thread_flag                          10       -     -10
-ioperm_active                                 14       3     -11
-init_task                                    916     904     -12
-flush_thread                                 168     149     -19
-cpu_init                                     364     339     -25
-__drop_fpu                                    60       -     -60
-ioperm_get                                    92       6     -86
-exit_thread                                  105      10     -95
-sys_iopl                                     106       -    -106
-copy_thread                                  364     257    -107
-__switch_to_xtra                             234     123    -111
-sys_ioperm                                   240       -    -240
-init_tss                                    8576     384   -8192
+Why are any of these PV ops? they're only called from other pv_*()
+functions. What's the point of pv ops you only call from pv code?
 
-Signed-off-by: Josh Triplett <josh@joshtriplett.org>
----
- arch/x86/Kconfig                      | 10 ++++++++++
- arch/x86/include/asm/paravirt.h       |  2 ++
- arch/x86/include/asm/paravirt_types.h |  4 ++++
- arch/x86/include/asm/processor.h      | 19 ++++++++++++++++++-
- arch/x86/include/asm/syscalls.h       |  3 +++
- arch/x86/kernel/Makefile              |  3 ++-
- arch/x86/kernel/entry_64.S            |  9 ++++++---
- arch/x86/kernel/process-io.h          | 10 ++++++++++
- arch/x86/kernel/ptrace.c              |  8 ++++++++
- drivers/tty/vt/vt_ioctl.c             |  2 +-
- kernel/sys_ni.c                       |  5 +++++
- 11 files changed, 69 insertions(+), 6 deletions(-)
+> +/*
+> + *	Queue Spinlock Para-Virtualization (PV) Support
+> + *
+> + * The PV support code for queue spinlock is roughly the same as that
+> + * of the ticket spinlock.
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index f2327e8..a7de2eb 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -984,6 +984,16 @@ config X86_ESPFIX64
- 	def_bool y
- 	depends on X86_16BIT && X86_64
- 
-+config X86_IOPORT
-+	bool "iopl and ioperm system calls"
-+	default y
-+	---help---
-+	  This option enables the iopl and ioperm system calls, which allow
-+	  privileged userspace processes to directly access I/O ports. This
-+	  is used by software that drives hardware directly from userspace
-+	  without using a kernel driver. Unless you intend to run such
-+	  software, you can safely say N here.
-+
- config TOSHIBA
- 	tristate "Toshiba Laptop support"
- 	depends on X86_32
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index cd6e161..52d2ec8 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -299,10 +299,12 @@ static inline void write_idt_entry(gate_desc *dt, int entry, const gate_desc *g)
- {
- 	PVOP_VCALL3(pv_cpu_ops.write_idt_entry, dt, entry, g);
- }
-+#ifdef CONFIG_X86_IOPORT
- static inline void set_iopl_mask(unsigned mask)
- {
- 	PVOP_VCALL1(pv_cpu_ops.set_iopl_mask, mask);
- }
-+#endif /* CONFIG_X86_IOPORT */
- 
- /* The paravirtualized I/O functions */
- static inline void slow_down_io(void)
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 3caf2a8..a22a5d4 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -142,8 +142,12 @@ struct pv_cpu_ops {
- 
- 	void (*load_sp0)(struct tss_struct *tss, struct thread_struct *t);
- 
-+#ifdef CONFIG_X86_IOPORT
- 	void (*set_iopl_mask)(unsigned mask);
- #define INIT_SET_IOPL_MASK(f) .set_iopl_mask = f,
-+#else
-+#define INIT_SET_IOPL_MASK(f)
-+#endif
- 
- 	void (*wbinvd)(void);
- 	void (*io_delay)(void);
-diff --git a/arch/x86/include/asm/processor.h b/arch/x86/include/asm/processor.h
-index 1fa78f7..6e0b639 100644
---- a/arch/x86/include/asm/processor.h
-+++ b/arch/x86/include/asm/processor.h
-@@ -255,7 +255,11 @@ struct x86_hw_tss {
- /*
-  * IO-bitmap sizes:
-  */
-+#ifdef CONFIG_X86_IOPORT
- #define IO_BITMAP_BITS			65536
-+#else
-+#define IO_BITMAP_BITS			0
-+#endif
- #define IO_BITMAP_BYTES			(IO_BITMAP_BITS/8)
- #define IO_BITMAP_LONGS			(IO_BITMAP_BYTES/sizeof(long))
- #define INVALID_IO_BITMAP_OFFSET	0x8000
-@@ -269,6 +273,7 @@ struct tss_struct {
- 	 */
- 	struct x86_hw_tss	x86_tss;
- 
-+#ifdef CONFIG_X86_IOPORT
- 	/*
- 	 * The extra 1 is there because the CPU will access an
- 	 * additional byte beyond the end of the IO permission
-@@ -276,6 +281,7 @@ struct tss_struct {
- 	 * be within the limit.
- 	 */
- 	unsigned long		io_bitmap[IO_BITMAP_LONGS + 1];
-+#endif /* CONFIG_X86_IOPORT */
- 
- 	/*
- 	 * .. and then another 0x100 bytes for the emergency kernel stack:
-@@ -288,6 +294,7 @@ DECLARE_PER_CPU_SHARED_ALIGNED(struct tss_struct, init_tss);
- 
- static inline void init_tss_io(struct tss_struct *t)
- {
-+#ifdef CONFIG_X86_IOPORT
- 	int i;
- 
- 	t->x86_tss.io_bitmap_base = offsetof(struct tss_struct, io_bitmap);
-@@ -298,6 +305,9 @@ static inline void init_tss_io(struct tss_struct *t)
- 	 */
- 	for (i = 0; i <= IO_BITMAP_LONGS; i++)
- 		t->io_bitmap[i] = ~0UL;
-+#else
-+	t->x86_tss.io_bitmap_base = INVALID_IO_BITMAP_OFFSET;
-+#endif
- }
- 
- /*
-@@ -524,11 +534,13 @@ struct thread_struct {
- 	unsigned int		saved_fs;
- 	unsigned int		saved_gs;
- #endif
-+#ifdef CONFIG_X86_IOPORT
- 	/* IO permissions: */
- 	unsigned long		*io_bitmap_ptr;
- 	unsigned long		iopl;
- 	/* Max allowed port in the bitmap, in bytes: */
- 	unsigned		io_bitmap_max;
-+#endif /* CONFIG_X86_IOPORT */
- 	/*
- 	 * fpu_counter contains the number of consecutive context switches
- 	 * that the FPU is used. If this is over a threshold, the lazy fpu
-@@ -545,7 +557,7 @@ struct thread_struct {
-  */
- static inline void native_set_iopl_mask(unsigned mask)
- {
--#ifdef CONFIG_X86_32
-+#if defined(CONFIG_X86_IOPORT) && defined(CONFIG_X86_32)
- 	unsigned int reg;
- 
- 	asm volatile ("pushfl;"
-@@ -856,6 +868,7 @@ static inline void spin_lock_prefetch(const void *x)
- #define STACK_TOP		TASK_SIZE
- #define STACK_TOP_MAX		STACK_TOP
- 
-+#ifdef CONFIG_X86_IOPORT
- #define INIT_THREAD_IO .io_bitmap_ptr = NULL,
- 
- /*
-@@ -865,6 +878,10 @@ static inline void spin_lock_prefetch(const void *x)
-  * be within the limit.
-  */
- #define INIT_TSS_IO .io_bitmap = { [0 ... IO_BITMAP_LONGS] = ~0 },
-+#else
-+#define INIT_THREAD_IO
-+#define INIT_TSS_IO
-+#endif
- 
- #define INIT_THREAD  {							  \
- 	.sp0			= sizeof(init_stack) + (long)&init_stack, \
-diff --git a/arch/x86/include/asm/syscalls.h b/arch/x86/include/asm/syscalls.h
-index 592a6a6..4db79ea 100644
---- a/arch/x86/include/asm/syscalls.h
-+++ b/arch/x86/include/asm/syscalls.h
-@@ -16,9 +16,12 @@
- #include <linux/types.h>
- 
- /* Common in X86_32 and X86_64 */
-+
-+#ifdef CONFIG_X86_IOPORT
- /* kernel/ioport.c */
- asmlinkage long sys_ioperm(unsigned long, unsigned long, int);
- asmlinkage long sys_iopl(unsigned int);
-+#endif /* CONFIG_X86_IOPORT */
- 
- /* kernel/ldt.c */
- asmlinkage int sys_modify_ldt(int, void __user *, unsigned long);
-diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
-index 8f1e774..84d5fbe 100644
---- a/arch/x86/kernel/Makefile
-+++ b/arch/x86/kernel/Makefile
-@@ -20,7 +20,8 @@ CFLAGS_irq.o := -I$(src)/../include/asm/trace
- 
- obj-y			:= process_$(BITS).o signal.o entry_$(BITS).o
- obj-y			+= traps.o irq.o irq_$(BITS).o dumpstack_$(BITS).o
--obj-y			+= time.o ioport.o ldt.o dumpstack.o nmi.o
-+obj-y			+= time.o ldt.o dumpstack.o nmi.o
-+obj-$(CONFIG_X86_IOPORT) += ioport.o
- obj-y			+= setup.o x86_init.o i8259.o irqinit.o jump_label.o
- obj-$(CONFIG_IRQ_WORK)  += irq_work.o
- obj-y			+= probe_roms.o
-diff --git a/arch/x86/kernel/entry_64.S b/arch/x86/kernel/entry_64.S
-index df088bb..1e6a74e0 100644
---- a/arch/x86/kernel/entry_64.S
-+++ b/arch/x86/kernel/entry_64.S
-@@ -609,6 +609,11 @@ ENTRY(stub_\func)
- END(stub_\func)
- 	.endm
- 
-+	FORK_LIKE  clone
-+	FORK_LIKE  fork
-+	FORK_LIKE  vfork
-+
-+#ifdef CONFIG_X86_IOPORT
- 	.macro FIXED_FRAME label,func
- ENTRY(\label)
- 	CFI_STARTPROC
-@@ -621,10 +626,8 @@ ENTRY(\label)
- END(\label)
- 	.endm
- 
--	FORK_LIKE  clone
--	FORK_LIKE  fork
--	FORK_LIKE  vfork
- 	FIXED_FRAME stub_iopl, sys_iopl
-+#endif /* CONFIG_X86_IOPORT */
- 
- ENTRY(ptregscall_common)
- 	DEFAULT_FRAME 1 8	/* offset 8: return address */
-diff --git a/arch/x86/kernel/process-io.h b/arch/x86/kernel/process-io.h
-index e48d5c9..3e773fa 100644
---- a/arch/x86/kernel/process-io.h
-+++ b/arch/x86/kernel/process-io.h
-@@ -3,12 +3,15 @@
- 
- static inline void clear_thread_io_bitmap(struct task_struct *p)
- {
-+#ifdef CONFIG_X86_IOPORT
- 	p->thread.io_bitmap_ptr = NULL;
-+#endif /* CONFIG_X86_IOPORT */
- }
- 
- static inline int copy_io_bitmap(struct task_struct *me,
- 				 struct task_struct *p)
- {
-+#ifdef CONFIG_X86_IOPORT
- 	if (unlikely(test_tsk_thread_flag(me, TIF_IO_BITMAP))) {
- 		p->thread.io_bitmap_ptr = kmemdup(me->thread.io_bitmap_ptr,
- 						  IO_BITMAP_BYTES, GFP_KERNEL);
-@@ -20,12 +23,14 @@ static inline int copy_io_bitmap(struct task_struct *me,
- 	} else {
- 		p->thread.io_bitmap_ptr = NULL;
- 	}
-+#endif /* CONFIG_X86_IOPORT */
- 
- 	return 0;
- }
- 
- static inline void exit_thread_io(struct task_struct *me)
- {
-+#ifdef CONFIG_X86_IOPORT
-         struct thread_struct *t = &me->thread;
-         unsigned long *bp = t->io_bitmap_ptr;
- 
-@@ -42,11 +47,13 @@ static inline void exit_thread_io(struct task_struct *me)
-                 put_cpu();
-                 kfree(bp);
-         }
-+#endif /* CONFIG_X86_IOPORT */
- }
- 
- static inline void switch_iopl_mask(struct thread_struct *prev,
- 				    struct thread_struct *next)
- {
-+#ifdef CONFIG_X86_IOPORT
-         /*
-          * Restore IOPL if needed.  In normal use, the flags restore
-          * in the switch assembly will handle this.  But if the kernel
-@@ -55,12 +62,14 @@ static inline void switch_iopl_mask(struct thread_struct *prev,
-          */
-         if (get_kernel_rpl() && unlikely(prev->iopl != next->iopl))
-                 set_iopl_mask(next->iopl);
-+#endif /* CONFIG_X86_IOPORT */
- }
- 
- static inline void switch_io_bitmap(struct tss_struct *tss,
- 				    struct task_struct *prev_p,
- 				    struct task_struct *next_p)
- {
-+#ifdef CONFIG_X86_IOPORT
-         struct thread_struct *prev, *next;
-         prev = &prev_p->thread;
-         next = &next_p->thread;
-@@ -78,6 +87,7 @@ static inline void switch_io_bitmap(struct tss_struct *tss,
-                  */
-                 memset(tss->io_bitmap, 0xff, prev->io_bitmap_max);
-         }
-+#endif /* CONFIG_X86_IOPORT */
- }
- 
- #endif /* _X86_KERNEL_PROCESS_IO_H */
-diff --git a/arch/x86/kernel/ptrace.c b/arch/x86/kernel/ptrace.c
-index 749b0e4..fdb74a8 100644
---- a/arch/x86/kernel/ptrace.c
-+++ b/arch/x86/kernel/ptrace.c
-@@ -785,7 +785,11 @@ static int ptrace_set_debugreg(struct task_struct *tsk, int n,
- static int ioperm_active(struct task_struct *target,
- 			 const struct user_regset *regset)
- {
-+#ifdef CONFIG_X86_IOPORT
- 	return target->thread.io_bitmap_max / regset->size;
-+#else
-+	return 0;
-+#endif
- }
- 
- static int ioperm_get(struct task_struct *target,
-@@ -793,12 +797,16 @@ static int ioperm_get(struct task_struct *target,
- 		      unsigned int pos, unsigned int count,
- 		      void *kbuf, void __user *ubuf)
- {
-+#ifdef CONFIG_X86_IOPORT
- 	if (!target->thread.io_bitmap_ptr)
- 		return -ENXIO;
- 
- 	return user_regset_copyout(&pos, &count, &kbuf, &ubuf,
- 				   target->thread.io_bitmap_ptr,
- 				   0, IO_BITMAP_BYTES);
-+#else
-+	return -ENXIO;
-+#endif
- }
- 
- /*
-diff --git a/drivers/tty/vt/vt_ioctl.c b/drivers/tty/vt/vt_ioctl.c
-index 2bd78e2..7c7d405 100644
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -410,7 +410,7 @@ int vt_ioctl(struct tty_struct *tty,
- 		 *
- 		 * XXX: you should never use these, just call ioperm directly..
- 		 */
--#ifdef CONFIG_X86
-+#ifdef CONFIG_X86_IOPORT
- 	case KDADDIO:
- 	case KDDELIO:
- 		/*
-diff --git a/kernel/sys_ni.c b/kernel/sys_ni.c
-index 02aa418..f3014fe 100644
---- a/kernel/sys_ni.c
-+++ b/kernel/sys_ni.c
-@@ -224,3 +224,8 @@ cond_syscall(sys_seccomp);
- 
- /* access BPF programs and maps */
- cond_syscall(sys_bpf);
-+
-+/* userspace I/O port access */
-+cond_syscall(stub_iopl);
-+cond_syscall(sys_iopl);
-+cond_syscall(sys_ioperm);
--- 
-2.1.1
+Relative comments are bad, esp. since we'll make the ticket code go away
+if this works, at which point this is a reference into a black hole.
+
+>                             Each CPU waiting for the lock will spin until it
+> + * reaches a threshold. When that happens, it will put itself to a halt state
+> + * so that the hypervisor can reuse the CPU cycles in some other guests as
+> + * well as returning other hold-up CPUs faster.
+
+
+
+
+> +/**
+> + * queue_spin_lock - acquire a queue spinlock
+> + * @lock: Pointer to queue spinlock structure
+> + *
+> + * N.B. INLINE_SPIN_LOCK should not be enabled when PARAVIRT_SPINLOCK is on.
+
+One should write a compile time fail for that, not a comment.
+
+> + */
+> +static __always_inline void queue_spin_lock(struct qspinlock *lock)
+> +{
+> +	u32 val;
+> +
+> +	val = atomic_cmpxchg(&lock->val, 0, _Q_LOCKED_VAL);
+> +	if (likely(val == 0))
+> +		return;
+> +	if (static_key_false(&paravirt_spinlocks_enabled))
+> +		pv_queue_spin_lock_slowpath(lock, val);
+> +	else
+> +		queue_spin_lock_slowpath(lock, val);
+> +}
+
+No, this is just vile.. _that_ is what we have PV ops for. And at that
+point its the same function it was before the PV stuff, so that whole
+inline thing is then gone.
+
+> +extern void queue_spin_unlock_slowpath(struct qspinlock *lock);
+> +
+>  /**
+>   * queue_spin_unlock - release a queue spinlock
+>   * @lock : Pointer to queue spinlock structure
+>   *
+>   * An effective smp_store_release() on the least-significant byte.
+> + *
+> + * Inlining of the unlock function is disabled when CONFIG_PARAVIRT_SPINLOCKS
+> + * is defined. So _raw_spin_unlock() will be the only call site that will
+> + * have to be patched.
+
+again if you hard rely on the not inlining make a build fail not a
+comment.
+
+>   */
+>  static inline void queue_spin_unlock(struct qspinlock *lock)
+>  {
+>  	barrier();
+> +	if (!static_key_false(&paravirt_spinlocks_enabled)) {
+> +		native_spin_unlock(lock);
+> +		return;
+> +	}
+>  
+> +	/*
+> +	 * Need to atomically clear the lock byte to avoid racing with
+> +	 * queue head waiter trying to set _QLOCK_LOCKED_SLOWPATH.
+> +	 */
+> +	if (unlikely(cmpxchg((u8 *)lock, _Q_LOCKED_VAL, 0) != _Q_LOCKED_VAL))
+> +		queue_spin_unlock_slowpath(lock);
+> +}
+
+Idem, that static key stuff is wrong, use PV ops to switch between
+unlock paths.
+
+> @@ -354,7 +394,7 @@ queue:
+>  	 * if there was a previous node; link it and wait until reaching the
+>  	 * head of the waitqueue.
+>  	 */
+> -	if (old & _Q_TAIL_MASK) {
+> +	if (!pv_link_and_wait_node(old, node) && (old & _Q_TAIL_MASK)) {
+>  		prev = decode_tail(old);
+>  		ACCESS_ONCE(prev->next) = node;
+> @@ -369,9 +409,11 @@ queue:
+>  	 *
+>  	 * *,x,y -> *,0,0
+>  	 */
+> -	while ((val = smp_load_acquire(&lock->val.counter)) &
+> -			_Q_LOCKED_PENDING_MASK)
+> +	val = pv_wait_head(lock, node);
+> +	while (val & _Q_LOCKED_PENDING_MASK) {
+>  		cpu_relax();
+> +		val = smp_load_acquire(&lock->val.counter);
+> +	}
+>  
+>  	/*
+>  	 * claim the lock:
+
+Please make the pv_*() calls return void and reduce to NOPs. This keeps
+the logic invariant of the pv stuff.
