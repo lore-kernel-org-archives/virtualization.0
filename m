@@ -1,17 +1,11 @@
 From: Amos Kong <akong@redhat.com>
-Subject: Re: [PATCH 3/5] hw_random: fix unregister race.
-Date: Mon, 3 Nov 2014 23:24:04 +0800
-Message-ID: <20141103152404.GA6620@air.redhat.com>
-References: <87wq91odhf.fsf@rustcorp.com.au>
-	<1411008506-28349-1-git-send-email-rusty@rustcorp.com.au>
-	<1411008506-28349-3-git-send-email-rusty@rustcorp.com.au>
-	<20141021141523.GA18345@gondor.apana.org.au>
+Subject: [PATCH v4 0/6] fix hw_random stuck
+Date: Mon,  3 Nov 2014 23:56:20 +0800
+Message-ID: <1415030186-18303-1-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20141021141523.GA18345@gondor.apana.org.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,81 +15,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: m@bues.ch, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mb@bu3sch.de, mpm@selenic.com, amit.shah@redhat.com
+To: virtualization@lists.linux-foundation.org
+Cc: herbert@gondor.apana.org.au, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, m@bues.ch, mpm@selenic.com, amit.shah@redhat.com, mb@bu3sch.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Oct 21, 2014 at 10:15:23PM +0800, Herbert Xu wrote:
-> On Thu, Sep 18, 2014 at 12:18:24PM +0930, Rusty Russell wrote:
-> > The previous patch added one potential problem: we can still be
-> > reading from a hwrng when it's unregistered.  Add a wait for zero
-> > in the hwrng_unregister path.
-> > 
-> > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> > ---
-> >  drivers/char/hw_random/core.c | 5 +++++
-> >  1 file changed, 5 insertions(+)
-> > 
-> > diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
-> > index dc9092a1075d..b4a21e9521cf 100644
-> > --- a/drivers/char/hw_random/core.c
-> > +++ b/drivers/char/hw_random/core.c
-> > @@ -60,6 +60,7 @@ static DEFINE_MUTEX(rng_mutex);
-> >  static DEFINE_MUTEX(reading_mutex);
-> >  static int data_avail;
-> >  static u8 *rng_buffer, *rng_fillbuf;
-> > +static DECLARE_WAIT_QUEUE_HEAD(rng_done);
-> >  static unsigned short current_quality;
-> >  static unsigned short default_quality; /* = 0; default to "off" */
-> >  
-> > @@ -98,6 +99,7 @@ static inline void cleanup_rng(struct kref *kref)
-> >  
-> >  	if (rng->cleanup)
-> >  		rng->cleanup(rng);
+When I hotunplug a busy virtio-rng device or try to access
+hwrng attributes in non-smp guest, it gets stuck.
 
-        rng->cleanup_done = true;
+My hotplug tests:
 
-> > +	wake_up_all(&rng_done);
-> >  }
-> >  
-> >  static void set_current_rng(struct hwrng *rng)
-> > @@ -529,6 +531,9 @@ void hwrng_unregister(struct hwrng *rng)
-> >  	}
-> >  
-> >  	mutex_unlock(&rng_mutex);
-> > +
-> > +	/* Just in case rng is reading right now, wait. */
-> > +	wait_event(rng_done, atomic_read(&rng->ref.refcount) == 0);
-
-Hi Rusty,
- 
-After initializing (kref_init()), the refcount is 1, so we need one
-more kref_put() after each drop_current_rng() to release last
-reference count, then cleanup function will be called.
+| test 0:
+|   hotunplug rng device from qemu monitor
+|
+| test 1:
+|   guest) # dd if=/dev/hwrng of=/dev/null &
+|   hotunplug rng device from qemu monitor
+|
+| test 2:
+|   guest) # dd if=/dev/random of=/dev/null &
+|   hotunplug rng device from qemu monitor
+|
+| test 4:
+|   guest) # dd if=/dev/hwrng of=/dev/null &
+|   cat /sys/devices/virtual/misc/hw_random/rng_*
+|
+| test 5:
+|   guest) # dd if=/dev/hwrng of=/dev/null
+|   cancel dd process after 10 seconds
+|   guest) # dd if=/dev/hwrng of=/dev/null &
+|   hotunplug rng device from qemu monitor
+|
+| test 6:
+|   use a fifo as rng backend, execute test 0 ~ 5 with no input of fifo
 
 
-> While it's obviously better than what we have now, I don't believe
-> this is 100% safe as the cleanup function might still be running
-> even after the ref count hits zero.  Once we return from this function
-> the module may be unloaded so we need to ensure that nothing is
-> running at this point.
+V4: update patch 4 to fix corrupt, decrease last reference for triggering
+    the cleanup, fix unregister race pointed by Herbert
+V3: initialize kref to 1
+V2: added patch 2 to fix a deadlock, update current patch 3 to fix reference
+    counting issue
 
-I found wait_event() can still pass and finish unregister even cleanup
-function isn't called (wake_up_all() isn't called). So I added a flag
-cleanup_done to indicate that the rng device is cleaned up.
+Amos Kong (1):
+  hw_random: move some code out mutex_lock for avoiding underlying
+    deadlock
 
+Rusty Russell (5):
+  hw_random: place mutex around read functions and buffers.
+  hw_random: use reference counts on each struct hwrng.
+  hw_random: fix unregister race.
+  hw_random: don't double-check old_rng.
+  hw_random: don't init list element we're about to add to list.
 
-+       /* Just in case rng is reading right now, wait. */
-+       wait_event(rng_done, rng->cleanup_done &&
-+                  atomic_read(&rng->ref.refcount) == 0);
-
-I will post the new v4 later.
- 
-> Cheers,
-> -- 
-> Email: Herbert Xu <herbert@gondor.apana.org.au>
-> Home Page: http://gondor.apana.org.au/~herbert/
-> PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+ drivers/char/hw_random/core.c | 176 ++++++++++++++++++++++++++++++------------
+ include/linux/hw_random.h     |   3 +
+ 2 files changed, 129 insertions(+), 50 deletions(-)
 
 -- 
-			Amos.
+1.9.3
