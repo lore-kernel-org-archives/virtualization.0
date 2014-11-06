@@ -1,14 +1,16 @@
-From: Amos Kong <akong@redhat.com>
-Subject: Re: [3.16 stable PATCH 0/2] virtio-rng: two backports to fix stuck
-Date: Thu, 6 Nov 2014 00:14:16 +0800
-Message-ID: <20141105161416.GB19104__45990.6659591526$1415204078$gmane$org@air.nay.redhat.com>
-References: <1412981509-30025-1-git-send-email-akong@redhat.com>
-	<20141104043227.GA13409@air.redhat.com>
-	<20141105160249.GG9403@hercules>
+From: Li Liu <john.liuli@huawei.com>
+Subject: Re: [Qemu-devel] [RFC PATCH 0/2] virtio-mmio: add irqfd support for
+	vhost-net based on virtio-mmio
+Date: Thu, 6 Nov 2014 17:24:24 +0800
+Message-ID: <545B3E48.9020804@huawei.com>
+References: <1414225494-2208-1-git-send-email-john.liuli@huawei.com>	<CAFEAcA9o8ZsbUvZb7Yp9JeO__bRLOrYcyfj4Ug4Se_rDF0y4TA@mail.gmail.com>
+	<544E2B18.8010702@huawei.com> <5459E343.6030907@linaro.org>
+	<545AD5FC.1030600@huawei.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1793514807436903549=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141105160249.GG9403@hercules>
+In-Reply-To: <545AD5FC.1030600@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,96 +20,96 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Luis Henriques <luis.henriques@canonical.com>
-Cc: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, amit.shah@redhat.com
+To: Shannon Zhao <zhaoshenglong@huawei.com>, Eric Auger <eric.auger@linaro.org>, Peter Maydell <peter.maydell@linaro.org>
+Cc: Joel Schopp <joel.schopp@amd.com>, "eric.auger@st.com" <eric.auger@st.com>, Yingshiuan Pan <yingshiuan.pan@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, remy.gauguey@cea.fr, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Nikolay Nikolaev <n.nikolaev@virtualopensystems.com>, QEMU Developers <qemu-devel@nongnu.org>, peter.huangpeng@huawei.com, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Christoffer Dall <christoffer.dall@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============1793514807436903549==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gatW/ieO32f1wygP"
-Content-Disposition: inline
 
+On 2014/11/6 9:59, Shannon Zhao wrote:
+> 
+> 
+> On 2014/11/5 16:43, Eric Auger wrote:
+>> On 10/27/2014 12:23 PM, Li Liu wrote:
+>>>
+>>>
+>>> On 2014/10/27 17:37, Peter Maydell wrote:
+>>>> On 25 October 2014 09:24, john.liuli <john.liuli@huawei.com> wrote:
+>>>>> To get the interrupt reason to support such VIRTIO_NET_F_STATUS
+>>>>> features I add a new register offset VIRTIO_MMIO_ISRMEM which
+>>>>> will help to establish a shared memory region between qemu and
+>>>>> virtio-mmio device. Then the interrupt reason can be accessed by
+>>>>> guest driver through this region. At the same time, the virtio-mmio
+>>>>> dirver check this region to see irqfd is supported or not during
+>>>>> the irq handler registration, and different handler will be assigned.
+>>>>
+>>>> If you want to add a new register you should probably propose
+>>>> an update to the virtio spec. However, it seems to me it would
+>>>> be better to get generic PCI/PCIe working on the ARM virt
+>>>> board instead; then we can let virtio-mmio quietly fade away.
+>>>> This has been on the todo list for ages (and there have been
+>>>> RFC patches posted for plain PCI), it's just nobody's had time
+>>>> to work on it.
+>>>>
+>>>> thanks
+>>>> -- PMM
+>>>>
+>>>
+>>> So you mean virtio-mmio will be replaced by PCI/PCIe on ARM at last?
+>>> If so, let this patch go with the wind:). Thx.
+>>
+>> Hi,
+>>
+>> As a fix of current situation where ISR is only partially updated when
+>> vhost-irqfd handles standard IRQ and waiting for PCI emuluation,
+>> wouldn't it make sense to store ISR content on vhost driver side and
+>> introduce ioctls to read/write it. When using vhost BE, virtio QEMU
+>> device would use those ioctl to read/update the ISR content. On top of
+>> that we would update the ISR in vhost before triggering the irqfd. If I
+>> do not miss anything this would at least make things functional with irqfd.
+>>
+>> As a second step, we could try to introduce in-kernel emulation of
+>> ISR/ACK to fix the performance issue related to going to user-side each
+>> time ISR/ACK accesses are done.
+>>
+>> Do you think it is worth investigating this direction?
+>>
+> Hi,
+> 
+> About this problem I have a talk with Li Liu. As MST said, we could use
+> multiple GSI to support vhost-net with irqfd. And we have figured out a way
+> to solve this problem. The method is as same as virtio-pci which is to assign
+> multiple irqs for virtio-mmio. Also it can support multiqueue virtio-net on arm.
+> 
+> Would you have a look at this method? Thank you very much.
+> 
+> - virtio-mmio: support for multiple irqs
+> http://www.spinics.net/lists/kernel/msg1858860.html
+> 
+> Thanks,
+> Shannon
+> 
 
---gatW/ieO32f1wygP
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yeah, I think multiple GSI is more compatible with MSI-X. And even virtio-mmio
+will fade away at last. It still make senses for ARM32 which can't support PCI/PCIe.
 
-On Wed, Nov 05, 2014 at 04:02:49PM +0000, Luis Henriques wrote:
-> Hi Amos
->=20
-> On Tue, Nov 04, 2014 at 12:32:27PM +0800, Amos Kong wrote:
-> > On Sat, Oct 11, 2014 at 06:51:47AM +0800, Amos Kong wrote:
-> > > I received two mails about faile to apply patches to 3.16-stable tree:
-> > >=20
-> > > FAILED: patch "[PATCH] virtio-rng: skip reading when we start to remo=
-ve the device" failed to apply to 3.16-stable tree
-> > > FAILED: patch "[PATCH] virtio-rng: fix stuck of hot-unplugging busy d=
-evice" failed to apply to 3.16-stable tree
-> > >=20
-> > > Amit already backported two patches for 3.16-stable, then cherry-pick
-> > > of my two patches works.
-> > >=20
-> > > Thanks.
-> >=20
-> > Ping Greg, thanks.
-> > =20
->=20
-> I'm now doing the extended stable maintenance of the 3.16 kernel, as
-> Greg has EOL'ed it.
->=20
-> Anyway, I will be queuing these 2 patches for the extended 3.16
-> kernel.  Thank you!
+BTW, this patch is handed over to Shannon and please refer to new patch at
+http://www.spinics.net/lists/kernel/msg1858860.html.
 
-Thanks a lot!
-=20
-> Cheers,
-> --
-> Lu=EDs
->=20
-> > > Amos Kong (2):
-> > >   virtio-rng: fix stuck of hot-unplugging busy device
-> > >   virtio-rng: skip reading when we start to remove the device
-> > >=20
-> > >  drivers/char/hw_random/virtio-rng.c | 7 +++++++
-> > >  1 file changed, 7 insertions(+)
+Li.
 
---=20
-			Amos.
-
---gatW/ieO32f1wygP
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUWkzYAAoJELxSv6I5vP9jRSwP/1+dUka3wv4bPl+FG1JjKNn+
-PUaJGk4zSWe9Uo8yN/+L5T/W/qvutwt4uw+IRTgRVuK2Rf8eGjZsCrmcADnCDQe1
-qNFz5lkT7g47xWv/Ikr9lrigBFUJGdHmj29/FwDb7UyXNaIWmChoDULwKYAnJAg7
-DqGiEOdJ4X2ztz1ieQO0VkhkDieM1p6PYkBx3JEhALlSSGt/zPLPTN0MxH5hXOv1
-ivRzsV+rgG7mCrZ+IFYNuLkqd6yHvr6wU9UsvRpXknZ+h8AYn6DT4r5ZLg+Uv3XG
-LeFFAqp9OFWqCryHwDPfjW+8mnCjdxddl/w86rItbG17G6NEmWG8s5JqfOiRGMFS
-nMsyyCCJGx/6C39TXzym5RNk4rho2fNrE1O5qZkCs2iFIoPCiO8TuFkvq7nvZ7DX
-AprV4nOVgcuKMOEEb7T3rsUzEnS75h1ZK8XmRmfERDui/d7JKRI/91+ru8TsTSbp
-qUJbhCtf5F2I2woHQmCVziuez9btZ5qBx15mKtJtZvRQY6QOnFVFi3BwekZ5lEBw
-Pt/PAQoDZGK/nj+Y/GFjbA/SZnL+2RXFx2EXofcYsTNTl0u5ib5d8LFuVZJGkYNZ
-LeUxIeR+VIEF5IxPWKKUTMG/JjW67EoxkA8RWihT9IIU8pkzyhcodqlpErpyEt8X
-f+1iwleNlwNgd1NP6+7P
-=5g+q
------END PGP SIGNATURE-----
-
---gatW/ieO32f1wygP--
-
---===============1793514807436903549==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1793514807436903549==--
+>> Thank you in advance
+>>
+>> Best Regards
+>>
+>> Eric
+>>
+>>
+>>>
+>>> Li.
+>>>> .
+>>>>
+> 
+> 
+> .
+> 
