@@ -1,15 +1,15 @@
-From: Luis Henriques <luis.henriques@canonical.com>
-Subject: Re: [3.16 stable PATCH 0/2] virtio-rng: two backports to fix stuck
-Date: Wed, 5 Nov 2014 16:02:49 +0000
-Message-ID: <20141105160249.GG9403__38584.4921613627$1415631807$gmane$org@hercules>
-References: <1412981509-30025-1-git-send-email-akong@redhat.com>
-	<20141104043227.GA13409@air.redhat.com>
+From: Shannon Zhao <zhaoshenglong@huawei.com>
+Subject: Re: [Qemu-devel] [RFC PATCH 0/2] virtio-mmio: add irqfd support for
+	vhost-net based on virtio-mmio
+Date: Thu, 6 Nov 2014 09:59:24 +0800
+Message-ID: <545AD5FC.1030600__16804.6661805876$1415631813$gmane$org@huawei.com>
+References: <1414225494-2208-1-git-send-email-john.liuli@huawei.com>	<CAFEAcA9o8ZsbUvZb7Yp9JeO__bRLOrYcyfj4Ug4Se_rDF0y4TA@mail.gmail.com>
+	<544E2B18.8010702@huawei.com> <5459E343.6030907@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20141104043227.GA13409@air.redhat.com>
+In-Reply-To: <5459E343.6030907@linaro.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,70 +19,80 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amos Kong <akong@redhat.com>
-Cc: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, amit.shah@redhat.com
+To: Eric Auger <eric.auger@linaro.org>, Li Liu <john.liuli@huawei.com>, Peter Maydell <peter.maydell@linaro.org>
+Cc: Joel Schopp <joel.schopp@amd.com>, "eric.auger@st.com" <eric.auger@st.com>, Yingshiuan Pan <yingshiuan.pan@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, remy.gauguey@cea.fr, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Nikolay Nikolaev <n.nikolaev@virtualopensystems.com>, QEMU Developers <qemu-devel@nongnu.org>, peter.huangpeng@huawei.com, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Christoffer Dall <christoffer.dall@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Amos
-
-On Tue, Nov 04, 2014 at 12:32:27PM +0800, Amos Kong wrote:
-> On Sat, Oct 11, 2014 at 06:51:47AM +0800, Amos Kong wrote:
-> > I received two mails about faile to apply patches to 3.16-stable tree:
-> > =
-
-> > FAILED: patch "[PATCH] virtio-rng: skip reading when we start to remove=
- the device" failed to apply to 3.16-stable tree
-> > FAILED: patch "[PATCH] virtio-rng: fix stuck of hot-unplugging busy dev=
-ice" failed to apply to 3.16-stable tree
-> > =
-
-> > Amit already backported two patches for 3.16-stable, then cherry-pick
-> > of my two patches works.
-> > =
-
-> > Thanks.
-> =
-
-> Ping Greg, thanks.
->  =
 
 
-I'm now doing the extended stable maintenance of the 3.16 kernel, as
-Greg has EOL'ed it.
+On 2014/11/5 16:43, Eric Auger wrote:
+> On 10/27/2014 12:23 PM, Li Liu wrote:
+>>
+>>
+>> On 2014/10/27 17:37, Peter Maydell wrote:
+>>> On 25 October 2014 09:24, john.liuli <john.liuli@huawei.com> wrote:
+>>>> To get the interrupt reason to support such VIRTIO_NET_F_STATUS
+>>>> features I add a new register offset VIRTIO_MMIO_ISRMEM which
+>>>> will help to establish a shared memory region between qemu and
+>>>> virtio-mmio device. Then the interrupt reason can be accessed by
+>>>> guest driver through this region. At the same time, the virtio-mmio
+>>>> dirver check this region to see irqfd is supported or not during
+>>>> the irq handler registration, and different handler will be assigned.
+>>>
+>>> If you want to add a new register you should probably propose
+>>> an update to the virtio spec. However, it seems to me it would
+>>> be better to get generic PCI/PCIe working on the ARM virt
+>>> board instead; then we can let virtio-mmio quietly fade away.
+>>> This has been on the todo list for ages (and there have been
+>>> RFC patches posted for plain PCI), it's just nobody's had time
+>>> to work on it.
+>>>
+>>> thanks
+>>> -- PMM
+>>>
+>>
+>> So you mean virtio-mmio will be replaced by PCI/PCIe on ARM at last?
+>> If so, let this patch go with the wind:). Thx.
+> 
+> Hi,
+> 
+> As a fix of current situation where ISR is only partially updated when
+> vhost-irqfd handles standard IRQ and waiting for PCI emuluation,
+> wouldn't it make sense to store ISR content on vhost driver side and
+> introduce ioctls to read/write it. When using vhost BE, virtio QEMU
+> device would use those ioctl to read/update the ISR content. On top of
+> that we would update the ISR in vhost before triggering the irqfd. If I
+> do not miss anything this would at least make things functional with irqfd.
+> 
+> As a second step, we could try to introduce in-kernel emulation of
+> ISR/ACK to fix the performance issue related to going to user-side each
+> time ISR/ACK accesses are done.
+> 
+> Do you think it is worth investigating this direction?
+> 
+Hi,
 
-Anyway, I will be queuing these 2 patches for the extended 3.16
-kernel.  Thank you!
+About this problem I have a talk with Li Liu. As MST said, we could use
+multiple GSI to support vhost-net with irqfd. And we have figured out a way
+to solve this problem. The method is as same as virtio-pci which is to assign
+multiple irqs for virtio-mmio. Also it can support multiqueue virtio-net on arm.
 
-Cheers,
---
-Lu=EDs
+Would you have a look at this method? Thank you very much.
 
-> > Amos Kong (2):
-> >   virtio-rng: fix stuck of hot-unplugging busy device
-> >   virtio-rng: skip reading when we start to remove the device
-> > =
+- virtio-mmio: support for multiple irqs
+http://www.spinics.net/lists/kernel/msg1858860.html
 
-> >  drivers/char/hw_random/virtio-rng.c | 7 +++++++
-> >  1 file changed, 7 insertions(+)
-> > =
+Thanks,
+Shannon
 
-> > -- =
-
-> > 1.9.3
-> > =
-
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> =
-
-> -- =
-
-> 			Amos.
-> --
-> To unsubscribe from this list: send the line "unsubscribe stable" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Thank you in advance
+> 
+> Best Regards
+> 
+> Eric
+> 
+> 
+>>
+>> Li.
+>>> .
+>>>
