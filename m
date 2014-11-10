@@ -1,15 +1,17 @@
-From: =?ISO-8859-15?Q?Luk=E1=A8_Czerner?= <lczerner@redhat.com>
+From: Ming Lei <tom.leiming@gmail.com>
 Subject: Re: Re: kernel BUG at drivers/block/virtio_blk.c:172
-Date: Mon, 10 Nov 2014 14:05:41 +0100 (CET)
-Message-ID: <alpine.LFD.2.00.1411101404240.24699@localhost.localdomain>
+Date: Mon, 10 Nov 2014 21:11:56 +0800
+Message-ID: <CACVXFVNbBjN=31cDtgK+0gZa4KdgMXOYJ7Ty4JF++2u3SOJQJQ@mail.gmail.com>
 References: <54524D50.50509@kernel.dk> <54524D68.7080509@kernel.dk>
 	<CACVXFVPVdTqJ7X6xokq-8X8CTh3A59xwGNdwTm+SW1dOB-xxLQ@mail.gmail.com>
 	<alpine.LFD.2.00.1411101252110.24699@localhost.localdomain>
 	<CACVXFVOakGobOqJFAM=SZX+nkv9rf_R9y5h+jnTMgAnqWU_7fg@mail.gmail.com>
+	<alpine.LFD.2.00.1411101404240.24699@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1897968098-1415624744=:24699"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CACVXFVOakGobOqJFAM=SZX+nkv9rf_R9y5h+jnTMgAnqWU_7fg@mail.gmail.com>
+In-Reply-To: <alpine.LFD.2.00.1411101404240.24699@localhost.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,68 +21,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ming Lei <tom.leiming@gmail.com>
+To: =?UTF-8?B?THVrw6HFoSBDemVybmVy?= <lczerner@redhat.com>
 Cc: Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@lst.de>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-
---8323328-1897968098-1415624744=:24699
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, 10 Nov 2014, Ming Lei wrote:
-
-> Date: Mon, 10 Nov 2014 20:18:32 +0800
-> From: Ming Lei <tom.leiming@gmail.com>
-> To: Luk=C3=A1=C5=A1 Czerner <lczerner@redhat.com>
-> Cc: Jens Axboe <axboe@kernel.dk>,
->     Linux Virtualization <virtualization@lists.linux-foundation.org>,
->     Christoph Hellwig <hch@lst.de>
-> Subject: Re: Re: kernel BUG at drivers/block/virtio_blk.c:172
->=20
-> On Mon, Nov 10, 2014 at 7:59 PM, Luk=C3=A1=C5=A1 Czerner <lczerner@redh=
-at.com> wrote:
-> >
-> > Hi,
-> >
-> > so I encountered it again on 3.17.0-rc4. This output is from the
-> > run with your patch.
-> >
-> > I am using libvirt (virt-manager) to configure and run the virtual
-> > machine, but looking at the xml, I do not think it's passing
-> > 'scsi=3Doff' at all.
-> >
-> > Btw, that xfs file system is a root file system.
-> >
-> >
-> > [    3.667553] blk_recount_segments: 1-0-1 vcnt-0 segs-128
-> > [    3.668692] blk_recount_segments: 1-0-1 vcnt-0 segs-128
-> > [    3.669897] blk_recount_segments: 1-0-1 vcnt-0 segs-128
-> > [    3.671083] blk_recount_segments: 1-0-1 vcnt-0 segs-128
->=20
-> Hamm, I should have used bi_phys_segments to decide if
-> merge is needed, and attached patch should fix the problem.
-
-Thanks for the patch, unfortunately it does not fix the issue for
-me. I am willing to try something else though :)
-
--Lukas
-
->=20
->=20
-> Thanks,
-> Ming Lei
->=20
---8323328-1897968098-1415624744=:24699
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---8323328-1897968098-1415624744=:24699--
+T24gTW9uLCBOb3YgMTAsIDIwMTQgYXQgOTowNSBQTSwgTHVrw6HFoSBDemVybmVyIDxsY3plcm5l
+ckByZWRoYXQuY29tPiB3cm90ZToKPiBPbiBNb24sIDEwIE5vdiAyMDE0LCBNaW5nIExlaSB3cm90
+ZToKPgo+PiBEYXRlOiBNb24sIDEwIE5vdiAyMDE0IDIwOjE4OjMyICswODAwCj4+IEZyb206IE1p
+bmcgTGVpIDx0b20ubGVpbWluZ0BnbWFpbC5jb20+Cj4+IFRvOiBMdWvDocWhIEN6ZXJuZXIgPGxj
+emVybmVyQHJlZGhhdC5jb20+Cj4+IENjOiBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwuZGs+LAo+
+PiAgICAgTGludXggVmlydHVhbGl6YXRpb24gPHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
+dW5kYXRpb24ub3JnPiwKPj4gICAgIENocmlzdG9waCBIZWxsd2lnIDxoY2hAbHN0LmRlPgo+PiBT
+dWJqZWN0OiBSZTogUmU6IGtlcm5lbCBCVUcgYXQgZHJpdmVycy9ibG9jay92aXJ0aW9fYmxrLmM6
+MTcyCj4+Cj4+IE9uIE1vbiwgTm92IDEwLCAyMDE0IGF0IDc6NTkgUE0sIEx1a8OhxaEgQ3plcm5l
+ciA8bGN6ZXJuZXJAcmVkaGF0LmNvbT4gd3JvdGU6Cj4+ID4KPj4gPiBIaSwKPj4gPgo+PiA+IHNv
+IEkgZW5jb3VudGVyZWQgaXQgYWdhaW4gb24gMy4xNy4wLXJjNC4gVGhpcyBvdXRwdXQgaXMgZnJv
+bSB0aGUKPj4gPiBydW4gd2l0aCB5b3VyIHBhdGNoLgo+PiA+Cj4+ID4gSSBhbSB1c2luZyBsaWJ2
+aXJ0ICh2aXJ0LW1hbmFnZXIpIHRvIGNvbmZpZ3VyZSBhbmQgcnVuIHRoZSB2aXJ0dWFsCj4+ID4g
+bWFjaGluZSwgYnV0IGxvb2tpbmcgYXQgdGhlIHhtbCwgSSBkbyBub3QgdGhpbmsgaXQncyBwYXNz
+aW5nCj4+ID4gJ3Njc2k9b2ZmJyBhdCBhbGwuCj4+ID4KPj4gPiBCdHcsIHRoYXQgeGZzIGZpbGUg
+c3lzdGVtIGlzIGEgcm9vdCBmaWxlIHN5c3RlbS4KPj4gPgo+PiA+Cj4+ID4gWyAgICAzLjY2NzU1
+M10gYmxrX3JlY291bnRfc2VnbWVudHM6IDEtMC0xIHZjbnQtMCBzZWdzLTEyOAo+PiA+IFsgICAg
+My42Njg2OTJdIGJsa19yZWNvdW50X3NlZ21lbnRzOiAxLTAtMSB2Y250LTAgc2Vncy0xMjgKPj4g
+PiBbICAgIDMuNjY5ODk3XSBibGtfcmVjb3VudF9zZWdtZW50czogMS0wLTEgdmNudC0wIHNlZ3Mt
+MTI4Cj4+ID4gWyAgICAzLjY3MTA4M10gYmxrX3JlY291bnRfc2VnbWVudHM6IDEtMC0xIHZjbnQt
+MCBzZWdzLTEyOAo+Pgo+PiBIYW1tLCBJIHNob3VsZCBoYXZlIHVzZWQgYmlfcGh5c19zZWdtZW50
+cyB0byBkZWNpZGUgaWYKPj4gbWVyZ2UgaXMgbmVlZGVkLCBhbmQgYXR0YWNoZWQgcGF0Y2ggc2hv
+dWxkIGZpeCB0aGUgcHJvYmxlbS4KPgo+IFRoYW5rcyBmb3IgdGhlIHBhdGNoLCB1bmZvcnR1bmF0
+ZWx5IGl0IGRvZXMgbm90IGZpeCB0aGUgaXNzdWUgZm9yCj4gbWUuIEkgYW0gd2lsbGluZyB0byB0
+cnkgc29tZXRoaW5nIGVsc2UgdGhvdWdoIDopCgpDYXJlIHRvIHBvc3QgdGhlIGxvZyhsaWtlICJi
+bGtfcmVjb3VudF9zZWdtZW50czogMS0wLTEKdmNudC0wIHNlZ3MtMTI4IikgYWZ0ZXIgYXBwbHlp
+bmcgdGhlIHBhdGNoIGluIG15IGxhc3QgcmVwbHk/CgpUaGFua3MsCi0tIApNaW5nIExlaQpfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
+biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
+aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
+bGl6YXRpb24=
