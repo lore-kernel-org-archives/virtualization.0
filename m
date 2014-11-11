@@ -1,13 +1,16 @@
-From: Pawel Moll <pawel.moll@arm.com>
-Subject: Re: [RFC PATCH] virtio-mmio: support for multiple irqs
-Date: Tue, 11 Nov 2014 15:11:40 +0000
-Message-ID: <1415718700.3929.11.camel@arm.com>
-References: <1415093712-15156-1-git-send-email-zhaoshenglong@huawei.com>
+From: Dongsu Park <dongsu.park@profitbricks.com>
+Subject: Re: kernel BUG at drivers/block/virtio_blk.c:172!
+Date: Tue, 11 Nov 2014 16:42:50 +0100
+Message-ID: <20141111154250.GA16906@gmail.com>
+References: <20141107080416.0837a88c@tlielax.poochiereds.net>
+	<87bnofnzop.fsf@rustcorp.com.au> <54614AE7.2080204@kernel.dk>
+	<CACVXFVOgRMqCUASOaXQ7ys8yiKZFEH5SA-+mV=H0uvHuGseENQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1415093712-15156-1-git-send-email-zhaoshenglong@huawei.com>
+Content-Disposition: inline
+In-Reply-To: <CACVXFVOgRMqCUASOaXQ7ys8yiKZFEH5SA-+mV=H0uvHuGseENQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,113 +20,145 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Shannon Zhao <zhaoshenglong@huawei.com>
-Cc: "peter.maydell@linaro.org" <peter.maydell@linaro.org>, "hangaohuai@huawei.com" <hangaohuai@huawei.com>, "joel.schopp@amd.com" <joel.schopp@amd.com>, "john.liuli@huawei.com" <john.liuli@huawei.com>, "remy.gauguey@cea.fr" <remy.gauguey@cea.fr>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "n.nikolaev@virtualopensystems.com" <n.nikolaev@virtualopensystems.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "peter.huangpeng@huawei.com" <peter.huangpeng@huawei.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Ming Lei <tom.leiming@gmail.com>
+Cc: Jens Axboe <axboe@kernel.dk>, "Michael S. Tsirkin" <mst@redhat.com>, Dave Chinner <david@fromorbit.com>, xfs@oss.sgi.com, Lukas Czerner <lczerner@redhat.com>, Jeff Layton <jlayton@poochiereds.net>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2014-11-04 at 09:35 +0000, Shannon Zhao wrote:
-> As the current virtio-mmio only support single irq,
-> so some advanced features such as vhost-net with irqfd
-> are not supported. And the net performance is not
-> the best without vhost-net and irqfd supporting.
+Hi Ming,
 
-Could you, please, help understanding me where does the main issue is?
-Is it about:
+On 11.11.2014 08:56, Ming Lei wrote:
+> On Tue, Nov 11, 2014 at 7:31 AM, Jens Axboe <axboe@kernel.dk> wrote:
+> > Known, I'm afraid, Ming is looking into it.
 
-1. The fact that the existing implementation blindly kicks all queues,
-instead only of the updated ones?
+Actually I had also tried to reproduce this bug, without success.
+But today I happened to know how to trigger the bug, by coincidence,
+during testing other things.
 
-or:
+Try to run xfstests/generic/034. You'll see the crash immediately.
+Tested on a QEMU VM with kernel 3.18-rc4, virtio-blk, dm-flakey and xfs.
 
-2. Literally having a dedicated interrupt line (remember, we're talking
-"real" interrupts here, not message signalled ones) per queue, so they
-can be handled by different processors at the same time?
+> There is one obvious bug which should have been fixed by below
+> patch(0001-block-blk-merge-fix-blk_recount_segments.patch"):
+> 
+> http://marc.info/?l=linux-virtualization&m=141562191719405&q=p3
 
-Now, if it's only about 1, the simplest solution would be to extend the
-VIRTIO_MMIO_INTERRUPT_STATUS register to signal up to 30 queues
-"readiness" in bits 2-31, still keeping bit 0 as a "combined"
-VIRTIO_MMIO_INT_VRING. In case when VIRTIO_MMIO_INT_VRING is set and
-none of the "individual" bits is (a device which doesn't support this
-feature or one that has more than 30 queues and of of those is ready) we
-would fall back to the original "kick all queues" approach. This could
-be a useful (and pretty simple) extension. In the worst case scenario it
-could be a post-1.0 standard addition, as it would provide backward
-compatibility.
+This patch didn't bring anything to me, as Lukas said.
 
-However, if it's about 2, we're talking larger changes here. From the
-device perspective, we can define it as having per-queue (plus one for
-config) interrupt output *and* a "combined" output, being simple logical
-"or" of all the others. Then, the Device Tree bindings would be used to
-express the implementation choices (I'd keep the kernel parameter
-approach supporting the single interrupt case only). This is a very
-popular and well understood approach for memory mapped peripherals (for
-example, see the . It allows the system integrator to make a decision
-when it's coming to latency vs number interrupt lines trade off. The
-main issue is that we can't really impose a limit on a number of queues,
-therefore on a number of interrupts. This would require adding a new
-"interrupt acknowledge" register, which would take a number of the queue
-(or a symbolic value for the config one) instead of a bit mask. And I
-must say that I'm not enjoying the idea of such substantial change to
-the specification that late in the process... (in other words: you'll
-have to put extra effort into convincing me :-)
+> And there might be another one, I appreciate someone can post
+> log which is printed by patch("blk-seg.patch") in below link if the
+> bug still can be triggered even with above fix:
+> 
+> http://marc.info/?l=linux-virtualization&m=141473040618467&q=p3
 
-> This patch support virtio-mmio to request multiple
-> irqs like virtio-pci. With this patch and qemu assigning
-> multiple irqs for virtio-mmio device, it's ok to use
-> vhost-net with irqfd on arm/arm64.
+"blk_recount_segments: 1-1-1 vcnt-128 segs-128"
 
-Could you please tell me how many queues (interrupts) are we talking
-about in this case? 5? A dozen? Hundreds?
+As long as I understood so far, the reason is that bi_phys_segments gets
+sometimes bigger than queue_max_sectors() after blk_recount_segments().
+That happens no matter whether segments are recalculated or not.
 
-Disclaimer: I have no personal experience with virtio and network (due
-to the fact how our Fast Models are implemented, I mostly us block
-devices and 9p protocol over virtio and I get enough performance from
-them :-).
+I'm not completely sure about what to do, but how about the attached patch?
+It seems to work, according to several xfstests runs.
 
-> As arm doesn't support msi-x now, 
+Cheers,
+Dongsu
 
-To be precise: "ARM" does "support" MSI-X :-) (google for GICv2m)
+----
 
-The correct statement would be: "normal memory mapped devices have no
-interface for message signalled interrupts (like MSI-X)"
+From 1db98323931eb9ab430116c4d909d22222c16e22 Mon Sep 17 00:00:00 2001
+From: Dongsu Park <dongsu.park@profitbricks.com>
+Date: Tue, 11 Nov 2014 13:10:59 +0100
+Subject: [RFC PATCH] blk-merge: make bi_phys_segments consider also
+ queue_max_segments()
 
-> we use GSI for multiple irq. 
+When recounting the number of physical segments, the number of max
+segments of request_queue must be also taken into account.
+Otherwise bio->bi_phys_segments could get bigger than
+queue_max_segments(). Then this results in virtio_queue_rq() seeing
+req->nr_phys_segments that is greater than expected. Although the
+initial queue_max_segments was set to (vblk->sg_elems - 2), a request
+comes in with a larger value of nr_phys_segments, which triggers the
+BUG_ON() condition.
 
-I'm not sure what GSI stands for, but looking at the code I assume it's
-just a "normal" peripheral interrupt.
+This commit should fix a kernel crash in virtio_blk, which occurs
+especially frequently when it runs with blk-mq, device mapper, and xfs.
+The simplest way to reproduce this bug is to run xfstests/generic/034.
+Note, test 034 requires dm-flakey to be turned on in the kernel config.
 
-> In this patch we use "vm_try_to_find_vqs"
-> to check whether multiple irqs are supported like
-> virtio-pci.
+See the kernel trace below:
+------------[ cut here ]------------
+kernel BUG at drivers/block/virtio_blk.c:172!
+invalid opcode: 0000 [#1] SMP
+CPU: 1 PID: 3343 Comm: mount Not tainted 3.18.0-rc4+ #55
+RIP: 0010:[<ffffffff81561027>]
+ [<ffffffff81561027>] virtio_queue_rq+0x277/0x280
+Call Trace:
+ [<ffffffff8142e908>] __blk_mq_run_hw_queue+0x1a8/0x300
+ [<ffffffff8142f00d>] blk_mq_run_hw_queue+0x6d/0x90
+ [<ffffffff8143003e>] blk_sq_make_request+0x23e/0x360
+ [<ffffffff81422e20>] generic_make_request+0xc0/0x110
+ [<ffffffff81422ed9>] submit_bio+0x69/0x130
+ [<ffffffff812f013d>] _xfs_buf_ioapply+0x2bd/0x410
+ [<ffffffff81315f38>] ? xlog_bread_noalign+0xa8/0xe0
+ [<ffffffff812f1bd1>] xfs_buf_submit_wait+0x61/0x1d0
+ [<ffffffff81315f38>] xlog_bread_noalign+0xa8/0xe0
+ [<ffffffff81316917>] xlog_bread+0x27/0x60
+ [<ffffffff8131ad11>] xlog_find_verify_cycle+0xe1/0x190
+ [<ffffffff8131b291>] xlog_find_head+0x2d1/0x3c0
+ [<ffffffff8131b3ad>] xlog_find_tail+0x2d/0x3f0
+ [<ffffffff8131b78e>] xlog_recover+0x1e/0xf0
+ [<ffffffff8130fbac>] xfs_log_mount+0x24c/0x2c0
+ [<ffffffff813075db>] xfs_mountfs+0x44b/0x7a0
+ [<ffffffff8130a98a>] xfs_fs_fill_super+0x2ba/0x330
+ [<ffffffff811cea64>] mount_bdev+0x194/0x1d0
+ [<ffffffff8130a6d0>] ? xfs_parseargs+0xbe0/0xbe0
+ [<ffffffff813089a5>] xfs_fs_mount+0x15/0x20
+ [<ffffffff811cf389>] mount_fs+0x39/0x1b0
+ [<ffffffff8117bf75>] ? __alloc_percpu+0x15/0x20
+ [<ffffffff811e9887>] vfs_kern_mount+0x67/0x110
+ [<ffffffff811ec584>] do_mount+0x204/0xad0
+ [<ffffffff811ed18b>] SyS_mount+0x8b/0xe0
+ [<ffffffff81788e12>] system_call_fastpath+0x12/0x17
+RIP [<ffffffff81561027>] virtio_queue_rq+0x277/0x280
+---[ end trace ae3ec6426f011b5d ]---
 
-Yeah, I can see that you have followed virtio-pci quite literally. I'm
-particularly not convinced to the one interrupt for config, one for all
-queues option. Doesn't make any sense to me here.
+Signed-off-by: Dongsu Park <dongsu.park@profitbricks.com>
+Tested-by: Dongsu Park <dongsu.park@profitbricks.com>
+Cc: Ming Lei <tom.leiming@gmail.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Jeff Layton <jlayton@poochiereds.net>
+Cc: Dave Chinner <david@fromorbit.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Lukas Czerner <lczerner@redhat.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: virtualization@lists.linux-foundation.org
+---
+ block/blk-merge.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-> Is this the right direction? is there other ways to
-> make virtio-mmio support multiple irq? Hope for feedback.
-
-One point I'd like to make is that the device was intentionally designed
-with simplicity in mind first, performance later (something about
-"embedded" etc" :-). Changing this assumption is of course possible, but
-- I must say - makes me slightly uncomfortable... The extensions we're
-discussing here seem doable, but I've noticed your other patches doing
-with a shared memory region and I didn't like them at all, sorry.
-
-I see the subject has been already touched in the discussions, but let
-me bring PCI to the surface again. We're getting more server-class SOCs
-in the market, which obviously bring PCI with them to both arm and arm64
-world, something unheard of in the "mobile past". I believe the PCI
-patches for the arm64 have been already merged in the kernel.
-
-Therefore: I'm not your boss so, obviously, I can't tell you what to do,
-but could you consider redirecting your efforts into getting the "ARM
-PCI" up and running in qemu so you can simply use the existing
-infrastructure? This would save us a lot of work and pain in doing late
-functional changes to the standard and will be probably more
-future-proof from your perspective (PCI will happen, sooner or later -
-you can make it sooner ;-)
-
-Regards
-
-Pawel
+diff --git a/block/blk-merge.c b/block/blk-merge.c
+index b3ac40a..d808601 100644
+--- a/block/blk-merge.c
++++ b/block/blk-merge.c
+@@ -103,13 +103,16 @@ void blk_recount_segments(struct request_queue *q, struct bio *bio)
+ 
+ 	if (no_sg_merge && !bio_flagged(bio, BIO_CLONED) &&
+ 			merge_not_need)
+-		bio->bi_phys_segments = bio->bi_vcnt;
++		bio->bi_phys_segments = min_t(unsigned int, bio->bi_vcnt,
++				queue_max_segments(q));
+ 	else {
+ 		struct bio *nxt = bio->bi_next;
+ 
+ 		bio->bi_next = NULL;
+-		bio->bi_phys_segments = __blk_recalc_rq_segments(q, bio,
+-				no_sg_merge && merge_not_need);
++		bio->bi_phys_segments = min_t(unsigned int,
++				__blk_recalc_rq_segments(q, bio, no_sg_merge
++					&& merge_not_need),
++				queue_max_segments(q));
+ 		bio->bi_next = nxt;
+ 	}
+ 
+-- 
+1.9.3
