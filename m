@@ -1,15 +1,18 @@
-From: Jeff Epler <jepler@unpythonic.net>
-Subject: Re: [PATCH v2] virtio_balloon: Convert "vballon" kthread into a
-	workqueue
-Date: Wed, 12 Nov 2014 12:50:37 -0600
-Message-ID: <20141112185037.GB53560__9877.47597178004$1415820733$gmane$org@unpythonic.net>
-References: <1415797368-22660-1-git-send-email-pmladek@suse.cz>
+From: Jeff Layton <jlayton@poochiereds.net>
+Subject: Re: kernel BUG at drivers/block/virtio_blk.c:172!
+Date: Wed, 12 Nov 2014 16:02:35 -0500
+Message-ID: <20141112160235.19d8aefc@tlielax.poochiereds.net>
+References: <20141107080416.0837a88c@tlielax.poochiereds.net>
+	<87bnofnzop.fsf@rustcorp.com.au> <54614AE7.2080204@kernel.dk>
+	<CACVXFVOgRMqCUASOaXQ7ys8yiKZFEH5SA-+mV=H0uvHuGseENQ@mail.gmail.com>
+	<20141111154250.GA16906@gmail.com>
+	<CACVXFVNXSmw=Gu_9JAtpF3uxupSMr4kN2ge-jnZMxZAMcaHrfw@mail.gmail.com>
+	<5463A478.20603@kernel.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1415797368-22660-1-git-send-email-pmladek@suse.cz>
+In-Reply-To: <5463A478.20603@kernel.dk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,11 +22,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Petr Mladek <pmladek@suse.cz>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Tejun Heo <tj@kernel.org>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Dave Chinner <david@fromorbit.com>, xfs@oss.sgi.com, Lukas Czerner <lczerner@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Trivial typo "vballon" should be "vballoon" in subject (and in changelog,
-leak_ballon should be leak_balloon)
+On Wed, 12 Nov 2014 11:18:32 -0700
+Jens Axboe <axboe@kernel.dk> wrote:
 
-Jeff
+> On 11/11/2014 09:42 AM, Ming Lei wrote:
+> > The attached patch should fix the problem, and hope it is the last one, :-)
+> 
+> Dongsu and Jeff, any of you test this variant? I think this is the last
+> one, at least I hope so as well...
+> 
+
+Yes, thanks! That patch seems to fix the problem for me. You can add:
+
+Tested-by: Jeff Layton <jlayton@poochiereds.net>
