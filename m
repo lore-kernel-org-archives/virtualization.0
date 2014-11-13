@@ -1,12 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] vhost: cleanups and fixes
-Date: Thu, 13 Nov 2014 23:22:10 +0200
-Message-ID: <20141113212210.GA15309@redhat.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 52/56] drivers/char/virtio: support compiling out splice
+Date: Thu, 13 Nov 2014 14:09:49 -0800
+Message-ID: <20141113220949.GC546@kroah.com>
+References: <pieter@boesman.nl>
+	<1415913813-362-1-git-send-email-pieter@boesman.nl>
+	<1415913813-362-53-git-send-email-pieter@boesman.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <1415913813-362-53-git-send-email-pieter@boesman.nl>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,36 +20,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, tgraf@suug.ch
+To: Pieter Smith <pieter@boesman.nl>
+Cc: Amit Shah <amit.shah@redhat.com>, open list <linux-kernel@vger.kernel.org>, Josh Triplett <josh@joshtriplett.org>, Arnd Bergmann <arnd@arndb.de>, "open list:VIRTIO CONSOLE DR..." <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 206c5f60a3d902bc4b56dab2de3e88de5eb06108:
+On Thu, Nov 13, 2014 at 10:23:29PM +0100, Pieter Smith wrote:
+> Compile out splice support from virtio character driver when the splice-family
+> of syscalls is not supported by the system (i.e. CONFIG_SYSCALL_SPLICE is
+> undefined).
+> 
+> Signed-off-by: Pieter Smith <pieter@boesman.nl>
+> ---
+>  drivers/char/virtio_console.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> index b585b47..de5e2cb 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -870,6 +870,7 @@ struct sg_list {
+>  	struct scatterlist *sg;
+>  };
+>  
+> +#ifdef CONFIG_SYSCALL_SPLICE
+>  static int pipe_to_sg(struct pipe_inode_info *pipe, struct pipe_buffer *buf,
+>  			struct splice_desc *sd)
+>  {
+> @@ -976,6 +977,7 @@ error_out:
+>  	pipe_unlock(pipe);
+>  	return ret;
+>  }
+> +#endif /* #ifdef CONFIG_SYSCALL_SPLICE */
 
-  Linux 3.18-rc4 (2014-11-09 14:55:29 -0800)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-
-for you to fetch changes up to 65eca3a20264a8999570c269406196bd1ae23be7:
-
-  virtio_console: move early VQ enablement (2014-11-13 09:53:26 +0200)
-
-It seems like a good idea to merge this bugfix now, as it's clearly
-a regression and several people complained.
-
-----------------------------------------------------------------
-virtio: bugfix for 3.18
-
-This fixes a crash in virtio console
-multi-channel mode that got introduced in -rc1.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Cornelia Huck (1):
-      virtio_console: move early VQ enablement
-
- drivers/char/virtio_console.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Not worth the #ifdef mess.
