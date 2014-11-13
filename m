@@ -1,16 +1,13 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH net] Revert "drivers/net: Disable UFO through virtio" in
-	macvtap and tun
-Date: Wed, 12 Nov 2014 19:02:38 +0000
-Message-ID: <20141112190238.GA13138@stefanha-thinkpad.lan>
-References: <20141111105849.GA8482@stefanha-thinkpad.redhat.com>
-	<1415708246.3398.88.camel@decadent.org.uk>
-	<20141111155750.GA17418@redhat.com>
-	<1415725978.3398.101.camel@decadent.org.uk>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH 2/2] virtio-net: fix buggy features advertised by host
+Date: Thu, 13 Nov 2014 13:24:47 +0800
+Message-ID: <1415856287-12849-2-git-send-email-jasowang@redhat.com>
+References: <1415856287-12849-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============9055038226979599780=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1415725978.3398.101.camel@decadent.org.uk>
+In-Reply-To: <1415856287-12849-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,207 +17,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jelledejong@powercraft.nl
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Ben Hutchings <ben@decadent.org.uk>, David Miller <davem@davemloft.net>
+To: rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+This patch tries to detect the possible buggy features advertised by host
+and fix them. One example is current booting virtio-net with only
+ctrl_vq disabled, qemu may still advertise many features which depends
+it. This will trigger several BUG()s in virtnet_send_command().
 
---===============9055038226979599780==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
-Content-Disposition: inline
+This patch utilizes the fix_features() method, and disable all features that
+depends on ctrl_vq if it was not advertised.
 
+This fixes the crash when booting with ctrl_vq=off.
 
---uAKRQypu60I7Lcqm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/virtio_net.c | 35 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
 
-On Tue, Nov 11, 2014 at 05:12:58PM +0000, Ben Hutchings wrote:
-> This reverts commit 88e0e0e5aa722b193c8758c8b45d041de5316924 for
-> the tap drivers, but leaves UFO disabled in virtio_net.
->=20
-> libvirt at least assumes that tap features will never be dropped
-> in new kernel versions, and doing so prevents migration of VMs to
-> the never kernel version while they are running with virtio net
-> devices.
->=20
-> Fixes: 88e0e0e5aa7a ("drivers/net: Disable UFO through virtio")
-> Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-> ---
-> Compile-tested only.
-
-Jelle, care to test this and reply with "Tested-by: Jelle de Jong
-<jelledejong@powercraft.nl>" if it solves the live migration problem you
-reported?
-
-It requires applying the patch to the host kernel on your virt01 host.
-
-Thanks!
-
-> Ben.
->=20
->  drivers/net/macvtap.c | 13 ++++++++-----
->  drivers/net/tun.c     | 19 ++++++++-----------
->  2 files changed, 16 insertions(+), 16 deletions(-)
->=20
-> diff --git a/drivers/net/macvtap.c b/drivers/net/macvtap.c
-> index 6f226de..aeaeb6d 100644
-> --- a/drivers/net/macvtap.c
-> +++ b/drivers/net/macvtap.c
-> @@ -66,7 +66,7 @@ static struct cdev macvtap_cdev;
->  static const struct proto_ops macvtap_socket_ops;
-> =20
->  #define TUN_OFFLOADS (NETIF_F_HW_CSUM | NETIF_F_TSO_ECN | NETIF_F_TSO | \
-> -		      NETIF_F_TSO6)
-> +		      NETIF_F_TSO6 | NETIF_F_UFO)
->  #define RX_OFFLOADS (NETIF_F_GRO | NETIF_F_LRO)
->  #define TAP_FEATURES (NETIF_F_GSO | NETIF_F_SG)
-> =20
-> @@ -570,8 +570,6 @@ static int macvtap_skb_from_vnet_hdr(struct sk_buff *=
-skb,
->  			gso_type =3D SKB_GSO_TCPV6;
->  			break;
->  		case VIRTIO_NET_HDR_GSO_UDP:
-> -			pr_warn_once("macvtap: %s: using disabled UFO feature; please fix thi=
-s program\n",
-> -				     current->comm);
->  			gso_type =3D SKB_GSO_UDP;
->  			if (skb->protocol =3D=3D htons(ETH_P_IPV6))
->  				ipv6_proxy_select_ident(skb);
-> @@ -619,6 +617,8 @@ static void macvtap_skb_to_vnet_hdr(const struct sk_b=
-uff *skb,
->  			vnet_hdr->gso_type =3D VIRTIO_NET_HDR_GSO_TCPV4;
->  		else if (sinfo->gso_type & SKB_GSO_TCPV6)
->  			vnet_hdr->gso_type =3D VIRTIO_NET_HDR_GSO_TCPV6;
-> +		else if (sinfo->gso_type & SKB_GSO_UDP)
-> +			vnet_hdr->gso_type =3D VIRTIO_NET_HDR_GSO_UDP;
->  		else
->  			BUG();
->  		if (sinfo->gso_type & SKB_GSO_TCP_ECN)
-> @@ -953,6 +953,9 @@ static int set_offload(struct macvtap_queue *q, unsig=
-ned long arg)
->  			if (arg & TUN_F_TSO6)
->  				feature_mask |=3D NETIF_F_TSO6;
->  		}
-> +
-> +		if (arg & TUN_F_UFO)
-> +			feature_mask |=3D NETIF_F_UFO;
->  	}
-> =20
->  	/* tun/tap driver inverts the usage for TSO offloads, where
-> @@ -963,7 +966,7 @@ static int set_offload(struct macvtap_queue *q, unsig=
-ned long arg)
->  	 * When user space turns off TSO, we turn off GSO/LRO so that
->  	 * user-space will not receive TSO frames.
->  	 */
-> -	if (feature_mask & (NETIF_F_TSO | NETIF_F_TSO6))
-> +	if (feature_mask & (NETIF_F_TSO | NETIF_F_TSO6 | NETIF_F_UFO))
->  		features |=3D RX_OFFLOADS;
->  	else
->  		features &=3D ~RX_OFFLOADS;
-> @@ -1064,7 +1067,7 @@ static long macvtap_ioctl(struct file *file, unsign=
-ed int cmd,
->  	case TUNSETOFFLOAD:
->  		/* let the user check for future flags */
->  		if (arg & ~(TUN_F_CSUM | TUN_F_TSO4 | TUN_F_TSO6 |
-> -			    TUN_F_TSO_ECN))
-> +			    TUN_F_TSO_ECN | TUN_F_UFO))
->  			return -EINVAL;
-> =20
->  		rtnl_lock();
-> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> index 7302398..a0987d1 100644
-> --- a/drivers/net/tun.c
-> +++ b/drivers/net/tun.c
-> @@ -175,7 +175,7 @@ struct tun_struct {
->  	struct net_device	*dev;
->  	netdev_features_t	set_features;
->  #define TUN_USER_FEATURES (NETIF_F_HW_CSUM|NETIF_F_TSO_ECN|NETIF_F_TSO| \
-> -			  NETIF_F_TSO6)
-> +			  NETIF_F_TSO6|NETIF_F_UFO)
-> =20
->  	int			vnet_hdr_sz;
->  	int			sndbuf;
-> @@ -1152,20 +1152,10 @@ static ssize_t tun_get_user(struct tun_struct *tu=
-n, struct tun_file *tfile,
->  			skb_shinfo(skb)->gso_type =3D SKB_GSO_TCPV6;
->  			break;
->  		case VIRTIO_NET_HDR_GSO_UDP:
-> -		{
-> -			static bool warned;
-> -
-> -			if (!warned) {
-> -				warned =3D true;
-> -				netdev_warn(tun->dev,
-> -					    "%s: using disabled UFO feature; please fix this program\n",
-> -					    current->comm);
-> -			}
->  			skb_shinfo(skb)->gso_type =3D SKB_GSO_UDP;
->  			if (skb->protocol =3D=3D htons(ETH_P_IPV6))
->  				ipv6_proxy_select_ident(skb);
->  			break;
-> -		}
->  		default:
->  			tun->dev->stats.rx_frame_errors++;
->  			kfree_skb(skb);
-> @@ -1265,6 +1255,8 @@ static ssize_t tun_put_user(struct tun_struct *tun,
->  				gso.gso_type =3D VIRTIO_NET_HDR_GSO_TCPV4;
->  			else if (sinfo->gso_type & SKB_GSO_TCPV6)
->  				gso.gso_type =3D VIRTIO_NET_HDR_GSO_TCPV6;
-> +			else if (sinfo->gso_type & SKB_GSO_UDP)
-> +				gso.gso_type =3D VIRTIO_NET_HDR_GSO_UDP;
->  			else {
->  				pr_err("unexpected GSO type: "
->  				       "0x%x, gso_size %d, hdr_len %d\n",
-> @@ -1774,6 +1766,11 @@ static int set_offload(struct tun_struct *tun, uns=
-igned long arg)
->  				features |=3D NETIF_F_TSO6;
->  			arg &=3D ~(TUN_F_TSO4|TUN_F_TSO6);
->  		}
-> +
-> +		if (arg & TUN_F_UFO) {
-> +			features |=3D NETIF_F_UFO;
-> +			arg &=3D ~TUN_F_UFO;
-> +		}
->  	}
-> =20
->  	/* This gives the user a way to test for new features in future by
->=20
->=20
-> --=20
-> Ben Hutchings
-> Experience is directly proportional to the value of equipment destroyed.
->                                                          - Carolyn Schepp=
-ner
-
-
-
---uAKRQypu60I7Lcqm
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQEcBAEBAgAGBQJUY67OAAoJEJykq7OBq3PINpQIAJolbp2mqakY1HmYOUNru4Tz
-wbI8qdbtEbcGfBbbf1C7r/cySTbnqUPWHe+dAmwN08WbhSEN8Jza/VU+XmRU9QgR
-8fjTbQ2ntLgc6GoadT/6/uowZDxLOp4xKpASMWg1jh64kkl2w/lum5dqjXjr8vKi
-c9cs713DsYc+7zQpjbLp1m2we/85lRNSpLmVFgKeB9TC/LQVabuPjG2NCK6TH2RM
-oqKjhxw9W8jsknEcHNf/fYpKpD/ou9uWSWjgi9KzH8SKRZKTFE410HiPzryuVdNN
-Q229Nw9060/2JYMmKIEw/SWzP+bGJJgV+ukPzJA+HDx8GfJjUtY+hQZQI/cc1fQ=
-=4IRw
------END PGP SIGNATURE-----
-
---uAKRQypu60I7Lcqm--
-
---===============9055038226979599780==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============9055038226979599780==--
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index ec2a8b4..d6bb5fa 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1948,6 +1948,40 @@ static int virtnet_restore(struct virtio_device *vdev)
+ }
+ #endif
+ 
++static void virtnet_fix_features(struct virtio_device *dev)
++{
++	if (!virtio_has_feature(dev, VIRTIO_NET_F_CTRL_VQ)) {
++		if (virtio_has_feature(dev, VIRTIO_NET_F_CTRL_RX)) {
++			pr_warning("Disable VIRTIO_NET_F_CTRL_RX since host "
++				   "does not advertise VIRTIO_NET_F_CTRL_VQ");
++			virtio_disable_feature(dev, VIRTIO_NET_F_CTRL_RX);
++		}
++		if (virtio_has_feature(dev, VIRTIO_NET_F_CTRL_VLAN)) {
++			pr_warning("Disable VIRTIO_NET_F_CTRL_VLAN since host "
++				   "does not advertise VIRTIO_NET_F_CTRL_VQ");
++			virtio_disable_feature(dev, VIRTIO_NET_F_CTRL_VLAN);
++		}
++		if (virtio_has_feature(dev, VIRTIO_NET_F_GUEST_ANNOUNCE)) {
++			pr_warning("Disable VIRTIO_NET_F_GUEST_ANNOUCE since "
++				   "host does not advertise "
++				   "VIRTIO_NET_F_CTRL_VQ");
++			virtio_disable_feature(dev,
++					       VIRTIO_NET_F_GUEST_ANNOUNCE);
++		}
++		if (virtio_has_feature(dev, VIRTIO_NET_F_MQ)) {
++			pr_warning("Disable VIRTIO_NET_F_MQ since host "
++				   "does not advertise VIRTIO_NET_F_CTRL_VQ");
++			virtio_disable_feature(dev, VIRTIO_NET_F_CTRL_VLAN);
++		}
++		if (virtio_has_feature(dev, VIRTIO_NET_F_CTRL_MAC_ADDR)) {
++			pr_warning("Disable VIRTIO_NET_F_CTRL_MAC_ADDR since "
++				   "host does not advertise "
++				   "VIRTIO_NET_F_CTRL_VQ");
++			virtio_disable_feature(dev, VIRTIO_NET_F_CTRL_VLAN);
++		}
++	}
++}
++
+ static struct virtio_device_id id_table[] = {
+ 	{ VIRTIO_ID_NET, VIRTIO_DEV_ANY_ID },
+ 	{ 0 },
+@@ -1975,6 +2009,7 @@ static struct virtio_driver virtio_net_driver = {
+ 	.probe =	virtnet_probe,
+ 	.remove =	virtnet_remove,
+ 	.config_changed = virtnet_config_changed,
++	.fix_features = virtnet_fix_features,
+ #ifdef CONFIG_PM_SLEEP
+ 	.freeze =	virtnet_freeze,
+ 	.restore =	virtnet_restore,
+-- 
+1.9.1
