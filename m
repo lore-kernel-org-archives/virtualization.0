@@ -1,14 +1,14 @@
-From: Pieter Smith <pieter@boesman.nl>
-Subject: [PATCH 52/56] drivers/char/virtio: support compiling out splice
-Date: Thu, 13 Nov 2014 22:23:29 +0100
-Message-ID: <1415913813-362-53-git-send-email-pieter__47215.346460189$1416017469$gmane$org@boesman.nl>
-References: <pieter@boesman.nl>
-	<1415913813-362-1-git-send-email-pieter@boesman.nl>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: vhost + multiqueue + RSS question.
+Date: Sun, 16 Nov 2014 20:56:04 +0200
+Message-ID: <20141116185604.GA12839@redhat.com>
+References: <20141116161818.GD7589@cloudius-systems.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1415913813-362-1-git-send-email-pieter@boesman.nl>
+Content-Disposition: inline
+In-Reply-To: <20141116161818.GD7589@cloudius-systems.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,47 +18,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: pieter@boesman.nl
-Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, open list <linux-kernel@vger.kernel.org>, Josh Triplett <josh@joshtriplett.org>, Amit Shah <amit.shah@redhat.com>, "open list:VIRTIO CONSOLE DR..." <virtualization@lists.linux-foundation.org>
+To: Gleb Natapov <gleb@cloudius-systems.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Compile out splice support from virtio character driver when the splice-family
-of syscalls is not supported by the system (i.e. CONFIG_SYSCALL_SPLICE is
-undefined).
+On Sun, Nov 16, 2014 at 06:18:18PM +0200, Gleb Natapov wrote:
+> Hi Michael,
+> 
+>  I am playing with vhost multiqueue capability and have a question about
+> vhost multiqueue and RSS (receive side steering). My setup has Mellanox
+> ConnectX-3 NIC which supports multiqueue and RSS. Network related
+> parameters for qemu are:
+> 
+>    -netdev tap,id=hn0,script=qemu-ifup.sh,vhost=on,queues=4
+>    -device virtio-net-pci,netdev=hn0,id=nic1,mq=on,vectors=10
+> 
+> In a guest I ran "ethtool -L eth0 combined 4" to enable multiqueue.
+> 
+> I am running one tcp stream into the guest using iperf. Since there is
+> only one tcp stream I expect it to be handled by one queue only but
+> this seams to be not the case. ethtool -S on a host shows that the
+> stream is handled by one queue in the NIC, just like I would expect,
+> but in a guest all 4 virtio-input interrupt are incremented. Am I
+> missing any configuration?
 
-Signed-off-by: Pieter Smith <pieter@boesman.nl>
----
- drivers/char/virtio_console.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+I don't see anything obviously wrong with what you describe.
+Maybe, somehow, same irqfd got bound to multiple MSI vectors?
+To see, can you try dumping struct kvm_irqfd that's passed to kvm?
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index b585b47..de5e2cb 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -870,6 +870,7 @@ struct sg_list {
- 	struct scatterlist *sg;
- };
- 
-+#ifdef CONFIG_SYSCALL_SPLICE
- static int pipe_to_sg(struct pipe_inode_info *pipe, struct pipe_buffer *buf,
- 			struct splice_desc *sd)
- {
-@@ -976,6 +977,7 @@ error_out:
- 	pipe_unlock(pipe);
- 	return ret;
- }
-+#endif /* #ifdef CONFIG_SYSCALL_SPLICE */
- 
- static unsigned int port_fops_poll(struct file *filp, poll_table *wait)
- {
-@@ -1109,7 +1111,7 @@ static const struct file_operations port_fops = {
- 	.open  = port_fops_open,
- 	.read  = port_fops_read,
- 	.write = port_fops_write,
--	.splice_write = port_fops_splice_write,
-+	SPLICE_WRITE_INIT(port_fops_splice_write)
- 	.poll  = port_fops_poll,
- 	.release = port_fops_release,
- 	.fasync = port_fops_fasync,
--- 
-1.9.1
+
+> --
+> 			Gleb.
