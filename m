@@ -1,16 +1,17 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V3 2/2] virtio-net: sanitize buggy features advertised
-	by host
-Date: Tue, 18 Nov 2014 11:03:32 +0800
-Message-ID: <546AB704.4010904@redhat.com>
+Subject: Re: [PATCH V3 1/2] virtio: introduce methods of sanitizing device
+	features
+Date: Tue, 18 Nov 2014 11:23:49 +0800
+Message-ID: <546ABBC5.7030603@redhat.com>
 References: <1416215838-21700-1-git-send-email-jasowang@redhat.com>
-	<1416215838-21700-2-git-send-email-jasowang@redhat.com>
-	<20141117100838.GD20133@redhat.com>
+	<20141117093701.GC20133@redhat.com>
+	<20141117104430.54362e7d.cornelia.huck@de.ibm.com>
+	<20141117101139.GE20133@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141117100838.GD20133@redhat.com>
+In-Reply-To: <20141117101139.GE20133@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,129 +21,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
 Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/17/2014 06:08 PM, Michael S. Tsirkin wrote:
-> On Mon, Nov 17, 2014 at 05:17:18PM +0800, Jason Wang wrote:
->> This patch tries to detect the possible buggy features advertised by host
->> and sanitize them. One example is booting virtio-net with only ctrl_vq
->> disabled, qemu may still advertise many features which depends on it. This
->> will trigger several BUG()s in virtnet_send_command().
+On 11/17/2014 06:11 PM, Michael S. Tsirkin wrote:
+> On Mon, Nov 17, 2014 at 10:44:30AM +0100, Cornelia Huck wrote:
+>> On Mon, 17 Nov 2014 11:37:01 +0200
+>> "Michael S. Tsirkin" <mst@redhat.com> wrote:
 >>
->> This patch utilizes the sanitize_features() method, and disables all
->> features that depends on ctrl_vq if it was not advertised.
->>
->> This fixes the crash when booting with ctrl_vq=off using qemu.
->>
->> Cc: Rusty Russell <rusty@rustcorp.com.au>
->> Cc: Michael S. Tsirkin <mst@redhat.com>
->> Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
->> Cc: Wanlong Gao <gaowanlong@cn.fujitsu.com>
->> Signed-off-by: Jason Wang <jasowang@redhat.com>
+>>> On Mon, Nov 17, 2014 at 05:17:17PM +0800, Jason Wang wrote:
+>>>> Buggy host may advertised buggy host features (a usual case is that host
+>>>> advertise a feature whose dependencies were missed). In this case, driver
+>>>> should detect and disable the buggy features by itself.
+>>>>
+>>>> This patch introduces driver specific sanitize_features() method which is
+>>>> called just before features finalizing to detect and disable buggy features
+>>>> advertised by host.
+>>>>
+>>>> Virtio-net will be the first user.
+>>>>
+>>>> Cc: Rusty Russell <rusty@rustcorp.com.au>
+>>>> Cc: Michael S. Tsirkin <mst@redhat.com>
+>>>> Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
+>>>> Cc: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+>>>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+>>> Hmm this conflicts with virtio 1.0 work: we drop
+>>> features as bitmap there.
+>> But that's an implementation detail, no? We'll still need a way for the
+>> driver to sanitize features, and I think this interface works just fine.
+> Now that you mention it, I don't think we do.
 >
-> So I'm not sure this is useful.
-> The spec says:
-> 	The device MUST NOT offer a feature which requires another feature which
-> 	was not offered.
-
-We can't guarantee that hypervisor's implementation are 100% correct.
-> So this is a buggy hypervisor, and I believe we should just fail probe.
-> This can be done without crashing, and is generally a better
-> idea that second-guessing what hypervisor wants us to do.
+> The spec is quite explicit that devices must not expose invalid
+> combinations of features.
 >
-
-So we still need something like this patch to detect the wrong
-dependencies. And the features fixing like this is not something new,
-see how net device fix the features through ndo_fix_features().
+> Admittedly, BUG_ON isn't very friendly to hypervisors.
 >
->
->
-> However, assuming that we do want this change:
-> This can be replaced with a table driven design in virtio core, but
-> since you chose to open code it, I would drop table below altogether.
->
->
-> Just make it
-> 	if (!virtio_has_feature(dev, VIRTIO_NET_F_CTRL_VQ)) {
-> 		virtio_disable_feature(dev, VIRTIO_NET_F_CTRL_RX);
-> 		virtio_disable_feature(dev, VIRTIO_NET_F_CTRL_VLAN);
-> 		virtio_disable_feature(dev, VIRTIO_NET_F_GUEST_ANNOUNCE);
-> 		virtio_disable_feature(dev, VIRTIO_NET_F_MQ);
-> 		virtio_disable_feature(dev, VIRTIO_NET_F_CTRL_MAC_ADDR);
-> 	}
+> But e.g. failing probe seems better than trying to work around
+> hypervisor bugs - otherwise we'll be stuck maintaining compatibility
+> with hypervisors forever.
 >
 
-This is similar to what I did in v1 and v2. Either are ok for me.
->
->
->> ---
->> Changes from V1:
->> - fix the cut-and-paste error
->> Changes from V2:
->> - loop through an array of feature bits
->> - switch to use dev_warn()
->> ---
->>  drivers/net/virtio_net.c | 26 ++++++++++++++++++++++++++
->>  1 file changed, 26 insertions(+)
->>
->> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->> index ec2a8b4..6fadd8c 100644
->> --- a/drivers/net/virtio_net.c
->> +++ b/drivers/net/virtio_net.c
->> @@ -1948,6 +1948,31 @@ static int virtnet_restore(struct virtio_device *vdev)
->>  }
->>  #endif
->>  
->> +static void virtnet_sanitize_features(struct virtio_device *dev)
->> +{
->> +	unsigned int features_for_ctrl_vq[] = {
->> +		VIRTIO_NET_F_CTRL_RX,
->> +		VIRTIO_NET_F_CTRL_VLAN,
->> +		VIRTIO_NET_F_GUEST_ANNOUNCE,
->> +		VIRTIO_NET_F_MQ,
->> +		VIRTIO_NET_F_CTRL_MAC_ADDR
->> +	};
-> This is not the only dependency: checksums
-> have dependencies too. See virtio 1.0 spec.
->
+I'm ok with failing the probe.
 
-I see ,and this kind of check could be added. But we're really safe
-since qemu handle such cases and won't advertise any offload feature is
-csum is not supported.
->
->> +	int i;
->> +
->> +	if (!virtio_has_feature(dev, VIRTIO_NET_F_CTRL_VQ)) {
->> +		for (i = 0; i < ARRAY_SIZE(features_for_ctrl_vq); i++) {
->> +			unsigned int f = features_for_ctrl_vq[i];
->> +			if (virtio_has_feature(dev, f)) {
->> +				virtio_disable_feature(dev, f);
->> +				dev_warn(&dev->dev,
->> +					 "buggy hyperviser: disable feature "
->> +					 "0x%x since VIRTIO_NET_F_CTRL_VQ was "
->> +					 "not advertised.\n", f);
->> +			}
->> +		}
->> +	}
->> +}
->> +
->>  static struct virtio_device_id id_table[] = {
->>  	{ VIRTIO_ID_NET, VIRTIO_DEV_ANY_ID },
->>  	{ 0 },
->> @@ -1975,6 +2000,7 @@ static struct virtio_driver virtio_net_driver = {
->>  	.probe =	virtnet_probe,
->>  	.remove =	virtnet_remove,
->>  	.config_changed = virtnet_config_changed,
->> +	.sanitize_features = virtnet_sanitize_features,
->>  #ifdef CONFIG_PM_SLEEP
->>  	.freeze =	virtnet_freeze,
->>  	.restore =	virtnet_restore,
->> -- 
->> 1.9.1
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+But it won't cost big effort to workaround only features dependencies
+issue. I don't see how this block any further features implementation.
+Looking at virtio-net, it also depends on network core to fix NETIF_F_*
+dependencies.
+
+There seems no way to get rid of maintaining compatibility, e.g  the
+workarounds for the buggy hypervisor without VIRTIO_F_ANY_LAYOUT support.
