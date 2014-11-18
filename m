@@ -1,15 +1,16 @@
-From: Amos Kong <akong@redhat.com>
-Subject: Re: [PATCH v4 3/6] hw_random: use reference counts on each struct
-	hwrng.
-Date: Mon, 17 Nov 2014 23:20:53 +0800
-Message-ID: <20141117152053.GB12501@air.redhat.com>
-References: <1415030186-18303-1-git-send-email-akong@redhat.com>
-	<1415030186-18303-4-git-send-email-akong@redhat.com>
-	<87zjbxm6fw.fsf@rustcorp.com.au>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V3 2/2] virtio-net: sanitize buggy features advertised
+	by host
+Date: Tue, 18 Nov 2014 11:03:32 +0800
+Message-ID: <546AB704.4010904@redhat.com>
+References: <1416215838-21700-1-git-send-email-jasowang@redhat.com>
+	<1416215838-21700-2-git-send-email-jasowang@redhat.com>
+	<20141117100838.GD20133@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1641672336284012977=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87zjbxm6fw.fsf@rustcorp.com.au>
+In-Reply-To: <20141117100838.GD20133@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,117 +20,129 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: m@bues.ch, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mb@bu3sch.de, mpm@selenic.com, amit.shah@redhat.com, herbert@gondor.apana.org.au
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On 11/17/2014 06:08 PM, Michael S. Tsirkin wrote:
+> On Mon, Nov 17, 2014 at 05:17:18PM +0800, Jason Wang wrote:
+>> This patch tries to detect the possible buggy features advertised by host
+>> and sanitize them. One example is booting virtio-net with only ctrl_vq
+>> disabled, qemu may still advertise many features which depends on it. This
+>> will trigger several BUG()s in virtnet_send_command().
+>>
+>> This patch utilizes the sanitize_features() method, and disables all
+>> features that depends on ctrl_vq if it was not advertised.
+>>
+>> This fixes the crash when booting with ctrl_vq=off using qemu.
+>>
+>> Cc: Rusty Russell <rusty@rustcorp.com.au>
+>> Cc: Michael S. Tsirkin <mst@redhat.com>
+>> Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
+>> Cc: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+>
+> So I'm not sure this is useful.
+> The spec says:
+> 	The device MUST NOT offer a feature which requires another feature which
+> 	was not offered.
 
---===============1641672336284012977==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="E39vaYmALEf/7YXx"
-Content-Disposition: inline
+We can't guarantee that hypervisor's implementation are 100% correct.
+> So this is a buggy hypervisor, and I believe we should just fail probe.
+> This can be done without crashing, and is generally a better
+> idea that second-guessing what hypervisor wants us to do.
+>
 
+So we still need something like this patch to detect the wrong
+dependencies. And the features fixing like this is not something new,
+see how net device fix the features through ndo_fix_features().
+>
+>
+>
+> However, assuming that we do want this change:
+> This can be replaced with a table driven design in virtio core, but
+> since you chose to open code it, I would drop table below altogether.
+>
+>
+> Just make it
+> 	if (!virtio_has_feature(dev, VIRTIO_NET_F_CTRL_VQ)) {
+> 		virtio_disable_feature(dev, VIRTIO_NET_F_CTRL_RX);
+> 		virtio_disable_feature(dev, VIRTIO_NET_F_CTRL_VLAN);
+> 		virtio_disable_feature(dev, VIRTIO_NET_F_GUEST_ANNOUNCE);
+> 		virtio_disable_feature(dev, VIRTIO_NET_F_MQ);
+> 		virtio_disable_feature(dev, VIRTIO_NET_F_CTRL_MAC_ADDR);
+> 	}
+>
 
---E39vaYmALEf/7YXx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This is similar to what I did in v1 and v2. Either are ok for me.
+>
+>
+>> ---
+>> Changes from V1:
+>> - fix the cut-and-paste error
+>> Changes from V2:
+>> - loop through an array of feature bits
+>> - switch to use dev_warn()
+>> ---
+>>  drivers/net/virtio_net.c | 26 ++++++++++++++++++++++++++
+>>  1 file changed, 26 insertions(+)
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index ec2a8b4..6fadd8c 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -1948,6 +1948,31 @@ static int virtnet_restore(struct virtio_device *vdev)
+>>  }
+>>  #endif
+>>  
+>> +static void virtnet_sanitize_features(struct virtio_device *dev)
+>> +{
+>> +	unsigned int features_for_ctrl_vq[] = {
+>> +		VIRTIO_NET_F_CTRL_RX,
+>> +		VIRTIO_NET_F_CTRL_VLAN,
+>> +		VIRTIO_NET_F_GUEST_ANNOUNCE,
+>> +		VIRTIO_NET_F_MQ,
+>> +		VIRTIO_NET_F_CTRL_MAC_ADDR
+>> +	};
+> This is not the only dependency: checksums
+> have dependencies too. See virtio 1.0 spec.
+>
 
-On Wed, Nov 12, 2014 at 02:11:23PM +1030, Rusty Russell wrote:
-> Amos Kong <akong@redhat.com> writes:
-> > From: Rusty Russell <rusty@rustcorp.com.au>
-> >
-> > current_rng holds one reference, and we bump it every time we want
-> > to do a read from it.
-> >
-> > This means we only hold the rng_mutex to grab or drop a reference,
-> > so accessing /sys/devices/virtual/misc/hw_random/rng_current doesn't
-> > block on read of /dev/hwrng.
-> >
-> > Using a kref is overkill (we're always under the rng_mutex), but
-> > a standard pattern.
-> >
-> > This also solves the problem that the hwrng_fillfn thread was
-> > accessing current_rng without a lock, which could change (eg. to NULL)
-> > underneath it.
-> >
-> > v4: decrease last reference for triggering the cleanup
->=20
-> This doesn't make any sense:
->=20
-> > +static void drop_current_rng(void)
-> > +{
-> > +	struct hwrng *rng =3D current_rng;
-> > +
-> > +	BUG_ON(!mutex_is_locked(&rng_mutex));
-> > +	if (!current_rng)
-> > +		return;
-> > +
-> > +	/* release current_rng reference */
-> > +	kref_put(&current_rng->ref, cleanup_rng);
-> > +	current_rng =3D NULL;
-> > +
-> > +	/* decrease last reference for triggering the cleanup */
-> > +	kref_put(&rng->ref, cleanup_rng);
-> > +}
->=20
-> Why would it drop the refcount twice?  This doesn't make sense.
->=20
-> Hmm, because you added kref_init, which initializes the reference count
-> to 1, you created this bug.
-
-I saw some kernel code uses kref_* helper functions, the reference
-conter is initialized to 1. Some code didn't use the helper functions
-to increase/decrease the reference counter. So I will drop kref_init()
-and the second kref_put().
-=20
-> Leave out the kref_init, and let it naturally be 0 (until, and if, it
-> becomes current_rng).  Add a comment if you want.
-
-OK, thanks.
-=20
-> Thanks,
-> Rusty.
+I see ,and this kind of check could be added. But we're really safe
+since qemu handle such cases and won't advertise any offload feature is
+csum is not supported.
+>
+>> +	int i;
+>> +
+>> +	if (!virtio_has_feature(dev, VIRTIO_NET_F_CTRL_VQ)) {
+>> +		for (i = 0; i < ARRAY_SIZE(features_for_ctrl_vq); i++) {
+>> +			unsigned int f = features_for_ctrl_vq[i];
+>> +			if (virtio_has_feature(dev, f)) {
+>> +				virtio_disable_feature(dev, f);
+>> +				dev_warn(&dev->dev,
+>> +					 "buggy hyperviser: disable feature "
+>> +					 "0x%x since VIRTIO_NET_F_CTRL_VQ was "
+>> +					 "not advertised.\n", f);
+>> +			}
+>> +		}
+>> +	}
+>> +}
+>> +
+>>  static struct virtio_device_id id_table[] = {
+>>  	{ VIRTIO_ID_NET, VIRTIO_DEV_ANY_ID },
+>>  	{ 0 },
+>> @@ -1975,6 +2000,7 @@ static struct virtio_driver virtio_net_driver = {
+>>  	.probe =	virtnet_probe,
+>>  	.remove =	virtnet_remove,
+>>  	.config_changed = virtnet_config_changed,
+>> +	.sanitize_features = virtnet_sanitize_features,
+>>  #ifdef CONFIG_PM_SLEEP
+>>  	.freeze =	virtnet_freeze,
+>>  	.restore =	virtnet_restore,
+>> -- 
+>> 1.9.1
 > --
-> To unsubscribe from this list: send the line "unsubscribe kvm" in
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
---=20
-			Amos.
-
---E39vaYmALEf/7YXx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUahJVAAoJELxSv6I5vP9jsyoP/2IxbrCRKcyQEFRKl/mfM7uu
-0o/M5XSPKp6yaDhS8pA0e+uEAg/sLHe5dW8OB87iZjW8lbGSde7DW5bM6dbh6FOx
-DV1qinwVIT5au8cRIzt4uV2U4yQalg6U0aNI/mhF058jcAGquhN0ItbpRRDn6SGP
-SDCX4NtKG4NFtD1QaRfvNksYdjn+a/0zVAj7twTJtC9T0VgBYYDdTlsM207omtpo
-b45If34dBmweU5CxK9YF4v3VP0AFdpT+pdk9/vKOp3+V7SZ1ZnOVekAhZtfPz2om
-wr5V/fAzMJVQSq2jVq0+GA1P+yUj3+uhnSLTXlnZ00g6EB02pfrsOJJzoHIyTzUW
-hJt1ed72nwmFtYLbxS7K5nhp71oIfZUqOjDivvxjML0/9jiO1ozwQ8stAsO9fS/6
-gXVE2v5z4nxv4+WnhFew9tdwjQMTZ0U1I8z+CxmMhWTNB4DunPXlsfdjaa51W82R
-ezW76FA1dqiDsERH9Mkc6g6UN9q4iNLd7afhNP5BTVX8GBsQ5xmLSMR9nHxfDxFF
-PTMnzqeWjONPGQHT7txpMW7V30MdieeKk+hh3NlSbyXKi/8PV4w8r8gCECiZz0sV
-cdzhzAfcJ2L7pil7vvDcHs6aHvfqc04cGY719EIF2eiPrT+1kHHZGfMH+jwXIYiC
-iiPoiLJcq2Iwgb22fCFa
-=DMq1
------END PGP SIGNATURE-----
-
---E39vaYmALEf/7YXx--
-
---===============1641672336284012977==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1641672336284012977==--
+> Please read the FAQ at  http://www.tux.org/lkml/
