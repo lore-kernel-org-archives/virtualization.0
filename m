@@ -1,20 +1,17 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: vhost + multiqueue + RSS question.
-Date: Tue, 18 Nov 2014 11:41:11 +0800
-Message-ID: <546ABFD7.7050003@redhat.com>
-References: <20141116161818.GD7589@cloudius-systems.com>,
-	<20141116185604.GA12839@redhat.com>,
-	<20141117074423.GG7589@cloudius-systems.com>,
-	<20141117103816.GA20638@redhat.com>,
-	<20141117112207.GJ7589@cloudius-systems.com>,
-	<20141117115820.GA10709@redhat.com>,
-	<20141117122214.GK7589@cloudius-systems.com>
-	<201411180937499909334@sangfor.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH V3 2/2] virtio-net: sanitize buggy features advertised by
+	host
+Date: Tue, 18 Nov 2014 13:02:21 +0200
+Message-ID: <20141118110221.GA21664@redhat.com>
+References: <1416215838-21700-1-git-send-email-jasowang@redhat.com>
+	<1416215838-21700-2-git-send-email-jasowang@redhat.com>
+	<20141117100838.GD20133@redhat.com> <546AB704.4010904@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201411180937499909334@sangfor.com>
+Content-Disposition: inline
+In-Reply-To: <546AB704.4010904@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,78 +21,141 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Zhang Haoyu <zhanghy@sangfor.com>, Gleb Natapov <gleb@cloudius-systems.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm <kvm@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/18/2014 09:37 AM, Zhang Haoyu wrote:
->> On Mon, Nov 17, 2014 at 01:58:20PM +0200, Michael S. Tsirkin wrote:
->>> On Mon, Nov 17, 2014 at 01:22:07PM +0200, Gleb Natapov wrote:
->>>> On Mon, Nov 17, 2014 at 12:38:16PM +0200, Michael S. Tsirkin wrote:
->>>>> On Mon, Nov 17, 2014 at 09:44:23AM +0200, Gleb Natapov wrote:
->>>>>> On Sun, Nov 16, 2014 at 08:56:04PM +0200, Michael S. Tsirkin wrote:
->>>>>>> On Sun, Nov 16, 2014 at 06:18:18PM +0200, Gleb Natapov wrote:
->>>>>>>> Hi Michael,
->>>>>>>>
->>>>>>>>  I am playing with vhost multiqueue capability and have a question about
->>>>>>>> vhost multiqueue and RSS (receive side steering). My setup has Mellanox
->>>>>>>> ConnectX-3 NIC which supports multiqueue and RSS. Network related
->>>>>>>> parameters for qemu are:
->>>>>>>>
->>>>>>>>    -netdev tap,id=hn0,script=qemu-ifup.sh,vhost=on,queues=4
->>>>>>>>    -device virtio-net-pci,netdev=hn0,id=nic1,mq=on,vectors=10
->>>>>>>>
->>>>>>>> In a guest I ran "ethtool -L eth0 combined 4" to enable multiqueue.
->>>>>>>>
->>>>>>>> I am running one tcp stream into the guest using iperf. Since there is
->>>>>>>> only one tcp stream I expect it to be handled by one queue only but
->>>>>>>> this seams to be not the case. ethtool -S on a host shows that the
->>>>>>>> stream is handled by one queue in the NIC, just like I would expect,
->>>>>>>> but in a guest all 4 virtio-input interrupt are incremented. Am I
->>>>>>>> missing any configuration?
->>>>>>> I don't see anything obviously wrong with what you describe.
->>>>>>> Maybe, somehow, same irqfd got bound to multiple MSI vectors?
->>>>>> It does not look like this is what is happening judging by the way
->>>>>> interrupts are distributed between queues. They are not distributed
->>>>>> uniformly and often I see one queue gets most interrupt and others get
->>>>>> much less and then it changes.
->>>>> Weird. It would happen if you transmitted from multiple CPUs.
->>>>> You did pin iperf to a single CPU within guest, did you not?
->>>>>
->>>> No, I didn't because I didn't expect it to matter for input interrupts.
->>>> When I run iperf on a host rx queue that receives all packets depends
->>>> only on a connection itself, not on a cpu iperf is running on (I tested
->>>> that).
->>> This really depends on the type of networking card you have
->>> on the host, and how it's configured.
->>>
->>> I think you will get something more closely resembling this
->>> behaviour if you enable RFS in host.
->>>
->>>> When I pin iperf in a guest I do indeed see that all interrupts
->>>> are arriving to the same irq vector. Is a number after virtio-input
->>>> in /proc/interrupt any indication of a queue a packet arrived to (on
->>>> a host I can use ethtool -S to check what queue receives packets, but
->>>> unfortunately this does not work for virtio nic in a guest)?
->>> I think it is.
->>>
->>>> Because if
->>>> it is the way RSS works in virtio is not how it works on a host and not
->>>> what I would expect after reading about RSS. The queue a packets arrives
->>>> to should be calculated by hashing fields from a packet header only.
->>> Yes, what virtio has is not RSS - it's an accelerated RFS really.
->>>
->> OK, if what virtio has is RFS and not RSS my test results make sense.
->> Thanks!
-> I think the RSS emulation for virtio-mq NIC is implemented in tun_select_queue(),
-> am I missing something?
->
-> Thanks,
-> Zhang Haoyu
->
+On Tue, Nov 18, 2014 at 11:03:32AM +0800, Jason Wang wrote:
+> On 11/17/2014 06:08 PM, Michael S. Tsirkin wrote:
+> > On Mon, Nov 17, 2014 at 05:17:18PM +0800, Jason Wang wrote:
+> >> This patch tries to detect the possible buggy features advertised by host
+> >> and sanitize them. One example is booting virtio-net with only ctrl_vq
+> >> disabled, qemu may still advertise many features which depends on it. This
+> >> will trigger several BUG()s in virtnet_send_command().
+> >>
+> >> This patch utilizes the sanitize_features() method, and disables all
+> >> features that depends on ctrl_vq if it was not advertised.
+> >>
+> >> This fixes the crash when booting with ctrl_vq=off using qemu.
+> >>
+> >> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> >> Cc: Michael S. Tsirkin <mst@redhat.com>
+> >> Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
+> >> Cc: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+> >> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> >
+> > So I'm not sure this is useful.
+> > The spec says:
+> > 	The device MUST NOT offer a feature which requires another feature which
+> > 	was not offered.
+> 
+> We can't guarantee that hypervisor's implementation are 100% correct.
+> > So this is a buggy hypervisor, and I believe we should just fail probe.
+> > This can be done without crashing, and is generally a better
+> > idea that second-guessing what hypervisor wants us to do.
+> >
+> 
+> So we still need something like this patch to detect the wrong
+> dependencies. And the features fixing like this is not something new,
+> see how net device fix the features through ndo_fix_features().
 
-Yes, if RSS is the short for Receive Side Steering which is a generic
-technology. But RSS is usually short for Receive Side Scaling which was
-commonly technology used by Windows, it was implemented through a
-indirection table in the card which is obviously not supported in tun
-currently.
+I think that's different. If linux refuses to work with a broken
+hardware NIC, you can not do anything, and hardware is mass-produced so
+we know many people are affected.
+If linux refuses to work with a misconfigured hypervisor, it's just one
+user who misconfigured it, and hypervisor can be fixed.
+
+So let's not work around bugs at least unless we know that many people
+already use a broken hypervisor, something prevents vendor from fixing it.
+
+
+> >
+> >
+> >
+> > However, assuming that we do want this change:
+> > This can be replaced with a table driven design in virtio core, but
+> > since you chose to open code it, I would drop table below altogether.
+> >
+> >
+> > Just make it
+> > 	if (!virtio_has_feature(dev, VIRTIO_NET_F_CTRL_VQ)) {
+> > 		virtio_disable_feature(dev, VIRTIO_NET_F_CTRL_RX);
+> > 		virtio_disable_feature(dev, VIRTIO_NET_F_CTRL_VLAN);
+> > 		virtio_disable_feature(dev, VIRTIO_NET_F_GUEST_ANNOUNCE);
+> > 		virtio_disable_feature(dev, VIRTIO_NET_F_MQ);
+> > 		virtio_disable_feature(dev, VIRTIO_NET_F_CTRL_MAC_ADDR);
+> > 	}
+> >
+> 
+> This is similar to what I did in v1 and v2. Either are ok for me.
+> >
+> >
+> >> ---
+> >> Changes from V1:
+> >> - fix the cut-and-paste error
+> >> Changes from V2:
+> >> - loop through an array of feature bits
+> >> - switch to use dev_warn()
+> >> ---
+> >>  drivers/net/virtio_net.c | 26 ++++++++++++++++++++++++++
+> >>  1 file changed, 26 insertions(+)
+> >>
+> >> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> >> index ec2a8b4..6fadd8c 100644
+> >> --- a/drivers/net/virtio_net.c
+> >> +++ b/drivers/net/virtio_net.c
+> >> @@ -1948,6 +1948,31 @@ static int virtnet_restore(struct virtio_device *vdev)
+> >>  }
+> >>  #endif
+> >>  
+> >> +static void virtnet_sanitize_features(struct virtio_device *dev)
+> >> +{
+> >> +	unsigned int features_for_ctrl_vq[] = {
+> >> +		VIRTIO_NET_F_CTRL_RX,
+> >> +		VIRTIO_NET_F_CTRL_VLAN,
+> >> +		VIRTIO_NET_F_GUEST_ANNOUNCE,
+> >> +		VIRTIO_NET_F_MQ,
+> >> +		VIRTIO_NET_F_CTRL_MAC_ADDR
+> >> +	};
+> > This is not the only dependency: checksums
+> > have dependencies too. See virtio 1.0 spec.
+> >
+> 
+> I see ,and this kind of check could be added. But we're really safe
+> since qemu handle such cases and won't advertise any offload feature is
+> csum is not supported.
+> >
+> >> +	int i;
+> >> +
+> >> +	if (!virtio_has_feature(dev, VIRTIO_NET_F_CTRL_VQ)) {
+> >> +		for (i = 0; i < ARRAY_SIZE(features_for_ctrl_vq); i++) {
+> >> +			unsigned int f = features_for_ctrl_vq[i];
+> >> +			if (virtio_has_feature(dev, f)) {
+> >> +				virtio_disable_feature(dev, f);
+> >> +				dev_warn(&dev->dev,
+> >> +					 "buggy hyperviser: disable feature "
+> >> +					 "0x%x since VIRTIO_NET_F_CTRL_VQ was "
+> >> +					 "not advertised.\n", f);
+> >> +			}
+> >> +		}
+> >> +	}
+> >> +}
+> >> +
+> >>  static struct virtio_device_id id_table[] = {
+> >>  	{ VIRTIO_ID_NET, VIRTIO_DEV_ANY_ID },
+> >>  	{ 0 },
+> >> @@ -1975,6 +2000,7 @@ static struct virtio_driver virtio_net_driver = {
+> >>  	.probe =	virtnet_probe,
+> >>  	.remove =	virtnet_remove,
+> >>  	.config_changed = virtnet_config_changed,
+> >> +	.sanitize_features = virtnet_sanitize_features,
+> >>  #ifdef CONFIG_PM_SLEEP
+> >>  	.freeze =	virtnet_freeze,
+> >>  	.restore =	virtnet_restore,
+> >> -- 
+> >> 1.9.1
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
