@@ -1,18 +1,19 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V3 1/2] virtio: introduce methods of sanitizing device
-	features
-Date: Wed, 19 Nov 2014 11:00:30 +0800
-Message-ID: <546C07CE.2010503@redhat.com>
-References: <1416215838-21700-1-git-send-email-jasowang@redhat.com>
-	<20141117093701.GC20133@redhat.com>
-	<20141117104430.54362e7d.cornelia.huck@de.ibm.com>
-	<20141117101139.GE20133@redhat.com> <546ABBC5.7030603@redhat.com>
-	<20141118110454.GB21664@redhat.com>
+Subject: Re: vhost + multiqueue + RSS question.
+Date: Wed, 19 Nov 2014 11:01:06 +0800
+Message-ID: <546C07F2.20906@redhat.com>
+References: <20141116161818.GD7589@cloudius-systems.com>
+	<20141116185604.GA12839@redhat.com>
+	<20141117074423.GG7589@cloudius-systems.com>
+	<20141117103816.GA20638@redhat.com>
+	<20141117112207.GJ7589@cloudius-systems.com>
+	<20141117115820.GA10709@redhat.com> <546ABEDF.6010004@redhat.com>
+	<20141118110548.GC21664@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141118110454.GB21664@redhat.com>
+In-Reply-To: <20141118110548.GC21664@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,65 +24,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Gleb Natapov <gleb@cloudius-systems.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/18/2014 07:04 PM, Michael S. Tsirkin wrote:
-> On Tue, Nov 18, 2014 at 11:23:49AM +0800, Jason Wang wrote:
->> On 11/17/2014 06:11 PM, Michael S. Tsirkin wrote:
->>> On Mon, Nov 17, 2014 at 10:44:30AM +0100, Cornelia Huck wrote:
->>>> On Mon, 17 Nov 2014 11:37:01 +0200
->>>> "Michael S. Tsirkin" <mst@redhat.com> wrote:
->>>>
->>>>> On Mon, Nov 17, 2014 at 05:17:17PM +0800, Jason Wang wrote:
->>>>>> Buggy host may advertised buggy host features (a usual case is that host
->>>>>> advertise a feature whose dependencies were missed). In this case, driver
->>>>>> should detect and disable the buggy features by itself.
->>>>>>
->>>>>> This patch introduces driver specific sanitize_features() method which is
->>>>>> called just before features finalizing to detect and disable buggy features
->>>>>> advertised by host.
->>>>>>
->>>>>> Virtio-net will be the first user.
->>>>>>
->>>>>> Cc: Rusty Russell <rusty@rustcorp.com.au>
->>>>>> Cc: Michael S. Tsirkin <mst@redhat.com>
->>>>>> Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
->>>>>> Cc: Wanlong Gao <gaowanlong@cn.fujitsu.com>
->>>>>> Signed-off-by: Jason Wang <jasowang@redhat.com>
->>>>> Hmm this conflicts with virtio 1.0 work: we drop
->>>>> features as bitmap there.
->>>> But that's an implementation detail, no? We'll still need a way for the
->>>> driver to sanitize features, and I think this interface works just fine.
->>> Now that you mention it, I don't think we do.
->>>
->>> The spec is quite explicit that devices must not expose invalid
->>> combinations of features.
->>>
->>> Admittedly, BUG_ON isn't very friendly to hypervisors.
->>>
->>> But e.g. failing probe seems better than trying to work around
->>> hypervisor bugs - otherwise we'll be stuck maintaining compatibility
->>> with hypervisors forever.
->>>
->> I'm ok with failing the probe.
->>
->> But it won't cost big effort to workaround only features dependencies
->> issue.
-> From experience, second-guessing user always adds maintainance.
->
->> I don't see how this block any further features implementation.
->> Looking at virtio-net, it also depends on network core to fix NETIF_F_*
->> dependencies.
-> That code is common for all drivers, so it was moved to core.
->
->> There seems no way to get rid of maintaining compatibility, e.g  the
->> workarounds for the buggy hypervisor without VIRTIO_F_ANY_LAYOUT support.
-> Right - because too many hypervisors shipped without it, it's too
-> much work to fix them all.
-> No such motivation here, right?
+On 11/18/2014 07:05 PM, Michael S. Tsirkin wrote:
+> On Tue, Nov 18, 2014 at 11:37:03AM +0800, Jason Wang wrote:
+>> > On 11/17/2014 07:58 PM, Michael S. Tsirkin wrote:
+>>> > > On Mon, Nov 17, 2014 at 01:22:07PM +0200, Gleb Natapov wrote:
+>>>>> > >> > On Mon, Nov 17, 2014 at 12:38:16PM +0200, Michael S. Tsirkin wrote:
+>>>>>>> > >>> > > On Mon, Nov 17, 2014 at 09:44:23AM +0200, Gleb Natapov wrote:
+>>>>>>>>> > >>>> > > > On Sun, Nov 16, 2014 at 08:56:04PM +0200, Michael S. Tsirkin wrote:
+>>>>>>>>>>> > >>>>> > > > > On Sun, Nov 16, 2014 at 06:18:18PM +0200, Gleb Natapov wrote:
+>>>>>>>>>>>>> > >>>>>> > > > > > Hi Michael,
+>>>>>>>>>>>>> > >>>>>> > > > > > 
+>>>>>>>>>>>>> > >>>>>> > > > > >  I am playing with vhost multiqueue capability and have a question about
+>>>>>>>>>>>>> > >>>>>> > > > > > vhost multiqueue and RSS (receive side steering). My setup has Mellanox
+>>>>>>>>>>>>> > >>>>>> > > > > > ConnectX-3 NIC which supports multiqueue and RSS. Network related
+>>>>>>>>>>>>> > >>>>>> > > > > > parameters for qemu are:
+>>>>>>>>>>>>> > >>>>>> > > > > > 
+>>>>>>>>>>>>> > >>>>>> > > > > >    -netdev tap,id=hn0,script=qemu-ifup.sh,vhost=on,queues=4
+>>>>>>>>>>>>> > >>>>>> > > > > >    -device virtio-net-pci,netdev=hn0,id=nic1,mq=on,vectors=10
+>>>>>>>>>>>>> > >>>>>> > > > > > 
+>>>>>>>>>>>>> > >>>>>> > > > > > In a guest I ran "ethtool -L eth0 combined 4" to enable multiqueue.
+>>>>>>>>>>>>> > >>>>>> > > > > > 
+>>>>>>>>>>>>> > >>>>>> > > > > > I am running one tcp stream into the guest using iperf. Since there is
+>>>>>>>>>>>>> > >>>>>> > > > > > only one tcp stream I expect it to be handled by one queue only but
+>>>>>>>>>>>>> > >>>>>> > > > > > this seams to be not the case. ethtool -S on a host shows that the
+>>>>>>>>>>>>> > >>>>>> > > > > > stream is handled by one queue in the NIC, just like I would expect,
+>>>>>>>>>>>>> > >>>>>> > > > > > but in a guest all 4 virtio-input interrupt are incremented. Am I
+>>>>>>>>>>>>> > >>>>>> > > > > > missing any configuration?
+>>>>>>>>>>> > >>>>> > > > > 
+>>>>>>>>>>> > >>>>> > > > > I don't see anything obviously wrong with what you describe.
+>>>>>>>>>>> > >>>>> > > > > Maybe, somehow, same irqfd got bound to multiple MSI vectors?
+>>>>>>>>> > >>>> > > > It does not look like this is what is happening judging by the way
+>>>>>>>>> > >>>> > > > interrupts are distributed between queues. They are not distributed
+>>>>>>>>> > >>>> > > > uniformly and often I see one queue gets most interrupt and others get
+>>>>>>>>> > >>>> > > > much less and then it changes.
+>>>>>>> > >>> > > 
+>>>>>>> > >>> > > Weird. It would happen if you transmitted from multiple CPUs.
+>>>>>>> > >>> > > You did pin iperf to a single CPU within guest, did you not?
+>>>>>>> > >>> > > 
+>>>>> > >> > No, I didn't because I didn't expect it to matter for input interrupts.
+>>>>> > >> > When I run iperf on a host rx queue that receives all packets depends
+>>>>> > >> > only on a connection itself, not on a cpu iperf is running on (I tested
+>>>>> > >> > that).
+>>> > > This really depends on the type of networking card you have
+>>> > > on the host, and how it's configured.
+>>> > >
+>>> > > I think you will get something more closely resembling this
+>>> > > behaviour if you enable RFS in host.
+>>> > >
+>>>>> > >> > When I pin iperf in a guest I do indeed see that all interrupts
+>>>>> > >> > are arriving to the same irq vector. Is a number after virtio-input
+>>>>> > >> > in /proc/interrupt any indication of a queue a packet arrived to (on
+>>>>> > >> > a host I can use ethtool -S to check what queue receives packets, but
+>>>>> > >> > unfortunately this does not work for virtio nic in a guest)?
+>>> > > I think it is.
+>>> > >
+>>>>> > >> > Because if
+>>>>> > >> > it is the way RSS works in virtio is not how it works on a host and not
+>>>>> > >> > what I would expect after reading about RSS. The queue a packets arrives
+>>>>> > >> > to should be calculated by hashing fields from a packet header only.
+>>> > > Yes, what virtio has is not RSS - it's an accelerated RFS really.
+>> > 
+>> > Strictly speaking, not aRFS. aRFS requires a programmable filter and
+>> > needs driver to fill the filter on demand. For virtio-net, this is done
+>> > automatically in host side (tun/tap). There's no guest involvement.
+> Well guest affects the filter by sending tx packets.
 >
 
-Right, will post the patch that just fail the probe of virtio-net.
 
-Thanks
+Yes, it is.
