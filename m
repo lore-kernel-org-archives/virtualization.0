@@ -1,19 +1,11 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: vhost + multiqueue + RSS question.
-Date: Wed, 19 Nov 2014 11:01:06 +0800
-Message-ID: <546C07F2.20906@redhat.com>
-References: <20141116161818.GD7589@cloudius-systems.com>
-	<20141116185604.GA12839@redhat.com>
-	<20141117074423.GG7589@cloudius-systems.com>
-	<20141117103816.GA20638@redhat.com>
-	<20141117112207.GJ7589@cloudius-systems.com>
-	<20141117115820.GA10709@redhat.com> <546ABEDF.6010004@redhat.com>
-	<20141118110548.GC21664@redhat.com>
+Subject: [PATCH net] virtio-net: validate features during probe
+Date: Wed, 19 Nov 2014 14:35:39 +0800
+Message-ID: <1416378939-28821-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141118110548.GC21664@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,75 +15,133 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Gleb Natapov <gleb@cloudius-systems.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/18/2014 07:05 PM, Michael S. Tsirkin wrote:
-> On Tue, Nov 18, 2014 at 11:37:03AM +0800, Jason Wang wrote:
->> > On 11/17/2014 07:58 PM, Michael S. Tsirkin wrote:
->>> > > On Mon, Nov 17, 2014 at 01:22:07PM +0200, Gleb Natapov wrote:
->>>>> > >> > On Mon, Nov 17, 2014 at 12:38:16PM +0200, Michael S. Tsirkin wrote:
->>>>>>> > >>> > > On Mon, Nov 17, 2014 at 09:44:23AM +0200, Gleb Natapov wrote:
->>>>>>>>> > >>>> > > > On Sun, Nov 16, 2014 at 08:56:04PM +0200, Michael S. Tsirkin wrote:
->>>>>>>>>>> > >>>>> > > > > On Sun, Nov 16, 2014 at 06:18:18PM +0200, Gleb Natapov wrote:
->>>>>>>>>>>>> > >>>>>> > > > > > Hi Michael,
->>>>>>>>>>>>> > >>>>>> > > > > > 
->>>>>>>>>>>>> > >>>>>> > > > > >  I am playing with vhost multiqueue capability and have a question about
->>>>>>>>>>>>> > >>>>>> > > > > > vhost multiqueue and RSS (receive side steering). My setup has Mellanox
->>>>>>>>>>>>> > >>>>>> > > > > > ConnectX-3 NIC which supports multiqueue and RSS. Network related
->>>>>>>>>>>>> > >>>>>> > > > > > parameters for qemu are:
->>>>>>>>>>>>> > >>>>>> > > > > > 
->>>>>>>>>>>>> > >>>>>> > > > > >    -netdev tap,id=hn0,script=qemu-ifup.sh,vhost=on,queues=4
->>>>>>>>>>>>> > >>>>>> > > > > >    -device virtio-net-pci,netdev=hn0,id=nic1,mq=on,vectors=10
->>>>>>>>>>>>> > >>>>>> > > > > > 
->>>>>>>>>>>>> > >>>>>> > > > > > In a guest I ran "ethtool -L eth0 combined 4" to enable multiqueue.
->>>>>>>>>>>>> > >>>>>> > > > > > 
->>>>>>>>>>>>> > >>>>>> > > > > > I am running one tcp stream into the guest using iperf. Since there is
->>>>>>>>>>>>> > >>>>>> > > > > > only one tcp stream I expect it to be handled by one queue only but
->>>>>>>>>>>>> > >>>>>> > > > > > this seams to be not the case. ethtool -S on a host shows that the
->>>>>>>>>>>>> > >>>>>> > > > > > stream is handled by one queue in the NIC, just like I would expect,
->>>>>>>>>>>>> > >>>>>> > > > > > but in a guest all 4 virtio-input interrupt are incremented. Am I
->>>>>>>>>>>>> > >>>>>> > > > > > missing any configuration?
->>>>>>>>>>> > >>>>> > > > > 
->>>>>>>>>>> > >>>>> > > > > I don't see anything obviously wrong with what you describe.
->>>>>>>>>>> > >>>>> > > > > Maybe, somehow, same irqfd got bound to multiple MSI vectors?
->>>>>>>>> > >>>> > > > It does not look like this is what is happening judging by the way
->>>>>>>>> > >>>> > > > interrupts are distributed between queues. They are not distributed
->>>>>>>>> > >>>> > > > uniformly and often I see one queue gets most interrupt and others get
->>>>>>>>> > >>>> > > > much less and then it changes.
->>>>>>> > >>> > > 
->>>>>>> > >>> > > Weird. It would happen if you transmitted from multiple CPUs.
->>>>>>> > >>> > > You did pin iperf to a single CPU within guest, did you not?
->>>>>>> > >>> > > 
->>>>> > >> > No, I didn't because I didn't expect it to matter for input interrupts.
->>>>> > >> > When I run iperf on a host rx queue that receives all packets depends
->>>>> > >> > only on a connection itself, not on a cpu iperf is running on (I tested
->>>>> > >> > that).
->>> > > This really depends on the type of networking card you have
->>> > > on the host, and how it's configured.
->>> > >
->>> > > I think you will get something more closely resembling this
->>> > > behaviour if you enable RFS in host.
->>> > >
->>>>> > >> > When I pin iperf in a guest I do indeed see that all interrupts
->>>>> > >> > are arriving to the same irq vector. Is a number after virtio-input
->>>>> > >> > in /proc/interrupt any indication of a queue a packet arrived to (on
->>>>> > >> > a host I can use ethtool -S to check what queue receives packets, but
->>>>> > >> > unfortunately this does not work for virtio nic in a guest)?
->>> > > I think it is.
->>> > >
->>>>> > >> > Because if
->>>>> > >> > it is the way RSS works in virtio is not how it works on a host and not
->>>>> > >> > what I would expect after reading about RSS. The queue a packets arrives
->>>>> > >> > to should be calculated by hashing fields from a packet header only.
->>> > > Yes, what virtio has is not RSS - it's an accelerated RFS really.
->> > 
->> > Strictly speaking, not aRFS. aRFS requires a programmable filter and
->> > needs driver to fill the filter on demand. For virtio-net, this is done
->> > automatically in host side (tun/tap). There's no guest involvement.
-> Well guest affects the filter by sending tx packets.
->
+This patch validates feature dependencies during probe and fail the probing
+if a dependency is missed. This fixes the issues of hitting BUG()
+when qemu fails to advertise features correctly. One example is booting
+guest with ctrl_vq=off through qemu.
 
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/virtio_net.c | 93 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 93 insertions(+)
 
-Yes, it is.
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index ec2a8b4..4a0ad46 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1673,6 +1673,95 @@ static const struct attribute_group virtio_net_mrg_rx_group = {
+ };
+ #endif
+ 
++static int virtnet_validate_features(struct virtio_device *dev,
++				     unsigned int *table,
++				     int table_size,
++				     unsigned int feature)
++{
++	int i;
++
++	if (!virtio_has_feature(dev, feature)) {
++		for (i = 0; i < table_size; i++) {
++			unsigned int f = table[i];
++
++			if (virtio_has_feature(dev, f)) {
++				dev_err(&dev->dev,
++					"buggy hyperviser: feature 0x%x was advertised but its dependency 0x%x was not",
++					f, feature);
++				return -EINVAL;
++			}
++		}
++	}
++
++	return 0;
++}
++
++static int virtnet_check_features(struct virtio_device *dev)
++{
++	unsigned int features_for_ctrl_vq[] = {
++		VIRTIO_NET_F_CTRL_RX,
++		VIRTIO_NET_F_CTRL_VLAN,
++		VIRTIO_NET_F_GUEST_ANNOUNCE,
++		VIRTIO_NET_F_MQ,
++		VIRTIO_NET_F_CTRL_MAC_ADDR
++	};
++	unsigned int features_for_guest_csum[] = {
++		VIRTIO_NET_F_GUEST_TSO4,
++		VIRTIO_NET_F_GUEST_TSO6,
++		VIRTIO_NET_F_GUEST_ECN,
++		VIRTIO_NET_F_GUEST_UFO,
++	};
++	unsigned int features_for_host_csum[] = {
++		VIRTIO_NET_F_HOST_TSO4,
++		VIRTIO_NET_F_HOST_TSO6,
++		VIRTIO_NET_F_HOST_ECN,
++		VIRTIO_NET_F_HOST_UFO,
++	};
++	int err;
++
++	err = virtnet_validate_features(dev, features_for_ctrl_vq,
++					ARRAY_SIZE(features_for_ctrl_vq),
++					VIRTIO_NET_F_CTRL_VQ);
++	if (err)
++		return err;
++
++	err = virtnet_validate_features(dev, features_for_guest_csum,
++					ARRAY_SIZE(features_for_guest_csum),
++					VIRTIO_NET_F_GUEST_CSUM);
++	if (err)
++		return err;
++
++	err = virtnet_validate_features(dev, features_for_host_csum,
++					ARRAY_SIZE(features_for_host_csum),
++					VIRTIO_NET_F_CSUM);
++	if (err)
++		return err;
++
++	if (virtio_has_feature(dev, VIRTIO_NET_F_GUEST_ECN) &&
++	    (!virtio_has_feature(dev, VIRTIO_NET_F_GUEST_TSO4) ||
++	     !virtio_has_feature(dev, VIRTIO_NET_F_GUEST_TSO6))) {
++		dev_err(&dev->dev,
++			"buggy hyperviser: feature 0x%x was advertised but its dependency 0x%x or 0x%x was not",
++			VIRTIO_NET_F_GUEST_ECN,
++			VIRTIO_NET_F_GUEST_TSO4,
++			VIRTIO_NET_F_GUEST_TSO6);
++		return -EINVAL;
++	}
++
++	if (virtio_has_feature(dev, VIRTIO_NET_F_HOST_ECN) &&
++	    (!virtio_has_feature(dev, VIRTIO_NET_F_HOST_TSO4) ||
++	     !virtio_has_feature(dev, VIRTIO_NET_F_HOST_TSO6))) {
++		dev_err(&dev->dev,
++			"buggy hyperviser: feature 0x%x was advertised but its dependency 0x%x or 0x%x was not",
++			VIRTIO_NET_F_HOST_ECN,
++			VIRTIO_NET_F_HOST_TSO4,
++			VIRTIO_NET_F_HOST_TSO6);
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
+ static int virtnet_probe(struct virtio_device *vdev)
+ {
+ 	int i, err;
+@@ -1680,6 +1769,10 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	struct virtnet_info *vi;
+ 	u16 max_queue_pairs;
+ 
++	err = virtnet_check_features(vdev);
++	if (err)
++		return -EINVAL;
++
+ 	/* Find if host supports multiqueue virtio_net device */
+ 	err = virtio_cread_feature(vdev, VIRTIO_NET_F_MQ,
+ 				   struct virtio_net_config,
+-- 
+1.9.1
