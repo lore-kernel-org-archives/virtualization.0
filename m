@@ -1,8 +1,8 @@
-From: Tejun Heo <tj@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v3] virtio_balloon: Convert "vballoon" kthread into a
 	workqueue
-Date: Thu, 20 Nov 2014 11:50:28 -0500
-Message-ID: <20141120165028.GM14877@htj.dyndns.org>
+Date: Thu, 20 Nov 2014 18:55:30 +0200
+Message-ID: <20141120165530.GB7495@redhat.com>
 References: <1416499397-16669-1-git-send-email-pmladek@suse.cz>
 	<20141120160746.GI14877@htj.dyndns.org>
 	<20141120162543.GA7466@redhat.com>
@@ -25,7 +25,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Tejun Heo <tj@kernel.org>
 Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, Petr Mladek <pmladek@suse.cz>, virtualization@lists.linux-foundation.org, Jeff Epler <jepler@unpythonic.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
@@ -37,7 +37,28 @@ On Thu, Nov 20, 2014 at 11:49:33AM -0500, Tejun Heo wrote:
 > > Does it fail to queue?
 > 
 > cancel_work_sync() is guaranteed to take self-requeueing work items no
-                                      ^ stop
+> matter when it's called or what's going on.  External (non-self)
+> queueings of course should be stopped in other ways.
 
--- 
-tejun
+Excellent, thanks a lot.
+
+> > > > From that POV a dedicated WQ kept it simple.
+> > > 
+> > > A dedicated wq doesn't do anything for that.  You can't shut down a
+> > > workqueue with a pending work item on it.  destroy_workqueue() will
+> > > try to drain the target wq, warn if it doesn't finish in certain
+> > > number of iterations and just keep trying indefinitely.
+> > > 
+> > > Thanks.
+> > 
+> > Right, so eventually we'll stop requeueuing and it will succeed?
+> 
+> Yeah, sure, it's a silly reason to use a separate workqueue tho.
+> Don't do it that way.
+> 
+> Thanks.
+
+Since there's cancel_work_sync I agree.
+
+> -- 
+> tejun
