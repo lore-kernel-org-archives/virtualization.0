@@ -1,14 +1,13 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v2 net 1/2] drivers/net: Disable UFO through virtio
-Date: Fri, 21 Nov 2014 09:47:18 +0800
-Message-ID: <546E99A6.5090803@redhat.com>
-References: <1414693592.16849.61.camel@decadent.org.uk>	<1414693632.16849.62.camel@decadent.org.uk>
-	<20141119091455.GA26036@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net V5] virtio-net: validate features during probe
+Date: Fri, 21 Nov 2014 00:27:28 -0500 (EST)
+Message-ID: <20141121.002728.487856666097568926.davem@davemloft.net>
+References: <1416474185-10981-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141119091455.GA26036@redhat.com>
+In-Reply-To: <1416474185-10981-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,35 +17,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Ben Hutchings <ben@decadent.org.uk>
-Cc: netdev@vger.kernel.org, Hannes Frederic Sowa <hannes@stressinduktion.org>, virtualization@lists.linux-foundation.org
+To: jasowang@redhat.com
+Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/19/2014 05:14 PM, Michael S. Tsirkin wrote:
-> On Thu, Oct 30, 2014 at 06:27:12PM +0000, Ben Hutchings wrote:
->> > IPv6 does not allow fragmentation by routers, so there is no
->> > fragmentation ID in the fixed header.  UFO for IPv6 requires the ID to
->> > be passed separately, but there is no provision for this in the virtio
->> > net protocol.
->> > 
->> > Until recently our software implementation of UFO/IPv6 generated a new
->> > ID, but this was a bug.  Now we will use ID=0 for any UFO/IPv6 packet
->> > passed through a tap, which is even worse.
->> > 
->> > Unfortunately there is no distinction between UFO/IPv4 and v6
->> > features, so disable UFO on taps and virtio_net completely until we
->> > have a proper solution.
->> > 
->> > We cannot depend on VM managers respecting the tap feature flags, so
->> > keep accepting UFO packets but log a warning the first time we do
->> > this.
->> > 
->> > Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
->> > Fixes: 916e4cf46d02 ("ipv6: reuse ip6_frag_id from ip6_ufo_append_data")
-> There's something I don't understand here. I see:
->
->         NETIF_F_UFO_BIT,                /* ... UDPv4 fragmentation */
->
-> this comment is wrong then?
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 20 Nov 2014 17:03:05 +0800
 
-Looks wrong, at least ufo6 depends check this bit in ip6_output.c
+> We currently trigger BUG when VIRTIO_NET_F_CTRL_VQ
+> is not set but one of features depending on it is.
+> That's not a friendly way to report errors to
+> hypervisors.
+> Let's check, and fail probe instead.
+> 
+> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
+> Cc: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+
+Applied, thanks.
