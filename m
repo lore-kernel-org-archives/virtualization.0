@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 29/41] vhost/net: larger header for virtio 1.0
-Date: Mon, 24 Nov 2014 13:54:40 +0200
-Message-ID: <1416829787-14252-30-git-send-email-mst__2334.97412777997$1416830254$gmane$org@redhat.com>
+Subject: [PATCH v3 30/41] vhost/net: enable virtio 1.0
+Date: Mon, 24 Nov 2014 13:54:44 +0200
+Message-ID: <1416829787-14252-31-git-send-email-mst@redhat.com>
 References: <1416829787-14252-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -28,18 +28,18 @@ Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index cae22f9..1ac58d0 100644
+index 1ac58d0..984242e 100644
 --- a/drivers/vhost/net.c
 +++ b/drivers/vhost/net.c
-@@ -1027,7 +1027,8 @@ static int vhost_net_set_features(struct vhost_net *n, u64 features)
- 	size_t vhost_hlen, sock_hlen, hdr_len;
- 	int i;
+@@ -61,7 +61,8 @@ MODULE_PARM_DESC(experimental_zcopytx, "Enable Zero Copy TX;"
+ enum {
+ 	VHOST_NET_FEATURES = VHOST_FEATURES |
+ 			 (1ULL << VHOST_NET_F_VIRTIO_NET_HDR) |
+-			 (1ULL << VIRTIO_NET_F_MRG_RXBUF),
++			 (1ULL << VIRTIO_NET_F_MRG_RXBUF) |
++			 (1ULL << VIRTIO_F_VERSION_1),
+ };
  
--	hdr_len = (features & (1 << VIRTIO_NET_F_MRG_RXBUF)) ?
-+	hdr_len = (features & ((1ULL << VIRTIO_NET_F_MRG_RXBUF) |
-+			       (1ULL << VIRTIO_F_VERSION_1))) ?
- 			sizeof(struct virtio_net_hdr_mrg_rxbuf) :
- 			sizeof(struct virtio_net_hdr);
- 	if (features & (1 << VHOST_NET_F_VIRTIO_NET_HDR)) {
+ enum {
 -- 
 MST
