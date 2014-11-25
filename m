@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC v2 04/12] s390x/virtio-ccw: fix check for WRITE_FEAT
-Date: Tue, 25 Nov 2014 14:24:15 +0100
-Message-ID: <1416921863-16523-5-git-send-email-cornelia.huck__31111.770848702$1416921912$gmane$org@de.ibm.com>
+Subject: [PATCH RFC v2 05/12] virtio: introduce legacy virtio devices
+Date: Tue, 25 Nov 2014 14:24:16 +0100
+Message-ID: <1416921863-16523-6-git-send-email-cornelia.huck__12630.7531180375$1416921923$gmane$org@de.ibm.com>
 References: <1416921863-16523-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,28 +21,77 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.k
 Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-We need to check guest feature size, not host feature size to find
-out whether we should call virtio_set_features(). This check is
-possible now that vdev->guest_features is an array.
+Introduce a helper function to indicate  whether a virtio device is
+operating in legacy or virtio standard mode.
+
+It may be used to make decisions about the endianess of virtio accesses
+and other virtio-1 specific changes, enabling us to support transitional
+devices.
 
 Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/s390x/virtio-ccw.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ hw/virtio/virtio.c                |    6 +++++-
+ include/hw/virtio/virtio-access.h |    4 ++++
+ include/hw/virtio/virtio.h        |   13 +++++++++++--
+ 3 files changed, 20 insertions(+), 3 deletions(-)
 
-diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
-index 2f52b82..62ec852 100644
---- a/hw/s390x/virtio-ccw.c
-+++ b/hw/s390x/virtio-ccw.c
-@@ -399,7 +399,7 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
-             features.index = ldub_phys(&address_space_memory,
-                                        ccw.cda + sizeof(features.features));
-             features.features = ldl_le_phys(&address_space_memory, ccw.cda);
--            if (features.index < ARRAY_SIZE(dev->host_features)) {
-+            if (features.index < ARRAY_SIZE(vdev->guest_features)) {
-                 virtio_set_features(vdev, features.index, features.features);
-             } else {
-                 /*
+diff --git a/hw/virtio/virtio.c b/hw/virtio/virtio.c
+index 2eb5d3c..4149f45 100644
+--- a/hw/virtio/virtio.c
++++ b/hw/virtio/virtio.c
+@@ -883,7 +883,11 @@ static bool virtio_device_endian_needed(void *opaque)
+     VirtIODevice *vdev = opaque;
+ 
+     assert(vdev->device_endian != VIRTIO_DEVICE_ENDIAN_UNKNOWN);
+-    return vdev->device_endian != virtio_default_endian();
++    if (virtio_device_is_legacy(vdev)) {
++        return vdev->device_endian != virtio_default_endian();
++    }
++    /* Devices conforming to VIRTIO 1.0 or later are always LE. */
++    return vdev->device_endian != VIRTIO_DEVICE_ENDIAN_LITTLE;
+ }
+ 
+ static const VMStateDescription vmstate_virtio_device_endian = {
+diff --git a/include/hw/virtio/virtio-access.h b/include/hw/virtio/virtio-access.h
+index 46456fd..c123ee0 100644
+--- a/include/hw/virtio/virtio-access.h
++++ b/include/hw/virtio/virtio-access.h
+@@ -19,6 +19,10 @@
+ 
+ static inline bool virtio_access_is_big_endian(VirtIODevice *vdev)
+ {
++    if (!virtio_device_is_legacy(vdev)) {
++        /* Devices conforming to VIRTIO 1.0 or later are always LE. */
++        return false;
++    }
+ #if defined(TARGET_IS_BIENDIAN)
+     return virtio_is_big_endian(vdev);
+ #elif defined(TARGET_WORDS_BIGENDIAN)
+diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
+index b408166..40e567c 100644
+--- a/include/hw/virtio/virtio.h
++++ b/include/hw/virtio/virtio.h
+@@ -275,9 +275,18 @@ void virtio_queue_set_host_notifier_fd_handler(VirtQueue *vq, bool assign,
+ void virtio_queue_notify_vq(VirtQueue *vq);
+ void virtio_irq(VirtQueue *vq);
+ 
++static inline bool virtio_device_is_legacy(VirtIODevice *vdev)
++{
++    return !(vdev->guest_features[1] & (1 << (VIRTIO_F_VERSION_1 - 32)));
++}
++
+ static inline bool virtio_is_big_endian(VirtIODevice *vdev)
+ {
+-    assert(vdev->device_endian != VIRTIO_DEVICE_ENDIAN_UNKNOWN);
+-    return vdev->device_endian == VIRTIO_DEVICE_ENDIAN_BIG;
++    if (virtio_device_is_legacy(vdev)) {
++        assert(vdev->device_endian != VIRTIO_DEVICE_ENDIAN_UNKNOWN);
++        return vdev->device_endian == VIRTIO_DEVICE_ENDIAN_BIG;
++    }
++    /* Devices conforming to VIRTIO 1.0 or later are always LE. */
++    return false;
+ }
+ #endif
 -- 
 1.7.9.5
