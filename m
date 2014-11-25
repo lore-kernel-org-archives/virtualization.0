@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC v2 09/12] s390x/virtio-ccw: add virtio set-revision call
-Date: Tue, 25 Nov 2014 14:24:20 +0100
-Message-ID: <1416921863-16523-10-git-send-email-cornelia.huck__32672.4579012536$1416921984$gmane$org@de.ibm.com>
+Subject: [PATCH RFC v2 11/12] virtio-net/virtio-blk: enable virtio 1.0
+Date: Tue, 25 Nov 2014 14:24:22 +0100
+Message-ID: <1416921863-16523-12-git-send-email-cornelia.huck__6932.55339651859$1416921989$gmane$org@de.ibm.com>
 References: <1416921863-16523-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,180 +21,48 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.k
 Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Thomas Huth <thuth@linux.vnet.ibm.com>
+virtio-net (non-vhost) and virtio-blk have everything in place to support
+virtio 1.0: let's enable the feature bit for them.
 
-Handle the virtio-ccw revision according to what the guest sets.
-When revision 1 is selected, we have a virtio-1 standard device
-with byteswapping for the virtio rings.
+Note that VIRTIO_F_VERSION_1 is technically a transport feature; once
+every device is ready for virtio 1.0, we can move this setting this
+feature bit out of the individual devices.
 
-When a channel gets disabled, we have to revert to the legacy behavior
-in case the next user of the device does not negotiate the revision 1
-anymore (e.g. the boot firmware uses revision 1, but the operating
-system only uses the legacy mode).
-
-Note that revisions > 0 are still disabled; but we still extend the
-feature bit size to be able to handle the VERSION_1 bit.
-
-Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/s390x/virtio-ccw.c |   52 +++++++++++++++++++++++++++++++++++++++++++++++++
- hw/s390x/virtio-ccw.h |    7 ++++++-
- 2 files changed, 58 insertions(+), 1 deletion(-)
+ hw/block/virtio-blk.c |    4 ++++
+ hw/net/virtio-net.c   |    4 ++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
-index 62ec852..e79f3b8 100644
---- a/hw/s390x/virtio-ccw.c
-+++ b/hw/s390x/virtio-ccw.c
-@@ -20,9 +20,11 @@
- #include "hw/virtio/virtio-net.h"
- #include "hw/sysbus.h"
- #include "qemu/bitops.h"
-+#include "hw/virtio/virtio-access.h"
- #include "hw/virtio/virtio-bus.h"
- #include "hw/s390x/adapter.h"
- #include "hw/s390x/s390_flic.h"
-+#include "linux/virtio_config.h"
- 
- #include "ioinst.h"
- #include "css.h"
-@@ -260,6 +262,12 @@ typedef struct VirtioThinintInfo {
-     uint8_t isc;
- } QEMU_PACKED VirtioThinintInfo;
- 
-+typedef struct VirtioRevInfo {
-+    uint16_t revision;
-+    uint16_t length;
-+    uint8_t data[0];
-+} QEMU_PACKED VirtioRevInfo;
-+
- /* Specify where the virtqueues for the subchannel are in guest memory. */
- static int virtio_ccw_set_vqs(SubchDev *sch, uint64_t addr, uint32_t align,
-                               uint16_t index, uint16_t num)
-@@ -299,6 +307,7 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
+diff --git a/hw/block/virtio-blk.c b/hw/block/virtio-blk.c
+index 6d86f60..3781f98 100644
+--- a/hw/block/virtio-blk.c
++++ b/hw/block/virtio-blk.c
+@@ -569,6 +569,10 @@ static uint32_t virtio_blk_get_features(VirtIODevice *vdev, unsigned int index,
  {
-     int ret;
-     VqInfoBlock info;
-+    VirtioRevInfo revinfo;
-     uint8_t status;
-     VirtioFeatDesc features;
-     void *config;
-@@ -373,6 +382,13 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
-                                        ccw.cda + sizeof(features.features));
-             if (features.index < ARRAY_SIZE(dev->host_features)) {
-                 features.features = dev->host_features[features.index];
-+                /*
-+                 * Don't offer version 1 to the guest if it did not
-+                 * negotiate at least revision 1.
-+                 */
-+                if (features.index == 1 && dev->revision <= 0) {
-+                    features.features &= ~(1 << (VIRTIO_F_VERSION_1 - 32));
-+                }
-             } else {
-                 /* Return zeroes if the guest supports more feature bits. */
-                 features.features = 0;
-@@ -400,6 +416,13 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
-                                        ccw.cda + sizeof(features.features));
-             features.features = ldl_le_phys(&address_space_memory, ccw.cda);
-             if (features.index < ARRAY_SIZE(vdev->guest_features)) {
-+                /*
-+                 * The guest should not set version 1 if it didn't
-+                 * negotiate a revision >= 1.
-+                 */
-+                if (features.index == 1 && dev->revision <= 0) {
-+                    features.features &= ~(1 << (VIRTIO_F_VERSION_1 - 32));
-+                }
-                 virtio_set_features(vdev, features.index, features.features);
-             } else {
-                 /*
-@@ -600,6 +623,25 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
-             }
-         }
-         break;
-+    case CCW_CMD_SET_VIRTIO_REV:
-+        len = sizeof(revinfo);
-+        if (ccw.count < len || (check_len && ccw.count > len)) {
-+            ret = -EINVAL;
-+            break;
-+        }
-+        if (!ccw.cda) {
-+            ret = -EFAULT;
-+            break;
-+        }
-+        cpu_physical_memory_read(ccw.cda, &revinfo, len);
-+        if (dev->revision >= 0 ||
-+            revinfo.revision > VIRTIO_CCW_REV_MAX) {
-+            ret = -ENOSYS;
-+            break;
-+        }
-+        ret = 0;
-+        dev->revision = revinfo.revision;
-+        break;
-     default:
-         ret = -ENOSYS;
-         break;
-@@ -607,6 +649,13 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
-     return ret;
- }
+     VirtIOBlock *s = VIRTIO_BLK(vdev);
  
-+static void virtio_sch_disable_cb(SubchDev *sch)
-+{
-+    VirtioCcwDevice *dev = sch->driver_data;
++    if (index == 1) {
++        features |= (1 << (VIRTIO_F_VERSION_1 - 32));
++    }
 +
-+    dev->revision = -1;
-+}
+     if (index > 0) {
+         return features;
+     }
+diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
+index 1e214b5..fcfc95f 100644
+--- a/hw/net/virtio-net.c
++++ b/hw/net/virtio-net.c
+@@ -447,6 +447,10 @@ static uint32_t virtio_net_get_features(VirtIODevice *vdev, unsigned int index,
+     VirtIONet *n = VIRTIO_NET(vdev);
+     NetClientState *nc = qemu_get_queue(n->nic);
+ 
++    if (index == 1 && !get_vhost_net(nc->peer)) {
++        features |= (1 << (VIRTIO_F_VERSION_1 - 32));
++    }
 +
- static int virtio_ccw_device_init(VirtioCcwDevice *dev, VirtIODevice *vdev)
- {
-     unsigned int cssid = 0;
-@@ -733,6 +782,7 @@ static int virtio_ccw_device_init(VirtioCcwDevice *dev, VirtIODevice *vdev)
-     css_sch_build_virtual_schib(sch, 0, VIRTIO_CCW_CHPID_TYPE);
- 
-     sch->ccw_cb = virtio_ccw_cb;
-+    sch->disable_cb = virtio_sch_disable_cb;
- 
-     /* Build senseid data. */
-     memset(&sch->id, 0, sizeof(SenseId));
-@@ -740,6 +790,8 @@ static int virtio_ccw_device_init(VirtioCcwDevice *dev, VirtIODevice *vdev)
-     sch->id.cu_type = VIRTIO_CCW_CU_TYPE;
-     sch->id.cu_model = vdev->device_id;
- 
-+    dev->revision = -1;
-+
-     /* Set default feature bits that are offered by the host. */
-     for (i = 0; i < ARRAY_SIZE(dev->host_features); i++) {
-         dev->host_features[i] =
-diff --git a/hw/s390x/virtio-ccw.h b/hw/s390x/virtio-ccw.h
-index 5a1f16e..03d5955 100644
---- a/hw/s390x/virtio-ccw.h
-+++ b/hw/s390x/virtio-ccw.h
-@@ -40,6 +40,7 @@
- #define CCW_CMD_SET_CONF_IND 0x53
- #define CCW_CMD_READ_VQ_CONF 0x32
- #define CCW_CMD_SET_IND_ADAPTER 0x73
-+#define CCW_CMD_SET_VIRTIO_REV 0x83
- 
- #define TYPE_VIRTIO_CCW_DEVICE "virtio-ccw-device"
- #define VIRTIO_CCW_DEVICE(obj) \
-@@ -69,7 +70,10 @@ typedef struct VirtIOCCWDeviceClass {
- } VirtIOCCWDeviceClass;
- 
- /* Change here if we want to support more feature bits. */
--#define VIRTIO_CCW_FEATURE_SIZE 1
-+#define VIRTIO_CCW_FEATURE_SIZE NR_VIRTIO_FEATURE_WORDS
-+
-+/* The maximum virtio revision we support. */
-+#define VIRTIO_CCW_REV_MAX 0
- 
- /* Performance improves when virtqueue kick processing is decoupled from the
-  * vcpu thread using ioeventfd for some devices. */
-@@ -89,6 +93,7 @@ struct VirtioCcwDevice {
-     SubchDev *sch;
-     char *bus_id;
-     uint32_t host_features[VIRTIO_CCW_FEATURE_SIZE];
-+    int revision;
-     VirtioBusState bus;
-     bool ioeventfd_started;
-     bool ioeventfd_disabled;
+     if (index > 0) {
+         return features;
+     }
 -- 
 1.7.9.5
