@@ -1,15 +1,16 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH RFC v2 07/12] dataplane: allow virtio-1 devices
-Date: Tue, 25 Nov 2014 19:01:41 +0100
-Message-ID: <20141125190141.44a58471.cornelia.huck__20737.2831450359$1416938526$gmane$org@de.ibm.com>
-References: <1416921863-16523-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1416921863-16523-8-git-send-email-cornelia.huck@de.ibm.com>
-	<20141125185556.44e23979@bahia.local>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v4 04/42] virtio: disable virtio 1.0 in transports
+Date: Tue, 25 Nov 2014 23:20:11 +0200
+Message-ID: <20141125212011.GA22343@redhat.com>
+References: <1416933600-21398-1-git-send-email-mst@redhat.com>
+	<1416933600-21398-5-git-send-email-mst@redhat.com>
+	<20141125182942.3890fe7b.cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141125185556.44e23979@bahia.local>
+Content-Disposition: inline
+In-Reply-To: <20141125182942.3890fe7b.cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,36 +20,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Cc: thuth@linux.vnet.ibm.com, mst@redhat.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: linux-s390@vger.kernel.org, lguest@lists.ozlabs.org, Pawel Moll <pawel.moll@arm.com>, rusty@au1.ibm.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Sudeep Dutt <sudeep.dutt@intel.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Siva Yerramreddy <yshivakrishna@gmail.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, pbonzini@redhat.com, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCAyNSBOb3YgMjAxNCAxODo1NTo1NiArMDEwMApHcmVnIEt1cnogPGdrdXJ6QGxpbnV4
-LnZuZXQuaWJtLmNvbT4gd3JvdGU6Cgo+IE9uIFR1ZSwgMjUgTm92IDIwMTQgMTQ6MjQ6MTggKzAx
-MDAKPiBDb3JuZWxpYSBIdWNrIDxjb3JuZWxpYS5odWNrQGRlLmlibS5jb20+IHdyb3RlOgo+IAo+
-ID4gSGFuZGxlIGVuZGlhbm5lc3MgY29udmVyc2lvbiBmb3IgdmlydGlvLTEgdmlydHF1ZXVlcyBj
-b3JyZWN0bHkuCj4gPiAKPiA+IE5vdGUgdGhhdCBkYXRhcGxhbmUgbm93IG5lZWRzIHRvIGJlIGJ1
-aWx0IHBlci10YXJnZXQuCj4gPiAKPiA+IFNpZ25lZC1vZmYtYnk6IENvcm5lbGlhIEh1Y2sgPGNv
-cm5lbGlhLmh1Y2tAZGUuaWJtLmNvbT4KPiA+IC0tLQo+IAo+IFdlIHN0aWxsIGhhdmUgdGhlIHNh
-bWUgZXJyb3IgYXMgaW4geW91ciBwcmV2aW91cyBwb3N0Li4uCj4gCj4gSW4gZmlsZSBpbmNsdWRl
-ZCBmcm9tIGluY2x1ZGUvaHcvdmlydGlvL2RhdGFwbGFuZS92cmluZy5oOjIzOjAsCj4gICAgICAg
-ICAgICAgICAgICBmcm9tIGluY2x1ZGUvaHcvdmlydGlvL3ZpcnRpby1zY3NpLmg6MjEsCj4gICAg
-ICAgICAgICAgICAgICBmcm9tIGh3L3ZpcnRpby92aXJ0aW8tcGNpLmM6MjQ6Cj4gaW5jbHVkZS9o
-dy92aXJ0aW8vdmlydGlvLWFjY2Vzcy5oOiBJbiBmdW5jdGlvbiDigJh2aXJ0aW9fYWNjZXNzX2lz
-X2JpZ19lbmRpYW7igJk6Cj4gaW5jbHVkZS9ody92aXJ0aW8vdmlydGlvLWFjY2Vzcy5oOjI4OjE1
-OiBlcnJvcjogYXR0ZW1wdCB0byB1c2UgcG9pc29uZWQgIlRBUkdFVF9XT1JEU19CSUdFTkRJQU4i
-Cj4gICNlbGlmIGRlZmluZWQoVEFSR0VUX1dPUkRTX0JJR0VORElBTikKCkdybXBmLCBJIHRob3Vn
-aHQgSSBoYWQgZml4ZWQgdGhpcy4gSSdsbCBkbyBhbiB1cGRhdGUgdG9tb3Jyb3cuCgo+IAo+IEVp
-dGhlciBidWlsZCB2aXJ0aW8tcGNpIHBlci10YXJnZXQgb3IgcHJvYmFibHkgYmV0dGVyIG1vdmUg
-dGhlIHRhcmdldCB0YWludGVkCj4gYWNjZXNzb3JzIHRvIGFub3RoZXIgZmlsZS4KPiAKPiA+ICBo
-dy9ibG9jay9kYXRhcGxhbmUvdmlydGlvLWJsay5jICAgICB8ICAgIDMgKy0KPiA+ICBody9zY3Np
-L3ZpcnRpby1zY3NpLWRhdGFwbGFuZS5jICAgICB8ICAgIDIgKy0KPiA+ICBody92aXJ0aW8vTWFr
-ZWZpbGUub2JqcyAgICAgICAgICAgICB8ICAgIDIgKy0KPiA+ICBody92aXJ0aW8vZGF0YXBsYW5l
-L01ha2VmaWxlLm9ianMgICB8ICAgIDIgKy0KPiA+ICBody92aXJ0aW8vZGF0YXBsYW5lL3ZyaW5n
-LmMgICAgICAgICB8ICAgODUgKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0tLS0KPiA+
-ICBpbmNsdWRlL2h3L3ZpcnRpby9kYXRhcGxhbmUvdnJpbmcuaCB8ICAgNjQgKysrKysrKysrKysr
-KysrKysrKysrKysrLS0KPiA+ICA2IGZpbGVzIGNoYW5nZWQsIDExMyBpbnNlcnRpb25zKCspLCA0
-NSBkZWxldGlvbnMoLSkKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5s
-aW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFp
-bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Tue, Nov 25, 2014 at 06:29:42PM +0100, Cornelia Huck wrote:
+> On Tue, 25 Nov 2014 18:41:35 +0200
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> 
+> > disable virtio 1.0 in transports that don't
+> > support it yet.
+> 
+> I'd prefer if you disabled it for _every_ transport in this patch,
+> until the needed infrastructure is in place. Else this is a bit
+> confusing.
+
+Well the only transports left are pci and rpoc, and these only
+read the low 32 bit of the features from the device -
+so there's nothing to clear.
+
+E.g. the following would be even more confusing, would it not:
+
+	u32 features;
+	....
+	features &= ~BIT_ULL(VIRTIO_F_VERSION_1);
+
+Agree?
+
+> > We will gradually re-enable as support is added.
+> > 
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> >  drivers/lguest/lguest_device.c     | 3 ++-
+> >  drivers/misc/mic/card/mic_virtio.c | 2 ++
+> >  drivers/s390/kvm/virtio_ccw.c      | 3 ++-
+> >  drivers/virtio/virtio_mmio.c       | 2 ++
+> >  4 files changed, 8 insertions(+), 2 deletions(-)
+> 
+> Why do you disable ccw but not pci? (Doesn't pci need any changes
+> transport-side?)
+
+No because the register is 32 bit wide there.
+
+> And you missed the old s390 virtio transport in
+> drivers/s390/kvm/kvm_virtio.c :)
+
+Good catch. I can fix that for v5, but see below.
+
+> > diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+> > index abba04d..08536f0 100644
+> > --- a/drivers/s390/kvm/virtio_ccw.c
+> > +++ b/drivers/s390/kvm/virtio_ccw.c
+> > @@ -704,7 +704,8 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
+> >  out_free:
+> >  	kfree(features);
+> >  	kfree(ccw);
+> > -	return rc;
+> > +	/* TODO: enable virtio 1.0 */
+> > +	return rc & ~BIT_ULL(VIRTIO_F_VERSION_1);;
+> 
+> double ';'
+> 
+> FWIW, as negotiating a revision >= 1 is a pre-req for virtio 1.0
+> support on ccw, virtio 1.0 is already implicitly disabled.
+
+Ah, you mean device guarantees that VIRTIO_F_VERSION_1 isn't set
+if guest sets revision to 0?
+In that case it's probably best to drop this from both ccw
+devices.
+
+It is here temporarily anyway, only in order to avoid
+using transitional devices incorrectly when bisecting.
+
+
+> >  }
+> > 
+> >  static void virtio_ccw_finalize_features(struct virtio_device *vdev)
