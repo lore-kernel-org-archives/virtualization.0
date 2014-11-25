@@ -1,16 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 26/41] vhost: virtio 1.0 endian-ness support
-Date: Mon, 24 Nov 2014 22:28:29 +0200
-Message-ID: <20141124202829.GA29515@redhat.com>
-References: <1416829787-14252-1-git-send-email-mst@redhat.com>
-	<1416829787-14252-27-git-send-email-mst@redhat.com>
-	<5473408A.2090308@fr.ibm.com>
+From: Amos Kong <akong@redhat.com>
+Subject: Re: [PATCH v4 4/6] hw_random: fix unregister race.
+Date: Tue, 25 Nov 2014 15:42:23 +0800
+Message-ID: <20141125074223.GA11690@air.redhat.com>
+References: <1415030186-18303-1-git-send-email-akong@redhat.com>
+	<1415030186-18303-5-git-send-email-akong@redhat.com>
+	<87y4rhm5fv.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8825688464577532278=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5473408A.2090308@fr.ibm.com>
+In-Reply-To: <87y4rhm5fv.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,20 +18,132 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cedric Le Goater <clg@fr.ibm.com>
-Cc: kvm@vger.kernel.org, rusty@au1.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, David Miller <davem@davemloft.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: m@bues.ch, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mb@bu3sch.de, mpm@selenic.com, amit.shah@redhat.com, herbert@gondor.apana.org.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Nov 24, 2014 at 03:28:26PM +0100, Cedric Le Goater wrote:
-> Hi Michael,
-> 
-> Do you have a tree from where I could pull these patches ? 
-> 
+
+--===============8825688464577532278==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="X1bOJ3K7DJ5YkBrT"
+Content-Disposition: inline
+
+
+--X1bOJ3K7DJ5YkBrT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Nov 12, 2014 at 02:33:00PM +1030, Rusty Russell wrote:
+> Amos Kong <akong@redhat.com> writes:
+> > From: Rusty Russell <rusty@rustcorp.com.au>
+> >
+> > The previous patch added one potential problem: we can still be
+> > reading from a hwrng when it's unregistered.  Add a wait for zero
+> > in the hwrng_unregister path.
+> >
+> > v4: add cleanup_done flag to insure that cleanup is done
+>=20
+> That's a bit weird.  The usual pattern would be to hold a reference
+> until we're actually finished, but this reference is a bit weird.
+
+The cleanup function is a callback function of kref_put(), we can't
+use the same reference count inside cleanup function.
+=20
+> We hold the mutex across cleanup, so we could grab that but we have to
+> take care sleeping inside wait_event, otherwise Peter will have to fix
+> my code again :)
+
+We didn't hold rng_mutex inside cleanup_rng(), am I missing something?
+=20
+> AFAICT the wake_woken() stuff isn't merged yet, so your patch will
+> have to do for now.
+
+Can you provide some patches/mail link here? I searched nothing about wake_=
+woken.
+=20
+> > @@ -98,6 +99,8 @@ static inline void cleanup_rng(struct kref *kref)
+> > =20
+> >  	if (rng->cleanup)
+> >  		rng->cleanup(rng);
+> > +	rng->cleanup_done =3D true;
+> > +	wake_up_all(&rng_done);
+> >  }
+> > =20
+> >  static void set_current_rng(struct hwrng *rng)
+> > @@ -536,6 +539,11 @@ void hwrng_unregister(struct hwrng *rng)
+> >  			kthread_stop(hwrng_fill);
+> >  	} else
+> >  		mutex_unlock(&rng_mutex);
+> > +
+> > +	/* Just in case rng is reading right now, wait. */
+> > +	wait_event(rng_done, rng->cleanup_done &&
+> > +		   atomic_read(&rng->ref.refcount) =3D=3D 0);
+> > +
+>=20
+> The atomic_read() isn't necessary here.
+>=20
+> However, you should probably init cleanup_done in hwrng_register().
+> (Probably noone does unregister then register, but let's be clear).
+
+Got it.
+=20
 > Thanks,
-> 
-> C.
+> Rusty.
+>=20
+> >  }
+> >  EXPORT_SYMBOL_GPL(hwrng_unregister);
+> > =20
+> > diff --git a/include/linux/hw_random.h b/include/linux/hw_random.h
+> > index c212e71..7832e50 100644
+> > --- a/include/linux/hw_random.h
+> > +++ b/include/linux/hw_random.h
+> > @@ -46,6 +46,7 @@ struct hwrng {
+> >  	/* internal. */
+> >  	struct list_head list;
+> >  	struct kref ref;
+> > +	bool cleanup_done;
+> >  };
+> > =20
+> >  /** Register a new Hardware Random Number Generator driver. */
+> > --=20
+> > 1.9.3
 
-Yes - vhost-next that linux-next includes.
+--=20
+			Amos.
 
--- 
-MST
+--X1bOJ3K7DJ5YkBrT
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUdDLfAAoJELxSv6I5vP9jW4gP/2glGE79f30avT494VYlJK64
+jN9dzIzfpGe3a+rD+w9XCD0MBq2dSxPV0BKeW98Zy7AJ52gDDIlmZkeU5cFA4iDi
+z9an+3t5mxcb4poIUqyykXXiEsAXSS7DV+w+DkKYYFaXA/BAiht3kuNKwXqOb+N1
+mjM3j2pNpIdb36V3lPekAxFN6LE/Gct8gJA9Om++gUWH67w4LeaFtxfHRlycMOix
+T769rVwIAUdJ0ZZpIXTFbYyWzVSBvK+/iSMViFykwWkv0poaC+WBjHebBwFhDETX
+Rau8b6bnYCbpqIU3HlJh67ffScpMNI3Ym/Zb/tq5iVD97M3CTee5c0tJrj696KJi
+MxwSAT3NvmO9GglY5P2UlXLnjRFL061RWzPwsEg4wLY6kxJFQU721aX06WRRY/EP
+uZiiXUpuFhm2qqRD615nV8V+6J84mugMmoq+jdEIOh2FOCGmTJ4MhQ3MIIM6P0SM
+MZy8DKDEHmd3pJMH73MBrexN76wD/tQwJdirMw7djhkrKQqmabE1bbPgFwfW4Rl4
+hpcfQakq1y+9i0U/yYHSA/MYTgM73rZH1szgAuq8PO72TAoKkLFCJVTHMCcOjV4v
+3u7r+MDXhKHDJWgEwkSxC8M8jqeIe1IcyDEPfLVNJJVjVpdkwcpfidsAV1NljZqr
+MrA0Note0GomruthFm0W
+=YUhK
+-----END PGP SIGNATURE-----
+
+--X1bOJ3K7DJ5YkBrT--
+
+--===============8825688464577532278==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8825688464577532278==--
