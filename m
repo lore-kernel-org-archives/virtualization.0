@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v4 22/42] virtio_net: stricter short buffer length checks
-Date: Tue, 25 Nov 2014 18:42:58 +0200
-Message-ID: <1416933600-21398-23-git-send-email-mst__9172.09562981061$1416933885$gmane$org@redhat.com>
+Subject: [PATCH v4 24/42] virtio_net: enable v1.0 support
+Date: Tue, 25 Nov 2014 18:43:06 +0200
+Message-ID: <1416933600-21398-25-git-send-email-mst__36183.9094468907$1416933897$gmane$org@redhat.com>
 References: <1416933600-21398-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,29 +22,24 @@ To: linux-kernel@vger.kernel.org
 Cc: rusty@au1.ibm.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Our buffer length check is not strict enough for mergeable
-buffers: buffer can still be shorter that header + address
-by 2 bytes.
-
-Fix that up.
+Now that we have completed 1.0 support, enable it in our driver.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/net/virtio_net.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/virtio_net.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 516f2cb..098f443 100644
+index a0e64cf..c6a72d3 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -437,7 +437,7 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
- 	struct sk_buff *skb;
- 	struct virtio_net_hdr_mrg_rxbuf *hdr;
+@@ -2003,6 +2003,7 @@ static unsigned int features[] = {
+ 	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ,
+ 	VIRTIO_NET_F_CTRL_MAC_ADDR,
+ 	VIRTIO_F_ANY_LAYOUT,
++	VIRTIO_F_VERSION_1,
+ };
  
--	if (unlikely(len < sizeof(struct virtio_net_hdr) + ETH_HLEN)) {
-+	if (unlikely(len < vi->hdr_len + ETH_HLEN)) {
- 		pr_debug("%s: short packet %i\n", dev->name, len);
- 		dev->stats.rx_length_errors++;
- 		if (vi->mergeable_rx_bufs) {
+ static struct virtio_driver virtio_net_driver = {
 -- 
 MST
