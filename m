@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v4 29/42] vhost/net: virtio 1.0 byte swap
-Date: Tue, 25 Nov 2014 18:43:26 +0200
-Message-ID: <1416933600-21398-30-git-send-email-mst@redhat.com>
+Subject: [PATCH v4 09/42] virtio: set FEATURES_OK
+Date: Tue, 25 Nov 2014 18:42:01 +0200
+Message-ID: <1416933600-21398-10-git-send-email-mst@redhat.com>
 References: <1416933600-21398-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,53 +19,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, rusty@au1.ibm.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, David Miller <davem@davemloft.net>
+Cc: rusty@au1.ibm.com, linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
+
+set FEATURES_OK as per virtio 1.0 spec
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/vhost/net.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ include/uapi/linux/virtio_config.h |  2 ++
+ drivers/virtio/virtio.c            | 29 ++++++++++++++++++++++-------
+ 2 files changed, 24 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index dce5c58..cae22f9 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -416,7 +416,7 @@ static void handle_tx(struct vhost_net *net)
- 			struct ubuf_info *ubuf;
- 			ubuf = nvq->ubuf_info + nvq->upend_idx;
+diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+index 80e7381..4d05671 100644
+--- a/include/uapi/linux/virtio_config.h
++++ b/include/uapi/linux/virtio_config.h
+@@ -38,6 +38,8 @@
+ #define VIRTIO_CONFIG_S_DRIVER		2
+ /* Driver has used its parts of the config, and is happy */
+ #define VIRTIO_CONFIG_S_DRIVER_OK	4
++/* Driver has finished configuring features */
++#define VIRTIO_CONFIG_S_FEATURES_OK	8
+ /* We've given up on this device. */
+ #define VIRTIO_CONFIG_S_FAILED		0x80
  
--			vq->heads[nvq->upend_idx].id = head;
-+			vq->heads[nvq->upend_idx].id = cpu_to_vhost32(vq, head);
- 			vq->heads[nvq->upend_idx].len = VHOST_DMA_IN_PROGRESS;
- 			ubuf->callback = vhost_zerocopy_callback;
- 			ubuf->ctx = nvq->ubufs;
-@@ -500,6 +500,7 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
- 	int headcount = 0;
- 	unsigned d;
- 	int r, nlogs = 0;
-+	u32 len;
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index d213567..a3df817 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -160,6 +160,7 @@ static int virtio_dev_probe(struct device *_d)
+ 	struct virtio_device *dev = dev_to_virtio(_d);
+ 	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
+ 	u64 device_features;
++	unsigned status;
  
- 	while (datalen > 0 && headcount < quota) {
- 		if (unlikely(seg >= UIO_MAXIOV)) {
-@@ -527,13 +528,14 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
- 			nlogs += *log_num;
- 			log += *log_num;
- 		}
--		heads[headcount].id = d;
--		heads[headcount].len = iov_length(vq->iov + seg, in);
--		datalen -= heads[headcount].len;
-+		heads[headcount].id = cpu_to_vhost32(vq, d);
-+		len = iov_length(vq->iov + seg, in);
-+		heads[headcount].len = cpu_to_vhost32(vq, len);
-+		datalen -= len;
- 		++headcount;
- 		seg += in;
- 	}
--	heads[headcount - 1].len += datalen;
-+	heads[headcount - 1].len = cpu_to_vhost32(vq, len - datalen);
- 	*iovcount = seg;
- 	if (unlikely(log))
- 		*log_num = nlogs;
+ 	/* We have a driver! */
+ 	add_status(dev, VIRTIO_CONFIG_S_DRIVER);
+@@ -183,18 +184,32 @@ static int virtio_dev_probe(struct device *_d)
+ 
+ 	dev->config->finalize_features(dev);
+ 
++	if (virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
++		add_status(dev, VIRTIO_CONFIG_S_FEATURES_OK);
++		status = dev->config->get_status(dev);
++		if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
++			printk(KERN_ERR "virtio: device refuses features: %x\n",
++			       status);
++			err = -ENODEV;
++			goto err;
++		}
++	}
++
+ 	err = drv->probe(dev);
+ 	if (err)
+-		add_status(dev, VIRTIO_CONFIG_S_FAILED);
+-	else {
+-		add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
+-		if (drv->scan)
+-			drv->scan(dev);
++		goto err;
+ 
+-		virtio_config_enable(dev);
+-	}
++	add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
++	if (drv->scan)
++		drv->scan(dev);
++
++	virtio_config_enable(dev);
+ 
++	return 0;
++err:
++	add_status(dev, VIRTIO_CONFIG_S_FAILED);
+ 	return err;
++
+ }
+ 
+ static int virtio_dev_remove(struct device *_d)
 -- 
 MST
