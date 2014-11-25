@@ -1,14 +1,14 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v4 04/42] virtio: disable virtio 1.0 in transports
-Date: Tue, 25 Nov 2014 18:29:42 +0100
-Message-ID: <20141125182942.3890fe7b.cornelia.huck@de.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH v4 11/42] virtio: add legacy feature table support
+Date: Tue, 25 Nov 2014 18:42:09 +0200
+Message-ID: <1416933600-21398-12-git-send-email-mst@redhat.com>
 References: <1416933600-21398-1-git-send-email-mst@redhat.com>
-	<1416933600-21398-5-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1416933600-21398-5-git-send-email-mst@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1416933600-21398-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,51 +18,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-s390@vger.kernel.org, lguest@lists.ozlabs.org, Pawel Moll <pawel.moll@arm.com>, rusty@au1.ibm.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Sudeep Dutt <sudeep.dutt@intel.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Siva Yerramreddy <yshivakrishna@gmail.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, pbonzini@redhat.com, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
+To: linux-kernel@vger.kernel.org
+Cc: Pawel Moll <pawel.moll@arm.com>, rusty@au1.ibm.com, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 25 Nov 2014 18:41:35 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+virtio blk has some legacy feature bits that modern drivers
+must not negotiate, but are needed for old legacy hosts
+(e.g. that dn't support virtio scsi).
+Allow a separate legacy feature table for such cases.
 
-> disable virtio 1.0 in transports that don't
-> support it yet.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ include/linux/virtio.h  |  4 ++++
+ drivers/virtio/virtio.c | 25 ++++++++++++++++++++++++-
+ 2 files changed, 28 insertions(+), 1 deletion(-)
 
-I'd prefer if you disabled it for _every_ transport in this patch,
-until the needed infrastructure is in place. Else this is a bit
-confusing.
-
-> We will gradually re-enable as support is added.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/lguest/lguest_device.c     | 3 ++-
->  drivers/misc/mic/card/mic_virtio.c | 2 ++
->  drivers/s390/kvm/virtio_ccw.c      | 3 ++-
->  drivers/virtio/virtio_mmio.c       | 2 ++
->  4 files changed, 8 insertions(+), 2 deletions(-)
-
-Why do you disable ccw but not pci? (Doesn't pci need any changes
-transport-side?) And you missed the old s390 virtio transport in
-drivers/s390/kvm/kvm_virtio.c :)
-
-> diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-> index abba04d..08536f0 100644
-> --- a/drivers/s390/kvm/virtio_ccw.c
-> +++ b/drivers/s390/kvm/virtio_ccw.c
-> @@ -704,7 +704,8 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
->  out_free:
->  	kfree(features);
->  	kfree(ccw);
-> -	return rc;
-> +	/* TODO: enable virtio 1.0 */
-> +	return rc & ~BIT_ULL(VIRTIO_F_VERSION_1);;
-
-double ';'
-
-FWIW, as negotiating a revision >= 1 is a pre-req for virtio 1.0
-support on ccw, virtio 1.0 is already implicitly disabled.
-
->  }
-> 
->  static void virtio_ccw_finalize_features(struct virtio_device *vdev)
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index d6359a5..f70411e 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -130,6 +130,8 @@ int virtio_device_restore(struct virtio_device *dev);
+  * @id_table: the ids serviced by this driver.
+  * @feature_table: an array of feature numbers supported by this driver.
+  * @feature_table_size: number of entries in the feature table array.
++ * @feature_table_legacy: same as feature_table but when working in legacy mode.
++ * @feature_table_size_legacy: number of entries in feature table legacy array.
+  * @probe: the function to call when a device is found.  Returns 0 or -errno.
+  * @remove: the function to call when a device is removed.
+  * @config_changed: optional function to call when the device configuration
+@@ -140,6 +142,8 @@ struct virtio_driver {
+ 	const struct virtio_device_id *id_table;
+ 	const unsigned int *feature_table;
+ 	unsigned int feature_table_size;
++	const unsigned int *feature_table_legacy;
++	unsigned int feature_table_size_legacy;
+ 	int (*probe)(struct virtio_device *dev);
+ 	void (*scan)(struct virtio_device *dev);
+ 	void (*remove)(struct virtio_device *dev);
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index 0f44cff..e9018b4 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -113,6 +113,13 @@ void virtio_check_driver_offered_feature(const struct virtio_device *vdev,
+ 	for (i = 0; i < drv->feature_table_size; i++)
+ 		if (drv->feature_table[i] == fbit)
+ 			return;
++
++	if (drv->feature_table_legacy) {
++		for (i = 0; i < drv->feature_table_size_legacy; i++)
++			if (drv->feature_table_legacy[i] == fbit)
++				return;
++	}
++
+ 	BUG();
+ }
+ EXPORT_SYMBOL_GPL(virtio_check_driver_offered_feature);
+@@ -161,6 +168,7 @@ static int virtio_dev_probe(struct device *_d)
+ 	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
+ 	u64 device_features;
+ 	u64 driver_features;
++	u64 driver_features_legacy;
+ 	unsigned status;
+ 
+ 	/* We have a driver! */
+@@ -177,7 +185,22 @@ static int virtio_dev_probe(struct device *_d)
+ 		driver_features |= (1ULL << f);
+ 	}
+ 
+-	dev->features = driver_features & device_features;
++	/* Some drivers have a separate feature tables for virtio v1.0 */
++	if (drv->feature_table_legacy) {
++		driver_features_legacy = 0;
++		for (i = 0; i < drv->feature_table_size_legacy; i++) {
++			unsigned int f = drv->feature_table_legacy[i];
++			BUG_ON(f >= 64);
++			driver_features_legacy |= (1ULL << f);
++		}
++	} else {
++		driver_features_legacy = driver_features;
++	}
++
++	if (driver_features & device_features & (1ULL << VIRTIO_F_VERSION_1))
++		dev->features = driver_features & device_features;
++	else
++		dev->features = driver_features_legacy & device_features;
+ 
+ 	/* Transport features always preserved to pass to finalize_features. */
+ 	for (i = VIRTIO_TRANSPORT_F_START; i < VIRTIO_TRANSPORT_F_END; i++)
+-- 
+MST
