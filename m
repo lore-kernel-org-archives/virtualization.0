@@ -1,8 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC v2 01/12] linux-headers/virtio_config: Update with
-	VIRTIO_F_VERSION_1
-Date: Tue, 25 Nov 2014 14:24:12 +0100
-Message-ID: <1416921863-16523-2-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC v2 04/12] s390x/virtio-ccw: fix check for WRITE_FEAT
+Date: Tue, 25 Nov 2014 14:24:15 +0100
+Message-ID: <1416921863-16523-5-git-send-email-cornelia.huck__31111.770848702$1416921912$gmane$org@de.ibm.com>
 References: <1416921863-16523-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,28 +21,28 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.k
 Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Thomas Huth <thuth@linux.vnet.ibm.com>
+We need to check guest feature size, not host feature size to find
+out whether we should call virtio_set_features(). This check is
+possible now that vdev->guest_features is an array.
 
-Add the new VIRTIO_F_VERSION_1 definition to the virtio_config.h
-linux header.
-
-Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- linux-headers/linux/virtio_config.h |    3 +++
- 1 file changed, 3 insertions(+)
+ hw/s390x/virtio-ccw.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/linux-headers/linux/virtio_config.h b/linux-headers/linux/virtio_config.h
-index 75dc20b..16aa289 100644
---- a/linux-headers/linux/virtio_config.h
-+++ b/linux-headers/linux/virtio_config.h
-@@ -54,4 +54,7 @@
- /* Can the device handle any descriptor layout? */
- #define VIRTIO_F_ANY_LAYOUT		27
- 
-+/* v1.0 compliant. */
-+#define VIRTIO_F_VERSION_1		32
-+
- #endif /* _LINUX_VIRTIO_CONFIG_H */
+diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
+index 2f52b82..62ec852 100644
+--- a/hw/s390x/virtio-ccw.c
++++ b/hw/s390x/virtio-ccw.c
+@@ -399,7 +399,7 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
+             features.index = ldub_phys(&address_space_memory,
+                                        ccw.cda + sizeof(features.features));
+             features.features = ldl_le_phys(&address_space_memory, ccw.cda);
+-            if (features.index < ARRAY_SIZE(dev->host_features)) {
++            if (features.index < ARRAY_SIZE(vdev->guest_features)) {
+                 virtio_set_features(vdev, features.index, features.features);
+             } else {
+                 /*
 -- 
 1.7.9.5
