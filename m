@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v4 09/42] virtio: set FEATURES_OK
-Date: Tue, 25 Nov 2014 18:42:01 +0200
-Message-ID: <1416933600-21398-10-git-send-email-mst@redhat.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH v4 04/42] virtio: disable virtio 1.0 in transports
+Date: Tue, 25 Nov 2014 18:29:42 +0100
+Message-ID: <20141125182942.3890fe7b.cornelia.huck@de.ibm.com>
 References: <1416933600-21398-1-git-send-email-mst@redhat.com>
+	<1416933600-21398-5-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1416933600-21398-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1416933600-21398-5-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,82 +18,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: rusty@au1.ibm.com, linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, David Miller <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-s390@vger.kernel.org, lguest@lists.ozlabs.org, Pawel Moll <pawel.moll@arm.com>, rusty@au1.ibm.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Sudeep Dutt <sudeep.dutt@intel.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Siva Yerramreddy <yshivakrishna@gmail.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, pbonzini@redhat.com, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-set FEATURES_OK as per virtio 1.0 spec
+On Tue, 25 Nov 2014 18:41:35 +0200
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- include/uapi/linux/virtio_config.h |  2 ++
- drivers/virtio/virtio.c            | 29 ++++++++++++++++++++++-------
- 2 files changed, 24 insertions(+), 7 deletions(-)
+> disable virtio 1.0 in transports that don't
+> support it yet.
 
-diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
-index 80e7381..4d05671 100644
---- a/include/uapi/linux/virtio_config.h
-+++ b/include/uapi/linux/virtio_config.h
-@@ -38,6 +38,8 @@
- #define VIRTIO_CONFIG_S_DRIVER		2
- /* Driver has used its parts of the config, and is happy */
- #define VIRTIO_CONFIG_S_DRIVER_OK	4
-+/* Driver has finished configuring features */
-+#define VIRTIO_CONFIG_S_FEATURES_OK	8
- /* We've given up on this device. */
- #define VIRTIO_CONFIG_S_FAILED		0x80
- 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index d213567..a3df817 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -160,6 +160,7 @@ static int virtio_dev_probe(struct device *_d)
- 	struct virtio_device *dev = dev_to_virtio(_d);
- 	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
- 	u64 device_features;
-+	unsigned status;
- 
- 	/* We have a driver! */
- 	add_status(dev, VIRTIO_CONFIG_S_DRIVER);
-@@ -183,18 +184,32 @@ static int virtio_dev_probe(struct device *_d)
- 
- 	dev->config->finalize_features(dev);
- 
-+	if (virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
-+		add_status(dev, VIRTIO_CONFIG_S_FEATURES_OK);
-+		status = dev->config->get_status(dev);
-+		if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
-+			printk(KERN_ERR "virtio: device refuses features: %x\n",
-+			       status);
-+			err = -ENODEV;
-+			goto err;
-+		}
-+	}
-+
- 	err = drv->probe(dev);
- 	if (err)
--		add_status(dev, VIRTIO_CONFIG_S_FAILED);
--	else {
--		add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
--		if (drv->scan)
--			drv->scan(dev);
-+		goto err;
- 
--		virtio_config_enable(dev);
--	}
-+	add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
-+	if (drv->scan)
-+		drv->scan(dev);
-+
-+	virtio_config_enable(dev);
- 
-+	return 0;
-+err:
-+	add_status(dev, VIRTIO_CONFIG_S_FAILED);
- 	return err;
-+
- }
- 
- static int virtio_dev_remove(struct device *_d)
--- 
-MST
+I'd prefer if you disabled it for _every_ transport in this patch,
+until the needed infrastructure is in place. Else this is a bit
+confusing.
+
+> We will gradually re-enable as support is added.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  drivers/lguest/lguest_device.c     | 3 ++-
+>  drivers/misc/mic/card/mic_virtio.c | 2 ++
+>  drivers/s390/kvm/virtio_ccw.c      | 3 ++-
+>  drivers/virtio/virtio_mmio.c       | 2 ++
+>  4 files changed, 8 insertions(+), 2 deletions(-)
+
+Why do you disable ccw but not pci? (Doesn't pci need any changes
+transport-side?) And you missed the old s390 virtio transport in
+drivers/s390/kvm/kvm_virtio.c :)
+
+> diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+> index abba04d..08536f0 100644
+> --- a/drivers/s390/kvm/virtio_ccw.c
+> +++ b/drivers/s390/kvm/virtio_ccw.c
+> @@ -704,7 +704,8 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
+>  out_free:
+>  	kfree(features);
+>  	kfree(ccw);
+> -	return rc;
+> +	/* TODO: enable virtio 1.0 */
+> +	return rc & ~BIT_ULL(VIRTIO_F_VERSION_1);;
+
+double ';'
+
+FWIW, as negotiating a revision >= 1 is a pre-req for virtio 1.0
+support on ccw, virtio 1.0 is already implicitly disabled.
+
+>  }
+> 
+>  static void virtio_ccw_finalize_features(struct virtio_device *vdev)
