@@ -1,14 +1,13 @@
-From: Amos Kong <akong@redhat.com>
-Subject: Re: [PATCH v4 4/6] hw_random: fix unregister race.
-Date: Tue, 25 Nov 2014 15:42:23 +0800
-Message-ID: <20141125074223.GA11690@air.redhat.com>
-References: <1415030186-18303-1-git-send-email-akong@redhat.com>
-	<1415030186-18303-5-git-send-email-akong@redhat.com>
-	<87y4rhm5fv.fsf@rustcorp.com.au>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC v2 02/12] virtio: cull virtio_bus_set_vdev_features
+Date: Tue, 25 Nov 2014 14:24:13 +0100
+Message-ID: <1416921863-16523-3-git-send-email-cornelia.huck@de.ibm.com>
+References: <1416921863-16523-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8825688464577532278=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87y4rhm5fv.fsf@rustcorp.com.au>
+In-Reply-To: <1416921863-16523-1-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,132 +17,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: m@bues.ch, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mb@bu3sch.de, mpm@selenic.com, amit.shah@redhat.com, herbert@gondor.apana.org.au
+To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.kernel.org
+Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+The only user of this function was virtio-ccw, and it should use
+virtio_set_features() like everybody else: We need to make sure
+that bad features are masked out properly, which this function did
+not do.
 
---===============8825688464577532278==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="X1bOJ3K7DJ5YkBrT"
-Content-Disposition: inline
+Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ hw/s390x/virtio-ccw.c          |    3 +--
+ hw/virtio/virtio-bus.c         |   14 --------------
+ include/hw/virtio/virtio-bus.h |    3 ---
+ 3 files changed, 1 insertion(+), 19 deletions(-)
 
-
---X1bOJ3K7DJ5YkBrT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, Nov 12, 2014 at 02:33:00PM +1030, Rusty Russell wrote:
-> Amos Kong <akong@redhat.com> writes:
-> > From: Rusty Russell <rusty@rustcorp.com.au>
-> >
-> > The previous patch added one potential problem: we can still be
-> > reading from a hwrng when it's unregistered.  Add a wait for zero
-> > in the hwrng_unregister path.
-> >
-> > v4: add cleanup_done flag to insure that cleanup is done
->=20
-> That's a bit weird.  The usual pattern would be to hold a reference
-> until we're actually finished, but this reference is a bit weird.
-
-The cleanup function is a callback function of kref_put(), we can't
-use the same reference count inside cleanup function.
-=20
-> We hold the mutex across cleanup, so we could grab that but we have to
-> take care sleeping inside wait_event, otherwise Peter will have to fix
-> my code again :)
-
-We didn't hold rng_mutex inside cleanup_rng(), am I missing something?
-=20
-> AFAICT the wake_woken() stuff isn't merged yet, so your patch will
-> have to do for now.
-
-Can you provide some patches/mail link here? I searched nothing about wake_=
-woken.
-=20
-> > @@ -98,6 +99,8 @@ static inline void cleanup_rng(struct kref *kref)
-> > =20
-> >  	if (rng->cleanup)
-> >  		rng->cleanup(rng);
-> > +	rng->cleanup_done =3D true;
-> > +	wake_up_all(&rng_done);
-> >  }
-> > =20
-> >  static void set_current_rng(struct hwrng *rng)
-> > @@ -536,6 +539,11 @@ void hwrng_unregister(struct hwrng *rng)
-> >  			kthread_stop(hwrng_fill);
-> >  	} else
-> >  		mutex_unlock(&rng_mutex);
-> > +
-> > +	/* Just in case rng is reading right now, wait. */
-> > +	wait_event(rng_done, rng->cleanup_done &&
-> > +		   atomic_read(&rng->ref.refcount) =3D=3D 0);
-> > +
->=20
-> The atomic_read() isn't necessary here.
->=20
-> However, you should probably init cleanup_done in hwrng_register().
-> (Probably noone does unregister then register, but let's be clear).
-
-Got it.
-=20
-> Thanks,
-> Rusty.
->=20
-> >  }
-> >  EXPORT_SYMBOL_GPL(hwrng_unregister);
-> > =20
-> > diff --git a/include/linux/hw_random.h b/include/linux/hw_random.h
-> > index c212e71..7832e50 100644
-> > --- a/include/linux/hw_random.h
-> > +++ b/include/linux/hw_random.h
-> > @@ -46,6 +46,7 @@ struct hwrng {
-> >  	/* internal. */
-> >  	struct list_head list;
-> >  	struct kref ref;
-> > +	bool cleanup_done;
-> >  };
-> > =20
-> >  /** Register a new Hardware Random Number Generator driver. */
-> > --=20
-> > 1.9.3
-
---=20
-			Amos.
-
---X1bOJ3K7DJ5YkBrT
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUdDLfAAoJELxSv6I5vP9jW4gP/2glGE79f30avT494VYlJK64
-jN9dzIzfpGe3a+rD+w9XCD0MBq2dSxPV0BKeW98Zy7AJ52gDDIlmZkeU5cFA4iDi
-z9an+3t5mxcb4poIUqyykXXiEsAXSS7DV+w+DkKYYFaXA/BAiht3kuNKwXqOb+N1
-mjM3j2pNpIdb36V3lPekAxFN6LE/Gct8gJA9Om++gUWH67w4LeaFtxfHRlycMOix
-T769rVwIAUdJ0ZZpIXTFbYyWzVSBvK+/iSMViFykwWkv0poaC+WBjHebBwFhDETX
-Rau8b6bnYCbpqIU3HlJh67ffScpMNI3Ym/Zb/tq5iVD97M3CTee5c0tJrj696KJi
-MxwSAT3NvmO9GglY5P2UlXLnjRFL061RWzPwsEg4wLY6kxJFQU721aX06WRRY/EP
-uZiiXUpuFhm2qqRD615nV8V+6J84mugMmoq+jdEIOh2FOCGmTJ4MhQ3MIIM6P0SM
-MZy8DKDEHmd3pJMH73MBrexN76wD/tQwJdirMw7djhkrKQqmabE1bbPgFwfW4Rl4
-hpcfQakq1y+9i0U/yYHSA/MYTgM73rZH1szgAuq8PO72TAoKkLFCJVTHMCcOjV4v
-3u7r+MDXhKHDJWgEwkSxC8M8jqeIe1IcyDEPfLVNJJVjVpdkwcpfidsAV1NljZqr
-MrA0Note0GomruthFm0W
-=YUhK
------END PGP SIGNATURE-----
-
---X1bOJ3K7DJ5YkBrT--
-
---===============8825688464577532278==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8825688464577532278==--
+diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
+index ea236c9..84f17bc 100644
+--- a/hw/s390x/virtio-ccw.c
++++ b/hw/s390x/virtio-ccw.c
+@@ -400,8 +400,7 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
+                                        ccw.cda + sizeof(features.features));
+             features.features = ldl_le_phys(&address_space_memory, ccw.cda);
+             if (features.index < ARRAY_SIZE(dev->host_features)) {
+-                virtio_bus_set_vdev_features(&dev->bus, features.features);
+-                vdev->guest_features = features.features;
++                virtio_set_features(vdev, features.features);
+             } else {
+                 /*
+                  * If the guest supports more feature bits, assert that it
+diff --git a/hw/virtio/virtio-bus.c b/hw/virtio/virtio-bus.c
+index eb77019..a8ffa07 100644
+--- a/hw/virtio/virtio-bus.c
++++ b/hw/virtio/virtio-bus.c
+@@ -109,20 +109,6 @@ uint32_t virtio_bus_get_vdev_features(VirtioBusState *bus,
+     return k->get_features(vdev, requested_features);
+ }
+ 
+-/* Set the features of the plugged device. */
+-void virtio_bus_set_vdev_features(VirtioBusState *bus,
+-                                      uint32_t requested_features)
+-{
+-    VirtIODevice *vdev = virtio_bus_get_device(bus);
+-    VirtioDeviceClass *k;
+-
+-    assert(vdev != NULL);
+-    k = VIRTIO_DEVICE_GET_CLASS(vdev);
+-    if (k->set_features != NULL) {
+-        k->set_features(vdev, requested_features);
+-    }
+-}
+-
+ /* Get bad features of the plugged device. */
+ uint32_t virtio_bus_get_vdev_bad_features(VirtioBusState *bus)
+ {
+diff --git a/include/hw/virtio/virtio-bus.h b/include/hw/virtio/virtio-bus.h
+index 0756545..0d2e7b4 100644
+--- a/include/hw/virtio/virtio-bus.h
++++ b/include/hw/virtio/virtio-bus.h
+@@ -84,9 +84,6 @@ size_t virtio_bus_get_vdev_config_len(VirtioBusState *bus);
+ /* Get the features of the plugged device. */
+ uint32_t virtio_bus_get_vdev_features(VirtioBusState *bus,
+                                     uint32_t requested_features);
+-/* Set the features of the plugged device. */
+-void virtio_bus_set_vdev_features(VirtioBusState *bus,
+-                                  uint32_t requested_features);
+ /* Get bad features of the plugged device. */
+ uint32_t virtio_bus_get_vdev_bad_features(VirtioBusState *bus);
+ /* Get config of the plugged device. */
+-- 
+1.7.9.5
