@@ -1,7 +1,8 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC v3 06/12] virtio: allow virtio-1 queue layout
-Date: Wed, 26 Nov 2014 18:28:37 +0100
-Message-ID: <1417022923-1654-7-git-send-email-cornelia.huck__11334.6490929418$1417023008$gmane$org@de.ibm.com>
+Subject: [PATCH RFC v3 08/12] s390x/css: Add a callback for when subchannel
+	gets disabled
+Date: Wed, 26 Nov 2014 18:28:39 +0100
+Message-ID: <1417022923-1654-9-git-send-email-cornelia.huck__49141.675947658$1417023020$gmane$org@de.ibm.com>
 References: <1417022923-1654-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,62 +22,73 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.k
 Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-For virtio-1 devices, we allow a more complex queue layout that doesn't
-require descriptor table and rings on a physically-contigous memory area:
-add virtio_queue_set_rings() to allow transports to set this up.
+From: Thomas Huth <thuth@linux.vnet.ibm.com>
 
+We need a possibility to run code when a subchannel gets disabled.
+This patch adds the necessary infrastructure.
+
+Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/virtio/virtio.c         |   16 ++++++++++++++++
- include/hw/virtio/virtio.h |    2 ++
- 2 files changed, 18 insertions(+)
+ hw/s390x/css.c |   12 ++++++++++++
+ hw/s390x/css.h |    1 +
+ 2 files changed, 13 insertions(+)
 
-diff --git a/hw/virtio/virtio.c b/hw/virtio/virtio.c
-index 4149f45..2c6bb91 100644
---- a/hw/virtio/virtio.c
-+++ b/hw/virtio/virtio.c
-@@ -96,6 +96,13 @@ static void virtqueue_init(VirtQueue *vq)
+diff --git a/hw/s390x/css.c b/hw/s390x/css.c
+index b67c039..735ec55 100644
+--- a/hw/s390x/css.c
++++ b/hw/s390x/css.c
+@@ -588,6 +588,7 @@ int css_do_msch(SubchDev *sch, SCHIB *orig_schib)
  {
-     hwaddr pa = vq->pa;
+     SCSW *s = &sch->curr_status.scsw;
+     PMCW *p = &sch->curr_status.pmcw;
++    uint16_t oldflags;
+     int ret;
+     SCHIB schib;
  
-+    if (pa == -1ULL) {
-+        /*
-+         * This is a virtio-1 style vq that has already been setup
-+         * in virtio_queue_set.
-+         */
-+        return;
+@@ -610,6 +611,7 @@ int css_do_msch(SubchDev *sch, SCHIB *orig_schib)
+     copy_schib_from_guest(&schib, orig_schib);
+     /* Only update the program-modifiable fields. */
+     p->intparm = schib.pmcw.intparm;
++    oldflags = p->flags;
+     p->flags &= ~(PMCW_FLAGS_MASK_ISC | PMCW_FLAGS_MASK_ENA |
+                   PMCW_FLAGS_MASK_LM | PMCW_FLAGS_MASK_MME |
+                   PMCW_FLAGS_MASK_MP);
+@@ -625,6 +627,12 @@ int css_do_msch(SubchDev *sch, SCHIB *orig_schib)
+             (PMCW_CHARS_MASK_MBFC | PMCW_CHARS_MASK_CSENSE);
+     sch->curr_status.mba = schib.mba;
+ 
++    /* Has the channel been disabled? */
++    if (sch->disable_cb && (oldflags & PMCW_FLAGS_MASK_ENA) != 0
++        && (p->flags & PMCW_FLAGS_MASK_ENA) == 0) {
++        sch->disable_cb(sch);
 +    }
-     vq->vring.desc = pa;
-     vq->vring.avail = pa + vq->vring.num * sizeof(VRingDesc);
-     vq->vring.used = vring_align(vq->vring.avail +
-@@ -719,6 +726,15 @@ hwaddr virtio_queue_get_addr(VirtIODevice *vdev, int n)
-     return vdev->vq[n].pa;
- }
- 
-+void virtio_queue_set_rings(VirtIODevice *vdev, int n, hwaddr desc,
-+                            hwaddr avail, hwaddr used)
-+{
-+    vdev->vq[n].pa = -1ULL;
-+    vdev->vq[n].vring.desc = desc;
-+    vdev->vq[n].vring.avail = avail;
-+    vdev->vq[n].vring.used = used;
-+}
 +
- void virtio_queue_set_num(VirtIODevice *vdev, int n, int num)
+     ret = 0;
+ 
+ out:
+@@ -1443,6 +1451,10 @@ void css_reset_sch(SubchDev *sch)
  {
-     /* Don't allow guest to flip queue between existent and
-diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
-index 40e567c..f840320 100644
---- a/include/hw/virtio/virtio.h
-+++ b/include/hw/virtio/virtio.h
-@@ -227,6 +227,8 @@ void virtio_queue_set_addr(VirtIODevice *vdev, int n, hwaddr addr);
- hwaddr virtio_queue_get_addr(VirtIODevice *vdev, int n);
- void virtio_queue_set_num(VirtIODevice *vdev, int n, int num);
- int virtio_queue_get_num(VirtIODevice *vdev, int n);
-+void virtio_queue_set_rings(VirtIODevice *vdev, int n, hwaddr desc,
-+                            hwaddr avail, hwaddr used);
- void virtio_queue_set_align(VirtIODevice *vdev, int n, int align);
- void virtio_queue_notify(VirtIODevice *vdev, int n);
- uint16_t virtio_queue_vector(VirtIODevice *vdev, int n);
+     PMCW *p = &sch->curr_status.pmcw;
+ 
++    if ((p->flags & PMCW_FLAGS_MASK_ENA) != 0 && sch->disable_cb) {
++        sch->disable_cb(sch);
++    }
++
+     p->intparm = 0;
+     p->flags &= ~(PMCW_FLAGS_MASK_ISC | PMCW_FLAGS_MASK_ENA |
+                   PMCW_FLAGS_MASK_LM | PMCW_FLAGS_MASK_MME |
+diff --git a/hw/s390x/css.h b/hw/s390x/css.h
+index 33104ac..7fa807b 100644
+--- a/hw/s390x/css.h
++++ b/hw/s390x/css.h
+@@ -81,6 +81,7 @@ struct SubchDev {
+     uint8_t ccw_no_data_cnt;
+     /* transport-provided data: */
+     int (*ccw_cb) (SubchDev *, CCW1);
++    void (*disable_cb)(SubchDev *);
+     SenseId id;
+     void *driver_data;
+ };
 -- 
 1.7.9.5
