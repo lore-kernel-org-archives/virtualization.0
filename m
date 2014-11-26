@@ -1,16 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v4 02/42] virtio: add support for 64 bit features.
-Date: Wed, 26 Nov 2014 18:56:53 +0200
-Message-ID: <20141126165653.GB11202@redhat.com>
-References: <1416933600-21398-1-git-send-email-mst@redhat.com>
-	<1416933600-21398-3-git-send-email-mst@redhat.com>
-	<20141126174809.24f6be4d@bahia.local>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC v3 00/12] qemu: towards virtio-1 host support
+Date: Wed, 26 Nov 2014 18:28:31 +0100
+Message-ID: <1417022923-1654-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20141126174809.24f6be4d@bahia.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,46 +15,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Cc: Sudeep Dutt <sudeep.dutt@intel.com>, linux-s390@vger.kernel.org, lguest@lists.ozlabs.org, Arnd Bergmann <arnd@arndb.de>, Pawel Moll <pawel.moll@arm.com>, rusty@au1.ibm.com, Brian Swetland <swetland@google.com>, linux390@de.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Siva Yerramreddy <yshivakrishna@gmail.com>, virtualization@lists.linux-foundation.org, Ashutosh Dixit <ashutosh.dixit@intel.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Joel Stanley <joel@jms.id.au>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, pbonzini@redhat.com, Amit Shah <amit.shah@redhat.com>, David Miller <davem@davemloft.net>
+To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.kernel.org
+Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 26, 2014 at 05:48:09PM +0100, Greg Kurz wrote:
-> On Tue, 25 Nov 2014 18:41:22 +0200
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> > From: Rusty Russell <rusty@rustcorp.com.au>
-> > 
-> > Change the u32 to a u64, and make sure to use 1ULL everywhere!
-> > 
-> > Cc: Brian Swetland <swetland@google.com>
-> > Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> > [Thomas Huth: fix up virtio-ccw get_features]
-> > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> > Acked-by: Pawel Moll <pawel.moll@arm.com>
-> > Acked-by: Ohad Ben-Cohen <ohad@wizery.com>
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Next version of virtio-1 patches for qemu.
 
-...
+Only change from v2 is splitting out the vring accessors into a
+separate header file - should hopefully fix the build issues.
 
-> > @@ -86,14 +86,14 @@ static inline bool virtio_has_feature(const struct virtio_device *vdev,
-> >  {
-> >  	/* Did you forget to fix assumptions on max features? */
-> >  	if (__builtin_constant_p(fbit))
-> > -		BUILD_BUG_ON(fbit >= 32);
-> > +		BUILD_BUG_ON(fbit >= 64);
-> 
-> 
-> While you're here, maybe you could derive the max value from the .features field ?
-> 
-> -               BUILD_BUG_ON(fbit >= 64);
-> +               BUILD_BUG_ON(fbit >= (sizeof(vdev->features) << 3));
+Cornelia Huck (9):
+  virtio: cull virtio_bus_set_vdev_features
+  virtio: support more feature bits
+  s390x/virtio-ccw: fix check for WRITE_FEAT
+  virtio: introduce legacy virtio devices
+  virtio: allow virtio-1 queue layout
+  dataplane: allow virtio-1 devices
+  s390x/virtio-ccw: support virtio-1 set_vq format
+  virtio-net/virtio-blk: enable virtio 1.0
+  s390x/virtio-ccw: enable virtio 1.0
 
-I don't see how that will help.
-All that 1ULL math only works up to 64 bit.
-So this only makes it look like we support any size,
-but doesn't really.
+Thomas Huth (3):
+  linux-headers/virtio_config: Update with VIRTIO_F_VERSION_1
+  s390x/css: Add a callback for when subchannel gets disabled
+  s390x/virtio-ccw: add virtio set-revision call
 
-No?
+ hw/9pfs/virtio-9p-device.c                    |    7 +-
+ hw/block/dataplane/virtio-blk.c               |    4 +-
+ hw/block/virtio-blk.c                         |   13 +-
+ hw/char/virtio-serial-bus.c                   |    9 +-
+ hw/net/virtio-net.c                           |   42 ++++--
+ hw/s390x/css.c                                |   12 ++
+ hw/s390x/css.h                                |    1 +
+ hw/s390x/s390-virtio-bus.c                    |    9 +-
+ hw/s390x/virtio-ccw.c                         |  186 +++++++++++++++++++------
+ hw/s390x/virtio-ccw.h                         |    7 +-
+ hw/scsi/vhost-scsi.c                          |    7 +-
+ hw/scsi/virtio-scsi-dataplane.c               |    2 +-
+ hw/scsi/virtio-scsi.c                         |   10 +-
+ hw/virtio/Makefile.objs                       |    2 +-
+ hw/virtio/dataplane/Makefile.objs             |    2 +-
+ hw/virtio/dataplane/vring.c                   |   96 +++++++------
+ hw/virtio/virtio-balloon.c                    |    8 +-
+ hw/virtio/virtio-bus.c                        |   23 +--
+ hw/virtio/virtio-mmio.c                       |    9 +-
+ hw/virtio/virtio-pci.c                        |   13 +-
+ hw/virtio/virtio-rng.c                        |    2 +-
+ hw/virtio/virtio.c                            |   51 +++++--
+ include/hw/virtio/dataplane/vring-accessors.h |   75 ++++++++++
+ include/hw/virtio/dataplane/vring.h           |   14 +-
+ include/hw/virtio/virtio-access.h             |    4 +
+ include/hw/virtio/virtio-bus.h                |   10 +-
+ include/hw/virtio/virtio.h                    |   34 ++++-
+ linux-headers/linux/virtio_config.h           |    3 +
+ 28 files changed, 467 insertions(+), 188 deletions(-)
+ create mode 100644 include/hw/virtio/dataplane/vring-accessors.h
+
+-- 
+1.7.9.5
