@@ -1,8 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC v3 01/12] linux-headers/virtio_config: Update with
-	VIRTIO_F_VERSION_1
-Date: Wed, 26 Nov 2014 18:28:32 +0100
-Message-ID: <1417022923-1654-2-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC v3 02/12] virtio: cull virtio_bus_set_vdev_features
+Date: Wed, 26 Nov 2014 18:28:33 +0100
+Message-ID: <1417022923-1654-3-git-send-email-cornelia.huck@de.ibm.com>
 References: <1417022923-1654-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,28 +21,71 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.k
 Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Thomas Huth <thuth@linux.vnet.ibm.com>
+The only user of this function was virtio-ccw, and it should use
+virtio_set_features() like everybody else: We need to make sure
+that bad features are masked out properly, which this function did
+not do.
 
-Add the new VIRTIO_F_VERSION_1 definition to the virtio_config.h
-linux header.
-
-Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- linux-headers/linux/virtio_config.h |    3 +++
- 1 file changed, 3 insertions(+)
+ hw/s390x/virtio-ccw.c          |    3 +--
+ hw/virtio/virtio-bus.c         |   14 --------------
+ include/hw/virtio/virtio-bus.h |    3 ---
+ 3 files changed, 1 insertion(+), 19 deletions(-)
 
-diff --git a/linux-headers/linux/virtio_config.h b/linux-headers/linux/virtio_config.h
-index 75dc20b..16aa289 100644
---- a/linux-headers/linux/virtio_config.h
-+++ b/linux-headers/linux/virtio_config.h
-@@ -54,4 +54,7 @@
- /* Can the device handle any descriptor layout? */
- #define VIRTIO_F_ANY_LAYOUT		27
+diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
+index ea236c9..84f17bc 100644
+--- a/hw/s390x/virtio-ccw.c
++++ b/hw/s390x/virtio-ccw.c
+@@ -400,8 +400,7 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
+                                        ccw.cda + sizeof(features.features));
+             features.features = ldl_le_phys(&address_space_memory, ccw.cda);
+             if (features.index < ARRAY_SIZE(dev->host_features)) {
+-                virtio_bus_set_vdev_features(&dev->bus, features.features);
+-                vdev->guest_features = features.features;
++                virtio_set_features(vdev, features.features);
+             } else {
+                 /*
+                  * If the guest supports more feature bits, assert that it
+diff --git a/hw/virtio/virtio-bus.c b/hw/virtio/virtio-bus.c
+index eb77019..a8ffa07 100644
+--- a/hw/virtio/virtio-bus.c
++++ b/hw/virtio/virtio-bus.c
+@@ -109,20 +109,6 @@ uint32_t virtio_bus_get_vdev_features(VirtioBusState *bus,
+     return k->get_features(vdev, requested_features);
+ }
  
-+/* v1.0 compliant. */
-+#define VIRTIO_F_VERSION_1		32
-+
- #endif /* _LINUX_VIRTIO_CONFIG_H */
+-/* Set the features of the plugged device. */
+-void virtio_bus_set_vdev_features(VirtioBusState *bus,
+-                                      uint32_t requested_features)
+-{
+-    VirtIODevice *vdev = virtio_bus_get_device(bus);
+-    VirtioDeviceClass *k;
+-
+-    assert(vdev != NULL);
+-    k = VIRTIO_DEVICE_GET_CLASS(vdev);
+-    if (k->set_features != NULL) {
+-        k->set_features(vdev, requested_features);
+-    }
+-}
+-
+ /* Get bad features of the plugged device. */
+ uint32_t virtio_bus_get_vdev_bad_features(VirtioBusState *bus)
+ {
+diff --git a/include/hw/virtio/virtio-bus.h b/include/hw/virtio/virtio-bus.h
+index 0756545..0d2e7b4 100644
+--- a/include/hw/virtio/virtio-bus.h
++++ b/include/hw/virtio/virtio-bus.h
+@@ -84,9 +84,6 @@ size_t virtio_bus_get_vdev_config_len(VirtioBusState *bus);
+ /* Get the features of the plugged device. */
+ uint32_t virtio_bus_get_vdev_features(VirtioBusState *bus,
+                                     uint32_t requested_features);
+-/* Set the features of the plugged device. */
+-void virtio_bus_set_vdev_features(VirtioBusState *bus,
+-                                  uint32_t requested_features);
+ /* Get bad features of the plugged device. */
+ uint32_t virtio_bus_get_vdev_bad_features(VirtioBusState *bus);
+ /* Get config of the plugged device. */
 -- 
 1.7.9.5
