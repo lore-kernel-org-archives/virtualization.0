@@ -1,14 +1,16 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v4 38/42] virtio_scsi: v1.0 support
-Date: Wed, 26 Nov 2014 15:51:03 +0100
-Message-ID: <20141126155103.1f6725ce.cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH v4 26/42] vhost/net: force len for TX to host endian
+Date: Wed, 26 Nov 2014 15:54:40 +0100
+Message-ID: <20141126155440.4f49b70f.cornelia.huck@de.ibm.com>
 References: <1416933600-21398-1-git-send-email-mst@redhat.com>
-	<1416933600-21398-39-git-send-email-mst@redhat.com>
+	<1416933600-21398-27-git-send-email-mst@redhat.com>
+	<20141126153102.3f5b8fc9.cornelia.huck@de.ibm.com>
+	<20141126144400.GA8086@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1416933600-21398-39-git-send-email-mst@redhat.com>
+In-Reply-To: <20141126144400.GA8086@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,33 +21,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-scsi@vger.kernel.org, rusty@au1.ibm.com, linux-kernel@vger.kernel.org, "James E.J. Bottomley" <JBottomley@parallels.com>, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, David Miller <davem@davemloft.net>
+Cc: kvm@vger.kernel.org, rusty@au1.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 25 Nov 2014 18:44:08 +0200
+On Wed, 26 Nov 2014 16:44:00 +0200
 "Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-> Note: for consistency, and to avoid sparse errors,
->   convert all fields, even those no longer in use
->   for virtio v1.0.
+> On Wed, Nov 26, 2014 at 03:31:02PM +0100, Cornelia Huck wrote:
+> > On Tue, 25 Nov 2014 18:43:14 +0200
+> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > 
+> > > We use native endian-ness internally but never
+> > > expose it to guest.
+> > > 
+> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > > ---
+> > >  drivers/vhost/net.c | 10 +++++-----
+> > >  1 file changed, 5 insertions(+), 5 deletions(-)
+> > > 
+> > > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> > > index 8dae2f7..dce5c58 100644
+> > > --- a/drivers/vhost/net.c
+> > > +++ b/drivers/vhost/net.c
+> > > @@ -48,15 +48,15 @@ MODULE_PARM_DESC(experimental_zcopytx, "Enable Zero Copy TX;"
+> > >   * status internally; used for zerocopy tx only.
+> > >   */
+> > >  /* Lower device DMA failed */
+> > > -#define VHOST_DMA_FAILED_LEN	3
+> > > +#define VHOST_DMA_FAILED_LEN	((__force __virtio32)3)
+> > >  /* Lower device DMA done */
+> > > -#define VHOST_DMA_DONE_LEN	2
+> > > +#define VHOST_DMA_DONE_LEN	((__force __virtio32)2)
+> > >  /* Lower device DMA in progress */
+> > > -#define VHOST_DMA_IN_PROGRESS	1
+> > > +#define VHOST_DMA_IN_PROGRESS	((__force __virtio32)1)
+> > >  /* Buffer unused */
+> > > -#define VHOST_DMA_CLEAR_LEN	0
+> > > +#define VHOST_DMA_CLEAR_LEN	((__force __virtio32)0)
+> > 
+> > I find these constants a bit confusing: What does __virtio32 mean
+> > without the context of a vq or device?
+> > 
+> > > 
+> > > -#define VHOST_DMA_IS_DONE(len) ((len) >= VHOST_DMA_DONE_LEN)
+> > > +#define VHOST_DMA_IS_DONE(len) ((__force u32)(len) >= (__force u32)VHOST_DMA_DONE_LEN)
+> > 
+> > And here you cast it to a plain u32 again.
+> > 
+> > I looked at the final code, and you seem either to use the above
+> > constants for .len or do a cpu_to_vhost32(). Wouldn't you need to
+> > convert the constants as well?
 > 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  include/linux/virtio_scsi.h | 32 +++++++++++++++-------------
->  drivers/scsi/virtio_scsi.c  | 51 ++++++++++++++++++++++++++++-----------------
->  2 files changed, 49 insertions(+), 34 deletions(-)
-> 
+> I tried to explain it in the commit message.
+> It's a hack in vhost: it keeps virtio used structure in host
+> memory, but abuses length field for internal housekeeping.
+> This works because length in used ring for tx is always 0.
 
-> @@ -158,7 +158,7 @@ static void virtscsi_complete_cmd(struct virtio_scsi *vscsi, void *buf)
->  		sc, resp->response, resp->status, resp->sense_len);
-> 
->  	sc->result = resp->status;
-> -	virtscsi_compute_resid(sc, resp->resid);
-> +	virtscsi_compute_resid(sc, __virtio32_to_cpu(vscsi->vdev, resp->resid));
-
-Confused. Don't you need the non-underscore versions if you pass in a
-vdev as first parameter?
-
->  	switch (resp->response) {
->  	case VIRTIO_SCSI_S_OK:
->  		set_host_byte(sc, DID_OK);
+Ah, ok. It might make sense to add this explanation to the patch :)
