@@ -1,14 +1,16 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v4 18/42] virtio_blk: make serial attribute static
-Date: Wed, 26 Nov 2014 09:48:28 +0100
-Message-ID: <1416991708.10813.4.camel@nilsson.home.kraxel.org>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH v4 04/42] virtio: disable virtio 1.0 in transports
+Date: Wed, 26 Nov 2014 10:09:54 +0100
+Message-ID: <20141126100954.3811e594.cornelia.huck@de.ibm.com>
 References: <1416933600-21398-1-git-send-email-mst@redhat.com>
-	<1416933600-21398-19-git-send-email-mst@redhat.com>
+	<1416933600-21398-5-git-send-email-mst@redhat.com>
+	<20141125182942.3890fe7b.cornelia.huck@de.ibm.com>
+	<20141125212011.GA22343@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1416933600-21398-19-git-send-email-mst@redhat.com>
+In-Reply-To: <20141125212011.GA22343@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,15 +21,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: rusty@au1.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: linux-s390@vger.kernel.org, lguest@lists.ozlabs.org, Pawel Moll <pawel.moll@arm.com>, rusty@au1.ibm.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Sudeep Dutt <sudeep.dutt@intel.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Siva Yerramreddy <yshivakrishna@gmail.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, pbonzini@redhat.com, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Di, 2014-11-25 at 18:42 +0200, Michael S. Tsirkin wrote:
-> It's never declared so no need to make it extern.
+On Tue, 25 Nov 2014 23:20:11 +0200
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-Hmm, can't see patches 14 -> 17 on the maling list
-(virtualization@lists.linux-foundation.org).  Also no cover letter.
-Someone eating mails?
+> On Tue, Nov 25, 2014 at 06:29:42PM +0100, Cornelia Huck wrote:
+> > On Tue, 25 Nov 2014 18:41:35 +0200
+> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > 
+> > > disable virtio 1.0 in transports that don't
+> > > support it yet.
+> > 
+> > I'd prefer if you disabled it for _every_ transport in this patch,
+> > until the needed infrastructure is in place. Else this is a bit
+> > confusing.
+> 
+> Well the only transports left are pci and rpoc, and these only
+> read the low 32 bit of the features from the device -
+> so there's nothing to clear.
+> 
+> E.g. the following would be even more confusing, would it not:
+> 
+> 	u32 features;
+> 	....
+> 	features &= ~BIT_ULL(VIRTIO_F_VERSION_1);
+> 
+> Agree?
 
-cheers,
-  Gerd
+Maybe you should tweak the patch description a bit and mention that you
+only disable virtio 1.0 for transports where it is actually needed?
+
+(...)
+
+> > FWIW, as negotiating a revision >= 1 is a pre-req for virtio 1.0
+> > support on ccw, virtio 1.0 is already implicitly disabled.
+> 
+> Ah, you mean device guarantees that VIRTIO_F_VERSION_1 isn't set
+> if guest sets revision to 0?
+
+Yes, the bit will not be offered if the revision is 0 or has not been
+set at all.
+
+> In that case it's probably best to drop this from both ccw
+> devices.
+
+There's only one ccw transport :)
+
+The old s390 virtio transport in kvm_virtio.c is not part of virtio 1.0.
