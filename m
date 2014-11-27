@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC v4 15/16] virtio-net: support longer header
-Date: Thu, 27 Nov 2014 16:16:48 +0100
-Message-ID: <1417101409-29482-16-git-send-email-cornelia.huck__10525.8173462518$1417101590$gmane$org@de.ibm.com>
+Subject: [PATCH RFC v4 16/16] virtio-net: enable virtio 1.0
+Date: Thu, 27 Nov 2014 16:16:49 +0100
+Message-ID: <1417101409-29482-17-git-send-email-cornelia.huck__25112.7092670233$1417101603$gmane$org@de.ibm.com>
 References: <1417101409-29482-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,33 +21,32 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.k
 Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio-1 devices always use num_buffers in the header, even if
-mergeable rx buffers have not been negotiated.
+virtio-net (non-vhost) now should have everything in place to support
+virtio 1.0: let's enable the feature bit for it.
+
+Note that VIRTIO_F_VERSION_1 is technically a transport feature; once
+every device is ready for virtio 1.0, we can move setting this
+feature bit out of the individual devices.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/net/virtio-net.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ hw/net/virtio-net.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
-index ad477bf..b31b3a4 100644
+index b31b3a4..9ceff02 100644
 --- a/hw/net/virtio-net.c
 +++ b/hw/net/virtio-net.c
-@@ -380,8 +380,13 @@ static void virtio_net_set_mrg_rx_bufs(VirtIONet *n, int mergeable_rx_bufs)
+@@ -453,6 +453,10 @@ static uint32_t virtio_net_get_features(VirtIODevice *vdev, unsigned int index,
+     VirtIONet *n = VIRTIO_NET(vdev);
+     NetClientState *nc = qemu_get_queue(n->nic);
  
-     n->mergeable_rx_bufs = mergeable_rx_bufs;
- 
--    n->guest_hdr_len = n->mergeable_rx_bufs ?
--        sizeof(struct virtio_net_hdr_mrg_rxbuf) : sizeof(struct virtio_net_hdr);
-+    if (n->parent_obj.guest_features[1] >> (VIRTIO_F_VERSION_1 - 32) & 1) {
-+        n->guest_hdr_len = sizeof(struct virtio_net_hdr_mrg_rxbuf);
-+    } else {
-+        n->guest_hdr_len = n->mergeable_rx_bufs ?
-+            sizeof(struct virtio_net_hdr_mrg_rxbuf) :
-+            sizeof(struct virtio_net_hdr);
++    if (index == 1 && !get_vhost_net(nc->peer)) {
++        features |= (1 << (VIRTIO_F_VERSION_1 - 32));
 +    }
- 
-     for (i = 0; i < n->max_queues; i++) {
-         nc = qemu_get_subqueue(n->nic, i);
++
+     if (index > 0) {
+         return features;
+     }
 -- 
 1.7.9.5
