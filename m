@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v5 08/45] virtio_ring: switch to new memory access APIs
-Date: Thu, 27 Nov 2014 14:30:46 +0200
-Message-ID: <1417091078-24611-9-git-send-email-mst@redhat.com>
+Subject: [PATCH v5 07/45] virtio: memory access APIs
+Date: Thu, 27 Nov 2014 14:30:39 +0200
+Message-ID: <1417091078-24611-8-git-send-email-mst__19227.3967819803$1417091513$gmane$org@redhat.com>
 References: <1417091078-24611-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,266 +19,319 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
+Cc: Bjarke Istrup Pedersen <gurligebis@gentoo.org>, thuth@linux.vnet.ibm.com, Anup Patel <anup.patel@linaro.org>, rusty@au1.ibm.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, linux-api@vger.kernel.org, pbonzini@redhat.com, David Miller <davem@davemloft.net>, =?us-ascii?B?PT9VVEYtOD9xP1Bpb3RyPTIwS3I9QzM9QjNsPz0=?= <piotr.krol@3mdeb.com>, Alexei Starovoitov <ast@plumgrid.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use virtioXX_to_cpu and friends for access to
-all multibyte structures in memory.
+virtio 1.0 makes all memory structures LE, so
+we need APIs to conditionally do a byteswap on BE
+architectures.
 
-Note: this is intentionally mechanical.
-A follow-up patch will split long lines etc.
+To make it easier to check code statically,
+add virtio specific types for multi-byte integers
+in memory.
+
+Add low level wrappers that do a byteswap conditionally, these will be
+useful e.g. for vhost.  Add high level wrappers that
+query device endian-ness and act accordingly.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/virtio/virtio_ring.c | 89 ++++++++++++++++++++++----------------------
- 1 file changed, 45 insertions(+), 44 deletions(-)
+ include/linux/virtio_byteorder.h  | 59 +++++++++++++++++++++++++++++++++++++++
+ include/linux/virtio_config.h     | 32 +++++++++++++++++++++
+ include/uapi/linux/virtio_ring.h  | 45 ++++++++++++++---------------
+ include/uapi/linux/virtio_types.h | 46 ++++++++++++++++++++++++++++++
+ include/uapi/linux/Kbuild         |  1 +
+ 5 files changed, 161 insertions(+), 22 deletions(-)
+ create mode 100644 include/linux/virtio_byteorder.h
+ create mode 100644 include/uapi/linux/virtio_types.h
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 61a1fe1..b311fa7 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -99,7 +99,8 @@ struct vring_virtqueue
- 
- #define to_vvq(_vq) container_of(_vq, struct vring_virtqueue, vq)
- 
--static struct vring_desc *alloc_indirect(unsigned int total_sg, gfp_t gfp)
-+static struct vring_desc *alloc_indirect(struct virtqueue *_vq,
-+					 unsigned int total_sg, gfp_t gfp)
- {
- 	struct vring_desc *desc;
- 	unsigned int i;
-@@ -116,7 +117,7 @@ static struct vring_desc *alloc_indirect(unsigned int total_sg, gfp_t gfp)
- 		return NULL;
- 
- 	for (i = 0; i < total_sg; i++)
--		desc[i].next = i+1;
-+		desc[i].next = cpu_to_virtio16(_vq->vdev, i + 1);
- 	return desc;
- }
- 
-@@ -165,17 +166,17 @@ static inline int virtqueue_add(struct virtqueue *_vq,
- 	/* If the host supports indirect descriptor tables, and we have multiple
- 	 * buffers, then go indirect. FIXME: tune this threshold */
- 	if (vq->indirect && total_sg > 1 && vq->vq.num_free)
--		desc = alloc_indirect(total_sg, gfp);
-+		desc = alloc_indirect(_vq, total_sg, gfp);
- 	else
- 		desc = NULL;
- 
- 	if (desc) {
- 		/* Use a single buffer which doesn't continue */
--		vq->vring.desc[head].flags = VRING_DESC_F_INDIRECT;
--		vq->vring.desc[head].addr = virt_to_phys(desc);
-+		vq->vring.desc[head].flags = cpu_to_virtio16(_vq->vdev, VRING_DESC_F_INDIRECT);
-+		vq->vring.desc[head].addr = cpu_to_virtio64(_vq->vdev, virt_to_phys(desc));
- 		/* avoid kmemleak false positive (hidden by virt_to_phys) */
- 		kmemleak_ignore(desc);
--		vq->vring.desc[head].len = total_sg * sizeof(struct vring_desc);
-+		vq->vring.desc[head].len = cpu_to_virtio32(_vq->vdev, total_sg * sizeof(struct vring_desc));
- 
- 		/* Set up rest to use this indirect table. */
- 		i = 0;
-@@ -205,28 +206,28 @@ static inline int virtqueue_add(struct virtqueue *_vq,
- 
- 	for (n = 0; n < out_sgs; n++) {
- 		for (sg = sgs[n]; sg; sg = sg_next(sg)) {
--			desc[i].flags = VRING_DESC_F_NEXT;
--			desc[i].addr = sg_phys(sg);
--			desc[i].len = sg->length;
-+			desc[i].flags = cpu_to_virtio16(_vq->vdev, VRING_DESC_F_NEXT);
-+			desc[i].addr = cpu_to_virtio64(_vq->vdev, sg_phys(sg));
-+			desc[i].len = cpu_to_virtio32(_vq->vdev, sg->length);
- 			prev = i;
--			i = desc[i].next;
-+			i = virtio16_to_cpu(_vq->vdev, desc[i].next);
- 		}
- 	}
- 	for (; n < (out_sgs + in_sgs); n++) {
- 		for (sg = sgs[n]; sg; sg = sg_next(sg)) {
--			desc[i].flags = VRING_DESC_F_NEXT|VRING_DESC_F_WRITE;
--			desc[i].addr = sg_phys(sg);
--			desc[i].len = sg->length;
-+			desc[i].flags = cpu_to_virtio16(_vq->vdev, VRING_DESC_F_NEXT | VRING_DESC_F_WRITE);
-+			desc[i].addr = cpu_to_virtio64(_vq->vdev, sg_phys(sg));
-+			desc[i].len = cpu_to_virtio32(_vq->vdev, sg->length);
- 			prev = i;
--			i = desc[i].next;
-+			i = virtio16_to_cpu(_vq->vdev, desc[i].next);
- 		}
- 	}
- 	/* Last one doesn't continue. */
--	desc[prev].flags &= ~VRING_DESC_F_NEXT;
-+	desc[prev].flags &= cpu_to_virtio16(_vq->vdev, ~VRING_DESC_F_NEXT);
- 
- 	/* Update free pointer */
- 	if (indirect)
--		vq->free_head = vq->vring.desc[head].next;
-+		vq->free_head = virtio16_to_cpu(_vq->vdev, vq->vring.desc[head].next);
- 	else
- 		vq->free_head = i;
- 
-@@ -235,13 +236,13 @@ static inline int virtqueue_add(struct virtqueue *_vq,
- 
- 	/* Put entry in available array (but don't update avail->idx until they
- 	 * do sync). */
--	avail = (vq->vring.avail->idx & (vq->vring.num-1));
--	vq->vring.avail->ring[avail] = head;
-+	avail = virtio16_to_cpu(_vq->vdev, vq->vring.avail->idx) & (vq->vring.num - 1);
-+	vq->vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
- 
- 	/* Descriptors and available array need to be set before we expose the
- 	 * new available array entries. */
- 	virtio_wmb(vq->weak_barriers);
--	vq->vring.avail->idx++;
-+	vq->vring.avail->idx = cpu_to_virtio16(_vq->vdev, virtio16_to_cpu(_vq->vdev, vq->vring.avail->idx) + 1);
- 	vq->num_added++;
- 
- 	/* This is very unlikely, but theoretically possible.  Kick
-@@ -354,8 +355,8 @@ bool virtqueue_kick_prepare(struct virtqueue *_vq)
- 	 * event. */
- 	virtio_mb(vq->weak_barriers);
- 
--	old = vq->vring.avail->idx - vq->num_added;
--	new = vq->vring.avail->idx;
-+	old = virtio16_to_cpu(_vq->vdev, vq->vring.avail->idx) - vq->num_added;
-+	new = virtio16_to_cpu(_vq->vdev, vq->vring.avail->idx);
- 	vq->num_added = 0;
- 
- #ifdef DEBUG
-@@ -367,10 +368,10 @@ bool virtqueue_kick_prepare(struct virtqueue *_vq)
- #endif
- 
- 	if (vq->event) {
--		needs_kick = vring_need_event(vring_avail_event(&vq->vring),
-+		needs_kick = vring_need_event(virtio16_to_cpu(_vq->vdev, vring_avail_event(&vq->vring)),
- 					      new, old);
- 	} else {
--		needs_kick = !(vq->vring.used->flags & VRING_USED_F_NO_NOTIFY);
-+		needs_kick = !(vq->vring.used->flags & cpu_to_virtio16(_vq->vdev, VRING_USED_F_NO_NOTIFY));
- 	}
- 	END_USE(vq);
- 	return needs_kick;
-@@ -432,15 +433,15 @@ static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
- 	i = head;
- 
- 	/* Free the indirect table */
--	if (vq->vring.desc[i].flags & VRING_DESC_F_INDIRECT)
--		kfree(phys_to_virt(vq->vring.desc[i].addr));
-+	if (vq->vring.desc[i].flags & cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_INDIRECT))
-+		kfree(phys_to_virt(virtio64_to_cpu(vq->vq.vdev, vq->vring.desc[i].addr)));
- 
--	while (vq->vring.desc[i].flags & VRING_DESC_F_NEXT) {
--		i = vq->vring.desc[i].next;
-+	while (vq->vring.desc[i].flags & cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT)) {
-+		i = virtio16_to_cpu(vq->vq.vdev, vq->vring.desc[i].next);
- 		vq->vq.num_free++;
- 	}
- 
--	vq->vring.desc[i].next = vq->free_head;
-+	vq->vring.desc[i].next = cpu_to_virtio16(vq->vq.vdev, vq->free_head);
- 	vq->free_head = head;
- 	/* Plus final descriptor */
- 	vq->vq.num_free++;
-@@ -448,7 +449,7 @@ static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
- 
- static inline bool more_used(const struct vring_virtqueue *vq)
- {
--	return vq->last_used_idx != vq->vring.used->idx;
-+	return vq->last_used_idx != virtio16_to_cpu(vq->vq.vdev, vq->vring.used->idx);
- }
+diff --git a/include/linux/virtio_byteorder.h b/include/linux/virtio_byteorder.h
+new file mode 100644
+index 0000000..51865d0
+--- /dev/null
++++ b/include/linux/virtio_byteorder.h
+@@ -0,0 +1,59 @@
++#ifndef _LINUX_VIRTIO_BYTEORDER_H
++#define _LINUX_VIRTIO_BYTEORDER_H
++#include <linux/types.h>
++#include <uapi/linux/virtio_types.h>
++
++/*
++ * Low-level memory accessors for handling virtio in modern little endian and in
++ * compatibility native endian format.
++ */
++
++static inline u16 __virtio16_to_cpu(bool little_endian, __virtio16 val)
++{
++	if (little_endian)
++		return le16_to_cpu((__force __le16)val);
++	else
++		return (__force u16)val;
++}
++
++static inline __virtio16 __cpu_to_virtio16(bool little_endian, u16 val)
++{
++	if (little_endian)
++		return (__force __virtio16)cpu_to_le16(val);
++	else
++		return (__force __virtio16)val;
++}
++
++static inline u32 __virtio32_to_cpu(bool little_endian, __virtio32 val)
++{
++	if (little_endian)
++		return le32_to_cpu((__force __le32)val);
++	else
++		return (__force u32)val;
++}
++
++static inline __virtio32 __cpu_to_virtio32(bool little_endian, u32 val)
++{
++	if (little_endian)
++		return (__force __virtio32)cpu_to_le32(val);
++	else
++		return (__force __virtio32)val;
++}
++
++static inline u64 __virtio64_to_cpu(bool little_endian, __virtio64 val)
++{
++	if (little_endian)
++		return le64_to_cpu((__force __le64)val);
++	else
++		return (__force u64)val;
++}
++
++static inline __virtio64 __cpu_to_virtio64(bool little_endian, u64 val)
++{
++	if (little_endian)
++		return (__force __virtio64)cpu_to_le64(val);
++	else
++		return (__force __virtio64)val;
++}
++
++#endif /* _LINUX_VIRTIO_BYTEORDER */
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index 022d904..b9cd689 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -4,6 +4,7 @@
+ #include <linux/err.h>
+ #include <linux/bug.h>
+ #include <linux/virtio.h>
++#include <linux/virtio_byteorder.h>
+ #include <uapi/linux/virtio_config.h>
  
  /**
-@@ -491,8 +492,8 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
- 	virtio_rmb(vq->weak_barriers);
+@@ -152,6 +153,37 @@ int virtqueue_set_affinity(struct virtqueue *vq, int cpu)
+ 	return 0;
+ }
  
- 	last_used = (vq->last_used_idx & (vq->vring.num - 1));
--	i = vq->vring.used->ring[last_used].id;
--	*len = vq->vring.used->ring[last_used].len;
-+	i = virtio32_to_cpu(_vq->vdev, vq->vring.used->ring[last_used].id);
-+	*len = virtio32_to_cpu(_vq->vdev, vq->vring.used->ring[last_used].len);
++/* Memory accessors */
++static inline u16 virtio16_to_cpu(struct virtio_device *vdev, __virtio16 val)
++{
++	return __virtio16_to_cpu(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
++}
++
++static inline __virtio16 cpu_to_virtio16(struct virtio_device *vdev, u16 val)
++{
++	return __cpu_to_virtio16(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
++}
++
++static inline u32 virtio32_to_cpu(struct virtio_device *vdev, __virtio32 val)
++{
++	return __virtio32_to_cpu(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
++}
++
++static inline __virtio32 cpu_to_virtio32(struct virtio_device *vdev, u32 val)
++{
++	return __cpu_to_virtio32(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
++}
++
++static inline u64 virtio64_to_cpu(struct virtio_device *vdev, __virtio64 val)
++{
++	return __virtio64_to_cpu(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
++}
++
++static inline __virtio64 cpu_to_virtio64(struct virtio_device *vdev, u64 val)
++{
++	return __cpu_to_virtio64(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
++}
++
+ /* Config space accessors. */
+ #define virtio_cread(vdev, structname, member, ptr)			\
+ 	do {								\
+diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
+index a99f9b7..61c818a 100644
+--- a/include/uapi/linux/virtio_ring.h
++++ b/include/uapi/linux/virtio_ring.h
+@@ -32,6 +32,7 @@
+  *
+  * Copyright Rusty Russell IBM Corporation 2007. */
+ #include <linux/types.h>
++#include <linux/virtio_types.h>
  
- 	if (unlikely(i >= vq->vring.num)) {
- 		BAD_RING(vq, "id %u out of range\n", i);
-@@ -510,8 +511,8 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
- 	/* If we expect an interrupt for the next entry, tell host
- 	 * by writing event index and flush out the write before
- 	 * the read in the next get_buf call. */
--	if (!(vq->vring.avail->flags & VRING_AVAIL_F_NO_INTERRUPT)) {
--		vring_used_event(&vq->vring) = vq->last_used_idx;
-+	if (!(vq->vring.avail->flags & cpu_to_virtio16(_vq->vdev, VRING_AVAIL_F_NO_INTERRUPT))) {
-+		vring_used_event(&vq->vring) = cpu_to_virtio16(_vq->vdev, vq->last_used_idx);
- 		virtio_mb(vq->weak_barriers);
- 	}
+ /* This marks a buffer as continuing via the next field. */
+ #define VRING_DESC_F_NEXT	1
+@@ -61,32 +62,32 @@
+ /* Virtio ring descriptors: 16 bytes.  These can chain together via "next". */
+ struct vring_desc {
+ 	/* Address (guest-physical). */
+-	__u64 addr;
++	__virtio64 addr;
+ 	/* Length. */
+-	__u32 len;
++	__virtio32 len;
+ 	/* The flags as indicated above. */
+-	__u16 flags;
++	__virtio16 flags;
+ 	/* We chain unused descriptors via this, too */
+-	__u16 next;
++	__virtio16 next;
+ };
  
-@@ -537,7 +538,7 @@ void virtqueue_disable_cb(struct virtqueue *_vq)
+ struct vring_avail {
+-	__u16 flags;
+-	__u16 idx;
+-	__u16 ring[];
++	__virtio16 flags;
++	__virtio16 idx;
++	__virtio16 ring[];
+ };
+ 
+ /* u32 is used here for ids for padding reasons. */
+ struct vring_used_elem {
+ 	/* Index of start of used descriptor chain. */
+-	__u32 id;
++	__virtio32 id;
+ 	/* Total length of the descriptor chain which was used (written to) */
+-	__u32 len;
++	__virtio32 len;
+ };
+ 
+ struct vring_used {
+-	__u16 flags;
+-	__u16 idx;
++	__virtio16 flags;
++	__virtio16 idx;
+ 	struct vring_used_elem ring[];
+ };
+ 
+@@ -109,25 +110,25 @@ struct vring {
+  *	struct vring_desc desc[num];
+  *
+  *	// A ring of available descriptor heads with free-running index.
+- *	__u16 avail_flags;
+- *	__u16 avail_idx;
+- *	__u16 available[num];
+- *	__u16 used_event_idx;
++ *	__virtio16 avail_flags;
++ *	__virtio16 avail_idx;
++ *	__virtio16 available[num];
++ *	__virtio16 used_event_idx;
+  *
+  *	// Padding to the next align boundary.
+  *	char pad[];
+  *
+  *	// A ring of used descriptor heads with free-running index.
+- *	__u16 used_flags;
+- *	__u16 used_idx;
++ *	__virtio16 used_flags;
++ *	__virtio16 used_idx;
+  *	struct vring_used_elem used[num];
+- *	__u16 avail_event_idx;
++ *	__virtio16 avail_event_idx;
+  * };
+  */
+ /* We publish the used event index at the end of the available ring, and vice
+  * versa. They are at the end for backwards compatibility. */
+ #define vring_used_event(vr) ((vr)->avail->ring[(vr)->num])
+-#define vring_avail_event(vr) (*(__u16 *)&(vr)->used->ring[(vr)->num])
++#define vring_avail_event(vr) (*(__virtio16 *)&(vr)->used->ring[(vr)->num])
+ 
+ static inline void vring_init(struct vring *vr, unsigned int num, void *p,
+ 			      unsigned long align)
+@@ -135,15 +136,15 @@ static inline void vring_init(struct vring *vr, unsigned int num, void *p,
+ 	vr->num = num;
+ 	vr->desc = p;
+ 	vr->avail = p + num*sizeof(struct vring_desc);
+-	vr->used = (void *)(((unsigned long)&vr->avail->ring[num] + sizeof(__u16)
++	vr->used = (void *)(((unsigned long)&vr->avail->ring[num] + sizeof(__virtio16)
+ 		+ align-1) & ~(align - 1));
+ }
+ 
+ static inline unsigned vring_size(unsigned int num, unsigned long align)
  {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 
--	vq->vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
-+	vq->vring.avail->flags |= cpu_to_virtio16(_vq->vdev, VRING_AVAIL_F_NO_INTERRUPT);
+-	return ((sizeof(struct vring_desc) * num + sizeof(__u16) * (3 + num)
++	return ((sizeof(struct vring_desc) * num + sizeof(__virtio16) * (3 + num)
+ 		 + align - 1) & ~(align - 1))
+-		+ sizeof(__u16) * 3 + sizeof(struct vring_used_elem) * num;
++		+ sizeof(__virtio16) * 3 + sizeof(struct vring_used_elem) * num;
  }
- EXPORT_SYMBOL_GPL(virtqueue_disable_cb);
  
-@@ -565,8 +566,8 @@ unsigned virtqueue_enable_cb_prepare(struct virtqueue *_vq)
- 	/* Depending on the VIRTIO_RING_F_EVENT_IDX feature, we need to
- 	 * either clear the flags bit or point the event index at the next
- 	 * entry. Always do both to keep code simple. */
--	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
--	vring_used_event(&vq->vring) = last_used_idx = vq->last_used_idx;
-+	vq->vring.avail->flags &= cpu_to_virtio16(_vq->vdev, ~VRING_AVAIL_F_NO_INTERRUPT);
-+	vring_used_event(&vq->vring) = cpu_to_virtio16(_vq->vdev, last_used_idx = vq->last_used_idx);
- 	END_USE(vq);
- 	return last_used_idx;
- }
-@@ -586,7 +587,7 @@ bool virtqueue_poll(struct virtqueue *_vq, unsigned last_used_idx)
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 
- 	virtio_mb(vq->weak_barriers);
--	return (u16)last_used_idx != vq->vring.used->idx;
-+	return (u16)last_used_idx != virtio16_to_cpu(_vq->vdev, vq->vring.used->idx);
- }
- EXPORT_SYMBOL_GPL(virtqueue_poll);
- 
-@@ -633,12 +634,12 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
- 	/* Depending on the VIRTIO_RING_F_USED_EVENT_IDX feature, we need to
- 	 * either clear the flags bit or point the event index at the next
- 	 * entry. Always do both to keep code simple. */
--	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
-+	vq->vring.avail->flags &= cpu_to_virtio16(_vq->vdev, ~VRING_AVAIL_F_NO_INTERRUPT);
- 	/* TODO: tune this threshold */
--	bufs = (u16)(vq->vring.avail->idx - vq->last_used_idx) * 3 / 4;
--	vring_used_event(&vq->vring) = vq->last_used_idx + bufs;
-+	bufs = (u16)(virtio16_to_cpu(_vq->vdev, vq->vring.avail->idx) - vq->last_used_idx) * 3 / 4;
-+	vring_used_event(&vq->vring) = cpu_to_virtio16(_vq->vdev, vq->last_used_idx + bufs);
- 	virtio_mb(vq->weak_barriers);
--	if (unlikely((u16)(vq->vring.used->idx - vq->last_used_idx) > bufs)) {
-+	if (unlikely((u16)(virtio16_to_cpu(_vq->vdev, vq->vring.used->idx) - vq->last_used_idx) > bufs)) {
- 		END_USE(vq);
- 		return false;
- 	}
-@@ -670,7 +671,7 @@ void *virtqueue_detach_unused_buf(struct virtqueue *_vq)
- 		/* detach_buf clears data, so grab it now. */
- 		buf = vq->data[i];
- 		detach_buf(vq, i);
--		vq->vring.avail->idx--;
-+		vq->vring.avail->idx = cpu_to_virtio16(_vq->vdev, virtio16_to_cpu(_vq->vdev, vq->vring.avail->idx) - 1);
- 		END_USE(vq);
- 		return buf;
- 	}
-@@ -747,12 +748,12 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
- 
- 	/* No callback?  Tell other side not to bother us. */
- 	if (!callback)
--		vq->vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
-+		vq->vring.avail->flags |= cpu_to_virtio16(vdev, VRING_AVAIL_F_NO_INTERRUPT);
- 
- 	/* Put everything in free lists. */
- 	vq->free_head = 0;
- 	for (i = 0; i < num-1; i++) {
--		vq->vring.desc[i].next = i+1;
-+		vq->vring.desc[i].next = cpu_to_virtio16(vdev, i + 1);
- 		vq->data[i] = NULL;
- 	}
- 	vq->data[i] = NULL;
+ /* The following is used with USED_EVENT_IDX and AVAIL_EVENT_IDX */
+diff --git a/include/uapi/linux/virtio_types.h b/include/uapi/linux/virtio_types.h
+new file mode 100644
+index 0000000..e845e8c
+--- /dev/null
++++ b/include/uapi/linux/virtio_types.h
+@@ -0,0 +1,46 @@
++#ifndef _UAPI_LINUX_VIRTIO_TYPES_H
++#define _UAPI_LINUX_VIRTIO_TYPES_H
++/* Type definitions for virtio implementations.
++ *
++ * This header is BSD licensed so anyone can use the definitions to implement
++ * compatible drivers/servers.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in the
++ *    documentation and/or other materials provided with the distribution.
++ * 3. Neither the name of IBM nor the names of its contributors
++ *    may be used to endorse or promote products derived from this software
++ *    without specific prior written permission.
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS'' AND
++ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED.  IN NO EVENT SHALL IBM OR CONTRIBUTORS BE LIABLE
++ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
++ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
++ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
++ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
++ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++ * SUCH DAMAGE.
++ *
++ * Copyright (C) 2014 Red Hat, Inc.
++ * Author: Michael S. Tsirkin <mst@redhat.com>
++ */
++#include <linux/types.h>
++
++/*
++ * __virtio{16,32,64} have the following meaning:
++ * - __u{16,32,64} for virtio devices in legacy mode, accessed in native endian
++ * - __le{16,32,64} for standard-compliant virtio devices
++ */
++
++typedef __u16 __bitwise__ __virtio16;
++typedef __u32 __bitwise__ __virtio32;
++typedef __u64 __bitwise__ __virtio64;
++
++#endif /* _UAPI_LINUX_VIRTIO_TYPES_H */
+diff --git a/include/uapi/linux/Kbuild b/include/uapi/linux/Kbuild
+index 4c94f31..44a5581 100644
+--- a/include/uapi/linux/Kbuild
++++ b/include/uapi/linux/Kbuild
+@@ -423,6 +423,7 @@ header-y += virtio_blk.h
+ header-y += virtio_config.h
+ header-y += virtio_console.h
+ header-y += virtio_ids.h
++header-y += virtio_types.h
+ header-y += virtio_net.h
+ header-y += virtio_pci.h
+ header-y += virtio_ring.h
 -- 
 MST
