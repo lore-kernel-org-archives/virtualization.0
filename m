@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH RFC v4 00/16] qemu: towards virtio-1 host support
-Date: Thu, 27 Nov 2014 18:35:40 +0200
-Message-ID: <20141127163540.GC27124@redhat.com>
+Date: Thu, 27 Nov 2014 18:38:59 +0200
+Message-ID: <20141127163859.GA28193@redhat.com>
 References: <1417101409-29482-1-git-send-email-cornelia.huck@de.ibm.com>
 	<20141127152422.GA26747@redhat.com>
 	<20141127163139.7db48144.cornelia.huck@de.ibm.com>
@@ -41,9 +41,7 @@ On Thu, Nov 27, 2014 at 05:28:42PM +0100, Cornelia Huck wrote:
 > 
 > But these belong to the device type and the transport just needs to
 > trigger usage of the right one, right?
-
-Yes.
-
+> 
 > > 
 > > > For ccw, this would check for the negotiated revision; for mmio, it
 > > > could check a device property configured with the device; and for pci,
@@ -58,8 +56,10 @@ Yes.
 > Have a is_legacy flag in the vdev that is initialized to 1, and
 > transports can unset it when the revision is negotiated or during init?
 
-I would say have modern_features, legacy_features, and set host_features
-correctly.
+
+Also, let's focus on one device, e.g. -net for now.
+Then probably virtio scsi.
+That's because blk needs to be reworked to support ANY_LAYOUT.
 
 -- 
 MST
