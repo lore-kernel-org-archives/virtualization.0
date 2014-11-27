@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v6 12/46] virtio: set FEATURES_OK
-Date: Thu, 27 Nov 2014 22:08:43 +0200
-Message-ID: <1417118789-18231-13-git-send-email-mst__11436.0003885396$1417118983$gmane$org@redhat.com>
+Subject: [PATCH v6 13/46] virtio: simplify feature bit handling
+Date: Thu, 27 Nov 2014 22:08:47 +0200
+Message-ID: <1417118789-18231-14-git-send-email-mst__1057.78567162833$1417118993$gmane$org@redhat.com>
 References: <1417118789-18231-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,81 +19,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
+Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-set FEATURES_OK as per virtio 1.0 spec
+Now that we use u64 for bits, we can simply & them together.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- include/uapi/linux/virtio_config.h |  2 ++
- drivers/virtio/virtio.c            | 29 ++++++++++++++++++++++-------
- 2 files changed, 24 insertions(+), 7 deletions(-)
+ drivers/virtio/virtio.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
-index 80e7381..4d05671 100644
---- a/include/uapi/linux/virtio_config.h
-+++ b/include/uapi/linux/virtio_config.h
-@@ -38,6 +38,8 @@
- #define VIRTIO_CONFIG_S_DRIVER		2
- /* Driver has used its parts of the config, and is happy */
- #define VIRTIO_CONFIG_S_DRIVER_OK	4
-+/* Driver has finished configuring features */
-+#define VIRTIO_CONFIG_S_FEATURES_OK	8
- /* We've given up on this device. */
- #define VIRTIO_CONFIG_S_FAILED		0x80
- 
 diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 746d350..9248125 100644
+index 9248125..3e78f4b 100644
 --- a/drivers/virtio/virtio.c
 +++ b/drivers/virtio/virtio.c
 @@ -160,6 +160,7 @@ static int virtio_dev_probe(struct device *_d)
  	struct virtio_device *dev = dev_to_virtio(_d);
  	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
  	u64 device_features;
-+	unsigned status;
++	u64 driver_features;
+ 	unsigned status;
  
  	/* We have a driver! */
- 	add_status(dev, VIRTIO_CONFIG_S_DRIVER);
-@@ -183,18 +184,32 @@ static int virtio_dev_probe(struct device *_d)
+@@ -168,15 +169,16 @@ static int virtio_dev_probe(struct device *_d)
+ 	/* Figure out what features the device supports. */
+ 	device_features = dev->config->get_features(dev);
  
- 	dev->config->finalize_features(dev);
+-	/* Features supported by both device and driver into dev->features. */
+-	dev->features = 0;
++	/* Figure out what features the driver supports. */
++	driver_features = 0;
+ 	for (i = 0; i < drv->feature_table_size; i++) {
+ 		unsigned int f = drv->feature_table[i];
+ 		BUG_ON(f >= 64);
+-		if (device_features & (1ULL << f))
+-			__virtio_set_bit(dev, f);
++		driver_features |= (1ULL << f);
+ 	}
  
-+	if (virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
-+		add_status(dev, VIRTIO_CONFIG_S_FEATURES_OK);
-+		status = dev->config->get_status(dev);
-+		if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
-+			dev_err(_d, "virtio: device refuses features: %x\n",
-+			       status);
-+			err = -ENODEV;
-+			goto err;
-+		}
-+	}
++	dev->features = driver_features & device_features;
 +
- 	err = drv->probe(dev);
- 	if (err)
--		add_status(dev, VIRTIO_CONFIG_S_FAILED);
--	else {
--		add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
--		if (drv->scan)
--			drv->scan(dev);
-+		goto err;
- 
--		virtio_config_enable(dev);
--	}
-+	add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
-+	if (drv->scan)
-+		drv->scan(dev);
-+
-+	virtio_config_enable(dev);
- 
-+	return 0;
-+err:
-+	add_status(dev, VIRTIO_CONFIG_S_FAILED);
- 	return err;
-+
- }
- 
- static int virtio_dev_remove(struct device *_d)
+ 	/* Transport features always preserved to pass to finalize_features. */
+ 	for (i = VIRTIO_TRANSPORT_F_START; i < VIRTIO_TRANSPORT_F_END; i++)
+ 		if (device_features & (1ULL << i))
 -- 
 MST
