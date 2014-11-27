@@ -1,15 +1,18 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH RFC v3 11/12] virtio-net/virtio-blk: enable virtio 1.0
-Date: Thu, 27 Nov 2014 11:34:20 +0100
-Message-ID: <20141127113420.2eaaa82f.cornelia.huck__14943.7186577872$1417084483$gmane$org@de.ibm.com>
-References: <1417022923-1654-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1417022923-1654-12-git-send-email-cornelia.huck@de.ibm.com>
-	<20141126185005.GA9549@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v4 04/42] virtio: disable virtio 1.0 in transports
+Date: Thu, 27 Nov 2014 12:54:34 +0200
+Message-ID: <20141127105434.GA10037@redhat.com>
+References: <1416933600-21398-1-git-send-email-mst@redhat.com>
+	<1416933600-21398-5-git-send-email-mst@redhat.com>
+	<20141125182942.3890fe7b.cornelia.huck@de.ibm.com>
+	<20141125212011.GA22343@redhat.com>
+	<20141126100954.3811e594.cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141126185005.GA9549@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20141126100954.3811e594.cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,25 +22,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: linux-s390@vger.kernel.org, lguest@lists.ozlabs.org, Pawel Moll <pawel.moll@arm.com>, rusty@au1.ibm.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Sudeep Dutt <sudeep.dutt@intel.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Siva Yerramreddy <yshivakrishna@gmail.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, pbonzini@redhat.com, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 26 Nov 2014 20:50:05 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Wed, Nov 26, 2014 at 10:09:54AM +0100, Cornelia Huck wrote:
+> On Tue, 25 Nov 2014 23:20:11 +0200
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> 
+> > On Tue, Nov 25, 2014 at 06:29:42PM +0100, Cornelia Huck wrote:
+> > > On Tue, 25 Nov 2014 18:41:35 +0200
+> > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > 
+> > > > disable virtio 1.0 in transports that don't
+> > > > support it yet.
+> > > 
+> > > I'd prefer if you disabled it for _every_ transport in this patch,
+> > > until the needed infrastructure is in place. Else this is a bit
+> > > confusing.
+> > 
+> > Well the only transports left are pci and rpoc, and these only
+> > read the low 32 bit of the features from the device -
+> > so there's nothing to clear.
+> > 
+> > E.g. the following would be even more confusing, would it not:
+> > 
+> > 	u32 features;
+> > 	....
+> > 	features &= ~BIT_ULL(VIRTIO_F_VERSION_1);
+> > 
+> > Agree?
+> 
+> Maybe you should tweak the patch description a bit and mention that you
+> only disable virtio 1.0 for transports where it is actually needed?
+> 
+> (...)
 
-> On Wed, Nov 26, 2014 at 06:28:42PM +0100, Cornelia Huck wrote:
-> > virtio-net (non-vhost) and virtio-blk have everything in place to support
-> > virtio 1.0: let's enable the feature bit for them.
-> 
-> Hmm I doubt that.
-> At least not without more patches.
-> 
-> For block, scsi, wce and config-wce must be off, and
-> it must support ANY_LAYOUT (which might be a bit more code).
-> 
-> For net, header size is different when mergeable bufs are off,
-> and mac is read-only.
+Yes, I did that now.
 
-Yeah, I'll need to walk through the spec again, this was mainly to test
-my changes.
+> > > FWIW, as negotiating a revision >= 1 is a pre-req for virtio 1.0
+> > > support on ccw, virtio 1.0 is already implicitly disabled.
+> > 
+> > Ah, you mean device guarantees that VIRTIO_F_VERSION_1 isn't set
+> > if guest sets revision to 0?
+> 
+> Yes, the bit will not be offered if the revision is 0 or has not been
+> set at all.
+> 
+> > In that case it's probably best to drop this from both ccw
+> > devices.
+> 
+> There's only one ccw transport :)
+> 
+> The old s390 virtio transport in kvm_virtio.c is not part of virtio 1.0.
+
+It might or might not be a good idea to add code in kvm_virtio.c
+blacklisting VIRTIO_F_VERSION_1, just in case there's a buggy device
+that sets it.
+As correct devices won't set it, I don't think we need to
+worry about it too much. We can make it a patch on top later
+if we want.
+
+-- 
+MST
