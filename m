@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v5 06/45] virtio: add virtio 1.0 feature bit
-Date: Thu, 27 Nov 2014 14:30:34 +0200
-Message-ID: <1417091078-24611-7-git-send-email-mst@redhat.com>
+Subject: [PATCH v5 09/45] virtio_config: endian conversion for v1.0
+Date: Thu, 27 Nov 2014 14:30:50 +0200
+Message-ID: <1417091078-24611-10-git-send-email-mst__21380.8971959681$1417091492$gmane$org@redhat.com>
 References: <1417091078-24611-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,38 +19,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
+Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Based on original patches by Rusty Russell, Thomas Huth
-and Cornelia Huck.
+We (ab)use virtio conversion functions for device-specific
+config space accesses.
 
-Note: at this time, we do not negotiate this feature bit
-in core, drivers have to declare VERSION_1 support explicitly.
+Based on original patches by Cornelia and Rusty.
 
-For this reason we treat this bit as a device bit
-and not as a transport bit for now.
-
-After all drivers are converted, we will be able to
-move VERSION_1 to core and drop it from all drivers.
-
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- include/uapi/linux/virtio_config.h | 3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/virtio_config.h | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
-index 3ce768c..80e7381 100644
---- a/include/uapi/linux/virtio_config.h
-+++ b/include/uapi/linux/virtio_config.h
-@@ -54,4 +54,7 @@
- /* Can the device handle any descriptor layout? */
- #define VIRTIO_F_ANY_LAYOUT		27
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index b9cd689..b50c4a1 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -271,12 +271,13 @@ static inline u16 virtio_cread16(struct virtio_device *vdev,
+ {
+ 	u16 ret;
+ 	vdev->config->get(vdev, offset, &ret, sizeof(ret));
+-	return ret;
++	return virtio16_to_cpu(vdev, (__force __virtio16)ret);
+ }
  
-+/* v1.0 compliant. */
-+#define VIRTIO_F_VERSION_1		32
-+
- #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
+ static inline void virtio_cwrite16(struct virtio_device *vdev,
+ 				   unsigned int offset, u16 val)
+ {
++	val = (__force u16)cpu_to_virtio16(vdev, val);
+ 	vdev->config->set(vdev, offset, &val, sizeof(val));
+ }
+ 
+@@ -285,12 +286,13 @@ static inline u32 virtio_cread32(struct virtio_device *vdev,
+ {
+ 	u32 ret;
+ 	vdev->config->get(vdev, offset, &ret, sizeof(ret));
+-	return ret;
++	return virtio32_to_cpu(vdev, (__force __virtio32)ret);
+ }
+ 
+ static inline void virtio_cwrite32(struct virtio_device *vdev,
+ 				   unsigned int offset, u32 val)
+ {
++	val = (__force u32)cpu_to_virtio32(vdev, val);
+ 	vdev->config->set(vdev, offset, &val, sizeof(val));
+ }
+ 
+@@ -299,12 +301,13 @@ static inline u64 virtio_cread64(struct virtio_device *vdev,
+ {
+ 	u64 ret;
+ 	vdev->config->get(vdev, offset, &ret, sizeof(ret));
+-	return ret;
++	return virtio64_to_cpu(vdev, (__force __virtio64)ret);
+ }
+ 
+ static inline void virtio_cwrite64(struct virtio_device *vdev,
+ 				   unsigned int offset, u64 val)
+ {
++	val = (__force u64)cpu_to_virtio64(vdev, val);
+ 	vdev->config->set(vdev, offset, &val, sizeof(val));
+ }
+ 
 -- 
 MST
