@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC v4 13/16] s390x/virtio-ccw: enable virtio 1.0
-Date: Thu, 27 Nov 2014 16:16:46 +0100
-Message-ID: <1417101409-29482-14-git-send-email-cornelia.huck__14924.4698034183$1417101580$gmane$org@de.ibm.com>
+Subject: [PATCH RFC v4 15/16] virtio-net: support longer header
+Date: Thu, 27 Nov 2014 16:16:48 +0100
+Message-ID: <1417101409-29482-16-git-send-email-cornelia.huck__10525.8173462518$1417101590$gmane$org@de.ibm.com>
 References: <1417101409-29482-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,26 +21,33 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.k
 Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio-ccw should now have everything in place to operate virtio 1.0
-devices, so let's enable revision 1.
+virtio-1 devices always use num_buffers in the header, even if
+mergeable rx buffers have not been negotiated.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/s390x/virtio-ccw.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ hw/net/virtio-net.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/hw/s390x/virtio-ccw.h b/hw/s390x/virtio-ccw.h
-index 03d5955..08edd8d 100644
---- a/hw/s390x/virtio-ccw.h
-+++ b/hw/s390x/virtio-ccw.h
-@@ -73,7 +73,7 @@ typedef struct VirtIOCCWDeviceClass {
- #define VIRTIO_CCW_FEATURE_SIZE NR_VIRTIO_FEATURE_WORDS
+diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
+index ad477bf..b31b3a4 100644
+--- a/hw/net/virtio-net.c
++++ b/hw/net/virtio-net.c
+@@ -380,8 +380,13 @@ static void virtio_net_set_mrg_rx_bufs(VirtIONet *n, int mergeable_rx_bufs)
  
- /* The maximum virtio revision we support. */
--#define VIRTIO_CCW_REV_MAX 0
-+#define VIRTIO_CCW_REV_MAX 1
+     n->mergeable_rx_bufs = mergeable_rx_bufs;
  
- /* Performance improves when virtqueue kick processing is decoupled from the
-  * vcpu thread using ioeventfd for some devices. */
+-    n->guest_hdr_len = n->mergeable_rx_bufs ?
+-        sizeof(struct virtio_net_hdr_mrg_rxbuf) : sizeof(struct virtio_net_hdr);
++    if (n->parent_obj.guest_features[1] >> (VIRTIO_F_VERSION_1 - 32) & 1) {
++        n->guest_hdr_len = sizeof(struct virtio_net_hdr_mrg_rxbuf);
++    } else {
++        n->guest_hdr_len = n->mergeable_rx_bufs ?
++            sizeof(struct virtio_net_hdr_mrg_rxbuf) :
++            sizeof(struct virtio_net_hdr);
++    }
+ 
+     for (i = 0; i < n->max_queues; i++) {
+         nc = qemu_get_subqueue(n->nic, i);
 -- 
 1.7.9.5
