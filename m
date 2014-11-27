@@ -1,18 +1,17 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH RFC v4 00/16] qemu: towards virtio-1 host support
-Date: Thu, 27 Nov 2014 17:28:42 +0100
-Message-ID: <20141127172842.42782626.cornelia.huck__7739.51353407956$1417105744$gmane$org@de.ibm.com>
-References: <1417101409-29482-1-git-send-email-cornelia.huck@de.ibm.com>
-	<20141127152422.GA26747@redhat.com>
-	<20141127163139.7db48144.cornelia.huck@de.ibm.com>
-	<20141127154211.GC26747@redhat.com>
-	<20141127170651.67f918e2.cornelia.huck@de.ibm.com>
-	<20141127161825.GA27124@redhat.com>
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Subject: Re: [PATCH v5 01/45] virtio: use u32, not bitmap for struct
+	virtio_device's features
+Date: Thu, 27 Nov 2014 17:34:14 +0100
+Message-ID: <20141127173414.20424b62@thinkpad-w530>
+References: <1417091078-24611-1-git-send-email-mst@redhat.com>
+	<1417091078-24611-2-git-send-email-mst@redhat.com>
+	<20141127171542.3dbb2bc2@thinkpad-w530>
+	<20141127162804.GB27124@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141127161825.GA27124@redhat.com>
+In-Reply-To: <20141127162804.GB27124@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,32 +22,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: rusty@au1.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, Sudeep Dutt <sudeep.dutt@intel.com>, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, lguest@lists.ozlabs.org, Arnd Bergmann <arnd@arndb.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Joel Stanley <joel@jms.id.au>, Pawel Moll <pawel.moll@arm.com>, Siva Yerramreddy <yshivakrishna@gmail.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, pbonzini@redhat.com, thuth@linux.vnet.ibm.com, Brian Swetland <swetland@google.com>, linux-kernel@vger.kernel.org, Ashutosh Dixit <ashutosh.dixit@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Amit Shah <amit.shah@redhat.com>, linux390@de.ibm.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 27 Nov 2014 18:18:25 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> On Thu, Nov 27, 2014 at 05:06:51PM +0100, Cornelia Huck wrote:
-
-> > So we should have a per-device callback into the transport layer, say
-> > check_legacy()?
+> That's the whole reason for the patch.
 > 
-> I would just have 2 masks: legacy_features and features.
+> I guess you disagree with it, but it's much easier
+> to deal with simple integers.
+> 
 
-But these belong to the device type and the transport just needs to
-trigger usage of the right one, right?
+Well, I can live with it :)
 
-> 
-> > For ccw, this would check for the negotiated revision; for mmio, it
-> > could check a device property configured with the device; and for pci,
-> > whatever the mechanism is there :)
-> > 
-> > A transport not implementing this callback is simply considered
-> > legacy-only.
-> 
-> I dislike callbacks. Let's just give all info to core,
-> and have it DTRT.
-> 
-Have a is_legacy flag in the vdev that is initialized to 1, and
-transports can unset it when the revision is negotiated or during init?
+clear_bit() and friends are just easier to understand when scanning the code
+(at least for me).
