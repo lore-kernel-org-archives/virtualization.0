@@ -1,15 +1,18 @@
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Subject: Re: [PATCH v5 01/45] virtio: use u32, not bitmap for struct
-	virtio_device's features
-Date: Thu, 27 Nov 2014 17:15:42 +0100
-Message-ID: <20141127171542.3dbb2bc2@thinkpad-w530>
-References: <1417091078-24611-1-git-send-email-mst@redhat.com>
-	<1417091078-24611-2-git-send-email-mst@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RFC v4 00/16] qemu: towards virtio-1 host support
+Date: Thu, 27 Nov 2014 18:18:25 +0200
+Message-ID: <20141127161825.GA27124@redhat.com>
+References: <1417101409-29482-1-git-send-email-cornelia.huck@de.ibm.com>
+	<20141127152422.GA26747@redhat.com>
+	<20141127163139.7db48144.cornelia.huck@de.ibm.com>
+	<20141127154211.GC26747@redhat.com>
+	<20141127170651.67f918e2.cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1417091078-24611-2-git-send-email-mst@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20141127170651.67f918e2.cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,117 +22,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: rusty@au1.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, Sudeep Dutt <sudeep.dutt@intel.com>, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, lguest@lists.ozlabs.org, Arnd Bergmann <arnd@arndb.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Joel Stanley <joel@jms.id.au>, Pawel Moll <pawel.moll@arm.com>, Siva Yerramreddy <yshivakrishna@gmail.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, pbonzini@redhat.com, thuth@linux.vnet.ibm.com, Brian Swetland <swetland@google.com>, linux-kernel@vger.kernel.org, Ashutosh Dixit <ashutosh.dixit@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Amit Shah <amit.shah@redhat.com>, linux390@de.ibm.com, David Miller <davem@davemloft.net>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> From: Rusty Russell <rusty@rustcorp.com.au>
+On Thu, Nov 27, 2014 at 05:06:51PM +0100, Cornelia Huck wrote:
+> On Thu, 27 Nov 2014 17:42:11 +0200
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
 > 
-> It seemed like a good idea, but it's actually a pain when we get more
-> than 32 feature bits.  Just change it to a u32 for now.
+> > On Thu, Nov 27, 2014 at 04:31:39PM +0100, Cornelia Huck wrote:
+> > > On Thu, 27 Nov 2014 17:24:22 +0200
+> > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > 
+> > > > On Thu, Nov 27, 2014 at 04:16:33PM +0100, Cornelia Huck wrote:
+> > > > > Yet another version of the virtio-1 support patches.
+> > > > > 
+> > > > > This one has seen some (very) light testing with the virtio-1 guest
+> > > > > support patches currently on vhost-next.
+> > > > > 
+> > > > > Changes from v3:
+> > > > > 
+> > > > > - Add support for FEATURES_OK. We refuse to set features after the
+> > > > >   driver has set this in the status field, and we allow to fail
+> > > > >   setting the status if the features are inconsistent.
+> > > > > - Add missing virtio-1 changes for virtio-net (header size and mac).
+> > > > > - Dropped setting the VERSION_1 bit for virtio-blk: There's still
+> > > > >   some stuff missing.
+> > > > > 
+> > > > > For virtio-blk, we need to validate the feature bits if version 1 is
+> > > > > negotiated: some legacy features are not allowed in that case. I'm not
+> > > > > quite sure how to handle this, though. We could use the new
+> > > > > validate_features callback to verify that the driver negotiated a
+> > > > > sensible feature set, but that would require us to offer a superset
+> > > > > of legacy and version 1 bits, which feels wrong. Any ideas?
+> > > > 
+> > > > No, that's violating the spec.
+> > > > I think the simplest way is to have separate features and
+> > > > legacy_features fields.  Present the correct one depending on which
+> > > > revision was negotiated.
+> > > 
+> > > But revisions are a virtio-ccw only thing - what can other transports
+> > > do here?
+> > 
+> > Other transports have different ways to deal with this.
+> > For example virtio pci exposes a legacy header and
+> > a modern header. Legacy header will expose old features,
+> > modern one - new features.
+> > 
+> > mmio simply does not support transitional devices.
+> > So qemu user will have to specify virtio 1.0 or 0.9 for mmio.
+> > 
+> > Other transports are out of virtio 1.0 spec so
+> > they just use legacy features.
+> > 
+> > > The basic problem is that we decide via a feature bit that
+> > > needs to be negotiated which feature bits we want to present.
+> > 
+> > Consider wce as one example.  This is not needed for modern guests, so
+> > we can just mask it from modern feature mask.  Consider virtio blk scsi
+> > commands as another example.  this feature is not supported in virtio
+> > 1.0, so we must mask it from modern feature mask.
+> > 
+> > Seems the same handling works in all cases?
 > 
-> Cc: Brian Swetland <swetland@google.com>
-> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> Acked-by: Pawel Moll <pawel.moll@arm.com>
-> Acked-by: Ohad Ben-Cohen <ohad@wizery.com>
+> This was just what I was talking about...
 > 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
-
-Wouldn't it be easier to turn
-  test_bit(i, dev->features)
-
-into a simple makro like
-  #define test_bit(i, features) (features & (1 << i))
-
-Similar one for clear_bit and set_bit.
-
-if names collide with existing functions, we could simply rename them to:
-
-set_feature_bit() ...
-clear_feature_bit() ...
-
-> diff --git a/drivers/misc/mic/card/mic_virtio.c b/drivers/misc/mic/card/mic_virtio.c
-> index e647947..0acd564 100644
-> --- a/drivers/misc/mic/card/mic_virtio.c
-> +++ b/drivers/misc/mic/card/mic_virtio.c
-> @@ -101,7 +101,7 @@ static void mic_finalize_features(struct virtio_device *vdev)
->  	bits = min_t(unsigned, feature_len,
->  		sizeof(vdev->features)) * 8;
->  	for (i = 0; i < bits; i++) {
-> -		if (test_bit(i, vdev->features))
-> +		if (vdev->features & BIT(bits))
-
-Hm, shouldn't that also be "if (vdev->features & (1 << i))"?
-
->  			iowrite8(ioread8(&out_features[i / 8]) | (1 << (i % 8)),
->  				 &out_features[i / 8]);
->  	}
-
->  out_free:
->  	kfree(features);
->  	kfree(ccw);
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index df598dd..7814b1f 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -49,9 +49,9 @@ static ssize_t features_show(struct device *_d,
+> > 
+> > 
+> > > pci and
+> > > mmio don't have a way to know whether the driver wants to use 1.0 or
+> > > legacy prior to feature negotiation, do they?
+> > 
+> > pci does. mmio doesn't but it does not want to support transitional
+> > devices.
+> > 
 > 
->  	/* We actually represent this as a bitstring, as it could be
->  	 * arbitrary length in future. */
-> -	for (i = 0; i < ARRAY_SIZE(dev->features)*BITS_PER_LONG; i++)
-> +	for (i = 0; i < sizeof(dev->features)*8; i++)
+> So we should have a per-device callback into the transport layer, say
+> check_legacy()?
 
-... sizeof(dev->features) * 8; ...
+I would just have 2 masks: legacy_features and features.
 
-Do we have a define for 8 ?
-
->  		len += sprintf(buf+len, "%c",
-> -			       test_bit(i, dev->features) ? '1' : '0');
-> +			       dev->features & (1ULL << i) ? '1' : '0');
->  	len += sprintf(buf+len, "\n");
->  	return len;
->  }
-> @@ -168,18 +168,18 @@ static int virtio_dev_probe(struct device *_d)
->  	device_features = dev->config->get_features(dev);
+> For ccw, this would check for the negotiated revision; for mmio, it
+> could check a device property configured with the device; and for pci,
+> whatever the mechanism is there :)
 > 
+> A transport not implementing this callback is simply considered
+> legacy-only.
 
-[...]
-
-> @@ -483,7 +483,7 @@ int main(int argc, char *argv[])
-> 
->  	/* Set up host side. */
->  	vring_init(&vrh.vring, RINGSIZE, __user_addr_min, ALIGN);
-> -	vringh_init_user(&vrh, vdev.features[0], RINGSIZE, true,
-> +	vringh_init_user(&vrh, vdev.features, RINGSIZE, true,
->  			 vrh.vring.desc, vrh.vring.avail, vrh.vring.used);
-> 
->  	/* No descriptor to get yet... */
-> @@ -652,13 +652,13 @@ int main(int argc, char *argv[])
->  	}
-> 
->  	/* Test weird (but legal!) indirect. */
-> -	if (vdev.features[0] & (1 << VIRTIO_RING_F_INDIRECT_DESC)) {
-> +	if (vdev.features & (1 << VIRTIO_RING_F_INDIRECT_DESC)) {
->  		char *data = __user_addr_max - USER_MEM/4;
->  		struct vring_desc *d = __user_addr_max - USER_MEM/2;
->  		struct vring vring;
-> 
->  		/* Force creation of direct, which we modify. */
-> -		vdev.features[0] &= ~(1 << VIRTIO_RING_F_INDIRECT_DESC);
-> +		vdev.features &= ~(1 << VIRTIO_RING_F_INDIRECT_DESC);
-
-That could then be something like 
-
-clear_feature_bit(VIRTIO_RING_F_INDIRECT_DESC, vdev.features);
-
-(I would prefer such makros over repeating bit actions)
-
->  		vq = vring_new_virtqueue(0, RINGSIZE, ALIGN, &vdev, true,
->  					 __user_addr_min,
->  					 never_notify_host,
-
-
-But on the whole this looks good to me.
+I dislike callbacks. Let's just give all info to core,
+and have it DTRT.
