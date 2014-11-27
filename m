@@ -1,14 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v5 44/45] vhost/scsi: partial virtio 1.0 support
-Date: Thu, 27 Nov 2014 14:33:49 +0200
-Message-ID: <1417091078-24611-45-git-send-email-mst__18323.2812014923$1417091810$gmane$org@redhat.com>
-References: <1417091078-24611-1-git-send-email-mst@redhat.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC v4 00/16] qemu: towards virtio-1 host support
+Date: Thu, 27 Nov 2014 16:16:33 +0100
+Message-ID: <1417101409-29482-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1417091078-24611-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,100 +15,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: thuth@linux.vnet.ibm.com, kvm@vger.kernel.org, rusty@au1.ibm.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
+To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.kernel.org
+Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Include all endian conversions as required by virtio 1.0.
-Don't set virtio 1.0 yet, since that requires ANY_LAYOUT
-which we don't yet support.
+Yet another version of the virtio-1 support patches.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
----
- drivers/vhost/scsi.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+This one has seen some (very) light testing with the virtio-1 guest
+support patches currently on vhost-next.
 
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index a17f118..01c01cb 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -168,6 +168,7 @@ enum {
- 	VHOST_SCSI_VQ_IO = 2,
- };
- 
-+/* Note: can't set VIRTIO_F_VERSION_1 yet, since that implies ANY_LAYOUT. */
- enum {
- 	VHOST_SCSI_FEATURES = VHOST_FEATURES | (1ULL << VIRTIO_SCSI_F_HOTPLUG) |
- 					       (1ULL << VIRTIO_SCSI_F_T10_PI)
-@@ -577,8 +578,8 @@ tcm_vhost_allocate_evt(struct vhost_scsi *vs,
- 		return NULL;
- 	}
- 
--	evt->event.event = event;
--	evt->event.reason = reason;
-+	evt->event.event = cpu_to_vhost32(vq, event);
-+	evt->event.reason = cpu_to_vhost32(vq, reason);
- 	vs->vs_events_nr++;
- 
- 	return evt;
-@@ -636,7 +637,7 @@ again:
- 	}
- 
- 	if (vs->vs_events_missed) {
--		event->event |= VIRTIO_SCSI_T_EVENTS_MISSED;
-+		event->event |= cpu_to_vhost32(vq, VIRTIO_SCSI_T_EVENTS_MISSED);
- 		vs->vs_events_missed = false;
- 	}
- 
-@@ -695,12 +696,13 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
- 			cmd, se_cmd->residual_count, se_cmd->scsi_status);
- 
- 		memset(&v_rsp, 0, sizeof(v_rsp));
--		v_rsp.resid = se_cmd->residual_count;
-+		v_rsp.resid = cpu_to_vhost32(cmd->tvc_vq, se_cmd->residual_count);
- 		/* TODO is status_qualifier field needed? */
- 		v_rsp.status = se_cmd->scsi_status;
--		v_rsp.sense_len = se_cmd->scsi_sense_length;
-+		v_rsp.sense_len = cpu_to_vhost32(cmd->tvc_vq,
-+						 se_cmd->scsi_sense_length);
- 		memcpy(v_rsp.sense, cmd->tvc_sense_buf,
--		       v_rsp.sense_len);
-+		       se_cmd->scsi_sense_length);
- 		ret = copy_to_user(cmd->tvc_resp, &v_rsp, sizeof(v_rsp));
- 		if (likely(ret == 0)) {
- 			struct vhost_scsi_virtqueue *q;
-@@ -1095,14 +1097,14 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
- 						", but wrong data_direction\n");
- 					goto err_cmd;
- 				}
--				prot_bytes = v_req_pi.pi_bytesout;
-+				prot_bytes = vhost32_to_cpu(vq, v_req_pi.pi_bytesout);
- 			} else if (v_req_pi.pi_bytesin) {
- 				if (data_direction != DMA_FROM_DEVICE) {
- 					vq_err(vq, "Received non zero di_pi_niov"
- 						", but wrong data_direction\n");
- 					goto err_cmd;
- 				}
--				prot_bytes = v_req_pi.pi_bytesin;
-+				prot_bytes = vhost32_to_cpu(vq, v_req_pi.pi_bytesin);
- 			}
- 			if (prot_bytes) {
- 				int tmp = 0;
-@@ -1117,12 +1119,12 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
- 				data_first += prot_niov;
- 				data_niov = data_num - prot_niov;
- 			}
--			tag = v_req_pi.tag;
-+			tag = vhost64_to_cpu(vq, v_req_pi.tag);
- 			task_attr = v_req_pi.task_attr;
- 			cdb = &v_req_pi.cdb[0];
- 			lun = ((v_req_pi.lun[2] << 8) | v_req_pi.lun[3]) & 0x3FFF;
- 		} else {
--			tag = v_req.tag;
-+			tag = vhost64_to_cpu(vq, v_req.tag);
- 			task_attr = v_req.task_attr;
- 			cdb = &v_req.cdb[0];
- 			lun = ((v_req.lun[2] << 8) | v_req.lun[3]) & 0x3FFF;
+Changes from v3:
+
+- Add support for FEATURES_OK. We refuse to set features after the
+  driver has set this in the status field, and we allow to fail
+  setting the status if the features are inconsistent.
+- Add missing virtio-1 changes for virtio-net (header size and mac).
+- Dropped setting the VERSION_1 bit for virtio-blk: There's still
+  some stuff missing.
+
+For virtio-blk, we need to validate the feature bits if version 1 is
+negotiated: some legacy features are not allowed in that case. I'm not
+quite sure how to handle this, though. We could use the new
+validate_features callback to verify that the driver negotiated a
+sensible feature set, but that would require us to offer a superset
+of legacy and version 1 bits, which feels wrong. Any ideas?
+
+Cornelia Huck (13):
+  virtio: cull virtio_bus_set_vdev_features
+  virtio: support more feature bits
+  s390x/virtio-ccw: fix check for WRITE_FEAT
+  virtio: introduce legacy virtio devices
+  virtio: allow virtio-1 queue layout
+  dataplane: allow virtio-1 devices
+  s390x/virtio-ccw: support virtio-1 set_vq format
+  virtio: disallow late feature changes for virtio-1
+  virtio: allow to fail setting status
+  s390x/virtio-ccw: enable virtio 1.0
+  virtio-net: no writeable mac for virtio-1
+  virtio-net: support longer header
+  virtio-net: enable virtio 1.0
+
+Thomas Huth (3):
+  linux-headers/virtio_config: Update with VIRTIO_F_VERSION_1
+  s390x/css: Add a callback for when subchannel gets disabled
+  s390x/virtio-ccw: add virtio set-revision call
+
+ hw/9pfs/virtio-9p-device.c                    |    7 +-
+ hw/block/dataplane/virtio-blk.c               |    4 +-
+ hw/block/virtio-blk.c                         |    9 +-
+ hw/char/virtio-serial-bus.c                   |    9 +-
+ hw/net/virtio-net.c                           |   52 +++++--
+ hw/s390x/css.c                                |   12 ++
+ hw/s390x/css.h                                |    1 +
+ hw/s390x/s390-virtio-bus.c                    |    9 +-
+ hw/s390x/virtio-ccw.c                         |  206 +++++++++++++++++++------
+ hw/s390x/virtio-ccw.h                         |    7 +-
+ hw/scsi/vhost-scsi.c                          |    7 +-
+ hw/scsi/virtio-scsi-dataplane.c               |    2 +-
+ hw/scsi/virtio-scsi.c                         |   10 +-
+ hw/virtio/Makefile.objs                       |    2 +-
+ hw/virtio/dataplane/Makefile.objs             |    2 +-
+ hw/virtio/dataplane/vring.c                   |   96 ++++++------
+ hw/virtio/virtio-balloon.c                    |    8 +-
+ hw/virtio/virtio-bus.c                        |   23 +--
+ hw/virtio/virtio-mmio.c                       |    9 +-
+ hw/virtio/virtio-pci.c                        |   13 +-
+ hw/virtio/virtio-rng.c                        |    2 +-
+ hw/virtio/virtio.c                            |   88 +++++++++--
+ include/hw/virtio/dataplane/vring-accessors.h |   75 +++++++++
+ include/hw/virtio/dataplane/vring.h           |   14 +-
+ include/hw/virtio/virtio-access.h             |    4 +
+ include/hw/virtio/virtio-bus.h                |   10 +-
+ include/hw/virtio/virtio.h                    |   39 ++++-
+ linux-headers/linux/virtio_config.h           |    3 +
+ 28 files changed, 523 insertions(+), 200 deletions(-)
+ create mode 100644 include/hw/virtio/dataplane/vring-accessors.h
+
 -- 
-MST
+1.7.9.5
