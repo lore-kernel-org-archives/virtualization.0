@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC v4 14/16] virtio-net: no writeable mac for virtio-1
-Date: Thu, 27 Nov 2014 16:16:47 +0100
-Message-ID: <1417101409-29482-15-git-send-email-cornelia.huck__13252.9667266228$1417101574$gmane$org@de.ibm.com>
+Subject: [PATCH RFC v4 13/16] s390x/virtio-ccw: enable virtio 1.0
+Date: Thu, 27 Nov 2014 16:16:46 +0100
+Message-ID: <1417101409-29482-14-git-send-email-cornelia.huck__14924.4698034183$1417101580$gmane$org@de.ibm.com>
 References: <1417101409-29482-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,25 +21,26 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.k
 Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Devices operating as virtio 1.0 may not allow writes to the mac
-address in config space.
+virtio-ccw should now have everything in place to operate virtio 1.0
+devices, so let's enable revision 1.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/net/virtio-net.c |    1 +
- 1 file changed, 1 insertion(+)
+ hw/s390x/virtio-ccw.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
-index 1e214b5..ad477bf 100644
---- a/hw/net/virtio-net.c
-+++ b/hw/net/virtio-net.c
-@@ -87,6 +87,7 @@ static void virtio_net_set_config(VirtIODevice *vdev, const uint8_t *config)
-     memcpy(&netcfg, config, n->config_size);
+diff --git a/hw/s390x/virtio-ccw.h b/hw/s390x/virtio-ccw.h
+index 03d5955..08edd8d 100644
+--- a/hw/s390x/virtio-ccw.h
++++ b/hw/s390x/virtio-ccw.h
+@@ -73,7 +73,7 @@ typedef struct VirtIOCCWDeviceClass {
+ #define VIRTIO_CCW_FEATURE_SIZE NR_VIRTIO_FEATURE_WORDS
  
-     if (!(vdev->guest_features[0] >> VIRTIO_NET_F_CTRL_MAC_ADDR & 1) &&
-+        !(vdev->guest_features[1] >> (VIRTIO_F_VERSION_1 - 32) & 1) &&
-         memcmp(netcfg.mac, n->mac, ETH_ALEN)) {
-         memcpy(n->mac, netcfg.mac, ETH_ALEN);
-         qemu_format_nic_info_str(qemu_get_queue(n->nic), n->mac);
+ /* The maximum virtio revision we support. */
+-#define VIRTIO_CCW_REV_MAX 0
++#define VIRTIO_CCW_REV_MAX 1
+ 
+ /* Performance improves when virtqueue kick processing is decoupled from the
+  * vcpu thread using ioeventfd for some devices. */
 -- 
 1.7.9.5
