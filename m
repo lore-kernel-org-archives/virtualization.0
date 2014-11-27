@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v6 25/46] virtio_net: stricter short buffer length checks
-Date: Thu, 27 Nov 2014 22:09:55 +0200
-Message-ID: <1417118789-18231-26-git-send-email-mst@redhat.com>
+Subject: [PATCH v6 26/46] virtio_net: bigger header when VERSION_1 is set
+Date: Thu, 27 Nov 2014 22:10:00 +0200
+Message-ID: <1417118789-18231-27-git-send-email-mst__21741.1919068129$1417119097$gmane$org@redhat.com>
 References: <1417118789-18231-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,30 +22,28 @@ To: linux-kernel@vger.kernel.org
 Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Our buffer length check is not strict enough for mergeable
-buffers: buffer can still be shorter that header + address
-by 2 bytes.
-
-Fix that up.
+With VERSION_1 virtio_net uses same header size
+whether mergeable buffers are enabled or not.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- drivers/net/virtio_net.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/virtio_net.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 516f2cb..098f443 100644
+index 098f443..a0e64cf 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -437,7 +437,7 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
- 	struct sk_buff *skb;
- 	struct virtio_net_hdr_mrg_rxbuf *hdr;
+@@ -1805,7 +1805,8 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
+ 		vi->mergeable_rx_bufs = true;
  
--	if (unlikely(len < sizeof(struct virtio_net_hdr) + ETH_HLEN)) {
-+	if (unlikely(len < vi->hdr_len + ETH_HLEN)) {
- 		pr_debug("%s: short packet %i\n", dev->name, len);
- 		dev->stats.rx_length_errors++;
- 		if (vi->mergeable_rx_bufs) {
+-	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
++	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF) ||
++	    virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
+ 		vi->hdr_len = sizeof(struct virtio_net_hdr_mrg_rxbuf);
+ 	else
+ 		vi->hdr_len = sizeof(struct virtio_net_hdr);
 -- 
 MST
