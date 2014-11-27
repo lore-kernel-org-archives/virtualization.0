@@ -1,17 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v5 01/45] virtio: use u32, not bitmap for struct
-	virtio_device's features
-Date: Thu, 27 Nov 2014 18:28:04 +0200
-Message-ID: <20141127162804.GB27124@redhat.com>
-References: <1417091078-24611-1-git-send-email-mst@redhat.com>
-	<1417091078-24611-2-git-send-email-mst@redhat.com>
-	<20141127171542.3dbb2bc2@thinkpad-w530>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH RFC v4 00/16] qemu: towards virtio-1 host support
+Date: Thu, 27 Nov 2014 17:28:42 +0100
+Message-ID: <20141127172842.42782626.cornelia.huck__7739.51353407956$1417105744$gmane$org@de.ibm.com>
+References: <1417101409-29482-1-git-send-email-cornelia.huck@de.ibm.com>
+	<20141127152422.GA26747@redhat.com>
+	<20141127163139.7db48144.cornelia.huck@de.ibm.com>
+	<20141127154211.GC26747@redhat.com>
+	<20141127170651.67f918e2.cornelia.huck@de.ibm.com>
+	<20141127161825.GA27124@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20141127171542.3dbb2bc2@thinkpad-w530>
+In-Reply-To: <20141127161825.GA27124@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,151 +22,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Cc: rusty@au1.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, Sudeep Dutt <sudeep.dutt@intel.com>, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, lguest@lists.ozlabs.org, Arnd Bergmann <arnd@arndb.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Joel Stanley <joel@jms.id.au>, Pawel Moll <pawel.moll@arm.com>, Siva Yerramreddy <yshivakrishna@gmail.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, pbonzini@redhat.com, thuth@linux.vnet.ibm.com, Brian Swetland <swetland@google.com>, linux-kernel@vger.kernel.org, Ashutosh Dixit <ashutosh.dixit@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Amit Shah <amit.shah@redhat.com>, linux390@de.ibm.com, David Miller <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Nov 27, 2014 at 05:15:42PM +0100, David Hildenbrand wrote:
-> > From: Rusty Russell <rusty@rustcorp.com.au>
+On Thu, 27 Nov 2014 18:18:25 +0200
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
+
+> On Thu, Nov 27, 2014 at 05:06:51PM +0100, Cornelia Huck wrote:
+
+> > So we should have a per-device callback into the transport layer, say
+> > check_legacy()?
+> 
+> I would just have 2 masks: legacy_features and features.
+
+But these belong to the device type and the transport just needs to
+trigger usage of the right one, right?
+
+> 
+> > For ccw, this would check for the negotiated revision; for mmio, it
+> > could check a device property configured with the device; and for pci,
+> > whatever the mechanism is there :)
 > > 
-> > It seemed like a good idea, but it's actually a pain when we get more
-> > than 32 feature bits.  Just change it to a u32 for now.
-> > 
-> > Cc: Brian Swetland <swetland@google.com>
-> > Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> > Acked-by: Pawel Moll <pawel.moll@arm.com>
-> > Acked-by: Ohad Ben-Cohen <ohad@wizery.com>
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
+> > A transport not implementing this callback is simply considered
+> > legacy-only.
 > 
-> Wouldn't it be easier to turn
->   test_bit(i, dev->features)
+> I dislike callbacks. Let's just give all info to core,
+> and have it DTRT.
 > 
-> into a simple makro like
->   #define test_bit(i, features) (features & (1 << i))
-> 
-> Similar one for clear_bit and set_bit.
-
-I don't really see why it's easier.
-These wrappers resulted in a ton of code
-converting from bit numbers to set_bit calls
-and back.
-
-E.g. with plan integer you can do (a|b|c)
-to get a set with 3 bits.
-
-
-> 
-> if names collide with existing functions, we could simply rename them to:
-> 
-> set_feature_bit() ...
-> clear_feature_bit() ...
-
-In fact that's why we have BIT macro.
-
-vdev->features & BIT_ULL(x) is only longer by 1
-character than test_feature_bit(vdev, x), and
-it's much clearer than a non standard wrapper.
-
-vdev->features & (1ULL << x) is longer by 3 chars.
-
-I guess this is a suggestion to use BIT / BIT_ULL more.
-
-Good point.
-
-
-> > diff --git a/drivers/misc/mic/card/mic_virtio.c b/drivers/misc/mic/card/mic_virtio.c
-> > index e647947..0acd564 100644
-> > --- a/drivers/misc/mic/card/mic_virtio.c
-> > +++ b/drivers/misc/mic/card/mic_virtio.c
-> > @@ -101,7 +101,7 @@ static void mic_finalize_features(struct virtio_device *vdev)
-> >  	bits = min_t(unsigned, feature_len,
-> >  		sizeof(vdev->features)) * 8;
-> >  	for (i = 0; i < bits; i++) {
-> > -		if (test_bit(i, vdev->features))
-> > +		if (vdev->features & BIT(bits))
-> 
-> Hm, shouldn't that also be "if (vdev->features & (1 << i))"?
-
-Ouch. you are right of course. Will fix.
-
-> >  			iowrite8(ioread8(&out_features[i / 8]) | (1 << (i % 8)),
-> >  				 &out_features[i / 8]);
-> >  	}
-> 
-> >  out_free:
-> >  	kfree(features);
-> >  	kfree(ccw);
-> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > index df598dd..7814b1f 100644
-> > --- a/drivers/virtio/virtio.c
-> > +++ b/drivers/virtio/virtio.c
-> > @@ -49,9 +49,9 @@ static ssize_t features_show(struct device *_d,
-> > 
-> >  	/* We actually represent this as a bitstring, as it could be
-> >  	 * arbitrary length in future. */
-> > -	for (i = 0; i < ARRAY_SIZE(dev->features)*BITS_PER_LONG; i++)
-> > +	for (i = 0; i < sizeof(dev->features)*8; i++)
-> 
-> ... sizeof(dev->features) * 8; ...
-> 
-> Do we have a define for 8 ?
-
-We do: BITS_PER_BYTE.
-
-> >  		len += sprintf(buf+len, "%c",
-> > -			       test_bit(i, dev->features) ? '1' : '0');
-> > +			       dev->features & (1ULL << i) ? '1' : '0');
-> >  	len += sprintf(buf+len, "\n");
-> >  	return len;
-> >  }
-> > @@ -168,18 +168,18 @@ static int virtio_dev_probe(struct device *_d)
-> >  	device_features = dev->config->get_features(dev);
-> > 
-> 
-> [...]
-> 
-> > @@ -483,7 +483,7 @@ int main(int argc, char *argv[])
-> > 
-> >  	/* Set up host side. */
-> >  	vring_init(&vrh.vring, RINGSIZE, __user_addr_min, ALIGN);
-> > -	vringh_init_user(&vrh, vdev.features[0], RINGSIZE, true,
-> > +	vringh_init_user(&vrh, vdev.features, RINGSIZE, true,
-> >  			 vrh.vring.desc, vrh.vring.avail, vrh.vring.used);
-> > 
-> >  	/* No descriptor to get yet... */
-> > @@ -652,13 +652,13 @@ int main(int argc, char *argv[])
-> >  	}
-> > 
-> >  	/* Test weird (but legal!) indirect. */
-> > -	if (vdev.features[0] & (1 << VIRTIO_RING_F_INDIRECT_DESC)) {
-> > +	if (vdev.features & (1 << VIRTIO_RING_F_INDIRECT_DESC)) {
-> >  		char *data = __user_addr_max - USER_MEM/4;
-> >  		struct vring_desc *d = __user_addr_max - USER_MEM/2;
-> >  		struct vring vring;
-> > 
-> >  		/* Force creation of direct, which we modify. */
-> > -		vdev.features[0] &= ~(1 << VIRTIO_RING_F_INDIRECT_DESC);
-> > +		vdev.features &= ~(1 << VIRTIO_RING_F_INDIRECT_DESC);
-> 
-> That could then be something like 
-> 
-> clear_feature_bit(VIRTIO_RING_F_INDIRECT_DESC, vdev.features);
-> 
-> (I would prefer such makros over repeating bit actions)
-
-That's the whole reason for the patch.
-
-I guess you disagree with it, but it's much easier
-to deal with simple integers.
-
-
-> >  		vq = vring_new_virtqueue(0, RINGSIZE, ALIGN, &vdev, true,
-> >  					 __user_addr_min,
-> >  					 never_notify_host,
-> 
-> 
-> But on the whole this looks good to me.
+Have a is_legacy flag in the vdev that is initialized to 1, and
+transports can unset it when the revision is negotiated or during init?
