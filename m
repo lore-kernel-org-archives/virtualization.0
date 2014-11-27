@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v5 32/45] vhost/net: larger header for virtio 1.0
-Date: Thu, 27 Nov 2014 14:32:44 +0200
-Message-ID: <1417091078-24611-33-git-send-email-mst__38262.9613079645$1417091729$gmane$org@redhat.com>
+Subject: [PATCH v5 33/45] virtio_net: disable mac write for virtio 1.0
+Date: Thu, 27 Nov 2014 14:32:49 +0200
+Message-ID: <1417091078-24611-34-git-send-email-mst__5310.40496794066$1417091741$gmane$org@redhat.com>
 References: <1417091078-24611-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,27 +19,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: thuth@linux.vnet.ibm.com, kvm@vger.kernel.org, rusty@au1.ibm.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
+Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
+The spec states that mac in config space is only driver-writable in the
+legacy case.  Fence writing it in virtnet_set_mac_address() in the
+virtio 1.0 case.
+
+Suggested-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/vhost/net.c | 3 ++-
+ drivers/net/virtio_net.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index cae22f9..1ac58d0 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -1027,7 +1027,8 @@ static int vhost_net_set_features(struct vhost_net *n, u64 features)
- 	size_t vhost_hlen, sock_hlen, hdr_len;
- 	int i;
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index c6a72d3..9ab3c50 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1030,7 +1030,8 @@ static int virtnet_set_mac_address(struct net_device *dev, void *p)
+ 				 "Failed to set mac address by vq command.\n");
+ 			return -EINVAL;
+ 		}
+-	} else if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC)) {
++	} else if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC) &&
++		   !virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
+ 		unsigned int i;
  
--	hdr_len = (features & (1 << VIRTIO_NET_F_MRG_RXBUF)) ?
-+	hdr_len = (features & ((1ULL << VIRTIO_NET_F_MRG_RXBUF) |
-+			       (1ULL << VIRTIO_F_VERSION_1))) ?
- 			sizeof(struct virtio_net_hdr_mrg_rxbuf) :
- 			sizeof(struct virtio_net_hdr);
- 	if (features & (1 << VHOST_NET_F_VIRTIO_NET_HDR)) {
+ 		/* Naturally, this has an atomicity problem. */
 -- 
 MST
