@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v5 11/45] virtio: set FEATURES_OK
-Date: Thu, 27 Nov 2014 14:31:00 +0200
-Message-ID: <1417091078-24611-12-git-send-email-mst@redhat.com>
+Subject: [PATCH v5 10/45] virtio: allow transports to get avail/used addresses
+Date: Thu, 27 Nov 2014 14:30:55 +0200
+Message-ID: <1417091078-24611-11-git-send-email-mst@redhat.com>
 References: <1417091078-24611-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,81 +19,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
+Cc: thuth@linux.vnet.ibm.com, Pawel Moll <pawel.moll@arm.com>, rusty@au1.ibm.com, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-set FEATURES_OK as per virtio 1.0 spec
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+
+For virtio-1, we can theoretically have a more complex virtqueue
+layout with avail and used buffers not on a contiguous memory area
+with the descriptor table. For now, it's fine for a transport driver
+to stay with the old layout: It needs, however, a way to access
+the locations of the avail/used rings so it can register them with
+the host.
+
+Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- include/uapi/linux/virtio_config.h |  2 ++
- drivers/virtio/virtio.c            | 29 ++++++++++++++++++++++-------
- 2 files changed, 24 insertions(+), 7 deletions(-)
+ include/linux/virtio.h       |  3 +++
+ drivers/virtio/virtio_ring.c | 16 ++++++++++++++++
+ 2 files changed, 19 insertions(+)
 
-diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
-index 80e7381..4d05671 100644
---- a/include/uapi/linux/virtio_config.h
-+++ b/include/uapi/linux/virtio_config.h
-@@ -38,6 +38,8 @@
- #define VIRTIO_CONFIG_S_DRIVER		2
- /* Driver has used its parts of the config, and is happy */
- #define VIRTIO_CONFIG_S_DRIVER_OK	4
-+/* Driver has finished configuring features */
-+#define VIRTIO_CONFIG_S_FEATURES_OK	8
- /* We've given up on this device. */
- #define VIRTIO_CONFIG_S_FAILED		0x80
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 149284e..d6359a5 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -75,6 +75,9 @@ unsigned int virtqueue_get_vring_size(struct virtqueue *vq);
  
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index d213567..6faa014 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -160,6 +160,7 @@ static int virtio_dev_probe(struct device *_d)
- 	struct virtio_device *dev = dev_to_virtio(_d);
- 	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
- 	u64 device_features;
-+	unsigned status;
+ bool virtqueue_is_broken(struct virtqueue *vq);
  
- 	/* We have a driver! */
- 	add_status(dev, VIRTIO_CONFIG_S_DRIVER);
-@@ -183,18 +184,32 @@ static int virtio_dev_probe(struct device *_d)
- 
- 	dev->config->finalize_features(dev);
- 
-+	if (virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
-+		add_status(dev, VIRTIO_CONFIG_S_FEATURES_OK);
-+		status = dev->config->get_status(dev);
-+		if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
-+			dev_err(_d, "virtio: device refuses features: %x\n",
-+			       status);
-+			err = -ENODEV;
-+			goto err;
-+		}
-+	}
++void *virtqueue_get_avail(struct virtqueue *vq);
++void *virtqueue_get_used(struct virtqueue *vq);
 +
- 	err = drv->probe(dev);
- 	if (err)
--		add_status(dev, VIRTIO_CONFIG_S_FAILED);
--	else {
--		add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
--		if (drv->scan)
--			drv->scan(dev);
-+		goto err;
- 
--		virtio_config_enable(dev);
--	}
-+	add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
-+	if (drv->scan)
-+		drv->scan(dev);
-+
-+	virtio_config_enable(dev);
- 
-+	return 0;
-+err:
-+	add_status(dev, VIRTIO_CONFIG_S_FAILED);
- 	return err;
-+
+ /**
+  * virtio_device - representation of a device using virtio
+  * @index: unique position on the virtio bus
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index b311fa7..5c8aef8 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -827,4 +827,20 @@ void virtio_break_device(struct virtio_device *dev)
  }
+ EXPORT_SYMBOL_GPL(virtio_break_device);
  
- static int virtio_dev_remove(struct device *_d)
++void *virtqueue_get_avail(struct virtqueue *_vq)
++{
++	struct vring_virtqueue *vq = to_vvq(_vq);
++
++	return vq->vring.avail;
++}
++EXPORT_SYMBOL_GPL(virtqueue_get_avail);
++
++void *virtqueue_get_used(struct virtqueue *_vq)
++{
++	struct vring_virtqueue *vq = to_vvq(_vq);
++
++	return vq->vring.used;
++}
++EXPORT_SYMBOL_GPL(virtqueue_get_used);
++
+ MODULE_LICENSE("GPL");
 -- 
 MST
