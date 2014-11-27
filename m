@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v5 25/45] virtio_net: bigger header when VERSION_1 is set
-Date: Thu, 27 Nov 2014 14:32:10 +0200
-Message-ID: <1417091078-24611-26-git-send-email-mst__29708.0517084853$1417091644$gmane$org@redhat.com>
+Subject: [PATCH v5 26/45] virtio_net: enable v1.0 support
+Date: Thu, 27 Nov 2014 14:32:14 +0200
+Message-ID: <1417091078-24611-27-git-send-email-mst@redhat.com>
 References: <1417091078-24611-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,28 +22,24 @@ To: linux-kernel@vger.kernel.org
 Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-With VERSION_1 virtio_net uses same header size
-whether mergeable buffers are enabled or not.
+Now that we have completed 1.0 support, enable it in our driver.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- drivers/net/virtio_net.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/virtio_net.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 098f443..a0e64cf 100644
+index a0e64cf..c6a72d3 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -1805,7 +1805,8 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
- 		vi->mergeable_rx_bufs = true;
+@@ -2003,6 +2003,7 @@ static unsigned int features[] = {
+ 	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ,
+ 	VIRTIO_NET_F_CTRL_MAC_ADDR,
+ 	VIRTIO_F_ANY_LAYOUT,
++	VIRTIO_F_VERSION_1,
+ };
  
--	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
-+	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF) ||
-+	    virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
- 		vi->hdr_len = sizeof(struct virtio_net_hdr_mrg_rxbuf);
- 	else
- 		vi->hdr_len = sizeof(struct virtio_net_hdr);
+ static struct virtio_driver virtio_net_driver = {
 -- 
 MST
