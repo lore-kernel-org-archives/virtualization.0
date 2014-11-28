@@ -1,14 +1,14 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v6 30/46] vhost/net: force len for TX to host endian
-Date: Fri, 28 Nov 2014 08:44:43 +0008
-Message-ID: <1417163803.5822.9@smtp.corp.redhat.com>
+Subject: Re: [PATCH v6 33/46] vhost/net: larger header for virtio 1.0
+Date: Fri, 28 Nov 2014 08:46:14 +0008
+Message-ID: <1417163894.5822.10@smtp.corp.redhat.com>
 References: <1417118789-18231-1-git-send-email-mst@redhat.com>
-	<1417118789-18231-31-git-send-email-mst@redhat.com>
+	<1417118789-18231-34-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1417118789-18231-31-git-send-email-mst@redhat.com>
+In-Reply-To: <1417118789-18231-34-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,45 +26,28 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 On Fri, Nov 28, 2014 at 4:10 AM, Michael S. Tsirkin <mst@redhat.com> 
 wrote:
-> vhost/net keeps a copy of some used ring but (ab)uses length
-> field for internal house-keeping. This works because
-> for tx used length is always 0.
-> Suppress sparse errors: we use native endian-ness internally but never
-> expose it to guest.
-> 
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > ---
->  drivers/vhost/net.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
+>  drivers/vhost/net.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 > 
 > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 8dae2f7..dce5c58 100644
+> index cae22f9..1ac58d0 100644
 > --- a/drivers/vhost/net.c
 > +++ b/drivers/vhost/net.c
-> @@ -48,15 +48,15 @@ MODULE_PARM_DESC(experimental_zcopytx, "Enable 
-> Zero Copy TX;"
->   * status internally; used for zerocopy tx only.
->   */
->  /* Lower device DMA failed */
-> -#define VHOST_DMA_FAILED_LEN	3
-> +#define VHOST_DMA_FAILED_LEN	((__force __virtio32)3)
->  /* Lower device DMA done */
-> -#define VHOST_DMA_DONE_LEN	2
-> +#define VHOST_DMA_DONE_LEN	((__force __virtio32)2)
->  /* Lower device DMA in progress */
-> -#define VHOST_DMA_IN_PROGRESS	1
-> +#define VHOST_DMA_IN_PROGRESS	((__force __virtio32)1)
->  /* Buffer unused */
-> -#define VHOST_DMA_CLEAR_LEN	0
-> +#define VHOST_DMA_CLEAR_LEN	((__force __virtio32)0)
+> @@ -1027,7 +1027,8 @@ static int vhost_net_set_features(struct 
+> vhost_net *n, u64 features)
+>  	size_t vhost_hlen, sock_hlen, hdr_len;
+>  	int i;
 >  
-> -#define VHOST_DMA_IS_DONE(len) ((len) >= VHOST_DMA_DONE_LEN)
-> +#define VHOST_DMA_IS_DONE(len) ((__force u32)(len) >= (__force 
-> u32)VHOST_DMA_DONE_LEN)
->  
->  enum {
->  	VHOST_NET_FEATURES = VHOST_FEATURES |
+> -	hdr_len = (features & (1 << VIRTIO_NET_F_MRG_RXBUF)) ?
+> +	hdr_len = (features & ((1ULL << VIRTIO_NET_F_MRG_RXBUF) |
+> +			       (1ULL << VIRTIO_F_VERSION_1))) ?
+>  			sizeof(struct virtio_net_hdr_mrg_rxbuf) :
+>  			sizeof(struct virtio_net_hdr);
+>  	if (features & (1 << VHOST_NET_F_VIRTIO_NET_HDR)) {
 > -- 
 > MST
+> 
 
 Reviewed-by: Jason Wang <jasowang@redhat.com>
