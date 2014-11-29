@@ -1,14 +1,16 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v6 05/46] virtio: assert 32 bit features in transports
-Date: Fri, 28 Nov 2014 13:50:43 +0100
-Message-ID: <20141128135043.33bc2fb9.cornelia.huck@de.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v6 34/46] virtio_net: disable mac write for virtio 1.0
+Date: Sat, 29 Nov 2014 19:28:04 +0200
+Message-ID: <20141129172804.GD22746@redhat.com>
 References: <1417118789-18231-1-git-send-email-mst@redhat.com>
-	<1417118789-18231-6-git-send-email-mst@redhat.com>
+	<1417118789-18231-35-git-send-email-mst@redhat.com>
+	<1417164024.5822.11@smtp.corp.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1417118789-18231-6-git-send-email-mst@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1417164024.5822.11@smtp.corp.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,29 +20,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-s390@vger.kernel.org, lguest@lists.ozlabs.org, thuth@linux.vnet.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, rusty@au1.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Sudeep Dutt <sudeep.dutt@intel.com>, dahi@linux.vnet.ibm.com, Siva Yerramreddy <yshivakrishna@gmail.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, pbonzini@redhat.com, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
+To: Jason Wang <jasowang@redhat.com>
+Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 27 Nov 2014 22:08:02 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> At this point, no transports set any of the high 32 feature bits.
-> Since transports generally can't (yet) cope with such bits, add BUG_ON
-> checks to make sure they are not set by mistake.
+On Fri, Nov 28, 2014 at 08:48:24AM +0008, Jason Wang wrote:
 > 
-> Based on rproc patch by Rusty.
 > 
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/lguest/lguest_device.c         | 3 +++
->  drivers/misc/mic/card/mic_virtio.c     | 3 +++
->  drivers/remoteproc/remoteproc_virtio.c | 3 +++
->  drivers/s390/kvm/kvm_virtio.c          | 3 +++
->  drivers/s390/kvm/virtio_ccw.c          | 3 +++
->  drivers/virtio/virtio_mmio.c           | 3 +++
->  drivers/virtio/virtio_pci.c            | 3 +++
->  7 files changed, 21 insertions(+)
+> On Fri, Nov 28, 2014 at 4:10 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> >The spec states that mac in config space is only driver-writable in the
+> >legacy case.  Fence writing it in virtnet_set_mac_address() in the
+> >virtio 1.0 case.
+> >
+> >Suggested-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> >Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> >---
+> > drivers/net/virtio_net.c | 3 ++-
+> > 1 file changed, 2 insertions(+), 1 deletion(-)
+> >
+> >diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> >index c6a72d3..9ab3c50 100644
+> >--- a/drivers/net/virtio_net.c
+> >+++ b/drivers/net/virtio_net.c
+> >@@ -1030,7 +1030,8 @@ static int virtnet_set_mac_address(struct net_device
+> >*dev, void *p)
+> > 				 "Failed to set mac address by vq command.\n");
+> > 			return -EINVAL;
+> > 		}
+> >-	} else if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC)) {
+> >+	} else if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC) &&
+> >+		   !virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
+> > 		unsigned int i;
+> > 		/* Naturally, this has an atomicity problem. */
+> >-- 
+> >MST
+> 
+> Does this mean there's no way to setting mac addres
+> if ctrl mac addr is disabled in virtio-1?
 
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+More exactly: no way for host to know the guest mac address.
+
+> If yes, we'd better keep this compatibility somehow.
+
+If host wants to be notified about guest mac updates,
+it must enable the appropriate ctrl command.
+Or if it's an old host, it just doesn't enable virtio-1.
+
+There's no way around this - it's in the spec.
+
+
+-- 
+MST
