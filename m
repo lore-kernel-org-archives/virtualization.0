@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v7 34/46] virtio_net: disable mac write for virtio 1.0
-Date: Sun, 30 Nov 2014 17:12:04 +0200
-Message-ID: <1417359787-10138-35-git-send-email-mst__13991.0576319837$1417360496$gmane$org@redhat.com>
+Subject: [PATCH v7 35/46] vhost/net: enable virtio 1.0
+Date: Sun, 30 Nov 2014 17:12:08 +0200
+Message-ID: <1417359787-10138-36-git-send-email-mst@redhat.com>
 References: <1417359787-10138-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,32 +19,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
+Cc: thuth@linux.vnet.ibm.com, kvm@vger.kernel.org, rusty@au1.ibm.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The spec states that mac in config space is only driver-writable in the
-legacy case.  Fence writing it in virtnet_set_mac_address() in the
-virtio 1.0 case.
-
-Suggested-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/net/virtio_net.c | 3 ++-
+ drivers/vhost/net.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index c6a72d3..9ab3c50 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1030,7 +1030,8 @@ static int virtnet_set_mac_address(struct net_device *dev, void *p)
- 				 "Failed to set mac address by vq command.\n");
- 			return -EINVAL;
- 		}
--	} else if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC)) {
-+	} else if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC) &&
-+		   !virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
- 		unsigned int i;
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 1ac58d0..984242e 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -61,7 +61,8 @@ MODULE_PARM_DESC(experimental_zcopytx, "Enable Zero Copy TX;"
+ enum {
+ 	VHOST_NET_FEATURES = VHOST_FEATURES |
+ 			 (1ULL << VHOST_NET_F_VIRTIO_NET_HDR) |
+-			 (1ULL << VIRTIO_NET_F_MRG_RXBUF),
++			 (1ULL << VIRTIO_NET_F_MRG_RXBUF) |
++			 (1ULL << VIRTIO_F_VERSION_1),
+ };
  
- 		/* Naturally, this has an atomicity problem. */
+ enum {
 -- 
 MST
