@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v7 21/46] virtio_blk: make serial attribute static
-Date: Sun, 30 Nov 2014 17:11:01 +0200
-Message-ID: <1417359787-10138-22-git-send-email-mst@redhat.com>
+Subject: [PATCH v7 22/46] virtio_blk: fix race at module removal
+Date: Sun, 30 Nov 2014 17:11:06 +0200
+Message-ID: <1417359787-10138-23-git-send-email-mst__42376.0059792132$1417360362$gmane$org@redhat.com>
 References: <1417359787-10138-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,26 +22,31 @@ To: linux-kernel@vger.kernel.org
 Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-It's never declared so no need to make it extern.
+If a device appears while module is being removed,
+driver will get a callback after we've given up
+on the major number.
+
+In theory this means this major number can get reused
+by something else, resulting in a conflict.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/block/virtio_blk.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/block/virtio_blk.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index f601f16..055f3df 100644
+index 055f3df..1f8b111 100644
 --- a/drivers/block/virtio_blk.c
 +++ b/drivers/block/virtio_blk.c
-@@ -332,7 +332,8 @@ static ssize_t virtblk_serial_show(struct device *dev,
+@@ -884,8 +884,8 @@ out_destroy_workqueue:
  
- 	return err;
- }
--DEVICE_ATTR(serial, S_IRUGO, virtblk_serial_show, NULL);
-+
-+static DEVICE_ATTR(serial, S_IRUGO, virtblk_serial_show, NULL);
- 
- static void virtblk_config_changed_work(struct work_struct *work)
+ static void __exit fini(void)
  {
+-	unregister_blkdev(major, "virtblk");
+ 	unregister_virtio_driver(&virtio_blk);
++	unregister_blkdev(major, "virtblk");
+ 	destroy_workqueue(virtblk_wq);
+ }
+ module_init(init);
 -- 
 MST
