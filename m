@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v8 21/50] virtio_blk: make serial attribute static
-Date: Mon, 1 Dec 2014 18:04:32 +0200
-Message-ID: <1417449619-24896-22-git-send-email-mst@redhat.com>
+Subject: [PATCH v8 27/50] virtio_net: disable mac write for virtio 1.0
+Date: Mon, 1 Dec 2014 18:05:00 +0200
+Message-ID: <1417449619-24896-28-git-send-email-mst@redhat.com>
 References: <1417449619-24896-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,30 +19,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
+Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-It's never declared so no need to make it extern.
+The spec states that mac in config space is only driver-writable in the
+legacy case.  Fence writing it in virtnet_set_mac_address() in the
+virtio 1.0 case.
 
+Suggested-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- drivers/block/virtio_blk.c | 3 ++-
+ drivers/net/virtio_net.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index f601f16..055f3df 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -332,7 +332,8 @@ static ssize_t virtblk_serial_show(struct device *dev,
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index a0e64cf..b8bd719 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1030,7 +1030,8 @@ static int virtnet_set_mac_address(struct net_device *dev, void *p)
+ 				 "Failed to set mac address by vq command.\n");
+ 			return -EINVAL;
+ 		}
+-	} else if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC)) {
++	} else if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC) &&
++		   !virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
+ 		unsigned int i;
  
- 	return err;
- }
--DEVICE_ATTR(serial, S_IRUGO, virtblk_serial_show, NULL);
-+
-+static DEVICE_ATTR(serial, S_IRUGO, virtblk_serial_show, NULL);
- 
- static void virtblk_config_changed_work(struct work_struct *work)
- {
+ 		/* Naturally, this has an atomicity problem. */
 -- 
 MST
