@@ -1,17 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v7 28/46] vhost: make features 64 bit
-Date: Mon, 1 Dec 2014 11:19:40 +0200
-Message-ID: <20141201091940.GB15607@redhat.com>
+Subject: Re: [PATCH v7 16/46] virtio_blk: v1.0 support
+Date: Mon, 1 Dec 2014 11:26:58 +0200
+Message-ID: <20141201092658.GC15607@redhat.com>
 References: <1417359787-10138-1-git-send-email-mst@redhat.com>
-	<1417359787-10138-29-git-send-email-mst@redhat.com>
-	<547B3B61.3090801@cogentembedded.com>
-	<1417407157.7215.127.camel@decadent.org.uk>
+	<1417359787-10138-17-git-send-email-mst@redhat.com>
+	<20141201091641.3085e682@thinkpad-w530>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1417407157.7215.127.camel@decadent.org.uk>
+In-Reply-To: <20141201091641.3085e682@thinkpad-w530>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,56 +20,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ben Hutchings <ben@decadent.org.uk>
-Cc: thuth@linux.vnet.ibm.com, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, rusty@au1.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, kvm@vger.kernel.org, pbonzini@redhat.com, David Miller <davem@davemloft.net>
+To: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Dec 01, 2014 at 04:12:37AM +0000, Ben Hutchings wrote:
-> On Sun, 2014-11-30 at 18:44 +0300, Sergei Shtylyov wrote:
-> > Hello.
+On Mon, Dec 01, 2014 at 09:16:41AM +0100, David Hildenbrand wrote:
+> > Based on patch by Cornelia Huck.
 > > 
-> > On 11/30/2014 6:11 PM, Michael S. Tsirkin wrote:
+> > Note: for consistency, and to avoid sparse errors,
+> >       convert all fields, even those no longer in use
+> >       for virtio v1.0.
 > > 
-> > > We need to use bit 32 for virtio 1.0
+> > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ...
 > > 
-> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > Reviewed-by: Jason Wang <jasowang@redhat.com>
-> > > ---
-> > >   drivers/vhost/vhost.h | 4 ++--
-> > >   1 file changed, 2 insertions(+), 2 deletions(-)
-> > 
-> > > diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> > > index 3eda654..c624b09 100644
-> > > --- a/drivers/vhost/vhost.h
-> > > +++ b/drivers/vhost/vhost.h
-> > > @@ -106,7 +106,7 @@ struct vhost_virtqueue {
-> > >   	/* Protected by virtqueue mutex. */
-> > >   	struct vhost_memory *memory;
-> > >   	void *private_data;
-> > > -	unsigned acked_features;
-> > > +	u64 acked_features;
-> > >   	/* Log write descriptors */
-> > >   	void __user *log_base;
-> > >   	struct vhost_log *log;
-> > > @@ -174,6 +174,6 @@ enum {
-> > >
-> > >   static inline int vhost_has_feature(struct vhost_virtqueue *vq, int bit)
-> > >   {
-> > > -	return vq->acked_features & (1 << bit);
-> > > +	return vq->acked_features & (1ULL << bit);
-> > 
-> >     Erm, wouldn't the high word be just dropped when returning *int*? I think 
-> > you need !!(vq->acked_features & (1ULL << bit)).
+> > -static unsigned int features[] = {
+> > +static unsigned int features_legacy[] = {
+> >  	VIRTIO_BLK_F_SEG_MAX, VIRTIO_BLK_F_SIZE_MAX, VIRTIO_BLK_F_GEOMETRY,
+> >  	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE, VIRTIO_BLK_F_SCSI,
+> >  	VIRTIO_BLK_F_WCE, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+> >  	VIRTIO_BLK_F_MQ,
+> > +}
+> > +;
+> > +static unsigned int features[] = {
+> > +	VIRTIO_BLK_F_SEG_MAX, VIRTIO_BLK_F_SIZE_MAX, VIRTIO_BLK_F_GEOMETRY,
+> > +	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
+> > +	VIRTIO_BLK_F_TOPOLOGY,
+> > +	VIRTIO_BLK_F_MQ,
+> > +	VIRTIO_F_VERSION_1,
 > 
-> Or change the return type to bool.
+> We can fit this into less lines, like done for features_legacy.
 > 
-> Ben.
+> I was asking myself if we could do the conversion of the statical values
+> somehow upfront, to reduce the patch size and avoid cpu_to_virtio.* at those
+> places.
 > 
-> -- 
-> Ben Hutchings
-> The first rule of tautology club is the first rule of tautology club.
+> Otherwise looks good to me.
+> 
 
+I don't see how we can reduce the patch size.
+For BE architectures it's dynamic, so at best the values
+will become macros/incline functions taking a flag.
 
+For some places on data path, it might be worth it
+to cache the correct value e.g. as part of device
+structure. This replaces a branch with a memory load,
+so the gain would have to be measured, best done
+separately?
 
-Yes, I'll do that I think.
-Thanks!
+-- 
+MST
