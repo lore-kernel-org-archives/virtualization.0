@@ -1,14 +1,20 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v7 36/46] vhost/net: suppress compiler warning
-Date: Mon, 1 Dec 2014 13:37:40 +0100
-Message-ID: <20141201133740.56d7d6d8.cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH v7 16/46] virtio_blk: v1.0 support
+Date: Mon, 1 Dec 2014 13:40:36 +0100
+Message-ID: <20141201134036.726e7386.cornelia.huck__2880.29361186108$1417437657$gmane$org@de.ibm.com>
 References: <1417359787-10138-1-git-send-email-mst@redhat.com>
-	<1417359787-10138-37-git-send-email-mst@redhat.com>
+	<1417359787-10138-17-git-send-email-mst@redhat.com>
+	<20141201091641.3085e682@thinkpad-w530>
+	<20141201092658.GC15607@redhat.com>
+	<20141201123315.1b95d06f.cornelia.huck@de.ibm.com>
+	<20141201114645.GA17505@redhat.com>
+	<20141201130258.6f01c1e3.cornelia.huck@de.ibm.com>
+	<20141201123455.GA17958@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1417359787-10138-37-git-send-email-mst@redhat.com>
+In-Reply-To: <20141201123455.GA17958@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,32 +25,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: thuth@linux.vnet.ibm.com, kvm@vger.kernel.org, rusty@au1.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
+Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Hildenbrand <dahi@linux.vnet.ibm.com>, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 30 Nov 2014 17:12:13 +0200
+On Mon, 1 Dec 2014 14:34:55 +0200
 "Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-> len is always initialized since function is called with size > 0.
+> On Mon, Dec 01, 2014 at 01:02:58PM +0100, Cornelia Huck wrote:
+> > On Mon, 1 Dec 2014 13:46:45 +0200
+> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > 
+> > > On Mon, Dec 01, 2014 at 12:33:15PM +0100, Cornelia Huck wrote:
+> > > > On Mon, 1 Dec 2014 11:26:58 +0200
+> > > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > > 
+> > > > > For some places on data path, it might be worth it
+> > > > > to cache the correct value e.g. as part of device
+> > > > > structure. This replaces a branch with a memory load,
+> > > > > so the gain would have to be measured, best done
+> > > > > separately?
+> > > > 
+> > > > I think we'll want to do some measuring once the basic structure is
+> > > > in place anyway.
+> > > 
+> > > What's meant by in place here?
+> > 
+> > That this patchset is ready :)
 > 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/vhost/net.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 984242e..54ffbb0 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -501,7 +501,7 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
->  	int headcount = 0;
->  	unsigned d;
->  	int r, nlogs = 0;
-> -	u32 len;
-> +	u32 uninitialized_var(len);
-> 
->  	while (datalen > 0 && headcount < quota) {
->  		if (unlikely(seg >= UIO_MAXIOV)) {
+> Also it's ready to the level where benchmarking is possible, right?  I
+> don't think you should wait until we finish polishing up commit
+> messages.
 
-Want to merge this with the patch introducing the variable and add a
-comment there?
+My point is that I haven't even found time yet to test this
+thouroughly :(
