@@ -1,18 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net] Revert "drivers/net: Disable UFO through virtio" in
-	macvtap and tun
-Date: Mon, 1 Dec 2014 11:43:57 +0200
-Message-ID: <20141201094357.GA15969@redhat.com>
-References: <20141111105849.GA8482@stefanha-thinkpad.redhat.com>
-	<1415708246.3398.88.camel@decadent.org.uk>
-	<20141111155750.GA17418@redhat.com>
-	<1415725978.3398.101.camel@decadent.org.uk>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH v7 08/46] virtio: memory access APIs
+Date: Mon, 1 Dec 2014 10:56:33 +0100
+Message-ID: <20141201105633.63ddff73.cornelia.huck@de.ibm.com>
+References: <1417359787-10138-1-git-send-email-mst@redhat.com>
+	<1417359787-10138-9-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1415725978.3398.101.camel@decadent.org.uk>
+In-Reply-To: <1417359787-10138-9-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,154 +18,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ben Hutchings <ben@decadent.org.uk>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, jelledejong@powercraft.nl, David Miller <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Bjarke Istrup Pedersen <gurligebis@gentoo.org>, thuth@linux.vnet.ibm.com, Anup Patel <anup.patel@linaro.org>, rusty@au1.ibm.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, David Drysdale <drysdale@google.com>, dahi@linux.vnet.ibm.com, Ashwin Chaugule <ashwin.chaugule@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, linux-api@vger.kernel.org, pbonzini@redhat.com, Andy Grover <agrover@redhat.com>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, Alexei Starovoitov <ast@plumgrid.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Nov 11, 2014 at 05:12:58PM +0000, Ben Hutchings wrote:
-> This reverts commit 88e0e0e5aa722b193c8758c8b45d041de5316924 for
-> the tap drivers, but leaves UFO disabled in virtio_net.
+On Sun, 30 Nov 2014 17:09:50 +0200
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
+
+> virtio 1.0 makes all memory structures LE, so
+> we need APIs to conditionally do a byteswap on BE
+> architectures.
 > 
-> libvirt at least assumes that tap features will never be dropped
-> in new kernel versions, and doing so prevents migration of VMs to
-> the never kernel version while they are running with virtio net
-> devices.
+> To make it easier to check code statically,
+> add virtio specific types for multi-byte integers
+> in memory.
 > 
-> Fixes: 88e0e0e5aa7a ("drivers/net: Disable UFO through virtio")
-> Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-
-I did some light testing with IPv4, and this seems to migrate fine now.
-So let's apply, please
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-
+> Add low level wrappers that do a byteswap conditionally, these will be
+> useful e.g. for vhost.  Add high level wrappers that
+> query device endian-ness and act accordingly.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > ---
-> Compile-tested only.
-> 
-> Ben.
-> 
->  drivers/net/macvtap.c | 13 ++++++++-----
->  drivers/net/tun.c     | 19 ++++++++-----------
->  2 files changed, 16 insertions(+), 16 deletions(-)
-> 
-> diff --git a/drivers/net/macvtap.c b/drivers/net/macvtap.c
-> index 6f226de..aeaeb6d 100644
-> --- a/drivers/net/macvtap.c
-> +++ b/drivers/net/macvtap.c
-> @@ -66,7 +66,7 @@ static struct cdev macvtap_cdev;
->  static const struct proto_ops macvtap_socket_ops;
->  
->  #define TUN_OFFLOADS (NETIF_F_HW_CSUM | NETIF_F_TSO_ECN | NETIF_F_TSO | \
-> -		      NETIF_F_TSO6)
-> +		      NETIF_F_TSO6 | NETIF_F_UFO)
->  #define RX_OFFLOADS (NETIF_F_GRO | NETIF_F_LRO)
->  #define TAP_FEATURES (NETIF_F_GSO | NETIF_F_SG)
->  
-> @@ -570,8 +570,6 @@ static int macvtap_skb_from_vnet_hdr(struct sk_buff *skb,
->  			gso_type = SKB_GSO_TCPV6;
->  			break;
->  		case VIRTIO_NET_HDR_GSO_UDP:
-> -			pr_warn_once("macvtap: %s: using disabled UFO feature; please fix this program\n",
-> -				     current->comm);
->  			gso_type = SKB_GSO_UDP;
->  			if (skb->protocol == htons(ETH_P_IPV6))
->  				ipv6_proxy_select_ident(skb);
-> @@ -619,6 +617,8 @@ static void macvtap_skb_to_vnet_hdr(const struct sk_buff *skb,
->  			vnet_hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
->  		else if (sinfo->gso_type & SKB_GSO_TCPV6)
->  			vnet_hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
-> +		else if (sinfo->gso_type & SKB_GSO_UDP)
-> +			vnet_hdr->gso_type = VIRTIO_NET_HDR_GSO_UDP;
->  		else
->  			BUG();
->  		if (sinfo->gso_type & SKB_GSO_TCP_ECN)
-> @@ -953,6 +953,9 @@ static int set_offload(struct macvtap_queue *q, unsigned long arg)
->  			if (arg & TUN_F_TSO6)
->  				feature_mask |= NETIF_F_TSO6;
->  		}
-> +
-> +		if (arg & TUN_F_UFO)
-> +			feature_mask |= NETIF_F_UFO;
->  	}
->  
->  	/* tun/tap driver inverts the usage for TSO offloads, where
-> @@ -963,7 +966,7 @@ static int set_offload(struct macvtap_queue *q, unsigned long arg)
->  	 * When user space turns off TSO, we turn off GSO/LRO so that
->  	 * user-space will not receive TSO frames.
->  	 */
-> -	if (feature_mask & (NETIF_F_TSO | NETIF_F_TSO6))
-> +	if (feature_mask & (NETIF_F_TSO | NETIF_F_TSO6 | NETIF_F_UFO))
->  		features |= RX_OFFLOADS;
->  	else
->  		features &= ~RX_OFFLOADS;
-> @@ -1064,7 +1067,7 @@ static long macvtap_ioctl(struct file *file, unsigned int cmd,
->  	case TUNSETOFFLOAD:
->  		/* let the user check for future flags */
->  		if (arg & ~(TUN_F_CSUM | TUN_F_TSO4 | TUN_F_TSO6 |
-> -			    TUN_F_TSO_ECN))
-> +			    TUN_F_TSO_ECN | TUN_F_UFO))
->  			return -EINVAL;
->  
->  		rtnl_lock();
-> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> index 7302398..a0987d1 100644
-> --- a/drivers/net/tun.c
-> +++ b/drivers/net/tun.c
-> @@ -175,7 +175,7 @@ struct tun_struct {
->  	struct net_device	*dev;
->  	netdev_features_t	set_features;
->  #define TUN_USER_FEATURES (NETIF_F_HW_CSUM|NETIF_F_TSO_ECN|NETIF_F_TSO| \
-> -			  NETIF_F_TSO6)
-> +			  NETIF_F_TSO6|NETIF_F_UFO)
->  
->  	int			vnet_hdr_sz;
->  	int			sndbuf;
-> @@ -1152,20 +1152,10 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
->  			skb_shinfo(skb)->gso_type = SKB_GSO_TCPV6;
->  			break;
->  		case VIRTIO_NET_HDR_GSO_UDP:
-> -		{
-> -			static bool warned;
-> -
-> -			if (!warned) {
-> -				warned = true;
-> -				netdev_warn(tun->dev,
-> -					    "%s: using disabled UFO feature; please fix this program\n",
-> -					    current->comm);
-> -			}
->  			skb_shinfo(skb)->gso_type = SKB_GSO_UDP;
->  			if (skb->protocol == htons(ETH_P_IPV6))
->  				ipv6_proxy_select_ident(skb);
->  			break;
-> -		}
->  		default:
->  			tun->dev->stats.rx_frame_errors++;
->  			kfree_skb(skb);
-> @@ -1265,6 +1255,8 @@ static ssize_t tun_put_user(struct tun_struct *tun,
->  				gso.gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
->  			else if (sinfo->gso_type & SKB_GSO_TCPV6)
->  				gso.gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
-> +			else if (sinfo->gso_type & SKB_GSO_UDP)
-> +				gso.gso_type = VIRTIO_NET_HDR_GSO_UDP;
->  			else {
->  				pr_err("unexpected GSO type: "
->  				       "0x%x, gso_size %d, hdr_len %d\n",
-> @@ -1774,6 +1766,11 @@ static int set_offload(struct tun_struct *tun, unsigned long arg)
->  				features |= NETIF_F_TSO6;
->  			arg &= ~(TUN_F_TSO4|TUN_F_TSO6);
->  		}
-> +
-> +		if (arg & TUN_F_UFO) {
-> +			features |= NETIF_F_UFO;
-> +			arg &= ~TUN_F_UFO;
-> +		}
->  	}
->  
->  	/* This gives the user a way to test for new features in future by
-> 
-> 
-> -- 
-> Ben Hutchings
-> Experience is directly proportional to the value of equipment destroyed.
->                                                          - Carolyn Scheppner
+>  include/linux/virtio_byteorder.h  | 59 +++++++++++++++++++++++++++++++++++++++
+>  include/linux/virtio_config.h     | 32 +++++++++++++++++++++
+>  include/uapi/linux/virtio_ring.h  | 45 ++++++++++++++---------------
+>  include/uapi/linux/virtio_types.h | 46 ++++++++++++++++++++++++++++++
+>  include/uapi/linux/Kbuild         |  1 +
+>  5 files changed, 161 insertions(+), 22 deletions(-)
+>  create mode 100644 include/linux/virtio_byteorder.h
+>  create mode 100644 include/uapi/linux/virtio_types.h
+
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
