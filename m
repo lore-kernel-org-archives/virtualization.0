@@ -1,15 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next] vhost: remove unnecessary forward declarations
-	in vhost.h
-Date: Mon, 01 Dec 2014 05:42:47 +0008
-Message-ID: <1417412087.7521.1@smtp.corp.redhat.com>
-References: <1417070481-10331-1-git-send-email-jasowang@redhat.com>
-	<20141129.210422.2298555198780052887.davem@davemloft.net>
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Subject: Re: [PATCH v7 10/46] virtio_config: endian conversion for v1.0
+Date: Mon, 1 Dec 2014 08:57:46 +0100
+Message-ID: <20141201085746.4de677a8@thinkpad-w530>
+References: <1417359787-10138-1-git-send-email-mst@redhat.com>
+	<1417359787-10138-11-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141129.210422.2298555198780052887.davem@davemloft.net>
+In-Reply-To: <1417359787-10138-11-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,21 +18,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On Sun, Nov 30, 2014 at 1:04 PM, David Miller <davem@davemloft.net> 
-wrote:
-> From: Jason Wang <jasowang@redhat.com>
-> Date: Thu, 27 Nov 2014 14:41:21 +0800
+> We (ab)use virtio conversion functions for device-specific
+> config space accesses.
 > 
->>  Signed-off-by: Jason Wang <jasowang@redhat.com>
+> Based on original patches by Cornelia and Rusty.
 > 
-> I don't think generic vhost patches should go via my tree.
-> 
-> If you disagree, let me know why, thanks :)
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
 
-Agree. Michael, could you pls pick this into vhost tree?
+Reviewed-by: David Hildenbrand <dahi@linux.vnet.com>
