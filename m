@@ -1,20 +1,16 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v7 16/46] virtio_blk: v1.0 support
-Date: Mon, 1 Dec 2014 13:40:36 +0100
-Message-ID: <20141201134036.726e7386.cornelia.huck__2880.29361186108$1417437657$gmane$org@de.ibm.com>
+Subject: Re: [PATCH v7 31/46] vhost: virtio 1.0 endian-ness support
+Date: Mon, 1 Dec 2014 13:42:47 +0100
+Message-ID: <20141201134247.55e68161.cornelia.huck@de.ibm.com>
 References: <1417359787-10138-1-git-send-email-mst@redhat.com>
-	<1417359787-10138-17-git-send-email-mst@redhat.com>
-	<20141201091641.3085e682@thinkpad-w530>
-	<20141201092658.GC15607@redhat.com>
-	<20141201123315.1b95d06f.cornelia.huck@de.ibm.com>
-	<20141201114645.GA17505@redhat.com>
-	<20141201130258.6f01c1e3.cornelia.huck@de.ibm.com>
-	<20141201123455.GA17958@redhat.com>
+	<1417359787-10138-32-git-send-email-mst@redhat.com>
+	<20141201133353.0bbaa2e1.cornelia.huck@de.ibm.com>
+	<20141201123701.GB17958@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141201123455.GA17958@redhat.com>
+In-Reply-To: <20141201123701.GB17958@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,36 +21,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Hildenbrand <dahi@linux.vnet.ibm.com>, pbonzini@redhat.com, David Miller <davem@davemloft.net>
+Cc: thuth@linux.vnet.ibm.com, kvm@vger.kernel.org, rusty@au1.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 1 Dec 2014 14:34:55 +0200
+On Mon, 1 Dec 2014 14:37:01 +0200
 "Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-> On Mon, Dec 01, 2014 at 01:02:58PM +0100, Cornelia Huck wrote:
-> > On Mon, 1 Dec 2014 13:46:45 +0200
+> On Mon, Dec 01, 2014 at 01:33:53PM +0100, Cornelia Huck wrote:
+> > On Sun, 30 Nov 2014 17:11:49 +0200
 > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
 > > 
-> > > On Mon, Dec 01, 2014 at 12:33:15PM +0100, Cornelia Huck wrote:
-> > > > On Mon, 1 Dec 2014 11:26:58 +0200
-> > > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > 
-> > > > > For some places on data path, it might be worth it
-> > > > > to cache the correct value e.g. as part of device
-> > > > > structure. This replaces a branch with a memory load,
-> > > > > so the gain would have to be measured, best done
-> > > > > separately?
-> > > > 
-> > > > I think we'll want to do some measuring once the basic structure is
-> > > > in place anyway.
+> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > > ---
+> > >  drivers/vhost/vhost.c | 93 +++++++++++++++++++++++++++++++--------------------
+> > >  1 file changed, 56 insertions(+), 37 deletions(-)
 > > > 
-> > > What's meant by in place here?
 > > 
-> > That this patchset is ready :)
+> > > @@ -1113,18 +1120,19 @@ static int get_indirect(struct vhost_virtqueue *vq,
+> > >  {
+> > >  	struct vring_desc desc;
+> > >  	unsigned int i = 0, count, found = 0;
+> > > +	u32 len = vhost32_to_cpu(vq, indirect->len);
+> > >  	int ret;
+> > > 
+> > >  	/* Sanity check */
+> > > -	if (unlikely(indirect->len % sizeof desc)) {
+> > > +	if (unlikely(len % sizeof desc)) {
+> > >  		vq_err(vq, "Invalid length in indirect descriptor: "
+> > >  		       "len 0x%llx not multiple of 0x%zx\n",
+> > > -		       (unsigned long long)indirect->len,
+> > > +		       (unsigned long long)vhost32_to_cpu(vq, indirect->len),
+> > 
+> > Can't you use len here?
 > 
-> Also it's ready to the level where benchmarking is possible, right?  I
-> don't think you should wait until we finish polishing up commit
-> messages.
+> Not if I want error message to be readable.
 
-My point is that I haven't even found time yet to test this
-thouroughly :(
+Huh? Both have the same value.
