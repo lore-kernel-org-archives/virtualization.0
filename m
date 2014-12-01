@@ -1,18 +1,16 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v7 36/46] vhost/net: suppress compiler warning
-Date: Mon, 1 Dec 2014 16:18:13 +0100
-Message-ID: <20141201161813.7d0820c7.cornelia.huck@de.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v7 31/46] vhost: virtio 1.0 endian-ness support
+Date: Mon, 1 Dec 2014 17:45:35 +0200
+Message-ID: <20141201154535.GA22432@redhat.com>
 References: <1417359787-10138-1-git-send-email-mst@redhat.com>
-	<1417359787-10138-37-git-send-email-mst@redhat.com>
-	<20141201133740.56d7d6d8.cornelia.huck@de.ibm.com>
-	<20141201134839.GB18305@redhat.com>
-	<20141201152103.0f375544.cornelia.huck@de.ibm.com>
-	<20141201151208.GA18919@redhat.com>
+	<1417359787-10138-32-git-send-email-mst@redhat.com>
+	<20141201133353.0bbaa2e1.cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141201151208.GA18919@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20141201133353.0bbaa2e1.cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,51 +20,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
 Cc: thuth@linux.vnet.ibm.com, kvm@vger.kernel.org, rusty@au1.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 1 Dec 2014 17:12:08 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> On Mon, Dec 01, 2014 at 03:21:03PM +0100, Cornelia Huck wrote:
-> > On Mon, 1 Dec 2014 15:48:39 +0200
-> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > 
-> > > On Mon, Dec 01, 2014 at 01:37:40PM +0100, Cornelia Huck wrote:
-> > > > On Sun, 30 Nov 2014 17:12:13 +0200
-> > > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > 
-> > > > > len is always initialized since function is called with size > 0.
-> > > > > 
-> > > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > > > ---
-> > > > >  drivers/vhost/net.c | 2 +-
-> > > > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > > > > 
-> > > > > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> > > > > index 984242e..54ffbb0 100644
-> > > > > --- a/drivers/vhost/net.c
-> > > > > +++ b/drivers/vhost/net.c
-> > > > > @@ -501,7 +501,7 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
-> > > > >  	int headcount = 0;
-> > > > >  	unsigned d;
-> > > > >  	int r, nlogs = 0;
-> > > > > -	u32 len;
-> > > > > +	u32 uninitialized_var(len);
-> > > > > 
-> > > > >  	while (datalen > 0 && headcount < quota) {
-> > > > >  		if (unlikely(seg >= UIO_MAXIOV)) {
-> > > > 
-> > > > Want to merge this with the patch introducing the variable and add a
-> > > > comment there?
-> > > 
-> > > Not really. Warnings in bisect are fine  I think.
-> > 
-> > I'm not sure what a separate patch buys us, though, as it should be
-> > trivial to merge.
+On Mon, Dec 01, 2014 at 01:33:53PM +0100, Cornelia Huck wrote:
+> On Sun, 30 Nov 2014 17:11:49 +0200
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
 > 
-> Easier to document the reason if it's split out.
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> >  drivers/vhost/vhost.c | 93 +++++++++++++++++++++++++++++++--------------------
+> >  1 file changed, 56 insertions(+), 37 deletions(-)
+> > 
 > 
+> > @@ -1113,18 +1120,19 @@ static int get_indirect(struct vhost_virtqueue *vq,
+> >  {
+> >  	struct vring_desc desc;
+> >  	unsigned int i = 0, count, found = 0;
+> > +	u32 len = vhost32_to_cpu(vq, indirect->len);
+> >  	int ret;
+> > 
+> >  	/* Sanity check */
+> > -	if (unlikely(indirect->len % sizeof desc)) {
+> > +	if (unlikely(len % sizeof desc)) {
+> >  		vq_err(vq, "Invalid length in indirect descriptor: "
+> >  		       "len 0x%llx not multiple of 0x%zx\n",
+> > -		       (unsigned long long)indirect->len,
+> > +		       (unsigned long long)vhost32_to_cpu(vq, indirect->len),
+> 
+> Can't you use len here?
+> 
+> >  		       sizeof desc);
+> >  		return -EINVAL;
+> >  	}
+> > 
+> > -	ret = translate_desc(vq, indirect->addr, indirect->len, vq->indirect,
+> > +	ret = translate_desc(vq, vhost64_to_cpu(vq, indirect->addr), len, vq->indirect,
+> >  			     UIO_MAXIOV);
+> >  	if (unlikely(ret < 0)) {
+> >  		vq_err(vq, "Translation failure %d in indirect.\n", ret);
+> 
+> 
+> > @@ -1404,7 +1422,7 @@ int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
+> > 
+> >  	/* Make sure buffer is written before we update index. */
+> >  	smp_wmb();
+> > -	if (put_user(vq->last_used_idx, &vq->used->idx)) {
+> > +	if (__put_user(cpu_to_vhost16(vq, vq->last_used_idx), &vq->used->idx)) {
+> 
+> Why s/put_user/__put_user/ - I don't see how endianness conversions
+> should have an influence there?
+> 
+> >  		vq_err(vq, "Failed to increment used idx");
+> >  		return -EFAULT;
+> >  	}
+> 
+> > @@ -1449,11 +1468,11 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+> >  	if (unlikely(!v))
+> >  		return true;
+> > 
+> > -	if (get_user(event, vhost_used_event(vq))) {
+> > +	if (__get_user(event, vhost_used_event(vq))) {
+> 
+> Dito: why the change?
 
-That's why I suggested a comment ;)
+I remember now.
+put_user/get_user macros don't work well
+with __virtio tags.
+
+As __ are a good idea anyway, I just switched to that
+everywhere.
+
+
+
+> >  		vq_err(vq, "Failed to get used event idx");
+> >  		return true;
+> >  	}
+> > -	return vring_need_event(event, new, old);
+> > +	return vring_need_event(vhost16_to_cpu(vq, event), new, old);
+> >  }
+> > 
+> >  /* This actually signals the guest, using eventfd. */
