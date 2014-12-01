@@ -1,16 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v7 31/46] vhost: virtio 1.0 endian-ness support
-Date: Mon, 1 Dec 2014 17:45:35 +0200
-Message-ID: <20141201154535.GA22432@redhat.com>
-References: <1417359787-10138-1-git-send-email-mst@redhat.com>
-	<1417359787-10138-32-git-send-email-mst@redhat.com>
-	<20141201133353.0bbaa2e1.cornelia.huck@de.ibm.com>
+Subject: [PATCH v8 01/50] virtio: add low-level APIs for feature bits
+Date: Mon, 1 Dec 2014 18:02:46 +0200
+Message-ID: <1417449619-24896-2-git-send-email-mst__20187.5391453088$1417449816$gmane$org@redhat.com>
+References: <1417449619-24896-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20141201133353.0bbaa2e1.cornelia.huck@de.ibm.com>
+In-Reply-To: <1417449619-24896-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,85 +18,101 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: thuth@linux.vnet.ibm.com, kvm@vger.kernel.org, rusty@au1.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
+To: linux-kernel@vger.kernel.org
+Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Dec 01, 2014 at 01:33:53PM +0100, Cornelia Huck wrote:
-> On Sun, 30 Nov 2014 17:11:49 +0200
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
-> >  drivers/vhost/vhost.c | 93 +++++++++++++++++++++++++++++++--------------------
-> >  1 file changed, 56 insertions(+), 37 deletions(-)
-> > 
-> 
-> > @@ -1113,18 +1120,19 @@ static int get_indirect(struct vhost_virtqueue *vq,
-> >  {
-> >  	struct vring_desc desc;
-> >  	unsigned int i = 0, count, found = 0;
-> > +	u32 len = vhost32_to_cpu(vq, indirect->len);
-> >  	int ret;
-> > 
-> >  	/* Sanity check */
-> > -	if (unlikely(indirect->len % sizeof desc)) {
-> > +	if (unlikely(len % sizeof desc)) {
-> >  		vq_err(vq, "Invalid length in indirect descriptor: "
-> >  		       "len 0x%llx not multiple of 0x%zx\n",
-> > -		       (unsigned long long)indirect->len,
-> > +		       (unsigned long long)vhost32_to_cpu(vq, indirect->len),
-> 
-> Can't you use len here?
-> 
-> >  		       sizeof desc);
-> >  		return -EINVAL;
-> >  	}
-> > 
-> > -	ret = translate_desc(vq, indirect->addr, indirect->len, vq->indirect,
-> > +	ret = translate_desc(vq, vhost64_to_cpu(vq, indirect->addr), len, vq->indirect,
-> >  			     UIO_MAXIOV);
-> >  	if (unlikely(ret < 0)) {
-> >  		vq_err(vq, "Translation failure %d in indirect.\n", ret);
-> 
-> 
-> > @@ -1404,7 +1422,7 @@ int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
-> > 
-> >  	/* Make sure buffer is written before we update index. */
-> >  	smp_wmb();
-> > -	if (put_user(vq->last_used_idx, &vq->used->idx)) {
-> > +	if (__put_user(cpu_to_vhost16(vq, vq->last_used_idx), &vq->used->idx)) {
-> 
-> Why s/put_user/__put_user/ - I don't see how endianness conversions
-> should have an influence there?
-> 
-> >  		vq_err(vq, "Failed to increment used idx");
-> >  		return -EFAULT;
-> >  	}
-> 
-> > @@ -1449,11 +1468,11 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
-> >  	if (unlikely(!v))
-> >  		return true;
-> > 
-> > -	if (get_user(event, vhost_used_event(vq))) {
-> > +	if (__get_user(event, vhost_used_event(vq))) {
-> 
-> Dito: why the change?
+Add low level APIs to test/set/clear feature bits.
+For use by transports, to make it easier to
+write code independent of feature bit array format.
 
-I remember now.
-put_user/get_user macros don't work well
-with __virtio tags.
+Note: APIs is prefixed with __ and has _bit suffix
+to stress its low level nature.  It's for use by transports only:
+drivers should use virtio_has_feature and never need to set/clear
+features.
 
-As __ are a good idea anyway, I just switched to that
-everywhere.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ include/linux/virtio_config.h | 53 ++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 50 insertions(+), 3 deletions(-)
 
-
-
-> >  		vq_err(vq, "Failed to get used event idx");
-> >  		return true;
-> >  	}
-> > -	return vring_need_event(event, new, old);
-> > +	return vring_need_event(vhost16_to_cpu(vq, event), new, old);
-> >  }
-> > 
-> >  /* This actually signals the guest, using eventfd. */
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index 7f4ef66..d8e28a2 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -77,11 +77,47 @@ void virtio_check_driver_offered_feature(const struct virtio_device *vdev,
+ 					 unsigned int fbit);
+ 
+ /**
+- * virtio_has_feature - helper to determine if this device has this feature.
++ * __virtio_test_bit - helper to test feature bits. For use by transports.
++ *                     Devices should normally use virtio_has_feature,
++ *                     which includes more checks.
+  * @vdev: the device
+  * @fbit: the feature bit
+  */
+-static inline bool virtio_has_feature(const struct virtio_device *vdev,
++static inline bool __virtio_test_bit(const struct virtio_device *vdev,
++				     unsigned int fbit)
++{
++	/* Did you forget to fix assumptions on max features? */
++	if (__builtin_constant_p(fbit))
++		BUILD_BUG_ON(fbit >= 32);
++	else
++		BUG_ON(fbit >= 32);
++
++	return test_bit(fbit, vdev->features);
++}
++
++/**
++ * __virtio_set_bit - helper to set feature bits. For use by transports.
++ * @vdev: the device
++ * @fbit: the feature bit
++ */
++static inline void __virtio_set_bit(struct virtio_device *vdev,
++				    unsigned int fbit)
++{
++	/* Did you forget to fix assumptions on max features? */
++	if (__builtin_constant_p(fbit))
++		BUILD_BUG_ON(fbit >= 32);
++	else
++		BUG_ON(fbit >= 32);
++
++	set_bit(fbit, vdev->features);
++}
++
++/**
++ * __virtio_clear_bit - helper to clear feature bits. For use by transports.
++ * @vdev: the device
++ * @fbit: the feature bit
++ */
++static inline void __virtio_clear_bit(struct virtio_device *vdev,
+ 				      unsigned int fbit)
+ {
+ 	/* Did you forget to fix assumptions on max features? */
+@@ -90,10 +126,21 @@ static inline bool virtio_has_feature(const struct virtio_device *vdev,
+ 	else
+ 		BUG_ON(fbit >= 32);
+ 
++	clear_bit(fbit, vdev->features);
++}
++
++/**
++ * virtio_has_feature - helper to determine if this device has this feature.
++ * @vdev: the device
++ * @fbit: the feature bit
++ */
++static inline bool virtio_has_feature(const struct virtio_device *vdev,
++				      unsigned int fbit)
++{
+ 	if (fbit < VIRTIO_TRANSPORT_F_START)
+ 		virtio_check_driver_offered_feature(vdev, fbit);
+ 
+-	return test_bit(fbit, vdev->features);
++	return __virtio_test_bit(vdev, fbit);
+ }
+ 
+ static inline
+-- 
+MST
