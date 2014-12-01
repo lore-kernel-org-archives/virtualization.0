@@ -1,14 +1,20 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v7 31/46] vhost: virtio 1.0 endian-ness support
-Date: Mon, 1 Dec 2014 13:33:53 +0100
-Message-ID: <20141201133353.0bbaa2e1.cornelia.huck@de.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v7 16/46] virtio_blk: v1.0 support
+Date: Mon, 1 Dec 2014 14:34:55 +0200
+Message-ID: <20141201123455.GA17958@redhat.com>
 References: <1417359787-10138-1-git-send-email-mst@redhat.com>
-	<1417359787-10138-32-git-send-email-mst@redhat.com>
+	<1417359787-10138-17-git-send-email-mst@redhat.com>
+	<20141201091641.3085e682@thinkpad-w530>
+	<20141201092658.GC15607@redhat.com>
+	<20141201123315.1b95d06f.cornelia.huck@de.ibm.com>
+	<20141201114645.GA17505@redhat.com>
+	<20141201130258.6f01c1e3.cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1417359787-10138-32-git-send-email-mst@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20141201130258.6f01c1e3.cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,75 +24,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: thuth@linux.vnet.ibm.com, kvm@vger.kernel.org, rusty@au1.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Hildenbrand <dahi@linux.vnet.ibm.com>, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 30 Nov 2014 17:11:49 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/vhost/vhost.c | 93 +++++++++++++++++++++++++++++++--------------------
->  1 file changed, 56 insertions(+), 37 deletions(-)
+On Mon, Dec 01, 2014 at 01:02:58PM +0100, Cornelia Huck wrote:
+> On Mon, 1 Dec 2014 13:46:45 +0200
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
 > 
-
-> @@ -1113,18 +1120,19 @@ static int get_indirect(struct vhost_virtqueue *vq,
->  {
->  	struct vring_desc desc;
->  	unsigned int i = 0, count, found = 0;
-> +	u32 len = vhost32_to_cpu(vq, indirect->len);
->  	int ret;
+> > On Mon, Dec 01, 2014 at 12:33:15PM +0100, Cornelia Huck wrote:
+> > > On Mon, 1 Dec 2014 11:26:58 +0200
+> > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > 
+> > > > For some places on data path, it might be worth it
+> > > > to cache the correct value e.g. as part of device
+> > > > structure. This replaces a branch with a memory load,
+> > > > so the gain would have to be measured, best done
+> > > > separately?
+> > > 
+> > > I think we'll want to do some measuring once the basic structure is
+> > > in place anyway.
+> > 
+> > What's meant by in place here?
 > 
->  	/* Sanity check */
-> -	if (unlikely(indirect->len % sizeof desc)) {
-> +	if (unlikely(len % sizeof desc)) {
->  		vq_err(vq, "Invalid length in indirect descriptor: "
->  		       "len 0x%llx not multiple of 0x%zx\n",
-> -		       (unsigned long long)indirect->len,
-> +		       (unsigned long long)vhost32_to_cpu(vq, indirect->len),
+> That this patchset is ready :)
 
-Can't you use len here?
+Also it's ready to the level where benchmarking is possible, right?  I
+don't think you should wait until we finish polishing up commit
+messages.
 
->  		       sizeof desc);
->  		return -EINVAL;
->  	}
+> > 
+> > > We should make sure that e.g. s390 only takes minor
+> > > hit due to all that swapping that is needed for standard-compliant
+> > > devices. Caching the value might certainly help in some paths.
+> > 
+> > Well, this is queued in linux-next for 3.19, so
+> > now's the time to do it :)
 > 
-> -	ret = translate_desc(vq, indirect->addr, indirect->len, vq->indirect,
-> +	ret = translate_desc(vq, vhost64_to_cpu(vq, indirect->addr), len, vq->indirect,
->  			     UIO_MAXIOV);
->  	if (unlikely(ret < 0)) {
->  		vq_err(vq, "Translation failure %d in indirect.\n", ret);
-
-
-> @@ -1404,7 +1422,7 @@ int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
+> So much to do, so little time...
 > 
->  	/* Make sure buffer is written before we update index. */
->  	smp_wmb();
-> -	if (put_user(vq->last_used_idx, &vq->used->idx)) {
-> +	if (__put_user(cpu_to_vhost16(vq, vq->last_used_idx), &vq->used->idx)) {
-
-Why s/put_user/__put_user/ - I don't see how endianness conversions
-should have an influence there?
-
->  		vq_err(vq, "Failed to increment used idx");
->  		return -EFAULT;
->  	}
-
-> @@ -1449,11 +1468,11 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
->  	if (unlikely(!v))
->  		return true;
+> I'm still feeling a bit uncomfortable with some of the changes
+> (virtio-scsi etc.) as I have not been able to test them yet (as there's
+> no converted qemu for these yet). The virtio-net and virtio-blk changes
+> seem sane, though, and virtio-ccw should be fine as well.
 > 
-> -	if (get_user(event, vhost_used_event(vq))) {
-> +	if (__get_user(event, vhost_used_event(vq))) {
-
-Dito: why the change?
-
->  		vq_err(vq, "Failed to get used event idx");
->  		return true;
->  	}
-> -	return vring_need_event(event, new, old);
-> +	return vring_need_event(vhost16_to_cpu(vq, event), new, old);
->  }
-> 
->  /* This actually signals the guest, using eventfd. */
+> OTOH, it's not like we're introducing new external interfaces, so later
+> rework should be fine.
