@@ -1,16 +1,14 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v7 16/46] virtio_blk: v1.0 support
-Date: Mon, 1 Dec 2014 12:33:15 +0100
-Message-ID: <20141201123315.1b95d06f.cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH v7 21/46] virtio_blk: make serial attribute static
+Date: Mon, 1 Dec 2014 12:34:28 +0100
+Message-ID: <20141201123428.089d4ee5.cornelia.huck@de.ibm.com>
 References: <1417359787-10138-1-git-send-email-mst@redhat.com>
-	<1417359787-10138-17-git-send-email-mst@redhat.com>
-	<20141201091641.3085e682@thinkpad-w530>
-	<20141201092658.GC15607@redhat.com>
+	<1417359787-10138-22-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141201092658.GC15607@redhat.com>
+In-Reply-To: <1417359787-10138-22-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,19 +19,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Hildenbrand <dahi@linux.vnet.ibm.com>, pbonzini@redhat.com, David Miller <davem@davemloft.net>
+Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 1 Dec 2014 11:26:58 +0200
+On Sun, 30 Nov 2014 17:11:01 +0200
 "Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-> For some places on data path, it might be worth it
-> to cache the correct value e.g. as part of device
-> structure. This replaces a branch with a memory load,
-> so the gain would have to be measured, best done
-> separately?
+> It's never declared so no need to make it extern.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  drivers/block/virtio_blk.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 
-I think we'll want to do some measuring once the basic structure is
-in place anyway. We should make sure that e.g. s390 only takes minor
-hit due to all that swapping that is needed for standard-compliant
-devices. Caching the value might certainly help in some paths.
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
