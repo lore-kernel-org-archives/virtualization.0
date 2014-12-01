@@ -1,13 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH RFC v4 net-next 5/5] vhost_net: interrupt coalescing support
-Date: Mon,  1 Dec 2014 18:17:08 +0800
-Message-ID: <1417429028-11971-6-git-send-email-jasowang@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RFC v4 net-next 1/5] virtio_net: enable tx interrupt
+Date: Mon, 1 Dec 2014 12:35:36 +0200
+Message-ID: <20141201103536.GA16108@redhat.com>
 References: <1417429028-11971-1-git-send-email-jasowang@redhat.com>
+	<1417429028-11971-2-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1417429028-11971-1-git-send-email-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1417429028-11971-2-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,414 +19,297 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, davem@davemloft.net
-Cc: pagupta@redhat.com
+To: Jason Wang <jasowang@redhat.com>
+Cc: pagupta@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch implements interrupt coalescing support for vhost_net. And provides
-ioctl()s for userspace to get and set coalescing parameters. Two kinds of
-parameters were allowed to be set:
+On Mon, Dec 01, 2014 at 06:17:04PM +0800, Jason Wang wrote:
+> On newer hosts that support delayed tx interrupts,
+> we probably don't have much to gain from orphaning
+> packets early.
+> 
+> Note: this might degrade performance for
+> hosts without event idx support.
+> Should be addressed by the next patch.
+>
+> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-- max_coalesced_frames: which is the maximum numbers of packets were allowed
-  before issuing an irq.
-- coalesced_usecs: which is the maximum number of micro seconds were allowed
-  before issuing an irq if at least one packet were pending.
+Could you document the changes from the RFC I sent please?
+Are there optimizations?
+If yes, it might be easier to review (at least for me), if you refactor this,
+e.g. applying the straight-forward rfc patch and then optimizations if
+any on top. If it's taking a different approach, pls feel free to
+disregard this.
 
-A per virtqueue hrtimer were used for coalesced_usecs.
 
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/net.c        | 200 +++++++++++++++++++++++++++++++++++++++++++--
- include/uapi/linux/vhost.h |  12 +++
- 2 files changed, 203 insertions(+), 9 deletions(-)
+> ---
+>  drivers/net/virtio_net.c | 132 +++++++++++++++++++++++++++++++----------------
+>  1 file changed, 88 insertions(+), 44 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index ec2a8b4..f68114e 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -72,6 +72,8 @@ struct send_queue {
+>  
+>  	/* Name of the send queue: output.$index */
+>  	char name[40];
+> +
+> +	struct napi_struct napi;
+>  };
+>  
+>  /* Internal representation of a receive virtqueue */
+> @@ -137,6 +139,9 @@ struct virtnet_info {
+>  
+>  	/* CPU hot plug notifier */
+>  	struct notifier_block nb;
+> +
+> +	/* Budget for polling tx completion */
+> +	u32 tx_work_limit;
+>  };
+>  
+>  struct skb_vnet_hdr {
+> @@ -211,15 +216,41 @@ static struct page *get_a_page(struct receive_queue *rq, gfp_t gfp_mask)
+>  	return p;
+>  }
+>  
+> +static unsigned int free_old_xmit_skbs(struct netdev_queue *txq,
+> +				       struct send_queue *sq, int budget)
+> +{
+> +	struct sk_buff *skb;
+> +	unsigned int len;
+> +	struct virtnet_info *vi = sq->vq->vdev->priv;
+> +	struct virtnet_stats *stats = this_cpu_ptr(vi->stats);
+> +	unsigned int packets = 0;
+> +
+> +	while (packets < budget &&
+> +	       (skb = virtqueue_get_buf(sq->vq, &len)) != NULL) {
+> +		pr_debug("Sent skb %p\n", skb);
+> +
+> +		u64_stats_update_begin(&stats->tx_syncp);
+> +		stats->tx_bytes += skb->len;
+> +		stats->tx_packets++;
+> +		u64_stats_update_end(&stats->tx_syncp);
+> +
+> +		dev_kfree_skb_any(skb);
+> +		packets++;
+> +	}
+> +
+> +	if (sq->vq->num_free >= 2+MAX_SKB_FRAGS)
+> +		netif_tx_start_queue(txq);
+> +
+> +	return packets;
+> +}
+> +
+>  static void skb_xmit_done(struct virtqueue *vq)
+>  {
+>  	struct virtnet_info *vi = vq->vdev->priv;
+> +	struct send_queue *sq = &vi->sq[vq2txq(vq)];
+>  
+> -	/* Suppress further interrupts. */
+> -	virtqueue_disable_cb(vq);
+> -
+> -	/* We were probably waiting for more output buffers. */
+> -	netif_wake_subqueue(vi->dev, vq2txq(vq));
+> +	virtqueue_disable_cb(sq->vq);
+> +	napi_schedule(&sq->napi);
+>  }
+>  
+>  static unsigned int mergeable_ctx_to_buf_truesize(unsigned long mrg_ctx)
+> @@ -777,6 +808,32 @@ again:
+>  	return received;
+>  }
+>  
+> +static int virtnet_poll_tx(struct napi_struct *napi, int budget)
+> +{
+> +	struct send_queue *sq =
+> +		container_of(napi, struct send_queue, napi);
+> +	struct virtnet_info *vi = sq->vq->vdev->priv;
+> +	struct netdev_queue *txq = netdev_get_tx_queue(vi->dev, vq2txq(sq->vq));
+> +	u32 limit = vi->tx_work_limit;
+> +	unsigned int sent;
+> +
+> +	__netif_tx_lock(txq, smp_processor_id());
+> +	sent = free_old_xmit_skbs(txq, sq, limit);
+> +	if (sent < limit) {
+> +		napi_complete(napi);
+> +		/* Note: we must enable cb *after* napi_complete, because
+> +		 * napi_schedule calls from callbacks that trigger before
+> +		 * napi_complete are ignored.
+> +		 */
+> +		if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
+> +			virtqueue_disable_cb(sq->vq);
+> +			napi_schedule(&sq->napi);
+> +		}
+> +	}
+> +	__netif_tx_unlock(txq);
+> +	return sent < limit ? 0 : budget;
+> +}
+> +
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 8dae2f7..c416aa7 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -18,6 +18,7 @@
- #include <linux/file.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
-+#include <linux/timer.h>
- 
- #include <linux/net.h>
- #include <linux/if_packet.h>
-@@ -61,7 +62,8 @@ MODULE_PARM_DESC(experimental_zcopytx, "Enable Zero Copy TX;"
- enum {
- 	VHOST_NET_FEATURES = VHOST_FEATURES |
- 			 (1ULL << VHOST_NET_F_VIRTIO_NET_HDR) |
--			 (1ULL << VIRTIO_NET_F_MRG_RXBUF),
-+			 (1ULL << VIRTIO_NET_F_MRG_RXBUF) |
-+			 (1ULL << VIRTIO_NET_F_CTRL_COALESCE)
- };
- 
- enum {
-@@ -99,6 +101,15 @@ struct vhost_net_virtqueue {
- 	/* Reference counting for outstanding ubufs.
- 	 * Protected by vq mutex. Writers must also take device mutex. */
- 	struct vhost_net_ubuf_ref *ubufs;
-+	/* Microseconds after at least 1 paket is processed before
-+	 * generating an interrupt.
-+	 */
-+	__u32 coalesce_usecs;
-+	/* Packets are processed before genearting an interrupt. */
-+	__u32 max_coalesced_frames;
-+	__u32 coalesced;
-+	ktime_t last_signal;
-+	struct hrtimer c_timer;
- };
- 
- struct vhost_net {
-@@ -196,11 +207,16 @@ static void vhost_net_vq_reset(struct vhost_net *n)
- 	vhost_net_clear_ubuf_info(n);
- 
- 	for (i = 0; i < VHOST_NET_VQ_MAX; i++) {
-+		hrtimer_cancel(&n->vqs[i].c_timer);
- 		n->vqs[i].done_idx = 0;
- 		n->vqs[i].upend_idx = 0;
- 		n->vqs[i].ubufs = NULL;
- 		n->vqs[i].vhost_hlen = 0;
- 		n->vqs[i].sock_hlen = 0;
-+		n->vqs[i].max_coalesced_frames = 0;
-+		n->vqs[i].coalesce_usecs = 0;
-+		n->vqs[i].last_signal = ktime_get();
-+		n->vqs[i].coalesced = 0;
- 	}
- 
- }
-@@ -272,6 +288,56 @@ static void copy_iovec_hdr(const struct iovec *from, struct iovec *to,
- 	}
- }
- 
-+static int vhost_net_check_coalesce_and_signal(struct vhost_dev *dev,
-+					       struct vhost_net_virtqueue *nvq)
-+{
-+	struct vhost_virtqueue *vq = &nvq->vq;
-+	int left = 0;
-+	ktime_t now;
-+
-+	if (nvq->coalesced) {
-+		now = ktime_get();
-+		left = nvq->coalesce_usecs -
-+		       ktime_to_us(ktime_sub(now, nvq->last_signal));
-+		if (left <= 0) {
-+			vhost_signal(dev, vq);
-+			nvq->last_signal = now;
-+			nvq->coalesced = 0;
-+		}
-+	}
-+
-+	return left;
-+}
-+
-+static bool vhost_net_add_used_and_signal_n(struct vhost_dev *dev,
-+					    struct vhost_net_virtqueue *nvq,
-+					    struct vring_used_elem *heads,
-+					    unsigned count)
-+{
-+	struct vhost_virtqueue *vq = &nvq->vq;
-+	bool can_coalesce = nvq->max_coalesced_frames && nvq->coalesce_usecs;
-+	bool ret = false;
-+
-+	vhost_add_used_n(vq, heads, count);
-+
-+	if (can_coalesce) {
-+		ktime_t now = ktime_get();
-+
-+		nvq->coalesced += count;
-+		if ((nvq->coalesced >= nvq->max_coalesced_frames) ||
-+		    (ktime_to_us(ktime_sub(now, nvq->last_signal)) >=
-+		     nvq->coalesce_usecs)) {
-+			vhost_signal(dev, vq);
-+			nvq->coalesced = 0;
-+			nvq->last_signal = now;
-+			ret = true;
-+		}
-+	} else {
-+		vhost_signal(dev, vq);
-+	}
-+	return ret;
-+}
-+
- /* In case of DMA done not in order in lower device driver for some reason.
-  * upend_idx is used to track end of used idx, done_idx is used to track head
-  * of used idx. Once lower device DMA done contiguously, we will signal KVM
-@@ -296,8 +362,8 @@ static void vhost_zerocopy_signal_used(struct vhost_net *net,
- 	}
- 	while (j) {
- 		add = min(UIO_MAXIOV - nvq->done_idx, j);
--		vhost_add_used_and_signal_n(vq->dev, vq,
--					    &vq->heads[nvq->done_idx], add);
-+		vhost_net_add_used_and_signal_n(vq->dev, nvq,
-+						&vq->heads[nvq->done_idx], add);
- 		nvq->done_idx = (nvq->done_idx + add) % UIO_MAXIOV;
- 		j -= add;
- 	}
-@@ -351,6 +417,7 @@ static void handle_tx(struct vhost_net *net)
- 	struct socket *sock;
- 	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
- 	bool zcopy, zcopy_used;
-+	int left;
- 
- 	mutex_lock(&vq->mutex);
- 	sock = vq->private_data;
-@@ -362,6 +429,8 @@ static void handle_tx(struct vhost_net *net)
- 	hdr_size = nvq->vhost_hlen;
- 	zcopy = nvq->ubufs;
- 
-+	vhost_net_check_coalesce_and_signal(&net->dev, nvq);
-+
- 	for (;;) {
- 		/* Release DMAs done buffers first */
- 		if (zcopy)
-@@ -444,10 +513,15 @@ static void handle_tx(struct vhost_net *net)
- 		if (err != len)
- 			pr_debug("Truncated TX packet: "
- 				 " len %d != %zd\n", err, len);
--		if (!zcopy_used)
--			vhost_add_used_and_signal(&net->dev, vq, head, 0);
--		else
-+
-+		if (!zcopy_used) {
-+			struct vring_used_elem heads = { head, 0 };
-+
-+			vhost_net_add_used_and_signal_n(&net->dev,
-+							nvq, &heads, 1);
-+		} else {
- 			vhost_zerocopy_signal_used(net, vq);
-+		}
- 		total_len += len;
- 		vhost_net_tx_packet(net);
- 		if (unlikely(total_len >= VHOST_NET_WEIGHT)) {
-@@ -455,6 +529,12 @@ static void handle_tx(struct vhost_net *net)
- 			break;
- 		}
- 	}
-+
-+	left = vhost_net_check_coalesce_and_signal(&net->dev, nvq);
-+	if (left > 0)
-+		hrtimer_start(&nvq->c_timer, ms_to_ktime(left),
-+			      HRTIMER_MODE_REL);
-+
- out:
- 	mutex_unlock(&vq->mutex);
- }
-@@ -570,7 +650,7 @@ static void handle_rx(struct vhost_net *net)
- 		.hdr.gso_type = VIRTIO_NET_HDR_GSO_NONE
- 	};
- 	size_t total_len = 0;
--	int err, mergeable;
-+	int err, mergeable, left;
- 	s16 headcount;
- 	size_t vhost_hlen, sock_hlen;
- 	size_t vhost_len, sock_len;
-@@ -589,6 +669,8 @@ static void handle_rx(struct vhost_net *net)
- 		vq->log : NULL;
- 	mergeable = vhost_has_feature(vq, VIRTIO_NET_F_MRG_RXBUF);
- 
-+	vhost_net_check_coalesce_and_signal(&net->dev, nvq);
-+
- 	while ((sock_len = peek_head_len(sock->sk))) {
- 		sock_len += sock_hlen;
- 		vhost_len = sock_len + vhost_hlen;
-@@ -654,8 +736,10 @@ static void handle_rx(struct vhost_net *net)
- 			vhost_discard_vq_desc(vq, headcount);
- 			break;
- 		}
--		vhost_add_used_and_signal_n(&net->dev, vq, vq->heads,
--					    headcount);
-+
-+		vhost_net_add_used_and_signal_n(&net->dev, nvq,
-+						vq->heads, headcount);
-+
- 		if (unlikely(vq_log))
- 			vhost_log_write(vq, vq_log, log, vhost_len);
- 		total_len += vhost_len;
-@@ -664,6 +748,12 @@ static void handle_rx(struct vhost_net *net)
- 			break;
- 		}
- 	}
-+
-+	left = vhost_net_check_coalesce_and_signal(&net->dev, nvq);
-+	if (left > 0)
-+		hrtimer_start(&nvq->c_timer, ms_to_ktime(left),
-+			HRTIMER_MODE_REL);
-+
- out:
- 	mutex_unlock(&vq->mutex);
- }
-@@ -700,6 +790,18 @@ static void handle_rx_net(struct vhost_work *work)
- 	handle_rx(net);
- }
- 
-+static enum hrtimer_restart vhost_net_timer_handler(struct hrtimer *timer)
-+{
-+	struct vhost_net_virtqueue *nvq = container_of(timer,
-+						struct vhost_net_virtqueue,
-+						c_timer);
-+	struct vhost_virtqueue *vq = &nvq->vq;
-+
-+	vhost_poll_queue(&vq->poll);
-+
-+	return HRTIMER_NORESTART;
-+}
-+
- static int vhost_net_open(struct inode *inode, struct file *f)
- {
- 	struct vhost_net *n;
-@@ -731,6 +833,13 @@ static int vhost_net_open(struct inode *inode, struct file *f)
- 		n->vqs[i].done_idx = 0;
- 		n->vqs[i].vhost_hlen = 0;
- 		n->vqs[i].sock_hlen = 0;
-+		n->vqs[i].max_coalesced_frames = 0;
-+		n->vqs[i].coalesce_usecs = 0;
-+		n->vqs[i].last_signal = ktime_get();
-+		n->vqs[i].coalesced = 0;
-+		hrtimer_init(&n->vqs[i].c_timer, CLOCK_MONOTONIC,
-+			     HRTIMER_MODE_REL);
-+		n->vqs[i].c_timer.function = vhost_net_timer_handler;
- 	}
- 	vhost_dev_init(dev, vqs, VHOST_NET_VQ_MAX);
- 
-@@ -907,6 +1016,7 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
- 	struct vhost_virtqueue *vq;
- 	struct vhost_net_virtqueue *nvq;
- 	struct vhost_net_ubuf_ref *ubufs, *oldubufs = NULL;
-+	unsigned int coalesced;
- 	int r;
- 
- 	mutex_lock(&n->dev.mutex);
-@@ -935,6 +1045,7 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
- 
- 	/* start polling new socket */
- 	oldsock = vq->private_data;
-+	coalesced = nvq->coalesced;
- 	if (sock != oldsock) {
- 		ubufs = vhost_net_ubuf_alloc(vq,
- 					     sock && vhost_sock_zcopy(sock));
-@@ -969,6 +1080,12 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
- 		mutex_unlock(&vq->mutex);
- 	}
- 
-+	if (coalesced) {
-+		mutex_lock(&vq->mutex);
-+		vhost_signal(&n->dev, vq);
-+		mutex_unlock(&vq->mutex);
-+	}
-+
- 	if (oldsock) {
- 		vhost_net_flush_vq(n, index);
- 		sockfd_put(oldsock);
-@@ -1075,6 +1192,67 @@ out:
- 	return r;
- }
- 
-+static long vhost_net_set_vring_coalesce(struct vhost_dev *d, void __user *argp)
-+{
-+	u32 __user *idxp = argp;
-+	u32 idx;
-+	int r;
-+	struct vhost_virtqueue *vq;
-+	struct vhost_net_vring_coalesce c;
-+	struct vhost_net_virtqueue *nvq;
-+
-+	r = get_user(idx, idxp);
-+	if (r < 0)
-+		return r;
-+	if (idx >= d->nvqs)
-+		return -ENOBUFS;
-+
-+	vq = d->vqs[idx];
-+	nvq = container_of(vq, struct vhost_net_virtqueue, vq);
-+
-+	r = copy_from_user(&c, argp, sizeof(c));
-+	if (r < 0)
-+		return r;
-+
-+	mutex_lock(&vq->mutex);
-+	nvq->coalesce_usecs = c.coalesce_usecs;
-+	nvq->max_coalesced_frames = c.max_coalesced_frames;
-+	mutex_unlock(&vq->mutex);
-+
-+	return 0;
-+}
-+
-+static long vhost_net_get_vring_coalesce(struct vhost_dev *d, void __user *argp)
-+{
-+	u32 __user *idxp = argp;
-+	u32 idx;
-+	int r;
-+	struct vhost_virtqueue *vq;
-+	struct vhost_net_vring_coalesce c;
-+	struct vhost_net_virtqueue *nvq;
-+
-+	r = get_user(idx, idxp);
-+	if (r < 0)
-+		return r;
-+	if (idx >= d->nvqs)
-+		return -ENOBUFS;
-+
-+	vq = d->vqs[idx];
-+	nvq = container_of(vq, struct vhost_net_virtqueue, vq);
-+
-+	mutex_lock(&vq->mutex);
-+	c.index = idx;
-+	c.coalesce_usecs = nvq->coalesce_usecs;
-+	c.max_coalesced_frames = nvq->max_coalesced_frames;
-+	mutex_unlock(&vq->mutex);
-+
-+	r = copy_to_user(argp, &c, sizeof(c));
-+	if (r < 0)
-+		return r;
-+
-+	return 0;
-+}
-+
- static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
- 			    unsigned long arg)
- {
-@@ -1105,6 +1283,10 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
- 		return vhost_net_reset_owner(n);
- 	case VHOST_SET_OWNER:
- 		return vhost_net_set_owner(n);
-+	case VHOST_NET_SET_VRING_COALESCE:
-+		return vhost_net_set_vring_coalesce(&n->dev, argp);
-+	case VHOST_NET_GET_VRING_COALESCE:
-+		return vhost_net_get_vring_coalesce(&n->dev, argp);
- 	default:
- 		mutex_lock(&n->dev.mutex);
- 		r = vhost_dev_ioctl(&n->dev, ioctl, argp);
-diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-index bb6a5b4..6799cc1 100644
---- a/include/uapi/linux/vhost.h
-+++ b/include/uapi/linux/vhost.h
-@@ -27,6 +27,12 @@ struct vhost_vring_file {
- 
- };
- 
-+struct vhost_net_vring_coalesce {
-+	unsigned int index;
-+	__u32 coalesce_usecs;
-+	__u32 max_coalesced_frames;
-+};
-+
- struct vhost_vring_addr {
- 	unsigned int index;
- 	/* Option flags. */
-@@ -121,6 +127,12 @@ struct vhost_memory {
-  * device.  This can be used to stop the ring (e.g. for migration). */
- #define VHOST_NET_SET_BACKEND _IOW(VHOST_VIRTIO, 0x30, struct vhost_vring_file)
- 
-+/* Setting interrupt coalescing parameters. */
-+#define VHOST_NET_SET_VRING_COALESCE \
-+	_IOW(VHOST_VIRTIO, 0x31, struct vhost_net_vring_coalesce)
-+/* Getting interrupt coalescing parameters. */
-+#define VHOST_NET_GET_VRING_COALESCE \
-+	_IOW(VHOST_VIRTIO, 0x32, struct vhost_net_vring_coalesce)
- /* Feature bits */
- /* Log all write descriptors. Can be changed while device is active. */
- #define VHOST_F_LOG_ALL 26
--- 
-1.8.3.1
+Unlike the patch I sent, this seems to ignore the budget,
+and always poll the full napi_weight.
+Seems strange.  What is the reason for this?
+
+
+
+>  #ifdef CONFIG_NET_RX_BUSY_POLL
+>  /* must be called with local_bh_disable()d */
+>  static int virtnet_busy_poll(struct napi_struct *napi)
+> @@ -825,30 +882,12 @@ static int virtnet_open(struct net_device *dev)
+>  			if (!try_fill_recv(&vi->rq[i], GFP_KERNEL))
+>  				schedule_delayed_work(&vi->refill, 0);
+>  		virtnet_napi_enable(&vi->rq[i]);
+> +		napi_enable(&vi->sq[i].napi);
+>  	}
+>  
+>  	return 0;
+>  }
+>  
+> -static void free_old_xmit_skbs(struct send_queue *sq)
+> -{
+> -	struct sk_buff *skb;
+> -	unsigned int len;
+> -	struct virtnet_info *vi = sq->vq->vdev->priv;
+> -	struct virtnet_stats *stats = this_cpu_ptr(vi->stats);
+> -
+> -	while ((skb = virtqueue_get_buf(sq->vq, &len)) != NULL) {
+> -		pr_debug("Sent skb %p\n", skb);
+> -
+> -		u64_stats_update_begin(&stats->tx_syncp);
+> -		stats->tx_bytes += skb->len;
+> -		stats->tx_packets++;
+> -		u64_stats_update_end(&stats->tx_syncp);
+> -
+> -		dev_kfree_skb_any(skb);
+> -	}
+> -}
+> -
+>  static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
+>  {
+>  	struct skb_vnet_hdr *hdr;
+> @@ -912,7 +951,9 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
+>  		sg_set_buf(sq->sg, hdr, hdr_len);
+>  		num_sg = skb_to_sgvec(skb, sq->sg + 1, 0, skb->len) + 1;
+>  	}
+> -	return virtqueue_add_outbuf(sq->vq, sq->sg, num_sg, skb, GFP_ATOMIC);
+> +
+> +	return virtqueue_add_outbuf(sq->vq, sq->sg, num_sg, skb,
+> +				    GFP_ATOMIC);
+>  }
+>  
+>  static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+> @@ -924,8 +965,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>  	struct netdev_queue *txq = netdev_get_tx_queue(dev, qnum);
+>  	bool kick = !skb->xmit_more;
+>  
+> -	/* Free up any pending old buffers before queueing new ones. */
+> -	free_old_xmit_skbs(sq);
+> +	virtqueue_disable_cb(sq->vq);
+>  
+>  	/* Try to transmit */
+>  	err = xmit_skb(sq, skb);
+> @@ -941,27 +981,19 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>  		return NETDEV_TX_OK;
+>  	}
+>  
+> -	/* Don't wait up for transmitted skbs to be freed. */
+> -	skb_orphan(skb);
+> -	nf_reset(skb);
+> -
+>  	/* Apparently nice girls don't return TX_BUSY; stop the queue
+>  	 * before it gets out of hand.  Naturally, this wastes entries. */
+> -	if (sq->vq->num_free < 2+MAX_SKB_FRAGS) {
+> +	if (sq->vq->num_free < 2+MAX_SKB_FRAGS)
+>  		netif_stop_subqueue(dev, qnum);
+> -		if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
+> -			/* More just got used, free them then recheck. */
+> -			free_old_xmit_skbs(sq);
+> -			if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
+> -				netif_start_subqueue(dev, qnum);
+> -				virtqueue_disable_cb(sq->vq);
+> -			}
+> -		}
+> -	}
+>  
+>  	if (kick || netif_xmit_stopped(txq))
+>  		virtqueue_kick(sq->vq);
+>  
+> +	if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
+> +		virtqueue_disable_cb(sq->vq);
+> +		napi_schedule(&sq->napi);
+> +	}
+> +
+>  	return NETDEV_TX_OK;
+>  }
+>  
+> @@ -1138,8 +1170,10 @@ static int virtnet_close(struct net_device *dev)
+>  	/* Make sure refill_work doesn't re-enable napi! */
+>  	cancel_delayed_work_sync(&vi->refill);
+>  
+> -	for (i = 0; i < vi->max_queue_pairs; i++)
+> +	for (i = 0; i < vi->max_queue_pairs; i++) {
+>  		napi_disable(&vi->rq[i].napi);
+> +		napi_disable(&vi->sq[i].napi);
+> +	}
+>  
+>  	return 0;
+>  }
+> @@ -1452,8 +1486,10 @@ static void virtnet_free_queues(struct virtnet_info *vi)
+>  {
+>  	int i;
+>  
+> -	for (i = 0; i < vi->max_queue_pairs; i++)
+> +	for (i = 0; i < vi->max_queue_pairs; i++) {
+>  		netif_napi_del(&vi->rq[i].napi);
+> +		netif_napi_del(&vi->sq[i].napi);
+> +	}
+>  
+>  	kfree(vi->rq);
+>  	kfree(vi->sq);
+> @@ -1607,6 +1643,8 @@ static int virtnet_alloc_queues(struct virtnet_info *vi)
+>  		netif_napi_add(vi->dev, &vi->rq[i].napi, virtnet_poll,
+>  			       napi_weight);
+>  		napi_hash_add(&vi->rq[i].napi);
+> +		netif_napi_add(vi->dev, &vi->sq[i].napi, virtnet_poll_tx,
+> +			       napi_weight);
+>  
+>  		sg_init_table(vi->rq[i].sg, ARRAY_SIZE(vi->rq[i].sg));
+>  		ewma_init(&vi->rq[i].mrg_avg_pkt_len, 1, RECEIVE_AVG_WEIGHT);
+> @@ -1790,6 +1828,8 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	if (err)
+>  		goto free_stats;
+>  
+> +	vi->tx_work_limit = napi_weight;
+> +
+>  #ifdef CONFIG_SYSFS
+>  	if (vi->mergeable_rx_bufs)
+>  		dev->sysfs_rx_queue_group = &virtio_net_mrg_rx_group;
+> @@ -1904,8 +1944,10 @@ static int virtnet_freeze(struct virtio_device *vdev)
+>  	if (netif_running(vi->dev)) {
+>  		for (i = 0; i < vi->max_queue_pairs; i++) {
+>  			napi_disable(&vi->rq[i].napi);
+> +			napi_disable(&vi->sq[i].napi);
+>  			napi_hash_del(&vi->rq[i].napi);
+>  			netif_napi_del(&vi->rq[i].napi);
+> +			netif_napi_del(&vi->sq[i].napi);
+>  		}
+>  	}
+>  
+> @@ -1930,8 +1972,10 @@ static int virtnet_restore(struct virtio_device *vdev)
+>  			if (!try_fill_recv(&vi->rq[i], GFP_KERNEL))
+>  				schedule_delayed_work(&vi->refill, 0);
+>  
+> -		for (i = 0; i < vi->max_queue_pairs; i++)
+> +		for (i = 0; i < vi->max_queue_pairs; i++) {
+>  			virtnet_napi_enable(&vi->rq[i]);
+> +			napi_enable(&vi->sq[i].napi);
+> +		}
+>  	}
+>  
+>  	netif_device_attach(vi->dev);
+> -- 
+> 1.8.3.1
