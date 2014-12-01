@@ -1,14 +1,14 @@
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Subject: Re: [PATCH v7 13/46] virtio: simplify feature bit handling
-Date: Mon, 1 Dec 2014 09:06:18 +0100
-Message-ID: <20141201090618.3ca35baa@thinkpad-w530>
+Subject: Re: [PATCH v7 16/46] virtio_blk: v1.0 support
+Date: Mon, 1 Dec 2014 09:16:41 +0100
+Message-ID: <20141201091641.3085e682@thinkpad-w530>
 References: <1417359787-10138-1-git-send-email-mst@redhat.com>
-	<1417359787-10138-14-git-send-email-mst@redhat.com>
+	<1417359787-10138-17-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1417359787-10138-14-git-send-email-mst@redhat.com>
+In-Reply-To: <1417359787-10138-17-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,15 +19,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, David Miller <davem@davemloft.net>
+Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Now that we use u64 for bits, we can simply & them together.
+> Based on patch by Cornelia Huck.
 > 
+> Note: for consistency, and to avoid sparse errors,
+>       convert all fields, even those no longer in use
+>       for virtio v1.0.
+> 
+> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/virtio/virtio.c | 10 ++++++----
->  1 file changed, 6 insertions(+), 4 deletions(-)
+...
 > 
+> -static unsigned int features[] = {
+> +static unsigned int features_legacy[] = {
+>  	VIRTIO_BLK_F_SEG_MAX, VIRTIO_BLK_F_SIZE_MAX, VIRTIO_BLK_F_GEOMETRY,
+>  	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE, VIRTIO_BLK_F_SCSI,
+>  	VIRTIO_BLK_F_WCE, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+>  	VIRTIO_BLK_F_MQ,
+> +}
+> +;
+> +static unsigned int features[] = {
+> +	VIRTIO_BLK_F_SEG_MAX, VIRTIO_BLK_F_SIZE_MAX, VIRTIO_BLK_F_GEOMETRY,
+> +	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
+> +	VIRTIO_BLK_F_TOPOLOGY,
+> +	VIRTIO_BLK_F_MQ,
+> +	VIRTIO_F_VERSION_1,
 
-Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+We can fit this into less lines, like done for features_legacy.
+
+I was asking myself if we could do the conversion of the statical values
+somehow upfront, to reduce the patch size and avoid cpu_to_virtio.* at those
+places.
+
+Otherwise looks good to me.
