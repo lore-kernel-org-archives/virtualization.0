@@ -1,14 +1,15 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v7 01/46] virtio: add low-level APIs for feature bits
-Date: Mon, 1 Dec 2014 10:08:54 +0100
-Message-ID: <20141201100854.2a21b168.cornelia.huck@de.ibm.com>
-References: <1417359787-10138-1-git-send-email-mst@redhat.com>
-	<1417359787-10138-2-git-send-email-mst@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next] vhost: remove unnecessary forward declarations
+	in vhost.h
+Date: Mon, 1 Dec 2014 11:18:33 +0200
+Message-ID: <20141201091833.GA15607@redhat.com>
+References: <1417070481-10331-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1417359787-10138-2-git-send-email-mst@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1417070481-10331-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,25 +19,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 30 Nov 2014 17:09:08 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Thu, Nov 27, 2014 at 02:41:21PM +0800, Jason Wang wrote:
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-> Add low level APIs to test/set/clear feature bits.
-> For use by transports, to make it easier to
-> write code independent of feature bit array format.
-> 
-> Note: APIs is prefixed with __ and has _bit suffix
-> to stress its low level nature.  It's for use by transports only:
-> drivers should use virtio_has_feature and never need to set/clear
-> features.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Applied, thanks.
+
 > ---
->  include/linux/virtio_config.h | 53 ++++++++++++++++++++++++++++++++++++++++---
->  1 file changed, 50 insertions(+), 3 deletions(-)
-
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+>  drivers/vhost/vhost.h | 4 ----
+>  1 file changed, 4 deletions(-)
+> 
+> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+> index 3eda654..7d039ef 100644
+> --- a/drivers/vhost/vhost.h
+> +++ b/drivers/vhost/vhost.h
+> @@ -12,8 +12,6 @@
+>  #include <linux/virtio_ring.h>
+>  #include <linux/atomic.h>
+>  
+> -struct vhost_device;
+> -
+>  struct vhost_work;
+>  typedef void (*vhost_work_fn_t)(struct vhost_work *work);
+>  
+> @@ -54,8 +52,6 @@ struct vhost_log {
+>  	u64 len;
+>  };
+>  
+> -struct vhost_virtqueue;
+> -
+>  /* The virtqueue structure describes a queue attached to a device. */
+>  struct vhost_virtqueue {
+>  	struct vhost_dev *dev;
+> -- 
+> 1.9.1
