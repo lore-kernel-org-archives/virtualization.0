@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v8 01/50] virtio: add low-level APIs for feature bits
-Date: Mon, 1 Dec 2014 18:02:46 +0200
-Message-ID: <1417449619-24896-2-git-send-email-mst__20187.5391453088$1417449816$gmane$org@redhat.com>
+Subject: [PATCH v8 07/50] virtio: add virtio 1.0 feature bit
+Date: Mon, 1 Dec 2014 18:03:23 +0200
+Message-ID: <1417449619-24896-8-git-send-email-mst@redhat.com>
 References: <1417449619-24896-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,100 +19,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
+Cc: thuth@linux.vnet.ibm.com, rusty@au1.ibm.com, linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org, dahi@linux.vnet.ibm.com, pbonzini@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add low level APIs to test/set/clear feature bits.
-For use by transports, to make it easier to
-write code independent of feature bit array format.
+Based on original patches by Rusty Russell, Thomas Huth
+and Cornelia Huck.
 
-Note: APIs is prefixed with __ and has _bit suffix
-to stress its low level nature.  It's for use by transports only:
-drivers should use virtio_has_feature and never need to set/clear
-features.
+Note: at this time, we do not negotiate this feature bit
+in core, drivers have to declare VERSION_1 support explicitly.
+
+For this reason we treat this bit as a device bit
+and not as a transport bit for now.
+
+After all drivers are converted, we will be able to
+move VERSION_1 to core and drop it from all drivers.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- include/linux/virtio_config.h | 53 ++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 50 insertions(+), 3 deletions(-)
+ include/uapi/linux/virtio_config.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index 7f4ef66..d8e28a2 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -77,11 +77,47 @@ void virtio_check_driver_offered_feature(const struct virtio_device *vdev,
- 					 unsigned int fbit);
+diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+index 3ce768c..80e7381 100644
+--- a/include/uapi/linux/virtio_config.h
++++ b/include/uapi/linux/virtio_config.h
+@@ -54,4 +54,7 @@
+ /* Can the device handle any descriptor layout? */
+ #define VIRTIO_F_ANY_LAYOUT		27
  
- /**
-- * virtio_has_feature - helper to determine if this device has this feature.
-+ * __virtio_test_bit - helper to test feature bits. For use by transports.
-+ *                     Devices should normally use virtio_has_feature,
-+ *                     which includes more checks.
-  * @vdev: the device
-  * @fbit: the feature bit
-  */
--static inline bool virtio_has_feature(const struct virtio_device *vdev,
-+static inline bool __virtio_test_bit(const struct virtio_device *vdev,
-+				     unsigned int fbit)
-+{
-+	/* Did you forget to fix assumptions on max features? */
-+	if (__builtin_constant_p(fbit))
-+		BUILD_BUG_ON(fbit >= 32);
-+	else
-+		BUG_ON(fbit >= 32);
++/* v1.0 compliant. */
++#define VIRTIO_F_VERSION_1		32
 +
-+	return test_bit(fbit, vdev->features);
-+}
-+
-+/**
-+ * __virtio_set_bit - helper to set feature bits. For use by transports.
-+ * @vdev: the device
-+ * @fbit: the feature bit
-+ */
-+static inline void __virtio_set_bit(struct virtio_device *vdev,
-+				    unsigned int fbit)
-+{
-+	/* Did you forget to fix assumptions on max features? */
-+	if (__builtin_constant_p(fbit))
-+		BUILD_BUG_ON(fbit >= 32);
-+	else
-+		BUG_ON(fbit >= 32);
-+
-+	set_bit(fbit, vdev->features);
-+}
-+
-+/**
-+ * __virtio_clear_bit - helper to clear feature bits. For use by transports.
-+ * @vdev: the device
-+ * @fbit: the feature bit
-+ */
-+static inline void __virtio_clear_bit(struct virtio_device *vdev,
- 				      unsigned int fbit)
- {
- 	/* Did you forget to fix assumptions on max features? */
-@@ -90,10 +126,21 @@ static inline bool virtio_has_feature(const struct virtio_device *vdev,
- 	else
- 		BUG_ON(fbit >= 32);
- 
-+	clear_bit(fbit, vdev->features);
-+}
-+
-+/**
-+ * virtio_has_feature - helper to determine if this device has this feature.
-+ * @vdev: the device
-+ * @fbit: the feature bit
-+ */
-+static inline bool virtio_has_feature(const struct virtio_device *vdev,
-+				      unsigned int fbit)
-+{
- 	if (fbit < VIRTIO_TRANSPORT_F_START)
- 		virtio_check_driver_offered_feature(vdev, fbit);
- 
--	return test_bit(fbit, vdev->features);
-+	return __virtio_test_bit(vdev, fbit);
- }
- 
- static inline
+ #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
 -- 
 MST
