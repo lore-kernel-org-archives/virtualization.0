@@ -1,8 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC v5 12/19] virtio: disallow late feature changes for
-	virtio-1
-Date: Tue,  2 Dec 2014 14:00:20 +0100
-Message-ID: <1417525227-14051-13-git-send-email-cornelia.huck__34910.4656641886$1417525384$gmane$org@de.ibm.com>
+Subject: [PATCH RFC v5 13/19] virtio: allow to fail setting status
+Date: Tue,  2 Dec 2014 14:00:21 +0100
+Message-ID: <1417525227-14051-14-git-send-email-cornelia.huck__8483.38569417155$1417525394$gmane$org@de.ibm.com>
 References: <1417525227-14051-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,69 +21,113 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.k
 Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-For virtio-1 devices, the driver must not attempt to set feature bits
-after it set FEATURES_OK in the device status. Simply reject it in
-that case.
+virtio-1 allow setting of the FEATURES_OK status bit to fail if
+the negotiated feature bits are inconsistent: let's fail
+virtio_set_status() in that case and update virtio-ccw to post an
+error to the guest.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/virtio/virtio.c         |   16 ++++++++++++++--
- include/hw/virtio/virtio.h |    2 ++
- 2 files changed, 16 insertions(+), 2 deletions(-)
+ hw/s390x/virtio-ccw.c      |   20 ++++++++++++--------
+ hw/virtio/virtio.c         |   24 +++++++++++++++++++++++-
+ include/hw/virtio/virtio.h |    3 ++-
+ 3 files changed, 37 insertions(+), 10 deletions(-)
 
+diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
+index 75c9ff9..ec492b8 100644
+--- a/hw/s390x/virtio-ccw.c
++++ b/hw/s390x/virtio-ccw.c
+@@ -555,15 +555,19 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
+             if (!(status & VIRTIO_CONFIG_S_DRIVER_OK)) {
+                 virtio_ccw_stop_ioeventfd(dev);
+             }
+-            virtio_set_status(vdev, status);
+-            if (vdev->status == 0) {
+-                virtio_reset(vdev);
+-            }
+-            if (status & VIRTIO_CONFIG_S_DRIVER_OK) {
+-                virtio_ccw_start_ioeventfd(dev);
++            if (virtio_set_status(vdev, status) == 0) {
++                if (vdev->status == 0) {
++                    virtio_reset(vdev);
++                }
++                if (status & VIRTIO_CONFIG_S_DRIVER_OK) {
++                    virtio_ccw_start_ioeventfd(dev);
++                }
++                sch->curr_status.scsw.count = ccw.count - sizeof(status);
++                ret = 0;
++            } else {
++                /* Trigger a command reject. */
++                ret = -ENOSYS;
+             }
+-            sch->curr_status.scsw.count = ccw.count - sizeof(status);
+-            ret = 0;
+         }
+         break;
+     case CCW_CMD_SET_IND:
 diff --git a/hw/virtio/virtio.c b/hw/virtio/virtio.c
-index 508dccf..4f2dc48 100644
+index 4f2dc48..be128f7 100644
 --- a/hw/virtio/virtio.c
 +++ b/hw/virtio/virtio.c
-@@ -980,7 +980,7 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
-     vmstate_save_state(f, &vmstate_virtio, vdev);
+@@ -548,15 +548,37 @@ void virtio_update_irq(VirtIODevice *vdev)
+     virtio_notify_vector(vdev, VIRTIO_NO_VECTOR);
  }
  
--int virtio_set_features(VirtIODevice *vdev, uint64_t val)
-+static int __virtio_set_features(VirtIODevice *vdev, uint64_t val)
- {
-     BusState *qbus = qdev_get_parent_bus(DEVICE(vdev));
-     VirtioBusClass *vbusk = VIRTIO_BUS_GET_CLASS(qbus);
-@@ -996,6 +996,18 @@ int virtio_set_features(VirtIODevice *vdev, uint64_t val)
-     return bad ? -1 : 0;
- }
- 
-+int virtio_set_features(VirtIODevice *vdev, uint64_t val)
+-void virtio_set_status(VirtIODevice *vdev, uint8_t val)
++static int virtio_validate_features(VirtIODevice *vdev)
 +{
-+   /*
-+     * The driver must not attempt to set features after feature negotiation
-+     * has finished.
-+     */
-+    if (vdev->status & VIRTIO_CONFIG_S_FEATURES_OK) {
-+        return -EINVAL;
++    VirtioDeviceClass *k = VIRTIO_DEVICE_GET_CLASS(vdev);
++
++    if (k->validate_features) {
++        return k->validate_features(vdev);
++    } else {
++        return 0;
 +    }
-+    return __virtio_set_features(vdev, val);
 +}
 +
- int virtio_load(VirtIODevice *vdev, QEMUFile *f, int version_id)
++int virtio_set_status(VirtIODevice *vdev, uint8_t val)
  {
-     int i, ret;
-@@ -1028,7 +1040,7 @@ int virtio_load(VirtIODevice *vdev, QEMUFile *f, int version_id)
-     qemu_get_be32s(f, &features);
+     VirtioDeviceClass *k = VIRTIO_DEVICE_GET_CLASS(vdev);
+     trace_virtio_set_status(vdev, val);
  
-     /* XXX features >= 32 */
--    if (virtio_set_features(vdev, features) < 0) {
-+    if (__virtio_set_features(vdev, features) < 0) {
-         supported_features = k->get_features(qbus->parent);
-         error_report("Features 0x%x unsupported. Allowed features: 0x%lx",
-                      features, supported_features);
++    if (virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
++        if (!(vdev->status & VIRTIO_CONFIG_S_FEATURES_OK) &&
++            val & VIRTIO_CONFIG_S_FEATURES_OK) {
++            int ret = virtio_validate_features(vdev);
++
++            if (ret) {
++                return ret;
++            }
++        }
++    }
+     if (k->set_status) {
+         k->set_status(vdev, val);
+     }
+     vdev->status = val;
++    return 0;
+ }
+ 
+ bool target_words_bigendian(void);
 diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
-index 80ee313..9a984c2 100644
+index 9a984c2..e7bedd1 100644
 --- a/include/hw/virtio/virtio.h
 +++ b/include/hw/virtio/virtio.h
-@@ -32,6 +32,8 @@
- #define VIRTIO_CONFIG_S_DRIVER          2
- /* Driver has used its parts of the config, and is happy */
- #define VIRTIO_CONFIG_S_DRIVER_OK       4
-+/* Driver has finished configuring features */
-+#define VIRTIO_CONFIG_S_FEATURES_OK     8
- /* We've given up on this device. */
- #define VIRTIO_CONFIG_S_FAILED          0x80
- 
+@@ -149,6 +149,7 @@ typedef struct VirtioDeviceClass {
+     uint64_t (*get_features)(VirtIODevice *vdev, uint64_t requested_features);
+     uint64_t (*bad_features)(VirtIODevice *vdev);
+     void (*set_features)(VirtIODevice *vdev, uint64_t val);
++    int (*validate_features)(VirtIODevice *vdev);
+     void (*get_config)(VirtIODevice *vdev, uint8_t *config);
+     void (*set_config)(VirtIODevice *vdev, const uint8_t *config);
+     void (*reset)(VirtIODevice *vdev);
+@@ -232,7 +233,7 @@ void virtio_queue_set_align(VirtIODevice *vdev, int n, int align);
+ void virtio_queue_notify(VirtIODevice *vdev, int n);
+ uint16_t virtio_queue_vector(VirtIODevice *vdev, int n);
+ void virtio_queue_set_vector(VirtIODevice *vdev, int n, uint16_t vector);
+-void virtio_set_status(VirtIODevice *vdev, uint8_t val);
++int virtio_set_status(VirtIODevice *vdev, uint8_t val);
+ void virtio_reset(void *opaque);
+ void virtio_update_irq(VirtIODevice *vdev);
+ int virtio_set_features(VirtIODevice *vdev, uint64_t val);
 -- 
 1.7.9.5
