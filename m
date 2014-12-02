@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC v5 06/19] virtio: endianness checks for virtio 1.0 devices
-Date: Tue,  2 Dec 2014 14:00:14 +0100
-Message-ID: <1417525227-14051-7-git-send-email-cornelia.huck__24666.8078158566$1417525305$gmane$org@de.ibm.com>
+Subject: [PATCH RFC v5 07/19] virtio: allow virtio-1 queue layout
+Date: Tue,  2 Dec 2014 14:00:15 +0100
+Message-ID: <1417525227-14051-8-git-send-email-cornelia.huck@de.ibm.com>
 References: <1417525227-14051-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,66 +21,62 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.k
 Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add code that checks for the VERSION_1 feature bit in order to make
-decisions about the device's endianness. This allows us to support
-transitional devices.
+For virtio-1 devices, we allow a more complex queue layout that doesn't
+require descriptor table and rings on a physically-contigous memory area:
+add virtio_queue_set_rings() to allow transports to set this up.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/virtio/virtio.c                |    6 +++++-
- include/hw/virtio/virtio-access.h |    4 ++++
- include/hw/virtio/virtio.h        |    8 ++++++--
- 3 files changed, 15 insertions(+), 3 deletions(-)
+ hw/virtio/virtio.c         |   16 ++++++++++++++++
+ include/hw/virtio/virtio.h |    2 ++
+ 2 files changed, 18 insertions(+)
 
 diff --git a/hw/virtio/virtio.c b/hw/virtio/virtio.c
-index 7f74ae5..8f69ffa 100644
+index 8f69ffa..508dccf 100644
 --- a/hw/virtio/virtio.c
 +++ b/hw/virtio/virtio.c
-@@ -881,7 +881,11 @@ static bool virtio_device_endian_needed(void *opaque)
-     VirtIODevice *vdev = opaque;
+@@ -96,6 +96,13 @@ static void virtqueue_init(VirtQueue *vq)
+ {
+     hwaddr pa = vq->pa;
  
-     assert(vdev->device_endian != VIRTIO_DEVICE_ENDIAN_UNKNOWN);
--    return vdev->device_endian != virtio_default_endian();
-+    if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
-+        return vdev->device_endian != virtio_default_endian();
++    if (pa == -1ULL) {
++        /*
++         * This is a virtio-1 style vq that has already been setup
++         * in virtio_queue_set.
++         */
++        return;
 +    }
-+    /* Devices conforming to VIRTIO 1.0 or later are always LE. */
-+    return vdev->device_endian != VIRTIO_DEVICE_ENDIAN_LITTLE;
+     vq->vring.desc = pa;
+     vq->vring.avail = pa + vq->vring.num * sizeof(VRingDesc);
+     vq->vring.used = vring_align(vq->vring.avail +
+@@ -717,6 +724,15 @@ hwaddr virtio_queue_get_addr(VirtIODevice *vdev, int n)
+     return vdev->vq[n].pa;
  }
  
- static const VMStateDescription vmstate_virtio_device_endian = {
-diff --git a/include/hw/virtio/virtio-access.h b/include/hw/virtio/virtio-access.h
-index 46456fd..ee28c21 100644
---- a/include/hw/virtio/virtio-access.h
-+++ b/include/hw/virtio/virtio-access.h
-@@ -19,6 +19,10 @@
- 
- static inline bool virtio_access_is_big_endian(VirtIODevice *vdev)
++void virtio_queue_set_rings(VirtIODevice *vdev, int n, hwaddr desc,
++                            hwaddr avail, hwaddr used)
++{
++    vdev->vq[n].pa = -1ULL;
++    vdev->vq[n].vring.desc = desc;
++    vdev->vq[n].vring.avail = avail;
++    vdev->vq[n].vring.used = used;
++}
++
+ void virtio_queue_set_num(VirtIODevice *vdev, int n, int num)
  {
-+    if (virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
-+        /* Devices conforming to VIRTIO 1.0 or later are always LE. */
-+        return false;
-+    }
- #if defined(TARGET_IS_BIENDIAN)
-     return virtio_is_big_endian(vdev);
- #elif defined(TARGET_WORDS_BIGENDIAN)
+     /* Don't allow guest to flip queue between existent and
 diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
-index 08141c7..68c40db 100644
+index 68c40db..80ee313 100644
 --- a/include/hw/virtio/virtio.h
 +++ b/include/hw/virtio/virtio.h
-@@ -297,7 +297,11 @@ static inline bool virtio_has_feature(VirtIODevice *vdev, unsigned int fbit)
- 
- static inline bool virtio_is_big_endian(VirtIODevice *vdev)
- {
--    assert(vdev->device_endian != VIRTIO_DEVICE_ENDIAN_UNKNOWN);
--    return vdev->device_endian == VIRTIO_DEVICE_ENDIAN_BIG;
-+    if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
-+        assert(vdev->device_endian != VIRTIO_DEVICE_ENDIAN_UNKNOWN);
-+        return vdev->device_endian == VIRTIO_DEVICE_ENDIAN_BIG;
-+    }
-+    /* Devices conforming to VIRTIO 1.0 or later are always LE. */
-+    return false;
- }
- #endif
+@@ -224,6 +224,8 @@ void virtio_queue_set_addr(VirtIODevice *vdev, int n, hwaddr addr);
+ hwaddr virtio_queue_get_addr(VirtIODevice *vdev, int n);
+ void virtio_queue_set_num(VirtIODevice *vdev, int n, int num);
+ int virtio_queue_get_num(VirtIODevice *vdev, int n);
++void virtio_queue_set_rings(VirtIODevice *vdev, int n, hwaddr desc,
++                            hwaddr avail, hwaddr used);
+ void virtio_queue_set_align(VirtIODevice *vdev, int n, int align);
+ void virtio_queue_notify(VirtIODevice *vdev, int n);
+ uint16_t virtio_queue_vector(VirtIODevice *vdev, int n);
 -- 
 1.7.9.5
