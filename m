@@ -1,8 +1,8 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC v5 09/19] s390x/css: Add a callback for when subchannel
-	gets disabled
-Date: Tue,  2 Dec 2014 14:00:17 +0100
-Message-ID: <1417525227-14051-10-git-send-email-cornelia.huck__16720.6367863857$1417525374$gmane$org@de.ibm.com>
+Subject: [PATCH RFC v5 12/19] virtio: disallow late feature changes for
+	virtio-1
+Date: Tue,  2 Dec 2014 14:00:20 +0100
+Message-ID: <1417525227-14051-13-git-send-email-cornelia.huck__34910.4656641886$1417525384$gmane$org@de.ibm.com>
 References: <1417525227-14051-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,73 +22,69 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.k
 Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Thomas Huth <thuth@linux.vnet.ibm.com>
+For virtio-1 devices, the driver must not attempt to set feature bits
+after it set FEATURES_OK in the device status. Simply reject it in
+that case.
 
-We need a possibility to run code when a subchannel gets disabled.
-This patch adds the necessary infrastructure.
-
-Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/s390x/css.c |   12 ++++++++++++
- hw/s390x/css.h |    1 +
- 2 files changed, 13 insertions(+)
+ hw/virtio/virtio.c         |   16 ++++++++++++++--
+ include/hw/virtio/virtio.h |    2 ++
+ 2 files changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/hw/s390x/css.c b/hw/s390x/css.c
-index b67c039..735ec55 100644
---- a/hw/s390x/css.c
-+++ b/hw/s390x/css.c
-@@ -588,6 +588,7 @@ int css_do_msch(SubchDev *sch, SCHIB *orig_schib)
+diff --git a/hw/virtio/virtio.c b/hw/virtio/virtio.c
+index 508dccf..4f2dc48 100644
+--- a/hw/virtio/virtio.c
++++ b/hw/virtio/virtio.c
+@@ -980,7 +980,7 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
+     vmstate_save_state(f, &vmstate_virtio, vdev);
+ }
+ 
+-int virtio_set_features(VirtIODevice *vdev, uint64_t val)
++static int __virtio_set_features(VirtIODevice *vdev, uint64_t val)
  {
-     SCSW *s = &sch->curr_status.scsw;
-     PMCW *p = &sch->curr_status.pmcw;
-+    uint16_t oldflags;
-     int ret;
-     SCHIB schib;
+     BusState *qbus = qdev_get_parent_bus(DEVICE(vdev));
+     VirtioBusClass *vbusk = VIRTIO_BUS_GET_CLASS(qbus);
+@@ -996,6 +996,18 @@ int virtio_set_features(VirtIODevice *vdev, uint64_t val)
+     return bad ? -1 : 0;
+ }
  
-@@ -610,6 +611,7 @@ int css_do_msch(SubchDev *sch, SCHIB *orig_schib)
-     copy_schib_from_guest(&schib, orig_schib);
-     /* Only update the program-modifiable fields. */
-     p->intparm = schib.pmcw.intparm;
-+    oldflags = p->flags;
-     p->flags &= ~(PMCW_FLAGS_MASK_ISC | PMCW_FLAGS_MASK_ENA |
-                   PMCW_FLAGS_MASK_LM | PMCW_FLAGS_MASK_MME |
-                   PMCW_FLAGS_MASK_MP);
-@@ -625,6 +627,12 @@ int css_do_msch(SubchDev *sch, SCHIB *orig_schib)
-             (PMCW_CHARS_MASK_MBFC | PMCW_CHARS_MASK_CSENSE);
-     sch->curr_status.mba = schib.mba;
- 
-+    /* Has the channel been disabled? */
-+    if (sch->disable_cb && (oldflags & PMCW_FLAGS_MASK_ENA) != 0
-+        && (p->flags & PMCW_FLAGS_MASK_ENA) == 0) {
-+        sch->disable_cb(sch);
++int virtio_set_features(VirtIODevice *vdev, uint64_t val)
++{
++   /*
++     * The driver must not attempt to set features after feature negotiation
++     * has finished.
++     */
++    if (vdev->status & VIRTIO_CONFIG_S_FEATURES_OK) {
++        return -EINVAL;
 +    }
++    return __virtio_set_features(vdev, val);
++}
 +
-     ret = 0;
- 
- out:
-@@ -1443,6 +1451,10 @@ void css_reset_sch(SubchDev *sch)
+ int virtio_load(VirtIODevice *vdev, QEMUFile *f, int version_id)
  {
-     PMCW *p = &sch->curr_status.pmcw;
+     int i, ret;
+@@ -1028,7 +1040,7 @@ int virtio_load(VirtIODevice *vdev, QEMUFile *f, int version_id)
+     qemu_get_be32s(f, &features);
  
-+    if ((p->flags & PMCW_FLAGS_MASK_ENA) != 0 && sch->disable_cb) {
-+        sch->disable_cb(sch);
-+    }
-+
-     p->intparm = 0;
-     p->flags &= ~(PMCW_FLAGS_MASK_ISC | PMCW_FLAGS_MASK_ENA |
-                   PMCW_FLAGS_MASK_LM | PMCW_FLAGS_MASK_MME |
-diff --git a/hw/s390x/css.h b/hw/s390x/css.h
-index 33104ac..7fa807b 100644
---- a/hw/s390x/css.h
-+++ b/hw/s390x/css.h
-@@ -81,6 +81,7 @@ struct SubchDev {
-     uint8_t ccw_no_data_cnt;
-     /* transport-provided data: */
-     int (*ccw_cb) (SubchDev *, CCW1);
-+    void (*disable_cb)(SubchDev *);
-     SenseId id;
-     void *driver_data;
- };
+     /* XXX features >= 32 */
+-    if (virtio_set_features(vdev, features) < 0) {
++    if (__virtio_set_features(vdev, features) < 0) {
+         supported_features = k->get_features(qbus->parent);
+         error_report("Features 0x%x unsupported. Allowed features: 0x%lx",
+                      features, supported_features);
+diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
+index 80ee313..9a984c2 100644
+--- a/include/hw/virtio/virtio.h
++++ b/include/hw/virtio/virtio.h
+@@ -32,6 +32,8 @@
+ #define VIRTIO_CONFIG_S_DRIVER          2
+ /* Driver has used its parts of the config, and is happy */
+ #define VIRTIO_CONFIG_S_DRIVER_OK       4
++/* Driver has finished configuring features */
++#define VIRTIO_CONFIG_S_FEATURES_OK     8
+ /* We've given up on this device. */
+ #define VIRTIO_CONFIG_S_FAILED          0x80
+ 
 -- 
 1.7.9.5
