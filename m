@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC v5 16/19] virtio-net: support longer header
-Date: Tue,  2 Dec 2014 14:00:24 +0100
-Message-ID: <1417525227-14051-17-git-send-email-cornelia.huck__15952.013890683$1417525441$gmane$org@de.ibm.com>
+Subject: [PATCH RFC v5 15/19] virtio-net: no writeable mac for virtio-1
+Date: Tue,  2 Dec 2014 14:00:23 +0100
+Message-ID: <1417525227-14051-16-git-send-email-cornelia.huck__15442.1306717724$1417525454$gmane$org@de.ibm.com>
 References: <1417525227-14051-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,72 +21,25 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.k
 Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio-1 devices always use num_buffers in the header, even if
-mergeable rx buffers have not been negotiated.
+Devices operating as virtio 1.0 may not allow writes to the mac
+address in config space.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/net/virtio-net.c |   21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ hw/net/virtio-net.c |    1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
-index ebbea60..7ee2bd6 100644
+index d6d1b98..ebbea60 100644
 --- a/hw/net/virtio-net.c
 +++ b/hw/net/virtio-net.c
-@@ -373,15 +373,21 @@ static int peer_has_ufo(VirtIONet *n)
-     return n->has_ufo;
- }
+@@ -87,6 +87,7 @@ static void virtio_net_set_config(VirtIODevice *vdev, const uint8_t *config)
+     memcpy(&netcfg, config, n->config_size);
  
--static void virtio_net_set_mrg_rx_bufs(VirtIONet *n, int mergeable_rx_bufs)
-+static void virtio_net_set_mrg_rx_bufs(VirtIONet *n, int mergeable_rx_bufs,
-+                                       int version_1)
- {
-     int i;
-     NetClientState *nc;
- 
-     n->mergeable_rx_bufs = mergeable_rx_bufs;
- 
--    n->guest_hdr_len = n->mergeable_rx_bufs ?
--        sizeof(struct virtio_net_hdr_mrg_rxbuf) : sizeof(struct virtio_net_hdr);
-+    if (version_1) {
-+        n->guest_hdr_len = sizeof(struct virtio_net_hdr_mrg_rxbuf);
-+    } else {
-+        n->guest_hdr_len = n->mergeable_rx_bufs ?
-+            sizeof(struct virtio_net_hdr_mrg_rxbuf) :
-+            sizeof(struct virtio_net_hdr);
-+    }
- 
-     for (i = 0; i < n->max_queues; i++) {
-         nc = qemu_get_subqueue(n->nic, i);
-@@ -525,7 +531,9 @@ static void virtio_net_set_features(VirtIODevice *vdev, uint64_t features)
- 
-     virtio_net_set_mrg_rx_bufs(n,
-                                __virtio_has_feature(features,
--                                                    VIRTIO_NET_F_MRG_RXBUF));
-+                                                    VIRTIO_NET_F_MRG_RXBUF),
-+                               __virtio_has_feature(features,
-+                                                    VIRTIO_F_VERSION_1));
- 
-     if (n->has_vnet_hdr) {
-         n->curr_guest_offloads =
-@@ -1407,7 +1415,8 @@ static int virtio_net_load_device(VirtIODevice *vdev, QEMUFile *f,
-     qemu_get_buffer(f, n->mac, ETH_ALEN);
-     n->vqs[0].tx_waiting = qemu_get_be32(f);
- 
--    virtio_net_set_mrg_rx_bufs(n, qemu_get_be32(f));
-+    virtio_net_set_mrg_rx_bufs(n, qemu_get_be32(f),
-+                               virtio_has_feature(vdev, VIRTIO_F_VERSION_1));
- 
-     if (version_id >= 3)
-         n->status = qemu_get_be16(f);
-@@ -1653,7 +1662,7 @@ static void virtio_net_device_realize(DeviceState *dev, Error **errp)
- 
-     n->vqs[0].tx_waiting = 0;
-     n->tx_burst = n->net_conf.txburst;
--    virtio_net_set_mrg_rx_bufs(n, 0);
-+    virtio_net_set_mrg_rx_bufs(n, 0, 0);
-     n->promisc = 1; /* for compatibility */
- 
-     n->mac_table.macs = g_malloc0(MAC_TABLE_ENTRIES * ETH_ALEN);
+     if (!virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_MAC_ADDR) &&
++        !virtio_has_feature(vdev, VIRTIO_F_VERSION_1) &&
+         memcmp(netcfg.mac, n->mac, ETH_ALEN)) {
+         memcpy(n->mac, netcfg.mac, ETH_ALEN);
+         qemu_format_nic_info_str(qemu_get_queue(n->nic), n->mac);
 -- 
 1.7.9.5
