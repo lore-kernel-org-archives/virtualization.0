@@ -1,13 +1,11 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC v5 02/19] virtio: cull virtio_bus_set_vdev_features
-Date: Tue,  2 Dec 2014 14:00:10 +0100
-Message-ID: <1417525227-14051-3-git-send-email-cornelia.huck@de.ibm.com>
-References: <1417525227-14051-1-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC v5 00/19] qemu: towards virtio-1 host support
+Date: Tue,  2 Dec 2014 14:00:08 +0100
+Message-ID: <1417525227-14051-1-git-send-email-cornelia.huck__6943.81678845293$1417525283$gmane$org@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1417525227-14051-1-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,71 +19,77 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.k
 Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The only user of this function was virtio-ccw, and it should use
-virtio_set_features() like everybody else: We need to make sure
-that bad features are masked out properly, which this function did
-not do.
+Another iteration of virtio-1 patches for qemu, as always available on
+git://github.com/cohuck/qemu virtio-1
 
-Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
----
- hw/s390x/virtio-ccw.c          |    3 +--
- hw/virtio/virtio-bus.c         |   14 --------------
- include/hw/virtio/virtio-bus.h |    3 ---
- 3 files changed, 1 insertion(+), 19 deletions(-)
+This one seems to work together with the current vhost-next patches
+(well, I can ping :)
 
-diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
-index ea236c9..84f17bc 100644
---- a/hw/s390x/virtio-ccw.c
-+++ b/hw/s390x/virtio-ccw.c
-@@ -400,8 +400,7 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
-                                        ccw.cda + sizeof(features.features));
-             features.features = ldl_le_phys(&address_space_memory, ccw.cda);
-             if (features.index < ARRAY_SIZE(dev->host_features)) {
--                virtio_bus_set_vdev_features(&dev->bus, features.features);
--                vdev->guest_features = features.features;
-+                virtio_set_features(vdev, features.features);
-             } else {
-                 /*
-                  * If the guest supports more feature bits, assert that it
-diff --git a/hw/virtio/virtio-bus.c b/hw/virtio/virtio-bus.c
-index eb77019..a8ffa07 100644
---- a/hw/virtio/virtio-bus.c
-+++ b/hw/virtio/virtio-bus.c
-@@ -109,20 +109,6 @@ uint32_t virtio_bus_get_vdev_features(VirtioBusState *bus,
-     return k->get_features(vdev, requested_features);
- }
- 
--/* Set the features of the plugged device. */
--void virtio_bus_set_vdev_features(VirtioBusState *bus,
--                                      uint32_t requested_features)
--{
--    VirtIODevice *vdev = virtio_bus_get_device(bus);
--    VirtioDeviceClass *k;
--
--    assert(vdev != NULL);
--    k = VIRTIO_DEVICE_GET_CLASS(vdev);
--    if (k->set_features != NULL) {
--        k->set_features(vdev, requested_features);
--    }
--}
--
- /* Get bad features of the plugged device. */
- uint32_t virtio_bus_get_vdev_bad_features(VirtioBusState *bus)
- {
-diff --git a/include/hw/virtio/virtio-bus.h b/include/hw/virtio/virtio-bus.h
-index 0756545..0d2e7b4 100644
---- a/include/hw/virtio/virtio-bus.h
-+++ b/include/hw/virtio/virtio-bus.h
-@@ -84,9 +84,6 @@ size_t virtio_bus_get_vdev_config_len(VirtioBusState *bus);
- /* Get the features of the plugged device. */
- uint32_t virtio_bus_get_vdev_features(VirtioBusState *bus,
-                                     uint32_t requested_features);
--/* Set the features of the plugged device. */
--void virtio_bus_set_vdev_features(VirtioBusState *bus,
--                                  uint32_t requested_features);
- /* Get bad features of the plugged device. */
- uint32_t virtio_bus_get_vdev_bad_features(VirtioBusState *bus);
- /* Get config of the plugged device. */
+Changes from v4:
+- add helpers for feature bit manipulation and checking
+- use 64 bit feature bits instead of 32 bit arrays
+- infrastructure to allow devices to offer different sets of feature
+  bits for legacy and standard devices
+- several fixes (mainly regarding, you guessed it, feature bits)
+
+Cornelia Huck (16):
+  virtio: cull virtio_bus_set_vdev_features
+  virtio: feature bit manipulation helpers
+  virtio: add feature checking helpers
+  virtio: support more feature bits
+  virtio: endianness checks for virtio 1.0 devices
+  virtio: allow virtio-1 queue layout
+  dataplane: allow virtio-1 devices
+  s390x/virtio-ccw: support virtio-1 set_vq format
+  virtio: disallow late feature changes for virtio-1
+  virtio: allow to fail setting status
+  s390x/virtio-ccw: enable virtio 1.0
+  virtio-net: no writeable mac for virtio-1
+  virtio-net: support longer header
+  virtio-net: enable virtio 1.0
+  virtio: support revision-specific features
+  virtio-blk: revision specific feature bits
+
+Thomas Huth (3):
+  linux-headers/virtio_config: Update with VIRTIO_F_VERSION_1
+  s390x/css: Add a callback for when subchannel gets disabled
+  s390x/virtio-ccw: add virtio set-revision call
+
+ hw/9pfs/virtio-9p-device.c                    |    4 +-
+ hw/block/dataplane/virtio-blk.c               |    4 +-
+ hw/block/virtio-blk.c                         |   44 +++--
+ hw/char/virtio-serial-bus.c                   |    6 +-
+ hw/net/virtio-net.c                           |  100 ++++++-----
+ hw/s390x/css.c                                |   12 ++
+ hw/s390x/css.h                                |    1 +
+ hw/s390x/s390-virtio-bus.c                    |    3 +-
+ hw/s390x/s390-virtio-bus.h                    |    2 +-
+ hw/s390x/virtio-ccw.c                         |  235 ++++++++++++++++++-------
+ hw/s390x/virtio-ccw.h                         |    8 +-
+ hw/scsi/vhost-scsi.c                          |    3 +-
+ hw/scsi/virtio-scsi-dataplane.c               |    2 +-
+ hw/scsi/virtio-scsi.c                         |   12 +-
+ hw/virtio/Makefile.objs                       |    2 +-
+ hw/virtio/dataplane/Makefile.objs             |    2 +-
+ hw/virtio/dataplane/vring.c                   |   96 +++++-----
+ hw/virtio/virtio-balloon.c                    |    4 +-
+ hw/virtio/virtio-bus.c                        |   24 ++-
+ hw/virtio/virtio-mmio.c                       |    6 +-
+ hw/virtio/virtio-pci.c                        |    7 +-
+ hw/virtio/virtio-pci.h                        |    2 +-
+ hw/virtio/virtio-rng.c                        |    2 +-
+ hw/virtio/virtio.c                            |   83 +++++++--
+ include/hw/qdev-properties.h                  |   11 ++
+ include/hw/virtio/dataplane/vring-accessors.h |   75 ++++++++
+ include/hw/virtio/dataplane/vring.h           |   14 +-
+ include/hw/virtio/virtio-access.h             |    4 +
+ include/hw/virtio/virtio-bus.h                |   14 +-
+ include/hw/virtio/virtio-net.h                |   46 ++---
+ include/hw/virtio/virtio-scsi.h               |    6 +-
+ include/hw/virtio/virtio.h                    |   61 +++++--
+ linux-headers/linux/virtio_config.h           |    3 +
+ 33 files changed, 625 insertions(+), 273 deletions(-)
+ create mode 100644 include/hw/virtio/dataplane/vring-accessors.h
+
 -- 
 1.7.9.5
