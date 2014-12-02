@@ -1,16 +1,18 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH RFC v5 07/19] virtio: allow virtio-1 queue layout
-Date: Tue, 2 Dec 2014 16:41:36 +0100
-Message-ID: <20141202164136.1a57f358.cornelia.huck__23372.3922785886$1417534922$gmane$org@de.ibm.com>
-References: <1417525227-14051-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1417525227-14051-8-git-send-email-cornelia.huck@de.ibm.com>
-	<20141202144628.GA2974@redhat.com>
-	<20141202155444.0731c48f.cornelia.huck@de.ibm.com>
+From: Vlad Yasevich <vyasevic@redhat.com>
+Subject: Re: [PATCH net] Revert "drivers/net: Disable UFO through virtio"
+	in macvtap and tun
+Date: Tue, 02 Dec 2014 12:44:13 -0500
+Message-ID: <547DFA6D.7030102@redhat.com>
+References: <20141111105849.GA8482@stefanha-thinkpad.redhat.com>	
+	<1415708246.3398.88.camel@decadent.org.uk>	
+	<20141111155750.GA17418@redhat.com>
+	<1415725978.3398.101.camel@decadent.org.uk>
+Reply-To: vyasevic@redhat.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141202155444.0731c48f.cornelia.huck@de.ibm.com>
+In-Reply-To: <1415725978.3398.101.camel@decadent.org.uk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,180 +22,151 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Ben Hutchings <ben@decadent.org.uk>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, jelledejong@powercraft.nl, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2 Dec 2014 15:54:44 +0100
-Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
-
-> On Tue, 2 Dec 2014 16:46:28 +0200
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> > pa == -1ULL tricks look quite ugly.
-> > Can't we set desc/avail/used unconditionally, and drop
-> > the pa value?
+On 11/11/2014 12:12 PM, Ben Hutchings wrote:
+> This reverts commit 88e0e0e5aa722b193c8758c8b45d041de5316924 for
+> the tap drivers, but leaves UFO disabled in virtio_net.
 > 
-> And have virtio_queue_get_addr() return desc? Let me see if I can come
-> up with a patch.
+> libvirt at least assumes that tap features will never be dropped
+> in new kernel versions, and doing so prevents migration of VMs to
+> the never kernel version while they are running with virtio net
+> devices.
+> 
+> Fixes: 88e0e0e5aa7a ("drivers/net: Disable UFO through virtio")
+> Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+> ---
+> Compile-tested only.
 
-I came up with the following (untested) patch, which should hopefully
-suit mmio as well. I haven't cared about migration yet.
+I ran some migrations tests of different guests between the hosts
+with 3.17 and a newly patched kernel and they all worked for me.
 
-diff --git a/hw/virtio/virtio.c b/hw/virtio/virtio.c
-index 8f69ffa..ac3c615 100644
---- a/hw/virtio/virtio.c
-+++ b/hw/virtio/virtio.c
-@@ -69,7 +69,6 @@ typedef struct VRing
- struct VirtQueue
- {
-     VRing vring;
--    hwaddr pa;
-     uint16_t last_avail_idx;
-     /* Last used index value we have signalled on */
-     uint16_t signalled_used;
-@@ -92,12 +91,13 @@ struct VirtQueue
- };
- 
- /* virt queue functions */
--static void virtqueue_init(VirtQueue *vq)
-+static void virtqueue_update_rings(VirtQueue *vq)
- {
--    hwaddr pa = vq->pa;
--
--    vq->vring.desc = pa;
--    vq->vring.avail = pa + vq->vring.num * sizeof(VRingDesc);
-+    if (!vq->vring.desc) {
-+        /* not yet setup -> nothing to do */
-+        return;
-+    }
-+    vq->vring.avail = vq->vring.desc + vq->vring.num * sizeof(VRingDesc);
-     vq->vring.used = vring_align(vq->vring.avail +
-                                  offsetof(VRingAvail, ring[vq->vring.num]),
-                                  vq->vring.align);
-@@ -605,7 +605,6 @@ void virtio_reset(void *opaque)
-         vdev->vq[i].vring.avail = 0;
-         vdev->vq[i].vring.used = 0;
-         vdev->vq[i].last_avail_idx = 0;
--        vdev->vq[i].pa = 0;
-         vdev->vq[i].vector = VIRTIO_NO_VECTOR;
-         vdev->vq[i].signalled_used = 0;
-         vdev->vq[i].signalled_used_valid = false;
-@@ -708,17 +707,34 @@ void virtio_config_writel(VirtIODevice *vdev, uint32_t addr, uint32_t data)
- 
- void virtio_queue_set_addr(VirtIODevice *vdev, int n, hwaddr addr)
- {
--    vdev->vq[n].pa = addr;
--    virtqueue_init(&vdev->vq[n]);
-+    vdev->vq[n].vring.desc = addr;
-+    virtqueue_update_rings(&vdev->vq[n]);
- }
- 
- hwaddr virtio_queue_get_addr(VirtIODevice *vdev, int n)
- {
--    return vdev->vq[n].pa;
-+    return vdev->vq[n].vring.desc;
-+}
-+
-+void virtio_queue_set_rings(VirtIODevice *vdev, int n, hwaddr desc,
-+                            hwaddr avail, hwaddr used)
-+{
-+    vdev->vq[n].vring.desc = desc;
-+    vdev->vq[n].vring.avail = avail;
-+    vdev->vq[n].vring.used = used;
- }
- 
- void virtio_queue_set_num(VirtIODevice *vdev, int n, int num)
- {
-+    /*
-+     * For virtio-1 devices, the number of buffers may only be
-+     * updated if the ring addresses have not yet been set up.
-+     */
-+    if (virtio_has_feature(vdev, VIRTIO_F_VERSION_1) &&
-+        vdev->vq[n].vring.desc) {
-+        error_report("tried to modify buffer num for virtio-1 device");
-+        return;
-+    }
-     /* Don't allow guest to flip queue between existent and
-      * nonexistent states, or to set it to an invalid size.
-      */
-@@ -728,7 +744,7 @@ void virtio_queue_set_num(VirtIODevice *vdev, int n, int num)
-         return;
-     }
-     vdev->vq[n].vring.num = num;
--    virtqueue_init(&vdev->vq[n]);
-+    virtqueue_update_rings(&vdev->vq[n]);
- }
- 
- int virtio_queue_get_num(VirtIODevice *vdev, int n)
-@@ -748,6 +764,11 @@ void virtio_queue_set_align(VirtIODevice *vdev, int n, int align)
-     BusState *qbus = qdev_get_parent_bus(DEVICE(vdev));
-     VirtioBusClass *k = VIRTIO_BUS_GET_CLASS(qbus);
- 
-+    /* virtio-1 compliant devices cannot change the aligment */
-+    if (virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
-+        error_report("tried to modify queue alignment for virtio-1 device");
-+        return;
-+    }
-     /* Check that the transport told us it was going to do this
-      * (so a buggy transport will immediately assert rather than
-      * silently failing to migrate this state)
-@@ -755,7 +776,7 @@ void virtio_queue_set_align(VirtIODevice *vdev, int n, int align)
-     assert(k->has_variable_vring_alignment);
- 
-     vdev->vq[n].vring.align = align;
--    virtqueue_init(&vdev->vq[n]);
-+    virtqueue_update_rings(&vdev->vq[n]);
- }
- 
- void virtio_queue_notify_vq(VirtQueue *vq)
-@@ -949,7 +970,8 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
-         if (k->has_variable_vring_alignment) {
-             qemu_put_be32(f, vdev->vq[i].vring.align);
-         }
--        qemu_put_be64(f, vdev->vq[i].pa);
-+        /* XXX virtio-1 devices */
-+        qemu_put_be64(f, vdev->vq[i].vring.desc);
-         qemu_put_be16s(f, &vdev->vq[i].last_avail_idx);
-         if (k->save_queue) {
-             k->save_queue(qbus->parent, i, f);
-@@ -1044,13 +1066,14 @@ int virtio_load(VirtIODevice *vdev, QEMUFile *f, int version_id)
-         if (k->has_variable_vring_alignment) {
-             vdev->vq[i].vring.align = qemu_get_be32(f);
-         }
--        vdev->vq[i].pa = qemu_get_be64(f);
-+        vdev->vq[i].vring.desc = qemu_get_be64(f);
-         qemu_get_be16s(f, &vdev->vq[i].last_avail_idx);
-         vdev->vq[i].signalled_used_valid = false;
-         vdev->vq[i].notification = true;
- 
--        if (vdev->vq[i].pa) {
--            virtqueue_init(&vdev->vq[i]);
-+        if (vdev->vq[i].vring.desc) {
-+            /* XXX virtio-1 devices */
-+            virtqueue_update_rings(&vdev->vq[i]);
-         } else if (vdev->vq[i].last_avail_idx) {
-             error_report("VQ %d address 0x0 "
-                          "inconsistent with Host index 0x%x",
-@@ -1084,7 +1107,7 @@ int virtio_load(VirtIODevice *vdev, QEMUFile *f, int version_id)
-     }
- 
-     for (i = 0; i < num; i++) {
--        if (vdev->vq[i].pa) {
-+        if (vdev->vq[i].vring.desc) {
-             uint16_t nheads;
-             nheads = vring_avail_idx(&vdev->vq[i]) - vdev->vq[i].last_avail_idx;
-             /* Check it isn't doing strange things with descriptor numbers. */
-diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
-index 68c40db..80ee313 100644
---- a/include/hw/virtio/virtio.h
-+++ b/include/hw/virtio/virtio.h
-@@ -224,6 +224,8 @@ void virtio_queue_set_addr(VirtIODevice *vdev, int n, hwaddr addr);
- hwaddr virtio_queue_get_addr(VirtIODevice *vdev, int n);
- void virtio_queue_set_num(VirtIODevice *vdev, int n, int num);
- int virtio_queue_get_num(VirtIODevice *vdev, int n);
-+void virtio_queue_set_rings(VirtIODevice *vdev, int n, hwaddr desc,
-+                            hwaddr avail, hwaddr used);
- void virtio_queue_set_align(VirtIODevice *vdev, int n, int align);
- void virtio_queue_notify(VirtIODevice *vdev, int n);
- uint16_t virtio_queue_vector(VirtIODevice *vdev, int n);
+Tested-by: Vladislav Yasevich <vyasevic@redhat.com>
+
+-vlad
+
+> 
+> Ben.
+> 
+>  drivers/net/macvtap.c | 13 ++++++++-----
+>  drivers/net/tun.c     | 19 ++++++++-----------
+>  2 files changed, 16 insertions(+), 16 deletions(-)
+> 
+> diff --git a/drivers/net/macvtap.c b/drivers/net/macvtap.c
+> index 6f226de..aeaeb6d 100644
+> --- a/drivers/net/macvtap.c
+> +++ b/drivers/net/macvtap.c
+> @@ -66,7 +66,7 @@ static struct cdev macvtap_cdev;
+>  static const struct proto_ops macvtap_socket_ops;
+>  
+>  #define TUN_OFFLOADS (NETIF_F_HW_CSUM | NETIF_F_TSO_ECN | NETIF_F_TSO | \
+> -		      NETIF_F_TSO6)
+> +		      NETIF_F_TSO6 | NETIF_F_UFO)
+>  #define RX_OFFLOADS (NETIF_F_GRO | NETIF_F_LRO)
+>  #define TAP_FEATURES (NETIF_F_GSO | NETIF_F_SG)
+>  
+> @@ -570,8 +570,6 @@ static int macvtap_skb_from_vnet_hdr(struct sk_buff *skb,
+>  			gso_type = SKB_GSO_TCPV6;
+>  			break;
+>  		case VIRTIO_NET_HDR_GSO_UDP:
+> -			pr_warn_once("macvtap: %s: using disabled UFO feature; please fix this program\n",
+> -				     current->comm);
+>  			gso_type = SKB_GSO_UDP;
+>  			if (skb->protocol == htons(ETH_P_IPV6))
+>  				ipv6_proxy_select_ident(skb);
+> @@ -619,6 +617,8 @@ static void macvtap_skb_to_vnet_hdr(const struct sk_buff *skb,
+>  			vnet_hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
+>  		else if (sinfo->gso_type & SKB_GSO_TCPV6)
+>  			vnet_hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
+> +		else if (sinfo->gso_type & SKB_GSO_UDP)
+> +			vnet_hdr->gso_type = VIRTIO_NET_HDR_GSO_UDP;
+>  		else
+>  			BUG();
+>  		if (sinfo->gso_type & SKB_GSO_TCP_ECN)
+> @@ -953,6 +953,9 @@ static int set_offload(struct macvtap_queue *q, unsigned long arg)
+>  			if (arg & TUN_F_TSO6)
+>  				feature_mask |= NETIF_F_TSO6;
+>  		}
+> +
+> +		if (arg & TUN_F_UFO)
+> +			feature_mask |= NETIF_F_UFO;
+>  	}
+>  
+>  	/* tun/tap driver inverts the usage for TSO offloads, where
+> @@ -963,7 +966,7 @@ static int set_offload(struct macvtap_queue *q, unsigned long arg)
+>  	 * When user space turns off TSO, we turn off GSO/LRO so that
+>  	 * user-space will not receive TSO frames.
+>  	 */
+> -	if (feature_mask & (NETIF_F_TSO | NETIF_F_TSO6))
+> +	if (feature_mask & (NETIF_F_TSO | NETIF_F_TSO6 | NETIF_F_UFO))
+>  		features |= RX_OFFLOADS;
+>  	else
+>  		features &= ~RX_OFFLOADS;
+> @@ -1064,7 +1067,7 @@ static long macvtap_ioctl(struct file *file, unsigned int cmd,
+>  	case TUNSETOFFLOAD:
+>  		/* let the user check for future flags */
+>  		if (arg & ~(TUN_F_CSUM | TUN_F_TSO4 | TUN_F_TSO6 |
+> -			    TUN_F_TSO_ECN))
+> +			    TUN_F_TSO_ECN | TUN_F_UFO))
+>  			return -EINVAL;
+>  
+>  		rtnl_lock();
+> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> index 7302398..a0987d1 100644
+> --- a/drivers/net/tun.c
+> +++ b/drivers/net/tun.c
+> @@ -175,7 +175,7 @@ struct tun_struct {
+>  	struct net_device	*dev;
+>  	netdev_features_t	set_features;
+>  #define TUN_USER_FEATURES (NETIF_F_HW_CSUM|NETIF_F_TSO_ECN|NETIF_F_TSO| \
+> -			  NETIF_F_TSO6)
+> +			  NETIF_F_TSO6|NETIF_F_UFO)
+>  
+>  	int			vnet_hdr_sz;
+>  	int			sndbuf;
+> @@ -1152,20 +1152,10 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+>  			skb_shinfo(skb)->gso_type = SKB_GSO_TCPV6;
+>  			break;
+>  		case VIRTIO_NET_HDR_GSO_UDP:
+> -		{
+> -			static bool warned;
+> -
+> -			if (!warned) {
+> -				warned = true;
+> -				netdev_warn(tun->dev,
+> -					    "%s: using disabled UFO feature; please fix this program\n",
+> -					    current->comm);
+> -			}
+>  			skb_shinfo(skb)->gso_type = SKB_GSO_UDP;
+>  			if (skb->protocol == htons(ETH_P_IPV6))
+>  				ipv6_proxy_select_ident(skb);
+>  			break;
+> -		}
+>  		default:
+>  			tun->dev->stats.rx_frame_errors++;
+>  			kfree_skb(skb);
+> @@ -1265,6 +1255,8 @@ static ssize_t tun_put_user(struct tun_struct *tun,
+>  				gso.gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
+>  			else if (sinfo->gso_type & SKB_GSO_TCPV6)
+>  				gso.gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
+> +			else if (sinfo->gso_type & SKB_GSO_UDP)
+> +				gso.gso_type = VIRTIO_NET_HDR_GSO_UDP;
+>  			else {
+>  				pr_err("unexpected GSO type: "
+>  				       "0x%x, gso_size %d, hdr_len %d\n",
+> @@ -1774,6 +1766,11 @@ static int set_offload(struct tun_struct *tun, unsigned long arg)
+>  				features |= NETIF_F_TSO6;
+>  			arg &= ~(TUN_F_TSO4|TUN_F_TSO6);
+>  		}
+> +
+> +		if (arg & TUN_F_UFO) {
+> +			features |= NETIF_F_UFO;
+> +			arg &= ~TUN_F_UFO;
+> +		}
+>  	}
+>  
+>  	/* This gives the user a way to test for new features in future by
+> 
+> 
