@@ -1,19 +1,15 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: Re: [PATCH RFC v4 net-next 0/5] virtio_net: enabling tx interrupts
-Date: Tue, 2 Dec 2014 05:08:35 -0500 (EST)
-Message-ID: <251897174.7356500.1417514915101.JavaMail.zimbra__16569.0888105475$1417551169$gmane$org@redhat.com>
-References: <1417429028-11971-1-git-send-email-jasowang@redhat.com>
-	<20141201104223.GB16108@redhat.com>
-	<1417490120.4405.2@smtp.corp.redhat.com>
-	<1417507622.12638.0@smtp.corp.redhat.com>
-	<20141202094318.GB7732@redhat.com>
-	<1417513908.16540.0@smtp.corp.redhat.com>
-	<20141202095523.GA7877@redhat.com>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH v13 10/11] pvqspinlock, x86: Enable PV qspinlock for
+ KVM
+Date: Wed, 3 Dec 2014 01:40:53 +0100 (CET)
+Message-ID: <alpine.DEB.2.11.1412030115100.16275@nanos>
+References: <1414613951-32532-1-git-send-email-Waiman.Long@hp.com>
+	<1414613951-32532-11-git-send-email-Waiman.Long@hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141202095523.GA7877@redhat.com>
+In-Reply-To: <1414613951-32532-11-git-send-email-Waiman.Long@hp.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,123 +19,96 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, davem@davemloft.net, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Waiman Long <Waiman.Long@hp.com>
+Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Oleg Nesterov <oleg@redhat.com>, Douglas Hatch <doug.hatch@hp.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, 29 Oct 2014, Waiman Long wrote:
+>                 AIM7 XFS Disk Test (no overcommit)
+>   kernel                 JPM    Real Time   Sys Time    Usr Time
+>   -----                  ---    ---------   --------    --------
+>   PV ticketlock         2542373    7.08       98.95       5.44
+>   PV qspinlock          2549575    7.06       98.63       5.40
+>   unfairlock	        2616279    6.91       97.05       5.42
+> 
+>                 AIM7 XFS Disk Test (200% overcommit)
+>   kernel                 JPM    Real Time   Sys Time    Usr Time
+>   -----                  ---    ---------   --------    --------
+>   PV ticketlock         644468    27.93      415.22       6.33
+>   PV qspinlock          645624    27.88      419.84       0.39
 
-> 
-> On Tue, Dec 02, 2014 at 09:59:48AM +0008, Jason Wang wrote:
-> > 
-> > 
-> > On Tue, Dec 2, 2014 at 5:43 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > >On Tue, Dec 02, 2014 at 08:15:02AM +0008, Jason Wang wrote:
-> > >>     On Tue, Dec 2, 2014 at 11:15 AM, Jason Wang <jasowang@redhat.com>
-> > >>wrote:
-> > >> >
-> > >> >
-> > >> >On Mon, Dec 1, 2014 at 6:42 PM, Michael S. Tsirkin <mst@redhat.com>
-> > >>wrote:
-> > >> >>On Mon, Dec 01, 2014 at 06:17:03PM +0800, Jason Wang wrote:
-> > >> >>> Hello:
-> > >> >>>  We used to orphan packets before transmission for virtio-net. This
-> > >> >>>breaks
-> > >> >>> socket accounting and can lead serveral functions won't work, e.g:
-> > >> >>>  - Byte Queue Limit depends on tx completion nofication to work.
-> > >> >>> - Packet Generator depends on tx completion nofication for the last
-> > >> >>>   transmitted packet to complete.
-> > >> >>> - TCP Small Queue depends on proper accounting of sk_wmem_alloc to
-> > >> >>>work.
-> > >> >>>  This series tries to solve the issue by enabling tx interrupts. To
-> > >> >>>minize
-> > >> >>> the performance impacts of this, several optimizations were used:
-> > >> >>>  - In guest side, virtqueue_enable_cb_delayed() was used to delay
-> > >>the
-> > >> >>>tx
-> > >> >>>   interrupt untile 3/4 pending packets were sent.
-> > >> >>> - In host side, interrupt coalescing were used to reduce tx
-> > >> >>>interrupts.
-> > >> >>>  Performance test results[1] (tx-frames 16 tx-usecs 16) shows:
-> > >> >>>  - For guest receiving. No obvious regression on throughput were
-> > >> >>>   noticed. More cpu utilization were noticed in few cases.
-> > >> >>> - For guest transmission. Very huge improvement on througput for
-> > >> >>>small
-> > >> >>>   packet transmission were noticed. This is expected since TSQ and
-> > >> >>>other
-> > >> >>>   optimization for small packet transmission work after tx
-> > >>interrupt.
-> > >> >>>But
-> > >> >>>   will use more cpu for large packets.
-> > >> >>> - For TCP_RR, regression (10% on transaction rate and cpu
-> > >> >>>utilization) were
-> > >> >>>   found. Tx interrupt won't help but cause overhead in this case.
-> > >> >>>Using
-> > >> >>>   more aggressive coalescing parameters may help to reduce the
-> > >> >>>regression.
-> > >> >>
-> > >> >>OK, you do have posted coalescing patches - does it help any?
-> > >> >
-> > >> >Helps a lot.
-> > >> >
-> > >> >For RX, it saves about 5% - 10% cpu. (reduce 60%-90% tx intrs)
-> > >> >For small packet TX, it increases 33% - 245% throughput. (reduce about
-> > >>60%
-> > >> >inters)
-> > >> >For TCP_RR, it increase the 3%-10% trans.rate. (reduce 40%-80% tx
-> > >>intrs)
-> > >> >
-> > >> >>
-> > >> >>I'm not sure the regression is due to interrupts.
-> > >> >>It would make sense for CPU but why would it
-> > >> >>hurt transaction rate?
-> > >> >
-> > >> >Anyway guest need to take some cycles to handle tx interrupts.
-> > >> >And transaction rate does increase if we coalesces more tx interurpts.
-> > >> >>
-> > >> >>
-> > >> >>It's possible that we are deferring kicks too much due to BQL.
-> > >> >>
-> > >> >>As an experiment: do we get any of it back if we do
-> > >> >>-        if (kick || netif_xmit_stopped(txq))
-> > >> >>-                virtqueue_kick(sq->vq);
-> > >> >>+        virtqueue_kick(sq->vq);
-> > >> >>?
-> > >> >
-> > >> >
-> > >> >I will try, but during TCP_RR, at most 1 packets were pending,
-> > >> >I suspect if BQL can help in this case.
-> > >> Looks like this helps a lot in multiple sessions of TCP_RR.
-> > >
-> > >so what's faster
-> > >	BQL + kick each packet
-> > >	no BQL
-> > >?
-> > 
-> > Quick and manual tests (TCP_RR 64, TCP_STREAM 512) does not show obvious
-> > differences.
-> > 
-> > May need a complete benchmark to see.
-> 
-> Okay so going forward something like BQL + kick each packet
-> might be a good solution.
-> The advantage of BQL is that it works without GSO.
-> For example, now that we don't do UFO, you might
-> see significant gains with UDP.
+That number is made up by what? ----------------------------^^^^
 
-If I understand correctly, it can also help for small packet
-regr. in multiqueue scenario? Would be nice to see the perf. numbers
-with multi-queue for small packets streams.
+>   unfairlock	        695518    25.88      377.40       4.09
 > 
+>                 AIM7 EXT4 Disk Test (no overcommit)
+>   kernel                 JPM    Real Time   Sys Time    Usr Time
+>   -----                  ---    ---------   --------    --------
+>   PV ticketlock         1995565    9.02      103.67       5.76
+>   PV qspinlock          2011173    8.95      102.15       5.40
+>   unfairlock	        2066590    8.71       98.13       5.46
 > 
-> > >
-> > >
-> > >> How about move the BQL patch out of this series?
-> > >> Let's first converge tx interrupt and then introduce it?
-> > >> (e.g with kicking after queuing X bytes?)
-> > >
-> > >Sounds good.
-> --
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>                 AIM7 EXT4 Disk Test (200% overcommit)
+>   kernel                 JPM    Real Time   Sys Time    Usr Time
+>   -----                  ---    ---------   --------    --------
+>   PV ticketlock         478341    37.63      495.81      30.78
+>   PV qspinlock          474058    37.97      475.74      30.95
+>   unfairlock	        560224    32.13      398.43      26.27
 > 
+> For the AIM7 disk workload, both PV ticketlock and qspinlock have
+> about the same performance. The unfairlock performs slightly better
+> than the PV lock.
+
+Slightly?
+
+Taking the PV locks, which are basically the same for the existing
+ticket locks and your new fangled qlocks as a reference then the so
+called 'unfair locks' which are just the native locks w/o the PV
+nonsense are fundamentally better up to a whopping 18% in the
+ext4/200% overcommit case. See below.
+ 
+>                 EBIZZY-m Test (no overcommit)
+>   kernel                Rec/s   Real Time   Sys Time    Usr Time
+>   -----                 -----   ---------   --------    --------
+>   PV ticketlock         3255      10.00       60.65       3.62
+>   PV qspinlock          3318      10.00       54.27       3.60
+>   unfairlock	        2833      10.00       26.66       3.09
+> 
+>                 EBIZZY-m Test (200% overcommit)
+>   kernel                Rec/s   Real Time   Sys Time    Usr Time
+>   -----                 -----   ---------   --------    --------
+>   PV ticketlock          841      10.00       71.03       2.37
+>   PV qspinlock           834      10.00       68.27       2.39
+>   unfairlock	         865      10.00       27.08       1.51
+> 
+>   futextest (no overcommit)
+>   kernel               kops/s
+>   -----                ------
+>   PV ticketlock        11523
+>   PV qspinlock         12328
+>   unfairlock	        9478
+> 
+>   futextest (200% overcommit)
+>   kernel               kops/s
+>   -----                ------
+>   PV ticketlock         7276
+>   PV qspinlock          7095
+>   unfairlock	        5614
+> 
+> The ebizzy and futextest have much higher spinlock contention than
+> the AIM7 disk workload. In this case, the unfairlock performs worse
+> than both the PV ticketlock and qspinlock. The performance of the 2
+> PV locks are comparable.
+
+While I can see that the PV lock stuff performs 13% better for the
+ebizzy no overcommit case, what about the very interresting numbers
+for the same test with 200% overcommit?
+
+The regular lock has a slightly better performance, but significantly
+less sys/usr time. How do you explain that?
+
+'Lies, damned lies and statistics' comes to my mind.
+
+Thanks,
+
+	tglx
