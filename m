@@ -1,13 +1,14 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH RFC 1/3] virtio: add API to detect legacy devices
-Date: Thu, 4 Dec 2014 18:54:47 +0100
-Message-ID: <20141204185447.28e9146d.cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH RFC 2/3] virtio_ccw: legacy: don't negotiate rev 1/features
+Date: Thu, 4 Dec 2014 18:56:06 +0100
+Message-ID: <20141204185606.61f31919.cornelia.huck@de.ibm.com>
 References: <1417713984-23771-1-git-send-email-mst@redhat.com>
+	<1417713984-23771-2-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1417713984-23771-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1417713984-23771-2-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,24 +19,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: David Hildenbrand <dahi@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: linux-s390@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Hildenbrand <dahi@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 4 Dec 2014 19:26:42 +0200
+On Thu, 4 Dec 2014 19:26:45 +0200
 "Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-> transports need to be able to detect legacy-only
-> devices (ATM balloon only) to use legacy path
-> to drive them.
+> Legacy balloon device doesn't pretend to support revision 1 or 64 bit
+> features.
 > 
-> Add a core API to do just that.
-> The implementation just blacklists balloon:
-> not too pretty, but let's not over-engineer.
+> But just in case someone implements a broken one that does, let's not
+> even try to drive legacy only devices using revision 1, and let's not
+> give them a chance to say they support VIRTIO_F_VERSION_1 by not reading
+> high feature bits.
 > 
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > ---
->  include/linux/virtio.h  | 2 ++
->  drivers/virtio/virtio.c | 6 ++++++
->  2 files changed, 8 insertions(+)
+>  drivers/s390/kvm/virtio_ccw.c | 13 ++++++++++---
+>  1 file changed, 10 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+> index 4a3e6e5..088bdf1 100644
+> --- a/drivers/s390/kvm/virtio_ccw.c
+> +++ b/drivers/s390/kvm/virtio_ccw.c
+> @@ -733,6 +733,9 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
+> 
+>  	rc = le32_to_cpu(features->features);
+> 
+> +	if (vcdev->revision == 0)
+> +		goto out_free;
+> +
+>  	/* Read second half of the feature bits from the host. */
+>  	features->index = 1;
+>  	ccw->cmd_code = CCW_CMD_READ_FEAT;
+> @@ -1182,9 +1185,13 @@ static int virtio_ccw_online(struct ccw_device *cdev)
+>  	vcdev->vdev.id.vendor = cdev->id.cu_type;
+>  	vcdev->vdev.id.device = cdev->id.cu_model;
+> 
+> -	ret = virtio_ccw_set_transport_rev(vcdev);
+> -	if (ret)
+> -		goto out_free;
+> +	if (virtio_device_is_legacy_only(vcdev->vdev.id)) {
 
-Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Inverted logic?
+
+> +		ret = virtio_ccw_set_transport_rev(vcdev);
+> +		if (ret)
+> +			goto out_free;
+> +	} else {
+> +		vcdev->revision = 0;
+> +	}
+> 
+>  	ret = register_virtio_device(&vcdev->vdev);
+>  	if (ret) {
