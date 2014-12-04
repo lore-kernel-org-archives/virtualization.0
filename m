@@ -1,16 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC 3/3] virtio_ccw: rev 1 devices set VIRTIO_F_VERSION_1
-Date: Thu, 4 Dec 2014 20:15:12 +0200
-Message-ID: <20141204181512.GA24307@redhat.com>
-References: <1417713984-23771-1-git-send-email-mst@redhat.com>
-	<1417713984-23771-3-git-send-email-mst@redhat.com>
-	<20141204185914.4e989a7a.cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC v2 1/4] virtio: add API to detect legacy devices
+Date: Thu, 4 Dec 2014 20:44:34 +0200
+Message-ID: <1417718645-25678-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20141204185914.4e989a7a.cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,33 +16,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Hildenbrand <dahi@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
+To: linux-kernel@vger.kernel.org
+Cc: David Hildenbrand <dahi@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 04, 2014 at 06:59:14PM +0100, Cornelia Huck wrote:
-> On Thu, 4 Dec 2014 19:26:50 +0200
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> > What does it mean if rev 1 device does not set
-> > VIRTIO_F_VERSION_1? E.g. is it native endian?
-> > 
-> > Let's not even try to drive such devices:
-> > skip attempts to finalize features or set status.
-> 
-> Why not set status_failed?
+transports need to be able to detect legacy-only
+devices (ATM balloon only) to use legacy path
+to drive them.
 
-It might be cleanest to just teach core that finalize_features
-can fail.
-I'll look into this.
+Add a core API to do just that.
+The implementation just blacklists balloon:
+not too pretty, but let's not over-engineer.
 
-> > virtio core will detect this and bail out.
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
-> >  drivers/s390/kvm/virtio_ccw.c | 15 +++++++++++++++
-> >  1 file changed, 15 insertions(+)
-> > 
-> 
-> I'm not sure yet whether I like this approach. I'll think about it over
-> the weekend.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ include/linux/virtio.h  | 2 ++
+ drivers/virtio/virtio.c | 6 ++++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 2bbf626..d666bcb 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -108,6 +108,8 @@ struct virtio_device {
+ 	void *priv;
+ };
+ 
++bool virtio_device_is_legacy_only(struct virtio_device_id id);
++
+ static inline struct virtio_device *dev_to_virtio(struct device *_dev)
+ {
+ 	return container_of(_dev, struct virtio_device, dev);
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index fa6b75d..6b4c1113 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -267,6 +267,12 @@ static struct bus_type virtio_bus = {
+ 	.remove = virtio_dev_remove,
+ };
+ 
++bool virtio_device_is_legacy_only(struct virtio_device_id id)
++{
++	return id.device == VIRTIO_ID_BALLOON;
++}
++EXPORT_SYMBOL_GPL(register_virtio_driver);
++
+ int register_virtio_driver(struct virtio_driver *driver)
+ {
+ 	/* Catch this early. */
+-- 
+MST
