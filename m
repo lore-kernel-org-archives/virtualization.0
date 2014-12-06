@@ -1,14 +1,14 @@
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC v2 3/4] virtio: allow finalize_features to fail
-Date: Fri, 5 Dec 2014 10:53:54 +0100
-Message-ID: <20141205105354.2cf1bfc9@thinkpad-w530>
-References: <1417718645-25678-1-git-send-email-mst@redhat.com>
-	<1417718645-25678-3-git-send-email-mst@redhat.com>
+From: Amos Kong <akong@redhat.com>
+Subject: Re: [PATCH v4 4/6] hw_random: fix unregister race.
+Date: Sat, 6 Dec 2014 11:51:16 +0800
+Message-ID: <20141206035116.GA1995@air.redhat.com>
+References: <1415030186-18303-1-git-send-email-akong@redhat.com>
+	<1415030186-18303-5-git-send-email-akong@redhat.com>
+	<87y4rhm5fv.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============1205300685142716582=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1417718645-25678-3-git-send-email-mst@redhat.com>
+In-Reply-To: <87y4rhm5fv.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,81 +18,109 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-s390@vger.kernel.org, lguest@lists.ozlabs.org, Siva Yerramreddy <yshivakrishna@gmail.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: herbert@gondor.apana.org.au, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, m@bues.ch, mpm@selenic.com, amit.shah@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-> This will make it easy for transports to validate features and return
-> failure.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  include/linux/virtio_config.h          | 3 ++-
->  drivers/lguest/lguest_device.c         | 4 +++-
->  drivers/misc/mic/card/mic_virtio.c     | 4 +++-
->  drivers/remoteproc/remoteproc_virtio.c | 4 +++-
->  drivers/s390/kvm/kvm_virtio.c          | 4 +++-
->  drivers/s390/kvm/virtio_ccw.c          | 6 ++++--
->  drivers/virtio/virtio.c                | 4 +++-
->  drivers/virtio/virtio_mmio.c           | 4 +++-
->  drivers/virtio/virtio_pci.c            | 4 +++-
->  9 files changed, 27 insertions(+), 10 deletions(-)
-> 
-> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> index 1fa5faa..7979f85 100644
-> --- a/include/linux/virtio_config.h
-> +++ b/include/linux/virtio_config.h
-> @@ -47,6 +47,7 @@
->   *	vdev: the virtio_device
->   *	This gives the final feature bits for the device: it can change
->   *	the dev->feature bits if it wants.
-> + *	Returns 0 on success or error status
 
-"Returns 0 on success, otherwise the error status."
+--===============1205300685142716582==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+HP7ph2BbKc20aGI"
+Content-Disposition: inline
 
->   * @bus_name: return the bus name associated with the device
->   *	vdev: the virtio_device
->   *      This returns a pointer to the bus name a la pci_name from which
-> @@ -68,7 +69,7 @@ struct virtio_config_ops {
->  			const char *names[]);
->  	void (*del_vqs)(struct virtio_device *);
->  	u64 (*get_features)(struct virtio_device *vdev);
-> -	void (*finalize_features)(struct virtio_device *vdev);
-> +	int (*finalize_features)(struct virtio_device *vdev);
->  	const char *(*bus_name)(struct virtio_device *vdev);
->  	int (*set_vq_affinity)(struct virtqueue *vq, int cpu);
->  };
 
-...
+--+HP7ph2BbKc20aGI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
->  static void virtio_ccw_get_config(struct virtio_device *vdev,
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index 6b4c1113..7ddebbc 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -211,7 +211,9 @@ static int virtio_dev_probe(struct device *_d)
->  		if (device_features & (1ULL << i))
->  			__virtio_set_bit(dev, i);
-> 
-> -	dev->config->finalize_features(dev);
-> +	err = dev->config->finalize_features(dev);
-> +	if (err)
-> +		goto err;
-> 
->  	if (virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
->  		add_status(dev, VIRTIO_CONFIG_S_FEATURES_OK);
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index aec1dae..5219210 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -152,7 +152,7 @@ static u64 vm_get_features(struct virtio_device *vdev)
->  	return readl(vm_dev->base + VIRTIO_MMIO_HOST_FEATURES);
->  }
-> 
+On Wed, Nov 12, 2014 at 02:33:00PM +1030, Rusty Russell wrote:
+> Amos Kong <akong@redhat.com> writes:
+> > From: Rusty Russell <rusty@rustcorp.com.au>
+> >
+> > The previous patch added one potential problem: we can still be
+> > reading from a hwrng when it's unregistered.  Add a wait for zero
+> > in the hwrng_unregister path.
+> >
+> > v4: add cleanup_done flag to insure that cleanup is done
+>=20
+> That's a bit weird.  The usual pattern would be to hold a reference
+> until we're actually finished, but this reference is a bit weird.
+>=20
+> We hold the mutex across cleanup, so we could grab that but we have to
+> take care sleeping inside wait_event, otherwise Peter will have to fix
+> my code again :)
+>=20
+> AFAICT the wake_woken() stuff isn't merged yet, so your patch will
+> have to do for now.
+>=20
+> > @@ -98,6 +99,8 @@ static inline void cleanup_rng(struct kref *kref)
+> > =20
+> >  	if (rng->cleanup)
+> >  		rng->cleanup(rng);
+> > +	rng->cleanup_done =3D true;
+> > +	wake_up_all(&rng_done);
+> >  }
+> > =20
+> >  static void set_current_rng(struct hwrng *rng)
+> > @@ -536,6 +539,11 @@ void hwrng_unregister(struct hwrng *rng)
+> >  			kthread_stop(hwrng_fill);
+> >  	} else
+> >  		mutex_unlock(&rng_mutex);
+> > +
+> > +	/* Just in case rng is reading right now, wait. */
+> > +	wait_event(rng_done, rng->cleanup_done &&
+> > +		   atomic_read(&rng->ref.refcount) =3D=3D 0);
+> > +
+>=20
+> The atomic_read() isn't necessary here.
 
-Do we have to take care of fails in virtio_device_restore()?
+At least, we need it to convert refcount from atomic_t to int.
+Otherwise, we will touch this error:
 
-Otherwise looks good to me.
+  error: invalid operands to binary =3D=3D (have 'atomic_t' and 'int')
+=20
+> However, you should probably init cleanup_done in hwrng_register().
+> (Probably noone does unregister then register, but let's be clear).
+>=20
+> Thanks,
+> Rusty.
 
-David
+--=20
+			Amos.
+
+--+HP7ph2BbKc20aGI
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUgn00AAoJELxSv6I5vP9jWKAP/3D6eUg4/SpT7C72Djj8Sp8D
+igLKYw1x9KwYyxh8k2Uh4fGYWHTEwotCQYKmBPsVA7N+K3qG6z1+RSJAvkMEBrwq
+/42wL+CWGS9fH6vXT5rnVxTKCw7n+KA7gaODc+lDIsjXqIBOvYo+RYWlwM4xZni5
+6kDt1zNtKLLi8M+cSS1P5k0y1oST5uUHYDbFzYHuXbHxPv6lW3k2gTMFB/Bj7fZR
+dVWDjvOgEzcR6nJV6ReMxfM5EWuKfVCZwahhMNLDp41L5pWKYKtkKEtdULulK2AO
+XqQktp5lm4X54LvE4AId5apDrjPX4tpV4xGy1vOS4gmfBKQKe0YYzeNWxrLeBulq
+8/WIDQrLEWpKbAEv0IooQeZ7asxgqHhk/9nIRGxfEoiMzlQOq+4yVyMkfHkGhMts
+wdZoKv5gGs8JryN4LLEeovtDvpgegbw0j7xdkDHI+k1yWxqEGJE+pBwbpn8IcHeO
+dvD/mESXgiyiJK9anJZgCMAj0pTM8rVctfUin+IDR4proPDBePStsrbfI9eAkbSw
+wBzYL4INUTauG0Q83OP/CNJQR28zjQ4LZbyi909dFAYxnBXwZh45dlFENcFGhkdy
+b7eI8YJ4C7ToUngbMFNhRYouDzcSeG/TZJYd79jntyMIKCv1YtS6+cBd4MgBMnLe
+W8Ekjz2rMjPUqskiTO9/
+=zx2f
+-----END PGP SIGNATURE-----
+
+--+HP7ph2BbKc20aGI--
+
+--===============1205300685142716582==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============1205300685142716582==--
