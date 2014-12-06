@@ -1,14 +1,11 @@
 From: Amos Kong <akong@redhat.com>
-Subject: Re: [PATCH v4 4/6] hw_random: fix unregister race.
-Date: Sat, 6 Dec 2014 11:51:16 +0800
-Message-ID: <20141206035116.GA1995@air.redhat.com>
-References: <1415030186-18303-1-git-send-email-akong@redhat.com>
-	<1415030186-18303-5-git-send-email-akong@redhat.com>
-	<87y4rhm5fv.fsf@rustcorp.com.au>
+Subject: [PATCH v5 0/6] fix hw_random stuck
+Date: Sat,  6 Dec 2014 12:16:36 +0800
+Message-ID: <1417839402-13490-1-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1205300685142716582=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87y4rhm5fv.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,109 +15,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: herbert@gondor.apana.org.au, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, m@bues.ch, mpm@selenic.com, amit.shah@redhat.com
+To: virtualization@lists.linux-foundation.org, rusty@rustcorp.com.au
+Cc: herbert@gondor.apana.org.au, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, m@bues.ch, mpm@selenic.com, amit.shah@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+When I hotunplug a busy virtio-rng device or try to access
+hwrng attributes in non-smp guest, it gets stuck.
 
---===============1205300685142716582==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+HP7ph2BbKc20aGI"
-Content-Disposition: inline
+My hotplug tests:
 
+| test 0:
+|   hotunplug rng device from qemu monitor
+|
+| test 1:
+|   guest) # dd if=/dev/hwrng of=/dev/null &
+|   hotunplug rng device from qemu monitor
+|
+| test 2:
+|   guest) # dd if=/dev/random of=/dev/null &
+|   hotunplug rng device from qemu monitor
+|
+| test 4:
+|   guest) # dd if=/dev/hwrng of=/dev/null &
+|   cat /sys/devices/virtual/misc/hw_random/rng_*
+|
+| test 5:
+|   guest) # dd if=/dev/hwrng of=/dev/null
+|   cancel dd process after 10 seconds
+|   guest) # dd if=/dev/hwrng of=/dev/null &
+|   hotunplug rng device from qemu monitor
+|
+| test 6:
+|   use a fifo as rng backend, execute test 0 ~ 5 with no input of fifo
 
---+HP7ph2BbKc20aGI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+V5: reset cleanup_done flag, drop redundant init of reference count, use
+    compiler barrier to prevent recording.
+V4: update patch 4 to fix corrupt, decrease last reference for triggering
+    the cleanup, fix unregister race pointed by Herbert
+V3: initialize kref to 1
+V2: added patch 2 to fix a deadlock, update current patch 3 to fix reference
+    counting issue
 
-On Wed, Nov 12, 2014 at 02:33:00PM +1030, Rusty Russell wrote:
-> Amos Kong <akong@redhat.com> writes:
-> > From: Rusty Russell <rusty@rustcorp.com.au>
-> >
-> > The previous patch added one potential problem: we can still be
-> > reading from a hwrng when it's unregistered.  Add a wait for zero
-> > in the hwrng_unregister path.
-> >
-> > v4: add cleanup_done flag to insure that cleanup is done
->=20
-> That's a bit weird.  The usual pattern would be to hold a reference
-> until we're actually finished, but this reference is a bit weird.
->=20
-> We hold the mutex across cleanup, so we could grab that but we have to
-> take care sleeping inside wait_event, otherwise Peter will have to fix
-> my code again :)
->=20
-> AFAICT the wake_woken() stuff isn't merged yet, so your patch will
-> have to do for now.
->=20
-> > @@ -98,6 +99,8 @@ static inline void cleanup_rng(struct kref *kref)
-> > =20
-> >  	if (rng->cleanup)
-> >  		rng->cleanup(rng);
-> > +	rng->cleanup_done =3D true;
-> > +	wake_up_all(&rng_done);
-> >  }
-> > =20
-> >  static void set_current_rng(struct hwrng *rng)
-> > @@ -536,6 +539,11 @@ void hwrng_unregister(struct hwrng *rng)
-> >  			kthread_stop(hwrng_fill);
-> >  	} else
-> >  		mutex_unlock(&rng_mutex);
-> > +
-> > +	/* Just in case rng is reading right now, wait. */
-> > +	wait_event(rng_done, rng->cleanup_done &&
-> > +		   atomic_read(&rng->ref.refcount) =3D=3D 0);
-> > +
->=20
-> The atomic_read() isn't necessary here.
+Amos Kong (1):
+  hw_random: move some code out mutex_lock for avoiding underlying
+    deadlock
 
-At least, we need it to convert refcount from atomic_t to int.
-Otherwise, we will touch this error:
+Rusty Russell (5):
+  hw_random: place mutex around read functions and buffers.
+  hw_random: use reference counts on each struct hwrng.
+  hw_random: fix unregister race.
+  hw_random: don't double-check old_rng.
+  hw_random: don't init list element we're about to add to list.
 
-  error: invalid operands to binary =3D=3D (have 'atomic_t' and 'int')
-=20
-> However, you should probably init cleanup_done in hwrng_register().
-> (Probably noone does unregister then register, but let's be clear).
->=20
-> Thanks,
-> Rusty.
+ drivers/char/hw_random/core.c | 173 ++++++++++++++++++++++++++++++------------
+ include/linux/hw_random.h     |   3 +
+ 2 files changed, 126 insertions(+), 50 deletions(-)
 
---=20
-			Amos.
-
---+HP7ph2BbKc20aGI
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUgn00AAoJELxSv6I5vP9jWKAP/3D6eUg4/SpT7C72Djj8Sp8D
-igLKYw1x9KwYyxh8k2Uh4fGYWHTEwotCQYKmBPsVA7N+K3qG6z1+RSJAvkMEBrwq
-/42wL+CWGS9fH6vXT5rnVxTKCw7n+KA7gaODc+lDIsjXqIBOvYo+RYWlwM4xZni5
-6kDt1zNtKLLi8M+cSS1P5k0y1oST5uUHYDbFzYHuXbHxPv6lW3k2gTMFB/Bj7fZR
-dVWDjvOgEzcR6nJV6ReMxfM5EWuKfVCZwahhMNLDp41L5pWKYKtkKEtdULulK2AO
-XqQktp5lm4X54LvE4AId5apDrjPX4tpV4xGy1vOS4gmfBKQKe0YYzeNWxrLeBulq
-8/WIDQrLEWpKbAEv0IooQeZ7asxgqHhk/9nIRGxfEoiMzlQOq+4yVyMkfHkGhMts
-wdZoKv5gGs8JryN4LLEeovtDvpgegbw0j7xdkDHI+k1yWxqEGJE+pBwbpn8IcHeO
-dvD/mESXgiyiJK9anJZgCMAj0pTM8rVctfUin+IDR4proPDBePStsrbfI9eAkbSw
-wBzYL4INUTauG0Q83OP/CNJQR28zjQ4LZbyi909dFAYxnBXwZh45dlFENcFGhkdy
-b7eI8YJ4C7ToUngbMFNhRYouDzcSeG/TZJYd79jntyMIKCv1YtS6+cBd4MgBMnLe
-W8Ekjz2rMjPUqskiTO9/
-=zx2f
------END PGP SIGNATURE-----
-
---+HP7ph2BbKc20aGI--
-
---===============1205300685142716582==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1205300685142716582==--
+-- 
+1.9.3
