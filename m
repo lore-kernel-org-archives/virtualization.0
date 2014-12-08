@@ -1,14 +1,14 @@
-From: Amos Kong <akong@redhat.com>
-Subject: [PATCH v5 REPOST 6/6] hw_random: don't init list element we're about
-	to add to list.
-Date: Mon,  8 Dec 2014 16:50:40 +0800
-Message-ID: <1418028640-4891-7-git-send-email-akong__30670.629713177$1418028757$gmane$org@redhat.com>
-References: <1418028640-4891-1-git-send-email-akong@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH v3 1/6] virtio: add API to detect legacy devices
+Date: Mon, 8 Dec 2014 15:05:51 +0200
+Message-ID: <1418042769-25539-2-git-send-email-mst@redhat.com>
+References: <1418042769-25539-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1418028640-4891-1-git-send-email-akong@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1418042769-25539-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,30 +18,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-crypto@vger.kernel.org
-Cc: herbert@gondor.apana.org.au, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, m@bues.ch, mpm@selenic.com, amit.shah@redhat.com
+To: linux-kernel@vger.kernel.org
+Cc: dahi@linux.vnet.ibm.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Rusty Russell <rusty@rustcorp.com.au>
+transports need to be able to detect legacy-only
+devices (ATM balloon only) to use legacy path
+to drive them.
 
-Another interesting anti-pattern.
+Add a core API to do just that.
+The implementation just blacklists balloon:
+not too pretty, but let's not over-engineer.
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- drivers/char/hw_random/core.c | 1 -
- 1 file changed, 1 deletion(-)
+ include/linux/virtio.h  | 2 ++
+ drivers/virtio/virtio.c | 7 +++++++
+ 2 files changed, 9 insertions(+)
 
-diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
-index a9286bf..4d13ac5 100644
---- a/drivers/char/hw_random/core.c
-+++ b/drivers/char/hw_random/core.c
-@@ -489,7 +489,6 @@ int hwrng_register(struct hwrng *rng)
- 			goto out_unlock;
- 		}
- 	}
--	INIT_LIST_HEAD(&rng->list);
- 	list_add_tail(&rng->list, &rng_list);
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 2bbf626..d666bcb 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -108,6 +108,8 @@ struct virtio_device {
+ 	void *priv;
+ };
  
- 	if (old_rng && !rng->init) {
++bool virtio_device_is_legacy_only(struct virtio_device_id id);
++
+ static inline struct virtio_device *dev_to_virtio(struct device *_dev)
+ {
+ 	return container_of(_dev, struct virtio_device, dev);
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index fa6b75d..224f854 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -3,6 +3,7 @@
+ #include <linux/virtio_config.h>
+ #include <linux/module.h>
+ #include <linux/idr.h>
++#include <uapi/linux/virtio_ids.h>
+ 
+ /* Unique numbering for virtio devices. */
+ static DEFINE_IDA(virtio_index_ida);
+@@ -267,6 +268,12 @@ static struct bus_type virtio_bus = {
+ 	.remove = virtio_dev_remove,
+ };
+ 
++bool virtio_device_is_legacy_only(struct virtio_device_id id)
++{
++	return id.device == VIRTIO_ID_BALLOON;
++}
++EXPORT_SYMBOL_GPL(virtio_device_is_legacy_only);
++
+ int register_virtio_driver(struct virtio_driver *driver)
+ {
+ 	/* Catch this early. */
 -- 
-1.9.3
+MST
