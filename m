@@ -1,14 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 5/6] virtio_balloon: drop legacy_only driver flag
-Date: Mon, 8 Dec 2014 15:06:07 +0200
-Message-ID: <1418042769-25539-6-git-send-email-mst@redhat.com>
-References: <1418042769-25539-1-git-send-email-mst@redhat.com>
+Subject: [PATCH 1/9] virtio_pci: add isr field
+Date: Mon, 8 Dec 2014 15:06:16 +0200
+Message-ID: <1418043812-25753-2-git-send-email-mst__48253.1483904042$1418044001$gmane$org@redhat.com>
+References: <1418043812-25753-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1418042769-25539-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1418043812-25753-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,28 +19,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: dahi@linux.vnet.ibm.com, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-we have blacklisted balloon in core, no need
-for a driver flag.
+Use isr field instead of direct access to ioaddr.
+This way generalizes easily to virtio 1.0.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/virtio/virtio_balloon.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/virtio/virtio_pci.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 4497def..c9703d4 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -518,7 +518,6 @@ static unsigned int features[] = {
- };
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index 9be59d9..ee1b54c 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -40,6 +40,9 @@ struct virtio_pci_device
+ 	/* the IO mapping for the PCI config space */
+ 	void __iomem *ioaddr;
  
- static struct virtio_driver virtio_balloon_driver = {
--	.legacy_only = true,
- 	.feature_table = features,
- 	.feature_table_size = ARRAY_SIZE(features),
- 	.driver.name =	KBUILD_MODNAME,
++	/* the IO mapping for ISR operation */
++	void __iomem *isr;
++
+ 	/* a list of queues so we can dispatch IRQs */
+ 	spinlock_t lock;
+ 	struct list_head virtqueues;
+@@ -248,7 +251,7 @@ static irqreturn_t vp_interrupt(int irq, void *opaque)
+ 
+ 	/* reading the ISR has the effect of also clearing it so it's very
+ 	 * important to save off the value. */
+-	isr = ioread8(vp_dev->ioaddr + VIRTIO_PCI_ISR);
++	isr = ioread8(vp_dev->isr);
+ 
+ 	/* It's definitely not us if the ISR was not high */
+ 	if (!isr)
+@@ -719,6 +722,8 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
+ 		goto out_req_regions;
+ 	}
+ 
++	vp_dev->isr = vp_dev->ioaddr + VIRTIO_PCI_ISR;
++
+ 	pci_set_drvdata(pci_dev, vp_dev);
+ 	pci_set_master(pci_dev);
+ 
 -- 
 MST
