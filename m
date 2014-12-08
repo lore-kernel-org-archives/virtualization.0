@@ -1,14 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 1/6] virtio: add API to detect legacy devices
-Date: Mon, 8 Dec 2014 15:05:51 +0200
-Message-ID: <1418042769-25539-2-git-send-email-mst@redhat.com>
-References: <1418042769-25539-1-git-send-email-mst@redhat.com>
+Subject: [PATCH v3 0/6] virtio 1.0 enhancements
+Date: Mon, 8 Dec 2014 15:05:48 +0200
+Message-ID: <1418042769-25539-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1418042769-25539-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,58 +20,44 @@ To: linux-kernel@vger.kernel.org
 Cc: dahi@linux.vnet.ibm.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-transports need to be able to detect legacy-only
-devices (ATM balloon only) to use legacy path
-to drive them.
+These are minor robustness enhancements on top of v8 of the patchset
+	[PATCH v8 00/50] linux: towards virtio-1 guest support
+http://mid.gmane.org/1417449619-24896-1-git-send-email-mst@redhat.com
 
-Add a core API to do just that.
-The implementation just blacklists balloon:
-not too pretty, but let's not over-engineer.
+As that one seems stable and actually seems to work well for people,
+I'm not respinning it anymore.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
----
- include/linux/virtio.h  | 2 ++
- drivers/virtio/virtio.c | 7 +++++++
- 2 files changed, 9 insertions(+)
+The main motivation is to prevent us accidentally supporting
+bad configurations, such as legacy balloon on top of
+virtio 1.0 transport.
+The point is that if we happen to support them mistakenly, we'll have trouble
+backing out in future.  This will also help make sure hypervisors don't do
+silly things.
 
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 2bbf626..d666bcb 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -108,6 +108,8 @@ struct virtio_device {
- 	void *priv;
- };
- 
-+bool virtio_device_is_legacy_only(struct virtio_device_id id);
-+
- static inline struct virtio_device *dev_to_virtio(struct device *_dev)
- {
- 	return container_of(_dev, struct virtio_device, dev);
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index fa6b75d..224f854 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -3,6 +3,7 @@
- #include <linux/virtio_config.h>
- #include <linux/module.h>
- #include <linux/idr.h>
-+#include <uapi/linux/virtio_ids.h>
- 
- /* Unique numbering for virtio devices. */
- static DEFINE_IDA(virtio_index_ida);
-@@ -267,6 +268,12 @@ static struct bus_type virtio_bus = {
- 	.remove = virtio_dev_remove,
- };
- 
-+bool virtio_device_is_legacy_only(struct virtio_device_id id)
-+{
-+	return id.device == VIRTIO_ID_BALLOON;
-+}
-+EXPORT_SYMBOL_GPL(virtio_device_is_legacy_only);
-+
- int register_virtio_driver(struct virtio_driver *driver)
- {
- 	/* Catch this early. */
+Changes from v2:
+	Check finalize_features return status on resume.
+		This shouldn't normally fail, but checking can't hurt.
+
+Michael S. Tsirkin (6):
+  virtio: add API to detect legacy devices
+  virtio_ccw: legacy: don't negotiate rev 1/features
+  virtio: allow finalize_features to fail
+  virtio_ccw: rev 1 devices set VIRTIO_F_VERSION_1
+  virtio_balloon: drop legacy_only driver flag
+  virtio: drop legacy_only driver flag
+
+ include/linux/virtio.h                 |  4 ++--
+ include/linux/virtio_config.h          |  3 ++-
+ drivers/lguest/lguest_device.c         |  4 +++-
+ drivers/misc/mic/card/mic_virtio.c     |  4 +++-
+ drivers/remoteproc/remoteproc_virtio.c |  4 +++-
+ drivers/s390/kvm/kvm_virtio.c          |  4 +++-
+ drivers/s390/kvm/virtio_ccw.c          | 29 ++++++++++++++++++++++++-----
+ drivers/virtio/virtio.c                | 32 +++++++++++++++++++++-----------
+ drivers/virtio/virtio_balloon.c        |  1 -
+ drivers/virtio/virtio_mmio.c           |  4 +++-
+ drivers/virtio/virtio_pci.c            |  4 +++-
+ 11 files changed, 67 insertions(+), 26 deletions(-)
+
 -- 
 MST
