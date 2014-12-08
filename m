@@ -1,12 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 0/6] virtio 1.0 enhancements
-Date: Mon, 8 Dec 2014 15:05:48 +0200
-Message-ID: <1418042769-25539-1-git-send-email-mst@redhat.com>
+Subject: [PATCH v3 5/6] virtio_balloon: drop legacy_only driver flag
+Date: Mon, 8 Dec 2014 15:06:07 +0200
+Message-ID: <1418042769-25539-6-git-send-email-mst@redhat.com>
+References: <1418042769-25539-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <1418042769-25539-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,44 +22,25 @@ To: linux-kernel@vger.kernel.org
 Cc: dahi@linux.vnet.ibm.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-These are minor robustness enhancements on top of v8 of the patchset
-	[PATCH v8 00/50] linux: towards virtio-1 guest support
-http://mid.gmane.org/1417449619-24896-1-git-send-email-mst@redhat.com
+we have blacklisted balloon in core, no need
+for a driver flag.
 
-As that one seems stable and actually seems to work well for people,
-I'm not respinning it anymore.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/virtio/virtio_balloon.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-The main motivation is to prevent us accidentally supporting
-bad configurations, such as legacy balloon on top of
-virtio 1.0 transport.
-The point is that if we happen to support them mistakenly, we'll have trouble
-backing out in future.  This will also help make sure hypervisors don't do
-silly things.
-
-Changes from v2:
-	Check finalize_features return status on resume.
-		This shouldn't normally fail, but checking can't hurt.
-
-Michael S. Tsirkin (6):
-  virtio: add API to detect legacy devices
-  virtio_ccw: legacy: don't negotiate rev 1/features
-  virtio: allow finalize_features to fail
-  virtio_ccw: rev 1 devices set VIRTIO_F_VERSION_1
-  virtio_balloon: drop legacy_only driver flag
-  virtio: drop legacy_only driver flag
-
- include/linux/virtio.h                 |  4 ++--
- include/linux/virtio_config.h          |  3 ++-
- drivers/lguest/lguest_device.c         |  4 +++-
- drivers/misc/mic/card/mic_virtio.c     |  4 +++-
- drivers/remoteproc/remoteproc_virtio.c |  4 +++-
- drivers/s390/kvm/kvm_virtio.c          |  4 +++-
- drivers/s390/kvm/virtio_ccw.c          | 29 ++++++++++++++++++++++++-----
- drivers/virtio/virtio.c                | 32 +++++++++++++++++++++-----------
- drivers/virtio/virtio_balloon.c        |  1 -
- drivers/virtio/virtio_mmio.c           |  4 +++-
- drivers/virtio/virtio_pci.c            |  4 +++-
- 11 files changed, 67 insertions(+), 26 deletions(-)
-
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 4497def..c9703d4 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -518,7 +518,6 @@ static unsigned int features[] = {
+ };
+ 
+ static struct virtio_driver virtio_balloon_driver = {
+-	.legacy_only = true,
+ 	.feature_table = features,
+ 	.feature_table_size = ARRAY_SIZE(features),
+ 	.driver.name =	KBUILD_MODNAME,
 -- 
 MST
