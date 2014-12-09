@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2 10/10] virtio_pci: rename virtio_pci -> virtio_pci_common
-Date: Mon, 8 Dec 2014 17:16:58 +0200
-Message-ID: <1418051779-27748-11-git-send-email-mst__35709.6648229801$1418051943$gmane$org@redhat.com>
-References: <1418051779-27748-1-git-send-email-mst@redhat.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH v3 3/6] virtio: allow finalize_features to fail
+Date: Tue, 9 Dec 2014 11:46:59 +0100
+Message-ID: <20141209114659.5b0fdea0.cornelia.huck@de.ibm.com>
+References: <1418042769-25539-1-git-send-email-mst@redhat.com>
+	<1418042769-25539-4-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1418051779-27748-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1418042769-25539-4-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,78 +18,103 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-s390@vger.kernel.org, lguest@lists.ozlabs.org, Christian Borntraeger <borntraeger@de.ibm.com>, Siva Yerramreddy <yshivakrishna@gmail.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Sudeep Dutt <sudeep.dutt@intel.com>, dahi@linux.vnet.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-kbuild does not seem to like it when we name source
-files same as the module.
-Let's rename virtio_pci -> virtio_pci_common,
-and get rid of #include-ing c files.
+On Mon, 8 Dec 2014 15:05:58 +0200
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/virtio/{virtio_pci.h => virtio_pci_common.h} | 4 ++--
- drivers/virtio/{virtio_pci.c => virtio_pci_common.c} | 2 +-
- drivers/virtio/virtio_pci_legacy.c                   | 2 +-
- drivers/virtio/Makefile                              | 1 +
- 4 files changed, 5 insertions(+), 4 deletions(-)
- rename drivers/virtio/{virtio_pci.h => virtio_pci_common.h} (97%)
- rename drivers/virtio/{virtio_pci.c => virtio_pci_common.c} (99%)
+> This will make it easy for transports to validate features and return
+> failure.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  include/linux/virtio_config.h          |  3 ++-
+>  drivers/lguest/lguest_device.c         |  4 +++-
+>  drivers/misc/mic/card/mic_virtio.c     |  4 +++-
+>  drivers/remoteproc/remoteproc_virtio.c |  4 +++-
+>  drivers/s390/kvm/kvm_virtio.c          |  4 +++-
+>  drivers/s390/kvm/virtio_ccw.c          |  6 ++++--
+>  drivers/virtio/virtio.c                | 21 ++++++++++++++-------
+>  drivers/virtio/virtio_mmio.c           |  4 +++-
+>  drivers/virtio/virtio_pci.c            |  4 +++-
+>  9 files changed, 38 insertions(+), 16 deletions(-)
+> 
 
-diff --git a/drivers/virtio/virtio_pci.h b/drivers/virtio/virtio_pci_common.h
-similarity index 97%
-rename from drivers/virtio/virtio_pci.h
-rename to drivers/virtio/virtio_pci_common.h
-index fba383c..d840dad 100644
---- a/drivers/virtio/virtio_pci.h
-+++ b/drivers/virtio/virtio_pci_common.h
-@@ -1,5 +1,5 @@
--#ifndef _DRIVERS_VIRTIO_VIRTIO_PCI_H
--#define _DRIVERS_VIRTIO_VIRTIO_PCI_H
-+#ifndef _DRIVERS_VIRTIO_VIRTIO_PCI_COMMON_H
-+#define _DRIVERS_VIRTIO_VIRTIO_PCI_COMMON_H
- /*
-  * Virtio PCI driver - APIs for common functionality for all device versions
-  *
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci_common.c
-similarity index 99%
-rename from drivers/virtio/virtio_pci.c
-rename to drivers/virtio/virtio_pci_common.c
-index 5d6bc77..953057d 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -17,7 +17,7 @@
-  *
-  */
+> diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+> index c792b5f..789275f 100644
+> --- a/drivers/s390/kvm/virtio_ccw.c
+> +++ b/drivers/s390/kvm/virtio_ccw.c
+> @@ -752,7 +752,7 @@ out_free:
+>  	return rc;
+>  }
+> 
+> -static void virtio_ccw_finalize_features(struct virtio_device *vdev)
+> +static int virtio_ccw_finalize_features(struct virtio_device *vdev)
+>  {
+>  	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+>  	struct virtio_feature_desc *features;
+> @@ -760,7 +760,7 @@ static void virtio_ccw_finalize_features(struct virtio_device *vdev)
+> 
+>  	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
+>  	if (!ccw)
+> -		return;
+> +		return 0;
+
+I think we'll want to return an error in this case as well to fail
+probing. Also for the other places where something can go wrong.
+Something like this:
+
+diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+index 789275f..bc6e671 100644
+--- a/drivers/s390/kvm/virtio_ccw.c
++++ b/drivers/s390/kvm/virtio_ccw.c
+@@ -757,15 +757,17 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
+ 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+ 	struct virtio_feature_desc *features;
+ 	struct ccw1 *ccw;
++	int ret;
  
--#include "virtio_pci_legacy.c"
-+#include "virtio_pci_common.h"
+ 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
+ 	if (!ccw)
+-		return 0;
++		return -ENOMEM;
  
- /* wait for pending irq handlers */
- void vp_synchronize_vectors(struct virtio_device *vdev)
-diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
-index 1ca4422..db00119 100644
---- a/drivers/virtio/virtio_pci_legacy.c
-+++ b/drivers/virtio/virtio_pci_legacy.c
-@@ -17,7 +17,7 @@
-  *
-  */
+ 	features = kzalloc(sizeof(*features), GFP_DMA | GFP_KERNEL);
+-	if (!features)
++	if (!features) {
++		ret = -ENOMEM;
+ 		goto out_free;
+-
++	}
+ 	/* Give virtio_ring a chance to accept features. */
+ 	vring_transport_features(vdev);
  
--#include "virtio_pci.h"
-+#include "virtio_pci_common.h"
+@@ -776,7 +778,9 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
+ 	ccw->flags = 0;
+ 	ccw->count = sizeof(*features);
+ 	ccw->cda = (__u32)(unsigned long)features;
+-	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
++	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
++	if (ret)
++		goto out_free;
  
- /* Qumranet donated their vendor ID for devices 0x1000 thru 0x10FF. */
- static const struct pci_device_id virtio_pci_id_table[] = {
-diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
-index 9076635..bf5104b 100644
---- a/drivers/virtio/Makefile
-+++ b/drivers/virtio/Makefile
-@@ -1,4 +1,5 @@
- obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o
- obj-$(CONFIG_VIRTIO_MMIO) += virtio_mmio.o
- obj-$(CONFIG_VIRTIO_PCI) += virtio_pci.o
-+virtio_pci-y := virtio_pci_legacy.o virtio_pci_common.o
- obj-$(CONFIG_VIRTIO_BALLOON) += virtio_balloon.o
--- 
-MST
+ 	if (vcdev->revision == 0)
+ 		goto out_free;
+@@ -788,13 +792,13 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
+ 	ccw->flags = 0;
+ 	ccw->count = sizeof(*features);
+ 	ccw->cda = (__u32)(unsigned long)features;
+-	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
++	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
+ 
+ out_free:
+ 	kfree(features);
+ 	kfree(ccw);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ static void virtio_ccw_get_config(struct virtio_device *vdev,
