@@ -1,12 +1,16 @@
-From: "Maria L." <marialemos72@gmail.com>
-Subject: Last call - WorldCIST'15, Azores, Portugal - Deadline extended:
-	December 20
-Date: Tue, 9 Dec 2014 11:44:06 +0000
-Message-ID: <20141209114423.BFF7DAA5@mail.linuxfoundation.org>
-Reply-To: worldcist@gmail.com
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3 3/6] virtio: allow finalize_features to fail
+Date: Tue, 9 Dec 2014 14:07:54 +0200
+Message-ID: <20141209120754.GE3993@redhat.com>
+References: <1418042769-25539-1-git-send-email-mst@redhat.com>
+	<1418042769-25539-4-git-send-email-mst@redhat.com>
+	<20141209114659.5b0fdea0.cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4644251060570989195=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20141209114659.5b0fdea0.cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,217 +20,113 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: linux-s390@vger.kernel.org, lguest@lists.ozlabs.org, Christian Borntraeger <borntraeger@de.ibm.com>, Siva Yerramreddy <yshivakrishna@gmail.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Sudeep Dutt <sudeep.dutt@intel.com>, dahi@linux.vnet.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============4644251060570989195==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-
-: Extended versions of best papers published in JCR/SCI journals
-
-------
-WorldCIST'15 - 3rd World Conference on Information Systems and Technol=
-ogies=20
-Ponta Delgada, Azores *, Portugal
-1 - 3 April 2015
-http://www.aisti.eu/worldcist15/
-------
-* Azores is ranked as the second most beautiful archipelago in the wor=
-ld by National Geographic.
-------------
-
-
-SCOPE
-
-The WorldCIST'15 - 3rd World Conference on Information Systems and Tec=
-hnologies, to be held at Ponta Delgada, S=E3o Miguel, Azores, Portugal=
-, 1 - 3 April 2015, is a global forum for researchers and practitioner=
-s to present and discuss the most recent innovations, trends, results,=
- experiences and concerns in the several perspectives of Information S=
-ystems and Technologies.
-
-Azores is ranked as the second most beautiful archipelago in the world=
- by National Geographic. Consisting of nine distinct islands, each of =
-them special, is in fact a place in the world to be visited.
-
-We are pleased to invite you to submit your papers to WorldCISTI'15. A=
-ll submissions will be reviewed on the basis of relevance, originality=
-, importance and clarity.
-
-
-THEMES
-
-Submitted papers should be related with one or more of the main themes=
- proposed for the Conference:
-
-A) Information and Knowledge Management (IKM);
-B) Organizational Models and Information Systems (OMIS);
-C) Intelligent and Decision Support Systems (IDSS);
-D) Big Data Analytics and Applications (BDAA);
-E) Software Systems, Architectures, Applications and Tools (SSAAT);
-F) Multimedia Systems and Applications (MSA);
-G) Computer Networks, Mobility and Pervasive Systems (CNMPS);
-H) Human-Computer Interaction (HCI);
-I) Health Informatics (HIS);
-J) Information Technologies in Education (ITE).
-K) Information Technologies in Radiocommunications (ITR)
-
-
-TYPES OF SUBMISSIONS AND DECISIONS
-
-Four types of papers can be submitted:
-
-- Full paper: Finished or consolidated R&D works, to be included in on=
-e of the Conference themes. These papers are assigned a 10-page limit.
-
-- Short paper: Ongoing works with relevant preliminary results, open t=
-o discussion. These papers are assigned a 7-page limit.
-
-- Poster paper: Initial work with relevant ideas, open to discussion. =
-These papers are assigned to a 4-page limit.
-
-- Company paper: Companies' papers that show practical experience, R &=
- D, tools, etc., focused on some topics of the conference. These paper=
-s are assigned to a 4-page limit.
-
-Submitted papers must comply with the format of Advances in Intelligen=
-t Systems and Computing Series (see Instructions for Authors at Spring=
-er Website or download a DOC example) be written in English, must not =
-have been published before, not be under review for any other conferen=
-ce or publication and not include any information leading to the autho=
-rs=92 identification. Therefore, the authors=92 names, affiliations an=
-d bibliographic references should not be included in the version for e=
-valuation by the Program Committee. This information should only be in=
-cluded in the camera-ready version, saved in Word or Latex format and =
-also in PDF format. These files must be accompanied by the Consent to =
-Publication form filled out, in a ZIP file, and uploaded at the confer=
-ence management system.
-
-All papers will be subjected to a =93double-blind review=94 by at leas=
-t two members of the Program Committee.
-
-Based on Program Committee evaluation, a paper can be rejected or acce=
-pted by the Conference Chairs. In the later case, it can be accepted a=
-s the type originally submitted or as another type. Thus, full papers =
-can be accepted as short papers or poster papers only. Similarly, shor=
-t papers can be accepted as poster papers only. In these cases, the au=
-thors will be allowed to maintain the original number of pages in the =
-camera-ready version.
-
-The authors of accepted poster papers must also build and print a post=
-er to be exhibited during the Conference. This poster must follow an A=
-1 or A2 vertical format. The Conference can includes Work Sessions whe=
-re these posters are presented and orally discussed, with a 5 minute l=
-imit per poster.
-
-The authors of accepted full papers will have 15 minutes to present th=
-eir work in a Conference Work Session; approximately 5 minutes of disc=
-ussion will follow each presentation. The authors of accepted short pa=
-pers and company papers will have 11 minutes to present their work in =
-a Conference Work Session; approximately 4 minutes of discussion will =
-follow each presentation.
-
-
-PUBLICATION & INDEXING
-
-To ensure that a full paper, short paper, poster paper or company pape=
-r is published in the Proceedings, at least one of the authors must be=
- fully registered by the 6th of January 2015, and the paper must compl=
-y with the suggested layout and page-limit. Additionally, all recommen=
-ded changes must be addressed by the authors before they submit the ca=
-mera-ready version.
-
-No more than one paper per registration will be published in the Confe=
-rence Proceedings. An extra fee must be paid for publication of additi=
-onal papers, with a maximum of one additional paper per registration.
-
-Full and short papers will be published in Proceedings by Springer, in=
- Advances in Intelligent Systems and Computing Series. Poster and comp=
-any papers will be published by AISTI.
-
-Published full and short papers will be submitted for indexation by IS=
-I, EI-Compendex, SCOPUS and DBLP, among others, and will be available =
-in the SpringerLink Digital Library.
-
-The authors of the best selected papers will be invited to extend them=
- for publication in international journals indexed by ISI/SCI, SCOPUS =
-and DBLP, among others, such as:
-
-- Computers in Human Behavior (IF: 2.273)
-
-- Engineering Applications of Artificial Intelligence (IF: 1.962)
-
-- IEEE Intelligent Systems (IF: 1.92)
-
-- Online Information Review (IF: 1.443)
-
-- Journal of Medical Systems (IF: 1.372)
-
-- Building Research & Information (IF: 1.319)=20
-
-- Electronic Commerce Research and Applications (IF: 1.304)
-
-- IEEE Computer Graphics and Applications (IF: 1.116)
-
-- Business & Information Systems Engineering (IF: 1.095)
-
-- Multimedia Tools and Applications (IF: 1.058)
-
-- Cluster Computing (IF: 0.949)
-
-- IEEE Security & Privacy (IF: 0.721)
-
-- Computer Science and Information Systems (IF: 0.575)
-
-- Ethics and Information Technology (IF: 0.520)
-
-- Journal of Global Information Management (IF: 0,483)
-
-- Journal of Web Engineering (IF: 0.444)
-
-- Journal of Internet Technology (IF: 0.418)
-
-- Computer Methods in Biomechanics and Biomedical Engineering: Imaging=
- & Visualization
-
-- EAI Transactions on e-Learning
-
-- International Journal of Interactive Multimedia and Artificial Intel=
-ligence
-
-- Journal of Big Data
-
-
-IMPORTANT DATES
-
-Paper Submission: December 20, 2014 (extended deadline)
-
-Notification of Acceptance: January 4, 2015
-
-Camera-ready Submission: January 18, 2015
-
-Payment of Registration, to ensure the inclusion of an accepted paper =
-in the conference proceedings: January 16, 2015.
-
-
-Best regards,
-
-WorldCIST'15 Organizing Committee
-http://www.aisti.eu/worldcist15/
-
-
-
-
---===============4644251060570989195==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4644251060570989195==--
+On Tue, Dec 09, 2014 at 11:46:59AM +0100, Cornelia Huck wrote:
+> On Mon, 8 Dec 2014 15:05:58 +0200
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> 
+> > This will make it easy for transports to validate features and return
+> > failure.
+> > 
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> >  include/linux/virtio_config.h          |  3 ++-
+> >  drivers/lguest/lguest_device.c         |  4 +++-
+> >  drivers/misc/mic/card/mic_virtio.c     |  4 +++-
+> >  drivers/remoteproc/remoteproc_virtio.c |  4 +++-
+> >  drivers/s390/kvm/kvm_virtio.c          |  4 +++-
+> >  drivers/s390/kvm/virtio_ccw.c          |  6 ++++--
+> >  drivers/virtio/virtio.c                | 21 ++++++++++++++-------
+> >  drivers/virtio/virtio_mmio.c           |  4 +++-
+> >  drivers/virtio/virtio_pci.c            |  4 +++-
+> >  9 files changed, 38 insertions(+), 16 deletions(-)
+> > 
+> 
+> > diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+> > index c792b5f..789275f 100644
+> > --- a/drivers/s390/kvm/virtio_ccw.c
+> > +++ b/drivers/s390/kvm/virtio_ccw.c
+> > @@ -752,7 +752,7 @@ out_free:
+> >  	return rc;
+> >  }
+> > 
+> > -static void virtio_ccw_finalize_features(struct virtio_device *vdev)
+> > +static int virtio_ccw_finalize_features(struct virtio_device *vdev)
+> >  {
+> >  	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+> >  	struct virtio_feature_desc *features;
+> > @@ -760,7 +760,7 @@ static void virtio_ccw_finalize_features(struct virtio_device *vdev)
+> > 
+> >  	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
+> >  	if (!ccw)
+> > -		return;
+> > +		return 0;
+> 
+> I think we'll want to return an error in this case as well to fail
+> probing. Also for the other places where something can go wrong.
+> Something like this:
+
+
+I guess the fact this previously failed silently is a bug in original
+code?
+
+Can you please send your S.O.B so I can add this patch on top?
+
+We might also need to Cc stable.
+
+
+> diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+> index 789275f..bc6e671 100644
+> --- a/drivers/s390/kvm/virtio_ccw.c
+> +++ b/drivers/s390/kvm/virtio_ccw.c
+> @@ -757,15 +757,17 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
+>  	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+>  	struct virtio_feature_desc *features;
+>  	struct ccw1 *ccw;
+> +	int ret;
+>  
+>  	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
+>  	if (!ccw)
+> -		return 0;
+> +		return -ENOMEM;
+>  
+>  	features = kzalloc(sizeof(*features), GFP_DMA | GFP_KERNEL);
+> -	if (!features)
+> +	if (!features) {
+> +		ret = -ENOMEM;
+>  		goto out_free;
+> -
+> +	}
+>  	/* Give virtio_ring a chance to accept features. */
+>  	vring_transport_features(vdev);
+>  
+> @@ -776,7 +778,9 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
+>  	ccw->flags = 0;
+>  	ccw->count = sizeof(*features);
+>  	ccw->cda = (__u32)(unsigned long)features;
+> -	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
+> +	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
+> +	if (ret)
+> +		goto out_free;
+>  
+>  	if (vcdev->revision == 0)
+>  		goto out_free;
+> @@ -788,13 +792,13 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
+>  	ccw->flags = 0;
+>  	ccw->count = sizeof(*features);
+>  	ccw->cda = (__u32)(unsigned long)features;
+> -	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
+> +	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
+>  
+>  out_free:
+>  	kfree(features);
+>  	kfree(ccw);
+>  
+> -	return 0;
+> +	return ret;
+>  }
+>  
+>  static void virtio_ccw_get_config(struct virtio_device *vdev,
