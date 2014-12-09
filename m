@@ -1,14 +1,14 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v3 3/6] virtio: allow finalize_features to fail
-Date: Tue, 9 Dec 2014 11:46:59 +0100
-Message-ID: <20141209114659.5b0fdea0.cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH v3 5/6] virtio_balloon: drop legacy_only driver flag
+Date: Tue, 9 Dec 2014 12:24:09 +0100
+Message-ID: <20141209122409.180f138b.cornelia.huck@de.ibm.com>
 References: <1418042769-25539-1-git-send-email-mst@redhat.com>
-	<1418042769-25539-4-git-send-email-mst@redhat.com>
+	<1418042769-25539-6-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1418042769-25539-4-git-send-email-mst@redhat.com>
+In-Reply-To: <1418042769-25539-6-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,102 +19,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-s390@vger.kernel.org, lguest@lists.ozlabs.org, Christian Borntraeger <borntraeger@de.ibm.com>, Siva Yerramreddy <yshivakrishna@gmail.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Sudeep Dutt <sudeep.dutt@intel.com>, dahi@linux.vnet.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, virtualization@lists.linux-foundation.org
+Cc: dahi@linux.vnet.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 8 Dec 2014 15:05:58 +0200
+On Mon, 8 Dec 2014 15:06:07 +0200
 "Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-> This will make it easy for transports to validate features and return
-> failure.
+> we have blacklisted balloon in core, no need
+> for a driver flag.
 > 
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > ---
->  include/linux/virtio_config.h          |  3 ++-
->  drivers/lguest/lguest_device.c         |  4 +++-
->  drivers/misc/mic/card/mic_virtio.c     |  4 +++-
->  drivers/remoteproc/remoteproc_virtio.c |  4 +++-
->  drivers/s390/kvm/kvm_virtio.c          |  4 +++-
->  drivers/s390/kvm/virtio_ccw.c          |  6 ++++--
->  drivers/virtio/virtio.c                | 21 ++++++++++++++-------
->  drivers/virtio/virtio_mmio.c           |  4 +++-
->  drivers/virtio/virtio_pci.c            |  4 +++-
->  9 files changed, 38 insertions(+), 16 deletions(-)
-> 
+>  drivers/virtio/virtio_balloon.c | 1 -
+>  1 file changed, 1 deletion(-)
 
-> diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-> index c792b5f..789275f 100644
-> --- a/drivers/s390/kvm/virtio_ccw.c
-> +++ b/drivers/s390/kvm/virtio_ccw.c
-> @@ -752,7 +752,7 @@ out_free:
->  	return rc;
->  }
-> 
-> -static void virtio_ccw_finalize_features(struct virtio_device *vdev)
-> +static int virtio_ccw_finalize_features(struct virtio_device *vdev)
->  {
->  	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
->  	struct virtio_feature_desc *features;
-> @@ -760,7 +760,7 @@ static void virtio_ccw_finalize_features(struct virtio_device *vdev)
-> 
->  	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
->  	if (!ccw)
-> -		return;
-> +		return 0;
-
-I think we'll want to return an error in this case as well to fail
-probing. Also for the other places where something can go wrong.
-Something like this:
-
-diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-index 789275f..bc6e671 100644
---- a/drivers/s390/kvm/virtio_ccw.c
-+++ b/drivers/s390/kvm/virtio_ccw.c
-@@ -757,15 +757,17 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
- 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
- 	struct virtio_feature_desc *features;
- 	struct ccw1 *ccw;
-+	int ret;
- 
- 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
- 	if (!ccw)
--		return 0;
-+		return -ENOMEM;
- 
- 	features = kzalloc(sizeof(*features), GFP_DMA | GFP_KERNEL);
--	if (!features)
-+	if (!features) {
-+		ret = -ENOMEM;
- 		goto out_free;
--
-+	}
- 	/* Give virtio_ring a chance to accept features. */
- 	vring_transport_features(vdev);
- 
-@@ -776,7 +778,9 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
- 	ccw->flags = 0;
- 	ccw->count = sizeof(*features);
- 	ccw->cda = (__u32)(unsigned long)features;
--	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
-+	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
-+	if (ret)
-+		goto out_free;
- 
- 	if (vcdev->revision == 0)
- 		goto out_free;
-@@ -788,13 +792,13 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
- 	ccw->flags = 0;
- 	ccw->count = sizeof(*features);
- 	ccw->cda = (__u32)(unsigned long)features;
--	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
-+	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
- 
- out_free:
- 	kfree(features);
- 	kfree(ccw);
- 
--	return 0;
-+	return ret;
- }
- 
- static void virtio_ccw_get_config(struct virtio_device *vdev,
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
