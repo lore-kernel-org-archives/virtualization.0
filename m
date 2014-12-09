@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 1/2] virtio_ccw: future-proof finalize_features
-Date: Tue, 9 Dec 2014 15:53:34 +0200
-Message-ID: <1418133187-12436-2-git-send-email-mst@redhat.com>
+Subject: [PATCH 2/2] virtio_ccw: finalize_features error handling
+Date: Tue, 9 Dec 2014 15:53:38 +0200
+Message-ID: <1418133187-12436-3-git-send-email-mst@redhat.com>
 References: <1418133187-12436-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,27 +22,74 @@ To: linux-kernel@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We never negotiate revision > 1, but just to
-make this code more likely to work when we do,
-require VERSION_1 with any revision >= 1.
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
+We previously tried to use device even if finalize_features failed, but
+that's wrong since driver and device are now out of sync.
+
+Fail probe if we detect failures during finalize_features.
+
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/s390/kvm/virtio_ccw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/kvm/virtio_ccw.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-index f9f87ba..f92b9e6 100644
+index f92b9e6..71d7802 100644
 --- a/drivers/s390/kvm/virtio_ccw.c
 +++ b/drivers/s390/kvm/virtio_ccw.c
-@@ -758,7 +758,7 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
+@@ -757,6 +757,7 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
+ 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
  	struct virtio_feature_desc *features;
  	struct ccw1 *ccw;
++	int ret;
  
--	if (vcdev->revision == 1 &&
-+	if (vcdev->revision >= 1 &&
+ 	if (vcdev->revision >= 1 &&
  	    !__virtio_test_bit(vdev, VIRTIO_F_VERSION_1)) {
- 		dev_err(&vdev->dev, "virtio: device uses revision 1 "
- 			"but does not have VIRTIO_F_VERSION_1\n");
+@@ -767,12 +768,13 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
+ 
+ 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
+ 	if (!ccw)
+-		return 0;
++		return -ENOMEM;
+ 
+ 	features = kzalloc(sizeof(*features), GFP_DMA | GFP_KERNEL);
+-	if (!features)
++	if (!features) {
++		ret = -ENOMEM;
+ 		goto out_free;
+-
++	}
+ 	/* Give virtio_ring a chance to accept features. */
+ 	vring_transport_features(vdev);
+ 
+@@ -783,7 +785,9 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
+ 	ccw->flags = 0;
+ 	ccw->count = sizeof(*features);
+ 	ccw->cda = (__u32)(unsigned long)features;
+-	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
++	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
++	if (ret)
++		goto out_free;
+ 
+ 	if (vcdev->revision == 0)
+ 		goto out_free;
+@@ -795,13 +799,13 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
+ 	ccw->flags = 0;
+ 	ccw->count = sizeof(*features);
+ 	ccw->cda = (__u32)(unsigned long)features;
+-	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
++	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
+ 
+ out_free:
+ 	kfree(features);
+ 	kfree(ccw);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ static void virtio_ccw_get_config(struct virtio_device *vdev,
 -- 
 MST
