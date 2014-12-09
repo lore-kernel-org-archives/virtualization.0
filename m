@@ -1,15 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC v5 14/19] s390x/virtio-ccw: enable virtio 1.0
-Date: Tue, 9 Dec 2014 15:46:46 +0200
-Message-ID: <20141209134646.GA6897@redhat.com>
-References: <1417525227-14051-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1417525227-14051-15-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 0/2] virtio_ccw: minor enhancements
+Date: Tue, 9 Dec 2014 15:53:32 +0200
+Message-ID: <1418133187-12436-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1417525227-14051-15-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,61 +16,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 02, 2014 at 02:00:22PM +0100, Cornelia Huck wrote:
-> virtio-ccw should now have everything in place to operate virtio 1.0
-> devices, so let's enable revision 1.
-> 
-> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Two enhancements for virtio_ccw, on top of latest 1.0 patchset
 
-Looks like this will allow revision 1 for all devices,
-we only want this for virtio 1 devices.
+Cornelia Huck (1):
+  virtio_ccw: finalize_features error handling
 
-The following should fix it I think:
+Michael S. Tsirkin (1):
+  virtio_ccw: future-proof finalize_features
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+ drivers/s390/kvm/virtio_ccw.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-
-diff --git a/hw/s390x/virtio-ccw.h b/hw/s390x/virtio-ccw.h
-index d40e3be..f5a1d3e 100644
---- a/hw/s390x/virtio-ccw.h
-+++ b/hw/s390x/virtio-ccw.h
-@@ -69,9 +69,6 @@ typedef struct VirtIOCCWDeviceClass {
-     int (*exit)(VirtioCcwDevice *dev);
- } VirtIOCCWDeviceClass;
- 
--/* The maximum virtio revision we support. */
--#define VIRTIO_CCW_REV_MAX 1
--
- /* Performance improves when virtqueue kick processing is decoupled from the
-  * vcpu thread using ioeventfd for some devices. */
- #define VIRTIO_CCW_FLAG_USE_IOEVENTFD_BIT 1
-@@ -104,6 +101,12 @@ struct VirtioCcwDevice {
-     uint64_t ind_bit;
- };
- 
-+/* The maximum virtio revision we support. */
-+static int virtio_ccw_rev_max(VirtioCcwDevice *dev)
-+{
-+        return dev->host_features & (1ULL << VIRTIO_F_VERSION_1) ? 1 : 0;
-+}
-+
- /* virtual css bus type */
- typedef struct VirtualCssBus {
-     BusState parent_obj;
-diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
-index 3826074..922b021 100644
---- a/hw/s390x/virtio-ccw.c
-+++ b/hw/s390x/virtio-ccw.c
-@@ -693,7 +693,7 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
-         }
-         cpu_physical_memory_read(ccw.cda, &revinfo, len);
-         if (dev->revision >= 0 ||
--            revinfo.revision > VIRTIO_CCW_REV_MAX) {
-+            revinfo.revision > virtio_ccw_rev_max(dev)) {
-             ret = -ENOSYS;
-             break;
-         }
+-- 
+MST
