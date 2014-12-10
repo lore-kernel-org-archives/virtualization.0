@@ -1,15 +1,14 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [PATCH 0/2] virtio_ccw: minor enhancements
-Date: Wed, 10 Dec 2014 18:42:38 +0100
-Message-ID: <20141210184238.12725264.cornelia.huck@de.ibm.com>
+Date: Thu, 11 Dec 2014 09:37:31 +1030
+Message-ID: <87r3w7nlxo.fsf@rustcorp.com.au>
 References: <1418133187-12436-1-git-send-email-mst@redhat.com>
-	<20141209182753.632da537.cornelia.huck@de.ibm.com>
-	<20141209185035.GA19260@redhat.com>
+	<20141209214907.GA13855@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141209185035.GA19260@redhat.com>
+In-Reply-To: <20141209214907.GA13855@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,43 +18,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 9 Dec 2014 20:50:35 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> Hi Rusty, I guess you are busy.
+>
+> I'd like to send all these patch series combined to Linus.  To see what
+> I have queued, you can check the vhost-next branch in my tree.
+>
+> Will wait until tomorrow to give you a chance to respond.
 
-> On Tue, Dec 09, 2014 at 06:27:53PM +0100, Cornelia Huck wrote:
-> > On Tue, 9 Dec 2014 15:53:32 +0200
-> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > 
-> > > Two enhancements for virtio_ccw, on top of latest 1.0 patchset
-> > > 
-> > > Cornelia Huck (1):
-> > >   virtio_ccw: finalize_features error handling
-> > > 
-> > > Michael S. Tsirkin (1):
-> > >   virtio_ccw: future-proof finalize_features
-> > > 
-> > >  drivers/s390/kvm/virtio_ccw.c | 18 +++++++++++-------
-> > >  1 file changed, 11 insertions(+), 7 deletions(-)
-> > > 
-> > 
-> > I tried to run this as a guest kernel with my virtio-1 qemu branch +
-> > your revision patch on top and it at least boots :) More testing
-> > tomorrow.
-> 
-> It's best if you pick my tree from git.
-> vhost-next branch.
-> 
+Hi Michael,
 
-FWIW: Your current vhost-next branch + my qemu with the known bugs
-seems to hold up well so far; the endianness swap does not seem to
-cause a noticeable performance hit (the problems come from my qemu code
-dropping feature bits...)
+        Indeed, this is the last week of my sabbatical.  I am back
+full time next week.  See my Ack on your patches.
 
-Take this with a grain of salt as current qemu virtio-1 has known
-problems, but I don't think there are major reasons speaking against
-inclusion. At least, I don't think there's anything in there we can't
-easily fix up later.
+Thanks.
+Rusty.
