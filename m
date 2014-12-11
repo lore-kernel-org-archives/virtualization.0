@@ -1,14 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PULL] virtio: virtio 1.0 support, misc patches
-Date: Thu, 11 Dec 2014 14:14:20 +0200
-Message-ID: <20141211121420.GA9022@redhat.com>
-References: <20141211120248.GA8838@redhat.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC v6 00/20] qemu: towards virtio-1 host support
+Date: Thu, 11 Dec 2014 14:25:02 +0100
+Message-ID: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20141211120248.GA8838@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,179 +15,90 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: sergei.shtylyov@cogentembedded.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, ben@decadent.org.uk, David Miller <davem@davemloft.net>, thuth@linux.vnet.ibm.com
+To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org
+Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 11, 2014 at 02:02:48PM +0200, Michael S. Tsirkin wrote:
-> The following changes since commit b2776bf7149bddd1f4161f14f79520f17fc1d71d:
-> 
->   Linux 3.18 (2014-12-07 14:21:05 -0800)
-> 
-> are available in the git repository at:
-> 
->   git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-> 
-> for you to fetch changes up to 803cd18f7b5e6c7ad6bee9571ae8f4450190ab58:
+And yet another iteration of virtio-1 support in qemu, tested with the
+latest virtio kernel patches. Find it at
 
-Actually the commit hash in this mail is wrong:
-The correct one is
-	f01a2a811ae04124fc9382925038fcbbd2f0b7c8
-the reason I got this wrong is I prepared the pull request mail several
-days ago, and since then I have rebased, pushed, and several people
-tested this correct latest hash.
+    git://github.com/cohuck/qemu virtio-1
 
-It's all signed correctly, so 
+Changes from v5:
+- fixed stupid bug in "virtio: support more feature bits": we need to
+  define a proper prop backend for 64 bit wide handling...
+- don't negotiate revision 1 unless VERSION_1 is offered
+- use 64 bit wide features in the whole of vhost (patch can probably be
+  merged into the 64 bit extension for the rest of the code)
 
-Linus, do I need to resend?
+The bug I suspected in the revision-specific feature handling turned out
+to be a messup on my side. There still seems to be something missing for
+vhost-net to support virtio-1.
 
-Sorry about the noise.
+Cornelia Huck (17):
+  virtio: cull virtio_bus_set_vdev_features
+  virtio: feature bit manipulation helpers
+  virtio: add feature checking helpers
+  virtio: support more feature bits
+  virtio: endianness checks for virtio 1.0 devices
+  virtio: allow virtio-1 queue layout
+  dataplane: allow virtio-1 devices
+  s390x/virtio-ccw: support virtio-1 set_vq format
+  virtio: disallow late feature changes for virtio-1
+  virtio: allow to fail setting status
+  s390x/virtio-ccw: enable virtio 1.0
+  virtio-net: no writeable mac for virtio-1
+  virtio-net: support longer header
+  virtio-net: enable virtio 1.0
+  virtio: support revision-specific features
+  virtio-blk: revision specific feature bits
+  vhost: 64 bit features
 
-> 
->   virtio_ccw: finalize_features error handling (2014-12-09 16:32:41 +0200)
-> 
-> Note: some net drivers are affected by these patches.
-> David said he's fine with merging these patches through
-> my tree.
-> Rusty's on vacation, he acked using my tree for these, too.
-> 
-> ----------------------------------------------------------------
-> virtio: virtio 1.0 support, misc patches
-> 
-> This adds a lot of infrastructure for virtio 1.0 support.
-> Notable missing pieces: virtio pci, virtio balloon (needs spec extension),
-> vhost scsi.
-> 
-> Plus, there are some minor fixes in a couple of places.
-> 
-> Cc: David Miller <davem@davemloft.net>
-> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> ----------------------------------------------------------------
-> Cornelia Huck (4):
->       virtio: allow transports to get avail/used addresses
->       KVM: s390: virtio-ccw revision 1 SET_VQ
->       KVM: s390: enable virtio-ccw revision 1
->       virtio_ccw: finalize_features error handling
-> 
-> Jason Wang (1):
->       vhost: remove unnecessary forward declarations in vhost.h
-> 
-> Michael S. Tsirkin (64):
->       virtio: add low-level APIs for feature bits
->       virtio: use u32, not bitmap for features
->       mic_virtio: robust feature array size calculation
->       virtio: add support for 64 bit features.
->       virtio: assert 32 bit features in transports
->       virtio_ccw: add support for 64 bit features.
->       virtio: add virtio 1.0 feature bit
->       virtio: memory access APIs
->       virtio_ring: switch to new memory access APIs
->       virtio_config: endian conversion for v1.0
->       virtio: set FEATURES_OK
->       virtio: simplify feature bit handling
->       virtio: add legacy feature table support
->       virtio_net: v1.0 endianness
->       virtio_blk: v1.0 support
->       KVM: s390 allow virtio_ccw status writes to fail
->       virtio_blk: make serial attribute static
->       virtio_blk: fix race at module removal
->       virtio_net: pass vi around
->       virtio_net: get rid of virtio_net_hdr/skb_vnet_hdr
->       virtio_net: stricter short buffer length checks
->       virtio_net: bigger header when VERSION_1 is set
->       virtio_net: disable mac write for virtio 1.0
->       virtio_net: enable v1.0 support
->       vhost: make features 64 bit
->       vhost: add memory access wrappers
->       vhost/net: force len for TX to host endian
->       vhost: switch to __get/__put_user exclusively
->       vhost: virtio 1.0 endian-ness support
->       vhost/net: virtio 1.0 byte swap
->       vhost/net: larger header for virtio 1.0
->       vhost/net: enable virtio 1.0
->       tun: move internal flag defines out of uapi
->       tun: drop most type defines
->       tun: add VNET_LE flag
->       tun: TUN_VNET_LE support, fix sparse warnings for virtio headers
->       macvtap: TUN_VNET_LE support
->       virtio_scsi: v1.0 support
->       virtio_scsi: move to uapi
->       virtio_scsi: export to userspace
->       vhost/scsi: partial virtio 1.0 support
->       af_packet: virtio 1.0 stubs
->       virtio_console: virtio 1.0 support
->       virtio_balloon: add legacy_only flag
->       virtio: make VIRTIO_F_VERSION_1 a transport bit
->       virtio: drop VIRTIO_F_VERSION_1 from drivers
->       virtio_console: fix sparse warnings
->       virtio: add API to detect legacy devices
->       virtio_ccw: legacy: don't negotiate rev 1/features
->       virtio: allow finalize_features to fail
->       virtio_ccw: rev 1 devices set VIRTIO_F_VERSION_1
->       virtio_balloon: drop legacy_only driver flag
->       virtio: drop legacy_only driver flag
->       virtio_pci: add isr field
->       virtio_pci: fix coding style for structs
->       virtio_pci: free up vq->priv
->       virtio_pci: use priv for vq notification
->       virtio_pci: delete vqs indirectly
->       virtio_pci: setup vqs indirectly
->       virtio_pci: setup config vector indirectly
->       virtio_pci: split out legacy device support
->       virtio_pci: update file descriptions and copyright
->       virtio_pci: rename virtio_pci -> virtio_pci_common
->       virtio_ccw: future-proof finalize_features
-> 
-> Thomas Huth (1):
->       KVM: s390: Set virtio-ccw transport revision
-> 
->  drivers/vhost/vhost.h                  |  41 +-
->  drivers/virtio/virtio_pci_common.h     | 136 ++++++
->  include/linux/virtio.h                 |  12 +-
->  include/linux/virtio_byteorder.h       |  59 +++
->  include/linux/virtio_config.h          | 103 ++++-
->  include/uapi/linux/if_tun.h            |  17 +-
->  include/uapi/linux/virtio_blk.h        |  15 +-
->  include/uapi/linux/virtio_config.h     |   9 +-
->  include/uapi/linux/virtio_console.h    |   7 +-
->  include/uapi/linux/virtio_net.h        |  15 +-
->  include/uapi/linux/virtio_ring.h       |  45 +-
->  include/{ => uapi}/linux/virtio_scsi.h | 106 ++---
->  include/uapi/linux/virtio_types.h      |  46 ++
->  tools/virtio/linux/virtio.h            |  22 +-
->  tools/virtio/linux/virtio_config.h     |   2 +-
->  drivers/block/virtio_blk.c             |  74 +--
->  drivers/char/virtio_console.c          |  39 +-
->  drivers/lguest/lguest_device.c         |  17 +-
->  drivers/misc/mic/card/mic_virtio.c     |  14 +-
->  drivers/net/macvtap.c                  |  68 ++-
->  drivers/net/tun.c                      | 168 +++----
->  drivers/net/virtio_net.c               | 161 +++----
->  drivers/remoteproc/remoteproc_virtio.c |  11 +-
->  drivers/s390/kvm/kvm_virtio.c          |  11 +-
->  drivers/s390/kvm/virtio_ccw.c          | 203 +++++++--
->  drivers/scsi/virtio_scsi.c             |  50 +-
->  drivers/vhost/net.c                    |  31 +-
->  drivers/vhost/scsi.c                   |  22 +-
->  drivers/vhost/vhost.c                  |  93 ++--
->  drivers/virtio/virtio.c                | 102 ++++-
->  drivers/virtio/virtio_mmio.c           |  17 +-
->  drivers/virtio/virtio_pci.c            | 802 ---------------------------------
->  drivers/virtio/virtio_pci_common.c     | 464 +++++++++++++++++++
->  drivers/virtio/virtio_pci_legacy.c     | 326 ++++++++++++++
->  drivers/virtio/virtio_ring.c           | 109 +++--
->  net/packet/af_packet.c                 |  35 +-
->  tools/virtio/virtio_test.c             |   5 +-
->  tools/virtio/vringh_test.c             |  16 +-
->  drivers/virtio/Makefile                |   1 +
->  include/uapi/linux/Kbuild              |   2 +
->  40 files changed, 2048 insertions(+), 1428 deletions(-)
->  create mode 100644 drivers/virtio/virtio_pci_common.h
->  create mode 100644 include/linux/virtio_byteorder.h
->  rename include/{ => uapi}/linux/virtio_scsi.h (73%)
->  create mode 100644 include/uapi/linux/virtio_types.h
->  delete mode 100644 drivers/virtio/virtio_pci.c
->  create mode 100644 drivers/virtio/virtio_pci_common.c
->  create mode 100644 drivers/virtio/virtio_pci_legacy.c
+Thomas Huth (3):
+  linux-headers/virtio_config: Update with VIRTIO_F_VERSION_1
+  s390x/css: Add a callback for when subchannel gets disabled
+  s390x/virtio-ccw: add virtio set-revision call
+
+ hw/9pfs/virtio-9p-device.c                    |    4 +-
+ hw/block/dataplane/virtio-blk.c               |    4 +-
+ hw/block/virtio-blk.c                         |   44 +++--
+ hw/char/virtio-serial-bus.c                   |    6 +-
+ hw/core/qdev-properties.c                     |   58 ++++++
+ hw/net/vhost_net.c                            |   12 +-
+ hw/net/virtio-net.c                           |  100 ++++++-----
+ hw/s390x/css.c                                |   12 ++
+ hw/s390x/css.h                                |    1 +
+ hw/s390x/s390-virtio-bus.c                    |    3 +-
+ hw/s390x/s390-virtio-bus.h                    |    2 +-
+ hw/s390x/virtio-ccw.c                         |  234 ++++++++++++++++++-------
+ hw/s390x/virtio-ccw.h                         |   13 +-
+ hw/scsi/vhost-scsi.c                          |    3 +-
+ hw/scsi/virtio-scsi-dataplane.c               |    2 +-
+ hw/scsi/virtio-scsi.c                         |   12 +-
+ hw/virtio/Makefile.objs                       |    2 +-
+ hw/virtio/dataplane/Makefile.objs             |    2 +-
+ hw/virtio/dataplane/vring.c                   |   96 +++++-----
+ hw/virtio/vhost.c                             |   14 +-
+ hw/virtio/virtio-balloon.c                    |    4 +-
+ hw/virtio/virtio-bus.c                        |   24 ++-
+ hw/virtio/virtio-mmio.c                       |    9 +-
+ hw/virtio/virtio-pci.c                        |    7 +-
+ hw/virtio/virtio-pci.h                        |    2 +-
+ hw/virtio/virtio-rng.c                        |    2 +-
+ hw/virtio/virtio.c                            |  120 +++++++++----
+ include/hw/qdev-properties.h                  |   12 ++
+ include/hw/virtio/dataplane/vring-accessors.h |   75 ++++++++
+ include/hw/virtio/dataplane/vring.h           |   14 +-
+ include/hw/virtio/vhost.h                     |    6 +-
+ include/hw/virtio/virtio-access.h             |    4 +
+ include/hw/virtio/virtio-bus.h                |   14 +-
+ include/hw/virtio/virtio-net.h                |   46 ++---
+ include/hw/virtio/virtio-scsi.h               |    6 +-
+ include/hw/virtio/virtio.h                    |   62 +++++--
+ include/net/vhost_net.h                       |    4 +-
+ linux-headers/linux/virtio_config.h           |    3 +
+ 38 files changed, 727 insertions(+), 311 deletions(-)
+ create mode 100644 include/hw/virtio/dataplane/vring-accessors.h
+
+-- 
+1.7.9.5
