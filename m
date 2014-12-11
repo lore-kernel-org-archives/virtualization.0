@@ -1,17 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PULL] virtio: virtio 1.0 support, misc patches
-Date: Fri, 12 Dec 2014 01:45:42 +0200
-Message-ID: <20141211234542.GA9439@redhat.com>
-References: <20141211120248.GA8838@redhat.com>
-	<20141212080705.50988d51@canb.auug.org.au>
-	<20141211220157.GA22618@redhat.com>
-	<20141212102426.187891e9@canb.auug.org.au>
+Subject: Re: [PATCH RFC 3/5] pci: add pci_iomap_range
+Date: Fri, 12 Dec 2014 01:49:36 +0200
+Message-ID: <20141211234936.GB9439@redhat.com>
+References: <1418326570-9541-1-git-send-email-mst@redhat.com>
+	<1418326570-9541-4-git-send-email-mst@redhat.com>
+	<11102634.nzYXXfUH5X@wuerfel>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20141212102426.187891e9@canb.auug.org.au>
+In-Reply-To: <11102634.nzYXXfUH5X@wuerfel>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,46 +20,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: sergei.shtylyov@cogentembedded.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, pbonzini@redhat.com, ben@decadent.org.uk, David Miller <davem@davemloft.net>, thuth@linux.vnet.ibm.com
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Dec 12, 2014 at 10:24:26AM +1100, Stephen Rothwell wrote:
-> Hi Michael,
+On Thu, Dec 11, 2014 at 11:27:54PM +0100, Arnd Bergmann wrote:
+> On Thursday 11 December 2014 21:37:34 Michael S. Tsirkin wrote:
+> >         if (flags & IORESOURCE_MEM) {
+> > -               if (flags & IORESOURCE_CACHEABLE)
+> > +               if (!force_nocache && (flags & IORESOURCE_CACHEABLE))
+> >                         return ioremap(start, len);
+> >                 return ioremap_nocache(start, len);
+> >         }
+> > 
 > 
-> On Fri, 12 Dec 2014 00:01:57 +0200 "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> >
-> > It was on linux next for a while, then I wanted to tweak the commit log
-> > for some messages a bit.
-> > So since I rewrote the history anyway, I went ahead and rebased it
-> > on v3.18, after this rebase it's been in linux-next for several days.
+> ioremap is the same as ioremap_nocache, so this doesn't really make any
+> sense. IORESOURCE_CACHEABLE is practically only set for ROM bars, which
+> we rarely map.
 > 
-> Maybe you think you pushed it into a linux-next included branch (or
-> maybe you think I am fetching a branch that I am not),
+> 	Arnd
 
-Oh.  I thought linux-next is pulling vhost-next, when in fact
-it turns out it's pulling it's own linux-next branch.
+Hmm I think you are right.
+It's an old patch - I think at one point in time we did set it when we
+now set IORESOURCE_PREFETCH.
+I'll drop this parameter.
 
-So it looks like I didn't update that branch in a while - now I see
-why it's a bit so quiet.
-
-It's probably best to keep it at linux-next branch, as it is:
-I've tweaked my push rules to update that branch now, and pushed
-again.
-
-Thanks a lot for letting me know!
-
-
-> but when I look
-> at those commits in my tree (as I fetch Linus' tree into mine) none of
-> them precede any of the next-* tags ...
-> 
-> I am not doubting that these patches have been published and reviewed
-> and tested, all I am saying is that they have not been in linux-next
-> as those commits.
-
-You are right of course.
-
-> -- 
-> Cheers,
-> Stephen Rothwell                    sfr@canb.auug.org.au
+-- 
+MST
