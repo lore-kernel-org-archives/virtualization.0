@@ -1,8 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC v6 12/20] virtio: disallow late feature changes for
-	virtio-1
-Date: Thu, 11 Dec 2014 14:25:14 +0100
-Message-ID: <1418304322-7546-13-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC v6 15/20] virtio-net: no writeable mac for virtio-1
+Date: Thu, 11 Dec 2014 14:25:17 +0100
+Message-ID: <1418304322-7546-16-git-send-email-cornelia.huck@de.ibm.com>
 References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,69 +21,25 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org
 Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-For virtio-1 devices, the driver must not attempt to set feature bits
-after it set FEATURES_OK in the device status. Simply reject it in
-that case.
+Devices operating as virtio 1.0 may not allow writes to the mac
+address in config space.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/virtio/virtio.c         |   16 ++++++++++++++--
- include/hw/virtio/virtio.h |    2 ++
- 2 files changed, 16 insertions(+), 2 deletions(-)
+ hw/net/virtio-net.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/hw/virtio/virtio.c b/hw/virtio/virtio.c
-index 57190ba..a3dd67b 100644
---- a/hw/virtio/virtio.c
-+++ b/hw/virtio/virtio.c
-@@ -978,7 +978,7 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
-     vmstate_save_state(f, &vmstate_virtio, vdev);
- }
+diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
+index d6d1b98..ebbea60 100644
+--- a/hw/net/virtio-net.c
++++ b/hw/net/virtio-net.c
+@@ -87,6 +87,7 @@ static void virtio_net_set_config(VirtIODevice *vdev, const uint8_t *config)
+     memcpy(&netcfg, config, n->config_size);
  
--int virtio_set_features(VirtIODevice *vdev, uint64_t val)
-+static int __virtio_set_features(VirtIODevice *vdev, uint64_t val)
- {
-     BusState *qbus = qdev_get_parent_bus(DEVICE(vdev));
-     VirtioBusClass *vbusk = VIRTIO_BUS_GET_CLASS(qbus);
-@@ -994,6 +994,18 @@ int virtio_set_features(VirtIODevice *vdev, uint64_t val)
-     return bad ? -1 : 0;
- }
- 
-+int virtio_set_features(VirtIODevice *vdev, uint64_t val)
-+{
-+   /*
-+     * The driver must not attempt to set features after feature negotiation
-+     * has finished.
-+     */
-+    if (vdev->status & VIRTIO_CONFIG_S_FEATURES_OK) {
-+        return -EINVAL;
-+    }
-+    return __virtio_set_features(vdev, val);
-+}
-+
- int virtio_load(VirtIODevice *vdev, QEMUFile *f, int version_id)
- {
-     int i, ret;
-@@ -1026,7 +1038,7 @@ int virtio_load(VirtIODevice *vdev, QEMUFile *f, int version_id)
-     qemu_get_be32s(f, &features);
- 
-     /* XXX features >= 32 */
--    if (virtio_set_features(vdev, features) < 0) {
-+    if (__virtio_set_features(vdev, features) < 0) {
-         supported_features = k->get_features(qbus->parent);
-         error_report("Features 0x%x unsupported. Allowed features: 0x%lx",
-                      features, supported_features);
-diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
-index b63ced3..a24e403 100644
---- a/include/hw/virtio/virtio.h
-+++ b/include/hw/virtio/virtio.h
-@@ -32,6 +32,8 @@
- #define VIRTIO_CONFIG_S_DRIVER          2
- /* Driver has used its parts of the config, and is happy */
- #define VIRTIO_CONFIG_S_DRIVER_OK       4
-+/* Driver has finished configuring features */
-+#define VIRTIO_CONFIG_S_FEATURES_OK     8
- /* We've given up on this device. */
- #define VIRTIO_CONFIG_S_FAILED          0x80
- 
+     if (!virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_MAC_ADDR) &&
++        !virtio_has_feature(vdev, VIRTIO_F_VERSION_1) &&
+         memcmp(netcfg.mac, n->mac, ETH_ALEN)) {
+         memcpy(n->mac, netcfg.mac, ETH_ALEN);
+         qemu_format_nic_info_str(qemu_get_queue(n->nic), n->mac);
 -- 
 1.7.9.5
