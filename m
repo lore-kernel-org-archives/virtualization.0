@@ -1,7 +1,8 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC v6 11/20] s390x/virtio-ccw: support virtio-1 set_vq format
-Date: Thu, 11 Dec 2014 14:25:13 +0100
-Message-ID: <1418304322-7546-12-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC v6 09/20] s390x/css: Add a callback for when subchannel
+	gets disabled
+Date: Thu, 11 Dec 2014 14:25:11 +0100
+Message-ID: <1418304322-7546-10-git-send-email-cornelia.huck@de.ibm.com>
 References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,184 +22,73 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org
 Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Support the new CCW_CMD_SET_VQ format for virtio-1 devices.
+From: Thomas Huth <thuth@linux.vnet.ibm.com>
 
-While we're at it, refactor the code a bit and enforce big endian
-fields (which had always been required, even for legacy).
+We need a possibility to run code when a subchannel gets disabled.
+This patch adds the necessary infrastructure.
 
-Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/s390x/virtio-ccw.c |  114 ++++++++++++++++++++++++++++++++++---------------
- 1 file changed, 80 insertions(+), 34 deletions(-)
+ hw/s390x/css.c |   12 ++++++++++++
+ hw/s390x/css.h |    1 +
+ 2 files changed, 13 insertions(+)
 
-diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
-index ea2c6f0..e09e0da 100644
---- a/hw/s390x/virtio-ccw.c
-+++ b/hw/s390x/virtio-ccw.c
-@@ -238,11 +238,20 @@ VirtualCssBus *virtual_css_bus_init(void)
- }
- 
- /* Communication blocks used by several channel commands. */
--typedef struct VqInfoBlock {
-+typedef struct VqInfoBlockLegacy {
-     uint64_t queue;
-     uint32_t align;
-     uint16_t index;
-     uint16_t num;
-+} QEMU_PACKED VqInfoBlockLegacy;
-+
-+typedef struct VqInfoBlock {
-+    uint64_t desc;
-+    uint32_t res0;
-+    uint16_t index;
-+    uint16_t num;
-+    uint64_t avail;
-+    uint64_t used;
- } QEMU_PACKED VqInfoBlock;
- 
- typedef struct VqConfigBlock {
-@@ -269,17 +278,20 @@ typedef struct VirtioRevInfo {
- } QEMU_PACKED VirtioRevInfo;
- 
- /* Specify where the virtqueues for the subchannel are in guest memory. */
--static int virtio_ccw_set_vqs(SubchDev *sch, uint64_t addr, uint32_t align,
--                              uint16_t index, uint16_t num)
-+static int virtio_ccw_set_vqs(SubchDev *sch, VqInfoBlock *info,
-+                              VqInfoBlockLegacy *linfo)
+diff --git a/hw/s390x/css.c b/hw/s390x/css.c
+index b67c039..735ec55 100644
+--- a/hw/s390x/css.c
++++ b/hw/s390x/css.c
+@@ -588,6 +588,7 @@ int css_do_msch(SubchDev *sch, SCHIB *orig_schib)
  {
-     VirtIODevice *vdev = virtio_ccw_get_vdev(sch);
-+    uint16_t index = info ? info->index : linfo->index;
-+    uint16_t num = info ? info->num : linfo->num;
-+    uint64_t desc = info ? info->desc : linfo->queue;
- 
-     if (index > VIRTIO_PCI_QUEUE_MAX) {
-         return -EINVAL;
-     }
- 
-     /* Current code in virtio.c relies on 4K alignment. */
--    if (addr && (align != 4096)) {
-+    if (linfo && desc && (linfo->align != 4096)) {
-         return -EINVAL;
-     }
- 
-@@ -287,8 +299,12 @@ static int virtio_ccw_set_vqs(SubchDev *sch, uint64_t addr, uint32_t align,
-         return -EINVAL;
-     }
- 
--    virtio_queue_set_addr(vdev, index, addr);
--    if (!addr) {
-+    if (info) {
-+        virtio_queue_set_rings(vdev, index, desc, info->avail, info->used);
-+    } else {
-+        virtio_queue_set_addr(vdev, index, desc);
-+    }
-+    if (!desc) {
-         virtio_queue_set_vector(vdev, index, 0);
-     } else {
-         /* Fail if we don't have a big enough queue. */
-@@ -303,10 +319,66 @@ static int virtio_ccw_set_vqs(SubchDev *sch, uint64_t addr, uint32_t align,
-     return 0;
- }
- 
--static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
-+static int virtio_ccw_handle_set_vq(SubchDev *sch, CCW1 ccw, bool check_len,
-+                                    bool is_legacy)
- {
+     SCSW *s = &sch->curr_status.scsw;
+     PMCW *p = &sch->curr_status.pmcw;
++    uint16_t oldflags;
      int ret;
-     VqInfoBlock info;
-+    VqInfoBlockLegacy linfo;
-+    size_t info_len = is_legacy ? sizeof(linfo) : sizeof(info);
+     SCHIB schib;
+ 
+@@ -610,6 +611,7 @@ int css_do_msch(SubchDev *sch, SCHIB *orig_schib)
+     copy_schib_from_guest(&schib, orig_schib);
+     /* Only update the program-modifiable fields. */
+     p->intparm = schib.pmcw.intparm;
++    oldflags = p->flags;
+     p->flags &= ~(PMCW_FLAGS_MASK_ISC | PMCW_FLAGS_MASK_ENA |
+                   PMCW_FLAGS_MASK_LM | PMCW_FLAGS_MASK_MME |
+                   PMCW_FLAGS_MASK_MP);
+@@ -625,6 +627,12 @@ int css_do_msch(SubchDev *sch, SCHIB *orig_schib)
+             (PMCW_CHARS_MASK_MBFC | PMCW_CHARS_MASK_CSENSE);
+     sch->curr_status.mba = schib.mba;
+ 
++    /* Has the channel been disabled? */
++    if (sch->disable_cb && (oldflags & PMCW_FLAGS_MASK_ENA) != 0
++        && (p->flags & PMCW_FLAGS_MASK_ENA) == 0) {
++        sch->disable_cb(sch);
++    }
 +
-+    if (check_len) {
-+        if (ccw.count != info_len) {
-+            return -EINVAL;
-+        }
-+    } else if (ccw.count < info_len) {
-+        /* Can't execute command. */
-+        return -EINVAL;
+     ret = 0;
+ 
+ out:
+@@ -1443,6 +1451,10 @@ void css_reset_sch(SubchDev *sch)
+ {
+     PMCW *p = &sch->curr_status.pmcw;
+ 
++    if ((p->flags & PMCW_FLAGS_MASK_ENA) != 0 && sch->disable_cb) {
++        sch->disable_cb(sch);
 +    }
-+    if (!ccw.cda) {
-+        return -EFAULT;
-+    }
-+    if (is_legacy) {
-+        linfo.queue = ldq_be_phys(&address_space_memory, ccw.cda);
-+        linfo.align = ldl_be_phys(&address_space_memory,
-+                                  ccw.cda + sizeof(linfo.queue));
-+        linfo.index = lduw_be_phys(&address_space_memory,
-+                                   ccw.cda + sizeof(linfo.queue)
-+                                   + sizeof(linfo.align));
-+        linfo.num = lduw_be_phys(&address_space_memory,
-+                                 ccw.cda + sizeof(linfo.queue)
-+                                 + sizeof(linfo.align)
-+                                 + sizeof(linfo.index));
-+        ret = virtio_ccw_set_vqs(sch, NULL, &linfo);
-+    } else {
-+        info.desc = ldq_be_phys(&address_space_memory, ccw.cda);
-+        info.index = lduw_be_phys(&address_space_memory,
-+                                  ccw.cda + sizeof(info.desc)
-+                                  + sizeof(info.res0));
-+        info.num = lduw_be_phys(&address_space_memory,
-+                                ccw.cda + sizeof(info.desc)
-+                              + sizeof(info.res0)
-+                              + sizeof(info.index));
-+        info.avail = ldq_be_phys(&address_space_memory,
-+                                 ccw.cda + sizeof(info.desc)
-+                                 + sizeof(info.res0)
-+                                 + sizeof(info.index)
-+                                 + sizeof(info.num));
-+        info.used = ldq_be_phys(&address_space_memory,
-+                                ccw.cda + sizeof(info.desc)
-+                                + sizeof(info.res0)
-+                                + sizeof(info.index)
-+                                + sizeof(info.num)
-+                                + sizeof(info.avail));
-+        ret = virtio_ccw_set_vqs(sch, &info, NULL);
-+    }
-+    sch->curr_status.scsw.count = 0;
-+    return ret;
-+}
 +
-+static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
-+{
-+    int ret;
-     VirtioRevInfo revinfo;
-     uint8_t status;
-     VirtioFeatDesc features;
-@@ -331,33 +403,7 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
-     /* Look at the command. */
-     switch (ccw.cmd_code) {
-     case CCW_CMD_SET_VQ:
--        if (check_len) {
--            if (ccw.count != sizeof(info)) {
--                ret = -EINVAL;
--                break;
--            }
--        } else if (ccw.count < sizeof(info)) {
--            /* Can't execute command. */
--            ret = -EINVAL;
--            break;
--        }
--        if (!ccw.cda) {
--            ret = -EFAULT;
--        } else {
--            info.queue = ldq_phys(&address_space_memory, ccw.cda);
--            info.align = ldl_phys(&address_space_memory,
--                                  ccw.cda + sizeof(info.queue));
--            info.index = lduw_phys(&address_space_memory,
--                                   ccw.cda + sizeof(info.queue)
--                                   + sizeof(info.align));
--            info.num = lduw_phys(&address_space_memory,
--                                 ccw.cda + sizeof(info.queue)
--                                 + sizeof(info.align)
--                                 + sizeof(info.index));
--            ret = virtio_ccw_set_vqs(sch, info.queue, info.align, info.index,
--                                     info.num);
--            sch->curr_status.scsw.count = 0;
--        }
-+        ret = virtio_ccw_handle_set_vq(sch, ccw, check_len, dev->revision < 1);
-         break;
-     case CCW_CMD_VDEV_RESET:
-         virtio_ccw_stop_ioeventfd(dev);
+     p->intparm = 0;
+     p->flags &= ~(PMCW_FLAGS_MASK_ISC | PMCW_FLAGS_MASK_ENA |
+                   PMCW_FLAGS_MASK_LM | PMCW_FLAGS_MASK_MME |
+diff --git a/hw/s390x/css.h b/hw/s390x/css.h
+index 33104ac..7fa807b 100644
+--- a/hw/s390x/css.h
++++ b/hw/s390x/css.h
+@@ -81,6 +81,7 @@ struct SubchDev {
+     uint8_t ccw_no_data_cnt;
+     /* transport-provided data: */
+     int (*ccw_cb) (SubchDev *, CCW1);
++    void (*disable_cb)(SubchDev *);
+     SenseId id;
+     void *driver_data;
+ };
 -- 
 1.7.9.5
