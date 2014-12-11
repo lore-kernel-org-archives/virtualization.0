@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC v6 18/20] virtio: support revision-specific features
-Date: Thu, 11 Dec 2014 14:25:20 +0100
-Message-ID: <1418304322-7546-19-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC v6 20/20] vhost: 64 bit features
+Date: Thu, 11 Dec 2014 14:25:22 +0100
+Message-ID: <1418304322-7546-21-git-send-email-cornelia.huck@de.ibm.com>
 References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,118 +21,152 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org
 Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Devices may support different sets of feature bits depending on which
-revision they're operating at. Let's give the transport a way to
-re-query the device about its features when the revision has been
-changed.
+Make sure that all vhost interfaces use 64 bit features, as the virtio
+core does, and make sure to use ULL everywhere possible to be on the
+safe side.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/s390x/virtio-ccw.c          |   12 ++++++++++--
- hw/virtio/virtio-bus.c         |   14 ++++++++++++--
- include/hw/virtio/virtio-bus.h |    3 +++
- include/hw/virtio/virtio.h     |    3 +++
- 4 files changed, 28 insertions(+), 4 deletions(-)
+ hw/net/vhost_net.c        |   12 ++++++------
+ hw/virtio/vhost.c         |   14 +++++++-------
+ include/hw/virtio/vhost.h |    6 +++---
+ include/net/vhost_net.h   |    4 ++--
+ 4 files changed, 18 insertions(+), 18 deletions(-)
 
-diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
-index a55e851..8b6b2ab 100644
---- a/hw/s390x/virtio-ccw.c
-+++ b/hw/s390x/virtio-ccw.c
-@@ -699,6 +699,10 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
+diff --git a/hw/net/vhost_net.c b/hw/net/vhost_net.c
+index 4e3a061..a6d4ef2 100644
+--- a/hw/net/vhost_net.c
++++ b/hw/net/vhost_net.c
+@@ -107,13 +107,13 @@ static const int *vhost_net_get_feature_bits(struct vhost_net *net)
+     return feature_bits;
+ }
+ 
+-unsigned vhost_net_get_features(struct vhost_net *net, unsigned features)
++uint64_t vhost_net_get_features(struct vhost_net *net, uint64_t features)
+ {
+     return vhost_get_features(&net->dev, vhost_net_get_feature_bits(net),
+             features);
+ }
+ 
+-void vhost_net_ack_features(struct vhost_net *net, unsigned features)
++void vhost_net_ack_features(struct vhost_net *net, uint64_t features)
+ {
+     net->dev.acked_features = net->dev.backend_features;
+     vhost_ack_features(&net->dev, vhost_net_get_feature_bits(net), features);
+@@ -147,7 +147,7 @@ struct vhost_net *vhost_net_init(VhostNetOptions *options)
+             goto fail;
          }
-         ret = 0;
-         dev->revision = revinfo.revision;
-+        /* Re-evaluate which features the device wants to offer. */
-+        dev->host_features =
-+            virtio_bus_get_vdev_features_rev(&dev->bus, dev->host_features,
-+                                             dev->revision >= 1 ? 1 : 0);
-         break;
-     default:
-         ret = -ENOSYS;
-@@ -712,6 +716,9 @@ static void virtio_sch_disable_cb(SubchDev *sch)
-     VirtioCcwDevice *dev = sch->driver_data;
- 
-     dev->revision = -1;
-+    /* Reset the device's features to legacy. */
-+    dev->host_features =
-+        virtio_bus_get_vdev_features_rev(&dev->bus, dev->host_features, 0);
- }
- 
- static int virtio_ccw_device_init(VirtioCcwDevice *dev, VirtIODevice *vdev)
-@@ -853,8 +860,9 @@ static int virtio_ccw_device_init(VirtioCcwDevice *dev, VirtIODevice *vdev)
-     virtio_add_feature(&dev->host_features, VIRTIO_F_NOTIFY_ON_EMPTY);
-     virtio_add_feature(&dev->host_features, VIRTIO_F_BAD_FEATURE);
- 
--    dev->host_features = virtio_bus_get_vdev_features(&dev->bus,
--                                                      dev->host_features);
-+    /* All devices start in legacy mode. */
-+    dev->host_features =
-+        virtio_bus_get_vdev_features_rev(&dev->bus, dev->host_features, 0);
- 
-     css_generate_sch_crws(sch->cssid, sch->ssid, sch->schid,
-                           parent->hotplugged, 1);
-diff --git a/hw/virtio/virtio-bus.c b/hw/virtio/virtio-bus.c
-index 32e3fab..a30826c 100644
---- a/hw/virtio/virtio-bus.c
-+++ b/hw/virtio/virtio-bus.c
-@@ -97,18 +97,28 @@ size_t virtio_bus_get_vdev_config_len(VirtioBusState *bus)
- }
- 
- /* Get the features of the plugged device. */
--uint64_t virtio_bus_get_vdev_features(VirtioBusState *bus,
--                                      uint64_t requested_features)
-+uint64_t virtio_bus_get_vdev_features_rev(VirtioBusState *bus,
-+                                          uint64_t requested_features,
-+                                          unsigned int revision)
+         net->dev.backend_features = qemu_has_vnet_hdr(options->net_backend)
+-            ? 0 : (1 << VHOST_NET_F_VIRTIO_NET_HDR);
++            ? 0 : (1ULL << VHOST_NET_F_VIRTIO_NET_HDR);
+         net->backend = r;
+     } else {
+         net->dev.backend_features = 0;
+@@ -166,7 +166,7 @@ struct vhost_net *vhost_net_init(VhostNetOptions *options)
+     if (backend_kernel) {
+         if (!qemu_has_vnet_hdr_len(options->net_backend,
+                                sizeof(struct virtio_net_hdr_mrg_rxbuf))) {
+-            net->dev.features &= ~(1 << VIRTIO_NET_F_MRG_RXBUF);
++            net->dev.features &= ~(1ULL << VIRTIO_NET_F_MRG_RXBUF);
+         }
+         if (~net->dev.features & net->dev.backend_features) {
+             fprintf(stderr, "vhost lacks feature mask %" PRIu64
+@@ -423,11 +423,11 @@ void vhost_net_cleanup(struct vhost_net *net)
  {
-     VirtIODevice *vdev = virtio_bus_get_device(bus);
-     VirtioDeviceClass *k;
- 
-     assert(vdev != NULL);
-     k = VIRTIO_DEVICE_GET_CLASS(vdev);
-+    if (revision > 0 && k->get_features_rev) {
-+        return k->get_features_rev(vdev, requested_features, revision);
-+    }
-     assert(k->get_features != NULL);
-     return k->get_features(vdev, requested_features);
  }
  
-+uint64_t virtio_bus_get_vdev_features(VirtioBusState *bus,
-+                                      uint64_t requested_features)
-+{
-+    return virtio_bus_get_vdev_features_rev(bus, requested_features, 0);
-+}
-+
- /* Get bad features of the plugged device. */
- uint64_t virtio_bus_get_vdev_bad_features(VirtioBusState *bus)
+-unsigned vhost_net_get_features(struct vhost_net *net, unsigned features)
++uint64_t vhost_net_get_features(struct vhost_net *net, uint64_t features)
  {
-diff --git a/include/hw/virtio/virtio-bus.h b/include/hw/virtio/virtio-bus.h
-index 0a4dde1..f0916ef 100644
---- a/include/hw/virtio/virtio-bus.h
-+++ b/include/hw/virtio/virtio-bus.h
-@@ -84,6 +84,9 @@ size_t virtio_bus_get_vdev_config_len(VirtioBusState *bus);
- /* Get the features of the plugged device. */
- uint64_t virtio_bus_get_vdev_features(VirtioBusState *bus,
-                                       uint64_t requested_features);
-+uint64_t virtio_bus_get_vdev_features_rev(VirtioBusState *bus,
-+                                          uint64_t requested_features,
-+                                          unsigned int revision);
- /* Get bad features of the plugged device. */
- uint64_t virtio_bus_get_vdev_bad_features(VirtioBusState *bus);
- /* Get config of the plugged device. */
-diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
-index 068211e..1338540 100644
---- a/include/hw/virtio/virtio.h
-+++ b/include/hw/virtio/virtio.h
-@@ -147,6 +147,9 @@ typedef struct VirtioDeviceClass {
-     DeviceRealize realize;
-     DeviceUnrealize unrealize;
-     uint64_t (*get_features)(VirtIODevice *vdev, uint64_t requested_features);
-+    uint64_t (*get_features_rev)(VirtIODevice *vdev,
-+                                 uint64_t requested_features,
-+                                 unsigned int revision);
-     uint64_t (*bad_features)(VirtIODevice *vdev);
-     void (*set_features)(VirtIODevice *vdev, uint64_t val);
-     int (*validate_features)(VirtIODevice *vdev);
+     return features;
+ }
+-void vhost_net_ack_features(struct vhost_net *net, unsigned features)
++void vhost_net_ack_features(struct vhost_net *net, uint64_t features)
+ {
+ }
+ 
+diff --git a/hw/virtio/vhost.c b/hw/virtio/vhost.c
+index 5a12861..9e6e9cc 100644
+--- a/hw/virtio/vhost.c
++++ b/hw/virtio/vhost.c
+@@ -551,7 +551,7 @@ static int vhost_dev_set_features(struct vhost_dev *dev, bool enable_log)
+     uint64_t features = dev->acked_features;
+     int r;
+     if (enable_log) {
+-        features |= 0x1 << VHOST_F_LOG_ALL;
++        features |= 0x1ULL << VHOST_F_LOG_ALL;
+     }
+     r = dev->vhost_ops->vhost_call(dev, VHOST_SET_FEATURES, &features);
+     return r < 0 ? -errno : 0;
+@@ -860,7 +860,7 @@ int vhost_dev_init(struct vhost_dev *hdev, void *opaque,
+         .priority = 10
+     };
+     hdev->migration_blocker = NULL;
+-    if (!(hdev->features & (0x1 << VHOST_F_LOG_ALL))) {
++    if (!(hdev->features & (0x1ULL << VHOST_F_LOG_ALL))) {
+         error_setg(&hdev->migration_blocker,
+                    "Migration disabled: vhost lacks VHOST_F_LOG_ALL feature.");
+         migrate_add_blocker(hdev->migration_blocker);
+@@ -1003,12 +1003,12 @@ void vhost_virtqueue_mask(struct vhost_dev *hdev, VirtIODevice *vdev, int n,
+     assert(r >= 0);
+ }
+ 
+-unsigned vhost_get_features(struct vhost_dev *hdev, const int *feature_bits,
+-        unsigned features)
++uint64_t vhost_get_features(struct vhost_dev *hdev, const int *feature_bits,
++                            uint64_t features)
+ {
+     const int *bit = feature_bits;
+     while (*bit != VHOST_INVALID_FEATURE_BIT) {
+-        unsigned bit_mask = (1 << *bit);
++        uint64_t bit_mask = (1ULL << *bit);
+         if (!(hdev->features & bit_mask)) {
+             features &= ~bit_mask;
+         }
+@@ -1018,11 +1018,11 @@ unsigned vhost_get_features(struct vhost_dev *hdev, const int *feature_bits,
+ }
+ 
+ void vhost_ack_features(struct vhost_dev *hdev, const int *feature_bits,
+-        unsigned features)
++                        uint64_t features)
+ {
+     const int *bit = feature_bits;
+     while (*bit != VHOST_INVALID_FEATURE_BIT) {
+-        unsigned bit_mask = (1 << *bit);
++        uint64_t bit_mask = (1ULL << *bit);
+         if (features & bit_mask) {
+             hdev->acked_features |= bit_mask;
+         }
+diff --git a/include/hw/virtio/vhost.h b/include/hw/virtio/vhost.h
+index d5593d1..71ef18f 100644
+--- a/include/hw/virtio/vhost.h
++++ b/include/hw/virtio/vhost.h
+@@ -72,8 +72,8 @@ bool vhost_virtqueue_pending(struct vhost_dev *hdev, int n);
+  */
+ void vhost_virtqueue_mask(struct vhost_dev *hdev, VirtIODevice *vdev, int n,
+                           bool mask);
+-unsigned vhost_get_features(struct vhost_dev *hdev, const int *feature_bits,
+-        unsigned features);
++uint64_t vhost_get_features(struct vhost_dev *hdev, const int *feature_bits,
++                            uint64_t features);
+ void vhost_ack_features(struct vhost_dev *hdev, const int *feature_bits,
+-        unsigned features);
++                        uint64_t features);
+ #endif
+diff --git a/include/net/vhost_net.h b/include/net/vhost_net.h
+index b1c18a3..9eb493e 100644
+--- a/include/net/vhost_net.h
++++ b/include/net/vhost_net.h
+@@ -22,8 +22,8 @@ void vhost_net_stop(VirtIODevice *dev, NetClientState *ncs, int total_queues);
+ 
+ void vhost_net_cleanup(VHostNetState *net);
+ 
+-unsigned vhost_net_get_features(VHostNetState *net, unsigned features);
+-void vhost_net_ack_features(VHostNetState *net, unsigned features);
++uint64_t vhost_net_get_features(VHostNetState *net, uint64_t features);
++void vhost_net_ack_features(VHostNetState *net, uint64_t features);
+ 
+ bool vhost_net_virtqueue_pending(VHostNetState *net, int n);
+ void vhost_net_virtqueue_mask(VHostNetState *net, VirtIODevice *dev,
 -- 
 1.7.9.5
