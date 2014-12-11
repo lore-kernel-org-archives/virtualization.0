@@ -1,14 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC 3/5] pci: add pci_iomap_range
-Date: Thu, 11 Dec 2014 21:37:34 +0200
-Message-ID: <1418326570-9541-4-git-send-email-mst__12489.7077832886$1418326714$gmane$org@redhat.com>
-References: <1418326570-9541-1-git-send-email-mst@redhat.com>
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: Re: [PULL] virtio: virtio 1.0 support, misc patches
+Date: Fri, 12 Dec 2014 08:07:05 +1100
+Message-ID: <20141212080705.50988d51__27136.0114952133$1418332611$gmane$org@canb.auug.org.au>
+References: <20141211120248.GA8838@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8004044816824391045=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1418326570-9541-1-git-send-email-mst@redhat.com>
+In-Reply-To: <20141211120248.GA8838@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,122 +16,83 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Michael S Tsirkin <mst@redhat.com>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: sergei.shtylyov@cogentembedded.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, pbonzini@redhat.com, ben@decadent.org.uk, David Miller <davem@davemloft.net>, thuth@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Michael S Tsirkin <mst@redhat.com>
+--===============8004044816824391045==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/K9fC0KHvcIpbf2=o17AahMp"; protocol="application/pgp-signature"
 
-Virtio drivers should map the part of the range they need, not necessarily
-all of it. They also need non-cacheable mapping even for
-prefetchable BARs.
+--Sig_/K9fC0KHvcIpbf2=o17AahMp
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
----
- include/asm-generic/pci_iomap.h |  5 +++++
- lib/pci_iomap.c                 | 46 +++++++++++++++++++++++++++++++++++------
- 2 files changed, 45 insertions(+), 6 deletions(-)
+Hi Michael,
 
-diff --git a/include/asm-generic/pci_iomap.h b/include/asm-generic/pci_iomap.h
-index ce37349..8777331 100644
---- a/include/asm-generic/pci_iomap.h
-+++ b/include/asm-generic/pci_iomap.h
-@@ -15,6 +15,11 @@ struct pci_dev;
- #ifdef CONFIG_PCI
- /* Create a virtual mapping cookie for a PCI BAR (memory or IO) */
- extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
-+extern void __iomem *pci_iomap_range(struct pci_dev *dev, int bar,
-+				     unsigned offset,
-+				     unsigned long minlen,
-+				     unsigned long maxlen,
-+				     bool force_nocache);
- /* Create a virtual mapping cookie for a port on a given PCI device.
-  * Do not call this directly, it exists to make it easier for architectures
-  * to override */
-diff --git a/lib/pci_iomap.c b/lib/pci_iomap.c
-index 0d83ea8..1ac4def 100644
---- a/lib/pci_iomap.c
-+++ b/lib/pci_iomap.c
-@@ -10,33 +10,47 @@
- 
- #ifdef CONFIG_PCI
- /**
-- * pci_iomap - create a virtual mapping cookie for a PCI BAR
-+ * pci_iomap_range - create a virtual mapping cookie for a PCI BAR
-  * @dev: PCI device that owns the BAR
-  * @bar: BAR number
-- * @maxlen: length of the memory to map
-+ * @offset: map memory at the given offset in BAR
-+ * @minlen: min length of the memory to map
-+ * @maxlen: max length of the memory to map
-  *
-  * Using this function you will get a __iomem address to your device BAR.
-  * You can access it using ioread*() and iowrite*(). These functions hide
-  * the details if this is a MMIO or PIO address space and will just do what
-  * you expect from them in the correct way.
-  *
-+ * @minlen specifies the minimum length to map. We check that BAR is
-+ * large enough.
-  * @maxlen specifies the maximum length to map. If you want to get access to
-- * the complete BAR without checking for its length first, pass %0 here.
-+ * the complete BAR from offset to the end, pass %0 here.
-+ * @force_nocache makes the mapping noncacheable even if the BAR
-+ * is prefetcheable. It has no effect otherwise.
-  * */
--void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
-+void __iomem *pci_iomap_range(struct pci_dev *dev, int bar,
-+			      unsigned offset,
-+			      unsigned long minlen,
-+			      unsigned long maxlen,
-+			      bool force_nocache)
- {
- 	resource_size_t start = pci_resource_start(dev, bar);
- 	resource_size_t len = pci_resource_len(dev, bar);
- 	unsigned long flags = pci_resource_flags(dev, bar);
- 
--	if (!len || !start)
-+	if (len <= offset || !start)
-+		return NULL;
-+	len -= offset;
-+	start += offset;
-+	if (len < minlen)
- 		return NULL;
- 	if (maxlen && len > maxlen)
- 		len = maxlen;
- 	if (flags & IORESOURCE_IO)
- 		return __pci_ioport_map(dev, start, len);
- 	if (flags & IORESOURCE_MEM) {
--		if (flags & IORESOURCE_CACHEABLE)
-+		if (!force_nocache && (flags & IORESOURCE_CACHEABLE))
- 			return ioremap(start, len);
- 		return ioremap_nocache(start, len);
- 	}
-@@ -44,5 +58,25 @@ void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
- 	return NULL;
- }
- 
-+/**
-+ * pci_iomap - create a virtual mapping cookie for a PCI BAR
-+ * @dev: PCI device that owns the BAR
-+ * @bar: BAR number
-+ * @maxlen: length of the memory to map
-+ *
-+ * Using this function you will get a __iomem address to your device BAR.
-+ * You can access it using ioread*() and iowrite*(). These functions hide
-+ * the details if this is a MMIO or PIO address space and will just do what
-+ * you expect from them in the correct way.
-+ *
-+ * @maxlen specifies the maximum length to map. If you want to get access to
-+ * the complete BAR without checking for its length first, pass %0 here.
-+ * */
-+void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
-+{
-+	return pci_iomap_range(dev, bar, 0, 0, maxlen, false);
-+}
-+
- EXPORT_SYMBOL(pci_iomap);
-+EXPORT_SYMBOL(pci_iomap_range);
- #endif /* CONFIG_PCI */
--- 
-MST
+On Thu, 11 Dec 2014 14:02:48 +0200 "Michael S. Tsirkin" <mst@redhat.com> wr=
+ote:
+>
+> The following changes since commit b2776bf7149bddd1f4161f14f79520f17fc1d7=
+1d:
+>=20
+>   Linux 3.18 (2014-12-07 14:21:05 -0800)
+
+hmmm ...
+
+> are available in the git repository at:
+>=20
+>   git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_li=
+nus
+>=20
+> for you to fetch changes up to 803cd18f7b5e6c7ad6bee9571ae8f4450190ab58:
+>=20
+>   virtio_ccw: finalize_features error handling (2014-12-09 16:32:41 +0200)
+>=20
+> Note: some net drivers are affected by these patches.
+> David said he's fine with merging these patches through
+> my tree.
+> Rusty's on vacation, he acked using my tree for these, too.
+
+So, either none of this has been in linux-next or you have just rebased
+it all on top of v3.18 ...
+
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+
+--Sig_/K9fC0KHvcIpbf2=o17AahMp
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJUigeDAAoJEMDTa8Ir7ZwVFkYP+wVmpS11lWSvfW4+liWEEuQs
+sYmWmb2TrJ+A/7t7PgXihGm0mSC8XO4gHJnb/fgEeHgU5+WKE5EwAWiw94QukW//
+gCJma8DbVopAjpNya1XmOxILvfMCVC3wjyqD0n/jsBtys3BtarnD0G+cKTceVJ57
+4zwckdh6LKn7T077ygKOaiw7jLe94fy29hHHt9nKmAFiJxP5UvqOGQ9760H7R3/h
+Sfn4nkMkSU9Qq+EavQEaZSCPPOyzGbGwrC42esxnSfIt4DHAX7jkAvZA0YzjTaN0
+M1Dyis56ZUcu62GWACEv9RDmnAonsA3V4It2nUHQaq4zK3lUiLeKMJoJ0IOoF/P9
+WBMmtf6vhi4DTEOYjYxAqpoaM04F2+l9qEk1xBm+daj3tncLp2gOFXOS2aCP83Vj
+jjwkBlsdsdZqDx9MnnbpxBImGpO+EXAq5IFgiW1qvdPLh8r8U1CHnFX83fCTzURk
+ONbSgjxiZogLDNKkt15SdwQ7UKgVMwSk1y2Ve7bWTHPOfY3bW1faE37qjGAfmTsg
+3ypUrZuaH7K1SPu89Kia+0vh/FKFoIv7YAsLXG8D4xv380xgY8ZPyZBoyB3+p4Bd
+fLwQ/4qUmVT4dI3msvUNheB4HlD2/RS6hxR1ccBF2TIOPNY1xgLZc3JAW2ztmcZP
+bvfRfmRpwl8O9GPEqZjE
+=+iNT
+-----END PGP SIGNATURE-----
+
+--Sig_/K9fC0KHvcIpbf2=o17AahMp--
+
+--===============8004044816824391045==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8004044816824391045==--
