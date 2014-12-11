@@ -1,14 +1,14 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH 1/3] virtio: set VIRTIO_CONFIG_S_FEATURES_OK on restore
-Date: Thu, 11 Dec 2014 18:23:34 +0100
-Message-ID: <20141211182334.2ac1897b.cornelia.huck@de.ibm.com>
-References: <1418317279-13915-1-git-send-email-mst@redhat.com>
-	<1418317279-13915-2-git-send-email-mst@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 0/3] minor virtio 1.0 fixups
+Date: Thu, 11 Dec 2014 19:01:27 +0200
+Message-ID: <1418317279-13915-1-git-send-email-mst__3063.19049927897$1418318978$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1418317279-13915-2-git-send-email-mst@redhat.com>
+Resent-Message-ID: <20141211170242.GA13991@redhat.com>
+Resent-To: virtualization@lists.linux-foundation.org
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,20 +18,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.or
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 11 Dec 2014 19:01:31 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+Here are some fixup patches on top of my latest pull request.
+Will include in the next pull request.
 
-> virtio 1.0 devices require that drivers set VIRTIO_CONFIG_S_FEATURES_OK
-> after finalizing features.
-> virtio core missed doing this on restore, fix it up.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/virtio/virtio.c | 37 +++++++++++++++++++++++--------------
->  1 file changed, 23 insertions(+), 14 deletions(-)
+Michael S. Tsirkin (3):
+  virtio: set VIRTIO_CONFIG_S_FEATURES_OK on restore
+  virtio_config: fix virtio_cread_bytes
+  virtio_pci_common.h: drop VIRTIO_PCI_NO_LEGACY
 
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+ drivers/virtio/virtio_pci_common.h |  1 -
+ include/linux/virtio_config.h      |  5 ++++-
+ drivers/virtio/virtio.c            | 37 +++++++++++++++++++++++--------------
+ 3 files changed, 27 insertions(+), 16 deletions(-)
+
+-- 
+MST
