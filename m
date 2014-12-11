@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC v6 19/20] virtio-blk: revision specific feature bits
-Date: Thu, 11 Dec 2014 14:25:21 +0100
-Message-ID: <1418304322-7546-20-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC v6 18/20] virtio: support revision-specific features
+Date: Thu, 11 Dec 2014 14:25:20 +0100
+Message-ID: <1418304322-7546-19-git-send-email-cornelia.huck@de.ibm.com>
 References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,52 +21,118 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org
 Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Wire up virtio-blk to provide different feature bit sets depending
-on whether legacy or v1.0 has been requested.
-
-Note that VERSION_1 is still disabled due to missing ANY_LAYOUT support.
+Devices may support different sets of feature bits depending on which
+revision they're operating at. Let's give the transport a way to
+re-query the device about its features when the revision has been
+changed.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/block/virtio-blk.c |   19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ hw/s390x/virtio-ccw.c          |   12 ++++++++++--
+ hw/virtio/virtio-bus.c         |   14 ++++++++++++--
+ include/hw/virtio/virtio-bus.h |    3 +++
+ include/hw/virtio/virtio.h     |    3 +++
+ 4 files changed, 28 insertions(+), 4 deletions(-)
 
-diff --git a/hw/block/virtio-blk.c b/hw/block/virtio-blk.c
-index 9cfae66..fdc236a 100644
---- a/hw/block/virtio-blk.c
-+++ b/hw/block/virtio-blk.c
-@@ -587,6 +587,24 @@ static uint64_t virtio_blk_get_features(VirtIODevice *vdev, uint64_t features)
-     return features;
+diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
+index a55e851..8b6b2ab 100644
+--- a/hw/s390x/virtio-ccw.c
++++ b/hw/s390x/virtio-ccw.c
+@@ -699,6 +699,10 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
+         }
+         ret = 0;
+         dev->revision = revinfo.revision;
++        /* Re-evaluate which features the device wants to offer. */
++        dev->host_features =
++            virtio_bus_get_vdev_features_rev(&dev->bus, dev->host_features,
++                                             dev->revision >= 1 ? 1 : 0);
+         break;
+     default:
+         ret = -ENOSYS;
+@@ -712,6 +716,9 @@ static void virtio_sch_disable_cb(SubchDev *sch)
+     VirtioCcwDevice *dev = sch->driver_data;
+ 
+     dev->revision = -1;
++    /* Reset the device's features to legacy. */
++    dev->host_features =
++        virtio_bus_get_vdev_features_rev(&dev->bus, dev->host_features, 0);
  }
  
-+static uint64_t virtio_blk_get_features_rev(VirtIODevice *vdev,
-+                                            uint64_t features,
-+                                            unsigned int revision)
-+{
-+    if (revision == 0) {
-+        /* legacy */
-+        virtio_clear_feature(&features, VIRTIO_F_VERSION_1);
-+        return virtio_blk_get_features(vdev, features);
+ static int virtio_ccw_device_init(VirtioCcwDevice *dev, VirtIODevice *vdev)
+@@ -853,8 +860,9 @@ static int virtio_ccw_device_init(VirtioCcwDevice *dev, VirtIODevice *vdev)
+     virtio_add_feature(&dev->host_features, VIRTIO_F_NOTIFY_ON_EMPTY);
+     virtio_add_feature(&dev->host_features, VIRTIO_F_BAD_FEATURE);
+ 
+-    dev->host_features = virtio_bus_get_vdev_features(&dev->bus,
+-                                                      dev->host_features);
++    /* All devices start in legacy mode. */
++    dev->host_features =
++        virtio_bus_get_vdev_features_rev(&dev->bus, dev->host_features, 0);
+ 
+     css_generate_sch_crws(sch->cssid, sch->ssid, sch->schid,
+                           parent->hotplugged, 1);
+diff --git a/hw/virtio/virtio-bus.c b/hw/virtio/virtio-bus.c
+index 32e3fab..a30826c 100644
+--- a/hw/virtio/virtio-bus.c
++++ b/hw/virtio/virtio-bus.c
+@@ -97,18 +97,28 @@ size_t virtio_bus_get_vdev_config_len(VirtioBusState *bus)
+ }
+ 
+ /* Get the features of the plugged device. */
+-uint64_t virtio_bus_get_vdev_features(VirtioBusState *bus,
+-                                      uint64_t requested_features)
++uint64_t virtio_bus_get_vdev_features_rev(VirtioBusState *bus,
++                                          uint64_t requested_features,
++                                          unsigned int revision)
+ {
+     VirtIODevice *vdev = virtio_bus_get_device(bus);
+     VirtioDeviceClass *k;
+ 
+     assert(vdev != NULL);
+     k = VIRTIO_DEVICE_GET_CLASS(vdev);
++    if (revision > 0 && k->get_features_rev) {
++        return k->get_features_rev(vdev, requested_features, revision);
 +    }
-+    /* virtio 1.0 or later */
-+    virtio_clear_feature(&features, VIRTIO_BLK_F_SCSI);
-+    virtio_clear_feature(&features, VIRTIO_BLK_F_CONFIG_WCE);
-+    virtio_clear_feature(&features, VIRTIO_BLK_F_WCE);
-+    /* we're still missing ANY_LAYOUT */
-+    /* virtio_add_feature(&features, VIRTIO_F_VERSION_1); */
-+    return features;
+     assert(k->get_features != NULL);
+     return k->get_features(vdev, requested_features);
+ }
+ 
++uint64_t virtio_bus_get_vdev_features(VirtioBusState *bus,
++                                      uint64_t requested_features)
++{
++    return virtio_bus_get_vdev_features_rev(bus, requested_features, 0);
 +}
 +
- static void virtio_blk_set_status(VirtIODevice *vdev, uint8_t status)
+ /* Get bad features of the plugged device. */
+ uint64_t virtio_bus_get_vdev_bad_features(VirtioBusState *bus)
  {
-     VirtIOBlock *s = VIRTIO_BLK(vdev);
-@@ -821,6 +839,7 @@ static void virtio_blk_class_init(ObjectClass *klass, void *data)
-     vdc->get_config = virtio_blk_update_config;
-     vdc->set_config = virtio_blk_set_config;
-     vdc->get_features = virtio_blk_get_features;
-+    vdc->get_features_rev = virtio_blk_get_features_rev;
-     vdc->set_status = virtio_blk_set_status;
-     vdc->reset = virtio_blk_reset;
-     vdc->save = virtio_blk_save_device;
+diff --git a/include/hw/virtio/virtio-bus.h b/include/hw/virtio/virtio-bus.h
+index 0a4dde1..f0916ef 100644
+--- a/include/hw/virtio/virtio-bus.h
++++ b/include/hw/virtio/virtio-bus.h
+@@ -84,6 +84,9 @@ size_t virtio_bus_get_vdev_config_len(VirtioBusState *bus);
+ /* Get the features of the plugged device. */
+ uint64_t virtio_bus_get_vdev_features(VirtioBusState *bus,
+                                       uint64_t requested_features);
++uint64_t virtio_bus_get_vdev_features_rev(VirtioBusState *bus,
++                                          uint64_t requested_features,
++                                          unsigned int revision);
+ /* Get bad features of the plugged device. */
+ uint64_t virtio_bus_get_vdev_bad_features(VirtioBusState *bus);
+ /* Get config of the plugged device. */
+diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
+index 068211e..1338540 100644
+--- a/include/hw/virtio/virtio.h
++++ b/include/hw/virtio/virtio.h
+@@ -147,6 +147,9 @@ typedef struct VirtioDeviceClass {
+     DeviceRealize realize;
+     DeviceUnrealize unrealize;
+     uint64_t (*get_features)(VirtIODevice *vdev, uint64_t requested_features);
++    uint64_t (*get_features_rev)(VirtIODevice *vdev,
++                                 uint64_t requested_features,
++                                 unsigned int revision);
+     uint64_t (*bad_features)(VirtIODevice *vdev);
+     void (*set_features)(VirtIODevice *vdev, uint64_t val);
+     int (*validate_features)(VirtIODevice *vdev);
 -- 
 1.7.9.5
