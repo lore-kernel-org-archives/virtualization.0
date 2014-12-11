@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC v6 07/20] virtio: allow virtio-1 queue layout
-Date: Thu, 11 Dec 2014 14:25:09 +0100
-Message-ID: <1418304322-7546-8-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC v6 11/20] s390x/virtio-ccw: support virtio-1 set_vq format
+Date: Thu, 11 Dec 2014 14:25:13 +0100
+Message-ID: <1418304322-7546-12-git-send-email-cornelia.huck@de.ibm.com>
 References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,183 +21,184 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org
 Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-For virtio-1 devices, we allow a more complex queue layout that doesn't
-require descriptor table and rings on a physically-contigous memory area:
-add virtio_queue_set_rings() to allow transports to set this up.
+Support the new CCW_CMD_SET_VQ format for virtio-1 devices.
 
+While we're at it, refactor the code a bit and enforce big endian
+fields (which had always been required, even for legacy).
+
+Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/virtio/virtio-mmio.c    |    3 +++
- hw/virtio/virtio.c         |   53 ++++++++++++++++++++++++++++----------------
- include/hw/virtio/virtio.h |    3 +++
- 3 files changed, 40 insertions(+), 19 deletions(-)
+ hw/s390x/virtio-ccw.c |  114 ++++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 80 insertions(+), 34 deletions(-)
 
-diff --git a/hw/virtio/virtio-mmio.c b/hw/virtio/virtio-mmio.c
-index 43b7e02..0c9b63b 100644
---- a/hw/virtio/virtio-mmio.c
-+++ b/hw/virtio/virtio-mmio.c
-@@ -244,8 +244,11 @@ static void virtio_mmio_write(void *opaque, hwaddr offset, uint64_t value,
-     case VIRTIO_MMIO_QUEUENUM:
-         DPRINTF("mmio_queue write %d max %d\n", (int)value, VIRTQUEUE_MAX_SIZE);
-         virtio_queue_set_num(vdev, vdev->queue_sel, value);
-+        /* Note: only call this function for legacy devices */
-+        virtio_queue_update_rings(vdev, vdev->queue_sel);
-         break;
-     case VIRTIO_MMIO_QUEUEALIGN:
-+        /* Note: this is only valid for legacy devices */
-         virtio_queue_set_align(vdev, vdev->queue_sel, value);
-         break;
-     case VIRTIO_MMIO_QUEUEPFN:
-diff --git a/hw/virtio/virtio.c b/hw/virtio/virtio.c
-index 8f69ffa..57190ba 100644
---- a/hw/virtio/virtio.c
-+++ b/hw/virtio/virtio.c
-@@ -69,7 +69,6 @@ typedef struct VRing
- struct VirtQueue
- {
-     VRing vring;
--    hwaddr pa;
-     uint16_t last_avail_idx;
-     /* Last used index value we have signalled on */
-     uint16_t signalled_used;
-@@ -92,15 +91,18 @@ struct VirtQueue
- };
+diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
+index ea2c6f0..e09e0da 100644
+--- a/hw/s390x/virtio-ccw.c
++++ b/hw/s390x/virtio-ccw.c
+@@ -238,11 +238,20 @@ VirtualCssBus *virtual_css_bus_init(void)
+ }
  
- /* virt queue functions */
--static void virtqueue_init(VirtQueue *vq)
-+void virtio_queue_update_rings(VirtIODevice *vdev, int n)
- {
--    hwaddr pa = vq->pa;
-+    VRing *vring = &vdev->vq[n].vring;
+ /* Communication blocks used by several channel commands. */
+-typedef struct VqInfoBlock {
++typedef struct VqInfoBlockLegacy {
+     uint64_t queue;
+     uint32_t align;
+     uint16_t index;
+     uint16_t num;
++} QEMU_PACKED VqInfoBlockLegacy;
++
++typedef struct VqInfoBlock {
++    uint64_t desc;
++    uint32_t res0;
++    uint16_t index;
++    uint16_t num;
++    uint64_t avail;
++    uint64_t used;
+ } QEMU_PACKED VqInfoBlock;
  
--    vq->vring.desc = pa;
--    vq->vring.avail = pa + vq->vring.num * sizeof(VRingDesc);
--    vq->vring.used = vring_align(vq->vring.avail +
--                                 offsetof(VRingAvail, ring[vq->vring.num]),
--                                 vq->vring.align);
-+    if (!vring->desc) {
-+        /* not yet setup -> nothing to do */
-+        return;
+ typedef struct VqConfigBlock {
+@@ -269,17 +278,20 @@ typedef struct VirtioRevInfo {
+ } QEMU_PACKED VirtioRevInfo;
+ 
+ /* Specify where the virtqueues for the subchannel are in guest memory. */
+-static int virtio_ccw_set_vqs(SubchDev *sch, uint64_t addr, uint32_t align,
+-                              uint16_t index, uint16_t num)
++static int virtio_ccw_set_vqs(SubchDev *sch, VqInfoBlock *info,
++                              VqInfoBlockLegacy *linfo)
+ {
+     VirtIODevice *vdev = virtio_ccw_get_vdev(sch);
++    uint16_t index = info ? info->index : linfo->index;
++    uint16_t num = info ? info->num : linfo->num;
++    uint64_t desc = info ? info->desc : linfo->queue;
+ 
+     if (index > VIRTIO_PCI_QUEUE_MAX) {
+         return -EINVAL;
+     }
+ 
+     /* Current code in virtio.c relies on 4K alignment. */
+-    if (addr && (align != 4096)) {
++    if (linfo && desc && (linfo->align != 4096)) {
+         return -EINVAL;
+     }
+ 
+@@ -287,8 +299,12 @@ static int virtio_ccw_set_vqs(SubchDev *sch, uint64_t addr, uint32_t align,
+         return -EINVAL;
+     }
+ 
+-    virtio_queue_set_addr(vdev, index, addr);
+-    if (!addr) {
++    if (info) {
++        virtio_queue_set_rings(vdev, index, desc, info->avail, info->used);
++    } else {
++        virtio_queue_set_addr(vdev, index, desc);
 +    }
-+    vring->avail = vring->desc + vring->num * sizeof(VRingDesc);
-+    vring->used = vring_align(vring->avail +
-+                              offsetof(VRingAvail, ring[vring->num]),
-+                              vring->align);
++    if (!desc) {
+         virtio_queue_set_vector(vdev, index, 0);
+     } else {
+         /* Fail if we don't have a big enough queue. */
+@@ -303,10 +319,66 @@ static int virtio_ccw_set_vqs(SubchDev *sch, uint64_t addr, uint32_t align,
+     return 0;
  }
  
- static inline uint64_t vring_desc_addr(VirtIODevice *vdev, hwaddr desc_pa,
-@@ -605,7 +607,6 @@ void virtio_reset(void *opaque)
-         vdev->vq[i].vring.avail = 0;
-         vdev->vq[i].vring.used = 0;
-         vdev->vq[i].last_avail_idx = 0;
--        vdev->vq[i].pa = 0;
-         vdev->vq[i].vector = VIRTIO_NO_VECTOR;
-         vdev->vq[i].signalled_used = 0;
-         vdev->vq[i].signalled_used_valid = false;
-@@ -708,13 +709,21 @@ void virtio_config_writel(VirtIODevice *vdev, uint32_t addr, uint32_t data)
- 
- void virtio_queue_set_addr(VirtIODevice *vdev, int n, hwaddr addr)
+-static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
++static int virtio_ccw_handle_set_vq(SubchDev *sch, CCW1 ccw, bool check_len,
++                                    bool is_legacy)
  {
--    vdev->vq[n].pa = addr;
--    virtqueue_init(&vdev->vq[n]);
-+    vdev->vq[n].vring.desc = addr;
-+    virtio_queue_update_rings(vdev, n);
- }
- 
- hwaddr virtio_queue_get_addr(VirtIODevice *vdev, int n)
- {
--    return vdev->vq[n].pa;
-+    return vdev->vq[n].vring.desc;
+     int ret;
+     VqInfoBlock info;
++    VqInfoBlockLegacy linfo;
++    size_t info_len = is_legacy ? sizeof(linfo) : sizeof(info);
++
++    if (check_len) {
++        if (ccw.count != info_len) {
++            return -EINVAL;
++        }
++    } else if (ccw.count < info_len) {
++        /* Can't execute command. */
++        return -EINVAL;
++    }
++    if (!ccw.cda) {
++        return -EFAULT;
++    }
++    if (is_legacy) {
++        linfo.queue = ldq_be_phys(&address_space_memory, ccw.cda);
++        linfo.align = ldl_be_phys(&address_space_memory,
++                                  ccw.cda + sizeof(linfo.queue));
++        linfo.index = lduw_be_phys(&address_space_memory,
++                                   ccw.cda + sizeof(linfo.queue)
++                                   + sizeof(linfo.align));
++        linfo.num = lduw_be_phys(&address_space_memory,
++                                 ccw.cda + sizeof(linfo.queue)
++                                 + sizeof(linfo.align)
++                                 + sizeof(linfo.index));
++        ret = virtio_ccw_set_vqs(sch, NULL, &linfo);
++    } else {
++        info.desc = ldq_be_phys(&address_space_memory, ccw.cda);
++        info.index = lduw_be_phys(&address_space_memory,
++                                  ccw.cda + sizeof(info.desc)
++                                  + sizeof(info.res0));
++        info.num = lduw_be_phys(&address_space_memory,
++                                ccw.cda + sizeof(info.desc)
++                              + sizeof(info.res0)
++                              + sizeof(info.index));
++        info.avail = ldq_be_phys(&address_space_memory,
++                                 ccw.cda + sizeof(info.desc)
++                                 + sizeof(info.res0)
++                                 + sizeof(info.index)
++                                 + sizeof(info.num));
++        info.used = ldq_be_phys(&address_space_memory,
++                                ccw.cda + sizeof(info.desc)
++                                + sizeof(info.res0)
++                                + sizeof(info.index)
++                                + sizeof(info.num)
++                                + sizeof(info.avail));
++        ret = virtio_ccw_set_vqs(sch, &info, NULL);
++    }
++    sch->curr_status.scsw.count = 0;
++    return ret;
 +}
 +
-+void virtio_queue_set_rings(VirtIODevice *vdev, int n, hwaddr desc,
-+                            hwaddr avail, hwaddr used)
++static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
 +{
-+    vdev->vq[n].vring.desc = desc;
-+    vdev->vq[n].vring.avail = avail;
-+    vdev->vq[n].vring.used = used;
- }
- 
- void virtio_queue_set_num(VirtIODevice *vdev, int n, int num)
-@@ -728,7 +737,6 @@ void virtio_queue_set_num(VirtIODevice *vdev, int n, int num)
-         return;
-     }
-     vdev->vq[n].vring.num = num;
--    virtqueue_init(&vdev->vq[n]);
- }
- 
- int virtio_queue_get_num(VirtIODevice *vdev, int n)
-@@ -748,6 +756,11 @@ void virtio_queue_set_align(VirtIODevice *vdev, int n, int align)
-     BusState *qbus = qdev_get_parent_bus(DEVICE(vdev));
-     VirtioBusClass *k = VIRTIO_BUS_GET_CLASS(qbus);
- 
-+    /* virtio-1 compliant devices cannot change the aligment */
-+    if (virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
-+        error_report("tried to modify queue alignment for virtio-1 device");
-+        return;
-+    }
-     /* Check that the transport told us it was going to do this
-      * (so a buggy transport will immediately assert rather than
-      * silently failing to migrate this state)
-@@ -755,7 +768,7 @@ void virtio_queue_set_align(VirtIODevice *vdev, int n, int align)
-     assert(k->has_variable_vring_alignment);
- 
-     vdev->vq[n].vring.align = align;
--    virtqueue_init(&vdev->vq[n]);
-+    virtio_queue_update_rings(vdev, n);
- }
- 
- void virtio_queue_notify_vq(VirtQueue *vq)
-@@ -949,7 +962,8 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
-         if (k->has_variable_vring_alignment) {
-             qemu_put_be32(f, vdev->vq[i].vring.align);
-         }
--        qemu_put_be64(f, vdev->vq[i].pa);
-+        /* XXX virtio-1 devices */
-+        qemu_put_be64(f, vdev->vq[i].vring.desc);
-         qemu_put_be16s(f, &vdev->vq[i].last_avail_idx);
-         if (k->save_queue) {
-             k->save_queue(qbus->parent, i, f);
-@@ -1044,13 +1058,14 @@ int virtio_load(VirtIODevice *vdev, QEMUFile *f, int version_id)
-         if (k->has_variable_vring_alignment) {
-             vdev->vq[i].vring.align = qemu_get_be32(f);
-         }
--        vdev->vq[i].pa = qemu_get_be64(f);
-+        vdev->vq[i].vring.desc = qemu_get_be64(f);
-         qemu_get_be16s(f, &vdev->vq[i].last_avail_idx);
-         vdev->vq[i].signalled_used_valid = false;
-         vdev->vq[i].notification = true;
- 
--        if (vdev->vq[i].pa) {
--            virtqueue_init(&vdev->vq[i]);
-+        if (vdev->vq[i].vring.desc) {
-+            /* XXX virtio-1 devices */
-+            virtio_queue_update_rings(vdev, i);
-         } else if (vdev->vq[i].last_avail_idx) {
-             error_report("VQ %d address 0x0 "
-                          "inconsistent with Host index 0x%x",
-@@ -1084,7 +1099,7 @@ int virtio_load(VirtIODevice *vdev, QEMUFile *f, int version_id)
-     }
- 
-     for (i = 0; i < num; i++) {
--        if (vdev->vq[i].pa) {
-+        if (vdev->vq[i].vring.desc) {
-             uint16_t nheads;
-             nheads = vring_avail_idx(&vdev->vq[i]) - vdev->vq[i].last_avail_idx;
-             /* Check it isn't doing strange things with descriptor numbers. */
-diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
-index 68c40db..b63ced3 100644
---- a/include/hw/virtio/virtio.h
-+++ b/include/hw/virtio/virtio.h
-@@ -224,6 +224,9 @@ void virtio_queue_set_addr(VirtIODevice *vdev, int n, hwaddr addr);
- hwaddr virtio_queue_get_addr(VirtIODevice *vdev, int n);
- void virtio_queue_set_num(VirtIODevice *vdev, int n, int num);
- int virtio_queue_get_num(VirtIODevice *vdev, int n);
-+void virtio_queue_set_rings(VirtIODevice *vdev, int n, hwaddr desc,
-+                            hwaddr avail, hwaddr used);
-+void virtio_queue_update_rings(VirtIODevice *vdev, int n);
- void virtio_queue_set_align(VirtIODevice *vdev, int n, int align);
- void virtio_queue_notify(VirtIODevice *vdev, int n);
- uint16_t virtio_queue_vector(VirtIODevice *vdev, int n);
++    int ret;
+     VirtioRevInfo revinfo;
+     uint8_t status;
+     VirtioFeatDesc features;
+@@ -331,33 +403,7 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
+     /* Look at the command. */
+     switch (ccw.cmd_code) {
+     case CCW_CMD_SET_VQ:
+-        if (check_len) {
+-            if (ccw.count != sizeof(info)) {
+-                ret = -EINVAL;
+-                break;
+-            }
+-        } else if (ccw.count < sizeof(info)) {
+-            /* Can't execute command. */
+-            ret = -EINVAL;
+-            break;
+-        }
+-        if (!ccw.cda) {
+-            ret = -EFAULT;
+-        } else {
+-            info.queue = ldq_phys(&address_space_memory, ccw.cda);
+-            info.align = ldl_phys(&address_space_memory,
+-                                  ccw.cda + sizeof(info.queue));
+-            info.index = lduw_phys(&address_space_memory,
+-                                   ccw.cda + sizeof(info.queue)
+-                                   + sizeof(info.align));
+-            info.num = lduw_phys(&address_space_memory,
+-                                 ccw.cda + sizeof(info.queue)
+-                                 + sizeof(info.align)
+-                                 + sizeof(info.index));
+-            ret = virtio_ccw_set_vqs(sch, info.queue, info.align, info.index,
+-                                     info.num);
+-            sch->curr_status.scsw.count = 0;
+-        }
++        ret = virtio_ccw_handle_set_vq(sch, ccw, check_len, dev->revision < 1);
+         break;
+     case CCW_CMD_VDEV_RESET:
+         virtio_ccw_stop_ioeventfd(dev);
 -- 
 1.7.9.5
