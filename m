@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC v6 15/20] virtio-net: no writeable mac for virtio-1
-Date: Thu, 11 Dec 2014 14:25:17 +0100
-Message-ID: <1418304322-7546-16-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC v6 14/20] s390x/virtio-ccw: enable virtio 1.0
+Date: Thu, 11 Dec 2014 14:25:16 +0100
+Message-ID: <1418304322-7546-15-git-send-email-cornelia.huck@de.ibm.com>
 References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,25 +21,26 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org
 Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Devices operating as virtio 1.0 may not allow writes to the mac
-address in config space.
+virtio-ccw should now have everything in place to operate virtio 1.0
+devices, so let's enable revision 1.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/net/virtio-net.c |    1 +
- 1 file changed, 1 insertion(+)
+ hw/s390x/virtio-ccw.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
-index d6d1b98..ebbea60 100644
---- a/hw/net/virtio-net.c
-+++ b/hw/net/virtio-net.c
-@@ -87,6 +87,7 @@ static void virtio_net_set_config(VirtIODevice *vdev, const uint8_t *config)
-     memcpy(&netcfg, config, n->config_size);
+diff --git a/hw/s390x/virtio-ccw.h b/hw/s390x/virtio-ccw.h
+index 778ccb9..37a9840 100644
+--- a/hw/s390x/virtio-ccw.h
++++ b/hw/s390x/virtio-ccw.h
+@@ -104,7 +104,7 @@ struct VirtioCcwDevice {
+ /* The maximum virtio revision we support. */
+ static inline int virtio_ccw_rev_max(VirtioCcwDevice *dev)
+ {
+-    return 0;
++    return dev->host_features & (1ULL << VIRTIO_F_VERSION_1) ? 1 : 0;
+ }
  
-     if (!virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_MAC_ADDR) &&
-+        !virtio_has_feature(vdev, VIRTIO_F_VERSION_1) &&
-         memcmp(netcfg.mac, n->mac, ETH_ALEN)) {
-         memcpy(n->mac, netcfg.mac, ETH_ALEN);
-         qemu_format_nic_info_str(qemu_get_queue(n->nic), n->mac);
+ /* virtual css bus type */
 -- 
 1.7.9.5
