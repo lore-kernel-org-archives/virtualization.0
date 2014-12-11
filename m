@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC v6 20/20] vhost: 64 bit features
-Date: Thu, 11 Dec 2014 14:25:22 +0100
-Message-ID: <1418304322-7546-21-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC v6 16/20] virtio-net: support longer header
+Date: Thu, 11 Dec 2014 14:25:18 +0100
+Message-ID: <1418304322-7546-17-git-send-email-cornelia.huck@de.ibm.com>
 References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,152 +21,72 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org
 Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Make sure that all vhost interfaces use 64 bit features, as the virtio
-core does, and make sure to use ULL everywhere possible to be on the
-safe side.
+virtio-1 devices always use num_buffers in the header, even if
+mergeable rx buffers have not been negotiated.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/net/vhost_net.c        |   12 ++++++------
- hw/virtio/vhost.c         |   14 +++++++-------
- include/hw/virtio/vhost.h |    6 +++---
- include/net/vhost_net.h   |    4 ++--
- 4 files changed, 18 insertions(+), 18 deletions(-)
+ hw/net/virtio-net.c |   21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/hw/net/vhost_net.c b/hw/net/vhost_net.c
-index 4e3a061..a6d4ef2 100644
---- a/hw/net/vhost_net.c
-+++ b/hw/net/vhost_net.c
-@@ -107,13 +107,13 @@ static const int *vhost_net_get_feature_bits(struct vhost_net *net)
-     return feature_bits;
+diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
+index ebbea60..7ee2bd6 100644
+--- a/hw/net/virtio-net.c
++++ b/hw/net/virtio-net.c
+@@ -373,15 +373,21 @@ static int peer_has_ufo(VirtIONet *n)
+     return n->has_ufo;
  }
  
--unsigned vhost_net_get_features(struct vhost_net *net, unsigned features)
-+uint64_t vhost_net_get_features(struct vhost_net *net, uint64_t features)
+-static void virtio_net_set_mrg_rx_bufs(VirtIONet *n, int mergeable_rx_bufs)
++static void virtio_net_set_mrg_rx_bufs(VirtIONet *n, int mergeable_rx_bufs,
++                                       int version_1)
  {
-     return vhost_get_features(&net->dev, vhost_net_get_feature_bits(net),
-             features);
- }
+     int i;
+     NetClientState *nc;
  
--void vhost_net_ack_features(struct vhost_net *net, unsigned features)
-+void vhost_net_ack_features(struct vhost_net *net, uint64_t features)
- {
-     net->dev.acked_features = net->dev.backend_features;
-     vhost_ack_features(&net->dev, vhost_net_get_feature_bits(net), features);
-@@ -147,7 +147,7 @@ struct vhost_net *vhost_net_init(VhostNetOptions *options)
-             goto fail;
-         }
-         net->dev.backend_features = qemu_has_vnet_hdr(options->net_backend)
--            ? 0 : (1 << VHOST_NET_F_VIRTIO_NET_HDR);
-+            ? 0 : (1ULL << VHOST_NET_F_VIRTIO_NET_HDR);
-         net->backend = r;
-     } else {
-         net->dev.backend_features = 0;
-@@ -166,7 +166,7 @@ struct vhost_net *vhost_net_init(VhostNetOptions *options)
-     if (backend_kernel) {
-         if (!qemu_has_vnet_hdr_len(options->net_backend,
-                                sizeof(struct virtio_net_hdr_mrg_rxbuf))) {
--            net->dev.features &= ~(1 << VIRTIO_NET_F_MRG_RXBUF);
-+            net->dev.features &= ~(1ULL << VIRTIO_NET_F_MRG_RXBUF);
-         }
-         if (~net->dev.features & net->dev.backend_features) {
-             fprintf(stderr, "vhost lacks feature mask %" PRIu64
-@@ -423,11 +423,11 @@ void vhost_net_cleanup(struct vhost_net *net)
- {
- }
+     n->mergeable_rx_bufs = mergeable_rx_bufs;
  
--unsigned vhost_net_get_features(struct vhost_net *net, unsigned features)
-+uint64_t vhost_net_get_features(struct vhost_net *net, uint64_t features)
- {
-     return features;
- }
--void vhost_net_ack_features(struct vhost_net *net, unsigned features)
-+void vhost_net_ack_features(struct vhost_net *net, uint64_t features)
- {
- }
+-    n->guest_hdr_len = n->mergeable_rx_bufs ?
+-        sizeof(struct virtio_net_hdr_mrg_rxbuf) : sizeof(struct virtio_net_hdr);
++    if (version_1) {
++        n->guest_hdr_len = sizeof(struct virtio_net_hdr_mrg_rxbuf);
++    } else {
++        n->guest_hdr_len = n->mergeable_rx_bufs ?
++            sizeof(struct virtio_net_hdr_mrg_rxbuf) :
++            sizeof(struct virtio_net_hdr);
++    }
  
-diff --git a/hw/virtio/vhost.c b/hw/virtio/vhost.c
-index 5a12861..9e6e9cc 100644
---- a/hw/virtio/vhost.c
-+++ b/hw/virtio/vhost.c
-@@ -551,7 +551,7 @@ static int vhost_dev_set_features(struct vhost_dev *dev, bool enable_log)
-     uint64_t features = dev->acked_features;
-     int r;
-     if (enable_log) {
--        features |= 0x1 << VHOST_F_LOG_ALL;
-+        features |= 0x1ULL << VHOST_F_LOG_ALL;
-     }
-     r = dev->vhost_ops->vhost_call(dev, VHOST_SET_FEATURES, &features);
-     return r < 0 ? -errno : 0;
-@@ -860,7 +860,7 @@ int vhost_dev_init(struct vhost_dev *hdev, void *opaque,
-         .priority = 10
-     };
-     hdev->migration_blocker = NULL;
--    if (!(hdev->features & (0x1 << VHOST_F_LOG_ALL))) {
-+    if (!(hdev->features & (0x1ULL << VHOST_F_LOG_ALL))) {
-         error_setg(&hdev->migration_blocker,
-                    "Migration disabled: vhost lacks VHOST_F_LOG_ALL feature.");
-         migrate_add_blocker(hdev->migration_blocker);
-@@ -1003,12 +1003,12 @@ void vhost_virtqueue_mask(struct vhost_dev *hdev, VirtIODevice *vdev, int n,
-     assert(r >= 0);
- }
+     for (i = 0; i < n->max_queues; i++) {
+         nc = qemu_get_subqueue(n->nic, i);
+@@ -525,7 +531,9 @@ static void virtio_net_set_features(VirtIODevice *vdev, uint64_t features)
  
--unsigned vhost_get_features(struct vhost_dev *hdev, const int *feature_bits,
--        unsigned features)
-+uint64_t vhost_get_features(struct vhost_dev *hdev, const int *feature_bits,
-+                            uint64_t features)
- {
-     const int *bit = feature_bits;
-     while (*bit != VHOST_INVALID_FEATURE_BIT) {
--        unsigned bit_mask = (1 << *bit);
-+        uint64_t bit_mask = (1ULL << *bit);
-         if (!(hdev->features & bit_mask)) {
-             features &= ~bit_mask;
-         }
-@@ -1018,11 +1018,11 @@ unsigned vhost_get_features(struct vhost_dev *hdev, const int *feature_bits,
- }
+     virtio_net_set_mrg_rx_bufs(n,
+                                __virtio_has_feature(features,
+-                                                    VIRTIO_NET_F_MRG_RXBUF));
++                                                    VIRTIO_NET_F_MRG_RXBUF),
++                               __virtio_has_feature(features,
++                                                    VIRTIO_F_VERSION_1));
  
- void vhost_ack_features(struct vhost_dev *hdev, const int *feature_bits,
--        unsigned features)
-+                        uint64_t features)
- {
-     const int *bit = feature_bits;
-     while (*bit != VHOST_INVALID_FEATURE_BIT) {
--        unsigned bit_mask = (1 << *bit);
-+        uint64_t bit_mask = (1ULL << *bit);
-         if (features & bit_mask) {
-             hdev->acked_features |= bit_mask;
-         }
-diff --git a/include/hw/virtio/vhost.h b/include/hw/virtio/vhost.h
-index d5593d1..71ef18f 100644
---- a/include/hw/virtio/vhost.h
-+++ b/include/hw/virtio/vhost.h
-@@ -72,8 +72,8 @@ bool vhost_virtqueue_pending(struct vhost_dev *hdev, int n);
-  */
- void vhost_virtqueue_mask(struct vhost_dev *hdev, VirtIODevice *vdev, int n,
-                           bool mask);
--unsigned vhost_get_features(struct vhost_dev *hdev, const int *feature_bits,
--        unsigned features);
-+uint64_t vhost_get_features(struct vhost_dev *hdev, const int *feature_bits,
-+                            uint64_t features);
- void vhost_ack_features(struct vhost_dev *hdev, const int *feature_bits,
--        unsigned features);
-+                        uint64_t features);
- #endif
-diff --git a/include/net/vhost_net.h b/include/net/vhost_net.h
-index b1c18a3..9eb493e 100644
---- a/include/net/vhost_net.h
-+++ b/include/net/vhost_net.h
-@@ -22,8 +22,8 @@ void vhost_net_stop(VirtIODevice *dev, NetClientState *ncs, int total_queues);
+     if (n->has_vnet_hdr) {
+         n->curr_guest_offloads =
+@@ -1407,7 +1415,8 @@ static int virtio_net_load_device(VirtIODevice *vdev, QEMUFile *f,
+     qemu_get_buffer(f, n->mac, ETH_ALEN);
+     n->vqs[0].tx_waiting = qemu_get_be32(f);
  
- void vhost_net_cleanup(VHostNetState *net);
+-    virtio_net_set_mrg_rx_bufs(n, qemu_get_be32(f));
++    virtio_net_set_mrg_rx_bufs(n, qemu_get_be32(f),
++                               virtio_has_feature(vdev, VIRTIO_F_VERSION_1));
  
--unsigned vhost_net_get_features(VHostNetState *net, unsigned features);
--void vhost_net_ack_features(VHostNetState *net, unsigned features);
-+uint64_t vhost_net_get_features(VHostNetState *net, uint64_t features);
-+void vhost_net_ack_features(VHostNetState *net, uint64_t features);
+     if (version_id >= 3)
+         n->status = qemu_get_be16(f);
+@@ -1653,7 +1662,7 @@ static void virtio_net_device_realize(DeviceState *dev, Error **errp)
  
- bool vhost_net_virtqueue_pending(VHostNetState *net, int n);
- void vhost_net_virtqueue_mask(VHostNetState *net, VirtIODevice *dev,
+     n->vqs[0].tx_waiting = 0;
+     n->tx_burst = n->net_conf.txburst;
+-    virtio_net_set_mrg_rx_bufs(n, 0);
++    virtio_net_set_mrg_rx_bufs(n, 0, 0);
+     n->promisc = 1; /* for compatibility */
+ 
+     n->mac_table.macs = g_malloc0(MAC_TABLE_ENTRIES * ETH_ALEN);
 -- 
 1.7.9.5
