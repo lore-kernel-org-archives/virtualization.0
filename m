@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC v6 17/20] virtio-net: enable virtio 1.0
-Date: Thu, 11 Dec 2014 14:25:19 +0100
-Message-ID: <1418304322-7546-18-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC v6 19/20] virtio-blk: revision specific feature bits
+Date: Thu, 11 Dec 2014 14:25:21 +0100
+Message-ID: <1418304322-7546-20-git-send-email-cornelia.huck@de.ibm.com>
 References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,29 +21,52 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org
 Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio-net (non-vhost) now should have everything in place to support
-virtio 1.0: let's enable the feature bit for it.
+Wire up virtio-blk to provide different feature bit sets depending
+on whether legacy or v1.0 has been requested.
 
-Note that VIRTIO_F_VERSION_1 is technically a transport feature; once
-every device is ready for virtio 1.0, we can move setting this
-feature bit out of the individual devices.
+Note that VERSION_1 is still disabled due to missing ANY_LAYOUT support.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/net/virtio-net.c |    1 +
- 1 file changed, 1 insertion(+)
+ hw/block/virtio-blk.c |   19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
-index 7ee2bd6..b5dd356 100644
---- a/hw/net/virtio-net.c
-+++ b/hw/net/virtio-net.c
-@@ -473,6 +473,7 @@ static uint64_t virtio_net_get_features(VirtIODevice *vdev, uint64_t features)
-     }
+diff --git a/hw/block/virtio-blk.c b/hw/block/virtio-blk.c
+index 9cfae66..fdc236a 100644
+--- a/hw/block/virtio-blk.c
++++ b/hw/block/virtio-blk.c
+@@ -587,6 +587,24 @@ static uint64_t virtio_blk_get_features(VirtIODevice *vdev, uint64_t features)
+     return features;
+ }
  
-     if (!get_vhost_net(nc->peer)) {
-+        virtio_add_feature(&features, VIRTIO_F_VERSION_1);
-         return features;
-     }
-     return vhost_net_get_features(get_vhost_net(nc->peer), features);
++static uint64_t virtio_blk_get_features_rev(VirtIODevice *vdev,
++                                            uint64_t features,
++                                            unsigned int revision)
++{
++    if (revision == 0) {
++        /* legacy */
++        virtio_clear_feature(&features, VIRTIO_F_VERSION_1);
++        return virtio_blk_get_features(vdev, features);
++    }
++    /* virtio 1.0 or later */
++    virtio_clear_feature(&features, VIRTIO_BLK_F_SCSI);
++    virtio_clear_feature(&features, VIRTIO_BLK_F_CONFIG_WCE);
++    virtio_clear_feature(&features, VIRTIO_BLK_F_WCE);
++    /* we're still missing ANY_LAYOUT */
++    /* virtio_add_feature(&features, VIRTIO_F_VERSION_1); */
++    return features;
++}
++
+ static void virtio_blk_set_status(VirtIODevice *vdev, uint8_t status)
+ {
+     VirtIOBlock *s = VIRTIO_BLK(vdev);
+@@ -821,6 +839,7 @@ static void virtio_blk_class_init(ObjectClass *klass, void *data)
+     vdc->get_config = virtio_blk_update_config;
+     vdc->set_config = virtio_blk_set_config;
+     vdc->get_features = virtio_blk_get_features;
++    vdc->get_features_rev = virtio_blk_get_features_rev;
+     vdc->set_status = virtio_blk_set_status;
+     vdc->reset = virtio_blk_reset;
+     vdc->save = virtio_blk_save_device;
 -- 
 1.7.9.5
