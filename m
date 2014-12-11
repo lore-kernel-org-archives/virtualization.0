@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC v6 03/20] virtio: feature bit manipulation helpers
-Date: Thu, 11 Dec 2014 14:25:05 +0100
-Message-ID: <1418304322-7546-4-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC v6 04/20] virtio: add feature checking helpers
+Date: Thu, 11 Dec 2014 14:25:06 +0100
+Message-ID: <1418304322-7546-5-git-send-email-cornelia.huck@de.ibm.com>
 References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,211 +21,309 @@ To: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org
 Cc: thuth@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add virtio_{add,clear}_feature helper functions for manipulating a
-feature bits variable. This has some benefits over open coding:
-- add check that the bit is in a sane range
-- make it obvious at a glance what is going on
-- have a central point to change when we want to extend feature bits
+Add a helper function for checking whether a bit is set in the guest
+features for a vdev as well as one that works on a feature bit set.
 
-Convert existing code manipulating features to use the new helpers.
+Convert code that open-coded this: It cleans up the code and makes it
+easier to extend the guest feature bits.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/9pfs/virtio-9p-device.c  |    2 +-
- hw/block/virtio-blk.c       |   16 ++++++++--------
+ hw/block/virtio-blk.c       |    7 ++-----
  hw/char/virtio-serial-bus.c |    2 +-
- hw/net/virtio-net.c         |   34 +++++++++++++++++-----------------
- hw/s390x/virtio-ccw.c       |    4 ++--
- hw/virtio/virtio-mmio.c     |    2 +-
- hw/virtio/virtio-pci.c      |    4 ++--
- include/hw/virtio/virtio.h  |   12 ++++++++++++
- 8 files changed, 44 insertions(+), 32 deletions(-)
+ hw/net/virtio-net.c         |   23 +++++++++++++----------
+ hw/scsi/virtio-scsi.c       |    8 ++++----
+ hw/virtio/dataplane/vring.c |   10 +++++-----
+ hw/virtio/virtio-balloon.c  |    2 +-
+ hw/virtio/virtio.c          |   10 +++++-----
+ include/hw/virtio/virtio.h  |   11 +++++++++++
+ 8 files changed, 42 insertions(+), 31 deletions(-)
 
-diff --git a/hw/9pfs/virtio-9p-device.c b/hw/9pfs/virtio-9p-device.c
-index 2572747..30492ec 100644
---- a/hw/9pfs/virtio-9p-device.c
-+++ b/hw/9pfs/virtio-9p-device.c
-@@ -23,7 +23,7 @@
- 
- static uint32_t virtio_9p_get_features(VirtIODevice *vdev, uint32_t features)
- {
--    features |= 1 << VIRTIO_9P_MOUNT_TAG;
-+    virtio_add_feature(&features, VIRTIO_9P_MOUNT_TAG);
-     return features;
- }
- 
 diff --git a/hw/block/virtio-blk.c b/hw/block/virtio-blk.c
-index b19b102..3f76e2a 100644
+index 3f76e2a..27f263a 100644
 --- a/hw/block/virtio-blk.c
 +++ b/hw/block/virtio-blk.c
-@@ -568,20 +568,20 @@ static uint32_t virtio_blk_get_features(VirtIODevice *vdev, uint32_t features)
+@@ -590,7 +590,6 @@ static uint32_t virtio_blk_get_features(VirtIODevice *vdev, uint32_t features)
+ static void virtio_blk_set_status(VirtIODevice *vdev, uint8_t status)
  {
      VirtIOBlock *s = VIRTIO_BLK(vdev);
+-    uint32_t features;
  
--    features |= (1 << VIRTIO_BLK_F_SEG_MAX);
--    features |= (1 << VIRTIO_BLK_F_GEOMETRY);
--    features |= (1 << VIRTIO_BLK_F_TOPOLOGY);
--    features |= (1 << VIRTIO_BLK_F_BLK_SIZE);
--    features |= (1 << VIRTIO_BLK_F_SCSI);
-+    virtio_add_feature(&features, VIRTIO_BLK_F_SEG_MAX);
-+    virtio_add_feature(&features, VIRTIO_BLK_F_GEOMETRY);
-+    virtio_add_feature(&features, VIRTIO_BLK_F_TOPOLOGY);
-+    virtio_add_feature(&features, VIRTIO_BLK_F_BLK_SIZE);
-+    virtio_add_feature(&features, VIRTIO_BLK_F_SCSI);
- 
-     if (s->conf.config_wce) {
--        features |= (1 << VIRTIO_BLK_F_CONFIG_WCE);
-+        virtio_add_feature(&features, VIRTIO_BLK_F_CONFIG_WCE);
-     }
-     if (blk_enable_write_cache(s->blk)) {
--        features |= (1 << VIRTIO_BLK_F_WCE);
-+        virtio_add_feature(&features, VIRTIO_BLK_F_WCE);
-     }
-     if (blk_is_read_only(s->blk)) {
--        features |= 1 << VIRTIO_BLK_F_RO;
-+        virtio_add_feature(&features, VIRTIO_BLK_F_RO);
+     if (s->dataplane && !(status & (VIRTIO_CONFIG_S_DRIVER |
+                                     VIRTIO_CONFIG_S_DRIVER_OK))) {
+@@ -601,8 +600,6 @@ static void virtio_blk_set_status(VirtIODevice *vdev, uint8_t status)
+         return;
      }
  
-     return features;
+-    features = vdev->guest_features;
+-
+     /* A guest that supports VIRTIO_BLK_F_CONFIG_WCE must be able to send
+      * cache flushes.  Thus, the "auto writethrough" behavior is never
+      * necessary for guests that support the VIRTIO_BLK_F_CONFIG_WCE feature.
+@@ -618,10 +615,10 @@ static void virtio_blk_set_status(VirtIODevice *vdev, uint8_t status)
+      *
+      * s->blk would erroneously be placed in writethrough mode.
+      */
+-    if (!(features & (1 << VIRTIO_BLK_F_CONFIG_WCE))) {
++    if (!virtio_has_feature(vdev, VIRTIO_BLK_F_CONFIG_WCE)) {
+         aio_context_acquire(blk_get_aio_context(s->blk));
+         blk_set_enable_write_cache(s->blk,
+-                                   !!(features & (1 << VIRTIO_BLK_F_WCE)));
++                                   virtio_has_feature(vdev, VIRTIO_BLK_F_WCE));
+         aio_context_release(blk_get_aio_context(s->blk));
+     }
+ }
 diff --git a/hw/char/virtio-serial-bus.c b/hw/char/virtio-serial-bus.c
-index a7b1b68..0f637db 100644
+index 0f637db..d49883f 100644
 --- a/hw/char/virtio-serial-bus.c
 +++ b/hw/char/virtio-serial-bus.c
-@@ -474,7 +474,7 @@ static uint32_t get_features(VirtIODevice *vdev, uint32_t features)
-     vser = VIRTIO_SERIAL(vdev);
- 
-     if (vser->bus.max_nr_ports > 1) {
--        features |= (1 << VIRTIO_CONSOLE_F_MULTIPORT);
-+        virtio_add_feature(&features, VIRTIO_CONSOLE_F_MULTIPORT);
-     }
-     return features;
+@@ -75,7 +75,7 @@ static VirtIOSerialPort *find_port_by_name(char *name)
+ static bool use_multiport(VirtIOSerial *vser)
+ {
+     VirtIODevice *vdev = VIRTIO_DEVICE(vser);
+-    return vdev->guest_features & (1 << VIRTIO_CONSOLE_F_MULTIPORT);
++    return virtio_has_feature(vdev, VIRTIO_CONSOLE_F_MULTIPORT);
  }
+ 
+ static size_t write_to_port(VirtIOSerialPort *port,
 diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
-index e574bd4..f1aa100 100644
+index f1aa100..9f3c58a 100644
 --- a/hw/net/virtio-net.c
 +++ b/hw/net/virtio-net.c
-@@ -446,23 +446,23 @@ static uint32_t virtio_net_get_features(VirtIODevice *vdev, uint32_t features)
+@@ -86,7 +86,7 @@ static void virtio_net_set_config(VirtIODevice *vdev, const uint8_t *config)
+ 
+     memcpy(&netcfg, config, n->config_size);
+ 
+-    if (!(vdev->guest_features >> VIRTIO_NET_F_CTRL_MAC_ADDR & 1) &&
++    if (!virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_MAC_ADDR) &&
+         memcmp(netcfg.mac, n->mac, ETH_ALEN)) {
+         memcpy(n->mac, netcfg.mac, ETH_ALEN);
+         qemu_format_nic_info_str(qemu_get_queue(n->nic), n->mac);
+@@ -305,7 +305,7 @@ static RxFilterInfo *virtio_net_query_rxfilter(NetClientState *nc)
+     info->multicast_table = str_list;
+     info->vlan_table = get_vlan_table(n);
+ 
+-    if (!((1 << VIRTIO_NET_F_CTRL_VLAN) & vdev->guest_features)) {
++    if (!virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_VLAN)) {
+         info->vlan = RX_STATE_ALL;
+     } else if (!info->vlan_table) {
+         info->vlan = RX_STATE_NONE;
+@@ -519,9 +519,12 @@ static void virtio_net_set_features(VirtIODevice *vdev, uint32_t features)
      VirtIONet *n = VIRTIO_NET(vdev);
-     NetClientState *nc = qemu_get_queue(n->nic);
+     int i;
  
--    features |= (1 << VIRTIO_NET_F_MAC);
-+    virtio_add_feature(&features, VIRTIO_NET_F_MAC);
+-    virtio_net_set_multiqueue(n, !!(features & (1 << VIRTIO_NET_F_MQ)));
++    virtio_net_set_multiqueue(n,
++                              __virtio_has_feature(features, VIRTIO_NET_F_MQ));
  
-     if (!peer_has_vnet_hdr(n)) {
--        features &= ~(0x1 << VIRTIO_NET_F_CSUM);
--        features &= ~(0x1 << VIRTIO_NET_F_HOST_TSO4);
--        features &= ~(0x1 << VIRTIO_NET_F_HOST_TSO6);
--        features &= ~(0x1 << VIRTIO_NET_F_HOST_ECN);
-+        virtio_clear_feature(&features, VIRTIO_NET_F_CSUM);
-+        virtio_clear_feature(&features, VIRTIO_NET_F_HOST_TSO4);
-+        virtio_clear_feature(&features, VIRTIO_NET_F_HOST_TSO6);
-+        virtio_clear_feature(&features, VIRTIO_NET_F_HOST_ECN);
+-    virtio_net_set_mrg_rx_bufs(n, !!(features & (1 << VIRTIO_NET_F_MRG_RXBUF)));
++    virtio_net_set_mrg_rx_bufs(n,
++                               __virtio_has_feature(features,
++                                                    VIRTIO_NET_F_MRG_RXBUF));
  
--        features &= ~(0x1 << VIRTIO_NET_F_GUEST_CSUM);
--        features &= ~(0x1 << VIRTIO_NET_F_GUEST_TSO4);
--        features &= ~(0x1 << VIRTIO_NET_F_GUEST_TSO6);
--        features &= ~(0x1 << VIRTIO_NET_F_GUEST_ECN);
-+        virtio_clear_feature(&features, VIRTIO_NET_F_GUEST_CSUM);
-+        virtio_clear_feature(&features, VIRTIO_NET_F_GUEST_TSO4);
-+        virtio_clear_feature(&features, VIRTIO_NET_F_GUEST_TSO6);
-+        virtio_clear_feature(&features, VIRTIO_NET_F_GUEST_ECN);
+     if (n->has_vnet_hdr) {
+         n->curr_guest_offloads =
+@@ -538,7 +541,7 @@ static void virtio_net_set_features(VirtIODevice *vdev, uint32_t features)
+         vhost_net_ack_features(get_vhost_net(nc->peer), features);
      }
  
-     if (!peer_has_vnet_hdr(n) || !peer_has_ufo(n)) {
--        features &= ~(0x1 << VIRTIO_NET_F_GUEST_UFO);
--        features &= ~(0x1 << VIRTIO_NET_F_HOST_UFO);
-+        virtio_clear_feature(&features, VIRTIO_NET_F_GUEST_UFO);
-+        virtio_clear_feature(&features, VIRTIO_NET_F_HOST_UFO);
+-    if ((1 << VIRTIO_NET_F_CTRL_VLAN) & features) {
++    if (__virtio_has_feature(features, VIRTIO_NET_F_CTRL_VLAN)) {
+         memset(n->vlans, 0, MAX_VLAN >> 3);
+     } else {
+         memset(n->vlans, 0xff, MAX_VLAN >> 3);
+@@ -585,7 +588,7 @@ static int virtio_net_handle_offloads(VirtIONet *n, uint8_t cmd,
+     uint64_t offloads;
+     size_t s;
+ 
+-    if (!((1 << VIRTIO_NET_F_CTRL_GUEST_OFFLOADS) & vdev->guest_features)) {
++    if (!virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS)) {
+         return VIRTIO_NET_ERR;
      }
  
-     if (!get_vhost_net(nc->peer)) {
-@@ -477,11 +477,11 @@ static uint32_t virtio_net_bad_features(VirtIODevice *vdev)
+@@ -1378,7 +1381,7 @@ static void virtio_net_save_device(VirtIODevice *vdev, QEMUFile *f)
+         }
+     }
  
-     /* Linux kernel 2.6.25.  It understood MAC (as everyone must),
-      * but also these: */
--    features |= (1 << VIRTIO_NET_F_MAC);
--    features |= (1 << VIRTIO_NET_F_CSUM);
--    features |= (1 << VIRTIO_NET_F_HOST_TSO4);
--    features |= (1 << VIRTIO_NET_F_HOST_TSO6);
--    features |= (1 << VIRTIO_NET_F_HOST_ECN);
-+    virtio_add_feature(&features, VIRTIO_NET_F_MAC);
-+    virtio_add_feature(&features, VIRTIO_NET_F_CSUM);
-+    virtio_add_feature(&features, VIRTIO_NET_F_HOST_TSO4);
-+    virtio_add_feature(&features, VIRTIO_NET_F_HOST_TSO6);
-+    virtio_add_feature(&features, VIRTIO_NET_F_HOST_ECN);
- 
-     return features;
+-    if ((1 << VIRTIO_NET_F_CTRL_GUEST_OFFLOADS) & vdev->guest_features) {
++    if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS)) {
+         qemu_put_be64(f, n->curr_guest_offloads);
+     }
  }
-@@ -1560,7 +1560,7 @@ static void virtio_net_guest_notifier_mask(VirtIODevice *vdev, int idx,
- void virtio_net_set_config_size(VirtIONet *n, uint32_t host_features)
+@@ -1486,7 +1489,7 @@ static int virtio_net_load_device(VirtIODevice *vdev, QEMUFile *f,
+         }
+     }
+ 
+-    if ((1 << VIRTIO_NET_F_CTRL_GUEST_OFFLOADS) & vdev->guest_features) {
++    if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS)) {
+         n->curr_guest_offloads = qemu_get_be64(f);
+     } else {
+         n->curr_guest_offloads = virtio_net_supported_guest_offloads(n);
+@@ -1513,8 +1516,8 @@ static int virtio_net_load_device(VirtIODevice *vdev, QEMUFile *f,
+         qemu_get_subqueue(n->nic, i)->link_down = link_down;
+     }
+ 
+-    if (vdev->guest_features & (0x1 << VIRTIO_NET_F_GUEST_ANNOUNCE) &&
+-        vdev->guest_features & (0x1 << VIRTIO_NET_F_CTRL_VQ)) {
++    if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_ANNOUNCE) &&
++        virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_VQ)) {
+         n->announce_counter = SELF_ANNOUNCE_ROUNDS;
+         timer_mod(n->announce_timer, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL));
+     }
+diff --git a/hw/scsi/virtio-scsi.c b/hw/scsi/virtio-scsi.c
+index ef48550..56c92fb 100644
+--- a/hw/scsi/virtio-scsi.c
++++ b/hw/scsi/virtio-scsi.c
+@@ -144,7 +144,7 @@ static int virtio_scsi_parse_req(VirtIOSCSIReq *req,
+      *
+      * TODO: always disable this workaround for virtio 1.0 devices.
+      */
+-    if ((vdev->guest_features & VIRTIO_F_ANY_LAYOUT) == 0) {
++    if (!virtio_has_feature(vdev, VIRTIO_F_ANY_LAYOUT)) {
+         req_size = req->elem.out_sg[0].iov_len;
+         resp_size = req->elem.in_sg[0].iov_len;
+     }
+@@ -748,7 +748,7 @@ static void virtio_scsi_change(SCSIBus *bus, SCSIDevice *dev, SCSISense sense)
+     VirtIOSCSI *s = container_of(bus, VirtIOSCSI, bus);
+     VirtIODevice *vdev = VIRTIO_DEVICE(s);
+ 
+-    if (((vdev->guest_features >> VIRTIO_SCSI_F_CHANGE) & 1) &&
++    if (virtio_has_feature(vdev, VIRTIO_SCSI_F_CHANGE) &&
+         dev->type != TYPE_ROM) {
+         virtio_scsi_push_event(s, dev, VIRTIO_SCSI_T_PARAM_CHANGE,
+                                sense.asc | (sense.ascq << 8));
+@@ -769,7 +769,7 @@ static void virtio_scsi_hotplug(HotplugHandler *hotplug_dev, DeviceState *dev,
+         blk_op_block_all(sd->conf.blk, s->blocker);
+     }
+ 
+-    if ((vdev->guest_features >> VIRTIO_SCSI_F_HOTPLUG) & 1) {
++    if (virtio_has_feature(vdev, VIRTIO_SCSI_F_HOTPLUG)) {
+         virtio_scsi_push_event(s, sd,
+                                VIRTIO_SCSI_T_TRANSPORT_RESET,
+                                VIRTIO_SCSI_EVT_RESET_RESCAN);
+@@ -783,7 +783,7 @@ static void virtio_scsi_hotunplug(HotplugHandler *hotplug_dev, DeviceState *dev,
+     VirtIOSCSI *s = VIRTIO_SCSI(vdev);
+     SCSIDevice *sd = SCSI_DEVICE(dev);
+ 
+-    if ((vdev->guest_features >> VIRTIO_SCSI_F_HOTPLUG) & 1) {
++    if (virtio_has_feature(vdev, VIRTIO_SCSI_F_HOTPLUG)) {
+         virtio_scsi_push_event(s, sd,
+                                VIRTIO_SCSI_T_TRANSPORT_RESET,
+                                VIRTIO_SCSI_EVT_RESET_REMOVED);
+diff --git a/hw/virtio/dataplane/vring.c b/hw/virtio/dataplane/vring.c
+index 61f6d83..6e283fc 100644
+--- a/hw/virtio/dataplane/vring.c
++++ b/hw/virtio/dataplane/vring.c
+@@ -103,7 +103,7 @@ void vring_teardown(Vring *vring, VirtIODevice *vdev, int n)
+ /* Disable guest->host notifies */
+ void vring_disable_notification(VirtIODevice *vdev, Vring *vring)
  {
-     int i, config_size = 0;
--    host_features |= (1 << VIRTIO_NET_F_MAC);
-+    virtio_add_feature(&host_features, VIRTIO_NET_F_MAC);
-     for (i = 0; feature_sizes[i].flags != 0; i++) {
-         if (host_features & feature_sizes[i].flags) {
-             config_size = MAX(feature_sizes[i].end, config_size);
-diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
-index 84f17bc..3fee4aa 100644
---- a/hw/s390x/virtio-ccw.c
-+++ b/hw/s390x/virtio-ccw.c
-@@ -743,8 +743,8 @@ static int virtio_ccw_device_init(VirtioCcwDevice *dev, VirtIODevice *vdev)
-     dev->host_features[0] = virtio_bus_get_vdev_features(&dev->bus,
-                                                          dev->host_features[0]);
- 
--    dev->host_features[0] |= 0x1 << VIRTIO_F_NOTIFY_ON_EMPTY;
--    dev->host_features[0] |= 0x1 << VIRTIO_F_BAD_FEATURE;
-+    virtio_add_feature(&dev->host_features[0], VIRTIO_F_NOTIFY_ON_EMPTY);
-+    virtio_add_feature(&dev->host_features[0], VIRTIO_F_BAD_FEATURE);
- 
-     css_generate_sch_crws(sch->cssid, sch->ssid, sch->schid,
-                           parent->hotplugged, 1);
-diff --git a/hw/virtio/virtio-mmio.c b/hw/virtio/virtio-mmio.c
-index 2450c13..10123f3 100644
---- a/hw/virtio/virtio-mmio.c
-+++ b/hw/virtio/virtio-mmio.c
-@@ -349,7 +349,7 @@ static void virtio_mmio_device_plugged(DeviceState *opaque)
- {
-     VirtIOMMIOProxy *proxy = VIRTIO_MMIO(opaque);
- 
--    proxy->host_features |= (0x1 << VIRTIO_F_NOTIFY_ON_EMPTY);
-+    virtio_add_feature(&proxy->host_features, VIRTIO_F_NOTIFY_ON_EMPTY);
-     proxy->host_features = virtio_bus_get_vdev_features(&proxy->bus,
-                                                         proxy->host_features);
+-    if (!(vdev->guest_features & (1 << VIRTIO_RING_F_EVENT_IDX))) {
++    if (!virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX)) {
+         vring->vr.used->flags |= VRING_USED_F_NO_NOTIFY;
+     }
  }
-diff --git a/hw/virtio/virtio-pci.c b/hw/virtio/virtio-pci.c
-index dde1d73..e7969bf 100644
---- a/hw/virtio/virtio-pci.c
-+++ b/hw/virtio/virtio-pci.c
-@@ -996,8 +996,8 @@ static void virtio_pci_device_plugged(DeviceState *d)
-         proxy->flags &= ~VIRTIO_PCI_FLAG_USE_IOEVENTFD;
+@@ -114,7 +114,7 @@ void vring_disable_notification(VirtIODevice *vdev, Vring *vring)
+  */
+ bool vring_enable_notification(VirtIODevice *vdev, Vring *vring)
+ {
+-    if (vdev->guest_features & (1 << VIRTIO_RING_F_EVENT_IDX)) {
++    if (virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX)) {
+         vring_avail_event(&vring->vr) = vring->vr.avail->idx;
+     } else {
+         vring->vr.used->flags &= ~VRING_USED_F_NO_NOTIFY;
+@@ -133,12 +133,12 @@ bool vring_should_notify(VirtIODevice *vdev, Vring *vring)
+      * interrupts. */
+     smp_mb();
+ 
+-    if ((vdev->guest_features & VIRTIO_F_NOTIFY_ON_EMPTY) &&
++    if (virtio_has_feature(vdev, VIRTIO_F_NOTIFY_ON_EMPTY) &&
+         unlikely(vring->vr.avail->idx == vring->last_avail_idx)) {
+         return true;
      }
  
--    proxy->host_features |= 0x1 << VIRTIO_F_NOTIFY_ON_EMPTY;
--    proxy->host_features |= 0x1 << VIRTIO_F_BAD_FEATURE;
-+    virtio_add_feature(&proxy->host_features, VIRTIO_F_NOTIFY_ON_EMPTY);
-+    virtio_add_feature(&proxy->host_features, VIRTIO_F_BAD_FEATURE);
-     proxy->host_features = virtio_bus_get_vdev_features(bus,
-                                                       proxy->host_features);
+-    if (!(vdev->guest_features & VIRTIO_RING_F_EVENT_IDX)) {
++    if (!virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX)) {
+         return !(vring->vr.avail->flags & VRING_AVAIL_F_NO_INTERRUPT);
+     }
+     old = vring->signalled_used;
+@@ -388,7 +388,7 @@ int vring_pop(VirtIODevice *vdev, Vring *vring,
+ 
+     /* On success, increment avail index. */
+     vring->last_avail_idx++;
+-    if (vdev->guest_features & (1 << VIRTIO_RING_F_EVENT_IDX)) {
++    if (virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX)) {
+         vring_avail_event(&vring->vr) = vring->last_avail_idx;
+     }
+ 
+diff --git a/hw/virtio/virtio-balloon.c b/hw/virtio/virtio-balloon.c
+index 7bfbb75..21e449a 100644
+--- a/hw/virtio/virtio-balloon.c
++++ b/hw/virtio/virtio-balloon.c
+@@ -69,7 +69,7 @@ static inline void reset_stats(VirtIOBalloon *dev)
+ static bool balloon_stats_supported(const VirtIOBalloon *s)
+ {
+     VirtIODevice *vdev = VIRTIO_DEVICE(s);
+-    return vdev->guest_features & (1 << VIRTIO_BALLOON_F_STATS_VQ);
++    return virtio_has_feature(vdev, VIRTIO_BALLOON_F_STATS_VQ);
  }
+ 
+ static bool balloon_stats_enabled(const VirtIOBalloon *s)
+diff --git a/hw/virtio/virtio.c b/hw/virtio/virtio.c
+index 013979a..5814433 100644
+--- a/hw/virtio/virtio.c
++++ b/hw/virtio/virtio.c
+@@ -217,7 +217,7 @@ static inline void vring_avail_event(VirtQueue *vq, uint16_t val)
+ void virtio_queue_set_notification(VirtQueue *vq, int enable)
+ {
+     vq->notification = enable;
+-    if (vq->vdev->guest_features & (1 << VIRTIO_RING_F_EVENT_IDX)) {
++    if (virtio_has_feature(vq->vdev, VIRTIO_RING_F_EVENT_IDX)) {
+         vring_avail_event(vq, vring_avail_idx(vq));
+     } else if (enable) {
+         vring_used_flags_unset_bit(vq, VRING_USED_F_NO_NOTIFY);
+@@ -468,7 +468,7 @@ int virtqueue_pop(VirtQueue *vq, VirtQueueElement *elem)
+     max = vq->vring.num;
+ 
+     i = head = virtqueue_get_head(vq, vq->last_avail_idx++);
+-    if (vdev->guest_features & (1 << VIRTIO_RING_F_EVENT_IDX)) {
++    if (virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX)) {
+         vring_avail_event(vq, vq->last_avail_idx);
+     }
+ 
+@@ -839,12 +839,12 @@ static bool vring_notify(VirtIODevice *vdev, VirtQueue *vq)
+     /* We need to expose used array entries before checking used event. */
+     smp_mb();
+     /* Always notify when queue is empty (when feature acknowledge) */
+-    if (((vdev->guest_features & (1 << VIRTIO_F_NOTIFY_ON_EMPTY)) &&
+-         !vq->inuse && vring_avail_idx(vq) == vq->last_avail_idx)) {
++    if (virtio_has_feature(vdev, VIRTIO_F_NOTIFY_ON_EMPTY) &&
++        !vq->inuse && vring_avail_idx(vq) == vq->last_avail_idx) {
+         return true;
+     }
+ 
+-    if (!(vdev->guest_features & (1 << VIRTIO_RING_F_EVENT_IDX))) {
++    if (!virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX)) {
+         return !(vring_avail_flags(vq) & VRING_AVAIL_F_NO_INTERRUPT);
+     }
+ 
 diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
-index 0726d76..2fede2e 100644
+index 2fede2e..f6c0379 100644
 --- a/include/hw/virtio/virtio.h
 +++ b/include/hw/virtio/virtio.h
-@@ -266,6 +266,18 @@ void virtio_queue_set_host_notifier_fd_handler(VirtQueue *vq, bool assign,
- void virtio_queue_notify_vq(VirtQueue *vq);
- void virtio_irq(VirtQueue *vq);
+@@ -278,6 +278,17 @@ static inline void virtio_clear_feature(uint32_t *features, unsigned int fbit)
+     *features &= ~(1 << fbit);
+ }
  
-+static inline void virtio_add_feature(uint32_t *features, unsigned int fbit)
++static inline bool __virtio_has_feature(uint32_t features, unsigned int fbit)
 +{
 +    assert(fbit < 32);
-+    *features |= (1 << fbit);
++    return !!(features & (1 << fbit));
 +}
 +
-+static inline void virtio_clear_feature(uint32_t *features, unsigned int fbit)
++static inline bool virtio_has_feature(VirtIODevice *vdev, unsigned int fbit)
 +{
-+    assert(fbit < 32);
-+    *features &= ~(1 << fbit);
++    return __virtio_has_feature(vdev->guest_features, fbit);
 +}
 +
  static inline bool virtio_is_big_endian(VirtIODevice *vdev)
