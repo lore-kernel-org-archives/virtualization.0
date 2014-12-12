@@ -1,15 +1,15 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH RFC v6 04/20] virtio: add feature checking helpers
-Date: Fri, 12 Dec 2014 11:07:01 +0100
-Message-ID: <20141212110701.0c6d879b.cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH RFC v6 05/20] virtio: support more feature bits
+Date: Fri, 12 Dec 2014 11:17:47 +0100
+Message-ID: <20141212111747.26047921.cornelia.huck@de.ibm.com>
 References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1418304322-7546-5-git-send-email-cornelia.huck@de.ibm.com>
-	<20141211154623.4a73fef9@oc7435384737.ibm.com>
+	<1418304322-7546-6-git-send-email-cornelia.huck@de.ibm.com>
+	<20141212110640.5ddfcbda@oc7435384737.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141211154623.4a73fef9@oc7435384737.ibm.com>
+In-Reply-To: <20141212110640.5ddfcbda@oc7435384737.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,28 +23,101 @@ To: Thomas Huth <thuth@linux.vnet.ibm.com>
 Cc: mst@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 11 Dec 2014 15:46:23 +0100
+On Fri, 12 Dec 2014 11:06:40 +0100
 Thomas Huth <thuth@linux.vnet.ibm.com> wrote:
 
+> On Thu, 11 Dec 2014 14:25:07 +0100
+> Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
+> 
+> > With virtio-1, we support more than 32 feature bits. Let's extend both
+> > host and guest features to 64, which should suffice for a while.
+> > 
+> > vhost and migration have been ignored for now.
+> > 
+> > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-> > +static inline bool __virtio_has_feature(uint32_t features, unsigned int fbit)
-> > +{
-> > +    assert(fbit < 32);
-> > +    return !!(features & (1 << fbit));
-> > +}
-> > +
-> > +static inline bool virtio_has_feature(VirtIODevice *vdev, unsigned int fbit)
-> > +{
-> > +    return __virtio_has_feature(vdev->guest_features, fbit);
-> > +}
+> > @@ -1036,7 +1036,7 @@ static ssize_t virtio_net_receive(NetClientState *nc, const uint8_t *buf, size_t
+> >                  return -1;
+> >              error_report("virtio-net unexpected empty queue: "
+> >                      "i %zd mergeable %d offset %zd, size %zd, "
+> > -                    "guest hdr len %zd, host hdr len %zd guest features 0x%x",
+> > +                    "guest hdr len %zd, host hdr len %zd guest features 0x%lx",
+> 
+> I think you need a different format string like PRIx64 here so that the
+> code also works right on a 32-bit system (where long is only 32-bit).
+
+Reminder to self: set up cross-compile again.
+
+> 
+> >                      i, n->mergeable_rx_bufs, offset, size,
+> >                      n->guest_hdr_len, n->host_hdr_len, vdev->guest_features);
+> >              exit(1);
+
+> > @@ -399,8 +401,14 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
+> >              features.index = ldub_phys(&address_space_memory,
+> >                                         ccw.cda + sizeof(features.features));
+> >              features.features = ldl_le_phys(&address_space_memory, ccw.cda);
+> > -            if (features.index < ARRAY_SIZE(dev->host_features)) {
+> > -                virtio_set_features(vdev, features.features);
+> > +            if (features.index == 0) {
+> > +                virtio_set_features(vdev,
+> > +                                    (vdev->guest_features & 0xffffffff00000000) |
+> > +                                    features.features);
+> > +            } else if (features.index == 1) {
+> > +                virtio_set_features(vdev,
+> > +                                    (vdev->guest_features & 0x00000000ffffffff) |
+> > +                                    ((uint64_t)features.features << 32));
+> 
+> The long constants 0xffffffff00000000 and 0x00000000ffffffff should
+> probably get an ULL suffix.
+
+Probably.
+
+> > @@ -593,6 +593,7 @@ void virtio_reset(void *opaque)
+> >      }
+> > 
+> >      vdev->guest_features = 0;
 > > +
 > 
-> I've got to say that I'm a little bit unhappy with the naming of the
-> functions - and in contrast to the Linux kernel code, I think it is
-> also quite uncommon in the QEMU sources to use function names with
-> double underscores at the beginning.
-> 
-> Could you maybe rename the second function to "virtio_vdev_has_feature"
-> instead? And then remove the double underscores from the first function?
+> Unnecessary white space change?
 
-Renamed the functions just like this.
+Crept in during various rebase sessions :)
+
+> 
+> >      vdev->queue_sel = 0;
+> >      vdev->status = 0;
+> >      vdev->isr = 0;
+> > @@ -924,7 +925,8 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
+> >      qemu_put_8s(f, &vdev->status);
+> >      qemu_put_8s(f, &vdev->isr);
+> >      qemu_put_be16s(f, &vdev->queue_sel);
+> > -    qemu_put_be32s(f, &vdev->guest_features);
+> > +    /* XXX features >= 32 */
+> > +    qemu_put_be32s(f, (uint32_t *)&vdev->guest_features);
+> 
+> Casting a uint64_t* to a uint32_t* here sounds very wrong - this likely
+> only works on little endian sytems, but certainly not on big-endian
+> systems.
+> If you do not want to extend this for 64-bit right from the beginning,
+> I think you've got to use a temporary 32-bit variable to get this right.
+
+Hm... always store the old 32 bits here, then store the new 32 bits
+later? Should be able to get that compatible.
+
+
+> > +#define DEFINE_PROP_BIT64(_name, _state, _field, _bit, _defval) {  \
+> > +        .name      = (_name),                                    \
+> > +        .info      = &(qdev_prop_bit64),                           \
+> 
+> No need for the paranthesis around qdev_prop_bit64 here?
+
+Straight copy&paste :) I'd prefer to keep the same style for all
+#defines here.
+
+> 
+> > +        .bitnr    = (_bit),                                      \
+> > +        .offset    = offsetof(_state, _field)                    \
+> > +            + type_check(uint64_t,typeof_field(_state, _field)), \
+> > +        .qtype     = QTYPE_QBOOL,                                \
+> > +        .defval    = (bool)_defval,                              \
+> > +        }
