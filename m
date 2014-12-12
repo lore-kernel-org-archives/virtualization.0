@@ -1,15 +1,15 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH RFC v6 05/20] virtio: support more feature bits
-Date: Fri, 12 Dec 2014 11:17:47 +0100
-Message-ID: <20141212111747.26047921.cornelia.huck@de.ibm.com>
+From: Thomas Huth <thuth@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC v6 12/20] virtio: disallow late feature changes for
+	virtio-1
+Date: Fri, 12 Dec 2014 11:55:38 +0100
+Message-ID: <20141212115538.2aa96fd2@oc7435384737.ibm.com>
 References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1418304322-7546-6-git-send-email-cornelia.huck@de.ibm.com>
-	<20141212110640.5ddfcbda@oc7435384737.ibm.com>
+	<1418304322-7546-13-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141212110640.5ddfcbda@oc7435384737.ibm.com>
+In-Reply-To: <1418304322-7546-13-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,105 +19,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Huth <thuth@linux.vnet.ibm.com>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
 Cc: mst@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 12 Dec 2014 11:06:40 +0100
-Thomas Huth <thuth@linux.vnet.ibm.com> wrote:
+On Thu, 11 Dec 2014 14:25:14 +0100
+Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
 
-> On Thu, 11 Dec 2014 14:25:07 +0100
-> Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
+> For virtio-1 devices, the driver must not attempt to set feature bits
+> after it set FEATURES_OK in the device status. Simply reject it in
+> that case.
 > 
-> > With virtio-1, we support more than 32 feature bits. Let's extend both
-> > host and guest features to 64, which should suffice for a while.
-> > 
-> > vhost and migration have been ignored for now.
-> > 
-> > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-
-> > @@ -1036,7 +1036,7 @@ static ssize_t virtio_net_receive(NetClientState *nc, const uint8_t *buf, size_t
-> >                  return -1;
-> >              error_report("virtio-net unexpected empty queue: "
-> >                      "i %zd mergeable %d offset %zd, size %zd, "
-> > -                    "guest hdr len %zd, host hdr len %zd guest features 0x%x",
-> > +                    "guest hdr len %zd, host hdr len %zd guest features 0x%lx",
+> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> ---
+>  hw/virtio/virtio.c         |   16 ++++++++++++++--
+>  include/hw/virtio/virtio.h |    2 ++
+>  2 files changed, 16 insertions(+), 2 deletions(-)
 > 
-> I think you need a different format string like PRIx64 here so that the
-> code also works right on a 32-bit system (where long is only 32-bit).
-
-Reminder to self: set up cross-compile again.
-
+> diff --git a/hw/virtio/virtio.c b/hw/virtio/virtio.c
+> index 57190ba..a3dd67b 100644
+> --- a/hw/virtio/virtio.c
+> +++ b/hw/virtio/virtio.c
+> @@ -978,7 +978,7 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
+>      vmstate_save_state(f, &vmstate_virtio, vdev);
+>  }
 > 
-> >                      i, n->mergeable_rx_bufs, offset, size,
-> >                      n->guest_hdr_len, n->host_hdr_len, vdev->guest_features);
-> >              exit(1);
+> -int virtio_set_features(VirtIODevice *vdev, uint64_t val)
+> +static int __virtio_set_features(VirtIODevice *vdev, uint64_t val)
 
-> > @@ -399,8 +401,14 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
-> >              features.index = ldub_phys(&address_space_memory,
-> >                                         ccw.cda + sizeof(features.features));
-> >              features.features = ldl_le_phys(&address_space_memory, ccw.cda);
-> > -            if (features.index < ARRAY_SIZE(dev->host_features)) {
-> > -                virtio_set_features(vdev, features.features);
-> > +            if (features.index == 0) {
-> > +                virtio_set_features(vdev,
-> > +                                    (vdev->guest_features & 0xffffffff00000000) |
-> > +                                    features.features);
-> > +            } else if (features.index == 1) {
-> > +                virtio_set_features(vdev,
-> > +                                    (vdev->guest_features & 0x00000000ffffffff) |
-> > +                                    ((uint64_t)features.features << 32));
+Maybe avoid the double underscores here? But unfortunately, I also fail
+to come up with a better suggestion for a name here ...
+
+>  {
+>      BusState *qbus = qdev_get_parent_bus(DEVICE(vdev));
+>      VirtioBusClass *vbusk = VIRTIO_BUS_GET_CLASS(qbus);
+> @@ -994,6 +994,18 @@ int virtio_set_features(VirtIODevice *vdev, uint64_t val)
+>      return bad ? -1 : 0;
+>  }
 > 
-> The long constants 0xffffffff00000000 and 0x00000000ffffffff should
-> probably get an ULL suffix.
+> +int virtio_set_features(VirtIODevice *vdev, uint64_t val)
+> +{
+> +   /*
+> +     * The driver must not attempt to set features after feature negotiation
+> +     * has finished.
+> +     */
+> +    if (vdev->status & VIRTIO_CONFIG_S_FEATURES_OK) {
+> +        return -EINVAL;
+> +    }
 
-Probably.
+Hmm, according to your patch description, the FEATURES_OK check only
+applies to virtio-1.0 devices ... so shouldn't there be a check for
+virtio-1 here? Or did I miss something?
 
-> > @@ -593,6 +593,7 @@ void virtio_reset(void *opaque)
-> >      }
-> > 
-> >      vdev->guest_features = 0;
-> > +
-> 
-> Unnecessary white space change?
+> +    return __virtio_set_features(vdev, val);
+> +}
 
-Crept in during various rebase sessions :)
-
-> 
-> >      vdev->queue_sel = 0;
-> >      vdev->status = 0;
-> >      vdev->isr = 0;
-> > @@ -924,7 +925,8 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
-> >      qemu_put_8s(f, &vdev->status);
-> >      qemu_put_8s(f, &vdev->isr);
-> >      qemu_put_be16s(f, &vdev->queue_sel);
-> > -    qemu_put_be32s(f, &vdev->guest_features);
-> > +    /* XXX features >= 32 */
-> > +    qemu_put_be32s(f, (uint32_t *)&vdev->guest_features);
-> 
-> Casting a uint64_t* to a uint32_t* here sounds very wrong - this likely
-> only works on little endian sytems, but certainly not on big-endian
-> systems.
-> If you do not want to extend this for 64-bit right from the beginning,
-> I think you've got to use a temporary 32-bit variable to get this right.
-
-Hm... always store the old 32 bits here, then store the new 32 bits
-later? Should be able to get that compatible.
-
-
-> > +#define DEFINE_PROP_BIT64(_name, _state, _field, _bit, _defval) {  \
-> > +        .name      = (_name),                                    \
-> > +        .info      = &(qdev_prop_bit64),                           \
-> 
-> No need for the paranthesis around qdev_prop_bit64 here?
-
-Straight copy&paste :) I'd prefer to keep the same style for all
-#defines here.
-
-> 
-> > +        .bitnr    = (_bit),                                      \
-> > +        .offset    = offsetof(_state, _field)                    \
-> > +            + type_check(uint64_t,typeof_field(_state, _field)), \
-> > +        .qtype     = QTYPE_QBOOL,                                \
-> > +        .defval    = (bool)_defval,                              \
-> > +        }
+ Thomas
