@@ -1,17 +1,13 @@
-From: Thomas Huth <thuth@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC v6 12/20] virtio: disallow late feature changes for
-	virtio-1
-Date: Fri, 12 Dec 2014 12:25:47 +0100
-Message-ID: <20141212122547.511baafd@oc7435384737.ibm.com>
-References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1418304322-7546-13-git-send-email-cornelia.huck@de.ibm.com>
-	<20141212115538.2aa96fd2@oc7435384737.ibm.com>
-	<20141212121825.6c09af4d.cornelia.huck@de.ibm.com>
+From: Ioan Raicu <iraicu@cs.iit.edu>
+Subject: CFP: The 24th Int. ACM Symp. on High-Performance Parallel and
+	Distributed Computing (HPDC) 2015 -- Abstracts due 01/12/15
+Date: Fri, 12 Dec 2014 12:51:41 -0600
+Message-ID: <548B393D.9000802@cs.iit.edu>
+Reply-To: iraicu@cs.iit.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141212121825.6c09af4d.cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,79 +17,199 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: mst@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org, micro_publicity@crhc.uiuc.edu, hpc-ft@lists.ncsu.edu, infodir_SIGARCH@acm.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 12 Dec 2014 12:18:25 +0100
-Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
+                         **** CALL FOR PAPERS ****
 
-> On Fri, 12 Dec 2014 11:55:38 +0100
-> Thomas Huth <thuth@linux.vnet.ibm.com> wrote:
-> 
-> > On Thu, 11 Dec 2014 14:25:14 +0100
-> > Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
-> > 
-> > > For virtio-1 devices, the driver must not attempt to set feature bits
-> > > after it set FEATURES_OK in the device status. Simply reject it in
-> > > that case.
-> > > 
-> > > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> > > ---
-> > >  hw/virtio/virtio.c         |   16 ++++++++++++++--
-> > >  include/hw/virtio/virtio.h |    2 ++
-> > >  2 files changed, 16 insertions(+), 2 deletions(-)
-> > > 
-> > > diff --git a/hw/virtio/virtio.c b/hw/virtio/virtio.c
-> > > index 57190ba..a3dd67b 100644
-> > > --- a/hw/virtio/virtio.c
-> > > +++ b/hw/virtio/virtio.c
-> > > @@ -978,7 +978,7 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
-> > >      vmstate_save_state(f, &vmstate_virtio, vdev);
-> > >  }
-> > > 
-> > > -int virtio_set_features(VirtIODevice *vdev, uint64_t val)
-> > > +static int __virtio_set_features(VirtIODevice *vdev, uint64_t val)
-> > 
-> > Maybe avoid the double underscores here? But unfortunately, I also fail
-> > to come up with a better suggestion for a name here ...
-> 
-> virtio_set_features_nocheck()?
+                  The 24th International ACM Symposium on
+           High-Performance Parallel and Distributed Computing
+                              (HPDC-2015)
 
-Sounds ok to me.
+                Portland, Oregon, USA - June 15-19, 2015
 
-> This function is only called within virtio.c anyway...
+                         http://www.hpdc.org/2015
 
-Right, so the double underscores should be ok here, too. (I still do
-not like them very much, but that's just my personal taste in this case)
 
-> > >  {
-> > >      BusState *qbus = qdev_get_parent_bus(DEVICE(vdev));
-> > >      VirtioBusClass *vbusk = VIRTIO_BUS_GET_CLASS(qbus);
-> > > @@ -994,6 +994,18 @@ int virtio_set_features(VirtIODevice *vdev, uint64_t val)
-> > >      return bad ? -1 : 0;
-> > >  }
-> > > 
-> > > +int virtio_set_features(VirtIODevice *vdev, uint64_t val)
-> > > +{
-> > > +   /*
-> > > +     * The driver must not attempt to set features after feature negotiation
-> > > +     * has finished.
-> > > +     */
-> > > +    if (vdev->status & VIRTIO_CONFIG_S_FEATURES_OK) {
-> > > +        return -EINVAL;
-> > > +    }
-> > 
-> > Hmm, according to your patch description, the FEATURES_OK check only
-> > applies to virtio-1.0 devices ... so shouldn't there be a check for
-> > virtio-1 here? Or did I miss something?
-> 
-> A device in legacy mode will never have FEATURES_OK set. But it is a
-> bit non-obvious - maybe adding a check for VERSION_1 does not hurt.
+The ACM International Symposium on High-Performance Parallel and Distributed
+Computing (HPDC) is the premier annual conference for presenting the latest
+research on the design, implementation, evaluation, and the use of parallel
+and distributed systems for high-end computing.
 
-Ah, ok, right, and if it is a legacy device and has FEATURES_OK set, it
-is certainly a misbehavior wrt the legacy protocol. So it really should
-be ok or even good to _not_ check for virtio-1.0 here. So sorry for the
-confusion, I think now the patch is good as it is:
+The 24th HPDC will take place in the city of roses, Portland, Oregon on June
+15-19, 2015. (Workshops on June 15-16, and the main conference on June 17-19.)
 
-Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+
+**** IMPORTANT DATES ****
+Abstracts (required) due:   January 12, 2015
+Full Papers due:            January 19, 2015 (no extensions)
+Author rebuttal period:     March 4-7, 2015
+Author notifications:       March 16, 2015
+Final Manuscripts:          April 1, 2015
+
+
+**** SCOPE AND TOPICS ****
+Submissions are welcomed on high-performance parallel and distributed computing
+topics including but not limited to: clouds, clusters, grids, big data,
+massively multicore, and global-scale computing systems. Submissions that focus
+on the architectures, systems, and networks of cloud infrastructures are
+particularly encouraged, as are experience reports of operational deployments
+that can provide insights for future research on HPDC applications and systems.
+All papers will be evaluated for their originality, technical depth and
+correctness, potential impact, relevance to the conference, and quality of
+presentation. Research papers must clearly demonstrate research contributions
+and novelty, while experience reports must clearly describe lessons learned and
+demonstrate impact.
+
+In the context of high-performance parallel and distributed computing, the
+topics of interest include, but are not limited to:
+- Systems, networks, and architectures
+- Massively multicore systems
+- Resource virtualization
+- Programming languages and environments
+- File and storage systems, I/O, and data management
+- Resource management and scheduling, including energy-aware techniques
+- Performance modeling and analysis
+- Fault tolerance, reliability, and availability
+- Data-intensive computing
+- Applications and services that depend upon high-end computing
+
+
+**** PAPER SUBMISSION GUIDELINES ****
+Authors are invited to submit technical papers of at most 12 pages in PDF
+format, including figures and references. Papers should be formatted in the ACM
+Proceedings Style and submitted via the conference web site. No changes to the
+margins, spacing, or font sizes as specified by the style file are allowed.
+Accepted papers will appear in the conference proceedings, and will be
+incorporated into the ACM Digital Library. A limited number of papers will be
+accepted as posters.
+
+Papers must be self-contained and provide the technical substance required for
+the program committee to evaluate their contributions. Submitted papers must be
+original work that has not appeared in and is not under consideration for
+another conference or a journal. See the ACM Prior Publication Policy for more
+details. Papers can be submitted at https://ssl.linklings.net/conferences/hpdc/.
+
+
+**** HPDC'15 GENERAL CHAIR ****
+Thilo Kielmann, VU University Amsterdam, The Netherlands
+
+**** HPDC'15 PROGRAM CO-CHAIRS ****
+Dean Hildebrand, IBM Research Almaden, USA
+Michela Taufer, University of Delaware, USA
+
+**** HPDC'15 WORKSHOP CHAIRS ****
+Abhishek Chandra, University of Minnesota, Twin Cities, USA
+Ioan Raicu, Illinois Institute of Technology and Argonne National Laboratory, USA
+
+**** HPDC'15 POSTERS CHAIR ****
+Ana-Maria Oprescu, VU University Amsterdam, The Netherlands
+
+**** HPDC'15 PUBLICITY CHAIRS ****
+Ioan Raicu, Illinois Institute of Technology and Argonne National Laboratory, USA
+Torsten Hoefler, ETH Zurich, Switzerland
+Naoya Maruyama, RIKEN Advanced Institute for Computational Science, Japan
+
+**** HPDC'15 PUBLICATIONS CHAIR ****
+Antonino Tumeo, Pacific Northwest National Laboratory, USA
+
+**** HPDC'15 TRAVEL AWARD CHAIR ****
+Ming Zhao, Florida International University, USA
+
+**** HPDC'15 SPONSORSHIP CHAIR ****
+Martin Swany, Indiana University, USA
+
+**** HPDC'15 WEBMASTER ****
+Kaveh Razavi, VU University Amsterdam, The Netherlands
+
+**** HPDC'15 PROGRAM COMMITTEE ****
+David Abramson, The University of Queensland, Australia
+Dong Ahn, Lawrence Livermore National Laboratory, USA
+Gabriel Antoniu, INRIA, France
+Henri Bal, VU University Amsterdam, The Netherlands
+Pavan Balaji, Argonne National Laboratory, USA
+Michela Becchi, University of Missouri, USA
+John Bent, EMC, USA
+Greg Bronevetsky, Lawrence Livermore National Laboratory, USA
+Ali Butt, Virginia Tech, USA
+Franck Cappello, Argonne National Lab, USA
+Abhishek Chandra, University of Minnesota, USA
+Andrew A. Chien, University of Chicago, USA
+Paolo Costa, Microsoft Research Cambridge, UK
+Kei Davis, Los Alamos National Laboratory, USA
+Peter Dinda, Northwestern University, USA
+Dick Epema, Delft and Eindhoven University of Technology, The Netherlands
+Gilles Fedak, INRIA, France
+Wuchun Feng, Virginia Tech, USA
+Renato Figueiredo, University of Florida, USA
+Clemens Grelck, University of Amsterdam, The Netherlands
+Adriana Iamnitchi, University of South Florida, USA
+Larry Kaplan, Cray Inc., USA
+Kate Keahey, Argonne National Laboratory, USA
+Dries Kimpe, Argonne National Laboratory, USA
+Alice Koniges, Lawrence Berkeley National Laboratory, USA
+Zhiling Lan, Illinois Institute of Technology, USA
+John (Jack) Lange, University of Pittsburgh, USA
+Gary Liu, Oak Ridge National Laboratory, USA
+Jay Lofstead, Sandia National Laboratories, USA
+Arthur Barney Maccabe, Oak Ridge National Laboratory, USA
+Carlos Maltzahn, University of California, Santa Cruz, USA
+Naoya Maruyama, RIKEN Advanced Institute for Comp. Science, Japan
+Satoshi Matsuoka, Tokyo Inst. Technology, Japan
+Timothy Mattson, Intel, USA
+Kathryn Mohror, Lawrence Livermore National Laboratory, USA
+Bogdan Nicolae, IBM Research, Ireland
+Sangmi Pallickara, Colorado State University, USA
+Manish Parashar, Rutgers University, USA
+Lavanya Ramakrishnan, Lawrence Berkeley National Laboratory, USA
+Raju Rangaswami, Florida International University, USA
+Matei Ripeanu, University of British Columbia, Canada
+Nagiza F. Samatova, North Carolina State University, USA
+Prasenjit Sarkar, Independent Consultant, USA
+Karsten Schwan, Georgia Institute of Technology, USA
+Vasily Tarasov, IBM Research, USA
+Kenjiro Taura, University of Tokyo, Japan
+Douglas Thain, University of Notre Dame, USA
+Ana Varbanescu, University of Amsterdam, The Netherlands
+Richard Vuduc, Georgia Institute of Technology, USA
+Jon Weissman, University of Minnesota, USA
+Dongyan Xu, Purdue University, USA
+Rui Zhang, IBM Research, USA
+
+**** HPDC STEERING COMMITTEE ****
+Franck Cappello, Argonne National Lab, USA and INRIA, France
+Andrew A. Chien, University of Chicago, USA
+Peter Dinda, Northwestern University, USA
+Dick Epema, Delft and Eindhoven University of Technology, The Netherlands
+Renato Figueiredo, University of Florida, USA
+Salim Hariri, University of Arizona, USA
+Thilo Kielmann, VU University Amsterdam, The Netherlands
+Arthur "Barney" Maccabe, Oak Ridge National Laboratory, USA
+Manish Parashar, Rutgers University, USA
+Matei Ripeanu, University of British Columbia, Canada
+Karsten Schwan, Georgia Tech, USA
+Doug Thain, University of Notre Dame, USA
+Jon Weissman, University of Minnesota, USA (Chair)
+Dongyan Xu, Purdue University, USA
+
+-- 
+=================================================================
+Ioan Raicu, Ph.D.
+Assistant Professor, Illinois Institute of Technology (IIT)
+Guest Research Faculty, Argonne National Laboratory (ANL)
+=================================================================
+Data-Intensive Distributed Systems Laboratory, CS/IIT
+Distributed Systems Laboratory, MCS/ANL
+=================================================================
+Editor: IEEE TCC, Springer Cluster, Springer JoCCASA
+Chair:  IEEE/ACM MTAGS, ACM ScienceCloud
+=================================================================
+Cel:      1-847-722-0876
+Office:   1-312-567-5704
+Email:    iraicu@cs.iit.edu
+Web:      http://www.cs.iit.edu/~iraicu/
+Web:      http://datasys.cs.iit.edu/
+LinkedIn: http://www.linkedin.com/in/ioanraicu
+Google:   http://scholar.google.com/citations?user=jE73HYAAAAAJ
+=================================================================
+=================================================================
