@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 2/6] tools/virtio: fix vringh test
-Date: Mon, 15 Dec 2014 00:04:23 +0200
-Message-ID: <1418594542-22623-3-git-send-email-mst@redhat.com>
+Subject: [PATCH 3/6] tools/virtio: 64 bit features
+Date: Mon, 15 Dec 2014 00:04:28 +0200
+Message-ID: <1418594542-22623-4-git-send-email-mst@redhat.com>
 References: <1418594542-22623-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,24 +22,26 @@ To: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Include missing virtio_config.h
+Missed one place where vringh_test used
+long to pass features. Fix it up to u64.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- tools/virtio/vringh_test.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/virtio/vringh_test.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/tools/virtio/vringh_test.c b/tools/virtio/vringh_test.c
-index 9d4b1bc..13e0a76 100644
+index 13e0a76..51d922f 100644
 --- a/tools/virtio/vringh_test.c
 +++ b/tools/virtio/vringh_test.c
-@@ -7,6 +7,7 @@
- #include <linux/virtio.h>
- #include <linux/vringh.h>
- #include <linux/virtio_ring.h>
-+#include <linux/virtio_config.h>
- #include <linux/uaccess.h>
- #include <sys/types.h>
- #include <sys/stat.h>
+@@ -132,7 +132,7 @@ static inline int vringh_get_head(struct vringh *vrh, u16 *head)
+ 	return 1;
+ }
+ 
+-static int parallel_test(unsigned long features,
++static int parallel_test(u64 features,
+ 			 bool (*getrange)(struct vringh *vrh,
+ 					  u64 addr, struct vringh_range *r),
+ 			 bool fast_vringh)
 -- 
 MST
