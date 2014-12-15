@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC 2/5] s390: add pci_iomap_range
-Date: Mon, 15 Dec 2014 23:33:13 +0200
-Message-ID: <1418679168-1011-3-git-send-email-mst@redhat.com>
+Subject: [PATCH RFC 3/5] virtio-pci: define layout for virtio 1.0
+Date: Mon, 15 Dec 2014 23:33:17 +0200
+Message-ID: <1418679168-1011-4-git-send-email-mst@redhat.com>
 References: <1418679168-1011-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,98 +19,91 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Michael S Tsirkin <mst@redhat.com>, linux390@de.ibm.com, Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Cc: linux-sh@vger.kernel.org, linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Michael S Tsirkin <mst@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
 
-Virtio drivers should map the part of the range they need, not
-necessarily all of it.
-To this end, support mapping ranges within BAR on s390.
-Since multiple ranges can now be mapped within a BAR, we keep track of
-the number of mappings created, and only clear out the mapping for a BAR
-when this number reaches 0.
+Based on patches by Michael S. Tsirkin <mst@redhat.com>, but I found it
+hard to follow so changed to use structures which are more
+self-documenting.
 
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- arch/s390/include/asm/pci_io.h |  1 +
- arch/s390/pci/pci.c            | 34 +++++++++++++++++++++++++++-------
- 2 files changed, 28 insertions(+), 7 deletions(-)
+ include/uapi/linux/virtio_pci.h | 62 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 62 insertions(+)
 
-diff --git a/arch/s390/include/asm/pci_io.h b/arch/s390/include/asm/pci_io.h
-index d194d54..25228b3 100644
---- a/arch/s390/include/asm/pci_io.h
-+++ b/arch/s390/include/asm/pci_io.h
-@@ -16,6 +16,7 @@
- struct zpci_iomap_entry {
- 	u32 fh;
- 	u8 bar;
-+	u16 count;
- };
+diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+index 35b552c..28c2ce0 100644
+--- a/include/uapi/linux/virtio_pci.h
++++ b/include/uapi/linux/virtio_pci.h
+@@ -99,4 +99,66 @@
+ /* Vector value used to disable MSI for queue */
+ #define VIRTIO_MSI_NO_VECTOR            0xffff
  
- extern struct zpci_iomap_entry *zpci_iomap_start;
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 2fa7b14..51cb653 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -259,7 +259,10 @@ void __iowrite64_copy(void __iomem *to, const void *from, size_t count)
- }
- 
- /* Create a virtual mapping cookie for a PCI BAR */
--void __iomem *pci_iomap(struct pci_dev *pdev, int bar, unsigned long max)
-+void __iomem *pci_iomap_range(struct pci_dev *pdev,
-+			      int bar,
-+			      unsigned long offset,
-+			      unsigned long max)
- {
- 	struct zpci_dev *zdev =	get_zdev(pdev);
- 	u64 addr;
-@@ -270,14 +273,27 @@ void __iomem *pci_iomap(struct pci_dev *pdev, int bar, unsigned long max)
- 
- 	idx = zdev->bars[bar].map_idx;
- 	spin_lock(&zpci_iomap_lock);
--	zpci_iomap_start[idx].fh = zdev->fh;
--	zpci_iomap_start[idx].bar = bar;
-+	if (zpci_iomap_start[idx].count++) {
-+		BUG_ON(zpci_iomap_start[idx].fh != zdev->fh ||
-+		       zpci_iomap_start[idx].bar != bar);
-+	} else {
-+		zpci_iomap_start[idx].fh = zdev->fh;
-+		zpci_iomap_start[idx].bar = bar;
-+	}
-+	/* Detect overrun */
-+	BUG_ON(!zpci_iomap_start[idx].count);
- 	spin_unlock(&zpci_iomap_lock);
- 
- 	addr = ZPCI_IOMAP_ADDR_BASE | ((u64) idx << 48);
--	return (void __iomem *) addr;
-+	return (void __iomem *) addr + offset;
- }
--EXPORT_SYMBOL_GPL(pci_iomap);
-+EXPORT_SYMBOL_GPL(pci_iomap_range);
++#ifndef VIRTIO_PCI_NO_MODERN
 +
-+void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
-+{
-+	return pci_iomap_range(dev, bar, 0, maxlen);
-+}
-+EXPORT_SYMBOL(pci_iomap);
- 
- void pci_iounmap(struct pci_dev *pdev, void __iomem *addr)
- {
-@@ -285,8 +301,12 @@ void pci_iounmap(struct pci_dev *pdev, void __iomem *addr)
- 
- 	idx = (((__force u64) addr) & ~ZPCI_IOMAP_ADDR_BASE) >> 48;
- 	spin_lock(&zpci_iomap_lock);
--	zpci_iomap_start[idx].fh = 0;
--	zpci_iomap_start[idx].bar = 0;
-+	/* Detect underrun */
-+	BUG_ON(!zpci_iomap_start[idx].count);
-+	if (!--zpci_iomap_start[idx].count) {
-+		zpci_iomap_start[idx].fh = 0;
-+		zpci_iomap_start[idx].bar = 0;
-+	}
- 	spin_unlock(&zpci_iomap_lock);
- }
- EXPORT_SYMBOL_GPL(pci_iounmap);
++/* IDs for different capabilities.  Must all exist. */
++
++/* Common configuration */
++#define VIRTIO_PCI_CAP_COMMON_CFG	1
++/* Notifications */
++#define VIRTIO_PCI_CAP_NOTIFY_CFG	2
++/* ISR access */
++#define VIRTIO_PCI_CAP_ISR_CFG		3
++/* Device specific confiuration */
++#define VIRTIO_PCI_CAP_DEVICE_CFG	4
++
++/* This is the PCI capability header: */
++struct virtio_pci_cap {
++	__u8 cap_vndr;		/* Generic PCI field: PCI_CAP_ID_VNDR */
++	__u8 cap_next;		/* Generic PCI field: next ptr. */
++	__u8 cap_len;		/* Generic PCI field: capability length */
++	__u8 type_and_bar;	/* Upper 3 bits: bar.
++				 * Lower 3 is VIRTIO_PCI_CAP_*_CFG. */
++	__le32 offset;		/* Offset within bar. */
++	__le32 length;		/* Length. */
++};
++
++#define VIRTIO_PCI_CAP_BAR_SHIFT	5
++#define VIRTIO_PCI_CAP_BAR_MASK		0x7
++#define VIRTIO_PCI_CAP_TYPE_SHIFT	0
++#define VIRTIO_PCI_CAP_TYPE_MASK	0x7
++
++struct virtio_pci_notify_cap {
++	struct virtio_pci_cap cap;
++	__le32 notify_off_multiplier;	/* Multiplier for queue_notify_off. */
++};
++
++/* Fields in VIRTIO_PCI_CAP_COMMON_CFG: */
++struct virtio_pci_common_cfg {
++	/* About the whole device. */
++	__le32 device_feature_select;	/* read-write */
++	__le32 device_feature;		/* read-only */
++	__le32 guest_feature_select;	/* read-write */
++	__le32 guest_feature;		/* read-write */
++	__le16 msix_config;		/* read-write */
++	__le16 num_queues;		/* read-only */
++	__u8 device_status;		/* read-write */
++	__u8 config_generation;		/* read-only */
++
++	/* About a specific virtqueue. */
++	__le16 queue_select;		/* read-write */
++	__le16 queue_size;		/* read-write, power of 2. */
++	__le16 queue_msix_vector;	/* read-write */
++	__le16 queue_enable;		/* read-write */
++	__le16 queue_notify_off;	/* read-only */
++	__le32 queue_desc_lo;		/* read-write */
++	__le32 queue_desc_hi;		/* read-write */
++	__le32 queue_avail_lo;		/* read-write */
++	__le32 queue_avail_hi;		/* read-write */
++	__le32 queue_used_lo;		/* read-write */
++	__le32 queue_used_hi;		/* read-write */
++};
++
++#endif /* VIRTIO_PCI_NO_MODERN */
++
+ #endif
 -- 
 MST
