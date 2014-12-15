@@ -1,12 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC 0/5] virtio pci: virtio 1.0 support
-Date: Mon, 15 Dec 2014 23:33:06 +0200
-Message-ID: <1418679168-1011-1-git-send-email-mst@redhat.com>
+Subject: [PATCH RFC 1/5] pci: add pci_iomap_range
+Date: Mon, 15 Dec 2014 23:33:09 +0200
+Message-ID: <1418679168-1011-2-git-send-email-mst@redhat.com>
+References: <1418679168-1011-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <1418679168-1011-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,39 +19,117 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-sh@vger.kernel.org, virtualization@lists.linux-foundation.org, Michael S Tsirkin <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is on top of 3.19 master + my bugfix patches, and adds virtio 1.0 support
-to virtio pci.
-This is 3.20 material I think.
+From: Michael S Tsirkin <mst@redhat.com>
 
-Would like to get feedback on s390 change as it's untested.
+Virtio drivers should map the part of the BAR they need, not necessarily
+all of it.
 
-Michael S Tsirkin (2):
-  pci: add pci_iomap_range
-  s390: add pci_iomap_range
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ include/asm-generic/pci_iomap.h | 10 ++++++++++
+ lib/pci_iomap.c                 | 35 ++++++++++++++++++++++++++++++-----
+ 2 files changed, 40 insertions(+), 5 deletions(-)
 
-Michael S. Tsirkin (2):
-  virtio_pci: modern driver
-  virtio_pci: macros for PCI layout offsets.
-
-Rusty Russell (1):
-  virtio-pci: define layout for virtio 1.0
-
- arch/s390/include/asm/pci_io.h     |   1 +
- drivers/virtio/virtio_pci_common.h |  29 +-
- include/asm-generic/pci_iomap.h    |  10 +
- include/uapi/linux/virtio_pci.h    |  92 +++++
- tools/virtio/linux/virtio_config.h |  45 +++
- arch/s390/pci/pci.c                |  34 +-
- drivers/virtio/virtio_pci_common.c |  13 +-
- drivers/virtio/virtio_pci_modern.c | 684 +++++++++++++++++++++++++++++++++++++
- lib/pci_iomap.c                    |  35 +-
- tools/virtio/virtio_test.c         |   1 +
- drivers/virtio/Makefile            |   2 +-
- 11 files changed, 929 insertions(+), 17 deletions(-)
- create mode 100644 drivers/virtio/virtio_pci_modern.c
-
+diff --git a/include/asm-generic/pci_iomap.h b/include/asm-generic/pci_iomap.h
+index ce37349..7389c87 100644
+--- a/include/asm-generic/pci_iomap.h
++++ b/include/asm-generic/pci_iomap.h
+@@ -15,6 +15,9 @@ struct pci_dev;
+ #ifdef CONFIG_PCI
+ /* Create a virtual mapping cookie for a PCI BAR (memory or IO) */
+ extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
++extern void __iomem *pci_iomap_range(struct pci_dev *dev, int bar,
++				     unsigned long offset,
++				     unsigned long maxlen);
+ /* Create a virtual mapping cookie for a port on a given PCI device.
+  * Do not call this directly, it exists to make it easier for architectures
+  * to override */
+@@ -30,6 +33,13 @@ static inline void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned lon
+ {
+ 	return NULL;
+ }
++
++static inline void __iomem *pci_iomap_range(struct pci_dev *dev, int bar,
++					    unsigned long offset,
++					    unsigned long maxlen)
++{
++	return NULL;
++}
+ #endif
+ 
+ #endif /* __ASM_GENERIC_IO_H */
+diff --git a/lib/pci_iomap.c b/lib/pci_iomap.c
+index 0d83ea8..bcce5f1 100644
+--- a/lib/pci_iomap.c
++++ b/lib/pci_iomap.c
+@@ -10,10 +10,11 @@
+ 
+ #ifdef CONFIG_PCI
+ /**
+- * pci_iomap - create a virtual mapping cookie for a PCI BAR
++ * pci_iomap_range - create a virtual mapping cookie for a PCI BAR
+  * @dev: PCI device that owns the BAR
+  * @bar: BAR number
+- * @maxlen: length of the memory to map
++ * @offset: map memory at the given offset in BAR
++ * @maxlen: max length of the memory to map
+  *
+  * Using this function you will get a __iomem address to your device BAR.
+  * You can access it using ioread*() and iowrite*(). These functions hide
+@@ -21,16 +22,21 @@
+  * you expect from them in the correct way.
+  *
+  * @maxlen specifies the maximum length to map. If you want to get access to
+- * the complete BAR without checking for its length first, pass %0 here.
++ * the complete BAR from offset to the end, pass %0 here.
+  * */
+-void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
++void __iomem *pci_iomap_range(struct pci_dev *dev,
++			      int bar,
++			      unsigned long offset,
++			      unsigned long maxlen)
+ {
+ 	resource_size_t start = pci_resource_start(dev, bar);
+ 	resource_size_t len = pci_resource_len(dev, bar);
+ 	unsigned long flags = pci_resource_flags(dev, bar);
+ 
+-	if (!len || !start)
++	if (len <= offset || !start)
+ 		return NULL;
++	len -= offset;
++	start += offset;
+ 	if (maxlen && len > maxlen)
+ 		len = maxlen;
+ 	if (flags & IORESOURCE_IO)
+@@ -43,6 +49,25 @@ void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
+ 	/* What? */
+ 	return NULL;
+ }
++EXPORT_SYMBOL(pci_iomap_range);
+ 
++/**
++ * pci_iomap - create a virtual mapping cookie for a PCI BAR
++ * @dev: PCI device that owns the BAR
++ * @bar: BAR number
++ * @maxlen: length of the memory to map
++ *
++ * Using this function you will get a __iomem address to your device BAR.
++ * You can access it using ioread*() and iowrite*(). These functions hide
++ * the details if this is a MMIO or PIO address space and will just do what
++ * you expect from them in the correct way.
++ *
++ * @maxlen specifies the maximum length to map. If you want to get access to
++ * the complete BAR without checking for its length first, pass %0 here.
++ * */
++void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
++{
++	return pci_iomap_range(dev, bar, 0, maxlen);
++}
+ EXPORT_SYMBOL(pci_iomap);
+ #endif /* CONFIG_PCI */
 -- 
 MST
