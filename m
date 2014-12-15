@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC 1/5] pci: add pci_iomap_range
-Date: Mon, 15 Dec 2014 23:33:09 +0200
-Message-ID: <1418679168-1011-2-git-send-email-mst@redhat.com>
+Subject: [PATCH RFC 2/5] s390: add pci_iomap_range
+Date: Mon, 15 Dec 2014 23:33:13 +0200
+Message-ID: <1418679168-1011-3-git-send-email-mst@redhat.com>
 References: <1418679168-1011-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,117 +19,98 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-sh@vger.kernel.org, virtualization@lists.linux-foundation.org, Michael S Tsirkin <mst@redhat.com>
+Cc: linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Michael S Tsirkin <mst@redhat.com>, linux390@de.ibm.com, Gerald Schaefer <gerald.schaefer@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Michael S Tsirkin <mst@redhat.com>
 
-Virtio drivers should map the part of the BAR they need, not necessarily
-all of it.
+Virtio drivers should map the part of the range they need, not
+necessarily all of it.
+To this end, support mapping ranges within BAR on s390.
+Since multiple ranges can now be mapped within a BAR, we keep track of
+the number of mappings created, and only clear out the mapping for a BAR
+when this number reaches 0.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- include/asm-generic/pci_iomap.h | 10 ++++++++++
- lib/pci_iomap.c                 | 35 ++++++++++++++++++++++++++++++-----
- 2 files changed, 40 insertions(+), 5 deletions(-)
+ arch/s390/include/asm/pci_io.h |  1 +
+ arch/s390/pci/pci.c            | 34 +++++++++++++++++++++++++++-------
+ 2 files changed, 28 insertions(+), 7 deletions(-)
 
-diff --git a/include/asm-generic/pci_iomap.h b/include/asm-generic/pci_iomap.h
-index ce37349..7389c87 100644
---- a/include/asm-generic/pci_iomap.h
-+++ b/include/asm-generic/pci_iomap.h
-@@ -15,6 +15,9 @@ struct pci_dev;
- #ifdef CONFIG_PCI
- /* Create a virtual mapping cookie for a PCI BAR (memory or IO) */
- extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
-+extern void __iomem *pci_iomap_range(struct pci_dev *dev, int bar,
-+				     unsigned long offset,
-+				     unsigned long maxlen);
- /* Create a virtual mapping cookie for a port on a given PCI device.
-  * Do not call this directly, it exists to make it easier for architectures
-  * to override */
-@@ -30,6 +33,13 @@ static inline void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned lon
- {
- 	return NULL;
+diff --git a/arch/s390/include/asm/pci_io.h b/arch/s390/include/asm/pci_io.h
+index d194d54..25228b3 100644
+--- a/arch/s390/include/asm/pci_io.h
++++ b/arch/s390/include/asm/pci_io.h
+@@ -16,6 +16,7 @@
+ struct zpci_iomap_entry {
+ 	u32 fh;
+ 	u8 bar;
++	u16 count;
+ };
+ 
+ extern struct zpci_iomap_entry *zpci_iomap_start;
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index 2fa7b14..51cb653 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -259,7 +259,10 @@ void __iowrite64_copy(void __iomem *to, const void *from, size_t count)
  }
-+
-+static inline void __iomem *pci_iomap_range(struct pci_dev *dev, int bar,
-+					    unsigned long offset,
-+					    unsigned long maxlen)
-+{
-+	return NULL;
-+}
- #endif
  
- #endif /* __ASM_GENERIC_IO_H */
-diff --git a/lib/pci_iomap.c b/lib/pci_iomap.c
-index 0d83ea8..bcce5f1 100644
---- a/lib/pci_iomap.c
-+++ b/lib/pci_iomap.c
-@@ -10,10 +10,11 @@
- 
- #ifdef CONFIG_PCI
- /**
-- * pci_iomap - create a virtual mapping cookie for a PCI BAR
-+ * pci_iomap_range - create a virtual mapping cookie for a PCI BAR
-  * @dev: PCI device that owns the BAR
-  * @bar: BAR number
-- * @maxlen: length of the memory to map
-+ * @offset: map memory at the given offset in BAR
-+ * @maxlen: max length of the memory to map
-  *
-  * Using this function you will get a __iomem address to your device BAR.
-  * You can access it using ioread*() and iowrite*(). These functions hide
-@@ -21,16 +22,21 @@
-  * you expect from them in the correct way.
-  *
-  * @maxlen specifies the maximum length to map. If you want to get access to
-- * the complete BAR without checking for its length first, pass %0 here.
-+ * the complete BAR from offset to the end, pass %0 here.
-  * */
--void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
-+void __iomem *pci_iomap_range(struct pci_dev *dev,
+ /* Create a virtual mapping cookie for a PCI BAR */
+-void __iomem *pci_iomap(struct pci_dev *pdev, int bar, unsigned long max)
++void __iomem *pci_iomap_range(struct pci_dev *pdev,
 +			      int bar,
 +			      unsigned long offset,
-+			      unsigned long maxlen)
++			      unsigned long max)
  {
- 	resource_size_t start = pci_resource_start(dev, bar);
- 	resource_size_t len = pci_resource_len(dev, bar);
- 	unsigned long flags = pci_resource_flags(dev, bar);
+ 	struct zpci_dev *zdev =	get_zdev(pdev);
+ 	u64 addr;
+@@ -270,14 +273,27 @@ void __iomem *pci_iomap(struct pci_dev *pdev, int bar, unsigned long max)
  
--	if (!len || !start)
-+	if (len <= offset || !start)
- 		return NULL;
-+	len -= offset;
-+	start += offset;
- 	if (maxlen && len > maxlen)
- 		len = maxlen;
- 	if (flags & IORESOURCE_IO)
-@@ -43,6 +49,25 @@ void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
- 	/* What? */
- 	return NULL;
+ 	idx = zdev->bars[bar].map_idx;
+ 	spin_lock(&zpci_iomap_lock);
+-	zpci_iomap_start[idx].fh = zdev->fh;
+-	zpci_iomap_start[idx].bar = bar;
++	if (zpci_iomap_start[idx].count++) {
++		BUG_ON(zpci_iomap_start[idx].fh != zdev->fh ||
++		       zpci_iomap_start[idx].bar != bar);
++	} else {
++		zpci_iomap_start[idx].fh = zdev->fh;
++		zpci_iomap_start[idx].bar = bar;
++	}
++	/* Detect overrun */
++	BUG_ON(!zpci_iomap_start[idx].count);
+ 	spin_unlock(&zpci_iomap_lock);
+ 
+ 	addr = ZPCI_IOMAP_ADDR_BASE | ((u64) idx << 48);
+-	return (void __iomem *) addr;
++	return (void __iomem *) addr + offset;
  }
-+EXPORT_SYMBOL(pci_iomap_range);
- 
-+/**
-+ * pci_iomap - create a virtual mapping cookie for a PCI BAR
-+ * @dev: PCI device that owns the BAR
-+ * @bar: BAR number
-+ * @maxlen: length of the memory to map
-+ *
-+ * Using this function you will get a __iomem address to your device BAR.
-+ * You can access it using ioread*() and iowrite*(). These functions hide
-+ * the details if this is a MMIO or PIO address space and will just do what
-+ * you expect from them in the correct way.
-+ *
-+ * @maxlen specifies the maximum length to map. If you want to get access to
-+ * the complete BAR without checking for its length first, pass %0 here.
-+ * */
+-EXPORT_SYMBOL_GPL(pci_iomap);
++EXPORT_SYMBOL_GPL(pci_iomap_range);
++
 +void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
 +{
 +	return pci_iomap_range(dev, bar, 0, maxlen);
 +}
- EXPORT_SYMBOL(pci_iomap);
- #endif /* CONFIG_PCI */
++EXPORT_SYMBOL(pci_iomap);
+ 
+ void pci_iounmap(struct pci_dev *pdev, void __iomem *addr)
+ {
+@@ -285,8 +301,12 @@ void pci_iounmap(struct pci_dev *pdev, void __iomem *addr)
+ 
+ 	idx = (((__force u64) addr) & ~ZPCI_IOMAP_ADDR_BASE) >> 48;
+ 	spin_lock(&zpci_iomap_lock);
+-	zpci_iomap_start[idx].fh = 0;
+-	zpci_iomap_start[idx].bar = 0;
++	/* Detect underrun */
++	BUG_ON(!zpci_iomap_start[idx].count);
++	if (!--zpci_iomap_start[idx].count) {
++		zpci_iomap_start[idx].fh = 0;
++		zpci_iomap_start[idx].bar = 0;
++	}
+ 	spin_unlock(&zpci_iomap_lock);
+ }
+ EXPORT_SYMBOL_GPL(pci_iounmap);
 -- 
 MST
