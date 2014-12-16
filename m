@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH 8/9] virtio_pci: split out legacy device support
-Date: Wed, 17 Dec 2014 00:55:26 +0200
-Message-ID: <20141216225526.GA19694@redhat.com>
+Date: Wed, 17 Dec 2014 01:18:02 +0200
+Message-ID: <20141216231802.GB19694@redhat.com>
 References: <1418043812-25753-9-git-send-email-mst@redhat.com>
 	<20141216210309.GA32071@gondor.apana.org.au>
 Mime-Version: 1.0
@@ -41,9 +41,12 @@ On Wed, Dec 17, 2014 at 08:03:10AM +1100, Herbert Xu wrote:
 > 
 > Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-Thanks!
-I'll apply a similar patch but to virtio_pci_common.
-Will send a pull request with this included tomorrow.
+I applied this with a minor tweak, and pushed to linux-next.
+Unfortunately it's very late here, so I can't test properly
+and send pull request today, but will try to do tomorrow.
+
+The tree with a fix is here:
+git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git for_linus
 
 > diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
 > index 2588252..6b100e3 100644
