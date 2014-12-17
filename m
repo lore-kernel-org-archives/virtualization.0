@@ -1,13 +1,13 @@
-From: Vladislav Yasevich <vyasevich@gmail.com>
-Subject: [PATCH 10/10] Revert "drivers/net: Disable UFO through virtio"
-Date: Wed, 17 Dec 2014 13:20:55 -0500
-Message-ID: <1418840455-22598-11-git-send-email-vyasevic__41921.8606934466$1418840610$gmane$org@redhat.com>
+From: Ben Hutchings <ben@decadent.org.uk>
+Subject: Re: [PATCH 01/10] core: Split out UFO6 support
+Date: Wed, 17 Dec 2014 20:10:39 +0000
+Message-ID: <1418847039.30883.29.camel__44383.8301035159$1418847085$gmane$org@decadent.org.uk>
 References: <1418840455-22598-1-git-send-email-vyasevic@redhat.com>
+	<1418840455-22598-2-git-send-email-vyasevic@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============7290502508278052117=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1418840455-22598-1-git-send-email-vyasevic@redhat.com>
+In-Reply-To: <1418840455-22598-2-git-send-email-vyasevic@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,100 +17,106 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org
-Cc: mst@redhat.com, ben@decadent.org.uk, stefanha@redhat.com, virtualization@lists.linux-foundation.org
+To: Vladislav Yasevich <vyasevich@gmail.com>
+Cc: netdev@vger.kernel.org, mst@redhat.com, stefanha@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This reverts commit 3d0ad09412ffe00c9afa201d01effdb6023d09b4.
-Now that we've split UFO into v4 and v6 version, we can turn
-back UFO support for ipv4.  Full IPv6 support will come later as
-it requires extending vnet header structure.
 
-Any older VM that assumes IPv6 support is included in UFO
-will continue to use UFO and the host will generate fragment
-ids for it, thus preserving connectivity.
+--===============7290502508278052117==
+Content-Type: multipart/signed; micalg="pgp-sha512";
+	protocol="application/pgp-signature"; boundary="=-6xuBJaCtt6FnniNcR7cU"
 
-Fixes: 88e0e0e5aa7a ("drivers/net: Disable UFO through virtio")
-CC: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
----
- drivers/net/virtio_net.c | 24 ++++++++++--------------
- 1 file changed, 10 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index b0bc8ea..534b633 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -491,17 +491,8 @@ static void receive_buf(struct receive_queue *rq, void *buf, unsigned int len)
- 			skb_shinfo(skb)->gso_type = SKB_GSO_TCPV4;
- 			break;
- 		case VIRTIO_NET_HDR_GSO_UDP:
--		{
--			static bool warned;
--
--			if (!warned) {
--				warned = true;
--				netdev_warn(dev,
--					    "host using disabled UFO feature; please fix it\n");
--			}
- 			skb_shinfo(skb)->gso_type = SKB_GSO_UDP;
- 			break;
--		}
- 		case VIRTIO_NET_HDR_GSO_TCPV6:
- 			skb_shinfo(skb)->gso_type = SKB_GSO_TCPV6;
- 			break;
-@@ -890,6 +881,8 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
- 			hdr->hdr.gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
- 		else if (skb_shinfo(skb)->gso_type & SKB_GSO_TCPV6)
- 			hdr->hdr.gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
-+		else if (skb_shinfo(skb)->gso_type & SKB_GSO_UDP)
-+			hdr->hdr.gso_type = VIRTIO_NET_HDR_GSO_UDP;
- 		else
- 			BUG();
- 		if (skb_shinfo(skb)->gso_type & SKB_GSO_TCP_ECN)
-@@ -1749,7 +1742,7 @@ static int virtnet_probe(struct virtio_device *vdev)
- 			dev->features |= NETIF_F_HW_CSUM|NETIF_F_SG|NETIF_F_FRAGLIST;
- 
- 		if (virtio_has_feature(vdev, VIRTIO_NET_F_GSO)) {
--			dev->hw_features |= NETIF_F_TSO
-+			dev->hw_features |= NETIF_F_TSO | NETIF_F_UFO
- 				| NETIF_F_TSO_ECN | NETIF_F_TSO6;
- 		}
- 		/* Individual feature bits: what can host handle? */
-@@ -1759,9 +1752,11 @@ static int virtnet_probe(struct virtio_device *vdev)
- 			dev->hw_features |= NETIF_F_TSO6;
- 		if (virtio_has_feature(vdev, VIRTIO_NET_F_HOST_ECN))
- 			dev->hw_features |= NETIF_F_TSO_ECN;
-+		if (virtio_has_feature(vdev, VIRTIO_NET_F_HOST_UFO))
-+			dev->hw_features |= NETIF_F_UFO;
- 
- 		if (gso)
--			dev->features |= dev->hw_features & NETIF_F_ALL_TSO;
-+			dev->features |= dev->hw_features & (NETIF_F_ALL_TSO|NETIF_F_UFO);
- 		/* (!csum && gso) case will be fixed by register_netdev() */
- 	}
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_CSUM))
-@@ -1799,7 +1794,8 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	/* If we can receive ANY GSO packets, we must allocate large ones. */
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
- 	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO6) ||
--	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_ECN))
-+	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_ECN) ||
-+	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UFO))
- 		vi->big_packets = true;
- 
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
-@@ -1993,9 +1989,9 @@ static struct virtio_device_id id_table[] = {
- static unsigned int features[] = {
- 	VIRTIO_NET_F_CSUM, VIRTIO_NET_F_GUEST_CSUM,
- 	VIRTIO_NET_F_GSO, VIRTIO_NET_F_MAC,
--	VIRTIO_NET_F_HOST_TSO4, VIRTIO_NET_F_HOST_TSO6,
-+	VIRTIO_NET_F_HOST_TSO4, VIRTIO_NET_F_HOST_UFO, VIRTIO_NET_F_HOST_TSO6,
- 	VIRTIO_NET_F_HOST_ECN, VIRTIO_NET_F_GUEST_TSO4, VIRTIO_NET_F_GUEST_TSO6,
--	VIRTIO_NET_F_GUEST_ECN,
-+	VIRTIO_NET_F_GUEST_ECN, VIRTIO_NET_F_GUEST_UFO,
- 	VIRTIO_NET_F_MRG_RXBUF, VIRTIO_NET_F_STATUS, VIRTIO_NET_F_CTRL_VQ,
- 	VIRTIO_NET_F_CTRL_RX, VIRTIO_NET_F_CTRL_VLAN,
- 	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ,
--- 
-1.9.3
+--=-6xuBJaCtt6FnniNcR7cU
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, 2014-12-17 at 13:20 -0500, Vladislav Yasevich wrote:
+> Split IPv6 support for UFO into its own feature similiar to TSO.
+> This will later allow us to re-enable UFO support for virtio-net
+> devices.
+[...]
+> diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+> index 6c8b6f6..8538b67 100644
+> --- a/include/linux/skbuff.h
+> +++ b/include/linux/skbuff.h
+> @@ -372,6 +372,7 @@ enum {
+> =20
+>  	SKB_GSO_MPLS =3D 1 << 12,
+> =20
+> +	SKB_GSO_UDP6 =3D 1 << 13
+
+It seems like it would be cleaner to use the names SKB_GSO_UDPV{4,6},
+similarly to SKB_GSO_TCPV{4,6}.
+
+>  };
+> =20
+>  #if BITS_PER_LONG > 32
+> diff --git a/net/core/dev.c b/net/core/dev.c
+> index 945bbd0..fa4d2ee 100644
+> --- a/net/core/dev.c
+> +++ b/net/core/dev.c
+[...]
+> @@ -5952,24 +5958,21 @@ static netdev_features_t netdev_fix_features(stru=
+ct net_device *dev,
+[...]
+> +	/* UFO also needs checksumming */
+> +	if ((features & NETIF_F_UFO) && !(features & NETIF_F_GEN_CSUM) &&
+> +					!(features & NETIF_F_IP_CSUM)) {
+
+You can use !(features & NETIF_F_V4_CSUM) instead of the last two terms.
+
+> +		netdev_dbg(dev,
+> +			   "Dropping NETIF_F_UFO since no checksum offload features.\n");
+> +		features &=3D ~NETIF_F_UFO;
+> +	}
+> +	if ((features & NETIF_F_UFO6) && !(features & NETIF_F_GEN_CSUM) &&
+> +					 !(features & NETIF_F_IPV6_CSUM)) {
+[...]
+
+Similarly you can use !(features & NETIF_F_V6_CSUM) instead of the last
+two terms.
+
+Aside from those minor points, this looks fine.
+
+Ben.
+
+--=20
+Ben Hutchings
+Absolutum obsoletum. (If it works, it's out of date.) - Stafford Beer
+
+--=-6xuBJaCtt6FnniNcR7cU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIVAwUAVJHjROe/yOyVhhEJAQqjbRAAkzv9Ent2gLMZa1lE5MVJKspcLFLXhRNo
+Ng6yo3l0TBo53MdO47E43tMZf3+R4HlOCYIBWSrth5kZ+vG5M3wc81XClN4btTK5
+VEnHPA9sNod3ZTKYYvoaFB9AmXRCu+v5P/+u2eM0s0VSiQO76rNovIMQ8dvQ7BWs
+b792gb6WrmL+2phrE/6mm+Pdmd3TLY+EuA6hPdMQr9xWElyR9CrzwwZLLC99urdc
++r7yOf3V0jDfwqGdfmiesmf0fH6pWfq4f1C4zh2YgXgUeKP6Jh7tVvZ192AWucSM
+mPQQ69UB2kMsu0TpP/1OH5r9Px9UMjuRVgiCBI9kEmzQCWlguNba7bLejZ5z40CJ
+Wl1djSAwdy/e50nQYeMtyCHD4Yej6X6KbJeY3UHbiwV6YSrfSuZS0LcAgGwnoaU3
+4AE5ZjXYFMasMk6rzLCD/SDBDLEYDuy+lU5gfnTH69fCqqnOeo48dPAK9IkFInGA
+rnL67ZletU2d40izubk7yV5Gm7HpIBarbUKqDBJP8pO0kjyV0b601t2nrc5B8GGg
+aP0HWc+5FbfO86le1I+FX5lAIFNrTDV3ub9VaszfdYzNTbYh+5qBLLVS477OLRNt
+qZS/n4oxyShZds0AeOvEtCnGi/egwhoRIeI12PvDjN/+PDSpTFMcG+Kk3LxfUv/Y
+RSwzlEqk/yE=
+=p560
+-----END PGP SIGNATURE-----
+
+--=-6xuBJaCtt6FnniNcR7cU--
+
+--===============7290502508278052117==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============7290502508278052117==--
