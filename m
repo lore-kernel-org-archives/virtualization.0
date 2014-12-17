@@ -1,7 +1,7 @@
 From: Vladislav Yasevich <vyasevich@gmail.com>
-Subject: [PATCH 03/10] ovs: Enable handling of UFO6 packets.
-Date: Wed, 17 Dec 2014 13:20:48 -0500
-Message-ID: <1418840455-22598-4-git-send-email-vyasevic@redhat.com>
+Subject: [PATCH 04/10] loopback: Turn on UFO6 support.
+Date: Wed, 17 Dec 2014 13:20:49 -0500
+Message-ID: <1418840455-22598-5-git-send-email-vyasevic__47992.0994992883$1418840519$gmane$org@redhat.com>
 References: <1418840455-22598-1-git-send-email-vyasevic@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,43 +21,29 @@ To: netdev@vger.kernel.org
 Cc: mst@redhat.com, ben@decadent.org.uk, stefanha@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Since UFO6 packets can now be identified by SKB_GSO_UDP6, add proper checks
-to handel UFO6 flows.
-Legacy applications may still have UFO6 packets identified by SKB_GSO_UDP,
-so we need to continue to handle them correclty.
+Turn on UFO6 support.
 
 Signed-off-by: Vladislav Yasevich <vyasevic@redhat.com>
 ---
- net/openvswitch/datapath.c | 3 ++-
- net/openvswitch/flow.c     | 2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/loopback.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
-index f9e556b..b43fc60 100644
---- a/net/openvswitch/datapath.c
-+++ b/net/openvswitch/datapath.c
-@@ -334,7 +334,8 @@ static int queue_gso_packets(struct datapath *dp, struct sk_buff *skb,
- 		if (err)
- 			break;
- 
--		if (skb == segs && gso_type & SKB_GSO_UDP) {
-+		if (skb == segs &&
-+		    ((gso_type & SKB_GSO_UDP) || (gso_type & SKB_GSO_UDP6))) {
- 			/* The initial flow key extracted by ovs_flow_extract()
- 			 * in this case is for a first fragment, so we need to
- 			 * properly mark later fragments.
-diff --git a/net/openvswitch/flow.c b/net/openvswitch/flow.c
-index 2b78789..d03adf4 100644
---- a/net/openvswitch/flow.c
-+++ b/net/openvswitch/flow.c
-@@ -602,7 +602,7 @@ static int key_extract(struct sk_buff *skb, struct sw_flow_key *key)
- 
- 		if (key->ip.frag == OVS_FRAG_TYPE_LATER)
- 			return 0;
--		if (skb_shinfo(skb)->gso_type & SKB_GSO_UDP)
-+		if (skb_shinfo(skb)->gso_type & (SKB_GSO_UDP | SKB_GSO_UDP6))
- 			key->ip.frag = OVS_FRAG_TYPE_FIRST;
- 
- 		/* Transport layer. */
+diff --git a/drivers/net/loopback.c b/drivers/net/loopback.c
+index c76283c..762c28a 100644
+--- a/drivers/net/loopback.c
++++ b/drivers/net/loopback.c
+@@ -170,10 +170,10 @@ static void loopback_setup(struct net_device *dev)
+ 	dev->flags		= IFF_LOOPBACK;
+ 	dev->priv_flags		|= IFF_LIVE_ADDR_CHANGE;
+ 	netif_keep_dst(dev);
+-	dev->hw_features	= NETIF_F_ALL_TSO | NETIF_F_UFO;
++	dev->hw_features	= NETIF_F_ALL_TSO | NETIF_F_ALL_UFO;
+ 	dev->features 		= NETIF_F_SG | NETIF_F_FRAGLIST
+ 		| NETIF_F_ALL_TSO
+-		| NETIF_F_UFO
++		| NETIF_F_ALL_UFO
+ 		| NETIF_F_HW_CSUM
+ 		| NETIF_F_RXCSUM
+ 		| NETIF_F_SCTP_CSUM
 -- 
 1.9.3
