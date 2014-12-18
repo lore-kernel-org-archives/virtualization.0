@@ -1,16 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 09/10] macvtap: Re-enable UFO support
-Date: Thu, 18 Dec 2014 09:55:49 +0200
-Message-ID: <20141218075549.GB31702@redhat.com>
-References: <1418840455-22598-1-git-send-email-vyasevic@redhat.com>
-	<1418840455-22598-10-git-send-email-vyasevic@redhat.com>
-	<20141217224100.GC30969@redhat.com> <54923F67.3000205@redhat.com>
+Subject: [PULL] vhost: cleanups and fixes
+Date: Thu, 18 Dec 2014 12:46:05 +0200
+Message-ID: <20141218104605.GA3912@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <54923F67.3000205@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,129 +16,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vlad Yasevich <vyasevic@redhat.com>
-Cc: netdev@vger.kernel.org, Vladislav Yasevich <vyasevich@gmail.com>, ben@decadent.org.uk, stefanha@redhat.com, virtualization@lists.linux-foundation.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: herbert@gondor.apana.org.au, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Dec 17, 2014 at 09:43:51PM -0500, Vlad Yasevich wrote:
-> On 12/17/2014 05:41 PM, Michael S. Tsirkin wrote:
-> > On Wed, Dec 17, 2014 at 01:20:54PM -0500, Vladislav Yasevich wrote:
-> >> Now that UFO is split into v4 and v6 parts, we can bring
-> >> back v4 support.  Continue to handle legacy applications
-> >> by selecting the ipv6 fagment id but do not change the
-> >> gso type.  This allows 2 legacy VMs to continue to communicate.
-> >>
-> >> Based on original work from Ben Hutchings.
-> >>
-> >> Fixes: 88e0e0e5aa7a ("drivers/net: Disable UFO through virtio")
-> >> CC: Ben Hutchings <ben@decadent.org.uk>
-> >> Signed-off-by: Vladislav Yasevich <vyasevic@redhat.com>
-> >> ---
-> >>  drivers/net/macvtap.c | 20 ++++++++++++++------
-> >>  1 file changed, 14 insertions(+), 6 deletions(-)
-> >>
-> >> diff --git a/drivers/net/macvtap.c b/drivers/net/macvtap.c
-> >> index 880cc09..75febd4 100644
-> >> --- a/drivers/net/macvtap.c
-> >> +++ b/drivers/net/macvtap.c
-> >> @@ -66,7 +66,7 @@ static struct cdev macvtap_cdev;
-> >>  static const struct proto_ops macvtap_socket_ops;
-> >>  
-> >>  #define TUN_OFFLOADS (NETIF_F_HW_CSUM | NETIF_F_TSO_ECN | NETIF_F_TSO | \
-> >> -		      NETIF_F_TSO6)
-> >> +		      NETIF_F_TSO6 | NETIF_F_UFO)
-> >>  #define RX_OFFLOADS (NETIF_F_GRO | NETIF_F_LRO)
-> >>  #define TAP_FEATURES (NETIF_F_GSO | NETIF_F_SG)
-> >>  
-> >> @@ -570,11 +570,14 @@ static int macvtap_skb_from_vnet_hdr(struct sk_buff *skb,
-> >>  			gso_type = SKB_GSO_TCPV6;
-> >>  			break;
-> >>  		case VIRTIO_NET_HDR_GSO_UDP:
-> >> -			pr_warn_once("macvtap: %s: using disabled UFO feature; please fix this program\n",
-> >> -				     current->comm);
-> >>  			gso_type = SKB_GSO_UDP;
-> >> -			if (skb->protocol == htons(ETH_P_IPV6))
-> >> +			if (vlan_get_protocol(skb) == htons(ETH_P_IPV6)) {
-> >> +				/* This is to support legacy appliacations.
-> >> +				 * Do not change the gso_type as legacy apps
-> >> +				 * may not know about the new type.
-> >> +				 */
-> >>  				ipv6_proxy_select_ident(skb);
-> >> +			}
-> >>  			break;
-> >>  		default:
-> >>  			return -EINVAL;
-> >> @@ -619,6 +622,8 @@ static void macvtap_skb_to_vnet_hdr(const struct sk_buff *skb,
-> >>  			vnet_hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
-> >>  		else if (sinfo->gso_type & SKB_GSO_TCPV6)
-> >>  			vnet_hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
-> >> +		else if (sinfo->gso_type & SKB_GSO_UDP)
-> >> +			vnet_hdr->gso_type = VIRTIO_NET_HDR_GSO_UDP;
-> >>  		else
-> >>  			BUG();
-> >>  		if (sinfo->gso_type & SKB_GSO_TCP_ECN)
-> >> @@ -955,6 +960,9 @@ static int set_offload(struct macvtap_queue *q, unsigned long arg)
-> >>  			if (arg & TUN_F_TSO6)
-> >>  				feature_mask |= NETIF_F_TSO6;
-> >>  		}
-> >> +
-> >> +		if (arg & TUN_F_UFO)
-> >> +			feature_mask |= NETIF_F_UFO;
-> >>  	}
-> >>  
-> >>  	/* tun/tap driver inverts the usage for TSO offloads, where
-> >> @@ -965,7 +973,7 @@ static int set_offload(struct macvtap_queue *q, unsigned long arg)
-> >>  	 * When user space turns off TSO, we turn off GSO/LRO so that
-> >>  	 * user-space will not receive TSO frames.
-> >>  	 */
-> >> -	if (feature_mask & (NETIF_F_TSO | NETIF_F_TSO6))
-> >> +	if (feature_mask & (NETIF_F_TSO | NETIF_F_TSO6 | NETIF_F_UFO))
-> >>  		features |= RX_OFFLOADS;
-> >>  	else
-> >>  		features &= ~RX_OFFLOADS;
-> > 
-> > By the way this logic is completely broken, even without your patch,
-> > isn't it?
-> > 
-> > It says: enable LRO+GRO if any of NETIF_F_TSO | NETIF_F_TSO6 |
-> > NETIF_F_UFO set.
-> > 
-> > So what happens if I enable TSO only?
-> > LRO gets enabled so I can still get TSO6 packets.
-> > 
-> > 
-> > This really should be:
-> > 
-> > 	if (feature_mask & (NETIF_F_TSO | NETIF_F_TSO6 | NETIF_F_UFO) ==
-> > 			(NETIF_F_TSO | NETIF_F_TSO6 | NETIF_F_UFO)
-> > 
-> > 
-> > fixing this probably should be a separate patch before your
-> > series, and Cc stable.
-> 
-> Actually, all this LRO/GRO feature manipulation on the macvtap device is
-> rather pointless as those features aren't really checked at any point
-> on the macvtap receive path.  GRO calls are done from napi context on
-> the lowest device, so by the time a packet hits macvtap, GRO/LRO has
-> already been done.
-> 
-> So it doesn't really matter that we disable them incorrectly.  I
-> can send a separate patch to clean this up.
+The following changes since commit f01a2a811ae04124fc9382925038fcbbd2f0b7c8:
 
-Hmm so if userspace says it can't handle TSO packets,
-it might get them anyway?
+  virtio_ccw: finalize_features error handling (2014-12-09 21:42:06 +0200)
 
+are available in the git repository at:
 
-> > 
-> > 
-> >> @@ -1066,7 +1074,7 @@ static long macvtap_ioctl(struct file *file, unsigned int cmd,
-> >>  	case TUNSETOFFLOAD:
-> >>  		/* let the user check for future flags */
-> >>  		if (arg & ~(TUN_F_CSUM | TUN_F_TSO4 | TUN_F_TSO6 |
-> >> -			    TUN_F_TSO_ECN))
-> >> +			    TUN_F_TSO_ECN | TUN_F_UFO))
-> >>  			return -EINVAL;
-> >>  
-> >>  		rtnl_lock();
-> >> -- 
-> >> 1.9.3
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to 5ff16110c637726111662c1df41afd9df7ef36bd:
+
+  virtio_pci: restore module attributes (2014-12-17 00:59:40 +0200)
+
+----------------------------------------------------------------
+vhost/virtio: virtio 1.0 related fixes
+
+Most importantly, this fixes using virtio_pci as a module.
+
+Further, the big virtio 1.0 conversion missed a couple of places. This fixes
+them up.
+
+This isn't 100% sparse-clean yet because on many architectures get_user
+triggers sparse warnings when used with __bitwise tag (when same tag is on both
+pointer and value read).
+
+I posted a patchset to fix it up by adding __force on all
+arches that don't already have it (many do), when that's
+merged these warnings will go away.
+
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Herbert Xu (1):
+      virtio_pci: restore module attributes
+
+Michael S. Tsirkin (15):
+      virtio: set VIRTIO_CONFIG_S_FEATURES_OK on restore
+      virtio_config: fix virtio_cread_bytes
+      virtio_pci_common.h: drop VIRTIO_PCI_NO_LEGACY
+      virtio_pci: move probe to common file
+      virtio_pci: add VIRTIO_PCI_NO_LEGACY
+      virtio: core support for config generation
+      tools/virtio: more stubs
+      tools/virtio: fix vringh test
+      tools/virtio: 64 bit features
+      tools/virtio: enable -Werror
+      tools/virtio: add virtio 1.0 in virtio_test
+      tools/virtio: add virtio 1.0 in vringh_test
+      vringh: 64 bit features
+      vringh: update for virtio 1.0 APIs
+      mic/host: fix up virtio 1.0 APIs
+
+ drivers/virtio/virtio_pci_common.h     |   7 +-
+ include/linux/virtio_config.h          |  29 +++++++-
+ include/linux/vringh.h                 |  37 +++++++++-
+ include/uapi/linux/virtio_pci.h        |  15 ++--
+ tools/virtio/linux/virtio.h            |   1 +
+ tools/virtio/linux/virtio_byteorder.h  |   8 +++
+ tools/virtio/linux/virtio_config.h     |  70 +++++++++++++++++-
+ tools/virtio/uapi/linux/virtio_types.h |   1 +
+ drivers/misc/mic/host/mic_debugfs.c    |  18 +++--
+ drivers/vhost/vringh.c                 | 125 ++++++++++++++++++++-------------
+ drivers/virtio/virtio.c                |  37 ++++++----
+ drivers/virtio/virtio_pci_common.c     |  39 +++++++++-
+ drivers/virtio/virtio_pci_legacy.c     |  24 +------
+ tools/virtio/virtio_test.c             |  15 +++-
+ tools/virtio/vringh_test.c             |   5 +-
+ tools/virtio/Makefile                  |   2 +-
+ 16 files changed, 324 insertions(+), 109 deletions(-)
+ create mode 100644 tools/virtio/linux/virtio_byteorder.h
+ create mode 100644 tools/virtio/uapi/linux/virtio_types.h
