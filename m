@@ -1,11 +1,18 @@
-From: Pawel Moll <pawel.moll@arm.com>
-Subject: [RFC] virtio-mmio: Update the device to OASIS spec version
-Date: Fri, 19 Dec 2014 18:38:04 +0000
-Message-ID: <1419014284-18500-1-git-send-email-pawel.moll@arm.com>
+From: Vlad Yasevich <vyasevic@redhat.com>
+Subject: Re: [PATCH 01/10] core: Split out UFO6 support
+Date: Fri, 19 Dec 2014 14:55:33 -0500
+Message-ID: <549482B5.5050501@redhat.com>
+References: <1418840455-22598-1-git-send-email-vyasevic@redhat.com>
+	<1418840455-22598-2-git-send-email-vyasevic@redhat.com>
+	<20141217224553.GE30969@redhat.com> <54921266.30300@redhat.com>
+	<20141218075409.GA31702@redhat.com> <5492EC4F.5080303@redhat.com>
+	<20141218173546.GB5425@redhat.com>
+Reply-To: vyasevic@redhat.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20141218173546.GB5425@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,360 +22,394 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, Vladislav Yasevich <vyasevich@gmail.com>, virtualization@lists.linux-foundation.org, stefanha@redhat.com, ben@decadent.org.uk, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch add a support for second version of the virtio-mmio device,
-which follows OASIS "Virtual I/O Device (VIRTIO) Version 1.0"
-specification.
+On 12/18/2014 12:35 PM, Michael S. Tsirkin wrote:
+> On Thu, Dec 18, 2014 at 10:01:35AM -0500, Vlad Yasevich wrote:
+>> On 12/18/2014 02:54 AM, Michael S. Tsirkin wrote:
+>>> Cc Dave, pls remember to do this next time otherwise
+>>> your patches won't get merged :)
+>>>
+>>> On Wed, Dec 17, 2014 at 06:31:50PM -0500, Vlad Yasevich wrote:
+>>>> On 12/17/2014 05:45 PM, Michael S. Tsirkin wrote:
+>>>>> On Wed, Dec 17, 2014 at 01:20:46PM -0500, Vladislav Yasevich wrote:
+>>>>>> Split IPv6 support for UFO into its own feature similiar to TSO.
+>>>>>> This will later allow us to re-enable UFO support for virtio-net
+>>>>>> devices.
+>>>>>>
+>>>>>> Signed-off-by: Vladislav Yasevich <vyasevic@redhat.com>
+>>>>>> ---
+>>>>>>  include/linux/netdev_features.h |  7 +++++--
+>>>>>>  include/linux/netdevice.h       |  1 +
+>>>>>>  include/linux/skbuff.h          |  1 +
+>>>>>>  net/core/dev.c                  | 35 +++++++++++++++++++----------------
+>>>>>>  net/core/ethtool.c              |  2 +-
+>>>>>>  5 files changed, 27 insertions(+), 19 deletions(-)
+>>>>>>
+>>>>>> diff --git a/include/linux/netdev_features.h b/include/linux/netdev_features.h
+>>>>>> index dcfdecb..a078945 100644
+>>>>>> --- a/include/linux/netdev_features.h
+>>>>>> +++ b/include/linux/netdev_features.h
+>>>>>> @@ -48,8 +48,9 @@ enum {
+>>>>>>  	NETIF_F_GSO_UDP_TUNNEL_BIT,	/* ... UDP TUNNEL with TSO */
+>>>>>>  	NETIF_F_GSO_UDP_TUNNEL_CSUM_BIT,/* ... UDP TUNNEL with TSO & CSUM */
+>>>>>>  	NETIF_F_GSO_MPLS_BIT,		/* ... MPLS segmentation */
+>>>>>> +	NETIF_F_UFO6_BIT,		/* ... UDPv6 fragmentation */
+>>>>>>  	/**/NETIF_F_GSO_LAST =		/* last bit, see GSO_MASK */
+>>>>>> -		NETIF_F_GSO_MPLS_BIT,
+>>>>>> +		NETIF_F_UFO6_BIT,
+>>>>>>  
+>>>>>>  	NETIF_F_FCOE_CRC_BIT,		/* FCoE CRC32 */
+>>>>>>  	NETIF_F_SCTP_CSUM_BIT,		/* SCTP checksum offload */
+>>>>>> @@ -109,6 +110,7 @@ enum {
+>>>>>>  #define NETIF_F_TSO_ECN		__NETIF_F(TSO_ECN)
+>>>>>>  #define NETIF_F_TSO		__NETIF_F(TSO)
+>>>>>>  #define NETIF_F_UFO		__NETIF_F(UFO)
+>>>>>> +#define NETIF_F_UFO6		__NETIF_F(UFO6)
+>>>>>>  #define NETIF_F_VLAN_CHALLENGED	__NETIF_F(VLAN_CHALLENGED)
+>>>>>>  #define NETIF_F_RXFCS		__NETIF_F(RXFCS)
+>>>>>>  #define NETIF_F_RXALL		__NETIF_F(RXALL)
+>>>>>> @@ -141,7 +143,7 @@ enum {
+>>>>>>  
+>>>>>>  /* List of features with software fallbacks. */
+>>>>>>  #define NETIF_F_GSO_SOFTWARE	(NETIF_F_TSO | NETIF_F_TSO_ECN | \
+>>>>>> -				 NETIF_F_TSO6 | NETIF_F_UFO)
+>>>>>> +				 NETIF_F_TSO6 | NETIF_F_UFO | NETIF_F_UFO6)
+>>>>>>  
+>>>>>>  #define NETIF_F_GEN_CSUM	NETIF_F_HW_CSUM
+>>>>>>  #define NETIF_F_V4_CSUM		(NETIF_F_GEN_CSUM | NETIF_F_IP_CSUM)
+>>>>>> @@ -149,6 +151,7 @@ enum {
+>>>>>>  #define NETIF_F_ALL_CSUM	(NETIF_F_V4_CSUM | NETIF_F_V6_CSUM)
+>>>>>>  
+>>>>>>  #define NETIF_F_ALL_TSO 	(NETIF_F_TSO | NETIF_F_TSO6 | NETIF_F_TSO_ECN)
+>>>>>> +#define NETIF_F_ALL_UFO		(NETIF_F_UFO | NETIF_F_UFO6)
+>>>>>>  
+>>>>>>  #define NETIF_F_ALL_FCOE	(NETIF_F_FCOE_CRC | NETIF_F_FCOE_MTU | \
+>>>>>>  				 NETIF_F_FSO)
+>>>>>> diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+>>>>>> index 74fd5d3..86af10a 100644
+>>>>>> --- a/include/linux/netdevice.h
+>>>>>> +++ b/include/linux/netdevice.h
+>>>>>> @@ -3559,6 +3559,7 @@ static inline bool net_gso_ok(netdev_features_t features, int gso_type)
+>>>>>>  	/* check flags correspondence */
+>>>>>>  	BUILD_BUG_ON(SKB_GSO_TCPV4   != (NETIF_F_TSO >> NETIF_F_GSO_SHIFT));
+>>>>>>  	BUILD_BUG_ON(SKB_GSO_UDP     != (NETIF_F_UFO >> NETIF_F_GSO_SHIFT));
+>>>>>> +	BUILD_BUG_ON(SKB_GSO_UDP6    != (NETIF_F_UFO6 >> NETIF_F_GSO_SHIFT));
+>>>>>>  	BUILD_BUG_ON(SKB_GSO_DODGY   != (NETIF_F_GSO_ROBUST >> NETIF_F_GSO_SHIFT));
+>>>>>>  	BUILD_BUG_ON(SKB_GSO_TCP_ECN != (NETIF_F_TSO_ECN >> NETIF_F_GSO_SHIFT));
+>>>>>>  	BUILD_BUG_ON(SKB_GSO_TCPV6   != (NETIF_F_TSO6 >> NETIF_F_GSO_SHIFT));
+>>>>>> diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+>>>>>> index 6c8b6f6..8538b67 100644
+>>>>>> --- a/include/linux/skbuff.h
+>>>>>> +++ b/include/linux/skbuff.h
+>>>>>> @@ -372,6 +372,7 @@ enum {
+>>>>>>  
+>>>>>>  	SKB_GSO_MPLS = 1 << 12,
+>>>>>>  
+>>>>>> +	SKB_GSO_UDP6 = 1 << 13
+>>>>>>  };
+>>>>>>  
+>>>>>>  #if BITS_PER_LONG > 32
+>>>>>
+>>>>> So this implies anything getting GSO packets e.g.
+>>>>> from userspace now needs to check IP version to
+>>>>> set GSO type correctly.
+>>>>>
+>>>>> I think you missed some places that do this, e.g. af_packet
+>>>>> sockets.
+>>>>>
+>>>>
+>>>> I looked at af_packet sockets and they set this only in the event
+>>>> vnet header has been used with a GSO type.  In this case, the user
+>>>> already knows the the type.
+>>>
+>>> Imagine you are receiving a packet:
+>>>
+>>>                 if (vnet_hdr.gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+>>>                         switch (vnet_hdr.gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
+>>>                         case VIRTIO_NET_HDR_GSO_TCPV4:
+>>>                                 gso_type = SKB_GSO_TCPV4;
+>>>                                 break;
+>>>                         case VIRTIO_NET_HDR_GSO_TCPV6:
+>>>                                 gso_type = SKB_GSO_TCPV6;
+>>>                                 break;
+>>>                         case VIRTIO_NET_HDR_GSO_UDP:
+>>>                                 gso_type = SKB_GSO_UDP;
+>>>                                 break;
+>>>                         default:
+>>>                                 goto out_unlock;
+>>>                         }
+>>>
+>>>                         if (vnet_hdr.gso_type & VIRTIO_NET_HDR_GSO_ECN)
+>>>                                 gso_type |= SKB_GSO_TCP_ECN;
+>>>
+>>>                         if (vnet_hdr.gso_size == 0)
+>>>                                 goto out_unlock;
+>>>
+>>>                 }
+>>>
+>>> we used to report UFO6 as SKB_GSO_UDP, we probably
+>>> should keep doing this, with your patch we select the
+>>> goto out_unlock path.
+>>>
+>>>
+>>
+>> No.  The vnet_hdr.gso_type is still going to be VIRTIO_NET_HDR_GSO_UDP
+>> since the UDP6 version isn't defined yet.  So, it will be marked as
+>> GSO_UDP.
+> 
+> I pasted the wrong snippet.
+> I meant this:
+> 
+>                         /* This is a hint as to how much should be * linear. */
+>                         vnet_hdr.hdr_len = __cpu_to_virtio16(false, skb_headlen(skb));
+>                         vnet_hdr.gso_size = __cpu_to_virtio16(false, sinfo->gso_size);
+>                         if (sinfo->gso_type & SKB_GSO_TCPV4)
+>                                 vnet_hdr.gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
+>                         else if (sinfo->gso_type & SKB_GSO_TCPV6)
+>                                 vnet_hdr.gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
+>                         else if (sinfo->gso_type & SKB_GSO_UDP)
+>                                 vnet_hdr.gso_type = VIRTIO_NET_HDR_GSO_UDP;
+>                         else if (sinfo->gso_type & SKB_GSO_FCOE)
+>                                 goto out_free;
+>                         else
+>                                 BUG();
+> 
+> so if we get SKB_GSO_UDP we'll get BUG().
+> 
+> 
+> 
+>> This code most likely needs the same workaround as exists in tap and macvtap,
+>> i.e select the proxy fragment id and decide what to do with gso_type.
+> 
+> And fixup type to GSO_UDP6 while we are at it.
+> 
+>>>
+>>>> It is true that with this series af_packets now can't do IPv6 UFO
+>>>> since there is no VIRTIO_NET_HDR_GSO_UDPV6 yet.
+>>>
+>>> What do you mean by "do".
+>>
+>> What I mean is that AF_PACKET sockets currently do not do IPv6 UFO
+>> correctly, even after Ben's fixes to tap/macvtap.  There is no
+>> proxy fragment id selection in af_packet case and we have the
+>> same problem Ben was trying address for tap/macvtap.
+>>> Are we talking about sending or receiving packets?
+>>
+>> I am talking about sending, see above.
+>>
+>>> You seem to conflate the two.
+>>>
+>>> We always discarded ID on RX.
+>>>
+>>> For tun, this is xmit, so just by saying "this device can
+>>> not do UFO" you will never get short packets.
+>>>
+>>
+>> You must mean long packets.
+> 
+> Yes.
+> 
+>> This is actually an issue I've been thinking
+>> about. With with your suggestion of switching the GSO type for legacy
+>> applications we end up with fragments for IPv6 traffic.   As a result,
+>> legacy VMs will see a regression for large IPv6 datagrams.
+> 
+> I'm not sure what's meant by my suggestion here :)
 
-Main changes:
+What I am referring to here is to change the gso_type to UDPV6 in tap/macvtap
+when passing packet to the host.
 
-1. The control register symbolic names use the new device/driver
-   nomenclature rather than the old guest/host one.
+> It seems clear that legacy applications don't want to get IPv6
+> fragment IDs in virtio header. Either we pass them plain ethernet
+> packets or assume they are ok with discarding the IDs even
+> if we set GSO_UDP.
 
-2. The driver detect the device version (version 1 is the pre-OASIS
-   spec, version 2 is compatible with fist revision of the OASIS spec)
-   and drives the device accordingly.
+So, I am not try to pass fragment IDs yet.  I am trying to make sure that
+older gueest that assume that UFO == UFO4 + UFO6 continue to work and do not
+regress.  At the same time, I want to enable UFO(4) for new guests.
 
-3. New version uses direct addressing (64 bit address split into two
-   low/high register) instead of the guest page size based one,
-   and addresses each part of the queue (descriptors, available, used)
-   separately.
+If we set gso_type to SKB_GSO_UDPV6 before passing the data to the forwarding
+path of the host, then this will cause IPv6 fragmentation.  If we leave gso_type
+as SKB_GSO_UDP, then older VMs will continue to communicate using large UDP
+data packets.
 
-4. The device activity is now explicitly triggered by writing to the
-   "queue ready" register.
+Later when VMs support UFO6, when UFO6 is enabled, the fragment id can be communicated.
+But that's later.
 
-5. The platform device got a sysfs attribute with the version number.
+> 
+>>>
+>>>>
+>>>> I suppose we could do something similar there as we do in tun code/macvtap code.
+>>>> If that's the case, it currently broken as well.
+>>>>
+>>>> -vlad
+>>>
+>>>
+>>> Broken is a big word.
+>>>
+>>> Let's stop conflating two directions.
+>>
+>> I am not and was talking only about af_packet as that is what you asked about.
+>> There is no tun/macvtap in play here.  They are handled separately in their
+>> respective drivers.
+>>
+>>>
+>>> Here's the way I look at it:
+>>>
+>>> 1. Userspace doesn't have a way to get fragment IDs
+>>> from tun/macvtap/packet sockets.
+>>> Presumably, not all users need these IDs.
+>>> E.g. old guests clearly don't.
+>>>
+>>> We should either give them packets stripping the ID,
+>>> like we always did, or make sure they never get these packets.
+>>> Second option seems achievable for tun if we
+>>> never tell linux it can do UFO, but I don't see
+>>> how to do it for macvtap and packet socket.
+>>>
+>>
+>> macvtap is slightly problematic, but doable with some tricks.
+>> packet socket is an interesting problem.  The only way
+>> an af_packet socket can receive an skb marked SKB_GSO_UDPV6
+>> is if someone else on the host sent it (like another guest).
+> 
+> Or if a NIC set it.
 
-6. Whole 64 bit features are properly handled now (both ways).
+OK, virtio seems to be the only nic doing this... You are right, I
+need to cover that scenario.
 
-Signed-off-by: Pawel Moll <pawel.moll@arm.com>
----
-I had the code typed for months now, but finally (just before
-disappearing for the end-of-year break) got time to test it (and
-fix the bugs), so I though I'd share it at least as RFC.
+-vlad
 
-It's based on Linus tree still in merge window, but as far as I can
-see all virtio changes have been already pulled, so I don't expect
-any changes in rc1.
-
-Tested with our custom models (*not* qemu).
-
-Regards and till next year!
-
-Pawel
-
- drivers/virtio/virtio_mmio.c | 132 +++++++++++++++++++++++++++----------------
- include/linux/virtio_mmio.h  |  46 +++++++++++----
- 2 files changed, 120 insertions(+), 58 deletions(-)
-
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 00d115b..d60675a 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -1,7 +1,7 @@
- /*
-  * Virtio memory mapped device driver
-  *
-- * Copyright 2011, ARM Ltd.
-+ * Copyright 2011-2014, ARM Ltd.
-  *
-  * This module allows virtio devices to be used over a virtual, memory mapped
-  * platform device.
-@@ -50,36 +50,6 @@
-  *
-  *
-  *
-- * Registers layout (all 32-bit wide):
-- *
-- * offset d. name             description
-- * ------ -- ---------------- -----------------
-- *
-- * 0x000  R  MagicValue       Magic value "virt"
-- * 0x004  R  Version          Device version (current max. 1)
-- * 0x008  R  DeviceID         Virtio device ID
-- * 0x00c  R  VendorID         Virtio vendor ID
-- *
-- * 0x010  R  HostFeatures     Features supported by the host
-- * 0x014  W  HostFeaturesSel  Set of host features to access via HostFeatures
-- *
-- * 0x020  W  GuestFeatures    Features activated by the guest
-- * 0x024  W  GuestFeaturesSel Set of activated features to set via GuestFeatures
-- * 0x028  W  GuestPageSize    Size of guest's memory page in bytes
-- *
-- * 0x030  W  QueueSel         Queue selector
-- * 0x034  R  QueueNumMax      Maximum size of the currently selected queue
-- * 0x038  W  QueueNum         Queue size for the currently selected queue
-- * 0x03c  W  QueueAlign       Used Ring alignment for the current queue
-- * 0x040  RW QueuePFN         PFN for the currently selected queue
-- *
-- * 0x050  W  QueueNotify      Queue notifier
-- * 0x060  R  InterruptStatus  Interrupt status register
-- * 0x064  W  InterruptACK     Interrupt acknowledge register
-- * 0x070  RW Status           Device status register
-- *
-- * 0x100+ RW                  Device-specific configuration space
-- *
-  * Based on Virtio PCI driver by Anthony Liguori, copyright IBM Corp. 2007
-  *
-  * This work is licensed under the terms of the GNU GPL, version 2 or later.
-@@ -145,11 +115,16 @@ struct virtio_mmio_vq_info {
- static u64 vm_get_features(struct virtio_device *vdev)
- {
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-+	u64 features;
-+
-+	writel(1, vm_dev->base + VIRTIO_MMIO_DEVICE_FEATURES_SEL);
-+	features = readl(vm_dev->base + VIRTIO_MMIO_DEVICE_FEATURES);
-+	features <<= 32;
- 
--	/* TODO: Features > 32 bits */
--	writel(0, vm_dev->base + VIRTIO_MMIO_HOST_FEATURES_SEL);
-+	writel(0, vm_dev->base + VIRTIO_MMIO_DEVICE_FEATURES_SEL);
-+	features |= readl(vm_dev->base + VIRTIO_MMIO_DEVICE_FEATURES);
- 
--	return readl(vm_dev->base + VIRTIO_MMIO_HOST_FEATURES);
-+	return features;
- }
- 
- static int vm_finalize_features(struct virtio_device *vdev)
-@@ -159,11 +134,13 @@ static int vm_finalize_features(struct virtio_device *vdev)
- 	/* Give virtio_ring a chance to accept features. */
- 	vring_transport_features(vdev);
- 
--	/* Make sure we don't have any features > 32 bits! */
--	BUG_ON((u32)vdev->features != vdev->features);
-+	writel(1, vm_dev->base + VIRTIO_MMIO_DRIVER_FEATURES_SEL);
-+	writel((vdev->features >> 32) & 0xffffffff,
-+			vm_dev->base + VIRTIO_MMIO_DRIVER_FEATURES);
- 
--	writel(0, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES_SEL);
--	writel(vdev->features, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES);
-+	writel(0, vm_dev->base + VIRTIO_MMIO_DRIVER_FEATURES_SEL);
-+	writel(vdev->features & 0xffffffff,
-+			vm_dev->base + VIRTIO_MMIO_DRIVER_FEATURES);
- 
- 	return 0;
- }
-@@ -275,7 +252,12 @@ static void vm_del_vq(struct virtqueue *vq)
- 
- 	/* Select and deactivate the queue */
- 	writel(index, vm_dev->base + VIRTIO_MMIO_QUEUE_SEL);
--	writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
-+	if (vm_dev->version == 1) {
-+		writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
-+	} else {
-+		writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
-+		WARN_ON(readl(vm_dev->base + VIRTIO_MMIO_QUEUE_READY));
-+	}
- 
- 	size = PAGE_ALIGN(vring_size(info->num, VIRTIO_MMIO_VRING_ALIGN));
- 	free_pages_exact(info->queue, size);
-@@ -312,7 +294,8 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
- 	writel(index, vm_dev->base + VIRTIO_MMIO_QUEUE_SEL);
- 
- 	/* Queue shouldn't already be set up. */
--	if (readl(vm_dev->base + VIRTIO_MMIO_QUEUE_PFN)) {
-+	if (readl(vm_dev->base + (vm_dev->version == 1 ?
-+			VIRTIO_MMIO_QUEUE_PFN : VIRTIO_MMIO_QUEUE_READY))) {
- 		err = -ENOENT;
- 		goto error_available;
- 	}
-@@ -358,10 +341,35 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
- 
- 	/* Activate the queue */
- 	writel(info->num, vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
--	writel(VIRTIO_MMIO_VRING_ALIGN,
--			vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
--	writel(virt_to_phys(info->queue) >> PAGE_SHIFT,
--			vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
-+	if (vm_dev->version == 1) {
-+		writel(VIRTIO_MMIO_VRING_ALIGN,
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
-+		writel(virt_to_phys(info->queue) >> PAGE_SHIFT,
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
-+	} else {
-+		uint64_t addr = virt_to_phys(info->queue);
-+
-+		writel(addr & 0xffffffff,
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_LOW);
-+		writel((addr >> 32) & 0xffffffff,
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_HIGH);
-+
-+		addr += info->num * sizeof(struct vring_desc);
-+		writel(addr & 0xffffffff,
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_LOW);
-+		writel((addr >> 32) & 0xffffffff,
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_HIGH);
-+
-+		addr += sizeof(struct vring_avail) + info->num * sizeof(__u16);
-+		addr += VIRTIO_MMIO_VRING_ALIGN - 1;
-+		addr &= ~(VIRTIO_MMIO_VRING_ALIGN - 1);
-+		writel(addr & 0xffffffff,
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_USED_LOW);
-+		writel((addr >> 32) & 0xffffffff,
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_USED_HIGH);
-+
-+		writel(1, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
-+	}
- 
- 	/* Create the vring */
- 	vq = vring_new_virtqueue(index, info->num, VIRTIO_MMIO_VRING_ALIGN, vdev,
-@@ -381,7 +389,12 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
- 	return vq;
- 
- error_new_virtqueue:
--	writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
-+	if (vm_dev->version == 1) {
-+		writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
-+	} else {
-+		writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
-+		WARN_ON(readl(vm_dev->base + VIRTIO_MMIO_QUEUE_READY));
-+	}
- 	free_pages_exact(info->queue, size);
- error_alloc_pages:
- 	kfree(info);
-@@ -439,6 +452,18 @@ static const struct virtio_config_ops virtio_mmio_config_ops = {
- 
- /* Platform device */
- 
-+static ssize_t vm_dev_attr_version_show(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct virtio_mmio_device *vm_dev = platform_get_drvdata(pdev);
-+
-+	return snprintf(buf, PAGE_SIZE, "%lu", vm_dev->version);
-+}
-+
-+static struct device_attribute vm_dev_attr_version =
-+		__ATTR(version, S_IRUGO, vm_dev_attr_version_show, NULL);
-+
- static int virtio_mmio_probe(struct platform_device *pdev)
- {
- 	struct virtio_mmio_device *vm_dev;
-@@ -476,16 +501,26 @@ static int virtio_mmio_probe(struct platform_device *pdev)
- 
- 	/* Check device version */
- 	vm_dev->version = readl(vm_dev->base + VIRTIO_MMIO_VERSION);
--	if (vm_dev->version != 1) {
-+	if (vm_dev->version < 1 || vm_dev->version > 2) {
- 		dev_err(&pdev->dev, "Version %ld not supported!\n",
- 				vm_dev->version);
- 		return -ENXIO;
- 	}
- 
- 	vm_dev->vdev.id.device = readl(vm_dev->base + VIRTIO_MMIO_DEVICE_ID);
-+	if (vm_dev->vdev.id.device == 0) {
-+		/*
-+		 * ID 0 means a dummy (placeholder) device, skip quietly
-+		 * (as in: no error) with no further actions
-+		 */
-+		return 0;
-+	}
- 	vm_dev->vdev.id.vendor = readl(vm_dev->base + VIRTIO_MMIO_VENDOR_ID);
- 
--	writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
-+	if (vm_dev->version == 1)
-+		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
-+
-+	device_create_file(&pdev->dev, &vm_dev_attr_version);
- 
- 	platform_set_drvdata(pdev, vm_dev);
- 
-@@ -496,7 +531,8 @@ static int virtio_mmio_remove(struct platform_device *pdev)
- {
- 	struct virtio_mmio_device *vm_dev = platform_get_drvdata(pdev);
- 
--	unregister_virtio_device(&vm_dev->vdev);
-+	if (vm_dev)
-+		unregister_virtio_device(&vm_dev->vdev);
- 
- 	return 0;
- }
-diff --git a/include/linux/virtio_mmio.h b/include/linux/virtio_mmio.h
-index 5c7b6f0..d5f3634 100644
---- a/include/linux/virtio_mmio.h
-+++ b/include/linux/virtio_mmio.h
-@@ -51,21 +51,22 @@
- /* Virtio vendor ID - Read Only */
- #define VIRTIO_MMIO_VENDOR_ID		0x00c
- 
--/* Bitmask of the features supported by the host
-+/* Bitmask of the features supported by the device (host)
-  * (32 bits per set) - Read Only */
--#define VIRTIO_MMIO_HOST_FEATURES	0x010
-+#define VIRTIO_MMIO_DEVICE_FEATURES	0x010
- 
--/* Host features set selector - Write Only */
--#define VIRTIO_MMIO_HOST_FEATURES_SEL	0x014
-+/* Device (host) features set selector - Write Only */
-+#define VIRTIO_MMIO_DEVICE_FEATURES_SEL	0x014
- 
--/* Bitmask of features activated by the guest
-+/* Bitmask of features activated by the driver (guest)
-  * (32 bits per set) - Write Only */
--#define VIRTIO_MMIO_GUEST_FEATURES	0x020
-+#define VIRTIO_MMIO_DRIVER_FEATURES	0x020
- 
- /* Activated features set selector - Write Only */
--#define VIRTIO_MMIO_GUEST_FEATURES_SEL	0x024
-+#define VIRTIO_MMIO_DRIVER_FEATURES_SEL	0x024
- 
--/* Guest's memory page size in bytes - Write Only */
-+/* Guest's memory page size in bytes - Write Only
-+ * LEGACY DEVICES ONLY! */
- #define VIRTIO_MMIO_GUEST_PAGE_SIZE	0x028
- 
- /* Queue selector - Write Only */
-@@ -77,12 +78,18 @@
- /* Queue size for the currently selected queue - Write Only */
- #define VIRTIO_MMIO_QUEUE_NUM		0x038
- 
--/* Used Ring alignment for the currently selected queue - Write Only */
-+/* Used Ring alignment for the currently selected queue - Write Only
-+ * LEGACY DEVICES ONLY! */
- #define VIRTIO_MMIO_QUEUE_ALIGN		0x03c
- 
--/* Guest's PFN for the currently selected queue - Read Write */
-+/* Guest's PFN for the currently selected queue - Read Write
-+ * LEGACY DEVICES ONLY! */
- #define VIRTIO_MMIO_QUEUE_PFN		0x040
- 
-+/* Ready bit for the currently selected queue - Read Write
-+ * NOT FOR LEGACY DEVICES! */
-+#define VIRTIO_MMIO_QUEUE_READY		0x044
-+
- /* Queue notifier - Write Only */
- #define VIRTIO_MMIO_QUEUE_NOTIFY	0x050
- 
-@@ -95,6 +102,25 @@
- /* Device status register - Read Write */
- #define VIRTIO_MMIO_STATUS		0x070
- 
-+/* Selected queue's Descriptor Table address, 64 bits in two halves
-+ * NOT FOR LEGACY DEVICES! */
-+#define VIRTIO_MMIO_QUEUE_DESC_LOW	0x080
-+#define VIRTIO_MMIO_QUEUE_DESC_HIGH	0x084
-+
-+/* Selected queue's Available Ring address, 64 bits in two halves
-+ * NOT FOR LEGACY DEVICES! */
-+#define VIRTIO_MMIO_QUEUE_AVAIL_LOW	0x090
-+#define VIRTIO_MMIO_QUEUE_AVAIL_HIGH	0x094
-+
-+/* Selected queue's Used Ring address, 64 bits in two halves
-+ * NOT FOR LEGACY DEVICES! */
-+#define VIRTIO_MMIO_QUEUE_USED_LOW	0x0a0
-+#define VIRTIO_MMIO_QUEUE_USED_HIGH	0x0a4
-+
-+/* Configuration atomicity value
-+ * NOT FOR LEGACY DEVICES! */
-+#define VIRTIO_MMIO_CONFIG_GENERATION	0x0fc
-+
- /* The config space is defined by each driver as
-  * the per-driver configuration space - Read Write */
- #define VIRTIO_MMIO_CONFIG		0x100
--- 
-2.1.0
+> 
+>> Since there is are no feature or vnet header length negotiations,
+>> it is impossible to tell if an application using this af_packet
+>> socket is capable of processing VIRTIO_NET_HDR_GSO_UDPV6
+>> type (yet to be defined).
+>>
+>> So, we can either use existing VIRTIO_NET_HDR_GSO_UDP on receive
+>> path, add some kind of negotiation logic to packet socket (like
+>> storing the application expected vnet header size), or perform
+>> IPv6 fragmentation somehow.
+>>
+>> Options 1 or 2 are doable.
+> 
+> 1 is using VIRTIO_NET_HDR_GSO_UDP and discarding ID,
+> 2 is "some kind of negotiation logic"?
+> 2 can't be enough, you will need 1 as well.
+> 
+> So let's start with 1 as a first step.
+> 
+> 
+> 
+> 
+>>>
+>>> 2. Userspace doesn't have a way to set fragment IDs
+>>> for tun/macvtap/packet sockets.
+>>> Presumably, not all users have these IDs.  E.g. old
+>>> guests clearly don't.
+>>>
+>>> We should either generate our own ID,
+>>> like we always did, or make sure we don't accept
+>>> these packets.
+>>> Second option is almost sure to break userspace,
+>>> so it seems we must do the first one.
+>>>
+>>
+>> Right.  This was missing from packet sockets.  I can fix it.
+>>
+>> -vlad
+> 
+> Also, this can't be a patch on top, since we don't
+> want bisect to give us configurations which
+> can BUG().
+> 
+> 
+>>>
+>>> 3.
+>>> Exactly the same two things if you replace userspace
+>>> with hypervisor and tun/macvtap/packet socket with
+>>> virtio device.
+>>>
+>>>
+>>> 4. 
+>>> As a next step, we should add a way for userspace
+>>> to tell us that it has ids and can handle them.
+>>>
+>>>
+>>>
+>>>
+>>>
+>>>>>
+>>>>>> diff --git a/net/core/dev.c b/net/core/dev.c
+>>>>>> index 945bbd0..fa4d2ee 100644
+>>>>>> --- a/net/core/dev.c
+>>>>>> +++ b/net/core/dev.c
+>>>>>> @@ -5929,6 +5929,12 @@ static netdev_features_t netdev_fix_features(struct net_device *dev,
+>>>>>>  		features &= ~NETIF_F_ALL_TSO;
+>>>>>>  	}
+>>>>>>  
+>>>>>> +	/* UFO requires that SG is present as well */
+>>>>>> +	if ((features & NETIF_F_ALL_UFO) && !(features & NETIF_F_SG)) {
+>>>>>> +		netdev_dbg(dev, "Dropping UFO features since no SG feature.\n");
+>>>>>> +		features &= ~NETIF_F_ALL_UFO;
+>>>>>> +	}
+>>>>>> +
+>>>>>>  	if ((features & NETIF_F_TSO) && !(features & NETIF_F_HW_CSUM) &&
+>>>>>>  					!(features & NETIF_F_IP_CSUM)) {
+>>>>>>  		netdev_dbg(dev, "Dropping TSO features since no CSUM feature.\n");
+>>>>>> @@ -5952,24 +5958,21 @@ static netdev_features_t netdev_fix_features(struct net_device *dev,
+>>>>>>  		features &= ~NETIF_F_GSO;
+>>>>>>  	}
+>>>>>>  
+>>>>>> -	/* UFO needs SG and checksumming */
+>>>>>> -	if (features & NETIF_F_UFO) {
+>>>>>> -		/* maybe split UFO into V4 and V6? */
+>>>>>> -		if (!((features & NETIF_F_GEN_CSUM) ||
+>>>>>> -		    (features & (NETIF_F_IP_CSUM|NETIF_F_IPV6_CSUM))
+>>>>>> -			    == (NETIF_F_IP_CSUM|NETIF_F_IPV6_CSUM))) {
+>>>>>> -			netdev_dbg(dev,
+>>>>>> -				"Dropping NETIF_F_UFO since no checksum offload features.\n");
+>>>>>> -			features &= ~NETIF_F_UFO;
+>>>>>> -		}
+>>>>>> -
+>>>>>> -		if (!(features & NETIF_F_SG)) {
+>>>>>> -			netdev_dbg(dev,
+>>>>>> -				"Dropping NETIF_F_UFO since no NETIF_F_SG feature.\n");
+>>>>>> -			features &= ~NETIF_F_UFO;
+>>>>>> -		}
+>>>>>> +	/* UFO also needs checksumming */
+>>>>>> +	if ((features & NETIF_F_UFO) && !(features & NETIF_F_GEN_CSUM) &&
+>>>>>> +					!(features & NETIF_F_IP_CSUM)) {
+>>>>>> +		netdev_dbg(dev,
+>>>>>> +			   "Dropping NETIF_F_UFO since no checksum offload features.\n");
+>>>>>> +		features &= ~NETIF_F_UFO;
+>>>>>> +	}
+>>>>>> +	if ((features & NETIF_F_UFO6) && !(features & NETIF_F_GEN_CSUM) &&
+>>>>>> +					 !(features & NETIF_F_IPV6_CSUM)) {
+>>>>>> +		netdev_dbg(dev,
+>>>>>> +			   "Dropping NETIF_F_UFO6 since no checksum offload features.\n");
+>>>>>> +		features &= ~NETIF_F_UFO6;
+>>>>>>  	}
+>>>>>>  
+>>>>>> +
+>>>>>>  #ifdef CONFIG_NET_RX_BUSY_POLL
+>>>>>>  	if (dev->netdev_ops->ndo_busy_poll)
+>>>>>>  		features |= NETIF_F_BUSY_POLL;
+>>>>>> diff --git a/net/core/ethtool.c b/net/core/ethtool.c
+>>>>>> index 06dfb29..93eff41 100644
+>>>>>> --- a/net/core/ethtool.c
+>>>>>> +++ b/net/core/ethtool.c
+>>>>>> @@ -223,7 +223,7 @@ static netdev_features_t ethtool_get_feature_mask(u32 eth_cmd)
+>>>>>>  		return NETIF_F_ALL_TSO;
+>>>>>>  	case ETHTOOL_GUFO:
+>>>>>>  	case ETHTOOL_SUFO:
+>>>>>> -		return NETIF_F_UFO;
+>>>>>> +		return NETIF_F_ALL_UFO;
+>>>>>>  	case ETHTOOL_GGSO:
+>>>>>>  	case ETHTOOL_SGSO:
+>>>>>>  		return NETIF_F_GSO;
+>>>>>> -- 
+>>>>>> 1.9.3
