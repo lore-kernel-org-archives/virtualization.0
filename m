@@ -1,12 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] vhost: relax used address alignment
-Date: Sun, 21 Dec 2014 01:14:05 +0200
-Message-ID: <1419117201-24590-1-git-send-email-mst@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 6/6] virtio: core support for config generation
+Date: Fri, 19 Dec 2014 13:31:53 +1030
+Message-ID: <87mw6ks5pa.fsf@rustcorp.com.au>
+References: <1418678575-31755-1-git-send-email-mst@redhat.com>
+	<1418678575-31755-7-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <1418678575-31755-7-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,43 +18,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio 1.0 only requires used address to be 4 byte aligned,
-vhost required 8 bytes (size of vring_used_elem).
-Fix up vhost to match that.
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> virtio 1.0 spec says:
+>
+> Drivers MUST NOT assume reads from fields greater than 32 bits wide are
+> atomic, nor are reads from multiple fields: drivers SHOULD read device
+> configuration space fields like so:
+> 	u32 before, after;
+> 	do {
+> 		before = get_config_generation(device);
+> 		// read config entry/entries.
+> 		after = get_config_generation(device);
+> 	} while (after != before);
+>
+> Do exactly this, for transports that support it.
 
-Additionally, while vhost correctly requires 8 byte
-alignment for log, it's unconnected to used ring:
-it's a consequence that log has u64 entries.
-Tweak code to make that clearer.
+>  static inline void virtio_cwrite8(struct virtio_device *vdev,
+> @@ -352,6 +375,7 @@ static inline u64 virtio_cread64(struct virtio_device *vdev,
+>  {
+>  	u64 ret;
+>  	vdev->config->get(vdev, offset, &ret, sizeof(ret));
+> +	__virtio_cread_many(vdev, offset, &ret, 1, sizeof(ret));
+>  	return virtio64_to_cpu(vdev, (__force __virtio64)ret);
+>  }
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/vhost/vhost.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+The "vdev->config->get(vdev, offset, &ret, sizeof(ret));" should
+be deleted.  Harmless if not, though.
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index ed71b53..97996fc 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -713,9 +713,12 @@ long vhost_vring_ioctl(struct vhost_dev *d, int ioctl, void __user *argp)
- 			r = -EFAULT;
- 			break;
- 		}
--		if ((a.avail_user_addr & (sizeof *vq->avail->ring - 1)) ||
--		    (a.used_user_addr & (sizeof *vq->used->ring - 1)) ||
--		    (a.log_guest_addr & (sizeof *vq->used->ring - 1))) {
-+
-+		BUILD_BUG_ON(__alignof__ *vq->avail != 2);
-+		BUILD_BUG_ON(__alignof__ *vq->used != 4);
-+		if ((a.avail_user_addr & (__alignof__ *vq->avail - 1)) ||
-+		    (a.used_user_addr & (__alignof__ *vq->used - 1)) ||
-+		    (a.log_guest_addr & (sizeof(u64) - 1))) {
- 			r = -EINVAL;
- 			break;
- 		}
--- 
-MST
+Cheers,
+Rusty.
