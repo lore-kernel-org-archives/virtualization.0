@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2 1/2] virtio_ring: document alignment requirements
-Date: Thu, 25 Dec 2014 17:05:05 +0200
-Message-ID: <1419517332-12291-2-git-send-email-mst@redhat.com>
+Subject: [PATCH v2 2/2] vhost: relax used address alignment
+Date: Thu, 25 Dec 2014 17:05:10 +0200
+Message-ID: <1419517332-12291-3-git-send-email-mst@redhat.com>
 References: <1419517332-12291-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,38 +19,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Host needs to know vring element alignment requirements:
-simply doing alignof on structures doesn't work reliably: on some
-platforms gcc has alignof(uint32_t) == 2.
+virtio 1.0 only requires used address to be 4 byte aligned,
+vhost required 8 bytes (size of vring_used_elem).
+Fix up vhost to match that.
 
-Add macros for alignment as specified in virtio 1.0 cs01,
-export them to userspace as well.
+Additionally, while vhost correctly requires 8 byte
+alignment for log, it's unconnected to used ring:
+it's a consequence that log has u64 entries.
+Tweak code to make that clearer.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- include/uapi/linux/virtio_ring.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/vhost/vhost.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
-index 61c818a..a3318f3 100644
---- a/include/uapi/linux/virtio_ring.h
-+++ b/include/uapi/linux/virtio_ring.h
-@@ -101,6 +101,13 @@ struct vring {
- 	struct vring_used *used;
- };
- 
-+/* Alignment requirements for vring elements.
-+ * When using pre-virtio 1.0 layout, these fall out naturally.
-+ */
-+#define VRING_AVAIL_ALIGN_SIZE 2
-+#define VRING_USED_ALIGN_SIZE 4
-+#define VRING_DESC_ALIGN_SIZE 16
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index ed71b53..cb807d0 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -713,9 +713,13 @@ long vhost_vring_ioctl(struct vhost_dev *d, int ioctl, void __user *argp)
+ 			r = -EFAULT;
+ 			break;
+ 		}
+-		if ((a.avail_user_addr & (sizeof *vq->avail->ring - 1)) ||
+-		    (a.used_user_addr & (sizeof *vq->used->ring - 1)) ||
+-		    (a.log_guest_addr & (sizeof *vq->used->ring - 1))) {
 +
- /* The standard layout for the ring is a continuous chunk of memory which looks
-  * like this.  We assume num is a power of 2.
-  *
++		/* Make sure it's safe to cast pointers to vring types. */
++		BUILD_BUG_ON(__alignof__ *vq->avail > VRING_AVAIL_ALIGN_SIZE);
++		BUILD_BUG_ON(__alignof__ *vq->used > VRING_USED_ALIGN_SIZE);
++		if ((a.avail_user_addr & (VRING_AVAIL_ALIGN_SIZE - 1)) ||
++		    (a.used_user_addr & (VRING_USED_ALIGN_SIZE - 1)) ||
++		    (a.log_guest_addr & (sizeof(u64) - 1))) {
+ 			r = -EINVAL;
+ 			break;
+ 		}
 -- 
 MST
