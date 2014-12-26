@@ -1,18 +1,15 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 00/10] Split UFO into v4 and v6 versions.
-Date: Thu, 25 Dec 2014 09:58:25 +0008
-Message-ID: <1419501025.27992.5@smtp.corp.redhat.com>
-References: <1418840455-22598-1-git-send-email-vyasevic@redhat.com>
-	<586203981.237162.1418880532523.JavaMail.zimbra@redhat.com>
-	<1419444680.4705.129.camel@decadent.org.uk>
-	<20141224185922.GA30934@redhat.com>
-	<1419476521.27992.1@smtp.corp.redhat.com>
-	<20141225071435.GA6687@redhat.com>
+Subject: Re: [RFC PATCH 3/3] virtio-net: using single MSIX irq for each TX/RX
+	queue pair
+Date: Fri, 26 Dec 2014 18:17:02 +0800
+Message-ID: <549D359E.7080401@redhat.com>
+References: <1419562425-20614-1-git-send-email-jasowang@redhat.com>
+	<1419562425-20614-4-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141225071435.GA6687@redhat.com>
+In-Reply-To: <1419562425-20614-4-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,115 +19,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, Vladislav Yasevich <vyasevich@gmail.com>, Ben Hutchings <ben@decadent.org.uk>, stefanha@redhat.com, virtualization@lists.linux-foundation.org
+To: rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
+On 12/26/2014 10:53 AM, Jason Wang wrote:
+> This patch try to reduce the number of MSIX irqs required for
+> virtio-net by sharing a MSIX irq for each TX/RX queue pair through
+> channels. If transport support channel, about half of the MSIX irqs
+> were reduced.
+>
+> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/net/virtio_net.c | 26 +++++++++++++++++++++++++-
+>  1 file changed, 25 insertions(+), 1 deletion(-)
+>
 
-On Thu, Dec 25, 2014 at 3:14 PM, Michael S. Tsirkin <mst@redhat.com> 
-wrote:
-> On Thu, Dec 25, 2014 at 03:10:01AM +0008, Jason Wang wrote:
->>  
->>  
->>  On Thu, Dec 25, 2014 at 2:59 AM, Michael S. Tsirkin 
->> <mst@redhat.com> wrote:
->>  >On Wed, Dec 24, 2014 at 07:11:20PM +0100, Ben Hutchings wrote:
->>  >> On Thu, 2014-12-18 at 00:28 -0500, Jason Wang wrote:
->>  >> >  > ----- Original Message -----
->>  >> > > UFO support in the kernel applies to both IPv4 and IPv6 
->> protocols
->>  >> > > with the same device feature.  However some devices may not 
->> be able
->>  >> > > to support one of the offloads.  For this we split the UFO 
->> offload
->>  >> > > feature into 2 pieces.  NETIF_F_UFO now controlls the IPv4 
->> part and
->>  >> > > this series introduces NETIF_F_UFO6.
->>  >> > >  > > As a result of this work, we can now re-enable 
->> NETIF_F_UFO on
->>  >> > > virtio_net devices and restore UDP over IPv4 performance for
->>  >>guests.
->>  >> > > We also continue to support legacy guests that assume that 
->> UFO6
->>  >> > > support included into UFO(4).
->>  >> > >  > > Without this work, migrating a guest to a 3.18 kernel 
->> fails.
->>  >> > >  >  > This series eliminate the ambiguous NETIF_F_UFO.
->>  >> >  > But VIRTIO_NET_F_{HOST|GUEST}_UFO and 
->> VIRTIO_NET_F_HDR_GSO_UDP is
->>  >>still
->>  >> > ambigious. I know it was used to keep compatibility for legacy 
->> guest.
->>  >>But
->>  >> > what's the future plan? Differentiate UFOv4 and UFOv6 in virtio
->>  >>features and
->>  >> > gso type in vnet header looks sufficient?
->>  >> [...]
->>  >>   The IPv6 fragmentation ID needs to be added to the vnet 
->> header, to do
->>  >> UFOv6 properly.  If it wasn't for that lack, we wouldn't have to 
->> split
->>  >> the feature flag.
->>  >> Ben.
->>  >
->>  >
->>  >Right.
->>  >
->>  >I think a good plan is as follows:
->>  >
->>  >1. add code generating IDs on rx path for virtio,
->>  >   and re-enable UFO (4+6).
->>  >
->>  >2. Ben's patch doing similar things for tun/macvtap
->>  
->>  I wonder whether or not we can do this lazily.
->>  
->>  E.g during UFO6 software segment for dodgy packets?
->>  
->>  And this can eliminate the effort of duplicating it in all untrusted
->>  sources?
-> 
-> But then we'll need to then change it again in step 5,
-> probably by setting some flag?
-
-The idea is if no segmentation (either software or hardware), no need 
-for an id.
- 
-So looks like dodgy is sufficient since we are sure kernel should set 
-id in all other cases. And we can add the id only when we see it was 
-not set for the ufo packet(legacy guest). This seems not conflict with 
-step 5.
-> 
-> Might as well do it directly.
-> 
->>  >
->>  >3. similarly for packet sockets
->>  >
->>  >
->>  >above seem appropriate for stable
->>  >
->>  >4. 4+6 split, to make it easier for drivers
->>  >   to identify when fragment ID is needed
->>  >
->>  >5. extend vnet header, and add ways to enable it,
->>  >   when enabled, use that to pass
->>  >   fragment ID for tun/virtio/vhost/macvtap/packet socket
->>  >
->>  >4 is what this patchset does.
->>  >
->>  >
->>  >> --  Ben Hutchings
->>  >> If more than one person is responsible for a bug, no one is at 
->> fault.
->>  >
->>  >
->>  >--
->>  >To unsubscribe from this list: send the line "unsubscribe netdev" 
->> in
->>  >the body of a message to majordomo@vger.kernel.org
->>  >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> --
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Note: an issue with this patch is it may trigger tx irq handler if at
+least one more used. We could solve this by checking the used idx and
+bypass the tx irq if host does not signal us. (Or just does the old tx
+skbs reclaiming before the checking.)
