@@ -1,14 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2 2/2] vhost: relax used address alignment
-Date: Thu, 25 Dec 2014 17:05:10 +0200
-Message-ID: <1419517332-12291-3-git-send-email-mst@redhat.com>
-References: <1419517332-12291-1-git-send-email-mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [RFC PATCH 0/3] Sharing MSIX irq for tx/rx queue pairs
+Date: Fri, 26 Dec 2014 10:53:42 +0800
+Message-ID: <1419562425-20614-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1419517332-12291-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,44 +15,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio 1.0 only requires used address to be 4 byte aligned,
-vhost required 8 bytes (size of vring_used_elem).
-Fix up vhost to match that.
+Hi all:
 
-Additionally, while vhost correctly requires 8 byte
-alignment for log, it's unconnected to used ring:
-it's a consequence that log has u64 entries.
-Tweak code to make that clearer.
+This series try to share MSIX irq for each tx/rx queue pair. This is
+done through:
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/vhost/vhost.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+- introducing virtio pci channel which are group of virtqueues that
+  sharing a single MSIX irq (Patch 1)
+- expose channel setting to virtio core api (Patch 2)
+- try to use channel setting in virtio-net (Patch 3)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index ed71b53..cb807d0 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -713,9 +713,13 @@ long vhost_vring_ioctl(struct vhost_dev *d, int ioctl, void __user *argp)
- 			r = -EFAULT;
- 			break;
- 		}
--		if ((a.avail_user_addr & (sizeof *vq->avail->ring - 1)) ||
--		    (a.used_user_addr & (sizeof *vq->used->ring - 1)) ||
--		    (a.log_guest_addr & (sizeof *vq->used->ring - 1))) {
-+
-+		/* Make sure it's safe to cast pointers to vring types. */
-+		BUILD_BUG_ON(__alignof__ *vq->avail > VRING_AVAIL_ALIGN_SIZE);
-+		BUILD_BUG_ON(__alignof__ *vq->used > VRING_USED_ALIGN_SIZE);
-+		if ((a.avail_user_addr & (VRING_AVAIL_ALIGN_SIZE - 1)) ||
-+		    (a.used_user_addr & (VRING_USED_ALIGN_SIZE - 1)) ||
-+		    (a.log_guest_addr & (sizeof(u64) - 1))) {
- 			r = -EINVAL;
- 			break;
- 		}
+For the transport that does not support channel, channel paramters
+were simply ignored. For devices that does not use channel, it can
+simply pass NULL or zero to virito core.
+
+With the patch, 1 MSIX irq were saved for each TX/RX queue pair.
+
+Please review.
+
+Thanks
+
+Jason Wang (3):
+  virtio-pci: introduce channels
+  virtio: let vp_find_vqs accept channel setting paramters
+  virtio-net: using single MSIX irq for each TX/RX queue pair
+
+ drivers/block/virtio_blk.c             |   3 +-
+ drivers/char/virtio_console.c          |   3 +-
+ drivers/lguest/lguest_device.c         |   5 +-
+ drivers/misc/mic/card/mic_virtio.c     |   5 +-
+ drivers/net/caif/caif_virtio.c         |   3 +-
+ drivers/net/virtio_net.c               |  26 ++++-
+ drivers/remoteproc/remoteproc_virtio.c |   5 +-
+ drivers/rpmsg/virtio_rpmsg_bus.c       |   3 +-
+ drivers/s390/kvm/kvm_virtio.c          |   5 +-
+ drivers/s390/kvm/virtio_ccw.c          |   5 +-
+ drivers/scsi/virtio_scsi.c             |   3 +-
+ drivers/virtio/virtio_balloon.c        |   3 +-
+ drivers/virtio/virtio_mmio.c           |   5 +-
+ drivers/virtio/virtio_pci_common.c     | 207 ++++++++++++++++++++-------------
+ drivers/virtio/virtio_pci_common.h     |  19 ++-
+ include/linux/virtio_config.h          |   8 +-
+ 16 files changed, 208 insertions(+), 100 deletions(-)
+
 -- 
-MST
+1.8.3.1
