@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC v2 7/7] virtio_pci: drop virtio_config dependency
-Date: Tue, 30 Dec 2014 18:35:52 +0200
-Message-ID: <1419957310-26009-8-git-send-email-mst__27496.4952179745$1419957392$gmane$org@redhat.com>
-References: <1419957310-26009-1-git-send-email-mst@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next V2] virtio-net: don't do header check for
+	dodgy gso packets
+Date: Tue, 30 Dec 2014 18:53:50 -0500 (EST)
+Message-ID: <20141230.185350.1886821773938320675.davem@davemloft.net>
+References: <1419390232-14906-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1419957310-26009-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1419390232-14906-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,30 +18,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: jasowang@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio_pci does not depend on virtio_config:
-let's not include it, users can pull it in as necessary.
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 24 Dec 2014 11:03:52 +0800
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- include/uapi/linux/virtio_pci.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> There's no need to do header check for virtio-net since:
+> 
+> - Host sets dodgy for all gso packets from guest and check the header.
+> - Host should be prepared for all kinds of evil packets from guest, since
+>   malicious guest can send any kinds of packet.
+> 
+> So this patch sets NETIF_F_GSO_ROBUST for virtio-net to skip the check.
+> 
+> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+> Changes from V1:
+> - typo fixes
 
-diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
-index 5d546c6..e841edd 100644
---- a/include/uapi/linux/virtio_pci.h
-+++ b/include/uapi/linux/virtio_pci.h
-@@ -39,7 +39,7 @@
- #ifndef _LINUX_VIRTIO_PCI_H
- #define _LINUX_VIRTIO_PCI_H
- 
--#include <linux/virtio_config.h>
-+#include <linux/types.h>
- 
- #ifndef VIRTIO_PCI_NO_LEGACY
- 
--- 
-MST
+Applied.
