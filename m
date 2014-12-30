@@ -1,15 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC v6 13/20] virtio: allow to fail setting status
-Date: Tue, 30 Dec 2014 14:25:37 +0200
-Message-ID: <20141230122537.GA17903@redhat.com>
-References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1418304322-7546-14-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC v2 4/7] virtio-pci: define layout for virtio 1.0
+Date: Tue, 30 Dec 2014 18:35:43 +0200
+Message-ID: <1419957310-26009-5-git-send-email-mst@redhat.com>
+References: <1419957310-26009-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1418304322-7546-14-git-send-email-cornelia.huck@de.ibm.com>
+In-Reply-To: <1419957310-26009-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,124 +18,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 11, 2014 at 02:25:15PM +0100, Cornelia Huck wrote:
-> virtio-1 allow setting of the FEATURES_OK status bit to fail if
-> the negotiated feature bits are inconsistent: let's fail
-> virtio_set_status() in that case and update virtio-ccw to post an
-> error to the guest.
-> 
-> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
 
-Right but a separate validate_features call is awkward.
-How about we defer virtio_set_features until FEATURES_OK,
-and teach virtio_set_features that it can fail?
+Based on patches by Michael S. Tsirkin <mst@redhat.com>, but I found it
+hard to follow so changed to use structures which are more
+self-documenting.
 
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ include/uapi/linux/virtio_pci.h | 62 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 62 insertions(+)
 
-> ---
->  hw/s390x/virtio-ccw.c      |   20 ++++++++++++--------
->  hw/virtio/virtio.c         |   24 +++++++++++++++++++++++-
->  include/hw/virtio/virtio.h |    3 ++-
->  3 files changed, 37 insertions(+), 10 deletions(-)
-> 
-> diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
-> index e09e0da..a55e851 100644
-> --- a/hw/s390x/virtio-ccw.c
-> +++ b/hw/s390x/virtio-ccw.c
-> @@ -555,15 +555,19 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
->              if (!(status & VIRTIO_CONFIG_S_DRIVER_OK)) {
->                  virtio_ccw_stop_ioeventfd(dev);
->              }
-> -            virtio_set_status(vdev, status);
-> -            if (vdev->status == 0) {
-> -                virtio_reset(vdev);
-> -            }
-> -            if (status & VIRTIO_CONFIG_S_DRIVER_OK) {
-> -                virtio_ccw_start_ioeventfd(dev);
-> +            if (virtio_set_status(vdev, status) == 0) {
-> +                if (vdev->status == 0) {
-> +                    virtio_reset(vdev);
-> +                }
-> +                if (status & VIRTIO_CONFIG_S_DRIVER_OK) {
-> +                    virtio_ccw_start_ioeventfd(dev);
-> +                }
-> +                sch->curr_status.scsw.count = ccw.count - sizeof(status);
-> +                ret = 0;
-> +            } else {
-> +                /* Trigger a command reject. */
-> +                ret = -ENOSYS;
->              }
-> -            sch->curr_status.scsw.count = ccw.count - sizeof(status);
-> -            ret = 0;
->          }
->          break;
->      case CCW_CMD_SET_IND:
-> diff --git a/hw/virtio/virtio.c b/hw/virtio/virtio.c
-> index a3dd67b..90eedd3 100644
-> --- a/hw/virtio/virtio.c
-> +++ b/hw/virtio/virtio.c
-> @@ -543,15 +543,37 @@ void virtio_update_irq(VirtIODevice *vdev)
->      virtio_notify_vector(vdev, VIRTIO_NO_VECTOR);
->  }
->  
-> -void virtio_set_status(VirtIODevice *vdev, uint8_t val)
-> +static int virtio_validate_features(VirtIODevice *vdev)
-> +{
-> +    VirtioDeviceClass *k = VIRTIO_DEVICE_GET_CLASS(vdev);
-> +
-> +    if (k->validate_features) {
-> +        return k->validate_features(vdev);
-> +    } else {
-> +        return 0;
-> +    }
-> +}
-> +
-> +int virtio_set_status(VirtIODevice *vdev, uint8_t val)
->  {
->      VirtioDeviceClass *k = VIRTIO_DEVICE_GET_CLASS(vdev);
->      trace_virtio_set_status(vdev, val);
->  
-> +    if (virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
-> +        if (!(vdev->status & VIRTIO_CONFIG_S_FEATURES_OK) &&
-> +            val & VIRTIO_CONFIG_S_FEATURES_OK) {
-> +            int ret = virtio_validate_features(vdev);
-> +
-> +            if (ret) {
-> +                return ret;
-> +            }
-> +        }
-> +    }
->      if (k->set_status) {
->          k->set_status(vdev, val);
->      }
->      vdev->status = val;
-> +    return 0;
->  }
->  
->  bool target_words_bigendian(void);
-> diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
-> index a24e403..068211e 100644
-> --- a/include/hw/virtio/virtio.h
-> +++ b/include/hw/virtio/virtio.h
-> @@ -149,6 +149,7 @@ typedef struct VirtioDeviceClass {
->      uint64_t (*get_features)(VirtIODevice *vdev, uint64_t requested_features);
->      uint64_t (*bad_features)(VirtIODevice *vdev);
->      void (*set_features)(VirtIODevice *vdev, uint64_t val);
-> +    int (*validate_features)(VirtIODevice *vdev);
->      void (*get_config)(VirtIODevice *vdev, uint8_t *config);
->      void (*set_config)(VirtIODevice *vdev, const uint8_t *config);
->      void (*reset)(VirtIODevice *vdev);
-> @@ -233,7 +234,7 @@ void virtio_queue_set_align(VirtIODevice *vdev, int n, int align);
->  void virtio_queue_notify(VirtIODevice *vdev, int n);
->  uint16_t virtio_queue_vector(VirtIODevice *vdev, int n);
->  void virtio_queue_set_vector(VirtIODevice *vdev, int n, uint16_t vector);
-> -void virtio_set_status(VirtIODevice *vdev, uint8_t val);
-> +int virtio_set_status(VirtIODevice *vdev, uint8_t val);
->  void virtio_reset(void *opaque);
->  void virtio_update_irq(VirtIODevice *vdev);
->  int virtio_set_features(VirtIODevice *vdev, uint64_t val);
-> -- 
-> 1.7.9.5
+diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+index 35b552c..28c2ce0 100644
+--- a/include/uapi/linux/virtio_pci.h
++++ b/include/uapi/linux/virtio_pci.h
+@@ -99,4 +99,66 @@
+ /* Vector value used to disable MSI for queue */
+ #define VIRTIO_MSI_NO_VECTOR            0xffff
+ 
++#ifndef VIRTIO_PCI_NO_MODERN
++
++/* IDs for different capabilities.  Must all exist. */
++
++/* Common configuration */
++#define VIRTIO_PCI_CAP_COMMON_CFG	1
++/* Notifications */
++#define VIRTIO_PCI_CAP_NOTIFY_CFG	2
++/* ISR access */
++#define VIRTIO_PCI_CAP_ISR_CFG		3
++/* Device specific confiuration */
++#define VIRTIO_PCI_CAP_DEVICE_CFG	4
++
++/* This is the PCI capability header: */
++struct virtio_pci_cap {
++	__u8 cap_vndr;		/* Generic PCI field: PCI_CAP_ID_VNDR */
++	__u8 cap_next;		/* Generic PCI field: next ptr. */
++	__u8 cap_len;		/* Generic PCI field: capability length */
++	__u8 type_and_bar;	/* Upper 3 bits: bar.
++				 * Lower 3 is VIRTIO_PCI_CAP_*_CFG. */
++	__le32 offset;		/* Offset within bar. */
++	__le32 length;		/* Length. */
++};
++
++#define VIRTIO_PCI_CAP_BAR_SHIFT	5
++#define VIRTIO_PCI_CAP_BAR_MASK		0x7
++#define VIRTIO_PCI_CAP_TYPE_SHIFT	0
++#define VIRTIO_PCI_CAP_TYPE_MASK	0x7
++
++struct virtio_pci_notify_cap {
++	struct virtio_pci_cap cap;
++	__le32 notify_off_multiplier;	/* Multiplier for queue_notify_off. */
++};
++
++/* Fields in VIRTIO_PCI_CAP_COMMON_CFG: */
++struct virtio_pci_common_cfg {
++	/* About the whole device. */
++	__le32 device_feature_select;	/* read-write */
++	__le32 device_feature;		/* read-only */
++	__le32 guest_feature_select;	/* read-write */
++	__le32 guest_feature;		/* read-write */
++	__le16 msix_config;		/* read-write */
++	__le16 num_queues;		/* read-only */
++	__u8 device_status;		/* read-write */
++	__u8 config_generation;		/* read-only */
++
++	/* About a specific virtqueue. */
++	__le16 queue_select;		/* read-write */
++	__le16 queue_size;		/* read-write, power of 2. */
++	__le16 queue_msix_vector;	/* read-write */
++	__le16 queue_enable;		/* read-write */
++	__le16 queue_notify_off;	/* read-only */
++	__le32 queue_desc_lo;		/* read-write */
++	__le32 queue_desc_hi;		/* read-write */
++	__le32 queue_avail_lo;		/* read-write */
++	__le32 queue_avail_hi;		/* read-write */
++	__le32 queue_used_lo;		/* read-write */
++	__le32 queue_used_hi;		/* read-write */
++};
++
++#endif /* VIRTIO_PCI_NO_MODERN */
++
+ #endif
+-- 
+MST
