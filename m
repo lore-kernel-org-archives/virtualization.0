@@ -1,14 +1,12 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next V2] virtio-net: don't do header check for
-	dodgy gso packets
-Date: Tue, 30 Dec 2014 18:53:50 -0500 (EST)
-Message-ID: <20141230.185350.1886821773938320675.davem@davemloft.net>
-References: <1419390232-14906-1-git-send-email-jasowang@redhat.com>
+From: "Michael S. Tsirkin" <mst@kernel.org>
+Subject: [PULL] vhost: cleanups and fixes
+Date: Thu, 1 Jan 2015 14:26:34 +0200
+Message-ID: <20150101122634.GA2670__9679.72748117081$1420223594$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1419390232-14906-1-git-send-email-jasowang@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,27 +16,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 24 Dec 2014 11:03:52 +0800
+The following changes since commit b7392d2247cfe6771f95d256374f1a8e6a6f48d6:
 
-> There's no need to do header check for virtio-net since:
-> 
-> - Host sets dodgy for all gso packets from guest and check the header.
-> - Host should be prepared for all kinds of evil packets from guest, since
->   malicious guest can send any kinds of packet.
-> 
-> So this patch sets NETIF_F_GSO_ROBUST for virtio-net to skip the check.
-> 
-> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
-> Changes from V1:
-> - typo fixes
+  Linux 3.19-rc2 (2014-12-28 16:49:37 -0800)
 
-Applied.
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to 5d9a07b0de512b77bf28d2401e5fe3351f00a240:
+
+  vhost: relax used address alignment (2014-12-29 10:55:06 +0200)
+
+----------------------------------------------------------------
+vhost: virtio 1.0 bugfix
+
+There's a single change here, fixing a vhost bug where vhost initialization
+fails due to used ring alignment check being too strict.
+
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Michael S. Tsirkin (2):
+      virtio_ring: document alignment requirements
+      vhost: relax used address alignment
+
+ include/uapi/linux/virtio_ring.h |  7 +++++++
+ drivers/vhost/vhost.c            | 10 +++++++---
+ 2 files changed, 14 insertions(+), 3 deletions(-)
