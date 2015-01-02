@@ -1,14 +1,12 @@
 From: Sasha Levin <sasha.levin@oracle.com>
-Subject: [PATCH 2/2] virtio: don't free memory until the underlying struct
-	device has been released
-Date: Fri,  2 Jan 2015 14:47:40 -0500
-Message-ID: <1420228060-18721-2-git-send-email-sasha.levin@oracle.com>
-References: <1420228060-18721-1-git-send-email-sasha.levin@oracle.com>
+Subject: [PATCH 1/2] virtio_pci: double free and invalid memory access of
+	device vqs
+Date: Fri,  2 Jan 2015 14:47:39 -0500
+Message-ID: <1420228060-18721-1-git-send-email-sasha.levin@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1420228060-18721-1-git-send-email-sasha.levin@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,48 +21,25 @@ Cc: Sasha Levin <sasha.levin@oracle.com>, "open list:VIRTIO CORE,
 	NET..." <virtualization@lists.linux-foundation.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When releasing a virtio device, We can't free a struct virtio_device until the
-underlying struct device has been released, which might not happen immediately
-on device_unregister() even if that was the device's last reference.
-
-Instead, free the memory only once we know the device is gone in the release
-callback.
+Device VQs were getting freed twice: once in every devices removal functions,
+and then again in virtio_pci_legacy_remove().
 
 Signed-off-by: Sasha Levin <sasha.levin@oracle.com>
 ---
- drivers/virtio/virtio_pci_common.c |    9 ++++-----
  drivers/virtio/virtio_pci_legacy.c |    1 -
- 2 files changed, 4 insertions(+), 6 deletions(-)
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 59d3685..caa483d 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -423,11 +423,10 @@ int vp_set_vq_affinity(struct virtqueue *vq, int cpu)
- 
- void virtio_pci_release_dev(struct device *_d)
- {
--	/*
--	 * No need for a release method as we allocate/free
--	 * all devices together with the pci devices.
--	 * Provide an empty one to avoid getting a warning from core.
--	 */
-+	struct virtio_device *vdev = dev_to_virtio(_d);
-+	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-+
-+	kfree(vp_dev);
- }
- 
- #ifdef CONFIG_PM_SLEEP
 diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
-index 913ca23..15e6e6d 100644
+index 6c76f0f..913ca23 100644
 --- a/drivers/virtio/virtio_pci_legacy.c
 +++ b/drivers/virtio/virtio_pci_legacy.c
-@@ -301,5 +301,4 @@ void virtio_pci_legacy_remove(struct pci_dev *pci_dev)
+@@ -298,7 +298,6 @@ void virtio_pci_legacy_remove(struct pci_dev *pci_dev)
+ 
+ 	unregister_virtio_device(&vp_dev->vdev);
+ 
+-	vp_del_vqs(&vp_dev->vdev);
  	pci_iounmap(pci_dev, vp_dev->ioaddr);
  	pci_release_regions(pci_dev);
  	pci_disable_device(pci_dev);
--	kfree(vp_dev);
- }
 -- 
 1.7.10.4
