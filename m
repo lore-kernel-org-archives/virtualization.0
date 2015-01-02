@@ -1,12 +1,14 @@
-From: "Michael S. Tsirkin" <mst@kernel.org>
-Subject: [PULL] vhost: cleanups and fixes
-Date: Thu, 1 Jan 2015 14:26:34 +0200
-Message-ID: <20150101122634.GA2670__9679.72748117081$1420223594$gmane$org@redhat.com>
+From: Sasha Levin <sasha.levin@oracle.com>
+Subject: [PATCH 2/2] virtio: don't free memory until the underlying struct
+	device has been released
+Date: Fri,  2 Jan 2015 14:47:40 -0500
+Message-ID: <1420228060-18721-2-git-send-email-sasha.levin@oracle.com>
+References: <1420228060-18721-1-git-send-email-sasha.levin@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <1420228060-18721-1-git-send-email-sasha.levin@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,36 +18,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: Sasha Levin <sasha.levin@oracle.com>, "open list:VIRTIO CORE,
+	NET..." <virtualization@lists.linux-foundation.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit b7392d2247cfe6771f95d256374f1a8e6a6f48d6:
+When releasing a virtio device, We can't free a struct virtio_device until the
+underlying struct device has been released, which might not happen immediately
+on device_unregister() even if that was the device's last reference.
 
-  Linux 3.19-rc2 (2014-12-28 16:49:37 -0800)
+Instead, free the memory only once we know the device is gone in the release
+callback.
 
-are available in the git repository at:
+Signed-off-by: Sasha Levin <sasha.levin@oracle.com>
+---
+ drivers/virtio/virtio_pci_common.c |    9 ++++-----
+ drivers/virtio/virtio_pci_legacy.c |    1 -
+ 2 files changed, 4 insertions(+), 6 deletions(-)
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-
-for you to fetch changes up to 5d9a07b0de512b77bf28d2401e5fe3351f00a240:
-
-  vhost: relax used address alignment (2014-12-29 10:55:06 +0200)
-
-----------------------------------------------------------------
-vhost: virtio 1.0 bugfix
-
-There's a single change here, fixing a vhost bug where vhost initialization
-fails due to used ring alignment check being too strict.
-
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Michael S. Tsirkin (2):
-      virtio_ring: document alignment requirements
-      vhost: relax used address alignment
-
- include/uapi/linux/virtio_ring.h |  7 +++++++
- drivers/vhost/vhost.c            | 10 +++++++---
- 2 files changed, 14 insertions(+), 3 deletions(-)
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index 59d3685..caa483d 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -423,11 +423,10 @@ int vp_set_vq_affinity(struct virtqueue *vq, int cpu)
+ 
+ void virtio_pci_release_dev(struct device *_d)
+ {
+-	/*
+-	 * No need for a release method as we allocate/free
+-	 * all devices together with the pci devices.
+-	 * Provide an empty one to avoid getting a warning from core.
+-	 */
++	struct virtio_device *vdev = dev_to_virtio(_d);
++	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
++
++	kfree(vp_dev);
+ }
+ 
+ #ifdef CONFIG_PM_SLEEP
+diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+index 913ca23..15e6e6d 100644
+--- a/drivers/virtio/virtio_pci_legacy.c
++++ b/drivers/virtio/virtio_pci_legacy.c
+@@ -301,5 +301,4 @@ void virtio_pci_legacy_remove(struct pci_dev *pci_dev)
+ 	pci_iounmap(pci_dev, vp_dev->ioaddr);
+ 	pci_release_regions(pci_dev);
+ 	pci_disable_device(pci_dev);
+-	kfree(vp_dev);
+ }
+-- 
+1.7.10.4
