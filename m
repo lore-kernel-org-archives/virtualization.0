@@ -1,16 +1,12 @@
-From: Sasha Levin <sasha.levin@oracle.com>
-Subject: Re: [PATCH 2/2] virtio: don't free memory until the underlying struct
-	device has been released
-Date: Sun, 04 Jan 2015 10:03:27 -0500
-Message-ID: <54A9563F.3070902@oracle.com>
-References: <1420228060-18721-1-git-send-email-sasha.levin@oracle.com>
-	<1420228060-18721-2-git-send-email-sasha.levin@oracle.com>
-	<20150104112641.GB4336@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] virtio: make del_vqs idempotent
+Date: Sun, 4 Jan 2015 17:25:18 +0200
+Message-ID: <1420385102-6637-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150104112641.GB4336@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,30 +16,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Sasha Levin <sasha.levin@oracle.com>
-Cc: linux-kernel@vger.kernel.org, "open list:VIRTIO CORE,
-	NET..." <virtualization@lists.linux-foundation.org>
+To: linux-kernel@vger.kernel.org
+Cc: Sasha Levin <sasha.levin@oracle.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/04/2015 06:26 AM, Michael S. Tsirkin wrote:
-> On Fri, Jan 02, 2015 at 02:47:40PM -0500, Sasha Levin wrote:
->> > When releasing a virtio device, We can't free a struct virtio_device until the
->> > underlying struct device has been released, which might not happen immediately
->> > on device_unregister() even if that was the device's last reference.
->> > 
->> > Instead, free the memory only once we know the device is gone in the release
->> > callback.
->> > 
->> > Signed-off-by: Sasha Levin <sasha.levin@oracle.com>
-> 
-> Isn't this an old bug: do we need to copy stable on a fix?
-> 
-> What is the behaviour without this patch?
-> Is there a way to make this cause a crash?
+Our code calls del_vqs multiple times, assuming
+it's idempotent.
 
-It will oops if CONFIG_DEBUG_KOBJECT_RELEASE is enabled. I guess
-it needs to go to stable as well.
+commit 3ec7a77bb3089bb01032fdbd958eb5c29da58b49
+    virtio_pci: free up vq->priv
+broke this assumption, by adding kfree there,
+so multiple calls cause double free.
 
+Fix it up.
 
-Thanks,
-Sasha
+Fixes: 3ec7a77bb3089bb01032fdbd958eb5c29da58b49
+Reported-by: Sasha Levin <sasha.levin@oracle.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/virtio/virtio_pci_common.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index 08d0b04..557cbcb 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -282,6 +282,7 @@ void vp_del_vqs(struct virtio_device *vdev)
+ 
+ 	vp_free_vectors(vdev);
+ 	kfree(vp_dev->vqs);
++	vp_dev->vqs = NULL;
+ }
+ 
+ static int vp_try_to_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+-- 
+MST
