@@ -1,15 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH 0/3] Sharing MSIX irq for tx/rx queue pairs
-Date: Sun, 4 Jan 2015 13:36:13 +0200
-Message-ID: <20150104113613.GC4336@redhat.com>
-References: <1419562425-20614-1-git-send-email-jasowang@redhat.com>
-	<20141228075226.GA25704@redhat.com> <54A8FBF9.7000105@redhat.com>
+From: Sasha Levin <sasha.levin@oracle.com>
+Subject: Re: [PATCH 2/2] virtio: don't free memory until the underlying struct
+	device has been released
+Date: Sun, 04 Jan 2015 10:03:27 -0500
+Message-ID: <54A9563F.3070902@oracle.com>
+References: <1420228060-18721-1-git-send-email-sasha.levin@oracle.com>
+	<1420228060-18721-2-git-send-email-sasha.levin@oracle.com>
+	<20150104112641.GB4336@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <54A8FBF9.7000105@redhat.com>
+In-Reply-To: <20150104112641.GB4336@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,48 +20,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Sasha Levin <sasha.levin@oracle.com>
+Cc: linux-kernel@vger.kernel.org, "open list:VIRTIO CORE,
+	NET..." <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Jan 04, 2015 at 04:38:17PM +0800, Jason Wang wrote:
+On 01/04/2015 06:26 AM, Michael S. Tsirkin wrote:
+> On Fri, Jan 02, 2015 at 02:47:40PM -0500, Sasha Levin wrote:
+>> > When releasing a virtio device, We can't free a struct virtio_device until the
+>> > underlying struct device has been released, which might not happen immediately
+>> > on device_unregister() even if that was the device's last reference.
+>> > 
+>> > Instead, free the memory only once we know the device is gone in the release
+>> > callback.
+>> > 
+>> > Signed-off-by: Sasha Levin <sasha.levin@oracle.com>
 > 
-> On 12/28/2014 03:52 PM, Michael S. Tsirkin wrote:
-> > On Fri, Dec 26, 2014 at 10:53:42AM +0800, Jason Wang wrote:
-> >> Hi all:
-> >>
-> >> This series try to share MSIX irq for each tx/rx queue pair. This is
-> >> done through:
-> >>
-> >> - introducing virtio pci channel which are group of virtqueues that
-> >>   sharing a single MSIX irq (Patch 1)
-> >> - expose channel setting to virtio core api (Patch 2)
-> >> - try to use channel setting in virtio-net (Patch 3)
-> >>
-> >> For the transport that does not support channel, channel paramters
-> >> were simply ignored. For devices that does not use channel, it can
-> >> simply pass NULL or zero to virito core.
-> >>
-> >> With the patch, 1 MSIX irq were saved for each TX/RX queue pair.
-> >>
-> >> Please review.
-> > How does this sharing affect performance?
-> >
+> Isn't this an old bug: do we need to copy stable on a fix?
 > 
-> Patch 3 only checks more_used() for tx ring which in fact reduces the
-> effect of event index and may introduce more tx interrupts. After fixing
-> this issue, tested with 1 vcpu and 1 queue. No obvious changes in
-> performance were noticed.
-> 
-> Thanks
+> What is the behaviour without this patch?
+> Is there a way to make this cause a crash?
 
-Is this with or without MQ?
-With MQ, it seems easy to believe as interrupts are
-distributed between CPUs.
+It will oops if CONFIG_DEBUG_KOBJECT_RELEASE is enabled. I guess
+it needs to go to stable as well.
 
-Without MQ, it should be possible to create UDP workloads where
-processing incoming and outgoing interrupts
-on separate CPUs is a win.
 
--- 
-MST
+Thanks,
+Sasha
