@@ -1,14 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC PATCH 0/3] Sharing MSIX irq for tx/rx queue pairs
-Date: Mon, 05 Jan 2015 13:10:14 +0800
-Message-ID: <54AA1CB6.9020109@redhat.com>
-References: <1419562425-20614-1-git-send-email-jasowang@redhat.com>
-	<87ppauovjb.fsf@rustcorp.com.au>
+From: Sasha Levin <sasha.levin@oracle.com>
+Subject: Re: [PATCH 0/3] virtio_pci: fix DEBUG_KOBJECT_RELEASE
+Date: Mon, 05 Jan 2015 13:47:20 -0500
+Message-ID: <54AADC38.2010508@oracle.com>
+References: <1420386340-7719-1-git-send-email-mst@redhat.com>
+	<20150104162100.GA8153@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87ppauovjb.fsf@rustcorp.com.au>
+In-Reply-To: <20150104162100.GA8153@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,40 +18,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On 01/04/2015 11:21 AM, Michael S. Tsirkin wrote:
+> On Sun, Jan 04, 2015 at 06:02:13PM +0200, Michael S. Tsirkin wrote:
+>> > This is based on Sasha's patch, with some tweaks.
+>> > 
+> 
+> Sasha, I would appreciate it if you can send
+> a Tested-by tag to confirm this + the del_vqs
+> idempotent patches are sufficient to address
+> all issues you have with 3.19.
 
-On 01/05/2015 09:39 AM, Rusty Russell wrote:
-> Jason Wang <jasowang@redhat.com> writes:
->> Hi all:
->>
->> This series try to share MSIX irq for each tx/rx queue pair. This is
->> done through:
->>
->> - introducing virtio pci channel which are group of virtqueues that
->>   sharing a single MSIX irq (Patch 1)
->> - expose channel setting to virtio core api (Patch 2)
->> - try to use channel setting in virtio-net (Patch 3)
-> Hi Jason,
->
->         Is "channel" a term you created yourself, or something I was
-> just unaware of?  
+I've tested the series, which fixed the issues I've reported:
 
-By myself and probably not accurate.
-> irq_group would seem more obvious, if the former.
->
+	Tested-by: Sasha Levin <sasha.levin@oracle.com>
 
-Yes, will use this in next version. Thanks.
->> For the transport that does not support channel, channel paramters
->> were simply ignored. For devices that does not use channel, it can
->> simply pass NULL or zero to virito core.
->>
->> With the patch, 1 MSIX irq were saved for each TX/RX queue pair.
-> It seems fairly straightforward.
->
-> Acked-by: Rusty Russell <rusty@rustcorp.com.au>
->
-> Thanks,
-> Rusty.
-> --
+
+Thanks,
+Sasha
