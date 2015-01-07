@@ -1,13 +1,15 @@
-From: Alex Williamson <alex.williamson@redhat.com>
-Subject: Re: [PATCH] vhost/net: length miscalculation
-Date: Wed, 07 Jan 2015 08:09:04 -0700
-Message-ID: <1420643344.6345.7.camel__30350.7432494827$1420643798$gmane$org@redhat.com>
-References: <1420620847-24477-1-git-send-email-mst@redhat.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH RFC v6 13/20] virtio: allow to fail setting status
+Date: Wed, 7 Jan 2015 17:13:32 +0100
+Message-ID: <20150107171332.597d428c.cornelia.huck@de.ibm.com>
+References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
+	<1418304322-7546-14-git-send-email-cornelia.huck@de.ibm.com>
+	<20141230122537.GA17903@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1420620847-24477-1-git-send-email-mst@redhat.com>
+In-Reply-To: <20141230122537.GA17903@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,43 +20,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2015-01-07 at 10:55 +0200, Michael S. Tsirkin wrote:
-> commit 8b38694a2dc8b18374310df50174f1e4376d6824
->     vhost/net: virtio 1.0 byte swap
-> had this chunk:
-> -       heads[headcount - 1].len += datalen;
-> +       heads[headcount - 1].len = cpu_to_vhost32(vq, len - datalen);
-> 
-> This adds datalen with the wrong sign, causing guest panics.
-> 
-> Fixes: 8b38694a2dc8b18374310df50174f1e4376d6824
-> Reported-by: Alex Williamson <alex.williamson@redhat.com>
-> Suggested-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
-> 
-> Alex, could you please confirm this fixes the crash for you?
+On Tue, 30 Dec 2014 14:25:37 +0200
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-Confirmed, this works.  Thanks,
-
-Alex
-
->  drivers/vhost/net.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> On Thu, Dec 11, 2014 at 02:25:15PM +0100, Cornelia Huck wrote:
+> > virtio-1 allow setting of the FEATURES_OK status bit to fail if
+> > the negotiated feature bits are inconsistent: let's fail
+> > virtio_set_status() in that case and update virtio-ccw to post an
+> > error to the guest.
+> > 
+> > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 > 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 14419a8..d415d69 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -538,7 +538,7 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
->  		++headcount;
->  		seg += in;
->  	}
-> -	heads[headcount - 1].len = cpu_to_vhost32(vq, len - datalen);
-> +	heads[headcount - 1].len = cpu_to_vhost32(vq, len + datalen);
->  	*iovcount = seg;
->  	if (unlikely(log))
->  		*log_num = nlogs;
+> Right but a separate validate_features call is awkward.
+> How about we defer virtio_set_features until FEATURES_OK,
+> and teach virtio_set_features that it can fail?
+
+Hm. But we would need to keep virtio_set_features() where it is called
+now for legacy devices, as they will never see FEATURES_OK, right? So
+we need to make this depending on revisions (or whatever the equivalent
+is for pci/mmio), as we cannot check for VERSION_1. Not sure whether
+this makes the code easier to follow.
