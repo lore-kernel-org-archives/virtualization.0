@@ -1,17 +1,12 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH RFC v6 13/20] virtio: allow to fail setting status
-Date: Thu, 8 Jan 2015 08:20:37 +0100
-Message-ID: <20150108082037.448d8102.cornelia.huck@de.ibm.com>
-References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1418304322-7546-14-git-send-email-cornelia.huck@de.ibm.com>
-	<20141230122537.GA17903@redhat.com>
-	<20150107171332.597d428c.cornelia.huck@de.ibm.com>
-	<20150107190821.GA8734@redhat.com>
+From: "Michael S. Tsirkin" <mst@kernel.org>
+Subject: [PULL] vhost: cleanups and fixes
+Date: Thu, 8 Jan 2015 09:51:41 +0200
+Message-ID: <20150108075141.GA11915@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150107190821.GA8734@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,37 +16,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, sasha.levin@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 7 Jan 2015 21:08:21 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+The following changes since commit b1940cd21c0f4abdce101253e860feff547291b0:
 
-> On Wed, Jan 07, 2015 at 05:13:32PM +0100, Cornelia Huck wrote:
-> > On Tue, 30 Dec 2014 14:25:37 +0200
-> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > 
-> > > On Thu, Dec 11, 2014 at 02:25:15PM +0100, Cornelia Huck wrote:
-> > > > virtio-1 allow setting of the FEATURES_OK status bit to fail if
-> > > > the negotiated feature bits are inconsistent: let's fail
-> > > > virtio_set_status() in that case and update virtio-ccw to post an
-> > > > error to the guest.
-> > > > 
-> > > > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> > > 
-> > > Right but a separate validate_features call is awkward.
-> > > How about we defer virtio_set_features until FEATURES_OK,
-> > > and teach virtio_set_features that it can fail?
-> > 
-> > Hm. But we would need to keep virtio_set_features() where it is called
-> > now for legacy devices, as they will never see FEATURES_OK, right?
-> > So
-> > we need to make this depending on revisions (or whatever the equivalent
-> > is for pci/mmio), as we cannot check for VERSION_1. Not sure whether
-> > this makes the code easier to follow.
-> 
-> So let's make this a separate callback then.
-> virtio_legacy_set_features?
+  Linux 3.19-rc3 (2015-01-05 17:05:20 -0800)
 
-I'm not sure I like that. We'd need to touch every transport, right?
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to 99975cc6ada0d5f2675e83abecae05aba5f437d2:
+
+  vhost/net: length miscalculation (2015-01-07 12:22:00 +0200)
+
+----------------------------------------------------------------
+virtio, vhost fixes for 3.19
+
+This fixes a couple of bugs triggered by hot-unplug
+of virtio devices, as well as a regression in vhost-net.
+
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Michael S. Tsirkin (4):
+      virtio: make del_vqs idempotent
+      virtio_pci: device-specific release callback
+      virtio_pci: document why we defer kfree
+      vhost/net: length miscalculation
+
+Sasha Levin (1):
+      virtio_pci: defer kfree until release callback
+
+ drivers/virtio/virtio_pci_common.h |  1 -
+ drivers/vhost/net.c                |  2 +-
+ drivers/virtio/virtio_pci_common.c | 10 +---------
+ drivers/virtio/virtio_pci_legacy.c | 12 +++++++++++-
+ 4 files changed, 13 insertions(+), 12 deletions(-)
