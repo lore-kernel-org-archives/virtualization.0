@@ -1,13 +1,17 @@
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Subject: Re: [PATCH] vhost/net: length miscalculation
-Date: Wed, 07 Jan 2015 23:58:00 +0300
-Message-ID: <54AD9DD8.2080008__24995.3358121731$1420664324$gmane$org@cogentembedded.com>
-References: <1420620847-24477-1-git-send-email-mst@redhat.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH RFC v6 13/20] virtio: allow to fail setting status
+Date: Thu, 8 Jan 2015 08:20:37 +0100
+Message-ID: <20150108082037.448d8102.cornelia.huck@de.ibm.com>
+References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
+	<1418304322-7546-14-git-send-email-cornelia.huck@de.ibm.com>
+	<20141230122537.GA17903@redhat.com>
+	<20150107171332.597d428c.cornelia.huck@de.ibm.com>
+	<20150107190821.GA8734@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1420620847-24477-1-git-send-email-mst@redhat.com>
+In-Reply-To: <20150107190821.GA8734@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,30 +21,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello.
+On Wed, 7 Jan 2015 21:08:21 +0200
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-On 01/07/2015 11:55 AM, Michael S. Tsirkin wrote:
+> On Wed, Jan 07, 2015 at 05:13:32PM +0100, Cornelia Huck wrote:
+> > On Tue, 30 Dec 2014 14:25:37 +0200
+> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > 
+> > > On Thu, Dec 11, 2014 at 02:25:15PM +0100, Cornelia Huck wrote:
+> > > > virtio-1 allow setting of the FEATURES_OK status bit to fail if
+> > > > the negotiated feature bits are inconsistent: let's fail
+> > > > virtio_set_status() in that case and update virtio-ccw to post an
+> > > > error to the guest.
+> > > > 
+> > > > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> > > 
+> > > Right but a separate validate_features call is awkward.
+> > > How about we defer virtio_set_features until FEATURES_OK,
+> > > and teach virtio_set_features that it can fail?
+> > 
+> > Hm. But we would need to keep virtio_set_features() where it is called
+> > now for legacy devices, as they will never see FEATURES_OK, right?
+> > So
+> > we need to make this depending on revisions (or whatever the equivalent
+> > is for pci/mmio), as we cannot check for VERSION_1. Not sure whether
+> > this makes the code easier to follow.
+> 
+> So let's make this a separate callback then.
+> virtio_legacy_set_features?
 
-> commit 8b38694a2dc8b18374310df50174f1e4376d6824
->      vhost/net: virtio 1.0 byte swap
-> had this chunk:
-> -       heads[headcount - 1].len += datalen;
-> +       heads[headcount - 1].len = cpu_to_vhost32(vq, len - datalen);
-
-> This adds datalen with the wrong sign, causing guest panics.
-
-> Fixes: 8b38694a2dc8b18374310df50174f1e4376d6824
-
-    The format of this tag assumes 12-digit SHA1 hash and the commit 
-description enclosed in parens and double quotes. See 
-Documentation/SubmittingPatches.
-
-> Reported-by: Alex Williamson <alex.williamson@redhat.com>
-> Suggested-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-WBR, Sergei
+I'm not sure I like that. We'd need to touch every transport, right?
