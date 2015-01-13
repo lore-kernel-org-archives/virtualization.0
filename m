@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 3/6] virtio/console: verify device has config space
-Date: Tue, 13 Jan 2015 16:43:18 +0200
-Message-ID: <1421160167-18498-4-git-send-email-mst@redhat.com>
+Subject: [PATCH 6/6] virtio/balloon: verify device has config space
+Date: Tue, 13 Jan 2015 16:43:27 +0200
+Message-ID: <1421160167-18498-7-git-send-email-mst__6615.76582720063$1421160239$gmane$org@redhat.com>
 References: <1421160167-18498-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,26 +19,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: Amit Shah <amit.shah@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 Some devices might not implement config space access
 (e.g. remoteproc used not to - before 3.9).
-virtio/console needs config space access so make it
+virtio/balloon needs config space access so make it
 fail gracefully if not there.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/char/virtio_console.c | 6 ++++++
+ drivers/virtio/virtio_balloon.c | 6 ++++++
  1 file changed, 6 insertions(+)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index de03df9..26afb56 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -1986,6 +1986,12 @@ static int virtcons_probe(struct virtio_device *vdev)
- 	bool multiport;
- 	bool early = early_put_chars != NULL;
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 50c5f42..3176ea4 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -466,6 +466,12 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 	struct virtio_balloon *vb;
+ 	int err;
  
 +	if (!vdev->config->get) {
 +		dev_err(&vdev->dev, "%s failure: config access disabled\n",
@@ -46,8 +46,8 @@ index de03df9..26afb56 100644
 +		return -EINVAL;
 +	}
 +
- 	/* Ensure to read early_put_chars now */
- 	barrier();
- 
+ 	vdev->priv = vb = kmalloc(sizeof(*vb), GFP_KERNEL);
+ 	if (!vb) {
+ 		err = -ENOMEM;
 -- 
 MST
