@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 2/6] virtio/blk: verify device has config space
-Date: Tue, 13 Jan 2015 16:43:15 +0200
-Message-ID: <1421160167-18498-3-git-send-email-mst@redhat.com>
+Subject: [PATCH 4/6] virtio/net: verify device has config space
+Date: Tue, 13 Jan 2015 16:43:21 +0200
+Message-ID: <1421160167-18498-5-git-send-email-mst@redhat.com>
 References: <1421160167-18498-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,26 +19,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 Some devices might not implement config space access
 (e.g. remoteproc used not to - before 3.9).
-virtio/blk needs config space access so make it
+virtio/net needs config space access so make it
 fail gracefully if not there.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/block/virtio_blk.c | 6 ++++++
+ drivers/net/virtio_net.c | 6 ++++++
  1 file changed, 6 insertions(+)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 7ef7c09..7164da8 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -575,6 +575,12 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	u16 min_io_size;
- 	u8 physical_block_exp, alignment_offset;
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 5ca9771..9bc1072 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1713,6 +1713,12 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	struct virtnet_info *vi;
+ 	u16 max_queue_pairs;
  
 +	if (!vdev->config->get) {
 +		dev_err(&vdev->dev, "%s failure: config access disabled\n",
@@ -46,8 +46,8 @@ index 7ef7c09..7164da8 100644
 +		return -EINVAL;
 +	}
 +
- 	err = ida_simple_get(&vd_index_ida, 0, minor_to_index(1 << MINORBITS),
- 			     GFP_KERNEL);
- 	if (err < 0)
+ 	if (!virtnet_validate_features(vdev))
+ 		return -EINVAL;
+ 
 -- 
 MST
