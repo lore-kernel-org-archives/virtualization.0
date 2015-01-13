@@ -1,13 +1,13 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 1/6] virtio/9p: verify device has config space
-Date: Tue, 13 Jan 2015 16:43:10 +0200
-Message-ID: <1421160167-18498-2-git-send-email-mst__48342.6011669964$1421178466$gmane$org@redhat.com>
+Subject: [PATCH 5/6] virtio/scsi: verify device has config space
+Date: Tue, 13 Jan 2015 16:43:24 +0200
+Message-ID: <1421160167-18498-6-git-send-email-mst__46002.9384973042$1421178506$gmane$org@redhat.com>
 References: <1421160167-18498-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Resent-Message-ID: <20150113194725.GI21393@redhat.com>
+Resent-Message-ID: <20150113194736.GM21393@redhat.com>
 Resent-To: virtualization@lists.linux-foundation.org
 Content-Disposition: inline
 In-Reply-To: <1421160167-18498-1-git-send-email-mst@redhat.com>
@@ -21,26 +21,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: Eric Van Hensbergen <ericvh@gmail.com>, netdev@vger.kernel.org, v9fs-developer@lists.sourceforge.net, Ron Minnich <rminnich@sandia.gov>, "David S. Miller" <davem@davemloft.net>
+Cc: linux-scsi@vger.kernel.org, "James E.J. Bottomley" <JBottomley@parallels.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Some devices might not implement config space access
 (e.g. remoteproc used not to - before 3.9).
-virtio/9p needs config space access so make it
+virtio/scsi needs config space access so make it
 fail gracefully if not there.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- net/9p/trans_virtio.c | 6 ++++++
+ drivers/scsi/virtio_scsi.c | 6 ++++++
  1 file changed, 6 insertions(+)
 
-diff --git a/net/9p/trans_virtio.c b/net/9p/trans_virtio.c
-index daa749c..d8e376a 100644
---- a/net/9p/trans_virtio.c
-+++ b/net/9p/trans_virtio.c
-@@ -524,6 +524,12 @@ static int p9_virtio_probe(struct virtio_device *vdev)
- 	int err;
- 	struct virtio_chan *chan;
+diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+index c52bb5d..f164f24 100644
+--- a/drivers/scsi/virtio_scsi.c
++++ b/drivers/scsi/virtio_scsi.c
+@@ -950,6 +950,12 @@ static int virtscsi_probe(struct virtio_device *vdev)
+ 	u32 num_queues;
+ 	struct scsi_host_template *hostt;
  
 +	if (!vdev->config->get) {
 +		dev_err(&vdev->dev, "%s failure: config access disabled\n",
@@ -48,8 +48,8 @@ index daa749c..d8e376a 100644
 +		return -EINVAL;
 +	}
 +
- 	chan = kmalloc(sizeof(struct virtio_chan), GFP_KERNEL);
- 	if (!chan) {
- 		pr_err("Failed to allocate virtio 9P channel\n");
+ 	/* We need to know how many queues before we allocate. */
+ 	num_queues = virtscsi_config_get(vdev, num_queues) ? : 1;
+ 
 -- 
 MST
