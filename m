@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 4/6] virtio/net: verify device has config space
-Date: Tue, 13 Jan 2015 16:43:21 +0200
-Message-ID: <1421160167-18498-5-git-send-email-mst@redhat.com>
+Subject: [PATCH 3/6] virtio/console: verify device has config space
+Date: Tue, 13 Jan 2015 16:43:18 +0200
+Message-ID: <1421160167-18498-4-git-send-email-mst@redhat.com>
 References: <1421160167-18498-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,26 +19,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Amit Shah <amit.shah@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 Some devices might not implement config space access
 (e.g. remoteproc used not to - before 3.9).
-virtio/net needs config space access so make it
+virtio/console needs config space access so make it
 fail gracefully if not there.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/net/virtio_net.c | 6 ++++++
+ drivers/char/virtio_console.c | 6 ++++++
  1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 5ca9771..9bc1072 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1713,6 +1713,12 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	struct virtnet_info *vi;
- 	u16 max_queue_pairs;
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index de03df9..26afb56 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1986,6 +1986,12 @@ static int virtcons_probe(struct virtio_device *vdev)
+ 	bool multiport;
+ 	bool early = early_put_chars != NULL;
  
 +	if (!vdev->config->get) {
 +		dev_err(&vdev->dev, "%s failure: config access disabled\n",
@@ -46,8 +46,8 @@ index 5ca9771..9bc1072 100644
 +		return -EINVAL;
 +	}
 +
- 	if (!virtnet_validate_features(vdev))
- 		return -EINVAL;
+ 	/* Ensure to read early_put_chars now */
+ 	barrier();
  
 -- 
 MST
