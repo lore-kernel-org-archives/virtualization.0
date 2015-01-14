@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 01/16] virtio_pci: drop virtio_config dependency
-Date: Wed, 14 Jan 2015 19:27:24 +0200
-Message-ID: <1421256142-11512-2-git-send-email-mst@redhat.com>
+Subject: [PATCH v3 03/16] virtio/blk: verify device has config space
+Date: Wed, 14 Jan 2015 19:27:32 +0200
+Message-ID: <1421256142-11512-4-git-send-email-mst@redhat.com>
 References: <1421256142-11512-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,29 +19,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio_pci does not depend on virtio_config:
-let's not include it, users can pull it in as necessary.
+Some devices might not implement config space access
+(e.g. remoteproc used not to - before 3.9).
+virtio/blk needs config space access so make it
+fail gracefully if not there.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- include/uapi/linux/virtio_pci.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/block/virtio_blk.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
-index 35b552c..509d630 100644
---- a/include/uapi/linux/virtio_pci.h
-+++ b/include/uapi/linux/virtio_pci.h
-@@ -39,7 +39,7 @@
- #ifndef _LINUX_VIRTIO_PCI_H
- #define _LINUX_VIRTIO_PCI_H
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 7ef7c09..7164da8 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -575,6 +575,12 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	u16 min_io_size;
+ 	u8 physical_block_exp, alignment_offset;
  
--#include <linux/virtio_config.h>
-+#include <linux/types.h>
- 
- #ifndef VIRTIO_PCI_NO_LEGACY
- 
++	if (!vdev->config->get) {
++		dev_err(&vdev->dev, "%s failure: config access disabled\n",
++			__func__);
++		return -EINVAL;
++	}
++
+ 	err = ida_simple_get(&vd_index_ida, 0, minor_to_index(1 << MINORBITS),
+ 			     GFP_KERNEL);
+ 	if (err < 0)
 -- 
 MST
