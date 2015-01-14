@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: [PATCH v3 16/16] virtio_pci_modern: support devices with no config
-Date: Wed, 14 Jan 2015 19:28:27 +0200
-Message-ID: <1421256142-11512-17-git-send-email-mst__18382.6921311722$1421257093$gmane$org@redhat.com>
+Date: Wed, 14 Jan 2015 19:28:32 +0200
+Message-ID: <1421256142-11512-17-git-send-email-mst__24964.785812381$1421257101$gmane$org@redhat.com>
 References: <1421256142-11512-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
