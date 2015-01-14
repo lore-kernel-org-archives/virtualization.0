@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 16/16] virtio_pci_modern: support devices with no config
-Date: Wed, 14 Jan 2015 19:28:32 +0200
-Message-ID: <1421256142-11512-17-git-send-email-mst__24964.785812381$1421257101$gmane$org@redhat.com>
-References: <1421256142-11512-1-git-send-email-mst@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PULL] uaccess: fix sparse warning on get/put_user for bitwise
+	types
+Date: Wed, 14 Jan 2015 23:19:14 +0100
+Message-ID: <5209009.XRo9cTX8bb__21550.0944330872$1421274000$gmane$org@wuerfel>
+References: <20150114173618.GA12436@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1421256142-11512-1-git-send-email-mst@redhat.com>
+In-Reply-To: <20150114173618.GA12436@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,58 +18,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-arch@vger.kernel.org, james.hogan@imgtec.com, kvm@vger.kernel.org, deller@gmx.de, will.deacon@arm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, jcmvbkbc@gmail.com, geert@linux-m68k.org, tglx@linutronix.de, sam@ravnborg.org, davem@davemloft.net, egtvedt@samfundet.no
 List-Id: virtualization@lists.linuxfoundation.org
 
-Virtio 1.0 spec lists device config as optional.
-Set get/set callbacks to NULL. Drivers can check that
-and fail gracefully.
+On Wednesday 14 January 2015 19:36:18 Michael S. Tsirkin wrote:
+> As you asked, here's a pull request.
+> This has been in linux-next apparently with no ill effects.
+> 
+> The following changes since commit 99975cc6ada0d5f2675e83abecae05aba5f437d2:
+> 
+>   vhost/net: length miscalculation (2015-01-07 12:22:00 +0200)
+> 
+> are available in the git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/uaccess_for_upstream
+> 
+> for you to fetch changes up to 0795cb1b46e7938ed679ccd48f933e75272b30e3:
+> 
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/virtio/virtio_pci_modern.c | 21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+Pulled into my asm-generic now, thanks!
 
-diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index 9c000e9a..b877705 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -425,6 +425,21 @@ static void del_vq(struct virtio_pci_vq_info *info)
- 	free_pages_exact(info->queue, vring_pci_size(info->num));
- }
- 
-+static const struct virtio_config_ops virtio_pci_config_nodev_ops = {
-+	.get		= NULL,
-+	.set		= NULL,
-+	.generation	= vp_generation,
-+	.get_status	= vp_get_status,
-+	.set_status	= vp_set_status,
-+	.reset		= vp_reset,
-+	.find_vqs	= vp_modern_find_vqs,
-+	.del_vqs	= vp_del_vqs,
-+	.get_features	= vp_get_features,
-+	.finalize_features = vp_finalize_features,
-+	.bus_name	= vp_bus_name,
-+	.set_vq_affinity = vp_set_vq_affinity,
-+};
-+
- static const struct virtio_config_ops virtio_pci_config_ops = {
- 	.get		= vp_get,
- 	.set		= vp_set,
-@@ -655,9 +670,11 @@ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
- 						&vp_dev->device_len);
- 		if (!vp_dev->device)
- 			goto err_map_device;
--	}
- 
--	vp_dev->vdev.config = &virtio_pci_config_ops;
-+		vp_dev->vdev.config = &virtio_pci_config_ops;
-+	} else {
-+		vp_dev->vdev.config = &virtio_pci_config_nodev_ops;
-+	}
- 
- 	vp_dev->config_vector = vp_config_vector;
- 	vp_dev->setup_vq = setup_vq;
--- 
-MST
+	Arnd
