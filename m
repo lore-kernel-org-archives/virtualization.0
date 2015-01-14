@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 05/16] virtio/net: verify device has config space
-Date: Wed, 14 Jan 2015 19:27:39 +0200
-Message-ID: <1421256142-11512-6-git-send-email-mst__32508.1805851825$1421256499$gmane$org@redhat.com>
+Subject: [PATCH v3 06/16] virtio/scsi: verify device has config space
+Date: Wed, 14 Jan 2015 19:27:42 +0200
+Message-ID: <1421256142-11512-7-git-send-email-mst__43271.0809204311$1421256515$gmane$org@redhat.com>
 References: <1421256142-11512-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,27 +18,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: linux-scsi@vger.kernel.org, "James E.J. Bottomley" <JBottomley@parallels.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Some devices might not implement config space access
 (e.g. remoteproc used not to - before 3.9).
-virtio/net needs config space access so make it
+virtio/scsi needs config space access so make it
 fail gracefully if not there.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/net/virtio_net.c | 6 ++++++
+ drivers/scsi/virtio_scsi.c | 6 ++++++
  1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 5ca9771..9bc1072 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1713,6 +1713,12 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	struct virtnet_info *vi;
- 	u16 max_queue_pairs;
+diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+index c52bb5d..f164f24 100644
+--- a/drivers/scsi/virtio_scsi.c
++++ b/drivers/scsi/virtio_scsi.c
+@@ -950,6 +950,12 @@ static int virtscsi_probe(struct virtio_device *vdev)
+ 	u32 num_queues;
+ 	struct scsi_host_template *hostt;
  
 +	if (!vdev->config->get) {
 +		dev_err(&vdev->dev, "%s failure: config access disabled\n",
@@ -46,8 +46,8 @@ index 5ca9771..9bc1072 100644
 +		return -EINVAL;
 +	}
 +
- 	if (!virtnet_validate_features(vdev))
- 		return -EINVAL;
+ 	/* We need to know how many queues before we allocate. */
+ 	num_queues = virtscsi_config_get(vdev, num_queues) ? : 1;
  
 -- 
 MST
