@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 09/16] pci: add pci_iomap_range
-Date: Wed, 14 Jan 2015 19:27:54 +0200
-Message-ID: <1421256142-11512-10-git-send-email-mst__33492.798129055$1421256560$gmane$org@redhat.com>
+Subject: [PATCH v3 11/16] virtio_pci: move probe/remove code to common
+Date: Wed, 14 Jan 2015 19:28:05 +0200
+Message-ID: <1421256142-11512-12-git-send-email-mst@redhat.com>
 References: <1421256142-11512-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,122 +18,236 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Virtio drivers should map the part of the BAR they need, not necessarily
-all of it.
+Most of initialization is device-independent.
+Let's move it to common.
 
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org
-Acked-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
+ drivers/virtio/virtio_pci_common.h |  5 +--
+ drivers/virtio/virtio_pci_common.c | 69 +++++++++++++++++++++++++++++++++-
+ drivers/virtio/virtio_pci_legacy.c | 76 ++++----------------------------------
+ 3 files changed, 77 insertions(+), 73 deletions(-)
 
-Bjorn, can you please ack this for merging through the virtio tree?
-
- include/asm-generic/pci_iomap.h | 10 ++++++++++
- lib/pci_iomap.c                 | 35 ++++++++++++++++++++++++++++++-----
- 2 files changed, 40 insertions(+), 5 deletions(-)
-
-diff --git a/include/asm-generic/pci_iomap.h b/include/asm-generic/pci_iomap.h
-index ce37349..7389c87 100644
---- a/include/asm-generic/pci_iomap.h
-+++ b/include/asm-generic/pci_iomap.h
-@@ -15,6 +15,9 @@ struct pci_dev;
- #ifdef CONFIG_PCI
- /* Create a virtual mapping cookie for a PCI BAR (memory or IO) */
- extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
-+extern void __iomem *pci_iomap_range(struct pci_dev *dev, int bar,
-+				     unsigned long offset,
-+				     unsigned long maxlen);
- /* Create a virtual mapping cookie for a port on a given PCI device.
-  * Do not call this directly, it exists to make it easier for architectures
-  * to override */
-@@ -30,6 +33,13 @@ static inline void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned lon
- {
- 	return NULL;
- }
-+
-+static inline void __iomem *pci_iomap_range(struct pci_dev *dev, int bar,
-+					    unsigned long offset,
-+					    unsigned long maxlen)
-+{
-+	return NULL;
-+}
+diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
+index 5a49728..2b1e70d 100644
+--- a/drivers/virtio/virtio_pci_common.h
++++ b/drivers/virtio/virtio_pci_common.h
+@@ -127,8 +127,7 @@ const char *vp_bus_name(struct virtio_device *vdev);
+  */
+ int vp_set_vq_affinity(struct virtqueue *vq, int cpu);
+ 
+-int virtio_pci_legacy_probe(struct pci_dev *pci_dev,
+-			    const struct pci_device_id *id);
+-void virtio_pci_legacy_remove(struct pci_dev *pci_dev);
++int virtio_pci_legacy_probe(struct virtio_pci_device *);
++void virtio_pci_legacy_remove(struct virtio_pci_device *);
+ 
  #endif
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index 9756f21..457cbe2 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -464,15 +464,80 @@ static const struct pci_device_id virtio_pci_id_table[] = {
  
- #endif /* __ASM_GENERIC_IO_H */
-diff --git a/lib/pci_iomap.c b/lib/pci_iomap.c
-index 0d83ea8..bcce5f1 100644
---- a/lib/pci_iomap.c
-+++ b/lib/pci_iomap.c
-@@ -10,10 +10,11 @@
+ MODULE_DEVICE_TABLE(pci, virtio_pci_id_table);
  
- #ifdef CONFIG_PCI
- /**
-- * pci_iomap - create a virtual mapping cookie for a PCI BAR
-+ * pci_iomap_range - create a virtual mapping cookie for a PCI BAR
-  * @dev: PCI device that owns the BAR
-  * @bar: BAR number
-- * @maxlen: length of the memory to map
-+ * @offset: map memory at the given offset in BAR
-+ * @maxlen: max length of the memory to map
-  *
-  * Using this function you will get a __iomem address to your device BAR.
-  * You can access it using ioread*() and iowrite*(). These functions hide
-@@ -21,16 +22,21 @@
-  * you expect from them in the correct way.
-  *
-  * @maxlen specifies the maximum length to map. If you want to get access to
-- * the complete BAR without checking for its length first, pass %0 here.
-+ * the complete BAR from offset to the end, pass %0 here.
-  * */
--void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
-+void __iomem *pci_iomap_range(struct pci_dev *dev,
-+			      int bar,
-+			      unsigned long offset,
-+			      unsigned long maxlen)
- {
- 	resource_size_t start = pci_resource_start(dev, bar);
- 	resource_size_t len = pci_resource_len(dev, bar);
- 	unsigned long flags = pci_resource_flags(dev, bar);
- 
--	if (!len || !start)
-+	if (len <= offset || !start)
- 		return NULL;
-+	len -= offset;
-+	start += offset;
- 	if (maxlen && len > maxlen)
- 		len = maxlen;
- 	if (flags & IORESOURCE_IO)
-@@ -43,6 +49,25 @@ void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
- 	/* What? */
- 	return NULL;
- }
-+EXPORT_SYMBOL(pci_iomap_range);
- 
-+/**
-+ * pci_iomap - create a virtual mapping cookie for a PCI BAR
-+ * @dev: PCI device that owns the BAR
-+ * @bar: BAR number
-+ * @maxlen: length of the memory to map
-+ *
-+ * Using this function you will get a __iomem address to your device BAR.
-+ * You can access it using ioread*() and iowrite*(). These functions hide
-+ * the details if this is a MMIO or PIO address space and will just do what
-+ * you expect from them in the correct way.
-+ *
-+ * @maxlen specifies the maximum length to map. If you want to get access to
-+ * the complete BAR without checking for its length first, pass %0 here.
-+ * */
-+void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
++static void virtio_pci_release_dev(struct device *_d)
 +{
-+	return pci_iomap_range(dev, bar, 0, maxlen);
++	struct virtio_device *vdev = dev_to_virtio(_d);
++	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
++
++	/* As struct device is a kobject, it's not safe to
++	 * free the memory (including the reference counter itself)
++	 * until it's release callback. */
++	kfree(vp_dev);
 +}
- EXPORT_SYMBOL(pci_iomap);
- #endif /* CONFIG_PCI */
++
+ static int virtio_pci_probe(struct pci_dev *pci_dev,
+ 			    const struct pci_device_id *id)
+ {
+-	return virtio_pci_legacy_probe(pci_dev, id);
++	struct virtio_pci_device *vp_dev;
++	int rc;
++
++	/* allocate our structure and fill it out */
++	vp_dev = kzalloc(sizeof(struct virtio_pci_device), GFP_KERNEL);
++	if (!vp_dev)
++		return -ENOMEM;
++
++	pci_set_drvdata(pci_dev, vp_dev);
++	vp_dev->vdev.dev.parent = &pci_dev->dev;
++	vp_dev->vdev.dev.release = virtio_pci_release_dev;
++	vp_dev->pci_dev = pci_dev;
++	INIT_LIST_HEAD(&vp_dev->virtqueues);
++	spin_lock_init(&vp_dev->lock);
++
++	/* Disable MSI/MSIX to bring device to a known good state. */
++	pci_msi_off(pci_dev);
++
++	/* enable the device */
++	rc = pci_enable_device(pci_dev);
++	if (rc)
++		goto err_enable_device;
++
++	rc = pci_request_regions(pci_dev, "virtio-pci");
++	if (rc)
++		goto err_request_regions;
++
++	rc = virtio_pci_legacy_probe(vp_dev);
++	if (rc)
++		goto err_probe;
++
++	pci_set_master(pci_dev);
++
++	rc = register_virtio_device(&vp_dev->vdev);
++	if (rc)
++		goto err_register;
++
++	return 0;
++
++err_register:
++	virtio_pci_legacy_remove(vp_dev);
++err_probe:
++	pci_release_regions(pci_dev);
++err_request_regions:
++	pci_disable_device(pci_dev);
++err_enable_device:
++	kfree(vp_dev);
++	return rc;
+ }
+ 
+ static void virtio_pci_remove(struct pci_dev *pci_dev)
+ {
+-     virtio_pci_legacy_remove(pci_dev);
++	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
++
++	unregister_virtio_device(&vp_dev->vdev);
++
++	virtio_pci_legacy_remove(pci_dev);
++
++	pci_release_regions(pci_dev);
++	pci_disable_device(pci_dev);
+ }
+ 
+ static struct pci_driver virtio_pci_driver = {
+diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+index a5486e6..256a527 100644
+--- a/drivers/virtio/virtio_pci_legacy.c
++++ b/drivers/virtio/virtio_pci_legacy.c
+@@ -211,23 +211,10 @@ static const struct virtio_config_ops virtio_pci_config_ops = {
+ 	.set_vq_affinity = vp_set_vq_affinity,
+ };
+ 
+-static void virtio_pci_release_dev(struct device *_d)
+-{
+-	struct virtio_device *vdev = dev_to_virtio(_d);
+-	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+-
+-	/* As struct device is a kobject, it's not safe to
+-	 * free the memory (including the reference counter itself)
+-	 * until it's release callback. */
+-	kfree(vp_dev);
+-}
+-
+ /* the PCI probing function */
+-int virtio_pci_legacy_probe(struct pci_dev *pci_dev,
+-			    const struct pci_device_id *id)
++int virtio_pci_legacy_probe(struct virtio_pci_device *vp_dev)
+ {
+-	struct virtio_pci_device *vp_dev;
+-	int err;
++	struct pci_dev *pci_dev = vp_dev->pci_dev;
+ 
+ 	/* We only own devices >= 0x1000 and <= 0x103f: leave the rest. */
+ 	if (pci_dev->device < 0x1000 || pci_dev->device > 0x103f)
+@@ -239,41 +226,12 @@ int virtio_pci_legacy_probe(struct pci_dev *pci_dev,
+ 		return -ENODEV;
+ 	}
+ 
+-	/* allocate our structure and fill it out */
+-	vp_dev = kzalloc(sizeof(struct virtio_pci_device), GFP_KERNEL);
+-	if (vp_dev == NULL)
+-		return -ENOMEM;
+-
+-	vp_dev->vdev.dev.parent = &pci_dev->dev;
+-	vp_dev->vdev.dev.release = virtio_pci_release_dev;
+-	vp_dev->vdev.config = &virtio_pci_config_ops;
+-	vp_dev->pci_dev = pci_dev;
+-	INIT_LIST_HEAD(&vp_dev->virtqueues);
+-	spin_lock_init(&vp_dev->lock);
+-
+-	/* Disable MSI/MSIX to bring device to a known good state. */
+-	pci_msi_off(pci_dev);
+-
+-	/* enable the device */
+-	err = pci_enable_device(pci_dev);
+-	if (err)
+-		goto out;
+-
+-	err = pci_request_regions(pci_dev, "virtio-pci");
+-	if (err)
+-		goto out_enable_device;
+-
+ 	vp_dev->ioaddr = pci_iomap(pci_dev, 0, 0);
+-	if (vp_dev->ioaddr == NULL) {
+-		err = -ENOMEM;
+-		goto out_req_regions;
+-	}
++	if (!vp_dev->ioaddr)
++		return -ENOMEM;
+ 
+ 	vp_dev->isr = vp_dev->ioaddr + VIRTIO_PCI_ISR;
+ 
+-	pci_set_drvdata(pci_dev, vp_dev);
+-	pci_set_master(pci_dev);
+-
+ 	/* we use the subsystem vendor/device id as the virtio vendor/device
+ 	 * id.  this allows us to use the same PCI vendor/device id for all
+ 	 * virtio devices and to identify the particular virtio driver by
+@@ -281,36 +239,18 @@ int virtio_pci_legacy_probe(struct pci_dev *pci_dev,
+ 	vp_dev->vdev.id.vendor = pci_dev->subsystem_vendor;
+ 	vp_dev->vdev.id.device = pci_dev->subsystem_device;
+ 
++	vp_dev->vdev.config = &virtio_pci_config_ops;
++
+ 	vp_dev->config_vector = vp_config_vector;
+ 	vp_dev->setup_vq = setup_vq;
+ 	vp_dev->del_vq = del_vq;
+ 
+-	/* finally register the virtio device */
+-	err = register_virtio_device(&vp_dev->vdev);
+-	if (err)
+-		goto out_set_drvdata;
+-
+ 	return 0;
+-
+-out_set_drvdata:
+-	pci_iounmap(pci_dev, vp_dev->ioaddr);
+-out_req_regions:
+-	pci_release_regions(pci_dev);
+-out_enable_device:
+-	pci_disable_device(pci_dev);
+-out:
+-	kfree(vp_dev);
+-	return err;
+ }
+ 
+-void virtio_pci_legacy_remove(struct pci_dev *pci_dev)
++void virtio_pci_legacy_remove(struct virtio_pci_device *vp_dev)
+ {
+-	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
+-
+-	unregister_virtio_device(&vp_dev->vdev);
++	struct pci_dev *pci_dev = vp_dev->pci_dev;
+ 
+-	vp_del_vqs(&vp_dev->vdev);
+ 	pci_iounmap(pci_dev, vp_dev->ioaddr);
+-	pci_release_regions(pci_dev);
+-	pci_disable_device(pci_dev);
+ }
 -- 
 MST
