@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 06/16] virtio/scsi: verify device has config space
-Date: Wed, 14 Jan 2015 19:27:42 +0200
-Message-ID: <1421256142-11512-7-git-send-email-mst__43271.0809204311$1421256515$gmane$org@redhat.com>
+Subject: [PATCH v3 04/16] virtio/console: verify device has config space
+Date: Wed, 14 Jan 2015 19:27:35 +0200
+Message-ID: <1421256142-11512-5-git-send-email-mst@redhat.com>
 References: <1421256142-11512-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,27 +18,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: linux-scsi@vger.kernel.org, "James E.J. Bottomley" <JBottomley@parallels.com>
+To: linux-kernel@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Some devices might not implement config space access
 (e.g. remoteproc used not to - before 3.9).
-virtio/scsi needs config space access so make it
+virtio/console needs config space access so make it
 fail gracefully if not there.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/scsi/virtio_scsi.c | 6 ++++++
+ drivers/char/virtio_console.c | 6 ++++++
  1 file changed, 6 insertions(+)
 
-diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-index c52bb5d..f164f24 100644
---- a/drivers/scsi/virtio_scsi.c
-+++ b/drivers/scsi/virtio_scsi.c
-@@ -950,6 +950,12 @@ static int virtscsi_probe(struct virtio_device *vdev)
- 	u32 num_queues;
- 	struct scsi_host_template *hostt;
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index de03df9..26afb56 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1986,6 +1986,12 @@ static int virtcons_probe(struct virtio_device *vdev)
+ 	bool multiport;
+ 	bool early = early_put_chars != NULL;
  
 +	if (!vdev->config->get) {
 +		dev_err(&vdev->dev, "%s failure: config access disabled\n",
@@ -46,8 +46,8 @@ index c52bb5d..f164f24 100644
 +		return -EINVAL;
 +	}
 +
- 	/* We need to know how many queues before we allocate. */
- 	num_queues = virtscsi_config_get(vdev, num_queues) ? : 1;
+ 	/* Ensure to read early_put_chars now */
+ 	barrier();
  
 -- 
 MST
