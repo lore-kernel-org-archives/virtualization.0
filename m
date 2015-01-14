@@ -1,12 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] uaccess: fix sparse warning on get/put_user for bitwise types
-Date: Wed, 14 Jan 2015 19:36:18 +0200
-Message-ID: <20150114173618.GA12436@redhat.com>
+Subject: [PATCH v3 16/16] virtio_pci_modern: support devices with no config
+Date: Wed, 14 Jan 2015 19:28:27 +0200
+Message-ID: <1421256142-11512-17-git-send-email-mst__18382.6921311722$1421257093$gmane$org@redhat.com>
+References: <1421256142-11512-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <1421256142-11512-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,123 +18,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-arch@vger.kernel.org, james.hogan@imgtec.com, kvm@vger.kernel.org, mst@redhat.com, deller@gmx.de, will.deacon@arm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, jcmvbkbc@gmail.com, geert@linux-m68k.org, tglx@linutronix.de, sam@ravnborg.org, davem@davemloft.net, egtvedt@samfundet.no
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello, Arnd,
-As you asked, here's a pull request.
-This has been in linux-next apparently with no ill effects.
-
-The following changes since commit 99975cc6ada0d5f2675e83abecae05aba5f437d2:
-
-  vhost/net: length miscalculation (2015-01-07 12:22:00 +0200)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/uaccess_for_upstream
-
-for you to fetch changes up to 0795cb1b46e7938ed679ccd48f933e75272b30e3:
-
-  sparc32: nocheck uaccess coding style tweaks (2015-01-13 15:24:14 +0200)
-
-----------------------------------------------------------------
-uaccess: fix sparse warning on get/put_user for bitwise types
-
-At the moment, if p and x are both tagged as bitwise types,
-some of get_user(x, p), put_user(x, p), __get_user(x, p), __put_user(x, p)
-might produce a sparse warning on many architectures.
-This is a false positive: *p on these architectures is loaded into long
-(typically using asm), then cast back to typeof(*p).
-
-When typeof(*p) is a bitwise type (which is uncommon), such a cast needs
-__force, otherwise sparse produces a warning.
-
-Some architectures already have the __force tag, add it
-where it's missing.
-
-I verified that adding these __force casts does not supress any useful warnings.
-
-Specifically, vhost wants to read/write bitwise types in userspace memory
-using get_user/put_user.
-At the moment this triggers sparse errors, since the value is passed through an
-integer.
-
-For example:
-    __le32 __user *p;
-    __u32 x;
-
-both
-    put_user(x, p);
-and
-    get_user(x, p);
-should be safe, but produce warnings on some architectures.
-
-While there, I noticed that a bunch of architectures violated
-coding style rules within uaccess macros.
-Included patches to fix them up.
+Virtio 1.0 spec lists device config as optional.
+Set get/set callbacks to NULL. Drivers can check that
+and fail gracefully.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/virtio/virtio_pci_modern.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
-----------------------------------------------------------------
-Michael S. Tsirkin (37):
-      x86/uaccess: fix sparse errors
-      alpha/uaccess: fix sparse errors
-      arm64/uaccess: fix sparse errors
-      avr32/uaccess: fix sparse errors
-      blackfin/uaccess: fix sparse errors
-      cris/uaccess: fix sparse errors
-      ia64/uaccess: fix sparse errors
-      m32r/uaccess: fix sparse errors
-      metag/uaccess: fix sparse errors
-      openrisc/uaccess: fix sparse errors
-      parisc/uaccess: fix sparse errors
-      sh/uaccess: fix sparse errors
-      sparc32/uaccess: fix sparse errors
-      sparc64/uaccess: fix sparse errors
-      m68k/uaccess: fix sparse errors
-      arm: fix put_user sparse errors
-      blackfin: fix put_user sparse errors
-      ia64: fix put_user sparse errors
-      metag: fix put_user sparse errors
-      sh: fix put_user sparse errors
-      avr32: whitespace fix
-      sparc32: uaccess_32 macro whitespace fixes
-      sparc64: uaccess_64 macro whitespace fixes
-      blackfin: macro whitespace fixes
-      alpha: macro whitespace fixes
-      arm: macro whitespace fixes
-      arm64: macro whitespace fixes
-      avr32: macro whitespace fixes
-      cris: macro whitespace fixes
-      frv: macro whitespace fixes
-      m32r: macro whitespace fixes
-      m68k: macro whitespace fixes
-      parisc: macro whitespace fixes
-      sh: macro whitespace fixes
-      xtensa: macro whitespace fixes
-      sparc64: nocheck uaccess coding style tweaks
-      sparc32: nocheck uaccess coding style tweaks
-
- arch/alpha/include/asm/uaccess.h    |  86 ++++-----
- arch/arm/include/asm/uaccess.h      |  96 +++++-----
- arch/arm64/include/asm/uaccess.h    |   4 +-
- arch/avr32/include/asm/uaccess.h    |  24 +--
- arch/blackfin/include/asm/uaccess.h |  32 ++--
- arch/cris/include/asm/uaccess.h     | 117 +++++++------
- arch/frv/include/asm/segment.h      |   2 +-
- arch/ia64/include/asm/uaccess.h     |  11 +-
- arch/m32r/include/asm/uaccess.h     |  88 +++++-----
- arch/m68k/include/asm/segment.h     |   2 +-
- arch/m68k/include/asm/uaccess_mm.h  |  40 ++---
- arch/metag/include/asm/uaccess.h    |  25 +--
- arch/openrisc/include/asm/uaccess.h |   4 +-
- arch/parisc/include/asm/uaccess.h   | 116 ++++++------
- arch/sh/include/asm/segment.h       |   2 +-
- arch/sh/include/asm/uaccess.h       |   4 +-
- arch/sh/include/asm/uaccess_64.h    |   8 +-
- arch/sparc/include/asm/uaccess_32.h | 339 +++++++++++++++++++++---------------
- arch/sparc/include/asm/uaccess_64.h | 222 ++++++++++++-----------
- arch/x86/include/asm/uaccess.h      |   2 +-
- arch/xtensa/include/asm/uaccess.h   |  90 +++++-----
- 21 files changed, 700 insertions(+), 614 deletions(-)
+diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+index 9c000e9a..b877705 100644
+--- a/drivers/virtio/virtio_pci_modern.c
++++ b/drivers/virtio/virtio_pci_modern.c
+@@ -425,6 +425,21 @@ static void del_vq(struct virtio_pci_vq_info *info)
+ 	free_pages_exact(info->queue, vring_pci_size(info->num));
+ }
+ 
++static const struct virtio_config_ops virtio_pci_config_nodev_ops = {
++	.get		= NULL,
++	.set		= NULL,
++	.generation	= vp_generation,
++	.get_status	= vp_get_status,
++	.set_status	= vp_set_status,
++	.reset		= vp_reset,
++	.find_vqs	= vp_modern_find_vqs,
++	.del_vqs	= vp_del_vqs,
++	.get_features	= vp_get_features,
++	.finalize_features = vp_finalize_features,
++	.bus_name	= vp_bus_name,
++	.set_vq_affinity = vp_set_vq_affinity,
++};
++
+ static const struct virtio_config_ops virtio_pci_config_ops = {
+ 	.get		= vp_get,
+ 	.set		= vp_set,
+@@ -655,9 +670,11 @@ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
+ 						&vp_dev->device_len);
+ 		if (!vp_dev->device)
+ 			goto err_map_device;
+-	}
+ 
+-	vp_dev->vdev.config = &virtio_pci_config_ops;
++		vp_dev->vdev.config = &virtio_pci_config_ops;
++	} else {
++		vp_dev->vdev.config = &virtio_pci_config_nodev_ops;
++	}
+ 
+ 	vp_dev->config_vector = vp_config_vector;
+ 	vp_dev->setup_vq = setup_vq;
+-- 
+MST
