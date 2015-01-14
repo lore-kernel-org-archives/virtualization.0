@@ -1,14 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 0/6] virtio: graceful failure with get == NULL
-Date: Tue, 13 Jan 2015 21:49:09 +0200
-Message-ID: <20150113194909.GO21393@redhat.com>
-References: <1421160167-18498-1-git-send-email-mst@redhat.com>
+Subject: [PATCH v3 00/16] virtio-pci: towards virtio 1.0 guest support
+Date: Wed, 14 Jan 2015 19:27:22 +0200
+Message-ID: <1421256142-11512-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1421160167-18498-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,40 +16,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 13, 2015 at 04:43:07PM +0200, Michael S. Tsirkin wrote:
-> virtio 1.0 says device configuration is optional, but most drivers treat it as
-> mandatory.  Even if presented by device, guest bios might disable the BAR
-> holding that configuration, so we can't assume it's there, but we also don't
-> want to fail if not in case drivers can cope with it's absence - such as caif
-> or rng.
-> 
-> Add code to drivers to check presence of get callback and fail gracefully.
+Changes since v2:
+	handling for devices without config space (e.g. rng)
+	reduce # of mappings for VQs
 
-Rusty, in case it's not clear: I'd like to hear
-your opinion on these patches, since virtio pci modern
-driver I'm now preparing for submission, depends on this.
+These patches seem to work fine on my virtio-1.0 qemu branch.
+There haven't been any bugs since v2: just minor cleanups
+and enhancements.
+QEMU side is still undergoing polishing, but is already testable.
 
+Rusty, what do you think?  Let's merge these for 3.20?
+Also - will you be doing that merge window, or should I?
 
-> Michael S. Tsirkin (6):
->   virtio/9p: verify device has config space
->   virtio/blk: verify device has config space
->   virtio/console: verify device has config space
->   virtio/net: verify device has config space
->   virtio/scsi: verify device has config space
->   virtio/balloon: verify device has config space
-> 
->  drivers/block/virtio_blk.c      | 6 ++++++
->  drivers/char/virtio_console.c   | 6 ++++++
->  drivers/net/virtio_net.c        | 6 ++++++
->  drivers/scsi/virtio_scsi.c      | 6 ++++++
->  drivers/virtio/virtio_balloon.c | 6 ++++++
->  net/9p/trans_virtio.c           | 6 ++++++
->  6 files changed, 36 insertions(+)
-> 
-> -- 
-> MST
-> 
+Michael S. Tsirkin (14):
+  virtio_pci: drop virtio_config dependency
+  virtio/9p: verify device has config space
+  virtio/blk: verify device has config space
+  virtio/console: verify device has config space
+  virtio/net: verify device has config space
+  virtio/scsi: verify device has config space
+  virtio/balloon: verify device has config space
+  mn10300: drop dead code
+  pci: add pci_iomap_range
+  s390: add pci_iomap_range
+  virtio_pci: move probe/remove code to common
+  virtio_pci: modern driver
+  virtio_pci_modern: reduce number of mappings
+  virtio_pci_modern: support devices with no config
+
+Rusty Russell (2):
+  virtio-pci: define layout for virtio 1.0
+  virtio_pci: macros for PCI layout offsets
+
+ arch/s390/include/asm/pci_io.h        |   1 +
+ drivers/virtio/virtio_pci_common.h    |  33 +-
+ include/asm-generic/pci_iomap.h       |  10 +
+ include/uapi/linux/virtio_pci.h       |  94 ++++-
+ arch/mn10300/unit-asb2305/pci-iomap.c |  35 --
+ arch/s390/pci/pci.c                   |  34 +-
+ drivers/block/virtio_blk.c            |   6 +
+ drivers/char/virtio_console.c         |   6 +
+ drivers/net/virtio_net.c              |   6 +
+ drivers/scsi/virtio_scsi.c            |   6 +
+ drivers/virtio/virtio_balloon.c       |   6 +
+ drivers/virtio/virtio_pci_common.c    |  79 +++-
+ drivers/virtio/virtio_pci_legacy.c    |  76 +---
+ drivers/virtio/virtio_pci_modern.c    | 706 ++++++++++++++++++++++++++++++++++
+ lib/pci_iomap.c                       |  35 +-
+ net/9p/trans_virtio.c                 |   6 +
+ drivers/virtio/Makefile               |   2 +-
+ 17 files changed, 1016 insertions(+), 125 deletions(-)
+ delete mode 100644 arch/mn10300/unit-asb2305/pci-iomap.c
+ create mode 100644 drivers/virtio/virtio_pci_modern.c
+
+-- 
+MST
