@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio_blk: coding style fixes
-Date: Thu, 15 Jan 2015 13:43:26 +0200
-Message-ID: <1421322201-21203-1-git-send-email-mst@redhat.com>
+Subject: [PATCH 1/2] virtio_pci: Kconfig grammar fix
+Date: Thu, 15 Jan 2015 14:18:30 +0200
+Message-ID: <1421324298-21749-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -20,40 +20,25 @@ To: linux-kernel@vger.kernel.org
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Most of our code has
-struct foo {
-}
-
-Fix two instances where blk is inconsistent.
+This drivers -> this driver.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/block/virtio_blk.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/virtio/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 7164da8..c5730d3 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -28,8 +28,7 @@ struct virtio_blk_vq {
- 	char name[VQ_NAME_LEN];
- } ____cacheline_aligned_in_smp;
- 
--struct virtio_blk
--{
-+struct virtio_blk {
- 	struct virtio_device *vdev;
- 
- 	/* The disk structure for the kernel. */
-@@ -52,8 +51,7 @@ struct virtio_blk
- 	struct virtio_blk_vq *vqs;
- };
- 
--struct virtblk_req
--{
-+struct virtblk_req {
- 	struct request *req;
- 	struct virtio_blk_outhdr out_hdr;
- 	struct virtio_scsi_inhdr in_hdr;
+diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+index 00b2286..8286b63 100644
+--- a/drivers/virtio/Kconfig
++++ b/drivers/virtio/Kconfig
+@@ -12,7 +12,7 @@ config VIRTIO_PCI
+ 	depends on PCI
+ 	select VIRTIO
+ 	---help---
+-	  This drivers provides support for virtio based paravirtual device
++	  This driver provides support for virtio based paravirtual device
+ 	  drivers over PCI.  This requires that your VMM has appropriate PCI
+ 	  virtio backends.  Most QEMU based VMMs should support these devices
+ 	  (like KVM or Xen).
 -- 
 MST
