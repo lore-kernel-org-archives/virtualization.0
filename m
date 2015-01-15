@@ -1,12 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio_pci: add an option to disable legacy driver
-Date: Thu, 15 Jan 2015 16:09:23 +0200
-Message-ID: <1421330958-24192-1-git-send-email-mst@redhat.com>
+From: Michal Hocko <mhocko@suse.cz>
+Subject: Re: [PATCH] virtio_balloon: coding style fixes
+Date: Thu, 15 Jan 2015 15:13:08 +0100
+Message-ID: <20150115141308.GH7000__17453.8768748336$1421331206$gmane$org@dhcp22.suse.cz>
+References: <1421321941-21111-1-git-send-email-mst@redhat.com>
+	<20150115130642.GC7008@dhcp22.suse.cz>
+	<20150115134412.GA23874@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <20150115134412.GA23874@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,85 +20,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Useful for testing device virtio 1 compatibility.
-Based on patch by Rusty - couldn't resist putting
-that flying car joke in there!
+On Thu 15-01-15 15:44:12, Michael S. Tsirkin wrote:
+> On Thu, Jan 15, 2015 at 02:06:42PM +0100, Michal Hocko wrote:
+> > On Thu 15-01-15 13:39:06, Michael S. Tsirkin wrote:
+> > > Most of our code has
+> > > struct foo {
+> > > }
+> > > 
+> > > Fix two instances where balloon is inconsistent.
+> > 
+> > I hate to complain but is it really necessary to post such patches to
+> > linux-api?
+> 
+> Well it's human to err, so it seems wise to copy parties
+> interested in the ABI/API whenever we are changing files under include/uapi.
+> Whitespace changes should mostly be safe, but it's not unknown
+> e.g. to include unrelated changes in the same commit by mistake.
+> 
+> > I thought the list was primarily for API related discussions.
+> 
+> Basically this line in MAINTAINERS
+> 
+> ABI/API
+> L:      linux-api@vger.kernel.org
+> F:      Documentation/ABI/
+> F:      include/linux/syscalls.h
+> F:      include/uapi/
+> F:      kernel/sys_ni.c
+> 
+> normally means "send all patches affecting files under include/uapi/ to
+> this list", does it not?
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/virtio/virtio_pci_common.h | 10 ++++++++++
- drivers/virtio/Kconfig             | 19 +++++++++++++++++++
- drivers/virtio/Makefile            |  3 ++-
- 3 files changed, 31 insertions(+), 1 deletion(-)
+Well, this should always be taken as a hint not a hard rule. So if there
+is a change which is adding/removing or changing signature then sure but
+not everything falls into that category.
+ 
+> Wasn't this the intent?
+> 
+> > This is not the only mail sent here which doesn't fall into that
+> > category IMO. It is far from low volume list for quite some time.
+> > 
+> > Please let's get back low volume and API only discussion!
+> 
+> Maybe send patch dropping include/uapi/ from there,
+> should help drive the volumes down?
 
-diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-index d391805..28ee4e5 100644
---- a/drivers/virtio/virtio_pci_common.h
-+++ b/drivers/virtio/virtio_pci_common.h
-@@ -147,8 +147,18 @@ const char *vp_bus_name(struct virtio_device *vdev);
-  */
- int vp_set_vq_affinity(struct virtqueue *vq, int cpu);
- 
-+#if IS_ENABLED(CONFIG_VIRTIO_PCI_LEGACY)
- int virtio_pci_legacy_probe(struct virtio_pci_device *);
- void virtio_pci_legacy_remove(struct virtio_pci_device *);
-+#else
-+static inline int virtio_pci_legacy_probe(struct virtio_pci_device *vp_dev)
-+{
-+	return -ENODEV;
-+}
-+static inline void virtio_pci_legacy_remove(struct virtio_pci_device *vp_dev)
-+{
-+}
-+#endif
- int virtio_pci_modern_probe(struct virtio_pci_device *);
- void virtio_pci_modern_remove(struct virtio_pci_device *);
- 
-diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-index 083fb45..b546da5 100644
---- a/drivers/virtio/Kconfig
-+++ b/drivers/virtio/Kconfig
-@@ -19,6 +19,25 @@ config VIRTIO_PCI
- 
- 	  If unsure, say M.
- 
-+config VIRTIO_PCI_LEGACY
-+	bool "Support for legacy virtio draft 0.9.X and older devices"
-+	default y
-+	depends on VIRTIO_PCI
-+	---help---
-+          Virtio PCI Card 0.9.X Draft (circa 2014) and older device support.
-+
-+	  This option enables building a transitional driver, supporting
-+	  both devices conforming to Virtio 1 specification, and legacy devices.
-+	  If disabled, you get a slightly smaller, non-transitional driver,
-+	  with no legacy compatibility.
-+
-+          So look out into your driveway.  Do you have a flying car?  If
-+          so, you can happily disable this option and virtio will not
-+          break.  Otherwise, leave it set.  Unless you're testing what
-+          life will be like in The Future.
-+
-+	  If unsure, say Y.
-+
- config VIRTIO_BALLOON
- 	tristate "Virtio balloon driver"
- 	depends on VIRTIO
-diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
-index bd230d1..a7fa9a5 100644
---- a/drivers/virtio/Makefile
-+++ b/drivers/virtio/Makefile
-@@ -1,5 +1,6 @@
- obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o
- obj-$(CONFIG_VIRTIO_MMIO) += virtio_mmio.o
- obj-$(CONFIG_VIRTIO_PCI) += virtio_pci.o
--virtio_pci-y := virtio_pci_modern.o virtio_pci_legacy.o virtio_pci_common.o
-+virtio_pci-y := virtio_pci_modern.o virtio_pci_common.o
-+virtio_pci-$(CONFIG_VIRTIO_PCI_LEGACY) := virtio_pci_legacy.o
- obj-$(CONFIG_VIRTIO_BALLOON) += virtio_balloon.o
+This would be an overkill IMO. It would be much more preferable if
+people actually think about who from the suggested list (either from
+MAINTAINERS or ./scripts/get_maintainer.pl) should be really added.
+
+[...]
 -- 
-MST
+Michal Hocko
+SUSE Labs
