@@ -1,16 +1,12 @@
-From: Michal Hocko <mhocko@suse.cz>
-Subject: Re: [PATCH] virtio_balloon: coding style fixes
-Date: Thu, 15 Jan 2015 15:13:08 +0100
-Message-ID: <20150115141308.GH7000__17453.8768748336$1421331206$gmane$org@dhcp22.suse.cz>
-References: <1421321941-21111-1-git-send-email-mst@redhat.com>
-	<20150115130642.GC7008@dhcp22.suse.cz>
-	<20150115134412.GA23874@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] virtio_pci: add module param to force legacy mode
+Date: Thu, 15 Jan 2015 17:56:19 +0200
+Message-ID: <1421337370-25961-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20150115134412.GA23874@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,60 +16,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu 15-01-15 15:44:12, Michael S. Tsirkin wrote:
-> On Thu, Jan 15, 2015 at 02:06:42PM +0100, Michal Hocko wrote:
-> > On Thu 15-01-15 13:39:06, Michael S. Tsirkin wrote:
-> > > Most of our code has
-> > > struct foo {
-> > > }
-> > > 
-> > > Fix two instances where balloon is inconsistent.
-> > 
-> > I hate to complain but is it really necessary to post such patches to
-> > linux-api?
-> 
-> Well it's human to err, so it seems wise to copy parties
-> interested in the ABI/API whenever we are changing files under include/uapi.
-> Whitespace changes should mostly be safe, but it's not unknown
-> e.g. to include unrelated changes in the same commit by mistake.
-> 
-> > I thought the list was primarily for API related discussions.
-> 
-> Basically this line in MAINTAINERS
-> 
-> ABI/API
-> L:      linux-api@vger.kernel.org
-> F:      Documentation/ABI/
-> F:      include/linux/syscalls.h
-> F:      include/uapi/
-> F:      kernel/sys_ni.c
-> 
-> normally means "send all patches affecting files under include/uapi/ to
-> this list", does it not?
+If set, try legacy interface first, modern one if that fails.  Useful to
+work around device/driver bugs, and for compatibility testing.
 
-Well, this should always be taken as a hint not a hard rule. So if there
-is a change which is adding/removing or changing signature then sure but
-not everything falls into that category.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/virtio/virtio_pci_common.c | 31 +++++++++++++++++++++++++------
+ 1 file changed, 25 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index 20c7638..0f87b99 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -19,6 +19,14 @@
  
-> Wasn't this the intent?
-> 
-> > This is not the only mail sent here which doesn't fall into that
-> > category IMO. It is far from low volume list for quite some time.
-> > 
-> > Please let's get back low volume and API only discussion!
-> 
-> Maybe send patch dropping include/uapi/ from there,
-> should help drive the volumes down?
-
-This would be an overkill IMO. It would be much more preferable if
-people actually think about who from the suggested list (either from
-MAINTAINERS or ./scripts/get_maintainer.pl) should be really added.
-
-[...]
+ #include "virtio_pci_common.h"
+ 
++static bool force_legacy = false;
++
++#if IS_ENABLED(CONFIG_VIRTIO_PCI_LEGACY)
++module_param(force_legacy, bool, 0444);
++MODULE_PARM_DESC(force_legacy,
++		 "Force legacy mode for transitional virtio 1 devices");
++#endif
++
+ /* wait for pending irq handlers */
+ void vp_synchronize_vectors(struct virtio_device *vdev)
+ {
+@@ -505,13 +513,24 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
+ 	if (rc)
+ 		goto err_request_regions;
+ 
+-	rc = virtio_pci_modern_probe(vp_dev);
+-	if (rc != -ENODEV)
+-		return rc;
++	if (force_legacy) {
++		rc = virtio_pci_legacy_probe(vp_dev);
++		/* Also try modern mode if we can't map BAR0 (no IO space). */
++		if (rc != -ENODEV && rc != -ENOMEM)
++			return rc;
+ 
+-	rc = virtio_pci_legacy_probe(vp_dev);
+-	if (rc)
+-		goto err_probe;
++		rc = virtio_pci_modern_probe(vp_dev);
++		if (rc)
++			goto err_probe;
++	} else {
++		rc = virtio_pci_modern_probe(vp_dev);
++		if (rc != -ENODEV)
++			return rc;
++
++		rc = virtio_pci_legacy_probe(vp_dev);
++		if (rc)
++			goto err_probe;
++	}
+ 
+ 	pci_set_master(pci_dev);
+ 
 -- 
-Michal Hocko
-SUSE Labs
+MST
