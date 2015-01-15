@@ -1,15 +1,13 @@
-From: "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Subject: Re: [PATCH] virtio_balloon: coding style fixes
-Date: Thu, 15 Jan 2015 22:09:35 +0100
-Message-ID: <54B82C8F.50103@gmail.com>
-References: <1421321941-21111-1-git-send-email-mst@redhat.com>
-	<20150115130642.GC7008@dhcp22.suse.cz>
-	<20150115134412.GA23874@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH v3 00/16] virtio-pci: towards virtio 1.0 guest support
+Date: Thu, 15 Jan 2015 22:18:18 +0100
+Message-ID: <1421356698.3933.18.camel@nilsson.home.kraxel.org>
+References: <1421256142-11512-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150115134412.GA23874@redhat.com>
+In-Reply-To: <1421256142-11512-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,61 +17,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Michal Hocko <mhocko@suse.cz>
-Cc: linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org, mtk.manpages@gmail.com, linux-kernel@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/15/2015 02:44 PM, Michael S. Tsirkin wrote:
-> On Thu, Jan 15, 2015 at 02:06:42PM +0100, Michal Hocko wrote:
->> On Thu 15-01-15 13:39:06, Michael S. Tsirkin wrote:
->>> Most of our code has
->>> struct foo {
->>> }
->>>
->>> Fix two instances where balloon is inconsistent.
->>
->> I hate to complain but is it really necessary to post such patches to
->> linux-api?
-> 
-> Well it's human to err, so it seems wise to copy parties
-> interested in the ABI/API whenever we are changing files under include/uapi.
-> Whitespace changes should mostly be safe, but it's not unknown
-> e.g. to include unrelated changes in the same commit by mistake.
-> 
->> I thought the list was primarily for API related discussions.
-> 
-> Basically this line in MAINTAINERS
-> 
-> ABI/API
-> L:      linux-api@vger.kernel.org
-> F:      Documentation/ABI/
-> F:      include/linux/syscalls.h
-> F:      include/uapi/
-> F:      kernel/sys_ni.c
-> 
-> normally means "send all patches affecting files under include/uapi/ to
-> this list", does it not?
-> 
-> Wasn't this the intent?
-> 
->> This is not the only mail sent here which doesn't fall into that
->> category IMO. It is far from low volume list for quite some time.
->>
->> Please let's get back low volume and API only discussion!
-> 
-> Maybe send patch dropping include/uapi/ from there,
-> should help drive the volumes down?
+  Hi,
 
-Well, regardless of what it technically means, there's always going
-to be scope for ambiguity, and that's where we differ from computers:
-we can ask ourselves the question: will other human beings interested 
-in the API/ABI care about this patch?
+> QEMU side is still undergoing polishing, but is already testable.
 
-Thanks,
+Looked art the qemu side for now, commenting here due to qemu patches
+not being posted to the list yet (guess that is at least partly already
+on your todo list):
 
-Michael (also saddened about increasing noise on linux-api)
+ * Both legacy and modern should be switchable.  Modern needs to be
+   switchable _anyway_ for backward compatibility with old qemu
+   versions.  But legacy should be too, for testing purposes and for
+   new device types which don't need legacy in the first place.
 
--- 
-Michael Kerrisk
-Linux man-pages maintainer; http://www.kernel.org/doc/man-pages/
-Linux/UNIX System Programming Training: http://man7.org/training/
+ * I'd like to see some more flexibility in the pci bar layout.  Stuff
+   I have in mind:
+    - New devices which don't need a legacy bar can use bar 0 for
+      modern.
+    - One MMIO bar is enough, we can place both virtio regions and
+      msi-x regions there.  I'd suggest to add msi-x sub-regions to
+      the modern bar.
+
+ * What is the reason for making the modern bar 8M in size?  Looks a bit
+   excessive, given that only 64k or so of that are actually used ...
+
+virtio-scsi seems to be broken, at least my usual fedora guest didn't
+boot up from virtio-scsi disk when using a guest kernel with this patch
+series applied.
+
+cheers,
+  Gerd
