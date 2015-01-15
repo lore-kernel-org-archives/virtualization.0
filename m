@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio_balloon: coding style fixes
-Date: Thu, 15 Jan 2015 13:39:06 +0200
-Message-ID: <1421321941-21111-1-git-send-email-mst@redhat.com>
+Subject: [PATCH] virtio_blk: coding style fixes
+Date: Thu, 15 Jan 2015 13:43:26 +0200
+Message-ID: <1421322201-21203-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -17,48 +17,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 Most of our code has
 struct foo {
 }
 
-Fix two instances where balloon is inconsistent.
+Fix two instances where blk is inconsistent.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- include/uapi/linux/virtio_balloon.h | 3 +--
- drivers/virtio/virtio_balloon.c     | 3 +--
- 2 files changed, 2 insertions(+), 4 deletions(-)
+ drivers/block/virtio_blk.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-index be40f70..4b0488f 100644
---- a/include/uapi/linux/virtio_balloon.h
-+++ b/include/uapi/linux/virtio_balloon.h
-@@ -36,8 +36,7 @@
- /* Size of a PFN in the balloon interface. */
- #define VIRTIO_BALLOON_PFN_SHIFT 12
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 7164da8..c5730d3 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -28,8 +28,7 @@ struct virtio_blk_vq {
+ 	char name[VQ_NAME_LEN];
+ } ____cacheline_aligned_in_smp;
  
--struct virtio_balloon_config
+-struct virtio_blk
 -{
-+struct virtio_balloon_config {
- 	/* Number of pages host wants Guest to give up. */
- 	__le32 num_pages;
- 	/* Number of pages we've actually got in balloon. */
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 3176ea4..0413157 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -44,8 +44,7 @@ static int oom_pages = OOM_VBALLOON_DEFAULT_PAGES;
- module_param(oom_pages, int, S_IRUSR | S_IWUSR);
- MODULE_PARM_DESC(oom_pages, "pages to free on OOM");
- 
--struct virtio_balloon
--{
-+struct virtio_balloon {
++struct virtio_blk {
  	struct virtio_device *vdev;
- 	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq;
  
+ 	/* The disk structure for the kernel. */
+@@ -52,8 +51,7 @@ struct virtio_blk
+ 	struct virtio_blk_vq *vqs;
+ };
+ 
+-struct virtblk_req
+-{
++struct virtblk_req {
+ 	struct request *req;
+ 	struct virtio_blk_outhdr out_hdr;
+ 	struct virtio_scsi_inhdr in_hdr;
 -- 
 MST
