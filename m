@@ -1,16 +1,17 @@
-From: Pawel Moll <pawel.moll@arm.com>
-Subject: Re: [RFC] virtio-mmio: Update the device to OASIS spec version
-Date: Thu, 15 Jan 2015 18:42:02 +0000
-Message-ID: <1421347322.4601.13.camel@arm.com>
-References: <1419014284-18500-1-git-send-email-pawel.moll@arm.com>
-	<20150115165101.GA29808@redhat.com> <1421343158.4601.7.camel@arm.com>
-	<20150115175132.GA30453@redhat.com> <1421345477.4601.9.camel@arm.com>
-	<20150115182903.GA30947@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio_balloon: coding style fixes
+Date: Thu, 15 Jan 2015 20:50:18 +0200
+Message-ID: <20150115185018.GA31068@redhat.com>
+References: <1421321941-21111-1-git-send-email-mst@redhat.com>
+	<20150115130642.GC7008@dhcp22.suse.cz>
+	<20150115134412.GA23874@redhat.com>
+	<20150115141308.GH7000@dhcp22.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150115182903.GA30947@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20150115141308.GH7000@dhcp22.suse.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,107 +21,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Michal Hocko <mhocko@suse.cz>
+Cc: linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCAyMDE1LTAxLTE1IGF0IDE4OjI5ICswMDAwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3Jv
-dGU6Cj4gT24gVGh1LCBKYW4gMTUsIDIwMTUgYXQgMDY6MTE6MTdQTSArMDAwMCwgUGF3ZWwgTW9s
-bCB3cm90ZToKPiA+IE9uIFRodSwgMjAxNS0wMS0xNSBhdCAxNzo1MSArMDAwMCwgTWljaGFlbCBT
-LiBUc2lya2luIHdyb3RlOgo+ID4gPiA+ID4gSSB0aGluayB5b3Ugc2hvdWxkbid0IHVzZSBWSVJU
-SU9fTU1JT19WUklOR19BTElHTiBpbiBub24tbGVnYWN5IGNvZGU6Cj4gPiA+ID4gPiBpdCdzIGEg
-bGVnYWN5IHRoaW5nLgo+ID4gPiA+IAo+ID4gPiA+IEJ1dCBJIHN0aWxsIG5lZWQgdG8gcGFzcyBz
-b21ldGhpbmcgdG8gdnJpbmdfbmV3X3ZpcnRxdWV1ZSgpIGJlbG93LCBkb24ndAo+ID4gPiA+IEk/
-IEFuZCBpdCB3aWxsIGFsbG9jYXRlIHRoZSBxdWV1ZSBiYXNlZCBvbiBzb21lIGFsaWdubWVudCB2
-YWx1ZS4gSSBjYW4ndAo+ID4gPiA+IHNlZSBhbnl0aGluZyB0aGF0IHdvdWxkIGNyZWF0ZSB0aGUg
-bGF5b3V0IGZvciBtZSwgbmVpdGhlciBpbiBtYWlubGluZQo+ID4gPiA+IG5vciBpbiBuZXh0LiBI
-YXZlIEkgbWlzc2VkIHNvbWV0aGluZz8gKHdvdWxkbid0IGJlIHN1cnByaXNlZCBpZiBJIGhhdmUp
-Cj4gPiA+IAo+ID4gPiBObywgYnV0IGl0J3Mgbm8gbG9uZ2VyIGEgdmlydGlvIHRoaW5nIC0ganVz
-dCBhbiBvcHRpbWl6YXRpb24KPiA+ID4gY2hvaWNlIGJ5IGEgc3BlY2lmaWMgZHJpdmVyLiBTbyBw
-bGVhc2UganVzdCBzdGljayBlLmcuIFBBR0VfU0laRSB0aGVyZS4KPiA+IAo+ID4gI2RlZmluZSBW
-SVJUSU9fTU1JT19WUklOR19BTElHTiAgICAgICAgIFBBR0VfU0laRQo+ID4gCj4gPiA+IEFuZCBt
-YXliZSBhZGQgYSBUT0RPIGl0ZW0gLSB3ZSBjYW4gb3B0aW1pemUgYnkgYWxsb2NhdGluZyBjaHVu
-a3MKPiA+ID4gc2VwYXJhdGVseS4KPiA+IAo+ID4gSSdsbCB3YWl0IGFuZCBzZWUgaG93IGRvIGRl
-YWwgd2l0aAo+ID4gCj4gPiAgICAgICAgIHZxID0gdnJpbmdfbmV3X3ZpcnRxdWV1ZShpbmRleCwg
-aW5mby0+bnVtLCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgIAo+ID4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgVklSVElPX1BDSV9WUklOR19BTElHTiwgJnZwX2Rldi0+dmRldiwgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKPiAKPiBDaGVjayBvdXQgdGhlIGNvZGUg
-aW4gbXkgdHJlZS4KPiBJdCByZWFsbHkgZG9lcywgZnVuZGFtZW50YWxseToKPiAKPiAJLyogVE9E
-TzogZG9uJ3QgYWxsb2NhdGUgY29udGlnaW91c2x5ICovCj4gICAgICAgICAgdnEgPSB2cmluZ19u
-ZXdfdmlydHF1ZXVlKGluZGV4LCBpbmZvLT5udW0sICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCj4gICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgIFNNUF9DQUNIRV9CWVRFUywgJnZwX2Rldi0+dmRldiwgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKCldpbGwgaGF2ZSBh
-IGxvb2suCgo+ID4gPiA+ID4gPiArc3RhdGljIHN0cnVjdCBkZXZpY2VfYXR0cmlidXRlIHZtX2Rl
-dl9hdHRyX3ZlcnNpb24gPQo+ID4gPiA+ID4gPiArICAgICAgICAgICAgIF9fQVRUUih2ZXJzaW9u
-LCBTX0lSVUdPLCB2bV9kZXZfYXR0cl92ZXJzaW9uX3Nob3csIE5VTEwpOwo+ID4gPiA+ID4gPiAr
-Cj4gPiA+ID4gPiA+ICBzdGF0aWMgaW50IHZpcnRpb19tbWlvX3Byb2JlKHN0cnVjdCBwbGF0Zm9y
-bV9kZXZpY2UgKnBkZXYpCj4gPiA+ID4gPiA+ICB7Cj4gPiA+ID4gPiA+ICAgICAgIHN0cnVjdCB2
-aXJ0aW9fbW1pb19kZXZpY2UgKnZtX2RldjsKPiA+ID4gPiA+IAo+ID4gPiA+ID4gV2UgYWxyZWFk
-eSBleHBvc2UgZmVhdHVyZSBiaXRzIC0gdGhpcyBvbmUgcmVhbGx5IG5lY2Vzc2FyeT8KPiA+ID4g
-PiAKPiA+ID4gPiBOZWNlc3Nhcnk/IE9mIGNvdXJzZSBub3QsIGp1c3QgYSBkZWJ1Z2dpbmcgZmVh
-dHVyZSwgcmVhbGx5LCB0byBzZWUgd2hhdAo+ID4gPiA+IHZlcnNpb24gb2YgY29udHJvbCByZWdp
-c3RlcnMgYXJlIGF2YWlsYWJsZS4gVXNlZnVsIC0gSSBzdHJvbmdseSBiZWxpZXZlCj4gPiA+ID4g
-c28uCj4gPiA+IAo+ID4gPiBZZXMgYnV0IHRoZSBwb2ludCBpcyB0aGUgc2FtZSBpbmZvIGlzIGFs
-cmVhZHkgYXZhaWxhYmxlCj4gPiA+IGluIGNvcmU6IGp1c3QgbG9vayBhdCBmZWF0dXJlIGJpdCAz
-MS4KPiA+ID4gSWYgeW91IHRoaW5rIGl0J3MgaW1wb3J0YW50IGVub3VnaCB0byBleHBvc2UgaW4g
-YSBkZWNvZGVkCj4gPiA+IHdheSwgbGV0J3MgYWRkIHRoaXMgaW4gY29yZT8KPiA+IAo+ID4gSG93
-IGRvIHlvdSBtZWFuICJpbiBjb3JlIj8gSXQncyBhIG1taW8tc3BlY2lmaWMgdmFsdWUuIENvbnRl
-bnQgb2YgdGhlCj4gPiBWSVJUSU9fTU1JT19WRVJTSU9OIGNvbnRyb2wgcmVnaXN0ZXIuCj4gCj4g
-WWVzIGJ1dCBpZiBkcml2ZXIgbG9hZGVkLCB0aGVuIHJldmlzaW9uIGlzIGFsd2F5cyBpbiBzeW5j
-Cj4gd2l0aCB0aGUgZmVhdHVyZSBiaXQuCgpXZWxsLCBub3QgcXVpdGU6IGFzIG9mIG5vdyBJJ3Zl
-IGdvdCBsZWdhY3kgYmxvY2sgZGV2aWNlIGRyaXZlciBoYXBwaWx5Cndvcmtpbmcgb24gdG9wIG9m
-IGNvbXBsaWFudCAoc28gdjIgaW4gTU1JTyBzcGVlY2gpIE1NSU8gZGV2aWNlIC0gdGhlCnRyYW5z
-cG9ydCBpZiBjb21wbGV0ZWx5IHRyYW5zcGFyZW50IGhlcmUuCgo+IElmIGRyaXZlciBmYWlsZWQg
-dG8gYXR0YWNoLCBhdHRyaWJ1dGUgaXMgbm90IHRoZXJlCj4gc28gY2FuJ3QgYmUgdXNlZCBmb3Ig
-ZGVidWdnaW5nLgoKSW50ZXJlc3RpbmcgcG9pbnQgb24gaXRzIG93biwgaGF2ZW4ndCB0aG91Z2h0
-IG9mIHRoYXQuIFRoaXMgaXMgYW4gaXNzdWUKd2l0aCBwbGF0Zm9ybSBkZXZpY2VzLCBubyBzdGFu
-ZGFyZCBzZXQgb2YgYXR0cmlidXRlcywgYWx3YXlzIGF2YWlsYWJsZS4KV2lsbCBoYXZlIGEgbG9v
-ayBhdCB0aGlzLgoKPiA+ID4gQWJzb2x1dGVseS4gU28gd2hhdCBoYXBwZW5zIGlmIHlvdSBkcm9w
-IHRoZXNlIGNvZGUgbGluZXM/Cj4gPiA+IFRoZXJlJ3Mgbm8gZHJpdmVyIHJlZ2lzdGVyZWQgZm9y
-IHRoaXMgSUQsIHNvIGl0J3MganVzdCBpZ25vcmVkLgo+ID4gPiBTZWVtcyBsaWtlIHdoYXQgc3Bl
-YyBpcyBhc2tpbmcgZm9yLCBubz8KPiA+IAo+ID4gTm90IHRvIG1lLCBuby4gVGhlcmUgd2lsbCBi
-ZSBhIHZtX2RldiByZWdpc3RlcmVkIHdpdGggYW4gX2lsbGVnYWxfIElELgo+IAo+IFllcyAtIHRo
-ZXJlIHdpbGwgYmUgYSBkZXZpY2UsIGJ1dCBubyBkcml2ZXIgd2lsbCBkcml2ZSBpdC4KCkEgZGV2
-aWNlIHdpdGggYW4gKmlsbGVnYWwqIElELgoKPiA+ID4gPiA+IEBAIC00OTYsNyArNTMxLDggQEAg
-c3RhdGljIGludCB2aXJ0aW9fbW1pb19yZW1vdmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRl
-dikKPiA+ID4gPiA+ID4gIHsKPiA+ID4gPiA+ID4gICAgICAgc3RydWN0IHZpcnRpb19tbWlvX2Rl
-dmljZSAqdm1fZGV2ID0gcGxhdGZvcm1fZ2V0X2RydmRhdGEocGRldik7Cj4gPiA+ID4gPiA+Cj4g
-PiA+ID4gPiA+IC0gICAgIHVucmVnaXN0ZXJfdmlydGlvX2RldmljZSgmdm1fZGV2LT52ZGV2KTsK
-PiA+ID4gPiA+ID4gKyAgICAgaWYgKHZtX2RldikKPiA+ID4gPiA+ID4gKyAgICAgICAgICAgICB1
-bnJlZ2lzdGVyX3ZpcnRpb19kZXZpY2UoJnZtX2Rldi0+dmRldik7Cj4gPiA+ID4gPiA+Cj4gPiA+
-ID4gPiAKPiA+ID4gPiA+IFdpbGwgcmVtb3ZlIGV2ZXIgYmUgY2FsbGVkIGlmIHByb2JlIGZhaWxz
-Pwo+ID4gPiA+IAo+ID4gPiA+IE5vLgo+ID4gPiAKPiA+ID4gVGhlbiB0aGlzIGlmIGlzbid0IG5l
-Y2Vzc2FyeTogdm1fZGV2IGlzIGFsd2F5cyBzZXQuCj4gPiAKPiA+IE5vdCAoaW4gdGhlIGN1cnJl
-bnQgY29kZSkgaWYgSUQgaXMgMC4KPiAKPiBTbyBqdXN0IHJldHVybiAtRU5PREVWLCB0aGVuIHBy
-b2JlIHdpbGwgYmUgY29uc2lkZXJlZAo+IGZhaWxlZCBhbmQgcmVtb3ZlIHdvbid0IGJlIGNhbGxl
-ZC4KCiI0LjIuMi4yIERyaXZlciBSZXF1aXJlbWVudHM6IE1NSU8gRGV2aWNlIFJlZ2lzdGVyIExh
-eW91dCAKClRoZSBkcml2ZXIgTVVTVCBpZ25vcmUgYSBkZXZpY2Ugd2l0aCBEZXZpY2VJRCAweDAs
-IGJ1dCBNVVNUIE5PVCByZXBvcnQgYW55IGVycm9yLiIKClJldHVybmluZyAtRU5PREVWICpyZXBv
-cnRzKiBhbiBlcnJvci4KCj4gT3IgLSBiZXR0ZXIgLSBqdXN0IHJlZ2lzdGVyIHRoZSBkZXZpY2Us
-IGl0J3MgaGFybWxlc3MKPiBhcyBubyBkcml2ZXIgd2lsbCB0cnkgdG8gYXR0YWNoIHRvIGl0LCBh
-bmQgdGhlcmUKPiB3b24ndCBiZSBhbnkgbmVlZCB0byBzcGVjaWFsLWNhc2UgaXQuCgpSZWFsbHks
-IHlvdSBtYXkgd2FudCB0byByZWZyZXNoIHlvdXIgbWVtb3J5LiBXZSd2ZSBiZWVuIHRoZXJlLiBU
-aGlzICppcyoKYSBzcGVjaWFsIGNhc2UuIEludGVudGlvbmFsbHkuCgo+ID4gPiBOb3QgbmVjZXNz
-YXJpbHkgLSB0aGUgcG9pbnQgaXMgZm9yIHVzZXJzcGFjZSB0byBiZSBhYmxlIHRvCj4gPiA+IGF2
-b2lkIGdldHRpbmcgdXNlbGVzcyBsZWdhY3kgbWFjcm9zIGJ5IG1lYW5zIG9mIGEgc2ltcGxlICNk
-ZWZpbmUuCj4gPiA+IEFnYWluLCB0YWtlIGEgbG9vayBhdCBteSB0cmVlOgo+ID4gPiAKPiA+ID4g
-Z2l0Oi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L21zdC92aG9zdC5n
-aXQgdmhvc3QtbmV4dAo+ID4gCj4gPiBJIGhhdmUgbm8gaWRlYSB3aGF0IGFyZSB5b3UgdGFsa2lu
-ZyBhYm91dCBoZXJlLiBXaHkgd291bGQgdXNlcnNwYWNlIGV2ZXIKPiA+IGFjY2VzcyB0aGUgbWVt
-b3J5IG1hcHBlZCBjb250cm9sIHJlZ2lzdGVycz8KPiAKPiBVc2Vyc3BhY2UgYmVpbmcgcWVtdSB3
-aGljaCBpbXBsZW1lbnRzIHRoZXNlLgoKUmlnaHQsIHFlbXUgaXMgYSB2YWxpZCB1c2Vyc3BhY2Ug
-Y2FzZS4KCj4gPiBUaGF0J3MgYWxsIHdoYXQgdGhpcyBoZWFkZXIKPiA+IGRlc2NyaWJlcy4gQWN0
-dWFsbHksIGlmIEkgd2FzIHR5cGluZyB0aGUgZHJpdmVyIHRvZGF5LCBJJ2QgZGVmaW5lIHRoZQo+
-ID4gb2Zmc2V0cyBpbiB2aXJ0aW9fbW1pby5jIGZpbGUsIG5vdCBpbiBhIHNlcGFyYXRlIGhlYWRl
-ci4gSWYgZmFjdCwgSSBtYXkKPiA+IG1vdmUgdGhlbSB0aGVyZS4uLgo+Cj4gQW5kIHRoZW4geW91
-IHdpbGwgaGF2ZSB0byBjb3B5IGFuZCBwYXN0ZSB0aGVtIGluIHFlbXUuCj4gCj4gV2hpY2ggd2Ug
-ZG8gQVRNIGZvciBzaWxseSByZWFzb25zIGxpa2UKPiB3ZSBpbmNsdWRlIGxpbnV4L3R5cGVzLmgs
-IGJ1dCBJIGZ1bGx5IGludGVuZCB0byBnZXQgcmlkIG9mIHRoYXQsCj4ganVzdCB0d2VhayB0aGUg
-bGludXggb25lcyBzbGlnaHRseSBmb3IgcG9ydGFiaWxpdHkuCgpPaywgbW9yZSB0aGFuIGhhcHB5
-IHRvIGRvIHdoYXRldmVyIHdpbGwgbWFrZSBxZW11IGhhcHB5LiBBbiBleGFtcGxlPwoKUGF3ZcWC
-CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
-aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
-bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
-dmlydHVhbGl6YXRpb24=
+On Thu, Jan 15, 2015 at 03:13:08PM +0100, Michal Hocko wrote:
+> On Thu 15-01-15 15:44:12, Michael S. Tsirkin wrote:
+> > On Thu, Jan 15, 2015 at 02:06:42PM +0100, Michal Hocko wrote:
+> > > On Thu 15-01-15 13:39:06, Michael S. Tsirkin wrote:
+> > > > Most of our code has
+> > > > struct foo {
+> > > > }
+> > > > 
+> > > > Fix two instances where balloon is inconsistent.
+> > > 
+> > > I hate to complain but is it really necessary to post such patches to
+> > > linux-api?
+> > 
+> > Well it's human to err, so it seems wise to copy parties
+> > interested in the ABI/API whenever we are changing files under include/uapi.
+> > Whitespace changes should mostly be safe, but it's not unknown
+> > e.g. to include unrelated changes in the same commit by mistake.
+> > 
+> > > I thought the list was primarily for API related discussions.
+> > 
+> > Basically this line in MAINTAINERS
+> > 
+> > ABI/API
+> > L:      linux-api@vger.kernel.org
+> > F:      Documentation/ABI/
+> > F:      include/linux/syscalls.h
+> > F:      include/uapi/
+> > F:      kernel/sys_ni.c
+> > 
+> > normally means "send all patches affecting files under include/uapi/ to
+> > this list", does it not?
+> 
+> Well, this should always be taken as a hint not a hard rule. So if there
+> is a change which is adding/removing or changing signature then sure but
+> not everything falls into that category.
+
+At least for code I maintain, I really wish people would just Cc me in
+any case.  There's been a bunch of cases where people don't Cc me, and
+then another maintainer assumes my silence implies agreement, and
+applies.  Not nice. OTOH it's easy to ignore an irrelevant patch.
+
+> > Wasn't this the intent?
+> > 
+> > > This is not the only mail sent here which doesn't fall into that
+> > > category IMO. It is far from low volume list for quite some time.
+> > > 
+> > > Please let's get back low volume and API only discussion!
+> > 
+> > Maybe send patch dropping include/uapi/ from there,
+> > should help drive the volumes down?
+> 
+> This would be an overkill IMO. It would be much more preferable if
+> people actually think about who from the suggested list (either from
+> MAINTAINERS or ./scripts/get_maintainer.pl) should be really added.
+> 
+> [...]
+
+Yea, think about it, then what?  I've no idea what is linux-abi for, and
+what people subscribed there are interested in. How should I? All I know
+is what's in MAINTAINERS, which say "ABI/API". So I copy all ABI/API
+patches there.
+
+> -- 
+> Michal Hocko
+> SUSE Labs
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
