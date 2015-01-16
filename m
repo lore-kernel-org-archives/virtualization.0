@@ -1,14 +1,17 @@
-From: Sebastian Ott <sebott@linux.vnet.ibm.com>
-Subject: Re: [PATCH v3 10/16] s390: add pci_iomap_range
-Date: Fri, 16 Jan 2015 11:11:56 +0100 (CET)
-Message-ID: <alpine.LFD.2.11.1501161051380.1742__17978.8645044484$1421403149$gmane$org@denkbrett>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH v3 00/16] virtio-pci: towards virtio 1.0 guest support
+Date: Fri, 16 Jan 2015 14:27:13 +0100
+Message-ID: <1421414833.21318.67.camel@nilsson.home.kraxel.org>
 References: <1421256142-11512-1-git-send-email-mst@redhat.com>
-	<1421256142-11512-11-git-send-email-mst@redhat.com>
+	<1421356698.3933.18.camel@nilsson.home.kraxel.org>
+	<20150115213256.GA4813@redhat.com>
+	<1421397146.21318.16.camel@nilsson.home.kraxel.org>
+	<20150116084541.GA29204@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1421256142-11512-11-git-send-email-mst@redhat.com>
+In-Reply-To: <20150116084541.GA29204@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,117 +22,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-s390@vger.kernel.org, linux-pci@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Bjorn Helgaas <bhelgaas@google.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 14 Jan 2015, Michael S. Tsirkin wrote:
-> Virtio drivers should map the part of the range they need, not
-> necessarily all of it.
-> To this end, support mapping ranges within BAR on s390.
-> Since multiple ranges can now be mapped within a BAR, we keep track of
-> the number of mappings created, and only clear out the mapping for a BAR
-> when this number reaches 0.
-> 
-> Cc: Bjorn Helgaas <bhelgaas@google.com>
-> Cc: linux-pci@vger.kernel.org
-> Tested-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
-> 
-> Heiko, Martin, can you please ack merging this through the virtio tree?
-> This was lightly tested by Sebastian Ott.
-> 
->  arch/s390/include/asm/pci_io.h |  1 +
->  arch/s390/pci/pci.c            | 34 +++++++++++++++++++++++++++-------
->  2 files changed, 28 insertions(+), 7 deletions(-)
-> 
-> diff --git a/arch/s390/include/asm/pci_io.h b/arch/s390/include/asm/pci_io.h
-> index f664e96..1a9a98d 100644
-> --- a/arch/s390/include/asm/pci_io.h
-> +++ b/arch/s390/include/asm/pci_io.h
-> @@ -16,6 +16,7 @@
->  struct zpci_iomap_entry {
->  	u32 fh;
->  	u8 bar;
-> +	u16 count;
->  };
-> 
->  extern struct zpci_iomap_entry *zpci_iomap_start;
-> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-> index 3290f11..753a567 100644
-> --- a/arch/s390/pci/pci.c
-> +++ b/arch/s390/pci/pci.c
-> @@ -259,7 +259,10 @@ void __iowrite64_copy(void __iomem *to, const void *from, size_t count)
->  }
-> 
->  /* Create a virtual mapping cookie for a PCI BAR */
-> -void __iomem *pci_iomap(struct pci_dev *pdev, int bar, unsigned long max)
-> +void __iomem *pci_iomap_range(struct pci_dev *pdev,
-> +			      int bar,
-> +			      unsigned long offset,
-> +			      unsigned long max)
->  {
->  	struct zpci_dev *zdev =	get_zdev(pdev);
->  	u64 addr;
-> @@ -270,14 +273,27 @@ void __iomem *pci_iomap(struct pci_dev *pdev, int bar, unsigned long max)
-> 
->  	idx = zdev->bars[bar].map_idx;
->  	spin_lock(&zpci_iomap_lock);
-> -	zpci_iomap_start[idx].fh = zdev->fh;
-> -	zpci_iomap_start[idx].bar = bar;
-> +	if (zpci_iomap_start[idx].count++) {
-> +		BUG_ON(zpci_iomap_start[idx].fh != zdev->fh ||
-> +		       zpci_iomap_start[idx].bar != bar);
-> +	} else {
-> +		zpci_iomap_start[idx].fh = zdev->fh;
-> +		zpci_iomap_start[idx].bar = bar;
-> +	}
-> +	/* Detect overrun */
-> +	BUG_ON(!zpci_iomap_start[idx].count);
->  	spin_unlock(&zpci_iomap_lock);
-> 
->  	addr = ZPCI_IOMAP_ADDR_BASE | ((u64) idx << 48);
-> -	return (void __iomem *) addr;
-> +	return (void __iomem *) addr + offset;
->  }
-> -EXPORT_SYMBOL_GPL(pci_iomap);
-> +EXPORT_SYMBOL_GPL(pci_iomap_range);
-> +
-> +void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
-> +{
-> +	return pci_iomap_range(dev, bar, 0, maxlen);
-> +}
-> +EXPORT_SYMBOL(pci_iomap);
+  Hi,
 
-As discussed earlier, could you please leave that as EXPORT_SYMBOL_GPL.
-If there's a reason to have these interfaces as EXPORT_SYMBOL, we could
-change all of them in an extra patch.
+> > > > virtio-scsi seems to be broken, at least my usual fedora guest didn't
+> > > > boot up from virtio-scsi disk when using a guest kernel with this patch
+> > > > series applied.
+> > > 
+> > > I'll re-test. Do other devices work for you? Thanks!
+> > 
+> > Didn't came very far yet in my testing due to the guest not booting.
+> 
+> Try virtio-blk - that worked for me.
 
-With this change integrated you can add
-Acked-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
+Nope.  Booted from ide now, looked in /sys/bus/virtio/devices:
 
-Regards,
-Sebastian
+lrwxrwxrwx. 1 root root 0 Jan 16 14:15 virtio0
+-> ../../../devices/pci0000:00/0000:00:0b.0/virtio0
 
-> 
->  void pci_iounmap(struct pci_dev *pdev, void __iomem *addr)
->  {
-> @@ -285,8 +301,12 @@ void pci_iounmap(struct pci_dev *pdev, void __iomem *addr)
-> 
->  	idx = (((__force u64) addr) & ~ZPCI_IOMAP_ADDR_BASE) >> 48;
->  	spin_lock(&zpci_iomap_lock);
-> -	zpci_iomap_start[idx].fh = 0;
-> -	zpci_iomap_start[idx].bar = 0;
-> +	/* Detect underrun */
-> +	BUG_ON(!zpci_iomap_start[idx].count);
-> +	if (!--zpci_iomap_start[idx].count) {
-> +		zpci_iomap_start[idx].fh = 0;
-> +		zpci_iomap_start[idx].bar = 0;
-> +	}
->  	spin_unlock(&zpci_iomap_lock);
->  }
->  EXPORT_SYMBOL_GPL(pci_iounmap);
-> -- 
-> MST
-> 
-> 
+lspci:
+
+00:09.0 Ethernet controller: Red Hat, Inc Virtio network device
+00:0a.0 Communication controller: Red Hat, Inc Virtio console
+00:0b.0 Unclassified device [00ff]: Red Hat, Inc Virtio memory balloon
+
+net + serial are missing ...
+
+I'm running 3.19-rc4 with this series applied in the guest, maybe I need
+more?
+
+On the qemu side it is your virtio-1.0 branch from yesterday, rebased to
+master.
+
+cheers,
+  Gerd
