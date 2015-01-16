@@ -1,17 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 00/16] virtio-pci: towards virtio 1.0 guest support
-Date: Fri, 16 Jan 2015 10:45:42 +0200
-Message-ID: <20150116084541.GA29204@redhat.com>
-References: <1421256142-11512-1-git-send-email-mst@redhat.com>
-	<1421356698.3933.18.camel@nilsson.home.kraxel.org>
-	<20150115213256.GA4813@redhat.com>
-	<1421397146.21318.16.camel@nilsson.home.kraxel.org>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [RFC] virtio-mmio: Update the device to OASIS spec version
+Date: Fri, 16 Jan 2015 10:58:48 +0100
+Message-ID: <20150116105848.5a1ece60.cornelia.huck@de.ibm.com>
+References: <1419014284-18500-1-git-send-email-pawel.moll@arm.com>
+	<20150115165101.GA29808@redhat.com>
+	<20150115171207.GA30300@redhat.com>
+	<1421342130.4601.5.camel@arm.com>
+	<20150115171950.GA30367@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1421397146.21318.16.camel@nilsson.home.kraxel.org>
+In-Reply-To: <20150115171950.GA30367@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,85 +21,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Pawel Moll <pawel.moll@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 16, 2015 at 09:32:26AM +0100, Gerd Hoffmann wrote:
->   Hi,
-> 
-> > >  * I'd like to see some more flexibility in the pci bar layout.  Stuff
-> > >    I have in mind:
-> > >     - New devices which don't need a legacy bar can use bar 0 for
-> > >       modern.
-> > >     - One MMIO bar is enough, we can place both virtio regions and
-> > >       msi-x regions there.  I'd suggest to add msi-x sub-regions to
-> > >       the modern bar.
-> > 
-> > Why exactly? It seems simpler to separate things, extra BARs
-> > have no cost.
-> 
-> Well, there are only six BARs.  legacy bar, modern mmio bar, msi-x bar,
-> modern io bar (for fast isr).  That already four out of six ...
-
-So?  If we need to add another bar, we'll change things.
-
-> We have a mmio bar, which we partition into subregions for virtio-1.0
-> anyway.  Also placing msi-x there is a single msix_init() call.  xhci is
-> doing that too:
-> 
->     00000000febf0000-00000000febf3fff (prio 1, RW): xhci
->       00000000febf0000-00000000febf003f (prio 0, RW): capabilities
->       00000000febf0040-00000000febf043f (prio 0, RW): operational
->       00000000febf0440-00000000febf044f (prio 0, RW): usb3 port #1
->       00000000febf0450-00000000febf045f (prio 0, RW): usb3 port #2
->       00000000febf0460-00000000febf046f (prio 0, RW): usb3 port #3
->       00000000febf0470-00000000febf047f (prio 0, RW): usb3 port #4
->       00000000febf0480-00000000febf048f (prio 0, RW): usb2 port #1
->       00000000febf0490-00000000febf049f (prio 0, RW): usb2 port #2
->       00000000febf04a0-00000000febf04af (prio 0, RW): usb2 port #3
->       00000000febf04b0-00000000febf04bf (prio 0, RW): usb2 port #4
->       00000000febf1000-00000000febf121f (prio 0, RW): runtime
->       00000000febf2000-00000000febf281f (prio 0, RW): doorbell
->       00000000febf3000-00000000febf30ff (prio 0, RW): msix-table
->       00000000febf3800-00000000febf3807 (prio 0, RW): msix-pba
-> 
-
-However that one is non prefetheable, and I prefer putting
-virtio caps in a prefetcheable bar.
-
-> > >  * What is the reason for making the modern bar 8M in size?  Looks a bit
-> > >    excessive, given that only 64k or so of that are actually used ...
-> > 
-> > I use a page per VQ for architectures that can locate the offset of the
-> > accessed page that triggered EPT violation faster than the offset within
-> > page.  I think this is the case for SVM.
-> 
-> 8M still looks excessive, given that we typically have a small number of
-> queues per device.  Do you allocate address space for the maximum
-> possible number of queues unconditionally?
-
-Yes, simpler this way. I'll check if I can find the real # of VQs.
-
-> > > virtio-scsi seems to be broken, at least my usual fedora guest didn't
-> > > boot up from virtio-scsi disk when using a guest kernel with this patch
-> > > series applied.
-> > 
-> > I'll re-test. Do other devices work for you? Thanks!
-> 
-> Didn't came very far yet in my testing due to the guest not booting.
-
-Try virtio-blk - that worked for me.
-
->  I
-> plan to try other storage for the image, but didn't found the time yet.
-> 
-> I've tried to boot a F21 live iso with virtio-net (legacy guest driver
-> obviously), which seems to work ok in light testing.
-> 
-> BTW: is there a tool (or pciutils patch) which can decode the virtio
-> capabilities?
-> 
-> cheers,
->   Gerd
-> 
+T24gVGh1LCAxNSBKYW4gMjAxNSAxOToxOTo1MCArMDIwMAoiTWljaGFlbCBTLiBUc2lya2luIiA8
+bXN0QHJlZGhhdC5jb20+IHdyb3RlOgoKPiBPbiBUaHUsIEphbiAxNSwgMjAxNSBhdCAwNToxNToz
+MFBNICswMDAwLCBQYXdlbCBNb2xsIHdyb3RlOgo+ID4gT24gVGh1LCAyMDE1LTAxLTE1IGF0IDE3
+OjEyICswMDAwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPiA+IE9uIFRodSwgSmFuIDE1
+LCAyMDE1IGF0IDA2OjUxOjAxUE0gKzAyMDAsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiA+
+ID4gPiBIb3N0IG5vIGxvbmdlciBrbm93cyB0aGUgYWxpZ25tZW50LCBzbyB3aHkgaXMgaXQgbmVl
+ZGVkPwo+ID4gPiA+IEluIGZhY3QsIEkgbm90aWNlIHRoYXQgNC4zLjIuMyBWaXJ0cXVldWUgTGF5
+b3V0IHNlZW1zIGNvbXBsZXRlbHkgd3Jvbmc6Cj4gPiA+ID4gaXQgY29ycmVzcG9uZHMgdG8gbGVn
+YWN5IGRldmljZXMsIGFuZCBpdCBkb2VzIG5vdAo+ID4gPiA+IHNheSB3aGF0ICJhbGlnbiIgaXMu
+Cj4gPiA+IAo+ID4gPiBJIGNyZWF0ZWQKPiA+ID4gaHR0cHM6Ly9pc3N1ZXMub2FzaXMtb3Blbi5v
+cmcvYnJvd3NlL1ZJUlRJTy0xMjkKPiA+ID4gdG8gdHJhY2sgdGhpcy4gQ2FuIHlvdSB3cml0ZSB1
+cCBhIHBhdGNoIHBsZWFzZT8KPiA+IAo+ID4gIjQuMyBWaXJ0aW8gT3ZlciBDaGFubmVsIEkvTyIK
+PiA+IAo+ID4gKGhpbnQ6IG5vdCBNTUlPKQo+ID4gCj4gPiBQYXdlxYIKPiA+IAo+ID4gCj4gCj4g
+T3cuIFNvIGl0J3MgczM5MCBhY3R1YWxseS4KPiBGaXhlZCBhbmQgYXNzaWduZWQgdG8gQ29ybmVs
+aWEuCgpJJ2xsIGhhbmRsZSB0aGF0IG9uZS4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
+dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
+dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
