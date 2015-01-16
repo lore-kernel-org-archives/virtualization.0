@@ -1,17 +1,14 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [RFC] virtio-mmio: Update the device to OASIS spec version
-Date: Fri, 16 Jan 2015 10:58:48 +0100
-Message-ID: <20150116105848.5a1ece60.cornelia.huck@de.ibm.com>
-References: <1419014284-18500-1-git-send-email-pawel.moll@arm.com>
-	<20150115165101.GA29808@redhat.com>
-	<20150115171207.GA30300@redhat.com>
-	<1421342130.4601.5.camel@arm.com>
-	<20150115171950.GA30367@redhat.com>
+From: Sebastian Ott <sebott@linux.vnet.ibm.com>
+Subject: Re: [PATCH v3 10/16] s390: add pci_iomap_range
+Date: Fri, 16 Jan 2015 11:11:56 +0100 (CET)
+Message-ID: <alpine.LFD.2.11.1501161051380.1742__17978.8645044484$1421403149$gmane$org@denkbrett>
+References: <1421256142-11512-1-git-send-email-mst@redhat.com>
+	<1421256142-11512-11-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150115171950.GA30367@redhat.com>
+In-Reply-To: <1421256142-11512-11-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,24 +19,117 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Pawel Moll <pawel.moll@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Cc: linux-s390@vger.kernel.org, linux-pci@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Bjorn Helgaas <bhelgaas@google.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCAxNSBKYW4gMjAxNSAxOToxOTo1MCArMDIwMAoiTWljaGFlbCBTLiBUc2lya2luIiA8
-bXN0QHJlZGhhdC5jb20+IHdyb3RlOgoKPiBPbiBUaHUsIEphbiAxNSwgMjAxNSBhdCAwNToxNToz
-MFBNICswMDAwLCBQYXdlbCBNb2xsIHdyb3RlOgo+ID4gT24gVGh1LCAyMDE1LTAxLTE1IGF0IDE3
-OjEyICswMDAwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPiA+IE9uIFRodSwgSmFuIDE1
-LCAyMDE1IGF0IDA2OjUxOjAxUE0gKzAyMDAsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiA+
-ID4gPiBIb3N0IG5vIGxvbmdlciBrbm93cyB0aGUgYWxpZ25tZW50LCBzbyB3aHkgaXMgaXQgbmVl
-ZGVkPwo+ID4gPiA+IEluIGZhY3QsIEkgbm90aWNlIHRoYXQgNC4zLjIuMyBWaXJ0cXVldWUgTGF5
-b3V0IHNlZW1zIGNvbXBsZXRlbHkgd3Jvbmc6Cj4gPiA+ID4gaXQgY29ycmVzcG9uZHMgdG8gbGVn
-YWN5IGRldmljZXMsIGFuZCBpdCBkb2VzIG5vdAo+ID4gPiA+IHNheSB3aGF0ICJhbGlnbiIgaXMu
-Cj4gPiA+IAo+ID4gPiBJIGNyZWF0ZWQKPiA+ID4gaHR0cHM6Ly9pc3N1ZXMub2FzaXMtb3Blbi5v
-cmcvYnJvd3NlL1ZJUlRJTy0xMjkKPiA+ID4gdG8gdHJhY2sgdGhpcy4gQ2FuIHlvdSB3cml0ZSB1
-cCBhIHBhdGNoIHBsZWFzZT8KPiA+IAo+ID4gIjQuMyBWaXJ0aW8gT3ZlciBDaGFubmVsIEkvTyIK
-PiA+IAo+ID4gKGhpbnQ6IG5vdCBNTUlPKQo+ID4gCj4gPiBQYXdlxYIKPiA+IAo+ID4gCj4gCj4g
-T3cuIFNvIGl0J3MgczM5MCBhY3R1YWxseS4KPiBGaXhlZCBhbmQgYXNzaWduZWQgdG8gQ29ybmVs
-aWEuCgpJJ2xsIGhhbmRsZSB0aGF0IG9uZS4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
-dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
-dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Wed, 14 Jan 2015, Michael S. Tsirkin wrote:
+> Virtio drivers should map the part of the range they need, not
+> necessarily all of it.
+> To this end, support mapping ranges within BAR on s390.
+> Since multiple ranges can now be mapped within a BAR, we keep track of
+> the number of mappings created, and only clear out the mapping for a BAR
+> when this number reaches 0.
+> 
+> Cc: Bjorn Helgaas <bhelgaas@google.com>
+> Cc: linux-pci@vger.kernel.org
+> Tested-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+> 
+> Heiko, Martin, can you please ack merging this through the virtio tree?
+> This was lightly tested by Sebastian Ott.
+> 
+>  arch/s390/include/asm/pci_io.h |  1 +
+>  arch/s390/pci/pci.c            | 34 +++++++++++++++++++++++++++-------
+>  2 files changed, 28 insertions(+), 7 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/pci_io.h b/arch/s390/include/asm/pci_io.h
+> index f664e96..1a9a98d 100644
+> --- a/arch/s390/include/asm/pci_io.h
+> +++ b/arch/s390/include/asm/pci_io.h
+> @@ -16,6 +16,7 @@
+>  struct zpci_iomap_entry {
+>  	u32 fh;
+>  	u8 bar;
+> +	u16 count;
+>  };
+> 
+>  extern struct zpci_iomap_entry *zpci_iomap_start;
+> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+> index 3290f11..753a567 100644
+> --- a/arch/s390/pci/pci.c
+> +++ b/arch/s390/pci/pci.c
+> @@ -259,7 +259,10 @@ void __iowrite64_copy(void __iomem *to, const void *from, size_t count)
+>  }
+> 
+>  /* Create a virtual mapping cookie for a PCI BAR */
+> -void __iomem *pci_iomap(struct pci_dev *pdev, int bar, unsigned long max)
+> +void __iomem *pci_iomap_range(struct pci_dev *pdev,
+> +			      int bar,
+> +			      unsigned long offset,
+> +			      unsigned long max)
+>  {
+>  	struct zpci_dev *zdev =	get_zdev(pdev);
+>  	u64 addr;
+> @@ -270,14 +273,27 @@ void __iomem *pci_iomap(struct pci_dev *pdev, int bar, unsigned long max)
+> 
+>  	idx = zdev->bars[bar].map_idx;
+>  	spin_lock(&zpci_iomap_lock);
+> -	zpci_iomap_start[idx].fh = zdev->fh;
+> -	zpci_iomap_start[idx].bar = bar;
+> +	if (zpci_iomap_start[idx].count++) {
+> +		BUG_ON(zpci_iomap_start[idx].fh != zdev->fh ||
+> +		       zpci_iomap_start[idx].bar != bar);
+> +	} else {
+> +		zpci_iomap_start[idx].fh = zdev->fh;
+> +		zpci_iomap_start[idx].bar = bar;
+> +	}
+> +	/* Detect overrun */
+> +	BUG_ON(!zpci_iomap_start[idx].count);
+>  	spin_unlock(&zpci_iomap_lock);
+> 
+>  	addr = ZPCI_IOMAP_ADDR_BASE | ((u64) idx << 48);
+> -	return (void __iomem *) addr;
+> +	return (void __iomem *) addr + offset;
+>  }
+> -EXPORT_SYMBOL_GPL(pci_iomap);
+> +EXPORT_SYMBOL_GPL(pci_iomap_range);
+> +
+> +void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
+> +{
+> +	return pci_iomap_range(dev, bar, 0, maxlen);
+> +}
+> +EXPORT_SYMBOL(pci_iomap);
+
+As discussed earlier, could you please leave that as EXPORT_SYMBOL_GPL.
+If there's a reason to have these interfaces as EXPORT_SYMBOL, we could
+change all of them in an extra patch.
+
+With this change integrated you can add
+Acked-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
+
+Regards,
+Sebastian
+
+> 
+>  void pci_iounmap(struct pci_dev *pdev, void __iomem *addr)
+>  {
+> @@ -285,8 +301,12 @@ void pci_iounmap(struct pci_dev *pdev, void __iomem *addr)
+> 
+>  	idx = (((__force u64) addr) & ~ZPCI_IOMAP_ADDR_BASE) >> 48;
+>  	spin_lock(&zpci_iomap_lock);
+> -	zpci_iomap_start[idx].fh = 0;
+> -	zpci_iomap_start[idx].bar = 0;
+> +	/* Detect underrun */
+> +	BUG_ON(!zpci_iomap_start[idx].count);
+> +	if (!--zpci_iomap_start[idx].count) {
+> +		zpci_iomap_start[idx].fh = 0;
+> +		zpci_iomap_start[idx].bar = 0;
+> +	}
+>  	spin_unlock(&zpci_iomap_lock);
+>  }
+>  EXPORT_SYMBOL_GPL(pci_iounmap);
+> -- 
+> MST
+> 
+> 
