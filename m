@@ -1,22 +1,18 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC] virtio-mmio: Update the device to OASIS spec version
-Date: Mon, 19 Jan 2015 20:36:47 +0200
-Message-ID: <20150119183647.GB5336@redhat.com>
-References: <1419014284-18500-1-git-send-email-pawel.moll@arm.com>
-	<20150115165101.GA29808@redhat.com>
-	<1421343158.4601.7.camel@arm.com>
-	<20150115175132.GA30453@redhat.com>
-	<1421345477.4601.9.camel@arm.com>
-	<20150115182903.GA30947@redhat.com>
-	<1421347322.4601.13.camel@arm.com>
-	<20150115191203.GA31136@redhat.com>
-	<1421689554.17436.30.camel@arm.com>
+Subject: Re: [PATCH v3 00/16] virtio-pci: towards virtio 1.0 guest support
+Date: Tue, 20 Jan 2015 00:11:24 +0200
+Message-ID: <20150119221124.GA18301@redhat.com>
+References: <1421256142-11512-1-git-send-email-mst@redhat.com>
+	<1421356698.3933.18.camel@nilsson.home.kraxel.org>
+	<20150115213256.GA4813@redhat.com>
+	<1421397146.21318.16.camel@nilsson.home.kraxel.org>
+	<1421665620.3610.13.camel@nilsson.home.kraxel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1421689554.17436.30.camel@arm.com>
+In-Reply-To: <1421665620.3610.13.camel@nilsson.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,198 +22,177 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pawel Moll <pawel.moll@arm.com>
-Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 19, 2015 at 05:45:54PM +0000, Pawel Moll wrote:
-> On Thu, 2015-01-15 at 19:12 +0000, Michael S. Tsirkin wrote:
-> > > > > > > > > +static struct device_attribute vm_dev_attr_version =
-> > > > > > > > > +             __ATTR(version, S_IRUGO, vm_dev_attr_version_show, NULL);
-> > > > > > > > > +
-> > > > > > > > >  static int virtio_mmio_probe(struct platform_device *pdev)
-> > > > > > > > >  {
-> > > > > > > > >       struct virtio_mmio_device *vm_dev;
-> > > > > > > > 
-> > > > > > > > We already expose feature bits - this one really necessary?
-> > > > > > > 
-> > > > > > > Necessary? Of course not, just a debugging feature, really, to see what
-> > > > > > > version of control registers are available. Useful - I strongly believe
-> > > > > > > so.
-> > > > > > 
-> > > > > > Yes but the point is the same info is already available
-> > > > > > in core: just look at feature bit 31.
-> > > > > > If you think it's important enough to expose in a decoded
-> > > > > > way, let's add this in core?
-> > > > > 
-> > > > > How do you mean "in core"? It's a mmio-specific value. Content of the
-> > > > > VIRTIO_MMIO_VERSION control register.
-> > > > 
-> > > > Yes but if driver loaded, then revision is always in sync
-> > > > with the feature bit.
-> > > 
-> > > Well, not quite: as of now I've got legacy block device driver happily
-> > > working on top of compliant (so v2 in MMIO speech) MMIO device - the
-> > > transport if completely transparent here.
-> > 
-> > Spec says explicitly it's an illegal configuration.
+On Mon, Jan 19, 2015 at 12:07:00PM +0100, Gerd Hoffmann wrote:
+>   Hi,
 > 
-> What part of the spec exactly? The closest I can think of are 2.2.3, 6.2
-> and 6.3. Both legacy and spec-complaint MMIO transports will satisfy all
-> requirements from those paragraphs, whether VIRTIO_F_VERSION_1 is
-> negotiated or not.
+> > BTW: is there a tool (or pciutils patch) which can decode the virtio
+> > capabilities?
+> 
+> Searched for a patch today, and all google found me was this mail asking
+> for one :-o
+> 
+> So I went ahead and coded one up.  Attached.
+> 
+> While hacking it up I've noticed spec doesn't match reality.  The
+> "Virtio Structure PCI Capabilities" section here ...
+> 
+> http://docs.oasis-open.org/virtio/virtio/v1.0/cs01/virtio-v1.0-cs01.html#x1-690004
+> 
+> ... doesn't match what qemu is doing.  Huh?
 
-The parts that say VIRTIO_F_VERSION_1 MUST be set.
-I'll look up the chapter and verse later if you like.
+Wow! And I made the same bug in the guest too.
+Good catch, will fix both up.
 
-> Make no mistake - I don't know why would anyone wanted to do this kind
-> of mishmash (other than for testing purposes), but from the MMIO
-> transport point of view, it's not a problem.
 > 
-> Does the check in finalize_features() solves the problem? If I
-> understand correctly it should, so there's nothing more to be done,
-> either in the MMIO spec or in the driver.
+> Also note:
+> 
+> [root@fedora ~]# ~kraxel/projects/pciutils/lspci -vvsa
+> 00:0a.0 Communication controller: Red Hat, Inc Virtio console
+> [ ... ]
+> 	Capabilities: [64] VirtIO: Notify
+> 		BAR=2 offset=00003000 size=00400000
+> 		multiplier=00010000
+> [ ... ]
+> 
+> Why multiplier is 64k instead of 4k?  Just a tyops?
+> 
+> 
+> cheers,
+>   Gerd
+> 
 
-It does but it must be in driver since there are
-transitional drivers so we can't just fail finalize_features
-in core.
+Just in case :) I'll make it smaller, will address your concerns
+about BAR size in a simple way.
 
-> > > > If driver failed to attach, attribute is not there
-> > > > so can't be used for debugging.
-> > > 
-> > > Interesting point on its own, haven't thought of that. This is an issue
-> > > with platform devices, no standard set of attributes, always available.
-> > > Will have a look at this.
-> > > 
-> > > > > > Absolutely. So what happens if you drop these code lines?
-> > > > > > There's no driver registered for this ID, so it's just ignored.
-> > > > > > Seems like what spec is asking for, no?
-> > > > > 
-> > > > > Not to me, no. There will be a vm_dev registered with an _illegal_ ID.
-> > > > 
-> > > > Yes - there will be a device, but no driver will drive it.
-> > > 
-> > > A device with an *illegal* ID.
-> > 
-> > So? The "device" is just a bunch of allocated memory. There's no driver
-> > and no one touches is, which is what the spec requires.
-> 
-> So what exactly is wrong with the "if (id == 0) ignore" case handling? I
-> bet a compare-to-zero and a branch in two places takes less memory than
-> the allocated struct virtio_device. And certainly takes less cycles (not
-> that this matters at all :-). And it's pretty well documented in the
-> spec.
-> > > > > > > > @@ -496,7 +531,8 @@ static int virtio_mmio_remove(struct platform_device *pdev)
-> > > > > > > > >  {
-> > > > > > > > >       struct virtio_mmio_device *vm_dev = platform_get_drvdata(pdev);
-> > > > > > > > >
-> > > > > > > > > -     unregister_virtio_device(&vm_dev->vdev);
-> > > > > > > > > +     if (vm_dev)
-> > > > > > > > > +             unregister_virtio_device(&vm_dev->vdev);
-> > > > > > > > >
-> > > > > > > > 
-> > > > > > > > Will remove ever be called if probe fails?
-> > > > > > > 
-> > > > > > > No.
-> > > > > > 
-> > > > > > Then this if isn't necessary: vm_dev is always set.
-> > > > > 
-> > > > > Not (in the current code) if ID is 0.
-> > > > 
-> > > > So just return -ENODEV, then probe will be considered
-> > > > failed and remove won't be called.
-> > > 
-> > > "4.2.2.2 Driver Requirements: MMIO Device Register Layout 
-> > > 
-> > > The driver MUST ignore a device with DeviceID 0x0, but MUST NOT report any error."
-> > > 
-> > > Returning -ENODEV *reports* an error.
-> > 
-> > Reports to whom? Do you refer to http://xkcd.com/838/ ?
-> > ENODEV is not "reported". 
-> 
-> No, you're right - -ENODEV doesn't print out "probe of xxx failed with
-> error yyy" message, I was wrong. I'm pretty sure I tried it before (I
-> was hoping to find an error which would block probing in a silent way)
-> and I saw something, but it was probably the pr_debug() level message.
-> 
-> > It's just a function return value,
-> > it tells kernel not to call remove.
-> > Users don't know: module probe succeeds, core will not print any errors, user is not
-> > queried.
-> > 
-> > What happens with your patch? Driver is attached to
-> > device (check where does driver attribute points to!),
-> > but doesn't do anything.
-> > 
-> > Looks like if you just keep going, you'll achieve
-> > the same result.
-> 
-> Yes, returning -ENODEV when ID == 0 seems perfectly fine for me.
->
-> > > > Or - better - just register the device, it's harmless
-> > > > as no driver will try to attach to it, and there
-> > > > won't be any need to special-case it.
-> > > 
-> > > Really, you may want to refresh your memory. We've been there. This *is*
-> > > a special case. Intentionally.
-> > 
-> > Hmm I found https://issues.oasis-open.org/browse/VIRTIO-7
-> > but the resolution there is merely asking that no driver
-> > matches ID 0. Seems OK.
-> > The MMIO changes were all made as part of
-> > https://issues.oasis-open.org/browse/VIRTIO-44
-> > Anyway, my memory is irrelevant, we need to document motivation
-> > for kernel code changes for future readers.
-> 
-> As a refresher:
-> 
-> https://lists.oasis-open.org/archives/virtio/201307/msg00035.html
-> 
-> and in particular:
-> 
-> > On Wed, 2013-07-31 at 15:04 +0100, Michael S. Tsirkin wrote: 
-> > > I meant using standard bus specific things where we are describing bus
-> > > specific behaviour.
-> > > In this case, I think you really want a "no device" flag for
-> > > virtio-mmio which originally lacked device presence detection.
-> > > I think for this purpose, it is best to to:
-> > > 1. declare device ID 0 (or e.g. FFFF) as reserved and illegal for devices,
-> > >    explicitly in core spec
-> > > 2. in the mmio appendix, say that if ID 0 (or FFFF) is detected, this
-> > >    means device not present
-> > > I think this is the cleaner approach than saying there's
-> > > a dummy "null device" in particular because
-> > > 1. there won't be dummy devices on the bus, in sysfs etc
-> > > 2. down the road you will be able to support hotplug.
 
-Okay, I see, thanks!
-
-> It seems that you personally weren't happy about "dummy devices on the
-> bus"...
+> >From 0d5d99c20b079c986128c3d98c4bbaba51ebe65c Mon Sep 17 00:00:00 2001
+> From: Gerd Hoffmann <kraxel@redhat.com>
+> Date: Mon, 19 Jan 2015 11:46:37 +0100
+> Subject: [PATCH] add virtio vendor caps
 > 
-> >  It seems that dropping this
-> > chunk satisfies the spec, so if not true, let's add a comment in code
-> > that explains why.
-> > 
-> > Assume you stick in device with ID 0.
-> > kernel probes the device, and then sees there is no driver
-> > and leaves it alone.
-> > Seems perfect, matches the spec.
-> > 
-> > Do you have a config that's not handled well here?
+> ---
+>  Makefile         |  2 +-
+>  ls-caps-vendor.c | 57 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  ls-caps.c        |  9 ++++++++-
+>  lspci.h          |  4 ++++
+>  4 files changed, 70 insertions(+), 2 deletions(-)
+>  create mode 100644 ls-caps-vendor.c
 > 
-> The end effect will be the same, I agree. I simply disagree with your
-> claim that it matches the spec and I see no point of discussing this
-> subject further. I'm going to keep the special case with -ENODEV in the
-> driver and apply other changes you suggested. If you want you can NAK
-> the updated patch and we'll find someone to resolve the argument.
+> diff --git a/Makefile b/Makefile
+> index 8d49afa..39a07d1 100644
+> --- a/Makefile
+> +++ b/Makefile
+> @@ -69,7 +69,7 @@ force:
+>  lib/config.h lib/config.mk:
+>  	cd lib && ./configure
+>  
+> -lspci: lspci.o ls-vpd.o ls-caps.o ls-ecaps.o ls-kernel.o ls-tree.o ls-map.o common.o lib/$(PCILIB)
+> +lspci: lspci.o ls-vpd.o ls-caps.o ls-caps-vendor.o ls-ecaps.o ls-kernel.o ls-tree.o ls-map.o common.o lib/$(PCILIB)
+>  setpci: setpci.o common.o lib/$(PCILIB)
+>  
+>  LSPCIINC=lspci.h pciutils.h $(PCIINC)
+> diff --git a/ls-caps-vendor.c b/ls-caps-vendor.c
+> new file mode 100644
+> index 0000000..5f8b3e1
+> --- /dev/null
+> +++ b/ls-caps-vendor.c
+> @@ -0,0 +1,57 @@
+> +/*
+> + *	The PCI Utilities -- Show Vendor-specific Capabilities
+> + *
+> + *	Copyright (c) 2014 Gerd Hoffmann <kraxel@redhat.com>
+> + *
+> + *	Can be freely distributed and used under the terms of the GNU GPL.
+> + */
+> +
+> +#include <stdio.h>
+> +#include <string.h>
+> +
+> +#include "lspci.h"
+> +
+> +void
+> +show_vendor_caps_virtio(struct device *d, int where, int cap)
+> +{
+> +  int length = BITS(cap, 0, 8);
+> +  int type = BITS(cap, 8, 5);
+> +  int bar = BITS(cap, 13, 3);
+> +  char *tname;
+> +
+> +  if (length < 12)
+> +    return;
+> +  if (!config_fetch(d, where, length))
+> +    return;
+> +
+> +  switch (type) {
+> +  case 1:
+> +      tname = "CommonCfg";
+> +      break;
+> +  case 2:
+> +      tname = "Notify";
+> +      break;
+> +  case 3:
+> +      tname = "ISR";
+> +      break;
+> +  case 4:
+> +      tname = "DeviceCfg";
+> +      break;
+> +  default:
+> +      tname = "<unknown>";
+> +      break;
+> +  }
+> +
+> +  printf("VirtIO: %s\n", tname);
+> +
+> +  if (verbose < 2)
+> +    return;
+> +
+> +  printf("\t\tBAR=%d offset=%08x size=%08x\n", bar,
+> +         get_conf_long(d, where+4),
+> +         get_conf_long(d, where+8));
+> +  if (type != 2 || length < 16)
+> +    return;
+> +  printf("\t\tmultiplier=%08x\n",
+> +         get_conf_long(d, where+12));
+> +}
+> diff --git a/ls-caps.c b/ls-caps.c
+> index 7de55ef..438b580 100644
+> --- a/ls-caps.c
+> +++ b/ls-caps.c
+> @@ -1315,7 +1315,14 @@ show_caps(struct device *d, int where)
+>  	      cap_ht(d, where, cap);
+>  	      break;
+>  	    case PCI_CAP_ID_VNDR:
+> -	      printf("Vendor Specific Information: Len=%02x <?>\n", BITS(cap, 0, 8));
+> +              switch (get_conf_word(d, PCI_VENDOR_ID)) {
+> +              case 0x1af4: /* Red Hat, devices 0x1000 -> 0x107f are virtio */
+> +                show_vendor_caps_virtio(d, where, cap);
+> +                break;
+> +              default:
+> +                printf("Vendor Specific Information: Len=%02x <?>\n", BITS(cap, 0, 8));
+> +                break;
+> +              }
+>  	      break;
+>  	    case PCI_CAP_ID_DBG:
+>  	      cap_debug_port(cap);
+> diff --git a/lspci.h b/lspci.h
+> index 86429b2..5ca9899 100644
+> --- a/lspci.h
+> +++ b/lspci.h
+> @@ -70,6 +70,10 @@ void show_caps(struct device *d, int where);
+>  
+>  void show_ext_caps(struct device *d);
+>  
+> +/* ls-caps-vendor.c */
+> +
+> +void show_vendor_caps_virtio(struct device *d, int where, int cap);
+> +
+>  /* ls-kernel.c */
+>  
+>  void show_kernel_machine(struct device *d UNUSED);
+> -- 
+> 1.8.3.1
 > 
-> Pawel
-
-Can you please also add a comment?
-E.g. 
-     /*
-      * MMIO uses ID 0 to mean device not present.  Avoid probing
-      * the device further: it's sure to fail anyway.
-      */
