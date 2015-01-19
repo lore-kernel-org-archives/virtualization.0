@@ -1,17 +1,13 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v3 00/16] virtio-pci: towards virtio 1.0 guest support
-Date: Fri, 16 Jan 2015 14:27:13 +0100
-Message-ID: <1421414833.21318.67.camel@nilsson.home.kraxel.org>
-References: <1421256142-11512-1-git-send-email-mst@redhat.com>
-	<1421356698.3933.18.camel@nilsson.home.kraxel.org>
-	<20150115213256.GA4813@redhat.com>
-	<1421397146.21318.16.camel@nilsson.home.kraxel.org>
-	<20150116084541.GA29204@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: virtio for 3.20
+Date: Mon, 19 Jan 2015 12:56:28 +1030
+Message-ID: <87egqrcxpn.fsf@rustcorp.com.au>
+References: <20150115183618.GA31025@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150116084541.GA29204@redhat.com>
+In-Reply-To: <20150115183618.GA31025@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,40 +17,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> Hi Rusty, all
+>
+> I parked outstanding virtio patches here:
+> git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-next
+> this way they are merged in linux-next as well.
+>
+> Rusty if you'll be doing 3.20 window, would you mind
+> checking that tree to verify nothing's lost?
 
-> > > > virtio-scsi seems to be broken, at least my usual fedora guest didn't
-> > > > boot up from virtio-scsi disk when using a guest kernel with this patch
-> > > > series applied.
-> > > 
-> > > I'll re-test. Do other devices work for you? Thanks!
-> > 
-> > Didn't came very far yet in my testing due to the guest not booting.
-> 
-> Try virtio-blk - that worked for me.
+Hi Michael,
 
-Nope.  Booted from ide now, looked in /sys/bus/virtio/devices:
+        Thanks, now I've returned from linux.conf.au, I'm starting to
+organize the 3.20 queue.  I've merged this branch into my virtio-next
+branch.
 
-lrwxrwxrwx. 1 root root 0 Jan 16 14:15 virtio0
--> ../../../devices/pci0000:00/0000:00:0b.0/virtio0
-
-lspci:
-
-00:09.0 Ethernet controller: Red Hat, Inc Virtio network device
-00:0a.0 Communication controller: Red Hat, Inc Virtio console
-00:0b.0 Unclassified device [00ff]: Red Hat, Inc Virtio memory balloon
-
-net + serial are missing ...
-
-I'm running 3.19-rc4 with this series applied in the guest, maybe I need
-more?
-
-On the qemu side it is your virtio-1.0 branch from yesterday, rebased to
-master.
-
-cheers,
-  Gerd
+Cheers,
+Rusty.
