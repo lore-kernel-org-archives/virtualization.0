@@ -1,18 +1,20 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v3 00/16] virtio-pci: towards virtio 1.0 guest support
-Date: Tue, 20 Jan 2015 18:32:56 +0200
-Message-ID: <20150120163256.GA1785@redhat.com>
+Date: Tue, 20 Jan 2015 18:38:00 +0200
+Message-ID: <20150120163800.GB1785@redhat.com>
 References: <1421256142-11512-1-git-send-email-mst@redhat.com>
 	<1421356698.3933.18.camel@nilsson.home.kraxel.org>
 	<20150115213256.GA4813@redhat.com>
 	<1421397146.21318.16.camel@nilsson.home.kraxel.org>
-	<1421665620.3610.13.camel@nilsson.home.kraxel.org>
+	<20150116084541.GA29204@redhat.com>
+	<1421414833.21318.67.camel@nilsson.home.kraxel.org>
+	<1421664883.3610.1.camel@nilsson.home.kraxel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1421665620.3610.13.camel@nilsson.home.kraxel.org>
+In-Reply-To: <1421664883.3610.1.camel@nilsson.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,28 +28,33 @@ To: Gerd Hoffmann <kraxel@redhat.com>
 Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 19, 2015 at 12:07:00PM +0100, Gerd Hoffmann wrote:
+On Mon, Jan 19, 2015 at 11:54:43AM +0100, Gerd Hoffmann wrote:
 >   Hi,
 > 
-> > BTW: is there a tool (or pciutils patch) which can decode the virtio
-> > capabilities?
+> > I'm running 3.19-rc4 with this series applied in the guest, maybe I need
+> > more?
 > 
-> Searched for a patch today, and all google found me was this mail asking
-> for one :-o
+> Tried your vhost branch, rebased to 3.19-rc5 -- same result.  Hmm.
 > 
-> So I went ahead and coded one up.  Attached.
+> cheers,
+>   Gerd
 > 
-> While hacking it up I've noticed spec doesn't match reality.  The
-> "Virtio Structure PCI Capabilities" section here ...
-> 
-> http://docs.oasis-open.org/virtio/virtio/v1.0/cs01/virtio-v1.0-cs01.html#x1-690004
-> 
-> ... doesn't match what qemu is doing.  Huh?
 
-Thanks a lot for the report, and the tool!
-I sent patches to fix this all up.
-You can try my qemu and linux virtio-net branches now,
-they should be spec compliant.
+Yes, it was all completely broken.
+Looks like after making what looked like cosmetic changes, I run legacy
+driver on new qemu and new driver on legacy qemu, but never new driver
+on new qemu.
+
+And sure enough, the "cosmetic" change inverted the logic testing probe
+routine for success.
+
+Sorry about that :(
+
+I now posted fixed up patches: seem to work with net and block for me.
+
+The easiest way to get the is probably from my git trees.
+
+Thanks a lot for the reports!
 
 -- 
 MST
