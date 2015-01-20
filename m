@@ -1,14 +1,15 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH RFC v6 06/20] virtio: endianness checks for virtio 1.0
-	devices
-Date: Tue, 20 Jan 2015 10:29:36 +0000
-Message-ID: <20150120102936.GE17631@stefanha-thinkpad.redhat.com>
-References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1418304322-7546-7-git-send-email-cornelia.huck@de.ibm.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH v3 04/16] virtio/console: verify device has config space
+Date: Tue, 20 Jan 2015 16:10:40 +0530
+Message-ID: <20150120104040.GJ31174@grmbl.mre>
+References: <1421256142-11512-1-git-send-email-mst@redhat.com>
+	<1421256142-11512-5-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============9085001427517258032=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1418304322-7546-7-git-send-email-cornelia.huck@de.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <1421256142-11512-5-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,61 +19,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: thuth@linux.vnet.ibm.com, mst@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On (Wed) 14 Jan 2015 [19:27:35], Michael S. Tsirkin wrote:
+> Some devices might not implement config space access
+> (e.g. remoteproc used not to - before 3.9).
+> virtio/console needs config space access so make it
+> fail gracefully if not there.
 
---===============9085001427517258032==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ILuaRSyQpoVaJ1HG"
-Content-Disposition: inline
+Do we know any such devices?  Wondering what prompted this patch.  If
+it's just theoretical, I'd rather let it be like this, and pull this
+in when there's a device that doesn't have config space.
+
+Also, just the console functionality (i.e. F_MULTIPORT is unset) is
+available w/o config space access.  In fact, getting this patch in
+would mean remoteproc wouldn't even run in its pre-config days...
+
+> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> index de03df9..26afb56 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -1986,6 +1986,12 @@ static int virtcons_probe(struct virtio_device *vdev)
+>  	bool multiport;
+>  	bool early = early_put_chars != NULL;
+>  
+> +	if (!vdev->config->get) {
+> +		dev_err(&vdev->dev, "%s failure: config access disabled\n",
+> +			__func__);
+> +		return -EINVAL;
+> +	}
+> +
 
 
---ILuaRSyQpoVaJ1HG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Dec 11, 2014 at 02:25:08PM +0100, Cornelia Huck wrote:
-> Add code that checks for the VERSION_1 feature bit in order to make
-> decisions about the device's endianness. This allows us to support
-> transitional devices.
->=20
-> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> ---
->  hw/virtio/virtio.c                |    6 +++++-
->  include/hw/virtio/virtio-access.h |    4 ++++
->  include/hw/virtio/virtio.h        |    8 ++++++--
->  3 files changed, 15 insertions(+), 3 deletions(-)
-
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---ILuaRSyQpoVaJ1HG
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQEcBAEBAgAGBQJUvi4QAAoJEJykq7OBq3PIr3sIALLQ3jbtwstqpuPwthP71iES
-GJD5gikU7eIkQyTwOfeawRPhdaYz2ZgMH7cwtjIwrDpAxbfyegL61jfRj5TqCn4O
-iO4PXVS9Tf7qA0kNSk3WZCzeHBuXxb37vnWxdLEF/LuwcbR2VnQTJsXBFACCqqiJ
-APAkeVRiCZLBX3/Pih5vuyKOE8/LXPGt8gb958+7GjojpklImQElf87jHEnoXmHM
-j99jf3zKeG0kfr84E/OTeMS+ONS1k7XLCMMBZwijYizkgAxpL5sn1tKhicZdm75I
-VCHg8O0nmAKYMeZGrs+FphhRFoYiNyC03wUDNsSx/l5aQwPXR3JAcQ2uron02d0=
-=41ob
------END PGP SIGNATURE-----
-
---ILuaRSyQpoVaJ1HG--
-
---===============9085001427517258032==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============9085001427517258032==--
+		Amit
