@@ -1,16 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 04/16] virtio/console: verify device has config space
-Date: Tue, 20 Jan 2015 13:09:55 +0200
-Message-ID: <20150120110955.GF26442@redhat.com>
-References: <1421256142-11512-1-git-send-email-mst@redhat.com>
-	<1421256142-11512-5-git-send-email-mst@redhat.com>
-	<20150120104040.GJ31174@grmbl.mre>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH RFC v6 12/20] virtio: disallow late feature changes for
+	virtio-1
+Date: Tue, 20 Jan 2015 11:14:21 +0000
+Message-ID: <20150120111421.GK17631@stefanha-thinkpad.redhat.com>
+References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
+	<1418304322-7546-13-git-send-email-cornelia.huck@de.ibm.com>
+	<20141212115538.2aa96fd2@oc7435384737.ibm.com>
+	<20141212121825.6c09af4d.cornelia.huck@de.ibm.com>
+	<20141212122547.511baafd@oc7435384737.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============6222054341006445628=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20150120104040.GJ31174@grmbl.mre>
+In-Reply-To: <20141212122547.511baafd@oc7435384737.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,55 +21,103 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Thomas Huth <thuth@linux.vnet.ibm.com>
+Cc: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 20, 2015 at 04:10:40PM +0530, Amit Shah wrote:
-> On (Wed) 14 Jan 2015 [19:27:35], Michael S. Tsirkin wrote:
-> > Some devices might not implement config space access
-> > (e.g. remoteproc used not to - before 3.9).
-> > virtio/console needs config space access so make it
-> > fail gracefully if not there.
-> 
-> Do we know any such devices?  Wondering what prompted this patch.  If
-> it's just theoretical, I'd rather let it be like this, and pull this
-> in when there's a device that doesn't have config space.
 
-Yes, with virtio 1.0 config space can be in a separate BAR now.  If
-that's not enabled by BIOS (e.g. out of space), we won't have config
-space.
-
-> Also, just the console functionality (i.e. F_MULTIPORT is unset) is
-> available w/o config space access.
-
-Supporting this by gracefully disabling F_MULTIPORT
-would require getting this info from driver before
-features are finalized.
-Alternatively, check F_MULTIPORT and only fail if set?
-Let me know, I'll cook up a patch.
-
-> In fact, getting this patch in
-> would mean remoteproc wouldn't even run in its pre-config days...
-
-It seems to have get callback unconditionally now - or did I miss
-something?
+--===============6222054341006445628==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Cy+5HEalSgyXkpVS"
+Content-Disposition: inline
 
 
-> > diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> > index de03df9..26afb56 100644
-> > --- a/drivers/char/virtio_console.c
-> > +++ b/drivers/char/virtio_console.c
-> > @@ -1986,6 +1986,12 @@ static int virtcons_probe(struct virtio_device *vdev)
-> >  	bool multiport;
-> >  	bool early = early_put_chars != NULL;
-> >  
-> > +	if (!vdev->config->get) {
-> > +		dev_err(&vdev->dev, "%s failure: config access disabled\n",
-> > +			__func__);
-> > +		return -EINVAL;
-> > +	}
-> > +
-> 
-> 
-> 		Amit
+--Cy+5HEalSgyXkpVS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Dec 12, 2014 at 12:25:47PM +0100, Thomas Huth wrote:
+> On Fri, 12 Dec 2014 12:18:25 +0100
+> Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
+>=20
+> > On Fri, 12 Dec 2014 11:55:38 +0100
+> > Thomas Huth <thuth@linux.vnet.ibm.com> wrote:
+> >=20
+> > > On Thu, 11 Dec 2014 14:25:14 +0100
+> > > Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
+> > >=20
+> > > > For virtio-1 devices, the driver must not attempt to set feature bi=
+ts
+> > > > after it set FEATURES_OK in the device status. Simply reject it in
+> > > > that case.
+> > > >=20
+> > > > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> > > > ---
+> > > >  hw/virtio/virtio.c         |   16 ++++++++++++++--
+> > > >  include/hw/virtio/virtio.h |    2 ++
+> > > >  2 files changed, 16 insertions(+), 2 deletions(-)
+> > > >=20
+> > > > diff --git a/hw/virtio/virtio.c b/hw/virtio/virtio.c
+> > > > index 57190ba..a3dd67b 100644
+> > > > --- a/hw/virtio/virtio.c
+> > > > +++ b/hw/virtio/virtio.c
+> > > > @@ -978,7 +978,7 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *=
+f)
+> > > >      vmstate_save_state(f, &vmstate_virtio, vdev);
+> > > >  }
+> > > >=20
+> > > > -int virtio_set_features(VirtIODevice *vdev, uint64_t val)
+> > > > +static int __virtio_set_features(VirtIODevice *vdev, uint64_t val)
+> > >=20
+> > > Maybe avoid the double underscores here? But unfortunately, I also fa=
+il
+> > > to come up with a better suggestion for a name here ...
+> >=20
+> > virtio_set_features_nocheck()?
+>=20
+> Sounds ok to me.
+>=20
+> > This function is only called within virtio.c anyway...
+>=20
+> Right, so the double underscores should be ok here, too. (I still do
+> not like them very much, but that's just my personal taste in this case)
+
+C99 "7.1.3 Reserved identifiers" says:
+
+  All identifiers that begin with an underscore and either an uppercase
+  letter or another underscore are always reserved for any use
+
+[by the standard library]
+
+You can use a trailing underscore or useless word like "do", e.g.
+virtio_do_set_features(), for internal functions.
+
+--Cy+5HEalSgyXkpVS
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQEcBAEBAgAGBQJUvjiNAAoJEJykq7OBq3PIs3YH/3B0hKswuZVJqEhHDmRegdQs
+R/JXgdhlqxLma5BMdW25Y0CP3EDUPIicS8twn8xG6XpCpOr8bk9lIExNV4R4VVtR
+bZh2XXxMCUwgbjWusXTHfMciMLXAKPexn/oDHt5QIPfx75QnI3RLCoNfwlYJy2VA
+6lsG3wrVy+skZgCXrX4sKKLoexlIPqyGSOCOENG3B75wEJjxym31EcaYZeprsrMY
+oXXwjCXy0QyHfVRX6C0FtziEJnwgcEi1oHpbjGbr4mhrZq5l0l187XSeMNGt59Ki
+bE4BVVSVir+XpJkKij9K0YLsyske5KTFOXBug85rXsHwNE8NozECamYdCTgCGws=
+=sL9I
+-----END PGP SIGNATURE-----
+
+--Cy+5HEalSgyXkpVS--
+
+--===============6222054341006445628==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6222054341006445628==--
