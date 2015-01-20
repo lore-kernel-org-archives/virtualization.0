@@ -1,14 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2] virtio-mmio: Update the device to OASIS spec version
-Date: Tue, 20 Jan 2015 20:33:52 +0200
-Message-ID: <20150120183352.GA3413@redhat.com>
-References: <1421777531-15180-1-git-send-email-pawel.moll@arm.com>
+From: Waiman Long <Waiman.Long@hp.com>
+Subject: [PATCH v14 00/11] qspinlock: a 4-byte queue spinlock with PV support
+Date: Tue, 20 Jan 2015 15:12:24 -0500
+Message-ID: <1421784755-21945-1-git-send-email-Waiman.Long__31538.9074887664$1421784787$gmane$org@hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1421777531-15180-1-git-send-email-pawel.moll@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,359 +15,197 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pawel Moll <pawel.moll@arm.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>
+Cc: linux-arch@vger.kernel.org, Waiman Long <Waiman.Long@hp.com>, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Vrabel <david.vrabel@citrix.com>, Oleg Nesterov <oleg@redhat.com>, xen-devel@lists.xenproject.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Douglas Hatch <doug.hatch@hp.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 20, 2015 at 06:12:11PM +0000, Pawel Moll wrote:
-> This patch add a support for second version of the virtio-mmio device,
-> which follows OASIS "Virtual I/O Device (VIRTIO) Version 1.0"
-> specification.
-> 
-> Main changes:
-> 
-> 1. The control register symbolic names use the new device/driver
->    nomenclature rather than the old guest/host one.
-> 
-> 2. The driver detect the device version (version 1 is the pre-OASIS
->    spec, version 2 is compatible with fist revision of the OASIS spec)
->    and drives the device accordingly.
-> 
-> 3. New version uses direct addressing (64 bit address split into two
->    low/high register) instead of the guest page size based one,
->    and addresses each part of the queue (descriptors, available, used)
->    separately.
-> 
-> 4. The device activity is now explicitly triggered by writing to the
->    "queue ready" register.
-> 
-> 5. Whole 64 bit features are properly handled now (both ways).
-> 
-> Signed-off-by: Pawel Moll <pawel.moll@arm.com>
+v13->v14:
+ - Patches 1 & 2: Add queue_spin_unlock_wait() to accommodate commit
+   78bff1c86 from Oleg Nesterov.
+ - Fix the system hang problem when using PV qspinlock in an
+   over-committed guest due to a racing condition in the
+   pv_set_head_in_tail() function.
+ - Increase the MAYHALT_THRESHOLD from 10 to 1024.
+ - Change kick_cpu into a regular function pointer instead of a
+   callee-saved function.
+ - Change lock statistics code to use separate bits for different
+   statistics.
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+v12->v13:
+ - Change patch 9 to generate separate versions of the
+   queue_spin_lock_slowpath functions for bare metal and PV guest. This
+   reduces the performance impact of the PV code on bare metal systems.
 
-> ---
->  drivers/virtio/virtio_mmio.c | 131 ++++++++++++++++++++++++++-----------------
->  include/linux/virtio_mmio.h  |  44 ++++++++++++---
->  2 files changed, 118 insertions(+), 57 deletions(-)
-> 
-> Tested with our custom models (*not* qemu).
-> 
-> Changes from v1:
-> 
-> * added legacy/modern checks in probe and finalize_features.
-> 
-> Changes from RFC:
-> 
-> * removed the "version" sysfs attribute at its usablity  was questioned
-> * added #ifndefs allowing to disable legacy register names in the header
-> * started using handy virtqueue_get_used/avail() functions instead of
->   doing all the calculations manually
-> * ID 0 special handled by returning -ENODEV instead of 0 - still prints
->   no error (unless you've got DEBUG for drivers/base), but doesn't
->   actually bind the device
-> 
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index 00d115b..cad5698 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -1,7 +1,7 @@
->  /*
->   * Virtio memory mapped device driver
->   *
-> - * Copyright 2011, ARM Ltd.
-> + * Copyright 2011-2014, ARM Ltd.
->   *
->   * This module allows virtio devices to be used over a virtual, memory mapped
->   * platform device.
-> @@ -50,36 +50,6 @@
->   *
->   *
->   *
-> - * Registers layout (all 32-bit wide):
-> - *
-> - * offset d. name             description
-> - * ------ -- ---------------- -----------------
-> - *
-> - * 0x000  R  MagicValue       Magic value "virt"
-> - * 0x004  R  Version          Device version (current max. 1)
-> - * 0x008  R  DeviceID         Virtio device ID
-> - * 0x00c  R  VendorID         Virtio vendor ID
-> - *
-> - * 0x010  R  HostFeatures     Features supported by the host
-> - * 0x014  W  HostFeaturesSel  Set of host features to access via HostFeatures
-> - *
-> - * 0x020  W  GuestFeatures    Features activated by the guest
-> - * 0x024  W  GuestFeaturesSel Set of activated features to set via GuestFeatures
-> - * 0x028  W  GuestPageSize    Size of guest's memory page in bytes
-> - *
-> - * 0x030  W  QueueSel         Queue selector
-> - * 0x034  R  QueueNumMax      Maximum size of the currently selected queue
-> - * 0x038  W  QueueNum         Queue size for the currently selected queue
-> - * 0x03c  W  QueueAlign       Used Ring alignment for the current queue
-> - * 0x040  RW QueuePFN         PFN for the currently selected queue
-> - *
-> - * 0x050  W  QueueNotify      Queue notifier
-> - * 0x060  R  InterruptStatus  Interrupt status register
-> - * 0x064  W  InterruptACK     Interrupt acknowledge register
-> - * 0x070  RW Status           Device status register
-> - *
-> - * 0x100+ RW                  Device-specific configuration space
-> - *
->   * Based on Virtio PCI driver by Anthony Liguori, copyright IBM Corp. 2007
->   *
->   * This work is licensed under the terms of the GNU GPL, version 2 or later.
-> @@ -145,11 +115,16 @@ struct virtio_mmio_vq_info {
->  static u64 vm_get_features(struct virtio_device *vdev)
->  {
->  	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-> +	u64 features;
-> +
-> +	writel(1, vm_dev->base + VIRTIO_MMIO_DEVICE_FEATURES_SEL);
-> +	features = readl(vm_dev->base + VIRTIO_MMIO_DEVICE_FEATURES);
-> +	features <<= 32;
->  
-> -	/* TODO: Features > 32 bits */
-> -	writel(0, vm_dev->base + VIRTIO_MMIO_HOST_FEATURES_SEL);
-> +	writel(0, vm_dev->base + VIRTIO_MMIO_DEVICE_FEATURES_SEL);
-> +	features |= readl(vm_dev->base + VIRTIO_MMIO_DEVICE_FEATURES);
->  
-> -	return readl(vm_dev->base + VIRTIO_MMIO_HOST_FEATURES);
-> +	return features;
->  }
->  
->  static int vm_finalize_features(struct virtio_device *vdev)
-> @@ -159,11 +134,20 @@ static int vm_finalize_features(struct virtio_device *vdev)
->  	/* Give virtio_ring a chance to accept features. */
->  	vring_transport_features(vdev);
->  
-> -	/* Make sure we don't have any features > 32 bits! */
-> -	BUG_ON((u32)vdev->features != vdev->features);
-> +	/* Make sure there is are no mixed devices */
-> +	if (vm_dev->version == 2 &&
-> +			!__virtio_test_bit(vdev, VIRTIO_F_VERSION_1)) {
-> +		dev_err(&vdev->dev, "New virtio-mmio devices (version 2) must provide VIRTIO_F_VERSION_1 feature!\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	writel(1, vm_dev->base + VIRTIO_MMIO_DRIVER_FEATURES_SEL);
-> +	writel((u32)(vdev->features >> 32),
-> +			vm_dev->base + VIRTIO_MMIO_DRIVER_FEATURES);
->  
-> -	writel(0, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES_SEL);
-> -	writel(vdev->features, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES);
-> +	writel(0, vm_dev->base + VIRTIO_MMIO_DRIVER_FEATURES_SEL);
-> +	writel((u32)vdev->features,
-> +			vm_dev->base + VIRTIO_MMIO_DRIVER_FEATURES);
->  
->  	return 0;
->  }
-> @@ -275,7 +259,12 @@ static void vm_del_vq(struct virtqueue *vq)
->  
->  	/* Select and deactivate the queue */
->  	writel(index, vm_dev->base + VIRTIO_MMIO_QUEUE_SEL);
-> -	writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
-> +	if (vm_dev->version == 1) {
-> +		writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
-> +	} else {
-> +		writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
-> +		WARN_ON(readl(vm_dev->base + VIRTIO_MMIO_QUEUE_READY));
-> +	}
->  
->  	size = PAGE_ALIGN(vring_size(info->num, VIRTIO_MMIO_VRING_ALIGN));
->  	free_pages_exact(info->queue, size);
-> @@ -312,7 +301,8 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
->  	writel(index, vm_dev->base + VIRTIO_MMIO_QUEUE_SEL);
->  
->  	/* Queue shouldn't already be set up. */
-> -	if (readl(vm_dev->base + VIRTIO_MMIO_QUEUE_PFN)) {
-> +	if (readl(vm_dev->base + (vm_dev->version == 1 ?
-> +			VIRTIO_MMIO_QUEUE_PFN : VIRTIO_MMIO_QUEUE_READY))) {
->  		err = -ENOENT;
->  		goto error_available;
->  	}
-> @@ -356,13 +346,6 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
->  		info->num /= 2;
->  	}
->  
-> -	/* Activate the queue */
-> -	writel(info->num, vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
-> -	writel(VIRTIO_MMIO_VRING_ALIGN,
-> -			vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
-> -	writel(virt_to_phys(info->queue) >> PAGE_SHIFT,
-> -			vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
-> -
->  	/* Create the vring */
->  	vq = vring_new_virtqueue(index, info->num, VIRTIO_MMIO_VRING_ALIGN, vdev,
->  				 true, info->queue, vm_notify, callback, name);
-> @@ -371,6 +354,33 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
->  		goto error_new_virtqueue;
->  	}
->  
-> +	/* Activate the queue */
-> +	writel(info->num, vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
-> +	if (vm_dev->version == 1) {
-> +		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
-> +		writel(virt_to_phys(info->queue) >> PAGE_SHIFT,
-> +				vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
-> +	} else {
-> +		u64 addr;
-> +
-> +		addr = virt_to_phys(info->queue);
-> +		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_LOW);
-> +		writel((u32)(addr >> 32),
-> +				vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_HIGH);
-> +
-> +		addr = virt_to_phys(virtqueue_get_avail(vq));
-> +		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_LOW);
-> +		writel((u32)(addr >> 32),
-> +				vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_HIGH);
-> +
-> +		addr = virt_to_phys(virtqueue_get_used(vq));
-> +		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_USED_LOW);
-> +		writel((u32)(addr >> 32),
-> +				vm_dev->base + VIRTIO_MMIO_QUEUE_USED_HIGH);
-> +
-> +		writel(1, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
-> +	}
-> +
->  	vq->priv = info;
->  	info->vq = vq;
->  
-> @@ -381,7 +391,12 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
->  	return vq;
->  
->  error_new_virtqueue:
-> -	writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
-> +	if (vm_dev->version == 1) {
-> +		writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
-> +	} else {
-> +		writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
-> +		WARN_ON(readl(vm_dev->base + VIRTIO_MMIO_QUEUE_READY));
-> +	}
->  	free_pages_exact(info->queue, size);
->  error_alloc_pages:
->  	kfree(info);
-> @@ -476,16 +491,32 @@ static int virtio_mmio_probe(struct platform_device *pdev)
->  
->  	/* Check device version */
->  	vm_dev->version = readl(vm_dev->base + VIRTIO_MMIO_VERSION);
-> -	if (vm_dev->version != 1) {
-> +	if (vm_dev->version < 1 || vm_dev->version > 2) {
->  		dev_err(&pdev->dev, "Version %ld not supported!\n",
->  				vm_dev->version);
->  		return -ENXIO;
->  	}
->  
->  	vm_dev->vdev.id.device = readl(vm_dev->base + VIRTIO_MMIO_DEVICE_ID);
-> +	if (vm_dev->vdev.id.device == 0) {
-> +		/*
-> +		 * virtio-mmio device with an ID 0 is a (dummy) placeholder
-> +		 * with no function. End probing now with no error reported.
-> +		 */
-> +		return -ENODEV;
-> +	}
->  	vm_dev->vdev.id.vendor = readl(vm_dev->base + VIRTIO_MMIO_VENDOR_ID);
->  
-> -	writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
-> +	/* Reject legacy-only IDs for version 2 devices */
-> +	if (vm_dev->version == 2 &&
-> +			virtio_device_is_legacy_only(vm_dev->vdev.id)) {
-> +		dev_err(&pdev->dev, "Version 2 not supported for devices %u!\n",
-> +				vm_dev->vdev.id.device);
-> +		return -ENODEV;
-> +	}
-> +
-> +	if (vm_dev->version == 1)
-> +		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
->  
->  	platform_set_drvdata(pdev, vm_dev);
->  
-> diff --git a/include/linux/virtio_mmio.h b/include/linux/virtio_mmio.h
-> index 5c7b6f0..c4b0968 100644
-> --- a/include/linux/virtio_mmio.h
-> +++ b/include/linux/virtio_mmio.h
-> @@ -51,23 +51,29 @@
->  /* Virtio vendor ID - Read Only */
->  #define VIRTIO_MMIO_VENDOR_ID		0x00c
->  
-> -/* Bitmask of the features supported by the host
-> +/* Bitmask of the features supported by the device (host)
->   * (32 bits per set) - Read Only */
-> -#define VIRTIO_MMIO_HOST_FEATURES	0x010
-> +#define VIRTIO_MMIO_DEVICE_FEATURES	0x010
->  
-> -/* Host features set selector - Write Only */
-> -#define VIRTIO_MMIO_HOST_FEATURES_SEL	0x014
-> +/* Device (host) features set selector - Write Only */
-> +#define VIRTIO_MMIO_DEVICE_FEATURES_SEL	0x014
->  
-> -/* Bitmask of features activated by the guest
-> +/* Bitmask of features activated by the driver (guest)
->   * (32 bits per set) - Write Only */
-> -#define VIRTIO_MMIO_GUEST_FEATURES	0x020
-> +#define VIRTIO_MMIO_DRIVER_FEATURES	0x020
->  
->  /* Activated features set selector - Write Only */
-> -#define VIRTIO_MMIO_GUEST_FEATURES_SEL	0x024
-> +#define VIRTIO_MMIO_DRIVER_FEATURES_SEL	0x024
-> +
-> +
-> +#ifndef VIRTIO_MMIO_NO_LEGACY /* LEGACY DEVICES ONLY! */
->  
->  /* Guest's memory page size in bytes - Write Only */
->  #define VIRTIO_MMIO_GUEST_PAGE_SIZE	0x028
->  
-> +#endif
-> +
-> +
->  /* Queue selector - Write Only */
->  #define VIRTIO_MMIO_QUEUE_SEL		0x030
->  
-> @@ -77,12 +83,21 @@
->  /* Queue size for the currently selected queue - Write Only */
->  #define VIRTIO_MMIO_QUEUE_NUM		0x038
->  
-> +
-> +#ifndef VIRTIO_MMIO_NO_LEGACY /* LEGACY DEVICES ONLY! */
-> +
->  /* Used Ring alignment for the currently selected queue - Write Only */
->  #define VIRTIO_MMIO_QUEUE_ALIGN		0x03c
->  
->  /* Guest's PFN for the currently selected queue - Read Write */
->  #define VIRTIO_MMIO_QUEUE_PFN		0x040
->  
-> +#endif
-> +
-> +
-> +/* Ready bit for the currently selected queue - Read Write */
-> +#define VIRTIO_MMIO_QUEUE_READY		0x044
-> +
->  /* Queue notifier - Write Only */
->  #define VIRTIO_MMIO_QUEUE_NOTIFY	0x050
->  
-> @@ -95,6 +110,21 @@
->  /* Device status register - Read Write */
->  #define VIRTIO_MMIO_STATUS		0x070
->  
-> +/* Selected queue's Descriptor Table address, 64 bits in two halves */
-> +#define VIRTIO_MMIO_QUEUE_DESC_LOW	0x080
-> +#define VIRTIO_MMIO_QUEUE_DESC_HIGH	0x084
-> +
-> +/* Selected queue's Available Ring address, 64 bits in two halves */
-> +#define VIRTIO_MMIO_QUEUE_AVAIL_LOW	0x090
-> +#define VIRTIO_MMIO_QUEUE_AVAIL_HIGH	0x094
-> +
-> +/* Selected queue's Used Ring address, 64 bits in two halves */
-> +#define VIRTIO_MMIO_QUEUE_USED_LOW	0x0a0
-> +#define VIRTIO_MMIO_QUEUE_USED_HIGH	0x0a4
-> +
-> +/* Configuration atomicity value */
-> +#define VIRTIO_MMIO_CONFIG_GENERATION	0x0fc
-> +
->  /* The config space is defined by each driver as
->   * the per-driver configuration space - Read Write */
->  #define VIRTIO_MMIO_CONFIG		0x100
-> -- 
-> 2.1.0
+v11->v12:
+ - Based on PeterZ's version of the qspinlock patch
+   (https://lkml.org/lkml/2014/6/15/63).
+ - Incorporated many of the review comments from Konrad Wilk and
+   Paolo Bonzini.
+ - The pvqspinlock code is largely from my previous version with
+   PeterZ's way of going from queue tail to head and his idea of
+   using callee saved calls to KVM and XEN codes.
+
+v10->v11:
+  - Use a simple test-and-set unfair lock to simplify the code,
+    but performance may suffer a bit for large guest with many CPUs.
+  - Take out Raghavendra KT's test results as the unfair lock changes
+    may render some of his results invalid.
+  - Add PV support without increasing the size of the core queue node
+    structure.
+  - Other minor changes to address some of the feedback comments.
+
+v9->v10:
+  - Make some minor changes to qspinlock.c to accommodate review feedback.
+  - Change author to PeterZ for 2 of the patches.
+  - Include Raghavendra KT's test results in patch 18.
+
+v8->v9:
+  - Integrate PeterZ's version of the queue spinlock patch with some
+    modification:
+    http://lkml.kernel.org/r/20140310154236.038181843@infradead.org
+  - Break the more complex patches into smaller ones to ease review effort.
+  - Fix a racing condition in the PV qspinlock code.
+
+v7->v8:
+  - Remove one unneeded atomic operation from the slowpath, thus
+    improving performance.
+  - Simplify some of the codes and add more comments.
+  - Test for X86_FEATURE_HYPERVISOR CPU feature bit to enable/disable
+    unfair lock.
+  - Reduce unfair lock slowpath lock stealing frequency depending
+    on its distance from the queue head.
+  - Add performance data for IvyBridge-EX CPU.
+
+v6->v7:
+  - Remove an atomic operation from the 2-task contending code
+  - Shorten the names of some macros
+  - Make the queue waiter to attempt to steal lock when unfair lock is
+    enabled.
+  - Remove lock holder kick from the PV code and fix a race condition
+  - Run the unfair lock & PV code on overcommitted KVM guests to collect
+    performance data.
+
+v5->v6:
+ - Change the optimized 2-task contending code to make it fairer at the
+   expense of a bit of performance.
+ - Add a patch to support unfair queue spinlock for Xen.
+ - Modify the PV qspinlock code to follow what was done in the PV
+   ticketlock.
+ - Add performance data for the unfair lock as well as the PV
+   support code.
+
+v4->v5:
+ - Move the optimized 2-task contending code to the generic file to
+   enable more architectures to use it without code duplication.
+ - Address some of the style-related comments by PeterZ.
+ - Allow the use of unfair queue spinlock in a real para-virtualized
+   execution environment.
+ - Add para-virtualization support to the qspinlock code by ensuring
+   that the lock holder and queue head stay alive as much as possible.
+
+v3->v4:
+ - Remove debugging code and fix a configuration error
+ - Simplify the qspinlock structure and streamline the code to make it
+   perform a bit better
+ - Add an x86 version of asm/qspinlock.h for holding x86 specific
+   optimization.
+ - Add an optimized x86 code path for 2 contending tasks to improve
+   low contention performance.
+
+v2->v3:
+ - Simplify the code by using numerous mode only without an unfair option.
+ - Use the latest smp_load_acquire()/smp_store_release() barriers.
+ - Move the queue spinlock code to kernel/locking.
+ - Make the use of queue spinlock the default for x86-64 without user
+   configuration.
+ - Additional performance tuning.
+
+v1->v2:
+ - Add some more comments to document what the code does.
+ - Add a numerous CPU mode to support >= 16K CPUs
+ - Add a configuration option to allow lock stealing which can further
+   improve performance in many cases.
+ - Enable wakeup of queue head CPU at unlock time for non-numerous
+   CPU mode.
+
+This patch set has 3 different sections:
+ 1) Patches 1-6: Introduces a queue-based spinlock implementation that
+    can replace the default ticket spinlock without increasing the
+    size of the spinlock data structure. As a result, critical kernel
+    data structures that embed spinlock won't increase in size and
+    break data alignments.
+ 2) Patch 7: Enables the use of unfair lock in a virtual guest. This
+    can resolve some of the locking related performance issues due to
+    halting the waiting CPUs after spinning for a certain amount of
+    time. The unlock code will detect the a sleeping waiter and wake it
+    up. This is essentially the same logic as the PV ticketlock code.
+ 3) Patches 8-11: Add paravirtualization spinlock support. This
+    is needed as paravirt spinlock was enabled by default on
+    distribution like RHEL 7.
+
+The queue spinlock has slightly better performance than the ticket
+spinlock in uncontended case. Its performance can be much better
+with moderate to heavy contention.  This patch has the potential of
+however, will not be able to support TSX.
+
+The queue spinlock is especially suitable for NUMA machines with
+at least 2 sockets. Though even at the 2-socket level, there can
+be significant speedup depending on the workload. I got report that
+the queue spinlock patch can improve the performance of an I/O and
+interrupt intensive stress test with a lot of spinlock contention on
+a 2-socket system by up to 20%.
+
+The purpose of this patch set is not to solve any particular spinlock
+contention problems. Those need to be solved by refactoring the code
+to make more efficient use of the lock or finer granularity ones. The
+main purpose is to make the lock contention problems more tolerable
+until someone can spend the time and effort to fix them.
+
+There had been discussions about using the call site patching mechanism
+to patch out the PV unlock code to the simple non-PV unlock code in
+x86. The code ran fine in bare-metal systems. However, it was found
+that this didn't work with PV guest as it seemed like some lock
+and unlock calls were invoked before the PV spinlock initialization
+code was run. As a result, there is no easy way to figure out if the
+unlock code should be patched in those cases. Various kinds of system
+panics happened.  Further study needs to done to figure out a way to
+work around that. For the time being, unlock call site patching will
+not be part of this patch series.
+
+Peter Zijlstra (3):
+  qspinlock: Add pending bit
+  qspinlock: Optimize for smaller NR_CPUS
+  qspinlock: Revert to test-and-set on hypervisors
+
+Waiman Long (8):
+  qspinlock: A simple generic 4-byte queue spinlock
+  qspinlock, x86: Enable x86-64 to use queue spinlock
+  qspinlock: Extract out code snippets for the next patch
+  qspinlock: Use a simple write to grab the lock
+  qspinlock, x86: Rename paravirt_ticketlocks_enabled
+  pvqspinlock, x86: Add para-virtualization support
+  pvqspinlock, x86: Enable PV qspinlock for KVM
+  pvqspinlock, x86: Enable PV qspinlock for XEN
+
+ arch/x86/Kconfig                      |    1 +
+ arch/x86/include/asm/paravirt.h       |   22 ++
+ arch/x86/include/asm/paravirt_types.h |   27 ++
+ arch/x86/include/asm/pvqspinlock.h    |  426 +++++++++++++++++++++++++++++
+ arch/x86/include/asm/qspinlock.h      |  104 +++++++
+ arch/x86/include/asm/spinlock.h       |    9 +-
+ arch/x86/include/asm/spinlock_types.h |    4 +
+ arch/x86/kernel/kvm.c                 |  145 ++++++++++-
+ arch/x86/kernel/paravirt-spinlocks.c  |   10 +-
+ arch/x86/xen/spinlock.c               |  151 ++++++++++-
+ include/asm-generic/qspinlock.h       |  141 ++++++++++
+ include/asm-generic/qspinlock_types.h |   79 ++++++
+ kernel/Kconfig.locks                  |    7 +
+ kernel/locking/Makefile               |    1 +
+ kernel/locking/mcs_spinlock.h         |    1 +
+ kernel/locking/qspinlock.c            |  474 +++++++++++++++++++++++++++++++++
+ 16 files changed, 1590 insertions(+), 12 deletions(-)
+ create mode 100644 arch/x86/include/asm/pvqspinlock.h
+ create mode 100644 arch/x86/include/asm/qspinlock.h
+ create mode 100644 include/asm-generic/qspinlock.h
+ create mode 100644 include/asm-generic/qspinlock_types.h
+ create mode 100644 kernel/locking/qspinlock.c
