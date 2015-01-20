@@ -1,14 +1,14 @@
 From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH RFC v6 11/20] s390x/virtio-ccw: support virtio-1 set_vq
-	format
-Date: Tue, 20 Jan 2015 11:06:03 +0000
-Message-ID: <20150120110603.GI17631@stefanha-thinkpad.redhat.com>
+Subject: Re: [PATCH RFC v6 10/20] s390x/virtio-ccw: add virtio set-revision
+	call
+Date: Tue, 20 Jan 2015 11:08:24 +0000
+Message-ID: <20150120110824.GJ17631@stefanha-thinkpad.redhat.com>
 References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1418304322-7546-12-git-send-email-cornelia.huck@de.ibm.com>
+	<1418304322-7546-11-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1235220879235266828=="
+Content-Type: multipart/mixed; boundary="===============5803948398617812596=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1418304322-7546-12-git-send-email-cornelia.huck@de.ibm.com>
+In-Reply-To: <1418304322-7546-11-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,50 +23,63 @@ Cc: thuth@linux.vnet.ibm.com, mst@redhat.com, qemu-devel@nongnu.org, virtualizat
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============1235220879235266828==
+--===============5803948398617812596==
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4BlIp4fARb6QCoOq"
+	protocol="application/pgp-signature"; boundary="zYo4Elh1vtcYNvbq"
 Content-Disposition: inline
 
 
---4BlIp4fARb6QCoOq
+--zYo4Elh1vtcYNvbq
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 11, 2014 at 02:25:13PM +0100, Cornelia Huck wrote:
-> Support the new CCW_CMD_SET_VQ format for virtio-1 devices.
->=20
-> While we're at it, refactor the code a bit and enforce big endian
-> fields (which had always been required, even for legacy).
->=20
-> Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
-> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> ---
->  hw/s390x/virtio-ccw.c |  114 ++++++++++++++++++++++++++++++++++---------=
-------
->  1 file changed, 80 insertions(+), 34 deletions(-)
+On Thu, Dec 11, 2014 at 02:25:12PM +0100, Cornelia Huck wrote:
+> @@ -608,6 +631,25 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
+>              }
+>          }
+>          break;
+> +    case CCW_CMD_SET_VIRTIO_REV:
+> +        len = sizeof(revinfo);
+> +        if (ccw.count < len || (check_len && ccw.count > len)) {
+> +            ret = -EINVAL;
+> +            break;
+> +        }
+> +        if (!ccw.cda) {
+> +            ret = -EFAULT;
+> +            break;
+> +        }
+> +        cpu_physical_memory_read(ccw.cda, &revinfo, len);
+> +        if (dev->revision >= 0 ||
+> +            revinfo.revision > virtio_ccw_rev_max(dev)) {
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+In the next patch virtio_ccw_handle_set_vq() uses big-endian memory
+access functions to load a struct from guest memory.
 
---4BlIp4fARb6QCoOq
+Here you just copy the struct in without byteswaps.
+
+Are the byteswaps missing here?  (I guess this normally runs big-endian
+guests on big-endian hosts so it's not noticable.)
+
+Stefan
+
+--zYo4Elh1vtcYNvbq
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQEcBAEBAgAGBQJUvjabAAoJEJykq7OBq3PIBB0H/0vooJuDbRCRHFTeFTCTAnmB
-Folf7374kAhfsBABS4+WqGHi4U2MwhIfuX2h8XgWYEPojzC+n1r6mE8V5C5Fmxwn
-iu41infnE67ImwJJkiM7Yze+BICGAFOwpgey+nTxAWGCKa9p70s4qtbEdFwTlv7I
-KRFCZBcIaVsFVw2xHbvTD8/h3F1fhaLkesPoa3Wo4K/g080QkVFpZb4usFTDTy/h
-vAFVyeUg3KkOLXNccFCA6thDJZ/at7yrvEJk0fGbCkQJarDEtPtCSP2SO4IKsqur
-v37o+DLtkGrOPfkW6l6+aO2Hwv9VNQWByN4RK+U16H4FbNMEqi07B+syiC22Qac=
-=xA1A
+iQEcBAEBAgAGBQJUvjcoAAoJEJykq7OBq3PIjQEH/2wYU05/9J/YIGi2qq1+cMA8
+whE0q/OaHMY6EUIBfPZwf7uHRtEgE4gN6feCrwvRlZufdEK2WgTIGxOD6sd9+iJi
+qwGQV5wTJK7QGHwT/C+4x730B9yeLu41YbET49SBHB/U1mFaNEN8KVOzqAlRc9mW
+pL2pNr7k1fO0zoMcxv3n7u3WI9ogsl1BLtpVFqBaQwYDocDYFk3gj08U2GRHqu8q
+qUink9Ehsdg8+ae19OF3BQQ4YiRIyyj0AHeln5Bchu6mdvAzfXljknRHguaoR8O5
+cIIINT5Mf4FJj42Sb9FxTeEaFwfR3/KVCnDB7YuYac46TtLW1W2v3W7qrqg1Qd4=
+=YCQv
 -----END PGP SIGNATURE-----
 
---4BlIp4fARb6QCoOq--
+--zYo4Elh1vtcYNvbq--
 
---===============1235220879235266828==
+--===============5803948398617812596==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -76,4 +89,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1235220879235266828==--
+--===============5803948398617812596==--
