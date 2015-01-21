@@ -1,14 +1,14 @@
-From: Martin Mares <mj@ucw.cz>
-Subject: Re: [pciutils patch] add virtio vendor capability support
-Date: Wed, 21 Jan 2015 15:57:47 +0100
-Message-ID: <mj+md-20150121.144408.23951.nikam@ucw.cz>
-References: <1421839293-4197-1-git-send-email-kraxel@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH v2] virtio-mmio: Update the device to OASIS spec version
+Date: Wed, 21 Jan 2015 16:35:12 +1030
+Message-ID: <87y4owactj.fsf@rustcorp.com.au>
+References: <1421777531-15180-1-git-send-email-pawel.moll@arm.com>
+	<20150120183352.GA3413@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1421839293-4197-1-git-send-email-kraxel@redhat.com>
+In-Reply-To: <20150120183352.GA3413@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,36 +18,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Pawel Moll <pawel.moll@arm.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello!
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> On Tue, Jan 20, 2015 at 06:12:11PM +0000, Pawel Moll wrote:
+>> This patch add a support for second version of the virtio-mmio device,
+>> which follows OASIS "Virtual I/O Device (VIRTIO) Version 1.0"
+>> specification.
 
-> virtio uses vendor-specific capabilities to specify the location of
-> the virtio register ranges.  The specification can be found here:
-> 
-> http://docs.oasis-open.org/virtio/virtio/v1.0/cs01/virtio-v1.0-cs01.html#x1-690004
-> 
-> This patch adds support for decoding these capabilities to lspci.
+OK, applied this instead :)
 
-I like the patch, except for a couple of details:
+I'll leave it in my pending queue for a few days in case there's a v3.
 
-(1) Please follow the coding style of the rest of pciutils.
-
-(2) You assume that PCI_CAP_ID_VNDR of all Redhat devices contains virtio,
-    but the comment nearby refers to a range of device IDs only.
-
-(3) Moving code related to vendor-defined caps to a separate file sounds
-    good, but I think we should push the boundary a bit further: let the
-    main switch in ls-caps.c call a function from ls-caps-vendor.c as soon
-    as it finds PCI_CAP_ID_VENDOR, leaving all decisions based on
-    vendor/device ID to this function.
-
-Could you please fix these and resubmit?
-
-				Have a nice fortnight
--- 
-Martin `MJ' Mares                          <mj@ucw.cz>   http://mj.ucw.cz/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-VI has two modes: the one in which it beeps and the one in which it doesn't.
+Thanks,
+Rusty.
