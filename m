@@ -1,18 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 04/16] virtio/console: verify device has config space
-Date: Wed, 21 Jan 2015 08:44:09 +0200
-Message-ID: <20150121064409.GA13320@redhat.com>
-References: <1421256142-11512-1-git-send-email-mst@redhat.com>
-	<1421256142-11512-5-git-send-email-mst@redhat.com>
-	<20150120104040.GJ31174@grmbl.mre>
-	<20150120110955.GF26442@redhat.com>
-	<20150121061452.GV31174@grmbl.mre>
+From: David Vrabel <david.vrabel@citrix.com>
+Subject: Re: [Xen-devel] [PATCH v14 11/11] pvqspinlock,
+	x86: Enable PV qspinlock for XEN
+Date: Wed, 21 Jan 2015 10:29:41 +0000
+Message-ID: <54BF7F95.70507@citrix.com>
+References: <1421784755-21945-1-git-send-email-Waiman.Long@hp.com>
+	<1421784755-21945-12-git-send-email-Waiman.Long@hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20150121061452.GV31174@grmbl.mre>
+In-Reply-To: <1421784755-21945-12-git-send-email-Waiman.Long@hp.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,62 +19,100 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Waiman Long <Waiman.Long@hp.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>
+Cc: linux-arch@vger.kernel.org, x86@kernel.org, kvm@vger.kernel.org, Scott J Norton <scott.norton@hp.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Vrabel <david.vrabel@citrix.com>, Oleg Nesterov <oleg@redhat.com>, xen-devel@lists.xenproject.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Douglas Hatch <doug.hatch@hp.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 21, 2015 at 11:44:52AM +0530, Amit Shah wrote:
-> On (Tue) 20 Jan 2015 [13:09:55], Michael S. Tsirkin wrote:
-> > On Tue, Jan 20, 2015 at 04:10:40PM +0530, Amit Shah wrote:
-> > > On (Wed) 14 Jan 2015 [19:27:35], Michael S. Tsirkin wrote:
-> > > > Some devices might not implement config space access
-> > > > (e.g. remoteproc used not to - before 3.9).
-> > > > virtio/console needs config space access so make it
-> > > > fail gracefully if not there.
-> > > 
-> > > Do we know any such devices?  Wondering what prompted this patch.  If
-> > > it's just theoretical, I'd rather let it be like this, and pull this
-> > > in when there's a device that doesn't have config space.
-> > 
-> > Yes, with virtio 1.0 config space can be in a separate BAR now.  If
-> > that's not enabled by BIOS (e.g. out of space), we won't have config
-> > space.
-> 
-> I'm still not sure whether we should pull in this patch before
-> actually seeing a failure.
-> 
-> You do have a dev_err which tells why the probe failed, so it's an
-> acceptable compromise I suppose.
-> 
-> > > Also, just the console functionality (i.e. F_MULTIPORT is unset) is
-> > > available w/o config space access.
-> > 
-> > Supporting this by gracefully disabling F_MULTIPORT
-> > would require getting this info from driver before
-> > features are finalized.
-> > Alternatively, check F_MULTIPORT and only fail if set?
-> > Let me know, I'll cook up a patch.
-> 
-> Yes, failing only if F_MULTIPORT is set is a better option (if we have
-> to fail).
+On 20/01/15 20:12, Waiman Long wrote:
+> This patch adds the necessary XEN specific code to allow XEN to
+> support the CPU halting and kicking operations needed by the queue
+> spinlock PV code.
 
-OK, that's easy I think - will send a patch on top.
+Xen is a word, please don't capitalize it.
 
-> > > In fact, getting this patch in
-> > > would mean remoteproc wouldn't even run in its pre-config days...
-> > 
-> > It seems to have get callback unconditionally now - or did I miss
-> > something?
-> 
-> What I meant was remoteproc doesn't depend on the config space, only
-> uses the console functionality.  If remoteproc devices didn't expose a
-> config space, this patch would cause it to lose its console
-> functionality for no apparent reason.
-> 
-> 
-> 		Amit
+> +void xen_lock_stats(int stat_types)
+> +{
+> +	if (stat_types & PV_LOCKSTAT_WAKE_KICKED)
+> +		add_smp(&wake_kick_stats, 1);
+> +	if (stat_types & PV_LOCKSTAT_WAKE_SPURIOUS)
+> +		add_smp(&wake_spur_stats, 1);
+> +	if (stat_types & PV_LOCKSTAT_KICK_NOHALT)
+> +		add_smp(&kick_nohlt_stats, 1);
+> +	if (stat_types & PV_LOCKSTAT_HALT_QHEAD)
+> +		add_smp(&halt_qhead_stats, 1);
+> +	if (stat_types & PV_LOCKSTAT_HALT_QNODE)
+> +		add_smp(&halt_qnode_stats, 1);
+> +	if (stat_types & PV_LOCKSTAT_HALT_ABORT)
+> +		add_smp(&halt_abort_stats, 1);
+> +}
+> +PV_CALLEE_SAVE_REGS_THUNK(xen_lock_stats);
 
-Better than crashing on jump to NULL?
+This is not inlined and the 6 test-and-branch cannot be optimized away.
 
--- 
-MST
+> +/*
+> + * Halt the current CPU & release it back to the host
+> + * Return 0 if halted, -1 otherwise.
+> + */
+> +int xen_halt_cpu(u8 *byte, u8 val)
+> +{
+> +	int irq = __this_cpu_read(lock_kicker_irq);
+> +	unsigned long flags;
+> +	u64 start;
+> +
+> +	/* If kicker interrupts not initialized yet, just spin */
+> +	if (irq == -1)
+> +		return -1;
+> +
+> +	/*
+> +	 * Make sure an interrupt handler can't upset things in a
+> +	 * partially setup state.
+> +	 */
+> +	local_irq_save(flags);
+> +	start = spin_time_start();
+> +
+> +	/* clear pending */
+> +	xen_clear_irq_pending(irq);
+> +
+> +	/* Allow interrupts while blocked */
+> +	local_irq_restore(flags);
+
+It's not clear what "partially setup state" is being protected here.
+xen_clear_irq_pending() is an atomic bit clear.
+
+I think you can drop the irq save/restore here.
+
+> +	/*
+> +	 * Don't halt if the content of the given byte address differs from
+> +	 * the expected value. A read memory barrier is added to make sure that
+> +	 * the latest value of the byte address is fetched.
+> +	 */
+> +	smp_rmb();
+
+The atomic bit clear in xen_clear_irq_pending() acts as a full memory
+barrier.  I don't think you need an additional memory barrier here, only
+a compiler one.  I suggest using READ_ONCE().
+
+> +	if (*byte != val) {
+> +		xen_lock_stats(PV_LOCKSTAT_HALT_ABORT);
+> +		return -1;
+> +	}
+> +	/*
+> +	 * If an interrupt happens here, it will leave the wakeup irq
+> +	 * pending, which will cause xen_poll_irq() to return
+> +	 * immediately.
+> +	 */
+> +
+> +	/* Block until irq becomes pending (or perhaps a spurious wakeup) */
+> +	xen_poll_irq(irq);
+> +	spin_time_accum_blocked(start);
+> +	return 0;
+> +}
+> +PV_CALLEE_SAVE_REGS_THUNK(xen_halt_cpu);
+> +
+> +#endif /* CONFIG_QUEUE_SPINLOCK */
+> +
+>  static irqreturn_t dummy_handler(int irq, void *dev_id)
+>  {
+>  	BUG();
+
+David
