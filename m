@@ -1,16 +1,18 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH RFC v6 10/20] s390x/virtio-ccw: add virtio set-revision
-	call
-Date: Wed, 21 Jan 2015 12:23:18 +0100
-Message-ID: <20150121122318.22a77751.cornelia.huck@de.ibm.com>
-References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1418304322-7546-11-git-send-email-cornelia.huck@de.ibm.com>
-	<20150120110824.GJ17631@stefanha-thinkpad.redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH v3 00/16] virtio-pci: towards virtio 1.0 guest support
+Date: Wed, 21 Jan 2015 12:31:08 +0100
+Message-ID: <1421839868.11160.28.camel__12608.1520146274$1421839889$gmane$org@nilsson.home.kraxel.org>
+References: <1421256142-11512-1-git-send-email-mst@redhat.com>
+	<1421356698.3933.18.camel@nilsson.home.kraxel.org>
+	<20150115213256.GA4813@redhat.com>
+	<1421397146.21318.16.camel@nilsson.home.kraxel.org>
+	<1421665620.3610.13.camel@nilsson.home.kraxel.org>
+	<20150120163256.GA1785@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150120110824.GJ17631@stefanha-thinkpad.redhat.com>
+In-Reply-To: <20150120163256.GA1785@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,41 +22,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: thuth@linux.vnet.ibm.com, mst@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 20 Jan 2015 11:08:24 +0000
-Stefan Hajnoczi <stefanha@gmail.com> wrote:
+  Hi,
 
-> On Thu, Dec 11, 2014 at 02:25:12PM +0100, Cornelia Huck wrote:
-> > @@ -608,6 +631,25 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
-> >              }
-> >          }
-> >          break;
-> > +    case CCW_CMD_SET_VIRTIO_REV:
-> > +        len = sizeof(revinfo);
-> > +        if (ccw.count < len || (check_len && ccw.count > len)) {
-> > +            ret = -EINVAL;
-> > +            break;
-> > +        }
-> > +        if (!ccw.cda) {
-> > +            ret = -EFAULT;
-> > +            break;
-> > +        }
-> > +        cpu_physical_memory_read(ccw.cda, &revinfo, len);
-> > +        if (dev->revision >= 0 ||
-> > +            revinfo.revision > virtio_ccw_rev_max(dev)) {
+> > While hacking it up I've noticed spec doesn't match reality.  The
+> > "Virtio Structure PCI Capabilities" section here ...
+> > 
+> > http://docs.oasis-open.org/virtio/virtio/v1.0/cs01/virtio-v1.0-cs01.html#x1-690004
+> > 
+> > ... doesn't match what qemu is doing.  Huh?
 > 
-> In the next patch virtio_ccw_handle_set_vq() uses big-endian memory
-> access functions to load a struct from guest memory.
-> 
-> Here you just copy the struct in without byteswaps.
-> 
-> Are the byteswaps missing here?  (I guess this normally runs big-endian
-> guests on big-endian hosts so it's not noticable.)
+> Thanks a lot for the report, and the tool!
 
-Indeed, these are supposed to be big-endian. I'll double check the
-other payloads.
+pciutils patch needs an update too (because I've made it decode the
+broken qemu capabilities).  Will come as separate mail with proper
+commit message in a moment.
 
-Thanks for spotting this!
+> I sent patches to fix this all up.
+> You can try my qemu and linux virtio-net branches now,
+> they should be spec compliant.
+
+Yep, much better.  caps match spec, the system boots fine from
+virtio-scsi, and the nfs-mounts (using virtio-net) are there too.
+
+cheers,
+  Gerd
