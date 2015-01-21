@@ -1,17 +1,15 @@
-From: Thomas Huth <thuth@linux.vnet.ibm.com>
-Subject: Re: [Qemu-devel] [PATCH RFC v6 10/20] s390x/virtio-ccw: add virtio
-	set-revision call
-Date: Wed, 21 Jan 2015 12:51:41 +0100
-Message-ID: <20150121125141.5d905254@oc7435384737.ibm.com>
-References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1418304322-7546-11-git-send-email-cornelia.huck@de.ibm.com>
-	<20150120110824.GJ17631@stefanha-thinkpad.redhat.com>
-	<20150121122318.22a77751.cornelia.huck@de.ibm.com>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: Re: [PATCH v14 08/11] qspinlock,
+	x86: Rename paravirt_ticketlocks_enabled
+Date: Wed, 21 Jan 2015 17:38:06 +0530
+Message-ID: <54BF96A6.1060702__11462.5064460144$1421842856$gmane$org@linux.vnet.ibm.com>
+References: <1421784755-21945-1-git-send-email-Waiman.Long@hp.com>
+	<1421784755-21945-9-git-send-email-Waiman.Long@hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150121122318.22a77751.cornelia.huck@de.ibm.com>
+In-Reply-To: <1421784755-21945-9-git-send-email-Waiman.Long@hp.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,53 +19,15 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, mst@redhat.com
+To: Waiman Long <Waiman.Long@hp.com>
+Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Oleg Nesterov <oleg@redhat.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Douglas Hatch <doug.hatch@hp.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 21 Jan 2015 12:23:18 +0100
-Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
-
-> On Tue, 20 Jan 2015 11:08:24 +0000
-> Stefan Hajnoczi <stefanha@gmail.com> wrote:
-> 
-> > On Thu, Dec 11, 2014 at 02:25:12PM +0100, Cornelia Huck wrote:
-> > > @@ -608,6 +631,25 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
-> > >              }
-> > >          }
-> > >          break;
-> > > +    case CCW_CMD_SET_VIRTIO_REV:
-> > > +        len = sizeof(revinfo);
-> > > +        if (ccw.count < len || (check_len && ccw.count > len)) {
-> > > +            ret = -EINVAL;
-> > > +            break;
-> > > +        }
-> > > +        if (!ccw.cda) {
-> > > +            ret = -EFAULT;
-> > > +            break;
-> > > +        }
-> > > +        cpu_physical_memory_read(ccw.cda, &revinfo, len);
-> > > +        if (dev->revision >= 0 ||
-> > > +            revinfo.revision > virtio_ccw_rev_max(dev)) {
-> > 
-> > In the next patch virtio_ccw_handle_set_vq() uses big-endian memory
-> > access functions to load a struct from guest memory.
-> > 
-> > Here you just copy the struct in without byteswaps.
-> > 
-> > Are the byteswaps missing here?  (I guess this normally runs big-endian
-> > guests on big-endian hosts so it's not noticable.)
-> 
-> Indeed, these are supposed to be big-endian. I'll double check the
-> other payloads.
-
-Right. Cornelia, can you take care of this or shall I rework the patch?
-
-NB: Actually, there are a couple of "XXX config space endianness"
-comments in that virtio_ccw_cb() function, so there are likely a bunch
-of problems when this code should be run on little endian hosts one day.
-So far, this code only runs with big-endian guests on big-endian hosts
-since the virtio-ccw machine is currently KVM-only as far as I know,
-that's likely why nobody complained about this yet.
-
- Thomas
+On 01/21/2015 01:42 AM, Waiman Long wrote:
+> This patch renames the paravirt_ticketlocks_enabled static key to a
+> more generic paravirt_spinlocks_enabled name.
+>
+> Signed-off-by: Waiman Long <Waiman.Long@hp.com>
+> Signed-off-by: Peter Zijlstra <peterz@infradead.org>
+> ---
+Reviewed-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
