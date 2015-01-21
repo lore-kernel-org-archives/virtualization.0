@@ -1,14 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH pre-squash 14/14] virtio_pci_modern: drop an unused function
-Date: Wed, 21 Jan 2015 17:00:48 +0200
-Message-ID: <1421852375-22604-15-git-send-email-mst__24037.3255721808$1421852575$gmane$org@redhat.com>
-References: <1421852375-22604-1-git-send-email-mst@redhat.com>
+Subject: [PATCH post-squash 0/9] virtio 1.0: virtio-pci fixup
+Date: Wed, 21 Jan 2015 17:05:08 +0200
+Message-ID: <1421852670-23742-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1421852375-22604-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,34 +20,42 @@ To: linux-kernel@vger.kernel.org
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-release function in modern driver is unused:
-it's a left-over from when each driver had
-to have its own release.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+This is just repost of all patches with fixups squashed in - convenient
+if you just want to remove old ones from queue and apply new ones.
+I also tweaked commit log for patch
+	"virtio_pci: modern driver"
+I also included Gerd's tag:
 Tested-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/virtio/virtio_pci_modern.c | 8 --------
- 1 file changed, 8 deletions(-)
 
-diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index 68ebc20..f16e462 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -489,14 +489,6 @@ static inline int virtio_pci_find_capability(struct pci_dev *dev, u8 cfg_type,
- 	return 0;
- }
- 
--static void virtio_pci_release_dev(struct device *_d)
--{
--	struct virtio_device *vdev = dev_to_virtio(_d);
--	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--
--	kfree(vp_dev);
--}
--
- /* This is part of the ABI.  Don't screw with it. */
- static inline void check_offsets(void)
- {
+You can find it all before the rebase -i --autosquash in my tree:
+        git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git virtio-next
+or after rebase -i --autosquash:
+        git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-next
+
+Hope it helps!
+
+Michael S. Tsirkin (7):
+  virtio_pci: move probe/remove code to common
+  virtio_pci: modern driver
+  virtio_pci_modern: reduce number of mappings
+  virtio_pci_modern: support devices with no config
+  virtio_pci: add an option to disable legacy driver
+  virtio_pci: add module param to force legacy mode
+  virtio_pci_modern: drop an unused function
+
+Rusty Russell (2):
+  virtio-pci: define layout for virtio 1.0
+  virtio_pci: macros for PCI layout offsets
+
+ drivers/virtio/virtio_pci_common.h |  43 ++-
+ include/uapi/linux/virtio_pci.h    |  89 +++++
+ drivers/virtio/virtio_pci_common.c |  94 ++++-
+ drivers/virtio/virtio_pci_legacy.c |  75 +---
+ drivers/virtio/virtio_pci_modern.c | 695 +++++++++++++++++++++++++++++++++++++
+ drivers/virtio/Kconfig             |  19 +
+ drivers/virtio/Makefile            |   3 +-
+ 7 files changed, 942 insertions(+), 76 deletions(-)
+ create mode 100644 drivers/virtio/virtio_pci_modern.c
+
 -- 
 MST
