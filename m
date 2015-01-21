@@ -1,11 +1,15 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [pciutils patch v2] add virtio vendor capability support
-Date: Wed, 21 Jan 2015 16:35:04 +0100
-Message-ID: <1421854504-11945-1-git-send-email-kraxel@redhat.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH RFC v6 16/20] virtio-net: support longer header
+Date: Wed, 21 Jan 2015 17:06:17 +0100
+Message-ID: <20150121170617.021f2285.cornelia.huck@de.ibm.com>
+References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
+	<1418304322-7546-17-git-send-email-cornelia.huck@de.ibm.com>
+	<20150120131814.GN17631@stefanha-thinkpad.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20150120131814.GN17631@stefanha-thinkpad.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,148 +19,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mj@ucw.cz
-Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: thuth@linux.vnet.ibm.com, mst@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio uses vendor-specific capabilities to specify the location of
-the virtio register ranges.  The specification can be found here:
+On Tue, 20 Jan 2015 13:18:14 +0000
+Stefan Hajnoczi <stefanha@gmail.com> wrote:
 
-http://docs.oasis-open.org/virtio/virtio/v1.0/cs01/virtio-v1.0-cs01.html#x1-690004
+> On Thu, Dec 11, 2014 at 02:25:18PM +0100, Cornelia Huck wrote:
+> > diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
+> > index ebbea60..7ee2bd6 100644
+> > --- a/hw/net/virtio-net.c
+> > +++ b/hw/net/virtio-net.c
+> > @@ -373,15 +373,21 @@ static int peer_has_ufo(VirtIONet *n)
+> >      return n->has_ufo;
+> >  }
+> >  
+> > -static void virtio_net_set_mrg_rx_bufs(VirtIONet *n, int mergeable_rx_bufs)
+> > +static void virtio_net_set_mrg_rx_bufs(VirtIONet *n, int mergeable_rx_bufs,
+> > +                                       int version_1)
+> 
+> Please use bool, it makes it 100% clear what the meaning of "version_1"
+> is.
+> 
+> s/int/bool/
 
-This patch adds support for decoding these capabilities to lspci.
-
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- Makefile         |  2 +-
- ls-caps-vendor.c | 76 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- ls-caps.c        |  2 +-
- lspci.h          |  4 +++
- 4 files changed, 82 insertions(+), 2 deletions(-)
- create mode 100644 ls-caps-vendor.c
-
-diff --git a/Makefile b/Makefile
-index 8d49afa..39a07d1 100644
---- a/Makefile
-+++ b/Makefile
-@@ -69,7 +69,7 @@ force:
- lib/config.h lib/config.mk:
- 	cd lib && ./configure
- 
--lspci: lspci.o ls-vpd.o ls-caps.o ls-ecaps.o ls-kernel.o ls-tree.o ls-map.o common.o lib/$(PCILIB)
-+lspci: lspci.o ls-vpd.o ls-caps.o ls-caps-vendor.o ls-ecaps.o ls-kernel.o ls-tree.o ls-map.o common.o lib/$(PCILIB)
- setpci: setpci.o common.o lib/$(PCILIB)
- 
- LSPCIINC=lspci.h pciutils.h $(PCIINC)
-diff --git a/ls-caps-vendor.c b/ls-caps-vendor.c
-new file mode 100644
-index 0000000..4cdfe22
---- /dev/null
-+++ b/ls-caps-vendor.c
-@@ -0,0 +1,76 @@
-+/*
-+ *	The PCI Utilities -- Show Vendor-specific Capabilities
-+ *
-+ *	Copyright (c) 2014 Gerd Hoffmann <kraxel@redhat.com>
-+ *
-+ *	Can be freely distributed and used under the terms of the GNU GPL.
-+ */
-+
-+#include <stdio.h>
-+#include <string.h>
-+
-+#include "lspci.h"
-+
-+static void
-+show_vendor_caps_virtio(struct device *d, int where, int cap)
-+{
-+  int length = BITS(cap, 0, 8);
-+  int type = BITS(cap, 8, 8);
-+  char *tname;
-+
-+  if (length < 16)
-+    return;
-+  if (!config_fetch(d, where, length))
-+    return;
-+
-+  switch (type)
-+    {
-+    case 1:
-+      tname = "CommonCfg";
-+      break;
-+    case 2:
-+      tname = "Notify";
-+      break;
-+    case 3:
-+      tname = "ISR";
-+      break;
-+    case 4:
-+      tname = "DeviceCfg";
-+      break;
-+    default:
-+      tname = "<unknown>";
-+      break;
-+    }
-+
-+  printf("VirtIO: %s\n", tname);
-+
-+  if (verbose < 2)
-+    return;
-+
-+  printf("\t\tBAR=%d offset=%08x size=%08x\n",
-+	 get_conf_byte(d, where +  4),
-+	 get_conf_long(d, where +  8),
-+	 get_conf_long(d, where + 12));
-+
-+  if (type != 2 || length < 20)
-+    return;
-+
-+  printf("\t\tmultiplier=%08x\n",
-+	 get_conf_long(d, where+16));
-+}
-+
-+void
-+show_vendor_caps(struct device *d, int where, int cap)
-+{
-+  switch (get_conf_word(d, PCI_VENDOR_ID))
-+    {
-+    case 0x1af4: /* Red Hat */
-+      if (get_conf_word(d, PCI_DEVICE_ID) >= 0x1000 &&
-+	  get_conf_word(d, PCI_DEVICE_ID) <= 0x107f)
-+	show_vendor_caps_virtio(d, where, cap);
-+      break;
-+    default:
-+      printf("Vendor Specific Information: Len=%02x <?>\n", BITS(cap, 0, 8));
-+      break;
-+    }
-+}
-diff --git a/ls-caps.c b/ls-caps.c
-index 7de55ef..c145ed6 100644
---- a/ls-caps.c
-+++ b/ls-caps.c
-@@ -1315,7 +1315,7 @@ show_caps(struct device *d, int where)
- 	      cap_ht(d, where, cap);
- 	      break;
- 	    case PCI_CAP_ID_VNDR:
--	      printf("Vendor Specific Information: Len=%02x <?>\n", BITS(cap, 0, 8));
-+	      show_vendor_caps(d, where, cap);
- 	      break;
- 	    case PCI_CAP_ID_DBG:
- 	      cap_debug_port(cap);
-diff --git a/lspci.h b/lspci.h
-index 86429b2..a3fc9d0 100644
---- a/lspci.h
-+++ b/lspci.h
-@@ -70,6 +70,10 @@ void show_caps(struct device *d, int where);
- 
- void show_ext_caps(struct device *d);
- 
-+/* ls-caps-vendor.c */
-+
-+void show_vendor_caps(struct device *d, int where, int cap);
-+
- /* ls-kernel.c */
- 
- void show_kernel_machine(struct device *d UNUSED);
--- 
-1.8.3.1
+OK, will change.
