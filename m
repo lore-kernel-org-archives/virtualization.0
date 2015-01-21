@@ -1,11 +1,20 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [pciutils patch] add virtio vendor capability support
-Date: Wed, 21 Jan 2015 12:21:33 +0100
-Message-ID: <1421839293-4197-1-git-send-email-kraxel@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3 00/16] virtio-pci: towards virtio 1.0 guest support
+Date: Wed, 21 Jan 2015 13:36:05 +0200
+Message-ID: <20150121113605.GA15292@redhat.com>
+References: <1421256142-11512-1-git-send-email-mst@redhat.com>
+	<1421356698.3933.18.camel@nilsson.home.kraxel.org>
+	<20150115213256.GA4813@redhat.com>
+	<1421397146.21318.16.camel@nilsson.home.kraxel.org>
+	<1421665620.3610.13.camel@nilsson.home.kraxel.org>
+	<20150120163256.GA1785@redhat.com>
+	<1421839868.11160.28.camel@nilsson.home.kraxel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1421839868.11160.28.camel@nilsson.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,138 +24,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mj@ucw.cz
-Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio uses vendor-specific capabilities to specify the location of
-the virtio register ranges.  The specification can be found here:
+On Wed, Jan 21, 2015 at 12:31:08PM +0100, Gerd Hoffmann wrote:
+>   Hi,
+> 
+> > > While hacking it up I've noticed spec doesn't match reality.  The
+> > > "Virtio Structure PCI Capabilities" section here ...
+> > > 
+> > > http://docs.oasis-open.org/virtio/virtio/v1.0/cs01/virtio-v1.0-cs01.html#x1-690004
+> > > 
+> > > ... doesn't match what qemu is doing.  Huh?
+> > 
+> > Thanks a lot for the report, and the tool!
+> 
+> pciutils patch needs an update too (because I've made it decode the
+> broken qemu capabilities).  Will come as separate mail with proper
+> commit message in a moment.
+> 
+> > I sent patches to fix this all up.
+> > You can try my qemu and linux virtio-net branches now,
+> > they should be spec compliant.
+> 
+> Yep, much better.  caps match spec, the system boots fine from
+> virtio-scsi, and the nfs-mounts (using virtio-net) are there too.
+> 
+> cheers,
+>   Gerd
 
-http://docs.oasis-open.org/virtio/virtio/v1.0/cs01/virtio-v1.0-cs01.html#x1-690004
 
-This patch adds support for decoding these capabilities to lspci.
-
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- Makefile         |  2 +-
- ls-caps-vendor.c | 59 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- ls-caps.c        |  9 ++++++++-
- lspci.h          |  4 ++++
- 4 files changed, 72 insertions(+), 2 deletions(-)
- create mode 100644 ls-caps-vendor.c
-
-diff --git a/Makefile b/Makefile
-index 8d49afa..39a07d1 100644
---- a/Makefile
-+++ b/Makefile
-@@ -69,7 +69,7 @@ force:
- lib/config.h lib/config.mk:
- 	cd lib && ./configure
- 
--lspci: lspci.o ls-vpd.o ls-caps.o ls-ecaps.o ls-kernel.o ls-tree.o ls-map.o common.o lib/$(PCILIB)
-+lspci: lspci.o ls-vpd.o ls-caps.o ls-caps-vendor.o ls-ecaps.o ls-kernel.o ls-tree.o ls-map.o common.o lib/$(PCILIB)
- setpci: setpci.o common.o lib/$(PCILIB)
- 
- LSPCIINC=lspci.h pciutils.h $(PCIINC)
-diff --git a/ls-caps-vendor.c b/ls-caps-vendor.c
-new file mode 100644
-index 0000000..edcc44a
---- /dev/null
-+++ b/ls-caps-vendor.c
-@@ -0,0 +1,59 @@
-+/*
-+ *	The PCI Utilities -- Show Vendor-specific Capabilities
-+ *
-+ *	Copyright (c) 2014 Gerd Hoffmann <kraxel@redhat.com>
-+ *
-+ *	Can be freely distributed and used under the terms of the GNU GPL.
-+ */
-+
-+#include <stdio.h>
-+#include <string.h>
-+
-+#include "lspci.h"
-+
-+void
-+show_vendor_caps_virtio(struct device *d, int where, int cap)
-+{
-+  int length = BITS(cap, 0, 8);
-+  int type = BITS(cap, 8, 8);
-+  char *tname;
-+
-+  if (length < 16)
-+    return;
-+  if (!config_fetch(d, where, length))
-+    return;
-+
-+  switch (type) {
-+  case 1:
-+    tname = "CommonCfg";
-+    break;
-+  case 2:
-+    tname = "Notify";
-+    break;
-+  case 3:
-+    tname = "ISR";
-+    break;
-+  case 4:
-+    tname = "DeviceCfg";
-+    break;
-+  default:
-+    tname = "<unknown>";
-+    break;
-+  }
-+
-+  printf("VirtIO: %s\n", tname);
-+
-+  if (verbose < 2)
-+    return;
-+
-+  printf("\t\tBAR=%d offset=%08x size=%08x\n",
-+	 get_conf_byte(d, where +  4),
-+	 get_conf_long(d, where +  8),
-+	 get_conf_long(d, where + 12));
-+
-+  if (type != 2 || length < 20)
-+    return;
-+
-+  printf("\t\tmultiplier=%08x\n",
-+	 get_conf_long(d, where+16));
-+}
-diff --git a/ls-caps.c b/ls-caps.c
-index 7de55ef..54a64a7 100644
---- a/ls-caps.c
-+++ b/ls-caps.c
-@@ -1315,7 +1315,14 @@ show_caps(struct device *d, int where)
- 	      cap_ht(d, where, cap);
- 	      break;
- 	    case PCI_CAP_ID_VNDR:
--	      printf("Vendor Specific Information: Len=%02x <?>\n", BITS(cap, 0, 8));
-+	      switch (get_conf_word(d, PCI_VENDOR_ID)) {
-+	      case 0x1af4: /* Red Hat, devices 0x1000 -> 0x107f are virtio */
-+		show_vendor_caps_virtio(d, where, cap);
-+		break;
-+	      default:
-+		printf("Vendor Specific Information: Len=%02x <?>\n", BITS(cap, 0, 8));
-+		break;
-+	      }
- 	      break;
- 	    case PCI_CAP_ID_DBG:
- 	      cap_debug_port(cap);
-diff --git a/lspci.h b/lspci.h
-index 86429b2..5ca9899 100644
---- a/lspci.h
-+++ b/lspci.h
-@@ -70,6 +70,10 @@ void show_caps(struct device *d, int where);
- 
- void show_ext_caps(struct device *d);
- 
-+/* ls-caps-vendor.c */
-+
-+void show_vendor_caps_virtio(struct device *d, int where, int cap);
-+
- /* ls-kernel.c */
- 
- void show_kernel_machine(struct device *d UNUSED);
--- 
-1.8.3.1
+Thanks!
+Want to respond to the patches with a tested-by tag?
