@@ -1,15 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: virtio for 3.20
-Date: Wed, 21 Jan 2015 19:40:17 +0200
-Message-ID: <20150121174017.GA21032@redhat.com>
-References: <20150115183618.GA31025@redhat.com>
-	<87egqrcxpn.fsf@rustcorp.com.au>
+From: Martin Mares <mj@ucw.cz>
+Subject: Re: [pciutils patch] add virtio vendor capability support
+Date: Wed, 21 Jan 2015 16:18:25 +0100
+Message-ID: <mj+md-20150121.151656.2555.nikam@ucw.cz>
+References: <1421839293-4197-1-git-send-email-kraxel@redhat.com>
+	<mj+md-20150121.144408.23951.nikam@ucw.cz>
+	<1421853400.10966.4.camel@nilsson.home.kraxel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87egqrcxpn.fsf@rustcorp.com.au>
+In-Reply-To: <1421853400.10966.4.camel@nilsson.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,40 +20,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 19, 2015 at 12:56:28PM +1030, Rusty Russell wrote:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
-> > Hi Rusty, all
-> >
-> > I parked outstanding virtio patches here:
-> > git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-next
-> > this way they are merged in linux-next as well.
-> >
-> > Rusty if you'll be doing 3.20 window, would you mind
-> > checking that tree to verify nothing's lost?
-> 
-> Hi Michael,
-> 
->         Thanks, now I've returned from linux.conf.au, I'm starting to
-> organize the 3.20 queue.  I've merged this branch into my virtio-next
-> branch.
-> 
-> Cheers,
-> Rusty.
+Hi!
 
-Thanks, good to know.
-I tweaked some patches since due to test failure reports by Gerd.
-Updated patches are tagged "post-squash", if you want to see what
-changed, see fixup patches in the series tagged "pre-squash".
+> > (1) Please follow the coding style of the rest of pciutils.
+> 
+> I've tried.  What specifically doesn't match?
 
-Or you can look at my tree:
-        git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git virtio-next
-is pre-squash.
-        git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-next
-is post-squash.
+Positions of braces (e.g., after switch). But if you fix the other things,
+I can re-indent the source myself.
 
--- 
-MST
+				Martin
