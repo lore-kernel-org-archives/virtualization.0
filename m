@@ -1,15 +1,16 @@
-From: David Vrabel <david.vrabel@citrix.com>
-Subject: Re: [Xen-devel] [PATCH v14 11/11] pvqspinlock,
-	x86: Enable PV qspinlock for XEN
-Date: Wed, 21 Jan 2015 10:29:41 +0000
-Message-ID: <54BF7F95.70507@citrix.com>
-References: <1421784755-21945-1-git-send-email-Waiman.Long@hp.com>
-	<1421784755-21945-12-git-send-email-Waiman.Long@hp.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH RFC v6 10/20] s390x/virtio-ccw: add virtio set-revision
+	call
+Date: Wed, 21 Jan 2015 12:23:18 +0100
+Message-ID: <20150121122318.22a77751.cornelia.huck@de.ibm.com>
+References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
+	<1418304322-7546-11-git-send-email-cornelia.huck@de.ibm.com>
+	<20150120110824.GJ17631@stefanha-thinkpad.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1421784755-21945-12-git-send-email-Waiman.Long@hp.com>
+In-Reply-To: <20150120110824.GJ17631@stefanha-thinkpad.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,100 +20,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Waiman Long <Waiman.Long@hp.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>
-Cc: linux-arch@vger.kernel.org, x86@kernel.org, kvm@vger.kernel.org, Scott J Norton <scott.norton@hp.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Vrabel <david.vrabel@citrix.com>, Oleg Nesterov <oleg@redhat.com>, xen-devel@lists.xenproject.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Douglas Hatch <doug.hatch@hp.com>
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: thuth@linux.vnet.ibm.com, mst@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 20/01/15 20:12, Waiman Long wrote:
-> This patch adds the necessary XEN specific code to allow XEN to
-> support the CPU halting and kicking operations needed by the queue
-> spinlock PV code.
+On Tue, 20 Jan 2015 11:08:24 +0000
+Stefan Hajnoczi <stefanha@gmail.com> wrote:
 
-Xen is a word, please don't capitalize it.
+> On Thu, Dec 11, 2014 at 02:25:12PM +0100, Cornelia Huck wrote:
+> > @@ -608,6 +631,25 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
+> >              }
+> >          }
+> >          break;
+> > +    case CCW_CMD_SET_VIRTIO_REV:
+> > +        len = sizeof(revinfo);
+> > +        if (ccw.count < len || (check_len && ccw.count > len)) {
+> > +            ret = -EINVAL;
+> > +            break;
+> > +        }
+> > +        if (!ccw.cda) {
+> > +            ret = -EFAULT;
+> > +            break;
+> > +        }
+> > +        cpu_physical_memory_read(ccw.cda, &revinfo, len);
+> > +        if (dev->revision >= 0 ||
+> > +            revinfo.revision > virtio_ccw_rev_max(dev)) {
+> 
+> In the next patch virtio_ccw_handle_set_vq() uses big-endian memory
+> access functions to load a struct from guest memory.
+> 
+> Here you just copy the struct in without byteswaps.
+> 
+> Are the byteswaps missing here?  (I guess this normally runs big-endian
+> guests on big-endian hosts so it's not noticable.)
 
-> +void xen_lock_stats(int stat_types)
-> +{
-> +	if (stat_types & PV_LOCKSTAT_WAKE_KICKED)
-> +		add_smp(&wake_kick_stats, 1);
-> +	if (stat_types & PV_LOCKSTAT_WAKE_SPURIOUS)
-> +		add_smp(&wake_spur_stats, 1);
-> +	if (stat_types & PV_LOCKSTAT_KICK_NOHALT)
-> +		add_smp(&kick_nohlt_stats, 1);
-> +	if (stat_types & PV_LOCKSTAT_HALT_QHEAD)
-> +		add_smp(&halt_qhead_stats, 1);
-> +	if (stat_types & PV_LOCKSTAT_HALT_QNODE)
-> +		add_smp(&halt_qnode_stats, 1);
-> +	if (stat_types & PV_LOCKSTAT_HALT_ABORT)
-> +		add_smp(&halt_abort_stats, 1);
-> +}
-> +PV_CALLEE_SAVE_REGS_THUNK(xen_lock_stats);
+Indeed, these are supposed to be big-endian. I'll double check the
+other payloads.
 
-This is not inlined and the 6 test-and-branch cannot be optimized away.
-
-> +/*
-> + * Halt the current CPU & release it back to the host
-> + * Return 0 if halted, -1 otherwise.
-> + */
-> +int xen_halt_cpu(u8 *byte, u8 val)
-> +{
-> +	int irq = __this_cpu_read(lock_kicker_irq);
-> +	unsigned long flags;
-> +	u64 start;
-> +
-> +	/* If kicker interrupts not initialized yet, just spin */
-> +	if (irq == -1)
-> +		return -1;
-> +
-> +	/*
-> +	 * Make sure an interrupt handler can't upset things in a
-> +	 * partially setup state.
-> +	 */
-> +	local_irq_save(flags);
-> +	start = spin_time_start();
-> +
-> +	/* clear pending */
-> +	xen_clear_irq_pending(irq);
-> +
-> +	/* Allow interrupts while blocked */
-> +	local_irq_restore(flags);
-
-It's not clear what "partially setup state" is being protected here.
-xen_clear_irq_pending() is an atomic bit clear.
-
-I think you can drop the irq save/restore here.
-
-> +	/*
-> +	 * Don't halt if the content of the given byte address differs from
-> +	 * the expected value. A read memory barrier is added to make sure that
-> +	 * the latest value of the byte address is fetched.
-> +	 */
-> +	smp_rmb();
-
-The atomic bit clear in xen_clear_irq_pending() acts as a full memory
-barrier.  I don't think you need an additional memory barrier here, only
-a compiler one.  I suggest using READ_ONCE().
-
-> +	if (*byte != val) {
-> +		xen_lock_stats(PV_LOCKSTAT_HALT_ABORT);
-> +		return -1;
-> +	}
-> +	/*
-> +	 * If an interrupt happens here, it will leave the wakeup irq
-> +	 * pending, which will cause xen_poll_irq() to return
-> +	 * immediately.
-> +	 */
-> +
-> +	/* Block until irq becomes pending (or perhaps a spurious wakeup) */
-> +	xen_poll_irq(irq);
-> +	spin_time_accum_blocked(start);
-> +	return 0;
-> +}
-> +PV_CALLEE_SAVE_REGS_THUNK(xen_halt_cpu);
-> +
-> +#endif /* CONFIG_QUEUE_SPINLOCK */
-> +
->  static irqreturn_t dummy_handler(int irq, void *dev_id)
->  {
->  	BUG();
-
-David
+Thanks for spotting this!
