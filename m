@@ -1,14 +1,13 @@
-From: David Gibson <david@gibson.dropbear.id.au>
-Subject: Re: [Qemu-devel] [PATCH RFC v6 08/20] dataplane: allow virtio-1
-	devices
-Date: Thu, 22 Jan 2015 13:12:48 +1100
-Message-ID: <20150122021248.GJ27371@voom.fritz.box>
-References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1418304322-7546-9-git-send-email-cornelia.huck@de.ibm.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [pciutils patch v2] add virtio vendor capability support
+Date: Thu, 22 Jan 2015 10:17:57 +0100
+Message-ID: <1421918277.9213.10.camel__48439.6414635286$1421918293$gmane$org@nilsson.home.kraxel.org>
+References: <1421854504-11945-1-git-send-email-kraxel@redhat.com>
+	<mj+md-20150122.090952.11254.nikam@ucw.cz>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3679758163999210580=="
+Content-Type: multipart/mixed; boundary="=-AHPoM09+Kyg1UWtiBQGk"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1418304322-7546-9-git-send-email-cornelia.huck@de.ibm.com>
+In-Reply-To: <mj+md-20150122.090952.11254.nikam@ucw.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,60 +17,73 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: thuth@linux.vnet.ibm.com, mst@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: Martin Mares <mj@ucw.cz>
+Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============3679758163999210580==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GlnCQLZWzqLRJED8"
-Content-Disposition: inline
+--=-AHPoM09+Kyg1UWtiBQGk
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+On Do, 2015-01-22 at 10:10 +0100, Martin Mares wrote:
+> lspci -vxxx
+
+Attached is a dump of a virtio-net device (both verbose=2 and hex).
+
+cheers,
+  Gerd
 
 
---GlnCQLZWzqLRJED8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+--=-AHPoM09+Kyg1UWtiBQGk
+Content-Type: text/plain; name="virtio-net.txt"; charset="UTF-8"
+Content-Description: 
+Content-Disposition: inline; filename="virtio-net.txt"
+Content-Transfer-Encoding: 7bit
 
-On Thu, Dec 11, 2014 at 02:25:10PM +0100, Cornelia Huck wrote:
-> Handle endianness conversion for virtio-1 virtqueues correctly.
->=20
-> Note that dataplane now needs to be built per-target.
->=20
-> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+00:09.0 Ethernet controller: Red Hat, Inc Virtio network device
+	Subsystem: Red Hat, Inc Virtio network device
+	Physical Slot: 9
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B- DisINTx+
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
+	Latency: 0
+	Interrupt: pin A routed to IRQ 10
+	Region 0: I/O ports at c060 [size=32]
+	Region 1: Memory at febd6000 (32-bit, non-prefetchable) [size=4K]
+	Region 2: Memory at fea00000 (32-bit, non-prefetchable) [size=512K]
+	Expansion ROM at feb80000 [disabled] [size=256K]
+	Capabilities: [84] MSI-X: Enable+ Count=3 Masked-
+		Vector table: BAR=1 offset=00000000
+		PBA: BAR=1 offset=00000800
+	Capabilities: [70] VirtIO: Notify
+		BAR=2 offset=00003000 size=00040000
+		multiplier=00001000
+	Capabilities: [60] VirtIO: DeviceCfg
+		BAR=2 offset=00002000 size=00001000
+	Capabilities: [50] VirtIO: ISR
+		BAR=2 offset=00001000 size=00001000
+	Capabilities: [40] VirtIO: CommonCfg
+		BAR=2 offset=00000000 size=00001000
+	Kernel driver in use: virtio-pci
+00: f4 1a 00 10 07 05 10 00 00 00 00 02 00 00 00 00
+10: 61 c0 00 00 00 60 bd fe 00 00 a0 fe 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 f4 1a 01 00
+30: 00 00 b8 fe 84 00 00 00 00 00 00 00 0a 01 00 00
+40: 09 00 10 01 02 00 00 00 00 00 00 00 00 10 00 00
+50: 09 40 10 03 02 00 00 00 00 10 00 00 00 10 00 00
+60: 09 50 10 04 02 00 00 00 00 20 00 00 00 10 00 00
+70: 09 60 14 02 02 00 00 00 00 30 00 00 00 00 04 00
+80: 00 10 00 00 11 70 02 80 01 00 00 00 01 08 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
---=20
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson
 
---GlnCQLZWzqLRJED8
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUwFygAAoJEGw4ysog2bOS6wMQAKVWdCnKapnLR6rxUzVgEa9V
-L/DZ9Z1C8cF5qm8OfFyCUA9BKRr5qF0njB2C5HDXC0Q3cf61L2njZ0qctChDjyj6
-7JzHpkZJPirNF8Yy3d6/+WbgXa5F8Fp93wkqIJxhoajqP3Qj1HqQ8RHdkn4fHURd
-BfgjVgWxZCRdYvwlX+OfZeUbzEDFebhpA2SQCWtr5wJKkt7y2UDMRBbRhpxvJSMY
-lsBr+HEVxgbVJg5xHP6VZ5X5dMCa5PQXo0f3WCtfhqMQv9/FdQpduZ4r8BMJ6K/x
-JexXBXeRZR/WCO7ZPfgFFWzgqA6+5Bnla8uN73iYQVnz6vpDwimMt2UByi1XnkMv
-WLGVieGSpG/RmE/UqgZGgfepQTDDCtoGXrvKebu34IhTOMmNmHjfU1UMwAOH8wXk
-ZH4IMCdaOLSe2jcupo+IEMRWgN5cPB4UinY3tewU8tuz/Yza2wylzZWFj90SGWPh
-uTrvxLn/kQSYdKSFceRtQXA3ojyhQND7BH4Ag4IXWogbknB16o4HORe5FyZb4g4C
-lHsThHIv2P5XUcG9iXUHhncBTxZCzu/We9am+abek+DmAVuZ6BRogeJyHSSUrgHb
-jtGUO2cMqE1M/EUyFJhNLX0mTjq0cXkItzQ5xMhoUTXkNwX7KuiV1LexoJIj5LIe
-CJvuk6FSdOBSb2XM0LxU
-=cSuT
------END PGP SIGNATURE-----
-
---GlnCQLZWzqLRJED8--
-
---===============3679758163999210580==
+--=-AHPoM09+Kyg1UWtiBQGk
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -81,4 +93,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3679758163999210580==--
+--=-AHPoM09+Kyg1UWtiBQGk--
