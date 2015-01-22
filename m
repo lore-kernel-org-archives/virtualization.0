@@ -1,14 +1,16 @@
 From: Martin Mares <mj@ucw.cz>
 Subject: Re: [pciutils patch v2] add virtio vendor capability support
-Date: Thu, 22 Jan 2015 10:10:46 +0100
-Message-ID: <mj+md-20150122.090952.11254.nikam@ucw.cz>
+Date: Thu, 22 Jan 2015 22:46:10 +0100
+Message-ID: <mj+md-20150122.214541.15235.nikam@ucw.cz>
 References: <1421854504-11945-1-git-send-email-kraxel@redhat.com>
+	<mj+md-20150122.090952.11254.nikam@ucw.cz>
+	<1421918277.9213.10.camel@nilsson.home.kraxel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1421854504-11945-1-git-send-email-kraxel@redhat.com>
+In-Reply-To: <1421918277.9213.10.camel@nilsson.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,18 +24,11 @@ To: Gerd Hoffmann <kraxel@redhat.com>
 Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi!
+> Attached is a dump of a virtio-net device (both verbose=2 and hex).
 
-> virtio uses vendor-specific capabilities to specify the location of
-> the virtio register ranges.  The specification can be found here:
-> 
-> http://docs.oasis-open.org/virtio/virtio/v1.0/cs01/virtio-v1.0-cs01.html#x1-690004
-> 
-> This patch adds support for decoding these capabilities to lspci.
+Thanks!
 
-Thanks, applied.
-
-One more request: could you please provide a hexdump (lspci -vxxx) of
-a virtio device as a test case?
+I have cleaned up the code a little, could you please check that
+it still works for you?
 
 				Martin
