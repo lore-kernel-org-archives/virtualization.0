@@ -1,16 +1,14 @@
 From: David Gibson <david@gibson.dropbear.id.au>
-Subject: Re: [Qemu-devel] [PATCH RFC v6 05/20] virtio: support more feature
-	bits
-Date: Thu, 22 Jan 2015 12:40:32 +1100
-Message-ID: <20150122014032.GF27371__36485.5720931247$1421893526$gmane$org@voom.fritz.box>
+Subject: Re: [Qemu-devel] [PATCH RFC v6 12/20] virtio: disallow late feature
+	changes for virtio-1
+Date: Thu, 22 Jan 2015 13:15:22 +1100
+Message-ID: <20150122021522.GK27371@voom.fritz.box>
 References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1418304322-7546-6-git-send-email-cornelia.huck@de.ibm.com>
-	<20141212110640.5ddfcbda@oc7435384737.ibm.com>
-	<20141212111747.26047921.cornelia.huck@de.ibm.com>
+	<1418304322-7546-13-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0985020429817954745=="
+Content-Type: multipart/mixed; boundary="===============2557435167104069605=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20141212111747.26047921.cornelia.huck@de.ibm.com>
+In-Reply-To: <1418304322-7546-13-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,53 +19,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Thomas Huth <thuth@linux.vnet.ibm.com>, mst@redhat.com
+Cc: thuth@linux.vnet.ibm.com, mst@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============0985020429817954745==
+--===============2557435167104069605==
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/QKKmeG/X/bPShih"
+	protocol="application/pgp-signature"; boundary="2feizKym29CxAecD"
 Content-Disposition: inline
 
 
---/QKKmeG/X/bPShih
+--2feizKym29CxAecD
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Dec 12, 2014 at 11:17:47AM +0100, Cornelia Huck wrote:
-> On Fri, 12 Dec 2014 11:06:40 +0100
-> Thomas Huth <thuth@linux.vnet.ibm.com> wrote:
+On Thu, Dec 11, 2014 at 02:25:14PM +0100, Cornelia Huck wrote:
+> For virtio-1 devices, the driver must not attempt to set feature bits
+> after it set FEATURES_OK in the device status. Simply reject it in
+> that case.
 >=20
-> > On Thu, 11 Dec 2014 14:25:07 +0100
-> > Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
-[snip]
-> > >      vdev->queue_sel =3D 0;
-> > >      vdev->status =3D 0;
-> > >      vdev->isr =3D 0;
-> > > @@ -924,7 +925,8 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
-> > >      qemu_put_8s(f, &vdev->status);
-> > >      qemu_put_8s(f, &vdev->isr);
-> > >      qemu_put_be16s(f, &vdev->queue_sel);
-> > > -    qemu_put_be32s(f, &vdev->guest_features);
-> > > +    /* XXX features >=3D 32 */
-> > > +    qemu_put_be32s(f, (uint32_t *)&vdev->guest_features);
-> >=20
-> > Casting a uint64_t* to a uint32_t* here sounds very wrong - this likely
-> > only works on little endian sytems, but certainly not on big-endian
-> > systems.
-> > If you do not want to extend this for 64-bit right from the beginning,
-> > I think you've got to use a temporary 32-bit variable to get this right.
->=20
-> Hm... always store the old 32 bits here, then store the new 32 bits
-> later? Should be able to get that compatible.
+> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-I think Thomas' point is that since vdev->guest_features has changed
-to a uint64_t, the "old" bits are now in the second 32-bit half on a
-BE system.
-
-Or maybe I'm misunderstanding your reply.
+Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
 
 --=20
 David Gibson			| I'll have my music baroque, and my code
@@ -75,30 +49,30 @@ david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
 				| _way_ _around_!
 http://www.ozlabs.org/~dgibson
 
---/QKKmeG/X/bPShih
+--2feizKym29CxAecD
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUwFUQAAoJEGw4ysog2bOSr9QP+wbnpRa9qDRZrpDF3r5YqufE
-n5IAig/0lkLYIMQzCMCN+SW2Na23h25I8M7XuW6RNe0IzmNeJPQMFdMx702RY+OX
-vbFqqC85FJFUhxEHgHM/XEBGkb70ihHriHImv5EY5jDXvMQyc4S1uqdWmjEyyM5y
-du1DKed3jFcCKycl6b6QI7Vloono/OktjOXVz6f0/C2WJRmptIn6cloibvQ9ivhB
-7Y6J6JA6iKB6Ywwx9bMuuh8dLXwAo5g7KTBerZY/A9oMuBV9s7iuDPVrQoGHCxUa
-Yz1BspS/plVsWJWjMloyYMiCi4htWADp0eU7gSRO9EJVtS6J5/3rK5WoxFI8ET09
-2dusdE+nOvLtqtzvsiddy9SlLJDl1Pypa7uI3dPzFXDDuJAz/BTG0O+Id52Go10V
-KKDtfcE/WkyK6OqFQW0YC5c1Tzu+WVTrWX17Spb7nfQb1srkXeXskn06ZlSRcxsA
-uvvoziA4dOrtvg67pwQnLO9+HGGfNHyvm1D/7SDbW8WVQkZV/l8lUNrAizch5LAg
-ltu6uHp9gY4i0WQQpdHTVUI2RKablse4HEeMnEBjINtaqL42KAktTTSDmpVmoVP0
-NM3mBbnHWx3Kobk8lAy+DndRP6r5cdcSz/x+KozoIyV0FZXngRV39aEfgNrtC4da
-H8tvQn/UoqR7l+IRq5cs
-=gDOx
+iQIcBAEBAgAGBQJUwF06AAoJEGw4ysog2bOSPdYP+QHIgYaqV26xg08CZM4lAjF5
+YOq0oRRvPQdNxrDlF7H4iJhVmBK7iWSt+JZhcAJA5zqpIdAScH4reg7RW3fMDioa
+Dt+thuaDqbcpuBJCGnMD7hn27yq8sMRhwj73UfvTXAHhIBZ0JiJyyX6MB4INnz/K
+AP+kcIwXtzUznz0zbnE85IAUEOzIYP8IXIy0sTu0s6vUIp0CVkLx4Poiz22tS6J5
+uLd+Py6srsReSksV0yUgbtZN9pEcIiOrgnG9rufc3RDizVg72QckX9yOpcuUSebv
+h80jVwwPuh2sNzXYEMz35AF889cgGHZDkWFX3a5Q3n52pRI7o3y1zkHEAaSxN593
+yoqJY+ajQjVeSX9i4u/D2/AcwsCqIlE2sNsAAH+6sDG2AqQLM6I2k/878UUbAqIz
+X7h2CFIhh9DNBbQGh8deWLmp5Gmr6PhVRftUvxeLWePDKXV1J0VmsL3RTSFWRMml
+KBxwCzlxJheVHNelXZwc0ibHr4PM6Itw5bhudrU1T4HXwCH0nfhgUWrR4GnEM0YH
+vnsvJIJGCJCyAO10klVqqsm041rptXbGEw8Hq5pT5zTNfNu0i9mFfhAIKAsw0ec3
+WSoyNWu85U1xl4o2SwtN2f66gj+Si+S/73I4TGp6kMepJ2uDKNidyviTzF4JqcZu
+S+h4giczg0lSMOPY4NsY
+=qUlx
 -----END PGP SIGNATURE-----
 
---/QKKmeG/X/bPShih--
+--2feizKym29CxAecD--
 
---===============0985020429817954745==
+--===============2557435167104069605==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -108,4 +82,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0985020429817954745==--
+--===============2557435167104069605==--
