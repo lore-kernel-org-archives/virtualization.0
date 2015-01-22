@@ -1,14 +1,14 @@
 From: David Gibson <david@gibson.dropbear.id.au>
-Subject: Re: [Qemu-devel] [PATCH RFC v6 03/20] virtio: feature bit
-	manipulation helpers
-Date: Thu, 22 Jan 2015 12:25:47 +1100
-Message-ID: <20150122012547.GD27371@voom.fritz.box>
+Subject: Re: [Qemu-devel] [PATCH RFC v6 05/20] virtio: support more feature
+	bits
+Date: Thu, 22 Jan 2015 12:43:43 +1100
+Message-ID: <20150122014343.GG27371@voom.fritz.box>
 References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1418304322-7546-4-git-send-email-cornelia.huck@de.ibm.com>
+	<1418304322-7546-6-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0963288585242589109=="
+Content-Type: multipart/mixed; boundary="===============5155462628865594555=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1418304322-7546-4-git-send-email-cornelia.huck@de.ibm.com>
+In-Reply-To: <1418304322-7546-6-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,29 +23,38 @@ Cc: thuth@linux.vnet.ibm.com, mst@redhat.com, qemu-devel@nongnu.org, virtualizat
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============0963288585242589109==
+--===============5155462628865594555==
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NtwzykIc2mflq5ck"
+	protocol="application/pgp-signature"; boundary="/Zw+/jwnNHcBRYYu"
 Content-Disposition: inline
 
 
---NtwzykIc2mflq5ck
+--/Zw+/jwnNHcBRYYu
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 11, 2014 at 02:25:05PM +0100, Cornelia Huck wrote:
-> Add virtio_{add,clear}_feature helper functions for manipulating a
-> feature bits variable. This has some benefits over open coding:
-> - add check that the bit is in a sane range
-> - make it obvious at a glance what is going on
-> - have a central point to change when we want to extend feature bits
+On Thu, Dec 11, 2014 at 02:25:07PM +0100, Cornelia Huck wrote:
+> With virtio-1, we support more than 32 feature bits. Let's extend both
+> host and guest features to 64, which should suffice for a while.
 >=20
-> Convert existing code manipulating features to use the new helpers.
->=20
-> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> vhost and migration have been ignored for now.
 
-Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+[snip]
+
+> diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
+> index f6c0379..08141c7 100644
+> --- a/include/hw/virtio/virtio.h
+> +++ b/include/hw/virtio/virtio.h
+> @@ -55,6 +55,12 @@
+>  /* A guest should never accept this.  It implies negotiation is broken. =
+*/
+>  #define VIRTIO_F_BAD_FEATURE		30
+> =20
+> +/* v1.0 compliant. */
+> +#define VIRTIO_F_VERSION_1              32
+
+This is already in the kernel header, isn't it?
 
 --=20
 David Gibson			| I'll have my music baroque, and my code
@@ -53,30 +62,30 @@ david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
 				| _way_ _around_!
 http://www.ozlabs.org/~dgibson
 
---NtwzykIc2mflq5ck
+--/Zw+/jwnNHcBRYYu
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUwFGbAAoJEGw4ysog2bOSmwoP/AgqhAG/evVDtyoOhl75yFZM
-UqERPUonXLJ/2dmfdi9hWlmMue3NwkBBww/5dqszl5rj6WrfCDI7vDpcRsAFs796
-S1RmAFDk+i+Jy/TbwRkH8e8SS1Sue0U0qilJOXniTp8rVDcbSi9sKrwZhw985g0/
-fWa1fJohNWYuPlgU5/KS2YswSMmpq1EodHn6rDxJyw83US/J/9dmWt42ipOtjn4d
-ARAjRuZFpEuTd7SwQM3mOs9zR6G35bqzAjYEIIVwA6CrFDBIaRuFhlkZtlWylJ0x
-7CTqzY7Skg6Ms5eULoMI07Aeneu0JhOTnuwfqu4cxnzwO7+JKTr/gRstU90T5sUe
-jWFsPuEh91xt2/C0QHGWG866sIH3zNFgfwbso+2rvsYsGaUPCAVp/QSg++2yPw3a
-qBv9DOJmxLAEk4ZH3jx8Rl2hzEk+r5QeGsY+JhEYD/AsbTIt4mk1R3W4lJMvbdTu
-vwpmuH18pJU9k7hqwMBuyi7/07jnbpbuL/zUnaMhgnJ5sQSOkvk0MIahiQQzNPw+
-gQ6HTG28DybgPYMcpJxh6QVdtjTpd7zzabs6aNL4rJpqlzjU+85aM0CluG8cLb5z
-neia8U1y4kaPx0R24ilD7zoOul7dCJFL3LmqqDl+GD1FguJzoW7YwfivHqbJrtce
-61ZcwCklHd01HPoyjBd5
-=TbBz
+iQIcBAEBAgAGBQJUwFXOAAoJEGw4ysog2bOSTUEP/0VVHy2EKQ3QKkInp/T+PBZW
+Qx9PQg7rB1+AgN1q7WhkRe1Ahh2Tn/m/nyR7WgyiKp7w4bnxsvTJzxaVeNKQ8CgQ
+Z6gHv1zi6pC1BvooS6qCUlLPn4eu5O2e1QihHT5Tg0ZsA8+KPSevRe1cgzQimIMH
+/Sb4wHr+i7pw4+yyBP8uDUPkRX0p3pNr/1mpdCtdc+f5bwHvkE38PYS/nTt2pGN0
+9+VJc+/M2Xeirq7d7mkkUWZKIdSE8ZEulZgB6BTALCxmLbwuidrzoxnpYlCMVWAV
+xEh8AXMz1lxf0kNhVHWzOYpwRS3krtCerndluSt8MkRgkXyXFO75bOAcxW74knXT
+1sIqVrW8OBAP2eqZ99uI+VWeOO8Q+j+sprqFm/6Pyu+eeJMuYNouql2aIewjogD8
+kbgnwVGfUW3YnvSeLgs3U9g5PoG0ce3PL3Sy6nCzRrwigKN90wAGyhAVSzT9MMFy
+GxOHo5DlmG3c0I4p1lkbjzATGJnEIAUa5LfJ25rxJDl1mi+YEWFFLyy37N6EWbny
+aDItPCRwpTpCKStyGynz/w6vvGtlJRCt/wN7d7K+cmgWlBR8IqmzbJIa/jAkvPoP
+kIWKI9WF5MunRK/Gi/5WhFvaZ6CWONdkxO925EBbXWJnqxEf5M+zRw0DV2ycxEv3
+u89nswdcv77vqWYHsNFA
+=1trq
 -----END PGP SIGNATURE-----
 
---NtwzykIc2mflq5ck--
+--/Zw+/jwnNHcBRYYu--
 
---===============0963288585242589109==
+--===============5155462628865594555==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -86,4 +95,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0963288585242589109==--
+--===============5155462628865594555==--
