@@ -1,14 +1,16 @@
 From: David Gibson <david@gibson.dropbear.id.au>
-Subject: Re: [Qemu-devel] [PATCH RFC v6 04/20] virtio: add feature checking
-	helpers
-Date: Thu, 22 Jan 2015 12:28:56 +1100
-Message-ID: <20150122012856.GE27371__11079.8814720058$1421893512$gmane$org@voom.fritz.box>
+Subject: Re: [Qemu-devel] [PATCH RFC v6 05/20] virtio: support more feature
+	bits
+Date: Thu, 22 Jan 2015 12:40:32 +1100
+Message-ID: <20150122014032.GF27371__36485.5720931247$1421893526$gmane$org@voom.fritz.box>
 References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1418304322-7546-5-git-send-email-cornelia.huck@de.ibm.com>
+	<1418304322-7546-6-git-send-email-cornelia.huck@de.ibm.com>
+	<20141212110640.5ddfcbda@oc7435384737.ibm.com>
+	<20141212111747.26047921.cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1613079390782660915=="
+Content-Type: multipart/mixed; boundary="===============0985020429817954745=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1418304322-7546-5-git-send-email-cornelia.huck@de.ibm.com>
+In-Reply-To: <20141212111747.26047921.cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,31 +21,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: thuth@linux.vnet.ibm.com, mst@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Thomas Huth <thuth@linux.vnet.ibm.com>, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============1613079390782660915==
+--===============0985020429817954745==
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="84ND8YJRMFlzkrP4"
+	protocol="application/pgp-signature"; boundary="/QKKmeG/X/bPShih"
 Content-Disposition: inline
 
 
---84ND8YJRMFlzkrP4
+--/QKKmeG/X/bPShih
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 11, 2014 at 02:25:06PM +0100, Cornelia Huck wrote:
-> Add a helper function for checking whether a bit is set in the guest
-> features for a vdev as well as one that works on a feature bit set.
+On Fri, Dec 12, 2014 at 11:17:47AM +0100, Cornelia Huck wrote:
+> On Fri, 12 Dec 2014 11:06:40 +0100
+> Thomas Huth <thuth@linux.vnet.ibm.com> wrote:
 >=20
-> Convert code that open-coded this: It cleans up the code and makes it
-> easier to extend the guest feature bits.
+> > On Thu, 11 Dec 2014 14:25:07 +0100
+> > Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
+[snip]
+> > >      vdev->queue_sel =3D 0;
+> > >      vdev->status =3D 0;
+> > >      vdev->isr =3D 0;
+> > > @@ -924,7 +925,8 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
+> > >      qemu_put_8s(f, &vdev->status);
+> > >      qemu_put_8s(f, &vdev->isr);
+> > >      qemu_put_be16s(f, &vdev->queue_sel);
+> > > -    qemu_put_be32s(f, &vdev->guest_features);
+> > > +    /* XXX features >=3D 32 */
+> > > +    qemu_put_be32s(f, (uint32_t *)&vdev->guest_features);
+> >=20
+> > Casting a uint64_t* to a uint32_t* here sounds very wrong - this likely
+> > only works on little endian sytems, but certainly not on big-endian
+> > systems.
+> > If you do not want to extend this for 64-bit right from the beginning,
+> > I think you've got to use a temporary 32-bit variable to get this right.
 >=20
-> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> Hm... always store the old 32 bits here, then store the new 32 bits
+> later? Should be able to get that compatible.
 
-Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+I think Thomas' point is that since vdev->guest_features has changed
+to a uint64_t, the "old" bits are now in the second 32-bit half on a
+BE system.
+
+Or maybe I'm misunderstanding your reply.
 
 --=20
 David Gibson			| I'll have my music baroque, and my code
@@ -51,30 +75,30 @@ david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
 				| _way_ _around_!
 http://www.ozlabs.org/~dgibson
 
---84ND8YJRMFlzkrP4
+--/QKKmeG/X/bPShih
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUwFJYAAoJEGw4ysog2bOSl8sP/jjhkGmjZqfK5w99SAcfEz+u
-y/4Uf6cKyh37JevHBgedKZakuk0Y+G+b9xaxG3jd5FVwvJwo1icbp4T68uOQezzW
-SLbBtFUjZ0cSWfIMmf//BonSTlihGvV2SiwCZ1syPYqh1rpiEFmG9tvDG6GBRqdV
-/T6le+GsV0bMPwIalVIVuKYili5fTp4hXJc/aXhuvFFkUs/JNYSJ2wAOoDqWcmFu
-qCua4Do5DsFdfqVdgZevcNPdwuN2VgZ5xO+tKEBwtb22Pngn4ELbzS/z6wf8hv50
-D7GbD7CjNpuYsZu0JqcdDxQpJqawEXdCt5jmUUpv1kj0u0Tqblqd0vGvRTKVwd9V
-tMW7B6mkLt+9U8sbe7gODwp5v+4AGW7Prl+/sBTiVzs7Cm1HtFW5EFWNreNjPsUJ
-wwNzEKD3hFnWcHExvOprgTsw47bOKJ+Xq5Z5GCWZrg2sq7kWJ0hdc+qUJCS+djVs
-sDVMQ7FqcKrEBbEMwY1i1rOMYNr89HVwGAcmto+X0F8b5dw80uSrqwt/hxU2lmlF
-DEdMzjAsp/W3l4A3YL1qv1msrSrUxAAMv4zSAwkloV6HwDkfysYdP5KeSGkS4LS1
-BplH9PC2X28Jduws3EmNYuVwisfC+BfROXxGBsR8kK351a5nMJ5DqwG+xVUc/oag
-h2dUC2iAlHh/WOhXhKB8
-=tryp
+iQIcBAEBAgAGBQJUwFUQAAoJEGw4ysog2bOSr9QP+wbnpRa9qDRZrpDF3r5YqufE
+n5IAig/0lkLYIMQzCMCN+SW2Na23h25I8M7XuW6RNe0IzmNeJPQMFdMx702RY+OX
+vbFqqC85FJFUhxEHgHM/XEBGkb70ihHriHImv5EY5jDXvMQyc4S1uqdWmjEyyM5y
+du1DKed3jFcCKycl6b6QI7Vloono/OktjOXVz6f0/C2WJRmptIn6cloibvQ9ivhB
+7Y6J6JA6iKB6Ywwx9bMuuh8dLXwAo5g7KTBerZY/A9oMuBV9s7iuDPVrQoGHCxUa
+Yz1BspS/plVsWJWjMloyYMiCi4htWADp0eU7gSRO9EJVtS6J5/3rK5WoxFI8ET09
+2dusdE+nOvLtqtzvsiddy9SlLJDl1Pypa7uI3dPzFXDDuJAz/BTG0O+Id52Go10V
+KKDtfcE/WkyK6OqFQW0YC5c1Tzu+WVTrWX17Spb7nfQb1srkXeXskn06ZlSRcxsA
+uvvoziA4dOrtvg67pwQnLO9+HGGfNHyvm1D/7SDbW8WVQkZV/l8lUNrAizch5LAg
+ltu6uHp9gY4i0WQQpdHTVUI2RKablse4HEeMnEBjINtaqL42KAktTTSDmpVmoVP0
+NM3mBbnHWx3Kobk8lAy+DndRP6r5cdcSz/x+KozoIyV0FZXngRV39aEfgNrtC4da
+H8tvQn/UoqR7l+IRq5cs
+=gDOx
 -----END PGP SIGNATURE-----
 
---84ND8YJRMFlzkrP4--
+--/QKKmeG/X/bPShih--
 
---===============1613079390782660915==
+--===============0985020429817954745==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -84,4 +108,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1613079390782660915==--
+--===============0985020429817954745==--
