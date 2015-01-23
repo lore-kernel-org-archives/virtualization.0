@@ -1,16 +1,13 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [pciutils patch v2] add virtio vendor capability support
-Date: Fri, 23 Jan 2015 08:21:14 +0100
-Message-ID: <1421997674.13166.1.camel@nilsson.home.kraxel.org>
-References: <1421854504-11945-1-git-send-email-kraxel@redhat.com>
-	<mj+md-20150122.090952.11254.nikam@ucw.cz>
-	<1421918277.9213.10.camel@nilsson.home.kraxel.org>
-	<mj+md-20150122.214541.15235.nikam@ucw.cz>
+From: "ML" <marialemos72@gmail.com>
+Subject: CISTI'2015 - List of Workshops - 10th Iberian Conference on
+	Information Systems and Technologies
+Date: Fri, 23 Jan 2015 08:06:23 +0000
+Message-ID: <20150123080629.81D0B990@mail.linuxfoundation.org>
+Reply-To: cistimail@gmail.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <mj+md-20150122.214541.15235.nikam@ucw.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,19 +17,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Martin Mares <mj@ucw.cz>
-Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Do, 2015-01-22 at 22:46 +0100, Martin Mares wrote:
-> > Attached is a dump of a virtio-net device (both verbose=2 and hex).
-> 
-> Thanks!
-> 
-> I have cleaned up the code a little, could you please check that
-> it still works for you?
+--------------------------------------------------------------------
+                            CISTI'2015
+10th Iberian Conference on Information Systems and Technologies
+              17 - 20 June 2015, Aveiro, Portugal
+           http://www.aisti.eu/cisti2015/index.php/en
+--------------------------------------------------------------------
 
-Works fine.
+List of CISTI'2015 Workshops: http://www.aisti.eu/cisti2015/index.php/en/xpto
 
-cheers,
-  Gerd
+> ASDACS 2015 - 2nd Workshop on Applied Statistics and Data Analysis using Computer Science
+
+> SPIoY 2015 - 1st Workshop on Security and Privacy in the Internet Of You
+
+> WCBIPA 2015 - 2nd Workshop on Computational Biomedical Image Processing and Analysis
+
+> WCJSN 2015 - 1st Workshop on Communication and Journalism in Social Networks
+
+> WGICT 2015 - 1st Workshop on Gerontechnology: ICT in the improvement of the quality of life of the elderly
+
+> WISA 2015 - 7th Workshop on Intelligent Systems and Applications
+
+> WICTA 2015 - 2nd International Workshop on ICT for Auditing
+
+> WGSP 2015 - 1st Workshop on Gaming, Simulation and Play
+
+> ICTWays 2015 - 2nd Workshop on Best Practices on ICT Ways in the classrooms
+
+URL: http://www.aisti.eu/cisti2015/index.php/en/xpto
+
+
+CISTI'2015 Team
+http://www.aisti.eu/cisti2015/index.php/en
