@@ -1,15 +1,11 @@
-From: Bjorn Helgaas <bhelgaas@google.com>
-Subject: Re: [PATCH v3 09/16] pci: add pci_iomap_range
-Date: Fri, 23 Jan 2015 17:08:41 -0600
-Message-ID: <20150123230841.GS29776__25253.6574182615$1422054532$gmane$org@google.com>
-References: <1421256142-11512-1-git-send-email-mst@redhat.com>
-	<1421256142-11512-10-git-send-email-mst@redhat.com>
+From: Vladislav Yasevich <vyasevich@gmail.com>
+Subject: [PATCH 0/3] Restore UFO support to virtio_net devices
+Date: Mon, 26 Jan 2015 09:37:03 -0500
+Message-ID: <1422283026-27832-1-git-send-email-vyasevic@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1421256142-11512-10-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,129 +15,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: edumazet@google.com, mst@redhat.com, ben@decadent.org.uk, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 14, 2015 at 07:27:54PM +0200, Michael S. Tsirkin wrote:
-> Virtio drivers should map the part of the BAR they need, not necessarily
-> all of it.
-> 
-> Cc: Bjorn Helgaas <bhelgaas@google.com>
-> Cc: linux-pci@vger.kernel.org
-> Acked-by: Arnd Bergmann <arnd@arndb.de>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+commit 3d0ad09412ffe00c9afa201d01effdb6023d09b4
+Author: Ben Hutchings <ben@decadent.org.uk>
+Date:   Thu Oct 30 18:27:12 2014 +0000
 
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+    drivers/net: Disable UFO through virtio
 
-Sorry it took so long for me to notice these!
+Turned off UFO support to virtio-net based devices due to issues
+with IPv6 fragment id generation for UFO packets.  The issue
+was that IPv6 UFO/GSO implementation expects the fragment id
+to be supplied in skb_shinfo().  However, for packets generated
+by the VMs, the fragment id is not supplied which causes all
+IPv6 fragments to have the id of 0.
 
-> ---
-> 
-> Bjorn, can you please ack this for merging through the virtio tree?
-> 
->  include/asm-generic/pci_iomap.h | 10 ++++++++++
->  lib/pci_iomap.c                 | 35 ++++++++++++++++++++++++++++++-----
->  2 files changed, 40 insertions(+), 5 deletions(-)
-> 
-> diff --git a/include/asm-generic/pci_iomap.h b/include/asm-generic/pci_iomap.h
-> index ce37349..7389c87 100644
-> --- a/include/asm-generic/pci_iomap.h
-> +++ b/include/asm-generic/pci_iomap.h
-> @@ -15,6 +15,9 @@ struct pci_dev;
->  #ifdef CONFIG_PCI
->  /* Create a virtual mapping cookie for a PCI BAR (memory or IO) */
->  extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
-> +extern void __iomem *pci_iomap_range(struct pci_dev *dev, int bar,
-> +				     unsigned long offset,
-> +				     unsigned long maxlen);
->  /* Create a virtual mapping cookie for a port on a given PCI device.
->   * Do not call this directly, it exists to make it easier for architectures
->   * to override */
-> @@ -30,6 +33,13 @@ static inline void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned lon
->  {
->  	return NULL;
->  }
-> +
-> +static inline void __iomem *pci_iomap_range(struct pci_dev *dev, int bar,
-> +					    unsigned long offset,
-> +					    unsigned long maxlen)
-> +{
-> +	return NULL;
-> +}
->  #endif
->  
->  #endif /* __ASM_GENERIC_IO_H */
-> diff --git a/lib/pci_iomap.c b/lib/pci_iomap.c
-> index 0d83ea8..bcce5f1 100644
-> --- a/lib/pci_iomap.c
-> +++ b/lib/pci_iomap.c
-> @@ -10,10 +10,11 @@
->  
->  #ifdef CONFIG_PCI
->  /**
-> - * pci_iomap - create a virtual mapping cookie for a PCI BAR
-> + * pci_iomap_range - create a virtual mapping cookie for a PCI BAR
->   * @dev: PCI device that owns the BAR
->   * @bar: BAR number
-> - * @maxlen: length of the memory to map
-> + * @offset: map memory at the given offset in BAR
-> + * @maxlen: max length of the memory to map
->   *
->   * Using this function you will get a __iomem address to your device BAR.
->   * You can access it using ioread*() and iowrite*(). These functions hide
-> @@ -21,16 +22,21 @@
->   * you expect from them in the correct way.
->   *
->   * @maxlen specifies the maximum length to map. If you want to get access to
-> - * the complete BAR without checking for its length first, pass %0 here.
-> + * the complete BAR from offset to the end, pass %0 here.
->   * */
-> -void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
-> +void __iomem *pci_iomap_range(struct pci_dev *dev,
-> +			      int bar,
-> +			      unsigned long offset,
-> +			      unsigned long maxlen)
->  {
->  	resource_size_t start = pci_resource_start(dev, bar);
->  	resource_size_t len = pci_resource_len(dev, bar);
->  	unsigned long flags = pci_resource_flags(dev, bar);
->  
-> -	if (!len || !start)
-> +	if (len <= offset || !start)
->  		return NULL;
-> +	len -= offset;
-> +	start += offset;
->  	if (maxlen && len > maxlen)
->  		len = maxlen;
->  	if (flags & IORESOURCE_IO)
-> @@ -43,6 +49,25 @@ void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
->  	/* What? */
->  	return NULL;
->  }
-> +EXPORT_SYMBOL(pci_iomap_range);
->  
-> +/**
-> + * pci_iomap - create a virtual mapping cookie for a PCI BAR
-> + * @dev: PCI device that owns the BAR
-> + * @bar: BAR number
-> + * @maxlen: length of the memory to map
-> + *
-> + * Using this function you will get a __iomem address to your device BAR.
-> + * You can access it using ioread*() and iowrite*(). These functions hide
-> + * the details if this is a MMIO or PIO address space and will just do what
-> + * you expect from them in the correct way.
-> + *
-> + * @maxlen specifies the maximum length to map. If you want to get access to
-> + * the complete BAR without checking for its length first, pass %0 here.
-> + * */
-> +void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
-> +{
-> +	return pci_iomap_range(dev, bar, 0, maxlen);
-> +}
->  EXPORT_SYMBOL(pci_iomap);
->  #endif /* CONFIG_PCI */
-> -- 
-> MST
-> 
+The problem is that turning off UFO support on tap/macvtap
+as well as virtio devices caused issues with migrations.  
+Migrations would fail when moving a vm from a kernel supporting
+expecting UFO to work to the newer kernels that disabled UFO.
+
+This series provides a partial solution to address the migration
+issue.  The series reserves a bit in the skb and sets the bit
+with the ipv6 fragment id has been generated for the packet.
+UFO/GSO code then checks the bit to see if the fragment id
+is already present or if a new fragment id needs to be generated.
+This solution allows host-originated UFO packets to keep a
+better randomized fragment id, as well as generating a randomized
+id for VM generated traffic (solving the fragment id 0 issue).
+
+Vladislav Yasevich (3):
+  ipv6: Select fragment id during UFO/GSO segmentation if not set.
+  Revert "drivers/net, ipv6: Select IPv6 fragment idents for virtio UFO
+    packets"
+  Revert "drivers/net: Disable UFO through virtio"
+
+ drivers/net/macvtap.c    | 16 ++++++++--------
+ drivers/net/tun.c        | 25 +++++++++----------------
+ drivers/net/virtio_net.c | 24 ++++++++++--------------
+ include/linux/skbuff.h   |  3 ++-
+ include/net/ipv6.h       |  2 ++
+ net/ipv6/ip6_output.c    |  4 ++--
+ net/ipv6/output_core.c   |  9 ++++++++-
+ net/ipv6/udp_offload.c   | 10 +++++++++-
+ 8 files changed, 50 insertions(+), 43 deletions(-)
+
+-- 
+1.9.3
