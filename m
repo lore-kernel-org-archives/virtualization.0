@@ -1,15 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 0/3] Restore UFO support to virtio_net devices
-Date: Mon, 26 Jan 2015 17:32:26 +0200
-Message-ID: <20150126153226.GA5396@redhat.com>
-References: <1422283026-27832-1-git-send-email-vyasevic@redhat.com>
-	<20150126152842.GA5130@redhat.com>
+From: <arei.gonglei@huawei.com>
+Subject: [PATCH] vhost-scsi: introduce an ioctl to get the minimum tpgt
+Date: Mon, 26 Jan 2015 21:13:18 +0800
+Message-ID: <1422277998-6308-1-git-send-email-arei.gonglei__2918.82618698782$1422292136$gmane$org@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20150126152842.GA5130@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,62 +15,93 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vladislav Yasevich <vyasevich@gmail.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, ben@decadent.org.uk, David Miller <davem@davemloft.net>
+To: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org
+Cc: pbonzini@redhat.com, Gonglei <arei.gonglei@huawei.com>, peter.huangpeng@huawei.com, Bo Su <subo7@huawei.com>, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 26, 2015 at 05:28:42PM +0200, Michael S. Tsirkin wrote:
-> On Mon, Jan 26, 2015 at 09:37:03AM -0500, Vladislav Yasevich wrote:
-> > commit 3d0ad09412ffe00c9afa201d01effdb6023d09b4
-> > Author: Ben Hutchings <ben@decadent.org.uk>
-> > Date:   Thu Oct 30 18:27:12 2014 +0000
-> > 
-> >     drivers/net: Disable UFO through virtio
-> > 
-> > Turned off UFO support to virtio-net based devices due to issues
-> > with IPv6 fragment id generation for UFO packets.  The issue
-> > was that IPv6 UFO/GSO implementation expects the fragment id
-> > to be supplied in skb_shinfo().  However, for packets generated
-> > by the VMs, the fragment id is not supplied which causes all
-> > IPv6 fragments to have the id of 0.
-> > 
-> > The problem is that turning off UFO support on tap/macvtap
-> > as well as virtio devices caused issues with migrations.  
-> > Migrations would fail when moving a vm from a kernel supporting
-> > expecting UFO to work to the newer kernels that disabled UFO.
-> > 
-> > This series provides a partial solution to address the migration
-> > issue.  The series reserves a bit in the skb and sets the bit
-> > with the ipv6 fragment id has been generated for the packet.
-> > UFO/GSO code then checks the bit to see if the fragment id
-> > is already present or if a new fragment id needs to be generated.
-> > This solution allows host-originated UFO packets to keep a
-> > better randomized fragment id, as well as generating a randomized
-> > id for VM generated traffic (solving the fragment id 0 issue).
-> > 
-> > Vladislav Yasevich (3):
-> >   ipv6: Select fragment id during UFO/GSO segmentation if not set.
-> >   Revert "drivers/net, ipv6: Select IPv6 fragment idents for virtio UFO
-> >     packets"
-> >   Revert "drivers/net: Disable UFO through virtio"
-> > 
-> >  drivers/net/macvtap.c    | 16 ++++++++--------
-> >  drivers/net/tun.c        | 25 +++++++++----------------
-> >  drivers/net/virtio_net.c | 24 ++++++++++--------------
-> >  include/linux/skbuff.h   |  3 ++-
-> >  include/net/ipv6.h       |  2 ++
-> >  net/ipv6/ip6_output.c    |  4 ++--
-> >  net/ipv6/output_core.c   |  9 ++++++++-
-> >  net/ipv6/udp_offload.c   | 10 +++++++++-
-> >  8 files changed, 50 insertions(+), 43 deletions(-)
-> 
-> Should also help a lot to put UDP performance where it was.
-> 
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> 
+From: Gonglei <arei.gonglei@huawei.com>
 
-BTW these might also be a good stable candidate.
+In order to support to assign a boot order for
+vhost-scsi device, we should get the tpgt for
+user level (such as Qemu). and at present, we
+only support the minimum tpgt can boot.
 
-> 
-> > -- 
-> > 1.9.3
+Signed-off-by: Gonglei <arei.gonglei@huawei.com>
+Signed-off-by: Bo Su <subo7@huawei.com>
+---
+ drivers/vhost/scsi.c       | 41 +++++++++++++++++++++++++++++++++++++++++
+ include/uapi/linux/vhost.h |  2 ++
+ 2 files changed, 43 insertions(+)
+
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index d695b16..12e79b9 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -1522,6 +1522,38 @@ err_dev:
+ 	return ret;
+ }
+ 
++static int vhost_scsi_get_first_tpgt(
++		struct vhost_scsi *vs,
++		struct vhost_scsi_target *t)
++{
++	struct tcm_vhost_tpg *tv_tpg;
++	struct tcm_vhost_tport *tv_tport;
++	int tpgt = -1;
++
++	mutex_lock(&tcm_vhost_mutex);
++	mutex_lock(&vs->dev.mutex);
++
++	list_for_each_entry(tv_tpg, &tcm_vhost_list, tv_tpg_list) {
++		tv_tport = tv_tpg->tport;
++
++		if (!strcmp(tv_tport->tport_name, t->vhost_wwpn)) {
++			if (tpgt < 0)
++				tpgt = tv_tpg->tport_tpgt;
++			else if (tpgt > tv_tpg->tport_tpgt)
++				tpgt = tv_tpg->tport_tpgt;
++		}
++	}
++
++	mutex_unlock(&vs->dev.mutex);
++	mutex_unlock(&tcm_vhost_mutex);
++
++	if (tpgt < 0)
++		return -ENXIO;
++
++	t->vhost_tpgt = tpgt;
++	return 0;
++}
++
+ static int vhost_scsi_set_features(struct vhost_scsi *vs, u64 features)
+ {
+ 	struct vhost_virtqueue *vq;
+@@ -1657,6 +1689,15 @@ vhost_scsi_ioctl(struct file *f,
+ 		if (put_user(events_missed, eventsp))
+ 			return -EFAULT;
+ 		return 0;
++	case VHOST_SCSI_GET_TPGT:
++		if (copy_from_user(&backend, argp, sizeof(backend)))
++			return -EFAULT;
++		r = vhost_scsi_get_first_tpgt(vs, &backend);
++		if (r < 0)
++			return r;
++		if (copy_to_user(argp, &backend, sizeof(backend)))
++			return -EFAULT;
++		return 0;
+ 	case VHOST_GET_FEATURES:
+ 		features = VHOST_SCSI_FEATURES;
+ 		if (copy_to_user(featurep, &features, sizeof features))
+diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+index bb6a5b4..5d350f7 100644
+--- a/include/uapi/linux/vhost.h
++++ b/include/uapi/linux/vhost.h
+@@ -155,4 +155,6 @@ struct vhost_scsi_target {
+ #define VHOST_SCSI_SET_EVENTS_MISSED _IOW(VHOST_VIRTIO, 0x43, __u32)
+ #define VHOST_SCSI_GET_EVENTS_MISSED _IOW(VHOST_VIRTIO, 0x44, __u32)
+ 
++#define VHOST_SCSI_GET_TPGT _IOW(VHOST_VIRTIO, 0x45, struct vhost_scsi_target)
++
+ #endif
+-- 
+1.7.12.4
