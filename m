@@ -1,16 +1,16 @@
 From: David Gibson <david@gibson.dropbear.id.au>
-Subject: Re: [Qemu-devel] [PATCH RFC v6 05/20] virtio: support more feature
-	bits
-Date: Thu, 29 Jan 2015 11:11:32 +1100
-Message-ID: <20150129001132.GE14681@voom>
+Subject: Re: [Qemu-devel] [PATCH RFC v6 07/20] virtio: allow virtio-1 queue
+	layout
+Date: Thu, 29 Jan 2015 11:14:24 +1100
+Message-ID: <20150129001424.GF14681@voom>
 References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1418304322-7546-6-git-send-email-cornelia.huck@de.ibm.com>
-	<20150122014343.GG27371@voom.fritz.box>
-	<20150128165945.530d3a11.cornelia.huck@de.ibm.com>
+	<1418304322-7546-8-git-send-email-cornelia.huck@de.ibm.com>
+	<20150122020609.GI27371@voom.fritz.box>
+	<20150128170701.4788fd09.cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2405395024216291420=="
+Content-Type: multipart/mixed; boundary="===============6819557591846783114=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150128165945.530d3a11.cornelia.huck@de.ibm.com>
+In-Reply-To: <20150128170701.4788fd09.cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,48 +25,83 @@ Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, thuth@linu
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============2405395024216291420==
+--===============6819557591846783114==
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="WK3l2KTTmXPVedZ6"
+	protocol="application/pgp-signature"; boundary="Zi0sgQQBxRFxMTsj"
 Content-Disposition: inline
 
 
---WK3l2KTTmXPVedZ6
+--Zi0sgQQBxRFxMTsj
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 28, 2015 at 04:59:45PM +0100, Cornelia Huck wrote:
-> On Thu, 22 Jan 2015 12:43:43 +1100
+On Wed, Jan 28, 2015 at 05:07:01PM +0100, Cornelia Huck wrote:
+> On Thu, 22 Jan 2015 13:06:09 +1100
 > David Gibson <david@gibson.dropbear.id.au> wrote:
 >=20
-> > On Thu, Dec 11, 2014 at 02:25:07PM +0100, Cornelia Huck wrote:
-> > > With virtio-1, we support more than 32 feature bits. Let's extend both
-> > > host and guest features to 64, which should suffice for a while.
+> > On Thu, Dec 11, 2014 at 02:25:09PM +0100, Cornelia Huck wrote:
+> > > For virtio-1 devices, we allow a more complex queue layout that doesn=
+'t
+> > > require descriptor table and rings on a physically-contigous memory a=
+rea:
+> > > add virtio_queue_set_rings() to allow transports to set this up.
 > > >=20
-> > > vhost and migration have been ignored for now.
+> > > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> > > ---
+> > >  hw/virtio/virtio-mmio.c    |    3 +++
+> > >  hw/virtio/virtio.c         |   53 ++++++++++++++++++++++++++++------=
+----------
+> > >  include/hw/virtio/virtio.h |    3 +++
+> > >  3 files changed, 40 insertions(+), 19 deletions(-)
+> > >=20
+> > > diff --git a/hw/virtio/virtio-mmio.c b/hw/virtio/virtio-mmio.c
+> > > index 43b7e02..0c9b63b 100644
+> > > --- a/hw/virtio/virtio-mmio.c
+> > > +++ b/hw/virtio/virtio-mmio.c
+> > > @@ -244,8 +244,11 @@ static void virtio_mmio_write(void *opaque, hwad=
+dr offset, uint64_t value,
+> > >      case VIRTIO_MMIO_QUEUENUM:
+> > >          DPRINTF("mmio_queue write %d max %d\n", (int)value, VIRTQUEU=
+E_MAX_SIZE);
+> > >          virtio_queue_set_num(vdev, vdev->queue_sel, value);
+> > > +        /* Note: only call this function for legacy devices */
 > >=20
-> > [snip]
-> >=20
-> > > diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
-> > > index f6c0379..08141c7 100644
-> > > --- a/include/hw/virtio/virtio.h
-> > > +++ b/include/hw/virtio/virtio.h
-> > > @@ -55,6 +55,12 @@
-> > >  /* A guest should never accept this.  It implies negotiation is brok=
-en. */
-> > >  #define VIRTIO_F_BAD_FEATURE		30
-> > > =20
-> > > +/* v1.0 compliant. */
-> > > +#define VIRTIO_F_VERSION_1              32
-> >=20
-> > This is already in the kernel header, isn't it?
+> > It's not clear to me if this is an assertion that this *does* only
+> > call the function for legacy devices or a fixme, that it *should* only
+> > call the function for legacy devices.
+>=20
+> It's more like a note to whoever takes the virtio-mmio legacy device
+> code and writes a virtio-1 virtio-mmio device.
+>=20
+> Does
+> /* Note: this function must only be called for legacy devices */
+> make that intention clearer?
+
+Yes, I think that's better.
 
 >=20
-> Yes. But nearly all files include this header but not the kernel
-> header.
+> >=20
+> > > +        virtio_queue_update_rings(vdev, vdev->queue_sel);
+> > >          break;
+> > >      case VIRTIO_MMIO_QUEUEALIGN:
+> > > +        /* Note: this is only valid for legacy devices */
+> > >          virtio_queue_set_align(vdev, vdev->queue_sel, value);
+> > >          break;
+> > >      case VIRTIO_MMIO_QUEUEPFN:
+>=20
+> (...)
+>=20
+> > >  /* virt queue functions */
+> > > -static void virtqueue_init(VirtQueue *vq)
+> > > +void virtio_queue_update_rings(VirtIODevice *vdev, int n)
+> >=20
+> > Perhaps something in the name to emphasise that this is only for <v1.0
+> > devices?
+>=20
+> virtio_queue_legacy_update_rings()? Maybe a bit long...
 
-Can't you change that?  Or this file include the kernel header?
+There aren't many callers, so I think long is ok in this case.
 
 --=20
 David Gibson			| I'll have my music baroque, and my code
@@ -74,30 +109,30 @@ david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
 				| _way_ _around_!
 http://www.ozlabs.org/~dgibson
 
---WK3l2KTTmXPVedZ6
+--Zi0sgQQBxRFxMTsj
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUyXqzAAoJEGw4ysog2bOSsEUP/2kd6s65aXi+wPnDL/MSzHyQ
-sftJS7xBWV+nz0ipXs2zeJNBxvDJyrWfsO/ecBtF8EBTovv3IVvIjzUH4iBsBpE8
-a+FKrcvhcPIPWIRRMjrfr43PGDHTSZOWBL5VzNtDmnmMyoVyFmSPr0/DgSOfhiT+
-NAwMCfo69w7iXTRIX0rJdFGjb+moTJf9yOTYlRQe4uD1lWHEG/hnEQ2ACBbk/HUR
-tT9iITA3xhkJmSrrz94VUmf35HD95BRYHPuRe4Mn+6+5QjSTmIyuPlSK1sYOOFS9
-aO25YW/bJhi3lpNt1mq5QzHDeTNcDITqHiWKJ9B7s2YyksEAeBlFUEXvrHoy5+9h
-3CwkCi8WDp9O8MJ6fC6yjKmRPqJtTvO2J0h9cWX+Dc+ztqlJvId6qjjMs1EkJFI3
-70kG5OeD5kF7V4ofDAyEKRVzDOFFd6F/LUbXQQc+gGkbJ6mluBZfs9WNCUe5umnY
-t6GWz/4iCw+tVIBhZb2zhzWQz4PK6/wyT4LjKfoR9hPgcw3lgPX9sN3HUS1N9d2q
-hdi7/ziU14NfStHiYaYmpKWb6RFiNtnze9xdHJ9V73N//XnXYAZnz5BQRqdRuDS8
-ua7Hm9F38bihrSPwG0eUkJhVlWnt4rghh6XNxLFbjQC2hYB1dFV/yrQPsASBcSIg
-WmvrtKCscWUIUdPJaXtc
-=JSlG
+iQIcBAEBAgAGBQJUyXtgAAoJEGw4ysog2bOSS5wQALHFbhSCWB6Ipc0XVYQKzm+I
+5gx53xEeV/eYdfqYLuHeKsOAyCuGHVluktIe0fK5l37MeFLa/mz/gg8HWuCJ2lmq
+V/eCWJ6bnKWPL27gmFkU/HJ34O6X39Ke/te7j06ZAwIUBUFYZJwEr4q5tmKL+k9k
+6tB3ojBzEoQwpRUBSGSNY9e7GJScCla0BooV/zdwHcOZhPSFJILheXz7v69N5pya
+3eqQoeXf8OqBQcEzy6XrSu73etmjiykBIUKH9/OF2F5K7/IBSXU1zcUbHGSQ2H4P
+Mszkb1WYMp8R2rP59PYgDlbiR7Uf0MAY77y7LAsr1BXUk+qoE0SVvoz/Hg6JrdD+
+KUz98FZ6CQ0eu0Ltu97sIuu8QzTEB5vLSfhH9+cAG9B2OB7eVN/5vCOHvQWacCvE
+4c5OkYJZKFnmVR3QZFAHap9f2HXVoYFLLj5wC+opV9wJ05U/Q4nweECGtrPNgjde
+rSkhYQCJVIuE7AEjAJzADvtfHr1NU8DkOC7usllbFsU9w9wMd4jdOEP5ndSNehFM
+OmbyPFCpKTrKVUxMvLfk2YPu8RKSpxZFRoI0qtR7sb/hylBcnBqRMRgOIi3CPp/X
+lCaujlf3sSPg6Luvz3H1O4wfOmMXtFe1FBjxboifzf0DnGMisUqmQuW3EfkuC0uZ
+LPbtEfjNO6z0/YcmJiDb
+=yW4b
 -----END PGP SIGNATURE-----
 
---WK3l2KTTmXPVedZ6--
+--Zi0sgQQBxRFxMTsj--
 
---===============2405395024216291420==
+--===============6819557591846783114==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -107,4 +142,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2405395024216291420==--
+--===============6819557591846783114==--
