@@ -1,17 +1,14 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH RFC v6 19/20] virtio-blk: revision specific feature bits
-Date: Fri, 30 Jan 2015 15:10:49 +0100
-Message-ID: <20150130151049.2e4c5331.cornelia.huck@de.ibm.com>
-References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1418304322-7546-20-git-send-email-cornelia.huck@de.ibm.com>
-	<20141228102446.GA9260@redhat.com>
-	<20150107172949.11f374bf.cornelia.huck@de.ibm.com>
-	<20150107191144.GC8734@redhat.com>
+From: Vladislav Yasevich <vyasevich@gmail.com>
+Subject: [PATCH v2 1/3] ipv6: Select fragment id during UFO segmentation if
+	not set.
+Date: Fri, 30 Jan 2015 14:27:25 -0500
+Message-ID: <1422646047-13168-2-git-send-email-vyasevic__21861.9492989548$1422646068$gmane$org@redhat.com>
+References: <1422646047-13168-1-git-send-email-vyasevic@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150107191144.GC8734@redhat.com>
+In-Reply-To: <1422646047-13168-1-git-send-email-vyasevic@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,39 +18,153 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: eric.dumazet@gmail.com, mst@redhat.com, virtualization@lists.linux-foundation.org, hannes@stressinduktion.org, ben@decadent.org.uk
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 7 Jan 2015 21:11:44 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+If the IPv6 fragment id has not been set and we perform
+fragmentation due to UFO, select a new fragment id.
+We now consider a fragment id of 0 as unset and if id selection
+process returns 0 (after all the pertrubations), we set it to
+0x80000000, thus giving us ample space not to create collisions
+with the next packet we may have to fragment.
 
-> On Wed, Jan 07, 2015 at 05:29:49PM +0100, Cornelia Huck wrote:
-> > On Sun, 28 Dec 2014 12:24:46 +0200
-> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > 
-> > > On Thu, Dec 11, 2014 at 02:25:21PM +0100, Cornelia Huck wrote:
-> > > > Wire up virtio-blk to provide different feature bit sets depending
-> > > > on whether legacy or v1.0 has been requested.
-> > > > 
-> > > > Note that VERSION_1 is still disabled due to missing ANY_LAYOUT support.
-> > > > 
-> > > > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> > > 
-> > > So we need some way for devices to tell transports
-> > > not to negotiate rev 1.
-> > > Does clearing VERSION_1 have this effect?
-> > > 
-> > I just noticed that my patch is running in circles here.
-> > 
-> > What we need is probably the transport-dependent maximum revision
-> > checker (which at least for ccw is acting on a device) pass in the
-> > requested revision and check if the feature bits for the revision
-> > include VERSION_1. Does that make sense?
-> 
-> Just make devices set 'rev 1 supported' flag?
+When doing UFO integrity checking, we also select the
+fragment id if it has not be set yet.   This is stored into
+the skb_shinfo() thus allowing UFO to function correclty.
 
-I'm now using the ->get_features() callback to check for VERSION_1
-(assuming every device that supports it adds the bit in its callback)
-and only allow rev 1 if it is present. Will play with this a bit as
-well.
+This patch also removes duplicate fragment id generation code
+and moves ipv6_select_ident() into the header as it may be
+used during GSO.
+
+Signed-off-by: Vladislav Yasevich <vyasevic@redhat.com>
+---
+ include/net/ipv6.h     |  3 +++
+ net/ipv6/ip6_output.c  | 10 ++++------
+ net/ipv6/output_core.c | 28 ++++++++++++++++++++++------
+ net/ipv6/udp_offload.c | 10 +++++++++-
+ 4 files changed, 38 insertions(+), 13 deletions(-)
+
+diff --git a/include/net/ipv6.h b/include/net/ipv6.h
+index 4292929..9bf85d3 100644
+--- a/include/net/ipv6.h
++++ b/include/net/ipv6.h
+@@ -671,6 +671,9 @@ static inline int ipv6_addr_diff(const struct in6_addr *a1, const struct in6_add
+ 	return __ipv6_addr_diff(a1, a2, sizeof(struct in6_addr));
+ }
+ 
++u32 __ipv6_select_ident(u32 hashrnd, struct in6_addr *dst,
++			struct in6_addr *src);
++void ipv6_select_ident(struct frag_hdr *fhdr, struct rt6_info *rt);
+ void ipv6_proxy_select_ident(struct sk_buff *skb);
+ 
+ int ip6_dst_hoplimit(struct dst_entry *dst);
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index ce69a12..5dc91fe 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -537,17 +537,15 @@ static void ip6_copy_metadata(struct sk_buff *to, struct sk_buff *from)
+ 	skb_copy_secmark(to, from);
+ }
+ 
+-static void ipv6_select_ident(struct frag_hdr *fhdr, struct rt6_info *rt)
++void ipv6_select_ident(struct frag_hdr *fhdr, struct rt6_info *rt)
+ {
+ 	static u32 ip6_idents_hashrnd __read_mostly;
+-	u32 hash, id;
++	u32 id;
+ 
+ 	net_get_random_once(&ip6_idents_hashrnd, sizeof(ip6_idents_hashrnd));
+ 
+-	hash = __ipv6_addr_jhash(&rt->rt6i_dst.addr, ip6_idents_hashrnd);
+-	hash = __ipv6_addr_jhash(&rt->rt6i_src.addr, hash);
+-
+-	id = ip_idents_reserve(hash, 1);
++	id = __ipv6_select_ident(ip6_idents_hashrnd, &rt->rt6i_dst.addr,
++				 &rt->rt6i_src.addr);
+ 	fhdr->identification = htonl(id);
+ }
+ 
+diff --git a/net/ipv6/output_core.c b/net/ipv6/output_core.c
+index 97f41a3..ceb857d 100644
+--- a/net/ipv6/output_core.c
++++ b/net/ipv6/output_core.c
+@@ -9,6 +9,24 @@
+ #include <net/addrconf.h>
+ #include <net/secure_seq.h>
+ 
++u32 __ipv6_select_ident(u32 hashrnd, struct in6_addr *dst, struct in6_addr *src)
++{
++	u32 hash, id;
++
++	hash = __ipv6_addr_jhash(dst, hashrnd);
++	hash = __ipv6_addr_jhash(src, hash);
++
++	/* Treat id of 0 as unset and if we get 0 back from ip_idents_reserve,
++	 * set the hight order instead thus minimizing possible future
++	 * collisions.      
++	*/
++	id = ip_idents_reserve(hash, 1);
++	if (unlikely(!id))
++		id = 1 << 31;
++
++	return id;
++}
++
+ /* This function exists only for tap drivers that must support broken
+  * clients requesting UFO without specifying an IPv6 fragment ID.
+  *
+@@ -22,7 +40,7 @@ void ipv6_proxy_select_ident(struct sk_buff *skb)
+ 	static u32 ip6_proxy_idents_hashrnd __read_mostly;
+ 	struct in6_addr buf[2];
+ 	struct in6_addr *addrs;
+-	u32 hash, id;
++	u32 id;
+ 
+ 	addrs = skb_header_pointer(skb,
+ 				   skb_network_offset(skb) +
+@@ -34,11 +52,9 @@ void ipv6_proxy_select_ident(struct sk_buff *skb)
+ 	net_get_random_once(&ip6_proxy_idents_hashrnd,
+ 			    sizeof(ip6_proxy_idents_hashrnd));
+ 
+-	hash = __ipv6_addr_jhash(&addrs[1], ip6_proxy_idents_hashrnd);
+-	hash = __ipv6_addr_jhash(&addrs[0], hash);
+-
+-	id = ip_idents_reserve(hash, 1);
+-	skb_shinfo(skb)->ip6_frag_id = htonl(id);
++	id = __ipv6_select_ident(ip6_proxy_idents_hashrnd,
++				 &addrs[1], &addrs[0]);
++	skb_shinfo(skb)->ip6_frag_id = id;
+ }
+ EXPORT_SYMBOL_GPL(ipv6_proxy_select_ident);
+ 
+diff --git a/net/ipv6/udp_offload.c b/net/ipv6/udp_offload.c
+index b6aa8ed..a562769 100644
+--- a/net/ipv6/udp_offload.c
++++ b/net/ipv6/udp_offload.c
+@@ -52,6 +52,10 @@ static struct sk_buff *udp6_ufo_fragment(struct sk_buff *skb,
+ 
+ 		skb_shinfo(skb)->gso_segs = DIV_ROUND_UP(skb->len, mss);
+ 
++		/* Set the IPv6 fragment id if not set yet */
++		if (!skb_shinfo(skb)->ip6_frag_id)
++			ipv6_proxy_select_ident(skb);
++
+ 		segs = NULL;
+ 		goto out;
+ 	}
+@@ -108,7 +112,11 @@ static struct sk_buff *udp6_ufo_fragment(struct sk_buff *skb,
+ 		fptr = (struct frag_hdr *)(skb_network_header(skb) + unfrag_ip6hlen);
+ 		fptr->nexthdr = nexthdr;
+ 		fptr->reserved = 0;
+-		fptr->identification = skb_shinfo(skb)->ip6_frag_id;
++		if (skb_shinfo(skb)->ip6_frag_id)
++			fptr->identification = skb_shinfo(skb)->ip6_frag_id;
++		else
++			ipv6_select_ident(fptr,
++					  (struct rt6_info *)skb_dst(skb));
+ 
+ 		/* Fragment the skb. ipv6 header and the remaining fields of the
+ 		 * fragment header are updated in ipv6_gso_segment()
+-- 
+1.9.3
