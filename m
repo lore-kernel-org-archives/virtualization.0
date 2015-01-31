@@ -1,13 +1,16 @@
-From: Gonglei <arei.gonglei@huawei.com>
-Subject: Re: [PATCH] vhost-scsi: introduce an ioctl to get the minimum tpgt
-Date: Fri, 30 Jan 2015 20:19:52 +0800
-Message-ID: <54CB76E8.9000300__16921.2917368442$1422660844$gmane$org@huawei.com>
-References: <1422277998-6308-1-git-send-email-arei.gonglei@huawei.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2 1/3] ipv6: Select fragment id during UFO segmentation
+	if not set.
+Date: Sat, 31 Jan 2015 19:11:21 +0200
+Message-ID: <20150131171121.GB31871@redhat.com>
+References: <1422646047-13168-1-git-send-email-vyasevic@redhat.com>
+	<1422646047-13168-2-git-send-email-vyasevic@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1422277998-6308-1-git-send-email-arei.gonglei@huawei.com>
+Content-Disposition: inline
+In-Reply-To: <1422646047-13168-2-git-send-email-vyasevic@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,96 +20,160 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Gonglei (Arei)" <arei.gonglei@huawei.com>
-Cc: "Subo (A)" <subo7@huawei.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "Huangpeng (Peter)" <peter.huangpeng@huawei.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Vladislav Yasevich <vyasevich@gmail.com>
+Cc: eric.dumazet@gmail.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, hannes@stressinduktion.org, ben@decadent.org.uk
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2015/1/26 21:13, Gonglei (Arei) wrote:
-
-> From: Gonglei <arei.gonglei@huawei.com>
+On Fri, Jan 30, 2015 at 02:27:25PM -0500, Vladislav Yasevich wrote:
+> If the IPv6 fragment id has not been set and we perform
+> fragmentation due to UFO, select a new fragment id.
+> We now consider a fragment id of 0 as unset and if id selection
+> process returns 0 (after all the pertrubations), we set it to
+> 0x80000000, thus giving us ample space not to create collisions
+> with the next packet we may have to fragment.
 > 
-> In order to support to assign a boot order for
-> vhost-scsi device, we should get the tpgt for
-> user level (such as Qemu). and at present, we
-> only support the minimum tpgt can boot.
+> When doing UFO integrity checking, we also select the
+> fragment id if it has not be set yet.   This is stored into
+
+s/be/been/
+
+> the skb_shinfo() thus allowing UFO to function correclty.
 > 
+> This patch also removes duplicate fragment id generation code
+> and moves ipv6_select_ident() into the header as it may be
+> used during GSO.
+> 
+> Signed-off-by: Vladislav Yasevich <vyasevic@redhat.com>
 
-Ping...
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-> Signed-off-by: Gonglei <arei.gonglei@huawei.com>
-> Signed-off-by: Bo Su <subo7@huawei.com>
 > ---
->  drivers/vhost/scsi.c       | 41 +++++++++++++++++++++++++++++++++++++++++
->  include/uapi/linux/vhost.h |  2 ++
->  2 files changed, 43 insertions(+)
+>  include/net/ipv6.h     |  3 +++
+>  net/ipv6/ip6_output.c  | 10 ++++------
+>  net/ipv6/output_core.c | 28 ++++++++++++++++++++++------
+>  net/ipv6/udp_offload.c | 10 +++++++++-
+>  4 files changed, 38 insertions(+), 13 deletions(-)
 > 
-> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-> index d695b16..12e79b9 100644
-> --- a/drivers/vhost/scsi.c
-> +++ b/drivers/vhost/scsi.c
-> @@ -1522,6 +1522,38 @@ err_dev:
->  	return ret;
+> diff --git a/include/net/ipv6.h b/include/net/ipv6.h
+> index 4292929..9bf85d3 100644
+> --- a/include/net/ipv6.h
+> +++ b/include/net/ipv6.h
+> @@ -671,6 +671,9 @@ static inline int ipv6_addr_diff(const struct in6_addr *a1, const struct in6_add
+>  	return __ipv6_addr_diff(a1, a2, sizeof(struct in6_addr));
 >  }
 >  
-> +static int vhost_scsi_get_first_tpgt(
-> +		struct vhost_scsi *vs,
-> +		struct vhost_scsi_target *t)
+> +u32 __ipv6_select_ident(u32 hashrnd, struct in6_addr *dst,
+> +			struct in6_addr *src);
+> +void ipv6_select_ident(struct frag_hdr *fhdr, struct rt6_info *rt);
+>  void ipv6_proxy_select_ident(struct sk_buff *skb);
+>  
+>  int ip6_dst_hoplimit(struct dst_entry *dst);
+> diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+> index ce69a12..5dc91fe 100644
+> --- a/net/ipv6/ip6_output.c
+> +++ b/net/ipv6/ip6_output.c
+> @@ -537,17 +537,15 @@ static void ip6_copy_metadata(struct sk_buff *to, struct sk_buff *from)
+>  	skb_copy_secmark(to, from);
+>  }
+>  
+> -static void ipv6_select_ident(struct frag_hdr *fhdr, struct rt6_info *rt)
+> +void ipv6_select_ident(struct frag_hdr *fhdr, struct rt6_info *rt)
+>  {
+>  	static u32 ip6_idents_hashrnd __read_mostly;
+> -	u32 hash, id;
+> +	u32 id;
+>  
+>  	net_get_random_once(&ip6_idents_hashrnd, sizeof(ip6_idents_hashrnd));
+>  
+> -	hash = __ipv6_addr_jhash(&rt->rt6i_dst.addr, ip6_idents_hashrnd);
+> -	hash = __ipv6_addr_jhash(&rt->rt6i_src.addr, hash);
+> -
+> -	id = ip_idents_reserve(hash, 1);
+> +	id = __ipv6_select_ident(ip6_idents_hashrnd, &rt->rt6i_dst.addr,
+> +				 &rt->rt6i_src.addr);
+>  	fhdr->identification = htonl(id);
+>  }
+>  
+> diff --git a/net/ipv6/output_core.c b/net/ipv6/output_core.c
+> index 97f41a3..ceb857d 100644
+> --- a/net/ipv6/output_core.c
+> +++ b/net/ipv6/output_core.c
+> @@ -9,6 +9,24 @@
+>  #include <net/addrconf.h>
+>  #include <net/secure_seq.h>
+>  
+> +u32 __ipv6_select_ident(u32 hashrnd, struct in6_addr *dst, struct in6_addr *src)
 > +{
-> +	struct tcm_vhost_tpg *tv_tpg;
-> +	struct tcm_vhost_tport *tv_tport;
-> +	int tpgt = -1;
+> +	u32 hash, id;
 > +
-> +	mutex_lock(&tcm_vhost_mutex);
-> +	mutex_lock(&vs->dev.mutex);
+> +	hash = __ipv6_addr_jhash(dst, hashrnd);
+> +	hash = __ipv6_addr_jhash(src, hash);
 > +
-> +	list_for_each_entry(tv_tpg, &tcm_vhost_list, tv_tpg_list) {
-> +		tv_tport = tv_tpg->tport;
+> +	/* Treat id of 0 as unset and if we get 0 back from ip_idents_reserve,
+> +	 * set the hight order instead thus minimizing possible future
+> +	 * collisions.      
+> +	*/
+> +	id = ip_idents_reserve(hash, 1);
+> +	if (unlikely(!id))
+> +		id = 1 << 31;
 > +
-> +		if (!strcmp(tv_tport->tport_name, t->vhost_wwpn)) {
-> +			if (tpgt < 0)
-> +				tpgt = tv_tpg->tport_tpgt;
-> +			else if (tpgt > tv_tpg->tport_tpgt)
-> +				tpgt = tv_tpg->tport_tpgt;
-> +		}
-> +	}
-> +
-> +	mutex_unlock(&vs->dev.mutex);
-> +	mutex_unlock(&tcm_vhost_mutex);
-> +
-> +	if (tpgt < 0)
-> +		return -ENXIO;
-> +
-> +	t->vhost_tpgt = tpgt;
-> +	return 0;
+> +	return id;
 > +}
 > +
->  static int vhost_scsi_set_features(struct vhost_scsi *vs, u64 features)
->  {
->  	struct vhost_virtqueue *vq;
-> @@ -1657,6 +1689,15 @@ vhost_scsi_ioctl(struct file *f,
->  		if (put_user(events_missed, eventsp))
->  			return -EFAULT;
->  		return 0;
-> +	case VHOST_SCSI_GET_TPGT:
-> +		if (copy_from_user(&backend, argp, sizeof(backend)))
-> +			return -EFAULT;
-> +		r = vhost_scsi_get_first_tpgt(vs, &backend);
-> +		if (r < 0)
-> +			return r;
-> +		if (copy_to_user(argp, &backend, sizeof(backend)))
-> +			return -EFAULT;
-> +		return 0;
->  	case VHOST_GET_FEATURES:
->  		features = VHOST_SCSI_FEATURES;
->  		if (copy_to_user(featurep, &features, sizeof features))
-> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-> index bb6a5b4..5d350f7 100644
-> --- a/include/uapi/linux/vhost.h
-> +++ b/include/uapi/linux/vhost.h
-> @@ -155,4 +155,6 @@ struct vhost_scsi_target {
->  #define VHOST_SCSI_SET_EVENTS_MISSED _IOW(VHOST_VIRTIO, 0x43, __u32)
->  #define VHOST_SCSI_GET_EVENTS_MISSED _IOW(VHOST_VIRTIO, 0x44, __u32)
+>  /* This function exists only for tap drivers that must support broken
+>   * clients requesting UFO without specifying an IPv6 fragment ID.
+>   *
+> @@ -22,7 +40,7 @@ void ipv6_proxy_select_ident(struct sk_buff *skb)
+>  	static u32 ip6_proxy_idents_hashrnd __read_mostly;
+>  	struct in6_addr buf[2];
+>  	struct in6_addr *addrs;
+> -	u32 hash, id;
+> +	u32 id;
 >  
-> +#define VHOST_SCSI_GET_TPGT _IOW(VHOST_VIRTIO, 0x45, struct vhost_scsi_target)
+>  	addrs = skb_header_pointer(skb,
+>  				   skb_network_offset(skb) +
+> @@ -34,11 +52,9 @@ void ipv6_proxy_select_ident(struct sk_buff *skb)
+>  	net_get_random_once(&ip6_proxy_idents_hashrnd,
+>  			    sizeof(ip6_proxy_idents_hashrnd));
+>  
+> -	hash = __ipv6_addr_jhash(&addrs[1], ip6_proxy_idents_hashrnd);
+> -	hash = __ipv6_addr_jhash(&addrs[0], hash);
+> -
+> -	id = ip_idents_reserve(hash, 1);
+> -	skb_shinfo(skb)->ip6_frag_id = htonl(id);
+> +	id = __ipv6_select_ident(ip6_proxy_idents_hashrnd,
+> +				 &addrs[1], &addrs[0]);
+> +	skb_shinfo(skb)->ip6_frag_id = id;
+>  }
+>  EXPORT_SYMBOL_GPL(ipv6_proxy_select_ident);
+>  
+> diff --git a/net/ipv6/udp_offload.c b/net/ipv6/udp_offload.c
+> index b6aa8ed..a562769 100644
+> --- a/net/ipv6/udp_offload.c
+> +++ b/net/ipv6/udp_offload.c
+> @@ -52,6 +52,10 @@ static struct sk_buff *udp6_ufo_fragment(struct sk_buff *skb,
+>  
+>  		skb_shinfo(skb)->gso_segs = DIV_ROUND_UP(skb->len, mss);
+>  
+> +		/* Set the IPv6 fragment id if not set yet */
+> +		if (!skb_shinfo(skb)->ip6_frag_id)
+> +			ipv6_proxy_select_ident(skb);
 > +
->  #endif
+>  		segs = NULL;
+>  		goto out;
+>  	}
+> @@ -108,7 +112,11 @@ static struct sk_buff *udp6_ufo_fragment(struct sk_buff *skb,
+>  		fptr = (struct frag_hdr *)(skb_network_header(skb) + unfrag_ip6hlen);
+>  		fptr->nexthdr = nexthdr;
+>  		fptr->reserved = 0;
+> -		fptr->identification = skb_shinfo(skb)->ip6_frag_id;
+> +		if (skb_shinfo(skb)->ip6_frag_id)
+> +			fptr->identification = skb_shinfo(skb)->ip6_frag_id;
+> +		else
+> +			ipv6_select_ident(fptr,
+> +					  (struct rt6_info *)skb_dst(skb));
+>  
+>  		/* Fragment the skb. ipv6 header and the remaining fields of the
+>  		 * fragment header are updated in ipv6_gso_segment()
+> -- 
+> 1.9.3
