@@ -1,13 +1,14 @@
 From: kbuild test robot <fengguang.wu@intel.com>
-Subject: [target:for-next 16/21] drivers/vhost/scsi.c:1081:5: sparse: symbol
-	'vhost_skip_iovec_bytes' was not declared. Should it be static?
+Subject: [PATCH target] vhost/scsi: vhost_skip_iovec_bytes() can be static
 Date: Mon, 2 Feb 2015 14:25:21 +0800
-Message-ID: <201502021411.KBLYtCzS%fengguang.wu@intel.com>
+Message-ID: <20150202062521.GA18113__29960.7601053596$1422858394$gmane$org@snb>
+References: <201502021411.KBLYtCzS%fengguang.wu@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <201502021411.KBLYtCzS%fengguang.wu@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,25 +22,23 @@ To: Nicholas Bellinger <nab@linux-iscsi.org>
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kbuild-all@01.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-tree:   git://git.kernel.org/pub/scm/linux/kernel/git/nab/target-pending.git for-next
-head:   2936f1d4f3e8247bd519feba7892371d5e4c6603
-commit: 105acf608f25d5e0d9fef669299a5438b7b114ee [16/21] vhost/scsi: Add ANY_LAYOUT vhost_skip_iovec_bytes helper
-reproduce:
-  # apt-get install sparse
-  git checkout 105acf608f25d5e0d9fef669299a5438b7b114ee
-  make ARCH=x86_64 allmodconfig
-  make C=1 CF=-D__CHECK_ENDIAN__
+drivers/vhost/scsi.c:1081:5: sparse: symbol 'vhost_skip_iovec_bytes' was not declared. Should it be static?
 
-
-sparse warnings: (new ones prefixed by >>)
-
->> drivers/vhost/scsi.c:1081:5: sparse: symbol 'vhost_skip_iovec_bytes' was not declared. Should it be static?
-   drivers/vhost/scsi.c:969:1: warning: 'vhost_scsi_mapal' defined but not used [-Wunused-function]
-    vhost_scsi_mapal(struct tcm_vhost_cmd *cmd, int max_niov,
-    ^
-
-Please review and possibly fold the followup patch.
-
+Signed-off-by: Fengguang Wu <fengguang.wu@intel.com>
 ---
-0-DAY kernel test infrastructure                Open Source Technology Center
-http://lists.01.org/mailman/listinfo/kbuild                 Intel Corporation
+ scsi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index d888bd9..8ac003f 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -1078,7 +1078,7 @@ vhost_scsi_send_bad_target(struct vhost_scsi *vs,
+ 		pr_err("Faulted on virtio_scsi_cmd_resp\n");
+ }
+ 
+-int vhost_skip_iovec_bytes(size_t bytes, int max_niov,
++static int vhost_skip_iovec_bytes(size_t bytes, int max_niov,
+ 			   struct iovec *iov_in, size_t off_in,
+ 			   struct iovec **iov_out, size_t *off_out)
+ {
