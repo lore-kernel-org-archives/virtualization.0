@@ -1,15 +1,13 @@
-From: Vlad Yasevich <vyasevic@redhat.com>
-Subject: Re: [PATCH v2 0/3] Restore UFO support to virtio_net devices
-Date: Mon, 02 Feb 2015 10:04:09 -0500
-Message-ID: <54CF91E9.5040108@redhat.com>
-References: <1422646047-13168-1-git-send-email-vyasevic@redhat.com>	<20150201.221935.283572621026340671.davem@davemloft.net>
-	<20150201.222834.1543634857152757099.davem@davemloft.net>
-Reply-To: vyasevic@redhat.com
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH v3 0/3] Restore UFO support to virtio_net devices
+Date: Mon, 02 Feb 2015 13:11:58 -0800 (PST)
+Message-ID: <20150202.131158.2302675247156677150.davem@davemloft.net>
+References: <1422889269-16007-1-git-send-email-vyasevic@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150201.222834.1543634857152757099.davem@davemloft.net>
+In-Reply-To: <1422889269-16007-1-git-send-email-vyasevic@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,27 +17,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>, vyasevich@gmail.com
+To: vyasevich@gmail.com
 Cc: eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, hannes@stressinduktion.org, ben@decadent.org.uk
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/02/2015 01:28 AM, David Miller wrote:
-> From: David Miller <davem@davemloft.net>
-> Date: Sun, 01 Feb 2015 22:19:35 -0800 (PST)
-> 
->> Series applied and queued up for -stable.
-> 
-> I have to revert, this breaks the build.
-> 
-> net/built-in.o: In function `udp6_ufo_fragment':
-> udp_offload.c:(.text+0x103380): undefined reference to `ipv6_select_ident'
-> 
 
-Sorry, Dave.  I am not sure what happened since the patches in my branch build
-and boot.
+Vlad, this still fails the same way.
 
-In any case just to make sure, I've rebased on the latest net, rebuilt and reposted
-the series.
+[davem@dokdo net]$ make -s -j8
+kernel/Makefile:132: *** No X.509 certificates found ***
+kernel/Makefile:132: *** No X.509 certificates found ***
+net/built-in.o: In function `udp6_ufo_fragment':
+udp_offload.c:(.text+0x103514): undefined reference to `ipv6_select_ident'
+make: *** [vmlinux] Error 1
 
-Thanks
--vlad
+You're putting ipv6_select_ident() into the ipv6 module via
+ip6_output.c, but that means that code like udp_offload.c which is
+built statically into the kernel can't see the symbol.
+
+Please build allmodconfig, that is the exact build I use to test your
+and everyone else's changes.
