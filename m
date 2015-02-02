@@ -1,14 +1,14 @@
-From: kbuild test robot <fengguang.wu@intel.com>
-Subject: [PATCH target] vhost/scsi: vhost_skip_iovec_bytes() can be static
-Date: Mon, 2 Feb 2015 14:25:21 +0800
-Message-ID: <20150202062521.GA18113__29960.7601053596$1422858394$gmane$org@snb>
-References: <201502021411.KBLYtCzS%fengguang.wu@intel.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH v2 0/3] Restore UFO support to virtio_net devices
+Date: Sun, 01 Feb 2015 22:28:34 -0800 (PST)
+Message-ID: <20150201.222834.1543634857152757099.davem__24121.5137452402$1422858524$gmane$org@davemloft.net>
+References: <1422646047-13168-1-git-send-email-vyasevic@redhat.com>
+	<20150201.221935.283572621026340671.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <201502021411.KBLYtCzS%fengguang.wu@intel.com>
+In-Reply-To: <20150201.221935.283572621026340671.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,27 +18,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nicholas Bellinger <nab@linux-iscsi.org>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kbuild-all@01.org
+To: vyasevich@gmail.com
+Cc: eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, hannes@stressinduktion.org, ben@decadent.org.uk
 List-Id: virtualization@lists.linuxfoundation.org
 
-drivers/vhost/scsi.c:1081:5: sparse: symbol 'vhost_skip_iovec_bytes' was not declared. Should it be static?
+From: David Miller <davem@davemloft.net>
+Date: Sun, 01 Feb 2015 22:19:35 -0800 (PST)
 
-Signed-off-by: Fengguang Wu <fengguang.wu@intel.com>
----
- scsi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> Series applied and queued up for -stable.
 
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index d888bd9..8ac003f 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -1078,7 +1078,7 @@ vhost_scsi_send_bad_target(struct vhost_scsi *vs,
- 		pr_err("Faulted on virtio_scsi_cmd_resp\n");
- }
- 
--int vhost_skip_iovec_bytes(size_t bytes, int max_niov,
-+static int vhost_skip_iovec_bytes(size_t bytes, int max_niov,
- 			   struct iovec *iov_in, size_t off_in,
- 			   struct iovec **iov_out, size_t *off_out)
- {
+I have to revert, this breaks the build.
+
+net/built-in.o: In function `udp6_ufo_fragment':
+udp_offload.c:(.text+0x103380): undefined reference to `ipv6_select_ident'
