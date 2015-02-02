@@ -1,19 +1,11 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH RFC v6 18/20] virtio: support revision-specific features
-Date: Mon, 2 Feb 2015 15:10:34 +0100
-Message-ID: <20150202151034.17281cf4.cornelia.huck@de.ibm.com>
-References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1418304322-7546-19-git-send-email-cornelia.huck@de.ibm.com>
-	<20141228083206.GA6802@redhat.com>
-	<20150107172232.57cbeb31.cornelia.huck@de.ibm.com>
-	<20150107191006.GB8734@redhat.com>
-	<20150130150808.007c6572.cornelia.huck@de.ibm.com>
-	<20150201212919.GB9804@redhat.com>
+From: Vladislav Yasevich <vyasevich@gmail.com>
+Subject: [PATCH v3 0/3] Restore UFO support to virtio_net devices
+Date: Mon,  2 Feb 2015 10:01:06 -0500
+Message-ID: <1422889269-16007-1-git-send-email-vyasevic@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150201212919.GB9804@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,56 +15,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: eric.dumazet@gmail.com, mst@redhat.com, virtualization@lists.linux-foundation.org, hannes@stressinduktion.org, ben@decadent.org.uk
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 1 Feb 2015 23:29:20 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+commit 3d0ad09412ffe00c9afa201d01effdb6023d09b4
+Author: Ben Hutchings <ben@decadent.org.uk>
+Date:   Thu Oct 30 18:27:12 2014 +0000
 
-> On Fri, Jan 30, 2015 at 03:08:08PM +0100, Cornelia Huck wrote:
-> > On Wed, 7 Jan 2015 21:10:07 +0200
-> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > 
-> > > On Wed, Jan 07, 2015 at 05:22:32PM +0100, Cornelia Huck wrote:
-> > > > On Sun, 28 Dec 2014 10:32:06 +0200
-> > > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > 
-> > > > > On Thu, Dec 11, 2014 at 02:25:20PM +0100, Cornelia Huck wrote:
-> > > > > > Devices may support different sets of feature bits depending on which
-> > > > > > revision they're operating at. Let's give the transport a way to
-> > > > > > re-query the device about its features when the revision has been
-> > > > > > changed.
-> > > > > > 
-> > > > > > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> > > > > 
-> > > > > So now we have both get_features and get_features_rev, and
-> > > > > it's never clear which revision does host_features refer to.
-> > > > > IMHO that's just too messy.
-> > > > > Let's add get_legacy_features and host_legacy_features instead?
-> > > > 
-> > > > I wanted to avoid touching anything that does not support version 1.
-> > > > And this interface might still work for later revisions, no?
-> > > 
-> > > We can add _modern_ then, or rename host_features to host_legacy_features
-> > > everywhere as preparation.
-> > > 
-> > 
-> > OK, I've ditched the "don't modify old stuff" goal and introduced
-> > ->get_features_legacy(). For now, devices will add VERSION_1 in their
-> > ->get_features() callback when they support it. (For many devices, this
-> > will be the only difference between the two callbacks.)
-> > 
-> > Two sets of host_features don't make much sense to me.
-> 
-> It's the most natural implementation given that
-> some features are only set for legacy and some (will be) only
-> for modern interfaces.
+    drivers/net: Disable UFO through virtio
 
-We may be talking about different things: There's the host_features
-field which is referenced by the different device types, and there are
-the sets of features for legacy or modern devices. These are currently
-set dynamically in the ->get_features() callbacks, although we could
-possibly convert them to pre-set values like in the kernel. Then I
-agree, two sets would be natural. But I'd rather stick with the current
-method, if only to avoid churn.
+Turned off UFO support to virtio-net based devices due to issues
+with IPv6 fragment id generation for UFO packets.  The issue
+was that IPv6 UFO/GSO implementation expects the fragment id
+to be supplied in skb_shinfo().  However, for packets generated
+by the VMs, the fragment id is not supplied which causes all
+IPv6 fragments to have the id of 0.
+
+The problem is that turning off UFO support on tap/macvtap
+as well as virtio devices caused issues with migrations.  
+Migrations would fail when moving a vm from a kernel supporting
+expecting UFO to work to the newer kernels that disabled UFO.
+
+This series provides a partial solution to address the migration
+issue.  The series allows us to track whether skb_shinfo()->ip6_frag_id
+has been set by treating value of 0 as unset.
+This lets GSO code to generate fragment ids if they are necessary
+(ex: packet was generated by VM or packet socket).
+
+Since v2:
+  - Rebase and rebuild to make sure everything works.  No changes
+    to the patches were done.
+
+Since v1:
+  - Removed the skb bit and use value of 0 as tracker.
+  - Used Eric's suggestion to set fragment id as 0x80000000 if id
+    generation procedure yeilded a 0 result.
+  - Consolidated ipv6 id genration code.
+
+Vladislav Yasevich (3):
+  ipv6: Select fragment id during UFO segmentation if not set.
+  Revert "drivers/net, ipv6: Select IPv6 fragment idents for virtio UFO
+    packets"
+  Revert "drivers/net: Disable UFO through virtio"
+
+ drivers/net/macvtap.c    | 16 ++++++++--------
+ drivers/net/tun.c        | 25 +++++++++----------------
+ drivers/net/virtio_net.c | 24 ++++++++++--------------
+ include/net/ipv6.h       |  3 +++
+ net/ipv6/ip6_output.c    | 10 ++++------
+ net/ipv6/output_core.c   | 28 ++++++++++++++++++++++------
+ net/ipv6/udp_offload.c   | 10 +++++++++-
+ 7 files changed, 65 insertions(+), 51 deletions(-)
+
+-- 
+1.9.3
