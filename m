@@ -1,19 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC v6 18/20] virtio: support revision-specific features
-Date: Sun, 1 Feb 2015 23:29:20 +0200
-Message-ID: <20150201212919.GB9804@redhat.com>
-References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1418304322-7546-19-git-send-email-cornelia.huck@de.ibm.com>
-	<20141228083206.GA6802@redhat.com>
-	<20150107172232.57cbeb31.cornelia.huck@de.ibm.com>
-	<20150107191006.GB8734@redhat.com>
-	<20150130150808.007c6572.cornelia.huck@de.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH v2 0/3] Restore UFO support to virtio_net devices
+Date: Sun, 01 Feb 2015 22:19:35 -0800 (PST)
+Message-ID: <20150201.221935.283572621026340671.davem@davemloft.net>
+References: <1422646047-13168-1-git-send-email-vyasevic@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20150130150808.007c6572.cornelia.huck@de.ibm.com>
+In-Reply-To: <1422646047-13168-1-git-send-email-vyasevic@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,49 +17,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: vyasevich@gmail.com
+Cc: eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, hannes@stressinduktion.org, ben@decadent.org.uk
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 30, 2015 at 03:08:08PM +0100, Cornelia Huck wrote:
-> On Wed, 7 Jan 2015 21:10:07 +0200
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> > On Wed, Jan 07, 2015 at 05:22:32PM +0100, Cornelia Huck wrote:
-> > > On Sun, 28 Dec 2014 10:32:06 +0200
-> > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > 
-> > > > On Thu, Dec 11, 2014 at 02:25:20PM +0100, Cornelia Huck wrote:
-> > > > > Devices may support different sets of feature bits depending on which
-> > > > > revision they're operating at. Let's give the transport a way to
-> > > > > re-query the device about its features when the revision has been
-> > > > > changed.
-> > > > > 
-> > > > > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> > > > 
-> > > > So now we have both get_features and get_features_rev, and
-> > > > it's never clear which revision does host_features refer to.
-> > > > IMHO that's just too messy.
-> > > > Let's add get_legacy_features and host_legacy_features instead?
-> > > 
-> > > I wanted to avoid touching anything that does not support version 1.
-> > > And this interface might still work for later revisions, no?
-> > 
-> > We can add _modern_ then, or rename host_features to host_legacy_features
-> > everywhere as preparation.
-> > 
-> 
-> OK, I've ditched the "don't modify old stuff" goal and introduced
-> ->get_features_legacy(). For now, devices will add VERSION_1 in their
-> ->get_features() callback when they support it. (For many devices, this
-> will be the only difference between the two callbacks.)
-> 
-> Two sets of host_features don't make much sense to me.
+From: Vladislav Yasevich <vyasevich@gmail.com>
+Date: Fri, 30 Jan 2015 14:27:24 -0500
 
-It's the most natural implementation given that
-some features are only set for legacy and some (will be) only
-for modern interfaces.
-But we'll see.
+> commit 3d0ad09412ffe00c9afa201d01effdb6023d09b4
+> Author: Ben Hutchings <ben@decadent.org.uk>
+> Date:   Thu Oct 30 18:27:12 2014 +0000
+> 
+>     drivers/net: Disable UFO through virtio
+> 
+> Turned off UFO support to virtio-net based devices due to issues
+> with IPv6 fragment id generation for UFO packets.  The issue
+> was that IPv6 UFO/GSO implementation expects the fragment id
+> to be supplied in skb_shinfo().  However, for packets generated
+> by the VMs, the fragment id is not supplied which causes all
+> IPv6 fragments to have the id of 0.
+> 
+> The problem is that turning off UFO support on tap/macvtap
+> as well as virtio devices caused issues with migrations.  
+> Migrations would fail when moving a vm from a kernel supporting
+> expecting UFO to work to the newer kernels that disabled UFO.
+> 
+> This series provides a partial solution to address the migration
+> issue.  The series allows us to track whether skb_shinfo()->ip6_frag_id
+> has been set by treating value of 0 as unset.
+> This lets GSO code to generate fragment ids if they are necessary
+> (ex: packet was generated by VM or packet socket).
+> 
+> Since v1:
+>   - Removed the skb bit and use value of 0 as tracker.
+>   - Used Eric's suggestion to set fragment id as 0x80000000 if id
+>     generation procedure yeilded a 0 result.
+>   - Consolidated ipv6 id genration code.
 
-> I've hacked up something and will play with it a bit; I might post a
-> new patch series next week.
+Series applied and queued up for -stable.
+
+There was some trailing whitespace in patch #1, which I fixed up.
