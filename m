@@ -1,15 +1,19 @@
-From: Fam Zheng <famz@redhat.com>
-Subject: Re: [PATCH target] vhost/scsi: vhost_skip_iovec_bytes() can be static
-Date: Mon, 2 Feb 2015 14:35:55 +0800
-Message-ID: <20150202063555.GA7376@ad.nay.redhat.com>
-References: <201502021411.KBLYtCzS%fengguang.wu@intel.com>
-	<20150202062521.GA18113@snb>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH RFC v6 18/20] virtio: support revision-specific features
+Date: Mon, 2 Feb 2015 15:10:34 +0100
+Message-ID: <20150202151034.17281cf4.cornelia.huck@de.ibm.com>
+References: <1418304322-7546-1-git-send-email-cornelia.huck@de.ibm.com>
+	<1418304322-7546-19-git-send-email-cornelia.huck@de.ibm.com>
+	<20141228083206.GA6802@redhat.com>
+	<20150107172232.57cbeb31.cornelia.huck@de.ibm.com>
+	<20150107191006.GB8734@redhat.com>
+	<20150130150808.007c6572.cornelia.huck@de.ibm.com>
+	<20150201212919.GB9804@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20150202062521.GA18113@snb>
+In-Reply-To: <20150201212919.GB9804@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,31 +23,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kbuild test robot <fengguang.wu@intel.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kbuild-all@01.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: thuth@linux.vnet.ibm.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 02/02 14:25, kbuild test robot wrote:
-> drivers/vhost/scsi.c:1081:5: sparse: symbol 'vhost_skip_iovec_bytes' was not declared. Should it be static?
-> 
-> Signed-off-by: Fengguang Wu <fengguang.wu@intel.com>
-> ---
->  scsi.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-> index d888bd9..8ac003f 100644
-> --- a/drivers/vhost/scsi.c
-> +++ b/drivers/vhost/scsi.c
-> @@ -1078,7 +1078,7 @@ vhost_scsi_send_bad_target(struct vhost_scsi *vs,
->  		pr_err("Faulted on virtio_scsi_cmd_resp\n");
->  }
->  
-> -int vhost_skip_iovec_bytes(size_t bytes, int max_niov,
-> +static int vhost_skip_iovec_bytes(size_t bytes, int max_niov,
->  			   struct iovec *iov_in, size_t off_in,
->  			   struct iovec **iov_out, size_t *off_out)
+On Sun, 1 Feb 2015 23:29:20 +0200
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-Probably keep the parameter list lines aligned?
+> On Fri, Jan 30, 2015 at 03:08:08PM +0100, Cornelia Huck wrote:
+> > On Wed, 7 Jan 2015 21:10:07 +0200
+> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > 
+> > > On Wed, Jan 07, 2015 at 05:22:32PM +0100, Cornelia Huck wrote:
+> > > > On Sun, 28 Dec 2014 10:32:06 +0200
+> > > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > > 
+> > > > > On Thu, Dec 11, 2014 at 02:25:20PM +0100, Cornelia Huck wrote:
+> > > > > > Devices may support different sets of feature bits depending on which
+> > > > > > revision they're operating at. Let's give the transport a way to
+> > > > > > re-query the device about its features when the revision has been
+> > > > > > changed.
+> > > > > > 
+> > > > > > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> > > > > 
+> > > > > So now we have both get_features and get_features_rev, and
+> > > > > it's never clear which revision does host_features refer to.
+> > > > > IMHO that's just too messy.
+> > > > > Let's add get_legacy_features and host_legacy_features instead?
+> > > > 
+> > > > I wanted to avoid touching anything that does not support version 1.
+> > > > And this interface might still work for later revisions, no?
+> > > 
+> > > We can add _modern_ then, or rename host_features to host_legacy_features
+> > > everywhere as preparation.
+> > > 
+> > 
+> > OK, I've ditched the "don't modify old stuff" goal and introduced
+> > ->get_features_legacy(). For now, devices will add VERSION_1 in their
+> > ->get_features() callback when they support it. (For many devices, this
+> > will be the only difference between the two callbacks.)
+> > 
+> > Two sets of host_features don't make much sense to me.
+> 
+> It's the most natural implementation given that
+> some features are only set for legacy and some (will be) only
+> for modern interfaces.
 
-Fam
+We may be talking about different things: There's the host_features
+field which is referenced by the different device types, and there are
+the sets of features for legacy or modern devices. These are currently
+set dynamically in the ->get_features() callbacks, although we could
+possibly convert them to pre-set values like in the kernel. Then I
+agree, two sets would be natural. But I'd rather stick with the current
+method, if only to avoid churn.
