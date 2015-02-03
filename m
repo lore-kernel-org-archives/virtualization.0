@@ -1,14 +1,12 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v3 0/3] Restore UFO support to virtio_net devices
-Date: Mon, 02 Feb 2015 17:49:18 -0800 (PST)
-Message-ID: <20150202.174918.1368082761533704490.davem__291.053418959741$1422928169$gmane$org@davemloft.net>
-References: <1422889269-16007-1-git-send-email-vyasevic@redhat.com>
-	<20150202.131158.2302675247156677150.davem@davemloft.net>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH for-3.19] vhost/net: fix up num_buffers endian-ness
+Date: Tue, 3 Feb 2015 11:07:06 +0200
+Message-ID: <1422896842-19186-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150202.131158.2302675247156677150.davem@davemloft.net>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,21 +16,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: vyasevich@gmail.com
-Cc: eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, hannes@stressinduktion.org, ben@decadent.org.uk
+To: linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, viro@ZenIV.linux.org.uk, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: David Miller <davem@davemloft.net>
-Date: Mon, 02 Feb 2015 13:11:58 -0800 (PST)
+In virtio 1.0 mode, when mergeable buffers are enabled on a big-endian
+host, num_buffers wasn't byte-swapped correctly, so large incoming
+packets got corrupted.
 
-> Vlad, this still fails the same way.
- ...
-> Please build allmodconfig, that is the exact build I use to test your
-> and everyone else's changes.
+To fix, fill it in within hdr - this also makes sure it gets
+the correct type.
 
-Oh, also, there is trailing whitespace in one of the comments added
-by patch #1.  I've been silently fixing it up for you, but since you
-have to respin this one more time I'd appreciate it if you're fix
-it up in your copy this time. :)
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
 
-Thanks.
+It seems important to get this into 3.19, otherwise
+VIRTIO_1 feature bit is unreliable.
+
+Dave, do you plan another pull request for 3.19?
+If yes pls merge this, if not pls let me know and I'll try to
+send it to Linus directly.
+
+
+ drivers/vhost/net.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index d415d69..9484d56 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -650,8 +650,10 @@ static void handle_rx(struct vhost_net *net)
+ 			break;
+ 		}
+ 		/* TODO: Should check and handle checksum. */
++
++		hdr.num_buffers = cpu_to_vhost16(vq, headcount);
+ 		if (likely(mergeable) &&
+-		    memcpy_toiovecend(nvq->hdr, (unsigned char *)&headcount,
++		    memcpy_toiovecend(nvq->hdr, (void *)&hdr.num_buffers,
+ 				      offsetof(typeof(hdr), num_buffers),
+ 				      sizeof hdr.num_buffers)) {
+ 			vq_err(vq, "Failed num_buffers write");
+-- 
+MST
