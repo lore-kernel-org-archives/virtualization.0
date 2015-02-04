@@ -1,16 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 16/18] vhost: don't bother with copying iovec in
-	handle_tx()
-Date: Wed, 4 Feb 2015 10:13:52 +0100
-Message-ID: <20150204091352.GF9920@redhat.com>
-References: <20150204063730.GG29656@ZenIV.linux.org.uk>
-	<1423032009-18367-16-git-send-email-viro@ZenIV.linux.org.uk>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH for-3.19] vhost/net: fix up num_buffers endian-ness
+Date: Wed, 04 Feb 2015 13:59:42 -0800 (PST)
+Message-ID: <20150204.135942.127858058517785730.davem@davemloft.net>
+References: <1422896842-19186-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1423032009-18367-16-git-send-email-viro@ZenIV.linux.org.uk>
+In-Reply-To: <1422896842-19186-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,59 +17,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Al Viro <viro@ZenIV.linux.org.uk>
-Cc: netdev@vger.kernel.org, David Miller <davem@davemloft.net>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: mst@redhat.com
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, viro@ZenIV.linux.org.uk
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 04, 2015 at 06:40:07AM +0000, Al Viro wrote:
-> From: Al Viro <viro@zeniv.linux.org.uk>
-> 
-> just advance the msg.msg_iter and be done with that.
-> 
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Cc: kvm@vger.kernel.org
-> Cc: virtualization@lists.linux-foundation.org
-> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Tue, 3 Feb 2015 11:07:06 +0200
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-> ---
->  drivers/vhost/net.c | 9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
+> In virtio 1.0 mode, when mergeable buffers are enabled on a big-endian
+> host, num_buffers wasn't byte-swapped correctly, so large incoming
+> packets got corrupted.
 > 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 6906f76..d86cc9b 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -336,7 +336,7 @@ static void handle_tx(struct vhost_net *net)
->  {
->  	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
->  	struct vhost_virtqueue *vq = &nvq->vq;
-> -	unsigned out, in, s;
-> +	unsigned out, in;
->  	int head;
->  	struct msghdr msg = {
->  		.msg_name = NULL,
-> @@ -395,16 +395,17 @@ static void handle_tx(struct vhost_net *net)
->  			break;
->  		}
->  		/* Skip header. TODO: support TSO. */
-> -		s = move_iovec_hdr(vq->iov, nvq->hdr, hdr_size, out);
->  		len = iov_length(vq->iov, out);
->  		iov_iter_init(&msg.msg_iter, WRITE, vq->iov, out, len);
-> +		iov_iter_advance(&msg.msg_iter, hdr_size);
->  		/* Sanity check */
-> -		if (!len) {
-> +		if (!iov_iter_count(&msg.msg_iter)) {
->  			vq_err(vq, "Unexpected header len for TX: "
->  			       "%zd expected %zd\n",
-> -			       iov_length(nvq->hdr, s), hdr_size);
-> +			       len, hdr_size);
->  			break;
->  		}
-> +		len = iov_iter_count(&msg.msg_iter);
->  
->  		zcopy_used = zcopy && len >= VHOST_GOODCOPY_LEN
->  				   && (nvq->upend_idx + 1) % UIO_MAXIOV !=
-> -- 
-> 2.1.4
+> To fix, fill it in within hdr - this also makes sure it gets
+> the correct type.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+Applied.
