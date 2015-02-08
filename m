@@ -1,16 +1,16 @@
-From: Davidlohr Bueso <dave@stgolabs.net>
+From: Oleg Nesterov <oleg@redhat.com>
 Subject: Re: [PATCH] x86 spinlock: Fix memory corruption on completing
 	completions
-Date: Fri, 06 Feb 2015 15:24:07 -0800
-Message-ID: <1423265047.1057.8.camel@stgolabs.net>
+Date: Sun, 8 Feb 2015 18:14:57 +0100
+Message-ID: <20150208171457.GA18766@redhat.com>
 References: <1423234148-13886-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
-	<CA+55aFwZOgiUe5Zm=o24d6SshvoLbF1bq_VT0hdijR1hfoyi4A@mail.gmail.com>
-	<1423251764.1057.1.camel@stgolabs.net> <54D52EDC.9000602@oracle.com>
+	<54D4DBA1.1030905@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <54D52EDC.9000602@oracle.com>
+Content-Disposition: inline
+In-Reply-To: <54D4DBA1.1030905@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,37 +21,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Sasha Levin <sasha.levin@oracle.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, KVM list <kvm@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, virtualization <virtualization@lists.linux-foundation.org>, Paul Gortmaker <paul.gortmaker@windriver.com>, Peter Anvin <hpa@zytor.com>, Andi Kleen <ak@linux.intel.com>, Andrey Ryabinin <a.ryabinin@samsung.com>, the arch/x86 maintainers <x86@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org, Paul McKenney <paulmck@linux.vnet.ibm.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Dave Jones <davej@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Waiman Long <waiman.long@hp.com>, Oleg Nesterov <oleg@redhat.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>
+Cc: jeremy@goop.org, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, kvm@vger.kernel.org, peterz@infradead.org, virtualization@lists.linux-foundation.org, paul.gortmaker@windriver.com, hpa@zytor.com, ak@linux.intel.com, a.ryabinin@samsung.com, x86@kernel.org, borntraeger@de.ibm.com, mingo@redhat.com, xen-devel@lists.xenproject.org, paulmck@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, davej@redhat.com, tglx@linutronix.de, waiman.long@hp.com, linux-kernel@vger.kernel.org, pbonzini@redhat.com, akpm@linux-foundation.org, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2015-02-06 at 16:15 -0500, Sasha Levin wrote:
-> On 02/06/2015 02:42 PM, Davidlohr Bueso wrote:
-> > On Fri, 2015-02-06 at 08:25 -0800, Linus Torvalds wrote:
-> >> On Fri, Feb 6, 2015 at 6:49 AM, Raghavendra K T
-> >> <raghavendra.kt@linux.vnet.ibm.com> wrote:
-> >>> Paravirt spinlock clears slowpath flag after doing unlock.
-> >> [ fix edited out ]
-> >>
-> >> So I'm not going to be applying this for 3.19, because it's much too
-> >> late and the patch is too scary. Plus the bug probably effectively
-> >> never shows up in real life (it is probably easy to trigger the
-> >> speculative *read* but probably never the actual speculative write
-> >> after dropping the lock last).
-> >>
-> >> This will need a lot of testing by the paravirt people - both
-> >> performance and correctness. So *maybe* for 3.20, but maybe for even
-> >> later, and then marked for stable, of course.
-> >>
-> >> Are there any good paravirt stress-tests that people could run for
-> >> extended times?
-> > 
-> > locktorture inside a VM should give a proper pounding.
+On 02/06, Sasha Levin wrote:
+>
+> Can we modify it slightly to avoid potentially accessing invalid memory:
 > 
-> Would it catch lifetime issues too? I thought it just tests out correctness.
+> diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
+> index 5315887..cd22d73 100644
+> --- a/arch/x86/include/asm/spinlock.h
+> +++ b/arch/x86/include/asm/spinlock.h
+> @@ -144,13 +144,13 @@ static __always_inline void arch_spin_unlock(arch_spinlock_t *lock
+>         if (TICKET_SLOWPATH_FLAG &&
+>                 static_key_false(&paravirt_ticketlocks_enabled)) {
+>                 __ticket_t prev_head;
+> -
+> +               bool needs_kick = lock->tickets.tail & TICKET_SLOWPATH_FLAG;
+>                 prev_head = lock->tickets.head;
+>                 add_smp(&lock->tickets.head, TICKET_LOCK_INC);
+> 
+>                 /* add_smp() is a full mb() */
+> 
+> -               if (unlikely(lock->tickets.tail & TICKET_SLOWPATH_FLAG)) {
+> +               if (unlikely(needs_kick)) {
 
-Given enough contention it should, yeah. The spinlock can be acquired by
-another thread right after releasing the lock in the unlock's slowpath.
-And all locktorture does is pound on locks with random hold times.
+This doesn't look right too...
 
-Thanks,
-Davidlohr
+We need to guarantee that either unlock() sees TICKET_SLOWPATH_FLAG, or
+the calller of __ticket_enter_slowpath() sees the result of add_smp().
+
+Suppose that kvm_lock_spinning() is called right before add_smp() and it
+sets SLOWPATH. It will block then because .head != want, and it needs
+__ticket_unlock_kick().
+
+Oleg.
