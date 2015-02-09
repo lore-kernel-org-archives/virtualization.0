@@ -1,8 +1,8 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH RFC v5 net-next 4/6] virtio-net: add basic interrupt
-	coalescing support
-Date: Mon,  9 Feb 2015 03:39:23 -0500
-Message-ID: <1423471165-34243-5-git-send-email-jasowang@redhat.com>
+Subject: [PATCH RFC v5 net-next 5/6] vhost: let vhost_signal() returns whether
+	signalled
+Date: Mon,  9 Feb 2015 03:39:24 -0500
+Message-ID: <1423471165-34243-6-git-send-email-jasowang__7120.71999810195$1423471235$gmane$org@redhat.com>
 References: <1423471165-34243-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,141 +22,49 @@ To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.l
 Cc: pagupta@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch enables the interrupt coalescing setting through ethtool.
+Let vhost_signal() return whether or not vhost has injected an
+interrupt to guest. This is used for interrupt coalescing
+implementation to calculate the interval between two interrupts.
 
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/virtio_net.c        | 67 +++++++++++++++++++++++++++++++++++++++++
- include/uapi/linux/virtio_net.h | 12 ++++++++
- 2 files changed, 79 insertions(+)
+ drivers/vhost/vhost.c | 7 +++++--
+ drivers/vhost/vhost.h | 2 +-
+ 2 files changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index cc5f5de..2b958fb 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -145,6 +145,11 @@ struct virtnet_info {
- 
- 	/* Budget for polling tx completion */
- 	u32 tx_work_limit;
-+
-+	__u32 rx_coalesce_usecs;
-+	__u32 rx_max_coalesced_frames;
-+	__u32 tx_coalesce_usecs;
-+	__u32 tx_max_coalesced_frames;
- };
- 
- struct padded_vnet_hdr {
-@@ -1404,12 +1409,73 @@ static void virtnet_get_channels(struct net_device *dev,
- 	channels->other_count = 0;
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index cb807d0..20d6b84 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -1480,11 +1480,14 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
  }
  
-+static int virtnet_set_coalesce(struct net_device *dev,
-+				struct ethtool_coalesce *ec)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+	struct scatterlist sg;
-+	struct virtio_net_ctrl_coalesce c;
-+
-+	if (!vi->has_cvq ||
-+	    !virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_COALESCE))
-+		return -EOPNOTSUPP;
-+	if (vi->rx_coalesce_usecs != ec->rx_coalesce_usecs ||
-+	    vi->rx_max_coalesced_frames != ec->rx_max_coalesced_frames) {
-+		c.coalesce_usecs = ec->rx_coalesce_usecs;
-+		c.max_coalesced_frames = ec->rx_max_coalesced_frames;
-+		sg_init_one(&sg, &c, sizeof(c));
-+		if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_COALESCE,
-+					  VIRTIO_NET_CTRL_COALESCE_RX_SET,
-+					  &sg)) {
-+			dev_warn(&dev->dev, "Fail to set rx coalescing\n");
-+			return -EINVAL;
-+		}
-+		vi->rx_coalesce_usecs = ec->rx_coalesce_usecs;
-+		vi->rx_max_coalesced_frames = ec->rx_max_coalesced_frames;
+ /* This actually signals the guest, using eventfd. */
+-void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
++bool vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+ {
+ 	/* Signal the Guest tell them we used something up. */
+-	if (vq->call_ctx && vhost_notify(dev, vq))
++	if (vq->call_ctx && vhost_notify(dev, vq)) {
+ 		eventfd_signal(vq->call_ctx, 1);
++		return true;
 +	}
-+
-+	if (vi->tx_coalesce_usecs != ec->tx_coalesce_usecs ||
-+	    vi->tx_max_coalesced_frames != ec->tx_max_coalesced_frames) {
-+		c.coalesce_usecs = ec->tx_coalesce_usecs;
-+		c.max_coalesced_frames = ec->tx_max_coalesced_frames;
-+		sg_init_one(&sg, &c, sizeof(c));
-+		if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_COALESCE,
-+					  VIRTIO_NET_CTRL_COALESCE_TX_SET,
-+					  &sg)) {
-+			dev_warn(&dev->dev, "Fail to set tx coalescing\n");
-+			return -EINVAL;
-+		}
-+		vi->tx_coalesce_usecs = ec->tx_coalesce_usecs;
-+		vi->tx_max_coalesced_frames = ec->tx_max_coalesced_frames;
-+	}
-+
-+	vi->tx_work_limit = ec->tx_max_coalesced_frames_irq;
-+
-+	return 0;
-+}
-+
-+static int virtnet_get_coalesce(struct net_device *dev,
-+				struct ethtool_coalesce *ec)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+
-+	ec->rx_coalesce_usecs = vi->rx_coalesce_usecs;
-+	ec->rx_max_coalesced_frames = vi->rx_max_coalesced_frames;
-+	ec->tx_coalesce_usecs = vi->tx_coalesce_usecs;
-+	ec->tx_max_coalesced_frames = vi->tx_max_coalesced_frames;
-+	ec->tx_max_coalesced_frames_irq = vi->tx_work_limit;
-+
-+	return 0;
-+}
-+
- static const struct ethtool_ops virtnet_ethtool_ops = {
- 	.get_drvinfo = virtnet_get_drvinfo,
- 	.get_link = ethtool_op_get_link,
- 	.get_ringparam = virtnet_get_ringparam,
- 	.set_channels = virtnet_set_channels,
- 	.get_channels = virtnet_get_channels,
-+	.set_coalesce = virtnet_set_coalesce,
-+	.get_coalesce = virtnet_get_coalesce,
- };
++	return false;
+ }
+ EXPORT_SYMBOL_GPL(vhost_signal);
  
- #define MIN_MTU 68
-@@ -2048,6 +2114,7 @@ static unsigned int features[] = {
- 	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ,
- 	VIRTIO_NET_F_CTRL_MAC_ADDR,
- 	VIRTIO_F_ANY_LAYOUT,
-+	VIRTIO_NET_F_CTRL_COALESCE,
- };
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index 8c1c792..a482563 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -148,7 +148,7 @@ void vhost_add_used_and_signal(struct vhost_dev *, struct vhost_virtqueue *,
+ 			       unsigned int id, int len);
+ void vhost_add_used_and_signal_n(struct vhost_dev *, struct vhost_virtqueue *,
+ 			       struct vring_used_elem *heads, unsigned count);
+-void vhost_signal(struct vhost_dev *, struct vhost_virtqueue *);
++bool vhost_signal(struct vhost_dev *, struct vhost_virtqueue *);
+ void vhost_disable_notify(struct vhost_dev *, struct vhost_virtqueue *);
+ bool vhost_enable_notify(struct vhost_dev *, struct vhost_virtqueue *);
  
- static struct virtio_driver virtio_net_driver = {
-diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-index b5f1677..332009d 100644
---- a/include/uapi/linux/virtio_net.h
-+++ b/include/uapi/linux/virtio_net.h
-@@ -34,6 +34,7 @@
- /* The feature bitmap for virtio net */
- #define VIRTIO_NET_F_CSUM	0	/* Host handles pkts w/ partial csum */
- #define VIRTIO_NET_F_GUEST_CSUM	1	/* Guest handles pkts w/ partial csum */
-+#define VIRTIO_NET_F_CTRL_COALESCE 3	/* Set coalescing */
- #define VIRTIO_NET_F_MAC	5	/* Host has given MAC address. */
- #define VIRTIO_NET_F_GSO	6	/* Host handles pkts w/ any GSO type */
- #define VIRTIO_NET_F_GUEST_TSO4	7	/* Guest can handle TSOv4 in. */
-@@ -202,4 +203,15 @@ struct virtio_net_ctrl_mq {
-  #define VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MIN        1
-  #define VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MAX        0x8000
- 
-+struct virtio_net_ctrl_coalesce {
-+	__u32 coalesce_usecs;
-+	__u32 max_coalesced_frames;
-+};
-+
-+#define VIRTIO_NET_CTRL_COALESCE 6
-+ #define VIRTIO_NET_CTRL_COALESCE_TX_SET 0
-+ #define VIRTIO_NET_CTRL_COALESCE_TX_GET 1
-+ #define VIRTIO_NET_CTRL_COALESCE_RX_SET 2
-+ #define VIRTIO_NET_CTRL_COALESCE_RX_GET 3
-+
- #endif /* _LINUX_VIRTIO_NET_H */
 -- 
 1.8.3.1
