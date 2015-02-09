@@ -1,14 +1,13 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH] x86 spinlock: Fix memory corruption on completing
-	completions
-Date: Sun, 08 Feb 2015 13:14:03 -0800
-Message-ID: <54D7D19B.1000103__49552.9296844781$1423430559$gmane$org@goop.org>
-References: <1423234148-13886-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio: Avoid possible kernel panic if DEBUG is enabled.
+Date: Mon, 09 Feb 2015 10:32:46 +1030
+Message-ID: <878ug83qah.fsf@rustcorp.com.au>
+References: <201502062105.FDF56296.JSVQHFOOFFOtML@I-love.SAKURA.ne.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1423234148-13886-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
+In-Reply-To: <201502062105.FDF56296.JSVQHFOOFFOtML@I-love.SAKURA.ne.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,199 +17,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, peterz@infradead.org, torvalds@linux-foundation.org
-Cc: waiman.long@hp.com, riel@redhat.com, ak@linux.intel.com, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, konrad.wilk@oracle.com, a.ryabinin@samsung.com, x86@kernel.org, oleg@redhat.com, linux-kernel@vger.kernel.org, paul.gortmaker@windriver.com, davej@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, paulmck@linux.vnet.ibm.com, virtualization@lists.linux-foundation.org, borntraeger@de.ibm.com, sasha.levin@oracle.com
+To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, mst@redhat.com
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/06/2015 06:49 AM, Raghavendra K T wrote:
-> Paravirt spinlock clears slowpath flag after doing unlock.
-> As explained by Linus currently it does:
->                 prev = *lock;
->                 add_smp(&lock->tickets.head, TICKET_LOCK_INC);
->
->                 /* add_smp() is a full mb() */
->
->                 if (unlikely(lock->tickets.tail & TICKET_SLOWPATH_FLAG))
->                         __ticket_unlock_slowpath(lock, prev);
->
->
-> which is *exactly* the kind of things you cannot do with spinlocks,
-> because after you've done the "add_smp()" and released the spinlock
-> for the fast-path, you can't access the spinlock any more.  Exactly
-> because a fast-path lock might come in, and release the whole data
-> structure.
+Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp> writes:
 
-Yeah, that's an embarrasingly obvious bug in retrospect.
-
-> Linus suggested that we should not do any writes to lock after unlock(),
-> and we can move slowpath clearing to fastpath lock.
-
-Yep, that seems like a sound approach.
-
-> However it brings additional case to be handled, viz., slowpath still
-> could be set when somebody does arch_trylock. Handle that too by ignoring
-> slowpath flag during lock availability check.
+>>From 11fd997d724f520ca628615e7ffbfd7901c40b62 Mon Sep 17 00:00:00 2001
+> From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> Date: Fri, 6 Feb 2015 13:28:38 +0900
+> Subject: [PATCH] virtio: Avoid possible kernel panic if DEBUG is enabled.
 >
-> Reported-by: Sasha Levin <sasha.levin@oracle.com>
-> Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-> Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+> The virtqueue_add() calls START_USE() upon entry. The virtqueue_kick() is
+> called if vq->num_added == (1 << 16) - 1 before calling END_USE().
+> The virtqueue_kick_prepare() called via virtqueue_kick() calls START_USE()
+> upon entry, and will call panic() if DEBUG is enabled.
+> Move this virtqueue_kick() call to after END_USE() call.
+
+Thanks, applied.
+
+Cheers,
+Rusty.
+
+>
+> Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 > ---
->  arch/x86/include/asm/spinlock.h | 70 ++++++++++++++++++++---------------------
->  1 file changed, 34 insertions(+), 36 deletions(-)
+>  drivers/virtio/virtio_ring.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 >
-> diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
-> index 625660f..0829f86 100644
-> --- a/arch/x86/include/asm/spinlock.h
-> +++ b/arch/x86/include/asm/spinlock.h
-> @@ -49,6 +49,23 @@ static inline void __ticket_enter_slowpath(arch_spinlock_t *lock)
->  	set_bit(0, (volatile unsigned long *)&lock->tickets.tail);
->  }
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 00ec6b3..596735b 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -245,14 +245,14 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+>  	vq->vring.avail->idx = cpu_to_virtio16(_vq->vdev, virtio16_to_cpu(_vq->vdev, vq->vring.avail->idx) + 1);
+>  	vq->num_added++;
 >  
-> +static inline void __ticket_check_and_clear_slowpath(arch_spinlock_t *lock)
-> +{
-> +	arch_spinlock_t old, new;
-> +	__ticket_t diff;
+> +	pr_debug("Added buffer head %i to %p\n", head, vq);
+> +	END_USE(vq);
 > +
-> +	old.tickets = READ_ONCE(lock->tickets);
-
-Couldn't the caller pass in the lock state that it read rather than
-re-reading it?
-
-> +	diff = (old.tickets.tail & ~TICKET_SLOWPATH_FLAG) - old.tickets.head;
-> +
-> +	/* try to clear slowpath flag when there are no contenders */
-> +	if ((old.tickets.tail & TICKET_SLOWPATH_FLAG) &&
-> +		(diff == TICKET_LOCK_INC)) {
-> +		new = old;
-> +		new.tickets.tail &= ~TICKET_SLOWPATH_FLAG;
-> +		cmpxchg(&lock->head_tail, old.head_tail, new.head_tail);
-> +	}
-> +}
-> +
->  #else  /* !CONFIG_PARAVIRT_SPINLOCKS */
->  static __always_inline void __ticket_lock_spinning(arch_spinlock_t *lock,
->  							__ticket_t ticket)
-> @@ -59,6 +76,10 @@ static inline void __ticket_unlock_kick(arch_spinlock_t *lock,
->  {
+>  	/* This is very unlikely, but theoretically possible.  Kick
+>  	 * just in case. */
+>  	if (unlikely(vq->num_added == (1 << 16) - 1))
+>  		virtqueue_kick(_vq);
+>  
+> -	pr_debug("Added buffer head %i to %p\n", head, vq);
+> -	END_USE(vq);
+> -
+>  	return 0;
 >  }
 >  
-> +static inline void __ticket_check_and_clear_slowpath(arch_spinlock_t *lock)
-> +{
-> +}
-> +
->  #endif /* CONFIG_PARAVIRT_SPINLOCKS */
->  
->  static __always_inline int arch_spin_value_unlocked(arch_spinlock_t lock)
-> @@ -84,7 +105,7 @@ static __always_inline void arch_spin_lock(arch_spinlock_t *lock)
->  	register struct __raw_tickets inc = { .tail = TICKET_LOCK_INC };
->  
->  	inc = xadd(&lock->tickets, inc);
-> -	if (likely(inc.head == inc.tail))
-> +	if (likely(inc.head == (inc.tail & ~TICKET_SLOWPATH_FLAG)))
-
-The intent of this conditional was to be the quickest possible path when
-taking a fastpath lock, with the code below being used for all slowpath
-locks (free or taken). So I don't think masking out SLOWPATH_FLAG is
-necessary here.
-
->  		goto out;
->  
->  	inc.tail &= ~TICKET_SLOWPATH_FLAG;
-> @@ -98,7 +119,10 @@ static __always_inline void arch_spin_lock(arch_spinlock_t *lock)
->  		} while (--count);
->  		__ticket_lock_spinning(lock, inc.tail);
->  	}
-> -out:	barrier();	/* make sure nothing creeps before the lock is taken */
-> +out:
-> +	__ticket_check_and_clear_slowpath(lock);
-> +
-> +	barrier();	/* make sure nothing creeps before the lock is taken */
-
-Which means that if "goto out" path is only ever used for fastpath
-locks, you can limit calling __ticket_check_and_clear_slowpath() to the
-slowpath case.
-
->  }
->  
->  static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
-> @@ -115,47 +139,21 @@ static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
->  	return cmpxchg(&lock->head_tail, old.head_tail, new.head_tail) == old.head_tail;
->  }
->  
-> -static inline void __ticket_unlock_slowpath(arch_spinlock_t *lock,
-> -					    arch_spinlock_t old)
-> -{
-> -	arch_spinlock_t new;
-> -
-> -	BUILD_BUG_ON(((__ticket_t)NR_CPUS) != NR_CPUS);
-> -
-> -	/* Perform the unlock on the "before" copy */
-> -	old.tickets.head += TICKET_LOCK_INC;
-
-NB (see below)
-
-> -
-> -	/* Clear the slowpath flag */
-> -	new.head_tail = old.head_tail & ~(TICKET_SLOWPATH_FLAG << TICKET_SHIFT);
-> -
-> -	/*
-> -	 * If the lock is uncontended, clear the flag - use cmpxchg in
-> -	 * case it changes behind our back though.
-> -	 */
-> -	if (new.tickets.head != new.tickets.tail ||
-> -	    cmpxchg(&lock->head_tail, old.head_tail,
-> -					new.head_tail) != old.head_tail) {
-> -		/*
-> -		 * Lock still has someone queued for it, so wake up an
-> -		 * appropriate waiter.
-> -		 */
-> -		__ticket_unlock_kick(lock, old.tickets.head);
-> -	}
-> -}
-> -
->  static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
->  {
->  	if (TICKET_SLOWPATH_FLAG &&
-> -	    static_key_false(&paravirt_ticketlocks_enabled)) {
-> -		arch_spinlock_t prev;
-> +		static_key_false(&paravirt_ticketlocks_enabled)) {
-> +		__ticket_t prev_head;
->  
-> -		prev = *lock;
-> +		prev_head = lock->tickets.head;
->  		add_smp(&lock->tickets.head, TICKET_LOCK_INC);
->  
->  		/* add_smp() is a full mb() */
->  
-> -		if (unlikely(lock->tickets.tail & TICKET_SLOWPATH_FLAG))
-> -			__ticket_unlock_slowpath(lock, prev);
-> +		if (unlikely(lock->tickets.tail & TICKET_SLOWPATH_FLAG)) {
-
-So we're OK with still having a ("speculative"?) read-after-unlock here?
-I guess the only way to avoid it is to make the add_smp an xadd, but
-that's pretty expensive even compared to a locked add (at least last
-time I checked, which was at least a couple of microarchitectures ago).
-An unlocked add followed by lfence should also do the trick, but that
-was also much worse in practice.
-
-> +			BUILD_BUG_ON(((__ticket_t)NR_CPUS) != NR_CPUS);
-> +			__ticket_unlock_kick(lock, prev_head);
-
-Should be "prev_head + TICKET_LOCK_INC" to match the previous code,
-otherwise it won't find the CPU waiting for the new head.
-
-    J
-
-> +		}
->  	} else
->  		__add(&lock->tickets.head, TICKET_LOCK_INC, UNLOCK_LOCK_PREFIX);
->  }
-> @@ -164,7 +162,7 @@ static inline int arch_spin_is_locked(arch_spinlock_t *lock)
->  {
->  	struct __raw_tickets tmp = READ_ONCE(lock->tickets);
->  
-> -	return tmp.tail != tmp.head;
-> +	return (tmp.tail & ~TICKET_SLOWPATH_FLAG) != tmp.head;
->  }
->  
->  static inline int arch_spin_is_contended(arch_spinlock_t *lock)
+> -- 
+> 1.8.3.1
