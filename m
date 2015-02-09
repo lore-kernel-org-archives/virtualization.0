@@ -1,8 +1,7 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH RFC v5 net-next 5/6] vhost: let vhost_signal() returns whether
-	signalled
-Date: Mon,  9 Feb 2015 03:39:24 -0500
-Message-ID: <1423471165-34243-6-git-send-email-jasowang__7120.71999810195$1423471235$gmane$org@redhat.com>
+Subject: [PATCH RFC v5 net-next 6/6] vhost_net: interrupt coalescing support
+Date: Mon,  9 Feb 2015 03:39:25 -0500
+Message-ID: <1423471165-34243-7-git-send-email-jasowang@redhat.com>
 References: <1423471165-34243-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,49 +21,413 @@ To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.l
 Cc: pagupta@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Let vhost_signal() return whether or not vhost has injected an
-interrupt to guest. This is used for interrupt coalescing
-implementation to calculate the interval between two interrupts.
+This patch implements interrupt coalescing support for vhost_net. And provides
+ioctl()s for userspace to get and set coalescing parameters. Two kinds of
+parameters were allowed to be set:
 
+- max_coalesced_frames: which is the maximum numbers of packets were allowed
+  before issuing an irq.
+- coalesced_usecs: which is the maximum number of micro seconds were allowed
+  before issuing an irq if at least one packet were pending.
+
+A per virtqueue hrtimer were used for coalesced_usecs.
+
+Cc: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vhost/vhost.c | 7 +++++--
- drivers/vhost/vhost.h | 2 +-
- 2 files changed, 6 insertions(+), 3 deletions(-)
+Changes from RFCv4:
+- return ns instead of us in vhost_net_check_coalesce_and_signal()
+- measure the time interval of real interrupts instead of calls to vhost_signal().
+---
+ drivers/vhost/net.c        | 199 +++++++++++++++++++++++++++++++++++++++++++--
+ include/uapi/linux/vhost.h |  12 +++
+ 2 files changed, 202 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index cb807d0..20d6b84 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -1480,11 +1480,14 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 6906f76..3222ac9 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -18,6 +18,7 @@
+ #include <linux/file.h>
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
++#include <linux/timer.h>
+ 
+ #include <linux/net.h>
+ #include <linux/if_packet.h>
+@@ -62,7 +63,8 @@ enum {
+ 	VHOST_NET_FEATURES = VHOST_FEATURES |
+ 			 (1ULL << VHOST_NET_F_VIRTIO_NET_HDR) |
+ 			 (1ULL << VIRTIO_NET_F_MRG_RXBUF) |
+-			 (1ULL << VIRTIO_F_VERSION_1),
++			 (1ULL << VIRTIO_F_VERSION_1) |
++			 (1ULL << VIRTIO_NET_F_CTRL_COALESCE),
+ };
+ 
+ enum {
+@@ -100,6 +102,15 @@ struct vhost_net_virtqueue {
+ 	/* Reference counting for outstanding ubufs.
+ 	 * Protected by vq mutex. Writers must also take device mutex. */
+ 	struct vhost_net_ubuf_ref *ubufs;
++	/* Microseconds after at least 1 paket is processed before
++	 * generating an interrupt.
++	 */
++	__u32 coalesce_usecs;
++	/* Packets are processed before genearting an interrupt. */
++	__u32 max_coalesced_frames;
++	__u32 coalesced;
++	ktime_t last_signal;
++	struct hrtimer c_timer;
+ };
+ 
+ struct vhost_net {
+@@ -197,11 +208,16 @@ static void vhost_net_vq_reset(struct vhost_net *n)
+ 	vhost_net_clear_ubuf_info(n);
+ 
+ 	for (i = 0; i < VHOST_NET_VQ_MAX; i++) {
++		hrtimer_cancel(&n->vqs[i].c_timer);
+ 		n->vqs[i].done_idx = 0;
+ 		n->vqs[i].upend_idx = 0;
+ 		n->vqs[i].ubufs = NULL;
+ 		n->vqs[i].vhost_hlen = 0;
+ 		n->vqs[i].sock_hlen = 0;
++		n->vqs[i].max_coalesced_frames = 0;
++		n->vqs[i].coalesce_usecs = 0;
++		n->vqs[i].last_signal = ktime_get();
++		n->vqs[i].coalesced = 0;
+ 	}
+ 
+ }
+@@ -273,6 +289,55 @@ static void copy_iovec_hdr(const struct iovec *from, struct iovec *to,
+ 	}
  }
  
- /* This actually signals the guest, using eventfd. */
--void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
-+bool vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- {
- 	/* Signal the Guest tell them we used something up. */
--	if (vq->call_ctx && vhost_notify(dev, vq))
-+	if (vq->call_ctx && vhost_notify(dev, vq)) {
- 		eventfd_signal(vq->call_ctx, 1);
-+		return true;
++static int vhost_net_check_coalesce_and_signal(struct vhost_dev *dev,
++					       struct vhost_net_virtqueue *nvq)
++{
++	struct vhost_virtqueue *vq = &nvq->vq;
++	int left = 0;
++	ktime_t now;
++
++	if (nvq->coalesced) {
++		now = ktime_get();
++		left = nvq->coalesce_usecs -
++		       ktime_to_us(ktime_sub(now, nvq->last_signal));
++		if (left <= 0) {
++			vhost_signal(dev, vq);
++			nvq->last_signal = now;
++			nvq->coalesced = 0;
++		}
 +	}
-+	return false;
++
++	return left * NSEC_PER_USEC;
++}
++
++static bool vhost_net_add_used_and_signal_n(struct vhost_dev *dev,
++					    struct vhost_net_virtqueue *nvq,
++					    struct vring_used_elem *heads,
++					    unsigned count)
++{
++	struct vhost_virtqueue *vq = &nvq->vq;
++	bool can_coalesce = nvq->max_coalesced_frames && nvq->coalesce_usecs;
++	bool ret = false;
++
++	vhost_add_used_n(vq, heads, count);
++
++	if (can_coalesce) {
++		ktime_t now = ktime_get();
++
++		nvq->coalesced += count;
++		if (((nvq->coalesced >= nvq->max_coalesced_frames) ||
++		     (ktime_to_us(ktime_sub(now, nvq->last_signal)) >=
++		      nvq->coalesce_usecs)) && vhost_signal(dev, vq)) {
++			nvq->coalesced = 0;
++			nvq->last_signal = now;
++			ret = true;
++		}
++	} else {
++		vhost_signal(dev, vq);
++	}
++	return ret;
++}
++
+ /* In case of DMA done not in order in lower device driver for some reason.
+  * upend_idx is used to track end of used idx, done_idx is used to track head
+  * of used idx. Once lower device DMA done contiguously, we will signal KVM
+@@ -297,8 +362,8 @@ static void vhost_zerocopy_signal_used(struct vhost_net *net,
+ 	}
+ 	while (j) {
+ 		add = min(UIO_MAXIOV - nvq->done_idx, j);
+-		vhost_add_used_and_signal_n(vq->dev, vq,
+-					    &vq->heads[nvq->done_idx], add);
++		vhost_net_add_used_and_signal_n(vq->dev, nvq,
++						&vq->heads[nvq->done_idx], add);
+ 		nvq->done_idx = (nvq->done_idx + add) % UIO_MAXIOV;
+ 		j -= add;
+ 	}
+@@ -351,6 +416,7 @@ static void handle_tx(struct vhost_net *net)
+ 	struct socket *sock;
+ 	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
+ 	bool zcopy, zcopy_used;
++	int left;
+ 
+ 	mutex_lock(&vq->mutex);
+ 	sock = vq->private_data;
+@@ -362,6 +428,8 @@ static void handle_tx(struct vhost_net *net)
+ 	hdr_size = nvq->vhost_hlen;
+ 	zcopy = nvq->ubufs;
+ 
++	vhost_net_check_coalesce_and_signal(&net->dev, nvq);
++
+ 	for (;;) {
+ 		/* Release DMAs done buffers first */
+ 		if (zcopy)
+@@ -444,10 +512,15 @@ static void handle_tx(struct vhost_net *net)
+ 		if (err != len)
+ 			pr_debug("Truncated TX packet: "
+ 				 " len %d != %zd\n", err, len);
+-		if (!zcopy_used)
+-			vhost_add_used_and_signal(&net->dev, vq, head, 0);
+-		else
++
++		if (!zcopy_used) {
++			struct vring_used_elem heads = { head, 0 };
++
++			vhost_net_add_used_and_signal_n(&net->dev,
++							nvq, &heads, 1);
++		} else {
+ 			vhost_zerocopy_signal_used(net, vq);
++		}
+ 		total_len += len;
+ 		vhost_net_tx_packet(net);
+ 		if (unlikely(total_len >= VHOST_NET_WEIGHT)) {
+@@ -455,6 +528,12 @@ static void handle_tx(struct vhost_net *net)
+ 			break;
+ 		}
+ 	}
++
++	left = vhost_net_check_coalesce_and_signal(&net->dev, nvq);
++	if (left > 0)
++		hrtimer_start(&nvq->c_timer, ns_to_ktime(left),
++			      HRTIMER_MODE_REL);
++
+ out:
+ 	mutex_unlock(&vq->mutex);
  }
- EXPORT_SYMBOL_GPL(vhost_signal);
+@@ -574,7 +653,7 @@ static void handle_rx(struct vhost_net *net)
+ 		.hdr.gso_type = VIRTIO_NET_HDR_GSO_NONE
+ 	};
+ 	size_t total_len = 0;
+-	int err, mergeable;
++	int err, mergeable, left;
+ 	s16 headcount;
+ 	size_t vhost_hlen, sock_hlen;
+ 	size_t vhost_len, sock_len;
+@@ -593,6 +672,8 @@ static void handle_rx(struct vhost_net *net)
+ 		vq->log : NULL;
+ 	mergeable = vhost_has_feature(vq, VIRTIO_NET_F_MRG_RXBUF);
  
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 8c1c792..a482563 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -148,7 +148,7 @@ void vhost_add_used_and_signal(struct vhost_dev *, struct vhost_virtqueue *,
- 			       unsigned int id, int len);
- void vhost_add_used_and_signal_n(struct vhost_dev *, struct vhost_virtqueue *,
- 			       struct vring_used_elem *heads, unsigned count);
--void vhost_signal(struct vhost_dev *, struct vhost_virtqueue *);
-+bool vhost_signal(struct vhost_dev *, struct vhost_virtqueue *);
- void vhost_disable_notify(struct vhost_dev *, struct vhost_virtqueue *);
- bool vhost_enable_notify(struct vhost_dev *, struct vhost_virtqueue *);
++	vhost_net_check_coalesce_and_signal(&net->dev, nvq);
++
+ 	while ((sock_len = peek_head_len(sock->sk))) {
+ 		sock_len += sock_hlen;
+ 		vhost_len = sock_len + vhost_hlen;
+@@ -658,8 +739,10 @@ static void handle_rx(struct vhost_net *net)
+ 			vhost_discard_vq_desc(vq, headcount);
+ 			break;
+ 		}
+-		vhost_add_used_and_signal_n(&net->dev, vq, vq->heads,
+-					    headcount);
++
++		vhost_net_add_used_and_signal_n(&net->dev, nvq,
++						vq->heads, headcount);
++
+ 		if (unlikely(vq_log))
+ 			vhost_log_write(vq, vq_log, log, vhost_len);
+ 		total_len += vhost_len;
+@@ -668,6 +751,12 @@ static void handle_rx(struct vhost_net *net)
+ 			break;
+ 		}
+ 	}
++
++	left = vhost_net_check_coalesce_and_signal(&net->dev, nvq);
++	if (left > 0)
++		hrtimer_start(&nvq->c_timer, ms_to_ktime(left),
++			HRTIMER_MODE_REL);
++
+ out:
+ 	mutex_unlock(&vq->mutex);
+ }
+@@ -704,6 +793,18 @@ static void handle_rx_net(struct vhost_work *work)
+ 	handle_rx(net);
+ }
  
++static enum hrtimer_restart vhost_net_timer_handler(struct hrtimer *timer)
++{
++	struct vhost_net_virtqueue *nvq = container_of(timer,
++						struct vhost_net_virtqueue,
++						c_timer);
++	struct vhost_virtqueue *vq = &nvq->vq;
++
++	vhost_poll_queue(&vq->poll);
++
++	return HRTIMER_NORESTART;
++}
++
+ static int vhost_net_open(struct inode *inode, struct file *f)
+ {
+ 	struct vhost_net *n;
+@@ -735,6 +836,13 @@ static int vhost_net_open(struct inode *inode, struct file *f)
+ 		n->vqs[i].done_idx = 0;
+ 		n->vqs[i].vhost_hlen = 0;
+ 		n->vqs[i].sock_hlen = 0;
++		n->vqs[i].max_coalesced_frames = 0;
++		n->vqs[i].coalesce_usecs = 0;
++		n->vqs[i].last_signal = ktime_get();
++		n->vqs[i].coalesced = 0;
++		hrtimer_init(&n->vqs[i].c_timer, CLOCK_MONOTONIC,
++			     HRTIMER_MODE_REL);
++		n->vqs[i].c_timer.function = vhost_net_timer_handler;
+ 	}
+ 	vhost_dev_init(dev, vqs, VHOST_NET_VQ_MAX);
+ 
+@@ -911,6 +1019,7 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
+ 	struct vhost_virtqueue *vq;
+ 	struct vhost_net_virtqueue *nvq;
+ 	struct vhost_net_ubuf_ref *ubufs, *oldubufs = NULL;
++	unsigned int coalesced;
+ 	int r;
+ 
+ 	mutex_lock(&n->dev.mutex);
+@@ -939,6 +1048,7 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
+ 
+ 	/* start polling new socket */
+ 	oldsock = vq->private_data;
++	coalesced = nvq->coalesced;
+ 	if (sock != oldsock) {
+ 		ubufs = vhost_net_ubuf_alloc(vq,
+ 					     sock && vhost_sock_zcopy(sock));
+@@ -973,6 +1083,12 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
+ 		mutex_unlock(&vq->mutex);
+ 	}
+ 
++	if (coalesced) {
++		mutex_lock(&vq->mutex);
++		vhost_signal(&n->dev, vq);
++		mutex_unlock(&vq->mutex);
++	}
++
+ 	if (oldsock) {
+ 		vhost_net_flush_vq(n, index);
+ 		sockfd_put(oldsock);
+@@ -1080,6 +1196,67 @@ out:
+ 	return r;
+ }
+ 
++static long vhost_net_set_vring_coalesce(struct vhost_dev *d, void __user *argp)
++{
++	u32 __user *idxp = argp;
++	u32 idx;
++	int r;
++	struct vhost_virtqueue *vq;
++	struct vhost_net_vring_coalesce c;
++	struct vhost_net_virtqueue *nvq;
++
++	r = get_user(idx, idxp);
++	if (r < 0)
++		return r;
++	if (idx >= d->nvqs)
++		return -ENOBUFS;
++
++	vq = d->vqs[idx];
++	nvq = container_of(vq, struct vhost_net_virtqueue, vq);
++
++	r = copy_from_user(&c, argp, sizeof(c));
++	if (r < 0)
++		return r;
++
++	mutex_lock(&vq->mutex);
++	nvq->coalesce_usecs = c.coalesce_usecs;
++	nvq->max_coalesced_frames = c.max_coalesced_frames;
++	mutex_unlock(&vq->mutex);
++
++	return 0;
++}
++
++static long vhost_net_get_vring_coalesce(struct vhost_dev *d, void __user *argp)
++{
++	u32 __user *idxp = argp;
++	u32 idx;
++	int r;
++	struct vhost_virtqueue *vq;
++	struct vhost_net_vring_coalesce c;
++	struct vhost_net_virtqueue *nvq;
++
++	r = get_user(idx, idxp);
++	if (r < 0)
++		return r;
++	if (idx >= d->nvqs)
++		return -ENOBUFS;
++
++	vq = d->vqs[idx];
++	nvq = container_of(vq, struct vhost_net_virtqueue, vq);
++
++	mutex_lock(&vq->mutex);
++	c.index = idx;
++	c.coalesce_usecs = nvq->coalesce_usecs;
++	c.max_coalesced_frames = nvq->max_coalesced_frames;
++	mutex_unlock(&vq->mutex);
++
++	r = copy_to_user(argp, &c, sizeof(c));
++	if (r < 0)
++		return r;
++
++	return 0;
++}
++
+ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
+ 			    unsigned long arg)
+ {
+@@ -1110,6 +1287,10 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
+ 		return vhost_net_reset_owner(n);
+ 	case VHOST_SET_OWNER:
+ 		return vhost_net_set_owner(n);
++	case VHOST_NET_SET_VRING_COALESCE:
++		return vhost_net_set_vring_coalesce(&n->dev, argp);
++	case VHOST_NET_GET_VRING_COALESCE:
++		return vhost_net_get_vring_coalesce(&n->dev, argp);
+ 	default:
+ 		mutex_lock(&n->dev.mutex);
+ 		r = vhost_dev_ioctl(&n->dev, ioctl, argp);
+diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+index bb6a5b4..6799cc1 100644
+--- a/include/uapi/linux/vhost.h
++++ b/include/uapi/linux/vhost.h
+@@ -27,6 +27,12 @@ struct vhost_vring_file {
+ 
+ };
+ 
++struct vhost_net_vring_coalesce {
++	unsigned int index;
++	__u32 coalesce_usecs;
++	__u32 max_coalesced_frames;
++};
++
+ struct vhost_vring_addr {
+ 	unsigned int index;
+ 	/* Option flags. */
+@@ -121,6 +127,12 @@ struct vhost_memory {
+  * device.  This can be used to stop the ring (e.g. for migration). */
+ #define VHOST_NET_SET_BACKEND _IOW(VHOST_VIRTIO, 0x30, struct vhost_vring_file)
+ 
++/* Setting interrupt coalescing parameters. */
++#define VHOST_NET_SET_VRING_COALESCE \
++	_IOW(VHOST_VIRTIO, 0x31, struct vhost_net_vring_coalesce)
++/* Getting interrupt coalescing parameters. */
++#define VHOST_NET_GET_VRING_COALESCE \
++	_IOW(VHOST_VIRTIO, 0x32, struct vhost_net_vring_coalesce)
+ /* Feature bits */
+ /* Log all write descriptors. Can be changed while device is active. */
+ #define VHOST_F_LOG_ALL 26
 -- 
 1.8.3.1
