@@ -1,14 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio_pci: use 16-bit accessor for queue_enable.
-Date: Tue, 10 Feb 2015 07:57:46 +0100
-Message-ID: <20150210065746.GA30095__26355.7008620866$1423551491$gmane$org@redhat.com>
-References: <87twyuw9yi.fsf@rustcorp.com.au>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: Re: [PATCH] x86 spinlock: Fix memory corruption on completing
+	completions
+Date: Tue, 10 Feb 2015 15:00:47 +0530
+Message-ID: <54D9CFC7.5020007@linux.vnet.ibm.com>
+References: <1423234148-13886-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
+	<54D7D19B.1000103@goop.org>	<54D87F1E.9060307@linux.vnet.ibm.com>
+	<20150209120227.GT21418@twins.programming.kicks-ass.net>
+	<CA+55aFympdPOotzEgdhQULidN+nxb-VUdfym+qU9LOsHScvpzw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87twyuw9yi.fsf@rustcorp.com.au>
+In-Reply-To: <CA+55aFympdPOotzEgdhQULidN+nxb-VUdfym+qU9LOsHScvpzw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,36 +21,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: lkml <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Linus Torvalds <torvalds@linux-foundation.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Sasha Levin <sasha.levin@oracle.com>, Davidlohr Bueso <dave@stgolabs.net>
+Cc: KVM list <kvm@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Paul Gortmaker <paul.gortmaker@windriver.com>, Peter Anvin <hpa@zytor.com>, Andi Kleen <ak@linux.intel.com>, Andrey Ryabinin <a.ryabinin@samsung.com>, the arch/x86 maintainers <x86@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org, Paul McKenney <paulmck@linux.vnet.ibm.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Dave Jones <davej@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, virtualization <virtualization@lists.linux-foundation.org>, Waiman Long <waiman.long@hp.com>, Oleg Nesterov <oleg@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBGZWIgMTAsIDIwMTUgYXQgMDU6MDU6MDFQTSArMTAzMCwgUnVzdHkgUnVzc2VsbCB3
-cm90ZToKPiBTaW5jZSBQQ0kgaXMgbGl0dGxlIGVuZGlhbiwgOC1iaXQgYWNjZXNzIG1pZ2h0IHdv
-cmssIGJ1dCB0aGUgc3BlYyBzZWN0aW9uCj4gaXMgdmVyeSBjbGVhciBvbiB0aGlzOgo+IAo+ICAg
-NC4xLjMuMSBEcml2ZXIgUmVxdWlyZW1lbnRzOiBQQ0kgRGV2aWNlIExheW91dAo+IAo+ICAgVGhl
-IGRyaXZlciBNVVNUIGFjY2VzcyBlYWNoIGZpZWxkIHVzaW5nIHRoZSDigJxuYXR1cmFs4oCdIGFj
-Y2VzcyBtZXRob2QsCj4gICBpLmUuIDMyLWJpdCBhY2Nlc3NlcyBmb3IgMzItYml0IGZpZWxkcywg
-MTYtYml0IGFjY2Vzc2VzIGZvciAxNi1iaXQKPiAgIGZpZWxkcyBhbmQgOC1iaXQgYWNjZXNzZXMg
-Zm9yIDgtYml0IGZpZWxkcy4KPiAKPiBTaWduZWQtb2ZmLWJ5OiBSdXN0eSBSdXNzZWxsIDxydXN0
-eUBydXN0Y29ycC5jb20uYXU+CgpBY2tlZC1ieTogTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVk
-aGF0LmNvbT4KCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfbW9kZXJu
-LmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX21vZGVybi5jCj4gaW5kZXggZjE2ZTQ2MmNi
-NGVmLi4yYWEzOGU1OWRiMmUgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3Bj
-aV9tb2Rlcm4uYwo+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfbW9kZXJuLmMKPiBA
-QCAtMjk0LDcgKzI5NCw3IEBAIHN0YXRpYyBzdHJ1Y3QgdmlydHF1ZXVlICpzZXR1cF92cShzdHJ1
-Y3QgdmlydGlvX3BjaV9kZXZpY2UgKnZwX2RldiwKPiAgCj4gIAkvKiBDaGVjayBpZiBxdWV1ZSBp
-cyBlaXRoZXIgbm90IGF2YWlsYWJsZSBvciBhbHJlYWR5IGFjdGl2ZS4gKi8KPiAgCW51bSA9IGlv
-cmVhZDE2KCZjZmctPnF1ZXVlX3NpemUpOwo+IC0JaWYgKCFudW0gfHwgaW9yZWFkOCgmY2ZnLT5x
-dWV1ZV9lbmFibGUpKQo+ICsJaWYgKCFudW0gfHwgaW9yZWFkMTYoJmNmZy0+cXVldWVfZW5hYmxl
-KSkKPiAgCQlyZXR1cm4gRVJSX1BUUigtRU5PRU5UKTsKPiAgCj4gIAlpZiAobnVtICYgKG51bSAt
-IDEpKSB7Cj4gQEAgLTM5NCw3ICszOTQsNyBAQCBzdGF0aWMgaW50IHZwX21vZGVybl9maW5kX3Zx
-cyhzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldiwgdW5zaWduZWQgbnZxcywKPiAgCSAqLwo+ICAJ
-bGlzdF9mb3JfZWFjaF9lbnRyeSh2cSwgJnZkZXYtPnZxcywgbGlzdCkgewo+ICAJCWlvd3JpdGUx
-Nih2cS0+aW5kZXgsICZ2cF9kZXYtPmNvbW1vbi0+cXVldWVfc2VsZWN0KTsKPiAtCQlpb3dyaXRl
-OCgxLCAmdnBfZGV2LT5jb21tb24tPnF1ZXVlX2VuYWJsZSk7Cj4gKwkJaW93cml0ZTE2KDEsICZ2
-cF9kZXYtPmNvbW1vbi0+cXVldWVfZW5hYmxlKTsKPiAgCX0KPiAgCj4gIAlyZXR1cm4gMDsKX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
-b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
-Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
-YWxpemF0aW9u
+On 02/10/2015 06:23 AM, Linus Torvalds wrote:
+> On Mon, Feb 9, 2015 at 4:02 AM, Peter Zijlstra <peterz@infradead.org> wrote:
+>> On Mon, Feb 09, 2015 at 03:04:22PM +0530, Raghavendra K T wrote:
+>>> So we have 3 choices,
+>>> 1. xadd
+>>> 2. continue with current approach.
+>>> 3. a read before unlock and also after that.
+>>
+>> For the truly paranoid we have probe_kernel_address(), suppose the lock
+>> was in module space and the module just got unloaded under us.
+>
+> That's much too expensive.
+>
+> The xadd shouldn't be noticeably more expensive than the current
+> "add_smp()". Yes, "lock xadd" used to be several cycles slower than
+> just "lock add" on some early cores, but I think these days it's down
+> to a single-cycle difference, which is not really different from doing
+> a separate load after the add.
+>
+> The real problem with xadd used to be that we always had to do magic
+> special-casing for i386, but that's one of the reasons we dropped
+> support for original 80386.
+>
+> So I think Raghavendra's last version (which hopefully fixes the
+> lockup problem that Sasha reported) together with changing that
+
+V2 did pass the stress, but getting confirmation Sasha would help.
+
+
+>          add_smp(&lock->tickets.head, TICKET_LOCK_INC);
+>          if (READ_ONCE(lock->tickets.tail) & TICKET_SLOWPATH_FLAG) ..
+>
+> into something like
+>
+>          val = xadd((&lock->ticket.head_tail, TICKET_LOCK_INC << TICKET_SHIFT);
+>          if (unlikely(val & TICKET_SLOWPATH_FLAG)) ...
+>
+> would be the right thing to do. Somebody should just check that I got
+> that shift right, and that the tail is in the high bytes (head really
+> needs to be high to work, if it's in the low byte(s) the xadd would
+> overflow from head into tail which would be wrong).
+
+Unfortunately xadd could result in head overflow as tail is high.
+
+The other option was repeated cmpxchg which is bad I believe.
+Any suggestions?
+
+( I have the V3 with Oleg's suggestion and performance numbers but
+without this getting resolved, It will be one unnecessary iteration).
+
+How about getting rid off SLOW_PATH_FLAG in spinlock (i.e. use it only
+  as hint for paravirt), but do unlock_kick whenever we see that
+(tail-head) > TICKET_LOCK_INC?. (but this also may need cmpxchg in loop
+in unlock but we will be able to get rid of clear slowpath logic)
+
+Only problem is we may do unnecessary kicks even in 1x load.
