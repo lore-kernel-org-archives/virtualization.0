@@ -1,16 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH RFC v5 net-next 4/6] virtio-net: add basic interrupt
-	coalescing support
-Date: Tue, 10 Feb 2015 06:59:30 +0008
-Message-ID: <1423551090.897.1@smtp.corp.redhat.com>
-References: <1423471165-34243-1-git-send-email-jasowang@redhat.com>
-	<1423471165-34243-5-git-send-email-jasowang@redhat.com>
-	<87386ey2iy.fsf@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio_pci: use 16-bit accessor for queue_enable.
+Date: Tue, 10 Feb 2015 07:57:46 +0100
+Message-ID: <20150210065746.GA30095__26355.7008620866$1423551491$gmane$org@redhat.com>
+References: <87twyuw9yi.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87386ey2iy.fsf@rustcorp.com.au>
+Content-Disposition: inline
+In-Reply-To: <87twyuw9yi.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,196 +19,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: pagupta@redhat.com, netdev@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: lkml <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On Tue, Feb 10, 2015 at 9:32 AM, Rusty Russell <rusty@rustcorp.com.au> 
-wrote:
-> Jason Wang <jasowang@redhat.com> writes:
->>  This patch enables the interrupt coalescing setting through ethtool.
-> 
-> The problem is that there's nothing network specific about interrupt
-> coalescing.  I can see other devices wanting exactly the same thing,
-> which means we'd deprecate this in the next virtio standard.
-> 
-> I think the right answer is to extend like we did with
-> vring_used_event(), eg:
-> 
-> 1) Add a new feature VIRTIO_F_RING_COALESCE.
-> 2) Add another a 32-bit field after vring_used_event(), eg:
->         #define vring_used_delay(vr) (*(u32 
-> *)((vr)->avail->ring[(vr)->num + 2]))
-
-Yes. This looks better and we don't even need device specific 
-configuration method.
-
-> 
-> This loses the ability to coalesce by number of frames, but we can 
-> still
-> do number of sg entries, as we do now with used_event, and we could
-> change virtqueue_enable_cb_delayed() to take a precise number if we
-> wanted.
-
-Can we give a device specific meaning for this? For virtio-net, we want 
-to expose the coalescing settings through ethtool (tx-frames). And it 
-was usually used with a timer, so probably another field after 
-vring_used_delay() for this timer interval to trigger the interrupt if 
-no new used buffers come after this interval.
-
-> 
-> 
-> My feeling is that this should be a v1.0-only feature though
-> (eg. feature bit 33).
-
-Yes it should.
-
-> 
-> Cheers,
-> Rusty.
-> 
->>  Cc: Rusty Russell <rusty@rustcorp.com.au>
->>  Cc: Michael S. Tsirkin <mst@redhat.com>
->>  Signed-off-by: Jason Wang <jasowang@redhat.com>
->>  ---
->>   drivers/net/virtio_net.c        | 67 
->> +++++++++++++++++++++++++++++++++++++++++
->>   include/uapi/linux/virtio_net.h | 12 ++++++++
->>   2 files changed, 79 insertions(+)
->> 
->>  diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->>  index cc5f5de..2b958fb 100644
->>  --- a/drivers/net/virtio_net.c
->>  +++ b/drivers/net/virtio_net.c
->>  @@ -145,6 +145,11 @@ struct virtnet_info {
->>   
->>   	/* Budget for polling tx completion */
->>   	u32 tx_work_limit;
->>  +
->>  +	__u32 rx_coalesce_usecs;
->>  +	__u32 rx_max_coalesced_frames;
->>  +	__u32 tx_coalesce_usecs;
->>  +	__u32 tx_max_coalesced_frames;
->>   };
->>   
->>   struct padded_vnet_hdr {
->>  @@ -1404,12 +1409,73 @@ static void virtnet_get_channels(struct 
->> net_device *dev,
->>   	channels->other_count = 0;
->>   }
->>   
->>  +static int virtnet_set_coalesce(struct net_device *dev,
->>  +				struct ethtool_coalesce *ec)
->>  +{
->>  +	struct virtnet_info *vi = netdev_priv(dev);
->>  +	struct scatterlist sg;
->>  +	struct virtio_net_ctrl_coalesce c;
->>  +
->>  +	if (!vi->has_cvq ||
->>  +	    !virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_COALESCE))
->>  +		return -EOPNOTSUPP;
->>  +	if (vi->rx_coalesce_usecs != ec->rx_coalesce_usecs ||
->>  +	    vi->rx_max_coalesced_frames != ec->rx_max_coalesced_frames) {
->>  +		c.coalesce_usecs = ec->rx_coalesce_usecs;
->>  +		c.max_coalesced_frames = ec->rx_max_coalesced_frames;
->>  +		sg_init_one(&sg, &c, sizeof(c));
->>  +		if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_COALESCE,
->>  +					  VIRTIO_NET_CTRL_COALESCE_RX_SET,
->>  +					  &sg)) {
->>  +			dev_warn(&dev->dev, "Fail to set rx coalescing\n");
->>  +			return -EINVAL;
->>  +		}
->>  +		vi->rx_coalesce_usecs = ec->rx_coalesce_usecs;
->>  +		vi->rx_max_coalesced_frames = ec->rx_max_coalesced_frames;
->>  +	}
->>  +
->>  +	if (vi->tx_coalesce_usecs != ec->tx_coalesce_usecs ||
->>  +	    vi->tx_max_coalesced_frames != ec->tx_max_coalesced_frames) {
->>  +		c.coalesce_usecs = ec->tx_coalesce_usecs;
->>  +		c.max_coalesced_frames = ec->tx_max_coalesced_frames;
->>  +		sg_init_one(&sg, &c, sizeof(c));
->>  +		if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_COALESCE,
->>  +					  VIRTIO_NET_CTRL_COALESCE_TX_SET,
->>  +					  &sg)) {
->>  +			dev_warn(&dev->dev, "Fail to set tx coalescing\n");
->>  +			return -EINVAL;
->>  +		}
->>  +		vi->tx_coalesce_usecs = ec->tx_coalesce_usecs;
->>  +		vi->tx_max_coalesced_frames = ec->tx_max_coalesced_frames;
->>  +	}
->>  +
->>  +	vi->tx_work_limit = ec->tx_max_coalesced_frames_irq;
->>  +
->>  +	return 0;
->>  +}
->>  +
->>  +static int virtnet_get_coalesce(struct net_device *dev,
->>  +				struct ethtool_coalesce *ec)
->>  +{
->>  +	struct virtnet_info *vi = netdev_priv(dev);
->>  +
->>  +	ec->rx_coalesce_usecs = vi->rx_coalesce_usecs;
->>  +	ec->rx_max_coalesced_frames = vi->rx_max_coalesced_frames;
->>  +	ec->tx_coalesce_usecs = vi->tx_coalesce_usecs;
->>  +	ec->tx_max_coalesced_frames = vi->tx_max_coalesced_frames;
->>  +	ec->tx_max_coalesced_frames_irq = vi->tx_work_limit;
->>  +
->>  +	return 0;
->>  +}
->>  +
->>   static const struct ethtool_ops virtnet_ethtool_ops = {
->>   	.get_drvinfo = virtnet_get_drvinfo,
->>   	.get_link = ethtool_op_get_link,
->>   	.get_ringparam = virtnet_get_ringparam,
->>   	.set_channels = virtnet_set_channels,
->>   	.get_channels = virtnet_get_channels,
->>  +	.set_coalesce = virtnet_set_coalesce,
->>  +	.get_coalesce = virtnet_get_coalesce,
->>   };
->>   
->>   #define MIN_MTU 68
->>  @@ -2048,6 +2114,7 @@ static unsigned int features[] = {
->>   	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ,
->>   	VIRTIO_NET_F_CTRL_MAC_ADDR,
->>   	VIRTIO_F_ANY_LAYOUT,
->>  +	VIRTIO_NET_F_CTRL_COALESCE,
->>   };
->>   
->>   static struct virtio_driver virtio_net_driver = {
->>  diff --git a/include/uapi/linux/virtio_net.h 
->> b/include/uapi/linux/virtio_net.h
->>  index b5f1677..332009d 100644
->>  --- a/include/uapi/linux/virtio_net.h
->>  +++ b/include/uapi/linux/virtio_net.h
->>  @@ -34,6 +34,7 @@
->>   /* The feature bitmap for virtio net */
->>   #define VIRTIO_NET_F_CSUM	0	/* Host handles pkts w/ partial csum */
->>   #define VIRTIO_NET_F_GUEST_CSUM	1	/* Guest handles pkts w/ partial 
->> csum */
->>  +#define VIRTIO_NET_F_CTRL_COALESCE 3	/* Set coalescing */
->>   #define VIRTIO_NET_F_MAC	5	/* Host has given MAC address. */
->>   #define VIRTIO_NET_F_GSO	6	/* Host handles pkts w/ any GSO type */
->>   #define VIRTIO_NET_F_GUEST_TSO4	7	/* Guest can handle TSOv4 in. */
->>  @@ -202,4 +203,15 @@ struct virtio_net_ctrl_mq {
->>    #define VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MIN        1
->>    #define VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MAX        0x8000
->>   
->>  +struct virtio_net_ctrl_coalesce {
->>  +	__u32 coalesce_usecs;
->>  +	__u32 max_coalesced_frames;
->>  +};
->>  +
->>  +#define VIRTIO_NET_CTRL_COALESCE 6
->>  + #define VIRTIO_NET_CTRL_COALESCE_TX_SET 0
->>  + #define VIRTIO_NET_CTRL_COALESCE_TX_GET 1
->>  + #define VIRTIO_NET_CTRL_COALESCE_RX_SET 2
->>  + #define VIRTIO_NET_CTRL_COALESCE_RX_GET 3
->>  +
->>   #endif /* _LINUX_VIRTIO_NET_H */
->>  -- 
->>  1.8.3.1
-> --
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+T24gVHVlLCBGZWIgMTAsIDIwMTUgYXQgMDU6MDU6MDFQTSArMTAzMCwgUnVzdHkgUnVzc2VsbCB3
+cm90ZToKPiBTaW5jZSBQQ0kgaXMgbGl0dGxlIGVuZGlhbiwgOC1iaXQgYWNjZXNzIG1pZ2h0IHdv
+cmssIGJ1dCB0aGUgc3BlYyBzZWN0aW9uCj4gaXMgdmVyeSBjbGVhciBvbiB0aGlzOgo+IAo+ICAg
+NC4xLjMuMSBEcml2ZXIgUmVxdWlyZW1lbnRzOiBQQ0kgRGV2aWNlIExheW91dAo+IAo+ICAgVGhl
+IGRyaXZlciBNVVNUIGFjY2VzcyBlYWNoIGZpZWxkIHVzaW5nIHRoZSDigJxuYXR1cmFs4oCdIGFj
+Y2VzcyBtZXRob2QsCj4gICBpLmUuIDMyLWJpdCBhY2Nlc3NlcyBmb3IgMzItYml0IGZpZWxkcywg
+MTYtYml0IGFjY2Vzc2VzIGZvciAxNi1iaXQKPiAgIGZpZWxkcyBhbmQgOC1iaXQgYWNjZXNzZXMg
+Zm9yIDgtYml0IGZpZWxkcy4KPiAKPiBTaWduZWQtb2ZmLWJ5OiBSdXN0eSBSdXNzZWxsIDxydXN0
+eUBydXN0Y29ycC5jb20uYXU+CgpBY2tlZC1ieTogTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVk
+aGF0LmNvbT4KCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfbW9kZXJu
+LmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX21vZGVybi5jCj4gaW5kZXggZjE2ZTQ2MmNi
+NGVmLi4yYWEzOGU1OWRiMmUgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3Bj
+aV9tb2Rlcm4uYwo+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfbW9kZXJuLmMKPiBA
+QCAtMjk0LDcgKzI5NCw3IEBAIHN0YXRpYyBzdHJ1Y3QgdmlydHF1ZXVlICpzZXR1cF92cShzdHJ1
+Y3QgdmlydGlvX3BjaV9kZXZpY2UgKnZwX2RldiwKPiAgCj4gIAkvKiBDaGVjayBpZiBxdWV1ZSBp
+cyBlaXRoZXIgbm90IGF2YWlsYWJsZSBvciBhbHJlYWR5IGFjdGl2ZS4gKi8KPiAgCW51bSA9IGlv
+cmVhZDE2KCZjZmctPnF1ZXVlX3NpemUpOwo+IC0JaWYgKCFudW0gfHwgaW9yZWFkOCgmY2ZnLT5x
+dWV1ZV9lbmFibGUpKQo+ICsJaWYgKCFudW0gfHwgaW9yZWFkMTYoJmNmZy0+cXVldWVfZW5hYmxl
+KSkKPiAgCQlyZXR1cm4gRVJSX1BUUigtRU5PRU5UKTsKPiAgCj4gIAlpZiAobnVtICYgKG51bSAt
+IDEpKSB7Cj4gQEAgLTM5NCw3ICszOTQsNyBAQCBzdGF0aWMgaW50IHZwX21vZGVybl9maW5kX3Zx
+cyhzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldiwgdW5zaWduZWQgbnZxcywKPiAgCSAqLwo+ICAJ
+bGlzdF9mb3JfZWFjaF9lbnRyeSh2cSwgJnZkZXYtPnZxcywgbGlzdCkgewo+ICAJCWlvd3JpdGUx
+Nih2cS0+aW5kZXgsICZ2cF9kZXYtPmNvbW1vbi0+cXVldWVfc2VsZWN0KTsKPiAtCQlpb3dyaXRl
+OCgxLCAmdnBfZGV2LT5jb21tb24tPnF1ZXVlX2VuYWJsZSk7Cj4gKwkJaW93cml0ZTE2KDEsICZ2
+cF9kZXYtPmNvbW1vbi0+cXVldWVfZW5hYmxlKTsKPiAgCX0KPiAgCj4gIAlyZXR1cm4gMDsKX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
+b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
+Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
+YWxpemF0aW9u
