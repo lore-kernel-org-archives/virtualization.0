@@ -1,17 +1,17 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH] x86 spinlock: Fix memory corruption on completing
-	completions
-Date: Tue, 10 Feb 2015 15:00:47 +0530
-Message-ID: <54D9CFC7.5020007@linux.vnet.ibm.com>
-References: <1423234148-13886-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
-	<54D7D19B.1000103@goop.org>	<54D87F1E.9060307@linux.vnet.ibm.com>
-	<20150209120227.GT21418@twins.programming.kicks-ass.net>
-	<CA+55aFympdPOotzEgdhQULidN+nxb-VUdfym+qU9LOsHScvpzw@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RFC v5 net-next 1/6] virtio_ring: fix
+	virtqueue_enable_cb() when only 1 buffers were pending
+Date: Tue, 10 Feb 2015 11:18:39 +0100
+Message-ID: <20150210101839.GA9505@redhat.com>
+References: <1423471165-34243-1-git-send-email-jasowang@redhat.com>
+	<1423471165-34243-2-git-send-email-jasowang@redhat.com>
+	<878ug6y3uv.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CA+55aFympdPOotzEgdhQULidN+nxb-VUdfym+qU9LOsHScvpzw@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <878ug6y3uv.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,63 +21,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Sasha Levin <sasha.levin@oracle.com>, Davidlohr Bueso <dave@stgolabs.net>
-Cc: KVM list <kvm@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Paul Gortmaker <paul.gortmaker@windriver.com>, Peter Anvin <hpa@zytor.com>, Andi Kleen <ak@linux.intel.com>, Andrey Ryabinin <a.ryabinin@samsung.com>, the arch/x86 maintainers <x86@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org, Paul McKenney <paulmck@linux.vnet.ibm.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Dave Jones <davej@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, virtualization <virtualization@lists.linux-foundation.org>, Waiman Long <waiman.long@hp.com>, Oleg Nesterov <oleg@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: pagupta@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/10/2015 06:23 AM, Linus Torvalds wrote:
-> On Mon, Feb 9, 2015 at 4:02 AM, Peter Zijlstra <peterz@infradead.org> wrote:
->> On Mon, Feb 09, 2015 at 03:04:22PM +0530, Raghavendra K T wrote:
->>> So we have 3 choices,
->>> 1. xadd
->>> 2. continue with current approach.
->>> 3. a read before unlock and also after that.
->>
->> For the truly paranoid we have probe_kernel_address(), suppose the lock
->> was in module space and the module just got unloaded under us.
->
-> That's much too expensive.
->
-> The xadd shouldn't be noticeably more expensive than the current
-> "add_smp()". Yes, "lock xadd" used to be several cycles slower than
-> just "lock add" on some early cores, but I think these days it's down
-> to a single-cycle difference, which is not really different from doing
-> a separate load after the add.
->
-> The real problem with xadd used to be that we always had to do magic
-> special-casing for i386, but that's one of the reasons we dropped
-> support for original 80386.
->
-> So I think Raghavendra's last version (which hopefully fixes the
-> lockup problem that Sasha reported) together with changing that
+On Tue, Feb 10, 2015 at 11:33:52AM +1030, Rusty Russell wrote:
+> Jason Wang <jasowang@redhat.com> writes:
+> > We currently does:
+> >
+> > bufs = (avail->idx - last_used_idx) * 3 / 4;
+> >
+> > This is ok now since we only try to enable the delayed callbacks when
+> > the queue is about to be full. This may not work well when there is
+> > only one pending buffer in the virtqueue (this may be the case after
+> > tx interrupt was enabled). Since virtqueue_enable_cb() will return
+> > false which may cause unnecessary triggering of napis. This patch
+> > correct this by only calculate the four thirds when bufs is not one.
+> 
+> I mildly prefer to avoid the branch, by changing the calculation like
+> so:
+> 
+>         /* Set bufs >= 1, even if there's only one pending buffer */
+>         bufs = (bufs + 1) * 3 / 4;
 
-V2 did pass the stress, but getting confirmation Sasha would help.
+Or bus * 3/4 + 1
+
+> But it's not clear to me how much this happens.  I'm happy with the
+> patch though, as currently virtqueue_enable_cb_delayed() is the same
+> as virtqueue_enable_cb() if there's only been one buffer added.
+> 
+> Cheers,
+> Rusty.
+
+But isn't this by design?
+The documentation says:
+
+ * This re-enables callbacks but hints to the other side to delay
+ * interrupts until most of the available buffers have been processed;
+
+Clearly, this implies that when there's one buffer it must behave
+exactly the same.
+
+So I'm not very happy - this changes the meaning of the API without
+updating the documentation.
 
 
->          add_smp(&lock->tickets.head, TICKET_LOCK_INC);
->          if (READ_ONCE(lock->tickets.tail) & TICKET_SLOWPATH_FLAG) ..
->
-> into something like
->
->          val = xadd((&lock->ticket.head_tail, TICKET_LOCK_INC << TICKET_SHIFT);
->          if (unlikely(val & TICKET_SLOWPATH_FLAG)) ...
->
-> would be the right thing to do. Somebody should just check that I got
-> that shift right, and that the tail is in the high bytes (head really
-> needs to be high to work, if it's in the low byte(s) the xadd would
-> overflow from head into tail which would be wrong).
-
-Unfortunately xadd could result in head overflow as tail is high.
-
-The other option was repeated cmpxchg which is bad I believe.
-Any suggestions?
-
-( I have the V3 with Oleg's suggestion and performance numbers but
-without this getting resolved, It will be one unnecessary iteration).
-
-How about getting rid off SLOW_PATH_FLAG in spinlock (i.e. use it only
-  as hint for paravirt), but do unlock_kick whenever we see that
-(tail-head) > TICKET_LOCK_INC?. (but this also may need cmpxchg in loop
-in unlock but we will be able to get rid of clear slowpath logic)
-
-Only problem is we may do unnecessary kicks even in 1x load.
+> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > ---
+> >  drivers/virtio/virtio_ring.c | 5 ++++-
+> >  1 file changed, 4 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > index 00ec6b3..545fed5 100644
+> > --- a/drivers/virtio/virtio_ring.c
+> > +++ b/drivers/virtio/virtio_ring.c
+> > @@ -636,7 +636,10 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
+> >  	 * entry. Always do both to keep code simple. */
+> >  	vq->vring.avail->flags &= cpu_to_virtio16(_vq->vdev, ~VRING_AVAIL_F_NO_INTERRUPT);
+> >  	/* TODO: tune this threshold */
+> > -	bufs = (u16)(virtio16_to_cpu(_vq->vdev, vq->vring.avail->idx) - vq->last_used_idx) * 3 / 4;
+> > +	bufs = (u16)(virtio16_to_cpu(_vq->vdev, vq->vring.avail->idx) -
+> > +		                     vq->last_used_idx);
+> > +	if (bufs != 1)
+> > +		bufs = bufs * 3 / 4;
+> >  	vring_used_event(&vq->vring) = cpu_to_virtio16(_vq->vdev, vq->last_used_idx + bufs);
+> >  	virtio_mb(vq->weak_barriers);
+> >  	if (unlikely((u16)(virtio16_to_cpu(_vq->vdev, vq->vring.used->idx) - vq->last_used_idx) > bufs)) {
+> > -- 
+> > 1.8.3.1
+> >
+> > _______________________________________________
+> > Virtualization mailing list
+> > Virtualization@lists.linux-foundation.org
+> > https://lists.linuxfoundation.org/mailman/listinfo/virtualization
