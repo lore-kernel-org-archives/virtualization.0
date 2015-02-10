@@ -1,16 +1,11 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH RFC v5 net-next 1/6] virtio_ring: fix
-	virtqueue_enable_cb() when only 1 buffers were pending
-Date: Tue, 10 Feb 2015 06:34:02 +0008
-Message-ID: <1423549562.897.0@smtp.corp.redhat.com>
-References: <1423471165-34243-1-git-send-email-jasowang@redhat.com>
-	<1423471165-34243-2-git-send-email-jasowang@redhat.com>
-	<878ug6y3uv.fsf@rustcorp.com.au>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH] virtio_pci: use 16-bit accessor for queue_enable.
+Date: Tue, 10 Feb 2015 17:05:01 +1030
+Message-ID: <87twyuw9yi.fsf__42030.1379905597$1423550530$gmane$org@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <878ug6y3uv.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,79 +15,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: pagupta@redhat.com, netdev@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: lkml <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On Tue, Feb 10, 2015 at 9:03 AM, Rusty Russell <rusty@rustcorp.com.au> 
-wrote:
-> Jason Wang <jasowang@redhat.com> writes:
->>  We currently does:
->> 
->>  bufs = (avail->idx - last_used_idx) * 3 / 4;
->> 
->>  This is ok now since we only try to enable the delayed callbacks 
->> when
->>  the queue is about to be full. This may not work well when there is
->>  only one pending buffer in the virtqueue (this may be the case after
->>  tx interrupt was enabled). Since virtqueue_enable_cb() will return
->>  false which may cause unnecessary triggering of napis. This patch
->>  correct this by only calculate the four thirds when bufs is not one.
-> 
-> I mildly prefer to avoid the branch, by changing the calculation like
-> so:
-> 
->         /* Set bufs >= 1, even if there's only one pending buffer */
->         bufs = (bufs + 1) * 3 / 4;
-
-Ok.
-> 
-> But it's not clear to me how much this happens. 
-
-Depends on the traffic type. In some case e.g one session TCP_RR test 
-(which has at most 1 pending packet), it may happen very often.
->  I'm happy with the
-> patch though, as currently virtqueue_enable_cb_delayed() is the same
-> as virtqueue_enable_cb() if there's only been one buffer added.
-
-Yes. Thanks.
-> 
-> Cheers,
-> Rusty.
-> 
->>  Signed-off-by: Jason Wang <jasowang@redhat.com>
->>  ---
->>   drivers/virtio/virtio_ring.c | 5 ++++-
->>   1 file changed, 4 insertions(+), 1 deletion(-)
->> 
->>  diff --git a/drivers/virtio/virtio_ring.c 
->> b/drivers/virtio/virtio_ring.c
->>  index 00ec6b3..545fed5 100644
->>  --- a/drivers/virtio/virtio_ring.c
->>  +++ b/drivers/virtio/virtio_ring.c
->>  @@ -636,7 +636,10 @@ bool virtqueue_enable_cb_delayed(struct 
->> virtqueue *_vq)
->>   	 * entry. Always do both to keep code simple. */
->>   	vq->vring.avail->flags &= cpu_to_virtio16(_vq->vdev, 
->> ~VRING_AVAIL_F_NO_INTERRUPT);
->>   	/* TODO: tune this threshold */
->>  -	bufs = (u16)(virtio16_to_cpu(_vq->vdev, vq->vring.avail->idx) - 
->> vq->last_used_idx) * 3 / 4;
->>  +	bufs = (u16)(virtio16_to_cpu(_vq->vdev, vq->vring.avail->idx) -
->>  +		                     vq->last_used_idx);
->>  +	if (bufs != 1)
->>  +		bufs = bufs * 3 / 4;
->>   	vring_used_event(&vq->vring) = cpu_to_virtio16(_vq->vdev, 
->> vq->last_used_idx + bufs);
->>   	virtio_mb(vq->weak_barriers);
->>   	if (unlikely((u16)(virtio16_to_cpu(_vq->vdev, 
->> vq->vring.used->idx) - vq->last_used_idx) > bufs)) {
->>  -- 
->>  1.8.3.1
->> 
->>  _______________________________________________
->>  Virtualization mailing list
->>  Virtualization@lists.linux-foundation.org
->>  https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+U2luY2UgUENJIGlzIGxpdHRsZSBlbmRpYW4sIDgtYml0IGFjY2VzcyBtaWdodCB3b3JrLCBidXQg
+dGhlIHNwZWMgc2VjdGlvbgppcyB2ZXJ5IGNsZWFyIG9uIHRoaXM6CgogIDQuMS4zLjEgRHJpdmVy
+IFJlcXVpcmVtZW50czogUENJIERldmljZSBMYXlvdXQKCiAgVGhlIGRyaXZlciBNVVNUIGFjY2Vz
+cyBlYWNoIGZpZWxkIHVzaW5nIHRoZSDigJxuYXR1cmFs4oCdIGFjY2VzcyBtZXRob2QsCiAgaS5l
+LiAzMi1iaXQgYWNjZXNzZXMgZm9yIDMyLWJpdCBmaWVsZHMsIDE2LWJpdCBhY2Nlc3NlcyBmb3Ig
+MTYtYml0CiAgZmllbGRzIGFuZCA4LWJpdCBhY2Nlc3NlcyBmb3IgOC1iaXQgZmllbGRzLgoKU2ln
+bmVkLW9mZi1ieTogUnVzdHkgUnVzc2VsbCA8cnVzdHlAcnVzdGNvcnAuY29tLmF1PgoKZGlmZiAt
+LWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfbW9kZXJuLmMgYi9kcml2ZXJzL3ZpcnRp
+by92aXJ0aW9fcGNpX21vZGVybi5jCmluZGV4IGYxNmU0NjJjYjRlZi4uMmFhMzhlNTlkYjJlIDEw
+MDY0NAotLS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX21vZGVybi5jCisrKyBiL2RyaXZl
+cnMvdmlydGlvL3ZpcnRpb19wY2lfbW9kZXJuLmMKQEAgLTI5NCw3ICsyOTQsNyBAQCBzdGF0aWMg
+c3RydWN0IHZpcnRxdWV1ZSAqc2V0dXBfdnEoc3RydWN0IHZpcnRpb19wY2lfZGV2aWNlICp2cF9k
+ZXYsCiAKIAkvKiBDaGVjayBpZiBxdWV1ZSBpcyBlaXRoZXIgbm90IGF2YWlsYWJsZSBvciBhbHJl
+YWR5IGFjdGl2ZS4gKi8KIAludW0gPSBpb3JlYWQxNigmY2ZnLT5xdWV1ZV9zaXplKTsKLQlpZiAo
+IW51bSB8fCBpb3JlYWQ4KCZjZmctPnF1ZXVlX2VuYWJsZSkpCisJaWYgKCFudW0gfHwgaW9yZWFk
+MTYoJmNmZy0+cXVldWVfZW5hYmxlKSkKIAkJcmV0dXJuIEVSUl9QVFIoLUVOT0VOVCk7CiAKIAlp
+ZiAobnVtICYgKG51bSAtIDEpKSB7CkBAIC0zOTQsNyArMzk0LDcgQEAgc3RhdGljIGludCB2cF9t
+b2Rlcm5fZmluZF92cXMoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYsIHVuc2lnbmVkIG52cXMs
+CiAJICovCiAJbGlzdF9mb3JfZWFjaF9lbnRyeSh2cSwgJnZkZXYtPnZxcywgbGlzdCkgewogCQlp
+b3dyaXRlMTYodnEtPmluZGV4LCAmdnBfZGV2LT5jb21tb24tPnF1ZXVlX3NlbGVjdCk7Ci0JCWlv
+d3JpdGU4KDEsICZ2cF9kZXYtPmNvbW1vbi0+cXVldWVfZW5hYmxlKTsKKwkJaW93cml0ZTE2KDEs
+ICZ2cF9kZXYtPmNvbW1vbi0+cXVldWVfZW5hYmxlKTsKIAl9CiAKIAlyZXR1cm4gMDsKX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
+bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
+dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
+emF0aW9u
