@@ -1,16 +1,16 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH RFC v5 net-next 1/6] virtio_ring: fix
-	virtqueue_enable_cb() when only 1 buffers were pending
-Date: Wed, 11 Feb 2015 05:49:07 +0008
-Message-ID: <1423633267.4369.0@smtp.corp.redhat.com>
+Subject: Re: [PATCH RFC v5 net-next 2/6] virtio_ring: try to disable event
+	index callbacks in virtqueue_disable_cb()
+Date: Wed, 11 Feb 2015 06:03:36 +0008
+Message-ID: <1423634136.4369.1__13184.3966701583$1423634167$gmane$org@smtp.corp.redhat.com>
 References: <1423471165-34243-1-git-send-email-jasowang@redhat.com>
-	<1423471165-34243-2-git-send-email-jasowang@redhat.com>
-	<878ug6y3uv.fsf@rustcorp.com.au> <20150210101839.GA9505@redhat.com>
+	<1423471165-34243-3-git-send-email-jasowang@redhat.com>
+	<20150210102417.GB9505@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150210101839.GA9505@redhat.com>
+In-Reply-To: <20150210102417.GB9505@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,57 +26,95 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 
 
-On Tue, Feb 10, 2015 at 6:18 PM, Michael S. Tsirkin <mst@redhat.com> 
+On Tue, Feb 10, 2015 at 6:24 PM, Michael S. Tsirkin <mst@redhat.com> 
 wrote:
-> On Tue, Feb 10, 2015 at 11:33:52AM +1030, Rusty Russell wrote:
->>  Jason Wang <jasowang@redhat.com> writes:
->>  > We currently does:
->>  >
->>  > bufs = (avail->idx - last_used_idx) * 3 / 4;
->>  >
->>  > This is ok now since we only try to enable the delayed callbacks 
->> when
->>  > the queue is about to be full. This may not work well when there 
->> is
->>  > only one pending buffer in the virtqueue (this may be the case 
->> after
->>  > tx interrupt was enabled). Since virtqueue_enable_cb() will return
->>  > false which may cause unnecessary triggering of napis. This patch
->>  > correct this by only calculate the four thirds when bufs is not 
->> one.
+> On Mon, Feb 09, 2015 at 03:39:21AM -0500, Jason Wang wrote:
+>>  Currently, we do nothing to prevent the callbacks in
+>>  virtqueue_disable_cb() when event index is used. This may cause
+>>  spurious interrupts which may damage the performance. This patch 
+>> tries
+>>  to publish avail event as the used even to prevent the callbacks.
 >>  
->>  I mildly prefer to avoid the branch, by changing the calculation 
->> like
->>  so:
+>>  Signed-off-by: Jason Wang <jasowang@redhat.com>
+> 
+> I'm surprised that this ever happens though.
+> Normally we call this after getting an interrupt, and
+> interrupts won't trigger again until the rings wraps around.
+
+It was used to disable tx interrupt during start_xmit().
+> 
+> When I tested this, touching an extra cache line was more
+> expensive.
+> 
+> Does this really reduce number of interrupts?
+> Could you pls share some numbers with and without this patch?
+
+Yes. It does reduce, see the following test results on multiple 
+sessions of TCP_RR
+
+Datacopy:
+/size/sessions/+-throughput%/+-cpu%/+-per_cpu_throughput%/+-tx_interrupts%/
+/1/50/+0.1/+0.7/-0.6/-72.3/
+/64/50/+1.7/+1.0/+0.7/-72.2/
+/256/50/+0.0/-0.8/+0.9/-72.4/
+
+Zerocopy:
+/size/sessions/+-throughput%/+-cpu%/+-per_cpu_throughput%/+-tx_interrupts%/
+/1/50/+3.2/-1.3/+4.6/-71.7/
+/64/50/+1.9/-0.2/+2.1/-70.8/
+/256/50/+4.4/+0.6/+3.9/-84.2/
+
+No obvious changes for stream rx and tx.
+> 
+> 
+> 
+>>  ---
+>>   drivers/virtio/virtio_ring.c | 2 ++
+>>   1 file changed, 2 insertions(+)
 >>  
->>          /* Set bufs >= 1, even if there's only one pending buffer */
->>          bufs = (bufs + 1) * 3 / 4;
+>>  diff --git a/drivers/virtio/virtio_ring.c 
+>> b/drivers/virtio/virtio_ring.c
+>>  index 545fed5..e9ffbfb 100644
+>>  --- a/drivers/virtio/virtio_ring.c
+>>  +++ b/drivers/virtio/virtio_ring.c
+>>  @@ -539,6 +539,8 @@ void virtqueue_disable_cb(struct virtqueue *_vq)
+>>   	struct vring_virtqueue *vq = to_vvq(_vq);
+>>   
+>>   	vq->vring.avail->flags |= cpu_to_virtio16(_vq->vdev, 
+>> VRING_AVAIL_F_NO_INTERRUPT);
+>>  +	vring_used_event(&vq->vring) = cpu_to_virtio16(_vq->vdev,
+>>  +						       vq->vring.avail->idx);
 > 
-> Or bus * 3/4 + 1
-> 
->>  But it's not clear to me how much this happens.  I'm happy with the
->>  patch though, as currently virtqueue_enable_cb_delayed() is the same
->>  as virtqueue_enable_cb() if there's only been one buffer added.
->>  
->>  Cheers,
->>  Rusty.
-> 
-> But isn't this by design?
-> The documentation says:
-> 
->  * This re-enables callbacks but hints to the other side to delay
->  * interrupts until most of the available buffers have been processed;
-> 
-> Clearly, this implies that when there's one buffer it must behave
-> exactly the same.
-> 
-> So I'm not very happy - this changes the meaning of the API without
-> updating the documentation.
+> Hmm in fact, can't this actually cause an extra interrupt
+> when avail->idx is completed?
 
-Think hard about this. And looks like your are right. And the patch may 
-in fact cause more trouble e.g the only pending buffer were consumed 
-before the final check between used idx and last_used_idx.
+We need to try best to avoid any interrupt after this and 
+virtqueue_disable_cb() were always need virtqueue_enable_cb() or 
+virtqueue_enable_cb_delayed() afterwards. Those two function will check 
+the pending used buffers and set a proper used event.
+> 
+> 
+> I think that if you really can show disabling interrupts like this 
+> helps, you should
+> set some invalid value like 0xfffff, or move it back to 
+> vq->vring.avail->idx - 1.
+> No?
 
-Will drop this.
-
-Thanks	
+I tested avail->idx + vq.num but not obvious changes in the performance 
+compared to just use avail->idx here. So 0xffff probably won't help 
+much. Since we call virtqueue_enable_cb() or 
+virtqueue_disable_cb_delayed() afterwards, it doesn't matter that 
+whether avail->idx or avail->idx - 1 is used.
+> 
+> 
+> 
+> 
+>>   }
+>>   EXPORT_SYMBOL_GPL(virtqueue_disable_cb);
+>>   
+>>  -- 
+>>  1.8.3.1
+> --
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
