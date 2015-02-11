@@ -1,19 +1,16 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH] x86 spinlock: Fix memory corruption on completing
-	completions
-Date: Tue, 10 Feb 2015 17:18:38 -0800
-Message-ID: <54DAADEE.6070506@goop.org>
-References: <1423234148-13886-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
-	<54D7D19B.1000103@goop.org> <54D87F1E.9060307@linux.vnet.ibm.com>
-	<20150209120227.GT21418@twins.programming.kicks-ass.net>
-	<CA+55aFympdPOotzEgdhQULidN+nxb-VUdfym+qU9LOsHScvpzw@mail.gmail.com>
-	<54D9CFC7.5020007@linux.vnet.ibm.com>
-	<20150210132634.GA30380@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH RFC v5 net-next 1/6] virtio_ring: fix
+	virtqueue_enable_cb() when only 1 buffers were pending
+Date: Wed, 11 Feb 2015 05:49:07 +0008
+Message-ID: <1423633267.4369.0@smtp.corp.redhat.com>
+References: <1423471165-34243-1-git-send-email-jasowang@redhat.com>
+	<1423471165-34243-2-git-send-email-jasowang@redhat.com>
+	<878ug6y3uv.fsf@rustcorp.com.au> <20150210101839.GA9505@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150210132634.GA30380@redhat.com>
+In-Reply-To: <20150210101839.GA9505@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,74 +20,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Oleg Nesterov <oleg@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Cc: KVM list <kvm@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, virtualization <virtualization@lists.linux-foundation.org>, Paul Gortmaker <paul.gortmaker@windriver.com>, Peter Anvin <hpa@zytor.com>, Davidlohr Bueso <dave@stgolabs.net>, Andrey Ryabinin <a.ryabinin@samsung.com>, the arch/x86 maintainers <x86@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Sasha Levin <sasha.levin@oracle.com>, Paul McKenney <paulmck@linux.vnet.ibm.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Andi Kleen <ak@linux.intel.com>, xen-devel@lists.xenproject.org, Dave Jones <davej@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Waiman Long <waiman.long@hp.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>Lin
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: pagupta@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-On 02/10/2015 05:26 AM, Oleg Nesterov wrote:
-> On 02/10, Raghavendra K T wrote:
->> On 02/10/2015 06:23 AM, Linus Torvalds wrote:
->>
->>>          add_smp(&lock->tickets.head, TICKET_LOCK_INC);
->>>          if (READ_ONCE(lock->tickets.tail) & TICKET_SLOWPATH_FLAG) ..
->>>
->>> into something like
->>>
->>>          val = xadd((&lock->ticket.head_tail, TICKET_LOCK_INC << TICKET_SHIFT);
->>>          if (unlikely(val & TICKET_SLOWPATH_FLAG)) ...
->>>
->>> would be the right thing to do. Somebody should just check that I got
->>> that shift right, and that the tail is in the high bytes (head really
->>> needs to be high to work, if it's in the low byte(s) the xadd would
->>> overflow from head into tail which would be wrong).
->> Unfortunately xadd could result in head overflow as tail is high.
->>
->> The other option was repeated cmpxchg which is bad I believe.
->> Any suggestions?
-> Stupid question... what if we simply move SLOWPATH from .tail to .head?
-> In this case arch_spin_unlock() could do xadd(tickets.head) and check
-> the result
 
-Well, right now, "tail" is manipulated by locked instructions by CPUs
-who are contending for the ticketlock, but head can be manipulated
-unlocked by the CPU which currently owns the ticketlock. If SLOWPATH
-moved into head, then non-owner CPUs would be touching head, requiring
-everyone to use locked instructions on it.
+On Tue, Feb 10, 2015 at 6:18 PM, Michael S. Tsirkin <mst@redhat.com> 
+wrote:
+> On Tue, Feb 10, 2015 at 11:33:52AM +1030, Rusty Russell wrote:
+>>  Jason Wang <jasowang@redhat.com> writes:
+>>  > We currently does:
+>>  >
+>>  > bufs = (avail->idx - last_used_idx) * 3 / 4;
+>>  >
+>>  > This is ok now since we only try to enable the delayed callbacks 
+>> when
+>>  > the queue is about to be full. This may not work well when there 
+>> is
+>>  > only one pending buffer in the virtqueue (this may be the case 
+>> after
+>>  > tx interrupt was enabled). Since virtqueue_enable_cb() will return
+>>  > false which may cause unnecessary triggering of napis. This patch
+>>  > correct this by only calculate the four thirds when bufs is not 
+>> one.
+>>  
+>>  I mildly prefer to avoid the branch, by changing the calculation 
+>> like
+>>  so:
+>>  
+>>          /* Set bufs >= 1, even if there's only one pending buffer */
+>>          bufs = (bufs + 1) * 3 / 4;
+> 
+> Or bus * 3/4 + 1
+> 
+>>  But it's not clear to me how much this happens.  I'm happy with the
+>>  patch though, as currently virtqueue_enable_cb_delayed() is the same
+>>  as virtqueue_enable_cb() if there's only been one buffer added.
+>>  
+>>  Cheers,
+>>  Rusty.
+> 
+> But isn't this by design?
+> The documentation says:
+> 
+>  * This re-enables callbacks but hints to the other side to delay
+>  * interrupts until most of the available buffers have been processed;
+> 
+> Clearly, this implies that when there's one buffer it must behave
+> exactly the same.
+> 
+> So I'm not very happy - this changes the meaning of the API without
+> updating the documentation.
 
-That's the theory, but I don't see much (any?) code which depends on that.
+Think hard about this. And looks like your are right. And the patch may 
+in fact cause more trouble e.g the only pending buffer were consumed 
+before the final check between used idx and last_used_idx.
 
-Ideally we could find a way so that pv ticketlocks could use a plain
-unlocked add for the unlock like the non-pv case, but I just don't see a
-way to do it.
+Will drop this.
 
-> In this case __ticket_check_and_clear_slowpath() really needs to cmpxchg
-> the whole .head_tail. Plus obviously more boring changes. This needs a
-> separate patch even _if_ this can work.
-
-Definitely.
-
-> BTW. If we move "clear slowpath" into "lock" path, then probably trylock
-> should be changed too? Something like below, we just need to clear SLOWPATH
-> before cmpxchg.
-
-How important / widely used is trylock these days?
-
-    J
-
->
-> Oleg.
->
-> --- x/arch/x86/include/asm/spinlock.h
-> +++ x/arch/x86/include/asm/spinlock.h
-> @@ -109,7 +109,8 @@ static __always_inline int arch_spin_try
->  	if (old.tickets.head != (old.tickets.tail & ~TICKET_SLOWPATH_FLAG))
->  		return 0;
->  
-> -	new.head_tail = old.head_tail + (TICKET_LOCK_INC << TICKET_SHIFT);
-> +	new.tickets.head = old.tickets.head;
-> +	new.tickets.tail = (old.tickets.tail & ~TICKET_SLOWPATH_FLAG) + TICKET_LOCK_INC;
->  
->  	/* cmpxchg is a full barrier, so nothing can move before it */
->  	return cmpxchg(&lock->head_tail, old.head_tail, new.head_tail) == old.head_tail;
->
+Thanks	
