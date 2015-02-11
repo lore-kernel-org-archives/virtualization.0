@@ -1,7 +1,8 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 1/2] virtio_pci: abstract all MMIO accesses.
-Date: Wed, 11 Feb 2015 16:55:16 +1030
-Message-ID: <1423635917-31282-2-git-send-email-rusty__6868.27475806258$1423636588$gmane$org@rustcorp.com.au>
+Subject: [PATCH 2/2] virtio: Introducing virtio_pci.no_mmio,
+	the worst boot option in history.
+Date: Wed, 11 Feb 2015 16:55:17 +1030
+Message-ID: <1423635917-31282-3-git-send-email-rusty__15118.9327742488$1423636605$gmane$org@rustcorp.com.au>
 References: <1423635917-31282-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,433 +21,450 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: lkml <linux-kernel@vger.kernel.org>, lguest@lists.ozlabs.org, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is in preparation for testing the virtio pci config mmio backdoor.
+Sometimes, devices are just too damn fast.  Wouldn't it be nice if we
+could (1) have an option to access them in the most baroque way
+possible, and (2) ensure that even the normal case caused extra bloat?
+
+Well, wish no longer: This patch does exactly that!  Since every
+complaint virtio 1.0 device has to have a capability to allow backdoor
+access into the BARs, we can use that:
+
+	4.1.4.7.1 Device Requirements: PCI configuration access capability
+
+	The device MUST present at least one VIRTIO_PCI_CAP_PCI_CFG
+	capability.
+
+	Upon detecting driver write access to pci_cfg_data, the device
+	MUST execute a write access at offset cap.offset at BAR
+	selected by cap.bar using the first cap.length bytes from
+	pci_cfg_data.
+
+	Upon detecting driver read access to pci_cfg_data, the device
+	MUST execute a read access of length cap.length at offset
+	cap.offset at BAR selected by cap.bar and store the first
+	cap.length bytes in pci_cfg_data.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/virtio/virtio_pci_common.c |  47 ++++++++++++-
- drivers/virtio/virtio_pci_common.h |  41 +++++++++++
- drivers/virtio/virtio_pci_modern.c | 140 ++++++++++++++++++++++++-------------
- 3 files changed, 177 insertions(+), 51 deletions(-)
+ drivers/virtio/virtio_pci_common.c |  31 ++++++-
+ drivers/virtio/virtio_pci_common.h |  21 +++++
+ drivers/virtio/virtio_pci_legacy.c |   1 +
+ drivers/virtio/virtio_pci_modern.c | 183 ++++++++++++++++++++++++++++++++++---
+ 4 files changed, 221 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index e894eb278d83..4e6132dd0ca3 100644
+index 4e6132dd0ca3..0030180411cc 100644
 --- a/drivers/virtio/virtio_pci_common.c
 +++ b/drivers/virtio/virtio_pci_common.c
-@@ -27,6 +27,49 @@ MODULE_PARM_DESC(force_legacy,
- 		 "Force legacy mode for transitional virtio 1 devices");
- #endif
+@@ -29,45 +29,68 @@ MODULE_PARM_DESC(force_legacy,
  
-+u8 vp_read_isr(const struct virtio_pci_device *dev)
-+{
-+	return ioread8(dev->isr);
-+}
-+
-+void vp_write_notify(const struct virtqueue *vq, u16 vqindex)
-+{
-+	iowrite16(vqindex, (void __iomem *)vq->priv);
-+}
-+
-+u32 __vp_read_common32(const struct virtio_pci_device *dev, size_t offset)
-+{
-+	return ioread32((void __iomem *)dev->common + offset);
-+}
-+
-+u16 __vp_read_common16(const struct virtio_pci_device *dev, size_t offset)
-+{
-+	return ioread16((void __iomem *)dev->common + offset);
-+}
-+
-+u8 __vp_read_common8(const struct virtio_pci_device *dev, size_t offset)
-+{
-+	return ioread8((void __iomem *)dev->common + offset);
-+}
-+
-+void __vp_write_common32(const struct virtio_pci_device *dev,
-+			 size_t offset, u32 val)
-+{
-+	iowrite32(val, (void __iomem *)dev->common + offset);
-+}
-+
-+void __vp_write_common16(const struct virtio_pci_device *dev,
-+			 size_t offset, u16 val)
-+{
-+	iowrite16(val, (void __iomem *)dev->common + offset);
-+}
-+
-+void __vp_write_common8(const struct virtio_pci_device *dev,
-+			size_t offset, u8 val)
-+{
-+	iowrite8(val, (void __iomem *)dev->common + offset);
-+}
-+
- /* wait for pending irq handlers */
- void vp_synchronize_vectors(struct virtio_device *vdev)
+ u8 vp_read_isr(const struct virtio_pci_device *dev)
  {
-@@ -45,7 +88,7 @@ bool vp_notify(struct virtqueue *vq)
- {
- 	/* we write the queue's selector into the notification register to
- 	 * signal the other end */
--	iowrite16(vq->index, (void __iomem *)vq->priv);
-+	vp_write_notify(vq, vq->index);
- 	return true;
++	if (dev->no_mmio)
++		return dev->no_mmio->read8(dev, dev->isr, 0);
+ 	return ioread8(dev->isr);
  }
  
-@@ -89,7 +132,7 @@ static irqreturn_t vp_interrupt(int irq, void *opaque)
+ void vp_write_notify(const struct virtqueue *vq, u16 vqindex)
+ {
+-	iowrite16(vqindex, (void __iomem *)vq->priv);
++	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
++
++	if (vp_dev->no_mmio)
++		vp_dev->no_mmio->write16(vp_dev, (void __iomem *)vq->priv,
++					 0, vqindex);
++	else
++		iowrite16(vqindex, (void __iomem *)vq->priv);
+ }
  
- 	/* reading the ISR has the effect of also clearing it so it's very
- 	 * important to save off the value. */
--	isr = ioread8(vp_dev->isr);
-+	isr = vp_read_isr(vp_dev);
+ u32 __vp_read_common32(const struct virtio_pci_device *dev, size_t offset)
+ {
++	if (dev->no_mmio)
++		return dev->no_mmio->read32(dev, dev->common, offset);
+ 	return ioread32((void __iomem *)dev->common + offset);
+ }
  
- 	/* It's definitely not us if the ISR was not high */
- 	if (!isr)
+ u16 __vp_read_common16(const struct virtio_pci_device *dev, size_t offset)
+ {
++	if (dev->no_mmio)
++		return dev->no_mmio->read16(dev, dev->common, offset);
+ 	return ioread16((void __iomem *)dev->common + offset);
+ }
+ 
+ u8 __vp_read_common8(const struct virtio_pci_device *dev, size_t offset)
+ {
++	if (dev->no_mmio)
++		return dev->no_mmio->read8(dev, dev->common, offset);
+ 	return ioread8((void __iomem *)dev->common + offset);
+ }
+ 
+ void __vp_write_common32(const struct virtio_pci_device *dev,
+ 			 size_t offset, u32 val)
+ {
+-	iowrite32(val, (void __iomem *)dev->common + offset);
++	if (dev->no_mmio)
++		dev->no_mmio->write32(dev, dev->common, offset, val);
++	else
++		iowrite32(val, (void __iomem *)dev->common + offset);
+ }
+ 
+ void __vp_write_common16(const struct virtio_pci_device *dev,
+ 			 size_t offset, u16 val)
+ {
+-	iowrite16(val, (void __iomem *)dev->common + offset);
++	if (dev->no_mmio)
++		dev->no_mmio->write16(dev, dev->common, offset, val);
++	else
++		iowrite16(val, (void __iomem *)dev->common + offset);
+ }
+ 
+ void __vp_write_common8(const struct virtio_pci_device *dev,
+ 			size_t offset, u8 val)
+ {
+-	iowrite8(val, (void __iomem *)dev->common + offset);
++	if (dev->no_mmio)
++		dev->no_mmio->write8(dev, dev->common, offset, val);
++	else
++		iowrite8(val, (void __iomem *)dev->common + offset);
+ }
+ 
+ /* wait for pending irq handlers */
 diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-index 28ee4e56badf..15a20c968ae7 100644
+index 15a20c968ae7..d891e3123cdd 100644
 --- a/drivers/virtio/virtio_pci_common.h
 +++ b/drivers/virtio/virtio_pci_common.h
-@@ -113,6 +113,47 @@ struct virtio_pci_device {
+@@ -53,6 +53,9 @@ struct virtio_pci_device {
+ 	struct virtio_device vdev;
+ 	struct pci_dev *pci_dev;
+ 
++	/* This is only valid for modern devices. */
++	const struct virtio_pci_no_mmio_ops *no_mmio;
++
+ 	/* In legacy mode, these two point to within ->legacy. */
+ 	/* Where to read and clear interrupt */
+ 	u8 __iomem *isr;
+@@ -75,6 +78,9 @@ struct virtio_pci_device {
+ 	/* Multiply queue_notify_off by this value. (non-legacy mode). */
+ 	u32 notify_offset_multiplier;
+ 
++	/* PCI config window for BAR access (non-legacy mode). */
++	int window;
++
+ 	/* Legacy only field */
+ 	/* the IO mapping for the PCI config space */
+ 	void __iomem *ioaddr;
+@@ -113,6 +119,21 @@ struct virtio_pci_device {
  	u16 (*config_vector)(struct virtio_pci_device *vp_dev, u16 vector);
  };
  
-+/* Accessor functions. */
-+u8 vp_read_isr(const struct virtio_pci_device *dev);
-+void vp_write_notify(const struct virtqueue *vq, u16 vqindex);
-+u32 __vp_read_common32(const struct virtio_pci_device *dev, size_t offset);
-+u16 __vp_read_common16(const struct virtio_pci_device *dev, size_t offset);
-+u8 __vp_read_common8(const struct virtio_pci_device *dev, size_t offset);
-+void __vp_write_common32(const struct virtio_pci_device *dev,
-+			 size_t offset, u32 val);
-+void __vp_write_common16(const struct virtio_pci_device *dev,
-+			 size_t offset, u16 val);
-+void __vp_write_common8(const struct virtio_pci_device *dev,
-+			size_t offset, u8 val);
++struct virtio_pci_no_mmio_ops {
++	u8 (*read8)(const struct virtio_pci_device *,
++		    const void __iomem *, size_t);
++	u16 (*read16)(const struct virtio_pci_device *,
++		      const void __iomem *, size_t);
++	u32 (*read32)(const struct virtio_pci_device *,
++		      const void __iomem *, size_t);
++	void (*write8)(const struct virtio_pci_device *,
++		       const void __iomem *, size_t, u8);
++	void (*write16)(const struct virtio_pci_device *,
++			const void __iomem *, size_t, u16);
++	void (*write32)(const struct virtio_pci_device *,
++			const void __iomem *, size_t, u32);
++};
 +
-+#define vp_read_common32(dev, fieldname)				\
-+	__vp_read_common32((dev),					\
-+		   offsetof(struct virtio_pci_common_cfg, fieldname) + \
-+		   BUILD_BUG_ON_ZERO(sizeof((dev)->common->fieldname) != 4))
-+#define vp_read_common16(dev, fieldname)				\
-+	__vp_read_common16((dev),					\
-+		offsetof(struct virtio_pci_common_cfg, fieldname) +	\
-+		BUILD_BUG_ON_ZERO(sizeof((dev)->common->fieldname) != 2))
-+#define vp_read_common8(dev, fieldname)				\
-+	__vp_read_common8((dev),					\
-+		offsetof(struct virtio_pci_common_cfg, fieldname) +	\
-+		BUILD_BUG_ON_ZERO(sizeof((dev)->common->fieldname) != 1))
-+#define vp_write_common32(dev, fieldname, val)				\
-+	__vp_write_common32((dev),					\
-+		   offsetof(struct virtio_pci_common_cfg, fieldname) + \
-+		   BUILD_BUG_ON_ZERO(sizeof((dev)->common->fieldname) != 4), \
-+		   (val))
-+#define vp_write_common16(dev, fieldname, val)				\
-+	__vp_write_common16((dev),					\
-+		   offsetof(struct virtio_pci_common_cfg, fieldname) + \
-+		   BUILD_BUG_ON_ZERO(sizeof((dev)->common->fieldname) != 2), \
-+		   (val))
-+#define vp_write_common8(dev, fieldname, val)				\
-+	__vp_write_common8((dev),					\
-+		   offsetof(struct virtio_pci_common_cfg, fieldname) + \
-+		   BUILD_BUG_ON_ZERO(sizeof((dev)->common->fieldname) != 1), \
-+		   (val))
-+
- /* Constants for MSI-X */
- /* Use first vector for configuration changes, second and the rest for
-  * virtqueues Thus, we need at least 2 vectors for MSI. */
+ /* Accessor functions. */
+ u8 vp_read_isr(const struct virtio_pci_device *dev);
+ void vp_write_notify(const struct virtqueue *vq, u16 vqindex);
+diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+index 256a5278a515..26aa036fc494 100644
+--- a/drivers/virtio/virtio_pci_legacy.c
++++ b/drivers/virtio/virtio_pci_legacy.c
+@@ -226,6 +226,7 @@ int virtio_pci_legacy_probe(struct virtio_pci_device *vp_dev)
+ 		return -ENODEV;
+ 	}
+ 
++	vp_dev->no_mmio = NULL;
+ 	vp_dev->ioaddr = pci_iomap(pci_dev, 0, 0);
+ 	if (!vp_dev->ioaddr)
+ 		return -ENOMEM;
 diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index 2aa38e59db2e..daa990ef3df0 100644
+index daa990ef3df0..76882b467519 100644
 --- a/drivers/virtio/virtio_pci_modern.c
 +++ b/drivers/virtio/virtio_pci_modern.c
-@@ -94,22 +94,29 @@ static void __iomem *map_capability(struct pci_dev *dev, int off,
- 	return p;
- }
+@@ -20,6 +20,125 @@
+ #define VIRTIO_PCI_NO_LEGACY
+ #include "virtio_pci_common.h"
  
--static void iowrite64_twopart(u64 val, __le32 __iomem *lo, __le32 __iomem *hi)
-+static void __vp_write_common64(const struct virtio_pci_device *dev,
-+				size_t off_lo, size_t off_hi, u64 val)
- {
--	iowrite32((u32)val, lo);
--	iowrite32(val >> 32, hi);
-+	__vp_write_common32(dev, off_lo, val);
-+	__vp_write_common32(dev, off_hi, val >> 32);
- }
- 
-+#define vp_write_common64(dev, name_lo, name_hi, val)			\
-+	__vp_write_common64((dev),					\
-+			    offsetof(struct virtio_pci_common_cfg, name_lo), \
-+			    offsetof(struct virtio_pci_common_cfg, name_hi), \
-+			    (val))
++static bool no_mmio = false; /* Very, very false.  Never set this! */
++module_param(no_mmio, bool, 0644);
 +
- /* virtio config->get_features() implementation */
- static u64 vp_get_features(struct virtio_device *vdev)
++/* We jam bar and offset into the pointer for non-MMIO */
++static u8 bar_off_from_pointer(const void *ptr, u32 *offset)
++{
++	*offset = (unsigned long)ptr >> 3;
++	return ((unsigned long)ptr & 0x7) - 1;
++}
++
++static void *bar_off_to_pointer(u8 bar, u32 offset)
++{
++	void *p;
++	u32 check_offset;
++
++	BUG_ON(bar >= 7);
++	p = (void *)((bar + 1) | (offset << 3));
++	if (bar_off_from_pointer(p, &check_offset) != bar
++	    || check_offset != offset) {
++		printk(KERN_ERR "Cannot pack bar %u offset %u into pointer!\n",
++		       bar, offset);
++		return NULL;
++	}
++	return p;
++}
++
++/* This sets up the PCI config space window ready for an access. */
++static void set_cfg_window(const struct virtio_pci_device *dev,
++			   const void __iomem *ptr, size_t offset, size_t len)
++{
++	u32 bar_offset;
++	u8 bar;
++
++	BUG_ON(!dev->no_mmio);
++
++	bar = bar_off_from_pointer(ptr, &bar_offset);
++
++	pci_write_config_byte(dev->pci_dev,
++			      dev->window + offsetof(struct virtio_pci_cap, bar),
++			      bar);
++	pci_write_config_dword(dev->pci_dev,
++			       dev->window
++			       + offsetof(struct virtio_pci_cap, length),
++			       len);
++	pci_write_config_dword(dev->pci_dev,
++			       dev->window
++			       + offsetof(struct virtio_pci_cap, offset),
++			       bar_offset + offset);
++}
++
++static u32 vp_window_read32(const struct virtio_pci_device *dev,
++			    const void __iomem *ptr,
++			    size_t offset)
++{
++	u32 ret = -1;
++	set_cfg_window(dev, ptr, offset, sizeof(ret));
++	pci_read_config_dword(dev->pci_dev,
++			      dev->window + sizeof(struct virtio_pci_cap), &ret);
++	return ret;
++}
++
++static u16 vp_window_read16(const struct virtio_pci_device *dev,
++			    const void __iomem *ptr,
++			    size_t offset)
++{
++	u16 ret = -1;
++	set_cfg_window(dev, ptr, offset, sizeof(ret));
++	pci_read_config_word(dev->pci_dev,
++			     dev->window + sizeof(struct virtio_pci_cap), &ret);
++	return ret;
++}
++
++static u8 vp_window_read8(const struct virtio_pci_device *dev,
++			  const void __iomem *ptr,
++			  size_t offset)
++{
++	u8 ret = -1;
++	set_cfg_window(dev, ptr, offset, sizeof(ret));
++	pci_read_config_byte(dev->pci_dev,
++			     dev->window + sizeof(struct virtio_pci_cap), &ret);
++	return ret;
++}
++
++static void vp_window_write32(const struct virtio_pci_device *dev,
++			      const void __iomem *ptr, size_t offset, u32 val)
++{
++	set_cfg_window(dev, ptr, offset, sizeof(val));
++	pci_write_config_dword(dev->pci_dev,
++			       dev->window + sizeof(struct virtio_pci_cap),
++			       val);
++}
++
++static void vp_window_write16(const struct virtio_pci_device *dev,
++			      const void __iomem *ptr, size_t offset, u16 val)
++{
++	set_cfg_window(dev, ptr, offset, sizeof(val));
++	pci_write_config_word(dev->pci_dev,
++			      dev->window + sizeof(struct virtio_pci_cap),
++			      val);
++}
++
++static void vp_window_write8(const struct virtio_pci_device *dev,
++			      const void __iomem *ptr, size_t offset, u8 val)
++{
++	set_cfg_window(dev, ptr, offset, sizeof(val));
++	pci_write_config_byte(dev->pci_dev,
++			      dev->window + sizeof(struct virtio_pci_cap),
++			      val);
++}
++
++static const struct virtio_pci_no_mmio_ops vp_window_ops = {
++	.read8 = vp_window_read8,
++	.read16 = vp_window_read16,
++	.read32 = vp_window_read32,
++	.write8 = vp_window_write8,
++	.write16 = vp_window_write16,
++	.write32 = vp_window_write32,
++};
++
+ static void __iomem *map_capability(struct pci_dev *dev, int off,
+ 				    size_t minlen,
+ 				    u32 align,
+@@ -86,6 +205,10 @@ static void __iomem *map_capability(struct pci_dev *dev, int off,
+ 		return NULL;
+ 	}
+ 
++	/* We encode bar and offset into the pointer for the no-mmio case. */
++	if (no_mmio)
++		return bar_off_to_pointer(bar, offset);
++
+ 	p = pci_iomap_range(dev, bar, offset, length);
+ 	if (!p)
+ 		dev_err(&dev->dev,
+@@ -146,37 +269,52 @@ static int vp_finalize_features(struct virtio_device *vdev)
+ static u32 vp_read_device32(const struct virtio_pci_device *dev,
+ 			    size_t offset)
  {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	u64 features;
- 
--	iowrite32(0, &vp_dev->common->device_feature_select);
--	features = ioread32(&vp_dev->common->device_feature);
--	iowrite32(1, &vp_dev->common->device_feature_select);
--	features |= ((u64)ioread32(&vp_dev->common->device_feature) << 32);
-+	vp_write_common32(vp_dev, device_feature_select, 0);
-+	features = vp_read_common32(vp_dev, device_feature);
-+	vp_write_common32(vp_dev, device_feature_select, 1);
-+	features |= ((u64)vp_read_common32(vp_dev, device_feature) << 32);
- 
- 	return features;
++	if (dev->no_mmio)
++		return vp_window_read32(dev, dev->device, offset);
+ 	return ioread32((void __iomem *)dev->device + offset);
  }
-@@ -128,13 +135,49 @@ static int vp_finalize_features(struct virtio_device *vdev)
+ 
+ static u16 vp_read_device16(const struct virtio_pci_device *dev,
+ 			    size_t offset)
+ {
++	if (dev->no_mmio)
++		return vp_window_read16(dev, dev->device, offset);
+ 	return ioread16((void __iomem *)dev->device + offset);
+ }
+ 
+ static u8 vp_read_device8(const struct virtio_pci_device *dev,
+ 			  size_t offset)
+ {
++	if (dev->no_mmio)
++		return vp_window_read8(dev, dev->device, offset);
+ 	return ioread8((void __iomem *)dev->device + offset);
+ }
+ 
+ static void vp_write_device32(const struct virtio_pci_device *dev,
+ 			      size_t offset, u32 val)
+ {
+-	iowrite32(val, (void __iomem *)dev->device + offset);
++	if (dev->no_mmio)
++		vp_window_write32(dev, dev->device, offset, val);
++	else
++		iowrite32(val, (void __iomem *)dev->device + offset);
+ }
+ 
+ static void vp_write_device16(const struct virtio_pci_device *dev,
+ 			      size_t offset, u16 val)
+ {
+-	iowrite16(val, (void __iomem *)dev->device + offset);
++	if (dev->no_mmio)
++		vp_window_write16(dev, dev->device, offset, val);
++	else
++		iowrite16(val, (void __iomem *)dev->device + offset);
+ }
+ 
+ static void vp_write_device8(const struct virtio_pci_device *dev,
+ 			      size_t offset, u8 val)
+ {
+-	iowrite8(val, (void __iomem *)dev->device + offset);
++	if (dev->no_mmio)
++		vp_window_write8(dev, dev->device, offset, val);
++	else
++		iowrite8(val, (void __iomem *)dev->device + offset);
+ }
+ 
+ /* virtio config->get() implementation */
+@@ -494,6 +632,12 @@ static const struct virtio_config_ops virtio_pci_config_ops = {
+ 	.set_vq_affinity = vp_set_vq_affinity,
+ };
+ 
++static void vp_iounmap(struct virtio_pci_device *dev, void __iomem *p)
++{
++	if (!dev->no_mmio)
++		pci_iounmap(dev->pci_dev, p);
++}
++
+ /**
+  * virtio_pci_find_capability - walk capabilities to find device info.
+  * @dev: the pci device
+@@ -598,7 +742,7 @@ static inline void check_offsets(void)
+ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
+ {
+ 	struct pci_dev *pci_dev = vp_dev->pci_dev;
+-	int err, common, isr, notify, device;
++	int err, common, isr, notify, device, window;
+ 	u32 notify_length;
+ 	u32 notify_offset;
+ 
+@@ -631,6 +775,13 @@ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
+ 		return -ENODEV;
+ 	}
+ 
++	if (no_mmio) {
++		vp_dev->no_mmio = &vp_window_ops;
++		dev_warn(&pci_dev->dev,
++			 "virtio_pci: using SLOW non-MMIO access\n");
++ 	} else
++		vp_dev->no_mmio = NULL;
++
+ 	/* If common is there, these should be too... */
+ 	isr = virtio_pci_find_capability(pci_dev, VIRTIO_PCI_CAP_ISR_CFG,
+ 					 IORESOURCE_IO | IORESOURCE_MEM);
+@@ -643,6 +794,16 @@ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
  		return -EINVAL;
  	}
  
--	iowrite32(0, &vp_dev->common->guest_feature_select);
--	iowrite32((u32)vdev->features, &vp_dev->common->guest_feature);
--	iowrite32(1, &vp_dev->common->guest_feature_select);
--	iowrite32(vdev->features >> 32, &vp_dev->common->guest_feature);
-+	vp_write_common32(vp_dev, guest_feature_select, 0);
-+	vp_write_common32(vp_dev, guest_feature, (u32)vdev->features);
-+	vp_write_common32(vp_dev, guest_feature_select, 1);
-+	vp_write_common32(vp_dev, guest_feature, vdev->features >> 32);
- 
- 	return 0;
- }
-+			   
-+static u32 vp_read_device32(const struct virtio_pci_device *dev,
-+			    size_t offset)
-+{
-+	return ioread32((void __iomem *)dev->device + offset);
-+}
++	vp_dev->window = virtio_pci_find_capability(pci_dev,
++						    VIRTIO_PCI_CAP_PCI_CFG,
++						    IORESOURCE_IO |
++						    IORESOURCE_MEM);
++	if (!vp_dev->window) {
++		dev_err(&pci_dev->dev,
++			"virtio_pci: missing pci window capability\n");
++		return -EINVAL;
++	}
 +
-+static u16 vp_read_device16(const struct virtio_pci_device *dev,
-+			    size_t offset)
-+{
-+	return ioread16((void __iomem *)dev->device + offset);
-+}
-+
-+static u8 vp_read_device8(const struct virtio_pci_device *dev,
-+			  size_t offset)
-+{
-+	return ioread8((void __iomem *)dev->device + offset);
-+}
-+
-+static void vp_write_device32(const struct virtio_pci_device *dev,
-+			      size_t offset, u32 val)
-+{
-+	iowrite32(val, (void __iomem *)dev->device + offset);
-+}
-+
-+static void vp_write_device16(const struct virtio_pci_device *dev,
-+			      size_t offset, u16 val)
-+{
-+	iowrite16(val, (void __iomem *)dev->device + offset);
-+}
-+
-+static void vp_write_device8(const struct virtio_pci_device *dev,
-+			      size_t offset, u8 val)
-+{
-+	iowrite8(val, (void __iomem *)dev->device + offset);
-+}
- 
- /* virtio config->get() implementation */
- static void vp_get(struct virtio_device *vdev, unsigned offset,
-@@ -149,21 +192,21 @@ static void vp_get(struct virtio_device *vdev, unsigned offset,
- 
- 	switch (len) {
- 	case 1:
--		b = ioread8(vp_dev->device + offset);
-+		b = vp_read_device8(vp_dev, offset);
- 		memcpy(buf, &b, sizeof b);
- 		break;
- 	case 2:
--		w = cpu_to_le16(ioread16(vp_dev->device + offset));
-+		w = cpu_to_le16(vp_read_device16(vp_dev, offset));
- 		memcpy(buf, &w, sizeof w);
- 		break;
- 	case 4:
--		l = cpu_to_le32(ioread32(vp_dev->device + offset));
-+		l = cpu_to_le32(vp_read_device32(vp_dev, offset));
- 		memcpy(buf, &l, sizeof l);
- 		break;
- 	case 8:
--		l = cpu_to_le32(ioread32(vp_dev->device + offset));
-+		l = cpu_to_le32(vp_read_device32(vp_dev, offset));
- 		memcpy(buf, &l, sizeof l);
--		l = cpu_to_le32(ioread32(vp_dev->device + offset + sizeof l));
-+		l = cpu_to_le32(vp_read_device32(vp_dev, offset + sizeof l));
- 		memcpy(buf + sizeof l, &l, sizeof l);
- 		break;
- 	default:
-@@ -186,21 +229,21 @@ static void vp_set(struct virtio_device *vdev, unsigned offset,
- 	switch (len) {
- 	case 1:
- 		memcpy(&b, buf, sizeof b);
--		iowrite8(b, vp_dev->device + offset);
-+		vp_write_device8(vp_dev, offset, b);
- 		break;
- 	case 2:
- 		memcpy(&w, buf, sizeof w);
--		iowrite16(le16_to_cpu(w), vp_dev->device + offset);
-+		vp_write_device16(vp_dev, offset, le16_to_cpu(w));
- 		break;
- 	case 4:
- 		memcpy(&l, buf, sizeof l);
--		iowrite32(le32_to_cpu(l), vp_dev->device + offset);
-+		vp_write_device32(vp_dev, offset, le32_to_cpu(l));
- 		break;
- 	case 8:
- 		memcpy(&l, buf, sizeof l);
--		iowrite32(le32_to_cpu(l), vp_dev->device + offset);
-+		vp_write_device32(vp_dev, offset, le32_to_cpu(l));
- 		memcpy(&l, buf + sizeof l, sizeof l);
--		iowrite32(le32_to_cpu(l), vp_dev->device + offset + sizeof l);
-+		vp_write_device32(vp_dev, offset + sizeof l, le32_to_cpu(l));
- 		break;
- 	default:
- 		BUG();
-@@ -210,14 +253,14 @@ static void vp_set(struct virtio_device *vdev, unsigned offset,
- static u32 vp_generation(struct virtio_device *vdev)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--	return ioread8(&vp_dev->common->config_generation);
-+	return vp_read_common8(vp_dev, config_generation);
- }
- 
- /* config->{get,set}_status() implementations */
- static u8 vp_get_status(struct virtio_device *vdev)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--	return ioread8(&vp_dev->common->device_status);
-+	return vp_read_common8(vp_dev, device_status);
- }
- 
- static void vp_set_status(struct virtio_device *vdev, u8 status)
-@@ -225,17 +268,17 @@ static void vp_set_status(struct virtio_device *vdev, u8 status)
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	/* We should never be setting status to 0. */
- 	BUG_ON(status == 0);
--	iowrite8(status, &vp_dev->common->device_status);
-+	vp_write_common8(vp_dev, device_status, status);
- }
- 
- static void vp_reset(struct virtio_device *vdev)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	/* 0 status means a reset. */
--	iowrite8(0, &vp_dev->common->device_status);
-+	vp_write_common8(vp_dev, device_status, 0);
- 	/* Flush out the status write, and flush in device writes,
- 	 * including MSI-X interrupts, if any. */
--	ioread8(&vp_dev->common->device_status);
-+	vp_read_common8(vp_dev, device_status);
- 	/* Flush pending VQ/configuration callbacks. */
- 	vp_synchronize_vectors(vdev);
- }
-@@ -243,10 +286,10 @@ static void vp_reset(struct virtio_device *vdev)
- static u16 vp_config_vector(struct virtio_pci_device *vp_dev, u16 vector)
- {
- 	/* Setup the vector used for configuration events */
--	iowrite16(vector, &vp_dev->common->msix_config);
-+	vp_write_common16(vp_dev, msix_config, vector);
- 	/* Verify we had enough resources to assign the vector */
- 	/* Will also flush the write out to device */
--	return ioread16(&vp_dev->common->msix_config);
-+	return vp_read_common16(vp_dev, msix_config);
- }
- 
- static size_t vring_pci_size(u16 num)
-@@ -281,20 +324,19 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 				  const char *name,
- 				  u16 msix_vec)
- {
--	struct virtio_pci_common_cfg __iomem *cfg = vp_dev->common;
- 	struct virtqueue *vq;
- 	u16 num, off;
- 	int err;
- 
--	if (index >= ioread16(&cfg->num_queues))
-+	if (index >= vp_read_common16(vp_dev, num_queues))
- 		return ERR_PTR(-ENOENT);
- 
- 	/* Select the queue we're interested in */
--	iowrite16(index, &cfg->queue_select);
-+	vp_write_common16(vp_dev, queue_select, index);
- 
- 	/* Check if queue is either not available or already active. */
--	num = ioread16(&cfg->queue_size);
--	if (!num || ioread16(&cfg->queue_enable))
-+	num = vp_read_common16(vp_dev, queue_size);
-+	if (!num || vp_read_common16(vp_dev, queue_enable))
- 		return ERR_PTR(-ENOENT);
- 
- 	if (num & (num - 1)) {
-@@ -303,7 +345,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 	}
- 
- 	/* get offset of notification word for this vq */
--	off = ioread16(&cfg->queue_notify_off);
-+	off = vp_read_common16(vp_dev, queue_notify_off);
- 
- 	info->num = num;
- 	info->msix_vector = msix_vec;
-@@ -322,13 +364,13 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 	}
- 
- 	/* activate the queue */
--	iowrite16(num, &cfg->queue_size);
--	iowrite64_twopart(virt_to_phys(info->queue),
--			  &cfg->queue_desc_lo, &cfg->queue_desc_hi);
--	iowrite64_twopart(virt_to_phys(virtqueue_get_avail(vq)),
--			  &cfg->queue_avail_lo, &cfg->queue_avail_hi);
--	iowrite64_twopart(virt_to_phys(virtqueue_get_used(vq)),
--			  &cfg->queue_used_lo, &cfg->queue_used_hi);
-+	vp_write_common16(vp_dev, queue_size, num);
-+	vp_write_common64(vp_dev, queue_desc_lo, queue_desc_hi,
-+			  virt_to_phys(info->queue));
-+	vp_write_common64(vp_dev, queue_avail_lo, queue_avail_hi,
-+			  virt_to_phys(virtqueue_get_avail(vq)));
-+	vp_write_common64(vp_dev, queue_used_lo, queue_used_hi,
-+			  virt_to_phys(virtqueue_get_used(vq)));
- 
- 	if (vp_dev->notify_base) {
- 		/* offset should not wrap */
-@@ -357,8 +399,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 	}
- 
- 	if (msix_vec != VIRTIO_MSI_NO_VECTOR) {
--		iowrite16(msix_vec, &cfg->queue_msix_vector);
--		msix_vec = ioread16(&cfg->queue_msix_vector);
-+		vp_write_common16(vp_dev, queue_msix_vector, msix_vec);
-+		msix_vec = vp_read_common16(vp_dev, queue_msix_vector);
- 		if (msix_vec == VIRTIO_MSI_NO_VECTOR) {
- 			err = -EBUSY;
- 			goto err_assign_vector;
-@@ -393,8 +435,8 @@ static int vp_modern_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 	 * this, there's no way to go back except reset.
+ 	/* Device capability is only mandatory for devices that have
+ 	 * device-specific configuration.
  	 */
- 	list_for_each_entry(vq, &vdev->vqs, list) {
--		iowrite16(vq->index, &vp_dev->common->queue_select);
--		iowrite16(1, &vp_dev->common->queue_enable);
-+		vp_write_common16(vp_dev, queue_select, vq->index);
-+		vp_write_common16(vp_dev, queue_enable, 1);
- 	}
+@@ -715,11 +876,11 @@ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
  
- 	return 0;
-@@ -405,13 +447,13 @@ static void del_vq(struct virtio_pci_vq_info *info)
- 	struct virtqueue *vq = info->vq;
- 	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
+ err_map_device:
+ 	if (vp_dev->notify_base)
+-		pci_iounmap(pci_dev, vp_dev->notify_base);
++		vp_iounmap(vp_dev, vp_dev->notify_base);
+ err_map_notify:
+-	pci_iounmap(pci_dev, vp_dev->isr);
++	vp_iounmap(vp_dev, vp_dev->isr);
+ err_map_isr:
+-	pci_iounmap(pci_dev, vp_dev->common);
++	vp_iounmap(vp_dev, vp_dev->common);
+ err_map_common:
+ 	return err;
+ }
+@@ -729,9 +890,9 @@ void virtio_pci_modern_remove(struct virtio_pci_device *vp_dev)
+ 	struct pci_dev *pci_dev = vp_dev->pci_dev;
  
--	iowrite16(vq->index, &vp_dev->common->queue_select);
-+	vp_write_common16(vp_dev, queue_select, vq->index);
- 
- 	if (vp_dev->msix_enabled) {
--		iowrite16(VIRTIO_MSI_NO_VECTOR,
--			  &vp_dev->common->queue_msix_vector);
-+		vp_write_common16(vp_dev, queue_msix_vector,
-+				  VIRTIO_MSI_NO_VECTOR);
- 		/* Flush the write out to device */
--		ioread16(&vp_dev->common->queue_msix_vector);
-+		vp_read_common16(vp_dev, queue_msix_vector);
- 	}
- 
- 	if (!vp_dev->notify_base)
+ 	if (vp_dev->device)
+-		pci_iounmap(pci_dev, vp_dev->device);
++		vp_iounmap(vp_dev, vp_dev->device);
+ 	if (vp_dev->notify_base)
+-		pci_iounmap(pci_dev, vp_dev->notify_base);
+-	pci_iounmap(pci_dev, vp_dev->isr);
+-	pci_iounmap(pci_dev, vp_dev->common);
++		vp_iounmap(vp_dev, vp_dev->notify_base);
++	vp_iounmap(vp_dev, vp_dev->isr);
++	vp_iounmap(vp_dev, vp_dev->common);
+ }
 -- 
 2.1.0
