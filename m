@@ -1,8 +1,8 @@
 From: Oleg Nesterov <oleg@redhat.com>
 Subject: Re: [PATCH V3] x86 spinlock: Fix memory corruption on completing
 	completions
-Date: Thu, 12 Feb 2015 14:37:07 +0100
-Message-ID: <20150212133707.GA10232@redhat.com>
+Date: Thu, 12 Feb 2015 14:50:56 +0100
+Message-ID: <20150212135056.GA10646@redhat.com>
 References: <1423741647-2156-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,22 +25,22 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 On 02/12, Raghavendra K T wrote:
 >
-> @@ -772,7 +773,8 @@ __visible void kvm_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
->  	 * check again make sure it didn't become free while
->  	 * we weren't looking.
->  	 */
-> -	if (ACCESS_ONCE(lock->tickets.head) == want) {
-> +	head = ACCESS_ONCE(lock->tickets.head);
-> +	if (__tickets_equal(head, want)) {
->  		add_stats(TAKEN_SLOW_PICKUP, 1);
+> @@ -191,8 +189,7 @@ static inline void arch_spin_unlock_wait(arch_spinlock_t *lock)
+>  		 * We need to check "unlocked" in a loop, tmp.head == head
+>  		 * can be false positive because of overflow.
+>  		 */
+> -		if (tmp.head == (tmp.tail & ~TICKET_SLOWPATH_FLAG) ||
+> -		    tmp.head != head)
+> +		if (__tickets_equal(tmp.head, tmp.tail) || tmp.head != head)
+>  			break;
 
-While at it, perhaps it makes sense to s/ACCESS_ONCE/READ_ONCE/ but this
-is cosmetic.
+Ah, it seems that "tmp.head != head" should be turned into
+!__tickets_equal(), no?
 
-We also need to change another user of enter_slow_path, xen_lock_spinning()
-in arch/x86/xen/spinlock.c.
+Suppose that TICKET_SLOWPATH_FLAG is set after the first ACCESS_ONCE(head),
+then tmp.head != head will be true before the first unlock we are waiting
+for.
 
-Other than that looks correct at first glance... but this is up to
-maintainers.
+And perhaps you can turn these ACCESS_ONCE into READ_ONCE as well.
 
 Oleg.
