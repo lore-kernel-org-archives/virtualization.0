@@ -1,14 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtual: Documentation: simplify and generalize
-	paravirt_ops.txt
-Date: Thu, 12 Feb 2015 10:35:53 +1030
-Message-ID: <87lhk4at9a.fsf@rustcorp.com.au>
-References: <1423614583-31024-1-git-send-email-mcgrof@do-not-panic.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH] x86 spinlock: Fix memory corruption on completing
+	completions
+Date: Wed, 11 Feb 2015 23:08:03 -0800
+Message-ID: <54DC5153.6070403@goop.org>
+References: <1423234148-13886-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>	<54D7D19B.1000103@goop.org>	<54D87F1E.9060307@linux.vnet.ibm.com>	<20150209120227.GT21418@twins.programming.kicks-ass.net>	<CA+55aFympdPOotzEgdhQULidN+nxb-VUdfym+qU9LOsHScvpzw@mail.gmail.com>	<54D9CFC7.5020007@linux.vnet.ibm.com>	<20150210132634.GA30380@redhat.com>	<54DAADEE.6070506@goop.org>	<20150211172434.GA28689@redhat.com>	<54DBE27C.8050105@goop.org>
+	<CA+55aFwnCxUV2JrWkq0pMtymzTfVetYd_NRKn4SB4fXqU5qZ8w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8975782560207666258=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1423614583-31024-1-git-send-email-mcgrof@do-not-panic.com>
+In-Reply-To: <CA+55aFwnCxUV2JrWkq0pMtymzTfVetYd_NRKn4SB4fXqU5qZ8w@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,21 +18,109 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>, chrisw@sous-sol.org, akataria@vmware.com, jeremy@goop.org
-Cc: Fenghua Yu <fenghua.yu@intel.com>, Tony Luck <tony.luck@intel.com>, kvm@vger.kernel.org, mcgrof@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Isaku Yamahata <yamahata@valinux.co.jp>, xen-devel@lists.xenproject.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, KVM list <kvm@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Oleg Nesterov <oleg@redhat.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Peter Anvin <hpa@zytor.com>, Andi Kleen <ak@linux.intel.com>, Andrey Ryabinin <a.ryabinin@samsung.com>, the arch/x86 maintainers <x86@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org, Paul McKenney <paulmck@linux.vnet.ibm.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Davidlohr Bueso <dave@stgolabs.net>, Sasha Levin <sasha.levin@oracle.com>, Dave Jones <davej@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, virtualization <virtualization@lists.linux-foundation.org>, Waiman Long <waiman.long@hp.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Luis R. Rodriguez" <mcgrof@do-not-panic.com> writes:
-> From: "Luis R. Rodriguez" <mcgrof@suse.com>
+This is a multi-part message in MIME format.
+--===============8975782560207666258==
+Content-Type: multipart/alternative;
+ boundary="------------080003000807090708020906"
+
+This is a multi-part message in MIME format.
+--------------080003000807090708020906
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+
+On 02/11/2015 03:28 PM, Linus Torvalds wrote:
 >
-> The general documentation we have for pv_ops is currenty present
-> on the IA64 docs, but since this documentation covers IA64 xen
-> enablement and IA64 Xen support got ripped out a while ago
-> through commit d52eefb47 present since v3.14-rc1 lets just
-> simplify, generalize and move the pv_ops documentation to a
-> shared place.
+>
+> On Feb 11, 2015 3:15 PM, "Jeremy Fitzhardinge" <jeremy@goop.org
+> <mailto:jeremy@goop.org>> wrote:
+> >
+> > Right now it needs to be a locked operation to prevent read-reordering.
+> > x86 memory ordering rules state that all writes are seen in a globally
+> > consistent order, and are globally ordered wrt reads *on the same
+> > addresses*, but reads to different addresses can be reordered wrt to
+> writes.
+>
+> The modern x86 rules are actually much tighter than that.
+>
+> Every store is a release, and every load is an acquire. So a
+> non-atomic store is actually a perfectly fine unlock. All preceding
+> stores will be seen by other cpu's before the unlock, and while reads
+> can pass stores, they only pass *earlier* stores.
+>
 
-OK, I've applied this.
+Right, so in this particular instance, the read of the SLOWPATH flag
+*can't* pass the previous unlock store, hence the need for an atomic
+unlock or some other mechanism to prevent the read from being reordered.
 
-Thanks,
-Rusty.
+    J
+
+
+--------------080003000807090708020906
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+  <head>
+    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Ty=
+pe">
+  </head>
+  <body text=3D"#000000" bgcolor=3D"#FFFFFF">
+    <br>
+    <div class=3D"moz-cite-prefix">On 02/11/2015 03:28 PM, Linus Torvalds
+      wrote:<br>
+    </div>
+    <blockquote
+cite=3D"mid:CA+55aFwnCxUV2JrWkq0pMtymzTfVetYd_NRKn4SB4fXqU5qZ8w@mail.gmai=
+l.com"
+      type=3D"cite">
+      <p dir=3D"ltr"><br>
+        On Feb 11, 2015 3:15 PM, "Jeremy Fitzhardinge" &lt;<a
+          moz-do-not-send=3D"true" href=3D"mailto:jeremy@goop.org">jeremy=
+@goop.org</a>&gt;
+        wrote:<br>
+        &gt;<br>
+        &gt; Right now it needs to be a locked operation to prevent
+        read-reordering.<br>
+        &gt; x86 memory ordering rules state that all writes are seen in
+        a globally<br>
+        &gt; consistent order, and are globally ordered wrt reads *on
+        the same<br>
+        &gt; addresses*, but reads to different addresses can be
+        reordered wrt to writes.</p>
+      <p dir=3D"ltr">The modern x86 rules are actually much tighter than
+        that.</p>
+      <p dir=3D"ltr">Every store is a release, and every load is an
+        acquire. So a non-atomic store is actually a perfectly fine
+        unlock. All preceding stores will be seen by other cpu's before
+        the unlock, and while reads can pass stores, they only pass
+        *earlier* stores.</p>
+    </blockquote>
+    <br>
+    Right, so in this particular instance, the read of the SLOWPATH flag
+    *can't* pass the previous unlock store, hence the need for an atomic
+    unlock or some other mechanism to prevent the read from being
+    reordered.<br>
+    <br>
+    =C2=A0=C2=A0=C2=A0 J<br>
+    <br>
+  </body>
+</html>
+
+--------------080003000807090708020906--
+
+--===============8975782560207666258==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8975782560207666258==--
