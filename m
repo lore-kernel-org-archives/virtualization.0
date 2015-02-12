@@ -1,14 +1,12 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH] x86 spinlock: Fix memory corruption on completing
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: [PATCH V3] x86 spinlock: Fix memory corruption on completing
 	completions
-Date: Wed, 11 Feb 2015 23:08:03 -0800
-Message-ID: <54DC5153.6070403@goop.org>
-References: <1423234148-13886-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>	<54D7D19B.1000103@goop.org>	<54D87F1E.9060307@linux.vnet.ibm.com>	<20150209120227.GT21418@twins.programming.kicks-ass.net>	<CA+55aFympdPOotzEgdhQULidN+nxb-VUdfym+qU9LOsHScvpzw@mail.gmail.com>	<54D9CFC7.5020007@linux.vnet.ibm.com>	<20150210132634.GA30380@redhat.com>	<54DAADEE.6070506@goop.org>	<20150211172434.GA28689@redhat.com>	<54DBE27C.8050105@goop.org>
-	<CA+55aFwnCxUV2JrWkq0pMtymzTfVetYd_NRKn4SB4fXqU5qZ8w@mail.gmail.com>
+Date: Thu, 12 Feb 2015 17:17:27 +0530
+Message-ID: <1423741647-2156-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8975782560207666258=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CA+55aFwnCxUV2JrWkq0pMtymzTfVetYd_NRKn4SB4fXqU5qZ8w@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,109 +16,278 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, KVM list <kvm@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Oleg Nesterov <oleg@redhat.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Peter Anvin <hpa@zytor.com>, Andi Kleen <ak@linux.intel.com>, Andrey Ryabinin <a.ryabinin@samsung.com>, the arch/x86 maintainers <x86@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org, Paul McKenney <paulmck@linux.vnet.ibm.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Davidlohr Bueso <dave@stgolabs.net>, Sasha Levin <sasha.levin@oracle.com>, Dave Jones <davej@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, virtualization <virtualization@lists.linux-foundation.org>, Waiman Long <waiman.long@hp.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, peterz@infradead.org, torvalds@linux-foundation.org
+Cc: jeremy@goop.org, raghavendra.kt@linux.vnet.ibm.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, paul.gortmaker@windriver.com, ak@linux.intel.com, a.ryabinin@samsung.com, x86@kernel.org, borntraeger@de.ibm.com, xen-devel@lists.xenproject.org, paulmck@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, dave@stgolabs.net, sasha.levin@oracle.com, davej@redhat.com, virtualization@lists.linux-foundation.org, waiman.long@hp.com, oleg@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format.
---===============8975782560207666258==
-Content-Type: multipart/alternative;
- boundary="------------080003000807090708020906"
+Paravirt spinlock clears slowpath flag after doing unlock.
+As explained by Linus currently it does:
+                prev = *lock;
+                add_smp(&lock->tickets.head, TICKET_LOCK_INC);
 
-This is a multi-part message in MIME format.
---------------080003000807090708020906
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+                /* add_smp() is a full mb() */
 
-
-On 02/11/2015 03:28 PM, Linus Torvalds wrote:
->
->
-> On Feb 11, 2015 3:15 PM, "Jeremy Fitzhardinge" <jeremy@goop.org
-> <mailto:jeremy@goop.org>> wrote:
-> >
-> > Right now it needs to be a locked operation to prevent read-reordering.
-> > x86 memory ordering rules state that all writes are seen in a globally
-> > consistent order, and are globally ordered wrt reads *on the same
-> > addresses*, but reads to different addresses can be reordered wrt to
-> writes.
->
-> The modern x86 rules are actually much tighter than that.
->
-> Every store is a release, and every load is an acquire. So a
-> non-atomic store is actually a perfectly fine unlock. All preceding
-> stores will be seen by other cpu's before the unlock, and while reads
-> can pass stores, they only pass *earlier* stores.
->
-
-Right, so in this particular instance, the read of the SLOWPATH flag
-*can't* pass the previous unlock store, hence the need for an atomic
-unlock or some other mechanism to prevent the read from being reordered.
-
-    J
+                if (unlikely(lock->tickets.tail & TICKET_SLOWPATH_FLAG))
+                        __ticket_unlock_slowpath(lock, prev);
 
 
---------------080003000807090708020906
-Content-Type: text/html; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+which is *exactly* the kind of things you cannot do with spinlocks,
+because after you've done the "add_smp()" and released the spinlock
+for the fast-path, you can't access the spinlock any more.  Exactly
+because a fast-path lock might come in, and release the whole data
+structure.
 
-<html>
-  <head>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Ty=
-pe">
-  </head>
-  <body text=3D"#000000" bgcolor=3D"#FFFFFF">
-    <br>
-    <div class=3D"moz-cite-prefix">On 02/11/2015 03:28 PM, Linus Torvalds
-      wrote:<br>
-    </div>
-    <blockquote
-cite=3D"mid:CA+55aFwnCxUV2JrWkq0pMtymzTfVetYd_NRKn4SB4fXqU5qZ8w@mail.gmai=
-l.com"
-      type=3D"cite">
-      <p dir=3D"ltr"><br>
-        On Feb 11, 2015 3:15 PM, "Jeremy Fitzhardinge" &lt;<a
-          moz-do-not-send=3D"true" href=3D"mailto:jeremy@goop.org">jeremy=
-@goop.org</a>&gt;
-        wrote:<br>
-        &gt;<br>
-        &gt; Right now it needs to be a locked operation to prevent
-        read-reordering.<br>
-        &gt; x86 memory ordering rules state that all writes are seen in
-        a globally<br>
-        &gt; consistent order, and are globally ordered wrt reads *on
-        the same<br>
-        &gt; addresses*, but reads to different addresses can be
-        reordered wrt to writes.</p>
-      <p dir=3D"ltr">The modern x86 rules are actually much tighter than
-        that.</p>
-      <p dir=3D"ltr">Every store is a release, and every load is an
-        acquire. So a non-atomic store is actually a perfectly fine
-        unlock. All preceding stores will be seen by other cpu's before
-        the unlock, and while reads can pass stores, they only pass
-        *earlier* stores.</p>
-    </blockquote>
-    <br>
-    Right, so in this particular instance, the read of the SLOWPATH flag
-    *can't* pass the previous unlock store, hence the need for an atomic
-    unlock or some other mechanism to prevent the read from being
-    reordered.<br>
-    <br>
-    =C2=A0=C2=A0=C2=A0 J<br>
-    <br>
-  </body>
-</html>
+Linus suggested that we should not do any writes to lock after unlock(),
+and we can move slowpath clearing to fastpath lock.
 
---------------080003000807090708020906--
+So this patch implements the fix with:
+1. Moving slowpath flag to head (Oleg).
+2. use xadd to avoid read/write after unlock that checks the need for
+unlock_kick (Linus).
 
---===============8975782560207666258==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Result:
+ setup: 16core (32 cpu +ht sandy bridge 8GB 16vcpu guest)
+ benchmark overcommit %improve
+ kernbench  1x           -0.13
+ kernbench  2x            0.02
+ dbench     1x           -1.77
+ dbench     2x           -0.63
 
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8975782560207666258==--
+[Jeremy: hinted missing TICKET_LOCK_INC for kick]
+[Oleg: Moving slowpath flag to head, ticket_equals idea]
+
+Reported-by: Sasha Levin <sasha.levin@oracle.com>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+---
+ arch/x86/include/asm/spinlock.h | 87 ++++++++++++++++++++---------------------
+ arch/x86/kernel/kvm.c           |  4 +-
+ 2 files changed, 45 insertions(+), 46 deletions(-)
+
+potential TODO:
+ * The whole patch be splitted into, 1. move slowpath flag
+     2. fix memory corruption in completion problem ??
+ * May be we could directly pass inc for __ticket_check_and_clear_slowpath
+   but I hope current code is more readable.
+
+Changes since V2:
+  - Move the slowpath flag to head, this enables xadd usage in unlock code
+    and inturn we can get rid of read/write after  unlock (Oleg)
+  - usage of ticket_equals (Oleg)
+
+Changes since V1:
+  - Add missing TICKET_LOCK_INC before unlock kick (fixes hang in overcommit: Jeremy).
+  - Remove SLOWPATH_FLAG clearing in fast lock. (Jeremy)
+  - clear SLOWPATH_FLAG in arch_spin_value_unlocked during comparison.
+ Note: The current implementation is still based on avoid writing after unlock.
+  we could still have potential invalid memory read. (Sasha)
+
+ Result: 
+ setup: 16core (32 cpu +ht sandy bridge 8GB 16vcpu guest)
+
+base = 3_19_rc7
+
+3_19_rc7_spinfix_v3
++-----------+-----------+-----------+------------+-----------+
+     kernbench (Time taken in sec lower is better)
++-----------+-----------+-----------+------------+-----------+
+     base       %stdev    patched      %stdev      %improve
++-----------+-----------+-----------+------------+-----------+
+1x   54.2300     3.0652	    54.3008     4.0366	  -0.13056
+2x   90.1883     5.5509	    90.1650     6.4336	   0.02583
++-----------+-----------+-----------+------------+-----------+
++-----------+-----------+-----------+------------+-----------+
+    dbench (Throughput higher is better) 
++-----------+-----------+-----------+------------+-----------+
+     base       %stdev    patched      %stdev      %improve
++-----------+-----------+-----------+------------+-----------+
+1x 7029.9188     2.5952	  6905.0712     4.4737	  -1.77595
+2x 3254.2075    14.8291	  3233.7137    26.8784	  -0.62976
++-----------+-----------+-----------+------------+-----------+
+
+ (here is the result I got from the patches, I believe there may
+ be some small overhead from xadd etc, but overall looks fine but
+ a thorough test may be needed)
+
+diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
+index 625660f..9697b45 100644
+--- a/arch/x86/include/asm/spinlock.h
++++ b/arch/x86/include/asm/spinlock.h
+@@ -46,7 +46,7 @@ static __always_inline bool static_key_false(struct static_key *key);
+ 
+ static inline void __ticket_enter_slowpath(arch_spinlock_t *lock)
+ {
+-	set_bit(0, (volatile unsigned long *)&lock->tickets.tail);
++	set_bit(0, (volatile unsigned long *)&lock->tickets.head);
+ }
+ 
+ #else  /* !CONFIG_PARAVIRT_SPINLOCKS */
+@@ -60,10 +60,30 @@ static inline void __ticket_unlock_kick(arch_spinlock_t *lock,
+ }
+ 
+ #endif /* CONFIG_PARAVIRT_SPINLOCKS */
++static inline int  __tickets_equal(__ticket_t one, __ticket_t two)
++{
++	return !((one ^ two) & ~TICKET_SLOWPATH_FLAG);
++}
++
++static inline void __ticket_check_and_clear_slowpath(arch_spinlock_t *lock,
++							__ticket_t head)
++{
++	if (head & TICKET_SLOWPATH_FLAG) {
++		arch_spinlock_t old, new;
++
++		old.tickets.head = head;
++		new.tickets.head = head & ~TICKET_SLOWPATH_FLAG;
++		old.tickets.tail = new.tickets.head + TICKET_LOCK_INC;
++		new.tickets.tail = old.tickets.tail;
++
++		/* try to clear slowpath flag when there are no contenders */
++		cmpxchg(&lock->head_tail, old.head_tail, new.head_tail);
++	}
++}
+ 
+ static __always_inline int arch_spin_value_unlocked(arch_spinlock_t lock)
+ {
+-	return lock.tickets.head == lock.tickets.tail;
++	return __tickets_equal(lock.tickets.head, lock.tickets.tail);
+ }
+ 
+ /*
+@@ -87,18 +107,22 @@ static __always_inline void arch_spin_lock(arch_spinlock_t *lock)
+ 	if (likely(inc.head == inc.tail))
+ 		goto out;
+ 
+-	inc.tail &= ~TICKET_SLOWPATH_FLAG;
+ 	for (;;) {
+ 		unsigned count = SPIN_THRESHOLD;
+ 
+ 		do {
+-			if (READ_ONCE(lock->tickets.head) == inc.tail)
+-				goto out;
++			inc.head = READ_ONCE(lock->tickets.head);
++			if (__tickets_equal(inc.head, inc.tail))
++				goto clear_slowpath;
+ 			cpu_relax();
+ 		} while (--count);
+ 		__ticket_lock_spinning(lock, inc.tail);
+ 	}
+-out:	barrier();	/* make sure nothing creeps before the lock is taken */
++clear_slowpath:
++	if (TICKET_SLOWPATH_FLAG)
++		__ticket_check_and_clear_slowpath(lock, inc.head);
++out:
++	barrier();	/* make sure nothing creeps before the lock is taken */
+ }
+ 
+ static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
+@@ -106,56 +130,30 @@ static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
+ 	arch_spinlock_t old, new;
+ 
+ 	old.tickets = READ_ONCE(lock->tickets);
+-	if (old.tickets.head != (old.tickets.tail & ~TICKET_SLOWPATH_FLAG))
++	if (!__tickets_equal(old.tickets.head, old.tickets.tail))
+ 		return 0;
+ 
+ 	new.head_tail = old.head_tail + (TICKET_LOCK_INC << TICKET_SHIFT);
++	new.head_tail &= ~TICKET_SLOWPATH_FLAG;
+ 
+ 	/* cmpxchg is a full barrier, so nothing can move before it */
+ 	return cmpxchg(&lock->head_tail, old.head_tail, new.head_tail) == old.head_tail;
+ }
+ 
+-static inline void __ticket_unlock_slowpath(arch_spinlock_t *lock,
+-					    arch_spinlock_t old)
+-{
+-	arch_spinlock_t new;
+-
+-	BUILD_BUG_ON(((__ticket_t)NR_CPUS) != NR_CPUS);
+-
+-	/* Perform the unlock on the "before" copy */
+-	old.tickets.head += TICKET_LOCK_INC;
+-
+-	/* Clear the slowpath flag */
+-	new.head_tail = old.head_tail & ~(TICKET_SLOWPATH_FLAG << TICKET_SHIFT);
+-
+-	/*
+-	 * If the lock is uncontended, clear the flag - use cmpxchg in
+-	 * case it changes behind our back though.
+-	 */
+-	if (new.tickets.head != new.tickets.tail ||
+-	    cmpxchg(&lock->head_tail, old.head_tail,
+-					new.head_tail) != old.head_tail) {
+-		/*
+-		 * Lock still has someone queued for it, so wake up an
+-		 * appropriate waiter.
+-		 */
+-		__ticket_unlock_kick(lock, old.tickets.head);
+-	}
+-}
+-
+ static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
+ {
+ 	if (TICKET_SLOWPATH_FLAG &&
+-	    static_key_false(&paravirt_ticketlocks_enabled)) {
+-		arch_spinlock_t prev;
++		static_key_false(&paravirt_ticketlocks_enabled)) {
++		__ticket_t head;
+ 
+-		prev = *lock;
+-		add_smp(&lock->tickets.head, TICKET_LOCK_INC);
++		BUILD_BUG_ON(((__ticket_t)NR_CPUS) != NR_CPUS);
+ 
+-		/* add_smp() is a full mb() */
++		head = xadd(&lock->tickets.head, TICKET_LOCK_INC);
+ 
+-		if (unlikely(lock->tickets.tail & TICKET_SLOWPATH_FLAG))
+-			__ticket_unlock_slowpath(lock, prev);
++		if (unlikely(head & TICKET_SLOWPATH_FLAG)) {
++			head &= ~TICKET_SLOWPATH_FLAG;
++			__ticket_unlock_kick(lock, (head + TICKET_LOCK_INC));
++		}
+ 	} else
+ 		__add(&lock->tickets.head, TICKET_LOCK_INC, UNLOCK_LOCK_PREFIX);
+ }
+@@ -164,7 +162,7 @@ static inline int arch_spin_is_locked(arch_spinlock_t *lock)
+ {
+ 	struct __raw_tickets tmp = READ_ONCE(lock->tickets);
+ 
+-	return tmp.tail != tmp.head;
++	return tmp.tail != (tmp.head & ~TICKET_SLOWPATH_FLAG);
+ }
+ 
+ static inline int arch_spin_is_contended(arch_spinlock_t *lock)
+@@ -191,8 +189,7 @@ static inline void arch_spin_unlock_wait(arch_spinlock_t *lock)
+ 		 * We need to check "unlocked" in a loop, tmp.head == head
+ 		 * can be false positive because of overflow.
+ 		 */
+-		if (tmp.head == (tmp.tail & ~TICKET_SLOWPATH_FLAG) ||
+-		    tmp.head != head)
++		if (__tickets_equal(tmp.head, tmp.tail) || tmp.head != head)
+ 			break;
+ 
+ 		cpu_relax();
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index 94f6434..e758b46 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -727,6 +727,7 @@ __visible void kvm_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
+ 	int cpu;
+ 	u64 start;
+ 	unsigned long flags;
++	__ticket_t head;
+ 
+ 	if (in_nmi())
+ 		return;
+@@ -772,7 +773,8 @@ __visible void kvm_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
+ 	 * check again make sure it didn't become free while
+ 	 * we weren't looking.
+ 	 */
+-	if (ACCESS_ONCE(lock->tickets.head) == want) {
++	head = ACCESS_ONCE(lock->tickets.head);
++	if (__tickets_equal(head, want)) {
+ 		add_stats(TAKEN_SLOW_PICKUP, 1);
+ 		goto out;
+ 	}
+-- 
+1.7.11.7
