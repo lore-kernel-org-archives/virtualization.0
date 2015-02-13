@@ -1,17 +1,15 @@
-From: Pawel Moll <pawel.moll@arm.com>
-Subject: Re: [PATCH RFC v5 net-next 4/6] virtio-net: add basic interrupt
-	coalescing support
-Date: Fri, 13 Feb 2015 12:41:06 +0000
-Message-ID: <1423831266.21394.1.camel__31247.7688691162$1423831319$gmane$org@arm.com>
-References: <1423471165-34243-1-git-send-email-jasowang@redhat.com>
-	<1423471165-34243-5-git-send-email-jasowang@redhat.com>
-	<87386ey2iy.fsf@rustcorp.com.au> <20150210104019.GD9505@redhat.com>
-	<874mqqbk12.fsf@rustcorp.com.au>
+From: Oleg Nesterov <oleg@redhat.com>
+Subject: Re: [PATCH V4] x86 spinlock: Fix memory corruption on completing
+	completions
+Date: Fri, 13 Feb 2015 16:32:28 +0100
+Message-ID: <20150213153228.GA9535@redhat.com>
+References: <1423809941-11125-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <874mqqbk12.fsf@rustcorp.com.au>
+Content-Disposition: inline
+In-Reply-To: <1423809941-11125-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,42 +19,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "pagupta@redhat.com" <pagupta@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Cc: jeremy@goop.org, kvm@vger.kernel.org, peterz@infradead.org, virtualization@lists.linux-foundation.org, paul.gortmaker@windriver.com, hpa@zytor.com, ak@linux.intel.com, a.ryabinin@samsung.com, x86@kernel.org, borntraeger@de.ibm.com, mingo@redhat.com, xen-devel@lists.xenproject.org, paulmck@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, dave@stgolabs.net, sasha.levin@oracle.com, davej@redhat.com, tglx@linutronix.de, waiman.long@hp.com, linux-kernel@vger.kernel.org, pbonzini@redhat.com, akpm@linux-foundation.org, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCAyMDE1LTAyLTEzIGF0IDAyOjUyICswMDAwLCBSdXN0eSBSdXNzZWxsIHdyb3RlOgo+
-ICJNaWNoYWVsIFMuIFRzaXJraW4iIDxtc3RAcmVkaGF0LmNvbT4gd3JpdGVzOgo+ID4gT24gVHVl
-LCBGZWIgMTAsIDIwMTUgYXQgMTI6MDI6MzdQTSArMTAzMCwgUnVzdHkgUnVzc2VsbCB3cm90ZToK
-PiA+PiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPiB3cml0ZXM6Cj4gPj4gPiBUaGlz
-IHBhdGNoIGVuYWJsZXMgdGhlIGludGVycnVwdCBjb2FsZXNjaW5nIHNldHRpbmcgdGhyb3VnaCBl
-dGh0b29sLgo+ID4+IAo+ID4+IFRoZSBwcm9ibGVtIGlzIHRoYXQgdGhlcmUncyBub3RoaW5nIG5l
-dHdvcmsgc3BlY2lmaWMgYWJvdXQgaW50ZXJydXB0Cj4gPj4gY29hbGVzY2luZy4gIEkgY2FuIHNl
-ZSBvdGhlciBkZXZpY2VzIHdhbnRpbmcgZXhhY3RseSB0aGUgc2FtZSB0aGluZywKPiA+PiB3aGlj
-aCBtZWFucyB3ZSdkIGRlcHJlY2F0ZSB0aGlzIGluIHRoZSBuZXh0IHZpcnRpbyBzdGFuZGFyZC4K
-PiA+PiAKPiA+PiBJIHRoaW5rIHRoZSByaWdodCBhbnN3ZXIgaXMgdG8gZXh0ZW5kIGxpa2Ugd2Ug
-ZGlkIHdpdGgKPiA+PiB2cmluZ191c2VkX2V2ZW50KCksIGVnOgo+ID4+IAo+ID4+IDEpIEFkZCBh
-IG5ldyBmZWF0dXJlIFZJUlRJT19GX1JJTkdfQ09BTEVTQ0UuCj4gPj4gMikgQWRkIGFub3RoZXIg
-YSAzMi1iaXQgZmllbGQgYWZ0ZXIgdnJpbmdfdXNlZF9ldmVudCgpLCBlZzoKPiA+PiAgICAgICAg
-ICNkZWZpbmUgdnJpbmdfdXNlZF9kZWxheSh2cikgKCoodTMyICopKCh2ciktPmF2YWlsLT5yaW5n
-Wyh2ciktPm51bSArIDJdKSkKPiA+PiAKPiA+PiBUaGlzIGxvc2VzIHRoZSBhYmlsaXR5IHRvIGNv
-YWxlc2NlIGJ5IG51bWJlciBvZiBmcmFtZXMsIGJ1dCB3ZSBjYW4gc3RpbGwKPiA+PiBkbyBudW1i
-ZXIgb2Ygc2cgZW50cmllcywgYXMgd2UgZG8gbm93IHdpdGggdXNlZF9ldmVudCwgYW5kIHdlIGNv
-dWxkCj4gPj4gY2hhbmdlIHZpcnRxdWV1ZV9lbmFibGVfY2JfZGVsYXllZCgpIHRvIHRha2UgYSBw
-cmVjaXNlIG51bWJlciBpZiB3ZQo+ID4+IHdhbnRlZC4KPiA+Cj4gPiBCdXQgZG8gd2UgZXhwZWN0
-IGRlbGF5IHRvIGJlIHVwZGF0ZSBkeW5hbWljYWxseT8KPiA+IElmIG5vdCwgd2h5IG5vdCBzdGlj
-ayBpdCBpbiBjb25maWcgc3BhY2U/Cj4gCj4gSG1tLCB3ZSBjb3VsZCB1cGRhdGUgaXQgZHluYW1p
-Y2FsbHkgKGFuZCB3aWxsLCBpbiB0aGUgY2FzZSBvZiBldGh0b29sKS4KPiBCdXQgaXQgd29uJ3Qg
-YmUgY29tbW9uLCBzbyB3ZSBjb3VsZCBhcHBlbmQgYSBmaWVsZCB0bwo+IHZpcnRpb19wY2lfY29t
-bW9uX2NmZyBmb3IgUENJLgo+IAo+IEkgdGhpbmsgTU1JTyBhbmQgQ0NXIHdvdWxkIGJlIGVhc3kg
-dG8gZXh0ZW5kIHRvbywgYnV0IENDJ2QgdG8gY2hlY2suCgpBcyBmYXIgYXMgSSB1bmRlcnN0YW5k
-IHRoZSB2aXJ0aW9fcGNpX2NvbW1vbl9jZmcgcHJpbmNpcGxlIChqdXN0IGhhZCBhCmxvb2ssIGZv
-ciB0aGUgZmlyc3QgdGltZSA7LSksIGl0J3Mgbm93IGFuIGVxdWl2YWxlbnQgb2YgdGhlIE1NSU8g
-Y29udHJvbApyZWdpc3RlcnMgYmxvY2suIEkgc2VlIG5vIG1ham9yIHByb2JsZW0gd2l0aCBhZGRp
-bmcgYW5vdGhlciBvbmUuCgpPciB3ZXJlIHlvdSB0aGlua2luZyBhYm91dCBpbnRyb2R1Y2luZyBz
-b21lIHN0YW5kYXJkIGZvciB0aGUgInJlYWwiCmNvbmZpZyBzcGFjZT8gKGZpbmUgd2l0aCBtZSBh
-cyB3ZWxsIC0gdGhlIHRyYW5zcG9ydCB3aWxsIGhhdmUgbm90aGluZyB0bwpkbyA6LSkKClBhd2XF
-ggoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
-bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
-b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
-L3ZpcnR1YWxpemF0aW9u
+On 02/13, Raghavendra K T wrote:
+>
+> @@ -164,7 +161,7 @@ static inline int arch_spin_is_locked(arch_spinlock_t *lock)
+>  {
+>  	struct __raw_tickets tmp = READ_ONCE(lock->tickets);
+>
+> -	return tmp.tail != tmp.head;
+> +	return tmp.tail != (tmp.head & ~TICKET_SLOWPATH_FLAG);
+>  }
+
+Well, this can probably use __tickets_equal() too. But this is cosmetic.
+
+It seems that arch_spin_is_contended() should be fixed with this change,
+
+	(__ticket_t)(tmp.tail - tmp.head) > TICKET_LOCK_INC
+
+can be true because of TICKET_SLOWPATH_FLAG in .head, even if it is actually
+unlocked. And the "(__ticket_t)" typecast looks unnecessary, it only adds more
+confusuin, but this is cosmetic too.
+
+
+
+> @@ -772,7 +773,8 @@ __visible void kvm_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
+>  	 * check again make sure it didn't become free while
+>  	 * we weren't looking.
+>  	 */
+> -	if (ACCESS_ONCE(lock->tickets.head) == want) {
+> +	head = READ_ONCE(lock->tickets.head);
+> +	if (__tickets_equal(head, want)) {
+>  		add_stats(TAKEN_SLOW_PICKUP, 1);
+>  		goto out;
+
+This is off-topic, but with or without this change perhaps it makes sense
+to add smp_mb__after_atomic(). It is nop on x86, just to make this code
+more understandable for those (for me ;) who can never remember even the
+x86 rules.
+
+Oleg.
