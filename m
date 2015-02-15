@@ -1,14 +1,15 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net] vhost_net: fix wrong iter offset when setting
-	number of buffers
-Date: Sun, 15 Feb 2015 08:17:53 -0800 (PST)
-Message-ID: <20150215.081753.375314410062222400.davem@davemloft.net>
-References: <1423989317-16038-1-git-send-email-jasowang@redhat.com>
+From: Oleg Nesterov <oleg@redhat.com>
+Subject: Re: [PATCH V5] x86 spinlock: Fix memory corruption on completing
+	completions
+Date: Sun, 15 Feb 2015 17:17:33 +0100
+Message-ID: <20150215161733.GB27608@redhat.com>
+References: <1423979744-18320-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1423989317-16038-1-git-send-email-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1423979744-18320-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,29 +19,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, viro@zeniv.linux.org.uk
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Cc: jeremy@goop.org, kvm@vger.kernel.org, peterz@infradead.org, virtualization@lists.linux-foundation.org, paul.gortmaker@windriver.com, hpa@zytor.com, ak@linux.intel.com, a.ryabinin@samsung.com, x86@kernel.org, borntraeger@de.ibm.com, mingo@redhat.com, xen-devel@lists.xenproject.org, paulmck@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, dave@stgolabs.net, sasha.levin@oracle.com, davej@redhat.com, tglx@linutronix.de, waiman.long@hp.com, linux-kernel@vger.kernel.org, pbonzini@redhat.com, akpm@linux-foundation.org, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Sun, 15 Feb 2015 16:35:17 +0800
+Well, I regret I mentioned the lack of barrier after enter_slowpath ;)
 
-> In commit ba7438aed924 ("vhost: don't bother copying iovecs in
-> handle_rx(), kill memcpy_toiovecend()"), we advance iov iter fixup
-> sizeof(struct virtio_net_hdr) bytes and fill the number of buffers
-> after doing the socket recvmsg(). This work well but was broken after
-> commit 6e03f896b52c ("Merge
-> git://git.kernel.org/pub/scm/linux/kernel/git/davem/net") which tries
-> to advance sizeof(struct virtio_net_hdr_mrg_rxbuf). It will fill the
-> number of buffers at the wrong place. This patch fixes this.
-> 
-> Fixes 6e03f896b52c
-> ("Merge git://git.kernel.org/pub/scm/linux/kernel/git/davem/net")
-> Cc: David S. Miller <davem@davemloft.net>
-> Cc: Al Viro <viro@zeniv.linux.org.uk>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+On 02/15, Raghavendra K T wrote:
+>
+> @@ -46,7 +46,8 @@ static __always_inline bool static_key_false(struct static_key *key);
+>
+>  static inline void __ticket_enter_slowpath(arch_spinlock_t *lock)
+>  {
+> -	set_bit(0, (volatile unsigned long *)&lock->tickets.tail);
+> +	set_bit(0, (volatile unsigned long *)&lock->tickets.head);
+> +	barrier();
+>  }
 
-I was wondering if I got that merge conflict right. :-/
+Because this barrier() looks really confusing.
 
-Applied, thanks Jason.
+Firsty, it is equally unneeded on x86. At the same time, it can not help.
+We need a memory barrier() between set_bit(SLOWPATH) and READ_ONCE(head)
+to avoid the race with spin_unlock().
+
+So I think you should replace it with smp_mb__after_atomic() or remove it.
+
+
+
+Other than that I believe this version is correct. So I won't insist, this
+is cosmetic after all.
+
+Oleg.
