@@ -1,17 +1,14 @@
-From: Oleg Nesterov <oleg@redhat.com>
-Subject: Re: [PATCH V4] x86 spinlock: Fix memory corruption on completing
-	completions
-Date: Sun, 15 Feb 2015 17:07:00 +0100
-Message-ID: <20150215160700.GA27608@redhat.com>
-References: <1423809941-11125-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
-	<20150213153228.GA9535@redhat.com>
-	<54E032F1.5060503@linux.vnet.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net] vhost_net: fix wrong iter offset when setting
+	number of buffers
+Date: Sun, 15 Feb 2015 08:17:53 -0800 (PST)
+Message-ID: <20150215.081753.375314410062222400.davem@davemloft.net>
+References: <1423989317-16038-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <54E032F1.5060503@linux.vnet.ibm.com>
+In-Reply-To: <1423989317-16038-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,41 +18,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Cc: jeremy@goop.org, kvm@vger.kernel.org, peterz@infradead.org, virtualization@lists.linux-foundation.org, paul.gortmaker@windriver.com, hpa@zytor.com, ak@linux.intel.com, a.ryabinin@samsung.com, x86@kernel.org, borntraeger@de.ibm.com, mingo@redhat.com, xen-devel@lists.xenproject.org, paulmck@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, dave@stgolabs.net, sasha.levin@oracle.com, davej@redhat.com, tglx@linutronix.de, waiman.long@hp.com, linux-kernel@vger.kernel.org, pbonzini@redhat.com, akpm@linux-foundation.org, torvalds@linux-foundation.org
+To: jasowang@redhat.com
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, viro@zeniv.linux.org.uk
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/15, Raghavendra K T wrote:
->
-> On 02/13/2015 09:02 PM, Oleg Nesterov wrote:
->
->>> @@ -772,7 +773,8 @@ __visible void kvm_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
->>>   	 * check again make sure it didn't become free while
->>>   	 * we weren't looking.
->>>   	 */
->>> -	if (ACCESS_ONCE(lock->tickets.head) == want) {
->>> +	head = READ_ONCE(lock->tickets.head);
->>> +	if (__tickets_equal(head, want)) {
->>>   		add_stats(TAKEN_SLOW_PICKUP, 1);
->>>   		goto out;
->>
->> This is off-topic, but with or without this change perhaps it makes sense
->> to add smp_mb__after_atomic(). It is nop on x86, just to make this code
->> more understandable for those (for me ;) who can never remember even the
->> x86 rules.
->
-> Hope you meant it for add_stat.
+From: Jason Wang <jasowang@redhat.com>
+Date: Sun, 15 Feb 2015 16:35:17 +0800
 
-No, no. We need a barrier between set_bit(SLOWPATH) and tickets_equal().
+> In commit ba7438aed924 ("vhost: don't bother copying iovecs in
+> handle_rx(), kill memcpy_toiovecend()"), we advance iov iter fixup
+> sizeof(struct virtio_net_hdr) bytes and fill the number of buffers
+> after doing the socket recvmsg(). This work well but was broken after
+> commit 6e03f896b52c ("Merge
+> git://git.kernel.org/pub/scm/linux/kernel/git/davem/net") which tries
+> to advance sizeof(struct virtio_net_hdr_mrg_rxbuf). It will fill the
+> number of buffers at the wrong place. This patch fixes this.
+> 
+> Fixes 6e03f896b52c
+> ("Merge git://git.kernel.org/pub/scm/linux/kernel/git/davem/net")
+> Cc: David S. Miller <davem@davemloft.net>
+> Cc: Al Viro <viro@zeniv.linux.org.uk>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-Yes, on x86 set_bit() can't be reordered so smp_mb_*_atomic() is nop, but
-it can make the code more understandable.
+I was wondering if I got that merge conflict right. :-/
 
-> yes  smp_mb__after_atomic() would be
-> harmless barrier() in x86. Did not add this V5 as yoiu though  but this
-> made me look at slowpath_enter code and added an explicit barrier()
-> there :).
-
-Well. it looks even more confusing than a lack of barrier ;)
-
-Oleg.
+Applied, thanks Jason.
