@@ -1,14 +1,12 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH V5] x86 spinlock: Fix memory corruption on completing
-	completions
-Date: Sun, 15 Feb 2015 11:31:54 +0530
-Message-ID: <54E03652.8010104@linux.vnet.ibm.com>
-References: <1423979744-18320-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net] vhost_net: fix wrong iter offset when setting number of
+	buffers
+Date: Sun, 15 Feb 2015 16:35:17 +0800
+Message-ID: <1423989317-16038-1-git-send-email-jasowang__11053.7313776605$1423989370$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1423979744-18320-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,65 +16,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: sasha.levin@oracle.com
-Cc: jeremy@goop.org, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, kvm@vger.kernel.org, peterz@infradead.org, virtualization@lists.linux-foundation.org, paul.gortmaker@windriver.com, hpa@zytor.com, ak@linux.intel.com, a.ryabinin@samsung.com, x86@kernel.org, borntraeger@de.ibm.com, mingo@redhat.com, xen-devel@lists.xenproject.org, paulmck@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, dave@stgolabs.net, davej@redhat.com, tglx@linutronix.de, waiman.long@hp.com, oleg@redhat.com, linux-kernel@vger.kernel.org, pbonzini@redhat.com, akpm@linux-foundation.org, torvalds@linux-foundation.org
+To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>, Al Viro <viro@zeniv.linux.org.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/15/2015 11:25 AM, Raghavendra K T wrote:
-> Paravirt spinlock clears slowpath flag after doing unlock.
-> As explained by Linus currently it does:
->                  prev = *lock;
->                  add_smp(&lock->tickets.head, TICKET_LOCK_INC);
->
->                  /* add_smp() is a full mb() */
->
->                  if (unlikely(lock->tickets.tail & TICKET_SLOWPATH_FLAG))
->                          __ticket_unlock_slowpath(lock, prev);
->
-> which is *exactly* the kind of things you cannot do with spinlocks,
-> because after you've done the "add_smp()" and released the spinlock
-> for the fast-path, you can't access the spinlock any more.  Exactly
-> because a fast-path lock might come in, and release the whole data
-> structure.
->
-> Linus suggested that we should not do any writes to lock after unlock(),
-> and we can move slowpath clearing to fastpath lock.
->
-> So this patch implements the fix with:
-> 1. Moving slowpath flag to head (Oleg):
-> Unlocked locks don't care about the slowpath flag; therefore we can keep
-> it set after the last unlock, and clear it again on the first (try)lock.
-> -- this removes the write after unlock. note that keeping slowpath flag would
-> result in unnecessary kicks.
-> By moving the slowpath flag from the tail to the head ticket we also avoid
-> the need to access both the head and tail tickets on unlock.
->
-> 2. use xadd to avoid read/write after unlock that checks the need for
-> unlock_kick (Linus):
-> We further avoid the need for a read-after-release by using xadd;
-> the prev head value will include the slowpath flag and indicate if we
-> need to do PV kicking of suspended spinners -- on modern chips xadd
-> isn't (much) more expensive than an add + load.
->
-> Result:
->   setup: 16core (32 cpu +ht sandy bridge 8GB 16vcpu guest)
->   benchmark overcommit %improve
->   kernbench  1x           -0.13
->   kernbench  2x            0.02
->   dbench     1x           -1.77
->   dbench     2x           -0.63
->
-> [Jeremy: hinted missing TICKET_LOCK_INC for kick]
-> [Oleg: Moving slowpath flag to head, ticket_equals idea]
-> [PeterZ: Detailed changelog]
->
-> Reported-by: Sasha Levin <sasha.levin@oracle.com>
-> Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-> Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-> ---
+In commit ba7438aed924 ("vhost: don't bother copying iovecs in
+handle_rx(), kill memcpy_toiovecend()"), we advance iov iter fixup
+sizeof(struct virtio_net_hdr) bytes and fill the number of buffers
+after doing the socket recvmsg(). This work well but was broken after
+commit 6e03f896b52c ("Merge
+git://git.kernel.org/pub/scm/linux/kernel/git/davem/net") which tries
+to advance sizeof(struct virtio_net_hdr_mrg_rxbuf). It will fill the
+number of buffers at the wrong place. This patch fixes this.
 
-Sasha, Hope this addresses invalid read concern you had with latest
-xadd based implementation.
+Fixes 6e03f896b52c
+("Merge git://git.kernel.org/pub/scm/linux/kernel/git/davem/net")
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vhost/net.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-(Think we need to test without Oleg's PATCH] sched/completion: 
-completion_done() should serialize with complete() reported by Paul.)
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 8dccca9..afa06d2 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -528,9 +528,9 @@ static void handle_rx(struct vhost_net *net)
+ 		.msg_controllen = 0,
+ 		.msg_flags = MSG_DONTWAIT,
+ 	};
+-	struct virtio_net_hdr_mrg_rxbuf hdr = {
+-		.hdr.flags = 0,
+-		.hdr.gso_type = VIRTIO_NET_HDR_GSO_NONE
++	struct virtio_net_hdr hdr = {
++		.flags = 0,
++		.gso_type = VIRTIO_NET_HDR_GSO_NONE
+ 	};
+ 	size_t total_len = 0;
+ 	int err, mergeable;
+@@ -539,6 +539,7 @@ static void handle_rx(struct vhost_net *net)
+ 	size_t vhost_len, sock_len;
+ 	struct socket *sock;
+ 	struct iov_iter fixup;
++	__virtio16 num_buffers;
+ 
+ 	mutex_lock(&vq->mutex);
+ 	sock = vq->private_data;
+@@ -616,9 +617,9 @@ static void handle_rx(struct vhost_net *net)
+ 		}
+ 		/* TODO: Should check and handle checksum. */
+ 
+-		hdr.num_buffers = cpu_to_vhost16(vq, headcount);
++		num_buffers = cpu_to_vhost16(vq, headcount);
+ 		if (likely(mergeable) &&
+-		    copy_to_iter(&hdr.num_buffers, 2, &fixup) != 2) {
++		    copy_to_iter(&num_buffers, 2, &fixup) != 2) {
+ 			vq_err(vq, "Failed num_buffers write");
+ 			vhost_discard_vq_desc(vq, headcount);
+ 			break;
+-- 
+1.9.1
