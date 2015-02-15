@@ -1,12 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 1/2] virtio_pci_modern: type-safe io accessors
-Date: Sun, 15 Feb 2015 06:31:16 +0100
-Message-ID: <1423977123-10115-1-git-send-email-mst@redhat.com>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: Re: [PATCH V4] x86 spinlock: Fix memory corruption on completing
+	completions
+Date: Sun, 15 Feb 2015 11:17:29 +0530
+Message-ID: <54E032F1.5060503@linux.vnet.ibm.com>
+References: <1423809941-11125-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
+	<20150213153228.GA9535@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20150213153228.GA9535@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,41 +19,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+To: Oleg Nesterov <oleg@redhat.com>
+Cc: jeremy@goop.org, kvm@vger.kernel.org, peterz@infradead.org, virtualization@lists.linux-foundation.org, paul.gortmaker@windriver.com, hpa@zytor.com, ak@linux.intel.com, a.ryabinin@samsung.com, x86@kernel.org, borntraeger@de.ibm.com, mingo@redhat.com, xen-devel@lists.xenproject.org, paulmck@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, dave@stgolabs.net, sasha.levin@oracle.com, davej@redhat.com, tglx@linutronix.de, waiman.long@hp.com, linux-kernel@vger.kernel.org, pbonzini@redhat.com, akpm@linux-foundation.org, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-VGhlIHNwZWMgaXMgdmVyeSBjbGVhciBvbiB0aGlzOgoKNC4xLjMuMSBEcml2ZXIgUmVxdWlyZW1l
-bnRzOiBQQ0kgRGV2aWNlIExheW91dAoKVGhlIGRyaXZlciBNVVNUIGFjY2VzcyBlYWNoIGZpZWxk
-IHVzaW5nIHRoZSDigJxuYXR1cmFs4oCdIGFjY2VzcyBtZXRob2QsCmkuZS4gMzItYml0IGFjY2Vz
-c2VzIGZvciAzMi1iaXQgZmllbGRzLCAxNi1iaXQgYWNjZXNzZXMgZm9yIDE2LWJpdApmaWVsZHMg
-YW5kIDgtYml0IGFjY2Vzc2VzIGZvciA4LWJpdCBmaWVsZHMuCgpBZGQgdHlwZS1zYWZlIHdyYXBw
-ZXJzIHRvIHByZXZlbnQgYWNjZXNzIHdpdGggaW5jb3JyZWN0IHdpZHRoLgoKU2lnbmVkLW9mZi1i
-eTogTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4KLS0tCiBkcml2ZXJzL3ZpcnRp
-by92aXJ0aW9fcGNpX21vZGVybi5jIHwgMzcgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKwogMSBmaWxlIGNoYW5nZWQsIDM3IGluc2VydGlvbnMoKykKCmRpZmYgLS1naXQgYS9k
-cml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX21vZGVybi5jIGIvZHJpdmVycy92aXJ0aW8vdmlydGlv
-X3BjaV9tb2Rlcm4uYwppbmRleCAyYWEzOGU1Li40ZTczZWY3IDEwMDY0NAotLS0gYS9kcml2ZXJz
-L3ZpcnRpby92aXJ0aW9fcGNpX21vZGVybi5jCisrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19w
-Y2lfbW9kZXJuLmMKQEAgLTIwLDYgKzIwLDQzIEBACiAjZGVmaW5lIFZJUlRJT19QQ0lfTk9fTEVH
-QUNZCiAjaW5jbHVkZSAidmlydGlvX3BjaV9jb21tb24uaCIKIAorLyoKKyAqIFR5cGUtc2FmZSB3
-cmFwcGVycyBmb3IgaW8gYWNjZXNzZXMuCisgKiBVc2UgdGhlc2UgdG8gZW5mb3JjZSBhdCBjb21w
-aWxlIHRpbWUgdGhlIGZvbGxvd2luZyBzcGVjIHJlcXVpcmVtZW50OgorICoKKyAqIFRoZSBkcml2
-ZXIgTVVTVCBhY2Nlc3MgZWFjaCBmaWVsZCB1c2luZyB0aGUg4oCcbmF0dXJhbOKAnSBhY2Nlc3MK
-KyAqIG1ldGhvZCwgaS5lLiAzMi1iaXQgYWNjZXNzZXMgZm9yIDMyLWJpdCBmaWVsZHMsIDE2LWJp
-dCBhY2Nlc3NlcworICogZm9yIDE2LWJpdCBmaWVsZHMgYW5kIDgtYml0IGFjY2Vzc2VzIGZvciA4
-LWJpdCBmaWVsZHMuCisgKi8KK3N0YXRpYyBpbmxpbmUgdTggdnBfaW9yZWFkOCh1OCBfX2lvbWVt
-ICphZGRyKQoreworCXJldHVybiBpb3JlYWQ4KGFkZHIpOworfQorc3RhdGljIGlubGluZSB1MTYg
-dnBfaW9yZWFkMTYgKHUxNiBfX2lvbWVtICphZGRyKQoreworCXJldHVybiBpb3JlYWQxNihhZGRy
-KTsKK30KKworc3RhdGljIGlubGluZSB1MzIgdnBfaW9yZWFkMzIodTMyIF9faW9tZW0gKmFkZHIp
-Cit7CisJcmV0dXJuIGlvcmVhZDMyKGFkZHIpOworfQorCitzdGF0aWMgaW5saW5lIHZvaWQgdnBf
-aW93cml0ZTgodTggdmFsdWUsIHU4IF9faW9tZW0gKmFkZHIpCit7CisJaW93cml0ZTgodmFsdWUs
-IGFkZHIpOworfQorCitzdGF0aWMgaW5saW5lIHZvaWQgdnBfaW93cml0ZTE2KHUxNiB2YWx1ZSwg
-dTE2IF9faW9tZW0gKmFkZHIpCit7CisJaW93cml0ZTE2KHZhbHVlLCBhZGRyKTsKK30KKworc3Rh
-dGljIGlubGluZSB2b2lkIHZwX2lvd3JpdGUzMih1MzIgdmFsdWUsIHUzMiBfX2lvbWVtICphZGRy
-KQoreworCWlvd3JpdGUxNih2YWx1ZSwgYWRkcik7Cit9CisKIHN0YXRpYyB2b2lkIF9faW9tZW0g
-Km1hcF9jYXBhYmlsaXR5KHN0cnVjdCBwY2lfZGV2ICpkZXYsIGludCBvZmYsCiAJCQkJICAgIHNp
-emVfdCBtaW5sZW4sCiAJCQkJICAgIHUzMiBhbGlnbiwKLS0gCk1TVAoKX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
-aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
-dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On 02/13/2015 09:02 PM, Oleg Nesterov wrote:
+> On 02/13, Raghavendra K T wrote:
+>>
+>> @@ -164,7 +161,7 @@ static inline int arch_spin_is_locked(arch_spinlock_t *lock)
+>>   {
+>>   	struct __raw_tickets tmp = READ_ONCE(lock->tickets);
+>>
+>> -	return tmp.tail != tmp.head;
+>> +	return tmp.tail != (tmp.head & ~TICKET_SLOWPATH_FLAG);
+>>   }
+>
+> Well, this can probably use __tickets_equal() too. But this is cosmetic.
+
+That looks good. Added.
+
+> It seems that arch_spin_is_contended() should be fixed with this change,
+>
+> 	(__ticket_t)(tmp.tail - tmp.head) > TICKET_LOCK_INC
+>
+> can be true because of TICKET_SLOWPATH_FLAG in .head, even if it is actually
+> unlocked.
+
+
+Done.
+Hmm! it was because I was still under impression that slowpath bit is
+in tail. You are right, situation could lead to positive max and may
+report false contention.
+
+And the "(__ticket_t)" typecast looks unnecessary, it only adds more
+> confusuin, but this is cosmetic too.
+>
+
+Done.
+
+>> @@ -772,7 +773,8 @@ __visible void kvm_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
+>>   	 * check again make sure it didn't become free while
+>>   	 * we weren't looking.
+>>   	 */
+>> -	if (ACCESS_ONCE(lock->tickets.head) == want) {
+>> +	head = READ_ONCE(lock->tickets.head);
+>> +	if (__tickets_equal(head, want)) {
+>>   		add_stats(TAKEN_SLOW_PICKUP, 1);
+>>   		goto out;
+>
+> This is off-topic, but with or without this change perhaps it makes sense
+> to add smp_mb__after_atomic(). It is nop on x86, just to make this code
+> more understandable for those (for me ;) who can never remember even the
+> x86 rules.
+>
+
+Hope you meant it for add_stat. yes  smp_mb__after_atomic() would be
+harmless barrier() in x86. Did not add this V5 as yoiu though  but this
+made me look at slowpath_enter code and added an explicit barrier() 
+there :).
