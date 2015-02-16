@@ -1,13 +1,17 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/2] virtio_pci_modern: type-safe io accessors
-Date: Mon, 16 Feb 2015 14:22:55 +1030
-Message-ID: <87vbj28qco.fsf@rustcorp.com.au>
-References: <1423977123-10115-1-git-send-email-mst@redhat.com>
+Subject: Re: [PATCH RFC v5 net-next 4/6] virtio-net: add basic interrupt
+	coalescing support
+Date: Mon, 16 Feb 2015 13:37:53 +1030
+Message-ID: <877fvia706.fsf@rustcorp.com.au>
+References: <1423471165-34243-1-git-send-email-jasowang@redhat.com>
+	<1423471165-34243-5-git-send-email-jasowang@redhat.com>
+	<87386ey2iy.fsf@rustcorp.com.au> <20150210104019.GD9505@redhat.com>
+	<874mqqbk12.fsf@rustcorp.com.au> <1423831266.21394.1.camel@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1423977123-10115-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1423831266.21394.1.camel@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,45 +21,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+To: Pawel Moll <pawel.moll@arm.com>
+Cc: "pagupta@redhat.com" <pagupta@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ik1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQuY29tPiB3cml0ZXM6Cj4gVGhlIHNwZWMg
-aXMgdmVyeSBjbGVhciBvbiB0aGlzOgo+Cj4gNC4xLjMuMSBEcml2ZXIgUmVxdWlyZW1lbnRzOiBQ
-Q0kgRGV2aWNlIExheW91dAo+Cj4gVGhlIGRyaXZlciBNVVNUIGFjY2VzcyBlYWNoIGZpZWxkIHVz
-aW5nIHRoZSDigJxuYXR1cmFs4oCdIGFjY2VzcyBtZXRob2QsCj4gaS5lLiAzMi1iaXQgYWNjZXNz
-ZXMgZm9yIDMyLWJpdCBmaWVsZHMsIDE2LWJpdCBhY2Nlc3NlcyBmb3IgMTYtYml0Cj4gZmllbGRz
-IGFuZCA4LWJpdCBhY2Nlc3NlcyBmb3IgOC1iaXQgZmllbGRzLgo+Cj4gQWRkIHR5cGUtc2FmZSB3
-cmFwcGVycyB0byBwcmV2ZW50IGFjY2VzcyB3aXRoIGluY29ycmVjdCB3aWR0aC4KCkFwcGxpZWQg
-Ym90aCAoZm9yICpuZXh0KiBtZXJnZSB3aW5kb3cpLgoKVGhhbmtzLApSdXN0eS4KCj4gU2lnbmVk
-LW9mZi1ieTogTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4KPiAtLS0KPiAgZHJp
-dmVycy92aXJ0aW8vdmlydGlvX3BjaV9tb2Rlcm4uYyB8IDM3ICsrKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrKysKPiAgMSBmaWxlIGNoYW5nZWQsIDM3IGluc2VydGlvbnMoKykKPgo+
-IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX21vZGVybi5jIGIvZHJpdmVy
-cy92aXJ0aW8vdmlydGlvX3BjaV9tb2Rlcm4uYwo+IGluZGV4IDJhYTM4ZTUuLjRlNzNlZjcgMTAw
-NjQ0Cj4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3BjaV9tb2Rlcm4uYwo+ICsrKyBiL2Ry
-aXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfbW9kZXJuLmMKPiBAQCAtMjAsNiArMjAsNDMgQEAKPiAg
-I2RlZmluZSBWSVJUSU9fUENJX05PX0xFR0FDWQo+ICAjaW5jbHVkZSAidmlydGlvX3BjaV9jb21t
-b24uaCIKPiAgCj4gKy8qCj4gKyAqIFR5cGUtc2FmZSB3cmFwcGVycyBmb3IgaW8gYWNjZXNzZXMu
-Cj4gKyAqIFVzZSB0aGVzZSB0byBlbmZvcmNlIGF0IGNvbXBpbGUgdGltZSB0aGUgZm9sbG93aW5n
-IHNwZWMgcmVxdWlyZW1lbnQ6Cj4gKyAqCj4gKyAqIFRoZSBkcml2ZXIgTVVTVCBhY2Nlc3MgZWFj
-aCBmaWVsZCB1c2luZyB0aGUg4oCcbmF0dXJhbOKAnSBhY2Nlc3MKPiArICogbWV0aG9kLCBpLmUu
-IDMyLWJpdCBhY2Nlc3NlcyBmb3IgMzItYml0IGZpZWxkcywgMTYtYml0IGFjY2Vzc2VzCj4gKyAq
-IGZvciAxNi1iaXQgZmllbGRzIGFuZCA4LWJpdCBhY2Nlc3NlcyBmb3IgOC1iaXQgZmllbGRzLgo+
-ICsgKi8KPiArc3RhdGljIGlubGluZSB1OCB2cF9pb3JlYWQ4KHU4IF9faW9tZW0gKmFkZHIpCj4g
-K3sKPiArCXJldHVybiBpb3JlYWQ4KGFkZHIpOwo+ICt9Cj4gK3N0YXRpYyBpbmxpbmUgdTE2IHZw
-X2lvcmVhZDE2ICh1MTYgX19pb21lbSAqYWRkcikKPiArewo+ICsJcmV0dXJuIGlvcmVhZDE2KGFk
-ZHIpOwo+ICt9Cj4gKwo+ICtzdGF0aWMgaW5saW5lIHUzMiB2cF9pb3JlYWQzMih1MzIgX19pb21l
-bSAqYWRkcikKPiArewo+ICsJcmV0dXJuIGlvcmVhZDMyKGFkZHIpOwo+ICt9Cj4gKwo+ICtzdGF0
-aWMgaW5saW5lIHZvaWQgdnBfaW93cml0ZTgodTggdmFsdWUsIHU4IF9faW9tZW0gKmFkZHIpCj4g
-K3sKPiArCWlvd3JpdGU4KHZhbHVlLCBhZGRyKTsKPiArfQo+ICsKPiArc3RhdGljIGlubGluZSB2
-b2lkIHZwX2lvd3JpdGUxNih1MTYgdmFsdWUsIHUxNiBfX2lvbWVtICphZGRyKQo+ICt7Cj4gKwlp
-b3dyaXRlMTYodmFsdWUsIGFkZHIpOwo+ICt9Cj4gKwo+ICtzdGF0aWMgaW5saW5lIHZvaWQgdnBf
-aW93cml0ZTMyKHUzMiB2YWx1ZSwgdTMyIF9faW9tZW0gKmFkZHIpCj4gK3sKPiArCWlvd3JpdGUx
-Nih2YWx1ZSwgYWRkcik7Cj4gK30KPiArCj4gIHN0YXRpYyB2b2lkIF9faW9tZW0gKm1hcF9jYXBh
-YmlsaXR5KHN0cnVjdCBwY2lfZGV2ICpkZXYsIGludCBvZmYsCj4gIAkJCQkgICAgc2l6ZV90IG1p
-bmxlbiwKPiAgCQkJCSAgICB1MzIgYWxpZ24sCj4gLS0gCj4gTVNUCl9fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlz
-dApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3Rz
-LmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Pawel Moll <pawel.moll@arm.com> writes:
+> On Fri, 2015-02-13 at 02:52 +0000, Rusty Russell wrote:
+>> "Michael S. Tsirkin" <mst@redhat.com> writes:
+>> > On Tue, Feb 10, 2015 at 12:02:37PM +1030, Rusty Russell wrote:
+>> >> Jason Wang <jasowang@redhat.com> writes:
+>> >> > This patch enables the interrupt coalescing setting through ethtool.
+>> >> 
+>> >> The problem is that there's nothing network specific about interrupt
+>> >> coalescing.  I can see other devices wanting exactly the same thing,
+>> >> which means we'd deprecate this in the next virtio standard.
+>> >> 
+>> >> I think the right answer is to extend like we did with
+>> >> vring_used_event(), eg:
+>> >> 
+>> >> 1) Add a new feature VIRTIO_F_RING_COALESCE.
+>> >> 2) Add another a 32-bit field after vring_used_event(), eg:
+>> >>         #define vring_used_delay(vr) (*(u32 *)((vr)->avail->ring[(vr)->num + 2]))
+>> >> 
+>> >> This loses the ability to coalesce by number of frames, but we can still
+>> >> do number of sg entries, as we do now with used_event, and we could
+>> >> change virtqueue_enable_cb_delayed() to take a precise number if we
+>> >> wanted.
+>> >
+>> > But do we expect delay to be update dynamically?
+>> > If not, why not stick it in config space?
+>> 
+>> Hmm, we could update it dynamically (and will, in the case of ethtool).
+>> But it won't be common, so we could append a field to
+>> virtio_pci_common_cfg for PCI.
+>> 
+>> I think MMIO and CCW would be easy to extend too, but CC'd to check.
+>
+> As far as I understand the virtio_pci_common_cfg principle (just had a
+> look, for the first time ;-), it's now an equivalent of the MMIO control
+> registers block. I see no major problem with adding another one.
+
+OK, thanks.
+
+> Or were you thinking about introducing some standard for the "real"
+> config space? (fine with me as well - the transport will have nothing to
+> do :-)
+
+No, that'd not be possible at this point.  I think it's a per-transport
+decision.
+
+Cheers,
+Rusty.
