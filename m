@@ -1,12 +1,15 @@
-From: David Ramos <daramos@stanford.edu>
-Subject: vmci: read overrun bug in dg_dispatch_as_host()
-	(drivers/misc/vmw_vmci/vmci_datagram.c)
-Date: Sat, 14 Feb 2015 16:44:08 -0800
-Message-ID: <79A62150-2711-45E2-A83E-313F5060C73F@stanford.edu>
-Mime-Version: 1.0 (Mac OS X Mail 8.1 \(1993\))
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: David Vrabel <dvrabel@cantab.net>
+Subject: Re: [Xen-devel] [PATCH V5] x86 spinlock: Fix memory corruption on
+	completing completions
+Date: Mon, 16 Feb 2015 16:47:12 +0000
+Message-ID: <54E21F10.1040402@cantab.net>
+References: <1423979744-18320-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
+	<20150215173043.GA7471@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20150215173043.GA7471@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,47 +19,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alok Kataria <akataria@vmware.com>, "VMware, Inc." <pv-drivers@vmware.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, peterz@infradead.org, torvalds@linux-foundation.org, konrad.wilk@oracle.com, pbonzini@redhat.com
+Cc: waiman.long@hp.com, jeremy@goop.org, ak@linux.intel.com, kvm@vger.kernel.org, paul.gortmaker@windriver.com, a.ryabinin@samsung.com, x86@kernel.org, oleg@redhat.com, linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, dave@stgolabs.net, davej@redhat.com, xen-devel@lists.xenproject.org, akpm@linux-foundation.org, paulmck@linux.vnet.ibm.com, virtualization@lists.linux-foundation.org, sasha.levin@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGVsbG8sCgpPdXIgVUMtS0xFRSB0b29sIGRpc2NvdmVyZWQgYSBtZW1jcHkoKSByZWFkIG92ZXJy
-dW4gYnVnIGluIGRnX2Rpc3BhdGNoX2FzX2hvc3QoKSAoZHJpdmVycy9taXNjL3Ztd192bWNpL3Zt
-Y2lfZGF0YWdyYW0uYykuIFRoaXMgYnVnIG1heSBhbGxvdyBhIG1hbGljaW91cyB1c2VyIHRvIGxl
-YWsgcHJpdmF0ZSBrZXJuZWwgaGVhcCBkYXRhIGFjcm9zcyB0aGUgVk13YXJlIFZNQ0kgaW50ZXJm
-YWNlIChpbiBhIG5lYXJseSBpZGVudGljYWwgZmFzaGlvbiB0byB0aGUgT3BlblNTTCBIZWFydGJs
-ZWVkIHZ1bG5lcmFiaWxpdHkgZnJvbSAyMDE0KSwgYnV0IHRoZSBpbXBhY3QgaXMgcHJvYmFibHkg
-bWluaW1hbCBzaW5jZSB0aGlzIGludGVyZmFjZSBpcyBvbmx5IHVzZWQgZm9yIGxvY2FsIGNvbW11
-bmljYXRpb24uCgpUaGUgYnVnIG9jY3VycyBmb3IgdGhlIElPQ1RMX1ZNQ0lfREFUQUdSQU1fU0VO
-RCBpb2N0bCwgYW5kIG91ciB0b29sIHJlcG9ydHMgdGhlIGZvbGxvd2luZyBwYXJ0aWFsIGJhY2t0
-cmFjZToKIzAgbWVtY3B5ICgpCiMxIGRnX2Rpc3BhdGNoX2FzX2hvc3QgKCkgYXQgZHJpdmVycy9t
-aXNjL3Ztd192bWNpL3ZtY2lfZGF0YWdyYW0uYzoyNDUKIzIgdm1jaV9kYXRhZ3JhbV9kaXNwYXRj
-aCAoKSBhdCBkcml2ZXJzL21pc2Mvdm13X3ZtY2kvdm1jaV9kYXRhZ3JhbS5jOjM0NwojMyB2bWNp
-X2hvc3RfZG9fc2VuZF9kYXRhZ3JhbSAoKSBhdCBkcml2ZXJzL21pc2Mvdm13X3ZtY2kvdm1jaV9o
-b3N0LmM6NDA0CgpIZXJl4oCZcyB0aGUgcmVsZXZhbnQgY29kZSBzbmlwcGV0IGZyb20gZGdfZGlz
-cGF0Y2hfYXNfaG9zdCgpOgoxNzE6ICBkZ19zaXplID0gVk1DSV9ER19TSVpFKGRnKTsKLi4uCjIz
-NTogIGRnX2luZm8gPSBrbWFsbG9jKHNpemVvZigqZGdfaW5mbykgKwoyMzY6ICAgICAgICAgICAg
-ICAoc2l6ZV90KSBkZy0+cGF5bG9hZF9zaXplLCBHRlBfQVRPTUlDKTsKMjM3OiAgaWYgKCFkZ19p
-bmZvKSB7CjIzODogICAgICAgICAgYXRvbWljX2RlYygmZGVsYXllZF9kZ19ob3N0X3F1ZXVlX3Np
-emUpOwoyMzk6ICAgICAgICAgIHZtY2lfcmVzb3VyY2VfcHV0KHJlc291cmNlKTsKMjQwOiAgICAg
-ICAgICByZXR1cm4gVk1DSV9FUlJPUl9OT19NRU07CjI0MTogIH0KLi4uCjI0NTogIG1lbWNweSgm
-ZGdfaW5mby0+bXNnLCBkZywgZGdfc2l6ZSk7CgpUaGUgbWVtY3B5KCkgYXQgbGluZSAyNDUgY29w
-aWVzIOKAmGRnX3NpemXigJkgYnl0ZXMgZnJvbSB0aGUg4oCYZGfigJkgYnVmZmVyLCB3aGljaCBp
-cyB1c2VyLXN1cHBsaWVkIGlucHV0IHJldHJpZXZlZCB2aWEgY29weV9mcm9tX3VzZXIoKSBhdCBk
-cml2ZXJzL21pc2Mvdm13X3ZtY2kvdm1jaV9ob3N0LmM6MzkwLiBUaGUg4oCYZGdfc2l6ZeKAmSB2
-YXJpYWJsZSBpcyBpdHNlbGYgZGVyaXZlZCBmcm9tIHRoZSB1c2VyLXN1cHBsaWVkIHZhbHVlICdk
-Zy0+cGF5bG9hZF9zaXplLicKClRoZSBvbmx5IGF0dGVtcHQgdG8gc2FuaXRpemUg4oCYZGctPnBh
-eWxvYWRfc2l6ZScgaXMgaW4gdm1jaV9kYXRhZ3JhbV9kaXNwYXRjaCgpOgozMzE6ICBpZiAoVk1D
-SV9ER19TSVpFKGRnKSA+IFZNQ0lfTUFYX0RHX1NJWkUpIHsKMzMyOiAgICBwcl9kZXZlbCgiUGF5
-bG9hZCAoc2l6ZT0lbGx1IGJ5dGVzKSB0b28gYmlnIHRvIHNlbmRcbiIsCjMzMzogICAgICAgICAg
-ICAgKHVuc2lnbmVkIGxvbmcgbG9uZylkZy0+cGF5bG9hZF9zaXplKTsKMzM0OiAgICByZXR1cm4g
-Vk1DSV9FUlJPUl9JTlZBTElEX0FSR1M7CjMzNTogIH0KClRoaXMgcHJvdmlkZXMgYW4gdXBwZXIg
-Ym91bmQgb2YgNjksNjMyIGJ5dGVzLCBidXQgaXQgZG9lc27igJl0IHJlbGF0ZSB0aGUgcGF5bG9h
-ZCBzaXplIHRvIHRoZSBhY3R1YWwgc2l6ZSBvZiB0aGUgdXNlci1zdXBwbGllZCBkYXRhZ3JhbS4g
-SSB0aGluayB0aGVyZSBzaG91bGQgYmUgYSBjb21wYXJpc29uIHdpdGggJ3NlbmRfaW5mby5sZW7i
-gJkgaW4gdm1jaV9ob3N0X2RvX3NlbmRfZGF0YWdyYW0oKS4KClBsZWFzZSBsZXQgbWUga25vdyBp
-ZiB5b3UgaGF2ZSBhbnkgcXVlc3Rpb25zIG9yIG5lZWQgbW9yZSBkZXRhaWxzLgoKVGhhbmtzLAot
-RGF2aWQKCgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
-VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
-dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On 15/02/15 17:30, Raghavendra K T wrote:
+> --- a/arch/x86/xen/spinlock.c
+> +++ b/arch/x86/xen/spinlock.c
+> @@ -41,7 +41,7 @@ static u8 zero_stats;
+>  static inline void check_zero(void)
+>  {
+>  	u8 ret;
+> -	u8 old = ACCESS_ONCE(zero_stats);
+> +	u8 old = READ_ONCE(zero_stats);
+>  	if (unlikely(old)) {
+>  		ret = cmpxchg(&zero_stats, old, 0);
+>  		/* This ensures only one fellow resets the stat */
+> @@ -112,6 +112,7 @@ __visible void xen_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
+>  	struct xen_lock_waiting *w = this_cpu_ptr(&lock_waiting);
+>  	int cpu = smp_processor_id();
+>  	u64 start;
+> +	__ticket_t head;
+>  	unsigned long flags;
+>  
+>  	/* If kicker interrupts not initialized yet, just spin */
+> @@ -159,11 +160,15 @@ __visible void xen_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
+>  	 */
+>  	__ticket_enter_slowpath(lock);
+>  
+> +	/* make sure enter_slowpath, which is atomic does not cross the read */
+> +	smp_mb__after_atomic();
+> +
+>  	/*
+>  	 * check again make sure it didn't become free while
+>  	 * we weren't looking
+>  	 */
+> -	if (ACCESS_ONCE(lock->tickets.head) == want) {
+> +	head = READ_ONCE(lock->tickets.head);
+> +	if (__tickets_equal(head, want)) {
+>  		add_stats(TAKEN_SLOW_PICKUP, 1);
+>  		goto out;
+>  	}
+> @@ -204,8 +209,8 @@ static void xen_unlock_kick(struct arch_spinlock *lock, __ticket_t next)
+>  		const struct xen_lock_waiting *w = &per_cpu(lock_waiting, cpu);
+>  
+>  		/* Make sure we read lock before want */
+> -		if (ACCESS_ONCE(w->lock) == lock &&
+> -		    ACCESS_ONCE(w->want) == next) {
+> +		if (READ_ONCE(w->lock) == lock &&
+> +		    READ_ONCE(w->want) == next) {
+>  			add_stats(RELEASED_SLOW_KICKED, 1);
+>  			xen_send_IPI_one(cpu, XEN_SPIN_UNLOCK_VECTOR);
+>  			break;
+
+Acked-by: David Vrabel <david.vrabel@citrix.com>
+
+Although some of the ACCESS_ONCE to READ_ONCE changes are cosmetic and
+are perhaps best left out of a patch destined for stable.
+
+David
