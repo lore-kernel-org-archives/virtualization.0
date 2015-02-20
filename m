@@ -1,15 +1,11 @@
-From: Andy King <acking@vmware.com>
-Subject: RE: [Pv-drivers] vmci: read overrun bug in dg_dispatch_as_host()
-	(drivers/misc/vmw_vmci/vmci_datagram.c)
-Date: Thu, 19 Feb 2015 18:40:17 +0000
-Message-ID: <0bb9cd747bf3454b89d82a332eb62d7c@EX13-MBX-018.vmware.com>
-References: <79A62150-2711-45E2-A83E-313F5060C73F@stanford.edu>
+From: Greg Kurz <gkurz@linux.vnet.ibm.com>
+Subject: [PATCH 0/3] vhost_net: support for cross endian guests
+Date: Fri, 20 Feb 2015 11:07:24 +0100
+Message-ID: <20150220100724.18608.74654.stgit__21988.1065459505$1424426888$gmane$org@bahia.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <79A62150-2711-45E2-A83E-313F5060C73F@stanford.edu>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,24 +15,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Ramos <daramos@stanford.edu>, "VMware, Inc." <pv-drivers@vmware.com>
-Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Cedric Le Goater <clg@fr.ibm.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi David,
-
-> This provides an upper bound of 69,632 bytes, but it doesn=92t relate the=
- payload size to
-> the actual size of the user-supplied datagram. I think there should be a =
-comparison
-> with 'send_info.len=92 in vmci_host_do_send_datagram().
-
-Thanks so much for finding this and bringing it to our attention! I've just=
- sent out
-a patch in a separate email (cc'd you) that hopefully addresses this. If yo=
-u find any
-others, we would of course be happy to fix them. We do appreciate extra eye=
-s.
-
-Kind regards,
-- Andy
+SGksCgpUaGlzIHBhdGNoc2V0IGFsbG93cyB2aG9zdF9uZXQgdG8gYmUgdXNlZCB3aXRoIGxlZ2Fj
+eSB2aXJ0aW8Kd2hlbiBndWVzdCBhbmQgaG9zdCBoYXZlIGEgZGlmZmVyZW50IGVuZGlhbm5lc3Mu
+IEl0IGlzIGJhc2VkCm9uIHByZXZpb3VzIHdvcmsgYnkgQ8OpZHJpYyBMZSBHb2F0ZXI6CgpodHRw
+czovL3d3dy5tYWlsLWFyY2hpdmUuY29tL2t2bS1wcGNAdmdlci5rZXJuZWwub3JnL21zZzA5ODQ4
+Lmh0bWwKCkFzIHN1Z2dlc3RlZCBieSBNU1Q6Ci0gdGhlIEFQSSBub3cgYXNrcyBmb3IgYSBzcGVj
+aWZpYyBmb3JtYXQgKGJpZyBlbmRpYW4pIGluc3RlYWQgb2YgdGhlIGhpbnQKICB3aGV0aGVyIGJ5
+dGVzd2FwIGlzIG5lZWRlZCBvciBub3QgKHBhdGNoIDEpCi0gcmViYXNlZCBvbiB0b3Agb2YgdGhl
+IHZpcnRpby0xIGFjY2Vzc29ycyAocGF0Y2ggMikKClBhdGNoIDMgaXMgYSBzZXBhcmF0ZSBmaXg6
+IEkgdGhpbmsgaXQgaXMgYWxzbyB2YWxpZCBmb3IgdmlydGlvLTEuCgpQbGVhc2UgY29tbWVudC4K
+Ci0tLQoKR3JlZyBLdXJ6ICgzKToKICAgICAgdmhvc3Q6IGFkZCBWSE9TVF9WUklOR19GX0xFR0FD
+WV9CSUdfRU5ESUFOIGZsYWcKICAgICAgdmhvc3Q6IGFkZCBzdXBwb3J0IGZvciBsZWdhY3kgdmly
+dGlvCiAgICAgIHZob3N0X25ldDogZml4IHZpcnRpb19uZXQgaGVhZGVyIGVuZGlhbm5lc3MKCgog
+ZHJpdmVycy92aG9zdC9uZXQuYyAgICAgICAgfCAgIDMyICsrKysrKysrKysrKysrKysrKysrKysr
+KysrLS0tLS0tCiBkcml2ZXJzL3Zob3N0L3Zob3N0LmMgICAgICB8ICAgIDYgKysrKystCiBkcml2
+ZXJzL3Zob3N0L3Zob3N0LmggICAgICB8ICAgMjMgKysrKysrKysrKysrKysrKystLS0tLS0KIGlu
+Y2x1ZGUvdWFwaS9saW51eC92aG9zdC5oIHwgICAgMiArKwogNCBmaWxlcyBjaGFuZ2VkLCA1MCBp
+bnNlcnRpb25zKCspLCAxMyBkZWxldGlvbnMoLSkKCi0tCkdyZWcKCl9fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlz
+dApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3Rz
+LmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
