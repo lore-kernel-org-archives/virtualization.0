@@ -1,15 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 2/3] vhost: add support for legacy virtio
-Date: Sun, 22 Feb 2015 10:48:29 +0100
-Message-ID: <20150222094829.GB17529__7441.69046306542$1424598564$gmane$org@redhat.com>
+Subject: Re: [PATCH 1/3] vhost: add VHOST_VRING_F_LEGACY_BIG_ENDIAN flag
+Date: Sun, 22 Feb 2015 10:51:50 +0100
+Message-ID: <20150222095150.GC17529__28627.0212069669$1424598738$gmane$org@redhat.com>
 References: <20150220100724.18608.74654.stgit@bahia.local>
-	<20150220100746.18608.15083.stgit@bahia.local>
+	<20150220100731.18608.2797.stgit@bahia.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20150220100746.18608.15083.stgit@bahia.local>
+In-Reply-To: <20150220100731.18608.2797.stgit@bahia.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,76 +23,84 @@ To: Greg Kurz <gkurz@linux.vnet.ibm.com>
 Cc: Cedric Le Goater <clg@fr.ibm.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Feb 20, 2015 at 11:14:47AM +0100, Greg Kurz wrote:
+On Fri, Feb 20, 2015 at 11:07:39AM +0100, Greg Kurz wrote:
+> The VHOST_VRING_F_LEGACY_BIG_ENDIAN flag informs the kernel that the
+> associated device is big endian. Of course, this only makes sense for
+> legacy virtio devices since modern virtio devices are always little
+> endian.
+> 
+> It will be used by the vhost memory accessors to byteswap vring data when
+> we have a legacy device, in case host and guest endianness differ.
+> 
 > Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
 > ---
->  drivers/vhost/vhost.h |   20 ++++++++++++++------
->  1 file changed, 14 insertions(+), 6 deletions(-)
+>  drivers/vhost/vhost.c      |    6 +++++-
+>  drivers/vhost/vhost.h      |    3 +++
+>  include/uapi/linux/vhost.h |    2 ++
+>  3 files changed, 10 insertions(+), 1 deletion(-)
 > 
-> Michael,
-> 
-> The vhost_is_little_endian() helper adds unconditionnal overhead to fixed
-> endian architectures: that is all architectures except arm and ppc64. This
-> was addressed in QEMU with a TARGET_IS_BIENDIAN macro. Please give an
-> advice about how to address this in the vhost code.
-> 
-> Thanks.
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 2ee2826..dad3c37 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -199,6 +199,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
+>  	vq->call = NULL;
+>  	vq->log_ctx = NULL;
+>  	vq->memory = NULL;
+> +	vq->legacy_big_endian = false;
+>  }
+>  
+>  static int vhost_worker(void *data)
+> @@ -701,7 +702,8 @@ long vhost_vring_ioctl(struct vhost_dev *d, int ioctl, void __user *argp)
+>  			r = -EFAULT;
+>  			break;
+>  		}
+> -		if (a.flags & ~(0x1 << VHOST_VRING_F_LOG)) {
+> +		if (a.flags & ~(0x1 << VHOST_VRING_F_LOG|
+> +				0x1 << VHOST_VRING_F_LEGACY_BIG_ENDIAN)) {
 
-I suggest creating a config option for this, default to off.
-When disabled the flag won't be set so userspace
-can discover it's availability.
+whitespace damage here
+
+>  			r = -EOPNOTSUPP;
+>  			break;
+>  		}
+
+need to also make sure LEGACY_BIG_ENDIAN isn't set with VERSION_1.
 
 
+> @@ -751,6 +753,8 @@ long vhost_vring_ioctl(struct vhost_dev *d, int ioctl, void __user *argp)
+>  		vq->avail = (void __user *)(unsigned long)a.avail_user_addr;
+>  		vq->log_addr = a.log_guest_addr;
+>  		vq->used = (void __user *)(unsigned long)a.used_user_addr;
+> +		vq->legacy_big_endian =
+> +			!!(a.flags & (0x1 << VHOST_VRING_F_LEGACY_BIG_ENDIAN));
+>  		break;
+>  	case VHOST_SET_VRING_KICK:
+>  		if (copy_from_user(&f, argp, sizeof f)) {
 > diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> index ce2c68e..21e7d6a 100644
+> index 8c1c792..ce2c68e 100644
 > --- a/drivers/vhost/vhost.h
 > +++ b/drivers/vhost/vhost.h
-> @@ -176,34 +176,42 @@ static inline bool vhost_has_feature(struct vhost_virtqueue *vq, int bit)
->  	return vq->acked_features & (1ULL << bit);
->  }
->  
-> +static inline bool vhost_is_little_endian(struct vhost_virtqueue *vq)
-> +{
-> +	if (vhost_has_feature(vq, VIRTIO_F_VERSION_1))
-> +		return true;
-> +	else
-> +		return !vq->legacy_big_endian;
-> +}
+> @@ -106,6 +106,9 @@ struct vhost_virtqueue {
+>  	/* Log write descriptors */
+>  	void __user *log_base;
+>  	struct vhost_log *log;
 > +
->  /* Memory accessors */
->  static inline u16 vhost16_to_cpu(struct vhost_virtqueue *vq, __virtio16 val)
->  {
-> -	return __virtio16_to_cpu(vhost_has_feature(vq, VIRTIO_F_VERSION_1), val);
-> +	return __virtio16_to_cpu(vhost_is_little_endian(vq), val);
->  }
+> +	/* We need to know the device endianness with legacy virtio. */
+> +	bool legacy_big_endian;
+>  };
 >  
->  static inline __virtio16 cpu_to_vhost16(struct vhost_virtqueue *vq, u16 val)
->  {
-> -	return __cpu_to_virtio16(vhost_has_feature(vq, VIRTIO_F_VERSION_1), val);
-> +	return __cpu_to_virtio16(vhost_is_little_endian(vq), val);
->  }
+>  struct vhost_dev {
+> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+> index bb6a5b4..0bf4491 100644
+> --- a/include/uapi/linux/vhost.h
+> +++ b/include/uapi/linux/vhost.h
+> @@ -34,6 +34,8 @@ struct vhost_vring_addr {
+>  	/* Flag values: */
+>  	/* Whether log address is valid. If set enables logging. */
+>  #define VHOST_VRING_F_LOG 0
+> +	/* Whether we have a big-endian legacy virtio device. */
+> +#define VHOST_VRING_F_LEGACY_BIG_ENDIAN 1
 >  
->  static inline u32 vhost32_to_cpu(struct vhost_virtqueue *vq, __virtio32 val)
->  {
-> -	return __virtio32_to_cpu(vhost_has_feature(vq, VIRTIO_F_VERSION_1), val);
-> +	return __virtio32_to_cpu(vhost_is_little_endian(vq), val);
->  }
->  
->  static inline __virtio32 cpu_to_vhost32(struct vhost_virtqueue *vq, u32 val)
->  {
-> -	return __cpu_to_virtio32(vhost_has_feature(vq, VIRTIO_F_VERSION_1), val);
-> +	return __cpu_to_virtio32(vhost_is_little_endian(vq), val);
->  }
->  
->  static inline u64 vhost64_to_cpu(struct vhost_virtqueue *vq, __virtio64 val)
->  {
-> -	return __virtio64_to_cpu(vhost_has_feature(vq, VIRTIO_F_VERSION_1), val);
-> +	return __virtio64_to_cpu(vhost_is_little_endian(vq), val);
->  }
->  
->  static inline __virtio64 cpu_to_vhost64(struct vhost_virtqueue *vq, u64 val)
->  {
-> -	return __cpu_to_virtio64(vhost_has_feature(vq, VIRTIO_F_VERSION_1), val);
-> +	return __cpu_to_virtio64(vhost_is_little_endian(vq), val);
->  }
->  #endif
+>  	/* Start of array of descriptors (virtually contiguous) */
+>  	__u64 desc_user_addr;
