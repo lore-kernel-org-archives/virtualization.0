@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Greg Kurz <gkurz@linux.vnet.ibm.com>
 Subject: Re: [PATCH 0/3] vhost_net: support for cross endian guests
-Date: Sun, 22 Feb 2015 10:53:51 +0100
-Message-ID: <20150222095351.GD17529@redhat.com>
+Date: Mon, 23 Feb 2015 14:24:47 +0100
+Message-ID: <20150223142447.23b0572a@bahia.local>
 References: <20150220100724.18608.74654.stgit@bahia.local>
+	<20150222095351.GD17529@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20150220100724.18608.74654.stgit@bahia.local>
+In-Reply-To: <20150222095351.GD17529@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,57 +18,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg Kurz <gkurz@linux.vnet.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Cedric Le Goater <clg@fr.ibm.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Feb 20, 2015 at 11:07:24AM +0100, Greg Kurz wrote:
-> Hi,
-> =
-
-> This patchset allows vhost_net to be used with legacy virtio
-> when guest and host have a different endianness. It is based
-> on previous work by C=E9dric Le Goater:
-> =
-
-> https://www.mail-archive.com/kvm-ppc@vger.kernel.org/msg09848.html
-> =
-
-> As suggested by MST:
-> - the API now asks for a specific format (big endian) instead of the hint
->   whether byteswap is needed or not (patch 1)
-> - rebased on top of the virtio-1 accessors (patch 2)
-> =
-
-> Patch 3 is a separate fix: I think it is also valid for virtio-1.
-
-I don't think so. See e.g. this code in tun:
-                        gso.csum_offset =3D cpu_to_tun16(tun, skb->csum_off=
-set);
-looks like it has the correct endian-ness for virtio-1.
-
-
-
-> Please comment.
-> =
-
-> ---
-> =
-
-> Greg Kurz (3):
->       vhost: add VHOST_VRING_F_LEGACY_BIG_ENDIAN flag
->       vhost: add support for legacy virtio
->       vhost_net: fix virtio_net header endianness
-> =
-
-> =
-
->  drivers/vhost/net.c        |   32 ++++++++++++++++++++++++++------
->  drivers/vhost/vhost.c      |    6 +++++-
->  drivers/vhost/vhost.h      |   23 +++++++++++++++++------
->  include/uapi/linux/vhost.h |    2 ++
->  4 files changed, 50 insertions(+), 13 deletions(-)
-> =
-
-> --
-> Greg
+T24gU3VuLCAyMiBGZWIgMjAxNSAxMDo1Mzo1MSArMDEwMAoiTWljaGFlbCBTLiBUc2lya2luIiA8
+bXN0QHJlZGhhdC5jb20+IHdyb3RlOgo+IE9uIEZyaSwgRmViIDIwLCAyMDE1IGF0IDExOjA3OjI0
+QU0gKzAxMDAsIEdyZWcgS3VyeiB3cm90ZToKPiA+IEhpLAo+ID4gCj4gPiBUaGlzIHBhdGNoc2V0
+IGFsbG93cyB2aG9zdF9uZXQgdG8gYmUgdXNlZCB3aXRoIGxlZ2FjeSB2aXJ0aW8KPiA+IHdoZW4g
+Z3Vlc3QgYW5kIGhvc3QgaGF2ZSBhIGRpZmZlcmVudCBlbmRpYW5uZXNzLiBJdCBpcyBiYXNlZAo+
+ID4gb24gcHJldmlvdXMgd29yayBieSBDw6lkcmljIExlIEdvYXRlcjoKPiA+IAo+ID4gaHR0cHM6
+Ly93d3cubWFpbC1hcmNoaXZlLmNvbS9rdm0tcHBjQHZnZXIua2VybmVsLm9yZy9tc2cwOTg0OC5o
+dG1sCj4gPiAKPiA+IEFzIHN1Z2dlc3RlZCBieSBNU1Q6Cj4gPiAtIHRoZSBBUEkgbm93IGFza3Mg
+Zm9yIGEgc3BlY2lmaWMgZm9ybWF0IChiaWcgZW5kaWFuKSBpbnN0ZWFkIG9mIHRoZSBoaW50Cj4g
+PiAgIHdoZXRoZXIgYnl0ZXN3YXAgaXMgbmVlZGVkIG9yIG5vdCAocGF0Y2ggMSkKPiA+IC0gcmVi
+YXNlZCBvbiB0b3Agb2YgdGhlIHZpcnRpby0xIGFjY2Vzc29ycyAocGF0Y2ggMikKPiA+IAo+ID4g
+UGF0Y2ggMyBpcyBhIHNlcGFyYXRlIGZpeDogSSB0aGluayBpdCBpcyBhbHNvIHZhbGlkIGZvciB2
+aXJ0aW8tMS4KPiAKPiBJIGRvbid0IHRoaW5rIHNvLiBTZWUgZS5nLiB0aGlzIGNvZGUgaW4gdHVu
+Ogo+ICAgICAgICAgICAgICAgICAgICAgICAgIGdzby5jc3VtX29mZnNldCA9IGNwdV90b190dW4x
+Nih0dW4sIHNrYi0+Y3N1bV9vZmZzZXQpOwo+IGxvb2tzIGxpa2UgaXQgaGFzIHRoZSBjb3JyZWN0
+IGVuZGlhbi1uZXNzIGZvciB2aXJ0aW8tMS4KPiAKPiAKCkluZGVlZC4gSSB3aWxsIGZpeCB0dW4v
+bWFjdnRhcCBhcyB5b3Ugc3VnZ2VzdGVkLgoKVGhhbmtzIGZvciB0aGUgcmV2aWV3LgoKLS0KR3Jl
+ZwoKPiAKPiA+IFBsZWFzZSBjb21tZW50Lgo+ID4gCj4gPiAtLS0KPiA+IAo+ID4gR3JlZyBLdXJ6
+ICgzKToKPiA+ICAgICAgIHZob3N0OiBhZGQgVkhPU1RfVlJJTkdfRl9MRUdBQ1lfQklHX0VORElB
+TiBmbGFnCj4gPiAgICAgICB2aG9zdDogYWRkIHN1cHBvcnQgZm9yIGxlZ2FjeSB2aXJ0aW8KPiA+
+ICAgICAgIHZob3N0X25ldDogZml4IHZpcnRpb19uZXQgaGVhZGVyIGVuZGlhbm5lc3MKPiA+IAo+
+ID4gCj4gPiAgZHJpdmVycy92aG9zdC9uZXQuYyAgICAgICAgfCAgIDMyICsrKysrKysrKysrKysr
+KysrKysrKysrKysrLS0tLS0tCj4gPiAgZHJpdmVycy92aG9zdC92aG9zdC5jICAgICAgfCAgICA2
+ICsrKysrLQo+ID4gIGRyaXZlcnMvdmhvc3Qvdmhvc3QuaCAgICAgIHwgICAyMyArKysrKysrKysr
+KysrKysrKy0tLS0tLQo+ID4gIGluY2x1ZGUvdWFwaS9saW51eC92aG9zdC5oIHwgICAgMiArKwo+
+ID4gIDQgZmlsZXMgY2hhbmdlZCwgNTAgaW5zZXJ0aW9ucygrKSwgMTMgZGVsZXRpb25zKC0pCj4g
+PiAKPiA+IC0tCj4gPiBHcmVnCj4gCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
+bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
+b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
