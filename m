@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] vhost: drop hard-coded num_buffers size
-Date: Tue, 24 Feb 2015 17:31:10 +0100
-Message-ID: <1424795457-6770-1-git-send-email-mst__26433.8258690715$1424795492$gmane$org@redhat.com>
+Subject: [PATCH] vhost: cleanup iterator update logic
+Date: Tue, 24 Feb 2015 17:31:31 +0100
+Message-ID: <1424795477-6820-1-git-send-email-mst__306.848254013126$1424798226$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -20,29 +20,59 @@ To: linux-kernel@vger.kernel.org
 Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The 2 that we use for copy_to_iter comes from sizeof(u16),
-it used to be that way before the iov iter update.
-Fix it up, making it obvious the size of stack access
-is right.
+Recent iterator-related changes in vhost made it
+harder to follow the logic fixing up the header.
+In fact, the fixup always happens at the same
+offset: sizeof(virtio_net_hdr): sometimes the
+fixup iterator is updated by copy_to_iter,
+sometimes-by iov_iter_advance.
+
+Rearrange code to make this obvious.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/vhost/net.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/vhost/net.c | 22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index ca70434..2bbfc25 100644
+index afa06d2..ca70434 100644
 --- a/drivers/vhost/net.c
 +++ b/drivers/vhost/net.c
-@@ -621,7 +621,8 @@ static void handle_rx(struct vhost_net *net)
+@@ -591,11 +591,6 @@ static void handle_rx(struct vhost_net *net)
+ 			 * TODO: support TSO.
+ 			 */
+ 			iov_iter_advance(&msg.msg_iter, vhost_hlen);
+-		} else {
+-			/* It'll come from socket; we'll need to patch
+-			 * ->num_buffers over if VIRTIO_NET_F_MRG_RXBUF
+-			 */
+-			iov_iter_advance(&fixup, sizeof(hdr));
+ 		}
+ 		err = sock->ops->recvmsg(NULL, sock, &msg,
+ 					 sock_len, MSG_DONTWAIT | MSG_TRUNC);
+@@ -609,11 +604,18 @@ static void handle_rx(struct vhost_net *net)
+ 			continue;
+ 		}
+ 		/* Supply virtio_net_hdr if VHOST_NET_F_VIRTIO_NET_HDR */
+-		if (unlikely(vhost_hlen) &&
+-		    copy_to_iter(&hdr, sizeof(hdr), &fixup) != sizeof(hdr)) {
+-			vq_err(vq, "Unable to write vnet_hdr at addr %p\n",
+-			       vq->iov->iov_base);
+-			break;
++		if (unlikely(vhost_hlen)) {
++			if (copy_to_iter(&hdr, sizeof(hdr),
++					 &fixup) != sizeof(hdr)) {
++				vq_err(vq, "Unable to write vnet_hdr "
++				       "at addr %p\n", vq->iov->iov_base);
++				break;
++			}
++		} else {
++			/* Header came from socket; we'll need to patch
++			 * ->num_buffers over if VIRTIO_NET_F_MRG_RXBUF
++			 */
++			iov_iter_advance(&fixup, sizeof(hdr));
+ 		}
+ 		/* TODO: Should check and handle checksum. */
  
- 		num_buffers = cpu_to_vhost16(vq, headcount);
- 		if (likely(mergeable) &&
--		    copy_to_iter(&num_buffers, 2, &fixup) != 2) {
-+		    copy_to_iter(&num_buffers, sizeof num_buffers,
-+				 &fixup) != sizeof num_buffers) {
- 			vq_err(vq, "Failed num_buffers write");
- 			vhost_discard_vq_desc(vq, headcount);
- 			break;
 -- 
 MST
