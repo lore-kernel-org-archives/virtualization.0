@@ -1,12 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] vhost: drop hard-coded num_buffers size
-Date: Wed, 25 Feb 2015 15:20:01 +0100
-Message-ID: <1424873997-16686-1-git-send-email-mst@redhat.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH] virtio-balloon: do not call blocking ops when
+	!TASK_RUNNING
+Date: Wed, 25 Feb 2015 15:32:08 +0100
+Message-ID: <20150225153208.341b230f.cornelia.huck@de.ibm.com>
+References: <1424873603-16386-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <1424873603-16386-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,33 +18,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The 2 that we use for copy_to_iter comes from sizeof(u16),
-it used to be that way before the iov iter update.
-Fix it up, making it obvious the size of stack access
-is right.
+On Wed, 25 Feb 2015 15:14:36 +0100
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/vhost/net.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+> virtio balloon has this code:
+>         wait_event_interruptible(vb->config_change,
+>                                  (diff = towards_target(vb)) != 0
+>                                  || vb->need_stats_update
+>                                  || kthread_should_stop()
+>                                  || freezing(current));
+> 
+> Which is a problem because towards_target() call might block after
+> wait_event_interruptible sets task state to TAST_INTERRUPTIBLE, causing
+> the task_struct::state collision typical of nesting of sleeping
+> primitives
+> 
+> See also http://lwn.net/Articles/628628/ or Thomas's
+> bug report
+> http://article.gmane.org/gmane.linux.kernel.virtualization/24846
+> for a fuller explanation.
+> 
+> To fix, rewrite using wait_woken.
+> 
+> Cc: stable@vger.kernel.org
+> Reported-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  drivers/virtio/virtio_balloon.c | 14 ++++++++++++++
+>  1 file changed, 14 insertions(+)
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 0413157..2f19f65 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -29,6 +29,7 @@
+>  #include <linux/module.h>
+>  #include <linux/balloon_compaction.h>
+>  #include <linux/oom.h>
+> +#include <linux/wait.h>
+>  
+>  /*
+>   * Balloon device works in 4K page units.  So each page is pointed to by
+> @@ -334,12 +335,25 @@ static int virtballoon_oom_notify(struct notifier_block *self,
+>  static int balloon(void *_vballoon)
+>  {
+>  	struct virtio_balloon *vb = _vballoon;
+> +	DEFINE_WAIT_FUNC(wait, woken_wake_function);
+>  
+>  	set_freezable();
+>  	while (!kthread_should_stop()) {
+>  		s64 diff;
+>  
+>  		try_to_freeze();
+> +
+> +		add_wait_queue(&vb->config_change, &wait);
+> +		for (;;) {
+> +			if ((diff = towards_target(vb)) != 0 ||
+> +			    vb->need_stats_update ||
+> +			    kthread_should_stop() ||
+> +			    freezing(current))
+> +				break;
+> +			wait_woken(&wait, TASK_INTERRUPTIBLE, MAX_SCHEDULE_TIMEOUT);
+> +		}
+> +		remove_wait_queue(&vb->config_change, &wait);
+> +
+>  		wait_event_interruptible(vb->config_change,
+>  					 (diff = towards_target(vb)) != 0
+>  					 || vb->need_stats_update
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index ca70434..2bbfc25 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -621,7 +621,8 @@ static void handle_rx(struct vhost_net *net)
- 
- 		num_buffers = cpu_to_vhost16(vq, headcount);
- 		if (likely(mergeable) &&
--		    copy_to_iter(&num_buffers, 2, &fixup) != 2) {
-+		    copy_to_iter(&num_buffers, sizeof num_buffers,
-+				 &fixup) != sizeof num_buffers) {
- 			vq_err(vq, "Failed num_buffers write");
- 			vhost_discard_vq_desc(vq, headcount);
- 			break;
--- 
-MST
+Forgot to remove the wait_event_interruptible()?
