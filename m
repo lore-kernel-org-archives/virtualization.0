@@ -1,11 +1,18 @@
-From: Thomas Huth <thuth@linux.vnet.ibm.com>
-Subject: virtio balloon: do not call blocking ops when !TASK_RUNNING
-Date: Wed, 25 Feb 2015 11:13:18 +0100
-Message-ID: <20150225111318.0040536b@oc7435384737.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH for stable] x86/spinlocks/paravirt: Fix memory corruption
+	on unlock
+Date: Wed, 25 Feb 2015 11:14:38 +0100
+Message-ID: <54EDA08E.5080901__44348.4755502597$1424859310$gmane$org@de.ibm.com>
+References: <1424769899-14158-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
+	<20150224141731.GA16033@kroah.com>
+	<20150224144737.GA26074@gmail.com>
+	<54ECC0A1.1080802@linux.vnet.ibm.com>
+	<20150224183844.GA8654@kroah.com> <20150225100806.GA7134@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20150225100806.GA7134@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,73 +22,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: kvm@vger.kernel.org, mst@redhat.com
+To: Ingo Molnar <mingo@kernel.org>, Greg KH <gregkh@linuxfoundation.org>
+Cc: jeremy@goop.org, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, kvm@vger.kernel.org, peterz@infradead.org, virtualization@lists.linux-foundation.org, paul.gortmaker@windriver.com, hpa@zytor.com, ak@linux.intel.com, a.ryabinin@samsung.com, x86@kernel.org, mingo@redhat.com, xen-devel@lists.xenproject.org, paulmck@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, dave@stgolabs.net, sasha.levin@oracle.com, davej@redhat.com, tglx@linutronix.de, waiman.long@hp.com, oleg@redhat.com, stable@vger.kernel.org, linux-kernel@vger.kernel.org, pbonzini@redhat.com, akpm@linux-foundation.org, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+Am 25.02.2015 um 11:08 schrieb Ingo Molnar:
+> 
+> * Greg KH <gregkh@linuxfoundation.org> wrote:
+> 
+>>>> It's:
+>>>>
+>>>>  d6abfdb20223 x86/spinlocks/paravirt: Fix memory corruption on unlock
+>>>
+>>> Yes, This is the original patch. Please note I have taken out the
+>>> READ_ONCE changes from the original patch to avoid build warnings
+>>> mentioned below.
+>>> (Those READ_ONCE changes were cosmetic and was not present in the
+>>> previous versions)
+>>>
+>>>>
+>>>> You'll also need this fix from Linus to avoid (harmless)
+>>>> build warnings:
+>>>>
+>>>>  dd36929720f4 kernel: make READ_ONCE() valid on const arguments
+>>>
+>>> So this may not be absolutely necessary with the current patch.
+>>
+>> I'd prefer to be as close as possible to the upstream 
+>> patch.  So if applying both of these patches will work, 
+>> I'd much rather do that. Changing patches when 
+>> backporting them to stable for no good reason than to 
+>> clean things up, just confuses everyone involved.
+>>
+>> Let's keep our messy history :)
+> 
+> By all means!
+> 
+> You'll first need to cherry-pick these commits:
+> 
 
- Hi all,
 
-with the recent kernel 3.19, I get a kernel warning when I start my
-KVM guest on s390 with virtio balloon enabled:
+>  927609d622a3 kernel: tighten rules for ACCESS ONCE
+>  c5b19946eb76 kernel: Fix sparse warning for ACCESS_ONCE
+>  dd36929720f4 kernel: make READ_ONCE() valid on const arguments
 
-[    0.839687] do not call blocking ops when !TASK_RUNNING; state=1 set at
-               [<0000000000174a1e>] prepare_to_wait_event+0x7e/0x108
-[    0.839694] ------------[ cut here ]------------
-[    0.839697] WARNING: at kernel/sched/core.c:7326
-[    0.839698] Modules linked in:
-[    0.839702] CPU: 0 PID: 46 Comm: vballoon Not tainted 3.19.0 #233
-[    0.839705] task: 00000000021d0000 ti: 00000000021d8000 task.ti: 00000000021d8000
-[    0.839707] Krnl PSW : 0704c00180000000 000000000015bf8e (__might_sleep+0x8e/0x98)
-[    0.839713]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0 PM:0 EA:3
-Krnl GPRS: 000000000000000d 00000000021d0000 0000000000000071 0000000000000001
-[    0.839718]            0000000000675ace 0000000001998c50 cccccccccccccccc cccccccccccccccc
-[    0.839720]            0000000000982134 000000000058f824 0000000000a008a8 0000000000000000
-[    0.839722]            00000000000004d9 00000000007ea992 000000000015bf8a 00000000021dbc28
-[    0.839731] Krnl Code: 000000000015bf7e: c0200033e838	larl	%r2,7d8fee
-           000000000015bf84: c0e50028cd62	brasl	%r14,675a48
-          #000000000015bf8a: a7f40001		brc	15,15bf8c
-          >000000000015bf8e: 9201a000		mvi	0(%r10),1
-           000000000015bf92: a7f4ffe2		brc	15,15bf56
-           000000000015bf96: 0707		bcr	0,%r7
-           000000000015bf98: ebdff0800024	stmg	%r13,%r15,128(%r15)
-           000000000015bf9e: a7f13fe0		tmll	%r15,16352
-[    0.839749] Call Trace:
-[    0.839751] ([<000000000015bf8a>] __might_sleep+0x8a/0x98)
-[    0.839756]  [<000000000028a562>] __kmalloc+0x272/0x350
-[    0.839759]  [<000000000058f824>] virtio_ccw_get_config+0x3c/0x100
-[    0.839762]  [<000000000049fcb0>] balloon+0x1b8/0x330
-[    0.839765]  [<00000000001529c8>] kthread+0x120/0x138
-[    0.839767]  [<0000000000683c22>] kernel_thread_starter+0x6/0xc
-[    0.839770]  [<0000000000683c1c>] kernel_thread_starter+0x0/0xc
-[    0.839772] no locks held by vballoon/46.
-[    0.839773] Last Breaking-Event-Address:
-[    0.839776]  [<000000000015bf8a>] __might_sleep+0x8a/0x98
-[    0.839778] ---[ end trace d27fcdfa27273d7c ]---
+If you go before 3.19, you will also need
 
-The problem seems to be this code in balloon() in
-drivers/virtio/virtio_balloon.c:
+   230fa253df63 kernel: Provide READ_ONCE and ASSIGN_ONCE
+   43239cbe79fc kernel: Change ASSIGN_ONCE(val, x) to WRITE_ONCE(x, val)
 
-	wait_event_interruptible(vb->config_change,
-				 (diff = towards_target(vb)) != 0
-				 || vb->need_stats_update
-				 || kthread_should_stop()
-				 || freezing(current));
 
-wait_event_interruptible() sets the state of the current task to
-TASK_INTERRUPTIBLE, then checks the condition. The condition contains
-towards_target() which reads the virtio config space via virtio_cread().
-On s390, this then triggers virtio_ccw_get_config() - and this function
-calls some other functions again that might sleep (e.g. kzalloc or
-wait_event in ccw_io_helper) ... and this causes the new kernel warning
-message with kernel 3.19.
+> 
+> That's the minimum set you will need for backporting, due 
+> to overlapping changes to the ACCESS_ONCE() definition.
+> 
+> and then apply this commit:
+> 
+>  d6abfdb20223 x86/spinlocks/paravirt: Fix memory corruption on unlock
 
-I think it would be quite difficult or at least ugly to rewrite
-virtio_ccw_get_config() so that it does not call sleepable functions
-anymore. So would it be feasible to rewrite the balloon() function that
-it does not call the towards_target() in its wait_event condition
-anymore? I am unfortunately not that familiar with the balloon code
-semantics, so any help is very appreciated here!
+the alternative might be to replace READ_ONCE with ACCESS_ONCE when
+doing the backport.
+This depends on how important you consider backporting the ACCESS_ONCE fixes.
 
- Thanks,
-  Thomas
+Christian
