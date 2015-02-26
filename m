@@ -1,15 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost: drop hard-coded num_buffers size
-Date: Thu, 26 Feb 2015 09:21:33 +0100
-Message-ID: <20150226082133.GA24138__15753.8223233589$1424938912$gmane$org@redhat.com>
-References: <1424795457-6770-1-git-send-email-mst@redhat.com>
-	<20150225.165652.1024024652864456838.davem@davemloft.net>
+Subject: Re: virtio balloon: do not call blocking ops when !TASK_RUNNING
+Date: Thu, 26 Feb 2015 09:30:31 +0100
+Message-ID: <20150226083031.GA24184@redhat.com>
+References: <20150225111318.0040536b@oc7435384737.ibm.com>
+	<87y4nllb85.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20150225.165652.1024024652864456838.davem@davemloft.net>
+In-Reply-To: <87y4nllb85.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,27 +19,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Peter Zijlstra <peterz@infradead.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 25, 2015 at 04:56:52PM -0500, David Miller wrote:
-> From: "Michael S. Tsirkin" <mst@redhat.com>
-> Date: Tue, 24 Feb 2015 17:31:10 +0100
+On Thu, Feb 26, 2015 at 11:50:42AM +1030, Rusty Russell wrote:
+> Thomas Huth <thuth@linux.vnet.ibm.com> writes:
+> >  Hi all,
+> >
+> > with the recent kernel 3.19, I get a kernel warning when I start my
+> > KVM guest on s390 with virtio balloon enabled:
 > 
-> > The 2 that we use for copy_to_iter comes from sizeof(u16),
-> > it used to be that way before the iov iter update.
-> > Fix it up, making it obvious the size of stack access
-> > is right.
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> The deeper problem is that virtio_ccw_get_config just silently fails on
+> OOM.
 > 
-> Michael, what tree do you want these two patches to go through?
+> Neither get_config nor set_config are expected to fail.
+> 
+> Cornelia, I think ccw and config_area should be allocated inside vcdev.
+> You could either use pointers, or simply allocate vcdev with GDP_DMA.
+> 
+> This would avoid the kmalloc inside these calls.
+> 
+> Thanks,
+> Rusty.
 
-Sorry about being unclear.
-They are net specific so I'd like them merged for 4.0 through net tree.
-If that's a problem, pls let me know.
+But it won't solve the problem of nested sleepers
+with ccw: ATM is invokes ccw_io_helper to execute
+commands, and that one calls wait_event
+to wait for an interrupt.
 
-Thanks,
+Might be fixable but I think my patch looks like a safer
+solution for 4.0/3.19, no?
+
 -- 
 MST
