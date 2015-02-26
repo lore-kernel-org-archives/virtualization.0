@@ -1,15 +1,16 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Peter Zijlstra <peterz@infradead.org>
 Subject: Re: virtio balloon: do not call blocking ops when !TASK_RUNNING
-Date: Thu, 26 Feb 2015 09:57:44 +0100
-Message-ID: <20150226095744.5d5addfa.cornelia.huck@de.ibm.com>
+Date: Thu, 26 Feb 2015 18:08:49 +0100
+Message-ID: <20150226170849.GV21418@twins.programming.kicks-ass.net>
 References: <20150225111318.0040536b@oc7435384737.ibm.com>
 	<87y4nllb85.fsf@rustcorp.com.au>
-	<20150226084529.GB24184@redhat.com>
+	<20150226083031.GA24184@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150226084529.GB24184@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20150226083031.GA24184@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,12 +21,10 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 26 Feb 2015 09:45:29 +0100
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
+On Thu, Feb 26, 2015 at 09:30:31AM +0100, Michael S. Tsirkin wrote:
 > On Thu, Feb 26, 2015 at 11:50:42AM +1030, Rusty Russell wrote:
 > > Thomas Huth <thuth@linux.vnet.ibm.com> writes:
 > > >  Hi all,
@@ -35,14 +34,39 @@ On Thu, 26 Feb 2015 09:45:29 +0100
 > > 
 > > The deeper problem is that virtio_ccw_get_config just silently fails on
 > > OOM.
+> > 
+> > Neither get_config nor set_config are expected to fail.
+> > 
+> > Cornelia, I think ccw and config_area should be allocated inside vcdev.
+> > You could either use pointers, or simply allocate vcdev with GDP_DMA.
+> > 
+> > This would avoid the kmalloc inside these calls.
+> > 
+> > Thanks,
+> > Rusty.
 > 
-> Same problem with virtio_ccw_reset.
-> But avoiding kmalloc calls in virtio_ccw_get_config isn't enough I think,
-> it might still sleep.
+> But it won't solve the problem of nested sleepers
+> with ccw: ATM is invokes ccw_io_helper to execute
+> commands, and that one calls wait_event
+> to wait for an interrupt.
+> 
+> Might be fixable but I think my patch looks like a safer
+> solution for 4.0/3.19, no?
 
-It is probably a problem with all calls into the transport that assume
-an implementation that cannot fail: If we have a channel I/O backing,
-we need to be able to handle things not working.
+I've no idea what your patch was since I'm not subscribed to any of the
+lists this discussion is had on.
 
-The only case we need to care about for virtio is probably a -ENODEV
-triggered by a hotunplug, though.
+But you can annotate the warning away; _however_ with the annotation
+needs to be a big comment explaining why its safe to do so. Typically to
+involved talking about how its actually rare for the call to sleep.
+
+So occasional sleeps inside a wait_event() are ok-ish, we'll just get to
+go around once more. But once you consistently sleep inside a
+wait_event() things go a bit funny.
+
+So for instance; if in ccw_io_helper() we expect that wait_event(,
+!doing_io()) to be (mostly) true on first go, then we'll never get into
+__wait_event() and ->state won't actually be mucked about with.
+
+The thing to avoid is not actually sleeping (much) but setting
+TASK_RUNNING and turning the entire thing into a giant poll loop.
