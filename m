@@ -1,12 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 0/2] virtio_blk header fixes
-Date: Sun, 1 Mar 2015 08:39:09 +0100
-Message-ID: <1425192883-5930-1-git-send-email-mst__23609.6492888921$1425195569$gmane$org@redhat.com>
+Subject: [PATCH 1/2] virtio_blk: typo fix
+Date: Sun, 1 Mar 2015 08:39:14 +0100
+Message-ID: <1425192883-5930-2-git-send-email-mst@redhat.com>
+References: <1425192883-5930-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <1425192883-5930-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,15 +24,23 @@ List-Id: virtualization@lists.linuxfoundation.org
 Now that QEmu reuses linux virtio headers, we noticed
 a typo in the exported virtio block header. Fix it up.
 
-I'd like these merged for 4.0 so that Qemu 2.3 can
-alredy get it right.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ include/uapi/linux/virtio_blk.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Michael S. Tsirkin (2):
-  virtio_blk: typo fix
-  virtio_blk: fix comment for virtio 1.0
-
- include/uapi/linux/virtio_blk.h | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
+diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux/virtio_blk.h
+index 3c53eec..b695ba9 100644
+--- a/include/uapi/linux/virtio_blk.h
++++ b/include/uapi/linux/virtio_blk.h
+@@ -60,7 +60,7 @@ struct virtio_blk_config {
+ 	__u32 size_max;
+ 	/* The maximum number of segments (if VIRTIO_BLK_F_SEG_MAX) */
+ 	__u32 seg_max;
+-	/* geometry the device (if VIRTIO_BLK_F_GEOMETRY) */
++	/* geometry of the device (if VIRTIO_BLK_F_GEOMETRY) */
+ 	struct virtio_blk_geometry {
+ 		__u16 cylinders;
+ 		__u8 heads;
 -- 
 MST
