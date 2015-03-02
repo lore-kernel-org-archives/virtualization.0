@@ -1,16 +1,20 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 2/2] virtio-pci: switch to modern accessors for 1.0
-Date: Mon, 2 Mar 2015 13:16:51 +0100
-Message-ID: <20150302121651.GC12040@redhat.com>
-References: <1425296404-12903-1-git-send-email-mst@redhat.com>
-	<1425296404-12903-2-git-send-email-mst@redhat.com>
-	<20150302125655.50a9063a.cornelia.huck@de.ibm.com>
+Subject: Re: virtio balloon: do not call blocking ops when !TASK_RUNNING
+Date: Mon, 2 Mar 2015 13:19:43 +0100
+Message-ID: <20150302121943.GD12040__22556.1604755514$1425298888$gmane$org@redhat.com>
+References: <20150225111318.0040536b@oc7435384737.ibm.com>
+	<87y4nllb85.fsf@rustcorp.com.au>
+	<20150226083625.2520ecb6@oc7435384737.ibm.com>
+	<8761akl0sh.fsf@rustcorp.com.au> <20150302111358.GA4954@redhat.com>
+	<20150302123106.54a71968.cornelia.huck@de.ibm.com>
+	<20150302114657.GB12040@redhat.com>
+	<20150302131102.2388a582.cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20150302125655.50a9063a.cornelia.huck@de.ibm.com>
+In-Reply-To: <20150302131102.2388a582.cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,25 +25,73 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: qemu-devel@nongnu.org, Anthony Liguori <aliguori@amazon.com>, virtualization@lists.linux-foundation.org
+Cc: Peter Zijlstra <peterz@infradead.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Mar 02, 2015 at 12:56:55PM +0100, Cornelia Huck wrote:
-> On Mon, 2 Mar 2015 12:40:28 +0100
+On Mon, Mar 02, 2015 at 01:11:02PM +0100, Cornelia Huck wrote:
+> On Mon, 2 Mar 2015 12:46:57 +0100
 > "Michael S. Tsirkin" <mst@redhat.com> wrote:
 > 
-> > virtio 1.0 config space is in LE format for all
-> > devices, use modern wrappers when accessed through
-> > the 1.0 BAR.
+> > On Mon, Mar 02, 2015 at 12:31:06PM +0100, Cornelia Huck wrote:
+> > > On Mon, 2 Mar 2015 12:13:58 +0100
+> > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > 
+> > > > On Mon, Mar 02, 2015 at 10:37:26AM +1030, Rusty Russell wrote:
+> > > > > Thomas Huth <thuth@linux.vnet.ibm.com> writes:
+> > > > > > On Thu, 26 Feb 2015 11:50:42 +1030
+> > > > > > Rusty Russell <rusty@rustcorp.com.au> wrote:
+> > > > > >
+> > > > > >> Thomas Huth <thuth@linux.vnet.ibm.com> writes:
+> > > > > >> >  Hi all,
+> > > > > >> >
+> > > > > >> > with the recent kernel 3.19, I get a kernel warning when I start my
+> > > > > >> > KVM guest on s390 with virtio balloon enabled:
+> > > > > >> 
+> > > > > >> The deeper problem is that virtio_ccw_get_config just silently fails on
+> > > > > >> OOM.
+> > > > > >> 
+> > > > > >> Neither get_config nor set_config are expected to fail.
+> > > > > >
+> > > > > > AFAIK this is currently not a problem. According to
+> > > > > > http://lwn.net/Articles/627419/ these kmalloc calls never
+> > > > > > fail because they allocate less than a page.
+> > > > > 
+> > > > > I strongly suggest you unlearn that fact.
+> > > > > The fix for this is in two parts:
+> > > > > 
+> > > > > 1) Annotate using sched_annotate_sleep() and add a comment: we may spin
+> > > > >    a few times in low memory situations, but this isn't a high
+> > > > >    performance path.
+> > > > > 
+> > > > > 2) Handle get_config (and other) failure in some more elegant way.
+> > > 
+> > > Do you mean we need to enable the caller to deal with get_config
+> > > failures (and the transport to relay those failures)? I agree with that.
 > > 
-> > Reported-by: Rusty Russell <rusty@rustcorp.com.au>
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
-> >  hw/virtio/virtio-pci.c | 12 ++++++------
-> >  1 file changed, 6 insertions(+), 6 deletions(-)
+> > We can certainly tweak code to bypass need to kmalloc
+> > on get_config.
+> > 
+> > Why is it doing these allocs? What's wrong with using
+> > vcdev->config directly?
 > 
-> Not that I'm deeply familiar with pci :), but this looks good to me.
+> We'd need to make sure that vcdev->config is allocated with GFP_DMA, as
+> we need it to be under 2G. And we need to be more careful wrt
+> serialization, especially if we want to reuse the ccw structure as
+> well, for example. Nothing complicated, I'd just need some free time to
+> do it :)
 > 
-> (This is on top of your pci branch, btw?)
+> The more likely reason for get_config to fail is a device hotunplug,
+> however. We'll get a seperate notification about that (via machine
+> check + channel report), but it would be nice if we could stop poking
+> the device immediately, as there's no use trying to do something with
+> it anymore.
 
-virtio 1.0 branch
+Normally, hotunplug requires guest cooperation.
+IOW unplug request should send guest interrupt,
+then block until guest confirms it's not using the
+device anymore.
+virtio pci already handles that fine, can't ccw
+do something similar?
+
+-- 
+MST
