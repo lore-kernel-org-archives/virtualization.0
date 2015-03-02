@@ -1,15 +1,18 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: Qemu and virtio 1.0
-Date: Mon, 2 Mar 2015 13:00:32 +0100
-Message-ID: <20150302130032.2f9f667e.cornelia.huck@de.ibm.com>
-References: <1417101409-29482-1-git-send-email-cornelia.huck@de.ibm.com>
-	<877fv6mxkp.fsf@rustcorp.com.au>
-	<20150302114343.GA12040@redhat.com>
+Subject: Re: virtio balloon: do not call blocking ops when !TASK_RUNNING
+Date: Mon, 2 Mar 2015 13:11:02 +0100
+Message-ID: <20150302131102.2388a582.cornelia.huck__12708.6234665059$1425298294$gmane$org@de.ibm.com>
+References: <20150225111318.0040536b@oc7435384737.ibm.com>
+	<87y4nllb85.fsf@rustcorp.com.au>
+	<20150226083625.2520ecb6@oc7435384737.ibm.com>
+	<8761akl0sh.fsf@rustcorp.com.au> <20150302111358.GA4954@redhat.com>
+	<20150302123106.54a71968.cornelia.huck@de.ibm.com>
+	<20150302114657.GB12040@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150302114343.GA12040@redhat.com>
+In-Reply-To: <20150302114657.GB12040@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,32 +23,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Peter Zijlstra <peterz@infradead.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2 Mar 2015 12:43:43 +0100
+On Mon, 2 Mar 2015 12:46:57 +0100
 "Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-> On Wed, Feb 25, 2015 at 02:50:22PM +1030, Rusty Russell wrote:
-> > OK, I am trying to experiment with virtio 1.0 support using the
-> > latest kernel and MST's qemu tree:
+> On Mon, Mar 02, 2015 at 12:31:06PM +0100, Cornelia Huck wrote:
+> > On Mon, 2 Mar 2015 12:13:58 +0100
+> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
 > > 
-> >         https://git.kernel.org/cgit/virt/kvm/mst/qemu.git/?h=virtio-1.0
+> > > On Mon, Mar 02, 2015 at 10:37:26AM +1030, Rusty Russell wrote:
+> > > > Thomas Huth <thuth@linux.vnet.ibm.com> writes:
+> > > > > On Thu, 26 Feb 2015 11:50:42 +1030
+> > > > > Rusty Russell <rusty@rustcorp.com.au> wrote:
+> > > > >
+> > > > >> Thomas Huth <thuth@linux.vnet.ibm.com> writes:
+> > > > >> >  Hi all,
+> > > > >> >
+> > > > >> > with the recent kernel 3.19, I get a kernel warning when I start my
+> > > > >> > KVM guest on s390 with virtio balloon enabled:
+> > > > >> 
+> > > > >> The deeper problem is that virtio_ccw_get_config just silently fails on
+> > > > >> OOM.
+> > > > >> 
+> > > > >> Neither get_config nor set_config are expected to fail.
+> > > > >
+> > > > > AFAIK this is currently not a problem. According to
+> > > > > http://lwn.net/Articles/627419/ these kmalloc calls never
+> > > > > fail because they allocate less than a page.
+> > > > 
+> > > > I strongly suggest you unlearn that fact.
+> > > > The fix for this is in two parts:
+> > > > 
+> > > > 1) Annotate using sched_annotate_sleep() and add a comment: we may spin
+> > > >    a few times in low memory situations, but this isn't a high
+> > > >    performance path.
+> > > > 
+> > > > 2) Handle get_config (and other) failure in some more elegant way.
 > > 
-> > The first issue is that the device config endian was wrong (see
-> > attached patch).
-> > 
-> > I'm now setting up a BE guest on my x86 laptop, and a BE and LE guest
-> > on a BE powerpc machine, to check that all combinations work correctly.
-> > If others test too, that would be appreciated!
-> > 
-> > Cheers,
-> > Rusty.
+> > Do you mean we need to enable the caller to deal with get_config
+> > failures (and the transport to relay those failures)? I agree with that.
 > 
-> Thanks a lot for finding this!
-> The issue is certainly there, though I think looking
-> at guest features is not the right thing to do:
-> drivers can access config before acking features.
+> We can certainly tweak code to bypass need to kmalloc
+> on get_config.
+> 
+> Why is it doing these allocs? What's wrong with using
+> vcdev->config directly?
 
-Ah right. I'm just wondering what the device-specific accessors (in net
-and so on) will do?
+We'd need to make sure that vcdev->config is allocated with GFP_DMA, as
+we need it to be under 2G. And we need to be more careful wrt
+serialization, especially if we want to reuse the ccw structure as
+well, for example. Nothing complicated, I'd just need some free time to
+do it :)
+
+The more likely reason for get_config to fail is a device hotunplug,
+however. We'll get a seperate notification about that (via machine
+check + channel report), but it would be nice if we could stop poking
+the device immediately, as there's no use trying to do something with
+it anymore.
