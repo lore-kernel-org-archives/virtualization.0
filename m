@@ -1,14 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 2/2] virtio_blk: fix comment for virtio 1.0
-Date: Mon, 02 Mar 2015 10:45:37 +1030
-Message-ID: <871tl8l0eu.fsf@rustcorp.com.au>
-References: <1425192883-5930-1-git-send-email-mst@redhat.com>
-	<1425192883-5930-3-git-send-email-mst@redhat.com>
+Subject: Re: virtio balloon: do not call blocking ops when !TASK_RUNNING
+Date: Mon, 02 Mar 2015 10:37:26 +1030
+Message-ID: <8761akl0sh.fsf@rustcorp.com.au>
+References: <20150225111318.0040536b@oc7435384737.ibm.com>
+	<87y4nllb85.fsf@rustcorp.com.au>
+	<20150226083625.2520ecb6@oc7435384737.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1425192883-5930-3-git-send-email-mst@redhat.com>
+In-Reply-To: <20150226083625.2520ecb6@oc7435384737.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,18 +19,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org
+To: Thomas Huth <thuth@linux.vnet.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
-> Fix up comment to match virtio 1.0 logic:
-> virtio_blk_outhdr isn't the first elements anymore,
-> the only requirement is that it comes first in
-> the s/g list.
+Thomas Huth <thuth@linux.vnet.ibm.com> writes:
+> On Thu, 26 Feb 2015 11:50:42 +1030
+> Rusty Russell <rusty@rustcorp.com.au> wrote:
 >
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>> Thomas Huth <thuth@linux.vnet.ibm.com> writes:
+>> >  Hi all,
+>> >
+>> > with the recent kernel 3.19, I get a kernel warning when I start my
+>> > KVM guest on s390 with virtio balloon enabled:
+>> 
+>> The deeper problem is that virtio_ccw_get_config just silently fails on
+>> OOM.
+>> 
+>> Neither get_config nor set_config are expected to fail.
+>
+> AFAIK this is currently not a problem. According to
+> http://lwn.net/Articles/627419/ these kmalloc calls never
+> fail because they allocate less than a page.
 
-Thanks, both applied.
+I strongly suggest you unlearn that fact.
+
+The fix for this is in two parts:
+
+1) Annotate using sched_annotate_sleep() and add a comment: we may spin
+   a few times in low memory situations, but this isn't a high
+   performance path.
+
+2) Handle get_config (and other) failure in some more elegant way.
 
 Cheers,
 Rusty.
