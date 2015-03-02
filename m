@@ -1,15 +1,18 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: Qemu and virtio 1.0
-Date: Mon, 2 Mar 2015 12:43:43 +0100
-Message-ID: <20150302114343.GA12040@redhat.com>
-References: <1417101409-29482-1-git-send-email-cornelia.huck@de.ibm.com>
-	<877fv6mxkp.fsf@rustcorp.com.au>
+Subject: Re: virtio balloon: do not call blocking ops when !TASK_RUNNING
+Date: Mon, 2 Mar 2015 12:46:57 +0100
+Message-ID: <20150302114657.GB12040@redhat.com>
+References: <20150225111318.0040536b@oc7435384737.ibm.com>
+	<87y4nllb85.fsf@rustcorp.com.au>
+	<20150226083625.2520ecb6@oc7435384737.ibm.com>
+	<8761akl0sh.fsf@rustcorp.com.au> <20150302111358.GA4954@redhat.com>
+	<20150302123106.54a71968.cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <877fv6mxkp.fsf@rustcorp.com.au>
+In-Reply-To: <20150302123106.54a71968.cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,104 +22,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 25, 2015 at 02:50:22PM +1030, Rusty Russell wrote:
-> OK, I am trying to experiment with virtio 1.0 support using the
-> latest kernel and MST's qemu tree:
+On Mon, Mar 02, 2015 at 12:31:06PM +0100, Cornelia Huck wrote:
+> On Mon, 2 Mar 2015 12:13:58 +0100
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
 > 
->         https://git.kernel.org/cgit/virt/kvm/mst/qemu.git/?h=virtio-1.0
+> > On Mon, Mar 02, 2015 at 10:37:26AM +1030, Rusty Russell wrote:
+> > > Thomas Huth <thuth@linux.vnet.ibm.com> writes:
+> > > > On Thu, 26 Feb 2015 11:50:42 +1030
+> > > > Rusty Russell <rusty@rustcorp.com.au> wrote:
+> > > >
+> > > >> Thomas Huth <thuth@linux.vnet.ibm.com> writes:
+> > > >> >  Hi all,
+> > > >> >
+> > > >> > with the recent kernel 3.19, I get a kernel warning when I start my
+> > > >> > KVM guest on s390 with virtio balloon enabled:
+> > > >> 
+> > > >> The deeper problem is that virtio_ccw_get_config just silently fails on
+> > > >> OOM.
+> > > >> 
+> > > >> Neither get_config nor set_config are expected to fail.
+> > > >
+> > > > AFAIK this is currently not a problem. According to
+> > > > http://lwn.net/Articles/627419/ these kmalloc calls never
+> > > > fail because they allocate less than a page.
+> > > 
+> > > I strongly suggest you unlearn that fact.
+> > > The fix for this is in two parts:
+> > > 
+> > > 1) Annotate using sched_annotate_sleep() and add a comment: we may spin
+> > >    a few times in low memory situations, but this isn't a high
+> > >    performance path.
+> > > 
+> > > 2) Handle get_config (and other) failure in some more elegant way.
 > 
-> The first issue is that the device config endian was wrong (see
-> attached patch).
-> 
-> I'm now setting up a BE guest on my x86 laptop, and a BE and LE guest
-> on a BE powerpc machine, to check that all combinations work correctly.
-> If others test too, that would be appreciated!
-> 
-> Cheers,
-> Rusty.
+> Do you mean we need to enable the caller to deal with get_config
+> failures (and the transport to relay those failures)? I agree with that.
 
-Thanks a lot for finding this!
-The issue is certainly there, though I think looking
-at guest features is not the right thing to do:
-drivers can access config before acking features.
+We can certainly tweak code to bypass need to kmalloc
+on get_config.
 
-At least for PCI, it's very simple: we have a
-separate memory region for modern devices, we
-should just use a different accessor, not virtio_config_readw
-and friends.
-
-Untested patch sent (sorry about the untested part, a bit busy right now).
+Why is it doing these allocs? What's wrong with using
+vcdev->config directly?
 
 
-> >From 95ac91554ed602f856a2a5fcc25eaffcad1b1c8d Mon Sep 17 00:00:00 2001
-> From: Rusty Russell <rusty@rustcorp.com.au>
-> Date: Tue, 24 Feb 2015 14:47:44 +1030
-> Subject: [PATCH] virtio_config_write*/virtio_config_read*: Don't endian swap
->  for virtio 1.0.
+> > > 
+> > > Cheers,
+> > > Rusty.
+> > 
+> > I agree, but I'd like to point out that even without kmalloc,
+> > on s390 get_config is blocking - it's waiting
+> > for a hardware interrupt.
+> > 
+> > And it makes sense: config is not data path, I don't think
+> > we should spin there.
+> > 
+> > So I think besides these two parts, we still need my two patches:
+> >     virtio-balloon: do not call blocking ops when !TASK_RUNNING
+> >     virtio_console: avoid config access from irq
+> > in 4.0.
+> > 
+> > agree?
 > 
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> 
-> diff --git a/hw/virtio/virtio.c b/hw/virtio/virtio.c
-> index 079944c..882a31b 100644
-> --- a/hw/virtio/virtio.c
-> +++ b/hw/virtio/virtio.c
-> @@ -662,7 +662,12 @@ uint32_t virtio_config_readw(VirtIODevice *vdev, uint32_t addr)
->  
->      k->get_config(vdev, vdev->config);
->  
-> -    val = lduw_p(vdev->config + addr);
-> +    /* Virtio 1.0 is always LE */
-> +    if (virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
-> +        val = lduw_le_p(vdev->config + addr);
-> +    } else {
-> +        val = lduw_p(vdev->config + addr);
-> +    }
->      return val;
->  }
->  
-> @@ -677,7 +682,12 @@ uint32_t virtio_config_readl(VirtIODevice *vdev, uint32_t addr)
->  
->      k->get_config(vdev, vdev->config);
->  
-> -    val = ldl_p(vdev->config + addr);
-> +    /* Virtio 1.0 is always LE */
-> +    if (virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
-> +        val = ldl_le_p(vdev->config + addr);
-> +    } else {
-> +        val = ldl_p(vdev->config + addr);
-> +    }
->      return val;
->  }
->  
-> @@ -706,7 +716,12 @@ void virtio_config_writew(VirtIODevice *vdev, uint32_t addr, uint32_t data)
->          return;
->      }
->  
-> -    stw_p(vdev->config + addr, val);
-> +    /* Virtio 1.0 is always LE */
-> +    if (virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
-> +        stw_le_p(vdev->config + addr, val);
-> +    } else {
-> +        stw_p(vdev->config + addr, val);
-> +    }
->  
->      if (k->set_config) {
->          k->set_config(vdev, vdev->config);
-> @@ -722,7 +737,12 @@ void virtio_config_writel(VirtIODevice *vdev, uint32_t addr, uint32_t data)
->          return;
->      }
->  
-> -    stl_p(vdev->config + addr, val);
-> +    /* Virtio 1.0 is always LE */
-> +    if (virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
-> +        stl_le_p(vdev->config + addr, val);
-> +    } else {
-> +        stl_p(vdev->config + addr, val);
-> +    }
->  
->      if (k->set_config) {
->          k->set_config(vdev, vdev->config);
+> I agree that we need those fixes as well.
