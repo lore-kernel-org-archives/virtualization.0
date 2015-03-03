@@ -1,14 +1,15 @@
-From: "Jan Beulich" <JBeulich@suse.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Subject: Re: [Xen-devel] kasan_map_early_shadow() on Xen
-Date: Tue, 03 Mar 2015 10:09:41 +0000
-Message-ID: <54F5967502000078000658C8__25300.5358776592$1425378627$gmane$org@mail.emea.novell.com>
+Date: Tue, 3 Mar 2015 09:16:50 -0500
+Message-ID: <20150303141650.GA30332@l.oracle.com>
 References: <CAB=NE6Xs5fepzNtymzT4CueeJZ0KMPETpda114DpL4eMtDswtw@mail.gmail.com>
+	<54F5B3DA.70203@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAB=NE6Xs5fepzNtymzT4CueeJZ0KMPETpda114DpL4eMtDswtw@mail.gmail.com>
 Content-Disposition: inline
+In-Reply-To: <54F5B3DA.70203@samsung.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,18 +19,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Luis R. Rodriguez" <mcgrof@suse.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andrey Ryabinin <a.ryabinin@samsung.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, xen-devel@lists.xenproject.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Andy Lutomirski <luto@amacapital.net>, Alok Kataria <akataria@vmware.com>
+To: Andrey Ryabinin <a.ryabinin@samsung.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, "Luis R. Rodriguez" <mcgrof@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Chris Wright <chrisw@sous-sol.org>, xen-devel@lists.xenproject.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>, virtualization@lists.linux-foundation.org, Alok Kataria <akataria@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
->>> On 03.03.15 at 10:40, <mcgrof@suse.com> wrote:
-> Let's go down the rabbit hole for a bit. HAVE_ARCH_KASAN will be
-> selected on x86 when:
+On Tue, Mar 03, 2015 at 04:15:06PM +0300, Andrey Ryabinin wrote:
+> On 03/03/2015 12:40 PM, Luis R. Rodriguez wrote:
+> > Andrey,
+> > 
+> > I believe that on Xen we should disable kasan, would like confirmation
 > 
-> if X86_64 && SPARSEMEM_VMEMMAP
+> I guess Xen guests won't work with kasan because Xen guests doesn't setup shadow
+> (kasan_map_early_shadow() is not called in xen guests).
 > 
-> Now Xen should not have SPARSEMEM_VMEMMAP
+> Disabling kasan for Xen in Kconfig is undesirable because that will disable kasan
+> for allmodconfig and allyesconfig builds, but I don't see other option for now.
 
-Why would that be?
+Was there an bug reported for this? It would be good to CC the maintainers
+of Xen on that sort of thing.
 
-Jan
+Thanks!
+.. snip..
+> > [0] https://lkml.org/lkml/2015/2/23/328
+
+If you look at the other x86 pulls - you will see that the authors
+also missed enabling it on 32-bit kernels!
+
+> > 
+> >  Luis
+> > 
+> 
+> 
+> _______________________________________________
+> Xen-devel mailing list
+> Xen-devel@lists.xen.org
+> http://lists.xen.org/xen-devel
