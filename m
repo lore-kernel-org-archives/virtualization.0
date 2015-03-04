@@ -1,14 +1,16 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio_console: avoid config access from irq
-Date: Wed, 04 Mar 2015 11:08:18 +1030
-Message-ID: <87fv9lk35x.fsf__29877.5350711823$1425429783$gmane$org@rustcorp.com.au>
-References: <1425145305-27917-1-git-send-email-mst@redhat.com>
-	<20150302055625.GE26196@grmbl.mre>
+Subject: Re: virtio balloon: do not call blocking ops when !TASK_RUNNING
+Date: Wed, 04 Mar 2015 16:44:54 +1030
+Message-ID: <87d24pjnkx.fsf@rustcorp.com.au>
+References: <20150225111318.0040536b@oc7435384737.ibm.com>
+	<87y4nllb85.fsf@rustcorp.com.au>
+	<20150226083625.2520ecb6@oc7435384737.ibm.com>
+	<8761akl0sh.fsf@rustcorp.com.au> <20150302111358.GA4954@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150302055625.GE26196@grmbl.mre>
+In-Reply-To: <20150302111358.GA4954@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,24 +20,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Amit Shah <amit.shah@redhat.com> writes:
-> On (Sat) 28 Feb 2015 [18:42:25], Michael S. Tsirkin wrote:
->> when multiport is off, virtio console invokes config access from irq
->> context, config access is blocking on s390.
->> Fix this up by scheduling work from config irq - similar to what we do
->> for multiport configs.
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> On Mon, Mar 02, 2015 at 10:37:26AM +1030, Rusty Russell wrote:
+>> Thomas Huth <thuth@linux.vnet.ibm.com> writes:
+>> > On Thu, 26 Feb 2015 11:50:42 +1030
+>> > Rusty Russell <rusty@rustcorp.com.au> wrote:
+>> >
+>> >> Thomas Huth <thuth@linux.vnet.ibm.com> writes:
+>> >> >  Hi all,
+>> >> >
+>> >> > with the recent kernel 3.19, I get a kernel warning when I start my
+>> >> > KVM guest on s390 with virtio balloon enabled:
+>> >> 
+>> >> The deeper problem is that virtio_ccw_get_config just silently fails on
+>> >> OOM.
+>> >> 
+>> >> Neither get_config nor set_config are expected to fail.
+>> >
+>> > AFAIK this is currently not a problem. According to
+>> > http://lwn.net/Articles/627419/ these kmalloc calls never
+>> > fail because they allocate less than a page.
 >> 
->> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>> I strongly suggest you unlearn that fact.
+>> The fix for this is in two parts:
+>> 
+>> 1) Annotate using sched_annotate_sleep() and add a comment: we may spin
+>>    a few times in low memory situations, but this isn't a high
+>>    performance path.
+>> 
+>> 2) Handle get_config (and other) failure in some more elegant way.
+>> 
+>> Cheers,
+>> Rusty.
 >
-> Reviewed-by: Amit Shah <amit.shah@redhat.com>
+> I agree, but I'd like to point out that even without kmalloc,
+> on s390 get_config is blocking - it's waiting
+> for a hardware interrupt.
+>
+> And it makes sense: config is not data path, I don't think
+> we should spin there.
+>
+> So I think besides these two parts, we still need my two patches:
+>     virtio-balloon: do not call blocking ops when !TASK_RUNNING
 
-Applied, thanks.
+I prefer to annotate, over trying to fix this.
 
-Should these be CC: stable?
+Because it's not important.  We might spin a few times, but it's very
+unlikely, and it's certainly not performance critical.
 
-Cheers,
+Thanks,
 Rusty.
+
+Subject: virtio_balloon: annotate possible sleep waiting for event.
+
+CCW (s390) does this.
+
+Reported-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 0413157f3b49..3f4d5acdbde0 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -340,6 +340,15 @@ static int balloon(void *_vballoon)
+ 		s64 diff;
+ 
+ 		try_to_freeze();
++
++		/*
++		 * Reading the config on the ccw backend involves an
++		 * allocation, so we may actually sleep and have an
++		 * extra iteration.  It's extremely unlikely, and this
++		 * isn't a fast path in any sense.
++		 */
++		sched_annotate_sleep();
++
+ 		wait_event_interruptible(vb->config_change,
+ 					 (diff = towards_target(vb)) != 0
+ 					 || vb->need_stats_update
