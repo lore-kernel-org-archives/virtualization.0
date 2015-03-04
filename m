@@ -1,16 +1,17 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: virtio balloon: do not call blocking ops when !TASK_RUNNING
-Date: Wed, 04 Mar 2015 16:44:54 +1030
-Message-ID: <87d24pjnkx.fsf@rustcorp.com.au>
-References: <20150225111318.0040536b@oc7435384737.ibm.com>
-	<87y4nllb85.fsf@rustcorp.com.au>
-	<20150226083625.2520ecb6@oc7435384737.ibm.com>
-	<8761akl0sh.fsf@rustcorp.com.au> <20150302111358.GA4954@redhat.com>
+From: "Jan Beulich" <JBeulich@suse.com>
+Subject: Re: [Xen-devel] kasan_map_early_shadow() on Xen
+Date: Wed, 04 Mar 2015 08:02:42 +0000
+Message-ID: <54F6CA32020000780006606B@mail.emea.novell.com>
+References: <CAB=NE6Xs5fepzNtymzT4CueeJZ0KMPETpda114DpL4eMtDswtw@mail.gmail.com>
+	<54F587BD.8010606@citrix.com>
+	<CAB=NE6WWqP959DHN==XzrOhg5i8+xMZNmHcuBSbuyf-4tcRCtQ@mail.gmail.com>
+	<54F68FB0.1040909@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150302111358.GA4954@redhat.com>
+In-Reply-To: <54F68FB0.1040909@suse.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,85 +21,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Juergen Gross <JGross@suse.com>, Luis Rodriguez <Mcgrof@Suse.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andrey Ryabinin <a.ryabinin@samsung.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, David Vrabel <david.vrabel@citrix.com>, xen-devel@lists.xenproject.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Andy Lutomirski <luto@amacapital.net>, Alok Kataria <akataria@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
-> On Mon, Mar 02, 2015 at 10:37:26AM +1030, Rusty Russell wrote:
->> Thomas Huth <thuth@linux.vnet.ibm.com> writes:
->> > On Thu, 26 Feb 2015 11:50:42 +1030
->> > Rusty Russell <rusty@rustcorp.com.au> wrote:
->> >
->> >> Thomas Huth <thuth@linux.vnet.ibm.com> writes:
->> >> >  Hi all,
->> >> >
->> >> > with the recent kernel 3.19, I get a kernel warning when I start my
->> >> > KVM guest on s390 with virtio balloon enabled:
->> >> 
->> >> The deeper problem is that virtio_ccw_get_config just silently fails on
->> >> OOM.
->> >> 
->> >> Neither get_config nor set_config are expected to fail.
->> >
->> > AFAIK this is currently not a problem. According to
->> > http://lwn.net/Articles/627419/ these kmalloc calls never
->> > fail because they allocate less than a page.
->> 
->> I strongly suggest you unlearn that fact.
->> The fix for this is in two parts:
->> 
->> 1) Annotate using sched_annotate_sleep() and add a comment: we may spin
->>    a few times in low memory situations, but this isn't a high
->>    performance path.
->> 
->> 2) Handle get_config (and other) failure in some more elegant way.
->> 
->> Cheers,
->> Rusty.
->
-> I agree, but I'd like to point out that even without kmalloc,
-> on s390 get_config is blocking - it's waiting
-> for a hardware interrupt.
->
-> And it makes sense: config is not data path, I don't think
-> we should spin there.
->
-> So I think besides these two parts, we still need my two patches:
->     virtio-balloon: do not call blocking ops when !TASK_RUNNING
+>>> On 04.03.15 at 05:53, <JGross@suse.com> wrote:
+> On 03/03/2015 08:20 PM, Luis R. Rodriguez wrote:
+>> On Tue, Mar 3, 2015 at 2:06 AM, David Vrabel <david.vrabel@citrix.com> wrote:
+>>> On 03/03/15 09:40, Luis R. Rodriguez wrote:
+>>>> if X86_64 && SPARSEMEM_VMEMMAP
+>>>>
+>>>> Now Xen should not have SPARSEMEM_VMEMMAP but PVOPs' goal is to enable
+>>>
+>>> Why?  Again, this is the first I've heard of this as well.  FWIW, all
+>>> the Xen configs we use have SPARSEMEM_VMEMMAP enabled.
+>>
+>> Interesting... we have config ARCH_SPARSEMEM_ENABLE depend on !XEN at
+>> SUSE. Figured this was a generic issue. The SUSE kernels are based on
+>> 3.12 though, but anyway with it enabled I do get compile failures
+>> because of redefinition of MAX_PHYSMEM_BITS which we provide on Xen
+>> set to 43 for some reason (can't find that justification), so it
+>> doesn't use the default 46 that would be used otherwise. But another
+>> reason seems to be the lack of forward porting yet PAT support for PV
+>> domains -- commit 47591df50 upstream which requires us to still have
+>> the union on the pte_t, and I suppose we need ca15f20f as well...
+>>
+>> If there is nothing else I suppose this just requires fixing up at
+>> SUSE's end for SPARSEMEM_VMEMMAP...
+> 
+> The SUSE kernel has several patches renaming/altering Xen-related config
+> options. Don't mix that up with upstream/pvops.
 
-I prefer to annotate, over trying to fix this.
+Exactly - some of what our kernels do in this regard could be useful
+upstream, while others (like this one) won't be. Prior to making claims
+against upstream kernels you should tell between these cases.
 
-Because it's not important.  We might spin a few times, but it's very
-unlikely, and it's certainly not performance critical.
-
-Thanks,
-Rusty.
-
-Subject: virtio_balloon: annotate possible sleep waiting for event.
-
-CCW (s390) does this.
-
-Reported-by: Thomas Huth <thuth@linux.vnet.ibm.com>
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 0413157f3b49..3f4d5acdbde0 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -340,6 +340,15 @@ static int balloon(void *_vballoon)
- 		s64 diff;
- 
- 		try_to_freeze();
-+
-+		/*
-+		 * Reading the config on the ccw backend involves an
-+		 * allocation, so we may actually sleep and have an
-+		 * extra iteration.  It's extremely unlikely, and this
-+		 * isn't a fast path in any sense.
-+		 */
-+		sched_annotate_sleep();
-+
- 		wait_event_interruptible(vb->config_change,
- 					 (diff = towards_target(vb)) != 0
- 					 || vb->need_stats_update
+Jan
