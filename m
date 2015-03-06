@@ -1,18 +1,18 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: virtio balloon: do not call blocking ops when !TASK_RUNNING
-Date: Fri, 6 Mar 2015 12:56:16 +0100
-Message-ID: <20150306125616.64e9f317.cornelia.huck@de.ibm.com>
-References: <20150225111318.0040536b@oc7435384737.ibm.com>
-	<87y4nllb85.fsf@rustcorp.com.au>
-	<20150226083625.2520ecb6@oc7435384737.ibm.com>
-	<8761akl0sh.fsf@rustcorp.com.au> <20150302111358.GA4954@redhat.com>
-	<87d24pjnkx.fsf@rustcorp.com.au>
-	<20150304102556.GC26213@redhat.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [Xen-devel] kasan_map_early_shadow() on Xen
+Date: Fri, 6 Mar 2015 11:02:50 -0500
+Message-ID: <20150306160249.GA8510@l.oracle.com>
+References: <CAB=NE6Xs5fepzNtymzT4CueeJZ0KMPETpda114DpL4eMtDswtw@mail.gmail.com>
+	<54F5B3DA.70203@samsung.com> <20150303141650.GA30332@l.oracle.com>
+	<54F5D56C.6020803@samsung.com> <20150303160231.GA3518@l.oracle.com>
+	<54F71861.9050702@samsung.com>
+	<CAB=NE6WxNfxsqnv9MBpoL1=umdNReUCbM_dnxROjeY9J1Q-U_Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150304102556.GC26213@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <CAB=NE6WxNfxsqnv9MBpoL1=umdNReUCbM_dnxROjeY9J1Q-U_Q@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,101 +22,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Luis R. Rodriguez" <mcgrof@suse.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andrey Ryabinin <a.ryabinin@samsung.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Chris Wright <chrisw@sous-sol.org>, xen-devel@lists.xenproject.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>, virtualization@lists.linux-foundation.org, Alok Kataria <akataria@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 4 Mar 2015 11:25:56 +0100
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> On Wed, Mar 04, 2015 at 04:44:54PM +1030, Rusty Russell wrote:
-> > "Michael S. Tsirkin" <mst@redhat.com> writes:
-> > > On Mon, Mar 02, 2015 at 10:37:26AM +1030, Rusty Russell wrote:
-> > >> Thomas Huth <thuth@linux.vnet.ibm.com> writes:
-> > >> > On Thu, 26 Feb 2015 11:50:42 +1030
-> > >> > Rusty Russell <rusty@rustcorp.com.au> wrote:
-> > >> >
-> > >> >> Thomas Huth <thuth@linux.vnet.ibm.com> writes:
-> > >> >> >  Hi all,
-> > >> >> >
-> > >> >> > with the recent kernel 3.19, I get a kernel warning when I start my
-> > >> >> > KVM guest on s390 with virtio balloon enabled:
-> > >> >> 
-> > >> >> The deeper problem is that virtio_ccw_get_config just silently fails on
-> > >> >> OOM.
-> > >> >> 
-> > >> >> Neither get_config nor set_config are expected to fail.
-> > >> >
-> > >> > AFAIK this is currently not a problem. According to
-> > >> > http://lwn.net/Articles/627419/ these kmalloc calls never
-> > >> > fail because they allocate less than a page.
-> > >> 
-> > >> I strongly suggest you unlearn that fact.
-> > >> The fix for this is in two parts:
-> > >> 
-> > >> 1) Annotate using sched_annotate_sleep() and add a comment: we may spin
-> > >>    a few times in low memory situations, but this isn't a high
-> > >>    performance path.
-> > >> 
-> > >> 2) Handle get_config (and other) failure in some more elegant way.
-> > >> 
-> > >> Cheers,
-> > >> Rusty.
-> > >
-> > > I agree, but I'd like to point out that even without kmalloc,
-> > > on s390 get_config is blocking - it's waiting
-> > > for a hardware interrupt.
-> > >
-> > > And it makes sense: config is not data path, I don't think
-> > > we should spin there.
-> > >
-> > > So I think besides these two parts, we still need my two patches:
-> > >     virtio-balloon: do not call blocking ops when !TASK_RUNNING
-> > 
-> > I prefer to annotate, over trying to fix this.
-> > 
-> > Because it's not important.  We might spin a few times, but it's very
-> > unlikely, and it's certainly not performance critical.
-> > 
-> > Thanks,
-> > Rusty.
-> > 
-> > Subject: virtio_balloon: annotate possible sleep waiting for event.
-> > 
-> > CCW (s390) does this.
-> > 
-> > Reported-by: Thomas Huth <thuth@linux.vnet.ibm.com>
-> > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> > 
-> > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> > index 0413157f3b49..3f4d5acdbde0 100644
-> > --- a/drivers/virtio/virtio_balloon.c
-> > +++ b/drivers/virtio/virtio_balloon.c
-> > @@ -340,6 +340,15 @@ static int balloon(void *_vballoon)
-> >  		s64 diff;
-> >  
-> >  		try_to_freeze();
-> > +
-> > +		/*
-> > +		 * Reading the config on the ccw backend involves an
-> > +		 * allocation, so we may actually sleep and have an
-> > +		 * extra iteration.  It's extremely unlikely,
+On Wed, Mar 04, 2015 at 05:47:03PM -0800, Luis R. Rodriguez wrote:
+> On Wed, Mar 4, 2015 at 6:36 AM, Andrey Ryabinin <a.ryabinin@samsung.com> wrote:
+> > On 03/03/2015 07:02 PM, Konrad Rzeszutek Wilk wrote:
+> >> If it is like that - then just using what had to be implemented
+> >> for the stack protection as a template ought to pave most of the
+> >> work?
+> >
+> > Probably. I think I could make this work.
+> > However, I won't be able to work on this until the end of the next week.
 > 
-> Hmm, this part of the comment seems wrong to me.
-> Reading the config on the ccw backend always sleeps
-> because it's interrupt driven.
+> While a solution is likely possible here I'd like for us to notice how
+> two features have gone now under our nose for Xen on v4.0 which have
+> issues. Proactive maintainer reviews would detect these issues but we
+> can't bet on these, and testing is just as reactive and slow. I'm
 
-(...)
+Hmm, I see you saying 'Proactive maintainer review would detect' these
+but that assumes that the maintainer would even be copied on these patches?
 
-> So I suspect
-> http://mid.gmane.org/1424874878-17155-1-git-send-email-mst@redhat.com
-> is better.
+None of the Xen maintainers were copied on this.
+
+And while we all strive to be pro-active I have to remind you maintainers
+are usually swamped.
+
+> hinting we keep our eyes out for an architectural solution that would
+> avoid these issues. Don't ask me what that is just yet...
+
+Keep in mind that a lot of these issues get resolved during merge window
+thanks to the resiliancy of Boris monitoring these tests with an sharp eye!
+
+After all that is what merge windows are - things break during them.
+
 > 
-> What do you think?
-
-I'd prefer to fix this as well. While the I/O request completes
-instantly on current qemu (the ssch backend handles the start function
-immediately, not asynchronously as on real hardware), this (a) is an
-implementation detail that may change and (b) doesn't account for the
-need to deliver the interrupt to the guest - which might take non-zero
-time.
+>  Luis
