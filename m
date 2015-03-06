@@ -1,12 +1,22 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio_mmio: generation support
-Date: Thu, 5 Mar 2015 23:09:43 +0100
-Message-ID: <1425593244-18869-1-git-send-email-mst__18689.5033497878$1425593407$gmane$org@redhat.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: virtio balloon: do not call blocking ops when !TASK_RUNNING
+Date: Fri, 6 Mar 2015 12:47:32 +0100
+Message-ID: <20150306124732.2bfccd32.cornelia.huck__48514.437772292$1425642486$gmane$org@de.ibm.com>
+References: <20150225111318.0040536b@oc7435384737.ibm.com>
+	<87y4nllb85.fsf@rustcorp.com.au>
+	<20150226083625.2520ecb6@oc7435384737.ibm.com>
+	<8761akl0sh.fsf@rustcorp.com.au> <20150302111358.GA4954@redhat.com>
+	<20150302123106.54a71968.cornelia.huck@de.ibm.com>
+	<20150302114657.GB12040@redhat.com>
+	<20150302131102.2388a582.cornelia.huck@de.ibm.com>
+	<20150302121943.GD12040@redhat.com>
+	<20150302133505.78c07e88.cornelia.huck@de.ibm.com>
+	<20150302204410.GB4942@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20150302204410.GB4942@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,54 +26,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio_mmio currently lacks generation support which
-makes multi-byte field access racy.
-Fix by getting the value at offset 0xfc for version 2
-devices. Nothing we can do for version 1, so return
-generation id 0.
+On Mon, 2 Mar 2015 21:44:10 +0100
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
 
-Pawel, you mentioned you have a working virtio 1.0
-hypervisor, can you pls confirm this works correctly?
+> > > Normally, hotunplug requires guest cooperation.
+> > > IOW unplug request should send guest interrupt,
+> > > then block until guest confirms it's not using the
+> > > device anymore.
+> > > virtio pci already handles that fine, can't ccw
+> > > do something similar?
+> > 
+> > Hotunplug for channel devices does not require guest feedback. (In
+> > fact, I was surprised to hear that there is somthing like guest
+> > cooperation on other platforms.)
+> 
+> Consider a storage device. If you don't flush out caches
+> before removing the disk, you might lose a bunch of data.
 
- drivers/virtio/virtio_mmio.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+Yes, that is a problem. But hotunplug is indistinguishable from a hw
+failure on s390, so there's not really much we can do here.
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 0375456..69b2e4d 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -237,6 +237,16 @@ static void vm_set(struct virtio_device *vdev, unsigned offset,
- 	}
- }
- 
-+static u32 vm_generation(struct virtio_device *vdev)
-+{
-+	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-+
-+	if (vm_dev->version == 1)
-+		return 0;
-+	else
-+		return readl(vm_dev->base + VIRTIO_MMIO_CONFIG_GENERATION);
-+}
-+
- static u8 vm_get_status(struct virtio_device *vdev)
- {
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-@@ -503,6 +513,8 @@ static const char *vm_bus_name(struct virtio_device *vdev)
- static const struct virtio_config_ops virtio_mmio_config_ops = {
- 	.get		= vm_get,
- 	.set		= vm_set,
-+	.generation	= vm_generation,
-+	.get_status	= vm_get_status,
- 	.get_status	= vm_get_status,
- 	.set_status	= vm_set_status,
- 	.reset		= vm_reset,
--- 
-MST
+> 
+> > Basically, the guest is simply
+> > presented with the fact that the device is gone and has to deal with
+> > it. It does not matter whether the device was removed by operator
+> > request or due to a hardware failure.
+> > 
+> > (We do have support in the s390 channel device core to be able to deal
+> > with devices going away and coming back gracefully. ccw devices can be
+> > put into a special state where they retain their configuration so that
+> > they can be reactivated if they become available again. For example,
+> > dasd (disk) devices survive being detached and reattached just fine,
+> > even under I/O load.
+> > See the ->notify() callback of the ccw driver for
+> > details.)
+> 
+> How does guest distinguish between this and intentional permanent
+> removal?
+
+It can't. It will get the same kind of notifications (and channel I/O
+failures) for both. Only the admin has a chance of knowing, and they
+may kill off a device in that state permanently (which, of course,
+triggers the flush problems etc. which have just been delayed from the
+initial detach).
+
+Given that this is what the architecture gives us on all hypervisors
+(LPAR and z/VM) and is for all I know decades old, it is what we have
+to implement in qemu/kvm as well.
