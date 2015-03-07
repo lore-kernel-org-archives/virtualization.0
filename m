@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio_rpmsg: set DRIVER_OK before using device
-Date: Sat, 7 Mar 2015 20:06:56 +0100
-Message-ID: <1425754898-32707-1-git-send-email-mst@redhat.com>
+Subject: virtio fixes pull for 4.0?
+Date: Sat, 7 Mar 2015 20:30:49 +0100
+Message-ID: <20150307193049.GA32459__15732.921291101$1425756677$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,68 +16,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: pawel.moll@arm.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio spec requires that all drivers set DRIVER_OK
-before using devices. While rpmsg isn't yet
-included in the virtio 1 spec, previous spec versions
-also required this.
+Hi Rusty!
+There are a bunch of (mostly virtio 1.0 related) fixes for virtio
+that need to go into 4.0 I think.
+	virtio_blk: typo fix
+	virtio_blk: fix comment for virtio 1.0
+	virtio_console: init work unconditionally
+	virtio_console: avoid config access from irq
+	virtio_balloon: set DRIVER_OK before using device
 
-virtio rpmsg violates this rule: is calls kick
-before setting DRIVER_OK.
+seem ready?
 
-The fix isn't trivial since simply calling virtio_device_ready earlier
-would mean we might get an interrupt in parallel with adding buffers.
+	virtio_mmio: generation support
+	virtio_mmio: fix endian-ness for mmio these two are waiting for ack by Pawel
 
-Instead, split kick out to prepare+notify calls.  prepare before
-virtio_device_ready - when we know we won't get interrupts. notify right
-afterwards.
+These two fix bugs in virtio 1.0 code for mmio.
+Host code for that was AFAIK not posted, so I can't test properly.
+Pawel?
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
+	virtio-balloon: do not call blocking ops when !TASK_RUNNING
 
-Note: compile-tested only.
+Rusty, it seems you prefer a different fix for this issue,
+while Cornelia prefers mine. Maybe both me and Cornelia misunderstand the
+issue? I know you dealt with a ton of similar issues recently
+so you are more likely to be right, but I'd like to understand
+what's going on better all the same. Could you help please?
 
- drivers/rpmsg/virtio_rpmsg_bus.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+	virtio_rpmsg: set DRIVER_OK before using device
 
-diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
-index 92f6af6..73354ee 100644
---- a/drivers/rpmsg/virtio_rpmsg_bus.c
-+++ b/drivers/rpmsg/virtio_rpmsg_bus.c
-@@ -951,6 +951,7 @@ static int rpmsg_probe(struct virtio_device *vdev)
- 	void *bufs_va;
- 	int err = 0, i;
- 	size_t total_buf_space;
-+	bool notify;
- 
- 	vrp = kzalloc(sizeof(*vrp), GFP_KERNEL);
- 	if (!vrp)
-@@ -1030,8 +1031,22 @@ static int rpmsg_probe(struct virtio_device *vdev)
- 		}
- 	}
- 
-+	/*
-+	 * Prepare to kick but don't notify yet - we can't do this before
-+	 * device is ready.
-+	 */
-+	notify = virtqueue_kick_prepare(vrp->rvq);
-+
-+	/* From this point on, we can notify and get callbacks. */
-+	virtio_device_ready(vdev);
-+
- 	/* tell the remote processor it can start sending messages */
--	virtqueue_kick(vrp->rvq);
-+	/*
-+	 * this might be concurrent with callbacks, but we are only
-+	 * doing notify, not a full kick here, so that's ok.
-+	 */
-+	if (notify)
-+		virtqueue_notify(vrp->rvq);
- 
- 	dev_info(&vdev->dev, "rpmsg host is online\n");
- 
+Just posted this, but seems pretty obvious.
+
+I think it's a good idea to merge these patches (maybe except the
+!TASK_RUNNING thing) sooner rather than later, to make sure people have
+the time to test the fixes properly.  Would you like me to pack up (some
+of them) them up and do a pull request?
+
+Thanks,
 -- 
 MST
