@@ -1,15 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio_rpmsg: set DRIVER_OK before using device
-Date: Mon, 9 Mar 2015 09:27:31 +0100
-Message-ID: <20150309082731.GB21823@redhat.com>
-References: <1425754898-32707-1-git-send-email-mst@redhat.com>
-	<87zj7mwstb.fsf@rustcorp.com.au>
+Subject: Re: [PATCH] virtio_mmio: fix endian-ness for mmio
+Date: Mon, 9 Mar 2015 09:39:41 +0100
+Message-ID: <20150309083941.GA22567@redhat.com>
+References: <1425592060-18474-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87zj7mwstb.fsf@rustcorp.com.au>
+In-Reply-To: <1425592060-18474-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,88 +18,126 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Mar 09, 2015 at 05:39:20PM +1030, Rusty Russell wrote:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
-> > virtio spec requires that all drivers set DRIVER_OK
-> > before using devices. While rpmsg isn't yet
-> > included in the virtio 1 spec, previous spec versions
-> > also required this.
-> >
-> > virtio rpmsg violates this rule: is calls kick
-> > before setting DRIVER_OK.
-> >
-> > The fix isn't trivial since simply calling virtio_device_ready earlier
-> > would mean we might get an interrupt in parallel with adding buffers.
-> >
-> > Instead, split kick out to prepare+notify calls.  prepare before
-> > virtio_device_ready - when we know we won't get interrupts. notify right
-> > afterwards.
-> >
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+On Thu, Mar 05, 2015 at 10:54:31PM +0100, Michael S. Tsirkin wrote:
+> Going over the virtio mmio code, I noticed that it doesn't correctly
+> return device config values in LE format when using virtio 1.0.
+> Borrow code from virtio_pci_modern to do this correctly.
 > 
-> Applied.  I'll wait for Ohad to ack before sending to Linus.
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+Pawel, could you review and ack please?
+It'd be unfortunate if we released a version
+with incorrect endian-ness.
+
+> ---
 > 
-> BTW I assume you have a version of qemu which warns on these kind of
-> failures?  That'd be nice to have!
+> Note: untested: QEMU doesn't support virtio 1.0 for virtio-mmio.
+> Pawel, could you please confirm this patch makes sense?
 > 
-> Thanks,
-> Rusty.
-
-Yes but it's hacky ATM - it's just a one-liner that checks
-the status on kick and does fprintf(stderr).
-I'm trying to rework the code so it'll actually
-set the status automatically, but there are some difficulties there
-when ioeventfd is used,
-in particular we need a way to re-inject the kick
-after status update.
-
-
-> > ---
-> >
-> > Note: compile-tested only.
-> >
-> >  drivers/rpmsg/virtio_rpmsg_bus.c | 17 ++++++++++++++++-
-> >  1 file changed, 16 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
-> > index 92f6af6..73354ee 100644
-> > --- a/drivers/rpmsg/virtio_rpmsg_bus.c
-> > +++ b/drivers/rpmsg/virtio_rpmsg_bus.c
-> > @@ -951,6 +951,7 @@ static int rpmsg_probe(struct virtio_device *vdev)
-> >  	void *bufs_va;
-> >  	int err = 0, i;
-> >  	size_t total_buf_space;
-> > +	bool notify;
-> >  
-> >  	vrp = kzalloc(sizeof(*vrp), GFP_KERNEL);
-> >  	if (!vrp)
-> > @@ -1030,8 +1031,22 @@ static int rpmsg_probe(struct virtio_device *vdev)
-> >  		}
-> >  	}
-> >  
-> > +	/*
-> > +	 * Prepare to kick but don't notify yet - we can't do this before
-> > +	 * device is ready.
-> > +	 */
-> > +	notify = virtqueue_kick_prepare(vrp->rvq);
-> > +
-> > +	/* From this point on, we can notify and get callbacks. */
-> > +	virtio_device_ready(vdev);
-> > +
-> >  	/* tell the remote processor it can start sending messages */
-> > -	virtqueue_kick(vrp->rvq);
-> > +	/*
-> > +	 * this might be concurrent with callbacks, but we are only
-> > +	 * doing notify, not a full kick here, so that's ok.
-> > +	 */
-> > +	if (notify)
-> > +		virtqueue_notify(vrp->rvq);
-> >  
-> >  	dev_info(&vdev->dev, "rpmsg host is online\n");
-> >  
-> > -- 
-> > MST
+>  drivers/virtio/virtio_mmio.c | 79 +++++++++++++++++++++++++++++++++++++++-----
+>  1 file changed, 71 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> index cad5698..0375456 100644
+> --- a/drivers/virtio/virtio_mmio.c
+> +++ b/drivers/virtio/virtio_mmio.c
+> @@ -156,22 +156,85 @@ static void vm_get(struct virtio_device *vdev, unsigned offset,
+>  		   void *buf, unsigned len)
+>  {
+>  	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
+> -	u8 *ptr = buf;
+> -	int i;
+> +	void __iomem *base = vm_dev->base + VIRTIO_MMIO_CONFIG;
+> +	u8 b;
+> +	__le16 w;
+> +	__le32 l;
+>  
+> -	for (i = 0; i < len; i++)
+> -		ptr[i] = readb(vm_dev->base + VIRTIO_MMIO_CONFIG + offset + i);
+> +	if (vm_dev->version == 1) {
+> +		u8 *ptr = buf;
+> +		int i;
+> +
+> +		for (i = 0; i < len; i++)
+> +			ptr[i] = readb(base + offset + i);
+> +		return;
+> +	}
+> +
+> +	switch (len) {
+> +	case 1:
+> +		b = readb(base + offset);
+> +		memcpy(buf, &b, sizeof b);
+> +		break;
+> +	case 2:
+> +		w = cpu_to_le16(readw(base + offset));
+> +		memcpy(buf, &w, sizeof w);
+> +		break;
+> +	case 4:
+> +		l = cpu_to_le32(readl(base + offset));
+> +		memcpy(buf, &l, sizeof l);
+> +		break;
+> +	case 8:
+> +		l = cpu_to_le32(readl(base + offset));
+> +		memcpy(buf, &l, sizeof l);
+> +		l = cpu_to_le32(ioread32(base + offset + sizeof l));
+> +		memcpy(buf + sizeof l, &l, sizeof l);
+> +		break;
+> +	default:
+> +		BUG();
+> +	}
+>  }
+>  
+>  static void vm_set(struct virtio_device *vdev, unsigned offset,
+>  		   const void *buf, unsigned len)
+>  {
+>  	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
+> -	const u8 *ptr = buf;
+> -	int i;
+> +	void __iomem *base = vm_dev->base + VIRTIO_MMIO_CONFIG;
+> +	u8 b;
+> +	__le16 w;
+> +	__le32 l;
+>  
+> -	for (i = 0; i < len; i++)
+> -		writeb(ptr[i], vm_dev->base + VIRTIO_MMIO_CONFIG + offset + i);
+> +	if (vm_dev->version == 1) {
+> +		const u8 *ptr = buf;
+> +		int i;
+> +
+> +		for (i = 0; i < len; i++)
+> +			writeb(ptr[i], base + offset + i);
+> +
+> +		return;
+> +	}
+> +
+> +	switch (len) {
+> +	case 1:
+> +		memcpy(&b, buf, sizeof b);
+> +		writeb(b, base + offset);
+> +		break;
+> +	case 2:
+> +		memcpy(&w, buf, sizeof w);
+> +		writew(le16_to_cpu(w), base + offset);
+> +		break;
+> +	case 4:
+> +		memcpy(&l, buf, sizeof l);
+> +		writel(le32_to_cpu(l), base + offset);
+> +		break;
+> +	case 8:
+> +		memcpy(&l, buf, sizeof l);
+> +		writel(le32_to_cpu(l), base + offset);
+> +		memcpy(&l, buf + sizeof l, sizeof l);
+> +		writel(le32_to_cpu(l), base + offset + sizeof l);
+> +		break;
+> +	default:
+> +		BUG();
+> +	}
+>  }
+>  
+>  static u8 vm_get_status(struct virtio_device *vdev)
+> -- 
+> MST
