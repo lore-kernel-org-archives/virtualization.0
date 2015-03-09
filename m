@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio_rpmsg: set DRIVER_OK before using device
-Date: Mon, 9 Mar 2015 09:41:01 +0100
-Message-ID: <20150309084101.GC22567@redhat.com>
-References: <1425754898-32707-1-git-send-email-mst@redhat.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: virtio fixes pull for 4.0?
+Date: Mon, 9 Mar 2015 09:50:28 +0100
+Message-ID: <20150309095028.3f24c6c1.cornelia.huck@de.ibm.com>
+References: <20150307193049.GA32459@redhat.com>
+	<87y4n6wsmo.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1425754898-32707-1-git-send-email-mst@redhat.com>
+In-Reply-To: <87y4n6wsmo.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,71 +18,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtualization@lists.linux-foundation.org, pawel.moll@arm.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Mar 07, 2015 at 08:06:56PM +0100, Michael S. Tsirkin wrote:
-> virtio spec requires that all drivers set DRIVER_OK
-> before using devices. While rpmsg isn't yet
-> included in the virtio 1 spec, previous spec versions
-> also required this.
-> 
-> virtio rpmsg violates this rule: is calls kick
-> before setting DRIVER_OK.
-> 
-> The fix isn't trivial since simply calling virtio_device_ready earlier
-> would mean we might get an interrupt in parallel with adding buffers.
-> 
-> Instead, split kick out to prepare+notify calls.  prepare before
-> virtio_device_ready - when we know we won't get interrupts. notify right
-> afterwards.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
+On Mon, 09 Mar 2015 17:43:19 +1030
+Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-Ohad, can you review and ack pls?
+> "Michael S. Tsirkin" <mst@redhat.com> writes:
 
-> Note: compile-tested only.
+> > 	virtio-balloon: do not call blocking ops when !TASK_RUNNING
+> >
+> > Rusty, it seems you prefer a different fix for this issue,
+> > while Cornelia prefers mine. Maybe both me and Cornelia misunderstand the
+> > issue? I know you dealt with a ton of similar issues recently
+> > so you are more likely to be right, but I'd like to understand
+> > what's going on better all the same. Could you help please?
 > 
->  drivers/rpmsg/virtio_rpmsg_bus.c | 17 ++++++++++++++++-
->  1 file changed, 16 insertions(+), 1 deletion(-)
+> In the longer run, we should handle failures from these callbacks.  But
+> we don't need to do that right now.  So we want the minimal fix.
 > 
-> diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
-> index 92f6af6..73354ee 100644
-> --- a/drivers/rpmsg/virtio_rpmsg_bus.c
-> +++ b/drivers/rpmsg/virtio_rpmsg_bus.c
-> @@ -951,6 +951,7 @@ static int rpmsg_probe(struct virtio_device *vdev)
->  	void *bufs_va;
->  	int err = 0, i;
->  	size_t total_buf_space;
-> +	bool notify;
->  
->  	vrp = kzalloc(sizeof(*vrp), GFP_KERNEL);
->  	if (!vrp)
-> @@ -1030,8 +1031,22 @@ static int rpmsg_probe(struct virtio_device *vdev)
->  		}
->  	}
->  
-> +	/*
-> +	 * Prepare to kick but don't notify yet - we can't do this before
-> +	 * device is ready.
-> +	 */
-> +	notify = virtqueue_kick_prepare(vrp->rvq);
-> +
-> +	/* From this point on, we can notify and get callbacks. */
-> +	virtio_device_ready(vdev);
-> +
->  	/* tell the remote processor it can start sending messages */
-> -	virtqueue_kick(vrp->rvq);
-> +	/*
-> +	 * this might be concurrent with callbacks, but we are only
-> +	 * doing notify, not a full kick here, so that's ok.
-> +	 */
-> +	if (notify)
-> +		virtqueue_notify(vrp->rvq);
->  
->  	dev_info(&vdev->dev, "rpmsg host is online\n");
->  
-> -- 
-> MST
+> And an annotation is the minimal fix.  The bug has been there for ages;
+> it's just the warning that is new (if we *always* slept, we would
+> spin, but in practice we'll rarely sleep).
+
+I don't think doing_io() in virtio-ccw will sleep often, although it
+might happen under loads that delay posting the interrupt.
+
+I understand why you'd like to do the minimal fix, and it's not likely
+that new problems start popping up now.
+
+So I'm OK with doing the annotation for 4.0 and more involved changes
+for 4.1.
