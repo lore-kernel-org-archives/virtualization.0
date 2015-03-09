@@ -1,14 +1,12 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: virtio fixes pull for 4.0?
-Date: Mon, 9 Mar 2015 09:50:28 +0100
-Message-ID: <20150309095028.3f24c6c1.cornelia.huck@de.ibm.com>
-References: <20150307193049.GA32459@redhat.com>
-	<87y4n6wsmo.fsf@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] 9p/trans_virtio: fix hot-unplug
+Date: Mon, 9 Mar 2015 15:48:14 +0100
+Message-ID: <20150309154814-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87y4n6wsmo.fsf@rustcorp.com.au>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,35 +16,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org, pawel.moll@arm.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Eric Van Hensbergen <ericvh@gmail.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, v9fs-developer@lists.sourceforge.net, Ron Minnich <rminnich@sandia.gov>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 09 Mar 2015 17:43:19 +1030
-Rusty Russell <rusty@rustcorp.com.au> wrote:
+On device hot-unplug, 9p/virtio currently will kfree channel while
+it might still be in use.
 
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
+Of course, it might stay used forever, so it's an extremely ugly hack,
+but it seems better than use-after-free that we have now.
 
-> > 	virtio-balloon: do not call blocking ops when !TASK_RUNNING
-> >
-> > Rusty, it seems you prefer a different fix for this issue,
-> > while Cornelia prefers mine. Maybe both me and Cornelia misunderstand the
-> > issue? I know you dealt with a ton of similar issues recently
-> > so you are more likely to be right, but I'd like to understand
-> > what's going on better all the same. Could you help please?
-> 
-> In the longer run, we should handle failures from these callbacks.  But
-> we don't need to do that right now.  So we want the minimal fix.
-> 
-> And an annotation is the minimal fix.  The bug has been there for ages;
-> it's just the warning that is new (if we *always* slept, we would
-> spin, but in practice we'll rarely sleep).
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ net/9p/trans_virtio.c | 25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
 
-I don't think doing_io() in virtio-ccw will sleep often, although it
-might happen under loads that delay posting the interrupt.
-
-I understand why you'd like to do the minimal fix, and it's not likely
-that new problems start popping up now.
-
-So I'm OK with doing the annotation for 4.0 and more involved changes
-for 4.1.
+diff --git a/net/9p/trans_virtio.c b/net/9p/trans_virtio.c
+index d8e376a..d1b2f306 100644
+--- a/net/9p/trans_virtio.c
++++ b/net/9p/trans_virtio.c
+@@ -658,14 +658,31 @@ p9_virtio_create(struct p9_client *client, const char *devname, char *args)
+ static void p9_virtio_remove(struct virtio_device *vdev)
+ {
+ 	struct virtio_chan *chan = vdev->priv;
+-
+-	if (chan->inuse)
+-		p9_virtio_close(chan->client);
+-	vdev->config->del_vqs(vdev);
++	unsigned long warning_time;
++	bool inuse;
+ 
+ 	mutex_lock(&virtio_9p_lock);
++
++	/* Remove self from list so we don't get new users. */
+ 	list_del(&chan->chan_list);
++	warning_time = jiffies;
++
++	/* Wait for existing users to close. */
++	while (chan->inuse) {
++		mutex_unlock(&virtio_9p_lock);
++		msleep(250);
++               if (time_after(jiffies, warning_time + 10 * HZ)) {
++			dev_emerg(&vdev->dev, "p9_virtio_remove: "
++				  "waiting for device in use.\n");
++			warning_time = jiffies;
++               }
++		mutex_lock(&virtio_9p_lock);
++	}
++
+ 	mutex_unlock(&virtio_9p_lock);
++
++	vdev->config->del_vqs(vdev);
++
+ 	sysfs_remove_file(&(vdev->dev.kobj), &dev_attr_mount_tag.attr);
+ 	kobject_uevent(&(vdev->dev.kobj), KOBJ_CHANGE);
+ 	kfree(chan->tag);
+-- 
+MST
