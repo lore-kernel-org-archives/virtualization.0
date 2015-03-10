@@ -1,12 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] 9p/trans_virtio: fix hot-unplug
-Date: Mon, 9 Mar 2015 15:48:14 +0100
-Message-ID: <20150309154814-mutt-send-email-mst@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH v2] virtio-balloon: do not call blocking ops when
+	!TASK_RUNNING
+Date: Tue, 10 Mar 2015 11:56:32 +1030
+Message-ID: <87mw3lk5h3.fsf@rustcorp.com.au>
+References: <1424874878-17155-1-git-send-email-mst@redhat.com>
+	<20150225161127.51f06c8c.cornelia.huck@de.ibm.com>
+	<20150225163756.3eee5502@oc7435384737.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20150225163756.3eee5502@oc7435384737.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,60 +20,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Eric Van Hensbergen <ericvh@gmail.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, v9fs-developer@lists.sourceforge.net, Ron Minnich <rminnich@sandia.gov>, "David S. Miller" <davem@davemloft.net>
+To: Thomas Huth <thuth@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On device hot-unplug, 9p/virtio currently will kfree channel while
-it might still be in use.
+Thomas Huth <thuth@linux.vnet.ibm.com> writes:
+> On Wed, 25 Feb 2015 16:11:27 +0100
+> Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
+>
+>> On Wed, 25 Feb 2015 15:36:02 +0100
+>> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+>> 
+>> > virtio balloon has this code:
+>> >         wait_event_interruptible(vb->config_change,
+>> >                                  (diff = towards_target(vb)) != 0
+>> >                                  || vb->need_stats_update
+>> >                                  || kthread_should_stop()
+>> >                                  || freezing(current));
+>> > 
+>> > Which is a problem because towards_target() call might block after
+>> > wait_event_interruptible sets task state to TAST_INTERRUPTIBLE, causing
+>> > the task_struct::state collision typical of nesting of sleeping
+>> > primitives
+>> > 
+>> > See also http://lwn.net/Articles/628628/ or Thomas's
+>> > bug report
+>> > http://article.gmane.org/gmane.linux.kernel.virtualization/24846
+>> > for a fuller explanation.
+>> > 
+>> > To fix, rewrite using wait_woken.
+>> > 
+>> > Cc: stable@vger.kernel.org
+>> > Reported-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+>> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>> > ---
+>> > 
+>> > changes from v1:
+>> > 	remove wait_event_interruptible
+>> > 	noticed by Cornelia Huck <cornelia.huck@de.ibm.com>
+>> > 
+>> >  drivers/virtio/virtio_balloon.c | 19 ++++++++++++++-----
+>> >  1 file changed, 14 insertions(+), 5 deletions(-)
+>> > 
+>> 
+>> I was able to reproduce Thomas' original problem and can confirm that
+>> it is gone with this patch.
+>> 
+>> Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+>
+> Right, I just applied the patch on my system, too, and the problem is
+> indeed gone! Thanks for the quick fix!
+>
+> Tested-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 
-Of course, it might stay used forever, so it's an extremely ugly hack,
-but it seems better than use-after-free that we have now.
+Applied.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- net/9p/trans_virtio.c | 25 +++++++++++++++++++++----
- 1 file changed, 21 insertions(+), 4 deletions(-)
-
-diff --git a/net/9p/trans_virtio.c b/net/9p/trans_virtio.c
-index d8e376a..d1b2f306 100644
---- a/net/9p/trans_virtio.c
-+++ b/net/9p/trans_virtio.c
-@@ -658,14 +658,31 @@ p9_virtio_create(struct p9_client *client, const char *devname, char *args)
- static void p9_virtio_remove(struct virtio_device *vdev)
- {
- 	struct virtio_chan *chan = vdev->priv;
--
--	if (chan->inuse)
--		p9_virtio_close(chan->client);
--	vdev->config->del_vqs(vdev);
-+	unsigned long warning_time;
-+	bool inuse;
- 
- 	mutex_lock(&virtio_9p_lock);
-+
-+	/* Remove self from list so we don't get new users. */
- 	list_del(&chan->chan_list);
-+	warning_time = jiffies;
-+
-+	/* Wait for existing users to close. */
-+	while (chan->inuse) {
-+		mutex_unlock(&virtio_9p_lock);
-+		msleep(250);
-+               if (time_after(jiffies, warning_time + 10 * HZ)) {
-+			dev_emerg(&vdev->dev, "p9_virtio_remove: "
-+				  "waiting for device in use.\n");
-+			warning_time = jiffies;
-+               }
-+		mutex_lock(&virtio_9p_lock);
-+	}
-+
- 	mutex_unlock(&virtio_9p_lock);
-+
-+	vdev->config->del_vqs(vdev);
-+
- 	sysfs_remove_file(&(vdev->dev.kobj), &dev_attr_mount_tag.attr);
- 	kobject_uevent(&(vdev->dev.kobj), KOBJ_CHANGE);
- 	kfree(chan->tag);
--- 
-MST
+Thanks,
+Rusty.
