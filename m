@@ -1,15 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] uapi/virtio_scsi: allow overriding CDB/SENSE size
-Date: Wed, 11 Mar 2015 14:49:44 +0100
-Message-ID: <20150311144627-mutt-send-email-mst__19488.3544384085$1426081801$gmane$org@redhat.com>
-References: <20150311141903-mutt-send-email-mst@redhat.com>
-	<550043C7.3030301@redhat.com>
+From: Greg Kurz <gkurz@linux.vnet.ibm.com>
+Subject: [PATCH] virtio-pci: fix host notifiers on bi-endian architectures
+Date: Wed, 11 Mar 2015 19:04:38 +0100
+Message-ID: <20150311180212.8119.14734.stgit@bahia.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <550043C7.3030301@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,64 +15,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org
+To: qemu-devel@nongnu.org
+Cc: Cedric Le Goater <clg@fr.ibm.com>, qemu-ppc@nongnu.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 11, 2015 at 02:31:51PM +0100, Paolo Bonzini wrote:
-> 
-> 
-> On 11/03/2015 14:19, Michael S. Tsirkin wrote:
-> > QEMU wants to use virtio scsi structures with
-> > a different VIRTIO_SCSI_CDB_SIZE/VIRTIO_SCSI_SENSE_SIZE,
-> > let's add ifdefs to allow overriding them.
-> > 
-> > Keep the old defines under new names:
-> > VIRTIO_SCSI_CDB_DEFAULT_SIZE/VIRTIO_SCSI_SENSE_DEFAULT_SIZE,
-> > since that's what these values really are:
-> > defaults for cdb/sense size fields.
-> > 
-> > Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> QEMU will then use a zero-element array instead of a flexible array
-> member.  That's okay.
-
-Or a flex array member: just do
-#define VIRTIO_SCSI_CDB_SIZE 
-#define VIRTIO_SCSI_SENSE_SIZE 
-before including this header.
-
-
-> Acked-by: Paolo Bonzini <pbonzini@redhat.com>
-> 
-> Paolo
-> 
-> > ---
-> >  include/uapi/linux/virtio_scsi.h | 12 ++++++++++--
-> >  1 file changed, 10 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/include/uapi/linux/virtio_scsi.h b/include/uapi/linux/virtio_scsi.h
-> > index 42b9370..cc18ef8 100644
-> > --- a/include/uapi/linux/virtio_scsi.h
-> > +++ b/include/uapi/linux/virtio_scsi.h
-> > @@ -29,8 +29,16 @@
-> >  
-> >  #include <linux/virtio_types.h>
-> >  
-> > -#define VIRTIO_SCSI_CDB_SIZE   32
-> > -#define VIRTIO_SCSI_SENSE_SIZE 96
-> > +/* Default values of the CDB and sense data size configuration fields */
-> > +#define VIRTIO_SCSI_CDB_DEFAULT_SIZE   32
-> > +#define VIRTIO_SCSI_SENSE_DEFAULT_SIZE 96
-> > +
-> > +#ifndef VIRTIO_SCSI_CDB_SIZE
-> > +#define VIRTIO_SCSI_CDB_SIZE VIRTIO_SCSI_CDB_DEFAULT_SIZE
-> > +#endif
-> > +#ifndef VIRTIO_SCSI_SENSE_SIZE
-> > +#define VIRTIO_SCSI_SENSE_SIZE VIRTIO_SCSI_SENSE_DEFAULT_SIZE
-> > +#endif
-> >  
-> >  /* SCSI command request, followed by data-out */
-> >  struct virtio_scsi_cmd_req {
-> > 
+dmhvc3QgaXMgc2VyaW91c2x5IGJyb2tlbiB3aXRoIHBwYzY0bGUgZ3Vlc3RzLCBldmVuIGluIHRo
+ZSBzdXBwb3NlZGx5CnN1cHBvcnRlZCBjYXNlIHdoZXJlIHRoZSBob3N0IGlzIHBwYzY0bGUgYW5k
+IHdlIGRvbid0IG5lZWQgY3Jvc3MtZW5kaWFuCnN1cHBvcnQuCgpUaGUgVFggdmlydHF1ZXVlIGZh
+aWxzIHRvIGJlIGhhbmRsZWQgYnkgdmhvc3QgYW5kIGZhbGxzIGJhY2sgdG8gUUVNVS4KRGVzcGl0
+ZSB0aGlzIHVuZXhwZWN0ZWQgc2NlbmFyaW8gd2hlcmUgUlggaXMgdmhvc3QgYW5kIFRYIGlzIFFF
+TVUsIHRoZQpndWVzdCBydW5zIHdlbGwgd2l0aCByZWR1Y2VkIHVwbG9hZCBwZXJmb3JtYW5jZXMu
+Li4gdW50aWwgeW91IHJlYm9vdCwKbWlncmF0ZSwgbWFuYWdlZCBzYXZlIG9yIGluIGZhY3QgYW55
+IG9wZXJhdGlvbiB0aGF0IGNhdXNlcyB2aG9zdF9uZXQKdG8gYmUgcmUtc3RhcnRlZC4gTmV0d29y
+ayBjb25uZWN0aXZpdHkgaXMgdGhlbiBwZXJtYW5hbnRseSBsb3N0IGZvcgp0aGUgZ3Vlc3QuCgpU
+WCBmYWxsaW5nIGJhY2sgdG8gUUVNVSBpcyB0aGUgcmVzdWx0IG9mIGEgZmFpbGVkIE1NSU8gc3Rv
+cmUgZW11bGF0aW9uCmluIEtWTS4gRGVidWdnaW5nIHNob3dzIHRoYXQ6Cgprdm1wcGNfZW11bGF0
+ZV9tbWlvKCkKIHwKICstPiBrdm1wcGNfaGFuZGxlX3N0b3JlKCkKICAgICAgfAogICAgICArLT4g
+a3ZtX2lvX2J1c193cml0ZSgpCiAgICAgICAgICAgfAogICAgICAgICAgICstPiBfX2t2bV9pb19i
+dXNfd3JpdGUoKSByZXR1cm5zIC1FT1BOT1RTVVBQCgpUaGlzIGhhcHBlbnMgYmVjYXVzZSBubyBt
+YXRjaGluZyBkZXZpY2Ugd2FzIGZvdW5kOgoKX19rdm1faW9fYnVzX3dyaXRlKCkKIHwKICstPmt2
+bV9pb2RldmljZV93cml0ZSgpCiAgICAgfAogICAgICstPmlvZXZlbnRmZF93cml0ZSgpCiAgICAg
+ICAgIHwKICAgICAgICAgKy0+aW9ldmVudGZkX2luX3JhbmdlKCkgcmV0dXJucyBmYWxzZSBmb3Ig
+YWxsIHJlZ2lzdGVyZWQgdnJpbmdzCgpFeHRyYSBkZWJ1Z2dpbmcgc2hvd3MgdGhhdCB0aGUgVFgg
+dnJpbmcgbnVtYmVyICgxNi1iaXQpIGlzIHN1cHBvc2VkIHRvCmJlIDB4MDEwMCBidXQgUUVNVSBw
+YXNzZXMgMHgwMDAxIHRvIEtWTS4uLiBUaGlzIGhhcHBlbnMgKmFnYWluKiBiZWNhdXNlClFFTVUg
+c3RpbGwgYXNzdW1lcyBwb3dlcnBjIGlzIGJpZyBlbmRpYW4gKFRBUkdFVF9XT1JEU19CSUdFTkRJ
+QU4pIGJ5CmRlZmF1bHQuCgpUaGlzIHBhdGNoIGFkZHMgYW4gZXh0cmEgc3dhcCBpbiB2aXJ0aW9f
+cGNpX3NldF9ob3N0X25vdGlmaWVyX2ludGVybmFsKCkKdG8gbmVnYXRlIHRoZSBvbmUgdGhhdCBp
+cyBkb25lIGluIGFkanVzdF9lbmRpYW5uZXNzKCkuIFNpbmNlIHRoaXMgaXMgbm90CmEgaG90IHBh
+dGggYW5kIHdlIHdhbnQgdG8ga2VlcCB2aXJ0aW8tcGNpLm8gaW4gY29tbW9uLW9iaiwgd2UgZG9u
+J3QgY2FyZQp3aGV0aGVyIHRoZSBndWVzdCBpcyBiaS1lbmRpYW4gb3Igbm90LgoKUmVwb3J0ZWQt
+Ynk6IEPDqWRyaWMgTGUgR29hdGVyIDxjbGdAZnIuaWJtLmNvbT4KU3VnZ2VzdGVkLWJ5OiBNaWNo
+YWVsIFJvdGggPG1kcm90aEBsaW51eC52bmV0LmlibS5jb20+ClNpZ25lZC1vZmYtYnk6IEdyZWcg
+S3VyeiA8Z2t1cnpAbGludXgudm5ldC5pYm0uY29tPgotLS0KCkkgZ3Vlc3MgaXQgaXMgYWxzbyBh
+IGZpeCBmb3IgdmlydGlvLTEgYnV0IEkgZGlkbid0IGNoZWNrLgoKIGh3L3ZpcnRpby92aXJ0aW8t
+cGNpLmMgfCAgIDExICsrKysrKysrKy0tCiAxIGZpbGUgY2hhbmdlZCwgOSBpbnNlcnRpb25zKCsp
+LCAyIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2h3L3ZpcnRpby92aXJ0aW8tcGNpLmMgYi9o
+dy92aXJ0aW8vdmlydGlvLXBjaS5jCmluZGV4IGU3YmFmN2IuLjYyYjA0YzkgMTAwNjQ0Ci0tLSBh
+L2h3L3ZpcnRpby92aXJ0aW8tcGNpLmMKKysrIGIvaHcvdmlydGlvL3ZpcnRpby1wY2kuYwpAQCAt
+MTMzLDYgKzEzMywxMSBAQCBzdGF0aWMgaW50IHZpcnRpb19wY2lfbG9hZF9xdWV1ZShEZXZpY2VT
+dGF0ZSAqZCwgaW50IG4sIFFFTVVGaWxlICpmKQogICAgIHJldHVybiAwOwogfQogCitzdGF0aWMg
+dWludDE2X3QgY3B1X3RvX2hvc3Rfbm90aWZpZXIxNihWaXJ0SU9EZXZpY2UgKnZkZXYsIHVpbnQx
+Nl90IHZhbCkKK3sKKyAgICByZXR1cm4gdmlydGlvX2lzX2JpZ19lbmRpYW4odmRldikgPyB2YWwg
+OiBic3dhcDE2KHZhbCk7Cit9CisKIHN0YXRpYyBpbnQgdmlydGlvX3BjaV9zZXRfaG9zdF9ub3Rp
+Zmllcl9pbnRlcm5hbChWaXJ0SU9QQ0lQcm94eSAqcHJveHksCiAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaW50IG4sIGJvb2wgYXNzaWduLCBib29sIHNl
+dF9oYW5kbGVyKQogewpAQCAtMTUwLDEwICsxNTUsMTIgQEAgc3RhdGljIGludCB2aXJ0aW9fcGNp
+X3NldF9ob3N0X25vdGlmaWVyX2ludGVybmFsKFZpcnRJT1BDSVByb3h5ICpwcm94eSwKICAgICAg
+ICAgfQogICAgICAgICB2aXJ0aW9fcXVldWVfc2V0X2hvc3Rfbm90aWZpZXJfZmRfaGFuZGxlcih2
+cSwgdHJ1ZSwgc2V0X2hhbmRsZXIpOwogICAgICAgICBtZW1vcnlfcmVnaW9uX2FkZF9ldmVudGZk
+KCZwcm94eS0+YmFyLCBWSVJUSU9fUENJX1FVRVVFX05PVElGWSwgMiwKLSAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICB0cnVlLCBuLCBub3RpZmllcik7CisgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgdHJ1ZSwgY3B1X3RvX2hvc3Rfbm90aWZpZXIxNih2ZGV2LCBuKSwK
+KyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBub3RpZmllcik7CiAgICAgfSBlbHNl
+IHsKICAgICAgICAgbWVtb3J5X3JlZ2lvbl9kZWxfZXZlbnRmZCgmcHJveHktPmJhciwgVklSVElP
+X1BDSV9RVUVVRV9OT1RJRlksIDIsCi0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+dHJ1ZSwgbiwgbm90aWZpZXIpOworICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHRy
+dWUsIGNwdV90b19ob3N0X25vdGlmaWVyMTYodmRldiwgbiksCisgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgbm90aWZpZXIpOwogICAgICAgICB2aXJ0aW9fcXVldWVfc2V0X2hvc3Rf
+bm90aWZpZXJfZmRfaGFuZGxlcih2cSwgZmFsc2UsIGZhbHNlKTsKICAgICAgICAgZXZlbnRfbm90
+aWZpZXJfY2xlYW51cChub3RpZmllcik7CiAgICAgfQoKX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
+YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
+b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
