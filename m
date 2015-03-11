@@ -1,14 +1,17 @@
 From: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Subject: Re: [PATCH] virtio-pci: fix host notifiers on bi-endian architectures
-Date: Wed, 11 Mar 2015 23:03:14 +0100
-Message-ID: <20150311230314.08e51843@bahia.local>
+Subject: Re: [Qemu-ppc] [PATCH] virtio-pci: fix host notifiers on bi-endian
+	architectures
+Date: Wed, 11 Mar 2015 23:52:13 +0100
+Message-ID: <20150311235213.6967e39c@bahia.local>
 References: <20150311180212.8119.14734.stgit@bahia.local>
 	<20150311210322-mutt-send-email-mst@redhat.com>
+	<20150311230314.08e51843@bahia.local>
+	<1426112318.17565.60.camel@kernel.crashing.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150311210322-mutt-send-email-mst@redhat.com>
+In-Reply-To: <1426112318.17565.60.camel@kernel.crashing.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,90 +21,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Cedric Le Goater <clg@fr.ibm.com>, qemu-ppc@nongnu.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Cedric Le Goater <clg@fr.ibm.com>, qemu-ppc@nongnu.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCAxMSBNYXIgMjAxNSAyMTowNjowNSArMDEwMAoiTWljaGFlbCBTLiBUc2lya2luIiA8
-bXN0QHJlZGhhdC5jb20+IHdyb3RlOgoKPiBPbiBXZWQsIE1hciAxMSwgMjAxNSBhdCAwNzowNDoz
-OFBNICswMTAwLCBHcmVnIEt1cnogd3JvdGU6Cj4gPiB2aG9zdCBpcyBzZXJpb3VzbHkgYnJva2Vu
-IHdpdGggcHBjNjRsZSBndWVzdHMsIGV2ZW4gaW4gdGhlIHN1cHBvc2VkbHkKPiA+IHN1cHBvcnRl
-ZCBjYXNlIHdoZXJlIHRoZSBob3N0IGlzIHBwYzY0bGUgYW5kIHdlIGRvbid0IG5lZWQgY3Jvc3Mt
-ZW5kaWFuCj4gPiBzdXBwb3J0Lgo+ID4gCj4gPiBUaGUgVFggdmlydHF1ZXVlIGZhaWxzIHRvIGJl
-IGhhbmRsZWQgYnkgdmhvc3QgYW5kIGZhbGxzIGJhY2sgdG8gUUVNVS4KPiA+IERlc3BpdGUgdGhp
-cyB1bmV4cGVjdGVkIHNjZW5hcmlvIHdoZXJlIFJYIGlzIHZob3N0IGFuZCBUWCBpcyBRRU1VLCB0
-aGUKPiA+IGd1ZXN0IHJ1bnMgd2VsbCB3aXRoIHJlZHVjZWQgdXBsb2FkIHBlcmZvcm1hbmNlcy4u
-LiB1bnRpbCB5b3UgcmVib290LAo+ID4gbWlncmF0ZSwgbWFuYWdlZCBzYXZlIG9yIGluIGZhY3Qg
-YW55IG9wZXJhdGlvbiB0aGF0IGNhdXNlcyB2aG9zdF9uZXQKPiA+IHRvIGJlIHJlLXN0YXJ0ZWQu
-IE5ldHdvcmsgY29ubmVjdGl2aXR5IGlzIHRoZW4gcGVybWFuYW50bHkgbG9zdCBmb3IKPiA+IHRo
-ZSBndWVzdC4KPiA+IAo+ID4gVFggZmFsbGluZyBiYWNrIHRvIFFFTVUgaXMgdGhlIHJlc3VsdCBv
-ZiBhIGZhaWxlZCBNTUlPIHN0b3JlIGVtdWxhdGlvbgo+ID4gaW4gS1ZNLiBEZWJ1Z2dpbmcgc2hv
-d3MgdGhhdDoKPiA+IAo+ID4ga3ZtcHBjX2VtdWxhdGVfbW1pbygpCj4gPiAgfAo+ID4gICstPiBr
-dm1wcGNfaGFuZGxlX3N0b3JlKCkKPiA+ICAgICAgIHwKPiA+ICAgICAgICstPiBrdm1faW9fYnVz
-X3dyaXRlKCkKPiA+ICAgICAgICAgICAgfAo+ID4gICAgICAgICAgICArLT4gX19rdm1faW9fYnVz
-X3dyaXRlKCkgcmV0dXJucyAtRU9QTk9UU1VQUAo+ID4gCj4gPiBUaGlzIGhhcHBlbnMgYmVjYXVz
-ZSBubyBtYXRjaGluZyBkZXZpY2Ugd2FzIGZvdW5kOgo+ID4gCj4gPiBfX2t2bV9pb19idXNfd3Jp
-dGUoKQo+ID4gIHwKPiA+ICArLT5rdm1faW9kZXZpY2Vfd3JpdGUoKQo+ID4gICAgICB8Cj4gPiAg
-ICAgICstPmlvZXZlbnRmZF93cml0ZSgpCj4gPiAgICAgICAgICB8Cj4gPiAgICAgICAgICArLT5p
-b2V2ZW50ZmRfaW5fcmFuZ2UoKSByZXR1cm5zIGZhbHNlIGZvciBhbGwgcmVnaXN0ZXJlZCB2cmlu
-Z3MKPiA+IAo+ID4gRXh0cmEgZGVidWdnaW5nIHNob3dzIHRoYXQgdGhlIFRYIHZyaW5nIG51bWJl
-ciAoMTYtYml0KSBpcyBzdXBwb3NlZCB0bwo+ID4gYmUgMHgwMTAwIGJ1dCBRRU1VIHBhc3NlcyAw
-eDAwMDEgdG8gS1ZNLi4uIFRoaXMgaGFwcGVucyAqYWdhaW4qIGJlY2F1c2UKPiA+IFFFTVUgc3Rp
-bGwgYXNzdW1lcyBwb3dlcnBjIGlzIGJpZyBlbmRpYW4gKFRBUkdFVF9XT1JEU19CSUdFTkRJQU4p
-IGJ5Cj4gPiBkZWZhdWx0Lgo+ID4gCj4gPiBUaGlzIHBhdGNoIGFkZHMgYW4gZXh0cmEgc3dhcCBp
-biB2aXJ0aW9fcGNpX3NldF9ob3N0X25vdGlmaWVyX2ludGVybmFsKCkKPiA+IHRvIG5lZ2F0ZSB0
-aGUgb25lIHRoYXQgaXMgZG9uZSBpbiBhZGp1c3RfZW5kaWFubmVzcygpLiBTaW5jZSB0aGlzIGlz
-IG5vdAo+ID4gYSBob3QgcGF0aCBhbmQgd2Ugd2FudCB0byBrZWVwIHZpcnRpby1wY2kubyBpbiBj
-b21tb24tb2JqLCB3ZSBkb24ndCBjYXJlCj4gPiB3aGV0aGVyIHRoZSBndWVzdCBpcyBiaS1lbmRp
-YW4gb3Igbm90Lgo+ID4gCj4gPiBSZXBvcnRlZC1ieTogQ8OpZHJpYyBMZSBHb2F0ZXIgPGNsZ0Bm
-ci5pYm0uY29tPgo+ID4gU3VnZ2VzdGVkLWJ5OiBNaWNoYWVsIFJvdGggPG1kcm90aEBsaW51eC52
-bmV0LmlibS5jb20+Cj4gPiBTaWduZWQtb2ZmLWJ5OiBHcmVnIEt1cnogPGdrdXJ6QGxpbnV4LnZu
-ZXQuaWJtLmNvbT4KPiAKPiBJIGFtIGNvbmZ1c2VkLgo+IFRoZSB2YWx1ZSB0aGF0IG5vdGlmaWNh
-dGlvbnMgdXNlIGlzIGFsd2F5cyBMRS4KClRydWUgYnV0IGFkanVzdF9lbmRpYW5uZXNzKCkgZG9l
-cyBzd2FwIHVuY29uZGl0aW9uYWxseSBmb3IgcHBjNjQKYmVjYXVzZSBvZiBUQVJHRVRfV09SRFNf
-QklHRU5ESUFOLgoKPiBDYW4ndCB3ZSBhdm9pZCBtdWx0aXBsZSBzd2Fwcz8KClRoYXQgd291bGQg
-bWVhbiBhZGRpbmcgYW4gZXh0cmEgZW5kaWFubmVzcyBhcmd1bWVudCBkb3duIHRvCm1lbW9yeV9y
-ZWdpb25fd3JvbmdfZW5kaWFubmVzcygpLi4uIG5vdCBzdXJlIHdlIHdhbnQgdG8gZG8gdGhhdC4K
-Cj4gVGhleSBtYWtlIG15IGhlYWQgc3Bpbi4KPiAKCkkgdW5kZXJzdGFuZCB0aGF0IHRoZSBjdXJy
-ZW50IGZpeGVkIHRhcmdldCBlbmRpYW5uZXNzIHBhcmFkaWdtCmlzIGJlc3Qgc3VpdGVkIGZvciBt
-b3N0IGFyY2hpdGVjdHVyZXMuIEV4dHJhIHN3YXBzIGluIHNwZWNpZmljCm5vbi1jcml0aWNhbCBs
-b2NhdGlvbnMgYWxsb3dzIHRvIHN1cHBvcnQgb2RkIGJlYXN0cyBsaWtlIHBwYzY0bGUKYW5kIGFy
-bTY0YmUgd2l0aG91dCB0cmFzaGluZyBtb3JlIGNvbW1vbiBwYXRocy4gTWF5YmUgSSBjYW4gYWRk
-IGEKY29tbWVudCBmb3IgYmV0dGVyIGNsYXJpdHkgKHNlZSBiZWxvdykuCgo+ID4gLS0tCj4gPiAK
-PiA+IEkgZ3Vlc3MgaXQgaXMgYWxzbyBhIGZpeCBmb3IgdmlydGlvLTEgYnV0IEkgZGlkbid0IGNo
-ZWNrLgo+ID4gCj4gPiAgaHcvdmlydGlvL3ZpcnRpby1wY2kuYyB8ICAgMTEgKysrKysrKysrLS0K
-PiA+ICAxIGZpbGUgY2hhbmdlZCwgOSBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQo+ID4g
-Cj4gPiBkaWZmIC0tZ2l0IGEvaHcvdmlydGlvL3ZpcnRpby1wY2kuYyBiL2h3L3ZpcnRpby92aXJ0
-aW8tcGNpLmMKPiA+IGluZGV4IGU3YmFmN2IuLjYyYjA0YzkgMTAwNjQ0Cj4gPiAtLS0gYS9ody92
-aXJ0aW8vdmlydGlvLXBjaS5jCj4gPiArKysgYi9ody92aXJ0aW8vdmlydGlvLXBjaS5jCj4gPiBA
-QCAtMTMzLDYgKzEzMywxMSBAQCBzdGF0aWMgaW50IHZpcnRpb19wY2lfbG9hZF9xdWV1ZShEZXZp
-Y2VTdGF0ZSAqZCwgaW50IG4sIFFFTVVGaWxlICpmKQo+ID4gICAgICByZXR1cm4gMDsKPiA+ICB9
-Cj4gPiAgCgovKiBUaGUgaG9zdCBub3RpZmllciB3aWxsIGJlIHN3YXBwZWQgaW4gYWRqdXN0X2Vu
-ZGlhbm5lc3MoKSBhY2NvcmRpbmcgdG8gdGhlCiAqIHRhcmdldCBkZWZhdWx0IGVuZGlhbm5lc3Mu
-IFdlIG5lZWQgdG8gbmVnYXRlIHRoaXMgc3dhcCBpZiB0aGUgZGV2aWNlIHVzZXMKICogYW4gZW5k
-aWFubmVzcyB0aGF0IGlzIG5vdCB0aGUgZGVmYXVsdCAocHBjNjRsZSBmb3IgZXhhbXBsZSkuCiAq
-LwoKPiA+ICtzdGF0aWMgdWludDE2X3QgY3B1X3RvX2hvc3Rfbm90aWZpZXIxNihWaXJ0SU9EZXZp
-Y2UgKnZkZXYsIHVpbnQxNl90IHZhbCkKPiA+ICt7Cj4gPiArICAgIHJldHVybiB2aXJ0aW9faXNf
-YmlnX2VuZGlhbih2ZGV2KSA/IHZhbCA6IGJzd2FwMTYodmFsKTsKPiA+ICt9Cj4gPiArCj4gPiAg
-c3RhdGljIGludCB2aXJ0aW9fcGNpX3NldF9ob3N0X25vdGlmaWVyX2ludGVybmFsKFZpcnRJT1BD
-SVByb3h5ICpwcm94eSwKPiA+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgaW50IG4sIGJvb2wgYXNzaWduLCBib29sIHNldF9oYW5kbGVyKQo+ID4gIHsK
-PiA+IEBAIC0xNTAsMTAgKzE1NSwxMiBAQCBzdGF0aWMgaW50IHZpcnRpb19wY2lfc2V0X2hvc3Rf
-bm90aWZpZXJfaW50ZXJuYWwoVmlydElPUENJUHJveHkgKnByb3h5LAo+ID4gICAgICAgICAgfQo+
-ID4gICAgICAgICAgdmlydGlvX3F1ZXVlX3NldF9ob3N0X25vdGlmaWVyX2ZkX2hhbmRsZXIodnEs
-IHRydWUsIHNldF9oYW5kbGVyKTsKPiA+ICAgICAgICAgIG1lbW9yeV9yZWdpb25fYWRkX2V2ZW50
-ZmQoJnByb3h5LT5iYXIsIFZJUlRJT19QQ0lfUVVFVUVfTk9USUZZLCAyLAo+ID4gLSAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICB0cnVlLCBuLCBub3RpZmllcik7Cj4gPiArICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgIHRydWUsIGNwdV90b19ob3N0X25vdGlmaWVyMTYo
-dmRldiwgbiksCj4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG5vdGlmaWVy
-KTsKPiA+ICAgICAgfSBlbHNlIHsKPiA+ICAgICAgICAgIG1lbW9yeV9yZWdpb25fZGVsX2V2ZW50
-ZmQoJnByb3h5LT5iYXIsIFZJUlRJT19QQ0lfUVVFVUVfTk9USUZZLCAyLAo+ID4gLSAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICB0cnVlLCBuLCBub3RpZmllcik7Cj4gPiArICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgIHRydWUsIGNwdV90b19ob3N0X25vdGlmaWVyMTYo
-dmRldiwgbiksCj4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG5vdGlmaWVy
-KTsKPiA+ICAgICAgICAgIHZpcnRpb19xdWV1ZV9zZXRfaG9zdF9ub3RpZmllcl9mZF9oYW5kbGVy
-KHZxLCBmYWxzZSwgZmFsc2UpOwo+ID4gICAgICAgICAgZXZlbnRfbm90aWZpZXJfY2xlYW51cChu
-b3RpZmllcik7Cj4gPiAgICAgIH0KPiAKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
-bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
-bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Thu, 12 Mar 2015 09:18:38 +1100
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+
+> On Wed, 2015-03-11 at 23:03 +0100, Greg Kurz wrote:
+> 
+> > /* The host notifier will be swapped in adjust_endianness() according to the
+> >  * target default endianness. We need to negate this swap if the device uses
+> >  * an endianness that is not the default (ppc64le for example).
+> >  */
+> > 
+> > > > +static uint16_t cpu_to_host_notifier16(VirtIODevice *vdev, uint16_t val)
+> > > > +{
+> > > > +    return virtio_is_big_endian(vdev) ? val : bswap16(val);
+> > > > +}
+> 
+> But but but ... The above ... won't it do things like break x86 ? Ie,
+> shouldn't we swap only if TARGET_BIG_ENDIAN and !virtio_is_big_endian ?
+> Or better, "fixed target endian" ^ "virtio endian" to cover all cases ?
+> 
+
+Yeah you're right, it's a mess :)
+
+To avoid virtio-pci.o being built per target, we can use virtio_default_endian()
+instead (to be exported from virtio.c):
+
+return vdev->device_endian() != virtio_default_endian() ? val : bswap16(val);
+
+I shall test on x86 and post a v2.
+
+Thanks.
+
+--
+G
+
+> Cheers,
+> Ben.
+> 
+> > > >  static int virtio_pci_set_host_notifier_internal(VirtIOPCIProxy *proxy,
+> > > >                                                   int n, bool assign, bool set_handler)
+> > > >  {
+> > > > @@ -150,10 +155,12 @@ static int virtio_pci_set_host_notifier_internal(VirtIOPCIProxy *proxy,
+> > > >          }
+> > > >          virtio_queue_set_host_notifier_fd_handler(vq, true, set_handler);
+> > > >          memory_region_add_eventfd(&proxy->bar, VIRTIO_PCI_QUEUE_NOTIFY, 2,
+> > > > -                                  true, n, notifier);
+> > > > +                                  true, cpu_to_host_notifier16(vdev, n),
+> > > > +                                  notifier);
+> > > >      } else {
+> > > >          memory_region_del_eventfd(&proxy->bar, VIRTIO_PCI_QUEUE_NOTIFY, 2,
+> > > > -                                  true, n, notifier);
+> > > > +                                  true, cpu_to_host_notifier16(vdev, n),
+> > > > +                                  notifier);
+> > > >          virtio_queue_set_host_notifier_fd_handler(vq, false, false);
+> > > >          event_notifier_cleanup(notifier);
+> > > >      }
+> > > 
+> > 
+> 
+> 
