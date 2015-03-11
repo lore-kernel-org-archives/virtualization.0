@@ -1,10 +1,11 @@
-From: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Subject: [PATCH] virtio-pci: fix host notifiers on bi-endian architectures
-Date: Wed, 11 Mar 2015 19:04:38 +0100
-Message-ID: <20150311180212.8119.14734.stgit@bahia.local>
+From: Paolo Bonzini <bonzini@gnu.org>
+Subject: KVM Forum 2015 Call for Participation
+Date: Wed, 11 Mar 2015 18:53:11 +0100
+Message-ID: <55008107.8040108__17036.2304700122$1426097956$gmane$org@gnu.org>
+Reply-To: kvm-forum-2015-pc@redhat.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,66 +16,165 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: qemu-devel@nongnu.org
-Cc: Cedric Le Goater <clg@fr.ibm.com>, qemu-ppc@nongnu.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, KVM list <kvm@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-dmhvc3QgaXMgc2VyaW91c2x5IGJyb2tlbiB3aXRoIHBwYzY0bGUgZ3Vlc3RzLCBldmVuIGluIHRo
-ZSBzdXBwb3NlZGx5CnN1cHBvcnRlZCBjYXNlIHdoZXJlIHRoZSBob3N0IGlzIHBwYzY0bGUgYW5k
-IHdlIGRvbid0IG5lZWQgY3Jvc3MtZW5kaWFuCnN1cHBvcnQuCgpUaGUgVFggdmlydHF1ZXVlIGZh
-aWxzIHRvIGJlIGhhbmRsZWQgYnkgdmhvc3QgYW5kIGZhbGxzIGJhY2sgdG8gUUVNVS4KRGVzcGl0
-ZSB0aGlzIHVuZXhwZWN0ZWQgc2NlbmFyaW8gd2hlcmUgUlggaXMgdmhvc3QgYW5kIFRYIGlzIFFF
-TVUsIHRoZQpndWVzdCBydW5zIHdlbGwgd2l0aCByZWR1Y2VkIHVwbG9hZCBwZXJmb3JtYW5jZXMu
-Li4gdW50aWwgeW91IHJlYm9vdCwKbWlncmF0ZSwgbWFuYWdlZCBzYXZlIG9yIGluIGZhY3QgYW55
-IG9wZXJhdGlvbiB0aGF0IGNhdXNlcyB2aG9zdF9uZXQKdG8gYmUgcmUtc3RhcnRlZC4gTmV0d29y
-ayBjb25uZWN0aXZpdHkgaXMgdGhlbiBwZXJtYW5hbnRseSBsb3N0IGZvcgp0aGUgZ3Vlc3QuCgpU
-WCBmYWxsaW5nIGJhY2sgdG8gUUVNVSBpcyB0aGUgcmVzdWx0IG9mIGEgZmFpbGVkIE1NSU8gc3Rv
-cmUgZW11bGF0aW9uCmluIEtWTS4gRGVidWdnaW5nIHNob3dzIHRoYXQ6Cgprdm1wcGNfZW11bGF0
-ZV9tbWlvKCkKIHwKICstPiBrdm1wcGNfaGFuZGxlX3N0b3JlKCkKICAgICAgfAogICAgICArLT4g
-a3ZtX2lvX2J1c193cml0ZSgpCiAgICAgICAgICAgfAogICAgICAgICAgICstPiBfX2t2bV9pb19i
-dXNfd3JpdGUoKSByZXR1cm5zIC1FT1BOT1RTVVBQCgpUaGlzIGhhcHBlbnMgYmVjYXVzZSBubyBt
-YXRjaGluZyBkZXZpY2Ugd2FzIGZvdW5kOgoKX19rdm1faW9fYnVzX3dyaXRlKCkKIHwKICstPmt2
-bV9pb2RldmljZV93cml0ZSgpCiAgICAgfAogICAgICstPmlvZXZlbnRmZF93cml0ZSgpCiAgICAg
-ICAgIHwKICAgICAgICAgKy0+aW9ldmVudGZkX2luX3JhbmdlKCkgcmV0dXJucyBmYWxzZSBmb3Ig
-YWxsIHJlZ2lzdGVyZWQgdnJpbmdzCgpFeHRyYSBkZWJ1Z2dpbmcgc2hvd3MgdGhhdCB0aGUgVFgg
-dnJpbmcgbnVtYmVyICgxNi1iaXQpIGlzIHN1cHBvc2VkIHRvCmJlIDB4MDEwMCBidXQgUUVNVSBw
-YXNzZXMgMHgwMDAxIHRvIEtWTS4uLiBUaGlzIGhhcHBlbnMgKmFnYWluKiBiZWNhdXNlClFFTVUg
-c3RpbGwgYXNzdW1lcyBwb3dlcnBjIGlzIGJpZyBlbmRpYW4gKFRBUkdFVF9XT1JEU19CSUdFTkRJ
-QU4pIGJ5CmRlZmF1bHQuCgpUaGlzIHBhdGNoIGFkZHMgYW4gZXh0cmEgc3dhcCBpbiB2aXJ0aW9f
-cGNpX3NldF9ob3N0X25vdGlmaWVyX2ludGVybmFsKCkKdG8gbmVnYXRlIHRoZSBvbmUgdGhhdCBp
-cyBkb25lIGluIGFkanVzdF9lbmRpYW5uZXNzKCkuIFNpbmNlIHRoaXMgaXMgbm90CmEgaG90IHBh
-dGggYW5kIHdlIHdhbnQgdG8ga2VlcCB2aXJ0aW8tcGNpLm8gaW4gY29tbW9uLW9iaiwgd2UgZG9u
-J3QgY2FyZQp3aGV0aGVyIHRoZSBndWVzdCBpcyBiaS1lbmRpYW4gb3Igbm90LgoKUmVwb3J0ZWQt
-Ynk6IEPDqWRyaWMgTGUgR29hdGVyIDxjbGdAZnIuaWJtLmNvbT4KU3VnZ2VzdGVkLWJ5OiBNaWNo
-YWVsIFJvdGggPG1kcm90aEBsaW51eC52bmV0LmlibS5jb20+ClNpZ25lZC1vZmYtYnk6IEdyZWcg
-S3VyeiA8Z2t1cnpAbGludXgudm5ldC5pYm0uY29tPgotLS0KCkkgZ3Vlc3MgaXQgaXMgYWxzbyBh
-IGZpeCBmb3IgdmlydGlvLTEgYnV0IEkgZGlkbid0IGNoZWNrLgoKIGh3L3ZpcnRpby92aXJ0aW8t
-cGNpLmMgfCAgIDExICsrKysrKysrKy0tCiAxIGZpbGUgY2hhbmdlZCwgOSBpbnNlcnRpb25zKCsp
-LCAyIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2h3L3ZpcnRpby92aXJ0aW8tcGNpLmMgYi9o
-dy92aXJ0aW8vdmlydGlvLXBjaS5jCmluZGV4IGU3YmFmN2IuLjYyYjA0YzkgMTAwNjQ0Ci0tLSBh
-L2h3L3ZpcnRpby92aXJ0aW8tcGNpLmMKKysrIGIvaHcvdmlydGlvL3ZpcnRpby1wY2kuYwpAQCAt
-MTMzLDYgKzEzMywxMSBAQCBzdGF0aWMgaW50IHZpcnRpb19wY2lfbG9hZF9xdWV1ZShEZXZpY2VT
-dGF0ZSAqZCwgaW50IG4sIFFFTVVGaWxlICpmKQogICAgIHJldHVybiAwOwogfQogCitzdGF0aWMg
-dWludDE2X3QgY3B1X3RvX2hvc3Rfbm90aWZpZXIxNihWaXJ0SU9EZXZpY2UgKnZkZXYsIHVpbnQx
-Nl90IHZhbCkKK3sKKyAgICByZXR1cm4gdmlydGlvX2lzX2JpZ19lbmRpYW4odmRldikgPyB2YWwg
-OiBic3dhcDE2KHZhbCk7Cit9CisKIHN0YXRpYyBpbnQgdmlydGlvX3BjaV9zZXRfaG9zdF9ub3Rp
-Zmllcl9pbnRlcm5hbChWaXJ0SU9QQ0lQcm94eSAqcHJveHksCiAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaW50IG4sIGJvb2wgYXNzaWduLCBib29sIHNl
-dF9oYW5kbGVyKQogewpAQCAtMTUwLDEwICsxNTUsMTIgQEAgc3RhdGljIGludCB2aXJ0aW9fcGNp
-X3NldF9ob3N0X25vdGlmaWVyX2ludGVybmFsKFZpcnRJT1BDSVByb3h5ICpwcm94eSwKICAgICAg
-ICAgfQogICAgICAgICB2aXJ0aW9fcXVldWVfc2V0X2hvc3Rfbm90aWZpZXJfZmRfaGFuZGxlcih2
-cSwgdHJ1ZSwgc2V0X2hhbmRsZXIpOwogICAgICAgICBtZW1vcnlfcmVnaW9uX2FkZF9ldmVudGZk
-KCZwcm94eS0+YmFyLCBWSVJUSU9fUENJX1FVRVVFX05PVElGWSwgMiwKLSAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICB0cnVlLCBuLCBub3RpZmllcik7CisgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgdHJ1ZSwgY3B1X3RvX2hvc3Rfbm90aWZpZXIxNih2ZGV2LCBuKSwK
-KyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBub3RpZmllcik7CiAgICAgfSBlbHNl
-IHsKICAgICAgICAgbWVtb3J5X3JlZ2lvbl9kZWxfZXZlbnRmZCgmcHJveHktPmJhciwgVklSVElP
-X1BDSV9RVUVVRV9OT1RJRlksIDIsCi0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-dHJ1ZSwgbiwgbm90aWZpZXIpOworICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHRy
-dWUsIGNwdV90b19ob3N0X25vdGlmaWVyMTYodmRldiwgbiksCisgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgbm90aWZpZXIpOwogICAgICAgICB2aXJ0aW9fcXVldWVfc2V0X2hvc3Rf
-bm90aWZpZXJfZmRfaGFuZGxlcih2cSwgZmFsc2UsIGZhbHNlKTsKICAgICAgICAgZXZlbnRfbm90
-aWZpZXJfY2xlYW51cChub3RpZmllcik7CiAgICAgfQoKX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
-YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
-b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+=================================================================
+KVM Forum 2015: Call For Participation
+August 19-21, 2015 - Sheraton Seattle - Seattle, WA
+
+(All submissions must be received before midnight May 1, 2015)
+=================================================================
+
+KVM is an industry leading open source hypervisor that provides an ideal
+platform for datacenter virtualization, virtual desktop infrastructure,
+and cloud computing.  Once again, it's time to bring together the
+community of developers and users that define the KVM ecosystem for
+our annual technical conference.  We will discuss the current state of
+affairs and plan for the future of KVM, its surrounding infrastructure,
+and management tools.  Mark your calendar and join us in advancing KVM.
+http://events.linuxfoundation.org/events/kvm-forum/
+
+This year, the KVM Forum is moving back to North America.  We will be
+colocated with the Linux Foundation's LinuxCon North America, CloudOpen
+North America, ContainerCon and Linux Plumbers Conference events.
+Attendees of KVM Forum will also be able to attend a shared hackathon
+event with Xen Project Developer Summit on August 18, 2015.
+
+We invite you to lead part of the discussion by submitting a speaking
+proposal for KVM Forum 2015.
+http://events.linuxfoundation.org/cfp
+
+
+Suggested topics:
+
+KVM/Kernel
+* Scaling and optimizations
+* Nested virtualization
+* Linux kernel performance improvements
+* Resource management (CPU, I/O, memory)
+* Hardening and security
+* VFIO: SR-IOV, GPU, platform device assignment
+* Architecture ports
+
+QEMU
+
+* Management interfaces: QOM and QMP
+* New devices, new boards, new architectures
+* Scaling and optimizations
+* Desktop virtualization and SPICE
+* Virtual GPU
+* virtio and vhost, including non-Linux or non-virtualized uses
+* Hardening and security
+* New storage features
+* Live migration and fault tolerance
+* High availability and continuous backup
+* Real-time guest support
+* Emulation and TCG
+* Firmware: ACPI, UEFI, coreboot, u-Boot, etc.
+* Testing
+
+Management and infrastructure
+
+* Managing KVM: Libvirt, OpenStack, oVirt, etc.
+* Storage: glusterfs, Ceph, etc.
+* Software defined networking: Open vSwitch, OpenDaylight, etc.
+* Network Function Virtualization
+* Security
+* Provisioning
+* Performance tuning
+
+
+===============
+SUBMITTING YOUR PROPOSAL
+===============
+Abstracts due: May 1, 2015
+
+Please submit a short abstract (~150 words) describing your presentation
+proposal.  Slots vary in length up to 45 minutes.  Also include in your
+proposal
+the proposal type -- one of:
+- technical talk
+- end-user talk
+
+Submit your proposal here:
+http://events.linuxfoundation.org/cfp
+Please only use the categories "presentation" and "panel discussion"
+
+You will receive a notification whether or not your presentation proposal
+was accepted by May 29, 2015.
+
+Speakers will receive a complimentary pass for the event.  In the instance
+that your submission has multiple presenters, only the primary speaker for a
+proposal will receive a complementary event pass.  For panel
+discussions, all
+panelists will receive a complimentary event pass.
+
+TECHNICAL TALKS
+
+A good technical talk should not just report on what has happened over
+the last year; it should present a concrete problem and how it impacts
+the user and/or developer community.  Whenever applicable, focus on
+work that needs to be done, difficulties that haven't yet been solved,
+and on decisions that other developers should be aware of.  Summarizing
+recent developments is okay but it should not be more than a small
+portion of the overall talk.
+
+END-USER TALKS
+
+One of the big challenges as developers is to know what, where and how
+people actually use our software.  We will reserve a few slots for end
+users talking about their deployment challenges and achievements.
+
+If you are using KVM in production you are encouraged submit a speaking
+proposal.  Simply mark it as an end-user talk.  As an end user, this is a
+unique opportunity to get your input to developers.
+
+HANDS-ON / BOF SESSIONS
+
+We will reserve some time for people to get together and discuss
+strategic decisions as well as other topics that are best solved within
+smaller groups.
+
+These sessions will be announced during the event.  If you are interested
+in organizing such a session, please add it to the list at
+
+   http://www.linux-kvm.org/page/KVM_Forum_2015_BOF
+
+Let people you think might be interested know about it, and encourage
+them to add their names to the wiki page as well.  Please try to
+add your ideas to the list before KVM Forum starts.
+
+
+PANEL DISCUSSIONS
+
+If you are proposing a panel discussion, please make sure that you list
+all of your potential panelists in your abstract.  We will request full
+biographies if a panel is accepted.
+
+
+===============
+HOTEL / TRAVEL
+===============
+KVM Forum 2015 will be taking place at the Sheraton Seattle Hotel.  We
+are pleased to offer attendees a discounted room rate of US$199/night
+(plus applicable taxes) which includes wifi in your guest room.
+
+http://events.linuxfoundation.org/events/kvm-forum/attend/hotel-and-travel
+includes further information on the Sheraton Seattle and the discounted
+room rate, as well as on transportation and parking options for the hotel.
+
+===============
+IMPORTANT DATES
+===============
+Notification: May 29, 2015
+Schedule announced: June 3, 2015
+Event dates: August 19-21, 2015
+
+
+Thank you for your interest in KVM.  We're looking forward to your
+submissions and seeing you at the KVM Forum 2015 in August!
+
+-your KVM Forum 2015 Program Committee
+
+Please contact us with any questions or comments.
