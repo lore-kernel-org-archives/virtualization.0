@@ -1,13 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] 9p/trans_virtio: fix hot-unplug
-Date: Thu, 12 Mar 2015 11:54:10 +1030
-Message-ID: <874mprxb2d.fsf__23006.3320872889$1426125317$gmane$org@rustcorp.com.au>
-References: <20150309154814-mutt-send-email-mst@redhat.com>
+Subject: Re: [PATCH] virtio_mmio: generation support
+Date: Thu, 12 Mar 2015 12:37:49 +1030
+Message-ID: <87y4n3vuh6.fsf__7919.77481353587$1426129622$gmane$org@rustcorp.com.au>
+References: <1425593244-18869-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150309154814-mutt-send-email-mst@redhat.com>
+In-Reply-To: <1425593244-18869-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,74 +18,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Eric Van Hensbergen <ericvh@gmail.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, v9fs-developer@lists.sourceforge.net, Ron Minnich <rminnich@sandia.gov>, "David S. Miller" <davem@davemloft.net>
+Cc: Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 "Michael S. Tsirkin" <mst@redhat.com> writes:
-> On device hot-unplug, 9p/virtio currently will kfree channel while
-> it might still be in use.
->
-> Of course, it might stay used forever, so it's an extremely ugly hack,
-> but it seems better than use-after-free that we have now.
+> virtio_mmio currently lacks generation support which
+> makes multi-byte field access racy.
+> Fix by getting the value at offset 0xfc for version 2
+> devices. Nothing we can do for version 1, so return
+> generation id 0.
 >
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>
+> Pawel, you mentioned you have a working virtio 1.0
+> hypervisor, can you pls confirm this works correctly?
 
-I'll apply it, but it looks like a bandaid.
+I've applied this one, but fixed it to compile:
 
-The right answer would seem to be:
-1) Use reference counting: 1 for client, 1 for transport.
-2) When hot unplug, complete (ie. fail) all outstanding requests.
-3) From then on, fail all incoming requests.
-4) When refcount hits 0, free the structure.
+>  drivers/virtio/virtio_mmio.c | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
+>
+> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> index 0375456..69b2e4d 100644
+> --- a/drivers/virtio/virtio_mmio.c
+> +++ b/drivers/virtio/virtio_mmio.c
+> @@ -237,6 +237,16 @@ static void vm_set(struct virtio_device *vdev, unsigned offset,
+>  	}
+>  }
+>  
+> +static u32 vm_generation(struct virtio_device *vdev)
+> +{
+> +	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
+> +
+> +	if (vm_dev->version == 1)
+> +		return 0;
+> +	else
+> +		return readl(vm_dev->base + VIRTIO_MMIO_CONFIG_GENERATION);
+> +}
+> +
+>  static u8 vm_get_status(struct virtio_device *vdev)
+>  {
+>  	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
+> @@ -503,6 +513,8 @@ static const char *vm_bus_name(struct virtio_device *vdev)
+>  static const struct virtio_config_ops virtio_mmio_config_ops = {
+>  	.get		= vm_get,
+>  	.set		= vm_set,
+> +	.generation	= vm_generation,
+> +	.get_status	= vm_get_status,
+>  	.get_status	= vm_get_status,
+
+See the double-assingment of get_status?
 
 Thanks,
 Rusty.
-
-
-
-> ---
->  net/9p/trans_virtio.c | 25 +++++++++++++++++++++----
->  1 file changed, 21 insertions(+), 4 deletions(-)
->
-> diff --git a/net/9p/trans_virtio.c b/net/9p/trans_virtio.c
-> index d8e376a..d1b2f306 100644
-> --- a/net/9p/trans_virtio.c
-> +++ b/net/9p/trans_virtio.c
-> @@ -658,14 +658,31 @@ p9_virtio_create(struct p9_client *client, const char *devname, char *args)
->  static void p9_virtio_remove(struct virtio_device *vdev)
->  {
->  	struct virtio_chan *chan = vdev->priv;
-> -
-> -	if (chan->inuse)
-> -		p9_virtio_close(chan->client);
-> -	vdev->config->del_vqs(vdev);
-> +	unsigned long warning_time;
-> +	bool inuse;
->  
->  	mutex_lock(&virtio_9p_lock);
-> +
-> +	/* Remove self from list so we don't get new users. */
->  	list_del(&chan->chan_list);
-> +	warning_time = jiffies;
-> +
-> +	/* Wait for existing users to close. */
-> +	while (chan->inuse) {
-> +		mutex_unlock(&virtio_9p_lock);
-> +		msleep(250);
-> +               if (time_after(jiffies, warning_time + 10 * HZ)) {
-> +			dev_emerg(&vdev->dev, "p9_virtio_remove: "
-> +				  "waiting for device in use.\n");
-> +			warning_time = jiffies;
-> +               }
-> +		mutex_lock(&virtio_9p_lock);
-> +	}
-> +
->  	mutex_unlock(&virtio_9p_lock);
-> +
-> +	vdev->config->del_vqs(vdev);
-> +
->  	sysfs_remove_file(&(vdev->dev.kobj), &dev_attr_mount_tag.attr);
->  	kobject_uevent(&(vdev->dev.kobj), KOBJ_CHANGE);
->  	kfree(chan->tag);
-> -- 
-> MST
+PS.  Sorry, that *does* actually compile.  I wish it didn't though...
