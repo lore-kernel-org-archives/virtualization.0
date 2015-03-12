@@ -1,13 +1,11 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio_mmio: fix endian-ness for mmio
-Date: Thu, 12 Mar 2015 12:33:36 +1030
-Message-ID: <871tkvx98n.fsf__15444.4978027188$1426129637$gmane$org@rustcorp.com.au>
-References: <1425592060-18474-1-git-send-email-mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net] virtio-net: correctly delete napi hash
+Date: Thu, 12 Mar 2015 13:57:44 +0800
+Message-ID: <1426139864-25023-1-git-send-email-jasowang__44790.4972163544$1426139884$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1425592060-18474-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,131 +15,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
+To: rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
-> Going over the virtio mmio code, I noticed that it doesn't correctly
-> return device config values in LE format when using virtio 1.0.
-> Borrow code from virtio_pci_modern to do this correctly.
+We don't delete napi from hash list during module exit. This will
+cause the following panic when doing module load and unload:
 
-AFAICT, it doesn't need to.  The endian correction is done by the
-callers.
+BUG: unable to handle kernel paging request at 0000004e00000075
+IP: [<ffffffff816bd01b>] napi_hash_add+0x6b/0xf0
+PGD 3c5d5067 PUD 0
+Oops: 0000 [#1] SMP
+...
+Call Trace:
+[<ffffffffa0a5bfb7>] init_vqs+0x107/0x490 [virtio_net]
+[<ffffffffa0a5c9f2>] virtnet_probe+0x562/0x791815639d880be [virtio_net]
+[<ffffffff8139e667>] virtio_dev_probe+0x137/0x200
+[<ffffffff814c7f2a>] driver_probe_device+0x7a/0x250
+[<ffffffff814c81d3>] __driver_attach+0x93/0xa0
+[<ffffffff814c8140>] ? __device_attach+0x40/0x40
+[<ffffffff814c6053>] bus_for_each_dev+0x63/0xa0
+[<ffffffff814c7a79>] driver_attach+0x19/0x20
+[<ffffffff814c76f0>] bus_add_driver+0x170/0x220
+[<ffffffffa0a60000>] ? 0xffffffffa0a60000
+[<ffffffff814c894f>] driver_register+0x5f/0xf0
+[<ffffffff8139e41b>] register_virtio_driver+0x1b/0x30
+[<ffffffffa0a60010>] virtio_net_driver_init+0x10/0x12 [virtio_net]
 
-The only reason that virtio_pci_modern() does it is because readl() etc
-do endian conversion, and we don't want them to.  And the PCI part of
-the spec says to use "natural" accessors, so we don't do byte-at-a-time.
+This patch fixes this by doing this in virtnet_free_queues(). And also
+don't delete napi in virtnet_freeze() since it will call
+virtnet_free_queues() which has already did this.
 
-Cheers,
-Rusty.
+Fixes 91815639d880 ("virtio-net: rx busy polling support")
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/virtio_net.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->
-> Note: untested: QEMU doesn't support virtio 1.0 for virtio-mmio.
-> Pawel, could you please confirm this patch makes sense?
->
->  drivers/virtio/virtio_mmio.c | 79 +++++++++++++++++++++++++++++++++++++++-----
->  1 file changed, 71 insertions(+), 8 deletions(-)
->
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index cad5698..0375456 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -156,22 +156,85 @@ static void vm_get(struct virtio_device *vdev, unsigned offset,
->  		   void *buf, unsigned len)
->  {
->  	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-> -	u8 *ptr = buf;
-> -	int i;
-> +	void __iomem *base = vm_dev->base + VIRTIO_MMIO_CONFIG;
-> +	u8 b;
-> +	__le16 w;
-> +	__le32 l;
->  
-> -	for (i = 0; i < len; i++)
-> -		ptr[i] = readb(vm_dev->base + VIRTIO_MMIO_CONFIG + offset + i);
-> +	if (vm_dev->version == 1) {
-> +		u8 *ptr = buf;
-> +		int i;
-> +
-> +		for (i = 0; i < len; i++)
-> +			ptr[i] = readb(base + offset + i);
-> +		return;
-> +	}
-> +
-> +	switch (len) {
-> +	case 1:
-> +		b = readb(base + offset);
-> +		memcpy(buf, &b, sizeof b);
-> +		break;
-> +	case 2:
-> +		w = cpu_to_le16(readw(base + offset));
-> +		memcpy(buf, &w, sizeof w);
-> +		break;
-> +	case 4:
-> +		l = cpu_to_le32(readl(base + offset));
-> +		memcpy(buf, &l, sizeof l);
-> +		break;
-> +	case 8:
-> +		l = cpu_to_le32(readl(base + offset));
-> +		memcpy(buf, &l, sizeof l);
-> +		l = cpu_to_le32(ioread32(base + offset + sizeof l));
-> +		memcpy(buf + sizeof l, &l, sizeof l);
-> +		break;
-> +	default:
-> +		BUG();
-> +	}
->  }
->  
->  static void vm_set(struct virtio_device *vdev, unsigned offset,
->  		   const void *buf, unsigned len)
->  {
->  	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-> -	const u8 *ptr = buf;
-> -	int i;
-> +	void __iomem *base = vm_dev->base + VIRTIO_MMIO_CONFIG;
-> +	u8 b;
-> +	__le16 w;
-> +	__le32 l;
->  
-> -	for (i = 0; i < len; i++)
-> -		writeb(ptr[i], vm_dev->base + VIRTIO_MMIO_CONFIG + offset + i);
-> +	if (vm_dev->version == 1) {
-> +		const u8 *ptr = buf;
-> +		int i;
-> +
-> +		for (i = 0; i < len; i++)
-> +			writeb(ptr[i], base + offset + i);
-> +
-> +		return;
-> +	}
-> +
-> +	switch (len) {
-> +	case 1:
-> +		memcpy(&b, buf, sizeof b);
-> +		writeb(b, base + offset);
-> +		break;
-> +	case 2:
-> +		memcpy(&w, buf, sizeof w);
-> +		writew(le16_to_cpu(w), base + offset);
-> +		break;
-> +	case 4:
-> +		memcpy(&l, buf, sizeof l);
-> +		writel(le32_to_cpu(l), base + offset);
-> +		break;
-> +	case 8:
-> +		memcpy(&l, buf, sizeof l);
-> +		writel(le32_to_cpu(l), base + offset);
-> +		memcpy(&l, buf + sizeof l, sizeof l);
-> +		writel(le32_to_cpu(l), base + offset + sizeof l);
-> +		break;
-> +	default:
-> +		BUG();
-> +	}
->  }
->  
->  static u8 vm_get_status(struct virtio_device *vdev)
-> -- 
-> MST
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index f1ff366..59b0e97 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1448,8 +1448,10 @@ static void virtnet_free_queues(struct virtnet_info *vi)
+ {
+ 	int i;
+ 
+-	for (i = 0; i < vi->max_queue_pairs; i++)
++	for (i = 0; i < vi->max_queue_pairs; i++) {
++		napi_hash_del(&vi->rq[i].napi);
+ 		netif_napi_del(&vi->rq[i].napi);
++	}
+ 
+ 	kfree(vi->rq);
+ 	kfree(vi->sq);
+@@ -1948,11 +1950,8 @@ static int virtnet_freeze(struct virtio_device *vdev)
+ 	cancel_delayed_work_sync(&vi->refill);
+ 
+ 	if (netif_running(vi->dev)) {
+-		for (i = 0; i < vi->max_queue_pairs; i++) {
++		for (i = 0; i < vi->max_queue_pairs; i++)
+ 			napi_disable(&vi->rq[i].napi);
+-			napi_hash_del(&vi->rq[i].napi);
+-			netif_napi_del(&vi->rq[i].napi);
+-		}
+ 	}
+ 
+ 	remove_vq_common(vi);
+-- 
+2.1.0
