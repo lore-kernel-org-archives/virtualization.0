@@ -1,13 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio_mmio: generation support
-Date: Thu, 12 Mar 2015 12:37:49 +1030
-Message-ID: <87y4n3vuh6.fsf__7919.77481353587$1426129622$gmane$org@rustcorp.com.au>
-References: <1425593244-18869-1-git-send-email-mst@redhat.com>
+Subject: Re: [PATCH] virtio_mmio: fix endian-ness for mmio
+Date: Thu, 12 Mar 2015 12:33:36 +1030
+Message-ID: <871tkvx98n.fsf__15444.4978027188$1426129637$gmane$org@rustcorp.com.au>
+References: <1425592060-18474-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1425593244-18869-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1425592060-18474-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,54 +22,126 @@ Cc: Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 "Michael S. Tsirkin" <mst@redhat.com> writes:
-> virtio_mmio currently lacks generation support which
-> makes multi-byte field access racy.
-> Fix by getting the value at offset 0xfc for version 2
-> devices. Nothing we can do for version 1, so return
-> generation id 0.
->
+> Going over the virtio mmio code, I noticed that it doesn't correctly
+> return device config values in LE format when using virtio 1.0.
+> Borrow code from virtio_pci_modern to do this correctly.
+
+AFAICT, it doesn't need to.  The endian correction is done by the
+callers.
+
+The only reason that virtio_pci_modern() does it is because readl() etc
+do endian conversion, and we don't want them to.  And the PCI part of
+the spec says to use "natural" accessors, so we don't do byte-at-a-time.
+
+Cheers,
+Rusty.
+
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > ---
 >
-> Pawel, you mentioned you have a working virtio 1.0
-> hypervisor, can you pls confirm this works correctly?
-
-I've applied this one, but fixed it to compile:
-
->  drivers/virtio/virtio_mmio.c | 12 ++++++++++++
->  1 file changed, 12 insertions(+)
+> Note: untested: QEMU doesn't support virtio 1.0 for virtio-mmio.
+> Pawel, could you please confirm this patch makes sense?
+>
+>  drivers/virtio/virtio_mmio.c | 79 +++++++++++++++++++++++++++++++++++++++-----
+>  1 file changed, 71 insertions(+), 8 deletions(-)
 >
 > diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index 0375456..69b2e4d 100644
+> index cad5698..0375456 100644
 > --- a/drivers/virtio/virtio_mmio.c
 > +++ b/drivers/virtio/virtio_mmio.c
-> @@ -237,6 +237,16 @@ static void vm_set(struct virtio_device *vdev, unsigned offset,
->  	}
->  }
->  
-> +static u32 vm_generation(struct virtio_device *vdev)
-> +{
-> +	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-> +
-> +	if (vm_dev->version == 1)
-> +		return 0;
-> +	else
-> +		return readl(vm_dev->base + VIRTIO_MMIO_CONFIG_GENERATION);
-> +}
-> +
->  static u8 vm_get_status(struct virtio_device *vdev)
+> @@ -156,22 +156,85 @@ static void vm_get(struct virtio_device *vdev, unsigned offset,
+>  		   void *buf, unsigned len)
 >  {
 >  	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-> @@ -503,6 +513,8 @@ static const char *vm_bus_name(struct virtio_device *vdev)
->  static const struct virtio_config_ops virtio_mmio_config_ops = {
->  	.get		= vm_get,
->  	.set		= vm_set,
-> +	.generation	= vm_generation,
-> +	.get_status	= vm_get_status,
->  	.get_status	= vm_get_status,
-
-See the double-assingment of get_status?
-
-Thanks,
-Rusty.
-PS.  Sorry, that *does* actually compile.  I wish it didn't though...
+> -	u8 *ptr = buf;
+> -	int i;
+> +	void __iomem *base = vm_dev->base + VIRTIO_MMIO_CONFIG;
+> +	u8 b;
+> +	__le16 w;
+> +	__le32 l;
+>  
+> -	for (i = 0; i < len; i++)
+> -		ptr[i] = readb(vm_dev->base + VIRTIO_MMIO_CONFIG + offset + i);
+> +	if (vm_dev->version == 1) {
+> +		u8 *ptr = buf;
+> +		int i;
+> +
+> +		for (i = 0; i < len; i++)
+> +			ptr[i] = readb(base + offset + i);
+> +		return;
+> +	}
+> +
+> +	switch (len) {
+> +	case 1:
+> +		b = readb(base + offset);
+> +		memcpy(buf, &b, sizeof b);
+> +		break;
+> +	case 2:
+> +		w = cpu_to_le16(readw(base + offset));
+> +		memcpy(buf, &w, sizeof w);
+> +		break;
+> +	case 4:
+> +		l = cpu_to_le32(readl(base + offset));
+> +		memcpy(buf, &l, sizeof l);
+> +		break;
+> +	case 8:
+> +		l = cpu_to_le32(readl(base + offset));
+> +		memcpy(buf, &l, sizeof l);
+> +		l = cpu_to_le32(ioread32(base + offset + sizeof l));
+> +		memcpy(buf + sizeof l, &l, sizeof l);
+> +		break;
+> +	default:
+> +		BUG();
+> +	}
+>  }
+>  
+>  static void vm_set(struct virtio_device *vdev, unsigned offset,
+>  		   const void *buf, unsigned len)
+>  {
+>  	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
+> -	const u8 *ptr = buf;
+> -	int i;
+> +	void __iomem *base = vm_dev->base + VIRTIO_MMIO_CONFIG;
+> +	u8 b;
+> +	__le16 w;
+> +	__le32 l;
+>  
+> -	for (i = 0; i < len; i++)
+> -		writeb(ptr[i], vm_dev->base + VIRTIO_MMIO_CONFIG + offset + i);
+> +	if (vm_dev->version == 1) {
+> +		const u8 *ptr = buf;
+> +		int i;
+> +
+> +		for (i = 0; i < len; i++)
+> +			writeb(ptr[i], base + offset + i);
+> +
+> +		return;
+> +	}
+> +
+> +	switch (len) {
+> +	case 1:
+> +		memcpy(&b, buf, sizeof b);
+> +		writeb(b, base + offset);
+> +		break;
+> +	case 2:
+> +		memcpy(&w, buf, sizeof w);
+> +		writew(le16_to_cpu(w), base + offset);
+> +		break;
+> +	case 4:
+> +		memcpy(&l, buf, sizeof l);
+> +		writel(le32_to_cpu(l), base + offset);
+> +		break;
+> +	case 8:
+> +		memcpy(&l, buf, sizeof l);
+> +		writel(le32_to_cpu(l), base + offset);
+> +		memcpy(&l, buf + sizeof l, sizeof l);
+> +		writel(le32_to_cpu(l), base + offset + sizeof l);
+> +		break;
+> +	default:
+> +		BUG();
+> +	}
+>  }
+>  
+>  static u8 vm_get_status(struct virtio_device *vdev)
+> -- 
+> MST
