@@ -1,13 +1,16 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [RFC PATCH] PCI: Disable MSI/MSI-X only if device is shutdown
-Date: Thu, 12 Mar 2015 17:21:11 +0100
-Message-ID: <5501BCF7.9080004@redhat.com>
-References: <1426137682-12287-1-git-send-email-famz@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio: Remove virtio device during shutdown
+Date: Thu, 12 Mar 2015 17:22:40 +0100
+Message-ID: <20150312172138-mutt-send-email-mst@redhat.com>
+References: <1426061357-4440-1-git-send-email-famz@redhat.com>
+	<20150311095814-mutt-send-email-mst@redhat.com>
+	<20150311101135.GA13653@ad.nay.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1426137682-12287-1-git-send-email-famz@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20150311101135.GA13653@ad.nay.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,50 +20,93 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Fam Zheng <famz@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: Fam Zheng <famz@redhat.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 12/03/2015 06:21, Fam Zheng wrote:
-> If the device doesn't support shutdown, disabling interrupts may cause
-> trouble. For example, virtio-scsi-pci doesn't implement shutdown, and
-> after we disable MSI-X, futher notifications from device will be
-> delivered to IRQ, which is unexpected. This IRQ will not be cleared, and
-> may prevent us from making progress, by keep triggering interrupts.
+On Wed, Mar 11, 2015 at 06:11:35PM +0800, Fam Zheng wrote:
+> On Wed, 03/11 10:06, Michael S. Tsirkin wrote:
+> > On Wed, Mar 11, 2015 at 04:09:17PM +0800, Fam Zheng wrote:
+> > > Currently shutdown is nop for virtio devices, but the core code could
+> > > remove things behind us such as MSI-X handler etc. For example in the
+> > > case of virtio-scsi-pci, the device may still try to send interupts,
+> > > which will be on IRQ lines seeing MSI-X disabled. Those interrupts will
+> > > be unhandled, and may cause flood.
 > 
-> Signed-off-by: Fam Zheng <famz@redhat.com>
-> ---
->  drivers/pci/pci-driver.c | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
+> Here is the problem I want to solve - file system driver hang:
 > 
-> diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
-> index 3cb2210..fb29c96 100644
-> --- a/drivers/pci/pci-driver.c
-> +++ b/drivers/pci/pci-driver.c
-> @@ -448,10 +448,11 @@ static void pci_device_shutdown(struct device *dev)
->  
->  	pm_runtime_resume(dev);
->  
-> -	if (drv && drv->shutdown)
-> +	if (drv && drv->shutdown) {
->  		drv->shutdown(pci_dev);
-> -	pci_msi_shutdown(pci_dev);
-> -	pci_msix_shutdown(pci_dev);
-> +		pci_msi_shutdown(pci_dev);
-> +		pci_msix_shutdown(pci_dev);
-> +	}
->  
->  #ifdef CONFIG_KEXEC
->  	/*
+> If a fs code happen to hit __wait_on_buffer right after pci pci_device_shutdown
+> disabled msix, it will never make progress because the requests it waits for
+> will never be completed. So the system hangs.
+
+Paolo says that pci reset of virtio scsi device guarantees
+that all outstanding requests complete.
+
+If true and implemented correctly, I don't see what else
+needs to be done.
+
+You will need to debug this some more.
+
+
+> In other words we will want to reset virtio device before pci_device_shutdown
+> AND wake up all waiters.
 > 
-
-The patch may be okay, but I think the bug here is also that virtio-pci
-is not defining a .shutdown callback.  It should define one and call
-free_irq (for INTX) and pci_disable_msix.
-
-How is this related to the virtio-scsi patch that you posted?  Do you
-need both to fix the problem you reported?
-
-Paolo
+> Unfortunately, neither your patch nor mine does that, because virtio bus can be
+> shutdown after pci bus (thanks to Jason for pointing out this). In that case,
+> any completion after disabling msix is lost.
+> 
+> Maybe we need both the pci shutdown handler to reset the device and the virtio
+> shutdown handler to remove the device?
+> 
+> Fam
+> 
+> > 
+> > This sounds very tentative. Do you, in fact, observe some problems
+> > with virtio scsi? How to reproduce them? this needs to go
+> > into the commit messages.
+> 
+> OK, my bad.
+> 
+> > 
+> > > Remove the device in "shutdown" callback to allow device drivers clean
+> > > up things.
+> > > 
+> > > Signed-off-by: Fam Zheng <famz@redhat.com>
+> > 
+> > I'm concerned this will cause more hangs on shutdown: one
+> > of the reasons for reboot is device mal-functioning.
+> > How about we just reset devices instead? Something like
+> > the below (untested).
+> > 
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > 
+> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> > index 5ce2aa4..0769941 100644
+> > --- a/drivers/virtio/virtio.c
+> > +++ b/drivers/virtio/virtio.c
+> > @@ -269,6 +269,17 @@ static int virtio_dev_remove(struct device *_d)
+> >  	return 0;
+> >  }
+> >  
+> > +static void virtio_dev_shutdown(struct device *_d)
+> > +{
+> > +	struct virtio_device *dev = dev_to_virtio(_d);
+> > +	/*
+> > +	 * Reset the device to make it stop sending interrupts, DMA, etc.
+> > +	 * We are shutting down, no need for full cleanup.
+> > +	 */
+> > +	dev->config->reset(dev);
+> > +
+> > +}
+> > +
+> >  static struct bus_type virtio_bus = {
+> >  	.name  = "virtio",
+> >  	.match = virtio_dev_match,
+> > @@ -276,6 +288,7 @@ static struct bus_type virtio_bus = {
+> >  	.uevent = virtio_uevent,
+> >  	.probe = virtio_dev_probe,
+> >  	.remove = virtio_dev_remove,
+> > +	.shutdown = virtio_dev_shutdown,
+> >  };
+> >  
+> >  bool virtio_device_is_legacy_only(struct virtio_device_id id)
