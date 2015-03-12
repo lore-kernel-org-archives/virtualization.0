@@ -1,14 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] uapi/virtio_scsi: allow overriding CDB/SENSE size
-Date: Thu, 12 Mar 2015 12:06:05 +0100
-Message-ID: <20150312120508-mutt-send-email-mst@redhat.com>
-References: <20150311141903-mutt-send-email-mst@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [RFC PATCH] PCI: Disable MSI/MSI-X only if device is shutdown
+Date: Thu, 12 Mar 2015 17:21:11 +0100
+Message-ID: <5501BCF7.9080004@redhat.com>
+References: <1426137682-12287-1-git-send-email-famz@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20150311141903-mutt-send-email-mst@redhat.com>
+In-Reply-To: <1426137682-12287-1-git-send-email-famz@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,54 +17,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Paolo Bonzini <pbonzini@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: Fam Zheng <famz@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 11, 2015 at 02:19:03PM +0100, Michael S. Tsirkin wrote:
-> QEMU wants to use virtio scsi structures with
-> a different VIRTIO_SCSI_CDB_SIZE/VIRTIO_SCSI_SENSE_SIZE,
-> let's add ifdefs to allow overriding them.
+
+
+On 12/03/2015 06:21, Fam Zheng wrote:
+> If the device doesn't support shutdown, disabling interrupts may cause
+> trouble. For example, virtio-scsi-pci doesn't implement shutdown, and
+> after we disable MSI-X, futher notifications from device will be
+> delivered to IRQ, which is unexpected. This IRQ will not be cleared, and
+> may prevent us from making progress, by keep triggering interrupts.
 > 
-> Keep the old defines under new names:
-> VIRTIO_SCSI_CDB_DEFAULT_SIZE/VIRTIO_SCSI_SENSE_DEFAULT_SIZE,
-> since that's what these values really are:
-> defaults for cdb/sense size fields.
-> 
-> Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Fam Zheng <famz@redhat.com>
 > ---
-
-Rusty, pls note, if possible I'd like this one
-merged for 4.0 because it's important for QEMU
-(which now imports linux headers).
-
-
->  include/uapi/linux/virtio_scsi.h | 12 ++++++++++--
->  1 file changed, 10 insertions(+), 2 deletions(-)
+>  drivers/pci/pci-driver.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
 > 
-> diff --git a/include/uapi/linux/virtio_scsi.h b/include/uapi/linux/virtio_scsi.h
-> index 42b9370..cc18ef8 100644
-> --- a/include/uapi/linux/virtio_scsi.h
-> +++ b/include/uapi/linux/virtio_scsi.h
-> @@ -29,8 +29,16 @@
+> diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
+> index 3cb2210..fb29c96 100644
+> --- a/drivers/pci/pci-driver.c
+> +++ b/drivers/pci/pci-driver.c
+> @@ -448,10 +448,11 @@ static void pci_device_shutdown(struct device *dev)
 >  
->  #include <linux/virtio_types.h>
+>  	pm_runtime_resume(dev);
 >  
-> -#define VIRTIO_SCSI_CDB_SIZE   32
-> -#define VIRTIO_SCSI_SENSE_SIZE 96
-> +/* Default values of the CDB and sense data size configuration fields */
-> +#define VIRTIO_SCSI_CDB_DEFAULT_SIZE   32
-> +#define VIRTIO_SCSI_SENSE_DEFAULT_SIZE 96
-> +
-> +#ifndef VIRTIO_SCSI_CDB_SIZE
-> +#define VIRTIO_SCSI_CDB_SIZE VIRTIO_SCSI_CDB_DEFAULT_SIZE
-> +#endif
-> +#ifndef VIRTIO_SCSI_SENSE_SIZE
-> +#define VIRTIO_SCSI_SENSE_SIZE VIRTIO_SCSI_SENSE_DEFAULT_SIZE
-> +#endif
+> -	if (drv && drv->shutdown)
+> +	if (drv && drv->shutdown) {
+>  		drv->shutdown(pci_dev);
+> -	pci_msi_shutdown(pci_dev);
+> -	pci_msix_shutdown(pci_dev);
+> +		pci_msi_shutdown(pci_dev);
+> +		pci_msix_shutdown(pci_dev);
+> +	}
 >  
->  /* SCSI command request, followed by data-out */
->  struct virtio_scsi_cmd_req {
-> -- 
-> MST
+>  #ifdef CONFIG_KEXEC
+>  	/*
+> 
+
+The patch may be okay, but I think the bug here is also that virtio-pci
+is not defining a .shutdown callback.  It should define one and call
+free_irq (for INTX) and pci_disable_msix.
+
+How is this related to the virtio-scsi patch that you posted?  Do you
+need both to fix the problem you reported?
+
+Paolo
