@@ -1,14 +1,17 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] uapi/virtio_scsi: allow overriding CDB/SENSE size
-Date: Fri, 13 Mar 2015 11:59:44 +1030
-Message-ID: <87wq2lvg53.fsf__33191.8619609953$1426210277$gmane$org@rustcorp.com.au>
-References: <20150311141903-mutt-send-email-mst@redhat.com>
-	<20150312120508-mutt-send-email-mst@redhat.com>
+From: Greg Kurz <gkurz@linux.vnet.ibm.com>
+Subject: Re: [PATCH] virtio-pci: fix host notifiers on bi-endian architectures
+Date: Fri, 13 Mar 2015 09:03:12 +0100
+Message-ID: <20150313090312.742d135c@bahia.local>
+References: <20150311180212.8119.14734.stgit@bahia.local>
+	<20150311210322-mutt-send-email-mst@redhat.com>
+	<20150311230314.08e51843@bahia.local>
+	<20150312075922-mutt-send-email-mst@redhat.com>
+	<5501BDEB.5080603@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150312120508-mutt-send-email-mst@redhat.com>
+In-Reply-To: <5501BDEB.5080603@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,62 +21,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Paolo Bonzini <pbonzini@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Cedric Le Goater <clg@fr.ibm.com>, qemu-ppc@nongnu.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
-> On Wed, Mar 11, 2015 at 02:19:03PM +0100, Michael S. Tsirkin wrote:
->> QEMU wants to use virtio scsi structures with
->> a different VIRTIO_SCSI_CDB_SIZE/VIRTIO_SCSI_SENSE_SIZE,
->> let's add ifdefs to allow overriding them.
->> 
->> Keep the old defines under new names:
->> VIRTIO_SCSI_CDB_DEFAULT_SIZE/VIRTIO_SCSI_SENSE_DEFAULT_SIZE,
->> since that's what these values really are:
->> defaults for cdb/sense size fields.
->> 
->> Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
->> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->> ---
->
-> Rusty, pls note, if possible I'd like this one
-> merged for 4.0 because it's important for QEMU
-> (which now imports linux headers).
+On Thu, 12 Mar 2015 17:25:15 +0100
+Paolo Bonzini <pbonzini@redhat.com> wrote:
+> 
+> 
+> On 12/03/2015 08:08, Michael S. Tsirkin wrote:
+> > But common header format is simple, it's always LE.
+> > It does not depend on target.
+> > To me this looks like a bug in memory_region_add_eventfd,
+> > it should do the right thing depending on device
+> > endian-ness.
+> 
+> I agree it seems to be a QEMU bug.
+> 
+> Paolo
+> 
 
-OK, applied.
+Yes you're right ! QEMU swaps the virtqueue id (adjust_endianness) according
+to TARGET_WORDS, like it was coming from the guest but in fact it comes from
+the host. The id should be fixed according to HOST_WORDS instead. Of course
+this went unnoticed until TARGET_WORDS_BIGENDIAN != HOST_WORDS_BIGENDIAN,
+which we have now with ppc64le hosts.
 
-Thanks,
-Rusty.
+Patches to follow.
 
+Thanks.
 
->
->
->>  include/uapi/linux/virtio_scsi.h | 12 ++++++++++--
->>  1 file changed, 10 insertions(+), 2 deletions(-)
->> 
->> diff --git a/include/uapi/linux/virtio_scsi.h b/include/uapi/linux/virtio_scsi.h
->> index 42b9370..cc18ef8 100644
->> --- a/include/uapi/linux/virtio_scsi.h
->> +++ b/include/uapi/linux/virtio_scsi.h
->> @@ -29,8 +29,16 @@
->>  
->>  #include <linux/virtio_types.h>
->>  
->> -#define VIRTIO_SCSI_CDB_SIZE   32
->> -#define VIRTIO_SCSI_SENSE_SIZE 96
->> +/* Default values of the CDB and sense data size configuration fields */
->> +#define VIRTIO_SCSI_CDB_DEFAULT_SIZE   32
->> +#define VIRTIO_SCSI_SENSE_DEFAULT_SIZE 96
->> +
->> +#ifndef VIRTIO_SCSI_CDB_SIZE
->> +#define VIRTIO_SCSI_CDB_SIZE VIRTIO_SCSI_CDB_DEFAULT_SIZE
->> +#endif
->> +#ifndef VIRTIO_SCSI_SENSE_SIZE
->> +#define VIRTIO_SCSI_SENSE_SIZE VIRTIO_SCSI_SENSE_DEFAULT_SIZE
->> +#endif
->>  
->>  /* SCSI command request, followed by data-out */
->>  struct virtio_scsi_cmd_req {
->> -- 
->> MST
+--
+Greg
