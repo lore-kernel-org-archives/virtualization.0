@@ -1,18 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio: Remove virtio device during shutdown
-Date: Fri, 13 Mar 2015 15:17:23 +0100
-Message-ID: <20150313151657-mutt-send-email-mst@redhat.com>
-References: <1426061357-4440-1-git-send-email-famz@redhat.com>
-	<20150311095814-mutt-send-email-mst@redhat.com>
-	<20150311101135.GA13653@ad.nay.redhat.com>
-	<20150312172138-mutt-send-email-mst@redhat.com>
-	<20150312233552.GB32054@ad.nay.redhat.com>
+Subject: Re: virtio-net: tx queue was stopped
+Date: Sun, 15 Mar 2015 09:40:52 +0100
+Message-ID: <20150315080138-mutt-send-email-mst__7508.20963080532$1426408874$gmane$org@redhat.com>
+References: <55052BB3.2080705@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20150312233552.GB32054@ad.nay.redhat.com>
+In-Reply-To: <55052BB3.2080705@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,76 +18,125 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Fam Zheng <famz@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Linhaifeng <haifeng.lin@huawei.com>
+Cc: netdev@vger.kernel.org, lilijun <jerry.lilijun@huawei.com>, virtualization@lists.linux-foundation.org, "liuyongan@huawei.com" <liuyongan@huawei.com>, "lixiao (H)" <lixiao91@huawei.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Mar 13, 2015 at 07:35:52AM +0800, Fam Zheng wrote:
-> On Thu, 03/12 17:22, Michael S. Tsirkin wrote:
-> > On Wed, Mar 11, 2015 at 06:11:35PM +0800, Fam Zheng wrote:
-> > > On Wed, 03/11 10:06, Michael S. Tsirkin wrote:
-> > > > On Wed, Mar 11, 2015 at 04:09:17PM +0800, Fam Zheng wrote:
-> > > > > Currently shutdown is nop for virtio devices, but the core code could
-> > > > > remove things behind us such as MSI-X handler etc. For example in the
-> > > > > case of virtio-scsi-pci, the device may still try to send interupts,
-> > > > > which will be on IRQ lines seeing MSI-X disabled. Those interrupts will
-> > > > > be unhandled, and may cause flood.
-> > > 
-> > > Here is the problem I want to solve - file system driver hang:
-> > > 
-> > > If a fs code happen to hit __wait_on_buffer right after pci pci_device_shutdown
-> > > disabled msix, it will never make progress because the requests it waits for
-> > > will never be completed. So the system hangs.
-> > 
-> > Paolo says that pci reset of virtio scsi device guarantees
-> > that all outstanding requests complete.
-> > 
-> > If true and implemented correctly, I don't see what else
-> > needs to be done.
-> > 
-> > You will need to debug this some more.
+On Sun, Mar 15, 2015 at 02:50:27PM +0800, Linhaifeng wrote:
+> Hi,Michael
 > 
-> First of all I was wrong about the fs driver above, scratch that, I'm sorry for
-> the misleading.
-> 
-> Regarding the hang in shutdown, Ulrich Obergfell has already pointed out that
-> the vcpu is "busy/stuck in interrupt processing":
-> 
-> https://bugzilla.redhat.com/attachment.cgi?id=998391 (RHBZ 1199155)
-> 
-> Summary: The reason it is stuck is that an IRQ from virtio-scsi-pci is not
-> handled. Why is there that IRQ? Because pci core code disabled msix. Why is it
-> not handled?  Because it's done behind virtio-scsi, who still is waiting for
-> msix.
-> 
-> "Hence, the interrupt will not be acknowledged and the guest becomes flooded
-> with IRQ 11 interrupt."
-> 
-> Fortunately it's not a livelock for upstream, because of:
-> 
->     commit 184564efae4d775225c8fe3b762a56956fb1f827
->     Author: Zhang Haoyu <zhanghy@sangfor.com>
->     Date:   Thu Sep 11 16:47:04 2014 +0800
-> 
->     kvm: ioapic: conditionally delay irq delivery duringeoi broadcast
-> 
-> But we still should do the shutdown right.
-> 
-> I also propose to not shutdown msix from pci core shutdown if the device
-> doesn't have shutdown function:
-> 
-> http://www.spinics.net/lists/kernel/msg1944041.html
+> I had tested the start_xmit function by the follow code found that the tx queue's state is stopped and can't send any packets anymore.
 
-Makes sense.
-Can you bounce this one to me please?
-I'll ack.
+Why don't you Cc all maintainers on this email?
+Pls check the file MAINTAINERS for the full list.
+I added Cc for now.
 
-> With that patch is applied, the "nop" .shutdown in virtio-pci shouldn't hurt
-> much.
 > 
-> Regarding handing the requests, now I don't know if we really care about them
-> at shutdown. As you said, waiting for requests may cause more hang.
+> static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+> {
+> 	... ...
 > 
-> Ideas?
 > 
-> Fam
+>         capacity = 10;	//########## test code : force to call netif_stop_queue
+> 
+>         if (capacity < 2+MAX_SKB_FRAGS) {
+>                 netif_stop_queue(dev);
+
+So you changed code to make it think we are out of capacity, now it
+stops the queue.
+
+> 
+>                 if (unlikely(!virtqueue_enable_cb_delayed(vi->svq))) {
+>                         /* More just got used, free them then recheck. */
+>                         capacity += free_old_xmit_skbs(vi);
+>                         dev_warn(&dev->dev, "free_old_xmit_skbs capacity =%d MAX_SKB_FRAGS=%d", capacity, MAX_SKB_FRAGS);
+> 
+>                         capacity = 10;		//########## test code : force not to call  netif_start_queue
+> 
+>                         if (capacity >= 2+MAX_SKB_FRAGS) {
+>                                 netif_start_queue(dev);
+>                                 virtqueue_disable_cb(vi->svq);
+>                         } else {
+> 				//########## OTOH if often enter this branch tx queue maybe stopped.
+> 			}
+
+and changed it here so it won't restart queue if host consumed
+all buffers.
+unsurprisingly this makes driver not work.
+
+
+> 			
+>                 }
+> 
+> 		//########## Should we start queue here? I found that sometimes skb_xmit_done run before netif_stop_queue if this occurred the queue's state is
+> 		//########## stopped and have to reload virtio-net module to restore network.
+
+With or without your changes?
+Is this the condition you describe?
+
+
+        if (sq->vq->num_free < 2+MAX_SKB_FRAGS) {
+
+---> at this point, skb_xmit_done runs. this does:
+        /* Suppress further interrupts. */
+        virtqueue_disable_cb(vq);
+
+        /* We were probably waiting for more output buffers. */
+        netif_wake_subqueue(vi->dev, vq2txq(vq));
+--->
+
+
+
+                netif_stop_subqueue(dev, qnum);
+
+---> queue is now stopped
+
+                if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
+
+----> this re-enables interrupts, after an interrupt skb_xmit_done
+	will run again.
+
+                        /* More just got used, free them then recheck.
+ * */
+                        free_old_xmit_skbs(sq);
+                        if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
+                                netif_start_subqueue(dev, qnum);
+                                virtqueue_disable_cb(sq->vq);
+                        }
+                }
+        }
+
+
+I can't see a race condition from your description above.
+
+>         }
+> 	
+> }
+> 
+> ping 9.62.1.2 -i 0.1
+> 64 bytes from 9.62.1.2: icmp_seq=19 ttl=64 time=0.115 ms
+> 64 bytes from 9.62.1.2: icmp_seq=20 ttl=64 time=0.101 ms
+> 64 bytes from 9.62.1.2: icmp_seq=21 ttl=64 time=0.094 ms
+> 64 bytes from 9.62.1.2: icmp_seq=22 ttl=64 time=0.098 ms
+> 64 bytes from 9.62.1.2: icmp_seq=23 ttl=64 time=0.097 ms
+> 64 bytes from 9.62.1.2: icmp_seq=24 ttl=64 time=0.095 ms
+> 64 bytes from 9.62.1.2: icmp_seq=25 ttl=64 time=0.095 ms
+> ....
+> ping:  sendmsg:  No buffer space available
+> ping:  sendmsg:  No buffer space available
+> ping:  sendmsg:  No buffer space available
+> ping:  sendmsg:  No buffer space available
+> ping:  sendmsg:  No buffer space available
+> ping:  sendmsg:  No buffer space available
+> ....
+> 
+> -- 
+> Regards,
+> Haifeng
+
+I can't say what does your code-changing experiment show.
+It might be better to introduce delay by calling something like
+cpu_relax at specific points (maybe multiple times in a loop).
+
+-- 
+MST
