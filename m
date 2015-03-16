@@ -1,16 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: virtio-net: tx queue was stopped
-Date: Mon, 16 Mar 2015 13:26:58 +0100
-Message-ID: <20150316132309-mutt-send-email-mst@redhat.com>
-References: <55052BB3.2080705@huawei.com>
-	<20150315080138-mutt-send-email-mst@redhat.com>
-	<5506A137.8050909@huawei.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH 8/9] qspinlock: Generic paravirt support
+Date: Mon, 16 Mar 2015 14:16:21 +0100
+Message-ID: <20150316133112.278511476@infradead.org>
+References: <20150316131613.720617163@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5506A137.8050909@huawei.com>
+Content-Disposition: inline;
+	filename=peterz-qspinlock-paravirt-crap-again.patch
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,162 +18,360 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linhaifeng <haifeng.lin@huawei.com>
-Cc: netdev@vger.kernel.org, lilijun <jerry.lilijun@huawei.com>, virtualization@lists.linux-foundation.org, "liuyongan@huawei.com" <liuyongan@huawei.com>, "lixiao (H)" <lixiao91@huawei.com>
+To: Waiman.Long@hp.com
+Cc: raghavendra.kt@linux.vnet.ibm.com, kvm@vger.kernel.org, peterz@infradead.org, linux-kernel@vger.kernel.org, hpa@zytor.com, boris.ostrovsky@oracle.com, linux-arch@vger.kernel.org, x86@kernel.org, mingo@redhat.com, doug.hatch@hp.com, xen-devel@lists.xenproject.org, paulmck@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, scott.norton@hp.com, paolo.bonzini@gmail.com, tglx@linutronix.de, virtualization@lists.linux-foundation.org, oleg@redhat.com, luto@amacapital.net, david.vrabel@citrix.com, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Mar 16, 2015 at 05:24:07PM +0800, Linhaifeng wrote:
-> 
-> 
-> On 2015/3/15 16:40, Michael S. Tsirkin wrote:
-> > On Sun, Mar 15, 2015 at 02:50:27PM +0800, Linhaifeng wrote:
-> >> Hi,Michael
-> >>
-> >> I had tested the start_xmit function by the follow code found that the tx queue's state is stopped and can't send any packets anymore.
-> > 
-> > Why don't you Cc all maintainers on this email?
-> > Pls check the file MAINTAINERS for the full list.
-> > I added Cc for now.
-> > 
-> 
-> Thank you.
-> 
-> >>
-> >> static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
-> >> {
-> >> 	... ...
-> >>
-> >>
-> >>         capacity = 10;	//########## test code : force to call netif_stop_queue
-> >>
-> >>         if (capacity < 2+MAX_SKB_FRAGS) {
-> >>                 netif_stop_queue(dev);
-> > 
-> > So you changed code to make it think we are out of capacity, now it
-> > stops the queue.
-> > 
-> >>
-> >>                 if (unlikely(!virtqueue_enable_cb_delayed(vi->svq))) {
-> >>                         /* More just got used, free them then recheck. */
-> >>                         capacity += free_old_xmit_skbs(vi);
-> >>                         dev_warn(&dev->dev, "free_old_xmit_skbs capacity =%d MAX_SKB_FRAGS=%d", capacity, MAX_SKB_FRAGS);
-> >>
-> >>                         capacity = 10;		//########## test code : force not to call  netif_start_queue
-> >>
-> >>                         if (capacity >= 2+MAX_SKB_FRAGS) {
-> >>                                 netif_start_queue(dev);
-> >>                                 virtqueue_disable_cb(vi->svq);
-> >>                         } else {
-> >> 				//########## OTOH if often enter this branch tx queue maybe stopped.
-> >> 			}
-> > 
-> > and changed it here so it won't restart queue if host consumed
-> > all buffers.
-> > unsurprisingly this makes driver not work.
-> > 
-> > 
-> >> 			
-> >>                 }
-> >>
-> >> 		//########## Should we start queue here? I found that sometimes skb_xmit_done run before netif_stop_queue if this occurred the queue's state is
-> >> 		//########## stopped and have to reload virtio-net module to restore network.
-> > 
-> > With or without your changes?
-> 
-> without
-> 
-> > Is this the condition you describe?
-> > 
-> > 
-> >         if (sq->vq->num_free < 2+MAX_SKB_FRAGS) {
-> > 
-> > ---> at this point, skb_xmit_done runs. this does:
-> >         /* Suppress further interrupts. */
-> >         virtqueue_disable_cb(vq);
-> > 
-> >         /* We were probably waiting for more output buffers. */
-> >         netif_wake_subqueue(vi->dev, vq2txq(vq));
-> > --->
-> > 
-> > 
-> > 
-> 
-> Because i use vhost-user(poll mode) with virtio_net so at this time vhost
-> had received all packets.
+Implement simple paravirt support for the qspinlock.
 
-Must likely a vhost-user bug then.
+Provide a separate (second) version of the spin_lock_slowpath for
+paravirt along with a special unlock path.
 
-> >                 netif_stop_subqueue(dev, qnum);
-> > 
-> > ---> queue is now stopped
-> > 
-> >                 if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
-> > 
-> > ----> this re-enables interrupts, after an interrupt skb_xmit_done
-> > 	will run again.
-> > 
-> 
-> Before netif_stop_subqueue called vhost had received all packets so virtio_net
-> will never receive any skb_xmit_done.
+The second slowpath is generated by adding a few pv hooks to the
+normal slowpath, but where those will compile away for the native
+case, they expand into special wait/wake code for the pv version.
 
-And completed them in the used ring?
-In that case virtqueue_enable_cb_delayed will return false,
-so we'll call free_old_xmit_skbs below, and restart ring.
+The actual MCS queue can use extra storage in the mcs_nodes[] array to
+keep track of state and therefore uses directed wakeups.
 
-> If vhost is in poll mode should we need or not to stop tx queue?
-> Can i add a flag VHOST_F_POLL_MODE to support poll mode vhost(vhost-user)?
+The head contender has no such storage available and reverts to the
+per-cpu lock entry similar to the current kvm code. We can do a single
+enrty because any nesting will wake the vcpu and cause the lower loop
+to retry.
 
-Host just needs to be spec-compliant.
-It must send interrupts unless they are disabled.
-So this sounds like a VHOST_F_FIX_A_BUG to me. Just fix races in
-vhost-user code, and no need for extra flags.
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+---
+ include/asm-generic/qspinlock.h     |    3 
+ kernel/locking/qspinlock.c          |   69 +++++++++++++-
+ kernel/locking/qspinlock_paravirt.h |  177 ++++++++++++++++++++++++++++++++++++
+ 3 files changed, 248 insertions(+), 1 deletion(-)
 
-
-> >                         /* More just got used, free them then recheck.
-> >  * */
-> >                         free_old_xmit_skbs(sq);
-> >                         if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
-> >                                 netif_start_subqueue(dev, qnum);
-> >                                 virtqueue_disable_cb(sq->vq);
-> >                         }
-> >                 }
-> >         }
-> > 
-> > 
-> > I can't see a race condition from your description above.
-> > 
-> >>         }
-> >> 	
-> >> }
-> >>
-> >> ping 9.62.1.2 -i 0.1
-> >> 64 bytes from 9.62.1.2: icmp_seq=19 ttl=64 time=0.115 ms
-> >> 64 bytes from 9.62.1.2: icmp_seq=20 ttl=64 time=0.101 ms
-> >> 64 bytes from 9.62.1.2: icmp_seq=21 ttl=64 time=0.094 ms
-> >> 64 bytes from 9.62.1.2: icmp_seq=22 ttl=64 time=0.098 ms
-> >> 64 bytes from 9.62.1.2: icmp_seq=23 ttl=64 time=0.097 ms
-> >> 64 bytes from 9.62.1.2: icmp_seq=24 ttl=64 time=0.095 ms
-> >> 64 bytes from 9.62.1.2: icmp_seq=25 ttl=64 time=0.095 ms
-> >> ....
-> >> ping:  sendmsg:  No buffer space available
-> >> ping:  sendmsg:  No buffer space available
-> >> ping:  sendmsg:  No buffer space available
-> >> ping:  sendmsg:  No buffer space available
-> >> ping:  sendmsg:  No buffer space available
-> >> ping:  sendmsg:  No buffer space available
-> >> ....
-> >>
-> >> -- 
-> >> Regards,
-> >> Haifeng
-> > 
-> > I can't say what does your code-changing experiment show.
-> > It might be better to introduce delay by calling something like
-> > cpu_relax at specific points (maybe multiple times in a loop).
-> > 
-> 
-> 
-> 
-> -- 
-> Regards,
-> Haifeng
+--- a/include/asm-generic/qspinlock.h
++++ b/include/asm-generic/qspinlock.h
+@@ -118,6 +118,9 @@ static __always_inline bool virt_queue_s
+ }
+ #endif
+ 
++extern void __pv_queue_spin_lock_slowpath(struct qspinlock *lock, u32 val);
++extern void __pv_queue_spin_unlock(struct qspinlock *lock);
++
+ /*
+  * Initializier
+  */
+--- a/kernel/locking/qspinlock.c
++++ b/kernel/locking/qspinlock.c
+@@ -18,6 +18,9 @@
+  * Authors: Waiman Long <waiman.long@hp.com>
+  *          Peter Zijlstra <peterz@infradead.org>
+  */
++
++#ifndef _GEN_PV_LOCK_SLOWPATH
++
+ #include <linux/smp.h>
+ #include <linux/bug.h>
+ #include <linux/cpumask.h>
+@@ -65,13 +68,21 @@
+ 
+ #include "mcs_spinlock.h"
+ 
++#ifdef CONFIG_PARAVIRT_SPINLOCKS
++#define MAX_NODES	8
++#else
++#define MAX_NODES	4
++#endif
++
+ /*
+  * Per-CPU queue node structures; we can never have more than 4 nested
+  * contexts: task, softirq, hardirq, nmi.
+  *
+  * Exactly fits one 64-byte cacheline on a 64-bit architecture.
++ *
++ * PV doubles the storage and uses the second cacheline for PV state.
+  */
+-static DEFINE_PER_CPU_ALIGNED(struct mcs_spinlock, mcs_nodes[4]);
++static DEFINE_PER_CPU_ALIGNED(struct mcs_spinlock, mcs_nodes[MAX_NODES]);
+ 
+ /*
+  * We must be able to distinguish between no-tail and the tail at 0:0,
+@@ -230,6 +241,32 @@ static __always_inline void set_locked(s
+ 	WRITE_ONCE(l->locked, _Q_LOCKED_VAL);
+ }
+ 
++
++/*
++ * Generate the native code for queue_spin_unlock_slowpath(); provide NOPs for
++ * all the PV callbacks.
++ */
++
++static __always_inline void __pv_init_node(struct mcs_spinlock *node) { }
++static __always_inline void __pv_wait_node(struct mcs_spinlock *node) { }
++static __always_inline void __pv_kick_node(struct mcs_spinlock *node) { }
++
++static __always_inline void __pv_wait_head(struct qspinlock *lock) { }
++
++#define pv_enabled()		false
++
++#define pv_init_node		__pv_init_node
++#define pv_wait_node		__pv_wait_node
++#define pv_kick_node		__pv_kick_node
++
++#define pv_wait_head		__pv_wait_head
++
++#ifdef CONFIG_PARAVIRT_SPINLOCKS
++#define queue_spin_lock_slowpath	native_queue_spin_lock_slowpath
++#endif
++
++#endif /* _GEN_PV_LOCK_SLOWPATH */
++
+ /**
+  * queue_spin_lock_slowpath - acquire the queue spinlock
+  * @lock: Pointer to queue spinlock structure
+@@ -259,6 +296,9 @@ void queue_spin_lock_slowpath(struct qsp
+ 
+ 	BUILD_BUG_ON(CONFIG_NR_CPUS >= (1U << _Q_TAIL_CPU_BITS));
+ 
++	if (pv_enabled())
++		goto queue;
++
+ 	if (virt_queue_spin_lock(lock))
+ 		return;
+ 
+@@ -335,6 +375,7 @@ void queue_spin_lock_slowpath(struct qsp
+ 	node += idx;
+ 	node->locked = 0;
+ 	node->next = NULL;
++	pv_init_node(node);
+ 
+ 	/*
+ 	 * We touched a (possibly) cold cacheline in the per-cpu queue node;
+@@ -360,6 +401,7 @@ void queue_spin_lock_slowpath(struct qsp
+ 		prev = decode_tail(old);
+ 		WRITE_ONCE(prev->next, node);
+ 
++		pv_wait_node(node);
+ 		arch_mcs_spin_lock_contended(&node->locked);
+ 	}
+ 
+@@ -374,6 +416,7 @@ void queue_spin_lock_slowpath(struct qsp
+ 	 * sequentiality; this is because the set_locked() function below
+ 	 * does not imply a full barrier.
+ 	 */
++	pv_wait_head(lock);
+ 	while ((val = smp_load_acquire(&lock->val.counter)) & _Q_LOCKED_PENDING_MASK)
+ 		cpu_relax();
+ 
+@@ -406,6 +449,7 @@ void queue_spin_lock_slowpath(struct qsp
+ 		cpu_relax();
+ 
+ 	arch_mcs_spin_unlock_contended(&next->locked);
++	pv_kick_node(next);
+ 
+ release:
+ 	/*
+@@ -414,3 +458,26 @@ void queue_spin_lock_slowpath(struct qsp
+ 	this_cpu_dec(mcs_nodes[0].count);
+ }
+ EXPORT_SYMBOL(queue_spin_lock_slowpath);
++
++/*
++ * Generate the paravirt code for queue_spin_unlock_slowpath().
++ */
++#if !defined(_GEN_PV_LOCK_SLOWPATH) && defined(CONFIG_PARAVIRT_SPINLOCKS)
++#define _GEN_PV_LOCK_SLOWPATH
++
++#undef pv_enabled
++#define pv_enabled()	true
++
++#undef pv_init_node
++#undef pv_wait_node
++#undef pv_kick_node
++
++#undef pv_wait_head
++
++#undef queue_spin_lock_slowpath
++#define queue_spin_lock_slowpath	__pv_queue_spin_lock_slowpath
++
++#include "qspinlock_paravirt.h"
++#include "qspinlock.c"
++
++#endif
+--- /dev/null
++++ b/kernel/locking/qspinlock_paravirt.h
+@@ -0,0 +1,177 @@
++#ifndef _GEN_PV_LOCK_SLOWPATH
++#error "do not include this file"
++#endif
++
++/*
++ * Implement paravirt qspinlocks; the general idea is to halt the vcpus instead
++ * of spinning them.
++ *
++ * This relies on the architecture to provide two paravirt hypercalls:
++ *
++ *   pv_wait(u8 *ptr, u8 val) -- suspends the vcpu if *ptr == val
++ *   pv_kick(cpu)             -- wakes a suspended vcpu
++ *
++ * Using these we implement __pv_queue_spin_lock_slowpath() and
++ * __pv_queue_spin_unlock() to replace native_queue_spin_lock_slowpath() and
++ * native_queue_spin_unlock().
++ */
++
++#define _Q_SLOW_VAL	(2U << _Q_LOCKED_OFFSET)
++
++enum vcpu_state {
++	vcpu_running = 0,
++	vcpu_halted,
++};
++
++struct pv_node {
++	struct mcs_spinlock	mcs;
++	struct mcs_spinlock	__res[3];
++
++	int			cpu;
++	u8			state;
++};
++
++/*
++ * Initialize the PV part of the mcs_spinlock node.
++ */
++static void pv_init_node(struct mcs_spinlock *node)
++{
++	struct pv_node *pn = (struct pv_node *)node;
++
++	BUILD_BUG_ON(sizeof(struct pv_node) > 5*sizeof(struct mcs_spinlock));
++
++	pn->cpu = smp_processor_id();
++	pn->state = vcpu_running;
++}
++
++/*
++ * Wait for node->locked to become true, halt the vcpu after a short spin.
++ * pv_kick_node() is used to wake the vcpu again.
++ */
++static void pv_wait_node(struct mcs_spinlock *node)
++{
++	struct pv_node *pn = (struct pv_node *)node;
++	int loop;
++
++	for (;;) {
++		for (loop = SPIN_THRESHOLD; loop; loop--) {
++			if (READ_ONCE(node->locked))
++				goto done;
++
++			cpu_relax();
++		}
++
++		/*
++		 * Order pn->state vs pn->locked thusly:
++		 *
++		 * [S] pn->state = vcpu_halted	  [S] next->locked = 1
++		 *     MB			      MB
++		 * [L] pn->locked		[RmW] pn->state = vcpu_running
++		 *
++		 * Matches the xchg() from pv_kick_node().
++		 */
++		(void)xchg(&pn->state, vcpu_halted);
++
++		if (READ_ONCE(node->locked))
++			goto done;
++
++		pv_wait(&pn->state, vcpu_halted);
++	}
++done:
++	pn->state = vcpu_running;
++
++	/*
++	 * By now our node->locked should be 1 and our caller will not actually
++	 * spin-wait for it. We do however rely on our caller to do a
++	 * load-acquire for us.
++	 */
++}
++
++/*
++ * Called after setting next->locked = 1, used to wake those stuck in
++ * pv_wait_node().
++ */
++static void pv_kick_node(struct mcs_spinlock *node)
++{
++	struct pv_node *pn = (struct pv_node *)node;
++
++	/*
++	 * Note that because node->locked is already set, this actual mcs_spinlock
++	 * entry could be re-used already.
++	 *
++	 * This should be fine however, kicking people for no reason is harmless.
++	 *
++	 * See the comment in pv_wait_node().
++	 */
++	if (xchg(&pn->state, vcpu_running) == vcpu_halted)
++		pv_kick(pn->cpu);
++}
++
++static DEFINE_PER_CPU(struct qspinlock *, __pv_lock_wait);
++
++/*
++ * Wait for l->locked to become clear; halt the vcpu after a short spin.
++ * __pv_queue_spin_unlock() will wake us.
++ */
++static void pv_wait_head(struct qspinlock *lock)
++{
++	struct __qspinlock *l = (void *)lock;
++	int loop;
++
++	for (;;) {
++		for (loop = SPIN_THRESHOLD; loop; loop--) {
++			if (!READ_ONCE(l->locked))
++				goto done;
++
++			cpu_relax();
++		}
++
++		this_cpu_write(__pv_lock_wait, lock);
++		/*
++		 * __pv_lock_wait must be set before setting _Q_SLOW_VAL
++		 *
++		 * [S] __pv_lock_wait = lock    [RmW] l = l->locked = 0
++		 *     MB                             MB
++		 * [S] l->locked = _Q_SLOW_VAL  [L]   __pv_lock_wait
++		 *
++		 * Matches the xchg() in pv_queue_spin_unlock().
++		 */
++		if (!cmpxchg(&l->locked, _Q_LOCKED_VAL, _Q_SLOW_VAL))
++			goto done;
++
++		pv_wait(&l->locked, _Q_SLOW_VAL);
++	}
++done:
++	this_cpu_write(__pv_lock_wait, NULL);
++
++	/*
++	 * Lock is unlocked now; the caller will acquire it without waiting.
++	 * As with pv_wait_node() we rely on the caller to do a load-acquire
++	 * for us.
++	 */
++}
++
++/*
++ * To be used in stead of queue_spin_unlock() for paravirt locks. Wakes
++ * pv_wait_head() if appropriate.
++ */
++void __pv_queue_spin_unlock(struct qspinlock *lock)
++{
++	struct __qspinlock *l = (void *)lock;
++	int cpu;
++
++	if (xchg(&l->locked, 0) != _Q_SLOW_VAL)
++		return;
++
++	/*
++	 * At this point the memory pointed at by lock can be freed/reused,
++	 * however we can still use the pointer value to search in our cpu
++	 * array.
++	 *
++	 * XXX: get rid of this loop
++	 */
++	for_each_possible_cpu(cpu) {
++		if (per_cpu(__pv_lock_wait, cpu) == lock)
++			pv_kick(cpu);
++	}
++}
