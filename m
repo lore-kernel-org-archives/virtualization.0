@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC 4/4] virtio_pci: drop msi_off on probe
-Date: Mon, 16 Mar 2015 18:20:41 +0100
-Message-ID: <1426526415-13299-5-git-send-email-mst@redhat.com>
-References: <1426526415-13299-1-git-send-email-mst@redhat.com>
+From: Fabian Frederick <fabf@skynet.be>
+Subject: [PATCH 19/35 linux-next] virtio_mmio: constify of_device_id array
+Date: Mon, 16 Mar 2015 20:20:35 +0100
+Message-ID: <1426533651-25586-10-git-send-email-fabf__44621.5072334327$1426533881$gmane$org@skynet.be>
+References: <1426533469-25458-1-git-send-email-fabf@skynet.be>
+	<1426533651-25586-1-git-send-email-fabf@skynet.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1426526415-13299-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1426533651-25586-1-git-send-email-fabf@skynet.be>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,32 +19,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: Fam Zheng <famz@redhat.com>, linux-pci@vger.kernel.org, virtualization@lists.linux-foundation.org, Yinghai Lu <yhlu.kernel.send@gmail.com>, Bjorn Helgaas <bhelgaas@google.com>
+Cc: Fabian Frederick <fabf@skynet.be>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-pci core now disables msi on probe automatically,
-drop this from device-specific code.
+of_device_id is always used as const.
+(See driver.of_match_table and open firmware functions)
 
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Fabian Frederick <fabf@skynet.be>
 ---
- drivers/virtio/virtio_pci_common.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/virtio/virtio_mmio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index a0723d1..f506571 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -501,9 +501,6 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
- 	INIT_LIST_HEAD(&vp_dev->virtqueues);
- 	spin_lock_init(&vp_dev->lock);
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 9c877d2..0ce8cda 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -671,7 +671,7 @@ static void vm_unregister_cmdline_devices(void)
  
--	/* Disable MSI/MSIX to bring device to a known good state. */
--	pci_msi_off(pci_dev);
--
- 	/* enable the device */
- 	rc = pci_enable_device(pci_dev);
- 	if (rc)
+ /* Platform driver */
+ 
+-static struct of_device_id virtio_mmio_match[] = {
++static const struct of_device_id virtio_mmio_match[] = {
+ 	{ .compatible = "virtio,mmio", },
+ 	{},
+ };
 -- 
-MST
+2.1.0
