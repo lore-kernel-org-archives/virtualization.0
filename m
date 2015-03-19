@@ -1,15 +1,14 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [Xen-devel] [PATCH 0/9] qspinlock stuff -v15
-Date: Thu, 19 Mar 2015 19:32:20 +0100
-Message-ID: <20150319183220.GU23123@twins.programming.kicks-ass.net>
-References: <20150316131613.720617163@infradead.org>
-	<550B0EFE.1040309@citrix.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH v2 4/4] virtio_pci: drop msi_off on probe
+Date: Thu, 19 Mar 2015 19:58:23 +0100
+Message-ID: <1426786724-22241-5-git-send-email-mst@redhat.com>
+References: <1426786724-22241-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <550B0EFE.1040309@citrix.com>
+In-Reply-To: <1426786724-22241-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,21 +18,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Vrabel <david.vrabel@citrix.com>
-Cc: Waiman.Long@hp.com, linux-arch@vger.kernel.org, riel@redhat.com, x86@kernel.org, kvm@vger.kernel.org, oleg@redhat.com, scott.norton@hp.com, raghavendra.kt@linux.vnet.ibm.com, paolo.bonzini@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, doug.hatch@hp.com, hpa@zytor.com, luto@amacapital.net, xen-devel@lists.xenproject.org, boris.ostrovsky@oracle.com, paulmck@linux.vnet.ibm.com, torvalds@linux-foundation.org, tglx@linutronix.de
+To: linux-kernel@vger.kernel.org
+Cc: Fam Zheng <famz@redhat.com>, linux-pci@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Yinghai Lu <yhlu.kernel.send@gmail.com>, Bjorn Helgaas <bhelgaas@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 19, 2015 at 06:01:34PM +0000, David Vrabel wrote:
-> This seems work for me, but I've not got time to give it a more thorough
-> testing.
-> 
-> You can fold this into your series.
+pci core now disables msi on probe automatically,
+drop this from device-specific code.
 
-Thanks!
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/virtio/virtio_pci_common.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-> There doesn't seem to be a way to disable QUEUE_SPINLOCKS when supported by
-> the arch, is this intentional?  If so, the existing ticketlock code could go.
-
-Yeah, its left as a rudiment such that if we find issues with the
-qspinlock code we can 'revert' with a trivial patch. If no issues show
-up we can rip out all the old code in a subsequent release.
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index e894eb2..806bb2c 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -501,9 +501,6 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
+ 	INIT_LIST_HEAD(&vp_dev->virtqueues);
+ 	spin_lock_init(&vp_dev->lock);
+ 
+-	/* Disable MSI/MSIX to bring device to a known good state. */
+-	pci_msi_off(pci_dev);
+-
+ 	/* enable the device */
+ 	rc = pci_enable_device(pci_dev);
+ 	if (rc)
+-- 
+MST
