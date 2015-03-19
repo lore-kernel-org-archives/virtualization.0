@@ -1,16 +1,15 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 8/9] qspinlock: Generic paravirt support
-Date: Thu, 19 Mar 2015 13:25:36 +0100
-Message-ID: <20150319122536.GD11574@worktop.ger.corp.intel.com>
-References: <20150316131613.720617163@infradead.org>
-	<20150316133112.278511476@infradead.org> <5509E51D.7040909@hp.com>
-	<20150319101242.GM21418@twins.programming.kicks-ass.net>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 1/1] Add virtio-input driver.
+Date: Thu, 19 Mar 2015 13:27:40 +0100
+Message-ID: <20150319123940-mutt-send-email-mst__18920.8120377318$1426768083$gmane$org@redhat.com>
+References: <1426756391-26585-1-git-send-email-kraxel@redhat.com>
+	<1426756391-26585-2-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20150319101242.GM21418@twins.programming.kicks-ass.net>
+In-Reply-To: <1426756391-26585-2-git-send-email-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,266 +19,540 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Waiman Long <waiman.long@hp.com>
-Cc: linux-arch@vger.kernel.org, riel@redhat.com, x86@kernel.org, kvm@vger.kernel.org, konrad.wilk@oracle.com, scott.norton@hp.com, raghavendra.kt@linux.vnet.ibm.com, paolo.bonzini@gmail.com, oleg@redhat.com, linux-kernel@vger.kernel.org, mingo@redhat.com, david.vrabel@citrix.com, hpa@zytor.com, luto@amacapital.net, xen-devel@lists.xenproject.org, tglx@linutronix.de, paulmck@linux.vnet.ibm.com, torvalds@linux-foundation.org, boris.ostrovsky@oracle.com, virtualization@lists.linux-foundation.org, doug.hatch@hp.com
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, open list <linux-kernel@vger.kernel.org>, "open list:ABI/API" <linux-api@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 19, 2015 at 11:12:42AM +0100, Peter Zijlstra wrote:
-> So I was now thinking of hashing the lock pointer; let me go and quickly
-> put something together.
+On Thu, Mar 19, 2015 at 10:13:11AM +0100, Gerd Hoffmann wrote:
+> virtio-input is basically evdev-events-over-virtio, so this driver isn't
+> much more than reading configuration from config space and forwarding
+> incoming events to the linux input layer.
+> 
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 
-A little something like so; ideally we'd allocate the hashtable since
-NR_CPUS is kinda bloated, but it shows the idea I think.
+What worries me is how well are these events specified.
+Will we be able to write drivers for non-linux guests?
+Not sure where to discuss this - this seems like an inappropriate
+thread.
 
-And while this has loops in (the rehashing thing) their fwd progress
-does not depend on other CPUs.
+Comments on linux driver below.
 
-And I suspect that for the typical lock contention scenarios its
-unlikely we ever really get into long rehashing chains.
+> ---
+>  drivers/virtio/Kconfig            |  10 ++
+>  drivers/virtio/Makefile           |   1 +
+>  drivers/virtio/virtio_input.c     | 313 ++++++++++++++++++++++++++++++++++++++
+>  include/uapi/linux/virtio_ids.h   |   1 +
+>  include/uapi/linux/virtio_input.h |  65 ++++++++
+>  5 files changed, 390 insertions(+)
+>  create mode 100644 drivers/virtio/virtio_input.c
+>  create mode 100644 include/uapi/linux/virtio_input.h
+> 
+> diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+> index b546da5..cab9f3f 100644
+> --- a/drivers/virtio/Kconfig
+> +++ b/drivers/virtio/Kconfig
+> @@ -48,6 +48,16 @@ config VIRTIO_BALLOON
+>  
+>  	 If unsure, say M.
+>  
+> +config VIRTIO_INPUT
+> +	tristate "Virtio input driver"
+> +	depends on VIRTIO
+> +	depends on INPUT
+> +	---help---
+> +	 This driver supports virtio input devices such as
+> +	 keyboards, mice and tablets.
+> +
+> +	 If unsure, say M.
+> +
+>   config VIRTIO_MMIO
+>  	tristate "Platform bus driver for memory mapped virtio devices"
+>  	depends on HAS_IOMEM
+> diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
+> index d85565b..41e30e3 100644
+> --- a/drivers/virtio/Makefile
+> +++ b/drivers/virtio/Makefile
+> @@ -4,3 +4,4 @@ obj-$(CONFIG_VIRTIO_PCI) += virtio_pci.o
+>  virtio_pci-y := virtio_pci_modern.o virtio_pci_common.o
+>  virtio_pci-$(CONFIG_VIRTIO_PCI_LEGACY) += virtio_pci_legacy.o
+>  obj-$(CONFIG_VIRTIO_BALLOON) += virtio_balloon.o
+> +obj-$(CONFIG_VIRTIO_INPUT) += virtio_input.o
+> diff --git a/drivers/virtio/virtio_input.c b/drivers/virtio/virtio_input.c
+> new file mode 100644
+> index 0000000..2d425cf
+> --- /dev/null
+> +++ b/drivers/virtio/virtio_input.c
+> @@ -0,0 +1,313 @@
+> +#include <linux/module.h>
+> +#include <linux/virtio.h>
+> +#include <linux/input.h>
+> +
+> +#include <uapi/linux/virtio_ids.h>
+> +#include <uapi/linux/virtio_input.h>
+> +
+> +struct virtio_input {
+> +	struct virtio_device       *vdev;
+> +	struct input_dev           *idev;
+> +	char                       name[64];
+> +	char                       serial[64];
+> +	char                       phys[64];
+> +	struct virtqueue           *evt, *sts;
+> +	struct virtio_input_event  evts[64];
+> +};
+> +
+> +static ssize_t serial_show(struct device *dev,
+> +			   struct device_attribute *attr, char *buf)
+> +{
+> +	struct input_dev *idev = to_input_dev(dev);
+> +	struct virtio_input *vi = input_get_drvdata(idev);
+> +	return sprintf(buf, "%s\n", vi->serial);
+> +}
+> +static DEVICE_ATTR_RO(serial);
+> +
+> +static struct attribute *dev_attrs[] = {
+> +	&dev_attr_serial.attr,
+> +	NULL
+> +};
+> +
+> +static umode_t dev_attrs_are_visible(struct kobject *kobj,
+> +				     struct attribute *a, int n)
+> +{
+> +	struct device *dev = container_of(kobj, struct device, kobj);
+> +	struct input_dev *idev = to_input_dev(dev);
+> +	struct virtio_input *vi = input_get_drvdata(idev);
+> +
+> +	if (a == &dev_attr_serial.attr && !strlen(vi->serial))
+> +		return 0;
+> +
+> +	return a->mode;
+> +}
+> +
+> +static struct attribute_group dev_attr_grp = {
+> +	.attrs =	dev_attrs,
+> +	.is_visible =	dev_attrs_are_visible,
+> +};
+> +
+> +static const struct attribute_group *dev_attr_groups[] = {
+> +	&dev_attr_grp,
+> +	NULL
+> +};
+> +
+> +static void virtinput_queue_evtbuf(struct virtio_input *vi,
+> +				   struct virtio_input_event *evtbuf)
+> +{
+> +	struct scatterlist sg[1];
+> +
+> +	sg_init_one(sg, evtbuf, sizeof(*evtbuf));
+> +	virtqueue_add_inbuf(vi->evt, sg, 1, evtbuf, GFP_ATOMIC);
+> +}
+> +
+> +static void virtinput_recv_events(struct virtqueue *vq)
+> +{
+> +	struct virtio_input *vi = vq->vdev->priv;
+> +	struct virtio_input_event *event;
+> +	unsigned int len;
+> +
+> +	while ((event = virtqueue_get_buf(vi->evt, &len)) != NULL) {
+> +		input_event(vi->idev,
+> +			    le16_to_cpu(event->type),
+> +			    le16_to_cpu(event->code),
+> +			    le32_to_cpu(event->value));
+> +		virtinput_queue_evtbuf(vi, event);
+> +	}
+> +	virtqueue_kick(vq);
+> +}
+> +
+> +static int virtinput_send_status(struct virtio_input *vi,
+> +				 u16 type, u16 code, s32 value)
+> +{
+> +	struct virtio_input_event *stsbuf;
+> +	struct scatterlist sg[1];
+> +
+> +	stsbuf = kzalloc(sizeof(*stsbuf), GFP_ATOMIC);
+> +	if (!stsbuf)
+> +		return -ENOMEM;
 
----
- include/linux/lfsr.h                |   49 ++++++++++++
- kernel/locking/qspinlock_paravirt.h |  143 ++++++++++++++++++++++++++++++++----
- 2 files changed, 178 insertions(+), 14 deletions(-)
+Does this return an error to userspace?
+If so it's not a good idea I think, GFP_ATOMIC failures are
+transient conditions and should not be reported
+to userspace.
+Can use GFP_KERNEL here?
 
---- /dev/null
-+++ b/include/linux/lfsr.h
-@@ -0,0 +1,49 @@
-+#ifndef _LINUX_LFSR_H
-+#define _LINUX_LFSR_H
-+
-+/*
-+ * Simple Binary Galois Linear Feedback Shift Register
-+ *
-+ * http://en.wikipedia.org/wiki/Linear_feedback_shift_register
-+ *
-+ */
-+
-+extern void __lfsr_needs_more_taps(void);
-+
-+static __always_inline u32 lfsr_taps(int bits)
-+{
-+	if (bits ==  1) return 0x0001;
-+	if (bits ==  2) return 0x0001;
-+	if (bits ==  3) return 0x0003;
-+	if (bits ==  4) return 0x0009;
-+	if (bits ==  5) return 0x0012;
-+	if (bits ==  6) return 0x0021;
-+	if (bits ==  7) return 0x0041;
-+	if (bits ==  8) return 0x008E;
-+	if (bits ==  9) return 0x0108;
-+	if (bits == 10) return 0x0204;
-+	if (bits == 11) return 0x0402;
-+	if (bits == 12) return 0x0829;
-+	if (bits == 13) return 0x100D;
-+	if (bits == 14) return 0x2015;
-+
-+	/*
-+	 * For more taps see:
-+	 *   http://users.ece.cmu.edu/~koopman/lfsr/index.html
-+	 */
-+	__lfsr_needs_more_taps();
-+
-+	return 0;
-+}
-+
-+static inline u32 lfsr(u32 val, int bits)
-+{
-+	u32 bit = val & 1;
-+
-+	val >>= 1;
-+	if (bit)
-+		val ^= lfsr_taps(bits);
-+	return val;
-+}
-+
-+#endif /* _LINUX_LFSR_H */
---- a/kernel/locking/qspinlock_paravirt.h
-+++ b/kernel/locking/qspinlock_paravirt.h
-@@ -2,6 +2,9 @@
- #error "do not include this file"
- #endif
- 
-+#include <linux/hash.h>
-+#include <linux/lfsr.h>
-+
- /*
-  * Implement paravirt qspinlocks; the general idea is to halt the vcpus instead
-  * of spinning them.
-@@ -107,7 +110,120 @@ static void pv_kick_node(struct mcs_spin
- 		pv_kick(pn->cpu);
- }
- 
--static DEFINE_PER_CPU(struct qspinlock *, __pv_lock_wait);
-+/*
-+ * Hash table using open addressing with an LFSR probe sequence.
-+ *
-+ * Since we should not be holding locks from NMI context (very rare indeed) the
-+ * max load factor is 0.75, which is around the point where open addressing
-+ * breaks down.
-+ *
-+ * Instead of probing just the immediate bucket we probe all buckets in the
-+ * same cacheline.
-+ *
-+ * http://en.wikipedia.org/wiki/Hash_table#Open_addressing
-+ *
-+ */
-+
-+#define HB_RESERVED	((struct qspinlock *)1)
-+
-+struct pv_hash_bucket {
-+	struct qspinlock *lock;
-+	int cpu;
-+};
-+
-+/*
-+ * XXX dynamic allocate using nr_cpu_ids instead...
-+ */
-+#define PV_LOCK_HASH_BITS	(2 + NR_CPUS_BITS)
-+
-+#if PV_LOCK_HASH_BITS < 6
-+#undef PV_LOCK_HASH_BITS
-+#define PB_LOCK_HASH_BITS	6
-+#endif
-+
-+#define PV_LOCK_HASH_SIZE	(1 << PV_LOCK_HASH_BITS)
-+
-+static struct pv_hash_bucket __pv_lock_hash[PV_LOCK_HASH_SIZE] ____cacheline_aligned;
-+
-+#define PV_HB_PER_LINE		(SMP_CACHE_BYTES / sizeof(struct pv_hash_bucket))
-+
-+static inline u32 hash_align(u32 hash)
-+{
-+	return hash & ~(PV_HB_PER_LINE - 1);
-+}
-+
-+static struct qspinlock **pv_hash(struct qspinlock *lock)
-+{
-+	u32 hash = hash_ptr(lock, PV_LOCK_HASH_BITS);
-+	struct pv_hash_bucket *hb, *end;
-+
-+	if (!hash)
-+		hash = 1;
-+
-+	hb = &__pv_lock_hash[hash_align(hash)];
-+	for (;;) {
-+		for (end = hb + PV_HB_PER_LINE; hb < end; hb++) {
-+			if (cmpxchg(&hb->lock, NULL, HB_RESERVED)) {
-+				WRITE_ONCE(hb->cpu, smp_processor_id());
-+				/*
-+				 * Since we must read lock first and cpu
-+				 * second, we must write cpu first and lock
-+				 * second, therefore use HB_RESERVE to mark an
-+				 * entry in use before writing the values.
-+				 *
-+				 * This can cause hb_hash_find() to not find a
-+				 * cpu even though _Q_SLOW_VAL, this is not a
-+				 * problem since we re-check l->locked before
-+				 * going to sleep and the unlock will have
-+				 * cleared l->locked already.
-+				 */
-+				smp_wmb(); /* matches rmb from pv_hash_find */
-+				WRITE_ONCE(hb->lock, lock);
-+				goto done;
-+			}
-+		}
-+
-+		hash = lfsr(hash, PV_LOCK_HASH_BITS);
-+		hb = &__pv_lock_hash[hash_align(hash)];
-+	}
-+
-+done:
-+	return &hb->lock;
-+}
-+
-+static int pv_hash_find(struct qspinlock *lock)
-+{
-+	u64 hash = hash_ptr(lock, PV_LOCK_HASH_BITS);
-+	struct pv_hash_bucket *hb, *end;
-+	int cpu = -1;
-+
-+	if (!hash)
-+		hash = 1;
-+
-+	hb = &__pv_lock_hash[hash_align(hash)];
-+	for (;;) {
-+		for (end = hb + PV_HB_PER_LINE; hb < end; hb++) {
-+			struct qspinlock *l = READ_ONCE(hb->lock);
-+
-+			/*
-+			 * If we hit an unused bucket, there is no match.
-+			 */
-+			if (!l)
-+				goto done;
-+
-+			if (l == lock) {
-+				smp_rmb(); /* matches wmb from pv_hash() */
-+				cpu = READ_ONCE(hb->cpu);
-+				goto done;
-+			}
-+		}
-+
-+		hash = lfsr(hash, PV_LOCK_HASH_BITS);
-+		hb = &__pv_lock_hash[hash_align(hash)];
-+	}
-+done:
-+	return cpu;
-+}
- 
- /*
-  * Wait for l->locked to become clear; halt the vcpu after a short spin.
-@@ -116,6 +232,7 @@ static DEFINE_PER_CPU(struct qspinlock *
- static void pv_wait_head(struct qspinlock *lock)
- {
- 	struct __qspinlock *l = (void *)lock;
-+	struct qspinlock **lp = NULL;
- 	int loop;
- 
- 	for (;;) {
-@@ -126,13 +243,13 @@ static void pv_wait_head(struct qspinloc
- 			cpu_relax();
- 		}
- 
--		this_cpu_write(__pv_lock_wait, lock);
-+		lp = pv_hash(lock);
- 		/*
--		 * __pv_lock_wait must be set before setting _Q_SLOW_VAL
-+		 * lp  must be set before setting _Q_SLOW_VAL
- 		 *
--		 * [S] __pv_lock_wait = lock    [RmW] l = l->locked = 0
-+		 * [S] lp = lock                [RmW] l = l->locked = 0
- 		 *     MB                             MB
--		 * [S] l->locked = _Q_SLOW_VAL  [L]   __pv_lock_wait
-+		 * [S] l->locked = _Q_SLOW_VAL  [L]   lp
- 		 *
- 		 * Matches the xchg() in pv_queue_spin_unlock().
- 		 */
-@@ -142,7 +259,8 @@ static void pv_wait_head(struct qspinloc
- 		pv_wait(&l->locked, _Q_SLOW_VAL);
- 	}
- done:
--	this_cpu_write(__pv_lock_wait, NULL);
-+	if (lp)
-+		WRITE_ONCE(*lp, NULL);
- 
- 	/*
- 	 * Lock is unlocked now; the caller will acquire it without waiting.
-@@ -165,13 +283,10 @@ void __pv_queue_spin_unlock(struct qspin
- 
- 	/*
- 	 * At this point the memory pointed at by lock can be freed/reused,
--	 * however we can still use the pointer value to search in our cpu
--	 * array.
--	 *
--	 * XXX: get rid of this loop
-+	 * however we can still use the pointer value to search in our hash
-+	 * table.
- 	 */
--	for_each_possible_cpu(cpu) {
--		if (per_cpu(__pv_lock_wait, cpu) == lock)
--			pv_kick(cpu);
--	}
-+	cpu = pv_hash_find(lock);
-+	if (cpu >= 0)
-+		pv_kick(cpu);
- }
+> +
+> +	stsbuf->type  = cpu_to_le16(type);
+> +	stsbuf->code  = cpu_to_le16(code);
+> +	stsbuf->value = cpu_to_le32(value);
+> +	sg_init_one(sg, stsbuf, sizeof(*stsbuf));
+> +	virtqueue_add_outbuf(vi->sts, sg, 1, stsbuf, GFP_ATOMIC);
+
+This can fail if queue is full. What prevents this from happening?
+
+> +	virtqueue_kick(vi->sts);
+
+Also what prevents multiple virtinput_send_status calls
+from racing with each other? Is there locking at a higher level?
+
+> +	return 0;
+> +}
+> +
+> +static void virtinput_recv_status(struct virtqueue *vq)
+> +{
+> +	struct virtio_input *vi = vq->vdev->priv;
+> +	struct virtio_input_event *stsbuf;
+> +	unsigned int len;
+> +
+> +	while ((stsbuf = virtqueue_get_buf(vi->sts, &len)) != NULL)
+
+looks like this get_buf can race with add above.
+Need some locking.
+
+Also pls avoid != NULL, removing it makes code less verbose.
+
+> +		kfree(stsbuf);
+> +	virtqueue_kick(vq);
+
+Why are you kicking here?
+
+> +}
+> +
+> +static int virtinput_status(struct input_dev *idev, unsigned int type,
+> +			    unsigned int code, int value)
+> +{
+> +	struct virtio_input *vi = input_get_drvdata(idev);
+> +
+> +	return virtinput_send_status(vi, type, code, value);
+> +}
+> +
+> +static size_t virtinput_cfg_select(struct virtio_input *vi,
+> +				   u8 select, u8 subsel)
+> +{
+> +	u8 size;
+> +
+> +	virtio_cwrite(vi->vdev, struct virtio_input_config, select, &select);
+> +	virtio_cwrite(vi->vdev, struct virtio_input_config, subsel, &subsel);
+> +	virtio_cread(vi->vdev, struct virtio_input_config, size, &size);
+> +	return size;
+> +}
+> +
+> +static void virtinput_cfg_bits(struct virtio_input *vi, int select, int subsel,
+> +			       unsigned long *bits, unsigned int bitcount)
+> +{
+> +	unsigned int bit;
+> +	size_t bytes;
+> +	u8 cfg = 0;
+> +
+> +	bytes = virtinput_cfg_select(vi, select, subsel);
+> +	if (!bytes)
+> +		return;
+> +	if (bitcount > bytes*8)
+> +		bitcount = bytes*8;
+> +	if (select == VIRTIO_INPUT_CFG_EV_BITS)
+> +		set_bit(subsel, vi->idev->evbit);
+> +	for (bit = 0; bit < bitcount; bit++) {
+> +		if ((bit % 8) == 0)
+> +			virtio_cread(vi->vdev, struct virtio_input_config,
+> +				     u.bitmap[bit/8], &cfg);
+
+coding style violations above. you need spaces around ops like / and *.
+Please run checkpatch.pl
+
+> +		if (cfg & (1 << (bit % 8)))
+> +			set_bit(bit, bits);
+
+what if not set? does something clear the mask?
+
+
+> +	}
+
+doesn't above just implement bitmap_copy or bitmap_or?  Will it hurt to
+just do virtio_cread_bytes into a temporary buffer and then invoke
+bitmap ops? Looks like the buffer is at most 256 bytes:
+too large to be on stack, but you can allocate it at probe time.
+
+
+> +}
+> +
+> +static void virtinput_cfg_abs(struct virtio_input *vi, int abs)
+> +{
+> +	u32 size, mi, ma, fu, fl;
+> +
+> +	size = virtinput_cfg_select(vi, VIRTIO_INPUT_CFG_ABS_INFO, abs);
+> +	virtio_cread(vi->vdev, struct virtio_input_config, u.abs.min, &mi);
+> +	virtio_cread(vi->vdev, struct virtio_input_config, u.abs.max, &ma);
+> +	virtio_cread(vi->vdev, struct virtio_input_config, u.abs.fuzz, &fu);
+> +	virtio_cread(vi->vdev, struct virtio_input_config, u.abs.flat, &fl);
+
+you read le field into u32 value.
+Please run sparse on this code. you will get a ton
+of warnings. Same error appears elsewhere.
+
+> +	input_set_abs_params(vi->idev, abs,
+> +			     le32_to_cpu(mi), le32_to_cpu(ma),
+> +			     le32_to_cpu(fu), le32_to_cpu(fl));
+> +}
+> +
+> +static int virtinput_init_vqs(struct virtio_input *vi)
+> +{
+> +	struct virtqueue *vqs[2];
+> +	vq_callback_t *cbs[] = { virtinput_recv_events,
+> +				 virtinput_recv_status };
+> +	const char *names[] = { "events", "status" };
+> +	int i, err, size;
+> +
+> +	err = vi->vdev->config->find_vqs(vi->vdev, 2, vqs, cbs, names);
+> +	if (err)
+> +		return err;
+> +	vi->evt = vqs[0];
+> +	vi->sts = vqs[1];
+> +
+> +	size = virtqueue_get_vring_size(vi->evt);
+> +	if (size > ARRAY_SIZE(vi->evts))
+> +		size = ARRAY_SIZE(vi->evts);
+> +	for (i = 0; i < size; i++)
+> +		virtinput_queue_evtbuf(vi, &vi->evts[i]);
+> +
+
+you add a bunch of bufs but never kick apparently.
+you really must kick otherwise device might not
+see the buffers.
+
+> +	return 0;
+> +}
+> +
+> +static int virtinput_probe(struct virtio_device *vdev)
+> +{
+> +	struct virtio_input *vi;
+> +	size_t size;
+> +	int abs, err;
+
+How about checking VERSION_1 and bailing out of not there?
+
+> +
+> +	vi = kzalloc(sizeof(*vi), GFP_KERNEL);
+> +	if (!vi) {
+> +		err = -ENOMEM;
+> +		goto out1;
+> +	}
+> +	vdev->priv = vi;
+> +	vi->vdev = vdev;
+> +
+> +	err = virtinput_init_vqs(vi);
+> +	if (err)
+> +		goto out2;
+> +
+> +	vi->idev = input_allocate_device();
+> +	if (!vi->idev) {
+> +		err = -ENOMEM;
+> +		goto out3;
+> +	}
+> +	input_set_drvdata(vi->idev, vi);
+> +
+> +	size = virtinput_cfg_select(vi, VIRTIO_INPUT_CFG_ID_NAME, 0);
+> +	virtio_cread_bytes(vi->vdev, offsetof(struct virtio_input_config, u),
+> +			   vi->name, min(size, sizeof(vi->name)));
+> +	size = virtinput_cfg_select(vi, VIRTIO_INPUT_CFG_ID_SERIAL, 0);
+> +	virtio_cread_bytes(vi->vdev, offsetof(struct virtio_input_config, u),
+> +			   vi->serial, min(size, sizeof(vi->serial)));
+> +	snprintf(vi->phys, sizeof(vi->phys),
+> +		 "virtio%d/input0", vdev->index);
+> +
+> +	virtinput_cfg_bits(vi, VIRTIO_INPUT_CFG_PROP_BITS, 0,
+> +			   vi->idev->propbit, INPUT_PROP_CNT);
+> +	size = virtinput_cfg_select(vi, VIRTIO_INPUT_CFG_EV_BITS, EV_REP);
+> +	if (size)
+> +		set_bit(EV_REP, vi->idev->evbit);
+> +
+> +	vi->idev->name = vi->name;
+> +	vi->idev->phys = vi->phys;
+> +	vi->idev->id.bustype = BUS_VIRTUAL;
+> +	vi->idev->id.vendor  = 0x0001;
+> +	vi->idev->id.product = 0x0001;
+> +	vi->idev->id.version = 0x0100;
+
+Add comments explaining why these #s make sense?
+
+
+> +	vi->idev->dev.parent = &vdev->dev;
+> +	vi->idev->dev.groups = dev_attr_groups;
+> +	vi->idev->event = virtinput_status;
+> +
+> +	/* device -> kernel */
+> +	virtinput_cfg_bits(vi, VIRTIO_INPUT_CFG_EV_BITS, EV_KEY,
+> +			   vi->idev->keybit, KEY_CNT);
+> +	virtinput_cfg_bits(vi, VIRTIO_INPUT_CFG_EV_BITS, EV_REL,
+> +			   vi->idev->relbit, REL_CNT);
+> +	virtinput_cfg_bits(vi, VIRTIO_INPUT_CFG_EV_BITS, EV_ABS,
+> +			   vi->idev->absbit, ABS_CNT);
+> +	virtinput_cfg_bits(vi, VIRTIO_INPUT_CFG_EV_BITS, EV_MSC,
+> +			   vi->idev->mscbit, MSC_CNT);
+> +	virtinput_cfg_bits(vi, VIRTIO_INPUT_CFG_EV_BITS, EV_SW,
+> +			   vi->idev->swbit,  SW_CNT);
+> +
+> +	/* kernel -> device */
+> +	virtinput_cfg_bits(vi, VIRTIO_INPUT_CFG_EV_BITS, EV_LED,
+> +			   vi->idev->ledbit, LED_CNT);
+> +	virtinput_cfg_bits(vi, VIRTIO_INPUT_CFG_EV_BITS, EV_SND,
+> +			   vi->idev->sndbit, SND_CNT);
+> +
+> +	if (test_bit(EV_ABS, vi->idev->evbit)) {
+> +		for (abs = 0; abs < ABS_CNT; abs++) {
+> +			if (!test_bit(abs, vi->idev->absbit))
+> +				continue;
+> +			virtinput_cfg_abs(vi, abs);
+> +		}
+> +	}
+> +
+> +	err = input_register_device(vi->idev);
+
+Once you do this, virtinput_status can get called,
+and that will kick, correct?
+If so, you must call device_ready before this.
+
+> +	if (err)
+> +		goto out4;
+> +
+> +	return 0;
+> +
+> +out4:
+> +	input_free_device(vi->idev);
+> +out3:
+> +	vdev->config->del_vqs(vdev);
+> +out2:
+> +	kfree(vi);
+> +out1:
+> +	return err;
+
+free on error is out of order with initialization.
+Might lead to leaks or other bugs.
+Also - can you name labels something sensible pls?
+out is usually for exiting on success too...
+E.g. out4 -> err_register etc.
+
+
+> +}
+> +
+> +static void virtinput_remove(struct virtio_device *vdev)
+> +{
+> +	struct virtio_input *vi = vdev->priv;
+> +
+> +	input_unregister_device(vi->idev);
+> +	vdev->config->reset(vdev);
+
+You don't really need a reset if you just to del_vqs.
+People do this if they want to prevent interrupts
+without deleting vqs.
+
+> +	vdev->config->del_vqs(vdev);
+> +	kfree(vi);
+
+free_device seems to be missing?
+
+> +}
+> +
+> +static unsigned int features[] = {
+> +};
+> +static struct virtio_device_id id_table[] = {
+> +	{ VIRTIO_ID_INPUT, VIRTIO_DEV_ANY_ID },
+> +	{ 0 },
+> +};
+> +
+> +static struct virtio_driver virtio_input_driver = {
+> +	.driver.name         = KBUILD_MODNAME,
+> +	.driver.owner        = THIS_MODULE,
+> +	.feature_table       = features,
+> +	.feature_table_size  = ARRAY_SIZE(features),
+> +	.id_table            = id_table,
+> +	.probe               = virtinput_probe,
+> +	.remove              = virtinput_remove,
+> +};
+> +
+> +module_virtio_driver(virtio_input_driver);
+> +MODULE_DEVICE_TABLE(virtio, id_table);
+> +
+> +MODULE_LICENSE("GPL");
+> +MODULE_DESCRIPTION("Virtio input device driver");
+> +MODULE_AUTHOR("Gerd Hoffmann <kraxel@redhat.com>");
+> diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
+> index 284fc3a..5f60aa4 100644
+> --- a/include/uapi/linux/virtio_ids.h
+> +++ b/include/uapi/linux/virtio_ids.h
+> @@ -39,5 +39,6 @@
+>  #define VIRTIO_ID_9P		9 /* 9p virtio console */
+>  #define VIRTIO_ID_RPROC_SERIAL 11 /* virtio remoteproc serial link */
+>  #define VIRTIO_ID_CAIF	       12 /* Virtio caif */
+> +#define VIRTIO_ID_INPUT        18 /* virtio input */
+>  
+>  #endif /* _LINUX_VIRTIO_IDS_H */
+> diff --git a/include/uapi/linux/virtio_input.h b/include/uapi/linux/virtio_input.h
+> new file mode 100644
+> index 0000000..190d04a
+> --- /dev/null
+> +++ b/include/uapi/linux/virtio_input.h
+> @@ -0,0 +1,65 @@
+> +#ifndef _LINUX_VIRTIO_INPUT_H
+> +#define _LINUX_VIRTIO_INPUT_H
+> +/* This header is BSD licensed so anyone can use the definitions to implement
+> + * compatible drivers/servers.
+> + *
+> + * Redistribution and use in source and binary forms, with or without
+> + * modification, are permitted provided that the following conditions
+> + * are met:
+> + * 1. Redistributions of source code must retain the above copyright
+> + *    notice, this list of conditions and the following disclaimer.
+> + * 2. Redistributions in binary form must reproduce the above copyright
+> + *    notice, this list of conditions and the following disclaimer in the
+> + *    documentation and/or other materials provided with the distribution.
+> + * 3. Neither the name of IBM nor the names of its contributors
+> + *    may be used to endorse or promote products derived from this software
+> + *    without specific prior written permission.
+> + * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS'' AND
+> + * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+> + * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+> + * ARE DISCLAIMED.  IN NO EVENT SHALL IBM OR CONTRIBUTORS BE LIABLE
+> + * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+> + * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+> + * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+> + * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+> + * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+> + * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+> + * SUCH DAMAGE. */
+> +#include <linux/virtio_ids.h>
+> +#include <linux/virtio_config.h>
+> +
+> +enum virtio_input_config_select {
+> +	VIRTIO_INPUT_CFG_UNSET      = 0x00,
+> +	VIRTIO_INPUT_CFG_ID_NAME    = 0x01,
+> +	VIRTIO_INPUT_CFG_ID_SERIAL  = 0x02,
+> +	VIRTIO_INPUT_CFG_PROP_BITS  = 0x10,
+> +	VIRTIO_INPUT_CFG_EV_BITS    = 0x11,
+> +	VIRTIO_INPUT_CFG_ABS_INFO   = 0x12,
+> +};
+> +
+> +struct virtio_input_absinfo {
+> +	__le32  min;
+> +	__le32  max;
+> +	__le32  fuzz;
+> +	__le32  flat;
+> +};
+> +
+> +struct virtio_input_config {
+> +	__u8    select;
+> +	__u8    subsel;
+> +	__u8    size;
+> +	__u8    reserved;
+> +	union {
+> +		char string[128];
+> +		__u8 bitmap[128];
+> +		struct virtio_input_absinfo abs;
+> +	} u;
+> +};
+> +
+> +struct virtio_input_event {
+> +	__le16 type;
+> +	__le16 code;
+> +	__le32 value;
+> +};
+> +
+> +#endif /* _LINUX_VIRTIO_INPUT_H */
+> -- 
+> 1.8.3.1
