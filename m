@@ -1,14 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2 4/4] virtio_pci: drop msi_off on probe
-Date: Thu, 19 Mar 2015 19:58:23 +0100
-Message-ID: <1426786724-22241-5-git-send-email-mst@redhat.com>
-References: <1426786724-22241-1-git-send-email-mst@redhat.com>
+From: Waiman Long <waiman.long@hp.com>
+Subject: Re: [PATCH 9/9] qspinlock, x86,
+	kvm: Implement KVM support for paravirt qspinlock
+Date: Thu, 19 Mar 2015 17:08:31 -0400
+Message-ID: <550B3ACF.4050908@hp.com>
+References: <20150316131613.720617163@infradead.org>
+	<20150316133112.333845162@infradead.org> <550A3863.2060808@hp.com>
+	<20150319100121.GL21418@twins.programming.kicks-ass.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1426786724-22241-1-git-send-email-mst@redhat.com>
+In-Reply-To: <20150319100121.GL21418@twins.programming.kicks-ass.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,33 +20,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Fam Zheng <famz@redhat.com>, linux-pci@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Yinghai Lu <yhlu.kernel.send@gmail.com>, Bjorn Helgaas <bhelgaas@google.com>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: linux-arch@vger.kernel.org, riel@redhat.com, x86@kernel.org, kvm@vger.kernel.org, konrad.wilk@oracle.com, scott.norton@hp.com, raghavendra.kt@linux.vnet.ibm.com, paolo.bonzini@gmail.com, oleg@redhat.com, linux-kernel@vger.kernel.org, mingo@redhat.com, david.vrabel@citrix.com, hpa@zytor.com, luto@amacapital.net, xen-devel@lists.xenproject.org, tglx@linutronix.de, paulmck@linux.vnet.ibm.com, torvalds@linux-foundation.org, boris.ostrovsky@oracle.com, virtualization@lists.linux-foundation.org, doug.hatch@hp.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-pci core now disables msi on probe automatically,
-drop this from device-specific code.
+On 03/19/2015 06:01 AM, Peter Zijlstra wrote:
+> On Wed, Mar 18, 2015 at 10:45:55PM -0400, Waiman Long wrote:
+>> On 03/16/2015 09:16 AM, Peter Zijlstra wrote:
+>> I do have some concern about this call site patching mechanism as the
+>> modification is not atomic. The spin_unlock() calls are in many places in
+>> the kernel. There is a possibility that a thread is calling a certain
+>> spin_unlock call site while it is being patched by another one with the
+>> alternative() function call.
+>>
+>> So far, I don't see any problem with bare metal where paravirt_patch_insns()
+>> is used to patch it to the move instruction. However, in a virtual guest
+>> enivornment where paravirt_patch_call() was used, there were situations
+>> where the system panic because of page fault on some invalid memory in the
+>> kthread. If you look at the paravirt_patch_call(), you will see:
+>>
+>>      :
+>> b->opcode = 0xe8; /* call */
+>> b->delta = delta;
+>>
+>> If another CPU reads the instruction at the call site at the right moment,
+>> it will get the modified call instruction, but not the new delta value. It
+>> will then jump to a random location. I believe that was causing the system
+>> panic that I saw.
+>>
+>> So I think it is kind of risky to use it here unless we can guarantee that
+>> call site patching is atomic wrt other CPUs.
+> Just look at where the patching is done:
+>
+> init/main.c:start_kernel()
+>    check_bugs()
+>      alternative_instructions()
+>        apply_paravirt()
+>
+> We're UP and not holding any locks, disable IRQs (see text_poke_early())
+> and have NMIs 'disabled'.
 
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/virtio/virtio_pci_common.c | 3 ---
- 1 file changed, 3 deletions(-)
+You are probably right. The initial apply_paravirt() was done before the 
+SMP boot. Subsequent ones were at kernel module load time. I put a 
+counter in the __native_queue_spin_unlock() and it registered 26949 
+unlock calls in a 16-cpu guest before it got patched out.
 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index e894eb2..806bb2c 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -501,9 +501,6 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
- 	INIT_LIST_HEAD(&vp_dev->virtqueues);
- 	spin_lock_init(&vp_dev->lock);
- 
--	/* Disable MSI/MSIX to bring device to a known good state. */
--	pci_msi_off(pci_dev);
--
- 	/* enable the device */
- 	rc = pci_enable_device(pci_dev);
- 	if (rc)
--- 
-MST
+The panic that I observed before might be due to some coding error of my 
+own.
+
+-Longman
