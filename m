@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH 0/1] Add virtio-input driver.
-Date: Thu, 19 Mar 2015 17:33:11 +0100
-Message-ID: <20150319164311-mutt-send-email-mst@redhat.com>
+Date: Thu, 19 Mar 2015 17:46:01 +0100
+Message-ID: <20150319174055-mutt-send-email-mst__15214.5590902821$1426783605$gmane$org@redhat.com>
 References: <1426756391-26585-1-git-send-email-kraxel@redhat.com>
 	<20150319141302-mutt-send-email-mst@redhat.com>
 	<1426776404.10990.10.camel@nilsson.home.kraxel.org>
@@ -55,15 +55,7 @@ On Thu, Mar 19, 2015 at 03:46:44PM +0100, Gerd Hoffmann wrote:
 > Latest.  As far I know there never ever have been incompatible changes
 > to the interface, and given this is userspace/kernel abi I don't expect
 > that to happen in the future.
-
-More events are added though, are they not? And distros backport rundom
-subsets.
-So I worry: what happens e.g. if you migrate between hosts which expose
-slightly different subsets of events?
-Might e.g. a button get stuck because button-press event was
-sent but button-release wasn't?
-
-
+> 
 > >   How will non-linux guests know what to implement?
 > 
 > There are some docs on the linux input layer and evdev events in
@@ -73,6 +65,11 @@ sent but button-release wasn't?
 >   Gerd
 
 
+Also, the spec needs to be rewritten a bit more formally,
+with conformance clauses separated from freetext description,
+and linked to from appropriate section.
+
+" motion events are send from the device" send->sent
 
 -- 
 MST
