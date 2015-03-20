@@ -1,16 +1,16 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
+From: David Herrmann <dh.herrmann@gmail.com>
 Subject: Re: [PATCH 1/1] Add virtio-input driver.
-Date: Fri, 20 Mar 2015 10:54:33 +0100
-Message-ID: <1426845273.32097.39.camel__16411.9123983712$1426845304$gmane$org@nilsson.home.kraxel.org>
+Date: Fri, 20 Mar 2015 10:55:07 +0100
+Message-ID: <CANq1E4QLPSK6NVeEx6yihYPdF-XPpXx4rKv0deHwX+s2RzFHCg__902.967403135513$1426845324$gmane$org@mail.gmail.com>
 References: <1426756391-26585-1-git-send-email-kraxel@redhat.com>
 	<1426756391-26585-2-git-send-email-kraxel@redhat.com>
 	<CANq1E4TDj4pq3J_BVc=Yuzo5dVR=QcNexVUqaqwjg7Qi5_xX4Q@mail.gmail.com>
-	<20150319162704.GE30732@dtor-ws>
+	<1426844885.32097.36.camel@nilsson.home.kraxel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150319162704.GE30732@dtor-ws>
+In-Reply-To: <1426844885.32097.36.camel@nilsson.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,33 +20,96 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: virtio-dev@lists.oasis-open.org, mst@redhat.com, "open
-	list:ABI/API" <linux-api@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, David Herrmann <dh.herrmann@gmail.com>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, mst@redhat.com, "open list:ABI/API" <linux-api@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
+Hi
 
-> > > +static ssize_t serial_show(struct device *dev,
-> > > +                          struct device_attribute *attr, char *buf)
-> > > +{
-> > > +       struct input_dev *idev = to_input_dev(dev);
-> > > +       struct virtio_input *vi = input_get_drvdata(idev);
-> > > +       return sprintf(buf, "%s\n", vi->serial);
-> > > +}
-> > > +static DEVICE_ATTR_RO(serial);
-> 
-> What is serial? Serial number?
+On Fri, Mar 20, 2015 at 10:48 AM, Gerd Hoffmann <kraxel@redhat.com> wrote:
+>
+>   Hi,
+>
+>> > +static int virtinput_send_status(struct virtio_input *vi,
+>> > +                                u16 type, u16 code, s32 value)
+>> > +{
+>> > +       struct virtio_input_event *stsbuf;
+>> > +       struct scatterlist sg[1];
+>> > +
+>> > +       stsbuf = kzalloc(sizeof(*stsbuf), GFP_ATOMIC);
+>> > +       if (!stsbuf)
+>> > +               return -ENOMEM;
+>> > +
+>> > +       stsbuf->type  = cpu_to_le16(type);
+>> > +       stsbuf->code  = cpu_to_le16(code);
+>> > +       stsbuf->value = cpu_to_le32(value);
+>> > +       sg_init_one(sg, stsbuf, sizeof(*stsbuf));
+>> > +       virtqueue_add_outbuf(vi->sts, sg, 1, stsbuf, GFP_ATOMIC);
+>> > +       virtqueue_kick(vi->sts);
+>>
+>> GFP_ATOMIC, eww. But everyone does that for input_event() callbacks..
+>
+> Yea, did it this way because I saw it elsewhere.
+>
+>> we should fix that for user-space input one day.
+>
+> Sounds like I have to use GFP_ATOMIC and can't switch to GFP_KERNEL,
+> correct?
 
-Yes.  You can (optionally) configure a serial number on the host side,
-and if that is the case it'll show up here.
+You cannot use GFP_KERNEL in this context, correct. GFP_ATOMIC is also
+what all HID backends do, so it's fine here.
 
-> > Can you set vi->idev->uniq to the virtio-bus path?
-> 
-> No, uniq can't be phys as phys is unique within the system while uniq is
-> like serial number or UUID and should never repeat.
+>> > +       size = virtinput_cfg_select(vi, VIRTIO_INPUT_CFG_ABS_INFO, abs);
+>> > +       virtio_cread(vi->vdev, struct virtio_input_config, u.abs.min, &mi);
+>> > +       virtio_cread(vi->vdev, struct virtio_input_config, u.abs.max, &ma);
+>> > +       virtio_cread(vi->vdev, struct virtio_input_config, u.abs.fuzz, &fu);
+>> > +       virtio_cread(vi->vdev, struct virtio_input_config, u.abs.flat, &fl);
+>>
+>> abs.resolution is missing. Please add it, we really also need to add
+>> it to uinput one day.
+>
+> Ok.  How should I handle cases where the resolution is either not known
+> or not fixed?  Just leave it zero?
 
-Ok, so I guess I should just fill uniq with serial (if present).
+Leave it 0, which is what you already do by not assigning it.
 
-cheers,
-  Gerd
+>> > +       vi->idev->name = vi->name;
+>> > +       vi->idev->phys = vi->phys;
+>>
+>> Can you set vi->idev->uniq to the virtio-bus path?
+>>
+>> > +       vi->idev->id.bustype = BUS_VIRTUAL;
+>> > +       vi->idev->id.vendor  = 0x0001;
+>> > +       vi->idev->id.product = 0x0001;
+>> > +       vi->idev->id.version = 0x0100;
+>>
+>> Please don't hardcode those. All user-space based interaction with
+>> input-devices relies on those IDs. Can we retrieve it from the host
+>> just like the name?
+>
+> Yes, we can.
+>
+> There will be emulated devices, i.e. the input coming from
+> vnc/gtk/whatever will be sent to the virtio devices (instead of ps/2 or
+> usb).  For these we should probably have fixed IDs per device.  There
+> are keyboard/mouse/tablet at the moment.  Suggestions how to pick IDs?
+>
+> There will also be pass-through support, i.e. qemu
+> opening /dev/input/event<nr> and forwarding everything to the guest.
+> How should that be handled best?  Copy all four from the host?  Even
+> though the bustype is BUS_USB?  Not sure this actually improves things
+> because the guest can match the device, or whenever this confuses apps
+> due to BUS_USB being applied to virtio devices ...
+
+Lemme give an example: We have databases in user-space, that allow
+applications to figure out the mouse DPI values of a device. Those
+databases match on all four, bus+vid+pid+ver (sometimes even more,
+like name and dmi). If one of those is not forwarded, it will not be
+detected.
+
+I'd like to see all four forwarded from the host. I'd be fine with
+"bus" being set to VIRTUAL, but I'm not sure why that would be a good
+thing to do?
+
+Thanks
+David
