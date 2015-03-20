@@ -1,17 +1,15 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH 9/9] qspinlock, x86,
-	kvm: Implement KVM support for paravirt qspinlock
-Date: Fri, 20 Mar 2015 13:13:56 +0530
-Message-ID: <550BCFBC.9000106@linux.vnet.ibm.com>
-References: <20150316131613.720617163@infradead.org>
-	<20150316133112.333845162@infradead.org> <550A3863.2060808@hp.com>
-	<20150319100121.GL21418@twins.programming.kicks-ass.net>
-	<550B3ACF.4050908@hp.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 1/1] Add virtio-input driver.
+Date: Fri, 20 Mar 2015 10:48:05 +0100
+Message-ID: <1426844885.32097.36.camel__44256.4421253794$1426844909$gmane$org@nilsson.home.kraxel.org>
+References: <1426756391-26585-1-git-send-email-kraxel@redhat.com>
+	<1426756391-26585-2-git-send-email-kraxel@redhat.com>
+	<CANq1E4TDj4pq3J_BVc=Yuzo5dVR=QcNexVUqaqwjg7Qi5_xX4Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <550B3ACF.4050908@hp.com>
+In-Reply-To: <CANq1E4TDj4pq3J_BVc=Yuzo5dVR=QcNexVUqaqwjg7Qi5_xX4Q@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,16 +19,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Waiman Long <waiman.long@hp.com>
-Cc: linux-arch@vger.kernel.org, riel@redhat.com, kvm@vger.kernel.org, konrad.wilk@oracle.com, Peter Zijlstra <peterz@infradead.org>, scott.norton@hp.com, x86@kernel.org, paolo.bonzini@gmail.com, oleg@redhat.com, linux-kernel@vger.kernel.org, mingo@redhat.com, david.vrabel@citrix.com, hpa@zytor.com, luto@amacapital.net, xen-devel@lists.xenproject.org, tglx@linutronix.de, paulmck@linux.vnet.ibm.com, torvalds@linux-foundation.org, boris.ostrovsky@oracle.com, virtualization@lists.linux-foundation.org, doug.hatch@hp.com
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: virtio-dev@lists.oasis-open.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, mst@redhat.com, "open
+	list:ABI/API" <linux-api@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/20/2015 02:38 AM, Waiman Long wrote:
-> On 03/19/2015 06:01 AM, Peter Zijlstra wrote:
-[...]
-> You are probably right. The initial apply_paravirt() was done before the
-> SMP boot. Subsequent ones were at kernel module load time. I put a
-> counter in the __native_queue_spin_unlock() and it registered 26949
-> unlock calls in a 16-cpu guest before it got patched out.
 
-because even printks take lock..
+  Hi,
+
+> > +static int virtinput_send_status(struct virtio_input *vi,
+> > +                                u16 type, u16 code, s32 value)
+> > +{
+> > +       struct virtio_input_event *stsbuf;
+> > +       struct scatterlist sg[1];
+> > +
+> > +       stsbuf = kzalloc(sizeof(*stsbuf), GFP_ATOMIC);
+> > +       if (!stsbuf)
+> > +               return -ENOMEM;
+> > +
+> > +       stsbuf->type  = cpu_to_le16(type);
+> > +       stsbuf->code  = cpu_to_le16(code);
+> > +       stsbuf->value = cpu_to_le32(value);
+> > +       sg_init_one(sg, stsbuf, sizeof(*stsbuf));
+> > +       virtqueue_add_outbuf(vi->sts, sg, 1, stsbuf, GFP_ATOMIC);
+> > +       virtqueue_kick(vi->sts);
+> 
+> GFP_ATOMIC, eww. But everyone does that for input_event() callbacks..
+
+Yea, did it this way because I saw it elsewhere.
+
+> we should fix that for user-space input one day.
+
+Sounds like I have to use GFP_ATOMIC and can't switch to GFP_KERNEL,
+correct?
+
+> > +       size = virtinput_cfg_select(vi, VIRTIO_INPUT_CFG_ABS_INFO, abs);
+> > +       virtio_cread(vi->vdev, struct virtio_input_config, u.abs.min, &mi);
+> > +       virtio_cread(vi->vdev, struct virtio_input_config, u.abs.max, &ma);
+> > +       virtio_cread(vi->vdev, struct virtio_input_config, u.abs.fuzz, &fu);
+> > +       virtio_cread(vi->vdev, struct virtio_input_config, u.abs.flat, &fl);
+> 
+> abs.resolution is missing. Please add it, we really also need to add
+> it to uinput one day.
+
+Ok.  How should I handle cases where the resolution is either not known
+or not fixed?  Just leave it zero?
+
+> > +       vi->idev->name = vi->name;
+> > +       vi->idev->phys = vi->phys;
+> 
+> Can you set vi->idev->uniq to the virtio-bus path?
+> 
+> > +       vi->idev->id.bustype = BUS_VIRTUAL;
+> > +       vi->idev->id.vendor  = 0x0001;
+> > +       vi->idev->id.product = 0x0001;
+> > +       vi->idev->id.version = 0x0100;
+> 
+> Please don't hardcode those. All user-space based interaction with
+> input-devices relies on those IDs. Can we retrieve it from the host
+> just like the name?
+
+Yes, we can.
+
+There will be emulated devices, i.e. the input coming from
+vnc/gtk/whatever will be sent to the virtio devices (instead of ps/2 or
+usb).  For these we should probably have fixed IDs per device.  There
+are keyboard/mouse/tablet at the moment.  Suggestions how to pick IDs?
+
+There will also be pass-through support, i.e. qemu
+opening /dev/input/event<nr> and forwarding everything to the guest.
+How should that be handled best?  Copy all four from the host?  Even
+though the bustype is BUS_USB?  Not sure this actually improves things
+because the guest can match the device, or whenever this confuses apps
+due to BUS_USB being applied to virtio devices ...
+
+cheers,
+  Gerd
