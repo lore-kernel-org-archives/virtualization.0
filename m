@@ -1,15 +1,20 @@
-From: Pawel Moll <pawel.moll@arm.com>
-Subject: Re: [PATCH 19/35 linux-next] virtio_mmio: constify of_device_id array
-Date: Mon, 23 Mar 2015 14:20:30 +0000
-Message-ID: <1427120430.3726.28.camel@arm.com>
-References: <1426533469-25458-1-git-send-email-fabf@skynet.be>
-	<1426533651-25586-1-git-send-email-fabf@skynet.be>
-	<1426533651-25586-10-git-send-email-fabf@skynet.be>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 1/1] Add virtio-input driver.
+Date: Mon, 23 Mar 2015 15:27:35 +0100
+Message-ID: <1427120855.27137.55.camel@nilsson.home.kraxel.org>
+References: <1426756391-26585-1-git-send-email-kraxel@redhat.com>
+	<1426756391-26585-2-git-send-email-kraxel@redhat.com>
+	<20150319123940-mutt-send-email-mst@redhat.com>
+	<1426847327.32097.60.camel@nilsson.home.kraxel.org>
+	<20150321225356-mutt-send-email-mst@redhat.com>
+	<1427097238.6365.27.camel@nilsson.home.kraxel.org>
+	<1427118292.27137.39.camel@nilsson.home.kraxel.org>
+	<20150323144803-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1426533651-25586-10-git-send-email-fabf@skynet.be>
+In-Reply-To: <20150323144803-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,35 +24,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Fabian Frederick <fabf@skynet.be>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, open list <linux-kernel@vger.kernel.org>, "open list:ABI/API" <linux-api@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2015-03-16 at 19:20 +0000, Fabian Frederick wrote:
-> of_device_id is always used as const.
-> (See driver.of_match_table and open firmware functions)
-> 
-> Signed-off-by: Fabian Frederick <fabf@skynet.be>
-> ---
->  drivers/virtio/virtio_mmio.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index 9c877d2..0ce8cda 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -671,7 +671,7 @@ static void vm_unregister_cmdline_devices(void)
->  
->  /* Platform driver */
->  
-> -static struct of_device_id virtio_mmio_match[] = {
-> +static const struct of_device_id virtio_mmio_match[] = {
->  	{ .compatible = "virtio,mmio", },
->  	{},
->  };
+  Hi,
 
-Acked-by: Pawel Moll <pawel.moll@arm.com>
+> > > > You are doing leXXX everywhere, that's VERSION_1 dependency.
+> > > > virtio_cread will do byteswaps differently without VERSION_1.
+> > > > Just don't go there.
 
-Thanks!
+> So to clarify, you dislike using __virtio32 in virtio input header?
 
-Pawel
+Well, as I understand things __virtio32 implies byteorder depends on
+whenever we are using VERSION_1 or not.  And non-transitional drivers
+should not need it as everything is by definition little endian.
+
+So, yes, your suggestion to just require VERSION_1 in the driver implies
+in my eyes that there should be no reason to use __virtio32 instead of
+__le32.
+
+Or do I miss something here?
+
+cheers,
+  Gerd
