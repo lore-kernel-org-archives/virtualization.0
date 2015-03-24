@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v3] Add virtio-input driver.
-Date: Tue, 24 Mar 2015 11:40:44 +0100
-Message-ID: <20150324114028-mutt-send-email-mst__36504.2199883193$1427193665$gmane$org@redhat.com>
+Date: Tue, 24 Mar 2015 11:48:02 +0100
+Message-ID: <20150324114254-mutt-send-email-mst@redhat.com>
 References: <1427182321-19451-1-git-send-email-kraxel@redhat.com>
 	<1427192810.18768.4.camel@nilsson.home.kraxel.org>
 Mime-Version: 1.0
@@ -60,5 +60,15 @@ On Tue, Mar 24, 2015 at 11:26:50AM +0100, Gerd Hoffmann wrote:
 >   Gerd
 > 
 
-Weird.
-Let me try this and figure out what the issue is.
+You are right, I was confused. Currently everyone uses simple
+__u32 and friends in config structs, under the understanding
+that they are always accessed using virtio_cread and friends.
+
+Maybe I'll look into adding more type safety, but the
+issue is not virtio-input specific so, let's not
+defer virtio input because of this.
+
+Sorry about wasting your time on this.
+
+-- 
+MST
