@@ -1,7 +1,7 @@
-From: Daniel Vetter <daniel@ffwll.ch>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] Add virtio gpu driver.
-Date: Tue, 24 Mar 2015 17:50:57 +0100
-Message-ID: <20150324165057.GN1349__25547.6075610661$1427216201$gmane$org@phenom.ffwll.local>
+Date: Tue, 24 Mar 2015 18:04:24 +0100
+Message-ID: <20150324171629-mutt-send-email-mst__30139.9537631825$1427216705$gmane$org@redhat.com>
 References: <1427213239-8775-1-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,8 +19,8 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, "open list:ABI/API" <linux-api@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVERS" <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
-	NET..." <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, David Airlie <airlied@linux.ie>, "open list:ABI/API" <linux-api@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVERS" <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
+	NET..." <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>, Dave Airlie <airlied@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 On Tue, Mar 24, 2015 at 05:07:18PM +0100, Gerd Hoffmann wrote:
@@ -44,11 +44,8 @@ On Tue, Mar 24, 2015 at 05:07:18PM +0100, Gerd Hoffmann wrote:
 > Signed-off-by: Dave Airlie <airlied@redhat.com>
 > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 
-Standard request from my side for new drm drivers (especially if they're
-this simple): Can you please update the drivers to latest drm internal
-interfaces, i.e. using universal planes and atomic?
-
-Thanks, Daniel
+I did a quick scan of the code, below are mostly cosmetic
+issues.
 
 > ---
 >  drivers/gpu/drm/Kconfig                  |   2 +
@@ -122,6 +119,9 @@ Thanks, Daniel
 > @@ -0,0 +1,11 @@
 > +config DRM_VIRTIO_GPU
 > +	tristate "QEMU Virtio GPU"
+
+I think it should be "Virtio GPU driver".
+
 > +	depends on DRM && VIRTIO
 > +	select FB_SYS_FILLRECT
 > +	select FB_SYS_COPYAREA
@@ -131,6 +131,12 @@ Thanks, Daniel
 > +        select DRM_TTM
 > +	help
 > +	   QEMU based virtio GPU.
+
+How about:
+	This is the virtual GPU driver for virtio.  It can be used with
+	lguest or QEMU based VMMs (like KVM or Xen).  Say Y or M.
+
+
 > diff --git a/drivers/gpu/drm/virtio/Makefile b/drivers/gpu/drm/virtio/Makefile
 > new file mode 100644
 > index 0000000..57d59ee
@@ -146,6 +152,10 @@ Thanks, Daniel
 > +virtio-gpu-y := virtgpu_drv.o virtgpu_kms.o virtgpu_drm_bus.o virtgpu_gem.o virtgpu_fb.o virtgpu_display.o virtgpu_vq.o virtgpu_ttm.o virtgpu_fence.o virtgpu_object.o virtgpu_debugfs.o
 > +
 > +obj-$(CONFIG_DRM_VIRTIO_GPU) += virtio-gpu.o
+
+Are cflags hacks and long makefile lines the norm for drm?
+If yes this is fine.
+
 > diff --git a/drivers/gpu/drm/virtio/virtgpu_debugfs.c b/drivers/gpu/drm/virtio/virtgpu_debugfs.c
 > new file mode 100644
 > index 0000000..dbc497d
@@ -1314,6 +1324,13 @@ Thanks, Daniel
 > +};
 > +#define DL_ALIGN_UP(x, a) ALIGN(x, a)
 > +#define DL_ALIGN_DOWN(x, a) ALIGN(x-(a-1), a)
+
+does not work if x < a.
+also spaces around - missing.
+
+I would say just open-code x / sizeof long * sizeof long
+below and drop both these macros.
+
 > +
 > +static int virtio_gpu_dirty_update(struct virtio_gpu_framebuffer *fb,
 > +				   bool store, int x, int y,
@@ -1324,17 +1341,27 @@ Thanks, Daniel
 > +	bool store_for_later = false;
 > +	int aligned_x;
 > +	int bpp = (fb->base.bits_per_pixel / 8);
+
+don't put () around the whole expression.
+
 > +	int x2, y2;
 > +	unsigned long flags;
 > +	struct virtio_gpu_object *obj = gem_to_virtio_gpu_obj(fb->obj);
 > +
 > +	aligned_x = DL_ALIGN_DOWN(x, sizeof(unsigned long));
 > +	width = DL_ALIGN_UP(width + (x-aligned_x), sizeof(unsigned long));
+
+missing spaces around - again
+
 > +	x = aligned_x;
 > +
 > +	if ((width <= 0) ||
 > +	    (x + width > fb->base.width) ||
 > +	    (y + height > fb->base.height)) {
+
+you don't really need () around < > if using it with ||.
+
+
 > +		DRM_DEBUG("values out of range %dx%d+%d+%d, fb %dx%d\n",
 > +			  width, height, x, y,
 > +			  fb->base.width, fb->base.height);
@@ -1343,8 +1370,16 @@ Thanks, Daniel
 > +
 > +	/* if we are in atomic just store the info
 > +	   can't test inside spin lock */
+should use a different style for multiline comments.
+
 > +	if (in_atomic() || store)
 > +		store_for_later = true;
+
+in_atomic users are suspect, this needs better comments. What are you
+trying to test for here? it's usually best just split up code,
+or pass a flag from callers that know in which context
+they are invoked, but maybe it's justified here.
+
 > +
 > +	x2 = x + width - 1;
 > +	y2 = y + height - 1;
@@ -1650,6 +1685,9 @@ Thanks, Daniel
 > +	return 0;
 > +fail:
 > +
+
+Seem too simple.  shouldn't this cleanup whatever it allocated?
+
 > +	return -EINVAL;
 > +}
 > +
@@ -1745,6 +1783,10 @@ Thanks, Daniel
 > +	if (atomic64_read(&fence->drv->last_seq) >= fence->seq) {
 > +		return true;
 > +	}
+
+
+drop {}
+
 > +	return false;
 > +}
 > +
@@ -1977,6 +2019,12 @@ Thanks, Daniel
 > +	spin_lock_init(&vgvq->qlock);
 > +	init_waitqueue_head(&vgvq->ack_queue);
 > +	INIT_WORK(&vgvq->dequeue_work, work_func);
+
+Generally, you must flush wqs on cleanup path,
+since qork might be pending.
+Maybe it's not needed here, if so needs a comment.
+
+
 > +}
 > +
 > +int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
@@ -2066,6 +2114,14 @@ Thanks, Daniel
 > +{
 > +	struct virtio_gpu_device *vgdev = dev->dev_private;
 > +
+
+Is below safe to do while device might be sending
+us interrupts (before del_vqs)?  I didn't check, but looks
+suspicious.
+
+OTOH you must also be careful not to do del_vqs
+if your code might kick.
+
 > +	virtio_gpu_modeset_fini(vgdev);
 > +	virtio_gpu_ttm_fini(vgdev);
 > +	vgdev->vdev->config->del_vqs(vgdev->vdev);
@@ -2102,6 +2158,9 @@ Thanks, Daniel
 > +		return true;
 > +	return false;
 > +}
+
+this function seems unused.
+
 > +
 > +static void virtio_gpu_init_ttm_placement(struct virtio_gpu_object *vgbo,
 > +					  bool pinned)
@@ -2155,6 +2214,10 @@ Thanks, Daniel
 > +			NULL, NULL, &virtio_gpu_ttm_bo_destroy);
 > +	if (unlikely(r != 0)) {
 > +		if (r != -ERESTARTSYS)
+
+That's unusual in kernel.
+What's this test in aid of? Needs a comment.
+
 > +			dev_err(vgdev->dev,
 > +				"object_init %d failed for (%lu)\n", r,
 > +				size);
@@ -2184,11 +2247,17 @@ Thanks, Daniel
 > +}
 > +
 > +#if 0
+
+is this code useful?
+
 > +void virtio_gpu_object_force_delete(struct virtio_gpu_device *vgdev)
 > +{
 > +	struct virtio_gpu_object *bo, *n;
 > +
 > +
+
+two emoty lines
+
 > +	dev_err(vgdev->dev, "Userspace still has active objects !\n");
 > +	list_for_each_entry_safe(bo, n, &vgdev->gem.objects, list) {
 > +		mutex_lock(&vgdev->ddev->struct_mutex);
@@ -2260,6 +2329,9 @@ Thanks, Daniel
 > @@ -0,0 +1,451 @@
 > +/*
 > + * Copyright 2013 Red Hat Inc.
+
+It's 2015 isn't it?
+
 > + *
 > + * Permission is hereby granted, free of charge, to any person obtaining a
 > + * copy of this software and associated documentation files (the "Software"),
@@ -2365,6 +2437,10 @@ Thanks, Daniel
 > +
 > +static struct vm_operations_struct virtio_gpu_ttm_vm_ops;
 > +static const struct vm_operations_struct *ttm_vm_ops;
+
+What do the globals do? generally it's best to avoid
+globals.
+
 > +
 > +static int virtio_gpu_ttm_fault(struct vm_area_struct *vma,
 > +				struct vm_fault *vmf)
@@ -2401,6 +2477,10 @@ Thanks, Daniel
 > +		ttm_vm_ops = vma->vm_ops;
 > +		virtio_gpu_ttm_vm_ops = *ttm_vm_ops;
 > +		virtio_gpu_ttm_vm_ops.fault = &virtio_gpu_ttm_fault;
+
+These globals are operated without any locks.
+Seems racy.
+
 > +	}
 > +	vma->vm_ops = &virtio_gpu_ttm_vm_ops;
 > +	return 0;
@@ -2548,7 +2628,13 @@ Thanks, Daniel
 > +		WARN(1, "nothing to bind %lu pages for mreg %p back %p!\n",
 > +		     ttm->num_pages, bo_mem, ttm);
 > +	}
+
+single line within {}, pls drop {}/
+
 > +	/* Not implemented */
+
+What isn't?
+
 > +	return 0;
 > +}
 > +
@@ -2556,6 +2642,10 @@ Thanks, Daniel
 > +{
 > +	/* Not implemented */
 > +	return 0;
+
+comment does not seem helpful.
+0 means failure here?
+
 > +}
 > +
 > +static void virtio_gpu_ttm_backend_destroy(struct ttm_tt *ttm)
@@ -2648,6 +2738,9 @@ Thanks, Daniel
 > +	}
 > +
 > +	return;
+
+return here is useless.
+
 > +}
 > +
 > +static void virtio_gpu_bo_swap_notify(struct ttm_buffer_object *tbo)
@@ -2685,6 +2778,9 @@ Thanks, Daniel
 > +	if (r)
 > +		return r;
 > +	/* No others user of address space so set it to 0 */
+
+No other users?
+
 > +	r = ttm_bo_device_init(&vgdev->mman.bdev,
 > +			       vgdev->mman.bo_global_ref.ref.object,
 > +			       &virtio_gpu_bo_driver,
@@ -2698,6 +2794,10 @@ Thanks, Daniel
 > +	r = ttm_bo_init_mm(&vgdev->mman.bdev, TTM_PL_TT, 0);
 > +	if (r) {
 > +		DRM_ERROR("Failed initializing GTT heap.\n");
+
+should revert effect of ttm_bo_device_init and
+virtio_gpu_ttm_global_init?
+
 > +		return r;
 > +	}
 > +	return 0;
@@ -2794,6 +2894,10 @@ Thanks, Daniel
 > +	if (IS_ERR(vbuf)) {
 > +		*vbuffer_p = NULL;
 > +		return ERR_CAST(vbuf);
+
+Nice, but then all callers fail to validate the returned values.
+What was the point then?
+
 > +	}
 > +	*vbuffer_p = vbuf;
 > +	return vbuf->buf;
@@ -2826,6 +2930,9 @@ Thanks, Daniel
 > +	if (IS_ERR(vbuf)) {
 > +		*vbuffer_p = NULL;
 > +		return ERR_CAST(vbuf);
+
+Same issue as virtio_gpu_alloc_cmd
+
 > +	}
 > +	*vbuffer_p = vbuf;
 > +	return (struct virtio_gpu_command *)vbuf->buf;
@@ -2868,6 +2975,9 @@ Thanks, Daniel
 > +		ret = reclaim_vbufs(vgdev->ctrlq.vq, &reclaim_list);
 > +		if (ret == 0)
 > +			DRM_DEBUG("cleaned 0 buffers wierd\n");
+
+wierd spelling intentional?
+
 > +
 > +	} while (!virtqueue_enable_cb(vgdev->ctrlq.vq));
 > +	spin_unlock(&vgdev->ctrlq.qlock);
@@ -2897,6 +3007,9 @@ Thanks, Daniel
 > +	if (fence_id) {
 > +		virtio_gpu_fence_event_process(vgdev, fence_id);
 > +	}
+
+don't put {} around single line blocks.
+
 > +}
 > +
 > +void virtio_gpu_dequeue_cursor_func(struct work_struct *work)
@@ -2944,6 +3057,9 @@ Thanks, Daniel
 > +	if (vbuf->data_buf) {
 > +		sg_init_one(&vout, vbuf->data_buf, vbuf->data_size);
 > +		sgs[outcnt+incnt] = &vout;
+
+Need space around + here and elsewhere.
+
 > +		outcnt++;
 > +	}
 > +
@@ -2964,6 +3080,14 @@ Thanks, Daniel
 > +	} else {
 > +		virtqueue_kick(vq);
 > +	}
+
+This can fail on OOM too since you are
+using GFP_ATOMIC, you mustn't fail in this case,
+you should handle this gracefully by retrying
+later.
+
+Maybe change qlock to a mutex, and GFP_ATOMIC to GFP_KERNEL.
+
 > +	spin_unlock(&vgdev->ctrlq.qlock);
 > +
 > +	if (!ret)
@@ -2989,6 +3113,11 @@ Thanks, Daniel
 > +	if (ret == -ENOSPC) {
 > +		spin_unlock(&vgdev->cursorq.qlock);
 > +		wait_event(vgdev->cursorq.ack_queue, vq->num_free);
+
+checking num_free outside lock seems risky.
+For example, you might see a stale num_free
+value and block forever.
+
 > +		spin_lock(&vgdev->cursorq.qlock);
 > +		goto retry;
 > +	} else {
@@ -3189,6 +3318,9 @@ Thanks, Daniel
 > +	if (!drm_helper_hpd_irq_event(vgdev->ddev)) {
 > +		drm_kms_helper_hotplug_event(vgdev->ddev);
 > +	}
+
+Don't put {} around single-statements.
+
 > +}
 > +
 > +int virtio_gpu_cmd_get_display_info(struct virtio_gpu_device *vgdev)
@@ -3199,12 +3331,26 @@ Thanks, Daniel
 > +	cmd_p = virtio_gpu_alloc_cmd_resp
 > +		(vgdev, &virtio_gpu_cmd_get_display_info_cb, &vbuf,
 > +		 sizeof(*cmd_p), sizeof(struct virtio_gpu_resp_display_info));
+
+Pls split it like this:
++	cmd_p = virtio_gpu_alloc_cmd_resp(vgdev,
++					  &virtio_gpu_cmd_get_display_info_cb,
++					  &vbuf,
++			 		  sizeof(*cmd_p),
++					  sizeof(struct virtio_gpu_resp_display_info));
+
+i.e. ( on same line as function name.
+
+
 > +	memset(cmd_p, 0, sizeof(*cmd_p));
 > +
 > +	cmd_p->type = cpu_to_le32(VIRTIO_GPU_CMD_GET_DISPLAY_INFO);
 > +	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
 > +	return 0;
 > +}
+
+make this function void?
+
 > +
 > +int virtio_gpu_object_attach(struct virtio_gpu_device *vgdev,
 > +			     struct virtio_gpu_object *obj,
@@ -3383,6 +3529,13 @@ Thanks, Daniel
 > +struct virtio_gpu_cursor_pos {
 > +	__le32 scanout_id;
 > +	__le32 x, y;
+
+Prefer 
+	__le32 x;
+	__le32 y;
+
+so struct size is obvious.
+
 > +	__le32 padding;
 > +};
 > +
@@ -3398,6 +3551,9 @@ Thanks, Daniel
 > +
 > +/* data passed in the control vq, 2d related */
 > +
+
+refers  to struct virtio_gpu_rect only? or all
+structs below?
 > +struct virtio_gpu_rect {
 > +	__le32 x, y;
 > +	__le32 width;
@@ -3498,6 +3654,9 @@ Thanks, Daniel
 > +	VIRTIO_GPU_FORMAT_A8B8G8R8_UNORM  = 121,
 > +	VIRTIO_GPU_FORMAT_R8G8B8X8_UNORM  = 134,
 > +
+
+drop empty line here
+
 > +};
 > +
 > +#endif
@@ -3511,16 +3670,9 @@ Thanks, Daniel
 >  #define VIRTIO_ID_CAIF	       12 /* Virtio caif */
 > -
 > +#define VIRTIO_ID_GPU          16
+
+I think we like the emoty line before endif.
+
 >  #endif /* _LINUX_VIRTIO_IDS_H */
 > -- 
 > 1.8.3.1
-> 
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> http://lists.freedesktop.org/mailman/listinfo/dri-devel
-
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
