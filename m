@@ -1,11 +1,14 @@
-From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: [PATCH net-next] virtio: change comment in transmit
-Date: Tue, 24 Mar 2015 16:22:07 -0700
-Message-ID: <20150324162207.6d4ecf48__41952.9699524448$1427239345$gmane$org@urahara>
+From: Dave Airlie <airlied@gmail.com>
+Subject: Re: [PATCH] Add virtio gpu driver.
+Date: Wed, 25 Mar 2015 10:00:25 +1000
+Message-ID: <CAPM=9tyM9AxX-RHhbO-LK+LTyQC6YjwW67pZM1XjbL35+counA__26235.4847779081$1427241647$gmane$org@mail.gmail.com>
+References: <1427213239-8775-1-git-send-email-kraxel@redhat.com>
+	<CAPj87rN4pXHukDRD-e=ZrO1hcts04cSz1Hr9TNAgicGVWE5_-Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <CAPj87rN4pXHukDRD-e=ZrO1hcts04cSz1Hr9TNAgicGVWE5_-Q@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,30 +18,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>, David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Daniel Stone <daniel@fooishbar.org>
+Cc: virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, "open list:ABI/API" <linux-api@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVERS" <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
+	NET..." <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The original comment was not really informative or funny
-as well as sexist. Replace it with a better explanation of
-why the driver does stop and what the impacts are.
+On 25 March 2015 at 08:50, Daniel Stone <daniel@fooishbar.org> wrote:
+> Hi,
+>
+> On 24 March 2015 at 16:07, Gerd Hoffmann <kraxel@redhat.com> wrote:
+>> +static int virtio_gpu_crtc_page_flip(struct drm_crtc *crtc,
+>> +                                    struct drm_framebuffer *fb,
+>> +                                    struct drm_pending_vblank_event *event,
+>> +                                    uint32_t flags)
+>> +{
+>> +       return -EINVAL;
+>> +}
+>
+> I'm not going to lie, I was really hoping the 5th (?) GPU option for
+> Qemu would support pageflipping. Daniel's comment about conversion to
+> atomic is relevant, but: do you have a mechanism which allows you to
+> post updates (e.g. 'start displaying this buffer now please') that
+> allows you to get events back when they have actually been displayed?
 
-Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
+Page flip is implemented in a later patch,
 
---- a/drivers/net/virtio_net.c	2015-03-24 15:20:25.174671000 -0700
-+++ b/drivers/net/virtio_net.c	2015-03-24 16:17:28.478525333 -0700
-@@ -939,8 +939,12 @@ static netdev_tx_t start_xmit(struct sk_
- 	skb_orphan(skb);
- 	nf_reset(skb);
- 
--	/* Apparently nice girls don't return TX_BUSY; stop the queue
--	 * before it gets out of hand.  Naturally, this wastes entries. */
-+	/* It is better to stop queue if running out of space
-+	 * instead of forcing queuing layer to requeue the skb
-+	 * by returning TX_BUSY (and cause a BUG message).
-+	 * Since most packets only take 1 or 2 ring slots
-+	 * this means 16 slots are typically wasted.
-+	 */
- 	if (sq->vq->num_free < 2+MAX_SKB_FRAGS) {
- 		netif_stop_subqueue(dev, qnum);
- 		if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
+https://www.kraxel.org/cgit/linux/commit/?h=virtio-gpu&id=1e167e8e964f8e08100d315dd354cc0a4b090841
+
+Since its a long way from an actual display, finding out when
+something is actually displayed is hard,
+but when we've posted it to the frontbuffer should be fine.
+
+Dave.
