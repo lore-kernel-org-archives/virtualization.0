@@ -1,16 +1,23 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH 0/9] qspinlock stuff -v15
-Date: Fri, 27 Mar 2015 10:07:37 -0400
-Message-ID: <20150327140737.GD22791__6013.16874749518$1427465357$gmane$org@l.oracle.com>
-References: <20150316131613.720617163@infradead.org>
-	<20150325194739.GK25884@l.oracle.com>
-	<20150326202153.GD27490@worktop.programming.kicks-ass.net>
+From: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+Subject: Re: [virtio-dev] Re: [PATCH] Add virtio gpu driver.
+Date: Thu, 26 Mar 2015 16:52:07 +0000
+Message-ID: <20150326165207.4e1e3ba0__902.331368024711$1427561598$gmane$org@lxorguk.ukuu.org.uk>
+References: <1427213239-8775-1-git-send-email-kraxel@redhat.com>
+	<20150324171255-mutt-send-email-mst@redhat.com>
+	<1427295121.23304.5.camel@nilsson.home.kraxel.org>
+	<20150325162246-mutt-send-email-mst@redhat.com>
+	<1427297836.23304.29.camel@nilsson.home.kraxel.org>
+	<20150325180721-mutt-send-email-mst@redhat.com>
+	<1427353959.9779.2.camel@nilsson.home.kraxel.org>
+	<20150326091545-mutt-send-email-mst@redhat.com>
+	<1427359367.9779.9.camel@nilsson.home.kraxel.org>
+	<20150326095736-mutt-send-email-mst@redhat.com>
+	<1427369923.9779.18.camel@nilsson.home.kraxel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20150326202153.GD27490@worktop.programming.kicks-ass.net>
+In-Reply-To: <1427369923.9779.18.camel@nilsson.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,52 +27,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Waiman.Long@hp.com, linux-arch@vger.kernel.org, riel@redhat.com, x86@kernel.org, kvm@vger.kernel.org, scott.norton@hp.com, raghavendra.kt@linux.vnet.ibm.com, paolo.bonzini@gmail.com, oleg@redhat.com, linux-kernel@vger.kernel.org, mingo@redhat.com, david.vrabel@citrix.com, hpa@zytor.com, luto@amacapital.net, xen-devel@lists.xenproject.org, tglx@linutronix.de, paulmck@linux.vnet.ibm.com, torvalds@linux-foundation.org, boris.ostrovsky@oracle.com, virtualization@lists.linux-foundation.org, doug.hatch@hp.com
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVERS" <dri-devel@lists.freedesktop.org>, ABI/API@mail.linuxfoundation.org, "  <linux-api@vger.kernel.org>"@lxorguk.ukuu.org.uk, Dave Airlie <airlied@redhat.com>, Dave Airlie <airlied@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 26, 2015 at 09:21:53PM +0100, Peter Zijlstra wrote:
-> On Wed, Mar 25, 2015 at 03:47:39PM -0400, Konrad Rzeszutek Wilk wrote:
-> > Ah nice. That could be spun out as a seperate patch to optimize the existing
-> > ticket locks I presume.
-> 
-> Yes I suppose we can do something similar for the ticket and patch in
-> the right increment. We'd need to restructure the code a bit, but
-> its not fundamentally impossible.
-> 
-> We could equally apply the head hashing to the current ticket
-> implementation and avoid the current bitmap iteration.
-> 
-> > Now with the old pv ticketlock code an vCPU would only go to sleep once and
-> > be woken up when it was its turn. With this new code it is woken up twice 
-> > (and twice it goes to sleep). With an overcommit scenario this would imply
-> > that we will have at least twice as many VMEXIT as with the previous code.
-> 
-> An astute observation, I had not considered that.
+> It's not about virtio at all.  It's about vga compatibility, so we have
+> a simple framebuffer as boot display.  Only used when virtio is *not*
+> enabled.
 
-Thank you.
-> 
-> > I presume when you did benchmarking this did not even register? Thought
-> > I wonder if it would if you ran the benchmark for a week or so.
-> 
-> You presume I benchmarked :-) I managed to boot something virt and run
-> hackbench in it. I wouldn't know a representative virt setup if I ran
-> into it.
-> 
-> The thing is, we want this qspinlock for real hardware because its
-> faster and I really want to avoid having to carry two spinlock
-> implementations -- although I suppose that if we really really have to
-> we could.
+VGA can be a separate device altogether.
 
-In some way you already have that - for virtualized environments where you
-don't have an PV mechanism you just use the byte spinlock - which is good.
+In fact there were *real* PCI graphics cards that did this and had a
+register than flipped the output source over.
 
-And switching to PV ticketlock implementation after boot.. ugh. I feel your pain.
-
-What if you used an PV bytelock implemenation? The code you posted already
-'sprays' all the vCPUS to wake up. And that is exactly what you need for PV
-bytelocks - well, you only need to wake up the vCPUS that have gone to sleep
-waiting on an specific 'struct spinlock' and just stash those in an per-cpu
-area. The old Xen spinlock code (Before 3.11?) had this.
-
-Just an idea thought.
+Alan
