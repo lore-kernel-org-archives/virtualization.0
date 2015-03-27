@@ -1,13 +1,23 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH 0/9] qspinlock stuff -v15
-Date: Fri, 27 Mar 2015 12:10:48 +0530
-Message-ID: <5514FB70.4010600__10082.3520137512$1427438962$gmane$org@linux.vnet.ibm.com>
-References: <20150316131613.720617163@infradead.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [virtio-dev] Re: [PATCH] Add virtio gpu driver.
+Date: Fri, 27 Mar 2015 09:08:26 +0100
+Message-ID: <1427443706.22166.10.camel__2896.0277945318$1427443767$gmane$org@nilsson.home.kraxel.org>
+References: <20150325162246-mutt-send-email-mst@redhat.com>
+	<1427297836.23304.29.camel@nilsson.home.kraxel.org>
+	<20150325180721-mutt-send-email-mst@redhat.com>
+	<1427353959.9779.2.camel@nilsson.home.kraxel.org>
+	<20150326091545-mutt-send-email-mst@redhat.com>
+	<1427359367.9779.9.camel@nilsson.home.kraxel.org>
+	<20150326095736-mutt-send-email-mst@redhat.com>
+	<1427369923.9779.18.camel@nilsson.home.kraxel.org>
+	<20150326124751-mutt-send-email-mst@redhat.com>
+	<1427382436.8786.15.camel@nilsson.home.kraxel.org>
+	<20150326174401-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150316131613.720617163@infradead.org>
+In-Reply-To: <20150326174401-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,51 +27,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Waiman.Long@hp.com, linux-arch@vger.kernel.org, riel@redhat.com, kvm@vger.kernel.org, konrad.wilk@oracle.com, scott.norton@hp.com, x86@kernel.org, paolo.bonzini@gmail.com, oleg@redhat.com, linux-kernel@vger.kernel.org, mingo@redhat.com, david.vrabel@citrix.com, hpa@zytor.com, luto@amacapital.net, xen-devel@lists.xenproject.org, tglx@linutronix.de, paulmck@linux.vnet.ibm.com, torvalds@linux-foundation.org, boris.ostrovsky@oracle.com, virtualization@lists.linux-foundation.org, doug.hatch@hp.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, David Airlie <airlied@linux.ie>, "open
+	list:ABI/API" <linux-api@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, "open
+	list:DRM DRIVERS" <dri-devel@lists.freedesktop.org>, "open list:VIRTIO
+	CORE, NET..." <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>, Dave Airlie <airlied@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/16/2015 06:46 PM, Peter Zijlstra wrote:
-> Hi Waiman,
->
-> As promised; here is the paravirt stuff I did during the trip to BOS last week.
->
-> All the !paravirt patches are more or less the same as before (the only real
-> change is the copyright lines in the first patch).
->
-> The paravirt stuff is 'simple' and KVM only -- the Xen code was a little more
-> convoluted and I've no real way to test that but it should be stright fwd to
-> make work.
->
-> I ran this using the virtme tool (thanks Andy) on my laptop with a 4x
-> overcommit on vcpus (16 vcpus as compared to the 4 my laptop actually has) and
-> it both booted and survived a hackbench run (perf bench sched messaging -g 20
-> -l 5000).
->
-> So while the paravirt code isn't the most optimal code ever conceived it does work.
->
-> Also, the paravirt patching includes replacing the call with "movb $0, %arg1"
-> for the native case, which should greatly reduce the cost of having
-> CONFIG_PARAVIRT_SPINLOCKS enabled on actual hardware.
->
-> I feel that if someone were to do a Xen patch we can go ahead and merge this
-> stuff (finally!).
->
-> These patches do not implement the paravirt spinlock debug stats currently
-> implemented (separately) by KVM and Xen, but that should not be too hard to do
-> on top and in the 'generic' code -- no reason to duplicate all that.
->
-> Of course; once this lands people can look at improving the paravirt nonsense.
->
+  Hi,
 
-last time I had reported some hangs in kvm case, and I can confirm that
-the current set of patches works fine.
+> > 
+> > Completely different thing crossing my mind:  I think we can make
+> > virtio-vga fully compatible with stdvga.  stdvga has two bars, memory
+> > (#0) and mmio (#2).  We can make the mmio bar larger and place all the
+> > virtio regions there.
+> > 
+> 
+> Full compatibility with some standard sounds like a better motivation,
+> yes.
 
-Feel free to add
-Tested-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com> #kvm pv
+Ok, I'll look into it.
 
-As far as performance is concerned (with my 16core +ht machine having
-16vcpu guests [ even w/ , w/o the lfsr hash patchset ]), I do not see
-any significant observations to report, though I understand that we
-could see much more benefit with large number of vcpus because of
-possible reduction in cache bouncing.
+> > I think in any case I'll go split off the vga compatibility bits to a
+> > different patch (and possible a separate patch series).
+> > 
+> > cheers,
+> >   Gerd
+> 
+> Will you still need me to change core to claim specific memory only?
+
+That would be great, yes.  The resource conflict with vesafb/efifb will
+stay no matter how we design the pci resource layout of virtio-vga.
+
+cheers,
+  Gerd
