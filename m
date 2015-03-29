@@ -1,15 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] Re: [PATCH v5] Add virtio-input driver.
-Date: Sat, 28 Mar 2015 20:07:14 +0100
-Message-ID: <20150328200631-mutt-send-email-mst@redhat.com>
-References: <1427366965-32549-1-git-send-email-kraxel@redhat.com>
-	<20150326130644-mutt-send-email-mst@redhat.com>
+Subject: [PATCH v5 06/10] virtio_pci: drop msi_off on probe
+Date: Sun, 29 Mar 2015 17:04:18 +0200
+Message-ID: <1427641227-7574-7-git-send-email-mst@redhat.com>
+References: <1427641227-7574-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20150326130644-mutt-send-email-mst@redhat.com>
+In-Reply-To: <1427641227-7574-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,45 +18,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:ABI/API" <linux-api@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, David Herrmann <dh.herrmann@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Fam Zheng <famz@redhat.com>, linux-pci@vger.kernel.org, virtualization@lists.linux-foundation.org, Yinghai Lu <yhlu.kernel.send@gmail.com>, Yijing Wang <wangyijing@huawei.com>, Bjorn Helgaas <bhelgaas@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 26, 2015 at 01:10:40PM +0100, Michael S. Tsirkin wrote:
-> On Thu, Mar 26, 2015 at 11:49:25AM +0100, Gerd Hoffmann wrote:
-> > virtio-input is basically evdev-events-over-virtio, so this driver isn't
-> > much more than reading configuration from config space and forwarding
-> > incoming events to the linux input layer.
-> > 
-> > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> 
-> Still a bit worried about using input.h as host/guest
-> interface (can't we use some formal standard, e.g. USB HID?),
-> but I'll let Rusty decide that.
-> 
-> Otherwise mostly looks good. One nit below.
+pci core now disables msi on probe automatically,
+drop this from device-specific code.
 
-Forgot to include:
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/virtio/virtio_pci_common.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-
-> 
-> > ---
-> 
-> Could you pls include changelog in the future?
-> You are sending multiple versions per day and it's hard to keep up.
-> 
-> > +static unsigned int features[] = {
-> > +	/* none */
-> > +};
-> 
-> An empty line wouldn't hurt here about variable definition.
-> 
-> > +static struct virtio_device_id id_table[] = {
-> > +	{ VIRTIO_ID_INPUT, VIRTIO_DEV_ANY_ID },
-> > +	{ 0 },
-> > +};
-> 
-> ---------------------------------------------------------------------
-> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
-> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index e894eb2..806bb2c 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -501,9 +501,6 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
+ 	INIT_LIST_HEAD(&vp_dev->virtqueues);
+ 	spin_lock_init(&vp_dev->lock);
+ 
+-	/* Disable MSI/MSIX to bring device to a known good state. */
+-	pci_msi_off(pci_dev);
+-
+ 	/* enable the device */
+ 	rc = pci_enable_device(pci_dev);
+ 	if (rc)
+-- 
+MST
