@@ -1,14 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 6/6] virtio: drop virtio_device_is_legacy_only
-Date: Mon, 30 Mar 2015 19:37:30 +0200
-Message-ID: <1427737006-23191-7-git-send-email-mst__37600.6780345508$1427737110$gmane$org@redhat.com>
+Subject: Re: [PATCH 1/6] virtio_balloon: transitional interface
+Date: Mon, 30 Mar 2015 19:55:53 +0200
+Message-ID: <20150330195508-mutt-send-email-mst__46825.990957632$1427738185$gmane$org@redhat.com>
 References: <1427737006-23191-1-git-send-email-mst@redhat.com>
+	<1427737006-23191-2-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1427737006-23191-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1427737006-23191-2-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,47 +20,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: virtio-dev@lists.oasis-open.org, Paul Bolle <pebolle@tiscali.nl>, virtualization@lists.linux-foundation.org, David Hildenbrand <dahi@linux.vnet.ibm.com>
+Cc: virtio-dev@lists.oasis-open.org, linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio_device_is_legacy_only is now unused, drop
-it from core.
+On Mon, Mar 30, 2015 at 07:37:12PM +0200, Michael S. Tsirkin wrote:
+> Virtio 1.0 doesn't include a modern balloon device.
+> But it's not a big change to support a transitional
+> balloon device: this has the advantage of supporting
+> existing drivers, transparently.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- include/linux/virtio.h  | 2 --
- drivers/virtio/virtio.c | 6 ------
- 2 files changed, 8 deletions(-)
+Hmm, re-reading the code, this won't be enough for BE
+guests. We are doing one extra byteswap there.
 
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 28f0e65..8f4d4bf 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -108,8 +108,6 @@ struct virtio_device {
- 	void *priv;
- };
- 
--bool virtio_device_is_legacy_only(struct virtio_device_id id);
--
- static inline struct virtio_device *dev_to_virtio(struct device *_dev)
- {
- 	return container_of(_dev, struct virtio_device, dev);
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 5fa67b5..b1877d7 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -278,12 +278,6 @@ static struct bus_type virtio_bus = {
- 	.remove = virtio_dev_remove,
- };
- 
--bool virtio_device_is_legacy_only(struct virtio_device_id id)
--{
--	return false;
--}
--EXPORT_SYMBOL_GPL(virtio_device_is_legacy_only);
--
- int register_virtio_driver(struct virtio_driver *driver)
- {
- 	/* Catch this early. */
--- 
-MST
+I'll fix up and repost.
+
+>  include/uapi/linux/virtio_balloon.h | 6 ++++++
+>  drivers/virtio/virtio_balloon.c     | 8 ++++++--
+>  2 files changed, 12 insertions(+), 2 deletions(-)
+> 
+> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
+> index 4b0488f..5d83902 100644
+> --- a/include/uapi/linux/virtio_balloon.h
+> +++ b/include/uapi/linux/virtio_balloon.h
+> @@ -56,4 +56,10 @@ struct virtio_balloon_stat {
+>  	__u64 val;
+>  } __attribute__((packed));
+>  
+> +struct virtio_balloon_stat_modern {
+> +	__u8 reserved[6];
+> +	__u16 tag;
+> +	__u64 val;
+> +};
+> +
+>  #endif /* _LINUX_VIRTIO_BALLOON_H */
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 6a356e3..68e937f 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -77,7 +77,7 @@ struct virtio_balloon {
+>  
+>  	/* Memory statistics */
+>  	int need_stats_update;
+> -	struct virtio_balloon_stat stats[VIRTIO_BALLOON_S_NR];
+> +	struct virtio_balloon_stat_modern stats[VIRTIO_BALLOON_S_NR];
+>  
+>  	/* To register callback in oom notifier call chain */
+>  	struct notifier_block nb;
+> @@ -269,7 +269,11 @@ static void stats_handle_request(struct virtio_balloon *vb)
+>  	vq = vb->stats_vq;
+>  	if (!virtqueue_get_buf(vq, &len))
+>  		return;
+> -	sg_init_one(&sg, vb->stats, sizeof(vb->stats));
+> +	if (virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
+> +		sg_init_one(&sg, vb->stats, sizeof(vb->stats));
+> +	else
+> +		sg_init_one(&sg, &vb->stats->tag, sizeof(vb->stats) -
+> +			    offsetof(typeof(*vb->stats, tag);
+>  	virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+>  	virtqueue_kick(vq);
+>  }
+> -- 
+> MST
+> 
