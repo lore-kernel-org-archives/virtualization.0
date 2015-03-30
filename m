@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 2/6] virtio: balloon might not be a legacy device
-Date: Mon, 30 Mar 2015 19:37:15 +0200
-Message-ID: <1427737006-23191-3-git-send-email-mst@redhat.com>
+Subject: [PATCH 3/6] virtio_ccw: support non-legacy balloon devices
+Date: Mon, 30 Mar 2015 19:37:18 +0200
+Message-ID: <1427737006-23191-4-git-send-email-mst__10707.7005239718$1427737095$gmane$org@redhat.com>
 References: <1427737006-23191-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,29 +19,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+Cc: virtio-dev@lists.oasis-open.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We added transitional device support to balloon driver,
-so we don't need to black-list it in core anymore.
+virtio_device_is_legacy_only is always false now,
+drop the test from virtio ccw.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/virtio/virtio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/kvm/virtio_ccw.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 5ce2aa4..5fa67b5 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -280,7 +280,7 @@ static struct bus_type virtio_bus = {
+diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+index 71d7802..6f1fa17 100644
+--- a/drivers/s390/kvm/virtio_ccw.c
++++ b/drivers/s390/kvm/virtio_ccw.c
+@@ -1201,13 +1201,9 @@ static int virtio_ccw_online(struct ccw_device *cdev)
+ 	vcdev->vdev.id.vendor = cdev->id.cu_type;
+ 	vcdev->vdev.id.device = cdev->id.cu_model;
  
- bool virtio_device_is_legacy_only(struct virtio_device_id id)
- {
--	return id.device == VIRTIO_ID_BALLOON;
-+	return false;
- }
- EXPORT_SYMBOL_GPL(virtio_device_is_legacy_only);
+-	if (virtio_device_is_legacy_only(vcdev->vdev.id)) {
+-		vcdev->revision = 0;
+-	} else {
+-		ret = virtio_ccw_set_transport_rev(vcdev);
+-		if (ret)
+-			goto out_free;
+-	}
++	ret = virtio_ccw_set_transport_rev(vcdev);
++	if (ret)
++		goto out_free;
  
+ 	ret = register_virtio_device(&vcdev->vdev);
+ 	if (ret) {
 -- 
 MST
