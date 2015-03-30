@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v5 06/10] virtio_pci: drop msi_off on probe
-Date: Sun, 29 Mar 2015 17:04:18 +0200
-Message-ID: <1427641227-7574-7-git-send-email-mst@redhat.com>
-References: <1427641227-7574-1-git-send-email-mst@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH] Add virtio gpu driver.
+Date: Mon, 30 Mar 2015 14:23:47 +0200
+Message-ID: <1427718227.3372.33.camel__3275.56896158985$1427718259$gmane$org@nilsson.home.kraxel.org>
+References: <1427213239-8775-1-git-send-email-kraxel@redhat.com>
+	<20150324165057.GN1349@phenom.ffwll.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1427641227-7574-1-git-send-email-mst@redhat.com>
+In-Reply-To: <20150324165057.GN1349@phenom.ffwll.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,33 +18,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Fam Zheng <famz@redhat.com>, linux-pci@vger.kernel.org, virtualization@lists.linux-foundation.org, Yinghai Lu <yhlu.kernel.send@gmail.com>, Yijing Wang <wangyijing@huawei.com>, Bjorn Helgaas <bhelgaas@google.com>
+To: Daniel Vetter <daniel@ffwll.ch>
+Cc: virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, "open list:ABI/API" <linux-api@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, "open
+	list:DRM DRIVERS" <dri-devel@lists.freedesktop.org>, "open list:VIRTIO
+	CORE, NET..." <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-pci core now disables msi on probe automatically,
-drop this from device-specific code.
+  Hi,
 
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/virtio/virtio_pci_common.c | 3 ---
- 1 file changed, 3 deletions(-)
+> > Signed-off-by: Dave Airlie <airlied@redhat.com>
+> > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> 
+> Standard request from my side for new drm drivers (especially if they're
+> this simple): Can you please update the drivers to latest drm internal
+> interfaces, i.e. using universal planes and atomic?
 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index e894eb2..806bb2c 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -501,9 +501,6 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
- 	INIT_LIST_HEAD(&vp_dev->virtqueues);
- 	spin_lock_init(&vp_dev->lock);
- 
--	/* Disable MSI/MSIX to bring device to a known good state. */
--	pci_msi_off(pci_dev);
--
- 	/* enable the device */
- 	rc = pci_enable_device(pci_dev);
- 	if (rc)
--- 
-MST
+Up'n'running.  Incremental patch:
+
+https://www.kraxel.org/cgit/linux/commit/?h=virtio-gpu-2d&id=b8edf4f38a1ec5a50f6ac8948521a12f862d3d5a
+
+v2 coming, but I'll go over the other reviews first.
+
+cheers,
+  Gerd
