@@ -1,15 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 0/6] virtio_balloon: virtio 1 support
-Date: Tue, 31 Mar 2015 11:47:41 +0200
-Message-ID: <20150331104725-mutt-send-email-mst__19955.4452360191$1427795294$gmane$org@redhat.com>
-References: <1427737006-23191-1-git-send-email-mst@redhat.com>
-	<20150331104618.3da249e3.cornelia.huck@de.ibm.com>
+Subject: [PATCH] virtio: drop a useless config read
+Date: Tue, 31 Mar 2015 13:55:42 +0200
+Message-ID: <1427802906-7743-1-git-send-email-mst__9447.77793852172$1427802979$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20150331104618.3da249e3.cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,54 +16,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 31, 2015 at 10:46:18AM +0200, Cornelia Huck wrote:
-> On Mon, 30 Mar 2015 19:37:08 +0200
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> > Virtio 1.0 doesn't include a modern balloon device.
-> > At some point we'll likely define an incompatible interface with a different
-> > ID.  But for now, it's not a big change to support a transitional balloon
-> > device: this has the advantage of supporting existing drivers, transparently.
-> 
-> This is needed to support a ballooner on transports that don't support
-> mixing legacy and 1.0, right?
+commit d71de9ec6ba806104439d3a669befda84757b5af
+    "virtio: core support for config generation"
+fixed reading up 64 bit values, adding generation
+checks for such reads.
 
-That too. But it's also useful if you don't know whether your guest
-supports virtio 1 or not - which is the point of using
-a transitional device.
+By mistake, it left an explicit get call in place
+as well. the result is that the value is read twice,
+the first result is discarded.
 
-> > 
-> > The only issue is with the stats buffer, which has misaligned fields.
-> > Seems easy to fix by prepending a 6 byte reserved field.
-> 
-> I assume you also define the stats fields to be le for 1.0?
+Not a big deal since this only happens with virtio
+blk and only on boot ATM, so performance isn't
+affected, but let's clean it up.
 
-They were always le for the balloon.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ include/linux/virtio_config.h | 1 -
+ 1 file changed, 1 deletion(-)
 
-> > 
-> > I'll post spec patch and qemu patches shortly.
-> 
-> I'll defer review until then.
-> 
-> > 
-> > Michael S. Tsirkin (6):
-> >   virtio_balloon: transitional interface
-> >   virtio: balloon might not be a legacy device
-> >   virtio_ccw: support non-legacy balloon devices
-> >   virtio_mmio: support non-legacy balloon devices
-> >   virtio_pci: support non-legacy balloon devices
-> >   virtio: drop virtio_device_is_legacy_only
-> > 
-> >  include/linux/virtio.h              |  2 --
-> >  include/uapi/linux/virtio_balloon.h |  6 ++++++
-> >  drivers/s390/kvm/virtio_ccw.c       | 10 +++-------
-> >  drivers/virtio/virtio.c             |  6 ------
-> >  drivers/virtio/virtio_balloon.c     |  8 ++++++--
-> >  drivers/virtio/virtio_mmio.c        |  8 --------
-> >  drivers/virtio/virtio_pci_modern.c  |  3 ---
-> >  7 files changed, 15 insertions(+), 28 deletions(-)
-> > 
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index ca3ed78..ed1e0d5 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -374,7 +374,6 @@ static inline u64 virtio_cread64(struct virtio_device *vdev,
+ 				 unsigned int offset)
+ {
+ 	u64 ret;
+-	vdev->config->get(vdev, offset, &ret, sizeof(ret));
+ 	__virtio_cread_many(vdev, offset, &ret, 1, sizeof(ret));
+ 	return virtio64_to_cpu(vdev, (__force __virtio64)ret);
+ }
+-- 
+MST
