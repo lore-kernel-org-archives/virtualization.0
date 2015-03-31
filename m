@@ -1,15 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 1/6] virtio_balloon: transitional interface
-Date: Mon, 30 Mar 2015 19:55:53 +0200
-Message-ID: <20150330195508-mutt-send-email-mst__46825.990957632$1427738185$gmane$org@redhat.com>
-References: <1427737006-23191-1-git-send-email-mst@redhat.com>
-	<1427737006-23191-2-git-send-email-mst@redhat.com>
+From: Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [PATCH 00/25] treewide: Use bool function return values of
+	true/false not 1/0
+Date: Mon, 30 Mar 2015 17:07:23 -0700
+Message-ID: <5519E53B.5040504__26261.3532403067$1427761275$gmane$org@schaufler-ca.com>
+References: <cover.1427759009.git.joe@perches.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1427737006-23191-2-git-send-email-mst@redhat.com>
+In-Reply-To: <cover.1427759009.git.joe@perches.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,69 +18,95 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: virtio-dev@lists.oasis-open.org, linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Joe Perches <joe@perches.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org, linux-omap@vger.kernel.org, kvm-ppc@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, linux-nfs@vger.kernel.org, linux-ide@vger.kernel.org, kgdb-bugreport@lists.sourceforge.net, linux-mm@kvack.org, linux-pm@vger.kernel.org, netdev@vger.kernel.org, alsa-devel@alsa-project.org, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, patches@opensource.wolfsonmicro.com
+Cc: linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org, linux-scsi@vger.kernel.org, linux-mips@linux-mips.org, linux-hexagon@vger.kernel.org, linux-security-module@vger.kernel.org, sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Mar 30, 2015 at 07:37:12PM +0200, Michael S. Tsirkin wrote:
-> Virtio 1.0 doesn't include a modern balloon device.
-> But it's not a big change to support a transitional
-> balloon device: this has the advantage of supporting
-> existing drivers, transparently.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
+On 3/30/2015 4:45 PM, Joe Perches wrote:
+> Joe Perches (25):
+>   arm: Use bool function return values of true/false not 1/0
+>   arm64: Use bool function return values of true/false not 1/0
+>   hexagon: Use bool function return values of true/false not 1/0
+>   ia64: Use bool function return values of true/false not 1/0
+>   mips: Use bool function return values of true/false not 1/0
+>   powerpc: Use bool function return values of true/false not 1/0
+>   s390: Use bool function return values of true/false not 1/0
+>   sparc: Use bool function return values of true/false not 1/0
+>   tile: Use bool function return values of true/false not 1/0
+>   unicore32: Use bool function return values of true/false not 1/0
+>   x86: Use bool function return values of true/false not 1/0
+>   virtio_console: Use bool function return values of true/false not 1/0
+>   csiostor: Use bool function return values of true/false not 1/0
+>   dcache: Use bool function return values of true/false not 1/0
+>   nfsd: nfs4state: Use bool function return values of true/false not 1/0
+>   include/linux: Use bool function return values of true/false not 1/0
+>   sound: Use bool function return values of true/false not 1/0
+>   rcu: tree_plugin: Use bool function return values of true/false not 1/0
+>   sched: Use bool function return values of true/false not 1/0
+>   ftrace: Use bool function return values of true/false not 1/0
+>   slub: Use bool function return values of true/false not 1/0
+>   bridge: Use bool function return values of true/false not 1/0
+>   netfilter: Use bool function return values of true/false not 1/0
+>   security: Use bool function return values of true/false not 1/0
+>   sound: wm5100-tables: Use bool function return values of true/false not 1/0
+>
+>  arch/arm/include/asm/dma-mapping.h           |  8 ++--
+>  arch/arm/include/asm/kvm_emulate.h           |  2 +-
+>  arch/arm/mach-omap2/powerdomain.c            | 14 +++---
+>  arch/arm64/include/asm/dma-mapping.h         |  2 +-
+>  arch/hexagon/include/asm/dma-mapping.h       |  2 +-
+>  arch/ia64/include/asm/dma-mapping.h          |  2 +-
+>  arch/mips/include/asm/dma-mapping.h          |  2 +-
+>  arch/powerpc/include/asm/dcr-native.h        |  2 +-
+>  arch/powerpc/include/asm/dma-mapping.h       |  4 +-
+>  arch/powerpc/include/asm/kvm_book3s_64.h     |  4 +-
+>  arch/powerpc/sysdev/dcr.c                    |  2 +-
+>  arch/s390/include/asm/dma-mapping.h          |  2 +-
+>  arch/sparc/mm/init_64.c                      |  8 ++--
+>  arch/tile/include/asm/dma-mapping.h          |  2 +-
+>  arch/unicore32/include/asm/dma-mapping.h     |  2 +-
+>  arch/x86/include/asm/archrandom.h            |  2 +-
+>  arch/x86/include/asm/dma-mapping.h           |  2 +-
+>  arch/x86/include/asm/kvm_para.h              |  2 +-
+>  arch/x86/kvm/cpuid.h                         |  2 +-
+>  arch/x86/kvm/vmx.c                           | 72 ++++++++++++++--------------
+>  drivers/char/virtio_console.c                |  2 +-
+>  drivers/scsi/csiostor/csio_scsi.c            |  4 +-
+>  fs/dcache.c                                  | 12 ++---
+>  fs/nfsd/nfs4state.c                          |  2 +-
+>  include/linux/blkdev.h                       |  2 +-
+>  include/linux/ide.h                          |  2 +-
+>  include/linux/kgdb.h                         |  2 +-
+>  include/linux/mfd/db8500-prcmu.h             |  2 +-
+>  include/linux/mm.h                           |  2 +-
+>  include/linux/power_supply.h                 |  8 ++--
+>  include/linux/ssb/ssb_driver_extif.h         |  2 +-
+>  include/linux/ssb/ssb_driver_gige.h          | 16 +++----
+>  include/sound/soc.h                          |  4 +-
+>  kernel/rcu/tree_plugin.h                     |  4 +-
+>  kernel/sched/auto_group.h                    |  2 +-
+>  kernel/sched/completion.c                    | 16 ++++---
+>  kernel/trace/ftrace.c                        | 10 ++--
+>  mm/slub.c                                    | 12 ++---
+>  net/bridge/br_private.h                      |  2 +-
+>  net/ipv4/netfilter/ipt_ah.c                  |  2 +-
+>  net/netfilter/ipset/ip_set_hash_ip.c         |  8 ++--
+>  net/netfilter/ipset/ip_set_hash_ipmark.c     |  8 ++--
+>  net/netfilter/ipset/ip_set_hash_ipport.c     |  8 ++--
+>  net/netfilter/ipset/ip_set_hash_ipportip.c   |  8 ++--
+>  net/netfilter/ipset/ip_set_hash_ipportnet.c  |  8 ++--
+>  net/netfilter/ipset/ip_set_hash_net.c        |  8 ++--
+>  net/netfilter/ipset/ip_set_hash_netiface.c   |  8 ++--
+>  net/netfilter/ipset/ip_set_hash_netport.c    |  8 ++--
+>  net/netfilter/ipset/ip_set_hash_netportnet.c |  8 ++--
+>  net/netfilter/xt_connlimit.c                 |  2 +-
+>  net/netfilter/xt_hashlimit.c                 |  2 +-
+>  net/netfilter/xt_ipcomp.c                    |  2 +-
+>  security/apparmor/file.c                     |  8 ++--
+>  security/apparmor/policy.c                   | 10 ++--
+>  sound/soc/codecs/wm5100-tables.c             | 12 ++---
 
-Hmm, re-reading the code, this won't be enough for BE
-guests. We are doing one extra byteswap there.
+Why, and why these in particular?
 
-I'll fix up and repost.
-
->  include/uapi/linux/virtio_balloon.h | 6 ++++++
->  drivers/virtio/virtio_balloon.c     | 8 ++++++--
->  2 files changed, 12 insertions(+), 2 deletions(-)
-> 
-> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-> index 4b0488f..5d83902 100644
-> --- a/include/uapi/linux/virtio_balloon.h
-> +++ b/include/uapi/linux/virtio_balloon.h
-> @@ -56,4 +56,10 @@ struct virtio_balloon_stat {
->  	__u64 val;
->  } __attribute__((packed));
->  
-> +struct virtio_balloon_stat_modern {
-> +	__u8 reserved[6];
-> +	__u16 tag;
-> +	__u64 val;
-> +};
-> +
->  #endif /* _LINUX_VIRTIO_BALLOON_H */
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 6a356e3..68e937f 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -77,7 +77,7 @@ struct virtio_balloon {
->  
->  	/* Memory statistics */
->  	int need_stats_update;
-> -	struct virtio_balloon_stat stats[VIRTIO_BALLOON_S_NR];
-> +	struct virtio_balloon_stat_modern stats[VIRTIO_BALLOON_S_NR];
->  
->  	/* To register callback in oom notifier call chain */
->  	struct notifier_block nb;
-> @@ -269,7 +269,11 @@ static void stats_handle_request(struct virtio_balloon *vb)
->  	vq = vb->stats_vq;
->  	if (!virtqueue_get_buf(vq, &len))
->  		return;
-> -	sg_init_one(&sg, vb->stats, sizeof(vb->stats));
-> +	if (virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
-> +		sg_init_one(&sg, vb->stats, sizeof(vb->stats));
-> +	else
-> +		sg_init_one(&sg, &vb->stats->tag, sizeof(vb->stats) -
-> +			    offsetof(typeof(*vb->stats, tag);
->  	virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
->  	virtqueue_kick(vq);
->  }
-> -- 
-> MST
-> 
+>  55 files changed, 178 insertions(+), 176 deletions(-)
+>
