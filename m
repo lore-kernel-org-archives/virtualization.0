@@ -1,16 +1,13 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH 12/25] virtio_console: Use bool function return values of
-	true/false not 1/0
-Date: Tue, 31 Mar 2015 11:02:39 +0530
-Message-ID: <20150331053239.GA9916@grmbl.mre>
-References: <cover.1427759009.git.joe@perches.com>
-	<aa2bc094fb872b0e30703e0ad1bbe97f98bae91d.1427759009.git.joe@perches.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH 0/6] virtio_balloon: virtio 1 support
+Date: Tue, 31 Mar 2015 10:46:18 +0200
+Message-ID: <20150331104618.3da249e3.cornelia.huck__29853.5988353708$1427791611$gmane$org@de.ibm.com>
+References: <1427737006-23191-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <aa2bc094fb872b0e30703e0ad1bbe97f98bae91d.1427759009.git.joe@perches.com>
+In-Reply-To: <1427737006-23191-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,29 +17,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Joe Perches <joe@perches.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Mon) 30 Mar 2015 [16:46:10], Joe Perches wrote:
-> Use the normal return values for bool functions
-> 
-> Signed-off-by: Joe Perches <joe@perches.com>
-> ---
->  drivers/char/virtio_console.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> index 72d7028..50754d20 100644
-> --- a/drivers/char/virtio_console.c
-> +++ b/drivers/char/virtio_console.c
-> @@ -355,7 +355,7 @@ static inline bool use_multiport(struct ports_device *portdev)
->  	 * early_init
->  	 */
->  	if (!portdev->vdev)
-> -		return 0;
-> +		return false;
+On Mon, 30 Mar 2015 19:37:08 +0200
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-Reviewed-by: Amit Shah <amit.shah@redhat.com>
+> Virtio 1.0 doesn't include a modern balloon device.
+> At some point we'll likely define an incompatible interface with a different
+> ID.  But for now, it's not a big change to support a transitional balloon
+> device: this has the advantage of supporting existing drivers, transparently.
 
-		Amit
+This is needed to support a ballooner on transports that don't support
+mixing legacy and 1.0, right?
+
+> 
+> The only issue is with the stats buffer, which has misaligned fields.
+> Seems easy to fix by prepending a 6 byte reserved field.
+
+I assume you also define the stats fields to be le for 1.0?
+
+> 
+> I'll post spec patch and qemu patches shortly.
+
+I'll defer review until then.
+
+> 
+> Michael S. Tsirkin (6):
+>   virtio_balloon: transitional interface
+>   virtio: balloon might not be a legacy device
+>   virtio_ccw: support non-legacy balloon devices
+>   virtio_mmio: support non-legacy balloon devices
+>   virtio_pci: support non-legacy balloon devices
+>   virtio: drop virtio_device_is_legacy_only
+> 
+>  include/linux/virtio.h              |  2 --
+>  include/uapi/linux/virtio_balloon.h |  6 ++++++
+>  drivers/s390/kvm/virtio_ccw.c       | 10 +++-------
+>  drivers/virtio/virtio.c             |  6 ------
+>  drivers/virtio/virtio_balloon.c     |  8 ++++++--
+>  drivers/virtio/virtio_mmio.c        |  8 --------
+>  drivers/virtio/virtio_pci_modern.c  |  3 ---
+>  7 files changed, 15 insertions(+), 28 deletions(-)
+> 
