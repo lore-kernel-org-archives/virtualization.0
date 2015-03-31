@@ -1,12 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio: drop a useless config read
-Date: Tue, 31 Mar 2015 13:55:42 +0200
-Message-ID: <1427802906-7743-1-git-send-email-mst__9447.77793852172$1427802979$gmane$org@redhat.com>
+From: Pawel Moll <pawel.moll@arm.com>
+Subject: Re: [PATCH 4/6] virtio_mmio: support non-legacy balloon devices
+Date: Tue, 31 Mar 2015 13:31:35 +0100
+Message-ID: <1427805095.8330.10.camel@arm.com>
+References: <1427737006-23191-1-git-send-email-mst@redhat.com>
+	<1427737006-23191-5-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <1427737006-23191-5-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,39 +18,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-commit d71de9ec6ba806104439d3a669befda84757b5af
-    "virtio: core support for config generation"
-fixed reading up 64 bit values, adding generation
-checks for such reads.
+On Mon, 2015-03-30 at 18:37 +0100, Michael S. Tsirkin wrote:
+> virtio_device_is_legacy_only is always false now,
+> drop the test from virtio mmio.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-By mistake, it left an explicit get call in place
-as well. the result is that the value is read twice,
-the first result is discarded.
+Slightly ironic ack ;-) after all the battle you fought for this:
 
-Not a big deal since this only happens with virtio
-blk and only on boot ATM, so performance isn't
-affected, but let's clean it up.
+Acked-by: Pawel Moll <pawel.moll@arm.com>
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- include/linux/virtio_config.h | 1 -
- 1 file changed, 1 deletion(-)
+Thanks!
 
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index ca3ed78..ed1e0d5 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -374,7 +374,6 @@ static inline u64 virtio_cread64(struct virtio_device *vdev,
- 				 unsigned int offset)
- {
- 	u64 ret;
--	vdev->config->get(vdev, offset, &ret, sizeof(ret));
- 	__virtio_cread_many(vdev, offset, &ret, 1, sizeof(ret));
- 	return virtio64_to_cpu(vdev, (__force __virtio64)ret);
- }
--- 
-MST
+Pawel
