@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2 2/6] virtio: balloon might not be a legacy device
-Date: Tue, 31 Mar 2015 21:52:42 +0200
-Message-ID: <1427831230-28044-3-git-send-email-mst@redhat.com>
+Subject: [PATCH v2 4/6] virtio_mmio: support non-legacy balloon devices
+Date: Tue, 31 Mar 2015 21:52:48 +0200
+Message-ID: <1427831230-28044-5-git-send-email-mst@redhat.com>
 References: <1427831230-28044-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,29 +19,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+Cc: Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We added transitional device support to balloon driver,
-so we don't need to black-list it in core anymore.
+virtio_device_is_legacy_only is always false now,
+drop the test from virtio mmio.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Pawel Moll <pawel.moll@arm.com>
 ---
- drivers/virtio/virtio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/virtio/virtio_mmio.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 5ce2aa4..5fa67b5 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -280,7 +280,7 @@ static struct bus_type virtio_bus = {
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 6010d7e..7a5e60d 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -581,14 +581,6 @@ static int virtio_mmio_probe(struct platform_device *pdev)
+ 	}
+ 	vm_dev->vdev.id.vendor = readl(vm_dev->base + VIRTIO_MMIO_VENDOR_ID);
  
- bool virtio_device_is_legacy_only(struct virtio_device_id id)
- {
--	return id.device == VIRTIO_ID_BALLOON;
-+	return false;
- }
- EXPORT_SYMBOL_GPL(virtio_device_is_legacy_only);
+-	/* Reject legacy-only IDs for version 2 devices */
+-	if (vm_dev->version == 2 &&
+-			virtio_device_is_legacy_only(vm_dev->vdev.id)) {
+-		dev_err(&pdev->dev, "Version 2 not supported for devices %u!\n",
+-				vm_dev->vdev.id.device);
+-		return -ENODEV;
+-	}
+-
+ 	if (vm_dev->version == 1)
+ 		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
  
 -- 
 MST
