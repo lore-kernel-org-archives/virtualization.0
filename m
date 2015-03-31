@@ -1,12 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio_config: reorder functions
-Date: Tue, 31 Mar 2015 17:17:25 +0200
-Message-ID: <1427814977-11504-1-git-send-email-mst@redhat.com>
+Subject: Re: [PATCH 4/6] virtio_mmio: support non-legacy balloon devices
+Date: Tue, 31 Mar 2015 21:51:56 +0200
+Message-ID: <20150331214943-mutt-send-email-mst@redhat.com>
+References: <1427737006-23191-1-git-send-email-mst@redhat.com>
+	<1427737006-23191-5-git-send-email-mst@redhat.com>
+	<1427805095.8330.10.camel@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <1427805095.8330.10.camel@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,58 +20,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+To: Pawel Moll <pawel.moll@arm.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This simply reorders functions in virtio_config
-so width access wrapper helpers are all together.
-Drops an extra empty line while we are at it.
+On Tue, Mar 31, 2015 at 01:31:35PM +0100, Pawel Moll wrote:
+> On Mon, 2015-03-30 at 18:37 +0100, Michael S. Tsirkin wrote:
+> > virtio_device_is_legacy_only is always false now,
+> > drop the test from virtio mmio.
+> > 
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+> Slightly ironic ack ;-) after all the battle you fought for this:
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- include/linux/virtio_config.h | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+In hindsight, the time might have been better spent working on this
+patchset instead, that's true.
 
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index ed1e0d5..1e306f7 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -298,13 +298,6 @@ static inline __virtio64 cpu_to_virtio64(struct virtio_device *vdev, u64 val)
- 		}							\
- 	} while(0)
- 
--static inline u8 virtio_cread8(struct virtio_device *vdev, unsigned int offset)
--{
--	u8 ret;
--	vdev->config->get(vdev, offset, &ret, sizeof(ret));
--	return ret;
--}
--
- /* Read @count fields, @bytes each. */
- static inline void __virtio_cread_many(struct virtio_device *vdev,
- 				       unsigned int offset,
-@@ -326,7 +319,6 @@ static inline void __virtio_cread_many(struct virtio_device *vdev,
- 	} while (gen != old);
- }
- 
--
- static inline void virtio_cread_bytes(struct virtio_device *vdev,
- 				      unsigned int offset,
- 				      void *buf, size_t len)
-@@ -334,6 +326,13 @@ static inline void virtio_cread_bytes(struct virtio_device *vdev,
- 	__virtio_cread_many(vdev, offset, buf, len, 1);
- }
- 
-+static inline u8 virtio_cread8(struct virtio_device *vdev, unsigned int offset)
-+{
-+	u8 ret;
-+	vdev->config->get(vdev, offset, &ret, sizeof(ret));
-+	return ret;
-+}
-+
- static inline void virtio_cwrite8(struct virtio_device *vdev,
- 				  unsigned int offset, u8 val)
- {
--- 
-MST
+> Acked-by: Pawel Moll <pawel.moll@arm.com>
+> 
+> Thanks!
+> 
+> Pawel
