@@ -1,14 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 4/6] virtio_mmio: support non-legacy balloon devices
-Date: Wed, 1 Apr 2015 12:35:56 +0200
-Message-ID: <1427884468-23930-5-git-send-email-mst__37673.0178403251$1427884616$gmane$org@redhat.com>
+Subject: Re: [PATCH v3 1/6] virtio_balloon: transitional interface
+Date: Wed, 1 Apr 2015 12:49:02 +0200
+Message-ID: <20150401124539-mutt-send-email-mst@redhat.com>
 References: <1427884468-23930-1-git-send-email-mst@redhat.com>
+	<1427884468-23930-2-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1427884468-23930-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1427884468-23930-2-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,36 +20,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: virtio-dev@lists.oasis-open.org, Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
+Cc: virtio-dev@lists.oasis-open.org, Pawel Moll <pawel.moll@arm.com>, linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio_device_is_legacy_only is always false now,
-drop the test from virtio mmio.
+On Wed, Apr 01, 2015 at 12:35:45PM +0200, Michael S. Tsirkin wrote:
+> Virtio 1.0 doesn't include a modern balloon device.
+> But it's not a big change to support a transitional
+> balloon device: this has the advantage of supporting
+> existing drivers, transparently.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  include/uapi/linux/virtio_balloon.h | 11 ++++++++--
+>  drivers/virtio/virtio_balloon.c     | 43 +++++++++++++++++++++++++++++--------
+>  2 files changed, 43 insertions(+), 11 deletions(-)
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Pawel Moll <pawel.moll@arm.com>
----
- drivers/virtio/virtio_mmio.c | 8 --------
- 1 file changed, 8 deletions(-)
+So all in all 32 LOC added, and 9 out of these
+deal with endian-ness differences.
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 6010d7e..7a5e60d 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -581,14 +581,6 @@ static int virtio_mmio_probe(struct platform_device *pdev)
- 	}
- 	vm_dev->vdev.id.vendor = readl(vm_dev->base + VIRTIO_MMIO_VENDOR_ID);
- 
--	/* Reject legacy-only IDs for version 2 devices */
--	if (vm_dev->version == 2 &&
--			virtio_device_is_legacy_only(vm_dev->vdev.id)) {
--		dev_err(&pdev->dev, "Version 2 not supported for devices %u!\n",
--				vm_dev->vdev.id.device);
--		return -ENODEV;
--	}
--
- 	if (vm_dev->version == 1)
- 		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
- 
+Seems like a small cost for guests to pay for a clean spec, no?
+
 -- 
 MST
