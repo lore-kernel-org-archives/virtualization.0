@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 6/6] virtio: drop virtio_device_is_legacy_only
-Date: Wed, 1 Apr 2015 12:36:03 +0200
-Message-ID: <1427884468-23930-7-git-send-email-mst@redhat.com>
+Subject: [PATCH v3 2/6] virtio: balloon might not be a legacy device
+Date: Wed, 1 Apr 2015 12:35:48 +0200
+Message-ID: <1427884468-23930-3-git-send-email-mst__15628.5611018122$1427884594$gmane$org@redhat.com>
 References: <1427884468-23930-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,47 +19,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: virtio-dev@lists.oasis-open.org, Paul Bolle <pebolle@tiscali.nl>, Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org, David Hildenbrand <dahi@linux.vnet.ibm.com>
+Cc: virtio-dev@lists.oasis-open.org, Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio_device_is_legacy_only is now unused, drop
-it from core.
+We added transitional device support to balloon driver,
+so we don't need to black-list it in core anymore.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- include/linux/virtio.h  | 2 --
- drivers/virtio/virtio.c | 6 ------
- 2 files changed, 8 deletions(-)
+ drivers/virtio/virtio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 28f0e65..8f4d4bf 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -108,8 +108,6 @@ struct virtio_device {
- 	void *priv;
- };
- 
--bool virtio_device_is_legacy_only(struct virtio_device_id id);
--
- static inline struct virtio_device *dev_to_virtio(struct device *_dev)
- {
- 	return container_of(_dev, struct virtio_device, dev);
 diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 5fa67b5..b1877d7 100644
+index 5ce2aa4..5fa67b5 100644
 --- a/drivers/virtio/virtio.c
 +++ b/drivers/virtio/virtio.c
-@@ -278,12 +278,6 @@ static struct bus_type virtio_bus = {
- 	.remove = virtio_dev_remove,
- };
+@@ -280,7 +280,7 @@ static struct bus_type virtio_bus = {
  
--bool virtio_device_is_legacy_only(struct virtio_device_id id)
--{
--	return false;
--}
--EXPORT_SYMBOL_GPL(virtio_device_is_legacy_only);
--
- int register_virtio_driver(struct virtio_driver *driver)
+ bool virtio_device_is_legacy_only(struct virtio_device_id id)
  {
- 	/* Catch this early. */
+-	return id.device == VIRTIO_ID_BALLOON;
++	return false;
+ }
+ EXPORT_SYMBOL_GPL(virtio_device_is_legacy_only);
+ 
 -- 
 MST
