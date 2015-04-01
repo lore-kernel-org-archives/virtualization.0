@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 5/6] virtio_pci: support non-legacy balloon devices
-Date: Wed, 1 Apr 2015 12:35:59 +0200
-Message-ID: <1427884468-23930-6-git-send-email-mst__45671.2373569191$1427884608$gmane$org@redhat.com>
+Subject: [PATCH v3 4/6] virtio_mmio: support non-legacy balloon devices
+Date: Wed, 1 Apr 2015 12:35:56 +0200
+Message-ID: <1427884468-23930-5-git-send-email-mst__37673.0178403251$1427884616$gmane$org@redhat.com>
 References: <1427884468-23930-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,26 +23,32 @@ Cc: virtio-dev@lists.oasis-open.org, Pawel Moll <pawel.moll@arm.com>, virtualiza
 List-Id: virtualization@lists.linuxfoundation.org
 
 virtio_device_is_legacy_only is always false now,
-drop the test from virtio pci.
+drop the test from virtio mmio.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Pawel Moll <pawel.moll@arm.com>
 ---
- drivers/virtio/virtio_pci_modern.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/virtio/virtio_mmio.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index 2aa38e5..dfea17a 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -577,9 +577,6 @@ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 6010d7e..7a5e60d 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -581,14 +581,6 @@ static int virtio_mmio_probe(struct platform_device *pdev)
  	}
- 	vp_dev->vdev.id.vendor = pci_dev->subsystem_vendor;
+ 	vm_dev->vdev.id.vendor = readl(vm_dev->base + VIRTIO_MMIO_VENDOR_ID);
  
--	if (virtio_device_is_legacy_only(vp_dev->vdev.id))
+-	/* Reject legacy-only IDs for version 2 devices */
+-	if (vm_dev->version == 2 &&
+-			virtio_device_is_legacy_only(vm_dev->vdev.id)) {
+-		dev_err(&pdev->dev, "Version 2 not supported for devices %u!\n",
+-				vm_dev->vdev.id.device);
 -		return -ENODEV;
+-	}
 -
- 	/* check for a common config: if not, use legacy mode (bar 0). */
- 	common = virtio_pci_find_capability(pci_dev, VIRTIO_PCI_CAP_COMMON_CFG,
- 					    IORESOURCE_IO | IORESOURCE_MEM);
+ 	if (vm_dev->version == 1)
+ 		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
+ 
 -- 
 MST
