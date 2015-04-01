@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 2/6] virtio: balloon might not be a legacy device
-Date: Wed, 1 Apr 2015 12:35:48 +0200
-Message-ID: <1427884468-23930-3-git-send-email-mst__15628.5611018122$1427884594$gmane$org@redhat.com>
+Subject: [PATCH v3 5/6] virtio_pci: support non-legacy balloon devices
+Date: Wed, 1 Apr 2015 12:35:59 +0200
+Message-ID: <1427884468-23930-6-git-send-email-mst__45671.2373569191$1427884608$gmane$org@redhat.com>
 References: <1427884468-23930-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,26 +22,27 @@ To: linux-kernel@vger.kernel.org
 Cc: virtio-dev@lists.oasis-open.org, Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We added transitional device support to balloon driver,
-so we don't need to black-list it in core anymore.
+virtio_device_is_legacy_only is always false now,
+drop the test from virtio pci.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/virtio/virtio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/virtio/virtio_pci_modern.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 5ce2aa4..5fa67b5 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -280,7 +280,7 @@ static struct bus_type virtio_bus = {
+diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+index 2aa38e5..dfea17a 100644
+--- a/drivers/virtio/virtio_pci_modern.c
++++ b/drivers/virtio/virtio_pci_modern.c
+@@ -577,9 +577,6 @@ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
+ 	}
+ 	vp_dev->vdev.id.vendor = pci_dev->subsystem_vendor;
  
- bool virtio_device_is_legacy_only(struct virtio_device_id id)
- {
--	return id.device == VIRTIO_ID_BALLOON;
-+	return false;
- }
- EXPORT_SYMBOL_GPL(virtio_device_is_legacy_only);
- 
+-	if (virtio_device_is_legacy_only(vp_dev->vdev.id))
+-		return -ENODEV;
+-
+ 	/* check for a common config: if not, use legacy mode (bar 0). */
+ 	common = virtio_pci_find_capability(pci_dev, VIRTIO_PCI_CAP_COMMON_CFG,
+ 					    IORESOURCE_IO | IORESOURCE_MEM);
 -- 
 MST
