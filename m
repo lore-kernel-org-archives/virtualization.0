@@ -1,15 +1,13 @@
-From: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Subject: Re: [PATCH v2 7/7] vhost: feature to set the vring endianness
-Date: Thu, 2 Apr 2015 18:45:27 +0200
-Message-ID: <20150402184527.0bc68efe@bahia.local>
-References: <20150402131637.24676.60700.stgit@bahia.lab.toulouse-stg.fr.ibm.com>
-	<20150402131713.24676.9924.stgit@bahia.lab.toulouse-stg.fr.ibm.com>
-	<20150402142046.GA23121@redhat.com>
+From: =?UTF-8?B?TWFyYy1BbmRyw6kgTHVyZWF1?= <marcandre.lureau@gmail.com>
+Subject: Re: [PATCH v2 3/4] Add virtio gpu driver.
+Date: Thu, 2 Apr 2015 17:52:40 +0200
+Message-ID: <CAJ+F1CK3ibbn8e1-rUY4OUJuaCt_=JmuT00Fqx4YDD9M5zJv=A__41566.6942870759$1427994414$gmane$org@mail.gmail.com>
+References: <1427894130-14228-1-git-send-email-kraxel@redhat.com>
+	<1427894130-14228-4-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============5459718867034699087=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150402142046.GA23121@redhat.com>
+In-Reply-To: <1427894130-14228-4-git-send-email-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,277 +17,89 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, "open list:ABI/API" <linux-api@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:VIRTIO CORE,
+	NET..." <virtualization@lists.linux-foundation.org>, David Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2 Apr 2015 16:20:46 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+--===============5459718867034699087==
+Content-Type: multipart/alternative; boundary=001a11333434585bc10512bfd277
 
-> On Thu, Apr 02, 2015 at 03:17:13PM +0200, Greg Kurz wrote:
-> > This patch brings cross-endian support to vhost when used to implement
-> > legacy virtio devices. Since it is a relatively rare situation, the feature
-> > availability is controlled by a kernel config option (not set by default).
-> > 
-> > If cross-endian support is compiled in, vhost abvertises a new feature
-> > to be negotiated with userspace. If userspace acknowledges the feature,
-> > it can inform vhost about the endianness to use with a new ioctl.
-> > 
-> > This feature is mutually exclusive with virtio 1.0. Even if the vhost device
-> > advertises virtio 1.0 and legacy cross-endian features, it cannot receive
-> > aknowledgement for both at the same time.
-> > 
-> > Hot paths are being preserved from any penalty when the config option is
-> > disabled or when virtio 1.0 is being used.
-> > 
-> > Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
-> > ---
-> >  drivers/vhost/Kconfig      |   10 ++++++++++
-> >  drivers/vhost/net.c        |    5 +++++
-> >  drivers/vhost/scsi.c       |    4 ++++
-> >  drivers/vhost/test.c       |    4 ++++
-> >  drivers/vhost/vhost.c      |   19 +++++++++++++++++++
-> >  drivers/vhost/vhost.h      |   13 ++++++++++++-
-> >  include/uapi/linux/vhost.h |   10 ++++++++++
-> >  7 files changed, 64 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
-> > index 017a1e8..5bb8da9 100644
-> > --- a/drivers/vhost/Kconfig
-> > +++ b/drivers/vhost/Kconfig
-> > @@ -32,3 +32,13 @@ config VHOST
-> >  	---help---
-> >  	  This option is selected by any driver which needs to access
-> >  	  the core of vhost.
-> > +
-> > +config VHOST_SET_ENDIAN_LEGACY
-> > +	bool "Cross-endian support for host kernel accelerator"
-> > +	default n
-> > +	---help---
-> > +	  This option allows vhost to support guests with a different byte
-> > +	  ordering
-> 
-> from host
-> 
-> >. It is disabled by default since it adds overhead and it
-> > +	  is only needed by a few platforms (powerpc and arm).
-> > +
-> > +	  If unsure, say "n".
-> 
-> "N"
-> 
-> > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> > index 2bbfc25..5274a44 100644
-> > --- a/drivers/vhost/net.c
-> > +++ b/drivers/vhost/net.c
-> > @@ -1011,6 +1011,11 @@ static int vhost_net_set_features(struct vhost_net *n, u64 features)
-> >  		vhost_hlen = 0;
-> >  		sock_hlen = hdr_len;
-> >  	}
-> > +
-> > +	if (features & ((1ULL << VHOST_F_SET_ENDIAN_LEGACY) |
-> > +			(1ULL << VIRTIO_F_VERSION_1)))
-> > +		return -EINVAL;
-> > +
-> >  	mutex_lock(&n->dev.mutex);
-> >  	if ((features & (1 << VHOST_F_LOG_ALL)) &&
-> >  	    !vhost_log_access_ok(&n->dev)) {
-> > diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-> > index 71df240..b53e9c2 100644
-> > --- a/drivers/vhost/scsi.c
-> > +++ b/drivers/vhost/scsi.c
-> > @@ -1544,6 +1544,10 @@ static int vhost_scsi_set_features(struct vhost_scsi *vs, u64 features)
-> >  	if (features & ~VHOST_SCSI_FEATURES)
-> >  		return -EOPNOTSUPP;
-> >  
-> > +	if (features & ((1ULL << VHOST_F_SET_ENDIAN_LEGACY) |
-> > +			(1ULL << VIRTIO_F_VERSION_1)))
-> > +		return -EINVAL;
-> > +
-> >  	mutex_lock(&vs->dev.mutex);
-> >  	if ((features & (1 << VHOST_F_LOG_ALL)) &&
-> >  	    !vhost_log_access_ok(&vs->dev)) {
-> > diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
-> > index d9c501e..cfefdad 100644
-> > --- a/drivers/vhost/test.c
-> > +++ b/drivers/vhost/test.c
-> > @@ -243,6 +243,10 @@ static int vhost_test_set_features(struct vhost_test *n, u64 features)
-> >  {
-> >  	struct vhost_virtqueue *vq;
-> >  
-> > +	if (features & ((1ULL << VHOST_F_SET_ENDIAN_LEGACY) |
-> > +			(1ULL << VIRTIO_F_VERSION_1)))
-> > +		return -EINVAL;
-> > +
-> >  	mutex_lock(&n->dev.mutex);
-> >  	if ((features & (1 << VHOST_F_LOG_ALL)) &&
-> >  	    !vhost_log_access_ok(&n->dev)) {
-> 
-> Above seems to prevent users from specifying either
-> VIRTIO_F_VERSION_1 or VHOST_F_SET_ENDIAN_LEGACY.
-> Does it actually work?
-> 
+--001a11333434585bc10512bfd277
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Arggg no it doesn't *of course*... I've added these bogus checks lately
-and didn't re-test :(
+Hi Gerd
 
-> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > index 2ee2826..60a0f32 100644
-> > --- a/drivers/vhost/vhost.c
-> > +++ b/drivers/vhost/vhost.c
-> > @@ -199,6 +199,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
-> >  	vq->call = NULL;
-> >  	vq->log_ctx = NULL;
-> >  	vq->memory = NULL;
-> > +	vq->legacy_big_endian = false;
-> >  }
-> >  
-> >  static int vhost_worker(void *data)
-> > @@ -806,6 +807,24 @@ long vhost_vring_ioctl(struct vhost_dev *d, int ioctl, void __user *argp)
-> >  		} else
-> >  			filep = eventfp;
-> >  		break;
-> > +#ifdef CONFIG_VHOST_SET_ENDIAN_LEGACY
-> > +	case VHOST_SET_VRING_ENDIAN_LEGACY:
-> > +	{
-> > +		struct vhost_vring_endian e;
-> > +
-> > +		if (!vhost_has_feature(vq, VHOST_F_SET_ENDIAN_LEGACY)) {
-> > +			r = -EINVAL;
-> > +			break;
-> > +		}
-> > +
-> > +		if (copy_from_user(&e, argp, sizeof(e))) {
-> > +			r = -EFAULT;
-> > +			break;
-> > +		}
-> > +		vq->legacy_big_endian = e.is_big_endian;
-> > +		break;
-> > +	}
-> > +#endif
-> >  	default:
-> >  		r = -ENOIOCTLCMD;
-> >  	}
-> > diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> > index 4e9a186..d50881d 100644
-> > --- a/drivers/vhost/vhost.h
-> > +++ b/drivers/vhost/vhost.h
-> > @@ -106,6 +106,9 @@ struct vhost_virtqueue {
-> >  	/* Log write descriptors */
-> >  	void __user *log_base;
-> >  	struct vhost_log *log;
-> > +
-> > +	/* We need to know the device endianness with legacy virtio. */
-> > +	bool legacy_big_endian;
-> >  };
-> >  
-> >  struct vhost_dev {
-> > @@ -165,7 +168,11 @@ enum {
-> >  	VHOST_FEATURES = (1ULL << VIRTIO_F_NOTIFY_ON_EMPTY) |
-> >  			 (1ULL << VIRTIO_RING_F_INDIRECT_DESC) |
-> >  			 (1ULL << VIRTIO_RING_F_EVENT_IDX) |
-> > -			 (1ULL << VHOST_F_LOG_ALL),
-> > +			 (1ULL << VHOST_F_LOG_ALL) |
-> > +#ifdef CONFIG_VHOST_SET_ENDIAN_LEGACY
-> > +			 (1ULL << VHOST_F_SET_ENDIAN_LEGACY) |
-> > +#endif
-> > +			 0ULL,
-> >  };
-> >  
-> >  static inline bool vhost_has_feature(struct vhost_virtqueue *vq, int bit)
-> > @@ -177,6 +184,10 @@ static inline bool vhost_is_little_endian(struct vhost_virtqueue *vq)
-> >  {
-> >  	if (vhost_has_feature(vq, VIRTIO_F_VERSION_1))
-> >  		return true;
-> > +#ifdef CONFIG_VHOST_SET_ENDIAN_LEGACY
-> > +	if (vhost_has_feature(vq, VHOST_F_SET_ENDIAN_LEGACY))
-> > +		return !vq->legacy_big_endian;
-> 
-> why do we need to check the feature bit?
-> How about simple
-> 	return !vq->legacy_big_endian;
-> here?
+While doing some testing with your brance, I reached that:
 
-This is a runtime feature. Even for powerpc, cross-endian won't be the
-most common scenario. Userspace may have cleared the bit if it doesn't
-need/want it.
+On Wed, Apr 1, 2015 at 3:15 PM, Gerd Hoffmann <kraxel@redhat.com> wrote:
 
-> All you need to do is set legacy_big_endian to
-> !virtio_legacy_is_little_endian() on reset.
-> Maybe rename to legacy_is_little_endian so you don't
-> need to reverse the logic.
-> 
+> +#define MAX_INLINE_CMD_SIZE   96
+>
 
-Do you mean vhost doesn't need userspace to provide the endianness
-to be used ? Please elaborate on the meaning of "reset" here... I
-am confused.
+[  750.446449] kernel BUG at drivers/gpu/drm/virtio/virtgpu_vq.c:132!
+[  750.447005] Call Trace:
+[  750.447005]  [<ffffffffa00f3592>] virtio_gpu_alloc_cmd+0x22/0x50
+[virtio_gpu]
+[  750.447005]  [<ffffffffa00f4580>]
+virtio_gpu_cmd_context_create+0x30/0xa0 [virtio_gpu]
 
-> > +#endif
-> >  	return virtio_legacy_is_little_endian();
-> >  }
-> >  
-> > diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-> > index bb6a5b4..09d2a48 100644
-> > --- a/include/uapi/linux/vhost.h
-> > +++ b/include/uapi/linux/vhost.h
-> > @@ -47,6 +47,11 @@ struct vhost_vring_addr {
-> >  	__u64 log_guest_addr;
-> >  };
-> >  
-> > +struct vhost_vring_endian {
-> > +	unsigned int index;
-> > +	bool is_big_endian;
-> 
-> bool in uapi is a bad idea.
-> Generally, I think you can use vhost_vring_state here.
-> 
 
-Ok to turn is_big_endian into an int but why hijacking vhost_vring_state ?
+struct virtio_gpu_ctx_create {
+        struct virtio_gpu_ctrl_hdr hdr;
+        __le32 nlen;
+        __le32 padding;
+        char debug_name[64];
+};
 
-> > +};
-> > +
-> >  struct vhost_memory_region {
-> >  	__u64 guest_phys_addr;
-> >  	__u64 memory_size; /* bytes */
-> > @@ -103,6 +108,9 @@ struct vhost_memory {
-> >  /* Get accessor: reads index, writes value in num */
-> >  #define VHOST_GET_VRING_BASE _IOWR(VHOST_VIRTIO, 0x12, struct vhost_vring_state)
-> >  
-> > +/* Set endianness for the ring (legacy virtio only) */
-> > +#define VHOST_SET_VRING_ENDIAN_LEGACY _IOW(VHOST_VIRTIO, 0x13, struct vhost_vring_endian)
-> > +
-> >  /* The following ioctls use eventfd file descriptors to signal and poll
-> >   * for events. */
-> >  
-> 
-> You also need a GET ioctl, as a matter of policy.
-> 
+Is actually 96 bytes.
 
-Ok. Will add.
+Perhaps that condition should be changed:
++       BUG_ON(size >=3D MAX_INLINE_CMD_SIZE);
 
-> > @@ -126,6 +134,8 @@ struct vhost_memory {
-> >  #define VHOST_F_LOG_ALL 26
-> >  /* vhost-net should add virtio_net_hdr for RX, and strip for TX packets. */
-> >  #define VHOST_NET_F_VIRTIO_NET_HDR 27
-> > +/* the vring endianness can be explicitly set (legacy virtio only). */
-> > +#define VHOST_F_SET_ENDIAN_LEGACY 28
-> >  
-> >  /* VHOST_SCSI specific definitions */
-> 
-> 
-> VHOST_F_SET_ENDIAN_LEGACY doesn't seem too useful.
-> Is this so userspace can detect kernel configuration?
+--=20
+Marc-Andr=C3=A9 Lureau
 
-Yes. Also, it is quite easy to "un-ack" the feature when
-it is not wanted.
+--001a11333434585bc10512bfd277
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-> I think probing VHOST_SET_VRING_ENDIAN_LEGACY should
-> be sufficient for this.
-> 
+<div dir=3D"ltr"><div class=3D"gmail_extra">Hi Gerd<br><br></div><div class=
+=3D"gmail_extra">While doing some testing with your brance, I reached that:=
+<br><br></div><div class=3D"gmail_extra"><div class=3D"gmail_quote">On Wed,=
+ Apr 1, 2015 at 3:15 PM, Gerd Hoffmann <span dir=3D"ltr">&lt;<a href=3D"mai=
+lto:kraxel@redhat.com" target=3D"_blank">kraxel@redhat.com</a>&gt;</span> w=
+rote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8e=
+x;border-left:1px solid rgb(204,204,204);padding-left:1ex"><div id=3D":2bb"=
+ class=3D"" style=3D"overflow:hidden">
++#define <span class=3D"">MAX_INLINE_CMD_SIZE</span>=C2=A0 =C2=A096</div></=
+blockquote></div><br>[=C2=A0 750.446449] kernel BUG at drivers/gpu/drm/virt=
+io/virtgpu_vq.c:132!<br>[=C2=A0 750.447005] Call Trace:<br>[=C2=A0 750.4470=
+05]=C2=A0 [&lt;ffffffffa00f3592&gt;] virtio_gpu_alloc_cmd+0x22/0x50 [virtio=
+_gpu]<br>[=C2=A0 750.447005]=C2=A0 [&lt;ffffffffa00f4580&gt;] virtio_gpu_cm=
+d_context_create+0x30/0xa0 [virtio_gpu]<br><br><br clear=3D"all"></div><div=
+ class=3D"gmail_extra">struct virtio_gpu_ctx_create {<br>=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0 struct virtio_gpu_ctrl_hdr hdr;<br>=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0 __le32 nlen;<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0 __le32 padding;<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =
+char debug_name[64];<br>};<br><br></div><div class=3D"gmail_extra">Is actua=
+lly 96 bytes.<br><br>Perhaps that condition should be changed:<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0BUG_ON(<span class=3D"">size</span> &gt;=3D <sp=
+an class=3D"">MAX_INLINE_CMD_SIZE</span>);<br><br></div><div class=3D"gmail=
+_extra">-- <br><div class=3D"gmail_signature">Marc-Andr=C3=A9 Lureau</div>
+</div></div>
 
-I'll get rid of the feature.
+--001a11333434585bc10512bfd277--
 
-Thanks for your time Michael.
+--===============5459718867034699087==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
---
-Greg
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5459718867034699087==--
