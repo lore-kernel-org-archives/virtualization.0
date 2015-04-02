@@ -1,7 +1,7 @@
 From: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Subject: [PATCH v2 2/7] tun: add tun_is_little_endian() helper
-Date: Thu, 02 Apr 2015 15:16:48 +0200
-Message-ID: <20150402131648.24676.66420.stgit@bahia.lab.toulouse-stg.fr.ibm.com>
+Subject: [PATCH v2 1/7] virtio: introduce virtio_is_little_endian() helper
+Date: Thu, 02 Apr 2015 15:16:43 +0200
+Message-ID: <20150402131642.24676.12553.stgit__31794.6780859076$1427980647$gmane$org@bahia.lab.toulouse-stg.fr.ibm.com>
 References: <20150402131637.24676.60700.stgit@bahia.lab.toulouse-stg.fr.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,32 +23,57 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
 ---
- drivers/net/tun.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ include/linux/virtio_config.h |   17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index 857dca4..3c3d6c0 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -206,14 +206,19 @@ struct tun_struct {
- 	u32 flow_count;
- };
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index ca3ed78..bd1a582 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -205,35 +205,40 @@ int virtqueue_set_affinity(struct virtqueue *vq, int cpu)
+ 	return 0;
+ }
  
-+static inline bool tun_is_little_endian(struct tun_struct *tun)
++static inline bool virtio_is_little_endian(struct virtio_device *vdev)
 +{
-+	return tun->flags & TUN_VNET_LE;
++	return virtio_has_feature(vdev, VIRTIO_F_VERSION_1);
 +}
 +
- static inline u16 tun16_to_cpu(struct tun_struct *tun, __virtio16 val)
+ /* Memory accessors */
+ static inline u16 virtio16_to_cpu(struct virtio_device *vdev, __virtio16 val)
  {
--	return __virtio16_to_cpu(tun->flags & TUN_VNET_LE, val);
-+	return __virtio16_to_cpu(tun_is_little_endian(tun), val);
+-	return __virtio16_to_cpu(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
++	return __virtio16_to_cpu(virtio_is_little_endian(vdev), val);
  }
  
- static inline __virtio16 cpu_to_tun16(struct tun_struct *tun, u16 val)
+ static inline __virtio16 cpu_to_virtio16(struct virtio_device *vdev, u16 val)
  {
--	return __cpu_to_virtio16(tun->flags & TUN_VNET_LE, val);
-+	return __cpu_to_virtio16(tun_is_little_endian(tun), val);
+-	return __cpu_to_virtio16(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
++	return __cpu_to_virtio16(virtio_is_little_endian(vdev), val);
  }
  
- static inline u32 tun_hashfn(u32 rxhash)
+ static inline u32 virtio32_to_cpu(struct virtio_device *vdev, __virtio32 val)
+ {
+-	return __virtio32_to_cpu(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
++	return __virtio32_to_cpu(virtio_is_little_endian(vdev), val);
+ }
+ 
+ static inline __virtio32 cpu_to_virtio32(struct virtio_device *vdev, u32 val)
+ {
+-	return __cpu_to_virtio32(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
++	return __cpu_to_virtio32(virtio_is_little_endian(vdev), val);
+ }
+ 
+ static inline u64 virtio64_to_cpu(struct virtio_device *vdev, __virtio64 val)
+ {
+-	return __virtio64_to_cpu(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
++	return __virtio64_to_cpu(virtio_is_little_endian(vdev), val);
+ }
+ 
+ static inline __virtio64 cpu_to_virtio64(struct virtio_device *vdev, u64 val)
+ {
+-	return __cpu_to_virtio64(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
++	return __cpu_to_virtio64(virtio_is_little_endian(vdev), val);
+ }
+ 
+ /* Config space accessors. */
