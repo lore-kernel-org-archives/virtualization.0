@@ -1,23 +1,15 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 8/9] qspinlock: Generic paravirt support
-Date: Wed, 1 Apr 2015 23:03:17 +0200
-Message-ID: <20150401210317.GZ27490@worktop.programming.kicks-ass.net>
-References: <5509E51D.7040909@hp.com>
-	<20150319101242.GM21418@twins.programming.kicks-ass.net>
-	<20150319122536.GD11574@worktop.ger.corp.intel.com>
-	<551C1ACE.4090408@hp.com>
-	<20150401171223.GO23123@twins.programming.kicks-ass.net>
-	<20150401174239.GO24151@twins.programming.kicks-ass.net>
-	<20150401181744.GE32047@worktop.ger.corp.intel.com>
-	<551C3EF5.6090809@hp.com>
-	<20150401184858.GA9791@dyad.arnhem.chello.nl>
-	<551C4E02.8030806@hp.com>
+From: Fam Zheng <famz@redhat.com>
+Subject: Re: [PATCH v5 06/10] virtio_pci: drop msi_off on probe
+Date: Thu, 2 Apr 2015 11:55:32 +0800
+Message-ID: <20150402035532.GI15412__9505.66330361671$1427946950$gmane$org@fam-t430.nay.redhat.com>
+References: <1427641227-7574-1-git-send-email-mst@redhat.com>
+	<1427641227-7574-7-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <551C4E02.8030806@hp.com>
+In-Reply-To: <1427641227-7574-7-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,32 +19,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Waiman Long <waiman.long@hp.com>
-Cc: linux-arch@vger.kernel.org, riel@redhat.com, x86@kernel.org, kvm@vger.kernel.org, konrad.wilk@oracle.com, scott.norton@hp.com, raghavendra.kt@linux.vnet.ibm.com, paolo.bonzini@gmail.com, oleg@redhat.com, linux-kernel@vger.kernel.org, mingo@redhat.com, david.vrabel@citrix.com, hpa@zytor.com, luto@amacapital.net, xen-devel@lists.xenproject.org, tglx@linutronix.de, paulmck@linux.vnet.ibm.com, torvalds@linux-foundation.org, boris.ostrovsky@oracle.com, virtualization@lists.linux-foundation.org, doug.hatch@hp.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Yinghai Lu <yhlu.kernel.send@gmail.com>, Yijing Wang <wangyijing@huawei.com>, Bjorn Helgaas <bhelgaas@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 01, 2015 at 03:58:58PM -0400, Waiman Long wrote:
-> On 04/01/2015 02:48 PM, Peter Zijlstra wrote:
+On Sun, 03/29 17:04, Michael S. Tsirkin wrote:
+> pci core now disables msi on probe automatically,
+> drop this from device-specific code.
+> 
+> Cc: Bjorn Helgaas <bhelgaas@google.com>
+> Cc: linux-pci@vger.kernel.org
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  drivers/virtio/virtio_pci_common.c | 3 ---
+>  1 file changed, 3 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+> index e894eb2..806bb2c 100644
+> --- a/drivers/virtio/virtio_pci_common.c
+> +++ b/drivers/virtio/virtio_pci_common.c
+> @@ -501,9 +501,6 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
+>  	INIT_LIST_HEAD(&vp_dev->virtqueues);
+>  	spin_lock_init(&vp_dev->lock);
+>  
+> -	/* Disable MSI/MSIX to bring device to a known good state. */
+> -	pci_msi_off(pci_dev);
+> -
+>  	/* enable the device */
+>  	rc = pci_enable_device(pci_dev);
+>  	if (rc)
+> -- 
+> MST
+> 
 
-> I am sorry that I don't quite get what you mean here. My point is that in
-> the hashing step, a cpu will need to scan an empty bucket to put the lock
-> in. In the interim, an previously used bucket before the empty one may get
-> freed. In the lookup step for that lock, the scanning will stop because of
-> an empty bucket in front of the target one.
-
-Right, that's broken. So we need to do something else to limit the
-lookup, because without that break, a lookup that needs to iterate the
-entire array in order to determine -ENOENT, which is expensive.
-
-So my alternative proposal is that IFF we can guarantee that every
-lookup will succeed -- the entry we're looking for is always there, we
-don't need the break on empty but can probe until we find the entry.
-This will be bound in cost to the same number if probes we required for
-insertion and avoids the full array scan.
-
-Now I think we can indeed do this, if as said earlier we do not clear
-the bucket on insert if the cmpxchg succeeds, in that case the unlock
-will observe _Q_SLOW_VAL and do the lookup, the lookup will then find
-the entry. And we then need the unlock to clear the entry.
-
-Does that explain this? Or should I try again with code?
+Reviewed-by: Fam Zheng <famz@redhat.com>
