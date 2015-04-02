@@ -1,15 +1,12 @@
-From: Fam Zheng <famz@redhat.com>
-Subject: Re: [PATCH v5 06/10] virtio_pci: drop msi_off on probe
-Date: Thu, 2 Apr 2015 11:55:32 +0800
-Message-ID: <20150402035532.GI15412__9505.66330361671$1427946950$gmane$org@fam-t430.nay.redhat.com>
-References: <1427641227-7574-1-git-send-email-mst@redhat.com>
-	<1427641227-7574-7-git-send-email-mst@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH net-next] virtio: document queue state logic
+Date: Thu, 2 Apr 2015 13:05:47 +0200
+Message-ID: <20150402125743-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1427641227-7574-7-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,37 +16,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Yinghai Lu <yhlu.kernel.send@gmail.com>, Yijing Wang <wangyijing@huawei.com>, Bjorn Helgaas <bhelgaas@google.com>
+To: Rusty Russell <rusty@rustcorp.com.au>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 03/29 17:04, Michael S. Tsirkin wrote:
-> pci core now disables msi on probe automatically,
-> drop this from device-specific code.
-> 
-> Cc: Bjorn Helgaas <bhelgaas@google.com>
-> Cc: linux-pci@vger.kernel.org
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/virtio/virtio_pci_common.c | 3 ---
->  1 file changed, 3 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-> index e894eb2..806bb2c 100644
-> --- a/drivers/virtio/virtio_pci_common.c
-> +++ b/drivers/virtio/virtio_pci_common.c
-> @@ -501,9 +501,6 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
->  	INIT_LIST_HEAD(&vp_dev->virtqueues);
->  	spin_lock_init(&vp_dev->lock);
->  
-> -	/* Disable MSI/MSIX to bring device to a known good state. */
-> -	pci_msi_off(pci_dev);
-> -
->  	/* enable the device */
->  	rc = pci_enable_device(pci_dev);
->  	if (rc)
-> -- 
-> MST
-> 
+commit d631b94e7a15277858ec5f88d674d93080506999
+    virtio: change comment in transmit
 
-Reviewed-by: Fam Zheng <famz@redhat.com>
+started clarifying the logic behind queue state management,
+but introduced an inaccuracy: TX_BUSY does not cause
+a BUG message.
+
+Clean this up some more, explaining the tradeoffs in detail.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index a829930..63c7810 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -939,11 +939,15 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	skb_orphan(skb);
+ 	nf_reset(skb);
+ 
+-	/* It is better to stop queue if running out of space
+-	 * instead of forcing queuing layer to requeue the skb
+-	 * by returning TX_BUSY (and cause a BUG message).
+-	 * Since most packets only take 1 or 2 ring slots
+-	 * this means 16 slots are typically wasted.
++	/* If running out of space, stop queue to avoid getting packets that we
++	 * are then unable to transmit.
++	 * An alternative would be to force queuing layer to requeue the skb by
++	 * returning NETDEV_TX_BUSY. However, NETDEV_TX_BUSY should not be
++	 * returned in a normal path of operation: it means that driver is not
++	 * maintaining the TX queue stop/start state properly, and causes
++	 * the stack to do a non-trivial amount of useless work.
++	 * Since most packets only take 1 or 2 ring slots, stopping the queue
++	 * early means 16 slots are typically wasted.
+ 	 */
+ 	if (sq->vq->num_free < 2+MAX_SKB_FRAGS) {
+ 		netif_stop_subqueue(dev, qnum);
