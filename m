@@ -1,12 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH net-next] virtio: document queue state logic
-Date: Thu, 2 Apr 2015 13:05:47 +0200
-Message-ID: <20150402125743-mutt-send-email-mst@redhat.com>
+From: Greg Kurz <gkurz@linux.vnet.ibm.com>
+Subject: [PATCH v2 0/7] vhost: support for cross endian guests
+Date: Thu, 02 Apr 2015 15:16:37 +0200
+Message-ID: <20150402131637.24676.60700.stgit@bahia.lab.toulouse-stg.fr.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,43 +15,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-commit d631b94e7a15277858ec5f88d674d93080506999
-    virtio: change comment in transmit
+Hi,
 
-started clarifying the logic behind queue state management,
-but introduced an inaccuracy: TX_BUSY does not cause
-a BUG message.
+This patchset allows vhost to be used with legacy virtio when guest and host
+have a different endianness. It is a complete rework of my initial post.
 
-Clean this up some more, explaining the tradeoffs in detail.
+Patches 1 to 5 are preliminary work: we move the endianness check out of all
+memory accessors to separate functions.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Patch 6 changes the semantics of the accessors so that they have explicit big
+endian support.
+
+Patch 7 brings the cross-endian feature, with the following changes since v1:
+- conditionnal enablement through a kernel config
+- introduction of a new vhost feature to advertise cross-endian to userspace
+
+The tentative to fix vnet headers was dropped for the moment. As a consequnce,
+vhost_net still fails to work with cross-endian. It will be fixed in another
+patchset I'm currently working on.
+
 ---
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index a829930..63c7810 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -939,11 +939,15 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 	skb_orphan(skb);
- 	nf_reset(skb);
- 
--	/* It is better to stop queue if running out of space
--	 * instead of forcing queuing layer to requeue the skb
--	 * by returning TX_BUSY (and cause a BUG message).
--	 * Since most packets only take 1 or 2 ring slots
--	 * this means 16 slots are typically wasted.
-+	/* If running out of space, stop queue to avoid getting packets that we
-+	 * are then unable to transmit.
-+	 * An alternative would be to force queuing layer to requeue the skb by
-+	 * returning NETDEV_TX_BUSY. However, NETDEV_TX_BUSY should not be
-+	 * returned in a normal path of operation: it means that driver is not
-+	 * maintaining the TX queue stop/start state properly, and causes
-+	 * the stack to do a non-trivial amount of useless work.
-+	 * Since most packets only take 1 or 2 ring slots, stopping the queue
-+	 * early means 16 slots are typically wasted.
- 	 */
- 	if (sq->vq->num_free < 2+MAX_SKB_FRAGS) {
- 		netif_stop_subqueue(dev, qnum);
+Greg Kurz (7):
+      virtio: introduce virtio_is_little_endian() helper
+      tun: add tun_is_little_endian() helper
+      macvtap: introduce macvtap_is_little_endian() helper
+      vringh: introduce vringh_is_little_endian() helper
+      vhost: introduce vhost_is_little_endian() helper
+      virtio: add explicit big-endian support to memory accessors
+      vhost: feature to set the vring endianness
+
+
+ drivers/net/macvtap.c            |   11 +++++++++--
+ drivers/net/tun.c                |   11 +++++++++--
+ drivers/vhost/Kconfig            |   10 ++++++++++
+ drivers/vhost/net.c              |    5 +++++
+ drivers/vhost/scsi.c             |    4 ++++
+ drivers/vhost/test.c             |    4 ++++
+ drivers/vhost/vhost.c            |   19 +++++++++++++++++++
+ drivers/vhost/vhost.h            |   32 +++++++++++++++++++++++++-------
+ include/linux/virtio_byteorder.h |   24 ++++++++++++++----------
+ include/linux/virtio_config.h    |   19 +++++++++++++------
+ include/linux/vringh.h           |   19 +++++++++++++------
+ include/uapi/linux/vhost.h       |   10 ++++++++++
+ 12 files changed, 135 insertions(+), 33 deletions(-)
+
+--
+Greg
