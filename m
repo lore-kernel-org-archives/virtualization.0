@@ -1,17 +1,23 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 7/7] vhost: feature to set the vring endianness
-Date: Thu, 2 Apr 2015 20:53:24 +0200
-Message-ID: <20150402204636-mutt-send-email-mst__48163.4119911634$1428000819$gmane$org@redhat.com>
-References: <20150402131637.24676.60700.stgit@bahia.lab.toulouse-stg.fr.ibm.com>
-	<20150402131713.24676.9924.stgit@bahia.lab.toulouse-stg.fr.ibm.com>
-	<20150402142046.GA23121@redhat.com>
-	<20150402184527.0bc68efe@bahia.local>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH 8/9] qspinlock: Generic paravirt support
+Date: Thu, 2 Apr 2015 21:48:34 +0200
+Message-ID: <20150402194834.GF32047__10534.620882436$1428004145$gmane$org@worktop.ger.corp.intel.com>
+References: <551C1ACE.4090408@hp.com>
+	<20150401171223.GO23123@twins.programming.kicks-ass.net>
+	<20150401174239.GO24151@twins.programming.kicks-ass.net>
+	<20150401181744.GE32047@worktop.ger.corp.intel.com>
+	<551C3EF5.6090809@hp.com>
+	<20150401184858.GA9791@dyad.arnhem.chello.nl>
+	<551C4E02.8030806@hp.com>
+	<20150401210317.GZ27490@worktop.programming.kicks-ass.net>
+	<551D6E2E.1080801@hp.com>
+	<20150402172057.GA27490@worktop.programming.kicks-ass.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20150402184527.0bc68efe@bahia.local>
+In-Reply-To: <20150402172057.GA27490@worktop.programming.kicks-ass.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,311 +27,230 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Cc: linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Waiman Long <waiman.long@hp.com>
+Cc: linux-arch@vger.kernel.org, riel@redhat.com, x86@kernel.org, kvm@vger.kernel.org, konrad.wilk@oracle.com, scott.norton@hp.com, raghavendra.kt@linux.vnet.ibm.com, paolo.bonzini@gmail.com, oleg@redhat.com, linux-kernel@vger.kernel.org, mingo@redhat.com, david.vrabel@citrix.com, hpa@zytor.com, luto@amacapital.net, xen-devel@lists.xenproject.org, tglx@linutronix.de, paulmck@linux.vnet.ibm.com, torvalds@linux-foundation.org, boris.ostrovsky@oracle.com, virtualization@lists.linux-foundation.org, doug.hatch@hp.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 02, 2015 at 06:45:27PM +0200, Greg Kurz wrote:
-> On Thu, 2 Apr 2015 16:20:46 +0200
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Thu, Apr 02, 2015 at 07:20:57PM +0200, Peter Zijlstra wrote:
+> pv_wait_head():
 > 
-> > On Thu, Apr 02, 2015 at 03:17:13PM +0200, Greg Kurz wrote:
-> > > This patch brings cross-endian support to vhost when used to implement
-> > > legacy virtio devices. Since it is a relatively rare situation, the feature
-> > > availability is controlled by a kernel config option (not set by default).
-> > > 
-> > > If cross-endian support is compiled in, vhost abvertises a new feature
-> > > to be negotiated with userspace. If userspace acknowledges the feature,
-> > > it can inform vhost about the endianness to use with a new ioctl.
-> > > 
-> > > This feature is mutually exclusive with virtio 1.0. Even if the vhost device
-> > > advertises virtio 1.0 and legacy cross-endian features, it cannot receive
-> > > aknowledgement for both at the same time.
-> > > 
-> > > Hot paths are being preserved from any penalty when the config option is
-> > > disabled or when virtio 1.0 is being used.
-> > > 
-> > > Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
-> > > ---
-> > >  drivers/vhost/Kconfig      |   10 ++++++++++
-> > >  drivers/vhost/net.c        |    5 +++++
-> > >  drivers/vhost/scsi.c       |    4 ++++
-> > >  drivers/vhost/test.c       |    4 ++++
-> > >  drivers/vhost/vhost.c      |   19 +++++++++++++++++++
-> > >  drivers/vhost/vhost.h      |   13 ++++++++++++-
-> > >  include/uapi/linux/vhost.h |   10 ++++++++++
-> > >  7 files changed, 64 insertions(+), 1 deletion(-)
-> > > 
-> > > diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
-> > > index 017a1e8..5bb8da9 100644
-> > > --- a/drivers/vhost/Kconfig
-> > > +++ b/drivers/vhost/Kconfig
-> > > @@ -32,3 +32,13 @@ config VHOST
-> > >  	---help---
-> > >  	  This option is selected by any driver which needs to access
-> > >  	  the core of vhost.
-> > > +
-> > > +config VHOST_SET_ENDIAN_LEGACY
-> > > +	bool "Cross-endian support for host kernel accelerator"
-> > > +	default n
-> > > +	---help---
-> > > +	  This option allows vhost to support guests with a different byte
-> > > +	  ordering
-> > 
-> > from host
-> > 
-> > >. It is disabled by default since it adds overhead and it
-> > > +	  is only needed by a few platforms (powerpc and arm).
-> > > +
-> > > +	  If unsure, say "n".
-> > 
-> > "N"
-> > 
-> > > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> > > index 2bbfc25..5274a44 100644
-> > > --- a/drivers/vhost/net.c
-> > > +++ b/drivers/vhost/net.c
-> > > @@ -1011,6 +1011,11 @@ static int vhost_net_set_features(struct vhost_net *n, u64 features)
-> > >  		vhost_hlen = 0;
-> > >  		sock_hlen = hdr_len;
-> > >  	}
-> > > +
-> > > +	if (features & ((1ULL << VHOST_F_SET_ENDIAN_LEGACY) |
-> > > +			(1ULL << VIRTIO_F_VERSION_1)))
-> > > +		return -EINVAL;
-> > > +
-> > >  	mutex_lock(&n->dev.mutex);
-> > >  	if ((features & (1 << VHOST_F_LOG_ALL)) &&
-> > >  	    !vhost_log_access_ok(&n->dev)) {
-> > > diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-> > > index 71df240..b53e9c2 100644
-> > > --- a/drivers/vhost/scsi.c
-> > > +++ b/drivers/vhost/scsi.c
-> > > @@ -1544,6 +1544,10 @@ static int vhost_scsi_set_features(struct vhost_scsi *vs, u64 features)
-> > >  	if (features & ~VHOST_SCSI_FEATURES)
-> > >  		return -EOPNOTSUPP;
-> > >  
-> > > +	if (features & ((1ULL << VHOST_F_SET_ENDIAN_LEGACY) |
-> > > +			(1ULL << VIRTIO_F_VERSION_1)))
-> > > +		return -EINVAL;
-> > > +
-> > >  	mutex_lock(&vs->dev.mutex);
-> > >  	if ((features & (1 << VHOST_F_LOG_ALL)) &&
-> > >  	    !vhost_log_access_ok(&vs->dev)) {
-> > > diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
-> > > index d9c501e..cfefdad 100644
-> > > --- a/drivers/vhost/test.c
-> > > +++ b/drivers/vhost/test.c
-> > > @@ -243,6 +243,10 @@ static int vhost_test_set_features(struct vhost_test *n, u64 features)
-> > >  {
-> > >  	struct vhost_virtqueue *vq;
-> > >  
-> > > +	if (features & ((1ULL << VHOST_F_SET_ENDIAN_LEGACY) |
-> > > +			(1ULL << VIRTIO_F_VERSION_1)))
-> > > +		return -EINVAL;
-> > > +
-> > >  	mutex_lock(&n->dev.mutex);
-> > >  	if ((features & (1 << VHOST_F_LOG_ALL)) &&
-> > >  	    !vhost_log_access_ok(&n->dev)) {
-> > 
-> > Above seems to prevent users from specifying either
-> > VIRTIO_F_VERSION_1 or VHOST_F_SET_ENDIAN_LEGACY.
-> > Does it actually work?
-> > 
+> 	pv_hash()
+> 	/* MB as per cmpxchg */
+> 	cmpxchg(&l->locked, _Q_LOCKED_VAL, _Q_SLOW_VAL);
 > 
-> Arggg no it doesn't *of course*... I've added these bogus checks lately
-> and didn't re-test :(
+> VS
+> 
+> __pv_queue_spin_unlock():
+> 
+> 	if (xchg(&l->locked, 0) != _Q_SLOW_VAL)
+> 		return;
+> 
+> 	/* MB as per xchg */
+> 	pv_hash_find(lock);
+> 
+> 
 
-BTW I would be happier with less ifdefs all over the code,
-using some inline wrappers defined differently depending on ifdef.
-For example:
 
-#ifdef CONFIG_VHOST_SET_ENDIAN_LEGACY
-bool vhost_vq_legacy_is_little_endian(vq)
-{
-	return !vq->legacy_big_endian;
-}
-#else
-bool vhost_vq_legacy_is_little_endian(vq)
-{
- 	return virtio_legacy_is_little_endian();
-}
-#endif
+Something like so.. compile tested only.
 
-similarly put VHOST_SET_VRING_ENDIAN_LEGACY handling
-in a separate function, with a stub definition
-when functionality is configured out.
+I took out the LFSR because that was likely over engineering from my
+side :-)
 
-> > > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > > index 2ee2826..60a0f32 100644
-> > > --- a/drivers/vhost/vhost.c
-> > > +++ b/drivers/vhost/vhost.c
-> > > @@ -199,6 +199,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
-> > >  	vq->call = NULL;
-> > >  	vq->log_ctx = NULL;
-> > >  	vq->memory = NULL;
-> > > +	vq->legacy_big_endian = false;
-> > >  }
-> > >  
-> > >  static int vhost_worker(void *data)
-> > > @@ -806,6 +807,24 @@ long vhost_vring_ioctl(struct vhost_dev *d, int ioctl, void __user *argp)
-> > >  		} else
-> > >  			filep = eventfp;
-> > >  		break;
-> > > +#ifdef CONFIG_VHOST_SET_ENDIAN_LEGACY
-> > > +	case VHOST_SET_VRING_ENDIAN_LEGACY:
-> > > +	{
-> > > +		struct vhost_vring_endian e;
-> > > +
-> > > +		if (!vhost_has_feature(vq, VHOST_F_SET_ENDIAN_LEGACY)) {
-> > > +			r = -EINVAL;
-> > > +			break;
-> > > +		}
-> > > +
-> > > +		if (copy_from_user(&e, argp, sizeof(e))) {
-> > > +			r = -EFAULT;
-> > > +			break;
-> > > +		}
-> > > +		vq->legacy_big_endian = e.is_big_endian;
-> > > +		break;
-> > > +	}
-> > > +#endif
-> > >  	default:
-> > >  		r = -ENOIOCTLCMD;
-> > >  	}
-> > > diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> > > index 4e9a186..d50881d 100644
-> > > --- a/drivers/vhost/vhost.h
-> > > +++ b/drivers/vhost/vhost.h
-> > > @@ -106,6 +106,9 @@ struct vhost_virtqueue {
-> > >  	/* Log write descriptors */
-> > >  	void __user *log_base;
-> > >  	struct vhost_log *log;
-> > > +
-> > > +	/* We need to know the device endianness with legacy virtio. */
-> > > +	bool legacy_big_endian;
-> > >  };
-> > >  
-> > >  struct vhost_dev {
-> > > @@ -165,7 +168,11 @@ enum {
-> > >  	VHOST_FEATURES = (1ULL << VIRTIO_F_NOTIFY_ON_EMPTY) |
-> > >  			 (1ULL << VIRTIO_RING_F_INDIRECT_DESC) |
-> > >  			 (1ULL << VIRTIO_RING_F_EVENT_IDX) |
-> > > -			 (1ULL << VHOST_F_LOG_ALL),
-> > > +			 (1ULL << VHOST_F_LOG_ALL) |
-> > > +#ifdef CONFIG_VHOST_SET_ENDIAN_LEGACY
-> > > +			 (1ULL << VHOST_F_SET_ENDIAN_LEGACY) |
-> > > +#endif
-> > > +			 0ULL,
-> > >  };
-> > >  
-> > >  static inline bool vhost_has_feature(struct vhost_virtqueue *vq, int bit)
-> > > @@ -177,6 +184,10 @@ static inline bool vhost_is_little_endian(struct vhost_virtqueue *vq)
-> > >  {
-> > >  	if (vhost_has_feature(vq, VIRTIO_F_VERSION_1))
-> > >  		return true;
-> > > +#ifdef CONFIG_VHOST_SET_ENDIAN_LEGACY
-> > > +	if (vhost_has_feature(vq, VHOST_F_SET_ENDIAN_LEGACY))
-> > > +		return !vq->legacy_big_endian;
-> > 
-> > why do we need to check the feature bit?
-> > How about simple
-> > 	return !vq->legacy_big_endian;
-> > here?
-> 
-> This is a runtime feature. Even for powerpc, cross-endian won't be the
-> most common scenario. Userspace may have cleared the bit if it doesn't
-> need/want it.
-
-Right but if we drop VHOST_F_SET_ENDIAN_LEGACY then
-it's simply
-#ifdef CONFIG_VHOST_SET_ENDIAN_LEGACY
-	return !vq->legacy_big_endian;
-#else
- 	return virtio_legacy_is_little_endian();
-#endif
-
-> > All you need to do is set legacy_big_endian to
-> > !virtio_legacy_is_little_endian() on reset.
-> > Maybe rename to legacy_is_little_endian so you don't
-> > need to reverse the logic.
-> > 
-> 
-> Do you mean vhost doesn't need userspace to provide the endianness
-> to be used ? Please elaborate on the meaning of "reset" here... I
-> am confused.
-
-I refer to vhost_vq_reset here.
-
-> > > +#endif
-> > >  	return virtio_legacy_is_little_endian();
-> > >  }
-> > >  
-> > > diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-> > > index bb6a5b4..09d2a48 100644
-> > > --- a/include/uapi/linux/vhost.h
-> > > +++ b/include/uapi/linux/vhost.h
-> > > @@ -47,6 +47,11 @@ struct vhost_vring_addr {
-> > >  	__u64 log_guest_addr;
-> > >  };
-> > >  
-> > > +struct vhost_vring_endian {
-> > > +	unsigned int index;
-> > > +	bool is_big_endian;
-> > 
-> > bool in uapi is a bad idea.
-> > Generally, I think you can use vhost_vring_state here.
-> > 
-> 
-> Ok to turn is_big_endian into an int but why hijacking vhost_vring_state ?
-
-Yes.
-
-> 
-> > > +};
-> > > +
-> > >  struct vhost_memory_region {
-> > >  	__u64 guest_phys_addr;
-> > >  	__u64 memory_size; /* bytes */
-> > > @@ -103,6 +108,9 @@ struct vhost_memory {
-> > >  /* Get accessor: reads index, writes value in num */
-> > >  #define VHOST_GET_VRING_BASE _IOWR(VHOST_VIRTIO, 0x12, struct vhost_vring_state)
-> > >  
-> > > +/* Set endianness for the ring (legacy virtio only) */
-> > > +#define VHOST_SET_VRING_ENDIAN_LEGACY _IOW(VHOST_VIRTIO, 0x13, struct vhost_vring_endian)
-> > > +
-> > >  /* The following ioctls use eventfd file descriptors to signal and poll
-> > >   * for events. */
-> > >  
-> > 
-> > You also need a GET ioctl, as a matter of policy.
-> > 
-> 
-> Ok. Will add.
-> 
-> > > @@ -126,6 +134,8 @@ struct vhost_memory {
-> > >  #define VHOST_F_LOG_ALL 26
-> > >  /* vhost-net should add virtio_net_hdr for RX, and strip for TX packets. */
-> > >  #define VHOST_NET_F_VIRTIO_NET_HDR 27
-> > > +/* the vring endianness can be explicitly set (legacy virtio only). */
-> > > +#define VHOST_F_SET_ENDIAN_LEGACY 28
-> > >  
-> > >  /* VHOST_SCSI specific definitions */
-> > 
-> > 
-> > VHOST_F_SET_ENDIAN_LEGACY doesn't seem too useful.
-> > Is this so userspace can detect kernel configuration?
-> 
-> Yes. Also, it is quite easy to "un-ack" the feature when
-> it is not wanted.
-> 
-> > I think probing VHOST_SET_VRING_ENDIAN_LEGACY should
-> > be sufficient for this.
-> > 
-> 
-> I'll get rid of the feature.
-> 
-> Thanks for your time Michael.
-> 
-> --
-> Greg
+--- a/kernel/locking/qspinlock_paravirt.h
++++ b/kernel/locking/qspinlock_paravirt.h
+@@ -2,6 +2,8 @@
+ #error "do not include this file"
+ #endif
+ 
++#include <linux/hash.h>
++
+ /*
+  * Implement paravirt qspinlocks; the general idea is to halt the vcpus instead
+  * of spinning them.
+@@ -107,7 +109,84 @@ static void pv_kick_node(struct mcs_spin
+ 		pv_kick(pn->cpu);
+ }
+ 
+-static DEFINE_PER_CPU(struct qspinlock *, __pv_lock_wait);
++/*
++ * Hash table using open addressing with an linear probe sequence.
++ *
++ * Since we should not be holding locks from NMI context (very rare indeed) the
++ * max load factor is 0.75, which is around the point where open adressing
++ * breaks down.
++ *
++ * Instead of probing just the immediate bucket we probe all buckets in the
++ * same cacheline.
++ *
++ * http://en.wikipedia.org/wiki/Hash_table#Open_addressing
++ *
++ */
++
++struct pv_hash_bucket {
++	struct qspinlock *lock;
++	int cpu;
++};
++
++/*
++ * XXX dynamic allocate using nr_cpu_ids instead...
++ */
++#define PV_LOCK_HASH_BITS	(2 + NR_CPUS_BITS)
++
++#if PV_LOCK_HASH_BITS < 6
++#undef PV_LOCK_HASH_BITS
++#define PB_LOCK_HASH_BITS	6
++#endif
++
++#define PV_LOCK_HASH_SIZE	(1 << PV_LOCK_HASH_BITS)
++
++static struct pv_hash_bucket __pv_lock_hash[PV_LOCK_HASH_SIZE] ____cacheline_aligned;
++
++#define PV_HB_PER_LINE		(SMP_CACHE_BYTES / sizeof(struct pv_hash_bucket))
++
++static inline u32 hash_align(u32 hash)
++{
++	return hash & ~(PV_HB_PER_LINE - 1);
++}
++
++#define for_each_hash_bucket(hb, off, hash)					\
++	for (hash = hash_align(hash), off = 0, hb = &__pv_lock_hash[hash + off];\
++	    off < PV_LOCK_HASH_SIZE;						\
++	    off++, hb = &__pv_lock_hash[(hash + off) % PV_LOCK_HASH_SIZE])
++
++static struct pv_hash_bucket *pv_hash_insert(struct qspinlock *lock)
++{
++	u32 offset, hash = hash_ptr(lock, PV_LOCK_HASH_BITS);
++	struct pv_hash_bucket *hb;
++
++	for_each_hash_bucket(hb, offset, hash) {
++		if (!cmpxchg(&hb->lock, NULL, lock)) {
++			WRITE_ONCE(hb->cpu, smp_processor_id());
++			return hb;
++		}
++	}
++
++	/*
++	 * Hard assumes there is an empty bucket somewhere.
++	 */
++	BUG();
++}
++
++static struct pv_hash_bucket *pv_hash_find(struct qspinlock *lock)
++{
++	u32 offset, hash = hash_ptr(lock, PV_LOCK_HASH_BITS);
++	struct pv_hash_bucket *hb;
++
++	for_each_hash_bucket(hb, offset, hash) {
++		if (READ_ONCE(hb->lock) == lock)
++			return hb;
++	}
++
++	/*
++	 * Hard assumes we _WILL_ find a match.
++	 */
++	BUG();
++}
+ 
+ /*
+  * Wait for l->locked to become clear; halt the vcpu after a short spin.
+@@ -116,7 +195,9 @@ static DEFINE_PER_CPU(struct qspinlock *
+ static void pv_wait_head(struct qspinlock *lock)
+ {
+ 	struct __qspinlock *l = (void *)lock;
++	struct pv_hash_bucket *hb = NULL;
+ 	int loop;
++	u8 o;
+ 
+ 	for (;;) {
+ 		for (loop = SPIN_THRESHOLD; loop; loop--) {
+@@ -126,29 +207,47 @@ static void pv_wait_head(struct qspinloc
+ 			cpu_relax();
+ 		}
+ 
+-		this_cpu_write(__pv_lock_wait, lock);
+-		/*
+-		 * __pv_lock_wait must be set before setting _Q_SLOW_VAL
+-		 *
+-		 * [S] __pv_lock_wait = lock    [RmW] l = l->locked = 0
+-		 *     MB                             MB
+-		 * [S] l->locked = _Q_SLOW_VAL  [L]   __pv_lock_wait
+-		 *
+-		 * Matches the xchg() in pv_queue_spin_unlock().
+-		 */
+-		if (!cmpxchg(&l->locked, _Q_LOCKED_VAL, _Q_SLOW_VAL))
+-			goto done;
++		if (!hb) {
++			hb = pv_hash_insert(lock);
++			/*
++			 * hb  must be set before setting _Q_SLOW_VAL
++			 *
++			 * [S]   hb <- lock               [RmW] l = l->locked = 0
++			 *       MB                             MB
++			 * [RmW] l->locked ?= _Q_SLOW_VAL [L]   hb
++			 *
++			 * Matches the xchg() in pv_queue_spin_unlock().
++			 */
++			o = cmpxchg(&l->locked, _Q_LOCKED_VAL, _Q_SLOW_VAL);
++			if (!o) {
++				/*
++				 * The lock got unlocked before we could set
++				 * _Q_SLOW_VAL, we must unhash ourselves.
++				 */
++				WRITE_ONCE(hb->lock, NULL);
++				goto done;
++			}
++			BUG_ON(o != _Q_LOCKED_VAL);
++			/*
++			 * At this point _Q_SLOW_VAL is visible and the unlock
++			 * will do the lookup. The lookup hard relies on the
++			 * entry being visible -- which it should be. Unlock
++			 * will unhash for us.
++			 */
++		}
+ 
+ 		pv_wait(&l->locked, _Q_SLOW_VAL);
++		/*
++		 * We can get spurious wakeups from interrupts, cycle back.
++		 */
+ 	}
+ done:
+-	this_cpu_write(__pv_lock_wait, NULL);
+-
+ 	/*
+ 	 * Lock is unlocked now; the caller will acquire it without waiting.
+ 	 * As with pv_wait_node() we rely on the caller to do a load-acquire
+ 	 * for us.
+ 	 */
++	return;
+ }
+ 
+ /*
+@@ -158,20 +257,20 @@ static void pv_wait_head(struct qspinloc
+ void __pv_queue_spin_unlock(struct qspinlock *lock)
+ {
+ 	struct __qspinlock *l = (void *)lock;
+-	int cpu;
++	struct pv_hash_bucket *hb;
+ 
+ 	if (xchg(&l->locked, 0) != _Q_SLOW_VAL)
+ 		return;
+ 
+ 	/*
+ 	 * At this point the memory pointed at by lock can be freed/reused,
+-	 * however we can still use the pointer value to search in our cpu
+-	 * array.
++	 * however we can still use the pointer value to search in our hash
++	 * table.
+ 	 *
+-	 * XXX: get rid of this loop
++	 * Also, if we observe _Q_SLOW_VAL we _must_ now observe 'our' hash
++	 * bucket. See pv_wait_head().
+ 	 */
+-	for_each_possible_cpu(cpu) {
+-		if (per_cpu(__pv_lock_wait, cpu) == lock)
+-			pv_kick(cpu);
+-	}
++	hb = pv_hash_find(lock);
++	pv_kick(hb->cpu);
++	WRITE_ONCE(hb->lock, NULL); /* unhash */
+ }
