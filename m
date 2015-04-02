@@ -1,13 +1,23 @@
-From: =?UTF-8?B?TWFyYy1BbmRyw6kgTHVyZWF1?= <marcandre.lureau@gmail.com>
-Subject: Re: [PATCH v2 3/4] Add virtio gpu driver.
-Date: Thu, 2 Apr 2015 17:52:40 +0200
-Message-ID: <CAJ+F1CK3ibbn8e1-rUY4OUJuaCt_=JmuT00Fqx4YDD9M5zJv=A__41566.6942870759$1427994414$gmane$org@mail.gmail.com>
-References: <1427894130-14228-1-git-send-email-kraxel@redhat.com>
-	<1427894130-14228-4-git-send-email-kraxel@redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH 8/9] qspinlock: Generic paravirt support
+Date: Thu, 2 Apr 2015 19:20:57 +0200
+Message-ID: <20150402172057.GA27490@worktop.programming.kicks-ass.net>
+References: <20150319122536.GD11574@worktop.ger.corp.intel.com>
+	<551C1ACE.4090408@hp.com>
+	<20150401171223.GO23123@twins.programming.kicks-ass.net>
+	<20150401174239.GO24151@twins.programming.kicks-ass.net>
+	<20150401181744.GE32047@worktop.ger.corp.intel.com>
+	<551C3EF5.6090809@hp.com>
+	<20150401184858.GA9791@dyad.arnhem.chello.nl>
+	<551C4E02.8030806@hp.com>
+	<20150401210317.GZ27490@worktop.programming.kicks-ass.net>
+	<551D6E2E.1080801@hp.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5459718867034699087=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1427894130-14228-4-git-send-email-kraxel@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <551D6E2E.1080801@hp.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,89 +27,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, "open list:ABI/API" <linux-api@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:VIRTIO CORE,
-	NET..." <virtualization@lists.linux-foundation.org>, David Airlie <airlied@redhat.com>
+To: Waiman Long <waiman.long@hp.com>
+Cc: linux-arch@vger.kernel.org, riel@redhat.com, x86@kernel.org, kvm@vger.kernel.org, konrad.wilk@oracle.com, scott.norton@hp.com, raghavendra.kt@linux.vnet.ibm.com, paolo.bonzini@gmail.com, oleg@redhat.com, linux-kernel@vger.kernel.org, mingo@redhat.com, david.vrabel@citrix.com, hpa@zytor.com, luto@amacapital.net, xen-devel@lists.xenproject.org, tglx@linutronix.de, paulmck@linux.vnet.ibm.com, torvalds@linux-foundation.org, boris.ostrovsky@oracle.com, virtualization@lists.linux-foundation.org, doug.hatch@hp.com
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============5459718867034699087==
-Content-Type: multipart/alternative; boundary=001a11333434585bc10512bfd277
+On Thu, Apr 02, 2015 at 12:28:30PM -0400, Waiman Long wrote:
+> On 04/01/2015 05:03 PM, Peter Zijlstra wrote:
+> >On Wed, Apr 01, 2015 at 03:58:58PM -0400, Waiman Long wrote:
+> >>On 04/01/2015 02:48 PM, Peter Zijlstra wrote:
+> >>I am sorry that I don't quite get what you mean here. My point is that in
+> >>the hashing step, a cpu will need to scan an empty bucket to put the lock
+> >>in. In the interim, an previously used bucket before the empty one may get
+> >>freed. In the lookup step for that lock, the scanning will stop because of
+> >>an empty bucket in front of the target one.
+> >Right, that's broken. So we need to do something else to limit the
+> >lookup, because without that break, a lookup that needs to iterate the
+> >entire array in order to determine -ENOENT, which is expensive.
+> >
+> >So my alternative proposal is that IFF we can guarantee that every
+> >lookup will succeed -- the entry we're looking for is always there, we
+> >don't need the break on empty but can probe until we find the entry.
+> >This will be bound in cost to the same number if probes we required for
+> >insertion and avoids the full array scan.
+> >
+> >Now I think we can indeed do this, if as said earlier we do not clear
+> >the bucket on insert if the cmpxchg succeeds, in that case the unlock
+> >will observe _Q_SLOW_VAL and do the lookup, the lookup will then find
+> >the entry. And we then need the unlock to clear the entry.
+> >_Q_SLOW_VAL
+> >Does that explain this? Or should I try again with code?
+> 
+> OK, I got your proposal now. However, there is still the issue that setting
+> the _Q_SLOW_VAL flag and the hash bucket are not atomic wrt each other.
 
---001a11333434585bc10512bfd277
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+So? They're strictly ordered, that's sufficient. We first hash the lock,
+then we set _Q_SLOW_VAL. There's a full memory barrier between them.
 
-Hi Gerd
+> It
+> is possible a CPU has set the _Q_SLOW_VAL flag but not yet filling in the
+> hash bucket while another one is trying to look for it.
 
-While doing some testing with your brance, I reached that:
+Nope. The unlock side does an xchg() on the locked value first, xchg
+also implies a full barrier, so that guarantees that if we observe
+_Q_SLOW_VAL we must also observe the hash bucket with the lock value.
 
-On Wed, Apr 1, 2015 at 3:15 PM, Gerd Hoffmann <kraxel@redhat.com> wrote:
+> So we need to have
+> some kind of synchronization mechanism to let the lookup CPU know when is a
+> good time to look up.
 
-> +#define MAX_INLINE_CMD_SIZE   96
->
+No, its all already ordered and working.
 
-[  750.446449] kernel BUG at drivers/gpu/drm/virtio/virtgpu_vq.c:132!
-[  750.447005] Call Trace:
-[  750.447005]  [<ffffffffa00f3592>] virtio_gpu_alloc_cmd+0x22/0x50
-[virtio_gpu]
-[  750.447005]  [<ffffffffa00f4580>]
-virtio_gpu_cmd_context_create+0x30/0xa0 [virtio_gpu]
+pv_wait_head():
 
+	pv_hash()
+	/* MB as per cmpxchg */
+	cmpxchg(&l->locked, _Q_LOCKED_VAL, _Q_SLOW_VAL);
 
-struct virtio_gpu_ctx_create {
-        struct virtio_gpu_ctrl_hdr hdr;
-        __le32 nlen;
-        __le32 padding;
-        char debug_name[64];
-};
+VS
 
-Is actually 96 bytes.
+__pv_queue_spin_unlock():
 
-Perhaps that condition should be changed:
-+       BUG_ON(size >=3D MAX_INLINE_CMD_SIZE);
+	if (xchg(&l->locked, 0) != _Q_SLOW_VAL)
+		return;
 
---=20
-Marc-Andr=C3=A9 Lureau
-
---001a11333434585bc10512bfd277
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div class=3D"gmail_extra">Hi Gerd<br><br></div><div class=
-=3D"gmail_extra">While doing some testing with your brance, I reached that:=
-<br><br></div><div class=3D"gmail_extra"><div class=3D"gmail_quote">On Wed,=
- Apr 1, 2015 at 3:15 PM, Gerd Hoffmann <span dir=3D"ltr">&lt;<a href=3D"mai=
-lto:kraxel@redhat.com" target=3D"_blank">kraxel@redhat.com</a>&gt;</span> w=
-rote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8e=
-x;border-left:1px solid rgb(204,204,204);padding-left:1ex"><div id=3D":2bb"=
- class=3D"" style=3D"overflow:hidden">
-+#define <span class=3D"">MAX_INLINE_CMD_SIZE</span>=C2=A0 =C2=A096</div></=
-blockquote></div><br>[=C2=A0 750.446449] kernel BUG at drivers/gpu/drm/virt=
-io/virtgpu_vq.c:132!<br>[=C2=A0 750.447005] Call Trace:<br>[=C2=A0 750.4470=
-05]=C2=A0 [&lt;ffffffffa00f3592&gt;] virtio_gpu_alloc_cmd+0x22/0x50 [virtio=
-_gpu]<br>[=C2=A0 750.447005]=C2=A0 [&lt;ffffffffa00f4580&gt;] virtio_gpu_cm=
-d_context_create+0x30/0xa0 [virtio_gpu]<br><br><br clear=3D"all"></div><div=
- class=3D"gmail_extra">struct virtio_gpu_ctx_create {<br>=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0 struct virtio_gpu_ctrl_hdr hdr;<br>=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0 __le32 nlen;<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0 __le32 padding;<br>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =
-char debug_name[64];<br>};<br><br></div><div class=3D"gmail_extra">Is actua=
-lly 96 bytes.<br><br>Perhaps that condition should be changed:<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0BUG_ON(<span class=3D"">size</span> &gt;=3D <sp=
-an class=3D"">MAX_INLINE_CMD_SIZE</span>);<br><br></div><div class=3D"gmail=
-_extra">-- <br><div class=3D"gmail_signature">Marc-Andr=C3=A9 Lureau</div>
-</div></div>
-
---001a11333434585bc10512bfd277--
-
---===============5459718867034699087==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5459718867034699087==--
+	/* MB as per xchg */
+	pv_hash_find(lock);
