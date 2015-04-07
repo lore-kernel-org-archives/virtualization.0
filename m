@@ -1,15 +1,11 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v2 3/4] Add virtio gpu driver.
-Date: Tue, 07 Apr 2015 11:41:08 +0200
-Message-ID: <1428399668.15593.75.camel__30631.6129550853$1428399689$gmane$org@nilsson.home.kraxel.org>
-References: <1427894130-14228-1-git-send-email-kraxel@redhat.com>
-	<1427894130-14228-4-git-send-email-kraxel@redhat.com>
-	<CAJ+F1CK3ibbn8e1-rUY4OUJuaCt_=JmuT00Fqx4YDD9M5zJv=A@mail.gmail.com>
+From: Greg Kurz <gkurz@linux.vnet.ibm.com>
+Subject: [PATCH v3 0/7] vhost: support for cross endian guests
+Date: Tue, 07 Apr 2015 14:09:29 +0200
+Message-ID: <20150407120929.4213.8225.stgit__220.771719659929$1428408602$gmane$org@bahia.lab.toulouse-stg.fr.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJ+F1CK3ibbn8e1-rUY4OUJuaCt_=JmuT00Fqx4YDD9M5zJv=A@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,15 +15,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: =?ISO-8859-1?Q?Marc-Andr=E9?= Lureau <marcandre.lureau@gmail.com>
-Cc: virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, "open list:ABI/API" <linux-api@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:VIRTIO CORE,
-	NET..." <virtualization@lists.linux-foundation.org>, David Airlie <airlied@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRG8sIDIwMTUtMDQtMDIgYXQgMTc6NTIgKzAyMDAsIE1hcmMtQW5kcsOpIEx1cmVhdSB3cm90
-ZToKPiBQZXJoYXBzIHRoYXQgY29uZGl0aW9uIHNob3VsZCBiZSBjaGFuZ2VkOgo+ICsgICAgICAg
-QlVHX09OKHNpemUgPj0gTUFYX0lOTElORV9DTURfU0laRSk7CgpEb25lLgoKdGhhbmtzLAogIEdl
-cmQKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
-dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
-dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
-Zm8vdmlydHVhbGl6YXRpb24=
+Hi,
+
+This patchset allows vhost to be used with legacy virtio when guest and host
+have a different endianness.
+
+Patches 1-6 remain the same as the previous post. Patch 7 was heavily changed
+according to MST's comments.
+
+---
+
+Greg Kurz (7):
+      virtio: introduce virtio_is_little_endian() helper
+      tun: add tun_is_little_endian() helper
+      macvtap: introduce macvtap_is_little_endian() helper
+      vringh: introduce vringh_is_little_endian() helper
+      vhost: introduce vhost_is_little_endian() helper
+      virtio: add explicit big-endian support to memory accessors
+      vhost: feature to set the vring endianness
+
+
+ drivers/net/macvtap.c            |   11 ++++++--
+ drivers/net/tun.c                |   11 ++++++--
+ drivers/vhost/Kconfig            |   10 +++++++
+ drivers/vhost/vhost.c            |   55 ++++++++++++++++++++++++++++++++++++++
+ drivers/vhost/vhost.h            |   34 +++++++++++++++++++----
+ include/linux/virtio_byteorder.h |   24 ++++++++++-------
+ include/linux/virtio_config.h    |   19 +++++++++----
+ include/linux/vringh.h           |   19 +++++++++----
+ include/uapi/linux/vhost.h       |    5 +++
+ 9 files changed, 156 insertions(+), 32 deletions(-)
+
+--
+Greg
