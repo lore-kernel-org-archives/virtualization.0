@@ -1,14 +1,16 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v3 7/7] vhost: feature to set the vring endianness
-Date: Tue, 7 Apr 2015 17:01:31 +0200
-Message-ID: <20150407170131.3899d62c.cornelia.huck__26301.8033038408$1428418931$gmane$org@de.ibm.com>
-References: <20150407120929.4213.8225.stgit@bahia.lab.toulouse-stg.fr.ibm.com>
-	<20150407121557.4213.95569.stgit@bahia.lab.toulouse-stg.fr.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [snabb-devel] Re: memory barriers in virtq.lua?
+Date: Tue, 7 Apr 2015 17:30:59 +0200
+Message-ID: <20150407172849-mutt-send-email-mst__44328.556667506$1428420684$gmane$org@redhat.com>
+References: <20150127160126.GA10651@redhat.com>
+	<CADDJ2=M6hwFwooXqUjUc9+JxjW1sVYvKhY9dBavrmMUrej6Ysw@mail.gmail.com>
+	<CAA2XHbcU0tV0NrBXT6oh6LOz7sKm9P8jqD1=T-ZgTahSVM_qwQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150407121557.4213.95569.stgit@bahia.lab.toulouse-stg.fr.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <CAA2XHbcU0tV0NrBXT6oh6LOz7sKm9P8jqD1=T-ZgTahSVM_qwQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,79 +20,73 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Luke Gorrie <luke@snabb.co>
+Cc: "dev@dpdk.org" <dev@dpdk.org>, "snabb-devel@googlegroups.com" <snabb-devel@googlegroups.com>, VirtualOpenSystems Technical Team <tech@virtualopensystems.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 07 Apr 2015 14:19:31 +0200
-Greg Kurz <gkurz@linux.vnet.ibm.com> wrote:
-
-> This patch brings cross-endian support to vhost when used to implement
-> legacy virtio devices. Since it is a relatively rare situation, the
-> feature availability is controlled by a kernel config option (not set
-> by default).
+On Tue, Apr 07, 2015 at 04:22:42PM +0200, Luke Gorrie wrote:
+> Hi Michael,
 > 
-> The ioctls introduced by this patch are for legacy only: virtio 1.0
-> devices are returned EPERM.
+> I'm writing to follow up the previous discussion about memory barriers in
+> virtio-net device implementations, and Cc'ing the DPDK list because I believe
+> this is relevant to them too.
 > 
-> Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
-> ---
->  drivers/vhost/Kconfig      |   10 ++++++++
->  drivers/vhost/vhost.c      |   55 ++++++++++++++++++++++++++++++++++++++++++++
->  drivers/vhost/vhost.h      |   17 +++++++++++++-
->  include/uapi/linux/vhost.h |    5 ++++
->  4 files changed, 86 insertions(+), 1 deletion(-)
+> First, thanks again for getting in touch and reviewing our code.
+> 
+> I have now found a missed case where we *do* require a hardware memory barrier
+> on x86 in our vhost/virtio-net device. That is when checking the interrupt
+> suppression flag after updating used->idx. This is needed because x86 can
+> reorder the write to used->idx after the read from avail->flags, and that
+> causes the guest to see a stale value of used->idx after it toggles interrupt
+> suppression.
+> 
+> If I may spell out my mental model, for the sake of being corrected and/or as
+> an example of how third party developers are reading and interpreting the
+> Virtio-net spec:
+> 
+> Relating this to Virtio 1.0, the most relevant section is 3.2.1 (Supplying
+> Buffers to the Device) which calls for two "suitable memory barriers". The spec
+> talks about these from the driver perspective, but they are both relevant to
+> the device side too.
+> 
+> The first barrier (write to descriptor table before write to used->idx) is
+> implicit on x86 because writes by the same core are not reordered. This means
+> that no explicit hardware barrier is needed. (A compiler barrier may be needed,
+> however.)
+> 
+> The second memory barrier (write to used->idx before reading avail->flags) is
+> not implicit on x86 because stores are reordered after loads. So an explicit
+> hardware memory barrier is needed.
+> 
+> I hope that is a correct assessment of the situation. (Forgive my
+> x86centricity, I am sure that seems very foreign to kernel hackers.)
+> 
+> If this assessment is correct then the DPDK developers might also want to
+> review librte_vhost/vhost_rxtx.c and consider adding a hardware memory barrier
+> between writing used->idx and reading avail->flags.
+> 
+> Cheers,
+> -Luke
 
-> +#ifdef CONFIG_VHOST_SET_ENDIAN_LEGACY
-> +static long vhost_set_vring_endian_legacy(struct vhost_virtqueue *vq,
-> +					  void __user *argp)
-> +{
-> +	struct vhost_vring_state s;
-> +
-> +	if (vhost_has_feature(vq, VIRTIO_F_VERSION_1))
-> +		return -EPERM;
-> +
-> +	if (copy_from_user(&s, argp, sizeof(s)))
-> +		return -EFAULT;
-> +
-> +	vq->legacy_is_little_endian = !!s.num;
-> +	return 0;
-> +}
-> +
-> +static long vhost_get_vring_endian_legacy(struct vhost_virtqueue *vq,
-> +					  u32 idx,
-> +					  void __user *argp)
-> +{
-> +	struct vhost_vring_state s = {
-> +		.index = idx,
-> +		.num = vq->legacy_is_little_endian
-> +	};
-> +
-> +	if (vhost_has_feature(vq, VIRTIO_F_VERSION_1))
-> +		return -EPERM;
-> +
-> +	if (copy_to_user(argp, &s, sizeof(s)))
-> +		return -EFAULT;
-> +
-> +	return 0;
-> +}
-> +#else
-> +static long vhost_set_vring_endian_legacy(struct vhost_virtqueue *vq,
-> +					  void __user *argp)
-> +{
-> +	return 0;
+I agree, this looks like a bug in dpdk.
 
-I'm wondering whether this handler should return an error if the
-feature is not configured for the kernel? How can the userspace caller
-find out whether it has successfully prompted the kernel to handle the
-endianness correctly?
+> P.S. I notice that the Linux virtio-net driver does not seem to tolerate
+> spurious interrupts, even though the Virtio 1.0 spec requires this ("must"). On
+> 3.13.11-ckt15 I see them trigger an "irq nobody cared" kernel log message and
+> then the irq is disabled. If that sounds suspicious I can supply more
+> information.
+> 
+>
 
-> +}
-> +
-> +static long vhost_get_vring_endian_legacy(struct vhost_virtqueue *vq,
-> +					  u32 idx,
-> +					  void __user *argp)
-> +{
-> +	return 0;
-> +}
-> +#endif /* CONFIG_VHOST_SET_ENDIAN_LEGACY */
+More information might be useful, yes.
+
+Just guessing from the available info:
+
+I think you refer to this:
+        The driver MUST handle spurious interrupts from the device.
+
+The intent is to be able to handle some spurious interrupts once in a
+while.  AFAIK linux triggers the message if it gets a huge number of
+spurious interrupts for an extended period of time.
+For example, this will trigger if the device does not clear interrupt
+line after interrupt register read.
