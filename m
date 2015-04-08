@@ -1,15 +1,16 @@
-From: "Xie, Huawei" <huawei.xie@intel.com>
-Subject: Re: [dpdk-dev] [snabb-devel] Re: memory barriers in virtq.lua?
-Date: Wed, 8 Apr 2015 15:15:16 +0000
-Message-ID: <C37D651A908B024F974696C65296B57B0F42E766__22019.4024187096$1428511095$gmane$org@SHSMSX101.ccr.corp.intel.com>
-References: <20150127160126.GA10651@redhat.com>
-	<CADDJ2=M6hwFwooXqUjUc9+JxjW1sVYvKhY9dBavrmMUrej6Ysw@mail.gmail.com>
-	<CAA2XHbcU0tV0NrBXT6oh6LOz7sKm9P8jqD1=T-ZgTahSVM_qwQ@mail.gmail.com>
+From: Waiman Long <waiman.long@hp.com>
+Subject: Re: [Xen-devel] [PATCH v15 12/15] pvqspinlock,
+	x86: Enable PV qspinlock for Xen
+Date: Wed, 08 Apr 2015 13:42:49 -0400
+Message-ID: <55256899.4040603__38717.211111407$1428515001$gmane$org@hp.com>
+References: <1428375350-9213-1-git-send-email-Waiman.Long@hp.com>
+	<1428375350-9213-13-git-send-email-Waiman.Long@hp.com>
+	<552518A0.10205@citrix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Language: en-US
+In-Reply-To: <552518A0.10205@citrix.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,63 +20,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Luke Gorrie <luke@snabb.co>, "snabb-devel@googlegroups.com" <snabb-devel@googlegroups.com>
-Cc: "dev@dpdk.org" <dev@dpdk.org>, VirtualOpenSystems Technical Team <tech@virtualopensystems.com>, "Michael S. Tsirkin" <mst@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: David Vrabel <david.vrabel@citrix.com>
+Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, x86@kernel.org, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Daniel J Blueman <daniel@numascale.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Scott J Norton <scott.norton@hp.com>, Ingo Molnar <mingo@redhat.com>, Douglas Hatch <doug.hatch@hp.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Oleg Nesterov <oleg@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 4/7/2015 10:23 PM, Luke Gorrie wrote:
-> Hi Michael,
+On 04/08/2015 08:01 AM, David Vrabel wrote:
+> On 07/04/15 03:55, Waiman Long wrote:
+>> This patch adds the necessary Xen specific code to allow Xen to
+>> support the CPU halting and kicking operations needed by the queue
+>> spinlock PV code.
+> This basically looks the same as the version I wrote, except I think you
+> broke it.
 >
-> I'm writing to follow up the previous discussion about memory barriers in
-> virtio-net device implementations, and Cc'ing the DPDK list because I
-> believe this is relevant to them too.
->
-> First, thanks again for getting in touch and reviewing our code.
->
-> I have now found a missed case where we *do* require a hardware memory
-> barrier on x86 in our vhost/virtio-net device. That is when checking the
-> interrupt suppression flag after updating used->idx. This is needed because
-> x86 can reorder the write to used->idx after the read from avail->flags,
-> and that causes the guest to see a stale value of used->idx after it
-> toggles interrupt suppression.
-luke:
-1. host read the flag. 2 guest toggles the flag 3.guest checks the used.
-4. host update used.
-Is this your case?
+>> +static void xen_qlock_wait(u8 *byte, u8 val)
+>> +{
+>> +	int irq = __this_cpu_read(lock_kicker_irq);
+>> +
+>> +	/* If kicker interrupts not initialized yet, just spin */
+>> +	if (irq == -1)
+>> +		return;
+>> +
+>> +	/* clear pending */
+>> +	xen_clear_irq_pending(irq);
+>> +
+>> +	/*
+>> +	 * We check the byte value after clearing pending IRQ to make sure
+>> +	 * that we won't miss a wakeup event because of the clearing.
+> My version had a barrier() here to ensure this.  The documentation of
+> READ_ONCE() suggests that it is not sufficient to meet this requirement
+> (and a READ_ONCE() here is not required anyway).
 
->
-> If I may spell out my mental model, for the sake of being corrected and/or
-> as an example of how third party developers are reading and interpreting
-> the Virtio-net spec:
->
-> Relating this to Virtio 1.0, the most relevant section is 3.2.1 (Supplying
-> Buffers to the Device) which calls for two "suitable memory barriers". The
-> spec talks about these from the driver perspective, but they are both
-> relevant to the device side too.
->
-> The first barrier (write to descriptor table before write to used->idx) is
-> implicit on x86 because writes by the same core are not reordered. This
-> means that no explicit hardware barrier is needed. (A compiler barrier may
-> be needed, however.)
->
-> The second memory barrier (write to used->idx before reading avail->flags)
-> is not implicit on x86 because stores are reordered after loads. So an
-> explicit hardware memory barrier is needed.
->
-> I hope that is a correct assessment of the situation. (Forgive my
-> x86centricity, I am sure that seems very foreign to kernel hackers.)
->
-> If this assessment is correct then the DPDK developers might also want to
-> review librte_vhost/vhost_rxtx.c and consider adding a hardware memory
-> barrier between writing used->idx and reading avail->flags.
->
-> Cheers,
-> -Luke
->
-> P.S. I notice that the Linux virtio-net driver does not seem to tolerate
-> spurious interrupts, even though the Virtio 1.0 spec requires this
-> ("must"). On 3.13.11-ckt15 I see them trigger an "irq nobody cared" kernel
-> log message and then the irq is disabled. If that sounds suspicious I can
-> supply more information.
->
->
+I have the misconception that a READ_ONCE/WRITE_ONCE() implies a 
+compiler barrier. You are right that it may not be the case. I will add 
+back the missing barrier when I update the patch and add you as the 
+author of this patch if you don't mind.
+
+Cheers,
+Longman
