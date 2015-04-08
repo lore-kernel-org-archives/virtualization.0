@@ -1,15 +1,11 @@
-From: Luke Gorrie <luke@snabb.co>
-Subject: Re: [snabb-devel] Re: memory barriers in virtq.lua?
-Date: Wed, 8 Apr 2015 05:40:11 +0200
-Message-ID: <CAA2XHbehi0rFuEGXDA=KTeVr5My1gvUOpOjFP5oSEUiYozrdCA__13122.5582831123$1428464422$gmane$org@mail.gmail.com>
-References: <20150127160126.GA10651@redhat.com>
-	<CADDJ2=M6hwFwooXqUjUc9+JxjW1sVYvKhY9dBavrmMUrej6Ysw@mail.gmail.com>
-	<CAA2XHbcU0tV0NrBXT6oh6LOz7sKm9P8jqD1=T-ZgTahSVM_qwQ@mail.gmail.com>
-	<20150407172849-mutt-send-email-mst@redhat.com>
+From: Ioan Raicu <iraicu@cs.iit.edu>
+Subject: IEEE Cluster 2015 - Call for Posters
+Date: Tue, 07 Apr 2015 23:29:06 -0500
+Message-ID: <5524AE92.5030908@cs.iit.edu>
+Reply-To: iraicu@cs.iit.edu
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2990089147354836685=="
+Content-Type: multipart/mixed; boundary="===============5404390010034600209=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150407172849-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,78 +15,478 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "snabb-devel@googlegroups.com" <snabb-devel@googlegroups.com>
-Cc: "dev@dpdk.org" <dev@dpdk.org>, VirtualOpenSystems Technical Team <tech@virtualopensystems.com>, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============2990089147354836685==
-Content-Type: multipart/alternative; boundary=001a1134d092d768d605132e4949
+This is a multi-part message in MIME format.
+--===============5404390010034600209==
+Content-Type: multipart/alternative;
+ boundary="------------010105030704090209080004"
 
---001a1134d092d768d605132e4949
-Content-Type: text/plain; charset=UTF-8
+This is a multi-part message in MIME format.
+--------------010105030704090209080004
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On 7 April 2015 at 17:30, Michael S. Tsirkin <mst@redhat.com> wrote:
+April 7, 2015 Release
 
-> Just guessing from the available info:
->
-> I think you refer to this:
->         The driver MUST handle spurious interrupts from the device.
->
-> The intent is to be able to handle some spurious interrupts once in a
-> while.  AFAIK linux triggers the message if it gets a huge number of
-> spurious interrupts for an extended period of time.
-> For example, this will trigger if the device does not clear interrupt
-> line after interrupt register read.
->
+IEEE International Conference on Cluster Computing
+September 8-11, 2015
+Chicago, IL, USA
+http://www.mcs.anl.gov/ieeecluster2015/
 
-Thanks for that info.
+*** CALL FOR POSTERS ***
+The IEEE Cluster 2015 provides a forum for both academia and industry
+professionals to present their latest research findings in all aspects
+of cluster, cloud, and grid technologies in the form of a posters,
+which will be included in the conference proceedings. Posters will be
+presented during the same session, during the conference.
+Additionally, authors may submit posters for publication on the web.
 
-The only spurious interrupt that I think we need is one when vhost-user
-reconnects. That would be to cover the case where the vswitch is restarted
-after writing used->idx but before sending the interrupt.
+*** TOPICS OF INTEREST ***
+The topics of interest are the same as in the Call for Papers.
+Area 1: Application, Algorithms, and Libraries
+* HPC Applications on Clusters
+* Performance Modeling and Measurement
+* Novel Algorithms on Clusters
+* Hybrid programming techniques (MPI+OpenMP, MPI+OpenCL, etc.)
+* Cluster Benchmarks
+* Application-level libraries on clusters
+* Effective use of clusters in novel applications
+* Performance evaluation tools
 
-Or perhaps there is a better solution to that case?
+Area 2: Architecture, Network/Communications, and Management
+* Energy-efficient cluster architectures
+* Node and system architecture
+* Packaging, power and cooling
+* GPU/ManyCore and heterogeneous clusters
+* Interconnect/memory architectures
+* Single system image clusters
+* Administration and maintenance tools
 
-Looking forward to getting an upstream vhost-user reconnect. one thing at a
-time.. :)
+Area 3: Programming and System Software
+* Cluster System Software/Operating Systems
+* Cloud-enabling cluster technologies and virtualization
+* Energy-efficient middleware
+* Cluster system-level Protocols and APIs
+* Cluster Security
+* Resource and job management
+* Programming and Software Development Environment on Clusters
+* Fault tolerance and high-availability
 
-Cheers,
--Luke
+Area 4: Data, Storage, and Visualization
+* Cluster Architecture for Big Data storage and processing
+* Middleware for Big Data management
+* Cluster-based Cloud Architecture for Big Data
+* File systems and I/O libraries
+* Support and Integration of Non-Volatile Memory
+* Visualization clusters and tiled displays
+* Big Data visualization tools
+* Programming models for Big Data processing
+* Big Data Application studies on cluster architectures
 
---001a1134d092d768d605132e4949
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+*** TYPES OF POSTERS ***
+Participants submitting proceedings-published posters are required to
+submit a short paper (2 pages) describing the poster content, the
+research supporting it, and the relevance and importance to the
+cluster, cloud, and grid computing community. If accepted, this short
+paper will be published in the proceedings of the conference.
 
-<div dir=3D"ltr"><div class=3D"gmail_extra"><div class=3D"gmail_quote">On 7=
- April 2015 at 17:30, Michael S. Tsirkin <span dir=3D"ltr">&lt;<a href=3D"m=
-ailto:mst@redhat.com" target=3D"_blank">mst@redhat.com</a>&gt;</span> wrote=
-:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-le=
-ft:1px #ccc solid;padding-left:1ex"><div class=3D"HOEnZb"><div class=3D"h5"=
-><span style=3D"color:rgb(34,34,34)">Just guessing from the available info:=
-</span><br></div></div>
-<br>
-I think you refer to this:<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 The driver MUST handle spurious interrupts from=
- the device.<br>
-<br>
-The intent is to be able to handle some spurious interrupts once in a<br>
-while.=C2=A0 AFAIK linux triggers the message if it gets a huge number of<b=
-r>
-spurious interrupts for an extended period of time.<br>
-For example, this will trigger if the device does not clear interrupt<br>
-line after interrupt register read.<br></blockquote><div><br></div><div>Tha=
-nks for that info.</div><div><br></div><div>The only spurious interrupt tha=
-t I think we need is one when vhost-user reconnects. That would be to cover=
- the case where the vswitch is restarted after writing used-&gt;idx but bef=
-ore sending the interrupt.</div><div><br></div><div>Or perhaps there is a b=
-etter solution to that case?</div><div><br></div><div>Looking forward to ge=
-tting an upstream vhost-user reconnect. one thing at a time.. :)</div><div>=
-<br></div><div>Cheers,</div><div>-Luke</div><div><br></div><div><br></div><=
-/div></div></div>
+Participants submitting web-published posters are required to submit a
+short 1-page extended abstract. These abstracts will not be included
+in the conference proceedings.
 
---001a1134d092d768d605132e4949--
+Both proceedings-published and web-published posters will be displayed
+during the conference. We encourage accepted authors of demos to
+prepare a poster to accompany their demo. All accepted posters
+(including posters prepared for demos) will be posted on the
+conference website.
 
---===============2990089147354836685==
+*** DISPLAY POSTER SIZE ***
+The recommended poster size is A1 (594mm by 841mm, portrait).
+
+*** SUBMISSION GUIDELINES ***
+Submitted manuscripts should be structured as technical papers and may
+not exceed 1 (web published) or 2 (proceedings published) letter size
+(8.5 x 11) pages including figures, tables and references using the
+IEEE format for conference proceedings.
+
+See formatting templates for details:
+
+* LaTex Package ZIP
+ftp://pubftp.computer.org/Press/Outgoing/proceedings/IEEE_CS_Latex8.5x11x2.zip 
+
+* Word Template DOC and PDF
+ftp://pubftp.computer.org/Press/Outgoing/proceedings/instruct8.5x11x2.doc
+ftp://pubftp.computer.org/Press/Outgoing/proceedings/instruct8.5x11x2.pdf
+
+Please submit your posters via the EasyChair submission system:
+
+https://easychair.org/conferences/?conf=ieeecluster2015
+
+*** IMPORTANT DATES ***
+May 15, 2015 (extended) Posters Submission Deadline
+May 9, 2015 Papers Acceptance Notification
+
+*** STUDENT TRAVEL AWARDS ***
+Several travel awards are sponsored by the National Science Foundation
+for students enrolled in American institutions who participates in the
+Student Mentoring Program
+(http://www.mcs.anl.gov/ieeecluster2015/student-program/). Students
+with accepted posters or papers must also apply to and participate in
+the Student Mentoring Program to be eligible for the travel award. The
+deadlines for the Student Mentoring Program application are at
+http://www.mcs.anl.gov/ieeecluster2015/author-information/important-dates/.
+Notice of travel awards will be made prior to the conference. The
+travel awards will be distributed post-conference in the form of
+reimbursements against actual travel, registration, and accommodation
+expenses submitted by the student. The travel award will be contingent
+on the participating of the awarded student in the Student Mentoring
+Program at Cluster 2015.
+
+
+*** CLUSTER 2015 POSTER CHAIR ***
+Seetharami Seelam, IBM T. J. Watson Research Center (sseelam AT 
+us.ibm.com).
+
+----------------------------------------------
+...Follow us on Facebook athttps://www.facebook.com/ieee.cluster
+...Follow us on Twitter athttps://twitter.com/IEEECluster
+...Follow us on Linkedin at
+https://www.linkedin.com/groups/IEEE-International-Conference-on-Cluster-7428925 
+
+...Follow us on RenRen athttp://page.renren.com/601871401
+----------------------------------------------
+
+
+-- 
+=================================================================
+Ioan Raicu, Ph.D.
+Assistant Professor, Illinois Institute of Technology (IIT)
+Guest Research Faculty, Argonne National Laboratory (ANL)
+=================================================================
+Data-Intensive Distributed Systems Laboratory, CS/IIT
+Distributed Systems Laboratory, MCS/ANL
+=================================================================
+Editor: IEEE TCC, Springer Cluster, Springer JoCCASA
+Chair:  IEEE/ACM MTAGS, ACM ScienceCloud
+=================================================================
+Cel:      1-847-722-0876
+Office:   1-312-567-5704
+Email:    iraicu@cs.iit.edu
+Web:      http://www.cs.iit.edu/~iraicu/
+Web:      http://datasys.cs.iit.edu/
+LinkedIn: http://www.linkedin.com/in/ioanraicu
+Google:   http://scholar.google.com/citations?user=jE73HYAAAAAJ
+=================================================================
+=================================================================
+
+
+--------------010105030704090209080004
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+<html>
+  <head>
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  </head>
+  <body text="#000000" bgcolor="#FFFFFF">
+    <div class="moz-text-flowed" style="font-family: -moz-fixed;
+      font-size: 14px;" lang="x-western">April 7, 2015 Release
+      <br>
+      <br>
+      IEEE International Conference on Cluster Computing
+      <br>
+      September 8-11, 2015
+      <br>
+      Chicago, IL, USA
+      <br>
+      <a class="moz-txt-link-freetext"
+        href="http://www.mcs.anl.gov/ieeecluster2015/">http://www.mcs.anl.gov/ieeecluster2015/</a>
+      <br>
+      <br>
+      *** CALL FOR POSTERS ***
+      <br>
+      The IEEE Cluster 2015 provides a forum for both academia and
+      industry
+      <br>
+      professionals to present their latest research findings in all
+      aspects
+      <br>
+      of cluster, cloud, and grid technologies in the form of a posters,
+      <br>
+      which will be included in the conference proceedings. Posters will
+      be
+      <br>
+      presented during the same session, during the conference.
+      <br>
+      Additionally, authors may submit posters for publication on the
+      web.
+      <br>
+      <br>
+      *** TOPICS OF INTEREST ***
+      <br>
+      The topics of interest are the same as in the Call for Papers.
+      <br>
+      Area 1: Application, Algorithms, and Libraries
+      <br>
+      * HPC Applications on Clusters
+      <br>
+      * Performance Modeling and Measurement
+      <br>
+      * Novel Algorithms on Clusters
+      <br>
+      * Hybrid programming techniques (MPI+OpenMP, MPI+OpenCL, etc.)
+      <br>
+      * Cluster Benchmarks
+      <br>
+      * Application-level libraries on clusters
+      <br>
+      * Effective use of clusters in novel applications
+      <br>
+      * Performance evaluation tools
+      <br>
+      <br>
+      Area 2: Architecture, Network/Communications, and Management
+      <br>
+      * Energy-efficient cluster architectures
+      <br>
+      * Node and system architecture
+      <br>
+      * Packaging, power and cooling
+      <br>
+      * GPU/ManyCore and heterogeneous clusters
+      <br>
+      * Interconnect/memory architectures
+      <br>
+      * Single system image clusters
+      <br>
+      * Administration and maintenance tools
+      <br>
+      <br>
+      Area 3: Programming and System Software
+      <br>
+      * Cluster System Software/Operating Systems
+      <br>
+      * Cloud-enabling cluster technologies and virtualization
+      <br>
+      * Energy-efficient middleware
+      <br>
+      * Cluster system-level Protocols and APIs
+      <br>
+      * Cluster Security
+      <br>
+      * Resource and job management
+      <br>
+      * Programming and Software Development Environment on Clusters
+      <br>
+      * Fault tolerance and high-availability
+      <br>
+      <br>
+      Area 4: Data, Storage, and Visualization
+      <br>
+      * Cluster Architecture for Big Data storage and processing
+      <br>
+      * Middleware for Big Data management
+      <br>
+      * Cluster-based Cloud Architecture for Big Data
+      <br>
+      * File systems and I/O libraries
+      <br>
+      * Support and Integration of Non-Volatile Memory
+      <br>
+      * Visualization clusters and tiled displays
+      <br>
+      * Big Data visualization tools
+      <br>
+      * Programming models for Big Data processing
+      <br>
+      * Big Data Application studies on cluster architectures
+      <br>
+      <br>
+      *** TYPES OF POSTERS ***
+      <br>
+      Participants submitting proceedings-published posters are required
+      to
+      <br>
+      submit a short paper (2 pages) describing the poster content, the
+      <br>
+      research supporting it, and the relevance and importance to the
+      <br>
+      cluster, cloud, and grid computing community. If accepted, this
+      short
+      <br>
+      paper will be published in the proceedings of the conference.
+      <br>
+      <br>
+      Participants submitting web-published posters are required to
+      submit a
+      <br>
+      short 1-page extended abstract. These abstracts will not be
+      included
+      <br>
+      in the conference proceedings.
+      <br>
+      <br>
+      Both proceedings-published and web-published posters will be
+      displayed
+      <br>
+      during the conference. We encourage accepted authors of demos to
+      <br>
+      prepare a poster to accompany their demo. All accepted posters
+      <br>
+      (including posters prepared for demos) will be posted on the
+      <br>
+      conference website.
+      <br>
+      <br>
+      *** DISPLAY POSTER SIZE ***
+      <br>
+      The recommended poster size is A1 (594mm by 841mm, portrait).
+      <br>
+      <br>
+      *** SUBMISSION GUIDELINES ***
+      <br>
+      Submitted manuscripts should be structured as technical papers and
+      may
+      <br>
+      not exceed 1 (web published) or 2 (proceedings published) letter
+      size
+      <br>
+      (8.5 x 11) pages including figures, tables and references using
+      the
+      <br>
+      IEEE format for conference proceedings.
+      <br>
+      <br>
+      See formatting templates for details:
+      <br>
+      <br>
+      * LaTex Package ZIP
+      <br>
+      <a class="moz-txt-link-freetext"
+href="ftp://pubftp.computer.org/Press/Outgoing/proceedings/IEEE_CS_Latex8.5x11x2.zip">ftp://pubftp.computer.org/Press/Outgoing/proceedings/IEEE_CS_Latex8.5x11x2.zip</a>
+      <br>
+      * Word Template DOC and PDF
+      <br>
+      <a class="moz-txt-link-freetext"
+href="ftp://pubftp.computer.org/Press/Outgoing/proceedings/instruct8.5x11x2.doc">ftp://pubftp.computer.org/Press/Outgoing/proceedings/instruct8.5x11x2.doc</a>
+      <br>
+      <a class="moz-txt-link-freetext"
+href="ftp://pubftp.computer.org/Press/Outgoing/proceedings/instruct8.5x11x2.pdf">ftp://pubftp.computer.org/Press/Outgoing/proceedings/instruct8.5x11x2.pdf</a>
+      <br>
+      <br>
+      Please submit your posters via the EasyChair submission system:
+      <br>
+      <br>
+      <a class="moz-txt-link-freetext"
+        href="https://easychair.org/conferences/?conf=ieeecluster2015">https://easychair.org/conferences/?conf=ieeecluster2015</a>
+      <br>
+      <br>
+      *** IMPORTANT DATES ***
+      <br>
+      May 15, 2015 (extended) Posters Submission Deadline
+      <br>
+      May 9, 2015 Papers Acceptance Notification
+      <br>
+      <br>
+      *** STUDENT TRAVEL AWARDS ***
+      <br>
+      Several travel awards are sponsored by the National Science
+      Foundation
+      <br>
+      for students enrolled in American institutions who participates in
+      the
+      <br>
+      Student Mentoring Program
+      <br>
+      (<a class="moz-txt-link-freetext"
+        href="http://www.mcs.anl.gov/ieeecluster2015/student-program/">http://www.mcs.anl.gov/ieeecluster2015/student-program/</a>).
+      Students
+      <br>
+      with accepted posters or papers must also apply to and participate
+      in
+      <br>
+      the Student Mentoring Program to be eligible for the travel award.
+      The
+      <br>
+      deadlines for the Student Mentoring Program application are at
+      <br>
+      <a class="moz-txt-link-freetext"
+href="http://www.mcs.anl.gov/ieeecluster2015/author-information/important-dates/">http://www.mcs.anl.gov/ieeecluster2015/author-information/important-dates/</a>.
+      <br>
+      Notice of travel awards will be made prior to the conference. The
+      <br>
+      travel awards will be distributed post-conference in the form of
+      <br>
+      reimbursements against actual travel, registration, and
+      accommodation
+      <br>
+      expenses submitted by the student. The travel award will be
+      contingent
+      <br>
+      on the participating of the awarded student in the Student
+      Mentoring
+      <br>
+      Program at Cluster 2015.
+      <br>
+      <br>
+      <br>
+      *** CLUSTER 2015 POSTER CHAIR ***
+      <br>
+      Seetharami Seelam, IBM T. J. Watson Research Center (sseelam AT
+      us.ibm.com).
+      <br>
+      <br>
+      ----------------------------------------------
+      <br>
+      ...Follow us on Facebook athttps://www.facebook.com/ieee.cluster
+      <br>
+      ...Follow us on Twitter athttps://twitter.com/IEEECluster
+      <br>
+      ...Follow us on Linkedin at
+      <br>
+      <a class="moz-txt-link-freetext"
+href="https://www.linkedin.com/groups/IEEE-International-Conference-on-Cluster-7428925">https://www.linkedin.com/groups/IEEE-International-Conference-on-Cluster-7428925</a>
+      <br>
+      ...Follow us on RenRen athttp://page.renren.com/601871401
+      <br>
+      ----------------------------------------------
+      <br>
+      <br>
+      <div class="moz-txt-sig"><br>
+      </div>
+    </div>
+    <pre class="moz-signature" cols="72">-- 
+=================================================================
+Ioan Raicu, Ph.D.
+Assistant Professor, Illinois Institute of Technology (IIT)
+Guest Research Faculty, Argonne National Laboratory (ANL)
+=================================================================
+Data-Intensive Distributed Systems Laboratory, CS/IIT
+Distributed Systems Laboratory, MCS/ANL
+=================================================================
+Editor: IEEE TCC, Springer Cluster, Springer JoCCASA
+Chair:  IEEE/ACM MTAGS, ACM ScienceCloud
+=================================================================
+Cel:      1-847-722-0876
+Office:   1-312-567-5704
+Email:    <a class="moz-txt-link-abbreviated" href="mailto:iraicu@cs.iit.edu">iraicu@cs.iit.edu</a>
+Web:      <a class="moz-txt-link-freetext" href="http://www.cs.iit.edu/~iraicu/">http://www.cs.iit.edu/~iraicu/</a>
+Web:      <a class="moz-txt-link-freetext" href="http://datasys.cs.iit.edu/">http://datasys.cs.iit.edu/</a>
+LinkedIn: <a class="moz-txt-link-freetext" href="http://www.linkedin.com/in/ioanraicu">http://www.linkedin.com/in/ioanraicu</a>
+Google:   <a class="moz-txt-link-freetext" href="http://scholar.google.com/citations?user=jE73HYAAAAAJ">http://scholar.google.com/citations?user=jE73HYAAAAAJ</a>    
+=================================================================
+=================================================================
+
+</pre>
+  </body>
+</html>
+
+--------------010105030704090209080004--
+
+--===============5404390010034600209==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -100,4 +496,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2990089147354836685==--
+--===============5404390010034600209==--
