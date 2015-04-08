@@ -1,15 +1,14 @@
-From: David Vrabel <david.vrabel@citrix.com>
-Subject: Re: [Xen-devel] [PATCH v15 12/15] pvqspinlock,
-	x86: Enable PV qspinlock for Xen
-Date: Wed, 8 Apr 2015 13:01:36 +0100
-Message-ID: <552518A0.10205__4582.56389615617$1428494566$gmane$org@citrix.com>
-References: <1428375350-9213-1-git-send-email-Waiman.Long@hp.com>
-	<1428375350-9213-13-git-send-email-Waiman.Long@hp.com>
+From: Alexander Duyck <alexander.h.duyck@redhat.com>
+Subject: Re: [PATCH] virtio_ring: Update weak barriers to use dma_wmb/rmb
+Date: Wed, 08 Apr 2015 07:41:49 -0700
+Message-ID: <55253E2D.5020704@redhat.com>
+References: <20150408004742.2112.25484.stgit@ahduyck-vm-fedora22>
+	<20150408093032-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1428375350-9213-13-git-send-email-Waiman.Long@hp.com>
+In-Reply-To: <20150408093032-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,53 +18,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Waiman Long <Waiman.Long@hp.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Peter
-	Zijlstra <peterz@infradead.org>
-Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, x86@kernel.org, kvm@vger.kernel.org, Daniel J Blueman <daniel@numascale.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Vrabel <david.vrabel@citrix.com>, Scott J Norton <scott.norton@hp.com>, xen-devel@lists.xenproject.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Oleg Nesterov <oleg@redhat.com>, Douglas Hatch <doug.hatch@hp.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/04/15 03:55, Waiman Long wrote:
-> This patch adds the necessary Xen specific code to allow Xen to
-> support the CPU halting and kicking operations needed by the queue
-> spinlock PV code.
 
-This basically looks the same as the version I wrote, except I think you
-broke it.
+On 04/08/2015 01:42 AM, Michael S. Tsirkin wrote:
+> On Tue, Apr 07, 2015 at 05:47:42PM -0700, Alexander Duyck wrote:
+>> This change makes it so that instead of using smp_wmb/rmb which varies
+>> depending on the kernel configuration we can can use dma_wmb/rmb which for
+>> most architectures should be equal to or slightly more strict than
+>> smp_wmb/rmb.
+>>
+>> The advantage to this is that these barriers are available to uniprocessor
+>> builds as well so the performance should improve under such a
+>> configuration.
+>>
+>> Signed-off-by: Alexander Duyck <alexander.h.duyck@redhat.com>
+> Well the generic implementation has:
+> #ifndef dma_rmb
+> #define dma_rmb()       rmb()
+> #endif
+>
+> #ifndef dma_wmb
+> #define dma_wmb()       wmb()
+> #endif
+>
+> So for these arches you are slightly speeding up UP but slightly hurting SMP -
+> I think we did benchmark the difference as measureable in the past.
 
-> +static void xen_qlock_wait(u8 *byte, u8 val)
-> +{
-> +	int irq = __this_cpu_read(lock_kicker_irq);
-> +
-> +	/* If kicker interrupts not initialized yet, just spin */
-> +	if (irq == -1)
-> +		return;
-> +
-> +	/* clear pending */
-> +	xen_clear_irq_pending(irq);
-> +
-> +	/*
-> +	 * We check the byte value after clearing pending IRQ to make sure
-> +	 * that we won't miss a wakeup event because of the clearing.
+The generic implementation for the smp_ barriers does the same thing 
+when CONFIG_SMP is defined.  The only spot where there should be an 
+appreciable difference between the two is on ARM where we define the 
+dma_ barriers as being in the outer shareable domain, and for the smp_ 
+barriers they are inner shareable domain.
 
-My version had a barrier() here to ensure this.  The documentation of
-READ_ONCE() suggests that it is not sufficient to meet this requirement
-(and a READ_ONCE() here is not required anyway).
+> Additionally, isn't this relying on undocumented behaviour?
+> The documentation says:
+> 	"These are for use with consistent memory"
+> and virtio does not bother to request consistent memory
+> allocations.
 
-> +	 *
-> +	 * The sync_clear_bit() call in xen_clear_irq_pending() is atomic.
-> +	 * So it is effectively a memory barrier for x86.
-> +	 */
-> +	if (READ_ONCE(*byte) != val)
-> +		return;
-> +
-> +	/*
-> +	 * If an interrupt happens here, it will leave the wakeup irq
-> +	 * pending, which will cause xen_poll_irq() to return
-> +	 * immediately.
-> +	 */
-> +
-> +	/* Block until irq becomes pending (or perhaps a spurious wakeup) */
-> +	xen_poll_irq(irq);
-> +}
+Consistent in this case represents memory that exists within one 
+coherency domain.  So in the case of x86 for instance this represents 
+writes only to system memory.  If you mix writes to system memory and 
+device memory (PIO) then you should be using the full wmb/rmb to 
+guarantee ordering between the two memories.
 
-David
+> One wonders whether these will always be strong enough.
+
+For the purposes of weak barriers they should be, and they are only 
+slightly stronger than SMP in one case so odds are strength will not be 
+the issue.  As far as speed I would suspect that the difference between 
+inner and outer shareable domain should be negligible compared to the 
+difference between a dsb() and a dmb().
+
+- Alex
