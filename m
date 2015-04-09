@@ -1,16 +1,15 @@
-From: Alexander Duyck <alexander.h.duyck@redhat.com>
-Subject: Re: [PATCH] virtio_ring: Update weak barriers to use dma_wmb/rmb
-Date: Wed, 08 Apr 2015 13:31:45 -0700
-Message-ID: <55259031.5040309__32288.5089590729$1428525122$gmane$org@redhat.com>
-References: <20150408004742.2112.25484.stgit@ahduyck-vm-fedora22>
-	<20150408093032-mutt-send-email-mst@redhat.com>
-	<55253E2D.5020704@redhat.com>
-	<20150408203447-mutt-send-email-mst@redhat.com>
+From: Luke Gorrie <luke@snabb.co>
+Subject: Re: [dpdk-dev] [snabb-devel] Re: memory barriers in virtq.lua?
+Date: Thu, 9 Apr 2015 05:12:30 +0200
+Message-ID: <CAA2XHbdNAB1ZsBFYHW7W1yhnkzaSixwKk4KvjU8G=7OLECpZhQ__21210.9222462916$1428549167$gmane$org@mail.gmail.com>
+References: <20150127160126.GA10651@redhat.com>
+	<CADDJ2=M6hwFwooXqUjUc9+JxjW1sVYvKhY9dBavrmMUrej6Ysw@mail.gmail.com>
+	<CAA2XHbcU0tV0NrBXT6oh6LOz7sKm9P8jqD1=T-ZgTahSVM_qwQ@mail.gmail.com>
+	<C37D651A908B024F974696C65296B57B0F42E766@SHSMSX101.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============5780253560237414543=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150408203447-mutt-send-email-mst@redhat.com>
+In-Reply-To: <C37D651A908B024F974696C65296B57B0F42E766@SHSMSX101.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,77 +19,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "snabb-devel@googlegroups.com" <snabb-devel@googlegroups.com>
+Cc: "dev@dpdk.org" <dev@dpdk.org>, VirtualOpenSystems Technical Team <tech@virtualopensystems.com>, "Michael S. Tsirkin" <mst@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/08/2015 11:37 AM, Michael S. Tsirkin wrote:
-> On Wed, Apr 08, 2015 at 07:41:49AM -0700, Alexander Duyck wrote:
->> On 04/08/2015 01:42 AM, Michael S. Tsirkin wrote:
->>> On Tue, Apr 07, 2015 at 05:47:42PM -0700, Alexander Duyck wrote:
->>>> This change makes it so that instead of using smp_wmb/rmb which varies
->>>> depending on the kernel configuration we can can use dma_wmb/rmb which for
->>>> most architectures should be equal to or slightly more strict than
->>>> smp_wmb/rmb.
->>>>
->>>> The advantage to this is that these barriers are available to uniprocessor
->>>> builds as well so the performance should improve under such a
->>>> configuration.
->>>>
->>>> Signed-off-by: Alexander Duyck <alexander.h.duyck@redhat.com>
->>> Well the generic implementation has:
->>> #ifndef dma_rmb
->>> #define dma_rmb()       rmb()
->>> #endif
->>>
->>> #ifndef dma_wmb
->>> #define dma_wmb()       wmb()
->>> #endif
->>>
->>> So for these arches you are slightly speeding up UP but slightly hurting SMP -
->>> I think we did benchmark the difference as measureable in the past.
->> The generic implementation for the smp_ barriers does the same thing when
->> CONFIG_SMP is defined.  The only spot where there should be an appreciable
->> difference between the two is on ARM where we define the dma_ barriers as
->> being in the outer shareable domain, and for the smp_ barriers they are
->> inner shareable domain.
->>
->>> Additionally, isn't this relying on undocumented behaviour?
->>> The documentation says:
->>> 	"These are for use with consistent memory"
->>> and virtio does not bother to request consistent memory
->>> allocations.
->> Consistent in this case represents memory that exists within one coherency
->> domain.  So in the case of x86 for instance this represents writes only to
->> system memory.  If you mix writes to system memory and device memory (PIO)
->> then you should be using the full wmb/rmb to guarantee ordering between the
->> two memories.
->>
->>> One wonders whether these will always be strong enough.
->> For the purposes of weak barriers they should be, and they are only slightly
->> stronger than SMP in one case so odds are strength will not be the issue.
->> As far as speed I would suspect that the difference between inner and outer
->> shareable domain should be negligible compared to the difference between a
->> dsb() and a dmb().
->>
->> - Alex
-> Maybe it's safe, and maybe there's no performance impact.  But what's
-> the purpose of the patch?  From the commit log, It sounds like it's an
-> optimization, but it's not an obvious win, and it's not accompanied by
-> any numbers.
+--===============5780253560237414543==
+Content-Type: multipart/alternative; boundary=047d7bb04272afd8c2051342049f
 
-The win would be that non-SMP should get the same performance from the 
-barriers as SMP.  Based on the numbers for commit 7b21e34fd1c2 ("virtio: 
-harsher barriers for rpmsg.") it sounds like the gains could be pretty 
-significant (TCP_RR test improved by 35% CPU, 14% throughput).  The idea 
-is to get the same benefits in a uniprocessor environment.  If needed I 
-can gather the data for x86 for SMP and non-SMP, however I had 
-considered the patch to be low hanging fruit on that architecture since 
-the smp_ and dma_ barriers are the same.
+--047d7bb04272afd8c2051342049f
+Content-Type: text/plain; charset=UTF-8
 
-The performance numbers that I would like to collect but can't would be 
-on ARM 7 or later as that is the only spot where the smp_ and dma_ 
-barriers differ in any significant way, however I don't have an ARM 
-platform that I could test this patch on to generate such data.
+Howdy,
 
-- Alex
+On 8 April 2015 at 17:15, Xie, Huawei <huawei.xie@intel.com> wrote:
+
+> luke:
+> 1. host read the flag. 2 guest toggles the flag 3.guest checks the used.
+> 4. host update used.
+> Is this your case?
+>
+
+Yep, that is exactly the case I mean.
+
+Cheers,
+-Luke
+
+--047d7bb04272afd8c2051342049f
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Howdy,<br><div class=3D"gmail_extra"><br><div class=3D"gma=
+il_quote">On 8 April 2015 at 17:15, Xie, Huawei <span dir=3D"ltr">&lt;<a hr=
+ef=3D"mailto:huawei.xie@intel.com" target=3D"_blank">huawei.xie@intel.com</=
+a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0=
+ 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">luke:<br>
+1. host read the flag. 2 guest toggles the flag 3.guest checks the used.<br=
+>
+4. host update used.<br>
+Is this your case?<br></blockquote><div><br></div><div>Yep, that is exactly=
+ the case I mean.</div><div><br></div><div>Cheers,</div><div>-Luke</div><di=
+v><br></div><div><br></div></div></div></div>
+
+--047d7bb04272afd8c2051342049f--
+
+--===============5780253560237414543==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5780253560237414543==--
