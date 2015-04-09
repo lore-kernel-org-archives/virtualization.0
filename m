@@ -1,16 +1,18 @@
-From: Rik van Riel <riel@redhat.com>
-Subject: Re: [PATCH v15 16/16] unfair qspinlock: a queue based unfair lock
-Date: Thu, 09 Apr 2015 10:30:02 -0400
-Message-ID: <55268CEA.70303@redhat.com>
-References: <1428517939-27968-1-git-send-email-Waiman.Long@hp.com>
-	<20150409070146.GL27490@worktop.programming.kicks-ass.net>
-	<55267BA8.9060009@redhat.com>
-	<20150409141348.GX5029@twins.programming.kicks-ass.net>
+From: "Xie, Huawei" <huawei.xie@intel.com>
+Subject: RE: [dpdk-dev] [snabb-devel] Re: memory barriers in virtq.lua?
+Date: Thu, 9 Apr 2015 15:00:32 +0000
+Message-ID: <C37D651A908B024F974696C65296B57B0F4300E6__19645.3525255949$1428591671$gmane$org@SHSMSX101.ccr.corp.intel.com>
+References: <20150127160126.GA10651@redhat.com>
+	<CADDJ2=M6hwFwooXqUjUc9+JxjW1sVYvKhY9dBavrmMUrej6Ysw@mail.gmail.com>
+	<CAA2XHbcU0tV0NrBXT6oh6LOz7sKm9P8jqD1=T-ZgTahSVM_qwQ@mail.gmail.com>
+	<C37D651A908B024F974696C65296B57B0F42E766@SHSMSX101.ccr.corp.intel.com>
+	<CAA2XHbdNAB1ZsBFYHW7W1yhnkzaSixwKk4KvjU8G=7OLECpZhQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150409141348.GX5029@twins.programming.kicks-ass.net>
+In-Reply-To: <CAA2XHbdNAB1ZsBFYHW7W1yhnkzaSixwKk4KvjU8G=7OLECpZhQ@mail.gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,30 +22,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Waiman Long <Waiman.Long@hp.com>, linux-arch@vger.kernel.org, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Oleg Nesterov <oleg@redhat.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Daniel J Blueman <daniel@numascale.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Scott J Norton <scott.norton@hp.com>, Ingo Molnar <mingo@redhat.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Douglas Hatch <doug.hatch@hp.com>
+To: Luke Gorrie <luke@snabb.co>, "snabb-devel@googlegroups.com" <snabb-devel@googlegroups.com>
+Cc: "dev@dpdk.org" <dev@dpdk.org>, VirtualOpenSystems Technical Team <tech@virtualopensystems.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/09/2015 10:13 AM, Peter Zijlstra wrote:
-> On Thu, Apr 09, 2015 at 09:16:24AM -0400, Rik van Riel wrote:
->> On 04/09/2015 03:01 AM, Peter Zijlstra wrote:
->>> On Wed, Apr 08, 2015 at 02:32:19PM -0400, Waiman Long wrote:
->>>> For a virtual guest with the qspinlock patch, a simple unfair byte lock
->>>> will be used if PV spinlock is not configured in or the hypervisor
->>>> isn't either KVM or Xen. The byte lock works fine with small guest
->>>> of just a few vCPUs. On a much larger guest, however, byte lock can
->>>> have serious performance problem.
->>>
->>> Who cares?
->>
->> There are some people out there running guests with dozens
->> of vCPUs. If the code exists to make those setups run better,
->> is there a good reason not to use it?
-> 
-> Well use paravirt, !paravirt stuff sucks performance wise anyhow.
-> 
-> The question really is: is the added complexity worth the maintenance
-> burden. And I'm just not convinced !paravirt virt is a performance
-> critical target.
 
-Fair enough.
+
+> -----Original Message-----
+> From: dev [mailto:dev-bounces@dpdk.org] On Behalf Of Luke Gorrie
+> Sent: Thursday, April 09, 2015 11:13 AM
+> To: snabb-devel@googlegroups.com
+> Cc: dev@dpdk.org; VirtualOpenSystems Technical Team; Michael S. Tsirkin;
+> virtualization@lists.linux-foundation.org
+> Subject: Re: [dpdk-dev] [snabb-devel] Re: memory barriers in virtq.lua?
+> 
+> Howdy,
+> 
+> On 8 April 2015 at 17:15, Xie, Huawei <huawei.xie@intel.com> wrote:
+> 
+> > luke:
+> > 1. host read the flag. 2 guest toggles the flag 3.guest checks the used.
+> > 4. host update used.
+> > Is this your case?
+> >
+> 
+> Yep, that is exactly the case I mean.
+Thanks. Will provide fix after evaluation.
+> 
+> Cheers,
+> -Luke
