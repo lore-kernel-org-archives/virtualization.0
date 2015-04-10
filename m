@@ -1,15 +1,11 @@
-From: Waiman Long <waiman.long@hp.com>
-Subject: Re: [PATCH v15 13/15] pvqspinlock: Only kick CPU at unlock time
-Date: Thu, 09 Apr 2015 18:06:01 -0400
-Message-ID: <5526F7C9.1020600__5115.19341166622$1428617221$gmane$org@hp.com>
-References: <1428375350-9213-1-git-send-email-Waiman.Long@hp.com>
-	<1428375350-9213-14-git-send-email-Waiman.Long@hp.com>
-	<20150409195721.GA5029@twins.programming.kicks-ass.net>
+From: Greg Kurz <gkurz@linux.vnet.ibm.com>
+Subject: [PATCH v4 0/8] vhost: support for cross endian guests
+Date: Fri, 10 Apr 2015 12:15:00 +0200
+Message-ID: <20150410101500.31843.61248.stgit@bahia.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150409195721.GA5029@twins.programming.kicks-ass.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,28 +15,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Oleg Nesterov <oleg@redhat.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Daniel J Blueman <daniel@numascale.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Scott J Norton <scott.norton@hp.com>, Ingo Molnar <mingo@redhat.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Douglas Hatch <doug.hatch@hp.com>
+To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/09/2015 03:57 PM, Peter Zijlstra wrote:
-> On Mon, Apr 06, 2015 at 10:55:48PM -0400, Waiman Long wrote:
->
->> @@ -219,24 +236,30 @@ static void pv_wait_node(struct mcs_spinlock *node)
->>   }
->>
->>   /*
->> + * Called after setting next->locked = 1&  lock acquired.
->> + * Check if the the CPU has been halted. If so, set the _Q_SLOW_VAL flag
->> + * and put an entry into the lock hash table to be waken up at unlock time.
->>    */
->> -static void pv_kick_node(struct mcs_spinlock *node)
->> +static void pv_scan_next(struct qspinlock *lock, struct mcs_spinlock *node)
-> I'm not too sure about that name change..
+Hi,
 
-It is because the function will no longer kick the cpu. So I change the 
-name to reflect that. I am not good at naming. Please let me know if you 
-have a better name.
+This patchset allows vhost to be used with legacy virtio when guest and host
+have a different endianness.
 
-Cheers,
-Longman
+Patch 7 got rewritten according to Cornelia's and Michael's comments. I have
+also introduced patch 8 that brings BE vnet headers support to tun/macvtap.
+
+This series is enough to have vhost_net working flawlessly. I could
+succesfully reboot guests from ppc64 to ppc64le and vice-versa on ppc64
+and ppc64le hosts.
+
+---
+
+Greg Kurz (8):
+      virtio: introduce virtio_is_little_endian() helper
+      tun: add tun_is_little_endian() helper
+      macvtap: introduce macvtap_is_little_endian() helper
+      vringh: introduce vringh_is_little_endian() helper
+      vhost: introduce vhost_is_little_endian() helper
+      virtio: add explicit big-endian support to memory accessors
+      vhost: feature to set the vring endianness
+      macvtap/tun: add VNET_BE flag
+
+
+ drivers/net/Kconfig              |   12 ++++++
+ drivers/net/macvtap.c            |   69 ++++++++++++++++++++++++++++++++++-
+ drivers/net/tun.c                |   71 +++++++++++++++++++++++++++++++++++-
+ drivers/vhost/Kconfig            |   10 +++++
+ drivers/vhost/vhost.c            |   76 ++++++++++++++++++++++++++++++++++++++
+ drivers/vhost/vhost.h            |   25 ++++++++++---
+ include/linux/virtio_byteorder.h |   24 +++++++-----
+ include/linux/virtio_config.h    |   19 +++++++---
+ include/linux/vringh.h           |   19 +++++++---
+ include/uapi/linux/if_tun.h      |    2 +
+ include/uapi/linux/vhost.h       |    9 +++++
+ 11 files changed, 303 insertions(+), 33 deletions(-)
+
+--
+Greg
