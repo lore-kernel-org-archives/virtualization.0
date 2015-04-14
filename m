@@ -1,18 +1,14 @@
-From: Waiman Long <waiman.long@hp.com>
-Subject: Re: [PATCH v15 09/15] pvqspinlock: Implement simple paravirt support
-	for the qspinlock
-Date: Mon, 13 Apr 2015 12:19:14 -0400
-Message-ID: <552BEC82.8070809__7492.88602169162$1428941983$gmane$org@hp.com>
-References: <1428375350-9213-1-git-send-email-Waiman.Long@hp.com>
-	<1428375350-9213-10-git-send-email-Waiman.Long@hp.com>
-	<20150409181327.GY5029@twins.programming.kicks-ass.net>
-	<5526F218.2070909@hp.com>
-	<20150413150934.GI5029@twins.programming.kicks-ass.net>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH v3 0/6] virtio_balloon: virtio 1 support
+Date: Tue, 14 Apr 2015 10:42:56 +0930
+Message-ID: <87h9sjtsvb.fsf__6571.73964796147$1428975988$gmane$org@rustcorp.com.au>
+References: <1427884468-23930-1-git-send-email-mst@redhat.com>
+	<20150412170141-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150413150934.GI5029@twins.programming.kicks-ass.net>
+In-Reply-To: <20150412170141-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,51 +18,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Oleg Nesterov <oleg@redhat.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Daniel J Blueman <daniel@numascale.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Scott J Norton <scott.norton@hp.com>, Ingo Molnar <mingo@redhat.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Douglas Hatch <doug.hatch@hp.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: virtio-dev@lists.oasis-open.org, Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/13/2015 11:09 AM, Peter Zijlstra wrote:
-> On Thu, Apr 09, 2015 at 05:41:44PM -0400, Waiman Long wrote:
->>>> +__visible void __pv_queue_spin_unlock(struct qspinlock *lock)
->>>> +{
->>>> +	struct __qspinlock *l = (void *)lock;
->>>> +	struct pv_node *node;
->>>> +
->>>> +	if (likely(cmpxchg(&l->locked, _Q_LOCKED_VAL, 0) == _Q_LOCKED_VAL))
->>>> +		return;
->>>> +
->>>> +	/*
->>>> +	 * The queue head has been halted. Need to locate it and wake it up.
->>>> +	 */
->>>> +	node = pv_hash_find(lock);
->>>> +	smp_store_release(&l->locked, 0);
->>> Ah yes, clever that.
->>>
->>>> +	/*
->>>> +	 * At this point the memory pointed at by lock can be freed/reused,
->>>> +	 * however we can still use the PV node to kick the CPU.
->>>> +	 */
->>>> +	if (READ_ONCE(node->state) == vcpu_halted)
->>>> +		pv_kick(node->cpu);
->>>> +}
->>>> +PV_CALLEE_SAVE_REGS_THUNK(__pv_queue_spin_unlock);
->>> However I feel the PV_CALLEE_SAVE_REGS_THUNK thing belongs in the x86
->>> code.
->> That is why I originally put my version of the qspinlock_paravirt.h header
->> file under arch/x86/include/asm. Maybe we should move it back there. Putting
->> the thunk in arch/x86/kernel/kvm.c didn't work when you consider that the
->> Xen code also need that.
-> Well the function is 'generic' and belong here I think. Its just the
-> PV_CALLEE_SAVE_REGS_THUNK thing that arch specific. Should have live in
-> arch/x86/kernel/paravirt-spinlocks.c instead?
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> On Wed, Apr 01, 2015 at 02:57:35PM +0200, Michael S. Tsirkin wrote:
+>> Virtio 1.0 doesn't include a modern balloon device.  At some point we'll likely
+>> define an incompatible interface with a different ID and different
+>> semantics.  But for now, it's not a big effort to support a transitional
+>> balloon device: this has the advantage of supporting existing drivers,
+>> transparently, as well as transports that don't allow mixing virtio 0 and
+>> virtio 1 devices. And balloon is an easy device to test, so it's also useful
+>> for people to test virtio core handling of transitional devices.
+>> 
+>> The only interface issue is with the stats buffer, which has misaligned
+>> fields. We could leave it as is, but this sets a bad precedent that
+>> others might copy by mistake.
+>> 
+>> As we need to change stats code to do byteswaps for virtio 1.0, it seems easy
+>> to fix by prepending a 6 byte reserved field.  I also had to change config
+>> structure field types from __le32 to __u32 to match other devices. This means
+>> we need a couple of __force tags for legacy path but that seems minor.
+>
+> Rusty, what are your thoughts here?
+> How about merging this for 4.1?
 
-Another alternative is to put the PV_CALLEE_SAVE_REGS_THUNK into a 
-separate asm/qspinlock_paravirt.h file and included in the generic 
-qspinlock_paravirt.h file. By putting the thunk with the 
-__pv_queue_spin_unlock together in the same file, we can make the thunk 
-and the unlock fast path (_Q_SLOW_VAL not set) go into two adjacent 
-instruction cachelines. I think that may help a bit in term of performance.
+I disagree with making any changes, other than allowing it to be used
+with VIRTIO_F_VERSION_1.
 
-Cheers,
-Longman
+However it doesn't seem to bother anyone else, so I've applied it for
+4.1.
+
+Thanks,
+Rusty.
