@@ -1,21 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 0/6] virtio_balloon: virtio 1 support
-Date: Wed, 15 Apr 2015 17:45:11 +0200
-Message-ID: <20150415174415-mutt-send-email-mst__49740.4072470546$1429112755$gmane$org@redhat.com>
-References: <1427884468-23930-1-git-send-email-mst@redhat.com>
-	<20150412170141-mutt-send-email-mst@redhat.com>
-	<87h9sjtsvb.fsf@rustcorp.com.au>
-	<20150414102438.11d12347.cornelia.huck@de.ibm.com>
-	<20150414103036-mutt-send-email-mst@redhat.com>
-	<20150414115053.78189c71.cornelia.huck@de.ibm.com>
-	<20150414115440-mutt-send-email-mst@redhat.com>
-	<87r3rmrzhb.fsf@rustcorp.com.au>
+From: Ioan Raicu <iraicu@cs.iit.edu>
+Subject: CFP: 2nd IEEE/ACM International Symposium on Big Data Computing (BDC)
+	2015 -- co-located with IEEE/ACM UCC 2015
+Date: Wed, 15 Apr 2015 18:48:43 -0500
+Message-ID: <552EF8DB.30801@cs.iit.edu>
+Reply-To: iraicu@cs.iit.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87r3rmrzhb.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,219 +17,167 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
+To: publicity@hipeac.net, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 15, 2015 at 10:15:20AM +0930, Rusty Russell wrote:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
-> > On Tue, Apr 14, 2015 at 11:50:53AM +0200, Cornelia Huck wrote:
-> >> On Tue, 14 Apr 2015 11:21:11 +0200
-> >> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> >> 
-> >> > diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-> >> > index f81b220..164e0c2 100644
-> >> > --- a/include/uapi/linux/virtio_balloon.h
-> >> > +++ b/include/uapi/linux/virtio_balloon.h
-> >> > @@ -52,15 +52,31 @@ struct virtio_balloon_config {
-> >> >  #define VIRTIO_BALLOON_S_MEMTOT   5   /* Total amount of memory */
-> >> >  #define VIRTIO_BALLOON_S_NR       6
-> >> > 
-> >> > +/*
-> >> > + * Memory statistics structure.
-> >> > + * Driver fills an array of these structures and passes to device.
-> >> > + *
-> >> > + * NOTE: fields are laid out in a way that would make compiler add padding
-> >> > + * between and after fields, so we have to use compiler-specific attributes to
-> >> > + * pack it, to disable this padding. This also often causes compiler to
-> >> > + * generate suboptimal code.
-> >> > + *
-> >> > + * We maintain this for backwards compatibility, but don't follow this example.
-> >> 
-> >> s/this/the existing statistics structure/
-> >
-> > existing seems redundant. What else? non-existing?
-> >
-> >> > + *
-> >> > + * Do something like the below instead:
-> >> 
-> >> If you want to implement a similar structure, do...
-> >> 
-> >> Just that nobody gets the idea that they are supposed to implement new
-> >> balloon statistics ;)
-> >> 
-> >> > + *     struct virtio_balloon_stat {
-> >> > + *         __virtio16 tag;
-> >> > + *         __u8 reserved[6];
-> >> > + *         __virtio64 val;
-> >> > + *     };
-> >> 
-> >> (...)
-> >> 
-> >> > @@ -225,13 +219,8 @@ static inline void update_stat(struct virtio_balloon *vb, int idx,
-> >> >  			       u16 tag, u64 val)
-> >> >  {
-> >> >  	BUG_ON(idx >= VIRTIO_BALLOON_S_NR);
-> >> > -	if (virtio_has_feature(vb->vdev, VIRTIO_F_VERSION_1)) {
-> >> > -		vb->stats[idx].tag = cpu_to_le32(tag);
-> >> > -		vb->stats[idx].val = cpu_to_le64(val);
-> >> > -	} else {
-> >> > -		vb->legacy_stats[idx].tag = tag;
-> >> > -		vb->legacy_stats[idx].val = val;
-> >> > -	}
-> >> > +	vb->stats[idx].tag = cpu_to_virtio16(vb->vdev, tag);
-> >> 
-> >> Seems that nobody seemed to care much about statistics...
-> >
-> > Or about BE guests ;)
-> >
-> >> > +	vb->stats[idx].val = cpu_to_virtio64(vb->vdev, val);
-> >> >  }
-> >> > 
-> >> >  #define pages_to_bytes(x) ((u64)(x) << PAGE_SHIFT)
-> >> > 
-> >> 
-> >> With these changes merged in:
-> >> 
-> >> Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> >
-> >
-> > OK, here's an updated incremental patch: only comment
-> > changed.
-> 
-> OK, I've merged this with one change:
-> 
-> +static void stats_sg_init(struct virtio_balloon *vb, struct scatterlist *sg)
-> +{
-> +	sg_init_one(sg, vb->stats, sizeof(vb->stats));
-> +}
-> +
-> ...
-> -	sg_init_one(&sg, vb->stats, sizeof(vb->stats));
-> +	stats_sg_init(vb, &sg);
-> 
-> This is no longer a meaningful change, so I removed it.
-> 
-> Here's the final result:
-> 
-> From: Michael S. Tsirkin <mst@redhat.com>
-> Subject: virtio_balloon: transitional interface
-> 
-> Virtio 1.0 doesn't include a modern balloon device.
-> But it's not a big change to support a transitional
-> balloon device: this has the advantage of supporting
-> existing drivers, transparently.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+CALL FOR PAPERS
 
-Fine by me.
+---------------------------------------------------------------------------------------
+2nd IEEE/ACM International Symposium on Big Data Computing (BDC) 2015
+http://datasys.cs.iit.edu/events/BDC2015/
+---------------------------------------------------------------------------------------
+December 7-10, 2015
+St. Raphael Resort, Limassol, Cyprus
+Co-located with 8th IEEE/ACM International Conference on Utility and Cloud Computing
+=======================================================================================
+
+Rapid advances in digital sensors, networks, storage, and computation along with their availability at low cost is leading to the creation of huge collections of data -- dubbed as Big Data. This data has the potential for enabling new insights that can change the way business, science, and governments deliver services to their consumers and can impact society as a whole. This has led to the emergence of the Big Data Computing paradigm focusing on sensing, collection, storage, management and analysis of data from variety of sources to enable new value and insights.
+
+To realize the full potential of Big Data Computing, we need to address several challenges and develop suitable conceptual and technological solutions for dealing them. These include life-cycle management of data, large-scale storage, flexible processing infrastructure, data modeling, scalable machine learning and data analysis algorithms, techniques for sampling and making trade-off between data processing time and accuracy, and dealing with privacy and ethical issues involved in data sensing, storage, processing, and actions.
+
+The International Symposium on Big Data Computing (BDC) 2015 -- held in conjunction with 8th IEEE/ACM International Conference on Utility and Cloud Computing (UCC) 2015, December 7-10, 2015, St. Raphael Resort, Limassol, Cyprus, aims at bringing together international researchers, developers, policy makers, and users and to provide an international forum to present leading research activities, technical solutions, and results on a broad range of topics related to Big Data Computing paradigms, platforms and their applications. The conference features keynotes, technical presentations, posters, and workshops.
+
+TOPICS:
+---------------------------------------------------------------------------------------
+I. Big Data Science
+* Analytics
+* Algorithms for Big Data
+* Energy-efficient Algorithms
+* Big Data Search
+* Big Data Acquisition, Integration, Cleaning, and Best Practices
+* Visualization of Big Data
+
+II. Big Data Infrastructures and Platforms
+* Programming Systems
+* Cyber-Infrastructure
+* Performance evaluation
+* Fault tolerance and reliability
+* I/O and Data management
+* Storage Systems (including file systems, NoSQL, and RDBMS)
+* Resource management
+* Many-Task Computing
+* Many-core computing and accelerators
+
+III. Big Data Security and Policy
+* Management Policies
+* Data Privacy
+* Data Security
+* Big Data Archival and Preservation
+* Big Data Provenance
+
+IV. Big Data Applications
+* Scientific application cases studies on Cloud infrastructure
+* Big Data Applications at Scale
+* Experience Papers with Big Data Application Deployments
+* Data streaming applications
+* Big Data in Social Networks
+* Healthcare Applications
+* Enterprise Applications
+
+IMPORTANT DATES
+---------------------------------------------------------------------------------------
+Papers:
+* Papers Due: 03 July, 2015
+* Author Notifications: 21 August, 2015
+* Final Papers Due: 21 September, 2015
+
+Posters
+* Proceedings-published posters due: 28 August, 2015
+* Notification of acceptance: 18 September, 2015
+* Camera-ready posters due: 21 September, 2015
+
+PAPER SUBMISSION
+---------------------------------------------------------------------------------------
+Authors are invited to submit papers electronically. Submitted manuscripts should be structured as technical papers and may not exceed 10 letter size (8.5 x 11) pages including figures, tables and references using the following templates (latex, pdf, doc). Authors should submit the manuscript in PDF format and make sure that the file will print on a printer that uses letter size (8.5 x 11) paper. The official language of the meeting is English. All manuscripts will be reviewed and will be judged on correctness, originality, technical strength, significance, quality of presentation, and interest and relevance to the conference attendees. Papers conforming to the above guidelines can be submitted through the BDC 2015 paper submission system (https://www.easychair.org/conferences/?conf=bdc201
+ 5).
+
+Submitted papers must represent original unpublished research that is not currently under review for any other conference or journal. Papers not following these guidelines will be rejected without review and further action may be taken, including (but not limited to) notifications sent to the heads of the institutions of the authors and sponsors of the conference. Submissions received after the due date, exceeding length limit, or not appropriately structured may also not be considered. Authors may contact the conference PC Chair for more information.
+
+Selected papers from BDC 2015 will be invited to extend and submit to the Special Issue on Big Data Computing in the IEEE Transaction on Cloud Computing.
+
+ORGANIZATION
+---------------------------------------------------------------------------------------
+General Chairs
+* Rajkumar Buyya, University of Melbourne, Australia
+* George Angelos Papadopoulos,University of Cyprus, Cyprus
+
+Program Committee Chairs (bdc15-chairs@datasys.cs.iit.edu)
+* Ioan Raicu, Illinois Institute of Technology & Argonne National Laboratory, USA
+* Amy Apon, National Science Foundation, USA
+* Manish Parashar, Rutgers University, USA
+
+Program Committee Vice Chairs
+* Omer Rana, Cardiff University, UK
+* Ilkay Altintas, University of California, San Diego, USA
+
+Program Committee Members
+* Alexander Rasin, DePaul University, USA
+* Alok Choudhary, Northwestern University, USA
+* Abhishek Chandra, University of Minnesota, USA
+* Andre Luckow, BMW IT Research Center, USA
+* Daniel Katz, University of Chicago and Argonne National Lab, USA
+* Dongfang Zhao, Illinois Institute of Technology, USA
+* Douglas Thain, University of Notre Dame, USA
+* Florian Schintke, Zuse Institute Berlin, Germany
+* Giuliano Casale, Imperial College London, UK
+* Jaliya Ekanayake, Microsoft, USA
+* Jessica Chen-Burger, Heriot-Watt University, UK
+* Judy Qiu, Indiana University, USA
+* Justin Wozniak, Argonne National Lab, USA
+* Ke Wang, Illinois Institute of Technology, USA
+* Kesheng (John) Wu, Lawrence Berkeley National Lab, USA
+* Kyle Chard, University of Chicago and Argonne National Lab, USA
+* Lavanya Ramakrishnan, Lawrence Berkeley National Laboratory, USA
+* Marco Netto, IBM Research, Brazil
+* Matei Ripeanu, University of British Columbia, Canada
+* Matei Stroila, HERE, USA
+* Nagiza Samatova, North Carolina State University, USA
+* Paolo Missier, Newcastle University, UK
+* Paul Watson, NewCastle University, UK
+* Peter Burnap, Cardiff University, UK
+* Rahul	Potharaju, Microsoft, USA
+* Rajkumar Kettimuthu, Argonne National Lab and University of Chicago, USA
+* Robert Ross, Argonne National Lab, USA
+* Samer Al-Kiswany, University of British Columbia, Canada
+* Scott	Klasky, Oak Ridge National Lab, USA
+* Wei Tang, Argonne National Lab, USA
+* Weidong Shi, University of Houston, USA
+* Xiaolin (Andy) Li, University of Florida, USA
+* Yanlong Yin, Bloomberg, USA
+* Yong Chen, Texas Tech University, USA
+* Yong Zhao, University of Electronic Science and Technology, China
+* Zhao Zhang, University of California, Berkeley, USA
+
+Cyber Co-Chairs
+* Dongfang Zhao, Illinois Institute of Technology, USA
+
+Local Organizing Committee
+* George Angelos Papadopoulos, University of Cyprus, Cyprus
+
+SPONSORSHIP
+---------------------------------------------------------------------------------------
+IEEE*, ACM*, and IIT*
+*Final approval on sponsorship is pending.
 
 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 6a356e344f82..9db546ebe5a1 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -214,8 +219,8 @@ static inline void update_stat(struct virtio_balloon *vb, int idx,
->  			       u16 tag, u64 val)
->  {
->  	BUG_ON(idx >= VIRTIO_BALLOON_S_NR);
-> -	vb->stats[idx].tag = tag;
-> -	vb->stats[idx].val = val;
-> +	vb->stats[idx].tag = cpu_to_virtio16(vb->vdev, tag);
-> +	vb->stats[idx].val = cpu_to_virtio64(vb->vdev, val);
->  }
->  
->  #define pages_to_bytes(x) ((u64)(x) << PAGE_SHIFT)
-> @@ -283,18 +288,27 @@ static void virtballoon_changed(struct virtio_device *vdev)
->  
->  static inline s64 towards_target(struct virtio_balloon *vb)
->  {
-> -	__le32 v;
->  	s64 target;
-> +	u32 num_pages;
->  
-> -	virtio_cread(vb->vdev, struct virtio_balloon_config, num_pages, &v);
-> +	virtio_cread(vb->vdev, struct virtio_balloon_config, num_pages,
-> +		     &num_pages);
->  
-> -	target = le32_to_cpu(v);
-> +	/* Legacy balloon config space is LE, unlike all other devices. */
-> +	if (!virtio_has_feature(vb->vdev, VIRTIO_F_VERSION_1))
-> +		num_pages = le32_to_cpu((__force __le32)num_pages);
-> +
-> +	target = num_pages;
->  	return target - vb->num_pages;
->  }
->  
->  static void update_balloon_size(struct virtio_balloon *vb)
->  {
-> -	__le32 actual = cpu_to_le32(vb->num_pages);
-> +	u32 actual = vb->num_pages;
-> +
-> +	/* Legacy balloon config space is LE, unlike all other devices. */
-> +	if (!virtio_has_feature(vb->vdev, VIRTIO_F_VERSION_1))
-> +		actual = (__force u32)cpu_to_le32(actual);
->  
->  	virtio_cwrite(vb->vdev, struct virtio_balloon_config, actual,
->  		      &actual);
-> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-> index 4b0488f20b2e..984169a819ee 100644
-> --- a/include/uapi/linux/virtio_balloon.h
-> +++ b/include/uapi/linux/virtio_balloon.h
-> @@ -25,6 +25,7 @@
->   * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
->   * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
->   * SUCH DAMAGE. */
-> +#include <linux/types.h>
->  #include <linux/virtio_ids.h>
->  #include <linux/virtio_config.h>
->  
-> @@ -38,9 +39,9 @@
->  
->  struct virtio_balloon_config {
->  	/* Number of pages host wants Guest to give up. */
-> -	__le32 num_pages;
-> +	__u32 num_pages;
->  	/* Number of pages we've actually got in balloon. */
-> -	__le32 actual;
-> +	__u32 actual;
->  };
->  
->  #define VIRTIO_BALLOON_S_SWAP_IN  0   /* Amount of memory swapped in */
-> @@ -51,9 +52,32 @@ struct virtio_balloon_config {
->  #define VIRTIO_BALLOON_S_MEMTOT   5   /* Total amount of memory */
->  #define VIRTIO_BALLOON_S_NR       6
->  
-> +/*
-> + * Memory statistics structure.
-> + * Driver fills an array of these structures and passes to device.
-> + *
-> + * NOTE: fields are laid out in a way that would make compiler add padding
-> + * between and after fields, so we have to use compiler-specific attributes to
-> + * pack it, to disable this padding. This also often causes compiler to
-> + * generate suboptimal code.
-> + *
-> + * We maintain this statistics structure format for backwards compatibility,
-> + * but don't follow this example.
-> + *
-> + * If implementing a similar structure, do something like the below instead:
-> + *     struct virtio_balloon_stat {
-> + *         __virtio16 tag;
-> + *         __u8 reserved[6];
-> + *         __virtio64 val;
-> + *     };
-> + *
-> + * In other words, add explicit reserved fields to align field and
-> + * structure boundaries at field size, avoiding compiler padding
-> + * without the packed attribute.
-> + */
->  struct virtio_balloon_stat {
-> -	__u16 tag;
-> -	__u64 val;
-> +	__virtio16 tag;
-> +	__virtio64 val;
->  } __attribute__((packed));
->  
->  #endif /* _LINUX_VIRTIO_BALLOON_H */
+-- 
+=================================================================
+Ioan Raicu, Ph.D.
+Assistant Professor, Illinois Institute of Technology (IIT)
+Guest Research Faculty, Argonne National Laboratory (ANL)
+=================================================================
+Data-Intensive Distributed Systems Laboratory, CS/IIT
+Distributed Systems Laboratory, MCS/ANL
+=================================================================
+Editor: IEEE TCC, Springer Cluster, Springer JoCCASA
+Chair:  IEEE/ACM MTAGS, ACM ScienceCloud
+=================================================================
+Cel:      1-847-722-0876
+Office:   1-312-567-5704
+Email:    iraicu@cs.iit.edu
+Web:      http://www.cs.iit.edu/~iraicu/
+Web:      http://datasys.cs.iit.edu/
+LinkedIn: http://www.linkedin.com/in/ioanraicu
+Google:   http://scholar.google.com/citations?user=jE73HYAAAAAJ
+=================================================================
+=================================================================
