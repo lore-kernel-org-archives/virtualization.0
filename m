@@ -1,7 +1,7 @@
 From: Caspar Zhang <caspar@casparzhang.com>
-Subject: [PATCH] Revert "vhost: fix release path lockdep checks"
-Date: Fri, 17 Apr 2015 15:51:14 +0800
-Message-ID: <ea63ebfa465bca23dc3d2c3261464ffd7360703c.1429256980.git.jinli.zjl__25844.733688473$1429284452$gmane$org@alibaba-inc.com>
+Subject: [PATCH RESEND] Revert "vhost: fix release path lockdep checks"
+Date: Fri, 17 Apr 2015 15:58:55 +0800
+Message-ID: <433ea26d7655be7b12fb3f3a830acce16fd51f41.1429257475.git.jinli.zjl__41730.5704010234$1429284454$gmane$org@alibaba-inc.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -19,14 +19,11 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Caspar Zhang <jinli.zjl@alibaba-inc.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This reverts commit ea5d404655ba3b356d0c06d6a3c4f24112124522.
+This reverts commit ea5d404655ba ("vhost: fix release path lockdep checks")
 
-In commit 47283bef7ed356629467d1fac61687756e48f254(vhost: move memory
-pointer to VQs), rcu_ operation has been replaced by mutex, and original
-issue fixed in sea5d404655 has gone as well, we need to remove the
-no-longer-used `locked' var by reverting the orignal patch.
-
-Signed-off-by: Caspar Zhang <jinli.zjl@alibaba-inc.com>
+In commit 47283bef7ed3 ("vhost: move memory pointer to VQs"), RCU
+operations have been replaced by mutex, we need to remove the no longer
+used `locked' parameter by reverting original patch.
 
 Conflicts:
 	drivers/vhost/net.c
