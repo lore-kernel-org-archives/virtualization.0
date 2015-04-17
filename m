@@ -1,13 +1,11 @@
-From: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Subject: Re: [PATCH v4 0/8] vhost: support for cross endian guests
-Date: Fri, 17 Apr 2015 11:18:13 +0200
-Message-ID: <20150417111813.2b795b2c@bahia.local>
-References: <20150410101500.31843.61248.stgit@bahia.local>
+From: Caspar Zhang <caspar@casparzhang.com>
+Subject: [PATCH] Revert "vhost: fix release path lockdep checks"
+Date: Fri, 17 Apr 2015 15:51:14 +0800
+Message-ID: <ea63ebfa465bca23dc3d2c3261464ffd7360703c.1429256980.git.jinli.zjl__25844.733688473$1429284452$gmane$org@alibaba-inc.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150410101500.31843.61248.stgit@bahia.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,64 +16,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Caspar Zhang <jinli.zjl@alibaba-inc.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 10 Apr 2015 12:15:00 +0200
-Greg Kurz <gkurz@linux.vnet.ibm.com> wrote:
+This reverts commit ea5d404655ba3b356d0c06d6a3c4f24112124522.
 
-> Hi,
-> 
-> This patchset allows vhost to be used with legacy virtio when guest and host
-> have a different endianness.
-> 
-> Patch 7 got rewritten according to Cornelia's and Michael's comments. I have
-> also introduced patch 8 that brings BE vnet headers support to tun/macvtap.
-> 
-> This series is enough to have vhost_net working flawlessly. I could
-> succesfully reboot guests from ppc64 to ppc64le and vice-versa on ppc64
-> and ppc64le hosts.
-> 
+In commit 47283bef7ed356629467d1fac61687756e48f254(vhost: move memory
+pointer to VQs), rcu_ operation has been replaced by mutex, and original
+issue fixed in sea5d404655 has gone as well, we need to remove the
+no-longer-used `locked' var by reverting the orignal patch.
 
-Michael,
+Signed-off-by: Caspar Zhang <jinli.zjl@alibaba-inc.com>
 
-I am ready to post v5 with the changes suggested by Cornelia... Do you have any
-extra comments on this v4 ? 
+Conflicts:
+	drivers/vhost/net.c
+	drivers/vhost/vhost.c
+	drivers/vhost/vhost.h
 
---
-Greg
+Signed-off-by: Caspar Zhang <jinli.zjl@alibaba-inc.com>
+---
+ drivers/vhost/net.c   | 2 +-
+ drivers/vhost/vhost.c | 6 +++---
+ drivers/vhost/vhost.h | 2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-> ---
-> 
-> Greg Kurz (8):
->       virtio: introduce virtio_is_little_endian() helper
->       tun: add tun_is_little_endian() helper
->       macvtap: introduce macvtap_is_little_endian() helper
->       vringh: introduce vringh_is_little_endian() helper
->       vhost: introduce vhost_is_little_endian() helper
->       virtio: add explicit big-endian support to memory accessors
->       vhost: feature to set the vring endianness
->       macvtap/tun: add VNET_BE flag
-> 
-> 
->  drivers/net/Kconfig              |   12 ++++++
->  drivers/net/macvtap.c            |   69 ++++++++++++++++++++++++++++++++++-
->  drivers/net/tun.c                |   71 +++++++++++++++++++++++++++++++++++-
->  drivers/vhost/Kconfig            |   10 +++++
->  drivers/vhost/vhost.c            |   76 ++++++++++++++++++++++++++++++++++++++
->  drivers/vhost/vhost.h            |   25 ++++++++++---
->  include/linux/virtio_byteorder.h |   24 +++++++-----
->  include/linux/virtio_config.h    |   19 +++++++---
->  include/linux/vringh.h           |   19 +++++++---
->  include/uapi/linux/if_tun.h      |    2 +
->  include/uapi/linux/vhost.h       |    9 +++++
->  11 files changed, 303 insertions(+), 33 deletions(-)
-> 
-> --
-> Greg
-> 
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
-> 
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 7d137a4..26c4837 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -793,7 +793,7 @@ static int vhost_net_release(struct inode *inode, struct file *f)
+ 	vhost_net_stop(n, &tx_sock, &rx_sock);
+ 	vhost_net_flush(n);
+ 	vhost_dev_stop(&n->dev);
+-	vhost_dev_cleanup(&n->dev, false);
++	vhost_dev_cleanup(&n->dev);
+ 	vhost_net_vq_reset(n);
+ 	if (tx_sock)
+ 		sockfd_put(tx_sock);
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 2ee2826..c6640d3 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -418,7 +418,7 @@ void vhost_dev_reset_owner(struct vhost_dev *dev, struct vhost_memory *memory)
+ {
+ 	int i;
+ 
+-	vhost_dev_cleanup(dev, true);
++	vhost_dev_cleanup(dev);
+ 
+ 	/* Restore memory to default empty mapping. */
+ 	memory->nregions = 0;
+@@ -444,8 +444,8 @@ void vhost_dev_stop(struct vhost_dev *dev)
+ }
+ EXPORT_SYMBOL_GPL(vhost_dev_stop);
+ 
+-/* Caller should have device mutex if and only if locked is set */
+-void vhost_dev_cleanup(struct vhost_dev *dev, bool locked)
++/* Caller should have device mutex */
++void vhost_dev_cleanup(struct vhost_dev *dev)
+ {
+ 	int i;
+ 
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index 8c1c792..cc9a742 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -127,7 +127,7 @@ bool vhost_dev_has_owner(struct vhost_dev *dev);
+ long vhost_dev_check_owner(struct vhost_dev *);
+ struct vhost_memory *vhost_dev_reset_owner_prepare(void);
+ void vhost_dev_reset_owner(struct vhost_dev *, struct vhost_memory *);
+-void vhost_dev_cleanup(struct vhost_dev *, bool locked);
++void vhost_dev_cleanup(struct vhost_dev *);
+ void vhost_dev_stop(struct vhost_dev *);
+ long vhost_dev_ioctl(struct vhost_dev *, unsigned int ioctl, void __user *argp);
+ long vhost_vring_ioctl(struct vhost_dev *d, int ioctl, void __user *argp);
+-- 
+2.2.2
