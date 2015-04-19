@@ -1,11 +1,13 @@
-From: Caspar Zhang <caspar@casparzhang.com>
-Subject: [PATCH RESEND] Revert "vhost: fix release path lockdep checks"
-Date: Fri, 17 Apr 2015 15:58:55 +0800
-Message-ID: <433ea26d7655be7b12fb3f3a830acce16fd51f41.1429257475.git.jinli.zjl__41730.5704010234$1429284454$gmane$org@alibaba-inc.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio: fix typo in vring_need_event() doc comment
+Date: Sun, 19 Apr 2015 14:36:38 +0930
+Message-ID: <878udor9k1.fsf@rustcorp.com.au>
+References: <1429101336-13100-1-git-send-email-stefanha@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1429101336-13100-1-git-send-email-stefanha@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,77 +17,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Caspar Zhang <jinli.zjl@alibaba-inc.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This reverts commit ea5d404655ba ("vhost: fix release path lockdep checks")
+Stefan Hajnoczi <stefanha@redhat.com> writes:
+> Here the "other side" refers to the guest or host.
+>
+> Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
 
-In commit 47283bef7ed3 ("vhost: move memory pointer to VQs"), RCU
-operations have been replaced by mutex, we need to remove the no longer
-used `locked' parameter by reverting original patch.
+Applied.
 
-Conflicts:
-	drivers/vhost/net.c
-	drivers/vhost/vhost.c
-	drivers/vhost/vhost.h
+Thanks!
+Rusty.
 
-Signed-off-by: Caspar Zhang <jinli.zjl@alibaba-inc.com>
----
- drivers/vhost/net.c   | 2 +-
- drivers/vhost/vhost.c | 6 +++---
- drivers/vhost/vhost.h | 2 +-
- 3 files changed, 5 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 7d137a4..26c4837 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -793,7 +793,7 @@ static int vhost_net_release(struct inode *inode, struct file *f)
- 	vhost_net_stop(n, &tx_sock, &rx_sock);
- 	vhost_net_flush(n);
- 	vhost_dev_stop(&n->dev);
--	vhost_dev_cleanup(&n->dev, false);
-+	vhost_dev_cleanup(&n->dev);
- 	vhost_net_vq_reset(n);
- 	if (tx_sock)
- 		sockfd_put(tx_sock);
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 2ee2826..c6640d3 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -418,7 +418,7 @@ void vhost_dev_reset_owner(struct vhost_dev *dev, struct vhost_memory *memory)
- {
- 	int i;
- 
--	vhost_dev_cleanup(dev, true);
-+	vhost_dev_cleanup(dev);
- 
- 	/* Restore memory to default empty mapping. */
- 	memory->nregions = 0;
-@@ -444,8 +444,8 @@ void vhost_dev_stop(struct vhost_dev *dev)
- }
- EXPORT_SYMBOL_GPL(vhost_dev_stop);
- 
--/* Caller should have device mutex if and only if locked is set */
--void vhost_dev_cleanup(struct vhost_dev *dev, bool locked)
-+/* Caller should have device mutex */
-+void vhost_dev_cleanup(struct vhost_dev *dev)
- {
- 	int i;
- 
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 8c1c792..cc9a742 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -127,7 +127,7 @@ bool vhost_dev_has_owner(struct vhost_dev *dev);
- long vhost_dev_check_owner(struct vhost_dev *);
- struct vhost_memory *vhost_dev_reset_owner_prepare(void);
- void vhost_dev_reset_owner(struct vhost_dev *, struct vhost_memory *);
--void vhost_dev_cleanup(struct vhost_dev *, bool locked);
-+void vhost_dev_cleanup(struct vhost_dev *);
- void vhost_dev_stop(struct vhost_dev *);
- long vhost_dev_ioctl(struct vhost_dev *, unsigned int ioctl, void __user *argp);
- long vhost_vring_ioctl(struct vhost_dev *d, int ioctl, void __user *argp);
--- 
-2.2.2
+> ---
+>  include/uapi/linux/virtio_ring.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
+> index a3318f3..915980a 100644
+> --- a/include/uapi/linux/virtio_ring.h
+> +++ b/include/uapi/linux/virtio_ring.h
+> @@ -155,7 +155,7 @@ static inline unsigned vring_size(unsigned int num, unsigned long align)
+>  }
+>  
+>  /* The following is used with USED_EVENT_IDX and AVAIL_EVENT_IDX */
+> -/* Assuming a given event_idx value from the other size, if
+> +/* Assuming a given event_idx value from the other side, if
+>   * we have just incremented index from old to new_idx,
+>   * should we trigger an event? */
+>  static inline int vring_need_event(__u16 event_idx, __u16 new_idx, __u16 old)
+> -- 
+> 2.1.0
