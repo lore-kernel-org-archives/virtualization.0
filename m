@@ -1,19 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH 00/18] virtio-blk: Support
-	"VIRTIO_CONFIG_S_NEEDS_RESET"
-Date: Tue, 21 Apr 2015 08:09:46 +0200
-Message-ID: <20150421060946.GA31186@redhat.com>
-References: <1429257573-7359-1-git-send-email-famz@redhat.com>
-	<20150420175905-mutt-send-email-mst@redhat.com>
-	<20150421023700.GC8048@fam-t430.nay.redhat.com>
-	<20150421070941-mutt-send-email-mst@redhat.com>
-	<20150421055033.GB21030@fam-t430.nay.redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 00/18] virtio-blk: Support "VIRTIO_CONFIG_S_NEEDS_RESET"
+Date: Tue, 21 Apr 2015 08:52:36 +0200
+Message-ID: <5535F3B4.20708@redhat.com>
+References: <1429257573-7359-1-git-send-email-famz@redhat.com>	<20150420175905-mutt-send-email-mst@redhat.com>	<55354F0A.5080809@redhat.com>
+	<20150420223113-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20150421055033.GB21030@fam-t430.nay.redhat.com>
+In-Reply-To: <20150420223113-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,91 +18,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Fam Zheng <famz@redhat.com>
-Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>, Stefan Hajnoczi <stefanha@redhat.com>, Amit Shah <amit.shah@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Fam Zheng <famz@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>, Stefan Hajnoczi <stefanha@redhat.com>, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBBcHIgMjEsIDIwMTUgYXQgMDE6NTA6MzNQTSArMDgwMCwgRmFtIFpoZW5nIHdyb3Rl
-Ogo+IE9uIFR1ZSwgMDQvMjEgMDc6MjIsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiA+IE9u
-IFR1ZSwgQXByIDIxLCAyMDE1IGF0IDEwOjM3OjAwQU0gKzA4MDAsIEZhbSBaaGVuZyB3cm90ZToK
-PiA+ID4gT24gTW9uLCAwNC8yMCAxOTozNiwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+ID4g
-PiA+IE9uIEZyaSwgQXByIDE3LCAyMDE1IGF0IDAzOjU5OjE1UE0gKzA4MDAsIEZhbSBaaGVuZyB3
-cm90ZToKPiA+ID4gPiA+IEN1cnJlbnRseSwgdmlydGlvIGNvZGUgY2hvb3NlcyB0byBraWxsIFFF
-TVUgaWYgdGhlIGd1ZXN0IHBhc3NlcyBhbnkgaW52YWxpZAo+ID4gPiA+ID4gZGF0YSB3aXRoIHZy
-aW5nLgo+ID4gPiA+ID4gVGhhdCBoYXMgZHJhd2JhY2tzIHN1Y2ggYXMgbG9zaW5nIHVuc2F2ZWQg
-ZGF0YSAoZS5nLiB3aGVuCj4gPiA+ID4gPiBndWVzdCB1c2VyIGlzIHdyaXRpbmcgYSB2ZXJ5IGxv
-bmcgZW1haWwpLCBvciBwb3NzaWJsZSBkZW5pYWwgb2Ygc2VydmljZSBpbgo+ID4gPiA+ID4gYSBu
-ZXN0ZWQgdm0gdXNlIGNhc2Ugd2hlcmUgdmlydGlvIGRldmljZSBpcyBwYXNzZWQgdGhyb3VnaC4K
-PiA+ID4gPiA+IAo+ID4gPiA+ID4gdmlydGlvLTEgaGFzIGludHJvZHVjZWQgYSBuZXcgc3RhdHVz
-IGJpdCAiTkVFRFMgUkVTRVQiIHdoaWNoIGNvdWxkIGJlIHVzZWQgdG8KPiA+ID4gPiA+IGltcHJv
-dmUgdGhpcyBieSBjb21tdW5pY2F0aW5nIHRoZSBlcnJvciBzdGF0ZSBiZXR3ZWVuIHZpcnRpbyBk
-ZXZpY2VzIGFuZAo+ID4gPiA+ID4gZHJpdmVycy4gVGhlIGRldmljZSBub3RpZmllcyBndWVzdCB1
-cG9uIHNldHRpbmcgdGhlIGJpdCwgdGhlbiB0aGUgZ3Vlc3QgZHJpdmVyCj4gPiA+ID4gPiBzaG91
-bGQgZGV0ZWN0IHRoaXMgYml0IGFuZCByZXBvcnQgdG8gdXNlcnNwYWNlLCBvciByZWNvdmVyIHRo
-ZSBkZXZpY2UgYnkKPiA+ID4gPiA+IHJlc2V0dGluZyBpdC4KPiA+ID4gPiAKPiA+ID4gPiBVbmZv
-cnR1bmF0ZWx5LCB2aXJ0aW8gMSBzcGVjIGRvZXMgbm90IGhhdmUgYSBjb25mb3JtYW5jZSBzdGF0
-ZW1lbnQKPiA+ID4gPiB0aGF0IHJlcXVpcmVzIGRyaXZlciB0byByZWNvdmVyLiBXZSBtZXJlbHkg
-aGF2ZSBhIG5vbi1ub3JtYXRpdmUgbG9va2luZwo+ID4gPiA+IHRleHQ6Cj4gPiA+ID4gCU5vdGU6
-IEZvciBleGFtcGxlLCB0aGUgZHJpdmVyIGNhbuKAmXQgYXNzdW1lIHJlcXVlc3RzIGluIGZsaWdo
-dAo+ID4gPiA+IAl3aWxsIGJlIGNvbXBsZXRlZCBpZiBERVZJQ0VfTkVFRFNfUkVTRVQgaXMgc2V0
-LCBub3IgY2FuIGl0IGFzc3VtZSB0aGF0Cj4gPiA+ID4gCXRoZXkgaGF2ZSBub3QgYmVlbiBjb21w
-bGV0ZWQuIEEgZ29vZCBpbXBsZW1lbnRhdGlvbiB3aWxsIHRyeSB0byByZWNvdmVyCj4gPiA+ID4g
-CWJ5IGlzc3VpbmcgYSByZXNldC4KPiA+ID4gPiAKPiA+ID4gPiBJbXBsZW1lbnRpbmcgdGhpcyBy
-ZXNldCBmb3IgYWxsIGRldmljZXMgaW4gYSByYWNlLWZyZWUgbWFubmVyIG1pZ2h0IGFsc28KPiA+
-ID4gPiBiZSBmYXIgZnJvbSB0cml2aWFsLiAgSSB0aGluayB3ZSdkIG5lZWQgYSBmZWF0dXJlIGJp
-dCBmb3IgdGhpcy4KPiA+ID4gPiBPVE9IIGFzIGxvbmcgYXMgd2UgbWFrZSB0aGlzIGEgbmV3IGZl
-YXR1cmUsIHdvdWxkIGFuIGFiaWxpdHkgdG8KPiA+ID4gPiByZXNldCBhIHNpbmdsZSBWUSBiZSBh
-IGJldHRlciBtYXRjaCBmb3Igd2hhdCB5b3UgYXJlIHRyeWluZyB0bwo+ID4gPiA+IGFjaGlldmU/
-Cj4gPiA+IAo+ID4gPiBJIHRoaW5rIHRoYXQgaXMgdG9vIGNvbXBsaWNhdGVkIGFzIGEgcmVjb3Zl
-cnkgbWVhc3VyZSwgYSBkZXZpY2UgbGV2ZWwgcmVzZXR0aW5nCj4gPiA+IHdpbGwgYmUgYmV0dGVy
-IHRvIGdldCB0byBhIGRldGVybWluaXN0aWMgc3RhdGUsIGF0IGxlYXN0Lgo+ID4gCj4gPiBRdWVz
-dGlvbiB3b3VsZCBiZSwgaG93IGhhcmQgaXMgaXQgdG8gc3RvcCBob3N0IGZyb20gdXNpbmcgYWxs
-IHF1ZXVlcywKPiA+IHJldHJpZXZlIGFsbCBob3N0IE9TIHN0YXRlIGFuZCByZS1wcm9ncmFtIGl0
-IGludG8gdGhlIGRldmljZS4KPiA+IElmIHdlIG5lZWQgdG8gc2hhZG93IGFsbCBPUyBzdGF0ZSB3
-aXRoaW4gdGhlIGRyaXZlciwgdGhlbiB0aGF0J3MgYSBsb3QKPiA+IG9mIG5vdCB3ZWxsIHRlc3Rl
-ZCBjb2RlIHdpdGggYSBwb3NzaWJpbGl0eSBvZiBpbnRyb2R1Y2luZyBtb3JlIGJ1Z3MuCj4gCj4g
-SSBkb24ndCB1bmRlcnN0YW5kIHRoZSBxdWVzdGlvbi4gSW4gdGhpcyBzZXJpZXMgdGhlIHZpcnRp
-by1ibGsgZGV2aWNlIHdpbGwgbm90Cj4gcG9wIGFueSBtb3JlIHJlcXVlc3RzLCBhbmQgYXMgbG9u
-ZyBhcyB0aGUgcmVzZXQgaXMgcHJvcGVybHkgaGFuZGxlZCwgYm90aCBndWVzdAo+IGFuZCBob3N0
-IHNob3VsZCBnbyBiYWNrIHRvIGEgZ29vZCBzdGF0ZS4KPiA+IAo+ID4gPiA+IAo+ID4gPiA+ID4g
-VGhpcyBzZXJpZXMgbWFrZXMgbmVjZXNzYXJ5IGNoYW5nZXMgaW4gdmlydGlvIGNvcmUgY29kZSwg
-YmFzZWQgb24gd2hpY2gKPiA+ID4gPiA+IHZpcnRpby1ibGsgaXMgY29udmVydGVkLiBPdGhlciBk
-ZXZpY2VzIG5vdyBrZWVwIHRoZSBleGlzdGluZyBiZWhhdmlvciBieQo+ID4gPiA+ID4gcGFzc2lu
-ZyBpbiAiZXJyb3JfYWJvcnQiLiBUaGV5IHdpbGwgYmUgY29udmVydGVkIGluIGZvbGxvd2luZyBz
-ZXJpZXMuIFRoZSBMaW51eAo+ID4gPiA+ID4gZHJpdmVyIHBhcnQgd2lsbCBhbHNvIGJlIHdvcmtl
-ZCBvbi4KPiA+ID4gPiA+IAo+ID4gPiA+ID4gT25lIGNvbmNlcm4gd2l0aCB0aGlzIGJlaGF2aW9y
-IGNoYW5nZSBpcyB0aGF0IGl0J3Mgbm93IGhhcmRlciB0byBub3RpY2UgdGhlCj4gPiA+ID4gPiBh
-Y3R1YWwgZHJpdmVyIGJ1ZyB0aGF0IGNhdXNlZCB0aGUgZXJyb3IsIGFzIHRoZSBndWVzdCBjb250
-aW51ZXMgdG8gcnVuLiAgVG8KPiA+ID4gPiA+IGFkZHJlc3MgdGhhdCwgd2UgY291bGQgcHJvYmFi
-bHkgYWRkIGEgbmV3IGVycm9yIGFjdGlvbiBvcHRpb24gdG8gdmlydGlvCj4gPiA+ID4gPiBkZXZp
-Y2VzLCAgc2ltaWxhciB0byB0aGUgInJlYWQvd3JpdGUgd2Vycm9yIiBpbiBibG9jayBsYXllciwg
-c28gdGhlIHZtIGNvdWxkIGJlCj4gPiA+ID4gPiBwYXVzZWQgYW5kIHRoZSBtYW5hZ2VtZW50IHdp
-bGwgZ2V0IGFuIGV2ZW50IGluIFFNUCBsaWtlIHB2cGFuaWMuICBUaGlzIHdvcmsgY2FuCj4gPiA+
-ID4gPiBiZSBkb25lIG9uIHRvcC4KPiA+ID4gPiAKPiA+ID4gPiBBdCB0aGUgYXJjaGl0ZWN0dXJh
-bCBsZXZlbCwgdGhhdCdzIG9ubHkgb25lIGNvbmNlcm4uIE90aGVycyB3b3VsZCBiZQo+ID4gPiA+
-IC0gd29ya2xvYWRzIHN1Y2ggYXMgb3BlbnN0YWNrIGhhbmRsZSBndWVzdCBjcmFzaCBiZXR0ZXIg
-dGhhbgo+ID4gPiA+ICAgYSBndWVzdCB0aGF0J3MgZS5nLiBzbG93IGJlY2F1c2Ugb2YgYSBtZW1v
-cnkgbGVhawo+ID4gPiAKPiA+ID4gV2hhdCBtZW1vcnkgbGVhayBhcmUgeW91IHJlZmVycmluZyB0
-bz8KPiA+IAo+ID4gVGhhdCB3YXMganVzdCBhbiBleGFtcGxlLiAgSWYgaG9zdCBkZXRlY3RzIGEg
-bWFsZm9ybWVkIHJpbmcsIGl0IHdpbGwKPiA+IGNyYXNoLiAgQnV0IG9mdGVuIGl0IGRvZXNuJ3Qs
-IHJlc3VsdCBpcyBidWZmZXJzIG5vdCBiZWluZyB1c2VkLCBzbyBndWVzdAo+ID4gY2FuJ3QgZnJl
-ZSB0aGVtIHVwLgo+ID4gCj4gPiA+ID4gLSBpdCdzIGVhc2llciBmb3IgZ3Vlc3RzIHRvIHByb2Jl
-IGhvc3QgZm9yIHNlY3VyaXR5IGlzc3Vlcwo+ID4gPiA+ICAgaWYgZ3Vlc3QgaXNuJ3Qga2lsbGVk
-Cj4gPiA+ID4gLSBndWVzdCBjYW4gZmxvb2QgaG9zdCBsb2cgd2l0aCBndWVzdC10cmlnZ2VyZWQg
-ZXJyb3JzCj4gPiA+IAo+ID4gPiBXZSBjYW4gc3RpbGwgYWJvcnQoKSBpZiBndWVzdCBpcyB0cmln
-Z2VyaW5nIGVycm9yIHRvbyBxdWlja2x5Lgo+ID4gCj4gPiAKPiA+IEFic29sdXRlbHksIGFuZCBp
-ZiBpdCBsb29rZWQgbGlrZSBJJ20gYWdhaW5zdCBlcnJvciBkZXRlY3Rpb24gYW5kCj4gPiByZWNv
-dmVyeSwgdGhpcyB3YXMgbm90IG15IGludGVudC4KPiA+IAo+ID4gSSBhbSBtZXJlbHkgc2F5aW5n
-IHdlIGNhbid0IGFwcGx5IHRoaXMgcGF0Y2hzZXQgYXMgaXMsIGRlZmVycmluZwo+ID4gYWRkcmVz
-c2luZyB0aGUgaXNzdWVzIHRvIHBhdGNoZXMgb24gdG9wLgo+ID4gCj4gPiBCdXQgSSBoYXZlIGFu
-IGlkZWE6IHJlZmFjdG9yIHRoZSBjb2RlIHRvIHVzZSBlcnJvcl9hYm9ydC4gCj4gCj4gVGhhdCBp
-cyBwYXRjaCAxLTkgb2YgdGhpcyBzZXJpZXMuIE9yIGRvIHlvdSBtZWFuIGFsc28gcmVmYWN0b3Ig
-YW5kIHBhc3MKPiBlcnJvcl9hYm9ydCB0byB0aGUgbWVtb3J5IGNvcmU/Cj4gCj4gRmFtCgpTbyBp
-ZiB5b3UgbGlrZSBqdXN0IHBhdGNoZXMgMS05IGFwcGxpZWQsIHRoaXMgc291bmRzCnJlYXNvbmFi
-bGUuIEknbGwgcHJvdmlkZSByZXZpZXcgY29tbWVudHMgb24gdGhlIGluZGl2aWR1YWwgcGF0Y2hl
-cy4KCgoKPiA+VGhpcyB3YXkgd2UKPiA+IGNhbiBhcHBseSB0aGUgcGF0Y2hzZXQgd2l0aG91dCBt
-YWtpbmcgZnVuY3Rpb25hbCBjaGFuZ2VzLCBhbmQgeW91IGNhbgo+ID4gbWFrZSBwcm9ncmVzcyB0
-byBjb21wbGV0ZSB0aGlzLCBvbiB0b3AuCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
-bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
-bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+
+
+On 20/04/2015 22:34, Michael S. Tsirkin wrote:
+> On Mon, Apr 20, 2015 at 09:10:02PM +0200, Paolo Bonzini wrote:
+>>
+>>
+>> On 20/04/2015 19:36, Michael S. Tsirkin wrote:
+>>> At the implementation level, there's one big issue you seem to have
+>>> missed: DMA to invalid memory addresses causes a crash in memory core.
+>>> I'm not sure whether it makes sense to recover from virtio core bugs
+>>> when we can't recover from device bugs.
+>>
+>> What do you mean exactly?  DMA to invalid memory addresses causes
+>> address_space_map to return a "short read".
+>>
+>> Paolo
+> 
+> I mean, first of all, a bunch of virtio_XXX_phys calls.
+> These eventually call qemu_get_ram_ptr, which internally calls
+> qemu_get_ram_block and ramblock_ptr.
+> Both abort on errors.
+
+address_space_translate and memory_access_size should ensure they don't.
+
+Paolo
