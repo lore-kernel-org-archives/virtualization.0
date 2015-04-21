@@ -1,16 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 00/18] virtio-blk: Support "VIRTIO_CONFIG_S_NEEDS_RESET"
-Date: Mon, 20 Apr 2015 22:34:28 +0200
-Message-ID: <20150420223113-mutt-send-email-mst@redhat.com>
+From: Fam Zheng <famz@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH 00/18] virtio-blk: Support
+	"VIRTIO_CONFIG_S_NEEDS_RESET"
+Date: Tue, 21 Apr 2015 10:37:00 +0800
+Message-ID: <20150421023700.GC8048@fam-t430.nay.redhat.com>
 References: <1429257573-7359-1-git-send-email-famz@redhat.com>
 	<20150420175905-mutt-send-email-mst@redhat.com>
-	<55354F0A.5080809@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <55354F0A.5080809@redhat.com>
+In-Reply-To: <20150420175905-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,28 +20,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Fam Zheng <famz@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>, Stefan Hajnoczi <stefanha@redhat.com>, Amit Shah <amit.shah@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>, Stefan Hajnoczi <stefanha@redhat.com>, Amit Shah <amit.shah@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 20, 2015 at 09:10:02PM +0200, Paolo Bonzini wrote:
-> 
-> 
-> On 20/04/2015 19:36, Michael S. Tsirkin wrote:
-> > At the implementation level, there's one big issue you seem to have
-> > missed: DMA to invalid memory addresses causes a crash in memory core.
-> > I'm not sure whether it makes sense to recover from virtio core bugs
-> > when we can't recover from device bugs.
-> 
-> What do you mean exactly?  DMA to invalid memory addresses causes
-> address_space_map to return a "short read".
-> 
-> Paolo
-
-I mean, first of all, a bunch of virtio_XXX_phys calls.
-These eventually call qemu_get_ram_ptr, which internally calls
-qemu_get_ram_block and ramblock_ptr.
-Both abort on errors.
-
--- 
-MST
+T24gTW9uLCAwNC8yMCAxOTozNiwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IE9uIEZyaSwg
+QXByIDE3LCAyMDE1IGF0IDAzOjU5OjE1UE0gKzA4MDAsIEZhbSBaaGVuZyB3cm90ZToKPiA+IEN1
+cnJlbnRseSwgdmlydGlvIGNvZGUgY2hvb3NlcyB0byBraWxsIFFFTVUgaWYgdGhlIGd1ZXN0IHBh
+c3NlcyBhbnkgaW52YWxpZAo+ID4gZGF0YSB3aXRoIHZyaW5nLgo+ID4gVGhhdCBoYXMgZHJhd2Jh
+Y2tzIHN1Y2ggYXMgbG9zaW5nIHVuc2F2ZWQgZGF0YSAoZS5nLiB3aGVuCj4gPiBndWVzdCB1c2Vy
+IGlzIHdyaXRpbmcgYSB2ZXJ5IGxvbmcgZW1haWwpLCBvciBwb3NzaWJsZSBkZW5pYWwgb2Ygc2Vy
+dmljZSBpbgo+ID4gYSBuZXN0ZWQgdm0gdXNlIGNhc2Ugd2hlcmUgdmlydGlvIGRldmljZSBpcyBw
+YXNzZWQgdGhyb3VnaC4KPiA+IAo+ID4gdmlydGlvLTEgaGFzIGludHJvZHVjZWQgYSBuZXcgc3Rh
+dHVzIGJpdCAiTkVFRFMgUkVTRVQiIHdoaWNoIGNvdWxkIGJlIHVzZWQgdG8KPiA+IGltcHJvdmUg
+dGhpcyBieSBjb21tdW5pY2F0aW5nIHRoZSBlcnJvciBzdGF0ZSBiZXR3ZWVuIHZpcnRpbyBkZXZp
+Y2VzIGFuZAo+ID4gZHJpdmVycy4gVGhlIGRldmljZSBub3RpZmllcyBndWVzdCB1cG9uIHNldHRp
+bmcgdGhlIGJpdCwgdGhlbiB0aGUgZ3Vlc3QgZHJpdmVyCj4gPiBzaG91bGQgZGV0ZWN0IHRoaXMg
+Yml0IGFuZCByZXBvcnQgdG8gdXNlcnNwYWNlLCBvciByZWNvdmVyIHRoZSBkZXZpY2UgYnkKPiA+
+IHJlc2V0dGluZyBpdC4KPiAKPiBVbmZvcnR1bmF0ZWx5LCB2aXJ0aW8gMSBzcGVjIGRvZXMgbm90
+IGhhdmUgYSBjb25mb3JtYW5jZSBzdGF0ZW1lbnQKPiB0aGF0IHJlcXVpcmVzIGRyaXZlciB0byBy
+ZWNvdmVyLiBXZSBtZXJlbHkgaGF2ZSBhIG5vbi1ub3JtYXRpdmUgbG9va2luZwo+IHRleHQ6Cj4g
+CU5vdGU6IEZvciBleGFtcGxlLCB0aGUgZHJpdmVyIGNhbuKAmXQgYXNzdW1lIHJlcXVlc3RzIGlu
+IGZsaWdodAo+IAl3aWxsIGJlIGNvbXBsZXRlZCBpZiBERVZJQ0VfTkVFRFNfUkVTRVQgaXMgc2V0
+LCBub3IgY2FuIGl0IGFzc3VtZSB0aGF0Cj4gCXRoZXkgaGF2ZSBub3QgYmVlbiBjb21wbGV0ZWQu
+IEEgZ29vZCBpbXBsZW1lbnRhdGlvbiB3aWxsIHRyeSB0byByZWNvdmVyCj4gCWJ5IGlzc3Vpbmcg
+YSByZXNldC4KPiAKPiBJbXBsZW1lbnRpbmcgdGhpcyByZXNldCBmb3IgYWxsIGRldmljZXMgaW4g
+YSByYWNlLWZyZWUgbWFubmVyIG1pZ2h0IGFsc28KPiBiZSBmYXIgZnJvbSB0cml2aWFsLiAgSSB0
+aGluayB3ZSdkIG5lZWQgYSBmZWF0dXJlIGJpdCBmb3IgdGhpcy4KPiBPVE9IIGFzIGxvbmcgYXMg
+d2UgbWFrZSB0aGlzIGEgbmV3IGZlYXR1cmUsIHdvdWxkIGFuIGFiaWxpdHkgdG8KPiByZXNldCBh
+IHNpbmdsZSBWUSBiZSBhIGJldHRlciBtYXRjaCBmb3Igd2hhdCB5b3UgYXJlIHRyeWluZyB0bwo+
+IGFjaGlldmU/CgpJIHRoaW5rIHRoYXQgaXMgdG9vIGNvbXBsaWNhdGVkIGFzIGEgcmVjb3Zlcnkg
+bWVhc3VyZSwgYSBkZXZpY2UgbGV2ZWwgcmVzZXR0aW5nCndpbGwgYmUgYmV0dGVyIHRvIGdldCB0
+byBhIGRldGVybWluaXN0aWMgc3RhdGUsIGF0IGxlYXN0LgoKPiAKPiA+IFRoaXMgc2VyaWVzIG1h
+a2VzIG5lY2Vzc2FyeSBjaGFuZ2VzIGluIHZpcnRpbyBjb3JlIGNvZGUsIGJhc2VkIG9uIHdoaWNo
+Cj4gPiB2aXJ0aW8tYmxrIGlzIGNvbnZlcnRlZC4gT3RoZXIgZGV2aWNlcyBub3cga2VlcCB0aGUg
+ZXhpc3RpbmcgYmVoYXZpb3IgYnkKPiA+IHBhc3NpbmcgaW4gImVycm9yX2Fib3J0Ii4gVGhleSB3
+aWxsIGJlIGNvbnZlcnRlZCBpbiBmb2xsb3dpbmcgc2VyaWVzLiBUaGUgTGludXgKPiA+IGRyaXZl
+ciBwYXJ0IHdpbGwgYWxzbyBiZSB3b3JrZWQgb24uCj4gPiAKPiA+IE9uZSBjb25jZXJuIHdpdGgg
+dGhpcyBiZWhhdmlvciBjaGFuZ2UgaXMgdGhhdCBpdCdzIG5vdyBoYXJkZXIgdG8gbm90aWNlIHRo
+ZQo+ID4gYWN0dWFsIGRyaXZlciBidWcgdGhhdCBjYXVzZWQgdGhlIGVycm9yLCBhcyB0aGUgZ3Vl
+c3QgY29udGludWVzIHRvIHJ1bi4gIFRvCj4gPiBhZGRyZXNzIHRoYXQsIHdlIGNvdWxkIHByb2Jh
+Ymx5IGFkZCBhIG5ldyBlcnJvciBhY3Rpb24gb3B0aW9uIHRvIHZpcnRpbwo+ID4gZGV2aWNlcywg
+IHNpbWlsYXIgdG8gdGhlICJyZWFkL3dyaXRlIHdlcnJvciIgaW4gYmxvY2sgbGF5ZXIsIHNvIHRo
+ZSB2bSBjb3VsZCBiZQo+ID4gcGF1c2VkIGFuZCB0aGUgbWFuYWdlbWVudCB3aWxsIGdldCBhbiBl
+dmVudCBpbiBRTVAgbGlrZSBwdnBhbmljLiAgVGhpcyB3b3JrIGNhbgo+ID4gYmUgZG9uZSBvbiB0
+b3AuCj4gCj4gQXQgdGhlIGFyY2hpdGVjdHVyYWwgbGV2ZWwsIHRoYXQncyBvbmx5IG9uZSBjb25j
+ZXJuLiBPdGhlcnMgd291bGQgYmUKPiAtIHdvcmtsb2FkcyBzdWNoIGFzIG9wZW5zdGFjayBoYW5k
+bGUgZ3Vlc3QgY3Jhc2ggYmV0dGVyIHRoYW4KPiAgIGEgZ3Vlc3QgdGhhdCdzIGUuZy4gc2xvdyBi
+ZWNhdXNlIG9mIGEgbWVtb3J5IGxlYWsKCldoYXQgbWVtb3J5IGxlYWsgYXJlIHlvdSByZWZlcnJp
+bmcgdG8/Cgo+IC0gaXQncyBlYXNpZXIgZm9yIGd1ZXN0cyB0byBwcm9iZSBob3N0IGZvciBzZWN1
+cml0eSBpc3N1ZXMKPiAgIGlmIGd1ZXN0IGlzbid0IGtpbGxlZAo+IC0gZ3Vlc3QgY2FuIGZsb29k
+IGhvc3QgbG9nIHdpdGggZ3Vlc3QtdHJpZ2dlcmVkIGVycm9ycwoKV2UgY2FuIHN0aWxsIGFib3J0
+KCkgaWYgZ3Vlc3QgaXMgdHJpZ2dlcmluZyBlcnJvciB0b28gcXVpY2tseS4KCkZhbQpfX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
+YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
+cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
+YXRpb24=
