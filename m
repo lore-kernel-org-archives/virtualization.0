@@ -1,17 +1,17 @@
-From: Fam Zheng <famz@redhat.com>
-Subject: Re: [PATCH 00/18] virtio-blk: Support "VIRTIO_CONFIG_S_NEEDS_RESET"
-Date: Tue, 21 Apr 2015 10:39:49 +0800
-Message-ID: <20150421023949.GD8048@fam-t430.nay.redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH 00/18] virtio-blk: Support
+	"VIRTIO_CONFIG_S_NEEDS_RESET"
+Date: Tue, 21 Apr 2015 07:22:53 +0200
+Message-ID: <20150421070941-mutt-send-email-mst@redhat.com>
 References: <1429257573-7359-1-git-send-email-famz@redhat.com>
 	<20150420175905-mutt-send-email-mst@redhat.com>
-	<55354F0A.5080809@redhat.com>
-	<20150420223113-mutt-send-email-mst@redhat.com>
+	<20150421023700.GC8048@fam-t430.nay.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20150420223113-mutt-send-email-mst@redhat.com>
+In-Reply-To: <20150421023700.GC8048@fam-t430.nay.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,32 +21,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Fam Zheng <famz@redhat.com>
 Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>, Stefan Hajnoczi <stefanha@redhat.com>, Amit Shah <amit.shah@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 04/20 22:34, Michael S. Tsirkin wrote:
-> On Mon, Apr 20, 2015 at 09:10:02PM +0200, Paolo Bonzini wrote:
-> > 
-> > 
-> > On 20/04/2015 19:36, Michael S. Tsirkin wrote:
-> > > At the implementation level, there's one big issue you seem to have
-> > > missed: DMA to invalid memory addresses causes a crash in memory core.
-> > > I'm not sure whether it makes sense to recover from virtio core bugs
-> > > when we can't recover from device bugs.
-> > 
-> > What do you mean exactly?  DMA to invalid memory addresses causes
-> > address_space_map to return a "short read".
-> > 
-> > Paolo
-> 
-> I mean, first of all, a bunch of virtio_XXX_phys calls.
-> These eventually call qemu_get_ram_ptr, which internally calls
-> qemu_get_ram_block and ramblock_ptr.
-> Both abort on errors.
-> 
-
-They are VQ manipulating operations, not DMA. Anyway, can we return errors from
-memory core?
-
-Fam
+T24gVHVlLCBBcHIgMjEsIDIwMTUgYXQgMTA6Mzc6MDBBTSArMDgwMCwgRmFtIFpoZW5nIHdyb3Rl
+Ogo+IE9uIE1vbiwgMDQvMjAgMTk6MzYsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiA+IE9u
+IEZyaSwgQXByIDE3LCAyMDE1IGF0IDAzOjU5OjE1UE0gKzA4MDAsIEZhbSBaaGVuZyB3cm90ZToK
+PiA+ID4gQ3VycmVudGx5LCB2aXJ0aW8gY29kZSBjaG9vc2VzIHRvIGtpbGwgUUVNVSBpZiB0aGUg
+Z3Vlc3QgcGFzc2VzIGFueSBpbnZhbGlkCj4gPiA+IGRhdGEgd2l0aCB2cmluZy4KPiA+ID4gVGhh
+dCBoYXMgZHJhd2JhY2tzIHN1Y2ggYXMgbG9zaW5nIHVuc2F2ZWQgZGF0YSAoZS5nLiB3aGVuCj4g
+PiA+IGd1ZXN0IHVzZXIgaXMgd3JpdGluZyBhIHZlcnkgbG9uZyBlbWFpbCksIG9yIHBvc3NpYmxl
+IGRlbmlhbCBvZiBzZXJ2aWNlIGluCj4gPiA+IGEgbmVzdGVkIHZtIHVzZSBjYXNlIHdoZXJlIHZp
+cnRpbyBkZXZpY2UgaXMgcGFzc2VkIHRocm91Z2guCj4gPiA+IAo+ID4gPiB2aXJ0aW8tMSBoYXMg
+aW50cm9kdWNlZCBhIG5ldyBzdGF0dXMgYml0ICJORUVEUyBSRVNFVCIgd2hpY2ggY291bGQgYmUg
+dXNlZCB0bwo+ID4gPiBpbXByb3ZlIHRoaXMgYnkgY29tbXVuaWNhdGluZyB0aGUgZXJyb3Igc3Rh
+dGUgYmV0d2VlbiB2aXJ0aW8gZGV2aWNlcyBhbmQKPiA+ID4gZHJpdmVycy4gVGhlIGRldmljZSBu
+b3RpZmllcyBndWVzdCB1cG9uIHNldHRpbmcgdGhlIGJpdCwgdGhlbiB0aGUgZ3Vlc3QgZHJpdmVy
+Cj4gPiA+IHNob3VsZCBkZXRlY3QgdGhpcyBiaXQgYW5kIHJlcG9ydCB0byB1c2Vyc3BhY2UsIG9y
+IHJlY292ZXIgdGhlIGRldmljZSBieQo+ID4gPiByZXNldHRpbmcgaXQuCj4gPiAKPiA+IFVuZm9y
+dHVuYXRlbHksIHZpcnRpbyAxIHNwZWMgZG9lcyBub3QgaGF2ZSBhIGNvbmZvcm1hbmNlIHN0YXRl
+bWVudAo+ID4gdGhhdCByZXF1aXJlcyBkcml2ZXIgdG8gcmVjb3Zlci4gV2UgbWVyZWx5IGhhdmUg
+YSBub24tbm9ybWF0aXZlIGxvb2tpbmcKPiA+IHRleHQ6Cj4gPiAJTm90ZTogRm9yIGV4YW1wbGUs
+IHRoZSBkcml2ZXIgY2Fu4oCZdCBhc3N1bWUgcmVxdWVzdHMgaW4gZmxpZ2h0Cj4gPiAJd2lsbCBi
+ZSBjb21wbGV0ZWQgaWYgREVWSUNFX05FRURTX1JFU0VUIGlzIHNldCwgbm9yIGNhbiBpdCBhc3N1
+bWUgdGhhdAo+ID4gCXRoZXkgaGF2ZSBub3QgYmVlbiBjb21wbGV0ZWQuIEEgZ29vZCBpbXBsZW1l
+bnRhdGlvbiB3aWxsIHRyeSB0byByZWNvdmVyCj4gPiAJYnkgaXNzdWluZyBhIHJlc2V0Lgo+ID4g
+Cj4gPiBJbXBsZW1lbnRpbmcgdGhpcyByZXNldCBmb3IgYWxsIGRldmljZXMgaW4gYSByYWNlLWZy
+ZWUgbWFubmVyIG1pZ2h0IGFsc28KPiA+IGJlIGZhciBmcm9tIHRyaXZpYWwuICBJIHRoaW5rIHdl
+J2QgbmVlZCBhIGZlYXR1cmUgYml0IGZvciB0aGlzLgo+ID4gT1RPSCBhcyBsb25nIGFzIHdlIG1h
+a2UgdGhpcyBhIG5ldyBmZWF0dXJlLCB3b3VsZCBhbiBhYmlsaXR5IHRvCj4gPiByZXNldCBhIHNp
+bmdsZSBWUSBiZSBhIGJldHRlciBtYXRjaCBmb3Igd2hhdCB5b3UgYXJlIHRyeWluZyB0bwo+ID4g
+YWNoaWV2ZT8KPiAKPiBJIHRoaW5rIHRoYXQgaXMgdG9vIGNvbXBsaWNhdGVkIGFzIGEgcmVjb3Zl
+cnkgbWVhc3VyZSwgYSBkZXZpY2UgbGV2ZWwgcmVzZXR0aW5nCj4gd2lsbCBiZSBiZXR0ZXIgdG8g
+Z2V0IHRvIGEgZGV0ZXJtaW5pc3RpYyBzdGF0ZSwgYXQgbGVhc3QuCgpRdWVzdGlvbiB3b3VsZCBi
+ZSwgaG93IGhhcmQgaXMgaXQgdG8gc3RvcCBob3N0IGZyb20gdXNpbmcgYWxsIHF1ZXVlcywKcmV0
+cmlldmUgYWxsIGhvc3QgT1Mgc3RhdGUgYW5kIHJlLXByb2dyYW0gaXQgaW50byB0aGUgZGV2aWNl
+LgpJZiB3ZSBuZWVkIHRvIHNoYWRvdyBhbGwgT1Mgc3RhdGUgd2l0aGluIHRoZSBkcml2ZXIsIHRo
+ZW4gdGhhdCdzIGEgbG90Cm9mIG5vdCB3ZWxsIHRlc3RlZCBjb2RlIHdpdGggYSBwb3NzaWJpbGl0
+eSBvZiBpbnRyb2R1Y2luZyBtb3JlIGJ1Z3MuCgo+ID4gCj4gPiA+IFRoaXMgc2VyaWVzIG1ha2Vz
+IG5lY2Vzc2FyeSBjaGFuZ2VzIGluIHZpcnRpbyBjb3JlIGNvZGUsIGJhc2VkIG9uIHdoaWNoCj4g
+PiA+IHZpcnRpby1ibGsgaXMgY29udmVydGVkLiBPdGhlciBkZXZpY2VzIG5vdyBrZWVwIHRoZSBl
+eGlzdGluZyBiZWhhdmlvciBieQo+ID4gPiBwYXNzaW5nIGluICJlcnJvcl9hYm9ydCIuIFRoZXkg
+d2lsbCBiZSBjb252ZXJ0ZWQgaW4gZm9sbG93aW5nIHNlcmllcy4gVGhlIExpbnV4Cj4gPiA+IGRy
+aXZlciBwYXJ0IHdpbGwgYWxzbyBiZSB3b3JrZWQgb24uCj4gPiA+IAo+ID4gPiBPbmUgY29uY2Vy
+biB3aXRoIHRoaXMgYmVoYXZpb3IgY2hhbmdlIGlzIHRoYXQgaXQncyBub3cgaGFyZGVyIHRvIG5v
+dGljZSB0aGUKPiA+ID4gYWN0dWFsIGRyaXZlciBidWcgdGhhdCBjYXVzZWQgdGhlIGVycm9yLCBh
+cyB0aGUgZ3Vlc3QgY29udGludWVzIHRvIHJ1bi4gIFRvCj4gPiA+IGFkZHJlc3MgdGhhdCwgd2Ug
+Y291bGQgcHJvYmFibHkgYWRkIGEgbmV3IGVycm9yIGFjdGlvbiBvcHRpb24gdG8gdmlydGlvCj4g
+PiA+IGRldmljZXMsICBzaW1pbGFyIHRvIHRoZSAicmVhZC93cml0ZSB3ZXJyb3IiIGluIGJsb2Nr
+IGxheWVyLCBzbyB0aGUgdm0gY291bGQgYmUKPiA+ID4gcGF1c2VkIGFuZCB0aGUgbWFuYWdlbWVu
+dCB3aWxsIGdldCBhbiBldmVudCBpbiBRTVAgbGlrZSBwdnBhbmljLiAgVGhpcyB3b3JrIGNhbgo+
+ID4gPiBiZSBkb25lIG9uIHRvcC4KPiA+IAo+ID4gQXQgdGhlIGFyY2hpdGVjdHVyYWwgbGV2ZWws
+IHRoYXQncyBvbmx5IG9uZSBjb25jZXJuLiBPdGhlcnMgd291bGQgYmUKPiA+IC0gd29ya2xvYWRz
+IHN1Y2ggYXMgb3BlbnN0YWNrIGhhbmRsZSBndWVzdCBjcmFzaCBiZXR0ZXIgdGhhbgo+ID4gICBh
+IGd1ZXN0IHRoYXQncyBlLmcuIHNsb3cgYmVjYXVzZSBvZiBhIG1lbW9yeSBsZWFrCj4gCj4gV2hh
+dCBtZW1vcnkgbGVhayBhcmUgeW91IHJlZmVycmluZyB0bz8KClRoYXQgd2FzIGp1c3QgYW4gZXhh
+bXBsZS4gIElmIGhvc3QgZGV0ZWN0cyBhIG1hbGZvcm1lZCByaW5nLCBpdCB3aWxsCmNyYXNoLiAg
+QnV0IG9mdGVuIGl0IGRvZXNuJ3QsIHJlc3VsdCBpcyBidWZmZXJzIG5vdCBiZWluZyB1c2VkLCBz
+byBndWVzdApjYW4ndCBmcmVlIHRoZW0gdXAuCgo+ID4gLSBpdCdzIGVhc2llciBmb3IgZ3Vlc3Rz
+IHRvIHByb2JlIGhvc3QgZm9yIHNlY3VyaXR5IGlzc3Vlcwo+ID4gICBpZiBndWVzdCBpc24ndCBr
+aWxsZWQKPiA+IC0gZ3Vlc3QgY2FuIGZsb29kIGhvc3QgbG9nIHdpdGggZ3Vlc3QtdHJpZ2dlcmVk
+IGVycm9ycwo+IAo+IFdlIGNhbiBzdGlsbCBhYm9ydCgpIGlmIGd1ZXN0IGlzIHRyaWdnZXJpbmcg
+ZXJyb3IgdG9vIHF1aWNrbHkuCj4gCj4gRmFtCgoKQWJzb2x1dGVseSwgYW5kIGlmIGl0IGxvb2tl
+ZCBsaWtlIEknbSBhZ2FpbnN0IGVycm9yIGRldGVjdGlvbiBhbmQKcmVjb3ZlcnksIHRoaXMgd2Fz
+IG5vdCBteSBpbnRlbnQuCgpJIGFtIG1lcmVseSBzYXlpbmcgd2UgY2FuJ3QgYXBwbHkgdGhpcyBw
+YXRjaHNldCBhcyBpcywgZGVmZXJyaW5nCmFkZHJlc3NpbmcgdGhlIGlzc3VlcyB0byBwYXRjaGVz
+IG9uIHRvcC4KCkJ1dCBJIGhhdmUgYW4gaWRlYTogcmVmYWN0b3IgdGhlIGNvZGUgdG8gdXNlIGVy
+cm9yX2Fib3J0LiBUaGlzIHdheSB3ZQpjYW4gYXBwbHkgdGhlIHBhdGNoc2V0IHdpdGhvdXQgbWFr
+aW5nIGZ1bmN0aW9uYWwgY2hhbmdlcywgYW5kIHlvdSBjYW4KbWFrZSBwcm9ncmVzcyB0byBjb21w
+bGV0ZSB0aGlzLCBvbiB0b3AuCgoKCi0tIApNU1QKX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxp
+emF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3Vu
+ZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
