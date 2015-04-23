@@ -1,15 +1,14 @@
 From: Thomas Huth <thuth@redhat.com>
 Subject: Re: [PATCH v5 1/8] virtio: introduce virtio_is_little_endian() helper
-Date: Thu, 23 Apr 2015 19:26:13 +0200
-Message-ID: <20150423192613.6c58042f__37212.1322121986$1429896734$gmane$org@thh440s>
+Date: Thu, 23 Apr 2015 20:52:01 +0200
+Message-ID: <20150423205201.2a6f650d__20053.5161341124$1429896750$gmane$org@thh440s>
 References: <20150423152608.11795.4373.stgit@bahia.local>
 	<20150423152617.11795.13272.stgit@bahia.local>
-	<20150423192215.12182311@thh440s>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150423192215.12182311@thh440s>
+In-Reply-To: <20150423152617.11795.13272.stgit@bahia.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,36 +22,62 @@ To: Greg Kurz <gkurz@linux.vnet.ibm.com>
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am Thu, 23 Apr 2015 19:22:15 +0200
-schrieb Thomas Huth <thuth@redhat.com>:
+On Thu, 23 Apr 2015 17:26:20 +0200
+Greg Kurz <gkurz@linux.vnet.ibm.com> wrote:
 
-> Am Thu, 23 Apr 2015 17:26:20 +0200
-> schrieb Greg Kurz <gkurz@linux.vnet.ibm.com>:
+> Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
+> ---
+>  include/linux/virtio_config.h |   17 +++++++++++------
+>  1 file changed, 11 insertions(+), 6 deletions(-)
 > 
-> > Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
-> > ---
-> >  include/linux/virtio_config.h |   17 +++++++++++------
-> >  1 file changed, 11 insertions(+), 6 deletions(-)
-> > 
-> > diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> > index ca3ed78..bd1a582 100644
-> > --- a/include/linux/virtio_config.h
-> > +++ b/include/linux/virtio_config.h
-> > @@ -205,35 +205,40 @@ int virtqueue_set_affinity(struct virtqueue *vq, int cpu)
-> >  	return 0;
-> >  }
-> >  
-> > +static inline bool virtio_is_little_endian(struct virtio_device *vdev)
-> > +{
-> > +	return virtio_has_feature(vdev, VIRTIO_F_VERSION_1);
-> > +}
-> 
-> So this function returns false when _not_ using version 1, but running
-> on a little endian host + guest? Sounds confusing. Maybe you could name
-> it "virtio_is_v1()" or so instead?
+> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+> index ca3ed78..bd1a582 100644
+> --- a/include/linux/virtio_config.h
+> +++ b/include/linux/virtio_config.h
+> @@ -205,35 +205,40 @@ int virtqueue_set_affinity(struct virtqueue *vq, int cpu)
+>  	return 0;
+>  }
+>  
+> +static inline bool virtio_is_little_endian(struct virtio_device *vdev)
+> +{
+> +	return virtio_has_feature(vdev, VIRTIO_F_VERSION_1);
+> +}
+> +
+>  /* Memory accessors */
+>  static inline u16 virtio16_to_cpu(struct virtio_device *vdev, __virtio16 val)
+>  {
+> -	return __virtio16_to_cpu(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
+> +	return __virtio16_to_cpu(virtio_is_little_endian(vdev), val);
+>  }
+>  
+>  static inline __virtio16 cpu_to_virtio16(struct virtio_device *vdev, u16 val)
+>  {
+> -	return __cpu_to_virtio16(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
+> +	return __cpu_to_virtio16(virtio_is_little_endian(vdev), val);
+>  }
+>  
+>  static inline u32 virtio32_to_cpu(struct virtio_device *vdev, __virtio32 val)
+>  {
+> -	return __virtio32_to_cpu(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
+> +	return __virtio32_to_cpu(virtio_is_little_endian(vdev), val);
+>  }
+>  
+>  static inline __virtio32 cpu_to_virtio32(struct virtio_device *vdev, u32 val)
+>  {
+> -	return __cpu_to_virtio32(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
+> +	return __cpu_to_virtio32(virtio_is_little_endian(vdev), val);
+>  }
+>  
+>  static inline u64 virtio64_to_cpu(struct virtio_device *vdev, __virtio64 val)
+>  {
+> -	return __virtio64_to_cpu(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
+> +	return __virtio64_to_cpu(virtio_is_little_endian(vdev), val);
+>  }
+>  
+>  static inline __virtio64 cpu_to_virtio64(struct virtio_device *vdev, u64 val)
+>  {
+> -	return __cpu_to_virtio64(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
+> +	return __cpu_to_virtio64(virtio_is_little_endian(vdev), val);
+>  }
 
-Ah, never mind, I should have looked at patch 6 first, then it makes
-sense. (maybe you could put a note to the later patch in this patch
-description?)
-
- Thomas
+Reviewed-by: Thomas Huth <thuth@redhat.com>
