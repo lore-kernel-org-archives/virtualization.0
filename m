@@ -1,14 +1,15 @@
 From: Thomas Huth <thuth@redhat.com>
-Subject: Re: [PATCH v5 5/8] vhost: introduce vhost_is_little_endian() helper
-Date: Thu, 23 Apr 2015 21:05:02 +0200
-Message-ID: <20150423210502.1d97ca77__423.834837465797$1429896786$gmane$org@thh440s>
+Subject: Re: [PATCH v5 6/8] virtio: add explicit big-endian support to
+	memory accessors
+Date: Thu, 23 Apr 2015 21:27:19 +0200
+Message-ID: <20150423212719.4b7f9507__14469.6334413768$1429896789$gmane$org@thh440s>
 References: <20150423152608.11795.4373.stgit@bahia.local>
-	<20150423152700.11795.9146.stgit@bahia.local>
+	<20150423152712.11795.29245.stgit@bahia.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150423152700.11795.9146.stgit@bahia.local>
+In-Reply-To: <20150423152712.11795.29245.stgit@bahia.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,63 +23,103 @@ To: Greg Kurz <gkurz@linux.vnet.ibm.com>
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 23 Apr 2015 17:27:05 +0200
+On Thu, 23 Apr 2015 17:29:06 +0200
 Greg Kurz <gkurz@linux.vnet.ibm.com> wrote:
 
+> The current memory accessors logic is:
+> - little endian if little_endian
+> - native endian (i.e. no byteswap) if !little_endian
+> 
+> If we want to fully support cross-endian vhost, we also need to be
+> able to convert to big endian.
+> 
+> Instead of changing the little_endian argument to some 3-value enum, this
+> patch changes the logic to:
+> - little endian if little_endian
+> - big endian if !little_endian
+> 
+> The native endian case is handled by all users with a trivial helper. This
+> patch doesn't change any functionality, nor it does add overhead.
+> 
 > Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
 > ---
->  drivers/vhost/vhost.h |   17 +++++++++++------
->  1 file changed, 11 insertions(+), 6 deletions(-)
 > 
+> Changes since v4:
+> - style fixes (I have chosen if ... else in most places to stay below
+>   80 columns, with the notable exception of the vhost helper which gets
+>   shorten in a later patch)
+> 
+>  drivers/net/macvtap.c            |    5 ++++-
+>  drivers/net/tun.c                |    5 ++++-
+>  drivers/vhost/vhost.h            |    2 +-
+>  include/linux/virtio_byteorder.h |   24 ++++++++++++++----------
+>  include/linux/virtio_config.h    |    5 ++++-
+>  include/linux/vringh.h           |    2 +-
+>  6 files changed, 28 insertions(+), 15 deletions(-)
+> 
+> diff --git a/drivers/net/macvtap.c b/drivers/net/macvtap.c
+> index a2f2958..6cf6b3e 100644
+> --- a/drivers/net/macvtap.c
+> +++ b/drivers/net/macvtap.c
+> @@ -51,7 +51,10 @@ struct macvtap_queue {
+>  
+>  static inline bool macvtap_is_little_endian(struct macvtap_queue *q)
+>  {
+> -	return q->flags & MACVTAP_VNET_LE;
+> +	if (q->flags & MACVTAP_VNET_LE)
+> +		return true;
+> +	else
+> +		return virtio_legacy_is_little_endian();
+
+simply:
+
+	return (q->flags & MACVTAP_VNET_LE) ||
+	       virtio_legacy_is_little_endian();
+
+?
+
+>  }
+>  
+>  static inline u16 macvtap16_to_cpu(struct macvtap_queue *q, __virtio16 val)
+> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> index 3c3d6c0..5b044d4 100644
+> --- a/drivers/net/tun.c
+> +++ b/drivers/net/tun.c
+> @@ -208,7 +208,10 @@ struct tun_struct {
+>  
+>  static inline bool tun_is_little_endian(struct tun_struct *tun)
+>  {
+> -	return tun->flags & TUN_VNET_LE;
+> +	if (tun->flags & TUN_VNET_LE)
+> +		return true;
+> +	else
+> +		return virtio_legacy_is_little_endian();
+
+dito?
+
+>  }
+>  
+>  static inline u16 tun16_to_cpu(struct tun_struct *tun, __virtio16 val)
 > diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> index 8c1c792..6a49960 100644
+> index 6a49960..954c657 100644
 > --- a/drivers/vhost/vhost.h
 > +++ b/drivers/vhost/vhost.h
-> @@ -173,34 +173,39 @@ static inline bool vhost_has_feature(struct vhost_virtqueue *vq, int bit)
->  	return vq->acked_features & (1ULL << bit);
->  }
+> @@ -175,7 +175,7 @@ static inline bool vhost_has_feature(struct vhost_virtqueue *vq, int bit)
 >  
-> +static inline bool vhost_is_little_endian(struct vhost_virtqueue *vq)
-> +{
-> +	return vhost_has_feature(vq, VIRTIO_F_VERSION_1);
-> +}
-> +
->  /* Memory accessors */
->  static inline u16 vhost16_to_cpu(struct vhost_virtqueue *vq, __virtio16 val)
+>  static inline bool vhost_is_little_endian(struct vhost_virtqueue *vq)
 >  {
-> -	return __virtio16_to_cpu(vhost_has_feature(vq, VIRTIO_F_VERSION_1), val);
-> +	return __virtio16_to_cpu(vhost_is_little_endian(vq), val);
+> -	return vhost_has_feature(vq, VIRTIO_F_VERSION_1);
+> +	return vhost_has_feature(vq, VIRTIO_F_VERSION_1) ? true : virtio_legacy_is_little_endian();
 >  }
->  
->  static inline __virtio16 cpu_to_vhost16(struct vhost_virtqueue *vq, u16 val)
->  {
-> -	return __cpu_to_virtio16(vhost_has_feature(vq, VIRTIO_F_VERSION_1), val);
-> +	return __cpu_to_virtio16(vhost_is_little_endian(vq), val);
->  }
->  
->  static inline u32 vhost32_to_cpu(struct vhost_virtqueue *vq, __virtio32 val)
->  {
-> -	return __virtio32_to_cpu(vhost_has_feature(vq, VIRTIO_F_VERSION_1), val);
-> +	return __virtio32_to_cpu(vhost_is_little_endian(vq), val);
->  }
->  
->  static inline __virtio32 cpu_to_vhost32(struct vhost_virtqueue *vq, u32 val)
->  {
-> -	return __cpu_to_virtio32(vhost_has_feature(vq, VIRTIO_F_VERSION_1), val);
-> +	return __cpu_to_virtio32(vhost_is_little_endian(vq), val);
->  }
->  
->  static inline u64 vhost64_to_cpu(struct vhost_virtqueue *vq, __virtio64 val)
->  {
-> -	return __virtio64_to_cpu(vhost_has_feature(vq, VIRTIO_F_VERSION_1), val);
-> +	return __virtio64_to_cpu(vhost_is_little_endian(vq), val);
->  }
->  
->  static inline __virtio64 cpu_to_vhost64(struct vhost_virtqueue *vq, u64 val)
->  {
-> -	return __cpu_to_virtio64(vhost_has_feature(vq, VIRTIO_F_VERSION_1), val);
-> +	return __cpu_to_virtio64(vhost_is_little_endian(vq), val);
->  }
->  #endif
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+That line is way longer than 80 characters ... may I suggest to switch
+at least here to:
+
+	return vhost_has_feature(vq, VIRTIO_F_VERSION_1) ||
+	       virtio_legacy_is_little_endian();
+
+?
+
+Apart from the cosmetics, the patch looks good to me.
+
+ Thomas
