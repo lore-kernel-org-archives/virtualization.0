@@ -1,13 +1,14 @@
-From: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Subject: [PATCH v6 7/8] vhost: cross-endian support for legacy devices
-Date: Fri, 24 Apr 2015 14:27:24 +0200
-Message-ID: <20150424122632.19156.88058.stgit@bahia.local>
-References: <20150424122211.19156.97626.stgit@bahia.local>
+From: Luke Gorrie <luke@snabb.co>
+Subject: Re: [virtio-dev] Zerocopy VM-to-VM networking using virtio-net
+Date: Fri, 24 Apr 2015 14:34:37 +0200
+Message-ID: <CAA2XHbeq=OGjXFt00H3gKDrY7P_0VnBWDXkvFyiN-e_3zT-Ujw@mail.gmail.com>
+References: <20150422170138.GA8388@stefanha-thinkpad.redhat.com>
+	<CAA2XHbd_Wxs3O6ChSGouF3ZGH-SA0Lzw7OFVfvnuAXZmLAkZoA@mail.gmail.com>
+	<CAJSP0QWtbzWwbvHYHVDJ2bccJ1wPZ0WA31bOH5UkGMhbkLF-Ng@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8636071126157885145=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150424122211.19156.97626.stgit@bahia.local>
+In-Reply-To: <CAJSP0QWtbzWwbvHYHVDJ2bccJ1wPZ0WA31bOH5UkGMhbkLF-Ng@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,231 +18,142 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: Andrew Jones <drjones@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Rik van Riel <riel@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch brings cross-endian support to vhost when used to implement
-legacy virtio devices. Since it is a relatively rare situation, the
-feature availability is controlled by a kernel config option (not set
-by default).
+--===============8636071126157885145==
+Content-Type: multipart/alternative; boundary=f46d0442886c994d400514779e1f
 
-The vq->is_le boolean field is added to cache the endianness to be
-used for ring accesses. It defaults to native endian, as expected
-by legacy virtio devices. When the ring gets active, we force little
-endian if the device is modern. When the ring is deactivated, we
-revert to the native endian default.
+--f46d0442886c994d400514779e1f
+Content-Type: text/plain; charset=UTF-8
 
-If cross-endian was compiled in, a vq->user_be boolean field is added
-so that userspace may request a specific endianness. This field is
-used to override the default when activating the ring of a legacy
-device. It has no effect on modern devices.
+On 24 April 2015 at 11:47, Stefan Hajnoczi <stefanha@gmail.com> wrote:
 
-Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
----
+> > Incidentally, we also did a pile of work last year on zero-copy NIC->VM
+> > transfers and discovered a lot of interesting problems and edge cases
+> where
+> > Virtio-net spec and/or drivers are hard to match up with common NICs.
+> Happy
+> > to explain a bit about our experience if that would be valuable.
+>
+> That sounds interesting, can you describe the setup?
+>
 
-Changes since v5:
-- fixed description in Kconfig
-- fixed error description in uapi header
-- dropped useless semi-colon in the vhost_vq_reset_user_be() stub
+Sure.
 
- drivers/vhost/Kconfig      |   15 ++++++++
- drivers/vhost/vhost.c      |   85 +++++++++++++++++++++++++++++++++++++++++++-
- drivers/vhost/vhost.h      |   11 +++++-
- include/uapi/linux/vhost.h |   14 +++++++
- 4 files changed, 122 insertions(+), 3 deletions(-)
+We implemented a zero-copy receive path that maps guest buffers received
+from the avail ring directly onto hardware receive buffers on a dedicated
+hardware receive queue for that VM (VMDq).
 
-diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
-index 017a1e8..533eaf0 100644
---- a/drivers/vhost/Kconfig
-+++ b/drivers/vhost/Kconfig
-@@ -32,3 +32,18 @@ config VHOST
- 	---help---
- 	  This option is selected by any driver which needs to access
- 	  the core of vhost.
-+
-+config VHOST_CROSS_ENDIAN_LEGACY
-+	bool "Cross-endian support for vhost"
-+	default n
-+	---help---
-+	  This option allows vhost to support guests with a different byte
-+	  ordering from host while using legacy virtio.
-+
-+	  Userspace programs can control the feature using the
-+	  VHOST_SET_VRING_ENDIAN and VHOST_GET_VRING_ENDIAN ioctls.
-+
-+	  This is only useful on a few platforms (ppc64 and arm64). Since it
-+	  adds some overhead, it is disabled by default.
-+
-+	  If unsure, say "N".
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 2ee2826..9e8e004 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -36,6 +36,77 @@ enum {
- #define vhost_used_event(vq) ((__virtio16 __user *)&vq->avail->ring[vq->num])
- #define vhost_avail_event(vq) ((__virtio16 __user *)&vq->used->ring[vq->num])
- 
-+#ifdef CONFIG_VHOST_CROSS_ENDIAN_LEGACY
-+static void vhost_vq_reset_user_be(struct vhost_virtqueue *vq)
-+{
-+	vq->user_be = !virtio_legacy_is_little_endian();
-+}
-+
-+static long vhost_set_vring_endian(struct vhost_virtqueue *vq, int __user *argp)
-+{
-+	struct vhost_vring_state s;
-+
-+	if (vq->private_data)
-+		return -EBUSY;
-+
-+	if (copy_from_user(&s, argp, sizeof(s)))
-+		return -EFAULT;
-+
-+	if (s.num != VHOST_VRING_LITTLE_ENDIAN &&
-+	    s.num != VHOST_VRING_BIG_ENDIAN)
-+		return -EINVAL;
-+
-+	vq->user_be = s.num;
-+
-+	return 0;
-+}
-+
-+static long vhost_get_vring_endian(struct vhost_virtqueue *vq, u32 idx,
-+				   int __user *argp)
-+{
-+	struct vhost_vring_state s = {
-+		.index = idx,
-+		.num = vq->user_be
-+	};
-+
-+	if (copy_to_user(argp, &s, sizeof(s)))
-+		return -EFAULT;
-+
-+	return 0;
-+}
-+
-+static void vhost_init_is_le(struct vhost_virtqueue *vq)
-+{
-+	/* Note for legacy virtio: user_be is initialized at reset time
-+	 * according to the host endianness. If userspace does not set an
-+	 * explicit endianness, the default behavior is native endian, as
-+	 * expected by legacy virtio.
-+	 */
-+	vq->is_le = vhost_has_feature(vq, VIRTIO_F_VERSION_1) || !vq->user_be;
-+}
-+#else
-+static void vhost_vq_reset_user_be(struct vhost_virtqueue *vq)
-+{
-+}
-+
-+static long vhost_set_vring_endian(struct vhost_virtqueue *vq, int __user *argp)
-+{
-+	return -ENOIOCTLCMD;
-+}
-+
-+static long vhost_get_vring_endian(struct vhost_virtqueue *vq, u32 idx,
-+				   int __user *argp)
-+{
-+	return -ENOIOCTLCMD;
-+}
-+
-+static void vhost_init_is_le(struct vhost_virtqueue *vq)
-+{
-+	if (vhost_has_feature(vq, VIRTIO_F_VERSION_1))
-+		vq->is_le = true;
-+}
-+#endif /* CONFIG_VHOST_CROSS_ENDIAN_LEGACY */
-+
- static void vhost_poll_func(struct file *file, wait_queue_head_t *wqh,
- 			    poll_table *pt)
- {
-@@ -199,6 +270,8 @@ static void vhost_vq_reset(struct vhost_dev *dev,
- 	vq->call = NULL;
- 	vq->log_ctx = NULL;
- 	vq->memory = NULL;
-+	vq->is_le = virtio_legacy_is_little_endian();
-+	vhost_vq_reset_user_be(vq);
- }
- 
- static int vhost_worker(void *data)
-@@ -806,6 +879,12 @@ long vhost_vring_ioctl(struct vhost_dev *d, int ioctl, void __user *argp)
- 		} else
- 			filep = eventfp;
- 		break;
-+	case VHOST_SET_VRING_ENDIAN:
-+		r = vhost_set_vring_endian(vq, argp);
-+		break;
-+	case VHOST_GET_VRING_ENDIAN:
-+		r = vhost_get_vring_endian(vq, idx, argp);
-+		break;
- 	default:
- 		r = -ENOIOCTLCMD;
- 	}
-@@ -1044,8 +1123,12 @@ int vhost_init_used(struct vhost_virtqueue *vq)
- {
- 	__virtio16 last_used_idx;
- 	int r;
--	if (!vq->private_data)
-+	if (!vq->private_data) {
-+		vq->is_le = virtio_legacy_is_little_endian();
- 		return 0;
-+	}
-+
-+	vhost_init_is_le(vq);
- 
- 	r = vhost_update_used_flags(vq);
- 	if (r)
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index a4fa33a..ce6f6da 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -106,6 +106,14 @@ struct vhost_virtqueue {
- 	/* Log write descriptors */
- 	void __user *log_base;
- 	struct vhost_log *log;
-+
-+	/* Ring endianness. Defaults to legacy native endianness.
-+	 * Set to true when starting a modern virtio device. */
-+	bool is_le;
-+#ifdef CONFIG_VHOST_CROSS_ENDIAN_LEGACY
-+	/* Ring endianness requested by userspace for cross-endian support. */
-+	bool user_be;
-+#endif
- };
- 
- struct vhost_dev {
-@@ -175,8 +183,7 @@ static inline bool vhost_has_feature(struct vhost_virtqueue *vq, int bit)
- 
- static inline bool vhost_is_little_endian(struct vhost_virtqueue *vq)
- {
--	return vhost_has_feature(vq, VIRTIO_F_VERSION_1) ||
--		virtio_legacy_is_little_endian();
-+	return vq->is_le;
- }
- 
- /* Memory accessors */
-diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-index bb6a5b4..ab373191 100644
---- a/include/uapi/linux/vhost.h
-+++ b/include/uapi/linux/vhost.h
-@@ -103,6 +103,20 @@ struct vhost_memory {
- /* Get accessor: reads index, writes value in num */
- #define VHOST_GET_VRING_BASE _IOWR(VHOST_VIRTIO, 0x12, struct vhost_vring_state)
- 
-+/* Set the vring byte order in num. Valid values are VHOST_VRING_LITTLE_ENDIAN
-+ * or VHOST_VRING_BIG_ENDIAN (other values return -EINVAL).
-+ * The byte order cannot be changed while the device is active: trying to do so
-+ * returns -EBUSY.
-+ * This is a legacy only API that is simply ignored when VIRTIO_F_VERSION_1 is
-+ * set.
-+ * Not all kernel configurations support this ioctl, but all configurations that
-+ * support SET also support GET.
-+ */
-+#define VHOST_VRING_LITTLE_ENDIAN 0
-+#define VHOST_VRING_BIG_ENDIAN 1
-+#define VHOST_SET_VRING_ENDIAN _IOW(VHOST_VIRTIO, 0x13, struct vhost_vring_state)
-+#define VHOST_GET_VRING_ENDIAN _IOW(VHOST_VIRTIO, 0x14, struct vhost_vring_state)
-+
- /* The following ioctls use eventfd file descriptors to signal and poll
-  * for events. */
+This means that when the NIC receives a packet it stores it directly into
+the guest's memory but the vswitch has the opportunity to do as much or as
+little processing as it wants before making the packet available with a
+used ring descriptor.
+
+This scheme seems quite elegant to me. (I am sure it is not original - this
+is what the VMDq hardware feature is for, after all.) The devil is in the
+details though.
+
+I suspect it would work well given two extensions to Virtio-net:
+
+1. The 'used' ring allow an offset where the payload starts.
+
+2. The guest to always supply buffers with space for >= 2048 bytes of
+payload.
+
+but without these things it is tricky to satisfy the requirements of real
+NICs such as the Intel 10G ones. There are conflicting requirements. For
+example:
+
+- NIC requires buffer sizes to be uniform and a multiple of 1024 bytes.
+Guest suppliers variable-size buffers often of ~1500 bytes. These need to
+be either rounded down to 1024 bytes (causing excessive segmentation) or
+rounded up to 2048 bytes (requiring jumbo frames to be globally disabled on
+the port to avoid potential overruns).
+
+- Virtio-net with MRG_RXBUF expects the packet payload to be in a different
+offset for the first descriptor in a chain (offset 14 after the vnet
+header) vs following descriptions in the chain (offset 0). The NIC always
+stores packets at the same offset so the vswitch needs to pick one and then
+correct with memmove() when needed.
+
+- If the vswitch wants to shorten the packet payload, e.g. to remove
+encapsulation, then this will require a memmove() because there is no way
+to communicate an offset on the used ring.
+
+- The NIC has a limit to how many receive descriptors it can chain
+together. If the guest is supplying small buffers then this limit may be
+too low for jumbo frames to be received.
+
+... and at a certain point we decided we were better off switching our
+focus away from clever-but-fragile NIC hacks and towards clever-and-robust
+SIMD hacks, and that is the path we have been on since a few months ago.
+
+--f46d0442886c994d400514779e1f
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div class=3D"gmail_extra"><div class=3D"gmail_quote">On 2=
+4 April 2015 at 11:47, Stefan Hajnoczi <span dir=3D"ltr">&lt;<a href=3D"mai=
+lto:stefanha@gmail.com" target=3D"_blank">stefanha@gmail.com</a>&gt;</span>=
+ wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;bor=
+der-left:1px #ccc solid;padding-left:1ex"><span class=3D"">&gt; Incidentall=
+y, we also did a pile of work last year on zero-copy NIC-&gt;VM<br>
+&gt; transfers and discovered a lot of interesting problems and edge cases =
+where<br>
+&gt; Virtio-net spec and/or drivers are hard to match up with common NICs. =
+Happy<br>
+&gt; to explain a bit about our experience if that would be valuable.<br>
+<br>
+</span>That sounds interesting, can you describe the setup?<br></blockquote=
+><div><br></div><div>Sure.</div><div><br></div><div>We implemented a zero-c=
+opy receive path that maps guest buffers received from the avail ring direc=
+tly onto hardware receive buffers on a dedicated hardware receive queue for=
+ that VM (VMDq).</div><div><br></div><div>This means that when the NIC rece=
+ives a packet it stores it directly into the guest&#39;s memory but the vsw=
+itch has the opportunity to do as much or as little processing as it wants =
+before making the packet available with a used ring descriptor.</div><div><=
+br></div><div>This scheme seems quite elegant to me. (I am sure it is not o=
+riginal - this is what the VMDq hardware feature is for, after all.) The de=
+vil is in the details though.</div><div><br></div><div>I suspect it would w=
+ork well given two extensions to Virtio-net:</div><div><br></div><div>1. Th=
+e &#39;used&#39; ring allow an offset where the payload starts.</div><div><=
+br></div><div>2. The guest to always supply buffers with space for &gt;=3D =
+2048 bytes of payload.</div><div><br></div><div>but without these things it=
+ is tricky to satisfy the requirements of real NICs such as the Intel 10G o=
+nes. There are conflicting requirements. For example:</div><div><br></div><=
+div>- NIC requires buffer sizes to be uniform and a multiple of 1024 bytes.=
+ Guest suppliers variable-size buffers often of ~1500 bytes. These need to =
+be either rounded down to 1024 bytes (causing excessive segmentation) or ro=
+unded up to 2048 bytes (requiring jumbo frames to be globally disabled on t=
+he port to avoid potential overruns).</div><div><br></div><div>- Virtio-net=
+ with MRG_RXBUF expects the packet payload to be in a different offset for =
+the first descriptor in a chain (offset 14 after the vnet header) vs follow=
+ing descriptions in the chain (offset 0). The NIC always stores packets at =
+the same offset so the vswitch needs to pick one and then correct with memm=
+ove() when needed.</div><div><br></div><div>- If the vswitch wants to short=
+en the packet payload, e.g. to remove encapsulation, then this will require=
+ a memmove() because there is no way to communicate an offset on the used r=
+ing.</div><div><br></div><div>- The NIC has a limit to how many receive des=
+criptors it can chain together. If the guest is supplying small buffers the=
+n this limit may be too low for jumbo frames to be received.</div><div><br>=
+</div><div>... and at a certain point we decided we were better off switchi=
+ng our focus away from clever-but-fragile NIC hacks and towards clever-and-=
+robust SIMD hacks, and that is the path we have been on since a few months =
+ago.</div><div><br></div><div><br></div><div><br></div><div><br></div></div=
+></div></div>
+
+--f46d0442886c994d400514779e1f--
+
+--===============8636071126157885145==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8636071126157885145==--
