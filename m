@@ -1,16 +1,12 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v5 7/8] vhost: cross-endian support for legacy devices
-Date: Fri, 24 Apr 2015 10:09:16 +0200
-Message-ID: <20150424100916.3d18d12c.cornelia.huck@de.ibm.com>
-References: <20150423152608.11795.4373.stgit@bahia.local>
-	<20150423152915.11795.13921.stgit@bahia.local>
-	<20150424091926.1f5dee0b.cornelia.huck@de.ibm.com>
-	<20150424100619.665e8bf8@bahia.local>
+From: Luke Gorrie <luke@snabb.co>
+Subject: Re: [virtio-dev] Zerocopy VM-to-VM networking using virtio-net
+Date: Fri, 24 Apr 2015 10:12:23 +0200
+Message-ID: <CAA2XHbd_Wxs3O6ChSGouF3ZGH-SA0Lzw7OFVfvnuAXZmLAkZoA@mail.gmail.com>
+References: <20150422170138.GA8388@stefanha-thinkpad.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8617210196920538664=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150424100619.665e8bf8@bahia.local>
+In-Reply-To: <20150422170138.GA8388@stefanha-thinkpad.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,43 +16,104 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: Andrew Jones <drjones@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Rik van Riel <riel@redhat.com>, virtualization@lists.linux-foundation.org, virtio-comment@lists.oasis-open.org, Paolo Bonzini <pbonzini@redhat.com>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 24 Apr 2015 10:06:19 +0200
-Greg Kurz <gkurz@linux.vnet.ibm.com> wrote:
+--===============8617210196920538664==
+Content-Type: multipart/alternative; boundary=089e010d83f6bc12bf051473f40c
 
-> On Fri, 24 Apr 2015 09:19:26 +0200
-> Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
-> 
-> > On Thu, 23 Apr 2015 17:29:42 +0200
-> > Greg Kurz <gkurz@linux.vnet.ibm.com> wrote:
+--089e010d83f6bc12bf051473f40c
+Content-Type: text/plain; charset=UTF-8
 
-> > > diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-> > > index bb6a5b4..b980b53 100644
-> > > --- a/include/uapi/linux/vhost.h
-> > > +++ b/include/uapi/linux/vhost.h
-> > > @@ -103,6 +103,18 @@ struct vhost_memory {
-> > >  /* Get accessor: reads index, writes value in num */
-> > >  #define VHOST_GET_VRING_BASE _IOWR(VHOST_VIRTIO, 0x12, struct vhost_vring_state)
-> > > 
-> > > +/* Set the vring byte order in num. Valid values are VHOST_VRING_LITTLE_ENDIAN
-> > > + * or VHOST_VRING_BIG_ENDIAN (other values return EINVAL).
-> > 
-> > -EINVAL?
-> > 
-> 
-> Oops, yes. :)
-> 
-> > Should you also mention when you return -EBUSY?
-> > 
-> 
-> Indeed... what about:
-> 
-> "The byte order cannot be changed when the device is active: trying to do so
-> returns -EBUSY."
+Hi Stefan,
 
-s/when/while/ ?
+Great topic. I am also extremely interested in helping Virtio-net become
+the standard for the networking industry (the universe of DPDK, etc).
 
-But sounds good.
+On 22 April 2015 at 19:01, Stefan Hajnoczi <stefanha@redhat.com> wrote:
+
+> [It may be necessary to remove virtio-dev@lists.oasis-open.org from CC
+> if you are a non-TC member.]
+>
+
+[Done.]
+
+I think this approach could be fruitful in bringing virtio-net to
+> VM-to-VM networking use cases.  Unless virtio-net is extended for this
+> use case, I'm afraid DPDK and OpenDataPlane communities might steer
+> clear of VIRTIO.
+>
+
+Questions:
+
+- How fast is needed?
+
+- How fast is the vhost-user support that shipped in DPDK 2.0?
+
+- How fast would the new design likely be?
+
+Our recent experience in Snabb Switch land is that networking on x86 is now
+more of a HPC problem than a system programming problem. The SIMD bandwidth
+per core keeps increasing that this erodes the value of traditional (and
+complex) system programming optimizations. I will be interested to compare
+notes with others on this, already on Haswell but more so when we have
+AVX512.
+
+Incidentally, we also did a pile of work last year on zero-copy NIC->VM
+transfers and discovered a lot of interesting problems and edge cases where
+Virtio-net spec and/or drivers are hard to match up with common NICs. Happy
+to explain a bit about our experience if that would be valuable.
+
+Cheers,
+-Luke
+
+--089e010d83f6bc12bf051473f40c
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hi Stefan,<div><br></div><div>Great topic. I am also extre=
+mely interested in helping Virtio-net become the standard for the networkin=
+g industry (the universe of DPDK, etc).<br><div class=3D"gmail_extra"><br><=
+div class=3D"gmail_quote">On 22 April 2015 at 19:01, Stefan Hajnoczi <span =
+dir=3D"ltr">&lt;<a href=3D"mailto:stefanha@redhat.com" target=3D"_blank">st=
+efanha@redhat.com</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote=
+" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">[=
+It may be necessary to remove <a href=3D"mailto:virtio-dev@lists.oasis-open=
+.org">virtio-dev@lists.oasis-open.org</a> from CC<br>
+if you are a non-TC member.]<br></blockquote><div><br></div><div>[Done.]</d=
+iv><div><br></div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .=
+8ex;border-left:1px #ccc solid;padding-left:1ex">I think this approach coul=
+d be fruitful in bringing virtio-net to<br>
+VM-to-VM networking use cases.=C2=A0 Unless virtio-net is extended for this=
+<br>
+use case, I&#39;m afraid DPDK and OpenDataPlane communities might steer<br>
+clear of VIRTIO.<br></blockquote><div><br></div><div>Questions:</div><div><=
+br></div><div>- How fast is needed?</div><div><br></div><div>- How fast is =
+the vhost-user support that shipped in DPDK 2.0?</div><div><br></div><div>-=
+ How fast would the new design likely be?</div><div><br></div><div>Our rece=
+nt experience in Snabb Switch land is that networking on x86 is now more of=
+ a HPC problem than a system programming problem. The SIMD bandwidth per co=
+re keeps increasing that this erodes the value of traditional (and complex)=
+ system programming optimizations. I will be interested to compare notes wi=
+th others on this, already on Haswell but more so when we have AVX512.</div=
+><div><br></div><div>Incidentally, we also did a pile of work last year on =
+zero-copy NIC-&gt;VM transfers and discovered a lot of interesting problems=
+ and edge cases where Virtio-net spec and/or drivers are hard to match up w=
+ith common NICs. Happy to explain a bit about our experience if that would =
+be valuable.</div><div><br></div><div>Cheers,</div><div>-Luke</div><div><br=
+></div><div><br></div></div></div></div></div>
+
+--089e010d83f6bc12bf051473f40c--
+
+--===============8617210196920538664==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8617210196920538664==--
