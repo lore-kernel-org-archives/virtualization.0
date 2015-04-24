@@ -1,7 +1,7 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
 Subject: Re: [virtio-dev] Zerocopy VM-to-VM networking using virtio-net
-Date: Fri, 24 Apr 2015 10:20:28 +0200
-Message-ID: <5539FCCC.60708@redhat.com>
+Date: Fri, 24 Apr 2015 10:47:58 +0100
+Message-ID: <CAJSP0QWtbzWwbvHYHVDJ2bccJ1wPZ0WA31bOH5UkGMhbkLF-Ng@mail.gmail.com>
 References: <20150422170138.GA8388@stefanha-thinkpad.redhat.com>
 	<CAA2XHbd_Wxs3O6ChSGouF3ZGH-SA0Lzw7OFVfvnuAXZmLAkZoA@mail.gmail.com>
 Mime-Version: 1.0
@@ -18,36 +18,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Luke Gorrie <luke@snabb.co>, Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Andrew Jones <drjones@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Rik van Riel <riel@redhat.com>, virtualization@lists.linux-foundation.org, virtio-comment@lists.oasis-open.org, "Dr. David Alan Gilbert" <dgilbert@redhat.com>
+To: Luke Gorrie <luke@snabb.co>
+Cc: Andrew Jones <drjones@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Rik van Riel <riel@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stefan Hajnoczi <stefanha@redhat.com>, virtio-comment@lists.oasis-open.org, Paolo Bonzini <pbonzini@redhat.com>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Fri, Apr 24, 2015 at 9:12 AM, Luke Gorrie <luke@snabb.co> wrote:
+> - How fast would the new design likely be?
 
+This proposal eliminates two things in the path:
 
-On 24/04/2015 10:12, Luke Gorrie wrote:
-> 
->     I think this approach could be fruitful in bringing virtio-net to
->     VM-to-VM networking use cases.  Unless virtio-net is extended for this
->     use case, I'm afraid DPDK and OpenDataPlane communities might steer
->     clear of VIRTIO.
-> 
-> 
-> Questions:
-> 
-> - How fast is needed?
-> 
-> - How fast is the vhost-user support that shipped in DPDK 2.0?
+1. Compared to vhost_net, it bypasses the host tun driver and network
+stack, replacing it with direct vhost_net <-> vhost_net data transfer.
+At this level it's compared to vhost-user, but it's not programmable
+in userspace!
 
-vhost-user is fast.  The problem is not the speed, it's the desire of a
-more peer-to-peer operation.
+2. Data copies are eliminated because the Shared Buffers BAR gives
+both VMs access to the packets.
 
-virtio by design has very distinct roles for driver and device, so for
-VM2VM communication the virtio design requires two devices in the guest
-and two drivers, comprising a "switch", in the host.
+My concern is the overhead of the vhost_net component copying
+descriptors between NICs.  In a 100% shared memory model, each VM only
+has a receive queue that the other VM places packets into.  There are
+no tx queues.  The notification mechanism is an event fd that is
+ioeventfd for VM1 and irqfd for VM2.  In other words, when VM1 kicks
+the queue, VM2 receives an interrupt (of course polling the receive
+queue is also possible).
 
-The switch could be using vhost-user indeed, but my understanding is
-that in some cases this switch component is undesirable.  However, my
-understanding does not include _why_ it is undesirable.  This is where
-we need to gather more information from the DPDK folks.
+It would be interesting to compare the two approaches.
 
-Paolo
+> Our recent experience in Snabb Switch land is that networking on x86 is now
+> more of a HPC problem than a system programming problem. The SIMD bandwidth
+> per core keeps increasing that this erodes the value of traditional (and
+> complex) system programming optimizations. I will be interested to compare
+> notes with others on this, already on Haswell but more so when we have
+> AVX512.
+>
+> Incidentally, we also did a pile of work last year on zero-copy NIC->VM
+> transfers and discovered a lot of interesting problems and edge cases where
+> Virtio-net spec and/or drivers are hard to match up with common NICs. Happy
+> to explain a bit about our experience if that would be valuable.
+
+That sounds interesting, can you describe the setup?
+
+Stefan
