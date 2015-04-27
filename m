@@ -1,22 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] Zerocopy VM-to-VM networking using virtio-net
-Date: Mon, 27 Apr 2015 16:40:51 +0200
-Message-ID: <20150427163920-mutt-send-email-mst@redhat.com>
-References: <CAA2XHbd_Wxs3O6ChSGouF3ZGH-SA0Lzw7OFVfvnuAXZmLAkZoA@mail.gmail.com>
-	<CAJSP0QWtbzWwbvHYHVDJ2bccJ1wPZ0WA31bOH5UkGMhbkLF-Ng@mail.gmail.com>
-	<CAA2XHbdvxTviZ-wxRVd87EuajcrOb1g=3Rafdyc5cXrzGbJMqA@mail.gmail.com>
-	<CAJSP0QU=0KXC3uRjFGukNvKQkSLnSOMvXpEoLgzoxD7CRSx2iA@mail.gmail.com>
-	<CAA2XHbed=GMwCAUN4uz4vJ=JZdWeik=D07vwiwV5natk9XSdCg@mail.gmail.com>
-	<CAJSP0QW9dqvbqNVt0Ggk2d=Yd=jCQsbCqZA+TCEaGqU35wbDjg@mail.gmail.com>
-	<553E2D07.9040406@siemens.com> <553E31DC.6040108@siemens.com>
-	<CAJSP0QVLCN-=7V3K8CJL8n0sN_Zm=vpJzWksH9gbYEP+AU8ndQ@mail.gmail.com>
-	<553E480B.1020502@siemens.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: KVM Forum 2015 Call for Participation
+Date: Mon, 27 Apr 2015 17:37:04 +0200
+Message-ID: <553E57A0.5040908@redhat.com>
+References: <55008107.8040108@gnu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <553E480B.1020502@siemens.com>
+In-Reply-To: <55008107.8040108@gnu.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,103 +17,174 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jan Kiszka <jan.kiszka@siemens.com>
-Cc: Rik van Riel <riel@redhat.com>, Andrew Jones <drjones@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Luke Gorrie <luke@snabb.co>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, KVM list <kvm@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 27, 2015 at 04:30:35PM +0200, Jan Kiszka wrote:
-> Am 2015-04-27 um 15:01 schrieb Stefan Hajnoczi:
-> > On Mon, Apr 27, 2015 at 1:55 PM, Jan Kiszka <jan.kiszka@siemens.com> wrote:
-> >> Am 2015-04-27 um 14:35 schrieb Jan Kiszka:
-> >>> Am 2015-04-27 um 12:17 schrieb Stefan Hajnoczi:
-> >>>> On Sun, Apr 26, 2015 at 2:24 PM, Luke Gorrie <luke@snabb.co> wrote:
-> >>>>> On 24 April 2015 at 15:22, Stefan Hajnoczi <stefanha@gmail.com> wrote:
-> >>>>>>
-> >>>>>> The motivation for making VM-to-VM fast is that while software
-> >>>>>> switches on the host are efficient today (thanks to vhost-user), there
-> >>>>>> is no efficient solution if the software switch is a VM.
-> >>>>>
-> >>>>>
-> >>>>> I see. This sounds like a noble goal indeed. I would love to run the
-> >>>>> software switch as just another VM in the long term. It would make it much
-> >>>>> easier for the various software switches to coexist in the world.
-> >>>>>
-> >>>>> The main technical risk I see in this proposal is that eliminating the
-> >>>>> memory copies might not have the desired effect. I might be tempted to keep
-> >>>>> the copies but prevent the kernel from having to inspect the vrings (more
-> >>>>> like vhost-user). But that is just a hunch and I suppose the first step
-> >>>>> would be a prototype to check the performance anyway.
-> >>>>>
-> >>>>> For what it is worth here is my view of networking performance on x86 in the
-> >>>>> Haswell+ era:
-> >>>>> https://groups.google.com/forum/#!topic/snabb-devel/aez4pEnd4ow
-> >>>>
-> >>>> Thanks.
-> >>>>
-> >>>> I've been thinking about how to eliminate the VM <-> host <-> VM
-> >>>> switching and instead achieve just VM <-> VM.
-> >>>>
-> >>>> The holy grail of VM-to-VM networking is an exitless I/O path.  In
-> >>>> other words, packets can be transferred between VMs without any
-> >>>> vmexits (this requires a polling driver).
-> >>>>
-> >>>> Here is how it works.  QEMU gets "-device vhost-user" so that a VM can
-> >>>> act as the vhost-user server:
-> >>>>
-> >>>> VM1 (virtio-net guest driver) <-> VM2 (vhost-user device)
-> >>>>
-> >>>> VM1 has a regular virtio-net PCI device.  VM2 has a vhost-user device
-> >>>> and plays the host role instead of the normal virtio-net guest driver
-> >>>> role.
-> >>>>
-> >>>> The ugly thing about this is that VM2 needs to map all of VM1's guest
-> >>>> RAM so it can access the vrings and packet data.  The solution to this
-> >>>> is something like the Shared Buffers BAR but this time it contains not
-> >>>> just the packet data but also the vring, let's call it the Shared
-> >>>> Virtqueues BAR.
-> >>>>
-> >>>> The Shared Virtqueues BAR eliminates the need for vhost-net on the
-> >>>> host because VM1 and VM2 communicate directly using virtqueue notify
-> >>>> or polling vring memory.  Virtqueue notify works by connecting an
-> >>>> eventfd as ioeventfd in VM1 and irqfd in VM2.  And VM2 would also have
-> >>>> an ioeventfd that is irqfd for VM1 to signal completions.
-> >>>
-> >>> We had such a discussion before:
-> >>> http://thread.gmane.org/gmane.comp.emulators.kvm.devel/123014/focus=279658
-> >>>
-> >>> Would be great to get this ball rolling again.
-> >>>
-> >>> Jan
-> >>>
-> >>
-> >> But one challenge would remain even then (unless both sides only poll):
-> >> exit-free inter-VM signaling, no? But that's a hardware issue first of all.
-> > 
-> > To start with ioeventfd<->irqfd can be used.  It incurs a light-weight
-> > exit in VM1 and interrupt injection in VM2.
-> > 
-> > For networking the cost is mitigated by NAPI drivers which switch
-> > between interrupts and polling.  During notification-heavy periods the
-> > guests would use polling anyway.
-> > 
-> > A hardware solution would be some kind of inter-guest interrupt
-> > injection.  I don't know VMX well enough to know whether that is
-> > possible on Intel CPUs.
-> 
-> Today, we have posted interrupts to avoid the vm-exit on the target CPU,
-> but there is nothing yet (to my best knowledge) to avoid the exit on the
-> sender side (unless we ignore security). That's the same problem with
-> intra-guest IPIs, BTW.
-> 
-> For throughput and given NAPI patterns, that's probably not an issue as
-> you noted. It may be for latency, though, when almost every cycle counts.
-> 
-> Jan
+A friendly reminder that KVM Forum 2015 accepts proposal submissions
+until next Friday.
 
-If you are counting cycles you likely can't afford the
-interrupt latency under linux, so you have to poll
-memory.
+Thanks on behalf of the KVM Forum 2015 Program Committee.
 
-> -- 
-> Siemens AG, Corporate Technology, CT RTC ITP SES-DE
-> Corporate Competence Center Embedded Linux
+Paolo
+
+On 11/03/2015 18:53, Paolo Bonzini wrote:
+> =================================================================
+> KVM Forum 2015: Call For Participation
+> August 19-21, 2015 - Sheraton Seattle - Seattle, WA
+> 
+> (All submissions must be received before midnight May 1, 2015)
+> =================================================================
+> 
+> KVM is an industry leading open source hypervisor that provides an ideal
+> platform for datacenter virtualization, virtual desktop infrastructure,
+> and cloud computing.  Once again, it's time to bring together the
+> community of developers and users that define the KVM ecosystem for
+> our annual technical conference.  We will discuss the current state of
+> affairs and plan for the future of KVM, its surrounding infrastructure,
+> and management tools.  Mark your calendar and join us in advancing KVM.
+> http://events.linuxfoundation.org/events/kvm-forum/
+> 
+> This year, the KVM Forum is moving back to North America.  We will be
+> colocated with the Linux Foundation's LinuxCon North America, CloudOpen
+> North America, ContainerCon and Linux Plumbers Conference events.
+> Attendees of KVM Forum will also be able to attend a shared hackathon
+> event with Xen Project Developer Summit on August 18, 2015.
+> 
+> We invite you to lead part of the discussion by submitting a speaking
+> proposal for KVM Forum 2015.
+> http://events.linuxfoundation.org/cfp
+> 
+> 
+> Suggested topics:
+> 
+> KVM/Kernel
+> * Scaling and optimizations
+> * Nested virtualization
+> * Linux kernel performance improvements
+> * Resource management (CPU, I/O, memory)
+> * Hardening and security
+> * VFIO: SR-IOV, GPU, platform device assignment
+> * Architecture ports
+> 
+> QEMU
+> 
+> * Management interfaces: QOM and QMP
+> * New devices, new boards, new architectures
+> * Scaling and optimizations
+> * Desktop virtualization and SPICE
+> * Virtual GPU
+> * virtio and vhost, including non-Linux or non-virtualized uses
+> * Hardening and security
+> * New storage features
+> * Live migration and fault tolerance
+> * High availability and continuous backup
+> * Real-time guest support
+> * Emulation and TCG
+> * Firmware: ACPI, UEFI, coreboot, u-Boot, etc.
+> * Testing
+> 
+> Management and infrastructure
+> 
+> * Managing KVM: Libvirt, OpenStack, oVirt, etc.
+> * Storage: glusterfs, Ceph, etc.
+> * Software defined networking: Open vSwitch, OpenDaylight, etc.
+> * Network Function Virtualization
+> * Security
+> * Provisioning
+> * Performance tuning
+> 
+> 
+> ===============
+> SUBMITTING YOUR PROPOSAL
+> ===============
+> Abstracts due: May 1, 2015
+> 
+> Please submit a short abstract (~150 words) describing your presentation
+> proposal.  Slots vary in length up to 45 minutes.  Also include in your
+> proposal
+> the proposal type -- one of:
+> - technical talk
+> - end-user talk
+> 
+> Submit your proposal here:
+> http://events.linuxfoundation.org/cfp
+> Please only use the categories "presentation" and "panel discussion"
+> 
+> You will receive a notification whether or not your presentation proposal
+> was accepted by May 29, 2015.
+> 
+> Speakers will receive a complimentary pass for the event.  In the instance
+> that your submission has multiple presenters, only the primary speaker for a
+> proposal will receive a complementary event pass.  For panel
+> discussions, all
+> panelists will receive a complimentary event pass.
+> 
+> TECHNICAL TALKS
+> 
+> A good technical talk should not just report on what has happened over
+> the last year; it should present a concrete problem and how it impacts
+> the user and/or developer community.  Whenever applicable, focus on
+> work that needs to be done, difficulties that haven't yet been solved,
+> and on decisions that other developers should be aware of.  Summarizing
+> recent developments is okay but it should not be more than a small
+> portion of the overall talk.
+> 
+> END-USER TALKS
+> 
+> One of the big challenges as developers is to know what, where and how
+> people actually use our software.  We will reserve a few slots for end
+> users talking about their deployment challenges and achievements.
+> 
+> If you are using KVM in production you are encouraged submit a speaking
+> proposal.  Simply mark it as an end-user talk.  As an end user, this is a
+> unique opportunity to get your input to developers.
+> 
+> HANDS-ON / BOF SESSIONS
+> 
+> We will reserve some time for people to get together and discuss
+> strategic decisions as well as other topics that are best solved within
+> smaller groups.
+> 
+> These sessions will be announced during the event.  If you are interested
+> in organizing such a session, please add it to the list at
+> 
+>    http://www.linux-kvm.org/page/KVM_Forum_2015_BOF
+> 
+> Let people you think might be interested know about it, and encourage
+> them to add their names to the wiki page as well.  Please try to
+> add your ideas to the list before KVM Forum starts.
+> 
+> 
+> PANEL DISCUSSIONS
+> 
+> If you are proposing a panel discussion, please make sure that you list
+> all of your potential panelists in your abstract.  We will request full
+> biographies if a panel is accepted.
+> 
+> 
+> ===============
+> HOTEL / TRAVEL
+> ===============
+> KVM Forum 2015 will be taking place at the Sheraton Seattle Hotel.  We
+> are pleased to offer attendees a discounted room rate of US$199/night
+> (plus applicable taxes) which includes wifi in your guest room.
+> 
+> http://events.linuxfoundation.org/events/kvm-forum/attend/hotel-and-travel
+> includes further information on the Sheraton Seattle and the discounted
+> room rate, as well as on transportation and parking options for the hotel.
+> 
+> ===============
+> IMPORTANT DATES
+> ===============
+> Notification: May 29, 2015
+> Schedule announced: June 3, 2015
+> Event dates: August 19-21, 2015
+> 
+> 
+> Thank you for your interest in KVM.  We're looking forward to your
+> submissions and seeing you at the KVM Forum 2015 in August!
+> 
+> -your KVM Forum 2015 Program Committee
+> 
+> Please contact us with any questions or comments.
+> 
