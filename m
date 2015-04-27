@@ -1,15 +1,14 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v6 6/8] virtio: add explicit big-endian support to
-	memory accessors
-Date: Mon, 27 Apr 2015 11:14:22 +0200
-Message-ID: <20150427111422.10564c9e.cornelia.huck__44082.6696729802$1430126098$gmane$org@de.ibm.com>
+Subject: Re: [PATCH v6 7/8] vhost: cross-endian support for legacy devices
+Date: Mon, 27 Apr 2015 11:17:29 +0200
+Message-ID: <20150427111729.06a9492e.cornelia.huck__17824.4496034042$1430126280$gmane$org@de.ibm.com>
 References: <20150424122211.19156.97626.stgit@bahia.local>
-	<20150424122521.19156.65586.stgit@bahia.local>
+	<20150424122632.19156.88058.stgit@bahia.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150424122521.19156.65586.stgit@bahia.local>
+In-Reply-To: <20150424122632.19156.88058.stgit@bahia.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,38 +22,37 @@ To: Greg Kurz <gkurz@linux.vnet.ibm.com>
 Cc: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 24 Apr 2015 14:26:24 +0200
+On Fri, 24 Apr 2015 14:27:24 +0200
 Greg Kurz <gkurz@linux.vnet.ibm.com> wrote:
 
-> The current memory accessors logic is:
-> - little endian if little_endian
-> - native endian (i.e. no byteswap) if !little_endian
+> This patch brings cross-endian support to vhost when used to implement
+> legacy virtio devices. Since it is a relatively rare situation, the
+> feature availability is controlled by a kernel config option (not set
+> by default).
 > 
-> If we want to fully support cross-endian vhost, we also need to be
-> able to convert to big endian.
+> The vq->is_le boolean field is added to cache the endianness to be
+> used for ring accesses. It defaults to native endian, as expected
+> by legacy virtio devices. When the ring gets active, we force little
+> endian if the device is modern. When the ring is deactivated, we
+> revert to the native endian default.
 > 
-> Instead of changing the little_endian argument to some 3-value enum, this
-> patch changes the logic to:
-> - little endian if little_endian
-> - big endian if !little_endian
-> 
-> The native endian case is handled by all users with a trivial helper. This
-> patch doesn't change any functionality, nor it does add overhead.
+> If cross-endian was compiled in, a vq->user_be boolean field is added
+> so that userspace may request a specific endianness. This field is
+> used to override the default when activating the ring of a legacy
+> device. It has no effect on modern devices.
 > 
 > Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
 > ---
 > 
 > Changes since v5:
-> - changed endian checking helpers as suggested by Thomas (use || and line
->   breaker)
+> - fixed description in Kconfig
+> - fixed error description in uapi header
+> - dropped useless semi-colon in the vhost_vq_reset_user_be() stub
 > 
->  drivers/net/macvtap.c            |    3 ++-
->  drivers/net/tun.c                |    3 ++-
->  drivers/vhost/vhost.h            |    3 ++-
->  include/linux/virtio_byteorder.h |   24 ++++++++++++++----------
->  include/linux/virtio_config.h    |    3 ++-
->  include/linux/vringh.h           |    3 ++-
->  6 files changed, 24 insertions(+), 15 deletions(-)
+>  drivers/vhost/Kconfig      |   15 ++++++++
+>  drivers/vhost/vhost.c      |   85 +++++++++++++++++++++++++++++++++++++++++++-
+>  drivers/vhost/vhost.h      |   11 +++++-
+>  include/uapi/linux/vhost.h |   14 +++++++
+>  4 files changed, 122 insertions(+), 3 deletions(-)
 > 
-
 Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
