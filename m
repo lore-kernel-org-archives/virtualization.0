@@ -1,14 +1,18 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v6 7/8] vhost: cross-endian support for legacy devices
-Date: Mon, 27 Apr 2015 11:17:29 +0200
-Message-ID: <20150427111729.06a9492e.cornelia.huck__17824.4496034042$1430126280$gmane$org@de.ibm.com>
-References: <20150424122211.19156.97626.stgit@bahia.local>
-	<20150424122632.19156.88058.stgit@bahia.local>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [virtio-dev] Zerocopy VM-to-VM networking using virtio-net
+Date: Mon, 27 Apr 2015 11:17:44 +0100
+Message-ID: <CAJSP0QW9dqvbqNVt0Ggk2d=Yd=jCQsbCqZA+TCEaGqU35wbDjg@mail.gmail.com>
+References: <20150422170138.GA8388@stefanha-thinkpad.redhat.com>
+	<CAA2XHbd_Wxs3O6ChSGouF3ZGH-SA0Lzw7OFVfvnuAXZmLAkZoA@mail.gmail.com>
+	<CAJSP0QWtbzWwbvHYHVDJ2bccJ1wPZ0WA31bOH5UkGMhbkLF-Ng@mail.gmail.com>
+	<CAA2XHbdvxTviZ-wxRVd87EuajcrOb1g=3Rafdyc5cXrzGbJMqA@mail.gmail.com>
+	<CAJSP0QU=0KXC3uRjFGukNvKQkSLnSOMvXpEoLgzoxD7CRSx2iA@mail.gmail.com>
+	<CAA2XHbed=GMwCAUN4uz4vJ=JZdWeik=D07vwiwV5natk9XSdCg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150424122632.19156.88058.stgit@bahia.local>
+In-Reply-To: <CAA2XHbed=GMwCAUN4uz4vJ=JZdWeik=D07vwiwV5natk9XSdCg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,41 +22,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Cc: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Luke Gorrie <luke@snabb.co>
+Cc: Andrew Jones <drjones@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Rik van Riel <riel@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stefan Hajnoczi <stefanha@redhat.com>, virtio-comment@lists.oasis-open.org, Paolo Bonzini <pbonzini@redhat.com>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 24 Apr 2015 14:27:24 +0200
-Greg Kurz <gkurz@linux.vnet.ibm.com> wrote:
+On Sun, Apr 26, 2015 at 2:24 PM, Luke Gorrie <luke@snabb.co> wrote:
+> On 24 April 2015 at 15:22, Stefan Hajnoczi <stefanha@gmail.com> wrote:
+>>
+>> The motivation for making VM-to-VM fast is that while software
+>> switches on the host are efficient today (thanks to vhost-user), there
+>> is no efficient solution if the software switch is a VM.
+>
+>
+> I see. This sounds like a noble goal indeed. I would love to run the
+> software switch as just another VM in the long term. It would make it much
+> easier for the various software switches to coexist in the world.
+>
+> The main technical risk I see in this proposal is that eliminating the
+> memory copies might not have the desired effect. I might be tempted to keep
+> the copies but prevent the kernel from having to inspect the vrings (more
+> like vhost-user). But that is just a hunch and I suppose the first step
+> would be a prototype to check the performance anyway.
+>
+> For what it is worth here is my view of networking performance on x86 in the
+> Haswell+ era:
+> https://groups.google.com/forum/#!topic/snabb-devel/aez4pEnd4ow
 
-> This patch brings cross-endian support to vhost when used to implement
-> legacy virtio devices. Since it is a relatively rare situation, the
-> feature availability is controlled by a kernel config option (not set
-> by default).
-> 
-> The vq->is_le boolean field is added to cache the endianness to be
-> used for ring accesses. It defaults to native endian, as expected
-> by legacy virtio devices. When the ring gets active, we force little
-> endian if the device is modern. When the ring is deactivated, we
-> revert to the native endian default.
-> 
-> If cross-endian was compiled in, a vq->user_be boolean field is added
-> so that userspace may request a specific endianness. This field is
-> used to override the default when activating the ring of a legacy
-> device. It has no effect on modern devices.
-> 
-> Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
-> ---
-> 
-> Changes since v5:
-> - fixed description in Kconfig
-> - fixed error description in uapi header
-> - dropped useless semi-colon in the vhost_vq_reset_user_be() stub
-> 
->  drivers/vhost/Kconfig      |   15 ++++++++
->  drivers/vhost/vhost.c      |   85 +++++++++++++++++++++++++++++++++++++++++++-
->  drivers/vhost/vhost.h      |   11 +++++-
->  include/uapi/linux/vhost.h |   14 +++++++
->  4 files changed, 122 insertions(+), 3 deletions(-)
-> 
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Thanks.
+
+I've been thinking about how to eliminate the VM <-> host <-> VM
+switching and instead achieve just VM <-> VM.
+
+The holy grail of VM-to-VM networking is an exitless I/O path.  In
+other words, packets can be transferred between VMs without any
+vmexits (this requires a polling driver).
+
+Here is how it works.  QEMU gets "-device vhost-user" so that a VM can
+act as the vhost-user server:
+
+VM1 (virtio-net guest driver) <-> VM2 (vhost-user device)
+
+VM1 has a regular virtio-net PCI device.  VM2 has a vhost-user device
+and plays the host role instead of the normal virtio-net guest driver
+role.
+
+The ugly thing about this is that VM2 needs to map all of VM1's guest
+RAM so it can access the vrings and packet data.  The solution to this
+is something like the Shared Buffers BAR but this time it contains not
+just the packet data but also the vring, let's call it the Shared
+Virtqueues BAR.
+
+The Shared Virtqueues BAR eliminates the need for vhost-net on the
+host because VM1 and VM2 communicate directly using virtqueue notify
+or polling vring memory.  Virtqueue notify works by connecting an
+eventfd as ioeventfd in VM1 and irqfd in VM2.  And VM2 would also have
+an ioeventfd that is irqfd for VM1 to signal completions.
+
+Stefan
