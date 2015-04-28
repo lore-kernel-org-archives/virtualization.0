@@ -1,13 +1,13 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: KVM Forum 2015 Call for Participation
-Date: Mon, 27 Apr 2015 17:37:04 +0200
-Message-ID: <553E57A0.5040908@redhat.com>
-References: <55008107.8040108@gnu.org>
+From: Christopher Covington <cov@codeaurora.org>
+Subject: Re: [PATCH v2] virtio-mmio: Update the device to OASIS spec version
+Date: Tue, 28 Apr 2015 17:06:16 -0400
+Message-ID: <553FF648.2020003@codeaurora.org>
+References: <1421777531-15180-1-git-send-email-pawel.moll@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <55008107.8040108@gnu.org>
+In-Reply-To: <1421777531-15180-1-git-send-email-pawel.moll@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,174 +17,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, KVM list <kvm@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: Pawel Moll <pawel.moll@arm.com>, Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-A friendly reminder that KVM Forum 2015 accepts proposal submissions
-until next Friday.
+Hi,
 
-Thanks on behalf of the KVM Forum 2015 Program Committee.
+On 01/20/2015 01:12 PM, Pawel Moll wrote:
 
-Paolo
+> @@ -356,13 +346,6 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
+>  		info->num /= 2;
+>  	}
+>  
+> -	/* Activate the queue */
+> -	writel(info->num, vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
+> -	writel(VIRTIO_MMIO_VRING_ALIGN,
+> -			vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
+> -	writel(virt_to_phys(info->queue) >> PAGE_SHIFT,
+> -			vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
+> -
+>  	/* Create the vring */
+>  	vq = vring_new_virtqueue(index, info->num, VIRTIO_MMIO_VRING_ALIGN, vdev,
+>  				 true, info->queue, vm_notify, callback, name);
+> @@ -371,6 +354,33 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
+>  		goto error_new_virtqueue;
+>  	}
+>  
+> +	/* Activate the queue */
+> +	writel(info->num, vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
+> +	if (vm_dev->version == 1) {
+> +		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
+> +		writel(virt_to_phys(info->queue) >> PAGE_SHIFT,
+> +				vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
+> +	} else {
+> +		u64 addr;
+> +
+> +		addr = virt_to_phys(info->queue);
+> +		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_LOW);
+> +		writel((u32)(addr >> 32),
+> +				vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_HIGH);
+> +
+> +		addr = virt_to_phys(virtqueue_get_avail(vq));
+> +		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_LOW);
+> +		writel((u32)(addr >> 32),
+> +				vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_HIGH);
+> +
+> +		addr = virt_to_phys(virtqueue_get_used(vq));
+> +		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_USED_LOW);
+> +		writel((u32)(addr >> 32),
+> +				vm_dev->base + VIRTIO_MMIO_QUEUE_USED_HIGH);
+> +
+> +		writel(1, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
+> +	}
+> +
+>  	vq->priv = info;
+>  	info->vq = vq;
 
-On 11/03/2015 18:53, Paolo Bonzini wrote:
-> =================================================================
-> KVM Forum 2015: Call For Participation
-> August 19-21, 2015 - Sheraton Seattle - Seattle, WA
-> 
-> (All submissions must be received before midnight May 1, 2015)
-> =================================================================
-> 
-> KVM is an industry leading open source hypervisor that provides an ideal
-> platform for datacenter virtualization, virtual desktop infrastructure,
-> and cloud computing.  Once again, it's time to bring together the
-> community of developers and users that define the KVM ecosystem for
-> our annual technical conference.  We will discuss the current state of
-> affairs and plan for the future of KVM, its surrounding infrastructure,
-> and management tools.  Mark your calendar and join us in advancing KVM.
-> http://events.linuxfoundation.org/events/kvm-forum/
-> 
-> This year, the KVM Forum is moving back to North America.  We will be
-> colocated with the Linux Foundation's LinuxCon North America, CloudOpen
-> North America, ContainerCon and Linux Plumbers Conference events.
-> Attendees of KVM Forum will also be able to attend a shared hackathon
-> event with Xen Project Developer Summit on August 18, 2015.
-> 
-> We invite you to lead part of the discussion by submitting a speaking
-> proposal for KVM Forum 2015.
-> http://events.linuxfoundation.org/cfp
-> 
-> 
-> Suggested topics:
-> 
-> KVM/Kernel
-> * Scaling and optimizations
-> * Nested virtualization
-> * Linux kernel performance improvements
-> * Resource management (CPU, I/O, memory)
-> * Hardening and security
-> * VFIO: SR-IOV, GPU, platform device assignment
-> * Architecture ports
-> 
-> QEMU
-> 
-> * Management interfaces: QOM and QMP
-> * New devices, new boards, new architectures
-> * Scaling and optimizations
-> * Desktop virtualization and SPICE
-> * Virtual GPU
-> * virtio and vhost, including non-Linux or non-virtualized uses
-> * Hardening and security
-> * New storage features
-> * Live migration and fault tolerance
-> * High availability and continuous backup
-> * Real-time guest support
-> * Emulation and TCG
-> * Firmware: ACPI, UEFI, coreboot, u-Boot, etc.
-> * Testing
-> 
-> Management and infrastructure
-> 
-> * Managing KVM: Libvirt, OpenStack, oVirt, etc.
-> * Storage: glusterfs, Ceph, etc.
-> * Software defined networking: Open vSwitch, OpenDaylight, etc.
-> * Network Function Virtualization
-> * Security
-> * Provisioning
-> * Performance tuning
-> 
-> 
-> ===============
-> SUBMITTING YOUR PROPOSAL
-> ===============
-> Abstracts due: May 1, 2015
-> 
-> Please submit a short abstract (~150 words) describing your presentation
-> proposal.  Slots vary in length up to 45 minutes.  Also include in your
-> proposal
-> the proposal type -- one of:
-> - technical talk
-> - end-user talk
-> 
-> Submit your proposal here:
-> http://events.linuxfoundation.org/cfp
-> Please only use the categories "presentation" and "panel discussion"
-> 
-> You will receive a notification whether or not your presentation proposal
-> was accepted by May 29, 2015.
-> 
-> Speakers will receive a complimentary pass for the event.  In the instance
-> that your submission has multiple presenters, only the primary speaker for a
-> proposal will receive a complementary event pass.  For panel
-> discussions, all
-> panelists will receive a complimentary event pass.
-> 
-> TECHNICAL TALKS
-> 
-> A good technical talk should not just report on what has happened over
-> the last year; it should present a concrete problem and how it impacts
-> the user and/or developer community.  Whenever applicable, focus on
-> work that needs to be done, difficulties that haven't yet been solved,
-> and on decisions that other developers should be aware of.  Summarizing
-> recent developments is okay but it should not be more than a small
-> portion of the overall talk.
-> 
-> END-USER TALKS
-> 
-> One of the big challenges as developers is to know what, where and how
-> people actually use our software.  We will reserve a few slots for end
-> users talking about their deployment challenges and achievements.
-> 
-> If you are using KVM in production you are encouraged submit a speaking
-> proposal.  Simply mark it as an end-user talk.  As an end user, this is a
-> unique opportunity to get your input to developers.
-> 
-> HANDS-ON / BOF SESSIONS
-> 
-> We will reserve some time for people to get together and discuss
-> strategic decisions as well as other topics that are best solved within
-> smaller groups.
-> 
-> These sessions will be announced during the event.  If you are interested
-> in organizing such a session, please add it to the list at
-> 
->    http://www.linux-kvm.org/page/KVM_Forum_2015_BOF
-> 
-> Let people you think might be interested know about it, and encourage
-> them to add their names to the wiki page as well.  Please try to
-> add your ideas to the list before KVM Forum starts.
-> 
-> 
-> PANEL DISCUSSIONS
-> 
-> If you are proposing a panel discussion, please make sure that you list
-> all of your potential panelists in your abstract.  We will request full
-> biographies if a panel is accepted.
-> 
-> 
-> ===============
-> HOTEL / TRAVEL
-> ===============
-> KVM Forum 2015 will be taking place at the Sheraton Seattle Hotel.  We
-> are pleased to offer attendees a discounted room rate of US$199/night
-> (plus applicable taxes) which includes wifi in your guest room.
-> 
-> http://events.linuxfoundation.org/events/kvm-forum/attend/hotel-and-travel
-> includes further information on the Sheraton Seattle and the discounted
-> room rate, as well as on transportation and parking options for the hotel.
-> 
-> ===============
-> IMPORTANT DATES
-> ===============
-> Notification: May 29, 2015
-> Schedule announced: June 3, 2015
-> Event dates: August 19-21, 2015
-> 
-> 
-> Thank you for your interest in KVM.  We're looking forward to your
-> submissions and seeing you at the KVM Forum 2015 in August!
-> 
-> -your KVM Forum 2015 Program Committee
-> 
-> Please contact us with any questions or comments.
-> 
+This patch moved the call to vring_new_virtqueue() in the legacy code flow
+before the VIRTIO_MMIO_QUEUE_NUM, VIRTIO_MMIO_QUEUE_ALIGN, and
+VIRTIO_MMIO_QUEUE_PFN writes. Was this intentional? Could the old behavior be
+reinstated?
+
+We have an implementation that relies on knowing ahead of time what address
+range will be used, and is blind to memory accesses that occur before
+VIRTIO_MMIO_QUEUE_PFN is written to (or VIRTIO_MMIO_QUEUE_READY when we
+upgrade). Is such an implementation supported by the specification? We can't
+find any explicit mention that the driver is forbidden from writing to the
+memory region before VIRTIO_MMIO_QUEUE_READY is set to 1 (or
+VIRTIO_MMIO_QUEUE_PFN is set for legacy devices).
+
+Thanks,
+Chris
+
+-- 
+Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project
