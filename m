@@ -1,14 +1,16 @@
-From: Pawel Moll <pawel.moll@arm.com>
-Subject: Re: [PATCH v2] virtio-mmio: Update the device to OASIS spec version
-Date: Wed, 29 Apr 2015 17:30:37 +0100
-Message-ID: <1430325037.3283.44.camel@arm.com>
-References: <1421777531-15180-1-git-send-email-pawel.moll@arm.com>
-	<553FF648.2020003@codeaurora.org>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v16 13/14] pvqspinlock: Improve slowpath performance by
+	avoiding cmpxchg
+Date: Wed, 29 Apr 2015 20:11:12 +0200
+Message-ID: <20150429181112.GI23123__40940.6120460064$1430331118$gmane$org@twins.programming.kicks-ass.net>
+References: <1429901803-29771-1-git-send-email-Waiman.Long@hp.com>
+	<1429901803-29771-14-git-send-email-Waiman.Long@hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <553FF648.2020003@codeaurora.org>
+Content-Disposition: inline
+In-Reply-To: <1429901803-29771-14-git-send-email-Waiman.Long@hp.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,91 +20,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christopher Covington <cov@codeaurora.org>
-Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Michael S. Tsirkin" <mst@redhat.com>
+To: Waiman Long <Waiman.Long@hp.com>
+Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Oleg Nesterov <oleg@redhat.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Daniel J Blueman <daniel@numascale.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Scott J Norton <scott.norton@hp.com>, Ingo Molnar <mingo@redhat.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Douglas Hatch <doug.hatch@hp.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2015-04-28 at 22:06 +0100, Christopher Covington wrote:
-> Hi,
+On Fri, Apr 24, 2015 at 02:56:42PM -0400, Waiman Long wrote:
+> In the pv_scan_next() function, the slow cmpxchg atomic operation is
+> performed even if the other CPU is not even close to being halted. This
+> extra cmpxchg can harm slowpath performance.
 > 
-> On 01/20/2015 01:12 PM, Pawel Moll wrote:
-> 
-> > @@ -356,13 +346,6 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
-> >  		info->num /= 2;
-> >  	}
-> >  
-> > -	/* Activate the queue */
-> > -	writel(info->num, vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
-> > -	writel(VIRTIO_MMIO_VRING_ALIGN,
-> > -			vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
-> > -	writel(virt_to_phys(info->queue) >> PAGE_SHIFT,
-> > -			vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
-> > -
-> >  	/* Create the vring */
-> >  	vq = vring_new_virtqueue(index, info->num, VIRTIO_MMIO_VRING_ALIGN, vdev,
-> >  				 true, info->queue, vm_notify, callback, name);
-> > @@ -371,6 +354,33 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
-> >  		goto error_new_virtqueue;
-> >  	}
-> >  
-> > +	/* Activate the queue */
-> > +	writel(info->num, vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
-> > +	if (vm_dev->version == 1) {
-> > +		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
-> > +		writel(virt_to_phys(info->queue) >> PAGE_SHIFT,
-> > +				vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
-> > +	} else {
-> > +		u64 addr;
-> > +
-> > +		addr = virt_to_phys(info->queue);
-> > +		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_LOW);
-> > +		writel((u32)(addr >> 32),
-> > +				vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_HIGH);
-> > +
-> > +		addr = virt_to_phys(virtqueue_get_avail(vq));
-> > +		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_LOW);
-> > +		writel((u32)(addr >> 32),
-> > +				vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_HIGH);
-> > +
-> > +		addr = virt_to_phys(virtqueue_get_used(vq));
-> > +		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_USED_LOW);
-> > +		writel((u32)(addr >> 32),
-> > +				vm_dev->base + VIRTIO_MMIO_QUEUE_USED_HIGH);
-> > +
-> > +		writel(1, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
-> > +	}
-> > +
-> >  	vq->priv = info;
-> >  	info->vq = vq;
-> 
-> This patch moved the call to vring_new_virtqueue() in the legacy code flow
-> before the VIRTIO_MMIO_QUEUE_NUM, VIRTIO_MMIO_QUEUE_ALIGN, and
-> VIRTIO_MMIO_QUEUE_PFN writes. 
+> This patch introduces the new mayhalt flag to indicate if the other
+> spinning CPU is close to being halted or not. The current threshold
+> for x86 is 2k cpu_relax() calls. If this flag is not set, the other
+> spinning CPU will have at least 2k more cpu_relax() calls before
+> it can enter the halt state. This should give enough time for the
+> setting of the locked flag in struct mcs_spinlock to propagate to
+> that CPU without using atomic op.
 
-Just to make sure: we're talking the legacy case only here, correct?
-
-> Was this intentional? 
-
-Yes, it simply made the code cleaner. I remember stopping for a moment
-doing this change and thinking what bad can it make. Haven't figured out
-anything, but it seems I was wrong ;-)
-
-> Could the old behavior be reinstated?
-
-I see no big problem with this, but only for the "if (vm_dev->version ==
-1)" case.
-
-> We have an implementation that relies on knowing ahead of time what address
-> range will be used, and is blind to memory accesses that occur before
-> VIRTIO_MMIO_QUEUE_PFN is written to (or VIRTIO_MMIO_QUEUE_READY when we
-> upgrade). Is such an implementation supported by the specification? We can't
-> find any explicit mention that the driver is forbidden from writing to the
-> memory region before VIRTIO_MMIO_QUEUE_READY is set to 1 (or
-> VIRTIO_MMIO_QUEUE_PFN is set for legacy devices).
-
-Hm. At the first glance I wouldn't expect the spec to impose such ban.
-After all the driver is responsible for providing the ring memory, spec
-doesn't care (or does it?) how is it coming into existence - it's the
-guest's memory after all. Am I missing something obvious?
-
-Pawel
+Yuck! I'm not at all sure you can make assumptions like that. And the
+worst part is, if it goes wrong the borkage is subtle and painful.
