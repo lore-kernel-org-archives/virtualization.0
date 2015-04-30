@@ -1,8 +1,8 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH 1/6] x86: use macro instead of "0" for setting
-	TICKET_SLOWPATH_FLAG
-Date: Thu, 30 Apr 2015 12:53:58 +0200
-Message-ID: <1430391243-7112-2-git-send-email-jgross__48555.8683089495$1430453259$gmane$org@suse.com>
+Subject: [PATCH 2/6] x86: move decision about clearing slowpath flag into
+	arch_spin_lock()
+Date: Thu, 30 Apr 2015 12:53:59 +0200
+Message-ID: <1430391243-7112-3-git-send-email-jgross__11447.2438618124$1430453279$gmane$org@suse.com>
 References: <1430391243-7112-1-git-send-email-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,46 +22,63 @@ To: linux-kernel@vger.kernel.org, x86@kernel.org, hpa@zytor.com, tglx@linutronix
 Cc: Juergen Gross <jgross@suse.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-For paravirtualized spinlocks setting the "slowpath" flag in
-__ticket_enter_slowpath() is done via setting bit "0" in
-lock->tickets.head instead of using a macro.
+The decision whether the slowpath flag is to be cleared for
+paravirtualized spinlocks is located in
+__ticket_check_and_clear_slowpath() today.
 
-Change this by defining an appropriate macro.
+Move that decision into arch_spin_lock() and add an unlikely attribute
+to it to avoid calling a function in case the compiler chooses not to
+inline __ticket_check_and_clear_slowpath() and the slowpath flag isn't
+set.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
- arch/x86/include/asm/spinlock.h       | 3 ++-
- arch/x86/include/asm/spinlock_types.h | 3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/spinlock.h | 23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
 
 diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
-index cf87de3..8ceec8d 100644
+index 8ceec8d..268b9da 100644
 --- a/arch/x86/include/asm/spinlock.h
 +++ b/arch/x86/include/asm/spinlock.h
-@@ -46,7 +46,8 @@ static __always_inline bool static_key_false(struct static_key *key);
- 
- static inline void __ticket_enter_slowpath(arch_spinlock_t *lock)
- {
--	set_bit(0, (volatile unsigned long *)&lock->tickets.head);
-+	set_bit(TICKET_SLOWPATH_BIT,
-+		(volatile unsigned long *)&lock->tickets.head);
+@@ -66,20 +66,18 @@ static inline int  __tickets_equal(__ticket_t one, __ticket_t two)
+ 	return !((one ^ two) & ~TICKET_SLOWPATH_FLAG);
  }
  
- #else  /* !CONFIG_PARAVIRT_SPINLOCKS */
-diff --git a/arch/x86/include/asm/spinlock_types.h b/arch/x86/include/asm/spinlock_types.h
-index 5f9d757..579409a 100644
---- a/arch/x86/include/asm/spinlock_types.h
-+++ b/arch/x86/include/asm/spinlock_types.h
-@@ -4,8 +4,9 @@
- #include <linux/types.h>
+-static inline void __ticket_check_and_clear_slowpath(arch_spinlock_t *lock,
+-							__ticket_t head)
++static inline void __ticket_clear_slowpath(arch_spinlock_t *lock,
++					   __ticket_t head)
+ {
+-	if (head & TICKET_SLOWPATH_FLAG) {
+-		arch_spinlock_t old, new;
++	arch_spinlock_t old, new;
  
- #ifdef CONFIG_PARAVIRT_SPINLOCKS
-+#define TICKET_SLOWPATH_BIT	0
- #define __TICKET_LOCK_INC	2
--#define TICKET_SLOWPATH_FLAG	((__ticket_t)1)
-+#define TICKET_SLOWPATH_FLAG	((__ticket_t)(1 << TICKET_SLOWPATH_BIT))
- #else
- #define __TICKET_LOCK_INC	1
- #define TICKET_SLOWPATH_FLAG	((__ticket_t)0)
+-		old.tickets.head = head;
+-		new.tickets.head = head & ~TICKET_SLOWPATH_FLAG;
+-		old.tickets.tail = new.tickets.head + TICKET_LOCK_INC;
+-		new.tickets.tail = old.tickets.tail;
++	old.tickets.head = head;
++	new.tickets.head = head & ~TICKET_SLOWPATH_FLAG;
++	old.tickets.tail = new.tickets.head + TICKET_LOCK_INC;
++	new.tickets.tail = old.tickets.tail;
+ 
+-		/* try to clear slowpath flag when there are no contenders */
+-		cmpxchg(&lock->head_tail, old.head_tail, new.head_tail);
+-	}
++	/* try to clear slowpath flag when there are no contenders */
++	cmpxchg(&lock->head_tail, old.head_tail, new.head_tail);
+ }
+ 
+ static __always_inline int arch_spin_value_unlocked(arch_spinlock_t lock)
+@@ -120,7 +118,8 @@ static __always_inline void arch_spin_lock(arch_spinlock_t *lock)
+ 		__ticket_lock_spinning(lock, inc.tail);
+ 	}
+ clear_slowpath:
+-	__ticket_check_and_clear_slowpath(lock, inc.head);
++	if (unlikely(inc.head & TICKET_SLOWPATH_FLAG))
++		__ticket_clear_slowpath(lock, inc.head);
+ out:
+ 	barrier();	/* make sure nothing creeps before the lock is taken */
+ }
 -- 
 2.1.4
