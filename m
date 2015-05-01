@@ -1,13 +1,11 @@
-From: "Edgar E. Iglesias" <edgar.iglesias@gmail.com>
-Subject: [RFC 4/4] rpmsg: DMA map sgs passed to virtio
-Date: Fri,  1 May 2015 15:01:47 +1000
-Message-ID: <1430456507-26862-5-git-send-email-edgar.iglesias@gmail.com>
-References: <1430456507-26862-1-git-send-email-edgar.iglesias@gmail.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH] virtio: pass baton to Michael Tsirkin
+Date: Sat, 02 May 2015 08:42:38 +0930
+Message-ID: <87h9rv3na1.fsf__37884.0678524741$1430522042$gmane$org@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1430456507-26862-1-git-send-email-edgar.iglesias@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,83 +15,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: edgar.iglesias@xilinx.com, linux@arm.linux.org.uk, mst@redhat.com, michal.simek@xilinx.com, j.wu@xilinx.com
+To: "Michael S. Tsirkin" <mst@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Edgar E. Iglesias" <edgar.iglesias@xilinx.com>
+With my job change kernel work will be "own time"; I'm keeping lguest
+and modules (and the virtio standards work), but virtio kernel has to
+go.
 
-Signed-off-by: Edgar E. Iglesias <edgar.iglesias@xilinx.com>
----
- drivers/rpmsg/virtio_rpmsg_bus.c | 28 ++++++++++++++++++++++------
- 1 file changed, 22 insertions(+), 6 deletions(-)
+This makes it clear that Michael is in charge.  He's good, but having
+me watch over his shoulder won't help.
 
-diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
-index 73354ee..9ae53a0 100644
---- a/drivers/rpmsg/virtio_rpmsg_bus.c
-+++ b/drivers/rpmsg/virtio_rpmsg_bus.c
-@@ -210,6 +210,22 @@ static void __ept_release(struct kref *kref)
- 	kfree(ept);
- }
+Good luck Michael!
+
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 2e5bbc0d68b2..16227759dfa8 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -10523,7 +10523,6 @@ F:	include/linux/virtio_console.h
+ F:	include/uapi/linux/virtio_console.h
  
-+static inline dma_addr_t msg_dma_address(struct virtproc_info *vrp, void *msg)
-+{
-+	unsigned long offset = msg - vrp->rbufs;
-+
-+	return vrp->bufs_dma + offset;
-+}
-+
-+static inline void rpmsg_msg_sg_init(struct virtproc_info *vrp,
-+				     struct scatterlist *sg,
-+				     void *msg, unsigned int len)
-+{
-+	sg_init_table(sg, 1);
-+	sg_dma_address(sg) = msg_dma_address(vrp, msg);
-+	sg_dma_len(sg) = len;
-+}
-+
- /* for more info, see below documentation of rpmsg_create_ept() */
- static struct rpmsg_endpoint *__rpmsg_create_ept(struct virtproc_info *vrp,
- 		struct rpmsg_channel *rpdev, rpmsg_rx_cb_t cb,
-@@ -754,12 +770,12 @@ int rpmsg_send_offchannel_raw(struct rpmsg_channel *rpdev, u32 src, u32 dst,
- 	print_hex_dump(KERN_DEBUG, "rpmsg_virtio TX: ", DUMP_PREFIX_NONE, 16, 1,
- 					msg, sizeof(*msg) + msg->len, true);
- 
--	sg_init_one(&sg, msg, sizeof(*msg) + len);
-+	rpmsg_msg_sg_init(vrp, &sg, msg, sizeof(*msg) + len);
- 
- 	mutex_lock(&vrp->tx_lock);
- 
- 	/* add message to the remote processor's virtqueue */
--	err = virtqueue_add_outbuf(vrp->svq, &sg, 1, msg, GFP_KERNEL);
-+	err = dma_virtqueue_add_outbuf(vrp->svq, &sg, 1, msg, GFP_KERNEL);
- 	if (err) {
- 		/*
- 		 * need to reclaim the buffer here, otherwise it's lost
-@@ -828,10 +844,10 @@ static int rpmsg_recv_single(struct virtproc_info *vrp, struct device *dev,
- 		dev_warn(dev, "msg received with no recipient\n");
- 
- 	/* publish the real size of the buffer */
--	sg_init_one(&sg, msg, RPMSG_BUF_SIZE);
-+	rpmsg_msg_sg_init(vrp, &sg, msg, RPMSG_BUF_SIZE);
- 
- 	/* add the buffer back to the remote processor's virtqueue */
--	err = virtqueue_add_inbuf(vrp->rvq, &sg, 1, msg, GFP_KERNEL);
-+	err = dma_virtqueue_add_inbuf(vrp->rvq, &sg, 1, msg, GFP_KERNEL);
- 	if (err < 0) {
- 		dev_err(dev, "failed to add a virtqueue buffer: %d\n", err);
- 		return err;
-@@ -1007,9 +1023,9 @@ static int rpmsg_probe(struct virtio_device *vdev)
- 		struct scatterlist sg;
- 		void *cpu_addr = vrp->rbufs + i * RPMSG_BUF_SIZE;
- 
--		sg_init_one(&sg, cpu_addr, RPMSG_BUF_SIZE);
-+		rpmsg_msg_sg_init(vrp, &sg, cpu_addr, RPMSG_BUF_SIZE);
- 
--		err = virtqueue_add_inbuf(vrp->rvq, &sg, 1, cpu_addr,
-+		err = dma_virtqueue_add_inbuf(vrp->rvq, &sg, 1, cpu_addr,
- 								GFP_KERNEL);
- 		WARN_ON(err); /* sanity check; this can't really happen */
- 	}
--- 
-1.9.1
+ VIRTIO CORE, NET AND BLOCK DRIVERS
+-M:	Rusty Russell <rusty@rustcorp.com.au>
+ M:	"Michael S. Tsirkin" <mst@redhat.com>
+ L:	virtualization@lists.linux-foundation.org
+ S:	Maintained
