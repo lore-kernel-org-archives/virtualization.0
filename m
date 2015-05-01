@@ -1,7 +1,7 @@
 From: "Edgar E. Iglesias" <edgar.iglesias@gmail.com>
-Subject: [RFC 3/4] virtio: Add dma variants of virtqueue_add_in and outbuf
-Date: Fri,  1 May 2015 15:01:46 +1000
-Message-ID: <1430456507-26862-4-git-send-email-edgar.iglesias@gmail.com>
+Subject: [RFC 4/4] rpmsg: DMA map sgs passed to virtio
+Date: Fri,  1 May 2015 15:01:47 +1000
+Message-ID: <1430456507-26862-5-git-send-email-edgar.iglesias@gmail.com>
 References: <1430456507-26862-1-git-send-email-edgar.iglesias@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,66 +25,75 @@ From: "Edgar E. Iglesias" <edgar.iglesias@xilinx.com>
 
 Signed-off-by: Edgar E. Iglesias <edgar.iglesias@xilinx.com>
 ---
- drivers/virtio/virtio_ring.c | 18 ++++++++++++++++++
- include/linux/virtio.h       | 10 ++++++++++
- 2 files changed, 28 insertions(+)
+ drivers/rpmsg/virtio_rpmsg_bus.c | 28 ++++++++++++++++++++++------
+ 1 file changed, 22 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 233f3c6..dd6c640 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -323,6 +323,15 @@ int virtqueue_add_outbuf(struct virtqueue *vq,
+diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
+index 73354ee..9ae53a0 100644
+--- a/drivers/rpmsg/virtio_rpmsg_bus.c
++++ b/drivers/rpmsg/virtio_rpmsg_bus.c
+@@ -210,6 +210,22 @@ static void __ept_release(struct kref *kref)
+ 	kfree(ept);
  }
- EXPORT_SYMBOL_GPL(virtqueue_add_outbuf);
  
-+int dma_virtqueue_add_outbuf(struct virtqueue *vq,
-+			     struct scatterlist *sg, unsigned int num,
-+			     void *data,
-+			     gfp_t gfp)
++static inline dma_addr_t msg_dma_address(struct virtproc_info *vrp, void *msg)
 +{
-+	return virtqueue_add(vq, &sg, num, 1, 0, data, gfp, true);
-+}
-+EXPORT_SYMBOL_GPL(dma_virtqueue_add_outbuf);
++	unsigned long offset = msg - vrp->rbufs;
 +
- /**
-  * virtqueue_add_inbuf - expose input buffers to other end
-  * @vq: the struct virtqueue we're talking about.
-@@ -345,6 +354,15 @@ int virtqueue_add_inbuf(struct virtqueue *vq,
- }
- EXPORT_SYMBOL_GPL(virtqueue_add_inbuf);
- 
-+int dma_virtqueue_add_inbuf(struct virtqueue *vq,
-+			    struct scatterlist *sg, unsigned int num,
-+			    void *data,
-+			    gfp_t gfp)
++	return vrp->bufs_dma + offset;
++}
++
++static inline void rpmsg_msg_sg_init(struct virtproc_info *vrp,
++				     struct scatterlist *sg,
++				     void *msg, unsigned int len)
 +{
-+	return virtqueue_add(vq, &sg, num, 0, 1, data, gfp, true);
++	sg_init_table(sg, 1);
++	sg_dma_address(sg) = msg_dma_address(vrp, msg);
++	sg_dma_len(sg) = len;
 +}
-+EXPORT_SYMBOL_GPL(dma_virtqueue_add_inbuf);
 +
- /**
-  * virtqueue_kick_prepare - first half of split virtqueue_kick call.
-  * @vq: the struct virtqueue
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 8f4d4bf..c31b3e2 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -34,6 +34,16 @@ struct virtqueue {
- 	void *priv;
- };
+ /* for more info, see below documentation of rpmsg_create_ept() */
+ static struct rpmsg_endpoint *__rpmsg_create_ept(struct virtproc_info *vrp,
+ 		struct rpmsg_channel *rpdev, rpmsg_rx_cb_t cb,
+@@ -754,12 +770,12 @@ int rpmsg_send_offchannel_raw(struct rpmsg_channel *rpdev, u32 src, u32 dst,
+ 	print_hex_dump(KERN_DEBUG, "rpmsg_virtio TX: ", DUMP_PREFIX_NONE, 16, 1,
+ 					msg, sizeof(*msg) + msg->len, true);
  
-+int dma_virtqueue_add_outbuf(struct virtqueue *vq,
-+			     struct scatterlist sg[], unsigned int num,
-+			     void *data,
-+			     gfp_t gfp);
-+
-+int dma_virtqueue_add_inbuf(struct virtqueue *vq,
-+			    struct scatterlist sg[], unsigned int num,
-+			    void *data,
-+			    gfp_t gfp);
-+
- int virtqueue_add_outbuf(struct virtqueue *vq,
- 			 struct scatterlist sg[], unsigned int num,
- 			 void *data,
+-	sg_init_one(&sg, msg, sizeof(*msg) + len);
++	rpmsg_msg_sg_init(vrp, &sg, msg, sizeof(*msg) + len);
+ 
+ 	mutex_lock(&vrp->tx_lock);
+ 
+ 	/* add message to the remote processor's virtqueue */
+-	err = virtqueue_add_outbuf(vrp->svq, &sg, 1, msg, GFP_KERNEL);
++	err = dma_virtqueue_add_outbuf(vrp->svq, &sg, 1, msg, GFP_KERNEL);
+ 	if (err) {
+ 		/*
+ 		 * need to reclaim the buffer here, otherwise it's lost
+@@ -828,10 +844,10 @@ static int rpmsg_recv_single(struct virtproc_info *vrp, struct device *dev,
+ 		dev_warn(dev, "msg received with no recipient\n");
+ 
+ 	/* publish the real size of the buffer */
+-	sg_init_one(&sg, msg, RPMSG_BUF_SIZE);
++	rpmsg_msg_sg_init(vrp, &sg, msg, RPMSG_BUF_SIZE);
+ 
+ 	/* add the buffer back to the remote processor's virtqueue */
+-	err = virtqueue_add_inbuf(vrp->rvq, &sg, 1, msg, GFP_KERNEL);
++	err = dma_virtqueue_add_inbuf(vrp->rvq, &sg, 1, msg, GFP_KERNEL);
+ 	if (err < 0) {
+ 		dev_err(dev, "failed to add a virtqueue buffer: %d\n", err);
+ 		return err;
+@@ -1007,9 +1023,9 @@ static int rpmsg_probe(struct virtio_device *vdev)
+ 		struct scatterlist sg;
+ 		void *cpu_addr = vrp->rbufs + i * RPMSG_BUF_SIZE;
+ 
+-		sg_init_one(&sg, cpu_addr, RPMSG_BUF_SIZE);
++		rpmsg_msg_sg_init(vrp, &sg, cpu_addr, RPMSG_BUF_SIZE);
+ 
+-		err = virtqueue_add_inbuf(vrp->rvq, &sg, 1, cpu_addr,
++		err = dma_virtqueue_add_inbuf(vrp->rvq, &sg, 1, cpu_addr,
+ 								GFP_KERNEL);
+ 		WARN_ON(err); /* sanity check; this can't really happen */
+ 	}
 -- 
 1.9.1
