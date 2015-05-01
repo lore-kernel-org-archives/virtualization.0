@@ -1,7 +1,7 @@
 From: "Edgar E. Iglesias" <edgar.iglesias@gmail.com>
-Subject: [RFC 2/4] virtio_ring: Add option for DMA mapped sgs in virtqueue_add
-Date: Fri,  1 May 2015 15:01:45 +1000
-Message-ID: <1430456507-26862-3-git-send-email-edgar.iglesias@gmail.com>
+Subject: [RFC 3/4] virtio: Add dma variants of virtqueue_add_in and outbuf
+Date: Fri,  1 May 2015 15:01:46 +1000
+Message-ID: <1430456507-26862-4-git-send-email-edgar.iglesias@gmail.com>
 References: <1430456507-26862-1-git-send-email-edgar.iglesias@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,95 +25,66 @@ From: "Edgar E. Iglesias" <edgar.iglesias@xilinx.com>
 
 Signed-off-by: Edgar E. Iglesias <edgar.iglesias@xilinx.com>
 ---
- drivers/virtio/virtio_ring.c | 25 +++++++++++++++----------
- 1 file changed, 15 insertions(+), 10 deletions(-)
+ drivers/virtio/virtio_ring.c | 18 ++++++++++++++++++
+ include/linux/virtio.h       | 10 ++++++++++
+ 2 files changed, 28 insertions(+)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 66d2cb9..233f3c6 100644
+index 233f3c6..dd6c640 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -123,11 +123,13 @@ static struct vring_desc *alloc_indirect(struct virtqueue *_vq,
- static inline void vring_desc_set(struct virtio_device *vdev,
- 				  struct vring_desc *desc,
- 				  struct scatterlist *sg,
--				  unsigned int flags)
-+				  unsigned int flags,
-+				  bool dma)
- {
- 	desc->flags = cpu_to_virtio16(vdev, flags);
--	desc->addr = cpu_to_virtio64(vdev, sg_phys(sg));
--	desc->len = cpu_to_virtio32(vdev, sg->length);
-+	desc->addr = cpu_to_virtio64(vdev,
-+				     dma ? sg_dma_address(sg) : sg_phys(sg));
-+	desc->len = cpu_to_virtio32(vdev, dma ? sg_dma_len(sg) : sg->length);
- }
- 
- static inline int virtqueue_add(struct virtqueue *_vq,
-@@ -136,7 +138,8 @@ static inline int virtqueue_add(struct virtqueue *_vq,
- 				unsigned int out_sgs,
- 				unsigned int in_sgs,
- 				void *data,
--				gfp_t gfp)
-+				gfp_t gfp,
-+				bool dma)
- {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 	struct scatterlist *sg;
-@@ -174,7 +177,7 @@ static inline int virtqueue_add(struct virtqueue *_vq,
- 
- 	/* If the host supports indirect descriptor tables, and we have multiple
- 	 * buffers, then go indirect. FIXME: tune this threshold */
--	if (vq->indirect && total_sg > 1 && vq->vq.num_free)
-+	if (!dma && vq->indirect && total_sg > 1 && vq->vq.num_free)
- 		desc = alloc_indirect(_vq, total_sg, gfp);
- 	else
- 		desc = NULL;
-@@ -216,7 +219,7 @@ static inline int virtqueue_add(struct virtqueue *_vq,
- 	for (n = 0; n < out_sgs; n++) {
- 		for (sg = sgs[n]; sg; sg = sg_next(sg)) {
- 			vring_desc_set(_vq->vdev, desc + i, sg,
--				       VRING_DESC_F_NEXT);
-+				       VRING_DESC_F_NEXT, dma);
- 			prev = i;
- 			i = virtio16_to_cpu(_vq->vdev, desc[i].next);
- 		}
-@@ -224,7 +227,8 @@ static inline int virtqueue_add(struct virtqueue *_vq,
- 	for (; n < (out_sgs + in_sgs); n++) {
- 		for (sg = sgs[n]; sg; sg = sg_next(sg)) {
- 			vring_desc_set(_vq->vdev, desc + i, sg,
--				       VRING_DESC_F_NEXT | VRING_DESC_F_WRITE);
-+				       VRING_DESC_F_NEXT | VRING_DESC_F_WRITE,
-+				       dma);
- 			prev = i;
- 			i = virtio16_to_cpu(_vq->vdev, desc[i].next);
- 		}
-@@ -292,7 +296,8 @@ int virtqueue_add_sgs(struct virtqueue *_vq,
- 		for (sg = sgs[i]; sg; sg = sg_next(sg))
- 			total_sg++;
- 	}
--	return virtqueue_add(_vq, sgs, total_sg, out_sgs, in_sgs, data, gfp);
-+	return virtqueue_add(_vq, sgs, total_sg, out_sgs, in_sgs, data, gfp,
-+			     false);
- }
- EXPORT_SYMBOL_GPL(virtqueue_add_sgs);
- 
-@@ -314,7 +319,7 @@ int virtqueue_add_outbuf(struct virtqueue *vq,
- 			 void *data,
- 			 gfp_t gfp)
- {
--	return virtqueue_add(vq, &sg, num, 1, 0, data, gfp);
-+	return virtqueue_add(vq, &sg, num, 1, 0, data, gfp, false);
+@@ -323,6 +323,15 @@ int virtqueue_add_outbuf(struct virtqueue *vq,
  }
  EXPORT_SYMBOL_GPL(virtqueue_add_outbuf);
  
-@@ -336,7 +341,7 @@ int virtqueue_add_inbuf(struct virtqueue *vq,
- 			void *data,
- 			gfp_t gfp)
- {
--	return virtqueue_add(vq, &sg, num, 0, 1, data, gfp);
-+	return virtqueue_add(vq, &sg, num, 0, 1, data, gfp, false);
++int dma_virtqueue_add_outbuf(struct virtqueue *vq,
++			     struct scatterlist *sg, unsigned int num,
++			     void *data,
++			     gfp_t gfp)
++{
++	return virtqueue_add(vq, &sg, num, 1, 0, data, gfp, true);
++}
++EXPORT_SYMBOL_GPL(dma_virtqueue_add_outbuf);
++
+ /**
+  * virtqueue_add_inbuf - expose input buffers to other end
+  * @vq: the struct virtqueue we're talking about.
+@@ -345,6 +354,15 @@ int virtqueue_add_inbuf(struct virtqueue *vq,
  }
  EXPORT_SYMBOL_GPL(virtqueue_add_inbuf);
  
++int dma_virtqueue_add_inbuf(struct virtqueue *vq,
++			    struct scatterlist *sg, unsigned int num,
++			    void *data,
++			    gfp_t gfp)
++{
++	return virtqueue_add(vq, &sg, num, 0, 1, data, gfp, true);
++}
++EXPORT_SYMBOL_GPL(dma_virtqueue_add_inbuf);
++
+ /**
+  * virtqueue_kick_prepare - first half of split virtqueue_kick call.
+  * @vq: the struct virtqueue
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 8f4d4bf..c31b3e2 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -34,6 +34,16 @@ struct virtqueue {
+ 	void *priv;
+ };
+ 
++int dma_virtqueue_add_outbuf(struct virtqueue *vq,
++			     struct scatterlist sg[], unsigned int num,
++			     void *data,
++			     gfp_t gfp);
++
++int dma_virtqueue_add_inbuf(struct virtqueue *vq,
++			    struct scatterlist sg[], unsigned int num,
++			    void *data,
++			    gfp_t gfp);
++
+ int virtqueue_add_outbuf(struct virtqueue *vq,
+ 			 struct scatterlist sg[], unsigned int num,
+ 			 void *data,
 -- 
 1.9.1
