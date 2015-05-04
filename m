@@ -1,11 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH] virtio: pass baton to Michael Tsirkin
-Date: Sat, 02 May 2015 08:42:38 +0930
-Message-ID: <87h9rv3na1.fsf__37884.0678524741$1430522042$gmane$org@rustcorp.com.au>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH 0/6] x86: reduce paravirtualized spinlock overhead
+Date: Mon, 04 May 2015 07:55:07 +0200
+Message-ID: <554709BB.7090400@suse.com>
+References: <1430391243-7112-1-git-send-email-jgross@suse.com>
+	<55425ADA.4060105@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <55425ADA.4060105@goop.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,30 +18,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org, x86@kernel.org, hpa@zytor.com, tglx@linutronix.de, mingo@redhat.com, xen-devel@lists.xensource.com, konrad.wilk@oracle.com, david.vrabel@citrix.com, boris.ostrovsky@oracle.com, chrisw@sous-sol.org, akataria@vmware.com, rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org, gleb@kernel.org, pbonzini@redhat.com, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-With my job change kernel work will be "own time"; I'm keeping lguest
-and modules (and the virtio standards work), but virtio kernel has to
-go.
+On 04/30/2015 06:39 PM, Jeremy Fitzhardinge wrote:
+> On 04/30/2015 03:53 AM, Juergen Gross wrote:
+>> Paravirtualized spinlocks produce some overhead even if the kernel is
+>> running on bare metal. The main reason are the more complex locking
+>> and unlocking functions. Especially unlocking is no longer just one
+>> instruction but so complex that it is no longer inlined.
+>>
+>> This patch series addresses this issue by adding two more pvops
+>> functions to reduce the size of the inlined spinlock functions. When
+>> running on bare metal unlocking is again basically one instruction.
+>
+> Out of curiosity, is there a measurable difference?
 
-This makes it clear that Michael is in charge.  He's good, but having
-me watch over his shoulder won't help.
+I did a small measurement of the pure locking functions on bare metal
+without and with my patches.
 
-Good luck Michael!
+spin_lock() for the first time (lock and code not in cache) dropped from
+about 600 to 500 cycles.
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+spin_unlock() for first time dropped from 145 to 87 cycles.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 2e5bbc0d68b2..16227759dfa8 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -10523,7 +10523,6 @@ F:	include/linux/virtio_console.h
- F:	include/uapi/linux/virtio_console.h
- 
- VIRTIO CORE, NET AND BLOCK DRIVERS
--M:	Rusty Russell <rusty@rustcorp.com.au>
- M:	"Michael S. Tsirkin" <mst@redhat.com>
- L:	virtualization@lists.linux-foundation.org
- S:	Maintained
+spin_lock() in a loop dropped from 48 to 45 cycles.
+
+spin_unlock() in the same loop dropped from 24 to 22 cycles.
+
+
+Juergen
