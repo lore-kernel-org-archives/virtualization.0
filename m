@@ -1,7 +1,7 @@
 From: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Subject: [PATCH RFC 2/7] linux-headers: sync vhost.h
-Date: Wed, 06 May 2015 14:07:44 +0200
-Message-ID: <20150506120744.8607.37718.stgit@bahia.huguette.org>
+Subject: [PATCH RFC 3/7] virtio: introduce virtio_legacy_is_cross_endian()
+Date: Wed, 06 May 2015 14:07:53 +0200
+Message-ID: <20150506120753.8607.17240.stgit@bahia.huguette.org>
 References: <20150506120729.8607.23404.stgit@bahia.huguette.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,34 +21,35 @@ To: Jason Wang <jasowang@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, "Mi
 Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch brings the cross-endian vhost API to QEMU.
+This helper will be used by vhost and tap to detect cross-endianness in
+the legacy virtio case.
 
 Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
 ---
- linux-headers/linux/vhost.h |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ include/hw/virtio/virtio-access.h |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/linux-headers/linux/vhost.h b/linux-headers/linux/vhost.h
-index c656f61..ead86db 100644
---- a/linux-headers/linux/vhost.h
-+++ b/linux-headers/linux/vhost.h
-@@ -103,6 +103,20 @@ struct vhost_memory {
- /* Get accessor: reads index, writes value in num */
- #define VHOST_GET_VRING_BASE _IOWR(VHOST_VIRTIO, 0x12, struct vhost_vring_state)
+diff --git a/include/hw/virtio/virtio-access.h b/include/hw/virtio/virtio-access.h
+index 46456fd..caf0940 100644
+--- a/include/hw/virtio/virtio-access.h
++++ b/include/hw/virtio/virtio-access.h
+@@ -28,6 +28,19 @@ static inline bool virtio_access_is_big_endian(VirtIODevice *vdev)
+ #endif
+ }
  
-+/* Set the vring byte order in num. Valid values are VHOST_VRING_LITTLE_ENDIAN
-+ * or VHOST_VRING_BIG_ENDIAN (other values return -EINVAL).
-+ * The byte order cannot be changed while the device is active: trying to do so
-+ * returns -EBUSY.
-+ * This is a legacy only API that is simply ignored when VIRTIO_F_VERSION_1 is
-+ * set.
-+ * Not all kernel configurations support this ioctl, but all configurations that
-+ * support SET also support GET.
-+ */
-+#define VHOST_VRING_LITTLE_ENDIAN 0
-+#define VHOST_VRING_BIG_ENDIAN 1
-+#define VHOST_SET_VRING_ENDIAN _IOW(VHOST_VIRTIO, 0x13, struct vhost_vring_state)
-+#define VHOST_GET_VRING_ENDIAN _IOW(VHOST_VIRTIO, 0x14, struct vhost_vring_state)
++static inline bool virtio_legacy_is_cross_endian(VirtIODevice *vdev)
++{
++#ifdef TARGET_IS_BIENDIAN
++#ifdef HOST_WORDS_BIGENDIAN
++    return !virtio_is_big_endian(vdev);
++#else
++    return virtio_is_big_endian(vdev);
++#endif
++#else
++    return false;
++#endif
++}
 +
- /* The following ioctls use eventfd file descriptors to signal and poll
-  * for events. */
+ static inline uint16_t virtio_lduw_phys(VirtIODevice *vdev, hwaddr pa)
+ {
+     if (virtio_access_is_big_endian(vdev)) {
