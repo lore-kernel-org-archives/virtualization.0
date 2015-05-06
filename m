@@ -1,11 +1,13 @@
 From: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Subject: [PATCH RFC 0/7] vhost: cross-endian support (vhost-net only)
-Date: Wed, 06 May 2015 14:07:29 +0200
-Message-ID: <20150506120729.8607.23404.stgit@bahia.huguette.org>
+Subject: [PATCH RFC 1/7] virtio: relax feature check
+Date: Wed, 06 May 2015 14:07:37 +0200
+Message-ID: <20150506120737.8607.30158.stgit@bahia.huguette.org>
+References: <20150506120729.8607.23404.stgit@bahia.huguette.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20150506120729.8607.23404.stgit@bahia.huguette.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,35 +21,26 @@ To: Jason Wang <jasowang@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, "Mi
 Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGksCgpUaGlzIHNlcmllcyBhbGxvd3MgUUVNVSB0byB1c2Ugdmhvc3Qgd2l0aCBsZWdhY3kgdmly
-dGlvIGRldmljZXMgd2hlbgpob3N0IGFuZCB0YXJnZXQgZG9uJ3QgaGF2ZSB0aGUgc2FtZSBlbmRp
-YW5uZXNzLiBPbmx5IG5ldHdvcmsgZGV2aWNlcwphcmUgY292ZXJlZCBmb3IgdGhlIG1vbWVudC4K
-CkkgaGFkIGFscmVhZHkgcG9zdGVkIGEgc2VyaWVzIHNvbWUgbW9udGhlcyBhZ28gYnV0IGl0IG5l
-dmVyIGdvdCByZXZpZXdlZC4KTW9yZW92ZXIsIHRoZSB1bmRlcmx5aW5nIGtlcm5lbCBzdXBwb3J0
-IHdhcyBlbnRpcmVseSByZS13cml0dGVuIGFuZCBpcyBzdGlsbAp3YWl0aW5nIHRvIGJlIGFwcGxp
-ZWQgYnkgTWljaGFlbC4gSSBoZW5jZSBwb3N0IGFzIFJGQy4KClRoZSBjb3JyZXNwb25kaW5nIGtl
-cm5lbCBwYXRjaGVzIGFyZSBhdmFpbGFibGUgaGVyZToKCmh0dHA6Ly9saXN0cy5saW51eGZvdW5k
-YXRpb24ub3JnL3BpcGVybWFpbC92aXJ0dWFsaXphdGlvbi8yMDE1LUFwcmlsLzAyOTg4NS5odG1s
-CgpQbGVhc2UgY29tbWVudC4KCi0tLQoKQ8OpZHJpYyBMZSBHb2F0ZXIgKDEpOgogICAgICB2aG9z
-dF9uZXQ6IHJlLWVuYWJsZSB3aGVuIGNyb3NzIGVuZGlhbgoKR3JlZyBLdXJ6ICg2KToKICAgICAg
-dmlydGlvOiByZWxheCBmZWF0dXJlIGNoZWNrCiAgICAgIGxpbnV4LWhlYWRlcnM6IHN5bmMgdmhv
-c3QuaAogICAgICB2aXJ0aW86IGludHJvZHVjZSB2aXJ0aW9fbGVnYWN5X2lzX2Nyb3NzX2VuZGlh
-bigpCiAgICAgIHZob3N0OiBzZXQgdnJpbmcgZW5kaWFubmVzcyBmb3IgbGVnYWN5IHZpcnRpbwog
-ICAgICB0YXA6IGFkZCBWTkVUX0xFL1ZORVRfQkUgb3BlcmF0aW9ucwogICAgICB2aG9zdC1uZXQ6
-IHRlbGwgdGFwIGJhY2tlbmQgYWJvdXQgdGhlIHZuZXQgZW5kaWFubmVzcwoKCiBody9uZXQvdmhv
-c3RfbmV0LmMgICAgICAgICAgICAgICAgfCAgIDUwICsrKysrKysrKysrKysrKysrKysrKysrLS0t
-LS0tLS0tLS0tLS0KIGh3L3ZpcnRpby92aG9zdC5jICAgICAgICAgICAgICAgICB8ICAgNTAgKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrLQogaW5jbHVkZS9ody92aXJ0aW8vdmly
-dGlvLWFjY2Vzcy5oIHwgICAxMyArKysrKysrKysrCiBpbmNsdWRlL2h3L3ZpcnRpby92aXJ0aW8u
-aCAgICAgICAgfCAgICAxIC0KIGluY2x1ZGUvbmV0L25ldC5oICAgICAgICAgICAgICAgICB8ICAg
-IDYgKysrKwogbGludXgtaGVhZGVycy9saW51eC92aG9zdC5oICAgICAgIHwgICAxNCArKysrKysr
-KysrCiBuZXQvbmV0LmMgICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDE4ICsrKysrKysrKysr
-KysKIG5ldC90YXAtbGludXguYyAgICAgICAgICAgICAgICAgICB8ICAgMzQgKysrKysrKysrKysr
-KysrKysrKysrKysrKwogbmV0L3RhcC1saW51eC5oICAgICAgICAgICAgICAgICAgIHwgICAgMiAr
-CiBuZXQvdGFwLmMgICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDE2ICsrKysrKysrKysrKwog
-bmV0L3RhcF9pbnQuaCAgICAgICAgICAgICAgICAgICAgIHwgICAgMiArCiAxMSBmaWxlcyBjaGFu
-Z2VkLCAxODUgaW5zZXJ0aW9ucygrKSwgMjEgZGVsZXRpb25zKC0pCgotLQpHcmVnCgpfX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
-YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
-cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
-YXRpb24=
+Unlike with add and clear, there is no valid reason to abort when checking
+for a feature. It makes more sense to return false (i.e. the feature bit
+isn't set). This is exactly what __virtio_has_feature() does if fbit >= 32.
+
+This allows to introduce code that is aware about new 64-bit features like
+VIRTIO_F_VERSION_1, even if they are still not implemented.
+
+Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
+---
+ include/hw/virtio/virtio.h |    1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
+index d95f8b6..6ef70f1 100644
+--- a/include/hw/virtio/virtio.h
++++ b/include/hw/virtio/virtio.h
+@@ -233,7 +233,6 @@ static inline void virtio_clear_feature(uint32_t *features, unsigned int fbit)
+ 
+ static inline bool __virtio_has_feature(uint32_t features, unsigned int fbit)
+ {
+-    assert(fbit < 32);
+     return !!(features & (1 << fbit));
+ }
