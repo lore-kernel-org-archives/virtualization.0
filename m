@@ -1,15 +1,11 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH 0/6] x86: reduce paravirtualized spinlock overhead
-Date: Wed, 06 May 2015 13:55:30 +0200
-Message-ID: <554A0132.3070802@suse.com>
-References: <1430391243-7112-1-git-send-email-jgross@suse.com>
-	<55425ADA.4060105@goop.org> <554709BB.7090400@suse.com>
-	<5548FC1A.7000806@goop.org>
+From: Greg Kurz <gkurz@linux.vnet.ibm.com>
+Subject: [PATCH RFC 0/7] vhost: cross-endian support (vhost-net only)
+Date: Wed, 06 May 2015 14:07:29 +0200
+Message-ID: <20150506120729.8607.23404.stgit@bahia.huguette.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5548FC1A.7000806@goop.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,42 +15,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org, x86@kernel.org, hpa@zytor.com, tglx@linutronix.de, mingo@redhat.com, xen-devel@lists.xensource.com, konrad.wilk@oracle.com, david.vrabel@citrix.com, boris.ostrovsky@oracle.com, chrisw@sous-sol.org, akataria@vmware.com, rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org, gleb@kernel.org, pbonzini@redhat.com, kvm@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05/05/2015 07:21 PM, Jeremy Fitzhardinge wrote:
-> On 05/03/2015 10:55 PM, Juergen Gross wrote:
->> I did a small measurement of the pure locking functions on bare metal
->> without and with my patches.
->>
->> spin_lock() for the first time (lock and code not in cache) dropped from
->> about 600 to 500 cycles.
->>
->> spin_unlock() for first time dropped from 145 to 87 cycles.
->>
->> spin_lock() in a loop dropped from 48 to 45 cycles.
->>
->> spin_unlock() in the same loop dropped from 24 to 22 cycles.
->
-> Did you isolate icache hot/cold from dcache hot/cold? It seems to me the
-> main difference will be whether the branch predictor is warmed up rather
-> than if the lock itself is in dcache, but its much more likely that the
-> lock code is icache if the code is lock intensive, making the cold case
-> moot. But that's pure speculation.
->
-> Could you see any differences in workloads beyond microbenchmarks?
->
-> Not that its my call at all, but I think we'd need to see some concrete
-> improvements in real workloads before adding the complexity of more pvops.
-
-I did another test on a larger machine:
-
-25 kernel builds (time make -j 32) on a 32 core machine. Before each
-build "make clean" was called, the first result after boot was omitted
-to avoid disk cache warmup effects.
-
-System time without my patches: 861.5664 +/- 3.3665 s
-                with my patches: 852.2269 +/- 3.6629 s
-
-
-Juergen
+SGksCgpUaGlzIHNlcmllcyBhbGxvd3MgUUVNVSB0byB1c2Ugdmhvc3Qgd2l0aCBsZWdhY3kgdmly
+dGlvIGRldmljZXMgd2hlbgpob3N0IGFuZCB0YXJnZXQgZG9uJ3QgaGF2ZSB0aGUgc2FtZSBlbmRp
+YW5uZXNzLiBPbmx5IG5ldHdvcmsgZGV2aWNlcwphcmUgY292ZXJlZCBmb3IgdGhlIG1vbWVudC4K
+CkkgaGFkIGFscmVhZHkgcG9zdGVkIGEgc2VyaWVzIHNvbWUgbW9udGhlcyBhZ28gYnV0IGl0IG5l
+dmVyIGdvdCByZXZpZXdlZC4KTW9yZW92ZXIsIHRoZSB1bmRlcmx5aW5nIGtlcm5lbCBzdXBwb3J0
+IHdhcyBlbnRpcmVseSByZS13cml0dGVuIGFuZCBpcyBzdGlsbAp3YWl0aW5nIHRvIGJlIGFwcGxp
+ZWQgYnkgTWljaGFlbC4gSSBoZW5jZSBwb3N0IGFzIFJGQy4KClRoZSBjb3JyZXNwb25kaW5nIGtl
+cm5lbCBwYXRjaGVzIGFyZSBhdmFpbGFibGUgaGVyZToKCmh0dHA6Ly9saXN0cy5saW51eGZvdW5k
+YXRpb24ub3JnL3BpcGVybWFpbC92aXJ0dWFsaXphdGlvbi8yMDE1LUFwcmlsLzAyOTg4NS5odG1s
+CgpQbGVhc2UgY29tbWVudC4KCi0tLQoKQ8OpZHJpYyBMZSBHb2F0ZXIgKDEpOgogICAgICB2aG9z
+dF9uZXQ6IHJlLWVuYWJsZSB3aGVuIGNyb3NzIGVuZGlhbgoKR3JlZyBLdXJ6ICg2KToKICAgICAg
+dmlydGlvOiByZWxheCBmZWF0dXJlIGNoZWNrCiAgICAgIGxpbnV4LWhlYWRlcnM6IHN5bmMgdmhv
+c3QuaAogICAgICB2aXJ0aW86IGludHJvZHVjZSB2aXJ0aW9fbGVnYWN5X2lzX2Nyb3NzX2VuZGlh
+bigpCiAgICAgIHZob3N0OiBzZXQgdnJpbmcgZW5kaWFubmVzcyBmb3IgbGVnYWN5IHZpcnRpbwog
+ICAgICB0YXA6IGFkZCBWTkVUX0xFL1ZORVRfQkUgb3BlcmF0aW9ucwogICAgICB2aG9zdC1uZXQ6
+IHRlbGwgdGFwIGJhY2tlbmQgYWJvdXQgdGhlIHZuZXQgZW5kaWFubmVzcwoKCiBody9uZXQvdmhv
+c3RfbmV0LmMgICAgICAgICAgICAgICAgfCAgIDUwICsrKysrKysrKysrKysrKysrKysrKysrLS0t
+LS0tLS0tLS0tLS0KIGh3L3ZpcnRpby92aG9zdC5jICAgICAgICAgICAgICAgICB8ICAgNTAgKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrLQogaW5jbHVkZS9ody92aXJ0aW8vdmly
+dGlvLWFjY2Vzcy5oIHwgICAxMyArKysrKysrKysrCiBpbmNsdWRlL2h3L3ZpcnRpby92aXJ0aW8u
+aCAgICAgICAgfCAgICAxIC0KIGluY2x1ZGUvbmV0L25ldC5oICAgICAgICAgICAgICAgICB8ICAg
+IDYgKysrKwogbGludXgtaGVhZGVycy9saW51eC92aG9zdC5oICAgICAgIHwgICAxNCArKysrKysr
+KysrCiBuZXQvbmV0LmMgICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDE4ICsrKysrKysrKysr
+KysKIG5ldC90YXAtbGludXguYyAgICAgICAgICAgICAgICAgICB8ICAgMzQgKysrKysrKysrKysr
+KysrKysrKysrKysrKwogbmV0L3RhcC1saW51eC5oICAgICAgICAgICAgICAgICAgIHwgICAgMiAr
+CiBuZXQvdGFwLmMgICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDE2ICsrKysrKysrKysrKwog
+bmV0L3RhcF9pbnQuaCAgICAgICAgICAgICAgICAgICAgIHwgICAgMiArCiAxMSBmaWxlcyBjaGFu
+Z2VkLCAxODUgaW5zZXJ0aW9ucygrKSwgMjEgZGVsZXRpb25zKC0pCgotLQpHcmVnCgpfX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
+YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
+cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
+YXRpb24=
