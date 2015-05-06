@@ -1,11 +1,11 @@
 From: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Subject: [PATCH RFC 6/7] vhost-net: tell tap backend about the vnet endianness
-Date: Wed, 06 May 2015 14:08:17 +0200
-Message-ID: <20150506120817.8607.88016.stgit@bahia.huguette.org>
+Subject: [PATCH RFC 7/7] vhost_net: re-enable when cross endian
+Date: Wed, 06 May 2015 14:08:25 +0200
+Message-ID: <20150506120825.8607.32063.stgit@bahia.huguette.org>
 References: <20150506120729.8607.23404.stgit@bahia.huguette.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20150506120729.8607.23404.stgit@bahia.huguette.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
@@ -21,93 +21,32 @@ To: Jason Wang <jasowang@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, "Mi
 Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The default behaviour for TAP/MACVTAP is to consider vnet as native endian.
-
-This patch handles the cases when this is not true:
-- virtio 1.0: always little-endian
-- legacy cross-endian
-
-Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
----
- hw/net/vhost_net.c |   33 ++++++++++++++++++++++++++++++++-
- 1 file changed, 32 insertions(+), 1 deletion(-)
-
-diff --git a/hw/net/vhost_net.c b/hw/net/vhost_net.c
-index cf23335..1884e59 100644
---- a/hw/net/vhost_net.c
-+++ b/hw/net/vhost_net.c
-@@ -38,6 +38,7 @@
- #include "standard-headers/linux/virtio_ring.h"
- #include "hw/virtio/vhost.h"
- #include "hw/virtio/virtio-bus.h"
-+#include "hw/virtio/virtio-access.h"
- 
- struct vhost_net {
-     struct vhost_dev dev;
-@@ -194,6 +195,27 @@ static void vhost_net_set_vq_index(struct vhost_net *net, int vq_index)
-     net->dev.vq_index = vq_index;
- }
- 
-+static int vhost_net_set_vnet_endian(VirtIODevice *dev, NetClientState *peer,
-+                                     bool set)
-+{
-+    int r = 0;
-+
-+    if (virtio_has_feature(dev, VIRTIO_F_VERSION_1) ||
-+        (virtio_legacy_is_cross_endian(dev) && !virtio_is_big_endian(dev))) {
-+        r = qemu_set_vnet_le(peer, set);
-+        if (r) {
-+            error_report("backend does not support LE vnet headers");
-+        }
-+    } else if (virtio_legacy_is_cross_endian(dev)) {
-+        r = qemu_set_vnet_be(peer, set);
-+        if (r) {
-+            error_report("backend does not support BE vnet headers");
-+        }
-+    }
-+
-+    return r;
-+}
-+
- static int vhost_net_start_one(struct vhost_net *net,
-                                VirtIODevice *dev)
- {
-@@ -304,6 +326,11 @@ int vhost_net_start(VirtIODevice *dev, NetClientState *ncs,
-         goto err;
-     }
- 
-+    r = vhost_net_set_vnet_endian(dev, ncs[0].peer, true);
-+    if (r < 0) {
-+        goto err;
-+    }
-+
-     for (i = 0; i < total_queues; i++) {
-         vhost_net_set_vq_index(get_vhost_net(ncs[i].peer), i * 2);
-     }
-@@ -311,7 +338,7 @@ int vhost_net_start(VirtIODevice *dev, NetClientState *ncs,
-     r = k->set_guest_notifiers(qbus->parent, total_queues * 2, true);
-     if (r < 0) {
-         error_report("Error binding guest notifier: %d", -r);
--        goto err;
-+        goto err_endian;
-     }
- 
-     for (i = 0; i < total_queues; i++) {
-@@ -333,6 +360,8 @@ err_start:
-         fprintf(stderr, "vhost guest notifier cleanup failed: %d\n", e);
-         fflush(stderr);
-     }
-+err_endian:
-+    vhost_net_set_vnet_endian(dev, ncs[0].peer, false);
- err:
-     return r;
- }
-@@ -355,6 +384,8 @@ void vhost_net_stop(VirtIODevice *dev, NetClientState *ncs,
-         fflush(stderr);
-     }
-     assert(r >= 0);
-+
-+    assert(vhost_net_set_vnet_endian(dev, ncs[0].peer, false) >= 0);
- }
- 
- void vhost_net_cleanup(struct vhost_net *net)
+RnJvbTogQ8OpZHJpYyBMZSBHb2F0ZXIgPGNsZ0Bmci5pYm0uY29tPgoKQ3Jvc3MtZW5kaWFubmVz
+cyBpcyBub3cgY2hlY2tlZCBieSB0aGUgY29yZSB2aG9zdCBjb2RlLgoKcmV2ZXJ0IDM3MWRmOWY1
+ZTBmMSAidmhvc3QtbmV0OiBkaXNhYmxlIHdoZW4gY3Jvc3MtZW5kaWFuIgoKU2lnbmVkLW9mZi1i
+eTogQ8OpZHJpYyBMZSBHb2F0ZXIgPGNsZ0Bmci5pYm0uY29tPgpbIGFkZGVkIGNvbW1pdCBtZXNz
+YWdlLCBHcmVnIEt1cnogPGdrdXJ6QGxpbnV4LnZuZXQuaWJtLmNvbT4gXQpTaWduZWQtb2ZmLWJ5
+OiBHcmVnIEt1cnogPGdrdXJ6QGxpbnV4LnZuZXQuaWJtLmNvbT4KLS0tCiBody9uZXQvdmhvc3Rf
+bmV0LmMgfCAgIDE5IC0tLS0tLS0tLS0tLS0tLS0tLS0KIDEgZmlsZSBjaGFuZ2VkLCAxOSBkZWxl
+dGlvbnMoLSkKCmRpZmYgLS1naXQgYS9ody9uZXQvdmhvc3RfbmV0LmMgYi9ody9uZXQvdmhvc3Rf
+bmV0LmMKaW5kZXggMTg4NGU1OS4uM2U0YjBmMiAxMDA2NDQKLS0tIGEvaHcvbmV0L3Zob3N0X25l
+dC5jCisrKyBiL2h3L25ldC92aG9zdF9uZXQuYwpAQCAtMjkzLDE5ICsyOTMsNiBAQCBzdGF0aWMg
+dm9pZCB2aG9zdF9uZXRfc3RvcF9vbmUoc3RydWN0IHZob3N0X25ldCAqbmV0LAogICAgIHZob3N0
+X2Rldl9kaXNhYmxlX25vdGlmaWVycygmbmV0LT5kZXYsIGRldik7CiB9CiAKLXN0YXRpYyBib29s
+IHZob3N0X25ldF9kZXZpY2VfZW5kaWFuX29rKFZpcnRJT0RldmljZSAqdmRldikKLXsKLSNpZmRl
+ZiBUQVJHRVRfSVNfQklFTkRJQU4KLSNpZmRlZiBIT1NUX1dPUkRTX0JJR0VORElBTgotICAgIHJl
+dHVybiB2aXJ0aW9faXNfYmlnX2VuZGlhbih2ZGV2KTsKLSNlbHNlCi0gICAgcmV0dXJuICF2aXJ0
+aW9faXNfYmlnX2VuZGlhbih2ZGV2KTsKLSNlbmRpZgotI2Vsc2UKLSAgICByZXR1cm4gdHJ1ZTsK
+LSNlbmRpZgotfQotCiBpbnQgdmhvc3RfbmV0X3N0YXJ0KFZpcnRJT0RldmljZSAqZGV2LCBOZXRD
+bGllbnRTdGF0ZSAqbmNzLAogICAgICAgICAgICAgICAgICAgICBpbnQgdG90YWxfcXVldWVzKQog
+ewpAQCAtMzE0LDEyICszMDEsNiBAQCBpbnQgdmhvc3RfbmV0X3N0YXJ0KFZpcnRJT0RldmljZSAq
+ZGV2LCBOZXRDbGllbnRTdGF0ZSAqbmNzLAogICAgIFZpcnRpb0J1c0NsYXNzICprID0gVklSVElP
+X0JVU19HRVRfQ0xBU1ModmJ1cyk7CiAgICAgaW50IHIsIGUsIGk7CiAKLSAgICBpZiAoIXZob3N0
+X25ldF9kZXZpY2VfZW5kaWFuX29rKGRldikpIHsKLSAgICAgICAgZXJyb3JfcmVwb3J0KCJ2aG9z
+dC1uZXQgZG9lcyBub3Qgc3VwcG9ydCBjcm9zcy1lbmRpYW4iKTsKLSAgICAgICAgciA9IC1FTk9T
+WVM7Ci0gICAgICAgIGdvdG8gZXJyOwotICAgIH0KLQogICAgIGlmICghay0+c2V0X2d1ZXN0X25v
+dGlmaWVycykgewogICAgICAgICBlcnJvcl9yZXBvcnQoImJpbmRpbmcgZG9lcyBub3Qgc3VwcG9y
+dCBndWVzdCBub3RpZmllcnMiKTsKICAgICAgICAgciA9IC1FTk9TWVM7CgpfX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
+IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
+aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
