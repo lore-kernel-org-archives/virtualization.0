@@ -1,13 +1,11 @@
-From: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Subject: [PATCH RFC 7/7] vhost_net: re-enable when cross endian
-Date: Wed, 06 May 2015 14:08:25 +0200
-Message-ID: <20150506120825.8607.32063.stgit@bahia.huguette.org>
-References: <20150506120729.8607.23404.stgit@bahia.huguette.org>
+From: Thomas Huth <thuth@redhat.com>
+Subject: [PATCH] virtio: Fix typecast of pointer in vring_init()
+Date: Wed,  6 May 2015 12:33:59 +0200
+Message-ID: <1430908439-32646-1-git-send-email-thuth__12974.7338629842$1430924264$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150506120729.8607.23404.stgit@bahia.huguette.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,36 +15,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
+Cc: linux-api@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogQ8OpZHJpYyBMZSBHb2F0ZXIgPGNsZ0Bmci5pYm0uY29tPgoKQ3Jvc3MtZW5kaWFubmVz
-cyBpcyBub3cgY2hlY2tlZCBieSB0aGUgY29yZSB2aG9zdCBjb2RlLgoKcmV2ZXJ0IDM3MWRmOWY1
-ZTBmMSAidmhvc3QtbmV0OiBkaXNhYmxlIHdoZW4gY3Jvc3MtZW5kaWFuIgoKU2lnbmVkLW9mZi1i
-eTogQ8OpZHJpYyBMZSBHb2F0ZXIgPGNsZ0Bmci5pYm0uY29tPgpbIGFkZGVkIGNvbW1pdCBtZXNz
-YWdlLCBHcmVnIEt1cnogPGdrdXJ6QGxpbnV4LnZuZXQuaWJtLmNvbT4gXQpTaWduZWQtb2ZmLWJ5
-OiBHcmVnIEt1cnogPGdrdXJ6QGxpbnV4LnZuZXQuaWJtLmNvbT4KLS0tCiBody9uZXQvdmhvc3Rf
-bmV0LmMgfCAgIDE5IC0tLS0tLS0tLS0tLS0tLS0tLS0KIDEgZmlsZSBjaGFuZ2VkLCAxOSBkZWxl
-dGlvbnMoLSkKCmRpZmYgLS1naXQgYS9ody9uZXQvdmhvc3RfbmV0LmMgYi9ody9uZXQvdmhvc3Rf
-bmV0LmMKaW5kZXggMTg4NGU1OS4uM2U0YjBmMiAxMDA2NDQKLS0tIGEvaHcvbmV0L3Zob3N0X25l
-dC5jCisrKyBiL2h3L25ldC92aG9zdF9uZXQuYwpAQCAtMjkzLDE5ICsyOTMsNiBAQCBzdGF0aWMg
-dm9pZCB2aG9zdF9uZXRfc3RvcF9vbmUoc3RydWN0IHZob3N0X25ldCAqbmV0LAogICAgIHZob3N0
-X2Rldl9kaXNhYmxlX25vdGlmaWVycygmbmV0LT5kZXYsIGRldik7CiB9CiAKLXN0YXRpYyBib29s
-IHZob3N0X25ldF9kZXZpY2VfZW5kaWFuX29rKFZpcnRJT0RldmljZSAqdmRldikKLXsKLSNpZmRl
-ZiBUQVJHRVRfSVNfQklFTkRJQU4KLSNpZmRlZiBIT1NUX1dPUkRTX0JJR0VORElBTgotICAgIHJl
-dHVybiB2aXJ0aW9faXNfYmlnX2VuZGlhbih2ZGV2KTsKLSNlbHNlCi0gICAgcmV0dXJuICF2aXJ0
-aW9faXNfYmlnX2VuZGlhbih2ZGV2KTsKLSNlbmRpZgotI2Vsc2UKLSAgICByZXR1cm4gdHJ1ZTsK
-LSNlbmRpZgotfQotCiBpbnQgdmhvc3RfbmV0X3N0YXJ0KFZpcnRJT0RldmljZSAqZGV2LCBOZXRD
-bGllbnRTdGF0ZSAqbmNzLAogICAgICAgICAgICAgICAgICAgICBpbnQgdG90YWxfcXVldWVzKQog
-ewpAQCAtMzE0LDEyICszMDEsNiBAQCBpbnQgdmhvc3RfbmV0X3N0YXJ0KFZpcnRJT0RldmljZSAq
-ZGV2LCBOZXRDbGllbnRTdGF0ZSAqbmNzLAogICAgIFZpcnRpb0J1c0NsYXNzICprID0gVklSVElP
-X0JVU19HRVRfQ0xBU1ModmJ1cyk7CiAgICAgaW50IHIsIGUsIGk7CiAKLSAgICBpZiAoIXZob3N0
-X25ldF9kZXZpY2VfZW5kaWFuX29rKGRldikpIHsKLSAgICAgICAgZXJyb3JfcmVwb3J0KCJ2aG9z
-dC1uZXQgZG9lcyBub3Qgc3VwcG9ydCBjcm9zcy1lbmRpYW4iKTsKLSAgICAgICAgciA9IC1FTk9T
-WVM7Ci0gICAgICAgIGdvdG8gZXJyOwotICAgIH0KLQogICAgIGlmICghay0+c2V0X2d1ZXN0X25v
-dGlmaWVycykgewogICAgICAgICBlcnJvcl9yZXBvcnQoImJpbmRpbmcgZG9lcyBub3Qgc3VwcG9y
-dCBndWVzdCBub3RpZmllcnMiKTsKICAgICAgICAgciA9IC1FTk9TWVM7CgpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
-IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
-aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+The virtio_ring.h header is used in userspace programs (ie. QEMU),
+too. Here we can not assume that sizeof(pointer) is the same as
+sizeof(long), e.g. when compiling for Windows, so the typecast
+in vring_init() should be done with (uintptr_t) instead of
+(unsigned long). This fixes a compiler warning when compiling
+QEMU with the mingw32 cross-compiler.
+
+Signed-off-by: Thomas Huth <thuth@redhat.com>
+---
+ include/uapi/linux/virtio_ring.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
+index 915980a..8682551 100644
+--- a/include/uapi/linux/virtio_ring.h
++++ b/include/uapi/linux/virtio_ring.h
+@@ -143,7 +143,7 @@ static inline void vring_init(struct vring *vr, unsigned int num, void *p,
+ 	vr->num = num;
+ 	vr->desc = p;
+ 	vr->avail = p + num*sizeof(struct vring_desc);
+-	vr->used = (void *)(((unsigned long)&vr->avail->ring[num] + sizeof(__virtio16)
++	vr->used = (void *)(((uintptr_t)&vr->avail->ring[num] + sizeof(__virtio16)
+ 		+ align-1) & ~(align - 1));
+ }
+ 
+-- 
+1.8.3.1
