@@ -1,7 +1,7 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Amit Shah <amit.shah@redhat.com>
 Subject: Re: [patch v2] virtio_console: silence a static checker warning
-Date: Fri, 8 May 2015 12:47:35 +0300
-Message-ID: <20150508094735.GD16501__12374.8963968412$1431078494$gmane$org@mwanda>
+Date: Fri, 8 May 2015 15:26:16 +0530
+Message-ID: <20150508095616.GB5527__35964.0675750144$1431079009$gmane$org@grmbl.mre>
 References: <20150508091624.GS14154@mwanda>
  <554C8221.9070304@bfs.de>
 Mime-Version: 1.0
@@ -20,10 +20,10 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: walter harms <wharms@bfs.de>
-Cc: Amit Shah <amit.shah@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, kernel-janitors@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux-foundation.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, kernel-janitors@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Dan Carpenter <dan.carpenter@oracle.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, May 08, 2015 at 11:30:09AM +0200, walter harms wrote:
+On (Fri) 08 May 2015 [11:30:09], walter harms wrote:
 > 
 > 
 > Am 08.05.2015 11:16, schrieb Dan Carpenter:
@@ -54,7 +54,11 @@ On Fri, May 08, 2015 at 11:30:09AM +0200, walter harms wrote:
 > Note: i prefer a leading 0 in my programms to make it more easy
 > to work with grep and friends. you may thing otherwise.
 
-That's an user API change so it's probably a bad idea.
+Well we've been exposing names like /dev/vport0p0, /dev/vport2p15,
+etc., and there might be scripts relying on such names, so that's one
+argument against it.
 
-regards,
-dan carpenter
+However we do have pretty names that map to these ports via udev
+rules, but not sure if we should change the name just to prepend 0s.
+
+		Amit
