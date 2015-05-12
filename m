@@ -1,15 +1,16 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [Qemu-devel] [PATCH RFC 4/7] vhost: set vring endianness for
-	legacy virtio
-Date: Tue, 12 May 2015 15:25:30 +0200
-Message-ID: <20150512152530.4ab0c56f.cornelia.huck@de.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH RFC 1/7] virtio: relax feature check
+Date: Tue, 12 May 2015 15:34:47 +0200
+Message-ID: <20150512153150-mutt-send-email-mst@redhat.com>
 References: <20150506120729.8607.23404.stgit@bahia.huguette.org>
-	<20150506120801.8607.64278.stgit@bahia.huguette.org>
+	<20150506120737.8607.30158.stgit@bahia.huguette.org>
+	<20150512151453.42880d6c.cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150506120801.8607.64278.stgit@bahia.huguette.org>
+Content-Disposition: inline
+In-Reply-To: <20150512151453.42880d6c.cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,48 +20,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Cc: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 06 May 2015 14:08:02 +0200
-Greg Kurz <gkurz@linux.vnet.ibm.com> wrote:
-
-> Legacy virtio is native endian: if the guest and host endianness differ,
-> we have to tell vhost so it can swap bytes where appropriate. This is
-> done through a vhost ring ioctl.
+On Tue, May 12, 2015 at 03:14:53PM +0200, Cornelia Huck wrote:
+> On Wed, 06 May 2015 14:07:37 +0200
+> Greg Kurz <gkurz@linux.vnet.ibm.com> wrote:
 > 
-> Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
-> ---
->  hw/virtio/vhost.c |   50 +++++++++++++++++++++++++++++++++++++++++++++++++-
->  1 file changed, 49 insertions(+), 1 deletion(-)
+> > Unlike with add and clear, there is no valid reason to abort when checking
+> > for a feature. It makes more sense to return false (i.e. the feature bit
+> > isn't set). This is exactly what __virtio_has_feature() does if fbit >= 32.
+> > 
+> > This allows to introduce code that is aware about new 64-bit features like
+> > VIRTIO_F_VERSION_1, even if they are still not implemented.
+> > 
+> > Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
+> > ---
+> >  include/hw/virtio/virtio.h |    1 -
+> >  1 file changed, 1 deletion(-)
+> > 
+> > diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
+> > index d95f8b6..6ef70f1 100644
+> > --- a/include/hw/virtio/virtio.h
+> > +++ b/include/hw/virtio/virtio.h
+> > @@ -233,7 +233,6 @@ static inline void virtio_clear_feature(uint32_t *features, unsigned int fbit)
+> > 
+> >  static inline bool __virtio_has_feature(uint32_t features, unsigned int fbit)
+> >  {
+> > -    assert(fbit < 32);
+> >      return !!(features & (1 << fbit));
+> >  }
+> > 
+> > 
+> > 
 > 
-> diff --git a/hw/virtio/vhost.c b/hw/virtio/vhost.c
-> index 54851b7..1d7b939 100644
-> --- a/hw/virtio/vhost.c
-> +++ b/hw/virtio/vhost.c
-(...)
-> @@ -677,6 +700,16 @@ static int vhost_virtqueue_start(struct vhost_dev *dev,
->          return -errno;
->      }
+> I must say I'm not very comfortable with knowingly passing out-of-rage
+> values to this function.
 > 
-> +    if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1) &&
+> Can we perhaps apply at least the feature-bit-size extending patches
+> prior to your patchset, if the remainder of the virtio-1 patchset still
+> takes some time?
 
-I think this should either go in after the virtio-1 base support (more
-feature bits etc.) or get a big fat comment and be touched up later.
-I'd prefer the first solution so it does not get forgotten, but I'm not
-sure when Michael plans to proceed with the virtio-1 patches (I think
-they're mostly fine already).
+So the feature-bit-size extending patches currently don't support
+migration correctly, that's why they are not merged.
 
-> +        virtio_legacy_is_cross_endian(vdev)) {
-> +        r = vhost_virtqueue_set_vring_endian_legacy(dev,
-> +                                                    virtio_is_big_endian(vdev),
-> +                                                    vhost_vq_index);
-> +        if (r) {
-> +            return -errno;
-> +        }
-> +    }
-> +
->      s = l = virtio_queue_get_desc_size(vdev, idx);
->      a = virtio_queue_get_desc_addr(vdev, idx);
->      vq->desc = cpu_physical_memory_map(a, &l, 0);
+What I think we need to do for this is move host_features out
+from transports into core virtio device.
+
+Then we can simply check host features >31 and skip
+migrating low guest features is none set.
+
+Thoughts? Any takers?
+
+-- 
+MST
