@@ -1,10 +1,14 @@
-From: Sudheer K <sudheer.kurichiyath@gmail.com>
-Subject: KVM VHOST-BLK is not working
-Date: Tue, 12 May 2015 11:15:58 +0530
-Message-ID: <CADM6D_r0dB9eL1Z8irnEKzvDjHUPKs6+MNShG2Gy7-vraFU1Sg@mail.gmail.com>
+From: Greg Kurz <gkurz@linux.vnet.ibm.com>
+Subject: Re: [PATCH v6 0/8] vhost: support for cross endian guests
+Date: Tue, 12 May 2015 12:44:26 +0200
+Message-ID: <20150512124426.4e487cb6__4640.42295138842$1431427494$gmane$org@bahia.local>
+References: <20150424122211.19156.97626.stgit@bahia.local>
+	<20150424153137-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2960512998902238802=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20150424153137-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -14,73 +18,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============2960512998902238802==
-Content-Type: multipart/alternative; boundary=047d7bb03a564579c80515dc02e5
+On Fri, 24 Apr 2015 15:31:54 +0200
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
---047d7bb03a564579c80515dc02e5
-Content-Type: text/plain; charset=UTF-8
+> On Fri, Apr 24, 2015 at 02:24:15PM +0200, Greg Kurz wrote:
+> > Only cosmetic and documentation changes since v5.
+> > 
+> > ---
+> 
+> Looks sane to me. I plan to review and apply next week.
+> 
 
-Hi,
+Hi Michael,
 
-I am wondering if someone in this list who has used VHOST-BLK in the past
-could help me.
+I realize you just got back and have tons of things to do... Do
+you still plan to apply shortly ? Would you also have time to
+comment the QEMU part ?
 
-I am experimenting with VHOST-BLK with the codes I got from:
-QEMU - git://github.com/asias/qemu.git
-KERNEL - git://github.com/asias/linux.git
-The VM I am booting is compiled with MSIX config options.
+Thanks.
 
-I am seeing a failure in the QEMU function msix_enabled during the
-initialization of the block device  While the first expression
-(dev->cap_present & QEMU_PCI_CAP_MSIX)   is successful, the second one
-(dev->config[dev->msix_cap + MSIX_CONTROL_OFFSET] &
-         MSIX_ENABLE_MASK) is failing.
+--
+Greg
 
-I could not see a msix_init function from hw/block/virtio-blk.c whereas
-there is one for VHOST-NET from vmxnet3_init_msix.
-
-I will appreciate if someone could point out what I am missing here.
-
-Thanks and Regards
-
-Sudheer
-
---047d7bb03a564579c80515dc02e5
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div><div><div><div><div>Hi,<br><br></div><div>I am wonder=
-ing if someone in this list who has used VHOST-BLK in the past could help m=
-e.<br></div><div><br></div>I am experimenting with VHOST-BLK with the codes=
- I got from:<br>QEMU - git://<a href=3D"http://github.com/asias/qemu.git" t=
-arget=3D"_blank">github.com/asias/qemu.git</a><br></div>KERNEL - git://<a h=
-ref=3D"http://github.com/asias/linux.git" target=3D"_blank">github.com/asia=
-s/linux.git</a><br>The VM I am booting is compiled with MSIX config options=
-. <br><br></div>I
- am seeing a failure in the QEMU function msix_enabled during the=20
-initialization of the block device=C2=A0 While the first expression=20
-(dev-&gt;cap_present &amp; QEMU_PCI_CAP_MSIX)=C2=A0=C2=A0 is successful, th=
-e=20
-second one (dev-&gt;config[dev-&gt;msix_cap + MSIX_CONTROL_OFFSET] &amp;<br=
->=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 MSIX_ENABLE_MASK) is fail=
-ing.<br><br></div><div>I could not see a msix_init function from hw/block/v=
-irtio-blk.c whereas there is one for VHOST-NET from vmxnet3_init_msix.<br><=
-br></div><div>I will appreciate if someone could point out what I am missin=
-g here. <br><br></div>Thanks and Regards<br><br></div>Sudheer<br></div>
-
---047d7bb03a564579c80515dc02e5--
-
---===============2960512998902238802==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2960512998902238802==--
+> > Greg Kurz (8):
+> >       virtio: introduce virtio_is_little_endian() helper
+> >       tun: add tun_is_little_endian() helper
+> >       macvtap: introduce macvtap_is_little_endian() helper
+> >       vringh: introduce vringh_is_little_endian() helper
+> >       vhost: introduce vhost_is_little_endian() helper
+> >       virtio: add explicit big-endian support to memory accessors
+> >       vhost: cross-endian support for legacy devices
+> >       macvtap/tun: cross-endian support for little-endian hosts
+> > 
+> > 
+> >  drivers/net/Kconfig              |   14 ++++++
+> >  drivers/net/macvtap.c            |   66 +++++++++++++++++++++++++++++-
+> >  drivers/net/tun.c                |   68 ++++++++++++++++++++++++++++++
+> >  drivers/vhost/Kconfig            |   15 +++++++
+> >  drivers/vhost/vhost.c            |   85 ++++++++++++++++++++++++++++++++++++++
+> >  drivers/vhost/vhost.h            |   25 ++++++++---
+> >  include/linux/virtio_byteorder.h |   24 ++++++-----
+> >  include/linux/virtio_config.h    |   18 +++++---
+> >  include/linux/vringh.h           |   18 +++++---
+> >  include/uapi/linux/if_tun.h      |    6 +++
+> >  include/uapi/linux/vhost.h       |   14 ++++++
+> >  11 files changed, 320 insertions(+), 33 deletions(-)
+> > 
+> > --
+> > Greg
+> 
