@@ -1,19 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH RFC 1/7] virtio: relax feature check
-Date: Tue, 12 May 2015 17:30:21 +0200
-Message-ID: <20150512171701-mutt-send-email-mst@redhat.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [Qemu-devel] [PATCH RFC 4/7] vhost: set vring endianness for
+	legacy virtio
+Date: Tue, 12 May 2015 18:25:32 +0200
+Message-ID: <20150512182532.62d749b8.cornelia.huck@de.ibm.com>
 References: <20150506120729.8607.23404.stgit@bahia.huguette.org>
-	<20150506120737.8607.30158.stgit@bahia.huguette.org>
-	<20150512151453.42880d6c.cornelia.huck@de.ibm.com>
-	<20150512153150-mutt-send-email-mst@redhat.com>
-	<20150512154446.50c68fc4.cornelia.huck@de.ibm.com>
-	<20150512164611.46d3e70a.cornelia.huck@de.ibm.com>
+	<20150506120801.8607.64278.stgit@bahia.huguette.org>
+	<20150512152530.4ab0c56f.cornelia.huck@de.ibm.com>
+	<20150512154127-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20150512164611.46d3e70a.cornelia.huck@de.ibm.com>
+In-Reply-To: <20150512154127-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,113 +21,104 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, May 12, 2015 at 04:46:11PM +0200, Cornelia Huck wrote:
-> On Tue, 12 May 2015 15:44:46 +0200
-> Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
-> 
-> > On Tue, 12 May 2015 15:34:47 +0200
-> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Tue, 12 May 2015 17:15:53 +0200
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
+
+> On Tue, May 12, 2015 at 03:25:30PM +0200, Cornelia Huck wrote:
+> > On Wed, 06 May 2015 14:08:02 +0200
+> > Greg Kurz <gkurz@linux.vnet.ibm.com> wrote:
 > > 
-> > > On Tue, May 12, 2015 at 03:14:53PM +0200, Cornelia Huck wrote:
-> > > > On Wed, 06 May 2015 14:07:37 +0200
-> > > > Greg Kurz <gkurz@linux.vnet.ibm.com> wrote:
-> > > > 
-> > > > > Unlike with add and clear, there is no valid reason to abort when checking
-> > > > > for a feature. It makes more sense to return false (i.e. the feature bit
-> > > > > isn't set). This is exactly what __virtio_has_feature() does if fbit >= 32.
-> > > > > 
-> > > > > This allows to introduce code that is aware about new 64-bit features like
-> > > > > VIRTIO_F_VERSION_1, even if they are still not implemented.
-> > > > > 
-> > > > > Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
-> > > > > ---
-> > > > >  include/hw/virtio/virtio.h |    1 -
-> > > > >  1 file changed, 1 deletion(-)
-> > > > > 
-> > > > > diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
-> > > > > index d95f8b6..6ef70f1 100644
-> > > > > --- a/include/hw/virtio/virtio.h
-> > > > > +++ b/include/hw/virtio/virtio.h
-> > > > > @@ -233,7 +233,6 @@ static inline void virtio_clear_feature(uint32_t *features, unsigned int fbit)
-> > > > > 
-> > > > >  static inline bool __virtio_has_feature(uint32_t features, unsigned int fbit)
-> > > > >  {
-> > > > > -    assert(fbit < 32);
-> > > > >      return !!(features & (1 << fbit));
-> > > > >  }
-> > > > > 
-> > > > > 
-> > > > > 
-> > > > 
-> > > > I must say I'm not very comfortable with knowingly passing out-of-rage
-> > > > values to this function.
-> > > > 
-> > > > Can we perhaps apply at least the feature-bit-size extending patches
-> > > > prior to your patchset, if the remainder of the virtio-1 patchset still
-> > > > takes some time?
+> > > Legacy virtio is native endian: if the guest and host endianness differ,
+> > > we have to tell vhost so it can swap bytes where appropriate. This is
+> > > done through a vhost ring ioctl.
 > > > 
-> > > So the feature-bit-size extending patches currently don't support
-> > > migration correctly, that's why they are not merged.
+> > > Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
+> > > ---
+> > >  hw/virtio/vhost.c |   50 +++++++++++++++++++++++++++++++++++++++++++++++++-
+> > >  1 file changed, 49 insertions(+), 1 deletion(-)
 > > > 
-> > > What I think we need to do for this is move host_features out
-> > > from transports into core virtio device.
+> > > diff --git a/hw/virtio/vhost.c b/hw/virtio/vhost.c
+> > > index 54851b7..1d7b939 100644
+> > > --- a/hw/virtio/vhost.c
+> > > +++ b/hw/virtio/vhost.c
+> > (...)
+> > > @@ -677,6 +700,16 @@ static int vhost_virtqueue_start(struct vhost_dev *dev,
+> > >          return -errno;
+> > >      }
 > > > 
-> > > Then we can simply check host features >31 and skip
-> > > migrating low guest features is none set.
-> > > 
-> > > Thoughts? Any takers?
-> > > 
+> > > +    if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1) &&
 > > 
-> > After we move host_features, put them into an optional vmstate
-> > subsection?
-> > 
-> > I think with the recent patchsets, most of the interesting stuff is
-> > already not handled by the transport anymore. There's only
-> > VIRTIO_F_NOTIFY_ON_EMPTY and VIRTIO_F_BAD_FEATURE left (set by pci and
-> > ccw).
-
-notify on empty is likely safe to set for everyone.
-
-bad feature should be pci specific, it's a mistake that
-we have it in ccw. it's there to detect very old buggy guests.
-in fact ccw ignores this bit completely.
-
-For PCI, I think VIRTIO_F_BAD_FEATURE is never
-actually set in guest features. If guest attempts to set it,
-it is immediately cleared.
-
-So it can be handled in pci specific code, and won't
-affect migration.
-
-
-> Thinking a bit more, we probably don't need this move of host_features
-> to get migration right (although it might be a nice cleanup later).
+> > I think this should either go in after the virtio-1 base support (more
+> > feature bits etc.) or get a big fat comment and be touched up later.
+> > I'd prefer the first solution so it does not get forgotten, but I'm not
+> > sure when Michael plans to proceed with the virtio-1 patches (I think
+> > they're mostly fine already).
 > 
-> Could we
-> - keep migration of bits 0..31 as-is
-> - add a vmstate subsection for bits 32..63 only included if one of
->   those bits is set
-> - have a post handler that performs a validation of the full set of
->   bits 0..63
-> ?
+> There are three main issues with virtio 1 patches that I am aware of.
 > 
-> We could do a similar exercise with a subsection containing the
-> addresses for avail and used with a post handler overwriting any
-> addresses set by the old style migration code.
+> One issue with virtio 1 patches as they are is with how features are
+> handled ATM.  There are 3 types of features
 > 
-> Does that make sense?
+> 	a. virtio 1 only features
+> 	b. virtio 0 only features
+> 	c. shared features
+> 
+> and 3 types of devices
+> 	a. legacy device: has b+c features
+> 	b. modern device: has a+c features
+> 	c. transitional device: has a+c features but exposes
+> 	   only c through the legacy interface
 
-I don't see how it does: on the receive side you don't know
-whether guest acked bits 32..63 so you can't decide whether
-to parse bits 32..63.
+Wouldn't a transitional device be able to expose b as well?
 
-The right thing to do IMHO is to migrate the high guest bits if and only
-if the *host* bits 32..63 are set.  And that needs the host features in
-core, or at least is easier if they are there.
+> 
+> 
+> So I think a callback that gets features depending on guest
+> version isn't a good way to model it because fundamentally device
+> has one set of features.
+> A better way to model this is really just a single
+> host_features bitmask, and for transitional devices, a mask
+> hiding a features - which are so far all bits > 31, so maybe
+> for now we can just have a global mask.
 
--- 
-MST
+How would this work for transitional presenting a modern device - would
+you have a superset of bits and masks for legacy and modern?
+
+> 
+> We need to validate features at initialization time and make
+> sure they make sense, fail if not (sometimes we need to mask
+> features if they don't make sense - this is unfortunate
+> but might be needed for compatibility).
+> 
+> Moving host_features to virtio core would make all of the above
+> easier.
+
+I have started hacking up code that moves host_features, but I'm quite
+lost with all the different virtio versions floating around. Currently
+trying against master, but that of course ignores the virtio-1 issues.
+
+> 
+> 
+> Second issue is migration, some of it is with migrating the new
+> features, so that's tied to the first one.
+
+There's also the used and avail addresses, but that kind of follows
+from virtio-1 support.
+
+> 
+> 
+> Third issue is fixing devices so they don't try to
+> access guest memory until DRIVER_OK is set.
+> This is surprisingly hard to do generally given need to support old
+> drivers which don't set DRIVER_OK or set it very late, and the fact that
+> we tied work-arounds for even older drivers which dont' set pci bus
+> master to the DRIVER_OK bit. I tried, and I'm close to giving up and
+> just checking guest ack for virtio 1, and ignoring DRIVER_OK requirement
+> if not there.
+
+If legacy survived like it is until now, it might be best to focus on
+modern devices for this.
