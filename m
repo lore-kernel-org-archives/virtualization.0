@@ -1,21 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH RFC 4/7] vhost: set vring endianness for
-	legacy virtio
-Date: Wed, 13 May 2015 13:22:26 +0200
-Message-ID: <20150513130925-mutt-send-email-mst@redhat.com>
-References: <20150506120729.8607.23404.stgit@bahia.huguette.org>
-	<20150506120801.8607.64278.stgit@bahia.huguette.org>
-	<20150512152530.4ab0c56f.cornelia.huck@de.ibm.com>
-	<20150512154127-mutt-send-email-mst@redhat.com>
-	<20150512182532.62d749b8.cornelia.huck@de.ibm.com>
-	<20150512183719-mutt-send-email-mst@redhat.com>
-	<20150513123907.5ab86cd2.cornelia.huck@de.ibm.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH 0/6] x86: reduce paravirtualized spinlock overhead
+Date: Fri, 15 May 2015 14:16:24 +0200
+Message-ID: <5555E398.2070006__16079.7806842767$1431692215$gmane$org@suse.com>
+References: <1430391243-7112-1-git-send-email-jgross@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20150513123907.5ab86cd2.cornelia.huck@de.ibm.com>
+In-Reply-To: <1430391243-7112-1-git-send-email-jgross@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,86 +17,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, Stefan Hajnoczi <stefanha@redhat.com>
+To: linux-kernel@vger.kernel.org, x86@kernel.org, hpa@zytor.com, tglx@linutronix.de, mingo@redhat.com, xen-devel@lists.xensource.com, konrad.wilk@oracle.com, david.vrabel@citrix.com, boris.ostrovsky@oracle.com, jeremy@goop.org, chrisw@sous-sol.org, akataria@vmware.com, rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org, gleb@kernel.org, pbonzini@redhat.com, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 13, 2015 at 12:39:07PM +0200, Cornelia Huck wrote:
-> On Tue, 12 May 2015 18:40:35 +0200
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> > On Tue, May 12, 2015 at 06:25:32PM +0200, Cornelia Huck wrote:
-> > > On Tue, 12 May 2015 17:15:53 +0200
-> > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> > > > One issue with virtio 1 patches as they are is with how features are
-> > > > handled ATM.  There are 3 types of features
-> > > > 
-> > > > 	a. virtio 1 only features
-> > > > 	b. virtio 0 only features
-> > > > 	c. shared features
-> > > > 
-> > > > and 3 types of devices
-> > > > 	a. legacy device: has b+c features
-> > > > 	b. modern device: has a+c features
-> > > > 	c. transitional device: has a+c features but exposes
-> > > > 	   only c through the legacy interface
-> > > 
-> > > Wouldn't a transitional device be able to expose b as well?
-> > 
-> > No because the virtio 1 spec says it shouldn't.
-> 
-> Can you point me to the part where it says that? Can't seem to find it.
+Ping?
 
-
-What I mean is that these features can't be operated through the modern
-interface.
-Consider the BLK SCSI command feature. If you set it you really
-expect guest to be able to e.g. use your device as a cd writer.
-So, a legacy guest is able to do this, but a modern guest isn't?
-Doesn't sound like an expected outcome to me.
-
-
-So the principle of the least surprise dictates that we
-- disable the feature by default for everyone
-- add flag to enable the feature, available for legacy devices only
-
-
-> > > > So I think a callback that gets features depending on guest
-> > > > version isn't a good way to model it because fundamentally device
-> > > > has one set of features.
-> > > > A better way to model this is really just a single
-> > > > host_features bitmask, and for transitional devices, a mask
-> > > > hiding a features - which are so far all bits > 31, so maybe
-> > > > for now we can just have a global mask.
-> > > 
-> > > How would this work for transitional presenting a modern device - would
-> > > you have a superset of bits and masks for legacy and modern?
-> > 
-> > Basically we expose through modern interface a superset
-> > of bits exposed through legacy.
-> > F_BAD for pci is probably the only exception.
-> 
-> ccw has F_BAD as well.
-
-It does but it ignores it, so I think setting that bit
-in host features is a bug. PCI uses it to detect very old
-guests that just acked all features without looking
-at them. ccw never had such guests.
-
-> NOTIFY_ON_EMPTY is in the MAY be offered category.
-
-Right. Current guests simply ignore this feature bit,
-so I don't much care what we do with this bit as long as
-- pci exposes this on the legacy interface
-- we don't spend many lines of code working around that special case
-
-> I'm still wondering about the old legacy bits. Transitional devices not
-> offering them is easiest to implement from the host side, but I'm
-> wondering if all legacy devices will be able to function with missing
-> bits? Is breaking some legacy drivers OK?
-
-We should add flags to re-enable them, for legacy devices only.
-
--- 
-MST
+On 04/30/2015 12:53 PM, Juergen Gross wrote:
+> Paravirtualized spinlocks produce some overhead even if the kernel is
+> running on bare metal. The main reason are the more complex locking
+> and unlocking functions. Especially unlocking is no longer just one
+> instruction but so complex that it is no longer inlined.
+>
+> This patch series addresses this issue by adding two more pvops
+> functions to reduce the size of the inlined spinlock functions. When
+> running on bare metal unlocking is again basically one instruction.
+>
+> Compile tested with CONFIG_PARAVIRT_SPINLOCKS on and off, 32 and 64
+> bits.
+>
+> Functional testing on bare metal and as Xen dom0.
+>
+> Correct patching verified by disassembly of active kernel.
+>
+> Juergen Gross (6):
+>    x86: use macro instead of "0" for setting TICKET_SLOWPATH_FLAG
+>    x86: move decision about clearing slowpath flag into arch_spin_lock()
+>    x86: introduce new pvops function clear_slowpath
+>    x86: introduce new pvops function spin_unlock
+>    x86: switch config from UNINLINE_SPIN_UNLOCK to INLINE_SPIN_UNLOCK
+>    x86: remove no longer needed paravirt_ticketlocks_enabled
+>
+>   arch/x86/Kconfig                      |  1 -
+>   arch/x86/include/asm/paravirt.h       | 13 +++++++++
+>   arch/x86/include/asm/paravirt_types.h | 12 ++++++++
+>   arch/x86/include/asm/spinlock.h       | 53 ++++++++++++-----------------------
+>   arch/x86/include/asm/spinlock_types.h |  3 +-
+>   arch/x86/kernel/kvm.c                 | 14 +--------
+>   arch/x86/kernel/paravirt-spinlocks.c  | 42 +++++++++++++++++++++++++--
+>   arch/x86/kernel/paravirt.c            | 12 ++++++++
+>   arch/x86/kernel/paravirt_patch_32.c   | 25 +++++++++++++++++
+>   arch/x86/kernel/paravirt_patch_64.c   | 24 ++++++++++++++++
+>   arch/x86/xen/spinlock.c               | 23 +--------------
+>   include/linux/spinlock_api_smp.h      |  2 +-
+>   kernel/Kconfig.locks                  |  7 +++--
+>   kernel/Kconfig.preempt                |  3 +-
+>   kernel/locking/spinlock.c             |  2 +-
+>   lib/Kconfig.debug                     |  1 -
+>   16 files changed, 154 insertions(+), 83 deletions(-)
+>
