@@ -1,13 +1,15 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH 0/6] x86: reduce paravirtualized spinlock overhead
-Date: Fri, 15 May 2015 14:16:24 +0200
-Message-ID: <5555E398.2070006__16079.7806842767$1431692215$gmane$org@suse.com>
-References: <1430391243-7112-1-git-send-email-jgross@suse.com>
+From: Ohad Ben-Cohen <ohad@wizery.com>
+Subject: Re: [RFC 4/4] rpmsg: DMA map sgs passed to virtio
+Date: Sat, 16 May 2015 12:32:10 +0300
+Message-ID: <CAK=WgbbYLMNQ4jdXLz9bZf4a8q4pVCyeN84J3G7YGca2MP7SsA@mail.gmail.com>
+References: <1430456507-26862-1-git-send-email-edgar.iglesias@gmail.com>
+	<1430456507-26862-5-git-send-email-edgar.iglesias@gmail.com>
+	<87wq0mgr9f.fsf@rustcorp.com.au> <20150507002809.GW10142@toto>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1430391243-7112-1-git-send-email-jgross@suse.com>
+In-Reply-To: <20150507002809.GW10142@toto>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,51 +19,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, x86@kernel.org, hpa@zytor.com, tglx@linutronix.de, mingo@redhat.com, xen-devel@lists.xensource.com, konrad.wilk@oracle.com, david.vrabel@citrix.com, boris.ostrovsky@oracle.com, jeremy@goop.org, chrisw@sous-sol.org, akataria@vmware.com, rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org, gleb@kernel.org, pbonzini@redhat.com, kvm@vger.kernel.org
+To: "Edgar E. Iglesias" <edgar.iglesias@gmail.com>
+Cc: edgar.iglesias@xilinx.com, Russell King <linux@arm.linux.org.uk>, "Michael S. Tsirkin" <mst@redhat.com>, michal.simek@xilinx.com, virtualization <virtualization@lists.linux-foundation.org>, j.wu@xilinx.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ping?
+On Thu, May 7, 2015 at 3:28 AM, Edgar E. Iglesias
+<edgar.iglesias@gmail.com> wrote:
+>
+> On Wed, May 06, 2015 at 03:51:48PM +0930, Rusty Russell wrote:
+> > "Edgar E. Iglesias" <edgar.iglesias@gmail.com> writes:
+> > > From: "Edgar E. Iglesias" <edgar.iglesias@xilinx.com>
+> > >
+> > > Signed-off-by: Edgar E. Iglesias <edgar.iglesias@xilinx.com>
+> >
+> > First off, I have handed maintainership off to Michael S. Tsirkin, so
+> > his word is now law.
+> >
+> > That said... there's nothing fundamentally *wrong* with this, but it's
+> > not how standard virtio works.  We decided some time ago that as we're
+> > paravirtualized, we would not be doing address mapping.
+> >
+> > rpmsg uses virtio, but it's with a twist: they're not talking to a
+> > host.  Thus my preference, in order, would be:
+> >
+> > 1) Don't use non-kmalloc addresses.
+> > 2) If that's not possible, call these _dma interfaces _rpmsg instead,
+> >    so normal virtio users don't get confused and try to use them.
+>
+> Thanks Rusty,
+>
+> That was helpful, I'll see if I can do something in line with nr 2.
+>
+> AFAICT, #1 will be hard. The remote-processor would have to be
+> cache-coherent and share memory address-space view with the master
+> CPU. This is not the common case for remoteproc (unlike when virtio
+> communication flows between host and guest on the same CPU or SMP system).
+> Ohad, do you have any thoughts on this?
 
-On 04/30/2015 12:53 PM, Juergen Gross wrote:
-> Paravirtualized spinlocks produce some overhead even if the kernel is
-> running on bare metal. The main reason are the more complex locking
-> and unlocking functions. Especially unlocking is no longer just one
-> instruction but so complex that it is no longer inlined.
->
-> This patch series addresses this issue by adding two more pvops
-> functions to reduce the size of the inlined spinlock functions. When
-> running on bare metal unlocking is again basically one instruction.
->
-> Compile tested with CONFIG_PARAVIRT_SPINLOCKS on and off, 32 and 64
-> bits.
->
-> Functional testing on bare metal and as Xen dom0.
->
-> Correct patching verified by disassembly of active kernel.
->
-> Juergen Gross (6):
->    x86: use macro instead of "0" for setting TICKET_SLOWPATH_FLAG
->    x86: move decision about clearing slowpath flag into arch_spin_lock()
->    x86: introduce new pvops function clear_slowpath
->    x86: introduce new pvops function spin_unlock
->    x86: switch config from UNINLINE_SPIN_UNLOCK to INLINE_SPIN_UNLOCK
->    x86: remove no longer needed paravirt_ticketlocks_enabled
->
->   arch/x86/Kconfig                      |  1 -
->   arch/x86/include/asm/paravirt.h       | 13 +++++++++
->   arch/x86/include/asm/paravirt_types.h | 12 ++++++++
->   arch/x86/include/asm/spinlock.h       | 53 ++++++++++++-----------------------
->   arch/x86/include/asm/spinlock_types.h |  3 +-
->   arch/x86/kernel/kvm.c                 | 14 +--------
->   arch/x86/kernel/paravirt-spinlocks.c  | 42 +++++++++++++++++++++++++--
->   arch/x86/kernel/paravirt.c            | 12 ++++++++
->   arch/x86/kernel/paravirt_patch_32.c   | 25 +++++++++++++++++
->   arch/x86/kernel/paravirt_patch_64.c   | 24 ++++++++++++++++
->   arch/x86/xen/spinlock.c               | 23 +--------------
->   include/linux/spinlock_api_smp.h      |  2 +-
->   kernel/Kconfig.locks                  |  7 +++--
->   kernel/Kconfig.preempt                |  3 +-
->   kernel/locking/spinlock.c             |  2 +-
->   lib/Kconfig.debug                     |  1 -
->   16 files changed, 154 insertions(+), 83 deletions(-)
->
+rpmsg is allocating a large chunk (256KB) of physically-contiguous CMA
+memory today, which is exposed via the dma_alloc_coherent API (and set
+up in advance by platform-specific code), so if #2 above is
+acceptable, it would be easier, yeah.
+
+Thanks,
+Ohad.
