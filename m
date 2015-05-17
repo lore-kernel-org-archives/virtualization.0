@@ -1,15 +1,16 @@
-From: Ohad Ben-Cohen <ohad@wizery.com>
-Subject: Re: [RFC 4/4] rpmsg: DMA map sgs passed to virtio
-Date: Sat, 16 May 2015 12:32:10 +0300
-Message-ID: <CAK=WgbbYLMNQ4jdXLz9bZf4a8q4pVCyeN84J3G7YGca2MP7SsA@mail.gmail.com>
-References: <1430456507-26862-1-git-send-email-edgar.iglesias@gmail.com>
-	<1430456507-26862-5-git-send-email-edgar.iglesias@gmail.com>
-	<87wq0mgr9f.fsf@rustcorp.com.au> <20150507002809.GW10142@toto>
+From: Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH 0/6] x86: reduce paravirtualized spinlock overhead
+Date: Sun, 17 May 2015 07:30:36 +0200
+Message-ID: <20150517053036.GB16607@gmail.com>
+References: <1430391243-7112-1-git-send-email-jgross@suse.com>
+	<55425ADA.4060105@goop.org> <554709BB.7090400@suse.com>
+	<5548FC1A.7000806@goop.org> <554A0132.3070802@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150507002809.GW10142@toto>
+Content-Disposition: inline
+In-Reply-To: <554A0132.3070802@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,47 +20,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Edgar E. Iglesias" <edgar.iglesias@gmail.com>
-Cc: edgar.iglesias@xilinx.com, Russell King <linux@arm.linux.org.uk>, "Michael S. Tsirkin" <mst@redhat.com>, michal.simek@xilinx.com, virtualization <virtualization@lists.linux-foundation.org>, j.wu@xilinx.com
+To: Juergen Gross <jgross@suse.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, kvm@vger.kernel.org, konrad.wilk@oracle.com, gleb@kernel.org, x86@kernel.org, akataria@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, hpa@zytor.com, pbonzini@redhat.com, tglx@linutronix.de, boris.ostrovsky@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 7, 2015 at 3:28 AM, Edgar E. Iglesias
-<edgar.iglesias@gmail.com> wrote:
->
-> On Wed, May 06, 2015 at 03:51:48PM +0930, Rusty Russell wrote:
-> > "Edgar E. Iglesias" <edgar.iglesias@gmail.com> writes:
-> > > From: "Edgar E. Iglesias" <edgar.iglesias@xilinx.com>
-> > >
-> > > Signed-off-by: Edgar E. Iglesias <edgar.iglesias@xilinx.com>
-> >
-> > First off, I have handed maintainership off to Michael S. Tsirkin, so
-> > his word is now law.
-> >
-> > That said... there's nothing fundamentally *wrong* with this, but it's
-> > not how standard virtio works.  We decided some time ago that as we're
-> > paravirtualized, we would not be doing address mapping.
-> >
-> > rpmsg uses virtio, but it's with a twist: they're not talking to a
-> > host.  Thus my preference, in order, would be:
-> >
-> > 1) Don't use non-kmalloc addresses.
-> > 2) If that's not possible, call these _dma interfaces _rpmsg instead,
-> >    so normal virtio users don't get confused and try to use them.
->
-> Thanks Rusty,
->
-> That was helpful, I'll see if I can do something in line with nr 2.
->
-> AFAICT, #1 will be hard. The remote-processor would have to be
-> cache-coherent and share memory address-space view with the master
-> CPU. This is not the common case for remoteproc (unlike when virtio
-> communication flows between host and guest on the same CPU or SMP system).
-> Ohad, do you have any thoughts on this?
 
-rpmsg is allocating a large chunk (256KB) of physically-contiguous CMA
-memory today, which is exposed via the dma_alloc_coherent API (and set
-up in advance by platform-specific code), so if #2 above is
-acceptable, it would be easier, yeah.
+* Juergen Gross <jgross@suse.com> wrote:
+
+> On 05/05/2015 07:21 PM, Jeremy Fitzhardinge wrote:
+> >On 05/03/2015 10:55 PM, Juergen Gross wrote:
+> >>I did a small measurement of the pure locking functions on bare metal
+> >>without and with my patches.
+> >>
+> >>spin_lock() for the first time (lock and code not in cache) dropped from
+> >>about 600 to 500 cycles.
+> >>
+> >>spin_unlock() for first time dropped from 145 to 87 cycles.
+> >>
+> >>spin_lock() in a loop dropped from 48 to 45 cycles.
+> >>
+> >>spin_unlock() in the same loop dropped from 24 to 22 cycles.
+> >
+> >Did you isolate icache hot/cold from dcache hot/cold? It seems to me the
+> >main difference will be whether the branch predictor is warmed up rather
+> >than if the lock itself is in dcache, but its much more likely that the
+> >lock code is icache if the code is lock intensive, making the cold case
+> >moot. But that's pure speculation.
+> >
+> >Could you see any differences in workloads beyond microbenchmarks?
+> >
+> >Not that its my call at all, but I think we'd need to see some concrete
+> >improvements in real workloads before adding the complexity of more pvops.
+> 
+> I did another test on a larger machine:
+> 
+> 25 kernel builds (time make -j 32) on a 32 core machine. Before each
+> build "make clean" was called, the first result after boot was omitted
+> to avoid disk cache warmup effects.
+> 
+> System time without my patches: 861.5664 +/- 3.3665 s
+>                with my patches: 852.2269 +/- 3.6629 s
+
+So how does the profile look like in the guest, before/after the PV 
+spinlock patches? I'm a bit surprised to see so much spinlock 
+overhead.
 
 Thanks,
-Ohad.
+
+	Ingo
