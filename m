@@ -1,14 +1,14 @@
-From: Stephen Hemminger <stephen@networkplumber.org>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [RFC V7 PATCH 7/7] vhost_net: add interrupt coalescing support
-Date: Tue, 26 May 2015 11:02:52 -0700
-Message-ID: <20150526110252.6437cea8__30391.3736170673$1432663386$gmane$org@urahara>
-References: <1432531444-50193-1-git-send-email-jasowang@redhat.com>
-	<1432531444-50193-8-git-send-email-jasowang@redhat.com>
+Date: Wed, 27 May 2015 16:30:48 +0800
+Message-ID: <556580B8.4080805__16681.0023169548$1432715474$gmane$org@redhat.com>
+References: <1432531444-50193-1-git-send-email-jasowang@redhat.com>	<1432531444-50193-8-git-send-email-jasowang@redhat.com>
+	<20150526110252.6437cea8@urahara>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1432531444-50193-8-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20150526110252.6437cea8@urahara>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,57 +18,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
+To: Stephen Hemminger <stephen@networkplumber.org>
 Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 25 May 2015 01:24:04 -0400
-Jason Wang <jasowang@redhat.com> wrote:
 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/vhost/net.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 7d137a4..5ee28b7 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -320,6 +320,9 @@ static void handle_tx(struct vhost_net *net)
->  	hdr_size = nvq->vhost_hlen;
->  	zcopy = nvq->ubufs;
->  
-> +	/* Finish pending interrupts first */
-> +	vhost_check_coalesce_and_signal(vq->dev, vq, false);
-> +
->  	for (;;) {
->  		/* Release DMAs done buffers first */
->  		if (zcopy)
-> @@ -415,6 +418,7 @@ static void handle_tx(struct vhost_net *net)
->  		}
->  	}
->  out:
-> +	vhost_check_coalesce_and_signal(vq->dev, vq, true);
->  	mutex_unlock(&vq->mutex);
->  }
->  
-> @@ -554,6 +558,9 @@ static void handle_rx(struct vhost_net *net)
->  		vq->log : NULL;
->  	mergeable = vhost_has_feature(vq, VIRTIO_NET_F_MRG_RXBUF);
->  
-> +	/* Finish pending interrupts first */
-> +	vhost_check_coalesce_and_signal(vq->dev, vq, false);
-> +
->  	while ((sock_len = peek_head_len(sock->sk))) {
->  		sock_len += sock_hlen;
->  		vhost_len = sock_len + vhost_hlen;
-> @@ -638,6 +645,7 @@ static void handle_rx(struct vhost_net *net)
->  		}
->  	}
->  out:
-> +	vhost_check_coalesce_and_signal(vq->dev, vq, true);
->  	mutex_unlock(&vq->mutex);
->  }
->  
 
-Could you implement ethtool control of these coalescing parameters?
+On 05/27/2015 02:02 AM, Stephen Hemminger wrote:
+> On Mon, 25 May 2015 01:24:04 -0400
+> Jason Wang <jasowang@redhat.com> wrote:
+>
+>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+>> ---
+>>  drivers/vhost/net.c | 8 ++++++++
+>>  1 file changed, 8 insertions(+)
+>>
+>> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+>> index 7d137a4..5ee28b7 100644
+>> --- a/drivers/vhost/net.c
+>> +++ b/drivers/vhost/net.c
+>> @@ -320,6 +320,9 @@ static void handle_tx(struct vhost_net *net)
+>>  	hdr_size = nvq->vhost_hlen;
+>>  	zcopy = nvq->ubufs;
+>>  
+>> +	/* Finish pending interrupts first */
+>> +	vhost_check_coalesce_and_signal(vq->dev, vq, false);
+>> +
+>>  	for (;;) {
+>>  		/* Release DMAs done buffers first */
+>>  		if (zcopy)
+>> @@ -415,6 +418,7 @@ static void handle_tx(struct vhost_net *net)
+>>  		}
+>>  	}
+>>  out:
+>> +	vhost_check_coalesce_and_signal(vq->dev, vq, true);
+>>  	mutex_unlock(&vq->mutex);
+>>  }
+>>  
+>> @@ -554,6 +558,9 @@ static void handle_rx(struct vhost_net *net)
+>>  		vq->log : NULL;
+>>  	mergeable = vhost_has_feature(vq, VIRTIO_NET_F_MRG_RXBUF);
+>>  
+>> +	/* Finish pending interrupts first */
+>> +	vhost_check_coalesce_and_signal(vq->dev, vq, false);
+>> +
+>>  	while ((sock_len = peek_head_len(sock->sk))) {
+>>  		sock_len += sock_hlen;
+>>  		vhost_len = sock_len + vhost_hlen;
+>> @@ -638,6 +645,7 @@ static void handle_rx(struct vhost_net *net)
+>>  		}
+>>  	}
+>>  out:
+>> +	vhost_check_coalesce_and_signal(vq->dev, vq, true);
+>>  	mutex_unlock(&vq->mutex);
+>>  }
+>>  
+> Could you implement ethtool control of these coalescing parameters?
+
+I believe you mean guest ethtool control. If yes, it has been
+implemented in [RFC V7 PATCH 4/7] virtio-net: add basic interrupt
+coalescing support.
