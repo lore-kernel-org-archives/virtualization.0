@@ -1,16 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v6 3/8] macvtap: introduce macvtap_is_little_endian()
-	helper
-Date: Mon, 1 Jun 2015 12:30:16 +0200
-Message-ID: <20150601122950-mutt-send-email-mst@redhat.com>
-References: <20150424122211.19156.97626.stgit@bahia.local>
-	<20150424122446.19156.93123.stgit@bahia.local>
+From: Mikko Rapeli <mikko.rapeli@iki.fi>
+Subject: [PATCH 93/98] include/uapi/linux/virtio_balloon.h: include
+	linux/virtio_types.h
+Date: Sat, 30 May 2015 17:39:25 +0200
+Message-ID: <1433000370-19509-94-git-send-email-mikko.rapeli__47796.5207807303$1433171806$gmane$org@iki.fi>
+References: <1433000370-19509-1-git-send-email-mikko.rapeli@iki.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20150424122446.19156.93123.stgit@bahia.local>
+In-Reply-To: <1433000370-19509-1-git-send-email-mikko.rapeli@iki.fi>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,47 +18,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Cc: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, David Miller <davem@davemloft.net>
+To: linux-kernel@vger.kernel.org
+Cc: Mikko Rapeli <mikko.rapeli@iki.fi>, virtualization@lists.linux-foundation.org, linux-api@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Apr 24, 2015 at 02:24:48PM +0200, Greg Kurz wrote:
-> Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
-
-Dave, could you pls ack merging this through the virtio tree?
-
-> ---
->  drivers/net/macvtap.c |    9 +++++++--
->  1 file changed, 7 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/net/macvtap.c b/drivers/net/macvtap.c
-> index 27ecc5c..a2f2958 100644
-> --- a/drivers/net/macvtap.c
-> +++ b/drivers/net/macvtap.c
-> @@ -49,14 +49,19 @@ struct macvtap_queue {
->  
->  #define MACVTAP_VNET_LE 0x80000000
->  
-> +static inline bool macvtap_is_little_endian(struct macvtap_queue *q)
-> +{
-> +	return q->flags & MACVTAP_VNET_LE;
-> +}
-> +
->  static inline u16 macvtap16_to_cpu(struct macvtap_queue *q, __virtio16 val)
->  {
-> -	return __virtio16_to_cpu(q->flags & MACVTAP_VNET_LE, val);
-> +	return __virtio16_to_cpu(macvtap_is_little_endian(q), val);
->  }
->  
->  static inline __virtio16 cpu_to_macvtap16(struct macvtap_queue *q, u16 val)
->  {
-> -	return __cpu_to_virtio16(q->flags & MACVTAP_VNET_LE, val);
-> +	return __cpu_to_virtio16(macvtap_is_little_endian(q), val);
->  }
->  
->  static struct proto macvtap_proto = {
-> 
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+Rml4ZXMgdXNlcnNwYWNlIGNvbXBpbGF0aW9uIGVycm9yOgoKZXJyb3I6IHVua25vd24gdHlwZSBu
+YW1lIOKAmF9fdmlydGlvMTbigJkKICBfX3ZpcnRpbzE2IHRhZzsKClNpZ25lZC1vZmYtYnk6IE1p
+a2tvIFJhcGVsaSA8bWlra28ucmFwZWxpQGlraS5maT4KLS0tCiBpbmNsdWRlL3VhcGkvbGludXgv
+dmlydGlvX2JhbGxvb24uaCB8IDEgKwogMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspCgpk
+aWZmIC0tZ2l0IGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmggYi9pbmNsdWRl
+L3VhcGkvbGludXgvdmlydGlvX2JhbGxvb24uaAppbmRleCA5ODQxNjlhLi5kN2YxY2JjIDEwMDY0
+NAotLS0gYS9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2JhbGxvb24uaAorKysgYi9pbmNsdWRl
+L3VhcGkvbGludXgvdmlydGlvX2JhbGxvb24uaApAQCAtMjYsNiArMjYsNyBAQAogICogT1VUIE9G
+IFRIRSBVU0UgT0YgVEhJUyBTT0ZUV0FSRSwgRVZFTiBJRiBBRFZJU0VEIE9GIFRIRSBQT1NTSUJJ
+TElUWSBPRgogICogU1VDSCBEQU1BR0UuICovCiAjaW5jbHVkZSA8bGludXgvdHlwZXMuaD4KKyNp
+bmNsdWRlIDxsaW51eC92aXJ0aW9fdHlwZXMuaD4KICNpbmNsdWRlIDxsaW51eC92aXJ0aW9faWRz
+Lmg+CiAjaW5jbHVkZSA8bGludXgvdmlydGlvX2NvbmZpZy5oPgogCi0tIAoyLjEuNAoKX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
+bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
+dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
+emF0aW9u
