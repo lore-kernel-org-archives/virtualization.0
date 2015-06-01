@@ -1,14 +1,12 @@
-From: Mikko Rapeli <mikko.rapeli@iki.fi>
-Subject: [PATCH 93/98] include/uapi/linux/virtio_balloon.h: include
-	linux/virtio_types.h
-Date: Sat, 30 May 2015 17:39:25 +0200
-Message-ID: <1433000370-19509-94-git-send-email-mikko.rapeli__47796.5207807303$1433171806$gmane$org@iki.fi>
-References: <1433000370-19509-1-git-send-email-mikko.rapeli@iki.fi>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL] vhost: cleanups and fixes
+Date: Mon, 1 Jun 2015 21:18:55 +0200
+Message-ID: <20150601211854-mutt-send-email-mst__13040.2335817509$1433186355$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1433000370-19509-1-git-send-email-mikko.rapeli@iki.fi>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,23 +16,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Mikko Rapeli <mikko.rapeli@iki.fi>, virtualization@lists.linux-foundation.org, linux-api@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mikko.rapeli@iki.fi
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rml4ZXMgdXNlcnNwYWNlIGNvbXBpbGF0aW9uIGVycm9yOgoKZXJyb3I6IHVua25vd24gdHlwZSBu
-YW1lIOKAmF9fdmlydGlvMTbigJkKICBfX3ZpcnRpbzE2IHRhZzsKClNpZ25lZC1vZmYtYnk6IE1p
-a2tvIFJhcGVsaSA8bWlra28ucmFwZWxpQGlraS5maT4KLS0tCiBpbmNsdWRlL3VhcGkvbGludXgv
-dmlydGlvX2JhbGxvb24uaCB8IDEgKwogMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspCgpk
-aWZmIC0tZ2l0IGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmggYi9pbmNsdWRl
-L3VhcGkvbGludXgvdmlydGlvX2JhbGxvb24uaAppbmRleCA5ODQxNjlhLi5kN2YxY2JjIDEwMDY0
-NAotLS0gYS9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2JhbGxvb24uaAorKysgYi9pbmNsdWRl
-L3VhcGkvbGludXgvdmlydGlvX2JhbGxvb24uaApAQCAtMjYsNiArMjYsNyBAQAogICogT1VUIE9G
-IFRIRSBVU0UgT0YgVEhJUyBTT0ZUV0FSRSwgRVZFTiBJRiBBRFZJU0VEIE9GIFRIRSBQT1NTSUJJ
-TElUWSBPRgogICogU1VDSCBEQU1BR0UuICovCiAjaW5jbHVkZSA8bGludXgvdHlwZXMuaD4KKyNp
-bmNsdWRlIDxsaW51eC92aXJ0aW9fdHlwZXMuaD4KICNpbmNsdWRlIDxsaW51eC92aXJ0aW9faWRz
-Lmg+CiAjaW5jbHVkZSA8bGludXgvdmlydGlvX2NvbmZpZy5oPgogCi0tIAoyLjEuNAoKX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
-bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
-dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
-emF0aW9u
+The following changes since commit c65b99f046843d2455aa231747b5a07a999a9f3d:
+
+  Linux 4.1-rc6 (2015-05-31 19:01:07 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to 8a7b19d8b542b87bccc3eaaf81dcc90a5ca48aea:
+
+  include/uapi/linux/virtio_balloon.h: include linux/virtio_types.h (2015-06-01 15:46:54 +0200)
+
+----------------------------------------------------------------
+virtio: last-minute fix for 4.1
+
+This tweaks an exported user-space header to fix
+build breakage for userspace using it.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Mikko Rapeli (1):
+      include/uapi/linux/virtio_balloon.h: include linux/virtio_types.h
+
+ include/uapi/linux/virtio_balloon.h | 1 +
+ 1 file changed, 1 insertion(+)
