@@ -1,15 +1,13 @@
-From: Rafael Aquini <aquini@redhat.com>
-Subject: Re: [RFC 0/4] enable migration of non-LRU pages
-Date: Fri, 5 Jun 2015 10:43:13 -0400
-Message-ID: <20150605144313.GD18087__11052.766434341$1433515429$gmane$org@t510.redhat.com>
-References: <1433230065-3573-1-git-send-email-gioh.kim@lge.com>
-	<20150605135350.GE10661@t510.redhat.com> <5571B3C5.1000004@lge.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH 0/6] x86: reduce paravirtualized spinlock overhead
+Date: Mon, 08 Jun 2015 06:09:08 +0200
+Message-ID: <55751564.20609@suse.com>
+References: <1430391243-7112-1-git-send-email-jgross@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5571B3C5.1000004@lge.com>
+In-Reply-To: <1430391243-7112-1-git-send-email-jgross@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,76 +17,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gioh Kim <gioh.kim@lge.com>
-Cc: akpm@linux-foundation.org, mst@redhat.com, gunho.lee@lge.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, minchan@kernel.org, linux-mm@kvack.org, kirill@shutemov.name, iamjoonsoo.kim@lge.com, jlayton@poochiereds.net, vbabka@suse.cz
+To: linux-kernel@vger.kernel.org, x86@kernel.org, hpa@zytor.com, tglx@linutronix.de, mingo@redhat.com, xen-devel@lists.xensource.com, konrad.wilk@oracle.com, david.vrabel@citrix.com, boris.ostrovsky@oracle.com, jeremy@goop.org, chrisw@sous-sol.org, akataria@vmware.com, rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org, gleb@kernel.org, pbonzini@redhat.com, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jun 05, 2015 at 11:35:49PM +0900, Gioh Kim wrote:
-> >On Tue, Jun 02, 2015 at 04:27:40PM +0900, Gioh Kim wrote:
-> >>Hello,
-> >>
-> >>This series try to enable migration of non-LRU pages, such as driver's page.
-> >>
-> >>My ARM-based platform occured severe fragmentation problem after long-term
-> >>(several days) test. Sometimes even order-3 page allocation failed. It has
-> >>memory size 512MB ~ 1024MB. 30% ~ 40% memory is consumed for graphic processing
-> >>and 20~30 memory is reserved for zram.
-> >>
-> >>I found that many pages of GPU driver and zram are non-movable pages. So I
-> >>reported Minchan Kim, the maintainer of zram, and he made the internal
-> >>compaction logic of zram. And I made the internal compaction of GPU driver.
-> >>
-> >>They reduced some fragmentation but they are not enough effective.
-> >>They are activated by its own interface, /sys, so they are not cooperative
-> >>with kernel compaction. If there is too much fragmentation and kernel starts
-> >>to compaction, zram and GPU driver cannot work with the kernel compaction.
-> >>
-> >>The first this patch adds a generic isolate/migrate/putback callbacks for page
-> >>address-space. The zram and GPU, and any other modules can register
-> >>its own migration method. The kernel compaction can call the registered
-> >>migration when it works. Therefore all page in the system can be migrated
-> >>at once.
-> >>
-> >>The 2nd the generic migration callbacks are applied into balloon driver.
-> >>My gpu driver code is not open so I apply generic migration into balloon
-> >>to show how it works. I've tested it with qemu enabled by kvm like followings:
-> >>- turn on Ubuntu 14.04 with 1G memory on qemu.
-> >>- do kernel building
-> >>- after several seconds check more than 512MB is used with free command
-> >>- command "balloon 512" in qemu monitor
-> >>- check hundreds MB of pages are migrated
-> >>
-> >>Next kernel compaction code can call generic migration callbacks instead of
-> >>balloon driver interface.
-> >>Finally calling migration of balloon driver is removed.
-> >>
-> >
-> >In a glance, ss Konstantin pointed out this set, while it twists chunks around,
-> >brings back code we got rid of a while ago because it was messy and racy.
-> 
-> Yes, your point is right.
-> 
-> >I'll take a closer look into your work next week, but for now, I'd say
-> >we should not follow this patch of reintroducing long-dead code.
-> 
-> BUT as I replied to Konstantin, the code for balloon driver is to show
-> how the generic callbacks can be applied.
-> 
-> My point is there are some pages to be migrated which are not LRU pages,
-> but there is no interface for them to migrate.
-> 
-> For example gpu driver has many, not mapped to kernel space, pages.
-> Those pages can be migrated when GPU is not working, screen is not refreshed.
-> And zram pages can be migrated also.
-> 
-> I'm very sorry that I'm not familiar to balloon driver.
-> If you give me some hints, I might be able to refine code of patch 2~3 in the next spin.
->
+Ping?
 
-NP at all. Thanks for bringing this discussion of migrating non-LRU
-pages back to the table, actually. As I mentioned earlier, I'll take a
-closer look into your work as soon as I get time next week, so I can try
-to help with more qualified feedback.
- 
-Have a nice weekend!
--- Rafael
+Anything missing from my side?
+
+On 04/30/2015 12:53 PM, Juergen Gross wrote:
+> Paravirtualized spinlocks produce some overhead even if the kernel is
+> running on bare metal. The main reason are the more complex locking
+> and unlocking functions. Especially unlocking is no longer just one
+> instruction but so complex that it is no longer inlined.
+>
+> This patch series addresses this issue by adding two more pvops
+> functions to reduce the size of the inlined spinlock functions. When
+> running on bare metal unlocking is again basically one instruction.
+>
+> Compile tested with CONFIG_PARAVIRT_SPINLOCKS on and off, 32 and 64
+> bits.
+>
+> Functional testing on bare metal and as Xen dom0.
+>
+> Correct patching verified by disassembly of active kernel.
+>
+> Juergen Gross (6):
+>    x86: use macro instead of "0" for setting TICKET_SLOWPATH_FLAG
+>    x86: move decision about clearing slowpath flag into arch_spin_lock()
+>    x86: introduce new pvops function clear_slowpath
+>    x86: introduce new pvops function spin_unlock
+>    x86: switch config from UNINLINE_SPIN_UNLOCK to INLINE_SPIN_UNLOCK
+>    x86: remove no longer needed paravirt_ticketlocks_enabled
+>
+>   arch/x86/Kconfig                      |  1 -
+>   arch/x86/include/asm/paravirt.h       | 13 +++++++++
+>   arch/x86/include/asm/paravirt_types.h | 12 ++++++++
+>   arch/x86/include/asm/spinlock.h       | 53 ++++++++++++-----------------------
+>   arch/x86/include/asm/spinlock_types.h |  3 +-
+>   arch/x86/kernel/kvm.c                 | 14 +--------
+>   arch/x86/kernel/paravirt-spinlocks.c  | 42 +++++++++++++++++++++++++--
+>   arch/x86/kernel/paravirt.c            | 12 ++++++++
+>   arch/x86/kernel/paravirt_patch_32.c   | 25 +++++++++++++++++
+>   arch/x86/kernel/paravirt_patch_64.c   | 24 ++++++++++++++++
+>   arch/x86/xen/spinlock.c               | 23 +--------------
+>   include/linux/spinlock_api_smp.h      |  2 +-
+>   kernel/Kconfig.locks                  |  7 +++--
+>   kernel/Kconfig.preempt                |  3 +-
+>   kernel/locking/spinlock.c             |  2 +-
+>   lib/Kconfig.debug                     |  1 -
+>   16 files changed, 154 insertions(+), 83 deletions(-)
