@@ -1,14 +1,12 @@
-From: Gioh Kim <gioh.kim@lge.com>
-Subject: Re: [RFC 0/4] enable migration of non-LRU pages
-Date: Wed, 10 Jun 2015 10:08:13 +0900
-Message-ID: <55778DFD.7070704@lge.com>
-References: <1433230065-3573-1-git-send-email-gioh.kim@lge.com>
-	<20150610000850.GC13376@bgram>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [patch] drm/virtio: checking for NULL instead of IS_ERR
+Date: Wed, 10 Jun 2015 22:27:11 +0300
+Message-ID: <20150610192710.GA10145__6581.37787036157$1433964469$gmane$org@mwanda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150610000850.GC13376@bgram>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,51 +16,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Minchan Kim <minchan@kernel.org>
-Cc: akpm@linux-foundation.org, mst@redhat.com, gunho.lee@lge.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, kirill@shutemov.name, iamjoonsoo.kim@lge.com, jlayton@poochiereds.net, vbabka@suse.cz
+To: David Airlie <airlied@linux.ie>
+Cc: kernel-janitors@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgoyMDE1LTA2LTEwIOyYpOyghCA5OjA47JeQIE1pbmNoYW4gS2ltIOydtCjqsIApIOyTtCDquIA6
-Cj4gSGVsbG8gR2lvaCwKPgo+IE9uIFR1ZSwgSnVuIDAyLCAyMDE1IGF0IDA0OjI3OjQwUE0gKzA5
-MDAsIEdpb2ggS2ltIHdyb3RlOgo+PiBIZWxsbywKPj4KPj4gVGhpcyBzZXJpZXMgdHJ5IHRvIGVu
-YWJsZSBtaWdyYXRpb24gb2Ygbm9uLUxSVSBwYWdlcywgc3VjaCBhcyBkcml2ZXIncyBwYWdlLgo+
-Pgo+PiBNeSBBUk0tYmFzZWQgcGxhdGZvcm0gb2NjdXJlZCBzZXZlcmUgZnJhZ21lbnRhdGlvbiBw
-cm9ibGVtIGFmdGVyIGxvbmctdGVybQo+PiAoc2V2ZXJhbCBkYXlzKSB0ZXN0LiBTb21ldGltZXMg
-ZXZlbiBvcmRlci0zIHBhZ2UgYWxsb2NhdGlvbiBmYWlsZWQuIEl0IGhhcwo+PiBtZW1vcnkgc2l6
-ZSA1MTJNQiB+IDEwMjRNQi4gMzAlIH4gNDAlIG1lbW9yeSBpcyBjb25zdW1lZCBmb3IgZ3JhcGhp
-YyBwcm9jZXNzaW5nCj4+IGFuZCAyMH4zMCBtZW1vcnkgaXMgcmVzZXJ2ZWQgZm9yIHpyYW0uCj4+
-Cj4+IEkgZm91bmQgdGhhdCBtYW55IHBhZ2VzIG9mIEdQVSBkcml2ZXIgYW5kIHpyYW0gYXJlIG5v
-bi1tb3ZhYmxlIHBhZ2VzLiBTbyBJCj4+IHJlcG9ydGVkIE1pbmNoYW4gS2ltLCB0aGUgbWFpbnRh
-aW5lciBvZiB6cmFtLCBhbmQgaGUgbWFkZSB0aGUgaW50ZXJuYWwKPj4gY29tcGFjdGlvbiBsb2dp
-YyBvZiB6cmFtLiBBbmQgSSBtYWRlIHRoZSBpbnRlcm5hbCBjb21wYWN0aW9uIG9mIEdQVSBkcml2
-ZXIuCj4+Cj4+IFRoZXkgcmVkdWNlZCBzb21lIGZyYWdtZW50YXRpb24gYnV0IHRoZXkgYXJlIG5v
-dCBlbm91Z2ggZWZmZWN0aXZlLgo+PiBUaGV5IGFyZSBhY3RpdmF0ZWQgYnkgaXRzIG93biBpbnRl
-cmZhY2UsIC9zeXMsIHNvIHRoZXkgYXJlIG5vdCBjb29wZXJhdGl2ZQo+PiB3aXRoIGtlcm5lbCBj
-b21wYWN0aW9uLiBJZiB0aGVyZSBpcyB0b28gbXVjaCBmcmFnbWVudGF0aW9uIGFuZCBrZXJuZWwg
-c3RhcnRzCj4+IHRvIGNvbXBhY3Rpb24sIHpyYW0gYW5kIEdQVSBkcml2ZXIgY2Fubm90IHdvcmsg
-d2l0aCB0aGUga2VybmVsIGNvbXBhY3Rpb24uCj4+Cj4+IFRoZSBmaXJzdCB0aGlzIHBhdGNoIGFk
-ZHMgYSBnZW5lcmljIGlzb2xhdGUvbWlncmF0ZS9wdXRiYWNrIGNhbGxiYWNrcyBmb3IgcGFnZQo+
-PiBhZGRyZXNzLXNwYWNlLiBUaGUgenJhbSBhbmQgR1BVLCBhbmQgYW55IG90aGVyIG1vZHVsZXMg
-Y2FuIHJlZ2lzdGVyCj4+IGl0cyBvd24gbWlncmF0aW9uIG1ldGhvZC4gVGhlIGtlcm5lbCBjb21w
-YWN0aW9uIGNhbiBjYWxsIHRoZSByZWdpc3RlcmVkCj4+IG1pZ3JhdGlvbiB3aGVuIGl0IHdvcmtz
-LiBUaGVyZWZvcmUgYWxsIHBhZ2UgaW4gdGhlIHN5c3RlbSBjYW4gYmUgbWlncmF0ZWQKPj4gYXQg
-b25jZS4KPj4KPj4gVGhlIDJuZCB0aGUgZ2VuZXJpYyBtaWdyYXRpb24gY2FsbGJhY2tzIGFyZSBh
-cHBsaWVkIGludG8gYmFsbG9vbiBkcml2ZXIuCj4+IE15IGdwdSBkcml2ZXIgY29kZSBpcyBub3Qg
-b3BlbiBzbyBJIGFwcGx5IGdlbmVyaWMgbWlncmF0aW9uIGludG8gYmFsbG9vbgo+PiB0byBzaG93
-IGhvdyBpdCB3b3Jrcy4gSSd2ZSB0ZXN0ZWQgaXQgd2l0aCBxZW11IGVuYWJsZWQgYnkga3ZtIGxp
-a2UgZm9sbG93aW5nczoKPj4gLSB0dXJuIG9uIFVidW50dSAxNC4wNCB3aXRoIDFHIG1lbW9yeSBv
-biBxZW11Lgo+PiAtIGRvIGtlcm5lbCBidWlsZGluZwo+PiAtIGFmdGVyIHNldmVyYWwgc2Vjb25k
-cyBjaGVjayBtb3JlIHRoYW4gNTEyTUIgaXMgdXNlZCB3aXRoIGZyZWUgY29tbWFuZAo+PiAtIGNv
-bW1hbmQgImJhbGxvb24gNTEyIiBpbiBxZW11IG1vbml0b3IKPj4gLSBjaGVjayBodW5kcmVkcyBN
-QiBvZiBwYWdlcyBhcmUgbWlncmF0ZWQKPj4KPj4gTmV4dCBrZXJuZWwgY29tcGFjdGlvbiBjb2Rl
-IGNhbiBjYWxsIGdlbmVyaWMgbWlncmF0aW9uIGNhbGxiYWNrcyBpbnN0ZWFkIG9mCj4+IGJhbGxv
-b24gZHJpdmVyIGludGVyZmFjZS4KPj4gRmluYWxseSBjYWxsaW5nIG1pZ3JhdGlvbiBvZiBiYWxs
-b29uIGRyaXZlciBpcyByZW1vdmVkLgo+Cj4gSSBkaWRuJ3QgaGF2YSBhIHRpbWUgdG8gcmV2aWV3
-IGJ1dCBpdCBzdXJlbHkgd2lsbCBoZWxwIHVzaW5nIHpyYW0gd2l0aAo+IENNQSBhcyB3ZWxsIGFz
-IGZyYWdtZW50YXRpb24gb2YgdGhlIHN5c3RlbSBtZW1vcnkgdmlhIG1ha2luZyB6cmFtIG9iamVj
-dHMKPiBtb3ZhYmxlLgoKSSBrbm93IHlvdSBhcmUgYnVzeS4gSSBob3BlIHlvdSBtYWtlIHRpbWUg
-Zm9yIHJldmlldy4KCj4KPiBJZiBpdCBsYW5kcyBvbiBtYWlubGluZSwgSSB3aWxsIHdvcmsgZm9y
-IHpyYW0gb2JqZWN0IG1pZ3JhdGlvbi4KPgo+IFRoYW5rcyEKPgpfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
-VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
-aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+virtio_gpu_alloc_object() returns an error pointer, it never returns
+NULL.
+
+Fixes: dc5698e80cf7 ('Add virtio gpu driver.')
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_fb.c b/drivers/gpu/drm/virtio/virtgpu_fb.c
+index 25bf333..df198d9 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_fb.c
++++ b/drivers/gpu/drm/virtio/virtgpu_fb.c
+@@ -299,8 +299,8 @@ static int virtio_gpufb_create(struct drm_fb_helper *helper,
+ 
+ 	size = mode_cmd.pitches[0] * mode_cmd.height;
+ 	obj = virtio_gpu_alloc_object(dev, size, false, true);
+-	if (!obj)
+-		return -ENOMEM;
++	if (IS_ERR(obj))
++		return PTR_ERR(obj);
+ 
+ 	virtio_gpu_resource_id_get(vgdev, &resid);
+ 	virtio_gpu_cmd_create_resource(vgdev, resid, format,
