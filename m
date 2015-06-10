@@ -1,14 +1,14 @@
-From: Minchan Kim <minchan@kernel.org>
+From: Gioh Kim <gioh.kim@lge.com>
 Subject: Re: [RFC 0/4] enable migration of non-LRU pages
-Date: Wed, 10 Jun 2015 09:08:51 +0900
-Message-ID: <20150610000850.GC13376@bgram>
+Date: Wed, 10 Jun 2015 10:08:13 +0900
+Message-ID: <55778DFD.7070704@lge.com>
 References: <1433230065-3573-1-git-send-email-gioh.kim@lge.com>
+	<20150610000850.GC13376@bgram>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1433230065-3573-1-git-send-email-gioh.kim@lge.com>
+In-Reply-To: <20150610000850.GC13376@bgram>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,54 +18,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gioh Kim <gioh.kim@lge.com>
+To: Minchan Kim <minchan@kernel.org>
 Cc: akpm@linux-foundation.org, mst@redhat.com, gunho.lee@lge.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, kirill@shutemov.name, iamjoonsoo.kim@lge.com, jlayton@poochiereds.net, vbabka@suse.cz
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello Gioh,
-
-On Tue, Jun 02, 2015 at 04:27:40PM +0900, Gioh Kim wrote:
-> Hello,
-> 
-> This series try to enable migration of non-LRU pages, such as driver's page.
-> 
-> My ARM-based platform occured severe fragmentation problem after long-term
-> (several days) test. Sometimes even order-3 page allocation failed. It has
-> memory size 512MB ~ 1024MB. 30% ~ 40% memory is consumed for graphic processing
-> and 20~30 memory is reserved for zram.
-> 
-> I found that many pages of GPU driver and zram are non-movable pages. So I
-> reported Minchan Kim, the maintainer of zram, and he made the internal 
-> compaction logic of zram. And I made the internal compaction of GPU driver.
-> 
-> They reduced some fragmentation but they are not enough effective.
-> They are activated by its own interface, /sys, so they are not cooperative
-> with kernel compaction. If there is too much fragmentation and kernel starts
-> to compaction, zram and GPU driver cannot work with the kernel compaction.
-> 
-> The first this patch adds a generic isolate/migrate/putback callbacks for page
-> address-space. The zram and GPU, and any other modules can register
-> its own migration method. The kernel compaction can call the registered
-> migration when it works. Therefore all page in the system can be migrated
-> at once.
-> 
-> The 2nd the generic migration callbacks are applied into balloon driver.
-> My gpu driver code is not open so I apply generic migration into balloon
-> to show how it works. I've tested it with qemu enabled by kvm like followings:
-> - turn on Ubuntu 14.04 with 1G memory on qemu.
-> - do kernel building
-> - after several seconds check more than 512MB is used with free command
-> - command "balloon 512" in qemu monitor
-> - check hundreds MB of pages are migrated
-> 
-> Next kernel compaction code can call generic migration callbacks instead of
-> balloon driver interface.
-> Finally calling migration of balloon driver is removed.
-
-I didn't hava a time to review but it surely will help using zram with
-CMA as well as fragmentation of the system memory via making zram objects
-movable.
-
-If it lands on mainline, I will work for zram object migration.
-
-Thanks!
+CgoyMDE1LTA2LTEwIOyYpOyghCA5OjA47JeQIE1pbmNoYW4gS2ltIOydtCjqsIApIOyTtCDquIA6
+Cj4gSGVsbG8gR2lvaCwKPgo+IE9uIFR1ZSwgSnVuIDAyLCAyMDE1IGF0IDA0OjI3OjQwUE0gKzA5
+MDAsIEdpb2ggS2ltIHdyb3RlOgo+PiBIZWxsbywKPj4KPj4gVGhpcyBzZXJpZXMgdHJ5IHRvIGVu
+YWJsZSBtaWdyYXRpb24gb2Ygbm9uLUxSVSBwYWdlcywgc3VjaCBhcyBkcml2ZXIncyBwYWdlLgo+
+Pgo+PiBNeSBBUk0tYmFzZWQgcGxhdGZvcm0gb2NjdXJlZCBzZXZlcmUgZnJhZ21lbnRhdGlvbiBw
+cm9ibGVtIGFmdGVyIGxvbmctdGVybQo+PiAoc2V2ZXJhbCBkYXlzKSB0ZXN0LiBTb21ldGltZXMg
+ZXZlbiBvcmRlci0zIHBhZ2UgYWxsb2NhdGlvbiBmYWlsZWQuIEl0IGhhcwo+PiBtZW1vcnkgc2l6
+ZSA1MTJNQiB+IDEwMjRNQi4gMzAlIH4gNDAlIG1lbW9yeSBpcyBjb25zdW1lZCBmb3IgZ3JhcGhp
+YyBwcm9jZXNzaW5nCj4+IGFuZCAyMH4zMCBtZW1vcnkgaXMgcmVzZXJ2ZWQgZm9yIHpyYW0uCj4+
+Cj4+IEkgZm91bmQgdGhhdCBtYW55IHBhZ2VzIG9mIEdQVSBkcml2ZXIgYW5kIHpyYW0gYXJlIG5v
+bi1tb3ZhYmxlIHBhZ2VzLiBTbyBJCj4+IHJlcG9ydGVkIE1pbmNoYW4gS2ltLCB0aGUgbWFpbnRh
+aW5lciBvZiB6cmFtLCBhbmQgaGUgbWFkZSB0aGUgaW50ZXJuYWwKPj4gY29tcGFjdGlvbiBsb2dp
+YyBvZiB6cmFtLiBBbmQgSSBtYWRlIHRoZSBpbnRlcm5hbCBjb21wYWN0aW9uIG9mIEdQVSBkcml2
+ZXIuCj4+Cj4+IFRoZXkgcmVkdWNlZCBzb21lIGZyYWdtZW50YXRpb24gYnV0IHRoZXkgYXJlIG5v
+dCBlbm91Z2ggZWZmZWN0aXZlLgo+PiBUaGV5IGFyZSBhY3RpdmF0ZWQgYnkgaXRzIG93biBpbnRl
+cmZhY2UsIC9zeXMsIHNvIHRoZXkgYXJlIG5vdCBjb29wZXJhdGl2ZQo+PiB3aXRoIGtlcm5lbCBj
+b21wYWN0aW9uLiBJZiB0aGVyZSBpcyB0b28gbXVjaCBmcmFnbWVudGF0aW9uIGFuZCBrZXJuZWwg
+c3RhcnRzCj4+IHRvIGNvbXBhY3Rpb24sIHpyYW0gYW5kIEdQVSBkcml2ZXIgY2Fubm90IHdvcmsg
+d2l0aCB0aGUga2VybmVsIGNvbXBhY3Rpb24uCj4+Cj4+IFRoZSBmaXJzdCB0aGlzIHBhdGNoIGFk
+ZHMgYSBnZW5lcmljIGlzb2xhdGUvbWlncmF0ZS9wdXRiYWNrIGNhbGxiYWNrcyBmb3IgcGFnZQo+
+PiBhZGRyZXNzLXNwYWNlLiBUaGUgenJhbSBhbmQgR1BVLCBhbmQgYW55IG90aGVyIG1vZHVsZXMg
+Y2FuIHJlZ2lzdGVyCj4+IGl0cyBvd24gbWlncmF0aW9uIG1ldGhvZC4gVGhlIGtlcm5lbCBjb21w
+YWN0aW9uIGNhbiBjYWxsIHRoZSByZWdpc3RlcmVkCj4+IG1pZ3JhdGlvbiB3aGVuIGl0IHdvcmtz
+LiBUaGVyZWZvcmUgYWxsIHBhZ2UgaW4gdGhlIHN5c3RlbSBjYW4gYmUgbWlncmF0ZWQKPj4gYXQg
+b25jZS4KPj4KPj4gVGhlIDJuZCB0aGUgZ2VuZXJpYyBtaWdyYXRpb24gY2FsbGJhY2tzIGFyZSBh
+cHBsaWVkIGludG8gYmFsbG9vbiBkcml2ZXIuCj4+IE15IGdwdSBkcml2ZXIgY29kZSBpcyBub3Qg
+b3BlbiBzbyBJIGFwcGx5IGdlbmVyaWMgbWlncmF0aW9uIGludG8gYmFsbG9vbgo+PiB0byBzaG93
+IGhvdyBpdCB3b3Jrcy4gSSd2ZSB0ZXN0ZWQgaXQgd2l0aCBxZW11IGVuYWJsZWQgYnkga3ZtIGxp
+a2UgZm9sbG93aW5nczoKPj4gLSB0dXJuIG9uIFVidW50dSAxNC4wNCB3aXRoIDFHIG1lbW9yeSBv
+biBxZW11Lgo+PiAtIGRvIGtlcm5lbCBidWlsZGluZwo+PiAtIGFmdGVyIHNldmVyYWwgc2Vjb25k
+cyBjaGVjayBtb3JlIHRoYW4gNTEyTUIgaXMgdXNlZCB3aXRoIGZyZWUgY29tbWFuZAo+PiAtIGNv
+bW1hbmQgImJhbGxvb24gNTEyIiBpbiBxZW11IG1vbml0b3IKPj4gLSBjaGVjayBodW5kcmVkcyBN
+QiBvZiBwYWdlcyBhcmUgbWlncmF0ZWQKPj4KPj4gTmV4dCBrZXJuZWwgY29tcGFjdGlvbiBjb2Rl
+IGNhbiBjYWxsIGdlbmVyaWMgbWlncmF0aW9uIGNhbGxiYWNrcyBpbnN0ZWFkIG9mCj4+IGJhbGxv
+b24gZHJpdmVyIGludGVyZmFjZS4KPj4gRmluYWxseSBjYWxsaW5nIG1pZ3JhdGlvbiBvZiBiYWxs
+b29uIGRyaXZlciBpcyByZW1vdmVkLgo+Cj4gSSBkaWRuJ3QgaGF2YSBhIHRpbWUgdG8gcmV2aWV3
+IGJ1dCBpdCBzdXJlbHkgd2lsbCBoZWxwIHVzaW5nIHpyYW0gd2l0aAo+IENNQSBhcyB3ZWxsIGFz
+IGZyYWdtZW50YXRpb24gb2YgdGhlIHN5c3RlbSBtZW1vcnkgdmlhIG1ha2luZyB6cmFtIG9iamVj
+dHMKPiBtb3ZhYmxlLgoKSSBrbm93IHlvdSBhcmUgYnVzeS4gSSBob3BlIHlvdSBtYWtlIHRpbWUg
+Zm9yIHJldmlldy4KCj4KPiBJZiBpdCBsYW5kcyBvbiBtYWlubGluZSwgSSB3aWxsIHdvcmsgZm9y
+IHpyYW0gb2JqZWN0IG1pZ3JhdGlvbi4KPgo+IFRoYW5rcyEKPgpfX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
+VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
+aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
