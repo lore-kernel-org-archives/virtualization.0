@@ -1,7 +1,7 @@
 From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [patch] drm/virtio: checking for NULL instead of IS_ERR
-Date: Wed, 10 Jun 2015 22:27:11 +0300
-Message-ID: <20150610192710.GA10145__6581.37787036157$1433964469$gmane$org@mwanda>
+Subject: [patch] drm/virtio: remove some dead code
+Date: Wed, 10 Jun 2015 22:27:51 +0300
+Message-ID: <20150610192751.GB10145__48740.8559689813$1433964499$gmane$org@mwanda>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -20,24 +20,26 @@ To: David Airlie <airlied@linux.ie>
 Cc: kernel-janitors@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio_gpu_alloc_object() returns an error pointer, it never returns
-NULL.
+The goto is correct, and we never reach the return statement so just
+delete the dead code.
 
-Fixes: dc5698e80cf7 ('Add virtio gpu driver.')
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_fb.c b/drivers/gpu/drm/virtio/virtgpu_fb.c
-index 25bf333..df198d9 100644
---- a/drivers/gpu/drm/virtio/virtgpu_fb.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_fb.c
-@@ -299,8 +299,8 @@ static int virtio_gpufb_create(struct drm_fb_helper *helper,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ttm.c b/drivers/gpu/drm/virtio/virtgpu_ttm.c
+index e0e74c6..b092d7b 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ttm.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ttm.c
+@@ -443,14 +443,12 @@ int virtio_gpu_ttm_init(struct virtio_gpu_device *vgdev)
+ 	if (r) {
+ 		DRM_ERROR("failed initializing buffer object driver(%d).\n", r);
+ 		goto err_dev_init;
+-		return r;
+ 	}
  
- 	size = mode_cmd.pitches[0] * mode_cmd.height;
- 	obj = virtio_gpu_alloc_object(dev, size, false, true);
--	if (!obj)
--		return -ENOMEM;
-+	if (IS_ERR(obj))
-+		return PTR_ERR(obj);
- 
- 	virtio_gpu_resource_id_get(vgdev, &resid);
- 	virtio_gpu_cmd_create_resource(vgdev, resid, format,
+ 	r = ttm_bo_init_mm(&vgdev->mman.bdev, TTM_PL_TT, 0);
+ 	if (r) {
+ 		DRM_ERROR("Failed initializing GTT heap.\n");
+ 		goto err_mm_init;
+-		return r;
+ 	}
+ 	return 0;
