@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 1/3] Add virtio-vga bits.
-Date: Tue, 16 Jun 2015 11:34:29 +0200
-Message-ID: <1434447271-16461-2-git-send-email-kraxel@redhat.com>
+Subject: [PATCH 3/3] virtio-gpu: add locking for vbuf pool
+Date: Tue, 16 Jun 2015 11:34:31 +0200
+Message-ID: <1434447271-16461-4-git-send-email-kraxel@redhat.com>
 References: <1434447271-16461-1-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,75 +18,80 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+Cc: David Airlie <airlied@linux.ie>, Dave Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
----
- drivers/gpu/drm/virtio/virtgpu_drm_bus.c | 44 +++++++++++++++++---------------
- 1 file changed, 24 insertions(+), 20 deletions(-)
+From: Dave Airlie <airlied@redhat.com>
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drm_bus.c b/drivers/gpu/drm/virtio/virtgpu_drm_bus.c
-index f4ec816..88a3916 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drm_bus.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drm_bus.c
-@@ -37,6 +37,26 @@ int drm_virtio_set_busid(struct drm_device *dev, struct drm_master *master)
- 	return 0;
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_drv.h | 1 +
+ drivers/gpu/drm/virtio/virtgpu_vq.c  | 7 +++++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index ff8de3d..6d4db2d 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -162,6 +162,7 @@ struct virtio_gpu_device {
+ 	struct virtio_gpu_queue ctrlq;
+ 	struct virtio_gpu_queue cursorq;
+ 	struct list_head free_vbufs;
++	spinlock_t free_vbufs_lock;
+ 	void *vbufs;
+ 	bool vqs_ready;
+ 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index c506792..1698669f 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -79,6 +79,7 @@ int virtio_gpu_alloc_vbufs(struct virtio_gpu_device *vgdev)
+ 	void *ptr;
+ 
+ 	INIT_LIST_HEAD(&vgdev->free_vbufs);
++	spin_lock_init(&vgdev->free_vbufs_lock);
+ 	count += virtqueue_get_vring_size(vgdev->ctrlq.vq);
+ 	count += virtqueue_get_vring_size(vgdev->cursorq.vq);
+ 	size = count * VBUFFER_SIZE;
+@@ -106,6 +107,7 @@ void virtio_gpu_free_vbufs(struct virtio_gpu_device *vgdev)
+ 	count += virtqueue_get_vring_size(vgdev->ctrlq.vq);
+ 	count += virtqueue_get_vring_size(vgdev->cursorq.vq);
+ 
++	spin_lock(&vgdev->free_vbufs_lock);
+ 	for (i = 0; i < count; i++) {
+ 		if (WARN_ON(list_empty(&vgdev->free_vbufs)))
+ 			return;
+@@ -113,6 +115,7 @@ void virtio_gpu_free_vbufs(struct virtio_gpu_device *vgdev)
+ 					struct virtio_gpu_vbuffer, list);
+ 		list_del(&vbuf->list);
+ 	}
++	spin_unlock(&vgdev->free_vbufs_lock);
+ 	kfree(vgdev->vbufs);
  }
  
-+static void virtio_pci_kick_out_firmware_fb(struct pci_dev *pci_dev)
-+{
-+	struct apertures_struct *ap;
-+	bool primary;
-+
-+	ap = alloc_apertures(1);
-+	if (!ap)
-+		return;
-+
-+	ap->ranges[0].base = pci_resource_start(pci_dev, 0);
-+	ap->ranges[0].size = pci_resource_len(pci_dev, 0);
-+
-+	primary = pci_dev->resource[PCI_ROM_RESOURCE].flags
-+		& IORESOURCE_ROM_SHADOW;
-+
-+	remove_conflicting_framebuffers(ap, "virtiodrmfb", primary);
-+
-+	kfree(ap);
-+}
-+
- int drm_virtio_init(struct drm_driver *driver, struct virtio_device *vdev)
+@@ -123,10 +126,12 @@ virtio_gpu_get_vbuf(struct virtio_gpu_device *vgdev,
  {
- 	struct drm_device *dev;
-@@ -52,27 +72,11 @@ int drm_virtio_init(struct drm_driver *driver, struct virtio_device *vdev)
- 		struct pci_dev *pdev = to_pci_dev(vdev->dev.parent);
- 		bool vga = (pdev->class >> 8) == PCI_CLASS_DISPLAY_VGA;
+ 	struct virtio_gpu_vbuffer *vbuf;
  
--		if (vga) {
--			/*
--			 * Need to make sure we don't have two drivers
--			 * for the same hardware here.  Some day we
--			 * will simply kick out the firmware
--			 * (vesa/efi) framebuffer.
--			 *
--			 * Virtual hardware specs for virtio-vga are
--			 * not finalized yet, therefore we can't add
--			 * code for that yet.
--			 *
--			 * So ignore the device for the time being,
--			 * and suggest to the user use the device
--			 * variant without vga compatibility mode.
--			 */
--			DRM_ERROR("virtio-vga not (yet) supported\n");
--			DRM_ERROR("please use virtio-gpu-pci instead\n");
--			ret = -ENODEV;
--			goto err_free;
--		}
-+		DRM_INFO("pci: %s detected\n",
-+			 vga ? "virtio-vga" : "virtio-gpu-pci");
- 		dev->pdev = pdev;
-+		if (vga)
-+			virtio_pci_kick_out_firmware_fb(pdev);
- 	}
++	spin_lock(&vgdev->free_vbufs_lock);
+ 	BUG_ON(list_empty(&vgdev->free_vbufs));
+ 	vbuf = list_first_entry(&vgdev->free_vbufs,
+ 				struct virtio_gpu_vbuffer, list);
+ 	list_del(&vbuf->list);
++	spin_unlock(&vgdev->free_vbufs_lock);
+ 	memset(vbuf, 0, VBUFFER_SIZE);
  
- 	ret = drm_dev_register(dev, 0);
+ 	BUG_ON(size > MAX_INLINE_CMD_SIZE);
+@@ -201,7 +206,9 @@ static void free_vbuf(struct virtio_gpu_device *vgdev,
+ 	if (vbuf->resp_size > MAX_INLINE_RESP_SIZE)
+ 		kfree(vbuf->resp_buf);
+ 	kfree(vbuf->data_buf);
++	spin_lock(&vgdev->free_vbufs_lock);
+ 	list_add(&vbuf->list, &vgdev->free_vbufs);
++	spin_unlock(&vgdev->free_vbufs_lock);
+ }
+ 
+ static void reclaim_vbufs(struct virtqueue *vq, struct list_head *reclaim_list)
 -- 
 1.8.3.1
