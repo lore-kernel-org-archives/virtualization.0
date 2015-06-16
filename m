@@ -1,7 +1,8 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 3/3] virtio-gpu: add locking for vbuf pool
-Date: Tue, 16 Jun 2015 11:34:31 +0200
-Message-ID: <1434447271-16461-4-git-send-email-kraxel@redhat.com>
+Subject: [PATCH 2/3] drm/virtgpu: initialise fbdev after getting initial
+	display info
+Date: Tue, 16 Jun 2015 11:34:30 +0200
+Message-ID: <1434447271-16461-3-git-send-email-kraxel__41805.2542176612$1434447306$gmane$org@redhat.com>
 References: <1434447271-16461-1-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,75 +24,68 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Dave Airlie <airlied@redhat.com>
 
+This should avoid issues with the fbdev path trying to render
+before we've gotten the display info.
+
 Signed-off-by: Dave Airlie <airlied@redhat.com>
+
+[ kraxel: wait for display-info reply ]
+
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
  drivers/gpu/drm/virtio/virtgpu_drv.h | 1 +
- drivers/gpu/drm/virtio/virtgpu_vq.c  | 7 +++++++
- 2 files changed, 8 insertions(+)
+ drivers/gpu/drm/virtio/virtgpu_kms.c | 4 +++-
+ drivers/gpu/drm/virtio/virtgpu_vq.c  | 2 ++
+ 3 files changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index ff8de3d..6d4db2d 100644
+index e5a2c09..ff8de3d 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
 +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -162,6 +162,7 @@ struct virtio_gpu_device {
- 	struct virtio_gpu_queue ctrlq;
- 	struct virtio_gpu_queue cursorq;
- 	struct list_head free_vbufs;
-+	spinlock_t free_vbufs_lock;
- 	void *vbufs;
- 	bool vqs_ready;
+@@ -171,6 +171,7 @@ struct virtio_gpu_device {
+ 	wait_queue_head_t resp_wq;
+ 	/* current display info */
+ 	spinlock_t display_info_lock;
++	bool display_info_pending;
+ 
+ 	struct virtio_gpu_fence_driver fence_drv;
+ 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index 132405f..782766c 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -137,9 +137,11 @@ int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
+ 	virtio_device_ready(vgdev->vdev);
+ 	vgdev->vqs_ready = true;
+ 
++	virtio_gpu_cmd_get_display_info(vgdev);
++	wait_event_timeout(vgdev->resp_wq, !vgdev->display_info_pending,
++			   5 * HZ);
+ 	if (virtio_gpu_fbdev)
+ 		virtio_gpu_fbdev_init(vgdev);
+-	virtio_gpu_cmd_get_display_info(vgdev);
+ 
+ 	return 0;
  
 diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index c506792..1698669f 100644
+index 8fa6513e..c506792 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -79,6 +79,7 @@ int virtio_gpu_alloc_vbufs(struct virtio_gpu_device *vgdev)
- 	void *ptr;
- 
- 	INIT_LIST_HEAD(&vgdev->free_vbufs);
-+	spin_lock_init(&vgdev->free_vbufs_lock);
- 	count += virtqueue_get_vring_size(vgdev->ctrlq.vq);
- 	count += virtqueue_get_vring_size(vgdev->cursorq.vq);
- 	size = count * VBUFFER_SIZE;
-@@ -106,6 +107,7 @@ void virtio_gpu_free_vbufs(struct virtio_gpu_device *vgdev)
- 	count += virtqueue_get_vring_size(vgdev->ctrlq.vq);
- 	count += virtqueue_get_vring_size(vgdev->cursorq.vq);
- 
-+	spin_lock(&vgdev->free_vbufs_lock);
- 	for (i = 0; i < count; i++) {
- 		if (WARN_ON(list_empty(&vgdev->free_vbufs)))
- 			return;
-@@ -113,6 +115,7 @@ void virtio_gpu_free_vbufs(struct virtio_gpu_device *vgdev)
- 					struct virtio_gpu_vbuffer, list);
- 		list_del(&vbuf->list);
+@@ -534,6 +534,7 @@ static void virtio_gpu_cmd_get_display_info_cb(struct virtio_gpu_device *vgdev,
+ 		}
  	}
-+	spin_unlock(&vgdev->free_vbufs_lock);
- 	kfree(vgdev->vbufs);
- }
  
-@@ -123,10 +126,12 @@ virtio_gpu_get_vbuf(struct virtio_gpu_device *vgdev,
- {
- 	struct virtio_gpu_vbuffer *vbuf;
++	vgdev->display_info_pending = false;
+ 	spin_unlock(&vgdev->display_info_lock);
+ 	wake_up(&vgdev->resp_wq);
  
-+	spin_lock(&vgdev->free_vbufs_lock);
- 	BUG_ON(list_empty(&vgdev->free_vbufs));
- 	vbuf = list_first_entry(&vgdev->free_vbufs,
- 				struct virtio_gpu_vbuffer, list);
- 	list_del(&vbuf->list);
-+	spin_unlock(&vgdev->free_vbufs_lock);
- 	memset(vbuf, 0, VBUFFER_SIZE);
+@@ -558,6 +559,7 @@ int virtio_gpu_cmd_get_display_info(struct virtio_gpu_device *vgdev)
+ 		 resp_buf);
+ 	memset(cmd_p, 0, sizeof(*cmd_p));
  
- 	BUG_ON(size > MAX_INLINE_CMD_SIZE);
-@@ -201,7 +206,9 @@ static void free_vbuf(struct virtio_gpu_device *vgdev,
- 	if (vbuf->resp_size > MAX_INLINE_RESP_SIZE)
- 		kfree(vbuf->resp_buf);
- 	kfree(vbuf->data_buf);
-+	spin_lock(&vgdev->free_vbufs_lock);
- 	list_add(&vbuf->list, &vgdev->free_vbufs);
-+	spin_unlock(&vgdev->free_vbufs_lock);
- }
- 
- static void reclaim_vbufs(struct virtqueue *vq, struct list_head *reclaim_list)
++	vgdev->display_info_pending = true;
+ 	cmd_p->type = cpu_to_le32(VIRTIO_GPU_CMD_GET_DISPLAY_INFO);
+ 	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
+ 	return 0;
 -- 
 1.8.3.1
