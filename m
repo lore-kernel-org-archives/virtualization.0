@@ -1,18 +1,11 @@
-From: "Edgar E. Iglesias" <edgar.iglesias@gmail.com>
-Subject: Re: [RFC 4/4] rpmsg: DMA map sgs passed to virtio
-Date: Tue, 23 Jun 2015 21:46:13 +1000
-Message-ID: <20150623114613.GM5149@toto>
-References: <1430456507-26862-1-git-send-email-edgar.iglesias@gmail.com>
-	<1430456507-26862-5-git-send-email-edgar.iglesias@gmail.com>
-	<87wq0mgr9f.fsf@rustcorp.com.au> <20150507002809.GW10142@toto>
-	<CAK=WgbbYLMNQ4jdXLz9bZf4a8q4pVCyeN84J3G7YGca2MP7SsA@mail.gmail.com>
-	<20150623071620-mutt-send-email-mst@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH] virtio-pci: alloc only resources actually used.
+Date: Tue, 23 Jun 2015 15:54:48 +0200
+Message-ID: <1435067688-23743-1-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20150623071620-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,61 +16,181 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: edgar.iglesias@xilinx.com, Russell King <linux@arm.linux.org.uk>, michal.simek@xilinx.com, virtualization <virtualization@lists.linux-foundation.org>, j.wu@xilinx.com
+Cc: open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO CORE,
+	NET..." <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 23, 2015 at 07:17:44AM +0200, Michael S. Tsirkin wrote:
-> On Sat, May 16, 2015 at 12:32:10PM +0300, Ohad Ben-Cohen wrote:
-> > On Thu, May 7, 2015 at 3:28 AM, Edgar E. Iglesias
-> > <edgar.iglesias@gmail.com> wrote:
-> > >
-> > > On Wed, May 06, 2015 at 03:51:48PM +0930, Rusty Russell wrote:
-> > > > "Edgar E. Iglesias" <edgar.iglesias@gmail.com> writes:
-> > > > > From: "Edgar E. Iglesias" <edgar.iglesias@xilinx.com>
-> > > > >
-> > > > > Signed-off-by: Edgar E. Iglesias <edgar.iglesias@xilinx.com>
-> > > >
-> > > > First off, I have handed maintainership off to Michael S. Tsirkin, so
-> > > > his word is now law.
-> > > >
-> > > > That said... there's nothing fundamentally *wrong* with this, but it's
-> > > > not how standard virtio works.  We decided some time ago that as we're
-> > > > paravirtualized, we would not be doing address mapping.
-> > > >
-> > > > rpmsg uses virtio, but it's with a twist: they're not talking to a
-> > > > host.  Thus my preference, in order, would be:
-> > > >
-> > > > 1) Don't use non-kmalloc addresses.
-> > > > 2) If that's not possible, call these _dma interfaces _rpmsg instead,
-> > > >    so normal virtio users don't get confused and try to use them.
-> > >
-> > > Thanks Rusty,
-> > >
-> > > That was helpful, I'll see if I can do something in line with nr 2.
-> > >
-> > > AFAICT, #1 will be hard. The remote-processor would have to be
-> > > cache-coherent and share memory address-space view with the master
-> > > CPU. This is not the common case for remoteproc (unlike when virtio
-> > > communication flows between host and guest on the same CPU or SMP system).
-> > > Ohad, do you have any thoughts on this?
-> > 
-> > rpmsg is allocating a large chunk (256KB) of physically-contiguous CMA
-> > memory today, which is exposed via the dma_alloc_coherent API (and set
-> > up in advance by platform-specific code), so if #2 above is
-> > acceptable, it would be easier, yeah.
-> > 
-> > Thanks,
-> > Ohad.
-> 
-> I'm thinking same as Rusty: I'd prefer 1 but if not possible, I can live
-> with 2 above.
+Move resource allocation from common code to legacy and modern code.
+Only request resources actually used, i.e. bar0 in legacy mode and
+the bar(s) specified by capabilities in modern mode.
 
-Thanks all for the feedback,
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/virtio/virtio_pci_common.c |  7 -------
+ drivers/virtio/virtio_pci_common.h |  2 ++
+ drivers/virtio/virtio_pci_legacy.c | 13 ++++++++++++-
+ drivers/virtio/virtio_pci_modern.c | 24 ++++++++++++++++++------
+ 4 files changed, 32 insertions(+), 14 deletions(-)
 
-I'm currently travelling and won't be doing much coding until
-august/september. We are using something along the lines of nr 2 at
-Xilinx and it's working fine. I'll post something like that in
-september if no one beats me to it.
-
-Best regards,
-Edgar
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index eba1b7a..327a121 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -510,10 +510,6 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
+ 	if (rc)
+ 		goto err_enable_device;
+ 
+-	rc = pci_request_regions(pci_dev, "virtio-pci");
+-	if (rc)
+-		goto err_request_regions;
+-
+ 	if (force_legacy) {
+ 		rc = virtio_pci_legacy_probe(vp_dev);
+ 		/* Also try modern mode if we can't map BAR0 (no IO space). */
+@@ -543,8 +539,6 @@ err_register:
+ 	else
+ 	     virtio_pci_modern_remove(vp_dev);
+ err_probe:
+-	pci_release_regions(pci_dev);
+-err_request_regions:
+ 	pci_disable_device(pci_dev);
+ err_enable_device:
+ 	kfree(vp_dev);
+@@ -562,7 +556,6 @@ static void virtio_pci_remove(struct pci_dev *pci_dev)
+ 	else
+ 		virtio_pci_modern_remove(vp_dev);
+ 
+-	pci_release_regions(pci_dev);
+ 	pci_disable_device(pci_dev);
+ }
+ 
+diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
+index 28ee4e5..b976d96 100644
+--- a/drivers/virtio/virtio_pci_common.h
++++ b/drivers/virtio/virtio_pci_common.h
+@@ -75,6 +75,8 @@ struct virtio_pci_device {
+ 	/* Multiply queue_notify_off by this value. (non-legacy mode). */
+ 	u32 notify_offset_multiplier;
+ 
++	int modern_bars;
++
+ 	/* Legacy only field */
+ 	/* the IO mapping for the PCI config space */
+ 	void __iomem *ioaddr;
+diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+index 256a527..48bc979 100644
+--- a/drivers/virtio/virtio_pci_legacy.c
++++ b/drivers/virtio/virtio_pci_legacy.c
+@@ -215,6 +215,7 @@ static const struct virtio_config_ops virtio_pci_config_ops = {
+ int virtio_pci_legacy_probe(struct virtio_pci_device *vp_dev)
+ {
+ 	struct pci_dev *pci_dev = vp_dev->pci_dev;
++	int rc;
+ 
+ 	/* We only own devices >= 0x1000 and <= 0x103f: leave the rest. */
+ 	if (pci_dev->device < 0x1000 || pci_dev->device > 0x103f)
+@@ -226,9 +227,14 @@ int virtio_pci_legacy_probe(struct virtio_pci_device *vp_dev)
+ 		return -ENODEV;
+ 	}
+ 
++	rc = pci_request_region(pci_dev, 0, "virtio-pci-legacy");
++	if (rc)
++		return rc;
++
++	rc = -ENOMEM;
+ 	vp_dev->ioaddr = pci_iomap(pci_dev, 0, 0);
+ 	if (!vp_dev->ioaddr)
+-		return -ENOMEM;
++		goto err_iomap;
+ 
+ 	vp_dev->isr = vp_dev->ioaddr + VIRTIO_PCI_ISR;
+ 
+@@ -246,6 +252,10 @@ int virtio_pci_legacy_probe(struct virtio_pci_device *vp_dev)
+ 	vp_dev->del_vq = del_vq;
+ 
+ 	return 0;
++
++err_iomap:
++	pci_release_region(pci_dev, 0);
++	return rc;
+ }
+ 
+ void virtio_pci_legacy_remove(struct virtio_pci_device *vp_dev)
+@@ -253,4 +263,5 @@ void virtio_pci_legacy_remove(struct virtio_pci_device *vp_dev)
+ 	struct pci_dev *pci_dev = vp_dev->pci_dev;
+ 
+ 	pci_iounmap(pci_dev, vp_dev->ioaddr);
++	pci_release_region(pci_dev, 0);
+ }
+diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+index e88e099..122ad7a 100644
+--- a/drivers/virtio/virtio_pci_modern.c
++++ b/drivers/virtio/virtio_pci_modern.c
+@@ -499,7 +499,7 @@ static const struct virtio_config_ops virtio_pci_config_ops = {
+  * Returns offset of the capability, or 0.
+  */
+ static inline int virtio_pci_find_capability(struct pci_dev *dev, u8 cfg_type,
+-					     u32 ioresource_types)
++					     u32 ioresource_types, int *bars)
+ {
+ 	int pos;
+ 
+@@ -520,8 +520,10 @@ static inline int virtio_pci_find_capability(struct pci_dev *dev, u8 cfg_type,
+ 
+ 		if (type == cfg_type) {
+ 			if (pci_resource_len(dev, bar) &&
+-			    pci_resource_flags(dev, bar) & ioresource_types)
++			    pci_resource_flags(dev, bar) & ioresource_types) {
++				*bars = (1 << bar);
+ 				return pos;
++			}
+ 		}
+ 	}
+ 	return 0;
+@@ -617,7 +619,8 @@ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
+ 
+ 	/* check for a common config: if not, use legacy mode (bar 0). */
+ 	common = virtio_pci_find_capability(pci_dev, VIRTIO_PCI_CAP_COMMON_CFG,
+-					    IORESOURCE_IO | IORESOURCE_MEM);
++					    IORESOURCE_IO | IORESOURCE_MEM,
++					    &vp_dev->modern_bars);
+ 	if (!common) {
+ 		dev_info(&pci_dev->dev,
+ 			 "virtio_pci: leaving for legacy driver\n");
+@@ -626,9 +629,11 @@ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
+ 
+ 	/* If common is there, these should be too... */
+ 	isr = virtio_pci_find_capability(pci_dev, VIRTIO_PCI_CAP_ISR_CFG,
+-					 IORESOURCE_IO | IORESOURCE_MEM);
++					 IORESOURCE_IO | IORESOURCE_MEM,
++					 &vp_dev->modern_bars);
+ 	notify = virtio_pci_find_capability(pci_dev, VIRTIO_PCI_CAP_NOTIFY_CFG,
+-					    IORESOURCE_IO | IORESOURCE_MEM);
++					    IORESOURCE_IO | IORESOURCE_MEM,
++					    &vp_dev->modern_bars);
+ 	if (!isr || !notify) {
+ 		dev_err(&pci_dev->dev,
+ 			"virtio_pci: missing capabilities %i/%i/%i\n",
+@@ -640,7 +645,13 @@ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
+ 	 * device-specific configuration.
+ 	 */
+ 	device = virtio_pci_find_capability(pci_dev, VIRTIO_PCI_CAP_DEVICE_CFG,
+-					    IORESOURCE_IO | IORESOURCE_MEM);
++					    IORESOURCE_IO | IORESOURCE_MEM,
++					    &vp_dev->modern_bars);
++
++	err = pci_request_selected_regions(pci_dev, vp_dev->modern_bars,
++					   "virtio-pci-modern");
++	if (err)
++		return err;
+ 
+ 	err = -EINVAL;
+ 	vp_dev->common = map_capability(pci_dev, common,
+@@ -727,4 +738,5 @@ void virtio_pci_modern_remove(struct virtio_pci_device *vp_dev)
+ 		pci_iounmap(pci_dev, vp_dev->notify_base);
+ 	pci_iounmap(pci_dev, vp_dev->isr);
+ 	pci_iounmap(pci_dev, vp_dev->common);
++	pci_release_selected_regions(pci_dev, vp_dev->modern_bars);
+ }
+-- 
+1.8.3.1
