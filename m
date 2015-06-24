@@ -1,14 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC] virtio_net: Adding tx_timeout function.
-Date: Wed, 24 Jun 2015 08:10:37 +0200
-Message-ID: <20150624080438-mutt-send-email-mst@redhat.com>
-References: <1435110269-6755-1-git-send-email-jcfaracco@gmail.com>
+Subject: Re: [PATCH] virtio-pci: alloc only resources actually used.
+Date: Wed, 24 Jun 2015 08:14:33 +0200
+Message-ID: <20150624081351-mutt-send-email-mst__14859.3229744167$1435126489$gmane$org@redhat.com>
+References: <1435125255-2601-1-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1435110269-6755-1-git-send-email-jcfaracco@gmail.com>
+In-Reply-To: <1435125255-2601-1-git-send-email-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,159 +18,188 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Julio Faracco <jcfaracco@gmail.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO CORE,
+	NET..." <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 23, 2015 at 10:44:29PM -0300, Julio Faracco wrote:
-> virtio_net paravirtualized driver does not have a tx_timeout() function to
-> guarantee that the driver will recover properly after receiving a timeout
-> during a transmission of a packet. This patch add this feature and throw a
-> timeout exception after 5 HZ. Considering some tests, this is the best
-> time to use here.
+On Wed, Jun 24, 2015 at 07:54:15AM +0200, Gerd Hoffmann wrote:
+> Move resource allocation from common code to legacy and modern code.
+> Only request resources actually used, i.e. bar0 in legacy mode and
+> the bar(s) specified by capabilities in modern mode.
 > 
-> Signed-off-by: Julio Faracco <jcfaracco@gmail.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-
-Looks like a bunch of locks and flushes are missing in this patch.  IMHO
-that's just too painful with current hardware.  IMO the right thing to
-do here is to add ability to reset specific queues to hardware.
-
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 > ---
->  drivers/net/virtio_net.c |   69 +++++++++++++++++++++++++++++++++++++++++++++-
->  1 file changed, 68 insertions(+), 1 deletion(-)
+
+In the future, please version patches in subject, and provide
+changelog after ---.
+Otherwise looks good, thanks!
+
+>  drivers/virtio/virtio_pci_common.c |  7 -------
+>  drivers/virtio/virtio_pci_common.h |  2 ++
+>  drivers/virtio/virtio_pci_legacy.c | 13 ++++++++++++-
+>  drivers/virtio/virtio_pci_modern.c | 24 ++++++++++++++++++------
+>  4 files changed, 32 insertions(+), 14 deletions(-)
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 63c7810..75ac45c 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -135,6 +135,9 @@ struct virtnet_info {
->  	/* Work struct for config space updates */
->  	struct work_struct config_work;
+> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+> index eba1b7a..327a121 100644
+> --- a/drivers/virtio/virtio_pci_common.c
+> +++ b/drivers/virtio/virtio_pci_common.c
+> @@ -510,10 +510,6 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
+>  	if (rc)
+>  		goto err_enable_device;
 >  
-> +	/* Work struct for resetting the virtio-net driver. */
-> +	struct work_struct reset_task;
-> +
->  	/* Does the affinity hint is set for virtqueues? */
->  	bool affinity_hint_set;
+> -	rc = pci_request_regions(pci_dev, "virtio-pci");
+> -	if (rc)
+> -		goto err_request_regions;
+> -
+>  	if (force_legacy) {
+>  		rc = virtio_pci_legacy_probe(vp_dev);
+>  		/* Also try modern mode if we can't map BAR0 (no IO space). */
+> @@ -543,8 +539,6 @@ err_register:
+>  	else
+>  	     virtio_pci_modern_remove(vp_dev);
+>  err_probe:
+> -	pci_release_regions(pci_dev);
+> -err_request_regions:
+>  	pci_disable_device(pci_dev);
+>  err_enable_device:
+>  	kfree(vp_dev);
+> @@ -562,7 +556,6 @@ static void virtio_pci_remove(struct pci_dev *pci_dev)
+>  	else
+>  		virtio_pci_modern_remove(vp_dev);
 >  
-> @@ -1394,6 +1397,18 @@ static int virtnet_change_mtu(struct net_device *dev, int new_mtu)
->  	return 0;
+> -	pci_release_regions(pci_dev);
+>  	pci_disable_device(pci_dev);
 >  }
 >  
-> +static void virtnet_tx_timeout(struct net_device *dev)
-> +{
-> +	struct virtnet_info *vi = netdev_priv(dev);
-> +
-> +	dev_warn(&dev->dev, "TX Timeout exception with latency: %ld\n",
-> +		 jiffies - dev_trans_start(dev));
-> +
-> +	schedule_work(&vi->reset_task);
-
-What if after this triggers user does something
-to the device (e.g. attempts to remove it)?
-Or if a packet is transmitted or used?
-
-> +}
-> +
-> +static void virtnet_reset_task(struct work_struct *work);
-> +
->  static const struct net_device_ops virtnet_netdev = {
->  	.ndo_open            = virtnet_open,
->  	.ndo_stop   	     = virtnet_close,
-> @@ -1405,6 +1420,7 @@ static const struct net_device_ops virtnet_netdev = {
->  	.ndo_get_stats64     = virtnet_stats,
->  	.ndo_vlan_rx_add_vid = virtnet_vlan_rx_add_vid,
->  	.ndo_vlan_rx_kill_vid = virtnet_vlan_rx_kill_vid,
-> +	.ndo_tx_timeout      = virtnet_tx_timeout,
->  #ifdef CONFIG_NET_POLL_CONTROLLER
->  	.ndo_poll_controller = virtnet_netpoll,
->  #endif
-> @@ -1750,6 +1766,7 @@ static int virtnet_probe(struct virtio_device *vdev)
->  	dev->netdev_ops = &virtnet_netdev;
->  	dev->features = NETIF_F_HIGHDMA;
+> diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
+> index 28ee4e5..b976d96 100644
+> --- a/drivers/virtio/virtio_pci_common.h
+> +++ b/drivers/virtio/virtio_pci_common.h
+> @@ -75,6 +75,8 @@ struct virtio_pci_device {
+>  	/* Multiply queue_notify_off by this value. (non-legacy mode). */
+>  	u32 notify_offset_multiplier;
 >  
-> +	dev->watchdog_timeo = 5 * HZ;
->  	dev->ethtool_ops = &virtnet_ethtool_ops;
->  	SET_NETDEV_DEV(dev, &vdev->dev);
+> +	int modern_bars;
+> +
+>  	/* Legacy only field */
+>  	/* the IO mapping for the PCI config space */
+>  	void __iomem *ioaddr;
+> diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+> index 256a527..48bc979 100644
+> --- a/drivers/virtio/virtio_pci_legacy.c
+> +++ b/drivers/virtio/virtio_pci_legacy.c
+> @@ -215,6 +215,7 @@ static const struct virtio_config_ops virtio_pci_config_ops = {
+>  int virtio_pci_legacy_probe(struct virtio_pci_device *vp_dev)
+>  {
+>  	struct pci_dev *pci_dev = vp_dev->pci_dev;
+> +	int rc;
 >  
-> @@ -1811,6 +1828,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	/* We only own devices >= 0x1000 and <= 0x103f: leave the rest. */
+>  	if (pci_dev->device < 0x1000 || pci_dev->device > 0x103f)
+> @@ -226,9 +227,14 @@ int virtio_pci_legacy_probe(struct virtio_pci_device *vp_dev)
+>  		return -ENODEV;
 >  	}
 >  
->  	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
-> +	INIT_WORK(&vi->reset_task, virtnet_reset_task);
+> +	rc = pci_request_region(pci_dev, 0, "virtio-pci-legacy");
+> +	if (rc)
+> +		return rc;
+> +
+> +	rc = -ENOMEM;
+>  	vp_dev->ioaddr = pci_iomap(pci_dev, 0, 0);
+>  	if (!vp_dev->ioaddr)
+> -		return -ENOMEM;
+> +		goto err_iomap;
 >  
->  	/* If we can receive ANY GSO packets, we must allocate large ones. */
->  	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
-> @@ -1891,7 +1909,7 @@ static int virtnet_probe(struct virtio_device *vdev)
->  		netif_carrier_on(dev);
->  	}
+>  	vp_dev->isr = vp_dev->ioaddr + VIRTIO_PCI_ISR;
 >  
-> -	pr_debug("virtnet: registered device %s with %d RX and TX vq's\n",
-> +	pr_debug("virtio_net: registered device %s with %d RX and TX vq's\n",
->  		 dev->name, max_queue_pairs);
+> @@ -246,6 +252,10 @@ int virtio_pci_legacy_probe(struct virtio_pci_device *vp_dev)
+>  	vp_dev->del_vq = del_vq;
 >  
 >  	return 0;
-> @@ -2001,6 +2019,55 @@ static int virtnet_restore(struct virtio_device *vdev)
+> +
+> +err_iomap:
+> +	pci_release_region(pci_dev, 0);
+> +	return rc;
 >  }
->  #endif
 >  
-> +static void virtnet_reset_task(struct work_struct *work)
-> +{
-> +	struct virtnet_info *vi =
-> +		container_of(work, struct virtnet_info, reset_task);
-> +	struct net_device *dev = vi->dev;
-> +	struct virtio_device *vdev = vi->vdev;
-> +	int err, i;
+>  void virtio_pci_legacy_remove(struct virtio_pci_device *vp_dev)
+> @@ -253,4 +263,5 @@ void virtio_pci_legacy_remove(struct virtio_pci_device *vp_dev)
+>  	struct pci_dev *pci_dev = vp_dev->pci_dev;
+>  
+>  	pci_iounmap(pci_dev, vp_dev->ioaddr);
+> +	pci_release_region(pci_dev, 0);
+>  }
+> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+> index e88e099..8e5cf19 100644
+> --- a/drivers/virtio/virtio_pci_modern.c
+> +++ b/drivers/virtio/virtio_pci_modern.c
+> @@ -499,7 +499,7 @@ static const struct virtio_config_ops virtio_pci_config_ops = {
+>   * Returns offset of the capability, or 0.
+>   */
+>  static inline int virtio_pci_find_capability(struct pci_dev *dev, u8 cfg_type,
+> -					     u32 ioresource_types)
+> +					     u32 ioresource_types, int *bars)
+>  {
+>  	int pos;
+>  
+> @@ -520,8 +520,10 @@ static inline int virtio_pci_find_capability(struct pci_dev *dev, u8 cfg_type,
+>  
+>  		if (type == cfg_type) {
+>  			if (pci_resource_len(dev, bar) &&
+> -			    pci_resource_flags(dev, bar) & ioresource_types)
+> +			    pci_resource_flags(dev, bar) & ioresource_types) {
+> +				*bars |= (1 << bar);
+>  				return pos;
+> +			}
+>  		}
+>  	}
+>  	return 0;
+> @@ -617,7 +619,8 @@ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
+>  
+>  	/* check for a common config: if not, use legacy mode (bar 0). */
+>  	common = virtio_pci_find_capability(pci_dev, VIRTIO_PCI_CAP_COMMON_CFG,
+> -					    IORESOURCE_IO | IORESOURCE_MEM);
+> +					    IORESOURCE_IO | IORESOURCE_MEM,
+> +					    &vp_dev->modern_bars);
+>  	if (!common) {
+>  		dev_info(&pci_dev->dev,
+>  			 "virtio_pci: leaving for legacy driver\n");
+> @@ -626,9 +629,11 @@ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
+>  
+>  	/* If common is there, these should be too... */
+>  	isr = virtio_pci_find_capability(pci_dev, VIRTIO_PCI_CAP_ISR_CFG,
+> -					 IORESOURCE_IO | IORESOURCE_MEM);
+> +					 IORESOURCE_IO | IORESOURCE_MEM,
+> +					 &vp_dev->modern_bars);
+>  	notify = virtio_pci_find_capability(pci_dev, VIRTIO_PCI_CAP_NOTIFY_CFG,
+> -					    IORESOURCE_IO | IORESOURCE_MEM);
+> +					    IORESOURCE_IO | IORESOURCE_MEM,
+> +					    &vp_dev->modern_bars);
+>  	if (!isr || !notify) {
+>  		dev_err(&pci_dev->dev,
+>  			"virtio_pci: missing capabilities %i/%i/%i\n",
+> @@ -640,7 +645,13 @@ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
+>  	 * device-specific configuration.
+>  	 */
+>  	device = virtio_pci_find_capability(pci_dev, VIRTIO_PCI_CAP_DEVICE_CFG,
+> -					    IORESOURCE_IO | IORESOURCE_MEM);
+> +					    IORESOURCE_IO | IORESOURCE_MEM,
+> +					    &vp_dev->modern_bars);
 > +
-> +	flush_work(&vi->config_work);
-> +
-> +	netif_device_detach(vi->dev);
-> +	cancel_delayed_work_sync(&vi->refill);
-> +
-> +	if (netif_running(vi->dev)) {
-> +		for (i = 0; i < vi->max_queue_pairs; i++) {
-> +			napi_disable(&vi->rq[i].napi);
-> +			napi_hash_del(&vi->rq[i].napi);
-> +			netif_napi_del(&vi->rq[i].napi);
-> +		}
-> +	}
-> +
-> +	remove_vq_common(vi);
-> +
-> +	dev->stats.tx_errors++;
-> +
-> +	err = init_vqs(vi);
-> +	if (err) {
-> +		dev_warn(&dev->dev, "virtio_net: virtqueue initialization failed.\n");
-> +		return;
-> +	}
-> +
-> +	virtio_device_ready(vdev);
-> +
-> +	if (netif_running(vi->dev)) {
-> +		for (i = 0; i < vi->curr_queue_pairs; i++)
-> +			if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
-> +				schedule_delayed_work(&vi->refill, 0);
-> +
-> +		for (i = 0; i < vi->max_queue_pairs; i++)
-> +			virtnet_napi_enable(&vi->rq[i]);
-> +	}
-> +
-> +	netif_device_attach(vi->dev);
-> +
-> +	rtnl_lock();
-> +	virtnet_set_queues(vi, vi->curr_queue_pairs);
-> +	rtnl_unlock();
-
-Won't this lose a bunch of state, like mac addresses,
-multicast, rx mode, etc etc?
-
-
-> +}
-> +
->  static struct virtio_device_id id_table[] = {
->  	{ VIRTIO_ID_NET, VIRTIO_DEV_ANY_ID },
->  	{ 0 },
+> +	err = pci_request_selected_regions(pci_dev, vp_dev->modern_bars,
+> +					   "virtio-pci-modern");
+> +	if (err)
+> +		return err;
+>  
+>  	err = -EINVAL;
+>  	vp_dev->common = map_capability(pci_dev, common,
+> @@ -727,4 +738,5 @@ void virtio_pci_modern_remove(struct virtio_pci_device *vp_dev)
+>  		pci_iounmap(pci_dev, vp_dev->notify_base);
+>  	pci_iounmap(pci_dev, vp_dev->isr);
+>  	pci_iounmap(pci_dev, vp_dev->common);
+> +	pci_release_selected_regions(pci_dev, vp_dev->modern_bars);
+>  }
 > -- 
-> 1.7.10.4
+> 1.8.3.1
