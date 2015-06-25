@@ -1,14 +1,17 @@
-From: Julio Faracco <jcfaracco@gmail.com>
-Subject: Re: [RFC] virtio_net: Adding tx_timeout function.
-Date: Wed, 24 Jun 2015 22:31:09 -0300
-Message-ID: <CAENf94JDha3+uEP1=Op60pzg-7Y1DP8UnPhf6xPUAJj8f0DLCQ__8956.76913573897$1435243564$gmane$org@mail.gmail.com>
-References: <1435110269-6755-1-git-send-email-jcfaracco@gmail.com>
-	<20150624080438-mutt-send-email-mst@redhat.com>
+From: Igor Mammedov <imammedo@redhat.com>
+Subject: Re: [PATCH RFC] vhost: add ioctl to query nregions upper limit
+Date: Thu, 25 Jun 2015 18:57:12 +0200
+Message-ID: <20150625185712.50aabcb4__10893.8771336854$1435251462$gmane$org@igors-macbook-pro.local>
+References: <1435153753-2686-1-git-send-email-mst@redhat.com>
+	<20150624160727.2e0f542f@nial.brq.redhat.com>
+	<20150624161606-mutt-send-email-mst@redhat.com>
+	<20150624165229.4f8bf82b@nial.brq.redhat.com>
+	<20150624170223-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150624080438-mutt-send-email-mst@redhat.com>
+In-Reply-To: <20150624170223-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,173 +22,156 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-2015-06-24 3:10 GMT-03:00 Michael S. Tsirkin <mst@redhat.com>:
->
-> On Tue, Jun 23, 2015 at 10:44:29PM -0300, Julio Faracco wrote:
-> > virtio_net paravirtualized driver does not have a tx_timeout() function to
-> > guarantee that the driver will recover properly after receiving a timeout
-> > during a transmission of a packet. This patch add this feature and throw a
-> > timeout exception after 5 HZ. Considering some tests, this is the best
-> > time to use here.
-> >
-> > Signed-off-by: Julio Faracco <jcfaracco@gmail.com>
-> > Cc: Jason Wang <jasowang@redhat.com>
->
-> Looks like a bunch of locks and flushes are missing in this patch.  IMHO
-> that's just too painful with current hardware.  IMO the right thing to
-> do here is to add ability to reset specific queues to hardware.
->
+On Wed, 24 Jun 2015 17:08:56 +0200
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-I agree, Michael. This model is the default one resetting the device
-due to transmission timeout.
-To have a better performance, only some queues must be reset.
+> On Wed, Jun 24, 2015 at 04:52:29PM +0200, Igor Mammedov wrote:
+> > On Wed, 24 Jun 2015 16:17:46 +0200
+> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > 
+> > > On Wed, Jun 24, 2015 at 04:07:27PM +0200, Igor Mammedov wrote:
+> > > > On Wed, 24 Jun 2015 15:49:27 +0200
+> > > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > > 
+> > > > > Userspace currently simply tries to give vhost as many regions
+> > > > > as it happens to have, but you only have the mem table
+> > > > > when you have initialized a large part of VM, so graceful
+> > > > > failure is very hard to support.
+> > > > > 
+> > > > > The result is that userspace tends to fail catastrophically.
+> > > > > 
+> > > > > Instead, add a new ioctl so userspace can find out how much
+> > > > > kernel supports, up front. This returns a positive value that
+> > > > > we commit to.
+> > > > > 
+> > > > > Also, document our contract with legacy userspace: when
+> > > > > running on an old kernel, you get -1 and you can assume at
+> > > > > least 64 slots.  Since 0 value's left unused, let's make that
+> > > > > mean that the current userspace behaviour (trial and error)
+> > > > > is required, just in case we want it back.
+> > > > > 
+> > > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > > > > Cc: Igor Mammedov <imammedo@redhat.com>
+> > > > > Cc: Paolo Bonzini <pbonzini@redhat.com>
+> > > > > ---
+> > > > >  include/uapi/linux/vhost.h | 17 ++++++++++++++++-
+> > > > >  drivers/vhost/vhost.c      |  5 +++++
+> > > > >  2 files changed, 21 insertions(+), 1 deletion(-)
+> > > > > 
+> > > > > diff --git a/include/uapi/linux/vhost.h
+> > > > > b/include/uapi/linux/vhost.h index ab373191..f71fa6d 100644
+> > > > > --- a/include/uapi/linux/vhost.h
+> > > > > +++ b/include/uapi/linux/vhost.h
+> > > > > @@ -80,7 +80,7 @@ struct vhost_memory {
+> > > > >   * Allows subsequent call to VHOST_OWNER_SET to succeed. */
+> > > > >  #define VHOST_RESET_OWNER _IO(VHOST_VIRTIO, 0x02)
+> > > > >  
+> > > > > -/* Set up/modify memory layout */
+> > > > > +/* Set up/modify memory layout: see also
+> > > > > VHOST_GET_MEM_MAX_NREGIONS below. */ #define
+> > > > > VHOST_SET_MEM_TABLE	_IOW(VHOST_VIRTIO, 0x03, struct
+> > > > > vhost_memory) /* Write logging setup. */
+> > > > > @@ -127,6 +127,21 @@ struct vhost_memory {
+> > > > >  /* Set eventfd to signal an error */
+> > > > >  #define VHOST_SET_VRING_ERR _IOW(VHOST_VIRTIO, 0x22, struct
+> > > > > vhost_vring_file) 
+> > > > > +/* Query upper limit on nregions in VHOST_SET_MEM_TABLE
+> > > > > arguments.
+> > > > > + * Returns:
+> > > > > + * 	0 < value <= MAX_INT - gives the upper limit,
+> > > > > higher values will fail
+> > > > > + * 	0 - there's no static limit: try and see if it
+> > > > > works
+> > > > > + * 	-1 - on failure
+> > > > > + */
+> > > > > +#define VHOST_GET_MEM_MAX_NREGIONS   _IO(VHOST_VIRTIO, 0x23)
+> > > > > +
+> > > > > +/* Returned by VHOST_GET_MEM_MAX_NREGIONS to mean there's no
+> > > > > static limit:
+> > > > > + * try and it'll work if you are lucky. */
+> > > > > +#define VHOST_MEM_MAX_NREGIONS_NONE 0
+> > > > is it needed? we always have a limit,
+> > > > or don't have IOCTL => -1 => old try and see way
+> > > > 
+> > > > > +/* We support at least as many nregions in
+> > > > > VHOST_SET_MEM_TABLE:
+> > > > > + * for use on legacy kernels without
+> > > > > VHOST_GET_MEM_MAX_NREGIONS support. */ +#define
+> > > > > VHOST_MEM_MAX_NREGIONS_DEFAULT 64
+> > > > ^^^ not used below,
+> > > > if it's for legacy then perhaps s/DEFAULT/LEGACY/ 
+> > > 
+> > > The assumption was that userspace detecting old kernels will just
+> > > use 64, this means we do want a flag to get the old way.
+> > > 
+> > > OTOH if you won't think it's useful, let me know.
+> > this header will be synced into QEMU's tree so that we could use
+> > this define there, isn't it? IMHO then _LEGACY is more exact
+> > description of macro.
+> > 
+> > As for 0 return value, -1 is just fine for detecting old kernels
+> > (i.e. try and see if it works), so 0 looks unnecessary but it
+> > doesn't in any way hurt either. For me limit or -1 is enough to try
+> > fix userspace.
+> 
+> OK.
+> Do you want to try now before I do v2?
 
-> > ---
-> >  drivers/net/virtio_net.c |   69 +++++++++++++++++++++++++++++++++++++++++++++-
-> >  1 file changed, 68 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 63c7810..75ac45c 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -135,6 +135,9 @@ struct virtnet_info {
-> >       /* Work struct for config space updates */
-> >       struct work_struct config_work;
-> >
-> > +     /* Work struct for resetting the virtio-net driver. */
-> > +     struct work_struct reset_task;
-> > +
-> >       /* Does the affinity hint is set for virtqueues? */
-> >       bool affinity_hint_set;
-> >
-> > @@ -1394,6 +1397,18 @@ static int virtnet_change_mtu(struct net_device *dev, int new_mtu)
-> >       return 0;
-> >  }
-> >
-> > +static void virtnet_tx_timeout(struct net_device *dev)
-> > +{
-> > +     struct virtnet_info *vi = netdev_priv(dev);
-> > +
-> > +     dev_warn(&dev->dev, "TX Timeout exception with latency: %ld\n",
-> > +              jiffies - dev_trans_start(dev));
-> > +
-> > +     schedule_work(&vi->reset_task);
->
-> What if after this triggers user does something
-> to the device (e.g. attempts to remove it)?
-> Or if a packet is transmitted or used?
+I've just tried, idea to check limit is unusable in this case.
+here is a link to a patch that implements it:
+https://github.com/imammedo/qemu/commits/vhost_slot_limit_check
 
-At some point, this work must be canceled.
-Yes, you are right. Specially, when the driver is being removed.
->
-> > +}
-> > +
-> > +static void virtnet_reset_task(struct work_struct *work);
-> > +
-> >  static const struct net_device_ops virtnet_netdev = {
-> >       .ndo_open            = virtnet_open,
-> >       .ndo_stop            = virtnet_close,
-> > @@ -1405,6 +1420,7 @@ static const struct net_device_ops virtnet_netdev = {
-> >       .ndo_get_stats64     = virtnet_stats,
-> >       .ndo_vlan_rx_add_vid = virtnet_vlan_rx_add_vid,
-> >       .ndo_vlan_rx_kill_vid = virtnet_vlan_rx_kill_vid,
-> > +     .ndo_tx_timeout      = virtnet_tx_timeout,
-> >  #ifdef CONFIG_NET_POLL_CONTROLLER
-> >       .ndo_poll_controller = virtnet_netpoll,
-> >  #endif
-> > @@ -1750,6 +1766,7 @@ static int virtnet_probe(struct virtio_device *vdev)
-> >       dev->netdev_ops = &virtnet_netdev;
-> >       dev->features = NETIF_F_HIGHDMA;
-> >
-> > +     dev->watchdog_timeo = 5 * HZ;
-> >       dev->ethtool_ops = &virtnet_ethtool_ops;
-> >       SET_NETDEV_DEV(dev, &vdev->dev);
-> >
-> > @@ -1811,6 +1828,7 @@ static int virtnet_probe(struct virtio_device *vdev)
-> >       }
-> >
-> >       INIT_WORK(&vi->config_work, virtnet_config_changed_work);
-> > +     INIT_WORK(&vi->reset_task, virtnet_reset_task);
-> >
-> >       /* If we can receive ANY GSO packets, we must allocate large ones. */
-> >       if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
-> > @@ -1891,7 +1909,7 @@ static int virtnet_probe(struct virtio_device *vdev)
-> >               netif_carrier_on(dev);
-> >       }
-> >
-> > -     pr_debug("virtnet: registered device %s with %d RX and TX vq's\n",
-> > +     pr_debug("virtio_net: registered device %s with %d RX and TX vq's\n",
-> >                dev->name, max_queue_pairs);
-> >
-> >       return 0;
-> > @@ -2001,6 +2019,55 @@ static int virtnet_restore(struct virtio_device *vdev)
-> >  }
-> >  #endif
-> >
-> > +static void virtnet_reset_task(struct work_struct *work)
-> > +{
-> > +     struct virtnet_info *vi =
-> > +             container_of(work, struct virtnet_info, reset_task);
-> > +     struct net_device *dev = vi->dev;
-> > +     struct virtio_device *vdev = vi->vdev;
-> > +     int err, i;
-> > +
-> > +     flush_work(&vi->config_work);
-> > +
-> > +     netif_device_detach(vi->dev);
-> > +     cancel_delayed_work_sync(&vi->refill);
-> > +
-> > +     if (netif_running(vi->dev)) {
-> > +             for (i = 0; i < vi->max_queue_pairs; i++) {
-> > +                     napi_disable(&vi->rq[i].napi);
-> > +                     napi_hash_del(&vi->rq[i].napi);
-> > +                     netif_napi_del(&vi->rq[i].napi);
-> > +             }
-> > +     }
-> > +
-> > +     remove_vq_common(vi);
-> > +
-> > +     dev->stats.tx_errors++;
-> > +
-> > +     err = init_vqs(vi);
-> > +     if (err) {
-> > +             dev_warn(&dev->dev, "virtio_net: virtqueue initialization failed.\n");
-> > +             return;
-> > +     }
-> > +
-> > +     virtio_device_ready(vdev);
-> > +
-> > +     if (netif_running(vi->dev)) {
-> > +             for (i = 0; i < vi->curr_queue_pairs; i++)
-> > +                     if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
-> > +                             schedule_delayed_work(&vi->refill, 0);
-> > +
-> > +             for (i = 0; i < vi->max_queue_pairs; i++)
-> > +                     virtnet_napi_enable(&vi->rq[i]);
-> > +     }
-> > +
-> > +     netif_device_attach(vi->dev);
-> > +
-> > +     rtnl_lock();
-> > +     virtnet_set_queues(vi, vi->curr_queue_pairs);
-> > +     rtnl_unlock();
->
-> Won't this lose a bunch of state, like mac addresses,
-> multicast, rx mode, etc etc?
+slots count is changing dynamically depending on used devices
+and more importantly guest OS could change slots count during
+its runtime when during managing devices it could trigger
+repartitioning of current memory table as device's memory regions
+mapped into address space.
 
-I will rebase this patch with the properly changes and locks.
-After, I will resend it.
+That leads to 2 different values of used slots at guest startup
+time and after guest booted or after hotplug.
 
-Thanks for your opinion, Michael.
->
->
-> > +}
-> > +
-> >  static struct virtio_device_id id_table[] = {
-> >       { VIRTIO_ID_NET, VIRTIO_DEV_ANY_ID },
-> >       { 0 },
-> > --
-> > 1.7.10.4
+I my case guest could be started with max 58 DIMMs coldplugged,
+but after boot 3 more slots are freed and it's possible to hotadd
+3 more DIMMs. That however leads to the guest that can't be migrated
+to since by QEMU design all hotplugged devices should be present
+at target's startup time i.e. 60 DIMMs total and that obviously
+goes above vhost limit at that time.
+Other issue with it is that QEMU could report only current
+limit to mgmt tools, so they can't know for sure how many slots
+exactly they can allow user to set when creating VM and will have to
+guess or create a VM with unusable/under provisioned slots.
+
+We have a similar limit check for kvm memslots but that is never
+exercised path since we rose limit in kernel to 509 (similar issues),
+over-provisioning it in about 2 times of currently possible
+userspace consumption.
+
+> 
+> > > 
+> > > > > +
+> > > > >  /* VHOST_NET specific defines */
+> > > > >  
+> > > > >  /* Attach virtio net ring to a raw socket, or tap device.
+> > > > > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > > > > index 9e8e004..3b68f9d 100644
+> > > > > --- a/drivers/vhost/vhost.c
+> > > > > +++ b/drivers/vhost/vhost.c
+> > > > > @@ -917,6 +917,11 @@ long vhost_dev_ioctl(struct vhost_dev
+> > > > > *d, unsigned int ioctl, void __user *argp) long r;
+> > > > >  	int i, fd;
+> > > > >  
+> > > > > +	if (ioctl == VHOST_GET_MEM_MAX_NREGIONS) {
+> > > > > +		r = VHOST_MEMORY_MAX_NREGIONS;
+> > > > > +		goto done;
+> > > > > +	}
+> > > > > +
+> > > > >  	/* If you are not the owner, you can become one */
+> > > > >  	if (ioctl == VHOST_SET_OWNER) {
+> > > > >  		r = vhost_dev_set_owner(d);
+> > > --
+> > > To unsubscribe from this list: send the line "unsubscribe kvm" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
