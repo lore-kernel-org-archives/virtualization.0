@@ -1,17 +1,11 @@
-From: Igor Mammedov <imammedo@redhat.com>
-Subject: Re: [PATCH RFC] vhost: add ioctl to query nregions upper limit
-Date: Thu, 25 Jun 2015 18:57:12 +0200
-Message-ID: <20150625185712.50aabcb4__10893.8771336854$1435251462$gmane$org@igors-macbook-pro.local>
-References: <1435153753-2686-1-git-send-email-mst@redhat.com>
-	<20150624160727.2e0f542f@nial.brq.redhat.com>
-	<20150624161606-mutt-send-email-mst@redhat.com>
-	<20150624165229.4f8bf82b@nial.brq.redhat.com>
-	<20150624170223-mutt-send-email-mst@redhat.com>
+From: Gioh Kim <gioh.kim@lge.com>
+Subject: [RFCv2 0/5] enable migration of driver pages
+Date: Fri, 26 Jun 2015 18:58:25 +0900
+Message-ID: <1435312710-15108-1-git-send-email-gioh.kim__4521.38439654863$1435312640$gmane$org@lge.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150624170223-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,157 +15,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
+To: jlayton@poochiereds.net, bfields@fieldses.org, vbabka@suse.cz, iamjoonsoo.kim@lge.com, viro@zeniv.linux.org.uk, mst@redhat.com, koct9i@gmail.com, minchan@kernel.org, aquini@redhat.com, linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-api@vger.kernel.org, linux-mm@kvack.org
+Cc: akpm@linux-foundation.org, Gioh Kim <gioh.kim@lge.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 24 Jun 2015 17:08:56 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+Hello,
 
-> On Wed, Jun 24, 2015 at 04:52:29PM +0200, Igor Mammedov wrote:
-> > On Wed, 24 Jun 2015 16:17:46 +0200
-> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > 
-> > > On Wed, Jun 24, 2015 at 04:07:27PM +0200, Igor Mammedov wrote:
-> > > > On Wed, 24 Jun 2015 15:49:27 +0200
-> > > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > 
-> > > > > Userspace currently simply tries to give vhost as many regions
-> > > > > as it happens to have, but you only have the mem table
-> > > > > when you have initialized a large part of VM, so graceful
-> > > > > failure is very hard to support.
-> > > > > 
-> > > > > The result is that userspace tends to fail catastrophically.
-> > > > > 
-> > > > > Instead, add a new ioctl so userspace can find out how much
-> > > > > kernel supports, up front. This returns a positive value that
-> > > > > we commit to.
-> > > > > 
-> > > > > Also, document our contract with legacy userspace: when
-> > > > > running on an old kernel, you get -1 and you can assume at
-> > > > > least 64 slots.  Since 0 value's left unused, let's make that
-> > > > > mean that the current userspace behaviour (trial and error)
-> > > > > is required, just in case we want it back.
-> > > > > 
-> > > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > > > Cc: Igor Mammedov <imammedo@redhat.com>
-> > > > > Cc: Paolo Bonzini <pbonzini@redhat.com>
-> > > > > ---
-> > > > >  include/uapi/linux/vhost.h | 17 ++++++++++++++++-
-> > > > >  drivers/vhost/vhost.c      |  5 +++++
-> > > > >  2 files changed, 21 insertions(+), 1 deletion(-)
-> > > > > 
-> > > > > diff --git a/include/uapi/linux/vhost.h
-> > > > > b/include/uapi/linux/vhost.h index ab373191..f71fa6d 100644
-> > > > > --- a/include/uapi/linux/vhost.h
-> > > > > +++ b/include/uapi/linux/vhost.h
-> > > > > @@ -80,7 +80,7 @@ struct vhost_memory {
-> > > > >   * Allows subsequent call to VHOST_OWNER_SET to succeed. */
-> > > > >  #define VHOST_RESET_OWNER _IO(VHOST_VIRTIO, 0x02)
-> > > > >  
-> > > > > -/* Set up/modify memory layout */
-> > > > > +/* Set up/modify memory layout: see also
-> > > > > VHOST_GET_MEM_MAX_NREGIONS below. */ #define
-> > > > > VHOST_SET_MEM_TABLE	_IOW(VHOST_VIRTIO, 0x03, struct
-> > > > > vhost_memory) /* Write logging setup. */
-> > > > > @@ -127,6 +127,21 @@ struct vhost_memory {
-> > > > >  /* Set eventfd to signal an error */
-> > > > >  #define VHOST_SET_VRING_ERR _IOW(VHOST_VIRTIO, 0x22, struct
-> > > > > vhost_vring_file) 
-> > > > > +/* Query upper limit on nregions in VHOST_SET_MEM_TABLE
-> > > > > arguments.
-> > > > > + * Returns:
-> > > > > + * 	0 < value <= MAX_INT - gives the upper limit,
-> > > > > higher values will fail
-> > > > > + * 	0 - there's no static limit: try and see if it
-> > > > > works
-> > > > > + * 	-1 - on failure
-> > > > > + */
-> > > > > +#define VHOST_GET_MEM_MAX_NREGIONS   _IO(VHOST_VIRTIO, 0x23)
-> > > > > +
-> > > > > +/* Returned by VHOST_GET_MEM_MAX_NREGIONS to mean there's no
-> > > > > static limit:
-> > > > > + * try and it'll work if you are lucky. */
-> > > > > +#define VHOST_MEM_MAX_NREGIONS_NONE 0
-> > > > is it needed? we always have a limit,
-> > > > or don't have IOCTL => -1 => old try and see way
-> > > > 
-> > > > > +/* We support at least as many nregions in
-> > > > > VHOST_SET_MEM_TABLE:
-> > > > > + * for use on legacy kernels without
-> > > > > VHOST_GET_MEM_MAX_NREGIONS support. */ +#define
-> > > > > VHOST_MEM_MAX_NREGIONS_DEFAULT 64
-> > > > ^^^ not used below,
-> > > > if it's for legacy then perhaps s/DEFAULT/LEGACY/ 
-> > > 
-> > > The assumption was that userspace detecting old kernels will just
-> > > use 64, this means we do want a flag to get the old way.
-> > > 
-> > > OTOH if you won't think it's useful, let me know.
-> > this header will be synced into QEMU's tree so that we could use
-> > this define there, isn't it? IMHO then _LEGACY is more exact
-> > description of macro.
-> > 
-> > As for 0 return value, -1 is just fine for detecting old kernels
-> > (i.e. try and see if it works), so 0 looks unnecessary but it
-> > doesn't in any way hurt either. For me limit or -1 is enough to try
-> > fix userspace.
-> 
-> OK.
-> Do you want to try now before I do v2?
+This series try to enable migration of non-LRU pages, such as driver's page.
 
-I've just tried, idea to check limit is unusable in this case.
-here is a link to a patch that implements it:
-https://github.com/imammedo/qemu/commits/vhost_slot_limit_check
+My ARM-based platform occured severe fragmentation problem after long-term
+(several days) test. Sometimes even order-3 page allocation failed. It has
+memory size 512MB ~ 1024MB. 30% ~ 40% memory is consumed for graphic processing
+and 20~30 memory is reserved for zram.
 
-slots count is changing dynamically depending on used devices
-and more importantly guest OS could change slots count during
-its runtime when during managing devices it could trigger
-repartitioning of current memory table as device's memory regions
-mapped into address space.
+I found that many pages of GPU driver and zram are non-movable pages. So I
+reported Minchan Kim, the maintainer of zram, and he made the internal 
+compaction logic of zram. And I made the internal compaction of GPU driver.
 
-That leads to 2 different values of used slots at guest startup
-time and after guest booted or after hotplug.
+They reduced some fragmentation but they are not enough effective.
+They are activated by its own interface, /sys, so they are not cooperative
+with kernel compaction. If there is too much fragmentation and kernel starts
+to compaction, zram and GPU driver cannot work with the kernel compaction.
 
-I my case guest could be started with max 58 DIMMs coldplugged,
-but after boot 3 more slots are freed and it's possible to hotadd
-3 more DIMMs. That however leads to the guest that can't be migrated
-to since by QEMU design all hotplugged devices should be present
-at target's startup time i.e. 60 DIMMs total and that obviously
-goes above vhost limit at that time.
-Other issue with it is that QEMU could report only current
-limit to mgmt tools, so they can't know for sure how many slots
-exactly they can allow user to set when creating VM and will have to
-guess or create a VM with unusable/under provisioned slots.
+The first this patch adds a generic isolate/migrate/putback callbacks for page
+address-space. The zram and GPU, and any other modules can register
+its own migration method. The kernel compaction can call the registered
+migration when it works. Therefore all page in the system can be migrated
+at once.
 
-We have a similar limit check for kvm memslots but that is never
-exercised path since we rose limit in kernel to 509 (similar issues),
-over-provisioning it in about 2 times of currently possible
-userspace consumption.
+The 2nd the generic migration callbacks are applied into balloon driver.
+My gpu driver code is not open so I apply generic migration into balloon
+to show how it works. I've tested it with qemu enabled by kvm like followings:
+- turn on Ubuntu 14.04 with 1G memory on qemu.
+- do kernel building
+- after several seconds check more than 512MB is used with free command
+- command "balloon 512" in qemu monitor
+- check hundreds MB of pages are migrated
 
-> 
-> > > 
-> > > > > +
-> > > > >  /* VHOST_NET specific defines */
-> > > > >  
-> > > > >  /* Attach virtio net ring to a raw socket, or tap device.
-> > > > > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > > > > index 9e8e004..3b68f9d 100644
-> > > > > --- a/drivers/vhost/vhost.c
-> > > > > +++ b/drivers/vhost/vhost.c
-> > > > > @@ -917,6 +917,11 @@ long vhost_dev_ioctl(struct vhost_dev
-> > > > > *d, unsigned int ioctl, void __user *argp) long r;
-> > > > >  	int i, fd;
-> > > > >  
-> > > > > +	if (ioctl == VHOST_GET_MEM_MAX_NREGIONS) {
-> > > > > +		r = VHOST_MEMORY_MAX_NREGIONS;
-> > > > > +		goto done;
-> > > > > +	}
-> > > > > +
-> > > > >  	/* If you are not the owner, you can become one */
-> > > > >  	if (ioctl == VHOST_SET_OWNER) {
-> > > > >  		r = vhost_dev_set_owner(d);
-> > > --
-> > > To unsubscribe from this list: send the line "unsubscribe kvm" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Next kernel compaction code can call generic migration callbacks instead of
+balloon driver interface.
+Finally calling migration of balloon driver is removed.
+
+This patch-set is based on v4.1
+
+Gioh Kim (5):
+  mm/compaction: enable driver page migration
+  fs/anon_inode: get a new inode
+  mm/balloon: apply driver page migratable into balloon driver
+  mm/compaction: compaction calls generic migration
+  mm: remove direct calling of migration
+
+ drivers/virtio/virtio_balloon.c        |  4 ++++
+ fs/anon_inodes.c                       |  6 ++++++
+ fs/proc/page.c                         |  3 +++
+ include/linux/anon_inodes.h            |  1 +
+ include/linux/balloon_compaction.h     | 33 +++++++++++++++++++++------------
+ include/linux/compaction.h             | 11 +++++++++++
+ include/linux/fs.h                     |  2 ++
+ include/linux/page-flags.h             | 19 +++++++++++++++++++
+ include/linux/pagemap.h                | 27 +++++++++++++++++++++++++++
+ include/uapi/linux/kernel-page-flags.h |  2 +-
+ mm/balloon_compaction.c                | 25 ++++++++++++++++---------
+ mm/compaction.c                        |  9 +++++----
+ mm/migrate.c                           | 24 ++++++------------------
+ 13 files changed, 122 insertions(+), 44 deletions(-)
+
+-- 
+1.9.1
