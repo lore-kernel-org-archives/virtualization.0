@@ -1,12 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio: define virtio_pci_cfg_cap in header.
-Date: Thu, 2 Jul 2015 12:52:12 +0200
-Message-ID: <1435834327-11479-1-git-send-email-mst__24901.0762236596$1435834352$gmane$org@redhat.com>
+From: "Denis V. Lunev" <den@openvz.org>
+Subject: [RFC PATCH 1/1] mshyperv: fix recognition of Hyper-V guest crash MSR's
+Date: Thu,  2 Jul 2015 13:17:18 +0300
+Message-ID: <1435832238-2789-1-git-send-email-den__22094.6513386027$1435835006$gmane$org@openvz.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,34 +15,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Haiyang Zhang <haiyangz@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Nick Meier <nmeier@microsoft.com>, "Denis V. Lunev" <den@openvz.org>, Andrey Smetanin <asmetanin@virtuozzo.com>, devel@linuxdriverproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We already have VIRTIO_PCI_CAP_PCI_CFG, let's define the structure that
-goes with it.
+From: Andrey Smetanin <asmetanin@virtuozzo.com>
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Hypervisor Top Level Functional Specification v3.1/4.0 notes that cpuid
+(0x40000003) EDX's 10th bit should be used to check that Hyper-V guest
+crash MSR's functionality available.
+
+This patch should fix this recognition. Currently the code checks EAX
+register instead of EDX.
+
+Signed-off-by: Andrey Smetanin <asmetanin@virtuozzo.com>
+Signed-off-by: Denis V. Lunev <den@openvz.org>
+CC: Nick Meier <nmeier@microsoft.com>
+CC: K. Y. Srinivasan <kys@microsoft.com>
+CC: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- include/uapi/linux/virtio_pci.h | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/x86/include/asm/mshyperv.h | 1 +
+ arch/x86/kernel/cpu/mshyperv.c  | 1 +
+ drivers/hv/vmbus_drv.c          | 4 ++--
+ 3 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
-index 7530146..90007a1 100644
---- a/include/uapi/linux/virtio_pci.h
-+++ b/include/uapi/linux/virtio_pci.h
-@@ -157,6 +157,12 @@ struct virtio_pci_common_cfg {
- 	__le32 queue_used_hi;		/* read-write */
+diff --git a/arch/x86/include/asm/mshyperv.h b/arch/x86/include/asm/mshyperv.h
+index c163215..eebe433 100644
+--- a/arch/x86/include/asm/mshyperv.h
++++ b/arch/x86/include/asm/mshyperv.h
+@@ -7,6 +7,7 @@
+ 
+ struct ms_hyperv_info {
+ 	u32 features;
++	u32 misc_features;
+ 	u32 hints;
  };
  
-+/* Fields in VIRTIO_PCI_CAP_PCI_CFG: */
-+struct virtio_pci_cfg_cap {
-+	struct virtio_pci_cap cap;
-+	__u8 pci_cfg_data[4]; /* Data for BAR access. */
-+};
-+
- /* Macro versions of offsets for the Old Timers! */
- #define VIRTIO_PCI_CAP_VNDR		0
- #define VIRTIO_PCI_CAP_NEXT		1
+diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
+index aad4bd8..6d172a2 100644
+--- a/arch/x86/kernel/cpu/mshyperv.c
++++ b/arch/x86/kernel/cpu/mshyperv.c
+@@ -114,6 +114,7 @@ static void __init ms_hyperv_init_platform(void)
+ 	 * Extract the features and hints
+ 	 */
+ 	ms_hyperv.features = cpuid_eax(HYPERV_CPUID_FEATURES);
++	ms_hyperv.misc_features = cpuid_edx(HYPERV_CPUID_FEATURES);
+ 	ms_hyperv.hints    = cpuid_eax(HYPERV_CPUID_ENLIGHTMENT_INFO);
+ 
+ 	printk(KERN_INFO "HyperV: features 0x%x, hints 0x%x\n",
+diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+index cf20400..67af13a 100644
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -841,7 +841,7 @@ static int vmbus_bus_init(int irq)
+ 	/*
+ 	 * Only register if the crash MSRs are available
+ 	 */
+-	if (ms_hyperv.features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE) {
++	if (ms_hyperv.misc_features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE) {
+ 		atomic_notifier_chain_register(&panic_notifier_list,
+ 					       &hyperv_panic_block);
+ 	}
+@@ -1110,7 +1110,7 @@ static void __exit vmbus_exit(void)
+ 	hv_remove_vmbus_irq();
+ 	tasklet_kill(&msg_dpc);
+ 	vmbus_free_channels();
+-	if (ms_hyperv.features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE) {
++	if (ms_hyperv.misc_features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE) {
+ 		atomic_notifier_chain_unregister(&panic_notifier_list,
+ 						 &hyperv_panic_block);
+ 	}
 -- 
-MST
+2.1.4
