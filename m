@@ -1,15 +1,16 @@
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
-Subject: Re: [RFC PATCH 1/1] mshyperv: fix recognition of Hyper-V guest crash
-	MSR's
-Date: Thu, 02 Jul 2015 13:22:54 +0200
-Message-ID: <87egkqst0x.fsf__13227.3100353361$1435855123$gmane$org@vitty.brq.redhat.com>
-References: <1435832238-2789-1-git-send-email-den@openvz.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PULL] virtio/vhost: cross endian support
+Date: Fri, 3 Jul 2015 09:59:01 +0200
+Message-ID: <20150703095637-mutt-send-email-mst__41073.3781093315$1435910370$gmane$org@redhat.com>
+References: <20150701113150-mutt-send-email-mst@redhat.com>
+	<CA+55aFwE+vO2xevQ5jpyC0uJ7gASDwMS4=aDb=78RsJNA-wN1Q@mail.gmail.com>
+	<20150702071412-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1435832238-2789-1-git-send-email-den@openvz.org> (Denis
-	V. Lunev's message of "Thu, 2 Jul 2015 13:17:18 +0300")
+Content-Disposition: inline
+In-Reply-To: <20150702071412-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,82 +20,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Denis V. Lunev" <den@openvz.org>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Nick Meier <nmeier@microsoft.com>, Andrey Smetanin <asmetanin@virtuozzo.com>, devel@linuxdriverproject.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: KVM list <kvm@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, david@gibson.dropbear.id.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Denis V. Lunev" <den@openvz.org> writes:
+On Thu, Jul 02, 2015 at 08:01:28AM +0200, Michael S. Tsirkin wrote:
+> On Wed, Jul 01, 2015 at 12:02:50PM -0700, Linus Torvalds wrote:
+> > On Wed, Jul 1, 2015 at 2:31 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > virtio/vhost: cross endian support
+> > 
+> > Ugh. Does this really have to be dynamic?
+> > 
+> > Can't virtio do the sane thing, and just use a _fixed_ endianness?
+> > 
+> > Doing a unconditional byte swap is faster and simpler than the crazy
+> > conditionals. That's true regardless of endianness, but gets to be
+> > even more so if the fixed endianness is little-endian, since BE is
+> > not-so-slowly fading from the world.
+> > 
+> >                Linus
+> 
+> Yea, well - support for legacy BE guests on the new LE hosts is
+> exactly the motivation for this.
+> 
+> I dislike it too, but there are two redeeming properties that
+> made me merge this:
+> 
+> 1.  It's a trivial amount of code: since we wrap host/guest accesses
+>     anyway, almost all of it is well hidden from drivers.
+> 
+> 2.  Sane platforms would never set flags like VHOST_CROSS_ENDIAN_LEGACY -
+>     and when it's clear, there's zero overhead (as some point it was
+>     tested by compiling with and without the patches, got the same
+>     stripped binary).
+> 
+> Maybe we could create a Kconfig symbol to enforce point (2): prevent
+> people from enabling it e.g. on x86. I will look into this - but it can
+> be done by a patch on top, so I think this can be merged as is.
 
-> From: Andrey Smetanin <asmetanin@virtuozzo.com>
->
-> Hypervisor Top Level Functional Specification v3.1/4.0 notes that cpuid
-> (0x40000003) EDX's 10th bit should be used to check that Hyper-V guest
-> crash MSR's functionality available.
->
-> This patch should fix this recognition. Currently the code checks EAX
-> register instead of EDX.
->
-> Signed-off-by: Andrey Smetanin <asmetanin@virtuozzo.com>
-> Signed-off-by: Denis V. Lunev <den@openvz.org>
-> CC: Nick Meier <nmeier@microsoft.com>
-> CC: K. Y. Srinivasan <kys@microsoft.com>
-> CC: Haiyang Zhang <haiyangz@microsoft.com>
+Linus, could you please clarify whether making the
+feature depend on the cross-endian guest support
+would address your comment, and whether you think
+this can be merged as is, and the dependency added
+after -rc1?
 
-Something went wrong and I don't see K.Y. on the CC: list of your
-email. Fixed now.
 
-> ---
->  arch/x86/include/asm/mshyperv.h | 1 +
->  arch/x86/kernel/cpu/mshyperv.c  | 1 +
->  drivers/hv/vmbus_drv.c          | 4 ++--
->  3 files changed, 4 insertions(+), 2 deletions(-)
->
-> diff --git a/arch/x86/include/asm/mshyperv.h b/arch/x86/include/asm/mshyperv.h
-> index c163215..eebe433 100644
-> --- a/arch/x86/include/asm/mshyperv.h
-> +++ b/arch/x86/include/asm/mshyperv.h
-> @@ -7,6 +7,7 @@
->
->  struct ms_hyperv_info {
->  	u32 features;
-> +	u32 misc_features;
->  	u32 hints;
->  };
->
-> diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
-> index aad4bd8..6d172a2 100644
-> --- a/arch/x86/kernel/cpu/mshyperv.c
-> +++ b/arch/x86/kernel/cpu/mshyperv.c
-> @@ -114,6 +114,7 @@ static void __init ms_hyperv_init_platform(void)
->  	 * Extract the features and hints
->  	 */
->  	ms_hyperv.features = cpuid_eax(HYPERV_CPUID_FEATURES);
-> +	ms_hyperv.misc_features = cpuid_edx(HYPERV_CPUID_FEATURES);
->  	ms_hyperv.hints    = cpuid_eax(HYPERV_CPUID_ENLIGHTMENT_INFO);
->
->  	printk(KERN_INFO "HyperV: features 0x%x, hints 0x%x\n",
-> diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-> index cf20400..67af13a 100644
-> --- a/drivers/hv/vmbus_drv.c
-> +++ b/drivers/hv/vmbus_drv.c
-> @@ -841,7 +841,7 @@ static int vmbus_bus_init(int irq)
->  	/*
->  	 * Only register if the crash MSRs are available
->  	 */
-> -	if (ms_hyperv.features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE) {
-> +	if (ms_hyperv.misc_features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE) {
->  		atomic_notifier_chain_register(&panic_notifier_list,
->  					       &hyperv_panic_block);
->  	}
-> @@ -1110,7 +1110,7 @@ static void __exit vmbus_exit(void)
->  	hv_remove_vmbus_irq();
->  	tasklet_kill(&msg_dpc);
->  	vmbus_free_channels();
-> -	if (ms_hyperv.features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE) {
-> +	if (ms_hyperv.misc_features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE) {
->  		atomic_notifier_chain_unregister(&panic_notifier_list,
->  						 &hyperv_panic_block);
->  	}
-
--- 
-  Vitaly
+> Or do you know of someone using kernel with all config options enabled
+> undiscriminately?
+> 
+> Thanks,
+> 
+> -- 
+> MST
