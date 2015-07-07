@@ -1,15 +1,13 @@
-From: Ganis Zulfa Santoso <ganis.zulfa@gmail.com>
-Subject: Re: I can read/write in virtio BLK Device,
-	but I can't run a hello world program in it
-Date: Tue, 7 Jul 2015 16:33:33 +0900
-Message-ID: <E9B176EE-AD9B-44C6-8829-8F2C5E5AEADA@gmail.com>
-References: <C03726BC-3011-4295-9ED6-EF31E98EE7BD@gmail.com>
-	<20150707085504.11d15a8b@thh440s>
-Mime-Version: 1.0 (Mac OS X Mail 8.2 \(2098\))
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [PATCH] virtio/s390: rename drivers/s390/kvm -> drivers/s390/virtio
+Date: Tue,  7 Jul 2015 11:41:01 +0200
+Message-ID: <1436262061-684-1-git-send-email-cornelia.huck@de.ibm.com>
+References: <55940495.9050007@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150707085504.11d15a8b@thh440s>
+In-Reply-To: <55940495.9050007@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,32 +17,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Huth <huth@tuxfamily.org>
-Cc: virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+This more accurately reflects what these drivers actually do.
 
-> Thomas Huth <huth@tuxfamily.org> wrote:
-> 
-> Why don't you simply use the driver that is already available in the
-> kernel?
+Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ MAINTAINERS                               | 2 +-
+ drivers/s390/Makefile                     | 2 +-
+ drivers/s390/{kvm => virtio}/Makefile     | 0
+ drivers/s390/{kvm => virtio}/kvm_virtio.c | 0
+ drivers/s390/{kvm => virtio}/virtio_ccw.c | 0
+ 5 files changed, 2 insertions(+), 2 deletions(-)
+ rename drivers/s390/{kvm => virtio}/Makefile (100%)
+ rename drivers/s390/{kvm => virtio}/kvm_virtio.c (100%)
+ rename drivers/s390/{kvm => virtio}/virtio_ccw.c (100%)
 
-I am using a custom hypervisor, the available driver is not suitable for it.
-
-> 
-> Have you already verified that you can successfully read the _right_
-> data from your block device? I.e. something like
-> 
-> mount /dev/xxx /mnt
-> cp helloworld_static /mnt/root/helloworld_static
-> umount /mnt  # just to make sure that it is not cached
-> mount /dev/xxx /mnt
-> md5sum helloworld_static
-> md5sum /mnt/root/helloworld_static
-> 
-> ... and then compare the two md5sums whether they are the same?
-
-They are different. Thank you so much. I am truly thankful. 
-
-> 
-> Thomas
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 280a568..fbef7d0 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -10577,7 +10577,7 @@ L:	linux-s390@vger.kernel.org
+ L:	virtualization@lists.linux-foundation.org
+ L:	kvm@vger.kernel.org
+ S:	Supported
+-F:	drivers/s390/kvm/
++F:	drivers/s390/virtio/
+ 
+ VIRTIO HOST (VHOST)
+ M:	"Michael S. Tsirkin" <mst@redhat.com>
+diff --git a/drivers/s390/Makefile b/drivers/s390/Makefile
+index 95bccfd..e5225ad 100644
+--- a/drivers/s390/Makefile
++++ b/drivers/s390/Makefile
+@@ -2,7 +2,7 @@
+ # Makefile for the S/390 specific device drivers
+ #
+ 
+-obj-y += cio/ block/ char/ crypto/ net/ scsi/ kvm/
++obj-y += cio/ block/ char/ crypto/ net/ scsi/ virtio/
+ 
+ drivers-y += drivers/s390/built-in.o
+ 
+diff --git a/drivers/s390/kvm/Makefile b/drivers/s390/virtio/Makefile
+similarity index 100%
+rename from drivers/s390/kvm/Makefile
+rename to drivers/s390/virtio/Makefile
+diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/virtio/kvm_virtio.c
+similarity index 100%
+rename from drivers/s390/kvm/kvm_virtio.c
+rename to drivers/s390/virtio/kvm_virtio.c
+diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+similarity index 100%
+rename from drivers/s390/kvm/virtio_ccw.c
+rename to drivers/s390/virtio/virtio_ccw.c
+-- 
+2.3.8
