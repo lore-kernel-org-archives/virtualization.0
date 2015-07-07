@@ -1,19 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PULL] virtio/vhost: cross endian support
-Date: Tue, 7 Jul 2015 19:51:45 +0300
-Message-ID: <20150707195012-mutt-send-email-mst@redhat.com>
-References: <20150701113150-mutt-send-email-mst@redhat.com>
-	<CA+55aFwE+vO2xevQ5jpyC0uJ7gASDwMS4=aDb=78RsJNA-wN1Q@mail.gmail.com>
-	<20150702071412-mutt-send-email-mst@redhat.com>
-	<20150702111256.13f8ea71@bahia.local>
-	<20150702112809-mutt-send-email-mst@redhat.com>
-	<20150707183653.462b5df0@thh440s>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [RFCv3 0/5] enable migration of driver pages
+Date: Tue, 7 Jul 2015 15:37:01 -0700
+Message-ID: <20150707153701.bfcde75108d1fb8aaedc8134@linux-foundation.org>
+References: <1436243785-24105-1-git-send-email-gioh.kim@lge.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20150707183653.462b5df0@thh440s>
+In-Reply-To: <1436243785-24105-1-git-send-email-gioh.kim@lge.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,70 +17,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Huth <thuth@redhat.com>
-Cc: KVM list <kvm@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>
+To: Gioh Kim <gioh.kim@lge.com>
+Cc: aquini@redhat.com, mst@redhat.com, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, minchan@kernel.org, Gioh Kim <gurugio@hanmail.net>, linux-mm@kvack.org, viro@zeniv.linux.org.uk, gunho.lee@lge.com, linux-fsdevel@vger.kernel.org, jlayton@poochiereds.net, koct9i@gmail.com, iamjoonsoo.kim@lge.com, vbabka@suse.cz
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 07, 2015 at 06:36:53PM +0200, Thomas Huth wrote:
-> On Thu, 2 Jul 2015 11:32:52 +0200
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Tue,  7 Jul 2015 13:36:20 +0900 Gioh Kim <gioh.kim@lge.com> wrote:
+
+> From: Gioh Kim <gurugio@hanmail.net>
 > 
-> > On Thu, Jul 02, 2015 at 11:12:56AM +0200, Greg Kurz wrote:
-> > > On Thu, 2 Jul 2015 08:01:28 +0200
-> > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> Hello,
+> 
+> This series try to enable migration of non-LRU pages, such as driver's page.
+> 
+> My ARM-based platform occured severe fragmentation problem after long-term
+> (several days) test. Sometimes even order-3 page allocation failed. It has
+> memory size 512MB ~ 1024MB. 30% ~ 40% memory is consumed for graphic processing
+> and 20~30 memory is reserved for zram.
+> 
+> I found that many pages of GPU driver and zram are non-movable pages. So I
+> reported Minchan Kim, the maintainer of zram, and he made the internal 
+> compaction logic of zram. And I made the internal compaction of GPU driver.
+> 
+> They reduced some fragmentation but they are not enough effective.
+> They are activated by its own interface, /sys, so they are not cooperative
+> with kernel compaction. If there is too much fragmentation and kernel starts
+> to compaction, zram and GPU driver cannot work with the kernel compaction.
+>
 > ...
-> > > > Yea, well - support for legacy BE guests on the new LE hosts is
-> > > > exactly the motivation for this.
-> > > > 
-> > > > I dislike it too, but there are two redeeming properties that
-> > > > made me merge this:
-> > > > 
-> > > > 1.  It's a trivial amount of code: since we wrap host/guest accesses
-> > > >     anyway, almost all of it is well hidden from drivers.
-> > > > 
-> > > > 2.  Sane platforms would never set flags like VHOST_CROSS_ENDIAN_LEGACY -
-> > > >     and when it's clear, there's zero overhead (as some point it was
-> > > >     tested by compiling with and without the patches, got the same
-> > > >     stripped binary).
-> > > > 
-> > > > Maybe we could create a Kconfig symbol to enforce point (2): prevent
-> > > > people from enabling it e.g. on x86. I will look into this - but it can
-> > > > be done by a patch on top, so I think this can be merged as is.
-> > > > 
-> > > 
-> > > This cross-endian *oddity* is targeting PowerPC book3s_64 processors... I
-> > > am not aware of any other users. Maybe create a symbol that would
-> > > be only selected by PPC_BOOK3S_64 ?
-> > 
-> > I think some ARM systems are trying to support cross-endian
-> > configurations as well.
-> > 
-> > Besides that, yes, this is more or less what I had in mind.
-> 
-> Would something simple like this already do the job:
-> 
-> diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
-> --- a/drivers/vhost/Kconfig
-> +++ b/drivers/vhost/Kconfig
-> @@ -35,6 +35,7 @@ config VHOST
->  
->  config VHOST_CROSS_ENDIAN_LEGACY
->  	bool "Cross-endian support for vhost"
-> +	depends on KVM_BOOK3S_64 || KVM_ARM_HOST
->  	default n
->  	---help---
->  	  This option allows vhost to support guests with a different byte
-> 
-> ?
+>
+> This patch set is tested:
+> - turn on Ubuntu 14.04 with 1G memory on qemu.
+> - do kernel building
+> - after several seconds check more than 512MB is used with free command
+> - command "balloon 512" in qemu monitor
+> - check hundreds MB of pages are migrated
 
-Do all ARM hosts support this dynamic endian-ness?
+OK, but what happens if the balloon driver is not used to force
+compaction?  Does your test machine successfully compact pages on
+demand, so those order-3 allocations now succeed?
 
-> If that looks acceptable, I can submit a proper patch if you like.
-> 
->  Thomas
-
-I think I prefer some kind of symbol defined by these arches,
-so I don't get to maintain an arch list in vhost.
-
--- 
-MST
+Why are your changes to the GPU driver not included in this patch series?
