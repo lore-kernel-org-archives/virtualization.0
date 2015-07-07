@@ -1,13 +1,15 @@
-From: Gioh Kim <gioh.kim@lge.com>
-Subject: [RFCv3 5/5] mm: remove direct calling of migration
-Date: Tue,  7 Jul 2015 13:36:25 +0900
-Message-ID: <1436243785-24105-6-git-send-email-gioh.kim__15498.6014742919$1436243755$gmane$org@lge.com>
-References: <1436243785-24105-1-git-send-email-gioh.kim@lge.com>
-Mime-Version: 1.0
+From: Ganis Zulfa Santoso <ganis.zulfa@gmail.com>
+Subject: Re: I can read/write in virtio BLK Device,
+	but I can't run a hello world program in it
+Date: Tue, 7 Jul 2015 16:33:33 +0900
+Message-ID: <E9B176EE-AD9B-44C6-8829-8F2C5E5AEADA@gmail.com>
+References: <C03726BC-3011-4295-9ED6-EF31E98EE7BD@gmail.com>
+	<20150707085504.11d15a8b@thh440s>
+Mime-Version: 1.0 (Mac OS X Mail 8.2 \(2098\))
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1436243785-24105-1-git-send-email-gioh.kim@lge.com>
+In-Reply-To: <20150707085504.11d15a8b@thh440s>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,70 +19,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jlayton@poochiereds.net, bfields@fieldses.org, vbabka@suse.cz, iamjoonsoo.kim@lge.com, viro@zeniv.linux.org.uk, mst@redhat.com, koct9i@gmail.com, minchan@kernel.org, aquini@redhat.com, linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-api@vger.kernel.org, linux-mm@kvack.org
-Cc: gunho.lee@lge.com, akpm@linux-foundation.org, Gioh Kim <gurugio@hanmail.net>, Gioh Kim <gioh.kim@lge.com>
+To: Thomas Huth <huth@tuxfamily.org>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Gioh Kim <gurugio@hanmail.net>
 
-Migration is completely generalized so that migrating mobile page
-is processed with lru-pages in move_to_new_page.
+> Thomas Huth <huth@tuxfamily.org> wrote:
+> 
+> Why don't you simply use the driver that is already available in the
+> kernel?
 
-Signed-off-by: Gioh Kim <gioh.kim@lge.com>
----
- mm/balloon_compaction.c |  8 --------
- mm/migrate.c            | 13 -------------
- 2 files changed, 21 deletions(-)
+I am using a custom hypervisor, the available driver is not suitable for it.
 
-diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
-index 0dd0b0d..9d07ed9 100644
---- a/mm/balloon_compaction.c
-+++ b/mm/balloon_compaction.c
-@@ -170,13 +170,6 @@ int balloon_page_migrate(struct address_space *mapping,
- 	if (!isolated_balloon_page(page))
- 		return rc;
- 
--	/*
--	 * Block others from accessing the 'newpage' when we get around to
--	 * establishing additional references. We should be the only one
--	 * holding a reference to the 'newpage' at this point.
--	 */
--	BUG_ON(!trylock_page(newpage));
--
- 	if (WARN_ON(!__is_movable_balloon_page(page))) {
- 		dump_page(page, "not movable balloon page");
- 		unlock_page(newpage);
-@@ -186,7 +179,6 @@ int balloon_page_migrate(struct address_space *mapping,
- 	if (balloon && balloon->migratepage)
- 		rc = balloon->migratepage(balloon, newpage, page, mode);
- 
--	unlock_page(newpage);
- 	return rc;
- }
- 
-diff --git a/mm/migrate.c b/mm/migrate.c
-index e22be67..b82539b 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -844,19 +844,6 @@ static int __unmap_and_move(struct page *page, struct page *newpage,
- 		}
- 	}
- 
--	if (unlikely(mobile_page(page))) {
--		/*
--		 * A mobile page does not need any special attention from
--		 * physical to virtual reverse mapping procedures.
--		 * Skip any attempt to unmap PTEs or to remap swap cache,
--		 * in order to avoid burning cycles at rmap level, and perform
--		 * the page migration right away (proteced by page lock).
--		 */
--		rc = page->mapping->a_ops->migratepage(page->mapping,
--						       newpage, page, mode);
--		goto out_unlock;
--	}
--
- 	/*
- 	 * Corner case handling:
- 	 * 1. When a new swap-cache page is read into, it is added to the LRU
--- 
-2.1.4
+> 
+> Have you already verified that you can successfully read the _right_
+> data from your block device? I.e. something like
+> 
+> mount /dev/xxx /mnt
+> cp helloworld_static /mnt/root/helloworld_static
+> umount /mnt  # just to make sure that it is not cached
+> mount /dev/xxx /mnt
+> md5sum helloworld_static
+> md5sum /mnt/root/helloworld_static
+> 
+> ... and then compare the two md5sums whether they are the same?
+
+They are different. Thank you so much. I am truly thankful. 
+
+> 
+> Thomas
