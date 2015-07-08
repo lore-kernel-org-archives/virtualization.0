@@ -1,17 +1,16 @@
-From: Minchan Kim <minchan@kernel.org>
+From: Dave Airlie <airlied@gmail.com>
 Subject: Re: [RFCv3 0/5] enable migration of driver pages
-Date: Wed, 8 Jul 2015 09:35:08 +0900
-Message-ID: <20150708003507.GA8764@blaptop.AC68U>
+Date: Thu, 9 Jul 2015 08:47:57 +1000
+Message-ID: <CAPM=9txmUJ58=CAxDhf12Y3Y8wz7CGBy-Bd4pQ8YAAKDsCxU8w__1702.18976350061$1436395693$gmane$org@mail.gmail.com>
 References: <1436243785-24105-1-git-send-email-gioh.kim@lge.com>
 	<20150707153701.bfcde75108d1fb8aaedc8134@linux-foundation.org>
 	<559C68B3.3010105@lge.com>
 	<20150707170746.1b91ba0d07382cbc9ba3db92@linux-foundation.org>
 	<559C6CA6.1050809@lge.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 In-Reply-To: <559C6CA6.1050809@lge.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,70 +21,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gioh Kim <gioh.kim@lge.com>
-Cc: jlayton@poochiereds.net, aquini@redhat.com, mst@redhat.com, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gurugio@hanmail.net>, viro@zeniv.linux.org.uk, gunho.lee@lge.com, linux-fsdevel@vger.kernel.org, iamjoonsoo.kim@lge.com, koct9i@gmail.com, Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz
+To: Gioh Kim <gioh.kim@lge.com>, dri-devel <dri-devel@lists.freedesktop.org>
+Cc: jlayton@poochiereds.net, aquini@redhat.com, "Michael S. Tsirkin" <mst@redhat.com>, "open list:ABI/API" <linux-api@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, "open list:VIRTIO CORE,
+	NET..." <virtualization@lists.linux-foundation.org>, bfields@fieldses.org, minchan@kernel.org, Gioh Kim <gurugio@hanmail.net>, Linux Memory Management List <linux-mm@kvack.org>, Al Viro <viro@zeniv.linux.org.uk>, gunho.lee@lge.com, linux-fsdevel@vger.kernel.org, iamjoonsoo.kim@lge.com, koct9i@gmail.com, Andrew Morton <akpm@linux-foundation.org>, vbabka@suse.cz
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBKdWwgMDgsIDIwMTUgYXQgMDk6MTk6NTBBTSArMDkwMCwgR2lvaCBLaW0gd3JvdGU6
-Cj4gCj4gCj4gMjAxNS0wNy0wOCDsmKTsoIQgOTowN+yXkCBBbmRyZXcgTW9ydG9uIOydtCjqsIAp
-IOyTtCDquIA6Cj4gPk9uIFdlZCwgMDggSnVsIDIwMTUgMDk6MDI6NTkgKzA5MDAgR2lvaCBLaW0g
-PGdpb2gua2ltQGxnZS5jb20+IHdyb3RlOgo+ID4KPiA+Pgo+ID4+Cj4gPj4yMDE1LTA3LTA4IF9f
-X19fXyA3OjM3X19fIEFuZHJldyBNb3J0b24gX19fKF9fXykgX19fIF9fXzoKPiA+Pj5PbiBUdWUs
-ICA3IEp1bCAyMDE1IDEzOjM2OjIwICswOTAwIEdpb2ggS2ltIDxnaW9oLmtpbUBsZ2UuY29tPiB3
-cm90ZToKPiA+Pj4KPiA+Pj4+RnJvbTogR2lvaCBLaW0gPGd1cnVnaW9AaGFubWFpbC5uZXQ+Cj4g
-Pj4+Pgo+ID4+Pj5IZWxsbywKPiA+Pj4+Cj4gPj4+PlRoaXMgc2VyaWVzIHRyeSB0byBlbmFibGUg
-bWlncmF0aW9uIG9mIG5vbi1MUlUgcGFnZXMsIHN1Y2ggYXMgZHJpdmVyJ3MgcGFnZS4KPiA+Pj4+
-Cj4gPj4+Pk15IEFSTS1iYXNlZCBwbGF0Zm9ybSBvY2N1cmVkIHNldmVyZSBmcmFnbWVudGF0aW9u
-IHByb2JsZW0gYWZ0ZXIgbG9uZy10ZXJtCj4gPj4+PihzZXZlcmFsIGRheXMpIHRlc3QuIFNvbWV0
-aW1lcyBldmVuIG9yZGVyLTMgcGFnZSBhbGxvY2F0aW9uIGZhaWxlZC4gSXQgaGFzCj4gPj4+Pm1l
-bW9yeSBzaXplIDUxMk1CIH4gMTAyNE1CLiAzMCUgfiA0MCUgbWVtb3J5IGlzIGNvbnN1bWVkIGZv
-ciBncmFwaGljIHByb2Nlc3NpbmcKPiA+Pj4+YW5kIDIwfjMwIG1lbW9yeSBpcyByZXNlcnZlZCBm
-b3IgenJhbS4KPiA+Pj4+Cj4gPj4+PkkgZm91bmQgdGhhdCBtYW55IHBhZ2VzIG9mIEdQVSBkcml2
-ZXIgYW5kIHpyYW0gYXJlIG5vbi1tb3ZhYmxlIHBhZ2VzLiBTbyBJCj4gPj4+PnJlcG9ydGVkIE1p
-bmNoYW4gS2ltLCB0aGUgbWFpbnRhaW5lciBvZiB6cmFtLCBhbmQgaGUgbWFkZSB0aGUgaW50ZXJu
-YWwKPiA+Pj4+Y29tcGFjdGlvbiBsb2dpYyBvZiB6cmFtLiBBbmQgSSBtYWRlIHRoZSBpbnRlcm5h
-bCBjb21wYWN0aW9uIG9mIEdQVSBkcml2ZXIuCj4gPj4+Pgo+ID4+Pj5UaGV5IHJlZHVjZWQgc29t
-ZSBmcmFnbWVudGF0aW9uIGJ1dCB0aGV5IGFyZSBub3QgZW5vdWdoIGVmZmVjdGl2ZS4KPiA+Pj4+
-VGhleSBhcmUgYWN0aXZhdGVkIGJ5IGl0cyBvd24gaW50ZXJmYWNlLCAvc3lzLCBzbyB0aGV5IGFy
-ZSBub3QgY29vcGVyYXRpdmUKPiA+Pj4+d2l0aCBrZXJuZWwgY29tcGFjdGlvbi4gSWYgdGhlcmUg
-aXMgdG9vIG11Y2ggZnJhZ21lbnRhdGlvbiBhbmQga2VybmVsIHN0YXJ0cwo+ID4+Pj50byBjb21w
-YWN0aW9uLCB6cmFtIGFuZCBHUFUgZHJpdmVyIGNhbm5vdCB3b3JrIHdpdGggdGhlIGtlcm5lbCBj
-b21wYWN0aW9uLgo+ID4+Pj4KPiA+Pj4+Li4uCj4gPj4+Pgo+ID4+Pj5UaGlzIHBhdGNoIHNldCBp
-cyB0ZXN0ZWQ6Cj4gPj4+Pi0gdHVybiBvbiBVYnVudHUgMTQuMDQgd2l0aCAxRyBtZW1vcnkgb24g
-cWVtdS4KPiA+Pj4+LSBkbyBrZXJuZWwgYnVpbGRpbmcKPiA+Pj4+LSBhZnRlciBzZXZlcmFsIHNl
-Y29uZHMgY2hlY2sgbW9yZSB0aGFuIDUxMk1CIGlzIHVzZWQgd2l0aCBmcmVlIGNvbW1hbmQKPiA+
-Pj4+LSBjb21tYW5kICJiYWxsb29uIDUxMiIgaW4gcWVtdSBtb25pdG9yCj4gPj4+Pi0gY2hlY2sg
-aHVuZHJlZHMgTUIgb2YgcGFnZXMgYXJlIG1pZ3JhdGVkCj4gPj4+Cj4gPj4+T0ssIGJ1dCB3aGF0
-IGhhcHBlbnMgaWYgdGhlIGJhbGxvb24gZHJpdmVyIGlzIG5vdCB1c2VkIHRvIGZvcmNlCj4gPj4+
-Y29tcGFjdGlvbj8gIERvZXMgeW91ciB0ZXN0IG1hY2hpbmUgc3VjY2Vzc2Z1bGx5IGNvbXBhY3Qg
-cGFnZXMgb24KPiA+Pj5kZW1hbmQsIHNvIHRob3NlIG9yZGVyLTMgYWxsb2NhdGlvbnMgbm93IHN1
-Y2NlZWQ/Cj4gPj4KPiA+PklmIGFueSBkcml2ZXIgdGhhdCBoYXMgbWFueSBwYWdlcyBsaWtlIHRo
-ZSBiYWxsb29uIGRyaXZlciBpcyBmb3JjZWQgdG8gY29tcGFjdCwKPiA+PnRoZSBzeXN0ZW0gY2Fu
-IGdldCBmcmVlIGhpZ2gtb3JkZXIgcGFnZXMuCj4gPj4KPiA+PkkgaGF2ZSB0byBzaG93IGhvdyB0
-aGlzIHBhdGNoIHdvcmsgd2l0aCBhIGRyaXZlciBleGlzdGluZyBpbiB0aGUga2VybmVsIHNvdXJj
-ZSwKPiA+PmZvciBrZXJuZWwgZGV2ZWxvcGVycycgdW5kZXN0YW5kaW5nLiBTbyBJIHNlbGVjdGVk
-IHRoZSBiYWxsb29uIGRyaXZlcgo+ID4+YmVjYXVzZSBpdCBoYXMgYWxyZWFkeSBjb21wYWN0aW9u
-IGFuZCB3b3JraW5nIHdpdGgga2VybmVsIGNvbXBhY3Rpb24uCj4gPj5JIGNhbiBzaG93IGhvdyBk
-cml2ZXIgcGFnZXMgaXMgY29tcGFjdGVkIHdpdGggbHJ1LXBhZ2VzIHRvZ2V0aGVyLgo+ID4+Cj4g
-Pj5BY3R1YWxseSBiYWxsb29uIGRyaXZlciBpcyBub3QgYmVzdCBleGFtcGxlIHRvIHNob3cgaG93
-IHRoaXMgcGF0Y2ggY29tcGFjdHMgcGFnZXMuCj4gPj5UaGUgYmFsbG9vbiBkcml2ZXIgY29tcGFj
-dGlvbiBpcyBkZWNyZWFzaW5nIHBhZ2UgY29uc3VtdGlvbiwgZm9yIGluc3RhbmNlIDEwMjRNQiAt
-PiA1MTJNQi4KPiA+PkkgdGhpbmsgaXQgaXMgbm90IGNvbXBhY3Rpb24gcHJlY2lzZWx5LiBJdCBm
-cmVlcyBwYWdlcy4KPiA+Pk9mIGNvdXJzZSB0aGVyZSB3aWxsIGJlIG1hbnkgaGlnaC1vcmRlciBw
-YWdlcyBhZnRlciA1MTJNQiBpcyBmcmVlZC4KPiA+Cj4gPkNhbiB0aGUgdmFyaW91cyBpbi1rZXJu
-ZWwgR1BVIGRyaXZlcnMgYmVuZWZpdCBmcm9tIHRoaXM/ICBJZiBzbywgd2lyaW5nCj4gPnVwIG9u
-ZSBvciBtb3JlIG9mIHRob3NlIHdvdWxkIGJlIGhlbHBmdWw/Cj4gCj4gSSdtIHN1cmUgdGhhdCBv
-dGhlciBpbi1rZXJuZWwgR1BVIGRyaXZlcnMgY2FuIGhhdmUgYmVuZWZpdC4KPiBJdCBtdXN0IGJl
-IGhlbHBmdWwuCj4gCj4gSWYgSSB3YXMgZmFtaWxpYXIgd2l0aCBvdGhlciBpbi1rZXJuZWwgR1BV
-IGRyaXZlcnMgY29kZSwgSSB0cmllZCB0byBwYXRjaCB0aGVtLgo+IEl0J3MgdG9vIGJhZC4KPiAK
-PiBNaW5jaGFuIEtpbSBzYWlkIGhlIGhhZCBhIHBsYW4gdG8gYXBwbHkgdGhpcyBwYXRjaCBpbnRv
-IHpyYW0gY29tcGFjdGlvbi4KPiBNYW55IGVtYmVkZGVkIG1hY2hpbmVzIHVzZSBzZXZlcmFsIGh1
-bmRyZWRzIE1CIGZvciB6cmFtLgo+IFRoZSB6cmFtIGNhbiBhbHNvIGhhdmUgYmVuZWZpdCB3aXRo
-IHRoaXMgcGF0Y2ggYXMgbXVjaCBhcyBHUFUgZHJpdmVycy4KPiAKCkhlbGxvIEdpb2gsCgpJdCB3
-b3VsZCBiZSBoZWxwZnVsIGZvciBmb3JrLWxhdGVuY3kgYW5kIHpyYStDTUEgaW4gc21hbGwgbWVt
-b3J5IHN5c3RlbS4KSSB3aWxsIGltcGxlbWVudCB6c21hbGxvYy5taWdyYXRlcGFnZXMgYWZ0ZXIg
-SSBmaW5pc2ggY3VycmVudCBnb2luZyB3b3Jrcy4KClRoYW5rcyBmb3IgdGhlIG5pY2Ugd29yayEK
-Ci0tIApLaW5kIHJlZ2FyZHMsCk1pbmNoYW4gS2ltCl9fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
-aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
-bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+>>
+>>
+>> Can the various in-kernel GPU drivers benefit from this?  If so, wiring
+>> up one or more of those would be helpful?
+>
+>
+> I'm sure that other in-kernel GPU drivers can have benefit.
+> It must be helpful.
+>
+> If I was familiar with other in-kernel GPU drivers code, I tried to patch
+> them.
+> It's too bad.
+
+I'll bring dri-devel into the loop here.
+
+ARM GPU developers please take a look at this stuff, Laurent, Rob,
+Eric I suppose.
+
+Daniel Vetter you might have some opinions as well.
+
+Dave.
