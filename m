@@ -1,14 +1,13 @@
-From: Rafael Aquini <aquini@redhat.com>
-Subject: Re: [RFCv3 0/5] enable migration of driver pages
-Date: Wed, 8 Jul 2015 21:00:29 -0400
-Message-ID: <20150709010028.GA25264__16136.0152801082$1436403654$gmane$org@t510.redhat.com>
-References: <1436243785-24105-1-git-send-email-gioh.kim@lge.com>
+From: Thomas Huth <thuth@redhat.com>
+Subject: [PATCH] KVM: Add Kconfig option to signal cross-endian guests
+Date: Thu,  9 Jul 2015 09:49:05 +0200
+Message-ID: <1436428145-29823-1-git-send-email-thuth__44311.7527095184$1436428169$gmane$org@redhat.com>
+References: <20150707195012-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1436243785-24105-1-git-send-email-gioh.kim@lge.com>
+In-Reply-To: <20150707195012-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,93 +17,94 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gioh Kim <gioh.kim@lge.com>
-Cc: akpm@linux-foundation.org, mst@redhat.com, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, minchan@kernel.org, Gioh Kim <gurugio@hanmail.net>, linux-mm@kvack.org, viro@zeniv.linux.org.uk, gunho.lee@lge.com, linux-fsdevel@vger.kernel.org, jlayton@poochiereds.net, koct9i@gmail.com, iamjoonsoo.kim@lge.com, vbabka@suse.cz
+To: "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu, kvm-ppc@vger.kernel.org, virtualization@lists.linux-foundation.org, Greg Kurz <gkurz@linux.vnet.ibm.com>
+Cc: Gleb Natapov <gleb@kernel.org>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>, Paul Mackerras <paulus@samba.org>, linux-arm-kernel@lists.infradead.org, Paolo Bonzini <pbonzini@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, Christoffer Dall <christoffer.dall@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 07, 2015 at 01:36:20PM +0900, Gioh Kim wrote:
-> From: Gioh Kim <gurugio@hanmail.net>
-> 
-> Hello,
-> 
-> This series try to enable migration of non-LRU pages, such as driver's page.
-> 
-> My ARM-based platform occured severe fragmentation problem after long-term
-> (several days) test. Sometimes even order-3 page allocation failed. It has
-> memory size 512MB ~ 1024MB. 30% ~ 40% memory is consumed for graphic processing
-> and 20~30 memory is reserved for zram.
-> 
-> I found that many pages of GPU driver and zram are non-movable pages. So I
-> reported Minchan Kim, the maintainer of zram, and he made the internal 
-> compaction logic of zram. And I made the internal compaction of GPU driver.
-> 
-> They reduced some fragmentation but they are not enough effective.
-> They are activated by its own interface, /sys, so they are not cooperative
-> with kernel compaction. If there is too much fragmentation and kernel starts
-> to compaction, zram and GPU driver cannot work with the kernel compaction.
-> 
-> This patch set combines 5 patches.
-> 
-> 1. patch 1/5: get inode from anon_inodes
-> This patch adds new interface to create inode from anon_inodes.
-> 
-> 2. patch 2/5: framework to isolate/migrate/putback page
-> Add isolatepage, putbackpage into address_space_operations
-> and wrapper function to call them
-> 
-> 3. patch 3/5: apply the framework into balloon driver
-> The balloon driver is applied into the framework. It gets a inode
-> from anon_inodes and register operations in the inode.
-> Any other drivers can register operations via inode like this
-> to migrate it's pages.
-> 
-> 4. patch 4/5: compaction/migration call the generic interfaces
-> Compaction and migration pages call the generic interfaces of the framework,
-> instead of calling balloon migration directly.
-> 
-> 5. patch 5/5: remove direct calling of migration of driver pages
-> Non-lru pages are migrated with lru pages by move_to_new_page().
-> 
-> This patch set is tested:
-> - turn on Ubuntu 14.04 with 1G memory on qemu.
-> - do kernel building
-> - after several seconds check more than 512MB is used with free command
-> - command "balloon 512" in qemu monitor
-> - check hundreds MB of pages are migrated
-> 
-> My thanks to Konstantin Khlebnikov for his reviews of the v2 patch set.
-> Most of the changes were based on his feedback.
-> 
-> Changes since v2:
-> - change the name of page type from migratable page into mobile page
-> - get and lock page to isolate page
-> - add wrapper interfaces for page->mapping->a_ops->isolate/putback
-> - leave balloon pages marked as balloon
-> 
-> This patch-set is based on v4.1
-> 
-> Gioh Kim (5):
->   fs/anon_inodes: new interface to create new inode
->   mm/compaction: enable mobile-page migration
->   mm/balloon: apply mobile page migratable into balloon
->   mm/compaction: call generic migration callbacks
->   mm: remove direct calling of migration
-> 
->  drivers/virtio/virtio_balloon.c        |  3 ++
->  fs/anon_inodes.c                       |  6 +++
->  fs/proc/page.c                         |  3 ++
->  include/linux/anon_inodes.h            |  1 +
->  include/linux/balloon_compaction.h     | 15 +++++--
->  include/linux/compaction.h             | 76 ++++++++++++++++++++++++++++++++++
->  include/linux/fs.h                     |  2 +
->  include/linux/page-flags.h             | 19 +++++++++
->  include/uapi/linux/kernel-page-flags.h |  1 +
->  mm/balloon_compaction.c                | 71 ++++++++++---------------------
->  mm/compaction.c                        |  8 ++--
->  mm/migrate.c                           | 24 +++--------
->  12 files changed, 154 insertions(+), 75 deletions(-)
-> 
-> -- 
-> 2.1.4
-> 
-Acked-by: Rafael Aquini <aquini@redhat.com>
+The option for supporting cross-endianness legacy guests in
+the vhost and tun code should only be available on systems
+that support cross-endian guests.
+
+Signed-off-by: Thomas Huth <thuth@redhat.com>
+---
+ arch/arm/kvm/Kconfig     | 1 +
+ arch/arm64/kvm/Kconfig   | 1 +
+ arch/powerpc/kvm/Kconfig | 1 +
+ drivers/net/Kconfig      | 1 +
+ drivers/vhost/Kconfig    | 1 +
+ virt/kvm/Kconfig         | 3 +++
+ 6 files changed, 8 insertions(+)
+
+diff --git a/arch/arm/kvm/Kconfig b/arch/arm/kvm/Kconfig
+index bfb915d..9d8f363 100644
+--- a/arch/arm/kvm/Kconfig
++++ b/arch/arm/kvm/Kconfig
+@@ -31,6 +31,7 @@ config KVM
+ 	select KVM_VFIO
+ 	select HAVE_KVM_EVENTFD
+ 	select HAVE_KVM_IRQFD
++	select KVM_CROSS_ENDIAN_GUESTS
+ 	depends on ARM_VIRT_EXT && ARM_LPAE && ARM_ARCH_TIMER
+ 	---help---
+ 	  Support hosting virtualized guest machines.
+diff --git a/arch/arm64/kvm/Kconfig b/arch/arm64/kvm/Kconfig
+index bfffe8f..9af39fe 100644
+--- a/arch/arm64/kvm/Kconfig
++++ b/arch/arm64/kvm/Kconfig
+@@ -31,6 +31,7 @@ config KVM
+ 	select KVM_VFIO
+ 	select HAVE_KVM_EVENTFD
+ 	select HAVE_KVM_IRQFD
++	select KVM_CROSS_ENDIAN_GUESTS
+ 	---help---
+ 	  Support hosting virtualized guest machines.
+ 
+diff --git a/arch/powerpc/kvm/Kconfig b/arch/powerpc/kvm/Kconfig
+index 3caec2c..e028710 100644
+--- a/arch/powerpc/kvm/Kconfig
++++ b/arch/powerpc/kvm/Kconfig
+@@ -79,6 +79,7 @@ config KVM_BOOK3S_64_HV
+ 	select KVM_BOOK3S_HV_POSSIBLE
+ 	select MMU_NOTIFIER
+ 	select CMA
++	select KVM_CROSS_ENDIAN_GUESTS
+ 	---help---
+ 	  Support running unmodified book3s_64 guest kernels in
+ 	  virtual machines on POWER7 and PPC970 processors that have
+diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
+index c18f9e6..0c4ce47 100644
+--- a/drivers/net/Kconfig
++++ b/drivers/net/Kconfig
+@@ -261,6 +261,7 @@ config TUN
+ config TUN_VNET_CROSS_LE
+ 	bool "Support for cross-endian vnet headers on little-endian kernels"
+ 	default n
++	depends on KVM_CROSS_ENDIAN_GUESTS
+ 	---help---
+ 	  This option allows TUN/TAP and MACVTAP device drivers in a
+ 	  little-endian kernel to parse vnet headers that come from a
+diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+index 533eaf0..4d8ae6b 100644
+--- a/drivers/vhost/Kconfig
++++ b/drivers/vhost/Kconfig
+@@ -35,6 +35,7 @@ config VHOST
+ 
+ config VHOST_CROSS_ENDIAN_LEGACY
+ 	bool "Cross-endian support for vhost"
++	depends on KVM_CROSS_ENDIAN_GUESTS
+ 	default n
+ 	---help---
+ 	  This option allows vhost to support guests with a different byte
+diff --git a/virt/kvm/Kconfig b/virt/kvm/Kconfig
+index e2c876d..cc7b28a 100644
+--- a/virt/kvm/Kconfig
++++ b/virt/kvm/Kconfig
+@@ -47,3 +47,6 @@ config KVM_GENERIC_DIRTYLOG_READ_PROTECT
+ config KVM_COMPAT
+        def_bool y
+        depends on COMPAT && !S390
++
++config KVM_CROSS_ENDIAN_GUESTS
++       bool
+-- 
+1.8.3.1
