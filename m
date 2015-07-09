@@ -1,14 +1,21 @@
-From: Laurent Vivier <lvivier@redhat.com>
-Subject: Re: [PATCH] KVM: Add Kconfig option to signal cross-endian guests
-Date: Thu, 09 Jul 2015 11:48:14 +0200
-Message-ID: <559E435E.9050608__27627.5424905636$1436483876$gmane$org@redhat.com>
-References: <20150707195012-mutt-send-email-mst@redhat.com>
-	<1436428145-29823-1-git-send-email-thuth@redhat.com>
+From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+Subject: Re: [RFCv3 0/5] enable migration of driver pages
+Date: Thu, 9 Jul 2015 16:33:01 +0300
+Message-ID: <20150709133301.GG5176__39448.8149592236$1436483885$gmane$org@intel.com>
+References: <1436243785-24105-1-git-send-email-gioh.kim@lge.com>
+	<20150707153701.bfcde75108d1fb8aaedc8134@linux-foundation.org>
+	<559C68B3.3010105@lge.com>
+	<20150707170746.1b91ba0d07382cbc9ba3db92@linux-foundation.org>
+	<559C6CA6.1050809@lge.com>
+	<CAPM=9txmUJ58=CAxDhf12Y3Y8wz7CGBy-Bd4pQ8YAAKDsCxU8w@mail.gmail.com>
+	<559DB86D.40000@lge.com>
+	<20150709130848.GD21858@phenom.ffwll.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1436428145-29823-1-git-send-email-thuth@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20150709130848.GD21858@phenom.ffwll.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,101 +25,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Huth <thuth@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu, kvm-ppc@vger.kernel.org, virtualization@lists.linux-foundation.org, Greg Kurz <gkurz@linux.vnet.ibm.com>
-Cc: Gleb Natapov <gleb@kernel.org>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>, Paul Mackerras <paulus@samba.org>, linux-arm-kernel@lists.infradead.org, Paolo Bonzini <pbonzini@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, Christoffer Dall <christoffer.dall@linaro.org>
+To: Gioh Kim <gioh.kim@lge.com>, Dave Airlie <airlied@gmail.com>, dri-devel <dri-devel@lists.freedesktop.org>, Andrew Morton <akpm@linux-foundation.org>, jlayton@poochiereds.net, bfields@fieldses.org, vbabka@suse.cz, iamjoonsoo.kim@lge.com, Al Viro <viro@zeniv.linux.org.uk>, "Michael S. Tsirkin" <mst@redhat.com>, koct9i@gmail.com, minchan@kernel.org, aquini@redhat.com, linux-fsdevel@vger.kernel.org, "open list:VIRTIO CORE,
+	NET..." <virtualization@lists.linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, open@kvack.org, list@kvack.org, ABI/API <linux-api@vger.kernel.org>, Linux Memory Management List <linux-mm@kvack.org>, gunho.lee@lge.com, Gioh Kim <gurugio@hanmail.net>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 09/07/2015 09:49, Thomas Huth wrote:
-> The option for supporting cross-endianness legacy guests in
-> the vhost and tun code should only be available on systems
-> that support cross-endian guests.
-
-I'm sure I misunderstand something, but what happens if we use QEMU with
-TCG instead of KVM, i.e. a big endian powerpc kernel guest on x86_64
-little endian host ?
-Do you forbid the use of vhost in this case ?
-
-> Signed-off-by: Thomas Huth <thuth@redhat.com>
-> ---
->  arch/arm/kvm/Kconfig     | 1 +
->  arch/arm64/kvm/Kconfig   | 1 +
->  arch/powerpc/kvm/Kconfig | 1 +
->  drivers/net/Kconfig      | 1 +
->  drivers/vhost/Kconfig    | 1 +
->  virt/kvm/Kconfig         | 3 +++
->  6 files changed, 8 insertions(+)
-> 
-> diff --git a/arch/arm/kvm/Kconfig b/arch/arm/kvm/Kconfig
-> index bfb915d..9d8f363 100644
-> --- a/arch/arm/kvm/Kconfig
-> +++ b/arch/arm/kvm/Kconfig
-> @@ -31,6 +31,7 @@ config KVM
->  	select KVM_VFIO
->  	select HAVE_KVM_EVENTFD
->  	select HAVE_KVM_IRQFD
-> +	select KVM_CROSS_ENDIAN_GUESTS
->  	depends on ARM_VIRT_EXT && ARM_LPAE && ARM_ARCH_TIMER
->  	---help---
->  	  Support hosting virtualized guest machines.
-> diff --git a/arch/arm64/kvm/Kconfig b/arch/arm64/kvm/Kconfig
-> index bfffe8f..9af39fe 100644
-> --- a/arch/arm64/kvm/Kconfig
-> +++ b/arch/arm64/kvm/Kconfig
-> @@ -31,6 +31,7 @@ config KVM
->  	select KVM_VFIO
->  	select HAVE_KVM_EVENTFD
->  	select HAVE_KVM_IRQFD
-> +	select KVM_CROSS_ENDIAN_GUESTS
->  	---help---
->  	  Support hosting virtualized guest machines.
->  
-> diff --git a/arch/powerpc/kvm/Kconfig b/arch/powerpc/kvm/Kconfig
-> index 3caec2c..e028710 100644
-> --- a/arch/powerpc/kvm/Kconfig
-> +++ b/arch/powerpc/kvm/Kconfig
-> @@ -79,6 +79,7 @@ config KVM_BOOK3S_64_HV
->  	select KVM_BOOK3S_HV_POSSIBLE
->  	select MMU_NOTIFIER
->  	select CMA
-> +	select KVM_CROSS_ENDIAN_GUESTS
->  	---help---
->  	  Support running unmodified book3s_64 guest kernels in
->  	  virtual machines on POWER7 and PPC970 processors that have
-> diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-> index c18f9e6..0c4ce47 100644
-> --- a/drivers/net/Kconfig
-> +++ b/drivers/net/Kconfig
-> @@ -261,6 +261,7 @@ config TUN
->  config TUN_VNET_CROSS_LE
->  	bool "Support for cross-endian vnet headers on little-endian kernels"
->  	default n
-> +	depends on KVM_CROSS_ENDIAN_GUESTS
->  	---help---
->  	  This option allows TUN/TAP and MACVTAP device drivers in a
->  	  little-endian kernel to parse vnet headers that come from a
-> diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
-> index 533eaf0..4d8ae6b 100644
-> --- a/drivers/vhost/Kconfig
-> +++ b/drivers/vhost/Kconfig
-> @@ -35,6 +35,7 @@ config VHOST
->  
->  config VHOST_CROSS_ENDIAN_LEGACY
->  	bool "Cross-endian support for vhost"
-> +	depends on KVM_CROSS_ENDIAN_GUESTS
->  	default n
->  	---help---
->  	  This option allows vhost to support guests with a different byte
-> diff --git a/virt/kvm/Kconfig b/virt/kvm/Kconfig
-> index e2c876d..cc7b28a 100644
-> --- a/virt/kvm/Kconfig
-> +++ b/virt/kvm/Kconfig
-> @@ -47,3 +47,6 @@ config KVM_GENERIC_DIRTYLOG_READ_PROTECT
->  config KVM_COMPAT
->         def_bool y
->         depends on COMPAT && !S390
-> +
-> +config KVM_CROSS_ENDIAN_GUESTS
-> +       bool
-> 
+T24gVGh1LCBKdWwgMDksIDIwMTUgYXQgMDM6MDg6NDhQTSArMDIwMCwgRGFuaWVsIFZldHRlciB3
+cm90ZToKPiBPbiBUaHUsIEp1bCAwOSwgMjAxNSBhdCAwODo1NToyNUFNICswOTAwLCBHaW9oIEtp
+bSB3cm90ZToKPiA+IAo+ID4gCj4gPiAyMDE1LTA3LTA5IOyYpOyghCA3OjQ37JeQIERhdmUgQWly
+bGllIOydtCjqsIApIOyTtCDquIA6Cj4gPiA+Pj4KPiA+ID4+Pgo+ID4gPj4+Q2FuIHRoZSB2YXJp
+b3VzIGluLWtlcm5lbCBHUFUgZHJpdmVycyBiZW5lZml0IGZyb20gdGhpcz8gIElmIHNvLCB3aXJp
+bmcKPiA+ID4+PnVwIG9uZSBvciBtb3JlIG9mIHRob3NlIHdvdWxkIGJlIGhlbHBmdWw/Cj4gPiA+
+Pgo+ID4gPj4KPiA+ID4+SSdtIHN1cmUgdGhhdCBvdGhlciBpbi1rZXJuZWwgR1BVIGRyaXZlcnMg
+Y2FuIGhhdmUgYmVuZWZpdC4KPiA+ID4+SXQgbXVzdCBiZSBoZWxwZnVsLgo+ID4gPj4KPiA+ID4+
+SWYgSSB3YXMgZmFtaWxpYXIgd2l0aCBvdGhlciBpbi1rZXJuZWwgR1BVIGRyaXZlcnMgY29kZSwg
+SSB0cmllZCB0byBwYXRjaAo+ID4gPj50aGVtLgo+ID4gPj5JdCdzIHRvbyBiYWQuCj4gPiA+Cj4g
+PiA+SSdsbCBicmluZyBkcmktZGV2ZWwgaW50byB0aGUgbG9vcCBoZXJlLgo+ID4gPgo+ID4gPkFS
+TSBHUFUgZGV2ZWxvcGVycyBwbGVhc2UgdGFrZSBhIGxvb2sgYXQgdGhpcyBzdHVmZiwgTGF1cmVu
+dCwgUm9iLAo+ID4gPkVyaWMgSSBzdXBwb3NlLgo+ID4gCj4gPiBJIHNlbnQgYSBwYXRjaCwgaHR0
+cHM6Ly9sa21sLm9yZy9sa21sLzIwMTUvMy8yNC8xMTgyLCBhbmQgbXkgb3BpbmlvbiBhYm91dCBj
+b21wYWN0aW9uCj4gPiB0byBBUk0gR1BVIGRldmVsb3BlcnMgdmlhIEtvcmVhIEFSTSBicmFuY2gu
+Cj4gPiBJIGdvdCBhIHJlcGx5IHRoYXQgdGhleSBoYWQgbm8gdGltZSB0byByZXZpZXcgaXQuCj4g
+PiAKPiA+IEkgaG9wZSB0aGV5J3JlIGludGVyZXN0ZWQgdG8gdGhpcyBwYXRjaC4KPiAKPiBpOTE1
+IGdwdXMgd291bGQgc3VwcG9ydCA2NGtiIGFuZCAybWIgcGFnZXMsIGJ1dCB3ZSBuZXZlciBpbXBs
+ZW1lbnRlZCB0aGlzLgo+IEkgZG9uJ3QgdGhpbmsgdGhpcyB3b3VsZCBmaXQgZm9yIGdlbSBiYXNl
+ZCBkcml2ZXJzIHNpbmNlIG91ciBiYWNraW5nCj4gc3RvcmFnZSBpcyBzaG1lbWZzLiBTbyBpZiB3
+ZSB3YW50IHRvIGltcGxlbWVudCBwYWdlIG1pZ3JhdGlvbiAod2hpY2ggd2UnZAo+IHByb2JhYmx5
+IHdhbnQgdG8gbWFrZSBsYXJnZSBwYWdlcyB3b3JrIHdlbGwpIHdlJ2QgbmVlZCB0byBwaW1wIHNo
+bWVtIHRvIGEpCj4gaGFuZCBsYXJnZSBwYWdlcyB0byB1cyBiKSBmb3J3YXJkIHRoZSBtaWdyYXRl
+IGNhbGxzLiBQcm9iYWJseSB0aGF0IG1lYW5zCj4gd2UgbmVlZCB0byBidWlsZCBvdXIgb3duIGdl
+bWZzIHJldXNpbmcgc2htZW1mcyBjb2RlLgoKQUZBSUsgdGhlcmUgYXJlIGVmZm9ydHMgb25nb2lu
+ZyB0byBtYWtlIGxhcmdlIHBhZ2VzIHdvcmsgd2l0aCBzaG1lbS4KCktpcmlsbCwgSUlSQyB5b3Ug
+bWVudGlvbmVkIHRoYXQgeW91J3JlIHdlcmUgbG9va2luZyBpbnRvIHRoaXMgYSB3aGlsZQpiYWNr
+PwoKLS0gClZpbGxlIFN5cmrDpGzDpApJbnRlbCBPVEMKX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
+YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
+b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
