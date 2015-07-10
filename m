@@ -1,14 +1,11 @@
-From: Konstantin Khlebnikov <koct9i@gmail.com>
-Subject: Re: [RFCv3 2/5] mm/compaction: enable mobile-page migration
-Date: Fri, 10 Jul 2015 16:41:22 +0300
-Message-ID: <CALYGNiN2D8s4=6AdjoAp_R9Znd0Wm5gS0vC2zviyw+9Lu4NyGA__36280.650625895$1436535701$gmane$org@mail.gmail.com>
-References: <1436243785-24105-1-git-send-email-gioh.kim@lge.com>
-	<1436243785-24105-3-git-send-email-gioh.kim@lge.com>
+From: Brian Rak <brak@vultr.com>
+Subject: virtio-net TSO Lockup
+Date: Fri, 10 Jul 2015 12:29:52 -0400
+Message-ID: <559FF300.1060107@vultr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1436243785-24105-3-git-send-email-gioh.kim@lge.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,202 +15,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gioh Kim <gioh.kim@lge.com>
-Cc: Rafael Aquini <aquini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Linux API <linux-api@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org, Bruce Fields <bfields@fieldses.org>, Minchan Kim <minchan@kernel.org>, Gioh Kim <gurugio@hanmail.net>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Al Viro <viro@zeniv.linux.org.uk>, gunho.lee@lge.com, linux-fsdevel <linux-fsdevel@vger.kernel.org>, Jeff Layton <jlayton@poochiereds.net>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Vlastimil Babka <vbabka@suse.cz>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-One more note below.
+We've been encountering an issue in the virtio-net driver that cause it 
+to become unresponsive after a period of high load.  This issue goes 
+away if we disable TSO on the interface.
 
-On Tue, Jul 7, 2015 at 7:36 AM, Gioh Kim <gioh.kim@lge.com> wrote:
-> From: Gioh Kim <gurugio@hanmail.net>
->
-> Add framework to register callback functions and check page mobility.
-> There are some modes for page isolation so that isolate interface
-> has arguments of page address and isolation mode while putback
-> interface has only page address as argument.
->
-> Signed-off-by: Gioh Kim <gioh.kim@lge.com>
-> ---
->  fs/proc/page.c                         |  3 ++
->  include/linux/compaction.h             | 76 ++++++++++++++++++++++++++++++++++
->  include/linux/fs.h                     |  2 +
->  include/linux/page-flags.h             | 19 +++++++++
->  include/uapi/linux/kernel-page-flags.h |  1 +
->  5 files changed, 101 insertions(+)
->
-> diff --git a/fs/proc/page.c b/fs/proc/page.c
-> index 7eee2d8..a4f5a00 100644
-> --- a/fs/proc/page.c
-> +++ b/fs/proc/page.c
-> @@ -146,6 +146,9 @@ u64 stable_page_flags(struct page *page)
->         if (PageBalloon(page))
->                 u |= 1 << KPF_BALLOON;
->
-> +       if (PageMobile(page))
-> +               u |= 1 << KPF_MOBILE;
-> +
->         u |= kpf_copy_bit(k, KPF_LOCKED,        PG_locked);
->
->         u |= kpf_copy_bit(k, KPF_SLAB,          PG_slab);
-> diff --git a/include/linux/compaction.h b/include/linux/compaction.h
-> index aa8f61c..c375a89 100644
-> --- a/include/linux/compaction.h
-> +++ b/include/linux/compaction.h
-> @@ -1,6 +1,9 @@
->  #ifndef _LINUX_COMPACTION_H
->  #define _LINUX_COMPACTION_H
->
-> +#include <linux/page-flags.h>
-> +#include <linux/pagemap.h>
-> +
->  /* Return values for compact_zone() and try_to_compact_pages() */
->  /* compaction didn't start as it was deferred due to past failures */
->  #define COMPACT_DEFERRED       0
-> @@ -51,6 +54,66 @@ extern void compaction_defer_reset(struct zone *zone, int order,
->                                 bool alloc_success);
->  extern bool compaction_restarting(struct zone *zone, int order);
->
-> +static inline bool mobile_page(struct page *page)
-> +{
-> +       return page->mapping && page->mapping->a_ops &&
-> +               (PageMobile(page) || PageBalloon(page));
-> +}
-> +
-> +static inline bool isolate_mobilepage(struct page *page, isolate_mode_t mode)
-> +{
-> +       bool ret;
-> +
-> +       /*
-> +        * Avoid burning cycles with pages that are yet under __free_pages(),
-> +        * or just got freed under us.
-> +        *
-> +        * In case we 'win' a race for a mobile page being freed under us and
-> +        * raise its refcount preventing __free_pages() from doing its job
-> +        * the put_page() at the end of this block will take care of
-> +        * release this page, thus avoiding a nasty leakage.
-> +        */
-> +       if (likely(get_page_unless_zero(page))) {
-> +               /*
-> +                * As mobile pages are not isolated from LRU lists, concurrent
-> +                * compaction threads can race against page migration functions
-> +                * as well as race against the releasing a page.
-> +                *
-> +                * In order to avoid having an already isolated mobile page
-> +                * being (wrongly) re-isolated while it is under migration,
-> +                * or to avoid attempting to isolate pages being released,
-> +                * lets be sure we have the page lock
-> +                * before proceeding with the mobile page isolation steps.
-> +                */
-> +               if (likely(trylock_page(page))) {
-> +                       if (mobile_page(page) &&
-> +                           page->mapping->a_ops->isolatepage) {
-> +                               ret = page->mapping->a_ops->isolatepage(page,
-> +                                                                       mode);
-> +                               unlock_page(page);
+Once this issue has been triggered, the interface can still receive 
+traffic, but will not transmit anything.
 
-Here you leak page reference if isolatepage() fails.
+Specifically:
+* Initially the machine will still try to respond to packets (I say try, 
+because I see the packets in tcpdump, but the counters shown by 'ip -s 
+-d link show eth1' do not increment.  I also do not see the packets make 
+it to the upstream network interface)
+* After a little while (1-2 minutes), I stop seeing the response packets 
+in tcpdump.  (In this case I'm looking for ARP request/replies, so the 
+requests still come in, but the responses do not go out.  This is not 
+limited to just ARP, the interface will not respond at all)
+* If I leave a ping running while the interface is broken, eventually I 
+start seeing 'ping: sendmsg: No buffer space available'
 
-> +                               return ret;
-> +                       }
-> +                       unlock_page(page);
-> +               }
-> +               put_page(page);
-> +       }
-> +       return false;
-> +}
-> +
-> +static inline void putback_mobilepage(struct page *page)
-> +{
-> +       /*
-> +        * 'lock_page()' stabilizes the page and prevents races against
-> +        * concurrent isolation threads attempting to re-isolate it.
-> +        */
-> +       lock_page(page);
-> +       if (mobile_page(page) && page->mapping->a_ops->putbackpage) {
-> +               page->mapping->a_ops->putbackpage(page);
-> +               /* drop the extra ref count taken for mobile page isolation */
-> +               put_page(page);
-> +       }
-> +       unlock_page(page);
-> +}
->  #else
->  static inline unsigned long try_to_compact_pages(gfp_t gfp_mask,
->                         unsigned int order, int alloc_flags,
-> @@ -83,6 +146,19 @@ static inline bool compaction_deferred(struct zone *zone, int order)
->         return true;
->  }
->
-> +static inline bool mobile_page(struct page *page)
-> +{
-> +       return false;
-> +}
-> +
-> +static inline bool isolate_mobilepage(struct page *page, isolate_mode_t mode)
-> +{
-> +       return false;
-> +}
-> +
-> +static inline void putback_mobilepage(struct page *page)
-> +{
-> +}
->  #endif /* CONFIG_COMPACTION */
->
->  #if defined(CONFIG_COMPACTION) && defined(CONFIG_SYSFS) && defined(CONFIG_NUMA)
-> diff --git a/include/linux/fs.h b/include/linux/fs.h
-> index 35ec87e..33c9aa5 100644
-> --- a/include/linux/fs.h
-> +++ b/include/linux/fs.h
-> @@ -395,6 +395,8 @@ struct address_space_operations {
->          */
->         int (*migratepage) (struct address_space *,
->                         struct page *, struct page *, enum migrate_mode);
-> +       bool (*isolatepage) (struct page *, isolate_mode_t);
-> +       void (*putbackpage) (struct page *);
->         int (*launder_page) (struct page *);
->         int (*is_partially_uptodate) (struct page *, unsigned long,
->                                         unsigned long);
-> diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-> index f34e040..abef145 100644
-> --- a/include/linux/page-flags.h
-> +++ b/include/linux/page-flags.h
-> @@ -582,6 +582,25 @@ static inline void __ClearPageBalloon(struct page *page)
->         atomic_set(&page->_mapcount, -1);
->  }
->
-> +#define PAGE_MOBILE_MAPCOUNT_VALUE (-255)
-> +
-> +static inline int PageMobile(struct page *page)
-> +{
-> +       return atomic_read(&page->_mapcount) == PAGE_MOBILE_MAPCOUNT_VALUE;
-> +}
-> +
-> +static inline void __SetPageMobile(struct page *page)
-> +{
-> +       VM_BUG_ON_PAGE(atomic_read(&page->_mapcount) != -1, page);
-> +       atomic_set(&page->_mapcount, PAGE_MOBILE_MAPCOUNT_VALUE);
-> +}
-> +
-> +static inline void __ClearPageMobile(struct page *page)
-> +{
-> +       VM_BUG_ON_PAGE(!PageMobile(page), page);
-> +       atomic_set(&page->_mapcount, -1);
-> +}
-> +
->  /*
->   * If network-based swap is enabled, sl*b must keep track of whether pages
->   * were allocated from pfmemalloc reserves.
-> diff --git a/include/uapi/linux/kernel-page-flags.h b/include/uapi/linux/kernel-page-flags.h
-> index a6c4962..d50d9e8 100644
-> --- a/include/uapi/linux/kernel-page-flags.h
-> +++ b/include/uapi/linux/kernel-page-flags.h
-> @@ -33,6 +33,7 @@
->  #define KPF_THP                        22
->  #define KPF_BALLOON            23
->  #define KPF_ZERO_PAGE          24
-> +#define KPF_MOBILE             25
->
->
->  #endif /* _UAPILINUX_KERNEL_PAGE_FLAGS_H */
-> --
-> 2.1.4
->
+I've reproduced this on a few Ubuntu kernel builds (3.13.0-53-generic 
+and 4.0.7-040007-generic), and a few CentOS kernels 
+(2.6.32-504.16.2.el6.x86_64, 4.1.1-1.el6.elrepo.x86_64) so I do not 
+believe this to be distribution specific.
+
+If I restart the machine (just issuing a server level 'reboot' command, 
+not restarting qemu itself), the adapter starts working properly again.
+
+Interestingly, these machines have two virtio NICs, and this only seems 
+to occur for one of them (by this, I mean eth0 always works, and eth1 
+always breaks.  If I remove eth0 from the machine, eth1 still breaks). 
+On the host level, the broken one is a macvtap interface, while the 
+working one is an tap device.   We've seen this in the past with a 
+different interface type (the qemu multicast NIC type), so I do not 
+believe this is really relevant.  If I switch the machines to using 
+emulated e1000 nics, I can no longer reproduce the issue.
+
+Reproduction is fairly easy, with two machines run `nc -lk 1818 | pv > 
+/dev/null` on one, and `cat /dev/zero | pv | nc 10.99.0.100 1818` (the 
+machine sending traffic will break within a minute or two).  I can 
+easily provide access to machines where the problem manifests, if that 
+would be helpful.
+
+I'm not really sure where to go from here.  Tracking down a bug in the 
+virtio driver is a bit above my skill level.
