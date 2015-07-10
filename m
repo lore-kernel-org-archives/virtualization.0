@@ -1,14 +1,13 @@
-From: Rafael Aquini <aquini@redhat.com>
-Subject: Re: [PATCH 0/4] enable migration of driver pages
-Date: Mon, 13 Jul 2015 10:20:14 -0400
-Message-ID: <20150713142013.GA4025__40139.9340517402$1436797241$gmane$org@t510.redhat.com>
-References: <1436776519-17337-1-git-send-email-gioh.kim@lge.com>
+From: Ming Lin <mlin@kernel.org>
+Subject: Re: [PATCH] vhost-blk: Add vhost-blk support v6
+Date: Fri, 10 Jul 2015 15:50:33 -0700
+Message-ID: <CAF1ivSZMseSWkwDJEmviHRDPLxEtPnkZZ0WL8qtZJYb7RaU-rA__46829.6275627383$1436889832$gmane$org@mail.gmail.com>
+References: <1354412033-32372-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1436776519-17337-1-git-send-email-gioh.kim@lge.com>
+In-Reply-To: <1354412033-32372-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,98 +17,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gioh Kim <gioh.kim@lge.com>
-Cc: akpm@linux-foundation.org, mst@redhat.com, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, minchan@kernel.org, Gioh Kim <gurugio@hanmail.net>, linux-mm@kvack.org, viro@zeniv.linux.org.uk, linux-fsdevel@vger.kernel.org, jlayton@poochiereds.net, koct9i@gmail.com, iamjoonsoo.kim@lge.com, vbabka@suse.cz
+To: Asias He <asias@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, KVM General <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, networking <netdev@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 13, 2015 at 05:35:15PM +0900, Gioh Kim wrote:
-> From: Gioh Kim <gurugio@hanmail.net>
-> 
-> Hello,
-> 
-> This series try to enable migration of non-LRU pages, such as driver's page.
-> 
-> My ARM-based platform occured severe fragmentation problem after long-term
-> (several days) test. Sometimes even order-3 page allocation failed. It has
-> memory size 512MB ~ 1024MB. 30% ~ 40% memory is consumed for graphic processing
-> and 20~30 memory is reserved for zram.
-> 
-> I found that many pages of GPU driver and zram are non-movable pages. So I
-> reported Minchan Kim, the maintainer of zram, and he made the internal 
-> compaction logic of zram. And I made the internal compaction of GPU driver.
-> 
-> They reduced some fragmentation but they are not enough effective.
-> They are activated by its own interface, /sys, so they are not cooperative
-> with kernel compaction. If there is too much fragmentation and kernel starts
-> to compaction, zram and GPU driver cannot work with the kernel compaction.
-> 
-> So I thought there needs a interface to combine driver and kernel compaction.
-> This patch adds a generic isolate/migrate/putback callbacks for page
-> address-space and a new interface to create anon-inode to manage
-> address_space_operation. The zram and GPU, and any other modules can create
-> anon_inode and register its own migration method. The kernel compaction can
-> call the registered migration when it does compaction.
-> 
-> My GPU driver source is not in-kernel driver so that I apply the interface
-> into balloon driver. The balloon driver is already merged
-> into the kernel compaction as a corner-case. This patch have the balloon
-> driver migration be called by the generic interface.
-> 
-> 
-> This patch set combines 4 patches.
-> 
-> 1. patch 1/4: get inode from anon_inodes
-> This patch adds new interface to create inode from anon_inodes.
-> 
-> 2. patch 2/4: framework to isolate/migrate/putback page
-> Add isolatepage, putbackpage into address_space_operations
-> and wrapper function to call them.
-> 
-> 3. patch 3/4: apply the framework into balloon driver
-> The balloon driver is applied into the framework. It gets a inode
-> from anon_inodes and register operations in the inode.
-> The kernel compaction calls generic interfaces, not balloon
-> driver interfaces. 
-> Any other drivers can register operations via inode like this
-> to migrate it's pages.
-> 
-> 4. patch 4/4: remove direct calling of migration of driver pages
-> Non-lru pages are also migrated with lru pages by move_to_new_page().
-> 
-> This patch set is tested:
-> - turn on Ubuntu 14.04 with 1G memory on qemu.
-> - do kernel building
-> - after several seconds check more than 512MB is used with free command
-> - command "balloon 512" in qemu monitor
-> - check hundreds MB of pages are migrated
-> 
-> My thanks to Konstantin Khlebnikov for his reviews of the RFC patch set.
-> Most of the changes were based on his feedback.
-> 
-> This patch-set is based on v4.1
-> 
-> 
-> Gioh Kim (4):
->   fs/anon_inodes: new interface to create new inode
->   mm/compaction: enable mobile-page migration
->   mm/balloon: apply mobile page migratable into balloon
->   mm: remove direct calling of migration
-> 
->  drivers/virtio/virtio_balloon.c        |  3 ++
->  fs/anon_inodes.c                       |  6 +++
->  fs/proc/page.c                         |  3 ++
->  include/linux/anon_inodes.h            |  1 +
->  include/linux/balloon_compaction.h     | 15 +++++--
->  include/linux/compaction.h             | 80 ++++++++++++++++++++++++++++++++++
->  include/linux/fs.h                     |  2 +
->  include/linux/page-flags.h             | 19 ++++++++
->  include/uapi/linux/kernel-page-flags.h |  1 +
->  mm/balloon_compaction.c                | 72 ++++++++++--------------------
->  mm/compaction.c                        |  8 ++--
->  mm/migrate.c                           | 24 +++-------
->  12 files changed, 160 insertions(+), 74 deletions(-)
-> 
-> -- 
-> 2.1.4
-> 
-Acked-by: Rafael Aquini <aquini@redhat.com>
+On Sat, Dec 1, 2012 at 5:33 PM, Asias He <asias@redhat.com> wrote:
+> vhost-blk is an in-kernel virito-blk device accelerator.
+>
+> Due to lack of proper in-kernel AIO interface, this version converts
+> guest's I/O request to bio and use submit_bio() to submit I/O directly.
+> So this version any supports raw block device as guest's disk image,
+> e.g. /dev/sda, /dev/ram0. We can add file based image support to
+> vhost-blk once we have in-kernel AIO interface. There are some work in
+> progress for in-kernel AIO interface from Dave Kleikamp and Zach Brown:
+>
+>    http://marc.info/?l=linux-fsdevel&m=133312234313122
+>
+> Performance evaluation:
+> -----------------------------
+> LKVM: Fio with libaio ioengine on 1 Fusion IO device
+> IOPS(k)    Before    After    Improvement
+> seq-read   107       121      +13.0%
+> seq-write  130       179      +37.6%
+> rnd-read   102       122      +19.6%
+> rnd-write  125       159      +27.0%
+>
+> QEMU: Fio with libaio ioengine on 1 Fusion IO device
+> IOPS(k)    Before    After    Improvement
+> seq-read   76        123      +61.8%
+> seq-write  139       173      +24.4%
+> rnd-read   73        120      +64.3%
+> rnd-write  75        156      +108.0%
+>
+> QEMU: Fio with libaio ioengine on 1 Ramdisk device
+> IOPS(k)    Before    After    Improvement
+> seq-read   138       437      +216%
+> seq-write  191       436      +128%
+> rnd-read   137       426      +210%
+> rnd-write  140       415      +196%
+>
+> QEMU: Fio with libaio ioengine on 8 Ramdisk device
+> 50% read + 50% write
+> IOPS(k)    Before    After    Improvement
+> randrw     64/64     189/189  +195%/+195%
+>
+> Userspace bits:
+> -----------------------------
+> 1) LKVM
+> The latest vhost-blk userspace bits for kvm tool can be found here:
+> git@github.com:asias/linux-kvm.git blk.vhost-blk
+>
+> 2) QEMU
+> The latest vhost-blk userspace prototype for QEMU can be found here:
+> git@github.com:asias/qemu.git blk.vhost-blk
+>
+> Changes in v6:
+> - Use inline req_page_list to reduce kmalloc
+> - Switch to single thread model, thanks mst!
+> - Wait until requests fired before vhost_blk_flush to be finished
+>
+> Changes in v5:
+> - Do not assume the buffer layout
+> - Fix wakeup race
+>
+> Changes in v4:
+> - Mark req->status as userspace pointer
+> - Use __copy_to_user() instead of copy_to_user() in vhost_blk_set_status()
+> - Add if (need_resched()) schedule() in blk thread
+> - Kill vhost_blk_stop_vq() and move it into vhost_blk_stop()
+> - Use vq_err() instead of pr_warn()
+> - Fail un Unsupported request
+> - Add flush in vhost_blk_set_features()
+>
+> Changes in v3:
+> - Sending REQ_FLUSH bio instead of vfs_fsync, thanks Christoph!
+> - Check file passed by user is a raw block device file
+>
+> Acked-by: David S. Miller <davem@davemloft.net>
+> Signed-off-by: Asias He <asias@redhat.com>
+
+Hi Asias,
+
+Is this still under development or stopped?
