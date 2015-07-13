@@ -1,14 +1,14 @@
-From: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Subject: Re: [PATCH] KVM: Add Kconfig option to signal cross-endian guests
-Date: Mon, 13 Jul 2015 11:24:08 +0200
-Message-ID: <20150713112408.060164e1__20292.6029488028$1436779786$gmane$org@bahia.local>
-References: <20150707195012-mutt-send-email-mst@redhat.com>
-	<1436428145-29823-1-git-send-email-thuth@redhat.com>
+From: Gioh Kim <gioh.kim@lge.com>
+Subject: Re: [PATCH 0/4] enable migration of driver pages
+Date: Mon, 13 Jul 2015 19:02:28 +0900
+Message-ID: <55A38CB4.5050806@lge.com>
+References: <1436776519-17337-1-git-send-email-gioh.kim@lge.com>
+	<CALYGNiPZtJqcYW5Ob6TbRMGrJHP6zV7cKfbesBxprVQjqVmUSw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1436428145-29823-1-git-send-email-thuth@redhat.com>
+In-Reply-To: <CALYGNiPZtJqcYW5Ob6TbRMGrJHP6zV7cKfbesBxprVQjqVmUSw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,17 +18,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Huth <thuth@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Gleb Natapov <gleb@kernel.org>, linux-kernel@vger.kernel.org, kvm-ppc@vger.kernel.org, virtualization@lists.linux-foundation.org, Marc Zyngier <marc.zyngier@arm.com>, Paul Mackerras <paulus@samba.org>, Christoffer Dall <christoffer.dall@linaro.org>, netdev@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org
+To: Konstantin Khlebnikov <koct9i@gmail.com>
+Cc: Rafael Aquini <aquini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Linux API <linux-api@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Bruce Fields <bfields@fieldses.org>, Minchan Kim <minchan@kernel.org>, Gioh Kim <gurugio@hanmail.net>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Al Viro <viro@zeniv.linux.org.uk>, Andrew Morton <akpm@linux-foundation.org>, linux-fsdevel <linux-fsdevel@vger.kernel.org>, Jeff Layton <jlayton@poochiereds.net>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Vlastimil Babka <vbabka@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu,  9 Jul 2015 09:49:05 +0200
-Thomas Huth <thuth@redhat.com> wrote:
-
-> The option for supporting cross-endianness legacy guests in
-> the vhost and tun code should only be available on systems
-> that support cross-endian guests.
-> 
-> Signed-off-by: Thomas Huth <thuth@redhat.com>
-
-Acked-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
+CgoyMDE1LTA3LTEzIOyYpO2bhCA2OjI07JeQIEtvbnN0YW50aW4gS2hsZWJuaWtvdiDsnbQo6rCA
+KSDsk7Qg6riAOgo+IE9uIE1vbiwgSnVsIDEzLCAyMDE1IGF0IDExOjM1IEFNLCBHaW9oIEtpbSA8
+Z2lvaC5raW1AbGdlLmNvbT4gd3JvdGU6Cj4+IEZyb206IEdpb2ggS2ltIDxndXJ1Z2lvQGhhbm1h
+aWwubmV0Pgo+Pgo+PiBIZWxsbywKPj4KPj4gVGhpcyBzZXJpZXMgdHJ5IHRvIGVuYWJsZSBtaWdy
+YXRpb24gb2Ygbm9uLUxSVSBwYWdlcywgc3VjaCBhcyBkcml2ZXIncyBwYWdlLgo+Pgo+PiBNeSBB
+Uk0tYmFzZWQgcGxhdGZvcm0gb2NjdXJlZCBzZXZlcmUgZnJhZ21lbnRhdGlvbiBwcm9ibGVtIGFm
+dGVyIGxvbmctdGVybQo+PiAoc2V2ZXJhbCBkYXlzKSB0ZXN0LiBTb21ldGltZXMgZXZlbiBvcmRl
+ci0zIHBhZ2UgYWxsb2NhdGlvbiBmYWlsZWQuIEl0IGhhcwo+PiBtZW1vcnkgc2l6ZSA1MTJNQiB+
+IDEwMjRNQi4gMzAlIH4gNDAlIG1lbW9yeSBpcyBjb25zdW1lZCBmb3IgZ3JhcGhpYyBwcm9jZXNz
+aW5nCj4+IGFuZCAyMH4zMCBtZW1vcnkgaXMgcmVzZXJ2ZWQgZm9yIHpyYW0uCj4+Cj4+IEkgZm91
+bmQgdGhhdCBtYW55IHBhZ2VzIG9mIEdQVSBkcml2ZXIgYW5kIHpyYW0gYXJlIG5vbi1tb3ZhYmxl
+IHBhZ2VzLiBTbyBJCj4+IHJlcG9ydGVkIE1pbmNoYW4gS2ltLCB0aGUgbWFpbnRhaW5lciBvZiB6
+cmFtLCBhbmQgaGUgbWFkZSB0aGUgaW50ZXJuYWwKPj4gY29tcGFjdGlvbiBsb2dpYyBvZiB6cmFt
+LiBBbmQgSSBtYWRlIHRoZSBpbnRlcm5hbCBjb21wYWN0aW9uIG9mIEdQVSBkcml2ZXIuCj4+Cj4+
+IFRoZXkgcmVkdWNlZCBzb21lIGZyYWdtZW50YXRpb24gYnV0IHRoZXkgYXJlIG5vdCBlbm91Z2gg
+ZWZmZWN0aXZlLgo+PiBUaGV5IGFyZSBhY3RpdmF0ZWQgYnkgaXRzIG93biBpbnRlcmZhY2UsIC9z
+eXMsIHNvIHRoZXkgYXJlIG5vdCBjb29wZXJhdGl2ZQo+PiB3aXRoIGtlcm5lbCBjb21wYWN0aW9u
+LiBJZiB0aGVyZSBpcyB0b28gbXVjaCBmcmFnbWVudGF0aW9uIGFuZCBrZXJuZWwgc3RhcnRzCj4+
+IHRvIGNvbXBhY3Rpb24sIHpyYW0gYW5kIEdQVSBkcml2ZXIgY2Fubm90IHdvcmsgd2l0aCB0aGUg
+a2VybmVsIGNvbXBhY3Rpb24uCj4+Cj4+IFNvIEkgdGhvdWdodCB0aGVyZSBuZWVkcyBhIGludGVy
+ZmFjZSB0byBjb21iaW5lIGRyaXZlciBhbmQga2VybmVsIGNvbXBhY3Rpb24uCj4+IFRoaXMgcGF0
+Y2ggYWRkcyBhIGdlbmVyaWMgaXNvbGF0ZS9taWdyYXRlL3B1dGJhY2sgY2FsbGJhY2tzIGZvciBw
+YWdlCj4+IGFkZHJlc3Mtc3BhY2UgYW5kIGEgbmV3IGludGVyZmFjZSB0byBjcmVhdGUgYW5vbi1p
+bm9kZSB0byBtYW5hZ2UKPj4gYWRkcmVzc19zcGFjZV9vcGVyYXRpb24uIFRoZSB6cmFtIGFuZCBH
+UFUsIGFuZCBhbnkgb3RoZXIgbW9kdWxlcyBjYW4gY3JlYXRlCj4+IGFub25faW5vZGUgYW5kIHJl
+Z2lzdGVyIGl0cyBvd24gbWlncmF0aW9uIG1ldGhvZC4gVGhlIGtlcm5lbCBjb21wYWN0aW9uIGNh
+bgo+PiBjYWxsIHRoZSByZWdpc3RlcmVkIG1pZ3JhdGlvbiB3aGVuIGl0IGRvZXMgY29tcGFjdGlv
+bi4KPj4KPj4gTXkgR1BVIGRyaXZlciBzb3VyY2UgaXMgbm90IGluLWtlcm5lbCBkcml2ZXIgc28g
+dGhhdCBJIGFwcGx5IHRoZSBpbnRlcmZhY2UKPj4gaW50byBiYWxsb29uIGRyaXZlci4gVGhlIGJh
+bGxvb24gZHJpdmVyIGlzIGFscmVhZHkgbWVyZ2VkCj4+IGludG8gdGhlIGtlcm5lbCBjb21wYWN0
+aW9uIGFzIGEgY29ybmVyLWNhc2UuIFRoaXMgcGF0Y2ggaGF2ZSB0aGUgYmFsbG9vbgo+PiBkcml2
+ZXIgbWlncmF0aW9uIGJlIGNhbGxlZCBieSB0aGUgZ2VuZXJpYyBpbnRlcmZhY2UuCj4+Cj4+Cj4+
+IFRoaXMgcGF0Y2ggc2V0IGNvbWJpbmVzIDQgcGF0Y2hlcy4KPj4KPj4gMS4gcGF0Y2ggMS80OiBn
+ZXQgaW5vZGUgZnJvbSBhbm9uX2lub2Rlcwo+PiBUaGlzIHBhdGNoIGFkZHMgbmV3IGludGVyZmFj
+ZSB0byBjcmVhdGUgaW5vZGUgZnJvbSBhbm9uX2lub2Rlcy4KPj4KPj4gMi4gcGF0Y2ggMi80OiBm
+cmFtZXdvcmsgdG8gaXNvbGF0ZS9taWdyYXRlL3B1dGJhY2sgcGFnZQo+PiBBZGQgaXNvbGF0ZXBh
+Z2UsIHB1dGJhY2twYWdlIGludG8gYWRkcmVzc19zcGFjZV9vcGVyYXRpb25zCj4+IGFuZCB3cmFw
+cGVyIGZ1bmN0aW9uIHRvIGNhbGwgdGhlbS4KPj4KPj4gMy4gcGF0Y2ggMy80OiBhcHBseSB0aGUg
+ZnJhbWV3b3JrIGludG8gYmFsbG9vbiBkcml2ZXIKPj4gVGhlIGJhbGxvb24gZHJpdmVyIGlzIGFw
+cGxpZWQgaW50byB0aGUgZnJhbWV3b3JrLiBJdCBnZXRzIGEgaW5vZGUKPj4gZnJvbSBhbm9uX2lu
+b2RlcyBhbmQgcmVnaXN0ZXIgb3BlcmF0aW9ucyBpbiB0aGUgaW5vZGUuCj4+IFRoZSBrZXJuZWwg
+Y29tcGFjdGlvbiBjYWxscyBnZW5lcmljIGludGVyZmFjZXMsIG5vdCBiYWxsb29uCj4+IGRyaXZl
+ciBpbnRlcmZhY2VzLgo+PiBBbnkgb3RoZXIgZHJpdmVycyBjYW4gcmVnaXN0ZXIgb3BlcmF0aW9u
+cyB2aWEgaW5vZGUgbGlrZSB0aGlzCj4+IHRvIG1pZ3JhdGUgaXQncyBwYWdlcy4KPj4KPj4gNC4g
+cGF0Y2ggNC80OiByZW1vdmUgZGlyZWN0IGNhbGxpbmcgb2YgbWlncmF0aW9uIG9mIGRyaXZlciBw
+YWdlcwo+PiBOb24tbHJ1IHBhZ2VzIGFyZSBhbHNvIG1pZ3JhdGVkIHdpdGggbHJ1IHBhZ2VzIGJ5
+IG1vdmVfdG9fbmV3X3BhZ2UoKS4KPgo+IFRoZSB3aG9sZSBwYXRjaHNldCBsb29rcyBnb29kLgo+
+Cj4gUmV2aWV3ZWQtYnk6IEtvbnN0YW50aW4gS2hsZWJuaWtvdiA8a29jdDlpQGdtYWlsLmNvbT4K
+Pgo+Pgo+PiBUaGlzIHBhdGNoIHNldCBpcyB0ZXN0ZWQ6Cj4+IC0gdHVybiBvbiBVYnVudHUgMTQu
+MDQgd2l0aCAxRyBtZW1vcnkgb24gcWVtdS4KPj4gLSBkbyBrZXJuZWwgYnVpbGRpbmcKPj4gLSBh
+ZnRlciBzZXZlcmFsIHNlY29uZHMgY2hlY2sgbW9yZSB0aGFuIDUxMk1CIGlzIHVzZWQgd2l0aCBm
+cmVlIGNvbW1hbmQKPj4gLSBjb21tYW5kICJiYWxsb29uIDUxMiIgaW4gcWVtdSBtb25pdG9yCj4+
+IC0gY2hlY2sgaHVuZHJlZHMgTUIgb2YgcGFnZXMgYXJlIG1pZ3JhdGVkCj4KPiBBbm90aGVyIHNp
+bXBsZSB0ZXN0IGlzIHNldmVyYWwgaW5zdGFuY2VzIG9mCj4gdG9vbHMvdGVzdGluZy9zZWxmdGVz
+dHMvdm0vdHJhbnNodWdlLXN0cmVzcy5jCj4gcnVubm5nIGluIHBhcmFsbGVsIHdpdGggYmFsbG9v
+biBpbmZsYXRpbmcvZGVmbGF0aW5nLgo+ICh0cmFuc3BhcmVudCBodWdlIHBhZ2VzIG11c3QgYmUg
+ZW5hYmxlZCBvZiBjb3Vyc2UpCj4gVGhhdCBjYXRjaGVkIGEgbG90IG9mIHJhY2VzIGluIGJhbGxv
+b25pbmcgY29kZS4KPgoKR3JlYXQhCkknbGwgZG8gaXQgYW5kIGluZm9ybSB5b3UgdGhlIHJlc3Vs
+dCBpbiB0aGlzIHdlZWsuCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5s
+aW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFp
+bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
