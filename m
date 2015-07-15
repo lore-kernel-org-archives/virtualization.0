@@ -1,14 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 Subject: Re: [patch] vhost: NULL vs ERR_PTR bug
-Date: Wed, 15 Jul 2015 14:28:46 +0300
-Message-ID: <20150715142420-mutt-send-email-mst__8900.54101259938$1436959745$gmane$org@redhat.com>
+Date: Wed, 15 Jul 2015 14:41:06 +0300
+Message-ID: <20150715114106.GD5784@mwanda>
 References: <20150715111659.GA22854@mwanda>
+	<20150715142420-mutt-send-email-mst@redhat.com>
+	<55A64574.1090907@bfs.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20150715111659.GA22854@mwanda>
+In-Reply-To: <55A64574.1090907@bfs.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,33 +20,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Igor Mammedov <imammedo@redhat.com>, kernel-janitors@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: walter harms <wharms@bfs.de>
+Cc: Igor Mammedov <imammedo@redhat.com>, virtualization@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 15, 2015 at 02:16:59PM +0300, Dan Carpenter wrote:
-> There is only one caller for vhost_kvzalloc() and it expects NULL on
-> allocation failure.  Most people would probably expect that so let's
-> change ERR_PTR(-ENOMEM) to NULL.
+On Wed, Jul 15, 2015 at 01:35:16PM +0200, walter harms wrote:
+> Is this function needed at all ?
 > 
-> Fixes: 4de7255f7d2b ('vhost: extend memory regions allocation to vmalloc')
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-Ouch. Thanks a lot for noticing this, and it's a good thing
-you did before Linus merged it.
-I'll squash this into Igor's patch and redo my pull request.
+It tries to kmalloc() memory and if it can't then it tries to vmalloc()
+it.  There are a bunch of these functions.  Eventually someone should
+put one in a common header.
 
-> 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index a9fe859..99d613b 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -686,7 +686,7 @@ static void *vhost_kvzalloc(unsigned long size)
->  	if (!n) {
->  		n = vzalloc(size);
->  		if (!n)
-> -			return ERR_PTR(-ENOMEM);
-> +			return NULL;
->  	}
->  	return n;
->  }
+regards,
+dan carpenter
