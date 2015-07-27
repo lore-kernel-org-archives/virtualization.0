@@ -1,13 +1,14 @@
-From: Ioan Raicu <iraicu@cs.iit.edu>
-Subject: CFP: IEEE/ACM Int. Symp. on Big Data Computing (BDC) 2015 -- final
-	deadline extension to August 7th
-Date: Sat, 25 Jul 2015 09:12:51 -0500
-Message-ID: <55B39963.2020008@cs.iit.edu>
-Reply-To: iraicu@cs.iit.edu
+From: Vlastimil Babka <vbabka@suse.cz>
+Subject: Re: [PATCH 2/4] mm/compaction: enable mobile-page migration
+Date: Mon, 27 Jul 2015 15:55:29 +0200
+Message-ID: <55B63851.1080100__6363.66228941387$1438011638$gmane$org@suse.cz>
+References: <1436776519-17337-1-git-send-email-gioh.kim@lge.com>
+	<1436776519-17337-3-git-send-email-gioh.kim@lge.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1436776519-17337-3-git-send-email-gioh.kim@lge.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,166 +18,229 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: publicity@hipeac.net, virtualization@lists.linux-foundation.org, micro_publicity@crhc.uiuc.edu, performance@merlot.usc.edu, sigplan-l@acm.uiuc.edu
+To: Gioh Kim <gioh.kim@lge.com>, jlayton@poochiereds.net, bfields@fieldses.org, iamjoonsoo.kim@lge.com, viro@zeniv.linux.org.uk, mst@redhat.com, koct9i@gmail.com, minchan@kernel.org, aquini@redhat.com, linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-api@vger.kernel.org, linux-mm@kvack.org
+Cc: akpm@linux-foundation.org, Gioh Kim <gurugio@hanmail.net>, dri-devel@lists.freedesktop.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CALL FOR PAPERS
+On 07/13/2015 10:35 AM, Gioh Kim wrote:
+> From: Gioh Kim <gurugio@hanmail.net>
+>
+> Add framework to register callback functions and check page mobility.
+> There are some modes for page isolation so that isolate interface
+> has arguments of page address and isolation mode while putback
+> interface has only page address as argument.
 
----------------------------------------------------------------------------------------
-2nd IEEE/ACM International Symposium on Big Data Computing (BDC) 2015
-http://datasys.cs.iit.edu/events/BDC2015/
----------------------------------------------------------------------------------------
-December 7-10, 2015
-St. Raphael Resort, Limassol, Cyprus
-Co-located with 8th IEEE/ACM International Conference on Utility and Cloud Computing
-=======================================================================================
+Note that unlike what subject suggest, this doesn't really enable 
+mobile-page migration inside compaction, since that only happens with 
+patch 3. This might theoretically affect some cherry-pick backports that 
+don't care about balloon pages. I can imagine that can easily happen in 
+the world of mobile devices?
+It would thus be somewhat cleaner if this patch was complete in that sense.
 
-Rapid advances in digital sensors, networks, storage, and computation along with their availability at low cost is leading to the creation of huge collections of data -- dubbed as Big Data. This data has the potential for enabling new insights that can change the way business, science, and governments deliver services to their consumers and can impact society as a whole. This has led to the emergence of the Big Data Computing paradigm focusing on sensing, collection, storage, management and analysis of data from variety of sources to enable new value and insights.
+> Signed-off-by: Gioh Kim <gioh.kim@lge.com>
+> Acked-by: Rafael Aquini <aquini@redhat.com>
+> ---
+>   fs/proc/page.c                         |  3 ++
+>   include/linux/compaction.h             | 80 ++++++++++++++++++++++++++++++++++
+>   include/linux/fs.h                     |  2 +
+>   include/linux/page-flags.h             | 19 ++++++++
+>   include/uapi/linux/kernel-page-flags.h |  1 +
+>   5 files changed, 105 insertions(+)
+>
+> diff --git a/fs/proc/page.c b/fs/proc/page.c
+> index 7eee2d8..a4f5a00 100644
+> --- a/fs/proc/page.c
+> +++ b/fs/proc/page.c
+> @@ -146,6 +146,9 @@ u64 stable_page_flags(struct page *page)
+>   	if (PageBalloon(page))
+>   		u |= 1 << KPF_BALLOON;
+>
+> +	if (PageMobile(page))
+> +		u |= 1 << KPF_MOBILE;
 
-To realize the full potential of Big Data Computing, we need to address several challenges and develop suitable conceptual and technological solutions for dealing them. These include life-cycle management of data, large-scale storage, flexible processing infrastructure, data modeling, scalable machine learning and data analysis algorithms, techniques for sampling and making trade-off between data processing time and accuracy, and dealing with privacy and ethical issues involved in data sensing, storage, processing, and actions.
+PageMovable() would probably be as good a name and correspond to 
+MIGRATE_MOVABLE somewhat, unlike a completely new term. Whatever driver 
+starts to using this should probably change allocation flags to allocate 
+MIGRATE_MOVABLE, so that it works fine with what fragmentation avoidance 
+expects. Guess I should have said that earlier, but can you still 
+reconsider?
 
-The International Symposium on Big Data Computing (BDC) 2015 -- held in conjunction with 8th IEEE/ACM International Conference on Utility and Cloud Computing (UCC) 2015, December 7-10, 2015, St. Raphael Resort, Limassol, Cyprus, aims at bringing together international researchers, developers, policy makers, and users and to provide an international forum to present leading research activities, technical solutions, and results on a broad range of topics related to Big Data Computing paradigms, platforms and their applications. The conference features keynotes, technical presentations, posters, and workshops.
+> +
+>   	u |= kpf_copy_bit(k, KPF_LOCKED,	PG_locked);
+>
+>   	u |= kpf_copy_bit(k, KPF_SLAB,		PG_slab);
+> diff --git a/include/linux/compaction.h b/include/linux/compaction.h
+> index aa8f61c..f693072 100644
+> --- a/include/linux/compaction.h
+> +++ b/include/linux/compaction.h
+> @@ -1,6 +1,9 @@
+>   #ifndef _LINUX_COMPACTION_H
+>   #define _LINUX_COMPACTION_H
+>
+> +#include <linux/page-flags.h>
+> +#include <linux/pagemap.h>
+> +
+>   /* Return values for compact_zone() and try_to_compact_pages() */
+>   /* compaction didn't start as it was deferred due to past failures */
+>   #define COMPACT_DEFERRED	0
+> @@ -51,6 +54,70 @@ extern void compaction_defer_reset(struct zone *zone, int order,
+>   				bool alloc_success);
+>   extern bool compaction_restarting(struct zone *zone, int order);
+>
+> +static inline bool mobile_page(struct page *page)
+> +{
+> +	return page->mapping &&	(PageMobile(page) || PageBalloon(page));
+> +}
 
-TOPICS:
----------------------------------------------------------------------------------------
-I. Big Data Science
-* Analytics
-* Algorithms for Big Data
-* Energy-efficient Algorithms
-* Big Data Search
-* Big Data Acquisition, Integration, Cleaning, and Best Practices
-* Visualization of Big Data
+I would put this definition to linux/page-flags.h and rename it to 
+page_mobile (or better page_movable()), which is more common ordering.
 
-II. Big Data Infrastructures and Platforms
-* Programming Systems
-* Cyber-Infrastructure
-* Performance evaluation
-* Fault tolerance and reliability
-* I/O and Data management
-* Storage Systems (including file systems, NoSQL, and RDBMS)
-* Resource management
-* Many-Task Computing
-* Many-core computing and accelerators
+> +
+> +static inline bool isolate_mobilepage(struct page *page, isolate_mode_t mode)
 
-III. Big Data Security and Policy
-* Management Policies
-* Data Privacy
-* Data Security
-* Big Data Archival and Preservation
-* Big Data Provenance
+Does this have to be in compaction.h? The only user is compaction.c so 
+probably move it there, and if there ever is another module using this 
+in the future, we can move it to a more appropriate place and declare it 
+in e.g. mm/internal.h.
 
-IV. Big Data Applications
-* Scientific application cases studies on Cloud infrastructure
-* Big Data Applications at Scale
-* Experience Papers with Big Data Application Deployments
-* Data streaming applications
-* Big Data in Social Networks
-* Healthcare Applications
-* Enterprise Applications
+> +{
+> +	bool ret = false;
+> +
+> +	/*
+> +	 * Avoid burning cycles with pages that are yet under __free_pages(),
+> +	 * or just got freed under us.
+> +	 *
+> +	 * In case we 'win' a race for a mobile page being freed under us and
+> +	 * raise its refcount preventing __free_pages() from doing its job
+> +	 * the put_page() at the end of this block will take care of
+> +	 * release this page, thus avoiding a nasty leakage.
+> +	 */
+> +	if (unlikely(!get_page_unless_zero(page)))
+> +		goto out;
+> +
+> +	/*
+> +	 * As mobile pages are not isolated from LRU lists, concurrent
+> +	 * compaction threads can race against page migration functions
+> +	 * as well as race against the releasing a page.
+> +	 *
+> +	 * In order to avoid having an already isolated mobile page
+> +	 * being (wrongly) re-isolated while it is under migration,
+> +	 * or to avoid attempting to isolate pages being released,
+> +	 * lets be sure we have the page lock
+> +	 * before proceeding with the mobile page isolation steps.
+> +	 */
+> +	if (unlikely(!trylock_page(page)))
+> +		goto out_putpage;
+> +
+> +	if (!(mobile_page(page) && page->mapping->a_ops->isolatepage))
+> +		goto out_not_isolated;
+> +	ret = page->mapping->a_ops->isolatepage(page, mode);
+> +	if (!ret)
+> +		goto out_not_isolated;
+> +	unlock_page(page);
+> +	return ret;
+> +
+> +out_not_isolated:
+> +	unlock_page(page);
+> +out_putpage:
+> +	put_page(page);
+> +out:
+> +	return ret;
+> +}
+> +
+> +static inline void putback_mobilepage(struct page *page)
 
-IMPORTANT DATES
----------------------------------------------------------------------------------------
-Papers:
-* Papers Due: 7 August, 2015 (HARD DEADLINE)
-* Author Notifications: 4 September, 2015
-* Final Papers Due: 21 September, 2015
+Likewise, this could go to migrate.c. Or maybe together with 
+isolate_mobilepage() if you don't want to split them.
 
-Posters
-* Proceedings-published posters due: 8 September, 2015
-* Notification of acceptance: 18 September, 2015
-* Camera-ready posters due: 21 September, 2015
-
-PAPER SUBMISSION
----------------------------------------------------------------------------------------
-Authors are invited to submit papers electronically. Submitted manuscripts should be structured as technical papers and may not exceed 10 letter size (8.5 x 11) pages including figures, tables and references using the following templates (latex, pdf, doc). Authors should submit the manuscript in PDF format and make sure that the file will print on a printer that uses letter size (8.5 x 11) paper. The official language of the meeting is English. All manuscripts will be reviewed and will be judged on correctness, originality, technical strength, significance, quality of presentation, and interest and relevance to the conference attendees. Papers conforming to the above guidelines can be submitted through the BDC 2015 paper submission system (https://www.easychair.org/conferences/?conf=bdc201
- 5).
-
-Submitted papers must represent original unpublished research that is not currently under review for any other conference or journal. Papers not following these guidelines will be rejected without review and further action may be taken, including (but not limited to) notifications sent to the heads of the institutions of the authors and sponsors of the conference. Submissions received after the due date, exceeding length limit, or not appropriately structured may also not be considered. Authors may contact the conference PC Chair for more information.
-
-Selected papers from BDC 2015 will be invited to extend and submit to the Special Issue on Big Data Computing in the IEEE Transaction on Cloud Computing.
-
-ORGANIZATION
----------------------------------------------------------------------------------------
-General Chairs
-* Rajkumar Buyya, University of Melbourne, Australia
-* George Angelos Papadopoulos,University of Cyprus, Cyprus
-
-Program Committee Chairs (bdc15-chairs@datasys.cs.iit.edu)
-* Ioan Raicu, Illinois Institute of Technology & Argonne National Laboratory, USA
-* Amy Apon, National Science Foundation, USA
-* Manish Parashar, Rutgers University, USA
-
-Program Committee Vice Chairs
-* Omer Rana, Cardiff University, UK
-* Ilkay Altintas, University of California, San Diego, USA
-
-Program Committee Members
-* Alexander Rasin, DePaul University, USA
-* Alok Choudhary, Northwestern University, USA
-* Abhishek Chandra, University of Minnesota, USA
-* Andre Luckow, BMW IT Research Center, USA
-* Daniel Katz, University of Chicago and Argonne National Lab, USA
-* Dongfang Zhao, Illinois Institute of Technology, USA
-* Douglas Thain, University of Notre Dame, USA
-* Florian Schintke, Zuse Institute Berlin, Germany
-* Giuliano Casale, Imperial College London, UK
-* Jaliya Ekanayake, Microsoft, USA
-* Jessica Chen-Burger, Heriot-Watt University, UK
-* Judy Qiu, Indiana University, USA
-* Justin Wozniak, Argonne National Lab, USA
-* Ke Wang, Illinois Institute of Technology, USA
-* Kesheng (John) Wu, Lawrence Berkeley National Lab, USA
-* Kyle Chard, University of Chicago and Argonne National Lab, USA
-* Lavanya Ramakrishnan, Lawrence Berkeley National Laboratory, USA
-* Marco Netto, IBM Research, Brazil
-* Matei Ripeanu, University of British Columbia, Canada
-* Matei Stroila, HERE, USA
-* Nagiza Samatova, North Carolina State University, USA
-* Paolo Missier, Newcastle University, UK
-* Paul Watson, NewCastle University, UK
-* Peter Burnap, Cardiff University, UK
-* Rahul	Potharaju, Microsoft, USA
-* Rajkumar Kettimuthu, Argonne National Lab and University of Chicago, USA
-* Robert Ross, Argonne National Lab, USA
-* Samer Al-Kiswany, University of British Columbia, Canada
-* Scott	Klasky, Oak Ridge National Lab, USA
-* Wei Tang, Argonne National Lab, USA
-* Weidong Shi, University of Houston, USA
-* Xiaolin (Andy) Li, University of Florida, USA
-* Yanlong Yin, Bloomberg, USA
-* Yong Chen, Texas Tech University, USA
-* Yong Zhao, University of Electronic Science and Technology, China
-* Zhao Zhang, University of California, Berkeley, USA
-
-Cyber Co-Chairs
-* Dongfang Zhao, Illinois Institute of Technology, USA
-
-Local Organizing Committee
-* George Angelos Papadopoulos, University of Cyprus, Cyprus
-
-SPONSORSHIP
----------------------------------------------------------------------------------------
-IEEE*, ACM*, and IIT*
-*Final approval on sponsorship is pending.
-
-
--- 
-=================================================================
-Ioan Raicu, Ph.D.
-Assistant Professor, Illinois Institute of Technology (IIT)
-Guest Research Faculty, Argonne National Laboratory (ANL)
-=================================================================
-Data-Intensive Distributed Systems Laboratory, CS/IIT
-Distributed Systems Laboratory, MCS/ANL
-=================================================================
-Editor: IEEE TCC, Springer Cluster, Springer JoCCASA
-Chair:  IEEE/ACM MTAGS, ACM ScienceCloud
-=================================================================
-Office:   1-312-567-5704
-Email:    iraicu@cs.iit.edu
-Web:      http://www.cs.iit.edu/~iraicu/
-Web:      http://datasys.cs.iit.edu/
-LinkedIn: http://www.linkedin.com/in/ioanraicu
-Google:   http://scholar.google.com/citations?user=jE73HYAAAAAJ
-=================================================================
-=================================================================
+> +{
+> +	/*
+> +	 * 'lock_page()' stabilizes the page and prevents races against
+> +	 * concurrent isolation threads attempting to re-isolate it.
+> +	 */
+> +	lock_page(page);
+> +	if (page->mapping && page->mapping->a_ops->putbackpage)
+> +		page->mapping->a_ops->putbackpage(page);
+> +	unlock_page(page);
+> +	/* drop the extra ref count taken for mobile page isolation */
+> +	put_page(page);
+> +}
+>   #else
+>   static inline unsigned long try_to_compact_pages(gfp_t gfp_mask,
+>   			unsigned int order, int alloc_flags,
+> @@ -83,6 +150,19 @@ static inline bool compaction_deferred(struct zone *zone, int order)
+>   	return true;
+>   }
+>
+> +static inline bool mobile_page(struct page *page)
+> +{
+> +	return false;
+> +}
+> +
+> +static inline bool isolate_mobilepage(struct page *page, isolate_mode_t mode)
+> +{
+> +	return false;
+> +}
+> +
+> +static inline void putback_mobilepage(struct page *page)
+> +{
+> +}
+>   #endif /* CONFIG_COMPACTION */
+>
+>   #if defined(CONFIG_COMPACTION) && defined(CONFIG_SYSFS) && defined(CONFIG_NUMA)
+> diff --git a/include/linux/fs.h b/include/linux/fs.h
+> index a0653e5..2cc4b24 100644
+> --- a/include/linux/fs.h
+> +++ b/include/linux/fs.h
+> @@ -396,6 +396,8 @@ struct address_space_operations {
+>   	 */
+>   	int (*migratepage) (struct address_space *,
+>   			struct page *, struct page *, enum migrate_mode);
+> +	bool (*isolatepage) (struct page *, isolate_mode_t);
+> +	void (*putbackpage) (struct page *);
+>   	int (*launder_page) (struct page *);
+>   	int (*is_partially_uptodate) (struct page *, unsigned long,
+>   					unsigned long);
+> diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
+> index f34e040..abef145 100644
+> --- a/include/linux/page-flags.h
+> +++ b/include/linux/page-flags.h
+> @@ -582,6 +582,25 @@ static inline void __ClearPageBalloon(struct page *page)
+>   	atomic_set(&page->_mapcount, -1);
+>   }
+>
+> +#define PAGE_MOBILE_MAPCOUNT_VALUE (-255)
+> +
+> +static inline int PageMobile(struct page *page)
+> +{
+> +	return atomic_read(&page->_mapcount) == PAGE_MOBILE_MAPCOUNT_VALUE;
+> +}
+> +
+> +static inline void __SetPageMobile(struct page *page)
+> +{
+> +	VM_BUG_ON_PAGE(atomic_read(&page->_mapcount) != -1, page);
+> +	atomic_set(&page->_mapcount, PAGE_MOBILE_MAPCOUNT_VALUE);
+> +}
+> +
+> +static inline void __ClearPageMobile(struct page *page)
+> +{
+> +	VM_BUG_ON_PAGE(!PageMobile(page), page);
+> +	atomic_set(&page->_mapcount, -1);
+> +}
+> +
+>   /*
+>    * If network-based swap is enabled, sl*b must keep track of whether pages
+>    * were allocated from pfmemalloc reserves.
+> diff --git a/include/uapi/linux/kernel-page-flags.h b/include/uapi/linux/kernel-page-flags.h
+> index a6c4962..d50d9e8 100644
+> --- a/include/uapi/linux/kernel-page-flags.h
+> +++ b/include/uapi/linux/kernel-page-flags.h
+> @@ -33,6 +33,7 @@
+>   #define KPF_THP			22
+>   #define KPF_BALLOON		23
+>   #define KPF_ZERO_PAGE		24
+> +#define KPF_MOBILE		25
+>
+>
+>   #endif /* _UAPILINUX_KERNEL_PAGE_FLAGS_H */
+>
