@@ -1,14 +1,16 @@
-From: Rick Jones <rick.jones2@hp.com>
-Subject: Re: [PATCH net-next] virtio_net: add gro capability
-Date: Mon, 03 Aug 2015 09:22:48 -0700
-Message-ID: <55BF9558.3020501@hp.com>
-References: <1438359917.2748.18.camel@edumazet-glaptop2.roam.corp.google.com>
-	<20150803162529-mutt-send-email-mst@redhat.com>
+From: G Gregory <graeme.gregory@linaro.org>
+Subject: Re: [PATCH] virtio_mmio: add ACPI probing
+Date: Tue, 28 Jul 2015 11:33:48 +0100
+Message-ID: <CAGCh1+=4am4xHXark=EMLT-BD-92oWFvvWE4N7TEf=YwMAUCzQ__3406.31090007282$1438620767$gmane$org@mail.gmail.com>
+References: <1438076642-12080-1-git-send-email-graeme.gregory@linaro.org>
+	<20150728130604-mutt-send-email-mst@redhat.com>
+	<CAFEAcA9H6_oEFKFFNhcGW-8Yy8ng9iNnPbweTvMC46fwLmwA0w@mail.gmail.com>
+	<20150728132113-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150803162529-mutt-send-email-mst@redhat.com>
+In-Reply-To: <20150728132113-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,36 +20,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Eric Dumazet <eric.dumazet@gmail.com>
-Cc: netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Peter Maydell <peter.maydell@linaro.org>, Shannon Zhao <shannon.zhao@linaro.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/03/2015 06:37 AM, Michael S. Tsirkin wrote:
-> Ideally this needs to also be tested on non-vxlan configs with gro in
-> host, to make sure this doesn't cause regressions.
+On 28 July 2015 at 11:27, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Tue, Jul 28, 2015 at 11:12:33AM +0100, Peter Maydell wrote:
+>> On 28 July 2015 at 11:08, Michael S. Tsirkin <mst@redhat.com> wrote:
+>> > On Tue, Jul 28, 2015 at 10:44:02AM +0100, Graeme Gregory wrote:
+>> >> Added the match table and pointers for ACPI probing to the driver.
+>> >>
+>> >> This uses the same identifier for virt devices as being used for qemu
+>> >> ARM64 ACPI support.
+>> >>
+>> >> http://git.linaro.org/people/shannon.zhao/qemu.git/commit/d0bf1955a3ecbab4b51d46f8c5dda02b7e14a17e
+>> >>
+>> >> Signed-off-by: Graeme Gregory <graeme.gregory@linaro.org>
+>> >> ---
+>> >>  drivers/virtio/virtio_mmio.c | 10 ++++++++++
+>> >>  1 file changed, 10 insertions(+)
+>> >>
+>> >> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+>> >> index 10189b5..f499d9d 100644
+>> >> --- a/drivers/virtio/virtio_mmio.c
+>> >> +++ b/drivers/virtio/virtio_mmio.c
+>> >> @@ -58,6 +58,7 @@
+>> >>
+>> >>  #define pr_fmt(fmt) "virtio-mmio: " fmt
+>> >>
+>> >> +#include <linux/acpi.h>
+>> >>  #include <linux/highmem.h>
+>> >>  #include <linux/interrupt.h>
+>> >>  #include <linux/io.h>
+>> >> @@ -732,12 +733,21 @@ static struct of_device_id virtio_mmio_match[] = {
+>> >>  };
+>> >>  MODULE_DEVICE_TABLE(of, virtio_mmio_match);
+>> >>
+>> >> +#ifdef CONFIG_ACPI
+>> >> +static const struct acpi_device_id virtio_mmio_acpi_match[] = {
+>> >> +     { "LNRO0005", },
+>> >> +     { }
+>> >> +};
+>> >
+>> > Hmm - we have reserved QEMUXXXX in ASWG explicitly for this purpose.
+>> >
+>> > Pater - do you think it's a good idea to change this before QEMU 2.4
+>> > is released?
+>>
+>> Shannon's call, I guess. I don't know enough about ACPI to say.
+>> I thought these ACPI IDs were already fixed because they were
+>> what the kernel was looking for...
+>>
+>> -- PMM
+>
+> Apparently not :)
+>
+We assigned LNRO in ASWG to avoid collisions with our prototypes/real
+platforms so it makes sense to me to switch to QEMUXXXX.
 
-Measured with the same instances on the same hardware and software, 
-taking a path through the stack (public rather than private IPs, with 
-Distributed Virtual Router (DVR) enabled) which gives them GRO:
+I will submit a new patch if Shannon wants to switch to that form.
 
-Throughput				
-	Min	Median	Average	Max
-4.2.0-rc3+_hostGRO	6713	8351	8232	9102
-4.2.0-rc3+flush1k_hostGRO	6539	8267	8206	8982
-
-As singletons, Mins and Maxes probably have rather high variability, I'd 
-focus on the Median and Average and those are within 1%.
-
-Send Service Demand				
-	Min	Median	Average	Max
-4.2.0-rc3+_hostGRO	0.332	0.496	0.490	0.651
-4.2.0-rc3+flush1k_hostGRO	0.328	0.493	0.488	0.678
-
-Receive Service Demand				
-	Min	Median	Average	Max
-4.2.0-rc3+_hostGRO	0.386	0.469	0.485	0.677
-4.2.0-rc3+flush1k_hostGRO	0.369	0.466	0.477	0.665
-
-happy benchmarking,
-
-rick
+Graeme
