@@ -1,15 +1,11 @@
-From: Gioh Kim <gioh.kim@lge.com>
-Subject: Re: [PATCH 4/4] mm: remove direct calling of migration
-Date: Tue, 28 Jul 2015 09:26:18 +0900
-Message-ID: <55B6CC2A.3050107__13662.7261330888$1438043203$gmane$org@lge.com>
-References: <1436776519-17337-1-git-send-email-gioh.kim@lge.com>
-	<1436776519-17337-5-git-send-email-gioh.kim@lge.com>
-	<55B638F1.9090407@suse.cz>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [PATCH v4 0/4] virtio: Clean up scatterlists and use the DMA API
+Date: Mon, 27 Jul 2015 18:08:59 -0700
+Message-ID: <CALCETrU2o27udqjvREDFyoNtKtaKvuHTyYRaK+Qt_1Q3tPWYDQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <55B638F1.9090407@suse.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,45 +15,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vlastimil Babka <vbabka@suse.cz>, jlayton@poochiereds.net, bfields@fieldses.org, iamjoonsoo.kim@lge.com, viro@zeniv.linux.org.uk, mst@redhat.com, koct9i@gmail.com, minchan@kernel.org, aquini@redhat.com, linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-api@vger.kernel.org, linux-mm@kvack.org
-Cc: akpm@linux-foundation.org, Gioh Kim <gurugio@hanmail.net>, dri-devel@lists.freedesktop.org
+To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, xen-devel <Xen-devel@lists.xen.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, Andy Lutomirski <luto@amacapital.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgoyMDE1LTA3LTI3IOyYpO2bhCAxMDo1OOyXkCBWbGFzdGltaWwgQmFia2Eg7J20KOqwgCkg7JO0
-IOq4gDoKPiBPbiAwNy8xMy8yMDE1IDEwOjM1IEFNLCBHaW9oIEtpbSB3cm90ZToKPj4gRnJvbTog
-R2lvaCBLaW0gPGd1cnVnaW9AaGFubWFpbC5uZXQ+Cj4+Cj4+IE1pZ3JhdGlvbiBpcyBjb21wbGV0
-ZWx5IGdlbmVyYWxpemVkIHNvIHRoYXQgbWlncmF0aW5nIG1vYmlsZSBwYWdlCj4+IGlzIHByb2Nl
-c3NlZCB3aXRoIGxydS1wYWdlcyBpbiBtb3ZlX3RvX25ld19wYWdlLgo+Pgo+PiBTaWduZWQtb2Zm
-LWJ5OiBHaW9oIEtpbSA8Z2lvaC5raW1AbGdlLmNvbT4KPj4gQWNrZWQtYnk6IFJhZmFlbCBBcXVp
-bmkgPGFxdWluaUByZWRoYXQuY29tPgo+Cj4gV2h5IG5vdCBqdXN0IGZvbGQgdGhpcyB0byBQYXRj
-aCAzPyBZb3UgYWxyZWFkeSBtb2RpZnkgdGhpcyBodW5rIHRoZXJlLCBhbmQgcHJpb3IgdG8gcGF0
-Y2ggMywgdGhlIGh1bmsgd2FzIGJhbGxvb24tcGFnZXMgc3BlY2lmaWMuIFlvdSBtYWRlIGl0IGxv
-b2sgZ2VuZXJpYyBvbmx5IHRvIHJlbW92ZSBpdCwgd2hpY2ggaXMgdW5uZWVkZWQgY29kZSBjaHVy
-biBhbmQgSSBkb24ndCB0aGluayBpdCBhZGRzIGFueXRoaW5nIHdydCBlLmcuIGJpc2VjdGFiaWxp
-dHkuClllcywgeW91IGhhdmUgYSBwb2ludC4KSSdsbCBiZSBtZXJnZWQgaW50byAzLzQgYXQgbmV4
-dCBzcGluLgoKSSB3YW50ZWQgdG8gc2hvdyB0aGUgcHJvY2VzcyBob3cgbWlncmF0aW9uIGlzIGdl
-bmVyYWxpemVkIHdpdGggdGhpcyBwYXRjaC4KT24gc2Vjb25kIHRob3VnaHQgaXQgaXMgbm90IG5l
-Y2Vzc2FyeS4KCj4KPj4gLS0tCj4+ICAgbW0vbWlncmF0ZS5jIHwgMTUgLS0tLS0tLS0tLS0tLS0t
-Cj4+ICAgMSBmaWxlIGNoYW5nZWQsIDE1IGRlbGV0aW9ucygtKQo+Pgo+PiBkaWZmIC0tZ2l0IGEv
-bW0vbWlncmF0ZS5jIGIvbW0vbWlncmF0ZS5jCj4+IGluZGV4IDUzZjAwODFkLi5lNjY0NGFjIDEw
-MDY0NAo+PiAtLS0gYS9tbS9taWdyYXRlLmMKPj4gKysrIGIvbW0vbWlncmF0ZS5jCj4+IEBAIC04
-NDQsMjEgKzg0NCw2IEBAIHN0YXRpYyBpbnQgX191bm1hcF9hbmRfbW92ZShzdHJ1Y3QgcGFnZSAq
-cGFnZSwgc3RydWN0IHBhZ2UgKm5ld3BhZ2UsCj4+ICAgICAgICAgICB9Cj4+ICAgICAgIH0KPj4K
-Pj4gLSAgICBpZiAodW5saWtlbHkobW9iaWxlX3BhZ2UocGFnZSkpKSB7Cj4+IC0gICAgICAgIC8q
-Cj4+IC0gICAgICAgICAqIEEgbW9iaWxlIHBhZ2UgZG9lcyBub3QgbmVlZCBhbnkgc3BlY2lhbCBh
-dHRlbnRpb24gZnJvbQo+PiAtICAgICAgICAgKiBwaHlzaWNhbCB0byB2aXJ0dWFsIHJldmVyc2Ug
-bWFwcGluZyBwcm9jZWR1cmVzLgo+PiAtICAgICAgICAgKiBTa2lwIGFueSBhdHRlbXB0IHRvIHVu
-bWFwIFBURXMgb3IgdG8gcmVtYXAgc3dhcCBjYWNoZSwKPj4gLSAgICAgICAgICogaW4gb3JkZXIg
-dG8gYXZvaWQgYnVybmluZyBjeWNsZXMgYXQgcm1hcCBsZXZlbCwgYW5kIHBlcmZvcm0KPj4gLSAg
-ICAgICAgICogdGhlIHBhZ2UgbWlncmF0aW9uIHJpZ2h0IGF3YXkgKHByb3RlY2VkIGJ5IHBhZ2Ug
-bG9jaykuCj4+IC0gICAgICAgICAqLwo+PiAtICAgICAgICBsb2NrX3BhZ2UobmV3cGFnZSk7Cj4+
-IC0gICAgICAgIHJjID0gcGFnZS0+bWFwcGluZy0+YV9vcHMtPm1pZ3JhdGVwYWdlKHBhZ2UtPm1h
-cHBpbmcsCj4+IC0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbmV3cGFnZSwgcGFnZSwg
-bW9kZSk7Cj4+IC0gICAgICAgIHVubG9ja19wYWdlKG5ld3BhZ2UpOwo+PiAtICAgICAgICBnb3Rv
-IG91dF91bmxvY2s7Cj4+IC0gICAgfQo+PiAtCj4+ICAgICAgIC8qCj4+ICAgICAgICAqIENvcm5l
-ciBjYXNlIGhhbmRsaW5nOgo+PiAgICAgICAgKiAxLiBXaGVuIGEgbmV3IHN3YXAtY2FjaGUgcGFn
-ZSBpcyByZWFkIGludG8sIGl0IGlzIGFkZGVkIHRvIHRoZSBMUlUKPj4KPgo+Cl9fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
-bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
-L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
-bg==
+On Mon, Sep 1, 2014 at 10:39 AM, Andy Lutomirski <luto@amacapital.net> wrote:
+> This fixes virtio on Xen guests as well as on any other platform
+> that uses virtio_pci on which physical addresses don't match bus
+> addresses.
+>
+> This can be tested with:
+>
+>     virtme-run --xen xen --kimg arch/x86/boot/bzImage --console
+>
+> using virtme from here:
+>
+>     https://git.kernel.org/cgit/utils/kernel/virtme/virtme.git
+>
+> Without these patches, the guest hangs forever.  With these patches,
+> everything works.
+>
+
+Dusting off an ancient thread.
+
+Now that the dust has accumulated^Wsettled, is it worth pursuing this?
+ I think the situation is considerably worse than it was when I
+originally wrote these patches: I think that QEMU now supports a nasty
+mode in which the guest's PCI bus appears to be behind an IOMMU but
+the virtio devices on that bus punch straight through that IOMMU.
+
+I have a half-hearted port to modern kernels here:
+
+https://git.kernel.org/cgit/linux/kernel/git/luto/linux.git/log/?h=virtio_ring_xen
+
+I didn't implement DMA API access for virtio_pci_modern, and I have no
+idea what to do about detecting whether a given virtio device honors
+its IOMMU or not.
+
+--Andy
