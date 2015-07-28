@@ -1,16 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio_mmio: add ACPI probing
-Date: Tue, 28 Jul 2015 13:27:18 +0300
-Message-ID: <20150728132113-mutt-send-email-mst@redhat.com>
-References: <1438076642-12080-1-git-send-email-graeme.gregory@linaro.org>
-	<20150728130604-mutt-send-email-mst@redhat.com>
-	<CAFEAcA9H6_oEFKFFNhcGW-8Yy8ng9iNnPbweTvMC46fwLmwA0w@mail.gmail.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH v4 0/4] virtio: Clean up scatterlists and use the DMA API
+Date: Tue, 28 Jul 2015 20:12:25 +1000
+Message-ID: <1438078345.7562.133.camel@kernel.crashing.org>
+References: <CALCETrU2o27udqjvREDFyoNtKtaKvuHTyYRaK+Qt_1Q3tPWYDQ@mail.gmail.com>
+	<55B73A49.9050206@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAFEAcA9H6_oEFKFFNhcGW-8Yy8ng9iNnPbweTvMC46fwLmwA0w@mail.gmail.com>
+In-Reply-To: <55B73A49.9050206@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,59 +18,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Maydell <peter.maydell@linaro.org>
-Cc: Shannon Zhao <shannon.zhao@linaro.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, Graeme Gregory <graeme.gregory@linaro.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, xen-devel <Xen-devel@lists.xen.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Andy Lutomirski <luto@amacapital.net>, Christian Borntraeger <borntraeger@de.ibm.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 28, 2015 at 11:12:33AM +0100, Peter Maydell wrote:
-> On 28 July 2015 at 11:08, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > On Tue, Jul 28, 2015 at 10:44:02AM +0100, Graeme Gregory wrote:
-> >> Added the match table and pointers for ACPI probing to the driver.
-> >>
-> >> This uses the same identifier for virt devices as being used for qemu
-> >> ARM64 ACPI support.
-> >>
-> >> http://git.linaro.org/people/shannon.zhao/qemu.git/commit/d0bf1955a3ecbab4b51d46f8c5dda02b7e14a17e
-> >>
-> >> Signed-off-by: Graeme Gregory <graeme.gregory@linaro.org>
-> >> ---
-> >>  drivers/virtio/virtio_mmio.c | 10 ++++++++++
-> >>  1 file changed, 10 insertions(+)
-> >>
-> >> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> >> index 10189b5..f499d9d 100644
-> >> --- a/drivers/virtio/virtio_mmio.c
-> >> +++ b/drivers/virtio/virtio_mmio.c
-> >> @@ -58,6 +58,7 @@
-> >>
-> >>  #define pr_fmt(fmt) "virtio-mmio: " fmt
-> >>
-> >> +#include <linux/acpi.h>
-> >>  #include <linux/highmem.h>
-> >>  #include <linux/interrupt.h>
-> >>  #include <linux/io.h>
-> >> @@ -732,12 +733,21 @@ static struct of_device_id virtio_mmio_match[] = {
-> >>  };
-> >>  MODULE_DEVICE_TABLE(of, virtio_mmio_match);
-> >>
-> >> +#ifdef CONFIG_ACPI
-> >> +static const struct acpi_device_id virtio_mmio_acpi_match[] = {
-> >> +     { "LNRO0005", },
-> >> +     { }
-> >> +};
-> >
-> > Hmm - we have reserved QEMUXXXX in ASWG explicitly for this purpose.
-> >
-> > Pater - do you think it's a good idea to change this before QEMU 2.4
-> > is released?
+On Tue, 2015-07-28 at 10:16 +0200, Paolo Bonzini wrote:
 > 
-> Shannon's call, I guess. I don't know enough about ACPI to say.
-> I thought these ACPI IDs were already fixed because they were
-> what the kernel was looking for...
+> On 28/07/2015 03:08, Andy Lutomirski wrote:
+> > On Mon, Sep 1, 2014 at 10:39 AM, Andy Lutomirski <luto@amacapital.net> wrote:
+> >> This fixes virtio on Xen guests as well as on any other platform
+> >> that uses virtio_pci on which physical addresses don't match bus
+> >> addresses.
+> >>
+> >> This can be tested with:
+> >>
+> >>     virtme-run --xen xen --kimg arch/x86/boot/bzImage --console
+> >>
+> >> using virtme from here:
+> >>
+> >>     https://git.kernel.org/cgit/utils/kernel/virtme/virtme.git
+> >>
+> >> Without these patches, the guest hangs forever.  With these patches,
+> >> everything works.
+> >>
+> > 
+> > Dusting off an ancient thread.
+> > 
+> > Now that the dust has accumulated^Wsettled, is it worth pursuing this?
+> >  I think the situation is considerably worse than it was when I
+> > originally wrote these patches: I think that QEMU now supports a nasty
+> > mode in which the guest's PCI bus appears to be behind an IOMMU but
+> > the virtio devices on that bus punch straight through that IOMMU.
 > 
-> -- PMM
+> That is an experimental feature (it's x-iommu), so it can change.
+> 
+> The plan was:
+> 
+> - for PPC, virtio never honors IOMMU
+> 
+> - for non-PPC, either have virtio always honor IOMMU, or enforce that
+> virtio is not under IOMMU.
+> 
 
-Apparently not :)
+I dislike having PPC special cased.
 
--- 
-MST
+In fact, today x86 guests also assume that virtio bypasses IOMMU I
+believe. In fact *all* guests do.
+
+I would much prefer if the information as to whether it honors or not
+gets passed to the guest somewhat. My preference goes for passing it via
+the virtio config space but there were objections that it should be a
+bus property (which is tricky to do with PCI and doesn't properly
+reflect the fact that in qemu you can mix & match IOMMU-honoring devices
+and bypassing-virtio on the same bus). 
+
+Ben.
+
+> Paolo
+> 
+> > I have a half-hearted port to modern kernels here:
+> > 
+> > https://git.kernel.org/cgit/linux/kernel/git/luto/linux.git/log/?h=virtio_ring_xen
+> > 
+> > I didn't implement DMA API access for virtio_pci_modern, and I have no
+> > idea what to do about detecting whether a given virtio device honors
+> > its IOMMU or not.
+> > 
+> > --Andy
+> > 
