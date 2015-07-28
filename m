@@ -1,13 +1,12 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH v4 0/4] virtio: Clean up scatterlists and use the DMA API
-Date: Tue, 28 Jul 2015 10:16:09 +0200
-Message-ID: <55B73A49.9050206@redhat.com>
-References: <CALCETrU2o27udqjvREDFyoNtKtaKvuHTyYRaK+Qt_1Q3tPWYDQ@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL] vhost: cleanups and fixes
+Date: Tue, 28 Jul 2015 13:00:33 +0300
+Message-ID: <20150728130033-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CALCETrU2o27udqjvREDFyoNtKtaKvuHTyYRaK+Qt_1Q3tPWYDQ@mail.gmail.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,56 +16,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@amacapital.net>, Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, xen-devel <Xen-devel@lists.xen.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, marcandre.lureau@redhat.com, imammedo@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+The following changes since commit cbfe8fa6cd672011c755c3cd85c9ffd4e2d10a6f:
 
+  Linux 4.2-rc4 (2015-07-26 12:26:21 -0700)
 
-On 28/07/2015 03:08, Andy Lutomirski wrote:
-> On Mon, Sep 1, 2014 at 10:39 AM, Andy Lutomirski <luto@amacapital.net> wrote:
->> This fixes virtio on Xen guests as well as on any other platform
->> that uses virtio_pci on which physical addresses don't match bus
->> addresses.
->>
->> This can be tested with:
->>
->>     virtme-run --xen xen --kimg arch/x86/boot/bzImage --console
->>
->> using virtme from here:
->>
->>     https://git.kernel.org/cgit/utils/kernel/virtme/virtme.git
->>
->> Without these patches, the guest hangs forever.  With these patches,
->> everything works.
->>
-> 
-> Dusting off an ancient thread.
-> 
-> Now that the dust has accumulated^Wsettled, is it worth pursuing this?
->  I think the situation is considerably worse than it was when I
-> originally wrote these patches: I think that QEMU now supports a nasty
-> mode in which the guest's PCI bus appears to be behind an IOMMU but
-> the virtio devices on that bus punch straight through that IOMMU.
+are available in the git repository at:
 
-That is an experimental feature (it's x-iommu), so it can change.
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-The plan was:
+for you to fetch changes up to 1e0994730f772580ff98754eb5595190cdf371ef:
 
-- for PPC, virtio never honors IOMMU
+  vhost: fix error handling for memory region alloc (2015-07-27 18:05:05 +0=
+300)
 
-- for non-PPC, either have virtio always honor IOMMU, or enforce that
-virtio is not under IOMMU.
+----------------------------------------------------------------
+vhost: fixes for 4.2
 
-Paolo
+Two bugfixes only here.
 
-> I have a half-hearted port to modern kernels here:
-> 
-> https://git.kernel.org/cgit/linux/kernel/git/luto/linux.git/log/?h=virtio_ring_xen
-> 
-> I didn't implement DMA API access for virtio_pci_modern, and I have no
-> idea what to do about detecting whether a given virtio device honors
-> its IOMMU or not.
-> 
-> --Andy
-> 
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Igor Mammedov (1):
+      vhost: fix error handling for memory region alloc
+
+Marc-Andr=E9 Lureau (1):
+      vhost: actually track log eventfd file
+
+ drivers/vhost/vhost.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
