@@ -1,19 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] virtio_mmio: add ACPI probing
-Date: Wed, 29 Jul 2015 21:03:14 +0300
-Message-ID: <20150729210114-mutt-send-email-mst@redhat.com>
+Date: Wed, 29 Jul 2015 21:17:08 +0300
+Message-ID: <20150729211637-mutt-send-email-mst__38407.667229376$1438193847$gmane$org@redhat.com>
 References: <1438076642-12080-1-git-send-email-graeme.gregory@linaro.org>
-	<20150728130604-mutt-send-email-mst@redhat.com>
-	<CAFEAcA9H6_oEFKFFNhcGW-8Yy8ng9iNnPbweTvMC46fwLmwA0w@mail.gmail.com>
-	<20150728132113-mutt-send-email-mst@redhat.com>
-	<CAGCh1+=4am4xHXark=EMLT-BD-92oWFvvWE4N7TEf=YwMAUCzQ@mail.gmail.com>
-	<CAFEAcA-HZVJCa44g0-emN06-_a1DgsjtT4cC2_BBQgEyz-=akw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAFEAcA-HZVJCa44g0-emN06-_a1DgsjtT4cC2_BBQgEyz-=akw@mail.gmail.com>
+In-Reply-To: <1438076642-12080-1-git-send-email-graeme.gregory@linaro.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,52 +18,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Maydell <peter.maydell@linaro.org>
-Cc: Shannon Zhao <shannon.zhao@linaro.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, G Gregory <graeme.gregory@linaro.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Graeme Gregory <graeme.gregory@linaro.org>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 29, 2015 at 06:52:29PM +0100, Peter Maydell wrote:
-> On 28 July 2015 at 11:33, G Gregory <graeme.gregory@linaro.org> wrote:
-> > We assigned LNRO in ASWG to avoid collisions with our prototypes/real
-> > platforms so it makes sense to me to switch to QEMUXXXX.
+On Tue, Jul 28, 2015 at 10:44:02AM +0100, Graeme Gregory wrote:
+> Added the match table and pointers for ACPI probing to the driver.
 > 
-> So just to check, if we switch virtio-mmio from an LNRO0005 ID
-> to a QEMUxxxx ID we aren't going to break any existing widely
-> shipped or deployed code, right?
+> This uses the same identifier for virt devices as being used for qemu
+> ARM64 ACPI support.
 > 
-> If we can change the ID without breaking anything significant
-> then I think the QEMU ID makes more sense; but it doesn't
-> really gain us much beyond tidiness.
+> http://git.linaro.org/people/shannon.zhao/qemu.git/commit/d0bf1955a3ecbab4b51d46f8c5dda02b7e14a17e
 > 
-> PS: https://www.kernel.org/doc/Documentation/arm64/arm-acpi.txt
-> uses virtio-mmio and LNRO0005 as its code example, so if
-> we change this then it might be nice to update the docs
-> as a followup.
+> Signed-off-by: Graeme Gregory <graeme.gregory@linaro.org>
+
+To summarize, let's wait a bit with this until QEMU 2.4
+with the relevant code is out, to make sure ID does not
+change.
+
+> ---
+>  drivers/virtio/virtio_mmio.c | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
 > 
-> thanks
-> -- PMM
-
-So this is the proposed patch. I agree it's merely about tidyness.
-Pls ack or nack - we need to decide before 2.4 is out.
-
--->
-
-arm: change vendor ID for virtio-mmio
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
----
-
-diff --git a/hw/arm/virt-acpi-build.c b/hw/arm/virt-acpi-build.c
-index f365140..d10bd69 100644
---- a/hw/arm/virt-acpi-build.c
-+++ b/hw/arm/virt-acpi-build.c
-@@ -145,7 +145,7 @@ static void acpi_dsdt_add_virtio(Aml *scope,
- 
-     for (i = 0; i < num; i++) {
-         Aml *dev = aml_device("VR%02u", i);
--        aml_append(dev, aml_name_decl("_HID", aml_string("LNRO0005")));
-+        aml_append(dev, aml_name_decl("_HID", aml_string("QEMU0005")));
-         aml_append(dev, aml_name_decl("_UID", aml_int(i)));
- 
-         Aml *crs = aml_resource_template();
+> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> index 10189b5..f499d9d 100644
+> --- a/drivers/virtio/virtio_mmio.c
+> +++ b/drivers/virtio/virtio_mmio.c
+> @@ -58,6 +58,7 @@
+>  
+>  #define pr_fmt(fmt) "virtio-mmio: " fmt
+>  
+> +#include <linux/acpi.h>
+>  #include <linux/highmem.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/io.h>
+> @@ -732,12 +733,21 @@ static struct of_device_id virtio_mmio_match[] = {
+>  };
+>  MODULE_DEVICE_TABLE(of, virtio_mmio_match);
+>  
+> +#ifdef CONFIG_ACPI
+> +static const struct acpi_device_id virtio_mmio_acpi_match[] = {
+> +	{ "LNRO0005", },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(acpi, virtio_mmio_acpi_match);
+> +#endif
+> +
+>  static struct platform_driver virtio_mmio_driver = {
+>  	.probe		= virtio_mmio_probe,
+>  	.remove		= virtio_mmio_remove,
+>  	.driver		= {
+>  		.name	= "virtio-mmio",
+>  		.of_match_table	= virtio_mmio_match,
+> +		.acpi_match_table = ACPI_PTR(virtio_mmio_acpi_match),
+>  	},
+>  };
+>  
+> -- 
+> 2.1.4
