@@ -1,14 +1,15 @@
 From: Mel Gorman <mgorman@techsingularity.net>
-Subject: Re: [PATCH 0/4] enable migration of driver pages
-Date: Wed, 29 Jul 2015 11:49:45 +0100
-Message-ID: <20150729104945.GA30872__49672.108263667$1438620826$gmane$org@techsingularity.net>
+Subject: Re: [PATCH 2/4] mm/compaction: enable mobile-page migration
+Date: Wed, 29 Jul 2015 11:52:38 +0100
+Message-ID: <20150729105238.GC30872__39342.3217618421$1438620837$gmane$org@techsingularity.net>
 References: <1436776519-17337-1-git-send-email-gioh.kim@lge.com>
+	<1436776519-17337-3-git-send-email-gioh.kim@lge.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1436776519-17337-1-git-send-email-gioh.kim@lge.com>
+In-Reply-To: <1436776519-17337-3-git-send-email-gioh.kim@lge.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,59 +23,313 @@ To: Gioh Kim <gioh.kim@lge.com>
 Cc: aquini@redhat.com, mst@redhat.com, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, minchan@kernel.org, Gioh Kim <gurugio@hanmail.net>, linux-mm@kvack.org, viro@zeniv.linux.org.uk, akpm@linux-foundation.org, linux-fsdevel@vger.kernel.org, jlayton@poochiereds.net, koct9i@gmail.com, iamjoonsoo.kim@lge.com, vbabka@suse.cz
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 13, 2015 at 05:35:15PM +0900, Gioh Kim wrote:
-> My ARM-based platform occured severe fragmentation problem after long-term
-> (several days) test. Sometimes even order-3 page allocation failed. It has
-> memory size 512MB ~ 1024MB. 30% ~ 40% memory is consumed for graphic processing
-> and 20~30 memory is reserved for zram.
+On Mon, Jul 13, 2015 at 05:35:17PM +0900, Gioh Kim wrote:
+> From: Gioh Kim <gurugio@hanmail.net>
+> 
+> Add framework to register callback functions and check page mobility.
+> There are some modes for page isolation so that isolate interface
+> has arguments of page address and isolation mode while putback
+> interface has only page address as argument.
+> 
+> Signed-off-by: Gioh Kim <gioh.kim@lge.com>
+> Acked-by: Rafael Aquini <aquini@redhat.com>
+> ---
+>  fs/proc/page.c                         |  3 ++
+>  include/linux/compaction.h             | 80 ++++++++++++++++++++++++++++++++++
+>  include/linux/fs.h                     |  2 +
+>  include/linux/page-flags.h             | 19 ++++++++
+>  include/uapi/linux/kernel-page-flags.h |  1 +
+>  5 files changed, 105 insertions(+)
 > 
 
-The primary motivation of this series is to reduce fragmentation by allowing
-more kernel pages to be moved. Conceptually that is a worthwhile goal but
-there should be at least one major in-kernel user and while balloon
-pages were a good starting point, I think we really need to see what the
-zram changes look like at the same time.
+An update to the address_space operations in
+Documentation/filesystems/Locking and Documentation/filesystems/vfs.txt
+is required. I was going to say "recommended" but it really is required.
+The responsibilities and locking rules of these interfaces must be extremely
+clear as you may be asking multiple driver authors to use this interface.
 
-> I found that many pages of GPU driver and zram are non-movable pages. So I
-> reported Minchan Kim, the maintainer of zram, and he made the internal 
-> compaction logic of zram. And I made the internal compaction of GPU driver.
-> 
+For example, it must be clear to users of these interfaces that the isolate
+must prevent any parallel updates to the data, prevent parallel frees and
+halt attempted accesses until migration is complete. It will not always
+be obvious how to do this and may not be obvious that it is required if
+someone has not experienced the joy that is mm/migrate.c. For example,
+mapped LRU pages get unmapped with migration entries so faults that access
+the data wait until the migration completes. Balloons, zram, graphics will
+need to provide similar guarantees.
 
-I am not familiar with the internals of zram but I took a look at what
-it merged.  At a glance the compaction it implements and what you need are
-are different in important respects. The core ability to move a zsmalloc
-object is useful but the motivation of zram compaction appears to be
-reducing the memory footprint. You need to reduce fragmentation which is
-not the same. You could be faced with a situation where a full page in an
-awkward place. Then there are three choices I can think of quickly and
-probably more
+As data accesses may now sleep due to migration, drivers will need to
+be careful that it is safe to sleep and suggest that they do not attempt
+to spin.
 
-1. You can move the whole page to another whole page and update all the
-   references. This would play nicely with how compactions migrate and
-   free scanner operates. However, you need free memory to move it
+Depending on how it is implemented, the putback may be responsible for
+waking up any tasks waiting to access the page.
 
-2. You could try moving the full page into other zsmalloc pages so that
-   memory usage is also potentially reduced. This would work better with
-   what Minchan intended but then there is the problem of discovery.
-   Potentially it means though that another address space callback is
-   required to nominate a target migration page
+There are going to be more hazards here which is why documentation to spell
+it out is ideal and that zram gets converted to find all the locking and
+access pitfalls.
 
-3. Hybrid approach. First trigger the zsmalloc compaction as it
-   currently exists, then kick of compaction and move whole pages
-   regardless of their content. The downside here is that it's expensive
-   and potentially copies data multiple times but it's going to be
-   easier to implement than 2.
+> diff --git a/fs/proc/page.c b/fs/proc/page.c
+> index 7eee2d8..a4f5a00 100644
+> --- a/fs/proc/page.c
+> +++ b/fs/proc/page.c
+> @@ -146,6 +146,9 @@ u64 stable_page_flags(struct page *page)
+>  	if (PageBalloon(page))
+>  		u |= 1 << KPF_BALLOON;
+>  
+> +	if (PageMobile(page))
+> +		u |= 1 << KPF_MOBILE;
+> +
+>  	u |= kpf_copy_bit(k, KPF_LOCKED,	PG_locked);
+>  
+>  	u |= kpf_copy_bit(k, KPF_SLAB,		PG_slab);
+> diff --git a/include/linux/compaction.h b/include/linux/compaction.h
+> index aa8f61c..f693072 100644
+> --- a/include/linux/compaction.h
+> +++ b/include/linux/compaction.h
+> @@ -1,6 +1,9 @@
+>  #ifndef _LINUX_COMPACTION_H
+>  #define _LINUX_COMPACTION_H
+>  
+> +#include <linux/page-flags.h>
+> +#include <linux/pagemap.h>
+> +
+>  /* Return values for compact_zone() and try_to_compact_pages() */
+>  /* compaction didn't start as it was deferred due to past failures */
+>  #define COMPACT_DEFERRED	0
+> @@ -51,6 +54,70 @@ extern void compaction_defer_reset(struct zone *zone, int order,
+>  				bool alloc_success);
+>  extern bool compaction_restarting(struct zone *zone, int order);
+>  
+> +static inline bool mobile_page(struct page *page)
+> +{
+> +	return page->mapping &&	(PageMobile(page) || PageBalloon(page));
+> +}
+> +
 
-1 would be the logical starting point, 3 is probably most effective even
-if it's expensive and 2 is probably the best overall if the search costs
-can be controlled.
+This creates an oddity because now there is a disconnect between movable
+and mobile pages. They are similar but different.
 
-This is a lot more complex than what balloon requires which is why I
-would like to see it pinned down before new address_space operations are
-created. Once they are created and drivers start using them then we lose
-a lot of flexibilty and fixing the design becomes a lot harder.
+o A Mobile page is a driver-owned page that has the address space
+  operations that enable migration.
 
-With that in mind, I'll still read the rest of the series.
+o A Movable page is generally a page mapped by page tables that can be
+  migrated using the existing mechanisms.
+
+The concepts should be unified.
+
+A Mobile page is a driver-owner page that has the address space
+operations that enable migration. Pages that are mapped by userspace are
+considered to be mobile with the following properties
+
+	a_ops->isolatepage isolates the page from the LRU to prevent
+	parallel reclaim. It is unmapped from page tables using rmap
+	with PTEs replaced by migration entries. Any attempt to access
+	the page will wait in page fault until the migration completes.
+
+	a_ops->putbackpage removes the migration entries and wakes up
+	all waiters in page fault.
+
+	A further property is that allocation of this type specified
+	__GFP_MOVABLE to group them all together. They are the most mobile
+	page category that are cheapest to move. In theory, all mobile
+	pages could be allocated __GFP_MOVABLE if it's known in advance
+	the page->mapping will have the necessary operations in the
+	future.
+
+?
+
+A complicating factor is that a Movable page as it's currently defined
+may not have a page->mapping. You'd have to continue replying on PageLRU to
+identify them as a special page that has access to the necessary isolateppage
+and putbackpage helpers. However, at least we would have a single view
+on what a movable page is.
+
+Additional note: After I wrote the above, I read the other reviews. I
+	did not read them in advance so I'd have a fresh view. I see
+	Konstantin Khlebnikov has been active and he suggested the mobility
+	naming to distinguish between the LRU pages. I simply disagree
+	even though I see his reasoning. I do not think we should have a
+	special case of LRU pages and everything else. Instead we should
+	have a single concept of movability (or mobility) with the special
+	case being that LRU pages without an aops can directly call the
+	necessary helpers.
+
+> +static inline bool isolate_mobilepage(struct page *page, isolate_mode_t mode)
+> +{
+> +	bool ret = false;
+> +
+> +	/*
+> +	 * Avoid burning cycles with pages that are yet under __free_pages(),
+> +	 * or just got freed under us.
+> +	 *
+> +	 * In case we 'win' a race for a mobile page being freed under us and
+> +	 * raise its refcount preventing __free_pages() from doing its job
+> +	 * the put_page() at the end of this block will take care of
+> +	 * release this page, thus avoiding a nasty leakage.
+> +	 */
+> +	if (unlikely(!get_page_unless_zero(page)))
+> +		goto out;
+> +
+
+Ok.
+
+> +	/*
+> +	 * As mobile pages are not isolated from LRU lists, concurrent
+> +	 * compaction threads can race against page migration functions
+> +	 * as well as race against the releasing a page.
+> +	 *
+> +	 * In order to avoid having an already isolated mobile page
+> +	 * being (wrongly) re-isolated while it is under migration,
+> +	 * or to avoid attempting to isolate pages being released,
+> +	 * lets be sure we have the page lock
+> +	 * before proceeding with the mobile page isolation steps.
+> +	 */
+> +	if (unlikely(!trylock_page(page)))
+> +		goto out_putpage;
+> +
+
+There are some big assumptions here. It assumes that any users of this
+interface can prevent parallel compaction attempts via the page lock. It
+also assumes that the caller does not recursively hold the page lock already.
+It would be incompatible with how LRU pages are isolated as they co-ordinate
+via the zone->lru_lock.
+
+I suspect you went with the page lock because it happens to be what the
+balloon driver needed which is fine, but potentially pastes us into a
+corner later.
+
+I don't see a way this could be generically handled for arbitrary subsystems
+unless you put responsibility for the locking inside a_ops->isolatepage. That
+still works for existing movable pages if you give it a pseudo a_ops for
+pages without page->mapping.
+
+Because of this, I really think it would benefit if there was a patch
+3 that converted the existing migration of LRU pages to use the aops
+interface. This could be done via a fake address_space that only populates
+the migration interfaces and is used for LRU pages. Then remove the LRU
+special casing in compaction and migration before converting the balloon
+driver and zram. This will rattle out any conceivable locking hazard and
+unify migration in general. I recognise that it's a lot of heavy lifting
+unfortunately but it leaves you with a partial solution to your problem
+(zram in the way) and paves the way for drivers to reliably convert.
+
+> +	if (!(mobile_page(page) && page->mapping->a_ops->isolatepage))
+> +		goto out_not_isolated;
+> +	ret = page->mapping->a_ops->isolatepage(page, mode);
+> +	if (!ret)
+> +		goto out_not_isolated;
+> +	unlock_page(page);
+> +	return ret;
+> +
+> +out_not_isolated:
+> +	unlock_page(page);
+> +out_putpage:
+> +	put_page(page);
+> +out:
+> +	return ret;
+> +}
+> +
+> +static inline void putback_mobilepage(struct page *page)
+> +{
+> +	/*
+> +	 * 'lock_page()' stabilizes the page and prevents races against
+> +	 * concurrent isolation threads attempting to re-isolate it.
+> +	 */
+> +	lock_page(page);
+> +	if (page->mapping && page->mapping->a_ops->putbackpage)
+> +		page->mapping->a_ops->putbackpage(page);
+> +	unlock_page(page);
+> +	/* drop the extra ref count taken for mobile page isolation */
+> +	put_page(page);
+> +}
+
+Similar comments about the locking, I think the a_ops handler needs to be
+responsible. We should not expand the role of the page->lock in the
+general case.
+
+>  #else
+>  static inline unsigned long try_to_compact_pages(gfp_t gfp_mask,
+>  			unsigned int order, int alloc_flags,
+> @@ -83,6 +150,19 @@ static inline bool compaction_deferred(struct zone *zone, int order)
+>  	return true;
+>  }
+>  
+> +static inline bool mobile_page(struct page *page)
+> +{
+> +	return false;
+> +}
+> +
+> +static inline bool isolate_mobilepage(struct page *page, isolate_mode_t mode)
+> +{
+> +	return false;
+> +}
+> +
+> +static inline void putback_mobilepage(struct page *page)
+> +{
+> +}
+>  #endif /* CONFIG_COMPACTION */
+>  
+>  #if defined(CONFIG_COMPACTION) && defined(CONFIG_SYSFS) && defined(CONFIG_NUMA)
+> diff --git a/include/linux/fs.h b/include/linux/fs.h
+> index a0653e5..2cc4b24 100644
+> --- a/include/linux/fs.h
+> +++ b/include/linux/fs.h
+> @@ -396,6 +396,8 @@ struct address_space_operations {
+>  	 */
+>  	int (*migratepage) (struct address_space *,
+>  			struct page *, struct page *, enum migrate_mode);
+> +	bool (*isolatepage) (struct page *, isolate_mode_t);
+> +	void (*putbackpage) (struct page *);
+>  	int (*launder_page) (struct page *);
+>  	int (*is_partially_uptodate) (struct page *, unsigned long,
+>  					unsigned long);
+> diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
+> index f34e040..abef145 100644
+> --- a/include/linux/page-flags.h
+> +++ b/include/linux/page-flags.h
+> @@ -582,6 +582,25 @@ static inline void __ClearPageBalloon(struct page *page)
+>  	atomic_set(&page->_mapcount, -1);
+>  }
+>  
+> +#define PAGE_MOBILE_MAPCOUNT_VALUE (-255)
+> +
+> +static inline int PageMobile(struct page *page)
+> +{
+> +	return atomic_read(&page->_mapcount) == PAGE_MOBILE_MAPCOUNT_VALUE;
+> +}
+> +
+> +static inline void __SetPageMobile(struct page *page)
+> +{
+> +	VM_BUG_ON_PAGE(atomic_read(&page->_mapcount) != -1, page);
+> +	atomic_set(&page->_mapcount, PAGE_MOBILE_MAPCOUNT_VALUE);
+> +}
+> +
+> +static inline void __ClearPageMobile(struct page *page)
+> +{
+> +	VM_BUG_ON_PAGE(!PageMobile(page), page);
+> +	atomic_set(&page->_mapcount, -1);
+> +}
+> +
+
+This definition of Mobility would prevent LRU pages ever being considered
+"mobile" in the same why. Why do we not either check it's an LRU page (in
+which case it's inherently mobile) or has an aops with the correct handlers?
+
+>  /*
+>   * If network-based swap is enabled, sl*b must keep track of whether pages
+>   * were allocated from pfmemalloc reserves.
+> diff --git a/include/uapi/linux/kernel-page-flags.h b/include/uapi/linux/kernel-page-flags.h
+> index a6c4962..d50d9e8 100644
+> --- a/include/uapi/linux/kernel-page-flags.h
+> +++ b/include/uapi/linux/kernel-page-flags.h
+> @@ -33,6 +33,7 @@
+>  #define KPF_THP			22
+>  #define KPF_BALLOON		23
+>  #define KPF_ZERO_PAGE		24
+> +#define KPF_MOBILE		25
+>  
+>  
+>  #endif /* _UAPILINUX_KERNEL_PAGE_FLAGS_H */
 
 -- 
 Mel Gorman
