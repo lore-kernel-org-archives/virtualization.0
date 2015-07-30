@@ -1,16 +1,13 @@
-From: Mel Gorman <mgorman@techsingularity.net>
-Subject: Re: [PATCH 0/4] enable migration of driver pages
-Date: Wed, 29 Jul 2015 13:16:14 +0100
-Message-ID: <20150729121614.GA19352__38392.0212080286$1438620851$gmane$org@techsingularity.net>
-References: <1436776519-17337-1-git-send-email-gioh.kim@lge.com>
-	<20150729104945.GA30872@techsingularity.net>
-	<20150729105554.GU16722@phenom.ffwll.local>
+From: Shannon Zhao <shannon.zhao@linaro.org>
+Subject: Re: [Qemu-devel] [PATCH v2] arm: change vendor ID for virtio-mmio
+Date: Thu, 30 Jul 2015 09:23:20 +0800
+Message-ID: <55B97C88.6010004__38919.1009606749$1438620858$gmane$org@linaro.org>
+References: <1438196676-30255-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20150729105554.GU16722@phenom.ffwll.local>
+In-Reply-To: <1438196676-30255-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,40 +17,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gioh Kim <gioh.kim@lge.com>, jlayton@poochiereds.net, bfields@fieldses.org, vbabka@suse.cz, iamjoonsoo.kim@lge.com, viro@zeniv.linux.org.uk, mst@redhat.com, koct9i@gmail.com, minchan@kernel.org, aquini@redhat.com, linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-api@vger.kernel.org, linux-mm@kvack.org, dri-devel@lists.freedesktop.org, akpm@linux-foundation.org, Gioh Kim <gurugio@hanmail.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org
+Cc: Peter Maydell <peter.maydell@linaro.org>, Graeme Gregory <graeme.gregory@linaro.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Shannon Zhao <zhaoshenglong@huawei.com>, Igor Mammedov <imammedo@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 29, 2015 at 12:55:54PM +0200, Daniel Vetter wrote:
-> On Wed, Jul 29, 2015 at 11:49:45AM +0100, Mel Gorman wrote:
-> > On Mon, Jul 13, 2015 at 05:35:15PM +0900, Gioh Kim wrote:
-> > > My ARM-based platform occured severe fragmentation problem after long-term
-> > > (several days) test. Sometimes even order-3 page allocation failed. It has
-> > > memory size 512MB ~ 1024MB. 30% ~ 40% memory is consumed for graphic processing
-> > > and 20~30 memory is reserved for zram.
-> > > 
-> > 
-> > The primary motivation of this series is to reduce fragmentation by allowing
-> > more kernel pages to be moved. Conceptually that is a worthwhile goal but
-> > there should be at least one major in-kernel user and while balloon
-> > pages were a good starting point, I think we really need to see what the
-> > zram changes look like at the same time.
-> 
-> I think gpu drivers really would be the perfect candidate for compacting
-> kernel page allocations. And this also seems the primary motivation for
-> this patch series, so I think that's really what we should use to judge
-> these patches.
-> 
-> Of course then there's the seemingly eternal chicken/egg problem of
-> upstream gpu drivers for SoCs :(
 
-I recognised that the driver he had modified was not an in-tree user so
-it did not really help the review or the design. I did not think it was
-very fair to ask that an in-tree GPU driver be converted when it would not
-help the embedded platform of interest. Converting zram is both a useful
-illustration of the aops requirements and is expected to be beneficial on
-the embedded platform. Now, if a GPU driver author was willing to convert
-theirs as an example then that would be useful!
+
+On 2015/7/30 3:16, Michael S. Tsirkin wrote:
+> ACPI spec 5.0 allows the use of PCI vendor IDs.
+> 
+But virtio-mmio is not a PCI device, it's a platform device.
+Why do we drop the previous way using "QEMUXXXX"? Something I missed?
+
+> Since we have one for virtio, it seems neater to use that
+> rather than LNRO. For the device ID, use 103F which is a legacy ID that
+> isn't used in virtio PCI spec - seems to make sense since virtio-mmio is
+> a legacy device but we don't know the correct device type.
+> 
+> Guests should probably match everything in the range 1000-103F
+> (just like legacy pci drivers do) which will allow us to pass in the
+> actual ID in the future if we want to.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  hw/arm/virt-acpi-build.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/hw/arm/virt-acpi-build.c b/hw/arm/virt-acpi-build.c
+> index f365140..dea61ba 100644
+> --- a/hw/arm/virt-acpi-build.c
+> +++ b/hw/arm/virt-acpi-build.c
+> @@ -145,7 +145,7 @@ static void acpi_dsdt_add_virtio(Aml *scope,
+>  
+>      for (i = 0; i < num; i++) {
+>          Aml *dev = aml_device("VR%02u", i);
+> -        aml_append(dev, aml_name_decl("_HID", aml_string("LNRO0005")));
+> +        aml_append(dev, aml_name_decl("_HID", aml_string("1AF4103F")));
+>          aml_append(dev, aml_name_decl("_UID", aml_int(i)));
+>  
+>          Aml *crs = aml_resource_template();
+> 
 
 -- 
-Mel Gorman
-SUSE Labs
+Shannon
