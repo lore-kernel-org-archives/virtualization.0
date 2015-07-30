@@ -1,17 +1,15 @@
-From: Gioh Kim <gioh.kim@lge.com>
-Subject: Re: [PATCH 0/4] enable migration of driver pages
-Date: Thu, 30 Jul 2015 09:21:09 +0900
-Message-ID: <55B96DF5.40602__16483.6693824784$1438215695$gmane$org@lge.com>
-References: <1436776519-17337-1-git-send-email-gioh.kim@lge.com>
-	<20150729104945.GA30872@techsingularity.net>
-	<20150729105554.GU16722@phenom.ffwll.local>
-	<20150729121614.GA19352@techsingularity.net>
-	<20150729124635.GW16722@phenom.ffwll.local>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH v2] arm: change vendor ID for virtio-mmio
+Date: Thu, 30 Jul 2015 11:04:38 +0300
+Message-ID: <20150730105923-mutt-send-email-mst@redhat.com>
+References: <1438196676-30255-1-git-send-email-mst@redhat.com>
+	<55B97C88.6010004@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150729124635.GW16722@phenom.ffwll.local>
+Content-Disposition: inline
+In-Reply-To: <55B97C88.6010004@linaro.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,53 +19,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mel Gorman <mgorman@techsingularity.net>, jlayton@poochiereds.net, bfields@fieldses.org, vbabka@suse.cz, iamjoonsoo.kim@lge.com, viro@zeniv.linux.org.uk, mst@redhat.com, koct9i@gmail.com, minchan@kernel.org, aquini@redhat.com, linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-api@vger.kernel.org, linux-mm@kvack.org, dri-devel@lists.freedesktop.org, akpm@linux-foundation.org, Gioh Kim <gurugio@hanmail.net>
+To: Shannon Zhao <shannon.zhao@linaro.org>
+Cc: Peter Maydell <peter.maydell@linaro.org>, Graeme Gregory <graeme.gregory@linaro.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, qemu-devel@nongnu.org, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Shannon Zhao <zhaoshenglong@huawei.com>, Igor Mammedov <imammedo@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgoyMDE1LTA3LTI5IOyYpO2bhCA5OjQ27JeQIERhbmllbCBWZXR0ZXIg7J20KOqwgCkg7JO0IOq4
-gDoKPiBPbiBXZWQsIEp1bCAyOSwgMjAxNSBhdCAwMToxNjoxNFBNICswMTAwLCBNZWwgR29ybWFu
-IHdyb3RlOgo+PiBPbiBXZWQsIEp1bCAyOSwgMjAxNSBhdCAxMjo1NTo1NFBNICswMjAwLCBEYW5p
-ZWwgVmV0dGVyIHdyb3RlOgo+Pj4gT24gV2VkLCBKdWwgMjksIDIwMTUgYXQgMTE6NDk6NDVBTSAr
-MDEwMCwgTWVsIEdvcm1hbiB3cm90ZToKPj4+PiBPbiBNb24sIEp1bCAxMywgMjAxNSBhdCAwNToz
-NToxNVBNICswOTAwLCBHaW9oIEtpbSB3cm90ZToKPj4+Pj4gTXkgQVJNLWJhc2VkIHBsYXRmb3Jt
-IG9jY3VyZWQgc2V2ZXJlIGZyYWdtZW50YXRpb24gcHJvYmxlbSBhZnRlciBsb25nLXRlcm0KPj4+
-Pj4gKHNldmVyYWwgZGF5cykgdGVzdC4gU29tZXRpbWVzIGV2ZW4gb3JkZXItMyBwYWdlIGFsbG9j
-YXRpb24gZmFpbGVkLiBJdCBoYXMKPj4+Pj4gbWVtb3J5IHNpemUgNTEyTUIgfiAxMDI0TUIuIDMw
-JSB+IDQwJSBtZW1vcnkgaXMgY29uc3VtZWQgZm9yIGdyYXBoaWMgcHJvY2Vzc2luZwo+Pj4+PiBh
-bmQgMjB+MzAgbWVtb3J5IGlzIHJlc2VydmVkIGZvciB6cmFtLgo+Pj4+Pgo+Pj4+Cj4+Pj4gVGhl
-IHByaW1hcnkgbW90aXZhdGlvbiBvZiB0aGlzIHNlcmllcyBpcyB0byByZWR1Y2UgZnJhZ21lbnRh
-dGlvbiBieSBhbGxvd2luZwo+Pj4+IG1vcmUga2VybmVsIHBhZ2VzIHRvIGJlIG1vdmVkLiBDb25j
-ZXB0dWFsbHkgdGhhdCBpcyBhIHdvcnRod2hpbGUgZ29hbCBidXQKPj4+PiB0aGVyZSBzaG91bGQg
-YmUgYXQgbGVhc3Qgb25lIG1ham9yIGluLWtlcm5lbCB1c2VyIGFuZCB3aGlsZSBiYWxsb29uCj4+
-Pj4gcGFnZXMgd2VyZSBhIGdvb2Qgc3RhcnRpbmcgcG9pbnQsIEkgdGhpbmsgd2UgcmVhbGx5IG5l
-ZWQgdG8gc2VlIHdoYXQgdGhlCj4+Pj4genJhbSBjaGFuZ2VzIGxvb2sgbGlrZSBhdCB0aGUgc2Ft
-ZSB0aW1lLgo+Pj4KPj4+IEkgdGhpbmsgZ3B1IGRyaXZlcnMgcmVhbGx5IHdvdWxkIGJlIHRoZSBw
-ZXJmZWN0IGNhbmRpZGF0ZSBmb3IgY29tcGFjdGluZwo+Pj4ga2VybmVsIHBhZ2UgYWxsb2NhdGlv
-bnMuIEFuZCB0aGlzIGFsc28gc2VlbXMgdGhlIHByaW1hcnkgbW90aXZhdGlvbiBmb3IKPj4+IHRo
-aXMgcGF0Y2ggc2VyaWVzLCBzbyBJIHRoaW5rIHRoYXQncyByZWFsbHkgd2hhdCB3ZSBzaG91bGQg
-dXNlIHRvIGp1ZGdlCj4+PiB0aGVzZSBwYXRjaGVzLgo+Pj4KPj4+IE9mIGNvdXJzZSB0aGVuIHRo
-ZXJlJ3MgdGhlIHNlZW1pbmdseSBldGVybmFsIGNoaWNrZW4vZWdnIHByb2JsZW0gb2YKPj4+IHVw
-c3RyZWFtIGdwdSBkcml2ZXJzIGZvciBTb0NzIDooCj4+Cj4+IEkgcmVjb2duaXNlZCB0aGF0IHRo
-ZSBkcml2ZXIgaGUgaGFkIG1vZGlmaWVkIHdhcyBub3QgYW4gaW4tdHJlZSB1c2VyIHNvCj4+IGl0
-IGRpZCBub3QgcmVhbGx5IGhlbHAgdGhlIHJldmlldyBvciB0aGUgZGVzaWduLiBJIGRpZCBub3Qg
-dGhpbmsgaXQgd2FzCj4+IHZlcnkgZmFpciB0byBhc2sgdGhhdCBhbiBpbi10cmVlIEdQVSBkcml2
-ZXIgYmUgY29udmVydGVkIHdoZW4gaXQgd291bGQgbm90Cj4+IGhlbHAgdGhlIGVtYmVkZGVkIHBs
-YXRmb3JtIG9mIGludGVyZXN0LiBDb252ZXJ0aW5nIHpyYW0gaXMgYm90aCBhIHVzZWZ1bAo+PiBp
-bGx1c3RyYXRpb24gb2YgdGhlIGFvcHMgcmVxdWlyZW1lbnRzIGFuZCBpcyBleHBlY3RlZCB0byBi
-ZSBiZW5lZmljaWFsIG9uCj4+IHRoZSBlbWJlZGRlZCBwbGF0Zm9ybS4gTm93LCBpZiBhIEdQVSBk
-cml2ZXIgYXV0aG9yIHdhcyB3aWxsaW5nIHRvIGNvbnZlcnQKPj4gdGhlaXJzIGFzIGFuIGV4YW1w
-bGUgdGhlbiB0aGF0IHdvdWxkIGJlIHVzZWZ1bCEKPgo+IFdlbGwgbXkgY29uY2VybiBpcyBtb3Jl
-IHdpdGggbWVyZ2luZyBpbmZyYXN0cnVjdHVyZSB0byB1cHN0cmVhbSBmb3IKPiBkcml2ZXJzIHdo
-aWNoIGFyZW4ndCB1cHN0cmVhbSBhbmQgd2l0aCBubyBwbGFuIHRvIG1ha2UgdGhhdCBoYXBwZW4g
-YW55dGltZQo+IHNvb24uIFNlZW1zIGxpa2UganVzdCBvZmZsb2FkIGEgYml0IHRvIG1lIC4uLiBi
-dXQgaW4gdGhlIGVuZCBjb3JlIG1tIGlzbid0Cj4gbXkgdGhpbmcgc28gbm90IG15IGRlY2lzaW9u
-Lgo+IC1EYW5pZWwKPgoKSSBnZXQgaWRlYSBmcm9tIHRoZSBvdXQtdHJlZSBkcml2ZXIgYnV0IHRo
-aXMgaW5mcmFzdHJ1Y3R1cmUgd2lsbCBiZSB1c2VmdWwKZm9yIHpyYW0gYW5kIGJhbGxvb24uIFRo
-YXQgaXMgYWdyZWVkIGJ5IHRoZSBtYWludGFpbmVycyBvZiBlYWNoIGRyaXZlci4KCkknbSBjdXJy
-ZW50bHkgYWNjZXB0aW5nIGZlZWRiYWNrcyBmcm9tCmJhbGxvb24gYW5kIHpyYW0gYW5kIHRyeWlu
-ZyB0byBiZSBhcHBsaWNhYmxlIGZvciB0aGVtLgpPZiBjb3Vyc2UgSSBob3BlIHRoZXJlIHdpbGwg
-YmUgbW9yZSBhcHBsaWNhdGlvbi4gSXQnbGwgYmUgbW9yZSB1c2VmdWwKaWYgaXQgaGFzIG1vcmUg
-YXBwbGljYXRpb24uCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
-eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
-bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Thu, Jul 30, 2015 at 09:23:20AM +0800, Shannon Zhao wrote:
+> 
+> 
+> On 2015/7/30 3:16, Michael S. Tsirkin wrote:
+> > ACPI spec 5.0 allows the use of PCI vendor IDs.
+> > 
+> But virtio-mmio is not a PCI device, it's a platform device.
+
+Yes. ACPI spec 5.0 says:
+
+	A valid PNP ID must be of the form "AAA####" where A is an uppercase
+	letter and # is a hex digit. A valid ACPI ID must be of the form
+	"NNNN####" where N is an uppercase letter or a digit ('0'-'9') and # is
+	a hex digit. This specification reserves the string "ACPI" for use only
+	with devices defined herein.
+
+	It further reserves all strings representing 4 HEX digits for
+	exclusive use with PCI-assigned Vendor IDs.
+
+The second paragraph means if PCI SIG assigned you an ID, you
+can use that without need to register it with ASWG.
+
+
+> Why do we drop the previous way using "QEMUXXXX"? Something I missed?
+
+So that guests that bind to this interface will work fine with non QEMU
+implementations of virtio-mmio.
+
+It's just playing nice with others.
+
+We could have done something similar to pvpanic as well, except we
+didn't and guests using the QEMU prefix have been released,
+so we have to keep using that.
+
+> > Since we have one for virtio, it seems neater to use that
+> > rather than LNRO. For the device ID, use 103F which is a legacy ID that
+> > isn't used in virtio PCI spec - seems to make sense since virtio-mmio is
+> > a legacy device but we don't know the correct device type.
+> > 
+> > Guests should probably match everything in the range 1000-103F
+> > (just like legacy pci drivers do) which will allow us to pass in the
+> > actual ID in the future if we want to.
+> > 
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> >  hw/arm/virt-acpi-build.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/hw/arm/virt-acpi-build.c b/hw/arm/virt-acpi-build.c
+> > index f365140..dea61ba 100644
+> > --- a/hw/arm/virt-acpi-build.c
+> > +++ b/hw/arm/virt-acpi-build.c
+> > @@ -145,7 +145,7 @@ static void acpi_dsdt_add_virtio(Aml *scope,
+> >  
+> >      for (i = 0; i < num; i++) {
+> >          Aml *dev = aml_device("VR%02u", i);
+> > -        aml_append(dev, aml_name_decl("_HID", aml_string("LNRO0005")));
+> > +        aml_append(dev, aml_name_decl("_HID", aml_string("1AF4103F")));
+> >          aml_append(dev, aml_name_decl("_UID", aml_int(i)));
+> >  
+> >          Aml *crs = aml_resource_template();
+> > 
+> 
+> -- 
+> Shannon
