@@ -1,17 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH v2] arm: change vendor ID for virtio-mmio
-Date: Thu, 30 Jul 2015 18:05:52 +0300
-Message-ID: <20150730180303-mutt-send-email-mst__8607.26365722275$1438268777$gmane$org@redhat.com>
-References: <1438196676-30255-1-git-send-email-mst@redhat.com>
-	<55B97C88.6010004@linaro.org>
-	<20150730105923-mutt-send-email-mst@redhat.com>
-	<CAFEAcA9zRArvxhihXZpTVZrMw7UmRHMqh5SOM8Jz83Fmasr1zA@mail.gmail.com>
+From: Minchan Kim <minchan@kernel.org>
+Subject: Re: [PATCH 2/4] mm/compaction: enable mobile-page migration
+Date: Fri, 31 Jul 2015 19:43:09 +0900
+Message-ID: <20150731104309.GA22158__20698.7618156292$1438339416$gmane$org@bbox>
+References: <1436776519-17337-1-git-send-email-gioh.kim@lge.com>
+	<1436776519-17337-3-git-send-email-gioh.kim@lge.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAFEAcA9zRArvxhihXZpTVZrMw7UmRHMqh5SOM8Jz83Fmasr1zA@mail.gmail.com>
+In-Reply-To: <1436776519-17337-3-git-send-email-gioh.kim@lge.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,49 +19,268 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Maydell <peter.maydell@linaro.org>
-Cc: Graeme Gregory <graeme.gregory@linaro.org>, QEMU Developers <qemu-devel@nongnu.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Shannon Zhao <shannon.zhao@linaro.org>, Shannon Zhao <zhaoshenglong@huawei.com>, Igor Mammedov <imammedo@redhat.com>
+To: Gioh Kim <gioh.kim@lge.com>
+Cc: aquini@redhat.com, mst@redhat.com, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gurugio@hanmail.net>, viro@zeniv.linux.org.uk, akpm@linux-foundation.org, linux-fsdevel@vger.kernel.org, jlayton@poochiereds.net, koct9i@gmail.com, iamjoonsoo.kim@lge.com, vbabka@suse.cz
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 30, 2015 at 10:24:11AM +0100, Peter Maydell wrote:
-> On 30 July 2015 at 09:04, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > On Thu, Jul 30, 2015 at 09:23:20AM +0800, Shannon Zhao wrote:
-> >>
-> >> Why do we drop the previous way using "QEMUXXXX"? Something I missed?
-> >
-> > So that guests that bind to this interface will work fine with non QEMU
-> > implementations of virtio-mmio.
+Hi Gioh,
+
+On Mon, Jul 13, 2015 at 05:35:17PM +0900, Gioh Kim wrote:
+> From: Gioh Kim <gurugio@hanmail.net>
 > 
-> I don't understand this sentence. If there are pre-existing
-> non-QEMU virtio-mmio implementations, then they're using
-> LNRO0005, and we should use it too. If there are going to
-> be implementations of virtio-mmio in future, then they will
-> use whatever identifier we pick here. Either way, we get
-> interoperability. I don't see any difference between our
-> saying "the ID for virtio-mmio is QEMU0005" and saying
-> "the ID for virtio-mmio is 1AF4103F".
-
-I agree. It's just that 1AF4 is already reserved for virtio.
-
-> (The latter seems unnecessarily opaque to me, to be honest.
-> At least an ID string QEMUxxxx gives you a clue where to
-> look for who owns the thing.)
-
-Well - if one looks in the ACPI spec, that says if ID uses numbers, then
-one has to find the vendor from PCI SIG, and that has a database mapping
-IDs to vendors.
-
+> Add framework to register callback functions and check page mobility.
+> There are some modes for page isolation so that isolate interface
+> has arguments of page address and isolation mode while putback
+> interface has only page address as argument.
 > 
-> Note also that strictly you don't mean "non-QEMU implementations
-> of virtio-mmio", you mean "non-QEMU implementations of the
-> ACPI tables".
-
-Yes.
-
-> The hardware implementation of virtio-mmio
-> doesn't care at all about the ACPI ID. (In fact the most
-> plausible other-implementation would be UEFI using its
-> own (hard-coded) ACPI tables on top of a QEMU vexpress-a15
-> model or something similar.)
+> Signed-off-by: Gioh Kim <gioh.kim@lge.com>
+> Acked-by: Rafael Aquini <aquini@redhat.com>
+> ---
+>  fs/proc/page.c                         |  3 ++
+>  include/linux/compaction.h             | 80 ++++++++++++++++++++++++++++++++++
+>  include/linux/fs.h                     |  2 +
+>  include/linux/page-flags.h             | 19 ++++++++
+>  include/uapi/linux/kernel-page-flags.h |  1 +
+>  5 files changed, 105 insertions(+)
 > 
-> -- PMM
+> diff --git a/fs/proc/page.c b/fs/proc/page.c
+> index 7eee2d8..a4f5a00 100644
+> --- a/fs/proc/page.c
+> +++ b/fs/proc/page.c
+> @@ -146,6 +146,9 @@ u64 stable_page_flags(struct page *page)
+>  	if (PageBalloon(page))
+>  		u |= 1 << KPF_BALLOON;
+>  
+> +	if (PageMobile(page))
+> +		u |= 1 << KPF_MOBILE;
+> +
+
+Need a new page flag for non-LRU page migration?
+I am worry that we don't have empty slot for page flag on 32-bit.
+
+Aha, see SetPageMobile below. You use _mapcount.
+It seems to be work for non-LRU pages but unfortunately, zsmalloc
+already have used that field as own purpose so there is no room
+for it.
+
+
+>  	u |= kpf_copy_bit(k, KPF_LOCKED,	PG_locked);
+>  
+>  	u |= kpf_copy_bit(k, KPF_SLAB,		PG_slab);
+> diff --git a/include/linux/compaction.h b/include/linux/compaction.h
+> index aa8f61c..f693072 100644
+> --- a/include/linux/compaction.h
+> +++ b/include/linux/compaction.h
+> @@ -1,6 +1,9 @@
+>  #ifndef _LINUX_COMPACTION_H
+>  #define _LINUX_COMPACTION_H
+>  
+> +#include <linux/page-flags.h>
+> +#include <linux/pagemap.h>
+> +
+>  /* Return values for compact_zone() and try_to_compact_pages() */
+>  /* compaction didn't start as it was deferred due to past failures */
+>  #define COMPACT_DEFERRED	0
+> @@ -51,6 +54,70 @@ extern void compaction_defer_reset(struct zone *zone, int order,
+>  				bool alloc_success);
+>  extern bool compaction_restarting(struct zone *zone, int order);
+>  
+> +static inline bool mobile_page(struct page *page)
+> +{
+> +	return page->mapping &&	(PageMobile(page) || PageBalloon(page));
+
+
+What's the locking rule to test mobile_page?
+Why we need such many checking?
+
+Why we need PageBalloon check?
+You are trying to make generic abstraction for non-LRU page to migrate
+but PageBalloon check in here breaks your goal.
+
+> +}
+> +
+> +static inline bool isolate_mobilepage(struct page *page, isolate_mode_t mode)
+> +{
+> +	bool ret = false;
+> +
+> +	/*
+> +	 * Avoid burning cycles with pages that are yet under __free_pages(),
+> +	 * or just got freed under us.
+> +	 *
+> +	 * In case we 'win' a race for a mobile page being freed under us and
+> +	 * raise its refcount preventing __free_pages() from doing its job
+> +	 * the put_page() at the end of this block will take care of
+> +	 * release this page, thus avoiding a nasty leakage.
+> +	 */
+
+Good.
+
+> +	if (unlikely(!get_page_unless_zero(page)))
+> +		goto out;
+> +
+> +	/*
+> +	 * As mobile pages are not isolated from LRU lists, concurrent
+> +	 * compaction threads can race against page migration functions
+> +	 * as well as race against the releasing a page.
+
+How can it race with releasing a page?
+We already get refcount above.
+
+Do you mean page->mapping tearing race?
+If so, zsmalloc should be chaned to hold a lock.
+
+
+> +	 *
+> +	 * In order to avoid having an already isolated mobile page
+> +	 * being (wrongly) re-isolated while it is under migration,
+> +	 * or to avoid attempting to isolate pages being released,
+> +	 * lets be sure we have the page lock
+> +	 * before proceeding with the mobile page isolation steps.
+> +	 */
+> +	if (unlikely(!trylock_page(page)))
+> +		goto out_putpage;
+> +
+> +	if (!(mobile_page(page) && page->mapping->a_ops->isolatepage))
+> +		goto out_not_isolated;
+
+I cannot know how isolate_mobilepage is called by upper layer
+because this patch doesn't include it.
+Anyway, why we need such many checks to prove it's mobile page?
+
+mobile_page() {
+	page->mapping && (PageMobile(page) || PageBalloon(page));
+}
+
+Additionally, added page->mapping->a_ops->isolatepage check
+
+Is it possible that a non-LRU page's address space provides
+only page->maping->migratepage without isolate/putback?
+
+Couldn't we make it simple like this?
+
+        page->mapping && page->mapping->migratepage
+
+So, couldn't we make mobile_page like this
+
+PageMobile(struct page *page)
+{
+        VM_BUG_ON_PAGE(!PageLocked(page), page);
+        VM_BUG_ON_PAGE(PageLRU(page), page);
+
+        return page->mapping && page->mapping->migratepage;
+}
+
+It will save _mapcount of struct page.
+
+> +	ret = page->mapping->a_ops->isolatepage(page, mode);
+> +	if (!ret)
+> +		goto out_not_isolated;
+> +	unlock_page(page);
+> +	return ret;
+> +
+> +out_not_isolated:
+> +	unlock_page(page);
+> +out_putpage:
+> +	put_page(page);
+> +out:
+> +	return ret;
+> +}
+> +
+> +static inline void putback_mobilepage(struct page *page)
+> +{
+> +	/*
+> +	 * 'lock_page()' stabilizes the page and prevents races against
+
+What does it mean 'stabilize'?
+Clear comment is always welcome rather than vague word.
+
+> +	 * concurrent isolation threads attempting to re-isolate it.
+> +	 */
+> +	lock_page(page);
+> +	if (page->mapping && page->mapping->a_ops->putbackpage)
+> +		page->mapping->a_ops->putbackpage(page);
+> +	unlock_page(page);
+> +	/* drop the extra ref count taken for mobile page isolation */
+> +	put_page(page);
+> +}
+>  #else
+>  static inline unsigned long try_to_compact_pages(gfp_t gfp_mask,
+>  			unsigned int order, int alloc_flags,
+> @@ -83,6 +150,19 @@ static inline bool compaction_deferred(struct zone *zone, int order)
+>  	return true;
+>  }
+>  
+> +static inline bool mobile_page(struct page *page)
+> +{
+> +	return false;
+> +}
+> +
+> +static inline bool isolate_mobilepage(struct page *page, isolate_mode_t mode)
+> +{
+> +	return false;
+> +}
+> +
+> +static inline void putback_mobilepage(struct page *page)
+> +{
+> +}
+>  #endif /* CONFIG_COMPACTION */
+>  
+>  #if defined(CONFIG_COMPACTION) && defined(CONFIG_SYSFS) && defined(CONFIG_NUMA)
+> diff --git a/include/linux/fs.h b/include/linux/fs.h
+> index a0653e5..2cc4b24 100644
+> --- a/include/linux/fs.h
+> +++ b/include/linux/fs.h
+> @@ -396,6 +396,8 @@ struct address_space_operations {
+>  	 */
+>  	int (*migratepage) (struct address_space *,
+>  			struct page *, struct page *, enum migrate_mode);
+> +	bool (*isolatepage) (struct page *, isolate_mode_t);
+> +	void (*putbackpage) (struct page *);
+>  	int (*launder_page) (struct page *);
+>  	int (*is_partially_uptodate) (struct page *, unsigned long,
+>  					unsigned long);
+> diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
+> index f34e040..abef145 100644
+> --- a/include/linux/page-flags.h
+> +++ b/include/linux/page-flags.h
+> @@ -582,6 +582,25 @@ static inline void __ClearPageBalloon(struct page *page)
+>  	atomic_set(&page->_mapcount, -1);
+>  }
+>  
+> +#define PAGE_MOBILE_MAPCOUNT_VALUE (-255)
+> +
+> +static inline int PageMobile(struct page *page)
+> +{
+> +	return atomic_read(&page->_mapcount) == PAGE_MOBILE_MAPCOUNT_VALUE;
+> +}
+> +
+> +static inline void __SetPageMobile(struct page *page)
+> +{
+> +	VM_BUG_ON_PAGE(atomic_read(&page->_mapcount) != -1, page);
+> +	atomic_set(&page->_mapcount, PAGE_MOBILE_MAPCOUNT_VALUE);
+> +}
+> +
+> +static inline void __ClearPageMobile(struct page *page)
+> +{
+> +	VM_BUG_ON_PAGE(!PageMobile(page), page);
+> +	atomic_set(&page->_mapcount, -1);
+> +}
+> +
+>  /*
+>   * If network-based swap is enabled, sl*b must keep track of whether pages
+>   * were allocated from pfmemalloc reserves.
+> diff --git a/include/uapi/linux/kernel-page-flags.h b/include/uapi/linux/kernel-page-flags.h
+> index a6c4962..d50d9e8 100644
+> --- a/include/uapi/linux/kernel-page-flags.h
+> +++ b/include/uapi/linux/kernel-page-flags.h
+> @@ -33,6 +33,7 @@
+>  #define KPF_THP			22
+>  #define KPF_BALLOON		23
+>  #define KPF_ZERO_PAGE		24
+> +#define KPF_MOBILE		25
+>  
+>  
+>  #endif /* _UAPILINUX_KERNEL_PAGE_FLAGS_H */
+> -- 
+> 2.1.4
+> 
