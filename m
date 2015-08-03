@@ -1,15 +1,14 @@
-From: Andrew Jones <drjones@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH v2] arm: change vendor ID for virtio-mmio
-Date: Mon, 3 Aug 2015 14:09:41 +0200
-Message-ID: <20150803120941.GC7109@hawk.localdomain>
-References: <1438196676-30255-1-git-send-email-mst@redhat.com>
-	<CAFEAcA-dr_QBnM+h-4EQ9uZMRwVVi=UUazBLWmDWxLH+35ZKLQ@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next] virtio_net: add gro capability
+Date: Mon, 3 Aug 2015 16:37:19 +0300
+Message-ID: <20150803162529-mutt-send-email-mst@redhat.com>
+References: <1438359917.2748.18.camel@edumazet-glaptop2.roam.corp.google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAFEAcA-dr_QBnM+h-4EQ9uZMRwVVi=UUazBLWmDWxLH+35ZKLQ@mail.gmail.com>
+In-Reply-To: <1438359917.2748.18.camel@edumazet-glaptop2.roam.corp.google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,75 +18,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Maydell <peter.maydell@linaro.org>
-Cc: Graeme Gregory <graeme.gregory@linaro.org>, "Michael S. Tsirkin" <mst@redhat.com>, QEMU Developers <qemu-devel@nongnu.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Shannon Zhao <zhaoshenglong@huawei.com>, Igor Mammedov <imammedo@redhat.com>
+To: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: netdev <netdev@vger.kernel.org>, Rick Jones <rick.jones2@hp.com>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jul 31, 2015 at 01:37:44PM +0100, Peter Maydell wrote:
-> On 29 July 2015 at 20:16, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > ACPI spec 5.0 allows the use of PCI vendor IDs.
-> >
-> > Since we have one for virtio, it seems neater to use that
-> > rather than LNRO. For the device ID, use 103F which is a legacy ID that
-> > isn't used in virtio PCI spec - seems to make sense since virtio-mmio is
-> > a legacy device but we don't know the correct device type.
-> >
-> > Guests should probably match everything in the range 1000-103F
-> > (just like legacy pci drivers do) which will allow us to pass in the
-> > actual ID in the future if we want to.
-> >
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
-> >  hw/arm/virt-acpi-build.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/hw/arm/virt-acpi-build.c b/hw/arm/virt-acpi-build.c
-> > index f365140..dea61ba 100644
-> > --- a/hw/arm/virt-acpi-build.c
-> > +++ b/hw/arm/virt-acpi-build.c
-> > @@ -145,7 +145,7 @@ static void acpi_dsdt_add_virtio(Aml *scope,
-> >
-> >      for (i = 0; i < num; i++) {
-> >          Aml *dev = aml_device("VR%02u", i);
-> > -        aml_append(dev, aml_name_decl("_HID", aml_string("LNRO0005")));
-> > +        aml_append(dev, aml_name_decl("_HID", aml_string("1AF4103F")));
-> >          aml_append(dev, aml_name_decl("_UID", aml_int(i)));
+On Fri, Jul 31, 2015 at 06:25:17PM +0200, Eric Dumazet wrote:
+> From: Eric Dumazet <edumazet@google.com>
 > 
-> So, I've just checked, and I believe that the kernel that RedHat
-> are shipping in their RHEL7 dev preview for AArch64 (and probably
-> thus also the Fedora/Centos one) includes a patch which adds
-> ACPI support to the virtio-mmio driver using the LNRO0005 ID string.
-
-Yes, we have https://lkml.org/lkml/2015/7/28/216 in the RHELSA kernel.
-Although, while that kernel is floating around already, it hasn't
-really been released, particularly not for virt use cases. So we could
-change it (although that change needs to be soon).
-
+> Straightforward patch to add GRO processing to virtio_net.
 > 
-> This to me suggests that we should just stick with that ID,
-> rather than changing to QEMUxxxx, the hex one based on the PCI
-> vendor ID, or anything else.
+> napi_complete_done() usage allows more aggressive aggregation,
+> opted-in by setting /sys/class/net/xxx/gro_flush_timeout
 > 
-> We're obviously under no obligation to make life easy for people
-> who ship kernels full of patches that haven't gone upstream yet,
-> but in this case there doesn't seem to me to be any benefit to
-> QEMU from picking an ID string that would break compatibility...
-
-I'll remain abstained on this debate, but if the consensus is to
-change it, then let me know, and I'll handle the changes on the
-RHELSA side.
-
-Thanks,
-drew
-
+> Tested:
 > 
-> [The kernel I checked was the one in
-> https://git.centos.org/sources/kernel-aarch64/c7-aarch64/c589ab77889df6d93dbe817c373080631ab3275b
-> which despite the filename is actually an 80MB .tar.xz archive,
-> as pointed to by
-> https://git.centos.org/blob/rpms!kernel-aarch64/910dbce5f13419d68002f58e67ee6e762a93a425/.kernel-aarch64.metadata
-> ]
+> Setting /sys/class/net/xxx/gro_flush_timeout to 1000 nsec,
+> Rick Jones reported following results.
 > 
-> thanks
-> -- PMM
+> One VM of each on a pair of OpenStack compute nodes with E5-2650Lv3 CPUs
+> and Intel 82599ES-based NICs. So, two "before" and two "after" VMs.
+> The OpenStack compute nodes were running OpenStack Kilo, with VxLAN
+> encapsulation being used through OVS so no GRO coming-up the host
+> stack.  The compute nodes themselves were running a 3.14-based kernel.
+> 
+> Single-stream netperf, CPU utilizations and thus service demands are
+> based on intra-guest reported CPU.
+> 
+> Throughput Mbit/s, bigger is better                     
+>         Min     Median  Average Max
+> 4.2.0-rc3+      1364    1686    1678    1938
+> 4.2.0-rc3+flush1k       1824    2269    2275    2647
+> 
+> Send Service Demand, smaller is better                  
+>         Min     Median  Average Max
+> 4.2.0-rc3+      0.236   0.558   0.524   0.802
+> 4.2.0-rc3+flush1k       0.176   0.503   0.471   0.738
+> 
+> Receive Service Demand, smaller is better.      
+>         Min     Median  Average Max
+> 4.2.0-rc3+      1.906   2.188   2.191   2.531
+> 4.2.0-rc3+flush1k       0.448   0.529   0.533   0.692
+> 
+> 
+> Signed-off-by: Eric Dumazet <edumazet@google.com>
+> Tested-by: Rick Jones <rick.jones2@hp.com>
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+
+Ideally this needs to also be tested on non-vxlan configs with gro in
+host, to make sure this doesn't cause regressions.
+
+But I don't see why it should: GRO overhead is pretty small if packets
+don't need to be combined.
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+
+> ---
+>  drivers/net/virtio_net.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 7fbca37a1adf..66f08f622dc6 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -518,7 +518,7 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
+>  
+>  	skb_mark_napi_id(skb, &rq->napi);
+>  
+> -	netif_receive_skb(skb);
+> +	napi_gro_receive(&rq->napi, skb);
+>  	return;
+>  
+>  frame_err:
+> @@ -756,7 +756,7 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
+>  	/* Out of packets? */
+>  	if (received < budget) {
+>  		r = virtqueue_enable_cb_prepare(rq->vq);
+> -		napi_complete(napi);
+> +		napi_complete_done(napi, received);
+>  		if (unlikely(virtqueue_poll(rq->vq, r)) &&
+>  		    napi_schedule_prep(napi)) {
+>  			virtqueue_disable_cb(rq->vq);
 > 
