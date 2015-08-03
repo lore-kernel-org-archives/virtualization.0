@@ -1,15 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next] virtio_net: add gro capability
-Date: Sun, 2 Aug 2015 11:48:35 +0300
-Message-ID: <20150802114823-mutt-send-email-mst__15347.5416395397$1438505332$gmane$org@redhat.com>
-References: <1438359917.2748.18.camel@edumazet-glaptop2.roam.corp.google.com>
-	<20150731.165732.2136164140565390142.davem@davemloft.net>
+From: Andrew Jones <drjones@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH v2] arm: change vendor ID for virtio-mmio
+Date: Mon, 3 Aug 2015 14:09:41 +0200
+Message-ID: <20150803120941.GC7109@hawk.localdomain>
+References: <1438196676-30255-1-git-send-email-mst@redhat.com>
+	<CAFEAcA-dr_QBnM+h-4EQ9uZMRwVVi=UUazBLWmDWxLH+35ZKLQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20150731.165732.2136164140565390142.davem@davemloft.net>
+In-Reply-To: <CAFEAcA-dr_QBnM+h-4EQ9uZMRwVVi=UUazBLWmDWxLH+35ZKLQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,23 +19,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, rick.jones2@hp.com, eric.dumazet@gmail.com, virtualization@lists.linux-foundation.org
+To: Peter Maydell <peter.maydell@linaro.org>
+Cc: Graeme Gregory <graeme.gregory@linaro.org>, "Michael S. Tsirkin" <mst@redhat.com>, QEMU Developers <qemu-devel@nongnu.org>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Shannon Zhao <zhaoshenglong@huawei.com>, Igor Mammedov <imammedo@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jul 31, 2015 at 04:57:32PM -0700, David Miller wrote:
-> From: Eric Dumazet <eric.dumazet@gmail.com>
-> Date: Fri, 31 Jul 2015 18:25:17 +0200
+On Fri, Jul 31, 2015 at 01:37:44PM +0100, Peter Maydell wrote:
+> On 29 July 2015 at 20:16, Michael S. Tsirkin <mst@redhat.com> wrote:
+> > ACPI spec 5.0 allows the use of PCI vendor IDs.
+> >
+> > Since we have one for virtio, it seems neater to use that
+> > rather than LNRO. For the device ID, use 103F which is a legacy ID that
+> > isn't used in virtio PCI spec - seems to make sense since virtio-mmio is
+> > a legacy device but we don't know the correct device type.
+> >
+> > Guests should probably match everything in the range 1000-103F
+> > (just like legacy pci drivers do) which will allow us to pass in the
+> > actual ID in the future if we want to.
+> >
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> >  hw/arm/virt-acpi-build.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/hw/arm/virt-acpi-build.c b/hw/arm/virt-acpi-build.c
+> > index f365140..dea61ba 100644
+> > --- a/hw/arm/virt-acpi-build.c
+> > +++ b/hw/arm/virt-acpi-build.c
+> > @@ -145,7 +145,7 @@ static void acpi_dsdt_add_virtio(Aml *scope,
+> >
+> >      for (i = 0; i < num; i++) {
+> >          Aml *dev = aml_device("VR%02u", i);
+> > -        aml_append(dev, aml_name_decl("_HID", aml_string("LNRO0005")));
+> > +        aml_append(dev, aml_name_decl("_HID", aml_string("1AF4103F")));
+> >          aml_append(dev, aml_name_decl("_UID", aml_int(i)));
 > 
-> > From: Eric Dumazet <edumazet@google.com>
-> > 
-> > Straightforward patch to add GRO processing to virtio_net.
-> > 
->  ...
-> > Signed-off-by: Eric Dumazet <edumazet@google.com>
-> > Tested-by: Rick Jones <rick.jones2@hp.com>
-> > Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> 
-> Michael, please review :-)
+> So, I've just checked, and I believe that the kernel that RedHat
+> are shipping in their RHEL7 dev preview for AArch64 (and probably
+> thus also the Fedora/Centos one) includes a patch which adds
+> ACPI support to the virtio-mmio driver using the LNRO0005 ID string.
 
-Will do shortly :)
+Yes, we have https://lkml.org/lkml/2015/7/28/216 in the RHELSA kernel.
+Although, while that kernel is floating around already, it hasn't
+really been released, particularly not for virt use cases. So we could
+change it (although that change needs to be soon).
+
+> 
+> This to me suggests that we should just stick with that ID,
+> rather than changing to QEMUxxxx, the hex one based on the PCI
+> vendor ID, or anything else.
+> 
+> We're obviously under no obligation to make life easy for people
+> who ship kernels full of patches that haven't gone upstream yet,
+> but in this case there doesn't seem to me to be any benefit to
+> QEMU from picking an ID string that would break compatibility...
+
+I'll remain abstained on this debate, but if the consensus is to
+change it, then let me know, and I'll handle the changes on the
+RHELSA side.
+
+Thanks,
+drew
+
+> 
+> [The kernel I checked was the one in
+> https://git.centos.org/sources/kernel-aarch64/c7-aarch64/c589ab77889df6d93dbe817c373080631ab3275b
+> which despite the filename is actually an 80MB .tar.xz archive,
+> as pointed to by
+> https://git.centos.org/blob/rpms!kernel-aarch64/910dbce5f13419d68002f58e67ee6e762a93a425/.kernel-aarch64.metadata
+> ]
+> 
+> thanks
+> -- PMM
+> 
