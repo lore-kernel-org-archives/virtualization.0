@@ -1,13 +1,11 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next] virtio_net: add gro capability
-Date: Mon, 03 Aug 2015 14:23:08 -0700 (PDT)
-Message-ID: <20150803.142308.1032997735864227733.davem__26300.644913181$1438637005$gmane$org@davemloft.net>
-References: <1438359917.2748.18.camel@edumazet-glaptop2.roam.corp.google.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net] virtio-net: drop NETIF_F_FRAGLIST
+Date: Tue,  4 Aug 2015 17:55:45 +0800
+Message-ID: <1438682145-25986-1-git-send-email-jasowang__8328.7708498121$1438682169$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1438359917.2748.18.camel@edumazet-glaptop2.roam.corp.google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,35 +15,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: eric.dumazet@gmail.com
-Cc: netdev@vger.kernel.org, rick.jones2@hp.com, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Date: Fri, 31 Jul 2015 18:25:17 +0200
+virtio declares support for NETIF_F_FRAGLIST, but assumes
+that there are at most MAX_SKB_FRAGS + 2 fragments which isn't
+always true with a fraglist.
 
-> From: Eric Dumazet <edumazet@google.com>
-> 
-> Straightforward patch to add GRO processing to virtio_net.
-> 
-> napi_complete_done() usage allows more aggressive aggregation,
-> opted-in by setting /sys/class/net/xxx/gro_flush_timeout
-> 
-> Tested:
-> 
-> Setting /sys/class/net/xxx/gro_flush_timeout to 1000 nsec,
-> Rick Jones reported following results.
-> 
-> One VM of each on a pair of OpenStack compute nodes with E5-2650Lv3 CPUs
-> and Intel 82599ES-based NICs. So, two "before" and two "after" VMs.
-> The OpenStack compute nodes were running OpenStack Kilo, with VxLAN
-> encapsulation being used through OVS so no GRO coming-up the host
-> stack.  The compute nodes themselves were running a 3.14-based kernel.
-> 
-> Single-stream netperf, CPU utilizations and thus service demands are
-> based on intra-guest reported CPU.
- ...
-> Signed-off-by: Eric Dumazet <edumazet@google.com>
-> Tested-by: Rick Jones <rick.jones2@hp.com>
+A longer fraglist in the skb will make the call to skb_to_sgvec overflow
+the sg array, leading to memory corruption.
 
-Applied.
+Drop NETIF_F_FRAGLIST so we only get what we can handle.
+
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+The patch is needed for stable.
+---
+ drivers/net/virtio_net.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 7fbca37..2347a73 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1756,9 +1756,9 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	/* Do we support "hardware" checksums? */
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_CSUM)) {
+ 		/* This opens up the world of extra features. */
+-		dev->hw_features |= NETIF_F_HW_CSUM|NETIF_F_SG|NETIF_F_FRAGLIST;
++		dev->hw_features |= NETIF_F_HW_CSUM|NETIF_F_SG;
+ 		if (csum)
+-			dev->features |= NETIF_F_HW_CSUM|NETIF_F_SG|NETIF_F_FRAGLIST;
++			dev->features |= NETIF_F_HW_CSUM|NETIF_F_SG;
+ 
+ 		if (virtio_has_feature(vdev, VIRTIO_NET_F_GSO)) {
+ 			dev->hw_features |= NETIF_F_TSO | NETIF_F_UFO
+-- 
+2.1.4
