@@ -1,14 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net V2] virtio-net: drop NETIF_F_FRAGLIST
-Date: Wed, 5 Aug 2015 09:33:34 +0300
-Message-ID: <20150805093303-mutt-send-email-mst__22118.3336493143$1438756430$gmane$org@redhat.com>
-References: <1438742044-31064-1-git-send-email-jasowang@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH] virtio-input: reset device during remove
+Date: Wed,  5 Aug 2015 15:20:18 +0800
+Message-ID: <1438759218-30038-1-git-send-email-jasowang__26076.1659163565$1438759245$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1438742044-31064-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,47 +15,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, sergei.shtylyov@cogentembedded.com, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 05, 2015 at 10:34:04AM +0800, Jason Wang wrote:
-> virtio declares support for NETIF_F_FRAGLIST, but assumes
-> that there are at most MAX_SKB_FRAGS + 2 fragments which isn't
-> always true with a fraglist.
-> 
-> A longer fraglist in the skb will make the call to skb_to_sgvec overflow
-> the sg array, leading to memory corruption.
-> 
-> Drop NETIF_F_FRAGLIST so we only get what we can handle.
-> 
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+Spec requires a device reset during cleanup, so do it and avoid warn
+in virtio core.
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/virtio/virtio_input.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-> ---
-> - Change from V1: coding style fixes.
-> - The patch is needed for stable.
-> ---
->  drivers/net/virtio_net.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 7fbca37..237f8e5 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -1756,9 +1756,9 @@ static int virtnet_probe(struct virtio_device *vdev)
->  	/* Do we support "hardware" checksums? */
->  	if (virtio_has_feature(vdev, VIRTIO_NET_F_CSUM)) {
->  		/* This opens up the world of extra features. */
-> -		dev->hw_features |= NETIF_F_HW_CSUM|NETIF_F_SG|NETIF_F_FRAGLIST;
-> +		dev->hw_features |= NETIF_F_HW_CSUM | NETIF_F_SG;
->  		if (csum)
-> -			dev->features |= NETIF_F_HW_CSUM|NETIF_F_SG|NETIF_F_FRAGLIST;
-> +			dev->features |= NETIF_F_HW_CSUM | NETIF_F_SG;
->  
->  		if (virtio_has_feature(vdev, VIRTIO_NET_F_GSO)) {
->  			dev->hw_features |= NETIF_F_TSO | NETIF_F_UFO
-> -- 
-> 2.1.4
+diff --git a/drivers/virtio/virtio_input.c b/drivers/virtio/virtio_input.c
+index 60e2a16..6222f9b 100644
+--- a/drivers/virtio/virtio_input.c
++++ b/drivers/virtio/virtio_input.c
+@@ -320,6 +320,7 @@ static void virtinput_remove(struct virtio_device *vdev)
+ 	spin_unlock_irqrestore(&vi->lock, flags);
+ 
+ 	input_unregister_device(vi->idev);
++	vdev->config->reset(vdev);
+ 	vdev->config->del_vqs(vdev);
+ 	kfree(vi);
+ }
+-- 
+2.1.4
