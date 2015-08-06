@@ -1,7 +1,7 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V2] virtio-input: reset device and detach unused during remove
-Date: Thu,  6 Aug 2015 13:54:21 +0800
-Message-ID: <1438840461-18547-1-git-send-email-jasowang@redhat.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: [PATCH] x86/paravirt: remove unused operation
+Date: Thu,  6 Aug 2015 13:55:27 +0200
+Message-ID: <1438862127-19674-1-git-send-email-jgross__46490.6112327755$1438862160$gmane$org@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,41 +15,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Cc: mst@redhat.com
+To: linux-kernel@vger.kernel.org, jeremy@goop.org, chrisw@sous-sol.org, akataria@vmware.com, rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
+Cc: Juergen Gross <jgross@suse.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Spec requires a device reset during cleanup, so do it and avoid warn
-in virtio core. And detach unused buffers to avoid memory leak.
+Remove the paravirt operation "get_tsc_khz" as it is used nowhere.
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
-Changes from V1: detach unused buffers for sts queue.
----
- drivers/virtio/virtio_input.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/include/asm/paravirt_types.h | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio_input.c b/drivers/virtio/virtio_input.c
-index 60e2a16..c96944b 100644
---- a/drivers/virtio/virtio_input.c
-+++ b/drivers/virtio/virtio_input.c
-@@ -313,6 +313,7 @@ err_init_vq:
- static void virtinput_remove(struct virtio_device *vdev)
- {
- 	struct virtio_input *vi = vdev->priv;
-+	void *buf;
- 	unsigned long flags;
+diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+index a6b8f9f..5a18a66 100644
+--- a/arch/x86/include/asm/paravirt_types.h
++++ b/arch/x86/include/asm/paravirt_types.h
+@@ -97,7 +97,6 @@ struct pv_lazy_ops {
+ struct pv_time_ops {
+ 	unsigned long long (*sched_clock)(void);
+ 	unsigned long long (*steal_clock)(int cpu);
+-	unsigned long (*get_tsc_khz)(void);
+ };
  
- 	spin_lock_irqsave(&vi->lock, flags);
-@@ -320,6 +321,9 @@ static void virtinput_remove(struct virtio_device *vdev)
- 	spin_unlock_irqrestore(&vi->lock, flags);
- 
- 	input_unregister_device(vi->idev);
-+	vdev->config->reset(vdev);
-+	while ((buf = virtqueue_detach_unused_buf(vi->sts)) != NULL)
-+		kfree(buf);
- 	vdev->config->del_vqs(vdev);
- 	kfree(vi);
- }
+ struct pv_cpu_ops {
 -- 
 2.1.4
