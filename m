@@ -1,12 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] vhost: fix for 4.2
-Date: Fri, 7 Aug 2015 08:28:18 +0300
-Message-ID: <20150807082818-mutt-send-email-mst__12298.4076188461$1438925320$gmane$org@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net V2] virtio-net: drop NETIF_F_FRAGLIST
+Date: Fri, 07 Aug 2015 00:13:26 -0700 (PDT)
+Message-ID: <20150807.001326.1062649438183092058.davem__23594.2061794505$1438931626$gmane$org@davemloft.net>
+References: <1438742044-31064-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <1438742044-31064-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,33 +17,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: jasowang@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, sergei.shtylyov@cogentembedded.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 74d33293e467df61de1b1d8b2fbe29e550dec33b:
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed,  5 Aug 2015 10:34:04 +0800
 
-  Linux 4.2-rc5 (2015-08-02 18:34:55 -0700)
+> virtio declares support for NETIF_F_FRAGLIST, but assumes
+> that there are at most MAX_SKB_FRAGS + 2 fragments which isn't
+> always true with a fraglist.
+> 
+> A longer fraglist in the skb will make the call to skb_to_sgvec overflow
+> the sg array, leading to memory corruption.
+> 
+> Drop NETIF_F_FRAGLIST so we only get what we can handle.
+> 
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-
-for you to fetch changes up to df4198b1e0c4a7d1adde1e5c2ceb67ac10b391bb:
-
-  virtio-input: reset device and detach unused during remove (2015-08-06 10:40:35 +0300)
-
-----------------------------------------------------------------
-virtio: fix for 4.2
-
-A last minute fix for the new virtio input driver. It seems pretty obvious, and
-the problem it's fixing would be quite hard to debug.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Jason Wang (1):
-      virtio-input: reset device and detach unused during remove
-
- drivers/virtio/virtio_input.c | 4 ++++
- 1 file changed, 4 insertions(+)
+Applied, thanks Jason.
