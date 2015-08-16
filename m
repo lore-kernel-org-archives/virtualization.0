@@ -1,16 +1,12 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v2 2/2] virtio-net: add default_mtu configuration field
-Date: Thu, 20 Aug 2015 10:48:45 +0800
-Message-ID: <55D5400D.6090700__33263.0089288161$1440038950$gmane$org@redhat.com>
-References: <1439732494-29765-1-git-send-email-victork@redhat.com>
-	<1439732494-29765-3-git-send-email-victork@redhat.com>
-	<55D14FE3.8040307@redhat.com>
-	<20150819140836-mutt-send-email-victork@redhat.com>
+From: Victor Kaplansky <victork@redhat.com>
+Subject: [PATCH v2 0/2] virtio-net: default_mtu - new conf. field
+Date: Sun, 16 Aug 2015 16:42:15 +0300
+Message-ID: <1439732494-29765-1-git-send-email-victork__24816.4748111323$1440078038$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150819140836-mutt-send-email-victork@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,51 +16,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Victor Kaplansky <victork@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: virtio-dev@lists.oasis-open.org
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+This set of two patches adds a new field called default_mtu to
+the configuration area of network devices. The motivation is to
+allow libvirt to set initial MTU different from 1500 on guests
+virtual NICs.  We also propose to use this new field to report
+MTU changes by the guest OS to the device to facilitate
+debugging and mtu tunning.
 
+The first patch just clarify the definition of existing fields in
+network device configuration are. The second one adds default_mtu
+and its description.
 
-On 08/19/2015 07:31 PM, Victor Kaplansky wrote:
-> On Mon, Aug 17, 2015 at 11:07:15AM +0800, Jason Wang wrote:
->>
->> On 08/16/2015 09:42 PM, Victor Kaplansky wrote:
->>> @@ -3128,6 +3134,7 @@ struct virtio_net_config {
->>>          u8 mac[6];
->>>          le16 status;
->>>          le16 max_virtqueue_pairs;
->>> +        le16 default_mtu;
->> Looks like "mtu" is ok, consider we use "mac" instead of "default_mac".
-> Good point. I'll change the name in the next version of the patch.
->
->>>  };
->>>  \end{lstlisting}
->>>  
->>> @@ -3158,6 +3165,15 @@ by the driver after negotiation.
->>>      \field{max_virtqueue_pairs} is valid only if VIRTIO_NET_F_MQ is
->>>      set and can be read by the driver.
->>>  
->>> +\item [\field{default_mtu}] is a hint to the driver set by the
->>> +    device. It is valid during feature negotiation only if
->>> +    VIRTIO_NET_F_DEFAULT_MTU is offered and holds the initial value
->>> +    of MTU to be used by the driver. If VIRTIO_NET_F_DEFAULT_MTU is
->>> +    negotiated, the driver uses the \field{default_mtu} as an initial
->>> +    value, and also reports MTU changes to the device by writes to
->>> +    \field{default_mtu}.  Such reporting can be used for debugging,
->>> +    or it can be used for tunning MTU along the network.
->>> +
->> I vaguely remember that config is read only in some arch or transport
->> and that's why we introduce another vq cmd to confirm the announcement.
->> Probably we should do same for this?
-> If so, we need to add one more feature bit to confirm the ability
-> of the driver to report MTU, or we can weaken the requirement in
-> conformance statement and write "the driver may report the MTU".
-> What do you say?
->
-> -- Victor
+v2 changes:
+  * address comments by Michael S. Tsirkin:
+    - mac is driver-read-only.
+    - two status bits depend on different feature flags.
+    - use should/must only in conformance statements.
+    - rephrase "is set" -> "is offered" for features.
+    - other cosmetic changes.
+    - added conformance statements for a device and for a driver
+      regarding new 'default_mtu" field.
 
-Either looks good for me. (Need confirm the read only issue with the
-editors of other transport or arch)
+Victor Kaplansky (2):
+  virtio-net: rephrase devconf fields description
+  virtio-net: add default_mtu configuration field
 
-Thanks
+ content.tex | 67 +++++++++++++++++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 56 insertions(+), 11 deletions(-)
+
+-- 
+--Victor
