@@ -1,16 +1,12 @@
-From: Johannes Berg <johannes@sipsolutions.net>
-Subject: Re: [PATCH 1/4] virtio_net: use DECLARE_EWMA
-Date: Wed, 19 Aug 2015 09:48:40 +0200
-Message-ID: <1439970520.2089.1.camel__28516.7932081551$1439970542$gmane$org@sipsolutions.net>
-References: <1439970382-6170-1-git-send-email-johannes@sipsolutions.net>
-	<1439970382-6170-2-git-send-email-johannes@sipsolutions.net>
-	(sfid-20150819_094648_500906_0B582087)
+From: "Denis V. Lunev" <den@openvz.org>
+Subject: [PATCH 0/2] virtio_balloon: do not change memory amount visible via
+	/proc/meminfo
+Date: Thu, 20 Aug 2015 00:49:47 +0300
+Message-ID: <1440020989-10824-1-git-send-email-den@openvz.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1439970382-6170-2-git-send-email-johannes@sipsolutions.net>
-	(sfid-20150819_094648_500906_0B582087)
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,113 +16,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "Denis V. Lunev" <den@openvz.org>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Sorry, forgot to Cc Michael and the virt list - patch reproduced below
-in full.
+Though there is a problem in this setup. The end-user and hosting provider
+have signed SLA agreement in which some amount of memory is guaranted for
+the guest. The good thing is that this memory will be given to the guest
+when the guest will really need it (f.e. with OOM in guest and with
+VIRTIO_BALLOON_F_DEFLATE_ON_OOM configuration flag set). The bad thing
+is that end-user does not know this.
 
-johannes
+Balloon by default reduce the amount of memory exposed to the end-user
+each time when the page is stolen from guest or returned back by using
+adjust_managed_page_count and thus /proc/meminfo shows reduced amount
+of memory.
 
-From 22500fbcf722748fe3471b2e4c6156db47aade15 Mon Sep 17 00:00:00 2001
-From: Johannes Berg <johannes.berg@intel.com>
-Date: Wed, 19 Aug 2015 09:25:18 +0200
-Subject: [PATCH] virtio_net: use DECLARE_EWMA
+Fortunately the solution is simple, we should just avoid to call
+adjust_managed_page_count with VIRTIO_BALLOON_F_DEFLATE_ON_OOM set.
 
-Instead of using the out-of-line EWMA calculation, use DECLARE_EWMA()
-to create static inlines. On x86/64 this results in no change in code
-size for me, but reduces the struct receive_queue size by the two
-unsigned long values that store the parameters.
+Please note that neither VMWare ballon nor HyperV balloon do not care
+about proper handling of adjust_managed_page_count at all.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
----
- drivers/net/Kconfig      |  1 -
- drivers/net/virtio_net.c | 22 +++++++++++-----------
- 2 files changed, 11 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-index e58468b02987..f50373645ab4 100644
---- a/drivers/net/Kconfig
-+++ b/drivers/net/Kconfig
-@@ -282,7 +282,6 @@ config VETH
- config VIRTIO_NET
- 	tristate "Virtio network driver"
- 	depends on VIRTIO
--	select AVERAGE
- 	---help---
- 	  This is the virtual network driver for virtio.  It can be used with
- 	  lguest or QEMU based VMMs (like KVM or Xen).  Say Y or M.
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 546b669fbfdd..9b950f2db836 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -40,12 +40,12 @@ module_param(gso, bool, 0444);
- #define GOOD_PACKET_LEN (ETH_HLEN + VLAN_HLEN + ETH_DATA_LEN)
- #define GOOD_COPY_LEN	128
- 
--/* Weight used for the RX packet size EWMA. The average packet size is used to
-- * determine the packet buffer size when refilling RX rings. As the entire RX
-- * ring may be refilled at once, the weight is chosen so that the EWMA will be
-- * insensitive to short-term, transient changes in packet size.
-+/* RX packet size EWMA. The average packet size is used to determine the packet
-+ * buffer size when refilling RX rings. As the entire RX ring may be refilled
-+ * at once, the weight is chosen so that the EWMA will be insensitive to short-
-+ * term, transient changes in packet size.
-  */
--#define RECEIVE_AVG_WEIGHT 64
-+DECLARE_EWMA(pkt_len, 1, 64)
- 
- /* Minimum alignment for mergeable packet buffers. */
- #define MERGEABLE_BUFFER_ALIGN max(L1_CACHE_BYTES, 256)
-@@ -85,7 +85,7 @@ struct receive_queue {
- 	struct page *pages;
- 
- 	/* Average packet length for mergeable receive buffers. */
--	struct ewma mrg_avg_pkt_len;
-+	struct ewma_pkt_len mrg_avg_pkt_len;
- 
- 	/* Page frag for packet buffer allocation. */
- 	struct page_frag alloc_frag;
-@@ -407,7 +407,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
- 		}
- 	}
- 
--	ewma_add(&rq->mrg_avg_pkt_len, head_skb->len);
-+	ewma_pkt_len_add(&rq->mrg_avg_pkt_len, head_skb->len);
- 	return head_skb;
- 
- err_skb:
-@@ -600,12 +600,12 @@ static int add_recvbuf_big(struct virtnet_info *vi, struct receive_queue *rq,
- 	return err;
- }
- 
--static unsigned int get_mergeable_buf_len(struct ewma *avg_pkt_len)
-+static unsigned int get_mergeable_buf_len(struct ewma_pkt_len *avg_pkt_len)
- {
- 	const size_t hdr_len = sizeof(struct virtio_net_hdr_mrg_rxbuf);
- 	unsigned int len;
- 
--	len = hdr_len + clamp_t(unsigned int, ewma_read(avg_pkt_len),
-+	len = hdr_len + clamp_t(unsigned int, ewma_pkt_len_read(avg_pkt_len),
- 			GOOD_PACKET_LEN, PAGE_SIZE - hdr_len);
- 	return ALIGN(len, MERGEABLE_BUFFER_ALIGN);
- }
-@@ -1615,7 +1615,7 @@ static int virtnet_alloc_queues(struct virtnet_info *vi)
- 		napi_hash_add(&vi->rq[i].napi);
- 
- 		sg_init_table(vi->rq[i].sg, ARRAY_SIZE(vi->rq[i].sg));
--		ewma_init(&vi->rq[i].mrg_avg_pkt_len, 1, RECEIVE_AVG_WEIGHT);
-+		ewma_pkt_len_init(&vi->rq[i].mrg_avg_pkt_len);
- 		sg_init_table(vi->sq[i].sg, ARRAY_SIZE(vi->sq[i].sg));
- 	}
- 
-@@ -1658,7 +1658,7 @@ static ssize_t mergeable_rx_buffer_size_show(struct netdev_rx_queue *queue,
- {
- 	struct virtnet_info *vi = netdev_priv(queue->dev);
- 	unsigned int queue_index = get_netdev_rx_queue_index(queue);
--	struct ewma *avg;
-+	struct ewma_pkt_len *avg;
- 
- 	BUG_ON(queue_index >= vi->max_queue_pairs);
- 	avg = &vi->rq[queue_index].mrg_avg_pkt_len;
+Signed-off-by: Denis V. Lunev <den@openvz.org>
+CC: Michael S. Tsirkin <mst@redhat.com>
