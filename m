@@ -1,14 +1,16 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v2 2/2] virtio-net: add default_mtu configuration field
-Date: Mon, 17 Aug 2015 11:07:15 +0800
-Message-ID: <55D14FE3.8040307@redhat.com>
-References: <1439732494-29765-1-git-send-email-victork@redhat.com>
-	<1439732494-29765-3-git-send-email-victork@redhat.com>
+From: Johannes Berg <johannes@sipsolutions.net>
+Subject: Re: [PATCH 1/4] virtio_net: use DECLARE_EWMA
+Date: Wed, 19 Aug 2015 09:48:40 +0200
+Message-ID: <1439970520.2089.1.camel__28516.7932081551$1439970542$gmane$org@sipsolutions.net>
+References: <1439970382-6170-1-git-send-email-johannes@sipsolutions.net>
+	<1439970382-6170-2-git-send-email-johannes@sipsolutions.net>
+	(sfid-20150819_094648_500906_0B582087)
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1439732494-29765-3-git-send-email-victork@redhat.com>
+In-Reply-To: <1439970382-6170-2-git-send-email-johannes@sipsolutions.net>
+	(sfid-20150819_094648_500906_0B582087)
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,76 +20,113 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Victor Kaplansky <victork@redhat.com>, virtio-dev@lists.oasis-open.org
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Sorry, forgot to Cc Michael and the virt list - patch reproduced below
+in full.
 
+johannes
 
-On 08/16/2015 09:42 PM, Victor Kaplansky wrote:
-> Sometimes it is essential for libvirt to be able to configure MTU
-> on guest's NICs to a value different from 1500.
->
-> The change adds a new field to configuration area of network
-> devices. It will be used to pass initial MTU from the device to
-> the driver, and to pass modified MTU from driver to the device
-> when a new MTU is assigned by the guest OS.
->
-> In addition, in order to support backward and forward
-> compatibility, we introduce a new feature bit called
-> VIRTIO_NET_F_DEFAULT_MTU.
->
-> Added conformance statements for a device and a driver.
->
-> Signed-off-by: Victor Kaplansky <victork@redhat.com>
->
->     Signed-off-by: Victor Kaplansky <victork@redhat.com>
-> ---
->  content.tex | 25 +++++++++++++++++++++++++
->  1 file changed, 25 insertions(+)
->
-> diff --git a/content.tex b/content.tex
-> index 342183b..439d005 100644
-> --- a/content.tex
-> +++ b/content.tex
-> @@ -3078,6 +3078,12 @@ features.
->  
->  \item[VIRTIO_NET_F_CTRL_MAC_ADDR(23)] Set MAC address through control
->      channel.
-> +
-> +\item[VIRTIO_NET_F_DEFAULT_MTU(24)] Default MTU is supported.  If
-> +    offered by the device, device advises driver about initial MTU to
-> +    be used. If negotiated, the driver uses \field{default_mtu} as
-> +    an initial value and reports MTU changes to the device.
-> +
->  \end{description}
->  
->  \subsubsection{Feature bit requirements}\label{sec:Device Types / Network Device / Feature bits / Feature bit requirements}
-> @@ -3128,6 +3134,7 @@ struct virtio_net_config {
->          u8 mac[6];
->          le16 status;
->          le16 max_virtqueue_pairs;
-> +        le16 default_mtu;
+From 22500fbcf722748fe3471b2e4c6156db47aade15 Mon Sep 17 00:00:00 2001
+From: Johannes Berg <johannes.berg@intel.com>
+Date: Wed, 19 Aug 2015 09:25:18 +0200
+Subject: [PATCH] virtio_net: use DECLARE_EWMA
 
-Looks like "mtu" is ok, consider we use "mac" instead of "default_mac".
+Instead of using the out-of-line EWMA calculation, use DECLARE_EWMA()
+to create static inlines. On x86/64 this results in no change in code
+size for me, but reduces the struct receive_queue size by the two
+unsigned long values that store the parameters.
 
->  };
->  \end{lstlisting}
->  
-> @@ -3158,6 +3165,15 @@ by the driver after negotiation.
->      \field{max_virtqueue_pairs} is valid only if VIRTIO_NET_F_MQ is
->      set and can be read by the driver.
->  
-> +\item [\field{default_mtu}] is a hint to the driver set by the
-> +    device. It is valid during feature negotiation only if
-> +    VIRTIO_NET_F_DEFAULT_MTU is offered and holds the initial value
-> +    of MTU to be used by the driver. If VIRTIO_NET_F_DEFAULT_MTU is
-> +    negotiated, the driver uses the \field{default_mtu} as an initial
-> +    value, and also reports MTU changes to the device by writes to
-> +    \field{default_mtu}.  Such reporting can be used for debugging,
-> +    or it can be used for tunning MTU along the network.
-> +
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+---
+ drivers/net/Kconfig      |  1 -
+ drivers/net/virtio_net.c | 22 +++++++++++-----------
+ 2 files changed, 11 insertions(+), 12 deletions(-)
 
-I vaguely remember that config is read only in some arch or transport
-and that's why we introduce another vq cmd to confirm the announcement.
-Probably we should do same for this?
+diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
+index e58468b02987..f50373645ab4 100644
+--- a/drivers/net/Kconfig
++++ b/drivers/net/Kconfig
+@@ -282,7 +282,6 @@ config VETH
+ config VIRTIO_NET
+ 	tristate "Virtio network driver"
+ 	depends on VIRTIO
+-	select AVERAGE
+ 	---help---
+ 	  This is the virtual network driver for virtio.  It can be used with
+ 	  lguest or QEMU based VMMs (like KVM or Xen).  Say Y or M.
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 546b669fbfdd..9b950f2db836 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -40,12 +40,12 @@ module_param(gso, bool, 0444);
+ #define GOOD_PACKET_LEN (ETH_HLEN + VLAN_HLEN + ETH_DATA_LEN)
+ #define GOOD_COPY_LEN	128
+ 
+-/* Weight used for the RX packet size EWMA. The average packet size is used to
+- * determine the packet buffer size when refilling RX rings. As the entire RX
+- * ring may be refilled at once, the weight is chosen so that the EWMA will be
+- * insensitive to short-term, transient changes in packet size.
++/* RX packet size EWMA. The average packet size is used to determine the packet
++ * buffer size when refilling RX rings. As the entire RX ring may be refilled
++ * at once, the weight is chosen so that the EWMA will be insensitive to short-
++ * term, transient changes in packet size.
+  */
+-#define RECEIVE_AVG_WEIGHT 64
++DECLARE_EWMA(pkt_len, 1, 64)
+ 
+ /* Minimum alignment for mergeable packet buffers. */
+ #define MERGEABLE_BUFFER_ALIGN max(L1_CACHE_BYTES, 256)
+@@ -85,7 +85,7 @@ struct receive_queue {
+ 	struct page *pages;
+ 
+ 	/* Average packet length for mergeable receive buffers. */
+-	struct ewma mrg_avg_pkt_len;
++	struct ewma_pkt_len mrg_avg_pkt_len;
+ 
+ 	/* Page frag for packet buffer allocation. */
+ 	struct page_frag alloc_frag;
+@@ -407,7 +407,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 		}
+ 	}
+ 
+-	ewma_add(&rq->mrg_avg_pkt_len, head_skb->len);
++	ewma_pkt_len_add(&rq->mrg_avg_pkt_len, head_skb->len);
+ 	return head_skb;
+ 
+ err_skb:
+@@ -600,12 +600,12 @@ static int add_recvbuf_big(struct virtnet_info *vi, struct receive_queue *rq,
+ 	return err;
+ }
+ 
+-static unsigned int get_mergeable_buf_len(struct ewma *avg_pkt_len)
++static unsigned int get_mergeable_buf_len(struct ewma_pkt_len *avg_pkt_len)
+ {
+ 	const size_t hdr_len = sizeof(struct virtio_net_hdr_mrg_rxbuf);
+ 	unsigned int len;
+ 
+-	len = hdr_len + clamp_t(unsigned int, ewma_read(avg_pkt_len),
++	len = hdr_len + clamp_t(unsigned int, ewma_pkt_len_read(avg_pkt_len),
+ 			GOOD_PACKET_LEN, PAGE_SIZE - hdr_len);
+ 	return ALIGN(len, MERGEABLE_BUFFER_ALIGN);
+ }
+@@ -1615,7 +1615,7 @@ static int virtnet_alloc_queues(struct virtnet_info *vi)
+ 		napi_hash_add(&vi->rq[i].napi);
+ 
+ 		sg_init_table(vi->rq[i].sg, ARRAY_SIZE(vi->rq[i].sg));
+-		ewma_init(&vi->rq[i].mrg_avg_pkt_len, 1, RECEIVE_AVG_WEIGHT);
++		ewma_pkt_len_init(&vi->rq[i].mrg_avg_pkt_len);
+ 		sg_init_table(vi->sq[i].sg, ARRAY_SIZE(vi->sq[i].sg));
+ 	}
+ 
+@@ -1658,7 +1658,7 @@ static ssize_t mergeable_rx_buffer_size_show(struct netdev_rx_queue *queue,
+ {
+ 	struct virtnet_info *vi = netdev_priv(queue->dev);
+ 	unsigned int queue_index = get_netdev_rx_queue_index(queue);
+-	struct ewma *avg;
++	struct ewma_pkt_len *avg;
+ 
+ 	BUG_ON(queue_index >= vi->max_queue_pairs);
+ 	avg = &vi->rq[queue_index].mrg_avg_pkt_len;
