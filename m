@@ -1,16 +1,16 @@
 From: Victor Kaplansky <victork@redhat.com>
-Subject: Re: [PATCH v2 2/2] virtio-net: add default_mtu configuration field
-Date: Wed, 19 Aug 2015 14:31:59 +0300
-Message-ID: <20150819140836-mutt-send-email-victork__39051.3394879692$1440078064$gmane$org@redhat.com>
+Subject: Re: [PATCH v2 1/2] virtio-net: rephrase devconf fields description
+Date: Wed, 19 Aug 2015 14:54:37 +0300
+Message-ID: <20150819143550-mutt-send-email-victork__33651.9988639795$1440078083$gmane$org@redhat.com>
 References: <1439732494-29765-1-git-send-email-victork@redhat.com>
-	<1439732494-29765-3-git-send-email-victork@redhat.com>
-	<55D14FE3.8040307@redhat.com>
+	<1439732494-29765-2-git-send-email-victork@redhat.com>
+	<55D14A62.2060408@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <55D14FE3.8040307@redhat.com>
+In-Reply-To: <55D14A62.2060408@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,45 +24,41 @@ To: Jason Wang <jasowang@redhat.com>
 Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Aug 17, 2015 at 11:07:15AM +0800, Jason Wang wrote:
+On Mon, Aug 17, 2015 at 10:43:46AM +0800, Jason Wang wrote:
 > 
 > 
 > On 08/16/2015 09:42 PM, Victor Kaplansky wrote:
-> > @@ -3128,6 +3134,7 @@ struct virtio_net_config {
-> >          u8 mac[6];
-> >          le16 status;
-> >          le16 max_virtqueue_pairs;
-> > +        le16 default_mtu;
-> 
-> Looks like "mtu" is ok, consider we use "mac" instead of "default_mac".
-
-Good point. I'll change the name in the next version of the patch.
-
-> 
-> >  };
-> >  \end{lstlisting}
-> >  
-> > @@ -3158,6 +3165,15 @@ by the driver after negotiation.
-> >      \field{max_virtqueue_pairs} is valid only if VIRTIO_NET_F_MQ is
-> >      set and can be read by the driver.
-> >  
-> > +\item [\field{default_mtu}] is a hint to the driver set by the
-> > +    device. It is valid during feature negotiation only if
-> > +    VIRTIO_NET_F_DEFAULT_MTU is offered and holds the initial value
-> > +    of MTU to be used by the driver. If VIRTIO_NET_F_DEFAULT_MTU is
-> > +    negotiated, the driver uses the \field{default_mtu} as an initial
-> > +    value, and also reports MTU changes to the device by writes to
-> > +    \field{default_mtu}.  Such reporting can be used for debugging,
-> > +    or it can be used for tunning MTU along the network.
+> > Clarify general description of the mac, status and
+> > max_virtqueue_pairs fields. Specifically, the old description is
+> > vague about configuration layout and fields offsets when some of
+> > the fields are non valid.
+> >
+> > Also clarify that validity of two status bits depends on two
+> > different feature flags.
+> >
+> > Signed-off-by: Victor Kaplansky <victork@redhat.com>
+> > ---
+> > +
+> > +\item [\field{max_virtqueue_pairs}] tells the driver the maximum
+> > +    number of each of virtqueues (receiveq1\ldots receiveqN and
+> > +    transmitq1\ldots transmitqN respectively) that can be configured
+> > +    on the device once VIRTIO_NET_F_MQ is negotiated.
+> > +    \field{max_virtqueue_pairs} is valid only if VIRTIO_NET_F_MQ is
+> > +    set and can be read by the driver.
 > > +
 > 
-> I vaguely remember that config is read only in some arch or transport
-> and that's why we introduce another vq cmd to confirm the announcement.
-> Probably we should do same for this?
+> 
+> I don't get the point that adding "can be read by the driver". Looks
+> like it's hard for hypervisor to detect this?
 
-If so, we need to add one more feature bit to confirm the ability
-of the driver to report MTU, or we can weaken the requirement in
-conformance statement and write "the driver may report the MTU".
-What do you say?
+AFAIU, if the device sets VIRTIO_NET_F_MQ, the device also sets
+the value of 'max_virtqueue_pairs' even before driver negotiated
+VIRTIO_NET_F_MQ. If so, the driver can read the value of
+'max_virtqueue_pairs' during negotiation and potentially this
+value can even affect negotiation decision of the driver.  
 
+If above is correct, I'll change the description to make this
+point more clear.
+
+Thanks,
 -- Victor
