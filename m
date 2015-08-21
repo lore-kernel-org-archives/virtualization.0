@@ -1,16 +1,12 @@
-From: Victor Kaplansky <victork@redhat.com>
-Subject: Re: [PATCH v2 1/2] virtio-net: rephrase devconf fields description
-Date: Wed, 19 Aug 2015 14:54:37 +0300
-Message-ID: <20150819143550-mutt-send-email-victork__33651.9988639795$1440078083$gmane$org@redhat.com>
-References: <1439732494-29765-1-git-send-email-victork@redhat.com>
-	<1439732494-29765-2-git-send-email-victork@redhat.com>
-	<55D14A62.2060408@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH] virtio-blk: use VIRTIO_BLK_F_WCE and VIRTIO_BLK_F_CONFIG_WCE
+	in virtio1
+Date: Fri, 21 Aug 2015 15:53:55 -0700
+Message-ID: <1440197635-5170-1-git-send-email-pbonzini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <55D14A62.2060408@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,45 +16,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: "open list:VIRTIO CORE,
+	NET AND BLOCK DRIVERS" <virtualization@lists.linux-foundation.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Aug 17, 2015 at 10:43:46AM +0800, Jason Wang wrote:
-> 
-> 
-> On 08/16/2015 09:42 PM, Victor Kaplansky wrote:
-> > Clarify general description of the mac, status and
-> > max_virtqueue_pairs fields. Specifically, the old description is
-> > vague about configuration layout and fields offsets when some of
-> > the fields are non valid.
-> >
-> > Also clarify that validity of two status bits depends on two
-> > different feature flags.
-> >
-> > Signed-off-by: Victor Kaplansky <victork@redhat.com>
-> > ---
-> > +
-> > +\item [\field{max_virtqueue_pairs}] tells the driver the maximum
-> > +    number of each of virtqueues (receiveq1\ldots receiveqN and
-> > +    transmitq1\ldots transmitqN respectively) that can be configured
-> > +    on the device once VIRTIO_NET_F_MQ is negotiated.
-> > +    \field{max_virtqueue_pairs} is valid only if VIRTIO_NET_F_MQ is
-> > +    set and can be read by the driver.
-> > +
-> 
-> 
-> I don't get the point that adding "can be read by the driver". Looks
-> like it's hard for hypervisor to detect this?
+VIRTIO_BLK_F_CONFIG_WCE is important in order to achieve good performance
+(up to 2x, though more realistically +30-40%) in latency-bound workloads.
+However, it was removed by mistake together with VIRTIO_BLK_F_FLUSH.
 
-AFAIU, if the device sets VIRTIO_NET_F_MQ, the device also sets
-the value of 'max_virtqueue_pairs' even before driver negotiated
-VIRTIO_NET_F_MQ. If so, the driver can read the value of
-'max_virtqueue_pairs' during negotiation and potentially this
-value can even affect negotiation decision of the driver.  
+It will be restored in the next revision of the virtio 1.0 standard, so
+do the same in Linux.
 
-If above is correct, I'll change the description to make this
-point more clear.
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+---
+ drivers/block/virtio_blk.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-Thanks,
--- Victor
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index d4d05f064d39..ea2c17c66dfb 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -478,8 +478,7 @@ static int virtblk_get_cache_mode(struct virtio_device *vdev)
+ 				   struct virtio_blk_config, wce,
+ 				   &writeback);
+ 	if (err)
+-		writeback = virtio_has_feature(vdev, VIRTIO_BLK_F_WCE) ||
+-		            virtio_has_feature(vdev, VIRTIO_F_VERSION_1);
++		writeback = virtio_has_feature(vdev, VIRTIO_BLK_F_WCE);
+ 
+ 	return writeback;
+ }
+@@ -840,7 +839,7 @@ static unsigned int features_legacy[] = {
+ static unsigned int features[] = {
+ 	VIRTIO_BLK_F_SEG_MAX, VIRTIO_BLK_F_SIZE_MAX, VIRTIO_BLK_F_GEOMETRY,
+ 	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
+-	VIRTIO_BLK_F_TOPOLOGY,
++	VIRTIO_BLK_F_WCE, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+ 	VIRTIO_BLK_F_MQ,
+ };
+ 
+-- 
+2.4.3
