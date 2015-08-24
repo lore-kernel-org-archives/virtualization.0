@@ -1,15 +1,21 @@
-From: Flavio Leitner <fbl@sysclose.org>
-Subject: Re: [PATCH v2 2/2] virtio-net: add default_mtu configuration field
-Date: Thu, 20 Aug 2015 16:31:01 -0300
-Message-ID: <20150820193101.GA2208__15653.9858821363$1440397845$gmane$org@x240.home>
-References: <1439732494-29765-1-git-send-email-victork@redhat.com>
-	<1439732494-29765-3-git-send-email-victork@redhat.com>
+From: Tom Gundersen <teg@jklm.no>
+Subject: Re: udev PATH_ID for virtio devices
+Date: Mon, 24 Aug 2015 18:10:01 +0200
+Message-ID: <CAG-2HqUzkk6DE776K7gH=Z5_RkdhZ90nGHVUwm7MYB-tgrj0AA@mail.gmail.com>
+References: <CAG-2HqURZE_KtaxOx=9YH+9W0Ar56SLvcvLB6Be6QS3mvVTdWA@mail.gmail.com>
+	<20140327173009.GA2593@redhat.com>
+	<CAPXgP12KbrUhpQyXxXnEo80-xyDz4089Y9uwtd7b5OGH9tSguQ@mail.gmail.com>
+	<20140327185902.GA4059@redhat.com>
+	<CAPXgP10kov-O2ecWBhyBA3rRj_t7FHYy2jn8LyjVvMu-ozxWAQ@mail.gmail.com>
+	<20140327191355.GB4114@redhat.com>
+	<CAPXgP12FjjRrT2bLf1pTp5APJxL2fyG1iBbbYtt3zE_XD+PLgQ@mail.gmail.com>
+	<CAG-2HqWFQB2C90z4btpoEfMv25C_t7ZAXnRzyGunTGd3EcUc9A@mail.gmail.com>
+	<20140327205827.GA4440@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1439732494-29765-3-git-send-email-victork@redhat.com>
+In-Reply-To: <20140327205827.GA4440@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,106 +25,126 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Victor Kaplansky <victork@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Kay Sievers <kay@vrfy.org>, Harald Hoyer <harald@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Aug 16, 2015 at 04:42:25PM +0300, Victor Kaplansky wrote:
-> Sometimes it is essential for libvirt to be able to configure MTU
-> on guest's NICs to a value different from 1500.
-> 
-> The change adds a new field to configuration area of network
-> devices. It will be used to pass initial MTU from the device to
-> the driver, and to pass modified MTU from driver to the device
-> when a new MTU is assigned by the guest OS.
-> 
-> In addition, in order to support backward and forward
-> compatibility, we introduce a new feature bit called
-> VIRTIO_NET_F_DEFAULT_MTU.
-> 
-> Added conformance statements for a device and a driver.
-> 
-> Signed-off-by: Victor Kaplansky <victork@redhat.com>
-> 
->     Signed-off-by: Victor Kaplansky <victork@redhat.com>
-> ---
->  content.tex | 25 +++++++++++++++++++++++++
->  1 file changed, 25 insertions(+)
-> 
-> diff --git a/content.tex b/content.tex
-> index 342183b..439d005 100644
-> --- a/content.tex
-> +++ b/content.tex
-> @@ -3078,6 +3078,12 @@ features.
->  
->  \item[VIRTIO_NET_F_CTRL_MAC_ADDR(23)] Set MAC address through control
->      channel.
-> +
-> +\item[VIRTIO_NET_F_DEFAULT_MTU(24)] Default MTU is supported.  If
-> +    offered by the device, device advises driver about initial MTU to
-> +    be used. If negotiated, the driver uses \field{default_mtu} as
-> +    an initial value and reports MTU changes to the device.
-> +
->  \end{description}
->  
->  \subsubsection{Feature bit requirements}\label{sec:Device Types / Network Device / Feature bits / Feature bit requirements}
-> @@ -3128,6 +3134,7 @@ struct virtio_net_config {
->          u8 mac[6];
->          le16 status;
->          le16 max_virtqueue_pairs;
-> +        le16 default_mtu;
->  };
->  \end{lstlisting}
->  
-> @@ -3158,6 +3165,15 @@ by the driver after negotiation.
->      \field{max_virtqueue_pairs} is valid only if VIRTIO_NET_F_MQ is
->      set and can be read by the driver.
->  
-> +\item [\field{default_mtu}] is a hint to the driver set by the
-> +    device. It is valid during feature negotiation only if
-> +    VIRTIO_NET_F_DEFAULT_MTU is offered and holds the initial value
-> +    of MTU to be used by the driver. If VIRTIO_NET_F_DEFAULT_MTU is
-> +    negotiated, the driver uses the \field{default_mtu} as an initial
-> +    value, and also reports MTU changes to the device by writes to
-> +    \field{default_mtu}.  Such reporting can be used for debugging,
+On Thu, Mar 27, 2014 at 9:58 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Thu, Mar 27, 2014 at 09:24:10PM +0100, Tom Gundersen wrote:
+>> On Thu, Mar 27, 2014 at 8:25 PM, Kay Sievers <kay@vrfy.org> wrote:
+>> > On Thu, Mar 27, 2014 at 8:13 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+>> >> On Thu, Mar 27, 2014 at 08:06:15PM +0100, Kay Sievers wrote:
+>> >>> On Thu, Mar 27, 2014 at 7:59 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+>> >>> > On Thu, Mar 27, 2014 at 07:43:34PM +0100, Kay Sievers wrote:
+>> >>> >> On Thu, Mar 27, 2014 at 6:30 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+>> >>> >>
+>> >>> >> > If the virtio device is a PCI device, it is really best to
+>> >>> >> > treat it like you treat any other PCI function (I guess you mean
+>> >>> >> > function and not device, right? We support multifunction
+>> >>> >> > devices and some people do pack multiple NICs in a single device)..
+>> >>> >> >
+>> >>> >> > At the moment many devices in a single pci function can not happen on a
+>> >>> >> > PCI system (no multiport) but if we add multiport, we'll follow some
+>> >>> >> > existing standard to expose this information to the guest.
+>> >>> >>
+>> >>> >> This means, that there can currently never multiple devices below one
+>> >>> >> and the same virtio parent device?
+>> >>>
+>> >>> > There's a single virtio device per pci function (you keep saying
+>> >>> > device but I hope the distinction is clear and this is
+>> >>> > just slip of the tongue).
+>> >>>
+>> >>> Right, we talks about sysfs directories and they are called "device",
+>> >>> we don't really care about the actual bus that is implemented,
+>> >>> userspace does not really know much about them. :)
+>> >>>
+>> >>> > For net devices under a pci function that is also currently the case,
+>> >>> > but I can't yet tell you for sure ahead of the time how we'll present
+>> >>> > multiport devices if we ever implement them.
+>> >>> >
+>> >>> > I'm guessing there will be multiple net devices under
+>> >>> > a single pci device and we'll present a sysfs attribute with the port
+>> >>> > number in this case.
+>> >>> >
+>> >>> > Hmm maybe we should go ahead and add a place-holder
+>> >>> > attribute so that it's future-proof?
+>> >>> >
+>> >>> > I'll write a patch like that and we'll see how it's accepted.
+>> >>>
+>> >>> Netdevs with multiple ports are represented with the standard "dev_id"
+>> >>> attribute identifying the instance of the driver per parent "device";
+>> >>> should all work already from the userspace side, if the virtio side
+>> >>> would use that too.
+>> >>>
+>> >>> Kay
+>> >>
+>> >> Aha. In that case it's easy - pls assume that if and when we implement
+>> >> multiple we'll just follow standards and use dev_id.
+>> >> For virtio pci devices specifically virtio<->pci 1:1 mapping is set
+>> >> in stone in the spec.
+>> >>
+>> >> Non pci ones need to be examined separately.
+>> >
+>> > Nice, thanks. That means we can just "jump over" the "virtio*" device
+>> > (device as in sysfs view), and let the pci parent let identify the
+>> > device.
+>> >
+>> > Background: The logic for device naming generally refuses to touch
+>> > devices with unknown parent devices in the chain (the directories you
+>> > see for: ls -l /sys/class/net/), because the parents *could* offer
+>> > their own bus logic that exposes multiple devices below and we would
+>> > create clashing names for them. That's why the virt vs. non-virt case
+>> > needs to be handled explicitly (seems in this case by just skipping
+>> > it) and it is not necessarily by default the same behaviour.
+>>
+>> So Kay and I discussed this a bit more, and found that we likely
+>> cannot handle virtio nic's nicely. As we would name them based on the
+>> pci geo, we rely on this being stable between reboots and when
+>> adding/removing hardware. Is there some way to make this work with
+>> virtio, or will the 'fake' pci busses simply be enumerated as they are
+>> created?
+>>
+>> Cheers,
+>>
+>> Tom
+>
+> I think it's standard PCI thing.
+> Some pci bridges have a slot id register - I'm assuming you
+> are using these if present?
+>
+> If not you'll either need to rely on firmware enumerating buses
+> consistently, or use the mac of the NIC.
 
-As already said, it's better to change to 'mtu' since changes can
-be reported back by writing to the field.
+Hi Michael,
 
-fbl
+Sorry to resurrect such an old thread, but this suddenly became
+relevant again and I see that we never really reached a conclusion.
+Rereading the discussion it is still not really clear to me what the
+API promise is, so let me try to rephrase what we need and hopefully
+you can help me understand where we are at.
 
-> +    or it can be used for tunning MTU along the network.
-> +
->  \end{description}
->  
->  \devicenormative{\subsubsection}{Device configuration layout}{Device Types / Network Device / Device configuration layout}
-> @@ -3165,6 +3181,9 @@ by the driver after negotiation.
->  The device MUST set \field{max_virtqueue_pairs} to between 1 and 0x8000 inclusive,
->  if it offers VIRTIO_NET_F_MQ.
->  
-> +The device MUST set \field{default_mtu} to between 68 and 65535
-> +inclusive, if it offers VIRTIO_NET_F_DEFAULT_MTU.
-> +
->  \drivernormative{\subsubsection}{Device configuration layout}{Device Types / Network Device / Device configuration layout}
->  
->  A driver SHOULD negotiate VIRTIO_NET_F_MAC if the device offers it.
-> @@ -3177,6 +3196,12 @@ If the driver does not negotiate the VIRTIO_NET_F_STATUS feature, it SHOULD
->  assume the link is active, otherwise it SHOULD read the link status from
->  the bottom bit of \field{status}.
->  
-> +A driver SHOULD negotiate VIRTIO_NET_F_DEFAULT_MTU if the device
-> +offers it.  If the driver negotiates the VIRTIO_NET_F_DEFAULT_MTU
-> +feature, the driver MUST use \field{default_mtu} as an initial value
-> +for MTU and the driver MUST report the value of MTU to
-> +\field{default_mtu} when MTU is modified by the guest.
-> +
->  \subsubsection{Legacy Interface: Device configuration layout}\label{sec:Device Types / Network Device / Device configuration layout / Legacy Interface: Device configuration layout}
->  \label{sec:Device Types / Block Device / Feature bits / Device configuration layout / Legacy Interface: Device configuration layout}
->  When using the legacy interface, transitional devices and drivers
-> -- 
-> --Victor
-> --
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+My understanding is that the enumeration of virtioX buses is global
+rather than local to the direct parent device of a given bus. That
+means that we cannot base deterministic naming of child devices
+(functions) on virtio enumeration, as the names would then depend on
+the presence or absence of unrelated virtio buses on the system.
+
+We have two options that would allow us to get around this:
+
+1) if there is a guarantee now and in the future (even if only
+restricted to netdevs) that no virtio bus will have a direct sibling
+bus (i.e., with the same parent device); or
+2) if the enumeration of virtio buses was extended with a "port"
+numebr which was guaranteed to be made local to their direct parent
+device and moreover be made deterministic. I.e., if there are no
+virtio sibling buses (but there may be other unrelated virtio buses)
+the name would always be virtioX.0, and if there are two buses with
+the same parent their names would always be virtioX.0 and virtioX.1
+and always in the same order.
+
+Is either of those things something that is already guaranteed or
+something that could be made working?
+
+Cheers,
+
+Tom
