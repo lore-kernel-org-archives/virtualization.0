@@ -1,23 +1,11 @@
-From: Kay Sievers <kay@vrfy.org>
-Subject: Re: udev PATH_ID for virtio devices
-Date: Tue, 25 Aug 2015 13:58:47 +0200
-Message-ID: <CAPXgP137A=CdmggtVPUZXbnpTbU9Tewq-sOjg9T8ohYktct1kQ@mail.gmail.com>
-References: <CAPXgP12KbrUhpQyXxXnEo80-xyDz4089Y9uwtd7b5OGH9tSguQ@mail.gmail.com>
-	<20140327185902.GA4059@redhat.com>
-	<CAPXgP10kov-O2ecWBhyBA3rRj_t7FHYy2jn8LyjVvMu-ozxWAQ@mail.gmail.com>
-	<20140327191355.GB4114@redhat.com>
-	<CAPXgP12FjjRrT2bLf1pTp5APJxL2fyG1iBbbYtt3zE_XD+PLgQ@mail.gmail.com>
-	<CAG-2HqWFQB2C90z4btpoEfMv25C_t7ZAXnRzyGunTGd3EcUc9A@mail.gmail.com>
-	<20140327205827.GA4440@redhat.com>
-	<CAG-2HqUzkk6DE776K7gH=Z5_RkdhZ90nGHVUwm7MYB-tgrj0AA@mail.gmail.com>
-	<20150825144034-mutt-send-email-mst@redhat.com>
-	<CAPXgP13t+bKEVbQ1M3x7_4DXMk=cKv0Bqy1KD4bKA-JaUg9cmQ@mail.gmail.com>
-	<20150825145151-mutt-send-email-mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net-next] virtio-net: avoid unnecessary sg initialzation
+Date: Thu, 27 Aug 2015 14:53:06 +0800
+Message-ID: <1440658386-9544-1-git-send-email-jasowang__15529.8832491555$1440658424$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150825145151-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,34 +15,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Tom Gundersen <teg@jklm.no>, Harald Hoyer <harald@redhat.com>, virtualization@lists.linux-foundation.org
+To: mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 25, 2015 at 1:52 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Tue, Aug 25, 2015 at 01:46:49PM +0200, Kay Sievers wrote:
->> On Tue, Aug 25, 2015 at 1:43 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
->> > On Mon, Aug 24, 2015 at 06:10:01PM +0200, Tom Gundersen wrote:
+Usually an skb does not have up to MAX_SKB_FRAGS frags. So no need to
+initialize the unuse part of sg. This patch initialize the sg based on
+the real number it will used:
 
->> >> 1) if there is a guarantee now and in the future (even if only
->> >> restricted to netdevs) that no virtio bus will have a direct sibling
->> >> bus (i.e., with the same parent device); or
->> >
->> > I think this is the case. The virtio bus is an artifact.
->> > There's always a single one behind each pci device.
->> > Is this sufficient?
->>
->> I *think* is not good enough for udev to offer such functionality.
->>
->> We need an authoritative answer that this cannot happen with today's
->> code, and also that there are no plans to ever make multiple virtio
->> devices per parent device.
+- during xmit, it could be inferred from nr_frags and can_push.
+- for small receive buffer, it will also be 2.
 
-> But if virtio will make such a promise, will that be sufficient?
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/virtio_net.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Sure. I mean we need to be reasonable sure, that there will never
-be more than one virtio device per parent device. Otherwise an
-innocent looking kernel change will just break existing userspace
-setups which made assumptions which would then not be true anymore.
-
-Kay
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 53f5660..c006ae4 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -540,7 +540,7 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
+ 	skb_put(skb, GOOD_PACKET_LEN);
+ 
+ 	hdr = skb_vnet_hdr(skb);
+-	sg_init_table(rq->sg, MAX_SKB_FRAGS + 2);
++	sg_init_table(rq->sg, 2);
+ 	sg_set_buf(rq->sg, hdr, vi->hdr_len);
+ 	skb_to_sgvec(skb, rq->sg + 1, 0, skb->len);
+ 
+@@ -893,7 +893,7 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
+ 	if (vi->mergeable_rx_bufs)
+ 		hdr->num_buffers = 0;
+ 
+-	sg_init_table(sq->sg, MAX_SKB_FRAGS + 2);
++	sg_init_table(sq->sg, skb_shinfo(skb)->nr_frags + (can_push ? 1 : 2));
+ 	if (can_push) {
+ 		__skb_push(skb, hdr_len);
+ 		num_sg = skb_to_sgvec(skb, sq->sg, 0, skb->len);
+-- 
+2.1.4
