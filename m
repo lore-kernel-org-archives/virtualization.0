@@ -1,13 +1,13 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next] virtio-net: avoid unnecessary sg initialzation
-Date: Thu, 27 Aug 2015 15:52:10 -0700 (PDT)
-Message-ID: <20150827.155210.1669360284386445387.davem@davemloft.net>
-References: <1440658386-9544-1-git-send-email-jasowang@redhat.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH] x86/paravirt: remove unused operation
+Date: Fri, 28 Aug 2015 11:08:17 +0200
+Message-ID: <55E02501.5030105@suse.com>
+References: <1438862127-19674-1-git-send-email-jgross@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1440658386-9544-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <1438862127-19674-1-git-send-email-jgross@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,21 +17,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
+To: linux-kernel@vger.kernel.org, jeremy@goop.org, chrisw@sous-sol.org, akataria@vmware.com, rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 27 Aug 2015 14:53:06 +0800
+Ping?
 
-> Usually an skb does not have up to MAX_SKB_FRAGS frags. So no need to
-> initialize the unuse part of sg. This patch initialize the sg based on
-> the real number it will used:
-> 
-> - during xmit, it could be inferred from nr_frags and can_push.
-> - for small receive buffer, it will also be 2.
-> 
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-
-This looks fine, thanks Jason.
+On 08/06/2015 01:55 PM, Juergen Gross wrote:
+> Remove the paravirt operation "get_tsc_khz" as it is used nowhere.
+>
+> Signed-off-by: Juergen Gross <jgross@suse.com>
+> ---
+>   arch/x86/include/asm/paravirt_types.h | 1 -
+>   1 file changed, 1 deletion(-)
+>
+> diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+> index a6b8f9f..5a18a66 100644
+> --- a/arch/x86/include/asm/paravirt_types.h
+> +++ b/arch/x86/include/asm/paravirt_types.h
+> @@ -97,7 +97,6 @@ struct pv_lazy_ops {
+>   struct pv_time_ops {
+>   	unsigned long long (*sched_clock)(void);
+>   	unsigned long long (*steal_clock)(int cpu);
+> -	unsigned long (*get_tsc_khz)(void);
+>   };
+>
+>   struct pv_cpu_ops {
+>
