@@ -1,14 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] x86/paravirt: remove unused operation
-Date: Mon, 31 Aug 2015 09:35:20 +0930
-Message-ID: <87d1y4qq4f.fsf@rustcorp.com.au>
-References: <1438862127-19674-1-git-send-email-jgross@suse.com>
-	<55E02501.5030105@suse.com>
+From: "Denis V. Lunev" <den@openvz.org>
+Subject: Re: [PATCH 0/2] virtio_balloon: do not change memory amount visible
+	via /proc/meminfo
+Date: Mon, 31 Aug 2015 10:33:21 +0300
+Message-ID: <55E40341.60500@openvz.org>
+References: <1440020989-10824-1-git-send-email-den@openvz.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <55E02501.5030105@suse.com>
+In-Reply-To: <1440020989-10824-1-git-send-email-den@openvz.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,36 +18,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org, jeremy@goop.org, chrisw@sous-sol.org, akataria@vmware.com, virtualization@lists.linux-foundation.org
-Cc: x86@kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Juergen Gross <jgross@suse.com> writes:
-> Ping?
+On 08/20/2015 12:49 AM, Denis V. Lunev wrote:
+> Though there is a problem in this setup. The end-user and hosting provider
+> have signed SLA agreement in which some amount of memory is guaranted for
+> the guest. The good thing is that this memory will be given to the guest
+> when the guest will really need it (f.e. with OOM in guest and with
+> VIRTIO_BALLOON_F_DEFLATE_ON_OOM configuration flag set). The bad thing
+> is that end-user does not know this.
+>
+> Balloon by default reduce the amount of memory exposed to the end-user
+> each time when the page is stolen from guest or returned back by using
+> adjust_managed_page_count and thus /proc/meminfo shows reduced amount
+> of memory.
+>
+> Fortunately the solution is simple, we should just avoid to call
+> adjust_managed_page_count with VIRTIO_BALLOON_F_DEFLATE_ON_OOM set.
+>
+> Please note that neither VMWare ballon nor HyperV balloon do not care
+> about proper handling of adjust_managed_page_count at all.
+>
+> Signed-off-by: Denis V. Lunev <den@openvz.org>
+> CC: Michael S. Tsirkin <mst@redhat.com>
+ping
 
-Acked-by: Rusty Russell <rusty@rustcorp.com.au>
+Michael, the issue is important for us. Can you pls look?
 
-Cheers,
-Rusty.
-
-> On 08/06/2015 01:55 PM, Juergen Gross wrote:
->> Remove the paravirt operation "get_tsc_khz" as it is used nowhere.
->>
->> Signed-off-by: Juergen Gross <jgross@suse.com>
->> ---
->>   arch/x86/include/asm/paravirt_types.h | 1 -
->>   1 file changed, 1 deletion(-)
->>
->> diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
->> index a6b8f9f..5a18a66 100644
->> --- a/arch/x86/include/asm/paravirt_types.h
->> +++ b/arch/x86/include/asm/paravirt_types.h
->> @@ -97,7 +97,6 @@ struct pv_lazy_ops {
->>   struct pv_time_ops {
->>   	unsigned long long (*sched_clock)(void);
->>   	unsigned long long (*steal_clock)(int cpu);
->> -	unsigned long (*get_tsc_khz)(void);
->>   };
->>
->>   struct pv_cpu_ops {
->>
+Den
