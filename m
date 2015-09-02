@@ -1,22 +1,24 @@
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: Re: rfc: vhost user enhancements for vm2vm communication
-Date: Tue, 1 Sep 2015 17:01:07 -0700
-Message-ID: <CAL54oT1pcDv0xHoBshvWurePLYK2+eCgfzODh9KZj3Pe_5FB9Q@mail.gmail.com>
-References: <20150831160655-mutt-send-email-mst@redhat.com>
-	<55E55539.4030008@siemens.com>
-	<20150901104914-mutt-send-email-mst@redhat.com>
-	<55E56BD8.5010202@siemens.com>
-	<20150901121743-mutt-send-email-mst@redhat.com>
-	<55E5B1A8.9080506@siemens.com>
-	<20150901172239-mutt-send-email-mst@redhat.com>
-	<55E5C58D.6000104@siemens.com>
-	<20150901184922-mutt-send-email-mst@redhat.com>
-	<55E5D22C.6020108@siemens.com>
+From: Tom Gundersen <teg@jklm.no>
+Subject: Re: udev PATH_ID for virtio devices
+Date: Wed, 2 Sep 2015 13:53:33 +0200
+Message-ID: <CAG-2HqU29JvRWmq4WJFDRcYzG=dBKuqMGtDu2eSt8gZc6eqppQ@mail.gmail.com>
+References: <CAPXgP12KbrUhpQyXxXnEo80-xyDz4089Y9uwtd7b5OGH9tSguQ@mail.gmail.com>
+	<20140327185902.GA4059@redhat.com>
+	<CAPXgP10kov-O2ecWBhyBA3rRj_t7FHYy2jn8LyjVvMu-ozxWAQ@mail.gmail.com>
+	<20140327191355.GB4114@redhat.com>
+	<CAPXgP12FjjRrT2bLf1pTp5APJxL2fyG1iBbbYtt3zE_XD+PLgQ@mail.gmail.com>
+	<CAG-2HqWFQB2C90z4btpoEfMv25C_t7ZAXnRzyGunTGd3EcUc9A@mail.gmail.com>
+	<20140327205827.GA4440@redhat.com>
+	<CAG-2HqUzkk6DE776K7gH=Z5_RkdhZ90nGHVUwm7MYB-tgrj0AA@mail.gmail.com>
+	<20150825144034-mutt-send-email-mst@redhat.com>
+	<CAPXgP13t+bKEVbQ1M3x7_4DXMk=cKv0Bqy1KD4bKA-JaUg9cmQ@mail.gmail.com>
+	<20150825145151-mutt-send-email-mst@redhat.com>
+	<CAPXgP137A=CdmggtVPUZXbnpTbU9Tewq-sOjg9T8ohYktct1kQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <55E5D22C.6020108@siemens.com>
+In-Reply-To: <CAPXgP137A=CdmggtVPUZXbnpTbU9Tewq-sOjg9T8ohYktct1kQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,28 +28,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jan Kiszka <jan.kiszka@siemens.com>
-Cc: virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Claudio.Fontana@huawei.com, qemu-devel@nongnu.org, Linux Virtualization <virtualization@lists.linux-foundation.org>, Varun Sethi <Varun.Sethi@freescale.com>, opnfv-tech-discuss@lists.opnfv.org
+To: Kay Sievers <kay@vrfy.org>
+Cc: virtualization@lists.linux-foundation.org, Harald Hoyer <harald@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Sep 1, 2015 at 9:28 AM, Jan Kiszka <jan.kiszka@siemens.com> wrote:
-> On 2015-09-01 18:02, Michael S. Tsirkin wrote:
-...
->> You don't need to be able to map all guest memory if you know
->> guest won't try to allow device access to all of it.
->> It's a question of how good is the bus address allocator.
+On Tue, Aug 25, 2015 at 1:58 PM, Kay Sievers <kay@vrfy.org> wrote:
+> On Tue, Aug 25, 2015 at 1:52 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+>> On Tue, Aug 25, 2015 at 01:46:49PM +0200, Kay Sievers wrote:
+>>> On Tue, Aug 25, 2015 at 1:43 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+>>> > On Mon, Aug 24, 2015 at 06:10:01PM +0200, Tom Gundersen wrote:
 >
-> But those BARs need to allocate a guest-physical address range as large
-> as the other guest's RAM is, possibly even larger if that RAM is not
-> contiguous, and you can't put other resources into potential holes
-> because VM2 does not know where those holes will be.
+>>> >> 1) if there is a guarantee now and in the future (even if only
+>>> >> restricted to netdevs) that no virtio bus will have a direct sibling
+>>> >> bus (i.e., with the same parent device); or
+>>> >
+>>> > I think this is the case. The virtio bus is an artifact.
+>>> > There's always a single one behind each pci device.
+>>> > Is this sufficient?
+>>>
+>>> I *think* is not good enough for udev to offer such functionality.
+>>>
+>>> We need an authoritative answer that this cannot happen with today's
+>>> code, and also that there are no plans to ever make multiple virtio
+>>> devices per parent device.
 >
+>> But if virtio will make such a promise, will that be sufficient?
+>
+> Sure.
 
-I think you can allocate such guest-physical address ranges
-efficiently if each BAR sets the base of each memory region reported
-by VHOST_SET_MEM_TABLE, for example.  The issue is that we would need
-to 8 (VHOST_MEMORY_MAX_NREGIONS) of them vs. 6 (defined by PCI-SIG).
+Any chance we could get such a guarantee? Anything else needed from
+our side? I have a pending patch that would be nice to get out, which
+would depend on such a guarantee.
 
--- 
-Jun
-Intel Open Source Technology Center
+Cheers,
+
+Tom
