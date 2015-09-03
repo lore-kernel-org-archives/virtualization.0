@@ -1,11 +1,23 @@
-From: Mike Rapoport <mike.rapoport@gmail.com>
-Subject: [PATCH] virtio-gpu: fix compilation warnings
-Date: Wed,  2 Sep 2015 12:30:41 +0300
-Message-ID: <1441186241-5458-1-git-send-email-mike.rapoport__27768.0294625045$1441210529$gmane$org@gmail.com>
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: rfc: vhost user enhancements for vm2vm communication
+Date: Wed, 2 Sep 2015 21:45:45 -0700
+Message-ID: <CAL54oT1km9+wFBLfPzjW=sLCdfNg+yh=whFsE_f+udTHkSOs_g__1621.8526209288$1441255599$gmane$org@mail.gmail.com>
+References: <55E55539.4030008@siemens.com>
+	<20150901104914-mutt-send-email-mst@redhat.com>
+	<55E56BD8.5010202@siemens.com>
+	<20150901121743-mutt-send-email-mst@redhat.com>
+	<55E5B1A8.9080506@siemens.com>
+	<20150901172239-mutt-send-email-mst@redhat.com>
+	<55E5C58D.6000104@siemens.com>
+	<20150901184922-mutt-send-email-mst@redhat.com>
+	<55E5D22C.6020108@siemens.com>
+	<CAL54oT1pcDv0xHoBshvWurePLYK2+eCgfzODh9KZj3Pe_5FB9Q@mail.gmail.com>
+	<20150902151438-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20150902151438-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,50 +27,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Airlie <airlied@linux.ie>
-Cc: linux-kernel@vger.kernel.org, Mike Rapoport <mike.rapoport@gmail.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, Jan Kiszka <jan.kiszka@siemens.com>, Claudio.Fontana@huawei.com, qemu-devel@nongnu.org, Linux Virtualization <virtualization@lists.linux-foundation.org>, Igor Mammedov <imammedo@redhat.com>, Varun Sethi <Varun.Sethi@freescale.com>, opnfv-tech-discuss@lists.opnfv.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-VXBkYXRlIHNucHJpbnRmIGZvcm1hdCBpbiB2aXJ0Z3B1X2ZlbmNlLmMgYW5kIHZpcnRncHVfZGVi
-dWdmcy5jIHRvIGZpeCB0aGUKZm9sbG93aW5nIGNvbXBpbGF0aW9uIHdhcm5pbmdzOgoKQyBbTV0g
-IGRyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9mZW5jZS5vCmRyaXZlcnMvZ3B1L2RybS92
-aXJ0aW8vdmlydGdwdV9mZW5jZS5jOiBJbiBmdW5jdGlvbiDigJh2aXJ0aW9fdGltZWxpbmVfdmFs
-dWVfc3Ry4oCZIDoKZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X2ZlbmNlLmM6NjQ6Mjog
-d2FybmluZzogZm9ybWF0IOKAmCVsdeKAmSBleHBlY3RzIGFyZ3VtZW50IG9mIHR5cGUg4oCYbG9u
-ZyB1bnNpZ25lZCBpbnTigJksIGJ1dCBhcmd1bWVudCA0IGhhcyB0eXBlIOKAmGxvbmcgbG9uZyBp
-bnTigJkgWy1XZm9ybWF0PV0KICBzbnByaW50ZihzdHIsIHNpemUsICIlbHUiLCBhdG9taWM2NF9y
-ZWFkKCZmZW5jZS0+ZHJ2LT5sYXN0X3NlcSkpOwogIF4KICBDQyBbTV0gIGRyaXZlcnMvZ3B1L2Ry
-bS92aXJ0aW8vdmlydGdwdV9kZWJ1Z2ZzLm8KZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1
-X2RlYnVnZnMuYzogSW4gZnVuY3Rpb24g4oCYdmlydGlvX2dwdV9kZWJ1Z2ZzX2lycV9pbmZv4oCZ
-Ogpkcml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZGVidWdmcy5jOjM5OjY6IHdhcm5pbmc6
-IGZvcm1hdCDigJglbGTigJkgZXhwZWN0cyBhcmd1bWVudCBvZiB0eXBlIOKAmGxvbmcgaW504oCZ
-LCBidXQgYXJndW1lbnQgMyBoYXMgdHlwZSDigJhsb25nIGxvbmcgaW504oCZIFstV2Zvcm1hdD1d
-CiAgICAgIHZnZGV2LT5mZW5jZV9kcnYuc3luY19zZXEpOwogICAgICBeCgpTaWduZWQtb2ZmLWJ5
-OiBNaWtlIFJhcG9wb3J0IDxtaWtlLnJhcG9wb3J0QGdtYWlsLmNvbT4KLS0tCiBkcml2ZXJzL2dw
-dS9kcm0vdmlydGlvL3ZpcnRncHVfZGVidWdmcy5jIHwgMiArLQogZHJpdmVycy9ncHUvZHJtL3Zp
-cnRpby92aXJ0Z3B1X2ZlbmNlLmMgICB8IDIgKy0KIDIgZmlsZXMgY2hhbmdlZCwgMiBpbnNlcnRp
-b25zKCspLCAyIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0
-aW8vdmlydGdwdV9kZWJ1Z2ZzLmMgYi9kcml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZGVi
-dWdmcy5jCmluZGV4IGRiOGI0OTEuLmQ4N2IyN2MgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2Ry
-bS92aXJ0aW8vdmlydGdwdV9kZWJ1Z2ZzLmMKKysrIGIvZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92
-aXJ0Z3B1X2RlYnVnZnMuYwpAQCAtMzQsNyArMzQsNyBAQCB2aXJ0aW9fZ3B1X2RlYnVnZnNfaXJx
-X2luZm8oc3RydWN0IHNlcV9maWxlICptLCB2b2lkICpkYXRhKQogCXN0cnVjdCBkcm1faW5mb19u
-b2RlICpub2RlID0gKHN0cnVjdCBkcm1faW5mb19ub2RlICopIG0tPnByaXZhdGU7CiAJc3RydWN0
-IHZpcnRpb19ncHVfZGV2aWNlICp2Z2RldiA9IG5vZGUtPm1pbm9yLT5kZXYtPmRldl9wcml2YXRl
-OwogCi0Jc2VxX3ByaW50ZihtLCAiZmVuY2UgJWxkICVsbGRcbiIsCisJc2VxX3ByaW50ZihtLCAi
-ZmVuY2UgJWxsZCAlbGxkXG4iLAogCQkgICBhdG9taWM2NF9yZWFkKCZ2Z2Rldi0+ZmVuY2VfZHJ2
-Lmxhc3Rfc2VxKSwKIAkJICAgdmdkZXYtPmZlbmNlX2Rydi5zeW5jX3NlcSk7CiAJcmV0dXJuIDA7
-CmRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZmVuY2UuYyBiL2Ry
-aXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9mZW5jZS5jCmluZGV4IDFkYTYzMjYuLjk4ZGQz
-ODUgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9mZW5jZS5jCisr
-KyBiL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9mZW5jZS5jCkBAIC02MSw3ICs2MSw3
-IEBAIHN0YXRpYyB2b2lkIHZpcnRpb190aW1lbGluZV92YWx1ZV9zdHIoc3RydWN0IGZlbmNlICpm
-LCBjaGFyICpzdHIsIGludCBzaXplKQogewogCXN0cnVjdCB2aXJ0aW9fZ3B1X2ZlbmNlICpmZW5j
-ZSA9IHRvX3ZpcnRpb19mZW5jZShmKTsKIAotCXNucHJpbnRmKHN0ciwgc2l6ZSwgIiVsdSIsIGF0
-b21pYzY0X3JlYWQoJmZlbmNlLT5kcnYtPmxhc3Rfc2VxKSk7CisJc25wcmludGYoc3RyLCBzaXpl
-LCAiJWxsdSIsIGF0b21pYzY0X3JlYWQoJmZlbmNlLT5kcnYtPmxhc3Rfc2VxKSk7CiB9CiAKIHN0
-YXRpYyBjb25zdCBzdHJ1Y3QgZmVuY2Vfb3BzIHZpcnRpb19mZW5jZV9vcHMgPSB7Ci0tIAoxLjgu
-My4xCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
-dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
-dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
-Zm8vdmlydHVhbGl6YXRpb24=
+BTW, can you please take a look at the following URL to see my
+understanding is correct? Our engineers are saying that they are not
+really sure if they understood your proposal (especially around
+IOMMU), and I drew a figure, adding notes...
+
+https://wiki.opnfv.org/vm2vm_mst
+
+Thanks,
+-- 
+Jun
+Intel Open Source Technology Center
