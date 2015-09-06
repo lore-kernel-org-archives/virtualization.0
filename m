@@ -1,11 +1,12 @@
-From: Fam Zheng <famz@redhat.com>
-Subject: [PATCH v2] virtio-blk: Allow extended partitions
-Date: Sun,  6 Sep 2015 17:05:42 +0800
-Message-ID: <1441530342-26978-1-git-send-email-famz__22830.6100624197$1441530363$gmane$org@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH v7] pci: quirk to skip msi disable on shutdown
+Date: Sun, 6 Sep 2015 18:32:35 +0300
+Message-ID: <1441553385-3810-1-git-send-email-mst__6402.18785633824$1441553583$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,29 +17,115 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: pbonzini@redhat.com, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Fam Zheng <famz@redhat.com>, linux-pci@vger.kernel.org, Ulrich Obergfell <uobergfe@redhat.com>, virtualization@lists.linux-foundation.org, Yinghai Lu <yhlu.kernel.send@gmail.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Bjorn Helgaas <bhelgaas@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This will allow up to DISK_MAX_PARTS (256) partitions, with for example
-GPT in the guest. Otherwise, the partition scan code will only discover
-the first 15 partitions.
+On some hypervisors, virtio devices tend to generate spurious interrupts
+when switching between MSI and non-MSI mode.  Normally, either MSI or
+non-MSI is used and all is well, but during shutdown, linux disables MSI
+which then causes an "irq %d: nobody cared" message, with irq being
+subsequently disabled.
 
-Signed-off-by: Fam Zheng <famz@redhat.com>
+Since bus mastering is already disabled at this point, disabling MSI
+isn't actually useful for spec compliant devices: MSI interrupts are
+in-bus memory writes so disabling Bus Master (which is already done)
+disables these as well: after some research, it appears to be there for
+the benefit of devices that ignore the bus master bit.
+
+As it's not clear how common this kind of bug is, this patch simply adds
+a quirk, to be set by devices that wish to skip disabling msi on
+shutdown, relying on bus master instead.
+
+We set this quirk in virtio core.
+
+Reported-by: Fam Zheng <famz@redhat.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Yinghai Lu <yhlu.kernel.send@gmail.com>
+Cc: Ulrich Obergfell <uobergfe@redhat.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/block/virtio_blk.c | 1 +
- 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index d4d05f0..38ea01b 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -657,6 +657,7 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	vblk->disk->private_data = vblk;
- 	vblk->disk->fops = &virtblk_fops;
- 	vblk->disk->driverfs_dev = &vdev->dev;
-+	vblk->disk->flags |= GENHD_FL_EXT_DEVT;
- 	vblk->index = index;
+
+changes from v6:
+	limit changes to virtio only
+changes from v5:
+        rebased on top of pci/msi
+        fixed commit log, including comments by Bjorn
+        and adding explanation to address comments/questions by Eric
+        dropped stable Cc, this patch does not seem to qualify for stable
+changes from v4:
+        Yijing Wang <wangyijing@huawei.com> noted that
+        early fixups rely on pci_msi_off.
+        Split out the functionality and move off the
+        required part to run early during pci_device_setup.
+Changes from v3:
+        fix a copy-and-paste error in
+          pci: drop some duplicate code
+        other patches are unchanged
+        drop Cc stable for now
+Changes from v2:
+        move code from probe to device enumeration
+        add patches to unexport pci_msi_off
+
+
+ include/linux/pci.h                | 2 ++
+ drivers/pci/pci-driver.c           | 6 ++++--
+ drivers/virtio/virtio_pci_common.c | 4 ++++
+ 3 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index 860c751..80f3494 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -180,6 +180,8 @@ enum pci_dev_flags {
+ 	PCI_DEV_FLAGS_NO_BUS_RESET = (__force pci_dev_flags_t) (1 << 6),
+ 	/* Do not use PM reset even if device advertises NoSoftRst- */
+ 	PCI_DEV_FLAGS_NO_PM_RESET = (__force pci_dev_flags_t) (1 << 7),
++	/* Do not disable MSI on shutdown, disable bus master instead */
++	PCI_DEV_FLAGS_NO_MSI_SHUTDOWN = (__force pci_dev_flags_t) (1 << 8),
+ };
  
- 	/* configure queue flush support */
+ enum pci_irq_reroute_variant {
+diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
+index 3cb2210..59d9e40 100644
+--- a/drivers/pci/pci-driver.c
++++ b/drivers/pci/pci-driver.c
+@@ -450,8 +450,10 @@ static void pci_device_shutdown(struct device *dev)
+ 
+ 	if (drv && drv->shutdown)
+ 		drv->shutdown(pci_dev);
+-	pci_msi_shutdown(pci_dev);
+-	pci_msix_shutdown(pci_dev);
++	if (!(pci_dev->dev_flags & PCI_DEV_FLAGS_NO_MSI_SHUTDOWN)) {
++		pci_msi_shutdown(pci_dev);
++		pci_msix_shutdown(pci_dev);
++	}
+ 
+ #ifdef CONFIG_KEXEC
+ 	/*
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index 78f804a..26f46c3 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -528,6 +528,8 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
+ 	if (rc)
+ 		goto err_register;
+ 
++	pci_dev->dev_flags |= PCI_DEV_FLAGS_NO_MSI_SHUTDOWN;
++
+ 	return 0;
+ 
+ err_register:
+@@ -546,6 +548,8 @@ static void virtio_pci_remove(struct pci_dev *pci_dev)
+ {
+ 	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
+ 
++	pci_dev->dev_flags &= ~PCI_DEV_FLAGS_NO_MSI_SHUTDOWN;
++
+ 	unregister_virtio_device(&vp_dev->vdev);
+ 
+ 	if (vp_dev->ioaddr)
 -- 
-2.4.3
+MST
