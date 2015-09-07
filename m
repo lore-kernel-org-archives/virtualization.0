@@ -1,14 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: virtio optimization idea
-Date: Wed, 9 Sep 2015 10:33:39 +0300
-Message-ID: <20150909073339.GA16849__6639.96404405243$1441824576$gmane$org@redhat.com>
-References: <C37D651A908B024F974696C65296B57B2BDB8C06@SHSMSX101.ccr.corp.intel.com>
+From: Claudio Fontana <claudio.fontana@huawei.com>
+Subject: Re: rfc: vhost user enhancements for vm2vm communication
+Date: Mon, 7 Sep 2015 14:38:34 +0200
+Message-ID: <55ED854A.1080804__10033.0733614557$1441856855$gmane$org@huawei.com>
+References: <20150831160655-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <C37D651A908B024F974696C65296B57B2BDB8C06@SHSMSX101.ccr.corp.intel.com>
+In-Reply-To: <20150831160655-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,198 +17,181 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Xie, Huawei" <huawei.xie@intel.com>
-Cc: "Venkatesan, Venky" <venky.venkatesan@intel.com>, Linhaifeng <haifeng.lin@huawei.com>, "dev@dpdk.org" <dev@dpdk.org>, virtualization@lists.linux-foundation.org, Tetsuya Mukawa <mukawa@igel.co.jp>, "Ouyang,
-	Changchun" <changchun.ouyang@intel.com>, Thomas Monjalon <thomas.monjalon@6wind.com>, "Rogers,
-	Gerald" <gerald.rogers@intel.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, opnfv-tech-discuss@lists.opnfv.org
+Cc: Jan Kiszka <jan.kiszka@siemens.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 04, 2015 at 08:25:05AM +0000, Xie, Huawei wrote:
-> Hi:
-> 
-> Recently I have done one virtio optimization proof of concept. The
-> optimization includes two parts:
-> 1) avail ring set with fixed descriptors
-> 2) RX vectorization
-> With the optimizations, we could have several times of performance boost
-> for purely vhost-virtio throughput.
-
-Thanks!
-I'm very happy to see people work on the virtio ring format
-optimizations.
-
-I think it's best to analyze each optimization separately,
-unless you see a reason why they would only give benefit when applied
-together.
-
-Also ideally, we'd need a unit test to show the performance impact.
-We've been using the tests in tools/virtio/ under linux,
-feel free to enhance these to simulate more workloads, or
-to suggest something else entirely.
+Coming late to the party, =
 
 
-> Here i will only cover the first part, which is the prerequisite for the
-> second part.
-> Let us first take RX for example. Currently when we fill the avail ring
-> with guest mbuf, we need
-> a) allocate one descriptor(for non sg mbuf) from free descriptors
-> b) set the idx of the desc into the entry of avail ring
-> c) set the addr/len field of the descriptor to point to guest blank mbuf
-> data area
-> 
-> Those operation takes time, and especially step b results in modifed (M)
-> state of the cache line for the avail ring in the virtio processing
-> core. When vhost processes the avail ring, the cache line transfer from
-> virtio processing core to vhost processing core takes pretty much CPU
-> cycles.
-> To solve this problem, this is the arrangement of RX ring for DPDK
-> pmd(for non-mergable case).
->    
->                     avail                      
->                     idx                        
->                     +                          
->                     |                          
-> +----+----+---+-------------+------+           
-> | 0  | 1  | 2 | ... |  254  | 255  |  avail ring
-> +-+--+-+--+-+-+---------+---+--+---+           
->   |    |    |       |   |      |               
->   |    |    |       |   |      |               
->   v    v    v       |   v      v               
-> +-+--+-+--+-+-+---------+---+--+---+           
-> | 0  | 1  | 2 | ... |  254  | 255  |  desc ring
-> +----+----+---+-------------+------+           
->                     |                          
->                     |                          
-> +----+----+---+-------------+------+           
-> | 0  | 1  | 2 |     |  254  | 255  |  used ring
-> +----+----+---+-------------+------+           
->                     |                          
->                     +    
-> Avail ring is initialized with fixed descriptor and is never changed,
-> i.e, the index value of the nth avail ring entry is always n, which
-> means virtio PMD is actually refilling desc ring only, without having to
-> change avail ring.
-> When vhost fetches avail ring, if not evicted, it is always in its first
-> level cache.
-> 
-> When RX receives packets from used ring, we use the used->idx as the
-> desc idx. This requires that vhost processes and returns descs from
-> avail ring to used ring in order, which is true for both current dpdk
-> vhost and kernel vhost implementation. In my understanding, there is no
-> necessity for vhost net to process descriptors OOO. One case could be
-> zero copy, for example, if one descriptor doesn't meet zero copy
-> requirment, we could directly return it to used ring, earlier than the
-> descriptors in front of it.
-> To enforce this, i want to use a reserved bit to indicate in order
-> processing of descriptors.
+On 31.08.2015 16:11, Michael S. Tsirkin wrote:
+> Hello!
+> During the KVM forum, we discussed supporting virtio on top
+> of ivshmem. I have considered it, and came up with an alternative
+> that has several advantages over that - please see below.
+> Comments welcome.
 
-So what's the point in changing the idx for the used ring?
-You need to communicate the length to the guest anyway, don't you?
+as Jan mentioned we actually discussed a virtio-shmem device which would in=
+corporate the advantages of ivshmem (so no need for a separate ivshmem devi=
+ce), which would use the well known virtio interface, taking advantage of t=
+he new virtio-1 virtqueue layout to split r/w and read-only rings as seen f=
+rom the two sides, and make use also of BAR0 which has been freed up for us=
+e by the device.
+
+This way it would be possible to share the rings and the actual memory for =
+the buffers in the PCI bars. The guest VMs could decide to use the shared m=
+emory regions directly as prepared by the hypervisor (in the jailhouse case=
+) or QEMU/KVM, or perform their own validation on the input depending on th=
+e use case.
+
+Of course the communication between VMs needs in this case to be pre-config=
+ured and is quite static (which is actually beneficial in our use case).
+
+But still in your proposed solution, each VM needs to be pre-configured to =
+communicate with a specific other VM using a separate device right?
+
+But I wonder if we are addressing the same problem.. in your case you are l=
+ooking at having a shared memory pool for all VMs potentially visible to al=
+l VMs (the vhost-user case), while in the virtio-shmem proposal we discusse=
+d we were assuming specific different regions for every channel.
+
+Ciao,
+
+Claudio
+
+> =
+
+> -----
+> =
+
+> Existing solutions to userspace switching between VMs on the
+> same host are vhost-user and ivshmem.
+> =
+
+> vhost-user works by mapping memory of all VMs being bridged into the
+> switch memory space.
+> =
+
+> By comparison, ivshmem works by exposing a shared region of memory to all=
+ VMs.
+> VMs are required to use this region to store packets. The switch only
+> needs access to this region.
+> =
+
+> Another difference between vhost-user and ivshmem surfaces when polling
+> is used. With vhost-user, the switch is required to handle
+> data movement between VMs, if using polling, this means that 1 host CPU
+> needs to be sacrificed for this task.
+> =
+
+> This is easiest to understand when one of the VMs is
+> used with VF pass-through. This can be schematically shown below:
+> =
+
+> +-- VM1 --------------+            +---VM2-----------+
+> | virtio-pci          +-vhost-user-+ virtio-pci -- VF | -- VFIO -- IOMMU =
+-- NIC
+> +---------------------+            +-----------------+
+> =
+
+> =
+
+> With ivshmem in theory communication can happen directly, with two VMs
+> polling the shared memory region.
+> =
+
+> =
+
+> I won't spend time listing advantages of vhost-user over ivshmem.
+> Instead, having identified two advantages of ivshmem over vhost-user,
+> below is a proposal to extend vhost-user to gain the advantages
+> of ivshmem.
+> =
+
+> =
+
+> 1: virtio in guest can be extended to allow support
+> for IOMMUs. This provides guest with full flexibility
+> about memory which is readable or write able by each device.
+> By setting up a virtio device for each other VM we need to
+> communicate to, guest gets full control of its security, from
+> mapping all memory (like with current vhost-user) to only
+> mapping buffers used for networking (like ivshmem) to
+> transient mappings for the duration of data transfer only.
+> This also allows use of VFIO within guests, for improved
+> security.
+> =
+
+> vhost user would need to be extended to send the
+> mappings programmed by guest IOMMU.
+> =
+
+> 2. qemu can be extended to serve as a vhost-user client:
+> remote VM mappings over the vhost-user protocol, and
+> map them into another VM's memory.
+> This mapping can take, for example, the form of
+> a BAR of a pci device, which I'll call here vhost-pci - =
+
+> with bus address allowed
+> by VM1's IOMMU mappings being translated into
+> offsets within this BAR within VM2's physical
+> memory space.
+> =
+
+> Since the translation can be a simple one, VM2
+> can perform it within its vhost-pci device driver.
+> =
+
+> While this setup would be the most useful with polling,
+> VM1's ioeventfd can also be mapped to
+> another VM2's irqfd, and vice versa, such that VMs
+> can trigger interrupts to each other without need
+> for a helper thread on the host.
+> =
+
+> =
+
+> The resulting channel might look something like the following:
+> =
+
+> +-- VM1 --------------+  +---VM2-----------+
+> | virtio-pci -- iommu +--+ vhost-pci -- VF | -- VFIO -- IOMMU -- NIC
+> +---------------------+  +-----------------+
+> =
+
+> comparing the two diagrams, a vhost-user thread on the host is
+> no longer required, reducing the host CPU utilization when
+> polling is active.  At the same time, VM2 can not access all of VM1's
+> memory - it is limited by the iommu configuration setup by VM1.
+> =
+
+> =
+
+> Advantages over ivshmem:
+> =
+
+> - more flexibility, endpoint VMs do not have to place data at any
+>   specific locations to use the device, in practice this likely
+>   means less data copies.
+> - better standardization/code reuse
+>   virtio changes within guests would be fairly easy to implement
+>   and would also benefit other backends, besides vhost-user
+>   standard hotplug interfaces can be used to add and remove these
+>   channels as VMs are added or removed.
+> - migration support
+>   It's easy to implement since ownership of memory is well defined.
+>   For example, during migration VM2 can notify hypervisor of VM1
+>   by updating dirty bitmap each time is writes into VM1 memory.
+> =
+
+> Thanks,
+> =
 
 
-> For tx ring, the arrangement is like below. Each transmitted mbuf needs
-> a desc for virtio_net_hdr, so actually we have only 128 free slots.
 
-Just fix this one. Support ANY_LAYOUT and then you can put data
-linearly. And/or support INDIRECT_DESC and then you can
-use an indirect descriptor.
+-- =
 
-
-> 
->                            
-> ++                                                          
->                            
-> ||                                                          
->                            
-> ||                                                          
->   
-> +-----+-----+-----+--------------+------+------+------+                              
-> 
->    |  0  |  1  | ... |  127 || 128  | 129  | ...  | 255  |   avail ring
-> with fixed descriptor                
->   
-> +--+--+--+--+-----+---+------+---+--+---+------+--+---+                              
-> 
->       |     |            |  ||  |      |            
-> |                                  
->       v     v            v  ||  v      v            
-> v                                  
->   
-> +--+--+--+--+-----+---+------+---+--+---+------+--+---+                              
-> 
->    | 127 | 128 | ... |  255 || 127  | 128  | ...  | 255  |   desc ring
-> for virtio_net_hdr
->   
-> +--+--+--+--+-----+---+------+---+--+---+------+--+---+                              
-> 
->       |     |            |  ||  |      |            
-> |                                  
->       v     v            v  ||  v      v            
-> v                                  
->   
-> +--+--+--+--+-----+---+------+---+--+---+------+--+---+                              
-> 
->    |  0  |  1  | ... |  127 ||  0   |  1   | ...  | 127  |   desc ring
-> for tx dat       
->   
-> +-----+-----+-----+--------------+------+------+------+                        
-> 
-
-This one came out corrupted.
-
->                      
-> /huawei
-
-
-Please Cc virtio related discussion more widely.
-I added the virtualization mailing list.
-
-
-So what you want to do is avoid changing the avail
-ring, isn't it enough to pre-format it and cache
-the values in the guest?
-
-Host can then keep using avail ring without changes, it will stay in cache.
-Something like the below for guest should do the trick (untested):
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 096b857..9363b50 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -91,6 +91,7 @@ struct vring_virtqueue {
- 	bool last_add_time_valid;
- 	ktime_t last_add_time;
- #endif
-+	u16 *avail;
- 
- 	/* Tokens for callbacks. */
- 	void *data[];
-@@ -236,7 +237,10 @@ static inline int virtqueue_add(struct virtqueue *_vq,
- 	/* Put entry in available array (but don't update avail->idx until they
- 	 * do sync). */
- 	avail = virtio16_to_cpu(_vq->vdev, vq->vring.avail->idx) & (vq->vring.num - 1);
--	vq->vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
-+	if (vq->avail[avail] != head) {
-+		vq->avail[avail] = head;
-+		vq->vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
-+	}
- 
- 	/* Descriptors and available array need to be set before we expose the
- 	 * new available array entries. */
-@@ -724,6 +728,11 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
- 	vq = kmalloc(sizeof(*vq) + sizeof(void *)*num, GFP_KERNEL);
- 	if (!vq)
- 		return NULL;
-+	vq->avail = kzalloc(sizeof (*vq->avail) * num, GFP_KERNEL);
-+	if (!va->avail) {
-+		kfree(vq);
-+		return NULL;
-+	}
- 
- 	vring_init(&vq->vring, num, pages, vring_align);
- 	vq->vq.callback = callback;
-
--- 
-MST
+Claudio Fontana
+Server Virtualization Architect
+Huawei Technologies Duesseldorf GmbH
+Riesstra=DFe 25 - 80992 M=FCnchen
