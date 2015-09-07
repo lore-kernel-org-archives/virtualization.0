@@ -1,12 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v7] pci: quirk to skip msi disable on shutdown
-Date: Sun, 6 Sep 2015 18:32:35 +0300
-Message-ID: <1441553385-3810-1-git-send-email-mst__6402.18785633824$1441553583$gmane$org@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH] virtio-gpu: fix compilation warnings
+Date: Mon, 07 Sep 2015 15:32:09 +0200
+Message-ID: <1441632729.27149.23.camel__46536.7788602181$1441632755$gmane$org@redhat.com>
+References: <1441186241-5458-1-git-send-email-mike.rapoport@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <1441186241-5458-1-git-send-email-mike.rapoport@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,116 +17,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Fam Zheng <famz@redhat.com>, linux-pci@vger.kernel.org, Ulrich Obergfell <uobergfe@redhat.com>, virtualization@lists.linux-foundation.org, Yinghai Lu <yhlu.kernel.send@gmail.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Bjorn Helgaas <bhelgaas@google.com>
+To: Mike Rapoport <mike.rapoport@gmail.com>
+Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On some hypervisors, virtio devices tend to generate spurious interrupts
-when switching between MSI and non-MSI mode.  Normally, either MSI or
-non-MSI is used and all is well, but during shutdown, linux disables MSI
-which then causes an "irq %d: nobody cared" message, with irq being
-subsequently disabled.
-
-Since bus mastering is already disabled at this point, disabling MSI
-isn't actually useful for spec compliant devices: MSI interrupts are
-in-bus memory writes so disabling Bus Master (which is already done)
-disables these as well: after some research, it appears to be there for
-the benefit of devices that ignore the bus master bit.
-
-As it's not clear how common this kind of bug is, this patch simply adds
-a quirk, to be set by devices that wish to skip disabling msi on
-shutdown, relying on bus master instead.
-
-We set this quirk in virtio core.
-
-Reported-by: Fam Zheng <famz@redhat.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Yinghai Lu <yhlu.kernel.send@gmail.com>
-Cc: Ulrich Obergfell <uobergfe@redhat.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
-
-
-changes from v6:
-	limit changes to virtio only
-changes from v5:
-        rebased on top of pci/msi
-        fixed commit log, including comments by Bjorn
-        and adding explanation to address comments/questions by Eric
-        dropped stable Cc, this patch does not seem to qualify for stable
-changes from v4:
-        Yijing Wang <wangyijing@huawei.com> noted that
-        early fixups rely on pci_msi_off.
-        Split out the functionality and move off the
-        required part to run early during pci_device_setup.
-Changes from v3:
-        fix a copy-and-paste error in
-          pci: drop some duplicate code
-        other patches are unchanged
-        drop Cc stable for now
-Changes from v2:
-        move code from probe to device enumeration
-        add patches to unexport pci_msi_off
-
-
- include/linux/pci.h                | 2 ++
- drivers/pci/pci-driver.c           | 6 ++++--
- drivers/virtio/virtio_pci_common.c | 4 ++++
- 3 files changed, 10 insertions(+), 2 deletions(-)
-
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 860c751..80f3494 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -180,6 +180,8 @@ enum pci_dev_flags {
- 	PCI_DEV_FLAGS_NO_BUS_RESET = (__force pci_dev_flags_t) (1 << 6),
- 	/* Do not use PM reset even if device advertises NoSoftRst- */
- 	PCI_DEV_FLAGS_NO_PM_RESET = (__force pci_dev_flags_t) (1 << 7),
-+	/* Do not disable MSI on shutdown, disable bus master instead */
-+	PCI_DEV_FLAGS_NO_MSI_SHUTDOWN = (__force pci_dev_flags_t) (1 << 8),
- };
- 
- enum pci_irq_reroute_variant {
-diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
-index 3cb2210..59d9e40 100644
---- a/drivers/pci/pci-driver.c
-+++ b/drivers/pci/pci-driver.c
-@@ -450,8 +450,10 @@ static void pci_device_shutdown(struct device *dev)
- 
- 	if (drv && drv->shutdown)
- 		drv->shutdown(pci_dev);
--	pci_msi_shutdown(pci_dev);
--	pci_msix_shutdown(pci_dev);
-+	if (!(pci_dev->dev_flags & PCI_DEV_FLAGS_NO_MSI_SHUTDOWN)) {
-+		pci_msi_shutdown(pci_dev);
-+		pci_msix_shutdown(pci_dev);
-+	}
- 
- #ifdef CONFIG_KEXEC
- 	/*
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 78f804a..26f46c3 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -528,6 +528,8 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
- 	if (rc)
- 		goto err_register;
- 
-+	pci_dev->dev_flags |= PCI_DEV_FLAGS_NO_MSI_SHUTDOWN;
-+
- 	return 0;
- 
- err_register:
-@@ -546,6 +548,8 @@ static void virtio_pci_remove(struct pci_dev *pci_dev)
- {
- 	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
- 
-+	pci_dev->dev_flags &= ~PCI_DEV_FLAGS_NO_MSI_SHUTDOWN;
-+
- 	unregister_virtio_device(&vp_dev->vdev);
- 
- 	if (vp_dev->ioaddr)
--- 
-MST
+T24gTWksIDIwMTUtMDktMDIgYXQgMTI6MzAgKzAzMDAsIE1pa2UgUmFwb3BvcnQgd3JvdGU6Cj4g
+VXBkYXRlIHNucHJpbnRmIGZvcm1hdCBpbiB2aXJ0Z3B1X2ZlbmNlLmMgYW5kIHZpcnRncHVfZGVi
+dWdmcy5jIHRvIGZpeCB0aGUKPiBmb2xsb3dpbmcgY29tcGlsYXRpb24gd2FybmluZ3M6Cj4gCj4g
+QyBbTV0gIGRyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9mZW5jZS5vCj4gZHJpdmVycy9n
+cHUvZHJtL3ZpcnRpby92aXJ0Z3B1X2ZlbmNlLmM6IEluIGZ1bmN0aW9uIOKAmHZpcnRpb190aW1l
+bGluZV92YWx1ZV9zdHLigJkgOgo+IGRyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9mZW5j
+ZS5jOjY0OjI6IHdhcm5pbmc6IGZvcm1hdCDigJglbHXigJkgZXhwZWN0cyBhcmd1bWVudCBvZiB0
+eXBlIOKAmGxvbmcgdW5zaWduZWQgaW504oCZLCBidXQgYXJndW1lbnQgNCBoYXMgdHlwZSDigJhs
+b25nIGxvbmcgaW504oCZIFstV2Zvcm1hdD1dCj4gICBzbnByaW50ZihzdHIsIHNpemUsICIlbHUi
+LCBhdG9taWM2NF9yZWFkKCZmZW5jZS0+ZHJ2LT5sYXN0X3NlcSkpOwo+ICAgXgo+ICAgQ0MgW01d
+ICBkcml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZGVidWdmcy5vCj4gZHJpdmVycy9ncHUv
+ZHJtL3ZpcnRpby92aXJ0Z3B1X2RlYnVnZnMuYzogSW4gZnVuY3Rpb24g4oCYdmlydGlvX2dwdV9k
+ZWJ1Z2ZzX2lycV9pbmZv4oCZOgo+IGRyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9kZWJ1
+Z2ZzLmM6Mzk6Njogd2FybmluZzogZm9ybWF0IOKAmCVsZOKAmSBleHBlY3RzIGFyZ3VtZW50IG9m
+IHR5cGUg4oCYbG9uZyBpbnTigJksIGJ1dCBhcmd1bWVudCAzIGhhcyB0eXBlIOKAmGxvbmcgbG9u
+ZyBpbnTigJkgWy1XZm9ybWF0PV0KPiAgICAgICB2Z2Rldi0+ZmVuY2VfZHJ2LnN5bmNfc2VxKTsK
+CkRvZXNuJ3QgZmx5LiAgSSBhc3N1bWUgdGhpcyByZW1vdmVzIHRoZSB3YXJuaW5ncyBmb3IgMzJi
+aXQgYnVpbGRzLCBidXQKd2l0aCB0aGUgcGF0Y2ggYXBwbGllZCBJIGdldCB3YXJuaW5ncyBvbiA2
+NGJpdCBidWlsZHMgLi4uCgpjaGVlcnMsCiAgR2VyZAoKCl9fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
+dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
+Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
