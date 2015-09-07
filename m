@@ -1,13 +1,14 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] virtio-gpu: fix compilation warnings
-Date: Mon, 07 Sep 2015 15:32:09 +0200
-Message-ID: <1441632729.27149.23.camel__46536.7788602181$1441632755$gmane$org@redhat.com>
-References: <1441186241-5458-1-git-send-email-mike.rapoport@gmail.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH] virtio-blk: use VIRTIO_BLK_F_WCE and
+	VIRTIO_BLK_F_CONFIG_WCE in virtio1
+Date: Mon, 7 Sep 2015 18:15:05 +0200
+Message-ID: <55EDB809.8090400@redhat.com>
+References: <1440197635-5170-1-git-send-email-pbonzini@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1441186241-5458-1-git-send-email-mike.rapoport@gmail.com>
+In-Reply-To: <1440197635-5170-1-git-send-email-pbonzini@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,29 +18,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mike Rapoport <mike.rapoport@gmail.com>
-Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "open list:VIRTIO CORE,
+	NET AND BLOCK DRIVERS" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTWksIDIwMTUtMDktMDIgYXQgMTI6MzAgKzAzMDAsIE1pa2UgUmFwb3BvcnQgd3JvdGU6Cj4g
-VXBkYXRlIHNucHJpbnRmIGZvcm1hdCBpbiB2aXJ0Z3B1X2ZlbmNlLmMgYW5kIHZpcnRncHVfZGVi
-dWdmcy5jIHRvIGZpeCB0aGUKPiBmb2xsb3dpbmcgY29tcGlsYXRpb24gd2FybmluZ3M6Cj4gCj4g
-QyBbTV0gIGRyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9mZW5jZS5vCj4gZHJpdmVycy9n
-cHUvZHJtL3ZpcnRpby92aXJ0Z3B1X2ZlbmNlLmM6IEluIGZ1bmN0aW9uIOKAmHZpcnRpb190aW1l
-bGluZV92YWx1ZV9zdHLigJkgOgo+IGRyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9mZW5j
-ZS5jOjY0OjI6IHdhcm5pbmc6IGZvcm1hdCDigJglbHXigJkgZXhwZWN0cyBhcmd1bWVudCBvZiB0
-eXBlIOKAmGxvbmcgdW5zaWduZWQgaW504oCZLCBidXQgYXJndW1lbnQgNCBoYXMgdHlwZSDigJhs
-b25nIGxvbmcgaW504oCZIFstV2Zvcm1hdD1dCj4gICBzbnByaW50ZihzdHIsIHNpemUsICIlbHUi
-LCBhdG9taWM2NF9yZWFkKCZmZW5jZS0+ZHJ2LT5sYXN0X3NlcSkpOwo+ICAgXgo+ICAgQ0MgW01d
-ICBkcml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZGVidWdmcy5vCj4gZHJpdmVycy9ncHUv
-ZHJtL3ZpcnRpby92aXJ0Z3B1X2RlYnVnZnMuYzogSW4gZnVuY3Rpb24g4oCYdmlydGlvX2dwdV9k
-ZWJ1Z2ZzX2lycV9pbmZv4oCZOgo+IGRyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9kZWJ1
-Z2ZzLmM6Mzk6Njogd2FybmluZzogZm9ybWF0IOKAmCVsZOKAmSBleHBlY3RzIGFyZ3VtZW50IG9m
-IHR5cGUg4oCYbG9uZyBpbnTigJksIGJ1dCBhcmd1bWVudCAzIGhhcyB0eXBlIOKAmGxvbmcgbG9u
-ZyBpbnTigJkgWy1XZm9ybWF0PV0KPiAgICAgICB2Z2Rldi0+ZmVuY2VfZHJ2LnN5bmNfc2VxKTsK
-CkRvZXNuJ3QgZmx5LiAgSSBhc3N1bWUgdGhpcyByZW1vdmVzIHRoZSB3YXJuaW5ncyBmb3IgMzJi
-aXQgYnVpbGRzLCBidXQKd2l0aCB0aGUgcGF0Y2ggYXBwbGllZCBJIGdldCB3YXJuaW5ncyBvbiA2
-NGJpdCBidWlsZHMgLi4uCgpjaGVlcnMsCiAgR2VyZAoKCl9fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
-dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
-Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+
+
+On 22/08/2015 00:53, Paolo Bonzini wrote:
+> VIRTIO_BLK_F_CONFIG_WCE is important in order to achieve good performance
+> (up to 2x, though more realistically +30-40%) in latency-bound workloads.
+> However, it was removed by mistake together with VIRTIO_BLK_F_FLUSH.
+> 
+> It will be restored in the next revision of the virtio 1.0 standard, so
+> do the same in Linux.
+> 
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> ---
+>  drivers/block/virtio_blk.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index d4d05f064d39..ea2c17c66dfb 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -478,8 +478,7 @@ static int virtblk_get_cache_mode(struct virtio_device *vdev)
+>  				   struct virtio_blk_config, wce,
+>  				   &writeback);
+>  	if (err)
+> -		writeback = virtio_has_feature(vdev, VIRTIO_BLK_F_WCE) ||
+> -		            virtio_has_feature(vdev, VIRTIO_F_VERSION_1);
+> +		writeback = virtio_has_feature(vdev, VIRTIO_BLK_F_WCE);
+>  
+>  	return writeback;
+>  }
+> @@ -840,7 +839,7 @@ static unsigned int features_legacy[] = {
+>  static unsigned int features[] = {
+>  	VIRTIO_BLK_F_SEG_MAX, VIRTIO_BLK_F_SIZE_MAX, VIRTIO_BLK_F_GEOMETRY,
+>  	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
+> -	VIRTIO_BLK_F_TOPOLOGY,
+> +	VIRTIO_BLK_F_WCE, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+>  	VIRTIO_BLK_F_MQ,
+>  };
+>  
+> 
+
+Ping?
+
+Paolo
