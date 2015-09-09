@@ -1,15 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: rfc: vhost user enhancements for vm2vm communication
-Date: Wed, 9 Sep 2015 10:06:41 +0300
-Message-ID: <20150909095258-mutt-send-email-mst__12390.5688561083$1441823386$gmane$org@redhat.com>
-References: <20150831160655-mutt-send-email-mst@redhat.com>
-	<55ED854A.1080804@huawei.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 2/5] virtio-gpu: add & use virtio_gpu_queue_fenced_ctrl_buffer
+Date: Wed,  9 Sep 2015 13:42:22 +0200
+Message-ID: <1441798946-26233-3-git-send-email-kraxel__16081.9151475609$1441823517$gmane$org@redhat.com>
+References: <1441798946-26233-1-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <55ED854A.1080804@huawei.com>
+In-Reply-To: <1441798946-26233-1-git-send-email-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,218 +17,97 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Claudio Fontana <claudio.fontana@huawei.com>
-Cc: opnfv-tech-discuss@lists.opnfv.org, virtio-dev@lists.oasis-open.org, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 07, 2015 at 02:38:34PM +0200, Claudio Fontana wrote:
-> Coming late to the party, =
+Add helper function to handle the submission of fenced control requests.
+Make sure we initialize the fence while holding the virtqueue lock, so
+requests can't be reordered.
 
-> =
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_fence.c |  2 +-
+ drivers/gpu/drm/virtio/virtgpu_vq.c    | 40 +++++++++++++++++++++++++++++-----
+ 2 files changed, 35 insertions(+), 7 deletions(-)
 
-> On 31.08.2015 16:11, Michael S. Tsirkin wrote:
-> > Hello!
-> > During the KVM forum, we discussed supporting virtio on top
-> > of ivshmem. I have considered it, and came up with an alternative
-> > that has several advantages over that - please see below.
-> > Comments welcome.
-> =
-
-> as Jan mentioned we actually discussed a virtio-shmem device which would =
-incorporate the advantages of ivshmem (so no need for a separate ivshmem de=
-vice), which would use the well known virtio interface, taking advantage of=
- the new virtio-1 virtqueue layout to split r/w and read-only rings as seen=
- from the two sides, and make use also of BAR0 which has been freed up for =
-use by the device.
-> =
-
-> This way it would be possible to share the rings and the actual memory fo=
-r the buffers in the PCI bars. The guest VMs could decide to use the shared=
- memory regions directly as prepared by the hypervisor (in the jailhouse ca=
-se) or QEMU/KVM, or perform their own validation on the input depending on =
-the use case.
-> =
-
-> Of course the communication between VMs needs in this case to be pre-conf=
-igured and is quite static (which is actually beneficial in our use case).
-> =
-
-> But still in your proposed solution, each VM needs to be pre-configured t=
-o communicate with a specific other VM using a separate device right?
-> =
-
-> But I wonder if we are addressing the same problem.. in your case you are=
- looking at having a shared memory pool for all VMs potentially visible to =
-all VMs (the vhost-user case), while in the virtio-shmem proposal we discus=
-sed we were assuming specific different regions for every channel.
-> =
-
-> Ciao,
-> =
-
-> Claudio
-
-The problem, as I see it, is to allow inter-vm communication with
-polling (to get very low latencies) but polling within VMs only, without
-need to run a host thread (which when polling uses up a host CPU).
-
-What was proposed was to simply change virtio to allow
-"offset within BAR" instead of PA.
-This would allow VM2VM communication if there are only 2 VMs,
-but if data needs to be sent to multiple VMs, you
-must copy it.
-
-Additionally, it's a single-purpose feature: you can use it from
-a userspace PMD but linux will never use it.
-
-
-My proposal is a superset: don't require that BAR memory is
-used, use IOMMU translation tables.
-This way, data can be sent to multiple VMs by sharing the same
-memory with them all.
-
-It is still possible to put data in some device BAR if that's
-what the guest wants to do: just program the IOMMU to limit
-virtio to the memory range that is within this BAR.
-
-Another advantage here is that the feature is more generally useful.
-
-
-> > =
-
-> > -----
-> > =
-
-> > Existing solutions to userspace switching between VMs on the
-> > same host are vhost-user and ivshmem.
-> > =
-
-> > vhost-user works by mapping memory of all VMs being bridged into the
-> > switch memory space.
-> > =
-
-> > By comparison, ivshmem works by exposing a shared region of memory to a=
-ll VMs.
-> > VMs are required to use this region to store packets. The switch only
-> > needs access to this region.
-> > =
-
-> > Another difference between vhost-user and ivshmem surfaces when polling
-> > is used. With vhost-user, the switch is required to handle
-> > data movement between VMs, if using polling, this means that 1 host CPU
-> > needs to be sacrificed for this task.
-> > =
-
-> > This is easiest to understand when one of the VMs is
-> > used with VF pass-through. This can be schematically shown below:
-> > =
-
-> > +-- VM1 --------------+            +---VM2-----------+
-> > | virtio-pci          +-vhost-user-+ virtio-pci -- VF | -- VFIO -- IOMM=
-U -- NIC
-> > +---------------------+            +-----------------+
-> > =
-
-> > =
-
-> > With ivshmem in theory communication can happen directly, with two VMs
-> > polling the shared memory region.
-> > =
-
-> > =
-
-> > I won't spend time listing advantages of vhost-user over ivshmem.
-> > Instead, having identified two advantages of ivshmem over vhost-user,
-> > below is a proposal to extend vhost-user to gain the advantages
-> > of ivshmem.
-> > =
-
-> > =
-
-> > 1: virtio in guest can be extended to allow support
-> > for IOMMUs. This provides guest with full flexibility
-> > about memory which is readable or write able by each device.
-> > By setting up a virtio device for each other VM we need to
-> > communicate to, guest gets full control of its security, from
-> > mapping all memory (like with current vhost-user) to only
-> > mapping buffers used for networking (like ivshmem) to
-> > transient mappings for the duration of data transfer only.
-> > This also allows use of VFIO within guests, for improved
-> > security.
-> > =
-
-> > vhost user would need to be extended to send the
-> > mappings programmed by guest IOMMU.
-> > =
-
-> > 2. qemu can be extended to serve as a vhost-user client:
-> > remote VM mappings over the vhost-user protocol, and
-> > map them into another VM's memory.
-> > This mapping can take, for example, the form of
-> > a BAR of a pci device, which I'll call here vhost-pci - =
-
-> > with bus address allowed
-> > by VM1's IOMMU mappings being translated into
-> > offsets within this BAR within VM2's physical
-> > memory space.
-> > =
-
-> > Since the translation can be a simple one, VM2
-> > can perform it within its vhost-pci device driver.
-> > =
-
-> > While this setup would be the most useful with polling,
-> > VM1's ioeventfd can also be mapped to
-> > another VM2's irqfd, and vice versa, such that VMs
-> > can trigger interrupts to each other without need
-> > for a helper thread on the host.
-> > =
-
-> > =
-
-> > The resulting channel might look something like the following:
-> > =
-
-> > +-- VM1 --------------+  +---VM2-----------+
-> > | virtio-pci -- iommu +--+ vhost-pci -- VF | -- VFIO -- IOMMU -- NIC
-> > +---------------------+  +-----------------+
-> > =
-
-> > comparing the two diagrams, a vhost-user thread on the host is
-> > no longer required, reducing the host CPU utilization when
-> > polling is active.  At the same time, VM2 can not access all of VM1's
-> > memory - it is limited by the iommu configuration setup by VM1.
-> > =
-
-> > =
-
-> > Advantages over ivshmem:
-> > =
-
-> > - more flexibility, endpoint VMs do not have to place data at any
-> >   specific locations to use the device, in practice this likely
-> >   means less data copies.
-> > - better standardization/code reuse
-> >   virtio changes within guests would be fairly easy to implement
-> >   and would also benefit other backends, besides vhost-user
-> >   standard hotplug interfaces can be used to add and remove these
-> >   channels as VMs are added or removed.
-> > - migration support
-> >   It's easy to implement since ownership of memory is well defined.
-> >   For example, during migration VM2 can notify hypervisor of VM1
-> >   by updating dirty bitmap each time is writes into VM1 memory.
-> > =
-
-> > Thanks,
-> > =
-
-> =
-
-> =
-
-> -- =
-
-> Claudio Fontana
-> Server Virtualization Architect
-> Huawei Technologies Duesseldorf GmbH
-> Riesstra=DFe 25 - 80992 M=FCnchen
+diff --git a/drivers/gpu/drm/virtio/virtgpu_fence.c b/drivers/gpu/drm/virtio/virtgpu_fence.c
+index 1da6326..793ad9f 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_fence.c
++++ b/drivers/gpu/drm/virtio/virtgpu_fence.c
+@@ -81,7 +81,7 @@ int virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
+ 	struct virtio_gpu_fence_driver *drv = &vgdev->fence_drv;
+ 	unsigned long irq_flags;
+ 
+-	*fence = kmalloc(sizeof(struct virtio_gpu_fence), GFP_KERNEL);
++	*fence = kmalloc(sizeof(struct virtio_gpu_fence), GFP_ATOMIC);
+ 	if ((*fence) == NULL)
+ 		return -ENOMEM;
+ 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index b9275c7..111ab1a 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -347,6 +347,38 @@ static int virtio_gpu_queue_ctrl_buffer(struct virtio_gpu_device *vgdev,
+ 	return rc;
+ }
+ 
++static int virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
++					       struct virtio_gpu_vbuffer *vbuf,
++					       struct virtio_gpu_ctrl_hdr *hdr,
++					       struct virtio_gpu_fence **fence)
++{
++	struct virtqueue *vq = vgdev->ctrlq.vq;
++	int rc;
++
++again:
++	spin_lock(&vgdev->ctrlq.qlock);
++
++	/*
++	 * Make sure we have enouth space in the virtqueue.  If not
++	 * wait here until we have.
++	 *
++	 * Without that virtio_gpu_queue_ctrl_buffer_nolock might have
++	 * to wait for free space, which can result in fence ids being
++	 * submitted out-of-order.
++	 */
++	if (vq->num_free < 3) {
++		spin_unlock(&vgdev->ctrlq.qlock);
++		wait_event(vgdev->ctrlq.ack_queue, vq->num_free >= 3);
++		goto again;
++	}
++
++	if (fence)
++		virtio_gpu_fence_emit(vgdev, hdr, fence);
++	rc = virtio_gpu_queue_ctrl_buffer_nolock(vgdev, vbuf);
++	spin_unlock(&vgdev->ctrlq.qlock);
++	return rc;
++}
++
+ static int virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
+ 				   struct virtio_gpu_vbuffer *vbuf)
+ {
+@@ -499,9 +531,7 @@ void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
+ 	cmd_p->r.x = x;
+ 	cmd_p->r.y = y;
+ 
+-	if (fence)
+-		virtio_gpu_fence_emit(vgdev, &cmd_p->hdr, fence);
+-	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
++	virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, &cmd_p->hdr, fence);
+ }
+ 
+ static void
+@@ -524,9 +554,7 @@ virtio_gpu_cmd_resource_attach_backing(struct virtio_gpu_device *vgdev,
+ 	vbuf->data_buf = ents;
+ 	vbuf->data_size = sizeof(*ents) * nents;
+ 
+-	if (fence)
+-		virtio_gpu_fence_emit(vgdev, &cmd_p->hdr, fence);
+-	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
++	virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, &cmd_p->hdr, fence);
+ }
+ 
+ static void virtio_gpu_cmd_get_display_info_cb(struct virtio_gpu_device *vgdev,
+-- 
+1.8.3.1
