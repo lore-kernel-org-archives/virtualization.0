@@ -1,14 +1,14 @@
-From: Dave Airlie <airlied@gmail.com>
-Subject: Re: [PATCH 3/5] update virtio gpu driver: add 3d/virgl support
-Date: Thu, 10 Sep 2015 20:32:30 +1000
-Message-ID: <CAPM=9txn4yGwQg+ZdL5Z9ZtFzSnw3QfUtAWT5mSXgB_JL00pYA__40727.2232151174$1441881177$gmane$org@mail.gmail.com>
-References: <1441798946-26233-1-git-send-email-kraxel@redhat.com>
-	<1441798946-26233-4-git-send-email-kraxel@redhat.com>
-	<CACvgo51Y7j0ka46Rfq2eBvXzP4q8Jc6x4j-JrYHDLkH6_xOh7w@mail.gmail.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH] x86/paravirt: remove unused operation
+Date: Thu, 10 Sep 2015 12:46:22 +0200
+Message-ID: <55F15F7E.3000502__4087.82632225684$1441882020$gmane$org@suse.com>
+References: <1438862127-19674-1-git-send-email-jgross@suse.com>
+	<55E02501.5030105@suse.com> <87d1y4qq4f.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1458416418619267224=="
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CACvgo51Y7j0ka46Rfq2eBvXzP4q8Jc6x4j-JrYHDLkH6_xOh7w@mail.gmail.com>
+In-Reply-To: <87d1y4qq4f.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,118 +18,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Emil Velikov <emil.l.velikov@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "open list:ABI/API" <linux-api@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, jeremy@goop.org, chrisw@sous-sol.org, akataria@vmware.com, virtualization@lists.linux-foundation.org, x86@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============1458416418619267224==
-Content-Type: multipart/alternative; boundary=089e0160b5eed13908051f621dba
-
---089e0160b5eed13908051f621dba
-Content-Type: text/plain; charset=UTF-8
-
-> > --- /dev/null
-> > +++ b/include/uapi/drm/virtgpu_drm.h
-> > @@ -0,0 +1,163 @@
+On 08/31/2015 02:05 AM, Rusty Russell wrote:
+> Juergen Gross <jgross@suse.com> writes:
+>> Ping?
 >
-> > +
-> > +struct drm_virtgpu_3d_box {
-> > +       uint32_t x, y, z;
-> > +       uint32_t w, h, d;
-> > +};
-> > +
-> There was a similar case (multiple variables declared on a single
-> line) in drm core that caused confusion and we broke the 32bit compat.
-> I thought I mention it - not advocating for/against the above declaration.
+> Acked-by: Rusty Russell <rusty@rustcorp.com.au>
+
+Anyone willing to take this patch?
 
 
-probably should put some newlines alright,
+Juergen
 
 >
-
-> > +struct drm_virtgpu_3d_transfer_to_host {
-> > +       uint32_t bo_handle;
-> > +       struct drm_virtgpu_3d_box box;
-> > +       uint32_t level;
-> > +       uint32_t offset;
-> > +};
-> > +
-> > +struct drm_virtgpu_3d_transfer_from_host {
-> > +       uint32_t bo_handle;
-> > +       struct drm_virtgpu_3d_box box;
-> > +       uint32_t level;
-> > +       uint32_t offset;
-> > +};
-> > +
-> Afaics these seems to be used by the ioctls. If so the current
-> declarations are not 32bit compat safe. Things will also go badly if
-> you consider expanding struct drm_virtgpu_3d_box in the distant
-> future. A u32 pad after bo_handle and a 'pointer' to struct
-
-I'm curious what you think we can add to a 3d box.
-
-So this one is fine, no need to align it either I don't think, though I
-should confirm that.
-
-Maybe for safety we can pull the other uint32_t above the box.
-
-Dave.
-
---089e0160b5eed13908051f621dba
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><p dir=3D"ltr">&gt; &gt; --- /dev/null<br>
-&gt; &gt; +++ b/include/uapi/drm/virtgpu_drm.h<br>
-&gt; &gt; @@ -0,0 +1,163 @@<br>
-&gt;<br>
-&gt; &gt; +<br>
-&gt; &gt; +struct drm_virtgpu_3d_box {<br>
-&gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0uint32_t x, y, z;<br>
-&gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0uint32_t w, h, d;<br>
-&gt; &gt; +};<br>
-&gt; &gt; +<br>
-&gt; There was a similar case (multiple variables declared on a single<br>
-&gt; line) in drm core that caused confusion and we broke the 32bit compat.=
-<br>
-&gt; I thought I mention it - not advocating for/against the above declarat=
-ion.</p><p dir=3D"ltr"><br></p><p>probably should put some newlines alright=
-,</p><p>&gt;<br></p><p dir=3D"ltr">
-&gt; &gt; +struct drm_virtgpu_3d_transfer_to_host {<br>
-&gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0uint32_t bo_handle;<br>
-&gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0struct drm_virtgpu_3d_box box;<br>
-&gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0uint32_t level;<br>
-&gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0uint32_t offset;<br>
-&gt; &gt; +};<br>
-&gt; &gt; +<br>
-&gt; &gt; +struct drm_virtgpu_3d_transfer_from_host {<br>
-&gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0uint32_t bo_handle;<br>
-&gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0struct drm_virtgpu_3d_box box;<br>
-&gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0uint32_t level;<br>
-&gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0uint32_t offset;<br>
-&gt; &gt; +};<br>
-&gt; &gt; +<br>
-&gt; Afaics these seems to be used by the ioctls. If so the current<br>
-&gt; declarations are not 32bit compat safe. Things will also go badly if<b=
-r>
-&gt; you consider expanding struct drm_virtgpu_3d_box in the distant<br>
-&gt; future. A u32 pad after bo_handle and a &#39;pointer&#39; to struct<br=
+> Cheers,
+> Rusty.
 >
-</p><p dir=3D"ltr">I&#39;m curious what you think we can add to a 3d box.</=
-p><p>So this one is fine, no need to align it either I don&#39;t think, tho=
-ugh I should confirm that.</p><p>Maybe for safety we can pull the other uin=
-t32_t above the box.</p><p>Dave.<br></p></div>
-
---089e0160b5eed13908051f621dba--
-
---===============1458416418619267224==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1458416418619267224==--
+>> On 08/06/2015 01:55 PM, Juergen Gross wrote:
+>>> Remove the paravirt operation "get_tsc_khz" as it is used nowhere.
+>>>
+>>> Signed-off-by: Juergen Gross <jgross@suse.com>
+>>> ---
+>>>    arch/x86/include/asm/paravirt_types.h | 1 -
+>>>    1 file changed, 1 deletion(-)
+>>>
+>>> diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+>>> index a6b8f9f..5a18a66 100644
+>>> --- a/arch/x86/include/asm/paravirt_types.h
+>>> +++ b/arch/x86/include/asm/paravirt_types.h
+>>> @@ -97,7 +97,6 @@ struct pv_lazy_ops {
+>>>    struct pv_time_ops {
+>>>    	unsigned long long (*sched_clock)(void);
+>>>    	unsigned long long (*steal_clock)(int cpu);
+>>> -	unsigned long (*get_tsc_khz)(void);
+>>>    };
+>>>
+>>>    struct pv_cpu_ops {
+>>>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
