@@ -1,16 +1,13 @@
-From: Emil Velikov <emil.l.velikov@gmail.com>
-Subject: Re: [PATCH 3/5] update virtio gpu driver: add 3d/virgl support
-Date: Thu, 10 Sep 2015 13:15:25 +0100
-Message-ID: <CACvgo51MOc_ZbjxEikz7DWMAAwNPsZYF0J+=Ejg41wy8MFG33A__40437.6019876965$1441900596$gmane$org@mail.gmail.com>
-References: <1441798946-26233-1-git-send-email-kraxel@redhat.com>
-	<1441798946-26233-4-git-send-email-kraxel@redhat.com>
-	<CACvgo51Y7j0ka46Rfq2eBvXzP4q8Jc6x4j-JrYHDLkH6_xOh7w@mail.gmail.com>
-	<CAPM=9txn4yGwQg+ZdL5Z9ZtFzSnw3QfUtAWT5mSXgB_JL00pYA@mail.gmail.com>
+From: Keith Busch <keith.busch@intel.com>
+Subject: Re: [RFC PATCH 0/2] virtio nvme
+Date: Thu, 10 Sep 2015 14:02:57 +0000 (UTC)
+Message-ID: <alpine.LNX.2.00.1509101356200.23840@localhost.lm.intel.com>
+References: <1441864112-12765-1-git-send-email-mlin@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAPM=9txn4yGwQg+ZdL5Z9ZtFzSnw3QfUtAWT5mSXgB_JL00pYA@mail.gmail.com>
+In-Reply-To: <1441864112-12765-1-git-send-email-mlin@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,62 +17,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dave Airlie <airlied@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "open list:ABI/API" <linux-api@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>
+To: Ming Lin <mlin@kernel.org>
+Cc: Christoph Hellwig <hch@lst.de>, linux-nvme@lists.infradead.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10 September 2015 at 11:32, Dave Airlie <airlied@gmail.com> wrote:
->> > --- /dev/null
->> > +++ b/include/uapi/drm/virtgpu_drm.h
->> > @@ -0,0 +1,163 @@
->>
->> > +
->> > +struct drm_virtgpu_3d_box {
->> > +       uint32_t x, y, z;
->> > +       uint32_t w, h, d;
->> > +};
->> > +
->> There was a similar case (multiple variables declared on a single
->> line) in drm core that caused confusion and we broke the 32bit compat.
->> I thought I mention it - not advocating for/against the above declaration.
+On Wed, 9 Sep 2015, Ming Lin wrote:
+> The goal is to have a full NVMe stack from VM guest(virtio-nvme)
+> to host(vhost_nvme) to LIO NVMe-over-fabrics target.
+>
+> Now there are lots of duplicated code with linux/nvme-core.c and qemu/nvme.c.
+> The ideal result is to have a multi level NVMe stack(similar as SCSI).
+> So we can re-use the nvme code, for example
+>
+>                        .-------------------------.
+>                        | NVMe device register    |
+>  Upper level           | NVMe protocol process   |
+>                        |                         |
+>                        '-------------------------'
 >
 >
-> probably should put some newlines alright,
 >
->>
+>              .-----------.    .-----------.    .------------------.
+> Lower level  |   PCIe    |    | VIRTIO    |    |NVMe over Fabrics |
+>              |           |    |           |    |initiator         |
+>              '-----------'    '-----------'    '------------------'
 >
->> > +struct drm_virtgpu_3d_transfer_to_host {
->> > +       uint32_t bo_handle;
->> > +       struct drm_virtgpu_3d_box box;
->> > +       uint32_t level;
->> > +       uint32_t offset;
->> > +};
->> > +
->> > +struct drm_virtgpu_3d_transfer_from_host {
->> > +       uint32_t bo_handle;
->> > +       struct drm_virtgpu_3d_box box;
->> > +       uint32_t level;
->> > +       uint32_t offset;
->> > +};
->> > +
->> Afaics these seems to be used by the ioctls. If so the current
->> declarations are not 32bit compat safe. Things will also go badly if
->> you consider expanding struct drm_virtgpu_3d_box in the distant
->> future. A u32 pad after bo_handle and a 'pointer' to struct
->
-> I'm curious what you think we can add to a 3d box.
->
-None from the top of my head I'm afraid. But I'm wondering if one
-cannot keep things flexible considering the cost/downside of the
-approach is minimal.
+> todo:
+> - tune performance. Should be as good as virtio-blk/virtio-scsi
+> - support discard/flush/integrity
+> - need Redhat's help for the VIRTIO_ID_NVME pci id
+> - multi level NVMe stack
 
-> So this one is fine, no need to align it either I don't think, though I
-> should confirm that.
->
-> Maybe for safety we can pull the other uint32_t above the box.
->
-pahole did complain on my system, but please do - was low on caffeine
-so I could have botched something.
+Hi Ming,
 
-Regards
-Emil
+I'll be out for travel for the next week, so I won't have much time to
+do a proper review till the following week.
+
+I think it'd be better to get this hierarchy setup to make the most reuse
+possible than to have this much code duplication between the existing
+driver and emulated qemu nvme. For better or worse, I think the generic
+nvme layer is where things are going. Are you signed up with the fabrics
+contributors?
