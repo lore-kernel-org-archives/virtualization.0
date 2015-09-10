@@ -1,14 +1,14 @@
-From: Ming Lin <mlin@kernel.org>
-Subject: Re: [RFC PATCH 0/2] virtio nvme
-Date: Thu, 10 Sep 2015 10:28:18 -0700
-Message-ID: <1441906098.18716.21.camel@ssi>
-References: <1441864112-12765-1-git-send-email-mlin@kernel.org>
-	<CAJSP0QUmtgoh23G3u64xRnBbJkAoO19AEi=vkyPPyg9n9jqC2Q@mail.gmail.com>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [PATCH 2/4] vhost: move features to core
+Date: Thu, 10 Sep 2015 22:15:05 +0300
+Message-ID: <55F1D6B9.3010007@cogentembedded.com>
+References: <1441869802-15847-1-git-send-email-mst@redhat.com>
+	<1441869802-15847-3-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJSP0QUmtgoh23G3u64xRnBbJkAoO19AEi=vkyPPyg9n9jqC2Q@mail.gmail.com>
+In-Reply-To: <1441869802-15847-3-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,82 +18,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: Christoph Hellwig <hch@lst.de>, linux-nvme@lists.infradead.org, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org, "Xie, Huawei" <huawei.xie@intel.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2015-09-10 at 15:38 +0100, Stefan Hajnoczi wrote:
-> On Thu, Sep 10, 2015 at 6:48 AM, Ming Lin <mlin@kernel.org> wrote:
-> > These 2 patches added virtio-nvme to kernel and qemu,
-> > basically modified from virtio-blk and nvme code.
-> >
-> > As title said, request for your comments.
-> >
-> > Play it in Qemu with:
-> > -drive file=disk.img,format=raw,if=none,id=D22 \
-> > -device virtio-nvme-pci,drive=D22,serial=1234,num_queues=4
-> >
-> > The goal is to have a full NVMe stack from VM guest(virtio-nvme)
-> > to host(vhost_nvme) to LIO NVMe-over-fabrics target.
-> 
-> Why is a virtio-nvme guest device needed?  I guess there must either
-> be NVMe-only features that you want to pass through, or you think the
-> performance will be significantly better than virtio-blk/virtio-scsi?
+Hello.
 
-It simply passes through NVMe commands.
+On 09/10/2015 10:23 AM, Michael S. Tsirkin wrote:
 
-Right now performance is poor. Performance tunning is on my todo list.
-It should be as good as virtio-blk/virtio-scsi.
+> virtio 1 and any layout are core features, move them
+> there. This fixes vhost test.
+>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-> 
-> At first glance it seems like the virtio_nvme guest driver is just
-> another block driver like virtio_blk, so I'm not clear why a
-> virtio-nvme device makes sense.
+[...]
+> diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
+> index d9c501e..f2882ac 100644
+> --- a/drivers/vhost/test.c
+> +++ b/drivers/vhost/test.c
+> @@ -277,10 +277,13 @@ static long vhost_test_ioctl(struct file *f, unsigned int ioctl,
+>   			return -EFAULT;
+>   		return 0;
+>   	case VHOST_SET_FEATURES:
+> +		printk(KERN_ERR "1\n");
+>   		if (copy_from_user(&features, featurep, sizeof features))
+>   			return -EFAULT;
+> +		printk(KERN_ERR "2\n");
+>   		if (features & ~VHOST_FEATURES)
+>   			return -EOPNOTSUPP;
+> +		printk(KERN_ERR "3\n");
+>   		return vhost_test_set_features(n, features);
+>   	case VHOST_RESET_OWNER:
+>   		return vhost_test_reset_owner(n);
 
-I think the future "LIO NVMe target" only speaks NVMe protocol.
+    Debugging printk's remained?
 
-Nick(CCed), could you correct me if I'm wrong?
-
-For SCSI stack, we have:
-virtio-scsi(guest)
-tcm_vhost(or vhost_scsi, host)
-LIO-scsi-target
-
-For NVMe stack, we'll have similar components:
-virtio-nvme(guest)
-vhost_nvme(host)
-LIO-NVMe-target
-
-> 
-> > Now there are lots of duplicated code with linux/nvme-core.c and qemu/nvme.c.
-> > The ideal result is to have a multi level NVMe stack(similar as SCSI).
-> > So we can re-use the nvme code, for example
-> >
-> >                         .-------------------------.
-> >                         | NVMe device register    |
-> >   Upper level           | NVMe protocol process   |
-> >                         |                         |
-> >                         '-------------------------'
-> >
-> >
-> >
-> >               .-----------.    .-----------.    .------------------.
-> >  Lower level  |   PCIe    |    | VIRTIO    |    |NVMe over Fabrics |
-> >               |           |    |           |    |initiator         |
-> >               '-----------'    '-----------'    '------------------'
-> 
-> You mentioned LIO and SCSI.  How will NVMe over Fabrics be integrated
-> into LIO?  If it is mapped to SCSI then using virtio_scsi in the guest
-> and tcm_vhost should work.
-
-I think it's not mapped to SCSI.
-
-Nick, would you share more here?
-
-> 
-> Please also post virtio draft specifications documenting the virtio device.
-
-I'll do this later.
-
-> 
-> Stefan
+MBR, Sergei
