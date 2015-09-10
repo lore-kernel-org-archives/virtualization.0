@@ -1,13 +1,15 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [RFC PATCH 0/2] virtio nvme
-Date: Thu, 10 Sep 2015 15:38:48 +0100
-Message-ID: <CAJSP0QUmtgoh23G3u64xRnBbJkAoO19AEi=vkyPPyg9n9jqC2Q@mail.gmail.com>
-References: <1441864112-12765-1-git-send-email-mlin@kernel.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 3/5] update virtio gpu driver: add 3d/virgl support
+Date: Thu, 10 Sep 2015 16:45:31 +0200
+Message-ID: <1441896331.11233.21.camel@redhat.com>
+References: <1441798946-26233-1-git-send-email-kraxel@redhat.com>
+	<1441798946-26233-4-git-send-email-kraxel@redhat.com>
+	<CACvgo51Y7j0ka46Rfq2eBvXzP4q8Jc6x4j-JrYHDLkH6_xOh7w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1441864112-12765-1-git-send-email-mlin@kernel.org>
+In-Reply-To: <CACvgo51Y7j0ka46Rfq2eBvXzP4q8Jc6x4j-JrYHDLkH6_xOh7w@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,52 +19,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ming Lin <mlin@kernel.org>
-Cc: Christoph Hellwig <hch@lst.de>, linux-nvme@lists.infradead.org, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: Emil Velikov <emil.l.velikov@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "open list:ABI/API" <linux-api@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 10, 2015 at 6:48 AM, Ming Lin <mlin@kernel.org> wrote:
-> These 2 patches added virtio-nvme to kernel and qemu,
-> basically modified from virtio-blk and nvme code.
->
-> As title said, request for your comments.
->
-> Play it in Qemu with:
-> -drive file=disk.img,format=raw,if=none,id=D22 \
-> -device virtio-nvme-pci,drive=D22,serial=1234,num_queues=4
->
-> The goal is to have a full NVMe stack from VM guest(virtio-nvme)
-> to host(vhost_nvme) to LIO NVMe-over-fabrics target.
+  Hi,
 
-Why is a virtio-nvme guest device needed?  I guess there must either
-be NVMe-only features that you want to pass through, or you think the
-performance will be significantly better than virtio-blk/virtio-scsi?
+> Just a FYI - Daniel Vetter has a series in flight which deprecates
+> DRM_UNLOCKED for KMS drivers.
 
-At first glance it seems like the virtio_nvme guest driver is just
-another block driver like virtio_blk, so I'm not clear why a
-virtio-nvme device makes sense.
+Thanks for the heads up.
 
-> Now there are lots of duplicated code with linux/nvme-core.c and qemu/nvme.c.
-> The ideal result is to have a multi level NVMe stack(similar as SCSI).
-> So we can re-use the nvme code, for example
->
->                         .-------------------------.
->                         | NVMe device register    |
->   Upper level           | NVMe protocol process   |
->                         |                         |
->                         '-------------------------'
->
->
->
->               .-----------.    .-----------.    .------------------.
->  Lower level  |   PCIe    |    | VIRTIO    |    |NVMe over Fabrics |
->               |           |    |           |    |initiator         |
->               '-----------'    '-----------'    '------------------'
+> 
+> > --- /dev/null
+> > +++ b/include/uapi/drm/virtgpu_drm.h
+> > @@ -0,0 +1,163 @@
+> 
+> > +
+> > +struct drm_virtgpu_3d_box {
+> > +       uint32_t x, y, z;
+> > +       uint32_t w, h, d;
+> > +};
+> > +
+> There was a similar case (multiple variables declared on a single
+> line) in drm core that caused confusion and we broke the 32bit compat.
+> I thought I mention it - not advocating for/against the above declaration.
 
-You mentioned LIO and SCSI.  How will NVMe over Fabrics be integrated
-into LIO?  If it is mapped to SCSI then using virtio_scsi in the guest
-and tcm_vhost should work.
+I highly doubt we'll ever change that.
+But we can give each struct field its own row, sure.
 
-Please also post virtio draft specifications documenting the virtio device.
+> > +struct drm_virtgpu_3d_transfer_to_host {
+> > +       uint32_t bo_handle;
+> > +       struct drm_virtgpu_3d_box box;
+> > +       uint32_t level;
+> > +       uint32_t offset;
+> > +};
+> > +
+> > +struct drm_virtgpu_3d_transfer_from_host {
+> > +       uint32_t bo_handle;
+> > +       struct drm_virtgpu_3d_box box;
+> > +       uint32_t level;
+> > +       uint32_t offset;
+> > +};
+> > +
+> Afaics these seems to be used by the ioctls. If so the current
+> declarations are not 32bit compat safe.
 
-Stefan
+Why?  As long as we have only 32bit fields in the struct the struct
+itself gets a 32bit alignment too.  So no layout differences between
+32bit and 64bit.
+
+> Things will also go badly if you consider expanding 
+> struct drm_virtgpu_3d_box in the distant future.
+
+See above, very unlikely.  And should that really happen we have bigger
+problems anyway because it is quite likely that we have to touch the
+virtio wire protocol too.
+
+> A u32 pad after bo_handle and a 'pointer' to struct
+> drm_virtgpu_3d_box might be the more flexible solution.
+
+IMO this makes things more complicated for no good reason.
+
+cheers,
+  Gerd
