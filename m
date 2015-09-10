@@ -1,17 +1,14 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH 5/5] virtgpu: mark as a render gpu
-Date: Thu, 10 Sep 2015 16:52:45 +0200
-Message-ID: <1441896765.11233.25.camel__37633.1260231838$1441897442$gmane$org@redhat.com>
-References: <1441798946-26233-1-git-send-email-kraxel@redhat.com>
-	<1441798946-26233-6-git-send-email-kraxel@redhat.com>
-	<CACvgo53wYvAk_bVouPZ-F7wNm=Diyouue8m1AvO0=U+PvL61_Q@mail.gmail.com>
-	<1441895002.11233.6.camel@redhat.com>
-	<CACvgo50SU46SYXBbVe+VGcAb6uFSj-iBY0E4=Vuuzf5RKbE+2Q@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 0/1] virtio/s390: one bugfix
+Date: Thu, 10 Sep 2015 17:58:19 +0300
+Message-ID: <20150910175807-mutt-send-email-mst__35859.3480116271$1441897499$gmane$org@redhat.com>
+References: <1441895708-70657-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CACvgo50SU46SYXBbVe+VGcAb6uFSj-iBY0E4=Vuuzf5RKbE+2Q@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <1441895708-70657-1-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,26 +18,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Emil Velikov <emil.l.velikov@gmail.com>
-Cc: Dave Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open
-	list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: borntraeger@de.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
+On Thu, Sep 10, 2015 at 04:35:07PM +0200, Cornelia Huck wrote:
+> Michael,
+> 
+> here's a bugfix for the virtio-ccw driver.
+> 
+> Question: How would you like to get patches? This one is formatted
+> against your current linux-next branch; I can prepare a branch for
+> you to pull from as well.
 
-> > Dave?  Looking at the ioctls they are all fine for render nodes, there
-> > isn't anything modesetting related in the device-specific ioctls.
-> >
-> > Correct?
-> >
-> Unless I've overdone the coffee this time - modesetting is done via
-> the card# node, while render via either card# or renderD#.
+No need, patches are fine.
 
-Exactly, thats why anything modesetting-related must be disabled for
-renderD#.  Looking at the virtio-gpu device-specific ioctls I don't
-think there is anything doing modesetting (which we would have to leave
-out), so we can apply DRM_RENDER_ALLOW everythere I think.  Or maybe
-there is a global switch to flip DRM_RENDER_ALLOW for the whole list ...
-
-cheers,
-  Gerd
+> Pierre Morel (1):
+>   virtio/s390: handle failures of READ_VQ_CONF ccw
+> 
+>  drivers/s390/virtio/virtio_ccw.c | 10 +++++++++-
+>  1 file changed, 9 insertions(+), 1 deletion(-)
+> 
+> -- 
+> 2.3.8
