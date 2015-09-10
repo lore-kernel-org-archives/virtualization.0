@@ -1,14 +1,15 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH] x86/paravirt: remove unused operation
-Date: Thu, 10 Sep 2015 12:46:22 +0200
-Message-ID: <55F15F7E.3000502__4087.82632225684$1441882020$gmane$org@suse.com>
-References: <1438862127-19674-1-git-send-email-jgross@suse.com>
-	<55E02501.5030105@suse.com> <87d1y4qq4f.fsf@rustcorp.com.au>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 1/5] virtio-gpu: add virtio_gpu_queue_ctrl_buffer_nolock
+Date: Thu, 10 Sep 2015 16:04:48 +0200
+Message-ID: <1441893888.11233.3.camel@redhat.com>
+References: <1441798946-26233-1-git-send-email-kraxel@redhat.com>
+	<1441798946-26233-2-git-send-email-kraxel@redhat.com>
+	<CACvgo53bZnLoKHu_Gh-+mBVxs0MX07LckGc-hVxCpYxXmSTwRg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87d1y4qq4f.fsf@rustcorp.com.au>
+In-Reply-To: <CACvgo53bZnLoKHu_Gh-+mBVxs0MX07LckGc-hVxCpYxXmSTwRg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,48 +19,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org, jeremy@goop.org, chrisw@sous-sol.org, akataria@vmware.com, virtualization@lists.linux-foundation.org, x86@kernel.org
+To: Emil Velikov <emil.l.velikov@gmail.com>
+Cc: open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/31/2015 02:05 AM, Rusty Russell wrote:
-> Juergen Gross <jgross@suse.com> writes:
->> Ping?
->
-> Acked-by: Rusty Russell <rusty@rustcorp.com.au>
+On Do, 2015-09-10 at 09:39 +0100, Emil Velikov wrote:
+> Hi Gerd,
+> 
+> On 9 September 2015 at 12:42, Gerd Hoffmann <kraxel@redhat.com> wrote:
+> > Add virtio_gpu_queue_ctrl_buffer_nolock function, which does the same as
+> > virtio_gpu_queue_ctrl_buffer but does not take the virtqueue lock.  The
+> > caller must hold the lock instead.
+> >
+> The drm subsystem tends to use *_locked and *_unlocked suffixes. With
+> the latter being less common.
+> Not a big deal but perhaps you can use one of those for virtio ?
 
-Anyone willing to take this patch?
+_locked looks correct for this case to me (looking at drm_vm_close +
+drm_vm_close_locked to compare).  I'll change it.
 
-
-Juergen
-
->
-> Cheers,
-> Rusty.
->
->> On 08/06/2015 01:55 PM, Juergen Gross wrote:
->>> Remove the paravirt operation "get_tsc_khz" as it is used nowhere.
->>>
->>> Signed-off-by: Juergen Gross <jgross@suse.com>
->>> ---
->>>    arch/x86/include/asm/paravirt_types.h | 1 -
->>>    1 file changed, 1 deletion(-)
->>>
->>> diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
->>> index a6b8f9f..5a18a66 100644
->>> --- a/arch/x86/include/asm/paravirt_types.h
->>> +++ b/arch/x86/include/asm/paravirt_types.h
->>> @@ -97,7 +97,6 @@ struct pv_lazy_ops {
->>>    struct pv_time_ops {
->>>    	unsigned long long (*sched_clock)(void);
->>>    	unsigned long long (*steal_clock)(int cpu);
->>> -	unsigned long (*get_tsc_khz)(void);
->>>    };
->>>
->>>    struct pv_cpu_ops {
->>>
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+cheers,
+  Gerd
