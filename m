@@ -1,13 +1,13 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 1/1] virtio/s390: handle failures of READ_VQ_CONF ccw
-Date: Thu, 10 Sep 2015 16:35:08 +0200
-Message-ID: <1441895708-70657-2-git-send-email-cornelia.huck__3960.51226784966$1441895750$gmane$org@de.ibm.com>
-References: <1441895708-70657-1-git-send-email-cornelia.huck@de.ibm.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [RFC PATCH 0/2] virtio nvme
+Date: Thu, 10 Sep 2015 15:38:48 +0100
+Message-ID: <CAJSP0QUmtgoh23G3u64xRnBbJkAoO19AEi=vkyPPyg9n9jqC2Q@mail.gmail.com>
+References: <1441864112-12765-1-git-send-email-mlin@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1441895708-70657-1-git-send-email-cornelia.huck@de.ibm.com>
+In-Reply-To: <1441864112-12765-1-git-send-email-mlin@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,58 +17,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Pierre Morel <pmorel@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, borntraeger@de.ibm.com
+To: Ming Lin <mlin@kernel.org>
+Cc: Christoph Hellwig <hch@lst.de>, linux-nvme@lists.infradead.org, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Pierre Morel <pmorel@linux.vnet.ibm.com>
+On Thu, Sep 10, 2015 at 6:48 AM, Ming Lin <mlin@kernel.org> wrote:
+> These 2 patches added virtio-nvme to kernel and qemu,
+> basically modified from virtio-blk and nvme code.
+>
+> As title said, request for your comments.
+>
+> Play it in Qemu with:
+> -drive file=disk.img,format=raw,if=none,id=D22 \
+> -device virtio-nvme-pci,drive=D22,serial=1234,num_queues=4
+>
+> The goal is to have a full NVMe stack from VM guest(virtio-nvme)
+> to host(vhost_nvme) to LIO NVMe-over-fabrics target.
 
-In virtio_ccw_read_vq_conf() the return value of ccw_io_helper()
-was not checked.
-If the configuration could not be read properly, we'd wrongly assume a
-queue size of 0.
+Why is a virtio-nvme guest device needed?  I guess there must either
+be NVMe-only features that you want to pass through, or you think the
+performance will be significantly better than virtio-blk/virtio-scsi?
 
-Let's propagate any I/O error to virtio_ccw_setup_vq() so it may
-properly fail.
+At first glance it seems like the virtio_nvme guest driver is just
+another block driver like virtio_blk, so I'm not clear why a
+virtio-nvme device makes sense.
 
-Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
----
- drivers/s390/virtio/virtio_ccw.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+> Now there are lots of duplicated code with linux/nvme-core.c and qemu/nvme.c.
+> The ideal result is to have a multi level NVMe stack(similar as SCSI).
+> So we can re-use the nvme code, for example
+>
+>                         .-------------------------.
+>                         | NVMe device register    |
+>   Upper level           | NVMe protocol process   |
+>                         |                         |
+>                         '-------------------------'
+>
+>
+>
+>               .-----------.    .-----------.    .------------------.
+>  Lower level  |   PCIe    |    | VIRTIO    |    |NVMe over Fabrics |
+>               |           |    |           |    |initiator         |
+>               '-----------'    '-----------'    '------------------'
 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index f8d8fdb..e9fae30 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -400,12 +400,16 @@ static bool virtio_ccw_kvm_notify(struct virtqueue *vq)
- static int virtio_ccw_read_vq_conf(struct virtio_ccw_device *vcdev,
- 				   struct ccw1 *ccw, int index)
- {
-+	int ret;
-+
- 	vcdev->config_block->index = index;
- 	ccw->cmd_code = CCW_CMD_READ_VQ_CONF;
- 	ccw->flags = 0;
- 	ccw->count = sizeof(struct vq_config_block);
- 	ccw->cda = (__u32)(unsigned long)(vcdev->config_block);
--	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_READ_VQ_CONF);
-+	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_READ_VQ_CONF);
-+	if (ret)
-+		return ret;
- 	return vcdev->config_block->num;
- }
- 
-@@ -503,6 +507,10 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
- 		goto out_err;
- 	}
- 	info->num = virtio_ccw_read_vq_conf(vcdev, ccw, i);
-+	if (info->num < 0) {
-+		err = info->num;
-+		goto out_err;
-+	}
- 	size = PAGE_ALIGN(vring_size(info->num, KVM_VIRTIO_CCW_RING_ALIGN));
- 	info->queue = alloc_pages_exact(size, GFP_KERNEL | __GFP_ZERO);
- 	if (info->queue == NULL) {
--- 
-2.3.8
+You mentioned LIO and SCSI.  How will NVMe over Fabrics be integrated
+into LIO?  If it is mapped to SCSI then using virtio_scsi in the guest
+and tcm_vhost should work.
+
+Please also post virtio draft specifications documenting the virtio device.
+
+Stefan
