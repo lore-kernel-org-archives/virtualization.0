@@ -1,13 +1,16 @@
-From: Keith Busch <keith.busch@intel.com>
-Subject: Re: [RFC PATCH 0/2] virtio nvme
-Date: Thu, 10 Sep 2015 14:02:57 +0000 (UTC)
-Message-ID: <alpine.LNX.2.00.1509101356200.23840@localhost.lm.intel.com>
-References: <1441864112-12765-1-git-send-email-mlin@kernel.org>
+From: Emil Velikov <emil.l.velikov@gmail.com>
+Subject: Re: [PATCH 5/5] virtgpu: mark as a render gpu
+Date: Thu, 10 Sep 2015 15:33:15 +0100
+Message-ID: <CACvgo50SU46SYXBbVe+VGcAb6uFSj-iBY0E4=Vuuzf5RKbE+2Q__37644.7900002406$1441900608$gmane$org@mail.gmail.com>
+References: <1441798946-26233-1-git-send-email-kraxel@redhat.com>
+	<1441798946-26233-6-git-send-email-kraxel@redhat.com>
+	<CACvgo53wYvAk_bVouPZ-F7wNm=Diyouue8m1AvO0=U+PvL61_Q@mail.gmail.com>
+	<1441895002.11233.6.camel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1441864112-12765-1-git-send-email-mlin@kernel.org>
+In-Reply-To: <1441895002.11233.6.camel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,44 +20,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ming Lin <mlin@kernel.org>
-Cc: Christoph Hellwig <hch@lst.de>, linux-nvme@lists.infradead.org, virtualization@lists.linux-foundation.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Dave Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 9 Sep 2015, Ming Lin wrote:
-> The goal is to have a full NVMe stack from VM guest(virtio-nvme)
-> to host(vhost_nvme) to LIO NVMe-over-fabrics target.
+On 10 September 2015 at 15:23, Gerd Hoffmann <kraxel@redhat.com> wrote:
+> On Do, 2015-09-10 at 09:59 +0100, Emil Velikov wrote:
+>> On 9 September 2015 at 12:42, Gerd Hoffmann <kraxel@redhat.com> wrote:
+>> > From: Dave Airlie <airlied@redhat.com>
+>> >
+>> > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+>> > ---
+>> >  drivers/gpu/drm/virtio/virtgpu_drv.c | 2 +-
+>> >  1 file changed, 1 insertion(+), 1 deletion(-)
+>> >
+>> > diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+>> > index 1245d09..e00298e 100644
+>> > --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
+>> > +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+>> > @@ -113,7 +113,7 @@ static const struct file_operations virtio_gpu_driver_fops = {
+>> >
+>> >
+>> >  static struct drm_driver driver = {
+>> > -       .driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME,
+>> > +       .driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME | DRIVER_RENDER,
+>>
+>> I believe that this will only create the renderD# node. Shouldn't one
+>> also tag the relevant ioctls with DRM_RENDER_ALLOW ?
 >
-> Now there are lots of duplicated code with linux/nvme-core.c and qemu/nvme.c.
-> The ideal result is to have a multi level NVMe stack(similar as SCSI).
-> So we can re-use the nvme code, for example
+> Dave?  Looking at the ioctls they are all fine for render nodes, there
+> isn't anything modesetting related in the device-specific ioctls.
 >
->                        .-------------------------.
->                        | NVMe device register    |
->  Upper level           | NVMe protocol process   |
->                        |                         |
->                        '-------------------------'
+> Correct?
 >
->
->
->              .-----------.    .-----------.    .------------------.
-> Lower level  |   PCIe    |    | VIRTIO    |    |NVMe over Fabrics |
->              |           |    |           |    |initiator         |
->              '-----------'    '-----------'    '------------------'
->
-> todo:
-> - tune performance. Should be as good as virtio-blk/virtio-scsi
-> - support discard/flush/integrity
-> - need Redhat's help for the VIRTIO_ID_NVME pci id
-> - multi level NVMe stack
+Unless I've overdone the coffee this time - modesetting is done via
+the card# node, while render via either card# or renderD#.
 
-Hi Ming,
+So I'm suspecting that you're using card# node which would explain why
+things work. Otherwise drm_ioctl_permit will bail out with -EACCESS.
 
-I'll be out for travel for the next week, so I won't have much time to
-do a proper review till the following week.
-
-I think it'd be better to get this hierarchy setup to make the most reuse
-possible than to have this much code duplication between the existing
-driver and emulated qemu nvme. For better or worse, I think the generic
-nvme layer is where things are going. Are you signed up with the fabrics
-contributors?
+Regards,
+Emil
