@@ -1,14 +1,15 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH RFC 1/1] virtio/s390: support READ_STATUS command for
-	virtio-ccw
-Date: Fri, 11 Sep 2015 15:58:27 +0200
-Message-ID: <1441979907-37174-2-git-send-email-cornelia.huck__5398.12827851183$1441979976$gmane$org@de.ibm.com>
-References: <1441979907-37174-1-git-send-email-cornelia.huck@de.ibm.com>
+From: Claudio Fontana <claudio.fontana@huawei.com>
+Subject: Re: rfc: vhost user enhancements for vm2vm communication
+Date: Fri, 11 Sep 2015 17:39:07 +0200
+Message-ID: <55F2F59B.4030401@huawei.com>
+References: <20150831160655-mutt-send-email-mst@redhat.com>
+	<55ED854A.1080804@huawei.com>
+	<20150909095258-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1441979907-37174-1-git-send-email-cornelia.huck@de.ibm.com>
+In-Reply-To: <20150909095258-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,80 +19,169 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org
-Cc: Pierre Morel <pmorel@linux.vnet.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: opnfv-tech-discuss@lists.opnfv.org, virtio-dev@lists.oasis-open.org, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Pierre Morel <pmorel@linux.vnet.ibm.com>
+On 09.09.2015 09:06, Michael S. Tsirkin wrote:
+> On Mon, Sep 07, 2015 at 02:38:34PM +0200, Claudio Fontana wrote:
+>> Coming late to the party, 
+>>
+>> On 31.08.2015 16:11, Michael S. Tsirkin wrote:
+>>> Hello!
+>>> During the KVM forum, we discussed supporting virtio on top
+>>> of ivshmem. I have considered it, and came up with an alternative
+>>> that has several advantages over that - please see below.
+>>> Comments welcome.
+>>
+>> as Jan mentioned we actually discussed a virtio-shmem device which would incorporate the advantages of ivshmem (so no need for a separate ivshmem device), which would use the well known virtio interface, taking advantage of the new virtio-1 virtqueue layout to split r/w and read-only rings as seen from the two sides, and make use also of BAR0 which has been freed up for use by the device.
+>>
+>> This way it would be possible to share the rings and the actual memory for the buffers in the PCI bars. The guest VMs could decide to use the shared memory regions directly as prepared by the hypervisor (in the jailhouse case) or QEMU/KVM, or perform their own validation on the input depending on the use case.
+>>
+>> Of course the communication between VMs needs in this case to be pre-configured and is quite static (which is actually beneficial in our use case).
+>>
+>> But still in your proposed solution, each VM needs to be pre-configured to communicate with a specific other VM using a separate device right?
+>>
+>> But I wonder if we are addressing the same problem.. in your case you are looking at having a shared memory pool for all VMs potentially visible to all VMs (the vhost-user case), while in the virtio-shmem proposal we discussed we were assuming specific different regions for every channel.
+>>
+>> Ciao,
+>>
+>> Claudio
+> 
+> The problem, as I see it, is to allow inter-vm communication with
+> polling (to get very low latencies) but polling within VMs only, without
+> need to run a host thread (which when polling uses up a host CPU).
+> 
+> What was proposed was to simply change virtio to allow
+> "offset within BAR" instead of PA.
 
-As virtio-1 introduced the possibility of the device manipulating the
-status byte, revision 2 of the virtio-ccw transport introduced a means
-of getting the status byte from the device via READ_STATUS. Let's wire
-it up for revisions >= 2 and fall back to returning the stored status
-byte if not supported.
+There are many consequences to this, offset within BAR alone is not enough, there are multiple things at the virtio level that need sorting out.
+Also we need to consider virtio-mmio etc.
 
-Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
----
- drivers/s390/virtio/virtio_ccw.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+> This would allow VM2VM communication if there are only 2 VMs,
+> but if data needs to be sent to multiple VMs, you
+> must copy it.
 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index e9fae30..1cda784 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -144,6 +144,7 @@ static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
- #define CCW_CMD_WRITE_CONF 0x21
- #define CCW_CMD_WRITE_STATUS 0x31
- #define CCW_CMD_READ_VQ_CONF 0x32
-+#define CCW_CMD_READ_STATUS 0x72
- #define CCW_CMD_SET_IND_ADAPTER 0x73
- #define CCW_CMD_SET_VIRTIO_REV 0x83
- 
-@@ -159,6 +160,7 @@ static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
- #define VIRTIO_CCW_DOING_SET_CONF_IND 0x04000000
- #define VIRTIO_CCW_DOING_SET_IND_ADAPTER 0x08000000
- #define VIRTIO_CCW_DOING_SET_VIRTIO_REV 0x10000000
-+#define VIRTIO_CCW_DOING_READ_STATUS 0x20000000
- #define VIRTIO_CCW_INTPARM_MASK 0xffff0000
- 
- static struct virtio_ccw_device *to_vc_device(struct virtio_device *vdev)
-@@ -889,6 +891,28 @@ out_free:
- static u8 virtio_ccw_get_status(struct virtio_device *vdev)
- {
- 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
-+	u8 old_status = *vcdev->status;
-+	struct ccw1 *ccw;
-+
-+	if (vcdev->revision < 1)
-+		return *vcdev->status;
-+
-+	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
-+	if (!ccw)
-+		return old_status;
-+
-+	ccw->cmd_code = CCW_CMD_READ_STATUS;
-+	ccw->flags = 0;
-+	ccw->count = sizeof(*vcdev->status);
-+	ccw->cda = (__u32)(unsigned long)vcdev->status;
-+	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_READ_STATUS);
-+/*
-+ * If the channel program failed (should only happen if the device
-+ * was hotunplugged, and then we clean up via the machine check
-+ * handler anyway), vcdev->status was not overwritten and we just
-+ * return the old status, which is fine.
-+*/
-+	kfree(ccw);
- 
- 	return *vcdev->status;
- }
-@@ -1008,6 +1032,7 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
- 		case VIRTIO_CCW_DOING_READ_CONFIG:
- 		case VIRTIO_CCW_DOING_WRITE_CONFIG:
- 		case VIRTIO_CCW_DOING_WRITE_STATUS:
-+		case VIRTIO_CCW_DOING_READ_STATUS:
- 		case VIRTIO_CCW_DOING_SET_VQ:
- 		case VIRTIO_CCW_DOING_SET_IND:
- 		case VIRTIO_CCW_DOING_SET_CONF_IND:
--- 
-2.3.8
+Not necessarily, however getting it to work (sharing the backend window and arbitrating the multicast) is really hard.
+
+> 
+> Additionally, it's a single-purpose feature: you can use it from
+> a userspace PMD but linux will never use it.
+> 
+> 
+> My proposal is a superset: don't require that BAR memory is
+> used, use IOMMU translation tables.
+> This way, data can be sent to multiple VMs by sharing the same
+> memory with them all.
+
+Can you describe in detail how your proposal deals with the arbitration necessary for multicast handling?
+
+> 
+> It is still possible to put data in some device BAR if that's
+> what the guest wants to do: just program the IOMMU to limit
+> virtio to the memory range that is within this BAR.
+> 
+> Another advantage here is that the feature is more generally useful.
+> 
+> 
+>>>
+>>> -----
+>>>
+>>> Existing solutions to userspace switching between VMs on the
+>>> same host are vhost-user and ivshmem.
+>>>
+>>> vhost-user works by mapping memory of all VMs being bridged into the
+>>> switch memory space.
+>>>
+>>> By comparison, ivshmem works by exposing a shared region of memory to all VMs.
+>>> VMs are required to use this region to store packets. The switch only
+>>> needs access to this region.
+>>>
+>>> Another difference between vhost-user and ivshmem surfaces when polling
+>>> is used. With vhost-user, the switch is required to handle
+>>> data movement between VMs, if using polling, this means that 1 host CPU
+>>> needs to be sacrificed for this task.
+>>>
+>>> This is easiest to understand when one of the VMs is
+>>> used with VF pass-through. This can be schematically shown below:
+>>>
+>>> +-- VM1 --------------+            +---VM2-----------+
+>>> | virtio-pci          +-vhost-user-+ virtio-pci -- VF | -- VFIO -- IOMMU -- NIC
+>>> +---------------------+            +-----------------+
+>>>
+>>>
+>>> With ivshmem in theory communication can happen directly, with two VMs
+>>> polling the shared memory region.
+>>>
+>>>
+>>> I won't spend time listing advantages of vhost-user over ivshmem.
+>>> Instead, having identified two advantages of ivshmem over vhost-user,
+>>> below is a proposal to extend vhost-user to gain the advantages
+>>> of ivshmem.
+>>>
+>>>
+>>> 1: virtio in guest can be extended to allow support
+>>> for IOMMUs. This provides guest with full flexibility
+>>> about memory which is readable or write able by each device.
+>>> By setting up a virtio device for each other VM we need to
+>>> communicate to, guest gets full control of its security, from
+>>> mapping all memory (like with current vhost-user) to only
+>>> mapping buffers used for networking (like ivshmem) to
+>>> transient mappings for the duration of data transfer only.
+>>> This also allows use of VFIO within guests, for improved
+>>> security.
+>>>
+>>> vhost user would need to be extended to send the
+>>> mappings programmed by guest IOMMU.
+>>>
+>>> 2. qemu can be extended to serve as a vhost-user client:
+>>> remote VM mappings over the vhost-user protocol, and
+>>> map them into another VM's memory.
+>>> This mapping can take, for example, the form of
+>>> a BAR of a pci device, which I'll call here vhost-pci - 
+>>> with bus address allowed
+>>> by VM1's IOMMU mappings being translated into
+>>> offsets within this BAR within VM2's physical
+>>> memory space.
+>>>
+>>> Since the translation can be a simple one, VM2
+>>> can perform it within its vhost-pci device driver.
+>>>
+>>> While this setup would be the most useful with polling,
+>>> VM1's ioeventfd can also be mapped to
+>>> another VM2's irqfd, and vice versa, such that VMs
+>>> can trigger interrupts to each other without need
+>>> for a helper thread on the host.
+>>>
+>>>
+>>> The resulting channel might look something like the following:
+>>>
+>>> +-- VM1 --------------+  +---VM2-----------+
+>>> | virtio-pci -- iommu +--+ vhost-pci -- VF | -- VFIO -- IOMMU -- NIC
+>>> +---------------------+  +-----------------+
+>>>
+>>> comparing the two diagrams, a vhost-user thread on the host is
+>>> no longer required, reducing the host CPU utilization when
+>>> polling is active.  At the same time, VM2 can not access all of VM1's
+>>> memory - it is limited by the iommu configuration setup by VM1.
+>>>
+>>>
+>>> Advantages over ivshmem:
+>>>
+>>> - more flexibility, endpoint VMs do not have to place data at any
+>>>   specific locations to use the device, in practice this likely
+>>>   means less data copies.
+>>> - better standardization/code reuse
+>>>   virtio changes within guests would be fairly easy to implement
+>>>   and would also benefit other backends, besides vhost-user
+>>>   standard hotplug interfaces can be used to add and remove these
+>>>   channels as VMs are added or removed.
+>>> - migration support
+>>>   It's easy to implement since ownership of memory is well defined.
+>>>   For example, during migration VM2 can notify hypervisor of VM1
+>>>   by updating dirty bitmap each time is writes into VM1 memory.
+>>>
+>>> Thanks,
+>>>
+>>
+>>
