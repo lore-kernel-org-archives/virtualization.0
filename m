@@ -1,14 +1,15 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [virtio-dev] rfc: vhost user enhancements for vm2vm communication
-Date: Mon, 14 Sep 2015 17:00:22 +0100
-Message-ID: <20150914160022.GB15536@stefanha-thinkpad.redhat.com>
-References: <20150831160655-mutt-send-email-mst@redhat.com>
+From: J Freyensee <james_p_freyensee@linux.intel.com>
+Subject: Re: [RFC PATCH 0/2] virtio nvme
+Date: Fri, 11 Sep 2015 10:46:29 -0700
+Message-ID: <1441993589.7919.28.camel@linux.intel.com>
+References: <1441864112-12765-1-git-send-email-mlin@kernel.org>
+	<alpine.LNX.2.00.1509101356200.23840@localhost.lm.intel.com>
+	<1441904521.18716.4.camel@ssi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20150831160655-mutt-send-email-mst@redhat.com>
+In-Reply-To: <1441904521.18716.4.camel@ssi>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,29 +19,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, Jan Kiszka <jan.kiszka@siemens.com>, Claudio.Fontana@huawei.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, opnfv-tech-discuss@lists.opnfv.org
+To: Ming Lin <mlin@kernel.org>, Keith Busch <keith.busch@intel.com>
+Cc: Christoph Hellwig <hch@lst.de>, linux-nvme@lists.infradead.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Aug 31, 2015 at 05:11:02PM +0300, Michael S. Tsirkin wrote:
-> The resulting channel might look something like the following:
+On Thu, 2015-09-10 at 10:02 -0700, Ming Lin wrote:
+> On Thu, 2015-09-10 at 14:02 +0000, Keith Busch wrote:
+> > On Wed, 9 Sep 2015, Ming Lin wrote:
+> > > The goal is to have a full NVMe stack from VM guest(virtio-nvme)
+> > > to host(vhost_nvme) to LIO NVMe-over-fabrics target.
+> > > 
+> > > Now there are lots of duplicated code with linux/nvme-core.c and 
+> > > qemu/nvme.c.
+> > > The ideal result is to have a multi level NVMe stack(similar as 
+> > > SCSI).
+> > > So we can re-use the nvme code, for example
+> > > 
+> > >                        .-------------------------.
+> > >                        | NVMe device register    |
+> > >  Upper level           | NVMe protocol process   |
+> > >                        |                         |
+> > >                        '-------------------------'
+> > > 
+> > > 
+> > > 
+> > >              .-----------.    .-----------.    .-----------------
+> > > -.
+> > > Lower level  |   PCIe    |    | VIRTIO    |    |NVMe over Fabrics 
+> > > |
+> > >              |           |    |           |    |initiator        
+> > >  |
+> > >              '-----------'    '-----------'    '-----------------
+> > > -'
+> > > 
+> > > todo:
+> > > - tune performance. Should be as good as virtio-blk/virtio-scsi
+> > > - support discard/flush/integrity
+> > > - need Redhat's help for the VIRTIO_ID_NVME pci id
+> > > - multi level NVMe stack
+> > 
+> > Hi Ming,
 > 
-> +-- VM1 --------------+  +---VM2-----------+
-> | virtio-pci -- iommu +--+ vhost-pci -- VF | -- VFIO -- IOMMU -- NIC
-> +---------------------+  +-----------------+
+> Hi Keith,
 > 
-> comparing the two diagrams, a vhost-user thread on the host is
-> no longer required, reducing the host CPU utilization when
-> polling is active.  At the same time, VM2 can not access all of VM1's
-> memory - it is limited by the iommu configuration setup by VM1.
+> > 
+> > I'll be out for travel for the next week, so I won't have much time 
+> > to
+> > do a proper review till the following week.
+> > 
+> > I think it'd be better to get this hierarchy setup to make the most 
+> > reuse
+> > possible than to have this much code duplication between the 
+> > existing
+> > driver and emulated qemu nvme. For better or worse, I think the 
+> > generic
+> > nvme layer is where things are going. Are you signed up with the 
+> > fabrics
+> > contributors?
+> 
+> No. How to sign up?
 
-Can this use virtio's vring?  If standard virtio devices (net, blk, etc)
-cannot be used because this scheme requires new descriptor rings or
-memory layout, then this is more an "ivshmem 2.0" than "virtio".
+Ming,
 
-I'm not clear on how vhost-pci works - is this a host kernel component
-that updates VM2's memory mappings when VM1 changes iommu entries?
+Here is the email Keith sent out on this list that says how to sign up:
 
-In VM2 there is a userspace network router.  It can mmap the VF's BARs
-to access the physical network.  What about the virtual NIC to VM1, how
-does the userspace network router access it?
+http://lists.infradead.org/pipermail/linux-nvme/2015
+-September/002331.html
+
+Jay
+
+
+
+> 
+> 
+> 
+> _______________________________________________
+> Linux-nvme mailing list
+> Linux-nvme@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-nvme
