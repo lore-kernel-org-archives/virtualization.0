@@ -1,15 +1,20 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [RFC PATCH 0/2] virtio nvme
-Date: Fri, 11 Sep 2015 08:48:08 +0100
-Message-ID: <CAJSP0QXbjY5kbz0jTJSDyo=Zh9B+DRZorTY0m3bRC8yhJT=Nvw@mail.gmail.com>
-References: <1441864112-12765-1-git-send-email-mlin@kernel.org>
-	<CAJSP0QUmtgoh23G3u64xRnBbJkAoO19AEi=vkyPPyg9n9jqC2Q@mail.gmail.com>
-	<1441906098.18716.21.camel@ssi>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 5/5] virtgpu: mark as a render gpu
+Date: Fri, 11 Sep 2015 11:16:38 +0200
+Message-ID: <1441962998.29362.17.camel__10945.2421813787$1441963016$gmane$org@redhat.com>
+References: <1441798946-26233-1-git-send-email-kraxel@redhat.com>
+	<1441798946-26233-6-git-send-email-kraxel@redhat.com>
+	<CACvgo53wYvAk_bVouPZ-F7wNm=Diyouue8m1AvO0=U+PvL61_Q@mail.gmail.com>
+	<1441895002.11233.6.camel@redhat.com>
+	<CACvgo50SU46SYXBbVe+VGcAb6uFSj-iBY0E4=Vuuzf5RKbE+2Q@mail.gmail.com>
+	<1441896765.11233.25.camel@redhat.com>
+	<CACvgo51skbWdw8E8RftZZjA2wUV0_RHPCiPbSR42XPY9aCfg6w@mail.gmail.com>
+	<CAPM=9tz_4NSXnmmT6EuXGWp5wUK0vZfUhk-zhnhQ6QTgtEuVfQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1441906098.18716.21.camel@ssi>
+In-Reply-To: <CAPM=9tz_4NSXnmmT6EuXGWp5wUK0vZfUhk-zhnhQ6QTgtEuVfQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,37 +24,15 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ming Lin <mlin@kernel.org>
-Cc: Christoph Hellwig <hch@lst.de>, linux-nvme@lists.infradead.org, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: Dave Airlie <airlied@gmail.com>
+Cc: Dave Airlie <airlied@redhat.com>, Emil Velikov <emil.l.velikov@gmail.com>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 10, 2015 at 6:28 PM, Ming Lin <mlin@kernel.org> wrote:
-> On Thu, 2015-09-10 at 15:38 +0100, Stefan Hajnoczi wrote:
->> On Thu, Sep 10, 2015 at 6:48 AM, Ming Lin <mlin@kernel.org> wrote:
->> > These 2 patches added virtio-nvme to kernel and qemu,
->> > basically modified from virtio-blk and nvme code.
->> >
->> > As title said, request for your comments.
->> >
->> > Play it in Qemu with:
->> > -drive file=disk.img,format=raw,if=none,id=D22 \
->> > -device virtio-nvme-pci,drive=D22,serial=1234,num_queues=4
->> >
->> > The goal is to have a full NVMe stack from VM guest(virtio-nvme)
->> > to host(vhost_nvme) to LIO NVMe-over-fabrics target.
->>
->> Why is a virtio-nvme guest device needed?  I guess there must either
->> be NVMe-only features that you want to pass through, or you think the
->> performance will be significantly better than virtio-blk/virtio-scsi?
->
-> It simply passes through NVMe commands.
+On Fr, 2015-09-11 at 16:32 +1000, Dave Airlie wrote:
+> doh, yes we need to add DRM_RENDER_ALLOW to the ioctls, can you do
+> that?
 
-I understand that.  My question is why the guest needs to send NVMe commands?
+Done.
 
-If the virtio_nvme.ko guest driver only sends read/write/flush then
-there's no advantage over virtio-blk.
-
-There must be something you are trying to achieve which is not
-possible with virtio-blk or virtio-scsi.  What is that?
-
-Stefan
+cheers,
+  Gerd
