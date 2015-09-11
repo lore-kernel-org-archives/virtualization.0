@@ -1,20 +1,13 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH 5/5] virtgpu: mark as a render gpu
-Date: Fri, 11 Sep 2015 11:16:38 +0200
-Message-ID: <1441962998.29362.17.camel__10945.2421813787$1441963016$gmane$org@redhat.com>
-References: <1441798946-26233-1-git-send-email-kraxel@redhat.com>
-	<1441798946-26233-6-git-send-email-kraxel@redhat.com>
-	<CACvgo53wYvAk_bVouPZ-F7wNm=Diyouue8m1AvO0=U+PvL61_Q@mail.gmail.com>
-	<1441895002.11233.6.camel@redhat.com>
-	<CACvgo50SU46SYXBbVe+VGcAb6uFSj-iBY0E4=Vuuzf5RKbE+2Q@mail.gmail.com>
-	<1441896765.11233.25.camel@redhat.com>
-	<CACvgo51skbWdw8E8RftZZjA2wUV0_RHPCiPbSR42XPY9aCfg6w@mail.gmail.com>
-	<CAPM=9tz_4NSXnmmT6EuXGWp5wUK0vZfUhk-zhnhQ6QTgtEuVfQ@mail.gmail.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC 1/2] s390x/virtio-ccw: respond to READ_STATUS command
+Date: Fri, 11 Sep 2015 15:58:14 +0200
+Message-ID: <1441979895-36990-2-git-send-email-cornelia.huck__38013.2013619461$1441979931$gmane$org@de.ibm.com>
+References: <1441979895-36990-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAPM=9tz_4NSXnmmT6EuXGWp5wUK0vZfUhk-zhnhQ6QTgtEuVfQ@mail.gmail.com>
+In-Reply-To: <1441979895-36990-1-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,15 +17,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dave Airlie <airlied@gmail.com>
-Cc: Dave Airlie <airlied@redhat.com>, Emil Velikov <emil.l.velikov@gmail.com>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org
+Cc: Pierre Morel <pmorel@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fr, 2015-09-11 at 16:32 +1000, Dave Airlie wrote:
-> doh, yes we need to add DRM_RENDER_ALLOW to the ioctls, can you do
-> that?
+From: Pierre Morel <pmorel@linux.vnet.ibm.com>
 
-Done.
+This patch adds the response to the READ_STATUS CCW command.
 
-cheers,
-  Gerd
+Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ hw/s390x/virtio-ccw.c | 20 ++++++++++++++++++++
+ hw/s390x/virtio-ccw.h |  1 +
+ 2 files changed, 21 insertions(+)
+
+diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
+index fb103b7..dcd0fff 100644
+--- a/hw/s390x/virtio-ccw.c
++++ b/hw/s390x/virtio-ccw.c
+@@ -586,6 +586,26 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
+             }
+         }
+         break;
++    case CCW_CMD_READ_STATUS:
++        if (check_len) {
++            if (ccw.count != sizeof(status)) {
++                ret = -EINVAL;
++                break;
++            }
++        } else if (ccw.count < sizeof(status)) {
++            /* Can't execute command. */
++            ret = -EINVAL;
++            break;
++        }
++        if (!ccw.cda) {
++            ret = -EFAULT;
++        } else {
++            address_space_stb(&address_space_memory, ccw.cda, vdev->status,
++                                        MEMTXATTRS_UNSPECIFIED, NULL);
++            sch->curr_status.scsw.count = ccw.count - sizeof(vdev->status);;
++            ret = 0;
++        }
++        break;
+     case CCW_CMD_WRITE_STATUS:
+         if (check_len) {
+             if (ccw.count != sizeof(status)) {
+diff --git a/hw/s390x/virtio-ccw.h b/hw/s390x/virtio-ccw.h
+index 7ab8367..453fdf7 100644
+--- a/hw/s390x/virtio-ccw.h
++++ b/hw/s390x/virtio-ccw.h
+@@ -40,6 +40,7 @@
+ #define CCW_CMD_SET_IND      0x43
+ #define CCW_CMD_SET_CONF_IND 0x53
+ #define CCW_CMD_READ_VQ_CONF 0x32
++#define CCW_CMD_READ_STATUS  0x72
+ #define CCW_CMD_SET_IND_ADAPTER 0x73
+ #define CCW_CMD_SET_VIRTIO_REV 0x83
+ 
+-- 
+2.3.8
