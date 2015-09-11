@@ -1,19 +1,15 @@
-From: Dave Airlie <airlied@gmail.com>
-Subject: Re: [PATCH 5/5] virtgpu: mark as a render gpu
-Date: Fri, 11 Sep 2015 16:32:10 +1000
-Message-ID: <CAPM=9tz_4NSXnmmT6EuXGWp5wUK0vZfUhk-zhnhQ6QTgtEuVfQ__29304.2428828359$1441953168$gmane$org@mail.gmail.com>
-References: <1441798946-26233-1-git-send-email-kraxel@redhat.com>
-	<1441798946-26233-6-git-send-email-kraxel@redhat.com>
-	<CACvgo53wYvAk_bVouPZ-F7wNm=Diyouue8m1AvO0=U+PvL61_Q@mail.gmail.com>
-	<1441895002.11233.6.camel@redhat.com>
-	<CACvgo50SU46SYXBbVe+VGcAb6uFSj-iBY0E4=Vuuzf5RKbE+2Q@mail.gmail.com>
-	<1441896765.11233.25.camel@redhat.com>
-	<CACvgo51skbWdw8E8RftZZjA2wUV0_RHPCiPbSR42XPY9aCfg6w@mail.gmail.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [RFC PATCH 0/2] virtio nvme
+Date: Fri, 11 Sep 2015 08:48:08 +0100
+Message-ID: <CAJSP0QXbjY5kbz0jTJSDyo=Zh9B+DRZorTY0m3bRC8yhJT=Nvw@mail.gmail.com>
+References: <1441864112-12765-1-git-send-email-mlin@kernel.org>
+	<CAJSP0QUmtgoh23G3u64xRnBbJkAoO19AEi=vkyPPyg9n9jqC2Q@mail.gmail.com>
+	<1441906098.18716.21.camel@ssi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CACvgo51skbWdw8E8RftZZjA2wUV0_RHPCiPbSR42XPY9aCfg6w@mail.gmail.com>
+In-Reply-To: <1441906098.18716.21.camel@ssi>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,35 +19,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Emil Velikov <emil.l.velikov@gmail.com>
-Cc: Dave Airlie <airlied@redhat.com>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, open list <linux-kernel@vger.kernel.org>
+To: Ming Lin <mlin@kernel.org>
+Cc: Christoph Hellwig <hch@lst.de>, linux-nvme@lists.infradead.org, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11 September 2015 at 01:04, Emil Velikov <emil.l.velikov@gmail.com> wrote:
-> On 10 September 2015 at 15:52, Gerd Hoffmann <kraxel@redhat.com> wrote:
->>   Hi,
+On Thu, Sep 10, 2015 at 6:28 PM, Ming Lin <mlin@kernel.org> wrote:
+> On Thu, 2015-09-10 at 15:38 +0100, Stefan Hajnoczi wrote:
+>> On Thu, Sep 10, 2015 at 6:48 AM, Ming Lin <mlin@kernel.org> wrote:
+>> > These 2 patches added virtio-nvme to kernel and qemu,
+>> > basically modified from virtio-blk and nvme code.
+>> >
+>> > As title said, request for your comments.
+>> >
+>> > Play it in Qemu with:
+>> > -drive file=disk.img,format=raw,if=none,id=D22 \
+>> > -device virtio-nvme-pci,drive=D22,serial=1234,num_queues=4
+>> >
+>> > The goal is to have a full NVMe stack from VM guest(virtio-nvme)
+>> > to host(vhost_nvme) to LIO NVMe-over-fabrics target.
 >>
->>> > Dave?  Looking at the ioctls they are all fine for render nodes, there
->>> > isn't anything modesetting related in the device-specific ioctls.
->>> >
->>> > Correct?
->>> >
->>> Unless I've overdone the coffee this time - modesetting is done via
->>> the card# node, while render via either card# or renderD#.
->>
->> Exactly, thats why anything modesetting-related must be disabled for
->> renderD#.  Looking at the virtio-gpu device-specific ioctls I don't
->> think there is anything doing modesetting (which we would have to leave
->> out), so we can apply DRM_RENDER_ALLOW everythere I think.  Or maybe
->> there is a global switch to flip DRM_RENDER_ALLOW for the whole list ...
->>
-> IMHO the idea of having a 'global' switch sounds quite good, yet there
-> isn't one atm :-( It will be quite useful as we get more render only
-> devices.
-> DRIVER_RENDER doesn't do that unfortunately (which I think was the
-> original assumption), it only instructs drm core to create the
-> renderD# device/node.
+>> Why is a virtio-nvme guest device needed?  I guess there must either
+>> be NVMe-only features that you want to pass through, or you think the
+>> performance will be significantly better than virtio-blk/virtio-scsi?
+>
+> It simply passes through NVMe commands.
 
-doh, yes we need to add DRM_RENDER_ALLOW to the ioctls, can you do that?
+I understand that.  My question is why the guest needs to send NVMe commands?
 
-Dave.
+If the virtio_nvme.ko guest driver only sends read/write/flush then
+there's no advantage over virtio-blk.
+
+There must be something you are trying to achieve which is not
+possible with virtio-blk or virtio-scsi.  What is that?
+
+Stefan
