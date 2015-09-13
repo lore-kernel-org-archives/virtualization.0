@@ -1,18 +1,17 @@
-From: Ming Lin <mlin@kernel.org>
-Subject: Re: [RFC PATCH 0/2] virtio nvme
-Date: Fri, 11 Sep 2015 11:54:02 -0700
-Message-ID: <CAF1ivSZvWfBO3vMBvi7_CfM0SwtgyrSjvAWag4kNAdDOhL-Lsw@mail.gmail.com>
-References: <1441864112-12765-1-git-send-email-mlin@kernel.org>
-	<CAJSP0QUmtgoh23G3u64xRnBbJkAoO19AEi=vkyPPyg9n9jqC2Q@mail.gmail.com>
-	<1441906098.18716.21.camel@ssi>
-	<CAJSP0QXbjY5kbz0jTJSDyo=Zh9B+DRZorTY0m3bRC8yhJT=Nvw@mail.gmail.com>
-	<1441992101.802.11.camel@ssi>
-	<CAJSP0QXz_w+FasdZ2zZsVmjuBmJLgAnrG5vV+c2eLr=pdnRm5Q@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: rfc: vhost user enhancements for vm2vm communication
+Date: Sun, 13 Sep 2015 12:12:38 +0300
+Message-ID: <20150913120821-mutt-send-email-mst__19371.5955633254$1442135597$gmane$org@redhat.com>
+References: <20150831160655-mutt-send-email-mst@redhat.com>
+	<55ED854A.1080804@huawei.com>
+	<20150909095258-mutt-send-email-mst@redhat.com>
+	<55F2F59B.4030401@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJSP0QXz_w+FasdZ2zZsVmjuBmJLgAnrG5vV+c2eLr=pdnRm5Q@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <55F2F59B.4030401@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,72 +21,180 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: Christoph Hellwig <hch@lst.de>, linux-nvme@lists.infradead.org, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: Claudio Fontana <claudio.fontana@huawei.com>
+Cc: opnfv-tech-discuss@lists.opnfv.org, virtio-dev@lists.oasis-open.org, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 11, 2015 at 10:53 AM, Stefan Hajnoczi <stefanha@gmail.com> wrote:
-> On Fri, Sep 11, 2015 at 6:21 PM, Ming Lin <mlin@kernel.org> wrote:
->> On Fri, 2015-09-11 at 08:48 +0100, Stefan Hajnoczi wrote:
->>> On Thu, Sep 10, 2015 at 6:28 PM, Ming Lin <mlin@kernel.org> wrote:
->>> > On Thu, 2015-09-10 at 15:38 +0100, Stefan Hajnoczi wrote:
->>> >> On Thu, Sep 10, 2015 at 6:48 AM, Ming Lin <mlin@kernel.org> wrote:
->>> >> > These 2 patches added virtio-nvme to kernel and qemu,
->>> >> > basically modified from virtio-blk and nvme code.
->>> >> >
->>> >> > As title said, request for your comments.
->>> >> >
->>> >> > Play it in Qemu with:
->>> >> > -drive file=disk.img,format=raw,if=none,id=D22 \
->>> >> > -device virtio-nvme-pci,drive=D22,serial=1234,num_queues=4
->>> >> >
->>> >> > The goal is to have a full NVMe stack from VM guest(virtio-nvme)
->>> >> > to host(vhost_nvme) to LIO NVMe-over-fabrics target.
->>> >>
->>> >> Why is a virtio-nvme guest device needed?  I guess there must either
->>> >> be NVMe-only features that you want to pass through, or you think the
->>> >> performance will be significantly better than virtio-blk/virtio-scsi?
->>> >
->>> > It simply passes through NVMe commands.
->>>
->>> I understand that.  My question is why the guest needs to send NVMe commands?
->>>
->>> If the virtio_nvme.ko guest driver only sends read/write/flush then
->>> there's no advantage over virtio-blk.
->>>
->>> There must be something you are trying to achieve which is not
->>> possible with virtio-blk or virtio-scsi.  What is that?
->>
->> I actually learned from your virtio-scsi work.
->> http://www.linux-kvm.org/images/f/f5/2011-forum-virtio-scsi.pdf
->>
->> Then I thought a full NVMe stack from guest to host to target seems
->> reasonable.
->>
->> Trying to achieve similar things as virtio-scsi, but all NVMe protocol.
->>
->> - Effective NVMe passthrough
->> - Multiple target choices: QEMU, LIO-NVMe(vhost_nvme)
->> - Almost unlimited scalability. Thousands of namespaces per PCI device
->> - True NVMe device
->> - End-to-end Protection Information
->> - ....
->
-> The advantages you mentioned are already available in virtio-scsi,
-> except for the NVMe command set.
->
-> I don't understand what unique problem virtio-nvme solves yet.  If
-> someone asked me to explain why NVMe-over-virtio makes sense compared
-> to the existing virtio-blk/virtio-scsi or NVMe SR-IOV options, I
-> wouldn't know the answer.  I'd like to learn that from you or anyone
-> else on CC.
->
-> Do you have a use case in mind?
+On Fri, Sep 11, 2015 at 05:39:07PM +0200, Claudio Fontana wrote:
+> On 09.09.2015 09:06, Michael S. Tsirkin wrote:
+> > On Mon, Sep 07, 2015 at 02:38:34PM +0200, Claudio Fontana wrote:
+> >> Coming late to the party, 
+> >>
+> >> On 31.08.2015 16:11, Michael S. Tsirkin wrote:
+> >>> Hello!
+> >>> During the KVM forum, we discussed supporting virtio on top
+> >>> of ivshmem. I have considered it, and came up with an alternative
+> >>> that has several advantages over that - please see below.
+> >>> Comments welcome.
+> >>
+> >> as Jan mentioned we actually discussed a virtio-shmem device which would incorporate the advantages of ivshmem (so no need for a separate ivshmem device), which would use the well known virtio interface, taking advantage of the new virtio-1 virtqueue layout to split r/w and read-only rings as seen from the two sides, and make use also of BAR0 which has been freed up for use by the device.
+> >>
+> >> This way it would be possible to share the rings and the actual memory for the buffers in the PCI bars. The guest VMs could decide to use the shared memory regions directly as prepared by the hypervisor (in the jailhouse case) or QEMU/KVM, or perform their own validation on the input depending on the use case.
+> >>
+> >> Of course the communication between VMs needs in this case to be pre-configured and is quite static (which is actually beneficial in our use case).
+> >>
+> >> But still in your proposed solution, each VM needs to be pre-configured to communicate with a specific other VM using a separate device right?
+> >>
+> >> But I wonder if we are addressing the same problem.. in your case you are looking at having a shared memory pool for all VMs potentially visible to all VMs (the vhost-user case), while in the virtio-shmem proposal we discussed we were assuming specific different regions for every channel.
+> >>
+> >> Ciao,
+> >>
+> >> Claudio
+> > 
+> > The problem, as I see it, is to allow inter-vm communication with
+> > polling (to get very low latencies) but polling within VMs only, without
+> > need to run a host thread (which when polling uses up a host CPU).
+> > 
+> > What was proposed was to simply change virtio to allow
+> > "offset within BAR" instead of PA.
+> 
+> There are many consequences to this, offset within BAR alone is not enough, there are multiple things at the virtio level that need sorting out.
+> Also we need to consider virtio-mmio etc.
+> 
+> > This would allow VM2VM communication if there are only 2 VMs,
+> > but if data needs to be sent to multiple VMs, you
+> > must copy it.
+> 
+> Not necessarily, however getting it to work (sharing the backend window and arbitrating the multicast) is really hard.
+> 
+> > 
+> > Additionally, it's a single-purpose feature: you can use it from
+> > a userspace PMD but linux will never use it.
+> > 
+> > 
+> > My proposal is a superset: don't require that BAR memory is
+> > used, use IOMMU translation tables.
+> > This way, data can be sent to multiple VMs by sharing the same
+> > memory with them all.
+> 
+> Can you describe in detail how your proposal deals with the arbitration necessary for multicast handling?
 
-One use case is for All NVMe storage array. There is no SCSI device at all.
+Basically it falls out naturally. Consider linux guest as an example,
+and assume dynamic mappings for simplicity.
 
-Samsung demoed one in flash memory summit 2015.
-http://www.tomsitpro.com/articles/best-of-flash-memory-summit,1-2806.html
+Multicast is done by a bridge on the guest side. That code clones the
+skb (reference-counting page fragments) and passes it to multiple ports.
+Each of these will program the IOMMU to allow read access to the
+fragments to the relevant device.
 
->
-> Stefan
+
+
+> > 
+> > It is still possible to put data in some device BAR if that's
+> > what the guest wants to do: just program the IOMMU to limit
+> > virtio to the memory range that is within this BAR.
+> > 
+> > Another advantage here is that the feature is more generally useful.
+> > 
+> > 
+> >>>
+> >>> -----
+> >>>
+> >>> Existing solutions to userspace switching between VMs on the
+> >>> same host are vhost-user and ivshmem.
+> >>>
+> >>> vhost-user works by mapping memory of all VMs being bridged into the
+> >>> switch memory space.
+> >>>
+> >>> By comparison, ivshmem works by exposing a shared region of memory to all VMs.
+> >>> VMs are required to use this region to store packets. The switch only
+> >>> needs access to this region.
+> >>>
+> >>> Another difference between vhost-user and ivshmem surfaces when polling
+> >>> is used. With vhost-user, the switch is required to handle
+> >>> data movement between VMs, if using polling, this means that 1 host CPU
+> >>> needs to be sacrificed for this task.
+> >>>
+> >>> This is easiest to understand when one of the VMs is
+> >>> used with VF pass-through. This can be schematically shown below:
+> >>>
+> >>> +-- VM1 --------------+            +---VM2-----------+
+> >>> | virtio-pci          +-vhost-user-+ virtio-pci -- VF | -- VFIO -- IOMMU -- NIC
+> >>> +---------------------+            +-----------------+
+> >>>
+> >>>
+> >>> With ivshmem in theory communication can happen directly, with two VMs
+> >>> polling the shared memory region.
+> >>>
+> >>>
+> >>> I won't spend time listing advantages of vhost-user over ivshmem.
+> >>> Instead, having identified two advantages of ivshmem over vhost-user,
+> >>> below is a proposal to extend vhost-user to gain the advantages
+> >>> of ivshmem.
+> >>>
+> >>>
+> >>> 1: virtio in guest can be extended to allow support
+> >>> for IOMMUs. This provides guest with full flexibility
+> >>> about memory which is readable or write able by each device.
+> >>> By setting up a virtio device for each other VM we need to
+> >>> communicate to, guest gets full control of its security, from
+> >>> mapping all memory (like with current vhost-user) to only
+> >>> mapping buffers used for networking (like ivshmem) to
+> >>> transient mappings for the duration of data transfer only.
+> >>> This also allows use of VFIO within guests, for improved
+> >>> security.
+> >>>
+> >>> vhost user would need to be extended to send the
+> >>> mappings programmed by guest IOMMU.
+> >>>
+> >>> 2. qemu can be extended to serve as a vhost-user client:
+> >>> remote VM mappings over the vhost-user protocol, and
+> >>> map them into another VM's memory.
+> >>> This mapping can take, for example, the form of
+> >>> a BAR of a pci device, which I'll call here vhost-pci - 
+> >>> with bus address allowed
+> >>> by VM1's IOMMU mappings being translated into
+> >>> offsets within this BAR within VM2's physical
+> >>> memory space.
+> >>>
+> >>> Since the translation can be a simple one, VM2
+> >>> can perform it within its vhost-pci device driver.
+> >>>
+> >>> While this setup would be the most useful with polling,
+> >>> VM1's ioeventfd can also be mapped to
+> >>> another VM2's irqfd, and vice versa, such that VMs
+> >>> can trigger interrupts to each other without need
+> >>> for a helper thread on the host.
+> >>>
+> >>>
+> >>> The resulting channel might look something like the following:
+> >>>
+> >>> +-- VM1 --------------+  +---VM2-----------+
+> >>> | virtio-pci -- iommu +--+ vhost-pci -- VF | -- VFIO -- IOMMU -- NIC
+> >>> +---------------------+  +-----------------+
+> >>>
+> >>> comparing the two diagrams, a vhost-user thread on the host is
+> >>> no longer required, reducing the host CPU utilization when
+> >>> polling is active.  At the same time, VM2 can not access all of VM1's
+> >>> memory - it is limited by the iommu configuration setup by VM1.
+> >>>
+> >>>
+> >>> Advantages over ivshmem:
+> >>>
+> >>> - more flexibility, endpoint VMs do not have to place data at any
+> >>>   specific locations to use the device, in practice this likely
+> >>>   means less data copies.
+> >>> - better standardization/code reuse
+> >>>   virtio changes within guests would be fairly easy to implement
+> >>>   and would also benefit other backends, besides vhost-user
+> >>>   standard hotplug interfaces can be used to add and remove these
+> >>>   channels as VMs are added or removed.
+> >>> - migration support
+> >>>   It's easy to implement since ownership of memory is well defined.
+> >>>   For example, during migration VM2 can notify hypervisor of VM1
+> >>>   by updating dirty bitmap each time is writes into VM1 memory.
+> >>>
+> >>> Thanks,
+> >>>
+> >>
+> >>
