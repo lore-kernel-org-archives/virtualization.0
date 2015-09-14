@@ -1,18 +1,15 @@
-From: "Zhang, Yang Z" <yang.z.zhang@intel.com>
-Subject: RE: [opnfv-tech-discuss] rfc: vhost user enhancements for vm2vm
-	communication
-Date: Mon, 14 Sep 2015 00:43:47 +0000
-Message-ID: <A9667DDFB95DB7438FA9D7D576C3D87E0ADA88F4@SHSMSX104.ccr.corp.intel.com>
-References: <20150831160655-mutt-send-email-mst@redhat.com>
-	<55ED854A.1080804@huawei.com>
-	<20150909095258-mutt-send-email-mst@redhat.com>
-	<55F2F59B.4030401@huawei.com>
-	<20150913120821-mutt-send-email-mst@redhat.com>
+From: "Xie, Huawei" <huawei.xie@intel.com>
+Subject: Re: virtio optimization idea
+Date: Mon, 14 Sep 2015 03:08:50 +0000
+Message-ID: <C37D651A908B024F974696C65296B57B3FBB88F5@SHSMSX101.ccr.corp.intel.com>
+References: <C37D651A908B024F974696C65296B57B2BDB8C06@SHSMSX101.ccr.corp.intel.com>
+	<20150909073339.GA16849@redhat.com>
+	<C37D651A908B024F974696C65296B57B2BDC4012@SHSMSX101.ccr.corp.intel.com>
+	<20150910101319-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20150913120821-mutt-send-email-mst@redhat.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,47 +20,175 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Claudio Fontana <claudio.fontana@huawei.com>
-Cc: "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "opnfv-tech-discuss@lists.opnfv.org" <opnfv-tech-discuss@lists.opnfv.org>, Jan Kiszka <jan.kiszka@siemens.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "Venkatesan, Venky" <venky.venkatesan@intel.com>, Linhaifeng <haifeng.lin@huawei.com>, "dev@dpdk.org" <dev@dpdk.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Tetsuya Mukawa <mukawa@igel.co.jp>, "Ouyang,
+	Changchun" <changchun.ouyang@intel.com>, Thomas Monjalon <thomas.monjalon@6wind.com>, "Rogers,
+	Gerald" <gerald.rogers@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Michael S. Tsirkin wrote on 2015-09-13:
-> On Fri, Sep 11, 2015 at 05:39:07PM +0200, Claudio Fontana wrote:
->> On 09.09.2015 09:06, Michael S. Tsirkin wrote:
->> 
->> There are many consequences to this, offset within BAR alone is not
->> enough, there are multiple things at the virtio level that need sorting
->> out. Also we need to consider virtio-mmio etc.
->> 
->>> This would allow VM2VM communication if there are only 2 VMs, but
->>> if data needs to be sent to multiple VMs, you must copy it.
->> 
->> Not necessarily, however getting it to work (sharing the backend window
->> and arbitrating the multicast) is really hard.
->> 
->>> 
->>> Additionally, it's a single-purpose feature: you can use it from a
->>> userspace PMD but linux will never use it.
->>> 
->>> 
->>> My proposal is a superset: don't require that BAR memory is used,
->>> use IOMMU translation tables.
->>> This way, data can be sent to multiple VMs by sharing the same
->>> memory with them all.
->> 
->> Can you describe in detail how your proposal deals with the
->> arbitration
-> necessary for multicast handling?
-> 
-> Basically it falls out naturally. Consider linux guest as an example,
-> and assume dynamic mappings for simplicity.
-> 
-> Multicast is done by a bridge on the guest side. That code clones the
-> skb (reference-counting page fragments) and passes it to multiple ports.
-> Each of these will program the IOMMU to allow read access to the
-> fragments to the relevant device.
-
-How to work with vswitch in host side like OVS? Since the flow table is inside host, but guest cannot see it.
-
-Best regards,
-Yang
+On 9/10/2015 3:20 PM, Michael S. Tsirkin wrote:
+> On Thu, Sep 10, 2015 at 06:32:35AM +0000, Xie, Huawei wrote:
+>> On 9/9/2015 3:34 PM, Michael S. Tsirkin wrote:
+>>> On Fri, Sep 04, 2015 at 08:25:05AM +0000, Xie, Huawei wrote:
+>>>> Hi:
+>>>>
+>>>> Recently I have done one virtio optimization proof of concept. The
+>>>> optimization includes two parts:
+>>>> 1) avail ring set with fixed descriptors
+>>>> 2) RX vectorization
+>>>> With the optimizations, we could have several times of performance boost
+>>>> for purely vhost-virtio throughput.
+>>> Thanks!
+>>> I'm very happy to see people work on the virtio ring format
+>>> optimizations.
+>>>
+>>> I think it's best to analyze each optimization separately,
+>>> unless you see a reason why they would only give benefit when applied
+>>> together.
+>>  
+>> Agree. Will split the patch to see each change's benefit. Of course it
+>> is also very common two give much more gain than the sum of individual.
+>>  
+>>> Also ideally, we'd need a unit test to show the performance impact.
+>>> We've been using the tests in tools/virtio/ under linux,
+>>> feel free to enhance these to simulate more workloads, or
+>>> to suggest something else entirely.
+>> If possible, we would provide perf test case under tools/virtio.
+>> I am interested  if the optimization could help kernel virtio-net driver
+>> performance, if not the other is the bottleneck.
+>>> Avail ring is initialized with fixed descriptor and is never changed,
+>>> i.e, the index value of the nth avail ring entry is always n, which
+>>> means virtio PMD is actually refilling desc ring only, without having to
+>>> change avail ring.
+>>> When vhost fetches avail ring, if not evicted, it is always in its first
+>>> level cache.
+>>>
+>>> When RX receives packets from used ring, we use the used->idx as the
+>>> desc idx. This requires that vhost processes and returns descs from
+>>> avail ring to used ring in order, which is true for both current dpdk
+>>> vhost and kernel vhost implementation. In my understanding, there is no
+>>> necessity for vhost net to process descriptors OOO. One case could be
+>>> zero copy, for example, if one descriptor doesn't meet zero copy
+>>> requirment, we could directly return it to used ring, earlier than the
+>>> descriptors in front of it.
+>>> To enforce this, i want to use a reserved bit to indicate in order
+>>> processing of descriptors.
+>>> So what's the point in changing the idx for the used ring?
+>>> You need to communicate the length to the guest anyway, don't you?
+>> For guest virtio driver, we only use the length field in the entry of
+>> the used ring and don't use the index in the entry. Instead, use
+>> used->idx & 255 as the desc idx for RX, and used->idx & 127 as the desc
+>> idx for TX.
+> OK but length and index are in the same cache line.
+> As long as we read the length, does it make sense
+> to skip reading the index?
+I don't understand "skipping reading the index". Currently virtio RX
+needs the length field, and CPU will automatically fetch the adjacent
+index field in the unit of cache line, though the optimized driver
+doesn't use the index field.
+/huawei
+>
+>> For vhost driver, as it couldn't assume fixed ring layout(to support
+>> legacy virtio), it needs to update the idx in the used ring entry.
+>>>> For tx ring, the arrangement is like below. Each transmitted mbuf needs
+>>>> a desc for virtio_net_hdr, so actually we have only 128 free slots.
+>>> Just fix this one. Support ANY_LAYOUT and then you can put data
+>>> linearly. And/or support INDIRECT_DESC and then you can
+>>> use an indirect descriptor.
+>> Would check those two features.
+>>>>                            
+>>>>
+>>> This one came out corrupted.
+>> Actually i ever replied to the original mail and fixed it. Copy it here
+>> again.
+>>
+>>                             ++                                                           
+>>                             ||                                                           
+>>                             ||                                                           
+>>    +-----+-----+-----+--------------+------+------+------+                               
+>>    |  0  |  1  | ... |  127 || 128  | 129  | ...  | 255  |   avail ring                  
+>>    +--+--+--+--+-----+---+------+---+--+---+------+--+---+                               
+>>       |     |            |  ||  |      |             |                                   
+>>       v     v            v  ||  v      v             v                                   
+>>    +--+--+--+--+-----+---+------+---+--+---+------+--+---+                               
+>>    | 127 | 128 | ... |  255 || 127  | 128  | ...  | 255  |   desc ring for virtio_net_hdr
+>>    +--+--+--+--+-----+---+------+---+--+---+------+--+---+                               
+>>       |     |            |  ||  |      |             |                                   
+>>       v     v            v  ||  v      v             v                                   
+>>    +--+--+--+--+-----+---+------+---+--+---+------+--+---+                               
+>>    |  0  |  1  | ... |  127 ||  0   |  1   | ...  | 127  |   desc ring for tx dat 
+>>          
+>>
+>>>>                      
+>>>> /huawei
+>>> Please Cc virtio related discussion more widely.
+>>> I added the virtualization mailing list.
+>>>
+>>>
+>>> So what you want to do is avoid changing the avail
+>>> ring, isn't it enough to pre-format it and cache
+>>> the values in the guest?
+>>>
+>>> Host can then keep using avail ring without changes, it will stay in cache.
+>>> Something like the below for guest should do the trick (untested):
+>> Good optimization to tackle the cache line transfer issue.
+>> Your change could avoid changing avail ring if it points to same head
+>> index. It could improve kernel virtio-net driver's performance if the
+>> avail ring doesn't change in running.
+>> We would also investigating applying this idea to DPDK virtio PMD slow path.
+>> For the optimization i did, which i call fast path, the driver "knows"
+>> in theory the avail ring willn't never get changed, so it doesn't a)
+>> allocate and free descriptors b) care the avail ring.
+>> Based on the fact the DPDK pmd is actually using the simple desc ring
+>> below, we could directly map avail->idx and used->idx to  desc idx, and
+>> use vector instruction to do parallel processing.
+>>
+>> +-+--+-+--+-+-+---------+---+--+---+           
+>> | 0  | 1  | 2 | ... |  254  | 255  |  rx desc ring
+>> +----+----+---+-------------+------+           
+> Yes, using these instructions in kernel is generally problematic,
+> but can work in userspace. Waiting for a description of that.
+About vectorization? Would do that.
+/huawei
+>
+>
+>>  
+>>> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>>>
+>>> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+>>> index 096b857..9363b50 100644
+>>> --- a/drivers/virtio/virtio_ring.c
+>>> +++ b/drivers/virtio/virtio_ring.c
+>>> @@ -91,6 +91,7 @@ struct vring_virtqueue {
+>>>  	bool last_add_time_valid;
+>>>  	ktime_t last_add_time;
+>>>  #endif
+>>> +	u16 *avail;
+>>>  
+>>>  	/* Tokens for callbacks. */
+>>>  	void *data[];
+>>> @@ -236,7 +237,10 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+>>>  	/* Put entry in available array (but don't update avail->idx until they
+>>>  	 * do sync). */
+>>>  	avail = virtio16_to_cpu(_vq->vdev, vq->vring.avail->idx) & (vq->vring.num - 1);
+>>> -	vq->vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
+>>> +	if (vq->avail[avail] != head) {
+>>> +		vq->avail[avail] = head;
+>>> +		vq->vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
+>>> +	}
+>>>  
+>>>  	/* Descriptors and available array need to be set before we expose the
+>>>  	 * new available array entries. */
+>>> @@ -724,6 +728,11 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
+>>>  	vq = kmalloc(sizeof(*vq) + sizeof(void *)*num, GFP_KERNEL);
+>>>  	if (!vq)
+>>>  		return NULL;
+>>> +	vq->avail = kzalloc(sizeof (*vq->avail) * num, GFP_KERNEL);
+>>> +	if (!va->avail) {
+>>> +		kfree(vq);
+>>> +		return NULL;
+>>> +	}
+>>>  
+>>>  	vring_init(&vq->vring, num, pages, vring_align);
+>>>  	vq->vq.callback = callback;
+>>>
