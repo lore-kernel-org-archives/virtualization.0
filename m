@@ -1,11 +1,14 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: [Patch RESEND] x86/paravirt: remove unused operation
-Date: Mon, 14 Sep 2015 12:42:23 +0200
-Message-ID: <1442227343-403-1-git-send-email-jgross@suse.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [virtio-dev] rfc: vhost user enhancements for vm2vm communication
+Date: Mon, 14 Sep 2015 17:00:22 +0100
+Message-ID: <20150914160022.GB15536@stefanha-thinkpad.redhat.com>
+References: <20150831160655-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20150831160655-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,29 +18,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, x86@kernel.org, hpa@zytor.com, tglx@linutronix.de, mingo@redhat.com, jeremy@goop.org, chrisw@sous-sol.org, akataria@vmware.com, rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
-Cc: Juergen Gross <jgross@suse.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, Jan Kiszka <jan.kiszka@siemens.com>, Claudio.Fontana@huawei.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, opnfv-tech-discuss@lists.opnfv.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Remove the paravirt operation "get_tsc_khz" as it is used nowhere.
+On Mon, Aug 31, 2015 at 05:11:02PM +0300, Michael S. Tsirkin wrote:
+> The resulting channel might look something like the following:
+> 
+> +-- VM1 --------------+  +---VM2-----------+
+> | virtio-pci -- iommu +--+ vhost-pci -- VF | -- VFIO -- IOMMU -- NIC
+> +---------------------+  +-----------------+
+> 
+> comparing the two diagrams, a vhost-user thread on the host is
+> no longer required, reducing the host CPU utilization when
+> polling is active.  At the same time, VM2 can not access all of VM1's
+> memory - it is limited by the iommu configuration setup by VM1.
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Acked-by: Rusty Russell <rusty@rustcorp.com.au>
----
- arch/x86/include/asm/paravirt_types.h | 1 -
- 1 file changed, 1 deletion(-)
+Can this use virtio's vring?  If standard virtio devices (net, blk, etc)
+cannot be used because this scheme requires new descriptor rings or
+memory layout, then this is more an "ivshmem 2.0" than "virtio".
 
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index ce029e4..31247b5 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -97,7 +97,6 @@ struct pv_lazy_ops {
- struct pv_time_ops {
- 	unsigned long long (*sched_clock)(void);
- 	unsigned long long (*steal_clock)(int cpu);
--	unsigned long (*get_tsc_khz)(void);
- };
- 
- struct pv_cpu_ops {
--- 
-2.1.4
+I'm not clear on how vhost-pci works - is this a host kernel component
+that updates VM2's memory mappings when VM1 changes iommu entries?
+
+In VM2 there is a userspace network router.  It can mmap the VF's BARs
+to access the physical network.  What about the virtual NIC to VM1, how
+does the userspace network router access it?
