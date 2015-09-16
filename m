@@ -1,15 +1,14 @@
-From: J Freyensee <james_p_freyensee@linux.intel.com>
-Subject: Re: [RFC PATCH 0/2] virtio nvme
-Date: Fri, 11 Sep 2015 10:46:29 -0700
-Message-ID: <1441993589.7919.28.camel@linux.intel.com>
-References: <1441864112-12765-1-git-send-email-mlin@kernel.org>
-	<alpine.LNX.2.00.1509101356200.23840@localhost.lm.intel.com>
-	<1441904521.18716.4.camel@ssi>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: vhost: build failure
+Date: Wed, 16 Sep 2015 11:36:45 +0300
+Message-ID: <20150916112119-mutt-send-email-mst@redhat.com>
+References: <20150916082008.GA28512@sudip-pc>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1441904521.18716.4.camel@ssi>
+Content-Disposition: inline
+In-Reply-To: <20150916082008.GA28512@sudip-pc>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,81 +18,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ming Lin <mlin@kernel.org>, Keith Busch <keith.busch@intel.com>
-Cc: Christoph Hellwig <hch@lst.de>, linux-nvme@lists.infradead.org, virtualization@lists.linux-foundation.org
+To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2015-09-10 at 10:02 -0700, Ming Lin wrote:
-> On Thu, 2015-09-10 at 14:02 +0000, Keith Busch wrote:
-> > On Wed, 9 Sep 2015, Ming Lin wrote:
-> > > The goal is to have a full NVMe stack from VM guest(virtio-nvme)
-> > > to host(vhost_nvme) to LIO NVMe-over-fabrics target.
-> > > 
-> > > Now there are lots of duplicated code with linux/nvme-core.c and 
-> > > qemu/nvme.c.
-> > > The ideal result is to have a multi level NVMe stack(similar as 
-> > > SCSI).
-> > > So we can re-use the nvme code, for example
-> > > 
-> > >                        .-------------------------.
-> > >                        | NVMe device register    |
-> > >  Upper level           | NVMe protocol process   |
-> > >                        |                         |
-> > >                        '-------------------------'
-> > > 
-> > > 
-> > > 
-> > >              .-----------.    .-----------.    .-----------------
-> > > -.
-> > > Lower level  |   PCIe    |    | VIRTIO    |    |NVMe over Fabrics 
-> > > |
-> > >              |           |    |           |    |initiator        
-> > >  |
-> > >              '-----------'    '-----------'    '-----------------
-> > > -'
-> > > 
-> > > todo:
-> > > - tune performance. Should be as good as virtio-blk/virtio-scsi
-> > > - support discard/flush/integrity
-> > > - need Redhat's help for the VIRTIO_ID_NVME pci id
-> > > - multi level NVMe stack
-> > 
-> > Hi Ming,
+On Wed, Sep 16, 2015 at 01:50:08PM +0530, Sudip Mukherjee wrote:
+> Hi,
+> While crosscompiling the kernel for openrisc with allmodconfig the build
+> failed with the error:
+> drivers/vhost/vhost.c: In function 'vhost_vring_ioctl':
+> drivers/vhost/vhost.c:818:3: error: call to '__compiletime_assert_818' declared with attribute error: BUILD_BUG_ON failed: __alignof__
+> *vq->avail > VRING_AVAIL_ALIGN_SIZE
 > 
-> Hi Keith,
+> Can you please give me any idea about what the problem might be and how
+> it can be solved.
 > 
-> > 
-> > I'll be out for travel for the next week, so I won't have much time 
-> > to
-> > do a proper review till the following week.
-> > 
-> > I think it'd be better to get this hierarchy setup to make the most 
-> > reuse
-> > possible than to have this much code duplication between the 
-> > existing
-> > driver and emulated qemu nvme. For better or worse, I think the 
-> > generic
-> > nvme layer is where things are going. Are you signed up with the 
-> > fabrics
-> > contributors?
+> You can see the build log at:
+> https://travis-ci.org/sudipm-mukherjee/parport/jobs/80365425
 > 
-> No. How to sign up?
+> regards
+> sudip
 
-Ming,
+Yes - I think I saw this already.
+I think the openrisc cross-compiler is broken.
 
-Here is the email Keith sent out on this list that says how to sign up:
+VRING_AVAIL_ALIGN_SIZE is 2
 
-http://lists.infradead.org/pipermail/linux-nvme/2015
--September/002331.html
+*vq->avail is:
 
-Jay
+struct vring_avail {
+        __virtio16 flags;
+        __virtio16 idx;
+        __virtio16 ring[];
+};
 
+And __virtio16 is just a u16 with some sparse annotations.
 
+Looking at openrisc architecture document:
+	Operand:		Length		addr[3:0] if aligned
+	Halfword (or half) 	2 bytes 	Xxx0
 
-> 
-> 
-> 
-> _______________________________________________
-> Linux-nvme mailing list
-> Linux-nvme@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-nvme
+Type	C-TYPE        Sizeof Alignment Openrisc Equivalent
+Short   Signed short    2      2       Signed halfword
+
+and
+
+16.1.2
+Aggregates and Unions
+Aggregates (structures and arrays) and unions assume the alignment of their most
+strictly aligned element.
+
+So to me, it looks like your gcc violates the ABI
+by adding alignment requirements > 2.
+
+-- 
+MST
