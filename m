@@ -1,16 +1,18 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v7] pci: quirk to skip msi disable on shutdown
-Date: Thu, 17 Sep 2015 19:03:37 +0300
-Message-ID: <20150917185638-mutt-send-email-mst__13615.4220825576$1442505837$gmane$org@redhat.com>
-References: <1441553385-3810-1-git-send-email-mst@redhat.com>
-	<20150917154424.GI25767@google.com>
-	<874mitxczx.fsf@x220.int.ebiederm.org>
+Subject: Re: DEFINE_IDA causing memory leaks? (was  Re: [PATCH 1/2] virtio:
+	fix memory leak of virtio ida cache layers)
+Date: Thu, 17 Sep 2015 19:06:34 +0300
+Message-ID: <20150917190538-mutt-send-email-mst@redhat.com>
+References: <1442449758-14594-1-git-send-email-s-anna@ti.com>
+	<1442449758-14594-2-git-send-email-s-anna@ti.com>
+	<20150917082425-mutt-send-email-mst@redhat.com>
+	<1442499344.4073.0.camel@HansenPartnership.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <874mitxczx.fsf@x220.int.ebiederm.org>
+In-Reply-To: <1442499344.4073.0.camel@HansenPartnership.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,159 +22,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Fam Zheng <famz@redhat.com>, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Ulrich Obergfell <uobergfe@redhat.com>, Yinghai Lu <yhlu.kernel.send@gmail.com>, Bjorn Helgaas <bhelgaas@google.com>, virtualization@lists.linux-foundation.org
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: Suman Anna <s-anna@ti.com>, linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Tejun Heo <htejun@gmail.com>, open-iscsi@googlegroups.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 17, 2015 at 10:49:06AM -0500, Eric W. Biederman wrote:
-> Bjorn Helgaas <bhelgaas@google.com> writes:
+On Thu, Sep 17, 2015 at 07:15:44AM -0700, James Bottomley wrote:
+> On Thu, 2015-09-17 at 08:33 +0300, Michael S. Tsirkin wrote:
+> > On Wed, Sep 16, 2015 at 07:29:17PM -0500, Suman Anna wrote:
+> > > The virtio core uses a static ida named virtio_index_ida for
+> > > assigning index numbers to virtio devices during registration.
+> > > The ida core may allocate some internal idr cache layers and
+> > > an ida bitmap upon any ida allocation, and all these layers are
+> > > truely freed only upon the ida destruction. The virtio_index_ida
+> > > is not destroyed at present, leading to a memory leak when using
+> > > the virtio core as a module and atleast one virtio device is
+> > > registered and unregistered.
+> > > 
+> > > Fix this by invoking ida_destroy() in the virtio core module
+> > > exit.
+> > > 
+> > > Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> > > Signed-off-by: Suman Anna <s-anna@ti.com>
+> > 
+> > Interesting.
+> > Will the same apply to e.g. sd_index_ida in drivers/scsi/sd.c
+> > or iscsi_sess_ida in drivers/scsi/scsi_transport_iscsi.c?
+> > 
+> > If no, why not?
+> > 
+> > One doesn't generally expect to have to free global variables.
+> > Maybe we should forbid DEFINE_IDA in modules?
+> > 
+> > James, could you comment on this please?
 > 
-> > On Sun, Sep 06, 2015 at 06:32:35PM +0300, Michael S. Tsirkin wrote:
-> >> On some hypervisors, virtio devices tend to generate spurious interrupts
-> >> when switching between MSI and non-MSI mode.  Normally, either MSI or
-> >> non-MSI is used and all is well, but during shutdown, linux disables MSI
-> >> which then causes an "irq %d: nobody cared" message, with irq being
-> >> subsequently disabled.
-> >> 
-> >> Since bus mastering is already disabled at this point, disabling MSI
-> >> isn't actually useful for spec compliant devices: MSI interrupts are
-> >> in-bus memory writes so disabling Bus Master (which is already done)
-> >> disables these as well: after some research, it appears to be there for
-> >> the benefit of devices that ignore the bus master bit.
-> >> 
-> >> As it's not clear how common this kind of bug is, this patch simply adds
-> >> a quirk, to be set by devices that wish to skip disabling msi on
-> >> shutdown, relying on bus master instead.
-> >> 
-> >> We set this quirk in virtio core.
-> >> 
-> >> Reported-by: Fam Zheng <famz@redhat.com>
-> >> Cc: Bjorn Helgaas <bhelgaas@google.com>
-> >> Cc: Yinghai Lu <yhlu.kernel.send@gmail.com>
-> >> Cc: Ulrich Obergfell <uobergfe@redhat.com>
-> >> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> >> Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-> >> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> >
-> > Eric, what do you think of this?  You had many comments on previous
-> > versions.
+> ida is Tejun's baby (cc'd).  However, it does look like without
+> ida_destroy() you will leave a cached ida->bitmap dangling because we're
+> trying to be a bit clever in ida_remove() so we cache the bitmap to
+> relieve ida_pre_get() of the burden if we would otherwise free it.
 > 
-> I still think it is a hack to avoid actually fixing a driver.
-
-The bug's in the hypervisor though.
-
-> I think the hack is better as a quirk.
-
-You mean put it in drivers/pci/quirks.c?
-
->  I think the quirk would tend to
-> be better if it was limited to whatever set of hypervisors where this is
-> actually a problem.
-
-I guess we might add a new flag "msi disable at shutdown is safe" in future
-hypervisors. Until such hypervisors ship I don't see a way to detect
-this.
-
-> And of course given that on any sane configuration we have the irq
-> watchdog I don't see what this is fixing in practice.
+> I don't understand why you'd want to forbid DEFINE_IDA ... all it does
+> is pre-initialise a usually static ida structure.  The initialised
+> structure will have a NULL bitmap cache that's allocated in the first
+> ida_pre_get() ... that all seems to work as expected and no different
+> from a dynamically allocated struct ida.  Or are you thinking because
+> ida_destory() doesn't set bitmap to NULL, it damages the reuse?  In
+> which case I'm not sure there's much benefit to making it reusable, but
+> I suppose we could by adding a memset into ida_destroy().
 > 
-> Other than suggesting this hack become find a way to limit itself to the
-> driver that is actually having problems I don't see a way to improve it.
+> James
 
-It's already limited: virtio is the only one that sets
-PCI_DEV_FLAGS_NO_MSI_SHUTDOWN. Did you notice this?
+It's just unusual to have  a descructor without a constructor.
+I bet more drivers misuse this AI because of this.
 
-> > Minor comment on a comment below.
-> >
-> >> ---
-> >> 
-> >> 
-> >> changes from v6:
-> >> 	limit changes to virtio only
-> >> changes from v5:
-> >>         rebased on top of pci/msi
-> >>         fixed commit log, including comments by Bjorn
-> >>         and adding explanation to address comments/questions by Eric
-> >>         dropped stable Cc, this patch does not seem to qualify for stable
-> >> changes from v4:
-> >>         Yijing Wang <wangyijing@huawei.com> noted that
-> >>         early fixups rely on pci_msi_off.
-> >>         Split out the functionality and move off the
-> >>         required part to run early during pci_device_setup.
-> >> Changes from v3:
-> >>         fix a copy-and-paste error in
-> >>           pci: drop some duplicate code
-> >>         other patches are unchanged
-> >>         drop Cc stable for now
-> >> Changes from v2:
-> >>         move code from probe to device enumeration
-> >>         add patches to unexport pci_msi_off
-> >> 
-> >> 
-> >>  include/linux/pci.h                | 2 ++
-> >>  drivers/pci/pci-driver.c           | 6 ++++--
-> >>  drivers/virtio/virtio_pci_common.c | 4 ++++
-> >>  3 files changed, 10 insertions(+), 2 deletions(-)
-> >> 
-> >> diff --git a/include/linux/pci.h b/include/linux/pci.h
-> >> index 860c751..80f3494 100644
-> >> --- a/include/linux/pci.h
-> >> +++ b/include/linux/pci.h
-> >> @@ -180,6 +180,8 @@ enum pci_dev_flags {
-> >>  	PCI_DEV_FLAGS_NO_BUS_RESET = (__force pci_dev_flags_t) (1 << 6),
-> >>  	/* Do not use PM reset even if device advertises NoSoftRst- */
-> >>  	PCI_DEV_FLAGS_NO_PM_RESET = (__force pci_dev_flags_t) (1 << 7),
-> >> +	/* Do not disable MSI on shutdown, disable bus master instead */
-> >
-> > This comment doesn't really match what the patch does.  The patch merely
-> > does "Do not disable MSI on shutdown."  It doesn't "disable bus master
-> > instead."
-> >
-> > Bus master may be disabled elsewhere, but that is independent of the
-> > PCI_DEV_FLAGS_NO_MSI_SHUTDOWN flag.
-> >
-> >> +	PCI_DEV_FLAGS_NO_MSI_SHUTDOWN = (__force pci_dev_flags_t) (1 << 8),
-> >>  };
-> >>  
-> >>  enum pci_irq_reroute_variant {
-> >> diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
-> >> index 3cb2210..59d9e40 100644
-> >> --- a/drivers/pci/pci-driver.c
-> >> +++ b/drivers/pci/pci-driver.c
-> >> @@ -450,8 +450,10 @@ static void pci_device_shutdown(struct device *dev)
-> >>  
-> >>  	if (drv && drv->shutdown)
-> >>  		drv->shutdown(pci_dev);
-> >> -	pci_msi_shutdown(pci_dev);
-> >> -	pci_msix_shutdown(pci_dev);
-> >> +	if (!(pci_dev->dev_flags & PCI_DEV_FLAGS_NO_MSI_SHUTDOWN)) {
-> >> +		pci_msi_shutdown(pci_dev);
-> >> +		pci_msix_shutdown(pci_dev);
-> >> +	}
-> >>  
-> >>  #ifdef CONFIG_KEXEC
-> >>  	/*
-> >> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-> >> index 78f804a..26f46c3 100644
-> >> --- a/drivers/virtio/virtio_pci_common.c
-> >> +++ b/drivers/virtio/virtio_pci_common.c
-> >> @@ -528,6 +528,8 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
-> >>  	if (rc)
-> >>  		goto err_register;
-> >>  
-> >> +	pci_dev->dev_flags |= PCI_DEV_FLAGS_NO_MSI_SHUTDOWN;
-> >> +
-> >>  	return 0;
-> >>  
-> >>  err_register:
-> >> @@ -546,6 +548,8 @@ static void virtio_pci_remove(struct pci_dev *pci_dev)
-> >>  {
-> >>  	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
-> >>  
-> >> +	pci_dev->dev_flags &= ~PCI_DEV_FLAGS_NO_MSI_SHUTDOWN;
-> >> +
-> >>  	unregister_virtio_device(&vp_dev->vdev);
-> >>  
-> >>  	if (vp_dev->ioaddr)
-> >> -- 
-> >> MST
+> > > ---
+> > >  drivers/virtio/virtio.c | 1 +
+> > >  1 file changed, 1 insertion(+)
+> > > 
+> > > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> > > index b1877d73fa56..7062bb0975a5 100644
+> > > --- a/drivers/virtio/virtio.c
+> > > +++ b/drivers/virtio/virtio.c
+> > > @@ -412,6 +412,7 @@ static int virtio_init(void)
+> > >  static void __exit virtio_exit(void)
+> > >  {
+> > >  	bus_unregister(&virtio_bus);
+> > > +	ida_destroy(&virtio_index_ida);
+> > >  }
+> > >  core_initcall(virtio_init);
+> > >  module_exit(virtio_exit);
+> > > -- 
+> > > 2.5.0
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > 
+> 
+> 
+> 
