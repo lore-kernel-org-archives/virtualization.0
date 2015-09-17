@@ -1,15 +1,16 @@
-From: "Xie, Huawei" <huawei.xie@intel.com>
-Subject: Re: [dpdk-dev] virtio optimization idea
-Date: Thu, 17 Sep 2015 15:41:36 +0000
-Message-ID: <C37D651A908B024F974696C65296B57B40F1D8C1__34881.2818796889$1442504522$gmane$org@SHSMSX101.ccr.corp.intel.com>
-References: <C37D651A908B024F974696C65296B57B2BDB8C06@SHSMSX101.ccr.corp.intel.com>
-	<20150908083926.3f2f409f@urahara>
-	<C37D651A908B024F974696C65296B57B2BDC0872@SHSMSX101.ccr.corp.intel.com>
+From: Bjorn Helgaas via Virtualization
+	<virtualization@lists.linux-foundation.org>
+Subject: Re: [PATCH v7] pci: quirk to skip msi disable on shutdown
+Date: Thu, 17 Sep 2015 10:44:24 -0500
+Message-ID: <20150917154424.GI25767@google.com>
+References: <1441553385-3810-1-git-send-email-mst@redhat.com>
+Reply-To: Bjorn Helgaas <bhelgaas@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1441553385-3810-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,116 +20,131 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: "dev@dpdk.org" <dev@dpdk.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "ms >> Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Fam Zheng <famz@redhat.com>, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Ulrich Obergfell <uobergfe@redhat.com>, Yinghai Lu <yhlu.kernel.send@gmail.com>, "Eric W. Biederman" <ebiederm@xmission.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 9/8/2015 11:54 PM, Xie, Huawei wrote:
-> On 9/8/2015 11:39 PM, Stephen Hemminger wrote:
->> On Fri, 4 Sep 2015 08:25:05 +0000
->> "Xie, Huawei" <huawei.xie@intel.com> wrote:
->>
->>> Hi:
->>>
->>> Recently I have done one virtio optimization proof of concept. The
->>> optimization includes two parts:
->>> 1) avail ring set with fixed descriptors
->>> 2) RX vectorization
->>> With the optimizations, we could have several times of performance boost
->>> for purely vhost-virtio throughput.
->>>
->>> Here i will only cover the first part, which is the prerequisite for the
->>> second part.
->>> Let us first take RX for example. Currently when we fill the avail ring
->>> with guest mbuf, we need
->>> a) allocate one descriptor(for non sg mbuf) from free descriptors
->>> b) set the idx of the desc into the entry of avail ring
->>> c) set the addr/len field of the descriptor to point to guest blank mbuf
->>> data area
->>>
->>> Those operation takes time, and especially step b results in modifed (M)
->>> state of the cache line for the avail ring in the virtio processing
->>> core. When vhost processes the avail ring, the cache line transfer from
->>> virtio processing core to vhost processing core takes pretty much CPU
->>> cycles.
->>> To solve this problem, this is the arrangement of RX ring for DPDK
->>> pmd(for non-mergable case).
->>>    
->>>                     avail                      
->>>                     idx                        
->>>                     +                          
->>>                     |                          
->>> +----+----+---+-------------+------+           
->>> | 0  | 1  | 2 | ... |  254  | 255  |  avail ring
->>> +-+--+-+--+-+-+---------+---+--+---+           
->>>   |    |    |       |   |      |               
->>>   |    |    |       |   |      |               
->>>   v    v    v       |   v      v               
->>> +-+--+-+--+-+-+---------+---+--+---+           
->>> | 0  | 1  | 2 | ... |  254  | 255  |  desc ring
->>> +----+----+---+-------------+------+           
->>>                     |                          
->>>                     |                          
->>> +----+----+---+-------------+------+           
->>> | 0  | 1  | 2 |     |  254  | 255  |  used ring
->>> +----+----+---+-------------+------+           
->>>                     |                          
->>>                     +    
->>> Avail ring is initialized with fixed descriptor and is never changed,
->>> i.e, the index value of the nth avail ring entry is always n, which
->>> means virtio PMD is actually refilling desc ring only, without having to
->>> change avail ring.
->>> When vhost fetches avail ring, if not evicted, it is always in its first
->>> level cache.
->>>
->>> When RX receives packets from used ring, we use the used->idx as the
->>> desc idx. This requires that vhost processes and returns descs from
->>> avail ring to used ring in order, which is true for both current dpdk
->>> vhost and kernel vhost implementation. In my understanding, there is no
->>> necessity for vhost net to process descriptors OOO. One case could be
->>> zero copy, for example, if one descriptor doesn't meet zero copy
->>> requirment, we could directly return it to used ring, earlier than the
->>> descriptors in front of it.
->>> To enforce this, i want to use a reserved bit to indicate in order
->>> processing of descriptors.
->>>
->>> For tx ring, the arrangement is like below. Each transmitted mbuf needs
->>> a desc for virtio_net_hdr, so actually we have only 128 free slots.
->>>                                                                                       
->>>
->>>                            
+On Sun, Sep 06, 2015 at 06:32:35PM +0300, Michael S. Tsirkin wrote:
+> On some hypervisors, virtio devices tend to generate spurious interrupts
+> when switching between MSI and non-MSI mode.  Normally, either MSI or
+> non-MSI is used and all is well, but during shutdown, linux disables MSI
+> which then causes an "irq %d: nobody cared" message, with irq being
+> subsequently disabled.
+> 
+> Since bus mastering is already disabled at this point, disabling MSI
+> isn't actually useful for spec compliant devices: MSI interrupts are
+> in-bus memory writes so disabling Bus Master (which is already done)
+> disables these as well: after some research, it appears to be there for
+> the benefit of devices that ignore the bus master bit.
+> 
+> As it's not clear how common this kind of bug is, this patch simply adds
+> a quirk, to be set by devices that wish to skip disabling msi on
+> shutdown, relying on bus master instead.
+> 
+> We set this quirk in virtio core.
+> 
+> Reported-by: Fam Zheng <famz@redhat.com>
+> Cc: Bjorn Helgaas <bhelgaas@google.com>
+> Cc: Yinghai Lu <yhlu.kernel.send@gmail.com>
+> Cc: Ulrich Obergfell <uobergfe@redhat.com>
+> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-                            ++                                                           
-                            ||                                                           
-                            ||                                                           
-   +-----+-----+-----+--------------+------+------+------+                               
-   |  0  |  1  | ... |  127 || 128  | 129  | ...  | 255  |   avail ring                  
-   +--+--+--+--+-----+---+------+---+--+---+------+--+---+                               
-      |     |            |  ||  |      |             |                                   
-      v     v            v  ||  v      v             v                                   
-   +--+--+--+--+-----+---+------+---+--+---+------+--+---+                               
-   | 127 | 128 | ... |  255 || 127  | 128  | ...  | 255  |   desc ring for virtio_net_hdr
-   +--+--+--+--+-----+---+------+---+--+---+------+--+---+                               
-      |     |            |  ||  |      |             |                                   
-      v     v            v  ||  v      v             v                                   
-   +--+--+--+--+-----+---+------+---+--+---+------+--+---+                               
-   |  0  |  1  | ... |  127 ||  0   |  1   | ...  | 127  |   desc ring for tx dat 
+Eric, what do you think of this?  You had many comments on previous
+versions.
 
->>>           
->>>
->> Does this still work with Linux (or BSD) guest/host.
->> If you are assuming both virtio/vhost are DPDK this is never going
->> to be usable.
-> It works with both dpdk vhost and kernel vhost implementations.
-> But to enforce this, we had better add a new feature bit.
-Hi Stephen, some update about compatibility:
-This optimization in theory is compliant with current kernel vhost,
-qemu, and dpdk vhost implementations.
-Today i run dpdk virtio PMD with qemu and kernel vhost, and it works fine.
+Minor comment on a comment below.
 
+> ---
+> 
+> 
+> changes from v6:
+> 	limit changes to virtio only
+> changes from v5:
+>         rebased on top of pci/msi
+>         fixed commit log, including comments by Bjorn
+>         and adding explanation to address comments/questions by Eric
+>         dropped stable Cc, this patch does not seem to qualify for stable
+> changes from v4:
+>         Yijing Wang <wangyijing@huawei.com> noted that
+>         early fixups rely on pci_msi_off.
+>         Split out the functionality and move off the
+>         required part to run early during pci_device_setup.
+> Changes from v3:
+>         fix a copy-and-paste error in
+>           pci: drop some duplicate code
+>         other patches are unchanged
+>         drop Cc stable for now
+> Changes from v2:
+>         move code from probe to device enumeration
+>         add patches to unexport pci_msi_off
+> 
+> 
+>  include/linux/pci.h                | 2 ++
+>  drivers/pci/pci-driver.c           | 6 ++++--
+>  drivers/virtio/virtio_pci_common.c | 4 ++++
+>  3 files changed, 10 insertions(+), 2 deletions(-)
+> 
+> diff --git a/include/linux/pci.h b/include/linux/pci.h
+> index 860c751..80f3494 100644
+> --- a/include/linux/pci.h
+> +++ b/include/linux/pci.h
+> @@ -180,6 +180,8 @@ enum pci_dev_flags {
+>  	PCI_DEV_FLAGS_NO_BUS_RESET = (__force pci_dev_flags_t) (1 << 6),
+>  	/* Do not use PM reset even if device advertises NoSoftRst- */
+>  	PCI_DEV_FLAGS_NO_PM_RESET = (__force pci_dev_flags_t) (1 << 7),
+> +	/* Do not disable MSI on shutdown, disable bus master instead */
 
->> On a related note, have you looked at getting virtio to support the
->> new standard (not legacy) mode?
-> Yes, we add it to our plan to support virtio 1.0.
->>
->
+This comment doesn't really match what the patch does.  The patch merely
+does "Do not disable MSI on shutdown."  It doesn't "disable bus master
+instead."
+
+Bus master may be disabled elsewhere, but that is independent of the
+PCI_DEV_FLAGS_NO_MSI_SHUTDOWN flag.
+
+> +	PCI_DEV_FLAGS_NO_MSI_SHUTDOWN = (__force pci_dev_flags_t) (1 << 8),
+>  };
+>  
+>  enum pci_irq_reroute_variant {
+> diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
+> index 3cb2210..59d9e40 100644
+> --- a/drivers/pci/pci-driver.c
+> +++ b/drivers/pci/pci-driver.c
+> @@ -450,8 +450,10 @@ static void pci_device_shutdown(struct device *dev)
+>  
+>  	if (drv && drv->shutdown)
+>  		drv->shutdown(pci_dev);
+> -	pci_msi_shutdown(pci_dev);
+> -	pci_msix_shutdown(pci_dev);
+> +	if (!(pci_dev->dev_flags & PCI_DEV_FLAGS_NO_MSI_SHUTDOWN)) {
+> +		pci_msi_shutdown(pci_dev);
+> +		pci_msix_shutdown(pci_dev);
+> +	}
+>  
+>  #ifdef CONFIG_KEXEC
+>  	/*
+> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+> index 78f804a..26f46c3 100644
+> --- a/drivers/virtio/virtio_pci_common.c
+> +++ b/drivers/virtio/virtio_pci_common.c
+> @@ -528,6 +528,8 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
+>  	if (rc)
+>  		goto err_register;
+>  
+> +	pci_dev->dev_flags |= PCI_DEV_FLAGS_NO_MSI_SHUTDOWN;
+> +
+>  	return 0;
+>  
+>  err_register:
+> @@ -546,6 +548,8 @@ static void virtio_pci_remove(struct pci_dev *pci_dev)
+>  {
+>  	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
+>  
+> +	pci_dev->dev_flags &= ~PCI_DEV_FLAGS_NO_MSI_SHUTDOWN;
+> +
+>  	unregister_virtio_device(&vp_dev->vdev);
+>  
+>  	if (vp_dev->ioaddr)
+> -- 
+> MST
