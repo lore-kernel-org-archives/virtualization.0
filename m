@@ -1,17 +1,16 @@
-From: Suman Anna <s-anna@ti.com>
-Subject: Re: DEFINE_IDA causing memory leaks? (was Re: [PATCH 1/2] virtio: fix
-	memory leak of virtio ida cache layers)
-Date: Thu, 17 Sep 2015 17:32:17 -0500
-Message-ID: <55FB3F71.7070103@ti.com>
-References: <1442449758-14594-1-git-send-email-s-anna@ti.com>
-	<1442449758-14594-2-git-send-email-s-anna@ti.com>
-	<20150917082425-mutt-send-email-mst@redhat.com>
-	<55FA630A.4020707@suse.de>
+From: Ming Lin <mlin@kernel.org>
+Subject: Re: [RFC PATCH 0/2] virtio nvme
+Date: Thu, 17 Sep 2015 16:31:27 -0700
+Message-ID: <1442532687.4750.6.camel__14531.5512818799$1442532705$gmane$org@ssi>
+References: <1441864112-12765-1-git-send-email-mlin@kernel.org>
+	<CAJSP0QUmtgoh23G3u64xRnBbJkAoO19AEi=vkyPPyg9n9jqC2Q@mail.gmail.com>
+	<1441906098.18716.21.camel@ssi>
+	<1442470241.23132.77.camel@haakon3.risingtidesystems.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <55FA630A.4020707@suse.de>
+In-Reply-To: <1442470241.23132.77.camel@haakon3.risingtidesystems.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,69 +20,80 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Hannes Reinecke <hare@suse.de>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: open-iscsi@googlegroups.com, JBottomley@Odin.com, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: "Minturn, Dave B" <dave.b.minturn@intel.com>, linux-nvme@lists.infradead.org, Linux Virtualization <virtualization@lists.linux-foundation.org>, target-devel <target-devel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 09/17/2015 01:51 AM, Hannes Reinecke wrote:
-> On 09/17/2015 07:33 AM, Michael S. Tsirkin wrote:
->> On Wed, Sep 16, 2015 at 07:29:17PM -0500, Suman Anna wrote:
->>> The virtio core uses a static ida named virtio_index_ida for
->>> assigning index numbers to virtio devices during registration.
->>> The ida core may allocate some internal idr cache layers and
->>> an ida bitmap upon any ida allocation, and all these layers are
->>> truely freed only upon the ida destruction. The virtio_index_ida
->>> is not destroyed at present, leading to a memory leak when using
->>> the virtio core as a module and atleast one virtio device is
->>> registered and unregistered.
->>>
->>> Fix this by invoking ida_destroy() in the virtio core module
->>> exit.
->>>
->>> Cc: "Michael S. Tsirkin" <mst@redhat.com>
->>> Signed-off-by: Suman Anna <s-anna@ti.com>
->>
->> Interesting.
->> Will the same apply to e.g. sd_index_ida in drivers/scsi/sd.c
->> or iscsi_sess_ida in drivers/scsi/scsi_transport_iscsi.c?
-
-Yes, I would think so as long as they are used as modules and the
-modules are loaded & unloaded with a registration in between. For
-built-in, it is not an issue.
-
-A search on lkml yielded a similar fixup patches recently from Johannes
-Thumshirn (actually those are using a idr, but both ida and idr use
-common logic), see
-https://patchwork.kernel.org/patch/6748601/ for one such patch.
-
->>
->> If no, why not?
->>
->> One doesn't generally expect to have to free global variables.
->> Maybe we should forbid DEFINE_IDA in modules?
->>
->> James, could you comment on this please?
->>
-> Well, looking at the code 'ida_destroy' only need to be called
-> if you want/need to do a general cleanup.
-> It shouldn't be required if you do correct reference counting
-> on your objects, and call idr_remove() on each of them.
+On Wed, 2015-09-16 at 23:10 -0700, Nicholas A. Bellinger wrote:
+> Hi Ming & Co,
 > 
-> Unless I'm misreading something.
+> On Thu, 2015-09-10 at 10:28 -0700, Ming Lin wrote:
+> > On Thu, 2015-09-10 at 15:38 +0100, Stefan Hajnoczi wrote:
+> > > On Thu, Sep 10, 2015 at 6:48 AM, Ming Lin <mlin@kernel.org> wrote:
+> > > > These 2 patches added virtio-nvme to kernel and qemu,
+> > > > basically modified from virtio-blk and nvme code.
+> > > >
+> > > > As title said, request for your comments.
+> 
+> <SNIP>
+> 
+> > > 
+> > > At first glance it seems like the virtio_nvme guest driver is just
+> > > another block driver like virtio_blk, so I'm not clear why a
+> > > virtio-nvme device makes sense.
+> > 
+> > I think the future "LIO NVMe target" only speaks NVMe protocol.
+> > 
+> > Nick(CCed), could you correct me if I'm wrong?
+> > 
+> > For SCSI stack, we have:
+> > virtio-scsi(guest)
+> > tcm_vhost(or vhost_scsi, host)
+> > LIO-scsi-target
+> > 
+> > For NVMe stack, we'll have similar components:
+> > virtio-nvme(guest)
+> > vhost_nvme(host)
+> > LIO-NVMe-target
+> > 
+> 
+> I think it's more interesting to consider a 'vhost style' driver that
+> can be used with unmodified nvme host OS drivers.
+> 
+> Dr. Hannes (CC'ed) had done something like this for megasas a few years
+> back using specialized QEMU emulation + eventfd based LIO fabric driver,
+> and got it working with Linux + MSFT guests.
+> 
+> Doing something similar for nvme would (potentially) be on par with
+> current virtio-scsi+vhost-scsi small-block performance for scsi-mq
+> guests, without the extra burden of a new command set specific virtio
+> driver.
 
-Yeah, I should have written a better last sentence in the first para,
-its not clear in the commit description without looking at my cover
-letter. The memory leak is seen only when used as module and the module
-is removed with atleast one ida allocation.
+Trying to understand it.
+Is it like below?
 
-regards
-Suman
-
-> 
-> Seems like a topic for KS; Johannes had a larger patchset recently to
-> clean up idr, which run into very much the same issues.
-> 
-> Cheers,
-> 
-> Hannes
-> 
+  .------------------------.   MMIO   .---------------------------------------.
+  | Guest                  |--------> | Qemu                                  |
+  | Unmodified NVMe driver |<-------- | NVMe device simulation(eventfd based) |
+  '------------------------'          '---------------------------------------'
+                                                  |          ^
+                                      write NVMe  |          |  notify command
+                                      command     |          |  completion
+                                      to eventfd  |          |  to eventfd
+                                                  v          |
+                                      .--------------------------------------.
+                                      | Host:                                |
+                                      | eventfd based LIO NVMe fabric driver |
+                                      '--------------------------------------'
+                                                        |
+                                                        | nvme_queue_rq()
+                                                        v
+                                       .--------------------------------------.
+                                       | NVMe driver                          |
+                                       '--------------------------------------'
+                                                        |
+                                                        |
+                                                        v
+                                       .-------------------------------------.
+                                       | NVMe device                         |
+                                       '-------------------------------------'
