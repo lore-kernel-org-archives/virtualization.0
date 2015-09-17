@@ -1,15 +1,13 @@
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: Re: vhost: build failure
-Date: Wed, 16 Sep 2015 15:20:13 +0530
-Message-ID: <20150916095013.GA4326__22223.0725842111$1442425712$gmane$org@sudip-pc>
-References: <20150916082008.GA28512@sudip-pc>
-	<20150916112119-mutt-send-email-mst@redhat.com>
+From: Suman Anna <s-anna@ti.com>
+Subject: [PATCH 2/2] remoteproc: fix memory leak of remoteproc ida cache layers
+Date: Wed, 16 Sep 2015 19:29:18 -0500
+Message-ID: <1442449758-14594-3-git-send-email-s-anna@ti.com>
+References: <1442449758-14594-1-git-send-email-s-anna@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20150916112119-mutt-send-email-mst@redhat.com>
+In-Reply-To: <1442449758-14594-1-git-send-email-s-anna@ti.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,32 +17,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Ohad Ben-Cohen <ohad@wizery.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Suman Anna <s-anna@ti.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Sep 16, 2015 at 11:36:45AM +0300, Michael S. Tsirkin wrote:
-> On Wed, Sep 16, 2015 at 01:50:08PM +0530, Sudip Mukherjee wrote:
-> > Hi,
-> > While crosscompiling the kernel for openrisc with allmodconfig the build
-> > failed with the error:
-> > drivers/vhost/vhost.c: In function 'vhost_vring_ioctl':
-> > drivers/vhost/vhost.c:818:3: error: call to '__compiletime_assert_818' declared with attribute error: BUILD_BUG_ON failed: __alignof__
-> > *vq->avail > VRING_AVAIL_ALIGN_SIZE
-> > 
-> > Can you please give me any idea about what the problem might be and how
-> > it can be solved.
-> > 
-> > You can see the build log at:
-> > https://travis-ci.org/sudipm-mukherjee/parport/jobs/80365425
-> > 
-> > regards
-> > sudip
-> 
-> Yes - I think I saw this already.
-> I think the openrisc cross-compiler is broken.
-I thought so. Thanks for the quick reply. I will open a bug in gcc and
-lets see what they say.
+The remoteproc core uses a static ida named rproc_dev_index for
+assigning an automatic index number to a registered remoteproc.
+The ida core may allocate some internal idr cache layers and ida
+bitmap upon any ida allocation, and all these layers are truely
+freed only upon the ida destruction. The rproc_dev_index ida is
+not destroyed at present, leading to a memory leak when using the
+remoteproc core as a module and atleast one rproc device is
+registered and unregistered.
 
-regards
-sudip
+Fix this by invoking ida_destroy() in the remoteproc core module
+exit.
+
+Cc: Ohad Ben-Cohen <ohad@wizery.com>
+Signed-off-by: Suman Anna <s-anna@ti.com>
+---
+ drivers/remoteproc/remoteproc_core.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
+index 8b3130f22b42..9e03d158f411 100644
+--- a/drivers/remoteproc/remoteproc_core.c
++++ b/drivers/remoteproc/remoteproc_core.c
+@@ -1478,6 +1478,8 @@ module_init(remoteproc_init);
+ 
+ static void __exit remoteproc_exit(void)
+ {
++	ida_destroy(&rproc_dev_index);
++
+ 	rproc_exit_debugfs();
+ }
+ module_exit(remoteproc_exit);
+-- 
+2.5.0
