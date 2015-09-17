@@ -1,22 +1,16 @@
-From: Tejun Heo <htejun@gmail.com>
-Subject: Re: DEFINE_IDA causing memory leaks? (was  Re: [PATCH 1/2] virtio:
-	fix memory leak of virtio ida cache layers)
-Date: Thu, 17 Sep 2015 14:00:26 -0400
-Message-ID: <20150917180026.GB15447@htj.duckdns.org>
-References: <1442449758-14594-1-git-send-email-s-anna@ti.com>
-	<1442449758-14594-2-git-send-email-s-anna@ti.com>
-	<20150917082425-mutt-send-email-mst@redhat.com>
-	<1442499344.4073.0.camel@HansenPartnership.com>
-	<20150917190538-mutt-send-email-mst@redhat.com>
-	<1442508517.4073.13.camel@HansenPartnership.com>
-	<20150917171529.GA15447@htj.duckdns.org>
-	<1442512709.4073.24.camel@HansenPartnership.com>
+From: Ming Lin <mlin@kernel.org>
+Subject: Re: [RFC PATCH 0/2] virtio nvme
+Date: Thu, 17 Sep 2015 11:18:06 -0700
+Message-ID: <CAF1ivSaOZwjg3OEdj+miXsWwbpf-Y-tmN7wmjZooxTPDQ5r9tg__12487.878642469$1442513916$gmane$org@mail.gmail.com>
+References: <1441864112-12765-1-git-send-email-mlin@kernel.org>
+	<CAJSP0QUmtgoh23G3u64xRnBbJkAoO19AEi=vkyPPyg9n9jqC2Q@mail.gmail.com>
+	<1441906098.18716.21.camel@ssi>
+	<1442470241.23132.77.camel@haakon3.risingtidesystems.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1442512709.4073.24.camel@HansenPartnership.com>
+In-Reply-To: <1442470241.23132.77.camel@haakon3.risingtidesystems.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,41 +20,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: open-iscsi@googlegroups.com, linux-scsi@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Suman Anna <s-anna@ti.com>
+To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: "Minturn, Dave B" <dave.b.minturn@intel.com>, linux-nvme@lists.infradead.org, Linux Virtualization <virtualization@lists.linux-foundation.org>, target-devel <target-devel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello, James.
+On Wed, Sep 16, 2015 at 11:10 PM, Nicholas A. Bellinger
+<nab@linux-iscsi.org> wrote:
+> Hi Ming & Co,
 
-On Thu, Sep 17, 2015 at 10:58:29AM -0700, James Bottomley wrote:
-> The argument is that we shouldn't have to explicitly destroy a
-> statically initialized object, so 
-> 
-> DEFINE_IDA(someida);
-> 
-> Should just work without having to explicitly do
-> 
-> ida_destory(someida);
-> 
-> somewhere in the exit code.  It's about usage patterns.  Michael's
-> argument is that if we can't follow the no destructor pattern for
-> DEFINE_IDA() then we shouldn't have it at all, because it's confusing
-> kernel design patterns.  The pattern we would have would be
-> 
-> struct ida someida:
-> 
-> ida_init(&someida);
-> 
-> ...
-> 
-> ida_destroy(&someida);
-> 
-> so the object explicitly has a constructor matched to a destructor.
+Hi Nic,
 
-Yeah, I get that.  I'm just not convinced that this matters enough
-especially if we can get debugobj/ksan/whatever trip on it.
+>
+> On Thu, 2015-09-10 at 10:28 -0700, Ming Lin wrote:
+>> On Thu, 2015-09-10 at 15:38 +0100, Stefan Hajnoczi wrote:
+>> > On Thu, Sep 10, 2015 at 6:48 AM, Ming Lin <mlin@kernel.org> wrote:
+>> > > These 2 patches added virtio-nvme to kernel and qemu,
+>> > > basically modified from virtio-blk and nvme code.
+>> > >
+>> > > As title said, request for your comments.
+>
+> <SNIP>
+>
+>> >
+>> > At first glance it seems like the virtio_nvme guest driver is just
+>> > another block driver like virtio_blk, so I'm not clear why a
+>> > virtio-nvme device makes sense.
+>>
+>> I think the future "LIO NVMe target" only speaks NVMe protocol.
+>>
+>> Nick(CCed), could you correct me if I'm wrong?
+>>
+>> For SCSI stack, we have:
+>> virtio-scsi(guest)
+>> tcm_vhost(or vhost_scsi, host)
+>> LIO-scsi-target
+>>
+>> For NVMe stack, we'll have similar components:
+>> virtio-nvme(guest)
+>> vhost_nvme(host)
+>> LIO-NVMe-target
+>>
+>
+> I think it's more interesting to consider a 'vhost style' driver that
+> can be used with unmodified nvme host OS drivers.
+>
+> Dr. Hannes (CC'ed) had done something like this for megasas a few years
+> back using specialized QEMU emulation + eventfd based LIO fabric driver,
+> and got it working with Linux + MSFT guests.
 
-Thanks.
+Are the patches already in qemu upstream and LIO upstream?
 
--- 
-tejun
+I found you played it in 2010. Is it?
+[QEMU-KVM]: Megasas + TCM_Loop + SG_IO into Windows XP guests
+https://groups.google.com/forum/#!topic/linux-iscsi-target-dev/3hdaI6H3X0A
+
+>
+> Doing something similar for nvme would (potentially) be on par with
+> current virtio-scsi+vhost-scsi small-block performance for scsi-mq
+> guests, without the extra burden of a new command set specific virtio
+> driver.
