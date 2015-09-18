@@ -1,19 +1,16 @@
-From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [RFC PATCH 0/2] virtio nvme
-Date: Fri, 18 Sep 2015 14:09:04 -0700
-Message-ID: <1442610544.10492.33.camel@haakon3.risingtidesystems.com>
-References: <1441864112-12765-1-git-send-email-mlin@kernel.org>
-	<CAJSP0QUmtgoh23G3u64xRnBbJkAoO19AEi=vkyPPyg9n9jqC2Q@mail.gmail.com>
-	<1441906098.18716.21.camel@ssi>
-	<1442470241.23132.77.camel@haakon3.risingtidesystems.com>
-	<1442532687.4750.6.camel@ssi>
-	<1442537752.11959.35.camel@haakon3.risingtidesystems.com>
-	<1442599957.11660.8.camel@ssi>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: RFC: virtio-peer shared memory based peer communication device
+Date: Fri, 18 Sep 2015 23:11:22 +0200
+Message-ID: <55FC7DFA.80204@redhat.com>
+References: <20150831160655-mutt-send-email-mst@redhat.com>
+	<55ED854A.1080804@huawei.com>
+	<A9667DDFB95DB7438FA9D7D576C3D87E0AD9AB0B@SHSMSX104.ccr.corp.intel.com>
+	<55EFF03A.4000109@huawei.com> <55FC3BE7.5010503@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1442599957.11660.8.camel@ssi>
+In-Reply-To: <55FC3BE7.5010503@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,117 +20,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ming Lin <mlin@kernel.org>
-Cc: "Minturn, Dave B" <dave.b.minturn@intel.com>, linux-nvme@lists.infradead.org, Linux Virtualization <virtualization@lists.linux-foundation.org>, target-devel <target-devel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>
+To: Claudio Fontana <claudio.fontana@huawei.com>, "Zhang, Yang Z" <yang.z.zhang@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "opnfv-tech-discuss@lists.opnfv.org" <opnfv-tech-discuss@lists.opnfv.org>
+Cc: Jan Kiszka <jan.kiszka@siemens.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2015-09-18 at 11:12 -0700, Ming Lin wrote:
-> On Thu, 2015-09-17 at 17:55 -0700, Nicholas A. Bellinger wrote:
-> > On Thu, 2015-09-17 at 16:31 -0700, Ming Lin wrote:
-> > > On Wed, 2015-09-16 at 23:10 -0700, Nicholas A. Bellinger wrote:
-> > > > Hi Ming & Co,
 
-<SNIP>
 
-> > > > > I think the future "LIO NVMe target" only speaks NVMe protocol.
-> > > > > 
-> > > > > Nick(CCed), could you correct me if I'm wrong?
-> > > > > 
-> > > > > For SCSI stack, we have:
-> > > > > virtio-scsi(guest)
-> > > > > tcm_vhost(or vhost_scsi, host)
-> > > > > LIO-scsi-target
-> > > > > 
-> > > > > For NVMe stack, we'll have similar components:
-> > > > > virtio-nvme(guest)
-> > > > > vhost_nvme(host)
-> > > > > LIO-NVMe-target
-> > > > > 
-> > > > 
-> > > > I think it's more interesting to consider a 'vhost style' driver that
-> > > > can be used with unmodified nvme host OS drivers.
-> > > > 
-> > > > Dr. Hannes (CC'ed) had done something like this for megasas a few years
-> > > > back using specialized QEMU emulation + eventfd based LIO fabric driver,
-> > > > and got it working with Linux + MSFT guests.
-> > > > 
-> > > > Doing something similar for nvme would (potentially) be on par with
-> > > > current virtio-scsi+vhost-scsi small-block performance for scsi-mq
-> > > > guests, without the extra burden of a new command set specific virtio
-> > > > driver.
-> > > 
-> > > Trying to understand it.
-> > > Is it like below?
-> > > 
-> > >   .------------------------.   MMIO   .---------------------------------------.
-> > >   | Guest                  |--------> | Qemu                                  |
-> > >   | Unmodified NVMe driver |<-------- | NVMe device simulation(eventfd based) |
-> > >   '------------------------'          '---------------------------------------'
-> > >                                                   |          ^
-> > >                                       write NVMe  |          |  notify command
-> > >                                       command     |          |  completion
-> > >                                       to eventfd  |          |  to eventfd
-> > >                                                   v          |
-> > >                                       .--------------------------------------.
-> > >                                       | Host:                                |
-> > >                                       | eventfd based LIO NVMe fabric driver |
-> > >                                       '--------------------------------------'
-> > >                                                         |
-> > >                                                         | nvme_queue_rq()
-> > >                                                         v
-> > >                                        .--------------------------------------.
-> > >                                        | NVMe driver                          |
-> > >                                        '--------------------------------------'
-> > >                                                         |
-> > >                                                         |
-> > >                                                         v
-> > >                                        .-------------------------------------.
-> > >                                        | NVMe device                         |
-> > >                                        '-------------------------------------'
-> > > 
-> > 
-> > Correct.  The LIO driver on KVM host would be handling some amount of
-> > NVMe host interface emulation in kernel code, and would be able to
-> > decode nvme Read/Write/Flush operations and translate -> submit to
-> > existing backend drivers.
+On 18/09/2015 18:29, Claudio Fontana wrote:
 > 
-> Let me call the "eventfd based LIO NVMe fabric driver" as
-> "tcm_eventfd_nvme"
+> this is a first RFC for virtio-peer 0.1, which is still very much a work in progress:
 > 
-> Currently, LIO frontend driver(iscsi, fc, vhost-scsi etc) talk to LIO
-> backend driver(fileio, iblock etc) with SCSI commands.
+> https://github.com/hw-claudio/virtio-peer/wiki
 > 
-> Did you mean the "tcm_eventfd_nvme" driver need to translate NVMe
-> commands to SCSI commands and then submit to backend driver?
+> It is also available as PDF there, but the text is reproduced here for commenting:
 > 
+> Peer shared memory communication device (virtio-peer)
 
-IBLOCK + FILEIO + RD_MCP don't speak SCSI, they simply process I/Os with
-LBA + length based on SGL memory or pass along a FLUSH with LBA +
-length.
+Apart from the windows idea, how does virtio-peer compare to virtio-rpmsg?
 
-So once the 'tcm_eventfd_nvme' driver on KVM host receives a nvme host
-hardware frame via eventfd, it would decode the frame and send along the
-Read/Write/Flush when exposing existing (non nvme native) backend
-drivers.
-
-This doesn't apply to PSCSI backend driver of course, because it expects
-to process actual SCSI CDBs.
-
-> But I thought the future "LIO NVMe target" can support frontend driver
-> talk to backend driver directly with NVMe commands without translation.
-> 
-
-The native target_core_nvme backend driver is not processing nvme
-commands per-say, but simply exposing nvme hardware queue resources to a
-frontend fabric driver.
-
-For the nvme-over-fabrics case, backend nvme submission/complete queues
-are mapped to RDMA hardware queues.  So essentially the nvme physical
-region page (PRP) is mapped to ib_sgl->addr.
-
-For a 'tcm_eventfd_nvme' style host-paravirt fabric case, it's less
-clear how exposing native nvme backend hardware resources would work, or
-if there is a significant performance benefit over just using
-submit_bio() for Read/Write/Flush.
-
---nab
+Paolo
