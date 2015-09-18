@@ -1,17 +1,12 @@
-From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [RFC PATCH 0/2] virtio nvme
-Date: Thu, 17 Sep 2015 17:55:52 -0700
-Message-ID: <1442537752.11959.35.camel__16417.4677026041$1442537777$gmane$org@haakon3.risingtidesystems.com>
-References: <1441864112-12765-1-git-send-email-mlin@kernel.org>
-	<CAJSP0QUmtgoh23G3u64xRnBbJkAoO19AEi=vkyPPyg9n9jqC2Q@mail.gmail.com>
-	<1441906098.18716.21.camel@ssi>
-	<1442470241.23132.77.camel@haakon3.risingtidesystems.com>
-	<1442532687.4750.6.camel@ssi>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL] vhost: cleanups and fixes
+Date: Fri, 18 Sep 2015 13:42:53 +0300
+Message-ID: <20150918134253-mutt-send-email-mst__31539.3440345817$1442572992$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1442532687.4750.6.camel@ssi>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,96 +16,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ming Lin <mlin@kernel.org>
-Cc: "Minturn, Dave B" <dave.b.minturn@intel.com>, linux-nvme@lists.infradead.org, Linux Virtualization <virtualization@lists.linux-foundation.org>, target-devel <target-devel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, pmorel@linux.vnet.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2015-09-17 at 16:31 -0700, Ming Lin wrote:
-> On Wed, 2015-09-16 at 23:10 -0700, Nicholas A. Bellinger wrote:
-> > Hi Ming & Co,
-> > 
-> > On Thu, 2015-09-10 at 10:28 -0700, Ming Lin wrote:
-> > > On Thu, 2015-09-10 at 15:38 +0100, Stefan Hajnoczi wrote:
-> > > > On Thu, Sep 10, 2015 at 6:48 AM, Ming Lin <mlin@kernel.org> wrote:
-> > > > > These 2 patches added virtio-nvme to kernel and qemu,
-> > > > > basically modified from virtio-blk and nvme code.
-> > > > >
-> > > > > As title said, request for your comments.
-> > 
-> > <SNIP>
-> > 
-> > > > 
-> > > > At first glance it seems like the virtio_nvme guest driver is just
-> > > > another block driver like virtio_blk, so I'm not clear why a
-> > > > virtio-nvme device makes sense.
-> > > 
-> > > I think the future "LIO NVMe target" only speaks NVMe protocol.
-> > > 
-> > > Nick(CCed), could you correct me if I'm wrong?
-> > > 
-> > > For SCSI stack, we have:
-> > > virtio-scsi(guest)
-> > > tcm_vhost(or vhost_scsi, host)
-> > > LIO-scsi-target
-> > > 
-> > > For NVMe stack, we'll have similar components:
-> > > virtio-nvme(guest)
-> > > vhost_nvme(host)
-> > > LIO-NVMe-target
-> > > 
-> > 
-> > I think it's more interesting to consider a 'vhost style' driver that
-> > can be used with unmodified nvme host OS drivers.
-> > 
-> > Dr. Hannes (CC'ed) had done something like this for megasas a few years
-> > back using specialized QEMU emulation + eventfd based LIO fabric driver,
-> > and got it working with Linux + MSFT guests.
-> > 
-> > Doing something similar for nvme would (potentially) be on par with
-> > current virtio-scsi+vhost-scsi small-block performance for scsi-mq
-> > guests, without the extra burden of a new command set specific virtio
-> > driver.
-> 
-> Trying to understand it.
-> Is it like below?
-> 
->   .------------------------.   MMIO   .---------------------------------------.
->   | Guest                  |--------> | Qemu                                  |
->   | Unmodified NVMe driver |<-------- | NVMe device simulation(eventfd based) |
->   '------------------------'          '---------------------------------------'
->                                                   |          ^
->                                       write NVMe  |          |  notify command
->                                       command     |          |  completion
->                                       to eventfd  |          |  to eventfd
->                                                   v          |
->                                       .--------------------------------------.
->                                       | Host:                                |
->                                       | eventfd based LIO NVMe fabric driver |
->                                       '--------------------------------------'
->                                                         |
->                                                         | nvme_queue_rq()
->                                                         v
->                                        .--------------------------------------.
->                                        | NVMe driver                          |
->                                        '--------------------------------------'
->                                                         |
->                                                         |
->                                                         v
->                                        .-------------------------------------.
->                                        | NVMe device                         |
->                                        '-------------------------------------'
-> 
+The following changes since commit 997e120843e82609c8d99a9d5714e6cf91e14cbe:
 
-Correct.  The LIO driver on KVM host would be handling some amount of
-NVMe host interface emulation in kernel code, and would be able to
-decode nvme Read/Write/Flush operations and translate -> submit to
-existing backend drivers.
+  virtio_balloon: do not change memory amount visible via /proc/meminfo (2015-09-08 13:32:11 +0300)
 
-As with the nvme-over-fabric case, it would be possible to do a mapping
-between backend driver queue resources for real NVMe hardware (eg:
-target_core_nvme), but since it would still be doing close to the same
-amount of software emulation for both backend driver cases, I wouldn't
-expect there to be much performance advantage over just using normal
-submit_bio().
+are available in the git repository at:
 
---nab
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to ad2aa04218de9bd734d593adb0ac59854ec0cb68:
+
+  virtio/s390: handle failures of READ_VQ_CONF ccw (2015-09-16 12:48:08 +0300)
+
+----------------------------------------------------------------
+virtio: fixes on top of 4.3-rc1
+
+This fixes the virtio-test tool, and improves
+the error handling for virtio-ccw.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Michael S. Tsirkin (3):
+      tools/virtio: fix build after 4.2 changes
+      vhost: move features to core
+      tools/virtio: propagate V=X to kernel build
+
+Pierre Morel (1):
+      virtio/s390: handle failures of READ_VQ_CONF ccw
+
+ drivers/vhost/vhost.h            |  4 +++-
+ tools/virtio/asm/barrier.h       |  2 ++
+ tools/virtio/linux/export.h      |  3 +++
+ tools/virtio/linux/kernel.h      |  8 ++++++++
+ drivers/s390/virtio/virtio_ccw.c | 10 +++++++++-
+ drivers/vhost/net.c              |  3 +--
+ drivers/vhost/scsi.c             |  4 +---
+ drivers/vhost/test.c             |  3 +++
+ tools/virtio/Makefile            |  2 +-
+ 9 files changed, 31 insertions(+), 8 deletions(-)
+ create mode 100644 tools/virtio/linux/export.h
