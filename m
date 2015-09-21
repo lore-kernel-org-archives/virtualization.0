@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v2 1/6] virtio-gpu: add virtio_gpu_queue_ctrl_buffer_locked
-Date: Mon, 21 Sep 2015 11:40:12 +0200
-Message-ID: <1442828417-6165-2-git-send-email-kraxel__12520.3332318508$1442828446$gmane$org@redhat.com>
+Subject: [PATCH v2 3/6] virtio-gpu: wait for cursor updates finish
+Date: Mon, 21 Sep 2015 11:40:14 +0200
+Message-ID: <1442828417-6165-4-git-send-email-kraxel__34931.7390624948$1442828449$gmane$org@redhat.com>
 References: <1442828417-6165-1-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,62 +21,24 @@ To: dri-devel@redhat.com
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add virtio_gpu_queue_ctrl_buffer_locked function, which does the same as
-virtio_gpu_queue_ctrl_buffer but does not take the virtqueue lock.  The
-caller must hold the lock instead.
-
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_vq.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_display.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 1698669f..5b9bc24 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -293,8 +293,8 @@ void virtio_gpu_dequeue_cursor_func(struct work_struct *work)
- 	wake_up(&vgdev->cursorq.ack_queue);
- }
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index 4e160ef..97e5274 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -90,6 +90,9 @@ static int virtio_gpu_crtc_cursor_set(struct drm_crtc *crtc,
+ 					   cpu_to_le32(64),
+ 					   cpu_to_le32(64),
+ 					   0, 0, &fence);
++	reservation_object_add_excl_fence(qobj->tbo.resv,
++					  &fence->f);
++	virtio_gpu_object_wait(qobj, false);
  
--static int virtio_gpu_queue_ctrl_buffer(struct virtio_gpu_device *vgdev,
--					struct virtio_gpu_vbuffer *vbuf)
-+static int virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
-+					       struct virtio_gpu_vbuffer *vbuf)
- {
- 	struct virtqueue *vq = vgdev->ctrlq.vq;
- 	struct scatterlist *sgs[3], vcmd, vout, vresp;
-@@ -320,7 +320,6 @@ static int virtio_gpu_queue_ctrl_buffer(struct virtio_gpu_device *vgdev,
- 		incnt++;
- 	}
- 
--	spin_lock(&vgdev->ctrlq.qlock);
- retry:
- 	ret = virtqueue_add_sgs(vq, sgs, outcnt, incnt, vbuf, GFP_ATOMIC);
- 	if (ret == -ENOSPC) {
-@@ -331,13 +330,23 @@ retry:
- 	} else {
- 		virtqueue_kick(vq);
- 	}
--	spin_unlock(&vgdev->ctrlq.qlock);
- 
- 	if (!ret)
- 		ret = vq->num_free;
- 	return ret;
- }
- 
-+static int virtio_gpu_queue_ctrl_buffer(struct virtio_gpu_device *vgdev,
-+					struct virtio_gpu_vbuffer *vbuf)
-+{
-+	int rc;
-+
-+	spin_lock(&vgdev->ctrlq.qlock);
-+	rc = virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
-+	spin_unlock(&vgdev->ctrlq.qlock);
-+	return rc;
-+}
-+
- static int virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
- 				   struct virtio_gpu_vbuffer *vbuf)
- {
+ 	output->cursor.hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_UPDATE_CURSOR);
+ 	output->cursor.resource_id = cpu_to_le32(qobj->hw_res_handle);
 -- 
 1.8.3.1
