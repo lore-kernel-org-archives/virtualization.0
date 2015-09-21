@@ -1,8 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v2 2/6] virtio-gpu: add & use
-	virtio_gpu_queue_fenced_ctrl_buffer
-Date: Mon, 21 Sep 2015 11:40:13 +0200
-Message-ID: <1442828417-6165-3-git-send-email-kraxel__45602.8127148331$1442828463$gmane$org@redhat.com>
+Subject: [PATCH v2 6/6] virtio-gpu: mark as a render gpu
+Date: Mon, 21 Sep 2015 11:40:17 +0200
+Message-ID: <1442828417-6165-7-git-send-email-kraxel__16957.1404149339$1442828467$gmane$org@redhat.com>
 References: <1442828417-6165-1-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,96 +18,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: dri-devel@redhat.com
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add helper function to handle the submission of fenced control requests.
-Make sure we initialize the fence while holding the virtqueue lock, so
-requests can't be reordered.
+From: Dave Airlie <airlied@redhat.com>
+
+Also add DRM_RENDER_ALLOW to the ioctls.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_fence.c |  2 +-
- drivers/gpu/drm/virtio/virtgpu_vq.c    | 40 +++++++++++++++++++++++++++++-----
- 2 files changed, 35 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_drv.c   |  2 +-
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 18 +++++++++---------
+ 2 files changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_fence.c b/drivers/gpu/drm/virtio/virtgpu_fence.c
-index 1da6326..793ad9f 100644
---- a/drivers/gpu/drm/virtio/virtgpu_fence.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_fence.c
-@@ -81,7 +81,7 @@ int virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
- 	struct virtio_gpu_fence_driver *drv = &vgdev->fence_drv;
- 	unsigned long irq_flags;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+index 1245d09..e00298e 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.c
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+@@ -113,7 +113,7 @@ static const struct file_operations virtio_gpu_driver_fops = {
  
--	*fence = kmalloc(sizeof(struct virtio_gpu_fence), GFP_KERNEL);
-+	*fence = kmalloc(sizeof(struct virtio_gpu_fence), GFP_ATOMIC);
- 	if ((*fence) == NULL)
- 		return -ENOMEM;
  
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 5b9bc24..ee25e9a 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -347,6 +347,38 @@ static int virtio_gpu_queue_ctrl_buffer(struct virtio_gpu_device *vgdev,
- 	return rc;
- }
+ static struct drm_driver driver = {
+-	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME,
++	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME | DRIVER_RENDER,
+ 	.set_busid = drm_virtio_set_busid,
+ 	.load = virtio_gpu_driver_load,
+ 	.unload = virtio_gpu_driver_unload,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index d5c9e02..d297f38 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -540,33 +540,33 @@ copy_exit:
  
-+static int virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
-+					       struct virtio_gpu_vbuffer *vbuf,
-+					       struct virtio_gpu_ctrl_hdr *hdr,
-+					       struct virtio_gpu_fence **fence)
-+{
-+	struct virtqueue *vq = vgdev->ctrlq.vq;
-+	int rc;
-+
-+again:
-+	spin_lock(&vgdev->ctrlq.qlock);
-+
-+	/*
-+	 * Make sure we have enouth space in the virtqueue.  If not
-+	 * wait here until we have.
-+	 *
-+	 * Without that virtio_gpu_queue_ctrl_buffer_nolock might have
-+	 * to wait for free space, which can result in fence ids being
-+	 * submitted out-of-order.
-+	 */
-+	if (vq->num_free < 3) {
-+		spin_unlock(&vgdev->ctrlq.qlock);
-+		wait_event(vgdev->ctrlq.ack_queue, vq->num_free >= 3);
-+		goto again;
-+	}
-+
-+	if (fence)
-+		virtio_gpu_fence_emit(vgdev, hdr, fence);
-+	rc = virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
-+	spin_unlock(&vgdev->ctrlq.qlock);
-+	return rc;
-+}
-+
- static int virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
- 				   struct virtio_gpu_vbuffer *vbuf)
- {
-@@ -499,9 +531,7 @@ void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
- 	cmd_p->r.x = x;
- 	cmd_p->r.y = y;
+ struct drm_ioctl_desc virtio_gpu_ioctls[DRM_VIRTIO_NUM_IOCTLS] = {
+ 	DRM_IOCTL_DEF_DRV(VIRTGPU_MAP, virtio_gpu_map_ioctl,
+-			  DRM_AUTH|DRM_UNLOCKED),
++			  DRM_AUTH|DRM_UNLOCKED|DRM_RENDER_ALLOW),
  
--	if (fence)
--		virtio_gpu_fence_emit(vgdev, &cmd_p->hdr, fence);
--	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
-+	virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, &cmd_p->hdr, fence);
- }
+ 	DRM_IOCTL_DEF_DRV(VIRTGPU_EXECBUFFER, virtio_gpu_execbuffer_ioctl,
+-			  DRM_AUTH|DRM_UNLOCKED),
++			  DRM_AUTH|DRM_UNLOCKED|DRM_RENDER_ALLOW),
  
- static void
-@@ -524,9 +554,7 @@ virtio_gpu_cmd_resource_attach_backing(struct virtio_gpu_device *vgdev,
- 	vbuf->data_buf = ents;
- 	vbuf->data_size = sizeof(*ents) * nents;
+ 	DRM_IOCTL_DEF_DRV(VIRTGPU_GETPARAM, virtio_gpu_getparam_ioctl,
+-			  DRM_AUTH|DRM_UNLOCKED),
++			  DRM_AUTH|DRM_UNLOCKED|DRM_RENDER_ALLOW),
  
--	if (fence)
--		virtio_gpu_fence_emit(vgdev, &cmd_p->hdr, fence);
--	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
-+	virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, &cmd_p->hdr, fence);
- }
+ 	DRM_IOCTL_DEF_DRV(VIRTGPU_RESOURCE_CREATE,
+ 			  virtio_gpu_resource_create_ioctl,
+-			  DRM_AUTH|DRM_UNLOCKED),
++			  DRM_AUTH|DRM_UNLOCKED|DRM_RENDER_ALLOW),
  
- static void virtio_gpu_cmd_get_display_info_cb(struct virtio_gpu_device *vgdev,
+ 	DRM_IOCTL_DEF_DRV(VIRTGPU_RESOURCE_INFO, virtio_gpu_resource_info_ioctl,
+-			  DRM_AUTH|DRM_UNLOCKED),
++			  DRM_AUTH|DRM_UNLOCKED|DRM_RENDER_ALLOW),
+ 
+ 	/* make transfer async to the main ring? - no sure, can we
+ 	   thread these in the underlying GL */
+ 	DRM_IOCTL_DEF_DRV(VIRTGPU_TRANSFER_FROM_HOST,
+ 			  virtio_gpu_transfer_from_host_ioctl,
+-			  DRM_AUTH|DRM_UNLOCKED),
++			  DRM_AUTH|DRM_UNLOCKED|DRM_RENDER_ALLOW),
+ 	DRM_IOCTL_DEF_DRV(VIRTGPU_TRANSFER_TO_HOST,
+ 			  virtio_gpu_transfer_to_host_ioctl,
+-			  DRM_AUTH|DRM_UNLOCKED),
++			  DRM_AUTH|DRM_UNLOCKED|DRM_RENDER_ALLOW),
+ 
+ 	DRM_IOCTL_DEF_DRV(VIRTGPU_WAIT, virtio_gpu_wait_ioctl,
+-			  DRM_AUTH|DRM_UNLOCKED),
++			  DRM_AUTH|DRM_UNLOCKED|DRM_RENDER_ALLOW),
+ 
+ 	DRM_IOCTL_DEF_DRV(VIRTGPU_GET_CAPS, virtio_gpu_get_caps_ioctl,
+-			  DRM_AUTH|DRM_UNLOCKED),
++			  DRM_AUTH|DRM_UNLOCKED|DRM_RENDER_ALLOW),
+ };
 -- 
 1.8.3.1
