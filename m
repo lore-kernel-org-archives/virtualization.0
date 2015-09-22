@@ -1,17 +1,20 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Bjorn Helgaas via Virtualization
+	<virtualization@lists.linux-foundation.org>
 Subject: Re: [PATCH v7] pci: quirk to skip msi disable on shutdown
-Date: Tue, 22 Sep 2015 14:29:03 +0300
-Message-ID: <20150922131303-mutt-send-email-mst__4591.81487462974$1442921365$gmane$org@redhat.com>
+Date: Tue, 22 Sep 2015 07:36:40 -0500
+Message-ID: <20150922123640.GT25767@google.com>
 References: <1441553385-3810-1-git-send-email-mst@redhat.com>
 	<20150921182147.GC27964@google.com>
 	<20150921223622-mutt-send-email-mst@redhat.com>
 	<20150921221043.GR25767@google.com>
+	<20150922131303-mutt-send-email-mst@redhat.com>
+Reply-To: Bjorn Helgaas <bhelgaas@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20150921221043.GR25767@google.com>
+In-Reply-To: <20150922131303-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,121 +24,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bjorn Helgaas <bhelgaas@google.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Fam Zheng <famz@redhat.com>, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Ulrich Obergfell <uobergfe@redhat.com>, Yinghai Lu <yhlu.kernel.send@gmail.com>, "Eric W. Biederman" <ebiederm@xmission.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 21, 2015 at 05:10:43PM -0500, Bjorn Helgaas wrote:
-> On Mon, Sep 21, 2015 at 10:42:13PM +0300, Michael S. Tsirkin wrote:
-> > On Mon, Sep 21, 2015 at 01:21:47PM -0500, Bjorn Helgaas wrote:
-> > > On Sun, Sep 06, 2015 at 06:32:35PM +0300, Michael S. Tsirkin wrote:
-> > > > On some hypervisors, virtio devices tend to generate spurious inter=
-rupts
-> > > > when switching between MSI and non-MSI mode.  Normally, either MSI =
-or
-> > > > non-MSI is used and all is well, but during shutdown, linux disable=
-s MSI
-> > > > which then causes an "irq %d: nobody cared" message, with irq being
-> > > > subsequently disabled.
-> > > =
+On Tue, Sep 22, 2015 at 02:29:03PM +0300, Michael S. Tsirkin wrote:
+> On Mon, Sep 21, 2015 at 05:10:43PM -0500, Bjorn Helgaas wrote:
+> > On Mon, Sep 21, 2015 at 10:42:13PM +0300, Michael S. Tsirkin wrote:
+> > > On Mon, Sep 21, 2015 at 01:21:47PM -0500, Bjorn Helgaas wrote:
+> > > > On Sun, Sep 06, 2015 at 06:32:35PM +0300, Michael S. Tsirkin wrote:
+> > > > > On some hypervisors, virtio devices tend to generate spurious interrupts
+> > > > > when switching between MSI and non-MSI mode.  Normally, either MSI or
+> > > > > non-MSI is used and all is well, but during shutdown, linux disables MSI
+> > > > > which then causes an "irq %d: nobody cared" message, with irq being
+> > > > > subsequently disabled.
+> > > > 
+> > > > My understanding is:
+> > > > 
+> > > >   Linux disables MSI/MSI-X during device shutdown.  If the device
+> > > >   signals an interrupt after that, it may use INTx.
+> > > > 
+> > > > This INTx interrupt is not necessarily spurious.  Using INTx to signal an
+> > > > interrupt that occurs when MSI is disabled seems like reasonable behavior
+> > > > for any PCI device.
+> > > > And it doesn't seem related to switching between MSI and non-MSI mode.
+> > > > Yes, the INTx happens *after* disabling MSI, but it is not at all
+> > > > *because* we disabled MSI.  So I wouldn't say "they generate spurious
+> > > > interrupts when switching between MSI and non-MSI."
+> > > > 
+> > > > Why doesn't virtio-pci just register an INTx handler in addition to an MSI
+> > > > handler?
+> > > 
+> > > The handler causes an expensive exit to the hypervisor,
+> > > and the INTx lines are shared with other devices.
+> > 
+> > Do we care?  Is this a performance path?  I thought we were in a kexec
+> > shutdown path.
+> 
+> Yes but the handler would always have to be registered, right?
 
-> > > My understanding is:
-> > > =
+The pci_device_shutdown() path you're modifying calls drv->shutdown()
+immediately before disabling MSI, so I suppose you could register a
+handler in a virtio shutdown method.
 
-> > >   Linux disables MSI/MSI-X during device shutdown.  If the device
-> > >   signals an interrupt after that, it may use INTx.
-> > > =
+> > > Seems silly to slow them down just so we can do something
+> > > that triggers the device bug.  The bus master is disabled by that time,
+> > > if linux can just desist from touching MSI enable device won't
+> > > send either INTx (because MSI is on) or MSI
+> > > (because bus master is on) and all will be well.
+> > 
+> > It would also be silly to put special-purpose code in the PCI core
+> > if there's a reasonable way to handle this in a driver.
+> > 
+> > Can you describe exactly what the device bug is?  Apparently you're
+> > saying that if we shut down MSI, it triggers the bug?  And I guess
+> > you're talking about a virtio device as implemented in qemu or other
+> > hypervisors?
+> 
+> Yes. Basically depending on an internal device state, disabling MSI
+> sometimes wedges it.  The most easy to debug effect is if it starts
+> sending INTx interrupts, for which there's no handler currently.
+> Full system reset always gets us out of the bad state.
 
-> > > This INTx interrupt is not necessarily spurious.  Using INTx to signa=
-l an
-> > > interrupt that occurs when MSI is disabled seems like reasonable beha=
-vior
-> > > for any PCI device.
-> > > And it doesn't seem related to switching between MSI and non-MSI mode.
-> > > Yes, the INTx happens *after* disabling MSI, but it is not at all
-> > > *because* we disabled MSI.  So I wouldn't say "they generate spurious
-> > > interrupts when switching between MSI and non-MSI."
-> > > =
+If disabling MSI causes the device to use INTx interrupts, that sounds
+perfectly normal to me.
 
-> > > Why doesn't virtio-pci just register an INTx handler in addition to a=
-n MSI
-> > > handler?
-> > =
+If disabling MSI causes the device to hang, *that* sounds like a bug.
+Since this is virtio, we should be able to figure out exactly where
+that happens.  Do you have a pointer to a virtio bug report, or even a
+QEMU commit that fixes this virtio bug?
 
-> > The handler causes an expensive exit to the hypervisor,
-> > and the INTx lines are shared with other devices.
-> =
+I understand that even if there is a virtio fix in QEMU, we want a
+solution that works even with an old QEMU that doesn't contain the
+fix.  But a pointer to a QEMU fix would really help understand and
+document the Linux fix.
 
-> Do we care?  Is this a performance path?  I thought we were in a kexec
-> shutdown path.
-
-Yes but the handler would always have to be registered, right?
-
-> > Seems silly to slow them down just so we can do something
-> > that triggers the device bug.  The bus master is disabled by that time,
-> > if linux can just desist from touching MSI enable device won't
-> > send either INTx (because MSI is on) or MSI
-> > (because bus master is on) and all will be well.
-> =
-
-> It would also be silly to put special-purpose code in the PCI core
-> if there's a reasonable way to handle this in a driver.
-> =
-
-> Can you describe exactly what the device bug is?  Apparently you're
-> saying that if we shut down MSI, it triggers the bug?  And I guess
-> you're talking about a virtio device as implemented in qemu or other
-> hypervisors?
-
-Yes. Basically depending on an internal device state, disabling MSI
-sometimes wedges it.  The most easy to debug effect is if it starts
-sending INTx interrupts, for which there's no handler currently.
-Full system reset always gets us out of the bad state.
-
-
-> If we leave MSI enabled (as your patch does), then the device has MSI
-> enabled and Bus Master disabled.  I can see these possibilities:
-> =
-
->   1) the device never recognizes an interrupt condition
-> =A0 2) the device sets the pending bit but doesn't issue the MSI write,
->      so the OS doesn't see the interrupt unless it polls for it
-> =A0 3) the device signals MSI and we still have=A0an MSI handler
->      registered, so we silently handle it
->   4) the device signals INTx
-> You seem to suggest that if we leave MSI enabled (as your patch does),
-> we're in case 1.  But I doubt that disabling MSI causes the device to
-> interrupt.
-> =
-
-> Case 2 seems more likely to me: the device recognized an interrupt
-> condition, e.g., an event occurred, and the OS simply doesn't see the
-> interrupt because the device can't issue the MSI message.
-> =
-
-> Case 3 does seem like it would be a device bug, because the device
-> shouldn't do an MSI write when Bus Master is disabled.  I don't see
-> this case mentioned explicitly in the PCI spec, but PCIe r3.0 spec sec
-> 7.5.1.1 does make it clear that disabling Bus Master also disables MSI
-> messages.
-> =
-
-> I don't know whether case 4 would be legal or not.  But apparently it
-> doesn't happen with the virtio device anyway, so it's not really a
-> concern here.
-> =
-
-> Bjorn
-
-It's case 2. Except it doesn't actually set the pending
-bit, because PCI spec has language like
-
-	"While a vector is masked, the function is prohibited from sending the
-	associated message, and the function must set the associated Pending bit"
-
-but doesn't actually require to set pending if bus master enable
-prevents sending MSI.
-
--- =
-
-MST
+Bjorn
