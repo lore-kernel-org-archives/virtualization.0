@@ -1,15 +1,17 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH v2 5/6] virtio-gpu: add basic prime support
-Date: Tue, 22 Sep 2015 11:40:27 +0200
-Message-ID: <20150922094027.GF3383__19758.6453556598$1442914682$gmane$org@phenom.ffwll.local>
-References: <1442828417-6165-1-git-send-email-kraxel@redhat.com>
-	<1442828417-6165-6-git-send-email-kraxel@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v7] pci: quirk to skip msi disable on shutdown
+Date: Tue, 22 Sep 2015 14:29:03 +0300
+Message-ID: <20150922131303-mutt-send-email-mst__4591.81487462974$1442921365$gmane$org@redhat.com>
+References: <1441553385-3810-1-git-send-email-mst@redhat.com>
+	<20150921182147.GC27964@google.com>
+	<20150921223622-mutt-send-email-mst@redhat.com>
+	<20150921221043.GR25767@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1442828417-6165-6-git-send-email-kraxel@redhat.com>
+In-Reply-To: <20150921221043.GR25767@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,186 +21,121 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Dave Airlie <airlied@redhat.com>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <dri-devel@lists.freedesktop.org>, dri-devel@redhat.com
+To: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Fam Zheng <famz@redhat.com>, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Ulrich Obergfell <uobergfe@redhat.com>, Yinghai Lu <yhlu.kernel.send@gmail.com>, "Eric W. Biederman" <ebiederm@xmission.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 21, 2015 at 11:40:16AM +0200, Gerd Hoffmann wrote:
-> From: Dave Airlie <airlied@redhat.com>
-> 
-> This is enough to enable DRI3.
-> 
-> Signed-off-by: Dave Airlie <airlied@redhat.com>
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> ---
->  drivers/gpu/drm/virtio/Makefile        |  2 +-
->  drivers/gpu/drm/virtio/virtgpu_drv.c   | 13 +++++-
->  drivers/gpu/drm/virtio/virtgpu_drv.h   | 12 ++++++
->  drivers/gpu/drm/virtio/virtgpu_prime.c | 72 ++++++++++++++++++++++++++++++++++
->  4 files changed, 97 insertions(+), 2 deletions(-)
->  create mode 100644 drivers/gpu/drm/virtio/virtgpu_prime.c
-> 
-> diff --git a/drivers/gpu/drm/virtio/Makefile b/drivers/gpu/drm/virtio/Makefile
-> index da7bf19..3fb8eac 100644
-> --- a/drivers/gpu/drm/virtio/Makefile
-> +++ b/drivers/gpu/drm/virtio/Makefile
-> @@ -7,6 +7,6 @@ ccflags-y := -Iinclude/drm
->  virtio-gpu-y := virtgpu_drv.o virtgpu_kms.o virtgpu_drm_bus.o virtgpu_gem.o \
->  	virtgpu_fb.o virtgpu_display.o virtgpu_vq.o virtgpu_ttm.o \
->  	virtgpu_fence.o virtgpu_object.o virtgpu_debugfs.o virtgpu_plane.o \
-> -	virtgpu_ioctl.o
-> +	virtgpu_ioctl.o virtgpu_prime.o
->  
->  obj-$(CONFIG_DRM_VIRTIO_GPU) += virtio-gpu.o
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> index 957e455..1245d09 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> @@ -113,7 +113,7 @@ static const struct file_operations virtio_gpu_driver_fops = {
->  
->  
->  static struct drm_driver driver = {
-> -	.driver_features = DRIVER_MODESET | DRIVER_GEM,
-> +	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME,
->  	.set_busid = drm_virtio_set_busid,
->  	.load = virtio_gpu_driver_load,
->  	.unload = virtio_gpu_driver_unload,
-> @@ -128,6 +128,17 @@ static struct drm_driver driver = {
->  	.debugfs_init = virtio_gpu_debugfs_init,
->  	.debugfs_cleanup = virtio_gpu_debugfs_takedown,
->  #endif
-> +	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
-> +	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
-> +	.gem_prime_export = drm_gem_prime_export,
-> +	.gem_prime_import = drm_gem_prime_import,
-> +	.gem_prime_pin = virtgpu_gem_prime_pin,
-> +	.gem_prime_unpin = virtgpu_gem_prime_unpin,
-> +	.gem_prime_get_sg_table = virtgpu_gem_prime_get_sg_table,
-> +	.gem_prime_import_sg_table = virtgpu_gem_prime_import_sg_table,
-> +	.gem_prime_vmap = virtgpu_gem_prime_vmap,
-> +	.gem_prime_vunmap = virtgpu_gem_prime_vunmap,
-> +	.gem_prime_mmap = virtgpu_gem_prime_mmap,
->  
->  	.gem_free_object = virtio_gpu_gem_free_object,
->  	.gem_open_object = virtio_gpu_gem_object_open,
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> index 2719108..79f0abe 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> @@ -359,6 +359,18 @@ int virtio_gpu_object_get_sg_table(struct virtio_gpu_device *qdev,
->  void virtio_gpu_object_free_sg_table(struct virtio_gpu_object *bo);
->  int virtio_gpu_object_wait(struct virtio_gpu_object *bo, bool no_wait);
->  
-> +/* virtgpu_prime.c */
-> +int virtgpu_gem_prime_pin(struct drm_gem_object *obj);
-> +void virtgpu_gem_prime_unpin(struct drm_gem_object *obj);
-> +struct sg_table *virtgpu_gem_prime_get_sg_table(struct drm_gem_object *obj);
-> +struct drm_gem_object *virtgpu_gem_prime_import_sg_table(
-> +        struct drm_device *dev, struct dma_buf_attachment *attach,
-> +        struct sg_table *sgt);
-> +void *virtgpu_gem_prime_vmap(struct drm_gem_object *obj);
-> +void virtgpu_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr);
-> +int virtgpu_gem_prime_mmap(struct drm_gem_object *obj,
-> +                                struct vm_area_struct *vma);
-> +
->  static inline struct virtio_gpu_object*
->  virtio_gpu_object_ref(struct virtio_gpu_object *bo)
->  {
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_prime.c b/drivers/gpu/drm/virtio/virtgpu_prime.c
-> new file mode 100644
-> index 0000000..724c231
-> --- /dev/null
-> +++ b/drivers/gpu/drm/virtio/virtgpu_prime.c
-> @@ -0,0 +1,72 @@
-> +/*
-> + * Copyright 2014 Canonical
-> + *
-> + * Permission is hereby granted, free of charge, to any person obtaining a
-> + * copy of this software and associated documentation files (the "Software"),
-> + * to deal in the Software without restriction, including without limitation
-> + * the rights to use, copy, modify, merge, publish, distribute, sublicense,
-> + * and/or sell copies of the Software, and to permit persons to whom the
-> + * Software is furnished to do so, subject to the following conditions:
-> + *
-> + * The above copyright notice and this permission notice shall be included in
-> + * all copies or substantial portions of the Software.
-> + *
-> + * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-> + * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-> + * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-> + * THE COPYRIGHT HOLDER(S) OR AUTHOR(S) BE LIABLE FOR ANY CLAIM, DAMAGES OR
-> + * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-> + * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-> + * OTHER DEALINGS IN THE SOFTWARE.
-> + *
-> + * Authors: Andreas Pokorny
-> + */
-> +
-> +#include "virtgpu_drv.h"
-> +
-> +/* Empty Implementations as there should not be any other driver for a virtual
-> + * device that might share buffers with virtgpu */
-> +
-> +int virtgpu_gem_prime_pin(struct drm_gem_object *obj)
-> +{
-> +	WARN_ONCE(1, "not implemented");
-> +	return -ENOSYS;
-> +}
-> +
-> +void virtgpu_gem_prime_unpin(struct drm_gem_object *obj)
-> +{
-> +	WARN_ONCE(1, "not implemented");
-> +}
-> +
-> +
-> +struct sg_table *virtgpu_gem_prime_get_sg_table(struct drm_gem_object *obj)
-> +{
-> +	WARN_ONCE(1, "not implemented");
-> +	return ERR_PTR(-ENOSYS);
-> +}
-> +
-> +struct drm_gem_object *virtgpu_gem_prime_import_sg_table(
-> +	struct drm_device *dev, struct dma_buf_attachment *attach,
-> +	struct sg_table *table)
-> +{
-> +	WARN_ONCE(1, "not implemented");
-> +	return ERR_PTR(-ENOSYS);
-> +}
-> +
-> +void *virtgpu_gem_prime_vmap(struct drm_gem_object *obj)
-> +{
-> +	WARN_ONCE(1, "not implemented");
-> +	return ERR_PTR(-ENOSYS);
-> +}
-> +
-> +void virtgpu_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr)
-> +{
-> +	WARN_ONCE(1, "not implemented");
-> +}
-> +
-> +int virtgpu_gem_prime_mmap(struct drm_gem_object *obj,
-> +		       struct vm_area_struct *area)
-> +{
-> +	WARN_ONCE(1, "not implemented");
-> +	return ENOSYS;
+On Mon, Sep 21, 2015 at 05:10:43PM -0500, Bjorn Helgaas wrote:
+> On Mon, Sep 21, 2015 at 10:42:13PM +0300, Michael S. Tsirkin wrote:
+> > On Mon, Sep 21, 2015 at 01:21:47PM -0500, Bjorn Helgaas wrote:
+> > > On Sun, Sep 06, 2015 at 06:32:35PM +0300, Michael S. Tsirkin wrote:
+> > > > On some hypervisors, virtio devices tend to generate spurious inter=
+rupts
+> > > > when switching between MSI and non-MSI mode.  Normally, either MSI =
+or
+> > > > non-MSI is used and all is well, but during shutdown, linux disable=
+s MSI
+> > > > which then causes an "irq %d: nobody cared" message, with irq being
+> > > > subsequently disabled.
+> > > =
 
-This can get called by userspace, so please don't WARN here. Also missing
-negate sign:
+> > > My understanding is:
+> > > =
 
-	return -ENOSYS;
+> > >   Linux disables MSI/MSI-X during device shutdown.  If the device
+> > >   signals an interrupt after that, it may use INTx.
+> > > =
 
-Cheers, Daniel
+> > > This INTx interrupt is not necessarily spurious.  Using INTx to signa=
+l an
+> > > interrupt that occurs when MSI is disabled seems like reasonable beha=
+vior
+> > > for any PCI device.
+> > > And it doesn't seem related to switching between MSI and non-MSI mode.
+> > > Yes, the INTx happens *after* disabling MSI, but it is not at all
+> > > *because* we disabled MSI.  So I wouldn't say "they generate spurious
+> > > interrupts when switching between MSI and non-MSI."
+> > > =
 
-> +}
-> -- 
-> 1.8.3.1
-> 
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> http://lists.freedesktop.org/mailman/listinfo/dri-devel
+> > > Why doesn't virtio-pci just register an INTx handler in addition to a=
+n MSI
+> > > handler?
+> > =
 
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+> > The handler causes an expensive exit to the hypervisor,
+> > and the INTx lines are shared with other devices.
+> =
+
+> Do we care?  Is this a performance path?  I thought we were in a kexec
+> shutdown path.
+
+Yes but the handler would always have to be registered, right?
+
+> > Seems silly to slow them down just so we can do something
+> > that triggers the device bug.  The bus master is disabled by that time,
+> > if linux can just desist from touching MSI enable device won't
+> > send either INTx (because MSI is on) or MSI
+> > (because bus master is on) and all will be well.
+> =
+
+> It would also be silly to put special-purpose code in the PCI core
+> if there's a reasonable way to handle this in a driver.
+> =
+
+> Can you describe exactly what the device bug is?  Apparently you're
+> saying that if we shut down MSI, it triggers the bug?  And I guess
+> you're talking about a virtio device as implemented in qemu or other
+> hypervisors?
+
+Yes. Basically depending on an internal device state, disabling MSI
+sometimes wedges it.  The most easy to debug effect is if it starts
+sending INTx interrupts, for which there's no handler currently.
+Full system reset always gets us out of the bad state.
+
+
+> If we leave MSI enabled (as your patch does), then the device has MSI
+> enabled and Bus Master disabled.  I can see these possibilities:
+> =
+
+>   1) the device never recognizes an interrupt condition
+> =A0 2) the device sets the pending bit but doesn't issue the MSI write,
+>      so the OS doesn't see the interrupt unless it polls for it
+> =A0 3) the device signals MSI and we still have=A0an MSI handler
+>      registered, so we silently handle it
+>   4) the device signals INTx
+> You seem to suggest that if we leave MSI enabled (as your patch does),
+> we're in case 1.  But I doubt that disabling MSI causes the device to
+> interrupt.
+> =
+
+> Case 2 seems more likely to me: the device recognized an interrupt
+> condition, e.g., an event occurred, and the OS simply doesn't see the
+> interrupt because the device can't issue the MSI message.
+> =
+
+> Case 3 does seem like it would be a device bug, because the device
+> shouldn't do an MSI write when Bus Master is disabled.  I don't see
+> this case mentioned explicitly in the PCI spec, but PCIe r3.0 spec sec
+> 7.5.1.1 does make it clear that disabling Bus Master also disables MSI
+> messages.
+> =
+
+> I don't know whether case 4 would be legal or not.  But apparently it
+> doesn't happen with the virtio device anyway, so it's not really a
+> concern here.
+> =
+
+> Bjorn
+
+It's case 2. Except it doesn't actually set the pending
+bit, because PCI spec has language like
+
+	"While a vector is masked, the function is prohibited from sending the
+	associated message, and the function must set the associated Pending bit"
+
+but doesn't actually require to set pending if bus master enable
+prevents sending MSI.
+
+-- =
+
+MST
