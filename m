@@ -1,22 +1,17 @@
-From: Bjorn Helgaas via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: Re: [PATCH v7] pci: quirk to skip msi disable on shutdown
-Date: Tue, 22 Sep 2015 10:46:24 -0500
-Message-ID: <20150922154624.GF27964@google.com>
-References: <1441553385-3810-1-git-send-email-mst@redhat.com>
-	<20150921182147.GC27964@google.com>
-	<20150921223622-mutt-send-email-mst@redhat.com>
-	<20150921221043.GR25767@google.com>
-	<20150922131303-mutt-send-email-mst@redhat.com>
-	<20150922123640.GT25767@google.com>
-	<20150922164107-mutt-send-email-mst@redhat.com>
-Reply-To: Bjorn Helgaas <bhelgaas@google.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH v2 5/6] virtio-gpu: add basic prime support
+Date: Tue, 22 Sep 2015 18:15:44 +0200
+Message-ID: <20150922161544.GY3383@phenom.ffwll.local>
+References: <1442828417-6165-1-git-send-email-kraxel@redhat.com>
+	<1442828417-6165-6-git-send-email-kraxel@redhat.com>
+	<20150922094027.GF3383@phenom.ffwll.local>
+	<1442935469.13084.36.camel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20150922164107-mutt-send-email-mst@redhat.com>
+In-Reply-To: <1442935469.13084.36.camel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,71 +21,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Fam Zheng <famz@redhat.com>, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Ulrich Obergfell <uobergfe@redhat.com>, Yinghai Lu <yhlu.kernel.send@gmail.com>, "Eric W. Biederman" <ebiederm@xmission.com>, virtualization@lists.linux-foundation.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Dave Airlie <airlied@redhat.com>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, dri-devel <dri-devel@lists.freedesktop.org>, Daniel Vetter <daniel@ffwll.ch>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Sep 22, 2015 at 05:07:19PM +0300, Michael S. Tsirkin wrote:
-> On Tue, Sep 22, 2015 at 07:36:40AM -0500, Bjorn Helgaas wrote:
-> > On Tue, Sep 22, 2015 at 02:29:03PM +0300, Michael S. Tsirkin wrote:
-> > > On Mon, Sep 21, 2015 at 05:10:43PM -0500, Bjorn Helgaas wrote:
-
-> > > > Can you describe exactly what the device bug is?  Apparently you're
-> > > > saying that if we shut down MSI, it triggers the bug?  And I guess
-> > > > you're talking about a virtio device as implemented in qemu or other
-> > > > hypervisors?
-> > > 
-> > > Yes. Basically depending on an internal device state, disabling MSI
-> > > sometimes wedges it.  The most easy to debug effect is if it starts
-> > > sending INTx interrupts, for which there's no handler currently.
-> > > Full system reset always gets us out of the bad state.
+On Tue, Sep 22, 2015 at 05:24:29PM +0200, Gerd Hoffmann wrote:
+> > > +int virtgpu_gem_prime_mmap(struct drm_gem_object *obj,
+> > > +		       struct vm_area_struct *area)
+> > > +{
+> > > +	WARN_ONCE(1, "not implemented");
+> > > +	return ENOSYS;
 > > 
-> > If disabling MSI causes the device to use INTx interrupts, that sounds
-> > perfectly normal to me.
+> > This can get called by userspace, so please don't WARN here. Also missing
+> > negate sign:
 > > 
-> > If disabling MSI causes the device to hang, *that* sounds like a bug.
-> > Since this is virtio, we should be able to figure out exactly where
-> > that happens.  Do you have a pointer to a virtio bug report, or even a
-> > QEMU commit that fixes this virtio bug?
-> > 
-> > I understand that even if there is a virtio fix in QEMU, we want a
-> > solution that works even with an old QEMU that doesn't contain the
-> > fix.  But a pointer to a QEMU fix would really help understand and
-> > document the Linux fix.
+> > 	return -ENOSYS;
 > 
-> I'm not sure we ever understood it completely.
+> Hmm now checkpatch throws a warning at me:
 > 
-> I think some of it has to do with the way the whole virtio 0
-> device register layout changes when you enable/disable MSI.  So should
-> be ok when using the modern virtio 1 model since we fixed this thing.
+> <quote>
+>    WARNING: ENOSYS means 'invalid syscall nr' and nothing else
+>    #12: FILE: drivers/gpu/drm/virtio/virtgpu_prime.c:70:
+>    +       return -ENOSYS;
+> </quote>
+> 
+> I guess I should use something else then (here and elsewhere in the
+> file)?  Maybe -EINVAL?  Other suggestions?
 
-If you know that:
+-ENODEV is what we occasionally pick. drm is fairly creative at errno
+abuse, e.g. we already use -ENOENT to signal any kind of lookup failure in
+ioctls (even if the fd itself is obviously there so not possible that the
+fd isn't there).
 
-  - pci_device_shutdown() disables MSI,
-  - disabling MSI changes the virtio register layout, and
-  - the driver may touch the device after pci_device_shutdown(),
-
-it seems like you might want a virtio shutdown method so you can
-find out when the register layout changes.  Changing the register
-layout sounds completely broken, and dealing with it sounds racy, but
-it sounds like a mess that should be handled by the driver.
-
-> I was hoping that since disabling MSI in pci core is only useful as a
-> work-around (for devices with a broken bus master enable - even though I
-> don't think we know what these are exactly), a flag for not disabling it
-> won't be held to such a high standard.
-
-Well, I suppose you see the problem with adding workarounds on top of
-workarounds, especially when we don't have a clear understanding of
-why we need them.  The "disable MSI on shutdown" code was added here:
-
-http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=d52877c7b1af
-
-and there is no information in that patch about it being a workaround
-for devices with broken bus master enable.
-
-The cumulative effect of stuff like this is that it becomes impossible
-to do any meaningful restructuring in the core without breaking some
-corner case.
-
-Bjorn
+Cheers, Daniel
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
