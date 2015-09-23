@@ -1,13 +1,13 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] Fix AF_PACKET ABI breakage in 4.2
-Date: Wed, 23 Sep 2015 11:09:26 -0700 (PDT)
-Message-ID: <20150923.110926.1369752430685358746.davem__2316.63314993984$1443031800$gmane$org@davemloft.net>
-References: <1443019470.74600.6.camel@infradead.org>
+From: "Ergin, Mesut A" <mesut.a.ergin@intel.com>
+Subject: RE: [opnfv-tech-discuss] RFC: virtio-peer shared memory based peer
+	communication device
+Date: Wed, 23 Sep 2015 18:53:50 +0000
+Message-ID: <3615B82CA151CF42A86EDDD9846A8B3873C09259@ORSMSX112.amr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1443019470.74600.6.camel@infradead.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,14 +17,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dwmw2@infradead.org
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-api@vger.kernel.org
+To: Claudio Fontana <claudio.fontana@huawei.com>, "Zhang, Yang Z" <yang.z.zhang@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "opnfv-tech-discuss@lists.opnfv.org" <opnfv-tech-discuss@lists.opnfv.org>
+Cc: Jan Kiszka <jan.kiszka@siemens.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: David Woodhouse <dwmw2@infradead.org>
-Date: Wed, 23 Sep 2015 15:44:30 +0100
+On 18/09/2015 18:29, Claudio Fontana wrote:
+ 
+> The Virtio Peer shared memory communication device (virtio-peer) is a
+> virtual device which allows high performance low latency guest to guest
+> communication. It uses a new queue extension feature tentatively called
+> VIRTIO_F_WINDOW which indicates that descriptor tables, available and
+> used rings and Queue Data reside in physical memory ranges called
+> Windows, each identified with an unique identifier called WindowID.
+> 
 
-> +#define VIO_LE virtio_legacy_is_little_endian()
+Should we consider virtio-peer a pair-wise created device for two guests, 
+where sending side driver is operating receive side virtqueue to drop
+packets directly? Do you have some architectural description of how
+guests are expected to use virtio-peer? Thanks.
 
-When you define a shorthand macro, the defines to a function call,
-make the macro have parenthesis too.
+Mesut
