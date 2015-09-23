@@ -1,17 +1,13 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH v2 5/6] virtio-gpu: add basic prime support
-Date: Tue, 22 Sep 2015 18:15:44 +0200
-Message-ID: <20150922161544.GY3383@phenom.ffwll.local>
-References: <1442828417-6165-1-git-send-email-kraxel@redhat.com>
-	<1442828417-6165-6-git-send-email-kraxel@redhat.com>
-	<20150922094027.GF3383@phenom.ffwll.local>
-	<1442935469.13084.36.camel@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] Fix AF_PACKET ABI breakage in 4.2
+Date: Wed, 23 Sep 2015 11:09:26 -0700 (PDT)
+Message-ID: <20150923.110926.1369752430685358746.davem__2316.63314993984$1443031800$gmane$org@davemloft.net>
+References: <1443019470.74600.6.camel@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1442935469.13084.36.camel@redhat.com>
+In-Reply-To: <1443019470.74600.6.camel@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,40 +17,14 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Dave Airlie <airlied@redhat.com>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, dri-devel <dri-devel@lists.freedesktop.org>, Daniel Vetter <daniel@ffwll.ch>, open list <linux-kernel@vger.kernel.org>
+To: dwmw2@infradead.org
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-api@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Sep 22, 2015 at 05:24:29PM +0200, Gerd Hoffmann wrote:
-> > > +int virtgpu_gem_prime_mmap(struct drm_gem_object *obj,
-> > > +		       struct vm_area_struct *area)
-> > > +{
-> > > +	WARN_ONCE(1, "not implemented");
-> > > +	return ENOSYS;
-> > 
-> > This can get called by userspace, so please don't WARN here. Also missing
-> > negate sign:
-> > 
-> > 	return -ENOSYS;
-> 
-> Hmm now checkpatch throws a warning at me:
-> 
-> <quote>
->    WARNING: ENOSYS means 'invalid syscall nr' and nothing else
->    #12: FILE: drivers/gpu/drm/virtio/virtgpu_prime.c:70:
->    +       return -ENOSYS;
-> </quote>
-> 
-> I guess I should use something else then (here and elsewhere in the
-> file)?  Maybe -EINVAL?  Other suggestions?
+From: David Woodhouse <dwmw2@infradead.org>
+Date: Wed, 23 Sep 2015 15:44:30 +0100
 
--ENODEV is what we occasionally pick. drm is fairly creative at errno
-abuse, e.g. we already use -ENOENT to signal any kind of lookup failure in
-ioctls (even if the fd itself is obviously there so not possible that the
-fd isn't there).
+> +#define VIO_LE virtio_legacy_is_little_endian()
 
-Cheers, Daniel
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+When you define a shorthand macro, the defines to a function call,
+make the macro have parenthesis too.
