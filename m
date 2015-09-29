@@ -1,22 +1,11 @@
-From: Hannes Reinecke <hare@suse.de>
-Subject: Re: [RFC PATCH 0/2] virtio nvme
-Date: Mon, 28 Sep 2015 07:58:48 +0200
-Message-ID: <5608D718.7050708__35958.6936458529$1443419952$gmane$org@suse.de>
-References: <1441864112-12765-1-git-send-email-mlin@kernel.org>	
-	<CAJSP0QUmtgoh23G3u64xRnBbJkAoO19AEi=vkyPPyg9n9jqC2Q@mail.gmail.com>	
-	<1441906098.18716.21.camel@ssi>	
-	<1442470241.23132.77.camel@haakon3.risingtidesystems.com>	
-	<1442532687.4750.6.camel@ssi>	
-	<1442537752.11959.35.camel@haakon3.risingtidesystems.com>	
-	<1442599957.11660.8.camel@ssi>	
-	<1442610544.10492.33.camel@haakon3.risingtidesystems.com>	
-	<1443049097.28503.13.camel@ssi>
-	<1443330116.15432.57.camel@haakon3.risingtidesystems.com>
+From: "Maria Lemos" <marialemos72@gmail.com>
+Subject: Call for Papers - WorldCIST'15 - Proceedings by Springer
+Date: Tue, 29 Sep 2015 20:02:39 +0100
+Message-ID: <20150929190247.2EA91C12@mail.linuxfoundation.org>
+Reply-To: worldcist@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============2290053873252618134=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1443330116.15432.57.camel@haakon3.risingtidesystems.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,34 +15,205 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>, Ming Lin <mlin@kernel.org>
-Cc: "Minturn, Dave B" <dave.b.minturn@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-nvme@lists.infradead.org, Linux Virtualization <virtualization@lists.linux-foundation.org>, target-devel <target-devel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMDkvMjcvMjAxNSAwNzowMSBBTSwgTmljaG9sYXMgQS4gQmVsbGluZ2VyIHdyb3RlOgo+IE9u
-IFdlZCwgMjAxNS0wOS0yMyBhdCAxNTo1OCAtMDcwMCwgTWluZyBMaW4gd3JvdGU6Cj4+IE9uIEZy
-aSwgMjAxNS0wOS0xOCBhdCAxNDowOSAtMDcwMCwgTmljaG9sYXMgQS4gQmVsbGluZ2VyIHdyb3Rl
-Ogo+Pj4gT24gRnJpLCAyMDE1LTA5LTE4IGF0IDExOjEyIC0wNzAwLCBNaW5nIExpbiB3cm90ZToK
-Pj4+PiBPbiBUaHUsIDIwMTUtMDktMTcgYXQgMTc6NTUgLTA3MDAsIE5pY2hvbGFzIEEuIEJlbGxp
-bmdlciB3cm90ZToKPiAKPiA8U05JUD4KPiAKCjxFdmVuIG1vcmUgU05JUD4KCj4gCj4gQnR3LCBh
-ZnRlciBjaGF0dGluZyB3aXRoIERyLiBIYW5uZXMgdGhpcyB3ZWVrIGF0IFNEQyBoZXJlIGFyZSBo
-aXMKPiBvcmlnaW5hbCBydHMtbWVnYXNhcyAtdjYgcGF0Y2hlcyBmcm9tIEZlYiAyMDEzLgo+IAo+
-IE5vdGUgdGhleSBhcmUgc3RhbmRhbG9uZSBwYXRjaGVzIHRoYXQgcmVxdWlyZSBhIHN1ZmZpY2ll
-bnRseSBvbGQgZW5vdWdoCj4gTElPICsgUUVNVSB0byBhY3R1YWxseSBidWlsZCArIGZ1bmN0aW9u
-Lgo+IAo+IGh0dHBzOi8vZ2l0aHViLmNvbS9EYXRlcmEvcnRzLW1lZ2FzYXMvYmxvYi9tYXN0ZXIv
-cnRzX21lZ2FzYXMtcWVtdS12Ni5wYXRjaAo+IGh0dHBzOi8vZ2l0aHViLmNvbS9EYXRlcmEvcnRz
-LW1lZ2FzYXMvYmxvYi9tYXN0ZXIvcnRzX21lZ2FzYXMtZmFicmljLXY2LnBhdGNoCj4gCj4gRm9y
-IGdyb2tpbmcgcHVycG9zZXMsIHRoZXkgZGVtb25zdHJhdGUgdGhlIHByaW5jaXBsZSBkZXNpZ24g
-Zm9yIGEgaG9zdAo+IGtlcm5lbCBsZXZlbCBkcml2ZXIsIGFsb25nIHdpdGggdGhlIG1lZ2FzYXMg
-ZmlybXdhcmUgaW50ZXJmYWNlIChNRkkpCj4gc3BlY2lmaWMgZW11bGF0aW9uIG1hZ2ljIHRoYXQg
-bWFrZXMgdXAgdGhlIGJ1bGsgb2YgdGhlIGNvZGUuCj4gCkFuZCBpbmRlZWQsIE5pYyBwZXJzdWFk
-ZWQgbWUgdG8gaGF2ZSB0aGVtIHVwZGF0ZWQgdG8gcWVtdSBsYXRlc3QuCldoaWNoIEknbGwgYmUg
-ZG9pbmcgc2hvcnRseS4gU3RheSB0dW5lZC4KCkNoZWVycywKCkhhbm5lcwotLSAKRHIuIEhhbm5l
-cyBSZWluZWNrZQkJICAgICAgICAgICAgICAgelNlcmllcyAmIFN0b3JhZ2UKaGFyZUBzdXNlLmRl
-CQkJICAgICAgICAgICAgICAgKzQ5IDkxMSA3NDA1MyA2ODgKU1VTRSBMSU5VWCBHbWJILCBNYXhm
-ZWxkc3RyLiA1LCA5MDQwOSBOw7xybmJlcmcKR0Y6IEYuIEltZW5kw7ZyZmZlciwgSi4gU21pdGhh
-cmQsIEouIEd1aWxkLCBELiBVcG1hbnl1LCBHLiBOb3J0b24KSFJCIDIxMjg0IChBRyBOw7xybmJl
-cmcpCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
-YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
-aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
-by92aXJ0dWFsaXphdGlvbg==
+--===============2290053873252618134==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+--
+-- We apologise for any cross-posting.
+--
+---- Please forward for your contacts. Thank you so much!
+--
+
+
+---------
+WorldCIST'16 - 4th World Conference on Information Systems and Technol=
+ogies=20
+Recife, PE, Brazil
+22th-24th of March 2016
+http://www.aisti.eu/worldcist16/
+-------------------------------------------
+
+
+SCOPE
+
+The WorldCist'16 - 4th World Conference on Information Systems and Tec=
+hnologies, to be held at Recife, PE, Brazil, 22 - 24 March 2016, is a =
+global forum for researchers and practitioners to present and discuss =
+the most recent innovations, trends, results, experiences and concerns=
+ in the several perspectives of Information Systems and Technologies.
+
+We are pleased to invite you to submit your papers to WorldCist'16. Al=
+l submissions will be reviewed on the basis of relevance, originality,=
+ importance and clarity.
+
+
+THEMES
+
+Submitted papers should be related with one or more of the main themes=
+ proposed for the Conference:
+
+A) Information and Knowledge Management (IKM);
+B) Organizational Models and Information Systems (OMIS);
+C) Software and Systems Modeling (SSM);
+D) Software Systems, Architectures, Applications and Tools (SSAAT);
+E) Multimedia Systems and Applications (MSA);
+F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
+G) Intelligent and Decision Support Systems (IDSS);
+H) Big Data Analytics and Applications (BDAA);
+I) Human-Computer Interaction (HCI);
+J) Health Informatics (HIS);
+K) Information Technologies in Education (ITE);
+L) Information Technologies in Radiocommunications (ITR).
+
+
+TYPES OF SUBMISSIONS AND DECISIONS
+
+Four types of papers can be submitted:
+
+- Full paper: Finished or consolidated R&D works, to be included in on=
+e of the Conference themes. These papers are assigned a 10-page limit.
+
+- Short paper: Ongoing works with relevant preliminary results, open t=
+o discussion. These papers are assigned a 7-page limit.
+
+-Poster paper: Initial work with relevant ideas, open to discussion. T=
+hese papers are assigned to a 4-page limit.
+
+- Company paper: Companies' papers that show practical experience, R &=
+ D, tools, etc., focused on some topics of the conference. These paper=
+s are assigned to a 4-page limit.
+
+Submitted papers must comply with the format of Advances in Intelligen=
+t Systems and Computing Series (see Instructions for Authors at Spring=
+er Website or download a DOC example) be written in English, must not =
+have been published before, not be under review for any other conferen=
+ce or publication and not include any information leading to the autho=
+rs=92 identification. Therefore, the authors=92 names, affiliations an=
+d bibliographic references should not be included in the version for e=
+valuation by the Program Committee. This information should only be in=
+cluded in the camera-ready version, saved in Word or Latex format and =
+also in PDF format. These files must be accompanied by the Consent to =
+Publication form filled out, in a ZIP file, and uploaded at the confer=
+ence management system.
+
+All papers will be subjected to a =93double-blind review=94 by at leas=
+t two members of the Program Committee.
+
+Based on Program Committee evaluation, a paper can be rejected or acce=
+pted by the Conference Chairs. In the later case, it can be accepted a=
+s the type originally submitted or as another type. Thus, full papers =
+can be accepted as short papers or poster papers only. Similarly, shor=
+t papers can be accepted as poster papers only. In these cases, the au=
+thors will be allowed to maintain the original number of pages in the =
+camera-ready version.
+
+The authors of accepted poster papers must also build and print a post=
+er to be exhibited during the Conference. This poster must follow an A=
+1 or A2 vertical format. The Conference can includes Work Sessions whe=
+re these posters are presented and orally discussed, with a 5 minute l=
+imit per poster.
+
+The authors of accepted full papers will have 15 minutes to present th=
+eir work in a Conference Work Session; approximately 5 minutes of disc=
+ussion will follow each presentation. The authors of accepted short pa=
+pers and company papers will have 11 minutes to present their work in =
+a Conference Work Session; approximately 4 minutes of discussion will =
+follow each presentation.
+
+
+PUBLICATION AND INDEXING
+
+To ensure that a full paper, short paper, poster paper or company pape=
+r is published in the Proceedings, at least one of the authors must be=
+ fully registered by the 27th of December 2015, and the paper must com=
+ply with the suggested layout and page-limit. Additionally, all recomm=
+ended changes must be addressed by the authors before they submit the =
+camera-ready version.
+
+No more than one paper per registration will be published in the Confe=
+rence Proceedings. An extra fee must be paid for publication of additi=
+onal papers, with a maximum of one additional paper per registration.
+
+Full and short papers will be published in Proceedings by Springer, in=
+ a book of Advances in Intelligent Systems and Computing series. Poste=
+r and company papers will be published by AISTI.
+
+Published full and short papers will be submitted for indexation by IS=
+I, EI-Compendex, SCOPUS and DBLP, among others, and will be available =
+in the SpringerLink Digital Library.
+
+The authors of the best selected papers will be invited to extend them=
+ for publication in international journals indexed by ISI/SCI, SCOPUS =
+and DBLP, among others, such as:
+
+- International Journal of Neural Systems (IF: 6.507)
+- Integrated Computer-Aided Engineering (IF: 4.698)
+- Computers in Human Behavior (IF: 2.694)
+- Journal of Medical Systems (IF: 2.213)
+- International Journal of Computer-Supported Collaborative Learning (=
+IF: 1.841)
+- Journal of Intelligent & Fuzzy Systems (IF: 1.812)
+- Telemedicine and e-Health (IF: 1.668)
+- International Journal of Information Management (IF: 1.550)
+- Engineering Computations (IF: 1.495)
+- Electronic Commerce Research and Applications (IF: 1.482)
+- Telematics and Informatics (IF: 1.120)
+- Journal of Evaluation in Clinical Practice (IF: 1.084)
+- Ethics and Information Technology (IF: 1.021)
+- Int. Journal of Computers Communications & Control (IF: 0.746)
+- IET Software (IF: 0.595)
+- Knowledge Management Research & Practice (IF: 0.554)
+- AI Communications (IF: 0.547)
+- Computing and Informatics (IF: 0.504)
+- Universal Access in the Information Society (IF: 0.475)
+- Journal of Global Information Management (IF: 0.424)
+- Journal of Internet Services and Applications (SJR: 0.88)
+- Journal of Hospitality and Tourism Technology (SJR: 0.41)
+- VINE - The Journal of Information and Knowledge Management Systems (=
+SJR: 0.24)
+- International Journal of Online Engineering (SJR: 0.21)
+- Int. Journal of Emerging Technologies in Learning (SJR: 0.12)
+- Computer Methods in Biomechanics and Biomedical Engineering: Imaging=
+ & Visualization
+
+
+IMPORTANT DATES
+
+Paper Submission: October 31, 2015
+
+Notification of Acceptance: December 13, 2015
+
+Payment of Registration, to ensure the inclusion of an accepted paper =
+in the conference proceedings: December 27, 2015.
+
+Camera-ready Submission: December 31, 2015
+
+
+-
+
+WorldCIST'16
+http://www.aisti.eu/worldcist16/
+
+
+
+
+
+
+
+
+
+--===============2290053873252618134==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============2290053873252618134==--
