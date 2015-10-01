@@ -1,17 +1,18 @@
 From: "Thomas D." <whissi@whissi.de>
 Subject: Re: req->nr_phys_segments > queue_max_segments (was Re: kernel BUG at
 	drivers/block/virtio_blk.c:172!)
-Date: Thu, 1 Oct 2015 15:36:28 +0200
-Message-ID: <560D36DC.5050205__38310.4878398173$1443710289$gmane$org@whissi.de>
+Date: Thu, 1 Oct 2015 17:35:58 +0200
+Message-ID: <560D52DE.3020303__7631.70443610779$1443713780$gmane$org@whissi.de>
 References: <560C87F6.4080708@whissi.de>
 	<20151001114817-mutt-send-email-mst@redhat.com>
 	<560CFAD3.1030607@suse.de>
 	<CAMM=eLcyT2JeWn4NJ6gjsHcRz_D8YcixLix64Spg9cVYFexGyA@mail.gmail.com>
+	<560D36DC.5050205@whissi.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAMM=eLcyT2JeWn4NJ6gjsHcRz_D8YcixLix64Spg9cVYFexGyA@mail.gmail.com>
+In-Reply-To: <560D36DC.5050205@whissi.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,17 +28,24 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Hi,
 
-Mike Snitzer wrote:
-> This particular dm-crypt on virtio-blk issue is fixed with this commit:
-> http://git.kernel.org/linus/586b286b110e94eb31840ac5afc0c24e0881fe34
-> 
-> Linus pulled this into v4.3-rc3.
+seems like we have two problems:
 
-I have this patch applied to linux-4.1.9. This could be the reason why I
-don't see the issue on boot with linux-4.1.9.
+The first (origin) problem seems to be already fixed by Mike's patch.
 
-So is the freeze I am experiencing with linux-4.1.9 another issue
-introduced with linux-4.1.9 or another symptom/regression? Any idea?
+I applied the patch against linux-4.1.8, rebooted several times without
+a problem. But I'll keep testing for sure.
+
+
+The second problem is a new bug within linux-4.1.9: I experience the
+
+> NMI watchdog: BUG: soft lockup - CPU#3 stuck for 23s!
+
+freeze now on all my systems (virtual machines *and* physical systems;
+Gentoo boxes, Debian boxes, with and without dm (LUKS), with XFS or ext4
+-- looks like a general problem). I will post it to LKML itself (I don't
+have a trace about what's hanging).
+
+Thanks for all your time and help!
 
 
 -Thomas
