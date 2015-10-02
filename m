@@ -1,18 +1,13 @@
-From: "Thomas D." <whissi@whissi.de>
-Subject: Re: req->nr_phys_segments > queue_max_segments (was Re: kernel BUG at
-	drivers/block/virtio_blk.c:172!)
-Date: Thu, 1 Oct 2015 18:06:19 +0200
-Message-ID: <560D59FB.7020501__28887.4364494861$1443715600$gmane$org@whissi.de>
-References: <560C87F6.4080708@whissi.de>
-	<20151001114817-mutt-send-email-mst@redhat.com>
-	<560CFAD3.1030607@suse.de>
-	<CAMM=eLcyT2JeWn4NJ6gjsHcRz_D8YcixLix64Spg9cVYFexGyA@mail.gmail.com>
-	<560D36DC.5050205@whissi.de> <560D52DE.3020303@whissi.de>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH v3 1/7] virtio-gpu: add virtio_gpu_queue_ctrl_buffer_locked
+Date: Fri,  2 Oct 2015 13:58:18 +0200
+Message-ID: <1443787104-24243-2-git-send-email-kraxel__6007.0168030963$1443787139$gmane$org@redhat.com>
+References: <1443787104-24243-1-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <560D52DE.3020303@whissi.de>
+In-Reply-To: <1443787104-24243-1-git-send-email-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,23 +17,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mike Snitzer <snitzer@redhat.com>, Hannes Reinecke <hare@suse.de>
-Cc: Jens Axboe <axboe@kernel.dk>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>, "linux-scsi@vger.kernel.org" <Linux-scsi@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, =?UTF-8?q?Marc-Andr=C3=A9=20Lureau?= <marcandre.lureau@gmail.com>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi
+Add virtio_gpu_queue_ctrl_buffer_locked function, which does the same as
+virtio_gpu_queue_ctrl_buffer but does not take the virtqueue lock.  The
+caller must hold the lock instead.
 
-> seems like we have two problems:
-> 
-> The first (origin) problem seems to be already fixed by Mike's patch.
-> 
-> I applied the patch against linux-4.1.8, rebooted several times without
-> a problem. But I'll keep testing for sure.
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_vq.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-I already experienced one freeze with linux-4.1.8 and Mike's patch (same
-like in 4.1.9). Doesn't mean that this is related to Mike's patch (I see
-the same freezes with vanilla 4.1.9 not containing the patch with a
-higher frequency).
-
-
--Thomas
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 1698669f..5b9bc24 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -293,8 +293,8 @@ void virtio_gpu_dequeue_cursor_func(struct work_struct *work)
+ 	wake_up(&vgdev->cursorq.ack_queue);
+ }
+ 
+-static int virtio_gpu_queue_ctrl_buffer(struct virtio_gpu_device *vgdev,
+-					struct virtio_gpu_vbuffer *vbuf)
++static int virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
++					       struct virtio_gpu_vbuffer *vbuf)
+ {
+ 	struct virtqueue *vq = vgdev->ctrlq.vq;
+ 	struct scatterlist *sgs[3], vcmd, vout, vresp;
+@@ -320,7 +320,6 @@ static int virtio_gpu_queue_ctrl_buffer(struct virtio_gpu_device *vgdev,
+ 		incnt++;
+ 	}
+ 
+-	spin_lock(&vgdev->ctrlq.qlock);
+ retry:
+ 	ret = virtqueue_add_sgs(vq, sgs, outcnt, incnt, vbuf, GFP_ATOMIC);
+ 	if (ret == -ENOSPC) {
+@@ -331,13 +330,23 @@ retry:
+ 	} else {
+ 		virtqueue_kick(vq);
+ 	}
+-	spin_unlock(&vgdev->ctrlq.qlock);
+ 
+ 	if (!ret)
+ 		ret = vq->num_free;
+ 	return ret;
+ }
+ 
++static int virtio_gpu_queue_ctrl_buffer(struct virtio_gpu_device *vgdev,
++					struct virtio_gpu_vbuffer *vbuf)
++{
++	int rc;
++
++	spin_lock(&vgdev->ctrlq.qlock);
++	rc = virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
++	spin_unlock(&vgdev->ctrlq.qlock);
++	return rc;
++}
++
+ static int virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
+ 				   struct virtio_gpu_vbuffer *vbuf)
+ {
+-- 
+1.8.3.1
