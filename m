@@ -1,16 +1,18 @@
 From: Roman Kagan <rkagan@virtuozzo.com>
 Subject: Re: [PATCH 1/2] kvm/x86: Hyper-V synthetic interrupt controller
-Date: Fri, 9 Oct 2015 18:53:09 +0300
-Message-ID: <20151009155307.GU27239__4311.50305453247$1444649897$gmane$org@rkaganb.sw.ru>
+Date: Mon, 12 Oct 2015 14:05:56 +0300
+Message-ID: <20151012110554.GA2586__16435.8529415496$1444649909$gmane$org@rkaganb.sw.ru>
 References: <1444397988-20167-1-git-send-email-den@openvz.org>
 	<1444397988-20167-2-git-send-email-den@openvz.org>
-	<5617D259.8070101@redhat.com>
+	<5617D259.8070101@redhat.com> <561B6741.8080309@de.ibm.com>
+	<20151012104848.396407b9.cornelia.huck@de.ibm.com>
+	<561B763C.9050907@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <5617D259.8070101@redhat.com>
+In-Reply-To: <561B763C.9050907@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,31 +23,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Gleb Natapov <gleb@kernel.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Andrey Smetanin <asmetanin@virtuozzo.com>, "Denis V. Lunev" <den@openvz.org>, Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: Gleb Natapov <gleb@kernel.org>, Andrey Smetanin <asmetanin@virtuozzo.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, "Denis V. Lunev" <den@openvz.org>, Vitaly Kuznetsov <vkuznets@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Oct 09, 2015 at 04:42:33PM +0200, Paolo Bonzini wrote:
-> You need to add SYNIC vectors to the EOI exit bitmap, so that APICv
-> (Xeon E5 or higher, Ivy Bridge or newer) is handled correctly.  You also
-> need to check the auto EOI exit bitmap in __apic_accept_irq, and avoid
-> going through kvm_x86_ops->deliver_posted_interrupt for auto EOI
-> vectors.  Something like
+On Mon, Oct 12, 2015 at 10:58:36AM +0200, Paolo Bonzini wrote:
+> On 12/10/2015 10:48, Cornelia Huck wrote:
+> > Going back to Paolo's original question, I think changing the check
+> > to !KVM_IRQ_ROUTING_IRQCHIP makes sense, if I understand the code
+> > correctly. They seem to be the only special one.
 > 
-> 	if (kvm_x86_ops->deliver_posted_interrupt &&
-> 	    !test_bit(...))
-> 
-> in place of the existing "if (kvm_x86_ops->deliver_posted_interrupt)".
+> Great.  Roman, Denis, can you do this then?
 
-Indeed, missed that path, thanks!
+Sure, gonna be in the next round.
 
-> I really don't like this auto-EOI extension, but I guess that's the
-> spec. :( If it wasn't for it, you could do everything very easily in
-> userspace using Google's proposed MSR exit.
-
-I guess you're right.  We'd probably have to (ab)use MSI for SINT
-delivery, though.  Anyway the need to implement auto-EOI rules that out.
-
-Thanks for the quick review, we'll try to address your comments in the
-next round.
-
+Thanks,
 Roman.
