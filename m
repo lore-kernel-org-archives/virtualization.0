@@ -1,7 +1,7 @@
 From: "Denis V. Lunev" <den@openvz.org>
-Subject: [PATCH 3/9] kvm/eventfd: add arch-specific set_irq
-Date: Fri, 16 Oct 2015 10:07:47 +0300
-Message-ID: <1444979273-6587-4-git-send-email-den__44552.7786775076$1444979338$gmane$org@openvz.org>
+Subject: [PATCH 4/9] kvm/irqchip: allow only multiple irqchip routes per GSI
+Date: Fri, 16 Oct 2015 10:07:48 +0300
+Message-ID: <1444979273-6587-5-git-send-email-den__31746.881400659$1444979345$gmane$org@openvz.org>
 References: <1444979273-6587-1-git-send-email-den@openvz.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,11 +22,8 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Andrey Smetanin <asmetanin@virtuozzo.com>
 
-Allow for arch-specific interrupt types to be set.  For that, add
-kvm_arch_set_irq() which takes interrupt type-specific action if it
-recognizes the interrupt type given, and -EWOULDBLOCK otherwise.
-
-The default implementation always returns -EWOULDBLOCK.
+Any other irq routing types (MSI, S390_ADAPTER, upcoming Hyper-V
+SynIC) map one-to-one to GSI.
 
 Signed-off-by: Andrey Smetanin <asmetanin@virtuozzo.com>
 Reviewed-by: Roman Kagan <rkagan@virtuozzo.com>
@@ -36,55 +33,27 @@ CC: "K. Y. Srinivasan" <kys@microsoft.com>
 CC: Gleb Natapov <gleb@kernel.org>
 CC: Paolo Bonzini <pbonzini@redhat.com>
 ---
- include/linux/kvm_host.h |  4 ++++
- virt/kvm/eventfd.c       | 13 ++++++++++++-
- 2 files changed, 16 insertions(+), 1 deletion(-)
+ virt/kvm/irqchip.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index b66861c..eba9cae 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -828,6 +828,10 @@ int kvm_set_irq(struct kvm *kvm, int irq_source_id, u32 irq, int level,
- int kvm_set_irq_inatomic(struct kvm *kvm, int irq_source_id, u32 irq, int level);
- int kvm_set_msi(struct kvm_kernel_irq_routing_entry *irq_entry, struct kvm *kvm,
- 		int irq_source_id, int level, bool line_status);
-+
-+int kvm_arch_set_irq(struct kvm_kernel_irq_routing_entry *irq, struct kvm *kvm,
-+		     int irq_source_id, int level, bool line_status);
-+
- bool kvm_irq_has_notifier(struct kvm *kvm, unsigned irqchip, unsigned pin);
- void kvm_notify_acked_gsi(struct kvm *kvm, int gsi);
- void kvm_notify_acked_irq(struct kvm *kvm, unsigned irqchip, unsigned pin);
-diff --git a/virt/kvm/eventfd.c b/virt/kvm/eventfd.c
-index f6b986a..e29fd26 100644
---- a/virt/kvm/eventfd.c
-+++ b/virt/kvm/eventfd.c
-@@ -171,6 +171,15 @@ irqfd_deactivate(struct kvm_kernel_irqfd *irqfd)
- 	queue_work(irqfd_cleanup_wq, &irqfd->shutdown);
- }
+diff --git a/virt/kvm/irqchip.c b/virt/kvm/irqchip.c
+index 716a1c4..f0b08a2 100644
+--- a/virt/kvm/irqchip.c
++++ b/virt/kvm/irqchip.c
+@@ -144,11 +144,11 @@ static int setup_routing_entry(struct kvm_irq_routing_table *rt,
  
-+int __attribute__((weak)) kvm_arch_set_irq(
-+				struct kvm_kernel_irq_routing_entry *irq,
-+				struct kvm *kvm, int irq_source_id,
-+				int level,
-+				bool line_status)
-+{
-+	return -EWOULDBLOCK;
-+}
-+
- /*
-  * Called with wqh->lock held and interrupts disabled
-  */
-@@ -195,7 +204,9 @@ irqfd_wakeup(wait_queue_t *wait, unsigned mode, int sync, void *key)
- 		if (irq.type == KVM_IRQ_ROUTING_MSI)
- 			kvm_set_msi(&irq, kvm, KVM_USERSPACE_IRQ_SOURCE_ID, 1,
- 					false);
--		else
-+		else if (kvm_arch_set_irq(&irq, kvm,
-+					  KVM_USERSPACE_IRQ_SOURCE_ID, 1,
-+					  false) == -EWOULDBLOCK)
- 			schedule_work(&irqfd->inject);
- 		srcu_read_unlock(&kvm->irq_srcu, idx);
- 	}
+ 	/*
+ 	 * Do not allow GSI to be mapped to the same irqchip more than once.
+-	 * Allow only one to one mapping between GSI and MSI.
++	 * Allow only one to one mapping between GSI and non-irqchip routing.
+ 	 */
+ 	hlist_for_each_entry(ei, &rt->map[ue->gsi], link)
+-		if (ei->type == KVM_IRQ_ROUTING_MSI ||
+-		    ue->type == KVM_IRQ_ROUTING_MSI ||
++		if (ei->type != KVM_IRQ_ROUTING_IRQCHIP ||
++		    ue->type != KVM_IRQ_ROUTING_IRQCHIP ||
+ 		    ue->u.irqchip.irqchip == ei->irqchip.irqchip)
+ 			return r;
+ 
 -- 
 2.1.4
