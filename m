@@ -1,7 +1,7 @@
 From: "Denis V. Lunev" <den@openvz.org>
-Subject: [PATCH 2/9] kvm/eventfd: factor out kvm_notify_acked_gsi()
-Date: Fri, 16 Oct 2015 10:07:46 +0300
-Message-ID: <1444979273-6587-3-git-send-email-den__11752.9703923084$1444979319$gmane$org@openvz.org>
+Subject: [PATCH 3/9] kvm/eventfd: add arch-specific set_irq
+Date: Fri, 16 Oct 2015 10:07:47 +0300
+Message-ID: <1444979273-6587-4-git-send-email-den__44552.7786775076$1444979338$gmane$org@openvz.org>
 References: <1444979273-6587-1-git-send-email-den@openvz.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,10 +22,11 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Andrey Smetanin <asmetanin@virtuozzo.com>
 
-Factor out kvm_notify_acked_gsi() helper to iterate over EOI listeners
-and notify those matching the given gsi.
+Allow for arch-specific interrupt types to be set.  For that, add
+kvm_arch_set_irq() which takes interrupt type-specific action if it
+recognizes the interrupt type given, and -EWOULDBLOCK otherwise.
 
-It will be reused in the upcoming Hyper-V SynIC implementation.
+The default implementation always returns -EWOULDBLOCK.
 
 Signed-off-by: Andrey Smetanin <asmetanin@virtuozzo.com>
 Reviewed-by: Roman Kagan <rkagan@virtuozzo.com>
@@ -35,57 +36,55 @@ CC: "K. Y. Srinivasan" <kys@microsoft.com>
 CC: Gleb Natapov <gleb@kernel.org>
 CC: Paolo Bonzini <pbonzini@redhat.com>
 ---
- include/linux/kvm_host.h |  1 +
- virt/kvm/eventfd.c       | 16 +++++++++++-----
- 2 files changed, 12 insertions(+), 5 deletions(-)
+ include/linux/kvm_host.h |  4 ++++
+ virt/kvm/eventfd.c       | 13 ++++++++++++-
+ 2 files changed, 16 insertions(+), 1 deletion(-)
 
 diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 9596a2f..b66861c 100644
+index b66861c..eba9cae 100644
 --- a/include/linux/kvm_host.h
 +++ b/include/linux/kvm_host.h
-@@ -829,6 +829,7 @@ int kvm_set_irq_inatomic(struct kvm *kvm, int irq_source_id, u32 irq, int level)
+@@ -828,6 +828,10 @@ int kvm_set_irq(struct kvm *kvm, int irq_source_id, u32 irq, int level,
+ int kvm_set_irq_inatomic(struct kvm *kvm, int irq_source_id, u32 irq, int level);
  int kvm_set_msi(struct kvm_kernel_irq_routing_entry *irq_entry, struct kvm *kvm,
  		int irq_source_id, int level, bool line_status);
++
++int kvm_arch_set_irq(struct kvm_kernel_irq_routing_entry *irq, struct kvm *kvm,
++		     int irq_source_id, int level, bool line_status);
++
  bool kvm_irq_has_notifier(struct kvm *kvm, unsigned irqchip, unsigned pin);
-+void kvm_notify_acked_gsi(struct kvm *kvm, int gsi);
+ void kvm_notify_acked_gsi(struct kvm *kvm, int gsi);
  void kvm_notify_acked_irq(struct kvm *kvm, unsigned irqchip, unsigned pin);
- void kvm_register_irq_ack_notifier(struct kvm *kvm,
- 				   struct kvm_irq_ack_notifier *kian);
 diff --git a/virt/kvm/eventfd.c b/virt/kvm/eventfd.c
-index 518421e..f6b986a 100644
+index f6b986a..e29fd26 100644
 --- a/virt/kvm/eventfd.c
 +++ b/virt/kvm/eventfd.c
-@@ -451,9 +451,18 @@ bool kvm_irq_has_notifier(struct kvm *kvm, unsigned irqchip, unsigned pin)
+@@ -171,6 +171,15 @@ irqfd_deactivate(struct kvm_kernel_irqfd *irqfd)
+ 	queue_work(irqfd_cleanup_wq, &irqfd->shutdown);
  }
- EXPORT_SYMBOL_GPL(kvm_irq_has_notifier);
  
--void kvm_notify_acked_irq(struct kvm *kvm, unsigned irqchip, unsigned pin)
-+void kvm_notify_acked_gsi(struct kvm *kvm, int gsi)
- {
- 	struct kvm_irq_ack_notifier *kian;
-+
-+	hlist_for_each_entry_rcu(kian, &kvm->irq_ack_notifier_list,
-+				 link)
-+		if (kian->gsi == gsi)
-+			kian->irq_acked(kian);
++int __attribute__((weak)) kvm_arch_set_irq(
++				struct kvm_kernel_irq_routing_entry *irq,
++				struct kvm *kvm, int irq_source_id,
++				int level,
++				bool line_status)
++{
++	return -EWOULDBLOCK;
 +}
 +
-+void kvm_notify_acked_irq(struct kvm *kvm, unsigned irqchip, unsigned pin)
-+{
- 	int gsi, idx;
- 
- 	trace_kvm_ack_irq(irqchip, pin);
-@@ -461,10 +470,7 @@ void kvm_notify_acked_irq(struct kvm *kvm, unsigned irqchip, unsigned pin)
- 	idx = srcu_read_lock(&kvm->irq_srcu);
- 	gsi = kvm_irq_map_chip_pin(kvm, irqchip, pin);
- 	if (gsi != -1)
--		hlist_for_each_entry_rcu(kian, &kvm->irq_ack_notifier_list,
--					 link)
--			if (kian->gsi == gsi)
--				kian->irq_acked(kian);
-+		kvm_notify_acked_gsi(kvm, gsi);
- 	srcu_read_unlock(&kvm->irq_srcu, idx);
- }
- 
+ /*
+  * Called with wqh->lock held and interrupts disabled
+  */
+@@ -195,7 +204,9 @@ irqfd_wakeup(wait_queue_t *wait, unsigned mode, int sync, void *key)
+ 		if (irq.type == KVM_IRQ_ROUTING_MSI)
+ 			kvm_set_msi(&irq, kvm, KVM_USERSPACE_IRQ_SOURCE_ID, 1,
+ 					false);
+-		else
++		else if (kvm_arch_set_irq(&irq, kvm,
++					  KVM_USERSPACE_IRQ_SOURCE_ID, 1,
++					  false) == -EWOULDBLOCK)
+ 			schedule_work(&irqfd->inject);
+ 		srcu_read_unlock(&kvm->irq_srcu, idx);
+ 	}
 -- 
 2.1.4
