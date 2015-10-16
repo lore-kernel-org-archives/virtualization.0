@@ -1,7 +1,7 @@
 From: "Denis V. Lunev" <den@openvz.org>
-Subject: [PATCH 7/9] kvm/x86: split ioapic-handled and EOI exit bitmaps
-Date: Fri, 16 Oct 2015 10:07:51 +0300
-Message-ID: <1444979273-6587-8-git-send-email-den__29562.4033817605$1444979375$gmane$org@openvz.org>
+Subject: [PATCH 9/9] kvm/x86: Hyper-V kvm exit
+Date: Fri, 16 Oct 2015 10:07:53 +0300
+Message-ID: <1444979273-6587-10-git-send-email-den__18648.71788207$1444979398$gmane$org@openvz.org>
 References: <1444979273-6587-1-git-send-email-den@openvz.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,191 +22,174 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Andrey Smetanin <asmetanin@virtuozzo.com>
 
-The function to determine if the vector is handled by ioapic used to
-rely on the fact that only ioapic-handled vectors were set up to
-cause vmexits when virtual apic was in use.
-
-We're going to break this assumption when introducing Hyper-V
-synthetic interrupts: they may need to cause vmexits too.
-
-To achieve that, introduce a new bitmap dedicated specifically for
-ioapic-handled vectors, and populate EOI exit bitmap from it for now.
+A new vcpu exit is introduced to notify the userspace of the
+changes in Hyper-V SynIC configuration triggered by guest writing to the
+corresponding MSRs.
 
 Signed-off-by: Andrey Smetanin <asmetanin@virtuozzo.com>
-Reviewed-by: Roman Kagan <rkagan@virtuozzo.com>
+Reviewed-by: Roman Kagan <rkagan@virtiozzo.com>
 Signed-off-by: Denis V. Lunev <den@openvz.org>
 CC: Vitaly Kuznetsov <vkuznets@redhat.com>
 CC: "K. Y. Srinivasan" <kys@microsoft.com>
 CC: Gleb Natapov <gleb@kernel.org>
 CC: Paolo Bonzini <pbonzini@redhat.com>
 ---
- arch/x86/include/asm/kvm_host.h |  4 ++--
- arch/x86/kvm/ioapic.c           |  4 ++--
- arch/x86/kvm/ioapic.h           |  7 ++++---
- arch/x86/kvm/irq_comm.c         |  6 +++---
- arch/x86/kvm/lapic.c            |  2 +-
- arch/x86/kvm/svm.c              |  2 +-
- arch/x86/kvm/vmx.c              |  3 +--
- arch/x86/kvm/x86.c              | 12 +++++++-----
- 8 files changed, 21 insertions(+), 19 deletions(-)
+ Documentation/virtual/kvm/api.txt |  6 ++++++
+ arch/x86/include/asm/kvm_host.h   |  1 +
+ arch/x86/kvm/hyperv.c             | 17 +++++++++++++++++
+ arch/x86/kvm/x86.c                |  6 ++++++
+ include/linux/kvm_host.h          |  1 +
+ include/uapi/linux/kvm.h          | 17 +++++++++++++++++
+ 6 files changed, 48 insertions(+)
 
+diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
+index 092ee9f..86cae88 100644
+--- a/Documentation/virtual/kvm/api.txt
++++ b/Documentation/virtual/kvm/api.txt
+@@ -3331,6 +3331,12 @@ the userspace IOAPIC should process the EOI and retrigger the interrupt if
+ it is still asserted.  Vector is the LAPIC interrupt vector for which the
+ EOI was received.
+ 
++		/* KVM_EXIT_HYPERV */
++                struct kvm_hyperv_exit hyperv;
++Indicates that the VCPU exits into userspace to process some tasks
++related with Hyper-V emulation. Currently used to synchronize modified
++Hyper-V SynIC state with userspace.
++
+ 		/* Fix the size of the union. */
+ 		char padding[256];
+ 	};
 diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index 53deb27..07f7cd7 100644
+index dfdaf0f..a41d7ed 100644
 --- a/arch/x86/include/asm/kvm_host.h
 +++ b/arch/x86/include/asm/kvm_host.h
-@@ -400,7 +400,7 @@ struct kvm_vcpu_arch {
- 	u64 efer;
- 	u64 apic_base;
- 	struct kvm_lapic *apic;    /* kernel irqchip context */
--	u64 eoi_exit_bitmap[4];
-+	DECLARE_BITMAP(ioapic_handled_vectors, 256);
- 	unsigned long apic_attention;
- 	int32_t apic_arb_prio;
- 	int mp_state;
-@@ -833,7 +833,7 @@ struct kvm_x86_ops {
- 	int (*cpu_uses_apicv)(struct kvm_vcpu *vcpu);
- 	void (*hwapic_irr_update)(struct kvm_vcpu *vcpu, int max_irr);
- 	void (*hwapic_isr_update)(struct kvm *kvm, int isr);
--	void (*load_eoi_exitmap)(struct kvm_vcpu *vcpu);
-+	void (*load_eoi_exitmap)(struct kvm_vcpu *vcpu, u64 *eoi_exit_bitmap);
- 	void (*set_virtual_x2apic_mode)(struct kvm_vcpu *vcpu, bool set);
- 	void (*set_apic_access_page_addr)(struct kvm_vcpu *vcpu, hpa_t hpa);
- 	void (*deliver_posted_interrupt)(struct kvm_vcpu *vcpu, int vector);
-diff --git a/arch/x86/kvm/ioapic.c b/arch/x86/kvm/ioapic.c
-index 2dcda0f..3cf7a9c 100644
---- a/arch/x86/kvm/ioapic.c
-+++ b/arch/x86/kvm/ioapic.c
-@@ -233,7 +233,7 @@ static void kvm_ioapic_inject_all(struct kvm_ioapic *ioapic, unsigned long irr)
+@@ -392,6 +392,7 @@ struct kvm_vcpu_hv {
+ 	u64 hv_vapic;
+ 	s64 runtime_offset;
+ 	struct kvm_vcpu_hv_synic synic;
++	struct kvm_hyperv_exit exit;
+ };
+ 
+ struct kvm_vcpu_arch {
+diff --git a/arch/x86/kvm/hyperv.c b/arch/x86/kvm/hyperv.c
+index 8ff71f3..9443920 100644
+--- a/arch/x86/kvm/hyperv.c
++++ b/arch/x86/kvm/hyperv.c
+@@ -129,6 +129,20 @@ static void kvm_hv_notify_acked_sint(struct kvm_vcpu *vcpu, u32 sint)
+ 	srcu_read_unlock(&kvm->irq_srcu, idx);
  }
  
- 
--void kvm_ioapic_scan_entry(struct kvm_vcpu *vcpu, u64 *eoi_exit_bitmap)
-+void kvm_ioapic_scan_entry(struct kvm_vcpu *vcpu, ulong *ioapic_handled_vectors)
++static void synic_exit(struct kvm_vcpu_hv_synic *synic, u32 msr)
++{
++	struct kvm_vcpu *vcpu = synic_to_vcpu(synic);
++	struct kvm_vcpu_hv *hv_vcpu = &vcpu->arch.hyperv;
++
++	hv_vcpu->exit.type = KVM_EXIT_HYPERV_SYNIC;
++	hv_vcpu->exit.u.synic.msr = msr;
++	hv_vcpu->exit.u.synic.control = synic->control;
++	hv_vcpu->exit.u.synic.evt_page = synic->evt_page;
++	hv_vcpu->exit.u.synic.msg_page = synic->msg_page;
++
++	kvm_make_request(KVM_REQ_HV_EXIT, vcpu);
++}
++
+ static int synic_set_msr(struct kvm_vcpu_hv_synic *synic,
+ 			 u32 msr, u64 data, bool host)
  {
- 	struct kvm_ioapic *ioapic = vcpu->kvm->arch.vioapic;
- 	union kvm_ioapic_redirect_entry *e;
-@@ -248,7 +248,7 @@ void kvm_ioapic_scan_entry(struct kvm_vcpu *vcpu, u64 *eoi_exit_bitmap)
- 			if (kvm_apic_match_dest(vcpu, NULL, 0,
- 				e->fields.dest_id, e->fields.dest_mode))
- 				__set_bit(e->fields.vector,
--					(unsigned long *)eoi_exit_bitmap);
-+					  ioapic_handled_vectors);
- 		}
- 	}
- 	spin_unlock(&ioapic->lock);
-diff --git a/arch/x86/kvm/ioapic.h b/arch/x86/kvm/ioapic.h
-index 084617d..2d16dc2 100644
---- a/arch/x86/kvm/ioapic.h
-+++ b/arch/x86/kvm/ioapic.h
-@@ -121,7 +121,8 @@ int kvm_irq_delivery_to_apic(struct kvm *kvm, struct kvm_lapic *src,
- 		struct kvm_lapic_irq *irq, unsigned long *dest_map);
- int kvm_get_ioapic(struct kvm *kvm, struct kvm_ioapic_state *state);
- int kvm_set_ioapic(struct kvm *kvm, struct kvm_ioapic_state *state);
--void kvm_ioapic_scan_entry(struct kvm_vcpu *vcpu, u64 *eoi_exit_bitmap);
--void kvm_scan_ioapic_routes(struct kvm_vcpu *vcpu, u64 *eoi_exit_bitmap);
--
-+void kvm_ioapic_scan_entry(struct kvm_vcpu *vcpu,
-+			   ulong *ioapic_handled_vectors);
-+void kvm_scan_ioapic_routes(struct kvm_vcpu *vcpu,
-+			    ulong *ioapic_handled_vectors);
- #endif
-diff --git a/arch/x86/kvm/irq_comm.c b/arch/x86/kvm/irq_comm.c
-index 6f922c2..fe91f72 100644
---- a/arch/x86/kvm/irq_comm.c
-+++ b/arch/x86/kvm/irq_comm.c
-@@ -371,7 +371,8 @@ void kvm_arch_post_irq_routing_update(struct kvm *kvm)
- 	kvm_make_scan_ioapic_request(kvm);
- }
- 
--void kvm_scan_ioapic_routes(struct kvm_vcpu *vcpu, u64 *eoi_exit_bitmap)
-+void kvm_scan_ioapic_routes(struct kvm_vcpu *vcpu,
-+			    ulong *ioapic_handled_vectors)
- {
- 	struct kvm *kvm = vcpu->kvm;
- 	struct kvm_kernel_irq_routing_entry *entry;
-@@ -398,8 +399,7 @@ void kvm_scan_ioapic_routes(struct kvm_vcpu *vcpu, u64 *eoi_exit_bitmap)
- 						dest_mode)) {
- 				u32 vector = entry->msi.data & 0xff;
- 
--				__set_bit(vector,
--					  (unsigned long *) eoi_exit_bitmap);
-+				__set_bit(vector, ioapic_handled_vectors);
+@@ -141,6 +155,7 @@ static int synic_set_msr(struct kvm_vcpu_hv_synic *synic,
+ 	switch (msr) {
+ 	case HV_X64_MSR_SCONTROL:
+ 		synic->control = data;
++		synic_exit(synic, msr);
+ 		break;
+ 	case HV_X64_MSR_SVERSION:
+ 		if (!host) {
+@@ -157,6 +172,7 @@ static int synic_set_msr(struct kvm_vcpu_hv_synic *synic,
+ 				break;
  			}
- 		}
- 	}
-diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
-index 944b38a..dc03a01 100644
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -930,7 +930,7 @@ int kvm_apic_compare_prio(struct kvm_vcpu *vcpu1, struct kvm_vcpu *vcpu2)
- 
- static bool kvm_ioapic_handles_vector(struct kvm_lapic *apic, int vector)
- {
--	return test_bit(vector, (ulong *)apic->vcpu->arch.eoi_exit_bitmap);
-+	return test_bit(vector, apic->vcpu->arch.ioapic_handled_vectors);
- }
- 
- static void kvm_ioapic_send_eoi(struct kvm_lapic *apic, int vector)
-diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index 54a8618..03ccb78 100644
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -3651,7 +3651,7 @@ static int svm_cpu_uses_apicv(struct kvm_vcpu *vcpu)
- 	return 0;
- }
- 
--static void svm_load_eoi_exitmap(struct kvm_vcpu *vcpu)
-+static void svm_load_eoi_exitmap(struct kvm_vcpu *vcpu, u64 *eoi_exit_bitmap)
- {
- 	return;
- }
-diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
-index 8eeba6a..fccf39c 100644
---- a/arch/x86/kvm/vmx.c
-+++ b/arch/x86/kvm/vmx.c
-@@ -8179,9 +8179,8 @@ static void vmx_hwapic_irr_update(struct kvm_vcpu *vcpu, int max_irr)
- 	}
- }
- 
--static void vmx_load_eoi_exitmap(struct kvm_vcpu *vcpu)
-+static void vmx_load_eoi_exitmap(struct kvm_vcpu *vcpu, u64 *eoi_exit_bitmap)
- {
--	u64 *eoi_exit_bitmap = vcpu->arch.eoi_exit_bitmap;
- 	if (!vmx_cpu_uses_apicv(vcpu))
- 		return;
- 
+ 		synic->evt_page = data;
++		synic_exit(synic, msr);
+ 		break;
+ 	case HV_X64_MSR_SIMP:
+ 		if (data & HV_SYNIC_SIMP_ENABLE)
+@@ -166,6 +182,7 @@ static int synic_set_msr(struct kvm_vcpu_hv_synic *synic,
+ 				break;
+ 			}
+ 		synic->msg_page = data;
++		synic_exit(synic, msr);
+ 		break;
+ 	case HV_X64_MSR_EOM: {
+ 		int i;
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index bcbc9234..668a1c4 100644
+index 807d124..9453207 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -6198,13 +6198,15 @@ static void vcpu_scan_ioapic(struct kvm_vcpu *vcpu)
- 	if (!kvm_apic_hw_enabled(vcpu->arch.apic))
- 		return;
+@@ -6342,6 +6342,12 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
+ 			r = 0;
+ 			goto out;
+ 		}
++		if (kvm_check_request(KVM_REQ_HV_EXIT, vcpu)) {
++			vcpu->run->exit_reason = KVM_EXIT_HYPERV;
++			vcpu->run->hyperv = vcpu->arch.hyperv.exit;
++			r = 0;
++			goto out;
++		}
+ 	}
  
--	memset(vcpu->arch.eoi_exit_bitmap, 0, 256 / 8);
-+	bitmap_zero(vcpu->arch.ioapic_handled_vectors, 256);
+ 	/*
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 43b0141..e38ac16 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -143,6 +143,7 @@ static inline bool is_error_page(struct page *page)
+ #define KVM_REQ_HV_CRASH          27
+ #define KVM_REQ_IOAPIC_EOI_EXIT   28
+ #define KVM_REQ_HV_RESET          29
++#define KVM_REQ_HV_EXIT           30
  
- 	if (irqchip_split(vcpu->kvm))
--		kvm_scan_ioapic_routes(vcpu, vcpu->arch.eoi_exit_bitmap);
-+		kvm_scan_ioapic_routes(vcpu, vcpu->arch.ioapic_handled_vectors);
- 	else
--		kvm_ioapic_scan_entry(vcpu, vcpu->arch.eoi_exit_bitmap);
--	kvm_x86_ops->load_eoi_exitmap(vcpu);
-+		kvm_ioapic_scan_entry(vcpu, vcpu->arch.ioapic_handled_vectors);
+ #define KVM_USERSPACE_IRQ_SOURCE_ID		0
+ #define KVM_IRQFD_RESAMPLE_IRQ_SOURCE_ID	1
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index 27ce460..6e32f75 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -154,6 +154,20 @@ struct kvm_s390_skeys {
+ 	__u32 flags;
+ 	__u32 reserved[9];
+ };
 +
-+	kvm_x86_ops->load_eoi_exitmap(vcpu,
-+				      (u64 *)vcpu->arch.ioapic_handled_vectors);
- }
++struct kvm_hyperv_exit {
++#define KVM_EXIT_HYPERV_SYNIC          1
++	__u32 type;
++	union {
++		struct {
++			__u32 msr;
++			__u64 control;
++			__u64 evt_page;
++			__u64 msg_page;
++		} synic;
++	} u;
++};
++
+ #define KVM_S390_GET_SKEYS_NONE   1
+ #define KVM_S390_SKEYS_MAX        1048576
  
- static void kvm_vcpu_flush_tlb(struct kvm_vcpu *vcpu)
-@@ -6310,7 +6312,7 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
- 		if (kvm_check_request(KVM_REQ_IOAPIC_EOI_EXIT, vcpu)) {
- 			BUG_ON(vcpu->arch.pending_ioapic_eoi > 255);
- 			if (test_bit(vcpu->arch.pending_ioapic_eoi,
--				     (void *) vcpu->arch.eoi_exit_bitmap)) {
-+				     vcpu->arch.ioapic_handled_vectors)) {
- 				vcpu->run->exit_reason = KVM_EXIT_IOAPIC_EOI;
- 				vcpu->run->eoi.vector =
- 						vcpu->arch.pending_ioapic_eoi;
+@@ -184,6 +198,7 @@ struct kvm_s390_skeys {
+ #define KVM_EXIT_SYSTEM_EVENT     24
+ #define KVM_EXIT_S390_STSI        25
+ #define KVM_EXIT_IOAPIC_EOI       26
++#define KVM_EXIT_HYPERV           27
+ 
+ /* For KVM_EXIT_INTERNAL_ERROR */
+ /* Emulate instruction failed. */
+@@ -338,6 +353,8 @@ struct kvm_run {
+ 		struct {
+ 			__u8 vector;
+ 		} eoi;
++		/* KVM_EXIT_HYPERV */
++		struct kvm_hyperv_exit hyperv;
+ 		/* Fix the size of the union. */
+ 		char padding[256];
+ 	};
 -- 
 2.1.4
