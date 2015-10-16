@@ -1,11 +1,13 @@
 From: "Denis V. Lunev" <den@openvz.org>
-Subject: [PATCH v2 0/9] Hyper-V synthetic interrupt controller
-Date: Fri, 16 Oct 2015 10:07:44 +0300
-Message-ID: <1444979273-6587-1-git-send-email-den@openvz.org>
+Subject: [PATCH 1/9] kvm/eventfd: avoid loop inside irqfd_update()
+Date: Fri, 16 Oct 2015 10:07:45 +0300
+Message-ID: <1444979273-6587-2-git-send-email-den@openvz.org>
+References: <1444979273-6587-1-git-send-email-den@openvz.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1444979273-6587-1-git-send-email-den@openvz.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,34 +20,11 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 Cc: kvm@vger.kernel.org, Gleb Natapov <gleb@kernel.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, rkagan@virtuozzo.com, Paolo Bonzini <pbonzini@redhat.com>, Andrey Smetanin <asmetanin@virtuozzo.com>, "Denis V. Lunev" <den@openvz.org>, Vitaly Kuznetsov <vkuznets@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patchset implements the KVM part of the synthetic interrupt
-controller (SynIC) which is a building block of the Hyper-V
-paravirtualized device bus (vmbus).
+From: Andrey Smetanin <asmetanin@virtuozzo.com>
 
-SynIC is a lapic extension, which is controlled via MSRs and maintains
-for each vCPU
- - 16 synthetic interrupt "lines" (SINT's); each can be configured to
-   trigger a specific interrupt vector optionally with auto-EOI
-   semantics
- - a message page in the guest memory with 16 256-byte per-SINT message
-   slots
- - an event flag page in the guest memory with 16 2048-bit per-SINT
-   event flag areas
-
-The host triggers a SINT whenever it delivers a new message to the
-corresponding slot or flips an event flag bit in the corresponding area.
-The guest informs the host that it can try delivering a message by
-explicitly asserting EOI in lapic or writing to End-Of-Message (EOM)
-MSR.
-
-The userspace (qemu) triggers interrupts and receives EOM notifications
-via irqfd with resampler; for that, a GSI is allocated for each
-configured SINT, and irq_routing api is extended to support GSI-SINT
-mapping.
-
-Besides, a new vcpu exit is introduced to notify the userspace of the
-changes in SynIC configuraion triggered by guest writing to the
-corresponding MSRs.
+The loop(for) inside irqfd_update() is unnecessary
+because any other value for irq_entry.type will just trigger
+schedule_work(&irqfd->inject).
 
 Signed-off-by: Andrey Smetanin <asmetanin@virtuozzo.com>
 Reviewed-by: Roman Kagan <rkagan@virtuozzo.com>
@@ -54,10 +33,39 @@ CC: Vitaly Kuznetsov <vkuznets@redhat.com>
 CC: "K. Y. Srinivasan" <kys@microsoft.com>
 CC: Gleb Natapov <gleb@kernel.org>
 CC: Paolo Bonzini <pbonzini@redhat.com>
+---
+ virt/kvm/eventfd.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
-Changes v2:
-* irqchip/eventfd preparation improvements to support
-  arch specific routing entries like Hyper-V SynIC ones.
-* add Hyper-V SynIC vectors into EOI exit bitmap.
-* do not use posted interrupts in case of Hyper-V SynIC
-  AutoEOI vectors
+diff --git a/virt/kvm/eventfd.c b/virt/kvm/eventfd.c
+index b637965..518421e 100644
+--- a/virt/kvm/eventfd.c
++++ b/virt/kvm/eventfd.c
+@@ -238,20 +238,17 @@ static void irqfd_update(struct kvm *kvm, struct kvm_kernel_irqfd *irqfd)
+ {
+ 	struct kvm_kernel_irq_routing_entry *e;
+ 	struct kvm_kernel_irq_routing_entry entries[KVM_NR_IRQCHIPS];
+-	int i, n_entries;
++	int n_entries;
+ 
+ 	n_entries = kvm_irq_map_gsi(kvm, entries, irqfd->gsi);
+ 
+ 	write_seqcount_begin(&irqfd->irq_entry_sc);
+ 
+-	irqfd->irq_entry.type = 0;
+-
+ 	e = entries;
+-	for (i = 0; i < n_entries; ++i, ++e) {
+-		/* Only fast-path MSI. */
+-		if (e->type == KVM_IRQ_ROUTING_MSI)
+-			irqfd->irq_entry = *e;
+-	}
++	if (n_entries == 1)
++		irqfd->irq_entry = *e;
++	else
++		irqfd->irq_entry.type = 0;
+ 
+ 	write_seqcount_end(&irqfd->irq_entry_sc);
+ }
+-- 
+2.1.4
