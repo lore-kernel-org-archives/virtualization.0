@@ -1,9 +1,10 @@
-From: "Maria Lemos" <marialemos72@gmail.com>
-Subject: Call for Papers - WorldCIST'2016 - Deadline: November 15, 2015
-Date: Tue, 20 Oct 2015 18:38:26 +0100
-Message-ID: <20151020173835.7256889E@mail.linuxfoundation.org>
+From: Jorgen Hansen <jhansen@vmware.com>
+Subject: [PATCH] VSOCK: sock_put wasn't safe to call in interrupt context
+Date: Wed, 21 Oct 2015 04:53:56 -0700
+Message-ID: <1445428436-52369-1-git-send-email-jhansen__2342.34875902093$1445428913$gmane$org@vmware.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============9082985334869562476=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,204 +15,362 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org, davem@davemloft.net, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============9082985334869562476==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+In the vsock vmci_transport driver, sock_put wasn't safe to call
+in interrupt context, since that may call the vsock destructor
+which in turn calls several functions that should only be called
+from process context. This change defers the callling of these
+functions  to a worker thread. All these functions were
+deallocation of resources related to the transport itself.
 
-*
-** Apologize if you receive multiple copies of this email, or if its c=
-ontent is irrelevant for you.
-** Please forward for your contacts. Thank you very much!
-*
+Furthermore, an unused callback was removed to simplify the
+cleanup.
 
+Multiple customers have been hitting this issue when using
+VMware tools on vSphere 2015.
 
----------
-WorldCIST'16 - 4th World Conference on Information Systems and Technol=
-ogies=20
-Recife, PE, Brazil
-22th-24th of March 2016
-http://www.aisti.eu/worldcist16/
--------------------------------------------
+Also added a version to the vmci transport module (starting from
+1.0.2.0-k since up until now it appears that this module was
+sharing version with vsock that is currently at 1.0.1.0-k).
 
+Reviewed-by: Aditya Asarwade <asarwade@vmware.com>
+Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
+Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
+---
+ net/vmw_vsock/vmci_transport.c |  173 +++++++++++++++++++---------------------
+ net/vmw_vsock/vmci_transport.h |    4 +-
+ 2 files changed, 86 insertions(+), 91 deletions(-)
 
-SCOPE
-
-The WorldCist'16 - 4th World Conference on Information Systems and Tec=
-hnologies ( http://www.aisti.eu/worldcist16/ ), to be held at Recife, =
-PE, Brazil, 22 - 24 March 2016, is a global forum for researchers and =
-practitioners to present and discuss the most recent innovations, tren=
-ds, results, experiences and concerns in the several perspectives of I=
-nformation Systems and Technologies.
-
-We are pleased to invite you to submit your papers to WorldCist'16. Al=
-l submissions will be reviewed on the basis of relevance, originality,=
- importance and clarity.
-
-
-THEMES
-
-Submitted papers should be related with one or more of the main themes=
- proposed for the Conference:
-
-A) Information and Knowledge Management (IKM);
-B) Organizational Models and Information Systems (OMIS);
-C) Software and Systems Modeling (SSM);
-D) Software Systems, Architectures, Applications and Tools (SSAAT);
-E) Multimedia Systems and Applications (MSA);
-F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
-G) Intelligent and Decision Support Systems (IDSS);
-H) Big Data Analytics and Applications (BDAA);
-I) Human-Computer Interaction (HCI);
-J) Health Informatics (HIS);
-K) Information Technologies in Education (ITE);
-L) Information Technologies in Radiocommunications (ITR).
-
-
-TYPES OF SUBMISSIONS AND DECISIONS
-
-Four types of papers can be submitted:
-
-- Full paper: Finished or consolidated R&D works, to be included in on=
-e of the Conference themes. These papers are assigned a 10-page limit.
-
-- Short paper: Ongoing works with relevant preliminary results, open t=
-o discussion. These papers are assigned a 7-page limit.
-
--Poster paper: Initial work with relevant ideas, open to discussion. T=
-hese papers are assigned to a 4-page limit.
-
-- Company paper: Companies' papers that show practical experience, R &=
- D, tools, etc., focused on some topics of the conference. These paper=
-s are assigned to a 4-page limit.
-
-Submitted papers must comply with the format of Advances in Intelligen=
-t Systems and Computing Series (see Instructions for Authors at Spring=
-er Website or download a DOC example) be written in English, must not =
-have been published before, not be under review for any other conferen=
-ce or publication and not include any information leading to the autho=
-rs=92 identification. Therefore, the authors=92 names, affiliations an=
-d bibliographic references should not be included in the version for e=
-valuation by the Program Committee. This information should only be in=
-cluded in the camera-ready version, saved in Word or Latex format and =
-also in PDF format. These files must be accompanied by the Consent to =
-Publication form filled out, in a ZIP file, and uploaded at the confer=
-ence management system.
-
-All papers will be subjected to a =93double-blind review=94 by at leas=
-t two members of the Program Committee.
-
-Based on Program Committee evaluation, a paper can be rejected or acce=
-pted by the Conference Chairs. In the later case, it can be accepted a=
-s the type originally submitted or as another type. Thus, full papers =
-can be accepted as short papers or poster papers only. Similarly, shor=
-t papers can be accepted as poster papers only. In these cases, the au=
-thors will be allowed to maintain the original number of pages in the =
-camera-ready version.
-
-The authors of accepted poster papers must also build and print a post=
-er to be exhibited during the Conference. This poster must follow an A=
-1 or A2 vertical format. The Conference can includes Work Sessions whe=
-re these posters are presented and orally discussed, with a 5 minute l=
-imit per poster.
-
-The authors of accepted full papers will have 15 minutes to present th=
-eir work in a Conference Work Session; approximately 5 minutes of disc=
-ussion will follow each presentation. The authors of accepted short pa=
-pers and company papers will have 11 minutes to present their work in =
-a Conference Work Session; approximately 4 minutes of discussion will =
-follow each presentation.
-
-
-PUBLICATION AND INDEXING
-
-To ensure that a full paper, short paper, poster paper or company pape=
-r is published in the Proceedings, at least one of the authors must be=
- fully registered by the 27th of December 2015, and the paper must com=
-ply with the suggested layout and page-limit. Additionally, all recomm=
-ended changes must be addressed by the authors before they submit the =
-camera-ready version.
-
-No more than one paper per registration will be published in the Confe=
-rence Proceedings. An extra fee must be paid for publication of additi=
-onal papers, with a maximum of one additional paper per registration.
-
-Full and short papers will be published in Proceedings by Springer, in=
- a book of Advances in Intelligent Systems and Computing series. Poste=
-r and company papers will be published by AISTI.
-
-Published full and short papers will be submitted for indexation by IS=
-I, EI-Compendex, SCOPUS and DBLP, among others, and will be available =
-in the SpringerLink Digital Library.
-
-The authors of the best selected papers will be invited to extend them=
- for publication in international journals indexed by ISI/SCI, SCOPUS =
-and DBLP, among others, such as:
-
-- International Journal of Neural Systems (IF: 6.507)
-- Integrated Computer-Aided Engineering (IF: 4.698)
-- Computers in Human Behavior (IF: 2.694)
-- Journal of Medical Systems (IF: 2.213)
-- International Journal of Computer-Supported Collaborative Learning (=
-IF: 1.841)
-- Journal of Intelligent & Fuzzy Systems (IF: 1.812)
-- Telemedicine and e-Health (IF: 1.668)
-- International Journal of Information Management (IF: 1.550)
-- Engineering Computations (IF: 1.495)
-- Electronic Commerce Research and Applications (IF: 1.482)
-- Telematics and Informatics (IF: 1.120)
-- Journal of Evaluation in Clinical Practice (IF: 1.084)
-- Ethics and Information Technology (IF: 1.021)
-- Int. Journal of Computers Communications & Control (IF: 0.746)
-- IET Software (IF: 0.595)
-- Knowledge Management Research & Practice (IF: 0.554)
-- AI Communications (IF: 0.547)
-- Computing and Informatics (IF: 0.504)
-- Universal Access in the Information Society (IF: 0.475)
-- Journal of Global Information Management (IF: 0.424)
-- Journal of Internet Services and Applications (SJR: 0.88)
-- Journal of Hospitality and Tourism Technology (SJR: 0.41)
-- VINE - The Journal of Information and Knowledge Management Systems (=
-SJR: 0.24)
-- International Journal of Online Engineering (SJR: 0.21)
-- Int. Journal of Emerging Technologies in Learning (SJR: 0.12)
-- Computer Methods in Biomechanics and Biomedical Engineering: Imaging=
- & Visualization
-
-
-IMPORTANT DATES
-
-Paper Submission: November 8, 2015
-
-Notification of Acceptance: December 13, 2015
-
-Payment of Registration, to ensure the inclusion of an accepted paper =
-in the conference proceedings: December 27, 2015.
-
-Camera-ready Submission: December 31, 2015
-
-
+diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+index 1f63daf..5243ce2 100644
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -40,13 +40,11 @@
+ 
+ static int vmci_transport_recv_dgram_cb(void *data, struct vmci_datagram *dg);
+ static int vmci_transport_recv_stream_cb(void *data, struct vmci_datagram *dg);
+-static void vmci_transport_peer_attach_cb(u32 sub_id,
+-					  const struct vmci_event_data *ed,
+-					  void *client_data);
+ static void vmci_transport_peer_detach_cb(u32 sub_id,
+ 					  const struct vmci_event_data *ed,
+ 					  void *client_data);
+ static void vmci_transport_recv_pkt_work(struct work_struct *work);
++static void vmci_transport_cleanup(struct work_struct *work);
+ static int vmci_transport_recv_listen(struct sock *sk,
+ 				      struct vmci_transport_packet *pkt);
+ static int vmci_transport_recv_connecting_server(
+@@ -75,6 +73,10 @@ struct vmci_transport_recv_pkt_info {
+ 	struct vmci_transport_packet pkt;
+ };
+ 
++static LIST_HEAD(vmci_transport_cleanup_list);
++static DEFINE_SPINLOCK(vmci_transport_cleanup_lock);
++static DECLARE_WORK(vmci_transport_cleanup_work, vmci_transport_cleanup);
++
+ static struct vmci_handle vmci_transport_stream_handle = { VMCI_INVALID_ID,
+ 							   VMCI_INVALID_ID };
+ static u32 vmci_transport_qp_resumed_sub_id = VMCI_INVALID_ID;
+@@ -791,44 +793,6 @@ out:
+ 	return err;
+ }
+ 
+-static void vmci_transport_peer_attach_cb(u32 sub_id,
+-					  const struct vmci_event_data *e_data,
+-					  void *client_data)
+-{
+-	struct sock *sk = client_data;
+-	const struct vmci_event_payload_qp *e_payload;
+-	struct vsock_sock *vsk;
 -
-
-WorldCIST'16
-http://www.aisti.eu/worldcist16/
-
-
-
-
-
-
-
---===============9082985334869562476==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============9082985334869562476==--
+-	e_payload = vmci_event_data_const_payload(e_data);
+-
+-	vsk = vsock_sk(sk);
+-
+-	/* We don't ask for delayed CBs when we subscribe to this event (we
+-	 * pass 0 as flags to vmci_event_subscribe()).  VMCI makes no
+-	 * guarantees in that case about what context we might be running in,
+-	 * so it could be BH or process, blockable or non-blockable.  So we
+-	 * need to account for all possible contexts here.
+-	 */
+-	local_bh_disable();
+-	bh_lock_sock(sk);
+-
+-	/* XXX This is lame, we should provide a way to lookup sockets by
+-	 * qp_handle.
+-	 */
+-	if (vmci_handle_is_equal(vmci_trans(vsk)->qp_handle,
+-				 e_payload->handle)) {
+-		/* XXX This doesn't do anything, but in the future we may want
+-		 * to set a flag here to verify the attach really did occur and
+-		 * we weren't just sent a datagram claiming it was.
+-		 */
+-		goto out;
+-	}
+-
+-out:
+-	bh_unlock_sock(sk);
+-	local_bh_enable();
+-}
+-
+ static void vmci_transport_handle_detach(struct sock *sk)
+ {
+ 	struct vsock_sock *vsk;
+@@ -871,28 +835,38 @@ static void vmci_transport_peer_detach_cb(u32 sub_id,
+ 					  const struct vmci_event_data *e_data,
+ 					  void *client_data)
+ {
+-	struct sock *sk = client_data;
++	struct vmci_transport *trans = client_data;
+ 	const struct vmci_event_payload_qp *e_payload;
+-	struct vsock_sock *vsk;
+ 
+ 	e_payload = vmci_event_data_const_payload(e_data);
+-	vsk = vsock_sk(sk);
+-	if (vmci_handle_is_invalid(e_payload->handle))
+-		return;
+-
+-	/* Same rules for locking as for peer_attach_cb(). */
+-	local_bh_disable();
+-	bh_lock_sock(sk);
+ 
+ 	/* XXX This is lame, we should provide a way to lookup sockets by
+ 	 * qp_handle.
+ 	 */
+-	if (vmci_handle_is_equal(vmci_trans(vsk)->qp_handle,
+-				 e_payload->handle))
+-		vmci_transport_handle_detach(sk);
++	if (vmci_handle_is_invalid(e_payload->handle) ||
++	    vmci_handle_is_equal(trans->qp_handle, e_payload->handle))
++		return;
+ 
+-	bh_unlock_sock(sk);
+-	local_bh_enable();
++	/* We don't ask for delayed CBs when we subscribe to this event (we
++	 * pass 0 as flags to vmci_event_subscribe()).  VMCI makes no
++	 * guarantees in that case about what context we might be running in,
++	 * so it could be BH or process, blockable or non-blockable.  So we
++	 * need to account for all possible contexts here.
++	 */
++	spin_lock_bh(&trans->lock);
++	if (!trans->sk)
++		goto out;
++
++	/* Apart from here, trans->lock is only grabbed as part of sk destruct,
++	 * where trans->sk isn't locked.
++	 */
++	bh_lock_sock(trans->sk);
++
++	vmci_transport_handle_detach(trans->sk);
++
++	bh_unlock_sock(trans->sk);
++ out:
++	spin_unlock_bh(&trans->lock);
+ }
+ 
+ static void vmci_transport_qp_resumed_cb(u32 sub_id,
+@@ -1181,7 +1155,7 @@ vmci_transport_recv_connecting_server(struct sock *listener,
+ 	 */
+ 	err = vmci_event_subscribe(VMCI_EVENT_QP_PEER_DETACH,
+ 				   vmci_transport_peer_detach_cb,
+-				   pending, &detach_sub_id);
++				   vmci_trans(vpending), &detach_sub_id);
+ 	if (err < VMCI_SUCCESS) {
+ 		vmci_transport_send_reset(pending, pkt);
+ 		err = vmci_transport_error_to_vsock_error(err);
+@@ -1321,7 +1295,6 @@ vmci_transport_recv_connecting_client(struct sock *sk,
+ 		    || vmci_trans(vsk)->qpair
+ 		    || vmci_trans(vsk)->produce_size != 0
+ 		    || vmci_trans(vsk)->consume_size != 0
+-		    || vmci_trans(vsk)->attach_sub_id != VMCI_INVALID_ID
+ 		    || vmci_trans(vsk)->detach_sub_id != VMCI_INVALID_ID) {
+ 			skerr = EPROTO;
+ 			err = -EINVAL;
+@@ -1389,7 +1362,6 @@ static int vmci_transport_recv_connecting_client_negotiate(
+ 	struct vsock_sock *vsk;
+ 	struct vmci_handle handle;
+ 	struct vmci_qp *qpair;
+-	u32 attach_sub_id;
+ 	u32 detach_sub_id;
+ 	bool is_local;
+ 	u32 flags;
+@@ -1399,7 +1371,6 @@ static int vmci_transport_recv_connecting_client_negotiate(
+ 
+ 	vsk = vsock_sk(sk);
+ 	handle = VMCI_INVALID_HANDLE;
+-	attach_sub_id = VMCI_INVALID_ID;
+ 	detach_sub_id = VMCI_INVALID_ID;
+ 
+ 	/* If we have gotten here then we should be past the point where old
+@@ -1444,23 +1415,15 @@ static int vmci_transport_recv_connecting_client_negotiate(
+ 		goto destroy;
+ 	}
+ 
+-	/* Subscribe to attach and detach events first.
++	/* Subscribe to detach events first.
+ 	 *
+ 	 * XXX We attach once for each queue pair created for now so it is easy
+ 	 * to find the socket (it's provided), but later we should only
+ 	 * subscribe once and add a way to lookup sockets by queue pair handle.
+ 	 */
+-	err = vmci_event_subscribe(VMCI_EVENT_QP_PEER_ATTACH,
+-				   vmci_transport_peer_attach_cb,
+-				   sk, &attach_sub_id);
+-	if (err < VMCI_SUCCESS) {
+-		err = vmci_transport_error_to_vsock_error(err);
+-		goto destroy;
+-	}
+-
+ 	err = vmci_event_subscribe(VMCI_EVENT_QP_PEER_DETACH,
+ 				   vmci_transport_peer_detach_cb,
+-				   sk, &detach_sub_id);
++				   vmci_trans(vsk), &detach_sub_id);
+ 	if (err < VMCI_SUCCESS) {
+ 		err = vmci_transport_error_to_vsock_error(err);
+ 		goto destroy;
+@@ -1496,7 +1459,6 @@ static int vmci_transport_recv_connecting_client_negotiate(
+ 	vmci_trans(vsk)->produce_size = vmci_trans(vsk)->consume_size =
+ 		pkt->u.size;
+ 
+-	vmci_trans(vsk)->attach_sub_id = attach_sub_id;
+ 	vmci_trans(vsk)->detach_sub_id = detach_sub_id;
+ 
+ 	vmci_trans(vsk)->notify_ops->process_negotiate(sk);
+@@ -1504,9 +1466,6 @@ static int vmci_transport_recv_connecting_client_negotiate(
+ 	return 0;
+ 
+ destroy:
+-	if (attach_sub_id != VMCI_INVALID_ID)
+-		vmci_event_unsubscribe(attach_sub_id);
+-
+ 	if (detach_sub_id != VMCI_INVALID_ID)
+ 		vmci_event_unsubscribe(detach_sub_id);
+ 
+@@ -1607,9 +1566,11 @@ static int vmci_transport_socket_init(struct vsock_sock *vsk,
+ 	vmci_trans(vsk)->qp_handle = VMCI_INVALID_HANDLE;
+ 	vmci_trans(vsk)->qpair = NULL;
+ 	vmci_trans(vsk)->produce_size = vmci_trans(vsk)->consume_size = 0;
+-	vmci_trans(vsk)->attach_sub_id = vmci_trans(vsk)->detach_sub_id =
+-		VMCI_INVALID_ID;
++	vmci_trans(vsk)->detach_sub_id = VMCI_INVALID_ID;
+ 	vmci_trans(vsk)->notify_ops = NULL;
++	INIT_LIST_HEAD(&vmci_trans(vsk)->elem);
++	vmci_trans(vsk)->sk = &vsk->sk;
++	vmci_trans(vsk)->lock = __SPIN_LOCK_UNLOCKED(vmci_trans(vsk)->lock);
+ 	if (psk) {
+ 		vmci_trans(vsk)->queue_pair_size =
+ 			vmci_trans(psk)->queue_pair_size;
+@@ -1629,29 +1590,57 @@ static int vmci_transport_socket_init(struct vsock_sock *vsk,
+ 	return 0;
+ }
+ 
+-static void vmci_transport_destruct(struct vsock_sock *vsk)
++static void vmci_transport_free_resources(struct list_head *transport_list)
+ {
+-	if (vmci_trans(vsk)->attach_sub_id != VMCI_INVALID_ID) {
+-		vmci_event_unsubscribe(vmci_trans(vsk)->attach_sub_id);
+-		vmci_trans(vsk)->attach_sub_id = VMCI_INVALID_ID;
+-	}
++	while (!list_empty(transport_list)) {
++		struct vmci_transport *transport =
++		    list_first_entry(transport_list, struct vmci_transport,
++				     elem);
++		list_del(&transport->elem);
+ 
+-	if (vmci_trans(vsk)->detach_sub_id != VMCI_INVALID_ID) {
+-		vmci_event_unsubscribe(vmci_trans(vsk)->detach_sub_id);
+-		vmci_trans(vsk)->detach_sub_id = VMCI_INVALID_ID;
+-	}
++		if (transport->detach_sub_id != VMCI_INVALID_ID) {
++			vmci_event_unsubscribe(transport->detach_sub_id);
++			transport->detach_sub_id = VMCI_INVALID_ID;
++		}
+ 
+-	if (!vmci_handle_is_invalid(vmci_trans(vsk)->qp_handle)) {
+-		vmci_qpair_detach(&vmci_trans(vsk)->qpair);
+-		vmci_trans(vsk)->qp_handle = VMCI_INVALID_HANDLE;
+-		vmci_trans(vsk)->produce_size = 0;
+-		vmci_trans(vsk)->consume_size = 0;
++		if (!vmci_handle_is_invalid(transport->qp_handle)) {
++			vmci_qpair_detach(&transport->qpair);
++			transport->qp_handle = VMCI_INVALID_HANDLE;
++			transport->produce_size = 0;
++			transport->consume_size = 0;
++		}
++
++		kfree(transport);
+ 	}
++}
++
++static void vmci_transport_cleanup(struct work_struct *work)
++{
++	LIST_HEAD(pending);
++
++	spin_lock_bh(&vmci_transport_cleanup_lock);
++	list_replace_init(&vmci_transport_cleanup_list, &pending);
++	spin_unlock_bh(&vmci_transport_cleanup_lock);
++	vmci_transport_free_resources(&pending);
++}
++
++static void vmci_transport_destruct(struct vsock_sock *vsk)
++{
++	/* Ensure that the detach callback doesn't use the sk/vsk
++	 * we are about to destruct.
++	 */
++	spin_lock_bh(&vmci_trans(vsk)->lock);
++	vmci_trans(vsk)->sk = NULL;
++	spin_unlock_bh(&vmci_trans(vsk)->lock);
+ 
+ 	if (vmci_trans(vsk)->notify_ops)
+ 		vmci_trans(vsk)->notify_ops->socket_destruct(vsk);
+ 
+-	kfree(vsk->trans);
++	spin_lock_bh(&vmci_transport_cleanup_lock);
++	list_add(&vmci_trans(vsk)->elem, &vmci_transport_cleanup_list);
++	spin_unlock_bh(&vmci_transport_cleanup_lock);
++	schedule_work(&vmci_transport_cleanup_work);
++
+ 	vsk->trans = NULL;
+ }
+ 
+@@ -2146,6 +2135,9 @@ module_init(vmci_transport_init);
+ 
+ static void __exit vmci_transport_exit(void)
+ {
++	cancel_work_sync(&vmci_transport_cleanup_work);
++	vmci_transport_free_resources(&vmci_transport_cleanup_list);
++
+ 	if (!vmci_handle_is_invalid(vmci_transport_stream_handle)) {
+ 		if (vmci_datagram_destroy_handle(
+ 			vmci_transport_stream_handle) != VMCI_SUCCESS)
+@@ -2164,6 +2156,7 @@ module_exit(vmci_transport_exit);
+ 
+ MODULE_AUTHOR("VMware, Inc.");
+ MODULE_DESCRIPTION("VMCI transport for Virtual Sockets");
++MODULE_VERSION("1.0.2.0-k");
+ MODULE_LICENSE("GPL v2");
+ MODULE_ALIAS("vmware_vsock");
+ MODULE_ALIAS_NETPROTO(PF_VSOCK);
+diff --git a/net/vmw_vsock/vmci_transport.h b/net/vmw_vsock/vmci_transport.h
+index ce6c962..2ad46f3 100644
+--- a/net/vmw_vsock/vmci_transport.h
++++ b/net/vmw_vsock/vmci_transport.h
+@@ -119,10 +119,12 @@ struct vmci_transport {
+ 	u64 queue_pair_size;
+ 	u64 queue_pair_min_size;
+ 	u64 queue_pair_max_size;
+-	u32 attach_sub_id;
+ 	u32 detach_sub_id;
+ 	union vmci_transport_notify notify;
+ 	struct vmci_transport_notify_ops *notify_ops;
++	struct list_head elem;
++	struct sock *sk;
++	spinlock_t lock; /* protects sk. */
+ };
+ 
+ int vmci_transport_register(void);
+-- 
+1.7.0
