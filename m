@@ -1,13 +1,17 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] VSOCK: sock_put wasn't safe to call in interrupt context
-Date: Thu, 22 Oct 2015 07:21:39 -0700 (PDT)
-Message-ID: <20151022.072139.454804647788377055.davem__10529.1771622889$1445522753$gmane$org@davemloft.net>
-References: <1445428436-52369-1-git-send-email-jhansen@vmware.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next RFC 2/2] vhost_net: basic polling support
+Date: Thu, 22 Oct 2015 19:16:02 +0300
+Message-ID: <20151022191456-mutt-send-email-mst__18636.9304349229$1445530608$gmane$org@redhat.com>
+References: <1445491649-62614-1-git-send-email-jasowang@redhat.com>
+	<1445491649-62614-2-git-send-email-jasowang@redhat.com>
+	<20151022113824-mutt-send-email-mst@redhat.com>
+	<562904D9.9080109@hpe.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1445428436-52369-1-git-send-email-jhansen@vmware.com>
+Content-Disposition: inline
+In-Reply-To: <562904D9.9080109@hpe.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,32 +21,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jhansen@vmware.com
-Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Rick Jones <rick.jones2@hpe.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jorgen Hansen <jhansen@vmware.com>
-Date: Wed, 21 Oct 2015 04:53:56 -0700
+On Thu, Oct 22, 2015 at 08:46:33AM -0700, Rick Jones wrote:
+> On 10/22/2015 02:33 AM, Michael S. Tsirkin wrote:
+> >On Thu, Oct 22, 2015 at 01:27:29AM -0400, Jason Wang wrote:
+> >>This patch tries to poll for new added tx buffer for a while at the
+> >>end of tx processing. The maximum time spent on polling were limited
+> >>through a module parameter. To avoid block rx, the loop will end it
+> >>there's new other works queued on vhost so in fact socket receive
+> >>queue is also be polled.
+> >>
+> >>busyloop_timeout = 50 gives us following improvement on TCP_RR test:
+> >>
+> >>size/session/+thu%/+normalize%
+> >>     1/     1/   +5%/  -20%
+> >>     1/    50/  +17%/   +3%
+> >
+> >Is there a measureable increase in cpu utilization
+> >with busyloop_timeout = 0?
+> 
+> And since a netperf TCP_RR test is involved, be careful about what netperf
+> reports for CPU util if that increase isn't in the context of the guest OS.
+> 
+> For completeness, looking at the effect on TCP_STREAM and TCP_MAERTS,
+> aggregate _RR and even aggregate _RR/packets per second for many VMs on the
+> same system would be in order.
+> 
+> happy benchmarking,
+> 
+> rick jones
 
-> In the vsock vmci_transport driver, sock_put wasn't safe to call
-> in interrupt context, since that may call the vsock destructor
-> which in turn calls several functions that should only be called
-> from process context. This change defers the callling of these
-> functions  to a worker thread. All these functions were
-> deallocation of resources related to the transport itself.
-> 
-> Furthermore, an unused callback was removed to simplify the
-> cleanup.
-> 
-> Multiple customers have been hitting this issue when using
-> VMware tools on vSphere 2015.
-> 
-> Also added a version to the vmci transport module (starting from
-> 1.0.2.0-k since up until now it appears that this module was
-> sharing version with vsock that is currently at 1.0.1.0-k).
-> 
-> Reviewed-by: Aditya Asarwade <asarwade@vmware.com>
-> Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
-> Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
+Absolutely, merging a new kernel API just for a specific
+benchmark doesn't make sense.
+I'm guessing this is just an early RFC, a fuller submission
+will probably include more numbers.
 
-Applied, thanks.
+-- 
+MST
