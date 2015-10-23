@@ -1,17 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next RFC 2/2] vhost_net: basic polling support
-Date: Thu, 22 Oct 2015 19:16:02 +0300
-Message-ID: <20151022191456-mutt-send-email-mst__18636.9304349229$1445530608$gmane$org@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next RFC 1/2] vhost: introduce vhost_has_work()
+Date: Fri, 23 Oct 2015 15:10:44 +0800
+Message-ID: <5629DD74.1090702@redhat.com>
 References: <1445491649-62614-1-git-send-email-jasowang@redhat.com>
-	<1445491649-62614-2-git-send-email-jasowang@redhat.com>
-	<20151022113824-mutt-send-email-mst@redhat.com>
-	<562904D9.9080109@hpe.com>
+	<20151022113740-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <562904D9.9080109@hpe.com>
+In-Reply-To: <20151022113740-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,43 +18,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rick Jones <rick.jones2@hpe.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Oct 22, 2015 at 08:46:33AM -0700, Rick Jones wrote:
-> On 10/22/2015 02:33 AM, Michael S. Tsirkin wrote:
-> >On Thu, Oct 22, 2015 at 01:27:29AM -0400, Jason Wang wrote:
-> >>This patch tries to poll for new added tx buffer for a while at the
-> >>end of tx processing. The maximum time spent on polling were limited
-> >>through a module parameter. To avoid block rx, the loop will end it
-> >>there's new other works queued on vhost so in fact socket receive
-> >>queue is also be polled.
-> >>
-> >>busyloop_timeout = 50 gives us following improvement on TCP_RR test:
-> >>
-> >>size/session/+thu%/+normalize%
-> >>     1/     1/   +5%/  -20%
-> >>     1/    50/  +17%/   +3%
-> >
-> >Is there a measureable increase in cpu utilization
-> >with busyloop_timeout = 0?
-> 
-> And since a netperf TCP_RR test is involved, be careful about what netperf
-> reports for CPU util if that increase isn't in the context of the guest OS.
-> 
-> For completeness, looking at the effect on TCP_STREAM and TCP_MAERTS,
-> aggregate _RR and even aggregate _RR/packets per second for many VMs on the
-> same system would be in order.
-> 
-> happy benchmarking,
-> 
-> rick jones
 
-Absolutely, merging a new kernel API just for a specific
-benchmark doesn't make sense.
-I'm guessing this is just an early RFC, a fuller submission
-will probably include more numbers.
 
--- 
-MST
+On 10/22/2015 04:38 PM, Michael S. Tsirkin wrote:
+> On Thu, Oct 22, 2015 at 01:27:28AM -0400, Jason Wang wrote:
+>> > This path introduces a helper which can give a hint for whether or not
+>> > there's a work queued in the work list.
+>> > 
+>> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+>> > ---
+>> >  drivers/vhost/vhost.c | 6 ++++++
+>> >  drivers/vhost/vhost.h | 1 +
+>> >  2 files changed, 7 insertions(+)
+>> > 
+>> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+>> > index eec2f11..d42d11e 100644
+>> > --- a/drivers/vhost/vhost.c
+>> > +++ b/drivers/vhost/vhost.c
+>> > @@ -245,6 +245,12 @@ void vhost_work_queue(struct vhost_dev *dev, struct vhost_work *work)
+>> >  }
+>> >  EXPORT_SYMBOL_GPL(vhost_work_queue);
+>> >  
+>> > +bool vhost_has_work(struct vhost_dev *dev)
+>> > +{
+>> > +	return !list_empty(&dev->work_list);
+>> > +}
+>> > +EXPORT_SYMBOL_GPL(vhost_has_work);
+>> > +
+>> >  void vhost_poll_queue(struct vhost_poll *poll)
+>> >  {
+>> >  	vhost_work_queue(poll->dev, &poll->work);
+> This doesn't take a lock so it's unreliable.
+> I think it's ok in this case since it's just
+> an optimization - but pls document this.
+>
+
+Ok, will do.
