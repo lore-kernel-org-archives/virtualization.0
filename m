@@ -1,11 +1,13 @@
 From: Andrey Smetanin <asmetanin@virtuozzo.com>
-Subject: [PATCH 0/7] Hyper-V Synthetic interrupt controller
-Date: Mon, 26 Oct 2015 12:50:53 +0300
-Message-ID: <1445853060-24201-1-git-send-email-asmetanin__27714.5290551291$1446420851$gmane$org@virtuozzo.com>
+Subject: [PATCH 4/7] kvm: Hyper-V SynIC irq routing support
+Date: Mon, 26 Oct 2015 12:50:57 +0300
+Message-ID: <1445853060-24201-5-git-send-email-asmetanin__45473.0806210593$1446420859$gmane$org@virtuozzo.com>
+References: <1445853060-24201-1-git-send-email-asmetanin@virtuozzo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1445853060-24201-1-git-send-email-asmetanin@virtuozzo.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,47 +21,6 @@ To: qemu-devel@nongnu.org
 Cc: kvm@vger.kernel.org, Gleb Natapov <gleb@kernel.org>, virtualization@lists.linux-foundation.org, Roman Kagan <rkagan@virtuozzo.com>, Paolo Bonzini <pbonzini@redhat.com>, "Denis V. Lunev" <den@openvz.org>, Vitaly Kuznetsov <vkuznets@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hyper-V SynIC (synthetic interrupt controller) device
-implementation.
-
-The implementation contains:
-* msr's support
-* irq routing setup
-* irq injection
-* irq ack callback registration
-* event/message pages changes tracking at Hyper-V exit
-* Hyper-V test device to test SynIC by kvm-unit-tests
-
-Andrey Smetanin (7):
-  standard-headers/x86: add Hyper-V SynIC constants
-  target-i386/kvm: Hyper-V SynIC MSR's support
-  linux-headers/kvm: add Hyper-V SynIC irq routing type and struct
-  kvm: Hyper-V SynIC irq routing support
-  linux-headers/kvm: KVM_EXIT_HYPERV type and struct
-  target-i386/hyperv: Hyper-V SynIC SINT routing and vCPU exit
-  hw/misc: Hyper-V test device 'hyperv-testdev'
-
- default-configs/i386-softmmu.mak          |   1 +
- default-configs/x86_64-softmmu.mak        |   1 +
- hw/misc/Makefile.objs                     |   1 +
- hw/misc/hyperv_testdev.c                  | 164 ++++++++++++++++++++++++++++++
- include/standard-headers/asm-x86/hyperv.h |  12 +++
- include/sysemu/kvm.h                      |   1 +
- kvm-all.c                                 |  33 ++++++
- linux-headers/linux/kvm.h                 |  25 +++++
- target-i386/Makefile.objs                 |   2 +-
- target-i386/cpu-qom.h                     |   1 +
- target-i386/cpu.c                         |   1 +
- target-i386/cpu.h                         |   5 +
- target-i386/hyperv.c                      | 127 +++++++++++++++++++++++
- target-i386/hyperv.h                      |  42 ++++++++
- target-i386/kvm.c                         |  66 +++++++++++-
- target-i386/machine.c                     |  39 +++++++
- 16 files changed, 519 insertions(+), 2 deletions(-)
- create mode 100644 hw/misc/hyperv_testdev.c
- create mode 100644 target-i386/hyperv.c
- create mode 100644 target-i386/hyperv.h
-
 Signed-off-by: Andrey Smetanin <asmetanin@virtuozzo.com>
 Reviewed-by: Roman Kagan <rkagan@virtuozzo.com>
 Signed-off-by: Denis V. Lunev <den@openvz.org>
@@ -72,5 +33,73 @@ CC: Denis V. Lunev <den@openvz.org>
 CC: kvm@vger.kernel.org
 CC: virtualization@lists.linux-foundation.org
 
+---
+ include/sysemu/kvm.h |  1 +
+ kvm-all.c            | 33 +++++++++++++++++++++++++++++++++
+ 2 files changed, 34 insertions(+)
+
+diff --git a/include/sysemu/kvm.h b/include/sysemu/kvm.h
+index 461ef65..5af10fb 100644
+--- a/include/sysemu/kvm.h
++++ b/include/sysemu/kvm.h
+@@ -455,6 +455,7 @@ int kvm_irqchip_update_msi_route(KVMState *s, int virq, MSIMessage msg,
+ void kvm_irqchip_release_virq(KVMState *s, int virq);
+ 
+ int kvm_irqchip_add_adapter_route(KVMState *s, AdapterInfo *adapter);
++int kvm_irqchip_add_hv_sint_route(KVMState *s, uint32_t vcpu, uint32_t sint);
+ 
+ int kvm_irqchip_add_irqfd_notifier_gsi(KVMState *s, EventNotifier *n,
+                                        EventNotifier *rn, int virq);
+diff --git a/kvm-all.c b/kvm-all.c
+index c442838..4d36a6c 100644
+--- a/kvm-all.c
++++ b/kvm-all.c
+@@ -1297,6 +1297,34 @@ int kvm_irqchip_add_adapter_route(KVMState *s, AdapterInfo *adapter)
+     return virq;
+ }
+ 
++int kvm_irqchip_add_hv_sint_route(KVMState *s, uint32_t vcpu, uint32_t sint)
++{
++    struct kvm_irq_routing_entry kroute = {};
++    int virq;
++
++    if (!kvm_gsi_routing_enabled()) {
++        return -ENOSYS;
++    }
++    if (!kvm_check_extension(s, KVM_CAP_HYPERV_SYNIC)) {
++        return -ENOSYS;
++    }
++    virq = kvm_irqchip_get_virq(s);
++    if (virq < 0) {
++        return virq;
++    }
++
++    kroute.gsi = virq;
++    kroute.type = KVM_IRQ_ROUTING_HV_SINT;
++    kroute.flags = 0;
++    kroute.u.hv_sint.vcpu = vcpu;
++    kroute.u.hv_sint.sint = sint;
++
++    kvm_add_routing_entry(s, &kroute);
++    kvm_irqchip_commit_routes(s);
++
++    return virq;
++}
++
+ #else /* !KVM_CAP_IRQ_ROUTING */
+ 
+ void kvm_init_irq_routing(KVMState *s)
+@@ -1322,6 +1350,11 @@ int kvm_irqchip_add_adapter_route(KVMState *s, AdapterInfo *adapter)
+     return -ENOSYS;
+ }
+ 
++int kvm_irqchip_add_hv_sint_route(KVMState *s, uint32_t vcpu, uint32_t sint)
++{
++    return -ENOSYS;
++}
++
+ static int kvm_irqchip_assign_irqfd(KVMState *s, int fd, int virq, bool assign)
+ {
+     abort();
 -- 
 2.4.3
