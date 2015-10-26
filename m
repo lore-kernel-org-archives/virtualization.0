@@ -1,15 +1,15 @@
-From: Rick Jones <rick.jones2@hpe.com>
-Subject: Re: [PATCH net-next RFC 2/2] vhost_net: basic polling support
-Date: Thu, 22 Oct 2015 08:46:33 -0700
-Message-ID: <562904D9.9080109__5704.31288001618$1445619087$gmane$org@hpe.com>
-References: <1445491649-62614-1-git-send-email-jasowang@redhat.com>
-	<1445491649-62614-2-git-send-email-jasowang@redhat.com>
-	<20151022113824-mutt-send-email-mst@redhat.com>
+From: Peter Maydell <peter.maydell@linaro.org>
+Subject: Re: [Qemu-devel] [PATCH 3/7] linux-headers/kvm: add Hyper-V SynIC irq
+	routing type and struct
+Date: Mon, 26 Oct 2015 10:03:17 +0000
+Message-ID: <CAFEAcA9_DwrMd7LhLxxxxt307pFY46fFYDXbhbRN7YDmOOFaWw@mail.gmail.com>
+References: <1445853060-24201-1-git-send-email-asmetanin@virtuozzo.com>
+	<1445853060-24201-4-git-send-email-asmetanin@virtuozzo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20151022113824-mutt-send-email-mst@redhat.com>
+In-Reply-To: <1445853060-24201-4-git-send-email-asmetanin@virtuozzo.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,35 +19,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Andrey Smetanin <asmetanin@virtuozzo.com>
+Cc: kvm-devel <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, QEMU Developers <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Roman Kagan <rkagan@virtuozzo.com>, "Denis V. Lunev" <den@openvz.org>, Paolo Bonzini <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/22/2015 02:33 AM, Michael S. Tsirkin wrote:
-> On Thu, Oct 22, 2015 at 01:27:29AM -0400, Jason Wang wrote:
->> This patch tries to poll for new added tx buffer for a while at the
->> end of tx processing. The maximum time spent on polling were limited
->> through a module parameter. To avoid block rx, the loop will end it
->> there's new other works queued on vhost so in fact socket receive
->> queue is also be polled.
->>
->> busyloop_timeout = 50 gives us following improvement on TCP_RR test:
->>
->> size/session/+thu%/+normalize%
->>      1/     1/   +5%/  -20%
->>      1/    50/  +17%/   +3%
+On 26 October 2015 at 09:50, Andrey Smetanin <asmetanin@virtuozzo.com> wrote:
+> Signed-off-by: Andrey Smetanin <asmetanin@virtuozzo.com>
+> Reviewed-by: Roman Kagan <rkagan@virtuozzo.com>
+> Signed-off-by: Denis V. Lunev <den@openvz.org>
+> CC: Vitaly Kuznetsov <vkuznets@redhat.com>
+> CC: "K. Y. Srinivasan" <kys@microsoft.com>
+> CC: Gleb Natapov <gleb@kernel.org>
+> CC: Paolo Bonzini <pbonzini@redhat.com>
+> CC: Roman Kagan <rkagan@virtuozzo.com>
+> CC: Denis V. Lunev <den@openvz.org>
+> CC: kvm@vger.kernel.org
+> CC: virtualization@lists.linux-foundation.org
 >
-> Is there a measureable increase in cpu utilization
-> with busyloop_timeout = 0?
+> ---
+>  linux-headers/linux/kvm.h | 8 ++++++++
+>  1 file changed, 8 insertions(+)
 
-And since a netperf TCP_RR test is involved, be careful about what 
-netperf reports for CPU util if that increase isn't in the context of 
-the guest OS.
+Hi. Changes to linux-headers/ should only be made as part of
+an automated update from a mainline Linux kernel tree using
+the scripts/update-linux-headers.sh script. This patch looks
+like maybe it was a manual edit ?
 
-For completeness, looking at the effect on TCP_STREAM and TCP_MAERTS, 
-aggregate _RR and even aggregate _RR/packets per second for many VMs on 
-the same system would be in order.
-
-happy benchmarking,
-
-rick jones
+thanks
+-- PMM
