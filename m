@@ -1,7 +1,8 @@
 From: Andrey Smetanin <asmetanin@virtuozzo.com>
-Subject: [PATCH 5/7] linux-headers/kvm: KVM_EXIT_HYPERV type and struct
-Date: Mon, 26 Oct 2015 12:50:58 +0300
-Message-ID: <1445853060-24201-6-git-send-email-asmetanin__42104.766253806$1446420830$gmane$org@virtuozzo.com>
+Subject: [PATCH 3/7] linux-headers/kvm: add Hyper-V SynIC irq routing type and
+	struct
+Date: Mon, 26 Oct 2015 12:50:56 +0300
+Message-ID: <1445853060-24201-4-git-send-email-asmetanin__45371.6804077432$1446420839$gmane$org@virtuozzo.com>
 References: <1445853060-24201-1-git-send-email-asmetanin@virtuozzo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -34,50 +35,45 @@ CC: kvm@vger.kernel.org
 CC: virtualization@lists.linux-foundation.org
 
 ---
- linux-headers/linux/kvm.h | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ linux-headers/linux/kvm.h | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
 diff --git a/linux-headers/linux/kvm.h b/linux-headers/linux/kvm.h
-index 0bff588..4e20262 100644
+index dcc410e..0bff588 100644
 --- a/linux-headers/linux/kvm.h
 +++ b/linux-headers/linux/kvm.h
-@@ -154,6 +154,20 @@ struct kvm_s390_skeys {
- 	__u32 flags;
- 	__u32 reserved[9];
+@@ -831,6 +831,7 @@ struct kvm_ppc_smmu_info {
+ #define KVM_CAP_GUEST_DEBUG_HW_WPS 120
+ #define KVM_CAP_SPLIT_IRQCHIP 121
+ #define KVM_CAP_IOEVENTFD_ANY_LENGTH 122
++#define KVM_CAP_HYPERV_SYNIC 123
+ 
+ #ifdef KVM_CAP_IRQ_ROUTING
+ 
+@@ -854,10 +855,16 @@ struct kvm_irq_routing_s390_adapter {
+ 	__u32 adapter_id;
  };
-+
-+struct kvm_hyperv_exit {
-+#define KVM_EXIT_HYPERV_SYNIC          1
-+	__u32 type;
-+	union {
-+		struct {
-+			__u32 msr;
-+			__u64 control;
-+			__u64 evt_page;
-+			__u64 msg_page;
-+		} synic;
-+	} u;
+ 
++struct kvm_irq_routing_hv_sint {
++	__u32 vcpu;
++	__u32 sint;
 +};
 +
- #define KVM_S390_GET_SKEYS_NONE   1
- #define KVM_S390_SKEYS_MAX        1048576
+ /* gsi routing entry types */
+ #define KVM_IRQ_ROUTING_IRQCHIP 1
+ #define KVM_IRQ_ROUTING_MSI 2
+ #define KVM_IRQ_ROUTING_S390_ADAPTER 3
++#define KVM_IRQ_ROUTING_HV_SINT 4
  
-@@ -184,6 +198,7 @@ struct kvm_s390_skeys {
- #define KVM_EXIT_SYSTEM_EVENT     24
- #define KVM_EXIT_S390_STSI        25
- #define KVM_EXIT_IOAPIC_EOI       26
-+#define KVM_EXIT_HYPERV           27
- 
- /* For KVM_EXIT_INTERNAL_ERROR */
- /* Emulate instruction failed. */
-@@ -338,6 +353,8 @@ struct kvm_run {
- 		struct {
- 			__u8 vector;
- 		} eoi;
-+		/* KVM_EXIT_HYPERV */
-+		struct kvm_hyperv_exit hyperv;
- 		/* Fix the size of the union. */
- 		char padding[256];
- 	};
+ struct kvm_irq_routing_entry {
+ 	__u32 gsi;
+@@ -868,6 +875,7 @@ struct kvm_irq_routing_entry {
+ 		struct kvm_irq_routing_irqchip irqchip;
+ 		struct kvm_irq_routing_msi msi;
+ 		struct kvm_irq_routing_s390_adapter adapter;
++		struct kvm_irq_routing_hv_sint hv_sint;
+ 		__u32 pad[8];
+ 	} u;
+ };
 -- 
 2.4.3
