@@ -1,8 +1,7 @@
 From: Andrey Smetanin <asmetanin@virtuozzo.com>
-Subject: [PATCH 6/7] target-i386/hyperv: Hyper-V SynIC SINT routing and vCPU
-	exit
-Date: Mon, 26 Oct 2015 12:50:59 +0300
-Message-ID: <1445853060-24201-7-git-send-email-asmetanin__23519.9066148654$1446420877$gmane$org@virtuozzo.com>
+Subject: [PATCH 2/7] target-i386/kvm: Hyper-V SynIC MSR's support
+Date: Mon, 26 Oct 2015 12:50:55 +0300
+Message-ID: <1445853060-24201-3-git-send-email-asmetanin__36234.441251918$1446420881$gmane$org@virtuozzo.com>
 References: <1445853060-24201-1-git-send-email-asmetanin@virtuozzo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,9 +21,7 @@ To: qemu-devel@nongnu.org
 Cc: kvm@vger.kernel.org, Gleb Natapov <gleb@kernel.org>, virtualization@lists.linux-foundation.org, Roman Kagan <rkagan@virtuozzo.com>, Paolo Bonzini <pbonzini@redhat.com>, "Denis V. Lunev" <den@openvz.org>, Vitaly Kuznetsov <vkuznets@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hyper-V SynIC(synthetic interrupt controller) API for
-irq routing setup, irq injection, irq ack notifications and
-event/message pages changes tracking for future use.
+Hyper-V SynIC MSR's support and MSR's migration.
 
 Signed-off-by: Andrey Smetanin <asmetanin@virtuozzo.com>
 Reviewed-by: Roman Kagan <rkagan@virtuozzo.com>
@@ -39,227 +36,224 @@ CC: kvm@vger.kernel.org
 CC: virtualization@lists.linux-foundation.org
 
 ---
- target-i386/Makefile.objs |   2 +-
- target-i386/hyperv.c      | 127 ++++++++++++++++++++++++++++++++++++++++++++++
- target-i386/hyperv.h      |  42 +++++++++++++++
- target-i386/kvm.c         |   4 ++
- 4 files changed, 174 insertions(+), 1 deletion(-)
- create mode 100644 target-i386/hyperv.c
- create mode 100644 target-i386/hyperv.h
+ target-i386/cpu-qom.h |  1 +
+ target-i386/cpu.c     |  1 +
+ target-i386/cpu.h     |  5 +++++
+ target-i386/kvm.c     | 62 ++++++++++++++++++++++++++++++++++++++++++++++++++-
+ target-i386/machine.c | 39 ++++++++++++++++++++++++++++++++
+ 5 files changed, 107 insertions(+), 1 deletion(-)
 
-diff --git a/target-i386/Makefile.objs b/target-i386/Makefile.objs
-index 437d997..2255f46 100644
---- a/target-i386/Makefile.objs
-+++ b/target-i386/Makefile.objs
-@@ -3,5 +3,5 @@ obj-y += excp_helper.o fpu_helper.o cc_helper.o int_helper.o svm_helper.o
- obj-y += smm_helper.o misc_helper.o mem_helper.o seg_helper.o
- obj-y += gdbstub.o
- obj-$(CONFIG_SOFTMMU) += machine.o arch_memory_mapping.o arch_dump.o monitor.o
--obj-$(CONFIG_KVM) += kvm.o
-+obj-$(CONFIG_KVM) += kvm.o hyperv.o
- obj-$(call lnot,$(CONFIG_KVM)) += kvm-stub.o
-diff --git a/target-i386/hyperv.c b/target-i386/hyperv.c
-new file mode 100644
-index 0000000..e79b173
---- /dev/null
-+++ b/target-i386/hyperv.c
-@@ -0,0 +1,127 @@
-+/*
-+ * QEMU KVM Hyper-V support
-+ *
-+ * Copyright (C) 2015 Andrey Smetanin <asmetanin@virtuozzo.com>
-+ *
-+ * Authors:
-+ *  Andrey Smetanin <asmetanin@virtuozzo.com>
-+ *
-+ * This work is licensed under the terms of the GNU GPL, version 2 or later.
-+ * See the COPYING file in the top-level directory.
-+ *
-+ */
-+
-+#include "hyperv.h"
-+#include "standard-headers/asm-x86/hyperv.h"
-+
-+int kvm_hv_handle_exit(X86CPU *cpu, struct kvm_hyperv_exit *exit)
-+{
-+    CPUX86State *env = &cpu->env;
-+
-+    switch (exit->type) {
-+    case KVM_EXIT_HYPERV_SYNIC:
-+        if (!cpu->hyperv_synic) {
-+            return -1;
-+        }
-+
-+        /*
-+         * For now just track changes in SynIC control and msg/evt pages msr's.
-+         * When SynIC messaging/events processing will be added in future
-+         * here we will do messages queues flushing and pages remapping.
-+         */
-+        switch (exit->u.synic.msr) {
-+        case HV_X64_MSR_SCONTROL:
-+            env->msr_hv_synic_control = exit->u.synic.control;
-+            break;
-+        case HV_X64_MSR_SIMP:
-+            env->msr_hv_synic_msg_page = exit->u.synic.msg_page;
-+            break;
-+        case HV_X64_MSR_SIEFP:
-+            env->msr_hv_synic_evt_page = exit->u.synic.evt_page;
-+            break;
-+        default:
-+            return -1;
-+        }
-+        return 0;
-+    default:
-+        return -1;
-+    }
-+}
-+
-+static void kvm_hv_sint_ack_handler(EventNotifier *notifier)
-+{
-+    HvSintRoute *sint_route = container_of(notifier, HvSintRoute,
-+                                           sint_ack_notifier);
-+    event_notifier_test_and_clear(notifier);
-+    if (sint_route->sint_ack_clb) {
-+        sint_route->sint_ack_clb(sint_route);
-+    }
-+}
-+
-+HvSintRoute *kvm_hv_sint_route_create(uint32_t vcpu_id, uint32_t sint,
-+                                      HvSintAckClb sint_ack_clb)
-+{
-+    HvSintRoute *sint_route;
-+    int r, gsi;
-+
-+    sint_route = g_malloc0(sizeof(*sint_route));
-+    r = event_notifier_init(&sint_route->sint_set_notifier, false);
-+    if (r) {
-+        goto err;
-+    }
-+
-+    r = event_notifier_init(&sint_route->sint_ack_notifier, false);
-+    if (r) {
-+        goto err_sint_set_notifier;
-+    }
-+
-+    event_notifier_set_handler(&sint_route->sint_ack_notifier,
-+                               kvm_hv_sint_ack_handler);
-+
-+    gsi = kvm_irqchip_add_hv_sint_route(kvm_state, vcpu_id, sint);
-+    if (gsi < 0) {
-+        goto err_gsi;
-+    }
-+
-+    r = kvm_irqchip_add_irqfd_notifier_gsi(kvm_state,
-+                                           &sint_route->sint_set_notifier,
-+                                           &sint_route->sint_ack_notifier, gsi);
-+    if (r) {
-+        goto err_irqfd;
-+    }
-+    sint_route->gsi = gsi;
-+    sint_route->sint_ack_clb = sint_ack_clb;
-+    sint_route->vcpu_id = vcpu_id;
-+    sint_route->sint = sint;
-+
-+    return sint_route;
-+
-+err_irqfd:
-+    kvm_irqchip_release_virq(kvm_state, gsi);
-+err_gsi:
-+    event_notifier_set_handler(&sint_route->sint_ack_notifier, NULL);
-+    event_notifier_cleanup(&sint_route->sint_ack_notifier);
-+err_sint_set_notifier:
-+    event_notifier_cleanup(&sint_route->sint_set_notifier);
-+err:
-+    g_free(sint_route);
-+
-+    return NULL;
-+}
-+
-+void kvm_hv_sint_route_destroy(HvSintRoute *sint_route)
-+{
-+    kvm_irqchip_remove_irqfd_notifier_gsi(kvm_state,
-+                                          &sint_route->sint_set_notifier,
-+                                          sint_route->gsi);
-+    kvm_irqchip_release_virq(kvm_state, sint_route->gsi);
-+    event_notifier_set_handler(&sint_route->sint_ack_notifier, NULL);
-+    event_notifier_cleanup(&sint_route->sint_ack_notifier);
-+    event_notifier_cleanup(&sint_route->sint_set_notifier);
-+    g_free(sint_route);
-+}
-+
-+int kvm_hv_sint_route_set_sint(HvSintRoute *sint_route)
-+{
-+    return event_notifier_set(&sint_route->sint_set_notifier);
-+}
-diff --git a/target-i386/hyperv.h b/target-i386/hyperv.h
-new file mode 100644
-index 0000000..b26201f
---- /dev/null
-+++ b/target-i386/hyperv.h
-@@ -0,0 +1,42 @@
-+/*
-+ * QEMU KVM Hyper-V support
-+ *
-+ * Copyright (C) 2015 Andrey Smetanin <asmetanin@virtuozzo.com>
-+ *
-+ * Authors:
-+ *  Andrey Smetanin <asmetanin@virtuozzo.com>
-+ *
-+ * This work is licensed under the terms of the GNU GPL, version 2 or later.
-+ * See the COPYING file in the top-level directory.
-+ *
-+ */
-+
-+#ifndef HYPERV_I386_H
-+#define HYPERV_I386_H
-+
-+#include "cpu.h"
-+#include "sysemu/kvm.h"
-+#include "qemu/event_notifier.h"
-+
-+typedef struct HvSintRoute HvSintRoute;
-+typedef void (*HvSintAckClb)(HvSintRoute *sint_route);
-+
-+struct HvSintRoute {
-+    uint32_t sint;
-+    uint32_t vcpu_id;
-+    int gsi;
-+    EventNotifier sint_set_notifier;
-+    EventNotifier sint_ack_notifier;
-+    HvSintAckClb sint_ack_clb;
-+};
-+
-+int kvm_hv_handle_exit(X86CPU *cpu, struct kvm_hyperv_exit *exit);
-+
-+HvSintRoute *kvm_hv_sint_route_create(uint32_t vcpu_id, uint32_t sint,
-+                                      HvSintAckClb sint_ack_clb);
-+
-+void kvm_hv_sint_route_destroy(HvSintRoute *sint_route);
-+
-+int kvm_hv_sint_route_set_sint(HvSintRoute *sint_route);
-+
-+#endif
+diff --git a/target-i386/cpu-qom.h b/target-i386/cpu-qom.h
+index e3bfe9d..7ea5b34 100644
+--- a/target-i386/cpu-qom.h
++++ b/target-i386/cpu-qom.h
+@@ -94,6 +94,7 @@ typedef struct X86CPU {
+     bool hyperv_reset;
+     bool hyperv_vpindex;
+     bool hyperv_runtime;
++    bool hyperv_synic;
+     bool check_cpuid;
+     bool enforce_cpuid;
+     bool expose_kvm;
+diff --git a/target-i386/cpu.c b/target-i386/cpu.c
+index c1a9e09..ff1c0a9 100644
+--- a/target-i386/cpu.c
++++ b/target-i386/cpu.c
+@@ -3141,6 +3141,7 @@ static Property x86_cpu_properties[] = {
+     DEFINE_PROP_BOOL("hv-reset", X86CPU, hyperv_reset, false),
+     DEFINE_PROP_BOOL("hv-vpindex", X86CPU, hyperv_vpindex, false),
+     DEFINE_PROP_BOOL("hv-runtime", X86CPU, hyperv_runtime, false),
++    DEFINE_PROP_BOOL("hv-synic", X86CPU, hyperv_synic, false),
+     DEFINE_PROP_BOOL("check", X86CPU, check_cpuid, false),
+     DEFINE_PROP_BOOL("enforce", X86CPU, enforce_cpuid, false),
+     DEFINE_PROP_BOOL("kvm", X86CPU, expose_kvm, true),
+diff --git a/target-i386/cpu.h b/target-i386/cpu.h
+index 62f7879..8611015 100644
+--- a/target-i386/cpu.h
++++ b/target-i386/cpu.h
+@@ -915,6 +915,11 @@ typedef struct CPUX86State {
+     uint64_t msr_hv_tsc;
+     uint64_t msr_hv_crash_params[HV_X64_MSR_CRASH_PARAMS];
+     uint64_t msr_hv_runtime;
++    uint64_t msr_hv_synic_control;
++    uint64_t msr_hv_synic_version;
++    uint64_t msr_hv_synic_evt_page;
++    uint64_t msr_hv_synic_msg_page;
++    uint64_t msr_hv_synic_sint[HV_SYNIC_SINT_COUNT];
+ 
+     /* exception/interrupt handling */
+     int error_code;
 diff --git a/target-i386/kvm.c b/target-i386/kvm.c
-index 325dfec..c760fd2 100644
+index 64046cb..325dfec 100644
 --- a/target-i386/kvm.c
 +++ b/target-i386/kvm.c
-@@ -25,6 +25,7 @@
- #include "sysemu/kvm_int.h"
- #include "kvm_i386.h"
- #include "cpu.h"
-+#include "hyperv.h"
- #include "exec/gdbstub.h"
- #include "qemu/host-utils.h"
- #include "qemu/config-file.h"
-@@ -2908,6 +2909,9 @@ int kvm_arch_handle_exit(CPUState *cs, struct kvm_run *run)
-         ret = kvm_handle_debug(cpu, &run->debug.arch);
-         qemu_mutex_unlock_iothread();
-         break;
-+    case KVM_EXIT_HYPERV:
-+        ret = kvm_hv_handle_exit(cpu, &run->hyperv);
-+        break;
-     default:
-         fprintf(stderr, "KVM: unknown exit reason %d\n", run->exit_reason);
-         ret = -1;
+@@ -86,6 +86,7 @@ static bool has_msr_hv_crash;
+ static bool has_msr_hv_reset;
+ static bool has_msr_hv_vpindex;
+ static bool has_msr_hv_runtime;
++static bool has_msr_hv_synic;
+ static bool has_msr_mtrr;
+ static bool has_msr_xss;
+ 
+@@ -476,7 +477,8 @@ static bool hyperv_enabled(X86CPU *cpu)
+             cpu->hyperv_crash ||
+             cpu->hyperv_reset ||
+             cpu->hyperv_vpindex ||
+-            cpu->hyperv_runtime);
++            cpu->hyperv_runtime ||
++            cpu->hyperv_synic);
+ }
+ 
+ static Error *invtsc_mig_blocker;
+@@ -565,6 +567,9 @@ int kvm_arch_init_vcpu(CPUState *cs)
+         if (cpu->hyperv_runtime && has_msr_hv_runtime) {
+             c->eax |= HV_X64_MSR_VP_RUNTIME_AVAILABLE;
+         }
++        if (cpu->hyperv_synic && has_msr_hv_synic) {
++            c->eax |= HV_X64_MSR_SYNIC_AVAILABLE;
++        }
+         c = &cpuid_data.entries[cpuid_i++];
+         c->function = HYPERV_CPUID_ENLIGHTMENT_INFO;
+         if (cpu->hyperv_relaxed_timing) {
+@@ -905,6 +910,10 @@ static int kvm_get_supported_msrs(KVMState *s)
+                     has_msr_hv_runtime = true;
+                     continue;
+                 }
++                if (kvm_msr_list->indices[i] == HV_X64_MSR_SCONTROL) {
++                    has_msr_hv_synic = true;
++                    continue;
++                }
+             }
+         }
+ 
+@@ -1466,6 +1475,31 @@ static int kvm_put_msrs(X86CPU *cpu, int level)
+             kvm_msr_entry_set(&msrs[n++], HV_X64_MSR_VP_RUNTIME,
+                               env->msr_hv_runtime);
+         }
++        if (has_msr_hv_synic) {
++            int j;
++
++            if (!env->msr_hv_synic_version) {
++                /* First time initialization */
++                env->msr_hv_synic_version = HV_SYNIC_VERSION_1;
++                for (j = 0; j < ARRAY_SIZE(env->msr_hv_synic_sint); j++) {
++                    env->msr_hv_synic_sint[j] = HV_SYNIC_SINT_MASKED;
++                }
++            }
++
++            kvm_msr_entry_set(&msrs[n++], HV_X64_MSR_SCONTROL,
++                              env->msr_hv_synic_control);
++            kvm_msr_entry_set(&msrs[n++], HV_X64_MSR_SVERSION,
++                              env->msr_hv_synic_version);
++            kvm_msr_entry_set(&msrs[n++], HV_X64_MSR_SIEFP,
++                              env->msr_hv_synic_evt_page);
++            kvm_msr_entry_set(&msrs[n++], HV_X64_MSR_SIMP,
++                              env->msr_hv_synic_msg_page);
++
++            for (j = 0; j < ARRAY_SIZE(env->msr_hv_synic_sint); j++) {
++                kvm_msr_entry_set(&msrs[n++], HV_X64_MSR_SINT0 + j,
++                                  env->msr_hv_synic_sint[j]);
++            }
++        }
+         if (has_msr_mtrr) {
+             kvm_msr_entry_set(&msrs[n++], MSR_MTRRdefType, env->mtrr_deftype);
+             kvm_msr_entry_set(&msrs[n++],
+@@ -1834,6 +1868,17 @@ static int kvm_get_msrs(X86CPU *cpu)
+     if (has_msr_hv_runtime) {
+         msrs[n++].index = HV_X64_MSR_VP_RUNTIME;
+     }
++    if (has_msr_hv_synic) {
++        uint32_t msr;
++
++        msrs[n++].index = HV_X64_MSR_SCONTROL;
++        msrs[n++].index = HV_X64_MSR_SVERSION;
++        msrs[n++].index = HV_X64_MSR_SIEFP;
++        msrs[n++].index = HV_X64_MSR_SIMP;
++        for (msr = HV_X64_MSR_SINT0; msr <= HV_X64_MSR_SINT15; msr++) {
++            msrs[n++].index = msr;
++        }
++    }
+     if (has_msr_mtrr) {
+         msrs[n++].index = MSR_MTRRdefType;
+         msrs[n++].index = MSR_MTRRfix64K_00000;
+@@ -1990,6 +2035,21 @@ static int kvm_get_msrs(X86CPU *cpu)
+         case HV_X64_MSR_VP_RUNTIME:
+             env->msr_hv_runtime = msrs[i].data;
+             break;
++        case HV_X64_MSR_SCONTROL:
++            env->msr_hv_synic_control = msrs[i].data;
++            break;
++        case HV_X64_MSR_SVERSION:
++            env->msr_hv_synic_version = msrs[i].data;
++            break;
++        case HV_X64_MSR_SIEFP:
++            env->msr_hv_synic_evt_page = msrs[i].data;
++            break;
++        case HV_X64_MSR_SIMP:
++            env->msr_hv_synic_msg_page = msrs[i].data;
++            break;
++        case HV_X64_MSR_SINT0 ... HV_X64_MSR_SINT15:
++            env->msr_hv_synic_sint[index - HV_X64_MSR_SINT0] = msrs[i].data;
++            break;
+         case MSR_MTRRdefType:
+             env->mtrr_deftype = msrs[i].data;
+             break;
+diff --git a/target-i386/machine.c b/target-i386/machine.c
+index a18e16e..bdb2997 100644
+--- a/target-i386/machine.c
++++ b/target-i386/machine.c
+@@ -710,6 +710,44 @@ static const VMStateDescription vmstate_msr_hyperv_runtime = {
+     }
+ };
+ 
++static bool hyperv_synic_enable_needed(void *opaque)
++{
++    X86CPU *cpu = opaque;
++    CPUX86State *env = &cpu->env;
++    int i;
++
++    if (env->msr_hv_synic_control != 0 ||
++        env->msr_hv_synic_version != 0 ||
++        env->msr_hv_synic_evt_page != 0 ||
++        env->msr_hv_synic_msg_page != 0) {
++        return true;
++    }
++
++    for (i = 0; i < ARRAY_SIZE(env->msr_hv_synic_sint); i++) {
++        if (env->msr_hv_synic_sint[i] != 0) {
++            return true;
++        }
++    }
++
++    return false;
++}
++
++static const VMStateDescription vmstate_msr_hyperv_synic = {
++    .name = "cpu/msr_hyperv_synic",
++    .version_id = 1,
++    .minimum_version_id = 1,
++    .needed = hyperv_synic_enable_needed,
++    .fields = (VMStateField[]) {
++        VMSTATE_UINT64(env.msr_hv_synic_control, X86CPU),
++        VMSTATE_UINT64(env.msr_hv_synic_version, X86CPU),
++        VMSTATE_UINT64(env.msr_hv_synic_evt_page, X86CPU),
++        VMSTATE_UINT64(env.msr_hv_synic_msg_page, X86CPU),
++        VMSTATE_UINT64_ARRAY(env.msr_hv_synic_sint, X86CPU,
++                             HV_SYNIC_SINT_COUNT),
++        VMSTATE_END_OF_LIST()
++    }
++};
++
+ static bool avx512_needed(void *opaque)
+ {
+     X86CPU *cpu = opaque;
+@@ -893,6 +931,7 @@ VMStateDescription vmstate_x86_cpu = {
+         &vmstate_msr_hyperv_time,
+         &vmstate_msr_hyperv_crash,
+         &vmstate_msr_hyperv_runtime,
++        &vmstate_msr_hyperv_synic,
+         &vmstate_avx512,
+         &vmstate_xss,
+         NULL
 -- 
 2.4.3
