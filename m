@@ -1,22 +1,11 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
-Date: Wed, 28 Oct 2015 15:51:58 -0700
-Message-ID: <CALCETrWd7mK5bW2p_dvvjDRnqE31=ueAz5SAYKwY-PD5uZp76A@mail.gmail.com>
-References: <cover.1446014204.git.luto@kernel.org>
-	<20151028091208-mutt-send-email-mst@redhat.com>
-	<56307BD1.6010806@de.ibm.com> <1446019787.3405.203.camel@infradead.org>
-	<20151028132331-mutt-send-email-mst@redhat.com>
-	<1446039327.3405.216.camel@infradead.org>
-	<20151028155105-mutt-send-email-mst@redhat.com>
-	<1446041609.3405.228.camel@infradead.org>
-	<20151028161424-mutt-send-email-mst@redhat.com>
-	<1446042754.3405.237.camel@infradead.org>
-	<20151028175136-mutt-send-email-mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net-next rfc V2 0/2] basic busy polling support for vhost_net
+Date: Thu, 29 Oct 2015 04:45:24 -0400
+Message-ID: <1446108326-37765-1-git-send-email-jasowang__5295.06000825695$1446108353$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20151028175136-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,67 +15,119 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, David Woodhouse <dwmw2@infradead.org>, Christoph Hellwig <hch@lst.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Oct 28, 2015 at 9:12 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Wed, Oct 28, 2015 at 11:32:34PM +0900, David Woodhouse wrote:
->> > I don't have a problem with extending DMA API to address
->> > more usecases.
->>
->> No, this isn't an extension. This is fixing a bug, on certain platforms
->> where the DMA API has currently done the wrong thing.
->>
->> We have historically worked around that bug by introducing *another*
->> bug, which is not to *use* the DMA API in the virtio driver.
->>
->> Sure, we can co-ordinate those two bug-fixes. But let's not talk about
->> them as anything other than bug-fixes.
->
-> It was pretty practical not to use it. All virtio devices at the time
-> without exception bypassed the IOMMU, so it was a question of omitting a
-> couple of function calls in virtio versus hacking on DMA implementation
-> on multiple platforms. We have more policy options now, so I agree it's
-> time to revisit this.
->
-> But for me, the most important thing is that we do coordinate.
->
->> > > Drivers use DMA API. No more talky.
->> >
->> > Well for virtio they don't ATM. And 1:1 mapping makes perfect sense
->> > for the wast majority of users, so I can't switch them over
->> > until the DMA API actually addresses all existing usecases.
->>
->> That's still not your business; it's the platform's. And there are
->> hardware implementations of the virtio protocols on real PCI cards. And
->> we have the option of doing IOMMU translation for the virtio devices
->> even in a virtual machine. Just don't get involved.
->>
->> --
->> dwmw2
->>
->>
->
-> I'm involved anyway, it's possible not to put all the code in the virtio
-> subsystem in guest though.  But I suspect we'll need to find a way for
-> non-linux drivers within guest to work correctly too, and they might
-> have trouble poking at things at the system level.  So possibly virtio
-> subsystem will have to tell platform "this device wants to bypass IOMMU"
-> and then DMA API does the right thing.
->
+Hi all:
 
-After some discussion at KS, no one came up with an example where it's
-necessary, and the patches to convert virtqueue to use the DMA API are
-much nicer when they convert it unconditionally.
+This series tries to add basic busy polling for vhost net. The idea is
+simple: at the end of tx processing, busy polling for new tx added
+descriptor and rx receive socket for a while. The maximum number of
+time (in us) could be spent on busy polling was specified through
+module parameter.
 
-The two interesting cases we thought of were PPC and x86's emulated
-Q35 IOMMU.  PPC will look in to architecting a devicetree-based way to
-indicate passthrough status and will add quirks for the existing
-virtio devices.  Everyone seems to agree that x86's emulated Q35 thing
-is just buggy right now and should be taught to use the existing ACPI
-mechanism for enumerating passthrough devices.
+Test were done through:
 
-I'll send a new version of the series soon.
+- 50 us as busy loop timeout
+- Netperf 2.6
+- Two machines with back to back connected mlx4
+- Guest with 8 vcpus and 1 queue
 
---Andy
+Result shows very huge improvement on both tx (at most 158%) and rr
+(at most 53%) while rx is as much as in the past. Most cases the cpu
+utilization is also improved:
+
+Guest TX:
+size/session/+thu%/+normalize%
+   64/     1/  +17%/   +6%
+   64/     4/   +9%/  +17%
+   64/     8/  +34%/  +21%
+  512/     1/  +48%/  +40%
+  512/     4/  +31%/  +20%
+  512/     8/  +39%/  +22%
+ 1024/     1/ +158%/  +99%
+ 1024/     4/  +20%/  +11%
+ 1024/     8/  +40%/  +18%
+ 2048/     1/ +108%/  +74%
+ 2048/     4/  +21%/   +7%
+ 2048/     8/  +32%/  +14%
+ 4096/     1/  +94%/  +77%
+ 4096/     4/   +7%/   -6%
+ 4096/     8/   +9%/   -4%
+16384/     1/  +33%/   +9%
+16384/     4/  +10%/   -6%
+16384/     8/  +19%/   +2%
+65535/     1/  +15%/   -6%
+65535/     4/   +8%/   -9%
+65535/     8/  +14%/    0%
+
+Guest RX:
+size/session/+thu%/+normalize%
+   64/     1/   -3%/   -3%
+   64/     4/   +4%/  +20%
+   64/     8/   -1%/   -1%
+  512/     1/  +20%/  +12%
+  512/     4/   +1%/   +3%
+  512/     8/    0%/   -5%
+ 1024/     1/   +9%/   -2%
+ 1024/     4/    0%/   +5%
+ 1024/     8/   +1%/    0%
+ 2048/     1/    0%/   +3%
+ 2048/     4/   -2%/   +3%
+ 2048/     8/   -1%/   -3%
+ 4096/     1/   -8%/   +3%
+ 4096/     4/    0%/   +2%
+ 4096/     8/    0%/   +5%
+16384/     1/   +3%/    0%
+16384/     4/   +2%/   +2%
+16384/     8/    0%/  +13%
+65535/     1/    0%/   +3%
+65535/     4/   +2%/   -1%
+65535/     8/   +1%/  +14%
+
+TCP_RR:
+size/session/+thu%/+normalize%
+    1/     1/   +8%/   -6%
+    1/    50/  +18%/  +15%
+    1/   100/  +22%/  +19%
+    1/   200/  +25%/  +23%
+   64/     1/   +2%/  -19%
+   64/    50/  +46%/  +39%
+   64/   100/  +47%/  +39%
+   64/   200/  +50%/  +44%
+  512/     1/    0%/  -28%
+  512/    50/  +50%/  +44%
+  512/   100/  +53%/  +47%
+  512/   200/  +51%/  +58%
+ 1024/     1/   +3%/  -14%
+ 1024/    50/  +45%/  +37%
+ 1024/   100/  +53%/  +49%
+ 1024/   200/  +48%/  +55%
+
+Changes from V1:
+- Add a comment for vhost_has_work() to explain why it could be
+  lockless
+- Add param description for busyloop_timeout
+- Split out the busy polling logic into a new helper
+- Check and exit the loop when there's a pending signal
+- Disable preemption during busy looping to make sure lock_clock() was
+  correctly used.
+
+Todo:
+- Make the busyloop timeout could be configure per VM through ioctl.
+
+Please review.
+
+Thanks
+
+Jason Wang (2):
+  vhost: introduce vhost_has_work()
+  vhost_net: basic polling support
+
+ drivers/vhost/net.c   | 54 +++++++++++++++++++++++++++++++++++++++++++++++----
+ drivers/vhost/vhost.c |  7 +++++++
+ drivers/vhost/vhost.h |  1 +
+ 3 files changed, 58 insertions(+), 4 deletions(-)
+
+-- 
+1.8.3.1
