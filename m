@@ -1,23 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
-Date: Thu, 29 Oct 2015 11:01:41 +0200
-Message-ID: <20151029104301-mutt-send-email-mst@redhat.com>
-References: <56307BD1.6010806@de.ibm.com>
-	<1446019787.3405.203.camel@infradead.org>
-	<20151028132331-mutt-send-email-mst@redhat.com>
-	<1446039327.3405.216.camel@infradead.org>
-	<20151028155105-mutt-send-email-mst@redhat.com>
-	<1446041609.3405.228.camel@infradead.org>
-	<20151028161424-mutt-send-email-mst@redhat.com>
-	<1446042754.3405.237.camel@infradead.org>
-	<20151028175136-mutt-send-email-mst@redhat.com>
-	<CALCETrWd7mK5bW2p_dvvjDRnqE31=ueAz5SAYKwY-PD5uZp76A@mail.gmail.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: [PATCH] VSOCK: define VSOCK_SS_LISTEN once only
+Date: Thu, 29 Oct 2015 11:57:42 +0000
+Message-ID: <1446119862-24369-1-git-send-email-stefanha__24348.1782534674$1446119880$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CALCETrWd7mK5bW2p_dvvjDRnqE31=ueAz5SAYKwY-PD5uZp76A@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,104 +15,146 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, David Woodhouse <dwmw2@infradead.org>, Christoph Hellwig <hch@lst.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: netdev@vger.kernel.org
+Cc: pv-drivers@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, davem@davemloft.net, jhansen@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Oct 28, 2015 at 03:51:58PM -0700, Andy Lutomirski wrote:
-> On Wed, Oct 28, 2015 at 9:12 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > On Wed, Oct 28, 2015 at 11:32:34PM +0900, David Woodhouse wrote:
-> >> > I don't have a problem with extending DMA API to address
-> >> > more usecases.
-> >>
-> >> No, this isn't an extension. This is fixing a bug, on certain platforms
-> >> where the DMA API has currently done the wrong thing.
-> >>
-> >> We have historically worked around that bug by introducing *another*
-> >> bug, which is not to *use* the DMA API in the virtio driver.
-> >>
-> >> Sure, we can co-ordinate those two bug-fixes. But let's not talk about
-> >> them as anything other than bug-fixes.
-> >
-> > It was pretty practical not to use it. All virtio devices at the time
-> > without exception bypassed the IOMMU, so it was a question of omitting a
-> > couple of function calls in virtio versus hacking on DMA implementation
-> > on multiple platforms. We have more policy options now, so I agree it's
-> > time to revisit this.
-> >
-> > But for me, the most important thing is that we do coordinate.
-> >
-> >> > > Drivers use DMA API. No more talky.
-> >> >
-> >> > Well for virtio they don't ATM. And 1:1 mapping makes perfect sense
-> >> > for the wast majority of users, so I can't switch them over
-> >> > until the DMA API actually addresses all existing usecases.
-> >>
-> >> That's still not your business; it's the platform's. And there are
-> >> hardware implementations of the virtio protocols on real PCI cards. And
-> >> we have the option of doing IOMMU translation for the virtio devices
-> >> even in a virtual machine. Just don't get involved.
-> >>
-> >> --
-> >> dwmw2
-> >>
-> >>
-> >
-> > I'm involved anyway, it's possible not to put all the code in the virtio
-> > subsystem in guest though.  But I suspect we'll need to find a way for
-> > non-linux drivers within guest to work correctly too, and they might
-> > have trouble poking at things at the system level.  So possibly virtio
-> > subsystem will have to tell platform "this device wants to bypass IOMMU"
-> > and then DMA API does the right thing.
-> >
-> 
-> After some discussion at KS, no one came up with an example where it's
-> necessary, and the patches to convert virtqueue to use the DMA API are
-> much nicer when they convert it unconditionally.
+The SS_LISTEN socket state is defined by both af_vsock.c and
+vmci_transport.c.  This is risky since the value could be changed in one
+file and the other would be out of sync.
 
-It's very surprising no one couldn't.  I did above, I try again below.
-Note: below discusses configuration *within guest*.
+Rename from SS_LISTEN to VSOCK_SS_LISTEN since the constant is not part
+of enum socket_state (SS_CONNECTED, ...).  This way it is clear that the
+constant is vsock-specific.
 
-Example: you have a mix of assigned devices and virtio devices. You
-don't trust your assigned device vendor not to corrupt your memory so
-you want to limit the damage your assigned device can do to your guest,
-so you use an IOMMU for that.  Thus existing iommu=pt within guest is out.
+The big text reflow in af_vsock.c was necessary to keep to the maximum
+line length.  Text is unchanged except for s/SS_LISTEN/VSOCK_SS_LISTEN/.
 
-But you trust your hypervisor (you have no choice anyway),
-and you don't want the overhead of tweaking IOMMU
-on data path for virtio. Thus iommu=on is out too.
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+---
+ include/net/af_vsock.h         |  3 +++
+ net/vmw_vsock/af_vsock.c       | 37 ++++++++++++++++++-------------------
+ net/vmw_vsock/vmci_transport.c |  4 +---
+ 3 files changed, 22 insertions(+), 22 deletions(-)
 
-
-
-> The two interesting cases we thought of were PPC and x86's emulated
-> Q35 IOMMU.  PPC will look in to architecting a devicetree-based way to
-> indicate passthrough status and will add quirks for the existing
-> virtio devices.
-
-Isn't this specified by the hypervisor? I don't think this is a good way
-to do this: guest security should be up to guest.
-
-> Everyone seems to agree that x86's emulated Q35 thing
-> is just buggy right now and should be taught to use the existing ACPI
-> mechanism for enumerating passthrough devices.
-
-I'm not sure what ACPI has to do with it.
-It's about a way for guest users to specify whether
-they want to bypass an IOMMU for a given device.
-
-> I'll send a new version of the series soon.
-> 
-> --Andy
-
-By the way, a bunch of code is missing on the QEMU side
-to make this useful:
-1. virtio ignores the iommu
-2. vhost user ignores the iommu
-3. dataplane ignores the iommu
-4. vhost-net ignores the iommu
-5. VFIO ignores the iommu
-
-I think so far I only saw patches for 1 above.
-
+diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+index db639a4..e9eb2d6 100644
+--- a/include/net/af_vsock.h
++++ b/include/net/af_vsock.h
+@@ -22,6 +22,9 @@
+ 
+ #include "vsock_addr.h"
+ 
++/* vsock-specific sock->sk_state constants */
++#define VSOCK_SS_LISTEN 255
++
+ #define LAST_RESERVED_PORT 1023
+ 
+ #define vsock_sk(__sk)    ((struct vsock_sock *)__sk)
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index df5fc6b..65f2c9c 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -36,19 +36,20 @@
+  * not support simultaneous connects (two "client" sockets connecting).
+  *
+  * - "Server" sockets are referred to as listener sockets throughout this
+- * implementation because they are in the SS_LISTEN state.  When a connection
+- * request is received (the second kind of socket mentioned above), we create a
+- * new socket and refer to it as a pending socket.  These pending sockets are
+- * placed on the pending connection list of the listener socket.  When future
+- * packets are received for the address the listener socket is bound to, we
+- * check if the source of the packet is from one that has an existing pending
+- * connection.  If it does, we process the packet for the pending socket.  When
+- * that socket reaches the connected state, it is removed from the listener
+- * socket's pending list and enqueued in the listener socket's accept queue.
+- * Callers of accept(2) will accept connected sockets from the listener socket's
+- * accept queue.  If the socket cannot be accepted for some reason then it is
+- * marked rejected.  Once the connection is accepted, it is owned by the user
+- * process and the responsibility for cleanup falls with that user process.
++ * implementation because they are in the VSOCK_SS_LISTEN state.  When a
++ * connection request is received (the second kind of socket mentioned above),
++ * we create a new socket and refer to it as a pending socket.  These pending
++ * sockets are placed on the pending connection list of the listener socket.
++ * When future packets are received for the address the listener socket is
++ * bound to, we check if the source of the packet is from one that has an
++ * existing pending connection.  If it does, we process the packet for the
++ * pending socket.  When that socket reaches the connected state, it is removed
++ * from the listener socket's pending list and enqueued in the listener
++ * socket's accept queue.  Callers of accept(2) will accept connected sockets
++ * from the listener socket's accept queue.  If the socket cannot be accepted
++ * for some reason then it is marked rejected.  Once the connection is
++ * accepted, it is owned by the user process and the responsibility for cleanup
++ * falls with that user process.
+  *
+  * - It is possible that these pending sockets will never reach the connected
+  * state; in fact, we may never receive another packet after the connection
+@@ -114,8 +115,6 @@ static struct proto vsock_proto = {
+  */
+ #define VSOCK_DEFAULT_CONNECT_TIMEOUT (2 * HZ)
+ 
+-#define SS_LISTEN 255
+-
+ static const struct vsock_transport *transport;
+ static DEFINE_MUTEX(vsock_register_mutex);
+ 
+@@ -887,7 +886,7 @@ static unsigned int vsock_poll(struct file *file, struct socket *sock,
+ 		/* Listening sockets that have connections in their accept
+ 		 * queue can be read.
+ 		 */
+-		if (sk->sk_state == SS_LISTEN
++		if (sk->sk_state == VSOCK_SS_LISTEN
+ 		    && !vsock_is_accept_queue_empty(sk))
+ 			mask |= POLLIN | POLLRDNORM;
+ 
+@@ -1144,7 +1143,7 @@ static int vsock_stream_connect(struct socket *sock, struct sockaddr *addr,
+ 		err = -EALREADY;
+ 		break;
+ 	default:
+-		if ((sk->sk_state == SS_LISTEN) ||
++		if ((sk->sk_state == VSOCK_SS_LISTEN) ||
+ 		    vsock_addr_cast(addr, addr_len, &remote_addr) != 0) {
+ 			err = -EINVAL;
+ 			goto out;
+@@ -1256,7 +1255,7 @@ static int vsock_accept(struct socket *sock, struct socket *newsock, int flags)
+ 		goto out;
+ 	}
+ 
+-	if (listener->sk_state != SS_LISTEN) {
++	if (listener->sk_state != VSOCK_SS_LISTEN) {
+ 		err = -EINVAL;
+ 		goto out;
+ 	}
+@@ -1348,7 +1347,7 @@ static int vsock_listen(struct socket *sock, int backlog)
+ 	}
+ 
+ 	sk->sk_max_ack_backlog = backlog;
+-	sk->sk_state = SS_LISTEN;
++	sk->sk_state = VSOCK_SS_LISTEN;
+ 
+ 	err = 0;
+ 
+diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+index 1f63daf..70cc89b 100644
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -90,8 +90,6 @@ static int PROTOCOL_OVERRIDE = -1;
+  */
+ #define VSOCK_DEFAULT_CONNECT_TIMEOUT (2 * HZ)
+ 
+-#define SS_LISTEN 255
+-
+ /* Helper function to convert from a VMCI error code to a VSock error code. */
+ 
+ static s32 vmci_transport_error_to_vsock_error(s32 vmci_error)
+@@ -919,7 +917,7 @@ static void vmci_transport_recv_pkt_work(struct work_struct *work)
+ 	vsock_sk(sk)->local_addr.svm_cid = pkt->dg.dst.context;
+ 
+ 	switch (sk->sk_state) {
+-	case SS_LISTEN:
++	case VSOCK_SS_LISTEN:
+ 		vmci_transport_recv_listen(sk, pkt);
+ 		break;
+ 	case SS_CONNECTING:
 -- 
-MST
+2.4.3
