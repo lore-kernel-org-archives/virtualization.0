@@ -1,11 +1,15 @@
 From: Andy Lutomirski <luto@kernel.org>
-Subject: [PATCH v4 0/6] virtio core DMA API conversion
-Date: Thu, 29 Oct 2015 18:09:45 -0700
-Message-ID: <cover.1446162273.git.luto__30026.9227278934$1446420945$gmane$org@kernel.org>
+Subject: [PATCH v4 1/6] virtio-net: Stop doing DMA from the stack
+Date: Thu, 29 Oct 2015 18:09:46 -0700
+Message-ID: <8d6b1fc3b5d3b6f5e8b212ef690691a52fbefaff.1446162273.git.luto__45.4392437406526$1446420952$gmane$org@kernel.org>
+References: <cover.1446162273.git.luto@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <cover.1446162273.git.luto@kernel.org>
+In-Reply-To: <cover.1446162273.git.luto@kernel.org>
+References: <cover.1446162273.git.luto@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,82 +23,123 @@ To: linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, sparc
 Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, benh@kernel.crashing.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, dwmw2@infradead.org, Christoph Hellwig <hch@lst.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This switches virtio to use the DMA API unconditionally.  I'm sure
-it breaks things, but it seems to work on x86 using virtio-pci, with
-and without Xen, and using both the modern 1.0 variant and the
-legacy variant.
+From: "Michael S. Tsirkin" <mst@redhat.com>
 
-This appears to work on native and Xen x86_64 using both modern and
-legacy virtio-pci.  It also appears to work on arm and arm64.
+Once virtio starts using the DMA API, we won't be able to safely DMA
+from the stack.  virtio-net does a couple of config DMA requests
+from small stack buffers -- switch to using dynamically-allocated
+memory.
 
-It definitely won't work as-is on s390x, and I haven't been able to
-test Christian's patches because I can't get virtio-ccw to work in
-QEMU at all.  I don't know what I'm doing wrong.
+This should have no effect on any performance-critical code paths.
 
-It doesn't work on ppc64.  Ben, consider yourself pinged to send me
-a patch :)
+[I wrote the subject and commit message.  mst wrote the code. --luto]
 
-It doesn't work on sparc64.  I didn't realize at Kernel Summit that
-sparc64 has the same problem as ppc64.
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/net/virtio_net.c | 34 +++++++++++++++++++---------------
+ 1 file changed, 19 insertions(+), 15 deletions(-)
 
-DaveM, for background, we're trying to fix virtio to use the DMA
-API.  That will require that every platform that uses virtio
-supplies valid DMA operations on devices that use virtio_ring.
-Unfortunately, QEMU historically ignores the IOMMU on virtio
-devices.
-
-On x86, this isn't really a problem.  x86 has a nice way for the
-platform to describe which devices are behind an IOMMU, and QEMU
-will be adjusted accordingly.  The only thing that will break is a
-recently-added experimental mode.
-
-Ben's plan for powerpc is to add a quirk for existing virtio-pci
-devices and to eventually update the devicetree stuff to allow QEMU
-to tell the guest which devices use the IOMMU.
-
-AFAICT sparc has a similar problem to powerpc.  DaveM, can you come
-up with a straightforward way to get sparc's DMA API to work
-correctly for virtio-pci devices?
-
-NB: Sadly, the platforms I've successfully tested on don't include any
-big-endian platforms, so there could still be lurking endian problems.
-
-Changes from v3:
- - More big-endian fixes.
- - Added better virtio-ring APIs that handle allocation and use them in
-   virtio-mmio and virtio-pci.
- - Switch to Michael's virtio-net patch.
-
-Changes from v2:
- - Fix vring_mapping_error incorrect argument
-
-Changes from v1:
- - Fix an endian conversion error causing a BUG to hit.
- - Fix a DMA ordering issue (swiotlb=force works now).
- - Minor cleanups.
-
-Andy Lutomirski (5):
-  virtio_ring: Support DMA APIs
-  virtio_pci: Use the DMA API
-  virtio: Add improved queue allocation API
-  virtio_mmio: Use the DMA API
-  virtio_pci: Use the DMA API
-
-Michael S. Tsirkin (1):
-  virtio-net: Stop doing DMA from the stack
-
- drivers/net/virtio_net.c           |  34 ++--
- drivers/virtio/Kconfig             |   2 +-
- drivers/virtio/virtio_mmio.c       |  67 ++-----
- drivers/virtio/virtio_pci_common.h |   6 -
- drivers/virtio/virtio_pci_legacy.c |  42 ++---
- drivers/virtio/virtio_pci_modern.c |  61 ++-----
- drivers/virtio/virtio_ring.c       | 348 ++++++++++++++++++++++++++++++-------
- include/linux/virtio.h             |  23 ++-
- include/linux/virtio_ring.h        |  35 ++++
- tools/virtio/linux/dma-mapping.h   |  17 ++
- 10 files changed, 426 insertions(+), 209 deletions(-)
- create mode 100644 tools/virtio/linux/dma-mapping.h
-
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index d8838dedb7a4..f94ab786088f 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -140,6 +140,12 @@ struct virtnet_info {
+ 
+ 	/* CPU hot plug notifier */
+ 	struct notifier_block nb;
++
++	/* Control VQ buffers: protected by the rtnl lock */
++	struct virtio_net_ctrl_hdr ctrl_hdr;
++	virtio_net_ctrl_ack ctrl_status;
++	u8 ctrl_promisc;
++	u8 ctrl_allmulti;
+ };
+ 
+ struct padded_vnet_hdr {
+@@ -976,31 +982,30 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+ 				 struct scatterlist *out)
+ {
+ 	struct scatterlist *sgs[4], hdr, stat;
+-	struct virtio_net_ctrl_hdr ctrl;
+-	virtio_net_ctrl_ack status = ~0;
+ 	unsigned out_num = 0, tmp;
+ 
+ 	/* Caller should know better */
+ 	BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ));
+ 
+-	ctrl.class = class;
+-	ctrl.cmd = cmd;
++	vi->ctrl_status = ~0;
++	vi->ctrl_hdr.class = class;
++	vi->ctrl_hdr.cmd = cmd;
+ 	/* Add header */
+-	sg_init_one(&hdr, &ctrl, sizeof(ctrl));
++	sg_init_one(&hdr, &vi->ctrl_hdr, sizeof(vi->ctrl_hdr));
+ 	sgs[out_num++] = &hdr;
+ 
+ 	if (out)
+ 		sgs[out_num++] = out;
+ 
+ 	/* Add return status. */
+-	sg_init_one(&stat, &status, sizeof(status));
++	sg_init_one(&stat, &vi->ctrl_status, sizeof(vi->ctrl_status));
+ 	sgs[out_num] = &stat;
+ 
+ 	BUG_ON(out_num + 1 > ARRAY_SIZE(sgs));
+ 	virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, vi, GFP_ATOMIC);
+ 
+ 	if (unlikely(!virtqueue_kick(vi->cvq)))
+-		return status == VIRTIO_NET_OK;
++		return vi->ctrl_status == VIRTIO_NET_OK;
+ 
+ 	/* Spin for a response, the kick causes an ioport write, trapping
+ 	 * into the hypervisor, so the request should be handled immediately.
+@@ -1009,7 +1014,7 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+ 	       !virtqueue_is_broken(vi->cvq))
+ 		cpu_relax();
+ 
+-	return status == VIRTIO_NET_OK;
++	return vi->ctrl_status == VIRTIO_NET_OK;
+ }
+ 
+ static int virtnet_set_mac_address(struct net_device *dev, void *p)
+@@ -1151,7 +1156,6 @@ static void virtnet_set_rx_mode(struct net_device *dev)
+ {
+ 	struct virtnet_info *vi = netdev_priv(dev);
+ 	struct scatterlist sg[2];
+-	u8 promisc, allmulti;
+ 	struct virtio_net_ctrl_mac *mac_data;
+ 	struct netdev_hw_addr *ha;
+ 	int uc_count;
+@@ -1163,22 +1167,22 @@ static void virtnet_set_rx_mode(struct net_device *dev)
+ 	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_RX))
+ 		return;
+ 
+-	promisc = ((dev->flags & IFF_PROMISC) != 0);
+-	allmulti = ((dev->flags & IFF_ALLMULTI) != 0);
++	vi->ctrl_promisc = ((dev->flags & IFF_PROMISC) != 0);
++	vi->ctrl_allmulti = ((dev->flags & IFF_ALLMULTI) != 0);
+ 
+-	sg_init_one(sg, &promisc, sizeof(promisc));
++	sg_init_one(sg, &vi->ctrl_promisc, sizeof(vi->ctrl_promisc));
+ 
+ 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
+ 				  VIRTIO_NET_CTRL_RX_PROMISC, sg))
+ 		dev_warn(&dev->dev, "Failed to %sable promisc mode.\n",
+-			 promisc ? "en" : "dis");
++			 vi->ctrl_promisc ? "en" : "dis");
+ 
+-	sg_init_one(sg, &allmulti, sizeof(allmulti));
++	sg_init_one(sg, &vi->ctrl_allmulti, sizeof(vi->ctrl_allmulti));
+ 
+ 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
+ 				  VIRTIO_NET_CTRL_RX_ALLMULTI, sg))
+ 		dev_warn(&dev->dev, "Failed to %sable allmulti mode.\n",
+-			 allmulti ? "en" : "dis");
++			 vi->ctrl_allmulti ? "en" : "dis");
+ 
+ 	uc_count = netdev_uc_count(dev);
+ 	mc_count = netdev_mc_count(dev);
 -- 
 2.4.3
