@@ -1,14 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next rfc V2 0/2] basic busy polling support for
-	vhost_net
-Date: Fri, 30 Oct 2015 19:58:30 +0800
-Message-ID: <56335B66.9050705@redhat.com>
-References: <1446108326-37765-1-git-send-email-jasowang@redhat.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH v4 2/6] virtio_ring: Support DMA APIs
+Date: Fri, 30 Oct 2015 13:01:16 +0100
+Message-ID: <20151030130116.52a87922.cornelia.huck@de.ibm.com>
+References: <cover.1446162273.git.luto@kernel.org>
+	<7c590bf685f5cbc3f01e42bdbc1dbe3ffd83420f.1446162273.git.luto@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1446108326-37765-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <7c590bf685f5cbc3f01e42bdbc1dbe3ffd83420f.1446162273.git.luto@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,33 +18,88 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andy Lutomirski <luto@kernel.org>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, benh@kernel.crashing.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>, Christian Borntraeger <borntraeger@de.ibm.com>, sparclinux@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, dwmw2@infradead.org, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Thu, 29 Oct 2015 18:09:47 -0700
+Andy Lutomirski <luto@kernel.org> wrote:
 
+> virtio_ring currently sends the device (usually a hypervisor)
+> physical addresses of its I/O buffers.  This is okay when DMA
+> addresses and physical addresses are the same thing, but this isn't
+> always the case.  For example, this never works on Xen guests, and
+> it is likely to fail if a physical "virtio" device ever ends up
+> behind an IOMMU or swiotlb.
+> 
+> The immediate use case for me is to enable virtio on Xen guests.
+> For that to work, we need vring to support DMA address translation
+> as well as a corresponding change to virtio_pci or to another
+> driver.
+> 
+> With this patch, if enabled, virtfs survives kmemleak and
+> CONFIG_DMA_API_DEBUG.
+> 
+> Signed-off-by: Andy Lutomirski <luto@kernel.org>
+> ---
+>  drivers/virtio/Kconfig           |   2 +-
+>  drivers/virtio/virtio_ring.c     | 190 +++++++++++++++++++++++++++++++--------
+>  tools/virtio/linux/dma-mapping.h |  17 ++++
+>  3 files changed, 172 insertions(+), 37 deletions(-)
+>  create mode 100644 tools/virtio/linux/dma-mapping.h
 
-On 10/29/2015 04:45 PM, Jason Wang wrote:
-> Hi all:
->
-> This series tries to add basic busy polling for vhost net. The idea is
-> simple: at the end of tx processing, busy polling for new tx added
-> descriptor and rx receive socket for a while. The maximum number of
-> time (in us) could be spent on busy polling was specified through
-> module parameter.
->
-> Test were done through:
->
-> - 50 us as busy loop timeout
-> - Netperf 2.6
-> - Two machines with back to back connected mlx4
-> - Guest with 8 vcpus and 1 queue
->
-> Result shows very huge improvement on both tx (at most 158%) and rr
-> (at most 53%) while rx is as much as in the past. Most cases the cpu
-> utilization is also improved:
->
+>  static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
+>  {
+> -	unsigned int i;
+> +	unsigned int i, j;
+> +	u16 nextflag = cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT);
+> 
+>  	/* Clear data ptr. */
+> -	vq->data[head] = NULL;
+> +	vq->desc_state[head].data = NULL;
+> 
+> -	/* Put back on free list: find end */
+> +	/* Put back on free list: unmap first-level descriptors and find end */
+>  	i = head;
+> 
+> -	/* Free the indirect table */
+> -	if (vq->vring.desc[i].flags & cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_INDIRECT))
+> -		kfree(phys_to_virt(virtio64_to_cpu(vq->vq.vdev, vq->vring.desc[i].addr)));
+> -
+> -	while (vq->vring.desc[i].flags & cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT)) {
+> +	while (vq->vring.desc[i].flags & nextflag) {
+> +		vring_unmap_one(vq, &vq->vring.desc[i]);
+>  		i = virtio16_to_cpu(vq->vq.vdev, vq->vring.desc[i].next);
+>  		vq->vq.num_free++;
+>  	}
+> 
+> +	vring_unmap_one(vq, &vq->vring.desc[i]);
+>  	vq->vring.desc[i].next = cpu_to_virtio16(vq->vq.vdev, vq->free_head);
+>  	vq->free_head = head;
+> +
+>  	/* Plus final descriptor */
+>  	vq->vq.num_free++;
+> +
+> +	/* Free the indirect table, if any, now that it's unmapped. */
+> +	if (vq->desc_state[head].indir_desc) {
+> +		struct vring_desc *indir_desc = vq->desc_state[head].indir_desc;
+> +		u32 len = vq->vring.desc[head].len;
 
-Just notice there's something wrong in the setup. So the numbers are
-incorrect here. Will re-run and post correct number here.
+This one needs to be virtio32_to_cpu(...) as well.
 
-Sorry.
+> +
+> +		BUG_ON(!(vq->vring.desc[head].flags &
+> +			 cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_INDIRECT)));
+> +		BUG_ON(len == 0 || len % sizeof(struct vring_desc));
+> +
+> +		for (j = 0; j < len / sizeof(struct vring_desc); j++)
+> +			vring_unmap_one(vq, &indir_desc[j]);
+> +
+> +		kfree(vq->desc_state[head].indir_desc);
+> +		vq->desc_state[head].indir_desc = NULL;
+> +	}
+>  }
+
+With that change on top of your current branch, I can boot (root on
+virtio-blk, either virtio-1 or legacy virtio) on current qemu master
+with kvm enabled on s390. Haven't tried anything further.
