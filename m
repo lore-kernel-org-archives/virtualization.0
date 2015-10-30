@@ -1,7 +1,7 @@
 From: Andy Lutomirski <luto@kernel.org>
-Subject: [PATCH v4 5/6] virtio_mmio: Use the DMA API
-Date: Thu, 29 Oct 2015 18:09:50 -0700
-Message-ID: <f66b7ee2da7b7bb357fe17d319ec0932451ba5bf.1446162273.git.luto__31861.2859388397$1446421001$gmane$org@kernel.org>
+Subject: [PATCH v4 6/6] virtio_pci: Use the DMA API
+Date: Thu, 29 Oct 2015 18:09:51 -0700
+Message-ID: <82367a4ca126b658aaa18ee0a704ac5f0d3a3d3f.1446162273.git.luto__35969.4059625783$1446421003$gmane$org@kernel.org>
 References: <cover.1446162273.git.luto@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -28,158 +28,222 @@ adding DMA API support.
 
 Signed-off-by: Andy Lutomirski <luto@kernel.org>
 ---
- drivers/virtio/virtio_mmio.c | 67 ++++++++++----------------------------------
- 1 file changed, 15 insertions(+), 52 deletions(-)
+ drivers/virtio/virtio_pci_common.h |  7 -----
+ drivers/virtio/virtio_pci_legacy.c | 39 +++++++-----------------
+ drivers/virtio/virtio_pci_modern.c | 61 ++++++--------------------------------
+ 3 files changed, 19 insertions(+), 88 deletions(-)
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index f499d9da7237..2b9fab52a3cb 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -99,12 +99,6 @@ struct virtio_mmio_vq_info {
+diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
+index cd6196b513ad..1a3c689d1b9e 100644
+--- a/drivers/virtio/virtio_pci_common.h
++++ b/drivers/virtio/virtio_pci_common.h
+@@ -35,13 +35,6 @@ struct virtio_pci_vq_info {
  	/* the actual virtqueue */
  	struct virtqueue *vq;
  
 -	/* the number of entries in the queue */
--	unsigned int num;
+-	int num;
 -
--	/* the virtual address of the ring queue */
+-	/* the ring queue */
 -	void *queue;
+-	dma_addr_t queue_dma_addr;      /* bus address */
 -
  	/* the list node for the virtqueues list */
  	struct list_head node;
- };
-@@ -322,15 +316,13 @@ static void vm_del_vq(struct virtqueue *vq)
- {
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vq->vdev);
- 	struct virtio_mmio_vq_info *info = vq->priv;
--	unsigned long flags, size;
-+	unsigned long flags;
- 	unsigned int index = vq->index;
  
- 	spin_lock_irqsave(&vm_dev->lock, flags);
- 	list_del(&info->node);
- 	spin_unlock_irqrestore(&vm_dev->lock, flags);
+diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+index b5293e5f2af4..8c4e61783441 100644
+--- a/drivers/virtio/virtio_pci_legacy.c
++++ b/drivers/virtio/virtio_pci_legacy.c
+@@ -119,7 +119,6 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 				  u16 msix_vec)
+ {
+ 	struct virtqueue *vq;
+-	unsigned long size;
+ 	u16 num;
+ 	int err;
+ 
+@@ -131,29 +130,19 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 	if (!num || ioread32(vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN))
+ 		return ERR_PTR(-ENOENT);
+ 
+-	info->num = num;
+ 	info->msix_vector = msix_vec;
+ 
+-	size = PAGE_ALIGN(vring_size(num, VIRTIO_PCI_VRING_ALIGN));
+-	info->queue = dma_zalloc_coherent(&vp_dev->pci_dev->dev, size,
+-					  &info->queue_dma_addr,
+-					  GFP_KERNEL);
+-	if (info->queue == NULL)
++	/* create the vring */
++	vq = vring_create_virtqueue(index, num,
++				    VIRTIO_PCI_VRING_ALIGN, &vp_dev->vdev,
++				    true, false, vp_notify, callback, name);
++	if (!vq)
+ 		return ERR_PTR(-ENOMEM);
+ 
+ 	/* activate the queue */
+-	iowrite32(info->queue_dma_addr >> VIRTIO_PCI_QUEUE_ADDR_SHIFT,
++	iowrite32(virtqueue_get_desc_addr(vq) >> VIRTIO_PCI_QUEUE_ADDR_SHIFT,
+ 		  vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
+ 
+-	/* create the vring */
+-	vq = vring_new_virtqueue(index, info->num,
+-				 VIRTIO_PCI_VRING_ALIGN, &vp_dev->vdev,
+-				 true, info->queue, vp_notify, callback, name);
+-	if (!vq) {
+-		err = -ENOMEM;
+-		goto out_activate_queue;
+-	}
+-
+ 	vq->priv = (void __force *)vp_dev->ioaddr + VIRTIO_PCI_QUEUE_NOTIFY;
+ 
+ 	if (msix_vec != VIRTIO_MSI_NO_VECTOR) {
+@@ -161,18 +150,15 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 		msix_vec = ioread16(vp_dev->ioaddr + VIRTIO_MSI_QUEUE_VECTOR);
+ 		if (msix_vec == VIRTIO_MSI_NO_VECTOR) {
+ 			err = -EBUSY;
+-			goto out_assign;
++			goto out_deactivate;
+ 		}
+ 	}
+ 
+ 	return vq;
+ 
+-out_assign:
+-	vring_del_virtqueue(vq);
+-out_activate_queue:
++out_deactivate:
+ 	iowrite32(0, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
+-	dma_free_coherent(&vp_dev->pci_dev->dev, size,
+-			  info->queue, info->queue_dma_addr);
++	vring_del_virtqueue(vq);
+ 	return ERR_PTR(err);
+ }
+ 
+@@ -180,7 +166,6 @@ static void del_vq(struct virtio_pci_vq_info *info)
+ {
+ 	struct virtqueue *vq = info->vq;
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
+-	unsigned long size;
+ 
+ 	iowrite16(vq->index, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_SEL);
+ 
+@@ -191,14 +176,10 @@ static void del_vq(struct virtio_pci_vq_info *info)
+ 		ioread8(vp_dev->ioaddr + VIRTIO_PCI_ISR);
+ 	}
  
 -	vring_del_virtqueue(vq);
 -
  	/* Select and deactivate the queue */
- 	writel(index, vm_dev->base + VIRTIO_MMIO_QUEUE_SEL);
- 	if (vm_dev->version == 1) {
-@@ -340,8 +332,8 @@ static void vm_del_vq(struct virtqueue *vq)
- 		WARN_ON(readl(vm_dev->base + VIRTIO_MMIO_QUEUE_READY));
- 	}
+ 	iowrite32(0, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
  
--	size = PAGE_ALIGN(vring_size(info->num, VIRTIO_MMIO_VRING_ALIGN));
--	free_pages_exact(info->queue, size);
+-	size = PAGE_ALIGN(vring_size(info->num, VIRTIO_PCI_VRING_ALIGN));
+-	dma_free_coherent(&vp_dev->pci_dev->dev, size,
+-			  info->queue, info->queue_dma_addr);
 +	vring_del_virtqueue(vq);
-+
- 	kfree(info);
  }
  
-@@ -356,8 +348,6 @@ static void vm_del_vqs(struct virtio_device *vdev)
- 	free_irq(platform_get_irq(vm_dev->pdev, 0), vm_dev);
+ static const struct virtio_config_ops virtio_pci_config_ops = {
+diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+index fbe0bd1c4881..50b0cd5a501e 100644
+--- a/drivers/virtio/virtio_pci_modern.c
++++ b/drivers/virtio/virtio_pci_modern.c
+@@ -287,35 +287,6 @@ static u16 vp_config_vector(struct virtio_pci_device *vp_dev, u16 vector)
+ 	return vp_ioread16(&vp_dev->common->msix_config);
  }
  
+-static size_t vring_pci_size(u16 num)
+-{
+-	/* We only need a cacheline separation. */
+-	return PAGE_ALIGN(vring_size(num, SMP_CACHE_BYTES));
+-}
 -
+-static void *alloc_virtqueue_pages(struct virtio_pci_device *vp_dev,
+-				   int *num, dma_addr_t *dma_addr)
+-{
+-	void *pages;
 -
- static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
- 				  void (*callback)(struct virtqueue *vq),
- 				  const char *name)
-@@ -365,7 +355,8 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
- 	struct virtio_mmio_vq_info *info;
- 	struct virtqueue *vq;
--	unsigned long flags, size;
-+	unsigned long flags;
-+	unsigned int num;
- 	int err;
- 
- 	if (!name)
-@@ -388,66 +379,40 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
- 		goto error_kmalloc;
- 	}
- 
--	/* Allocate pages for the queue - start with a queue as big as
--	 * possible (limited by maximum size allowed by device), drop down
--	 * to a minimal size, just big enough to fit descriptor table
--	 * and two rings (which makes it "alignment_size * 2")
--	 */
--	info->num = readl(vm_dev->base + VIRTIO_MMIO_QUEUE_NUM_MAX);
--
--	/* If the device reports a 0 entry queue, we won't be able to
--	 * use it to perform I/O, and vring_new_virtqueue() can't create
--	 * empty queues anyway, so don't bother to set up the device.
--	 */
--	if (info->num == 0) {
-+	num = readl(vm_dev->base + VIRTIO_MMIO_QUEUE_NUM_MAX);
-+	if (num == 0) {
- 		err = -ENOENT;
--		goto error_alloc_pages;
+-	/* TODO: allocate each queue chunk individually */
+-	for (; *num && vring_pci_size(*num) > PAGE_SIZE; *num /= 2) {
+-		pages = dma_zalloc_coherent(
+-			&vp_dev->pci_dev->dev, vring_pci_size(*num),
+-			dma_addr, GFP_KERNEL|__GFP_NOWARN);
+-		if (pages)
+-			return pages;
 -	}
 -
--	while (1) {
--		size = PAGE_ALIGN(vring_size(info->num,
--				VIRTIO_MMIO_VRING_ALIGN));
--		/* Did the last iter shrink the queue below minimum size? */
--		if (size < VIRTIO_MMIO_VRING_ALIGN * 2) {
--			err = -ENOMEM;
--			goto error_alloc_pages;
--		}
+-	if (!*num)
+-		return NULL;
 -
--		info->queue = alloc_pages_exact(size, GFP_KERNEL | __GFP_ZERO);
--		if (info->queue)
--			break;
+-	/* Try to get a single page. You are my only hope! */
+-	return dma_zalloc_coherent(
+-		&vp_dev->pci_dev->dev, vring_pci_size(*num),
+-		dma_addr, GFP_KERNEL);
+-}
 -
--		info->num /= 2;
-+		goto error_new_virtqueue;
- 	}
+ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 				  struct virtio_pci_vq_info *info,
+ 				  unsigned index,
+@@ -347,30 +318,22 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 	/* get offset of notification word for this vq */
+ 	off = vp_ioread16(&cfg->queue_notify_off);
  
- 	/* Create the vring */
--	vq = vring_new_virtqueue(index, info->num, VIRTIO_MMIO_VRING_ALIGN, vdev,
--				 true, info->queue, vm_notify, callback, name);
-+	vq = vring_create_virtqueue(index, num, VIRTIO_MMIO_VRING_ALIGN, vdev,
-+				 true, true, vm_notify, callback, name);
- 	if (!vq) {
- 		err = -ENOMEM;
- 		goto error_new_virtqueue;
- 	}
+-	info->num = num;
+ 	info->msix_vector = msix_vec;
  
- 	/* Activate the queue */
--	writel(info->num, vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
-+	writel(virtqueue_get_vring_size(vq), vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
- 	if (vm_dev->version == 1) {
- 		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
--		writel(virt_to_phys(info->queue) >> PAGE_SHIFT,
-+		writel(virtqueue_get_desc_addr(vq) >> PAGE_SHIFT,
- 				vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
- 	} else {
- 		u64 addr;
+-	info->queue = alloc_virtqueue_pages(vp_dev, &info->num,
+-					    &info->queue_dma_addr);
+-	if (info->queue == NULL)
+-		return ERR_PTR(-ENOMEM);
+-
+ 	/* create the vring */
+-	vq = vring_new_virtqueue(index, info->num,
+-				 SMP_CACHE_BYTES, &vp_dev->vdev,
+-				 true, info->queue, vp_notify, callback, name);
+-	if (!vq) {
+-		err = -ENOMEM;
+-		goto err_new_queue;
+-	}
++	vq = vring_create_virtqueue(index, num,
++				    SMP_CACHE_BYTES, &vp_dev->vdev,
++				    true, true, vp_notify, callback, name);
++	if (!vq)
++		return ERR_PTR(-ENOMEM);
  
--		addr = virt_to_phys(info->queue);
-+		addr = virtqueue_get_desc_addr(vq);
- 		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_LOW);
- 		writel((u32)(addr >> 32),
- 				vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_HIGH);
+ 	/* activate the queue */
+-	vp_iowrite16(num, &cfg->queue_size);
+-	vp_iowrite64_twopart(info->queue_dma_addr,
++	vp_iowrite16(virtqueue_get_vring_size(vq), &cfg->queue_size);
++	vp_iowrite64_twopart(virtqueue_get_desc_addr(vq),
+ 			     &cfg->queue_desc_lo, &cfg->queue_desc_hi);
+-	vp_iowrite64_twopart(info->queue_dma_addr + ((char *)virtqueue_get_avail(vq) - (char *)info->queue),
++	vp_iowrite64_twopart(virtqueue_get_avail_addr(vq),
+ 			     &cfg->queue_avail_lo, &cfg->queue_avail_hi);
+-	vp_iowrite64_twopart(info->queue_dma_addr + ((char *)virtqueue_get_used(vq) - (char *)info->queue),
++	vp_iowrite64_twopart(virtqueue_get_used_addr(vq),
+ 			     &cfg->queue_used_lo, &cfg->queue_used_hi);
  
--		addr = virt_to_phys(virtqueue_get_avail(vq));
-+		addr = virtqueue_get_avail_addr(vq);
- 		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_LOW);
- 		writel((u32)(addr >> 32),
- 				vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_HIGH);
+ 	if (vp_dev->notify_base) {
+@@ -415,9 +378,6 @@ err_assign_vector:
+ 		pci_iounmap(vp_dev->pci_dev, (void __iomem __force *)vq->priv);
+ err_map_notify:
+ 	vring_del_virtqueue(vq);
+-err_new_queue:
+-	dma_free_coherent(&vp_dev->pci_dev->dev, vring_pci_size(info->num),
+-			  info->queue, info->queue_dma_addr);
+ 	return ERR_PTR(err);
+ }
  
--		addr = virt_to_phys(virtqueue_get_used(vq));
-+		addr = virtqueue_get_used_addr(vq);
- 		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_USED_LOW);
- 		writel((u32)(addr >> 32),
- 				vm_dev->base + VIRTIO_MMIO_QUEUE_USED_HIGH);
-@@ -471,8 +436,6 @@ error_new_virtqueue:
- 		writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
- 		WARN_ON(readl(vm_dev->base + VIRTIO_MMIO_QUEUE_READY));
- 	}
--	free_pages_exact(info->queue, size);
--error_alloc_pages:
- 	kfree(info);
- error_kmalloc:
- error_available:
+@@ -462,9 +422,6 @@ static void del_vq(struct virtio_pci_vq_info *info)
+ 		pci_iounmap(vp_dev->pci_dev, (void __force __iomem *)vq->priv);
+ 
+ 	vring_del_virtqueue(vq);
+-
+-	dma_free_coherent(&vp_dev->pci_dev->dev, vring_pci_size(info->num),
+-			  info->queue, info->queue_dma_addr);
+ }
+ 
+ static const struct virtio_config_ops virtio_pci_config_nodev_ops = {
 -- 
 2.4.3
