@@ -1,15 +1,11 @@
 From: Andy Lutomirski <luto@kernel.org>
-Subject: [PATCH v3 3/3] virtio_pci: Use the DMA API
-Date: Tue, 27 Oct 2015 23:39:00 -0700
-Message-ID: <08f11115dfc54ca55ef70acf11cc6ffc46f62a5e.1446014204.git.luto__26306.0545585633$1446420937$gmane$org@kernel.org>
-References: <cover.1446014204.git.luto@kernel.org>
+Subject: [PATCH v4 0/6] virtio core DMA API conversion
+Date: Thu, 29 Oct 2015 18:09:45 -0700
+Message-ID: <cover.1446162273.git.luto__30026.9227278934$1446420945$gmane$org@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1446014204.git.luto@kernel.org>
-In-Reply-To: <cover.1446014204.git.luto@kernel.org>
-References: <cover.1446014204.git.luto@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,189 +15,86 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org
 Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, benh@kernel.crashing.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, dwmw2@infradead.org, Christoph Hellwig <hch@lst.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This fixes virtio-pci on platforms and busses that have IOMMUs.  This
-will break the experimental QEMU Q35 IOMMU support until QEMU is
-fixed.  In exchange, it fixes physical virtio hardware as well as
-virtio-pci running under Xen.
+This switches virtio to use the DMA API unconditionally.  I'm sure
+it breaks things, but it seems to work on x86 using virtio-pci, with
+and without Xen, and using both the modern 1.0 variant and the
+legacy variant.
 
-We should clean up the virtqueue API to do its own allocation and
-teach virtqueue_get_avail and virtqueue_get_used to return DMA
-addresses directly.
+This appears to work on native and Xen x86_64 using both modern and
+legacy virtio-pci.  It also appears to work on arm and arm64.
 
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
----
- drivers/virtio/virtio_pci_common.h |  3 ++-
- drivers/virtio/virtio_pci_legacy.c | 19 +++++++++++++++----
- drivers/virtio/virtio_pci_modern.c | 34 ++++++++++++++++++++++++----------
- 3 files changed, 41 insertions(+), 15 deletions(-)
+It definitely won't work as-is on s390x, and I haven't been able to
+test Christian's patches because I can't get virtio-ccw to work in
+QEMU at all.  I don't know what I'm doing wrong.
 
-diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-index b976d968e793..cd6196b513ad 100644
---- a/drivers/virtio/virtio_pci_common.h
-+++ b/drivers/virtio/virtio_pci_common.h
-@@ -38,8 +38,9 @@ struct virtio_pci_vq_info {
- 	/* the number of entries in the queue */
- 	int num;
- 
--	/* the virtual address of the ring queue */
-+	/* the ring queue */
- 	void *queue;
-+	dma_addr_t queue_dma_addr;      /* bus address */
- 
- 	/* the list node for the virtqueues list */
- 	struct list_head node;
-diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
-index 48bc9797e530..b5293e5f2af4 100644
---- a/drivers/virtio/virtio_pci_legacy.c
-+++ b/drivers/virtio/virtio_pci_legacy.c
-@@ -135,12 +135,14 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 	info->msix_vector = msix_vec;
- 
- 	size = PAGE_ALIGN(vring_size(num, VIRTIO_PCI_VRING_ALIGN));
--	info->queue = alloc_pages_exact(size, GFP_KERNEL|__GFP_ZERO);
-+	info->queue = dma_zalloc_coherent(&vp_dev->pci_dev->dev, size,
-+					  &info->queue_dma_addr,
-+					  GFP_KERNEL);
- 	if (info->queue == NULL)
- 		return ERR_PTR(-ENOMEM);
- 
- 	/* activate the queue */
--	iowrite32(virt_to_phys(info->queue) >> VIRTIO_PCI_QUEUE_ADDR_SHIFT,
-+	iowrite32(info->queue_dma_addr >> VIRTIO_PCI_QUEUE_ADDR_SHIFT,
- 		  vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
- 
- 	/* create the vring */
-@@ -169,7 +171,8 @@ out_assign:
- 	vring_del_virtqueue(vq);
- out_activate_queue:
- 	iowrite32(0, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
--	free_pages_exact(info->queue, size);
-+	dma_free_coherent(&vp_dev->pci_dev->dev, size,
-+			  info->queue, info->queue_dma_addr);
- 	return ERR_PTR(err);
- }
- 
-@@ -194,7 +197,8 @@ static void del_vq(struct virtio_pci_vq_info *info)
- 	iowrite32(0, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
- 
- 	size = PAGE_ALIGN(vring_size(info->num, VIRTIO_PCI_VRING_ALIGN));
--	free_pages_exact(info->queue, size);
-+	dma_free_coherent(&vp_dev->pci_dev->dev, size,
-+			  info->queue, info->queue_dma_addr);
- }
- 
- static const struct virtio_config_ops virtio_pci_config_ops = {
-@@ -227,6 +231,13 @@ int virtio_pci_legacy_probe(struct virtio_pci_device *vp_dev)
- 		return -ENODEV;
- 	}
- 
-+	rc = dma_set_mask_and_coherent(&pci_dev->dev, DMA_BIT_MASK(64));
-+	if (rc)
-+		rc = dma_set_mask_and_coherent(&pci_dev->dev,
-+						DMA_BIT_MASK(32));
-+	if (rc)
-+		dev_warn(&pci_dev->dev, "Failed to enable 64-bit or 32-bit DMA.  Trying to continue, but this might not work.\n");
-+
- 	rc = pci_request_region(pci_dev, 0, "virtio-pci-legacy");
- 	if (rc)
- 		return rc;
-diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index 8e5cf194cc0b..fbe0bd1c4881 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -293,14 +293,16 @@ static size_t vring_pci_size(u16 num)
- 	return PAGE_ALIGN(vring_size(num, SMP_CACHE_BYTES));
- }
- 
--static void *alloc_virtqueue_pages(int *num)
-+static void *alloc_virtqueue_pages(struct virtio_pci_device *vp_dev,
-+				   int *num, dma_addr_t *dma_addr)
- {
- 	void *pages;
- 
- 	/* TODO: allocate each queue chunk individually */
- 	for (; *num && vring_pci_size(*num) > PAGE_SIZE; *num /= 2) {
--		pages = alloc_pages_exact(vring_pci_size(*num),
--					  GFP_KERNEL|__GFP_ZERO|__GFP_NOWARN);
-+		pages = dma_zalloc_coherent(
-+			&vp_dev->pci_dev->dev, vring_pci_size(*num),
-+			dma_addr, GFP_KERNEL|__GFP_NOWARN);
- 		if (pages)
- 			return pages;
- 	}
-@@ -309,7 +311,9 @@ static void *alloc_virtqueue_pages(int *num)
- 		return NULL;
- 
- 	/* Try to get a single page. You are my only hope! */
--	return alloc_pages_exact(vring_pci_size(*num), GFP_KERNEL|__GFP_ZERO);
-+	return dma_zalloc_coherent(
-+		&vp_dev->pci_dev->dev, vring_pci_size(*num),
-+		dma_addr, GFP_KERNEL);
- }
- 
- static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
-@@ -346,7 +350,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 	info->num = num;
- 	info->msix_vector = msix_vec;
- 
--	info->queue = alloc_virtqueue_pages(&info->num);
-+	info->queue = alloc_virtqueue_pages(vp_dev, &info->num,
-+					    &info->queue_dma_addr);
- 	if (info->queue == NULL)
- 		return ERR_PTR(-ENOMEM);
- 
-@@ -361,11 +366,11 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 
- 	/* activate the queue */
- 	vp_iowrite16(num, &cfg->queue_size);
--	vp_iowrite64_twopart(virt_to_phys(info->queue),
-+	vp_iowrite64_twopart(info->queue_dma_addr,
- 			     &cfg->queue_desc_lo, &cfg->queue_desc_hi);
--	vp_iowrite64_twopart(virt_to_phys(virtqueue_get_avail(vq)),
-+	vp_iowrite64_twopart(info->queue_dma_addr + ((char *)virtqueue_get_avail(vq) - (char *)info->queue),
- 			     &cfg->queue_avail_lo, &cfg->queue_avail_hi);
--	vp_iowrite64_twopart(virt_to_phys(virtqueue_get_used(vq)),
-+	vp_iowrite64_twopart(info->queue_dma_addr + ((char *)virtqueue_get_used(vq) - (char *)info->queue),
- 			     &cfg->queue_used_lo, &cfg->queue_used_hi);
- 
- 	if (vp_dev->notify_base) {
-@@ -411,7 +416,8 @@ err_assign_vector:
- err_map_notify:
- 	vring_del_virtqueue(vq);
- err_new_queue:
--	free_pages_exact(info->queue, vring_pci_size(info->num));
-+	dma_free_coherent(&vp_dev->pci_dev->dev, vring_pci_size(info->num),
-+			  info->queue, info->queue_dma_addr);
- 	return ERR_PTR(err);
- }
- 
-@@ -457,7 +463,8 @@ static void del_vq(struct virtio_pci_vq_info *info)
- 
- 	vring_del_virtqueue(vq);
- 
--	free_pages_exact(info->queue, vring_pci_size(info->num));
-+	dma_free_coherent(&vp_dev->pci_dev->dev, vring_pci_size(info->num),
-+			  info->queue, info->queue_dma_addr);
- }
- 
- static const struct virtio_config_ops virtio_pci_config_nodev_ops = {
-@@ -641,6 +648,13 @@ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
- 		return -EINVAL;
- 	}
- 
-+	err = dma_set_mask_and_coherent(&pci_dev->dev, DMA_BIT_MASK(64));
-+	if (err)
-+		err = dma_set_mask_and_coherent(&pci_dev->dev,
-+						DMA_BIT_MASK(32));
-+	if (err)
-+		dev_warn(&pci_dev->dev, "Failed to enable 64-bit or 32-bit DMA.  Trying to continue, but this might not work.\n");
-+
- 	/* Device capability is only mandatory for devices that have
- 	 * device-specific configuration.
- 	 */
+It doesn't work on ppc64.  Ben, consider yourself pinged to send me
+a patch :)
+
+It doesn't work on sparc64.  I didn't realize at Kernel Summit that
+sparc64 has the same problem as ppc64.
+
+DaveM, for background, we're trying to fix virtio to use the DMA
+API.  That will require that every platform that uses virtio
+supplies valid DMA operations on devices that use virtio_ring.
+Unfortunately, QEMU historically ignores the IOMMU on virtio
+devices.
+
+On x86, this isn't really a problem.  x86 has a nice way for the
+platform to describe which devices are behind an IOMMU, and QEMU
+will be adjusted accordingly.  The only thing that will break is a
+recently-added experimental mode.
+
+Ben's plan for powerpc is to add a quirk for existing virtio-pci
+devices and to eventually update the devicetree stuff to allow QEMU
+to tell the guest which devices use the IOMMU.
+
+AFAICT sparc has a similar problem to powerpc.  DaveM, can you come
+up with a straightforward way to get sparc's DMA API to work
+correctly for virtio-pci devices?
+
+NB: Sadly, the platforms I've successfully tested on don't include any
+big-endian platforms, so there could still be lurking endian problems.
+
+Changes from v3:
+ - More big-endian fixes.
+ - Added better virtio-ring APIs that handle allocation and use them in
+   virtio-mmio and virtio-pci.
+ - Switch to Michael's virtio-net patch.
+
+Changes from v2:
+ - Fix vring_mapping_error incorrect argument
+
+Changes from v1:
+ - Fix an endian conversion error causing a BUG to hit.
+ - Fix a DMA ordering issue (swiotlb=force works now).
+ - Minor cleanups.
+
+Andy Lutomirski (5):
+  virtio_ring: Support DMA APIs
+  virtio_pci: Use the DMA API
+  virtio: Add improved queue allocation API
+  virtio_mmio: Use the DMA API
+  virtio_pci: Use the DMA API
+
+Michael S. Tsirkin (1):
+  virtio-net: Stop doing DMA from the stack
+
+ drivers/net/virtio_net.c           |  34 ++--
+ drivers/virtio/Kconfig             |   2 +-
+ drivers/virtio/virtio_mmio.c       |  67 ++-----
+ drivers/virtio/virtio_pci_common.h |   6 -
+ drivers/virtio/virtio_pci_legacy.c |  42 ++---
+ drivers/virtio/virtio_pci_modern.c |  61 ++-----
+ drivers/virtio/virtio_ring.c       | 348 ++++++++++++++++++++++++++++++-------
+ include/linux/virtio.h             |  23 ++-
+ include/linux/virtio_ring.h        |  35 ++++
+ tools/virtio/linux/dma-mapping.h   |  17 ++
+ 10 files changed, 426 insertions(+), 209 deletions(-)
+ create mode 100644 tools/virtio/linux/dma-mapping.h
+
 -- 
 2.4.3
