@@ -1,11 +1,14 @@
-From: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Subject: [PATCH] vhost: move is_le setup to the backend
-Date: Fri, 30 Oct 2015 12:42:35 +0100
-Message-ID: <20151030114235.28847.63465.stgit@bahia.huguette.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next rfc V2 0/2] basic busy polling support for
+	vhost_net
+Date: Fri, 30 Oct 2015 19:58:30 +0800
+Message-ID: <56335B66.9050705@redhat.com>
+References: <1446108326-37765-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1446108326-37765-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,125 +18,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The vq->is_le field is used to fix endianness when accessing the vring via
-the cpu_to_vhost16() and vhost16_to_cpu() helpers in the following cases:
 
-1) host is big endian and device is modern virtio
 
-2) host has cross-endian support and device is legacy virtio with a different
-   endianness than the host
+On 10/29/2015 04:45 PM, Jason Wang wrote:
+> Hi all:
+>
+> This series tries to add basic busy polling for vhost net. The idea is
+> simple: at the end of tx processing, busy polling for new tx added
+> descriptor and rx receive socket for a while. The maximum number of
+> time (in us) could be spent on busy polling was specified through
+> module parameter.
+>
+> Test were done through:
+>
+> - 50 us as busy loop timeout
+> - Netperf 2.6
+> - Two machines with back to back connected mlx4
+> - Guest with 8 vcpus and 1 queue
+>
+> Result shows very huge improvement on both tx (at most 158%) and rr
+> (at most 53%) while rx is as much as in the past. Most cases the cpu
+> utilization is also improved:
+>
 
-Both cases rely on the VHOST_SET_FEATURES ioctl, but 2) also needs the
-VHOST_SET_VRING_ENDIAN ioctl to be called by userspace. Since vq->is_le
-is only needed when the backend is active, it was decided to set it at
-backend start.
+Just notice there's something wrong in the setup. So the numbers are
+incorrect here. Will re-run and post correct number here.
 
-This is currently done in vhost_init_used()->vhost_init_is_le() but it
-obfuscates the core vhost code. This patch moves the is_le setup to a
-dedicated function that is called from the backend code.
-
-Note vhost_net is the only backend that can pass vq->private_data == NULL to
-vhost_init_used(), hence the "if (sock)" branch.
-
-No behaviour change.
-
-Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
----
- drivers/vhost/net.c   |    6 ++++++
- drivers/vhost/scsi.c  |    3 +++
- drivers/vhost/test.c  |    2 ++
- drivers/vhost/vhost.c |   12 +++++++-----
- drivers/vhost/vhost.h |    1 +
- 5 files changed, 19 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 9eda69e40678..d6319cb2664c 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -917,6 +917,12 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
- 
- 		vhost_net_disable_vq(n, vq);
- 		vq->private_data = sock;
-+
-+		if (sock)
-+			vhost_set_is_le(vq);
-+		else
-+			vq->is_le = virtio_legacy_is_little_endian();
-+
- 		r = vhost_init_used(vq);
- 		if (r)
- 			goto err_used;
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index e25a23692822..e2644a301fa5 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -1276,6 +1276,9 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
- 			vq = &vs->vqs[i].vq;
- 			mutex_lock(&vq->mutex);
- 			vq->private_data = vs_tpg;
-+
-+			vhost_set_is_le(vq);
-+
- 			vhost_init_used(vq);
- 			mutex_unlock(&vq->mutex);
- 		}
-diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
-index f2882ac98726..b1c7df502211 100644
---- a/drivers/vhost/test.c
-+++ b/drivers/vhost/test.c
-@@ -196,6 +196,8 @@ static long vhost_test_run(struct vhost_test *n, int test)
- 		oldpriv = vq->private_data;
- 		vq->private_data = priv;
- 
-+		vhost_set_is_le(vq);
-+
- 		r = vhost_init_used(&n->vqs[index]);
- 
- 		mutex_unlock(&vq->mutex);
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index eec2f11809ff..6be863dcbd13 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -113,6 +113,12 @@ static void vhost_init_is_le(struct vhost_virtqueue *vq)
- }
- #endif /* CONFIG_VHOST_CROSS_ENDIAN_LEGACY */
- 
-+void vhost_set_is_le(struct vhost_virtqueue *vq)
-+{
-+	vhost_init_is_le(vq);
-+}
-+EXPORT_SYMBOL_GPL(vhost_set_is_le);
-+
- static void vhost_poll_func(struct file *file, wait_queue_head_t *wqh,
- 			    poll_table *pt)
- {
-@@ -1156,12 +1162,8 @@ int vhost_init_used(struct vhost_virtqueue *vq)
- {
- 	__virtio16 last_used_idx;
- 	int r;
--	if (!vq->private_data) {
--		vq->is_le = virtio_legacy_is_little_endian();
-+	if (!vq->private_data)
- 		return 0;
--	}
--
--	vhost_init_is_le(vq);
- 
- 	r = vhost_update_used_flags(vq);
- 	if (r)
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 4772862b71a7..8a62041959fe 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -162,6 +162,7 @@ bool vhost_enable_notify(struct vhost_dev *, struct vhost_virtqueue *);
- 
- int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
- 		    unsigned int log_num, u64 len);
-+void vhost_set_is_le(struct vhost_virtqueue *vq);
- 
- #define vq_err(vq, fmt, ...) do {                                  \
- 		pr_debug(pr_fmt(fmt), ##__VA_ARGS__);       \
+Sorry.
