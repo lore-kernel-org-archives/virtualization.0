@@ -1,14 +1,22 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v4 1/6] virtio-net: Stop doing DMA from the stack
-Date: Fri, 30 Oct 2015 14:55:30 +0100
-Message-ID: <563376D2.20502__46715.298764366$1446213367$gmane$org@de.ibm.com>
-References: <cover.1446162273.git.luto@kernel.org>
-	<8d6b1fc3b5d3b6f5e8b212ef690691a52fbefaff.1446162273.git.luto@kernel.org>
+From: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
+Date: Fri, 30 Oct 2015 16:54:58 +0000
+Message-ID: <1446224098.25261.15.camel@infradead.org>
+References: <56307BD1.6010806@de.ibm.com>
+	<1446019787.3405.203.camel@infradead.org>
+	<20151028132331-mutt-send-email-mst@redhat.com>
+	<1446039327.3405.216.camel@infradead.org>
+	<20151028155105-mutt-send-email-mst@redhat.com>
+	<1446041609.3405.228.camel@infradead.org>
+	<20151028161424-mutt-send-email-mst@redhat.com>
+	<1446042754.3405.237.camel@infradead.org>
+	<20151028175136-mutt-send-email-mst@redhat.com>
+	<CALCETrWd7mK5bW2p_dvvjDRnqE31=ueAz5SAYKwY-PD5uZp76A@mail.gmail.com>
+	<20151029104301-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============1271593645991782149=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <8d6b1fc3b5d3b6f5e8b212ef690691a52fbefaff.1446162273.git.luto@kernel.org>
+In-Reply-To: <20151029104301-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,173 +26,206 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@kernel.org>, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org
-Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, benh@kernel.crashing.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, dwmw2@infradead.org, Christoph Hellwig <hch@lst.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Andy Lutomirski <luto@amacapital.net>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am 30.10.2015 um 02:09 schrieb Andy Lutomirski:
-> From: "Michael S. Tsirkin" <mst@redhat.com>
-> 
-> Once virtio starts using the DMA API, we won't be able to safely DMA
-> from the stack.  virtio-net does a couple of config DMA requests
-> from small stack buffers -- switch to using dynamically-allocated
-> memory.
-> 
-> This should have no effect on any performance-critical code paths.
-> 
-> [I wrote the subject and commit message.  mst wrote the code. --luto]
-> 
-> Signed-off-by: Andy Lutomirski <luto@kernel.org>
-> signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-I still get an error when using multiqueue:
-
-#  ethtool -L eth0 combined 4
-[   33.534686] virtio_ccw 0.0.000d: DMA-API: device driver maps memory from stack [addr=00000000629e7c06]
-[   33.534704] ------------[ cut here ]------------
-[   33.534705] WARNING: at lib/dma-debug.c:1169
-[   33.534706] Modules linked in: dm_multipath
-[   33.534709] CPU: 1 PID: 1087 Comm: ethtool Not tainted 4.3.0-rc3+ #269
-[   33.534710] task: 00000000616f9978 ti: 00000000629e4000 task.ti: 00000000629e4000
-[   33.534712] Krnl PSW : 0704d00180000000 00000000005869d2 (check_for_stack+0xb2/0x118)
-[   33.534716]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:1 PM:0 EA:3
-Krnl GPRS: 000000000000006a 0000000000d60f44 000000000000005a 0000000064ee0870
-[   33.534718]            00000000005869ce 0000000000000000 0000000000000001 00000000629e7c06
-[   33.534719]            0000000000000000 0000000000000c06 0000000000000002 000000006467f800
-[   33.534720]            0000000064673428 00000000629e7c06 00000000005869ce 00000000629e7928
-[   33.534726] Krnl Code: 00000000005869c2: c0200024ad4e	larl	%r2,a1c45e
-           00000000005869c8: c0e5ffe6d6fc	brasl	%r14,2617c0
-          #00000000005869ce: a7f40001		brc	15,5869d0
-          >00000000005869d2: c010003465eb	larl	%r1,c135a8
-           00000000005869d8: e31010000012	lt	%r1,0(%r1)
-           00000000005869de: a784000a		brc	8,5869f2
-           00000000005869e2: e340f0b00004	lg	%r4,176(%r15)
-           00000000005869e8: ebcff0a00004	lmg	%r12,%r15,160(%r15)
-[   33.534736] Call Trace:
-[   33.534737] ([<00000000005869ce>] check_for_stack+0xae/0x118)
-[   33.534738]  [<0000000000586e3c>] debug_dma_map_page+0x114/0x160
-[   33.534740]  [<00000000005a31f8>] vring_map_one_sg.isra.7+0x98/0xc0
-[   33.534742]  [<00000000005a3b72>] virtqueue_add_sgs+0x1e2/0x788
-[   33.534744]  [<0000000000618afc>] virtnet_send_command+0xcc/0x140
-[   33.534745]  [<0000000000618c0c>] virtnet_set_queues+0x9c/0x110
-[   33.534747]  [<0000000000619928>] virtnet_set_channels+0x78/0xe0
-[   33.534748]  [<00000000006f63ea>] ethtool_set_channels+0x62/0x88
-[   33.534750]  [<00000000006f8900>] dev_ethtool+0x10d8/0x1a48
-[   33.534752]  [<000000000070c540>] dev_ioctl+0x190/0x510
-[   33.534754]  [<00000000006cf2da>] sock_do_ioctl+0x7a/0x90
-[   33.534755]  [<00000000006cf840>] sock_ioctl+0x1e8/0x2d0
-[   33.534758]  [<00000000002e6c78>] do_vfs_ioctl+0x3a8/0x508
-[   33.534759]  [<00000000002e6e7c>] SyS_ioctl+0xa4/0xb8
-[   33.534762]  [<00000000008231ec>] system_call+0x244/0x264
-[   33.534763]  [<000003ff922026d2>] 0x3ff922026d2
-[   33.534764] Last Breaking-Event-Address:
-[   33.534765]  [<00000000005869ce>] check_for_stack+0xae/0x118
-[   33.534766] ---[ end trace 2379df65f4decfc4 ]---
+--===============1271593645991782149==
+Content-Type: multipart/signed; micalg="sha-1"; protocol="application/x-pkcs7-signature";
+	boundary="=-RYrJBLoby1vWtMC0m1T8"
 
 
-> ---
->  drivers/net/virtio_net.c | 34 +++++++++++++++++++---------------
->  1 file changed, 19 insertions(+), 15 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index d8838dedb7a4..f94ab786088f 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -140,6 +140,12 @@ struct virtnet_info {
-> 
->  	/* CPU hot plug notifier */
->  	struct notifier_block nb;
-> +
-> +	/* Control VQ buffers: protected by the rtnl lock */
-> +	struct virtio_net_ctrl_hdr ctrl_hdr;
-> +	virtio_net_ctrl_ack ctrl_status;
-> +	u8 ctrl_promisc;
-> +	u8 ctrl_allmulti;
->  };
-> 
->  struct padded_vnet_hdr {
-> @@ -976,31 +982,30 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
->  				 struct scatterlist *out)
->  {
->  	struct scatterlist *sgs[4], hdr, stat;
-> -	struct virtio_net_ctrl_hdr ctrl;
-> -	virtio_net_ctrl_ack status = ~0;
->  	unsigned out_num = 0, tmp;
-> 
->  	/* Caller should know better */
->  	BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ));
-> 
-> -	ctrl.class = class;
-> -	ctrl.cmd = cmd;
-> +	vi->ctrl_status = ~0;
-> +	vi->ctrl_hdr.class = class;
-> +	vi->ctrl_hdr.cmd = cmd;
->  	/* Add header */
-> -	sg_init_one(&hdr, &ctrl, sizeof(ctrl));
-> +	sg_init_one(&hdr, &vi->ctrl_hdr, sizeof(vi->ctrl_hdr));
->  	sgs[out_num++] = &hdr;
-> 
->  	if (out)
->  		sgs[out_num++] = out;
-> 
->  	/* Add return status. */
-> -	sg_init_one(&stat, &status, sizeof(status));
-> +	sg_init_one(&stat, &vi->ctrl_status, sizeof(vi->ctrl_status));
->  	sgs[out_num] = &stat;
-> 
->  	BUG_ON(out_num + 1 > ARRAY_SIZE(sgs));
->  	virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, vi, GFP_ATOMIC);
-> 
->  	if (unlikely(!virtqueue_kick(vi->cvq)))
-> -		return status == VIRTIO_NET_OK;
-> +		return vi->ctrl_status == VIRTIO_NET_OK;
-> 
->  	/* Spin for a response, the kick causes an ioport write, trapping
->  	 * into the hypervisor, so the request should be handled immediately.
-> @@ -1009,7 +1014,7 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
->  	       !virtqueue_is_broken(vi->cvq))
->  		cpu_relax();
-> 
-> -	return status == VIRTIO_NET_OK;
-> +	return vi->ctrl_status == VIRTIO_NET_OK;
->  }
-> 
->  static int virtnet_set_mac_address(struct net_device *dev, void *p)
-> @@ -1151,7 +1156,6 @@ static void virtnet_set_rx_mode(struct net_device *dev)
->  {
->  	struct virtnet_info *vi = netdev_priv(dev);
->  	struct scatterlist sg[2];
-> -	u8 promisc, allmulti;
->  	struct virtio_net_ctrl_mac *mac_data;
->  	struct netdev_hw_addr *ha;
->  	int uc_count;
-> @@ -1163,22 +1167,22 @@ static void virtnet_set_rx_mode(struct net_device *dev)
->  	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_RX))
->  		return;
-> 
-> -	promisc = ((dev->flags & IFF_PROMISC) != 0);
-> -	allmulti = ((dev->flags & IFF_ALLMULTI) != 0);
-> +	vi->ctrl_promisc = ((dev->flags & IFF_PROMISC) != 0);
-> +	vi->ctrl_allmulti = ((dev->flags & IFF_ALLMULTI) != 0);
-> 
-> -	sg_init_one(sg, &promisc, sizeof(promisc));
-> +	sg_init_one(sg, &vi->ctrl_promisc, sizeof(vi->ctrl_promisc));
-> 
->  	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
->  				  VIRTIO_NET_CTRL_RX_PROMISC, sg))
->  		dev_warn(&dev->dev, "Failed to %sable promisc mode.\n",
-> -			 promisc ? "en" : "dis");
-> +			 vi->ctrl_promisc ? "en" : "dis");
-> 
-> -	sg_init_one(sg, &allmulti, sizeof(allmulti));
-> +	sg_init_one(sg, &vi->ctrl_allmulti, sizeof(vi->ctrl_allmulti));
-> 
->  	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
->  				  VIRTIO_NET_CTRL_RX_ALLMULTI, sg))
->  		dev_warn(&dev->dev, "Failed to %sable allmulti mode.\n",
-> -			 allmulti ? "en" : "dis");
-> +			 vi->ctrl_allmulti ? "en" : "dis");
-> 
->  	uc_count = netdev_uc_count(dev);
->  	mc_count = netdev_mc_count(dev);
-> 
+--=-RYrJBLoby1vWtMC0m1T8
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+(Sorry, missed part of this before).
+
+On Thu, 2015-10-29 at 11:01 +0200, Michael S. Tsirkin wrote:
+> Isn't this specified by the hypervisor? I don't think this is a good
+> way to do this: guest security should be up to guest.
+
+And it is. When the guest sees an IOMMU, it can choose to use it, or
+choose not to (or choose to put it in passthrough mode). But as J=C3=B6rg
+says, we don't have a way for an individual  device driver to *request*
+passthrough mode or not yet; the choice is made by the core IOMMU code
+(iommu=3Dpt on the command line) =E2=80=94 or by the platform simply statin=
+g that
+a given device isn't *covered* by an IOMMU, if that is indeed the case.
+
+In *no* circumstance is it sane for a device driver just to "opt out"
+of using the correct DMA API function calls, and expect that to
+*magically* cause the IOMMU to be bypassed.
+
+> > Everyone seems to agree that x86's emulated Q35 thing
+> > is just buggy right now and should be taught to use the existing ACPI
+> > mechanism for enumerating passthrough devices.
+>=20
+> I'm not sure what ACPI has to do with it.
+> It's about a way for guest users to specify whether
+> they want to bypass an IOMMU for a given device.
+
+No, it absolutely isn't. You might want that =E2=80=94 and see the discussi=
+on
+about DMA_ATTR_IOMMU_BYPASS if you do. But that is *utterly* irrelevant
+to *this* discussion, in which you seem to be advocating that the
+virtio drivers should remain buggy by just unilaterally not using the
+DMA API.
+
+> By the way, a bunch of code is missing on the QEMU side
+> to make this useful:
+> 1. virtio ignores the iommu
+> 2. vhost user ignores the iommu
+> 3. dataplane ignores the iommu
+> 4. vhost-net ignores the iommu
+> 5. VFIO ignores the iommu
+
+No, those things are not useful for fixing the virtio driver bug under
+discussion here. All we need to do is make the virtio drivers correctly
+use the DMA API. They should never have passed review and been accepted
+into the Linux kernel without that.
+
+All we need to do first is make sure that the bug we have in the
+PowerPC IOMMU code (and potentially ARM and/or SPARC?) is fixed, and
+that it doesn't attempt to use an IOMMU that doesn't exist. And ensure
+that the virtualised IOMMU on qemu/x86 isn't lying and claiming that it
+translates for the virtio devices when it doesn't.
+
+There are other things we might want to do =E2=80=94 like fixing the IOMMU =
+that
+qemu can emulate, and actually making it work with real assigned
+devices (currently it's totally hosed because it doesn't handle that
+case at all). And potentially making the virtualised IOMMU actually
+*do* translation for virtio devices (as opposed to just admitting
+correctly that it doesn't). But those aren't strictly relevant here,
+yet.
+
+It's not clear what specific uses of the IOMMU you had in mind in your
+above list =E2=80=94 could you elucidate?
+
+--=20
+dwmw2
+
+
+--=-RYrJBLoby1vWtMC0m1T8
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Transfer-Encoding: base64
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIISjjCCBicw
+ggUPoAMCAQICAw3vNzANBgkqhkiG9w0BAQUFADCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0
+YXJ0Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcx
+ODA2BgNVBAMTL1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENB
+MB4XDTE1MDUwNTA5NDM0MVoXDTE2MDUwNTA5NTMzNlowQjEcMBoGA1UEAwwTZHdtdzJAaW5mcmFk
+ZWFkLm9yZzEiMCAGCSqGSIb3DQEJARYTZHdtdzJAaW5mcmFkZWFkLm9yZzCCASIwDQYJKoZIhvcN
+AQEBBQADggEPADCCAQoCggEBAMkbm9kPbx1j/X4RVyf/pPKSYwelcco69TvnQQbKM8m8xkWjXJI1
+jpJ1jMaGUZGFToINMSZi7lZawUozudWbXSKy1SikENSTJHffsdRAIlsp+hR8vWvjsKUry6sEdqPG
+doa5RY7+N4WRusWZDYW/RRWE6i9EL9qV86CVPYqw22UBOUw4/j/HVGCV6TSB8yE5iEwhk/hUuzRr
+FZm1MJMR7mCS7BCR8Lr5jFY61lWpBiXNXIxLZCvDc26KR5L5tYX43iUVO3fzES1GRVoYnxxk2tmz
+fcsZG5vK+Trc9L8OZJfkYrEHH3+Iw41MQ0w/djVtYr1+HYldx0QmYXAtnhIj+UMCAwEAAaOCAtkw
+ggLVMAkGA1UdEwQCMAAwCwYDVR0PBAQDAgSwMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcD
+BDAdBgNVHQ4EFgQUszC96C3w5/2+d+atSr0IpT26YI4wHwYDVR0jBBgwFoAUU3Ltkpzg2ssBXHx+
+ljVO8tS4UYIwHgYDVR0RBBcwFYETZHdtdzJAaW5mcmFkZWFkLm9yZzCCAUwGA1UdIASCAUMwggE/
+MIIBOwYLKwYBBAGBtTcBAgMwggEqMC4GCCsGAQUFBwIBFiJodHRwOi8vd3d3LnN0YXJ0c3NsLmNv
+bS9wb2xpY3kucGRmMIH3BggrBgEFBQcCAjCB6jAnFiBTdGFydENvbSBDZXJ0aWZpY2F0aW9uIEF1
+dGhvcml0eTADAgEBGoG+VGhpcyBjZXJ0aWZpY2F0ZSB3YXMgaXNzdWVkIGFjY29yZGluZyB0byB0
+aGUgQ2xhc3MgMSBWYWxpZGF0aW9uIHJlcXVpcmVtZW50cyBvZiB0aGUgU3RhcnRDb20gQ0EgcG9s
+aWN5LCByZWxpYW5jZSBvbmx5IGZvciB0aGUgaW50ZW5kZWQgcHVycG9zZSBpbiBjb21wbGlhbmNl
+IG9mIHRoZSByZWx5aW5nIHBhcnR5IG9ibGlnYXRpb25zLjA2BgNVHR8ELzAtMCugKaAnhiVodHRw
+Oi8vY3JsLnN0YXJ0c3NsLmNvbS9jcnR1MS1jcmwuY3JsMIGOBggrBgEFBQcBAQSBgTB/MDkGCCsG
+AQUFBzABhi1odHRwOi8vb2NzcC5zdGFydHNzbC5jb20vc3ViL2NsYXNzMS9jbGllbnQvY2EwQgYI
+KwYBBQUHMAKGNmh0dHA6Ly9haWEuc3RhcnRzc2wuY29tL2NlcnRzL3N1Yi5jbGFzczEuY2xpZW50
+LmNhLmNydDAjBgNVHRIEHDAahhhodHRwOi8vd3d3LnN0YXJ0c3NsLmNvbS8wDQYJKoZIhvcNAQEF
+BQADggEBAHMQmxHHodpS85X8HRyxhvfkys7r+taCNOaNU9cxQu/cZ/6k5nS2qGNMzZ6jb7ueY/V7
+7p+4DW/9ZWODDTf4Fz00mh5SSVc20Bz7t+hhxwHd62PZgENh5i76Qq2tw48U8AsYo5damHby1epf
+neZafLpUkLLO7AGBJIiRVTevdvyXQ0qnixOmKMWyvrhSNGuVIKVdeqLP+102Dwf+dpFyw+j1hz28
+jEEKpHa+NR1b2kXuSPi/rMGhexwlJOh4tK8KQ6Ryr0rIN//NSbOgbyYZrzc/ZUWX9V5OA84ChFb2
+vkFl0OcYrttp/rhDBLITwffPxSZeoBh9H7zYzkbCXKL3BUIwggYnMIIFD6ADAgECAgMN7zcwDQYJ
+KoZIhvcNAQEFBQAwgYwxCzAJBgNVBAYTAklMMRYwFAYDVQQKEw1TdGFydENvbSBMdGQuMSswKQYD
+VQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0aWZpY2F0ZSBTaWduaW5nMTgwNgYDVQQDEy9TdGFydENv
+bSBDbGFzcyAxIFByaW1hcnkgSW50ZXJtZWRpYXRlIENsaWVudCBDQTAeFw0xNTA1MDUwOTQzNDFa
+Fw0xNjA1MDUwOTUzMzZaMEIxHDAaBgNVBAMME2R3bXcyQGluZnJhZGVhZC5vcmcxIjAgBgkqhkiG
+9w0BCQEWE2R3bXcyQGluZnJhZGVhZC5vcmcwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB
+AQDJG5vZD28dY/1+EVcn/6TykmMHpXHKOvU750EGyjPJvMZFo1ySNY6SdYzGhlGRhU6CDTEmYu5W
+WsFKM7nVm10istUopBDUkyR337HUQCJbKfoUfL1r47ClK8urBHajxnaGuUWO/jeFkbrFmQ2Fv0UV
+hOovRC/alfOglT2KsNtlATlMOP4/x1Rglek0gfMhOYhMIZP4VLs0axWZtTCTEe5gkuwQkfC6+YxW
+OtZVqQYlzVyMS2Qrw3NuikeS+bWF+N4lFTt38xEtRkVaGJ8cZNrZs33LGRubyvk63PS/DmSX5GKx
+Bx9/iMONTENMP3Y1bWK9fh2JXcdEJmFwLZ4SI/lDAgMBAAGjggLZMIIC1TAJBgNVHRMEAjAAMAsG
+A1UdDwQEAwIEsDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwHQYDVR0OBBYEFLMwvegt
+8Of9vnfmrUq9CKU9umCOMB8GA1UdIwQYMBaAFFNy7ZKc4NrLAVx8fpY1TvLUuFGCMB4GA1UdEQQX
+MBWBE2R3bXcyQGluZnJhZGVhZC5vcmcwggFMBgNVHSAEggFDMIIBPzCCATsGCysGAQQBgbU3AQID
+MIIBKjAuBggrBgEFBQcCARYiaHR0cDovL3d3dy5zdGFydHNzbC5jb20vcG9saWN5LnBkZjCB9wYI
+KwYBBQUHAgIwgeowJxYgU3RhcnRDb20gQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkwAwIBARqBvlRo
+aXMgY2VydGlmaWNhdGUgd2FzIGlzc3VlZCBhY2NvcmRpbmcgdG8gdGhlIENsYXNzIDEgVmFsaWRh
+dGlvbiByZXF1aXJlbWVudHMgb2YgdGhlIFN0YXJ0Q29tIENBIHBvbGljeSwgcmVsaWFuY2Ugb25s
+eSBmb3IgdGhlIGludGVuZGVkIHB1cnBvc2UgaW4gY29tcGxpYW5jZSBvZiB0aGUgcmVseWluZyBw
+YXJ0eSBvYmxpZ2F0aW9ucy4wNgYDVR0fBC8wLTAroCmgJ4YlaHR0cDovL2NybC5zdGFydHNzbC5j
+b20vY3J0dTEtY3JsLmNybDCBjgYIKwYBBQUHAQEEgYEwfzA5BggrBgEFBQcwAYYtaHR0cDovL29j
+c3Auc3RhcnRzc2wuY29tL3N1Yi9jbGFzczEvY2xpZW50L2NhMEIGCCsGAQUFBzAChjZodHRwOi8v
+YWlhLnN0YXJ0c3NsLmNvbS9jZXJ0cy9zdWIuY2xhc3MxLmNsaWVudC5jYS5jcnQwIwYDVR0SBBww
+GoYYaHR0cDovL3d3dy5zdGFydHNzbC5jb20vMA0GCSqGSIb3DQEBBQUAA4IBAQBzEJsRx6HaUvOV
+/B0csYb35MrO6/rWgjTmjVPXMULv3Gf+pOZ0tqhjTM2eo2+7nmP1e+6fuA1v/WVjgw03+Bc9NJoe
+UklXNtAc+7foYccB3etj2YBDYeYu+kKtrcOPFPALGKOXWph28tXqX53mWny6VJCyzuwBgSSIkVU3
+r3b8l0NKp4sTpijFsr64UjRrlSClXXqiz/tdNg8H/naRcsPo9Yc9vIxBCqR2vjUdW9pF7kj4v6zB
+oXscJSToeLSvCkOkcq9KyDf/zUmzoG8mGa83P2VFl/VeTgPOAoRW9r5BZdDnGK7baf64QwSyE8H3
+z8UmXqAYfR+82M5Gwlyi9wVCMIIGNDCCBBygAwIBAgIBHjANBgkqhkiG9w0BAQUFADB9MQswCQYD
+VQQGEwJJTDEWMBQGA1UEChMNU3RhcnRDb20gTHRkLjErMCkGA1UECxMiU2VjdXJlIERpZ2l0YWwg
+Q2VydGlmaWNhdGUgU2lnbmluZzEpMCcGA1UEAxMgU3RhcnRDb20gQ2VydGlmaWNhdGlvbiBBdXRo
+b3JpdHkwHhcNMDcxMDI0MjEwMTU1WhcNMTcxMDI0MjEwMTU1WjCBjDELMAkGA1UEBhMCSUwxFjAU
+BgNVBAoTDVN0YXJ0Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRl
+IFNpZ25pbmcxODA2BgNVBAMTL1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUg
+Q2xpZW50IENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxwmDzM4t2BqxKaQuE6uW
+vooyg4ymiEGWVUet1G8SD+rqvyNH4QrvnEIaFHxOhESip7vMz39ScLpNLbL1QpOlPW/tFIzNHS3q
+d2XRNYG5Sv9RcGE+T4qbLtsjjJbi6sL7Ls/f/X9ftTyhxvxWkf8KW37iKrueKsxw2HqolH7GM6FX
+5UfNAwAu4ZifkpmZzU1slBhyWwaQPEPPZRsWoTb7q8hmgv6Nv3Hg9rmA1/VPBIOQ6SKRkHXG0Hhm
+q1dOFoAFI411+a/9nWm5rcVjGcIWZ2v/43Yksq60jExipA4l5uv9/+Hm33mbgmCszdj/Dthf13tg
+Av2O83hLJ0exTqfrlwIDAQABo4IBrTCCAakwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMC
+AQYwHQYDVR0OBBYEFFNy7ZKc4NrLAVx8fpY1TvLUuFGCMB8GA1UdIwQYMBaAFE4L7xqkQFulF2mH
+MMo0aEPQQa7yMGYGCCsGAQUFBwEBBFowWDAnBggrBgEFBQcwAYYbaHR0cDovL29jc3Auc3RhcnRz
+c2wuY29tL2NhMC0GCCsGAQUFBzAChiFodHRwOi8vd3d3LnN0YXJ0c3NsLmNvbS9zZnNjYS5jcnQw
+WwYDVR0fBFQwUjAnoCWgI4YhaHR0cDovL3d3dy5zdGFydHNzbC5jb20vc2ZzY2EuY3JsMCegJaAj
+hiFodHRwOi8vY3JsLnN0YXJ0c3NsLmNvbS9zZnNjYS5jcmwwgYAGA1UdIAR5MHcwdQYLKwYBBAGB
+tTcBAgEwZjAuBggrBgEFBQcCARYiaHR0cDovL3d3dy5zdGFydHNzbC5jb20vcG9saWN5LnBkZjA0
+BggrBgEFBQcCARYoaHR0cDovL3d3dy5zdGFydHNzbC5jb20vaW50ZXJtZWRpYXRlLnBkZjANBgkq
+hkiG9w0BAQUFAAOCAgEACoMIfXirLAZcuGOMXq4cuSN3TaFx2H2GvD5VSy/6rV55BYHbWNaPeQn3
+oBSU8KgQZn/Kck1JxbLpAxVCNtsxeW1R87ifhsYZ0qjdrA9anrW2MAWCtosmAOT4OxK9QPoSjCMx
+M3HbkZCDJgnlE8jMopH21BbyAYr7b5EfGRQJNtgWcvqSXwKHnTutR08+Kkn0KAkXCzeQNLeA5LlY
+UzFyM7kPAp8pIRMQ+seHunmyG642S2+y/qHEdMuGIwpfz3eDF1PdctL04qYK/zu+Qg1Bw0RwgigV
+Zs/0c5HP2/e9DBHh7eSwtzYlk4AUr6yxLlcwSjOfOmKEQ/Q8tzh0IFiNu9IPuTGAPBn4CPxD0+Ru
+8T2wg8/s43R/PT3kd1OEqOJUl7q+h+r6fpvU0Fzxd2tC8Ga6fDEPme+1Nbi+03pVjuZQKbGwKJ66
+gEn06WqaxVZC+J8hh/jR0k9mST1iAZPNYulcNJ8tKmVtjYsv0L1TSm2+NwON58tO+pIVzu3DWwSE
+XSf+qkDavQam+QtEOZxLBXI++aMUEapSn+k3Lxm48ZCYfAWLb/Xj7F5JQMbZvCexglAbYR0kIHqW
+5DnsYSdMD/IplJMojx0NBrxJ3fN9dvX2Y6BIXRsF1du4qESm4/3CKuyUV7p9DW3mPlHTGLvYxnyK
+Qy7VFBkoLINszBrOUeIxggNvMIIDawIBATCBlDCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0
+YXJ0Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcx
+ODA2BgNVBAMTL1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENB
+AgMN7zcwCQYFKw4DAhoFAKCCAa8wGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0B
+CQUxDxcNMTUxMDMwMTY1NDU4WjAjBgkqhkiG9w0BCQQxFgQUPCpsonqS67QhIL9mUi9bPxkvipcw
+gaUGCSsGAQQBgjcQBDGBlzCBlDCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0YXJ0Q29tIEx0
+ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcxODA2BgNVBAMT
+L1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENBAgMN7zcwgacG
+CyqGSIb3DQEJEAILMYGXoIGUMIGMMQswCQYDVQQGEwJJTDEWMBQGA1UEChMNU3RhcnRDb20gTHRk
+LjErMCkGA1UECxMiU2VjdXJlIERpZ2l0YWwgQ2VydGlmaWNhdGUgU2lnbmluZzE4MDYGA1UEAxMv
+U3RhcnRDb20gQ2xhc3MgMSBQcmltYXJ5IEludGVybWVkaWF0ZSBDbGllbnQgQ0ECAw3vNzANBgkq
+hkiG9w0BAQEFAASCAQCmqOVpXO1UE7YT/WFii4JZrmLXDavHBIQTUzqzRWehScrMhmNk2GU1BoLf
+CKs7kZ/7Acf+QfoAuCeX35OP4aAcxQ2SQ/O3U7J/5PbybD3S+Fo/jKK9aVm+PNwJWO6YC01wbOiz
+36fVzW2ilzaUh8D2VynY2oeZuEIh8PrV5ZPj26wD61Kf+2YNdBnanK8yEdqlug+Yf6CUR2AONFTq
+9v7Gp4OVbZl062oSRLA48V1HgT1Ctjc1Y3K9e921yav0mRzZ0osfIHbRGXfLTTBa52U0/eZ04a66
+h3irQr0jl+2hOpteZa5uK8N1Ap9Mdjob9UhHciAdr7PQjNUo864XIIxVAAAAAAAA
+
+
+--=-RYrJBLoby1vWtMC0m1T8--
+
+
+--===============1271593645991782149==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============1271593645991782149==--
