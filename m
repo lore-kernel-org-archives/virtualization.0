@@ -1,15 +1,15 @@
-From: Roman Kagan <rkagan@virtuozzo.com>
-Subject: Re: [kvm-unit-tests PATCH] x86: hyperv_synic: Hyper-V SynIC test
-Date: Mon, 2 Nov 2015 15:48:37 +0300
-Message-ID: <20151102124836.GA6221@rkaganb.sw.ru>
-References: <1445853369-24435-1-git-send-email-asmetanin@virtuozzo.com>
-	<56375402.7060406@redhat.com>
+From: Joerg Roedel <jroedel@suse.de>
+Subject: Re: [PATCH 1/3] Provide simple noop dma ops
+Date: Mon, 2 Nov 2015 16:16:44 +0100
+Message-ID: <20151102151644.GC2876__19277.8845354498$1446477438$gmane$org@suse.de>
+References: <1446211237-111298-1-git-send-email-borntraeger@de.ibm.com>
+	<1446211237-111298-2-git-send-email-borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <56375402.7060406@redhat.com>
+In-Reply-To: <1446211237-111298-2-git-send-email-borntraeger@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,47 +19,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: kvm@vger.kernel.org, Gleb Natapov <gleb@kernel.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Andrey Smetanin <asmetanin@virtuozzo.com>, "Denis
-	V. Lunev" <den@openvz.org>, Vitaly Kuznetsov <vkuznets@redhat.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, KVM <kvm@vger.kernel.org>, Michael Tsirkin <mst@redhat.com>, benh@kernel.crashing.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, dwmw2@infradead.org, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Nov 02, 2015 at 01:16:02PM +0100, Paolo Bonzini wrote:
-> On 26/10/2015 10:56, Andrey Smetanin wrote:
-> > Hyper-V SynIC is a Hyper-V synthetic interrupt controller.
-> > 
-> > The test runs on every vCPU and performs the following steps:
-> > * read from all Hyper-V SynIC MSR's
-> > * setup Hyper-V SynIC evt/msg pages
-> > * setup SINT's routing
-> > * inject SINT's into destination vCPU by 'hyperv-synic-test-device'
-> > * wait for SINT's isr's completion
-> > * clear Hyper-V SynIC evt/msg pages and destroy SINT's routing
-> > 
-> > Signed-off-by: Andrey Smetanin <asmetanin@virtuozzo.com>
-> > Reviewed-by: Roman Kagan <rkagan@virtuozzo.com>
-> > Signed-off-by: Denis V. Lunev <den@openvz.org>
-> > CC: Vitaly Kuznetsov <vkuznets@redhat.com>
-> > CC: "K. Y. Srinivasan" <kys@microsoft.com>
-> > CC: Gleb Natapov <gleb@kernel.org>
-> > CC: Paolo Bonzini <pbonzini@redhat.com>
-> > CC: Roman Kagan <rkagan@virtuozzo.com>
-> > CC: Denis V. Lunev <den@openvz.org>
-> > CC: qemu-devel@nongnu.org
-> > CC: virtualization@lists.linux-foundation.org
-> 
-> Bad news.
-> 
-> The test breaks with APICv, because of the following sequence of events:
+On Fri, Oct 30, 2015 at 02:20:35PM +0100, Christian Borntraeger wrote:
+> +static void *dma_noop_alloc(struct device *dev, size_t size,
+> +			    dma_addr_t *dma_handle, gfp_t gfp,
+> +			    struct dma_attrs *attrs)
+> +{
+> +	void *ret;
+> +
+> +	ret = (void *)__get_free_pages(gfp, get_order(size));
+> +	if (ret) {
+> +		memset(ret, 0, size);
 
-Thanks for testing and analyzing this!
+There is no need to zero out the memory here. If the user wants
+initialized memory it can call dma_zalloc_coherent. Having the memset
+here means to clear the memory twice in the dma_zalloc_coherent path.
 
-(... running around looking for an APICv-capable machine to be able to
-catch this ourselves before we resubmit ...)
+Otherwise it looks good.
 
-> The question then is... does Hyper-V actually use auto-EOI interrupts?
-> If it doesn't, we might as well not implement them... :/
 
-As Den wrote, we've yet to see a hyperv device which doesn't :(
-
-Roman.
+	Joerg
