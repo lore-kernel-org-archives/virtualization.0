@@ -1,14 +1,13 @@
-From: Sebastian Ott <sebott@linux.vnet.ibm.com>
-Subject: Re: [PATCH 3/3] s390/dma: Allow per device dma ops
-Date: Mon, 2 Nov 2015 17:38:07 +0100 (CET)
-Message-ID: <alpine.LFD.2.11.1511021733040.1747@denkbrett>
-References: <1446211237-111298-1-git-send-email-borntraeger@de.ibm.com>
-	<1446211237-111298-4-git-send-email-borntraeger@de.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] vhost: move is_le setup to the backend
+Date: Mon, 02 Nov 2015 15:09:22 -0500 (EST)
+Message-ID: <20151102.150922.1956383631313633658.davem__19850.2566120171$1446494989$gmane$org@davemloft.net>
+References: <20151030114235.28847.63465.stgit@bahia.huguette.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1446211237-111298-4-git-send-email-borntraeger@de.ibm.com>
+In-Reply-To: <20151030114235.28847.63465.stgit@bahia.huguette.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,18 +17,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, Michael Tsirkin <mst@redhat.com>, benh@kernel.crashing.org, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, dwmw2@infradead.org, Christoph Hellwig <hch@lst.de>
+To: gkurz@linux.vnet.ibm.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 30 Oct 2015, Christian Borntraeger wrote:
+From: Greg Kurz <gkurz@linux.vnet.ibm.com>
+Date: Fri, 30 Oct 2015 12:42:35 +0100
 
-> As virtio-ccw now has dma ops, we can no longer default to the PCI ones.
-> Make use of dev_archdata to keep the dma_ops per device. The pci devices
-> now use that to override the default, and the default is changed to use
-> the noop ops for everything that is not PCI. To compile without PCI
-> support we also have to enable the DMA api with virtio.
+> The vq->is_le field is used to fix endianness when accessing the vring via
+> the cpu_to_vhost16() and vhost16_to_cpu() helpers in the following cases:
 > 
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> 1) host is big endian and device is modern virtio
+> 
+> 2) host has cross-endian support and device is legacy virtio with a different
+>    endianness than the host
+> 
+> Both cases rely on the VHOST_SET_FEATURES ioctl, but 2) also needs the
+> VHOST_SET_VRING_ENDIAN ioctl to be called by userspace. Since vq->is_le
+> is only needed when the backend is active, it was decided to set it at
+> backend start.
+> 
+> This is currently done in vhost_init_used()->vhost_init_is_le() but it
+> obfuscates the core vhost code. This patch moves the is_le setup to a
+> dedicated function that is called from the backend code.
+> 
+> Note vhost_net is the only backend that can pass vq->private_data == NULL to
+> vhost_init_used(), hence the "if (sock)" branch.
+> 
+> No behaviour change.
+> 
+> Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
 
-Acked-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
+Michael, I'm assuming that you will be the one taking this.
