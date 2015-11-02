@@ -1,13 +1,13 @@
 From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 0/7] Hyper-V Synthetic interrupt controller
-Date: Mon, 2 Nov 2015 12:55:02 +0100
-Message-ID: <56374F16.7070408__2185.70386427945$1446465343$gmane$org@redhat.com>
-References: <1445853060-24201-1-git-send-email-asmetanin@virtuozzo.com>
+Subject: Re: [kvm-unit-tests PATCH] x86: hyperv_synic: Hyper-V SynIC test
+Date: Mon, 2 Nov 2015 13:16:02 +0100
+Message-ID: <56375402.7060406__11409.8281170756$1446466590$gmane$org@redhat.com>
+References: <1445853369-24435-1-git-send-email-asmetanin@virtuozzo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1445853060-24201-1-git-send-email-asmetanin@virtuozzo.com>
+In-Reply-To: <1445853369-24435-1-git-send-email-asmetanin@virtuozzo.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,53 +17,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrey Smetanin <asmetanin@virtuozzo.com>, qemu-devel@nongnu.org
-Cc: kvm@vger.kernel.org, Gleb Natapov <gleb@kernel.org>, virtualization@lists.linux-foundation.org, Roman Kagan <rkagan@virtuozzo.com>, "Denis V. Lunev" <den@openvz.org>, Vitaly Kuznetsov <vkuznets@redhat.com>
+To: Andrey Smetanin <asmetanin@virtuozzo.com>, kvm@vger.kernel.org
+Cc: Gleb Natapov <gleb@kernel.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Roman Kagan <rkagan@virtuozzo.com>, "Denis V. Lunev" <den@openvz.org>, Vitaly Kuznetsov <vkuznets@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 26/10/2015 10:50, Andrey Smetanin wrote:
-> Hyper-V SynIC (synthetic interrupt controller) device
-> implementation.
+On 26/10/2015 10:56, Andrey Smetanin wrote:
+> Hyper-V SynIC is a Hyper-V synthetic interrupt controller.
 > 
-> The implementation contains:
-> * msr's support
-> * irq routing setup
-> * irq injection
-> * irq ack callback registration
-> * event/message pages changes tracking at Hyper-V exit
-> * Hyper-V test device to test SynIC by kvm-unit-tests
-> 
-> Andrey Smetanin (7):
->   standard-headers/x86: add Hyper-V SynIC constants
->   target-i386/kvm: Hyper-V SynIC MSR's support
->   linux-headers/kvm: add Hyper-V SynIC irq routing type and struct
->   kvm: Hyper-V SynIC irq routing support
->   linux-headers/kvm: KVM_EXIT_HYPERV type and struct
->   target-i386/hyperv: Hyper-V SynIC SINT routing and vCPU exit
->   hw/misc: Hyper-V test device 'hyperv-testdev'
-> 
->  default-configs/i386-softmmu.mak          |   1 +
->  default-configs/x86_64-softmmu.mak        |   1 +
->  hw/misc/Makefile.objs                     |   1 +
->  hw/misc/hyperv_testdev.c                  | 164 ++++++++++++++++++++++++++++++
->  include/standard-headers/asm-x86/hyperv.h |  12 +++
->  include/sysemu/kvm.h                      |   1 +
->  kvm-all.c                                 |  33 ++++++
->  linux-headers/linux/kvm.h                 |  25 +++++
->  target-i386/Makefile.objs                 |   2 +-
->  target-i386/cpu-qom.h                     |   1 +
->  target-i386/cpu.c                         |   1 +
->  target-i386/cpu.h                         |   5 +
->  target-i386/hyperv.c                      | 127 +++++++++++++++++++++++
->  target-i386/hyperv.h                      |  42 ++++++++
->  target-i386/kvm.c                         |  66 +++++++++++-
->  target-i386/machine.c                     |  39 +++++++
->  16 files changed, 519 insertions(+), 2 deletions(-)
->  create mode 100644 hw/misc/hyperv_testdev.c
->  create mode 100644 target-i386/hyperv.c
->  create mode 100644 target-i386/hyperv.h
+> The test runs on every vCPU and performs the following steps:
+> * read from all Hyper-V SynIC MSR's
+> * setup Hyper-V SynIC evt/msg pages
+> * setup SINT's routing
+> * inject SINT's into destination vCPU by 'hyperv-synic-test-device'
+> * wait for SINT's isr's completion
+> * clear Hyper-V SynIC evt/msg pages and destroy SINT's routing
 > 
 > Signed-off-by: Andrey Smetanin <asmetanin@virtuozzo.com>
 > Reviewed-by: Roman Kagan <rkagan@virtuozzo.com>
@@ -74,8 +41,384 @@ On 26/10/2015 10:50, Andrey Smetanin wrote:
 > CC: Paolo Bonzini <pbonzini@redhat.com>
 > CC: Roman Kagan <rkagan@virtuozzo.com>
 > CC: Denis V. Lunev <den@openvz.org>
-> CC: kvm@vger.kernel.org
+> CC: qemu-devel@nongnu.org
 > CC: virtualization@lists.linux-foundation.org
-> 
 
-Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
+Bad news.
+
+The test breaks with APICv, because of the following sequence of events:
+
+1) non-auto-EOI interrupt 176 is injected into IRR and ISR
+
+2) The PPR register is now 176
+
+3) auto-EOI interrupt 179 is injected into IRR only, because (179 &
+0xf0) <= (PPR & 0xf0)
+
+4) interrupt 176 ISR performs an EOI
+
+5) at this point, because virtual interrupt delivery is enabled, the
+processor does not perform TPR virtualization (SDM 29.1.2).
+
+In addition (and even worse) because virtual interrupt delivery is
+enabled, an auto-EOI interrupt that was stashed in IRR can be injected
+by the processor, and the auto-EOI behavior will be skipped.
+
+The solution is to have userspace enable KVM_CAP_HYPERV_SYNIC through
+KVM_ENABLE_CAP, and modify vmx.c to not use apicv on VMs that have it
+enabled.  This requires some changes to the callbacks that only work if
+enable_apicv or !enable_apicv:
+
+       if (enable_apicv)
+               kvm_x86_ops->update_cr8_intercept = NULL;
+       else {
+               kvm_x86_ops->hwapic_irr_update = NULL;
+               kvm_x86_ops->hwapic_isr_update = NULL;
+               kvm_x86_ops->deliver_posted_interrupt = NULL;
+               kvm_x86_ops->sync_pir_to_irr = vmx_sync_pir_to_irr_dummy;
+       }
+
+The question then is... does Hyper-V actually use auto-EOI interrupts?
+If it doesn't, we might as well not implement them... :/
+
+I'm keeping the kernel patches queued for my own testing, but this of
+course has to be fixed before including them---which will delay this
+feature to 4.5, unfortunately.
+
+Paolo
+
+
+> ---
+>  config/config-x86-common.mak |   5 +-
+>  lib/x86/msr.h                |  23 +++++
+>  x86/hyperv_synic.c           | 229 +++++++++++++++++++++++++++++++++++++++++++
+>  x86/run                      |  10 +-
+>  x86/unittests.cfg            |   5 +
+>  5 files changed, 270 insertions(+), 2 deletions(-)
+>  create mode 100644 x86/hyperv_synic.c
+> 
+> diff --git a/config/config-x86-common.mak b/config/config-x86-common.mak
+> index c2f9908..dc80eaa 100644
+> --- a/config/config-x86-common.mak
+> +++ b/config/config-x86-common.mak
+> @@ -36,7 +36,8 @@ tests-common = $(TEST_DIR)/vmexit.flat $(TEST_DIR)/tsc.flat \
+>                 $(TEST_DIR)/kvmclock_test.flat  $(TEST_DIR)/eventinj.flat \
+>                 $(TEST_DIR)/s3.flat $(TEST_DIR)/pmu.flat \
+>                 $(TEST_DIR)/tsc_adjust.flat $(TEST_DIR)/asyncpf.flat \
+> -               $(TEST_DIR)/init.flat $(TEST_DIR)/smap.flat
+> +               $(TEST_DIR)/init.flat $(TEST_DIR)/smap.flat \
+> +               $(TEST_DIR)/hyperv_synic.flat
+>  
+>  ifdef API
+>  tests-common += api/api-sample
+> @@ -108,6 +109,8 @@ $(TEST_DIR)/vmx.elf: $(cstart.o) $(TEST_DIR)/vmx.o $(TEST_DIR)/vmx_tests.o
+>  
+>  $(TEST_DIR)/debug.elf: $(cstart.o) $(TEST_DIR)/debug.o
+>  
+> +$(TEST_DIR)/hyperv_synic.elf: $(cstart.o) $(TEST_DIR)/hyperv_synic.o
+> +
+>  arch_clean:
+>  	$(RM) $(TEST_DIR)/*.o $(TEST_DIR)/*.flat $(TEST_DIR)/*.elf \
+>  	$(TEST_DIR)/.*.d lib/x86/.*.d
+> diff --git a/lib/x86/msr.h b/lib/x86/msr.h
+> index 281255a..54da420 100644
+> --- a/lib/x86/msr.h
+> +++ b/lib/x86/msr.h
+> @@ -408,4 +408,27 @@
+>  #define MSR_VM_IGNNE                    0xc0010115
+>  #define MSR_VM_HSAVE_PA                 0xc0010117
+>  
+> +/* Define synthetic interrupt controller model specific registers. */
+> +#define HV_X64_MSR_SCONTROL                     0x40000080
+> +#define HV_X64_MSR_SVERSION                     0x40000081
+> +#define HV_X64_MSR_SIEFP                        0x40000082
+> +#define HV_X64_MSR_SIMP                         0x40000083
+> +#define HV_X64_MSR_EOM                          0x40000084
+> +#define HV_X64_MSR_SINT0                        0x40000090
+> +#define HV_X64_MSR_SINT1                        0x40000091
+> +#define HV_X64_MSR_SINT2                        0x40000092
+> +#define HV_X64_MSR_SINT3                        0x40000093
+> +#define HV_X64_MSR_SINT4                        0x40000094
+> +#define HV_X64_MSR_SINT5                        0x40000095
+> +#define HV_X64_MSR_SINT6                        0x40000096
+> +#define HV_X64_MSR_SINT7                        0x40000097
+> +#define HV_X64_MSR_SINT8                        0x40000098
+> +#define HV_X64_MSR_SINT9                        0x40000099
+> +#define HV_X64_MSR_SINT10                       0x4000009A
+> +#define HV_X64_MSR_SINT11                       0x4000009B
+> +#define HV_X64_MSR_SINT12                       0x4000009C
+> +#define HV_X64_MSR_SINT13                       0x4000009D
+> +#define HV_X64_MSR_SINT14                       0x4000009E
+> +#define HV_X64_MSR_SINT15                       0x4000009F
+> +
+>  #endif /* _ASM_X86_MSR_INDEX_H */
+> diff --git a/x86/hyperv_synic.c b/x86/hyperv_synic.c
+> new file mode 100644
+> index 0000000..5c5a43a
+> --- /dev/null
+> +++ b/x86/hyperv_synic.c
+> @@ -0,0 +1,229 @@
+> +#include "libcflat.h"
+> +#include "processor.h"
+> +#include "msr.h"
+> +#include "isr.h"
+> +#include "vm.h"
+> +#include "apic.h"
+> +#include "desc.h"
+> +#include "io.h"
+> +#include "smp.h"
+> +#include "atomic.h"
+> +
+> +#define MAX_CPUS 4
+> +#define HYPERV_CPUID_FEATURES                   0x40000003
+> +#define HV_X64_MSR_SYNIC_AVAILABLE              (1 << 2)
+> +#define HV_SYNIC_CONTROL_ENABLE                 (1ULL << 0)
+> +#define HV_SYNIC_SIMP_ENABLE                    (1ULL << 0)
+> +#define HV_SYNIC_SIEFP_ENABLE                   (1ULL << 0)
+> +#define HV_SYNIC_SINT_MASKED                    (1ULL << 16)
+> +#define HV_SYNIC_SINT_AUTO_EOI                  (1ULL << 17)
+> +#define HV_SYNIC_SINT_VECTOR_MASK               (0xFF)
+> +#define HV_SYNIC_SINT_COUNT                     16
+> +
+> +enum {
+> +    HV_TEST_DEV_SINT_ROUTE_CREATE = 1,
+> +    HV_TEST_DEV_SINT_ROUTE_DESTROY,
+> +    HV_TEST_DEV_SINT_ROUTE_SET_SINT
+> +};
+> +
+> +static atomic_t isr_enter_count[MAX_CPUS];
+> +static atomic_t cpus_comp_count;
+> +
+> +static bool synic_supported(void)
+> +{
+> +   return cpuid(HYPERV_CPUID_FEATURES).a & HV_X64_MSR_SYNIC_AVAILABLE;
+> +}
+> +
+> +static void synic_sint_auto_eoi_isr(isr_regs_t *regs)
+> +{
+> +    atomic_inc(&isr_enter_count[smp_id()]);
+> +}
+> +
+> +static void synic_sint_isr(isr_regs_t *regs)
+> +{
+> +    atomic_inc(&isr_enter_count[smp_id()]);
+> +    eoi();
+> +}
+> +
+> +static void synic_ctl(u8 ctl, u8 vcpu_id, u8 sint)
+> +{
+> +    outl((ctl << 16)|((vcpu_id) << 8)|sint, 0x3000);
+> +}
+> +
+> +struct sint_vec_entry {
+> +    int vec;
+> +    bool auto_eoi;
+> +};
+> +
+> +struct sint_vec_entry sint_vecs[HV_SYNIC_SINT_COUNT] = {
+> +    {0xB0, false},
+> +    {0xB1, false},
+> +    {0xB2, false},
+> +    {0xB3, true},
+> +    {0xB4, false},
+> +    {0xB5, false},
+> +    {0xB6, false},
+> +    {0xB7, false},
+> +    {0xB8, true},
+> +    {0xB9, false},
+> +    {0xBA, true},
+> +    {0xBB, false},
+> +    {0xBC, false},
+> +    {0xBD, false},
+> +    {0xBE, true},
+> +    {0xBF, false},
+> +};
+> +
+> +static void synic_prepare_sint_vecs(void)
+> +{
+> +    bool auto_eoi;
+> +    int i, vec;
+> +
+> +    for (i = 0; i < HV_SYNIC_SINT_COUNT; i++) {
+> +        vec = sint_vecs[i].vec;
+> +        auto_eoi = sint_vecs[i].auto_eoi;
+> +        handle_irq(vec, (auto_eoi) ? synic_sint_auto_eoi_isr : synic_sint_isr);
+> +    }
+> +}
+> +
+> +static void synic_sints_prepare(u8 vcpu)
+> +{
+> +    bool auto_eoi;
+> +    int i, vec;
+> +
+> +    for (i = 0; i < HV_SYNIC_SINT_COUNT; i++) {
+> +        vec = sint_vecs[i].vec;
+> +        auto_eoi = sint_vecs[i].auto_eoi;
+> +        wrmsr(HV_X64_MSR_SINT0 + i,
+> +                (u64)vec | ((auto_eoi) ? HV_SYNIC_SINT_AUTO_EOI : 0));
+> +        synic_ctl(HV_TEST_DEV_SINT_ROUTE_CREATE, vcpu, i);
+> +    }
+> +}
+> +
+> +static void synic_test_prepare(void *ctx)
+> +{
+> +    u64 r;
+> +    int i = 0;
+> +
+> +    write_cr3((ulong)ctx);
+> +    irq_enable();
+> +
+> +    rdmsr(HV_X64_MSR_SVERSION);
+> +    rdmsr(HV_X64_MSR_SIMP);
+> +    rdmsr(HV_X64_MSR_SIEFP);
+> +    rdmsr(HV_X64_MSR_SCONTROL);
+> +    for (i = 0; i < HV_SYNIC_SINT_COUNT; i++) {
+> +        rdmsr(HV_X64_MSR_SINT0 + i);
+> +    }
+> +    r = rdmsr(HV_X64_MSR_EOM);
+> +    if (r != 0) {
+> +        report("Hyper-V SynIC test, EOM read 0x%llx", false, r);
+> +        goto ret;
+> +    }
+> +
+> +    wrmsr(HV_X64_MSR_SIMP, (u64)virt_to_phys(alloc_page()) |
+> +            HV_SYNIC_SIMP_ENABLE);
+> +    wrmsr(HV_X64_MSR_SIEFP, (u64)virt_to_phys(alloc_page())|
+> +            HV_SYNIC_SIEFP_ENABLE);
+> +    wrmsr(HV_X64_MSR_SCONTROL, HV_SYNIC_CONTROL_ENABLE);
+> +
+> +    synic_sints_prepare(smp_id());
+> +ret:
+> +    atomic_inc(&cpus_comp_count);
+> +}
+> +
+> +static void synic_sints_test(u8 dst_vcpu)
+> +{
+> +    int i;
+> +
+> +    atomic_set(&isr_enter_count[dst_vcpu], 0);
+> +    for (i = 0; i < HV_SYNIC_SINT_COUNT; i++) {
+> +        synic_ctl(HV_TEST_DEV_SINT_ROUTE_SET_SINT, dst_vcpu, i);
+> +    }
+> +
+> +    while (atomic_read(&isr_enter_count[dst_vcpu]) != HV_SYNIC_SINT_COUNT) {
+> +        pause();
+> +    }
+> +}
+> +
+> +static void synic_test(void *ctx)
+> +{
+> +    u8 dst_vcpu = (ulong)ctx;
+> +
+> +    irq_enable();
+> +    synic_sints_test(dst_vcpu);
+> +    atomic_inc(&cpus_comp_count);
+> +}
+> +
+> +static void synic_test_cleanup(void *ctx)
+> +{
+> +    u8 vcpu = smp_id();
+> +    int i;
+> +
+> +    irq_enable();
+> +    for (i = 0; i < HV_SYNIC_SINT_COUNT; i++) {
+> +        synic_ctl(HV_TEST_DEV_SINT_ROUTE_DESTROY, vcpu, i);
+> +        wrmsr(HV_X64_MSR_SINT0 + i, 0xFF|HV_SYNIC_SINT_MASKED);
+> +    }
+> +
+> +    wrmsr(HV_X64_MSR_SCONTROL, 0);
+> +    wrmsr(HV_X64_MSR_SIMP, 0);
+> +    wrmsr(HV_X64_MSR_SIEFP, 0);
+> +    atomic_inc(&cpus_comp_count);
+> +}
+> +
+> +int main(int ac, char **av)
+> +{
+> +
+> +    if (synic_supported()) {
+> +        int ncpus, i;
+> +
+> +        setup_vm();
+> +        smp_init();
+> +        setup_idt();
+> +        enable_apic();
+> +
+> +        synic_prepare_sint_vecs();
+> +
+> +        ncpus = cpu_count();
+> +        if (ncpus > MAX_CPUS) {
+> +            ncpus = MAX_CPUS;
+> +        }
+> +        printf("ncpus = %d\n", ncpus);
+> +
+> +        atomic_set(&cpus_comp_count, 0);
+> +        for (i = 0; i < ncpus; i++) {
+> +                on_cpu_async(i, synic_test_prepare, (void *)read_cr3());
+> +        }
+> +        while (atomic_read(&cpus_comp_count) != ncpus) {
+> +            pause();
+> +        }
+> +
+> +        atomic_set(&cpus_comp_count, 0);
+> +        for (i = 0; i < ncpus; i++) {
+> +                on_cpu_async(i, synic_test, (void *)(ulong)(ncpus - 1 - i));
+> +        }
+> +        while (atomic_read(&cpus_comp_count) != ncpus) {
+> +            pause();
+> +        }
+> +
+> +        atomic_set(&cpus_comp_count, 0);
+> +        for (i = 0; i < ncpus; i++) {
+> +                on_cpu_async(i, synic_test_cleanup, NULL);
+> +        }
+> +        while (atomic_read(&cpus_comp_count) != ncpus) {
+> +            pause();
+> +        }
+> +
+> +        for (i = 0; i < ncpus; ++i) {
+> +            printf("isr_enter_count[%d] = %d\n",
+> +                   i, atomic_read(&isr_enter_count[i]));
+> +        }
+> +
+> +        report("Hyper-V SynIC test", true);
+> +    } else {
+> +        report("Hyper-V SynIC is not supported", true);
+> +    }
+> +
+> +    return report_summary();
+> +}
+> diff --git a/x86/run b/x86/run
+> index b4a35b2..e50ce5f 100755
+> --- a/x86/run
+> +++ b/x86/run
+> @@ -42,7 +42,15 @@ else
+>  	pc_testdev="-device testdev,chardev=testlog -chardev file,id=testlog,path=msr.out"
+>  fi
+>  
+> -command="${qemu} -enable-kvm $pc_testdev -vnc none -serial stdio $pci_testdev -kernel"
+> +if
+> +	${qemu} -device '?' 2>&1 | grep -F "hyperv-testdev" > /dev/null;
+> +then
+> +	hyperv_testdev="-device hyperv-testdev"
+> +else
+> +	hyperv_testdev=""
+> +fi
+> +
+> +command="${qemu} -enable-kvm $pc_testdev -vnc none -serial stdio $pci_testdev $hyperv_testdev -kernel"
+>  echo ${command} "$@"
+>  
+>  if [ "$DRYRUN" != "yes" ]; then
+> diff --git a/x86/unittests.cfg b/x86/unittests.cfg
+> index a38544f..6b19f42 100644
+> --- a/x86/unittests.cfg
+> +++ b/x86/unittests.cfg
+> @@ -166,3 +166,8 @@ arch = x86_64
+>  [debug]
+>  file = debug.flat
+>  arch = x86_64
+> +
+> +[hyperv_synic]
+> +file = hyperv_synic.flat
+> +smp = 2
+> +extra_params = -cpu host,hv_synic
+> 
