@@ -1,23 +1,13 @@
-From: Joerg Roedel <jroedel@suse.de>
-Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
-Date: Sat, 31 Oct 2015 00:16:12 +0900
-Message-ID: <20151030151612.GB2704__44482.7866195284$1446421009$gmane$org@suse.de>
-References: <1446019787.3405.203.camel@infradead.org>
-	<20151028132331-mutt-send-email-mst@redhat.com>
-	<1446039327.3405.216.camel@infradead.org>
-	<20151028155105-mutt-send-email-mst@redhat.com>
-	<1446041609.3405.228.camel@infradead.org>
-	<20151028161424-mutt-send-email-mst@redhat.com>
-	<1446042754.3405.237.camel@infradead.org>
-	<20151028175136-mutt-send-email-mst@redhat.com>
-	<CALCETrWd7mK5bW2p_dvvjDRnqE31=ueAz5SAYKwY-PD5uZp76A@mail.gmail.com>
-	<20151029104301-mutt-send-email-mst@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 0/7] Hyper-V Synthetic interrupt controller
+Date: Mon, 2 Nov 2015 12:55:02 +0100
+Message-ID: <56374F16.7070408__2185.70386427945$1446465343$gmane$org@redhat.com>
+References: <1445853060-24201-1-git-send-email-asmetanin@virtuozzo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20151029104301-mutt-send-email-mst@redhat.com>
+In-Reply-To: <1445853060-24201-1-git-send-email-asmetanin@virtuozzo.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,46 +17,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, KVM <kvm@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Woodhouse <dwmw2@infradead.org>, Christoph Hellwig <hch@lst.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Andrey Smetanin <asmetanin@virtuozzo.com>, qemu-devel@nongnu.org
+Cc: kvm@vger.kernel.org, Gleb Natapov <gleb@kernel.org>, virtualization@lists.linux-foundation.org, Roman Kagan <rkagan@virtuozzo.com>, "Denis V. Lunev" <den@openvz.org>, Vitaly Kuznetsov <vkuznets@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Oct 29, 2015 at 11:01:41AM +0200, Michael S. Tsirkin wrote:
-> Example: you have a mix of assigned devices and virtio devices. You
-> don't trust your assigned device vendor not to corrupt your memory so
-> you want to limit the damage your assigned device can do to your guest,
-> so you use an IOMMU for that.  Thus existing iommu=pt within guest is out.
+
+
+On 26/10/2015 10:50, Andrey Smetanin wrote:
+> Hyper-V SynIC (synthetic interrupt controller) device
+> implementation.
 > 
-> But you trust your hypervisor (you have no choice anyway),
-> and you don't want the overhead of tweaking IOMMU
-> on data path for virtio. Thus iommu=on is out too.
+> The implementation contains:
+> * msr's support
+> * irq routing setup
+> * irq injection
+> * irq ack callback registration
+> * event/message pages changes tracking at Hyper-V exit
+> * Hyper-V test device to test SynIC by kvm-unit-tests
+> 
+> Andrey Smetanin (7):
+>   standard-headers/x86: add Hyper-V SynIC constants
+>   target-i386/kvm: Hyper-V SynIC MSR's support
+>   linux-headers/kvm: add Hyper-V SynIC irq routing type and struct
+>   kvm: Hyper-V SynIC irq routing support
+>   linux-headers/kvm: KVM_EXIT_HYPERV type and struct
+>   target-i386/hyperv: Hyper-V SynIC SINT routing and vCPU exit
+>   hw/misc: Hyper-V test device 'hyperv-testdev'
+> 
+>  default-configs/i386-softmmu.mak          |   1 +
+>  default-configs/x86_64-softmmu.mak        |   1 +
+>  hw/misc/Makefile.objs                     |   1 +
+>  hw/misc/hyperv_testdev.c                  | 164 ++++++++++++++++++++++++++++++
+>  include/standard-headers/asm-x86/hyperv.h |  12 +++
+>  include/sysemu/kvm.h                      |   1 +
+>  kvm-all.c                                 |  33 ++++++
+>  linux-headers/linux/kvm.h                 |  25 +++++
+>  target-i386/Makefile.objs                 |   2 +-
+>  target-i386/cpu-qom.h                     |   1 +
+>  target-i386/cpu.c                         |   1 +
+>  target-i386/cpu.h                         |   5 +
+>  target-i386/hyperv.c                      | 127 +++++++++++++++++++++++
+>  target-i386/hyperv.h                      |  42 ++++++++
+>  target-i386/kvm.c                         |  66 +++++++++++-
+>  target-i386/machine.c                     |  39 +++++++
+>  16 files changed, 519 insertions(+), 2 deletions(-)
+>  create mode 100644 hw/misc/hyperv_testdev.c
+>  create mode 100644 target-i386/hyperv.c
+>  create mode 100644 target-i386/hyperv.h
+> 
+> Signed-off-by: Andrey Smetanin <asmetanin@virtuozzo.com>
+> Reviewed-by: Roman Kagan <rkagan@virtuozzo.com>
+> Signed-off-by: Denis V. Lunev <den@openvz.org>
+> CC: Vitaly Kuznetsov <vkuznets@redhat.com>
+> CC: "K. Y. Srinivasan" <kys@microsoft.com>
+> CC: Gleb Natapov <gleb@kernel.org>
+> CC: Paolo Bonzini <pbonzini@redhat.com>
+> CC: Roman Kagan <rkagan@virtuozzo.com>
+> CC: Denis V. Lunev <den@openvz.org>
+> CC: kvm@vger.kernel.org
+> CC: virtualization@lists.linux-foundation.org
+> 
 
-IOMMUs on x86 usually come with an ACPI table that describes which
-IOMMUs are in the system and which devices they translate. So you can
-easily describe all devices there that are not behind an IOMMU.
-
-The ACPI table is built by the BIOS, and the platform intialization code
-sets the device dma_ops accordingly. If the BIOS provides wrong
-information in the ACPI table this is a platform bug.
-
-> I'm not sure what ACPI has to do with it.  It's about a way for guest
-> users to specify whether they want to bypass an IOMMU for a given
-> device.
-
-We have no way yet to request passthrough-mode per-device from the IOMMU
-drivers, but that can easily be added. But as I see it:
-
-> By the way, a bunch of code is missing on the QEMU side
-> to make this useful:
-> 1. virtio ignores the iommu
-> 2. vhost user ignores the iommu
-> 3. dataplane ignores the iommu
-> 4. vhost-net ignores the iommu
-> 5. VFIO ignores the iommu
-
-Qemu does not implement IOMMU translation for virtio devices anyway
-(which is fine), so it just should tell the guest so in the ACPI table
-built to describe the emulated IOMMU.
-
-
-	Joerg
+Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
