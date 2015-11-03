@@ -1,11 +1,23 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: [RFC PATCH] x86/paravirt: Kill some unused patching functions
-Date: Tue,  3 Nov 2015 10:18:49 +0100
-Message-ID: <1446542329-32037-1-git-send-email-bp@alien8.de>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
+Date: Tue, 3 Nov 2015 11:24:29 +0100
+Message-ID: <56388B5D.6020508__26549.0398313434$1446546304$gmane$org@redhat.com>
+References: <56307BD1.6010806@de.ibm.com>
+	<1446019787.3405.203.camel@infradead.org>
+	<20151028132331-mutt-send-email-mst@redhat.com>
+	<1446039327.3405.216.camel@infradead.org>
+	<20151028155105-mutt-send-email-mst@redhat.com>
+	<1446041609.3405.228.camel@infradead.org>
+	<20151028161424-mutt-send-email-mst@redhat.com>
+	<1446042754.3405.237.camel@infradead.org>
+	<20151028175136-mutt-send-email-mst@redhat.com>
+	<CALCETrWd7mK5bW2p_dvvjDRnqE31=ueAz5SAYKwY-PD5uZp76A@mail.gmail.com>
+	<20151029104301-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20151029104301-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,78 +27,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Juergen Gross <jgross@suse.com>, Jeremy Fitzhardinge <jeremy@goop.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, Ingo Molnar <mingo@redhat.com>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Andrew Morton <akpm@linux-foundation.org>, Thomas Gleixner <tglx@linutronix.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Andy Lutomirski <luto@amacapital.net>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Christoph Hellwig <hch@lst.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Borislav Petkov <bp@suse.de>
 
-paravirt_patch_ignore() is completely unused and paravirt_patch_nop()
-doesn't do a whole lot. Remove them both.
 
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Chris Wright <chrisw@sous-sol.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: virtualization@lists.linux-foundation.org
-Cc: xen-devel@lists.xenproject.org
----
- arch/x86/include/asm/paravirt_types.h |  2 --
- arch/x86/kernel/paravirt.c            | 13 +------------
- 2 files changed, 1 insertion(+), 14 deletions(-)
+On 29/10/2015 10:01, Michael S. Tsirkin wrote:
+> > Everyone seems to agree that x86's emulated Q35 thing
+> > is just buggy right now and should be taught to use the existing ACPI
+> > mechanism for enumerating passthrough devices.
+> 
+> I'm not sure what ACPI has to do with it.
+> It's about a way for guest users to specify whether
+> they want to bypass an IOMMU for a given device.
 
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 31247b5bff7c..e1f31dfc3b31 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -402,10 +402,8 @@ extern struct pv_lock_ops pv_lock_ops;
- 	__visible extern const char start_##ops##_##name[], end_##ops##_##name[];	\
- 	asm(NATIVE_LABEL("start_", ops, name) code NATIVE_LABEL("end_", ops, name))
- 
--unsigned paravirt_patch_nop(void);
- unsigned paravirt_patch_ident_32(void *insnbuf, unsigned len);
- unsigned paravirt_patch_ident_64(void *insnbuf, unsigned len);
--unsigned paravirt_patch_ignore(unsigned len);
- unsigned paravirt_patch_call(void *insnbuf,
- 			     const void *target, u16 tgt_clobbers,
- 			     unsigned long addr, u16 site_clobbers,
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index c2130aef3f9d..4f32a10979db 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -74,16 +74,6 @@ void __init default_banner(void)
- /* Undefined instruction for dealing with missing ops pointers. */
- static const unsigned char ud2a[] = { 0x0f, 0x0b };
- 
--unsigned paravirt_patch_nop(void)
--{
--	return 0;
--}
--
--unsigned paravirt_patch_ignore(unsigned len)
--{
--	return len;
--}
--
- struct branch {
- 	unsigned char opcode;
- 	u32 delta;
-@@ -152,8 +142,7 @@ unsigned paravirt_patch_default(u8 type, u16 clobbers, void *insnbuf,
- 		/* If there's no function, patch it with a ud2a (BUG) */
- 		ret = paravirt_patch_insns(insnbuf, len, ud2a, ud2a+sizeof(ud2a));
- 	else if (opfunc == _paravirt_nop)
--		/* If the operation is a nop, then nop the callsite */
--		ret = paravirt_patch_nop();
-+		ret = 0;
- 
- 	/* identity functions just return their single argument */
- 	else if (opfunc == _paravirt_ident_32)
--- 
-2.3.5
+It's not configured in the guest, it's configured _when starting_ the
+guest (e.g. -device some-pci-device,iommu-bypass=on) and it is reflected
+in the DMAR table or the device tree.
+
+The default for virtio and VFIO is to bypass the IOMMU.  Changing the
+default can be supported (virtio) or not (VFIO, vhost-user).  Hotplug
+need to check whether the parent bridge is has the same setting that the
+user desires for the new device.
+
+> 1. virtio ignores the iommu
+> 2. vhost user ignores the iommu
+> 3. dataplane ignores the iommu
+> 4. vhost-net ignores the iommu
+> 5. VFIO ignores the iommu
+> 
+> I think so far I only saw patches for 1 above.
+
+1 and 3 are easy.  For 2 and 5 you can simply forbid configurations with
+vhost-user/VFIO behind an IOMMU.  For 4 QEMU can simply not activate
+vhost-net and use the userspace fallback.
+
+However, IOMMU support in QEMU is experimental.  We can do things a step
+at a time.
+
+Paolo
