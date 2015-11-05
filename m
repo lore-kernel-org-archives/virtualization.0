@@ -1,13 +1,11 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL v4 3/3] s390/dma: Allow per device dma ops
-Date: Thu,  5 Nov 2015 21:08:56 +0100
-Message-ID: <1446754136-125772-4-git-send-email-borntraeger__12191.9070407332$1446754156$gmane$org@de.ibm.com>
-References: <1446754136-125772-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL v4 0/3] dma and virtio prep patches
+Date: Thu,  5 Nov 2015 21:08:53 +0100
+Message-ID: <1446754136-125772-1-git-send-email-borntraeger__8767.74313296682$1446754162$gmane$org@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1446754136-125772-1-git-send-email-borntraeger@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,125 +19,36 @@ To: Andy Lutomirski <luto@kernel.org>
 Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, Michael Tsirkin <mst@redhat.com>, benh@kernel.crashing.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, dwmw2@infradead.org, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-As virtio-ccw will have dma ops, we can no longer default to the
-zPCI ones. Make use of dev_archdata to keep the dma_ops per device.
-The pci devices now use that to override the default, and the
-default is changed to use the noop ops for everything that does not
-specify a device specific one.
-To compile without PCI support we will enable HAS_DMA all the time,
-via the default config in lib/Kconfig.
+Andy,
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Joerg Roedel <jroedel@suse.de>
-Acked-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
----
- arch/s390/Kconfig                   | 7 ++-----
- arch/s390/include/asm/device.h      | 6 +++++-
- arch/s390/include/asm/dma-mapping.h | 6 ++++--
- arch/s390/pci/pci.c                 | 1 +
- arch/s390/pci/pci_dma.c             | 4 ++--
- 5 files changed, 14 insertions(+), 10 deletions(-)
+to make it obvious which version is the latest, here is a branch
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 1d57000..e2a885b 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -124,6 +124,8 @@ config S390
- 	select HAVE_CMPXCHG_DOUBLE
- 	select HAVE_CMPXCHG_LOCAL
- 	select HAVE_DEBUG_KMEMLEAK
-+	select HAVE_DMA_ATTRS
-+	select HAVE_DMA_API_DEBUG
- 	select HAVE_DYNAMIC_FTRACE
- 	select HAVE_DYNAMIC_FTRACE_WITH_REGS
- 	select HAVE_FTRACE_MCOUNT_RECORD
-@@ -580,7 +582,6 @@ config QDIO
- 
- menuconfig PCI
- 	bool "PCI support"
--	select HAVE_DMA_ATTRS
- 	select PCI_MSI
- 	help
- 	  Enable PCI support.
-@@ -620,10 +621,6 @@ config HAS_IOMEM
- config IOMMU_HELPER
- 	def_bool PCI
- 
--config HAS_DMA
--	def_bool PCI
--	select HAVE_DMA_API_DEBUG
--
- config NEED_SG_DMA_LENGTH
- 	def_bool PCI
- 
-diff --git a/arch/s390/include/asm/device.h b/arch/s390/include/asm/device.h
-index d8f9872..4a9f35e 100644
---- a/arch/s390/include/asm/device.h
-+++ b/arch/s390/include/asm/device.h
-@@ -3,5 +3,9 @@
-  *
-  * This file is released under the GPLv2
-  */
--#include <asm-generic/device.h>
-+struct dev_archdata {
-+	struct dma_map_ops *dma_ops;
-+};
- 
-+struct pdev_archdata {
-+};
-diff --git a/arch/s390/include/asm/dma-mapping.h b/arch/s390/include/asm/dma-mapping.h
-index b3fd54d..cb05f5c 100644
---- a/arch/s390/include/asm/dma-mapping.h
-+++ b/arch/s390/include/asm/dma-mapping.h
-@@ -11,11 +11,13 @@
- 
- #define DMA_ERROR_CODE		(~(dma_addr_t) 0x0)
- 
--extern struct dma_map_ops s390_dma_ops;
-+extern struct dma_map_ops s390_pci_dma_ops;
- 
- static inline struct dma_map_ops *get_dma_ops(struct device *dev)
- {
--	return &s390_dma_ops;
-+	if (dev && dev->archdata.dma_ops)
-+		return dev->archdata.dma_ops;
-+	return &dma_noop_ops;
- }
- 
- static inline void dma_cache_sync(struct device *dev, void *vaddr, size_t size,
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 7ef12a3..fa41605 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -649,6 +649,7 @@ int pcibios_add_device(struct pci_dev *pdev)
- 
- 	zdev->pdev = pdev;
- 	pdev->dev.groups = zpci_attr_groups;
-+	pdev->dev.archdata.dma_ops = &s390_pci_dma_ops;
- 	zpci_map_resources(pdev);
- 
- 	for (i = 0; i < PCI_BAR_COUNT; i++) {
-diff --git a/arch/s390/pci/pci_dma.c b/arch/s390/pci/pci_dma.c
-index 37505b8..ea39c3f 100644
---- a/arch/s390/pci/pci_dma.c
-+++ b/arch/s390/pci/pci_dma.c
-@@ -495,7 +495,7 @@ static int __init dma_debug_do_init(void)
- }
- fs_initcall(dma_debug_do_init);
- 
--struct dma_map_ops s390_dma_ops = {
-+struct dma_map_ops s390_pci_dma_ops = {
- 	.alloc		= s390_dma_alloc,
- 	.free		= s390_dma_free,
- 	.map_sg		= s390_dma_map_sg,
-@@ -506,7 +506,7 @@ struct dma_map_ops s390_dma_ops = {
- 	.is_phys	= 0,
- 	/* dma_supported is unconditionally true without a callback */
- };
--EXPORT_SYMBOL_GPL(s390_dma_ops);
-+EXPORT_SYMBOL_GPL(s390_pci_dma_ops);
- 
- static int __init s390_iommu_setup(char *str)
- {
--- 
-2.4.3
+The following changes since commit 6a13feb9c82803e2b815eca72fa7a9f5561d7861:
+
+  Linux 4.3 (2015-11-01 16:05:25 -0800)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/borntraeger/linux.git  dma
+
+for you to fetch changes up to fc7f9754db6ce0c12281da4055281f731d36bdee:
+
+  s390/dma: Allow per device dma ops (2015-11-05 21:02:40 +0100)
+
+----------------------------------------------------------------
+Christian Borntraeger (3):
+      dma: Provide simple noop dma ops
+      alpha/dma: use common noop dma ops
+      s390/dma: Allow per device dma ops
+
+ arch/alpha/kernel/pci-noop.c        | 46 ++---------------------
+ arch/s390/Kconfig                   |  7 +---
+ arch/s390/include/asm/device.h      |  6 ++-
+ arch/s390/include/asm/dma-mapping.h |  6 ++-
+ arch/s390/pci/pci.c                 |  1 +
+ arch/s390/pci/pci_dma.c             |  4 +-
+ include/linux/dma-mapping.h         |  2 +
+ lib/Makefile                        |  1 +
+ lib/dma-noop.c                      | 75 +++++++++++++++++++++++++++++++++++++
+ 9 files changed, 96 insertions(+), 52 deletions(-)
+ create mode 100644 lib/dma-noop.c
