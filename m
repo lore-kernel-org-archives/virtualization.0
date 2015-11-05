@@ -1,16 +1,13 @@
-From: Andy Lutomirski <luto@kernel.org>
-Subject: Re: [PATCH 3/3] s390/dma: Allow per device dma ops
-Date: Thu, 5 Nov 2015 11:22:22 -0800
-Message-ID: <563BAC6E.3010003__46739.8291141309$1446751368$gmane$org@kernel.org>
-References: <1446551679-33492-1-git-send-email-borntraeger@de.ibm.com>
-	<1446551679-33492-4-git-send-email-borntraeger@de.ibm.com>
-	<20151103132615.53002e05.cornelia.huck@de.ibm.com>
-	<563B2275.3010406@de.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL v4 1/3] dma: Provide simple noop dma ops
+Date: Thu,  5 Nov 2015 21:08:54 +0100
+Message-ID: <1446754136-125772-2-git-send-email-borntraeger@de.ibm.com>
+References: <1446754136-125772-1-git-send-email-borntraeger@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <563B2275.3010406@de.ibm.com>
+In-Reply-To: <1446754136-125772-1-git-send-email-borntraeger@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,85 +17,128 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, Michael Tsirkin <mst@redhat.com>, benh@kernel.crashing.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, dwmw2@infradead.org, Christoph Hellwig <hch@lst.de>
+To: Andy Lutomirski <luto@kernel.org>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, Michael Tsirkin <mst@redhat.com>, benh@kernel.crashing.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, dwmw2@infradead.org, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/05/2015 01:33 AM, Christian Borntraeger wrote:
-> Am 03.11.2015 um 13:26 schrieb Cornelia Huck:
->> On Tue,  3 Nov 2015 12:54:39 +0100
->> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
->>
->>> As virtio-ccw now has dma ops, we can no longer default to the PCI ones.
->>> Make use of dev_archdata to keep the dma_ops per device. The pci devices
->>> now use that to override the default, and the default is changed to use
->>> the noop ops for everything that is not PCI. To compile without PCI
->>> support we also have to enable the DMA api with virtio.
->>
->> Not only with virtio, but generally, right?
->
-> Yes, will update the patch description.
->>
->>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
->>> Reviewed-by: Joerg Roedel <jroedel@suse.de>
->>> Acked-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
->>> ---
->>>   arch/s390/Kconfig                   | 3 ++-
->>>   arch/s390/include/asm/device.h      | 6 +++++-
->>>   arch/s390/include/asm/dma-mapping.h | 6 ++++--
->>>   arch/s390/pci/pci.c                 | 1 +
->>>   arch/s390/pci/pci_dma.c             | 4 ++--
->>>   5 files changed, 14 insertions(+), 6 deletions(-)
->>>
->>> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
->>> index 1d57000..04f0e02 100644
->>> --- a/arch/s390/Kconfig
->>> +++ b/arch/s390/Kconfig
->>> @@ -113,6 +113,7 @@ config S390
->>>   	select GENERIC_FIND_FIRST_BIT
->>>   	select GENERIC_SMP_IDLE_THREAD
->>>   	select GENERIC_TIME_VSYSCALL
->>> +	select HAS_DMA
->>>   	select HAVE_ALIGNED_STRUCT_PAGE if SLUB
->>>   	select HAVE_ARCH_AUDITSYSCALL
->>>   	select HAVE_ARCH_EARLY_PFN_TO_NID
->>> @@ -124,6 +125,7 @@ config S390
->>>   	select HAVE_CMPXCHG_DOUBLE
->>>   	select HAVE_CMPXCHG_LOCAL
->>>   	select HAVE_DEBUG_KMEMLEAK
->>> +	select HAVE_DMA_ATTRS
->>>   	select HAVE_DYNAMIC_FTRACE
->>>   	select HAVE_DYNAMIC_FTRACE_WITH_REGS
->>>   	select HAVE_FTRACE_MCOUNT_RECORD
->>> @@ -580,7 +582,6 @@ config QDIO
->>>
->>>   menuconfig PCI
->>>   	bool "PCI support"
->>> -	select HAVE_DMA_ATTRS
->>>   	select PCI_MSI
->>>   	help
->>>   	  Enable PCI support.
->>
->> Hm. Further down in this file, there's
->>
->> config HAS_DMA
->>          def_bool PCI
->>          select HAVE_DMA_API_DEBUG
->>
->> Should we maybe select HAVE_DMA_API_DEBUG above, drop the HAS_DMA
->> config option and rely on not defining NO_DMA instead?
->
-> Hmm, yes. That would simplify things a lot.  Right now we include
-> lib/Kconfig (which defines HAS_DMA) and define it ourselfes in
-> arch/s390/Kconfig. WHoever comes first wins. Adding a select statement
-> would make this even more complicated.
->
-> Andy, I will simply send you a respin of this patch.
->
+We are going to require dma_ops for several common drivers, even for
+systems that do have an identity mapping. Lets provide some minimal
+no-op dma_ops that can be used for that purpose.
 
-I'm slightly concerned that I'm going to screw this all up and apply the 
-wrong version.  Could you resend the whole series with git format-patch 
--vN for some appropriate N (or similar)?
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Joerg Roedel <jroedel@suse.de>
+---
+ include/linux/dma-mapping.h |  2 ++
+ lib/Makefile                |  1 +
+ lib/dma-noop.c              | 75 +++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 78 insertions(+)
+ create mode 100644 lib/dma-noop.c
 
-Thanks,
-Andy
+diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+index ac07ff0..7912f54 100644
+--- a/include/linux/dma-mapping.h
++++ b/include/linux/dma-mapping.h
+@@ -66,6 +66,8 @@ struct dma_map_ops {
+ 	int is_phys;
+ };
+ 
++extern struct dma_map_ops dma_noop_ops;
++
+ #define DMA_BIT_MASK(n)	(((n) == 64) ? ~0ULL : ((1ULL<<(n))-1))
+ 
+ #define DMA_MASK_NONE	0x0ULL
+diff --git a/lib/Makefile b/lib/Makefile
+index 13a7c6a..92d6135 100644
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -18,6 +18,7 @@ lib-y := ctype.o string.o vsprintf.o cmdline.o \
+ obj-$(CONFIG_ARCH_HAS_DEBUG_STRICT_USER_COPY_CHECKS) += usercopy.o
+ lib-$(CONFIG_MMU) += ioremap.o
+ lib-$(CONFIG_SMP) += cpumask.o
++lib-$(CONFIG_HAS_DMA) += dma-noop.o
+ 
+ lib-y	+= kobject.o klist.o
+ obj-y	+= lockref.o
+diff --git a/lib/dma-noop.c b/lib/dma-noop.c
+new file mode 100644
+index 0000000..7214564
+--- /dev/null
++++ b/lib/dma-noop.c
+@@ -0,0 +1,75 @@
++/*
++ *	lib/dma-noop.c
++ *
++ * Simple DMA noop-ops that map 1:1 with memory
++ */
++#include <linux/export.h>
++#include <linux/mm.h>
++#include <linux/dma-mapping.h>
++#include <linux/scatterlist.h>
++
++static void *dma_noop_alloc(struct device *dev, size_t size,
++			    dma_addr_t *dma_handle, gfp_t gfp,
++			    struct dma_attrs *attrs)
++{
++	void *ret;
++
++	ret = (void *)__get_free_pages(gfp, get_order(size));
++	if (ret)
++		*dma_handle = virt_to_phys(ret);
++	return ret;
++}
++
++static void dma_noop_free(struct device *dev, size_t size,
++			  void *cpu_addr, dma_addr_t dma_addr,
++			  struct dma_attrs *attrs)
++{
++	free_pages((unsigned long)cpu_addr, get_order(size));
++}
++
++static dma_addr_t dma_noop_map_page(struct device *dev, struct page *page,
++				      unsigned long offset, size_t size,
++				      enum dma_data_direction dir,
++				      struct dma_attrs *attrs)
++{
++	return page_to_phys(page) + offset;
++}
++
++static int dma_noop_map_sg(struct device *dev, struct scatterlist *sgl, int nents,
++			     enum dma_data_direction dir, struct dma_attrs *attrs)
++{
++	int i;
++	struct scatterlist *sg;
++
++	for_each_sg(sgl, sg, nents, i) {
++		void *va;
++
++		BUG_ON(!sg_page(sg));
++		va = sg_virt(sg);
++		sg_dma_address(sg) = (dma_addr_t)virt_to_phys(va);
++		sg_dma_len(sg) = sg->length;
++	}
++
++	return nents;
++}
++
++static int dma_noop_mapping_error(struct device *dev, dma_addr_t dma_addr)
++{
++	return 0;
++}
++
++static int dma_noop_supported(struct device *dev, u64 mask)
++{
++	return 1;
++}
++
++struct dma_map_ops dma_noop_ops = {
++	.alloc			= dma_noop_alloc,
++	.free			= dma_noop_free,
++	.map_page		= dma_noop_map_page,
++	.map_sg			= dma_noop_map_sg,
++	.mapping_error		= dma_noop_mapping_error,
++	.dma_supported		= dma_noop_supported,
++};
++
++EXPORT_SYMBOL(dma_noop_ops);
+-- 
+2.4.3
