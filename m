@@ -1,23 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
-Date: Tue, 10 Nov 2015 17:02:19 +0200
-Message-ID: <20151109224720-mutt-send-email-mst@redhat.com>
-References: <20151028155105-mutt-send-email-mst@redhat.com>
-	<1446041609.3405.228.camel@infradead.org>
-	<20151028161424-mutt-send-email-mst@redhat.com>
-	<1446042754.3405.237.camel@infradead.org>
-	<20151028175136-mutt-send-email-mst@redhat.com>
-	<CALCETrWd7mK5bW2p_dvvjDRnqE31=ueAz5SAYKwY-PD5uZp76A@mail.gmail.com>
-	<20151029104301-mutt-send-email-mst@redhat.com>
-	<1446135536.3405.279.camel@infradead.org>
-	<20151108120627-mutt-send-email-mst@redhat.com>
-	<20151108114946.GG2255@suse.de>
+From: Knut Omang <knut.omang@oracle.com>
+Subject: Re: [PATCH v4 0/6] virtio core DMA API conversion
+Date: Tue, 10 Nov 2015 10:45:14 +0100
+Message-ID: <1447148714.3005.133.camel__25575.6218372428$1447168573$gmane$org@oracle.com>
+References: <cover.1446162273.git.luto@kernel.org>
+	<20151109133624-mutt-send-email-mst@redhat.com>
+	<1447109937.31884.42.camel@kernel.crashing.org>
+	<CALCETrX7Gkw3WrBHff=TpCFHj444E8hHcR6sAqOghQFBo5wp_A@mail.gmail.com>
+	<1447121076.31884.61.camel@kernel.crashing.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20151108114946.GG2255@suse.de>
+In-Reply-To: <1447121076.31884.61.camel@kernel.crashing.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,74 +21,104 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Joerg Roedel <jroedel@suse.de>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, KVM <kvm@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Woodhouse <dwmw2@infradead.org>, Christoph Hellwig <hch@lst.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andy Lutomirski <luto@amacapital.net>
+Cc: Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, sparclinux@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Woodhouse <dwmw2@infradead.org>, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Nov 08, 2015 at 12:49:46PM +0100, Joerg Roedel wrote:
-> On Sun, Nov 08, 2015 at 12:37:47PM +0200, Michael S. Tsirkin wrote:
-> > I have no problem with that. For example, can we teach
-> > the DMA API on intel x86 to use PT for virtio by default?
-> > That would allow merging Andy's patches with
-> > full compatibility with old guests and hosts.
+On Tue, 2015-11-10 at 13:04 +1100, Benjamin Herrenschmidt wrote:
+> On Mon, 2015-11-09 at 16:46 -0800, Andy Lutomirski wrote:
+> > The problem here is that in some of the problematic cases the
+> > virtio
+> > driver may not even be loaded.  If someone runs an L1 guest with an
+> > IOMMU-bypassing virtio device and assigns it to L2 using vfio, then
+> > *boom* L1 crashes.  (Same if, say, DPDK gets used, I think.)
+> > 
+> > > 
+> > > The only way out of this while keeping the "platform" stuff would
+> > > be to
+> > > also bump some kind of version in the virtio config (or PCI
+> > > header). I
+> > > have no other way to differenciate between "this is an old qemu
+> > > that
+> > > doesn't do the 'bypass property' yet" from "this is a virtio
+> > > device
+> > > that doesn't bypass".
+> > > 
+> > > Any better idea ?
+> > 
+> > I'd suggest that, in the absence of the new DT binding, we assume
+> > that
+> > any PCI device with the virtio vendor ID is passthrough on powerpc.
+> >   I
+> > can do this in the virtio driver, but if it's in the platform code
+> > then vfio gets it right too (i.e. fails to load).
 > 
-> Well, the only incompatibility comes from an experimental qemu feature,
-> more explicitly from a bug in that features implementation. So why
-> should we work around that in the kernel? I think it is not too hard to
-> fix qemu to generate a correct DMAR table which excludes the virtio
-> devices from iommu translation.
+> The problem is there isn't *a* virtio vendor ID. It's the RedHat
+> vendor
+> ID which will be used by more than just virtio, so we need to
+> specifically list the devices.
 > 
+> Additionally, that still means that once we have a virtio device that
+> actually uses the iommu, powerpc will not work since the "workaround"
+> above will kick in.
 > 
-> 	Joerg
+> The "in absence of the new DT binding" doesn't make that much sense.
+> 
+> Those platforms use device-trees defined since the dawn of ages by
+> actual open firmware implementations, they either have no iommu
+> representation in there (Macs, the platform code hooks it all up) or
+> have various properties related to the iommu but no concept of
+> "bypass"
+> in there.
+> 
+> We can *add* a new property under some circumstances that indicates a
+> bypass on a per-device basis, however that doesn't completely solve
+> it:
+> 
+>   - As I said above, what does the absence of that property mean ? An
+> old qemu that does bypass on all virtio or a new qemu trying to tell
+> you that the virtio device actually does use the iommu (or some other
+> environment that isn't qemu) ?
+> 
+>   - On things like macs, the device-tree is generated by openbios, it
+> would have to have some added logic to try to figure that out, which
+> means it needs to know *via different means* that some or all virtio
+> devices bypass the iommu.
+> 
+> I thus go back to my original statement, it's a LOT easier to handle
+> if
+> the device itself is self describing, indicating whether it is set to
+> bypass a host iommu or not. For L1->L2, well, that wouldn't be the
+> first time qemu/VFIO plays tricks with the passed through device
+> configuration space...
+> 
+> Note that the above can be solved via some kind of compromise: The
+> device self describes the ability to honor the iommu, along with the
+> property (or ACPI table entry) that indicates whether or not it does.
+> 
+> IE. We could use the revision or ProgIf field of the config space for
+> example. Or something in virtio config. If it's an "old" device, we
+> know it always bypass. If it's a new device, we know it only bypasses
+> if the corresponding property is in. I still would have to sort out
+> the
+> openbios case for mac among others but it's at least a workable
+> direction.
+> 
+> BTW. Don't you have a similar problem on x86 that today qemu claims
+> that everything honors the iommu in ACPI ?
+> 
+> Unless somebody can come up with a better idea...
 
-It's not that easy - you'd have to dedicate some buses
-for iommu bypass, and teach management tools to only put
-virtio there - but it's possible.
+Can something be done by means of PCIe capabilities?
+ATS (Address Translation Support) seems like a natural choice?
 
-This will absolutely address guests that don't need to set up IOMMU for
-virtio devices, and virtio that bypasses the IOMMU.
+Knut
 
-But the problem is that we do want to *allow* guests
-to set up IOMMU for virtio devices.
-In that case, these are two other usecases:
-
-A- monolitic virtio within QEMU:
-	iommu only needed for VFIO ->
-	guest should always use iommu=pt
-        iommu=on works but is just useless overhead.
-
-B- modular out of process virtio outside QEMU:
-	iommu needed for VFIO or kernel driver ->
-	guest should use iommu=pt or iommu=on
-	depending on security/performance requirements
-
-Note that there could easily be a mix of these in the same system.
-
-So for these cases we do need QEMU to specify to guest that IOMMU covers
-the virtio devices.  Also, once one does this, the default on linux is
-iommu=on and not pt, which works but ATM is very slow.
-
-This poses three problems:
-
-1. How do we address the different needs of A and B?
-   One way would be for virtio to pass the information to guest
-   using some virtio specific way, and have drivers
-   specify what kind of DMA access they want.
-
-2. (Kind of a subset of 1) once we do allow IOMMU, how do we make sure most guests
-   use the more sensible iommu=pt.
-
-3. Once we do allow IOMMU, how can we keep existing guests work in this configuration?
-   Creating different hypervisor configurations depending on guest is very nasty.
-   Again, one way would be some virtio specific interface.
-
-I'd rather we figured the answers to this before merging Andy's patches
-because I'm concerned that instead of 1 broken configuration
-(virtio always bypasses IOMMU) we'll get two bad configurations
-(in the second one, virtio uses the slow default with no
-gain in security).
-
-Suggestions wellcome.
-
--- 
-MST
+> Cheers,
+> Ben.
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe sparclinux"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
