@@ -1,22 +1,23 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v4 0/6] virtio core DMA API conversion
-Date: Tue, 10 Nov 2015 14:43:09 +0200
-Message-ID: <20151110142633-mutt-send-email-mst__7520.62551114268$1447159415$gmane$org@redhat.com>
-References: <cover.1446162273.git.luto@kernel.org>
-	<20151109133624-mutt-send-email-mst@redhat.com>
-	<1447109937.31884.42.camel@kernel.crashing.org>
-	<CALCETrX7Gkw3WrBHff=TpCFHj444E8hHcR6sAqOghQFBo5wp_A@mail.gmail.com>
-	<1447121076.31884.61.camel@kernel.crashing.org>
-	<CALCETrW5_bKCX5gKYaH5y4rvD9jrjY5O5d=oX8hHtAM9EE2Bew@mail.gmail.com>
-	<1447133316.31884.67.camel@kernel.crashing.org>
-	<CALCETrVPQc04Ah7FXcRMb4RhpUJ1WPCoC_4dbacB8a+u5XpmwA@mail.gmail.com>
-	<1447151874.31884.82.camel@kernel.crashing.org>
+Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
+Date: Tue, 10 Nov 2015 17:02:19 +0200
+Message-ID: <20151109224720-mutt-send-email-mst@redhat.com>
+References: <20151028155105-mutt-send-email-mst@redhat.com>
+	<1446041609.3405.228.camel@infradead.org>
+	<20151028161424-mutt-send-email-mst@redhat.com>
+	<1446042754.3405.237.camel@infradead.org>
+	<20151028175136-mutt-send-email-mst@redhat.com>
+	<CALCETrWd7mK5bW2p_dvvjDRnqE31=ueAz5SAYKwY-PD5uZp76A@mail.gmail.com>
+	<20151029104301-mutt-send-email-mst@redhat.com>
+	<1446135536.3405.279.camel@infradead.org>
+	<20151108120627-mutt-send-email-mst@redhat.com>
+	<20151108114946.GG2255@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1447151874.31884.82.camel@kernel.crashing.org>
+In-Reply-To: <20151108114946.GG2255@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,61 +27,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Hellwig <hch@lst.de>, Andy Lutomirski <luto@kernel.org>, sparclinux@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Woodhouse <dwmw2@infradead.org>, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Joerg Roedel <jroedel@suse.de>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, KVM <kvm@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Woodhouse <dwmw2@infradead.org>, Christoph Hellwig <hch@lst.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Nov 10, 2015 at 09:37:54PM +1100, Benjamin Herrenschmidt wrote:
-> On Mon, 2015-11-09 at 21:35 -0800, Andy Lutomirski wrote:
-> > =
+On Sun, Nov 08, 2015 at 12:49:46PM +0100, Joerg Roedel wrote:
+> On Sun, Nov 08, 2015 at 12:37:47PM +0200, Michael S. Tsirkin wrote:
+> > I have no problem with that. For example, can we teach
+> > the DMA API on intel x86 to use PT for virtio by default?
+> > That would allow merging Andy's patches with
+> > full compatibility with old guests and hosts.
+> 
+> Well, the only incompatibility comes from an experimental qemu feature,
+> more explicitly from a bug in that features implementation. So why
+> should we work around that in the kernel? I think it is not too hard to
+> fix qemu to generate a correct DMAR table which excludes the virtio
+> devices from iommu translation.
+> 
+> 
+> 	Joerg
 
-> > We could do it the other way around: on powerpc, if a PCI device is in
-> > that range and doesn't have the "bypass" property at all, then it's
-> > assumed to bypass the IOMMU.=A0=A0This means that everything that
-> > currently works continues working.=A0=A0If someone builds a physical
-> > virtio device or uses another system in PCIe target mode speaking
-> > virtio, then it won't work until they upgrade their firmware to set
-> > bypass=3D0.=A0=A0Meanwhile everyone using hypothetical new QEMU also ge=
-ts
-> > bypass=3D0 and no ambiguity.
-> >
-> > vfio will presumably notice the bypass and correctly refuse to map any
-> > current virtio devices.
-> > =
+It's not that easy - you'd have to dedicate some buses
+for iommu bypass, and teach management tools to only put
+virtio there - but it's possible.
 
-> > Would that work?
-> =
+This will absolutely address guests that don't need to set up IOMMU for
+virtio devices, and virtio that bypasses the IOMMU.
 
-> That would be extremely strange from a platform perspective. Any device
-> in that vendor/device range would bypass the iommu unless some new
-> property "actually-works-like-a-real-pci-device" happens to exist in
-> the device-tree, which we would then need to define somewhere and
-> handle accross at least 3 different platforms who get their device-tree =
+But the problem is that we do want to *allow* guests
+to set up IOMMU for virtio devices.
+In that case, these are two other usecases:
 
-> from widly different places.
+A- monolitic virtio within QEMU:
+	iommu only needed for VFIO ->
+	guest should always use iommu=pt
+        iommu=on works but is just useless overhead.
 
-Then we are back to virtio driver telling DMA core
-whether it wants a 1:1 mapping in the iommu?
-If that's acceptable to others, I don't think that's too bad.
+B- modular out of process virtio outside QEMU:
+	iommu needed for VFIO or kernel driver ->
+	guest should use iommu=pt or iommu=on
+	depending on security/performance requirements
 
+Note that there could easily be a mix of these in the same system.
 
-> Also if tomorrow I create a PCI device that implements virtio-net and
-> put it in a machine running IBM proprietary firmware (or Apple's or
-> Sun's), it won't have that property...
-> =
+So for these cases we do need QEMU to specify to guest that IOMMU covers
+the virtio devices.  Also, once one does this, the default on linux is
+iommu=on and not pt, which works but ATM is very slow.
 
-> This is not hypothetical. People are using virtio to do point-to-point
-> communication between machines via PCIe today.
-> =
+This poses three problems:
 
-> Cheers,
-> Ben.
+1. How do we address the different needs of A and B?
+   One way would be for virtio to pass the information to guest
+   using some virtio specific way, and have drivers
+   specify what kind of DMA access they want.
 
-But not virtio-pci I think - that's broken for that usecase since we use
-weaker barriers than required for real IO, as these have measureable
-overhead.  We could have a feature "is a real PCI device",
-that's completely reasonable.
+2. (Kind of a subset of 1) once we do allow IOMMU, how do we make sure most guests
+   use the more sensible iommu=pt.
 
--- =
+3. Once we do allow IOMMU, how can we keep existing guests work in this configuration?
+   Creating different hypervisor configurations depending on guest is very nasty.
+   Again, one way would be some virtio specific interface.
 
+I'd rather we figured the answers to this before merging Andy's patches
+because I'm concerned that instead of 1 broken configuration
+(virtio always bypasses IOMMU) we'll get two bad configurations
+(in the second one, virtio uses the slow default with no
+gain in security).
+
+Suggestions wellcome.
+
+-- 
 MST
