@@ -1,18 +1,22 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v4 0/6] virtio core DMA API conversion
-Date: Tue, 10 Nov 2015 21:26:29 +1100
-Message-ID: <1447151189.31884.70.camel@kernel.crashing.org>
+Date: Tue, 10 Nov 2015 14:43:09 +0200
+Message-ID: <20151110142633-mutt-send-email-mst__7520.62551114268$1447159415$gmane$org@redhat.com>
 References: <cover.1446162273.git.luto@kernel.org>
 	<20151109133624-mutt-send-email-mst@redhat.com>
 	<1447109937.31884.42.camel@kernel.crashing.org>
 	<CALCETrX7Gkw3WrBHff=TpCFHj444E8hHcR6sAqOghQFBo5wp_A@mail.gmail.com>
 	<1447121076.31884.61.camel@kernel.crashing.org>
-	<1447148714.3005.133.camel@oracle.com>
+	<CALCETrW5_bKCX5gKYaH5y4rvD9jrjY5O5d=oX8hHtAM9EE2Bew@mail.gmail.com>
+	<1447133316.31884.67.camel@kernel.crashing.org>
+	<CALCETrVPQc04Ah7FXcRMb4RhpUJ1WPCoC_4dbacB8a+u5XpmwA@mail.gmail.com>
+	<1447151874.31884.82.camel@kernel.crashing.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1447148714.3005.133.camel@oracle.com>
+Content-Disposition: inline
+In-Reply-To: <1447151874.31884.82.camel@kernel.crashing.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,15 +26,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Knut Omang <knut.omang@oracle.com>, Andy Lutomirski <luto@amacapital.net>
-Cc: Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, sparclinux@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Woodhouse <dwmw2@infradead.org>, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Hellwig <hch@lst.de>, Andy Lutomirski <luto@kernel.org>, sparclinux@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Woodhouse <dwmw2@infradead.org>, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2015-11-10 at 10:45 +0100, Knut Omang wrote:
-> Can something be done by means of PCIe capabilities?
-> ATS (Address Translation Support) seems like a natural choice?
+On Tue, Nov 10, 2015 at 09:37:54PM +1100, Benjamin Herrenschmidt wrote:
+> On Mon, 2015-11-09 at 21:35 -0800, Andy Lutomirski wrote:
+> > =
 
-Euh no... ATS is something else completely....
+> > We could do it the other way around: on powerpc, if a PCI device is in
+> > that range and doesn't have the "bypass" property at all, then it's
+> > assumed to bypass the IOMMU.=A0=A0This means that everything that
+> > currently works continues working.=A0=A0If someone builds a physical
+> > virtio device or uses another system in PCIe target mode speaking
+> > virtio, then it won't work until they upgrade their firmware to set
+> > bypass=3D0.=A0=A0Meanwhile everyone using hypothetical new QEMU also ge=
+ts
+> > bypass=3D0 and no ambiguity.
+> >
+> > vfio will presumably notice the bypass and correctly refuse to map any
+> > current virtio devices.
+> > =
 
-Cheers,
-Ben.
+> > Would that work?
+> =
+
+> That would be extremely strange from a platform perspective. Any device
+> in that vendor/device range would bypass the iommu unless some new
+> property "actually-works-like-a-real-pci-device" happens to exist in
+> the device-tree, which we would then need to define somewhere and
+> handle accross at least 3 different platforms who get their device-tree =
+
+> from widly different places.
+
+Then we are back to virtio driver telling DMA core
+whether it wants a 1:1 mapping in the iommu?
+If that's acceptable to others, I don't think that's too bad.
+
+
+> Also if tomorrow I create a PCI device that implements virtio-net and
+> put it in a machine running IBM proprietary firmware (or Apple's or
+> Sun's), it won't have that property...
+> =
+
+> This is not hypothetical. People are using virtio to do point-to-point
+> communication between machines via PCIe today.
+> =
+
+> Cheers,
+> Ben.
+
+But not virtio-pci I think - that's broken for that usecase since we use
+weaker barriers than required for real IO, as these have measureable
+overhead.  We could have a feature "is a real PCI device",
+that's completely reasonable.
+
+-- =
+
+MST
