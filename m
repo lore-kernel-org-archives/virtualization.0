@@ -1,23 +1,10 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
-Date: Wed, 11 Nov 2015 07:56:03 -0800
-Message-ID: <CALCETrWmZaQxS3-r9jsUb3BPhdLRbRrdZWok2geHnYKaWC4YKA__8668.53110860593$1447257398$gmane$org@mail.gmail.com>
-References: <20151028161424-mutt-send-email-mst@redhat.com>
-	<1446042754.3405.237.camel@infradead.org>
-	<20151028175136-mutt-send-email-mst@redhat.com>
-	<CALCETrWd7mK5bW2p_dvvjDRnqE31=ueAz5SAYKwY-PD5uZp76A@mail.gmail.com>
-	<20151029104301-mutt-send-email-mst@redhat.com>
-	<1446135536.3405.279.camel@infradead.org>
-	<20151108120627-mutt-send-email-mst@redhat.com>
-	<20151108114946.GG2255@suse.de>
-	<20151109224720-mutt-send-email-mst@redhat.com>
-	<CALCETrUKnNajtHMGarpxdVEVzbJvDr6bU88j530DVJXWrGW9bQ@mail.gmail.com>
-	<20151111111125-mutt-send-email-mst@redhat.com>
+From: "Maria Lemos" <marialemos72@gmail.com>
+Subject: WorldCIST'2016 - Deadline extended: November 22, 2015
+Date: Wed, 11 Nov 2015 16:59:19 +0000
+Message-ID: <20151111165928.1357698C@mail.linuxfoundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============1090509953939671886=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20151111111125-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,142 +14,202 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, KVM <kvm@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Joerg Roedel <jroedel@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, David Woodhouse <dwmw2@infradead.org>, Christoph Hellwig <hch@lst.de>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 11, 2015 at 2:05 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Tue, Nov 10, 2015 at 10:54:21AM -0800, Andy Lutomirski wrote:
->> On Nov 10, 2015 7:02 AM, "Michael S. Tsirkin" <mst@redhat.com> wrote:
->> >
->> > On Sun, Nov 08, 2015 at 12:49:46PM +0100, Joerg Roedel wrote:
->> > > On Sun, Nov 08, 2015 at 12:37:47PM +0200, Michael S. Tsirkin wrote:
->> > > > I have no problem with that. For example, can we teach
->> > > > the DMA API on intel x86 to use PT for virtio by default?
->> > > > That would allow merging Andy's patches with
->> > > > full compatibility with old guests and hosts.
->> > >
->> > > Well, the only incompatibility comes from an experimental qemu feature,
->> > > more explicitly from a bug in that features implementation. So why
->> > > should we work around that in the kernel? I think it is not too hard to
->> > > fix qemu to generate a correct DMAR table which excludes the virtio
->> > > devices from iommu translation.
->> > >
->> > >
->> > >       Joerg
->> >
->> > It's not that easy - you'd have to dedicate some buses
->> > for iommu bypass, and teach management tools to only put
->> > virtio there - but it's possible.
->> >
->> > This will absolutely address guests that don't need to set up IOMMU for
->> > virtio devices, and virtio that bypasses the IOMMU.
->> >
->> > But the problem is that we do want to *allow* guests
->> > to set up IOMMU for virtio devices.
->> > In that case, these are two other usecases:
->> >
->> > A- monolitic virtio within QEMU:
->> >         iommu only needed for VFIO ->
->> >         guest should always use iommu=pt
->> >         iommu=on works but is just useless overhead.
->> >
->> > B- modular out of process virtio outside QEMU:
->> >         iommu needed for VFIO or kernel driver ->
->> >         guest should use iommu=pt or iommu=on
->> >         depending on security/performance requirements
->> >
->> > Note that there could easily be a mix of these in the same system.
->> >
->> > So for these cases we do need QEMU to specify to guest that IOMMU covers
->> > the virtio devices.  Also, once one does this, the default on linux is
->> > iommu=on and not pt, which works but ATM is very slow.
->> >
->> > This poses three problems:
->> >
->> > 1. How do we address the different needs of A and B?
->> >    One way would be for virtio to pass the information to guest
->> >    using some virtio specific way, and have drivers
->> >    specify what kind of DMA access they want.
->> >
->> > 2. (Kind of a subset of 1) once we do allow IOMMU, how do we make sure most guests
->> >    use the more sensible iommu=pt.
->> >
->> > 3. Once we do allow IOMMU, how can we keep existing guests work in this configuration?
->> >    Creating different hypervisor configurations depending on guest is very nasty.
->> >    Again, one way would be some virtio specific interface.
->> >
->> > I'd rather we figured the answers to this before merging Andy's patches
->> > because I'm concerned that instead of 1 broken configuration
->> > (virtio always bypasses IOMMU) we'll get two bad configurations
->> > (in the second one, virtio uses the slow default with no
->> > gain in security).
->> >
->> > Suggestions wellcome.
->>
->> I think there's still no downside of using my patches, even on x86.
->>
->> Old kernels on new QEMU work unless IOMMU is enabled on the host.  I
->> think that's the best we can possibly do.
->> New kernels work at full speed on old QEMU.
->
-> Only if IOMMU is disabled, right?
->
->> New kernels with new QEMU and iommu enabled work slower.  Even newer
->> kernels with default passthrough work at full speed, and there's no
->> obvious downside to the existence of kernels with just my patches.
->>
->> --Andy
->>
->
-> I tried to explain the possible downside. Let me try again.  Imagine
-> that guest kernel notifies hypervisor that it wants IOMMU to actually
-> work.  This will make old kernel on new QEMU work even with IOMMU
-> enabled on host - better than "the best we can do" that you described
-> above.  Specifically, QEMU will assume that if it didn't get
-> notification, it's an old kernel so it should ignore the IOMMU.
+--===============1090509953939671886==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Can you flesh out this trick?
+=2E..
+=2E.... Apologize if you receive multiple copies of this email, or if =
+its content is irrelevant for you.
+=2E...... Please forward for your contacts. Thank you so much!
+=2E....
+=2E..
 
-On x86 IIUC the IOMMU more-or-less defaults to passthrough.  If the
-kernel wants, it can switch it to a non-passthrough mode.  My patches
-cause the virtio driver to do exactly this, except that the host
-implementation doesn't actually exist yet, so the patches will instead
-have no particular effect.
+---------
+WorldCIST'16 - 4th World Conference on Information Systems and Technol=
+ogies=20
+Recife, PE, Brazil
+22th-24th of March 2016
+http://www.aisti.eu/worldcist16/
+-------------------------------------------
 
-On powerpc and sparc, we *already* screwed up.  The host already tells
-the guest that there's an IOMMU and that it's *enabled* because those
-platforms don't have selective IOMMU coverage the way that x86 does.
-So we need to work around it.
 
-I think that, if we want fancy virt-friendly IOMMU stuff like you're
-talking about, then the right thing to do is to create a virtio bus
-instead of pretending to be PCI.  That bus could have a virtio IOMMU
-and its own cross-platform enumeration mechanism for devices on the
-bus, and everything would be peachy.
+SCOPE
 
-In the mean time, there are existing mechanisms by which every PCI
-driver is supposed to notify the host/platform of how it intends to
-map DMA memory, and virtio gets it wrong.
+The WorldCist'16 - 4th World Conference on Information Systems and Tec=
+hnologies ( http://www.aisti.eu/worldcist16/ ), to be held at Recife, =
+PE, Brazil, 22 - 24 March 2016, is a global forum for researchers and =
+practitioners to present and discuss the most recent innovations, tren=
+ds, results, experiences and concerns in the several perspectives of I=
+nformation Systems and Technologies.
 
->
-> But if we apply your patches this trick won't work.
->
+We are pleased to invite you to submit your papers to WorldCist'16. Al=
+l submissions will be reviewed on the basis of relevance, originality,=
+ importance and clarity.
 
-I still don't understand what trick.  If we want virtio devices to be
-assignable, then they should be translated through the IOMMU, and the
-DMA API is the right interface for that.
 
-> Without implementing it all, I think the easiest incremental step would
-> be to teach linux to make passthrough the default when running as a
-> guest on top of QEMU, put your patches on top. If someone specifies
-> non passthrough on command line it'll still be broken,
-> but not too bad.
+THEMES
 
-Can powerpc and sparc do exact 1:1 passthrough for a given device?  If
-so, that might be a reasonable way forward.  After all, if a new
-powerpc kernel asks for exact passthrough (dma addr = phys addr with
-no offset at all), then old QEMU will just ignore it and therefore
-accidentally get it right.  Ben?
+Submitted papers should be related with one or more of the main themes=
+ proposed for the Conference:
 
---Andy
+A) Information and Knowledge Management (IKM);
+B) Organizational Models and Information Systems (OMIS);
+C) Software and Systems Modeling (SSM);
+D) Software Systems, Architectures, Applications and Tools (SSAAT);
+E) Multimedia Systems and Applications (MSA);
+F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
+G) Intelligent and Decision Support Systems (IDSS);
+H) Big Data Analytics and Applications (BDAA);
+I) Human-Computer Interaction (HCI);
+J) Health Informatics (HIS);
+K) Information Technologies in Education (ITE);
+L) Information Technologies in Radiocommunications (ITR).
+
+
+TYPES OF SUBMISSIONS AND DECISIONS
+
+Four types of papers can be submitted:
+
+- Full paper: Finished or consolidated R&D works, to be included in on=
+e of the Conference themes. These papers are assigned a 10-page limit.
+
+- Short paper: Ongoing works with relevant preliminary results, open t=
+o discussion. These papers are assigned a 7-page limit.
+
+-Poster paper: Initial work with relevant ideas, open to discussion. T=
+hese papers are assigned to a 4-page limit.
+
+- Company paper: Companies' papers that show practical experience, R &=
+ D, tools, etc., focused on some topics of the conference. These paper=
+s are assigned to a 4-page limit.
+
+Submitted papers must comply with the format of Advances in Intelligen=
+t Systems and Computing Series (see Instructions for Authors at Spring=
+er Website or download a DOC example) be written in English, must not =
+have been published before, not be under review for any other conferen=
+ce or publication and not include any information leading to the autho=
+rs=92 identification. Therefore, the authors=92 names, affiliations an=
+d bibliographic references should not be included in the version for e=
+valuation by the Program Committee. This information should only be in=
+cluded in the camera-ready version, saved in Word or Latex format and =
+also in PDF format. These files must be accompanied by the Consent to =
+Publication form filled out, in a ZIP file, and uploaded at the confer=
+ence management system.
+
+All papers will be subjected to a =93double-blind review=94 by at leas=
+t two members of the Program Committee.
+
+Based on Program Committee evaluation, a paper can be rejected or acce=
+pted by the Conference Chairs. In the later case, it can be accepted a=
+s the type originally submitted or as another type. Thus, full papers =
+can be accepted as short papers or poster papers only. Similarly, shor=
+t papers can be accepted as poster papers only. In these cases, the au=
+thors will be allowed to maintain the original number of pages in the =
+camera-ready version.
+
+The authors of accepted poster papers must also build and print a post=
+er to be exhibited during the Conference. This poster must follow an A=
+1 or A2 vertical format. The Conference can includes Work Sessions whe=
+re these posters are presented and orally discussed, with a 5 minute l=
+imit per poster.
+
+The authors of accepted full papers will have 15 minutes to present th=
+eir work in a Conference Work Session; approximately 5 minutes of disc=
+ussion will follow each presentation. The authors of accepted short pa=
+pers and company papers will have 11 minutes to present their work in =
+a Conference Work Session; approximately 4 minutes of discussion will =
+follow each presentation.
+
+
+PUBLICATION AND INDEXING
+
+To ensure that a full paper, short paper, poster paper or company pape=
+r is published in the Proceedings, at least one of the authors must be=
+ fully registered by the 27th of December 2015, and the paper must com=
+ply with the suggested layout and page-limit. Additionally, all recomm=
+ended changes must be addressed by the authors before they submit the =
+camera-ready version.
+
+No more than one paper per registration will be published in the Confe=
+rence Proceedings. An extra fee must be paid for publication of additi=
+onal papers, with a maximum of one additional paper per registration.
+
+Full and short papers will be published in Proceedings by Springer, in=
+ a book of Advances in Intelligent Systems and Computing series. Poste=
+r and company papers will be published by AISTI.
+
+Published full and short papers will be submitted for indexation by IS=
+I, EI-Compendex, SCOPUS and DBLP, among others, and will be available =
+in the SpringerLink Digital Library.
+
+The authors of the best selected papers will be invited to extend them=
+ for publication in international journals indexed by ISI/SCI, SCOPUS =
+and DBLP, among others, such as:
+
+- International Journal of Neural Systems (IF: 6.507)
+- Integrated Computer-Aided Engineering (IF: 4.698)
+- Computers in Human Behavior (IF: 2.694)
+- Journal of Medical Systems (IF: 2.213)
+- International Journal of Computer-Supported Collaborative Learning (=
+IF: 1.841)
+- Journal of Intelligent & Fuzzy Systems (IF: 1.812)
+- Telemedicine and e-Health (IF: 1.668)
+- International Journal of Information Management (IF: 1.550)
+- Engineering Computations (IF: 1.495)
+- Electronic Commerce Research and Applications (IF: 1.482)
+- Telematics and Informatics (IF: 1.120)
+- Journal of Evaluation in Clinical Practice (IF: 1.084)
+- Ethics and Information Technology (IF: 1.021)
+- Int. Journal of Computers Communications & Control (IF: 0.746)
+- IET Software (IF: 0.595)
+- Knowledge Management Research & Practice (IF: 0.554)
+- AI Communications (IF: 0.547)
+- Computing and Informatics (IF: 0.504)
+- Universal Access in the Information Society (IF: 0.475)
+- Journal of Global Information Management (IF: 0.424)
+- Journal of Internet Services and Applications (SJR: 0.88)
+- Journal of Hospitality and Tourism Technology (SJR: 0.41)
+- VINE - The Journal of Information and Knowledge Management Systems (=
+SJR: 0.24)
+- International Journal of Online Engineering (SJR: 0.21)
+- Int. Journal of Emerging Technologies in Learning (SJR: 0.12)
+- Computer Methods in Biomechanics and Biomedical Engineering: Imaging=
+ & Visualization
+
+
+IMPORTANT DATES
+
+Paper Submission: November 22, 2015
+
+Notification of Acceptance: December 13, 2015
+
+Payment of Registration, to ensure the inclusion of an accepted paper =
+in the conference proceedings: December 27, 2015.
+
+Camera-ready Submission: December 31, 2015
+
+
+-
+
+WorldCIST'16
+http://www.aisti.eu/worldcist16/
+
+
+
+
+
+--===============1090509953939671886==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============1090509953939671886==--
