@@ -1,23 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
-Date: Wed, 11 Nov 2015 12:05:09 +0200
-Message-ID: <20151111111125-mutt-send-email-mst@redhat.com>
-References: <20151028161424-mutt-send-email-mst@redhat.com>
-	<1446042754.3405.237.camel@infradead.org>
-	<20151028175136-mutt-send-email-mst@redhat.com>
-	<CALCETrWd7mK5bW2p_dvvjDRnqE31=ueAz5SAYKwY-PD5uZp76A@mail.gmail.com>
-	<20151029104301-mutt-send-email-mst@redhat.com>
-	<1446135536.3405.279.camel@infradead.org>
-	<20151108120627-mutt-send-email-mst@redhat.com>
-	<20151108114946.GG2255@suse.de>
-	<20151109224720-mutt-send-email-mst@redhat.com>
-	<CALCETrUKnNajtHMGarpxdVEVzbJvDr6bU88j530DVJXWrGW9bQ@mail.gmail.com>
+Subject: Re: [PATCH] virtio_ring: Shadow available ring flags & index
+Date: Wed, 11 Nov 2015 14:34:33 +0200
+Message-ID: <20151111142647-mutt-send-email-mst__28408.420031383$1447245299$gmane$org@redhat.com>
+References: <1447201267-30024-1-git-send-email-venkateshs@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CALCETrUKnNajtHMGarpxdVEVzbJvDr6bU88j530DVJXWrGW9bQ@mail.gmail.com>
+In-Reply-To: <1447201267-30024-1-git-send-email-venkateshs@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,109 +18,202 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, KVM <kvm@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Joerg Roedel <jroedel@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, David Woodhouse <dwmw2@infradead.org>, Christoph Hellwig <hch@lst.de>
+To: Venkatesh Srinivas <venkateshs@google.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, vsrinivas@ops101.org, luto@kernel.org, dmatlack@google.com, pbonzini@redhat.com, huawei.xie@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Nov 10, 2015 at 10:54:21AM -0800, Andy Lutomirski wrote:
-> On Nov 10, 2015 7:02 AM, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> >
-> > On Sun, Nov 08, 2015 at 12:49:46PM +0100, Joerg Roedel wrote:
-> > > On Sun, Nov 08, 2015 at 12:37:47PM +0200, Michael S. Tsirkin wrote:
-> > > > I have no problem with that. For example, can we teach
-> > > > the DMA API on intel x86 to use PT for virtio by default?
-> > > > That would allow merging Andy's patches with
-> > > > full compatibility with old guests and hosts.
-> > >
-> > > Well, the only incompatibility comes from an experimental qemu feature,
-> > > more explicitly from a bug in that features implementation. So why
-> > > should we work around that in the kernel? I think it is not too hard to
-> > > fix qemu to generate a correct DMAR table which excludes the virtio
-> > > devices from iommu translation.
-> > >
-> > >
-> > >       Joerg
-> >
-> > It's not that easy - you'd have to dedicate some buses
-> > for iommu bypass, and teach management tools to only put
-> > virtio there - but it's possible.
-> >
-> > This will absolutely address guests that don't need to set up IOMMU for
-> > virtio devices, and virtio that bypasses the IOMMU.
-> >
-> > But the problem is that we do want to *allow* guests
-> > to set up IOMMU for virtio devices.
-> > In that case, these are two other usecases:
-> >
-> > A- monolitic virtio within QEMU:
-> >         iommu only needed for VFIO ->
-> >         guest should always use iommu=pt
-> >         iommu=on works but is just useless overhead.
-> >
-> > B- modular out of process virtio outside QEMU:
-> >         iommu needed for VFIO or kernel driver ->
-> >         guest should use iommu=pt or iommu=on
-> >         depending on security/performance requirements
-> >
-> > Note that there could easily be a mix of these in the same system.
-> >
-> > So for these cases we do need QEMU to specify to guest that IOMMU covers
-> > the virtio devices.  Also, once one does this, the default on linux is
-> > iommu=on and not pt, which works but ATM is very slow.
-> >
-> > This poses three problems:
-> >
-> > 1. How do we address the different needs of A and B?
-> >    One way would be for virtio to pass the information to guest
-> >    using some virtio specific way, and have drivers
-> >    specify what kind of DMA access they want.
-> >
-> > 2. (Kind of a subset of 1) once we do allow IOMMU, how do we make sure most guests
-> >    use the more sensible iommu=pt.
-> >
-> > 3. Once we do allow IOMMU, how can we keep existing guests work in this configuration?
-> >    Creating different hypervisor configurations depending on guest is very nasty.
-> >    Again, one way would be some virtio specific interface.
-> >
-> > I'd rather we figured the answers to this before merging Andy's patches
-> > because I'm concerned that instead of 1 broken configuration
-> > (virtio always bypasses IOMMU) we'll get two bad configurations
-> > (in the second one, virtio uses the slow default with no
-> > gain in security).
-> >
-> > Suggestions wellcome.
+On Tue, Nov 10, 2015 at 04:21:07PM -0800, Venkatesh Srinivas wrote:
+> Improves cacheline transfer flow of available ring header.
 > 
-> I think there's still no downside of using my patches, even on x86.
+> Virtqueues are implemented as a pair of rings, one producer->consumer
+> avail ring and one consumer->producer used ring; preceding the
+> avail ring in memory are two contiguous u16 fields -- avail->flags
+> and avail->idx. A producer posts work by writing to avail->idx and
+> a consumer reads avail->idx.
 > 
-> Old kernels on new QEMU work unless IOMMU is enabled on the host.  I
-> think that's the best we can possibly do.
-> New kernels work at full speed on old QEMU.
-
-Only if IOMMU is disabled, right?
-
-> New kernels with new QEMU and iommu enabled work slower.  Even newer
-> kernels with default passthrough work at full speed, and there's no
-> obvious downside to the existence of kernels with just my patches.
+> The flags and idx fields only need to be written by a producer CPU
+> and only read by a consumer CPU; when the producer and consumer are
+> running on different CPUs and the virtio_ring code is structured to
+> only have source writes/sink reads, we can continuously transfer the
+> avail header cacheline between 'M' states between cores. This flow
+> optimizes core -> core bandwidth on certain CPUs.
 > 
-> --Andy
+> (see: "Software Optimization Guide for AMD Family 15h Processors",
+> Section 11.6; similar language appears in the 10h guide and should
+> apply to CPUs w/ exclusive caches, using LLC as a transfer cache)
 > 
+> Unfortunately the existing virtio_ring code issued reads to the
+> avail->idx and read-modify-writes to avail->flags on the producer.
+> 
+> This change shadows the flags and index fields in producer memory;
+> the vring code now reads from the shadows and only ever writes to
+> avail->flags and avail->idx, allowing the cacheline to transfer
+> core -> core optimally.
 
-I tried to explain the possible downside. Let me try again.  Imagine
-that guest kernel notifies hypervisor that it wants IOMMU to actually
-work.  This will make old kernel on new QEMU work even with IOMMU
-enabled on host - better than "the best we can do" that you described
-above.  Specifically, QEMU will assume that if it didn't get
-notification, it's an old kernel so it should ignore the IOMMU.
+Sounds logical, I'll apply this after a  bit of testing
+of my own, thanks!
 
-But if we apply your patches this trick won't work.
+> In a concurrent version of vring_bench, the time required for
+> 10,000,000 buffer checkout/returns was reduced by ~2% (average
+> across many runs) on an AMD Piledriver (15h) CPU:
+> 
+> (w/o shadowing):
+>  Performance counter stats for './vring_bench':
+>      5,451,082,016      L1-dcache-loads
+>      ...
+>        2.221477739 seconds time elapsed
+> 
+> (w/ shadowing):
+>  Performance counter stats for './vring_bench':
+>      5,405,701,361      L1-dcache-loads
+>      ...
+>        2.168405376 seconds time elapsed
 
-Without implementing it all, I think the easiest incremental step would
-be to teach linux to make passthrough the default when running as a
-guest on top of QEMU, put your patches on top. If someone specifies
-non passthrough on command line it'll still be broken,
-but not too bad.
+Could you supply the full command line you used
+to test this?
+
+> The further away (in a NUMA sense) virtio producers and consumers are
+> from each other, the more we expect to benefit. Physical implementations
+> of virtio devices and implementations of virtio where the consumer polls
+> vring avail indexes (vhost) should also benefit.
+> 
+> Signed-off-by: Venkatesh Srinivas <venkateshs@google.com>
+
+Here's a similar patch for the ring itself:
+https://lkml.org/lkml/2015/9/10/111
+
+Does it help you as well?
 
 
-> >
-> > --
-> > MST
+> ---
+>  drivers/virtio/virtio_ring.c | 46 ++++++++++++++++++++++++++++++++------------
+>  1 file changed, 34 insertions(+), 12 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 096b857..6262015 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -80,6 +80,12 @@ struct vring_virtqueue {
+>  	/* Last used index we've seen. */
+>  	u16 last_used_idx;
+>  
+> +	/* Last written value to avail->flags */
+> +	u16 avail_flags_shadow;
+> +
+> +	/* Last written value to avail->idx in guest byte order */
+> +	u16 avail_idx_shadow;
+> +
+>  	/* How to notify other side. FIXME: commonalize hcalls! */
+>  	bool (*notify)(struct virtqueue *vq);
+>  
+> @@ -235,13 +241,14 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+>  
+>  	/* Put entry in available array (but don't update avail->idx until they
+>  	 * do sync). */
+> -	avail = virtio16_to_cpu(_vq->vdev, vq->vring.avail->idx) & (vq->vring.num - 1);
+> +	avail = vq->avail_idx_shadow & (vq->vring.num - 1);
+>  	vq->vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
+>  
+>  	/* Descriptors and available array need to be set before we expose the
+>  	 * new available array entries. */
+>  	virtio_wmb(vq->weak_barriers);
+> -	vq->vring.avail->idx = cpu_to_virtio16(_vq->vdev, virtio16_to_cpu(_vq->vdev, vq->vring.avail->idx) + 1);
+> +	vq->avail_idx_shadow++;
+> +	vq->vring.avail->idx = cpu_to_virtio16(_vq->vdev, vq->avail_idx_shadow);
+>  	vq->num_added++;
+>  
+>  	pr_debug("Added buffer head %i to %p\n", head, vq);
+> @@ -354,8 +361,8 @@ bool virtqueue_kick_prepare(struct virtqueue *_vq)
+>  	 * event. */
+>  	virtio_mb(vq->weak_barriers);
+>  
+> -	old = virtio16_to_cpu(_vq->vdev, vq->vring.avail->idx) - vq->num_added;
+> -	new = virtio16_to_cpu(_vq->vdev, vq->vring.avail->idx);
+> +	old = vq->avail_idx_shadow - vq->num_added;
+> +	new = vq->avail_idx_shadow;
+>  	vq->num_added = 0;
+>  
+>  #ifdef DEBUG
+> @@ -510,7 +517,7 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
+>  	/* If we expect an interrupt for the next entry, tell host
+>  	 * by writing event index and flush out the write before
+>  	 * the read in the next get_buf call. */
+> -	if (!(vq->vring.avail->flags & cpu_to_virtio16(_vq->vdev, VRING_AVAIL_F_NO_INTERRUPT))) {
+> +	if (!(vq->avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT)) {
+>  		vring_used_event(&vq->vring) = cpu_to_virtio16(_vq->vdev, vq->last_used_idx);
+>  		virtio_mb(vq->weak_barriers);
+>  	}
+> @@ -537,7 +544,11 @@ void virtqueue_disable_cb(struct virtqueue *_vq)
+>  {
+>  	struct vring_virtqueue *vq = to_vvq(_vq);
+>  
+> -	vq->vring.avail->flags |= cpu_to_virtio16(_vq->vdev, VRING_AVAIL_F_NO_INTERRUPT);
+> +	if (!(vq->avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT)) {
+> +		vq->avail_flags_shadow |= VRING_AVAIL_F_NO_INTERRUPT;
+> +		vq->vring.avail->flags = cpu_to_virtio16(_vq->vdev, vq->avail_flags_shadow);
+> +	}
+> +
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_disable_cb);
+>  
+> @@ -565,7 +576,10 @@ unsigned virtqueue_enable_cb_prepare(struct virtqueue *_vq)
+>  	/* Depending on the VIRTIO_RING_F_EVENT_IDX feature, we need to
+>  	 * either clear the flags bit or point the event index at the next
+>  	 * entry. Always do both to keep code simple. */
+> -	vq->vring.avail->flags &= cpu_to_virtio16(_vq->vdev, ~VRING_AVAIL_F_NO_INTERRUPT);
+> +	if (vq->avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT) {
+> +		vq->avail_flags_shadow &= ~VRING_AVAIL_F_NO_INTERRUPT;
+> +		vq->vring.avail->flags = cpu_to_virtio16(_vq->vdev, vq->avail_flags_shadow);
+> +	}
+>  	vring_used_event(&vq->vring) = cpu_to_virtio16(_vq->vdev, last_used_idx = vq->last_used_idx);
+>  	END_USE(vq);
+>  	return last_used_idx;
+> @@ -633,9 +647,12 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
+>  	/* Depending on the VIRTIO_RING_F_USED_EVENT_IDX feature, we need to
+>  	 * either clear the flags bit or point the event index at the next
+>  	 * entry. Always do both to keep code simple. */
+> -	vq->vring.avail->flags &= cpu_to_virtio16(_vq->vdev, ~VRING_AVAIL_F_NO_INTERRUPT);
+> +	if (vq->avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT) {
+> +		vq->avail_flags_shadow &= ~VRING_AVAIL_F_NO_INTERRUPT;
+> +		vq->vring.avail->flags = cpu_to_virtio16(_vq->vdev, vq->avail_flags_shadow);
+> +	}
+>  	/* TODO: tune this threshold */
+> -	bufs = (u16)(virtio16_to_cpu(_vq->vdev, vq->vring.avail->idx) - vq->last_used_idx) * 3 / 4;
+> +	bufs = (u16)(vq->avail_idx_shadow - vq->last_used_idx) * 3 / 4;
+>  	vring_used_event(&vq->vring) = cpu_to_virtio16(_vq->vdev, vq->last_used_idx + bufs);
+>  	virtio_mb(vq->weak_barriers);
+>  	if (unlikely((u16)(virtio16_to_cpu(_vq->vdev, vq->vring.used->idx) - vq->last_used_idx) > bufs)) {
+> @@ -670,7 +687,8 @@ void *virtqueue_detach_unused_buf(struct virtqueue *_vq)
+>  		/* detach_buf clears data, so grab it now. */
+>  		buf = vq->data[i];
+>  		detach_buf(vq, i);
+> -		vq->vring.avail->idx = cpu_to_virtio16(_vq->vdev, virtio16_to_cpu(_vq->vdev, vq->vring.avail->idx) - 1);
+> +		vq->avail_idx_shadow--;
+> +		vq->vring.avail->idx = cpu_to_virtio16(_vq->vdev, vq->avail_idx_shadow);
+>  		END_USE(vq);
+>  		return buf;
+>  	}
+> @@ -735,6 +753,8 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
+>  	vq->weak_barriers = weak_barriers;
+>  	vq->broken = false;
+>  	vq->last_used_idx = 0;
+> +	vq->avail_flags_shadow = 0;
+> +	vq->avail_idx_shadow = 0;
+>  	vq->num_added = 0;
+>  	list_add_tail(&vq->vq.list, &vdev->vqs);
+>  #ifdef DEBUG
+> @@ -746,8 +766,10 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
+>  	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
+>  
+>  	/* No callback?  Tell other side not to bother us. */
+> -	if (!callback)
+> -		vq->vring.avail->flags |= cpu_to_virtio16(vdev, VRING_AVAIL_F_NO_INTERRUPT);
+> +	if (!callback) {
+> +		vq->avail_flags_shadow |= VRING_AVAIL_F_NO_INTERRUPT;
+> +		vq->vring.avail->flags = cpu_to_virtio16(vdev, vq->avail_flags_shadow);
+> +	}
+>  
+>  	/* Put everything in free lists. */
+>  	vq->free_head = 0;
+> -- 
+> 2.6.0.rc2.230.g3dd15c0
