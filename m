@@ -1,26 +1,23 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH v4 0/6] virtio core DMA API conversion
-Date: Wed, 11 Nov 2015 16:08:33 +1100
-Message-ID: <1447218513.31884.144.camel@kernel.crashing.org>
-References: <cover.1446162273.git.luto@kernel.org>
-	<20151109133624-mutt-send-email-mst@redhat.com>
-	<1447109937.31884.42.camel@kernel.crashing.org>
-	<CALCETrX7Gkw3WrBHff=TpCFHj444E8hHcR6sAqOghQFBo5wp_A@mail.gmail.com>
-	<1447121076.31884.61.camel@kernel.crashing.org>
-	<CALCETrW5_bKCX5gKYaH5y4rvD9jrjY5O5d=oX8hHtAM9EE2Bew@mail.gmail.com>
-	<1447133316.31884.67.camel@kernel.crashing.org>
-	<CALCETrVPQc04Ah7FXcRMb4RhpUJ1WPCoC_4dbacB8a+u5XpmwA@mail.gmail.com>
-	<1447151874.31884.82.camel@kernel.crashing.org>
-	<CALCETrVkE3=KCxK-_bf-P8UfTS96Vck+QPE8EsLvP7THxpLe1A@mail.gmail.com>
-	<1447194427.31884.100.camel@kernel.crashing.org>
-	<CALCETrWb9poeyxXhcbAbQkpcP-XYjWtz2w9iSPkKJH8rdzAj-A@mail.gmail.com>
-	<1447202682.31884.123.camel@kernel.crashing.org>
-	<CALCETrWAVOATcCaUabunjYd+NYM1HRqJXG9K=DgrZCnBbWCexw@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
+Date: Wed, 11 Nov 2015 11:11:14 +0200
+Message-ID: <20151111110744-mutt-send-email-mst@redhat.com>
+References: <20151028132331-mutt-send-email-mst@redhat.com>
+	<1446039327.3405.216.camel@infradead.org>
+	<20151028155105-mutt-send-email-mst@redhat.com>
+	<1446041609.3405.228.camel@infradead.org>
+	<20151028161424-mutt-send-email-mst@redhat.com>
+	<1446042754.3405.237.camel@infradead.org>
+	<20151028175136-mutt-send-email-mst@redhat.com>
+	<CALCETrWd7mK5bW2p_dvvjDRnqE31=ueAz5SAYKwY-PD5uZp76A@mail.gmail.com>
+	<20151029104301-mutt-send-email-mst@redhat.com>
+	<20151030151612.GB2704@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CALCETrWAVOATcCaUabunjYd+NYM1HRqJXG9K=DgrZCnBbWCexw@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20151030151612.GB2704@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -30,18 +27,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, sparclinux@vger.kernel.org, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Christoph Hellwig <hch@lst.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Woodhouse <dwmw2@infradead.org>, "David S. Miller" <davem@davemloft.net>
+To: Joerg Roedel <jroedel@suse.de>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, KVM <kvm@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Woodhouse <dwmw2@infradead.org>, Christoph Hellwig <hch@lst.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCAyMDE1LTExLTEwIGF0IDIwOjQ2IC0wODAwLCBBbmR5IEx1dG9taXJza2kgd3JvdGU6
-Cj4gTWUgbmVpdGhlci7CoCBBdCBsZWFzdCBpdCB3b3VsZG4ndCBiZSBhIHJlZ3Jlc3Npb24sIGJ1
-dCBpdCdzIHN0aWxsCj4gY3JhcHB5Lgo+IAo+IEkgdGhpbmsgdGhhdCBhcm0gaXMgZmluZSwgYXQg
-bGVhc3QuwqAgSSB3YXMgdW5hYmxlIHRvIGZpbmQgYW4gYXJtIFFFTVUKPiBjb25maWcgdGhhdCBo
-YXMgYW55IHByb2JsZW1zIHdpdGggbXkgcGF0Y2hlcy4KCk9rLCBnaXZlIG1lIGEgZmV3IGRheXMg
-Zm9yIG15IGhlYWRhY2hlICYgZmV2ZXIgdG8gc3Vic2lkZSBzZWUgaWYgSSBjYW4KZmluZCBzb21l
-dGhpbmcgYmV0dGVyLiBEYXZpZCwgbm8gaWRlYSBmcm9tIHlvdXIgc2lkZSA/IDotKQoKQ2hlZXJz
-LApCZW4uCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
-aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
-bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
-dGluZm8vdmlydHVhbGl6YXRpb24=
+On Sat, Oct 31, 2015 at 12:16:12AM +0900, Joerg Roedel wrote:
+> On Thu, Oct 29, 2015 at 11:01:41AM +0200, Michael S. Tsirkin wrote:
+> > Example: you have a mix of assigned devices and virtio devices. You
+> > don't trust your assigned device vendor not to corrupt your memory so
+> > you want to limit the damage your assigned device can do to your guest,
+> > so you use an IOMMU for that.  Thus existing iommu=pt within guest is out.
+> > 
+> > But you trust your hypervisor (you have no choice anyway),
+> > and you don't want the overhead of tweaking IOMMU
+> > on data path for virtio. Thus iommu=on is out too.
+> 
+> IOMMUs on x86 usually come with an ACPI table that describes which
+> IOMMUs are in the system and which devices they translate. So you can
+> easily describe all devices there that are not behind an IOMMU.
+> 
+> The ACPI table is built by the BIOS, and the platform intialization code
+> sets the device dma_ops accordingly. If the BIOS provides wrong
+> information in the ACPI table this is a platform bug.
+
+It doesn't look like I managed to put the point across.
+My point is that IOMMU is required to do things like
+userspace drivers, what we need is a way to express
+"there is an IOMMU but it is part of device itself, use passthrough
+ unless your driver is untrusted".
+
+> > I'm not sure what ACPI has to do with it.  It's about a way for guest
+> > users to specify whether they want to bypass an IOMMU for a given
+> > device.
+> 
+> We have no way yet to request passthrough-mode per-device from the IOMMU
+> drivers, but that can easily be added. But as I see it:
+> 
+> > By the way, a bunch of code is missing on the QEMU side
+> > to make this useful:
+> > 1. virtio ignores the iommu
+> > 2. vhost user ignores the iommu
+> > 3. dataplane ignores the iommu
+> > 4. vhost-net ignores the iommu
+> > 5. VFIO ignores the iommu
+> 
+> Qemu does not implement IOMMU translation for virtio devices anyway
+> (which is fine), so it just should tell the guest so in the ACPI table
+> built to describe the emulated IOMMU.
+> 
+> 
+> 	Joerg
+
+This is a short term limitation.
