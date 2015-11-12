@@ -1,12 +1,17 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH] paravirt: remove paravirt ops pmd_update[_defer] and
-	pte_update_defer
-Date: Tue, 17 Nov 2015 15:51:19 +0100
-Message-ID: <1447771879-1806-1-git-send-email-jgross__31825.6113132977$1447771938$gmane$org@suse.com>
+From: Felipe Franciosi <felipe@nutanix.com>
+Subject: Re: [PATCH net-next RFC V3 0/3] basic busy polling support for
+	vhost_net
+Date: Thu, 12 Nov 2015 12:02:09 +0000
+Message-ID: <F61F5796-38D7-42A0-9590-75840230A576__8679.90360497988$1447783395$gmane$org@nutanix.com>
+References: <1447323395-28052-1-git-send-email-jasowang@redhat.com>
+	<564467E9.9080409@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <564467E9.9080409@redhat.com>
+Content-Language: en-US
+Content-ID: <8C2FB08EBF4A2144893987ACA459140C@namprd02.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,198 +21,158 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, x86@kernel.org, hpa@zytor.com, tglx@linutronix.de, mingo@redhat.com, jeremy@goop.org, chrisw@sous-sol.org, akataria@vmware.com, rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org, xen-devel@lists.xen.org, konrad.wilk@oracle.com, david.vrabel@citrix.com, boris.ostrovsky@oracle.com
-Cc: Juergen Gross <jgross@suse.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-pte_update_defer can be removed as it is always set to the same
-function as pte_update. So any usage of pte_update_defer() can be
-replaced by pte_update().
+Hi Jason,
 
-pmd_update and pmd_update_defer are always set to paravirt_nop, so they
-can just be nuked.
+I understand your busy loop timeout is quite conservative at 50us. Did you try any other values?
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
- arch/x86/include/asm/paravirt.h       | 17 -----------------
- arch/x86/include/asm/paravirt_types.h |  6 ------
- arch/x86/include/asm/pgtable.h        | 15 ++-------------
- arch/x86/kernel/paravirt.c            |  3 ---
- arch/x86/lguest/boot.c                |  1 -
- arch/x86/mm/pgtable.c                 |  7 +------
- arch/x86/xen/mmu.c                    |  1 -
- 7 files changed, 3 insertions(+), 47 deletions(-)
+Also, did you measure how polling affects many VMs talking to each other (e.g. 20 VMs on each host, perhaps with several vNICs each, transmitting to a corresponding VM/vNIC pair on another host)?
 
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index 10d0596..398f068 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -375,23 +375,6 @@ static inline void pte_update(struct mm_struct *mm, unsigned long addr,
- {
- 	PVOP_VCALL3(pv_mmu_ops.pte_update, mm, addr, ptep);
- }
--static inline void pmd_update(struct mm_struct *mm, unsigned long addr,
--			      pmd_t *pmdp)
--{
--	PVOP_VCALL3(pv_mmu_ops.pmd_update, mm, addr, pmdp);
--}
--
--static inline void pte_update_defer(struct mm_struct *mm, unsigned long addr,
--				    pte_t *ptep)
--{
--	PVOP_VCALL3(pv_mmu_ops.pte_update_defer, mm, addr, ptep);
--}
--
--static inline void pmd_update_defer(struct mm_struct *mm, unsigned long addr,
--				    pmd_t *pmdp)
--{
--	PVOP_VCALL3(pv_mmu_ops.pmd_update_defer, mm, addr, pmdp);
--}
- 
- static inline pte_t __pte(pteval_t val)
- {
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 31247b5..6418541 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -274,12 +274,6 @@ struct pv_mmu_ops {
- 			   pmd_t *pmdp, pmd_t pmdval);
- 	void (*pte_update)(struct mm_struct *mm, unsigned long addr,
- 			   pte_t *ptep);
--	void (*pte_update_defer)(struct mm_struct *mm,
--				 unsigned long addr, pte_t *ptep);
--	void (*pmd_update)(struct mm_struct *mm, unsigned long addr,
--			   pmd_t *pmdp);
--	void (*pmd_update_defer)(struct mm_struct *mm,
--				 unsigned long addr, pmd_t *pmdp);
- 
- 	pte_t (*ptep_modify_prot_start)(struct mm_struct *mm, unsigned long addr,
- 					pte_t *ptep);
-diff --git a/arch/x86/include/asm/pgtable.h b/arch/x86/include/asm/pgtable.h
-index 6ec0c8b..d3eee66 100644
---- a/arch/x86/include/asm/pgtable.h
-+++ b/arch/x86/include/asm/pgtable.h
-@@ -69,9 +69,6 @@ extern struct mm_struct *pgd_page_get_mm(struct page *page);
- #define pmd_clear(pmd)			native_pmd_clear(pmd)
- 
- #define pte_update(mm, addr, ptep)              do { } while (0)
--#define pte_update_defer(mm, addr, ptep)        do { } while (0)
--#define pmd_update(mm, addr, ptep)              do { } while (0)
--#define pmd_update_defer(mm, addr, ptep)        do { } while (0)
- 
- #define pgd_val(x)	native_pgd_val(x)
- #define __pgd(x)	native_make_pgd(x)
-@@ -731,14 +728,9 @@ static inline void native_set_pmd_at(struct mm_struct *mm, unsigned long addr,
-  * updates should either be sets, clears, or set_pte_atomic for P->P
-  * transitions, which means this hook should only be called for user PTEs.
-  * This hook implies a P->P protection or access change has taken place, which
-- * requires a subsequent TLB flush.  The notification can optionally be delayed
-- * until the TLB flush event by using the pte_update_defer form of the
-- * interface, but care must be taken to assure that the flush happens while
-- * still holding the same page table lock so that the shadow and primary pages
-- * do not become out of sync on SMP.
-+ * requires a subsequent TLB flush.
-  */
- #define pte_update(mm, addr, ptep)		do { } while (0)
--#define pte_update_defer(mm, addr, ptep)	do { } while (0)
- #endif
- 
- /*
-@@ -830,9 +822,7 @@ static inline int pmd_write(pmd_t pmd)
- static inline pmd_t pmdp_huge_get_and_clear(struct mm_struct *mm, unsigned long addr,
- 				       pmd_t *pmdp)
- {
--	pmd_t pmd = native_pmdp_get_and_clear(pmdp);
--	pmd_update(mm, addr, pmdp);
--	return pmd;
-+	return native_pmdp_get_and_clear(pmdp);
- }
- 
- #define __HAVE_ARCH_PMDP_SET_WRPROTECT
-@@ -840,7 +830,6 @@ static inline void pmdp_set_wrprotect(struct mm_struct *mm,
- 				      unsigned long addr, pmd_t *pmdp)
- {
- 	clear_bit(_PAGE_BIT_RW, (unsigned long *)pmdp);
--	pmd_update(mm, addr, pmdp);
- }
- 
- /*
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index c2130ae..f601250 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -444,9 +444,6 @@ struct pv_mmu_ops pv_mmu_ops = {
- 	.set_pmd = native_set_pmd,
- 	.set_pmd_at = native_set_pmd_at,
- 	.pte_update = paravirt_nop,
--	.pte_update_defer = paravirt_nop,
--	.pmd_update = paravirt_nop,
--	.pmd_update_defer = paravirt_nop,
- 
- 	.ptep_modify_prot_start = __ptep_modify_prot_start,
- 	.ptep_modify_prot_commit = __ptep_modify_prot_commit,
-diff --git a/arch/x86/lguest/boot.c b/arch/x86/lguest/boot.c
-index a0d09f6..a1900d4 100644
---- a/arch/x86/lguest/boot.c
-+++ b/arch/x86/lguest/boot.c
-@@ -1472,7 +1472,6 @@ __init void lguest_init(void)
- 	pv_mmu_ops.lazy_mode.leave = lguest_leave_lazy_mmu_mode;
- 	pv_mmu_ops.lazy_mode.flush = paravirt_flush_lazy_mmu;
- 	pv_mmu_ops.pte_update = lguest_pte_update;
--	pv_mmu_ops.pte_update_defer = lguest_pte_update;
- 
- #ifdef CONFIG_X86_LOCAL_APIC
- 	/* APIC read/write intercepts */
-diff --git a/arch/x86/mm/pgtable.c b/arch/x86/mm/pgtable.c
-index fb0a9dd..ee9c2e3 100644
---- a/arch/x86/mm/pgtable.c
-+++ b/arch/x86/mm/pgtable.c
-@@ -414,7 +414,7 @@ int ptep_set_access_flags(struct vm_area_struct *vma,
- 
- 	if (changed && dirty) {
- 		*ptep = entry;
--		pte_update_defer(vma->vm_mm, address, ptep);
-+		pte_update(vma->vm_mm, address, ptep);
- 	}
- 
- 	return changed;
-@@ -431,7 +431,6 @@ int pmdp_set_access_flags(struct vm_area_struct *vma,
- 
- 	if (changed && dirty) {
- 		*pmdp = entry;
--		pmd_update_defer(vma->vm_mm, address, pmdp);
- 		/*
- 		 * We had a write-protection fault here and changed the pmd
- 		 * to to more permissive. No need to flush the TLB for that,
-@@ -469,9 +468,6 @@ int pmdp_test_and_clear_young(struct vm_area_struct *vma,
- 		ret = test_and_clear_bit(_PAGE_BIT_ACCESSED,
- 					 (unsigned long *)pmdp);
- 
--	if (ret)
--		pmd_update(vma->vm_mm, addr, pmdp);
--
- 	return ret;
- }
- #endif
-@@ -518,7 +514,6 @@ void pmdp_splitting_flush(struct vm_area_struct *vma,
- 	set = !test_and_set_bit(_PAGE_BIT_SPLITTING,
- 				(unsigned long *)pmdp);
- 	if (set) {
--		pmd_update(vma->vm_mm, address, pmdp);
- 		/* need tlb flush only to serialize against gup-fast */
- 		flush_tlb_range(vma, address, address + HPAGE_PMD_SIZE);
- 	}
-diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
-index ac161db..896dc14 100644
---- a/arch/x86/xen/mmu.c
-+++ b/arch/x86/xen/mmu.c
-@@ -2436,7 +2436,6 @@ static const struct pv_mmu_ops xen_mmu_ops __initconst = {
- 	.flush_tlb_others = xen_flush_tlb_others,
- 
- 	.pte_update = paravirt_nop,
--	.pte_update_defer = paravirt_nop,
- 
- 	.pgd_alloc = xen_pgd_alloc,
- 	.pgd_free = xen_pgd_free,
--- 
-2.6.2
+
+On a complete separate experiment (busy waiting on storage I/O rings on Xen), I have observed that bigger timeouts gave bigger benefits. On the other hand, all cases that contended for CPU were badly hurt with any sort of polling.
+
+The cases that contended for CPU consisted of many VMs generating workload over very fast I/O devices (in that case, several NVMe devices on a single host). And the metric that got affected was aggregate throughput from all VMs.
+
+The solution was to determine whether to poll depending on the host's overall CPU utilisation at that moment. That gave me the best of both worlds as polling made everything faster without slowing down any other metric.
+
+Thanks,
+Felipe
+
+
+
+On 12/11/2015 10:20, "kvm-owner@vger.kernel.org on behalf of Jason Wang" <kvm-owner@vger.kernel.org on behalf of jasowang@redhat.com> wrote:
+
+>
+>
+>On 11/12/2015 06:16 PM, Jason Wang wrote:
+>> Hi all:
+>>
+>> This series tries to add basic busy polling for vhost net. The idea is
+>> simple: at the end of tx/rx processing, busy polling for new tx added
+>> descriptor and rx receive socket for a while. The maximum number of
+>> time (in us) could be spent on busy polling was specified ioctl.
+>>
+>> Test were done through:
+>>
+>> - 50 us as busy loop timeout
+>> - Netperf 2.6
+>> - Two machines with back to back connected ixgbe
+>> - Guest with 1 vcpu and 1 queue
+>>
+>> Results:
+>> - For stream workload, ioexits were reduced dramatically in medium
+>>   size (1024-2048) of tx (at most -39%) and almost all rx (at most
+>>   -79%) as a result of polling. This compensate for the possible
+>>   wasted cpu cycles more or less. That porbably why we can still see
+>>   some increasing in the normalized throughput in some cases.
+>> - Throughput of tx were increased (at most 105%) expect for the huge
+>>   write (16384). And we can send more packets in the case (+tpkts were
+>>   increased).
+>> - Very minor rx regression in some cases.
+>> - Improvemnt on TCP_RR (at most 16%).
+>
+>Forget to mention, the following test results by order are:
+>
+>1) Guest TX
+>2) Guest RX
+>3) TCP_RR
+>
+>> size/session/+thu%/+normalize%/+tpkts%/+rpkts%/+ioexits%/
+>>    64/     1/   +9%/  -17%/   +5%/  +10%/   -2%
+>>    64/     2/   +8%/  -18%/   +6%/  +10%/   -1%
+>>    64/     4/   +4%/  -21%/   +6%/  +10%/   -1%
+>>    64/     8/   +9%/  -17%/   +6%/   +9%/   -2%
+>>   256/     1/  +20%/   -1%/  +15%/  +11%/   -9%
+>>   256/     2/  +15%/   -6%/  +15%/   +8%/   -8%
+>>   256/     4/  +17%/   -4%/  +16%/   +8%/   -8%
+>>   256/     8/  -61%/  -69%/  +16%/  +10%/  -10%
+>>   512/     1/  +15%/   -3%/  +19%/  +18%/  -11%
+>>   512/     2/  +19%/    0%/  +19%/  +13%/  -10%
+>>   512/     4/  +18%/   -2%/  +18%/  +15%/  -10%
+>>   512/     8/  +17%/   -1%/  +18%/  +15%/  -11%
+>>  1024/     1/  +25%/   +4%/  +27%/  +16%/  -21%
+>>  1024/     2/  +28%/   +8%/  +25%/  +15%/  -22%
+>>  1024/     4/  +25%/   +5%/  +25%/  +14%/  -21%
+>>  1024/     8/  +27%/   +7%/  +25%/  +16%/  -21%
+>>  2048/     1/  +32%/  +12%/  +31%/  +22%/  -38%
+>>  2048/     2/  +33%/  +12%/  +30%/  +23%/  -36%
+>>  2048/     4/  +31%/  +10%/  +31%/  +24%/  -37%
+>>  2048/     8/ +105%/  +75%/  +33%/  +23%/  -39%
+>> 16384/     1/    0%/  -14%/   +2%/    0%/  +19%
+>> 16384/     2/    0%/  -13%/  +19%/  -13%/  +17%
+>> 16384/     4/    0%/  -12%/   +3%/    0%/   +2%
+>> 16384/     8/    0%/  -11%/   -2%/   +1%/   +1%
+>> size/session/+thu%/+normalize%/+tpkts%/+rpkts%/+ioexits%/
+>>    64/     1/   -7%/  -23%/   +4%/   +6%/  -74%
+>>    64/     2/   -2%/  -12%/   +2%/   +2%/  -55%
+>>    64/     4/   +2%/   -5%/  +10%/   -2%/  -43%
+>>    64/     8/   -5%/   -5%/  +11%/  -34%/  -59%
+>>   256/     1/   -6%/  -16%/   +9%/  +11%/  -60%
+>>   256/     2/   +3%/   -4%/   +6%/   -3%/  -28%
+>>   256/     4/    0%/   -5%/   -9%/   -9%/  -10%
+>>   256/     8/   -3%/   -6%/  -12%/   -9%/  -40%
+>>   512/     1/   -4%/  -17%/  -10%/  +21%/  -34%
+>>   512/     2/    0%/   -9%/  -14%/   -3%/  -30%
+>>   512/     4/    0%/   -4%/  -18%/  -12%/   -4%
+>>   512/     8/   -1%/   -4%/   -1%/   -5%/   +4%
+>>  1024/     1/    0%/  -16%/  +12%/  +11%/  -10%
+>>  1024/     2/    0%/  -11%/    0%/   +5%/  -31%
+>>  1024/     4/    0%/   -4%/   -7%/   +1%/  -22%
+>>  1024/     8/   -5%/   -6%/  -17%/  -29%/  -79%
+>>  2048/     1/    0%/  -16%/   +1%/   +9%/  -10%
+>>  2048/     2/    0%/  -12%/   +7%/   +9%/  -26%
+>>  2048/     4/    0%/   -7%/   -4%/   +3%/  -64%
+>>  2048/     8/   -1%/   -5%/   -6%/   +4%/  -20%
+>> 16384/     1/    0%/  -12%/  +11%/   +7%/  -20%
+>> 16384/     2/    0%/   -7%/   +1%/   +5%/  -26%
+>> 16384/     4/    0%/   -5%/  +12%/  +22%/  -23%
+>> 16384/     8/    0%/   -1%/   -8%/   +5%/   -3%
+>> size/session/+thu%/+normalize%/+tpkts%/+rpkts%/+ioexits%/
+>>     1/     1/   +9%/  -29%/   +9%/   +9%/   +9%
+>>     1/    25/   +6%/  -18%/   +6%/   +6%/   -1%
+>>     1/    50/   +6%/  -19%/   +5%/   +5%/   -2%
+>>     1/   100/   +5%/  -19%/   +4%/   +4%/   -3%
+>>    64/     1/  +10%/  -28%/  +10%/  +10%/  +10%
+>>    64/    25/   +8%/  -18%/   +7%/   +7%/   -2%
+>>    64/    50/   +8%/  -17%/   +8%/   +8%/   -1%
+>>    64/   100/   +8%/  -17%/   +8%/   +8%/   -1%
+>>   256/     1/  +10%/  -28%/  +10%/  +10%/  +10%
+>>   256/    25/  +15%/  -13%/  +15%/  +15%/    0%
+>>   256/    50/  +16%/  -14%/  +18%/  +18%/   +2%
+>>   256/   100/  +15%/  -13%/  +12%/  +12%/   -2%
+>>
+>> Changes from V2:
+>> - poll also at the end of rx handling
+>> - factor out the polling logic and optimize the code a little bit
+>> - add two ioctls to get and set the busy poll timeout
+>> - test on ixgbe (which can give more stable and reproducable numbers)
+>>   instead of mlx4.
+>>
+>> Changes from V1:
+>> - Add a comment for vhost_has_work() to explain why it could be
+>>   lockless
+>> - Add param description for busyloop_timeout
+>> - Split out the busy polling logic into a new helper
+>> - Check and exit the loop when there's a pending signal
+>> - Disable preemption during busy looping to make sure lock_clock() was
+>>   correctly used.
+>>
+>> Jason Wang (3):
+>>   vhost: introduce vhost_has_work()
+>>   vhost: introduce vhost_vq_more_avail()
+>>   vhost_net: basic polling support
+>>
+>>  drivers/vhost/net.c        | 77 +++++++++++++++++++++++++++++++++++++++++++---
+>>  drivers/vhost/vhost.c      | 48 +++++++++++++++++++++++------
+>>  drivers/vhost/vhost.h      |  3 ++
+>>  include/uapi/linux/vhost.h | 11 +++++++
+>>  4 files changed, 125 insertions(+), 14 deletions(-)
+>>
+>
+>--
+>To unsubscribe from this list: send the line "unsubscribe kvm" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
