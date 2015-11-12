@@ -1,7 +1,8 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next RFC V3 3/3] vhost_net: basic polling support
-Date: Thu, 12 Nov 2015 18:16:35 +0800
-Message-ID: <1447323395-28052-4-git-send-email-jasowang__26635.6758344502$1447323448$gmane$org@redhat.com>
+Subject: Re: [PATCH net-next RFC V3 0/3] basic busy polling support for
+	vhost_net
+Date: Thu, 12 Nov 2015 18:20:25 +0800
+Message-ID: <564467E9.9080409@redhat.com>
 References: <1447323395-28052-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,207 +21,129 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch tries to poll for new added tx buffer or socket receive
-queue for a while at the end of tx/rx processing. The maximum time
-spent on polling were specified through a new kind of vring ioctl.
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/net.c        | 77 +++++++++++++++++++++++++++++++++++++++++++---
- drivers/vhost/vhost.c      | 15 +++++++++
- drivers/vhost/vhost.h      |  1 +
- include/uapi/linux/vhost.h | 11 +++++++
- 4 files changed, 99 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 9eda69e..a38fa32 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -287,6 +287,45 @@ static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
- 	rcu_read_unlock_bh();
- }
- 
-+static inline unsigned long busy_clock(void)
-+{
-+	return local_clock() >> 10;
-+}
-+
-+static bool vhost_can_busy_poll(struct vhost_dev *dev,
-+				unsigned long endtime)
-+{
-+	return likely(!need_resched()) &&
-+	       likely(!time_after(busy_clock(), endtime)) &&
-+	       likely(!signal_pending(current)) &&
-+	       !vhost_has_work(dev) &&
-+	       single_task_running();
-+}
-+
-+static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
-+				    struct vhost_virtqueue *vq,
-+				    struct iovec iov[], unsigned int iov_size,
-+				    unsigned int *out_num, unsigned int *in_num)
-+{
-+	unsigned long uninitialized_var(endtime);
-+
-+	if (vq->busyloop_timeout) {
-+		preempt_disable();
-+		endtime = busy_clock() + vq->busyloop_timeout;
-+	}
-+
-+	while (vq->busyloop_timeout &&
-+	       vhost_can_busy_poll(vq->dev, endtime) &&
-+	       !vhost_vq_more_avail(vq->dev, vq))
-+		cpu_relax();
-+
-+	if (vq->busyloop_timeout)
-+		preempt_enable();
-+
-+	return vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
-+				 out_num, in_num, NULL, NULL);
-+}
-+
- /* Expects to be always run from workqueue - which acts as
-  * read-size critical section for our kind of RCU. */
- static void handle_tx(struct vhost_net *net)
-@@ -331,10 +370,9 @@ static void handle_tx(struct vhost_net *net)
- 			      % UIO_MAXIOV == nvq->done_idx))
- 			break;
- 
--		head = vhost_get_vq_desc(vq, vq->iov,
--					 ARRAY_SIZE(vq->iov),
--					 &out, &in,
--					 NULL, NULL);
-+		head = vhost_net_tx_get_vq_desc(net, vq, vq->iov,
-+						ARRAY_SIZE(vq->iov),
-+						&out, &in);
- 		/* On error, stop handling until the next kick. */
- 		if (unlikely(head < 0))
- 			break;
-@@ -435,6 +473,35 @@ static int peek_head_len(struct sock *sk)
- 	return len;
- }
- 
-+static int vhost_net_peek_head_len(struct vhost_net *net, struct sock *sk)
-+{
-+	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
-+	struct vhost_virtqueue *vq = &nvq->vq;
-+	unsigned long uninitialized_var(endtime);
-+
-+	if (vq->busyloop_timeout) {
-+		mutex_lock(&vq->mutex);
-+		vhost_disable_notify(&net->dev, vq);
-+		preempt_disable();
-+		endtime = busy_clock() + vq->busyloop_timeout;
-+	}
-+
-+	while (vq->busyloop_timeout &&
-+	       vhost_can_busy_poll(&net->dev, endtime) &&
-+	       skb_queue_empty(&sk->sk_receive_queue) &&
-+	       !vhost_vq_more_avail(&net->dev, vq))
-+		cpu_relax();
-+
-+	if (vq->busyloop_timeout) {
-+		preempt_enable();
-+		if (vhost_enable_notify(&net->dev, vq))
-+			vhost_poll_queue(&vq->poll);
-+		mutex_unlock(&vq->mutex);
-+	}
-+
-+	return peek_head_len(sk);
-+}
-+
- /* This is a multi-buffer version of vhost_get_desc, that works if
-  *	vq has read descriptors only.
-  * @vq		- the relevant virtqueue
-@@ -553,7 +620,7 @@ static void handle_rx(struct vhost_net *net)
- 		vq->log : NULL;
- 	mergeable = vhost_has_feature(vq, VIRTIO_NET_F_MRG_RXBUF);
- 
--	while ((sock_len = peek_head_len(sock->sk))) {
-+	while ((sock_len = vhost_net_peek_head_len(net, sock->sk))) {
- 		sock_len += sock_hlen;
- 		vhost_len = sock_len + vhost_hlen;
- 		headcount = get_rx_bufs(vq, vq->heads, vhost_len,
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index b86c5aa..8f9a64c 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -285,6 +285,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
- 	vq->memory = NULL;
- 	vq->is_le = virtio_legacy_is_little_endian();
- 	vhost_vq_reset_user_be(vq);
-+	vq->busyloop_timeout = 0;
- }
- 
- static int vhost_worker(void *data)
-@@ -747,6 +748,7 @@ long vhost_vring_ioctl(struct vhost_dev *d, int ioctl, void __user *argp)
- 	struct vhost_vring_state s;
- 	struct vhost_vring_file f;
- 	struct vhost_vring_addr a;
-+	struct vhost_vring_busyloop_timeout t;
- 	u32 idx;
- 	long r;
- 
-@@ -919,6 +921,19 @@ long vhost_vring_ioctl(struct vhost_dev *d, int ioctl, void __user *argp)
- 	case VHOST_GET_VRING_ENDIAN:
- 		r = vhost_get_vring_endian(vq, idx, argp);
- 		break;
-+	case VHOST_SET_VRING_BUSYLOOP_TIMEOUT:
-+		if (copy_from_user(&t, argp, sizeof t)) {
-+			r = -EFAULT;
-+			break;
-+		}
-+		vq->busyloop_timeout = t.timeout;
-+		break;
-+	case VHOST_GET_VRING_BUSYLOOP_TIMEOUT:
-+		t.index = idx;
-+		t.timeout = vq->busyloop_timeout;
-+		if (copy_to_user(argp, &t, sizeof t))
-+			r = -EFAULT;
-+		break;
- 	default:
- 		r = -ENOIOCTLCMD;
- 	}
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 5983a13..90453f0 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -115,6 +115,7 @@ struct vhost_virtqueue {
- 	/* Ring endianness requested by userspace for cross-endian support. */
- 	bool user_be;
- #endif
-+	u32 busyloop_timeout;
- };
- 
- struct vhost_dev {
-diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-index ab373191..f013656 100644
---- a/include/uapi/linux/vhost.h
-+++ b/include/uapi/linux/vhost.h
-@@ -27,6 +27,11 @@ struct vhost_vring_file {
- 
- };
- 
-+struct vhost_vring_busyloop_timeout {
-+	unsigned int index;
-+	unsigned int timeout;
-+};
-+
- struct vhost_vring_addr {
- 	unsigned int index;
- 	/* Option flags. */
-@@ -126,6 +131,12 @@ struct vhost_memory {
- #define VHOST_SET_VRING_CALL _IOW(VHOST_VIRTIO, 0x21, struct vhost_vring_file)
- /* Set eventfd to signal an error */
- #define VHOST_SET_VRING_ERR _IOW(VHOST_VIRTIO, 0x22, struct vhost_vring_file)
-+/* Set busy loop timeout */
-+#define VHOST_SET_VRING_BUSYLOOP_TIMEOUT _IOW(VHOST_VIRTIO, 0x23,	\
-+		                     struct vhost_vring_busyloop_timeout)
-+/* Get busy loop timeout */
-+#define VHOST_GET_VRING_BUSYLOOP_TIMEOUT _IOW(VHOST_VIRTIO, 0x24,	\
-+		                     struct vhost_vring_busyloop_timeout)
- 
- /* VHOST_NET specific defines */
- 
--- 
-2.1.4
+On 11/12/2015 06:16 PM, Jason Wang wrote:
+> Hi all:
+>
+> This series tries to add basic busy polling for vhost net. The idea is
+> simple: at the end of tx/rx processing, busy polling for new tx added
+> descriptor and rx receive socket for a while. The maximum number of
+> time (in us) could be spent on busy polling was specified ioctl.
+>
+> Test were done through:
+>
+> - 50 us as busy loop timeout
+> - Netperf 2.6
+> - Two machines with back to back connected ixgbe
+> - Guest with 1 vcpu and 1 queue
+>
+> Results:
+> - For stream workload, ioexits were reduced dramatically in medium
+>   size (1024-2048) of tx (at most -39%) and almost all rx (at most
+>   -79%) as a result of polling. This compensate for the possible
+>   wasted cpu cycles more or less. That porbably why we can still see
+>   some increasing in the normalized throughput in some cases.
+> - Throughput of tx were increased (at most 105%) expect for the huge
+>   write (16384). And we can send more packets in the case (+tpkts were
+>   increased).
+> - Very minor rx regression in some cases.
+> - Improvemnt on TCP_RR (at most 16%).
+
+Forget to mention, the following test results by order are:
+
+1) Guest TX
+2) Guest RX
+3) TCP_RR
+
+> size/session/+thu%/+normalize%/+tpkts%/+rpkts%/+ioexits%/
+>    64/     1/   +9%/  -17%/   +5%/  +10%/   -2%
+>    64/     2/   +8%/  -18%/   +6%/  +10%/   -1%
+>    64/     4/   +4%/  -21%/   +6%/  +10%/   -1%
+>    64/     8/   +9%/  -17%/   +6%/   +9%/   -2%
+>   256/     1/  +20%/   -1%/  +15%/  +11%/   -9%
+>   256/     2/  +15%/   -6%/  +15%/   +8%/   -8%
+>   256/     4/  +17%/   -4%/  +16%/   +8%/   -8%
+>   256/     8/  -61%/  -69%/  +16%/  +10%/  -10%
+>   512/     1/  +15%/   -3%/  +19%/  +18%/  -11%
+>   512/     2/  +19%/    0%/  +19%/  +13%/  -10%
+>   512/     4/  +18%/   -2%/  +18%/  +15%/  -10%
+>   512/     8/  +17%/   -1%/  +18%/  +15%/  -11%
+>  1024/     1/  +25%/   +4%/  +27%/  +16%/  -21%
+>  1024/     2/  +28%/   +8%/  +25%/  +15%/  -22%
+>  1024/     4/  +25%/   +5%/  +25%/  +14%/  -21%
+>  1024/     8/  +27%/   +7%/  +25%/  +16%/  -21%
+>  2048/     1/  +32%/  +12%/  +31%/  +22%/  -38%
+>  2048/     2/  +33%/  +12%/  +30%/  +23%/  -36%
+>  2048/     4/  +31%/  +10%/  +31%/  +24%/  -37%
+>  2048/     8/ +105%/  +75%/  +33%/  +23%/  -39%
+> 16384/     1/    0%/  -14%/   +2%/    0%/  +19%
+> 16384/     2/    0%/  -13%/  +19%/  -13%/  +17%
+> 16384/     4/    0%/  -12%/   +3%/    0%/   +2%
+> 16384/     8/    0%/  -11%/   -2%/   +1%/   +1%
+> size/session/+thu%/+normalize%/+tpkts%/+rpkts%/+ioexits%/
+>    64/     1/   -7%/  -23%/   +4%/   +6%/  -74%
+>    64/     2/   -2%/  -12%/   +2%/   +2%/  -55%
+>    64/     4/   +2%/   -5%/  +10%/   -2%/  -43%
+>    64/     8/   -5%/   -5%/  +11%/  -34%/  -59%
+>   256/     1/   -6%/  -16%/   +9%/  +11%/  -60%
+>   256/     2/   +3%/   -4%/   +6%/   -3%/  -28%
+>   256/     4/    0%/   -5%/   -9%/   -9%/  -10%
+>   256/     8/   -3%/   -6%/  -12%/   -9%/  -40%
+>   512/     1/   -4%/  -17%/  -10%/  +21%/  -34%
+>   512/     2/    0%/   -9%/  -14%/   -3%/  -30%
+>   512/     4/    0%/   -4%/  -18%/  -12%/   -4%
+>   512/     8/   -1%/   -4%/   -1%/   -5%/   +4%
+>  1024/     1/    0%/  -16%/  +12%/  +11%/  -10%
+>  1024/     2/    0%/  -11%/    0%/   +5%/  -31%
+>  1024/     4/    0%/   -4%/   -7%/   +1%/  -22%
+>  1024/     8/   -5%/   -6%/  -17%/  -29%/  -79%
+>  2048/     1/    0%/  -16%/   +1%/   +9%/  -10%
+>  2048/     2/    0%/  -12%/   +7%/   +9%/  -26%
+>  2048/     4/    0%/   -7%/   -4%/   +3%/  -64%
+>  2048/     8/   -1%/   -5%/   -6%/   +4%/  -20%
+> 16384/     1/    0%/  -12%/  +11%/   +7%/  -20%
+> 16384/     2/    0%/   -7%/   +1%/   +5%/  -26%
+> 16384/     4/    0%/   -5%/  +12%/  +22%/  -23%
+> 16384/     8/    0%/   -1%/   -8%/   +5%/   -3%
+> size/session/+thu%/+normalize%/+tpkts%/+rpkts%/+ioexits%/
+>     1/     1/   +9%/  -29%/   +9%/   +9%/   +9%
+>     1/    25/   +6%/  -18%/   +6%/   +6%/   -1%
+>     1/    50/   +6%/  -19%/   +5%/   +5%/   -2%
+>     1/   100/   +5%/  -19%/   +4%/   +4%/   -3%
+>    64/     1/  +10%/  -28%/  +10%/  +10%/  +10%
+>    64/    25/   +8%/  -18%/   +7%/   +7%/   -2%
+>    64/    50/   +8%/  -17%/   +8%/   +8%/   -1%
+>    64/   100/   +8%/  -17%/   +8%/   +8%/   -1%
+>   256/     1/  +10%/  -28%/  +10%/  +10%/  +10%
+>   256/    25/  +15%/  -13%/  +15%/  +15%/    0%
+>   256/    50/  +16%/  -14%/  +18%/  +18%/   +2%
+>   256/   100/  +15%/  -13%/  +12%/  +12%/   -2%
+>
+> Changes from V2:
+> - poll also at the end of rx handling
+> - factor out the polling logic and optimize the code a little bit
+> - add two ioctls to get and set the busy poll timeout
+> - test on ixgbe (which can give more stable and reproducable numbers)
+>   instead of mlx4.
+>
+> Changes from V1:
+> - Add a comment for vhost_has_work() to explain why it could be
+>   lockless
+> - Add param description for busyloop_timeout
+> - Split out the busy polling logic into a new helper
+> - Check and exit the loop when there's a pending signal
+> - Disable preemption during busy looping to make sure lock_clock() was
+>   correctly used.
+>
+> Jason Wang (3):
+>   vhost: introduce vhost_has_work()
+>   vhost: introduce vhost_vq_more_avail()
+>   vhost_net: basic polling support
+>
+>  drivers/vhost/net.c        | 77 +++++++++++++++++++++++++++++++++++++++++++---
+>  drivers/vhost/vhost.c      | 48 +++++++++++++++++++++++------
+>  drivers/vhost/vhost.h      |  3 ++
+>  include/uapi/linux/vhost.h | 11 +++++++
+>  4 files changed, 125 insertions(+), 14 deletions(-)
+>
