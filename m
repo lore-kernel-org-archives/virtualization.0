@@ -1,14 +1,23 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next RFC V3 0/3] basic busy polling support for
-	vhost_net
-Date: Thu, 12 Nov 2015 18:20:25 +0800
-Message-ID: <564467E9.9080409@redhat.com>
-References: <1447323395-28052-1-git-send-email-jasowang@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
+Date: Thu, 12 Nov 2015 13:09:54 +0200
+Message-ID: <20151112124048-mutt-send-email-mst@redhat.com>
+References: <CALCETrWd7mK5bW2p_dvvjDRnqE31=ueAz5SAYKwY-PD5uZp76A@mail.gmail.com>
+	<20151029104301-mutt-send-email-mst@redhat.com>
+	<1446135536.3405.279.camel@infradead.org>
+	<20151108120627-mutt-send-email-mst@redhat.com>
+	<20151108114946.GG2255@suse.de>
+	<20151109224720-mutt-send-email-mst@redhat.com>
+	<CALCETrUKnNajtHMGarpxdVEVzbJvDr6bU88j530DVJXWrGW9bQ@mail.gmail.com>
+	<20151111111125-mutt-send-email-mst@redhat.com>
+	<CALCETrWmZaQxS3-r9jsUb3BPhdLRbRrdZWok2geHnYKaWC4YKA@mail.gmail.com>
+	<1447281027.3513.11.camel@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1447323395-28052-1-git-send-email-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1447281027.3513.11.camel@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,132 +27,111 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, KVM <kvm@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Christian Borntraeger <borntraeger@de.ibm.com>, Joerg Roedel <jroedel@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 11/12/2015 06:16 PM, Jason Wang wrote:
-> Hi all:
->
-> This series tries to add basic busy polling for vhost net. The idea is
-> simple: at the end of tx/rx processing, busy polling for new tx added
-> descriptor and rx receive socket for a while. The maximum number of
-> time (in us) could be spent on busy polling was specified ioctl.
->
-> Test were done through:
->
-> - 50 us as busy loop timeout
-> - Netperf 2.6
-> - Two machines with back to back connected ixgbe
-> - Guest with 1 vcpu and 1 queue
->
-> Results:
-> - For stream workload, ioexits were reduced dramatically in medium
->   size (1024-2048) of tx (at most -39%) and almost all rx (at most
->   -79%) as a result of polling. This compensate for the possible
->   wasted cpu cycles more or less. That porbably why we can still see
->   some increasing in the normalized throughput in some cases.
-> - Throughput of tx were increased (at most 105%) expect for the huge
->   write (16384). And we can send more packets in the case (+tpkts were
->   increased).
-> - Very minor rx regression in some cases.
-> - Improvemnt on TCP_RR (at most 16%).
-
-Forget to mention, the following test results by order are:
-
-1) Guest TX
-2) Guest RX
-3) TCP_RR
-
-> size/session/+thu%/+normalize%/+tpkts%/+rpkts%/+ioexits%/
->    64/     1/   +9%/  -17%/   +5%/  +10%/   -2%
->    64/     2/   +8%/  -18%/   +6%/  +10%/   -1%
->    64/     4/   +4%/  -21%/   +6%/  +10%/   -1%
->    64/     8/   +9%/  -17%/   +6%/   +9%/   -2%
->   256/     1/  +20%/   -1%/  +15%/  +11%/   -9%
->   256/     2/  +15%/   -6%/  +15%/   +8%/   -8%
->   256/     4/  +17%/   -4%/  +16%/   +8%/   -8%
->   256/     8/  -61%/  -69%/  +16%/  +10%/  -10%
->   512/     1/  +15%/   -3%/  +19%/  +18%/  -11%
->   512/     2/  +19%/    0%/  +19%/  +13%/  -10%
->   512/     4/  +18%/   -2%/  +18%/  +15%/  -10%
->   512/     8/  +17%/   -1%/  +18%/  +15%/  -11%
->  1024/     1/  +25%/   +4%/  +27%/  +16%/  -21%
->  1024/     2/  +28%/   +8%/  +25%/  +15%/  -22%
->  1024/     4/  +25%/   +5%/  +25%/  +14%/  -21%
->  1024/     8/  +27%/   +7%/  +25%/  +16%/  -21%
->  2048/     1/  +32%/  +12%/  +31%/  +22%/  -38%
->  2048/     2/  +33%/  +12%/  +30%/  +23%/  -36%
->  2048/     4/  +31%/  +10%/  +31%/  +24%/  -37%
->  2048/     8/ +105%/  +75%/  +33%/  +23%/  -39%
-> 16384/     1/    0%/  -14%/   +2%/    0%/  +19%
-> 16384/     2/    0%/  -13%/  +19%/  -13%/  +17%
-> 16384/     4/    0%/  -12%/   +3%/    0%/   +2%
-> 16384/     8/    0%/  -11%/   -2%/   +1%/   +1%
-> size/session/+thu%/+normalize%/+tpkts%/+rpkts%/+ioexits%/
->    64/     1/   -7%/  -23%/   +4%/   +6%/  -74%
->    64/     2/   -2%/  -12%/   +2%/   +2%/  -55%
->    64/     4/   +2%/   -5%/  +10%/   -2%/  -43%
->    64/     8/   -5%/   -5%/  +11%/  -34%/  -59%
->   256/     1/   -6%/  -16%/   +9%/  +11%/  -60%
->   256/     2/   +3%/   -4%/   +6%/   -3%/  -28%
->   256/     4/    0%/   -5%/   -9%/   -9%/  -10%
->   256/     8/   -3%/   -6%/  -12%/   -9%/  -40%
->   512/     1/   -4%/  -17%/  -10%/  +21%/  -34%
->   512/     2/    0%/   -9%/  -14%/   -3%/  -30%
->   512/     4/    0%/   -4%/  -18%/  -12%/   -4%
->   512/     8/   -1%/   -4%/   -1%/   -5%/   +4%
->  1024/     1/    0%/  -16%/  +12%/  +11%/  -10%
->  1024/     2/    0%/  -11%/    0%/   +5%/  -31%
->  1024/     4/    0%/   -4%/   -7%/   +1%/  -22%
->  1024/     8/   -5%/   -6%/  -17%/  -29%/  -79%
->  2048/     1/    0%/  -16%/   +1%/   +9%/  -10%
->  2048/     2/    0%/  -12%/   +7%/   +9%/  -26%
->  2048/     4/    0%/   -7%/   -4%/   +3%/  -64%
->  2048/     8/   -1%/   -5%/   -6%/   +4%/  -20%
-> 16384/     1/    0%/  -12%/  +11%/   +7%/  -20%
-> 16384/     2/    0%/   -7%/   +1%/   +5%/  -26%
-> 16384/     4/    0%/   -5%/  +12%/  +22%/  -23%
-> 16384/     8/    0%/   -1%/   -8%/   +5%/   -3%
-> size/session/+thu%/+normalize%/+tpkts%/+rpkts%/+ioexits%/
->     1/     1/   +9%/  -29%/   +9%/   +9%/   +9%
->     1/    25/   +6%/  -18%/   +6%/   +6%/   -1%
->     1/    50/   +6%/  -19%/   +5%/   +5%/   -2%
->     1/   100/   +5%/  -19%/   +4%/   +4%/   -3%
->    64/     1/  +10%/  -28%/  +10%/  +10%/  +10%
->    64/    25/   +8%/  -18%/   +7%/   +7%/   -2%
->    64/    50/   +8%/  -17%/   +8%/   +8%/   -1%
->    64/   100/   +8%/  -17%/   +8%/   +8%/   -1%
->   256/     1/  +10%/  -28%/  +10%/  +10%/  +10%
->   256/    25/  +15%/  -13%/  +15%/  +15%/    0%
->   256/    50/  +16%/  -14%/  +18%/  +18%/   +2%
->   256/   100/  +15%/  -13%/  +12%/  +12%/   -2%
->
-> Changes from V2:
-> - poll also at the end of rx handling
-> - factor out the polling logic and optimize the code a little bit
-> - add two ioctls to get and set the busy poll timeout
-> - test on ixgbe (which can give more stable and reproducable numbers)
->   instead of mlx4.
->
-> Changes from V1:
-> - Add a comment for vhost_has_work() to explain why it could be
->   lockless
-> - Add param description for busyloop_timeout
-> - Split out the busy polling logic into a new helper
-> - Check and exit the loop when there's a pending signal
-> - Disable preemption during busy looping to make sure lock_clock() was
->   correctly used.
->
-> Jason Wang (3):
->   vhost: introduce vhost_has_work()
->   vhost: introduce vhost_vq_more_avail()
->   vhost_net: basic polling support
->
->  drivers/vhost/net.c        | 77 +++++++++++++++++++++++++++++++++++++++++++---
->  drivers/vhost/vhost.c      | 48 +++++++++++++++++++++++------
->  drivers/vhost/vhost.h      |  3 ++
->  include/uapi/linux/vhost.h | 11 +++++++
->  4 files changed, 125 insertions(+), 14 deletions(-)
->
+T24gV2VkLCBOb3YgMTEsIDIwMTUgYXQgMTE6MzA6MjdQTSArMDEwMCwgRGF2aWQgV29vZGhvdXNl
+IHdyb3RlOgo+IE9uIFdlZCwgMjAxNS0xMS0xMSBhdCAwNzo1NiAtMDgwMCwgQW5keSBMdXRvbWly
+c2tpIHdyb3RlOgo+ID4gCj4gPiBDYW4geW91IGZsZXNoIG91dCB0aGlzIHRyaWNrPwo+ID4gCj4g
+PiBPbiB4ODYgSUlVQyB0aGUgSU9NTVUgbW9yZS1vci1sZXNzIGRlZmF1bHRzIHRvIHBhc3N0aHJv
+dWdoLiAgSWYgdGhlCj4gPiBrZXJuZWwgd2FudHMsIGl0IGNhbiBzd2l0Y2ggaXQgdG8gYSBub24t
+cGFzc3Rocm91Z2ggbW9kZS4gIE15IHBhdGNoZXMKPiA+IGNhdXNlIHRoZSB2aXJ0aW8gZHJpdmVy
+IHRvIGRvIGV4YWN0bHkgdGhpcywgZXhjZXB0IHRoYXQgdGhlIGhvc3QKPiA+IGltcGxlbWVudGF0
+aW9uIGRvZXNuJ3QgYWN0dWFsbHkgZXhpc3QgeWV0LCBzbyB0aGUgcGF0Y2hlcyB3aWxsIGluc3Rl
+YWQKPiA+IGhhdmUgbm8gcGFydGljdWxhciBlZmZlY3QuCj4gCj4gQXQgc29tZSBsZXZlbCwgeWVz
+IOKAlCB3ZSdyZSBjb21wYXRpYmxlIHdpdGggYSAxOTgyIElCTSBQQyBhbmQgdGh1cyB0aGUKPiBJ
+T01NVSBpcyBlbnRpcmVseSBkaXNhYmxlZCBhdCBib290IHVudGlsIHRoZSBrZXJuZWwgdHVybnMg
+aXQgb24g4oCUCj4gZXhjZXB0IGluIFRYVCBtb2RlIHdoZXJlIHdlIGFiYW5kb24gdGhhdCBjb21w
+YXRpYmlsaXR5Lgo+IAo+IEJ1dCBubywgdGhlIHZpcnRpbyBkcml2ZXIgaGFzICpub3RoaW5nKiB0
+byBkbyB3aXRoIHN3aXRjaGluZyB0aGUgZGV2aWNlCj4gb3V0IG9mIHBhc3N0aHJvdWdoIG1vZGUu
+IEl0IGlzIGVpdGhlciBpbiBwYXNzdGhyb3VnaCBtb2RlLCBvciBpdCBpc24ndC4KPiAKPiBJZiB0
+aGUgVk1NICpkb2Vzbid0KiBleHBvc2UgYW4gSU9NTVUgdG8gdGhlIGd1ZXN0LCBvYnZpb3VzbHkg
+dGhlCj4gZGV2aWNlcyBhcmUgaW4gcGFzc3Rocm91Z2ggbW9kZS4gSWYgdGhlIGd1ZXN0IGtlcm5l
+bCBkb2Vzbid0IGhhdmUgSU9NTVUKPiBzdXBwb3J0IGVuYWJsZWQsIHRoZW4gb2J2aW91c2x5IHRo
+ZSBkZXZpY2VzIGFyZSBpbiBwYXNzdGhyb3VnaCBtb2RlLgo+IEFuZCBpZiB0aGUgQUNQSSB0YWJs
+ZXMgZXhwb3NlZCB0byB0aGUgZ3Vlc3Qga2VybmVsICp0ZWxsKiBpdCB0aGF0IHRoZQo+IHZpcnRp
+byBkZXZpY2VzIGFyZSBub3QgYWN0dWFsbHkgYmVoaW5kIHRoZSBJT01NVSAod2hpY2ggcWVtdSBn
+ZXRzCj4gd3JvbmcpLCB0aGVuIGl0J2xsIGJlIGluIHBhc3N0aHJvdWdoIG1vZGUuCj4gCj4gSWYg
+dGhlIElPTU1VIGlzIGV4cG9zZWQsIGFuZCBlbmFibGVkLCBhbmQgdGVsbGluZyB0aGUgZ3Vlc3Qg
+a2VybmVsIHRoYXQKPiBpdCAqZG9lcyogY292ZXIgdGhlIHZpcnRpbyBkZXZpY2VzLCB0aGVuIHRo
+b3NlIHZpcnRpbyBkZXZpY2VzIHdpbGwKPiAqbm90KiBiZSBpbiBwYXNzdGhyb3VnaCBtb2RlLgoK
+VGhpcyB3ZSBuZWVkIHRvIGZpeC4gQmVjYXVzZSBpbiBtb3N0IGNvbmZpZ3VyYXRpb25zIGlmIHlv
+dSBhcmUKdXNpbmcga2VybmVsIGRyaXZlcnMsIHRoZW4geW91IGRvbid0IHdhbnQgSU9NTVUgd2l0
+aCB2aXJ0aW8sCmJ1dCBpZiB5b3UgYXJlIHVzaW5nIFZGSU8gdGhlbiB5b3UgZG8uCgpJbnRlbCdz
+IGlvbW11IGNhbiBiZSBwcm9ncmFtbWVkIHRvIHN0aWxsCmRvIGEga2luZCBvZiBwYXNzdGhyb3Vn
+aCAoMToxKSBtYXBwaW5nLCBpdCdzCmp1c3QgYSBtYXR0ZXIgb2YgZG9pbmcgdGhpcyBmb3Igdmly
+dGlvIGRldmljZXMKd2hlbiBub3QgdXNpbmcgVkZJTy4KCj4gWW91IGNob29zaW5nIHRvIHVzZSB0
+aGUgRE1BIEFQSSBpbiB0aGUgdmlydGlvIGRldmljZSBkcml2ZXJzIGluc3RlYWQgb2YKPiBiZWlu
+ZyBidWdneSwgaGFzIG5vdGhpbmcgdG8gZG8gd2l0aCB3aGV0aGVyIGl0J3MgYWN0dWFsbHkgaW4K
+PiBwYXNzdGhyb3VnaCBtb2RlIG9yIG5vdC4gV2hldGhlciBpdCdzIGluIHBhc3N0aHJvdWdoIG1v
+ZGUgb3Igbm90LCB1c2luZwo+IHRoZSBETUEgQVBJIGlzIHRlY2huaWNhbGx5IHRoZSByaWdodCB0
+aGluZyB0byBkbyDigJQgYmVjYXVzZSBpdCBzaG91bGQKPiBlaXRoZXIgKmRvKiB0aGUgdHJhbnNs
+YXRpb24sIG9yIHJldHVybiBhIDE6MSBtYXBwZWQgSU9WQSwgYXMKPiBhcHByb3ByaWF0ZS4KClJp
+Z2h0IGJ1dCBmaXJzdCB3ZSBuZWVkIHRvIGFjdHVhbGx5IG1ha2UgRE1BIEFQSSBkbyB0aGUgcmln
+aHQgdGhpbmcKYXQgbGVhc3Qgb24geDg2LHBwYyBhbmQgYXJtLgoKPiA+IE9uIHBvd2VycGMgYW5k
+IHNwYXJjLCB3ZSAqYWxyZWFkeSogc2NyZXdlZCB1cC4gIFRoZSBob3N0IGFscmVhZHkgdGVsbHMK
+PiA+IHRoZSBndWVzdCB0aGF0IHRoZXJlJ3MgYW4gSU9NTVUgYW5kIHRoYXQgaXQncyAqZW5hYmxl
+ZCogYmVjYXVzZSB0aG9zZQo+ID4gcGxhdGZvcm1zIGRvbid0IGhhdmUgc2VsZWN0aXZlIElPTU1V
+IGNvdmVyYWdlIHRoZSB3YXkgdGhhdCB4ODYgZG9lcy4KPiA+IFNvIHdlIG5lZWQgdG8gd29yayBh
+cm91bmQgaXQuCj4gCj4gTm8sIHdlIG5lZWQgaXQgb24geDg2IHRvbyBiZWNhdXNlIG9uY2Ugd2Ug
+Zml4IHRoZSB2aXJ0aW8gZGV2aWNlIGRyaXZlcgo+IGJ1ZyBhbmQgbWFrZSBpdCBzdGFydCB1c2lu
+ZyB0aGUgRE1BIEFQSSwgdGhlbiB3ZSBzdGFydCB0byB0cmlwIHVwIG9uCj4gdGhlIHFlbXUgYnVn
+IHdoZXJlIGl0IGxpZXMgYWJvdXQgd2hpY2ggZGV2aWNlcyBhcmUgY292ZXJlZCBieSB0aGUKPiBJ
+T01NVS4KPiAKPiBPZiBjb3Vyc2UsIHdlIHN0aWxsIGhhdmUgdGhhdCBzYW1lIHFlbXUgYnVnIHcu
+ci50LiBhc3NpZ25lZCBkZXZpY2VzLAo+IHdoaWNoIGl0ICphbHNvKiBjbGFpbXMgYXJlIGJlaGlu
+ZCBpdHMgSU9NTVUgd2hlbiB0aGV5J3JlIG5vdC4uLgoKSSdtIG5vdCB3b3JyaWVkIGFib3V0IHFl
+bXUgYnVncyB0aGF0IG11Y2guICBJIGFtIGludGVyZXN0ZWQgaW4gYmVpbmcKYWJsZSB0byB1c2Ug
+Ym90aCBWRklPIGFuZCBrZXJuZWwgZHJpdmVycyB3aXRoIHZpcnRpbyBkZXZpY2VzIHdpdGggZ29v
+ZApwZXJmb3JtYW5jZSBhbmQgd2l0aG91dCB0d2Vha2luZyBrZXJuZWwgcGFyYW1ldGVycy4KCgo+
+ID4gSSB0aGluayB0aGF0LCBpZiB3ZSB3YW50IGZhbmN5IHZpcnQtZnJpZW5kbHkgSU9NTVUgc3R1
+ZmYgbGlrZSB5b3UncmUKPiA+IHRhbGtpbmcgYWJvdXQsIHRoZW4gdGhlIHJpZ2h0IHRoaW5nIHRv
+IGRvIGlzIHRvIGNyZWF0ZSBhIHZpcnRpbyBidXMKPiA+IGluc3RlYWQgb2YgcHJldGVuZGluZyB0
+byBiZSBQQ0kuICBUaGF0IGJ1cyBjb3VsZCBoYXZlIGEgdmlydGlvIElPTU1VCj4gPiBhbmQgaXRz
+IG93biBjcm9zcy1wbGF0Zm9ybSBlbnVtZXJhdGlvbiBtZWNoYW5pc20gZm9yIGRldmljZXMgb24g
+dGhlCj4gPiBidXMsIGFuZCBldmVyeXRoaW5nIHdvdWxkIGJlIHBlYWNoeS4KPiAKPiBUaGF0IGRv
+ZXNuJ3QgcmVhbGx5IGhlbHAgdmVyeSBtdWNoIGZvciB0aGUgeDg2IGNhc2Ugd2hlcmUgdGhlIHBy
+b2JsZW0KPiBpcyBjb21wYXRpYmlsaXR5IHdpdGggKmV4aXN0aW5nKiAoYXJndWFibHkgYnJva2Vu
+KSBxZW11Cj4gaW1wbGVtZW50YXRpb25zLgo+IAo+IEhhdmluZyBzYWlkIHRoYXQsIGlmIHRoaXMg
+d2VyZSByZWFsIGhhcmR3YXJlIEknZCBqdXN0IGJlIGJsYWNrbGlzdGluZwo+IGl0IGFuZCBzYXlp
+bmcgIkFub3RoZXIgQklPUyB3aXRoIGJyb2tlbiBETUFSIHRhYmxlcyAtLT4gSU9NTVUKPiBjb21w
+bGV0ZWx5IGRpc2FibGVkIi4gU28gcGVyaGFwcyB3ZSBzaG91bGQganVzdCBkbyB0aGF0Lgo+IAoK
+WWVzLCBvbmNlIHRoZXJlIGlzIG5ldyBRRU1VIHdoZXJlIHZpcnRpbyBpcyBjb3ZlcmVkIGJ5IHRo
+ZSBJT01NVSwKdGhhdCB3b3VsZCBiZSBvbmUgd2F5IHRvIGFkZHJlc3MgZXhpc3RpbmcgUUVNVSBi
+dWdzLiAKCj4gPiBJIHN0aWxsIGRvbid0IHVuZGVyc3RhbmQgd2hhdCB0cmljay4gIElmIHdlIHdh
+bnQgdmlydGlvIGRldmljZXMgdG8gYmUKPiA+IGFzc2lnbmFibGUsIHRoZW4gdGhleSBzaG91bGQg
+YmUgdHJhbnNsYXRlZCB0aHJvdWdoIHRoZSBJT01NVSwgYW5kIHRoZQo+ID4gRE1BIEFQSSBpcyB0
+aGUgcmlnaHQgaW50ZXJmYWNlIGZvciB0aGF0Lgo+IAo+IFRoZSBETUEgQVBJIGlzIHRoZSByaWdo
+dCBpbnRlcmZhY2UgKnJlZ2FyZGxlc3MqIG9mIHdoZXRoZXIgdGhlcmUncwo+IGFjdHVhbCB0cmFu
+c2xhdGlvbiB0byBiZSBkb25lLiBUaGUgZGV2aWNlIGRyaXZlciBpdHNlbGYgc2hvdWxkIG5vdCBi
+ZQo+IGludm9sdmVkIGluIGFueSB3YXkgd2l0aCB0aGF0IGRlY2lzaW9uLgoKV2l0aCB2aXJ0LCBl
+YWNoIGRldmljZSBjYW4gaGF2ZSBkaWZmZXJlbnQgcHJpdmVsZWRnZXM6CnNvbWUgYXJlIHBhcnQg
+b2YgaHlwZXJ2aXNvciBzbyB3aXRoIGEga2VybmVsIGRyaXZlcgp0cnlpbmcgdG8gZ2V0IHByb3Rl
+Y3Rpb24gZnJvbSB0aGVtIHVzaW5nIGFuIElPTU1VIHdoaWNoIGlzIGFsc28KcGFydCBvZiBoeXBl
+cnZpc29yIG1ha2VzIG5vIHNlbnNlIC0gYnV0IHdoZW4gdXNpbmcgYQp1c2Vyc3BhY2UgZHJpdmVy
+IHRoZW4gZ2V0dGluZyBwcm90ZWN0aW9uIGZyb20gdGhlIHVzZXJzcGFjZQpkcml2ZXIgZG9lcyBt
+YWtlIHNlbnNlLiBPdGhlcnMgYXJlIHJlYWwgZGV2aWNlcyBzbwpnZXR0aW5nIHByb3RlY3Rpb24g
+ZnJvbSB0aGVtIG1ha2VzIHNvbWUgc2Vuc2UuCgpXaGljaCBpcyB3aGljaD8gSXQncyBlYXNpZXN0
+IGZvciB0aGUgZGV2aWNlIGRyaXZlciBpdHNlbGYgdG8KZ2FpbiB0aGF0IGtub3dsZWRnZS4gUGxl
+YXNlIG5vdGUgdGhpcyBpcyAqbm90KiB0aGUgc2FtZQpxdWVzdGlvbiBhcyB3aGV0aGVyIGEgc3Bl
+Y2lmaWMgZGV2aWNlIGlzIGNvdmVyZWQgYnkgYW4gSU9NTVUuCgo+IFdoZW4geW91IHdhbnQgdG8g
+YWNjZXNzIE1NSU8sIHlvdSB1c2UgaW9yZW1hcCgpIGFuZCB3cml0ZWwoKSBpbnN0ZWFkIG9mCj4g
+ZG9pbmcgcmFuZG9tIGNyYXAgZm9yIHlvdXJzZWxmLiBXaGVuIHlvdSB3YW50IERNQSwgeW91IHVz
+ZSB0aGUgRE1BIEFQSQo+IHRvIGdldCBhIGJ1cyBhZGRyZXNzIGZvciB5b3VyIGRldmljZSAqZXZl
+biogaWYgeW91IGV4cGVjdCB0aGVyZSB0byBiZQo+IG5vIElPTU1VIGFuZCB5b3UgZXhwZWN0IGl0
+IHRvIHByZWNpc2VseSBtYXRjaCB0aGUgcGh5c2ljYWwgYWRkcmVzcy4gTm8KPiBleGN1c2VzLgoK
+Tm8gcHJvYmxlbSwgYnV0IHRoZSBmYWN0IHJlbWFpbnMgdGhhdCB2aXJ0aW8gZG9lcyBuZWVkCnBl
+ci1kZXZpY2UgY29udHJvbCBvdmVyIHdoZXRoZXIgaXQncyBwYXNzdGhyb3VnaCBvciBub3QuCgpG
+b3JnZXQgdGhlIGJ1Z3MsIHRoYXQncyBub3QgdGhlIGlzc3VlIC0gdGhlIGlzc3VlIGlzCnRoYXQg
+aXQncyBzb21ldGltZXMgcGFydCBvZiBoeXBlcnZpc29yIGFuZApzb21ldGltZXMgaXNuJ3QuCgpX
+ZSBqdXN0IGNhbid0IHNheSBpdCdzIGFsd2F5cyBub3QgYSBwYXJ0IG9mIGh5cGVydmlzb3Igc28g
+eW91IGFsd2F5cwp3YW50IG1heGltdW0gcHJvdGVjdGlvbiAtIHRoYXQgZHJvcHMgcGVyZm9ybWFu
+Y2UgYnkgdG8gdGhlIGZsb29yLgoKTGludXggZG9lc24ndCBzZWVtIHRvIHN1cHBvcnQgdGhhdCB1
+c2VjYXNlIGF0IHRoZSBtb21lbnQsIGlmIHRoaXMgaXMgYQpnZW5lcmljIHByb2JsZW0gdGhlbiB3
+ZSBuZWVkIHRvIHRlYWNoIExpbnV4IHRvIHNvbHZlIGl0LCBidXQgaWYgdmlydGlvCmlzIHVuaXF1
+ZSBpbiB0aGlzIHJlcXVpcmVtZW50LCB0aGVuIHdlIHNob3VsZCBqdXN0IGtlZXAgZG9pbmcgdmly
+dGlvCnNwZWNpZmljIHRoaW5ncyB0byBzb2x2ZSBpdC4KCgo+IC0tIAo+IGR3bXcyCj4gCj4gCgoK
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6
+YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24u
+b3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3Zp
+cnR1YWxpemF0aW9u
