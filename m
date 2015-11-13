@@ -1,14 +1,16 @@
-From: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Subject: Re: [PATCH] vhost: move is_le setup to the backend
-Date: Thu, 12 Nov 2015 15:28:19 +0100
-Message-ID: <20151112152819.78eb1b4d@bahia.local>
-References: <20151030114235.28847.63465.stgit@bahia.huguette.org>
-	<20151112154610-mutt-send-email-mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next RFC V3 0/3] basic busy polling support for
+	vhost_net
+Date: Fri, 13 Nov 2015 17:20:51 +0800
+Message-ID: <5645AB73.7060808@redhat.com>
+References: <1447323395-28052-1-git-send-email-jasowang@redhat.com>
+	<564467E9.9080409@redhat.com>
+	<F61F5796-38D7-42A0-9590-75840230A576@nutanix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20151112154610-mutt-send-email-mst@redhat.com>
+In-Reply-To: <F61F5796-38D7-42A0-9590-75840230A576@nutanix.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,138 +20,155 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Felipe Franciosi <felipe@nutanix.com>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 12 Nov 2015 15:46:30 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> On Fri, Oct 30, 2015 at 12:42:35PM +0100, Greg Kurz wrote:
-> > The vq->is_le field is used to fix endianness when accessing the vring via
-> > the cpu_to_vhost16() and vhost16_to_cpu() helpers in the following cases:
-> > 
-> > 1) host is big endian and device is modern virtio
-> > 
-> > 2) host has cross-endian support and device is legacy virtio with a different
-> >    endianness than the host
-> > 
-> > Both cases rely on the VHOST_SET_FEATURES ioctl, but 2) also needs the
-> > VHOST_SET_VRING_ENDIAN ioctl to be called by userspace. Since vq->is_le
-> > is only needed when the backend is active, it was decided to set it at
-> > backend start.
-> > 
-> > This is currently done in vhost_init_used()->vhost_init_is_le() but it
-> > obfuscates the core vhost code. This patch moves the is_le setup to a
-> > dedicated function that is called from the backend code.
-> > 
-> > Note vhost_net is the only backend that can pass vq->private_data == NULL to
-> > vhost_init_used(), hence the "if (sock)" branch.
-> > 
-> > No behaviour change.
-> > 
-> > Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
-> 
-> I plan to look at this next week, busy with QEMU 2.5 now.
-> 
-
-I don't have any deadline for this since this is only a cleanup tentative.
-
-Thanks.
-
-> > ---
-> >  drivers/vhost/net.c   |    6 ++++++
-> >  drivers/vhost/scsi.c  |    3 +++
-> >  drivers/vhost/test.c  |    2 ++
-> >  drivers/vhost/vhost.c |   12 +++++++-----
-> >  drivers/vhost/vhost.h |    1 +
-> >  5 files changed, 19 insertions(+), 5 deletions(-)
-> > 
-> > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> > index 9eda69e40678..d6319cb2664c 100644
-> > --- a/drivers/vhost/net.c
-> > +++ b/drivers/vhost/net.c
-> > @@ -917,6 +917,12 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
-> >  
-> >  		vhost_net_disable_vq(n, vq);
-> >  		vq->private_data = sock;
-> > +
-> > +		if (sock)
-> > +			vhost_set_is_le(vq);
-> > +		else
-> > +			vq->is_le = virtio_legacy_is_little_endian();
-> > +
-> >  		r = vhost_init_used(vq);
-> >  		if (r)
-> >  			goto err_used;
-> > diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-> > index e25a23692822..e2644a301fa5 100644
-> > --- a/drivers/vhost/scsi.c
-> > +++ b/drivers/vhost/scsi.c
-> > @@ -1276,6 +1276,9 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
-> >  			vq = &vs->vqs[i].vq;
-> >  			mutex_lock(&vq->mutex);
-> >  			vq->private_data = vs_tpg;
-> > +
-> > +			vhost_set_is_le(vq);
-> > +
-> >  			vhost_init_used(vq);
-> >  			mutex_unlock(&vq->mutex);
-> >  		}
-> > diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
-> > index f2882ac98726..b1c7df502211 100644
-> > --- a/drivers/vhost/test.c
-> > +++ b/drivers/vhost/test.c
-> > @@ -196,6 +196,8 @@ static long vhost_test_run(struct vhost_test *n, int test)
-> >  		oldpriv = vq->private_data;
-> >  		vq->private_data = priv;
-> >  
-> > +		vhost_set_is_le(vq);
-> > +
-> >  		r = vhost_init_used(&n->vqs[index]);
-> >  
-> >  		mutex_unlock(&vq->mutex);
-> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > index eec2f11809ff..6be863dcbd13 100644
-> > --- a/drivers/vhost/vhost.c
-> > +++ b/drivers/vhost/vhost.c
-> > @@ -113,6 +113,12 @@ static void vhost_init_is_le(struct vhost_virtqueue *vq)
-> >  }
-> >  #endif /* CONFIG_VHOST_CROSS_ENDIAN_LEGACY */
-> >  
-> > +void vhost_set_is_le(struct vhost_virtqueue *vq)
-> > +{
-> > +	vhost_init_is_le(vq);
-> > +}
-> > +EXPORT_SYMBOL_GPL(vhost_set_is_le);
-> > +
-> >  static void vhost_poll_func(struct file *file, wait_queue_head_t *wqh,
-> >  			    poll_table *pt)
-> >  {
-> > @@ -1156,12 +1162,8 @@ int vhost_init_used(struct vhost_virtqueue *vq)
-> >  {
-> >  	__virtio16 last_used_idx;
-> >  	int r;
-> > -	if (!vq->private_data) {
-> > -		vq->is_le = virtio_legacy_is_little_endian();
-> > +	if (!vq->private_data)
-> >  		return 0;
-> > -	}
-> > -
-> > -	vhost_init_is_le(vq);
-> >  
-> >  	r = vhost_update_used_flags(vq);
-> >  	if (r)
-> > diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> > index 4772862b71a7..8a62041959fe 100644
-> > --- a/drivers/vhost/vhost.h
-> > +++ b/drivers/vhost/vhost.h
-> > @@ -162,6 +162,7 @@ bool vhost_enable_notify(struct vhost_dev *, struct vhost_virtqueue *);
-> >  
-> >  int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
-> >  		    unsigned int log_num, u64 len);
-> > +void vhost_set_is_le(struct vhost_virtqueue *vq);
-> >  
-> >  #define vq_err(vq, fmt, ...) do {                                  \
-> >  		pr_debug(pr_fmt(fmt), ##__VA_ARGS__);       \
-> 
+CgpPbiAxMS8xMi8yMDE1IDA4OjAyIFBNLCBGZWxpcGUgRnJhbmNpb3NpIHdyb3RlOgo+IEhpIEph
+c29uLAo+Cj4gSSB1bmRlcnN0YW5kIHlvdXIgYnVzeSBsb29wIHRpbWVvdXQgaXMgcXVpdGUgY29u
+c2VydmF0aXZlIGF0IDUwdXMuIERpZCB5b3UgdHJ5IGFueSBvdGhlciB2YWx1ZXM/CgpJJ3ZlIGFs
+c28gdHJpZWQgMjB1cy4gQW5kIHJlc3VsdHMgc2hvd3MgNTB1cyB3YXMgYmV0dGVyIGluOgoKLSB2
+ZXJ5IHNtYWxsIHBhY2tldCB0eCAoZS5nIDY0Ynl0ZXMgYXQgbW9zdCA0NiUgaW1wcm92ZW1lbnQp
+Ci0gVENQX1JSIChhdCBtb3N0IDExJSBpbXByb3ZlbWVudCkKCkJ1dCBJIHdpbGwgdGVzdCBiaWdn
+ZXIgdmFsdWVzLiBJbiBmYWN0LCBmb3IgbmV0IGl0c2VsZiwgd2UgY2FuIGJlIGV2ZW4KbW9yZSBh
+Z2dyZXNzaXZlOiBtYWtlIHZob3N0IHBvbGwgZm9yZXZlciBidXQgSSBoYXZlbid0IHRpcmVkIHRo
+aXMuCgo+Cj4gQWxzbywgZGlkIHlvdSBtZWFzdXJlIGhvdyBwb2xsaW5nIGFmZmVjdHMgbWFueSBW
+TXMgdGFsa2luZyB0byBlYWNoIG90aGVyIChlLmcuIDIwIFZNcyBvbiBlYWNoIGhvc3QsIHBlcmhh
+cHMgd2l0aCBzZXZlcmFsIHZOSUNzIGVhY2gsIHRyYW5zbWl0dGluZyB0byBhIGNvcnJlc3BvbmRp
+bmcgVk0vdk5JQyBwYWlyIG9uIGFub3RoZXIgaG9zdCk/CgpOb3QgeWV0LCBpbiBteSB0b2RvIGxp
+c3QuCgo+Cj4KPiBPbiBhIGNvbXBsZXRlIHNlcGFyYXRlIGV4cGVyaW1lbnQgKGJ1c3kgd2FpdGlu
+ZyBvbiBzdG9yYWdlIEkvTyByaW5ncyBvbiBYZW4pLCBJIGhhdmUgb2JzZXJ2ZWQgdGhhdCBiaWdn
+ZXIgdGltZW91dHMgZ2F2ZSBiaWdnZXIgYmVuZWZpdHMuIE9uIHRoZSBvdGhlciBoYW5kLCBhbGwg
+Y2FzZXMgdGhhdCBjb250ZW5kZWQgZm9yIENQVSB3ZXJlIGJhZGx5IGh1cnQgd2l0aCBhbnkgc29y
+dCBvZiBwb2xsaW5nLgo+Cj4gVGhlIGNhc2VzIHRoYXQgY29udGVuZGVkIGZvciBDUFUgY29uc2lz
+dGVkIG9mIG1hbnkgVk1zIGdlbmVyYXRpbmcgd29ya2xvYWQgb3ZlciB2ZXJ5IGZhc3QgSS9PIGRl
+dmljZXMgKGluIHRoYXQgY2FzZSwgc2V2ZXJhbCBOVk1lIGRldmljZXMgb24gYSBzaW5nbGUgaG9z
+dCkuIEFuZCB0aGUgbWV0cmljIHRoYXQgZ290IGFmZmVjdGVkIHdhcyBhZ2dyZWdhdGUgdGhyb3Vn
+aHB1dCBmcm9tIGFsbCBWTXMuCj4KPiBUaGUgc29sdXRpb24gd2FzIHRvIGRldGVybWluZSB3aGV0
+aGVyIHRvIHBvbGwgZGVwZW5kaW5nIG9uIHRoZSBob3N0J3Mgb3ZlcmFsbCBDUFUgdXRpbGlzYXRp
+b24gYXQgdGhhdCBtb21lbnQuIFRoYXQgZ2F2ZSBtZSB0aGUgYmVzdCBvZiBib3RoIHdvcmxkcyBh
+cyBwb2xsaW5nIG1hZGUgZXZlcnl0aGluZyBmYXN0ZXIgd2l0aG91dCBzbG93aW5nIGRvd24gYW55
+IG90aGVyIG1ldHJpYy4KCllvdSBtZWFuIGEgdGhyZXNob2xkIGFuZCBleGl0IHBvbGxpbmcgd2hl
+biBpdCBleGNlZWRzIHRoaXM/IEkgdXNlIGEKc2ltcGxlciBtZXRob2Q6IGp1c3QgZXhpdCB0aGUg
+YnVzeSBsb29wIHdoZW4gdGhlcmUncyBtb3JlIHRoYW4gb25lCnByb2Nlc3NlcyBpcyBpbiBydW5u
+aW5nIHN0YXRlLiBJIHRlc3QgdGhpcyBtZXRob2QgaW4gdGhlIHBhc3QgZm9yIHNvY2tldApidXN5
+IHJlYWQgKGh0dHA6Ly93d3cuZ29zc2FtZXItdGhyZWFkcy5jb20vbGlzdHMvbGludXgva2VybmVs
+LzE5OTc1MzEpCndoaWNoIHNlZW1zIGNhbiBzb2x2ZSB0aGUgaXNzdWUuIEJ1dCBoYXZlbid0IHRl
+c3RlZCB0aGlzIGZvciB2aG9zdApwb2xsaW5nLiBXaWxsIHJ1biBzb21lIHNpbXBsZSB0ZXN0IChl
+LmcgcGluIHR3byB2aG9zdCB0aHJlYWRzIGluIG9uZQpob3N0IGNwdSksIGFuZCBzZWUgaG93IHdl
+bGwgaXQgcGVyZm9ybS4KClRoYW5rcwoKPgo+IFRoYW5rcywKPiBGZWxpcGUKPgo+Cj4KPiBPbiAx
+Mi8xMS8yMDE1IDEwOjIwLCAia3ZtLW93bmVyQHZnZXIua2VybmVsLm9yZyBvbiBiZWhhbGYgb2Yg
+SmFzb24gV2FuZyIgPGt2bS1vd25lckB2Z2VyLmtlcm5lbC5vcmcgb24gYmVoYWxmIG9mIGphc293
+YW5nQHJlZGhhdC5jb20+IHdyb3RlOgo+Cj4+Cj4+IE9uIDExLzEyLzIwMTUgMDY6MTYgUE0sIEph
+c29uIFdhbmcgd3JvdGU6Cj4+PiBIaSBhbGw6Cj4+Pgo+Pj4gVGhpcyBzZXJpZXMgdHJpZXMgdG8g
+YWRkIGJhc2ljIGJ1c3kgcG9sbGluZyBmb3Igdmhvc3QgbmV0LiBUaGUgaWRlYSBpcwo+Pj4gc2lt
+cGxlOiBhdCB0aGUgZW5kIG9mIHR4L3J4IHByb2Nlc3NpbmcsIGJ1c3kgcG9sbGluZyBmb3IgbmV3
+IHR4IGFkZGVkCj4+PiBkZXNjcmlwdG9yIGFuZCByeCByZWNlaXZlIHNvY2tldCBmb3IgYSB3aGls
+ZS4gVGhlIG1heGltdW0gbnVtYmVyIG9mCj4+PiB0aW1lIChpbiB1cykgY291bGQgYmUgc3BlbnQg
+b24gYnVzeSBwb2xsaW5nIHdhcyBzcGVjaWZpZWQgaW9jdGwuCj4+Pgo+Pj4gVGVzdCB3ZXJlIGRv
+bmUgdGhyb3VnaDoKPj4+Cj4+PiAtIDUwIHVzIGFzIGJ1c3kgbG9vcCB0aW1lb3V0Cj4+PiAtIE5l
+dHBlcmYgMi42Cj4+PiAtIFR3byBtYWNoaW5lcyB3aXRoIGJhY2sgdG8gYmFjayBjb25uZWN0ZWQg
+aXhnYmUKPj4+IC0gR3Vlc3Qgd2l0aCAxIHZjcHUgYW5kIDEgcXVldWUKPj4+Cj4+PiBSZXN1bHRz
+Ogo+Pj4gLSBGb3Igc3RyZWFtIHdvcmtsb2FkLCBpb2V4aXRzIHdlcmUgcmVkdWNlZCBkcmFtYXRp
+Y2FsbHkgaW4gbWVkaXVtCj4+PiAgIHNpemUgKDEwMjQtMjA0OCkgb2YgdHggKGF0IG1vc3QgLTM5
+JSkgYW5kIGFsbW9zdCBhbGwgcnggKGF0IG1vc3QKPj4+ICAgLTc5JSkgYXMgYSByZXN1bHQgb2Yg
+cG9sbGluZy4gVGhpcyBjb21wZW5zYXRlIGZvciB0aGUgcG9zc2libGUKPj4+ICAgd2FzdGVkIGNw
+dSBjeWNsZXMgbW9yZSBvciBsZXNzLiBUaGF0IHBvcmJhYmx5IHdoeSB3ZSBjYW4gc3RpbGwgc2Vl
+Cj4+PiAgIHNvbWUgaW5jcmVhc2luZyBpbiB0aGUgbm9ybWFsaXplZCB0aHJvdWdocHV0IGluIHNv
+bWUgY2FzZXMuCj4+PiAtIFRocm91Z2hwdXQgb2YgdHggd2VyZSBpbmNyZWFzZWQgKGF0IG1vc3Qg
+MTA1JSkgZXhwZWN0IGZvciB0aGUgaHVnZQo+Pj4gICB3cml0ZSAoMTYzODQpLiBBbmQgd2UgY2Fu
+IHNlbmQgbW9yZSBwYWNrZXRzIGluIHRoZSBjYXNlICgrdHBrdHMgd2VyZQo+Pj4gICBpbmNyZWFz
+ZWQpLgo+Pj4gLSBWZXJ5IG1pbm9yIHJ4IHJlZ3Jlc3Npb24gaW4gc29tZSBjYXNlcy4KPj4+IC0g
+SW1wcm92ZW1udCBvbiBUQ1BfUlIgKGF0IG1vc3QgMTYlKS4KPj4gRm9yZ2V0IHRvIG1lbnRpb24s
+IHRoZSBmb2xsb3dpbmcgdGVzdCByZXN1bHRzIGJ5IG9yZGVyIGFyZToKPj4KPj4gMSkgR3Vlc3Qg
+VFgKPj4gMikgR3Vlc3QgUlgKPj4gMykgVENQX1JSCj4+Cj4+PiBzaXplL3Nlc3Npb24vK3RodSUv
+K25vcm1hbGl6ZSUvK3Rwa3RzJS8rcnBrdHMlLytpb2V4aXRzJS8KPj4+ICAgIDY0LyAgICAgMS8g
+ICArOSUvICAtMTclLyAgICs1JS8gICsxMCUvICAgLTIlCj4+PiAgICA2NC8gICAgIDIvICAgKzgl
+LyAgLTE4JS8gICArNiUvICArMTAlLyAgIC0xJQo+Pj4gICAgNjQvICAgICA0LyAgICs0JS8gIC0y
+MSUvICAgKzYlLyAgKzEwJS8gICAtMSUKPj4+ICAgIDY0LyAgICAgOC8gICArOSUvICAtMTclLyAg
+ICs2JS8gICArOSUvICAgLTIlCj4+PiAgIDI1Ni8gICAgIDEvICArMjAlLyAgIC0xJS8gICsxNSUv
+ICArMTElLyAgIC05JQo+Pj4gICAyNTYvICAgICAyLyAgKzE1JS8gICAtNiUvICArMTUlLyAgICs4
+JS8gICAtOCUKPj4+ICAgMjU2LyAgICAgNC8gICsxNyUvICAgLTQlLyAgKzE2JS8gICArOCUvICAg
+LTglCj4+PiAgIDI1Ni8gICAgIDgvICAtNjElLyAgLTY5JS8gICsxNiUvICArMTAlLyAgLTEwJQo+
+Pj4gICA1MTIvICAgICAxLyAgKzE1JS8gICAtMyUvICArMTklLyAgKzE4JS8gIC0xMSUKPj4+ICAg
+NTEyLyAgICAgMi8gICsxOSUvICAgIDAlLyAgKzE5JS8gICsxMyUvICAtMTAlCj4+PiAgIDUxMi8g
+ICAgIDQvICArMTglLyAgIC0yJS8gICsxOCUvICArMTUlLyAgLTEwJQo+Pj4gICA1MTIvICAgICA4
+LyAgKzE3JS8gICAtMSUvICArMTglLyAgKzE1JS8gIC0xMSUKPj4+ICAxMDI0LyAgICAgMS8gICsy
+NSUvICAgKzQlLyAgKzI3JS8gICsxNiUvICAtMjElCj4+PiAgMTAyNC8gICAgIDIvICArMjglLyAg
+ICs4JS8gICsyNSUvICArMTUlLyAgLTIyJQo+Pj4gIDEwMjQvICAgICA0LyAgKzI1JS8gICArNSUv
+ICArMjUlLyAgKzE0JS8gIC0yMSUKPj4+ICAxMDI0LyAgICAgOC8gICsyNyUvICAgKzclLyAgKzI1
+JS8gICsxNiUvICAtMjElCj4+PiAgMjA0OC8gICAgIDEvICArMzIlLyAgKzEyJS8gICszMSUvICAr
+MjIlLyAgLTM4JQo+Pj4gIDIwNDgvICAgICAyLyAgKzMzJS8gICsxMiUvICArMzAlLyAgKzIzJS8g
+IC0zNiUKPj4+ICAyMDQ4LyAgICAgNC8gICszMSUvICArMTAlLyAgKzMxJS8gICsyNCUvICAtMzcl
+Cj4+PiAgMjA0OC8gICAgIDgvICsxMDUlLyAgKzc1JS8gICszMyUvICArMjMlLyAgLTM5JQo+Pj4g
+MTYzODQvICAgICAxLyAgICAwJS8gIC0xNCUvICAgKzIlLyAgICAwJS8gICsxOSUKPj4+IDE2Mzg0
+LyAgICAgMi8gICAgMCUvICAtMTMlLyAgKzE5JS8gIC0xMyUvICArMTclCj4+PiAxNjM4NC8gICAg
+IDQvICAgIDAlLyAgLTEyJS8gICArMyUvICAgIDAlLyAgICsyJQo+Pj4gMTYzODQvICAgICA4LyAg
+ICAwJS8gIC0xMSUvICAgLTIlLyAgICsxJS8gICArMSUKPj4+IHNpemUvc2Vzc2lvbi8rdGh1JS8r
+bm9ybWFsaXplJS8rdHBrdHMlLytycGt0cyUvK2lvZXhpdHMlLwo+Pj4gICAgNjQvICAgICAxLyAg
+IC03JS8gIC0yMyUvICAgKzQlLyAgICs2JS8gIC03NCUKPj4+ICAgIDY0LyAgICAgMi8gICAtMiUv
+ICAtMTIlLyAgICsyJS8gICArMiUvICAtNTUlCj4+PiAgICA2NC8gICAgIDQvICAgKzIlLyAgIC01
+JS8gICsxMCUvICAgLTIlLyAgLTQzJQo+Pj4gICAgNjQvICAgICA4LyAgIC01JS8gICAtNSUvICAr
+MTElLyAgLTM0JS8gIC01OSUKPj4+ICAgMjU2LyAgICAgMS8gICAtNiUvICAtMTYlLyAgICs5JS8g
+ICsxMSUvICAtNjAlCj4+PiAgIDI1Ni8gICAgIDIvICAgKzMlLyAgIC00JS8gICArNiUvICAgLTMl
+LyAgLTI4JQo+Pj4gICAyNTYvICAgICA0LyAgICAwJS8gICAtNSUvICAgLTklLyAgIC05JS8gIC0x
+MCUKPj4+ICAgMjU2LyAgICAgOC8gICAtMyUvICAgLTYlLyAgLTEyJS8gICAtOSUvICAtNDAlCj4+
+PiAgIDUxMi8gICAgIDEvICAgLTQlLyAgLTE3JS8gIC0xMCUvICArMjElLyAgLTM0JQo+Pj4gICA1
+MTIvICAgICAyLyAgICAwJS8gICAtOSUvICAtMTQlLyAgIC0zJS8gIC0zMCUKPj4+ICAgNTEyLyAg
+ICAgNC8gICAgMCUvICAgLTQlLyAgLTE4JS8gIC0xMiUvICAgLTQlCj4+PiAgIDUxMi8gICAgIDgv
+ICAgLTElLyAgIC00JS8gICAtMSUvICAgLTUlLyAgICs0JQo+Pj4gIDEwMjQvICAgICAxLyAgICAw
+JS8gIC0xNiUvICArMTIlLyAgKzExJS8gIC0xMCUKPj4+ICAxMDI0LyAgICAgMi8gICAgMCUvICAt
+MTElLyAgICAwJS8gICArNSUvICAtMzElCj4+PiAgMTAyNC8gICAgIDQvICAgIDAlLyAgIC00JS8g
+ICAtNyUvICAgKzElLyAgLTIyJQo+Pj4gIDEwMjQvICAgICA4LyAgIC01JS8gICAtNiUvICAtMTcl
+LyAgLTI5JS8gIC03OSUKPj4+ICAyMDQ4LyAgICAgMS8gICAgMCUvICAtMTYlLyAgICsxJS8gICAr
+OSUvICAtMTAlCj4+PiAgMjA0OC8gICAgIDIvICAgIDAlLyAgLTEyJS8gICArNyUvICAgKzklLyAg
+LTI2JQo+Pj4gIDIwNDgvICAgICA0LyAgICAwJS8gICAtNyUvICAgLTQlLyAgICszJS8gIC02NCUK
+Pj4+ICAyMDQ4LyAgICAgOC8gICAtMSUvICAgLTUlLyAgIC02JS8gICArNCUvICAtMjAlCj4+PiAx
+NjM4NC8gICAgIDEvICAgIDAlLyAgLTEyJS8gICsxMSUvICAgKzclLyAgLTIwJQo+Pj4gMTYzODQv
+ICAgICAyLyAgICAwJS8gICAtNyUvICAgKzElLyAgICs1JS8gIC0yNiUKPj4+IDE2Mzg0LyAgICAg
+NC8gICAgMCUvICAgLTUlLyAgKzEyJS8gICsyMiUvICAtMjMlCj4+PiAxNjM4NC8gICAgIDgvICAg
+IDAlLyAgIC0xJS8gICAtOCUvICAgKzUlLyAgIC0zJQo+Pj4gc2l6ZS9zZXNzaW9uLyt0aHUlLytu
+b3JtYWxpemUlLyt0cGt0cyUvK3Jwa3RzJS8raW9leGl0cyUvCj4+PiAgICAgMS8gICAgIDEvICAg
+KzklLyAgLTI5JS8gICArOSUvICAgKzklLyAgICs5JQo+Pj4gICAgIDEvICAgIDI1LyAgICs2JS8g
+IC0xOCUvICAgKzYlLyAgICs2JS8gICAtMSUKPj4+ICAgICAxLyAgICA1MC8gICArNiUvICAtMTkl
+LyAgICs1JS8gICArNSUvICAgLTIlCj4+PiAgICAgMS8gICAxMDAvICAgKzUlLyAgLTE5JS8gICAr
+NCUvICAgKzQlLyAgIC0zJQo+Pj4gICAgNjQvICAgICAxLyAgKzEwJS8gIC0yOCUvICArMTAlLyAg
+KzEwJS8gICsxMCUKPj4+ICAgIDY0LyAgICAyNS8gICArOCUvICAtMTglLyAgICs3JS8gICArNyUv
+ICAgLTIlCj4+PiAgICA2NC8gICAgNTAvICAgKzglLyAgLTE3JS8gICArOCUvICAgKzglLyAgIC0x
+JQo+Pj4gICAgNjQvICAgMTAwLyAgICs4JS8gIC0xNyUvICAgKzglLyAgICs4JS8gICAtMSUKPj4+
+ICAgMjU2LyAgICAgMS8gICsxMCUvICAtMjglLyAgKzEwJS8gICsxMCUvICArMTAlCj4+PiAgIDI1
+Ni8gICAgMjUvICArMTUlLyAgLTEzJS8gICsxNSUvICArMTUlLyAgICAwJQo+Pj4gICAyNTYvICAg
+IDUwLyAgKzE2JS8gIC0xNCUvICArMTglLyAgKzE4JS8gICArMiUKPj4+ICAgMjU2LyAgIDEwMC8g
+ICsxNSUvICAtMTMlLyAgKzEyJS8gICsxMiUvICAgLTIlCj4+Pgo+Pj4gQ2hhbmdlcyBmcm9tIFYy
+Ogo+Pj4gLSBwb2xsIGFsc28gYXQgdGhlIGVuZCBvZiByeCBoYW5kbGluZwo+Pj4gLSBmYWN0b3Ig
+b3V0IHRoZSBwb2xsaW5nIGxvZ2ljIGFuZCBvcHRpbWl6ZSB0aGUgY29kZSBhIGxpdHRsZSBiaXQK
+Pj4+IC0gYWRkIHR3byBpb2N0bHMgdG8gZ2V0IGFuZCBzZXQgdGhlIGJ1c3kgcG9sbCB0aW1lb3V0
+Cj4+PiAtIHRlc3Qgb24gaXhnYmUgKHdoaWNoIGNhbiBnaXZlIG1vcmUgc3RhYmxlIGFuZCByZXBy
+b2R1Y2FibGUgbnVtYmVycykKPj4+ICAgaW5zdGVhZCBvZiBtbHg0Lgo+Pj4KPj4+IENoYW5nZXMg
+ZnJvbSBWMToKPj4+IC0gQWRkIGEgY29tbWVudCBmb3Igdmhvc3RfaGFzX3dvcmsoKSB0byBleHBs
+YWluIHdoeSBpdCBjb3VsZCBiZQo+Pj4gICBsb2NrbGVzcwo+Pj4gLSBBZGQgcGFyYW0gZGVzY3Jp
+cHRpb24gZm9yIGJ1c3lsb29wX3RpbWVvdXQKPj4+IC0gU3BsaXQgb3V0IHRoZSBidXN5IHBvbGxp
+bmcgbG9naWMgaW50byBhIG5ldyBoZWxwZXIKPj4+IC0gQ2hlY2sgYW5kIGV4aXQgdGhlIGxvb3Ag
+d2hlbiB0aGVyZSdzIGEgcGVuZGluZyBzaWduYWwKPj4+IC0gRGlzYWJsZSBwcmVlbXB0aW9uIGR1
+cmluZyBidXN5IGxvb3BpbmcgdG8gbWFrZSBzdXJlIGxvY2tfY2xvY2soKSB3YXMKPj4+ICAgY29y
+cmVjdGx5IHVzZWQuCj4+Pgo+Pj4gSmFzb24gV2FuZyAoMyk6Cj4+PiAgIHZob3N0OiBpbnRyb2R1
+Y2Ugdmhvc3RfaGFzX3dvcmsoKQo+Pj4gICB2aG9zdDogaW50cm9kdWNlIHZob3N0X3ZxX21vcmVf
+YXZhaWwoKQo+Pj4gICB2aG9zdF9uZXQ6IGJhc2ljIHBvbGxpbmcgc3VwcG9ydAo+Pj4KPj4+ICBk
+cml2ZXJzL3Zob3N0L25ldC5jICAgICAgICB8IDc3ICsrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKystLS0KPj4+ICBkcml2ZXJzL3Zob3N0L3Zob3N0LmMgICAgICB8IDQ4
+ICsrKysrKysrKysrKysrKysrKysrKysrLS0tLS0tCj4+PiAgZHJpdmVycy92aG9zdC92aG9zdC5o
+ICAgICAgfCAgMyArKwo+Pj4gIGluY2x1ZGUvdWFwaS9saW51eC92aG9zdC5oIHwgMTEgKysrKysr
+Kwo+Pj4gIDQgZmlsZXMgY2hhbmdlZCwgMTI1IGluc2VydGlvbnMoKyksIDE0IGRlbGV0aW9ucygt
+KQo+Pj4KPj4gLS0KPj4gVG8gdW5zdWJzY3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNlbmQgdGhlIGxp
+bmUgInVuc3Vic2NyaWJlIGt2bSIgaW4KPj4gdGhlIGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1ham9y
+ZG9tb0B2Z2VyLmtlcm5lbC5vcmcKPj4gTW9yZSBtYWpvcmRvbW8gaW5mbyBhdCAgaHR0cDovL3Zn
+ZXIua2VybmVsLm9yZy9tYWpvcmRvbW8taW5mby5odG1sCj4gTu+/ve+/ve+/ve+/ve+/vXLvv73v
+v71577+977+977+9Yu+/vVjvv73vv73Hp3bvv71e77+9Kd66ey5u77+9K++/ve+/ve+/ve+/vXvv
+v73vv73vv73vv716WO+/ve+/vRfvv73vv73cqH3vv73vv73vv73GoHrvv70majordu+/ve+/ve+/
+vQfvv73vv73vv73vv716Wivvv73vv70rembvv73vv73vv71o77+977+977+9fu+/ve+/ve+/ve+/
+vWnvv73vv73vv71677+9Hu+/vXfvv73vv73vv70/77+977+977+977+9Ju+/vSnfohtm77+977+9
+XmrHq3nvv71t77+977+9QEHvv71h77+977+9f++/vQww77+977+9aO+/vQ/vv71pfwoKX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
+bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
+dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
+emF0aW9u
