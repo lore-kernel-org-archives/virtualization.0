@@ -1,7 +1,7 @@
 From: Ming Lin <mlin@kernel.org>
-Subject: [PATCH -kernel] nvme: improve performance for virtual NVMe devices
-Date: Tue, 17 Nov 2015 21:47:03 -0800
-Message-ID: <1447825624-17011-2-git-send-email-mlin@kernel.org>
+Subject: [PATCH -qemu] nvme: support Google vendor extension
+Date: Tue, 17 Nov 2015 21:47:04 -0800
+Message-ID: <1447825624-17011-3-git-send-email-mlin@kernel.org>
 References: <1447825624-17011-1-git-send-email-mlin@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,381 +21,300 @@ To: linux-nvme@lists.infradead.org, qemu-devel@nongnu.org
 Cc: fes@google.com, keith.busch@intel.com, tytso@mit.edu, virtualization@lists.linux-foundation.org, axboe@fb.com, Rob Nelson <rlnelson@google.com>, Christoph Hellwig <hch@lst.de>, Mihai Rusu <dizzy@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Rob Nelson <rlnelson@google.com>
+From: Mihai Rusu <dizzy@google.com>
 
-This change provides a mechanism to reduce the number of MMIO doorbell
-writes for the NVMe driver. When running in a virtualized environment
-like QEMU, the cost of an MMIO is quite hefy here. The main idea for
-the patch is provide the device two memory location locations:
- 1) to store the doorbell values so they can be lookup without the doorbell
-    MMIO write
- 2) to store an event index.
-I believe the doorbell value is obvious, the event index not so much.
-Similar to the virtio specificaiton, the virtual device can tell the
-driver (guest OS) not to write MMIO unless you are writing past this
-value.
+This implements the device side for an NVMe vendor extension that
+reduces the number of MMIO writes which can result in a very large
+performance benefit in virtualized environments.
 
-FYI: doorbell values are written by the nvme driver (guest OS) and the
-event index is written by the virtual device (host OS).
+See the following link for a description of the mechanism and the
+kernel NVMe driver changes to support this vendor extension:
+http://lists.infradead.org/pipermail/linux-nvme/2014-July/001076.html
 
-The patch implements a new admin command that will communicate where
-these two memory locations reside. If the command fails, the nvme
-driver will work as before without any optimizations.
+On my workstation (3.2Ghz Xeon E5-1650), running QEMU:
+$ bin/opt/native/x86_64-softmmu/qemu-system-x86_64 \
+    -enable-kvm -m 2048 -smp 4 \
+    -drive if=virtio,file=debian.raw,cache=none \
+    -drive file=nvme.raw,if=none,id=nvme-dev \
+    -device nvme,drive=nvme-dev,serial=nvme-serial
 
-Contributions:
-  Eric Northup <digitaleric@google.com>
-  Frank Swiderski <fes@google.com>
-  Ted Tso <tytso@mit.edu>
-  Keith Busch <keith.busch@intel.com>
+Using "fio":
+vm # fio -time_based --name=benchmark --ioengine=libaio --iodepth=32 \
+    --numjobs=1 --runtime=30 --blocksize=4k --filename=/dev/nvme0n1 \
+    --nrfiles=1 --invalidate=1 --verify=0 --direct=1 --rw=randread
 
-Just to give an idea on the performance boost with the vendor
-extension: Running fio [1], a stock NVMe driver I get about 200K read
-IOPs with my vendor patch I get about 1000K read IOPs. This was
-running with a null device i.e. the backing device simply returned
-success on every read IO request.
+I get about 20k IOPs with the original code and about 85k IOPs with
+the vendor extension changes applied (and running a vendor extension
+supporting 3.14 based guest kernel).
 
-[1] Running on a 4 core machine:
-  fio --time_based --name=benchmark --runtime=30
-  --filename=/dev/nvme0n1 --nrfiles=1 --ioengine=libaio --iodepth=32
-  --direct=1 --invalidate=1 --verify=0 --verify_fatal=0 --numjobs=4
-  --rw=randread --blocksize=4k --randrepeat=false
-
-Signed-off-by: Rob Nelson <rlnelson@google.com>
+Signed-off-by: Mihai Rusu <dizzy@google.com>
+[fixed for a merging into different tree; added VID/DID params]
+Signed-off-by: Keith Busch <keith.busch@intel.com>
 [mlin: port for upstream]
 Signed-off-by: Ming Lin <mlin@kernel.org>
 ---
- drivers/nvme/host/Kconfig |   7 +++
- drivers/nvme/host/core.c  |   1 +
- drivers/nvme/host/pci.c   | 147 ++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/nvme.h      |  21 +++++++
- 4 files changed, 176 insertions(+)
+ hw/block/nvme.c | 92 ++++++++++++++++++++++++++++++++++++++++++++++++++++++---
+ hw/block/nvme.h | 18 +++++++++++
+ 2 files changed, 106 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/nvme/host/Kconfig b/drivers/nvme/host/Kconfig
-index 002a94a..93f9438 100644
---- a/drivers/nvme/host/Kconfig
-+++ b/drivers/nvme/host/Kconfig
-@@ -8,3 +8,10 @@ config BLK_DEV_NVME
+diff --git a/hw/block/nvme.c b/hw/block/nvme.c
+index 169e4fa..3e1c38d 100644
+--- a/hw/block/nvme.c
++++ b/hw/block/nvme.c
+@@ -20,6 +20,7 @@
+  *      -device nvme,drive=<drive_id>,serial=<serial>,id=<id[optional]>
+  */
  
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called nvme.
-+
-+config NVME_VENDOR_EXT_GOOGLE
-+	tristate "NVMe Vendor Extension for Improved Virtualization"
-+	depends on BLK_DEV_NVME
-+	---help---
-+	  Google extension to reduce the number of MMIO doorbell
-+	  writes for the NVMe driver
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 400b1ea..78ac8bb 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -160,6 +160,7 @@ int nvme_submit_sync_cmd(struct request_queue *q, struct nvme_command *cmd,
- {
- 	return __nvme_submit_sync_cmd(q, cmd, buffer, bufflen, NULL, 0);
++#include <exec/memory.h>
+ #include <hw/block/block.h>
+ #include <hw/hw.h>
+ #include <hw/pci/msix.h>
+@@ -158,6 +159,14 @@ static uint16_t nvme_dma_read_prp(NvmeCtrl *n, uint8_t *ptr, uint32_t len,
+     return NVME_SUCCESS;
  }
-+EXPORT_SYMBOL_GPL(nvme_submit_sync_cmd);
  
- int __nvme_submit_user_cmd(struct request_queue *q, struct nvme_command *cmd,
- 		void __user *ubuffer, unsigned bufflen,
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 91522bb..93f1f36 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -49,6 +49,9 @@
- #define SQ_SIZE(depth)		(depth * sizeof(struct nvme_command))
- #define CQ_SIZE(depth)		(depth * sizeof(struct nvme_completion))
++static void nvme_update_cq_head(NvmeCQueue *cq)
++{
++    if (cq->db_addr) {
++        pci_dma_read(&cq->ctrl->parent_obj, cq->db_addr,
++                     &cq->head, sizeof(cq->head));
++    }
++}
++
+ static void nvme_post_cqes(void *opaque)
+ {
+     NvmeCQueue *cq = opaque;
+@@ -168,6 +177,8 @@ static void nvme_post_cqes(void *opaque)
+         NvmeSQueue *sq;
+         hwaddr addr;
  
-+/* Google Vendor ID is not in include/linux/pci_ids.h */
++        nvme_update_cq_head(cq);
++
+         if (nvme_cq_full(cq)) {
+             break;
+         }
+@@ -350,6 +361,8 @@ static void nvme_init_sq(NvmeSQueue *sq, NvmeCtrl *n, uint64_t dma_addr,
+         QTAILQ_INSERT_TAIL(&(sq->req_list), &sq->io_req[i], entry);
+     }
+     sq->timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, nvme_process_sq, sq);
++    sq->db_addr = 0;
++    sq->eventidx_addr = 0;
+ 
+     assert(n->cq[cqid]);
+     cq = n->cq[cqid];
+@@ -430,6 +443,8 @@ static void nvme_init_cq(NvmeCQueue *cq, NvmeCtrl *n, uint64_t dma_addr,
+     cq->head = cq->tail = 0;
+     QTAILQ_INIT(&cq->req_list);
+     QTAILQ_INIT(&cq->sq_list);
++    cq->db_addr = 0;
++    cq->eventidx_addr = 0;
+     msix_vector_use(&n->parent_obj, cq->vector);
+     n->cq[cqid] = cq;
+     cq->timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, nvme_post_cqes, cq);
+@@ -528,6 +543,40 @@ static uint16_t nvme_set_feature(NvmeCtrl *n, NvmeCmd *cmd, NvmeRequest *req)
+     return NVME_SUCCESS;
+ }
+ 
++static uint16_t nvme_set_db_memory(NvmeCtrl *n, const NvmeCmd *cmd)
++{
++    uint64_t db_addr = le64_to_cpu(cmd->prp1);
++    uint64_t eventidx_addr = le64_to_cpu(cmd->prp2);
++    int i;
++
++    /* Addresses should not be NULL and should be page aligned. */
++    if (db_addr == 0 || db_addr & (n->page_size - 1) ||
++        eventidx_addr == 0 || eventidx_addr & (n->page_size - 1)) {
++        return NVME_INVALID_MEMORY_ADDRESS | NVME_DNR;
++    }
++
++    /* This assumes all I/O queues are created before this command is handled.
++     * We skip the admin queues. */
++    for (i = 1; i < n->num_queues; i++) {
++        NvmeSQueue *sq = n->sq[i];
++        NvmeCQueue *cq = n->cq[i];
++
++        if (sq != NULL) {
++            /* Submission queue tail pointer location, 2 * QID * stride. */
++            sq->db_addr = db_addr + 2 * i * 4;
++            sq->eventidx_addr = eventidx_addr + 2 * i * 4;
++        }
++
++        if (cq != NULL) {
++            /* Completion queue head pointer location, (2 * QID + 1) * stride.
++             */
++            cq->db_addr = db_addr + (2 * i + 1) * 4;
++            cq->eventidx_addr = eventidx_addr + (2 * i + 1) * 4;
++        }
++    }
++    return NVME_SUCCESS;
++}
++
+ static uint16_t nvme_admin_cmd(NvmeCtrl *n, NvmeCmd *cmd, NvmeRequest *req)
+ {
+     switch (cmd->opcode) {
+@@ -545,11 +594,29 @@ static uint16_t nvme_admin_cmd(NvmeCtrl *n, NvmeCmd *cmd, NvmeRequest *req)
+         return nvme_set_feature(n, cmd, req);
+     case NVME_ADM_CMD_GET_FEATURES:
+         return nvme_get_feature(n, cmd, req);
++    case NVME_ADM_CMD_SET_DB_MEMORY:
++        return nvme_set_db_memory(n, cmd);
+     default:
+         return NVME_INVALID_OPCODE | NVME_DNR;
+     }
+ }
+ 
++static void nvme_update_sq_eventidx(const NvmeSQueue *sq)
++{
++    if (sq->eventidx_addr) {
++        pci_dma_write(&sq->ctrl->parent_obj, sq->eventidx_addr,
++                      &sq->tail, sizeof(sq->tail));
++    }
++}
++
++static void nvme_update_sq_tail(NvmeSQueue *sq)
++{
++    if (sq->db_addr) {
++        pci_dma_read(&sq->ctrl->parent_obj, sq->db_addr,
++                     &sq->tail, sizeof(sq->tail));
++    }
++}
++
+ static void nvme_process_sq(void *opaque)
+ {
+     NvmeSQueue *sq = opaque;
+@@ -561,6 +628,8 @@ static void nvme_process_sq(void *opaque)
+     NvmeCmd cmd;
+     NvmeRequest *req;
+ 
++    nvme_update_sq_tail(sq);
++
+     while (!(nvme_sq_empty(sq) || QTAILQ_EMPTY(&sq->req_list))) {
+         addr = sq->dma_addr + sq->head * n->sqe_size;
+         pci_dma_read(&n->parent_obj, addr, (void *)&cmd, sizeof(cmd));
+@@ -578,6 +647,9 @@ static void nvme_process_sq(void *opaque)
+             req->status = status;
+             nvme_enqueue_req_completion(cq, req);
+         }
++
++        nvme_update_sq_eventidx(sq);
++        nvme_update_sq_tail(sq);
+     }
+ }
+ 
+@@ -726,7 +798,11 @@ static void nvme_process_db(NvmeCtrl *n, hwaddr addr, int val)
+         }
+ 
+         start_sqs = nvme_cq_full(cq) ? 1 : 0;
+-        cq->head = new_head;
++        /* When the mapped pointer memory area is setup, we don't rely on
++         * the MMIO written values to update the head pointer. */
++        if (!cq->db_addr) {
++            cq->head = new_head;
++        }
+         if (start_sqs) {
+             NvmeSQueue *sq;
+             QTAILQ_FOREACH(sq, &cq->sq_list, entry) {
+@@ -752,7 +828,11 @@ static void nvme_process_db(NvmeCtrl *n, hwaddr addr, int val)
+             return;
+         }
+ 
+-        sq->tail = new_tail;
++        /* When the mapped pointer memory area is setup, we don't rely on
++         * the MMIO written values to update the tail pointer. */
++        if (!sq->db_addr) {
++            sq->tail = new_tail;
++        }
+         timer_mod(sq->timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 500);
+     }
+ }
+@@ -805,6 +885,8 @@ static int nvme_init(PCIDevice *pci_dev)
+     pci_conf = pci_dev->config;
+     pci_conf[PCI_INTERRUPT_PIN] = 1;
+     pci_config_set_prog_interface(pci_dev->config, 0x2);
++    pci_config_set_vendor_id(pci_dev->config, n->vid);
++    pci_config_set_device_id(pci_dev->config, n->did);
+     pci_config_set_class(pci_dev->config, PCI_CLASS_STORAGE_EXPRESS);
+     pcie_endpoint_cap_init(&n->parent_obj, 0x80);
+ 
+@@ -885,9 +967,13 @@ static void nvme_exit(PCIDevice *pci_dev)
+     msix_uninit_exclusive_bar(pci_dev);
+ }
+ 
 +#define PCI_VENDOR_ID_GOOGLE 0x1AE0
 +
- static int use_threaded_interrupts;
- module_param(use_threaded_interrupts, int, 0);
- 
-@@ -106,6 +109,13 @@ struct nvme_dev {
- 	unsigned long flags;
- #define NVME_CTRL_RESETTING	0
- 
-+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
-+	u32 *db_mem;
-+	dma_addr_t doorbell;
-+	u32 *ei_mem;
-+	dma_addr_t eventidx;
-+#endif
-+
- 	struct nvme_ctrl ctrl;
+ static Property nvme_props[] = {
+     DEFINE_BLOCK_PROPERTIES(NvmeCtrl, conf),
+     DEFINE_PROP_STRING("serial", NvmeCtrl, serial),
++    DEFINE_PROP_UINT16("vid", NvmeCtrl, vid, PCI_VENDOR_ID_GOOGLE),
++    DEFINE_PROP_UINT16("did", NvmeCtrl, did, 0x5845),
+     DEFINE_PROP_END_OF_LIST(),
  };
  
-@@ -139,6 +149,12 @@ struct nvme_queue {
- 	u8 cq_phase;
- 	u8 cqe_seen;
- 	struct async_cmd_info cmdinfo;
-+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
-+	u32 *sq_doorbell_addr;
-+	u32 *sq_eventidx_addr;
-+	u32 *cq_doorbell_addr;
-+	u32 *cq_eventidx_addr;
-+#endif
+@@ -905,8 +991,6 @@ static void nvme_class_init(ObjectClass *oc, void *data)
+     pc->exit = nvme_exit;
+     pc->class_id = PCI_CLASS_STORAGE_EXPRESS;
+     pc->vendor_id = PCI_VENDOR_ID_INTEL;
+-    pc->device_id = 0x5845;
+-    pc->revision = 1;
+     pc->is_express = 1;
+ 
+     set_bit(DEVICE_CATEGORY_STORAGE, dc->categories);
+diff --git a/hw/block/nvme.h b/hw/block/nvme.h
+index bf3a3cc..82aeab4 100644
+--- a/hw/block/nvme.h
++++ b/hw/block/nvme.h
+@@ -170,6 +170,7 @@ enum NvmeAdminCommands {
+     NVME_ADM_CMD_FORMAT_NVM     = 0x80,
+     NVME_ADM_CMD_SECURITY_SEND  = 0x81,
+     NVME_ADM_CMD_SECURITY_RECV  = 0x82,
++    NVME_ADM_CMD_SET_DB_MEMORY  = 0xC0,  /* Vendor specific. */
  };
  
- /*
-@@ -176,6 +192,9 @@ static inline void _nvme_check_size(void)
- 	BUILD_BUG_ON(sizeof(struct nvme_id_ns) != 4096);
- 	BUILD_BUG_ON(sizeof(struct nvme_lba_range_type) != 64);
- 	BUILD_BUG_ON(sizeof(struct nvme_smart_log) != 512);
-+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
-+	BUILD_BUG_ON(sizeof(struct nvme_doorbell_memory) != 64);
-+#endif
- }
+ enum NvmeIoCommands {
+@@ -381,6 +382,7 @@ enum NvmeStatusCodes {
+     NVME_CONFLICTING_ATTRS      = 0x0180,
+     NVME_INVALID_PROT_INFO      = 0x0181,
+     NVME_WRITE_TO_RO            = 0x0182,
++    NVME_INVALID_MEMORY_ADDRESS = 0x01C0,  /* Vendor extension. */
+     NVME_WRITE_FAULT            = 0x0280,
+     NVME_UNRECOVERED_READ       = 0x0281,
+     NVME_E2E_GUARD_ERROR        = 0x0282,
+@@ -658,6 +660,13 @@ typedef struct NvmeSQueue {
+     QTAILQ_HEAD(sq_req_list, NvmeRequest) req_list;
+     QTAILQ_HEAD(out_req_list, NvmeRequest) out_req_list;
+     QTAILQ_ENTRY(NvmeSQueue) entry;
++    /* Mapped memory location where the tail pointer is stored by the guest
++     * without triggering MMIO exits. */
++    uint64_t    db_addr;
++    /* virtio-like eventidx pointer, guest updates to the tail pointer that
++     * do not go over this value will not result in MMIO writes (but will
++     * still write the tail pointer to the "db_addr" location above). */
++    uint64_t    eventidx_addr;
+ } NvmeSQueue;
  
- /*
-@@ -289,6 +308,51 @@ static void nvme_finish_aen_cmd(struct nvme_dev *dev, struct nvme_completion *cq
- 	}
- }
+ typedef struct NvmeCQueue {
+@@ -673,6 +682,13 @@ typedef struct NvmeCQueue {
+     QEMUTimer   *timer;
+     QTAILQ_HEAD(sq_list, NvmeSQueue) sq_list;
+     QTAILQ_HEAD(cq_req_list, NvmeRequest) req_list;
++    /* Mapped memory location where the head pointer is stored by the guest
++     * without triggering MMIO exits. */
++    uint64_t    db_addr;
++    /* virtio-like eventidx pointer, guest updates to the head pointer that
++     * do not go over this value will not result in MMIO writes (but will
++     * still write the head pointer to the "db_addr" location above). */
++    uint64_t    eventidx_addr;
+ } NvmeCQueue;
  
-+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
-+static int nvme_vendor_memory_size(struct nvme_dev *dev)
-+{
-+	return ((num_possible_cpus() + 1) * 8 * dev->db_stride);
-+}
-+
-+static int nvme_set_doorbell_memory(struct nvme_dev *dev)
-+{
-+	struct nvme_command c;
-+
-+	memset(&c, 0, sizeof(c));
-+	c.doorbell_memory.opcode = nvme_admin_doorbell_memory;
-+	c.doorbell_memory.prp1 = cpu_to_le64(dev->doorbell);
-+	c.doorbell_memory.prp2 = cpu_to_le64(dev->eventidx);
-+
-+	return nvme_submit_sync_cmd(dev->ctrl.admin_q, &c, NULL, 0);
-+}
-+
-+static inline int nvme_ext_need_event(u16 event_idx, u16 new_idx, u16 old)
-+{
-+	/* Borrowed from vring_need_event */
-+	return (u16)(new_idx - event_idx - 1) < (u16)(new_idx - old);
-+}
-+
-+static void nvme_ext_write_doorbell(u16 value, u32 __iomem* q_db,
-+			   u32* db_addr, volatile u32* event_idx)
-+{
-+	u16 old_value;
-+	if (!db_addr)
-+		goto ring_doorbell;
-+
-+	old_value = *db_addr;
-+	*db_addr = value;
-+
-+	rmb();
-+	if (!nvme_ext_need_event(*event_idx, value, old_value))
-+		goto no_doorbell;
-+
-+ring_doorbell:
-+	writel(value, q_db);
-+no_doorbell:
-+	return;
-+}
-+#endif
-+
- /**
-  * __nvme_submit_cmd() - Copy a command into a queue and ring the doorbell
-  * @nvmeq: The queue to use
-@@ -306,9 +370,19 @@ static void __nvme_submit_cmd(struct nvme_queue *nvmeq,
- 	else
- 		memcpy(&nvmeq->sq_cmds[tail], cmd, sizeof(*cmd));
+ typedef struct NvmeNamespace {
+@@ -699,6 +715,8 @@ typedef struct NvmeCtrl {
+     uint32_t    num_queues;
+     uint32_t    max_q_ents;
+     uint64_t    ns_size;
++    uint16_t    vid;
++    uint16_t    did;
  
-+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
-+	if (nvmeq->sq_doorbell_addr)
-+		wmb();
-+#endif
-+
- 	if (++tail == nvmeq->q_depth)
- 		tail = 0;
-+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
-+	nvme_ext_write_doorbell(tail, nvmeq->q_db,
-+		nvmeq->sq_doorbell_addr, nvmeq->sq_eventidx_addr);
-+#else
- 	writel(tail, nvmeq->q_db);
-+#endif
- 	nvmeq->sq_tail = tail;
- }
- 
-@@ -719,6 +793,11 @@ static int nvme_process_cq(struct nvme_queue *nvmeq)
- 		u16 status = le16_to_cpu(cqe.status);
- 		struct request *req;
- 
-+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
-+		if (to_pci_dev(nvmeq->dev->dev)->vendor == PCI_VENDOR_ID_GOOGLE)
-+			rmb();
-+#endif
-+
- 		if ((status & 1) != phase)
- 			break;
- 		nvmeq->sq_head = le16_to_cpu(cqe.sq_head);
-@@ -764,7 +843,12 @@ static int nvme_process_cq(struct nvme_queue *nvmeq)
- 	if (head == nvmeq->cq_head && phase == nvmeq->cq_phase)
- 		return 0;
- 
-+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
-+	nvme_ext_write_doorbell(head, nvmeq->q_db + nvmeq->dev->db_stride,
-+		nvmeq->cq_doorbell_addr, nvmeq->cq_eventidx_addr);
-+#else
- 	writel(head, nvmeq->q_db + nvmeq->dev->db_stride);
-+#endif
- 	nvmeq->cq_head = head;
- 	nvmeq->cq_phase = phase;
- 
-@@ -1111,6 +1195,17 @@ static struct nvme_queue *nvme_alloc_queue(struct nvme_dev *dev, int qid,
- 	nvmeq->cq_vector = -1;
- 	dev->queues[qid] = nvmeq;
- 
-+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
-+	if (dev->db_mem && dev->ei_mem && qid != 0) {
-+		nvmeq->sq_doorbell_addr = &dev->db_mem[qid * 2 * dev->db_stride];
-+		nvmeq->cq_doorbell_addr =
-+			&dev->db_mem[(qid * 2 + 1) * dev->db_stride];
-+		nvmeq->sq_eventidx_addr = &dev->ei_mem[qid * 2 * dev->db_stride];
-+		nvmeq->cq_eventidx_addr =
-+			&dev->ei_mem[(qid * 2 + 1) * dev->db_stride];
-+	}
-+#endif
-+
- 	/* make sure queue descriptor is set before queue count, for kthread */
- 	mb();
- 	dev->queue_count++;
-@@ -1145,6 +1240,16 @@ static void nvme_init_queue(struct nvme_queue *nvmeq, u16 qid)
- 	nvmeq->cq_head = 0;
- 	nvmeq->cq_phase = 1;
- 	nvmeq->q_db = &dev->dbs[qid * 2 * dev->db_stride];
-+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
-+	if (to_pci_dev(dev->dev)->vendor == PCI_VENDOR_ID_GOOGLE && qid != 0) {
-+		nvmeq->sq_doorbell_addr = &dev->db_mem[qid * 2 * dev->db_stride];
-+		nvmeq->cq_doorbell_addr =
-+			&dev->db_mem[(qid * 2 + 1) * dev->db_stride];
-+		nvmeq->sq_eventidx_addr = &dev->ei_mem[qid * 2 * dev->db_stride];
-+		nvmeq->cq_eventidx_addr =
-+			&dev->ei_mem[(qid * 2 + 1) * dev->db_stride];
-+	}
-+#endif
- 	memset((void *)nvmeq->cqes, 0, CQ_SIZE(nvmeq->q_depth));
- 	dev->online_queues++;
- 	spin_unlock_irq(&nvmeq->q_lock);
-@@ -1565,6 +1670,19 @@ static int nvme_dev_add(struct nvme_dev *dev)
- 		if (blk_mq_alloc_tag_set(&dev->tagset))
- 			return 0;
- 		dev->ctrl.tagset = &dev->tagset;
-+
-+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
-+		if (to_pci_dev(dev->dev)->vendor == PCI_VENDOR_ID_GOOGLE) {
-+			int res = nvme_set_doorbell_memory(dev);
-+			if (res) {
-+				// Free memory and continue on.
-+				dma_free_coherent(dev->dev, 8192, dev->db_mem, dev->doorbell);
-+				dma_free_coherent(dev->dev, 8192, dev->ei_mem, dev->doorbell);
-+				dev->db_mem = 0;
-+				dev->ei_mem = 0;
-+			}
-+		}
-+#endif
- 	}
- 	queue_work(nvme_workq, &dev->scan_work);
- 	return 0;
-@@ -1618,7 +1736,28 @@ static int nvme_dev_map(struct nvme_dev *dev)
- 	if (readl(dev->bar + NVME_REG_VS) >= NVME_VS(1, 2))
- 		dev->cmb = nvme_map_cmb(dev);
- 
-+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
-+	if (pdev->vendor == PCI_VENDOR_ID_GOOGLE) {
-+		int mem_size = nvme_vendor_memory_size(dev);
-+		dev->db_mem = dma_alloc_coherent(&pdev->dev, mem_size, &dev->doorbell, GFP_KERNEL);
-+		if (!dev->db_mem) {
-+			result = -ENOMEM;
-+			goto unmap;
-+		}
-+		dev->ei_mem = dma_alloc_coherent(&pdev->dev, mem_size, &dev->eventidx, GFP_KERNEL);
-+		if (!dev->ei_mem) {
-+			result = -ENOMEM;
-+			goto dma_free;
-+		}
-+	}
-+
-+	return 0;
-+
-+ dma_free:
-+	dma_free_coherent(&pdev->dev, nvme_vendor_memory_size(dev), dev->db_mem, dev->doorbell);
-+	dev->db_mem = 0;
- 	return 0;
-+#endif
- 
-  unmap:
- 	iounmap(dev->bar);
-@@ -1633,6 +1772,14 @@ static int nvme_dev_map(struct nvme_dev *dev)
- static void nvme_dev_unmap(struct nvme_dev *dev)
- {
- 	struct pci_dev *pdev = to_pci_dev(dev->dev);
-+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
-+	int mem_size = nvme_vendor_memory_size(dev);
-+
-+	if (dev->db_mem)
-+		dma_free_coherent(&pdev->dev, mem_size, dev->db_mem, dev->doorbell);
-+	if (dev->ei_mem)
-+		dma_free_coherent(&pdev->dev, mem_size, dev->ei_mem, dev->eventidx);
-+#endif
- 
- 	if (pdev->msi_enabled)
- 		pci_disable_msi(pdev);
-diff --git a/include/linux/nvme.h b/include/linux/nvme.h
-index a55986f..d3a8289 100644
---- a/include/linux/nvme.h
-+++ b/include/linux/nvme.h
-@@ -387,6 +387,9 @@ enum nvme_admin_opcode {
- 	nvme_admin_format_nvm		= 0x80,
- 	nvme_admin_security_send	= 0x81,
- 	nvme_admin_security_recv	= 0x82,
-+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
-+	nvme_admin_doorbell_memory	= 0xC0,
-+#endif
- };
- 
- enum {
-@@ -516,6 +519,18 @@ struct nvme_format_cmd {
- 	__u32			rsvd11[5];
- };
- 
-+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
-+struct nvme_doorbell_memory {
-+	__u8			opcode;
-+	__u8			flags;
-+	__u16			command_id;
-+	__u32			rsvd1[5];
-+	__le64			prp1;
-+	__le64			prp2;
-+	__u32			rsvd12[6];
-+};
-+#endif
-+
- struct nvme_command {
- 	union {
- 		struct nvme_common_command common;
-@@ -529,6 +544,9 @@ struct nvme_command {
- 		struct nvme_format_cmd format;
- 		struct nvme_dsm_cmd dsm;
- 		struct nvme_abort_cmd abort;
-+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
-+		struct nvme_doorbell_memory doorbell_memory;
-+#endif
- 	};
- };
- 
-@@ -575,6 +593,9 @@ enum {
- 	NVME_SC_BAD_ATTRIBUTES		= 0x180,
- 	NVME_SC_INVALID_PI		= 0x181,
- 	NVME_SC_READ_ONLY		= 0x182,
-+#ifdef CONFIG_NVME_VENDOR_EXT_GOOGLE
-+	NVME_SC_DOORBELL_MEMORY_INVALID	= 0x1C0,
-+#endif
- 	NVME_SC_WRITE_FAULT		= 0x280,
- 	NVME_SC_READ_ERROR		= 0x281,
- 	NVME_SC_GUARD_CHECK		= 0x282,
+     char            *serial;
+     NvmeNamespace   *namespaces;
 -- 
 1.9.1
