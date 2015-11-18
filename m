@@ -1,15 +1,16 @@
-From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: Re: [PATCH 2/3] x86: irq_enable_sysexit pv op is no longer needed
-Date: Wed, 18 Nov 2015 15:34:32 -0500
-Message-ID: <564CE0D8.1030004@oracle.com>
+From: Borislav Petkov <bp@suse.de>
+Subject: Re: [PATCH 1/3] x86/xen: Avoid fast syscall path for Xen PV guests
+Date: Wed, 18 Nov 2015 21:47:52 +0100
+Message-ID: <20151118204752.GF4451@pd.tnic>
 References: <1447877179-2775-1-git-send-email-boris.ostrovsky@oracle.com>
-	<1447877179-2775-3-git-send-email-boris.ostrovsky@oracle.com>
-	<20151118201152.GA6094@char.us.oracle.com>
+	<1447877179-2775-2-git-send-email-boris.ostrovsky@oracle.com>
+	<CALCETrVUpqQy_EZMe8T5iRkA0FzS0Oz1Kuicr9yz3SwtdF1=9g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20151118201152.GA6094@char.us.oracle.com>
+Content-Disposition: inline
+In-Reply-To: <CALCETrVUpqQy_EZMe8T5iRkA0FzS0Oz1Kuicr9yz3SwtdF1=9g@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,23 +20,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, david.vrabel@citrix.com, luto@kernel.org, hpa@zytor.com, xen-devel@lists.xenproject.org, tglx@linutronix.de, bp@suse.de
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, David Vrabel <david.vrabel@citrix.com>, Andrew Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/18/2015 03:11 PM, Konrad Rzeszutek Wilk wrote:
-> On Wed, Nov 18, 2015 at 03:06:18PM -0500, Boris Ostrovsky wrote:
->> Xen PV guests have been the only ones using it and now they don't.
-> Could you elaborate on the 'now they don't' please?
->
-> Is Xen not doing it? Did it do it in the past?
->
-> Is it because the Linux code paths will never run to this in Xen PV mode?
-> Is that due to other patches? If so please mention the name
-> of the other patches.. (so if somebody is thinking to put the
-> other patches on the stable train they should also take these ones).
-
-Since this is due to the first patch in the series I don't know its 
-commitID. Should I just refer to patch title?
-
--boris
+T24gV2VkLCBOb3YgMTgsIDIwMTUgYXQgMTI6MjE6NTZQTSAtMDgwMCwgQW5keSBMdXRvbWlyc2tp
+IHdyb3RlOgo+ID4gZGlmZiAtLWdpdCBhL2FyY2gveDg2L2luY2x1ZGUvYXNtL2NwdWZlYXR1cmUu
+aCBiL2FyY2gveDg2L2luY2x1ZGUvYXNtL2NwdWZlYXR1cmUuaAo+ID4gaW5kZXggZTRmODAxMC4u
+MGU0ZmU1YiAxMDA2NDQKPiA+IC0tLSBhL2FyY2gveDg2L2luY2x1ZGUvYXNtL2NwdWZlYXR1cmUu
+aAo+ID4gKysrIGIvYXJjaC94ODYvaW5jbHVkZS9hc20vY3B1ZmVhdHVyZS5oCj4gPiBAQCAtMjE2
+LDYgKzIxNiw3IEBACj4gPiAgI2RlZmluZSBYODZfRkVBVFVSRV9QQVVTRUZJTFRFUiAoIDgqMzIr
+MTMpIC8qIEFNRCBmaWx0ZXJlZCBwYXVzZSBpbnRlcmNlcHQgKi8KPiA+ICAjZGVmaW5lIFg4Nl9G
+RUFUVVJFX1BGVEhSRVNIT0xEICggOCozMisxNCkgLyogQU1EIHBhdXNlIGZpbHRlciB0aHJlc2hv
+bGQgKi8KPiA+ICAjZGVmaW5lIFg4Nl9GRUFUVVJFX1ZNTUNBTEwgICAgICggOCozMisxNSkgLyog
+UHJlZmVyIHZtbWNhbGwgdG8gdm1jYWxsICovCj4gPiArI2RlZmluZSBYODZfRkVBVFVSRV9YRU5Q
+ViAgICAgICAoIDgqMzIrMTYpIC8qIFhlbiBwYXJhdmlydHVhbCBndWVzdCAqLwo+ID4KPiAKPiBU
+aGlzIGJpdCBpcyBoaWdobHkgbWFnaWNhbCBhbmQgSSB0aGluayB3ZSBuZWVkIEJvcmlzbGF2J3Mg
+YWNrLgoKWWVhaCwgdGhhdCBzaG91bGQgYmUKCiNkZWZpbmUgWDg2X0ZFQVRVUkVfWEVOUFYgICAg
+ICAgKCA4KjMyKzE2KSAvKiAiIiBYZW4gcGFyYXZpcnR1YWwgZ3Vlc3QgKi8KCQkJCQkgICAgICBe
+XgoKbm90ZSB0aGUgZW1wdHkgIiIuIFRoaXMgcHJldmVudHMgaXQgZnJvbSBhcHBlYXJpbmcgaW4g
+L3Byb2MvY3B1aW5mby4KCi0tIApSZWdhcmRzL0dydXNzLAogICAgQm9yaXMuCgpTVVNFIExpbnV4
+IEdtYkgsIEdGOiBGZWxpeCBJbWVuZMO2cmZmZXIsIEphbmUgU21pdGhhcmQsIEdyYWhhbSBOb3J0
+b24sIEhSQiAyMTI4NCAoQUcgTsO8cm5iZXJnKQotLSAKX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
+YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
+b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
