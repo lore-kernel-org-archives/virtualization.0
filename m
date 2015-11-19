@@ -1,17 +1,15 @@
-From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: Re: [PATCH 1/3] x86/xen: Avoid fast syscall path for Xen PV guests
-Date: Wed, 18 Nov 2015 17:05:23 -0500
-Message-ID: <564CF623.40502@oracle.com>
-References: <1447877179-2775-1-git-send-email-boris.ostrovsky@oracle.com>
-	<1447877179-2775-2-git-send-email-boris.ostrovsky@oracle.com>
-	<CALCETrVUpqQy_EZMe8T5iRkA0FzS0Oz1Kuicr9yz3SwtdF1=9g@mail.gmail.com>
-	<CAMzpN2iofkEeYkiZa8FRJ5gbz5smPbV0COOye9wZ9OhV6pBfow@mail.gmail.com>
-	<CALCETrUTp=Shcmvh44fE5URugd6c41dDGdDM8cKvnP=Gqap45A@mail.gmail.com>
+From: Sasha Levin <sasha.levin@oracle.com>
+Subject: Re: [RFC] kvmtool: add support for modern virtio-pci
+Date: Wed, 18 Nov 2015 23:00:45 -0500
+Message-ID: <564D496D.2010105@oracle.com>
+References: <1447823472-17047-1-git-send-email-sasha.levin@oracle.com>
+	<1447834972.23726.92.camel@redhat.com> <564C9805.8080800@oracle.com>
+	<1447869140.23691.15.camel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CALCETrUTp=Shcmvh44fE5URugd6c41dDGdDM8cKvnP=Gqap45A@mail.gmail.com>
+In-Reply-To: <1447869140.23691.15.camel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,20 +19,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@amacapital.net>, Brian Gerst <brgerst@gmail.com>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, David Vrabel <david.vrabel@citrix.com>, Andrew Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@suse.de>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, andre.przywara@arm.com, will.deacon@arm.com, josh@joshtriplett.org, virtualization@lists.linux-foundation.org, penberg@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/18/2015 03:58 PM, Andy Lutomirski wrote:
-> On Wed, Nov 18, 2015 at 12:50 PM, Brian Gerst <brgerst@gmail.com> wrote:
->>
->> Can you just add !xen_pv_domain() to the opportunistic SYSRET check
->> instead?  Bury the alternatives in that macro, ie.
->> static_cpu_has(X86_FEATURE_XENPV).  That would likely benefit other
->> code as well.
-> We could, but that won't help the 64-bit case where we want to keep
-> the full asm path.
+On 11/18/2015 12:52 PM, Gerd Hoffmann wrote:
+>   Hi,
+> 
+>> Thanks for testing! I didn't even thing about seabios as a testing target.
+> 
+> Not surprising, support isn't upstream, ran into a bunch of issues[1][2]
+> last time I tried to combine the two, ran into some issues and nobody
+> seemed to care, so the seabios patches where just sitting in a branch in
+> my repo ...
+> 
+>> $ cat .config | grep 'KVMTOOL\|DEBUG'
+>> CONFIG_KVMTOOL=y
+>> CONFIG_DEBUG_LEVEL=9
+> 
+> Hmm, 'CONFIG_KVMTOOL=y > .config; make olddefconfig' should give you a
+> working configuration.
+> 
+> Setting 'CONFIG_DEBUG_LEVEL=9' is useful for trouble-shooting as it
+> makes the virtio drivers more verbose, but not mandatory to have.
+> 
+> Serial line support is needed to get output:
+> 
+> CONFIG_DEBUG_SERIAL=y
+> CONFIG_DEBUG_SERIAL_PORT=0x3f8
+> 
+> Also I think rom size must be 128k b/c kvmtool expects it to be that
+> way:
+> 
+> CONFIG_ROM_SIZE=128
+> 
+> But those are the defaults, and after "make olddefconfig" you should
+> already have them ...
 
-I don't think I understand what you mean here. Which full asm path?
+It was the ROM_SIZE one as it seems, it was set to 0 here.
 
--boris
+Anyways, I debugged it for a bit a found that seabios attempts to write to
+the notification BAR, I look further tomorrow to narrow it down and fix it.
+
+
+Thanks,
+Sasha
