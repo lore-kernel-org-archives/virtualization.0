@@ -1,12 +1,13 @@
-From: Andy Lutomirski <luto@amacapital.net>
+From: Borislav Petkov <bp@suse.de>
 Subject: Re: [PATCH v2 0/3] Fix and cleanup for 32-bit PV sysexit
-Date: Thu, 19 Nov 2015 14:07:02 -0800
-Message-ID: <CALCETrUeGoeB8vNgbRNkFXjH0A570=M+4L1sRsfh-7btym59nA@mail.gmail.com>
+Date: Fri, 20 Nov 2015 00:02:32 +0100
+Message-ID: <20151119230232.GC4926@pd.tnic>
 References: <1447970147-1733-1-git-send-email-boris.ostrovsky@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <1447970147-1733-1-git-send-email-boris.ostrovsky@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,27 +19,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, David Vrabel <david.vrabel@citrix.com>, Andrew Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@suse.de>
+Cc: konrad.wilk@oracle.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, david.vrabel@citrix.com, luto@kernel.org, hpa@zytor.com, xen-devel@lists.xenproject.org, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Nov 19, 2015 at 1:55 PM, Boris Ostrovsky
-<boris.ostrovsky@oracle.com> wrote:
-> The first patch fixes Xen PV regression introduced by 32-bit rewrite. Unlike the
-> earlier version it uses ALTERNATIVE instruction and avoids using xen_sysexit
-> (and sysret32 in compat mode) pv ops, as suggested by Andy.
->
-> As result of this patch irq_enable_sysexit and usergs_sysret32 pv ops are not
-> used anymore by anyone and so can be removed.
-
-This whole series is:
-
-Acked-by: Andy Lutomirski <luto@kernel.org>
-
-Now I just have to sucker someone into getting rid of
-PARAVIRT_ADJUST_EXCEPTION_FRAME (by using stub entries) and the
-overcomplicated syscall entry stuff.  :)  And whoever gets rid of
-PARAVIRT_ADJUST_EXCEPTION_FRAME gets to wonder why it doesn't crash
-and burn for NMIs on Xen, since I'm reasonably confident that it can't
-possibly be correct.
-
---Andy
+T24gVGh1LCBOb3YgMTksIDIwMTUgYXQgMDQ6NTU6NDRQTSAtMDUwMCwgQm9yaXMgT3N0cm92c2t5
+IHdyb3RlOgo+IFRoZSBmaXJzdCBwYXRjaCBmaXhlcyBYZW4gUFYgcmVncmVzc2lvbiBpbnRyb2R1
+Y2VkIGJ5IDMyLWJpdCByZXdyaXRlLiBVbmxpa2UgdGhlCj4gZWFybGllciB2ZXJzaW9uIGl0IHVz
+ZXMgQUxURVJOQVRJVkUgaW5zdHJ1Y3Rpb24gYW5kIGF2b2lkcyB1c2luZyB4ZW5fc3lzZXhpdAo+
+IChhbmQgc3lzcmV0MzIgaW4gY29tcGF0IG1vZGUpIHB2IG9wcywgYXMgc3VnZ2VzdGVkIGJ5IEFu
+ZHkuCj4gCj4gQXMgcmVzdWx0IG9mIHRoaXMgcGF0Y2ggaXJxX2VuYWJsZV9zeXNleGl0IGFuZCB1
+c2VyZ3Nfc3lzcmV0MzIgcHYgb3BzIGFyZSBub3QKPiB1c2VkIGFueW1vcmUgYnkgYW55b25lIGFu
+ZCBzbyBjYW4gYmUgcmVtb3ZlZC4KPiAKPiAKPiB2MjoKPiAgICogcGF0Y2ggYm90aCBURVNUIGFu
+ZCBKWiBpbnRydWN0aW9ucyB3aXRoIGEgc2luZ2xlIEpNUAo+ICAgKiBBZGQgbWFnaWMgcHJlZml4
+IHRvIFg4Nl9GRUFUVVJFX1hFTlBWIGNvbW1lbnQgdG8gYXZvaWQgaGF2aW5nIGl0IHByaW50ZWQg
+aW4KPiAgICAgL3Byb2MvY3B1aW5mbwo+ICAgKiBDbGFyaWZ5IGluIGNvbW1pdCBtZXNzYWdlcyB3
+aHkgaXJxX2VuYWJsZV9zeXNleGl0IGFuZCB1c2VyZ3Nfc3lzcmV0MzIgYXJlCj4gICAgIHJlbW92
+ZWQKPiAKPiAKPiBCb3JpcyBPc3Ryb3Zza3kgKDMpOgo+ICAgeDg2L3hlbjogQXZvaWQgZmFzdCBz
+eXNjYWxsIHBhdGggZm9yIFhlbiBQViBndWVzdHMKPiAgIHg4NjogaXJxX2VuYWJsZV9zeXNleGl0
+IHB2IG9wIGlzIG5vIGxvbmdlciBuZWVkZWQKPiAgIHg4NjogdXNlcmdzX3N5c3JldDMyIHB2IG9w
+IGlzIG5vIGxvbmdlciBuZWVkZWQKPiAKPiAgYXJjaC94ODYvZW50cnkvZW50cnlfMzIuUyAgICAg
+ICAgICAgICB8IDEzICsrKysrLS0tLS0tLS0KPiAgYXJjaC94ODYvZW50cnkvZW50cnlfNjRfY29t
+cGF0LlMgICAgICB8IDIwICsrKysrKysrLS0tLS0tLS0tLS0tCj4gIGFyY2gveDg2L2luY2x1ZGUv
+YXNtL2NwdWZlYXR1cmUuaCAgICAgfCAgMSArCj4gIGFyY2gveDg2L2luY2x1ZGUvYXNtL3BhcmF2
+aXJ0LmggICAgICAgfCAxMiAtLS0tLS0tLS0tLS0KPiAgYXJjaC94ODYvaW5jbHVkZS9hc20vcGFy
+YXZpcnRfdHlwZXMuaCB8IDE3IC0tLS0tLS0tLS0tLS0tLS0tCj4gIGFyY2gveDg2L2tlcm5lbC9h
+c20tb2Zmc2V0cy5jICAgICAgICAgfCAgMyAtLS0KPiAgYXJjaC94ODYva2VybmVsL2FzbS1vZmZz
+ZXRzXzY0LmMgICAgICB8ICAxIC0KPiAgYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0LmMgICAgICAg
+ICAgICB8IDEyIC0tLS0tLS0tLS0tLQo+ICBhcmNoL3g4Ni9rZXJuZWwvcGFyYXZpcnRfcGF0Y2hf
+MzIuYyAgIHwgIDIgLS0KPiAgYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0X3BhdGNoXzY0LmMgICB8
+ICAzIC0tLQo+ICBhcmNoL3g4Ni94ZW4vZW5saWdodGVuLmMgICAgICAgICAgICAgIHwgIDcgKysr
+LS0tLQo+ICBhcmNoL3g4Ni94ZW4veGVuLWFzbV8zMi5TICAgICAgICAgICAgIHwgMTQgLS0tLS0t
+LS0tLS0tLS0KPiAgYXJjaC94ODYveGVuL3hlbi1hc21fNjQuUyAgICAgICAgICAgICB8IDE5IC0t
+LS0tLS0tLS0tLS0tLS0tLS0KPiAgYXJjaC94ODYveGVuL3hlbi1vcHMuaCAgICAgICAgICAgICAg
+ICB8ICAzIC0tLQo+ICAxNCBmaWxlcyBjaGFuZ2VkLCAxNyBpbnNlcnRpb25zKCspLCAxMTAgZGVs
+ZXRpb25zKC0pCgpBbGwgdGhyZWUgbG9vayBnb29kIHRvIG1lLgoKUmV2aWV3ZWQtYnk6IEJvcmlz
+bGF2IFBldGtvdiA8YnBAc3VzZS5kZT4KCi0tIApSZWdhcmRzL0dydXNzLAogICAgQm9yaXMuCgpT
+VVNFIExpbnV4IEdtYkgsIEdGOiBGZWxpeCBJbWVuZMO2cmZmZXIsIEphbmUgU21pdGhhcmQsIEdy
+YWhhbSBOb3J0b24sIEhSQiAyMTI4NCAoQUcgTsO8cm5iZXJnKQotLSAKX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
+aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
+dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
