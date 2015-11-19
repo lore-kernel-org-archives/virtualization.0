@@ -1,16 +1,14 @@
 From: Borislav Petkov <bp@suse.de>
-Subject: Re: [PATCH 1/3] x86/xen: Avoid fast syscall path for Xen PV guests
-Date: Thu, 19 Nov 2015 13:08:09 +0100
-Message-ID: <20151119120809.GC5953@pd.tnic>
+Subject: Re: [PATCH 0/3] Fix and cleanup for 32-bit PV sysexit
+Date: Thu, 19 Nov 2015 13:10:44 +0100
+Message-ID: <20151119121044.GD5953@pd.tnic>
 References: <1447877179-2775-1-git-send-email-boris.ostrovsky@oracle.com>
-	<1447877179-2775-2-git-send-email-boris.ostrovsky@oracle.com>
-	<CALCETrVUpqQy_EZMe8T5iRkA0FzS0Oz1Kuicr9yz3SwtdF1=9g@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CALCETrVUpqQy_EZMe8T5iRkA0FzS0Oz1Kuicr9yz3SwtdF1=9g@mail.gmail.com>
+In-Reply-To: <1447877179-2775-1-git-send-email-boris.ostrovsky@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,20 +18,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, David Vrabel <david.vrabel@citrix.com>, Andrew Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Thomas Gleixner <tglx@linutronix.de>
+To: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: konrad.wilk@oracle.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, david.vrabel@citrix.com, luto@kernel.org, hpa@zytor.com, xen-devel@lists.xenproject.org, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBOb3YgMTgsIDIwMTUgYXQgMTI6MjE6NTZQTSAtMDgwMCwgQW5keSBMdXRvbWlyc2tp
-IHdyb3RlOgo+IENvdWxkIHdlIG1ha2UgdGhpcyBhIGxpdHRsZSBsZXNzIHN1YnRsZToKPiAKPiBB
-TFRFUk5BVElWRSAidGVzdGwgJWVheCwgJWVheDsgbHogLkxzeXNjYWxsXzMyX2RvbmUiLCAiam1w
-Cj4gLkxzeXNjYXNsbF8zMl9kb25lIiwgWDg2X0ZFQVRVUkVfWEVOUFYKPiAKPiBCb3Jpc2xhdiwg
-d2hhdCBkbyB5b3UgdGhpbms/CgpJIGRvbid0IG1pbmQgZWl0aGVyLgoKSSB3b3VsZCd2ZSBzYWlk
-IHlvdXIgdmVyc2lvbiBkb2Vzbid0IHRvdWNoICVlYXggc28gdGhlIHJlc3VsdCBpbiB0aGVyZQpt
-aWdodCBiZSB1c2VmdWwgZm9yIGNhbGxlcnMgYnV0IGFsbCBwYXRocyBkbyBvdmVyd3JpdGUgaXQs
-IEFGQUlDVC4KCi0tIApSZWdhcmRzL0dydXNzLAogICAgQm9yaXMuCgpTVVNFIExpbnV4IEdtYkgs
-IEdGOiBGZWxpeCBJbWVuZMO2cmZmZXIsIEphbmUgU21pdGhhcmQsIEdyYWhhbSBOb3J0b24sIEhS
-QiAyMTI4NCAoQUcgTsO8cm5iZXJnKQotLSAKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
-aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
-aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+T24gV2VkLCBOb3YgMTgsIDIwMTUgYXQgMDM6MDY6MTZQTSAtMDUwMCwgQm9yaXMgT3N0cm92c2t5
+IHdyb3RlOgo+IFRoZSBmaXJzdCBwYXRjaCBmaXhlcyBYZW4gUFYgcmVncmVzc2lvbiBpbnRyb2R1
+Y2VkIGJ5IDMyLWJpdCByZXdyaXRlLiBVbmxpa2UgdGhlCj4gZWFybGllciB2ZXJzaW9uIGl0IHVz
+ZXMgQUxURVJOQVRJVkUgaW5zdHJ1Y3Rpb24gYW5kIGF2b2lkcyB1c2luZyB4ZW5fc3lzZXhpdAo+
+IChhbmQgc3lzcmV0MzIgaW4gY29tcGF0IG1vZGUpIHB2IG9wcywgYXMgc3VnZ2VzdGVkIGJ5IEFu
+ZHkuIChJIGVuZGVkIHVwIHBhdGNoaW5nCj4gVEVTVCB3aXRoIFhPUiB0byBhdm9pZCBleHRyYSBO
+T1BzLCBldmVuIHRob3VnaCBJIHNhaWQgeWVzdGVyZGF5IGl0IHdvdWxkIGJlCj4gd3JvbmcuIEl0
+J3Mgbm90IHdyb25nKQo+IAo+IEFzIHJlc3VsdCBvZiB0aGlzIHBhdGNoIGlycV9lbmFibGVfc3lz
+ZXhpdCBhbmQgdXNlcmdzX3N5c3JldDMyIHB2IG9wcyBhcmUgbm90Cj4gdXNlZCBhbnltb3JlIGJ5
+IGFueW9uZSBhbmQgc28gY2FuIGJlIHJlbW92ZWQuCj4gCj4gQm9yaXMgT3N0cm92c2t5ICgzKToK
+PiAgIHg4Ni94ZW46IEF2b2lkIGZhc3Qgc3lzY2FsbCBwYXRoIGZvciBYZW4gUFYgZ3Vlc3RzCj4g
+ICB4ODY6IGlycV9lbmFibGVfc3lzZXhpdCBwdiBvcCBpcyBubyBsb25nZXIgbmVlZGVkCj4gICB4
+ODY6IHVzZXJnc19zeXNyZXQzMiBwdiBvcCBpcyBubyBsb25nZXIgbmVlZGVkCj4gCj4gIGFyY2gv
+eDg2L2VudHJ5L2VudHJ5XzMyLlMgICAgICAgICAgICAgfCAxMSArKysrLS0tLS0tLQo+ICBhcmNo
+L3g4Ni9lbnRyeS9lbnRyeV82NF9jb21wYXQuUyAgICAgIHwgMTYgKysrKysrLS0tLS0tLS0tLQo+
+ICBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9jcHVmZWF0dXJlLmggICAgIHwgIDEgKwo+ICBhcmNoL3g4
+Ni9pbmNsdWRlL2FzbS9wYXJhdmlydC5oICAgICAgIHwgMTIgLS0tLS0tLS0tLS0tCj4gIGFyY2gv
+eDg2L2luY2x1ZGUvYXNtL3BhcmF2aXJ0X3R5cGVzLmggfCAxNyAtLS0tLS0tLS0tLS0tLS0tLQo+
+ICBhcmNoL3g4Ni9rZXJuZWwvYXNtLW9mZnNldHMuYyAgICAgICAgIHwgIDMgLS0tCj4gIGFyY2gv
+eDg2L2tlcm5lbC9hc20tb2Zmc2V0c182NC5jICAgICAgfCAgMSAtCj4gIGFyY2gveDg2L2tlcm5l
+bC9wYXJhdmlydC5jICAgICAgICAgICAgfCAxMiAtLS0tLS0tLS0tLS0KPiAgYXJjaC94ODYva2Vy
+bmVsL3BhcmF2aXJ0X3BhdGNoXzMyLmMgICB8ICAyIC0tCj4gIGFyY2gveDg2L2tlcm5lbC9wYXJh
+dmlydF9wYXRjaF82NC5jICAgfCAgMyAtLS0KPiAgYXJjaC94ODYveGVuL2VubGlnaHRlbi5jICAg
+ICAgICAgICAgICB8ICA3ICsrKy0tLS0KPiAgYXJjaC94ODYveGVuL3hlbi1hc21fMzIuUyAgICAg
+ICAgICAgICB8IDE0IC0tLS0tLS0tLS0tLS0tCj4gIGFyY2gveDg2L3hlbi94ZW4tYXNtXzY0LlMg
+ICAgICAgICAgICAgfCAxOSAtLS0tLS0tLS0tLS0tLS0tLS0tCj4gIGFyY2gveDg2L3hlbi94ZW4t
+b3BzLmggICAgICAgICAgICAgICAgfCAgMyAtLS0KPiAgMTQgZmlsZXMgY2hhbmdlZCwgMTQgaW5z
+ZXJ0aW9ucygrKSwgMTA3IGRlbGV0aW9ucygtKQoKQ2FuJ3QgYXJndWUgd2l0aCB0aGF0IGRpZmZz
+dGF0IQoKOi0pCgotLSAKUmVnYXJkcy9HcnVzcywKICAgIEJvcmlzLgoKU1VTRSBMaW51eCBHbWJI
+LCBHRjogRmVsaXggSW1lbmTDtnJmZmVyLCBKYW5lIFNtaXRoYXJkLCBHcmFoYW0gTm9ydG9uLCBI
+UkIgMjEyODQgKEFHIE7DvHJuYmVyZykKLS0gCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
+dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
+dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
