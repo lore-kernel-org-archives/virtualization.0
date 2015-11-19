@@ -1,14 +1,11 @@
-From: Borislav Petkov <bp@suse.de>
-Subject: Re: [PATCH v2 0/3] Fix and cleanup for 32-bit PV sysexit
-Date: Fri, 20 Nov 2015 00:02:32 +0100
-Message-ID: <20151119230232.GC4926@pd.tnic>
-References: <1447970147-1733-1-git-send-email-boris.ostrovsky@oracle.com>
+From: "Maria Lemos" <marialemos72@gmail.com>
+Subject: Extended deadline: November 22 --- WorldCIST'2016: 4th World
+	Conference on Information Systems and Technologies
+Date: Thu, 19 Nov 2015 23:27:23 +0000
+Message-ID: <20151119232743.A46A6405@mail.linuxfoundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============0033402543564780879=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1447970147-1733-1-git-send-email-boris.ostrovsky@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,44 +15,195 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: konrad.wilk@oracle.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, david.vrabel@citrix.com, luto@kernel.org, hpa@zytor.com, xen-devel@lists.xenproject.org, tglx@linutronix.de
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBOb3YgMTksIDIwMTUgYXQgMDQ6NTU6NDRQTSAtMDUwMCwgQm9yaXMgT3N0cm92c2t5
-IHdyb3RlOgo+IFRoZSBmaXJzdCBwYXRjaCBmaXhlcyBYZW4gUFYgcmVncmVzc2lvbiBpbnRyb2R1
-Y2VkIGJ5IDMyLWJpdCByZXdyaXRlLiBVbmxpa2UgdGhlCj4gZWFybGllciB2ZXJzaW9uIGl0IHVz
-ZXMgQUxURVJOQVRJVkUgaW5zdHJ1Y3Rpb24gYW5kIGF2b2lkcyB1c2luZyB4ZW5fc3lzZXhpdAo+
-IChhbmQgc3lzcmV0MzIgaW4gY29tcGF0IG1vZGUpIHB2IG9wcywgYXMgc3VnZ2VzdGVkIGJ5IEFu
-ZHkuCj4gCj4gQXMgcmVzdWx0IG9mIHRoaXMgcGF0Y2ggaXJxX2VuYWJsZV9zeXNleGl0IGFuZCB1
-c2VyZ3Nfc3lzcmV0MzIgcHYgb3BzIGFyZSBub3QKPiB1c2VkIGFueW1vcmUgYnkgYW55b25lIGFu
-ZCBzbyBjYW4gYmUgcmVtb3ZlZC4KPiAKPiAKPiB2MjoKPiAgICogcGF0Y2ggYm90aCBURVNUIGFu
-ZCBKWiBpbnRydWN0aW9ucyB3aXRoIGEgc2luZ2xlIEpNUAo+ICAgKiBBZGQgbWFnaWMgcHJlZml4
-IHRvIFg4Nl9GRUFUVVJFX1hFTlBWIGNvbW1lbnQgdG8gYXZvaWQgaGF2aW5nIGl0IHByaW50ZWQg
-aW4KPiAgICAgL3Byb2MvY3B1aW5mbwo+ICAgKiBDbGFyaWZ5IGluIGNvbW1pdCBtZXNzYWdlcyB3
-aHkgaXJxX2VuYWJsZV9zeXNleGl0IGFuZCB1c2VyZ3Nfc3lzcmV0MzIgYXJlCj4gICAgIHJlbW92
-ZWQKPiAKPiAKPiBCb3JpcyBPc3Ryb3Zza3kgKDMpOgo+ICAgeDg2L3hlbjogQXZvaWQgZmFzdCBz
-eXNjYWxsIHBhdGggZm9yIFhlbiBQViBndWVzdHMKPiAgIHg4NjogaXJxX2VuYWJsZV9zeXNleGl0
-IHB2IG9wIGlzIG5vIGxvbmdlciBuZWVkZWQKPiAgIHg4NjogdXNlcmdzX3N5c3JldDMyIHB2IG9w
-IGlzIG5vIGxvbmdlciBuZWVkZWQKPiAKPiAgYXJjaC94ODYvZW50cnkvZW50cnlfMzIuUyAgICAg
-ICAgICAgICB8IDEzICsrKysrLS0tLS0tLS0KPiAgYXJjaC94ODYvZW50cnkvZW50cnlfNjRfY29t
-cGF0LlMgICAgICB8IDIwICsrKysrKysrLS0tLS0tLS0tLS0tCj4gIGFyY2gveDg2L2luY2x1ZGUv
-YXNtL2NwdWZlYXR1cmUuaCAgICAgfCAgMSArCj4gIGFyY2gveDg2L2luY2x1ZGUvYXNtL3BhcmF2
-aXJ0LmggICAgICAgfCAxMiAtLS0tLS0tLS0tLS0KPiAgYXJjaC94ODYvaW5jbHVkZS9hc20vcGFy
-YXZpcnRfdHlwZXMuaCB8IDE3IC0tLS0tLS0tLS0tLS0tLS0tCj4gIGFyY2gveDg2L2tlcm5lbC9h
-c20tb2Zmc2V0cy5jICAgICAgICAgfCAgMyAtLS0KPiAgYXJjaC94ODYva2VybmVsL2FzbS1vZmZz
-ZXRzXzY0LmMgICAgICB8ICAxIC0KPiAgYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0LmMgICAgICAg
-ICAgICB8IDEyIC0tLS0tLS0tLS0tLQo+ICBhcmNoL3g4Ni9rZXJuZWwvcGFyYXZpcnRfcGF0Y2hf
-MzIuYyAgIHwgIDIgLS0KPiAgYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0X3BhdGNoXzY0LmMgICB8
-ICAzIC0tLQo+ICBhcmNoL3g4Ni94ZW4vZW5saWdodGVuLmMgICAgICAgICAgICAgIHwgIDcgKysr
-LS0tLQo+ICBhcmNoL3g4Ni94ZW4veGVuLWFzbV8zMi5TICAgICAgICAgICAgIHwgMTQgLS0tLS0t
-LS0tLS0tLS0KPiAgYXJjaC94ODYveGVuL3hlbi1hc21fNjQuUyAgICAgICAgICAgICB8IDE5IC0t
-LS0tLS0tLS0tLS0tLS0tLS0KPiAgYXJjaC94ODYveGVuL3hlbi1vcHMuaCAgICAgICAgICAgICAg
-ICB8ICAzIC0tLQo+ICAxNCBmaWxlcyBjaGFuZ2VkLCAxNyBpbnNlcnRpb25zKCspLCAxMTAgZGVs
-ZXRpb25zKC0pCgpBbGwgdGhyZWUgbG9vayBnb29kIHRvIG1lLgoKUmV2aWV3ZWQtYnk6IEJvcmlz
-bGF2IFBldGtvdiA8YnBAc3VzZS5kZT4KCi0tIApSZWdhcmRzL0dydXNzLAogICAgQm9yaXMuCgpT
-VVNFIExpbnV4IEdtYkgsIEdGOiBGZWxpeCBJbWVuZMO2cmZmZXIsIEphbmUgU21pdGhhcmQsIEdy
-YWhhbSBOb3J0b24sIEhSQiAyMTI4NCAoQUcgTsO8cm5iZXJnKQotLSAKX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
-aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
-dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+--===============0033402543564780879==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+---------
+WorldCIST'16 - 4th World Conference on Information Systems and Technol=
+ogies=20
+Recife, PE, Brazil
+22th-24th of March 2016
+http://www.aisti.eu/worldcist16/
+-------------------------------------------
+
+
+SCOPE
+
+The WorldCist'16 - 4th World Conference on Information Systems and Tec=
+hnologies ( http://www.aisti.eu/worldcist16/ ), to be held at Recife, =
+PE, Brazil, 22 - 24 March 2016, is a global forum for researchers and =
+practitioners to present and discuss the most recent innovations, tren=
+ds, results, experiences and concerns in the several perspectives of I=
+nformation Systems and Technologies.
+
+We are pleased to invite you to submit your papers to WorldCist'16. Al=
+l submissions will be reviewed on the basis of relevance, originality,=
+ importance and clarity.
+
+
+THEMES
+
+Submitted papers should be related with one or more of the main themes=
+ proposed for the Conference:
+
+A) Information and Knowledge Management (IKM);
+B) Organizational Models and Information Systems (OMIS);
+C) Software and Systems Modeling (SSM);
+D) Software Systems, Architectures, Applications and Tools (SSAAT);
+E) Multimedia Systems and Applications (MSA);
+F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
+G) Intelligent and Decision Support Systems (IDSS);
+H) Big Data Analytics and Applications (BDAA);
+I) Human-Computer Interaction (HCI);
+J) Health Informatics (HIS);
+K) Information Technologies in Education (ITE);
+L) Information Technologies in Radiocommunications (ITR).
+
+
+TYPES OF SUBMISSIONS AND DECISIONS
+
+Four types of papers can be submitted:
+
+- Full paper: Finished or consolidated R&D works, to be included in on=
+e of the Conference themes. These papers are assigned a 10-page limit.
+
+- Short paper: Ongoing works with relevant preliminary results, open t=
+o discussion. These papers are assigned a 7-page limit.
+
+-Poster paper: Initial work with relevant ideas, open to discussion. T=
+hese papers are assigned to a 4-page limit.
+
+- Company paper: Companies' papers that show practical experience, R &=
+ D, tools, etc., focused on some topics of the conference. These paper=
+s are assigned to a 4-page limit.
+
+Submitted papers must comply with the format of Advances in Intelligen=
+t Systems and Computing Series (see Instructions for Authors at Spring=
+er Website or download a DOC example) be written in English, must not =
+have been published before, not be under review for any other conferen=
+ce or publication and not include any information leading to the autho=
+rs=92 identification. Therefore, the authors=92 names, affiliations an=
+d bibliographic references should not be included in the version for e=
+valuation by the Program Committee. This information should only be in=
+cluded in the camera-ready version, saved in Word or Latex format and =
+also in PDF format. These files must be accompanied by the Consent to =
+Publication form filled out, in a ZIP file, and uploaded at the confer=
+ence management system.
+
+All papers will be subjected to a =93double-blind review=94 by at leas=
+t two members of the Program Committee.
+
+Based on Program Committee evaluation, a paper can be rejected or acce=
+pted by the Conference Chairs. In the later case, it can be accepted a=
+s the type originally submitted or as another type. Thus, full papers =
+can be accepted as short papers or poster papers only. Similarly, shor=
+t papers can be accepted as poster papers only. In these cases, the au=
+thors will be allowed to maintain the original number of pages in the =
+camera-ready version.
+
+The authors of accepted poster papers must also build and print a post=
+er to be exhibited during the Conference. This poster must follow an A=
+1 or A2 vertical format. The Conference can includes Work Sessions whe=
+re these posters are presented and orally discussed, with a 5 minute l=
+imit per poster.
+
+The authors of accepted full papers will have 15 minutes to present th=
+eir work in a Conference Work Session; approximately 5 minutes of disc=
+ussion will follow each presentation. The authors of accepted short pa=
+pers and company papers will have 11 minutes to present their work in =
+a Conference Work Session; approximately 4 minutes of discussion will =
+follow each presentation.
+
+
+PUBLICATION AND INDEXING
+
+To ensure that a full paper, short paper, poster paper or company pape=
+r is published in the Proceedings, at least one of the authors must be=
+ fully registered by the 27th of December 2015, and the paper must com=
+ply with the suggested layout and page-limit. Additionally, all recomm=
+ended changes must be addressed by the authors before they submit the =
+camera-ready version.
+
+No more than one paper per registration will be published in the Confe=
+rence Proceedings. An extra fee must be paid for publication of additi=
+onal papers, with a maximum of one additional paper per registration.
+
+Full and short papers will be published in Proceedings by Springer, in=
+ a book of Advances in Intelligent Systems and Computing series. Poste=
+r and company papers will be published by AISTI.
+
+Published full and short papers will be submitted for indexation by IS=
+I, EI-Compendex, SCOPUS and DBLP, among others, and will be available =
+in the SpringerLink Digital Library.
+
+The authors of the best selected papers will be invited to extend them=
+ for publication in international journals indexed by ISI/SCI, SCOPUS =
+and DBLP, among others, such as:
+
+- International Journal of Neural Systems (IF: 6.507)
+- Integrated Computer-Aided Engineering (IF: 4.698)
+- Computers in Human Behavior (IF: 2.694)
+- Journal of Medical Systems (IF: 2.213)
+- International Journal of Computer-Supported Collaborative Learning (=
+IF: 1.841)
+- Journal of Intelligent & Fuzzy Systems (IF: 1.812)
+- Telemedicine and e-Health (IF: 1.668)
+- International Journal of Information Management (IF: 1.550)
+- Engineering Computations (IF: 1.495)
+- Electronic Commerce Research and Applications (IF: 1.482)
+- Telematics and Informatics (IF: 1.120)
+- Journal of Evaluation in Clinical Practice (IF: 1.084)
+- Ethics and Information Technology (IF: 1.021)
+- Int. Journal of Computers Communications & Control (IF: 0.746)
+- IET Software (IF: 0.595)
+- Knowledge Management Research & Practice (IF: 0.554)
+- AI Communications (IF: 0.547)
+- Computing and Informatics (IF: 0.504)
+- Universal Access in the Information Society (IF: 0.475)
+- Journal of Global Information Management (IF: 0.424)
+- Journal of Internet Services and Applications (SJR: 0.88)
+- Journal of Hospitality and Tourism Technology (SJR: 0.41)
+- VINE - The Journal of Information and Knowledge Management Systems (=
+SJR: 0.24)
+- International Journal of Online Engineering (SJR: 0.21)
+- Int. Journal of Emerging Technologies in Learning (SJR: 0.12)
+- Computer Methods in Biomechanics and Biomedical Engineering: Imaging=
+ & Visualization
+
+
+IMPORTANT DATES
+
+Paper Submission: November 27, 2015
+
+Notification of Acceptance: December 13, 2015
+
+Payment of Registration, to ensure the inclusion of an accepted paper =
+in the conference proceedings: December 27, 2015.
+
+Camera-ready Submission: December 31, 2015
+
+
+-
+
+WorldCIST'16
+http://www.aisti.eu/worldcist16/
+
+
+
+
+
+--===============0033402543564780879==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============0033402543564780879==--
