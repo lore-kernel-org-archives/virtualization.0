@@ -1,16 +1,14 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [RFC] kvmtool: add support for modern virtio-pci
-Date: Thu, 19 Nov 2015 08:21:10 +0100
-Message-ID: <1447917670.25140.3.camel__26440.3384099298$1447917695$gmane$org@redhat.com>
-References: <1447823472-17047-1-git-send-email-sasha.levin@oracle.com>
-	<1447834972.23726.92.camel@redhat.com> <564C9805.8080800@oracle.com>
-	<1447869140.23691.15.camel@redhat.com> <564D496D.2010105@oracle.com>
-	<564D49A7.30400@oracle.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH -qemu] nvme: support Google vendor extension
+Date: Thu, 19 Nov 2015 11:37:54 +0100
+Message-ID: <564DA682.8050706@redhat.com>
+References: <1447825624-17011-1-git-send-email-mlin@kernel.org>
+	<1447825624-17011-3-git-send-email-mlin@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <564D49A7.30400@oracle.com>
+In-Reply-To: <1447825624-17011-3-git-send-email-mlin@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,25 +18,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <sasha.levin@oracle.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, andre.przywara@arm.com, will.deacon@arm.com, josh@joshtriplett.org, virtualization@lists.linux-foundation.org, penberg@kernel.org
+To: Ming Lin <mlin@kernel.org>, linux-nvme@lists.infradead.org, qemu-devel@nongnu.org
+Cc: fes@google.com, axboe@fb.com, Rob Nelson <rlnelson@google.com>, virtualization@lists.linux-foundation.org, keith.busch@intel.com, tytso@mit.edu, Christoph Hellwig <hch@lst.de>, Mihai Rusu <dizzy@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mi, 2015-11-18 at 23:01 -0500, Sasha Levin wrote:
-> On 11/18/2015 11:00 PM, Sasha Levin wrote:
-> > Anyways, I debugged it for a bit a found that seabios attempts to write to
-> > the notification BAR, I look further tomorrow to narrow it down and fix it.
-> 
-> Err, *read*, obviously.
-> 
-> I've never implemented that because the kernel doesn't try to do that (it doesn't
-> make much sense, I think...).
 
-It doesn't make sense indeed (kvmtool still shouldn't segfault though),
-and on a quick look I can't spot a place in seabios doing that ...
 
-It's reading ISR, as part of device reset, to make sure any pending
-interrupts are cleared.
+On 18/11/2015 06:47, Ming Lin wrote:
+> @@ -726,7 +798,11 @@ static void nvme_process_db(NvmeCtrl *n, hwaddr addr, int val)
+>          }
+>  
+>          start_sqs = nvme_cq_full(cq) ? 1 : 0;
+> -        cq->head = new_head;
+> +        /* When the mapped pointer memory area is setup, we don't rely on
+> +         * the MMIO written values to update the head pointer. */
+> +        if (!cq->db_addr) {
+> +            cq->head = new_head;
+> +        }
 
-cheers,
-  Gerd
+You are still checking
+
+        if (new_head >= cq->size) {
+            return;
+        }
+
+above.  I think this is incorrect when the extension is present, and
+furthermore it's the only case where val is being used.
+
+If you're not using val, you could use ioeventfd for the MMIO.  An
+ioeventfd cuts the MMIO cost by at least 55% and up to 70%. Here are
+quick and dirty measurements from kvm-unit-tests's vmexit.flat
+benchmark, on two very different machines:
+
+			Haswell-EP		Ivy Bridge i7
+  MMIO memory write	5100 -> 2250 (55%)	7000 -> 3000 (58%)
+  I/O port write	3800 -> 1150 (70%)	4100 -> 1800 (57%)
+
+You would need to allocate two eventfds for each qid, one for the sq and
+one for the cq.  Also, processing the queues is now bounced to the QEMU
+iothread, so you can probably get rid of sq->timer and cq->timer.
+
+Paolo
