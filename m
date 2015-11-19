@@ -1,13 +1,14 @@
-From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH v2 1/3] x86/xen: Avoid fast syscall path for Xen PV guests
-Date: Thu, 19 Nov 2015 16:55:45 -0500
-Message-ID: <1447970147-1733-2-git-send-email-boris.ostrovsky@oracle.com>
-References: <1447970147-1733-1-git-send-email-boris.ostrovsky@oracle.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
+Date: Thu, 19 Nov 2015 13:59:05 -0800
+Message-ID: <CALCETrXXsThXpbRMQ_CWTsq7_HiRFaK+dTeDYaz5cSm0QtoW_w@mail.gmail.com>
+References: <cover.1446014204.git.luto@kernel.org>
+	<20151119153821-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1447970147-1733-1-git-send-email-boris.ostrovsky@oracle.com>
+In-Reply-To: <20151119153821-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,103 +18,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, david.vrabel@citrix.com, konrad.wilk@oracle.com
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, luto@kernel.org, xen-devel@lists.xenproject.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>, bp@suse.de
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, KVM <kvm@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Joerg Roedel <jroedel@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, David Woodhouse <dwmw2@infradead.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-After 32-bit syscall rewrite, and specifically after commit 5f310f739b4c
-("x86/entry/32: Re-implement SYSENTER using the new C path"), the stack
-frame that is passed to xen_sysexit is no longer a "standard" one (i.e.
-it's not pt_regs).
+On Nov 19, 2015 5:45 AM, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+>
+> On Tue, Oct 27, 2015 at 11:38:57PM -0700, Andy Lutomirski wrote:
+> > This switches virtio to use the DMA API unconditionally.  I'm sure
+> > it breaks things, but it seems to work on x86 using virtio-pci, with
+> > and without Xen, and using both the modern 1.0 variant and the
+> > legacy variant.
+>
+> So thinking hard about it, I don't see any real drawbacks to making this
+> conditional on a new feature bit, that Xen can then set..
 
-Since we end up calling xen_iret from xen_sysexit we don't need to fix
-up the stack and instead follow entry_SYSENTER_32's IRET path directly
-to xen_iret.
+Can you elaborate?  If I run QEMU, hosting Xen, hosting Linux, and the
+virtio device is provided by QEMU, then how does Xen set the bit?
+Similarly, how would Xen set the bit for a real physical device?
 
-We can do the same thing for compat mode even though stack does not need
-to be fixed. This will allow us to drop usergs_sysret32 paravirt op (in
-the subsequent patch)
 
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Suggested-by: Andy Lutomirski <luto@amacapital.net>
----
- arch/x86/entry/entry_32.S         |  5 +++--
- arch/x86/entry/entry_64_compat.S  | 10 ++++++----
- arch/x86/include/asm/cpufeature.h |  1 +
- arch/x86/xen/enlighten.c          |  4 +++-
- 4 files changed, 13 insertions(+), 7 deletions(-)
-
-diff --git a/arch/x86/entry/entry_32.S b/arch/x86/entry/entry_32.S
-index 3eb572e..0870825 100644
---- a/arch/x86/entry/entry_32.S
-+++ b/arch/x86/entry/entry_32.S
-@@ -308,8 +308,9 @@ sysenter_past_esp:
- 
- 	movl	%esp, %eax
- 	call	do_fast_syscall_32
--	testl	%eax, %eax
--	jz	.Lsyscall_32_done
-+	/* XEN PV guests always use IRET path */
-+	ALTERNATIVE "testl %eax, %eax; jz .Lsyscall_32_done", \
-+		    "jmp .Lsyscall_32_done", X86_FEATURE_XENPV
- 
- /* Opportunistic SYSEXIT */
- 	TRACE_IRQS_ON			/* User mode traces as IRQs on. */
-diff --git a/arch/x86/entry/entry_64_compat.S b/arch/x86/entry/entry_64_compat.S
-index c320183..402e34a 100644
---- a/arch/x86/entry/entry_64_compat.S
-+++ b/arch/x86/entry/entry_64_compat.S
-@@ -121,8 +121,9 @@ sysenter_flags_fixed:
- 
- 	movq	%rsp, %rdi
- 	call	do_fast_syscall_32
--	testl	%eax, %eax
--	jz	.Lsyscall_32_done
-+	/* XEN PV guests always use IRET path */
-+	ALTERNATIVE "testl %eax, %eax; jz .Lsyscall_32_done", \
-+		    "jmp .Lsyscall_32_done", X86_FEATURE_XENPV
- 	jmp	sysret32_from_system_call
- 
- sysenter_fix_flags:
-@@ -200,8 +201,9 @@ ENTRY(entry_SYSCALL_compat)
- 
- 	movq	%rsp, %rdi
- 	call	do_fast_syscall_32
--	testl	%eax, %eax
--	jz	.Lsyscall_32_done
-+	/* XEN PV guests always use IRET path */
-+	ALTERNATIVE "testl %eax, %eax; jz .Lsyscall_32_done", \
-+		    "jmp .Lsyscall_32_done", X86_FEATURE_XENPV
- 
- 	/* Opportunistic SYSRET */
- sysret32_from_system_call:
-diff --git a/arch/x86/include/asm/cpufeature.h b/arch/x86/include/asm/cpufeature.h
-index e4f8010..f7ba9fb 100644
---- a/arch/x86/include/asm/cpufeature.h
-+++ b/arch/x86/include/asm/cpufeature.h
-@@ -216,6 +216,7 @@
- #define X86_FEATURE_PAUSEFILTER ( 8*32+13) /* AMD filtered pause intercept */
- #define X86_FEATURE_PFTHRESHOLD ( 8*32+14) /* AMD pause filter threshold */
- #define X86_FEATURE_VMMCALL     ( 8*32+15) /* Prefer vmmcall to vmcall */
-+#define X86_FEATURE_XENPV       ( 8*32+16) /* "" Xen paravirtual guest */
- 
- 
- /* Intel-defined CPU features, CPUID level 0x00000007:0 (ebx), word 9 */
-diff --git a/arch/x86/xen/enlighten.c b/arch/x86/xen/enlighten.c
-index 5774800..d315151 100644
---- a/arch/x86/xen/enlighten.c
-+++ b/arch/x86/xen/enlighten.c
-@@ -1886,8 +1886,10 @@ EXPORT_SYMBOL_GPL(xen_hvm_need_lapic);
- 
- static void xen_set_cpu_features(struct cpuinfo_x86 *c)
- {
--	if (xen_pv_domain())
-+	if (xen_pv_domain()) {
- 		clear_cpu_bug(c, X86_BUG_SYSRET_SS_ATTRS);
-+		set_cpu_cap(c, X86_FEATURE_XENPV);
-+	}
- }
- 
- const struct hypervisor_x86 x86_hyper_xen = {
--- 
-1.8.1.4
+--Andy
