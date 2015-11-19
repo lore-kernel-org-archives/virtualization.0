@@ -1,14 +1,16 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH -qemu] nvme: support Google vendor extension
-Date: Thu, 19 Nov 2015 11:37:54 +0100
-Message-ID: <564DA682.8050706@redhat.com>
-References: <1447825624-17011-1-git-send-email-mlin@kernel.org>
-	<1447825624-17011-3-git-send-email-mlin@kernel.org>
+From: Borislav Petkov <bp@suse.de>
+Subject: Re: [PATCH 1/3] x86/xen: Avoid fast syscall path for Xen PV guests
+Date: Thu, 19 Nov 2015 13:08:09 +0100
+Message-ID: <20151119120809.GC5953@pd.tnic>
+References: <1447877179-2775-1-git-send-email-boris.ostrovsky@oracle.com>
+	<1447877179-2775-2-git-send-email-boris.ostrovsky@oracle.com>
+	<CALCETrVUpqQy_EZMe8T5iRkA0FzS0Oz1Kuicr9yz3SwtdF1=9g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1447825624-17011-3-git-send-email-mlin@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CALCETrVUpqQy_EZMe8T5iRkA0FzS0Oz1Kuicr9yz3SwtdF1=9g@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,44 +20,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ming Lin <mlin@kernel.org>, linux-nvme@lists.infradead.org, qemu-devel@nongnu.org
-Cc: fes@google.com, axboe@fb.com, Rob Nelson <rlnelson@google.com>, virtualization@lists.linux-foundation.org, keith.busch@intel.com, tytso@mit.edu, Christoph Hellwig <hch@lst.de>, Mihai Rusu <dizzy@google.com>
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, David Vrabel <david.vrabel@citrix.com>, Andrew Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 18/11/2015 06:47, Ming Lin wrote:
-> @@ -726,7 +798,11 @@ static void nvme_process_db(NvmeCtrl *n, hwaddr addr, int val)
->          }
->  
->          start_sqs = nvme_cq_full(cq) ? 1 : 0;
-> -        cq->head = new_head;
-> +        /* When the mapped pointer memory area is setup, we don't rely on
-> +         * the MMIO written values to update the head pointer. */
-> +        if (!cq->db_addr) {
-> +            cq->head = new_head;
-> +        }
-
-You are still checking
-
-        if (new_head >= cq->size) {
-            return;
-        }
-
-above.  I think this is incorrect when the extension is present, and
-furthermore it's the only case where val is being used.
-
-If you're not using val, you could use ioeventfd for the MMIO.  An
-ioeventfd cuts the MMIO cost by at least 55% and up to 70%. Here are
-quick and dirty measurements from kvm-unit-tests's vmexit.flat
-benchmark, on two very different machines:
-
-			Haswell-EP		Ivy Bridge i7
-  MMIO memory write	5100 -> 2250 (55%)	7000 -> 3000 (58%)
-  I/O port write	3800 -> 1150 (70%)	4100 -> 1800 (57%)
-
-You would need to allocate two eventfds for each qid, one for the sq and
-one for the cq.  Also, processing the queues is now bounced to the QEMU
-iothread, so you can probably get rid of sq->timer and cq->timer.
-
-Paolo
+T24gV2VkLCBOb3YgMTgsIDIwMTUgYXQgMTI6MjE6NTZQTSAtMDgwMCwgQW5keSBMdXRvbWlyc2tp
+IHdyb3RlOgo+IENvdWxkIHdlIG1ha2UgdGhpcyBhIGxpdHRsZSBsZXNzIHN1YnRsZToKPiAKPiBB
+TFRFUk5BVElWRSAidGVzdGwgJWVheCwgJWVheDsgbHogLkxzeXNjYWxsXzMyX2RvbmUiLCAiam1w
+Cj4gLkxzeXNjYXNsbF8zMl9kb25lIiwgWDg2X0ZFQVRVUkVfWEVOUFYKPiAKPiBCb3Jpc2xhdiwg
+d2hhdCBkbyB5b3UgdGhpbms/CgpJIGRvbid0IG1pbmQgZWl0aGVyLgoKSSB3b3VsZCd2ZSBzYWlk
+IHlvdXIgdmVyc2lvbiBkb2Vzbid0IHRvdWNoICVlYXggc28gdGhlIHJlc3VsdCBpbiB0aGVyZQpt
+aWdodCBiZSB1c2VmdWwgZm9yIGNhbGxlcnMgYnV0IGFsbCBwYXRocyBkbyBvdmVyd3JpdGUgaXQs
+IEFGQUlDVC4KCi0tIApSZWdhcmRzL0dydXNzLAogICAgQm9yaXMuCgpTVVNFIExpbnV4IEdtYkgs
+IEdGOiBGZWxpeCBJbWVuZMO2cmZmZXIsIEphbmUgU21pdGhhcmQsIEdyYWhhbSBOb3J0b24sIEhS
+QiAyMTI4NCAoQUcgTsO8cm5iZXJnKQotLSAKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
+aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
+aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
