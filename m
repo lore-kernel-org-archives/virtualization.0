@@ -1,14 +1,16 @@
-From: Borislav Petkov <bp@suse.de>
-Subject: Re: [PATCH 0/3] Fix and cleanup for 32-bit PV sysexit
-Date: Thu, 19 Nov 2015 13:10:44 +0100
-Message-ID: <20151119121044.GD5953@pd.tnic>
-References: <1447877179-2775-1-git-send-email-boris.ostrovsky@oracle.com>
+From: Sasha Levin <sasha.levin@oracle.com>
+Subject: Re: [RFC] kvmtool: add support for modern virtio-pci
+Date: Thu, 19 Nov 2015 08:41:12 -0500
+Message-ID: <564DD178.9010904@oracle.com>
+References: <1447823472-17047-1-git-send-email-sasha.levin@oracle.com>
+	<1447834972.23726.92.camel@redhat.com> <564C9805.8080800@oracle.com>
+	<1447869140.23691.15.camel@redhat.com> <564D496D.2010105@oracle.com>
+	<564D49A7.30400@oracle.com> <1447917670.25140.3.camel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1447877179-2775-1-git-send-email-boris.ostrovsky@oracle.com>
+In-Reply-To: <1447917670.25140.3.camel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,41 +20,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: konrad.wilk@oracle.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, david.vrabel@citrix.com, luto@kernel.org, hpa@zytor.com, xen-devel@lists.xenproject.org, tglx@linutronix.de
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, andre.przywara@arm.com, will.deacon@arm.com, josh@joshtriplett.org, virtualization@lists.linux-foundation.org, penberg@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBOb3YgMTgsIDIwMTUgYXQgMDM6MDY6MTZQTSAtMDUwMCwgQm9yaXMgT3N0cm92c2t5
-IHdyb3RlOgo+IFRoZSBmaXJzdCBwYXRjaCBmaXhlcyBYZW4gUFYgcmVncmVzc2lvbiBpbnRyb2R1
-Y2VkIGJ5IDMyLWJpdCByZXdyaXRlLiBVbmxpa2UgdGhlCj4gZWFybGllciB2ZXJzaW9uIGl0IHVz
-ZXMgQUxURVJOQVRJVkUgaW5zdHJ1Y3Rpb24gYW5kIGF2b2lkcyB1c2luZyB4ZW5fc3lzZXhpdAo+
-IChhbmQgc3lzcmV0MzIgaW4gY29tcGF0IG1vZGUpIHB2IG9wcywgYXMgc3VnZ2VzdGVkIGJ5IEFu
-ZHkuIChJIGVuZGVkIHVwIHBhdGNoaW5nCj4gVEVTVCB3aXRoIFhPUiB0byBhdm9pZCBleHRyYSBO
-T1BzLCBldmVuIHRob3VnaCBJIHNhaWQgeWVzdGVyZGF5IGl0IHdvdWxkIGJlCj4gd3JvbmcuIEl0
-J3Mgbm90IHdyb25nKQo+IAo+IEFzIHJlc3VsdCBvZiB0aGlzIHBhdGNoIGlycV9lbmFibGVfc3lz
-ZXhpdCBhbmQgdXNlcmdzX3N5c3JldDMyIHB2IG9wcyBhcmUgbm90Cj4gdXNlZCBhbnltb3JlIGJ5
-IGFueW9uZSBhbmQgc28gY2FuIGJlIHJlbW92ZWQuCj4gCj4gQm9yaXMgT3N0cm92c2t5ICgzKToK
-PiAgIHg4Ni94ZW46IEF2b2lkIGZhc3Qgc3lzY2FsbCBwYXRoIGZvciBYZW4gUFYgZ3Vlc3RzCj4g
-ICB4ODY6IGlycV9lbmFibGVfc3lzZXhpdCBwdiBvcCBpcyBubyBsb25nZXIgbmVlZGVkCj4gICB4
-ODY6IHVzZXJnc19zeXNyZXQzMiBwdiBvcCBpcyBubyBsb25nZXIgbmVlZGVkCj4gCj4gIGFyY2gv
-eDg2L2VudHJ5L2VudHJ5XzMyLlMgICAgICAgICAgICAgfCAxMSArKysrLS0tLS0tLQo+ICBhcmNo
-L3g4Ni9lbnRyeS9lbnRyeV82NF9jb21wYXQuUyAgICAgIHwgMTYgKysrKysrLS0tLS0tLS0tLQo+
-ICBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9jcHVmZWF0dXJlLmggICAgIHwgIDEgKwo+ICBhcmNoL3g4
-Ni9pbmNsdWRlL2FzbS9wYXJhdmlydC5oICAgICAgIHwgMTIgLS0tLS0tLS0tLS0tCj4gIGFyY2gv
-eDg2L2luY2x1ZGUvYXNtL3BhcmF2aXJ0X3R5cGVzLmggfCAxNyAtLS0tLS0tLS0tLS0tLS0tLQo+
-ICBhcmNoL3g4Ni9rZXJuZWwvYXNtLW9mZnNldHMuYyAgICAgICAgIHwgIDMgLS0tCj4gIGFyY2gv
-eDg2L2tlcm5lbC9hc20tb2Zmc2V0c182NC5jICAgICAgfCAgMSAtCj4gIGFyY2gveDg2L2tlcm5l
-bC9wYXJhdmlydC5jICAgICAgICAgICAgfCAxMiAtLS0tLS0tLS0tLS0KPiAgYXJjaC94ODYva2Vy
-bmVsL3BhcmF2aXJ0X3BhdGNoXzMyLmMgICB8ICAyIC0tCj4gIGFyY2gveDg2L2tlcm5lbC9wYXJh
-dmlydF9wYXRjaF82NC5jICAgfCAgMyAtLS0KPiAgYXJjaC94ODYveGVuL2VubGlnaHRlbi5jICAg
-ICAgICAgICAgICB8ICA3ICsrKy0tLS0KPiAgYXJjaC94ODYveGVuL3hlbi1hc21fMzIuUyAgICAg
-ICAgICAgICB8IDE0IC0tLS0tLS0tLS0tLS0tCj4gIGFyY2gveDg2L3hlbi94ZW4tYXNtXzY0LlMg
-ICAgICAgICAgICAgfCAxOSAtLS0tLS0tLS0tLS0tLS0tLS0tCj4gIGFyY2gveDg2L3hlbi94ZW4t
-b3BzLmggICAgICAgICAgICAgICAgfCAgMyAtLS0KPiAgMTQgZmlsZXMgY2hhbmdlZCwgMTQgaW5z
-ZXJ0aW9ucygrKSwgMTA3IGRlbGV0aW9ucygtKQoKQ2FuJ3QgYXJndWUgd2l0aCB0aGF0IGRpZmZz
-dGF0IQoKOi0pCgotLSAKUmVnYXJkcy9HcnVzcywKICAgIEJvcmlzLgoKU1VTRSBMaW51eCBHbWJI
-LCBHRjogRmVsaXggSW1lbmTDtnJmZmVyLCBKYW5lIFNtaXRoYXJkLCBHcmFoYW0gTm9ydG9uLCBI
-UkIgMjEyODQgKEFHIE7DvHJuYmVyZykKLS0gCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
-dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
-dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On 11/19/2015 02:21 AM, Gerd Hoffmann wrote:
+> On Mi, 2015-11-18 at 23:01 -0500, Sasha Levin wrote:
+>> On 11/18/2015 11:00 PM, Sasha Levin wrote:
+>>> Anyways, I debugged it for a bit a found that seabios attempts to write to
+>>> the notification BAR, I look further tomorrow to narrow it down and fix it.
+>>
+>> Err, *read*, obviously.
+>>
+>> I've never implemented that because the kernel doesn't try to do that (it doesn't
+>> make much sense, I think...).
+> 
+> It doesn't make sense indeed (kvmtool still shouldn't segfault though),
+> and on a quick look I can't spot a place in seabios doing that ...
+> 
+> It's reading ISR, as part of device reset, to make sure any pending
+> interrupts are cleared.
+
+That was indeed the ISR field. Fixing that makes seabios reach the same point as
+legacy virtio before failing.
+
+I don't see the original correspondence about seabios failures you've reported, if
+you want to forward them over we can look at it further.
+
+
+Thanks,
+Sasha
