@@ -1,14 +1,13 @@
 From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
-Date: Thu, 19 Nov 2015 13:59:05 -0800
-Message-ID: <CALCETrXXsThXpbRMQ_CWTsq7_HiRFaK+dTeDYaz5cSm0QtoW_w@mail.gmail.com>
-References: <cover.1446014204.git.luto@kernel.org>
-	<20151119153821-mutt-send-email-mst@redhat.com>
+Subject: Re: [PATCH v2 0/3] Fix and cleanup for 32-bit PV sysexit
+Date: Thu, 19 Nov 2015 14:07:02 -0800
+Message-ID: <CALCETrUeGoeB8vNgbRNkFXjH0A570=M+4L1sRsfh-7btym59nA@mail.gmail.com>
+References: <1447970147-1733-1-git-send-email-boris.ostrovsky@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20151119153821-mutt-send-email-mst@redhat.com>
+In-Reply-To: <1447970147-1733-1-git-send-email-boris.ostrovsky@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,24 +17,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, KVM <kvm@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Joerg Roedel <jroedel@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, David Woodhouse <dwmw2@infradead.org>, Christoph Hellwig <hch@lst.de>
+To: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, David Vrabel <david.vrabel@citrix.com>, Andrew Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Nov 19, 2015 5:45 AM, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Thu, Nov 19, 2015 at 1:55 PM, Boris Ostrovsky
+<boris.ostrovsky@oracle.com> wrote:
+> The first patch fixes Xen PV regression introduced by 32-bit rewrite. Unlike the
+> earlier version it uses ALTERNATIVE instruction and avoids using xen_sysexit
+> (and sysret32 in compat mode) pv ops, as suggested by Andy.
 >
-> On Tue, Oct 27, 2015 at 11:38:57PM -0700, Andy Lutomirski wrote:
-> > This switches virtio to use the DMA API unconditionally.  I'm sure
-> > it breaks things, but it seems to work on x86 using virtio-pci, with
-> > and without Xen, and using both the modern 1.0 variant and the
-> > legacy variant.
->
-> So thinking hard about it, I don't see any real drawbacks to making this
-> conditional on a new feature bit, that Xen can then set..
+> As result of this patch irq_enable_sysexit and usergs_sysret32 pv ops are not
+> used anymore by anyone and so can be removed.
 
-Can you elaborate?  If I run QEMU, hosting Xen, hosting Linux, and the
-virtio device is provided by QEMU, then how does Xen set the bit?
-Similarly, how would Xen set the bit for a real physical device?
+This whole series is:
 
+Acked-by: Andy Lutomirski <luto@kernel.org>
+
+Now I just have to sucker someone into getting rid of
+PARAVIRT_ADJUST_EXCEPTION_FRAME (by using stub entries) and the
+overcomplicated syscall entry stuff.  :)  And whoever gets rid of
+PARAVIRT_ADJUST_EXCEPTION_FRAME gets to wonder why it doesn't crash
+and burn for NMIs on Xen, since I'm reasonably confident that it can't
+possibly be correct.
 
 --Andy
