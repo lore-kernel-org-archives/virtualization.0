@@ -1,7 +1,7 @@
 From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH v2 3/3] x86: usergs_sysret32 pv op is no longer needed
-Date: Thu, 19 Nov 2015 16:55:47 -0500
-Message-ID: <1447970147-1733-4-git-send-email-boris.ostrovsky@oracle.com>
+Subject: [PATCH v2 1/3] x86/xen: Avoid fast syscall path for Xen PV guests
+Date: Thu, 19 Nov 2015 16:55:45 -0500
+Message-ID: <1447970147-1733-2-git-send-email-boris.ostrovsky@oracle.com>
 References: <1447970147-1733-1-git-send-email-boris.ostrovsky@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,175 +21,99 @@ To: tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, david.vrabel@citrix.com
 Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, luto@kernel.org, xen-devel@lists.xenproject.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>, bp@suse.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-As result of commit "x86/xen: Avoid fast syscall path for Xen PV guests"
-usergs_sysret32 pv op is not called by Xen PV guests anymore and
-since they were the only ones who used it we can safely remove it.
+After 32-bit syscall rewrite, and specifically after commit 5f310f739b4c
+("x86/entry/32: Re-implement SYSENTER using the new C path"), the stack
+frame that is passed to xen_sysexit is no longer a "standard" one (i.e.
+it's not pt_regs).
+
+Since we end up calling xen_iret from xen_sysexit we don't need to fix
+up the stack and instead follow entry_SYSENTER_32's IRET path directly
+to xen_iret.
+
+We can do the same thing for compat mode even though stack does not need
+to be fixed. This will allow us to drop usergs_sysret32 paravirt op (in
+the subsequent patch)
 
 Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Suggested-by: Andy Lutomirski <luto@amacapital.net>
 ---
- arch/x86/entry/entry_64_compat.S      | 10 ++--------
- arch/x86/include/asm/paravirt.h       |  5 -----
- arch/x86/include/asm/paravirt_types.h |  8 --------
- arch/x86/kernel/asm-offsets_64.c      |  1 -
- arch/x86/kernel/paravirt.c            |  5 -----
- arch/x86/kernel/paravirt_patch_64.c   |  2 --
- arch/x86/xen/xen-asm_64.S             | 19 -------------------
- 7 files changed, 2 insertions(+), 48 deletions(-)
+ arch/x86/entry/entry_32.S         |  5 +++--
+ arch/x86/entry/entry_64_compat.S  | 10 ++++++----
+ arch/x86/include/asm/cpufeature.h |  1 +
+ arch/x86/xen/enlighten.c          |  4 +++-
+ 4 files changed, 13 insertions(+), 7 deletions(-)
 
+diff --git a/arch/x86/entry/entry_32.S b/arch/x86/entry/entry_32.S
+index 3eb572e..0870825 100644
+--- a/arch/x86/entry/entry_32.S
++++ b/arch/x86/entry/entry_32.S
+@@ -308,8 +308,9 @@ sysenter_past_esp:
+ 
+ 	movl	%esp, %eax
+ 	call	do_fast_syscall_32
+-	testl	%eax, %eax
+-	jz	.Lsyscall_32_done
++	/* XEN PV guests always use IRET path */
++	ALTERNATIVE "testl %eax, %eax; jz .Lsyscall_32_done", \
++		    "jmp .Lsyscall_32_done", X86_FEATURE_XENPV
+ 
+ /* Opportunistic SYSEXIT */
+ 	TRACE_IRQS_ON			/* User mode traces as IRQs on. */
 diff --git a/arch/x86/entry/entry_64_compat.S b/arch/x86/entry/entry_64_compat.S
-index 402e34a..bbcb285 100644
+index c320183..402e34a 100644
 --- a/arch/x86/entry/entry_64_compat.S
 +++ b/arch/x86/entry/entry_64_compat.S
-@@ -18,13 +18,6 @@
+@@ -121,8 +121,9 @@ sysenter_flags_fixed:
  
- 	.section .entry.text, "ax"
+ 	movq	%rsp, %rdi
+ 	call	do_fast_syscall_32
+-	testl	%eax, %eax
+-	jz	.Lsyscall_32_done
++	/* XEN PV guests always use IRET path */
++	ALTERNATIVE "testl %eax, %eax; jz .Lsyscall_32_done", \
++		    "jmp .Lsyscall_32_done", X86_FEATURE_XENPV
+ 	jmp	sysret32_from_system_call
  
--#ifdef CONFIG_PARAVIRT
--ENTRY(native_usergs_sysret32)
--	swapgs
--	sysretl
--ENDPROC(native_usergs_sysret32)
--#endif
--
- /*
-  * 32-bit SYSENTER instruction entry.
-  *
-@@ -238,7 +231,8 @@ sysret32_from_system_call:
- 	xorq	%r9, %r9
- 	xorq	%r10, %r10
- 	movq	RSP-ORIG_RAX(%rsp), %rsp
--        USERGS_SYSRET32
-+	swapgs
-+	sysretl
- END(entry_SYSCALL_compat)
+ sysenter_fix_flags:
+@@ -200,8 +201,9 @@ ENTRY(entry_SYSCALL_compat)
  
- /*
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index c28518e..1b71c3a 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -922,11 +922,6 @@ extern void default_banner(void);
- 		  call PARA_INDIRECT(pv_irq_ops+PV_IRQ_irq_enable);	\
- 		  PV_RESTORE_REGS(clobbers | CLBR_CALLEE_SAVE);)
+ 	movq	%rsp, %rdi
+ 	call	do_fast_syscall_32
+-	testl	%eax, %eax
+-	jz	.Lsyscall_32_done
++	/* XEN PV guests always use IRET path */
++	ALTERNATIVE "testl %eax, %eax; jz .Lsyscall_32_done", \
++		    "jmp .Lsyscall_32_done", X86_FEATURE_XENPV
  
--#define USERGS_SYSRET32							\
--	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_usergs_sysret32),	\
--		  CLBR_NONE,						\
--		  jmp PARA_INDIRECT(pv_cpu_ops+PV_CPU_usergs_sysret32))
--
- #ifdef CONFIG_X86_32
- #define GET_CR0_INTO_EAX				\
- 	push %ecx; push %edx;				\
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 608bbf3..702c8bd 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -165,14 +165,6 @@ struct pv_cpu_ops {
- 	 */
- 	void (*usergs_sysret64)(void);
+ 	/* Opportunistic SYSRET */
+ sysret32_from_system_call:
+diff --git a/arch/x86/include/asm/cpufeature.h b/arch/x86/include/asm/cpufeature.h
+index e4f8010..f7ba9fb 100644
+--- a/arch/x86/include/asm/cpufeature.h
++++ b/arch/x86/include/asm/cpufeature.h
+@@ -216,6 +216,7 @@
+ #define X86_FEATURE_PAUSEFILTER ( 8*32+13) /* AMD filtered pause intercept */
+ #define X86_FEATURE_PFTHRESHOLD ( 8*32+14) /* AMD pause filter threshold */
+ #define X86_FEATURE_VMMCALL     ( 8*32+15) /* Prefer vmmcall to vmcall */
++#define X86_FEATURE_XENPV       ( 8*32+16) /* "" Xen paravirtual guest */
  
--	/*
--	 * Switch to usermode gs and return to 32-bit usermode using
--	 * sysret.  Used to return to 32-on-64 compat processes.
--	 * Other usermode register state, including %esp, must already
--	 * be restored.
--	 */
--	void (*usergs_sysret32)(void);
--
- 	/* Normal iret.  Jump to this with the standard iret stack
- 	   frame set up. */
- 	void (*iret)(void);
-diff --git a/arch/x86/kernel/asm-offsets_64.c b/arch/x86/kernel/asm-offsets_64.c
-index d8f42f9..f2edafb 100644
---- a/arch/x86/kernel/asm-offsets_64.c
-+++ b/arch/x86/kernel/asm-offsets_64.c
-@@ -23,7 +23,6 @@ int main(void)
+ 
+ /* Intel-defined CPU features, CPUID level 0x00000007:0 (ebx), word 9 */
+diff --git a/arch/x86/xen/enlighten.c b/arch/x86/xen/enlighten.c
+index 5774800..d315151 100644
+--- a/arch/x86/xen/enlighten.c
++++ b/arch/x86/xen/enlighten.c
+@@ -1886,8 +1886,10 @@ EXPORT_SYMBOL_GPL(xen_hvm_need_lapic);
+ 
+ static void xen_set_cpu_features(struct cpuinfo_x86 *c)
  {
- #ifdef CONFIG_PARAVIRT
- 	OFFSET(PV_IRQ_adjust_exception_frame, pv_irq_ops, adjust_exception_frame);
--	OFFSET(PV_CPU_usergs_sysret32, pv_cpu_ops, usergs_sysret32);
- 	OFFSET(PV_CPU_usergs_sysret64, pv_cpu_ops, usergs_sysret64);
- 	OFFSET(PV_CPU_swapgs, pv_cpu_ops, swapgs);
- 	BLANK();
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index c55f437..8c19b4d 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -162,7 +162,6 @@ unsigned paravirt_patch_default(u8 type, u16 clobbers, void *insnbuf,
- 		ret = paravirt_patch_ident_64(insnbuf, len);
+-	if (xen_pv_domain())
++	if (xen_pv_domain()) {
+ 		clear_cpu_bug(c, X86_BUG_SYSRET_SS_ATTRS);
++		set_cpu_cap(c, X86_FEATURE_XENPV);
++	}
+ }
  
- 	else if (type == PARAVIRT_PATCH(pv_cpu_ops.iret) ||
--		 type == PARAVIRT_PATCH(pv_cpu_ops.usergs_sysret32) ||
- 		 type == PARAVIRT_PATCH(pv_cpu_ops.usergs_sysret64))
- 		/* If operation requires a jmp, then jmp */
- 		ret = paravirt_patch_jmp(insnbuf, opfunc, addr, len);
-@@ -217,7 +216,6 @@ static u64 native_steal_clock(int cpu)
- 
- /* These are in entry.S */
- extern void native_iret(void);
--extern void native_usergs_sysret32(void);
- extern void native_usergs_sysret64(void);
- 
- static struct resource reserve_ioports = {
-@@ -376,9 +374,6 @@ __visible struct pv_cpu_ops pv_cpu_ops = {
- 	.load_sp0 = native_load_sp0,
- 
- #ifdef CONFIG_X86_64
--#ifdef CONFIG_IA32_EMULATION
--	.usergs_sysret32 = native_usergs_sysret32,
--#endif
- 	.usergs_sysret64 = native_usergs_sysret64,
- #endif
- 	.iret = native_iret,
-diff --git a/arch/x86/kernel/paravirt_patch_64.c b/arch/x86/kernel/paravirt_patch_64.c
-index 17c00f8..e70087a 100644
---- a/arch/x86/kernel/paravirt_patch_64.c
-+++ b/arch/x86/kernel/paravirt_patch_64.c
-@@ -14,7 +14,6 @@ DEF_NATIVE(pv_cpu_ops, clts, "clts");
- DEF_NATIVE(pv_cpu_ops, wbinvd, "wbinvd");
- 
- DEF_NATIVE(pv_cpu_ops, usergs_sysret64, "swapgs; sysretq");
--DEF_NATIVE(pv_cpu_ops, usergs_sysret32, "swapgs; sysretl");
- DEF_NATIVE(pv_cpu_ops, swapgs, "swapgs");
- 
- DEF_NATIVE(, mov32, "mov %edi, %eax");
-@@ -54,7 +53,6 @@ unsigned native_patch(u8 type, u16 clobbers, void *ibuf,
- 		PATCH_SITE(pv_irq_ops, save_fl);
- 		PATCH_SITE(pv_irq_ops, irq_enable);
- 		PATCH_SITE(pv_irq_ops, irq_disable);
--		PATCH_SITE(pv_cpu_ops, usergs_sysret32);
- 		PATCH_SITE(pv_cpu_ops, usergs_sysret64);
- 		PATCH_SITE(pv_cpu_ops, swapgs);
- 		PATCH_SITE(pv_mmu_ops, read_cr2);
-diff --git a/arch/x86/xen/xen-asm_64.S b/arch/x86/xen/xen-asm_64.S
-index f22667a..cc8acc4 100644
---- a/arch/x86/xen/xen-asm_64.S
-+++ b/arch/x86/xen/xen-asm_64.S
-@@ -68,25 +68,6 @@ ENTRY(xen_sysret64)
- ENDPATCH(xen_sysret64)
- RELOC(xen_sysret64, 1b+1)
- 
--ENTRY(xen_sysret32)
--	/*
--	 * We're already on the usermode stack at this point, but
--	 * still with the kernel gs, so we can easily switch back
--	 */
--	movq %rsp, PER_CPU_VAR(rsp_scratch)
--	movq PER_CPU_VAR(cpu_current_top_of_stack), %rsp
--
--	pushq $__USER32_DS
--	pushq PER_CPU_VAR(rsp_scratch)
--	pushq %r11
--	pushq $__USER32_CS
--	pushq %rcx
--
--	pushq $0
--1:	jmp hypercall_iret
--ENDPATCH(xen_sysret32)
--RELOC(xen_sysret32, 1b+1)
--
- /*
-  * Xen handles syscall callbacks much like ordinary exceptions, which
-  * means we have:
+ const struct hypervisor_x86 x86_hyper_xen = {
 -- 
 1.8.1.4
