@@ -1,7 +1,7 @@
 From: Ming Lin <mlin@kernel.org>
-Subject: [RFC PATCH 7/9] nvme-vhost: add "parse_extra_admin_cmd" callback
-Date: Thu, 19 Nov 2015 16:21:06 -0800
-Message-ID: <1447978868-17138-8-git-send-email-mlin@kernel.org>
+Subject: [RFC PATCH 8/9] nvme-vhost: add vhost memory helpers
+Date: Thu, 19 Nov 2015 16:21:07 -0800
+Message-ID: <1447978868-17138-9-git-send-email-mlin@kernel.org>
 References: <1447978868-17138-1-git-send-email-mlin@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,200 +18,144 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-nvme@lists.infradead.org
-Cc: Ming Lin <ming.l@ssi.samsung.com>, Christoph Hellwig <hch@lst.de>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+Cc: Ming Lin <ming.l@ssi.samsung.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Ming Lin <ming.l@ssi.samsung.com>
 
+This borrows code from Hannes Reinecke's rts-megasas.
+
+Cc: Hannes Reinecke <hare@suse.de>
 Signed-off-by: Ming Lin <ming.l@ssi.samsung.com>
 ---
- drivers/nvme/target/vhost.c | 153 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 153 insertions(+)
+ drivers/nvme/target/vhost.c | 108 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 108 insertions(+)
 
 diff --git a/drivers/nvme/target/vhost.c b/drivers/nvme/target/vhost.c
-index 4a147d6..04ed0bc 100644
+index 04ed0bc..6847c86 100644
 --- a/drivers/nvme/target/vhost.c
 +++ b/drivers/nvme/target/vhost.c
-@@ -39,6 +39,11 @@ enum NvmeAqaMask {
- #define NVME_AQA_ASQS(aqa) ((aqa >> AQA_ASQS_SHIFT) & AQA_ASQS_MASK)
- #define NVME_AQA_ACQS(aqa) ((aqa >> AQA_ACQS_SHIFT) & AQA_ACQS_MASK)
+@@ -5,6 +5,7 @@
+ #include <linux/miscdevice.h>
+ #include <linux/mutex.h>
+ #include <linux/file.h>
++#include <linux/highmem.h>
+ #include "../../vhost/vhost.h"
+ #include "nvmet.h"
  
-+#define NVME_CQ_FLAGS_PC(cq_flags)	(cq_flags & 0x1)
-+#define NVME_CQ_FLAGS_IEN(cq_flags)	((cq_flags >> 1) & 0x1)
-+
-+#define NVME_SQ_FLAGS_PC(sq_flags)	(sq_flags & 0x1)
-+
- struct nvmet_vhost_ctrl_eventfd {
- 	struct file *call;
- 	struct eventfd_ctx *call_ctx;
-@@ -90,6 +95,19 @@ struct nvmet_vhost_ctrl {
+@@ -95,6 +96,113 @@ struct nvmet_vhost_ctrl {
  	u32 page_size;
  };
  
-+#define sq_to_vsq(sq) container_of(sq, struct nvmet_vhost_sq, sq)
-+#define cq_to_vcq(cq) container_of(cq, struct nvmet_vhost_cq, cq)
-+
-+static int nvmet_vhost_check_sqid(struct nvmet_ctrl *n, u16 sqid)
++const struct vhost_memory_region *
++find_region(struct vhost_dev *hba, __u64 addr, __u32 len)
 +{
-+	return sqid <= n->subsys->max_qid && n->sqs[sqid] != NULL ? 0 : -1;
++	struct vhost_memory *mem;
++	struct vhost_memory_region *reg;
++	int i;
++
++	if (!hba->memory)
++		return NULL;
++
++	mem = hba->memory;
++	/* linear search is not brilliant, but we really have on the order of 6
++	 * regions in practice */
++	for (i = 0; i < mem->nregions; ++i) {
++		reg = mem->regions + i;
++		if (reg->guest_phys_addr <= addr &&
++		    reg->guest_phys_addr + reg->memory_size - 1 >= addr)
++			return reg;
++	}
++	return NULL;
 +}
 +
-+static int nvmet_vhost_check_cqid(struct nvmet_ctrl *n, u16 cqid)
++static bool check_region_boundary(const struct vhost_memory_region *reg,
++				  uint64_t addr, size_t len)
 +{
-+	return cqid <= n->subsys->max_qid && n->cqs[cqid] != NULL ? 0 : -1;
++	unsigned long max_size;
++
++	max_size = reg->memory_size - addr + reg->guest_phys_addr;
++	return (max_size < len);
 +}
 +
- static int nvmet_vhost_init_cq(struct nvmet_vhost_cq *cq,
- 		struct nvmet_vhost_ctrl *n, u64 dma_addr,
- 		u16 cqid, u16 size, struct eventfd_ctx *eventfd,
-@@ -147,6 +165,140 @@ static void nvmet_vhost_start_ctrl(void *opaque)
- 	}
- }
- 
-+static void nvmet_vhost_create_cq(struct nvmet_req *req)
++static void __user *map_to_region(const struct vhost_memory_region *reg,
++				   uint64_t addr)
 +{
-+	struct nvmet_cq *cq;
-+	struct nvmet_vhost_cq *vcq;
-+	struct nvmet_vhost_ctrl *n;
-+	struct nvme_create_cq *c;
-+	u16 cqid;
-+	u16 vector;
-+	u16 qsize;
-+	u16 qflags;
-+	u64 prp1;
-+	int status;
++	return (void __user *)(unsigned long)
++		(reg->userspace_addr + addr - reg->guest_phys_addr);
++}
++
++static void __user *map_guest_to_host(struct vhost_dev *dev,
++				       uint64_t addr, int size)
++{
++	const struct vhost_memory_region *reg = NULL;
++
++	reg = find_region(dev, addr, size);
++	if (unlikely(!reg))
++		return ERR_PTR(-EPERM);
++
++	if (unlikely(check_region_boundary(reg, addr, size)))
++		return ERR_PTR(-EFAULT);
++
++	return map_to_region(reg, addr);
++}
++
++static int nvmet_vhost_rw(struct vhost_dev *dev, u64 guest_pa,
++		void *buf, uint32_t size, int write)
++{
++	void __user *host_user_va;
++	void *host_kernel_va;
++	struct page *page;
++	uintptr_t offset;
 +	int ret;
 +
-+	cq = req->cq;
-+	vcq = cq_to_vcq(cq);
-+	n = vcq->ctrl;
-+	c = &req->cmd->create_cq;
-+	cqid = le16_to_cpu(c->cqid);
-+	vector = le16_to_cpu(c->irq_vector);
-+	qsize = le16_to_cpu(c->qsize);
-+	qflags = le16_to_cpu(c->cq_flags);
-+	prp1 = le64_to_cpu(c->prp1);
-+	status = NVME_SC_SUCCESS;
-+
-+	if (!cqid || (cqid && !nvmet_vhost_check_cqid(n->ctrl, cqid))) {
-+		status = NVME_SC_QID_INVALID | NVME_SC_DNR;
-+		goto out;
-+	}
-+	if (!qsize || qsize > NVME_CAP_MQES(n->ctrl->cap)) {
-+		status = NVME_SC_QUEUE_SIZE | NVME_SC_DNR;
-+		goto out;
-+	}
-+	if (!prp1) {
-+		status = NVME_SC_INVALID_FIELD | NVME_SC_DNR;
-+		goto out;
-+	}
-+	if (vector > n->num_queues) {
-+		status = NVME_SC_INVALID_VECTOR | NVME_SC_DNR;
-+		goto out;
-+	}
-+	if (!(NVME_CQ_FLAGS_PC(qflags))) {
-+		status = NVME_SC_INVALID_FIELD | NVME_SC_DNR;
-+		goto out;
++	host_user_va = map_guest_to_host(dev, guest_pa, size);
++	if (unlikely(!host_user_va)) {
++		pr_warn("cannot map guest addr %p, error %ld\n",
++			(void *)guest_pa, PTR_ERR(host_user_va));
++		return -EINVAL;
 +	}
 +
-+	vcq = kmalloc(sizeof(*vcq), GFP_KERNEL);
-+	if (!vcq) {
-+		status = NVME_SC_INTERNAL | NVME_SC_DNR;
-+		goto out;
++	ret = get_user_pages(current, dev->mm,
++				(unsigned long)host_user_va, 1,
++				false, 0, &page, NULL);
++	if (unlikely(ret != 1)) {
++		pr_warn("get_user_pages fail!!!\n");
++		return -EINVAL;
 +	}
 +
-+	ret = nvmet_vhost_init_cq(vcq, n, prp1, cqid, qsize+1,
-+		n->eventfd[cqid].call_ctx, vector,
-+		NVME_CQ_FLAGS_IEN(qflags));
-+	if (ret)
-+		status = NVME_SC_INTERNAL | NVME_SC_DNR;
++	host_kernel_va = kmap(page);
++	if (unlikely(!host_kernel_va)) {
++		pr_warn("kmap fail!!!\n");
++		put_page(page);
++		return -EINVAL;
++	}
 +
-+out:
-+	nvmet_req_complete(req, status);
++	offset = (uintptr_t)host_user_va & ~PAGE_MASK;
++	if (write)
++		memcpy(host_kernel_va + offset, buf, size);
++	else
++		memcpy(buf, host_kernel_va + offset, size);
++	kunmap(host_kernel_va);
++	put_page(page);
++
++	return 0;
 +}
 +
-+static void nvmet_vhost_create_sq(struct nvmet_req *req)
++int nvmet_vhost_read(struct vhost_dev *dev, u64 guest_pa,
++		void *buf, uint32_t size)
 +{
-+	struct nvme_create_sq *c = &req->cmd->create_sq;
-+	u16 cqid = le16_to_cpu(c->cqid);
-+	u16 sqid = le16_to_cpu(c->sqid);
-+	u16 qsize = le16_to_cpu(c->qsize);
-+	u16 qflags = le16_to_cpu(c->sq_flags);
-+	u64 prp1 = le64_to_cpu(c->prp1);
-+
-+	struct nvmet_sq *sq = req->sq;
-+	struct nvmet_vhost_sq *vsq;
-+	struct nvmet_vhost_ctrl *n;
-+	int status;
-+	int ret;
-+
-+	status = NVME_SC_SUCCESS;
-+	vsq = sq_to_vsq(sq);
-+	n = vsq->ctrl;
-+
-+	if (!cqid || nvmet_vhost_check_cqid(n->ctrl, cqid)) {
-+		status = NVME_SC_CQ_INVALID | NVME_SC_DNR;
-+		goto out;
-+	}
-+	if (!sqid || (sqid && !nvmet_vhost_check_sqid(n->ctrl, sqid))) {
-+		status = NVME_SC_QID_INVALID | NVME_SC_DNR;
-+		goto out;
-+	}
-+	if (!qsize || qsize > NVME_CAP_MQES(n->ctrl->cap)) {
-+		status = NVME_SC_QUEUE_SIZE | NVME_SC_DNR;
-+		goto out;
-+	}
-+	if (!prp1 || prp1 & (n->page_size - 1)) {
-+		status = NVME_SC_INVALID_FIELD | NVME_SC_DNR;
-+		goto out;
-+	}
-+	if (!(NVME_SQ_FLAGS_PC(qflags))) {
-+		status = NVME_SC_INVALID_FIELD | NVME_SC_DNR;
-+		goto out;
-+	}
-+
-+	vsq = kmalloc(sizeof(*vsq), GFP_KERNEL);
-+	if (!sq) {
-+		status = NVME_SC_INTERNAL | NVME_SC_DNR;
-+		goto out;
-+	}
-+
-+	ret = nvmet_vhost_init_sq(vsq, n, prp1, sqid, cqid, qsize + 1);
-+	if (ret)
-+		status = NVME_SC_INTERNAL | NVME_SC_DNR;
-+
-+out:
-+	nvmet_req_complete(req, status);
++	return nvmet_vhost_rw(dev, guest_pa, buf, size, 0);
 +}
 +
-+static int nvmet_vhost_parse_admin_cmd(struct nvmet_req *req)
++int nvmet_vhost_write(struct vhost_dev *dev, u64 guest_pa,
++		void *buf, uint32_t size)
 +{
-+	struct nvme_command *cmd = req->cmd;
-+
-+	switch (cmd->common.opcode) {
-+	case nvme_admin_create_cq:
-+		req->execute = nvmet_vhost_create_cq;
-+		req->data_len = 0;
-+		return 0;
-+	case nvme_admin_create_sq:
-+		req->execute = nvmet_vhost_create_sq;
-+		req->data_len = 0;
-+		return 0;
-+	}
-+
-+	return -1;
++	return nvmet_vhost_rw(dev, guest_pa, buf, size, 1);
 +}
 +
- static int
- nvmet_vhost_set_endpoint(struct nvmet_vhost_ctrl *n,
- 			struct vhost_nvme_target *c)
-@@ -173,6 +325,7 @@ nvmet_vhost_set_endpoint(struct nvmet_vhost_ctrl *n,
- 	n->num_queues = subsys->max_qid + 1;
- 	ctrl->opaque = n;
- 	ctrl->start = nvmet_vhost_start_ctrl;
-+	ctrl->parse_extra_admin_cmd = nvmet_vhost_parse_admin_cmd;
+ #define sq_to_vsq(sq) container_of(sq, struct nvmet_vhost_sq, sq)
+ #define cq_to_vcq(cq) container_of(cq, struct nvmet_vhost_cq, cq)
  
- 	num_queues = ctrl->subsys->max_qid + 1;
- 	n->cqs = kzalloc(sizeof(*n->cqs) * num_queues, GFP_KERNEL);
 -- 
 1.9.1
