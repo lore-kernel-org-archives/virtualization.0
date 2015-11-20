@@ -1,15 +1,16 @@
-From: Ming Lin <mlin@kernel.org>
-Subject: Re: [RFC PATCH 0/9] vhost-nvme: new qemu nvme backend using nvme
-	target
-Date: Thu, 19 Nov 2015 21:33:44 -0800
-Message-ID: <1447997624.3473.6.camel@hasee>
-References: <1447978868-17138-1-git-send-email-mlin@kernel.org>
-	<20151120051645.GB19405@lst.de>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
+Date: Fri, 20 Nov 2015 08:56:46 +0200
+Message-ID: <20151120083857-mutt-send-email-mst@redhat.com>
+References: <cover.1446014204.git.luto@kernel.org>
+	<20151119153821-mutt-send-email-mst@redhat.com>
+	<CALCETrXXsThXpbRMQ_CWTsq7_HiRFaK+dTeDYaz5cSm0QtoW_w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20151120051645.GB19405@lst.de>
+Content-Disposition: inline
+In-Reply-To: <CALCETrXXsThXpbRMQ_CWTsq7_HiRFaK+dTeDYaz5cSm0QtoW_w@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,24 +20,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@lst.de>
-Cc: qemu-devel@nongnu.org, linux-nvme@lists.infradead.org, virtualization@lists.linux-foundation.org
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, KVM <kvm@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Joerg Roedel <jroedel@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, David Woodhouse <dwmw2@infradead.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2015-11-20 at 06:16 +0100, Christoph Hellwig wrote:
-> Thanks Ming,
+On Thu, Nov 19, 2015 at 01:59:05PM -0800, Andy Lutomirski wrote:
+> On Nov 19, 2015 5:45 AM, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> >
+> > On Tue, Oct 27, 2015 at 11:38:57PM -0700, Andy Lutomirski wrote:
+> > > This switches virtio to use the DMA API unconditionally.  I'm sure
+> > > it breaks things, but it seems to work on x86 using virtio-pci, with
+> > > and without Xen, and using both the modern 1.0 variant and the
+> > > legacy variant.
+> >
+> > So thinking hard about it, I don't see any real drawbacks to making this
+> > conditional on a new feature bit, that Xen can then set..
 > 
-> from a first quick view this looks great.  I'll look over it in a bit
-> more detail once I get a bit more time.
+> Can you elaborate?  If I run QEMU, hosting Xen, hosting Linux, and the
+> virtio device is provided by QEMU, then how does Xen set the bit?
 
-Thanks to CC Nic :-)
+You would run QEMU with the appropriate flag. E.g.
+-global virtio-pci,use_platform_dma=on
 
-But funny, I double-checked bash history. I actually CCed Nic.
-Don't know why it's lost.
+> Similarly, how would Xen set the bit for a real physical device?
+> 
+> 
+> --Andy
 
-mlin@ssi:~$ history |grep "nab"
- 1861  git send-email --from "Ming Lin <mlin@kernel.org>" --to
-"linux-nvme@lists.infradead.org"  --cc "qemu-devel@nongnu.org" --cc
-"virtualization@lists.linux-foundation.org" --cc "Christoph Hellwig
-<hch@lst.de>" --cc "Nicholas A. Bellinger <nab@linux-iscsi.org>"
---compose ~/patches/*.patch
+There's no need to set bits for physical devices I think: from security
+point of view, using them from a VM isn't very different from using them
+from host.
+
+
+
+-- 
+MST
