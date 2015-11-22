@@ -1,17 +1,24 @@
-From: Ming Lin <mlin@kernel.org>
-Subject: Re: [PATCH -qemu] nvme: support Google vendor extension
-Date: Sat, 21 Nov 2015 23:45:45 -0800
-Message-ID: <1448178345.7480.2.camel@hasee>
-References: <1447825624-17011-1-git-send-email-mlin@kernel.org>
-	<1447825624-17011-3-git-send-email-mlin@kernel.org>
-	<564DA682.8050706@redhat.com> <1448007096.3473.10.camel@hasee>
-	<564EE0A0.1020800@redhat.com> <1448060745.6565.1.camel@ssi>
-	<565069F0.5000805@redhat.com>
+From: Marcel Apfelbaum <marcel.apfelbaum@gmail.com>
+Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
+Date: Sun, 22 Nov 2015 15:06:08 +0200
+Message-ID: <5651BDC0.2040206@gmail.com>
+References: <1446039327.3405.216.camel@infradead.org>
+	<20151028155105-mutt-send-email-mst@redhat.com>
+	<1446041609.3405.228.camel@infradead.org>
+	<20151028161424-mutt-send-email-mst@redhat.com>
+	<1446042754.3405.237.camel@infradead.org>
+	<20151028175136-mutt-send-email-mst@redhat.com>
+	<CALCETrWd7mK5bW2p_dvvjDRnqE31=ueAz5SAYKwY-PD5uZp76A@mail.gmail.com>
+	<20151029104301-mutt-send-email-mst@redhat.com>
+	<1446135536.3405.279.camel@infradead.org>
+	<20151108120627-mutt-send-email-mst@redhat.com>
+	<20151108114946.GG2255@suse.de>
+Reply-To: marcel@redhat.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <565069F0.5000805@redhat.com>
+In-Reply-To: <20151108114946.GG2255@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,78 +28,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: fes@google.com, axboe@fb.com, tytso@mit.edu, qemu-devel@nongnu.org, linux-nvme@lists.infradead.org, virtualization@lists.linux-foundation.org, keith.busch@intel.com, Rob Nelson <rlnelson@google.com>, Christoph Hellwig <hch@lst.de>, Mihai Rusu <dizzy@google.com>
+To: Joerg Roedel <jroedel@suse.de>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, KVM <kvm@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Woodhouse <dwmw2@infradead.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 2015-11-21 at 13:56 +0100, Paolo Bonzini wrote:
-> 
-> On 21/11/2015 00:05, Ming Lin wrote:
-> > [    1.752129] Freeing unused kernel memory: 420K (ffff880001b97000 - ffff880001c00000)
-> > [    1.986573] clocksource: tsc: mask: 0xffffffffffffffff max_cycles: 0x30e5c9bbf83, max_idle_ns: 440795378954 ns
-> > [    1.988187] clocksource: Switched to clocksource tsc
-> > [    3.235423] clocksource: timekeeping watchdog: Marking clocksource 'tsc' as unstable because the skew is too large:
-> > [    3.358713] clocksource:                       'refined-jiffies' wd_now: fffeddf3 wd_last: fffedd76 mask: ffffffff
-> > [    3.410013] clocksource:                       'tsc' cs_now: 3c121d4ec cs_last: 340888eb7 mask: ffffffffffffffff
-> > [    3.450026] clocksource: Switched to clocksource refined-jiffies
-> > [    7.696769] Adding 392188k swap on /dev/vda5.  Priority:-1 extents:1 across:392188k 
-> > [    7.902174] EXT4-fs (vda1): re-mounted. Opts: (null)
-> > [    8.734178] EXT4-fs (vda1): re-mounted. Opts: errors=remount-ro
-> > 
-> > Then it doesn't response input for almost 1 minute.
-> > Without this patch, kernel loads quickly.
-> 
-> Interesting.  I guess there's time to debug it, since QEMU 2.6 is still 
-> a few months away.  In the meanwhile we can apply your patch as is, 
-> apart from disabling the "if (new_head >= cq->size)" and the similar 
-> one for "if (new_ tail >= sq->size".
-> 
-> But, I have a possible culprit.  In your nvme_cq_notifier you are not doing the 
-> equivalent of:
-> 
-> 	start_sqs = nvme_cq_full(cq) ? 1 : 0;
->         cq->head = new_head;
->         if (start_sqs) {
->             NvmeSQueue *sq;
->             QTAILQ_FOREACH(sq, &cq->sq_list, entry) {
->                 timer_mod(sq->timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 500);
->             }
->             timer_mod(cq->timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 500);
->         }
-> 
-> Instead, you are just calling nvme_post_cqes, which is the equivalent of
-> 
-> 	timer_mod(cq->timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 500);
-> 
-> Adding a loop to nvme_cq_notifier, and having it call nvme_process_sq, might
-> fix the weird 1-minute delay.
+On 11/08/2015 01:49 PM, Joerg Roedel wrote:
+> On Sun, Nov 08, 2015 at 12:37:47PM +0200, Michael S. Tsirkin wrote:
+>> I have no problem with that. For example, can we teach
+>> the DMA API on intel x86 to use PT for virtio by default?
+>> That would allow merging Andy's patches with
+>> full compatibility with old guests and hosts.
+>
+> Well, the only incompatibility comes from an experimental qemu feature,
+> more explicitly from a bug in that features implementation. So why
+> should we work around that in the kernel? I think it is not too hard to
+> fix qemu to generate a correct DMAR table which excludes the virtio
+> devices from iommu translation.
 
-I found it.
+Hi,
 
-diff --git a/hw/block/nvme.c b/hw/block/nvme.c
-index 31572f2..f27fd35 100644
---- a/hw/block/nvme.c
-+++ b/hw/block/nvme.c
-@@ -548,6 +548,7 @@ static void nvme_cq_notifier(EventNotifier *e)
-     NvmeCQueue *cq =
-         container_of(e, NvmeCQueue, notifier);
- 
-+    event_notifier_test_and_clear(&cq->notifier);
-     nvme_post_cqes(cq);
- }
- 
-@@ -567,6 +568,7 @@ static void nvme_sq_notifier(EventNotifier *e)
-     NvmeSQueue *sq =
-         container_of(e, NvmeSQueue, notifier);
- 
-+    event_notifier_test_and_clear(&sq->notifier);
-     nvme_process_sq(sq);
- }
- 
-Here is new performance number:
+I tried to generate a DMAR table that excludes some devices from
+IOMMU translation, however it does not help.
 
-qemu-nvme + google-ext + eventfd: 294MB/s
-virtio-blk: 344MB/s
-virtio-scsi: 296MB/s
+The reason is, as far as I understand, that Linux kernel does
+not allow any device being outside an IOMMU scope if the
+iommu kernel option is activated.
 
-It's almost same as virtio-scsi. Nice.
+Does anybody know if it is "by design" or is simply an uncommon configuration?
+(some devices in an IOMMU scope, while others outside *any* IOMMU scope)
+
+Thanks,
+Marcel
+
+>
+>
+> 	Joerg
+>
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+>
