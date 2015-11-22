@@ -1,19 +1,24 @@
-From: "Xie, Huawei" <huawei.xie@intel.com>
-Subject: Re: [PATCH] virtio_ring: Shadow available ring flags & index
-Date: Mon, 23 Nov 2015 16:46:39 +0000
-Message-ID: <C37D651A908B024F974696C65296B57B4B1A9338__5091.42704909227$1448297234$gmane$org@SHSMSX101.ccr.corp.intel.com>
-References: <1447201267-30024-1-git-send-email-venkateshs@google.com>
-	<20151111142647-mutt-send-email-mst@redhat.com>
-	<20151113234140.GA6512@google.com>
-	<C37D651A908B024F974696C65296B57B4B1942C3@SHSMSX101.ccr.corp.intel.com>
-	<20151118040818.GA17436@google.com> <20151118042839.GA24662@google.com>
-	<C37D651A908B024F974696C65296B57B4B19D2A4@SHSMSX101.ccr.corp.intel.com>
-	<20151120183011.GA24228@google.com>
+From: Marcel Apfelbaum <marcel@redhat.com>
+Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
+Date: Sun, 22 Nov 2015 19:04:32 +0200
+Message-ID: <5651F5A0.5060400__36023.9258771346$1448343944$gmane$org@redhat.com>
+References: <1446039327.3405.216.camel@infradead.org>
+	<20151028155105-mutt-send-email-mst@redhat.com>
+	<1446041609.3405.228.camel@infradead.org>
+	<20151028161424-mutt-send-email-mst@redhat.com>
+	<1446042754.3405.237.camel@infradead.org>
+	<20151028175136-mutt-send-email-mst@redhat.com>
+	<CALCETrWd7mK5bW2p_dvvjDRnqE31=ueAz5SAYKwY-PD5uZp76A@mail.gmail.com>
+	<20151029104301-mutt-send-email-mst@redhat.com>
+	<1446135536.3405.279.camel@infradead.org>
+	<20151108120627-mutt-send-email-mst@redhat.com>
+	<20151108114946.GG2255@suse.de> <5651BDC0.2040206@gmail.com>
+	<1448207661.89124.50.camel@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Language: en-US
+In-Reply-To: <1448207661.89124.50.camel@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,98 +28,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Venkatesh Srinivas <venkateshs@google.com>
-Cc: "Abhinkar, Bindiya S" <bindiya.s.abhinkar@intel.com>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Venkatesh Srinivas <vsrinivas@ops101.org>, "Lu,
-	Patrick" <patrick.lu@intel.com>, "luto@kernel.org" <luto@kernel.org>, "Wang, Zhihong" <zhihong.wang@intel.com>, David Matlack <dmatlack@google.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: David Woodhouse <dwmw2@infradead.org>, Joerg Roedel <jroedel@suse.de>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, KVM <kvm@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/21/2015 2:30 AM, Venkatesh Srinivas wrote:
-> On Thu, Nov 19, 2015 at 04:15:48PM +0000, Xie, Huawei wrote:
->> On 11/18/2015 12:28 PM, Venkatesh Srinivas wrote:
->>> On Tue, Nov 17, 2015 at 08:08:18PM -0800, Venkatesh Srinivas wrote:
->>>> On Mon, Nov 16, 2015 at 7:46 PM, Xie, Huawei <huawei.xie@intel.com> wrote:
->>>>
->>>>> On 11/14/2015 7:41 AM, Venkatesh Srinivas wrote:
->>>>>> On Wed, Nov 11, 2015 at 02:34:33PM +0200, Michael S. Tsirkin wrote:
->>>>>>> On Tue, Nov 10, 2015 at 04:21:07PM -0800, Venkatesh Srinivas wrote:
->>>>>>>> Improves cacheline transfer flow of available ring header.
->>>>>>>>
->>>>>>>> Virtqueues are implemented as a pair of rings, one producer->consumer
->>>>>>>> avail ring and one consumer->producer used ring; preceding the
->>>>>>>> avail ring in memory are two contiguous u16 fields -- avail->flags
->>>>>>>> and avail->idx. A producer posts work by writing to avail->idx and
->>>>>>>> a consumer reads avail->idx.
->>>>>>>>
->>>>>>>> The flags and idx fields only need to be written by a producer CPU
->>>>>>>> and only read by a consumer CPU; when the producer and consumer are
->>>>>>>> running on different CPUs and the virtio_ring code is structured to
->>>>>>>> only have source writes/sink reads, we can continuously transfer the
->>>>>>>> avail header cacheline between 'M' states between cores. This flow
->>>>>>>> optimizes core -> core bandwidth on certain CPUs.
->>>>>>>>
->>>>>>>> (see: "Software Optimization Guide for AMD Family 15h Processors",
->>>>>>>> Section 11.6; similar language appears in the 10h guide and should
->>>>>>>> apply to CPUs w/ exclusive caches, using LLC as a transfer cache)
->>>>>>>>
->>>>>>>> Unfortunately the existing virtio_ring code issued reads to the
->>>>>>>> avail->idx and read-modify-writes to avail->flags on the producer.
->>>>>>>>
->>>>>>>> This change shadows the flags and index fields in producer memory;
->>>>>>>> the vring code now reads from the shadows and only ever writes to
->>>>>>>> avail->flags and avail->idx, allowing the cacheline to transfer
->>>>>>>> core -> core optimally.
->>>>>>> Sounds logical, I'll apply this after a  bit of testing
->>>>>>> of my own, thanks!
->>>>>> Thanks!
->>>>> Venkatesh:
->>>>> Is it that your patch only applies to CPUs w/ exclusive caches?
->>>> No --- it applies when the inter-cache coherence flow is optimized by
->>>> 'M' -> 'M' transfers and when producer reads might interfere w/
->>>> consumer prefetchw/reads. The AMD Optimization guides have specific
->>>> language on this subject, but other platforms may benefit.
->>>> (see Intel #'s below)
->> For core2core case(not HT paire), after consumer reads that M cache line
->> for avail_idx, is that line still in the producer core's L1 data cache
->> with state changing from M->O state?
-> Textbook MOESI would not allow that state combination -- when the consumer
-> gets the line in 'M' state, the producer cannot hold it in 'O' state.
-Hi Venkatesh:
-On consumer core, you are using (prefetchw + load) to get the cache line
-anyway, even it doesn't mean to write, right? That makes sense for your
-cache line transfer.
-If using load only, the cache line on producer core should be changed
-from M -> O, meaning dirty sharing, and the consumer gets the line with
-S state.
-
-I might miss something important in your case. Could you give more
-detailed description?
-For non-shadow case,
-1) Producer updates flags or idx, cache line is set to be M state.
-2) When consumer reads the idx or flags, cache line is set to be S state
-on consumer core, while the cache line on producer is set to be O state.
-What is the problem reading avail idx/flag whose cache line is either M
-or O state on producer core? What is the benefit with and without prefetchw?
-
->
-> On the AMD Piledriver, per the Optimization guide, I use PREFETCHW/Load to
-> get the line in 'M' state on the consumer (invalidating it in the Producer's
-> cache):
->
-> "* Use PREFETCHW on the consumer side, even if the consumer will not modify
->    the data"
->
-> That, plus the "Optimizing Inter-Core Data Transfer" section imply that
-> PREFETCHW + MOV will cause the consumer to load the line into 'M' state.
->
-> PREFETCHW was not available on Intel CPUs pre-Broadwell; from the public
-> documentation alone, I don't think we can tell what transition the producer's
-> cacheline undergoes on these cores. For that matter, the latest documentation
-> I can find (for Nehalem), indicated there was no 'O' state -- Nehalem
-> implemented MESIF, not MOESI.
-By O, i mean AMD MOESI, and i thought you were using only load to load
-the cache line on the consumer core. If you are using prefetchw + load,
-that makes sense for the state transfer.
->
-> HTH,
-> -- vs;
->
+T24gMTEvMjIvMjAxNSAwNTo1NCBQTSwgRGF2aWQgV29vZGhvdXNlIHdyb3RlOgo+IE9uIFN1biwg
+MjAxNS0xMS0yMiBhdCAxNTowNiArMDIwMCwgTWFyY2VsIEFwZmVsYmF1bSB3cm90ZToKPj4KPj4K
+Pj4gSSB0cmllZCB0byBnZW5lcmF0ZSBhIERNQVIgdGFibGUgdGhhdCBleGNsdWRlcyBzb21lIGRl
+dmljZXMgZnJvbQo+PiBJT01NVSB0cmFuc2xhdGlvbiwgaG93ZXZlciBpdCBkb2VzIG5vdCBoZWxw
+Lgo+Pgo+PiBUaGUgcmVhc29uIGlzLCBhcyBmYXIgYXMgSSB1bmRlcnN0YW5kLCB0aGF0IExpbnV4
+IGtlcm5lbCBkb2VzCj4+IG5vdCBhbGxvdyBhbnkgZGV2aWNlIGJlaW5nIG91dHNpZGUgYW4gSU9N
+TVUgc2NvcGUgaWYgdGhlCj4+IGlvbW11IGtlcm5lbCBvcHRpb24gaXMgYWN0aXZhdGVkLgo+Pgo+
+PiBEb2VzIGFueWJvZHkga25vdyBpZiBpdCBpcyAiYnkgZGVzaWduIiBvciBpcyBzaW1wbHkgYW4g
+dW5jb21tb24KPj4gY29uZmlndXJhdGlvbj8KPj4gKHNvbWUgZGV2aWNlcyBpbiBhbiBJT01NVSBz
+Y29wZSwgd2hpbGUgb3RoZXJzIG91dHNpZGUgKmFueSogSU9NTVUKPj4gc2NvcGUpCj4KPiBUaGF0
+J3MgYSBrZXJuZWwgYnVnIGluIHRoZSB3YXkgaXQgaGFuZGxlcyBwZXItZGV2aWNlIERNQSBvcGVy
+YXRpb25zLiBPcgo+IG1vcmUgdG8gdGhlIHBvaW50LCBpbiB0aGUgd2F5IGl0IGRvZXNuJ3Qg4oCU
+IHRoZSBub24tdHJhbnNsYXRlZCBkZXZpY2VzCj4gZW5kIHVwIGJlaW5nIHBvaW50ZWQgdG8gdGhl
+IGludGVsX2RtYV9vcHMgZGVzcGl0ZSB0aGUgZmFjdCB0aGV5Cj4gc2hvdWxkbid0IGJlLiBJJ20g
+d29ya2luZyBvbiB0aGF0Li4uCj4KCkhpIERhdmlkLApUaGFuayB5b3UgZm9yIHRoZSBmYXN0IHJl
+c3BvbnNlLgoKU2FkbHkgSSBhbSBub3QgZmFtaWxpYXIgd2l0aCB0aGUgRE1BL0lPTU1VIGNvZGUg
+dG8gY29udHJpYnV0ZQp3aXRoIGEgc2FuZSBpZGVhLCBidXQgSSdsbCBnbGFkbHkgdGVzdCBpdC4K
+SWYgeW91IGxhY2sgdGhlIHRpbWUgYW5kIGhhdmUgYW4gaWRlYSB0byBzaGFyZSwgSSBjYW4gZ2l2
+ZSBpdCBhIHRyeSB0aG91Z2guCgpUaGFua3MsCk1hcmNlbAoKCl9fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
+aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
+bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
