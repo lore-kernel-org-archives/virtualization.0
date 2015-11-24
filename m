@@ -1,24 +1,17 @@
-From: Marcel Apfelbaum <marcel@redhat.com>
-Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
-Date: Sun, 22 Nov 2015 19:04:32 +0200
-Message-ID: <5651F5A0.5060400__36023.9258771346$1448343944$gmane$org@redhat.com>
-References: <1446039327.3405.216.camel@infradead.org>
-	<20151028155105-mutt-send-email-mst@redhat.com>
-	<1446041609.3405.228.camel@infradead.org>
-	<20151028161424-mutt-send-email-mst@redhat.com>
-	<1446042754.3405.237.camel@infradead.org>
-	<20151028175136-mutt-send-email-mst@redhat.com>
-	<CALCETrWd7mK5bW2p_dvvjDRnqE31=ueAz5SAYKwY-PD5uZp76A@mail.gmail.com>
-	<20151029104301-mutt-send-email-mst@redhat.com>
-	<1446135536.3405.279.camel@infradead.org>
-	<20151108120627-mutt-send-email-mst@redhat.com>
-	<20151108114946.GG2255@suse.de> <5651BDC0.2040206@gmail.com>
-	<1448207661.89124.50.camel@infradead.org>
+From: Ming Lin <mlin@kernel.org>
+Subject: Re: [PATCH -qemu] nvme: support Google vendor extension
+Date: Mon, 23 Nov 2015 22:29:08 -0800
+Message-ID: <1448346548.5392.4.camel@hasee>
+References: <1447825624-17011-1-git-send-email-mlin@kernel.org>
+	<1447825624-17011-3-git-send-email-mlin@kernel.org>
+	<564DA682.8050706@redhat.com> <1448007096.3473.10.camel@hasee>
+	<564EE0A0.1020800@redhat.com> <1448060745.6565.1.camel@ssi>
+	<565069F0.5000805@redhat.com> <1448178345.7480.2.camel@hasee>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1448207661.89124.50.camel@infradead.org>
+In-Reply-To: <1448178345.7480.2.camel@hasee>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,29 +21,111 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Woodhouse <dwmw2@infradead.org>, Joerg Roedel <jroedel@suse.de>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, KVM <kvm@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: qemu-devel@nongnu.org, linux-nvme@lists.infradead.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMTEvMjIvMjAxNSAwNTo1NCBQTSwgRGF2aWQgV29vZGhvdXNlIHdyb3RlOgo+IE9uIFN1biwg
-MjAxNS0xMS0yMiBhdCAxNTowNiArMDIwMCwgTWFyY2VsIEFwZmVsYmF1bSB3cm90ZToKPj4KPj4K
-Pj4gSSB0cmllZCB0byBnZW5lcmF0ZSBhIERNQVIgdGFibGUgdGhhdCBleGNsdWRlcyBzb21lIGRl
-dmljZXMgZnJvbQo+PiBJT01NVSB0cmFuc2xhdGlvbiwgaG93ZXZlciBpdCBkb2VzIG5vdCBoZWxw
-Lgo+Pgo+PiBUaGUgcmVhc29uIGlzLCBhcyBmYXIgYXMgSSB1bmRlcnN0YW5kLCB0aGF0IExpbnV4
-IGtlcm5lbCBkb2VzCj4+IG5vdCBhbGxvdyBhbnkgZGV2aWNlIGJlaW5nIG91dHNpZGUgYW4gSU9N
-TVUgc2NvcGUgaWYgdGhlCj4+IGlvbW11IGtlcm5lbCBvcHRpb24gaXMgYWN0aXZhdGVkLgo+Pgo+
-PiBEb2VzIGFueWJvZHkga25vdyBpZiBpdCBpcyAiYnkgZGVzaWduIiBvciBpcyBzaW1wbHkgYW4g
-dW5jb21tb24KPj4gY29uZmlndXJhdGlvbj8KPj4gKHNvbWUgZGV2aWNlcyBpbiBhbiBJT01NVSBz
-Y29wZSwgd2hpbGUgb3RoZXJzIG91dHNpZGUgKmFueSogSU9NTVUKPj4gc2NvcGUpCj4KPiBUaGF0
-J3MgYSBrZXJuZWwgYnVnIGluIHRoZSB3YXkgaXQgaGFuZGxlcyBwZXItZGV2aWNlIERNQSBvcGVy
-YXRpb25zLiBPcgo+IG1vcmUgdG8gdGhlIHBvaW50LCBpbiB0aGUgd2F5IGl0IGRvZXNuJ3Qg4oCU
-IHRoZSBub24tdHJhbnNsYXRlZCBkZXZpY2VzCj4gZW5kIHVwIGJlaW5nIHBvaW50ZWQgdG8gdGhl
-IGludGVsX2RtYV9vcHMgZGVzcGl0ZSB0aGUgZmFjdCB0aGV5Cj4gc2hvdWxkbid0IGJlLiBJJ20g
-d29ya2luZyBvbiB0aGF0Li4uCj4KCkhpIERhdmlkLApUaGFuayB5b3UgZm9yIHRoZSBmYXN0IHJl
-c3BvbnNlLgoKU2FkbHkgSSBhbSBub3QgZmFtaWxpYXIgd2l0aCB0aGUgRE1BL0lPTU1VIGNvZGUg
-dG8gY29udHJpYnV0ZQp3aXRoIGEgc2FuZSBpZGVhLCBidXQgSSdsbCBnbGFkbHkgdGVzdCBpdC4K
-SWYgeW91IGxhY2sgdGhlIHRpbWUgYW5kIGhhdmUgYW4gaWRlYSB0byBzaGFyZSwgSSBjYW4gZ2l2
-ZSBpdCBhIHRyeSB0aG91Z2guCgpUaGFua3MsCk1hcmNlbAoKCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
-aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
-bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Sat, 2015-11-21 at 23:45 -0800, Ming Lin wrote:
+> On Sat, 2015-11-21 at 13:56 +0100, Paolo Bonzini wrote:
+> > 
+> > On 21/11/2015 00:05, Ming Lin wrote:
+> > > [    1.752129] Freeing unused kernel memory: 420K (ffff880001b97000 - ffff880001c00000)
+> > > [    1.986573] clocksource: tsc: mask: 0xffffffffffffffff max_cycles: 0x30e5c9bbf83, max_idle_ns: 440795378954 ns
+> > > [    1.988187] clocksource: Switched to clocksource tsc
+> > > [    3.235423] clocksource: timekeeping watchdog: Marking clocksource 'tsc' as unstable because the skew is too large:
+> > > [    3.358713] clocksource:                       'refined-jiffies' wd_now: fffeddf3 wd_last: fffedd76 mask: ffffffff
+> > > [    3.410013] clocksource:                       'tsc' cs_now: 3c121d4ec cs_last: 340888eb7 mask: ffffffffffffffff
+> > > [    3.450026] clocksource: Switched to clocksource refined-jiffies
+> > > [    7.696769] Adding 392188k swap on /dev/vda5.  Priority:-1 extents:1 across:392188k 
+> > > [    7.902174] EXT4-fs (vda1): re-mounted. Opts: (null)
+> > > [    8.734178] EXT4-fs (vda1): re-mounted. Opts: errors=remount-ro
+> > > 
+> > > Then it doesn't response input for almost 1 minute.
+> > > Without this patch, kernel loads quickly.
+> > 
+> > Interesting.  I guess there's time to debug it, since QEMU 2.6 is still 
+> > a few months away.  In the meanwhile we can apply your patch as is, 
+> > apart from disabling the "if (new_head >= cq->size)" and the similar 
+> > one for "if (new_ tail >= sq->size".
+> > 
+> > But, I have a possible culprit.  In your nvme_cq_notifier you are not doing the 
+> > equivalent of:
+> > 
+> > 	start_sqs = nvme_cq_full(cq) ? 1 : 0;
+> >         cq->head = new_head;
+> >         if (start_sqs) {
+> >             NvmeSQueue *sq;
+> >             QTAILQ_FOREACH(sq, &cq->sq_list, entry) {
+> >                 timer_mod(sq->timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 500);
+> >             }
+> >             timer_mod(cq->timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 500);
+> >         }
+> > 
+> > Instead, you are just calling nvme_post_cqes, which is the equivalent of
+> > 
+> > 	timer_mod(cq->timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 500);
+> > 
+> > Adding a loop to nvme_cq_notifier, and having it call nvme_process_sq, might
+> > fix the weird 1-minute delay.
+> 
+> I found it.
+> 
+> diff --git a/hw/block/nvme.c b/hw/block/nvme.c
+> index 31572f2..f27fd35 100644
+> --- a/hw/block/nvme.c
+> +++ b/hw/block/nvme.c
+> @@ -548,6 +548,7 @@ static void nvme_cq_notifier(EventNotifier *e)
+>      NvmeCQueue *cq =
+>          container_of(e, NvmeCQueue, notifier);
+>  
+> +    event_notifier_test_and_clear(&cq->notifier);
+>      nvme_post_cqes(cq);
+>  }
+>  
+> @@ -567,6 +568,7 @@ static void nvme_sq_notifier(EventNotifier *e)
+>      NvmeSQueue *sq =
+>          container_of(e, NvmeSQueue, notifier);
+>  
+> +    event_notifier_test_and_clear(&sq->notifier);
+>      nvme_process_sq(sq);
+>  }
+>  
+> Here is new performance number:
+> 
+> qemu-nvme + google-ext + eventfd: 294MB/s
+> virtio-blk: 344MB/s
+> virtio-scsi: 296MB/s
+> 
+> It's almost same as virtio-scsi. Nice.
+
+(strip CC)
+
+Looks like "regular MMIO" runs in vcpu thread, while "eventfd MMIO" runs
+in the main loop thread.
+
+Could you help to explain why eventfd MMIO gets better performance?
+
+call stack: regular MMIO
+========================
+nvme_mmio_write (qemu/hw/block/nvme.c:921)
+memory_region_write_accessor (qemu/memory.c:451)
+access_with_adjusted_size (qemu/memory.c:506)
+memory_region_dispatch_write (qemu/memory.c:1158)
+address_space_rw (qemu/exec.c:2547)
+kvm_cpu_exec (qemu/kvm-all.c:1849)
+qemu_kvm_cpu_thread_fn (qemu/cpus.c:1050)
+start_thread (pthread_create.c:312)
+clone
+
+call stack: eventfd MMIO
+=========================
+nvme_sq_notifier (qemu/hw/block/nvme.c:598)
+aio_dispatch (qemu/aio-posix.c:329)
+aio_ctx_dispatch (qemu/async.c:232)
+g_main_context_dispatch
+glib_pollfds_poll (qemu/main-loop.c:213)
+os_host_main_loop_wait (qemu/main-loop.c:257)
+main_loop_wait (qemu/main-loop.c:504)
+main_loop (qemu/vl.c:1920)
+main (qemu/vl.c:4682)
+__libc_start_main
