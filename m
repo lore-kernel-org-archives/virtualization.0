@@ -1,14 +1,17 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH] paravirt: remove paravirt ops pmd_update[_defer] and
-	pte_update_defer
-Date: Tue, 24 Nov 2015 13:00:07 +0100
-Message-ID: <56545147.1000100__43437.0683659383$1448366486$gmane$org@suse.com>
-References: <1447771879-1806-1-git-send-email-jgross@suse.com>
+From: Ming Lin <mlin@kernel.org>
+Subject: Re: [RFC PATCH 0/9] vhost-nvme: new qemu nvme backend using nvme
+	target
+Date: Tue, 24 Nov 2015 11:25:15 -0800
+Message-ID: <1448393115.2925.2.camel@ssi>
+References: <1447978868-17138-1-git-send-email-mlin@kernel.org>
+	<56506D95.70101@redhat.com> <1448266667.18175.5.camel@hasee>
+	<56531F5F.3050709@redhat.com> <1448350074.6696.3.camel@hasee>
+	<56544122.3010300@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1447771879-1806-1-git-send-email-jgross@suse.com>
+In-Reply-To: <56544122.3010300@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,199 +21,152 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, x86@kernel.org, hpa@zytor.com, tglx@linutronix.de, mingo@redhat.com, jeremy@goop.org, chrisw@sous-sol.org, akataria@vmware.com, rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org, xen-devel@lists.xen.org, konrad.wilk@oracle.com, david.vrabel@citrix.com, boris.ostrovsky@oracle.com
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: qemu-devel@nongnu.org, Christoph Hellwig <hch@lst.de>, linux-nvme@lists.infradead.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ping?
+On Tue, 2015-11-24 at 11:51 +0100, Paolo Bonzini wrote:
+> 
+> On 24/11/2015 08:27, Ming Lin wrote:
+> > handle_notify (qemu/hw/block/dataplane/virtio-blk.c:126)
+> > aio_dispatch (qemu/aio-posix.c:329)
+> > aio_poll (qemu/aio-posix.c:474)
+> > iothread_run (qemu/iothread.c:45)
+> > start_thread (pthread_create.c:312)
+> > /lib/x86_64-linux-gnu/libc.so.6(clone+0x6d)
+> > 
+> > I think I'll have a "nvme_dev_notify" similar as "handle_notify"
+> > 
+> > static void nvme_dev_notify(EventNotifier *e)
+> > {
+> >     ....
+> > }
+> > 
+> > But then how can I know this notify is for cq or sq?
+> 
+> virtio-blk has a single queue, so it has a single EventNotifier.  Your
+> code using multiple EventNotifiers is fine, you can use
+> aio_set_event_notifier multiple times on the same iothread.
 
-On 17/11/15 15:51, Juergen Gross wrote:
-> pte_update_defer can be removed as it is always set to the same
-> function as pte_update. So any usage of pte_update_defer() can be
-> replaced by pte_update().
-> 
-> pmd_update and pmd_update_defer are always set to paravirt_nop, so they
-> can just be nuked.
-> 
-> Signed-off-by: Juergen Gross <jgross@suse.com>
-> ---
->  arch/x86/include/asm/paravirt.h       | 17 -----------------
->  arch/x86/include/asm/paravirt_types.h |  6 ------
->  arch/x86/include/asm/pgtable.h        | 15 ++-------------
->  arch/x86/kernel/paravirt.c            |  3 ---
->  arch/x86/lguest/boot.c                |  1 -
->  arch/x86/mm/pgtable.c                 |  7 +------
->  arch/x86/xen/mmu.c                    |  1 -
->  7 files changed, 3 insertions(+), 47 deletions(-)
-> 
-> diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-> index 10d0596..398f068 100644
-> --- a/arch/x86/include/asm/paravirt.h
-> +++ b/arch/x86/include/asm/paravirt.h
-> @@ -375,23 +375,6 @@ static inline void pte_update(struct mm_struct *mm, unsigned long addr,
->  {
->  	PVOP_VCALL3(pv_mmu_ops.pte_update, mm, addr, ptep);
->  }
-> -static inline void pmd_update(struct mm_struct *mm, unsigned long addr,
-> -			      pmd_t *pmdp)
-> -{
-> -	PVOP_VCALL3(pv_mmu_ops.pmd_update, mm, addr, pmdp);
-> -}
-> -
-> -static inline void pte_update_defer(struct mm_struct *mm, unsigned long addr,
-> -				    pte_t *ptep)
-> -{
-> -	PVOP_VCALL3(pv_mmu_ops.pte_update_defer, mm, addr, ptep);
-> -}
-> -
-> -static inline void pmd_update_defer(struct mm_struct *mm, unsigned long addr,
-> -				    pmd_t *pmdp)
-> -{
-> -	PVOP_VCALL3(pv_mmu_ops.pmd_update_defer, mm, addr, pmdp);
-> -}
->  
->  static inline pte_t __pte(pteval_t val)
->  {
-> diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-> index 31247b5..6418541 100644
-> --- a/arch/x86/include/asm/paravirt_types.h
-> +++ b/arch/x86/include/asm/paravirt_types.h
-> @@ -274,12 +274,6 @@ struct pv_mmu_ops {
->  			   pmd_t *pmdp, pmd_t pmdval);
->  	void (*pte_update)(struct mm_struct *mm, unsigned long addr,
->  			   pte_t *ptep);
-> -	void (*pte_update_defer)(struct mm_struct *mm,
-> -				 unsigned long addr, pte_t *ptep);
-> -	void (*pmd_update)(struct mm_struct *mm, unsigned long addr,
-> -			   pmd_t *pmdp);
-> -	void (*pmd_update_defer)(struct mm_struct *mm,
-> -				 unsigned long addr, pmd_t *pmdp);
->  
->  	pte_t (*ptep_modify_prot_start)(struct mm_struct *mm, unsigned long addr,
->  					pte_t *ptep);
-> diff --git a/arch/x86/include/asm/pgtable.h b/arch/x86/include/asm/pgtable.h
-> index 6ec0c8b..d3eee66 100644
-> --- a/arch/x86/include/asm/pgtable.h
-> +++ b/arch/x86/include/asm/pgtable.h
-> @@ -69,9 +69,6 @@ extern struct mm_struct *pgd_page_get_mm(struct page *page);
->  #define pmd_clear(pmd)			native_pmd_clear(pmd)
->  
->  #define pte_update(mm, addr, ptep)              do { } while (0)
-> -#define pte_update_defer(mm, addr, ptep)        do { } while (0)
-> -#define pmd_update(mm, addr, ptep)              do { } while (0)
-> -#define pmd_update_defer(mm, addr, ptep)        do { } while (0)
->  
->  #define pgd_val(x)	native_pgd_val(x)
->  #define __pgd(x)	native_make_pgd(x)
-> @@ -731,14 +728,9 @@ static inline void native_set_pmd_at(struct mm_struct *mm, unsigned long addr,
->   * updates should either be sets, clears, or set_pte_atomic for P->P
->   * transitions, which means this hook should only be called for user PTEs.
->   * This hook implies a P->P protection or access change has taken place, which
-> - * requires a subsequent TLB flush.  The notification can optionally be delayed
-> - * until the TLB flush event by using the pte_update_defer form of the
-> - * interface, but care must be taken to assure that the flush happens while
-> - * still holding the same page table lock so that the shadow and primary pages
-> - * do not become out of sync on SMP.
-> + * requires a subsequent TLB flush.
->   */
->  #define pte_update(mm, addr, ptep)		do { } while (0)
-> -#define pte_update_defer(mm, addr, ptep)	do { } while (0)
->  #endif
->  
->  /*
-> @@ -830,9 +822,7 @@ static inline int pmd_write(pmd_t pmd)
->  static inline pmd_t pmdp_huge_get_and_clear(struct mm_struct *mm, unsigned long addr,
->  				       pmd_t *pmdp)
->  {
-> -	pmd_t pmd = native_pmdp_get_and_clear(pmdp);
-> -	pmd_update(mm, addr, pmdp);
-> -	return pmd;
-> +	return native_pmdp_get_and_clear(pmdp);
->  }
->  
->  #define __HAVE_ARCH_PMDP_SET_WRPROTECT
-> @@ -840,7 +830,6 @@ static inline void pmdp_set_wrprotect(struct mm_struct *mm,
->  				      unsigned long addr, pmd_t *pmdp)
->  {
->  	clear_bit(_PAGE_BIT_RW, (unsigned long *)pmdp);
-> -	pmd_update(mm, addr, pmdp);
->  }
->  
->  /*
-> diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-> index c2130ae..f601250 100644
-> --- a/arch/x86/kernel/paravirt.c
-> +++ b/arch/x86/kernel/paravirt.c
-> @@ -444,9 +444,6 @@ struct pv_mmu_ops pv_mmu_ops = {
->  	.set_pmd = native_set_pmd,
->  	.set_pmd_at = native_set_pmd_at,
->  	.pte_update = paravirt_nop,
-> -	.pte_update_defer = paravirt_nop,
-> -	.pmd_update = paravirt_nop,
-> -	.pmd_update_defer = paravirt_nop,
->  
->  	.ptep_modify_prot_start = __ptep_modify_prot_start,
->  	.ptep_modify_prot_commit = __ptep_modify_prot_commit,
-> diff --git a/arch/x86/lguest/boot.c b/arch/x86/lguest/boot.c
-> index a0d09f6..a1900d4 100644
-> --- a/arch/x86/lguest/boot.c
-> +++ b/arch/x86/lguest/boot.c
-> @@ -1472,7 +1472,6 @@ __init void lguest_init(void)
->  	pv_mmu_ops.lazy_mode.leave = lguest_leave_lazy_mmu_mode;
->  	pv_mmu_ops.lazy_mode.flush = paravirt_flush_lazy_mmu;
->  	pv_mmu_ops.pte_update = lguest_pte_update;
-> -	pv_mmu_ops.pte_update_defer = lguest_pte_update;
->  
->  #ifdef CONFIG_X86_LOCAL_APIC
->  	/* APIC read/write intercepts */
-> diff --git a/arch/x86/mm/pgtable.c b/arch/x86/mm/pgtable.c
-> index fb0a9dd..ee9c2e3 100644
-> --- a/arch/x86/mm/pgtable.c
-> +++ b/arch/x86/mm/pgtable.c
-> @@ -414,7 +414,7 @@ int ptep_set_access_flags(struct vm_area_struct *vma,
->  
->  	if (changed && dirty) {
->  		*ptep = entry;
-> -		pte_update_defer(vma->vm_mm, address, ptep);
-> +		pte_update(vma->vm_mm, address, ptep);
->  	}
->  
->  	return changed;
-> @@ -431,7 +431,6 @@ int pmdp_set_access_flags(struct vm_area_struct *vma,
->  
->  	if (changed && dirty) {
->  		*pmdp = entry;
-> -		pmd_update_defer(vma->vm_mm, address, pmdp);
->  		/*
->  		 * We had a write-protection fault here and changed the pmd
->  		 * to to more permissive. No need to flush the TLB for that,
-> @@ -469,9 +468,6 @@ int pmdp_test_and_clear_young(struct vm_area_struct *vma,
->  		ret = test_and_clear_bit(_PAGE_BIT_ACCESSED,
->  					 (unsigned long *)pmdp);
->  
-> -	if (ret)
-> -		pmd_update(vma->vm_mm, addr, pmdp);
-> -
->  	return ret;
->  }
->  #endif
-> @@ -518,7 +514,6 @@ void pmdp_splitting_flush(struct vm_area_struct *vma,
->  	set = !test_and_set_bit(_PAGE_BIT_SPLITTING,
->  				(unsigned long *)pmdp);
->  	if (set) {
-> -		pmd_update(vma->vm_mm, address, pmdp);
->  		/* need tlb flush only to serialize against gup-fast */
->  		flush_tlb_range(vma, address, address + HPAGE_PMD_SIZE);
->  	}
-> diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
-> index ac161db..896dc14 100644
-> --- a/arch/x86/xen/mmu.c
-> +++ b/arch/x86/xen/mmu.c
-> @@ -2436,7 +2436,6 @@ static const struct pv_mmu_ops xen_mmu_ops __initconst = {
->  	.flush_tlb_others = xen_flush_tlb_others,
->  
->  	.pte_update = paravirt_nop,
-> -	.pte_update_defer = paravirt_nop,
->  
->  	.pgd_alloc = xen_pgd_alloc,
->  	.pgd_free = xen_pgd_free,
-> 
+I feel below patch is close to right.
+But I got "Co-routine re-entered recursively".
+
+Program received signal SIGABRT, Aborted.
+0x00007ffff4a45cc9 in __GI_raise (sig=sig@entry=6) at ../nptl/sysdeps/unix/sysv/linux/raise.c:56
+56	../nptl/sysdeps/unix/sysv/linux/raise.c: No such file or directory.
+(gdb) bt
+#0  0x00007ffff4a45cc9 in __GI_raise (sig=sig@entry=6) at ../nptl/sysdeps/unix/sysv/linux/raise.c:56
+#1  0x00007ffff4a490d8 in __GI_abort () at abort.c:89
+#2  0x0000555555b910d1 in qemu_coroutine_enter (co=0x5555577a9ce0, opaque=0x0) at /home/mlin/qemu/util/qemu-coroutine.c:111
+#3  0x0000555555b282e0 in bdrv_co_io_em_complete (opaque=0x7fffd94e4a30, ret=0) at /home/mlin/qemu/block/io.c:2282
+#4  0x0000555555ab8ba4 in thread_pool_completion_bh (opaque=0x555557d6d440) at /home/mlin/qemu/thread-pool.c:187
+#5  0x0000555555ab7ab2 in aio_bh_call (bh=0x555557648110) at /home/mlin/qemu/async.c:64
+#6  0x0000555555ab7b88 in aio_bh_poll (ctx=0x5555565b28f0) at /home/mlin/qemu/async.c:92
+#7  0x0000555555acb3b6 in aio_dispatch (ctx=0x5555565b28f0) at /home/mlin/qemu/aio-posix.c:305
+#8  0x0000555555ab8013 in aio_ctx_dispatch (source=0x5555565b28f0, callback=0x0, user_data=0x0) at /home/mlin/qemu/async.c:231
+#9  0x00007ffff575ee04 in g_main_context_dispatch () from /lib/x86_64-linux-gnu/libglib-2.0.so.0
+#10 0x0000555555ac8b35 in glib_pollfds_poll () at /home/mlin/qemu/main-loop.c:211
+#11 0x0000555555ac8c36 in os_host_main_loop_wait (timeout=0) at /home/mlin/qemu/main-loop.c:256
+#12 0x0000555555ac8cff in main_loop_wait (nonblocking=0) at /home/mlin/qemu/main-loop.c:504
+#13 0x00005555558a41d4 in main_loop () at /home/mlin/qemu/vl.c:1920
+#14 0x00005555558ac28a in main (argc=21, argv=0x7fffffffe4a8, envp=0x7fffffffe558) at /home/mlin/qemu/vl.c:4681
+(gdb)
+
+Would you help to take a look?
+
+diff --git a/hw/block/nvme.c b/hw/block/nvme.c
+index f27fd35..f542740 100644
+--- a/hw/block/nvme.c
++++ b/hw/block/nvme.c
+@@ -28,6 +28,8 @@
+ #include "sysemu/sysemu.h"
+ #include "qapi/visitor.h"
+ #include "sysemu/block-backend.h"
++#include "sysemu/iothread.h"
++#include "qom/object_interfaces.h"
+ 
+ #include "nvme.h"
+ 
+@@ -549,7 +551,10 @@ static void nvme_cq_notifier(EventNotifier *e)
+         container_of(e, NvmeCQueue, notifier);
+ 
+     event_notifier_test_and_clear(&cq->notifier);
++
++    aio_context_acquire(cq->ctrl->ctx);
+     nvme_post_cqes(cq);
++    aio_context_release(cq->ctrl->ctx);
+ }
+ 
+ static void nvme_init_cq_eventfd(NvmeCQueue *cq)
+@@ -558,9 +563,12 @@ static void nvme_init_cq_eventfd(NvmeCQueue *cq)
+     uint16_t offset = (cq->cqid*2+1) * (4 << NVME_CAP_DSTRD(n->bar.cap));
+ 
+     event_notifier_init(&cq->notifier, 0);
+-    event_notifier_set_handler(&cq->notifier, nvme_cq_notifier);
+     memory_region_add_eventfd(&n->iomem,
+         0x1000 + offset, 4, false, 0, &cq->notifier);
++    aio_context_acquire(n->ctx);
++    aio_set_event_notifier(n->ctx, &cq->notifier, false,
++                           nvme_cq_notifier);
++    aio_context_release(n->ctx);
+ }
+ 
+ static void nvme_sq_notifier(EventNotifier *e)
+@@ -569,7 +577,9 @@ static void nvme_sq_notifier(EventNotifier *e)
+         container_of(e, NvmeSQueue, notifier);
+ 
+     event_notifier_test_and_clear(&sq->notifier);
++    aio_context_acquire(sq->ctrl->ctx);
+     nvme_process_sq(sq);
++    aio_context_release(sq->ctrl->ctx);
+ }
+ 
+ static void nvme_init_sq_eventfd(NvmeSQueue *sq)
+@@ -578,9 +588,22 @@ static void nvme_init_sq_eventfd(NvmeSQueue *sq)
+     uint16_t offset = sq->sqid * 2 * (4 << NVME_CAP_DSTRD(n->bar.cap));
+ 
+     event_notifier_init(&sq->notifier, 0);
+-    event_notifier_set_handler(&sq->notifier, nvme_sq_notifier);
+     memory_region_add_eventfd(&n->iomem,
+         0x1000 + offset, 4, false, 0, &sq->notifier);
++    aio_context_acquire(n->ctx);
++    aio_set_event_notifier(n->ctx, &sq->notifier, false,
++                           nvme_sq_notifier);
++    aio_context_release(n->ctx);
++}
++
++static void nvme_init_iothread(NvmeCtrl *n)
++{
++    object_initialize(&n->internal_iothread_obj,
++                      sizeof(n->internal_iothread_obj),
++                      TYPE_IOTHREAD);
++    user_creatable_complete(OBJECT(&n->internal_iothread_obj), &error_abort);
++    n->iothread = &n->internal_iothread_obj;
++    n->ctx = iothread_get_aio_context(n->iothread);
+ }
+ 
+ static uint16_t nvme_set_db_memory(NvmeCtrl *n, const NvmeCmd *cmd)
+@@ -595,6 +618,8 @@ static uint16_t nvme_set_db_memory(NvmeCtrl *n, const NvmeCmd *cmd)
+         return NVME_INVALID_MEMORY_ADDRESS | NVME_DNR;
+     }
+ 
++    nvme_init_iothread(n);
++
+     /* This assumes all I/O queues are created before this command is handled.
+      * We skip the admin queues. */
+     for (i = 1; i < n->num_queues; i++) {
+diff --git a/hw/block/nvme.h b/hw/block/nvme.h
+index 608f202..b53e69d 100644
+--- a/hw/block/nvme.h
++++ b/hw/block/nvme.h
+@@ -727,6 +727,10 @@ typedef struct NvmeCtrl {
+     NvmeSQueue      admin_sq;
+     NvmeCQueue      admin_cq;
+     NvmeIdCtrl      id_ctrl;
++
++    IOThread *iothread;
++    IOThread internal_iothread_obj;
++    AioContext *ctx;
+ } NvmeCtrl;
+ 
+ #endif /* HW_NVME_H */
