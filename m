@@ -1,13 +1,17 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next 3/3] vhost_net: basic polling support
-Date: Wed, 25 Nov 2015 15:11:29 +0800
-Message-ID: <1448435489-5949-4-git-send-email-jasowang@redhat.com>
-References: <1448435489-5949-1-git-send-email-jasowang@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [RFC PATCH 0/9] vhost-nvme: new qemu nvme backend using nvme
+	target
+Date: Wed, 25 Nov 2015 12:27:50 +0100
+Message-ID: <56559B36.90406@redhat.com>
+References: <1447978868-17138-1-git-send-email-mlin@kernel.org>
+	<56506D95.70101@redhat.com> <1448266667.18175.5.camel@hasee>
+	<56531F5F.3050709@redhat.com> <1448350074.6696.3.camel@hasee>
+	<56544122.3010300@redhat.com> <1448393115.2925.2.camel@ssi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1448435489-5949-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <1448393115.2925.2.camel@ssi>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,205 +21,180 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Ming Lin <mlin@kernel.org>
+Cc: qemu-devel@nongnu.org, Christoph Hellwig <hch@lst.de>, linux-nvme@lists.infradead.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch tries to poll for new added tx buffer or socket receive
-queue for a while at the end of tx/rx processing. The maximum time
-spent on polling were specified through a new kind of vring ioctl.
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/net.c        | 72 ++++++++++++++++++++++++++++++++++++++++++----
- drivers/vhost/vhost.c      | 15 ++++++++++
- drivers/vhost/vhost.h      |  1 +
- include/uapi/linux/vhost.h | 11 +++++++
- 4 files changed, 94 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 9eda69e..ce6da77 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -287,6 +287,41 @@ static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
- 	rcu_read_unlock_bh();
- }
- 
-+static inline unsigned long busy_clock(void)
-+{
-+	return local_clock() >> 10;
-+}
-+
-+static bool vhost_can_busy_poll(struct vhost_dev *dev,
-+				unsigned long endtime)
-+{
-+	return likely(!need_resched()) &&
-+	       likely(!time_after(busy_clock(), endtime)) &&
-+	       likely(!signal_pending(current)) &&
-+	       !vhost_has_work(dev) &&
-+	       single_task_running();
-+}
-+
-+static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
-+				    struct vhost_virtqueue *vq,
-+				    struct iovec iov[], unsigned int iov_size,
-+				    unsigned int *out_num, unsigned int *in_num)
-+{
-+	unsigned long uninitialized_var(endtime);
-+
-+	if (vq->busyloop_timeout) {
-+		preempt_disable();
-+		endtime = busy_clock() + vq->busyloop_timeout;
-+		while (vhost_can_busy_poll(vq->dev, endtime) &&
-+		       !vhost_vq_more_avail(vq->dev, vq))
-+			cpu_relax();
-+		preempt_enable();
-+	}
-+
-+	return vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
-+				 out_num, in_num, NULL, NULL);
-+}
-+
- /* Expects to be always run from workqueue - which acts as
-  * read-size critical section for our kind of RCU. */
- static void handle_tx(struct vhost_net *net)
-@@ -331,10 +366,9 @@ static void handle_tx(struct vhost_net *net)
- 			      % UIO_MAXIOV == nvq->done_idx))
- 			break;
- 
--		head = vhost_get_vq_desc(vq, vq->iov,
--					 ARRAY_SIZE(vq->iov),
--					 &out, &in,
--					 NULL, NULL);
-+		head = vhost_net_tx_get_vq_desc(net, vq, vq->iov,
-+						ARRAY_SIZE(vq->iov),
-+						&out, &in);
- 		/* On error, stop handling until the next kick. */
- 		if (unlikely(head < 0))
- 			break;
-@@ -435,6 +469,34 @@ static int peek_head_len(struct sock *sk)
- 	return len;
- }
- 
-+static int vhost_net_peek_head_len(struct vhost_net *net, struct sock *sk)
-+{
-+	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
-+	struct vhost_virtqueue *vq = &nvq->vq;
-+	unsigned long uninitialized_var(endtime);
-+
-+	if (vq->busyloop_timeout) {
-+		mutex_lock(&vq->mutex);
-+		vhost_disable_notify(&net->dev, vq);
-+
-+		preempt_disable();
-+		endtime = busy_clock() + vq->busyloop_timeout;
-+
-+		while (vhost_can_busy_poll(&net->dev, endtime) &&
-+		       skb_queue_empty(&sk->sk_receive_queue) &&
-+		       !vhost_vq_more_avail(&net->dev, vq))
-+			cpu_relax();
-+
-+		preempt_enable();
-+
-+		if (vhost_enable_notify(&net->dev, vq))
-+			vhost_poll_queue(&vq->poll);
-+		mutex_unlock(&vq->mutex);
-+	}
-+
-+	return peek_head_len(sk);
-+}
-+
- /* This is a multi-buffer version of vhost_get_desc, that works if
-  *	vq has read descriptors only.
-  * @vq		- the relevant virtqueue
-@@ -553,7 +615,7 @@ static void handle_rx(struct vhost_net *net)
- 		vq->log : NULL;
- 	mergeable = vhost_has_feature(vq, VIRTIO_NET_F_MRG_RXBUF);
- 
--	while ((sock_len = peek_head_len(sock->sk))) {
-+	while ((sock_len = vhost_net_peek_head_len(net, sock->sk))) {
- 		sock_len += sock_hlen;
- 		vhost_len = sock_len + vhost_hlen;
- 		headcount = get_rx_bufs(vq, vq->heads, vhost_len,
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index b86c5aa..857af6c 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -285,6 +285,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
- 	vq->memory = NULL;
- 	vq->is_le = virtio_legacy_is_little_endian();
- 	vhost_vq_reset_user_be(vq);
-+	vq->busyloop_timeout = 0;
- }
- 
- static int vhost_worker(void *data)
-@@ -747,6 +748,7 @@ long vhost_vring_ioctl(struct vhost_dev *d, int ioctl, void __user *argp)
- 	struct vhost_vring_state s;
- 	struct vhost_vring_file f;
- 	struct vhost_vring_addr a;
-+	struct vhost_vring_busyloop_timeout t;
- 	u32 idx;
- 	long r;
- 
-@@ -919,6 +921,19 @@ long vhost_vring_ioctl(struct vhost_dev *d, int ioctl, void __user *argp)
- 	case VHOST_GET_VRING_ENDIAN:
- 		r = vhost_get_vring_endian(vq, idx, argp);
- 		break;
-+	case VHOST_SET_VRING_BUSYLOOP_TIMEOUT:
-+		if (copy_from_user(&t, argp, sizeof(t))) {
-+			r = -EFAULT;
-+			break;
-+		}
-+		vq->busyloop_timeout = t.timeout;
-+		break;
-+	case VHOST_GET_VRING_BUSYLOOP_TIMEOUT:
-+		t.index = idx;
-+		t.timeout = vq->busyloop_timeout;
-+		if (copy_to_user(argp, &t, sizeof(t)))
-+			r = -EFAULT;
-+		break;
- 	default:
- 		r = -ENOIOCTLCMD;
- 	}
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 2f3c57c..4b7d4fa 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -115,6 +115,7 @@ struct vhost_virtqueue {
- 	/* Ring endianness requested by userspace for cross-endian support. */
- 	bool user_be;
- #endif
-+	u32 busyloop_timeout;
- };
- 
- struct vhost_dev {
-diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-index ab373191..eaf6c33 100644
---- a/include/uapi/linux/vhost.h
-+++ b/include/uapi/linux/vhost.h
-@@ -27,6 +27,11 @@ struct vhost_vring_file {
- 
- };
- 
-+struct vhost_vring_busyloop_timeout {
-+	unsigned int index;
-+	unsigned int timeout;
-+};
-+
- struct vhost_vring_addr {
- 	unsigned int index;
- 	/* Option flags. */
-@@ -126,6 +131,12 @@ struct vhost_memory {
- #define VHOST_SET_VRING_CALL _IOW(VHOST_VIRTIO, 0x21, struct vhost_vring_file)
- /* Set eventfd to signal an error */
- #define VHOST_SET_VRING_ERR _IOW(VHOST_VIRTIO, 0x22, struct vhost_vring_file)
-+/* Set busy loop timeout */
-+#define VHOST_SET_VRING_BUSYLOOP_TIMEOUT _IOW(VHOST_VIRTIO, 0x23,	\
-+					 struct vhost_vring_busyloop_timeout)
-+/* Get busy loop timeout */
-+#define VHOST_GET_VRING_BUSYLOOP_TIMEOUT _IOW(VHOST_VIRTIO, 0x24,	\
-+					 struct vhost_vring_busyloop_timeout)
- 
- /* VHOST_NET specific defines */
- 
--- 
-2.5.0
+On 24/11/2015 20:25, Ming Lin wrote:
+> On Tue, 2015-11-24 at 11:51 +0100, Paolo Bonzini wrote:
+>>
+>> On 24/11/2015 08:27, Ming Lin wrote:
+>>> handle_notify (qemu/hw/block/dataplane/virtio-blk.c:126)
+>>> aio_dispatch (qemu/aio-posix.c:329)
+>>> aio_poll (qemu/aio-posix.c:474)
+>>> iothread_run (qemu/iothread.c:45)
+>>> start_thread (pthread_create.c:312)
+>>> /lib/x86_64-linux-gnu/libc.so.6(clone+0x6d)
+>>>
+>>> I think I'll have a "nvme_dev_notify" similar as "handle_notify"
+>>>
+>>> static void nvme_dev_notify(EventNotifier *e)
+>>> {
+>>>     ....
+>>> }
+>>>
+>>> But then how can I know this notify is for cq or sq?
+>>
+>> virtio-blk has a single queue, so it has a single EventNotifier.  Your
+>> code using multiple EventNotifiers is fine, you can use
+>> aio_set_event_notifier multiple times on the same iothread.
+> 
+> I feel below patch is close to right.
+> But I got "Co-routine re-entered recursively".
+> 
+> Program received signal SIGABRT, Aborted.
+> 0x00007ffff4a45cc9 in __GI_raise (sig=sig@entry=6) at ../nptl/sysdeps/unix/sysv/linux/raise.c:56
+> 56	../nptl/sysdeps/unix/sysv/linux/raise.c: No such file or directory.
+> (gdb) bt
+> #0  0x00007ffff4a45cc9 in __GI_raise (sig=sig@entry=6) at ../nptl/sysdeps/unix/sysv/linux/raise.c:56
+> #1  0x00007ffff4a490d8 in __GI_abort () at abort.c:89
+> #2  0x0000555555b910d1 in qemu_coroutine_enter (co=0x5555577a9ce0, opaque=0x0) at /home/mlin/qemu/util/qemu-coroutine.c:111
+> #3  0x0000555555b282e0 in bdrv_co_io_em_complete (opaque=0x7fffd94e4a30, ret=0) at /home/mlin/qemu/block/io.c:2282
+> #4  0x0000555555ab8ba4 in thread_pool_completion_bh (opaque=0x555557d6d440) at /home/mlin/qemu/thread-pool.c:187
+> #5  0x0000555555ab7ab2 in aio_bh_call (bh=0x555557648110) at /home/mlin/qemu/async.c:64
+> #6  0x0000555555ab7b88 in aio_bh_poll (ctx=0x5555565b28f0) at /home/mlin/qemu/async.c:92
+> #7  0x0000555555acb3b6 in aio_dispatch (ctx=0x5555565b28f0) at /home/mlin/qemu/aio-posix.c:305
+> #8  0x0000555555ab8013 in aio_ctx_dispatch (source=0x5555565b28f0, callback=0x0, user_data=0x0) at /home/mlin/qemu/async.c:231
+> #9  0x00007ffff575ee04 in g_main_context_dispatch () from /lib/x86_64-linux-gnu/libglib-2.0.so.0
+> #10 0x0000555555ac8b35 in glib_pollfds_poll () at /home/mlin/qemu/main-loop.c:211
+> #11 0x0000555555ac8c36 in os_host_main_loop_wait (timeout=0) at /home/mlin/qemu/main-loop.c:256
+> #12 0x0000555555ac8cff in main_loop_wait (nonblocking=0) at /home/mlin/qemu/main-loop.c:504
+> #13 0x00005555558a41d4 in main_loop () at /home/mlin/qemu/vl.c:1920
+> #14 0x00005555558ac28a in main (argc=21, argv=0x7fffffffe4a8, envp=0x7fffffffe558) at /home/mlin/qemu/vl.c:4681
+> (gdb)
+> 
+> Would you help to take a look?
+> 
+> diff --git a/hw/block/nvme.c b/hw/block/nvme.c
+> index f27fd35..f542740 100644
+> --- a/hw/block/nvme.c
+> +++ b/hw/block/nvme.c
+> @@ -28,6 +28,8 @@
+>  #include "sysemu/sysemu.h"
+>  #include "qapi/visitor.h"
+>  #include "sysemu/block-backend.h"
+> +#include "sysemu/iothread.h"
+> +#include "qom/object_interfaces.h"
+>  
+>  #include "nvme.h"
+>  
+> @@ -549,7 +551,10 @@ static void nvme_cq_notifier(EventNotifier *e)
+>          container_of(e, NvmeCQueue, notifier);
+>  
+>      event_notifier_test_and_clear(&cq->notifier);
+> +
+> +    aio_context_acquire(cq->ctrl->ctx);
+>      nvme_post_cqes(cq);
+> +    aio_context_release(cq->ctrl->ctx);
+
+This is not yet needed in upstream.
+
+>  }
+>  
+>  static void nvme_init_cq_eventfd(NvmeCQueue *cq)
+> @@ -558,9 +563,12 @@ static void nvme_init_cq_eventfd(NvmeCQueue *cq)
+>      uint16_t offset = (cq->cqid*2+1) * (4 << NVME_CAP_DSTRD(n->bar.cap));
+>  
+>      event_notifier_init(&cq->notifier, 0);
+> -    event_notifier_set_handler(&cq->notifier, nvme_cq_notifier);
+>      memory_region_add_eventfd(&n->iomem,
+>          0x1000 + offset, 4, false, 0, &cq->notifier);
+> +    aio_context_acquire(n->ctx);
+> +    aio_set_event_notifier(n->ctx, &cq->notifier, false,
+
+This should be true, but shouldn't affect your bug.
+
+> +                           nvme_cq_notifier);
+> +    aio_context_release(n->ctx);
+>  }
+>  
+>  static void nvme_sq_notifier(EventNotifier *e)
+> @@ -569,7 +577,9 @@ static void nvme_sq_notifier(EventNotifier *e)
+>          container_of(e, NvmeSQueue, notifier);
+>  
+>      event_notifier_test_and_clear(&sq->notifier);
+> +    aio_context_acquire(sq->ctrl->ctx);
+>      nvme_process_sq(sq);
+> +    aio_context_release(sq->ctrl->ctx);
+
+Same as above.
+
+>  }
+>  
+>  static void nvme_init_sq_eventfd(NvmeSQueue *sq)
+> @@ -578,9 +588,22 @@ static void nvme_init_sq_eventfd(NvmeSQueue *sq)
+>      uint16_t offset = sq->sqid * 2 * (4 << NVME_CAP_DSTRD(n->bar.cap));
+>  
+>      event_notifier_init(&sq->notifier, 0);
+> -    event_notifier_set_handler(&sq->notifier, nvme_sq_notifier);
+>      memory_region_add_eventfd(&n->iomem,
+>          0x1000 + offset, 4, false, 0, &sq->notifier);
+> +    aio_context_acquire(n->ctx);
+> +    aio_set_event_notifier(n->ctx, &sq->notifier, false,
+
+Also true.
+
+> +                           nvme_sq_notifier);
+> +    aio_context_release(n->ctx);
+> +}
+> +
+> +static void nvme_init_iothread(NvmeCtrl *n)
+> +{
+> +    object_initialize(&n->internal_iothread_obj,
+> +                      sizeof(n->internal_iothread_obj),
+> +                      TYPE_IOTHREAD);
+> +    user_creatable_complete(OBJECT(&n->internal_iothread_obj), &error_abort);
+> +    n->iothread = &n->internal_iothread_obj;
+> +    n->ctx = iothread_get_aio_context(n->iothread);
+
+Do you still have a blk_set_aio_context somewhere?  I'm losing track of
+the changes.
+
+In any case, I think using a separate I/O thread is a bit premature,
+except for benchmarking.  In the meanwhile I think the best option is to
+post a two-patch series with the vendor extension and the ioeventfd
+respectively.
+
+Paolo
+
+>  }
+>  
+>  static uint16_t nvme_set_db_memory(NvmeCtrl *n, const NvmeCmd *cmd)
+> @@ -595,6 +618,8 @@ static uint16_t nvme_set_db_memory(NvmeCtrl *n, const NvmeCmd *cmd)
+>          return NVME_INVALID_MEMORY_ADDRESS | NVME_DNR;
+>      }
+>  
+> +    nvme_init_iothread(n);
+> +
+>      /* This assumes all I/O queues are created before this command is handled.
+>       * We skip the admin queues. */
+>      for (i = 1; i < n->num_queues; i++) {
+> diff --git a/hw/block/nvme.h b/hw/block/nvme.h
+> index 608f202..b53e69d 100644
+> --- a/hw/block/nvme.h
+> +++ b/hw/block/nvme.h
+> @@ -727,6 +727,10 @@ typedef struct NvmeCtrl {
+>      NvmeSQueue      admin_sq;
+>      NvmeCQueue      admin_cq;
+>      NvmeIdCtrl      id_ctrl;
+> +
+> +    IOThread *iothread;
+> +    IOThread internal_iothread_obj;
+> +    AioContext *ctx;
+>  } NvmeCtrl;
+>  
+>  #endif /* HW_NVME_H */
+> 
+> 
