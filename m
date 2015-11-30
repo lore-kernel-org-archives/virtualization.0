@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] tools/virtio: fix byteswap logic
-Date: Mon, 30 Nov 2015 10:33:34 +0200
-Message-ID: <1448872410-11553-1-git-send-email-mst@redhat.com>
+Subject: [PATCH] vhost: replace % with & on data path
+Date: Mon, 30 Nov 2015 10:34:07 +0200
+Message-ID: <1448872427-11623-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -17,73 +17,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-commit cf561f0d2eb74574ad9985a2feab134267a9d298 ("virtio: introduce
-virtio_is_little_endian() helper") changed byteswap logic to
-skip feature bit checks for LE platforms, but didn't
-update tools/virtio, so vring_bench started failing.
+We know vring num is a power of 2, so use &
+to mask the high bits.
 
-Update the copy under tools/virtio/ (TODO: find a way to avoid this code
-duplication).
-
-Cc: Greg Kurz <gkurz@linux.vnet.ibm.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- tools/virtio/linux/virtio_config.h | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ drivers/vhost/vhost.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/tools/virtio/linux/virtio_config.h b/tools/virtio/linux/virtio_config.h
-index 806d683..57a6964 100644
---- a/tools/virtio/linux/virtio_config.h
-+++ b/tools/virtio/linux/virtio_config.h
-@@ -40,33 +40,39 @@ static inline void __virtio_clear_bit(struct virtio_device *vdev,
- #define virtio_has_feature(dev, feature) \
- 	(__virtio_test_bit((dev), feature))
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 080422f..85f0f0a 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -1366,10 +1366,12 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+ 	/* Only get avail ring entries after they have been exposed by guest. */
+ 	smp_rmb();
  
-+static inline bool virtio_is_little_endian(struct virtio_device *vdev)
-+{
-+	return virtio_has_feature(vdev, VIRTIO_F_VERSION_1) ||
-+		virtio_legacy_is_little_endian();
-+}
++	}
 +
-+/* Memory accessors */
- static inline u16 virtio16_to_cpu(struct virtio_device *vdev, __virtio16 val)
- {
--	return __virtio16_to_cpu(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
-+	return __virtio16_to_cpu(virtio_is_little_endian(vdev), val);
- }
+ 	/* Grab the next descriptor number they're advertising, and increment
+ 	 * the index we've seen. */
+ 	if (unlikely(__get_user(ring_head,
+-				&vq->avail->ring[last_avail_idx % vq->num]))) {
++				&vq->avail->ring[last_avail_idx & (vq->num - 1)]))) {
+ 		vq_err(vq, "Failed to read head: idx %d address %p\n",
+ 		       last_avail_idx,
+ 		       &vq->avail->ring[last_avail_idx % vq->num]);
+@@ -1489,7 +1491,7 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
+ 	u16 old, new;
+ 	int start;
  
- static inline __virtio16 cpu_to_virtio16(struct virtio_device *vdev, u16 val)
+-	start = vq->last_used_idx % vq->num;
++	start = vq->last_used_idx & (vq->num - 1);
+ 	used = vq->used->ring + start;
+ 	if (count == 1) {
+ 		if (__put_user(heads[0].id, &used->id)) {
+@@ -1531,7 +1533,7 @@ int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
  {
--	return __cpu_to_virtio16(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
-+	return __cpu_to_virtio16(virtio_is_little_endian(vdev), val);
- }
+ 	int start, n, r;
  
- static inline u32 virtio32_to_cpu(struct virtio_device *vdev, __virtio32 val)
- {
--	return __virtio32_to_cpu(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
-+	return __virtio32_to_cpu(virtio_is_little_endian(vdev), val);
- }
- 
- static inline __virtio32 cpu_to_virtio32(struct virtio_device *vdev, u32 val)
- {
--	return __cpu_to_virtio32(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
-+	return __cpu_to_virtio32(virtio_is_little_endian(vdev), val);
- }
- 
- static inline u64 virtio64_to_cpu(struct virtio_device *vdev, __virtio64 val)
- {
--	return __virtio64_to_cpu(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
-+	return __virtio64_to_cpu(virtio_is_little_endian(vdev), val);
- }
- 
- static inline __virtio64 cpu_to_virtio64(struct virtio_device *vdev, u64 val)
- {
--	return __cpu_to_virtio64(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
-+	return __cpu_to_virtio64(virtio_is_little_endian(vdev), val);
- }
--
+-	start = vq->last_used_idx % vq->num;
++	start = vq->last_used_idx & (vq->num - 1);
+ 	n = vq->num - start;
+ 	if (n < count) {
+ 		r = __vhost_add_used_n(vq, heads, n);
 -- 
 MST
