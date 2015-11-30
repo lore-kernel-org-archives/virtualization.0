@@ -1,15 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next 0/3] basic busy polling support for vhost_net
-Date: Mon, 30 Nov 2015 10:22:59 +0200
-Message-ID: <20151130102219-mutt-send-email-mst@redhat.com>
-References: <1448435489-5949-1-git-send-email-jasowang@redhat.com>
-	<20151129.223110.1579432138646337508.davem@davemloft.net>
+Subject: [PATCH] tools/virtio: fix byteswap logic
+Date: Mon, 30 Nov 2015 10:33:34 +0200
+Message-ID: <1448872410-11553-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20151129.223110.1579432138646337508.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,43 +16,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Nov 29, 2015 at 10:31:10PM -0500, David Miller wrote:
-> From: Jason Wang <jasowang@redhat.com>
-> Date: Wed, 25 Nov 2015 15:11:26 +0800
-> 
-> > This series tries to add basic busy polling for vhost net. The idea is
-> > simple: at the end of tx/rx processing, busy polling for new tx added
-> > descriptor and rx receive socket for a while. The maximum number of
-> > time (in us) could be spent on busy polling was specified ioctl.
-> > 
-> > Test A were done through:
-> > 
-> > - 50 us as busy loop timeout
-> > - Netperf 2.6
-> > - Two machines with back to back connected ixgbe
-> > - Guest with 1 vcpu and 1 queue
-> > 
-> > Results:
-> > - For stream workload, ioexits were reduced dramatically in medium
-> >   size (1024-2048) of tx (at most -43%) and almost all rx (at most
-> >   -84%) as a result of polling. This compensate for the possible
-> >   wasted cpu cycles more or less. That porbably why we can still see
-> >   some increasing in the normalized throughput in some cases.
-> > - Throughput of tx were increased (at most 50%) expect for the huge
-> >   write (16384). And we can send more packets in the case (+tpkts were
-> >   increased).
-> > - Very minor rx regression in some cases.
-> > - Improvemnt on TCP_RR (at most 17%).
-> 
-> Michael are you going to take this?  It's touching vhost core as
-> much as it is the vhost_net driver.
+commit cf561f0d2eb74574ad9985a2feab134267a9d298 ("virtio: introduce
+virtio_is_little_endian() helper") changed byteswap logic to
+skip feature bit checks for LE platforms, but didn't
+update tools/virtio, so vring_bench started failing.
 
-There's a minor bug there, but once it's fixed - I agree,
-it belongs in the vhost tree.
+Update the copy under tools/virtio/ (TODO: find a way to avoid this code
+duplication).
 
+Cc: Greg Kurz <gkurz@linux.vnet.ibm.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ tools/virtio/linux/virtio_config.h | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
+
+diff --git a/tools/virtio/linux/virtio_config.h b/tools/virtio/linux/virtio_config.h
+index 806d683..57a6964 100644
+--- a/tools/virtio/linux/virtio_config.h
++++ b/tools/virtio/linux/virtio_config.h
+@@ -40,33 +40,39 @@ static inline void __virtio_clear_bit(struct virtio_device *vdev,
+ #define virtio_has_feature(dev, feature) \
+ 	(__virtio_test_bit((dev), feature))
+ 
++static inline bool virtio_is_little_endian(struct virtio_device *vdev)
++{
++	return virtio_has_feature(vdev, VIRTIO_F_VERSION_1) ||
++		virtio_legacy_is_little_endian();
++}
++
++/* Memory accessors */
+ static inline u16 virtio16_to_cpu(struct virtio_device *vdev, __virtio16 val)
+ {
+-	return __virtio16_to_cpu(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
++	return __virtio16_to_cpu(virtio_is_little_endian(vdev), val);
+ }
+ 
+ static inline __virtio16 cpu_to_virtio16(struct virtio_device *vdev, u16 val)
+ {
+-	return __cpu_to_virtio16(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
++	return __cpu_to_virtio16(virtio_is_little_endian(vdev), val);
+ }
+ 
+ static inline u32 virtio32_to_cpu(struct virtio_device *vdev, __virtio32 val)
+ {
+-	return __virtio32_to_cpu(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
++	return __virtio32_to_cpu(virtio_is_little_endian(vdev), val);
+ }
+ 
+ static inline __virtio32 cpu_to_virtio32(struct virtio_device *vdev, u32 val)
+ {
+-	return __cpu_to_virtio32(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
++	return __cpu_to_virtio32(virtio_is_little_endian(vdev), val);
+ }
+ 
+ static inline u64 virtio64_to_cpu(struct virtio_device *vdev, __virtio64 val)
+ {
+-	return __virtio64_to_cpu(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
++	return __virtio64_to_cpu(virtio_is_little_endian(vdev), val);
+ }
+ 
+ static inline __virtio64 cpu_to_virtio64(struct virtio_device *vdev, u64 val)
+ {
+-	return __cpu_to_virtio64(virtio_has_feature(vdev, VIRTIO_F_VERSION_1), val);
++	return __cpu_to_virtio64(virtio_is_little_endian(vdev), val);
+ }
+-
 -- 
 MST
