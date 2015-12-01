@@ -1,15 +1,17 @@
-From: "Sinclair Yeh" <syeh@vmware.com>
-Subject: [PATCH 6/6] VMware balloon: Update vmw_balloon.c to use the VMW_PORT
-	macro
-Date: Tue,  1 Dec 2015 14:18:52 -0800
-Message-ID: <1449008332-9394-6-git-send-email-syeh__8602.45528533614$1449008327$gmane$org@vmware.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 3/6] Input: Update vmmouse.c to use the common VMW_PORT
+	macros
+Date: Tue, 1 Dec 2015 14:24:14 -0800
+Message-ID: <20151201222414.GH3740__20548.4314625666$1449008670$gmane$org@dtor-ws>
 References: <1449008047-8252-1-git-send-email-syeh@vmware.com>
 	<1449008332-9394-1-git-send-email-syeh@vmware.com>
+	<1449008332-9394-3-git-send-email-syeh@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1449008332-9394-1-git-send-email-syeh@vmware.com>
+Content-Disposition: inline
+In-Reply-To: <1449008332-9394-3-git-send-email-syeh@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,67 +21,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: x86@kernel.org
-Cc: pv-drivers@vmware.com, Xavier Deguillard <xdeguillard@vmware.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Sinclair Yeh <syeh@vmware.com>
+To: Sinclair Yeh <syeh@vmware.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, pv-drivers@vmware.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-graphics-maintainer@vmware.com, linux-input@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Sinclair Yeh <syeh@vmware.com>
-Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
-Reviewed-by: Alok N Kataria <akataria@vmware.com>
-Cc: pv-drivers@vmware.com
-Cc: Xavier Deguillard <xdeguillard@vmware.com>
-Cc: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
----
- drivers/misc/vmw_balloon.c | 29 ++++++++++++-----------------
- 1 file changed, 12 insertions(+), 17 deletions(-)
+On Tue, Dec 01, 2015 at 02:18:49PM -0800, Sinclair Yeh wrote:
+> v2:
+> Instead of replacing existing VMMOUSE defines, only modify enough
+> to use the new VMW_PORT define.
+> 
+> v3:
+> Use updated VMWARE_PORT() which requires hypervisor magic as an added
+> parameter
+> 
+> Signed-off-by: Sinclair Yeh <syeh@vmware.com>
+> Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
+> Reviewed-by: Alok N Kataria <akataria@vmware.com>
+> Cc: pv-drivers@vmware.com
+> Cc: linux-graphics-maintainer@vmware.com
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: linux-kernel@vger.kernel.org
+> Cc: virtualization@lists.linux-foundation.org
+> Cc: linux-input@vger.kernel.org
+> ---
+>  drivers/input/mouse/vmmouse.c | 22 +++++++---------------
+>  1 file changed, 7 insertions(+), 15 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/vmmouse.c b/drivers/input/mouse/vmmouse.c
+> index e272f06..d34e3e4 100644
+> --- a/drivers/input/mouse/vmmouse.c
+> +++ b/drivers/input/mouse/vmmouse.c
+> @@ -19,6 +19,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/module.h>
+>  #include <asm/hypervisor.h>
+> +#include <asm/vmware.h>
+>  
+>  #include "psmouse.h"
+>  #include "vmmouse.h"
+> @@ -84,21 +85,12 @@ struct vmmouse_data {
+>   * implementing the vmmouse protocol. Should never execute on
+>   * bare metal hardware.
+>   */
+> -#define VMMOUSE_CMD(cmd, in1, out1, out2, out3, out4)	\
+> -({							\
+> -	unsigned long __dummy1, __dummy2;		\
+> -	__asm__ __volatile__ ("inl %%dx" :		\
+> -		"=a"(out1),				\
+> -		"=b"(out2),				\
+> -		"=c"(out3),				\
+> -		"=d"(out4),				\
+> -		"=S"(__dummy1),				\
+> -		"=D"(__dummy2) :			\
+> -		"a"(VMMOUSE_PROTO_MAGIC),		\
+> -		"b"(in1),				\
+> -		"c"(VMMOUSE_PROTO_CMD_##cmd),		\
+> -		"d"(VMMOUSE_PROTO_PORT) :		\
+> -		"memory");		                \
+> +#define VMMOUSE_CMD(cmd, in1, out1, out2, out3, out4)		   \
+> +({								   \
+> +	unsigned long __dummy1 = 0, __dummy2 = 0;		   \
 
-diff --git a/drivers/misc/vmw_balloon.c b/drivers/misc/vmw_balloon.c
-index ffb5634..90a0d07 100644
---- a/drivers/misc/vmw_balloon.c
-+++ b/drivers/misc/vmw_balloon.c
-@@ -43,6 +43,7 @@
- #include <linux/debugfs.h>
- #include <linux/seq_file.h>
- #include <asm/hypervisor.h>
-+#include <asm/vmware.h>
- 
- MODULE_AUTHOR("VMware, Inc.");
- MODULE_DESCRIPTION("VMware Memory Control (Balloon) Driver");
-@@ -142,23 +143,17 @@ enum vmwballoon_capabilities {
- 
- #define VMW_BALLOON_SUCCESS_WITH_CAPABILITIES	(0x03000000)
- 
--#define VMWARE_BALLOON_CMD(cmd, data, result)			\
--({								\
--	unsigned long __status, __dummy1, __dummy2;		\
--	__asm__ __volatile__ ("inl %%dx" :			\
--		"=a"(__status),					\
--		"=c"(__dummy1),					\
--		"=d"(__dummy2),					\
--		"=b"(result) :					\
--		"0"(VMW_BALLOON_HV_MAGIC),			\
--		"1"(VMW_BALLOON_CMD_##cmd),			\
--		"2"(VMW_BALLOON_HV_PORT),			\
--		"3"(data) :					\
--		"memory");					\
--	if (VMW_BALLOON_CMD_##cmd == VMW_BALLOON_CMD_START)	\
--		result = __dummy1;				\
--	result &= -1UL;						\
--	__status & -1UL;					\
-+#define VMWARE_BALLOON_CMD(cmd, data, result)			   \
-+({								   \
-+	unsigned long __status, __dummy1, __dummy2;		   \
-+	unsigned long __si = 0, __di = 0;			   \
-+	VMW_PORT(data, VMW_BALLOON_CMD_##cmd, VMW_BALLOON_HV_PORT, \
-+		 VMW_BALLOON_HV_MAGIC,				   \
-+		 __status, result, __dummy1, __dummy2, __si, __di);\
-+	if (VMW_BALLOON_CMD_##cmd == VMW_BALLOON_CMD_START)	   \
-+		result = __dummy1;				   \
-+	result &= -1UL;						   \
-+	__status & -1UL;					   \
- })
- 
- #ifdef CONFIG_DEBUG_FS
+Why do we need to initialize dummies?
+
+> +	VMW_PORT(in1, VMMOUSE_PROTO_CMD_##cmd, VMMOUSE_PROTO_PORT, \
+> +		 VMMOUSE_PROTO_MAGIC,				   \
+> +		 out1, out2, out3, out4, __dummy1, __dummy2);      \
+>  })
+>  
+
+Thanks.
+
 -- 
-1.9.1
+Dmitry
