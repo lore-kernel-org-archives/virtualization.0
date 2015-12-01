@@ -1,17 +1,14 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [RFC PATCH 0/9] vhost-nvme: new qemu nvme backend using nvme
-	target
-Date: Tue, 1 Dec 2015 11:59:06 -0500 (EST)
-Message-ID: <998355860.30506151.1448989146641.JavaMail.zimbra@redhat.com>
-References: <1447978868-17138-1-git-send-email-mlin@kernel.org>
-	<56506D95.70101@redhat.com> <1448266667.18175.5.camel@hasee>
-	<56531F5F.3050709@redhat.com> <1448925639.27669.7.camel@ssi>
-	<565DC48B.6030903@redhat.com> <1448987171.3041.2.camel@hasee>
+From: "Sinclair Yeh" <syeh@vmware.com>
+Subject: [PATCH 2/6] x86: Update vmware.c to use the common VMW_PORT macros
+Date: Tue,  1 Dec 2015 14:18:48 -0800
+Message-ID: <1449008332-9394-2-git-send-email-syeh@vmware.com>
+References: <1449008047-8252-1-git-send-email-syeh@vmware.com>
+	<1449008332-9394-1-git-send-email-syeh@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1448987171.3041.2.camel@hasee>
+In-Reply-To: <1449008332-9394-1-git-send-email-syeh@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,36 +18,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ming Lin <mlin@kernel.org>
-Cc: qemu-devel@nongnu.org, Christoph Hellwig <hch@lst.de>, linux-nvme@lists.infradead.org, virtualization@lists.linux-foundation.org
+To: x86@kernel.org
+Cc: Sinclair Yeh <syeh@vmware.com>, pv-drivers@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
+v2:
+Instead of replacing all existing instances of VMWARE_PORT
+with VMW_PORT, update VMWARE_PORT to use the new VMW_PORT.
 
-> What do you think about virtio-nvme+vhost-nvme?
+v3:
+Using updated VMWARE_PORT() macro, which needs hypervisor magic in the
+parameter
 
-What would be the advantage over virtio-blk?  Multiqueue is not supported
-by QEMU but it's already supported by Linux (commit 6a27b656fc).
+Signed-off-by: Sinclair Yeh <syeh@vmware.com>
+Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
+Reviewed-by: Alok N Kataria <akataria@vmware.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: pv-drivers@vmware.com
+Cc: virtualization@lists.linux-foundation.org
+Cc: linux-kernel@vger.kernel.org
+---
+ arch/x86/kernel/cpu/vmware.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-To me, the advantage of nvme is that it provides more than decent performance on
-unmodified Windows guests, and thanks to your vendor extension can be used
-on Linux as well with speeds comparable to virtio-blk.  So it's potentially
-a very good choice for a cloud provider that wants to support Windows guests
-(together with e.g. a fast SAS emulated controller to replace virtio-scsi,
-and emulated igb or ixgbe to replace virtio-net).
-
-Which features are supported by NVMe and not virtio-blk?
-
-Paolo
-
-> I also have patch for vritio-nvme:
-> https://git.kernel.org/cgit/linux/kernel/git/mlin/linux.git/log/?h=nvme-split/virtio
-> 
-> Just need to change vhost-nvme to work with it.
-> 
-> > 
-> > Paolo
-> > 
-> > > Still tuning.
-> 
-> 
-> 
+diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
+index 628a059..1837f66 100644
+--- a/arch/x86/kernel/cpu/vmware.c
++++ b/arch/x86/kernel/cpu/vmware.c
+@@ -26,6 +26,7 @@
+ #include <asm/div64.h>
+ #include <asm/x86_init.h>
+ #include <asm/hypervisor.h>
++#include <asm/vmware.h>
+ 
+ #define CPUID_VMWARE_INFO_LEAF	0x40000000
+ #define VMWARE_HYPERVISOR_MAGIC	0x564D5868
+@@ -37,13 +38,14 @@
+ #define VMWARE_PORT_CMD_LEGACY_X2APIC	3
+ #define VMWARE_PORT_CMD_VCPU_RESERVED	31
+ 
+-#define VMWARE_PORT(cmd, eax, ebx, ecx, edx)				\
+-	__asm__("inl (%%dx)" :						\
+-			"=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :	\
+-			"0"(VMWARE_HYPERVISOR_MAGIC),			\
+-			"1"(VMWARE_PORT_CMD_##cmd),			\
+-			"2"(VMWARE_HYPERVISOR_PORT), "3"(UINT_MAX) :	\
+-			"memory");
++#define VMWARE_PORT(cmd, eax, ebx, ecx, edx)				  \
++({									  \
++	unsigned long __si = 0, __di = 0;                                 \
++	VMW_PORT(UINT_MAX, VMWARE_PORT_CMD_##cmd, VMWARE_HYPERVISOR_PORT, \
++		 VMWARE_HYPERVISOR_MAGIC,                                 \
++		 eax, ebx, ecx, edx, __si, __di);                         \
++})
++
+ 
+ static inline int __vmware_platform(void)
+ {
+-- 
+1.9.1
