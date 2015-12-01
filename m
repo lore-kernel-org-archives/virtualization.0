@@ -1,17 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next 3/3] vhost_net: basic polling support
-Date: Tue, 1 Dec 2015 16:43:05 +0200
-Message-ID: <20151201163939-mutt-send-email-mst@redhat.com>
-References: <1448435489-5949-1-git-send-email-jasowang@redhat.com>
-	<1448435489-5949-4-git-send-email-jasowang@redhat.com>
-	<20151130124233-mutt-send-email-mst@redhat.com>
-	<565D2D7D.4010903@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [RFC PATCH 0/9] vhost-nvme: new qemu nvme backend using nvme
+	target
+Date: Tue, 1 Dec 2015 17:02:19 +0100
+Message-ID: <565DC48B.6030903@redhat.com>
+References: <1447978868-17138-1-git-send-email-mlin@kernel.org>
+	<56506D95.70101@redhat.com> <1448266667.18175.5.camel@hasee>
+	<56531F5F.3050709@redhat.com> <1448925639.27669.7.camel@ssi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <565D2D7D.4010903@redhat.com>
+In-Reply-To: <1448925639.27669.7.camel@ssi>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,41 +20,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Ming Lin <mlin@kernel.org>
+Cc: qemu-devel@nongnu.org, Christoph Hellwig <hch@lst.de>, linux-nvme@lists.infradead.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 01, 2015 at 01:17:49PM +0800, Jason Wang wrote:
+
+
+On 01/12/2015 00:20, Ming Lin wrote:
+> qemu-nvme: 148MB/s
+> vhost-nvme + google-ext: 230MB/s
+> qemu-nvme + google-ext + eventfd: 294MB/s
+> virtio-scsi: 296MB/s
+> virtio-blk: 344MB/s
 > 
-> 
-> On 11/30/2015 06:44 PM, Michael S. Tsirkin wrote:
-> > On Wed, Nov 25, 2015 at 03:11:29PM +0800, Jason Wang wrote:
-> >> > This patch tries to poll for new added tx buffer or socket receive
-> >> > queue for a while at the end of tx/rx processing. The maximum time
-> >> > spent on polling were specified through a new kind of vring ioctl.
-> >> > 
-> >> > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > One further enhancement would be to actually poll
-> > the underlying device. This should be reasonably
-> > straight-forward with macvtap (especially in the
-> > passthrough mode).
-> >
-> >
-> 
-> Yes, it is. I have some patches to do this by replacing
-> skb_queue_empty() with sk_busy_loop() but for tap.
+> "vhost-nvme + google-ext" didn't get good enough performance.
 
-We probably don't want to do this unconditionally, though.
+I'd expect it to be on par of qemu-nvme with ioeventfd but the question
+is: why should it be better?  For vhost-net, the answer is that more
+zerocopy can be done if you put the data path in the kernel.
 
-> Tests does not show
-> any improvement but some regression.
+But qemu-nvme is already using io_submit for the data path, perhaps
+there's not much to gain from vhost-nvme...
 
-Did you add code to call sk_mark_napi_id on tap then?
-sk_busy_loop won't do anything useful without.
+Paolo
 
->  Maybe it's better to test macvtap.
-
-Same thing ...
-
--- 
-MST
+> Still tuning.
