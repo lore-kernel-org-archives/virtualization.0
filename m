@@ -1,11 +1,15 @@
-From: Michal Hocko <mhocko@kernel.org>
-Subject: [PATCH] virtio: Do not drop __GFP_HIGH in alloc_indirect
-Date: Tue,  1 Dec 2015 15:32:49 +0100
-Message-ID: <1448980369-27130-1-git-send-email-mhocko__17851.8904293471$1449075497$gmane$org@kernel.org>
+From: Xavier Deguillard <xdeguillard@vmware.com>
+Subject: Re: [PATCH 1/6] x86: Add VMWare Host Communication Macros
+Date: Tue, 1 Dec 2015 14:32:38 -0800
+Message-ID: <20151201223238.GM24642__14684.8288750791$1449075505$gmane$org@xdeguillard-ws.eng.vmware.com>
+References: <1449008047-8252-1-git-send-email-syeh@vmware.com>
+	<1449008332-9394-1-git-send-email-syeh@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1449008332-9394-1-git-send-email-syeh@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,52 +19,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Michal Hocko <mhocko@suse.com>, Will Deacon <will.deacon@arm.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Sinclair Yeh <syeh@vmware.com>
+Cc: x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Alok Kataria <akataria@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Michal Hocko <mhocko@suse.com>
+Hey Sinclair,
 
-b92b1b89a33c ("virtio: force vring descriptors to be allocated from
-lowmem") tried to exclude highmem pages for descriptors so it cleared
-__GFP_HIGHMEM from a given gfp mask. The patch also cleared __GFP_HIGH
-which doesn't make much sense for this fix because __GFP_HIGH only
-controls access to memory reserves and it doesn't have any influence
-on the zone selection. Some of the call paths use GFP_ATOMIC and
-dropping __GFP_HIGH will reduce their changes for success because the
-lack of access to memory reserves.
+On Tue, Dec 01, 2015 at 02:18:47PM -0800, Sinclair Yeh wrote:
+> +/**
+> + * Hypervisor-specific bi-directional communication channel.  Should never
+> + * execute on bare metal hardware.  The caller must make sure to check for
+> + * supported hypervisor before using these macros.
+> + *
+> + * Several of the parameters are both input and output and must be initialized.
+> + *
+> + * @in1: [IN] Message Len or Message Cmd (HB)
+> + * @in2: [IN] Message Len (HB) or Message Cmd
 
-Signed-off-by: Michal Hocko <mhocko@suse.com>
----
-Hi,
-I have stumbled over this code while looking at other issue [1]. I think
-that using __GFP_HIGH simply got there because of its confusing name. It
-doesn't have anything to do with the highmem zone.
+Can you make in1 always be the "Message Cmd" and in2 always be the
+"Message len"?
 
-The patch is based on the current linux-next. 
+> + * @port_num: [IN] port number + [channel id]
+> + * @magic: [IN] hypervisor magic value
+> + * @eax: [OUT] value of EAX register
+> + * @ebx: [OUT] e.g. status from an HB message status command
+> + * @ecx: [OUT] e.g. status from a non-HB message status command
+> + * @edx: [OUT] e.g. channel id
+> + * @si: [INOUT] set to 0 if not used
+> + * @di: [INOUT] set to 0 if not used
+> + * @bp: [INOUT] set to 0 if not used
+> + */
+> +#define VMW_PORT(in1, in2, port_num, magic, eax, ebx, ecx, edx, si, di) \
+> +({                                                                      \
+> +	__asm__ __volatile__ ("inl %%dx" :                              \
 
-I think that clearing __GFP_HIGHMEM is bogus in the current code because
-all code paths either use GFP_KERNEL or GFP_ATOMIC and those do not fall
-back to the highmem zone but I have kept it because clearing the flag
-cannot be harmful.
+Are those '\' aligned in the code?
 
-[1] http://lkml.kernel.org/r/87h9k4kzcv.fsf%40yhuang-dev.intel.com
+> +
+> +#define VMW_PORT_HB_OUT(in1, in2, port_num, magic,      \
+> +			eax, ebx, ecx, edx, si, di, bp) \
+> +({                                                      \
+> +	__asm__ __volatile__ ("movq %13, %%rbp;"        \
 
- drivers/virtio/virtio_ring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Same here.
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 14e7ce9b3e96..734de927c89d 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -110,7 +110,7 @@ static struct vring_desc *alloc_indirect(struct virtqueue *_vq,
- 	 * otherwise virt_to_phys will give us bogus addresses in the
- 	 * virtqueue.
- 	 */
--	gfp &= ~(__GFP_HIGHMEM | __GFP_HIGH);
-+	gfp &= ~__GFP_HIGHMEM;
- 
- 	desc = kmalloc(total_sg * sizeof(struct vring_desc), gfp);
- 	if (!desc)
--- 
-2.6.2
+> +
+> +#define VMW_PORT_HB_IN(in1, in2, port_num, magic,            \
+> +		       eax, ebx, ecx, edx, si, di, bp)       \
+> +({                                                           \
+> +	__asm__ __volatile__ ("push %%rbp; movq %13, %%rbp;" \
+
+Same.
+
+Xavier
