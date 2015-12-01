@@ -1,16 +1,15 @@
-From: Ming Lin <mlin@kernel.org>
-Subject: Re: [RFC PATCH 0/9] vhost-nvme: new qemu nvme backend using nvme
-	target
-Date: Mon, 30 Nov 2015 15:20:39 -0800
-Message-ID: <1448925639.27669.7.camel@ssi>
-References: <1447978868-17138-1-git-send-email-mlin@kernel.org>
-	<56506D95.70101@redhat.com> <1448266667.18175.5.camel@hasee>
-	<56531F5F.3050709@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next 2/3] vhost: introduce vhost_vq_more_avail()
+Date: Tue, 1 Dec 2015 13:14:10 +0800
+Message-ID: <565D2CA2.6020606@redhat.com>
+References: <1448435489-5949-1-git-send-email-jasowang@redhat.com>
+	<1448435489-5949-3-git-send-email-jasowang@redhat.com>
+	<20151130082202.GA7396@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <56531F5F.3050709@redhat.com>
+In-Reply-To: <20151130082202.GA7396@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,42 +19,93 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: qemu-devel@nongnu.org, Christoph Hellwig <hch@lst.de>, linux-nvme@lists.infradead.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2015-11-23 at 15:14 +0100, Paolo Bonzini wrote:
-> 
-> On 23/11/2015 09:17, Ming Lin wrote:
-> > On Sat, 2015-11-21 at 14:11 +0100, Paolo Bonzini wrote:
-> >>
-> >> On 20/11/2015 01:20, Ming Lin wrote:
-> >>> One improvment could be to use google's NVMe vendor extension that
-> >>> I send in another thread, aslo here:
-> >>> https://git.kernel.org/cgit/linux/kernel/git/mlin/linux.git/log/?h=nvme-google-ext
-> >>>
-> >>> Qemu side:
-> >>> http://www.minggr.net/cgit/cgit.cgi/qemu/log/?h=vhost-nvme.0
-> >>> Kernel side also here:
-> >>> https://git.kernel.org/cgit/linux/kernel/git/mlin/linux.git/log/?h=vhost-nvme.0
-> >>
-> >> How much do you get with vhost-nvme plus vendor extension, compared to
-> >> 190 MB/s for QEMU?
-> > 
-> > There is still some bug. I'll update.
-> 
-> Sure.
 
-Fixed it after Thanksgiving holiday :)
-https://git.kernel.org/cgit/linux/kernel/git/mlin/linux.git/log/?h=vhost-nvme.0-ext
 
-Combined with previous test results(lower to higher):
+On 11/30/2015 04:22 PM, Michael S. Tsirkin wrote:
+> On Wed, Nov 25, 2015 at 03:11:28PM +0800, Jason Wang wrote:
+>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+>> ---
+>>  drivers/vhost/vhost.c | 26 +++++++++++++++++---------
+>>  drivers/vhost/vhost.h |  1 +
+>>  2 files changed, 18 insertions(+), 9 deletions(-)
+>>
+>> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+>> index 163b365..b86c5aa 100644
+>> --- a/drivers/vhost/vhost.c
+>> +++ b/drivers/vhost/vhost.c
+>> @@ -1633,10 +1633,25 @@ void vhost_add_used_and_signal_n(struct vhost_dev *dev,
+>>  }
+>>  EXPORT_SYMBOL_GPL(vhost_add_used_and_signal_n);
+>>  
+>> +bool vhost_vq_more_avail(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+>> +{
+>> +	__virtio16 avail_idx;
+>> +	int r;
+>> +
+>> +	r = __get_user(avail_idx, &vq->avail->idx);
+>> +	if (r) {
+>> +		vq_err(vq, "Failed to check avail idx at %p: %d\n",
+>> +		       &vq->avail->idx, r);
+>> +		return false;
+> In patch 3 you are calling this under preempt disable,
+> so this actually can fail and it isn't a VQ error.
+>
 
-qemu-nvme: 148MB/s
-vhost-nvme + google-ext: 230MB/s
-qemu-nvme + google-ext + eventfd: 294MB/s
-virtio-scsi: 296MB/s
-virtio-blk: 344MB/s
+Yes.
 
-"vhost-nvme + google-ext" didn't get good enough performance.
-Still tuning.
+>> +	}
+>> +
+>> +	return vhost16_to_cpu(vq, avail_idx) != vq->avail_idx;
+>> +}
+>> +EXPORT_SYMBOL_GPL(vhost_vq_more_avail);
+>> +
+>>  /* OK, now we need to know about added descriptors. */
+>>  bool vhost_enable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+>>  {
+>> -	__virtio16 avail_idx;
+>>  	int r;
+>>  
+>>  	if (!(vq->used_flags & VRING_USED_F_NO_NOTIFY))
+>> @@ -1660,14 +1675,7 @@ bool vhost_enable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+>>  	/* They could have slipped one in as we were doing that: make
+>>  	 * sure it's written, then check again. */
+>>  	smp_mb();
+>> -	r = __get_user(avail_idx, &vq->avail->idx);
+>> -	if (r) {
+>> -		vq_err(vq, "Failed to check avail idx at %p: %d\n",
+>> -		       &vq->avail->idx, r);
+>> -		return false;
+>> -	}
+>> -
+>> -	return vhost16_to_cpu(vq, avail_idx) != vq->avail_idx;
+>> +	return vhost_vq_more_avail(dev, vq);
+>>  }
+>>  EXPORT_SYMBOL_GPL(vhost_enable_notify);
+>>  
+> This path does need an error though.
+> It's probably easier to just leave this call site alone.
+
+Ok, will leave this function as is and remove the vq_err() in
+vhost_vq_more_avail().
+
+Thanks
+
+>
+>> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+>> index 43284ad..2f3c57c 100644
+>> --- a/drivers/vhost/vhost.h
+>> +++ b/drivers/vhost/vhost.h
+>> @@ -159,6 +159,7 @@ void vhost_add_used_and_signal_n(struct vhost_dev *, struct vhost_virtqueue *,
+>>  			       struct vring_used_elem *heads, unsigned count);
+>>  void vhost_signal(struct vhost_dev *, struct vhost_virtqueue *);
+>>  void vhost_disable_notify(struct vhost_dev *, struct vhost_virtqueue *);
+>> +bool vhost_vq_more_avail(struct vhost_dev *, struct vhost_virtqueue *);
+>>  bool vhost_enable_notify(struct vhost_dev *, struct vhost_virtqueue *);
+>>  
+>>  int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+>> -- 
+>> 2.5.0
