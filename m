@@ -1,19 +1,19 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [RFC PATCH 0/9] vhost-nvme: new qemu nvme backend using nvme
-	target
-Date: Wed, 2 Dec 2015 11:07:36 +0100
-Message-ID: <565EC2E8.9010508@redhat.com>
-References: <1447978868-17138-1-git-send-email-mlin@kernel.org>
-	<56506D95.70101@redhat.com> <1448266667.18175.5.camel@hasee>
-	<56531F5F.3050709@redhat.com> <1448925639.27669.7.camel@ssi>
-	<565DC48B.6030903@redhat.com> <1448987171.3041.2.camel@hasee>
-	<998355860.30506151.1448989146641.JavaMail.zimbra@redhat.com>
-	<1449033191.3041.11.camel@hasee>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next 3/3] vhost_net: basic polling support
+Date: Wed, 2 Dec 2015 14:36:31 +0200
+Message-ID: <20151202143522-mutt-send-email-mst__35558.4741257646$1449059808$gmane$org@redhat.com>
+References: <1448435489-5949-1-git-send-email-jasowang@redhat.com>
+	<1448435489-5949-4-git-send-email-jasowang@redhat.com>
+	<20151130124233-mutt-send-email-mst@redhat.com>
+	<565D2D7D.4010903@redhat.com>
+	<20151201163939-mutt-send-email-mst@redhat.com>
+	<565E7BC3.2060107@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1449033191.3041.11.camel@hasee>
+Content-Disposition: inline
+In-Reply-To: <565E7BC3.2060107@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,63 +23,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ming Lin <mlin@kernel.org>
-Cc: qemu-devel@nongnu.org, Rob Nelson <rlnelson@google.com>, Christoph Hellwig <hch@lst.de>, linux-nvme@lists.infradead.org, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 02/12/2015 06:13, Ming Lin wrote:
-> On Tue, 2015-12-01 at 11:59 -0500, Paolo Bonzini wrote:
->>> What do you think about virtio-nvme+vhost-nvme?
->>
->> What would be the advantage over virtio-blk?  Multiqueue is not supported
->> by QEMU but it's already supported by Linux (commit 6a27b656fc).
+On Wed, Dec 02, 2015 at 01:04:03PM +0800, Jason Wang wrote:
 > 
-> I expect performance would be better.
-
-Why?  nvme and virtio-blk are almost the same, even more so with the
-doorbell extension.  virtio is designed to only hit paths that are not
-slowed down by virtualization.  It's really hard to do better, except
-perhaps with VFIO (and then you don't need your vendor extension).
-
->> To me, the advantage of nvme is that it provides more than decent performance on
->> unmodified Windows guests, and thanks to your vendor extension can be used
->> on Linux as well with speeds comparable to virtio-blk.  So it's potentially
->> a very good choice for a cloud provider that wants to support Windows guests
->> (together with e.g. a fast SAS emulated controller to replace virtio-scsi,
->> and emulated igb or ixgbe to replace virtio-net).
 > 
-> vhost-nvme patches are learned from rts-megasas, which could possibly be
-> a fast SAS emulated controller.
-> https://github.com/Datera/rts-megasas
+> On 12/01/2015 10:43 PM, Michael S. Tsirkin wrote:
+> > On Tue, Dec 01, 2015 at 01:17:49PM +0800, Jason Wang wrote:
+> >>
+> >> On 11/30/2015 06:44 PM, Michael S. Tsirkin wrote:
+> >>> On Wed, Nov 25, 2015 at 03:11:29PM +0800, Jason Wang wrote:
+> >>>>> This patch tries to poll for new added tx buffer or socket receive
+> >>>>> queue for a while at the end of tx/rx processing. The maximum time
+> >>>>> spent on polling were specified through a new kind of vring ioctl.
+> >>>>>
+> >>>>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> >>> One further enhancement would be to actually poll
+> >>> the underlying device. This should be reasonably
+> >>> straight-forward with macvtap (especially in the
+> >>> passthrough mode).
+> >>>
+> >>>
+> >> Yes, it is. I have some patches to do this by replacing
+> >> skb_queue_empty() with sk_busy_loop() but for tap.
+> > We probably don't want to do this unconditionally, though.
+> >
+> >> Tests does not show
+> >> any improvement but some regression.
+> > Did you add code to call sk_mark_napi_id on tap then?
+> > sk_busy_loop won't do anything useful without.
+> 
+> Yes I did. Probably something wrong elsewhere.
 
-Why the hate for userspace? :)
+Is this for guest-to-guest? the patch to do napi
+for tap is still not upstream due to minor performance
+regression.  Want me to repost it?
 
-I don't see a reason why vhost-nvme would be faster than a userspace
-implementation.  vhost-blk was never committed upstream for similar
-reasons: it lost all the userspace features (snapshots, storage
-migration, etc.)---which are nice to have and do not cost performance if
-you do not use them---without any compelling performance gain.
-
-Without the doorbell extension you'd have to go back to userspace on
-every write and ioctl to vhost (see MEGASAS_IOC_FRAME in rts-megasas).
-With the doorbell extension you're doing exactly the same work, and then
-kernel thread vs. userspace thread shouldn't matter much given similar
-optimization effort.  A userspace NVMe, however, will gain all
-optimization that is done to QEMU's block layer for free.  We have done
-a lot and have more planned.
-
->> Which features are supported by NVMe and not virtio-blk?
-
-Having read the driver, the main improvements of NVMe compared to
-virtio-blk are support for discard and FUA.  Discard is easy to add to
-virtio-blk.  In the past the idea was "just use virtio-scsi", but it may
-be worth adding it now that SSDs are more common.
-
-Thus, FUA is pretty much the only reason for a kernel-based
-implementation, because it is not exported in userspace.  However, does
-it actually make a difference on real-world workloads?  Local SSDs on
-Google Cloud are not even persistent, so you never need to flush to them.
-
-Paolo
+> >
+> >>  Maybe it's better to test macvtap.
+> > Same thing ...
+> >
