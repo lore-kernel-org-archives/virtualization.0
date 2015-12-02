@@ -1,17 +1,19 @@
-From: Xavier Deguillard <xdeguillard@vmware.com>
-Subject: Re: [PATCH 6/6] VMware balloon: Update vmw_balloon.c to use the
-	VMW_PORT macro
-Date: Tue, 1 Dec 2015 14:38:01 -0800
-Message-ID: <20151201223801.GN24642__30648.1834305034$1449075509$gmane$org@xdeguillard-ws.eng.vmware.com>
+From: Thomas Hellstrom <thellstrom@vmware.com>
+Subject: Re: [Linux-graphics-maintainer] [PATCH 3/6] Input: Update vmmouse.c
+	to use the common VMW_PORT macros
+Date: Wed, 2 Dec 2015 08:07:04 +0100
+Message-ID: <565E9898.3020204__5290.63633080131$1449075531$gmane$org@vmware.com>
 References: <1449008047-8252-1-git-send-email-syeh@vmware.com>
 	<1449008332-9394-1-git-send-email-syeh@vmware.com>
-	<1449008332-9394-6-git-send-email-syeh@vmware.com>
+	<1449008332-9394-3-git-send-email-syeh@vmware.com>
+	<20151201222414.GH3740@dtor-ws> <20151201223255.GA10753@syeh-linux>
+	<CAKdAkRTVJ_DWD6uYhp+qd1uYwe3rPguDFAMXpa5=8CwVuO16NQ@mail.gmail.com>
+	<20151201225420.GA11210@syeh-linux> <20151202000408.GB5363@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1449008332-9394-6-git-send-email-syeh@vmware.com>
+In-Reply-To: <20151202000408.GB5363@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,31 +23,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sinclair Yeh <syeh@vmware.com>
-Cc: pv-drivers@vmware.com, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Sinclair Yeh <syeh@vmware.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Arnd Bergmann <arnd@arndb.de>, "pv-drivers@vmware.com" <pv-drivers@vmware.com>, X86 ML <x86@kernel.org>, lkml <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, "linux-graphics-maintainer@vmware.com" <linux-graphics-maintainer@vmware.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hey Sinclair,
+On 12/02/2015 01:04 AM, Greg Kroah-Hartman wrote:
+> On Tue, Dec 01, 2015 at 02:54:20PM -0800, Sinclair Yeh wrote:
+>> Hi,
+>>
+>> On Tue, Dec 01, 2015 at 02:45:27PM -0800, Dmitry Torokhov wrote:
+>>> On Tue, Dec 1, 2015 at 2:32 PM, Sinclair Yeh <syeh@vmware.com> wrote:
+>>>> Hi,
+>>>>
+>> <snip>
+>>
+>>>>>>   */
+>>>>>> -#define VMMOUSE_CMD(cmd, in1, out1, out2, out3, out4)      \
+>>>>>> -({                                                 \
+>>>>>> -   unsigned long __dummy1, __dummy2;               \
+>>>>>> -   __asm__ __volatile__ ("inl %%dx" :              \
+>>>>>> -           "=a"(out1),                             \
+>>>>>> -           "=b"(out2),                             \
+>>>>>> -           "=c"(out3),                             \
+>>>>>> -           "=d"(out4),                             \
+>>>>>> -           "=S"(__dummy1),                         \
+>>>>>> -           "=D"(__dummy2) :                        \
+>>>>>> -           "a"(VMMOUSE_PROTO_MAGIC),               \
+>>>>>> -           "b"(in1),                               \
+>>>>>> -           "c"(VMMOUSE_PROTO_CMD_##cmd),           \
+>>>>>> -           "d"(VMMOUSE_PROTO_PORT) :               \
+>>>>>> -           "memory");                              \
+>>>>>> +#define VMMOUSE_CMD(cmd, in1, out1, out2, out3, out4)                 \
+>>>>>> +({                                                            \
+>>>>>> +   unsigned long __dummy1 = 0, __dummy2 = 0;                  \
+>>>>> Why do we need to initialize dummies?
+>>>> Because for some commands those parameters to VMW_PORT() can be both
+>>>> input and outout.
+>>> The vmmouse commands do not use them as input though, so it seems we
+>>> are simply wasting CPU cycles setting them to 0 just because we are
+>>> using the new VMW_PORT here. Why do we need to switch? What is the
+>>> benefit of doing this?
+>> There are two reasons.  One is to make the code more readable and
+>> maintainable.  Rather than having mostly similar inline assembly
+>> code sprinkled across multiple modules, we can just use the macros
+>> and document that.
+> But the macro is only used here, and the variables aren't used at all,
+> so it makes no sense in this file.
+>
 
-On Tue, Dec 01, 2015 at 02:18:52PM -0800, Sinclair Yeh wrote:
-> +#define VMWARE_BALLOON_CMD(cmd, data, result)			   \
-> +({								   \
-> +	unsigned long __status, __dummy1, __dummy2;		   \
-> +	unsigned long __si = 0, __di = 0;			   \
-> +	VMW_PORT(data, VMW_BALLOON_CMD_##cmd, VMW_BALLOON_HV_PORT, \
-> +		 VMW_BALLOON_HV_MAGIC,				   \
-> +		 __status, result, __dummy1, __dummy2, __si, __di);\
-> +	if (VMW_BALLOON_CMD_##cmd == VMW_BALLOON_CMD_START)	   \
-> +		result = __dummy1;				   \
-> +	result &= -1UL;						   \
-> +	__status & -1UL;					   \
->  })
+IMO, this makes a lot of sense because we now get a single definition of
+VMW_PORT in the platform code that a developer can refer to to
+understand things like 32-64 bit compatibilty, and usage conditions and
+it also forces the developer to adopt the good practice of clearing
+currently unused input variables rather than to leave them undefined. In
+addition, if something needs to be changed we have one single place to
+change rather than a lot of places scattered all over various kernel
+modules.
 
-You need to indent the '\' with tabs only, and it looks like spaces are
-present here (which is also why they don't look aligned).
+Things that we (I) previously, for example, didn't get quite right in
+the vmmouse module despite spending a considerable amount of time on the
+subject.
 
-Other than that I'm good with this:
-
-Acked-by: Xavier Deguillard <xdeguillard@vmware.com>
-
-Xavier
+Thanks,
+Thomas
