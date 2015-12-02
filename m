@@ -1,8 +1,8 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: "Sinclair Yeh" <syeh@vmware.com>
 Subject: Re: [PATCH 3/6] Input: Update vmmouse.c to use the common VMW_PORT
 	macros
-Date: Wed, 2 Dec 2015 10:58:48 -0800
-Message-ID: <20151202185848.GC15531__14337.5330641449$1449082753$gmane$org@dtor-ws>
+Date: Wed, 2 Dec 2015 11:02:23 -0800
+Message-ID: <20151202190223.GD14231@syeh-linux>
 References: <1449008332-9394-3-git-send-email-syeh@vmware.com>
 	<20151201222414.GH3740@dtor-ws> <20151201223255.GA10753@syeh-linux>
 	<CAKdAkRTVJ_DWD6uYhp+qd1uYwe3rPguDFAMXpa5=8CwVuO16NQ@mail.gmail.com>
@@ -27,7 +27,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Sinclair Yeh <syeh@vmware.com>, "pv-drivers@vmware.com" <pv-drivers@vmware.com>, X86 ML <x86@kernel.org>, lkml <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, "linux-graphics-maintainer@vmware.com" <linux-graphics-maintainer@vmware.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: X86 ML <x86@kernel.org>, Arnd Bergmann <arnd@arndb.de>, "pv-drivers@vmware.com" <pv-drivers@vmware.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, lkml <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, "linux-graphics-maintainer@vmware.com" <linux-graphics-maintainer@vmware.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 On Wed, Dec 02, 2015 at 10:45:28AM -0800, Greg Kroah-Hartman wrote:
@@ -120,33 +120,17 @@ On Wed, Dec 02, 2015 at 10:45:28AM -0800, Greg Kroah-Hartman wrote:
 > > hypervisor port to communicate with host IIRC.
 > 
 > vmmouse should include some type of "vmware bus" .h file, if it's not
-> the vmw_* files, what are they for?
-
-I see:
-dtor@dtor-ws:~/kernel/work$ ls include/linux/vmw*
-include/linux/vmw_vmci_api.h  include/linux/vmw_vmci_defs.h
-
-so they are for VMCI.
-
->  My point being, I didn't see the
+> the vmw_* files, what are they for?  My point being, I didn't see the
 > need to add another .h file when we should probably already have one for
 > this bus, right?
 
-You keep saying "bus" and I am confused. There is not really a bus there
-as (unfortunately) VMware did not come with a unified interface for
-host/guest communication, but rather let each group come up with their
-own way of doing things. So we have vmmouse and, as I was reminded,
-userspace agent using one virtual IO port to communicate, vmballoon is
-using another IO port, pvscsi, vmxnet3 and vmci are virtual PCI devices
-and Thomas can tell more about vmwgfx as I never looked at it closely.
+I had a brief chat with Thomas on this, and he added to Dmitry's reply
+earlier.
 
-So if we want to consolidate the hypervisor port accessors (which I am
-not entirely convinced is worthwhile as the set of arguments/returned
-values/registers used depends on command sent through the port and these
-unified macros now require unneeded initializations of dummy variables)
-then we indeed need a new header.
+The two existing *.h files are for the VMCI driver, and the new macros
+are used by the platform code and also other drivers like vmw_balloon and
+vmmouse.
 
-Thanks.
+It makes more sense to create a new vmware.h file in arch/x86/include/asm
 
--- 
-Dmitry
+Sinclair
