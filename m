@@ -1,7 +1,7 @@
 From: "Sinclair Yeh" <syeh@vmware.com>
-Subject: [PATCH 2/6] x86: Update vmware.c to use the common VMW_PORT macros
-Date: Fri,  4 Dec 2015 15:19:39 -0800
-Message-ID: <1449271183-1746-3-git-send-email-syeh@vmware.com>
+Subject: [PATCH 3/6] Input: Update vmmouse.c to use the common VMW_PORT macros
+Date: Fri,  4 Dec 2015 15:19:40 -0800
+Message-ID: <1449271183-1746-4-git-send-email-syeh@vmware.com>
 References: <1449008047-8252-1-git-send-email-syeh@vmware.com>
 	<1449271183-1746-1-git-send-email-syeh@vmware.com>
 Mime-Version: 1.0
@@ -19,74 +19,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: x86@kernel.org
-Cc: Sinclair Yeh <syeh@vmware.com>, pv-drivers@vmware.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>
+Cc: Arnd Bergmann <arnd@arndb.de>, Sinclair Yeh <syeh@vmware.com>, pv-drivers@vmware.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-graphics-maintainer@vmware.com, linux-input@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Updated the VMWARE_PORT macro to use the new VMW_PORT
-macro.  Doing this instead of replacing all existing
-instances of VMWARE_PORT to minimize code change.
+Updated the VMMOUSE macro to use the new VMW_PORT macro. Doing
+this instead of replacing all existing instances of VMWMOUSE
+to minimize code change.
 
 Signed-off-by: Sinclair Yeh <syeh@vmware.com>
 Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
 Reviewed-by: Alok N Kataria <akataria@vmware.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
 Cc: pv-drivers@vmware.com
-Cc: virtualization@lists.linux-foundation.org
-Cc: linux-kernel@vger.kernel.org
+Cc: linux-graphics-maintainer@vmware.com
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
+Cc: linux-input@vger.kernel.org
 
 ---
 
 v2:
-Instead of replacing all existing instances of VMWARE_PORT
-with VMW_PORT, update VMWARE_PORT to use the new VMW_PORT.
+Instead of replacing existing VMMOUSE defines, only modify enough
+to use the new VMW_PORT define.
 
 v3:
-Using updated VMWARE_PORT() macro, which needs hypervisor magic in the
+Use updated VMWARE_PORT() which requires hypervisor magic as an added
 parameter
 
 v4:
-Swapped the first and second parameters because VMW_PORT has
-changed.
+Swapped parameters 1 and 2 when calling VMW_PORT because the macro
+has been updated
 ---
- arch/x86/kernel/cpu/vmware.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ drivers/input/mouse/vmmouse.c | 22 +++++++---------------
+ 1 file changed, 7 insertions(+), 15 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 628a059..67c429d 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -26,6 +26,7 @@
- #include <asm/div64.h>
- #include <asm/x86_init.h>
+diff --git a/drivers/input/mouse/vmmouse.c b/drivers/input/mouse/vmmouse.c
+index e272f06..ddb152c 100644
+--- a/drivers/input/mouse/vmmouse.c
++++ b/drivers/input/mouse/vmmouse.c
+@@ -19,6 +19,7 @@
+ #include <linux/slab.h>
+ #include <linux/module.h>
  #include <asm/hypervisor.h>
 +#include <asm/vmware.h>
  
- #define CPUID_VMWARE_INFO_LEAF	0x40000000
- #define VMWARE_HYPERVISOR_MAGIC	0x564D5868
-@@ -37,13 +38,14 @@
- #define VMWARE_PORT_CMD_LEGACY_X2APIC	3
- #define VMWARE_PORT_CMD_VCPU_RESERVED	31
+ #include "psmouse.h"
+ #include "vmmouse.h"
+@@ -84,21 +85,12 @@ struct vmmouse_data {
+  * implementing the vmmouse protocol. Should never execute on
+  * bare metal hardware.
+  */
+-#define VMMOUSE_CMD(cmd, in1, out1, out2, out3, out4)	\
+-({							\
+-	unsigned long __dummy1, __dummy2;		\
+-	__asm__ __volatile__ ("inl %%dx" :		\
+-		"=a"(out1),				\
+-		"=b"(out2),				\
+-		"=c"(out3),				\
+-		"=d"(out4),				\
+-		"=S"(__dummy1),				\
+-		"=D"(__dummy2) :			\
+-		"a"(VMMOUSE_PROTO_MAGIC),		\
+-		"b"(in1),				\
+-		"c"(VMMOUSE_PROTO_CMD_##cmd),		\
+-		"d"(VMMOUSE_PROTO_PORT) :		\
+-		"memory");		                \
++#define VMMOUSE_CMD(cmd, in1, out1, out2, out3, out4)		   \
++({								   \
++	unsigned long __dummy1 = 0, __dummy2 = 0;		   \
++	VMW_PORT(VMMOUSE_PROTO_CMD_##cmd, in1, VMMOUSE_PROTO_PORT, \
++		 VMMOUSE_PROTO_MAGIC,				   \
++		 out1, out2, out3, out4, __dummy1, __dummy2);      \
+ })
  
--#define VMWARE_PORT(cmd, eax, ebx, ecx, edx)				\
--	__asm__("inl (%%dx)" :						\
--			"=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :	\
--			"0"(VMWARE_HYPERVISOR_MAGIC),			\
--			"1"(VMWARE_PORT_CMD_##cmd),			\
--			"2"(VMWARE_HYPERVISOR_PORT), "3"(UINT_MAX) :	\
--			"memory");
-+#define VMWARE_PORT(cmd, eax, ebx, ecx, edx)				  \
-+({									  \
-+	unsigned long __si = 0, __di = 0;                                 \
-+	VMW_PORT(VMWARE_PORT_CMD_##cmd, UINT_MAX, VMWARE_HYPERVISOR_PORT, \
-+		 VMWARE_HYPERVISOR_MAGIC,                                 \
-+		 eax, ebx, ecx, edx, __si, __di);                         \
-+})
-+
- 
- static inline int __vmware_platform(void)
- {
+ /**
 -- 
 1.9.1
