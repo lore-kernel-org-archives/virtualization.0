@@ -1,11 +1,14 @@
 From: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
-Subject: [PATCH RFC 0/3] Xen on Virtio
-Date: Mon, 7 Dec 2015 16:19:26 +0000
-Message-ID: <alpine.DEB.2.02.1512071555590.24652__12072.8009184406$1449505806$gmane$org@kaball.uk.xensource.com>
+Subject: [PATCH RFC 1/3] xen: export xen_phys_to_bus,
+	xen_bus_to_phys and xen_virt_to_bus
+Date: Mon, 7 Dec 2015 16:19:41 +0000
+Message-ID: <1449505183-29740-1-git-send-email-stefano.stabellini__49347.7540709593$1449505812$gmane$org@eu.citrix.com>
+References: <alpine.DEB.2.02.1512071555590.24652@kaball.uk.xensource.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <alpine.DEB.2.02.1512071555590.24652@kaball.uk.xensource.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,44 +19,105 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: mst@redhat.com
-Cc: xen-devel@lists.xenproject.org, Stefano Stabellini <Stefano.Stabellini@eu.citrix.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Stefano Stabellini <stefano.stabellini@eu.citrix.com>, konrad.wilk@oracle.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, david.vrabel@citrix.com, xen-devel@lists.xenproject.org, boris.ostrovsky@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi all,
+Signed-off-by: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+CC: konrad.wilk@oracle.com
+CC: boris.ostrovsky@oracle.com
+CC: david.vrabel@citrix.com
+---
+ drivers/xen/swiotlb-xen.c |   31 -------------------------------
+ include/xen/swiotlb-xen.h |   32 ++++++++++++++++++++++++++++++++
+ 2 files changed, 32 insertions(+), 31 deletions(-)
 
-this patch series introduces support for running Linux on top of Xen
-inside a virtual machine with virtio devices (nested virt scenario).
-The problem is that Linux virtio drivers use virt_to_phys to get the
-guest pseudo-physical addresses to pass to the backend, which doesn't
-work as expected on Xen.
-
-Switching the virtio drivers to the dma APIs (dma_alloc_coherent,
-dma_map/unmap_single and dma_map/unmap_sg) would solve the problem, as
-Xen support in Linux provides an implementation of the dma API which
-takes care of the additional address conversions. However using the dma
-API would increase the complexity of the non-Xen case too. We would also
-need to keep track of the physical or virtual address in addition to the
-dma address for each vring_desc to be able to free the memory in
-detach_buf (see patch #3).
-
-Instead this series adds few obvious checks to perform address
-translations in a couple of key places, without changing non-Xen code
-paths. You are welcome to suggest improvements or alternative
-implementations.
-
-Thanks,
-
-Stefano
-
-
-Stefano Stabellini (3):
-      xen: export xen_phys_to_bus, xen_bus_to_phys and xen_virt_to_bus
-      xen/virtio: allocate a contiguous region to be use as virtio queue
-      xen/virtio_ring: introduce cpu_to_virtio_addr and virtio_addr_to_cpu
-
- drivers/virtio/virtio_pci_legacy.c |   19 +++++++++++++++----
- drivers/virtio/virtio_ring.c       |    9 +++++----
- drivers/xen/swiotlb-xen.c          |   31 -------------------------------
- include/linux/virtio_config.h      |   14 ++++++++++++++
- include/xen/swiotlb-xen.h          |   32 ++++++++++++++++++++++++++++++++
- 5 files changed, 66 insertions(+), 39 deletions(-)
+diff --git a/drivers/xen/swiotlb-xen.c b/drivers/xen/swiotlb-xen.c
+index 79bc493..56014d5 100644
+--- a/drivers/xen/swiotlb-xen.c
++++ b/drivers/xen/swiotlb-xen.c
+@@ -75,37 +75,6 @@ static unsigned long xen_io_tlb_nslabs;
+ 
+ static u64 start_dma_addr;
+ 
+-/*
+- * Both of these functions should avoid PFN_PHYS because phys_addr_t
+- * can be 32bit when dma_addr_t is 64bit leading to a loss in
+- * information if the shift is done before casting to 64bit.
+- */
+-static inline dma_addr_t xen_phys_to_bus(phys_addr_t paddr)
+-{
+-	unsigned long bfn = pfn_to_bfn(PFN_DOWN(paddr));
+-	dma_addr_t dma = (dma_addr_t)bfn << PAGE_SHIFT;
+-
+-	dma |= paddr & ~PAGE_MASK;
+-
+-	return dma;
+-}
+-
+-static inline phys_addr_t xen_bus_to_phys(dma_addr_t baddr)
+-{
+-	unsigned long pfn = bfn_to_pfn(PFN_DOWN(baddr));
+-	dma_addr_t dma = (dma_addr_t)pfn << PAGE_SHIFT;
+-	phys_addr_t paddr = dma;
+-
+-	paddr |= baddr & ~PAGE_MASK;
+-
+-	return paddr;
+-}
+-
+-static inline dma_addr_t xen_virt_to_bus(void *address)
+-{
+-	return xen_phys_to_bus(virt_to_phys(address));
+-}
+-
+ static int check_pages_physically_contiguous(unsigned long pfn,
+ 					     unsigned int offset,
+ 					     size_t length)
+diff --git a/include/xen/swiotlb-xen.h b/include/xen/swiotlb-xen.h
+index 8b2eb93..d55aee8 100644
+--- a/include/xen/swiotlb-xen.h
++++ b/include/xen/swiotlb-xen.h
+@@ -3,9 +3,41 @@
+ 
+ #include <linux/dma-direction.h>
+ #include <linux/swiotlb.h>
++#include <asm/xen/page.h>
+ 
+ extern int xen_swiotlb_init(int verbose, bool early);
+ 
++/*
++ * Both of these functions should avoid PFN_PHYS because phys_addr_t
++ * can be 32bit when dma_addr_t is 64bit leading to a loss in
++ * information if the shift is done before casting to 64bit.
++ */
++static inline dma_addr_t xen_phys_to_bus(phys_addr_t paddr)
++{
++	unsigned long bfn = pfn_to_bfn(PFN_DOWN(paddr));
++	dma_addr_t dma = (dma_addr_t)bfn << PAGE_SHIFT;
++
++	dma |= paddr & ~PAGE_MASK;
++
++	return dma;
++}
++
++static inline phys_addr_t xen_bus_to_phys(dma_addr_t baddr)
++{
++	unsigned long pfn = bfn_to_pfn(PFN_DOWN(baddr));
++	dma_addr_t dma = (dma_addr_t)pfn << PAGE_SHIFT;
++	phys_addr_t paddr = dma;
++
++	paddr |= baddr & ~PAGE_MASK;
++
++	return paddr;
++}
++
++static inline dma_addr_t xen_virt_to_bus(void *address)
++{
++	return xen_phys_to_bus(virt_to_phys(address));
++}
++
+ extern void
+ *xen_swiotlb_alloc_coherent(struct device *hwdev, size_t size,
+ 			    dma_addr_t *dma_handle, gfp_t flags,
+-- 
+1.7.10.4
