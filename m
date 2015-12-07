@@ -1,14 +1,12 @@
-From: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
-Subject: [PATCH RFC 2/3] xen/virtio: allocate a contiguous region to be use as
-	virtio queue
-Date: Mon, 7 Dec 2015 16:19:42 +0000
-Message-ID: <1449505183-29740-2-git-send-email-stefano.stabellini__37341.3873407573$1449505821$gmane$org@eu.citrix.com>
-References: <alpine.DEB.2.02.1512071555590.24652@kaball.uk.xensource.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL] vhost: cleanups and fixes
+Date: Mon, 7 Dec 2015 19:07:01 +0200
+Message-ID: <20151207190701-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.DEB.2.02.1512071555590.24652@kaball.uk.xensource.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,72 +16,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: xen-devel@lists.xenproject.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: mhocko@suse.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, will.deacon@arm.com, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, luto@kernel.org, s-anna@ti.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-When running on Xen inside as virtual machine (nested virt scenario),
-memory allocated by alloc_pages_exact might not actually be contiguous.
-Call xen_swiotlb_alloc_coherent instead, which is going to take care of
-making the buffer contiguous in machine memory.
+The following changes since commit 527e9316f8ec44bd53d90fb9f611fa7ffff52bb9:
 
-No changes in behavior for the non-Xen case.
+  Linux 4.4-rc4 (2015-12-06 15:43:12 -0800)
 
-Signed-off-by: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+are available in the git repository at:
 
----
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-Alternatively we could call dma_alloc_coherent in all cases, but that
-would make the non-Xen code path more complex.
----
- drivers/virtio/virtio_pci_legacy.c |   19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+for you to fetch changes up to f277ec42f38f406ed073569b24b04f1c291fec0f:
 
-diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
-index 48bc979..27359ac 100644
---- a/drivers/virtio/virtio_pci_legacy.c
-+++ b/drivers/virtio/virtio_pci_legacy.c
-@@ -18,6 +18,8 @@
-  */
- 
- #include "virtio_pci_common.h"
-+#include <xen/xen.h>
-+#include <xen/swiotlb-xen.h>
- 
- /* virtio config->get_features() implementation */
- static u64 vp_get_features(struct virtio_device *vdev)
-@@ -122,6 +124,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 	unsigned long size;
- 	u16 num;
- 	int err;
-+	dma_addr_t dma_addr;
- 
- 	/* Select the queue we're interested in */
- 	iowrite16(index, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_SEL);
-@@ -135,12 +138,20 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 	info->msix_vector = msix_vec;
- 
- 	size = PAGE_ALIGN(vring_size(num, VIRTIO_PCI_VRING_ALIGN));
--	info->queue = alloc_pages_exact(size, GFP_KERNEL|__GFP_ZERO);
-+	/* activate the queue */
-+	if (xen_domain()) {
-+		info->queue = xen_swiotlb_alloc_coherent(NULL,
-+				size,
-+				&dma_addr,
-+				GFP_KERNEL|__GFP_ZERO,
-+				NULL);
-+	} else {
-+		info->queue = alloc_pages_exact(size, GFP_KERNEL|__GFP_ZERO);
-+		dma_addr = virt_to_phys(info->queue);
-+	}
- 	if (info->queue == NULL)
- 		return ERR_PTR(-ENOMEM);
--
--	/* activate the queue */
--	iowrite32(virt_to_phys(info->queue) >> VIRTIO_PCI_QUEUE_ADDR_SHIFT,
-+	iowrite32(dma_addr >> VIRTIO_PCI_QUEUE_ADDR_SHIFT,
- 		  vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
- 
- 	/* create the vring */
--- 
-1.7.10.4
+  virtio_ring: shadow available ring flags & index (2015-12-07 17:28:11 +0200)
+
+----------------------------------------------------------------
+virtio: fixes on top of 4.4-rc4
+
+This includes some fixes and cleanups in virtio and vhost code. Most notably,
+shadowing the index fixes the excessive cacheline bouncing observed on AMD
+platforms.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Michael S. Tsirkin (5):
+      virtio-net: Stop doing DMA from the stack
+      vhost: relax log address alignment
+      tools/virtio: move list macro stubs
+      tools/virtio: fix byteswap logic
+      vhost: replace % with & on data path
+
+Michal Hocko (1):
+      virtio: Do not drop __GFP_HIGH in alloc_indirect
+
+Suman Anna (1):
+      virtio: fix memory leak of virtio ida cache layers
+
+Venkatesh Srinivas (1):
+      virtio_ring: shadow available ring flags & index
+
+ tools/virtio/linux/kernel.h        |  6 +++++
+ tools/virtio/linux/virtio.h        |  6 -----
+ tools/virtio/linux/virtio_config.h | 20 ++++++++++------
+ drivers/net/virtio_net.c           | 34 +++++++++++++++------------
+ drivers/vhost/vhost.c              |  8 +++----
+ drivers/virtio/virtio.c            |  1 +
+ drivers/virtio/virtio_ring.c       | 48 +++++++++++++++++++++++++++-----------
+ 7 files changed, 78 insertions(+), 45 deletions(-)
