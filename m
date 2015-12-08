@@ -1,12 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] vhost: cleanups and fixes
-Date: Mon, 7 Dec 2015 19:07:01 +0200
-Message-ID: <20151207190701-mutt-send-email-mst@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: [PATCH 0/6] VSOCK: revert virtio-vsock until device spec is finalized
+Date: Tue,  8 Dec 2015 19:57:30 +0800
+Message-ID: <1449575856-28507-1-git-send-email-stefanha__356.42043590105$1449575875$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,53 +15,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: mhocko@suse.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, will.deacon@arm.com, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, luto@kernel.org, s-anna@ti.com
+To: netdev@vger.kernel.org
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Matt Benjamin <mbenjamin@redhat.com>, "David S. Miller" <davem@davemloft.net>, Christoffer Dall <christoffer.dall@linaro.org>, matt.ma@linaro.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 527e9316f8ec44bd53d90fb9f611fa7ffff52bb9:
+The virtio-vsock device specification is not finalized yet.  Michael Tsirkin
+voiced concerned about merging this code when the hardware interface (and
+possibly the userspace interface) could still change.
 
-  Linux 4.4-rc4 (2015-12-06 15:43:12 -0800)
+Please revert for now.
 
-are available in the git repository at:
+I am working to finalize the virtio-vsock device specification and at that
+point the interfaces will be stable.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+Stefan Hajnoczi (6):
+  Revert "VSOCK: fix returnvar.cocci warnings"
+  Revert "VSOCK: Add Makefile and Kconfig"
+  Revert "VSOCK: Introduce vhost-vsock.ko"
+  Revert "VSOCK: Introduce virtio-vsock.ko"
+  Revert "VSOCK: Introduce virtio-vsock-common.ko"
+  Revert "VSOCK: Introduce vsock_find_unbound_socket and
+    vsock_bind_dgram_generic"
 
-for you to fetch changes up to f277ec42f38f406ed073569b24b04f1c291fec0f:
+ drivers/vhost/Kconfig                   |    4 -
+ drivers/vhost/Kconfig.vsock             |    7 -
+ drivers/vhost/Makefile                  |    4 -
+ drivers/vhost/vsock.c                   |  630 ---------------
+ drivers/vhost/vsock.h                   |    4 -
+ include/linux/virtio_vsock.h            |  209 -----
+ include/net/af_vsock.h                  |    2 -
+ include/uapi/linux/virtio_ids.h         |    1 -
+ include/uapi/linux/virtio_vsock.h       |   89 ---
+ net/vmw_vsock/Kconfig                   |   18 -
+ net/vmw_vsock/Makefile                  |    2 -
+ net/vmw_vsock/af_vsock.c                |   70 --
+ net/vmw_vsock/virtio_transport.c        |  466 -----------
+ net/vmw_vsock/virtio_transport_common.c | 1272 -------------------------------
+ 14 files changed, 2778 deletions(-)
+ delete mode 100644 drivers/vhost/Kconfig.vsock
+ delete mode 100644 drivers/vhost/vsock.c
+ delete mode 100644 drivers/vhost/vsock.h
+ delete mode 100644 include/linux/virtio_vsock.h
+ delete mode 100644 include/uapi/linux/virtio_vsock.h
+ delete mode 100644 net/vmw_vsock/virtio_transport.c
+ delete mode 100644 net/vmw_vsock/virtio_transport_common.c
 
-  virtio_ring: shadow available ring flags & index (2015-12-07 17:28:11 +0200)
-
-----------------------------------------------------------------
-virtio: fixes on top of 4.4-rc4
-
-This includes some fixes and cleanups in virtio and vhost code. Most notably,
-shadowing the index fixes the excessive cacheline bouncing observed on AMD
-platforms.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Michael S. Tsirkin (5):
-      virtio-net: Stop doing DMA from the stack
-      vhost: relax log address alignment
-      tools/virtio: move list macro stubs
-      tools/virtio: fix byteswap logic
-      vhost: replace % with & on data path
-
-Michal Hocko (1):
-      virtio: Do not drop __GFP_HIGH in alloc_indirect
-
-Suman Anna (1):
-      virtio: fix memory leak of virtio ida cache layers
-
-Venkatesh Srinivas (1):
-      virtio_ring: shadow available ring flags & index
-
- tools/virtio/linux/kernel.h        |  6 +++++
- tools/virtio/linux/virtio.h        |  6 -----
- tools/virtio/linux/virtio_config.h | 20 ++++++++++------
- drivers/net/virtio_net.c           | 34 +++++++++++++++------------
- drivers/vhost/vhost.c              |  8 +++----
- drivers/virtio/virtio.c            |  1 +
- drivers/virtio/virtio_ring.c       | 48 +++++++++++++++++++++++++++-----------
- 7 files changed, 78 insertions(+), 45 deletions(-)
+-- 
+2.5.0
