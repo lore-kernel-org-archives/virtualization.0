@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost: vsock: select CONFIG_VHOST
-Date: Tue, 8 Dec 2015 18:09:44 +0200
-Message-ID: <20151208180529-mutt-send-email-mst__24239.8184178912$1449591010$gmane$org@redhat.com>
-References: <36261336.7BBY96nNaM@wuerfel>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH 0/6] VSOCK: revert virtio-vsock until device spec is
+	finalized
+Date: Tue, 08 Dec 2015 11:26:55 -0500 (EST)
+Message-ID: <20151208.112655.353902854757115664.davem__23974.3351740346$1449592031$gmane$org@davemloft.net>
+References: <1449575856-28507-1-git-send-email-stefanha@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <36261336.7BBY96nNaM@wuerfel>
+In-Reply-To: <1449575856-28507-1-git-send-email-stefanha@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,49 +18,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Asias He <asias@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: stefanha@redhat.com
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, mbenjamin@redhat.com, christoffer.dall@linaro.org, matt.ma@linaro.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 08, 2015 at 04:46:08PM +0100, Arnd Bergmann wrote:
-> When building the new vsock code without vhost, we get a build error:
-> 
-> drivers/built-in.o: In function `vhost_vsock_flush':
-> :(.text+0x24d29c): undefined reference to `vhost_poll_flush'
-> 
-> This adds an explicit 'select' like we have for the other vhost
-> drivers.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Date: Tue,  8 Dec 2015 19:57:30 +0800
 
-This will need to be done eventually, so
+> Please revert for now.
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Please don't revert it piece by piece like this.
 
-but I really think the right thing for now is to revert current vsock
-code, or disable building it unconditionally.  Stefan, could you please
-send a patch like this?
+Instead, send me one big revert commit that undoes the whole
+thing.  There is even a merge commit that you can use to
+create that revert cleanly.
 
-> ---
->  drivers/vhost/Kconfig.vsock | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> The patch causing the problem is currently in net-next, so the fix should be
-> applied on top of that.
-> 
-> diff --git a/drivers/vhost/Kconfig.vsock b/drivers/vhost/Kconfig.vsock
-> index 3491865d3eb9..bfb9edc4b5d6 100644
-> --- a/drivers/vhost/Kconfig.vsock
-> +++ b/drivers/vhost/Kconfig.vsock
-> @@ -2,6 +2,8 @@ config VHOST_VSOCK
->  	tristate "vhost virtio-vsock driver"
->  	depends on VSOCKETS && EVENTFD
->  	select VIRTIO_VSOCKETS_COMMON
-> +	select VHOST
-> +	select VHOST_RING
->  	default n
->  	---help---
->  	Say M here to enable the vhost-vsock for virtio-vsock guests
-> -- 
-> 2.1.0.rc2
-> 
+Thanks.
