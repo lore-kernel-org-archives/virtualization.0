@@ -1,14 +1,13 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] vhost: vsock: select CONFIG_VHOST
-Date: Tue, 08 Dec 2015 12:13:56 -0500 (EST)
-Message-ID: <20151208.121356.1131159668858222040.davem@davemloft.net>
-References: <36261336.7BBY96nNaM@wuerfel>
-	<20151208180529-mutt-send-email-mst@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH v2 0/5] Add virtio transport for AF_VSOCK
+Date: Wed, 9 Dec 2015 10:38:04 +0800
+Message-ID: <20151209023804.GC22280__20822.4145965234$1449628705$gmane$org@stefanha-x1.localdomain>
+References: <1449038643-25971-1-git-send-email-stefanha@redhat.com>
+	<20151204074504.GA21363@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============5847823696780096105=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20151208180529-mutt-send-email-mst@redhat.com>
+In-Reply-To: <20151204074504.GA21363@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,31 +17,90 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: arnd@arndb.de, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, asias@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Matt Benjamin <mbenjamin@redhat.com>, Christoffer Dall <christoffer.dall@linaro.org>, matt.ma@linaro.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Tue, 8 Dec 2015 18:09:44 +0200
 
-> On Tue, Dec 08, 2015 at 04:46:08PM +0100, Arnd Bergmann wrote:
->> When building the new vsock code without vhost, we get a build error:
->> 
->> drivers/built-in.o: In function `vhost_vsock_flush':
->> :(.text+0x24d29c): undefined reference to `vhost_poll_flush'
->> 
->> This adds an explicit 'select' like we have for the other vhost
->> drivers.
->> 
->> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> 
-> This will need to be done eventually, so
-> 
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> but I really think the right thing for now is to revert current vsock
-> code, or disable building it unconditionally.  Stefan, could you please
-> send a patch like this?
+--===============5847823696780096105==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bKyqfOwhbdpXa4YI"
+Content-Disposition: inline
 
-I'm waiting for the full single revert patch and will apply it as
-soon as I receive it.
+
+--bKyqfOwhbdpXa4YI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Dec 04, 2015 at 09:45:04AM +0200, Michael S. Tsirkin wrote:
+> On Wed, Dec 02, 2015 at 02:43:58PM +0800, Stefan Hajnoczi wrote:
+> > 1. The 3-way handshake isn't necessary over a reliable transport (virtq=
+ueue).
+> >    Spoofing packets is also impossible so the security aspects of the 3=
+-way
+> >    handshake (including syn cookie) add nothing.  The next version will=
+ have a
+> >    single operation to establish a connection.
+>=20
+> It's hard to discuss without seeing the details, but we do need to
+> slow down guests that are flooding host with socket creation requests.
+> The handshake is a simple way for hypervisor to defer
+> such requests until it has resources without
+> breaking things.
+
+I'll send an updated virtio-vsock device specification so we can discuss
+it.
+
+VMCI simply uses sk->sk_max_ack_backlog in
+net/vmw_vsock/vmci_transport.c.  If backlog (from listen(2)) is maxed
+out then the connection is refused.
+
+The same would work for virtio-vsock and there is no advantage to the
+3-way handshake.
+
+> > 2. Credit-based flow control doesn't work for SOCK_DGRAM since multiple=
+ clients
+> >    can transmit to the same listen socket.  There is no way for the cli=
+ents to
+> >    coordinate buffer space with each other fairly.  The next version wi=
+ll drop
+> >    credit-based flow control for SOCK_DGRAM and only rely on best-effort
+> >    delivery.  SOCK_STREAM still has guaranteed delivery.
+>=20
+> I suspect in the end we will need a measure of fairness even
+> if you drop packets. And recovering from packet loss is
+> hard enough that not many applications do it correctly.
+> I suggest disabling SOCK_DGRAM for now.
+
+I'm not aware of a SOCK_DGRAM user at this time.  Will disable it for
+now.
+
+--bKyqfOwhbdpXa4YI
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQEcBAEBAgAGBQJWZ5QMAAoJEJykq7OBq3PId9UH/3AtdTnom65Ri5q+blEVDMoZ
+tEkQXlDoxfM0mQ3l8qwtO3j65JFTEQFXTNYCH2MSHd3UPYFkAOSgJbUNWTDjJ06O
+9K3Y93YSOFRI3245GE49gxiaw+mXBpHuVjrvIApOMh+PHzkmDRXVNpndV/tdlqSZ
+2lQwiB9uMTHUfZUY3qXpdcI6X/UTJJzQsBr/JJdTqriWY+X1It+V4sE4FsQo+QHJ
+p41lzOS+WrKxEIwqyDpyJcqfj0eEYbTzjs1ldDLDEeWr48c6OWoCMEmt3S86ePhO
+rgTtxfBEv9NZ/wKCHU3GLDRwxJfsB+rd01fHuqZO4o7N83vnna6Gl0OgJI/BGJY=
+=VEuq
+-----END PGP SIGNATURE-----
+
+--bKyqfOwhbdpXa4YI--
+
+--===============5847823696780096105==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5847823696780096105==--
