@@ -1,12 +1,13 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: [PATCH v3 4/4] VSOCK: Add Makefile and Kconfig
-Date: Wed,  9 Dec 2015 20:03:53 +0800
-Message-ID: <1449662633-26623-5-git-send-email-stefanha__10025.453035678$1449676958$gmane$org@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3 0/4] Add virtio transport for AF_VSOCK
+Date: Wed, 9 Dec 2015 22:12:50 +0200
+Message-ID: <20151209221235-mutt-send-email-mst__32432.0973865271$1449691991$gmane$org@redhat.com>
 References: <1449662633-26623-1-git-send-email-stefanha@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <1449662633-26623-1-git-send-email-stefanha@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,99 +18,125 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Matt Benjamin <mbenjamin@redhat.com>, Asias He <asias@redhat.com>, Christoffer Dall <christoffer.dall@linaro.org>, matt.ma@linaro.org
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Matt Benjamin <mbenjamin@redhat.com>, Christoffer Dall <christoffer.dall@linaro.org>, matt.ma@linaro.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Asias He <asias@redhat.com>
+On Wed, Dec 09, 2015 at 08:03:49PM +0800, Stefan Hajnoczi wrote:
+> Note: the virtio-vsock device specification is currently under review but not
+> yet finalized.  Please review this code but don't merge until I send an update
+> when the spec is finalized.  Thanks!
 
-Enable virtio-vsock and vhost-vsock.
+Yes, this should have RFC in the subject.
 
-Signed-off-by: Asias He <asias@redhat.com>
-Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
----
-v3:
- * Don't put vhost vsock driver into staging
- * Add missing Kconfig dependencies (Arnd Bergmann <arnd@arndb.de>)
----
- drivers/vhost/Kconfig  | 10 ++++++++++
- drivers/vhost/Makefile |  4 ++++
- net/vmw_vsock/Kconfig  | 18 ++++++++++++++++++
- net/vmw_vsock/Makefile |  2 ++
- 4 files changed, 34 insertions(+)
-
-diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
-index 533eaf0..a1bb4c2 100644
---- a/drivers/vhost/Kconfig
-+++ b/drivers/vhost/Kconfig
-@@ -21,6 +21,16 @@ config VHOST_SCSI
- 	Say M here to enable the vhost_scsi TCM fabric module
- 	for use with virtio-scsi guests
- 
-+config VHOST_VSOCK
-+	tristate "vhost virtio-vsock driver"
-+	depends on VSOCKETS && EVENTFD
-+	select VIRTIO_VSOCKETS_COMMON
-+	select VHOST
-+	select VHOST_RING
-+	default n
-+	---help---
-+	Say M here to enable the vhost-vsock for virtio-vsock guests
-+
- config VHOST_RING
- 	tristate
- 	---help---
-diff --git a/drivers/vhost/Makefile b/drivers/vhost/Makefile
-index e0441c3..6b012b9 100644
---- a/drivers/vhost/Makefile
-+++ b/drivers/vhost/Makefile
-@@ -4,5 +4,9 @@ vhost_net-y := net.o
- obj-$(CONFIG_VHOST_SCSI) += vhost_scsi.o
- vhost_scsi-y := scsi.o
- 
-+obj-$(CONFIG_VHOST_VSOCK) += vhost_vsock.o
-+vhost_vsock-y := vsock.o
-+
- obj-$(CONFIG_VHOST_RING) += vringh.o
-+
- obj-$(CONFIG_VHOST)	+= vhost.o
-diff --git a/net/vmw_vsock/Kconfig b/net/vmw_vsock/Kconfig
-index 14810ab..74e0bc8 100644
---- a/net/vmw_vsock/Kconfig
-+++ b/net/vmw_vsock/Kconfig
-@@ -26,3 +26,21 @@ config VMWARE_VMCI_VSOCKETS
- 
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called vmw_vsock_vmci_transport. If unsure, say N.
-+
-+config VIRTIO_VSOCKETS
-+	tristate "virtio transport for Virtual Sockets"
-+	depends on VSOCKETS && VIRTIO
-+	select VIRTIO_VSOCKETS_COMMON
-+	help
-+	  This module implements a virtio transport for Virtual Sockets.
-+
-+	  Enable this transport if your Virtual Machine runs on Qemu/KVM.
-+
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called virtio_vsock_transport. If unsure, say N.
-+
-+config VIRTIO_VSOCKETS_COMMON
-+       tristate
-+       ---help---
-+         This option is selected by any driver which needs to access
-+         the virtio_vsock.
-diff --git a/net/vmw_vsock/Makefile b/net/vmw_vsock/Makefile
-index 2ce52d7..cf4c294 100644
---- a/net/vmw_vsock/Makefile
-+++ b/net/vmw_vsock/Makefile
-@@ -1,5 +1,7 @@
- obj-$(CONFIG_VSOCKETS) += vsock.o
- obj-$(CONFIG_VMWARE_VMCI_VSOCKETS) += vmw_vsock_vmci_transport.o
-+obj-$(CONFIG_VIRTIO_VSOCKETS) += virtio_transport.o
-+obj-$(CONFIG_VIRTIO_VSOCKETS_COMMON) += virtio_transport_common.o
- 
- vsock-y += af_vsock.o vsock_addr.o
- 
--- 
-2.5.0
+> v3:
+>  * Remove unnecessary 3-way handshake, just do REQUEST/RESPONSE instead
+>    of REQUEST/RESPONSE/ACK
+>  * Remove SOCK_DGRAM support and focus on SOCK_STREAM first
+>    (also drop v2 Patch 1, it's only needed for SOCK_DGRAM)
+>  * Only allow host->guest connections (same security model as latest
+>    VMware)
+>  * Don't put vhost vsock driver into staging
+>  * Add missing Kconfig dependencies (Arnd Bergmann <arnd@arndb.de>)
+>  * Remove unneeded variable used to store return value
+>    (Fengguang Wu <fengguang.wu@intel.com> and Julia Lawall
+>    <julia.lawall@lip6.fr>)
+> 
+> v2:
+>  * Rebased onto Linux v4.4-rc2
+>  * vhost: Refuse to assign reserved CIDs
+>  * vhost: Refuse guest CID if already in use
+>  * vhost: Only accept correctly addressed packets (no spoofing!)
+>  * vhost: Support flexible rx/tx descriptor layout
+>  * vhost: Add missing total_tx_buf decrement
+>  * virtio_transport: Fix total_tx_buf accounting
+>  * virtio_transport: Add virtio_transport global mutex to prevent races
+>  * common: Notify other side of SOCK_STREAM disconnect (fixes shutdown
+>    semantics)
+>  * common: Avoid recursive mutex_lock(tx_lock) for write_space (fixes deadlock)
+>  * common: Define VIRTIO_VSOCK_TYPE_STREAM/DGRAM hardware interface constants
+>  * common: Define VIRTIO_VSOCK_SHUTDOWN_RCV/SEND hardware interface constants
+>  * common: Fix peer_buf_alloc inheritance on child socket
+> 
+> This patch series adds a virtio transport for AF_VSOCK (net/vmw_vsock/).
+> AF_VSOCK is designed for communication between virtual machines and
+> hypervisors.  It is currently only implemented for VMware's VMCI transport.
+> 
+> This series implements the proposed virtio-vsock device specification from
+> here:
+> http://permalink.gmane.org/gmane.comp.emulators.virtio.devel/980
+> 
+> Most of the work was done by Asias He and Gerd Hoffmann a while back.  I have
+> picked up the series again.
+> 
+> The QEMU userspace changes are here:
+> https://github.com/stefanha/qemu/commits/vsock
+> 
+> Why virtio-vsock?
+> -----------------
+> Guest<->host communication is currently done over the virtio-serial device.
+> This makes it hard to port sockets API-based applications and is limited to
+> static ports.
+> 
+> virtio-vsock uses the sockets API so that applications can rely on familiar
+> SOCK_STREAM semantics.  Applications on the host can easily connect to guest
+> agents because the sockets API allows multiple connections to a listen socket
+> (unlike virtio-serial).  This simplifies the guest<->host communication and
+> eliminates the need for extra processes on the host to arbitrate virtio-serial
+> ports.
+> 
+> Overview
+> --------
+> This series adds 3 pieces:
+> 
+> 1. virtio_transport_common.ko - core virtio vsock code that uses vsock.ko
+> 
+> 2. virtio_transport.ko - guest driver
+> 
+> 3. drivers/vhost/vsock.ko - host driver
+> 
+> Howto
+> -----
+> The following kernel options are needed:
+>   CONFIG_VSOCKETS=y
+>   CONFIG_VIRTIO_VSOCKETS=y
+>   CONFIG_VIRTIO_VSOCKETS_COMMON=y
+>   CONFIG_VHOST_VSOCK=m
+> 
+> Launch QEMU as follows:
+>   # qemu ... -device vhost-vsock-pci,id=vhost-vsock-pci0,guest-cid=3
+> 
+> Guest and host can communicate via AF_VSOCK sockets.  The host's CID (address)
+> is 2 and the guest must be assigned a CID (3 in the example above).
+> 
+> Status
+> ------
+> This patch series implements the latest draft specification.  Please review.
+> 
+> Asias He (4):
+>   VSOCK: Introduce virtio-vsock-common.ko
+>   VSOCK: Introduce virtio-vsock.ko
+>   VSOCK: Introduce vhost-vsock.ko
+>   VSOCK: Add Makefile and Kconfig
+> 
+>  drivers/vhost/Kconfig                   |  10 +
+>  drivers/vhost/Makefile                  |   4 +
+>  drivers/vhost/vsock.c                   | 628 +++++++++++++++++++++++
+>  drivers/vhost/vsock.h                   |   4 +
+>  include/linux/virtio_vsock.h            | 203 ++++++++
+>  include/uapi/linux/virtio_ids.h         |   1 +
+>  include/uapi/linux/virtio_vsock.h       |  87 ++++
+>  net/vmw_vsock/Kconfig                   |  18 +
+>  net/vmw_vsock/Makefile                  |   2 +
+>  net/vmw_vsock/virtio_transport.c        | 466 +++++++++++++++++
+>  net/vmw_vsock/virtio_transport_common.c | 854 ++++++++++++++++++++++++++++++++
+>  11 files changed, 2277 insertions(+)
+>  create mode 100644 drivers/vhost/vsock.c
+>  create mode 100644 drivers/vhost/vsock.h
+>  create mode 100644 include/linux/virtio_vsock.h
+>  create mode 100644 include/uapi/linux/virtio_vsock.h
+>  create mode 100644 net/vmw_vsock/virtio_transport.c
+>  create mode 100644 net/vmw_vsock/virtio_transport_common.c
+> 
+> -- 
+> 2.5.0
