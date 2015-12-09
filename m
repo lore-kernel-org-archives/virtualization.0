@@ -1,13 +1,14 @@
 From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH v2 0/5] Add virtio transport for AF_VSOCK
-Date: Wed, 9 Dec 2015 10:38:04 +0800
-Message-ID: <20151209023804.GC22280__20822.4145965234$1449628705$gmane$org@stefanha-x1.localdomain>
-References: <1449038643-25971-1-git-send-email-stefanha@redhat.com>
-	<20151204074504.GA21363@redhat.com>
+Subject: Re: [PATCH 0/6] VSOCK: revert virtio-vsock until device spec is
+	finalized
+Date: Wed, 9 Dec 2015 10:39:28 +0800
+Message-ID: <20151209023928.GA24211__16217.9673010998$1449628787$gmane$org@stefanha-x1.localdomain>
+References: <1449575856-28507-1-git-send-email-stefanha@redhat.com>
+	<20151208.112655.353902854757115664.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5847823696780096105=="
+Content-Type: multipart/mixed; boundary="===============3471039113427593023=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20151204074504.GA21363@redhat.com>
+In-Reply-To: <20151208.112655.353902854757115664.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,83 +18,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Matt Benjamin <mbenjamin@redhat.com>, Christoffer Dall <christoffer.dall@linaro.org>, matt.ma@linaro.org
+To: David Miller <davem@davemloft.net>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, mbenjamin@redhat.com, christoffer.dall@linaro.org, matt.ma@linaro.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============5847823696780096105==
+--===============3471039113427593023==
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bKyqfOwhbdpXa4YI"
+	protocol="application/pgp-signature"; boundary="jI8keyz6grp/JLjh"
 Content-Disposition: inline
 
 
---bKyqfOwhbdpXa4YI
+--jI8keyz6grp/JLjh
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Dec 04, 2015 at 09:45:04AM +0200, Michael S. Tsirkin wrote:
-> On Wed, Dec 02, 2015 at 02:43:58PM +0800, Stefan Hajnoczi wrote:
-> > 1. The 3-way handshake isn't necessary over a reliable transport (virtq=
-ueue).
-> >    Spoofing packets is also impossible so the security aspects of the 3=
--way
-> >    handshake (including syn cookie) add nothing.  The next version will=
- have a
-> >    single operation to establish a connection.
+On Tue, Dec 08, 2015 at 11:26:55AM -0500, David Miller wrote:
+> From: Stefan Hajnoczi <stefanha@redhat.com>
+> Date: Tue,  8 Dec 2015 19:57:30 +0800
 >=20
-> It's hard to discuss without seeing the details, but we do need to
-> slow down guests that are flooding host with socket creation requests.
-> The handshake is a simple way for hypervisor to defer
-> such requests until it has resources without
-> breaking things.
-
-I'll send an updated virtio-vsock device specification so we can discuss
-it.
-
-VMCI simply uses sk->sk_max_ack_backlog in
-net/vmw_vsock/vmci_transport.c.  If backlog (from listen(2)) is maxed
-out then the connection is refused.
-
-The same would work for virtio-vsock and there is no advantage to the
-3-way handshake.
-
-> > 2. Credit-based flow control doesn't work for SOCK_DGRAM since multiple=
- clients
-> >    can transmit to the same listen socket.  There is no way for the cli=
-ents to
-> >    coordinate buffer space with each other fairly.  The next version wi=
-ll drop
-> >    credit-based flow control for SOCK_DGRAM and only rely on best-effort
-> >    delivery.  SOCK_STREAM still has guaranteed delivery.
+> > Please revert for now.
 >=20
-> I suspect in the end we will need a measure of fairness even
-> if you drop packets. And recovering from packet loss is
-> hard enough that not many applications do it correctly.
-> I suggest disabling SOCK_DGRAM for now.
+> Please don't revert it piece by piece like this.
+>=20
+> Instead, send me one big revert commit that undoes the whole
+> thing.  There is even a merge commit that you can use to
+> create that revert cleanly.
 
-I'm not aware of a SOCK_DGRAM user at this time.  Will disable it for
-now.
+Okay.
 
---bKyqfOwhbdpXa4YI
+Stefan
+
+--jI8keyz6grp/JLjh
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQEcBAEBAgAGBQJWZ5QMAAoJEJykq7OBq3PId9UH/3AtdTnom65Ri5q+blEVDMoZ
-tEkQXlDoxfM0mQ3l8qwtO3j65JFTEQFXTNYCH2MSHd3UPYFkAOSgJbUNWTDjJ06O
-9K3Y93YSOFRI3245GE49gxiaw+mXBpHuVjrvIApOMh+PHzkmDRXVNpndV/tdlqSZ
-2lQwiB9uMTHUfZUY3qXpdcI6X/UTJJzQsBr/JJdTqriWY+X1It+V4sE4FsQo+QHJ
-p41lzOS+WrKxEIwqyDpyJcqfj0eEYbTzjs1ldDLDEeWr48c6OWoCMEmt3S86ePhO
-rgTtxfBEv9NZ/wKCHU3GLDRwxJfsB+rd01fHuqZO4o7N83vnna6Gl0OgJI/BGJY=
-=VEuq
+iQEcBAEBAgAGBQJWZ5RgAAoJEJykq7OBq3PI3GMH/0hrBx0hcoUgtqN++eM0YGOL
++EliNMSqqFPK5BNwI76OSqHfQCjySzq9ueTY0eXkym8xusgBh6UrYM4a0c8I1QjZ
+ItOgEpOuhoJp0jcwuFXXJtjh9hJYUr2a2qYXvDc1wocwfCEuOrlUhOKbDsV+5NIz
+PuKc/Ly+OVXMrmuIRcQoDf3yo1xpH8A0BhPzfyG9C6/7WJiJvUewQLmPb04iqt3E
+mgOmwElXQAZd6GRqJdl6gXt1P4xfyPjpcizgvH3wR3kbqZwMw/mYPjNh1G3QmICa
+V901xXVAeaNAtsoP9iV2spluJj7L4YYd+VQfs3Y4iNGnCwn1i2nDvZW7HmZWUpk=
+=x3Nj
 -----END PGP SIGNATURE-----
 
---bKyqfOwhbdpXa4YI--
+--jI8keyz6grp/JLjh--
 
---===============5847823696780096105==
+--===============3471039113427593023==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -103,4 +77,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5847823696780096105==--
+--===============3471039113427593023==--
