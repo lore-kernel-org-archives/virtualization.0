@@ -1,11 +1,14 @@
-From: Julia Lawall <Julia.Lawall@lip6.fr>
-Subject: [PATCH] ttm/drm: constify ttm_backend_func structures
-Date: Fri, 11 Dec 2015 14:37:47 +0100
-Message-ID: <1449841067-3718-1-git-send-email-Julia.Lawall__35523.8337921493$1449841844$gmane$org@lip6.fr>
+From: Alex =?utf-8?Q?Benn=C3=A9e?= <alex.bennee@linaro.org>
+Subject: Re: [PATCH v3 4/4] VSOCK: Add Makefile and Kconfig
+Date: Fri, 11 Dec 2015 17:19:08 +0000
+Message-ID: <87fuz8q4xf.fsf@linaro.org>
+References: <1449662633-26623-1-git-send-email-stefanha@redhat.com>
+	<1449662633-26623-5-git-send-email-stefanha@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-reply-to: <1449662633-26623-5-git-send-email-stefanha@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,193 +18,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: David Airlie <airlied@linux.ie>, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Alex Deucher <alexander.deucher@amd.com>
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Matt Benjamin <mbenjamin@redhat.com>, Asias He <asias@redhat.com>, Christoffer Dall <christoffer.dall@linaro.org>, matt.ma@linaro.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The ttm_backend_func structures are never modified, so declare them as
-const.
-
-Done with the help of Coccinelle.
-
-Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
-
----
- drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c |    2 +-
- drivers/gpu/drm/ast/ast_ttm.c           |    2 +-
- drivers/gpu/drm/bochs/bochs_mm.c        |    2 +-
- drivers/gpu/drm/cirrus/cirrus_ttm.c     |    2 +-
- drivers/gpu/drm/mgag200/mgag200_ttm.c   |    2 +-
- drivers/gpu/drm/nouveau/nouveau_sgdma.c |    4 ++--
- drivers/gpu/drm/qxl/qxl_ttm.c           |    2 +-
- drivers/gpu/drm/radeon/radeon_ttm.c     |    2 +-
- drivers/gpu/drm/ttm/ttm_agp_backend.c   |    2 +-
- drivers/gpu/drm/virtio/virtgpu_ttm.c    |    2 +-
- drivers/gpu/drm/vmwgfx/vmwgfx_buffer.c  |    2 +-
- include/drm/ttm/ttm_bo_driver.h         |    2 +-
- 12 files changed, 13 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ttm.c b/drivers/gpu/drm/virtio/virtgpu_ttm.c
-index 9fd924c..a323422 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ttm.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ttm.c
-@@ -319,7 +319,7 @@ static void virtio_gpu_ttm_backend_destroy(struct ttm_tt *ttm)
- 	kfree(gtt);
- }
- 
--static struct ttm_backend_func virtio_gpu_backend_func = {
-+static const struct ttm_backend_func virtio_gpu_backend_func = {
- 	.bind = &virtio_gpu_ttm_backend_bind,
- 	.unbind = &virtio_gpu_ttm_backend_unbind,
- 	.destroy = &virtio_gpu_ttm_backend_destroy,
-diff --git a/drivers/gpu/drm/radeon/radeon_ttm.c b/drivers/gpu/drm/radeon/radeon_ttm.c
-index e343074..9fa758c 100644
---- a/drivers/gpu/drm/radeon/radeon_ttm.c
-+++ b/drivers/gpu/drm/radeon/radeon_ttm.c
-@@ -666,7 +666,7 @@ static void radeon_ttm_backend_destroy(struct ttm_tt *ttm)
- 	kfree(gtt);
- }
- 
--static struct ttm_backend_func radeon_backend_func = {
-+static const struct ttm_backend_func radeon_backend_func = {
- 	.bind = &radeon_ttm_backend_bind,
- 	.unbind = &radeon_ttm_backend_unbind,
- 	.destroy = &radeon_ttm_backend_destroy,
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-index d4bac5f..befa9c2 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-@@ -634,7 +634,7 @@ static void amdgpu_ttm_backend_destroy(struct ttm_tt *ttm)
- 	kfree(gtt);
- }
- 
--static struct ttm_backend_func amdgpu_backend_func = {
-+static const struct ttm_backend_func amdgpu_backend_func = {
- 	.bind = &amdgpu_ttm_backend_bind,
- 	.unbind = &amdgpu_ttm_backend_unbind,
- 	.destroy = &amdgpu_ttm_backend_destroy,
-diff --git a/drivers/gpu/drm/ast/ast_ttm.c b/drivers/gpu/drm/ast/ast_ttm.c
-index 08f82ea..5840785 100644
---- a/drivers/gpu/drm/ast/ast_ttm.c
-+++ b/drivers/gpu/drm/ast/ast_ttm.c
-@@ -203,7 +203,7 @@ static void ast_ttm_backend_destroy(struct ttm_tt *tt)
- 	kfree(tt);
- }
- 
--static struct ttm_backend_func ast_tt_backend_func = {
-+static const struct ttm_backend_func ast_tt_backend_func = {
- 	.destroy = &ast_ttm_backend_destroy,
- };
- 
-diff --git a/drivers/gpu/drm/bochs/bochs_mm.c b/drivers/gpu/drm/bochs/bochs_mm.c
-index d812ad0..b5b782d 100644
---- a/drivers/gpu/drm/bochs/bochs_mm.c
-+++ b/drivers/gpu/drm/bochs/bochs_mm.c
-@@ -180,7 +180,7 @@ static void bochs_ttm_backend_destroy(struct ttm_tt *tt)
- 	kfree(tt);
- }
- 
--static struct ttm_backend_func bochs_tt_backend_func = {
-+static const struct ttm_backend_func bochs_tt_backend_func = {
- 	.destroy = &bochs_ttm_backend_destroy,
- };
- 
-diff --git a/drivers/gpu/drm/cirrus/cirrus_ttm.c b/drivers/gpu/drm/cirrus/cirrus_ttm.c
-index dfffd52..da88541 100644
---- a/drivers/gpu/drm/cirrus/cirrus_ttm.c
-+++ b/drivers/gpu/drm/cirrus/cirrus_ttm.c
-@@ -203,7 +203,7 @@ static void cirrus_ttm_backend_destroy(struct ttm_tt *tt)
- 	kfree(tt);
- }
- 
--static struct ttm_backend_func cirrus_tt_backend_func = {
-+static const struct ttm_backend_func cirrus_tt_backend_func = {
- 	.destroy = &cirrus_ttm_backend_destroy,
- };
- 
-diff --git a/drivers/gpu/drm/mgag200/mgag200_ttm.c b/drivers/gpu/drm/mgag200/mgag200_ttm.c
-index 05108b5..e368562 100644
---- a/drivers/gpu/drm/mgag200/mgag200_ttm.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_ttm.c
-@@ -203,7 +203,7 @@ static void mgag200_ttm_backend_destroy(struct ttm_tt *tt)
- 	kfree(tt);
- }
- 
--static struct ttm_backend_func mgag200_tt_backend_func = {
-+static const struct ttm_backend_func mgag200_tt_backend_func = {
- 	.destroy = &mgag200_ttm_backend_destroy,
- };
- 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_sgdma.c b/drivers/gpu/drm/nouveau/nouveau_sgdma.c
-index 8c3053a..3b8f556 100644
---- a/drivers/gpu/drm/nouveau/nouveau_sgdma.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_sgdma.c
-@@ -51,7 +51,7 @@ nv04_sgdma_unbind(struct ttm_tt *ttm)
- 	return 0;
- }
- 
--static struct ttm_backend_func nv04_sgdma_backend = {
-+static const struct ttm_backend_func nv04_sgdma_backend = {
- 	.bind			= nv04_sgdma_bind,
- 	.unbind			= nv04_sgdma_unbind,
- 	.destroy		= nouveau_sgdma_destroy
-@@ -82,7 +82,7 @@ nv50_sgdma_unbind(struct ttm_tt *ttm)
- 	return 0;
- }
- 
--static struct ttm_backend_func nv50_sgdma_backend = {
-+static const struct ttm_backend_func nv50_sgdma_backend = {
- 	.bind			= nv50_sgdma_bind,
- 	.unbind			= nv50_sgdma_unbind,
- 	.destroy		= nouveau_sgdma_destroy
-diff --git a/drivers/gpu/drm/qxl/qxl_ttm.c b/drivers/gpu/drm/qxl/qxl_ttm.c
-index 0cbc4c9..93dc45d 100644
---- a/drivers/gpu/drm/qxl/qxl_ttm.c
-+++ b/drivers/gpu/drm/qxl/qxl_ttm.c
-@@ -288,7 +288,7 @@ static void qxl_ttm_backend_destroy(struct ttm_tt *ttm)
- 	kfree(gtt);
- }
- 
--static struct ttm_backend_func qxl_backend_func = {
-+static const struct ttm_backend_func qxl_backend_func = {
- 	.bind = &qxl_ttm_backend_bind,
- 	.unbind = &qxl_ttm_backend_unbind,
- 	.destroy = &qxl_ttm_backend_destroy,
-diff --git a/drivers/gpu/drm/ttm/ttm_agp_backend.c b/drivers/gpu/drm/ttm/ttm_agp_backend.c
-index 764be36..5fdaba5 100644
---- a/drivers/gpu/drm/ttm/ttm_agp_backend.c
-+++ b/drivers/gpu/drm/ttm/ttm_agp_backend.c
-@@ -104,7 +104,7 @@ static void ttm_agp_destroy(struct ttm_tt *ttm)
- 	kfree(agp_be);
- }
- 
--static struct ttm_backend_func ttm_agp_func = {
-+static const struct ttm_backend_func ttm_agp_func = {
- 	.bind = ttm_agp_bind,
- 	.unbind = ttm_agp_unbind,
- 	.destroy = ttm_agp_destroy,
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_buffer.c b/drivers/gpu/drm/vmwgfx/vmwgfx_buffer.c
-index 3329f62..d59572a 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_buffer.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_buffer.c
-@@ -683,7 +683,7 @@ static void vmw_ttm_unpopulate(struct ttm_tt *ttm)
- 		ttm_pool_unpopulate(ttm);
- }
- 
--static struct ttm_backend_func vmw_ttm_func = {
-+static const struct ttm_backend_func vmw_ttm_func = {
- 	.bind = vmw_ttm_bind,
- 	.unbind = vmw_ttm_unbind,
- 	.destroy = vmw_ttm_destroy,
-diff --git a/include/drm/ttm/ttm_bo_driver.h b/include/drm/ttm/ttm_bo_driver.h
-index 813042c..c43efa4 100644
---- a/include/drm/ttm/ttm_bo_driver.h
-+++ b/include/drm/ttm/ttm_bo_driver.h
-@@ -113,7 +113,7 @@ enum ttm_caching_state {
- 
- struct ttm_tt {
- 	struct ttm_bo_device *bdev;
--	struct ttm_backend_func *func;
-+	const struct ttm_backend_func *func;
- 	struct page *dummy_read_page;
- 	struct page **pages;
- 	uint32_t page_flags;
+ClN0ZWZhbiBIYWpub2N6aSA8c3RlZmFuaGFAcmVkaGF0LmNvbT4gd3JpdGVzOgoKPiBGcm9tOiBB
+c2lhcyBIZSA8YXNpYXNAcmVkaGF0LmNvbT4KPgo+IEVuYWJsZSB2aXJ0aW8tdnNvY2sgYW5kIHZo
+b3N0LXZzb2NrLgo+Cj4gU2lnbmVkLW9mZi1ieTogQXNpYXMgSGUgPGFzaWFzQHJlZGhhdC5jb20+
+Cj4gU2lnbmVkLW9mZi1ieTogU3RlZmFuIEhham5vY3ppIDxzdGVmYW5oYUByZWRoYXQuY29tPgo+
+IC0tLQo+IHYzOgo+ICAqIERvbid0IHB1dCB2aG9zdCB2c29jayBkcml2ZXIgaW50byBzdGFnaW5n
+Cj4gICogQWRkIG1pc3NpbmcgS2NvbmZpZyBkZXBlbmRlbmNpZXMgKEFybmQgQmVyZ21hbm4gPGFy
+bmRAYXJuZGIuZGU+KQo+IC0tLQo+ICBkcml2ZXJzL3Zob3N0L0tjb25maWcgIHwgMTAgKysrKysr
+KysrKwo+ICBkcml2ZXJzL3Zob3N0L01ha2VmaWxlIHwgIDQgKysrKwo+ICBuZXQvdm13X3Zzb2Nr
+L0tjb25maWcgIHwgMTggKysrKysrKysrKysrKysrKysrCj4gIG5ldC92bXdfdnNvY2svTWFrZWZp
+bGUgfCAgMiArKwo+ICA0IGZpbGVzIGNoYW5nZWQsIDM0IGluc2VydGlvbnMoKykKPgo+IGRpZmYg
+LS1naXQgYS9kcml2ZXJzL3Zob3N0L0tjb25maWcgYi9kcml2ZXJzL3Zob3N0L0tjb25maWcKPiBp
+bmRleCA1MzNlYWYwLi5hMWJiNGMyIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmhvc3QvS2NvbmZp
+Zwo+ICsrKyBiL2RyaXZlcnMvdmhvc3QvS2NvbmZpZwo+IEBAIC0yMSw2ICsyMSwxNiBAQCBjb25m
+aWcgVkhPU1RfU0NTSQo+ICAJU2F5IE0gaGVyZSB0byBlbmFibGUgdGhlIHZob3N0X3Njc2kgVENN
+IGZhYnJpYyBtb2R1bGUKPiAgCWZvciB1c2Ugd2l0aCB2aXJ0aW8tc2NzaSBndWVzdHMKPgo+ICtj
+b25maWcgVkhPU1RfVlNPQ0sKPiArCXRyaXN0YXRlICJ2aG9zdCB2aXJ0aW8tdnNvY2sgZHJpdmVy
+Igo+ICsJZGVwZW5kcyBvbiBWU09DS0VUUyAmJiBFVkVOVEZECj4gKwlzZWxlY3QgVklSVElPX1ZT
+T0NLRVRTX0NPTU1PTgo+ICsJc2VsZWN0IFZIT1NUCj4gKwlzZWxlY3QgVkhPU1RfUklORwo+ICsJ
+ZGVmYXVsdCBuCj4gKwktLS1oZWxwLS0tCj4gKwlTYXkgTSBoZXJlIHRvIGVuYWJsZSB0aGUgdmhv
+c3QtdnNvY2sgZm9yIHZpcnRpby12c29jayBndWVzdHMKCkkgdGhpbmsgY2hlY2twYXRjaCBwcmVm
+ZXJzIGEgZmV3IG1vcmUgd29yZHMgZm9yIHRoZSBmZWF0dXJlIGJ1dCBJJ20KaGFwcHkgd2l0aCBp
+dC4KCj4gKwo+ICBjb25maWcgVkhPU1RfUklORwo+ICAJdHJpc3RhdGUKPiAgCS0tLWhlbHAtLS0K
+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9zdC9NYWtlZmlsZSBiL2RyaXZlcnMvdmhvc3QvTWFr
+ZWZpbGUKPiBpbmRleCBlMDQ0MWMzLi42YjAxMmI5IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmhv
+c3QvTWFrZWZpbGUKPiArKysgYi9kcml2ZXJzL3Zob3N0L01ha2VmaWxlCj4gQEAgLTQsNSArNCw5
+IEBAIHZob3N0X25ldC15IDo9IG5ldC5vCj4gIG9iai0kKENPTkZJR19WSE9TVF9TQ1NJKSArPSB2
+aG9zdF9zY3NpLm8KPiAgdmhvc3Rfc2NzaS15IDo9IHNjc2kubwo+Cj4gK29iai0kKENPTkZJR19W
+SE9TVF9WU09DSykgKz0gdmhvc3RfdnNvY2subwo+ICt2aG9zdF92c29jay15IDo9IHZzb2NrLm8K
+PiArCj4gIG9iai0kKENPTkZJR19WSE9TVF9SSU5HKSArPSB2cmluZ2gubwo+ICsKPiAgb2JqLSQo
+Q09ORklHX1ZIT1NUKQkrPSB2aG9zdC5vCj4gZGlmZiAtLWdpdCBhL25ldC92bXdfdnNvY2svS2Nv
+bmZpZyBiL25ldC92bXdfdnNvY2svS2NvbmZpZwo+IGluZGV4IDE0ODEwYWIuLjc0ZTBiYzggMTAw
+NjQ0Cj4gLS0tIGEvbmV0L3Ztd192c29jay9LY29uZmlnCj4gKysrIGIvbmV0L3Ztd192c29jay9L
+Y29uZmlnCj4gQEAgLTI2LDMgKzI2LDIxIEBAIGNvbmZpZyBWTVdBUkVfVk1DSV9WU09DS0VUUwo+
+Cj4gIAkgIFRvIGNvbXBpbGUgdGhpcyBkcml2ZXIgYXMgYSBtb2R1bGUsIGNob29zZSBNIGhlcmU6
+IHRoZSBtb2R1bGUKPiAgCSAgd2lsbCBiZSBjYWxsZWQgdm13X3Zzb2NrX3ZtY2lfdHJhbnNwb3J0
+LiBJZiB1bnN1cmUsIHNheSBOLgo+ICsKPiArY29uZmlnIFZJUlRJT19WU09DS0VUUwo+ICsJdHJp
+c3RhdGUgInZpcnRpbyB0cmFuc3BvcnQgZm9yIFZpcnR1YWwgU29ja2V0cyIKPiArCWRlcGVuZHMg
+b24gVlNPQ0tFVFMgJiYgVklSVElPCj4gKwlzZWxlY3QgVklSVElPX1ZTT0NLRVRTX0NPTU1PTgo+
+ICsJaGVscAo+ICsJICBUaGlzIG1vZHVsZSBpbXBsZW1lbnRzIGEgdmlydGlvIHRyYW5zcG9ydCBm
+b3IgVmlydHVhbCBTb2NrZXRzLgo+ICsKPiArCSAgRW5hYmxlIHRoaXMgdHJhbnNwb3J0IGlmIHlv
+dXIgVmlydHVhbCBNYWNoaW5lIHJ1bnMgb24KPiAgCSAgUWVtdS9LVk0uCgpJcyB0aGlzIGJldHRl
+ciB3b3JkZWQgYXM6CgoiRW5hYmxlIHRoaXMgdHJhbnNwb3J0IGlmIHlvdXIgVmlydHVhbCBNYWNo
+aW5lIGhvc3Qgc3VwcG9ydHMgdnNvY2tldHMKb3ZlciB2aXJ0aW8uIgoKPwoKT3RoZXJ3aXNlOgoK
+UmV2aWV3ZWQtYnk6IEFsZXggQmVubsOpZSA8YWxleC5iZW5uZWVAbGluYXJvLm9yZz4KCj4gKwo+
+ICsJICBUbyBjb21waWxlIHRoaXMgZHJpdmVyIGFzIGEgbW9kdWxlLCBjaG9vc2UgTSBoZXJlOiB0
+aGUgbW9kdWxlCj4gKwkgIHdpbGwgYmUgY2FsbGVkIHZpcnRpb192c29ja190cmFuc3BvcnQuIElm
+IHVuc3VyZSwgc2F5IE4uCj4gKwo+ICtjb25maWcgVklSVElPX1ZTT0NLRVRTX0NPTU1PTgo+ICsg
+ICAgICAgdHJpc3RhdGUKPiArICAgICAgIC0tLWhlbHAtLS0KPiArICAgICAgICAgVGhpcyBvcHRp
+b24gaXMgc2VsZWN0ZWQgYnkgYW55IGRyaXZlciB3aGljaCBuZWVkcyB0byBhY2Nlc3MKPiArICAg
+ICAgICAgdGhlIHZpcnRpb192c29jay4KPiBkaWZmIC0tZ2l0IGEvbmV0L3Ztd192c29jay9NYWtl
+ZmlsZSBiL25ldC92bXdfdnNvY2svTWFrZWZpbGUKPiBpbmRleCAyY2U1MmQ3Li5jZjRjMjk0IDEw
+MDY0NAo+IC0tLSBhL25ldC92bXdfdnNvY2svTWFrZWZpbGUKPiArKysgYi9uZXQvdm13X3Zzb2Nr
+L01ha2VmaWxlCj4gQEAgLTEsNSArMSw3IEBACj4gIG9iai0kKENPTkZJR19WU09DS0VUUykgKz0g
+dnNvY2subwo+ICBvYmotJChDT05GSUdfVk1XQVJFX1ZNQ0lfVlNPQ0tFVFMpICs9IHZtd192c29j
+a192bWNpX3RyYW5zcG9ydC5vCj4gK29iai0kKENPTkZJR19WSVJUSU9fVlNPQ0tFVFMpICs9IHZp
+cnRpb190cmFuc3BvcnQubwo+ICtvYmotJChDT05GSUdfVklSVElPX1ZTT0NLRVRTX0NPTU1PTikg
+Kz0gdmlydGlvX3RyYW5zcG9ydF9jb21tb24ubwo+Cj4gIHZzb2NrLXkgKz0gYWZfdnNvY2subyB2
+c29ja19hZGRyLm8KPgo+IC0tCj4gMi41LjAKCgotLQpBbGV4IEJlbm7DqWUKX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
+ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
+bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
