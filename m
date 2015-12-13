@@ -1,15 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 0/1] virtio/s390: one fix
-Date: Mon, 14 Dec 2015 17:25:25 +0200
-Message-ID: <20151214172458-mutt-send-email-mst__4440.06097172878$1450106775$gmane$org@redhat.com>
-References: <1449159840-60270-1-git-send-email-cornelia.huck@de.ibm.com>
-	<20151214160233.62f4f3c2.cornelia.huck@de.ibm.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v2] vhost: replace % with & on data path
+Date: Sun, 13 Dec 2015 02:01:22 +0200
+Message-ID: <CAHp75VcnkCZUF1dP7B8G4qv-JNBah+MzZn_v-aW9i8iWUDA6TQ__4372.51759362898$1450110026$gmane$org@mail.gmail.com>
+References: <1448874894-18398-1-git-send-email-mst@redhat.com>
+	<20151204201901.GB19430@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20151214160233.62f4f3c2.cornelia.huck@de.ibm.com>
+In-Reply-To: <20151204201901.GB19430@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,32 +18,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: borntraeger@de.ibm.com, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+To: Venkatesh Srinivas <venkateshs@google.com>
+Cc: netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Dec 14, 2015 at 04:02:33PM +0100, Cornelia Huck wrote:
-> On Thu,  3 Dec 2015 17:23:59 +0100
-> Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
-> 
-> > Michael,
-> > 
-> > here's one fix for the virtio-ccw driver.
-> > 
-> > Patch is against master, as your git branches on mst/vhost.git seem
-> > to be quite old. Is there some branch I can base my own branch on,
-> > or do you prefer to take patches directly anyway?
-> > 
-> > Cornelia Huck (1):
-> >   virtio/s390: handle error values in irb
-> > 
-> >  drivers/s390/virtio/virtio_ccw.c | 62 ++++++++++++++++++++++++----------------
-> >  1 file changed, 37 insertions(+), 25 deletions(-)
-> > 
-> 
-> Ping?
+On Fri, Dec 4, 2015 at 10:19 PM, Venkatesh Srinivas
+<venkateshs@google.com> wrote:
+> On Mon, Nov 30, 2015 at 11:15:23AM +0200, Michael S. Tsirkin wrote:
+>> We know vring num is a power of 2, so use &
+>> to mask the high bits.
+>>
+>> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>> ---
+>
+> The generated code switches from DIV -> masking, source is clearer as well.
 
-Thanks, I'll merge this, hope it can still make 4.4.
+First impression was why, now it seems that compiler can't predict
+this for variables.
+For constants it would be optimized to the same, I suppose.
+
+>
+> Tested-by: Venkatesh Srinivas <venkateshs@google.com>
+>
+> -- vs;
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+
 
 -- 
-MST
+With Best Regards,
+Andy Shevchenko
