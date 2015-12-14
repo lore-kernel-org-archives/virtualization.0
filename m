@@ -1,15 +1,13 @@
-From: David Vrabel <david.vrabel@citrix.com>
-Subject: Re: [Xen-devel] [PATCH RFC 1/3] xen: export xen_phys_to_bus,
-	xen_bus_to_phys and xen_virt_to_bus
-Date: Mon, 14 Dec 2015 14:12:26 +0000
-Message-ID: <566ECE4A.7070106@citrix.com>
-References: <alpine.DEB.2.02.1512071555590.24652@kaball.uk.xensource.com>
-	<1449505183-29740-1-git-send-email-stefano.stabellini@eu.citrix.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH 0/1] virtio/s390: one fix
+Date: Mon, 14 Dec 2015 16:02:33 +0100
+Message-ID: <20151214160233.62f4f3c2.cornelia.huck@de.ibm.com>
+References: <1449159840-60270-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1449505183-29740-1-git-send-email-stefano.stabellini@eu.citrix.com>
+In-Reply-To: <1449159840-60270-1-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,16 +17,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefano Stabellini <stefano.stabellini@eu.citrix.com>, mst@redhat.com
-Cc: xen-devel@lists.xenproject.org, boris.ostrovsky@oracle.com, david.vrabel@citrix.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: mst@redhat.com
+Cc: borntraeger@de.ibm.com, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/12/15 16:19, Stefano Stabellini wrote:
-> Signed-off-by: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+On Thu,  3 Dec 2015 17:23:59 +0100
+Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
 
-Can you add a brief description about why these are being moved?  Then,
-assuming this is needed in the end:
+> Michael,
+> 
+> here's one fix for the virtio-ccw driver.
+> 
+> Patch is against master, as your git branches on mst/vhost.git seem
+> to be quite old. Is there some branch I can base my own branch on,
+> or do you prefer to take patches directly anyway?
+> 
+> Cornelia Huck (1):
+>   virtio/s390: handle error values in irb
+> 
+>  drivers/s390/virtio/virtio_ccw.c | 62 ++++++++++++++++++++++++----------------
+>  1 file changed, 37 insertions(+), 25 deletions(-)
+> 
 
-Acked-by: David Vrabel <david.vrabel@citrix.com>
-
-David
+Ping?
