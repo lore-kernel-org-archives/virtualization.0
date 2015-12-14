@@ -1,14 +1,21 @@
-From: Alex =?utf-8?Q?Benn=C3=A9e?= <alex.bennee@linaro.org>
-Subject: Re: [PATCH v3 4/4] VSOCK: Add Makefile and Kconfig
-Date: Fri, 11 Dec 2015 17:19:08 +0000
-Message-ID: <87fuz8q4xf.fsf@linaro.org>
-References: <1449662633-26623-1-git-send-email-stefanha@redhat.com>
-	<1449662633-26623-5-git-send-email-stefanha@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [RFC PATCH 2/2] block: virtio-blk: support multi virt queues per
+	virtio-blk device
+Date: Mon, 14 Dec 2015 11:31:26 +0100
+Message-ID: <566E9A7E.3030203__44084.7067897723$1450089108$gmane$org@redhat.com>
+References: <1402680562-8328-1-git-send-email-ming.lei@canonical.com>
+	<1402680562-8328-3-git-send-email-ming.lei@canonical.com>
+	<CAJSP0QWaS--gPZ=ONFrXby1DQLw4R0RCro7bpHCdmucyjmqT_w@mail.gmail.com>
+	<CACVXFVO0SybUKArQbKkj2+hbk6q_gt3SBooNNmw1jErRR8d07A@mail.gmail.com>
+	<53A06475.7000308@redhat.com>
+	<CACVXFVO6GDu7Cp=s7kn_XBE2EFnuh+XQs4UQKTFaCLi4_9jcgg@mail.gmail.com>
+	<53A06E05.9060708@redhat.com>
+	<CACVXFVMkV5R5GUjM7Y-U54SA-ENZZ26dbbv4K2_OYPdmmiuUqg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-reply-to: <1449662633-26623-5-git-send-email-stefanha@redhat.com>
+In-Reply-To: <CACVXFVMkV5R5GUjM7Y-U54SA-ENZZ26dbbv4K2_OYPdmmiuUqg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,68 +25,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Matt Benjamin <mbenjamin@redhat.com>, Asias He <asias@redhat.com>, Christoffer Dall <christoffer.dall@linaro.org>, matt.ma@linaro.org
+To: Ming Lei <ming.lei@canonical.com>
+Cc: Jens Axboe <axboe@kernel.dk>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stefan Hajnoczi <stefanha@redhat.com>, linux-api@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-ClN0ZWZhbiBIYWpub2N6aSA8c3RlZmFuaGFAcmVkaGF0LmNvbT4gd3JpdGVzOgoKPiBGcm9tOiBB
-c2lhcyBIZSA8YXNpYXNAcmVkaGF0LmNvbT4KPgo+IEVuYWJsZSB2aXJ0aW8tdnNvY2sgYW5kIHZo
-b3N0LXZzb2NrLgo+Cj4gU2lnbmVkLW9mZi1ieTogQXNpYXMgSGUgPGFzaWFzQHJlZGhhdC5jb20+
-Cj4gU2lnbmVkLW9mZi1ieTogU3RlZmFuIEhham5vY3ppIDxzdGVmYW5oYUByZWRoYXQuY29tPgo+
-IC0tLQo+IHYzOgo+ICAqIERvbid0IHB1dCB2aG9zdCB2c29jayBkcml2ZXIgaW50byBzdGFnaW5n
-Cj4gICogQWRkIG1pc3NpbmcgS2NvbmZpZyBkZXBlbmRlbmNpZXMgKEFybmQgQmVyZ21hbm4gPGFy
-bmRAYXJuZGIuZGU+KQo+IC0tLQo+ICBkcml2ZXJzL3Zob3N0L0tjb25maWcgIHwgMTAgKysrKysr
-KysrKwo+ICBkcml2ZXJzL3Zob3N0L01ha2VmaWxlIHwgIDQgKysrKwo+ICBuZXQvdm13X3Zzb2Nr
-L0tjb25maWcgIHwgMTggKysrKysrKysrKysrKysrKysrCj4gIG5ldC92bXdfdnNvY2svTWFrZWZp
-bGUgfCAgMiArKwo+ICA0IGZpbGVzIGNoYW5nZWQsIDM0IGluc2VydGlvbnMoKykKPgo+IGRpZmYg
-LS1naXQgYS9kcml2ZXJzL3Zob3N0L0tjb25maWcgYi9kcml2ZXJzL3Zob3N0L0tjb25maWcKPiBp
-bmRleCA1MzNlYWYwLi5hMWJiNGMyIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmhvc3QvS2NvbmZp
-Zwo+ICsrKyBiL2RyaXZlcnMvdmhvc3QvS2NvbmZpZwo+IEBAIC0yMSw2ICsyMSwxNiBAQCBjb25m
-aWcgVkhPU1RfU0NTSQo+ICAJU2F5IE0gaGVyZSB0byBlbmFibGUgdGhlIHZob3N0X3Njc2kgVENN
-IGZhYnJpYyBtb2R1bGUKPiAgCWZvciB1c2Ugd2l0aCB2aXJ0aW8tc2NzaSBndWVzdHMKPgo+ICtj
-b25maWcgVkhPU1RfVlNPQ0sKPiArCXRyaXN0YXRlICJ2aG9zdCB2aXJ0aW8tdnNvY2sgZHJpdmVy
-Igo+ICsJZGVwZW5kcyBvbiBWU09DS0VUUyAmJiBFVkVOVEZECj4gKwlzZWxlY3QgVklSVElPX1ZT
-T0NLRVRTX0NPTU1PTgo+ICsJc2VsZWN0IFZIT1NUCj4gKwlzZWxlY3QgVkhPU1RfUklORwo+ICsJ
-ZGVmYXVsdCBuCj4gKwktLS1oZWxwLS0tCj4gKwlTYXkgTSBoZXJlIHRvIGVuYWJsZSB0aGUgdmhv
-c3QtdnNvY2sgZm9yIHZpcnRpby12c29jayBndWVzdHMKCkkgdGhpbmsgY2hlY2twYXRjaCBwcmVm
-ZXJzIGEgZmV3IG1vcmUgd29yZHMgZm9yIHRoZSBmZWF0dXJlIGJ1dCBJJ20KaGFwcHkgd2l0aCBp
-dC4KCj4gKwo+ICBjb25maWcgVkhPU1RfUklORwo+ICAJdHJpc3RhdGUKPiAgCS0tLWhlbHAtLS0K
-PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9zdC9NYWtlZmlsZSBiL2RyaXZlcnMvdmhvc3QvTWFr
-ZWZpbGUKPiBpbmRleCBlMDQ0MWMzLi42YjAxMmI5IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmhv
-c3QvTWFrZWZpbGUKPiArKysgYi9kcml2ZXJzL3Zob3N0L01ha2VmaWxlCj4gQEAgLTQsNSArNCw5
-IEBAIHZob3N0X25ldC15IDo9IG5ldC5vCj4gIG9iai0kKENPTkZJR19WSE9TVF9TQ1NJKSArPSB2
-aG9zdF9zY3NpLm8KPiAgdmhvc3Rfc2NzaS15IDo9IHNjc2kubwo+Cj4gK29iai0kKENPTkZJR19W
-SE9TVF9WU09DSykgKz0gdmhvc3RfdnNvY2subwo+ICt2aG9zdF92c29jay15IDo9IHZzb2NrLm8K
-PiArCj4gIG9iai0kKENPTkZJR19WSE9TVF9SSU5HKSArPSB2cmluZ2gubwo+ICsKPiAgb2JqLSQo
-Q09ORklHX1ZIT1NUKQkrPSB2aG9zdC5vCj4gZGlmZiAtLWdpdCBhL25ldC92bXdfdnNvY2svS2Nv
-bmZpZyBiL25ldC92bXdfdnNvY2svS2NvbmZpZwo+IGluZGV4IDE0ODEwYWIuLjc0ZTBiYzggMTAw
-NjQ0Cj4gLS0tIGEvbmV0L3Ztd192c29jay9LY29uZmlnCj4gKysrIGIvbmV0L3Ztd192c29jay9L
-Y29uZmlnCj4gQEAgLTI2LDMgKzI2LDIxIEBAIGNvbmZpZyBWTVdBUkVfVk1DSV9WU09DS0VUUwo+
-Cj4gIAkgIFRvIGNvbXBpbGUgdGhpcyBkcml2ZXIgYXMgYSBtb2R1bGUsIGNob29zZSBNIGhlcmU6
-IHRoZSBtb2R1bGUKPiAgCSAgd2lsbCBiZSBjYWxsZWQgdm13X3Zzb2NrX3ZtY2lfdHJhbnNwb3J0
-LiBJZiB1bnN1cmUsIHNheSBOLgo+ICsKPiArY29uZmlnIFZJUlRJT19WU09DS0VUUwo+ICsJdHJp
-c3RhdGUgInZpcnRpbyB0cmFuc3BvcnQgZm9yIFZpcnR1YWwgU29ja2V0cyIKPiArCWRlcGVuZHMg
-b24gVlNPQ0tFVFMgJiYgVklSVElPCj4gKwlzZWxlY3QgVklSVElPX1ZTT0NLRVRTX0NPTU1PTgo+
-ICsJaGVscAo+ICsJICBUaGlzIG1vZHVsZSBpbXBsZW1lbnRzIGEgdmlydGlvIHRyYW5zcG9ydCBm
-b3IgVmlydHVhbCBTb2NrZXRzLgo+ICsKPiArCSAgRW5hYmxlIHRoaXMgdHJhbnNwb3J0IGlmIHlv
-dXIgVmlydHVhbCBNYWNoaW5lIHJ1bnMgb24KPiAgCSAgUWVtdS9LVk0uCgpJcyB0aGlzIGJldHRl
-ciB3b3JkZWQgYXM6CgoiRW5hYmxlIHRoaXMgdHJhbnNwb3J0IGlmIHlvdXIgVmlydHVhbCBNYWNo
-aW5lIGhvc3Qgc3VwcG9ydHMgdnNvY2tldHMKb3ZlciB2aXJ0aW8uIgoKPwoKT3RoZXJ3aXNlOgoK
-UmV2aWV3ZWQtYnk6IEFsZXggQmVubsOpZSA8YWxleC5iZW5uZWVAbGluYXJvLm9yZz4KCj4gKwo+
-ICsJICBUbyBjb21waWxlIHRoaXMgZHJpdmVyIGFzIGEgbW9kdWxlLCBjaG9vc2UgTSBoZXJlOiB0
-aGUgbW9kdWxlCj4gKwkgIHdpbGwgYmUgY2FsbGVkIHZpcnRpb192c29ja190cmFuc3BvcnQuIElm
-IHVuc3VyZSwgc2F5IE4uCj4gKwo+ICtjb25maWcgVklSVElPX1ZTT0NLRVRTX0NPTU1PTgo+ICsg
-ICAgICAgdHJpc3RhdGUKPiArICAgICAgIC0tLWhlbHAtLS0KPiArICAgICAgICAgVGhpcyBvcHRp
-b24gaXMgc2VsZWN0ZWQgYnkgYW55IGRyaXZlciB3aGljaCBuZWVkcyB0byBhY2Nlc3MKPiArICAg
-ICAgICAgdGhlIHZpcnRpb192c29jay4KPiBkaWZmIC0tZ2l0IGEvbmV0L3Ztd192c29jay9NYWtl
-ZmlsZSBiL25ldC92bXdfdnNvY2svTWFrZWZpbGUKPiBpbmRleCAyY2U1MmQ3Li5jZjRjMjk0IDEw
-MDY0NAo+IC0tLSBhL25ldC92bXdfdnNvY2svTWFrZWZpbGUKPiArKysgYi9uZXQvdm13X3Zzb2Nr
-L01ha2VmaWxlCj4gQEAgLTEsNSArMSw3IEBACj4gIG9iai0kKENPTkZJR19WU09DS0VUUykgKz0g
-dnNvY2subwo+ICBvYmotJChDT05GSUdfVk1XQVJFX1ZNQ0lfVlNPQ0tFVFMpICs9IHZtd192c29j
-a192bWNpX3RyYW5zcG9ydC5vCj4gK29iai0kKENPTkZJR19WSVJUSU9fVlNPQ0tFVFMpICs9IHZp
-cnRpb190cmFuc3BvcnQubwo+ICtvYmotJChDT05GSUdfVklSVElPX1ZTT0NLRVRTX0NPTU1PTikg
-Kz0gdmlydGlvX3RyYW5zcG9ydF9jb21tb24ubwo+Cj4gIHZzb2NrLXkgKz0gYWZfdnNvY2subyB2
-c29ja19hZGRyLm8KPgo+IC0tCj4gMi41LjAKCgotLQpBbGV4IEJlbm7DqWUKX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
-ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
-bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+
+
+On 18/06/2014 06:04, Ming Lei wrote:
+> For virtio-blk, I don't think it is always better to take more queues, and
+> we need to leverage below things in host side:
+> 
+> - host storage top performance, generally it reaches that with more
+> than 1 jobs with libaio(suppose it is N, so basically we can use N
+> iothread per device in qemu to try to get top performance)
+> 
+> - iothreads' loading(if iothreads are at full loading, increasing
+> queues doesn't help at all)
+> 
+> In my test, I only use the current per-dev iothread(x-dataplane)
+> in qemu to handle 2 vqs' notification and precess all I/O from
+> the 2 vqs, and looks it can improve IOPS by ~30%.
+> 
+> For virtio-scsi, the current usage doesn't make full use of blk-mq's
+> advantage too because only one vq is active at the same time, so I
+> guess the multi vqs' benefit won't be very much and I'd like to post
+> patches to support that first, then provide test data with
+> more queues(8, 16).
+
+Hi Ming Lei,
+
+would you like to repost these patches now that MQ support is in the kernel?
+
+Also, I changed my mind about moving linux-aio to AioContext.  I now
+think it's a good idea, because it limits the number of io_getevents
+syscalls. O:-)  So I would be happy to review your patches for that as well.
+
+Paolo
