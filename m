@@ -1,13 +1,15 @@
-From: =?UTF-8?Q?Christian_K=c3=b6nig?= <deathsimple@vodafone.de>
-Subject: Re: [PATCH] ttm/drm: constify ttm_backend_func structures
-Date: Fri, 11 Dec 2015 14:59:57 +0100
-Message-ID: <566AD6DD.2000805__6155.37127382613$1450110030$gmane$org@vodafone.de>
-References: <1449841067-3718-1-git-send-email-Julia.Lawall@lip6.fr>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [Xen-devel] [PATCH RFC 0/3] Xen on Virtio
+Date: Mon, 14 Dec 2015 10:27:52 -0800
+Message-ID: <CALCETrVEfrXNJE1Wq3piF7KPExk+4ByBP+rHHq2jWhCAURjcyA__12953.6868575544$1450117716$gmane$org@mail.gmail.com>
+References: <alpine.DEB.2.02.1512071555590.24652@kaball.uk.xensource.com>
+	<566ECB65.3060509@citrix.com>
+	<20151214161037-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1449841067-3718-1-git-send-email-Julia.Lawall@lip6.fr>
+In-Reply-To: <20151214161037-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,147 +19,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Julia Lawall <Julia.Lawall@lip6.fr>
-Cc: Alex Deucher <alexander.deucher@amd.com>, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Vrabel <david.vrabel@citrix.com>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMTEuMTIuMjAxNSAxNDozNywgSnVsaWEgTGF3YWxsIHdyb3RlOgo+IFRoZSB0dG1fYmFja2Vu
-ZF9mdW5jIHN0cnVjdHVyZXMgYXJlIG5ldmVyIG1vZGlmaWVkLCBzbyBkZWNsYXJlIHRoZW0gYXMK
-PiBjb25zdC4KPgo+IERvbmUgd2l0aCB0aGUgaGVscCBvZiBDb2NjaW5lbGxlLgo+Cj4gU2lnbmVk
-LW9mZi1ieTogSnVsaWEgTGF3YWxsIDxKdWxpYS5MYXdhbGxAbGlwNi5mcj4KClJldmlld2VkLWJ5
-OiBDaHJpc3RpYW4gS8O2bmlnIDxjaHJpc3RpYW4ua29lbmlnQGFtZC5jb20+Cgo+Cj4gLS0tCj4g
-ICBkcml2ZXJzL2dwdS9kcm0vYW1kL2FtZGdwdS9hbWRncHVfdHRtLmMgfCAgICAyICstCj4gICBk
-cml2ZXJzL2dwdS9kcm0vYXN0L2FzdF90dG0uYyAgICAgICAgICAgfCAgICAyICstCj4gICBkcml2
-ZXJzL2dwdS9kcm0vYm9jaHMvYm9jaHNfbW0uYyAgICAgICAgfCAgICAyICstCj4gICBkcml2ZXJz
-L2dwdS9kcm0vY2lycnVzL2NpcnJ1c190dG0uYyAgICAgfCAgICAyICstCj4gICBkcml2ZXJzL2dw
-dS9kcm0vbWdhZzIwMC9tZ2FnMjAwX3R0bS5jICAgfCAgICAyICstCj4gICBkcml2ZXJzL2dwdS9k
-cm0vbm91dmVhdS9ub3V2ZWF1X3NnZG1hLmMgfCAgICA0ICsrLS0KPiAgIGRyaXZlcnMvZ3B1L2Ry
-bS9xeGwvcXhsX3R0bS5jICAgICAgICAgICB8ICAgIDIgKy0KPiAgIGRyaXZlcnMvZ3B1L2RybS9y
-YWRlb24vcmFkZW9uX3R0bS5jICAgICB8ICAgIDIgKy0KPiAgIGRyaXZlcnMvZ3B1L2RybS90dG0v
-dHRtX2FncF9iYWNrZW5kLmMgICB8ICAgIDIgKy0KPiAgIGRyaXZlcnMvZ3B1L2RybS92aXJ0aW8v
-dmlydGdwdV90dG0uYyAgICB8ICAgIDIgKy0KPiAgIGRyaXZlcnMvZ3B1L2RybS92bXdnZngvdm13
-Z2Z4X2J1ZmZlci5jICB8ICAgIDIgKy0KPiAgIGluY2x1ZGUvZHJtL3R0bS90dG1fYm9fZHJpdmVy
-LmggICAgICAgICB8ICAgIDIgKy0KPiAgIDEyIGZpbGVzIGNoYW5nZWQsIDEzIGluc2VydGlvbnMo
-KyksIDEzIGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0
-aW8vdmlydGdwdV90dG0uYyBiL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV90dG0uYwo+
-IGluZGV4IDlmZDkyNGMuLmEzMjM0MjIgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL3Zp
-cnRpby92aXJ0Z3B1X3R0bS5jCj4gKysrIGIvZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1
-X3R0bS5jCj4gQEAgLTMxOSw3ICszMTksNyBAQCBzdGF0aWMgdm9pZCB2aXJ0aW9fZ3B1X3R0bV9i
-YWNrZW5kX2Rlc3Ryb3koc3RydWN0IHR0bV90dCAqdHRtKQo+ICAgCWtmcmVlKGd0dCk7Cj4gICB9
-Cj4gICAKPiAtc3RhdGljIHN0cnVjdCB0dG1fYmFja2VuZF9mdW5jIHZpcnRpb19ncHVfYmFja2Vu
-ZF9mdW5jID0gewo+ICtzdGF0aWMgY29uc3Qgc3RydWN0IHR0bV9iYWNrZW5kX2Z1bmMgdmlydGlv
-X2dwdV9iYWNrZW5kX2Z1bmMgPSB7Cj4gICAJLmJpbmQgPSAmdmlydGlvX2dwdV90dG1fYmFja2Vu
-ZF9iaW5kLAo+ICAgCS51bmJpbmQgPSAmdmlydGlvX2dwdV90dG1fYmFja2VuZF91bmJpbmQsCj4g
-ICAJLmRlc3Ryb3kgPSAmdmlydGlvX2dwdV90dG1fYmFja2VuZF9kZXN0cm95LAo+IGRpZmYgLS1n
-aXQgYS9kcml2ZXJzL2dwdS9kcm0vcmFkZW9uL3JhZGVvbl90dG0uYyBiL2RyaXZlcnMvZ3B1L2Ry
-bS9yYWRlb24vcmFkZW9uX3R0bS5jCj4gaW5kZXggZTM0MzA3NC4uOWZhNzU4YyAxMDA2NDQKPiAt
-LS0gYS9kcml2ZXJzL2dwdS9kcm0vcmFkZW9uL3JhZGVvbl90dG0uYwo+ICsrKyBiL2RyaXZlcnMv
-Z3B1L2RybS9yYWRlb24vcmFkZW9uX3R0bS5jCj4gQEAgLTY2Niw3ICs2NjYsNyBAQCBzdGF0aWMg
-dm9pZCByYWRlb25fdHRtX2JhY2tlbmRfZGVzdHJveShzdHJ1Y3QgdHRtX3R0ICp0dG0pCj4gICAJ
-a2ZyZWUoZ3R0KTsKPiAgIH0KPiAgIAo+IC1zdGF0aWMgc3RydWN0IHR0bV9iYWNrZW5kX2Z1bmMg
-cmFkZW9uX2JhY2tlbmRfZnVuYyA9IHsKPiArc3RhdGljIGNvbnN0IHN0cnVjdCB0dG1fYmFja2Vu
-ZF9mdW5jIHJhZGVvbl9iYWNrZW5kX2Z1bmMgPSB7Cj4gICAJLmJpbmQgPSAmcmFkZW9uX3R0bV9i
-YWNrZW5kX2JpbmQsCj4gICAJLnVuYmluZCA9ICZyYWRlb25fdHRtX2JhY2tlbmRfdW5iaW5kLAo+
-ICAgCS5kZXN0cm95ID0gJnJhZGVvbl90dG1fYmFja2VuZF9kZXN0cm95LAo+IGRpZmYgLS1naXQg
-YS9kcml2ZXJzL2dwdS9kcm0vYW1kL2FtZGdwdS9hbWRncHVfdHRtLmMgYi9kcml2ZXJzL2dwdS9k
-cm0vYW1kL2FtZGdwdS9hbWRncHVfdHRtLmMKPiBpbmRleCBkNGJhYzVmLi5iZWZhOWMyIDEwMDY0
-NAo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9hbWQvYW1kZ3B1L2FtZGdwdV90dG0uYwo+ICsrKyBi
-L2RyaXZlcnMvZ3B1L2RybS9hbWQvYW1kZ3B1L2FtZGdwdV90dG0uYwo+IEBAIC02MzQsNyArNjM0
-LDcgQEAgc3RhdGljIHZvaWQgYW1kZ3B1X3R0bV9iYWNrZW5kX2Rlc3Ryb3koc3RydWN0IHR0bV90
-dCAqdHRtKQo+ICAgCWtmcmVlKGd0dCk7Cj4gICB9Cj4gICAKPiAtc3RhdGljIHN0cnVjdCB0dG1f
-YmFja2VuZF9mdW5jIGFtZGdwdV9iYWNrZW5kX2Z1bmMgPSB7Cj4gK3N0YXRpYyBjb25zdCBzdHJ1
-Y3QgdHRtX2JhY2tlbmRfZnVuYyBhbWRncHVfYmFja2VuZF9mdW5jID0gewo+ICAgCS5iaW5kID0g
-JmFtZGdwdV90dG1fYmFja2VuZF9iaW5kLAo+ICAgCS51bmJpbmQgPSAmYW1kZ3B1X3R0bV9iYWNr
-ZW5kX3VuYmluZCwKPiAgIAkuZGVzdHJveSA9ICZhbWRncHVfdHRtX2JhY2tlbmRfZGVzdHJveSwK
-PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2FzdC9hc3RfdHRtLmMgYi9kcml2ZXJzL2dw
-dS9kcm0vYXN0L2FzdF90dG0uYwo+IGluZGV4IDA4ZjgyZWEuLjU4NDA3ODUgMTAwNjQ0Cj4gLS0t
-IGEvZHJpdmVycy9ncHUvZHJtL2FzdC9hc3RfdHRtLmMKPiArKysgYi9kcml2ZXJzL2dwdS9kcm0v
-YXN0L2FzdF90dG0uYwo+IEBAIC0yMDMsNyArMjAzLDcgQEAgc3RhdGljIHZvaWQgYXN0X3R0bV9i
-YWNrZW5kX2Rlc3Ryb3koc3RydWN0IHR0bV90dCAqdHQpCj4gICAJa2ZyZWUodHQpOwo+ICAgfQo+
-ICAgCj4gLXN0YXRpYyBzdHJ1Y3QgdHRtX2JhY2tlbmRfZnVuYyBhc3RfdHRfYmFja2VuZF9mdW5j
-ID0gewo+ICtzdGF0aWMgY29uc3Qgc3RydWN0IHR0bV9iYWNrZW5kX2Z1bmMgYXN0X3R0X2JhY2tl
-bmRfZnVuYyA9IHsKPiAgIAkuZGVzdHJveSA9ICZhc3RfdHRtX2JhY2tlbmRfZGVzdHJveSwKPiAg
-IH07Cj4gICAKPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2JvY2hzL2JvY2hzX21tLmMg
-Yi9kcml2ZXJzL2dwdS9kcm0vYm9jaHMvYm9jaHNfbW0uYwo+IGluZGV4IGQ4MTJhZDAuLmI1Yjc4
-MmQgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL2JvY2hzL2JvY2hzX21tLmMKPiArKysg
-Yi9kcml2ZXJzL2dwdS9kcm0vYm9jaHMvYm9jaHNfbW0uYwo+IEBAIC0xODAsNyArMTgwLDcgQEAg
-c3RhdGljIHZvaWQgYm9jaHNfdHRtX2JhY2tlbmRfZGVzdHJveShzdHJ1Y3QgdHRtX3R0ICp0dCkK
-PiAgIAlrZnJlZSh0dCk7Cj4gICB9Cj4gICAKPiAtc3RhdGljIHN0cnVjdCB0dG1fYmFja2VuZF9m
-dW5jIGJvY2hzX3R0X2JhY2tlbmRfZnVuYyA9IHsKPiArc3RhdGljIGNvbnN0IHN0cnVjdCB0dG1f
-YmFja2VuZF9mdW5jIGJvY2hzX3R0X2JhY2tlbmRfZnVuYyA9IHsKPiAgIAkuZGVzdHJveSA9ICZi
-b2Noc190dG1fYmFja2VuZF9kZXN0cm95LAo+ICAgfTsKPiAgIAo+IGRpZmYgLS1naXQgYS9kcml2
-ZXJzL2dwdS9kcm0vY2lycnVzL2NpcnJ1c190dG0uYyBiL2RyaXZlcnMvZ3B1L2RybS9jaXJydXMv
-Y2lycnVzX3R0bS5jCj4gaW5kZXggZGZmZmQ1Mi4uZGE4ODU0MSAxMDA2NDQKPiAtLS0gYS9kcml2
-ZXJzL2dwdS9kcm0vY2lycnVzL2NpcnJ1c190dG0uYwo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9j
-aXJydXMvY2lycnVzX3R0bS5jCj4gQEAgLTIwMyw3ICsyMDMsNyBAQCBzdGF0aWMgdm9pZCBjaXJy
-dXNfdHRtX2JhY2tlbmRfZGVzdHJveShzdHJ1Y3QgdHRtX3R0ICp0dCkKPiAgIAlrZnJlZSh0dCk7
-Cj4gICB9Cj4gICAKPiAtc3RhdGljIHN0cnVjdCB0dG1fYmFja2VuZF9mdW5jIGNpcnJ1c190dF9i
-YWNrZW5kX2Z1bmMgPSB7Cj4gK3N0YXRpYyBjb25zdCBzdHJ1Y3QgdHRtX2JhY2tlbmRfZnVuYyBj
-aXJydXNfdHRfYmFja2VuZF9mdW5jID0gewo+ICAgCS5kZXN0cm95ID0gJmNpcnJ1c190dG1fYmFj
-a2VuZF9kZXN0cm95LAo+ICAgfTsKPiAgIAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0v
-bWdhZzIwMC9tZ2FnMjAwX3R0bS5jIGIvZHJpdmVycy9ncHUvZHJtL21nYWcyMDAvbWdhZzIwMF90
-dG0uYwo+IGluZGV4IDA1MTA4YjUuLmUzNjg1NjIgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9ncHUv
-ZHJtL21nYWcyMDAvbWdhZzIwMF90dG0uYwo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9tZ2FnMjAw
-L21nYWcyMDBfdHRtLmMKPiBAQCAtMjAzLDcgKzIwMyw3IEBAIHN0YXRpYyB2b2lkIG1nYWcyMDBf
-dHRtX2JhY2tlbmRfZGVzdHJveShzdHJ1Y3QgdHRtX3R0ICp0dCkKPiAgIAlrZnJlZSh0dCk7Cj4g
-ICB9Cj4gICAKPiAtc3RhdGljIHN0cnVjdCB0dG1fYmFja2VuZF9mdW5jIG1nYWcyMDBfdHRfYmFj
-a2VuZF9mdW5jID0gewo+ICtzdGF0aWMgY29uc3Qgc3RydWN0IHR0bV9iYWNrZW5kX2Z1bmMgbWdh
-ZzIwMF90dF9iYWNrZW5kX2Z1bmMgPSB7Cj4gICAJLmRlc3Ryb3kgPSAmbWdhZzIwMF90dG1fYmFj
-a2VuZF9kZXN0cm95LAo+ICAgfTsKPiAgIAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0v
-bm91dmVhdS9ub3V2ZWF1X3NnZG1hLmMgYi9kcml2ZXJzL2dwdS9kcm0vbm91dmVhdS9ub3V2ZWF1
-X3NnZG1hLmMKPiBpbmRleCA4YzMwNTNhLi4zYjhmNTU2IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMv
-Z3B1L2RybS9ub3V2ZWF1L25vdXZlYXVfc2dkbWEuYwo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9u
-b3V2ZWF1L25vdXZlYXVfc2dkbWEuYwo+IEBAIC01MSw3ICs1MSw3IEBAIG52MDRfc2dkbWFfdW5i
-aW5kKHN0cnVjdCB0dG1fdHQgKnR0bSkKPiAgIAlyZXR1cm4gMDsKPiAgIH0KPiAgIAo+IC1zdGF0
-aWMgc3RydWN0IHR0bV9iYWNrZW5kX2Z1bmMgbnYwNF9zZ2RtYV9iYWNrZW5kID0gewo+ICtzdGF0
-aWMgY29uc3Qgc3RydWN0IHR0bV9iYWNrZW5kX2Z1bmMgbnYwNF9zZ2RtYV9iYWNrZW5kID0gewo+
-ICAgCS5iaW5kCQkJPSBudjA0X3NnZG1hX2JpbmQsCj4gICAJLnVuYmluZAkJCT0gbnYwNF9zZ2Rt
-YV91bmJpbmQsCj4gICAJLmRlc3Ryb3kJCT0gbm91dmVhdV9zZ2RtYV9kZXN0cm95Cj4gQEAgLTgy
-LDcgKzgyLDcgQEAgbnY1MF9zZ2RtYV91bmJpbmQoc3RydWN0IHR0bV90dCAqdHRtKQo+ICAgCXJl
-dHVybiAwOwo+ICAgfQo+ICAgCj4gLXN0YXRpYyBzdHJ1Y3QgdHRtX2JhY2tlbmRfZnVuYyBudjUw
-X3NnZG1hX2JhY2tlbmQgPSB7Cj4gK3N0YXRpYyBjb25zdCBzdHJ1Y3QgdHRtX2JhY2tlbmRfZnVu
-YyBudjUwX3NnZG1hX2JhY2tlbmQgPSB7Cj4gICAJLmJpbmQJCQk9IG52NTBfc2dkbWFfYmluZCwK
-PiAgIAkudW5iaW5kCQkJPSBudjUwX3NnZG1hX3VuYmluZCwKPiAgIAkuZGVzdHJveQkJPSBub3V2
-ZWF1X3NnZG1hX2Rlc3Ryb3kKPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL3F4bC9xeGxf
-dHRtLmMgYi9kcml2ZXJzL2dwdS9kcm0vcXhsL3F4bF90dG0uYwo+IGluZGV4IDBjYmM0YzkuLjkz
-ZGM0NWQgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL3F4bC9xeGxfdHRtLmMKPiArKysg
-Yi9kcml2ZXJzL2dwdS9kcm0vcXhsL3F4bF90dG0uYwo+IEBAIC0yODgsNyArMjg4LDcgQEAgc3Rh
-dGljIHZvaWQgcXhsX3R0bV9iYWNrZW5kX2Rlc3Ryb3koc3RydWN0IHR0bV90dCAqdHRtKQo+ICAg
-CWtmcmVlKGd0dCk7Cj4gICB9Cj4gICAKPiAtc3RhdGljIHN0cnVjdCB0dG1fYmFja2VuZF9mdW5j
-IHF4bF9iYWNrZW5kX2Z1bmMgPSB7Cj4gK3N0YXRpYyBjb25zdCBzdHJ1Y3QgdHRtX2JhY2tlbmRf
-ZnVuYyBxeGxfYmFja2VuZF9mdW5jID0gewo+ICAgCS5iaW5kID0gJnF4bF90dG1fYmFja2VuZF9i
-aW5kLAo+ICAgCS51bmJpbmQgPSAmcXhsX3R0bV9iYWNrZW5kX3VuYmluZCwKPiAgIAkuZGVzdHJv
-eSA9ICZxeGxfdHRtX2JhY2tlbmRfZGVzdHJveSwKPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUv
-ZHJtL3R0bS90dG1fYWdwX2JhY2tlbmQuYyBiL2RyaXZlcnMvZ3B1L2RybS90dG0vdHRtX2FncF9i
-YWNrZW5kLmMKPiBpbmRleCA3NjRiZTM2Li41ZmRhYmE1IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMv
-Z3B1L2RybS90dG0vdHRtX2FncF9iYWNrZW5kLmMKPiArKysgYi9kcml2ZXJzL2dwdS9kcm0vdHRt
-L3R0bV9hZ3BfYmFja2VuZC5jCj4gQEAgLTEwNCw3ICsxMDQsNyBAQCBzdGF0aWMgdm9pZCB0dG1f
-YWdwX2Rlc3Ryb3koc3RydWN0IHR0bV90dCAqdHRtKQo+ICAgCWtmcmVlKGFncF9iZSk7Cj4gICB9
-Cj4gICAKPiAtc3RhdGljIHN0cnVjdCB0dG1fYmFja2VuZF9mdW5jIHR0bV9hZ3BfZnVuYyA9IHsK
-PiArc3RhdGljIGNvbnN0IHN0cnVjdCB0dG1fYmFja2VuZF9mdW5jIHR0bV9hZ3BfZnVuYyA9IHsK
-PiAgIAkuYmluZCA9IHR0bV9hZ3BfYmluZCwKPiAgIAkudW5iaW5kID0gdHRtX2FncF91bmJpbmQs
-Cj4gICAJLmRlc3Ryb3kgPSB0dG1fYWdwX2Rlc3Ryb3ksCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMv
-Z3B1L2RybS92bXdnZngvdm13Z2Z4X2J1ZmZlci5jIGIvZHJpdmVycy9ncHUvZHJtL3Ztd2dmeC92
-bXdnZnhfYnVmZmVyLmMKPiBpbmRleCAzMzI5ZjYyLi5kNTk1NzJhIDEwMDY0NAo+IC0tLSBhL2Ry
-aXZlcnMvZ3B1L2RybS92bXdnZngvdm13Z2Z4X2J1ZmZlci5jCj4gKysrIGIvZHJpdmVycy9ncHUv
-ZHJtL3Ztd2dmeC92bXdnZnhfYnVmZmVyLmMKPiBAQCAtNjgzLDcgKzY4Myw3IEBAIHN0YXRpYyB2
-b2lkIHZtd190dG1fdW5wb3B1bGF0ZShzdHJ1Y3QgdHRtX3R0ICp0dG0pCj4gICAJCXR0bV9wb29s
-X3VucG9wdWxhdGUodHRtKTsKPiAgIH0KPiAgIAo+IC1zdGF0aWMgc3RydWN0IHR0bV9iYWNrZW5k
-X2Z1bmMgdm13X3R0bV9mdW5jID0gewo+ICtzdGF0aWMgY29uc3Qgc3RydWN0IHR0bV9iYWNrZW5k
-X2Z1bmMgdm13X3R0bV9mdW5jID0gewo+ICAgCS5iaW5kID0gdm13X3R0bV9iaW5kLAo+ICAgCS51
-bmJpbmQgPSB2bXdfdHRtX3VuYmluZCwKPiAgIAkuZGVzdHJveSA9IHZtd190dG1fZGVzdHJveSwK
-PiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9kcm0vdHRtL3R0bV9ib19kcml2ZXIuaCBiL2luY2x1ZGUv
-ZHJtL3R0bS90dG1fYm9fZHJpdmVyLmgKPiBpbmRleCA4MTMwNDJjLi5jNDNlZmE0IDEwMDY0NAo+
-IC0tLSBhL2luY2x1ZGUvZHJtL3R0bS90dG1fYm9fZHJpdmVyLmgKPiArKysgYi9pbmNsdWRlL2Ry
-bS90dG0vdHRtX2JvX2RyaXZlci5oCj4gQEAgLTExMyw3ICsxMTMsNyBAQCBlbnVtIHR0bV9jYWNo
-aW5nX3N0YXRlIHsKPiAgIAo+ICAgc3RydWN0IHR0bV90dCB7Cj4gICAJc3RydWN0IHR0bV9ib19k
-ZXZpY2UgKmJkZXY7Cj4gLQlzdHJ1Y3QgdHRtX2JhY2tlbmRfZnVuYyAqZnVuYzsKPiArCWNvbnN0
-IHN0cnVjdCB0dG1fYmFja2VuZF9mdW5jICpmdW5jOwo+ICAgCXN0cnVjdCBwYWdlICpkdW1teV9y
-ZWFkX3BhZ2U7Cj4gICAJc3RydWN0IHBhZ2UgKipwYWdlczsKPiAgIAl1aW50MzJfdCBwYWdlX2Zs
-YWdzOwo+Cj4gX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
-PiBkcmktZGV2ZWwgbWFpbGluZyBsaXN0Cj4gZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9y
-Zwo+IGh0dHA6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmktZGV2
-ZWwKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
-YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
-aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
-by92aXJ0dWFsaXphdGlvbg==
+On Mon, Dec 14, 2015 at 6:12 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Mon, Dec 14, 2015 at 02:00:05PM +0000, David Vrabel wrote:
+>> On 07/12/15 16:19, Stefano Stabellini wrote:
+>> > Hi all,
+>> >
+>> > this patch series introduces support for running Linux on top of Xen
+>> > inside a virtual machine with virtio devices (nested virt scenario).
+>> > The problem is that Linux virtio drivers use virt_to_phys to get the
+>> > guest pseudo-physical addresses to pass to the backend, which doesn't
+>> > work as expected on Xen.
+>> >
+>> > Switching the virtio drivers to the dma APIs (dma_alloc_coherent,
+>> > dma_map/unmap_single and dma_map/unmap_sg) would solve the problem, as
+>> > Xen support in Linux provides an implementation of the dma API which
+>> > takes care of the additional address conversions. However using the dma
+>> > API would increase the complexity of the non-Xen case too. We would also
+>> > need to keep track of the physical or virtual address in addition to the
+>> > dma address for each vring_desc to be able to free the memory in
+>> > detach_buf (see patch #3).
+>> >
+>> > Instead this series adds few obvious checks to perform address
+>> > translations in a couple of key places, without changing non-Xen code
+>> > paths. You are welcome to suggest improvements or alternative
+>> > implementations.
+>>
+>> Andy Lutomirski also looked at this.  Andy what happened to this work?
+>>
+>> David
+>
+> The approach there was to try and convert all virtio to use DMA
+> API unconditionally.
+> This is reasonable if there's a way for devices to request
+> 1:1 mappings individually.
+> As that is currently missing, that patchset can not be merged yet.
+>
+
+I still don't understand why *devices* need the ability to request
+anything in particular.  In current kernels, devices that don't have
+an iommu work (and there's no choice about 1:1 or otherwise) and
+devices that have an iommu fail spectacularly.  With the patches,
+devices that don't have an iommu continue to work as long as the DMA
+API and/or virtio correctly knows that there's no iommu.  Devices that
+do have an iommu work fine, albeit slower than would be ideal.  In my
+book, slower than would be ideal is strictly better than crashing.
+
+The real issue is *detecting* whether there's an iommu, and the string
+of bugs in that area (buggy QEMU for the Q35 thing and complete lack
+of a solution for PPC and SPARC is indeed a problem).
+
+I think that we could apply the series ending here:
+
+https://git.kernel.org/cgit/linux/kernel/git/luto/linux.git/commit/?h=virtio_dma&id=ad9d43052da44ce18363c02ea597dde01eeee11b
+
+and the only regression (performance or functionality) would be that
+the buggy Q35 iommu configuration would stop working until someone
+fixed it in QEMU.  That should be okay -- it's explicitly
+experimental.  (Xen works with that series applied.)   (Actually,
+there might be a slight performance regression on PPC due to extra
+unused mappings being created.  It would be straightforward to hack
+around that in one of several ways.)
+
+Am I missing something?
+
+--Andy
