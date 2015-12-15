@@ -1,10 +1,17 @@
-From: "Maria Lemos" <marialemos72@gmail.com>
-Subject: [CISTI'2016]: Doctoral Symposium
-Date: Tue, 15 Dec 2015 16:40:35 +0000
-Message-ID: <20151215164043.C2E02DB0@mail.linuxfoundation.org>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [Xen-devel] [PATCH RFC 0/3] Xen on Virtio
+Date: Tue, 15 Dec 2015 08:45:32 -0800
+Message-ID: <CALCETrX9g2Rsh5M+521Pv+OHO-HSUQLHTjGObU0y=qjrMdsgMQ__7284.51714753664$1450197979$gmane$org@mail.gmail.com>
+References: <alpine.DEB.2.02.1512071555590.24652@kaball.uk.xensource.com>
+	<566ECB65.3060509@citrix.com>
+	<20151214161037-mutt-send-email-mst@redhat.com>
+	<CALCETrVEfrXNJE1Wq3piF7KPExk+4ByBP+rHHq2jWhCAURjcyA@mail.gmail.com>
+	<alpine.DEB.2.02.1512151201190.17516@kaball.uk.xensource.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0016385549998677272=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <alpine.DEB.2.02.1512151201190.17516@kaball.uk.xensource.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -14,119 +21,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Vrabel <david.vrabel@citrix.com>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============0016385549998677272==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Tue, Dec 15, 2015 at 4:13 AM, Stefano Stabellini
+<stefano.stabellini@eu.citrix.com> wrote:
+> On Mon, 14 Dec 2015, Andy Lutomirski wrote:
+>> On Mon, Dec 14, 2015 at 6:12 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+>> > On Mon, Dec 14, 2015 at 02:00:05PM +0000, David Vrabel wrote:
+>> >> On 07/12/15 16:19, Stefano Stabellini wrote:
+>> >> > Hi all,
+>> >> >
+>> >> > this patch series introduces support for running Linux on top of Xen
+>> >> > inside a virtual machine with virtio devices (nested virt scenario).
+>> >> > The problem is that Linux virtio drivers use virt_to_phys to get the
+>> >> > guest pseudo-physical addresses to pass to the backend, which doesn't
+>> >> > work as expected on Xen.
+>> >> >
+>> >> > Switching the virtio drivers to the dma APIs (dma_alloc_coherent,
+>> >> > dma_map/unmap_single and dma_map/unmap_sg) would solve the problem, as
+>> >> > Xen support in Linux provides an implementation of the dma API which
+>> >> > takes care of the additional address conversions. However using the dma
+>> >> > API would increase the complexity of the non-Xen case too. We would also
+>> >> > need to keep track of the physical or virtual address in addition to the
+>> >> > dma address for each vring_desc to be able to free the memory in
+>> >> > detach_buf (see patch #3).
+>> >> >
+>> >> > Instead this series adds few obvious checks to perform address
+>> >> > translations in a couple of key places, without changing non-Xen code
+>> >> > paths. You are welcome to suggest improvements or alternative
+>> >> > implementations.
+>> >>
+>> >> Andy Lutomirski also looked at this.  Andy what happened to this work?
+>> >>
+>> >> David
+>> >
+>> > The approach there was to try and convert all virtio to use DMA
+>> > API unconditionally.
+>> > This is reasonable if there's a way for devices to request
+>> > 1:1 mappings individually.
+>> > As that is currently missing, that patchset can not be merged yet.
+>> >
+>>
+>> I still don't understand why *devices* need the ability to request
+>> anything in particular.  In current kernels, devices that don't have
+>> an iommu work (and there's no choice about 1:1 or otherwise) and
+>> devices that have an iommu fail spectacularly.  With the patches,
+>> devices that don't have an iommu continue to work as long as the DMA
+>> API and/or virtio correctly knows that there's no iommu.  Devices that
+>> do have an iommu work fine, albeit slower than would be ideal.  In my
+>> book, slower than would be ideal is strictly better than crashing.
+>>
+>> The real issue is *detecting* whether there's an iommu, and the string
+>> of bugs in that area (buggy QEMU for the Q35 thing and complete lack
+>> of a solution for PPC and SPARC is indeed a problem).
+>>
+>> I think that we could apply the series ending here:
+>>
+>> https://git.kernel.org/cgit/linux/kernel/git/luto/linux.git/commit/?h=virtio_dma&id=ad9d43052da44ce18363c02ea597dde01eeee11b
+>>
+>> and the only regression (performance or functionality) would be that
+>> the buggy Q35 iommu configuration would stop working until someone
+>> fixed it in QEMU.  That should be okay -- it's explicitly
+>> experimental.  (Xen works with that series applied.)   (Actually,
+>> there might be a slight performance regression on PPC due to extra
+>> unused mappings being created.  It would be straightforward to hack
+>> around that in one of several ways.)
+>>
+>> Am I missing something?
+>
+> Your changes look plausible and if they fix Xen on virtio I am happy
+> with them.  I didn't choose the DMA API approach because, although it
+> looks cleaner, I acknowledge that is a bit invasive.
+>
+> I suggest that the virtio maintainers consider one of the two approaches
+> for inclusion because they fix a real issue.
+>
+> If you would rather avoid the DMA API, then I would be happy to work
+> with you to evolve my current series in a direction of your liking.
+> Please advise on how to proceed.
 
+I would rather use the DMA API, but we need Michael's buy-in for that.
 
---------------------- Doctoral Symposium of CISTI'2016 ---------------=
-----------
-CISTI'2016 - 11th Iberian Conference on Information Systems and Techno=
-logies
-               15 - 18 june, 2016, Gran Canaria Island, Span
-        http://www.aisti.eu/cisti2016/index.php/en/doctoral-symposium
-----------------------------------------------------------------------=
-----------
+Michael, if I further modify the driver so that even the dma
+allocations don't happen if the in-driver quirk is set, and we set the
+quirk on sparc and ppc but clear it on x86 and presumably all the
+other architectures, would that be okay with you?
 
-
-The purpose of CISTI'2016=92s Doctoral Symposium is to provide graduat=
-e students a setting where they can, informally, expose and discuss th=
-eir work, collecting valuable expert opinions and sharing new ideas, m=
-ethods and applications. The Doctoral Symposium is an excellent opport=
-unity for PhD students to present and discuss their work in a Workshop=
- format. Each presentation will be evaluated by a panel composed by at=
- least three Information Systems and Technologies experts.
-
-
-CONTRIBUTIONS SUBMISSION
-
-The Doctoral Symposium is opened to PhD students whose research area i=
-ncludes the themes proposed for this Conference. Submissions must incl=
-ude an extended abstract (maximum 4 pages), following the Conference s=
-tyle guide. All selected contributions will be handed out along with t=
-he Conference Proceedings, in CD with an ISBN. These contributions wil=
-l be available in the IEEE Xplore Digital Library and will be sent for=
- indexing in ISI, Scopus, EI-Compendex, INSPEC and Google Scholar.
-
-Submissions must include the field, the PhD institution and the number=
- of months devoted to the development of the work. Additionally, they =
-should include in a clear and succinct manner:
-
-    =95    The problem approached and its significance or relevance
-    =95    The research objectives and related investigation topics
-    =95    A brief display of what is already known
-    =95    A proposed solution methodology for the problem
-    =95    Expected results
-
-
-IMPORTANT DATES
-
-    =95    Proposal submission deadline: 14th of February 2016
-    =95    Acceptance notification: 27th of March 2016
-    =95    Final submission deadline: 10th of April 2016
-    =95    Registration payment, to ensure the inclusion of the accept=
-ed contribution in the Conference Proceedings: 8th of April 2016
-
-
-ORGANIZING & SCIENTIFIC COMMITTEE
-
-Manuel P=E9rez Cota, University of Vigo (Presidente)
-A. Augusto Sousa, FEUP, University of Porto
-Adolfo Lozano Tello, University of Extremadura
-Alberto J. Bugar=EDn Diz, University of Santiago de Compostela
-Alma Mar=EDa G=F3mez Rodr=EDguez, University of Vigo
-=C1lvaro Rocha, University of Coimbra
-Ana Maria Correia, Nova IMS
-Ant=F3nio Lucas Soares, FEUP, University of Porto
-Arnaldo Martins, University of Aveiro
-Br=E1ulio Alturas, ISCTE-IUL
-Carlos Ferr=E1s Sexto, University of Santiago de Compostela
-David Fonseca, La Salle, University Ramon Llull
-Ernest Redondo, Polytechnic University of Catalonia
-Eug=E9nio Oliveira, FEUP, University of Porto
-Evelio Gonzalez, University of La Laguna
-Fernando Moreira, Portucalense University
-Gon=E7alo Paiva Dias, University of Aveiro
-Gonzalo Cuevas Agust=EDn, Technical University of Madrid
-Guilhermina Lobato Miranda, University of Lisbon
-Jo=E3o Costa, University of Coimbra
-Jose Antonio Calvo-Manzano Villal=F3n, Technical University of Madrid
-Jos=E9 Borbinha, IST, University of Lisbon
-Lu=EDs Paulo Reis, University of Minho
-Marco Painho, Nova IMS
-Mar=EDa Jos=E9 Lado Touri=F1o, University of Vigo
-M=E1rio Piattini, University of Castilla-La Mancha
-Miguel Ram=F3n Gonz=E1lez Castro, ENCE
-Paulo Rupino da Cunha, University of Coimbra
-Ramiro Gon=E7alves, University of Tr=E1s-os-Montes e Alto Douro
-Ricardo Machado, University of Minho
-Ruben Gonz=E1lez Crespo, International University de La Rioja
-Tom=E1s San Feliu, Technical University of Madrid
-
-
-Doctoral Symposium webpage: http://www.aisti.eu/cisti2016/index.php/en=
-/doctoral-symposium
-
-
-Regards,
-
-Maria Lemos
-Secretariat of AISTI
-http://www.aisti.eu/
-
-
-
---===============0016385549998677272==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0016385549998677272==--
+--Andy
