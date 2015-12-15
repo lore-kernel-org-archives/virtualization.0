@@ -1,14 +1,16 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH v3 4/4] VSOCK: Add Makefile and Kconfig
-Date: Tue, 15 Dec 2015 16:19:24 +0800
-Message-ID: <20151215081924.GD30291__47369.3399261267$1450167588$gmane$org@stefanha-x1.localdomain>
-References: <1449662633-26623-1-git-send-email-stefanha@redhat.com>
-	<1449662633-26623-5-git-send-email-stefanha@redhat.com>
-	<87fuz8q4xf.fsf@linaro.org>
+From: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+Subject: Re: [Xen-devel] [PATCH RFC 0/3] Xen on Virtio
+Date: Tue, 15 Dec 2015 12:13:58 +0000
+Message-ID: <alpine.DEB.2.02.1512151201190.17516@kaball.uk.xensource.com>
+References: <alpine.DEB.2.02.1512071555590.24652@kaball.uk.xensource.com>
+	<566ECB65.3060509@citrix.com>
+	<20151214161037-mutt-send-email-mst@redhat.com>
+	<CALCETrVEfrXNJE1Wq3piF7KPExk+4ByBP+rHHq2jWhCAURjcyA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4749804456606220465=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87fuz8q4xf.fsf@linaro.org>
+In-Reply-To: <CALCETrVEfrXNJE1Wq3piF7KPExk+4ByBP+rHHq2jWhCAURjcyA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,89 +20,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alex =?iso-8859-1?Q?Benn=E9e?= <alex.bennee@linaro.org>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Matt Benjamin <mbenjamin@redhat.com>, Asias He <asias@redhat.com>, Christoffer Dall <christoffer.dall@linaro.org>, matt.ma@linaro.org
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Vrabel <david.vrabel@citrix.com>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
---===============4749804456606220465==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EP0wieDxd4TSJjHq"
-Content-Disposition: inline
-
-
---EP0wieDxd4TSJjHq
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Dec 11, 2015 at 05:19:08PM +0000, Alex Benn=E9e wrote:
-> > +config VHOST_VSOCK
-> > +	tristate "vhost virtio-vsock driver"
-> > +	depends on VSOCKETS && EVENTFD
-> > +	select VIRTIO_VSOCKETS_COMMON
-> > +	select VHOST
-> > +	select VHOST_RING
-> > +	default n
-> > +	---help---
-> > +	Say M here to enable the vhost-vsock for virtio-vsock guests
->=20
-> I think checkpatch prefers a few more words for the feature but I'm
-> happy with it.
-
-I have expanded the description.
-
-> > diff --git a/net/vmw_vsock/Kconfig b/net/vmw_vsock/Kconfig
-> > index 14810ab..74e0bc8 100644
-> > --- a/net/vmw_vsock/Kconfig
-> > +++ b/net/vmw_vsock/Kconfig
-> > @@ -26,3 +26,21 @@ config VMWARE_VMCI_VSOCKETS
+On Mon, 14 Dec 2015, Andy Lutomirski wrote:
+> On Mon, Dec 14, 2015 at 6:12 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> > On Mon, Dec 14, 2015 at 02:00:05PM +0000, David Vrabel wrote:
+> >> On 07/12/15 16:19, Stefano Stabellini wrote:
+> >> > Hi all,
+> >> >
+> >> > this patch series introduces support for running Linux on top of Xen
+> >> > inside a virtual machine with virtio devices (nested virt scenario).
+> >> > The problem is that Linux virtio drivers use virt_to_phys to get the
+> >> > guest pseudo-physical addresses to pass to the backend, which doesn't
+> >> > work as expected on Xen.
+> >> >
+> >> > Switching the virtio drivers to the dma APIs (dma_alloc_coherent,
+> >> > dma_map/unmap_single and dma_map/unmap_sg) would solve the problem, as
+> >> > Xen support in Linux provides an implementation of the dma API which
+> >> > takes care of the additional address conversions. However using the dma
+> >> > API would increase the complexity of the non-Xen case too. We would also
+> >> > need to keep track of the physical or virtual address in addition to the
+> >> > dma address for each vring_desc to be able to free the memory in
+> >> > detach_buf (see patch #3).
+> >> >
+> >> > Instead this series adds few obvious checks to perform address
+> >> > translations in a couple of key places, without changing non-Xen code
+> >> > paths. You are welcome to suggest improvements or alternative
+> >> > implementations.
+> >>
+> >> Andy Lutomirski also looked at this.  Andy what happened to this work?
+> >>
+> >> David
 > >
-> >  	  To compile this driver as a module, choose M here: the module
-> >  	  will be called vmw_vsock_vmci_transport. If unsure, say N.
-> > +
-> > +config VIRTIO_VSOCKETS
-> > +	tristate "virtio transport for Virtual Sockets"
-> > +	depends on VSOCKETS && VIRTIO
-> > +	select VIRTIO_VSOCKETS_COMMON
-> > +	help
-> > +	  This module implements a virtio transport for Virtual Sockets.
-> > +
-> > +	  Enable this transport if your Virtual Machine runs on
-> >  	  Qemu/KVM.
->=20
-> Is this better worded as:
->=20
-> "Enable this transport if your Virtual Machine host supports vsockets
-> over virtio."
+> > The approach there was to try and convert all virtio to use DMA
+> > API unconditionally.
+> > This is reasonable if there's a way for devices to request
+> > 1:1 mappings individually.
+> > As that is currently missing, that patchset can not be merged yet.
+> >
+> 
+> I still don't understand why *devices* need the ability to request
+> anything in particular.  In current kernels, devices that don't have
+> an iommu work (and there's no choice about 1:1 or otherwise) and
+> devices that have an iommu fail spectacularly.  With the patches,
+> devices that don't have an iommu continue to work as long as the DMA
+> API and/or virtio correctly knows that there's no iommu.  Devices that
+> do have an iommu work fine, albeit slower than would be ideal.  In my
+> book, slower than would be ideal is strictly better than crashing.
+> 
+> The real issue is *detecting* whether there's an iommu, and the string
+> of bugs in that area (buggy QEMU for the Q35 thing and complete lack
+> of a solution for PPC and SPARC is indeed a problem).
+> 
+> I think that we could apply the series ending here:
+> 
+> https://git.kernel.org/cgit/linux/kernel/git/luto/linux.git/commit/?h=virtio_dma&id=ad9d43052da44ce18363c02ea597dde01eeee11b
+> 
+> and the only regression (performance or functionality) would be that
+> the buggy Q35 iommu configuration would stop working until someone
+> fixed it in QEMU.  That should be okay -- it's explicitly
+> experimental.  (Xen works with that series applied.)   (Actually,
+> there might be a slight performance regression on PPC due to extra
+> unused mappings being created.  It would be straightforward to hack
+> around that in one of several ways.)
+> 
+> Am I missing something?
 
-Good idea.  Will fix in the next revision.
+Your changes look plausible and if they fix Xen on virtio I am happy
+with them.  I didn't choose the DMA API approach because, although it
+looks cleaner, I acknowledge that is a bit invasive.
 
---EP0wieDxd4TSJjHq
-Content-Type: application/pgp-signature; name="signature.asc"
+I suggest that the virtio maintainers consider one of the two approaches
+for inclusion because they fix a real issue.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQEcBAEBAgAGBQJWb80MAAoJEJykq7OBq3PIAlYIAJfuwM68UPCFwpLS2ZcJQOPf
-v5TH/5uIvrnzRtWW1EPJA2eSxAGTKywGPPtUjrlqh3CVTfmRMqFxCSkwfvfTOwcj
-mwfemQHg9GPioDNyZb/ZMw+jZMAwhExB0KCdECXZoUoh8X0AknfBVyxoTYq4XduL
-Sg3L8r2kQUQqGVPENR/vC950M0ValNEc8VSa7wipnX6W9gTZdrWEVakyZdo8Iv88
-vV62QkIkXIQdzdu38KOLTBO1qEGOrON1m4t6YHquXNkJQrHmR7kz9kwIJQEWgEgK
-8w6x1F2nRGFBCz5xe56XMYJmBWOS1AMo0eI/6nmydKyFrCNERK7jrsexkebMTHU=
-=MfM0
------END PGP SIGNATURE-----
-
---EP0wieDxd4TSJjHq--
-
---===============4749804456606220465==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4749804456606220465==--
+If you would rather avoid the DMA API, then I would be happy to work
+with you to evolve my current series in a direction of your liking.
+Please advise on how to proceed.
