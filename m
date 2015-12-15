@@ -1,15 +1,22 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [Xen-devel] [PATCH RFC 0/3] Xen on Virtio
-Date: Mon, 14 Dec 2015 10:27:52 -0800
-Message-ID: <CALCETrVEfrXNJE1Wq3piF7KPExk+4ByBP+rHHq2jWhCAURjcyA__12953.6868575544$1450117716$gmane$org@mail.gmail.com>
-References: <alpine.DEB.2.02.1512071555590.24652@kaball.uk.xensource.com>
-	<566ECB65.3060509@citrix.com>
-	<20151214161037-mutt-send-email-mst@redhat.com>
+From: Ming Lei <ming.lei@canonical.com>
+Subject: Re: [RFC PATCH 2/2] block: virtio-blk: support multi virt queues per
+	virtio-blk device
+Date: Tue, 15 Dec 2015 09:26:44 +0800
+Message-ID: <CACVXFVMe-BB_S=doiZm0XYezzrYX_E4gc8_85N4BA=g5y8fAWw__34330.629281658$1450142825$gmane$org@mail.gmail.com>
+References: <1402680562-8328-1-git-send-email-ming.lei@canonical.com>
+	<1402680562-8328-3-git-send-email-ming.lei@canonical.com>
+	<CAJSP0QWaS--gPZ=ONFrXby1DQLw4R0RCro7bpHCdmucyjmqT_w@mail.gmail.com>
+	<CACVXFVO0SybUKArQbKkj2+hbk6q_gt3SBooNNmw1jErRR8d07A@mail.gmail.com>
+	<53A06475.7000308@redhat.com>
+	<CACVXFVO6GDu7Cp=s7kn_XBE2EFnuh+XQs4UQKTFaCLi4_9jcgg@mail.gmail.com>
+	<53A06E05.9060708@redhat.com>
+	<CACVXFVMkV5R5GUjM7Y-U54SA-ENZZ26dbbv4K2_OYPdmmiuUqg@mail.gmail.com>
+	<566E9A7E.3030203@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20151214161037-mutt-send-email-mst@redhat.com>
+In-Reply-To: <566E9A7E.3030203@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,71 +26,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Vrabel <david.vrabel@citrix.com>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, "Michael S. Tsirkin" <mst@redhat.com>, linux-api@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Dec 14, 2015 at 6:12 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Mon, Dec 14, 2015 at 02:00:05PM +0000, David Vrabel wrote:
->> On 07/12/15 16:19, Stefano Stabellini wrote:
->> > Hi all,
->> >
->> > this patch series introduces support for running Linux on top of Xen
->> > inside a virtual machine with virtio devices (nested virt scenario).
->> > The problem is that Linux virtio drivers use virt_to_phys to get the
->> > guest pseudo-physical addresses to pass to the backend, which doesn't
->> > work as expected on Xen.
->> >
->> > Switching the virtio drivers to the dma APIs (dma_alloc_coherent,
->> > dma_map/unmap_single and dma_map/unmap_sg) would solve the problem, as
->> > Xen support in Linux provides an implementation of the dma API which
->> > takes care of the additional address conversions. However using the dma
->> > API would increase the complexity of the non-Xen case too. We would also
->> > need to keep track of the physical or virtual address in addition to the
->> > dma address for each vring_desc to be able to free the memory in
->> > detach_buf (see patch #3).
->> >
->> > Instead this series adds few obvious checks to perform address
->> > translations in a couple of key places, without changing non-Xen code
->> > paths. You are welcome to suggest improvements or alternative
->> > implementations.
->>
->> Andy Lutomirski also looked at this.  Andy what happened to this work?
->>
->> David
+Hi Paolo,
+
+On Mon, Dec 14, 2015 at 6:31 PM, Paolo Bonzini <pbonzini@redhat.com> wrote:
 >
-> The approach there was to try and convert all virtio to use DMA
-> API unconditionally.
-> This is reasonable if there's a way for devices to request
-> 1:1 mappings individually.
-> As that is currently missing, that patchset can not be merged yet.
 >
+> On 18/06/2014 06:04, Ming Lei wrote:
+>> For virtio-blk, I don't think it is always better to take more queues, and
+>> we need to leverage below things in host side:
+>>
+>> - host storage top performance, generally it reaches that with more
+>> than 1 jobs with libaio(suppose it is N, so basically we can use N
+>> iothread per device in qemu to try to get top performance)
+>>
+>> - iothreads' loading(if iothreads are at full loading, increasing
+>> queues doesn't help at all)
+>>
+>> In my test, I only use the current per-dev iothread(x-dataplane)
+>> in qemu to handle 2 vqs' notification and precess all I/O from
+>> the 2 vqs, and looks it can improve IOPS by ~30%.
+>>
+>> For virtio-scsi, the current usage doesn't make full use of blk-mq's
+>> advantage too because only one vq is active at the same time, so I
+>> guess the multi vqs' benefit won't be very much and I'd like to post
+>> patches to support that first, then provide test data with
+>> more queues(8, 16).
+>
+> Hi Ming Lei,
+>
+> would you like to repost these patches now that MQ support is in the kernel?
+>
+> Also, I changed my mind about moving linux-aio to AioContext.  I now
+> think it's a good idea, because it limits the number of io_getevents
+> syscalls. O:-)  So I would be happy to review your patches for that as well.
 
-I still don't understand why *devices* need the ability to request
-anything in particular.  In current kernels, devices that don't have
-an iommu work (and there's no choice about 1:1 or otherwise) and
-devices that have an iommu fail spectacularly.  With the patches,
-devices that don't have an iommu continue to work as long as the DMA
-API and/or virtio correctly knows that there's no iommu.  Devices that
-do have an iommu work fine, albeit slower than would be ideal.  In my
-book, slower than would be ideal is strictly better than crashing.
+OK, I try to figure out a new version, and it might take a while since it is
+close to festival season, :-)
 
-The real issue is *detecting* whether there's an iommu, and the string
-of bugs in that area (buggy QEMU for the Q35 thing and complete lack
-of a solution for PPC and SPARC is indeed a problem).
-
-I think that we could apply the series ending here:
-
-https://git.kernel.org/cgit/linux/kernel/git/luto/linux.git/commit/?h=virtio_dma&id=ad9d43052da44ce18363c02ea597dde01eeee11b
-
-and the only regression (performance or functionality) would be that
-the buggy Q35 iommu configuration would stop working until someone
-fixed it in QEMU.  That should be okay -- it's explicitly
-experimental.  (Xen works with that series applied.)   (Actually,
-there might be a slight performance regression on PPC due to extra
-unused mappings being created.  It would be straightforward to hack
-around that in one of several ways.)
-
-Am I missing something?
-
---Andy
+Thanks,
