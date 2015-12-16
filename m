@@ -1,15 +1,15 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [Xen-devel] [PATCH v2 0/3] Fix and cleanup for 32-bit PV sysexit
-Date: Tue, 15 Dec 2015 13:27:05 -0800
-Message-ID: <CALCETrX3HdfJc89T_eONftYpAhuPyL_3aPz223CBkKD0s5c-PQ@mail.gmail.com>
-References: <1447970147-1733-1-git-send-email-boris.ostrovsky@oracle.com>
-	<CALCETrUeGoeB8vNgbRNkFXjH0A570=M+4L1sRsfh-7btym59nA@mail.gmail.com>
-	<56707ACE.9060809@citrix.com>
+From: Greg Kurz <gkurz@linux.vnet.ibm.com>
+Subject: Re: [PATCH] vhost: move is_le setup to the backend
+Date: Wed, 16 Dec 2015 14:52:48 +0100
+Message-ID: <20151216145248.50d0bbee@bahia.local>
+References: <20151030114235.28847.63465.stgit@bahia.huguette.org>
+	<20151112154610-mutt-send-email-mst@redhat.com>
+	<20151112152819.78eb1b4d@bahia.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <56707ACE.9060809@citrix.com>
+In-Reply-To: <20151112152819.78eb1b4d@bahia.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,53 +19,155 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Cooper <andrew.cooper3@citrix.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, David Vrabel <david.vrabel@citrix.com>, Andrew Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Borislav Petkov <bp@suse.de>, Thomas Gleixner <tglx@linutronix.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 15, 2015 at 12:40 PM, Andrew Cooper
-<andrew.cooper3@citrix.com> wrote:
-> On 19/11/15 22:07, Andy Lutomirski wrote:
->> On Thu, Nov 19, 2015 at 1:55 PM, Boris Ostrovsky
->> <boris.ostrovsky@oracle.com> wrote:
->>> The first patch fixes Xen PV regression introduced by 32-bit rewrite. Unlike the
->>> earlier version it uses ALTERNATIVE instruction and avoids using xen_sysexit
->>> (and sysret32 in compat mode) pv ops, as suggested by Andy.
->>>
->>> As result of this patch irq_enable_sysexit and usergs_sysret32 pv ops are not
->>> used anymore by anyone and so can be removed.
->> This whole series is:
->>
->> Acked-by: Andy Lutomirski <luto@kernel.org>
->>
->> Now I just have to sucker someone into getting rid of
->> PARAVIRT_ADJUST_EXCEPTION_FRAME (by using stub entries) and the
->> overcomplicated syscall entry stuff.  :)
->
-> Looking at this, it should be quite easy now.
->
-> ALTERNATIVE "", "pop %rcx; %pop %11", X86_FEATURE_XENPV
->
-> (Completely untested)
+On Thu, 12 Nov 2015 15:28:19 +0100
+Greg Kurz <gkurz@linux.vnet.ibm.com> wrote:
 
-Can't we do one better, though?  Generate a pile of stubs that do the
-pops and jump into the normal native asm path.  Admittedly, that's a
-lot more work, and I think that the ALTERNATIVE thing you're
-suggesting would be a nice improvement.
+> On Thu, 12 Nov 2015 15:46:30 +0200
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> 
+> > On Fri, Oct 30, 2015 at 12:42:35PM +0100, Greg Kurz wrote:
+> > > The vq->is_le field is used to fix endianness when accessing the vring via
+> > > the cpu_to_vhost16() and vhost16_to_cpu() helpers in the following cases:
+> > > 
+> > > 1) host is big endian and device is modern virtio
+> > > 
+> > > 2) host has cross-endian support and device is legacy virtio with a different
+> > >    endianness than the host
+> > > 
+> > > Both cases rely on the VHOST_SET_FEATURES ioctl, but 2) also needs the
+> > > VHOST_SET_VRING_ENDIAN ioctl to be called by userspace. Since vq->is_le
+> > > is only needed when the backend is active, it was decided to set it at
+> > > backend start.
+> > > 
+> > > This is currently done in vhost_init_used()->vhost_init_is_le() but it
+> > > obfuscates the core vhost code. This patch moves the is_le setup to a
+> > > dedicated function that is called from the backend code.
+> > > 
+> > > Note vhost_net is the only backend that can pass vq->private_data == NULL to
+> > > vhost_init_used(), hence the "if (sock)" branch.
+> > > 
+> > > No behaviour change.
+> > > 
+> > > Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
+> > 
+> > I plan to look at this next week, busy with QEMU 2.5 now.
+> > 
+> 
+> I don't have any deadline for this since this is only a cleanup tentative.
+> 
+> Thanks.
+> 
 
->
->> And whoever gets rid of
->> PARAVIRT_ADJUST_EXCEPTION_FRAME gets to wonder why it doesn't crash
->> and burn for NMIs on Xen, since I'm reasonably confident that it can't
->> possibly be correct.
->
-> The Xen PV ABI only has a single kernel stack pointer which may be
-> registered.  There is no equivalent of an IST, so if a second fault
-> occurs, it is delivered normally on the current stack.
->
-> By the looks of it, the other NMI handling is ambivalent to the fact
-> that it isn't really on an IST stack under Xen.
+... but ping anyway since it was a month ago :)
 
-I'll try to find some time to look at it.
+Cheers.
 
---Andy
+--
+Greg
+
+> > > ---
+> > >  drivers/vhost/net.c   |    6 ++++++
+> > >  drivers/vhost/scsi.c  |    3 +++
+> > >  drivers/vhost/test.c  |    2 ++
+> > >  drivers/vhost/vhost.c |   12 +++++++-----
+> > >  drivers/vhost/vhost.h |    1 +
+> > >  5 files changed, 19 insertions(+), 5 deletions(-)
+> > > 
+> > > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> > > index 9eda69e40678..d6319cb2664c 100644
+> > > --- a/drivers/vhost/net.c
+> > > +++ b/drivers/vhost/net.c
+> > > @@ -917,6 +917,12 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
+> > >  
+> > >  		vhost_net_disable_vq(n, vq);
+> > >  		vq->private_data = sock;
+> > > +
+> > > +		if (sock)
+> > > +			vhost_set_is_le(vq);
+> > > +		else
+> > > +			vq->is_le = virtio_legacy_is_little_endian();
+> > > +
+> > >  		r = vhost_init_used(vq);
+> > >  		if (r)
+> > >  			goto err_used;
+> > > diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+> > > index e25a23692822..e2644a301fa5 100644
+> > > --- a/drivers/vhost/scsi.c
+> > > +++ b/drivers/vhost/scsi.c
+> > > @@ -1276,6 +1276,9 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+> > >  			vq = &vs->vqs[i].vq;
+> > >  			mutex_lock(&vq->mutex);
+> > >  			vq->private_data = vs_tpg;
+> > > +
+> > > +			vhost_set_is_le(vq);
+> > > +
+> > >  			vhost_init_used(vq);
+> > >  			mutex_unlock(&vq->mutex);
+> > >  		}
+> > > diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
+> > > index f2882ac98726..b1c7df502211 100644
+> > > --- a/drivers/vhost/test.c
+> > > +++ b/drivers/vhost/test.c
+> > > @@ -196,6 +196,8 @@ static long vhost_test_run(struct vhost_test *n, int test)
+> > >  		oldpriv = vq->private_data;
+> > >  		vq->private_data = priv;
+> > >  
+> > > +		vhost_set_is_le(vq);
+> > > +
+> > >  		r = vhost_init_used(&n->vqs[index]);
+> > >  
+> > >  		mutex_unlock(&vq->mutex);
+> > > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > > index eec2f11809ff..6be863dcbd13 100644
+> > > --- a/drivers/vhost/vhost.c
+> > > +++ b/drivers/vhost/vhost.c
+> > > @@ -113,6 +113,12 @@ static void vhost_init_is_le(struct vhost_virtqueue *vq)
+> > >  }
+> > >  #endif /* CONFIG_VHOST_CROSS_ENDIAN_LEGACY */
+> > >  
+> > > +void vhost_set_is_le(struct vhost_virtqueue *vq)
+> > > +{
+> > > +	vhost_init_is_le(vq);
+> > > +}
+> > > +EXPORT_SYMBOL_GPL(vhost_set_is_le);
+> > > +
+> > >  static void vhost_poll_func(struct file *file, wait_queue_head_t *wqh,
+> > >  			    poll_table *pt)
+> > >  {
+> > > @@ -1156,12 +1162,8 @@ int vhost_init_used(struct vhost_virtqueue *vq)
+> > >  {
+> > >  	__virtio16 last_used_idx;
+> > >  	int r;
+> > > -	if (!vq->private_data) {
+> > > -		vq->is_le = virtio_legacy_is_little_endian();
+> > > +	if (!vq->private_data)
+> > >  		return 0;
+> > > -	}
+> > > -
+> > > -	vhost_init_is_le(vq);
+> > >  
+> > >  	r = vhost_update_used_flags(vq);
+> > >  	if (r)
+> > > diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+> > > index 4772862b71a7..8a62041959fe 100644
+> > > --- a/drivers/vhost/vhost.h
+> > > +++ b/drivers/vhost/vhost.h
+> > > @@ -162,6 +162,7 @@ bool vhost_enable_notify(struct vhost_dev *, struct vhost_virtqueue *);
+> > >  
+> > >  int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+> > >  		    unsigned int log_num, u64 len);
+> > > +void vhost_set_is_le(struct vhost_virtqueue *vq);
+> > >  
+> > >  #define vq_err(vq, fmt, ...) do {                                  \
+> > >  		pr_debug(pr_fmt(fmt), ##__VA_ARGS__);       \
+> > 
+> 
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+> 
