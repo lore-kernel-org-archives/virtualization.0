@@ -1,15 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio: use smp_load_acquire/smp_store_release
-Date: Thu, 17 Dec 2015 16:47:32 +0200
-Message-ID: <20151217164428-mutt-send-email-mst@redhat.com>
-References: <1450347930-16275-1-git-send-email-mst@redhat.com>
-	<20151217105827.GB6375@twins.programming.kicks-ass.net>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH] virtio_ring: use smp_store_mb
+Date: Thu, 17 Dec 2015 16:09:17 +0100
+Message-ID: <20151217150917.GP6373__17658.8839306079$1450364995$gmane$org@twins.programming.kicks-ass.net>
+References: <1450347932-16325-1-git-send-email-mst@redhat.com>
+	<20151217112222.GC6375@twins.programming.kicks-ass.net>
+	<20151217151705-mutt-send-email-mst@redhat.com>
+	<20151217140212.GB6344@twins.programming.kicks-ass.net>
+	<20151217163412-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20151217105827.GB6375@twins.programming.kicks-ass.net>
+In-Reply-To: <20151217163412-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,49 +22,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Will Deacon <will.deacon@arm.com>, qemu-devel@nongnu.org, Alexander Duyck <alexander.duyck@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 17, 2015 at 11:58:27AM +0100, Peter Zijlstra wrote:
-> On Thu, Dec 17, 2015 at 12:29:03PM +0200, Michael S. Tsirkin wrote:
-> > +static inline __virtio16 virtio_load_acquire(bool weak_barriers, __virtio16 *p)
-> > +{
-> > +	if (!weak_barriers) {
-> > +		rmb();
-> > +		return READ_ONCE(*p);
-> > +	}
-> > +#ifdef CONFIG_SMP
-> > +	return smp_load_acquire(p);
-> > +#else
-> > +	dma_rmb();
-> > +	return READ_ONCE(*p);
-> > +#endif
-> > +}
+On Thu, Dec 17, 2015 at 04:34:57PM +0200, Michael S. Tsirkin wrote:
+> On Thu, Dec 17, 2015 at 03:02:12PM +0100, Peter Zijlstra wrote:
+
+> > > 	commit 9e1a27ea42691429e31f158cce6fc61bc79bb2e9
+> > > 	Author: Alexander Duyck <alexander.h.duyck@redhat.com>
+> > > 	Date:   Mon Apr 13 21:03:49 2015 +0930
+> > > 
+> > > 	    virtio_ring: Update weak barriers to use dma_wmb/rmb
+> > 
+> > That commit doesn't make any sense. dma_*mb() explicitly does _NOT_
+> > cover the smp_*mb() part.
+> > 
+> > Again, look at the ARM definitions, the smp_*mb() primitives use the
+> > inner coherence stuff, while the dma_*mb() primitives use the outer
+> > coherent stuff.
 > 
-> This too is wrong. Look for example at arm.
+> Does outer coherent imply inner coherent?
 > 
-> dma_rmb() is dmb(osh), while the smp_mb() used by smp_load_acquire() is
-> dmb(ish). They order completely different types of memory accesses.
-> 
-> Also, load_acquire() is first load, then barrier, and an ACQUIRE barrier
-> at that, not a READ barrier.
+> > the *mb() primitives cover both.
 
-Yes - it just so happens that READ barrier is enough for where I use it
-for virtio.
-
-I really just need virtio_load_acquire that fences reads,
-I don't care what happens to writes.
-
-Given the confusion, maybe virtio_load_acquire is a bad name though.
-Donnu what a good name would be.
-
-virtio_load_acquire_rmb and virtio_store_release_wmb?
-
-
-> So your #else branch should look something like:
-> 
-> 	var = READ_ONCE(*p);
-> 	dma_mb();
-> 	return var;
-> 
+I do not think so, but lets add Will, he dreams this stuff.
