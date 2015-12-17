@@ -1,14 +1,15 @@
-From: Peter Zijlstra <peterz@infradead.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] virtio_ring: use smp_store_mb
-Date: Thu, 17 Dec 2015 12:22:22 +0100
-Message-ID: <20151217112222.GC6375__10815.8308816657$1450351367$gmane$org@twins.programming.kicks-ass.net>
+Date: Thu, 17 Dec 2015 15:16:20 +0200
+Message-ID: <20151217131554-mutt-send-email-mst@redhat.com>
 References: <1450347932-16325-1-git-send-email-mst@redhat.com>
+	<20151217105238.GA6375@twins.programming.kicks-ass.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1450347932-16325-1-git-send-email-mst@redhat.com>
+In-Reply-To: <20151217105238.GA6375@twins.programming.kicks-ass.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,38 +19,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Peter Zijlstra <peterz@infradead.org>
 Cc: qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 17, 2015 at 12:32:53PM +0200, Michael S. Tsirkin wrote:
-> Seems to give a speedup on my box but I'm less sure about this one.  E.g. as
-> xchng faster than mfence on all/most intel CPUs? Anyone has an opinion?
+On Thu, Dec 17, 2015 at 11:52:38AM +0100, Peter Zijlstra wrote:
+> On Thu, Dec 17, 2015 at 12:32:53PM +0200, Michael S. Tsirkin wrote:
+> > +static inline void virtio_store_mb(bool weak_barriers,
+> > +				   __virtio16 *p, __virtio16 v)
+> > +{
+> > +#ifdef CONFIG_SMP
+> > +	if (weak_barriers)
+> > +		smp_store_mb(*p, v);
+> > +	else
+> > +#endif
+> > +	{
+> > +		WRITE_ONCE(*p, v);
+> > +		mb();
+> > +	}
+> > +}
+> 
+> This is a different barrier depending on SMP, that seems wrong.
 
-Would help if you Cc people who would actually know this :-)
+Of course it's wrong in the sense that it's
+suboptimal on UP. What we would really like is to
+have, on UP, exactly the same barrier as on SMP.
+This is because a UP guest can run on an SMP host.
 
-Yes, we've recently established that xchg is indeed faster than mfence
-on at least recent machines, see:
+But Linux doesn't provide this ability: if CONFIG_SMP is
+not defined is optimizes most barriers out to a
+compiler barrier.
 
-  lkml.kernel.org/r/CA+55aFynbkeuUGs9s-q+fLY6MeRBA6MjEyWWbbe7A5AaqsAknw@mail.gmail.com
+Consider for example x86: what we want is xchg (NOT
+mfence - see below for why) but if built without CONFIG_SMP
+smp_store_mb does not include this.
 
-> +static inline void virtio_store_mb(bool weak_barriers,
-> +				   __virtio16 *p, __virtio16 v)
-> +{
-> +#ifdef CONFIG_SMP
-> +	if (weak_barriers)
-> +		smp_store_mb(*p, v);
-> +	else
-> +#endif
-> +	{
-> +		WRITE_ONCE(*p, v);
-> +		mb();
-> +	}
-> +}
 
-Note that virtio_mb() is weirdly inconsistent with virtio_[rw]mb() in
-that they use dma_* ops for weak_barriers, while virtio_mb() uses
-smp_mb().
 
-As previously stated, smp_mb() does not cover the same memory domains as
-dma_mb() would.
+> smp_mb(), as (should be) used by smp_store_mb() does not provide a
+> barrier against IO. mb() otoh does.
+> 
+> Since this is virtIO I would expect you always want mb().
+
+No because it's VIRTio not real io :) It just switches to the hyprevisor
+mode - kind of like a function call really.
+The weak_barriers flag is cleared for when it's used
+with real devices with real IO.
+
+
+All this is explained in some detail at the top of
+include/linux/virtio.h
+
+
+
+-- 
+MST
