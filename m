@@ -1,11 +1,12 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: [PATCH] virtio: make find_vqs() checkpatch.pl-friendly
-Date: Thu, 17 Dec 2015 16:53:43 +0800
-Message-ID: <1450342423-18150-1-git-send-email-stefanha__588.863952043717$1450342450$gmane$org@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] virtio: use smp_load_acquire/smp_store_release
+Date: Thu, 17 Dec 2015 12:29:03 +0200
+Message-ID: <1450347930-16275-1-git-send-email-mst__23140.154980547$1450348166$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,220 +16,137 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: linux-kernel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-checkpatch.pl wants arrays of strings declared as follows:
+virtio ring entries have exactly the acquire/release
+semantics:
+	- reading used index acquires a ring entry from host
+	- updating the available index releases it to host
 
-  static const char * const names[] = { "vq-1", "vq-2", "vq-3" };
+Thus when using weak barriers and building for SMP (as most people
+do), smp_load_acquire and smp_store_release will do exactly
+the right thing to synchronize with the host.
 
-Currently the find_vqs() function takes a const char *names[] argument
-so passing checkpatch.pl's const char * const names[] results in a
-compiler error due to losing the second const.
+In fact, QEMU already uses __atomic_thread_fence(__ATOMIC_ACQUIRE) and
+__atomic_thread_fence(__ATOMIC_RELEASE);
+Documentation/circular-buffers.txt suggests smp_load_acquire and
+smp_store_release for head and tail updates.
 
-This patch adjusts the find_vqs() prototype and updates all virtio
-transports.  This makes it possible for virtio_balloon.c, virtio_input.c,
-virtgpu_kms.c, and virtio_rpmsg_bus.c to use the checkpatch.pl-friendly
-type.
+Since we have to worry about UP and strong barrier users,
+let's add APIs to wrap these, and use in virtio_ring.c
 
-Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+It is tempting to use this in vhost as well,
+this needs a bit more work to make acquire/release macros
+work on __user pointers.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
-Compile-tested drivers/virtio/ but not the more exotic source files in this
-patch.
+ include/linux/virtio_ring.h  | 30 ++++++++++++++++++++++++++++++
+ drivers/virtio/virtio_ring.c | 20 ++++++++++----------
+ 2 files changed, 40 insertions(+), 10 deletions(-)
 
- drivers/gpu/drm/virtio/virtgpu_kms.c   | 2 +-
- drivers/misc/mic/card/mic_virtio.c     | 2 +-
- drivers/remoteproc/remoteproc_virtio.c | 2 +-
- drivers/rpmsg/virtio_rpmsg_bus.c       | 2 +-
- drivers/s390/virtio/kvm_virtio.c       | 2 +-
- drivers/s390/virtio/virtio_ccw.c       | 2 +-
- drivers/virtio/virtio_balloon.c        | 2 +-
- drivers/virtio/virtio_input.c          | 2 +-
- drivers/virtio/virtio_mmio.c           | 2 +-
- drivers/virtio/virtio_pci_common.c     | 4 ++--
- drivers/virtio/virtio_pci_common.h     | 2 +-
- drivers/virtio/virtio_pci_modern.c     | 2 +-
- include/linux/virtio_config.h          | 2 +-
- 13 files changed, 14 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index 06496a1..4150873 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -130,7 +130,7 @@ int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
- 	static vq_callback_t *callbacks[] = {
- 		virtio_gpu_ctrl_ack, virtio_gpu_cursor_ack
- 	};
--	static const char *names[] = { "control", "cursor" };
-+	static const char * const names[] = { "control", "cursor" };
+diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+index 8e50888..0135c16 100644
+--- a/include/linux/virtio_ring.h
++++ b/include/linux/virtio_ring.h
+@@ -47,6 +47,36 @@ static inline void virtio_wmb(bool weak_barriers)
+ 		wmb();
+ }
  
- 	struct virtio_gpu_device *vgdev;
- 	/* this will expand later */
-diff --git a/drivers/misc/mic/card/mic_virtio.c b/drivers/misc/mic/card/mic_virtio.c
-index e486a0c..f6ed57d 100644
---- a/drivers/misc/mic/card/mic_virtio.c
-+++ b/drivers/misc/mic/card/mic_virtio.c
-@@ -311,7 +311,7 @@ unmap:
- static int mic_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 			struct virtqueue *vqs[],
- 			vq_callback_t *callbacks[],
--			const char *names[])
-+			const char * const names[])
- {
- 	struct mic_vdev *mvdev = to_micvdev(vdev);
- 	struct mic_device_ctrl __iomem *dc = mvdev->dc;
-diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
-index e1a1023..e44872f 100644
---- a/drivers/remoteproc/remoteproc_virtio.c
-+++ b/drivers/remoteproc/remoteproc_virtio.c
-@@ -147,7 +147,7 @@ static void rproc_virtio_del_vqs(struct virtio_device *vdev)
- static int rproc_virtio_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 		       struct virtqueue *vqs[],
- 		       vq_callback_t *callbacks[],
--		       const char *names[])
-+		       const char * const names[])
- {
- 	struct rproc *rproc = vdev_to_rproc(vdev);
- 	int i, ret;
-diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
-index 73354ee..1fcd27c 100644
---- a/drivers/rpmsg/virtio_rpmsg_bus.c
-+++ b/drivers/rpmsg/virtio_rpmsg_bus.c
-@@ -945,7 +945,7 @@ static void rpmsg_ns_cb(struct rpmsg_channel *rpdev, void *data, int len,
- static int rpmsg_probe(struct virtio_device *vdev)
- {
- 	vq_callback_t *vq_cbs[] = { rpmsg_recv_done, rpmsg_xmit_done };
--	const char *names[] = { "input", "output" };
-+	static const char * const names[] = { "input", "output" };
- 	struct virtqueue *vqs[2];
- 	struct virtproc_info *vrp;
- 	void *bufs_va;
-diff --git a/drivers/s390/virtio/kvm_virtio.c b/drivers/s390/virtio/kvm_virtio.c
-index 53fb975..1d060fd 100644
---- a/drivers/s390/virtio/kvm_virtio.c
-+++ b/drivers/s390/virtio/kvm_virtio.c
-@@ -255,7 +255,7 @@ static void kvm_del_vqs(struct virtio_device *vdev)
- static int kvm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 			struct virtqueue *vqs[],
- 			vq_callback_t *callbacks[],
--			const char *names[])
-+			const char * const names[])
- {
- 	struct kvm_device *kdev = to_kvmdev(vdev);
- 	int i;
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index b2a1a81..5a433ae 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -635,7 +635,7 @@ out:
- static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 			       struct virtqueue *vqs[],
- 			       vq_callback_t *callbacks[],
--			       const char *names[])
-+			       const char * const names[])
- {
- 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
- 	unsigned long *indicatorp = NULL;
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 7efc329..d0f0817c 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -388,7 +388,7 @@ static int init_vqs(struct virtio_balloon *vb)
- {
- 	struct virtqueue *vqs[3];
- 	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_request };
--	const char *names[] = { "inflate", "deflate", "stats" };
-+	static const char * const names[] = { "inflate", "deflate", "stats" };
- 	int err, nvqs;
++static inline __virtio16 virtio_load_acquire(bool weak_barriers, __virtio16 *p)
++{
++	if (!weak_barriers) {
++		rmb();
++		return READ_ONCE(*p);
++	}
++#ifdef CONFIG_SMP
++	return smp_load_acquire(p);
++#else
++	dma_rmb();
++	return READ_ONCE(*p);
++#endif
++}
++
++static inline void virtio_store_release(bool weak_barriers,
++					__virtio16 *p, __virtio16 v)
++{
++	if (!weak_barriers) {
++		wmb();
++		WRITE_ONCE(*p, v);
++		return;
++	}
++#ifdef CONFIG_SMP
++	smp_store_release(p, v);
++#else
++	dma_wmb();
++	WRITE_ONCE(*p, v);
++#endif
++}
++
+ struct virtio_device;
+ struct virtqueue;
  
- 	/*
-diff --git a/drivers/virtio/virtio_input.c b/drivers/virtio/virtio_input.c
-index c96944b..350a2a5 100644
---- a/drivers/virtio/virtio_input.c
-+++ b/drivers/virtio/virtio_input.c
-@@ -170,7 +170,7 @@ static int virtinput_init_vqs(struct virtio_input *vi)
- 	struct virtqueue *vqs[2];
- 	vq_callback_t *cbs[] = { virtinput_recv_events,
- 				 virtinput_recv_status };
--	static const char *names[] = { "events", "status" };
-+	static const char * const names[] = { "events", "status" };
- 	int err;
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index ee663c4..f822cab 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -244,11 +244,11 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+ 	avail = vq->avail_idx_shadow & (vq->vring.num - 1);
+ 	vq->vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
  
- 	err = vi->vdev->config->find_vqs(vi->vdev, 2, vqs, cbs, names);
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index f499d9d..745c6ee 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -482,7 +482,7 @@ error_available:
- static int vm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 		       struct virtqueue *vqs[],
- 		       vq_callback_t *callbacks[],
--		       const char *names[])
-+		       const char * const names[])
- {
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
- 	unsigned int irq = platform_get_irq(vm_dev->pdev, 0);
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 78f804a..36205c2 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -296,7 +296,7 @@ void vp_del_vqs(struct virtio_device *vdev)
- static int vp_try_to_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 			      struct virtqueue *vqs[],
- 			      vq_callback_t *callbacks[],
--			      const char *names[],
-+			      const char * const names[],
- 			      bool use_msix,
- 			      bool per_vq_vectors)
- {
-@@ -376,7 +376,7 @@ error_find:
- int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 		struct virtqueue *vqs[],
- 		vq_callback_t *callbacks[],
--		const char *names[])
-+		const char * const names[])
- {
- 	int err;
++	vq->avail_idx_shadow++;
+ 	/* Descriptors and available array need to be set before we expose the
+ 	 * new available array entries. */
+-	virtio_wmb(vq->weak_barriers);
+-	vq->avail_idx_shadow++;
+-	vq->vring.avail->idx = cpu_to_virtio16(_vq->vdev, vq->avail_idx_shadow);
++	virtio_store_release(vq->weak_barriers, &vq->vring.avail->idx,
++			     cpu_to_virtio16(_vq->vdev, vq->avail_idx_shadow));
+ 	vq->num_added++;
  
-diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-index b976d96..2cc2522 100644
---- a/drivers/virtio/virtio_pci_common.h
-+++ b/drivers/virtio/virtio_pci_common.h
-@@ -139,7 +139,7 @@ void vp_del_vqs(struct virtio_device *vdev);
- int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 		       struct virtqueue *vqs[],
- 		       vq_callback_t *callbacks[],
--		       const char *names[]);
-+		       const char * const names[]);
- const char *vp_bus_name(struct virtio_device *vdev);
+ 	pr_debug("Added buffer head %i to %p\n", head, vq);
+@@ -453,9 +453,10 @@ static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
+ 	vq->vq.num_free++;
+ }
  
- /* Setup the affinity for a virtqueue:
-diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index 8e5cf19..c0c11fa 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -418,7 +418,7 @@ err_new_queue:
- static int vp_modern_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 			      struct virtqueue *vqs[],
- 			      vq_callback_t *callbacks[],
--			      const char *names[])
-+			      const char * const names[])
+-static inline bool more_used(const struct vring_virtqueue *vq)
++static inline
++bool more_used(const struct vring_virtqueue *vq, __virtio16 used_idx)
  {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	struct virtqueue *vq;
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index e5ce8ab..6e6cb0c 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -70,7 +70,7 @@ struct virtio_config_ops {
- 	int (*find_vqs)(struct virtio_device *, unsigned nvqs,
- 			struct virtqueue *vqs[],
- 			vq_callback_t *callbacks[],
--			const char *names[]);
-+			const char * const names[]);
- 	void (*del_vqs)(struct virtio_device *);
- 	u64 (*get_features)(struct virtio_device *vdev);
- 	int (*finalize_features)(struct virtio_device *vdev);
+-	return vq->last_used_idx != virtio16_to_cpu(vq->vq.vdev, vq->vring.used->idx);
++	return vq->last_used_idx != virtio16_to_cpu(vq->vq.vdev, used_idx);
+ }
+ 
+ /**
+@@ -488,15 +489,14 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
+ 		return NULL;
+ 	}
+ 
+-	if (!more_used(vq)) {
++	/* Only get used array entries after they have been exposed by host. */
++	if (!more_used(vq, virtio_load_acquire(vq->weak_barriers,
++					       &vq->vring.used->idx))) {
+ 		pr_debug("No more buffers in queue\n");
+ 		END_USE(vq);
+ 		return NULL;
+ 	}
+ 
+-	/* Only get used array entries after they have been exposed by host. */
+-	virtio_rmb(vq->weak_barriers);
+-
+ 	last_used = (vq->last_used_idx & (vq->vring.num - 1));
+ 	i = virtio32_to_cpu(_vq->vdev, vq->vring.used->ring[last_used].id);
+ 	*len = virtio32_to_cpu(_vq->vdev, vq->vring.used->ring[last_used].len);
+@@ -704,7 +704,7 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 
+-	if (!more_used(vq)) {
++	if (!more_used(vq, vq->vring.used->idx)) {
+ 		pr_debug("virtqueue interrupt with no work for %p\n", vq);
+ 		return IRQ_NONE;
+ 	}
 -- 
-2.5.0
+MST
