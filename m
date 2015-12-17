@@ -1,12 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio_ring: use smp_store_mb
-Date: Thu, 17 Dec 2015 12:32:53 +0200
-Message-ID: <1450347932-16325-1-git-send-email-mst__46919.7600767531$1450348391$gmane$org@redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH] virtio_ring: use smp_store_mb
+Date: Thu, 17 Dec 2015 11:52:38 +0100
+Message-ID: <20151217105238.GA6375@twins.programming.kicks-ass.net>
+References: <1450347932-16325-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <1450347932-16325-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,84 +18,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We need a full barrier after writing out event index, using smp_store_mb
-there seems better than open-coding.
-As usual, we need a wrapper to account for strong barriers/non smp.
+On Thu, Dec 17, 2015 at 12:32:53PM +0200, Michael S. Tsirkin wrote:
+> +static inline void virtio_store_mb(bool weak_barriers,
+> +				   __virtio16 *p, __virtio16 v)
+> +{
+> +#ifdef CONFIG_SMP
+> +	if (weak_barriers)
+> +		smp_store_mb(*p, v);
+> +	else
+> +#endif
+> +	{
+> +		WRITE_ONCE(*p, v);
+> +		mb();
+> +	}
+> +}
 
-It's tempting to use this in vhost as well, for that, we'll
-need a variant of smp_store_mb that works on __user pointers.
+This is a different barrier depending on SMP, that seems wrong.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
+smp_mb(), as (should be) used by smp_store_mb() does not provide a
+barrier against IO. mb() otoh does.
 
-Seems to give a speedup on my box but I'm less sure about this one.  E.g. as
-xchng faster than mfence on all/most intel CPUs? Anyone has an opinion?
-
- include/linux/virtio_ring.h  | 14 ++++++++++++++
- drivers/virtio/virtio_ring.c | 15 +++++++++------
- 2 files changed, 23 insertions(+), 6 deletions(-)
-
-diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-index 0135c16..8912189 100644
---- a/include/linux/virtio_ring.h
-+++ b/include/linux/virtio_ring.h
-@@ -47,6 +47,20 @@ static inline void virtio_wmb(bool weak_barriers)
- 		wmb();
- }
- 
-+static inline void virtio_store_mb(bool weak_barriers,
-+				   __virtio16 *p, __virtio16 v)
-+{
-+#ifdef CONFIG_SMP
-+	if (weak_barriers)
-+		smp_store_mb(*p, v);
-+	else
-+#endif
-+	{
-+		WRITE_ONCE(*p, v);
-+		mb();
-+	}
-+}
-+
- static inline __virtio16 virtio_load_acquire(bool weak_barriers, __virtio16 *p)
- {
- 	if (!weak_barriers) {
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index f822cab..b0aea67 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -517,10 +517,10 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
- 	/* If we expect an interrupt for the next entry, tell host
- 	 * by writing event index and flush out the write before
- 	 * the read in the next get_buf call. */
--	if (!(vq->avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT)) {
--		vring_used_event(&vq->vring) = cpu_to_virtio16(_vq->vdev, vq->last_used_idx);
--		virtio_mb(vq->weak_barriers);
--	}
-+	if (!(vq->avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT))
-+		virtio_store_mb(vq->weak_barriers,
-+				&vring_used_event(&vq->vring),
-+				cpu_to_virtio16(_vq->vdev, vq->last_used_idx));
- 
- #ifdef DEBUG
- 	vq->last_add_time_valid = false;
-@@ -653,8 +653,11 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
- 	}
- 	/* TODO: tune this threshold */
- 	bufs = (u16)(vq->avail_idx_shadow - vq->last_used_idx) * 3 / 4;
--	vring_used_event(&vq->vring) = cpu_to_virtio16(_vq->vdev, vq->last_used_idx + bufs);
--	virtio_mb(vq->weak_barriers);
-+
-+	virtio_store_mb(vq->weak_barriers,
-+			&vring_used_event(&vq->vring),
-+			cpu_to_virtio16(_vq->vdev, vq->last_used_idx + bufs));
-+
- 	if (unlikely((u16)(virtio16_to_cpu(_vq->vdev, vq->vring.used->idx) - vq->last_used_idx) > bufs)) {
- 		END_USE(vq);
- 		return false;
--- 
-MST
+Since this is virtIO I would expect you always want mb().
