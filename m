@@ -1,15 +1,11 @@
-From: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Subject: Re: [PATCH] vhost: move is_le setup to the backend
-Date: Wed, 16 Dec 2015 14:52:48 +0100
-Message-ID: <20151216145248.50d0bbee@bahia.local>
-References: <20151030114235.28847.63465.stgit@bahia.huguette.org>
-	<20151112154610-mutt-send-email-mst@redhat.com>
-	<20151112152819.78eb1b4d@bahia.local>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: [PATCH] virtio: make find_vqs() checkpatch.pl-friendly
+Date: Thu, 17 Dec 2015 16:53:43 +0800
+Message-ID: <1450342423-18150-1-git-send-email-stefanha__588.863952043717$1450342450$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20151112152819.78eb1b4d@bahia.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,155 +15,220 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: linux-kernel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 12 Nov 2015 15:28:19 +0100
-Greg Kurz <gkurz@linux.vnet.ibm.com> wrote:
+checkpatch.pl wants arrays of strings declared as follows:
 
-> On Thu, 12 Nov 2015 15:46:30 +0200
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> > On Fri, Oct 30, 2015 at 12:42:35PM +0100, Greg Kurz wrote:
-> > > The vq->is_le field is used to fix endianness when accessing the vring via
-> > > the cpu_to_vhost16() and vhost16_to_cpu() helpers in the following cases:
-> > > 
-> > > 1) host is big endian and device is modern virtio
-> > > 
-> > > 2) host has cross-endian support and device is legacy virtio with a different
-> > >    endianness than the host
-> > > 
-> > > Both cases rely on the VHOST_SET_FEATURES ioctl, but 2) also needs the
-> > > VHOST_SET_VRING_ENDIAN ioctl to be called by userspace. Since vq->is_le
-> > > is only needed when the backend is active, it was decided to set it at
-> > > backend start.
-> > > 
-> > > This is currently done in vhost_init_used()->vhost_init_is_le() but it
-> > > obfuscates the core vhost code. This patch moves the is_le setup to a
-> > > dedicated function that is called from the backend code.
-> > > 
-> > > Note vhost_net is the only backend that can pass vq->private_data == NULL to
-> > > vhost_init_used(), hence the "if (sock)" branch.
-> > > 
-> > > No behaviour change.
-> > > 
-> > > Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
-> > 
-> > I plan to look at this next week, busy with QEMU 2.5 now.
-> > 
-> 
-> I don't have any deadline for this since this is only a cleanup tentative.
-> 
-> Thanks.
-> 
+  static const char * const names[] = { "vq-1", "vq-2", "vq-3" };
 
-... but ping anyway since it was a month ago :)
+Currently the find_vqs() function takes a const char *names[] argument
+so passing checkpatch.pl's const char * const names[] results in a
+compiler error due to losing the second const.
 
-Cheers.
+This patch adjusts the find_vqs() prototype and updates all virtio
+transports.  This makes it possible for virtio_balloon.c, virtio_input.c,
+virtgpu_kms.c, and virtio_rpmsg_bus.c to use the checkpatch.pl-friendly
+type.
 
---
-Greg
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+---
+Compile-tested drivers/virtio/ but not the more exotic source files in this
+patch.
 
-> > > ---
-> > >  drivers/vhost/net.c   |    6 ++++++
-> > >  drivers/vhost/scsi.c  |    3 +++
-> > >  drivers/vhost/test.c  |    2 ++
-> > >  drivers/vhost/vhost.c |   12 +++++++-----
-> > >  drivers/vhost/vhost.h |    1 +
-> > >  5 files changed, 19 insertions(+), 5 deletions(-)
-> > > 
-> > > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> > > index 9eda69e40678..d6319cb2664c 100644
-> > > --- a/drivers/vhost/net.c
-> > > +++ b/drivers/vhost/net.c
-> > > @@ -917,6 +917,12 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
-> > >  
-> > >  		vhost_net_disable_vq(n, vq);
-> > >  		vq->private_data = sock;
-> > > +
-> > > +		if (sock)
-> > > +			vhost_set_is_le(vq);
-> > > +		else
-> > > +			vq->is_le = virtio_legacy_is_little_endian();
-> > > +
-> > >  		r = vhost_init_used(vq);
-> > >  		if (r)
-> > >  			goto err_used;
-> > > diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-> > > index e25a23692822..e2644a301fa5 100644
-> > > --- a/drivers/vhost/scsi.c
-> > > +++ b/drivers/vhost/scsi.c
-> > > @@ -1276,6 +1276,9 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
-> > >  			vq = &vs->vqs[i].vq;
-> > >  			mutex_lock(&vq->mutex);
-> > >  			vq->private_data = vs_tpg;
-> > > +
-> > > +			vhost_set_is_le(vq);
-> > > +
-> > >  			vhost_init_used(vq);
-> > >  			mutex_unlock(&vq->mutex);
-> > >  		}
-> > > diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
-> > > index f2882ac98726..b1c7df502211 100644
-> > > --- a/drivers/vhost/test.c
-> > > +++ b/drivers/vhost/test.c
-> > > @@ -196,6 +196,8 @@ static long vhost_test_run(struct vhost_test *n, int test)
-> > >  		oldpriv = vq->private_data;
-> > >  		vq->private_data = priv;
-> > >  
-> > > +		vhost_set_is_le(vq);
-> > > +
-> > >  		r = vhost_init_used(&n->vqs[index]);
-> > >  
-> > >  		mutex_unlock(&vq->mutex);
-> > > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > > index eec2f11809ff..6be863dcbd13 100644
-> > > --- a/drivers/vhost/vhost.c
-> > > +++ b/drivers/vhost/vhost.c
-> > > @@ -113,6 +113,12 @@ static void vhost_init_is_le(struct vhost_virtqueue *vq)
-> > >  }
-> > >  #endif /* CONFIG_VHOST_CROSS_ENDIAN_LEGACY */
-> > >  
-> > > +void vhost_set_is_le(struct vhost_virtqueue *vq)
-> > > +{
-> > > +	vhost_init_is_le(vq);
-> > > +}
-> > > +EXPORT_SYMBOL_GPL(vhost_set_is_le);
-> > > +
-> > >  static void vhost_poll_func(struct file *file, wait_queue_head_t *wqh,
-> > >  			    poll_table *pt)
-> > >  {
-> > > @@ -1156,12 +1162,8 @@ int vhost_init_used(struct vhost_virtqueue *vq)
-> > >  {
-> > >  	__virtio16 last_used_idx;
-> > >  	int r;
-> > > -	if (!vq->private_data) {
-> > > -		vq->is_le = virtio_legacy_is_little_endian();
-> > > +	if (!vq->private_data)
-> > >  		return 0;
-> > > -	}
-> > > -
-> > > -	vhost_init_is_le(vq);
-> > >  
-> > >  	r = vhost_update_used_flags(vq);
-> > >  	if (r)
-> > > diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> > > index 4772862b71a7..8a62041959fe 100644
-> > > --- a/drivers/vhost/vhost.h
-> > > +++ b/drivers/vhost/vhost.h
-> > > @@ -162,6 +162,7 @@ bool vhost_enable_notify(struct vhost_dev *, struct vhost_virtqueue *);
-> > >  
-> > >  int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
-> > >  		    unsigned int log_num, u64 len);
-> > > +void vhost_set_is_le(struct vhost_virtqueue *vq);
-> > >  
-> > >  #define vq_err(vq, fmt, ...) do {                                  \
-> > >  		pr_debug(pr_fmt(fmt), ##__VA_ARGS__);       \
-> > 
-> 
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
-> 
+ drivers/gpu/drm/virtio/virtgpu_kms.c   | 2 +-
+ drivers/misc/mic/card/mic_virtio.c     | 2 +-
+ drivers/remoteproc/remoteproc_virtio.c | 2 +-
+ drivers/rpmsg/virtio_rpmsg_bus.c       | 2 +-
+ drivers/s390/virtio/kvm_virtio.c       | 2 +-
+ drivers/s390/virtio/virtio_ccw.c       | 2 +-
+ drivers/virtio/virtio_balloon.c        | 2 +-
+ drivers/virtio/virtio_input.c          | 2 +-
+ drivers/virtio/virtio_mmio.c           | 2 +-
+ drivers/virtio/virtio_pci_common.c     | 4 ++--
+ drivers/virtio/virtio_pci_common.h     | 2 +-
+ drivers/virtio/virtio_pci_modern.c     | 2 +-
+ include/linux/virtio_config.h          | 2 +-
+ 13 files changed, 14 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index 06496a1..4150873 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -130,7 +130,7 @@ int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
+ 	static vq_callback_t *callbacks[] = {
+ 		virtio_gpu_ctrl_ack, virtio_gpu_cursor_ack
+ 	};
+-	static const char *names[] = { "control", "cursor" };
++	static const char * const names[] = { "control", "cursor" };
+ 
+ 	struct virtio_gpu_device *vgdev;
+ 	/* this will expand later */
+diff --git a/drivers/misc/mic/card/mic_virtio.c b/drivers/misc/mic/card/mic_virtio.c
+index e486a0c..f6ed57d 100644
+--- a/drivers/misc/mic/card/mic_virtio.c
++++ b/drivers/misc/mic/card/mic_virtio.c
+@@ -311,7 +311,7 @@ unmap:
+ static int mic_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 			struct virtqueue *vqs[],
+ 			vq_callback_t *callbacks[],
+-			const char *names[])
++			const char * const names[])
+ {
+ 	struct mic_vdev *mvdev = to_micvdev(vdev);
+ 	struct mic_device_ctrl __iomem *dc = mvdev->dc;
+diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+index e1a1023..e44872f 100644
+--- a/drivers/remoteproc/remoteproc_virtio.c
++++ b/drivers/remoteproc/remoteproc_virtio.c
+@@ -147,7 +147,7 @@ static void rproc_virtio_del_vqs(struct virtio_device *vdev)
+ static int rproc_virtio_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 		       struct virtqueue *vqs[],
+ 		       vq_callback_t *callbacks[],
+-		       const char *names[])
++		       const char * const names[])
+ {
+ 	struct rproc *rproc = vdev_to_rproc(vdev);
+ 	int i, ret;
+diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
+index 73354ee..1fcd27c 100644
+--- a/drivers/rpmsg/virtio_rpmsg_bus.c
++++ b/drivers/rpmsg/virtio_rpmsg_bus.c
+@@ -945,7 +945,7 @@ static void rpmsg_ns_cb(struct rpmsg_channel *rpdev, void *data, int len,
+ static int rpmsg_probe(struct virtio_device *vdev)
+ {
+ 	vq_callback_t *vq_cbs[] = { rpmsg_recv_done, rpmsg_xmit_done };
+-	const char *names[] = { "input", "output" };
++	static const char * const names[] = { "input", "output" };
+ 	struct virtqueue *vqs[2];
+ 	struct virtproc_info *vrp;
+ 	void *bufs_va;
+diff --git a/drivers/s390/virtio/kvm_virtio.c b/drivers/s390/virtio/kvm_virtio.c
+index 53fb975..1d060fd 100644
+--- a/drivers/s390/virtio/kvm_virtio.c
++++ b/drivers/s390/virtio/kvm_virtio.c
+@@ -255,7 +255,7 @@ static void kvm_del_vqs(struct virtio_device *vdev)
+ static int kvm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 			struct virtqueue *vqs[],
+ 			vq_callback_t *callbacks[],
+-			const char *names[])
++			const char * const names[])
+ {
+ 	struct kvm_device *kdev = to_kvmdev(vdev);
+ 	int i;
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index b2a1a81..5a433ae 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -635,7 +635,7 @@ out:
+ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 			       struct virtqueue *vqs[],
+ 			       vq_callback_t *callbacks[],
+-			       const char *names[])
++			       const char * const names[])
+ {
+ 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+ 	unsigned long *indicatorp = NULL;
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 7efc329..d0f0817c 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -388,7 +388,7 @@ static int init_vqs(struct virtio_balloon *vb)
+ {
+ 	struct virtqueue *vqs[3];
+ 	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_request };
+-	const char *names[] = { "inflate", "deflate", "stats" };
++	static const char * const names[] = { "inflate", "deflate", "stats" };
+ 	int err, nvqs;
+ 
+ 	/*
+diff --git a/drivers/virtio/virtio_input.c b/drivers/virtio/virtio_input.c
+index c96944b..350a2a5 100644
+--- a/drivers/virtio/virtio_input.c
++++ b/drivers/virtio/virtio_input.c
+@@ -170,7 +170,7 @@ static int virtinput_init_vqs(struct virtio_input *vi)
+ 	struct virtqueue *vqs[2];
+ 	vq_callback_t *cbs[] = { virtinput_recv_events,
+ 				 virtinput_recv_status };
+-	static const char *names[] = { "events", "status" };
++	static const char * const names[] = { "events", "status" };
+ 	int err;
+ 
+ 	err = vi->vdev->config->find_vqs(vi->vdev, 2, vqs, cbs, names);
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index f499d9d..745c6ee 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -482,7 +482,7 @@ error_available:
+ static int vm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 		       struct virtqueue *vqs[],
+ 		       vq_callback_t *callbacks[],
+-		       const char *names[])
++		       const char * const names[])
+ {
+ 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
+ 	unsigned int irq = platform_get_irq(vm_dev->pdev, 0);
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index 78f804a..36205c2 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -296,7 +296,7 @@ void vp_del_vqs(struct virtio_device *vdev)
+ static int vp_try_to_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 			      struct virtqueue *vqs[],
+ 			      vq_callback_t *callbacks[],
+-			      const char *names[],
++			      const char * const names[],
+ 			      bool use_msix,
+ 			      bool per_vq_vectors)
+ {
+@@ -376,7 +376,7 @@ error_find:
+ int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 		struct virtqueue *vqs[],
+ 		vq_callback_t *callbacks[],
+-		const char *names[])
++		const char * const names[])
+ {
+ 	int err;
+ 
+diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
+index b976d96..2cc2522 100644
+--- a/drivers/virtio/virtio_pci_common.h
++++ b/drivers/virtio/virtio_pci_common.h
+@@ -139,7 +139,7 @@ void vp_del_vqs(struct virtio_device *vdev);
+ int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 		       struct virtqueue *vqs[],
+ 		       vq_callback_t *callbacks[],
+-		       const char *names[]);
++		       const char * const names[]);
+ const char *vp_bus_name(struct virtio_device *vdev);
+ 
+ /* Setup the affinity for a virtqueue:
+diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+index 8e5cf19..c0c11fa 100644
+--- a/drivers/virtio/virtio_pci_modern.c
++++ b/drivers/virtio/virtio_pci_modern.c
+@@ -418,7 +418,7 @@ err_new_queue:
+ static int vp_modern_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 			      struct virtqueue *vqs[],
+ 			      vq_callback_t *callbacks[],
+-			      const char *names[])
++			      const char * const names[])
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 	struct virtqueue *vq;
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index e5ce8ab..6e6cb0c 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -70,7 +70,7 @@ struct virtio_config_ops {
+ 	int (*find_vqs)(struct virtio_device *, unsigned nvqs,
+ 			struct virtqueue *vqs[],
+ 			vq_callback_t *callbacks[],
+-			const char *names[]);
++			const char * const names[]);
+ 	void (*del_vqs)(struct virtio_device *);
+ 	u64 (*get_features)(struct virtio_device *vdev);
+ 	int (*finalize_features)(struct virtio_device *vdev);
+-- 
+2.5.0
