@@ -1,13 +1,14 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: [RFC v4 5/5] VSOCK: Add Makefile and Kconfig
-Date: Tue, 22 Dec 2015 17:07:38 +0800
-Message-ID: <1450775258-18287-6-git-send-email-stefanha@redhat.com>
-References: <1450775258-18287-1-git-send-email-stefanha@redhat.com>
+From: Rafael Aquini <aquini@redhat.com>
+Subject: Re: [PATCH 1/2] virtio_balloon: fix race by fill and leak
+Date: Sun, 27 Dec 2015 18:36:11 -0500
+Message-ID: <20151227233610.GB624__11840.2261673056$1451259391$gmane$org@t510.redhat.com>
+References: <1451259313-26353-1-git-send-email-minchan@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1450775258-18287-1-git-send-email-stefanha@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1451259313-26353-1-git-send-email-minchan@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,109 +18,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Matt Benjamin <mbenjamin@redhat.com>, Asias He <asias@redhat.com>, Christoffer Dall <christoffer.dall@linaro.org>, matt.ma@linaro.org
+To: Minchan Kim <minchan@kernel.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, Konstantin Khlebnikov <koct9i@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Asias He <asias@redhat.com>
-
-Enable virtio-vsock and vhost-vsock.
-
-Signed-off-by: Asias He <asias@redhat.com>
-Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
----
-v4:
- * Make checkpatch.pl happy with longer option description
- * Clarify dependency on virtio rather than QEMU as suggested by Alex
-   Bennee
-v3:
- * Don't put vhost vsock driver into staging
- * Add missing Kconfig dependencies (Arnd Bergmann <arnd@arndb.de>)
----
- drivers/vhost/Kconfig  | 15 +++++++++++++++
- drivers/vhost/Makefile |  4 ++++
- net/vmw_vsock/Kconfig  | 19 +++++++++++++++++++
- net/vmw_vsock/Makefile |  2 ++
- 4 files changed, 40 insertions(+)
-
-diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
-index 533eaf0..d7aae9e 100644
---- a/drivers/vhost/Kconfig
-+++ b/drivers/vhost/Kconfig
-@@ -21,6 +21,21 @@ config VHOST_SCSI
- 	Say M here to enable the vhost_scsi TCM fabric module
- 	for use with virtio-scsi guests
- 
-+config VHOST_VSOCK
-+	tristate "vhost virtio-vsock driver"
-+	depends on VSOCKETS && EVENTFD
-+	select VIRTIO_VSOCKETS_COMMON
-+	select VHOST
-+	select VHOST_RING
-+	default n
-+	---help---
-+	This kernel module can be loaded in the host kernel to provide AF_VSOCK
-+	sockets for communicating with guests.  The guests must have the
-+	virtio_transport.ko driver loaded to use the virtio-vsock device.
-+
-+	To compile this driver as a module, choose M here: the module will be called
-+	vhost_vsock.
-+
- config VHOST_RING
- 	tristate
- 	---help---
-diff --git a/drivers/vhost/Makefile b/drivers/vhost/Makefile
-index e0441c3..6b012b9 100644
---- a/drivers/vhost/Makefile
-+++ b/drivers/vhost/Makefile
-@@ -4,5 +4,9 @@ vhost_net-y := net.o
- obj-$(CONFIG_VHOST_SCSI) += vhost_scsi.o
- vhost_scsi-y := scsi.o
- 
-+obj-$(CONFIG_VHOST_VSOCK) += vhost_vsock.o
-+vhost_vsock-y := vsock.o
-+
- obj-$(CONFIG_VHOST_RING) += vringh.o
-+
- obj-$(CONFIG_VHOST)	+= vhost.o
-diff --git a/net/vmw_vsock/Kconfig b/net/vmw_vsock/Kconfig
-index 14810ab..f27e74b 100644
---- a/net/vmw_vsock/Kconfig
-+++ b/net/vmw_vsock/Kconfig
-@@ -26,3 +26,22 @@ config VMWARE_VMCI_VSOCKETS
- 
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called vmw_vsock_vmci_transport. If unsure, say N.
-+
-+config VIRTIO_VSOCKETS
-+	tristate "virtio transport for Virtual Sockets"
-+	depends on VSOCKETS && VIRTIO
-+	select VIRTIO_VSOCKETS_COMMON
-+	help
-+	  This module implements a virtio transport for Virtual Sockets.
-+
-+	  Enable this transport if your Virtual Machine host supports Virtual
-+	  Sockets over virtio.
-+
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called virtio_vsock_transport. If unsure, say N.
-+
-+config VIRTIO_VSOCKETS_COMMON
-+       tristate
-+       ---help---
-+         This option is selected by any driver which needs to access
-+         the virtio_vsock.
-diff --git a/net/vmw_vsock/Makefile b/net/vmw_vsock/Makefile
-index 2ce52d7..cf4c294 100644
---- a/net/vmw_vsock/Makefile
-+++ b/net/vmw_vsock/Makefile
-@@ -1,5 +1,7 @@
- obj-$(CONFIG_VSOCKETS) += vsock.o
- obj-$(CONFIG_VMWARE_VMCI_VSOCKETS) += vmw_vsock_vmci_transport.o
-+obj-$(CONFIG_VIRTIO_VSOCKETS) += virtio_transport.o
-+obj-$(CONFIG_VIRTIO_VSOCKETS_COMMON) += virtio_transport_common.o
- 
- vsock-y += af_vsock.o vsock_addr.o
- 
--- 
-2.5.0
+On Mon, Dec 28, 2015 at 08:35:12AM +0900, Minchan Kim wrote:
+> During my compaction-related stuff, I encountered a bug
+> with ballooning.
+> 
+> With repeated inflating and deflating cycle, guest memory(
+> ie, cat /proc/meminfo | grep MemTotal) is decreased and
+> couldn't be recovered.
+> 
+> The reason is balloon_lock doesn't cover release_pages_balloon
+> so struct virtio_balloon fields could be overwritten by race
+> of fill_balloon(e,g, vb->*pfns could be critical).
+> 
+> This patch fixes it in my test.
+> 
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Minchan Kim <minchan@kernel.org>
+> ---
+>  drivers/virtio/virtio_balloon.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 7efc32945810..7d3e5d0e9aa4 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -209,8 +209,8 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
+>  	 */
+>  	if (vb->num_pfns != 0)
+>  		tell_host(vb, vb->deflate_vq);
+> -	mutex_unlock(&vb->balloon_lock);
+>  	release_pages_balloon(vb);
+> +	mutex_unlock(&vb->balloon_lock);
+>  	return num_freed_pages;
+>  }
+>  
+> -- 
+> 1.9.1
+> 
+Acked-by: Rafael Aquini <aquini@redhat.com>
