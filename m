@@ -1,14 +1,12 @@
-From: Bjorn Andersson <bjorn@kryo.se>
-Subject: Re: [PATCH] virtio: make find_vqs() checkpatch.pl-friendly
-Date: Mon, 28 Dec 2015 10:44:35 -0800
-Message-ID: <20151228184435.GH16437__29957.6198253364$1451352389$gmane$org@tuxbot>
-References: <1450342423-18150-1-git-send-email-stefanha@redhat.com>
+From: "Maria Lemos" <marialemos72@gmail.com>
+Subject: [CISTI'2016]: =?ISO-8859-1?Q?11=AA?= Conferencia
+	=?ISO-8859-1?Q?Ib=E9rica?= de Sistemas y =?ISO-8859-1?Q?Tecnolog=EDas?=
+	de =?ISO-8859-1?Q?Informaci=F3n?=
+Date: Tue, 29 Dec 2015 14:04:50 +0000
+Message-ID: <20151229140518.B3549FA4@mail.linuxfoundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============1729718808449285424=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1450342423-18150-1-git-send-email-stefanha@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,234 +16,177 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu 17 Dec 00:53 PST 2015, Stefan Hajnoczi wrote:
+--===============1729718808449285424==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> checkpatch.pl wants arrays of strings declared as follows:
-> 
->   static const char * const names[] = { "vq-1", "vq-2", "vq-3" };
-> 
-> Currently the find_vqs() function takes a const char *names[] argument
-> so passing checkpatch.pl's const char * const names[] results in a
-> compiler error due to losing the second const.
-> 
-> This patch adjusts the find_vqs() prototype and updates all virtio
-> transports.  This makes it possible for virtio_balloon.c, virtio_input.c,
-> virtgpu_kms.c, and virtio_rpmsg_bus.c to use the checkpatch.pl-friendly
-> type.
-> 
-> Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+---
+-------------------------- CISTI'2016 -----------------------------
+11=AA Conferencia Ib=E9rica de Sistemas y Tecnolog=EDas de Informaci=F3n
+        15 a 18 junio de 2016, Isla Gran Canaria, Espa=F1a
+                 http://www.aisti.eu/cisti2016/
+-------------------------------------------------------------------
 
-Acked-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+Nos satisface invitar a la comunidad acad=E9mica y empresarial a prese=
+ntar trabajos a la CISTI'2016 (11=AA Conferencia Ib=E9rica de Sistemas=
+ y Tecnolog=EDas de Informaci=F3n), a celebrar en Gran Canaria, Espa=
+=F1a, entre el 15 y 18 de Junio de 2016, enviando art=EDculos cient=ED=
+ficos originales sobre ideas innovadoras, soluciones desarrolladas que=
+ aborden problemas reales, trabajos emp=EDricos, estudios de caso, etc=
+., en el dominio de los sistemas y tecnolog=EDas de la informaci=F3n,=
+ que se encuadren en las tem=E1ticas de la conferencia.
 
-Regards,
-Bjorn
+Podr=E1n ser enviados cuatro tipos de art=EDculos:
 
-> ---
-> Compile-tested drivers/virtio/ but not the more exotic source files in this
-> patch.
-> 
->  drivers/gpu/drm/virtio/virtgpu_kms.c   | 2 +-
->  drivers/misc/mic/card/mic_virtio.c     | 2 +-
->  drivers/remoteproc/remoteproc_virtio.c | 2 +-
->  drivers/rpmsg/virtio_rpmsg_bus.c       | 2 +-
->  drivers/s390/virtio/kvm_virtio.c       | 2 +-
->  drivers/s390/virtio/virtio_ccw.c       | 2 +-
->  drivers/virtio/virtio_balloon.c        | 2 +-
->  drivers/virtio/virtio_input.c          | 2 +-
->  drivers/virtio/virtio_mmio.c           | 2 +-
->  drivers/virtio/virtio_pci_common.c     | 4 ++--
->  drivers/virtio/virtio_pci_common.h     | 2 +-
->  drivers/virtio/virtio_pci_modern.c     | 2 +-
->  include/linux/virtio_config.h          | 2 +-
->  13 files changed, 14 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-> index 06496a1..4150873 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-> @@ -130,7 +130,7 @@ int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
->  	static vq_callback_t *callbacks[] = {
->  		virtio_gpu_ctrl_ack, virtio_gpu_cursor_ack
->  	};
-> -	static const char *names[] = { "control", "cursor" };
-> +	static const char * const names[] = { "control", "cursor" };
->  
->  	struct virtio_gpu_device *vgdev;
->  	/* this will expand later */
-> diff --git a/drivers/misc/mic/card/mic_virtio.c b/drivers/misc/mic/card/mic_virtio.c
-> index e486a0c..f6ed57d 100644
-> --- a/drivers/misc/mic/card/mic_virtio.c
-> +++ b/drivers/misc/mic/card/mic_virtio.c
-> @@ -311,7 +311,7 @@ unmap:
->  static int mic_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  			struct virtqueue *vqs[],
->  			vq_callback_t *callbacks[],
-> -			const char *names[])
-> +			const char * const names[])
->  {
->  	struct mic_vdev *mvdev = to_micvdev(vdev);
->  	struct mic_device_ctrl __iomem *dc = mvdev->dc;
-> diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
-> index e1a1023..e44872f 100644
-> --- a/drivers/remoteproc/remoteproc_virtio.c
-> +++ b/drivers/remoteproc/remoteproc_virtio.c
-> @@ -147,7 +147,7 @@ static void rproc_virtio_del_vqs(struct virtio_device *vdev)
->  static int rproc_virtio_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  		       struct virtqueue *vqs[],
->  		       vq_callback_t *callbacks[],
-> -		       const char *names[])
-> +		       const char * const names[])
->  {
->  	struct rproc *rproc = vdev_to_rproc(vdev);
->  	int i, ret;
-> diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
-> index 73354ee..1fcd27c 100644
-> --- a/drivers/rpmsg/virtio_rpmsg_bus.c
-> +++ b/drivers/rpmsg/virtio_rpmsg_bus.c
-> @@ -945,7 +945,7 @@ static void rpmsg_ns_cb(struct rpmsg_channel *rpdev, void *data, int len,
->  static int rpmsg_probe(struct virtio_device *vdev)
->  {
->  	vq_callback_t *vq_cbs[] = { rpmsg_recv_done, rpmsg_xmit_done };
-> -	const char *names[] = { "input", "output" };
-> +	static const char * const names[] = { "input", "output" };
->  	struct virtqueue *vqs[2];
->  	struct virtproc_info *vrp;
->  	void *bufs_va;
-> diff --git a/drivers/s390/virtio/kvm_virtio.c b/drivers/s390/virtio/kvm_virtio.c
-> index 53fb975..1d060fd 100644
-> --- a/drivers/s390/virtio/kvm_virtio.c
-> +++ b/drivers/s390/virtio/kvm_virtio.c
-> @@ -255,7 +255,7 @@ static void kvm_del_vqs(struct virtio_device *vdev)
->  static int kvm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  			struct virtqueue *vqs[],
->  			vq_callback_t *callbacks[],
-> -			const char *names[])
-> +			const char * const names[])
->  {
->  	struct kvm_device *kdev = to_kvmdev(vdev);
->  	int i;
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index b2a1a81..5a433ae 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -635,7 +635,7 @@ out:
->  static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  			       struct virtqueue *vqs[],
->  			       vq_callback_t *callbacks[],
-> -			       const char *names[])
-> +			       const char * const names[])
->  {
->  	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
->  	unsigned long *indicatorp = NULL;
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 7efc329..d0f0817c 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -388,7 +388,7 @@ static int init_vqs(struct virtio_balloon *vb)
->  {
->  	struct virtqueue *vqs[3];
->  	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_request };
-> -	const char *names[] = { "inflate", "deflate", "stats" };
-> +	static const char * const names[] = { "inflate", "deflate", "stats" };
->  	int err, nvqs;
->  
->  	/*
-> diff --git a/drivers/virtio/virtio_input.c b/drivers/virtio/virtio_input.c
-> index c96944b..350a2a5 100644
-> --- a/drivers/virtio/virtio_input.c
-> +++ b/drivers/virtio/virtio_input.c
-> @@ -170,7 +170,7 @@ static int virtinput_init_vqs(struct virtio_input *vi)
->  	struct virtqueue *vqs[2];
->  	vq_callback_t *cbs[] = { virtinput_recv_events,
->  				 virtinput_recv_status };
-> -	static const char *names[] = { "events", "status" };
-> +	static const char * const names[] = { "events", "status" };
->  	int err;
->  
->  	err = vi->vdev->config->find_vqs(vi->vdev, 2, vqs, cbs, names);
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index f499d9d..745c6ee 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -482,7 +482,7 @@ error_available:
->  static int vm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  		       struct virtqueue *vqs[],
->  		       vq_callback_t *callbacks[],
-> -		       const char *names[])
-> +		       const char * const names[])
->  {
->  	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
->  	unsigned int irq = platform_get_irq(vm_dev->pdev, 0);
-> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-> index 78f804a..36205c2 100644
-> --- a/drivers/virtio/virtio_pci_common.c
-> +++ b/drivers/virtio/virtio_pci_common.c
-> @@ -296,7 +296,7 @@ void vp_del_vqs(struct virtio_device *vdev)
->  static int vp_try_to_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  			      struct virtqueue *vqs[],
->  			      vq_callback_t *callbacks[],
-> -			      const char *names[],
-> +			      const char * const names[],
->  			      bool use_msix,
->  			      bool per_vq_vectors)
->  {
-> @@ -376,7 +376,7 @@ error_find:
->  int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  		struct virtqueue *vqs[],
->  		vq_callback_t *callbacks[],
-> -		const char *names[])
-> +		const char * const names[])
->  {
->  	int err;
->  
-> diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-> index b976d96..2cc2522 100644
-> --- a/drivers/virtio/virtio_pci_common.h
-> +++ b/drivers/virtio/virtio_pci_common.h
-> @@ -139,7 +139,7 @@ void vp_del_vqs(struct virtio_device *vdev);
->  int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  		       struct virtqueue *vqs[],
->  		       vq_callback_t *callbacks[],
-> -		       const char *names[]);
-> +		       const char * const names[]);
->  const char *vp_bus_name(struct virtio_device *vdev);
->  
->  /* Setup the affinity for a virtqueue:
-> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-> index 8e5cf19..c0c11fa 100644
-> --- a/drivers/virtio/virtio_pci_modern.c
-> +++ b/drivers/virtio/virtio_pci_modern.c
-> @@ -418,7 +418,7 @@ err_new_queue:
->  static int vp_modern_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  			      struct virtqueue *vqs[],
->  			      vq_callback_t *callbacks[],
-> -			      const char *names[])
-> +			      const char * const names[])
->  {
->  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
->  	struct virtqueue *vq;
-> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> index e5ce8ab..6e6cb0c 100644
-> --- a/include/linux/virtio_config.h
-> +++ b/include/linux/virtio_config.h
-> @@ -70,7 +70,7 @@ struct virtio_config_ops {
->  	int (*find_vqs)(struct virtio_device *, unsigned nvqs,
->  			struct virtqueue *vqs[],
->  			vq_callback_t *callbacks[],
-> -			const char *names[]);
-> +			const char * const names[]);
->  	void (*del_vqs)(struct virtio_device *);
->  	u64 (*get_features)(struct virtio_device *vdev);
->  	int (*finalize_features)(struct virtio_device *vdev);
-> -- 
-> 2.5.0
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Art=EDculo (Full Paper): Trabajos concluidos o consolidados sobre I+D =
+encuadrados en una de las tem=E1ticas de la conferencia. Estos art=EDc=
+ulos tendr=E1n un l=EDmite m=E1ximo de 6 p=E1ginas.
+
+Art=EDculo Corto (Short Paper): Trabajos en curso, pero con resultados=
+ preliminares relevantes para ser discutidos. Estos art=EDculos tendr=
+=E1n un l=EDmite m=E1ximo de 4 p=E1ginas.
+
+Art=EDculo P=F3ster (Poster Paper): Trabajos iniciados pero con ideas =
+relevantes para ser discutidas. Estos trabajos tendr=E1n un l=EDmite m=
+=E1ximo de 2 p=E1ginas.
+
+Art=EDculo Empresa (Company Paper): Trabajo de las empresas que muestr=
+en experiencias pr=E1cticas, la I + D, herramientas, etc, encuadrados =
+en algunos de los temas de la conferencia. Estos art=EDculos son res=
+=FAmenes con un m=E1ximo de 2 p=E1ginas.
+
+En el texto del art=EDculo para evaluaci=F3n por la Comisi=F3n Cient=
+=EDfica no deber=E1n incluirse informaci=F3n que posibilite la identif=
+icaci=F3n de los autores. De este modo, sus filiaciones y referencias =
+bibliogr=E1ficas no deber=E1n aparecer en la versi=F3n inicial. Esta i=
+nformaci=F3n solamente se incluir=E1 en la versi=F3n final del art=EDc=
+ulo.
+
+Los art=EDculos enviados no deben estar publicados ni sobre revisi=F3n=
+ en ninguna otra conferencia o publicaci=F3n nacional o internacional.
+
+Todos los art=EDculos deben seguir las normas de formato y estar escri=
+tos en portugu=E9s, espa=F1ol o ingl=E9s.
+
+Todos los art=EDculos ser=E1n objeto de =93blind review=94 por lo meno=
+s por dos miembros de la Comisi=F3n Cient=EDfica.
+
+Algunos de los art=EDculos (full papers) pueden ser aceptados como art=
+=EDculos cortos (short papers) o art=EDculos p=F3ster. Del mismo modo,=
+ algunos de los art=EDculos cortos (short papers) pueden ser aceptados=
+ como art=EDculos p=F3ster. En estos dos casos, los art=EDculos podr=
+=E1n mantener, para su publicaci=F3n en las actas, el n=FAmero de p=E1=
+ginas iniciales.
+
+Los autores de trabajos aceptados como art=EDculo p=F3ster tambi=E9n d=
+eben preparar y imprimir un p=F3ster para su exhibici=F3n en la confer=
+encia. El p=F3ster debe tener una orientaci=F3n vertical y tama=F1o A1=
+ o A2. La conferencia ofrece sesiones de trabajo para la presentaci=F3=
+n y discusi=F3n oral de p=F3sters, con 5 minutos por p=F3ster.
+
+Los autores de art=EDculos (full papers) aceptados dispondr=E1n de 15 =
+minutos para su presentaci=F3n, m=E1s 5 minutos para la discusi=F3n. L=
+os autores de art=EDculos cortos (short papers) y de art=EDculos empre=
+sa (company papers) aceptados dispondr=E1n de 11 minutos para su prese=
+ntaci=F3n, m=E1s 4 minutos para la discusi=F3n.
+=20
+
+TEM=C1TICAS
+
+Los art=EDculos enviados deber=E1n encuadrarse en las grandes tem=E1ti=
+cas propuestas (los t=F3picos propuestos para cada tem=E1tica son mera=
+mente indicativos con el fin de encuadrar los trabajos, sin pretender =
+ser restrictivos):
+
+A) OMIS - Organizational Models and Information Systems
+(Modelos Organizacionales y Sistemas de Informaci=F3n)
+=20
+B) KMDSS - Knowledge Management and Decision Support Systems
+(Gesti=F3n de Conocimiento y Sistemas de Apoyo a la Decisi=F3n)
+
+C) SSAAT - Software Systems, Architectures, Applications and Tools
+(Sistemas, Arquitecturas, Aplicaciones y Herramientas de Software)
+
+D) CNMPS - Computer Networks, Mobility and Pervasive Systems
+(Redes de Computadores, Movilidad y Sistemas Ubicuos)
+
+E) HCC - Human Centered Computing
+(Inform=E1tica Centrada em Usuario)
+
+F) HIS - Health Informatics
+(Inform=E1tica en la Salud)
+
+G) ITE - Information Technologies in Education
+(Tecnolog=EDa de la Informaci=F3n en la Educaci=F3n)
+
+H) AEC =96 Architecture and Engineering of Construction
+(Arquitectura e Ingenier=EDa de la Construcci=F3n)
+=20
+
+PUBLICACI=D3N & INDEXACI=D3N
+
+Para garantizar la publicaci=F3n de un art=EDculo en las actas (art=ED=
+culo, art=EDculo corto, art=EDculo p=F3ster o art=EDculo empresa), por=
+ lo menos un autor debe inscribirse en la conferencia hasta el 11 de A=
+bril y que el art=EDculo respete el formato sugerido y no exceda el n=
+=FAmero m=E1ximo de p=E1ginas previsto. Adicionalmente, los autores de=
+ trabajos que reciban recomendaciones de alteraci=F3n del art=EDculo, =
+deber=E1n seguir las mismas antes del env=EDo de la versi=F3n final.
+
+Para cada inscripci=F3n no se publica m=E1s de un art=EDculo en las ac=
+tas. Para la publicaci=F3n de art=EDculos adicionales el autor deber=
+=E1 pagar un suplemento por cada art=EDculo, hasta un m=E1ximo de un a=
+rt=EDculo.
+
+Los art=EDculos (full papers) ser=E1n publicados en libro y en CD con =
+ISBN. Los art=EDculos cortos (short papers), los art=EDculos p=F3ster =
+y los art=EDculos empresa se publicar=E1n =FAnicamente en CD con ISBN.
+
+Los art=EDculos (full papers) publicados ser=E1n enviados a EI, IEEE X=
+Plore, INSPEC, ISI, SCOPUS y Google Scholar. Los art=EDculos cortos (s=
+hort papers) publicados ser=E1n enviados a EI, IEEE XPlore, INSPEC, IS=
+I, SCOPUS y Google Scholar. Los art=EDculos p=F3ster y los art=EDculos=
+ empresa ser=E1n enviados a EBSCO y EI-Compendex.
+
+
+FECHAS IMPORTANTES
+
+Env=EDo de art=EDculos: 14 de febrero de 2016
+
+Notificaci=F3n de admisi=F3n: 27 de marzo de 2016
+
+Env=EDo de la versi=F3n final de los art=EDculos aceptados: 10 de abri=
+l de 2016
+
+Pago de la inscripci=F3n para garantizar la inclusi=F3n del art=EDculo=
+ aceptado en las actas de la conferencia: 8 de abril de 2015.
+
+=20
+Contamos con usted. H=E1ganos llegar su contribuci=F3n.
+
+Web de la CISTI'2016: http://www.aisti.eu/cisti2016/
+
+
+Saludos,
+
+Maria Lemos
+AISTI
+http://www.aisti.eu/
+
+
+
+
+--===============1729718808449285424==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============1729718808449285424==--
