@@ -1,12 +1,12 @@
-From: "Maria Lemos" <marialemos72@gmail.com>
-Subject: [CISTI'2016]: =?ISO-8859-1?Q?11=AA?= Conferencia
-	=?ISO-8859-1?Q?Ib=E9rica?= de Sistemas y =?ISO-8859-1?Q?Tecnolog=EDas?=
-	de =?ISO-8859-1?Q?Informaci=F3n?=
-Date: Tue, 29 Dec 2015 14:04:50 +0000
-Message-ID: <20151229140518.B3549FA4@mail.linuxfoundation.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 00/34] arch: barrier cleanup + __smp_XXX barriers for virt
+Date: Wed, 30 Dec 2015 15:24:12 +0200
+Message-ID: <1451473761-30019-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1729718808449285424=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,177 +16,202 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Peter Zijlstra <peterz@infradead.org>, Andrew Cooper <andrew.cooper3@citrix.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============1729718808449285424==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+This is really trying to cleanup some virt code, as suggested by Peter, who
+said
+> You could of course go fix that instead of mutilating things into
+> sort-of functional state.
 
----
--------------------------- CISTI'2016 -----------------------------
-11=AA Conferencia Ib=E9rica de Sistemas y Tecnolog=EDas de Informaci=F3n
-        15 a 18 junio de 2016, Isla Gran Canaria, Espa=F1a
-                 http://www.aisti.eu/cisti2016/
--------------------------------------------------------------------
+This work is needed for virtio, so it's probably easiest to
+merge it through my tree - is this fine by everyone?
+Arnd, if you agree, could you ack this please?
 
-Nos satisface invitar a la comunidad acad=E9mica y empresarial a prese=
-ntar trabajos a la CISTI'2016 (11=AA Conferencia Ib=E9rica de Sistemas=
- y Tecnolog=EDas de Informaci=F3n), a celebrar en Gran Canaria, Espa=
-=F1a, entre el 15 y 18 de Junio de 2016, enviando art=EDculos cient=ED=
-ficos originales sobre ideas innovadoras, soluciones desarrolladas que=
- aborden problemas reales, trabajos emp=EDricos, estudios de caso, etc=
-., en el dominio de los sistemas y tecnolog=EDas de la informaci=F3n,=
- que se encuadren en las tem=E1ticas de la conferencia.
+Note to arch maintainers: please don't cherry-pick patches out of this patchset
+as it's been structured in this order to avoid breaking bisect.
+Please send acks instead!
 
-Podr=E1n ser enviados cuatro tipos de art=EDculos:
+Sometimes, virtualization is weird. For example, virtio does this (conceptually):
 
-Art=EDculo (Full Paper): Trabajos concluidos o consolidados sobre I+D =
-encuadrados en una de las tem=E1ticas de la conferencia. Estos art=EDc=
-ulos tendr=E1n un l=EDmite m=E1ximo de 6 p=E1ginas.
+#ifdef CONFIG_SMP
+                smp_mb();
+#else
+                mb();
+#endif
 
-Art=EDculo Corto (Short Paper): Trabajos en curso, pero con resultados=
- preliminares relevantes para ser discutidos. Estos art=EDculos tendr=
-=E1n un l=EDmite m=E1ximo de 4 p=E1ginas.
+Similarly, Xen calls mb() when it's not doing any MMIO at all.
 
-Art=EDculo P=F3ster (Poster Paper): Trabajos iniciados pero con ideas =
-relevantes para ser discutidas. Estos trabajos tendr=E1n un l=EDmite m=
-=E1ximo de 2 p=E1ginas.
+Of course it's wrong in the sense that it's suboptimal. What we would really
+like is to have, on UP, exactly the same barrier as on SMP.  This is because a
+UP guest can run on an SMP host.
 
-Art=EDculo Empresa (Company Paper): Trabajo de las empresas que muestr=
-en experiencias pr=E1cticas, la I + D, herramientas, etc, encuadrados =
-en algunos de los temas de la conferencia. Estos art=EDculos son res=
-=FAmenes con un m=E1ximo de 2 p=E1ginas.
+But Linux doesn't provide this ability: if CONFIG_SMP is not defined is
+optimizes most barriers out to a compiler barrier.
 
-En el texto del art=EDculo para evaluaci=F3n por la Comisi=F3n Cient=
-=EDfica no deber=E1n incluirse informaci=F3n que posibilite la identif=
-icaci=F3n de los autores. De este modo, sus filiaciones y referencias =
-bibliogr=E1ficas no deber=E1n aparecer en la versi=F3n inicial. Esta i=
-nformaci=F3n solamente se incluir=E1 en la versi=F3n final del art=EDc=
-ulo.
+Consider for example x86: what we want is xchg (NOT mfence - there's no real IO
+going on here - just switching out of the VM - more like a function call
+really) but if built without CONFIG_SMP smp_store_mb does not include this.
 
-Los art=EDculos enviados no deben estar publicados ni sobre revisi=F3n=
- en ninguna otra conferencia o publicaci=F3n nacional o internacional.
+Virt in general is probably the only use-case, because this really is an
+artifact of interfacing with an SMP host while running an UP kernel,
+but since we have (at least) two users, it seems to make sense to
+put these APIs in a central place.
 
-Todos los art=EDculos deben seguir las normas de formato y estar escri=
-tos en portugu=E9s, espa=F1ol o ingl=E9s.
+In fact, smp_ barriers are stubs on !SMP, so they can be defined as follows:
 
-Todos los art=EDculos ser=E1n objeto de =93blind review=94 por lo meno=
-s por dos miembros de la Comisi=F3n Cient=EDfica.
+arch/XXX/include/asm/barrier.h:
 
-Algunos de los art=EDculos (full papers) pueden ser aceptados como art=
-=EDculos cortos (short papers) o art=EDculos p=F3ster. Del mismo modo,=
- algunos de los art=EDculos cortos (short papers) pueden ser aceptados=
- como art=EDculos p=F3ster. En estos dos casos, los art=EDculos podr=
-=E1n mantener, para su publicaci=F3n en las actas, el n=FAmero de p=E1=
-ginas iniciales.
+#define __smp_mb() DOSOMETHING
 
-Los autores de trabajos aceptados como art=EDculo p=F3ster tambi=E9n d=
-eben preparar y imprimir un p=F3ster para su exhibici=F3n en la confer=
-encia. El p=F3ster debe tener una orientaci=F3n vertical y tama=F1o A1=
- o A2. La conferencia ofrece sesiones de trabajo para la presentaci=F3=
-n y discusi=F3n oral de p=F3sters, con 5 minutos por p=F3ster.
+include/asm-generic/barrier.h:
 
-Los autores de art=EDculos (full papers) aceptados dispondr=E1n de 15 =
-minutos para su presentaci=F3n, m=E1s 5 minutos para la discusi=F3n. L=
-os autores de art=EDculos cortos (short papers) y de art=EDculos empre=
-sa (company papers) aceptados dispondr=E1n de 11 minutos para su prese=
-ntaci=F3n, m=E1s 4 minutos para la discusi=F3n.
-=20
+#ifdef CONFIG_SMP
+#define smp_mb() __smp_mb()
+#else
+#define smp_mb() barrier()
+#endif
 
-TEM=C1TICAS
+This has the benefit of cleaning out a bunch of duplicated
+ifdefs on a bunch of architectures - this patchset brings
+about a net reduction in LOC, compensated for by extra documentation :)
 
-Los art=EDculos enviados deber=E1n encuadrarse en las grandes tem=E1ti=
-cas propuestas (los t=F3picos propuestos para cada tem=E1tica son mera=
-mente indicativos con el fin de encuadrar los trabajos, sin pretender =
-ser restrictivos):
+Then virt can use __smp_XXX when talking to an SMP host.
 
-A) OMIS - Organizational Models and Information Systems
-(Modelos Organizacionales y Sistemas de Informaci=F3n)
-=20
-B) KMDSS - Knowledge Management and Decision Support Systems
-(Gesti=F3n de Conocimiento y Sistemas de Apoyo a la Decisi=F3n)
+Touching all archs is a tad tedious, but its fairly straight forward.
 
-C) SSAAT - Software Systems, Architectures, Applications and Tools
-(Sistemas, Arquitecturas, Aplicaciones y Herramientas de Software)
+The rest of the patchset is structured as follows:
 
-D) CNMPS - Computer Networks, Mobility and Pervasive Systems
-(Redes de Computadores, Movilidad y Sistemas Ubicuos)
+-. Patch 1 documents the __smp APIs, and explains why they are
+   useful for virt
 
-E) HCC - Human Centered Computing
-(Inform=E1tica Centrada em Usuario)
+-. Patches 2-7 makes sure barrier.h on ia64, powerpc, s390 and sparc
+   includes asm-generic/barrier.h: this is safe because code there matches
+   asm-generic/barrier.h almost verbatim.
+   Minor code tweaks were required in a couple of places.
+   Macros duplicated from asm-generic/barrier.h are dropped
+   in the process.
 
-F) HIS - Health Informatics
-(Inform=E1tica en la Salud)
-
-G) ITE - Information Technologies in Education
-(Tecnolog=EDa de la Informaci=F3n en la Educaci=F3n)
-
-H) AEC =96 Architecture and Engineering of Construction
-(Arquitectura e Ingenier=EDa de la Construcci=F3n)
-=20
-
-PUBLICACI=D3N & INDEXACI=D3N
-
-Para garantizar la publicaci=F3n de un art=EDculo en las actas (art=ED=
-culo, art=EDculo corto, art=EDculo p=F3ster o art=EDculo empresa), por=
- lo menos un autor debe inscribirse en la conferencia hasta el 11 de A=
-bril y que el art=EDculo respete el formato sugerido y no exceda el n=
-=FAmero m=E1ximo de p=E1ginas previsto. Adicionalmente, los autores de=
- trabajos que reciban recomendaciones de alteraci=F3n del art=EDculo, =
-deber=E1n seguir las mismas antes del env=EDo de la versi=F3n final.
-
-Para cada inscripci=F3n no se publica m=E1s de un art=EDculo en las ac=
-tas. Para la publicaci=F3n de art=EDculos adicionales el autor deber=
-=E1 pagar un suplemento por cada art=EDculo, hasta un m=E1ximo de un a=
-rt=EDculo.
-
-Los art=EDculos (full papers) ser=E1n publicados en libro y en CD con =
-ISBN. Los art=EDculos cortos (short papers), los art=EDculos p=F3ster =
-y los art=EDculos empresa se publicar=E1n =FAnicamente en CD con ISBN.
-
-Los art=EDculos (full papers) publicados ser=E1n enviados a EI, IEEE X=
-Plore, INSPEC, ISI, SCOPUS y Google Scholar. Los art=EDculos cortos (s=
-hort papers) publicados ser=E1n enviados a EI, IEEE XPlore, INSPEC, IS=
-I, SCOPUS y Google Scholar. Los art=EDculos p=F3ster y los art=EDculos=
- empresa ser=E1n enviados a EBSCO y EI-Compendex.
+   I compiled these arches before and after the changes,
+   dumped the .text section (using objdump -O binary) and
+   made sure that the object code is exactly identical
+   before and after the change.
 
 
-FECHAS IMPORTANTES
+-. Patch 8 fixes up smp_store_mb in asm-generic/barrier.h:
+   it should call smp_mb and not mb. Luckily only used
+   in core kernel so we know no one misused it for an
+   MMIO barrier (so far).
+   This is the only patch that affects code behaviour
+   outside virt, and that for !SMP only.
+   Compile-tested on a bunch of architectures (x86
+   hardware which I have is unaffected by this).
+   It's very straightforward so I hope it's enough.
+   Hoping for some acks on this architecture.
 
-Env=EDo de art=EDculos: 14 de febrero de 2016
+-. Patches 9-14 make sure barrier.h on all remaining
+   architectures includes asm-generic/barrier.h:
+   after the change in Patch 8, code there matches
+   asm-generic/barrier.h almost verbatim.
+   Macros duplicated from asm-generic/barrier.h are dropped
+   in the process.
 
-Notificaci=F3n de admisi=F3n: 27 de marzo de 2016
+After all that preparatory work, we are getting to the actual change.
 
-Env=EDo de la versi=F3n final de los art=EDculos aceptados: 10 de abri=
-l de 2016
+-. Patches 15 adds generic smp_XXX wrappers in asm-generic
+   these select __smp_XXX or barrier() depending on CONFIG_SMP
 
-Pago de la inscripci=F3n para garantizar la inclusi=F3n del art=EDculo=
- aceptado en las actas de la conferencia: 8 de abril de 2015.
+-. Patches 16-28 change all architectures to
+   define __smp_XXX macros; the generic code in asm-generic/barrier.h
+   then defines smp_XXX macros
 
-=20
-Contamos con usted. H=E1ganos llegar su contribuci=F3n.
+   I compiled the affected arches before and after the changes,
+   dumped the .text section (using objdump -O binary) and
+   made sure that the object code is exactly identical
+   before and after the change.
+   I couldn't fully build sh,tile,xtensa but I did this test
+   kernel/rcu/tree.o kernel/sched/wait.o and
+   kernel/futex.o and tested these instead.
 
-Web de la CISTI'2016: http://www.aisti.eu/cisti2016/
+Unfortunately, I don't have a metag cross-build toolset ready.
+Hoping for some acks on this architecture.
 
+Finally, the following patches put the __smp_XXX APIs to work for virt:
 
-Saludos,
+-. Patches 29-31 convert virtio and xen drivers to use the __smp_XXX APIs
 
-Maria Lemos
-AISTI
-http://www.aisti.eu/
+   xen patches are untested
+   virtio ones have been tested on x86
 
+-. Patches 33-34 teach virtio to use
+   __smp_load_acquire/__smp_store_release/__smp_store_mb
+   This is what started all this work.
 
+   tested on x86
 
+The patchset has been in linux-next for a bit, so far without issues.
 
---===============1729718808449285424==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Michael S. Tsirkin (34):
+  Documentation/memory-barriers.txt: document __smb_mb()
+  asm-generic: guard smp_store_release/load_acquire
+  ia64: rename nop->iosapic_nop
+  ia64: reuse asm-generic/barrier.h
+  powerpc: reuse asm-generic/barrier.h
+  s390: reuse asm-generic/barrier.h
+  sparc: reuse asm-generic/barrier.h
+  asm-generic: smp_store_mb should use smp_mb
+  arm: reuse asm-generic/barrier.h
+  arm64: reuse asm-generic/barrier.h
+  metag: reuse asm-generic/barrier.h
+  mips: reuse asm-generic/barrier.h
+  x86/um: reuse asm-generic/barrier.h
+  x86: reuse asm-generic/barrier.h
+  asm-generic: add __smp_XXX wrappers
+  powerpc: define __smp_XXX
+  arm64: define __smp_XXX
+  arm: define __smp_XXX
+  blackfin: define __smp_XXX
+  ia64: define __smp_XXX
+  metag: define __smp_XXX
+  mips: define __smp_XXX
+  s390: define __smp_XXX
+  sh: define __smp_XXX, fix smp_store_mb for !SMP
+  sparc: define __smp_XXX
+  tile: define __smp_XXX
+  xtensa: define __smp_XXX
+  x86: define __smp_XXX
+  Revert "virtio_ring: Update weak barriers to use dma_wmb/rmb"
+  virtio_ring: update weak barriers to use __smp_XXX
+  xenbus: use __smp_XXX barriers
+  xen/io: use __smp_XXX barriers
+  virtio: use __smp_load_acquire/__smp_store_release
+  virtio_ring: use __smp_store_mb
 
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1729718808449285424==--
+ arch/arm/include/asm/barrier.h      | 35 ++------------
+ arch/arm64/include/asm/barrier.h    | 19 +++-----
+ arch/blackfin/include/asm/barrier.h |  4 +-
+ arch/ia64/include/asm/barrier.h     | 24 +++-------
+ arch/metag/include/asm/barrier.h    | 55 +++++++--------------
+ arch/mips/include/asm/barrier.h     | 51 +++++++-------------
+ arch/powerpc/include/asm/barrier.h  | 33 ++++---------
+ arch/s390/include/asm/barrier.h     | 25 +++++-----
+ arch/sh/include/asm/barrier.h       |  3 +-
+ arch/sparc/include/asm/barrier_32.h |  1 -
+ arch/sparc/include/asm/barrier_64.h | 29 +++--------
+ arch/sparc/include/asm/processor.h  |  3 --
+ arch/tile/include/asm/barrier.h     |  9 ++--
+ arch/x86/include/asm/barrier.h      | 36 ++++++--------
+ arch/x86/um/asm/barrier.h           |  9 +---
+ arch/xtensa/include/asm/barrier.h   |  4 +-
+ include/asm-generic/barrier.h       | 95 +++++++++++++++++++++++++++++++++----
+ include/linux/virtio_ring.h         | 48 ++++++++++++++++---
+ include/xen/interface/io/ring.h     | 16 +++----
+ arch/ia64/kernel/iosapic.c          |  6 +--
+ drivers/virtio/virtio_ring.c        | 35 +++++++-------
+ drivers/xen/xenbus/xenbus_comms.c   |  8 ++--
+ Documentation/memory-barriers.txt   | 33 +++++++++++--
+ 23 files changed, 292 insertions(+), 289 deletions(-)
+
+-- 
+MST
