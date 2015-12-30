@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 30/34] virtio_ring: update weak barriers to use __smp_XXX
-Date: Wed, 30 Dec 2015 15:26:21 +0200
-Message-ID: <1451473761-30019-31-git-send-email-mst@redhat.com>
+Subject: [PATCH 31/34] xenbus: use __smp_XXX barriers
+Date: Wed, 30 Dec 2015 15:26:24 +0200
+Message-ID: <1451473761-30019-32-git-send-email-mst__18984.7865178765$1451482206$gmane$org@redhat.com>
 References: <1451473761-30019-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,85 +19,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Peter Zijlstra <peterz@infradead.org>, Andrew Cooper <andrew.cooper3@citrix.com>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org
+Cc: linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Peter Zijlstra <peterz@infradead.org>, Andrew Cooper <andrew.cooper3@citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, virtualization@lists.linux-foundation.org, David Vrabel <david.vrabel@citrix.com>, xen-devel@lists.xenproject.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio ring uses smp_wmb on SMP and wmb on !SMP,
-the reason for the later being that it might be
-talking to another kernel on the same SMP machine.
+drivers/xen/xenbus/xenbus_comms.c uses
+full memory barriers to communicate with the other side.
 
-This is exactly what __smp_XXX barriers do,
-so switch to these instead of homegrown ifdef hacks.
+For guests compiled with CONFIG_SMP, smp_wmb and smp_mb
+would be sufficient, so mb() and wmb() here are only needed if
+a non-SMP guest runs on an SMP host.
 
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Alexander Duyck <alexander.duyck@gmail.com>
+Switch to __smp_XXX barriers which serve this exact purpose.
+
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- include/linux/virtio_ring.h | 25 ++++---------------------
- 1 file changed, 4 insertions(+), 21 deletions(-)
 
-diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-index 67e06fe..71176be 100644
---- a/include/linux/virtio_ring.h
-+++ b/include/linux/virtio_ring.h
-@@ -12,7 +12,7 @@
-  * anyone care?
-  *
-  * For virtio_pci on SMP, we don't need to order with respect to MMIO
-- * accesses through relaxed memory I/O windows, so smp_mb() et al are
-+ * accesses through relaxed memory I/O windows, so __smp_mb() et al are
-  * sufficient.
-  *
-  * For using virtio to talk to real devices (eg. other heterogeneous
-@@ -21,11 +21,10 @@
-  * actually quite cheap.
-  */
+This is straight-forward, but untested.
+I can either merge this patchset through my tree if this is
+acked, or defer this and merge the patchset first,
+and xen bits through xen tree afterwards.
+
+Pls let me know.
+
+ drivers/xen/xenbus/xenbus_comms.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/xen/xenbus/xenbus_comms.c b/drivers/xen/xenbus/xenbus_comms.c
+index fdb0f33..09b17c7 100644
+--- a/drivers/xen/xenbus/xenbus_comms.c
++++ b/drivers/xen/xenbus/xenbus_comms.c
+@@ -123,14 +123,14 @@ int xb_write(const void *data, unsigned len)
+ 			avail = len;
  
--#ifdef CONFIG_SMP
- static inline void virtio_mb(bool weak_barriers)
- {
- 	if (weak_barriers)
--		smp_mb();
+ 		/* Must write data /after/ reading the consumer index. */
+-		mb();
 +		__smp_mb();
- 	else
- 		mb();
- }
-@@ -33,7 +32,7 @@ static inline void virtio_mb(bool weak_barriers)
- static inline void virtio_rmb(bool weak_barriers)
- {
- 	if (weak_barriers)
--		smp_rmb();
-+		__smp_rmb();
- 	else
- 		rmb();
- }
-@@ -41,26 +40,10 @@ static inline void virtio_rmb(bool weak_barriers)
- static inline void virtio_wmb(bool weak_barriers)
- {
- 	if (weak_barriers)
--		smp_wmb();
-+		__smp_wmb();
- 	else
- 		wmb();
- }
--#else
--static inline void virtio_mb(bool weak_barriers)
--{
--	mb();
--}
--
--static inline void virtio_rmb(bool weak_barriers)
--{
--	rmb();
--}
--
--static inline void virtio_wmb(bool weak_barriers)
--{
--	wmb();
--}
--#endif
  
- struct virtio_device;
- struct virtqueue;
+ 		memcpy(dst, data, avail);
+ 		data += avail;
+ 		len -= avail;
+ 
+ 		/* Other side must not see new producer until data is there. */
+-		wmb();
++		__smp_wmb();
+ 		intf->req_prod += avail;
+ 
+ 		/* Implies mb(): other side will see the updated producer. */
+@@ -180,14 +180,14 @@ int xb_read(void *data, unsigned len)
+ 			avail = len;
+ 
+ 		/* Must read data /after/ reading the producer index. */
+-		rmb();
++		__smp_rmb();
+ 
+ 		memcpy(data, src, avail);
+ 		data += avail;
+ 		len -= avail;
+ 
+ 		/* Other side must not see free space until we've copied out */
+-		mb();
++		__smp_mb();
+ 		intf->rsp_cons += avail;
+ 
+ 		pr_debug("Finished read of %i bytes (%i to go)\n", avail, len);
 -- 
 MST
