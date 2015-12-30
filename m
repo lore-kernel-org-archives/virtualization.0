@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 34/34] virtio_ring: use __smp_store_mb
-Date: Wed, 30 Dec 2015 15:26:35 +0200
-Message-ID: <1451473761-30019-35-git-send-email-mst__45439.3475004055$1451482238$gmane$org@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 08/34] asm-generic: smp_store_mb should use smp_mb
+Date: Wed, 30 Dec 2015 14:44:21 +0100
+Message-ID: <5946017.BCmPrpGMuh__17785.3891895667$1451483437$gmane$org@wuerfel>
 References: <1451473761-30019-1-git-send-email-mst@redhat.com>
+	<1451473761-30019-9-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1451473761-30019-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1451473761-30019-9-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,78 +18,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Peter Zijlstra <peterz@infradead.org>, Andrew Cooper <andrew.cooper3@citrix.com>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-arch@vger.kernel.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Peter Zijlstra <peterz@infradead.org>, Andrew Cooper <andrew.cooper3@citrix.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We need a full barrier after writing out event index, using
-__smp_store_mb there seems better than open-coding.  As usual, we need a
-wrapper to account for strong barriers.
+On Wednesday 30 December 2015 15:24:47 Michael S. Tsirkin wrote:
+> asm-generic variant of smp_store_mb() calls mb() which is stronger
+> than implied by both the name and the documentation.
+> 
+> smp_store_mb is only used by core kernel code at the moment, so
+> we know no one mis-uses it for an MMIO barrier.
+> Make it call smp_mb consistently before some arch-specific
+> code uses it as such by mistake.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  include/asm-generic/barrier.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/include/asm-generic/barrier.h b/include/asm-generic/barrier.h
+> index 538f8d1..987b2e0 100644
+> --- a/include/asm-generic/barrier.h
+> +++ b/include/asm-generic/barrier.h
+> @@ -93,7 +93,7 @@
+>  #endif	/* CONFIG_SMP */
+>  
+>  #ifndef smp_store_mb
+> -#define smp_store_mb(var, value)  do { WRITE_ONCE(var, value); mb(); } while (0)
+> +#define smp_store_mb(var, value)  do { WRITE_ONCE(var, value); smp_mb(); } while (0)
+>  #endif
+>  
+>  #ifndef smp_mb__before_atomic
+> 
 
-It's tempting to use this in vhost as well, for that, we'll
-need a variant of smp_store_mb that works on __user pointers.
+The same patch is already in the tip tree scheduled for 4.5 as d5a73cadf3fd
+("lcoking/barriers, arch: Use smp barriers in smp_store_release()").
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- include/linux/virtio_ring.h  | 12 ++++++++++++
- drivers/virtio/virtio_ring.c | 15 +++++++++------
- 2 files changed, 21 insertions(+), 6 deletions(-)
+I think you can drop your version.
 
-diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-index 528cf81..8ff0c25 100644
---- a/include/linux/virtio_ring.h
-+++ b/include/linux/virtio_ring.h
-@@ -45,6 +45,18 @@ static inline void virtio_wmb(bool weak_barriers)
- 		wmb();
- }
- 
-+static inline void virtio_store_mb(bool weak_barriers,
-+				   __virtio16 *p, __virtio16 v)
-+{
-+	if (weak_barriers)
-+		__smp_store_mb(*p, v);
-+	else
-+	{
-+		WRITE_ONCE(*p, v);
-+		mb();
-+	}
-+}
-+
- /* a load + acquire barrier, but only guaranteed to order reads */
- static inline __virtio16 virtio_load_acquire_rmb(bool weak_barriers,
- 						 __virtio16 *p)
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index edc01d0..9befa32 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -517,10 +517,10 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
- 	/* If we expect an interrupt for the next entry, tell host
- 	 * by writing event index and flush out the write before
- 	 * the read in the next get_buf call. */
--	if (!(vq->avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT)) {
--		vring_used_event(&vq->vring) = cpu_to_virtio16(_vq->vdev, vq->last_used_idx);
--		virtio_mb(vq->weak_barriers);
--	}
-+	if (!(vq->avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT))
-+		virtio_store_mb(vq->weak_barriers,
-+				&vring_used_event(&vq->vring),
-+				cpu_to_virtio16(_vq->vdev, vq->last_used_idx));
- 
- #ifdef DEBUG
- 	vq->last_add_time_valid = false;
-@@ -653,8 +653,11 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
- 	}
- 	/* TODO: tune this threshold */
- 	bufs = (u16)(vq->avail_idx_shadow - vq->last_used_idx) * 3 / 4;
--	vring_used_event(&vq->vring) = cpu_to_virtio16(_vq->vdev, vq->last_used_idx + bufs);
--	virtio_mb(vq->weak_barriers);
-+
-+	virtio_store_mb(vq->weak_barriers,
-+			&vring_used_event(&vq->vring),
-+			cpu_to_virtio16(_vq->vdev, vq->last_used_idx + bufs));
-+
- 	if (unlikely((u16)(virtio16_to_cpu(_vq->vdev, vq->vring.used->idx) - vq->last_used_idx) > bufs)) {
- 		END_USE(vq);
- 		return false;
--- 
-MST
+	arnd
