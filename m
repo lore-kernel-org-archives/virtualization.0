@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 18/34] arm: define __smp_XXX
-Date: Wed, 30 Dec 2015 15:25:32 +0200
-Message-ID: <1451473761-30019-19-git-send-email-mst__36547.7108317011$1451482068$gmane$org@redhat.com>
+Subject: [PATCH 19/34] blackfin: define __smp_XXX
+Date: Wed, 30 Dec 2015 15:25:36 +0200
+Message-ID: <1451473761-30019-20-git-send-email-mst@redhat.com>
 References: <1451473761-30019-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,42 +19,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-arch@vger.kernel.org, Russell King <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Peter Zijlstra <peterz@infradead.org>, Andrew Cooper <andrew.cooper3@citrix.com>, virtualization@lists.linux-foundation.org, Tony Lindgren <tony@atomide.com>, Andrey Konovalov <andreyknvl@google.com>, Ingo Molnar <mingo@kernel.org>, linux-arm-kernel@lists.infradead.org
+Cc: linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Peter Zijlstra <peterz@infradead.org>, Andrew Cooper <andrew.cooper3@citrix.com>, adi-buildroot-devel@lists.sourceforge.net, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This defines __smp_XXX barriers for arm,
+This defines __smp_XXX barriers for blackfin,
 for use by virtualization.
 
 smp_XXX barriers are removed as they are
 defined correctly by asm-generic/barriers.h
 
-This reduces the amount of arch-specific boiler-plate code.
-
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- arch/arm/include/asm/barrier.h | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ arch/blackfin/include/asm/barrier.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/include/asm/barrier.h b/arch/arm/include/asm/barrier.h
-index 31152e8..112cc1a 100644
---- a/arch/arm/include/asm/barrier.h
-+++ b/arch/arm/include/asm/barrier.h
-@@ -60,15 +60,9 @@ extern void arm_heavy_mb(void);
- #define dma_wmb()	barrier()
- #endif
+diff --git a/arch/blackfin/include/asm/barrier.h b/arch/blackfin/include/asm/barrier.h
+index dfb66fe..7cca51c 100644
+--- a/arch/blackfin/include/asm/barrier.h
++++ b/arch/blackfin/include/asm/barrier.h
+@@ -78,8 +78,8 @@
  
--#ifndef CONFIG_SMP
--#define smp_mb()	barrier()
--#define smp_rmb()	barrier()
--#define smp_wmb()	barrier()
--#else
--#define smp_mb()	dmb(ish)
--#define smp_rmb()	smp_mb()
--#define smp_wmb()	dmb(ishst)
--#endif
-+#define __smp_mb()	dmb(ish)
-+#define __smp_rmb()	__smp_mb()
-+#define __smp_wmb()	dmb(ishst)
+ #endif /* !CONFIG_SMP */
+ 
+-#define smp_mb__before_atomic()	barrier()
+-#define smp_mb__after_atomic()	barrier()
++#define __smp_mb__before_atomic()	barrier()
++#define __smp_mb__after_atomic()	barrier()
  
  #include <asm-generic/barrier.h>
  
