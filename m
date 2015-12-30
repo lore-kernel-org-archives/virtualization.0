@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 32/34] xen/io: use __smp_XXX barriers
-Date: Wed, 30 Dec 2015 15:26:28 +0200
-Message-ID: <1451473761-30019-33-git-send-email-mst__39522.0838407569$1451482223$gmane$org@redhat.com>
+Subject: [PATCH 33/34] virtio: use __smp_load_acquire/__smp_store_release
+Date: Wed, 30 Dec 2015 15:26:32 +0200
+Message-ID: <1451473761-30019-34-git-send-email-mst__33958.3447007046$1451482226$gmane$org@redhat.com>
 References: <1451473761-30019-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,83 +19,134 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Peter Zijlstra <peterz@infradead.org>, Andrew Cooper <andrew.cooper3@citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, virtualization@lists.linux-foundation.org, David Vrabel <david.vrabel@citrix.com>, xen-devel@lists.xenproject.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Peter Zijlstra <peterz@infradead.org>, Andrew Cooper <andrew.cooper3@citrix.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-include/xen/interface/io/ring.h uses
-full memory barriers to communicate with the other side.
+virtio ring entries have exactly the acquire/release
+semantics:
+	- reading used index acquires a ring entry from host
+	- updating the available index releases it to host
 
-For guests compiled with CONFIG_SMP, smp_wmb and smp_mb
-would be sufficient, so mb() and wmb() here are only needed if
-a non-SMP guest runs on an SMP host.
+Thus when using weak barriers (as most people do), __smp_load_acquire
+and __smp_store_release will do exactly the right thing to synchronize
+with the host.
 
-Switch to __smp_XXX barriers which serve this exact purpose.
+In fact, QEMU already uses __atomic_thread_fence(__ATOMIC_ACQUIRE) and
+__atomic_thread_fence(__ATOMIC_RELEASE);
+Documentation/circular-buffers.txt suggests smp_load_acquire and
+smp_store_release for head and tail updates.
+
+Since we have to worry about strong barrier users,
+let's add APIs to wrap these, and use in virtio_ring.c:
+in case of the string barriers, we fall back on
+rmb/wmb as previously.
+
+It is tempting to use this in vhost as well,
+this needs a bit more work to make acquire/release macros
+work on __user pointers.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- include/xen/interface/io/ring.h | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ include/linux/virtio_ring.h  | 26 ++++++++++++++++++++++++++
+ drivers/virtio/virtio_ring.c | 20 ++++++++++----------
+ 2 files changed, 36 insertions(+), 10 deletions(-)
 
-diff --git a/include/xen/interface/io/ring.h b/include/xen/interface/io/ring.h
-index 7dc685b..46dfc65 100644
---- a/include/xen/interface/io/ring.h
-+++ b/include/xen/interface/io/ring.h
-@@ -208,12 +208,12 @@ struct __name##_back_ring {						\
+diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+index 71176be..528cf81 100644
+--- a/include/linux/virtio_ring.h
++++ b/include/linux/virtio_ring.h
+@@ -45,6 +45,32 @@ static inline void virtio_wmb(bool weak_barriers)
+ 		wmb();
+ }
  
++/* a load + acquire barrier, but only guaranteed to order reads */
++static inline __virtio16 virtio_load_acquire_rmb(bool weak_barriers,
++						 __virtio16 *p)
++{
++	if (weak_barriers)
++		return __smp_load_acquire(p);
++	else {
++		__virtio16 v = READ_ONCE(*p);
++		rmb();
++		return v;
++	}
++}
++
++/* a release barrier + store, but only guaranteed to order writes */
++static inline void virtio_store_release_wmb(bool weak_barriers,
++					    __virtio16 *p, __virtio16 v)
++{
++	if (weak_barriers)
++		__smp_store_release(p, v);
++	else {
++		wmb();
++		WRITE_ONCE(*p, v);
++		return;
++	}
++}
++
+ struct virtio_device;
+ struct virtqueue;
  
- #define RING_PUSH_REQUESTS(_r) do {					\
--    wmb(); /* back sees requests /before/ updated producer index */	\
-+    __smp_wmb(); /* back sees requests /before/ updated producer index */	\
-     (_r)->sring->req_prod = (_r)->req_prod_pvt;				\
- } while (0)
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index ee663c4..edc01d0 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -244,11 +244,11 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+ 	avail = vq->avail_idx_shadow & (vq->vring.num - 1);
+ 	vq->vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
  
- #define RING_PUSH_RESPONSES(_r) do {					\
--    wmb(); /* front sees responses /before/ updated producer index */	\
-+    __smp_wmb(); /* front sees responses /before/ updated producer index */	\
-     (_r)->sring->rsp_prod = (_r)->rsp_prod_pvt;				\
- } while (0)
++	vq->avail_idx_shadow++;
+ 	/* Descriptors and available array need to be set before we expose the
+ 	 * new available array entries. */
+-	virtio_wmb(vq->weak_barriers);
+-	vq->avail_idx_shadow++;
+-	vq->vring.avail->idx = cpu_to_virtio16(_vq->vdev, vq->avail_idx_shadow);
++	virtio_store_release_wmb(vq->weak_barriers, &vq->vring.avail->idx,
++				 cpu_to_virtio16(_vq->vdev, vq->avail_idx_shadow));
+ 	vq->num_added++;
  
-@@ -250,9 +250,9 @@ struct __name##_back_ring {						\
- #define RING_PUSH_REQUESTS_AND_CHECK_NOTIFY(_r, _notify) do {		\
-     RING_IDX __old = (_r)->sring->req_prod;				\
-     RING_IDX __new = (_r)->req_prod_pvt;				\
--    wmb(); /* back sees requests /before/ updated producer index */	\
-+    __smp_wmb(); /* back sees requests /before/ updated producer index */	\
-     (_r)->sring->req_prod = __new;					\
--    mb(); /* back sees new requests /before/ we check req_event */	\
-+    __smp_mb(); /* back sees new requests /before/ we check req_event */	\
-     (_notify) = ((RING_IDX)(__new - (_r)->sring->req_event) <		\
- 		 (RING_IDX)(__new - __old));				\
- } while (0)
-@@ -260,9 +260,9 @@ struct __name##_back_ring {						\
- #define RING_PUSH_RESPONSES_AND_CHECK_NOTIFY(_r, _notify) do {		\
-     RING_IDX __old = (_r)->sring->rsp_prod;				\
-     RING_IDX __new = (_r)->rsp_prod_pvt;				\
--    wmb(); /* front sees responses /before/ updated producer index */	\
-+    __smp_wmb(); /* front sees responses /before/ updated producer index */	\
-     (_r)->sring->rsp_prod = __new;					\
--    mb(); /* front sees new responses /before/ we check rsp_event */	\
-+    __smp_mb(); /* front sees new responses /before/ we check rsp_event */	\
-     (_notify) = ((RING_IDX)(__new - (_r)->sring->rsp_event) <		\
- 		 (RING_IDX)(__new - __old));				\
- } while (0)
-@@ -271,7 +271,7 @@ struct __name##_back_ring {						\
-     (_work_to_do) = RING_HAS_UNCONSUMED_REQUESTS(_r);			\
-     if (_work_to_do) break;						\
-     (_r)->sring->req_event = (_r)->req_cons + 1;			\
--    mb();								\
-+    __smp_mb();								\
-     (_work_to_do) = RING_HAS_UNCONSUMED_REQUESTS(_r);			\
- } while (0)
+ 	pr_debug("Added buffer head %i to %p\n", head, vq);
+@@ -453,9 +453,10 @@ static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
+ 	vq->vq.num_free++;
+ }
  
-@@ -279,7 +279,7 @@ struct __name##_back_ring {						\
-     (_work_to_do) = RING_HAS_UNCONSUMED_RESPONSES(_r);			\
-     if (_work_to_do) break;						\
-     (_r)->sring->rsp_event = (_r)->rsp_cons + 1;			\
--    mb();								\
-+    __smp_mb();								\
-     (_work_to_do) = RING_HAS_UNCONSUMED_RESPONSES(_r);			\
- } while (0)
+-static inline bool more_used(const struct vring_virtqueue *vq)
++static inline
++bool more_used(const struct vring_virtqueue *vq, __virtio16 used_idx)
+ {
+-	return vq->last_used_idx != virtio16_to_cpu(vq->vq.vdev, vq->vring.used->idx);
++	return vq->last_used_idx != virtio16_to_cpu(vq->vq.vdev, used_idx);
+ }
  
+ /**
+@@ -488,15 +489,14 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
+ 		return NULL;
+ 	}
+ 
+-	if (!more_used(vq)) {
++	/* Only get used array entries after they have been exposed by host. */
++	if (!more_used(vq, virtio_load_acquire_rmb(vq->weak_barriers,
++						   &vq->vring.used->idx))) {
+ 		pr_debug("No more buffers in queue\n");
+ 		END_USE(vq);
+ 		return NULL;
+ 	}
+ 
+-	/* Only get used array entries after they have been exposed by host. */
+-	virtio_rmb(vq->weak_barriers);
+-
+ 	last_used = (vq->last_used_idx & (vq->vring.num - 1));
+ 	i = virtio32_to_cpu(_vq->vdev, vq->vring.used->ring[last_used].id);
+ 	*len = virtio32_to_cpu(_vq->vdev, vq->vring.used->ring[last_used].len);
+@@ -704,7 +704,7 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 
+-	if (!more_used(vq)) {
++	if (!more_used(vq, vq->vring.used->idx)) {
+ 		pr_debug("virtqueue interrupt with no work for %p\n", vq);
+ 		return IRQ_NONE;
+ 	}
 -- 
 MST
