@@ -1,14 +1,11 @@
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Subject: Re: [PATCH v2 32/32] virtio_ring: use virt_store_mb
-Date: Fri, 1 Jan 2016 20:23:46 +0300
-Message-ID: <5686B622.6070600@cogentembedded.com>
-References: <1451572003-2440-1-git-send-email-mst@redhat.com>
-	<1451572003-2440-33-git-send-email-mst@redhat.com>
+From: Geliang Tang <geliangtang@163.com>
+Subject: [PATCH] virtio/s390: use dev_to_virtio
+Date: Wed, 30 Dec 2015 22:05:25 +0800
+Message-ID: <912bf59bd3a48f2d4d4994681e898dc084fe29d3.1451484163.git.geliangtang__21516.3640132689$1451707060$gmane$org@163.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1451572003-2440-33-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,54 +15,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew Cooper <andrew.cooper3@citrix.com>, linuxppc-dev@lists.ozlabs.org, David Miller <davem@davemloft.net>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Geliang Tang <geliangtang@163.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello.
+Use dev_to_virtio() instead of open-coding it.
 
-On 12/31/2015 10:09 PM, Michael S. Tsirkin wrote:
+Signed-off-by: Geliang Tang <geliangtang@163.com>
+---
+ drivers/s390/virtio/virtio_ccw.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-> We need a full barrier after writing out event index, using
-> virt_store_mb there seems better than open-coding.  As usual, we need a
-> wrapper to account for strong barriers.
->
-> It's tempting to use this in vhost as well, for that, we'll
-> need a variant of smp_store_mb that works on __user pointers.
->
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->   include/linux/virtio_ring.h  | 12 ++++++++++++
->   drivers/virtio/virtio_ring.c | 15 +++++++++------
->   2 files changed, 21 insertions(+), 6 deletions(-)
->
-> diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-> index f3fa55b..3a74d91 100644
-> --- a/include/linux/virtio_ring.h
-> +++ b/include/linux/virtio_ring.h
-> @@ -45,6 +45,18 @@ static inline void virtio_wmb(bool weak_barriers)
->   		wmb();
->   }
->
-> +static inline void virtio_store_mb(bool weak_barriers,
-> +				   __virtio16 *p, __virtio16 v)
-> +{
-> +	if (weak_barriers)
-> +		virt_store_mb(*p, v);
-> +	else
-> +	{
-
-    The kernel coding style dictates:
-
-	if (weak_barriers) {
-		virt_store_mb(*p, v);
-	} else {
-
-> +		WRITE_ONCE(*p, v);
-> +		mb();
-> +	}
-> +}
-> +
-[...]
-
-MBR, Sergei
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 1b83159..97231e1 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -945,8 +945,7 @@ static struct virtio_config_ops virtio_ccw_config_ops = {
+ 
+ static void virtio_ccw_release_dev(struct device *_d)
+ {
+-	struct virtio_device *dev = container_of(_d, struct virtio_device,
+-						 dev);
++	struct virtio_device *dev = dev_to_virtio(_d);
+ 	struct virtio_ccw_device *vcdev = to_vc_device(dev);
+ 
+ 	kfree(vcdev->status);
+-- 
+2.5.0
