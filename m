@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2 31/32] sh: support a 2-byte smp_store_mb
-Date: Thu, 31 Dec 2015 21:09:47 +0200
-Message-ID: <1451572003-2440-32-git-send-email-mst__39168.1475718089$1451589119$gmane$org@redhat.com>
+Subject: [PATCH v2 32/32] virtio_ring: use virt_store_mb
+Date: Thu, 31 Dec 2015 21:09:54 +0200
+Message-ID: <1451572003-2440-33-git-send-email-mst__46741.5508501746$1451589123$gmane$org@redhat.com>
 References: <1451572003-2440-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,42 +19,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew Cooper <andrew.cooper3@citrix.com>, linuxppc-dev@lists.ozlabs.org, David Miller <davem@davemloft.net>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew Cooper <andrew.cooper3@citrix.com>, linuxppc-dev@lists.ozlabs.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-At the moment, xchg on sh only supports 4 and 1 byte values, so using it
-from smp_store_mb means attempts to store a 2 byte value using this
-macro fail.
+We need a full barrier after writing out event index, using
+virt_store_mb there seems better than open-coding.  As usual, we need a
+wrapper to account for strong barriers.
 
-And happens to be exactly what virtio drivers want to do.
-
-Check size and fall back to a slower, but safe, WRITE_ONCE+smp_mb.
+It's tempting to use this in vhost as well, for that, we'll
+need a variant of smp_store_mb that works on __user pointers.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- arch/sh/include/asm/barrier.h | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ include/linux/virtio_ring.h  | 12 ++++++++++++
+ drivers/virtio/virtio_ring.c | 15 +++++++++------
+ 2 files changed, 21 insertions(+), 6 deletions(-)
 
-diff --git a/arch/sh/include/asm/barrier.h b/arch/sh/include/asm/barrier.h
-index f887c64..0cc5735 100644
---- a/arch/sh/include/asm/barrier.h
-+++ b/arch/sh/include/asm/barrier.h
-@@ -32,7 +32,15 @@
- #define ctrl_barrier()	__asm__ __volatile__ ("nop;nop;nop;nop;nop;nop;nop;nop")
- #endif
+diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+index f3fa55b..3a74d91 100644
+--- a/include/linux/virtio_ring.h
++++ b/include/linux/virtio_ring.h
+@@ -45,6 +45,18 @@ static inline void virtio_wmb(bool weak_barriers)
+ 		wmb();
+ }
  
--#define __smp_store_mb(var, value) do { (void)xchg(&var, value); } while (0)
-+#define __smp_store_mb(var, value) do { \
-+	if (sizeof(var) != 4 && sizeof(var) != 1) { \
-+		 WRITE_ONCE(var, value); \
-+		__smp_mb(); \
-+	} else { \
-+		(void)xchg(&var, value);  \
-+	} \
-+} while (0)
++static inline void virtio_store_mb(bool weak_barriers,
++				   __virtio16 *p, __virtio16 v)
++{
++	if (weak_barriers)
++		virt_store_mb(*p, v);
++	else
++	{
++		WRITE_ONCE(*p, v);
++		mb();
++	}
++}
 +
- #define smp_store_mb(var, value) __smp_store_mb(var, value)
+ struct virtio_device;
+ struct virtqueue;
  
- #include <asm-generic/barrier.h>
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index ee663c4..e12e385 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -517,10 +517,10 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
+ 	/* If we expect an interrupt for the next entry, tell host
+ 	 * by writing event index and flush out the write before
+ 	 * the read in the next get_buf call. */
+-	if (!(vq->avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT)) {
+-		vring_used_event(&vq->vring) = cpu_to_virtio16(_vq->vdev, vq->last_used_idx);
+-		virtio_mb(vq->weak_barriers);
+-	}
++	if (!(vq->avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT))
++		virtio_store_mb(vq->weak_barriers,
++				&vring_used_event(&vq->vring),
++				cpu_to_virtio16(_vq->vdev, vq->last_used_idx));
+ 
+ #ifdef DEBUG
+ 	vq->last_add_time_valid = false;
+@@ -653,8 +653,11 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
+ 	}
+ 	/* TODO: tune this threshold */
+ 	bufs = (u16)(vq->avail_idx_shadow - vq->last_used_idx) * 3 / 4;
+-	vring_used_event(&vq->vring) = cpu_to_virtio16(_vq->vdev, vq->last_used_idx + bufs);
+-	virtio_mb(vq->weak_barriers);
++
++	virtio_store_mb(vq->weak_barriers,
++			&vring_used_event(&vq->vring),
++			cpu_to_virtio16(_vq->vdev, vq->last_used_idx + bufs));
++
+ 	if (unlikely((u16)(virtio16_to_cpu(_vq->vdev, vq->vring.used->idx) - vq->last_used_idx) > bufs)) {
+ 		END_USE(vq);
+ 		return false;
 -- 
 MST
