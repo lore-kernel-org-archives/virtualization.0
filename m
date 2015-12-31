@@ -1,14 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC] vhost: basic device IOTLB support
-Date: Thu, 31 Dec 2015 13:17:34 +0200
-Message-ID: <20151231130835-mutt-send-email-mst__17652.9427910738$1451560674$gmane$org@redhat.com>
-References: <1451546025-15955-1-git-send-email-jasowang@redhat.com>
+Subject: [PATCH v2 00/34] arch: barrier cleanup + barriers for virt
+Date: Thu, 31 Dec 2015 21:05:36 +0200
+Message-ID: <1451572003-2440-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1451546025-15955-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,418 +16,208 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew Cooper <andrew.cooper3@citrix.com>, linuxppc-dev@lists.ozlabs.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 31, 2015 at 03:13:45PM +0800, Jason Wang wrote:
-> This patch tries to implement an device IOTLB for vhost. This could be
-> used with for co-operation with userspace(qemu) implementation of
-> iommu for a secure DMA environment in guest.
-> 
-> The idea is simple. When vhost meets an IOTLB miss, it will request
-> the assistance of userspace to do the translation, this is done
-> through:
-> 
-> - Fill the translation request in a preset userspace address (This
->   address is set through ioctl VHOST_SET_IOTLB_REQUEST_ENTRY).
-> - Notify userspace through eventfd (This eventfd was set through ioctl
->   VHOST_SET_IOTLB_FD).
-> 
-> When userspace finishes the translation, it will update the vhost
-> IOTLB through VHOST_UPDATE_IOTLB ioctl. Userspace is also in charge of
-> snooping the IOTLB invalidation of IOMMU IOTLB and use
-> VHOST_UPDATE_IOTLB to invalidate the possible entry in vhost.
-> 
-> For simplicity, IOTLB was implemented with a simple hash array. The
-> index were calculated from IOVA page frame number which can only works
-> at PAGE_SIZE level.
-> 
-> An qemu implementation (for reference) is available at:
-> git@github.com:jasowang/qemu.git iommu
-> 
-> TODO & Known issues:
-> 
-> - read/write permission validation was not implemented.
-> - no feature negotiation.
-> - VHOST_SET_MEM_TABLE is not reused (maybe there's a chance).
-> - working at PAGE_SIZE level, don't support large mappings.
-> - better data structure for IOTLB instead of simple hash array.
-> - better API, e.g using mmap() instead of preset userspace address.
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+Changes since v1:
+	- replaced my asm-generic patch with an equivalent patch already in tip
+	- add wrappers with virt_ prefix for better code annotation,
+	  as suggested by David Miller
+	- dropped XXX in patch names as this makes vger choke, Cc all relevant
+	  mailing lists on all patches (not personal email, as the list becomes
+	  too long then)
 
-Interesting. I'm working on a slightly different approach
-which is direct vt-d support in vhost.
-This one has the advantage of being more portable.
+I parked this in vhost tree for now, but the inclusion of patch 1 from tip
+creates a merge conflict (even though it's easy to resolve).
+Would tip maintainers prefer merging it through tip tree instead
+(including the virtio patches)?
+Or should I just merge it all through my tree, including the
+duplicate patch, and assume conflict will be resolved?
+If the second, acks will be appreciated.
 
-> ---
->  drivers/vhost/net.c        |   2 +-
->  drivers/vhost/vhost.c      | 190 ++++++++++++++++++++++++++++++++++++++++++++-
->  drivers/vhost/vhost.h      |  13 ++++
->  include/uapi/linux/vhost.h |  26 +++++++
->  4 files changed, 229 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 9eda69e..a172be9 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -1083,7 +1083,7 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
->  		r = vhost_dev_ioctl(&n->dev, ioctl, argp);
->  		if (r == -ENOIOCTLCMD)
->  			r = vhost_vring_ioctl(&n->dev, ioctl, argp);
-> -		else
-> +		else if (ioctl != VHOST_UPDATE_IOTLB)
->  			vhost_net_flush(n);
->  		mutex_unlock(&n->dev.mutex);
->  		return r;
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index eec2f11..729fe05 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -113,6 +113,11 @@ static void vhost_init_is_le(struct vhost_virtqueue *vq)
->  }
->  #endif /* CONFIG_VHOST_CROSS_ENDIAN_LEGACY */
->  
-> +static inline int vhost_iotlb_hash(u64 iova)
-> +{
-> +	return (iova >> PAGE_SHIFT) & (VHOST_IOTLB_SIZE - 1);
-> +}
-> +
->  static void vhost_poll_func(struct file *file, wait_queue_head_t *wqh,
->  			    poll_table *pt)
->  {
-> @@ -384,8 +389,14 @@ void vhost_dev_init(struct vhost_dev *dev,
->  	dev->memory = NULL;
->  	dev->mm = NULL;
->  	spin_lock_init(&dev->work_lock);
-> +	spin_lock_init(&dev->iotlb_lock);
-> +	mutex_init(&dev->iotlb_req_mutex);
->  	INIT_LIST_HEAD(&dev->work_list);
->  	dev->worker = NULL;
-> +	dev->iotlb_request = NULL;
-> +	dev->iotlb_ctx = NULL;
-> +	dev->iotlb_file = NULL;
-> +	dev->pending_request.flags.type = VHOST_IOTLB_INVALIDATE;
->  
->  	for (i = 0; i < dev->nvqs; ++i) {
->  		vq = dev->vqs[i];
-> @@ -393,12 +404,17 @@ void vhost_dev_init(struct vhost_dev *dev,
->  		vq->indirect = NULL;
->  		vq->heads = NULL;
->  		vq->dev = dev;
-> +		vq->iotlb_request = NULL;
->  		mutex_init(&vq->mutex);
->  		vhost_vq_reset(dev, vq);
->  		if (vq->handle_kick)
->  			vhost_poll_init(&vq->poll, vq->handle_kick,
->  					POLLIN, dev);
->  	}
-> +
-> +	init_completion(&dev->iotlb_completion);
-> +	for (i = 0; i < VHOST_IOTLB_SIZE; i++)
-> +		dev->iotlb[i].flags.valid = VHOST_IOTLB_INVALID;
->  }
->  EXPORT_SYMBOL_GPL(vhost_dev_init);
->  
-> @@ -940,9 +956,10 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
->  {
->  	struct file *eventfp, *filep = NULL;
->  	struct eventfd_ctx *ctx = NULL;
-> +	struct vhost_iotlb_entry entry;
->  	u64 p;
->  	long r;
-> -	int i, fd;
-> +	int index, i, fd;
->  
->  	/* If you are not the owner, you can become one */
->  	if (ioctl == VHOST_SET_OWNER) {
-> @@ -1008,6 +1025,80 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
->  		if (filep)
->  			fput(filep);
->  		break;
-> +	case VHOST_SET_IOTLB_FD:
-> +		r = get_user(fd, (int __user *)argp);
-> +		if (r < 0)
-> +			break;
-> +		eventfp = fd == -1 ? NULL : eventfd_fget(fd);
-> +		if (IS_ERR(eventfp)) {
-> +			r = PTR_ERR(eventfp);
-> +			break;
-> +		}
-> +		if (eventfp != d->iotlb_file) {
-> +			filep = d->iotlb_file;
-> +			d->iotlb_file = eventfp;
-> +			ctx = d->iotlb_ctx;
-> +			d->iotlb_ctx = eventfp ?
-> +				eventfd_ctx_fileget(eventfp) : NULL;
-> +		} else
-> +			filep = eventfp;
-> +		for (i = 0; i < d->nvqs; ++i) {
-> +			mutex_lock(&d->vqs[i]->mutex);
-> +			d->vqs[i]->iotlb_ctx = d->iotlb_ctx;
-> +			mutex_unlock(&d->vqs[i]->mutex);
-> +		}
-> +		if (ctx)
-> +			eventfd_ctx_put(ctx);
-> +		if (filep)
-> +			fput(filep);
-> +		break;
-> +	case VHOST_SET_IOTLB_REQUEST_ENTRY:
-> +		if (!access_ok(VERIFY_READ, argp, sizeof(*d->iotlb_request)))
-> +			return -EFAULT;
-> +		if (!access_ok(VERIFY_WRITE, argp, sizeof(*d->iotlb_request)))
-> +			return -EFAULT;
-> +		d->iotlb_request = argp;
-> +		for (i = 0; i < d->nvqs; ++i) {
-> +			mutex_lock(&d->vqs[i]->mutex);
-> +			d->vqs[i]->iotlb_request = argp;
-> +			mutex_unlock(&d->vqs[i]->mutex);
-> +		}
-> +		break;
-> +	case VHOST_UPDATE_IOTLB:
-> +		r = copy_from_user(&entry, argp, sizeof(entry));
-> +		if (r < 0) {
-> +			r = -EFAULT;
-> +			goto done;
-> +		}
-> +
-> +		index = vhost_iotlb_hash(entry.iova);
-> +
-> +		spin_lock(&d->iotlb_lock);
-> +		switch (entry.flags.type) {
-> +		case VHOST_IOTLB_UPDATE:
-> +			d->iotlb[index] = entry;
-> +			break;
-> +		case VHOST_IOTLB_INVALIDATE:
-> +			if (d->iotlb[index].iova == entry.iova)
-> +				d->iotlb[index] = entry;
-> +			break;
-> +		default:
-> +			r = -EINVAL;
-> +		}
-> +		spin_unlock(&d->iotlb_lock);
-> +
-> +		if (!r && entry.flags.type != VHOST_IOTLB_INVALIDATE) {
-> +			mutex_lock(&d->iotlb_req_mutex);
-> +			if (entry.iova == d->pending_request.iova &&
-> +			    d->pending_request.flags.type ==
-> +				VHOST_IOTLB_MISS) {
-> +				d->pending_request = entry;
-> +				complete(&d->iotlb_completion);
-> +			}
-> +			mutex_unlock(&d->iotlb_req_mutex);
-> +		}
-> +
-> +		break;
->  	default:
->  		r = -ENOIOCTLCMD;
->  		break;
-> @@ -1177,9 +1268,104 @@ int vhost_init_used(struct vhost_virtqueue *vq)
->  }
->  EXPORT_SYMBOL_GPL(vhost_init_used);
->  
-> +static struct vhost_iotlb_entry vhost_iotlb_miss(struct vhost_virtqueue *vq,
-> +						 u64 iova)
-> +{
-> +	struct completion *c = &vq->dev->iotlb_completion;
-> +	struct vhost_iotlb_entry *pending = &vq->dev->pending_request;
-> +	struct vhost_iotlb_entry entry = {
-> +		.flags.valid = VHOST_IOTLB_INVALID,
-> +	};
-> +
-> +	mutex_lock(&vq->dev->iotlb_req_mutex);
-> +
-> +	if (!vq->iotlb_ctx)
-> +		goto err;
-> +
-> +	if (!vq->dev->iotlb_request)
-> +		goto err;
-> +
-> +	if (pending->flags.type == VHOST_IOTLB_MISS)
-> +		goto err;
-> +
-> +	pending->iova = iova & PAGE_MASK;
-> +	pending->flags.type = VHOST_IOTLB_MISS;
-> +
-> +	if (copy_to_user(vq->dev->iotlb_request, pending,
-> +			 sizeof(struct vhost_iotlb_entry))) {
-> +		goto err;
-> +	}
-> +
-> +	mutex_unlock(&vq->dev->iotlb_req_mutex);
-> +
-> +	eventfd_signal(vq->iotlb_ctx, 1);
-> +	wait_for_completion_interruptible(c);
+Thanks!
 
-This can still be under vq lock, can it not?
-Looks like this can cause deadlocks.
+This is really trying to cleanup some virt code, as suggested by Peter, who
+said
+> You could of course go fix that instead of mutilating things into
+> sort-of functional state.
 
-> +
-> +	mutex_lock(&vq->dev->iotlb_req_mutex);
-> +	entry = vq->dev->pending_request;
-> +	mutex_unlock(&vq->dev->iotlb_req_mutex);
-> +
-> +	return entry;
-> +err:
-> +	mutex_unlock(&vq->dev->iotlb_req_mutex);
-> +	return entry;
-> +}
-> +
-> +static int translate_iotlb(struct vhost_virtqueue *vq, u64 iova, u32 len,
-> +			   struct iovec iov[], int iov_size)
-> +{
-> +	struct vhost_iotlb_entry *entry;
-> +	struct vhost_iotlb_entry miss;
-> +	struct vhost_dev *dev = vq->dev;
-> +	int ret = 0;
-> +	u64 s = 0, size;
-> +
-> +	spin_lock(&dev->iotlb_lock);
-> +
-> +	while ((u64) len > s) {
-> +		if (unlikely(ret >= iov_size)) {
-> +			ret = -ENOBUFS;
-> +			break;
-> +		}
-> +		entry = &vq->dev->iotlb[vhost_iotlb_hash(iova)];
-> +		if ((entry->iova != (iova & PAGE_MASK)) ||
-> +		    (entry->flags.valid != VHOST_IOTLB_VALID)) {
-> +
-> +			spin_unlock(&dev->iotlb_lock);
-> +			miss = vhost_iotlb_miss(vq, iova);
-> +			spin_lock(&dev->iotlb_lock);
-> +
-> +			if (miss.flags.valid != VHOST_IOTLB_VALID ||
-> +			    miss.iova != (iova & PAGE_MASK)) {
-> +				ret = -EFAULT;
-> +				goto err;
-> +			}
-> +			entry = &miss;
-> +		}
-> +
-> +		if (entry->iova == (iova & PAGE_MASK)) {
-> +			size = entry->userspace_addr + entry->size - iova;
-> +			iov[ret].iov_base =
-> +				(void __user *)(entry->userspace_addr +
-> +						(iova & (PAGE_SIZE - 1)));
-> +			iov[ret].iov_len = min((u64)len - s, size);
-> +			s += size;
-> +			iova += size;
-> +			ret++;
-> +		} else {
-> +			BUG();
-> +		}
-> +	}
-> +
-> +err:
-> +	spin_unlock(&dev->iotlb_lock);
-> +	return ret;
-> +}
-> +
->  static int translate_desc(struct vhost_virtqueue *vq, u64 addr, u32 len,
->  			  struct iovec iov[], int iov_size)
->  {
-> +#if 0
->  	const struct vhost_memory_region *reg;
->  	struct vhost_memory *mem;
->  	struct iovec *_iov;
-> @@ -1209,6 +1395,8 @@ static int translate_desc(struct vhost_virtqueue *vq, u64 addr, u32 len,
->  	}
->  
->  	return ret;
-> +#endif
-> +	return translate_iotlb(vq, addr, len, iov, iov_size);
->  }
->  
->  /* Each buffer in the virtqueues is actually a chain of descriptors.  This
-> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> index d3f7674..d254efc 100644
-> --- a/drivers/vhost/vhost.h
-> +++ b/drivers/vhost/vhost.h
-> @@ -68,6 +68,8 @@ struct vhost_virtqueue {
->  	struct eventfd_ctx *call_ctx;
->  	struct eventfd_ctx *error_ctx;
->  	struct eventfd_ctx *log_ctx;
-> +	struct eventfd_ctx *iotlb_ctx;
-> +	struct vhost_iotlb __user *iotlb_request;
->  
->  	struct vhost_poll poll;
->  
-> @@ -116,6 +118,8 @@ struct vhost_virtqueue {
->  #endif
->  };
->  
-> +#define VHOST_IOTLB_SIZE 1024
-> +
->  struct vhost_dev {
->  	struct vhost_memory *memory;
->  	struct mm_struct *mm;
+This work is needed for virtio, so it's probably easiest to
+merge it through my tree - is this fine by everyone?
+Arnd, if you agree, could you ack this please?
+
+Note to arch maintainers: please don't cherry-pick patches out of this patchset
+as it's been structured in this order to avoid breaking bisect.
+Please send acks instead!
+
+Sometimes, virtualization is weird. For example, virtio does this (conceptually):
+
+#ifdef CONFIG_SMP
+                smp_mb();
+#else
+                mb();
+#endif
+
+Similarly, Xen calls mb() when it's not doing any MMIO at all.
+
+Of course it's wrong in the sense that it's suboptimal. What we would really
+like is to have, on UP, exactly the same barrier as on SMP.  This is because a
+UP guest can run on an SMP host.
+
+But Linux doesn't provide this ability: if CONFIG_SMP is not defined is
+optimizes most barriers out to a compiler barrier.
+
+Consider for example x86: what we want is xchg (NOT mfence - there's no real IO
+going on here - just switching out of the VM - more like a function call
+really) but if built without CONFIG_SMP smp_store_mb does not include this.
+
+Virt in general is probably the only use-case, because this really is an
+artifact of interfacing with an SMP host while running an UP kernel,
+but since we have (at least) two users, it seems to make sense to
+put these APIs in a central place.
+
+In fact, smp_ barriers are stubs on !SMP, so they can be defined as follows:
+
+arch/XXX/include/asm/barrier.h:
+
+#define __smp_mb() DOSOMETHING
+
+include/asm-generic/barrier.h:
+
+#ifdef CONFIG_SMP
+#define smp_mb() __smp_mb()
+#else
+#define smp_mb() barrier()
+#endif
+
+This has the benefit of cleaning out a bunch of duplicated
+ifdefs on a bunch of architectures - this patchset brings
+about a net reduction in LOC, even with new barriers and extra documentation :)
+
+Then virt can use __smp_XXX when talking to an SMP host.
+To make those users explicit, this patchset adds virt_xxx wrappers
+for them.
+
+Touching all archs is a tad tedious, but its fairly straight forward.
+
+The rest of the patchset is structured as follows:
 
 
+-. Patch 1 fixes a bug in asm-generic.
+   It is already in tip, included here for completeness.
 
-> @@ -124,9 +128,18 @@ struct vhost_dev {
->  	int nvqs;
->  	struct file *log_file;
->  	struct eventfd_ctx *log_ctx;
-> +	struct file *iotlb_file;
-> +	struct eventfd_ctx *iotlb_ctx;
-> +	struct mutex iotlb_req_mutex;
-> +	struct vhost_iotlb_entry __user *iotlb_request;
-> +	struct vhost_iotlb_entry pending_request;
-> +	struct completion iotlb_completion;
-> +	struct vhost_iotlb_entry request;
->  	spinlock_t work_lock;
->  	struct list_head work_list;
->  	struct task_struct *worker;
-> +	spinlock_t iotlb_lock;
-> +	struct vhost_iotlb_entry iotlb[VHOST_IOTLB_SIZE];
->  };
->  
->  void vhost_dev_init(struct vhost_dev *, struct vhost_virtqueue **vqs, int nvqs);
-> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-> index ab373191..400e513 100644
-> --- a/include/uapi/linux/vhost.h
-> +++ b/include/uapi/linux/vhost.h
-> @@ -63,6 +63,26 @@ struct vhost_memory {
->  	struct vhost_memory_region regions[0];
->  };
->  
-> +struct vhost_iotlb_entry {
-> +	__u64 iova;
-> +	__u64 size;
-> +	__u64 userspace_addr;
-> +	struct {
-> +#define VHOST_IOTLB_PERM_READ      0x1
-> +#define VHOST_IOTLB_PERM_WRITE     0x10
-> +		__u8  perm;
-> +#define VHOST_IOTLB_MISS           1
-> +#define VHOST_IOTLB_UPDATE         2
-> +#define VHOST_IOTLB_INVALIDATE     3
-> +		__u8  type;
-> +#define VHOST_IOTLB_INVALID        0x1
-> +#define VHOST_IOTLB_VALID          0x2
-> +		__u8  valid;
-> +		__u8  u8_padding;
-> +		__u32 padding;
-> +	} flags;
-> +};
-> +
->  /* ioctls */
->  
->  #define VHOST_VIRTIO 0xAF
-> @@ -127,6 +147,12 @@ struct vhost_memory {
->  /* Set eventfd to signal an error */
->  #define VHOST_SET_VRING_ERR _IOW(VHOST_VIRTIO, 0x22, struct vhost_vring_file)
->  
-> +/* IOTLB */
-> +/* Specify an eventfd file descriptor to signle on IOTLB miss */
-> +#define VHOST_SET_IOTLB_FD _IOW(VHOST_VIRTIO, 0x23, int)
-> +#define VHOST_UPDATE_IOTLB _IOW(VHOST_VIRTIO, 0x24, struct vhost_iotlb_entry)
-> +#define VHOST_SET_IOTLB_REQUEST_ENTRY _IOW(VHOST_VIRTIO, 0x25, struct vhost_iotlb_entry)
-> +
->  /* VHOST_NET specific defines */
->  
->  /* Attach virtio net ring to a raw socket, or tap device.
-> -- 
-> 2.5.0
+-. Patches 2-12 make sure barrier.h on all remaining
+   architectures includes asm-generic/barrier.h:
+   after the change in Patch 1, code there matches
+   asm-generic/barrier.h almost verbatim.
+   Minor code tweaks were required in a couple of places.
+   Macros duplicated from asm-generic/barrier.h are dropped
+   in the process.
+
+After all that preparatory work, we are getting to the actual change.
+
+-. Patches 13 adds generic smp_XXX wrappers in asm-generic
+   these select __smp_XXX or barrier() depending on CONFIG_SMP
+
+-. Patches 14-27 change all architectures to
+   define __smp_XXX macros; the generic code in asm-generic/barrier.h
+   then defines smp_XXX macros
+
+   I compiled the affected arches before and after the changes,
+   dumped the .text section (using objdump -O binary) and
+   made sure that the object code is exactly identical
+   before and after the change.
+   I couldn't fully build sh,tile,xtensa but I did this test
+   kernel/rcu/tree.o kernel/sched/wait.o and
+   kernel/futex.o and tested these instead.
+
+Unfortunately, I don't have a metag cross-build toolset ready.
+Hoping for some acks on this architecture.
+
+Finally, the following patches put the __smp_xxx APIs to work for virt:
+
+-. Patch 28 adds virt_ wrappers for __smp_, and documents them.
+   After all this work, this requires very few lines of code in
+   the generic header.
+
+-. Patches 29,30,33,34 convert virtio xen drivers to use the virt_xxx APIs
+
+   xen patches are untested
+   virtio ones have been tested on x86
+
+-. Patches 31-32 teach virtio to use virt_store_mb
+   sh architecture was missing a 2-byte smp_store_mb,
+   the fix is trivial although my code is not optimal:
+   if anyone cares, pls send me a patch to apply on top.
+   I didn't build this architecture, but intel's 0-day
+   infrastructure builds it.
+
+   tested on x86
+
+
+Davidlohr Bueso (1):
+  lcoking/barriers, arch: Use smp barriers in smp_store_release()
+
+Michael S. Tsirkin (33):
+  asm-generic: guard smp_store_release/load_acquire
+  ia64: rename nop->iosapic_nop
+  ia64: reuse asm-generic/barrier.h
+  powerpc: reuse asm-generic/barrier.h
+  s390: reuse asm-generic/barrier.h
+  sparc: reuse asm-generic/barrier.h
+  arm: reuse asm-generic/barrier.h
+  arm64: reuse asm-generic/barrier.h
+  metag: reuse asm-generic/barrier.h
+  mips: reuse asm-generic/barrier.h
+  x86/um: reuse asm-generic/barrier.h
+  x86: reuse asm-generic/barrier.h
+  asm-generic: add __smp_xxx wrappers
+  powerpc: define __smp_xxx
+  arm64: define __smp_xxx
+  arm: define __smp_xxx
+  blackfin: define __smp_xxx
+  ia64: define __smp_xxx
+  metag: define __smp_xxx
+  mips: define __smp_xxx
+  s390: define __smp_xxx
+  sh: define __smp_xxx, fix smp_store_mb for !SMP
+  sparc: define __smp_xxx
+  tile: define __smp_xxx
+  xtensa: define __smp_xxx
+  x86: define __smp_xxx
+  asm-generic: implement virt_xxx memory barriers
+  Revert "virtio_ring: Update weak barriers to use dma_wmb/rmb"
+  virtio_ring: update weak barriers to use __smp_XXX
+  sh: support a 2-byte smp_store_mb
+  virtio_ring: use virt_store_mb
+  xenbus: use virt_xxx barriers
+  xen/io: use virt_xxx barriers
+
+ arch/arm/include/asm/barrier.h      |  35 ++-----------
+ arch/arm64/include/asm/barrier.h    |  19 +++----
+ arch/blackfin/include/asm/barrier.h |   4 +-
+ arch/ia64/include/asm/barrier.h     |  24 +++------
+ arch/metag/include/asm/barrier.h    |  55 ++++++-------------
+ arch/mips/include/asm/barrier.h     |  51 ++++++------------
+ arch/powerpc/include/asm/barrier.h  |  33 ++++--------
+ arch/s390/include/asm/barrier.h     |  25 ++++-----
+ arch/sh/include/asm/barrier.h       |  11 +++-
+ arch/sparc/include/asm/barrier_32.h |   1 -
+ arch/sparc/include/asm/barrier_64.h |  29 +++-------
+ arch/sparc/include/asm/processor.h  |   3 --
+ arch/tile/include/asm/barrier.h     |   9 ++--
+ arch/x86/include/asm/barrier.h      |  36 +++++--------
+ arch/x86/um/asm/barrier.h           |   9 +---
+ arch/xtensa/include/asm/barrier.h   |   4 +-
+ include/asm-generic/barrier.h       | 102 ++++++++++++++++++++++++++++++++----
+ include/linux/virtio_ring.h         |  22 +++++---
+ include/xen/interface/io/ring.h     |  16 +++---
+ arch/ia64/kernel/iosapic.c          |   6 +--
+ drivers/virtio/virtio_ring.c        |  15 +++---
+ drivers/xen/xenbus/xenbus_comms.c   |   8 +--
+ Documentation/memory-barriers.txt   |  28 ++++++++--
+ 23 files changed, 266 insertions(+), 279 deletions(-)
+
+-- 
+MST
