@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2 30/32] virtio_ring: update weak barriers to use __smp_XXX
-Date: Thu, 31 Dec 2015 21:09:39 +0200
-Message-ID: <1451572003-2440-31-git-send-email-mst__19752.1248519935$1451589110$gmane$org@redhat.com>
+Subject: [PATCH v2 31/32] sh: support a 2-byte smp_store_mb
+Date: Thu, 31 Dec 2015 21:09:47 +0200
+Message-ID: <1451572003-2440-32-git-send-email-mst__39168.1475718089$1451589119$gmane$org@redhat.com>
 References: <1451572003-2440-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,85 +19,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew Cooper <andrew.cooper3@citrix.com>, linuxppc-dev@lists.ozlabs.org, David Miller <davem@davemloft.net>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew Cooper <andrew.cooper3@citrix.com>, linuxppc-dev@lists.ozlabs.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio ring uses smp_wmb on SMP and wmb on !SMP,
-the reason for the later being that it might be
-talking to another kernel on the same SMP machine.
+At the moment, xchg on sh only supports 4 and 1 byte values, so using it
+from smp_store_mb means attempts to store a 2 byte value using this
+macro fail.
 
-This is exactly what __smp_XXX barriers do,
-so switch to these instead of homegrown ifdef hacks.
+And happens to be exactly what virtio drivers want to do.
 
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Alexander Duyck <alexander.duyck@gmail.com>
+Check size and fall back to a slower, but safe, WRITE_ONCE+smp_mb.
+
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- include/linux/virtio_ring.h | 25 ++++---------------------
- 1 file changed, 4 insertions(+), 21 deletions(-)
+ arch/sh/include/asm/barrier.h | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-index 67e06fe..f3fa55b 100644
---- a/include/linux/virtio_ring.h
-+++ b/include/linux/virtio_ring.h
-@@ -12,7 +12,7 @@
-  * anyone care?
-  *
-  * For virtio_pci on SMP, we don't need to order with respect to MMIO
-- * accesses through relaxed memory I/O windows, so smp_mb() et al are
-+ * accesses through relaxed memory I/O windows, so virt_mb() et al are
-  * sufficient.
-  *
-  * For using virtio to talk to real devices (eg. other heterogeneous
-@@ -21,11 +21,10 @@
-  * actually quite cheap.
-  */
+diff --git a/arch/sh/include/asm/barrier.h b/arch/sh/include/asm/barrier.h
+index f887c64..0cc5735 100644
+--- a/arch/sh/include/asm/barrier.h
++++ b/arch/sh/include/asm/barrier.h
+@@ -32,7 +32,15 @@
+ #define ctrl_barrier()	__asm__ __volatile__ ("nop;nop;nop;nop;nop;nop;nop;nop")
+ #endif
  
--#ifdef CONFIG_SMP
- static inline void virtio_mb(bool weak_barriers)
- {
- 	if (weak_barriers)
--		smp_mb();
-+		virt_mb();
- 	else
- 		mb();
- }
-@@ -33,7 +32,7 @@ static inline void virtio_mb(bool weak_barriers)
- static inline void virtio_rmb(bool weak_barriers)
- {
- 	if (weak_barriers)
--		smp_rmb();
-+		virt_rmb();
- 	else
- 		rmb();
- }
-@@ -41,26 +40,10 @@ static inline void virtio_rmb(bool weak_barriers)
- static inline void virtio_wmb(bool weak_barriers)
- {
- 	if (weak_barriers)
--		smp_wmb();
-+		virt_wmb();
- 	else
- 		wmb();
- }
--#else
--static inline void virtio_mb(bool weak_barriers)
--{
--	mb();
--}
--
--static inline void virtio_rmb(bool weak_barriers)
--{
--	rmb();
--}
--
--static inline void virtio_wmb(bool weak_barriers)
--{
--	wmb();
--}
--#endif
+-#define __smp_store_mb(var, value) do { (void)xchg(&var, value); } while (0)
++#define __smp_store_mb(var, value) do { \
++	if (sizeof(var) != 4 && sizeof(var) != 1) { \
++		 WRITE_ONCE(var, value); \
++		__smp_mb(); \
++	} else { \
++		(void)xchg(&var, value);  \
++	} \
++} while (0)
++
+ #define smp_store_mb(var, value) __smp_store_mb(var, value)
  
- struct virtio_device;
- struct virtqueue;
+ #include <asm-generic/barrier.h>
 -- 
 MST
