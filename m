@@ -1,12 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC] balloon: fix page list locking
-Date: Fri, 1 Jan 2016 11:50:45 +0200
-Message-ID: <1451641671-17046-1-git-send-email-mst@redhat.com>
+Subject: Re: [PATCH v4 1/2] virtio_balloon: Restore the entire balloon after
+	the system freeze
+Date: Fri, 1 Jan 2016 12:11:02 +0200
+Message-ID: <20160101115424-mutt-send-email-mst@redhat.com>
+References: <1449236271-10133-1-git-send-email-pmladek@suse.com>
+	<1449236271-10133-2-git-send-email-pmladek@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <1449236271-10133-2-git-send-email-pmladek@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,100 +20,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Rafael Aquini <aquini@redhat.com>, linux-mm@kvack.org, Hugh Dickins <hughd@google.com>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Konstantin Khlebnikov <koct9i@gmail.com>
+To: Petr Mladek <pmladek@suse.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Tejun Heo <tj@kernel.org>, Jeff Epler <jepler@unpythonic.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Minchan Kim noticed that balloon_page_dequeue walks the pages list
-without holding the pages_lock. This can race e.g. with isolation, which
-has been reported to cause list corruption and crashes in leak_balloon.
-Page can also in theory get freed before it's locked, corrupting memory.
+On Fri, Dec 04, 2015 at 02:37:50PM +0100, Petr Mladek wrote:
+> fill_balloon() and leak_balloon() manipulate only a limited number
+> of pages in one call. This is the reason why remove_common() calls
+> leak_balloon() in a while cycle.
+> 
+> remove_common() is called also when the system is being frozen.
+> But fill_balloon() is called only once when the system is being
+> restored. It means that most of the balloon stays leaked after
+> the system freeze and restore.
 
-To fix, make sure list accesses are done under lock, and
-always take a page reference before trying to lock it.
+Right, but refilling might take a long while.
+In fact, we sleep for 200msec on refill failure,
+stalling system resume - which is already a bug.
 
-Reported-by:  Minchan Kim <minchan@kernel.org>
-Cc: <stable@vger.kernel.org>
-Cc:  Rafael Aquini <aquini@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
+> This patch adds the missing while cycle also into virtballoon_restore().
+> Also it makes fill_balloon() to return the number of really modified
+> pages. Note that leak_balloon() already did this.
+> 
+> Signed-off-by: Petr Mladek <pmladek@suse.com>
 
-This is an alternative to patch
-	virtio_balloon: fix race between migration and ballooning
-by Minchan Kim in -mm.
+This is a replacement for:
+	virtio_balloon: Restore the entire balloon after the system freeze
 
-Untested - Minchan, could you pls confirm this fixes the issue for you?
-
- mm/balloon_compaction.c | 34 ++++++++++++++++++++++++++++++++--
- 1 file changed, 32 insertions(+), 2 deletions(-)
-
-diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
-index d3116be..66d69c5 100644
---- a/mm/balloon_compaction.c
-+++ b/mm/balloon_compaction.c
-@@ -56,12 +56,34 @@ EXPORT_SYMBOL_GPL(balloon_page_enqueue);
-  */
- struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info)
- {
--	struct page *page, *tmp;
-+	struct page *page;
- 	unsigned long flags;
- 	bool dequeued_page;
-+	LIST_HEAD(processed); /* protected by b_dev_info->pages_lock */
- 
- 	dequeued_page = false;
--	list_for_each_entry_safe(page, tmp, &b_dev_info->pages, lru) {
-+	/*
-+	 * We need to go over b_dev_info->pages and lock each page,
-+	 * but b_dev_info->pages_lock must nest within page lock.
-+	 *
-+	 * To make this safe, remove each page from b_dev_info->pages list
-+	 * under b_dev_info->pages_lock, then drop this lock. Once list is
-+	 * empty, re-add them also under b_dev_info->pages_lock.
-+	 */
-+	spin_lock_irqsave(&b_dev_info->pages_lock, flags);
-+	while (!list_empty(&b_dev_info->pages)) {
-+		page = list_first_entry(&b_dev_info->pages, typeof(*page), lru);
-+		/* move to processed list to avoid going over it another time */
-+		list_move(&page->lru, &processed);
-+
-+		if (!get_page_unless_zero(page))
-+			continue;
-+		/*
-+		 * pages_lock nests within page lock,
-+		 * so drop it before trylock_page
-+		 */
-+		spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
-+
- 		/*
- 		 * Block others from accessing the 'page' while we get around
- 		 * establishing additional references and preparing the 'page'
-@@ -72,6 +94,7 @@ struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info)
- 			if (!PagePrivate(page)) {
- 				/* raced with isolation */
- 				unlock_page(page);
-+				put_page(page);
- 				continue;
- 			}
- #endif
-@@ -80,11 +103,18 @@ struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info)
- 			__count_vm_event(BALLOON_DEFLATE);
- 			spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
- 			unlock_page(page);
-+			put_page(page);
- 			dequeued_page = true;
- 			break;
- 		}
-+		put_page(page);
-+		spin_lock_irqsave(&b_dev_info->pages_lock, flags);
- 	}
- 
-+	/* re-add remaining entries */
-+	list_splice(&processed, &b_dev_info->pages);
-+	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
-+
- 	if (!dequeued_page) {
- 		/*
- 		 * If we are unable to dequeue a balloon page because the page
--- 
-MST
+> ---
+>  drivers/virtio/virtio_balloon.c | 11 +++++++++--
+>  1 file changed, 9 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 7efc32945810..d73a86db2490 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -135,9 +135,10 @@ static void set_page_pfns(u32 pfns[], struct page *page)
+>  		pfns[i] = page_to_balloon_pfn(page) + i;
+>  }
+>  
+> -static void fill_balloon(struct virtio_balloon *vb, size_t num)
+> +static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
+>  {
+>  	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
+> +	unsigned num_allocated_pages;
+>  
+>  	/* We can only do one array worth at a time. */
+>  	num = min(num, ARRAY_SIZE(vb->pfns));
+> @@ -162,10 +163,13 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
+>  			adjust_managed_page_count(page, -1);
+>  	}
+>  
+> +	num_allocated_pages = vb->num_pfns;
+>  	/* Did we get any? */
+>  	if (vb->num_pfns != 0)
+>  		tell_host(vb, vb->inflate_vq);
+>  	mutex_unlock(&vb->balloon_lock);
+> +
+> +	return num_allocated_pages;
+>  }
+>  
+>  static void release_pages_balloon(struct virtio_balloon *vb)
+> @@ -581,6 +585,7 @@ static int virtballoon_freeze(struct virtio_device *vdev)
+>  static int virtballoon_restore(struct virtio_device *vdev)
+>  {
+>  	struct virtio_balloon *vb = vdev->priv;
+> +	s64 diff;
+>  	int ret;
+>  
+>  	ret = init_vqs(vdev->priv);
+> @@ -589,7 +594,9 @@ static int virtballoon_restore(struct virtio_device *vdev)
+>  
+>  	virtio_device_ready(vdev);
+>  
+> -	fill_balloon(vb, towards_target(vb));
+> +	diff = towards_target(vb);
+> +	while (diff > 0)
+> +		diff -= fill_balloon(vb, diff);
+>  	update_balloon_size(vb);
+>  	return 0;
+>  }
+> -- 
+> 1.8.5.6
