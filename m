@@ -1,14 +1,14 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v2 24/32] sparc: define __smp_xxx
-Date: Thu, 31 Dec 2015 14:44:03 -0500 (EST)
-Message-ID: <20151231.144403.84288151398339321.davem@davemloft.net>
-References: <1451572003-2440-1-git-send-email-mst@redhat.com>
-	<1451572003-2440-25-git-send-email-mst@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 1/2] virtio_balloon: fix race by fill and leak
+Date: Fri, 1 Jan 2016 10:26:32 +0200
+Message-ID: <20160101082632.GA10656__26290.1535410949$1451636815$gmane$org@redhat.com>
+References: <1451259313-26353-1-git-send-email-minchan@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1451572003-2440-25-git-send-email-mst@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1451259313-26353-1-git-send-email-minchan@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,20 +18,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, peterz@infradead.org, virtualization@lists.linux-foundation.org, hpa@zytor.com, sparclinux@vger.kernel.org, mingo@kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, arnd@arndb.de, x86@kernel.org, xen-devel@lists.xenproject.org, mingo@elte.hu, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, stefano.stabellini@eu.citrix.com, andreyknvl@google.com, adi-buildroot-devel@lists.sourceforge.net, tglx@linutronix.de, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, andrew.cooper3@citrix.com, linux-kernel@vger.kernel.org, ralf@linux-mips.org, linuxppc-dev@lists.ozlabs.org
+To: Minchan Kim <minchan@kernel.org>
+Cc: Rafael Aquini <aquini@redhat.com>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, Konstantin Khlebnikov <koct9i@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Thu, 31 Dec 2015 21:08:53 +0200
-
-> This defines __smp_xxx barriers for sparc,
-> for use by virtualization.
+On Mon, Dec 28, 2015 at 08:35:12AM +0900, Minchan Kim wrote:
+> During my compaction-related stuff, I encountered a bug
+> with ballooning.
 > 
-> smp_xxx barriers are removed as they are
-> defined correctly by asm-generic/barriers.h
+> With repeated inflating and deflating cycle, guest memory(
+> ie, cat /proc/meminfo | grep MemTotal) is decreased and
+> couldn't be recovered.
 > 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Acked-by: Arnd Bergmann <arnd@arndb.de>
+> The reason is balloon_lock doesn't cover release_pages_balloon
+> so struct virtio_balloon fields could be overwritten by race
+> of fill_balloon(e,g, vb->*pfns could be critical).
+> 
+> This patch fixes it in my test.
+> 
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Minchan Kim <minchan@kernel.org>
 
-Acked-by: David S. Miller <davem@davemloft.net>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+> ---
+>  drivers/virtio/virtio_balloon.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 7efc32945810..7d3e5d0e9aa4 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -209,8 +209,8 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
+>  	 */
+>  	if (vb->num_pfns != 0)
+>  		tell_host(vb, vb->deflate_vq);
+> -	mutex_unlock(&vb->balloon_lock);
+>  	release_pages_balloon(vb);
+> +	mutex_unlock(&vb->balloon_lock);
+>  	return num_freed_pages;
+>  }
+>  
+> -- 
+> 1.9.1
