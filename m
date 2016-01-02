@@ -1,11 +1,15 @@
-From: Geliang Tang <geliangtang@163.com>
-Subject: [PATCH] virtio/s390: use dev_to_virtio
-Date: Wed, 30 Dec 2015 22:05:25 +0800
-Message-ID: <912bf59bd3a48f2d4d4994681e898dc084fe29d3.1451484163.git.geliangtang__21516.3640132689$1451707060$gmane$org@163.com>
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: Re: [PATCH v2 08/32] arm: reuse asm-generic/barrier.h
+Date: Sat, 2 Jan 2016 11:20:12 +0000
+Message-ID: <20160102112011.GT8644@n2100.arm.linux.org.uk>
+References: <1451572003-2440-1-git-send-email-mst@redhat.com>
+	<1451572003-2440-9-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1451572003-2440-9-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,30 +19,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Geliang Tang <geliangtang@163.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, Tony Lindgren <tony@atomide.com>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Andrey Konovalov <andreyknvl@google.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew Cooper <andrew.cooper3@citrix.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use dev_to_virtio() instead of open-coding it.
+On Thu, Dec 31, 2015 at 09:06:46PM +0200, Michael S. Tsirkin wrote:
+> On arm smp_store_mb, read_barrier_depends, smp_read_barrier_depends,
+> smp_store_release, smp_load_acquire, smp_mb__before_atomic and
+> smp_mb__after_atomic match the asm-generic variants exactly. Drop the
+> local definitions and pull in asm-generic/barrier.h instead.
+> 
+> This is in preparation to refactoring this code area.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Acked-by: Arnd Bergmann <arnd@arndb.de>
 
-Signed-off-by: Geliang Tang <geliangtang@163.com>
----
- drivers/s390/virtio/virtio_ccw.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Thanks, the asm-generic versions looks identical to me, so this should
+result in no code generation difference.
 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 1b83159..97231e1 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -945,8 +945,7 @@ static struct virtio_config_ops virtio_ccw_config_ops = {
- 
- static void virtio_ccw_release_dev(struct device *_d)
- {
--	struct virtio_device *dev = container_of(_d, struct virtio_device,
--						 dev);
-+	struct virtio_device *dev = dev_to_virtio(_d);
- 	struct virtio_ccw_device *vcdev = to_vc_device(dev);
- 
- 	kfree(vcdev->status);
+Acked-by: Russell King <rmk+kernel@arm.linux.org.uk>
+
 -- 
-2.5.0
+RMK's Patch system: http://www.arm.linux.org.uk/developer/patches/
+FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
+according to speedtest.net.
