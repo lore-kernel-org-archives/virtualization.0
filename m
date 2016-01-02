@@ -1,15 +1,17 @@
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Subject: Re: [PATCH v2 17/32] arm: define __smp_xxx
-Date: Sat, 2 Jan 2016 11:24:38 +0000
-Message-ID: <20160102112438.GU8644__38534.8495016389$1451733909$gmane$org@n2100.arm.linux.org.uk>
-References: <1451572003-2440-1-git-send-email-mst@redhat.com>
-	<1451572003-2440-18-git-send-email-mst@redhat.com>
+From: Tejun Heo <tj@kernel.org>
+Subject: Re: [PATCH v4 2/2] virtio_balloon: Use a workqueue instead of
+	"vballoon" kthread
+Date: Sat, 2 Jan 2016 06:43:16 -0500
+Message-ID: <20160102114316.GC3660@htj.duckdns.org>
+References: <1449236271-10133-1-git-send-email-pmladek@suse.com>
+	<1449236271-10133-3-git-send-email-pmladek@suse.com>
+	<20160101121432-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1451572003-2440-18-git-send-email-mst@redhat.com>
+In-Reply-To: <20160101121432-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,37 +22,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, Tony Lindgren <tony@atomide.com>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Andrey Konovalov <andreyknvl@google.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew Cooper <andrew.cooper3@citrix.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Cc: Petr Mladek <pmladek@suse.com>, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, Petr Mladek <pmladek@suse.cz>, virtualization@lists.linux-foundation.org, Jeff Epler <jepler@unpythonic.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 31, 2015 at 09:07:59PM +0200, Michael S. Tsirkin wrote:
-> This defines __smp_xxx barriers for arm,
-> for use by virtualization.
+Hello,
+
+On Fri, Jan 01, 2016 at 12:18:17PM +0200, Michael S. Tsirkin wrote:
+> > My initial idea was to use a dedicated workqueue. Michael S. Tsirkin
+> > suggested using a system one. Tejun Heo confirmed that the system
+> > workqueue has a pretty high concurrency level (256) by default.
+> > Therefore we need not be afraid of too long blocking.
 > 
-> smp_xxx barriers are removed as they are
-> defined correctly by asm-generic/barriers.h
+> Right but fill has a 1/5 second sleep on failure - *that*
+> is problematic for a system queue.
+
+Why so?  As long as the maximum concurrently used workers are not
+high, 1/5 second or even a lot longer sleeps are completely fine.
+
+> > @@ -563,7 +534,7 @@ static void virtballoon_remove(struct virtio_device *vdev)
+> >  	struct virtio_balloon *vb = vdev->priv;
+> >  
+> >  	unregister_oom_notifier(&vb->nb);
+> > -	kthread_stop(vb->thread);
+> > +	cancel_work_sync(&vb->wq_work);
 > 
-> This reduces the amount of arch-specific boiler-plate code.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Acked-by: Arnd Bergmann <arnd@arndb.de>
+> OK but since job requeues itself, cancelling like this might not be enough.
 
-In combination with patch 14, this looks like it should result in no
-change to the resulting code.
+As long as there's no further external queueing, cancel_work_sync() is
+guaranteed to kill a self-requeueing work item.
 
-Acked-by: Russell King <rmk+kernel@arm.linux.org.uk>
-
-My only concern is that it gives people an additional handle onto a
-"new" set of barriers - just because they're prefixed with __*
-unfortunately doesn't stop anyone from using it (been there with
-other arch stuff before.)
-
-I wonder whether we should consider making the smp memory barriers
-inline functions, so these __smp_xxx() variants can be undef'd
-afterwards, thereby preventing drivers getting their hands on these
-new macros?
+Thanks.
 
 -- 
-RMK's Patch system: http://www.arm.linux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
-according to speedtest.net.
+tejun
