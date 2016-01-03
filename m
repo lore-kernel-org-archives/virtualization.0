@@ -1,18 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v4 2/2] virtio_balloon: Use a workqueue instead of
-	"vballoon" kthread
-Date: Sat, 2 Jan 2016 23:36:03 +0200
-Message-ID: <20160102213603.GA1703@redhat.com>
-References: <1449236271-10133-1-git-send-email-pmladek@suse.com>
-	<1449236271-10133-3-git-send-email-pmladek@suse.com>
-	<20160101121432-mutt-send-email-mst@redhat.com>
-	<20160102114316.GC3660@htj.duckdns.org>
+Subject: Re: [PATCH v2 32/32] virtio_ring: use virt_store_mb
+Date: Sun, 3 Jan 2016 11:01:05 +0200
+Message-ID: <20160103110052-mutt-send-email-mst__15311.3452870913$1451811700$gmane$org@redhat.com>
+References: <1451572003-2440-1-git-send-email-mst@redhat.com>
+	<1451572003-2440-33-git-send-email-mst@redhat.com>
+	<5686B622.6070600@cogentembedded.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20160102114316.GC3660@htj.duckdns.org>
+In-Reply-To: <5686B622.6070600@cogentembedded.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,51 +20,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tejun Heo <tj@kernel.org>
-Cc: Petr Mladek <pmladek@suse.com>, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, Petr Mladek <pmladek@suse.cz>, virtualization@lists.linux-foundation.org, Jeff Epler <jepler@unpythonic.net>
+To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew Cooper <andrew.cooper3@citrix.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Jan 02, 2016 at 06:43:16AM -0500, Tejun Heo wrote:
-> Hello,
+On Fri, Jan 01, 2016 at 08:23:46PM +0300, Sergei Shtylyov wrote:
+> Hello.
 > 
-> On Fri, Jan 01, 2016 at 12:18:17PM +0200, Michael S. Tsirkin wrote:
-> > > My initial idea was to use a dedicated workqueue. Michael S. Tsirkin
-> > > suggested using a system one. Tejun Heo confirmed that the system
-> > > workqueue has a pretty high concurrency level (256) by default.
-> > > Therefore we need not be afraid of too long blocking.
-> > 
-> > Right but fill has a 1/5 second sleep on failure - *that*
-> > is problematic for a system queue.
+> On 12/31/2015 10:09 PM, Michael S. Tsirkin wrote:
 > 
-> Why so?  As long as the maximum concurrently used workers are not
-> high, 1/5 second or even a lot longer sleeps are completely fine.
-
-I always thought the right way to defer executing a work queue item
-is to queue delayed work, not sleep + queue work.
-
-Doing a sleep ties up one thread for 1/5 of a second, does it not?
-If so, as long as it's the only driver doing this, we'll be fine,
-but if many others copy this pattern, things will
-start to break, will they not?
-
-> > > @@ -563,7 +534,7 @@ static void virtballoon_remove(struct virtio_device *vdev)
-> > >  	struct virtio_balloon *vb = vdev->priv;
-> > >  
-> > >  	unregister_oom_notifier(&vb->nb);
-> > > -	kthread_stop(vb->thread);
-> > > +	cancel_work_sync(&vb->wq_work);
-> > 
-> > OK but since job requeues itself, cancelling like this might not be enough.
+> >We need a full barrier after writing out event index, using
+> >virt_store_mb there seems better than open-coding.  As usual, we need a
+> >wrapper to account for strong barriers.
+> >
+> >It's tempting to use this in vhost as well, for that, we'll
+> >need a variant of smp_store_mb that works on __user pointers.
+> >
+> >Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> >---
+> >  include/linux/virtio_ring.h  | 12 ++++++++++++
+> >  drivers/virtio/virtio_ring.c | 15 +++++++++------
+> >  2 files changed, 21 insertions(+), 6 deletions(-)
+> >
+> >diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+> >index f3fa55b..3a74d91 100644
+> >--- a/include/linux/virtio_ring.h
+> >+++ b/include/linux/virtio_ring.h
+> >@@ -45,6 +45,18 @@ static inline void virtio_wmb(bool weak_barriers)
+> >  		wmb();
+> >  }
+> >
+> >+static inline void virtio_store_mb(bool weak_barriers,
+> >+				   __virtio16 *p, __virtio16 v)
+> >+{
+> >+	if (weak_barriers)
+> >+		virt_store_mb(*p, v);
+> >+	else
+> >+	{
 > 
-> As long as there's no further external queueing, cancel_work_sync() is
-> guaranteed to kill a self-requeueing work item.
+>    The kernel coding style dictates:
 > 
-> Thanks.
+> 	if (weak_barriers) {
+> 		virt_store_mb(*p, v);
+> 	} else {
+> 
+> >+		WRITE_ONCE(*p, v);
+> >+		mb();
+> >+	}
+> >+}
+> >+
+> [...]
+> 
+> MBR, Sergei
 
-I didn't realise this. Thanks!
-
-Unfortunately in this case, there can be further requeueing
-if a stats request arrives.
-
-> -- 
-> tejun
+Will fix, thanks!
