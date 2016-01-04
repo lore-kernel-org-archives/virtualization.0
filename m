@@ -1,14 +1,13 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH RFC] vhost: basic device IOTLB support
-Date: Mon, 4 Jan 2016 14:22:30 +0800
-Message-ID: <568A0FA6.8080804@redhat.com>
-References: <1451546025-15955-1-git-send-email-jasowang@redhat.com>
-	<5689CD59.6030900@gmail.com>
+Subject: Re: [RFC v4 0/5] Add virtio transport for AF_VSOCK
+Date: Mon, 4 Jan 2016 15:55:35 +0800
+Message-ID: <568A2577.2020104__4012.98082802004$1451894169$gmane$org@redhat.com>
+References: <1450775258-18287-1-git-send-email-stefanha@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5689CD59.6030900@gmail.com>
+In-Reply-To: <1450775258-18287-1-git-send-email-stefanha@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,60 +17,149 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yang Zhang <yang.zhang.wz@gmail.com>, mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-api@vger.kernel.org
+To: Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Matt Benjamin <mbenjamin@redhat.com>, Christoffer Dall <christoffer.dall@linaro.org>, matt.ma@linaro.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
-On 01/04/2016 09:39 AM, Yang Zhang wrote:
-> On 2015/12/31 15:13, Jason Wang wrote:
->> This patch tries to implement an device IOTLB for vhost. This could be
->> used with for co-operation with userspace(qemu) implementation of
->> iommu for a secure DMA environment in guest.
->>
->> The idea is simple. When vhost meets an IOTLB miss, it will request
->> the assistance of userspace to do the translation, this is done
->> through:
->>
->> - Fill the translation request in a preset userspace address (This
->>    address is set through ioctl VHOST_SET_IOTLB_REQUEST_ENTRY).
->> - Notify userspace through eventfd (This eventfd was set through ioctl
->>    VHOST_SET_IOTLB_FD).
->>
->> When userspace finishes the translation, it will update the vhost
->> IOTLB through VHOST_UPDATE_IOTLB ioctl. Userspace is also in charge of
->> snooping the IOTLB invalidation of IOMMU IOTLB and use
->> VHOST_UPDATE_IOTLB to invalidate the possible entry in vhost.
+On 12/22/2015 05:07 PM, Stefan Hajnoczi wrote:
+> This series is based on v4.4-rc2 and the "virtio: make find_vqs()
+> checkpatch.pl-friendly" patch I recently submitted.
 >
-> Is there any performance data shows the difference with IOTLB supporting?
-
-Basic testing show it was slower than without IOTLB.
-
-> I doubt we may see performance decrease since the flush code path is
-> longer than before.
+> v4:
+>  * Addressed code review comments from Alex Bennee
+>  * MAINTAINERS file entries for new files
+>  * Trace events instead of pr_debug()
+>  * RST packet is sent when there is no listen socket
+>  * Allow guest->host connections again (began discussing netfilter support with
+>    Matt Benjamin instead of hard-coding security policy in virtio-vsock code)
+>  * Many checkpatch.pl cleanups (will be 100% clean in v5)
 >
+> v3:
+>  * Remove unnecessary 3-way handshake, just do REQUEST/RESPONSE instead
+>    of REQUEST/RESPONSE/ACK
+>  * Remove SOCK_DGRAM support and focus on SOCK_STREAM first
+>    (also drop v2 Patch 1, it's only needed for SOCK_DGRAM)
+>  * Only allow host->guest connections (same security model as latest
+>    VMware)
+>  * Don't put vhost vsock driver into staging
+>  * Add missing Kconfig dependencies (Arnd Bergmann <arnd@arndb.de>)
+>  * Remove unneeded variable used to store return value
+>    (Fengguang Wu <fengguang.wu@intel.com> and Julia Lawall
+>    <julia.lawall@lip6.fr>)
+>
+> v2:
+>  * Rebased onto Linux v4.4-rc2
+>  * vhost: Refuse to assign reserved CIDs
+>  * vhost: Refuse guest CID if already in use
+>  * vhost: Only accept correctly addressed packets (no spoofing!)
+>  * vhost: Support flexible rx/tx descriptor layout
+>  * vhost: Add missing total_tx_buf decrement
+>  * virtio_transport: Fix total_tx_buf accounting
+>  * virtio_transport: Add virtio_transport global mutex to prevent races
+>  * common: Notify other side of SOCK_STREAM disconnect (fixes shutdown
+>    semantics)
+>  * common: Avoid recursive mutex_lock(tx_lock) for write_space (fixes deadlock)
+>  * common: Define VIRTIO_VSOCK_TYPE_STREAM/DGRAM hardware interface constants
+>  * common: Define VIRTIO_VSOCK_SHUTDOWN_RCV/SEND hardware interface constants
+>  * common: Fix peer_buf_alloc inheritance on child socket
+>
+> This patch series adds a virtio transport for AF_VSOCK (net/vmw_vsock/).
+> AF_VSOCK is designed for communication between virtual machines and
+> hypervisors.  It is currently only implemented for VMware's VMCI transport.
+>
+> This series implements the proposed virtio-vsock device specification from
+> here:
+> http://permalink.gmane.org/gmane.comp.emulators.virtio.devel/980
+>
+> Most of the work was done by Asias He and Gerd Hoffmann a while back.  I have
+> picked up the series again.
+>
+> The QEMU userspace changes are here:
+> https://github.com/stefanha/qemu/commits/vsock
+>
+> Why virtio-vsock?
+> -----------------
+> Guest<->host communication is currently done over the virtio-serial device.
+> This makes it hard to port sockets API-based applications and is limited to
+> static ports.
+>
+> virtio-vsock uses the sockets API so that applications can rely on familiar
+> SOCK_STREAM semantics.  Applications on the host can easily connect to guest
+> agents because the sockets API allows multiple connections to a listen socket
+> (unlike virtio-serial).  This simplifies the guest<->host communication and
+> eliminates the need for extra processes on the host to arbitrate virtio-serial
+> ports.
+>
+> Overview
+> --------
+> This series adds 3 pieces:
+>
+> 1. virtio_transport_common.ko - core virtio vsock code that uses vsock.ko
+>
+> 2. virtio_transport.ko - guest driver
+>
+> 3. drivers/vhost/vsock.ko - host driver
 
-Yes, it also depend on the TLB hit rate.
+Have a (dumb maybe) question after a quick glance at the codes:
 
-If lots of dynamic mappings and unmappings are used in guest (e.g normal
-Linux driver). This method should be much more slower since:
-
-- lots of invalidation and its path is slow.
-- the hit rate is low and the high price of userspace assisted address
-translation.
-- limitation of userspace IOMMU/IOTLB implementation (qemu's vtd
-emulation simply empty all entries when it's full).
-
-Another method is to implement kernel IOMMU (e.g vtd). But I'm not sure
-vhost is the best place to do this, since vhost should be architecture
-independent. Maybe we'd better to do it in kvm or have a pv IOMMU
-implementation in vhost.
-
-Another side, if fixed mappings were used in guest, (e.g dpdk in guest).
-We have the possibility to have 100% hit rate with almost no
-invalidation, the performance penalty should be ignorable, this should
-be the main use case for this patch.
-
-The patch is just a prototype for discussion. Any other ideas are welcomed.
+Is there any chance to reuse existed virtio-net/vhost-net codes? For
+example, using virito-net instead of a new device as a transport in
+guest and using vhost-net (especially consider it uses a socket as
+backend) in host. Maybe just a new virtio-net header type for vsock. I'm
+asking since I don't see any blocker for doing this.
 
 Thanks
+
+> Howto
+> -----
+> The following kernel options are needed:
+>   CONFIG_VSOCKETS=y
+>   CONFIG_VIRTIO_VSOCKETS=y
+>   CONFIG_VIRTIO_VSOCKETS_COMMON=y
+>   CONFIG_VHOST_VSOCK=m
+>
+> Launch QEMU as follows:
+>   # qemu ... -device vhost-vsock-pci,id=vhost-vsock-pci0,guest-cid=3
+>
+> Guest and host can communicate via AF_VSOCK sockets.  The host's CID (address)
+> is 2 and the guest must be assigned a CID (3 in the example above).
+>
+> Status
+> ------
+> This patch series implements the latest draft specification.  Please review.
+>
+> Asias He (4):
+>   VSOCK: Introduce virtio_vsock_common.ko
+>   VSOCK: Introduce virtio_transport.ko
+>   VSOCK: Introduce vhost_vsock.ko
+>   VSOCK: Add Makefile and Kconfig
+>
+> Stefan Hajnoczi (1):
+>   VSOCK: transport-specific vsock_transport functions
+>
+>  MAINTAINERS                                        |  13 +
+>  drivers/vhost/Kconfig                              |  15 +
+>  drivers/vhost/Makefile                             |   4 +
+>  drivers/vhost/vsock.c                              | 607 +++++++++++++++
+>  drivers/vhost/vsock.h                              |   4 +
+>  include/linux/virtio_vsock.h                       | 167 +++++
+>  include/net/af_vsock.h                             |   3 +
+>  .../trace/events/vsock_virtio_transport_common.h   | 144 ++++
+>  include/uapi/linux/virtio_ids.h                    |   1 +
+>  include/uapi/linux/virtio_vsock.h                  |  87 +++
+>  net/vmw_vsock/Kconfig                              |  19 +
+>  net/vmw_vsock/Makefile                             |   2 +
+>  net/vmw_vsock/af_vsock.c                           |   9 +
+>  net/vmw_vsock/virtio_transport.c                   | 481 ++++++++++++
+>  net/vmw_vsock/virtio_transport_common.c            | 834 +++++++++++++++++++++
+>  15 files changed, 2390 insertions(+)
+>  create mode 100644 drivers/vhost/vsock.c
+>  create mode 100644 drivers/vhost/vsock.h
+>  create mode 100644 include/linux/virtio_vsock.h
+>  create mode 100644 include/trace/events/vsock_virtio_transport_common.h
+>  create mode 100644 include/uapi/linux/virtio_vsock.h
+>  create mode 100644 net/vmw_vsock/virtio_transport.c
+>  create mode 100644 net/vmw_vsock/virtio_transport_common.c
+>
