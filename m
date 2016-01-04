@@ -1,16 +1,13 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 3/3] checkpatch: add virt barriers
-Date: Mon, 04 Jan 2016 14:11:37 -0800
-Message-ID: <1451945497.4334.107.camel__40961.8445010439$1451945531$gmane$org@perches.com>
-References: <1451907395-15978-1-git-send-email-mst@redhat.com>
-	<1451907395-15978-4-git-send-email-mst@redhat.com>
-	<1451926073.4334.90.camel@perches.com>
-	<20160104230528-mutt-send-email-mst@redhat.com>
+From: James Hogan <james.hogan@imgtec.com>
+Subject: Re: [PATCH v2 10/32] metag: reuse asm-generic/barrier.h
+Date: Mon, 4 Jan 2016 23:24:04 +0000
+Message-ID: <20160104232404.GL17861__20040.2589784519$1451949871$gmane$org@jhogan-linux.le.imgtec.org>
+References: <1451572003-2440-1-git-send-email-mst@redhat.com>
+	<1451572003-2440-11-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/mixed; boundary="===============3363467373592268289=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160104230528-mutt-send-email-mst@redhat.com>
+In-Reply-To: <1451572003-2440-11-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,30 +18,124 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, Tony Lindgren <tony@atomide.com>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Andrey Konovalov <andreyknvl@google.com>, adi-buildroot-devel@lists.sourceforge.net, "Cc : Andy Whitcroft" <apw@canonical.com>, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Andrey Konovalov <andreyknvl@google.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew Cooper <andrew.cooper3@citrix.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.o
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2016-01-04 at 23:07 +0200, Michael S. Tsirkin wrote:
-> On Mon, Jan 04, 2016 at 08:47:53AM -0800, Joe Perches wrote:
-> > On Mon, 2016-01-04 at 13:37 +0200, Michael S. Tsirkin wrote:
-> > > Add virt_ barriers to list of barriers to check for
-> > > presence of a comment.
-> > =
+--===============3363467373592268289==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="2OzUYMsT4j3Kc+NU"
+Content-Disposition: inline
 
-> > Are these virt_ barriers used anywhere?
-> > =
+--2OzUYMsT4j3Kc+NU
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > I see some virtio_ barrier like uses.
-> =
+On Thu, Dec 31, 2015 at 09:07:02PM +0200, Michael S. Tsirkin wrote:
+> On metag dma_rmb, dma_wmb, smp_store_mb, read_barrier_depends,
+> smp_read_barrier_depends, smp_store_release and smp_load_acquire  match
+> the asm-generic variants exactly. Drop the local definitions and pull in
+> asm-generic/barrier.h instead.
+>=20
+> This is in preparation to refactoring this code area.
+>=20
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Acked-by: Arnd Bergmann <arnd@arndb.de>
 
-> They will be :) They are added and used by patchset
-> 	=A0=A0=A0=A0=A0=A0=A0=A0arch: barrier cleanup + barriers for virt
-> =
+Looks good, and confirmed no text change (once patch 1 is applied that
+is).
 
-> See
-> http://article.gmane.org/gmane.linux.kernel.virtualization/26555
+Acked-by: James Hogan <james.hogan@imgtec.com>
 
-Ah, OK, thanks.
+Thanks
+James
 
-Are the virtio_ barriers going away?
-If not, maybe those should be added too.
+> ---
+>  arch/metag/include/asm/barrier.h | 25 ++-----------------------
+>  1 file changed, 2 insertions(+), 23 deletions(-)
+>=20
+> diff --git a/arch/metag/include/asm/barrier.h b/arch/metag/include/asm/ba=
+rrier.h
+> index 172b7e5..b5b778b 100644
+> --- a/arch/metag/include/asm/barrier.h
+> +++ b/arch/metag/include/asm/barrier.h
+> @@ -44,9 +44,6 @@ static inline void wr_fence(void)
+>  #define rmb()		barrier()
+>  #define wmb()		mb()
+> =20
+> -#define dma_rmb()	rmb()
+> -#define dma_wmb()	wmb()
+> -
+>  #ifndef CONFIG_SMP
+>  #define fence()		do { } while (0)
+>  #define smp_mb()        barrier()
+> @@ -81,27 +78,9 @@ static inline void fence(void)
+>  #endif
+>  #endif
+> =20
+> -#define read_barrier_depends()		do { } while (0)
+> -#define smp_read_barrier_depends()	do { } while (0)
+> -
+> -#define smp_store_mb(var, value) do { WRITE_ONCE(var, value); smp_mb(); =
+} while (0)
+> -
+> -#define smp_store_release(p, v)						\
+> -do {									\
+> -	compiletime_assert_atomic_type(*p);				\
+> -	smp_mb();							\
+> -	WRITE_ONCE(*p, v);						\
+> -} while (0)
+> -
+> -#define smp_load_acquire(p)						\
+> -({									\
+> -	typeof(*p) ___p1 =3D READ_ONCE(*p);				\
+> -	compiletime_assert_atomic_type(*p);				\
+> -	smp_mb();							\
+> -	___p1;								\
+> -})
+> -
+>  #define smp_mb__before_atomic()	barrier()
+>  #define smp_mb__after_atomic()	barrier()
+> =20
+> +#include <asm-generic/barrier.h>
+> +
+>  #endif /* _ASM_METAG_BARRIER_H */
+> --=20
+> MST
+>=20
+
+--2OzUYMsT4j3Kc+NU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJWiv8UAAoJEGwLaZPeOHZ6hSwQAJCVQc5QdNomZOnrxJp5uv9r
+iT+zYpXRNC4k29ENp5iDq29d07OM1zooI0szDvvKi351dsFwfOXrEBIcoKJjLRcm
+VGVtFCCI0IffzBGaMa2u16xywqgCogk+uMnlOmyk2cSM6lx0BdWIb6sL4fzkocfT
+a1sTWJnh45/sQG+VQQUUFokjUM0UFCXOV+77I556Khe9tS5qgZnObEsAIk+lrY/3
+lRo2nd2wbZsybzqlQVKp3nKYbFNUpoCGT/myPpj8A3NQ/FBUOs6LtpZvD0i06CJh
+E01ASo6Cr5SvTyOAYsty+zcZvFGZPB+2i9jyv/7vGDBgdiCwLEX25gXxz9aS8GB6
+2Oa2E/5z/uCltUZyM3y3Yz/K8XwnhORh3PMpZR/b2Ze5MnguCLy2zWrcKWdZhCJ+
+UkNkLe3rcbdLSfCcK6kCSAwHoqj78IeHmBG+96vEwePwsQh7YkAKIoKSMxbx88BU
+gD/yn8y+dc7wSJGYgHM4eBw35H3o7HTB6bPRZsw8/ak1nG8ClOMtWkoLB7a+9wOA
+J5tM/aHE0ixB02QphdN8lkvqMA+U9EKmq6hBHZeiyIxNx/mCAm+6dcGv484Hh2UF
+tvsj4erVkGZa9EJ3KL49xvAJx23RTZcR+a2djcLUlzeLr32UDWh3zuVzSoNc+ZKD
+Cnc7cQMIdlTlucxbu/OU
+=IkXd
+-----END PGP SIGNATURE-----
+
+--2OzUYMsT4j3Kc+NU--
+
+--===============3363467373592268289==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3363467373592268289==--
