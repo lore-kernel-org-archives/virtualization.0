@@ -1,14 +1,14 @@
 From: David Vrabel <david.vrabel@citrix.com>
-Subject: Re: [Xen-devel] [PATCH v2 33/34] xenbus: use virt_xxx barriers
-Date: Mon, 4 Jan 2016 11:32:00 +0000
-Message-ID: <568A5830.9000501__10047.4142273471$1451907145$gmane$org@citrix.com>
+Subject: Re: [Xen-devel] [PATCH v2 34/34] xen/io: use virt_xxx barriers
+Date: Mon, 4 Jan 2016 11:32:28 +0000
+Message-ID: <568A584C.2070501__35402.3999687799$1451907170$gmane$org@citrix.com>
 References: <1451572003-2440-1-git-send-email-mst@redhat.com>
-	<1451572003-2440-34-git-send-email-mst@redhat.com>
+	<1451572003-2440-35-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1451572003-2440-34-git-send-email-mst@redhat.com>
+In-Reply-To: <1451572003-2440-35-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,7 +23,7 @@ Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.
 List-Id: virtualization@lists.linuxfoundation.org
 
 On 31/12/15 19:10, Michael S. Tsirkin wrote:
-> drivers/xen/xenbus/xenbus_comms.c uses
+> include/xen/interface/io/ring.h uses
 > full memory barriers to communicate with the other side.
 > 
 > For guests compiled with CONFIG_SMP, smp_wmb and smp_mb
@@ -33,9 +33,5 @@ On 31/12/15 19:10, Michael S. Tsirkin wrote:
 > Switch to virt_xxx barriers which serve this exact purpose.
 
 Acked-by: David Vrabel <david.vrabel@citrix.com>
-
-If you're feeling particularly keen there's a rmb() consume_one_event()
-in drivers/xen/events/events_fifo.c that can be converted to virt_rmb()
-as well.
 
 David
