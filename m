@@ -1,17 +1,13 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v2 20/32] metag: define __smp_xxx
-Date: Mon, 4 Jan 2016 16:30:36 +0100
-Message-ID: <20160104153036.GG6344@twins.programming.kicks-ass.net>
-References: <1451572003-2440-1-git-send-email-mst@redhat.com>
-	<1451572003-2440-21-git-send-email-mst@redhat.com>
-	<20160104134128.GZ6344@twins.programming.kicks-ass.net>
-	<20160104152558.GD17861@jhogan-linux.le.imgtec.org>
+From: Yang Zhang <yang.zhang.wz@gmail.com>
+Subject: Re: [PATCH RFC] vhost: basic device IOTLB support
+Date: Mon, 4 Jan 2016 09:39:37 +0800
+Message-ID: <5689CD59.6030900__19240.0252599784$1451922736$gmane$org@gmail.com>
+References: <1451546025-15955-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160104152558.GD17861@jhogan-linux.le.imgtec.org>
+In-Reply-To: <1451546025-15955-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,27 +17,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: James Hogan <james.hogan@imgtec.com>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Davidlohr Bueso <dbueso@suse.de>, linux-sh@vger.kernel.org, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Andrey Konovalov <andreyknvl@google.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew Cooper <andrew.cooper3@citrix.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-api@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 04, 2016 at 03:25:58PM +0000, James Hogan wrote:
-> It is used along with the metag specific __global_lock1() (global
-> voluntary lock between hw threads) whenever a write is performed, and by
-> smp_mb/smp_rmb to try to catch other cases, but I've never been
-> confident this fixes every single corner case, since there could be
-> other places where multiple CPUs perform unsynchronised writes to the
-> same memory location, and expect cache not to become incoherent at that
-> location.
+On 2015/12/31 15:13, Jason Wang wrote:
+> This patch tries to implement an device IOTLB for vhost. This could be
+> used with for co-operation with userspace(qemu) implementation of
+> iommu for a secure DMA environment in guest.
+>
+> The idea is simple. When vhost meets an IOTLB miss, it will request
+> the assistance of userspace to do the translation, this is done
+> through:
+>
+> - Fill the translation request in a preset userspace address (This
+>    address is set through ioctl VHOST_SET_IOTLB_REQUEST_ENTRY).
+> - Notify userspace through eventfd (This eventfd was set through ioctl
+>    VHOST_SET_IOTLB_FD).
+>
+> When userspace finishes the translation, it will update the vhost
+> IOTLB through VHOST_UPDATE_IOTLB ioctl. Userspace is also in charge of
+> snooping the IOTLB invalidation of IOMMU IOTLB and use
+> VHOST_UPDATE_IOTLB to invalidate the possible entry in vhost.
 
-Ah, yuck, I thought blackfin was the only one attempting !coherent SMP.
-And yes, this is bound to break in lots of places in subtle ways. We
-very much assume cache coherency for SMP in generic code.
+Is there any performance data shows the difference with IOTLB 
+supporting? I doubt we may see performance decrease since the flush code 
+path is longer than before.
 
-> It seemed to be sufficient to achieve stability however, and SMP on Meta
-> Linux never made it into a product anyway, since the other hw thread
-> tended to be used for RTOS stuff, so it didn't seem worth extending the
-> generic barrier API for it.
-
-*phew*, should we take it out then, just to be sure nobody accidentally
-tries to use it then?
+-- 
+best regards
+yang
