@@ -1,15 +1,17 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH v2 06/32] s390: reuse asm-generic/barrier.h
-Date: Mon, 4 Jan 2016 16:03:39 +0100
-Message-ID: <20160104160339.25101b5d@mschwide>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v2 20/32] metag: define __smp_xxx
+Date: Mon, 4 Jan 2016 16:30:36 +0100
+Message-ID: <20160104153036.GG6344@twins.programming.kicks-ass.net>
 References: <1451572003-2440-1-git-send-email-mst@redhat.com>
-	<1451572003-2440-7-git-send-email-mst@redhat.com>
-	<20160104132042.GW6344@twins.programming.kicks-ass.net>
+	<1451572003-2440-21-git-send-email-mst@redhat.com>
+	<20160104134128.GZ6344@twins.programming.kicks-ass.net>
+	<20160104152558.GD17861@jhogan-linux.le.imgtec.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160104132042.GW6344@twins.programming.kicks-ass.net>
+Content-Disposition: inline
+In-Reply-To: <20160104152558.GD17861@jhogan-linux.le.imgtec.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,53 +21,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Arnd Bergmann <arnd@arndb.de>, linux-sh@vger.kernel.org, x86@kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Andrey Konovalov <andreyknvl@google.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew
+To: James Hogan <james.hogan@imgtec.com>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Davidlohr Bueso <dbueso@suse.de>, linux-sh@vger.kernel.org, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Andrey Konovalov <andreyknvl@google.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew Cooper <andrew.cooper3@citrix.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 4 Jan 2016 14:20:42 +0100
-Peter Zijlstra <peterz@infradead.org> wrote:
+On Mon, Jan 04, 2016 at 03:25:58PM +0000, James Hogan wrote:
+> It is used along with the metag specific __global_lock1() (global
+> voluntary lock between hw threads) whenever a write is performed, and by
+> smp_mb/smp_rmb to try to catch other cases, but I've never been
+> confident this fixes every single corner case, since there could be
+> other places where multiple CPUs perform unsynchronised writes to the
+> same memory location, and expect cache not to become incoherent at that
+> location.
 
-> On Thu, Dec 31, 2015 at 09:06:30PM +0200, Michael S. Tsirkin wrote:
-> > On s390 read_barrier_depends, smp_read_barrier_depends
-> > smp_store_mb(), smp_mb__before_atomic and smp_mb__after_atomic match the
-> > asm-generic variants exactly. Drop the local definitions and pull in
-> > asm-generic/barrier.h instead.
-> > 
-> > This is in preparation to refactoring this code area.
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > Acked-by: Arnd Bergmann <arnd@arndb.de>
-> > ---
-> >  arch/s390/include/asm/barrier.h | 10 ++--------
-> >  1 file changed, 2 insertions(+), 8 deletions(-)
-> > 
-> > diff --git a/arch/s390/include/asm/barrier.h b/arch/s390/include/asm/barrier.h
-> > index 7ffd0b1..c358c31 100644
-> > --- a/arch/s390/include/asm/barrier.h
-> > +++ b/arch/s390/include/asm/barrier.h
-> > @@ -30,14 +30,6 @@
-> >  #define smp_rmb()			rmb()
-> >  #define smp_wmb()			wmb()
-> >  
-> > -#define read_barrier_depends()		do { } while (0)
-> > -#define smp_read_barrier_depends()	do { } while (0)
-> > -
-> > -#define smp_mb__before_atomic()		smp_mb()
-> > -#define smp_mb__after_atomic()		smp_mb()
-> 
-> As per:
-> 
->   lkml.kernel.org/r/20150921112252.3c2937e1@mschwide
-> 
-> s390 should change this to barrier() instead of smp_mb() and hence
-> should not use the generic versions.
- 
-Yes, we wanted to simplify this. Thanks for the reminder, I'll queue
-a patch.
+Ah, yuck, I thought blackfin was the only one attempting !coherent SMP.
+And yes, this is bound to break in lots of places in subtle ways. We
+very much assume cache coherency for SMP in generic code.
 
--- 
-blue skies,
-   Martin.
+> It seemed to be sufficient to achieve stability however, and SMP on Meta
+> Linux never made it into a product anyway, since the other hw thread
+> tended to be used for RTOS stuff, so it didn't seem worth extending the
+> generic barrier API for it.
 
-"Reality continues to ruin my life." - Calvin.
+*phew*, should we take it out then, just to be sure nobody accidentally
+tries to use it then?
