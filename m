@@ -1,15 +1,20 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC] virtio_balloon: refill by config handler
-Date: Tue, 5 Jan 2016 17:31:36 +0200
-Message-ID: <20160105164041-mutt-send-email-mst__9717.91055421836$1452007918$gmane$org@redhat.com>
-References: <1451643122-21561-1-git-send-email-mst@redhat.com>
-	<20160105143733.GE3178@pathway.suse.cz>
+Subject: Re: [PATCH v4 2/2] virtio_balloon: Use a workqueue instead of
+	"vballoon" kthread
+Date: Tue, 5 Jan 2016 17:37:08 +0200
+Message-ID: <20160105173214-mutt-send-email-mst@redhat.com>
+References: <1449236271-10133-1-git-send-email-pmladek@suse.com>
+	<1449236271-10133-3-git-send-email-pmladek@suse.com>
+	<20160101121432-mutt-send-email-mst@redhat.com>
+	<20160102114316.GC3660@htj.duckdns.org>
+	<20160102213603.GA1703@redhat.com>
+	<20160105144918.GF3178@pathway.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20160105143733.GE3178@pathway.suse.cz>
+In-Reply-To: <20160105144918.GF3178@pathway.suse.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,57 +25,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Petr Mladek <pmladek@suse.com>
-Cc: Tejun Heo <tj@kernel.org>, Jiri Kosina <jkosina@suse.cz>, Jeff Epler <jepler@unpythonic.net>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Tejun Heo <tj@kernel.org>, Jeff Epler <jepler@unpythonic.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 05, 2016 at 03:37:33PM +0100, Petr Mladek wrote:
-> On Fri 2016-01-01 12:13:48, Michael S. Tsirkin wrote:
-> > Peter Mladek reported that balloon might never refill completely after
-> > restore.  This is because fill_balloon is only called once there.
-> > Calling fill_balloon repeatedly seems too aggressive,
-> > especially in light of the fact that it sleeps on failure: let's
-> > wake the config change handler and fill it asynchronously.
+On Tue, Jan 05, 2016 at 03:49:18PM +0100, Petr Mladek wrote:
+> On Sat 2016-01-02 23:36:03, Michael S. Tsirkin wrote:
+> > On Sat, Jan 02, 2016 at 06:43:16AM -0500, Tejun Heo wrote:
+> > > On Fri, Jan 01, 2016 at 12:18:17PM +0200, Michael S. Tsirkin wrote:
+> > > > > My initial idea was to use a dedicated workqueue. Michael S. Tsirkin
+> > > > > @@ -563,7 +534,7 @@ static void virtballoon_remove(struct virtio_device *vdev)
+> > > > >  	struct virtio_balloon *vb = vdev->priv;
+> > > > >  
+> > > > >  	unregister_oom_notifier(&vb->nb);
+> > > > > -	kthread_stop(vb->thread);
+> > > > > +	cancel_work_sync(&vb->wq_work);
+> > > > 
+> > > > OK but since job requeues itself, cancelling like this might not be enough.
+> > > 
+> > > As long as there's no further external queueing, cancel_work_sync() is
+> > > guaranteed to kill a self-requeueing work item.
+> > > 
+> > > Thanks.
 > > 
-> > Reported-by: Petr Mladek <pmladek@suse.com>
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
+> > I didn't realise this. Thanks!
 > > 
-> > I was unable to test this - for some reason my test VM
-> > doesn't resume (with or without the patch).
-> > Petr, does this work for you?
+> > Unfortunately in this case, there can be further requeueing
+> > if a stats request arrives.
 > 
-> Ah, I have just realized that the problem happens only after the
-> conversion to the workqueue. It works without this patch with the
-> current code. The balloon kthread is waken when released from
-> __refrigerator().
-
-In fact, maybe we should drop fill_balloon and
-update_balloon_size here?
-Resume will finish faster ...
-
-> I am sorry for the noise. I wanted to split the conversion to
-> workqueues into two patches to make it better readable. We need to
-> queue the balloon resizing work here. I wrongly assumed that the
-> original kthread must have the same problem.
+> Please, is there any point where the stat requests are disabled for
+> sure? I am not 100% sure but it might be after the reset() call:
 > 
-> Best Regards,
+>     vb->vdev->config->reset(vb->vdev);
+
+Yes.
+
+> Then we could split the kthread into two works: resizing and stats.
+> The resizing work still must be canceled before leaking the balloon.
+> But the stats work might be canceled after the reset() call.
+> 
+> In fact, the solution with the two works looks even cleaner.
+> 
+> 
+> Thanks for feedback,
 > Petr
-> 
-> >  drivers/virtio/virtio_balloon.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> > index 7efc329..ee29473 100644
-> > --- a/drivers/virtio/virtio_balloon.c
-> > +++ b/drivers/virtio/virtio_balloon.c
-> > @@ -589,7 +589,7 @@ static int virtballoon_restore(struct virtio_device *vdev)
-> >  
-> >  	virtio_device_ready(vdev);
-> >  
-> > -	fill_balloon(vb, towards_target(vb));
-> > +	wake_up(&vb->config_change);
-> >  	update_balloon_size(vb);
-> >  	return 0;
-> >  }
-> > -- 
-> > MST
+
+I agree - in fact, not blocking stats call while inflate is blocked
+would be very nice. As things then happen in parallel, we need to be
+careful with locking and stuff.
+
+That would be a good reason to switch to wq.
+
+-- 
+MST
