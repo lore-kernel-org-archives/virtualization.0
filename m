@@ -1,14 +1,17 @@
-From: Yang Zhang <yang.zhang.wz@gmail.com>
-Subject: Re: [PATCH RFC] vhost: basic device IOTLB support
-Date: Tue, 5 Jan 2016 11:18:16 +0800
-Message-ID: <568B35F8.7080302@gmail.com>
-References: <1451546025-15955-1-git-send-email-jasowang@redhat.com>
-	<5689CD59.6030900@gmail.com> <568A0FA6.8080804@redhat.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH v2 06/32] s390: reuse asm-generic/barrier.h
+Date: Tue, 5 Jan 2016 09:03:01 +0100
+Message-ID: <20160105090301.3f9939be@mschwide>
+References: <1451572003-2440-1-git-send-email-mst@redhat.com>
+	<1451572003-2440-7-git-send-email-mst@redhat.com>
+	<20160104132042.GW6344@twins.programming.kicks-ass.net>
+	<20160104160339.25101b5d@mschwide>
+	<20160104224135-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <568A0FA6.8080804@redhat.com>
+In-Reply-To: <20160104224135-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,73 +21,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-api@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Andrey Konovalov <andreyknvl@google.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2016/1/4 14:22, Jason Wang wrote:
->
->
-> On 01/04/2016 09:39 AM, Yang Zhang wrote:
->> On 2015/12/31 15:13, Jason Wang wrote:
->>> This patch tries to implement an device IOTLB for vhost. This could be
->>> used with for co-operation with userspace(qemu) implementation of
->>> iommu for a secure DMA environment in guest.
->>>
->>> The idea is simple. When vhost meets an IOTLB miss, it will request
->>> the assistance of userspace to do the translation, this is done
->>> through:
->>>
->>> - Fill the translation request in a preset userspace address (This
->>>     address is set through ioctl VHOST_SET_IOTLB_REQUEST_ENTRY).
->>> - Notify userspace through eventfd (This eventfd was set through ioctl
->>>     VHOST_SET_IOTLB_FD).
->>>
->>> When userspace finishes the translation, it will update the vhost
->>> IOTLB through VHOST_UPDATE_IOTLB ioctl. Userspace is also in charge of
->>> snooping the IOTLB invalidation of IOMMU IOTLB and use
->>> VHOST_UPDATE_IOTLB to invalidate the possible entry in vhost.
->>
->> Is there any performance data shows the difference with IOTLB supporting?
->
-> Basic testing show it was slower than without IOTLB.
->
->> I doubt we may see performance decrease since the flush code path is
->> longer than before.
->>
->
-> Yes, it also depend on the TLB hit rate.
->
-> If lots of dynamic mappings and unmappings are used in guest (e.g normal
-> Linux driver). This method should be much more slower since:
->
-> - lots of invalidation and its path is slow.
-> - the hit rate is low and the high price of userspace assisted address
-> translation.
-> - limitation of userspace IOMMU/IOTLB implementation (qemu's vtd
-> emulation simply empty all entries when it's full).
->
-> Another method is to implement kernel IOMMU (e.g vtd). But I'm not sure
-> vhost is the best place to do this, since vhost should be architecture
-> independent. Maybe we'd better to do it in kvm or have a pv IOMMU
-> implementation in vhost.
+On Mon, 4 Jan 2016 22:42:44 +0200
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-Actually, i have the kernel IOMMU(virtual vtd) patch which can pass 
-though the physical device to L2 guest on hand. But it is just a draft 
-patch which was written several years ago. If there is real requirement 
-for it, I can rebase it and send out it for review.
+> On Mon, Jan 04, 2016 at 04:03:39PM +0100, Martin Schwidefsky wrote:
+> > On Mon, 4 Jan 2016 14:20:42 +0100
+> > Peter Zijlstra <peterz@infradead.org> wrote:
+> > 
+> > > On Thu, Dec 31, 2015 at 09:06:30PM +0200, Michael S. Tsirkin wrote:
+> > > > On s390 read_barrier_depends, smp_read_barrier_depends
+> > > > smp_store_mb(), smp_mb__before_atomic and smp_mb__after_atomic match the
+> > > > asm-generic variants exactly. Drop the local definitions and pull in
+> > > > asm-generic/barrier.h instead.
+> > > > 
+> > > > This is in preparation to refactoring this code area.
+> > > > 
+> > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > > > Acked-by: Arnd Bergmann <arnd@arndb.de>
+> > > > ---
+> > > >  arch/s390/include/asm/barrier.h | 10 ++--------
+> > > >  1 file changed, 2 insertions(+), 8 deletions(-)
+> > > > 
+> > > > diff --git a/arch/s390/include/asm/barrier.h b/arch/s390/include/asm/barrier.h
+> > > > index 7ffd0b1..c358c31 100644
+> > > > --- a/arch/s390/include/asm/barrier.h
+> > > > +++ b/arch/s390/include/asm/barrier.h
+> > > > @@ -30,14 +30,6 @@
+> > > >  #define smp_rmb()			rmb()
+> > > >  #define smp_wmb()			wmb()
+> > > >  
+> > > > -#define read_barrier_depends()		do { } while (0)
+> > > > -#define smp_read_barrier_depends()	do { } while (0)
+> > > > -
+> > > > -#define smp_mb__before_atomic()		smp_mb()
+> > > > -#define smp_mb__after_atomic()		smp_mb()
+> > > 
+> > > As per:
+> > > 
+> > >   lkml.kernel.org/r/20150921112252.3c2937e1@mschwide
+> > > 
+> > > s390 should change this to barrier() instead of smp_mb() and hence
+> > > should not use the generic versions.
+> >  
+> > Yes, we wanted to simplify this. Thanks for the reminder, I'll queue
+> > a patch.
+> 
+> Could you base on my patchset maybe, to avoid conflicts,
+> and I'll merge it?
+> Or if it's just replacing these 2 with barrier() I can do this
+> myself easily.
 
->
-> Another side, if fixed mappings were used in guest, (e.g dpdk in guest).
-> We have the possibility to have 100% hit rate with almost no
-> invalidation, the performance penalty should be ignorable, this should
-> be the main use case for this patch.
->
-> The patch is just a prototype for discussion. Any other ideas are welcomed.
->
-> Thanks
->
-
+Probably the easiest solution if you do the patch yourself and
+include it in your patch set. 
 
 -- 
-best regards
-yang
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
