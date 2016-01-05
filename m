@@ -1,16 +1,14 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 1/3] checkpatch.pl: add missing memory barriers
-Date: Mon, 04 Jan 2016 08:15:14 -0800
-Message-ID: <1451924114.4334.85.camel__34547.1418848776$1451954136$gmane$org@perches.com>
-References: <1451907395-15978-1-git-send-email-mst@redhat.com>
-	<1451907395-15978-2-git-send-email-mst@redhat.com>
-	<1451923660.4334.83.camel@perches.com>
-	<20160104161123.GJ19062@n2100.arm.linux.org.uk>
+From: Yang Zhang <yang.zhang.wz@gmail.com>
+Subject: Re: [PATCH RFC] vhost: basic device IOTLB support
+Date: Tue, 5 Jan 2016 11:18:16 +0800
+Message-ID: <568B35F8.7080302@gmail.com>
+References: <1451546025-15955-1-git-send-email-jasowang@redhat.com>
+	<5689CD59.6030900@gmail.com> <568A0FA6.8080804@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160104161123.GJ19062@n2100.arm.linux.org.uk>
+In-Reply-To: <568A0FA6.8080804@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,36 +18,73 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-sh@vger.kernel.org, x86@kernel.org, Tony Lindgren <tony@atomide.com>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Andrey Konovalov <andreyknvl@google.com>, adi-buildroot-devel@lists.sourceforge.net, "Cc
-	: Andy Whitcroft" <apw@canonical.com>, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew Cooper <andrew>
+To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-api@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2016-01-04 at 16:11 +0000, Russell King - ARM Linux wrote:
-> On Mon, Jan 04, 2016 at 08:07:40AM -0800, Joe Perches wrote:
-> > On Mon, 2016-01-04 at 13:36 +0200, Michael S. Tsirkin wrote:
-> > > +		my $all_barriers = join('|', (@barriers, @smp_barriers));
-> > > +
-> > > +		if ($line =~ /\b($all_barriers)\(/) {
-> > 
-> > It would be better to use /\b$all_barriers\s*\(/
-> > as there's no reason for the capture and there
-> > could be a space between the function and the
-> > open parenthesis.
-> 
-> I think you mean
-> 
-> 	/\b(?:$all_barriers)\s*\(/
-> 
-> as 'all_barriers' will be:
-> 
-> 	mb|wmb|rmb|smp_mb|smp_wmb|smp_rmb
-> 
-> and putting that into your suggestion results in:
-> 
-> 	/\bmb|wmb|rmb|smp_mb|smp_wmb|smp_rmb\s*\(/
-> 
-> which is clearly wrong - the \b only applies to 'mb' and the \s*\( only
-> applies to smp_rmb.
+On 2016/1/4 14:22, Jason Wang wrote:
+>
+>
+> On 01/04/2016 09:39 AM, Yang Zhang wrote:
+>> On 2015/12/31 15:13, Jason Wang wrote:
+>>> This patch tries to implement an device IOTLB for vhost. This could be
+>>> used with for co-operation with userspace(qemu) implementation of
+>>> iommu for a secure DMA environment in guest.
+>>>
+>>> The idea is simple. When vhost meets an IOTLB miss, it will request
+>>> the assistance of userspace to do the translation, this is done
+>>> through:
+>>>
+>>> - Fill the translation request in a preset userspace address (This
+>>>     address is set through ioctl VHOST_SET_IOTLB_REQUEST_ENTRY).
+>>> - Notify userspace through eventfd (This eventfd was set through ioctl
+>>>     VHOST_SET_IOTLB_FD).
+>>>
+>>> When userspace finishes the translation, it will update the vhost
+>>> IOTLB through VHOST_UPDATE_IOTLB ioctl. Userspace is also in charge of
+>>> snooping the IOTLB invalidation of IOMMU IOTLB and use
+>>> VHOST_UPDATE_IOTLB to invalidate the possible entry in vhost.
+>>
+>> Is there any performance data shows the difference with IOTLB supporting?
+>
+> Basic testing show it was slower than without IOTLB.
+>
+>> I doubt we may see performance decrease since the flush code path is
+>> longer than before.
+>>
+>
+> Yes, it also depend on the TLB hit rate.
+>
+> If lots of dynamic mappings and unmappings are used in guest (e.g normal
+> Linux driver). This method should be much more slower since:
+>
+> - lots of invalidation and its path is slow.
+> - the hit rate is low and the high price of userspace assisted address
+> translation.
+> - limitation of userspace IOMMU/IOTLB implementation (qemu's vtd
+> emulation simply empty all entries when it's full).
+>
+> Another method is to implement kernel IOMMU (e.g vtd). But I'm not sure
+> vhost is the best place to do this, since vhost should be architecture
+> independent. Maybe we'd better to do it in kvm or have a pv IOMMU
+> implementation in vhost.
 
-right, thanks.
+Actually, i have the kernel IOMMU(virtual vtd) patch which can pass 
+though the physical device to L2 guest on hand. But it is just a draft 
+patch which was written several years ago. If there is real requirement 
+for it, I can rebase it and send out it for review.
+
+>
+> Another side, if fixed mappings were used in guest, (e.g dpdk in guest).
+> We have the possibility to have 100% hit rate with almost no
+> invalidation, the performance penalty should be ignorable, this should
+> be the main use case for this patch.
+>
+> The patch is just a prototype for discussion. Any other ideas are welcomed.
+>
+> Thanks
+>
+
+
+-- 
+best regards
+yang
