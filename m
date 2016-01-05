@@ -1,20 +1,14 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH v2 22/32] s390: define __smp_xxx
-Date: Tue, 5 Jan 2016 15:21:16 +0100
-Message-ID: <20160105152116.60ae92f6__44577.1825420254$1452003718$gmane$org@mschwide>
-References: <1451572003-2440-1-git-send-email-mst@redhat.com>
-	<1451572003-2440-23-git-send-email-mst@redhat.com>
-	<20160104134525.GA6344@twins.programming.kicks-ass.net>
-	<20160104221323-mutt-send-email-mst@redhat.com>
-	<20160105091319.59ddefc7@mschwide>
-	<20160105105335-mutt-send-email-mst@redhat.com>
-	<20160105130852.11148a7f@mschwide>
-	<20160105144842-mutt-send-email-mst@redhat.com>
+From: Petr Mladek <pmladek@suse.com>
+Subject: Re: [PATCH RFC] virtio_balloon: refill by config handler
+Date: Tue, 5 Jan 2016 15:37:33 +0100
+Message-ID: <20160105143733.GE3178__21812.5670952306$1452004680$gmane$org@pathway.suse.cz>
+References: <1451643122-21561-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160105144842-mutt-send-email-mst@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1451643122-21561-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,121 +19,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Carsten Otte <cotte@de.ibm.com>, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Andrey Konovalov <andreyknvl@google.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kern
+Cc: Tejun Heo <tj@kernel.org>, Jiri Kosina <jkosina@suse.cz>, Jeff Epler <jepler@unpythonic.net>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 5 Jan 2016 15:04:43 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> On Tue, Jan 05, 2016 at 01:08:52PM +0100, Martin Schwidefsky wrote:
-> > On Tue, 5 Jan 2016 11:30:19 +0200
-> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > 
-> > > On Tue, Jan 05, 2016 at 09:13:19AM +0100, Martin Schwidefsky wrote:
-> > > > On Mon, 4 Jan 2016 22:18:58 +0200
-> > > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > 
-> > > > > On Mon, Jan 04, 2016 at 02:45:25PM +0100, Peter Zijlstra wrote:
-> > > > > > On Thu, Dec 31, 2015 at 09:08:38PM +0200, Michael S. Tsirkin wrote:
-> > > > > > > This defines __smp_xxx barriers for s390,
-> > > > > > > for use by virtualization.
-> > > > > > > 
-> > > > > > > Some smp_xxx barriers are removed as they are
-> > > > > > > defined correctly by asm-generic/barriers.h
-> > > > > > > 
-> > > > > > > Note: smp_mb, smp_rmb and smp_wmb are defined as full barriers
-> > > > > > > unconditionally on this architecture.
-> > > > > > > 
-> > > > > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > > > > > Acked-by: Arnd Bergmann <arnd@arndb.de>
-> > > > > > > ---
-> > > > > > >  arch/s390/include/asm/barrier.h | 15 +++++++++------
-> > > > > > >  1 file changed, 9 insertions(+), 6 deletions(-)
-> > > > > > > 
-> > > > > > > diff --git a/arch/s390/include/asm/barrier.h b/arch/s390/include/asm/barrier.h
-> > > > > > > index c358c31..fbd25b2 100644
-> > > > > > > --- a/arch/s390/include/asm/barrier.h
-> > > > > > > +++ b/arch/s390/include/asm/barrier.h
-> > > > > > > @@ -26,18 +26,21 @@
-> > > > > > >  #define wmb()				barrier()
-> > > > > > >  #define dma_rmb()			mb()
-> > > > > > >  #define dma_wmb()			mb()
-> > > > > > > -#define smp_mb()			mb()
-> > > > > > > -#define smp_rmb()			rmb()
-> > > > > > > -#define smp_wmb()			wmb()
-> > > > > > > -
-> > > > > > > -#define smp_store_release(p, v)						\
-> > > > > > > +#define __smp_mb()			mb()
-> > > > > > > +#define __smp_rmb()			rmb()
-> > > > > > > +#define __smp_wmb()			wmb()
-> > > > > > > +#define smp_mb()			__smp_mb()
-> > > > > > > +#define smp_rmb()			__smp_rmb()
-> > > > > > > +#define smp_wmb()			__smp_wmb()
-> > > > > > 
-> > > > > > Why define the smp_*mb() primitives here? Would not the inclusion of
-> > > > > > asm-generic/barrier.h do this?
-> > > > > 
-> > > > > No because the generic one is a nop on !SMP, this one isn't.
-> > > > > 
-> > > > > Pls note this patch is just reordering code without making
-> > > > > functional changes.
-> > > > > And at the moment, on s390 smp_xxx barriers are always non empty.
-> > > > 
-> > > > The s390 kernel is SMP to 99.99%, we just didn't bother with a
-> > > > non-smp variant for the memory-barriers. If the generic header
-> > > > is used we'd get the non-smp version for free. It will save a
-> > > > small amount of text space for CONFIG_SMP=n. 
-> > > 
-> > > OK, so I'll queue a patch to do this then?
-> > 
-> > Yes please.
+On Fri 2016-01-01 12:13:48, Michael S. Tsirkin wrote:
+> Peter Mladek reported that balloon might never refill completely after
+> restore.  This is because fill_balloon is only called once there.
+> Calling fill_balloon repeatedly seems too aggressive,
+> especially in light of the fact that it sleeps on failure: let's
+> wake the config change handler and fill it asynchronously.
 > 
-> OK, I'll add a patch on top in v3.
-
-Good, with this addition:
-
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-
-> > > Just to make sure: the question would be, are smp_xxx barriers ever used
-> > > in s390 arch specific code to flush in/out memory accesses for
-> > > synchronization with the hypervisor?
-> > > 
-> > > I went over s390 arch code and it seems to me the answer is no
-> > > (except of course for virtio).
-> > 
-> > Correct. Guest to host communication either uses instructions which
-> > imply a memory barrier or QDIO which uses atomics.
+> Reported-by: Petr Mladek <pmladek@suse.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
 > 
-> And atomics imply a barrier on s390, right?
+> I was unable to test this - for some reason my test VM
+> doesn't resume (with or without the patch).
+> Petr, does this work for you?
 
-Yes they do.
+Ah, I have just realized that the problem happens only after the
+conversion to the workqueue. It works without this patch with the
+current code. The balloon kthread is waken when released from
+__refrigerator().
 
-> > > But I also see a lot of weirdness on this architecture.
-> > 
-> > Mostly historical, s390 actually is one of the easiest architectures in
-> > regard to memory barriers.
-> > 
-> > > I found these calls:
-> > > 
-> > > arch/s390/include/asm/bitops.h: smp_mb__before_atomic();
-> > > arch/s390/include/asm/bitops.h: smp_mb();
-> > > 
-> > > Not used in arch specific code so this is likely OK.
-> > 
-> > This has been introduced with git commit 5402ea6af11dc5a9, the smp_mb
-> > and smp_mb__before_atomic are used in clear_bit_unlock and
-> > __clear_bit_unlock which are 1:1 copies from the code in
-> > include/asm-generic/bitops/lock.h. Only test_and_set_bit_lock differs
-> > from the generic implementation.
+I am sorry for the noise. I wanted to split the conversion to
+workqueues into two patches to make it better readable. We need to
+queue the balloon resizing work here. I wrongly assumed that the
+original kthread must have the same problem.
+
+Best Regards,
+Petr
+
+>  drivers/virtio/virtio_balloon.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> something to keep in mind, but
-> I'd rather not touch bitops at the moment - this patchset is already too big.
-
-With the conversion smp_mb__before_atomic to a barrier() it does the
-correct thing. I don't think that any chance is necessary.
-
--- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 7efc329..ee29473 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -589,7 +589,7 @@ static int virtballoon_restore(struct virtio_device *vdev)
+>  
+>  	virtio_device_ready(vdev);
+>  
+> -	fill_balloon(vb, towards_target(vb));
+> +	wake_up(&vb->config_change);
+>  	update_balloon_size(vb);
+>  	return 0;
+>  }
+> -- 
+> MST
