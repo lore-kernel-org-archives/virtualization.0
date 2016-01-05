@@ -1,14 +1,20 @@
-From: Petr Mladek <pmladek@suse.com>
-Subject: Re: [PATCH RFC] virtio_balloon: refill by config handler
-Date: Tue, 5 Jan 2016 15:37:33 +0100
-Message-ID: <20160105143733.GE3178__21812.5670952306$1452004680$gmane$org@pathway.suse.cz>
-References: <1451643122-21561-1-git-send-email-mst@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2 17/32] arm: define __smp_xxx
+Date: Tue, 5 Jan 2016 16:38:54 +0200
+Message-ID: <20160105163429-mutt-send-email-mst@redhat.com>
+References: <1451572003-2440-1-git-send-email-mst@redhat.com>
+	<1451572003-2440-18-git-send-email-mst@redhat.com>
+	<20160102112438.GU8644@n2100.arm.linux.org.uk>
+	<20160103110158-mutt-send-email-mst@redhat.com>
+	<20160104133658.GY6344@twins.programming.kicks-ass.net>
+	<20160104135420.GS6373@twins.programming.kicks-ass.net>
+	<20160104135934.GE19062@n2100.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1451643122-21561-1-git-send-email-mst@redhat.com>
+In-Reply-To: <20160104135934.GE19062@n2100.arm.linux.org.uk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,53 +24,98 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Tejun Heo <tj@kernel.org>, Jiri Kosina <jkosina@suse.cz>, Jeff Epler <jepler@unpythonic.net>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, Tony Lindgren <tony@atomide.com>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Andrey Konovalov <andreyknvl@google.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew Cooper <andrew.cooper3@citrix.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri 2016-01-01 12:13:48, Michael S. Tsirkin wrote:
-> Peter Mladek reported that balloon might never refill completely after
-> restore.  This is because fill_balloon is only called once there.
-> Calling fill_balloon repeatedly seems too aggressive,
-> especially in light of the fact that it sleeps on failure: let's
-> wake the config change handler and fill it asynchronously.
+On Mon, Jan 04, 2016 at 01:59:34PM +0000, Russell King - ARM Linux wrote:
+> On Mon, Jan 04, 2016 at 02:54:20PM +0100, Peter Zijlstra wrote:
+> > On Mon, Jan 04, 2016 at 02:36:58PM +0100, Peter Zijlstra wrote:
+> > > On Sun, Jan 03, 2016 at 11:12:44AM +0200, Michael S. Tsirkin wrote:
+> > > > On Sat, Jan 02, 2016 at 11:24:38AM +0000, Russell King - ARM Linux wrote:
+> > > 
+> > > > > My only concern is that it gives people an additional handle onto a
+> > > > > "new" set of barriers - just because they're prefixed with __*
+> > > > > unfortunately doesn't stop anyone from using it (been there with
+> > > > > other arch stuff before.)
+> > > > > 
+> > > > > I wonder whether we should consider making the smp memory barriers
+> > > > > inline functions, so these __smp_xxx() variants can be undef'd
+> > > > > afterwards, thereby preventing drivers getting their hands on these
+> > > > > new macros?
+> > > > 
+> > > > That'd be tricky to do cleanly since asm-generic depends on
+> > > > ifndef to add generic variants where needed.
+> > > > 
+> > > > But it would be possible to add a checkpatch test for this.
+> > > 
+> > > Wasn't the whole purpose of these things for 'drivers' (namely
+> > > virtio/xen hypervisor interaction) to use these?
+> > 
+> > Ah, I see, you add virt_*mb() stuff later on for that use case.
+> > 
+> > So, assuming everybody does include asm-generic/barrier.h, you could
+> > simply #undef the __smp version at the end of that, once we've generated
+> > all the regular primitives from it, no?
 > 
-> Reported-by: Petr Mladek <pmladek@suse.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
+> Not so simple - that's why I mentioned using inline functions.
 > 
-> I was unable to test this - for some reason my test VM
-> doesn't resume (with or without the patch).
-> Petr, does this work for you?
-
-Ah, I have just realized that the problem happens only after the
-conversion to the workqueue. It works without this patch with the
-current code. The balloon kthread is waken when released from
-__refrigerator().
-
-I am sorry for the noise. I wanted to split the conversion to
-workqueues into two patches to make it better readable. We need to
-queue the balloon resizing work here. I wrongly assumed that the
-original kthread must have the same problem.
-
-Best Regards,
-Petr
-
->  drivers/virtio/virtio_balloon.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> The new smp_* _macros_ are:
 > 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 7efc329..ee29473 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -589,7 +589,7 @@ static int virtballoon_restore(struct virtio_device *vdev)
->  
->  	virtio_device_ready(vdev);
->  
-> -	fill_balloon(vb, towards_target(vb));
-> +	wake_up(&vb->config_change);
->  	update_balloon_size(vb);
->  	return 0;
->  }
+> +#define smp_mb()       __smp_mb()
+> 
+> which means if we simply #undef __smp_mb(), smp_mb() then points at
+> something which is no longer available, and we'll end up with errors
+> saying that __smp_mb() doesn't exist.
+> 
+> My suggestion was to change:
+> 
+> #ifndef smp_mb
+> #define smp_mb()	__smp_mb()
+> #endif
+> 
+> to:
+> 
+> #ifndef smp_mb
+> static inline void smp_mb(void)
+> {
+> 	__smp_mb();
+> }
+> #endif
+> 
+> which then means __smp_mb() and friends can be #undef'd afterwards.
+
+Absolutely, I got it.
+The issue is that e.g. tile has:
+#define __smp_mb__after_atomic()        do { } while (0)
+
+and this is cheaper than barrier().
+
+For this reason I left
+#define smp_mb__after_atomic()  __smp_mb__after_atomic()
+in place there.
+
+Now, of course I can do (in asm-generic):
+
+#ifndef smp_mb__after_atomic
+static inline void smp_mb__after_atomic(void)
+{
+...
+}
+#endif
+
+but this seems ugly: architectures do defines, generic
+version does inline.
+
+
+And that is not all: APIs like smp_store_mb can take
+a variety of types as arguments so they pretty much
+must be implemented as macros.
+
+Teaching checkpatch.pl to complain about it seems like the cleanest
+approach.
+
 > -- 
-> MST
+> RMK's Patch system: http://www.arm.linux.org.uk/developer/patches/
+> FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
+> according to speedtest.net.
