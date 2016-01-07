@@ -1,19 +1,13 @@
-From: Boqun Feng <boqun.feng@gmail.com>
-Subject: Re: [PATCH v2 15/32] powerpc: define __smp_xxx
-Date: Thu, 7 Jan 2016 08:43:56 +0800
-Message-ID: <20160107004356.GB14605__19149.7186701328$1452127498$gmane$org@fixme-laptop.cn.ibm.com>
-References: <1451572003-2440-1-git-send-email-mst@redhat.com>
-	<1451572003-2440-16-git-send-email-mst@redhat.com>
-	<20160105013648.GA1256@fixme-laptop.cn.ibm.com>
-	<20160105085117.GA11858@redhat.com>
-	<20160105095341.GA5321@fixme-laptop.cn.ibm.com>
-	<20160105180938-mutt-send-email-mst@redhat.com>
-	<20160106015152.GA14605@fixme-laptop.cn.ibm.com>
-	<20160106222337-mutt-send-email-mst@redhat.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [RFC v4 0/5] Add virtio transport for AF_VSOCK
+Date: Thu, 7 Jan 2016 16:34:35 +0800
+Message-ID: <20160107083435.GI12971__6186.80628617785$1452155710$gmane$org@stefanha-x1.localdomain>
+References: <1450775258-18287-1-git-send-email-stefanha@redhat.com>
+	<568A2577.2020104@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4522524700953744728=="
+Content-Type: multipart/mixed; boundary="===============9192664906018151300=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160106222337-mutt-send-email-mst@redhat.com>
+In-Reply-To: <568A2577.2020104@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,83 +17,161 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Andrey Konovalov <andreyknvl@google.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix>
+To: Jason Wang <jasowang@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Matt Benjamin <mbenjamin@redhat.com>, Christoffer Dall <christoffer.dall@linaro.org>, matt.ma@linaro.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============4522524700953744728==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
+--===============9192664906018151300==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Li7ckgedzMh1NgdW"
 Content-Disposition: inline
 
 
---/04w6evG8XlLl3ft
+--Li7ckgedzMh1NgdW
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 06, 2016 at 10:23:51PM +0200, Michael S. Tsirkin wrote:
-[...]
-> > >=20
-> > > Sorry, I don't understand - why do you have to do anything?
-> > > I changed all users of smp_lwsync so they
-> > > use __smp_lwsync on SMP and barrier() on !SMP.
-> > >=20
-> > > This is exactly the current behaviour, I also tested that
-> > > generated code does not change at all.
-> > >=20
-> > > Is there a patch in your tree that conflicts with this?
-> > >=20
-> >=20
-> > Because in a patchset which implements atomic relaxed/acquire/release
-> > variants on PPC I use smp_lwsync(), this makes it have another user,
-> > please see this mail:
-> >=20
-> > http://article.gmane.org/gmane.linux.ports.ppc.embedded/89877
-> >=20
-> > in definition of PPC's __atomic_op_release().
-> >=20
-> >=20
-> > But I think removing smp_lwsync() is a good idea and actually I think we
-> > can go further to remove __smp_lwsync() and let __smp_load_acquire and
-> > __smp_store_release call __lwsync() directly, but that is another thing.
-> >=20
-> > Anyway, I will modify my patch.
-> >=20
-> > Regards,
-> > Boqun
+On Mon, Jan 04, 2016 at 03:55:35PM +0800, Jason Wang wrote:
 >=20
 >=20
-> Thanks!
-> Could you send an ack then please?
+> On 12/22/2015 05:07 PM, Stefan Hajnoczi wrote:
+> > This series is based on v4.4-rc2 and the "virtio: make find_vqs()
+> > checkpatch.pl-friendly" patch I recently submitted.
+> >
+> > v4:
+> >  * Addressed code review comments from Alex Bennee
+> >  * MAINTAINERS file entries for new files
+> >  * Trace events instead of pr_debug()
+> >  * RST packet is sent when there is no listen socket
+> >  * Allow guest->host connections again (began discussing netfilter supp=
+ort with
+> >    Matt Benjamin instead of hard-coding security policy in virtio-vsock=
+ code)
+> >  * Many checkpatch.pl cleanups (will be 100% clean in v5)
+> >
+> > v3:
+> >  * Remove unnecessary 3-way handshake, just do REQUEST/RESPONSE instead
+> >    of REQUEST/RESPONSE/ACK
+> >  * Remove SOCK_DGRAM support and focus on SOCK_STREAM first
+> >    (also drop v2 Patch 1, it's only needed for SOCK_DGRAM)
+> >  * Only allow host->guest connections (same security model as latest
+> >    VMware)
+> >  * Don't put vhost vsock driver into staging
+> >  * Add missing Kconfig dependencies (Arnd Bergmann <arnd@arndb.de>)
+> >  * Remove unneeded variable used to store return value
+> >    (Fengguang Wu <fengguang.wu@intel.com> and Julia Lawall
+> >    <julia.lawall@lip6.fr>)
+> >
+> > v2:
+> >  * Rebased onto Linux v4.4-rc2
+> >  * vhost: Refuse to assign reserved CIDs
+> >  * vhost: Refuse guest CID if already in use
+> >  * vhost: Only accept correctly addressed packets (no spoofing!)
+> >  * vhost: Support flexible rx/tx descriptor layout
+> >  * vhost: Add missing total_tx_buf decrement
+> >  * virtio_transport: Fix total_tx_buf accounting
+> >  * virtio_transport: Add virtio_transport global mutex to prevent races
+> >  * common: Notify other side of SOCK_STREAM disconnect (fixes shutdown
+> >    semantics)
+> >  * common: Avoid recursive mutex_lock(tx_lock) for write_space (fixes d=
+eadlock)
+> >  * common: Define VIRTIO_VSOCK_TYPE_STREAM/DGRAM hardware interface con=
+stants
+> >  * common: Define VIRTIO_VSOCK_SHUTDOWN_RCV/SEND hardware interface con=
+stants
+> >  * common: Fix peer_buf_alloc inheritance on child socket
+> >
+> > This patch series adds a virtio transport for AF_VSOCK (net/vmw_vsock/).
+> > AF_VSOCK is designed for communication between virtual machines and
+> > hypervisors.  It is currently only implemented for VMware's VMCI transp=
+ort.
+> >
+> > This series implements the proposed virtio-vsock device specification f=
+rom
+> > here:
+> > http://permalink.gmane.org/gmane.comp.emulators.virtio.devel/980
+> >
+> > Most of the work was done by Asias He and Gerd Hoffmann a while back.  =
+I have
+> > picked up the series again.
+> >
+> > The QEMU userspace changes are here:
+> > https://github.com/stefanha/qemu/commits/vsock
+> >
+> > Why virtio-vsock?
+> > -----------------
+> > Guest<->host communication is currently done over the virtio-serial dev=
+ice.
+> > This makes it hard to port sockets API-based applications and is limite=
+d to
+> > static ports.
+> >
+> > virtio-vsock uses the sockets API so that applications can rely on fami=
+liar
+> > SOCK_STREAM semantics.  Applications on the host can easily connect to =
+guest
+> > agents because the sockets API allows multiple connections to a listen =
+socket
+> > (unlike virtio-serial).  This simplifies the guest<->host communication=
+ and
+> > eliminates the need for extra processes on the host to arbitrate virtio=
+-serial
+> > ports.
+> >
+> > Overview
+> > --------
+> > This series adds 3 pieces:
+> >
+> > 1. virtio_transport_common.ko - core virtio vsock code that uses vsock.=
+ko
+> >
+> > 2. virtio_transport.ko - guest driver
+> >
+> > 3. drivers/vhost/vsock.ko - host driver
 >=20
+> Have a (dumb maybe) question after a quick glance at the codes:
+>=20
+> Is there any chance to reuse existed virtio-net/vhost-net codes? For
+> example, using virito-net instead of a new device as a transport in
+> guest and using vhost-net (especially consider it uses a socket as
+> backend) in host. Maybe just a new virtio-net header type for vsock. I'm
+> asking since I don't see any blocker for doing this.
 
-Sure, if you need one from me, feel free to add my ack for this patch:
+virtio-net is an Ethernet device with best-effort delivery while
+virtio-vsock is guaranteed delivery.  That's the fundamental difference
+at the protocol level.
 
-Acked-by: Boqun Feng <boqun.feng@gmail.com>
+At the driver level AF_VSOCK isn't supposed to have a netdev or
+user-visible network interface that can be misconfigured by the guest
+administrator.
 
-Regards,
-Boqun
+Trying to make the existing virtio-net device work for this use case is
+probably nastier than using a dedicated device since lot of the
+virtio-net configuration space and control features don't make sense for
+AF_VSOCK.
 
---/04w6evG8XlLl3ft
+Stefan
+
+--Li7ckgedzMh1NgdW
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+Version: GnuPG v1
 
-iQEcBAABCAAGBQJWjbTIAAoJEEl56MO1B/q4Xf8H/A0lM6gsUPNqUU24iHbc5O4j
-qN+FbAuVULCXdZfNW9uS+HG4Oq9VqZZc4rv5QdX6IHzcYKTYAv7+8rEMHmrxV8A/
-mMKfwU07krXlG0IRFhiMpuCzvjAfa0CgPOUHBzGJU5mdrAiM8ymtpa1ofde/uitO
-UaRheer5STPZ2kUzrA0r2hYbtWczy6X7yIxioQbXKeR88AuE8X12Me7X+zl9YoPP
-NnwnzDhEkvj7wzQVgWTyA4fwu051dOtRENtv0k6UugV2bW45SsuLQ9Co3BUh/iK+
-KF/57kaJ9BfOGYF1HAHH10GSkwTyyAsc8SGAQKg6PY/lJsHBDFluEtr98U1ssCA=
-=FLp9
+iQEcBAEBAgAGBQJWjiMbAAoJEJykq7OBq3PIknoH/13Kxls+dRhYDF/3ejzmU6xY
+WLETn67MHHUrqrSRU7sTgCwc/oaUAEPIYWMvEnD1pVjmkSzghGMI1OK11p+pA9T0
+8S1WMwKUPxOEKzvHPEc7IhTgXzOQVmum5EkCDKwykbXZZqiEfHFFgpIqwDlyKpjj
+YMdAQU1V0zLW1xLNteDwrsWtLruBcnkOnZ1HnhN0d4WEeTfH6u7OJLYOuF8jO8yh
+iYBqi1MA2WeKYVA2pAcfpW891nAoMCqpAUZLZOM3CV8y8RcCUc4HsPt52i1j9swK
+n2Ue2TsD/wyexYsbZAV8laRr+CezMWDwkwHcaVmZ3EL5A3TDo7VH1kcxr4UYWb0=
+=eVWJ
 -----END PGP SIGNATURE-----
 
---/04w6evG8XlLl3ft--
+--Li7ckgedzMh1NgdW--
 
---===============4522524700953744728==
+--===============9192664906018151300==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -109,4 +181,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4522524700953744728==--
+--===============9192664906018151300==--
