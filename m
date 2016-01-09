@@ -1,8 +1,8 @@
-From: Minchan Kim <minchan@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH 2/2] virtio_balloon: fix race between migration and
 	ballooning
-Date: Sat, 9 Jan 2016 08:43:56 +0900
-Message-ID: <20160108234356.GA10100__30752.7567180388$1452296670$gmane$org@blaptop.local>
+Date: Sat, 9 Jan 2016 23:43:31 +0200
+Message-ID: <20160109234250-mutt-send-email-mst@redhat.com>
 References: <1451259313-26353-1-git-send-email-minchan@kernel.org>
 	<1451259313-26353-2-git-send-email-minchan@kernel.org>
 	<20160101102756-mutt-send-email-mst@redhat.com>
@@ -23,7 +23,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rafael Aquini <aquini@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, Konstantin Khlebnikov <koct9i@gmail.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Konstantin Khlebnikov <koct9i@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 On Fri, Jan 08, 2016 at 02:56:14PM -0500, Rafael Aquini wrote:
@@ -132,35 +132,119 @@ On Fri, Jan 08, 2016 at 02:56:14PM -0500, Rafael Aquini wrote:
 > 
 > Nice catch! Thanks for spotting it. I just have one minor nit. See
 > below
+>  
+> > 
+> > diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
+> > index d3116be..66d69c5 100644
+> > --- a/mm/balloon_compaction.c
+> > +++ b/mm/balloon_compaction.c
+> > @@ -56,12 +56,34 @@ EXPORT_SYMBOL_GPL(balloon_page_enqueue);
+> >   */
+> >  struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info)
+> >  {
+> > -	struct page *page, *tmp;
+> > +	struct page *page;
+> >  	unsigned long flags;
+> >  	bool dequeued_page;
+> > +	LIST_HEAD(processed); /* protected by b_dev_info->pages_lock */
+> >  
+> >  	dequeued_page = false;
+> > -	list_for_each_entry_safe(page, tmp, &b_dev_info->pages, lru) {
+> > +	/*
+> > +	 * We need to go over b_dev_info->pages and lock each page,
+> > +	 * but b_dev_info->pages_lock must nest within page lock.
+> > +	 *
+> > +	 * To make this safe, remove each page from b_dev_info->pages list
+> > +	 * under b_dev_info->pages_lock, then drop this lock. Once list is
+> > +	 * empty, re-add them also under b_dev_info->pages_lock.
+> > +	 */
+> > +	spin_lock_irqsave(&b_dev_info->pages_lock, flags);
+> > +	while (!list_empty(&b_dev_info->pages)) {
+> > +		page = list_first_entry(&b_dev_info->pages, typeof(*page), lru);
+> > +		/* move to processed list to avoid going over it another time */
+> > +		list_move(&page->lru, &processed);
+> > +
+> > +		if (!get_page_unless_zero(page))
+> > +			continue;
+> > +		/*
+> > +		 * pages_lock nests within page lock,
+> > +		 * so drop it before trylock_page
+> > +		 */
+> > +		spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
+> > +
+> >  		/*
+> >  		 * Block others from accessing the 'page' while we get around
+> >  		 * establishing additional references and preparing the 'page'
+> > @@ -72,6 +94,7 @@ struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info)
+> >  			if (!PagePrivate(page)) {
+> >  				/* raced with isolation */
+> >  				unlock_page(page);
+> > +				put_page(page);
+> >  				continue;
+> >  			}
+> >  #endif
+> > @@ -80,11 +103,18 @@ struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info)
+> >  			__count_vm_event(BALLOON_DEFLATE);
+> >  			spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
+> >  			unlock_page(page);
+> > +			put_page(page);
+> >  			dequeued_page = true;
+> >  			break;
+>                         ^^^^[1]
+> 
+> >  		}
+> > +		put_page(page);
+> > +		spin_lock_irqsave(&b_dev_info->pages_lock, flags);
+> >  	}
+> >  
+> > +	/* re-add remaining entries */
+> > +	list_splice(&processed, &b_dev_info->pages);
+> 
+> By breaking the loop at its ordinary and expected way-out case [1] 
+> we'll hit list_splice without holding b_dev_info->pages_lock, won't we?
 
-Hmm, As I replied mst's mail, I really cannot understand what you
-gouys are pointing out.
+Ouch. right.
 
-If we use lock_page in balloon_page_dequeue, I agree it's deadlock
-but we used trylock_page so it's not a deadlock.
+> perhaps by adding the following on top of your patch we can address that pickle
+> aforementioned:
 
-About the page refcount, we don't need take a page reference because
-if one of page in the list was isolated for migration, the page
-shouldn't stay in b_dev_info->pages list so balloon_page_dequeue
-cannot touch the page.
+I'd rather just goto outside or return.
+But maybe Minchan is right and the original patch is ok.
+I still need to go into this.
 
-Could you elaborate it more detail if I have missed something?
-It's a stable patch so I want to be careful.
-
-Thanks.
-
-balloon_page_isolate
-{
-        trylock_page(page)
-        spin_lock_irqsave(&b_dev_info->pages_lock)
-        list_del(&page->lru);
-}
-
-balloon_page_dequeue
-{
-        spin_lock_irqsave(&b_dev_info->pages_lock)
-        list_for_each_entry_safe(page, tmp, &b_dev_info->pages, lru) {
-                trylock_page(page)
-        }
-
-}
+> Cheers!
+> Rafael
+> --
+> 
+> diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
+> index 66d69c5..74b3e9c 100644
+> --- a/mm/balloon_compaction.c
+> +++ b/mm/balloon_compaction.c
+> @@ -58,7 +58,7 @@ struct page *balloon_page_dequeue(struct
+> balloon_dev_info *b_dev_info)
+>  {
+>         struct page *page;
+>         unsigned long flags;
+> -       bool dequeued_page;
+> +       bool dequeued_page, locked;
+>         LIST_HEAD(processed); /* protected by b_dev_info->pages_lock */
+>  
+>         dequeued_page = false;
+> @@ -105,13 +105,17 @@ struct page *balloon_page_dequeue(struct
+> balloon_dev_info *b_dev_info)
+>                         unlock_page(page);
+>                         put_page(page);
+>                         dequeued_page = true;
+> +                       locked = false;
+>                         break;
+>                 }
+>                 put_page(page);
+>                 spin_lock_irqsave(&b_dev_info->pages_lock, flags);
+> +               locked = true;
+>         }
+>  
+>         /* re-add remaining entries */
+> +       if (!locked)
+> +               spin_lock_irqsave(&b_dev_info->pages_lock, flags);
+>         list_splice(&processed, &b_dev_info->pages);
+>         spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
