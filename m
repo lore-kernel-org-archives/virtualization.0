@@ -1,14 +1,18 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 3/3] checkpatch: add virt barriers
-Date: Sun, 10 Jan 2016 21:31:00 +0200
-Message-ID: <1452454200-8844-4-git-send-email-mst@redhat.com>
-References: <1452454200-8844-1-git-send-email-mst@redhat.com>
+Subject: Re: [PATCH 2/2] virtio_balloon: fix race between migration and
+	ballooning
+Date: Sun, 10 Jan 2016 23:40:17 +0200
+Message-ID: <20160110233310-mutt-send-email-mst__30501.8597319306$1452462037$gmane$org@redhat.com>
+References: <1451259313-26353-1-git-send-email-minchan@kernel.org>
+	<1451259313-26353-2-git-send-email-minchan@kernel.org>
+	<20160101102756-mutt-send-email-mst@redhat.com>
+	<20160104002747.GA31090@blaptop.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1452454200-8844-1-git-send-email-mst@redhat.com>
+In-Reply-To: <20160104002747.GA31090@blaptop.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,31 +22,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, Tony Lindgren <tony@atomide.com>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Andrey Konovalov <andreyknvl@google.com>, adi-buildroot-devel@lists.sourceforge.net, Andy Whitcroft <apw@canonical.com>, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.orgAndrew Cooper <an>
+To: Minchan Kim <minchan@kernel.org>
+Cc: Rafael Aquini <aquini@redhat.com>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, Konstantin Khlebnikov <koct9i@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add virt_ barriers to list of barriers to check for
-presence of a comment.
+On Mon, Jan 04, 2016 at 09:27:47AM +0900, Minchan Kim wrote:
+> > I think this will cause deadlocks.
+> > 
+> > pages_lock now nests within page lock, balloon_page_putback
+> > nests them in the reverse order.
+> 
+> In balloon_page_dequeu, we used trylock so I don't think it's
+> deadlock.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- scripts/checkpatch.pl | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+I went over this again and I don't see the issue anymore.
+I think I was mistaken, so I dropped my patch and picked
+up yours. Sorry about the noise.
 
-diff --git a/scripts/checkpatch.pl b/scripts/checkpatch.pl
-index 15cfca4..4466579 100755
---- a/scripts/checkpatch.pl
-+++ b/scripts/checkpatch.pl
-@@ -5133,7 +5133,8 @@ sub process {
- 		}x;
- 		my $all_barriers = qr{
- 			$barriers|
--			smp_(?:$smp_barrier_stems)
-+			smp_(?:$smp_barrier_stems)|
-+			virt_(?:$smp_barrier_stems)
- 		}x;
- 
- 		if ($line =~ /\b(?:$all_barriers)\s*\(/) {
+
+> > 
+> > Also, there's another issue there I think: after isolation page could
+> > also get freed before we try to lock it.
+> 
+> If a page was isolated, the page shouldn't stay b_dev_info->pages
+> list so balloon_page_dequeue cannot see the page.
+> Am I missing something?
+
+I mean without locks, as it is now. With either your or my patch in
+place, it's fine.
+
 -- 
 MST
