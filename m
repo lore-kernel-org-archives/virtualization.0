@@ -1,14 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 41/41] s390: more efficient smp barriers
-Date: Sun, 10 Jan 2016 16:22:14 +0200
-Message-ID: <1452426622-4471-42-git-send-email-mst__23084.9367486828$1452435875$gmane$org@redhat.com>
-References: <1452426622-4471-1-git-send-email-mst@redhat.com>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH v2 1/3] checkpatch.pl: add missing memory barriers
+Date: Sun, 10 Jan 2016 07:17:31 -0800
+Message-ID: <1452439051.7773.27.camel__18054.9446995885$1452439581$gmane$org@perches.com>
+References: <1452427000-4520-1-git-send-email-mst@redhat.com>
+	<1452427000-4520-2-git-send-email-mst@redhat.com>
+	<1452438425.7773.21.camel@perches.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1452426622-4471-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1452438425.7773.21.camel@perches.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,35 +19,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Russell King - ARM Linux <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Martin Schwidefsky <schwidefsky@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, Tony Lindgren <tony@atomide.com>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Andrey Konovalov <andreyknvl@google.com>, adi-buildroot-devel@lists.sourceforge.net, Andy Whitcroft <apw@canonical.com>, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.orgAndrew Cooper <an>
 List-Id: virtualization@lists.linuxfoundation.org
 
-As per: lkml.kernel.org/r/20150921112252.3c2937e1@mschwide
-atomics imply a barrier on s390, so s390 should change
-smp_mb__before_atomic and smp_mb__after_atomic to barrier() instead of
-smp_mb() and hence should not use the generic versions.
+On Sun, 2016-01-10 at 07:07 -0800, Joe Perches wrote:
+> On Sun, 2016-01-10 at 13:56 +0200, Michael S. Tsirkin wrote:
+> > SMP-only barriers were missing in checkpatch.pl
+> > 
+> > Refactor code slightly to make adding more variants easier.
+> []
+> > diff --git a/scripts/checkpatch.pl b/scripts/checkpatch.pl
+[]
+> If I use a variable called $smp_barriers, I'd expect
+> it to actually be the smp_barriers, not to have to
+> prefix it with smp_ before using it.
+> 
+> 		my $smp_barriers = qr{
+> 			smp_store_release|
+> 			smp_load_acquire|
+> 			smp_store_mb|
+> 			smp_read_barrier_depends
 
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Suggested-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- arch/s390/include/asm/barrier.h | 3 +++
- 1 file changed, 3 insertions(+)
+That's missing (?:barriers) too.
 
-diff --git a/arch/s390/include/asm/barrier.h b/arch/s390/include/asm/barrier.h
-index 4d26fa4..5c8db3c 100644
---- a/arch/s390/include/asm/barrier.h
-+++ b/arch/s390/include/asm/barrier.h
-@@ -45,6 +45,9 @@ do {									\
- 	___p1;								\
- })
- 
-+#define __smp_mb__before_atomic()	barrier()
-+#define __smp_mb__after_atomic()	barrier()
-+
- #include <asm-generic/barrier.h>
- 
- #endif /* __ASM_BARRIER_H */
--- 
-MST
+btw: shouldn't this also have
+	smp_mb__(?:before|after)_atomic
+?
