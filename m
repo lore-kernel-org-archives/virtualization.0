@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 25/41] tile: define __smp_xxx
-Date: Sun, 10 Jan 2016 16:20:00 +0200
-Message-ID: <1452426622-4471-26-git-send-email-mst__30331.9551553161$1452435698$gmane$org@redhat.com>
+Subject: [PATCH v3 26/41] xtensa: define __smp_xxx
+Date: Sun, 10 Jan 2016 16:20:09 +0200
+Message-ID: <1452426622-4471-27-git-send-email-mst__15478.8212771111$1452435710$gmane$org@redhat.com>
 References: <1452426622-4471-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,44 +19,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, Chris Metcalf <cmetcalf@ezchip.com>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew Cooper <andrew.cooper3@citrix.com>, Joe Perches <joe@perches.com>, linuxppc-dev@lists.ozlabs.org, David Miller <davem>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, Max Filippov <jcmvbkbc@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Chris Zankel <chris@zankel.net>, Andrew Cooper <andrew.cooper3@citrix.com>, Joe Perches <joe@perches.com>, linuxppc-dev@lists.o
 List-Id: virtualization@lists.linuxfoundation.org
 
-This defines __smp_xxx barriers for tile,
+This defines __smp_xxx barriers for xtensa,
 for use by virtualization.
 
-Some smp_xxx barriers are removed as they are
+smp_xxx barriers are removed as they are
 defined correctly by asm-generic/barriers.h
-
-Note: for 32 bit, keep smp_mb__after_atomic around since it's faster
-than the generic implementation.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Acked-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/tile/include/asm/barrier.h | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/xtensa/include/asm/barrier.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/tile/include/asm/barrier.h b/arch/tile/include/asm/barrier.h
-index 96a42ae..d552228 100644
---- a/arch/tile/include/asm/barrier.h
-+++ b/arch/tile/include/asm/barrier.h
-@@ -79,11 +79,12 @@ mb_incoherent(void)
-  * But after the word is updated, the routine issues an "mf" before returning,
-  * and since it's a function call, we don't even need a compiler barrier.
-  */
--#define smp_mb__before_atomic()	smp_mb()
--#define smp_mb__after_atomic()	do { } while (0)
-+#define __smp_mb__before_atomic()	__smp_mb()
-+#define __smp_mb__after_atomic()	do { } while (0)
-+#define smp_mb__after_atomic()	__smp_mb__after_atomic()
- #else /* 64 bit */
--#define smp_mb__before_atomic()	smp_mb()
--#define smp_mb__after_atomic()	smp_mb()
-+#define __smp_mb__before_atomic()	__smp_mb()
-+#define __smp_mb__after_atomic()	__smp_mb()
- #endif
+diff --git a/arch/xtensa/include/asm/barrier.h b/arch/xtensa/include/asm/barrier.h
+index 5b88774..956596e 100644
+--- a/arch/xtensa/include/asm/barrier.h
++++ b/arch/xtensa/include/asm/barrier.h
+@@ -13,8 +13,8 @@
+ #define rmb() barrier()
+ #define wmb() mb()
+ 
+-#define smp_mb__before_atomic()		barrier()
+-#define smp_mb__after_atomic()		barrier()
++#define __smp_mb__before_atomic()		barrier()
++#define __smp_mb__after_atomic()		barrier()
  
  #include <asm-generic/barrier.h>
+ 
 -- 
 MST
