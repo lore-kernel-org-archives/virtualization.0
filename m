@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 37/41] xenbus: use virt_xxx barriers
-Date: Sun, 10 Jan 2016 16:21:39 +0200
-Message-ID: <1452426622-4471-38-git-send-email-mst__13417.4821818762$1452435835$gmane$org@redhat.com>
+Subject: [PATCH v3 38/41] xen/io: use virt_xxx barriers
+Date: Sun, 10 Jan 2016 16:21:47 +0200
+Message-ID: <1452426622-4471-39-git-send-email-mst__43297.2311428331$1452435839$gmane$org@redhat.com>
 References: <1452426622-4471-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,7 +22,7 @@ To: linux-kernel@vger.kernel.org
 Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Andrew Cooper <andrew.cooper3@citrix.com>, David Vrabel <david.vrab>
 List-Id: virtualization@lists.linuxfoundation.org
 
-drivers/xen/xenbus/xenbus_comms.c uses
+include/xen/interface/io/ring.h uses
 full memory barriers to communicate with the other side.
 
 For guests compiled with CONFIG_SMP, smp_wmb and smp_mb
@@ -34,46 +34,69 @@ Switch to virt_xxx barriers which serve this exact purpose.
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Acked-by: David Vrabel <david.vrabel@citrix.com>
 ---
- drivers/xen/xenbus/xenbus_comms.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ include/xen/interface/io/ring.h | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/xen/xenbus/xenbus_comms.c b/drivers/xen/xenbus/xenbus_comms.c
-index fdb0f33..ecdecce 100644
---- a/drivers/xen/xenbus/xenbus_comms.c
-+++ b/drivers/xen/xenbus/xenbus_comms.c
-@@ -123,14 +123,14 @@ int xb_write(const void *data, unsigned len)
- 			avail = len;
+diff --git a/include/xen/interface/io/ring.h b/include/xen/interface/io/ring.h
+index 7dc685b..21f4fbd 100644
+--- a/include/xen/interface/io/ring.h
++++ b/include/xen/interface/io/ring.h
+@@ -208,12 +208,12 @@ struct __name##_back_ring {						\
  
- 		/* Must write data /after/ reading the consumer index. */
--		mb();
-+		virt_mb();
  
- 		memcpy(dst, data, avail);
- 		data += avail;
- 		len -= avail;
+ #define RING_PUSH_REQUESTS(_r) do {					\
+-    wmb(); /* back sees requests /before/ updated producer index */	\
++    virt_wmb(); /* back sees requests /before/ updated producer index */	\
+     (_r)->sring->req_prod = (_r)->req_prod_pvt;				\
+ } while (0)
  
- 		/* Other side must not see new producer until data is there. */
--		wmb();
-+		virt_wmb();
- 		intf->req_prod += avail;
+ #define RING_PUSH_RESPONSES(_r) do {					\
+-    wmb(); /* front sees responses /before/ updated producer index */	\
++    virt_wmb(); /* front sees responses /before/ updated producer index */	\
+     (_r)->sring->rsp_prod = (_r)->rsp_prod_pvt;				\
+ } while (0)
  
- 		/* Implies mb(): other side will see the updated producer. */
-@@ -180,14 +180,14 @@ int xb_read(void *data, unsigned len)
- 			avail = len;
+@@ -250,9 +250,9 @@ struct __name##_back_ring {						\
+ #define RING_PUSH_REQUESTS_AND_CHECK_NOTIFY(_r, _notify) do {		\
+     RING_IDX __old = (_r)->sring->req_prod;				\
+     RING_IDX __new = (_r)->req_prod_pvt;				\
+-    wmb(); /* back sees requests /before/ updated producer index */	\
++    virt_wmb(); /* back sees requests /before/ updated producer index */	\
+     (_r)->sring->req_prod = __new;					\
+-    mb(); /* back sees new requests /before/ we check req_event */	\
++    virt_mb(); /* back sees new requests /before/ we check req_event */	\
+     (_notify) = ((RING_IDX)(__new - (_r)->sring->req_event) <		\
+ 		 (RING_IDX)(__new - __old));				\
+ } while (0)
+@@ -260,9 +260,9 @@ struct __name##_back_ring {						\
+ #define RING_PUSH_RESPONSES_AND_CHECK_NOTIFY(_r, _notify) do {		\
+     RING_IDX __old = (_r)->sring->rsp_prod;				\
+     RING_IDX __new = (_r)->rsp_prod_pvt;				\
+-    wmb(); /* front sees responses /before/ updated producer index */	\
++    virt_wmb(); /* front sees responses /before/ updated producer index */	\
+     (_r)->sring->rsp_prod = __new;					\
+-    mb(); /* front sees new responses /before/ we check rsp_event */	\
++    virt_mb(); /* front sees new responses /before/ we check rsp_event */	\
+     (_notify) = ((RING_IDX)(__new - (_r)->sring->rsp_event) <		\
+ 		 (RING_IDX)(__new - __old));				\
+ } while (0)
+@@ -271,7 +271,7 @@ struct __name##_back_ring {						\
+     (_work_to_do) = RING_HAS_UNCONSUMED_REQUESTS(_r);			\
+     if (_work_to_do) break;						\
+     (_r)->sring->req_event = (_r)->req_cons + 1;			\
+-    mb();								\
++    virt_mb();								\
+     (_work_to_do) = RING_HAS_UNCONSUMED_REQUESTS(_r);			\
+ } while (0)
  
- 		/* Must read data /after/ reading the producer index. */
--		rmb();
-+		virt_rmb();
+@@ -279,7 +279,7 @@ struct __name##_back_ring {						\
+     (_work_to_do) = RING_HAS_UNCONSUMED_RESPONSES(_r);			\
+     if (_work_to_do) break;						\
+     (_r)->sring->rsp_event = (_r)->rsp_cons + 1;			\
+-    mb();								\
++    virt_mb();								\
+     (_work_to_do) = RING_HAS_UNCONSUMED_RESPONSES(_r);			\
+ } while (0)
  
- 		memcpy(data, src, avail);
- 		data += avail;
- 		len -= avail;
- 
- 		/* Other side must not see free space until we've copied out */
--		mb();
-+		virt_mb();
- 		intf->rsp_cons += avail;
- 
- 		pr_debug("Finished read of %i bytes (%i to go)\n", avail, len);
 -- 
 MST
