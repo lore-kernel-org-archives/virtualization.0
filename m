@@ -1,14 +1,11 @@
-From: Julian Calaby <julian.calaby@gmail.com>
-Subject: Re: [PATCH v4 0/3] checkpatch: handling of memory barriers
-Date: Mon, 11 Jan 2016 22:06:14 +1100
-Message-ID: <CAGRGNgXnxjmvjD8_vT17ZWwK0uCsGNmXq_KdVj9KoT6NRZQvPA__39340.1573681787$1452521974$gmane$org@mail.gmail.com>
-References: <1452509968-19778-1-git-send-email-mst@redhat.com>
-	<20160111130334-mutt-send-email-mst@redhat.com>
+From: Greg Kurz <gkurz@linux.vnet.ibm.com>
+Subject: [PATCH] vhost: move is_le setup to the backend
+Date: Mon, 11 Jan 2016 15:39:38 +0100
+Message-ID: <20160111143509.9601.15143.stgit@bahia.huguette.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160111130334-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,40 +16,139 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux <sparclinux@vger.kernel.org>, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, Tony Lindgren <tony@atomide.com>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Andy Whitcroft <apw@canonical.com>, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, "Mailing List,
-	Arm" <linux-arm-kernel@lists.infradead.org>, Andrew Cooper <andrew.co>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
+
+The vq->is_le field is used to fix endianness when accessing the vring via
+the cpu_to_vhost16() and vhost16_to_cpu() helpers in the following cases:
+
+1) host is big endian and device is modern virtio
+
+2) host has cross-endian support and device is legacy virtio with a different
+   endianness than the host
+
+Both cases rely on the VHOST_SET_FEATURES ioctl, but 2) also needs the
+VHOST_SET_VRING_ENDIAN ioctl to be called by userspace. Since vq->is_le
+is only needed when the backend is active, it was decided to set it at
+backend start.
+
+This is currently done in vhost_init_used()->vhost_init_is_le() but it
+obfuscates the core vhost code. This patch moves the is_le setup to a
+dedicated function that is called from the backend code.
+
+Note vhost_net is the only backend that can pass vq->private_data == NULL to
+vhost_init_used(), hence the "if (sock)" branch.
+
+No behaviour change.
+
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
+---
 
 Hi Michael,
 
-On Mon, Jan 11, 2016 at 10:04 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Mon, Jan 11, 2016 at 12:59:25PM +0200, Michael S. Tsirkin wrote:
->> As part of memory barrier cleanup, this patchset
->> extends checkpatch to make it easier to stop
->> incorrect memory barrier usage.
->>
->> This replaces the checkpatch patches in my series
->>       arch: barrier cleanup + barriers for virt
->> and will be included in the pull request including
->> the series.
->>
->> changes from v3:
->>       rename smp_barrier_stems to barrier_stems
->>       as suggested by Julian Calaby.
->
-> In fact it was Joe Perches that suggested it.
-> Sorry about the confusion.
+This is a cleanup patch I had posted last year:
 
-I was about to point that out.
+http://patchwork.ozlabs.org/patch/538277/
 
-FWIW this entire series is:
+I am just reposting with Cornelia's R-b.
 
-Acked-by: Julian Calaby <julian.calaby@gmail.com>
+Cheers.
 
-Thanks,
+--
+Greg
 
--- 
-Julian Calaby
+ drivers/vhost/net.c   |    6 ++++++
+ drivers/vhost/scsi.c  |    3 +++
+ drivers/vhost/test.c  |    2 ++
+ drivers/vhost/vhost.c |   12 +++++++-----
+ drivers/vhost/vhost.h |    1 +
+ 5 files changed, 19 insertions(+), 5 deletions(-)
 
-Email: julian.calaby@gmail.com
-Profile: http://www.google.com/profiles/julian.calaby/
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 9eda69e40678..d6319cb2664c 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -917,6 +917,12 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
+ 
+ 		vhost_net_disable_vq(n, vq);
+ 		vq->private_data = sock;
++
++		if (sock)
++			vhost_set_is_le(vq);
++		else
++			vq->is_le = virtio_legacy_is_little_endian();
++
+ 		r = vhost_init_used(vq);
+ 		if (r)
+ 			goto err_used;
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 29cfc57d496e..1f4f405ebba8 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -1274,6 +1274,9 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+ 			vq = &vs->vqs[i].vq;
+ 			mutex_lock(&vq->mutex);
+ 			vq->private_data = vs_tpg;
++
++			vhost_set_is_le(vq);
++
+ 			vhost_init_used(vq);
+ 			mutex_unlock(&vq->mutex);
+ 		}
+diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
+index f2882ac98726..b1c7df502211 100644
+--- a/drivers/vhost/test.c
++++ b/drivers/vhost/test.c
+@@ -196,6 +196,8 @@ static long vhost_test_run(struct vhost_test *n, int test)
+ 		oldpriv = vq->private_data;
+ 		vq->private_data = priv;
+ 
++		vhost_set_is_le(vq);
++
+ 		r = vhost_init_used(&n->vqs[index]);
+ 
+ 		mutex_unlock(&vq->mutex);
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index ad2146a9ab2d..e688eb801d43 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -113,6 +113,12 @@ static void vhost_init_is_le(struct vhost_virtqueue *vq)
+ }
+ #endif /* CONFIG_VHOST_CROSS_ENDIAN_LEGACY */
+ 
++void vhost_set_is_le(struct vhost_virtqueue *vq)
++{
++	vhost_init_is_le(vq);
++}
++EXPORT_SYMBOL_GPL(vhost_set_is_le);
++
+ static void vhost_poll_func(struct file *file, wait_queue_head_t *wqh,
+ 			    poll_table *pt)
+ {
+@@ -1156,12 +1162,8 @@ int vhost_init_used(struct vhost_virtqueue *vq)
+ {
+ 	__virtio16 last_used_idx;
+ 	int r;
+-	if (!vq->private_data) {
+-		vq->is_le = virtio_legacy_is_little_endian();
++	if (!vq->private_data)
+ 		return 0;
+-	}
+-
+-	vhost_init_is_le(vq);
+ 
+ 	r = vhost_update_used_flags(vq);
+ 	if (r)
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index d3f767448a72..af5d33797937 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -162,6 +162,7 @@ bool vhost_enable_notify(struct vhost_dev *, struct vhost_virtqueue *);
+ 
+ int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+ 		    unsigned int log_num, u64 len);
++void vhost_set_is_le(struct vhost_virtqueue *vq);
+ 
+ #define vq_err(vq, fmt, ...) do {                                  \
+ 		pr_debug(pr_fmt(fmt), ##__VA_ARGS__);       \
