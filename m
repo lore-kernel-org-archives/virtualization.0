@@ -1,16 +1,19 @@
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Subject: Re: [PATCH v3 05/41] powerpc: reuse asm-generic/barrier.h
-Date: Tue, 12 Jan 2016 08:31:02 -0800
-Message-ID: <20160112163102.GE3818@linux.vnet.ibm.com>
-References: <1452426622-4471-1-git-send-email-mst@redhat.com>
-	<1452426622-4471-6-git-send-email-mst@redhat.com>
-Reply-To: paulmck@linux.vnet.ibm.com
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH 3/4] x86,asm: Re-work smp_store_mb()
+Date: Tue, 12 Jan 2016 09:20:06 -0800
+Message-ID: <CA+55aFwqgUQYVbVXLw1=LL6Gs=kXqhkx0tUZOdXnWbqCMdWfXg@mail.gmail.com>
+References: <1445975631-17047-1-git-send-email-dave@stgolabs.net>
+	<1445975631-17047-4-git-send-email-dave@stgolabs.net>
+	<CA+55aFw8d29E26o4eB8VgbZBC5Ot2y9K=T_yE5Dj0dFdyVgOUA@mail.gmail.com>
+	<20151027223744.GB11242@worktop.amr.corp.intel.com>
+	<20151102201535.GB1707@linux-uzut.site>
+	<CA+55aFynbkeuUGs9s-q+fLY6MeRBA6MjEyWWbbe7A5AaqsAknw@mail.gmail.com>
+	<20160112150032-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1452426622-4471-6-git-send-email-mst@redhat.com>
+In-Reply-To: <20160112150032-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,62 +24,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Russell King - ARM Linux <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.orglinux
+Cc: Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Jan 10, 2016 at 04:17:09PM +0200, Michael S. Tsirkin wrote:
-> On powerpc read_barrier_depends, smp_read_barrier_depends
-> smp_store_mb(), smp_mb__before_atomic and smp_mb__after_atomic match the
-> asm-generic variants exactly. Drop the local definitions and pull in
-> asm-generic/barrier.h instead.
-> 
-> This is in preparation to refactoring this code area.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Acked-by: Arnd Bergmann <arnd@arndb.de>
+On Tue, Jan 12, 2016 at 5:57 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> #ifdef xchgrz
+> /* same as xchg but poking at gcc red zone */
+> #define barrier() do { int ret; asm volatile ("xchgl %0, -4(%%" SP ");": "=r"(ret) :: "memory", "cc"); } while (0)
+> #endif
 
-Looks sane to me.
+That's not safe in general. gcc might be using its redzone, so doing
+xchg into it is unsafe.
 
-Reviewed-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+But..
 
-> ---
->  arch/powerpc/include/asm/barrier.h | 9 ++-------
->  1 file changed, 2 insertions(+), 7 deletions(-)
-> 
-> diff --git a/arch/powerpc/include/asm/barrier.h b/arch/powerpc/include/asm/barrier.h
-> index a7af5fb..980ad0c 100644
-> --- a/arch/powerpc/include/asm/barrier.h
-> +++ b/arch/powerpc/include/asm/barrier.h
-> @@ -34,8 +34,6 @@
->  #define rmb()  __asm__ __volatile__ ("sync" : : : "memory")
->  #define wmb()  __asm__ __volatile__ ("sync" : : : "memory")
-> 
-> -#define smp_store_mb(var, value) do { WRITE_ONCE(var, value); smp_mb(); } while (0)
-> -
->  #ifdef __SUBARCH_HAS_LWSYNC
->  #    define SMPWMB      LWSYNC
->  #else
-> @@ -60,9 +58,6 @@
->  #define smp_wmb()	barrier()
->  #endif /* CONFIG_SMP */
-> 
-> -#define read_barrier_depends()		do { } while (0)
-> -#define smp_read_barrier_depends()	do { } while (0)
-> -
->  /*
->   * This is a barrier which prevents following instructions from being
->   * started until the value of the argument x is known.  For example, if
-> @@ -87,8 +82,8 @@ do {									\
->  	___p1;								\
->  })
-> 
-> -#define smp_mb__before_atomic()     smp_mb()
-> -#define smp_mb__after_atomic()      smp_mb()
->  #define smp_mb__before_spinlock()   smp_mb()
-> 
-> +#include <asm-generic/barrier.h>
-> +
->  #endif /* _ASM_POWERPC_BARRIER_H */
-> -- 
-> MST
-> 
+> Is this a good way to test it?
+
+.. it's fine for some basic testing. It doesn't show any subtle
+interactions (ie some operations may have different dynamic behavior
+when the write buffers are busy etc), but as a baseline for "how fast
+can things go" the stupid raw loop is fine. And while the xchg into
+the redzoen wouldn't be acceptable as a real implementation, for
+timing testing it's likely fine (ie you aren't hitting the problem it
+can cause).
+
+> So mfence is more expensive than locked instructions/xchg, but sfence/lfence
+> are slightly faster, and xchg and locked instructions are very close if
+> not the same.
+
+Note that we never actually *use* lfence/sfence. They are pointless
+instructions when looking at CPU memory ordering, because for pure CPU
+memory ordering stores and loads are already ordered.
+
+The only reason to use lfence/sfence is after you've used nontemporal
+stores for IO. That's very very rare in the kernel. So I wouldn't
+worry about those.
+
+But yes, it does sound like mfence is just a bad idea too.
+
+> There isn't any extra magic behind mfence, is there?
+
+No.
+
+I think the only issue is that there has never been any real reason
+for CPU designers to try to make mfence go particularly fast. Nobody
+uses it, again with the exception of some odd loops that use
+nontemporal stores, and for those the cost tends to always be about
+the nontemporal accesses themselves (often to things like GPU memory
+over PCIe), and the mfence cost of a few extra cycles is negligible.
+
+The reason "lock ; add $0" has generally been the fastest we've found
+is simply that locked ops have been important for CPU designers.
+
+So I think the patch is fine, and we should likely drop the use of mfence..
+
+                      Linus
