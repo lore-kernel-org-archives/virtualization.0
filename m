@@ -1,14 +1,14 @@
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH v3 27/41] x86: define __smp_xxx
-Date: Tue, 12 Jan 2016 15:11:14 +0100 (CET)
-Message-ID: <alpine.DEB.2.11.1601121511030.3575__9437.96725846386$1452609148$gmane$org@nanos>
+Subject: Re: [PATCH v3 13/41] x86: reuse asm-generic/barrier.h
+Date: Tue, 12 Jan 2016 15:10:49 +0100 (CET)
+Message-ID: <alpine.DEB.2.11.1601121510380.3575__22195.1995314614$1452609150$gmane$org@nanos>
 References: <1452426622-4471-1-git-send-email-mst@redhat.com>
-	<1452426622-4471-28-git-send-email-mst@redhat.com>
+	<1452426622-4471-14-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1452426622-4471-28-git-send-email-mst@redhat.com>
+In-Reply-To: <1452426622-4471-14-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,11 +24,11 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 On Sun, 10 Jan 2016, Michael S. Tsirkin wrote:
 
-> This defines __smp_xxx barriers for x86,
-> for use by virtualization.
+> As on most architectures, on x86 read_barrier_depends and
+> smp_read_barrier_depends are empty.  Drop the local definitions and pull
+> the generic ones from asm-generic/barrier.h instead: they are identical.
 > 
-> smp_xxx barriers are removed as they are
-> defined correctly by asm-generic/barriers.h
+> This is in preparation to refactoring this code area.
 > 
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > Acked-by: Arnd Bergmann <arnd@arndb.de>
