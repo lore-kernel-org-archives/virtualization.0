@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2 2/3] x86: drop a comment left over from X86_OOSTORE
-Date: Wed, 13 Jan 2016 00:10:19 +0200
-Message-ID: <1452635935-5439-3-git-send-email-mst@redhat.com>
+Subject: [PATCH v2 3/3] x86: tweak the comment about use of wmb for IO
+Date: Wed, 13 Jan 2016 00:10:24 +0200
+Message-ID: <1452635935-5439-4-git-send-email-mst__31355.9830807664$1452636654$gmane$org@redhat.com>
 References: <1452635935-5439-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,37 +22,30 @@ To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, Peter Zijlstra <peterz@infradead.org>, Andrey Konovalov <andreyknvl@google.com>, the arch/x86 maintainers <x86@kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@suse.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The comment about wmb being non-nop is a left over from before commit
-09df7c4c8097 ("x86: Remove CONFIG_X86_OOSTORE").
+On x86, we *do* still use the non-nop rmb/wmb for IO barriers, but even
+that is generally questionable.
 
-It makes no sense now: if you have an SMP system with out of order
-stores, making wmb not a nop will not help.
-
-Additionally, wmb is not a nop even for regular intel CPUs because of
-weird use-cases e.g. dealing with WC memory.
-
-Drop this comment.
+Leave them around as historial unless somebody can point to a case where
+they care about the performance, but tweak the comment so people
+don't think they are strictly required in all cases.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- arch/x86/include/asm/barrier.h | 5 -----
- 1 file changed, 5 deletions(-)
+ arch/x86/include/asm/barrier.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/x86/include/asm/barrier.h b/arch/x86/include/asm/barrier.h
-index 7f99726..eb220b8 100644
+index eb220b8..924cd44 100644
 --- a/arch/x86/include/asm/barrier.h
 +++ b/arch/x86/include/asm/barrier.h
-@@ -11,11 +11,6 @@
+@@ -6,7 +6,7 @@
+ 
+ /*
+  * Force strict CPU ordering.
+- * And yes, this is required on UP too when we're talking
++ * And yes, this might be required on UP too when we're talking
+  * to devices.
   */
  
- #ifdef CONFIG_X86_32
--/*
-- * Some non-Intel clones support out of order store. wmb() ceases to be a
-- * nop for these.
-- */
--
- #define mb() asm volatile("lock; addl $0,0(%%esp)" ::: "memory")
- #define rmb() alternative("lock; addl $0,0(%%esp)", "lfence", X86_FEATURE_XMM2)
- #define wmb() alternative("lock; addl $0,0(%%esp)", "sfence", X86_FEATURE_XMM)
 -- 
 MST
