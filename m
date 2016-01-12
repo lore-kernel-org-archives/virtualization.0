@@ -1,23 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 3/4] x86,asm: Re-work smp_store_mb()
-Date: Wed, 13 Jan 2016 00:21:10 +0200
-Message-ID: <20160113001824-mutt-send-email-mst@redhat.com>
-References: <1445975631-17047-4-git-send-email-dave@stgolabs.net>
-	<CA+55aFw8d29E26o4eB8VgbZBC5Ot2y9K=T_yE5Dj0dFdyVgOUA@mail.gmail.com>
-	<20151027223744.GB11242@worktop.amr.corp.intel.com>
-	<20151102201535.GB1707@linux-uzut.site>
-	<CA+55aFynbkeuUGs9s-q+fLY6MeRBA6MjEyWWbbe7A5AaqsAknw@mail.gmail.com>
-	<20160112150032-mutt-send-email-mst@redhat.com>
-	<CA+55aFwqgUQYVbVXLw1=LL6Gs=kXqhkx0tUZOdXnWbqCMdWfXg@mail.gmail.com>
-	<56956276.1090705@kernel.org>
-	<CA+55aFxhoGB9dBArw5iy0C0RhJEVRLLPR42w--KLSn5WM2sVRQ@mail.gmail.com>
-	<CALCETrWBxiAb8KHjBfb2rRhX3KrbLfc3bzhfQnyCdE3G4mnsSA@mail.gmail.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH v2 0/3] x86: faster mb()+other barrier.h tweaks
+Date: Tue, 12 Jan 2016 14:25:24 -0800
+Message-ID: <56957D54.5000602@zytor.com>
+References: <1452635935-5439-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CALCETrWBxiAb8KHjBfb2rRhX3KrbLfc3bzhfQnyCdE3G4mnsSA@mail.gmail.com>
+In-Reply-To: <1452635935-5439-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,52 +17,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 12, 2016 at 12:59:58PM -0800, Andy Lutomirski wrote:
-> On Tue, Jan 12, 2016 at 12:54 PM, Linus Torvalds
-> <torvalds@linux-foundation.org> wrote:
-> > On Tue, Jan 12, 2016 at 12:30 PM, Andy Lutomirski <luto@kernel.org> wrote:
-> >>
-> >> I recall reading somewhere that lock addl $0, 32(%rsp) or so (maybe even 64)
-> >> was better because it avoided stomping on very-likely-to-be-hot write
-> >> buffers.
-> >
-> > I suspect it could go either way. You want a small constant (for the
-> > isntruction size), but any small constant is likely to be within the
-> > current stack frame anyway. I don't think 0(%rsp) is particularly
-> > likely to have a spill on it right then and there, but who knows..
-> >
-> > And 64(%rsp) is  possibly going to be cold in the L1 cache, especially
-> > if it's just after a deep function call. Which it might be. So it
-> > might work the other way.
-> >
-> > So my guess would be that you wouldn't be able to measure the
-> > difference. It might be there, but probably too small to really see in
-> > any noise.
-> >
-> > But numbers talk, bullshit walks. It would be interesting to be proven wrong.
+On 01/12/16 14:10, Michael S. Tsirkin wrote:
+> mb() typically uses mfence on modern x86, but a micro-benchmark shows that it's
+> 2 to 3 times slower than lock; addl $0,(%%e/rsp) that we use on older CPUs.
 > 
-> Here's an article with numbers:
+> So let's use the locked variant everywhere - helps keep the code simple as
+> well.
 > 
-> http://shipilev.net/blog/2014/on-the-fence-with-dependencies/
+> While I was at it, I found some inconsistencies in comments in
+> arch/x86/include/asm/barrier.h
 > 
-> I think they're suggesting using a negative offset, which is safe as
-> long as it doesn't page fault, even though we have the redzone
-> disabled.
+> I hope I'm not splitting this up too much - the reason is I wanted to isolate
+> the code changes (that people might want to test for performance) from comment
+> changes approved by Linus, from (so far unreviewed) comment change I came up
+> with myself.
 > 
-> --Andy
+> Lightly tested on my system.
+> 
+> Michael S. Tsirkin (3):
+>   x86: drop mfence in favor of lock+addl
+>   x86: drop a comment left over from X86_OOSTORE
+>   x86: tweak the comment about use of wmb for IO
+> 
 
-OK so I'll have to tweak the test to put something
-on stack to measure the difference: my test tweaks a
-global variable instead.
-I'll try that by tomorrow.
+I would like to get feedback from the hardware team about the
+implications of this change, first.
 
-I couldn't measure any difference between mfence and lock+addl
-except in a micro-benchmark, but hey since we are tweaking this,
-let's do the optimal thing.
-
--- 
-MST
+	-hpa
