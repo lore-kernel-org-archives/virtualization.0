@@ -1,13 +1,18 @@
 From: Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>
 Subject: Re: [v3,11/41] mips: reuse asm-generic/barrier.h
-Date: Mon, 11 Jan 2016 17:14:14 -0800
-Message-ID: <56945366.2090504__25751.4283214279$1452711966$gmane$org@imgtec.com>
+Date: Tue, 12 Jan 2016 12:45:14 -0800
+Message-ID: <569565DA.2010903__23112.0273042054$1452711974$gmane$org@imgtec.com>
 References: <1452426622-4471-12-git-send-email-mst@redhat.com>
+	<56945366.2090504@imgtec.com>
+	<20160112092711.GP6344@twins.programming.kicks-ass.net>
+	<20160112102555.GV6373@twins.programming.kicks-ass.net>
+	<20160112104012.GW6373@twins.programming.kicks-ass.net>
+	<20160112114111.GB15737@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1452426622-4471-12-git-send-email-mst@redhat.com>
+In-Reply-To: <20160112114111.GB15737@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,20 +22,105 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew Cooper <andrew.cooper3@citrix.com>, Ralf Baechle <ralf@linux-mips.org>, Joe Perches <joe@perches.com>, linuxppc-dev@lists.
+To: Will Deacon <will.deacon@arm.com>, Peter Zijlstra <peterz@infradead.org>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, Paul McKenney <paulmck@linux.vnet.ibm.com>, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, ddaney.cavm@gmail.com, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/10/2016 06:18 AM, Michael S. Tsirkin wrote:
-> On mips dma_rmb, dma_wmb, smp_store_mb, read_barrier_depends,
-> smp_read_barrier_depends, smp_store_release and smp_load_acquire  match
-> the asm-generic variants exactly. Drop the local definitions and pull in
-> asm-generic/barrier.h instead.
->
-This statement doesn't fit MIPS barriers variations. Moreover, there is 
-a reason to extend that even more specific, at least for 
-smp_store_release and smp_load_acquire, look into
+(I try to answer on multiple mails in one)
 
-     http://patchwork.linux-mips.org/patch/10506/
+First of all, it seems like some generic notes should be given here:
+
+1. Generic MIPS "SYNC" (aka "SYNC 0") instruction is a very heavy in 
+some CPUs. On that CPUs it basically kills pipelines in each CPU, can do 
+a special memory/IO bus transaction (similar to "fence") and hold a 
+system until all R/W is completed. It is like Big Kernel Lock but worse. 
+So, the move to SMP_* kind of barriers is needed to improve performance, 
+especially on newest CPUs with long pipelines.
+
+2. MIPS Arch document may be misleading because words "ordering" and 
+"completion" means different from Linux, the SYNC instruction 
+description is written for HW engineers. I wrote that in a separate 
+patch of the same patchset - 
+http://patchwork.linux-mips.org/patch/10505/ "MIPS: R6: Use lightweight 
+SYNC instruction in smp_* memory barriers":
+
+> This instructions were specifically designed to work for smp_*() sort of
+> memory barriers in MIPS R2/R3/R5 and R6.
+>
+> Unfortunately, it's description is very cryptic and is done in HW engineering
+> style which prevents use of it by SW.
+
+3. I bother MIPS Arch team long time until I completely understood that 
+MIPS SYNC_WMB, SYNC_MB, SYNC_RMB, SYNC_RELEASE and SYNC_ACQUIRE do an 
+exactly that is required in Documentation/memory-barriers.txt
+
+
+In Peter Zijlstra mail:
+
+> 1) you do not make such things selectable; either the hardware needs
+> them or it doesn't. If it does you_must_  use them, however unlikely.
+It is selectable only for MIPS R2 but not MIPS R6. The reason is - most 
+of MIPS R2 CPUs have short pipeline and that SYNC is just waste of CPU 
+resource, especially taking into account that "lightweight syncs" are 
+converted to a heavy "SYNC 0" in many of that CPUs. However the latest 
+MIPS/Imagination CPU have a pipeline long enough to hit a problem - 
+absence of SYNC at LL/SC inside atomics, barriers etc.
+
+> And reading the MIPS64 v6.04 instruction set manual, I think 0x11/0x12
+> are_NOT_  transitive and therefore cannot be used to implement the
+> smp_mb__{before,after} stuff.
+>
+> That is, in MIPS speak, those SYNC types are Ordering Barriers, not
+> Completion Barriers.
+
+Please see above, point 2.
+
+> That is, currently all architectures -- with exception of PPC -- have
+> RCsc locks, but using these non-transitive things will get you RCpc
+> locks.
+>
+> So yes, MIPS can go RCpc for its locks and share the burden of pain with
+> PPC, but that needs to be a very concious decision.
+
+I don't understand that - I tried hard but I can't find any word like 
+"RCsc", "RCpc" in Documents/ directory. Web search goes nowhere, of course.
+
+
+In Will Deacon mail:
+
+> The issue I have with the SYNC description in the text above is that it
+> describes the single CPU (program order) and the dual-CPU (confusingly
+> named global order) cases, but then doesn't generalise any further. That
+> means we can't sensibly reason about transitivity properties when a third
+> agent is involved. For example, the WRC+sync+addr test:
+>
+>
+> P0:
+> Wx = 1
+>
+> P1:
+> Rx == 1
+> SYNC
+> Wy = 1
+>
+> P2:
+> Ry == 1
+> <address dep>
+> Rx = 0
+>
+>
+> I can't find anything to forbid that, given the text. The main problem
+> is having the SYNC on P1 affect the write by P0.
+
+As I understand that test, the visibility of P0: W[x] = 1 is identical 
+to P1 and P2 here. If P1 got X before SYNC and write to Y after SYNC 
+then instruction source register dependency tracking in P2 prevents a 
+speculative load of X before P2 obtains Y from the same place as P0/P1 
+and calculate address of X. If some load of X in P2 happens before 
+address dependency calculation it's result is discarded.
+
+Yes, you can't find that in MIPS SYNC instruction description, it is 
+more likely in CM (Coherence Manager) area. I just pointed our arch team 
+member responsible for documents and he will think how to explain that.
 
 - Leonid.
