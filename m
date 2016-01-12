@@ -1,12 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2 0/3] x86: faster mb()+other barrier.h tweaks
-Date: Wed, 13 Jan 2016 00:10:10 +0200
-Message-ID: <1452635935-5439-1-git-send-email-mst@redhat.com>
+Subject: [PATCH v2 1/3] x86: drop mfence in favor of lock+addl
+Date: Wed, 13 Jan 2016 00:10:14 +0200
+Message-ID: <1452635935-5439-2-git-send-email-mst__3966.78108159012$1452636640$gmane$org@redhat.com>
+References: <1452635935-5439-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <1452635935-5439-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,32 +19,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>
+Cc: Davidlohr Bueso <dave@stgolabs.net>, Arnd Bergmann <arnd@arndb.de>, Davidlohr Bueso <dbueso@suse.de>, Peter Zijlstra <peterz@infradead.org>, Andrey Konovalov <andreyknvl@google.com>, the arch/x86 maintainers <x86@kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@suse.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-mb() typically uses mfence on modern x86, but a micro-benchmark shows that it's
-2 to 3 times slower than lock; addl $0,(%%e/rsp) that we use on older CPUs.
+mfence appears to be way slower than a locked instruction - let's use
+lock+add unconditionally, same as we always did on old 32-bit.
 
-So let's use the locked variant everywhere - helps keep the code simple as
-well.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ arch/x86/include/asm/barrier.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-While I was at it, I found some inconsistencies in comments in
-arch/x86/include/asm/barrier.h
-
-I hope I'm not splitting this up too much - the reason is I wanted to isolate
-the code changes (that people might want to test for performance) from comment
-changes approved by Linus, from (so far unreviewed) comment change I came up
-with myself.
-
-Lightly tested on my system.
-
-Michael S. Tsirkin (3):
-  x86: drop mfence in favor of lock+addl
-  x86: drop a comment left over from X86_OOSTORE
-  x86: tweak the comment about use of wmb for IO
-
- arch/x86/include/asm/barrier.h | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
-
+diff --git a/arch/x86/include/asm/barrier.h b/arch/x86/include/asm/barrier.h
+index a584e1c..7f99726 100644
+--- a/arch/x86/include/asm/barrier.h
++++ b/arch/x86/include/asm/barrier.h
+@@ -15,11 +15,12 @@
+  * Some non-Intel clones support out of order store. wmb() ceases to be a
+  * nop for these.
+  */
+-#define mb() alternative("lock; addl $0,0(%%esp)", "mfence", X86_FEATURE_XMM2)
++
++#define mb() asm volatile("lock; addl $0,0(%%esp)" ::: "memory")
+ #define rmb() alternative("lock; addl $0,0(%%esp)", "lfence", X86_FEATURE_XMM2)
+ #define wmb() alternative("lock; addl $0,0(%%esp)", "sfence", X86_FEATURE_XMM)
+ #else
+-#define mb() 	asm volatile("mfence":::"memory")
++#define mb() asm volatile("lock; addl $0,0(%%rsp)" ::: "memory")
+ #define rmb()	asm volatile("lfence":::"memory")
+ #define wmb()	asm volatile("sfence" ::: "memory")
+ #endif
 -- 
 MST
