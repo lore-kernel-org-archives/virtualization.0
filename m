@@ -1,13 +1,23 @@
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH v2 0/3] x86: faster mb()+other barrier.h tweaks
-Date: Tue, 12 Jan 2016 14:25:24 -0800
-Message-ID: <56957D54.5000602@zytor.com>
-References: <1452635935-5439-1-git-send-email-mst@redhat.com>
+Subject: Re: [PATCH 3/4] x86,asm: Re-work smp_store_mb()
+Date: Tue, 12 Jan 2016 14:55:35 -0800
+Message-ID: <56958467.6010808@zytor.com>
+References: <1445975631-17047-4-git-send-email-dave@stgolabs.net>
+	<CA+55aFw8d29E26o4eB8VgbZBC5Ot2y9K=T_yE5Dj0dFdyVgOUA@mail.gmail.com>
+	<20151027223744.GB11242@worktop.amr.corp.intel.com>
+	<20151102201535.GB1707@linux-uzut.site>
+	<CA+55aFynbkeuUGs9s-q+fLY6MeRBA6MjEyWWbbe7A5AaqsAknw@mail.gmail.com>
+	<20160112150032-mutt-send-email-mst@redhat.com>
+	<CA+55aFwqgUQYVbVXLw1=LL6Gs=kXqhkx0tUZOdXnWbqCMdWfXg@mail.gmail.com>
+	<56956276.1090705@kernel.org>
+	<CA+55aFxhoGB9dBArw5iy0C0RhJEVRLLPR42w--KLSn5WM2sVRQ@mail.gmail.com>
+	<CALCETrWBxiAb8KHjBfb2rRhX3KrbLfc3bzhfQnyCdE3G4mnsSA@mail.gmail.com>
+	<20160113001824-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1452635935-5439-1-git-send-email-mst@redhat.com>
+In-Reply-To: <20160113001824-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,34 +27,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Andy Lutomirski <luto@amacapital.net>
+Cc: Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/12/16 14:10, Michael S. Tsirkin wrote:
-> mb() typically uses mfence on modern x86, but a micro-benchmark shows that it's
-> 2 to 3 times slower than lock; addl $0,(%%e/rsp) that we use on older CPUs.
+On 01/12/16 14:21, Michael S. Tsirkin wrote:
 > 
-> So let's use the locked variant everywhere - helps keep the code simple as
-> well.
+> OK so I'll have to tweak the test to put something
+> on stack to measure the difference: my test tweaks a
+> global variable instead.
+> I'll try that by tomorrow.
 > 
-> While I was at it, I found some inconsistencies in comments in
-> arch/x86/include/asm/barrier.h
-> 
-> I hope I'm not splitting this up too much - the reason is I wanted to isolate
-> the code changes (that people might want to test for performance) from comment
-> changes approved by Linus, from (so far unreviewed) comment change I came up
-> with myself.
-> 
-> Lightly tested on my system.
-> 
-> Michael S. Tsirkin (3):
->   x86: drop mfence in favor of lock+addl
->   x86: drop a comment left over from X86_OOSTORE
->   x86: tweak the comment about use of wmb for IO
+> I couldn't measure any difference between mfence and lock+addl
+> except in a micro-benchmark, but hey since we are tweaking this,
+> let's do the optimal thing.
 > 
 
-I would like to get feedback from the hardware team about the
-implications of this change, first.
+Be careful with this: if it only shows up in a microbenchmark, we may
+introduce a hard-to-debug regression for no real benefit.
 
 	-hpa
