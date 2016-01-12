@@ -1,23 +1,14 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH 3/4] x86,asm: Re-work smp_store_mb()
-Date: Tue, 12 Jan 2016 14:55:35 -0800
-Message-ID: <56958467.6010808@zytor.com>
-References: <1445975631-17047-4-git-send-email-dave@stgolabs.net>
-	<CA+55aFw8d29E26o4eB8VgbZBC5Ot2y9K=T_yE5Dj0dFdyVgOUA@mail.gmail.com>
-	<20151027223744.GB11242@worktop.amr.corp.intel.com>
-	<20151102201535.GB1707@linux-uzut.site>
-	<CA+55aFynbkeuUGs9s-q+fLY6MeRBA6MjEyWWbbe7A5AaqsAknw@mail.gmail.com>
-	<20160112150032-mutt-send-email-mst@redhat.com>
-	<CA+55aFwqgUQYVbVXLw1=LL6Gs=kXqhkx0tUZOdXnWbqCMdWfXg@mail.gmail.com>
-	<56956276.1090705@kernel.org>
-	<CA+55aFxhoGB9dBArw5iy0C0RhJEVRLLPR42w--KLSn5WM2sVRQ@mail.gmail.com>
-	<CALCETrWBxiAb8KHjBfb2rRhX3KrbLfc3bzhfQnyCdE3G4mnsSA@mail.gmail.com>
-	<20160113001824-mutt-send-email-mst@redhat.com>
+From: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH v2 2/3] x86: drop a comment left over from X86_OOSTORE
+Date: Tue, 12 Jan 2016 22:25:28 +0000
+Message-ID: <20160112222528.4a1d9b64__9782.74372541836$1452640344$gmane$org@lxorguk.ukuu.org.uk>
+References: <1452635935-5439-1-git-send-email-mst@redhat.com>
+	<1452635935-5439-3-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160113001824-mutt-send-email-mst@redhat.com>
+In-Reply-To: <1452635935-5439-3-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,23 +18,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Andy Lutomirski <luto@amacapital.net>
-Cc: Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, Peter Zijlstra <peterz@infradead.org>, Andrey Konovalov <andreyknvl@google.com>, the arch/x86 maintainers <x86@kernel.org>, linux-kernel@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@suse.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/12/16 14:21, Michael S. Tsirkin wrote:
-> 
-> OK so I'll have to tweak the test to put something
-> on stack to measure the difference: my test tweaks a
-> global variable instead.
-> I'll try that by tomorrow.
-> 
-> I couldn't measure any difference between mfence and lock+addl
-> except in a micro-benchmark, but hey since we are tweaking this,
-> let's do the optimal thing.
-> 
+On Wed, 13 Jan 2016 00:10:19 +0200
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-Be careful with this: if it only shows up in a microbenchmark, we may
-introduce a hard-to-debug regression for no real benefit.
+> The comment about wmb being non-nop is a left over from before commit
+> 09df7c4c8097 ("x86: Remove CONFIG_X86_OOSTORE").
+> 
+> It makes no sense now: if you have an SMP system with out of order
+> stores, making wmb not a nop will not help.
 
-	-hpa
+There were never any IDT Winchip systems with SMP support, and they were
+the one system that could enable OOSTORE (and it was worth up to 30% on
+some workloads). The fencing it had was just for DMA devices.
+
+Alan
