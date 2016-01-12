@@ -1,21 +1,17 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH 3/4] x86,asm: Re-work smp_store_mb()
-Date: Tue, 12 Jan 2016 10:04:13 -0800
-Message-ID: <CA+55aFxarbsXdebbcrB=590qtagh178hhxr5ST+qr7XnjZkgpg@mail.gmail.com>
-References: <1445975631-17047-1-git-send-email-dave@stgolabs.net>
-	<1445975631-17047-4-git-send-email-dave@stgolabs.net>
-	<CA+55aFw8d29E26o4eB8VgbZBC5Ot2y9K=T_yE5Dj0dFdyVgOUA@mail.gmail.com>
-	<20151027223744.GB11242@worktop.amr.corp.intel.com>
-	<20151102201535.GB1707@linux-uzut.site>
-	<CA+55aFynbkeuUGs9s-q+fLY6MeRBA6MjEyWWbbe7A5AaqsAknw@mail.gmail.com>
-	<20160112150032-mutt-send-email-mst@redhat.com>
-	<CA+55aFwqgUQYVbVXLw1=LL6Gs=kXqhkx0tUZOdXnWbqCMdWfXg@mail.gmail.com>
-	<20160112193027-mutt-send-email-mst@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3 01/41] lcoking/barriers, arch: Use smp barriers in
+	smp_store_release()
+Date: Tue, 12 Jan 2016 20:40:48 +0200
+Message-ID: <20160112203857-mutt-send-email-mst__20026.3567305685$1452624085$gmane$org@redhat.com>
+References: <1452426622-4471-1-git-send-email-mst@redhat.com>
+	<1452426622-4471-2-git-send-email-mst@redhat.com>
+	<20160112162844.GD3818@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160112193027-mutt-send-email-mst@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20160112162844.GD3818@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,51 +21,103 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>
+To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Russell King - ARM Linux <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Davidlohr Bueso <dbueso@suse.de>, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.ne
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 12, 2016 at 9:45 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> By the way, the comment in barrier.h says:
->
-> /*
->  * Some non-Intel clones support out of order store. wmb() ceases to be
->  * a nop for these.
->  */
->
-> and while the 1st sentence may well be true, if you have
-> an SMP system with out of order stores, making wmb
-> not a nop will not help.
->
-> Additionally as you point out, wmb is not a nop even
-> for regular intel CPUs because of these weird use-cases.
->
-> Drop this comment?
+On Tue, Jan 12, 2016 at 08:28:44AM -0800, Paul E. McKenney wrote:
+> On Sun, Jan 10, 2016 at 04:16:32PM +0200, Michael S. Tsirkin wrote:
+> > From: Davidlohr Bueso <dave@stgolabs.net>
+> > 
+> > With commit b92b8b35a2e ("locking/arch: Rename set_mb() to smp_store_mb()")
+> > it was made clear that the context of this call (and thus set_mb)
+> > is strictly for CPU ordering, as opposed to IO. As such all archs
+> > should use the smp variant of mb(), respecting the semantics and
+> > saving a mandatory barrier on UP.
+> > 
+> > Signed-off-by: Davidlohr Bueso <dbueso@suse.de>
+> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> > Cc: <linux-arch@vger.kernel.org>
+> > Cc: Andrew Morton <akpm@linux-foundation.org>
+> > Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> > Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> > Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> > Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+> > Cc: Peter Zijlstra <peterz@infradead.org>
+> > Cc: Thomas Gleixner <tglx@linutronix.de>
+> > Cc: Tony Luck <tony.luck@intel.com>
+> > Cc: dave@stgolabs.net
+> > Link: http://lkml.kernel.org/r/1445975631-17047-3-git-send-email-dave@stgolabs.net
+> > Signed-off-by: Ingo Molnar <mingo@kernel.org>
+> 
+> Aside from a need for s/lcoking/locking/ in the subject line:
+> 
+> Reviewed-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
 
-We should drop it, yes. We dropped support for CONFIG_X86_OOSTORE
-almost two years ago. See commit 09df7c4c8097 ("x86: Remove
-CONFIG_X86_OOSTORE") and it was questionable for a long time even
-before that (perhaps ever).
+Thanks!
+Though Ingo already put this in tip tree like this,
+and I need a copy in my tree to avoid breaking bisect,
+so I will probably keep it exactly the same to avoid confusion.
 
-So the comment is stale.
-
-We *do* still use the non-nop rmb/wmb for IO barriers, but even that
-is generally questionable. See our "copy_user_64.S" for an actual use
-of "movnt" followed by sfence. There's a couple of other cases too. So
-that's all correct, but the point is that when we use "movnt" we don't
-actually use "wmb()", we are doing assembly, and the assembly should
-just use sfence directly.
-
-So it's actually very questionable to ever make even the IO
-wmb()/rmb() functions use lfence/sfence. They should never really need
-it.
-
-But at the same time, I _really_ don't think we care enough. I'd
-rather leave those non-smp barrier cases alone as historial unless
-somebody can point to a case where they care about the performance.
-
-We also do have the whole PPRO_FENCE thing, which we can hopefully get
-rid of at some point too.
-
-                 Linus
+> > ---
+> >  arch/ia64/include/asm/barrier.h    | 2 +-
+> >  arch/powerpc/include/asm/barrier.h | 2 +-
+> >  arch/s390/include/asm/barrier.h    | 2 +-
+> >  include/asm-generic/barrier.h      | 2 +-
+> >  4 files changed, 4 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/arch/ia64/include/asm/barrier.h b/arch/ia64/include/asm/barrier.h
+> > index df896a1..209c4b8 100644
+> > --- a/arch/ia64/include/asm/barrier.h
+> > +++ b/arch/ia64/include/asm/barrier.h
+> > @@ -77,7 +77,7 @@ do {									\
+> >  	___p1;								\
+> >  })
+> > 
+> > -#define smp_store_mb(var, value)	do { WRITE_ONCE(var, value); mb(); } while (0)
+> > +#define smp_store_mb(var, value) do { WRITE_ONCE(var, value); smp_mb(); } while (0)
+> > 
+> >  /*
+> >   * The group barrier in front of the rsm & ssm are necessary to ensure
+> > diff --git a/arch/powerpc/include/asm/barrier.h b/arch/powerpc/include/asm/barrier.h
+> > index 0eca6ef..a7af5fb 100644
+> > --- a/arch/powerpc/include/asm/barrier.h
+> > +++ b/arch/powerpc/include/asm/barrier.h
+> > @@ -34,7 +34,7 @@
+> >  #define rmb()  __asm__ __volatile__ ("sync" : : : "memory")
+> >  #define wmb()  __asm__ __volatile__ ("sync" : : : "memory")
+> > 
+> > -#define smp_store_mb(var, value)	do { WRITE_ONCE(var, value); mb(); } while (0)
+> > +#define smp_store_mb(var, value) do { WRITE_ONCE(var, value); smp_mb(); } while (0)
+> > 
+> >  #ifdef __SUBARCH_HAS_LWSYNC
+> >  #    define SMPWMB      LWSYNC
+> > diff --git a/arch/s390/include/asm/barrier.h b/arch/s390/include/asm/barrier.h
+> > index d68e11e..7ffd0b1 100644
+> > --- a/arch/s390/include/asm/barrier.h
+> > +++ b/arch/s390/include/asm/barrier.h
+> > @@ -36,7 +36,7 @@
+> >  #define smp_mb__before_atomic()		smp_mb()
+> >  #define smp_mb__after_atomic()		smp_mb()
+> > 
+> > -#define smp_store_mb(var, value)		do { WRITE_ONCE(var, value); mb(); } while (0)
+> > +#define smp_store_mb(var, value)	do { WRITE_ONCE(var, value); smp_mb(); } while (0)
+> > 
+> >  #define smp_store_release(p, v)						\
+> >  do {									\
+> > diff --git a/include/asm-generic/barrier.h b/include/asm-generic/barrier.h
+> > index b42afad..0f45f93 100644
+> > --- a/include/asm-generic/barrier.h
+> > +++ b/include/asm-generic/barrier.h
+> > @@ -93,7 +93,7 @@
+> >  #endif	/* CONFIG_SMP */
+> > 
+> >  #ifndef smp_store_mb
+> > -#define smp_store_mb(var, value)  do { WRITE_ONCE(var, value); mb(); } while (0)
+> > +#define smp_store_mb(var, value)  do { WRITE_ONCE(var, value); smp_mb(); } while (0)
+> >  #endif
+> > 
+> >  #ifndef smp_mb__before_atomic
+> > -- 
+> > MST
+> > 
