@@ -1,24 +1,19 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH 3/4] x86,asm: Re-work smp_store_mb()
-Date: Tue, 12 Jan 2016 15:24:05 -0800
-Message-ID: <CA+55aFz44oYK5GD3=-Y2E7bNwmJ0Ko5GaZ+iMQDamLALiw7RqQ__33028.8124540404$1452641072$gmane$org@mail.gmail.com>
-References: <1445975631-17047-4-git-send-email-dave@stgolabs.net>
-	<CA+55aFw8d29E26o4eB8VgbZBC5Ot2y9K=T_yE5Dj0dFdyVgOUA@mail.gmail.com>
-	<20151027223744.GB11242@worktop.amr.corp.intel.com>
-	<20151102201535.GB1707@linux-uzut.site>
-	<CA+55aFynbkeuUGs9s-q+fLY6MeRBA6MjEyWWbbe7A5AaqsAknw@mail.gmail.com>
-	<20160112150032-mutt-send-email-mst@redhat.com>
-	<CA+55aFwqgUQYVbVXLw1=LL6Gs=kXqhkx0tUZOdXnWbqCMdWfXg@mail.gmail.com>
-	<56956276.1090705@kernel.org>
-	<CA+55aFxhoGB9dBArw5iy0C0RhJEVRLLPR42w--KLSn5WM2sVRQ@mail.gmail.com>
-	<CALCETrWBxiAb8KHjBfb2rRhX3KrbLfc3bzhfQnyCdE3G4mnsSA@mail.gmail.com>
-	<20160113001824-mutt-send-email-mst@redhat.com>
-	<56958467.6010808@zytor.com>
+From: Will Deacon <will.deacon@arm.com>
+Subject: Re: [v3,11/41] mips: reuse asm-generic/barrier.h
+Date: Wed, 13 Jan 2016 10:45:17 +0000
+Message-ID: <20160113104516.GE25458__49167.7926424474$1452681949$gmane$org@arm.com>
+References: <1452426622-4471-12-git-send-email-mst@redhat.com>
+	<56945366.2090504@imgtec.com>
+	<20160112092711.GP6344@twins.programming.kicks-ass.net>
+	<20160112102555.GV6373@twins.programming.kicks-ass.net>
+	<20160112104012.GW6373@twins.programming.kicks-ass.net>
+	<20160112114111.GB15737@arm.com> <569565DA.2010903@imgtec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <56958467.6010808@zytor.com>
+Content-Disposition: inline
+In-Reply-To: <569565DA.2010903@imgtec.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,26 +23,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, Peter Zijlstra <peterz@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, the arch/x86 maintainers <x86@kernel.org>, Andy Lutomirski <luto@amacapital.net>, Andy Lutomirski <luto@kernel.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
+To: Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, user-mode-linux-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, Paul McKenney <paulmck@linux.vnet.ibm.com>, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, ddaney.cavm@gmail.com, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 12, 2016 at 2:55 PM, H. Peter Anvin <hpa@zytor.com> wrote:
->
-> Be careful with this: if it only shows up in a microbenchmark, we may
-> introduce a hard-to-debug regression for no real benefit.
+On Tue, Jan 12, 2016 at 12:45:14PM -0800, Leonid Yegoshin wrote:
+> >The issue I have with the SYNC description in the text above is that it
+> >describes the single CPU (program order) and the dual-CPU (confusingly
+> >named global order) cases, but then doesn't generalise any further. That
+> >means we can't sensibly reason about transitivity properties when a third
+> >agent is involved. For example, the WRC+sync+addr test:
+> >
+> >
+> >P0:
+> >Wx = 1
+> >
+> >P1:
+> >Rx == 1
+> >SYNC
+> >Wy = 1
+> >
+> >P2:
+> >Ry == 1
+> ><address dep>
+> >Rx = 0
+> >
+> >
+> >I can't find anything to forbid that, given the text. The main problem
+> >is having the SYNC on P1 affect the write by P0.
+> 
+> As I understand that test, the visibility of P0: W[x] = 1 is identical to P1
+> and P2 here. If P1 got X before SYNC and write to Y after SYNC then
+> instruction source register dependency tracking in P2 prevents a speculative
+> load of X before P2 obtains Y from the same place as P0/P1 and calculate
+> address of X. If some load of X in P2 happens before address dependency
+> calculation it's result is discarded.
 
-So I can pretty much guarantee that it shouldn't regress from a
-correctness angle, since we rely *heavily* on locked instructions
-being barriers, in locking and in various other situations.
+I don't think the address dependency is enough on its own. By that
+reasoning, the following variant (WRC+addr+addr) would work too:
 
-Indeed, much more so than we ever rely on "smp_mb()". The places that
-rely on smp_mb() are pretty few in the end.
 
-So I think the only issue is whether sometimes "mfence" might be
-faster. So far, I've never actually heard of that being the case. The
-fence instructions have always sucked when I've seen them.
+P0:
+Wx = 1
 
-But talking to the hw people about this is certainly a good idea regardless.
+P1:
+Rx == 1
+<address dep>
+Wy = 1
 
-                 Linus
+P2:
+Ry == 1
+<address dep>
+Rx = 0
+
+
+So are you saying that this is also forbidden?
+Imagine that P0 and P1 are two threads that share a store buffer. What
+then?
+
+> Yes, you can't find that in MIPS SYNC instruction description, it is more
+> likely in CM (Coherence Manager) area. I just pointed our arch team member
+> responsible for documents and he will think how to explain that.
+
+I tried grepping the linked documents for "coherence manager" but couldn't
+find anything. Is the description you refer to available anywhere?
+
+Will
