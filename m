@@ -1,23 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 3/4] x86,asm: Re-work smp_store_mb()
-Date: Wed, 13 Jan 2016 19:00:13 +0200
-Message-ID: <20160113185644-mutt-send-email-mst__7757.4756382548$1452704448$gmane$org@redhat.com>
-References: <CA+55aFxhoGB9dBArw5iy0C0RhJEVRLLPR42w--KLSn5WM2sVRQ@mail.gmail.com>
-	<CALCETrWBxiAb8KHjBfb2rRhX3KrbLfc3bzhfQnyCdE3G4mnsSA@mail.gmail.com>
-	<20160113001824-mutt-send-email-mst@redhat.com>
-	<56958467.6010808@zytor.com>
-	<CA+55aFz44oYK5GD3=-Y2E7bNwmJ0Ko5GaZ+iMQDamLALiw7RqQ@mail.gmail.com>
-	<20160113161704.GA13146@pd.tnic>
-	<20160113182505-mutt-send-email-mst@redhat.com>
-	<20160113163331.GG12897@pd.tnic>
-	<20160113184003-mutt-send-email-mst@redhat.com>
-	<20160113165319.GJ12897@pd.tnic>
+From: Greg Kurz <gkurz@linux.vnet.ibm.com>
+Subject: [PATCH 0/2] vhost: cross-endian code cleanup
+Date: Wed, 13 Jan 2016 18:09:34 +0100
+Message-ID: <20160113170934.23705.62626.stgit@bahia.huguette.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160113165319.GJ12897@pd.tnic>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,31 +15,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Borislav Petkov <bp@alien8.de>
-Cc: Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 13, 2016 at 05:53:20PM +0100, Borislav Petkov wrote:
-> On Wed, Jan 13, 2016 at 06:42:48PM +0200, Michael S. Tsirkin wrote:
-> > Oh, I think this means we need a "cc" clobber.
-> 
-> Btw, does your microbenchmark do it too?
+This series is a respin of the following patch:
 
-Yes - I fixed it now, but it did not affect the result.
-We'd need some code where gcc carries flags around though.
+http://patchwork.ozlabs.org/patch/565921/
 
-> Because, the "cc" clobber should cause additional handling of flags,
-> depending on the context. It won't matter if the context doesn't need
-> rFLAGS handling in the benchmark but if we start using LOCK; ADD in the
-> kernel, I can imagine some places where mb() is used and rFLAGS are
-> live, causing gcc to either reorder code or stash them away...
+Patch 1 is preliminary work: it gives better names to the helpers that are
+involved in cross-endian support.
 
-It will reorder code but not necessarily for the worse :)
-Best I can do, I will add cc clobber to kernel and see whether
-binary size grows.
+Patch 2 is actually a v2 of the original patch. All devices now call a
+helper in the generic code, which DTRT according to vq->private_data, as
+suggested by Michael.
 
-> -- 
-> Regards/Gruss,
->     Boris.
-> 
-> ECO tip #101: Trim your mails when you reply.
+---
+
+Greg Kurz (2):
+      vhost: helpers to enable/disable vring endianness
+      vhost: disentangle vring endianness stuff from the core code
+
+
+ drivers/vhost/net.c   |    3 +++
+ drivers/vhost/scsi.c  |    3 +++
+ drivers/vhost/test.c  |    2 ++
+ drivers/vhost/vhost.c |   40 ++++++++++++++++++++++++++++------------
+ drivers/vhost/vhost.h |    1 +
+ 5 files changed, 37 insertions(+), 12 deletions(-)
