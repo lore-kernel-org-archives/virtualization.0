@@ -1,23 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 3/4] x86,asm: Re-work smp_store_mb()
-Date: Wed, 13 Jan 2016 18:25:21 +0200
-Message-ID: <20160113182505-mutt-send-email-mst@redhat.com>
-References: <CA+55aFynbkeuUGs9s-q+fLY6MeRBA6MjEyWWbbe7A5AaqsAknw@mail.gmail.com>
-	<20160112150032-mutt-send-email-mst@redhat.com>
-	<CA+55aFwqgUQYVbVXLw1=LL6Gs=kXqhkx0tUZOdXnWbqCMdWfXg@mail.gmail.com>
-	<56956276.1090705@kernel.org>
-	<CA+55aFxhoGB9dBArw5iy0C0RhJEVRLLPR42w--KLSn5WM2sVRQ@mail.gmail.com>
-	<CALCETrWBxiAb8KHjBfb2rRhX3KrbLfc3bzhfQnyCdE3G4mnsSA@mail.gmail.com>
-	<20160113001824-mutt-send-email-mst@redhat.com>
-	<56958467.6010808@zytor.com>
-	<CA+55aFz44oYK5GD3=-Y2E7bNwmJ0Ko5GaZ+iMQDamLALiw7RqQ@mail.gmail.com>
-	<20160113161704.GA13146@pd.tnic>
+Subject: Re: [PATCH] uapi: use __u8 from linux/types.h
+Date: Wed, 13 Jan 2016 18:25:53 +0200
+Message-ID: <20160113182546-mutt-send-email-mst__29746.3835486726$1452702376$gmane$org@redhat.com>
+References: <20160113160958.GA29108@glebfm.cloud.tilaa.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20160113161704.GA13146@pd.tnic>
+In-Reply-To: <20160113160958.GA29108@glebfm.cloud.tilaa.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,24 +18,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Borislav Petkov <bp@alien8.de>
-Cc: Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
+To: Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>
+Cc: David Airlie <airlied@linux.ie>, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 13, 2016 at 05:17:04PM +0100, Borislav Petkov wrote:
-> On Tue, Jan 12, 2016 at 03:24:05PM -0800, Linus Torvalds wrote:
-> > But talking to the hw people about this is certainly a good idea regardless.
+On Wed, Jan 13, 2016 at 07:10:15PM +0300, Gleb Fotengauer-Malinovskiy wrote:
+> Kernel headers should use linux/types.h based definitions.
 > 
-> I'm not seeing it in this thread but I might've missed it too. Anyway,
-> I'm being reminded that the ADD will change rFLAGS while MFENCE doesn't
-> touch them.
+> Signed-off-by: Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+> ---
+>  include/uapi/linux/virtio_gpu.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> Do we care?
-
-Which flag do you refer to, exactly?
-
+> diff --git a/include/uapi/linux/virtio_gpu.h b/include/uapi/linux/virtio_gpu.h
+> index 7a63faa..4b04ead 100644
+> --- a/include/uapi/linux/virtio_gpu.h
+> +++ b/include/uapi/linux/virtio_gpu.h
+> @@ -287,7 +287,7 @@ struct virtio_gpu_get_capset {
+>  /* VIRTIO_GPU_RESP_OK_CAPSET */
+>  struct virtio_gpu_resp_capset {
+>  	struct virtio_gpu_ctrl_hdr hdr;
+> -	uint8_t capset_data[];
+> +	__u8 capset_data[];
+>  };
+>  
+>  #define VIRTIO_GPU_EVENT_DISPLAY (1 << 0)
 > -- 
-> Regards/Gruss,
->     Boris.
-> 
-> ECO tip #101: Trim your mails when you reply.
+> glebfm
