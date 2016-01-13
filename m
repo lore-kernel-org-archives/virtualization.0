@@ -1,19 +1,23 @@
-From: Will Deacon <will.deacon@arm.com>
-Subject: Re: [v3,11/41] mips: reuse asm-generic/barrier.h
-Date: Wed, 13 Jan 2016 10:45:17 +0000
-Message-ID: <20160113104516.GE25458__49167.7926424474$1452681949$gmane$org@arm.com>
-References: <1452426622-4471-12-git-send-email-mst@redhat.com>
-	<56945366.2090504@imgtec.com>
-	<20160112092711.GP6344@twins.programming.kicks-ass.net>
-	<20160112102555.GV6373@twins.programming.kicks-ass.net>
-	<20160112104012.GW6373@twins.programming.kicks-ass.net>
-	<20160112114111.GB15737@arm.com> <569565DA.2010903@imgtec.com>
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: [PATCH 3/4] x86,asm: Re-work smp_store_mb()
+Date: Wed, 13 Jan 2016 17:17:04 +0100
+Message-ID: <20160113161704.GA13146@pd.tnic>
+References: <20151102201535.GB1707@linux-uzut.site>
+	<CA+55aFynbkeuUGs9s-q+fLY6MeRBA6MjEyWWbbe7A5AaqsAknw@mail.gmail.com>
+	<20160112150032-mutt-send-email-mst@redhat.com>
+	<CA+55aFwqgUQYVbVXLw1=LL6Gs=kXqhkx0tUZOdXnWbqCMdWfXg@mail.gmail.com>
+	<56956276.1090705@kernel.org>
+	<CA+55aFxhoGB9dBArw5iy0C0RhJEVRLLPR42w--KLSn5WM2sVRQ@mail.gmail.com>
+	<CALCETrWBxiAb8KHjBfb2rRhX3KrbLfc3bzhfQnyCdE3G4mnsSA@mail.gmail.com>
+	<20160113001824-mutt-send-email-mst@redhat.com>
+	<56958467.6010808@zytor.com>
+	<CA+55aFz44oYK5GD3=-Y2E7bNwmJ0Ko5GaZ+iMQDamLALiw7RqQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <569565DA.2010903@imgtec.com>
+In-Reply-To: <CA+55aFz44oYK5GD3=-Y2E7bNwmJ0Ko5GaZ+iMQDamLALiw7RqQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,69 +27,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, user-mode-linux-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, Paul McKenney <paulmck@linux.vnet.ibm.com>, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, ddaney.cavm@gmail.com, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, Peter Zijlstra <peterz@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, the arch/x86 maintainers <x86@kernel.org>, Andy Lutomirski <luto@amacapital.net>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 12, 2016 at 12:45:14PM -0800, Leonid Yegoshin wrote:
-> >The issue I have with the SYNC description in the text above is that it
-> >describes the single CPU (program order) and the dual-CPU (confusingly
-> >named global order) cases, but then doesn't generalise any further. That
-> >means we can't sensibly reason about transitivity properties when a third
-> >agent is involved. For example, the WRC+sync+addr test:
-> >
-> >
-> >P0:
-> >Wx = 1
-> >
-> >P1:
-> >Rx == 1
-> >SYNC
-> >Wy = 1
-> >
-> >P2:
-> >Ry == 1
-> ><address dep>
-> >Rx = 0
-> >
-> >
-> >I can't find anything to forbid that, given the text. The main problem
-> >is having the SYNC on P1 affect the write by P0.
-> 
-> As I understand that test, the visibility of P0: W[x] = 1 is identical to P1
-> and P2 here. If P1 got X before SYNC and write to Y after SYNC then
-> instruction source register dependency tracking in P2 prevents a speculative
-> load of X before P2 obtains Y from the same place as P0/P1 and calculate
-> address of X. If some load of X in P2 happens before address dependency
-> calculation it's result is discarded.
+On Tue, Jan 12, 2016 at 03:24:05PM -0800, Linus Torvalds wrote:
+> But talking to the hw people about this is certainly a good idea regardless.
 
-I don't think the address dependency is enough on its own. By that
-reasoning, the following variant (WRC+addr+addr) would work too:
+I'm not seeing it in this thread but I might've missed it too. Anyway,
+I'm being reminded that the ADD will change rFLAGS while MFENCE doesn't
+touch them.
 
+Do we care?
 
-P0:
-Wx = 1
+-- 
+Regards/Gruss,
+    Boris.
 
-P1:
-Rx == 1
-<address dep>
-Wy = 1
-
-P2:
-Ry == 1
-<address dep>
-Rx = 0
-
-
-So are you saying that this is also forbidden?
-Imagine that P0 and P1 are two threads that share a store buffer. What
-then?
-
-> Yes, you can't find that in MIPS SYNC instruction description, it is more
-> likely in CM (Coherence Manager) area. I just pointed our arch team member
-> responsible for documents and he will think how to explain that.
-
-I tried grepping the linked documents for "coherence manager" but couldn't
-find anything. Is the description you refer to available anywhere?
-
-Will
+ECO tip #101: Trim your mails when you reply.
