@@ -1,12 +1,21 @@
-From: Jerome Marchand <jmarchan@redhat.com>
-Subject: Re: [PATCH] virtio_pci: fix use after free on release
-Date: Thu, 14 Jan 2016 15:55:39 +0100
-Message-ID: <5697B6EB.8040903__26564.16120376$1452785135$gmane$org@redhat.com>
-References: <1452780236-27981-1-git-send-email-mst@redhat.com>
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Subject: Re: [v3,11/41] mips: reuse asm-generic/barrier.h
+Date: Thu, 14 Jan 2016 08:16:04 -0800
+Message-ID: <20160114161604.GT3818@linux.vnet.ibm.com>
+References: <20160112092711.GP6344@twins.programming.kicks-ass.net>
+	<20160112102555.GV6373@twins.programming.kicks-ass.net>
+	<20160112104012.GW6373@twins.programming.kicks-ass.net>
+	<20160112114111.GB15737@arm.com> <569565DA.2010903@imgtec.com>
+	<20160113104516.GE25458@arm.com> <56969F4B.7070001@imgtec.com>
+	<20160113204844.GV6357@twins.programming.kicks-ass.net>
+	<5696BA6E.4070508@imgtec.com> <20160114120445.GB15828@arm.com>
+Reply-To: paulmck@linux.vnet.ibm.com
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4071439139827230397=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1452780236-27981-1-git-send-email-mst@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20160114120445.GB15828@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,100 +25,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Sasha Levin <sasha.levin@oracle.com>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Will Deacon <will.deacon@arm.com>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, user-mode-linux-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>, ddaney.cavm@gmail.com, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============4071439139827230397==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="ESLEVhqAwAWkR2bMksF3JJfTvKChn7RlV"
+On Thu, Jan 14, 2016 at 12:04:45PM +0000, Will Deacon wrote:
+> On Wed, Jan 13, 2016 at 12:58:22PM -0800, Leonid Yegoshin wrote:
+> > On 01/13/2016 12:48 PM, Peter Zijlstra wrote:
+> > >On Wed, Jan 13, 2016 at 11:02:35AM -0800, Leonid Yegoshin wrote:
+> > >
+> > >>I ask HW team about it but I have a question - has it any relationship with
+> > >>replacing MIPS SYNC with lightweight SYNCs (SYNC_WMB etc)?
+> > >Of course. If you cannot explain the semantics of the primitives you
+> > >introduce, how can we judge the patch.
+> > >
+> > >
+> > You missed a point - it is a question about replacement of SYNC with
+> > lightweight primitives. It is NOT a question about multithread system
+> > behavior without any SYNC. The answer on a latest Will's question lies in
+> > different area.
+> 
+> The reason we (Peter and I) care about this isn't because we enjoy being
+> obstructive. It's because there is a whole load of core (i.e. portable)
+> kernel code that is written to the *kernel* memory model. For example,
+> the scheduler, RCU, mutex implementations, perf, drivers, you name it.
+> 
+> Consequently, it's important that the architecture back-ends implement
+> these portable primitives (e.g. smp_mb()) in a way that satisfies the
+> kernel memory model so that core code doesn't need to worry about the
+> underlying architecture for synchronisation purposes. You could turn
+> around and say "but if MIPS gets it wrong, then that's MIPS's problem",
+> but actually not having a general understanding of the ordering guarantees
+> provided by each architecture makes it very difficult for us to extend
+> the kernel memory model in such a way that it can be implemented
+> efficiently across the board *and* relied upon by core code.
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---ESLEVhqAwAWkR2bMksF3JJfTvKChn7RlV
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
+What Will said!
 
-On 01/14/2016 03:04 PM, Michael S. Tsirkin wrote:
-> KASan detected a use-after-free error in virtio-pci remove code. In
-> virtio_pci_remove(), vp_dev is still used after being freed in
-> unregister_virtio_device() (in virtio_pci_release_dev() more
-> precisely).
->=20
-> To fix, keep a reference until cleanup is done.
+Yes, you can cut corners within MIPS architecture-specific code,
+but primitives that are used in the core kernel really do need to
+work as expected.
 
-That does make KASan happy.
+							Thanx, Paul
 
->=20
-> Fixes: 63bd62a08ca4 ("virtio_pci: defer kfree until release callback")
-> Reported-by: Jerome Marchand <jmarchan@redhat.com>
-> Cc: stable@vger.kernel.org
-> Cc: Sasha Levin <sasha.levin@oracle.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-Tested-by: Jerome Marchand <jmarchan@redhat.com>
-
-Thanks,
-Jerome
-
-> ---
->  drivers/virtio/virtio_pci_common.c | 2 ++
->  1 file changed, 2 insertions(+)
->=20
-> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio=
-_pci_common.c
-> index 36205c2..f6bed86 100644
-> --- a/drivers/virtio/virtio_pci_common.c
-> +++ b/drivers/virtio/virtio_pci_common.c
-> @@ -545,6 +545,7 @@ err_enable_device:
->  static void virtio_pci_remove(struct pci_dev *pci_dev)
->  {
->  	struct virtio_pci_device *vp_dev =3D pci_get_drvdata(pci_dev);
-> +	struct device *dev =3D get_device(&vp_dev->vdev.dev);
-> =20
->  	unregister_virtio_device(&vp_dev->vdev);
-> =20
-> @@ -554,6 +555,7 @@ static void virtio_pci_remove(struct pci_dev *pci_d=
-ev)
->  		virtio_pci_modern_remove(vp_dev);
-> =20
->  	pci_disable_device(pci_dev);
-> +	put_device(dev);
->  }
-> =20
->  static struct pci_driver virtio_pci_driver =3D {
->=20
-
-
-
---ESLEVhqAwAWkR2bMksF3JJfTvKChn7RlV
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJWl7brAAoJEHTzHJCtsuoCl7QIAIRNzfwlJwKUx7P4XibmENCU
-GizvEcwbVfgyc2Eb1EnOhFpWrPOvpglHuphPFEq1sg9rXbrj8CBO6ICPtDll9MBm
-RhP1bLAMwe7yFuwaZm1pBsM8NXB66BCioJgbnYrFjwe2Fb+EDu7d9A+Vgk2dwbKd
-KfjjiUa5OQirLIkTuexZPwPvZS8uLhcTGW7OcrENBOpYdS2S9jA05EAr/cNa8+Qd
-hGezhcy397xYuZBAEVZbH8MpWRt6SiKDE8Is0HSqQ1mDR1ROaCAjMc8GVQe0jK2o
-sTu/ldIC3q1l4eaZQstQdF9deg8KN8yk8y7pykPGvOtXgA6N+QibjysGOryEXts=
-=5K4x
------END PGP SIGNATURE-----
-
---ESLEVhqAwAWkR2bMksF3JJfTvKChn7RlV--
-
---===============4071439139827230397==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4071439139827230397==--
+> The virtio patch at the start of the thread doesn't particularly concern
+> me. It's the other patches you linked to that implement acquire/release
+> that have me worried.
+> 
+> Will
+> 
