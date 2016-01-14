@@ -1,20 +1,12 @@
-From: Will Deacon <will.deacon@arm.com>
-Subject: Re: [v3,11/41] mips: reuse asm-generic/barrier.h
-Date: Thu, 14 Jan 2016 12:14:50 +0000
-Message-ID: <20160114121449.GC15828__1326.24693583256$1452773716$gmane$org@arm.com>
-References: <1452426622-4471-12-git-send-email-mst@redhat.com>
-	<56945366.2090504@imgtec.com>
-	<20160112092711.GP6344@twins.programming.kicks-ass.net>
-	<20160112102555.GV6373@twins.programming.kicks-ass.net>
-	<20160112104012.GW6373@twins.programming.kicks-ass.net>
-	<20160112114111.GB15737@arm.com> <569565DA.2010903@imgtec.com>
-	<20160113104516.GE25458@arm.com> <5696CF08.8080700@imgtec.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] virtio_pci: fix use after free on release
+Date: Thu, 14 Jan 2016 16:04:11 +0200
+Message-ID: <1452780236-27981-1-git-send-email-mst__9035.31245789981$1452780276$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <5696CF08.8080700@imgtec.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,98 +16,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, user-mode-linux-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, Paul McKenney <paulmck@linux.vnet.ibm.com>, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, ddaney.cavm@gmail.com, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Sasha Levin <sasha.levin@oracle.com>, Jerome Marchand <jmarchan@redhat.com>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 13, 2016 at 02:26:16PM -0800, Leonid Yegoshin wrote:
-> On 01/13/2016 02:45 AM, Will Deacon wrote:
-> >>
-> >I don't think the address dependency is enough on its own. By that
-> >reasoning, the following variant (WRC+addr+addr) would work too:
-> >
-> >
-> >P0:
-> >Wx = 1
-> >
-> >P1:
-> >Rx == 1
-> ><address dep>
-> >Wy = 1
-> >
-> >P2:
-> >Ry == 1
-> ><address dep>
-> >Rx = 0
-> >
-> >
-> >So are you saying that this is also forbidden?
-> >Imagine that P0 and P1 are two threads that share a store buffer. What
-> >then?
-> 
-> OK, I collected answers and it is:
-> 
->     In MIPS R6 this test passes OK, I mean - P2: Rx = 1 if Ry is read as 1.
-> By design.
-> 
->     However, it is unclear that happens in MIPS R2 1004K.
+KASan detected a use-after-free error in virtio-pci remove code. In
+virtio_pci_remove(), vp_dev is still used after being freed in
+unregister_virtio_device() (in virtio_pci_release_dev() more
+precisely).
 
-How can it be unclear? If, for example, the outcome is permitted on that
-CPU, then your original reasoning for the WRC+sync+addr doesn't apply
-there and SYNC is not transitive. That's what I'm trying to get to the
-bottom of.
+To fix, keep a reference until cleanup is done.
 
-Does the MIPS kernel target a particular CPU at compile time?
+Fixes: 63bd62a08ca4 ("virtio_pci: defer kfree until release callback")
+Reported-by: Jerome Marchand <jmarchan@redhat.com>
+Cc: stable@vger.kernel.org
+Cc: Sasha Levin <sasha.levin@oracle.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/virtio/virtio_pci_common.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
->     Moreover, there are voices against guarantee that it will be in future
-> and that voices point me to Documentation/memory-barriers.txt section "DATA
-> DEPENDENCY BARRIERS" examples which require SYNC_RMB between loading
-> address/index and using that for loading data based on that address or index
-> for shared data (look on CPU2 pseudo-code):
-> >To deal with this, a data dependency barrier or better must be inserted
-> >between the address load and the data load:
-> >
-> >        CPU 1                 CPU 2
-> >        ===============       ===============
-> >        { A == 1, B == 2, C = 3, P == &A, Q == &C }
-> >        B = 4;
-> >        <write barrier>
-> >        WRITE_ONCE(P, &B);
-> >                              Q = READ_ONCE(P);
-> >                              <data dependency barrier> <-----------
-> >SYNC_RMB is here
-> >                              D = *Q;
-> ...
-> >Another example of where data dependency barriers might be required is
-> >where a
-> >number is read from memory and then used to calculate the index for an
-> >array
-> >access:
-> >
-> >        CPU 1                 CPU 2
-> >        ===============       ===============
-> >        { M[0] == 1, M[1] == 2, M[3] = 3, P == 0, Q == 3 }
-> >        M[1] = 4;
-> >        <write barrier>
-> >        WRITE_ONCE(P, 1);
-> >                              Q = READ_ONCE(P);
-> >                              <data dependency barrier> <------------
-> >SYNC_RMB is here
-> >                              D = M[Q];
-> 
-> That voices say that there is a legitimate reason to relax HW here for
-> performance if SYNC_RMB is needed anyway to work with this sequence of
-> shared data.
-
-Are you saying that MIPS needs to implement [smp_]read_barrier_depends?
-
-> And all that is out-of-topic here in my mind. I just want to be sure that
-> this patchset still provides a use of a specific lightweight SYNCs on MIPS
-> vs bold and heavy generalized "SYNC 0" in any case.
-
-We may be highjacking the thread slightly, but there are much bigger
-issues at play here if you want to start using lightweight barriers to
-implement relaxed kernel primitives such as smp_load_acquire and
-smp_store_release.
-
-Will
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index 36205c2..f6bed86 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -545,6 +545,7 @@ err_enable_device:
+ static void virtio_pci_remove(struct pci_dev *pci_dev)
+ {
+ 	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
++	struct device *dev = get_device(&vp_dev->vdev.dev);
+ 
+ 	unregister_virtio_device(&vp_dev->vdev);
+ 
+@@ -554,6 +555,7 @@ static void virtio_pci_remove(struct pci_dev *pci_dev)
+ 		virtio_pci_modern_remove(vp_dev);
+ 
+ 	pci_disable_device(pci_dev);
++	put_device(dev);
+ }
+ 
+ static struct pci_driver virtio_pci_driver = {
+-- 
+MST
