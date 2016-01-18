@@ -1,16 +1,15 @@
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Subject: Re: [v3,11/41] mips: reuse asm-generic/barrier.h
-Date: Mon, 18 Jan 2016 07:46:29 -0800
-Message-ID: <20160118154629.GB3818@linux.vnet.ibm.com>
-References: <20160114204827.GE3818@linux.vnet.ibm.com>
-	<20160118081929.GA30420@gondor.apana.org.au>
-Reply-To: paulmck@linux.vnet.ibm.com
+From: Davidlohr Bueso <dave@stgolabs.net>
+Subject: Re: virtio pull for 4.5 (was Re: [PULL] virtio: barrier rework+fixes)
+Date: Mon, 18 Jan 2016 11:07:53 -0800
+Message-ID: <20160118190753.GC27825@linux-uzut.site>
+References: <20160113182855-mutt-send-email-mst@redhat.com>
+	<20160118152028-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20160118081929.GA30420@gondor.apana.org.au>
+In-Reply-To: <20160118152028-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,50 +19,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, mst@redhat.com, peterz@infradead.org, will.deacon@arm.com, virtualization@lists.linux-foundation.org, hpa@zytor.com, sparclinux@vger.kernel.org, mingo@kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux@arm.linux.org.uk, arnd@arndb.de, linux-sh@vger.kernel.org, mpe@ellerman.id.au, x86@kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, xen-devel@lists.xenproject.org, mingo@elte.hu, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, user-mode-linux-devel@lists.sourceforge.net, stefano.stabellini@eu.citrix.com, adi-buildroot-devel@lists.sourceforge.net, Leonid.Yegoshin@imgtec.com, ddaney.cavm@gmail.com, tglx@linutronix.de, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, andrew.cooper3@citrix.com, linux-kernel@vger.kernel.org, ralf@linux-mips.org, joe@perches.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: aquini@redhat.com, kvm@vger.kernel.org, peterz@infradead.org, benh@kernel.crashing.org, heiko.carstens@de.ibm.com, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org, mingo@kernel.org, linux-arch@vger.kernel.org, linux@arm.linux.org.uk, dbueso@suse.de, richard@nod.at, bjorn.andersson@sonymobile.com, rmk+kernel@arm.linux.org.uk, paulmck@linux.vnet.ibm.com, james.hogan@imgtec.com, arnd@arndb.de, julian.calaby@gmail.com, boqun.feng@gmail.com, schwidefsky@de.ibm.com, stefanha@redhat.com, tglx@linutronix.de, tony.luck@intel.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, minchan@kernel.org, david.vrabel@citrix.com, joe@perches.com, akpm@linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 18, 2016 at 04:19:29PM +0800, Herbert Xu wrote:
-> Paul E. McKenney <paulmck@linux.vnet.ibm.com> wrote:
-> >
-> > You could use SYNC_ACQUIRE() to implement read_barrier_depends() and
-> > smp_read_barrier_depends(), but SYNC_RMB probably does not suffice.
-> > The reason for this is that smp_read_barrier_depends() must order the
-> > pointer load against any subsequent read or write through a dereference
-> > of that pointer.  For example:
-> > 
-> >        p = READ_ONCE(gp);
-> >        smp_rmb();
-> >        r1 = p->a; /* ordered by smp_rmb(). */
-> >        p->b = 42; /* NOT ordered by smp_rmb(), BUG!!! */
-> >        r2 = x; /* ordered by smp_rmb(), but doesn't need to be. */
-> > 
-> > In contrast:
-> > 
-> >        p = READ_ONCE(gp);
-> >        smp_read_barrier_depends();
-> >        r1 = p->a; /* ordered by smp_read_barrier_depends(). */
-> >        p->b = 42; /* ordered by smp_read_barrier_depends(). */
-> >        r2 = x; /* not ordered by smp_read_barrier_depends(), which is OK. */
-> > 
-> > Again, if your hardware maintains local ordering for address
-> > and data dependencies, you can have read_barrier_depends() and
-> > smp_read_barrier_depends() be no-ops like they are for most
-> > architectures.
-> > 
-> > Does that help?
-> 
-> This is crazy! smp_rmb started out being strictly stronger than
-> smp_read_barrier_depends, when did this stop being the case?
+On Mon, 18 Jan 2016, Michael S. Tsirkin wrote:
 
-Hello, Herbert!
+>Hi Linus,
+>Just making sure nothing's wrong with this pull request.
+>If there's an issue, pls let me know!
+>Thanks!
+>
+>On Wed, Jan 13, 2016 at 06:28:55PM +0200, Michael S. Tsirkin wrote:
+>> The following changes since commit afd2ff9b7e1b367172f18ba7f693dfb62bdcb2dc:
+>>
+>>   Linux 4.4 (2016-01-10 15:01:32 -0800)
+>>
+>> are available in the git repository at:
+>>
+>>   git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+>>
+>> for you to fetch changes up to 43e361f23c49dbddf74f56ddf6cdd85c5dbff6da:
+>>
+>>   checkpatch: add virt barriers (2016-01-12 20:47:08 +0200)
+>>
+>> ----------------------------------------------------------------
+>> virtio: barrier rework+fixes
+>>
+>> This adds a new kind of barrier, and reworks virtio and xen
+>> to use it.
+>> Plus some fixes here and there.
+>>
+>> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>>
+>> ----------------------------------------------------------------
+>>
+>> Yes I know that the patch by Davidlohr Bueso has a typo in the subject :(
+>>
+>> Davidlohr Bueso (1):
+>>       lcoking/barriers, arch: Use smp barriers in smp_store_release()
 
-It is true that most Linux kernel code relies only on the read-read
-properties of dependencies, but the read-write properties are useful.
-Admittedly relatively rarely, but useful.
+fyi this arrived in Linus' tree through Ingo's pull request for -tip:
 
-The better comparison for smp_read_barrier_depends(), especially in
-its rcu_dereference*() form, is smp_load_acquire().
-
-							Thanx, Paul
+https://lkml.org/lkml/2016/1/11/319
