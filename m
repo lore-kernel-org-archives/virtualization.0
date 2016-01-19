@@ -1,7 +1,8 @@
 From: "Sinclair Yeh" <syeh@vmware.com>
-Subject: [PATCH 4/6] Input: Remove vmmouse port reservation
-Date: Tue, 19 Jan 2016 13:46:03 -0800
-Message-ID: <1453239965-1466-5-git-send-email-syeh@vmware.com>
+Subject: [PATCH 6/6] VMware balloon: Update vmw_balloon.c to use the VMW_PORT
+	macro
+Date: Tue, 19 Jan 2016 13:46:05 -0800
+Message-ID: <1453239965-1466-7-git-send-email-syeh@vmware.com>
 References: <1449271183-1746-1-git-send-email-syeh@vmware.com>
 	<1453239965-1466-1-git-send-email-syeh@vmware.com>
 Mime-Version: 1.0
@@ -19,91 +20,83 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: x86@kernel.org
-Cc: Sinclair Yeh <syeh@vmware.com>, pv-drivers@vmware.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-graphics-maintainer@vmware.com
+Cc: Sinclair Yeh <syeh@vmware.com>, pv-drivers@vmware.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Xavier Deguillard <xdeguillard@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This port is used by quite a few guest-to-host communication
-capabilities, e.g. getting configuration, logging, etc.  Currently
-multiple kernel modules, and one or more priviledged guest user
-mode app, e.g. open-vm-tools, use this port without reservation.
-
-It was determined that no reservation is required when accessing
-the port in this manner.
+Updated VMWARE_BALLOON_CMD to use the common VMW_PORT macro.
+Doing this rather than replacing all instances of VMWARE_BALLOON_CMD
+to minimize code change.
 
 Signed-off-by: Sinclair Yeh <syeh@vmware.com>
 Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
+Reviewed-by: Alok N Kataria <akataria@vmware.com>
+Acked-by: Xavier Deguillard <xdeguillard@vmware.com>
 Cc: pv-drivers@vmware.com
-Cc: linux-graphics-maintainer@vmware.com
-Cc: virtualization@lists.linux-foundation.org
+Cc: Xavier Deguillard <xdeguillard@vmware.com>
 Cc: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/input/mouse/vmmouse.c | 19 +------------------
- 1 file changed, 1 insertion(+), 18 deletions(-)
 
-diff --git a/drivers/input/mouse/vmmouse.c b/drivers/input/mouse/vmmouse.c
-index d06daf6..85fb3d47 100644
---- a/drivers/input/mouse/vmmouse.c
-+++ b/drivers/input/mouse/vmmouse.c
-@@ -347,16 +347,10 @@ int vmmouse_detect(struct psmouse *psmouse, bool set_properties)
- 		return -ENXIO;
- 	}
+---
+v1
+Swapped parameters 1 and 2 to VMW_PORT because the macro has been
+updated
+
+v2
+Updated VMW_PORT() usage because the macro and vmw_balloon.c's
+usage have changed.
+---
+ drivers/misc/vmw_balloon.c | 31 ++++++++++++-------------------
+ 1 file changed, 12 insertions(+), 19 deletions(-)
+
+diff --git a/drivers/misc/vmw_balloon.c b/drivers/misc/vmw_balloon.c
+index 1e688bf..6476b74 100644
+--- a/drivers/misc/vmw_balloon.c
++++ b/drivers/misc/vmw_balloon.c
+@@ -46,6 +46,7 @@
+ #include <linux/vmw_vmci_defs.h>
+ #include <linux/vmw_vmci_api.h>
+ #include <asm/hypervisor.h>
++#include <asm/vmware.h>
  
--	if (!request_region(VMMOUSE_PROTO_PORT, 4, "vmmouse")) {
--		psmouse_dbg(psmouse, "VMMouse port in use.\n");
--		return -EBUSY;
--	}
--
- 	/* Check if the device is present */
- 	response = ~VMMOUSE_PROTO_MAGIC;
- 	VMMOUSE_CMD(GETVERSION, 0, version, response, dummy1, dummy2);
- 	if (response != VMMOUSE_PROTO_MAGIC || version == 0xffffffffU) {
--		release_region(VMMOUSE_PROTO_PORT, 4);
- 		return -ENXIO;
- 	}
- 
-@@ -366,8 +360,6 @@ int vmmouse_detect(struct psmouse *psmouse, bool set_properties)
- 		psmouse->model = version;
- 	}
- 
--	release_region(VMMOUSE_PROTO_PORT, 4);
--
- 	return 0;
+ MODULE_AUTHOR("VMware, Inc.");
+ MODULE_DESCRIPTION("VMware Memory Control (Balloon) Driver");
+@@ -197,25 +198,17 @@ static void vmballoon_batch_set_pa(struct vmballoon_batch_page *batch, int idx,
  }
  
-@@ -386,7 +378,6 @@ static void vmmouse_disconnect(struct psmouse *psmouse)
- 	psmouse_reset(psmouse);
- 	input_unregister_device(priv->abs_dev);
- 	kfree(priv);
--	release_region(VMMOUSE_PROTO_PORT, 4);
- }
  
- /**
-@@ -430,15 +421,10 @@ int vmmouse_init(struct psmouse *psmouse)
- 	struct input_dev *rel_dev = psmouse->dev, *abs_dev;
- 	int error;
+-#define VMWARE_BALLOON_CMD(cmd, arg1, arg2, result)		\
+-({								\
+-	unsigned long __status, __dummy1, __dummy2, __dummy3;	\
+-	__asm__ __volatile__ ("inl %%dx" :			\
+-		"=a"(__status),					\
+-		"=c"(__dummy1),					\
+-		"=d"(__dummy2),					\
+-		"=b"(result),					\
+-		"=S" (__dummy3) :				\
+-		"0"(VMW_BALLOON_HV_MAGIC),			\
+-		"1"(VMW_BALLOON_CMD_##cmd),			\
+-		"2"(VMW_BALLOON_HV_PORT),			\
+-		"3"(arg1),					\
+-		"4" (arg2) :					\
+-		"memory");					\
+-	if (VMW_BALLOON_CMD_##cmd == VMW_BALLOON_CMD_START)	\
+-		result = __dummy1;				\
+-	result &= -1UL;						\
+-	__status & -1UL;					\
++#define VMWARE_BALLOON_CMD(cmd, arg1, arg2, result)			\
++({									\
++	unsigned long __status, __dummy1, __dummy2;			\
++	unsigned long __si, __di;					\
++	VMW_PORT(VMW_BALLOON_CMD_##cmd, arg1, arg2, 0,			\
++		 VMW_BALLOON_HV_PORT, VMW_BALLOON_HV_MAGIC,		\
++		 __status, result, __dummy1, __dummy2, __si, __di);	\
++	if (VMW_BALLOON_CMD_##cmd == VMW_BALLOON_CMD_START)		\
++		result = __dummy1;					\
++	result &= -1UL;							\
++	__status & -1UL;						\
+ })
  
--	if (!request_region(VMMOUSE_PROTO_PORT, 4, "vmmouse")) {
--		psmouse_dbg(psmouse, "VMMouse port in use.\n");
--		return -EBUSY;
--	}
--
- 	psmouse_reset(psmouse);
- 	error = vmmouse_enable(psmouse);
- 	if (error)
--		goto release_region;
-+		return error;
- 
- 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
- 	abs_dev = input_allocate_device();
-@@ -493,8 +479,5 @@ init_fail:
- 	kfree(priv);
- 	psmouse->private = NULL;
- 
--release_region:
--	release_region(VMMOUSE_PROTO_PORT, 4);
--
- 	return error;
- }
+ #ifdef CONFIG_DEBUG_FS
 -- 
 1.9.1
