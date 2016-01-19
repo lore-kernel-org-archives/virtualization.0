@@ -1,7 +1,7 @@
 From: "Sinclair Yeh" <syeh@vmware.com>
-Subject: [PATCH 3/6] Input: Update vmmouse.c to use the common VMW_PORT macros
-Date: Tue, 19 Jan 2016 13:46:02 -0800
-Message-ID: <1453239965-1466-4-git-send-email-syeh__1171.42110034383$1453239925$gmane$org@vmware.com>
+Subject: [PATCH 4/6] Input: Remove vmmouse port reservation
+Date: Tue, 19 Jan 2016 13:46:03 -0800
+Message-ID: <1453239965-1466-5-git-send-email-syeh@vmware.com>
 References: <1449271183-1746-1-git-send-email-syeh@vmware.com>
 	<1453239965-1466-1-git-send-email-syeh@vmware.com>
 Mime-Version: 1.0
@@ -19,84 +19,91 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: x86@kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>, Sinclair Yeh <syeh@vmware.com>, pv-drivers@vmware.com, gregkh@linuxfoundation.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-graphics-maintainer@vmware.com, linux-input@vger.kernel.org
+Cc: Sinclair Yeh <syeh@vmware.com>, pv-drivers@vmware.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-graphics-maintainer@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Updated the VMMOUSE macro to use the new VMW_PORT macro. Doing
-this instead of replacing all existing instances of VMWMOUSE
-to minimize code change.
+This port is used by quite a few guest-to-host communication
+capabilities, e.g. getting configuration, logging, etc.  Currently
+multiple kernel modules, and one or more priviledged guest user
+mode app, e.g. open-vm-tools, use this port without reservation.
+
+It was determined that no reservation is required when accessing
+the port in this manner.
 
 Signed-off-by: Sinclair Yeh <syeh@vmware.com>
 Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
-Reviewed-by: Alok N Kataria <akataria@vmware.com>
 Cc: pv-drivers@vmware.com
 Cc: linux-graphics-maintainer@vmware.com
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-kernel@vger.kernel.org
 Cc: virtualization@lists.linux-foundation.org
-Cc: linux-input@vger.kernel.org
-
+Cc: linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
-
-v2:
-Instead of replacing existing VMMOUSE defines, only modify enough
-to use the new VMW_PORT define.
-
-v3:
-Use updated VMWARE_PORT() which requires hypervisor magic as an added
-parameter
-
-v4:
-Swapped parameters 1 and 2 when calling VMW_PORT because the macro
-has been updated
-
-v5:
-Updated VMW_PORT() usage since the macro has been updated
----
- drivers/input/mouse/vmmouse.c | 22 +++++++---------------
- 1 file changed, 7 insertions(+), 15 deletions(-)
+ drivers/input/mouse/vmmouse.c | 19 +------------------
+ 1 file changed, 1 insertion(+), 18 deletions(-)
 
 diff --git a/drivers/input/mouse/vmmouse.c b/drivers/input/mouse/vmmouse.c
-index e272f06..d06daf6 100644
+index d06daf6..85fb3d47 100644
 --- a/drivers/input/mouse/vmmouse.c
 +++ b/drivers/input/mouse/vmmouse.c
-@@ -19,6 +19,7 @@
- #include <linux/slab.h>
- #include <linux/module.h>
- #include <asm/hypervisor.h>
-+#include <asm/vmware.h>
+@@ -347,16 +347,10 @@ int vmmouse_detect(struct psmouse *psmouse, bool set_properties)
+ 		return -ENXIO;
+ 	}
  
- #include "psmouse.h"
- #include "vmmouse.h"
-@@ -84,21 +85,12 @@ struct vmmouse_data {
-  * implementing the vmmouse protocol. Should never execute on
-  * bare metal hardware.
-  */
--#define VMMOUSE_CMD(cmd, in1, out1, out2, out3, out4)	\
--({							\
--	unsigned long __dummy1, __dummy2;		\
--	__asm__ __volatile__ ("inl %%dx" :		\
--		"=a"(out1),				\
--		"=b"(out2),				\
--		"=c"(out3),				\
--		"=d"(out4),				\
--		"=S"(__dummy1),				\
--		"=D"(__dummy2) :			\
--		"a"(VMMOUSE_PROTO_MAGIC),		\
--		"b"(in1),				\
--		"c"(VMMOUSE_PROTO_CMD_##cmd),		\
--		"d"(VMMOUSE_PROTO_PORT) :		\
--		"memory");		                \
-+#define VMMOUSE_CMD(cmd, in1, out1, out2, out3, out4)		\
-+({								\
-+	unsigned long __dummy1, __dummy2;			\
-+	VMW_PORT(VMMOUSE_PROTO_CMD_##cmd, in1, 0, 0,		\
-+		 VMMOUSE_PROTO_PORT, VMMOUSE_PROTO_MAGIC,	\
-+		 out1, out2, out3, out4, __dummy1, __dummy2);   \
- })
+-	if (!request_region(VMMOUSE_PROTO_PORT, 4, "vmmouse")) {
+-		psmouse_dbg(psmouse, "VMMouse port in use.\n");
+-		return -EBUSY;
+-	}
+-
+ 	/* Check if the device is present */
+ 	response = ~VMMOUSE_PROTO_MAGIC;
+ 	VMMOUSE_CMD(GETVERSION, 0, version, response, dummy1, dummy2);
+ 	if (response != VMMOUSE_PROTO_MAGIC || version == 0xffffffffU) {
+-		release_region(VMMOUSE_PROTO_PORT, 4);
+ 		return -ENXIO;
+ 	}
+ 
+@@ -366,8 +360,6 @@ int vmmouse_detect(struct psmouse *psmouse, bool set_properties)
+ 		psmouse->model = version;
+ 	}
+ 
+-	release_region(VMMOUSE_PROTO_PORT, 4);
+-
+ 	return 0;
+ }
+ 
+@@ -386,7 +378,6 @@ static void vmmouse_disconnect(struct psmouse *psmouse)
+ 	psmouse_reset(psmouse);
+ 	input_unregister_device(priv->abs_dev);
+ 	kfree(priv);
+-	release_region(VMMOUSE_PROTO_PORT, 4);
+ }
  
  /**
+@@ -430,15 +421,10 @@ int vmmouse_init(struct psmouse *psmouse)
+ 	struct input_dev *rel_dev = psmouse->dev, *abs_dev;
+ 	int error;
+ 
+-	if (!request_region(VMMOUSE_PROTO_PORT, 4, "vmmouse")) {
+-		psmouse_dbg(psmouse, "VMMouse port in use.\n");
+-		return -EBUSY;
+-	}
+-
+ 	psmouse_reset(psmouse);
+ 	error = vmmouse_enable(psmouse);
+ 	if (error)
+-		goto release_region;
++		return error;
+ 
+ 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+ 	abs_dev = input_allocate_device();
+@@ -493,8 +479,5 @@ init_fail:
+ 	kfree(priv);
+ 	psmouse->private = NULL;
+ 
+-release_region:
+-	release_region(VMMOUSE_PROTO_PORT, 4);
+-
+ 	return error;
+ }
 -- 
 1.9.1
