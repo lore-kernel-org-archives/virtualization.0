@@ -1,15 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH RFC] vhost: convert pre sorted vhost memory array to
-	interval tree
-Date: Wed, 20 Jan 2016 10:50:47 +0800
-Message-ID: <569EF607.2070107__15708.1061894589$1453258279$gmane$org@redhat.com>
-References: <1453084949-4896-1-git-send-email-jasowang@redhat.com>
-	<20160119162406.7f0c2008@nial.brq.redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH V2 2/3] vhost: introduce vhost_vq_more_avail()
+Date: Wed, 20 Jan 2016 16:09:50 +0200
+Message-ID: <20160120160400-mutt-send-email-mst__46943.8398177319$1453300478$gmane$org@redhat.com>
+References: <1448951985-12385-1-git-send-email-jasowang@redhat.com>
+	<1448951985-12385-3-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160119162406.7f0c2008@nial.brq.redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1448951985-12385-3-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,45 +19,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Igor Mammedov <imammedo@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, Dec 01, 2015 at 02:39:44PM +0800, Jason Wang wrote:
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
+Wow new API with no comments anywhere, and no
+commit log to say what it's good for.
+Want to know what it does and whether
+it's correct? You have to read the next patch.
 
-On 01/19/2016 11:24 PM, Igor Mammedov wrote:
-> On Mon, 18 Jan 2016 10:42:29 +0800
-> Jason Wang <jasowang@redhat.com> wrote:
->
->> > Current pre-sorted memory region array has some limitations for future
->> > device IOTLB conversion:
->> > 
->> > 1) need extra work for adding and removing a single region, and it's
->> >    expected to be slow because of sorting or memory re-allocation.
->> > 2) need extra work of removing a large range which may intersect
->> >    several regions with different size.
->> > 3) need trick for a replacement policy like LRU
->> > 
->> > To overcome the above shortcomings, this patch convert it to interval
->> > tree which can easily address the above issue with almost no extra
->> > work.
->> > 
->> > The patch could be used for:
->> > 
->> > - Extend the current API and only let the userspace to send diffs of
->> >   memory table.
->> > - Simplify Device IOTLB implementation.
-> I'm curios how performance changes on translate_desc() hot-path in
-> default case and in the case of 256 memory regions?
->
+So what is the point of splitting it out?
+It's confusing, and in fact it made you
+miss a bug.
 
-Haven't measured this. But consider both methods are O(logN), should be
-no noticeable difference. Will measure it in the future.
+> ---
+>  drivers/vhost/vhost.c | 13 +++++++++++++
+>  drivers/vhost/vhost.h |  1 +
+>  2 files changed, 14 insertions(+)
+> 
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 163b365..4f45a03 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -1633,6 +1633,19 @@ void vhost_add_used_and_signal_n(struct vhost_dev *dev,
+>  }
+>  EXPORT_SYMBOL_GPL(vhost_add_used_and_signal_n);
+>  
+> +bool vhost_vq_more_avail(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+> +{
+> +	__virtio16 avail_idx;
+> +	int r;
+> +
+> +	r = __get_user(avail_idx, &vq->avail->idx);
+> +	if (r)
+> +		return false;
 
-The main user is for the device IOTLB API[1], which:
+So the result is that if the page is not present,
+you return false (empty ring) and the
+caller will busy wait with preempt disabled.
+Nasty.
 
-- have thousands of userspace memory region sections
-- may dynamically adding or removing one or some of the regions
-- need a replacement algorithm like LRU
+So it should return something that breaks
+the loop, and this means it should have
+a different name for the return code
+to make sense.
 
-[1] https://lkml.org/lkml/2015/12/31/16
+Maybe reverse the polarity: vhost_vq_avail_empty?
+And add a comment saying we can't be sure ring
+is empty so return false.
+
+> +
+> +	return vhost16_to_cpu(vq, avail_idx) != vq->avail_idx;
+> +}
+> +EXPORT_SYMBOL_GPL(vhost_vq_more_avail);
+> +
+>  /* OK, now we need to know about added descriptors. */
+>  bool vhost_enable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+>  {
+> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+> index 43284ad..2f3c57c 100644
+> --- a/drivers/vhost/vhost.h
+> +++ b/drivers/vhost/vhost.h
+> @@ -159,6 +159,7 @@ void vhost_add_used_and_signal_n(struct vhost_dev *, struct vhost_virtqueue *,
+>  			       struct vring_used_elem *heads, unsigned count);
+>  void vhost_signal(struct vhost_dev *, struct vhost_virtqueue *);
+>  void vhost_disable_notify(struct vhost_dev *, struct vhost_virtqueue *);
+> +bool vhost_vq_more_avail(struct vhost_dev *, struct vhost_virtqueue *);
+>  bool vhost_enable_notify(struct vhost_dev *, struct vhost_virtqueue *);
+>  
+>  int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+> -- 
+> 2.5.0
