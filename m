@@ -1,12 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] tools/virtio: use virt_xxx barriers
-Date: Wed, 20 Jan 2016 21:14:32 +0200
-Message-ID: <1453317265-13913-1-git-send-email-mst@redhat.com>
+From: Yang Zhang <yang.zhang.wz@gmail.com>
+Subject: Re: [PATCH V2 3/3] vhost_net: basic polling support
+Date: Thu, 21 Jan 2016 10:11:35 +0800
+Message-ID: <56A03E57.2020400@gmail.com>
+References: <1448951985-12385-1-git-send-email-jasowang@redhat.com>
+	<1448951985-12385-4-git-send-email-jasowang@redhat.com>
+	<20160120143524.GA27168@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20160120143524.GA27168@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,80 +19,132 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Kamal Mostafa <kamal@canonical.com>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Fix build after API changes.
+On 2016/1/20 22:35, Michael S. Tsirkin wrote:
+> On Tue, Dec 01, 2015 at 02:39:45PM +0800, Jason Wang wrote:
+>> This patch tries to poll for new added tx buffer or socket receive
+>> queue for a while at the end of tx/rx processing. The maximum time
+>> spent on polling were specified through a new kind of vring ioctl.
+>>
+>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+>> ---
+>>   drivers/vhost/net.c        | 72 ++++++++++++++++++++++++++++++++++++++++++----
+>>   drivers/vhost/vhost.c      | 15 ++++++++++
+>>   drivers/vhost/vhost.h      |  1 +
+>>   include/uapi/linux/vhost.h | 11 +++++++
+>>   4 files changed, 94 insertions(+), 5 deletions(-)
+>>
+>> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+>> index 9eda69e..ce6da77 100644
+>> --- a/drivers/vhost/net.c
+>> +++ b/drivers/vhost/net.c
+>> @@ -287,6 +287,41 @@ static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
+>>   	rcu_read_unlock_bh();
+>>   }
+>>
+>> +static inline unsigned long busy_clock(void)
+>> +{
+>> +	return local_clock() >> 10;
+>> +}
+>> +
+>> +static bool vhost_can_busy_poll(struct vhost_dev *dev,
+>> +				unsigned long endtime)
+>> +{
+>> +	return likely(!need_resched()) &&
+>> +	       likely(!time_after(busy_clock(), endtime)) &&
+>> +	       likely(!signal_pending(current)) &&
+>> +	       !vhost_has_work(dev) &&
+>> +	       single_task_running();
+>> +}
+>> +
+>> +static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
+>> +				    struct vhost_virtqueue *vq,
+>> +				    struct iovec iov[], unsigned int iov_size,
+>> +				    unsigned int *out_num, unsigned int *in_num)
+>> +{
+>> +	unsigned long uninitialized_var(endtime);
+>> +
+>> +	if (vq->busyloop_timeout) {
+>> +		preempt_disable();
+>> +		endtime = busy_clock() + vq->busyloop_timeout;
+>> +		while (vhost_can_busy_poll(vq->dev, endtime) &&
+>> +		       !vhost_vq_more_avail(vq->dev, vq))
+>> +			cpu_relax();
+>> +		preempt_enable();
+>> +	}
+>
+> Isn't there a way to call all this after vhost_get_vq_desc?
+> First, this will reduce the good path overhead as you
+> won't have to play with timers and preemption.
+>
+> Second, this will reduce the chance of a pagefault on avail ring read.
+>
+>> +
+>> +	return vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
+>> +				 out_num, in_num, NULL, NULL);
+>> +}
+>> +
+>>   /* Expects to be always run from workqueue - which acts as
+>>    * read-size critical section for our kind of RCU. */
+>>   static void handle_tx(struct vhost_net *net)
+>> @@ -331,10 +366,9 @@ static void handle_tx(struct vhost_net *net)
+>>   			      % UIO_MAXIOV == nvq->done_idx))
+>>   			break;
+>>
+>> -		head = vhost_get_vq_desc(vq, vq->iov,
+>> -					 ARRAY_SIZE(vq->iov),
+>> -					 &out, &in,
+>> -					 NULL, NULL);
+>> +		head = vhost_net_tx_get_vq_desc(net, vq, vq->iov,
+>> +						ARRAY_SIZE(vq->iov),
+>> +						&out, &in);
+>>   		/* On error, stop handling until the next kick. */
+>>   		if (unlikely(head < 0))
+>>   			break;
+>> @@ -435,6 +469,34 @@ static int peek_head_len(struct sock *sk)
+>>   	return len;
+>>   }
+>>
+>> +static int vhost_net_peek_head_len(struct vhost_net *net, struct sock *sk)
+>
+> Need a hint that it's rx related in the name.
+>
+>> +{
+>> +	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
+>> +	struct vhost_virtqueue *vq = &nvq->vq;
+>> +	unsigned long uninitialized_var(endtime);
+>> +
+>> +	if (vq->busyloop_timeout) {
+>> +		mutex_lock(&vq->mutex);
+>
+> This appears to be called under vq mutex in handle_rx.
+> So how does this work then?
+>
+>
+>> +		vhost_disable_notify(&net->dev, vq);
+>
+> This appears to be called after disable notify
+> in handle_rx - so why disable here again?
+>
+>> +
+>> +		preempt_disable();
+>> +		endtime = busy_clock() + vq->busyloop_timeout;
+>> +
+>> +		while (vhost_can_busy_poll(&net->dev, endtime) &&
+>> +		       skb_queue_empty(&sk->sk_receive_queue) &&
+>> +		       !vhost_vq_more_avail(&net->dev, vq))
+>> +			cpu_relax();
+>
+> This seems to mix in several items.
+> RX queue is normally not empty. I don't think
+> we need to poll for that.
 
-Reported-by: Kamal Mostafa <kamal@canonical.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- tools/virtio/asm/barrier.h    | 22 +++++++++++++---------
- tools/virtio/linux/compiler.h |  9 +++++++++
- tools/virtio/linux/kernel.h   |  1 +
- 3 files changed, 23 insertions(+), 9 deletions(-)
- create mode 100644 tools/virtio/linux/compiler.h
+I have seen the RX queue is easy to be empty under some extreme 
+conditions like lots of small packet. So maybe the check is useful here.
 
-diff --git a/tools/virtio/asm/barrier.h b/tools/virtio/asm/barrier.h
-index 26b7926..ba34f9e 100644
---- a/tools/virtio/asm/barrier.h
-+++ b/tools/virtio/asm/barrier.h
-@@ -1,15 +1,19 @@
- #if defined(__i386__) || defined(__x86_64__)
- #define barrier() asm volatile("" ::: "memory")
--#define mb() __sync_synchronize()
--
--#define smp_mb()	mb()
--# define dma_rmb()	barrier()
--# define dma_wmb()	barrier()
--# define smp_rmb()	barrier()
--# define smp_wmb()	barrier()
-+#define virt_mb() __sync_synchronize()
-+#define virt_rmb() barrier()
-+#define virt_wmb() barrier()
-+/* Atomic store should be enough, but gcc generates worse code in that case. */
-+#define virt_store_mb(var, value)  do { \
-+	typeof(var) virt_store_mb_value = (value); \
-+	__atomic_exchange(&(var), &virt_store_mb_value, &virt_store_mb_value, \
-+			  __ATOMIC_SEQ_CST); \
-+	barrier(); \
-+} while (0);
- /* Weak barriers should be used. If not - it's a bug */
--# define rmb()	abort()
--# define wmb()	abort()
-+# define mb() abort()
-+# define rmb() abort()
-+# define wmb() abort()
- #else
- #error Please fill in barrier macros
- #endif
-diff --git a/tools/virtio/linux/compiler.h b/tools/virtio/linux/compiler.h
-new file mode 100644
-index 0000000..845960e
---- /dev/null
-+++ b/tools/virtio/linux/compiler.h
-@@ -0,0 +1,9 @@
-+#ifndef LINUX_COMPILER_H
-+#define LINUX_COMPILER_H
-+
-+#define WRITE_ONCE(var, val) \
-+	(*((volatile typeof(val) *)(&(var))) = (val))
-+
-+#define READ_ONCE(var) (*((volatile typeof(val) *)(&(var))))
-+
-+#endif
-diff --git a/tools/virtio/linux/kernel.h b/tools/virtio/linux/kernel.h
-index 4db7d56..0338499 100644
---- a/tools/virtio/linux/kernel.h
-+++ b/tools/virtio/linux/kernel.h
-@@ -8,6 +8,7 @@
- #include <assert.h>
- #include <stdarg.h>
- 
-+#include <linux/compiler.h>
- #include <linux/types.h>
- #include <linux/printk.h>
- #include <linux/bug.h>
 -- 
-MST
+best regards
+yang
