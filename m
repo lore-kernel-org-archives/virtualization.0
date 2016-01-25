@@ -1,13 +1,15 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH] tools/virtio: add ringtest utilities
-Date: Fri, 22 Jan 2016 13:53:05 +0100
-Message-ID: <20160122135305.3b708888.cornelia.huck@de.ibm.com>
-References: <1453380639-10459-1-git-send-email-mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V2 0/3] basic busy polling support for vhost_net
+Date: Mon, 25 Jan 2016 16:41:33 +0800
+Message-ID: <56A5DFBD.4000701@redhat.com>
+References: <1448951985-12385-1-git-send-email-jasowang@redhat.com>
+	<loom.20160124T095157-151@post.gmane.org> <56A58FB5.8020101@redhat.com>
+	<OF39FCBD95.AC4D3DD2-ONC2257F45.002772D2-C2257F45.002BD839@il.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1453380639-10459-1-git-send-email-mst@redhat.com>
+In-Reply-To: <OF39FCBD95.AC4D3DD2-ONC2257F45.002772D2-C2257F45.002BD839@il.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,96 +19,93 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Michael Rapoport <RAPOPORT@il.ibm.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 21 Jan 2016 14:52:32 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
 
-> +#if defined(__x86_64__) || defined(__i386__)
-> +#include "x86intrin.h"
-> +
-> +static inline void wait_cycles(unsigned long long cycles)
-> +{
-> +	unsigned long long t;
-> +
-> +	t = __rdtsc();
-> +	while (__rdtsc() - t < cycles) {}
-> +}
-> +
-> +#define VMEXIT_CYCLES 500
-> +#define VMENTRY_CYCLES 500
+On 01/25/2016 03:58 PM, Michael Rapoport wrote:
+> (restored 'CC, sorry for dropping it originally, Notes is still hard
+> for me)
+>
+> > Jason Wang <jasowang@redhat.com> wrote on 01/25/2016 05:00:05 AM:
+> > On 01/24/2016 05:00 PM, Mike Rapoport wrote:
+> > > Hi Jason,
+> > >
+> > >> Jason Wang <jasowang <at> redhat.com> writes:
+> > >>
+> > >> Hi all:
+> > >>
+> > >> This series tries to add basic busy polling for vhost net. The
+> idea is
+> > >> simple: at the end of tx/rx processing, busy polling for new tx added
+> > >> descriptor and rx receive socket for a while.
+> > > There were several conciens Michael raised on the Razya's attempt
+> to add
+> > > polling to vhost-net ([1], [2]). Some of them seem relevant for these
+> > > patches as well:
+> > >
+> > > - What happens in overcommit scenarios?
+> >
+> > We have an optimization here: busy polling will end if more than one
+> > processes is runnable on local cpu. This was done by checking
+> > single_task_running() in each iteration. So at the worst case, busy
+> > polling should be as fast as or only a minor regression compared to
+> > normal case. You can see this from the last test result.
+> >
+> > > - Have you checked the effect of polling on some macro benchmarks?
+> >
+> > I'm not sure I get the question. Cover letters shows some benchmark
+> > result of netperf. What do you mean by "macro benchmarks"?
+>
+> Back then, when Razya posted her polling implementation, Michael had
+> concern about the macro effect ([3]),
+> so I was wondering if this concern is also valid for your implementation.
+> Now, after I've reread your changes, I think it's not that relevant...
 
-#elif defined(__s390x__)
-static inline void wait_cycles(unsigned long long cycles)
-{
-	asm volatile("0: brctg %0,0b" : : "d" (cycles));
-}
+More benchmarks is good, but lots of kernel patches were accepted only
+with simple netperf results. Anyway busy polling is disabled by default,
+will try to do macro benchmark in the future if I had time.
 
-/* tweak me */
-#define VMEXIT_CYCLES 200
-#define VMENTRY_CYCLES 200
+>
+>
+> > >> The maximum number of time (in us) could be spent on busy polling was
+> > >> specified ioctl.
+> > > Although ioctl is definitely more appropriate interface to allow
+> user to
+> > > tune polling, it's still not clear for me how *end user* will
+> interact with
+> > > it and how easy it would be for him/her.
+> >
+> > There will be qemu part of the codes for end user. E.g. a vhost_poll_us
+> > parameter for tap like:
+> >
+> > -netdev tap,id=hn0,vhost=on,vhost_pull_us=20
+>
+> Not strictly related, I'd like to give a try to polling + vhost thread
+> sharing and polling + workqueues.
+> Do you mind sharing the scripts you used to test the polling?
 
-Values are probably off...
+Sure, it was a subtest of autotest[1].
 
-> +
-> +#else
-> +static inline void wait_cycles(unsigned long long cycles)
-> +{
-> +	_Exit(5);
-> +}
-> +#define VMEXIT_CYCLES 0
-> +#define VMENTRY_CYCLES 0
-> +#endif
+[1]
+https://github.com/autotest/tp-qemu/blob/7cf589b490aff7511eccbf2e1336ecf8d9fa9cb9/generic/tests/netperf.py
 
-> +/* Compiler barrier - similar to what Linux uses */
-> +#define barrier() asm volatile("" ::: "memory")
-> +
-> +/* Is there a portable way to do this? */
-> +#if defined(__x86_64__) || defined(__i386__)
-> +#define cpu_relax() asm ("rep; nop" ::: "memory")
-> +#else
-> +#define cpu_relax() assert(0)
-
-Fall back to barrier() instead?
-
-> +#endif
-
-> diff --git a/tools/virtio/ringtest/run-on-all.sh b/tools/virtio/ringtest/run-on-all.sh
-> new file mode 100755
-> index 0000000..52b0f71
-> --- /dev/null
-> +++ b/tools/virtio/ringtest/run-on-all.sh
-> @@ -0,0 +1,24 @@
-> +#!/bin/sh
-> +
-> +#use last CPU for host. Why not the first?
-> +#many devices tend to use cpu0 by default so
-> +#it tends to be busier
-> +HOST_AFFINITY=$(cd /dev/cpu; ls|grep -v '[a-z]'|sort -n|tail -1)
-> +
-> +#run command on all cpus
-> +for cpu in $(cd /dev/cpu; ls|grep -v '[a-z]'|sort -n);
-
-How portable is /dev/cpu/? Maybe look in sysfs instead?
-
-> +do
-> +	#Don't run guest and host on same CPU
-> +	#It actually works ok if using signalling
-> +	if
-> +		(echo "$@" | grep -e "--sleep" > /dev/null) || \
-> +			test $HOST_AFFINITY '!=' $cpu
-> +	then
-> +		echo "GUEST AFFINITY $cpu"
-> +		"$@" --host-affinity $HOST_AFFINITY --guest-affinity $cpu
-> +	fi
-> +done
-> +echo "NO GUEST AFFINITY"
-> +"$@" --host-affinity $HOST_AFFINITY
-> +echo "NO AFFINITY"
-> +"$@"
-
-It did not die on me for a basic (affinityless) run on s390. Let's see
-if I find time to look at the actual ring code next week.
+>
+>  
+> Thanks,
+> Mike.
+>
+> > Thanks
+> >
+> > >
+> > > [1] http://thread.gmane.org/gmane.linux.kernel/1765593
+> > > [2] http://thread.gmane.org/gmane.comp.emulators.kvm.devel/131343
+> > >
+> > > --
+> > > Sincerely yours,
+> > > Mike.
+> > >
+>
+> [3] https://www.mail-archive.com/kvm@vger.kernel.org/msg109703.html
