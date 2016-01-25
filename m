@@ -1,15 +1,22 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V2 0/3] basic busy polling support for vhost_net
-Date: Mon, 25 Jan 2016 16:41:33 +0800
-Message-ID: <56A5DFBD.4000701@redhat.com>
-References: <1448951985-12385-1-git-send-email-jasowang@redhat.com>
-	<loom.20160124T095157-151@post.gmane.org> <56A58FB5.8020101@redhat.com>
-	<OF39FCBD95.AC4D3DD2-ONC2257F45.002772D2-C2257F45.002BD839@il.ibm.com>
+From: Will Deacon <will.deacon@arm.com>
+Subject: Re: [v3,11/41] mips: reuse asm-generic/barrier.h
+Date: Mon, 25 Jan 2016 14:41:34 +0000
+Message-ID: <20160125144133.GB22927__22040.8600908288$1453732950$gmane$org@arm.com>
+References: <20160114121449.GC15828@arm.com> <5697F6D2.60409@imgtec.com>
+	<20160114203430.GC3818@linux.vnet.ibm.com>
+	<56980C91.1010403@imgtec.com>
+	<20160114212913.GF3818@linux.vnet.ibm.com>
+	<569814F2.50801@imgtec.com>
+	<20160114225510.GJ3818@linux.vnet.ibm.com>
+	<20160115102431.GB2131@arm.com>
+	<20160115175401.GW3818@linux.vnet.ibm.com>
+	<20160115192845.GA12510@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <OF39FCBD95.AC4D3DD2-ONC2257F45.002772D2-C2257F45.002BD839@il.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <20160115192845.GA12510@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,93 +26,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michael Rapoport <RAPOPORT@il.ibm.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, user-mode-linux-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>, ddaney.cavm@gmail.com, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Fri, Jan 15, 2016 at 11:28:45AM -0800, Paul E. McKenney wrote:
+> On Fri, Jan 15, 2016 at 09:54:01AM -0800, Paul E. McKenney wrote:
+> > On Fri, Jan 15, 2016 at 10:24:32AM +0000, Will Deacon wrote:
+> > > See my earlier reply [1] (but also, your WRC Linux example looks more
+> > > like a variant on WWC and I couldn't really follow it).
+> > 
+> > I will revisit my WRC Linux example.  And yes, creating litmus tests
+> > that use non-fake dependencies is still a bit of an undertaking.  :-/
+> > I am sure that it will seem more natural with time and experience...
+> 
+> Hmmm...  You are quite right, I did do WWC.  I need to change cpu2()'s
+> last access from a store to a load to get WRC.  Plus the levels of
+> indirection definitely didn't match up, did they?
 
+Nope, it was pretty baffling!
 
-On 01/25/2016 03:58 PM, Michael Rapoport wrote:
-> (restored 'CC, sorry for dropping it originally, Notes is still hard
-> for me)
->
-> > Jason Wang <jasowang@redhat.com> wrote on 01/25/2016 05:00:05 AM:
-> > On 01/24/2016 05:00 PM, Mike Rapoport wrote:
-> > > Hi Jason,
-> > >
-> > >> Jason Wang <jasowang <at> redhat.com> writes:
-> > >>
-> > >> Hi all:
-> > >>
-> > >> This series tries to add basic busy polling for vhost net. The
-> idea is
-> > >> simple: at the end of tx/rx processing, busy polling for new tx added
-> > >> descriptor and rx receive socket for a while.
-> > > There were several conciens Michael raised on the Razya's attempt
-> to add
-> > > polling to vhost-net ([1], [2]). Some of them seem relevant for these
-> > > patches as well:
-> > >
-> > > - What happens in overcommit scenarios?
-> >
-> > We have an optimization here: busy polling will end if more than one
-> > processes is runnable on local cpu. This was done by checking
-> > single_task_running() in each iteration. So at the worst case, busy
-> > polling should be as fast as or only a minor regression compared to
-> > normal case. You can see this from the last test result.
-> >
-> > > - Have you checked the effect of polling on some macro benchmarks?
-> >
-> > I'm not sure I get the question. Cover letters shows some benchmark
-> > result of netperf. What do you mean by "macro benchmarks"?
->
-> Back then, when Razya posted her polling implementation, Michael had
-> concern about the macro effect ([3]),
-> so I was wondering if this concern is also valid for your implementation.
-> Now, after I've reread your changes, I think it's not that relevant...
+> 	struct foo {
+> 		struct foo *next;
+> 	};
+> 	struct foo a;
+> 	struct foo b;
+> 	struct foo c = { &a };
+> 	struct foo d = { &b };
+> 	struct foo x = { &c };
+> 	struct foo y = { &d };
+> 	struct foo *r1, *r2, *r3;
+> 
+> 	void cpu0(void)
+> 	{
+> 		WRITE_ONCE(x.next, &y);
+> 	}
+> 
+> 	void cpu1(void)
+> 	{
+> 		r1 = lockless_dereference(x.next);
+> 		WRITE_ONCE(r1->next, &x);
+> 	}
+> 
+> 	void cpu2(void)
+> 	{
+> 		r2 = lockless_dereference(y.next);
+> 		r3 = READ_ONCE(r2->next);
+> 	}
+> 
+> In this case, it is legal to end the run with:
+> 
+> 	r1 == &y && r2 == &x && r3 == &c
+> 
+> Please see below for a ppcmem litmus test.
+> 
+> So, did I get it right this time?  ;-)
 
-More benchmarks is good, but lots of kernel patches were accepted only
-with simple netperf results. Anyway busy polling is disabled by default,
-will try to do macro benchmark in the future if I had time.
+The code above looks correct to me (in that it matches WRC+addrs),
+but your litmus test:
 
->
->
-> > >> The maximum number of time (in us) could be spent on busy polling was
-> > >> specified ioctl.
-> > > Although ioctl is definitely more appropriate interface to allow
-> user to
-> > > tune polling, it's still not clear for me how *end user* will
-> interact with
-> > > it and how easy it would be for him/her.
-> >
-> > There will be qemu part of the codes for end user. E.g. a vhost_poll_us
-> > parameter for tap like:
-> >
-> > -netdev tap,id=hn0,vhost=on,vhost_pull_us=20
->
-> Not strictly related, I'd like to give a try to polling + vhost thread
-> sharing and polling + workqueues.
-> Do you mind sharing the scripts you used to test the polling?
+> PPC WRCnf+addrs
+> ""
+> {
+> 0:r2=x; 0:r3=y;
+> 1:r2=x; 1:r3=y;
+> 2:r2=x; 2:r3=y;
+> c=a; d=b; x=c; y=d;
+> }
+>  P0           | P1            | P2            ;
+>  stw r3,0(r2) | lwz r8,0(r2)  | lwz r8,0(r3)  ;
+>               | stw r2,0(r3)  | lwz r9,0(r8)  ;
+> exists
+> (1:r8=y /\ 2:r8=x /\ 2:r9=c)
 
-Sure, it was a subtest of autotest[1].
+Seems to be missing the address dependency on P1.
 
-[1]
-https://github.com/autotest/tp-qemu/blob/7cf589b490aff7511eccbf2e1336ecf8d9fa9cb9/generic/tests/netperf.py
-
->
->  
-> Thanks,
-> Mike.
->
-> > Thanks
-> >
-> > >
-> > > [1] http://thread.gmane.org/gmane.linux.kernel/1765593
-> > > [2] http://thread.gmane.org/gmane.comp.emulators.kvm.devel/131343
-> > >
-> > > --
-> > > Sincerely yours,
-> > > Mike.
-> > >
->
-> [3] https://www.mail-archive.com/kvm@vger.kernel.org/msg109703.html
+Will
