@@ -1,17 +1,15 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [v3,11/41] mips: reuse asm-generic/barrier.h
-Date: Tue, 26 Jan 2016 11:44:46 -0800
-Message-ID: <CA+55aFzcC6C8imPs5vk4yH1Y2YHjnAdFM9HCkVs04COxuDQH6w__23577.6544119746$1453837510$gmane$org@mail.gmail.com>
-References: <20160114204827.GE3818@linux.vnet.ibm.com>
-	<20160118081929.GA30420@gondor.apana.org.au>
-	<20160118154629.GB3818@linux.vnet.ibm.com>
-	<20160126165207.GB6029@fixme-laptop.cn.ibm.com>
-	<20160126172227.GG6357@twins.programming.kicks-ass.net>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH v2 0/3] x86: faster mb()+other barrier.h tweaks
+Date: Tue, 26 Jan 2016 13:37:38 -0800
+Message-ID: <56A7E722.7030701@zytor.com>
+References: <1452635935-5439-1-git-send-email-mst@redhat.com>
+	<56957D54.5000602@zytor.com>
+	<20160126101921-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160126172227.GG6357@twins.programming.kicks-ass.net>
+In-Reply-To: <20160126101921-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,54 +19,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: linux-mips <linux-mips@linux-mips.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Will Deacon <will.deacon@arm.com>, virtualization <virtualization@lists.linux-foundation.org>, Peter Anvin <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Russell King - ARM Linux <linux@arm.linux.org.uk>, Herbert Xu <herbert@gondor.apana.org.au>, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, the arch/x86 maintainers <x86@kernel.org>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, linux-xtensa@linux-xtensa.org, James Hogan <james.hogan@imgtec.com>, uml-devel <user-mode-linux-devel@lists.sourceforge.net>Stefano Stabellini <s>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, linux-kernel@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>, Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBKYW4gMjYsIDIwMTYgYXQgOToyMiBBTSwgUGV0ZXIgWmlqbHN0cmEgPHBldGVyekBp
-bmZyYWRlYWQub3JnPiB3cm90ZToKPgo+IFRoaXMgaXMgZGlzdGluY3QgZnJvbToKClRoYXQgbWF5
-IGJlIGRpc3RpbmN0LCBidXQ6Cgo+ICAgICAgICAgc3RydWN0IGZvbyAqeCA9IFJFQURfT05DRSgq
-cHRyKTsKPiAgICAgICAgIHNtcF9yZWFkX2JhcnJpZXJfZGVwZW5kcygpOwo+ICAgICAgICAgeC0+
-YmFyID0gNTsKClRoaXMgY2FzZSBpcyBjb21wbGV0ZSBCUy4gU3RvcCBwZXJwZXR1YXRpbmcgaXQu
-IEkgYWxyZWFkeSByZW1vdmVkIGEKbnVtYmVyIG9mIGJvZ3VzIGNhc2VzIG9mIGl0LCBhbmQgSSBy
-ZW1vdmVkIHRoZSBpbmNvcnJlY3QgZG9jdW1lbnRhdGlvbgp0aGF0IGhhZCB0aGlzIGNyYXAuCgpJ
-dCdzIGNhbGxlZCAic21wX1JFQURfYmFycmllcl9kZXBlbmRzKCkiIGZvciBhIHJlYXNvbi4KCkFs
-cGhhIGlzIHRoZSBvbmx5IG9uZSB0aGF0IG5lZWRzIGl0LCBhbmQgYWxwaGEgbmVlZHMgaXQgb25s
-eSBmb3IKZGVwZW5kZW50IFJFQURTLgoKSXQncyBub3QgY2FsbGVkIHNtcF9yZWFkX3dyaXRlX2Jh
-cnJpZXJfZGVwZW5kcygpLiBJdCdzIG5vdCBjYWxsZWQKInNtcF9tYl9kZXBlbmRzKCkiLiBJdCdz
-IGEgd2Vha2VyIGZvcm0gb2YgInNtcF9ybWIoKSIsIG5vdGhpbmcgZWxzZS4KClNvIGFscGhhIGRv
-ZXMgaGF2ZSBhbiBpbXBsaWVkIGRlcGVuZGVuY3kgY2hhaW4gZnJvbSBhIHJlYWQgdG8gYQpzdWJz
-ZXF1ZW50IGRlcGVuZGVudCB3cml0ZSwgYW5kIGRvZXMgbm90IG5lZWQgYW55IGV4dHJhIGJhcnJp
-ZXJzLgoKQWxwaGEgZG9lcyAqbm90KiBoYXZlIGEgZGVwZW5kZW5jeSBjaGFpbiBmcm9tIGEgcmVh
-ZCB0byBhIHN1YnNlcXVlbnQKcmVhZCwgd2hpY2ggaXMgd2h5IHdlIG5lZWQgdGhhdCBob3JyaWJs
-ZSBjcmFwcHkKc21wX3JlYWRfYmFycmllcl9kZXBlbmRzKCkuIEJ1dCBpdCdzIHRoZSBvbmx5IHJl
-YXNvbi4KClRoaXMgaXMgdGhlIGFscGhhIHJlZmVyZW5jZSBtYW51YWwgd3J0IHJlYWQtdG8td3Jp
-dGUgZGVwZW5kZW5jeToKCiAgNS42LjEuNyBEZWZpbml0aW9uIG9mIERlcGVuZGVuY2UgQ29uc3Ry
-YWludAoKICAgIFRoZSBkZXBlbmRzIHJlbGF0aW9uIChEUCkgaXMgZGVmaW5lZCBhcyBmb2xsb3dz
-LiBHaXZlbiB1IGFuZCB2Cmlzc3VlZCBieSBwcm9jZXNzb3IgUGksIHdoZXJlIHUKICAgIGlzIGEg
-cmVhZCBvciBhbiBpbnN0cnVjdGlvbiBmZXRjaCBhbmQgdiBpcyBhIHdyaXRlLCB1IHByZWNlZGVz
-IHYKaW4gRFAgb3JkZXIgKHdyaXR0ZW4gdSBEUCB2LCB0aGF0CiAgICBpcywgdiBkZXBlbmRzIG9u
-IHUpIGluIGVpdGhlciBvZiB0aGUgZm9sbG93aW5nIHNpdHVhdGlvbnM6CgogICAgIOKAoiB1IGRl
-dGVybWluZXMgdGhlIGV4ZWN1dGlvbiBvZiB2LCB0aGUgbG9jYXRpb24gYWNjZXNzZWQgYnkgdiwg
-b3IKdGhlIHZhbHVlIHdyaXR0ZW4gYnkgdi4KICAgICDigKIgdSBkZXRlcm1pbmVzIHRoZSBleGVj
-dXRpb24gb3IgYWRkcmVzcyBvciB2YWx1ZSBvZiBhbm90aGVyCm1lbW9yeSBhY2Nlc3MgeiB0aGF0
-IHByZWNlZGVzCgogICAgdiBvciBtaWdodCBwcmVjZWRlIHYgKHRoYXQgaXMsIHdvdWxkIHByZWNl
-ZGUgdiBpbiBzb21lIGV4ZWN1dGlvbgpwYXRoIGRlcGVuZGluZwogICAgb24gdGhlIHZhbHVlIHJl
-YWQgYnkgdSkgYnkgcHJvY2Vzc29yIGlzc3VlIGNvbnN0cmFpbnQgKHNlZSBTZWN0aW9uIDUuNi4x
-LjMpLgoKTm90ZSB0aGF0IHRoZSBkZXBlbmRlbmNlIGJhcnJpZXIgaG9ub3JzIG5vdCBvbmx5IGNv
-bnRyb2wgZmxvdywgYnV0CmFkZHJlc3MgYW5kIGRhdGEgdmFsdWVzIHRvby4gIFRoaXMgaXMgYSBk
-aWZmZXJlbnQgc3ludGF4IHRoYW4gd2UgdXNlLApidXQgJ3UnIGlzIHRoZSBSRUFEX09OQ0UsIGFu
-ZCAndicgaXMgdGhlIHdyaXRlLiBBbnkgZGF0YSwgYWRkcmVzcyBvcgpjb25kaXRpb25hbCBkZXBl
-bmRlbmN5IGJldHdlZW4gdGhlIHR3byBpbXBsaWVzIGFuIG9yZGVyaW5nLgoKU28gbm8sICJzbXBf
-cmVhZF9iYXJyaWVyX2RlcGVuZHMoKSIgaXMgKk9OTFkqIGFib3V0IHR3byByZWFkcywgd2hlcmUK
-dGhlIHNlY29uZCByZWFkIGlzIGRhdGEtZGVwZW5kZW50IG9uIHRoZSBmaXJzdC4gTm90aGluZyBl
-bHNlLgoKU28gaWYgeW91IF9ldmVyXyBzZWUgYSAic21wX3JlYWRfYmFycmllcl9kZXBlbmRzKCki
-IHRoYXQgaXNuJ3QgYWJvdXQgYQpiYXJyaWVyIGJldHdlZW4gdHdvIHJlYWRzLCB0aGVuIHRoYXQg
-aXMgYSBidWcuCgpUaGUgYWJvdmUgY29kZSBpcyBjcmFwLiAgSXQncyBleGFjdGx5IGFzIG11Y2gg
-Y3JhcCBhcwoKICAgYSA9IFJFQURfT05DRSh4KTsKICAgc21wX3JtYigpOwogICBXUklURV9PTkNF
-KGIsIHkpOwoKYmVjYXVzZSBhICJybWIoKSIgc2ltcGx5IGRvZXNuJ3QgaGF2ZSBhbnl0aGluZyB0
-byBkbyB3aXRoCnJlYWQtdnMtc3Vic2VxdWVudC13cml0ZSBvcmRlcmluZy4KCiAgICAgICAgICAg
-ICAgICAgTGludXMKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
-LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On 01/26/16 00:20, Michael S. Tsirkin wrote:
+> On Tue, Jan 12, 2016 at 02:25:24PM -0800, H. Peter Anvin wrote:
+> 
+> Hi hpa,
+> Any luck getting some feedback on this one?
+> 
+
+Yes.  What we know so far is that *most* cases it will work, but there
+are apparently a few corner cases where MFENCE or a full-blown
+serializing instruction is necessary.  We are trying to characterize
+those corner cases and see if any of them affect the kernel.
+
+Even if they are, we can probably make those barriers explicitly
+different, but we don't want to go ahead with the change until we know
+where we need to care.
+
+	-hpa
