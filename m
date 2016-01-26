@@ -1,18 +1,20 @@
 From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 Subject: Re: [v3,11/41] mips: reuse asm-generic/barrier.h
-Date: Tue, 26 Jan 2016 11:51:04 -0800
-Message-ID: <20160126195104.GR4503@linux.vnet.ibm.com>
+Date: Tue, 26 Jan 2016 12:10:37 -0800
+Message-ID: <20160126201037.GU4503__40003.8897911601$1453845679$gmane$org@linux.vnet.ibm.com>
 References: <20160114204827.GE3818@linux.vnet.ibm.com>
 	<20160118081929.GA30420@gondor.apana.org.au>
 	<20160118154629.GB3818@linux.vnet.ibm.com>
 	<20160126165207.GB6029@fixme-laptop.cn.ibm.com>
+	<20160126172227.GG6357@twins.programming.kicks-ass.net>
+	<CA+55aFzcC6C8imPs5vk4yH1Y2YHjnAdFM9HCkVs04COxuDQH6w@mail.gmail.com>
 Reply-To: paulmck@linux.vnet.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20160126165207.GB6029@fixme-laptop.cn.ibm.com>
+In-Reply-To: <CA+55aFzcC6C8imPs5vk4yH1Y2YHjnAdFM9HCkVs04COxuDQH6w@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,82 +24,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Boqun Feng <boqun.feng@gmail.com>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, mst@redhat.com, peterz@infradead.org, will.deacon@arm.com, virtualization@lists.linux-foundation.org, hpa@zytor.com, sparclinux@vger.kernel.org, mingo@kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux@arm.linux.org.uk, Herbert Xu <herbert@gondor.apana.org.au>, linux-sh@vger.kernel.org, mpe@ellerman.id.au, x86@kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, xen-devel@lists.xenproject.org, mingo@elte.hu, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, user-mode-linux-devel@lists.sourceforge.net, stefano.stabellini@eu.citrix.com, adi-buildroot-devel@lists.sourceforge.net, Leonid.Yegoshin@imgtec.com, ddaney.cavm@gmail.com, tglx@linutronix.de, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, andrew.cooper3@citrix.com, linux-kernel@vger.kernel.org, ralf@linux-
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-mips <linux-mips@linux-mips.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Will Deacon <will.deacon@arm.com>, virtualization <virtualization@lists.linux-foundation.org>, Peter Anvin <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Russell King - ARM Linux <linux@arm.linux.org.uk>, Herbert Xu <herbert@gondor.apana.org.au>, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, the arch/x86 maintainers <x86@kernel.org>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, James Hogan <james.hogan@imgtec.com>, uml-devel <user-mode-linux-devel@lists.sourceforge.net>, Stefano Stabellini <stefano.sta>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 27, 2016 at 12:52:07AM +0800, Boqun Feng wrote:
-> Hi Paul,
-> 
-> On Mon, Jan 18, 2016 at 07:46:29AM -0800, Paul E. McKenney wrote:
-> > On Mon, Jan 18, 2016 at 04:19:29PM +0800, Herbert Xu wrote:
-> > > Paul E. McKenney <paulmck@linux.vnet.ibm.com> wrote:
-> > > >
-> > > > You could use SYNC_ACQUIRE() to implement read_barrier_depends() and
-> > > > smp_read_barrier_depends(), but SYNC_RMB probably does not suffice.
-> > > > The reason for this is that smp_read_barrier_depends() must order the
-> > > > pointer load against any subsequent read or write through a dereference
-> > > > of that pointer.  For example:
-> > > > 
-> > > >        p = READ_ONCE(gp);
-> > > >        smp_rmb();
-> > > >        r1 = p->a; /* ordered by smp_rmb(). */
-> > > >        p->b = 42; /* NOT ordered by smp_rmb(), BUG!!! */
-> > > >        r2 = x; /* ordered by smp_rmb(), but doesn't need to be. */
-> > > > 
-> > > > In contrast:
-> > > > 
-> > > >        p = READ_ONCE(gp);
-> > > >        smp_read_barrier_depends();
-> > > >        r1 = p->a; /* ordered by smp_read_barrier_depends(). */
-> > > >        p->b = 42; /* ordered by smp_read_barrier_depends(). */
-> > > >        r2 = x; /* not ordered by smp_read_barrier_depends(), which is OK. */
-> > > > 
-> > > > Again, if your hardware maintains local ordering for address
-> > > > and data dependencies, you can have read_barrier_depends() and
-> > > > smp_read_barrier_depends() be no-ops like they are for most
-> > > > architectures.
-> > > > 
-> > > > Does that help?
-> > > 
-> > > This is crazy! smp_rmb started out being strictly stronger than
-> > > smp_read_barrier_depends, when did this stop being the case?
-> > 
-> > Hello, Herbert!
-> > 
-> > It is true that most Linux kernel code relies only on the read-read
-> > properties of dependencies, but the read-write properties are useful.
-> > Admittedly relatively rarely, but useful.
-> > 
-> > The better comparison for smp_read_barrier_depends(), especially in
-> > its rcu_dereference*() form, is smp_load_acquire().
-> 
-> Confused..
-> 
-> I recall that last time you and Linus came into a conclusion that even
-> on Alpha, a barrier for read->write with data dependency is unnecessary:
-> 
-> http://article.gmane.org/gmane.linux.kernel/2077661
-> 
-> And in an earlier mail of that thread, Linus made his point that
-> smp_read_barrier_depends() should only be used to order read->read.
-
-Those examples involved read-to-write with conditionals, as in:
-
-	if (READ_ONCE(a))
-		WRITE_ONCE(b, 1);
-
-Without the "if", no ordering is guaranteed on weakly ordered CPUs.
-(The volatile accesses keep ordering within the compiler for once...
-
-> So right now, are we going to extend the semantics of
-> smp_read_barrier_depends()? Can we just make smp_read_barrier_depends()
-> still only work for read->read, and assume all the architectures won't
-> reorder read->write with data dependency, so that the code above having
-> a smp_rmb() also works?
-
-The semantics of smp_read_barrier_depends() has been both read-to-write
-and read-to-read for some time now, this patch just catches the
-documentation up with reality.
-
-							Thanx, Paul
+T24gVHVlLCBKYW4gMjYsIDIwMTYgYXQgMTE6NDQ6NDZBTSAtMDgwMCwgTGludXMgVG9ydmFsZHMg
+d3JvdGU6Cj4gT24gVHVlLCBKYW4gMjYsIDIwMTYgYXQgOToyMiBBTSwgUGV0ZXIgWmlqbHN0cmEg
+PHBldGVyekBpbmZyYWRlYWQub3JnPiB3cm90ZToKPiA+Cj4gPiBUaGlzIGlzIGRpc3RpbmN0IGZy
+b206Cj4gCj4gVGhhdCBtYXkgYmUgZGlzdGluY3QsIGJ1dDoKPiAKPiA+ICAgICAgICAgc3RydWN0
+IGZvbyAqeCA9IFJFQURfT05DRSgqcHRyKTsKPiA+ICAgICAgICAgc21wX3JlYWRfYmFycmllcl9k
+ZXBlbmRzKCk7Cj4gPiAgICAgICAgIHgtPmJhciA9IDU7Cj4gCj4gVGhpcyBjYXNlIGlzIGNvbXBs
+ZXRlIEJTLiBTdG9wIHBlcnBldHVhdGluZyBpdC4gSSBhbHJlYWR5IHJlbW92ZWQgYQo+IG51bWJl
+ciBvZiBib2d1cyBjYXNlcyBvZiBpdCwgYW5kIEkgcmVtb3ZlZCB0aGUgaW5jb3JyZWN0IGRvY3Vt
+ZW50YXRpb24KPiB0aGF0IGhhZCB0aGlzIGNyYXAuCgpJZiBJIHVuZGVyc3RhbmQgeW91ciBvYmpl
+Y3Rpb24gY29ycmVjdGx5LCB5b3Ugd2FudCB0aGUgYWJvdmUgcGF0dGVybgpleHByZXNzZWQgZWl0
+aGVyIGxpa2UgdGhpczoKCglzdHJ1Y3QgZm9vICp4ID0gcmN1X2RlcmVmZXJlbmNlKCpwdHIpOwoJ
+eC0+YmFyID0gNTsKCk9yIGxpa2UgdGhpczoKCglzdHJ1Y3QgZm9vICp4ID0gbG9ja2xlc3NfZGVy
+ZWZlcmVuY2UoKnB0cik7Cgl4LT5iYXIgPSA1OwoKT3IgYW0gSSBtaXNzaW5nIHlvdXIgcG9pbnQ/
+Cgo+IEl0J3MgY2FsbGVkICJzbXBfUkVBRF9iYXJyaWVyX2RlcGVuZHMoKSIgZm9yIGEgcmVhc29u
+Lgo+IAo+IEFscGhhIGlzIHRoZSBvbmx5IG9uZSB0aGF0IG5lZWRzIGl0LCBhbmQgYWxwaGEgbmVl
+ZHMgaXQgb25seSBmb3IKPiBkZXBlbmRlbnQgUkVBRFMuCj4gCj4gSXQncyBub3QgY2FsbGVkIHNt
+cF9yZWFkX3dyaXRlX2JhcnJpZXJfZGVwZW5kcygpLiBJdCdzIG5vdCBjYWxsZWQKPiAic21wX21i
+X2RlcGVuZHMoKSIuIEl0J3MgYSB3ZWFrZXIgZm9ybSBvZiAic21wX3JtYigpIiwgbm90aGluZyBl
+bHNlLgo+IAo+IFNvIGFscGhhIGRvZXMgaGF2ZSBhbiBpbXBsaWVkIGRlcGVuZGVuY3kgY2hhaW4g
+ZnJvbSBhIHJlYWQgdG8gYQo+IHN1YnNlcXVlbnQgZGVwZW5kZW50IHdyaXRlLCBhbmQgZG9lcyBu
+b3QgbmVlZCBhbnkgZXh0cmEgYmFycmllcnMuCj4gCj4gQWxwaGEgZG9lcyAqbm90KiBoYXZlIGEg
+ZGVwZW5kZW5jeSBjaGFpbiBmcm9tIGEgcmVhZCB0byBhIHN1YnNlcXVlbnQKPiByZWFkLCB3aGlj
+aCBpcyB3aHkgd2UgbmVlZCB0aGF0IGhvcnJpYmxlIGNyYXBweQo+IHNtcF9yZWFkX2JhcnJpZXJf
+ZGVwZW5kcygpLiBCdXQgaXQncyB0aGUgb25seSByZWFzb24uCj4gCj4gVGhpcyBpcyB0aGUgYWxw
+aGEgcmVmZXJlbmNlIG1hbnVhbCB3cnQgcmVhZC10by13cml0ZSBkZXBlbmRlbmN5Ogo+IAo+ICAg
+NS42LjEuNyBEZWZpbml0aW9uIG9mIERlcGVuZGVuY2UgQ29uc3RyYWludAo+IAo+ICAgICBUaGUg
+ZGVwZW5kcyByZWxhdGlvbiAoRFApIGlzIGRlZmluZWQgYXMgZm9sbG93cy4gR2l2ZW4gdSBhbmQg
+dgo+IGlzc3VlZCBieSBwcm9jZXNzb3IgUGksIHdoZXJlIHUKPiAgICAgaXMgYSByZWFkIG9yIGFu
+IGluc3RydWN0aW9uIGZldGNoIGFuZCB2IGlzIGEgd3JpdGUsIHUgcHJlY2VkZXMgdgo+IGluIERQ
+IG9yZGVyICh3cml0dGVuIHUgRFAgdiwgdGhhdAo+ICAgICBpcywgdiBkZXBlbmRzIG9uIHUpIGlu
+IGVpdGhlciBvZiB0aGUgZm9sbG93aW5nIHNpdHVhdGlvbnM6Cj4gCj4gICAgICDigKIgdSBkZXRl
+cm1pbmVzIHRoZSBleGVjdXRpb24gb2YgdiwgdGhlIGxvY2F0aW9uIGFjY2Vzc2VkIGJ5IHYsIG9y
+Cj4gdGhlIHZhbHVlIHdyaXR0ZW4gYnkgdi4KPiAgICAgIOKAoiB1IGRldGVybWluZXMgdGhlIGV4
+ZWN1dGlvbiBvciBhZGRyZXNzIG9yIHZhbHVlIG9mIGFub3RoZXIKPiBtZW1vcnkgYWNjZXNzIHog
+dGhhdCBwcmVjZWRlcwo+IAo+ICAgICB2IG9yIG1pZ2h0IHByZWNlZGUgdiAodGhhdCBpcywgd291
+bGQgcHJlY2VkZSB2IGluIHNvbWUgZXhlY3V0aW9uCj4gcGF0aCBkZXBlbmRpbmcKPiAgICAgb24g
+dGhlIHZhbHVlIHJlYWQgYnkgdSkgYnkgcHJvY2Vzc29yIGlzc3VlIGNvbnN0cmFpbnQgKHNlZSBT
+ZWN0aW9uIDUuNi4xLjMpLgo+IAo+IE5vdGUgdGhhdCB0aGUgZGVwZW5kZW5jZSBiYXJyaWVyIGhv
+bm9ycyBub3Qgb25seSBjb250cm9sIGZsb3csIGJ1dAo+IGFkZHJlc3MgYW5kIGRhdGEgdmFsdWVz
+IHRvby4gIFRoaXMgaXMgYSBkaWZmZXJlbnQgc3ludGF4IHRoYW4gd2UgdXNlLAo+IGJ1dCAndScg
+aXMgdGhlIFJFQURfT05DRSwgYW5kICd2JyBpcyB0aGUgd3JpdGUuIEFueSBkYXRhLCBhZGRyZXNz
+IG9yCj4gY29uZGl0aW9uYWwgZGVwZW5kZW5jeSBiZXR3ZWVuIHRoZSB0d28gaW1wbGllcyBhbiBv
+cmRlcmluZy4KPiAKPiBTbyBubywgInNtcF9yZWFkX2JhcnJpZXJfZGVwZW5kcygpIiBpcyAqT05M
+WSogYWJvdXQgdHdvIHJlYWRzLCB3aGVyZQo+IHRoZSBzZWNvbmQgcmVhZCBpcyBkYXRhLWRlcGVu
+ZGVudCBvbiB0aGUgZmlyc3QuIE5vdGhpbmcgZWxzZS4KPiAKPiBTbyBpZiB5b3UgX2V2ZXJfIHNl
+ZSBhICJzbXBfcmVhZF9iYXJyaWVyX2RlcGVuZHMoKSIgdGhhdCBpc24ndCBhYm91dCBhCj4gYmFy
+cmllciBiZXR3ZWVuIHR3byByZWFkcywgdGhlbiB0aGF0IGlzIGEgYnVnLgoKQW5kIHRoZSBzbXBf
+cmVhZF9iYXJyaWVyX2RlcGVuZHMoKSBpbiBib3RoIHJjdV9kZXJlZmVyZW5jZSgpIGFuZAppbiBs
+b2NrbGVzc19kZXJlZmVyZW5jZSgpIGlzIG9yZGVyaW5nIHRoZSByZWFkLXRvLXJlYWQgY2FzZSBh
+bmQgdGhlCnVuZGVybHlpbmcgaGFyZHdhcmUgaXMgb3JkZXJpbmcgdGhlIHJlYWQtdG8td3JpdGUg
+Y2FzZSBvbiB3ZWFrbHkgb3JkZXJlZApoYXJkd2FyZS4KCk9yLCBhZ2FpbiwgYW0gSSBtaXNzaW5n
+IHlvdXIgcG9pbnQ/CgoJCQkJCQkJVGhhbngsIFBhdWwKCj4gVGhlIGFib3ZlIGNvZGUgaXMgY3Jh
+cC4gIEl0J3MgZXhhY3RseSBhcyBtdWNoIGNyYXAgYXMKPiAKPiAgICBhID0gUkVBRF9PTkNFKHgp
+Owo+ICAgIHNtcF9ybWIoKTsKPiAgICBXUklURV9PTkNFKGIsIHkpOwo+IAo+IGJlY2F1c2UgYSAi
+cm1iKCkiIHNpbXBseSBkb2Vzbid0IGhhdmUgYW55dGhpbmcgdG8gZG8gd2l0aAo+IHJlYWQtdnMt
+c3Vic2VxdWVudC13cml0ZSBvcmRlcmluZy4KPiAKPiAgICAgICAgICAgICAgICAgIExpbnVzCj4g
+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
+aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
+bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
+dmlydHVhbGl6YXRpb24=
