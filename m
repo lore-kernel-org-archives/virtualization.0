@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v4 3/5] x86: tweak the comment about use of wmb for IO
-Date: Wed, 27 Jan 2016 17:10:28 +0200
-Message-ID: <1453904765-11073-4-git-send-email-mst@redhat.com>
+Subject: [PATCH v4 4/5] x86: use mb() around clflush
+Date: Wed, 27 Jan 2016 17:10:33 +0200
+Message-ID: <1453904765-11073-5-git-send-email-mst@redhat.com>
 References: <1453904765-11073-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,33 +19,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Davidlohr Bueso <dave@stgolabs.net>, Arnd Bergmann <arnd@arndb.de>, Davidlohr Bueso <dbueso@suse.de>, Peter Zijlstra <peterz@infradead.org>, Andrey Konovalov <andreyknvl@google.com>, the arch/x86 maintainers <x86@kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Borislav Petkov <bp@suse.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>
+Cc: Len Brown <len.brown@intel.com>, Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, Oleg Nesterov <oleg@redhat.com>, virtualization <virtualization@lists.linux-foundation.org>, Mike Galbraith <bitbucket@online.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On x86, we *do* still use the non-nop rmb/wmb for IO barriers, but even
-that is generally questionable.
+commit f8e617f4582995f7c25ef25b4167213120ad122b ("sched/idle/x86:
+Optimize unnecessary mwait_idle() resched IPIs") adds
+memory barriers around clflush, but this seems wrong
+for UP since barrier() has no effect on clflush.
+We really want mfence so switch to mb() instead.
 
-Leave them around as historial unless somebody can point to a case where
-they care about the performance, but tweak the comment so people
-don't think they are strictly required in all cases.
-
+Cc: Mike Galbraith <bitbucket@online.de>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- arch/x86/include/asm/barrier.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/process.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/barrier.h b/arch/x86/include/asm/barrier.h
-index a291745..bfb28ca 100644
---- a/arch/x86/include/asm/barrier.h
-+++ b/arch/x86/include/asm/barrier.h
-@@ -6,7 +6,7 @@
+diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
+index 9f7c21c..9decee2 100644
+--- a/arch/x86/kernel/process.c
++++ b/arch/x86/kernel/process.c
+@@ -418,9 +418,9 @@ static void mwait_idle(void)
+ 	if (!current_set_polling_and_test()) {
+ 		trace_cpu_idle_rcuidle(1, smp_processor_id());
+ 		if (this_cpu_has(X86_BUG_CLFLUSH_MONITOR)) {
+-			smp_mb(); /* quirk */
++			mb(); /* quirk */
+ 			clflush((void *)&current_thread_info()->flags);
+-			smp_mb(); /* quirk */
++			mb(); /* quirk */
+ 		}
  
- /*
-  * Force strict CPU ordering.
-- * And yes, this is required on UP too when we're talking
-+ * And yes, this might be required on UP too when we're talking
-  * to devices.
-  */
- 
+ 		__monitor((void *)&current_thread_info()->flags, 0, 0);
 -- 
 MST
