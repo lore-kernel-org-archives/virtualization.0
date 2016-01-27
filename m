@@ -1,14 +1,21 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: bonding (IEEE 802.3ad) not working with qemu/virtio
-Date: Fri, 29 Jan 2016 22:59:24 -0800 (PST)
-Message-ID: <20160129.225924.1343743091073159760.davem@davemloft.net>
-References: <56ABDA3D.8040100@cumulusnetworks.com> <28285.1454103900@famine>
-	<56ABDE2A.7010301@cumulusnetworks.com>
+From: "Maciej W. Rozycki" <macro@imgtec.com>
+Subject: Re: [v3,11/41] mips: reuse asm-generic/barrier.h
+Date: Wed, 27 Jan 2016 11:26:20 +0000
+Message-ID: <alpine.DEB.2.00.1601271116520.5958__27226.2750695974$1454179692$gmane$org@tp.orcam.me.uk>
+References: <20160113104516.GE25458@arm.com> <5696CF08.8080700@imgtec.com>
+	<20160114121449.GC15828@arm.com> <5697F6D2.60409@imgtec.com>
+	<20160114203430.GC3818@linux.vnet.ibm.com>
+	<56980C91.1010403@imgtec.com>
+	<20160114212913.GF3818@linux.vnet.ibm.com>
+	<569814F2.50801@imgtec.com> <20160114225510.GJ3818@linux.vnet.ibm.com>
+	<56983054.4070807@imgtec.com>
+	<20160115004753.GN3818@linux.vnet.ibm.com>
+	<56984642.3090106@imgtec.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <56ABDE2A.7010301@cumulusnetworks.com>
+In-Reply-To: <56984642.3090106@imgtec.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,60 +25,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: nikolay@cumulusnetworks.com
-Cc: jiri@resnulli.us, mst@redhat.com, gospo@cumulusnetworks.com, virtualization@lists.linux-foundation.org, bjornar.ness@gmail.com, vfalico@gmail.com, netdev@vger.kernel.org, jay.vosburgh@canonical.com
+To: Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, user-mode-linux-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, paulmck@linux.vnet.ibm.com, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, ddaney.cavm@gmail.com, Thomas Gleixner <tglx@linutronix.de>, linux-me
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Fri, 29 Jan 2016 22:48:26 +0100
+On Fri, 15 Jan 2016, Leonid Yegoshin wrote:
 
-> On 01/29/2016 10:45 PM, Jay Vosburgh wrote:
->> Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
->> =
+> > So you need to build a different kernel for some types of MIPS systems?
+> > Or do you do boot-time rewriting, like a number of other arches do?
+> 
+> I don't know. I would like to have responses. Ralf asked Maciej about old
+> systems and that came nowhere. Even rewrite - don't know what to do with that:
+> no lightweight SYNC or no SYNC at all - yes, it is still possible that SYNC on
+> some systems can be too heavy or even harmful, nobody tested that.
 
->>> On 01/25/2016 05:24 PM, Bj=F8rnar Ness wrote:
->>>> As subject says, 802.3ad bonding is not working with virtio network mo=
-del.
->>>>
->>>> The only errors I see is:
->>>>
->>>> No 802.3ad response from the link partner for any adapters in the bond.
->>>>
->>>> Dumping the network traffic shows that no LACP packets are sent from t=
-he
->>>> host running with virtio driver, changing to for example e1000 solves
->>>> this problem
->>>> with no configuration changes.
->>>>
->>>> Is this a known problem?
->>>>
->>> [Including bonding maintainers for comments]
->>>
->>> Hi,
->>> Here's a workaround patch for virtio_net devices that "cheats" the
->>> duplex test (which is the actual problem). I've tested this locally
->>> and it works for me.
->>> I'd let the others comment on the implementation, there're other signs
->>> that can be used to distinguish a virtio_net device so I'm open to sugg=
-estions.
->>> Also feedback if this is at all acceptable would be appreciated.
->> =
+ I don't recall being asked; mind that I might not get to messages I have 
+not been cc-ed in a timely manner and I may miss some altogether.  With 
+the amount of mailing list traffic that passes by me my scanner may fail 
+to trigger.  Sorry if this causes anybody trouble, but such is life.
 
->> 	Should virtio instead provide an arbitrary speed and full duplex
->> to ethtool, as veth does?
->> =
+ Coincidentally, I have just posted some notes on SYNC in a different 
+thread, see <http://lkml.iu.edu/hypermail/linux/kernel/1601.3/03080.html>.  
+There's a reference to an older message of mine there too.  I hope this 
+answers your questions.
 
->> 	Creating a magic whitelist of devices deep inside the 802.3ad
->> implementation seems less desirable.
->> =
-
-> TBH, I absolutely agree. In fact here's what we've been doing:
-> add set_settings which allows the user to set any speed/duplex
-> and get_settings of course to retrieve that. This is also useful
-> for testing other stuff that requires speed and duplex, not only
-> for the bonding case.
-
-I also agree.  Having a whitelist is just rediculous.
-
-There should be a default speed/duplex setting for such devices as well.
-We can pick one that will be use universally for these kinds of devices.
+  Maciej
