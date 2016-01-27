@@ -1,23 +1,14 @@
-From: David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH] documentation: Add disclaimer
-Date: Wed, 27 Jan 2016 14:57:07 +0000
-Message-ID: <15882.1453906627__5102.29602591625$1453906780$gmane$org@warthog.procyon.org.uk>
-References: <20160127083546.GJ6357@twins.programming.kicks-ass.net>
-	<5696BA6E.4070508@imgtec.com> <20160114120445.GB15828@arm.com>
-	<56980145.5030901@imgtec.com>
-	<20160114204827.GE3818@linux.vnet.ibm.com>
-	<56981212.7050301@imgtec.com>
-	<20160114222046.GH3818@linux.vnet.ibm.com>
-	<20160126102402.GE6357@twins.programming.kicks-ass.net>
-	<20160126103200.GI6375@twins.programming.kicks-ass.net>
-	<20160126110053.GA21553@arm.com>
-	<20160126201143.GV4503@linux.vnet.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH v4 2/5] x86: drop a comment left over from X86_OOSTORE
+Date: Wed, 27 Jan 2016 17:10:22 +0200
+Message-ID: <1453904765-11073-3-git-send-email-mst@redhat.com>
+References: <1453904765-11073-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160127083546.GJ6357@twins.programming.kicks-ass.net>
-Content-ID: <15881.1453906627.1@warthog.procyon.org.uk>
+Content-Disposition: inline
+In-Reply-To: <1453904765-11073-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,48 +18,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, dhowells@redhat.com, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, user-mode-linux-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>, ddaney.cavm@gmail.c
+To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Davidlohr Bueso <dave@stgolabs.net>, Arnd Bergmann <arnd@arndb.de>, Davidlohr Bueso <dbueso@suse.de>, Peter Zijlstra <peterz@infradead.org>, Andrey Konovalov <andreyknvl@google.com>, the arch/x86 maintainers <x86@kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Borislav Petkov <bp@suse.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Peter Zijlstra <peterz@infradead.org> wrote:
+The comment about wmb being non-nop to deal with non-intel CPUs is a
+left over from before commit 09df7c4c8097 ("x86: Remove
+CONFIG_X86_OOSTORE").
 
-> +==========
-> +DISCLAIMER
-> +==========
-> +
-> +This document is not a specification; it is intentionally (for the sake of
-> +brevity) and unintentionally (due to being human) incomplete. This document is
-> +meant as a guide to using the various memory barriers provided by Linux, but
-> +in case of any doubt (and there are many) please ask.
-> +
-> +I repeat, this document is not a specification of what Linux expects from
-> +hardware.
+It makes no sense now: in particular, wmb is not a nop even for regular
+intel CPUs because of weird use-cases e.g. dealing with WC memory.
 
-The purpose of this document is twofold:
+Drop this comment.
 
- (1) to specify the minimum functionality that one can rely on for any
-     particular barrier, and
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ arch/x86/include/asm/barrier.h | 4 ----
+ 1 file changed, 4 deletions(-)
 
- (2) to provide a guide as to how to use the barriers that are available.
-
-Note that an architecture can provide more than the minimum requirement for
-any particular barrier, but if the barrier provides less than that, it is
-incorrect.
-
-Note also that it is possible that a barrier may be a no-op for an
-architecture because the way that arch works renders an explicit barrier
-unnecessary in that case.
-
-> +
-
-Can you bung an extra blank line in here if you have to redo this at all?
-
-> +========
-> +CONTENTS
-> +========
->  
->   (*) Abstract memory access model.
->  
-
-David
+diff --git a/arch/x86/include/asm/barrier.h b/arch/x86/include/asm/barrier.h
+index a65bdb1..a291745 100644
+--- a/arch/x86/include/asm/barrier.h
++++ b/arch/x86/include/asm/barrier.h
+@@ -11,10 +11,6 @@
+  */
+ 
+ #ifdef CONFIG_X86_32
+-/*
+- * Some non-Intel clones support out of order store. wmb() ceases to be a
+- * nop for these.
+- */
+ #define mb() asm volatile(ALTERNATIVE("lock; addl $0,0(%%esp)", "mfence", \
+ 				      X86_FEATURE_XMM2) ::: "memory", "cc")
+ #define rmb() asm volatile(ALTERNATIVE("lock; addl $0,0(%%esp)", "lfence", \
+-- 
+MST
