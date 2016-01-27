@@ -1,16 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v4 5/5] x86: drop mfence in favor of lock+addl
-Date: Wed, 27 Jan 2016 19:56:37 +0200
-Message-ID: <20160127195314-mutt-send-email-mst@redhat.com>
-References: <1453904765-11073-1-git-send-email-mst@redhat.com>
-	<1453904765-11073-6-git-send-email-mst@redhat.com>
-	<CA+55aFzcDiKjz8yzRf9ET7Qc-qeNFP5bO0qW7o2cB9G9=yXHng@mail.gmail.com>
+Subject: [PULL] virtio: fixes, tests
+Date: Wed, 27 Jan 2016 21:12:16 +0200
+Message-ID: <20160127211216-mutt-send-email-mst__45649.7278916233$1453921961$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CA+55aFzcDiKjz8yzRf9ET7Qc-qeNFP5bO0qW7o2cB9G9=yXHng@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,22 +17,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, Peter Zijlstra <peterz@infradead.org>, Andrey Konovalov <andreyknvl@google.com>, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Andy Lutomirski <luto@amacapital.net>, Borislav Petkov <bp@alien8.de>, Borislav Petkov <bp@suse.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, Ingo Molnar <mingo@kernel.org>
+Cc: jmarchan@redhat.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, kamal@canonical.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, sasha.levin@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 27, 2016 at 09:37:45AM -0800, Linus Torvalds wrote:
-> On Wed, Jan 27, 2016 at 7:10 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > -#define __smp_mb()     mb()
-> > +#define __smp_mb()     asm volatile("lock; addl $0,-4(%%esp)" ::: "memory", "cc")
-> 
-> So this doesn't look right for x86-64. Using %esp rather than %rsp.
-> How did that even work for you?
-> 
->                 Linus
+The following changes since commit 92e963f50fc74041b5e9e744c330dca48e04f08d:
 
-Oops, didn't test this version properly.
-Pls disregard, I'll repost after some proper testing.
+  Linux 4.5-rc1 (2016-01-24 13:06:47 -0800)
 
--- 
-MST
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to 481eaec37e91e2b33f17275901172f50ce2c71e8:
+
+  tools/virtio: add ringtest utilities (2016-01-26 10:18:30 +0200)
+
+----------------------------------------------------------------
+virtio: fixes, tests
+
+This fixes existing tests broken by barrier rework,
+and adds some new tests.
+Plus, there's a fix for an old bug in virtio-pci.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Michael S. Tsirkin (4):
+      virtio_pci: fix use after free on release
+      tools/virtio: use virt_xxx barriers
+      sh: fix smp_store_mb for !SMP
+      tools/virtio: add ringtest utilities
+
+ arch/sh/include/asm/barrier.h            |   1 -
+ tools/virtio/asm/barrier.h               |  22 +-
+ tools/virtio/linux/compiler.h            |   9 +
+ tools/virtio/linux/kernel.h              |   1 +
+ tools/virtio/ringtest/main.h             | 119 ++++++++++
+ drivers/virtio/virtio_pci_common.c       |   2 +
+ tools/virtio/ringtest/main.c             | 366 +++++++++++++++++++++++++++++++
+ tools/virtio/ringtest/ring.c             | 272 +++++++++++++++++++++++
+ tools/virtio/ringtest/virtio_ring_0_9.c  | 316 ++++++++++++++++++++++++++
+ tools/virtio/ringtest/virtio_ring_poll.c |   2 +
+ tools/virtio/ringtest/Makefile           |  22 ++
+ tools/virtio/ringtest/README             |   2 +
+ tools/virtio/ringtest/run-on-all.sh      |  24 ++
+ 13 files changed, 1148 insertions(+), 10 deletions(-)
+ create mode 100644 tools/virtio/linux/compiler.h
+ create mode 100644 tools/virtio/ringtest/main.h
+ create mode 100644 tools/virtio/ringtest/main.c
+ create mode 100644 tools/virtio/ringtest/ring.c
+ create mode 100644 tools/virtio/ringtest/virtio_ring_0_9.c
+ create mode 100644 tools/virtio/ringtest/virtio_ring_poll.c
+ create mode 100644 tools/virtio/ringtest/Makefile
+ create mode 100644 tools/virtio/ringtest/README
+ create mode 100755 tools/virtio/ringtest/run-on-all.sh
