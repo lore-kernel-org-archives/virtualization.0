@@ -1,23 +1,15 @@
-From: Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>
-Subject: Re: [v3,11/41] mips: reuse asm-generic/barrier.h
-Date: Wed, 27 Jan 2016 16:58:39 -0800
-Message-ID: <56A967BF.70200@imgtec.com>
-References: <20160113104516.GE25458@arm.com> <5696CF08.8080700@imgtec.com>
-	<20160114121449.GC15828@arm.com> <5697F6D2.60409@imgtec.com>
-	<20160114203430.GC3818@linux.vnet.ibm.com>
-	<56980C91.1010403@imgtec.com>
-	<20160114212913.GF3818@linux.vnet.ibm.com>
-	<569814F2.50801@imgtec.com>
-	<20160114225510.GJ3818@linux.vnet.ibm.com>
-	<56983054.4070807@imgtec.com>
-	<20160115004753.GN3818@linux.vnet.ibm.com>
-	<56984642.3090106@imgtec.com>
-	<alpine.DEB.2.00.1601271116520.5958@tp.orcam.me.uk>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PULL] virtio: fixes, tests
+Date: Thu, 28 Jan 2016 00:15:39 +0200
+Message-ID: <20160128001448-mutt-send-email-mst@redhat.com>
+References: <20160127211216-mutt-send-email-mst@redhat.com>
+	<CA+55aFzypP2SDdX7y8MpZGKhmLJot=UT4i328CYBcNQsP2VU+Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.DEB.2.00.1601271116520.5958@tp.orcam.me.uk>
+Content-Disposition: inline
+In-Reply-To: <CA+55aFzypP2SDdX7y8MpZGKhmLJot=UT4i328CYBcNQsP2VU+Q@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,54 +19,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Maciej W. Rozycki" <macro@imgtec.com>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, user-mode-linux-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, paulmck@linux.vnet.ibm.com, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, ddaney.cavm@gmail.com, Thomas Gleixner <tglx@linutronix.de>, linux-me
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: jmarchan@redhat.com, KVM list <kvm@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Kamal Mostafa <kamal@canonical.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Sasha Levin <sasha.levin@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/27/2016 03:26 AM, Maciej W. Rozycki wrote:
-> On Fri, 15 Jan 2016, Leonid Yegoshin wrote:
->
->>> So you need to build a different kernel for some types of MIPS systems?
->>> Or do you do boot-time rewriting, like a number of other arches do?
->> I don't know. I would like to have responses. Ralf asked Maciej about old
->> systems and that came nowhere. Even rewrite - don't know what to do with that:
->> no lightweight SYNC or no SYNC at all - yes, it is still possible that SYNC on
->> some systems can be too heavy or even harmful, nobody tested that.
->   I don't recall being asked; mind that I might not get to messages I have
-> not been cc-ed in a timely manner and I may miss some altogether.  With
-> the amount of mailing list traffic that passes by me my scanner may fail
-> to trigger.  Sorry if this causes anybody trouble, but such is life.
->
->   Coincidentally, I have just posted some notes on SYNC in a different
-> thread, see <http://lkml.iu.edu/hypermail/linux/kernel/1601.3/03080.html>.
-> There's a reference to an older message of mine there too.  I hope this
-> answers your questions.
->
->    Maciej
-In http://patchwork.linux-mips.org/patch/10505/the very last mesg 
-exchange is:
+On Wed, Jan 27, 2016 at 11:57:52AM -0800, Linus Torvalds wrote:
+> On Wed, Jan 27, 2016 at 11:12 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> >  arch/sh/include/asm/barrier.h            |   1 -
+> >  tools/virtio/asm/barrier.h               |  22 +-
+> >  tools/virtio/linux/compiler.h            |   9 +
+> >  tools/virtio/linux/kernel.h              |   1 +
+> >  tools/virtio/ringtest/main.h             | 119 ++++++++++
+> >  drivers/virtio/virtio_pci_common.c       |   2 +
+> >  tools/virtio/ringtest/main.c             | 366 +++++++++++++++++++++++++++++++
+> >  tools/virtio/ringtest/ring.c             | 272 +++++++++++++++++++++++
+> >  tools/virtio/ringtest/virtio_ring_0_9.c  | 316 ++++++++++++++++++++++++++
+> >  tools/virtio/ringtest/virtio_ring_poll.c |   2 +
+> >  tools/virtio/ringtest/Makefile           |  22 ++
+> >  tools/virtio/ringtest/README             |   2 +
+> >  tools/virtio/ringtest/run-on-all.sh      |  24 ++
+> >  13 files changed, 1148 insertions(+), 10 deletions(-)
+> 
+> How the heck did you generate that diffstat? The names should be
+> ordered, and are for me.
+> 
+> Anyway, pulled. Just curious about how that thing happened.
+> 
+>              Linus
 
-Maciej,
+That's because apparently diffstat obeys orderfile rules:
 
-do you have an R4000 / R4600 / R5000 / R7000 / SiByte system at hand to
-test this?
-...
-   Ralf
+[diff]
+        renames = true
+        orderfile = "/home/mst/.gitorderfile"
 
-Maciej W. Rozycki- June 5, 2015, 9:18 p.m.
-
-On Fri, 5 Jun 2015, Ralf Baechle wrote:
-
-> do you have an R4000 / R4600 / R5000 / R7000 / SiByte system at hand to
-> test this?
-
-  I should be able to check R4400 (that is virtually the same as R4000)
-next week or so.  As to SiByte -- not before next month I'm afraid.  I
-don't have access to any of the other processors you named.  You may
-want to find a better person if you want to accept this change soon.
-
-   Maciej
-
-... and that stops forever...
-
-- Leonid.
+$ cat .gitorderfile 
+configure
+Makefile*
+*.json
+*.h
+*.c
