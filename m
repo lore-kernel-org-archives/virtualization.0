@@ -1,19 +1,23 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 0/3] x86: faster mb()+other barrier.h tweaks
-Date: Wed, 27 Jan 2016 16:18:45 +0200
-Message-ID: <20160127161731-mutt-send-email-mst@redhat.com>
-References: <1452635935-5439-1-git-send-email-mst@redhat.com>
-	<56957D54.5000602@zytor.com>
-	<20160126101921-mutt-send-email-mst@redhat.com>
-	<56A7E722.7030701@zytor.com>
-	<20160127120222-mutt-send-email-mst@redhat.com>
-	<20160127141409.GQ6357@twins.programming.kicks-ass.net>
+From: David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH] documentation: Add disclaimer
+Date: Wed, 27 Jan 2016 14:57:07 +0000
+Message-ID: <15882.1453906627__5102.29602591625$1453906780$gmane$org@warthog.procyon.org.uk>
+References: <20160127083546.GJ6357@twins.programming.kicks-ass.net>
+	<5696BA6E.4070508@imgtec.com> <20160114120445.GB15828@arm.com>
+	<56980145.5030901@imgtec.com>
+	<20160114204827.GE3818@linux.vnet.ibm.com>
+	<56981212.7050301@imgtec.com>
+	<20160114222046.GH3818@linux.vnet.ibm.com>
+	<20160126102402.GE6357@twins.programming.kicks-ass.net>
+	<20160126103200.GI6375@twins.programming.kicks-ass.net>
+	<20160126110053.GA21553@arm.com>
+	<20160126201143.GV4503@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160127141409.GQ6357@twins.programming.kicks-ass.net>
+In-Reply-To: <20160127083546.GJ6357@twins.programming.kicks-ass.net>
+Content-ID: <15881.1453906627.1@warthog.procyon.org.uk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,22 +28,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Peter Zijlstra <peterz@infradead.org>
-Cc: Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, the arch/x86 maintainers <x86@kernel.org>, linux-kernel@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, dhowells@redhat.com, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, user-mode-linux-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>, ddaney.cavm@gmail.c
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 27, 2016 at 03:14:09PM +0100, Peter Zijlstra wrote:
-> On Wed, Jan 27, 2016 at 04:07:56PM +0200, Michael S. Tsirkin wrote:
-> > mwait_idle is the only one that calls smp_mb and not mb()
-> > I couldn't figure out why - original patches did mb()
-> > there.
-> 
-> That probably wants changing. That said, running UP kernels on affected
-> hardware is 'unlikely' :-)
+Peter Zijlstra <peterz@infradead.org> wrote:
 
-OK that's nice. After changing that one place, everyone calls
-mb() around clflush so it should be safe to change smp_mb away
-from mfence without breaking things.
-I'm testing v4 that does this.
+> +==========
+> +DISCLAIMER
+> +==========
+> +
+> +This document is not a specification; it is intentionally (for the sake of
+> +brevity) and unintentionally (due to being human) incomplete. This document is
+> +meant as a guide to using the various memory barriers provided by Linux, but
+> +in case of any doubt (and there are many) please ask.
+> +
+> +I repeat, this document is not a specification of what Linux expects from
+> +hardware.
 
--- 
-MST
+The purpose of this document is twofold:
+
+ (1) to specify the minimum functionality that one can rely on for any
+     particular barrier, and
+
+ (2) to provide a guide as to how to use the barriers that are available.
+
+Note that an architecture can provide more than the minimum requirement for
+any particular barrier, but if the barrier provides less than that, it is
+incorrect.
+
+Note also that it is possible that a barrier may be a no-op for an
+architecture because the way that arch works renders an explicit barrier
+unnecessary in that case.
+
+> +
+
+Can you bung an extra blank line in here if you have to redo this at all?
+
+> +========
+> +CONTENTS
+> +========
+>  
+>   (*) Abstract memory access model.
+>  
+
+David
