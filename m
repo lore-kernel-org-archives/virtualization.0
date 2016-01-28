@@ -1,15 +1,23 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v5 4/5] x86: use mb() around clflush
-Date: Thu, 28 Jan 2016 19:25:41 +0100
-Message-ID: <20160128182541.GW6356__32722.3839740784$1454005580$gmane$org@twins.programming.kicks-ass.net>
-References: <1453921746-16178-1-git-send-email-mst@redhat.com>
-	<1453921746-16178-5-git-send-email-mst@redhat.com>
+From: David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH] documentation: Add disclaimer
+Date: Thu, 28 Jan 2016 20:02:14 +0000
+Message-ID: <17497.1454011334__11147.3395525993$1454011365$gmane$org@warthog.procyon.org.uk>
+References: <20160127233504.GP4503@linux.vnet.ibm.com>
+	<20160114120445.GB15828@arm.com> <56980145.5030901@imgtec.com>
+	<20160114204827.GE3818@linux.vnet.ibm.com>
+	<56981212.7050301@imgtec.com>
+	<20160114222046.GH3818@linux.vnet.ibm.com>
+	<20160126102402.GE6357@twins.programming.kicks-ass.net>
+	<20160126103200.GI6375@twins.programming.kicks-ass.net>
+	<20160126110053.GA21553@arm.com>
+	<20160126201143.GV4503@linux.vnet.ibm.com>
+	<15882.1453906627@warthog.procyon.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1453921746-16178-5-git-send-email-mst@redhat.com>
+In-Reply-To: <20160127233504.GP4503@linux.vnet.ibm.com>
+Content-ID: <17496.1454011334.1@warthog.procyon.org.uk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,18 +27,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Len Brown <len.brown@intel.com>, Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, Mike Galbraith <bitbucket@online.de>, the arch/x86 maintainers <x86@kernel.org>, Oleg Nesterov <oleg@redhat.com>, linux-kernel@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
+To: paulmck@linux.vnet.ibm.com
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, dhowells@redhat.com, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, user-mode-linux-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>, ddaney.cavm@gmail.com, Thomas
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 28, 2016 at 07:02:51PM +0200, Michael S. Tsirkin wrote:
-> commit f8e617f4582995f7c25ef25b4167213120ad122b ("sched/idle/x86:
-> Optimize unnecessary mwait_idle() resched IPIs") adds
-> memory barriers around clflush, but this seems wrong
-> for UP since barrier() has no effect on clflush.
-> We really want mfence so switch to mb() instead.
-> 
-> Cc: Mike Galbraith <bitbucket@online.de>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Paul E. McKenney <paulmck@linux.vnet.ibm.com> wrote:
 
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Good point!  Would you be willing to add a Signed-off-by so I
+> can take the combined change, assuming Peter and Will are good
+> with it?
+
+Sure!
+
+David
