@@ -1,23 +1,14 @@
-From: "Maciej W. Rozycki" <macro@imgtec.com>
-Subject: Re: [v3,11/41] mips: reuse asm-generic/barrier.h
-Date: Fri, 29 Jan 2016 13:38:59 +0000
-Message-ID: <alpine.DEB.2.00.1601291333130.5958__30420.3350017362$1454179707$gmane$org@tp.orcam.me.uk>
-References: <20160113104516.GE25458@arm.com> <5696CF08.8080700@imgtec.com>
-	<20160114121449.GC15828@arm.com> <5697F6D2.60409@imgtec.com>
-	<20160114203430.GC3818@linux.vnet.ibm.com>
-	<56980C91.1010403@imgtec.com>
-	<20160114212913.GF3818@linux.vnet.ibm.com>
-	<569814F2.50801@imgtec.com> <20160114225510.GJ3818@linux.vnet.ibm.com>
-	<56983054.4070807@imgtec.com>
-	<20160115004753.GN3818@linux.vnet.ibm.com>
-	<56984642.3090106@imgtec.com>
-	<alpine.DEB.2.00.1601271116520.5958@tp.orcam.me.uk>
-	<56A9656D.3080707@imgtec.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Subject: Re: bonding (IEEE 802.3ad) not working with qemu/virtio
+Date: Fri, 29 Jan 2016 22:48:26 +0100
+Message-ID: <56ABDE2A.7010301__8840.12817773527$1454179717$gmane$org@cumulusnetworks.com>
+References: <CAJO99TmB3957Wq3Cse7azgBxKeZ2BV6QihoyAsjUjyvzc-V8dQ@mail.gmail.com>
+	<56ABDA3D.8040100@cumulusnetworks.com> <28285.1454103900@famine>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <56A9656D.3080707@imgtec.com>
+In-Reply-To: <28285.1454103900@famine>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,19 +18,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, user-mode-linux-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, paulmck@linux.vnet.ibm.com, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, ddaney.cavm@gmail.com, Thomas Gleixner <tglx@linutronix.de>, linux-me
+To: Jay Vosburgh <jay.vosburgh@canonical.com>
+Cc: Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, =?UTF-8?Q?Bj=c3=b8rnar_Ness?= <bjornar.ness@gmail.com>, Veaceslav Falico <vfalico@gmail.com>, Andy Gospodarek <gospo@cumulusnetworks.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 28 Jan 2016, Leonid Yegoshin wrote:
-
-> In http://patchwork.linux-mips.org/patch/10505/ the very last mesg exchange
-> is:
-[...]
-> ... and that stops forever...
-
- Thanks for the reminder -- last June was very hectic, I travelled a lot 
-and I lost the discussion from my radar.  Apologies for that.  I replied 
-in that thread now with my results.  I hope this helps.
-
-  Maciej
+T24gMDEvMjkvMjAxNiAxMDo0NSBQTSwgSmF5IFZvc2J1cmdoIHdyb3RlOgo+IE5pa29sYXkgQWxl
+a3NhbmRyb3YgPG5pa29sYXlAY3VtdWx1c25ldHdvcmtzLmNvbT4gd3JvdGU6Cj4gCj4+IE9uIDAx
+LzI1LzIwMTYgMDU6MjQgUE0sIEJqw7hybmFyIE5lc3Mgd3JvdGU6Cj4+PiBBcyBzdWJqZWN0IHNh
+eXMsIDgwMi4zYWQgYm9uZGluZyBpcyBub3Qgd29ya2luZyB3aXRoIHZpcnRpbyBuZXR3b3JrIG1v
+ZGVsLgo+Pj4KPj4+IFRoZSBvbmx5IGVycm9ycyBJIHNlZSBpczoKPj4+Cj4+PiBObyA4MDIuM2Fk
+IHJlc3BvbnNlIGZyb20gdGhlIGxpbmsgcGFydG5lciBmb3IgYW55IGFkYXB0ZXJzIGluIHRoZSBi
+b25kLgo+Pj4KPj4+IER1bXBpbmcgdGhlIG5ldHdvcmsgdHJhZmZpYyBzaG93cyB0aGF0IG5vIExB
+Q1AgcGFja2V0cyBhcmUgc2VudCBmcm9tIHRoZQo+Pj4gaG9zdCBydW5uaW5nIHdpdGggdmlydGlv
+IGRyaXZlciwgY2hhbmdpbmcgdG8gZm9yIGV4YW1wbGUgZTEwMDAgc29sdmVzCj4+PiB0aGlzIHBy
+b2JsZW0KPj4+IHdpdGggbm8gY29uZmlndXJhdGlvbiBjaGFuZ2VzLgo+Pj4KPj4+IElzIHRoaXMg
+YSBrbm93biBwcm9ibGVtPwo+Pj4KPj4gW0luY2x1ZGluZyBib25kaW5nIG1haW50YWluZXJzIGZv
+ciBjb21tZW50c10KPj4KPj4gSGksCj4+IEhlcmUncyBhIHdvcmthcm91bmQgcGF0Y2ggZm9yIHZp
+cnRpb19uZXQgZGV2aWNlcyB0aGF0ICJjaGVhdHMiIHRoZQo+PiBkdXBsZXggdGVzdCAod2hpY2gg
+aXMgdGhlIGFjdHVhbCBwcm9ibGVtKS4gSSd2ZSB0ZXN0ZWQgdGhpcyBsb2NhbGx5Cj4+IGFuZCBp
+dCB3b3JrcyBmb3IgbWUuCj4+IEknZCBsZXQgdGhlIG90aGVycyBjb21tZW50IG9uIHRoZSBpbXBs
+ZW1lbnRhdGlvbiwgdGhlcmUncmUgb3RoZXIgc2lnbnMKPj4gdGhhdCBjYW4gYmUgdXNlZCB0byBk
+aXN0aW5ndWlzaCBhIHZpcnRpb19uZXQgZGV2aWNlIHNvIEknbSBvcGVuIHRvIHN1Z2dlc3Rpb25z
+Lgo+PiBBbHNvIGZlZWRiYWNrIGlmIHRoaXMgaXMgYXQgYWxsIGFjY2VwdGFibGUgd291bGQgYmUg
+YXBwcmVjaWF0ZWQuCj4gCj4gCVNob3VsZCB2aXJ0aW8gaW5zdGVhZCBwcm92aWRlIGFuIGFyYml0
+cmFyeSBzcGVlZCBhbmQgZnVsbCBkdXBsZXgKPiB0byBldGh0b29sLCBhcyB2ZXRoIGRvZXM/Cj4g
+Cj4gCUNyZWF0aW5nIGEgbWFnaWMgd2hpdGVsaXN0IG9mIGRldmljZXMgZGVlcCBpbnNpZGUgdGhl
+IDgwMi4zYWQKPiBpbXBsZW1lbnRhdGlvbiBzZWVtcyBsZXNzIGRlc2lyYWJsZS4KPiAKVEJILCBJ
+IGFic29sdXRlbHkgYWdyZWUuIEluIGZhY3QgaGVyZSdzIHdoYXQgd2UndmUgYmVlbiBkb2luZzoK
+YWRkIHNldF9zZXR0aW5ncyB3aGljaCBhbGxvd3MgdGhlIHVzZXIgdG8gc2V0IGFueSBzcGVlZC9k
+dXBsZXgKYW5kIGdldF9zZXR0aW5ncyBvZiBjb3Vyc2UgdG8gcmV0cmlldmUgdGhhdC4gVGhpcyBp
+cyBhbHNvIHVzZWZ1bApmb3IgdGVzdGluZyBvdGhlciBzdHVmZiB0aGF0IHJlcXVpcmVzIHNwZWVk
+IGFuZCBkdXBsZXgsIG5vdCBvbmx5CmZvciB0aGUgYm9uZGluZyBjYXNlLgoKSSdsbCBhZGQgdGhl
+IHZpcnRpb19uZXQgbWFpbnRhaW5lcnMgdG8gdGhlIGRpc2N1c3Npb24sIHNlZSBpZiBpdCdzCm9r
+YXkgd2l0aCBldmVyeW9uZSBhbmQgSSdsbCBtb3ZlIHRvIHNlbmQgcGF0Y2hlcyBvbmNlIG5ldC1u
+ZXh0IG9wZW5zIHVwLgoKVGhhbmtzIQoKCj4gCS1KCj4gCQo+IC0tLQo+IAktSmF5IFZvc2J1cmdo
+LCBqYXkudm9zYnVyZ2hAY2Fub25pY2FsLmNvbQo+IAoKX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
+YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
+b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
