@@ -1,21 +1,22 @@
 From: "tip-bot for Michael S. Tsirkin" <tipbot@zytor.com>
 Subject: [tip:locking/core] locking/x86:
-	Drop a comment left over from X86_OOSTORE
-Date: Fri, 29 Jan 2016 03:32:30 -0800
-Message-ID: <tip-e37cee133c72c9529f74a20d9b7eb3b6dfb928b5@git.kernel.org>
-References: <1453921746-16178-3-git-send-email-mst@redhat.com>
-Reply-To: mingo@kernel.org, linux-kernel@vger.kernel.org, peterz@infradead.org,
-	dbueso@suse.de, luto@amacapital.net,
-	virtualization@lists.linux-foundation.org, tglx@linutronix.de,
-	luto@kernel.org, hpa@zytor.com, brgerst@gmail.com, bp@alien8.de,
-	akpm@linux-foundation.org, dave@stgolabs.net,
-	torvalds@linux-foundation.org, andreyknvl@google.com, bp@suse.de,
-	mst@redhat.com, paulmck@linux.vnet.ibm.com, dvlasenk@redhat.com
+	Tweak the comment about use of wmb() for IO
+Date: Fri, 29 Jan 2016 03:32:52 -0800
+Message-ID: <tip-57d9b1b43433a6ba7267c80b87d8e8f6e86edceb@git.kernel.org>
+References: <1453921746-16178-4-git-send-email-mst@redhat.com>
+Reply-To: dvlasenk@redhat.com, bp@suse.de, luto@amacapital.net, luto@kernel.org,
+	virtualization@lists.linux-foundation.org, mingo@kernel.org,
+	akpm@linux-foundation.org, mst@redhat.com,
+	torvalds@linux-foundation.org, brgerst@gmail.com,
+	dave@stgolabs.net, paulmck@linux.vnet.ibm.com,
+	peterz@infradead.org, bp@alien8.de, dbueso@suse.de,
+	linux-kernel@vger.kernel.org, andreyknvl@google.com,
+	hpa@zytor.com, tglx@linutronix.de
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1453921746-16178-3-git-send-email-mst@redhat.com>
+In-Reply-To: <1453921746-16178-4-git-send-email-mst@redhat.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,28 +28,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-tip-commits@vger.kernel.org
-Cc: paulmck@linux.vnet.ibm.com, dvlasenk@redhat.com, akpm@linux-foundation.org, dbueso@suse.de, peterz@infradead.org, andreyknvl@google.com, mst@redhat.com, hpa@zytor.com, linux-kernel@vger.kernel.org, luto@amacapital.net, dave@stgolabs.net, bp@alien8.de, bp@suse.de, luto@kernel.org, brgerst@gmail.com, tglx@linutronix.de, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org, mingo@kernel.org
+Cc: dave@stgolabs.net, dvlasenk@redhat.com, akpm@linux-foundation.org, brgerst@gmail.com, dbueso@suse.de, peterz@infradead.org, andreyknvl@google.com, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, luto@amacapital.net, bp@alien8.de, bp@suse.de, luto@kernel.org, hpa@zytor.com, tglx@linutronix.de, paulmck@linux.vnet.ibm.com, torvalds@linux-foundation.org, mingo@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Commit-ID:  e37cee133c72c9529f74a20d9b7eb3b6dfb928b5
-Gitweb:     http://git.kernel.org/tip/e37cee133c72c9529f74a20d9b7eb3b6dfb928b5
+Commit-ID:  57d9b1b43433a6ba7267c80b87d8e8f6e86edceb
+Gitweb:     http://git.kernel.org/tip/57d9b1b43433a6ba7267c80b87d8e8f6e86edceb
 Author:     Michael S. Tsirkin <mst@redhat.com>
-AuthorDate: Thu, 28 Jan 2016 19:02:37 +0200
+AuthorDate: Thu, 28 Jan 2016 19:02:44 +0200
 Committer:  Ingo Molnar <mingo@kernel.org>
 CommitDate: Fri, 29 Jan 2016 09:40:10 +0100
 
-locking/x86: Drop a comment left over from X86_OOSTORE
+locking/x86: Tweak the comment about use of wmb() for IO
 
-The comment about wmb being non-NOP to deal with non-Intel CPUs
-is a left over from before the following commit:
+On x86, we *do* still use the non-NOP rmb()/wmb() for IO barriers,
+but even that is generally questionable.
 
-  09df7c4c8097 ("x86: Remove CONFIG_X86_OOSTORE")
-
-It makes no sense now: in particular, wmb() is not a NOP even for
-regular Intel CPUs because of weird use-cases e.g. dealing with
-WC memory.
-
-Drop this comment.
+Leave them around as historial unless somebody can point to a
+case where they care about the performance, but tweak the
+comment so people don't think they are strictly required in all
+cases.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
@@ -68,24 +66,21 @@ Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: virtualization <virtualization@lists.linux-foundation.org>
-Link: http://lkml.kernel.org/r/1453921746-16178-3-git-send-email-mst@redhat.com
+Link: http://lkml.kernel.org/r/1453921746-16178-4-git-send-email-mst@redhat.com
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 ---
- arch/x86/include/asm/barrier.h | 4 ----
- 1 file changed, 4 deletions(-)
+ arch/x86/include/asm/barrier.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/x86/include/asm/barrier.h b/arch/x86/include/asm/barrier.h
-index a65bdb1..a291745 100644
+index a291745..bfb28ca 100644
 --- a/arch/x86/include/asm/barrier.h
 +++ b/arch/x86/include/asm/barrier.h
-@@ -11,10 +11,6 @@
-  */
+@@ -6,7 +6,7 @@
  
- #ifdef CONFIG_X86_32
--/*
-- * Some non-Intel clones support out of order store. wmb() ceases to be a
-- * nop for these.
-- */
- #define mb() asm volatile(ALTERNATIVE("lock; addl $0,0(%%esp)", "mfence", \
- 				      X86_FEATURE_XMM2) ::: "memory", "cc")
- #define rmb() asm volatile(ALTERNATIVE("lock; addl $0,0(%%esp)", "lfence", \
+ /*
+  * Force strict CPU ordering.
+- * And yes, this is required on UP too when we're talking
++ * And yes, this might be required on UP too when we're talking
+  * to devices.
+  */
