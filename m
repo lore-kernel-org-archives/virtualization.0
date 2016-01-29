@@ -1,22 +1,23 @@
 From: "Maciej W. Rozycki" <macro@imgtec.com>
 Subject: Re: [v3,11/41] mips: reuse asm-generic/barrier.h
-Date: Wed, 27 Jan 2016 12:09:32 +0000
-Message-ID: <alpine.DEB.2.00.1601271126350.5958__16635.1862870672$1454179697$gmane$org@tp.orcam.me.uk>
-References: <5696CF08.8080700@imgtec.com> <20160114121449.GC15828@arm.com>
-	<5697F6D2.60409@imgtec.com>
+Date: Fri, 29 Jan 2016 13:38:59 +0000
+Message-ID: <alpine.DEB.2.00.1601291333130.5958__30420.3350017362$1454179707$gmane$org@tp.orcam.me.uk>
+References: <20160113104516.GE25458@arm.com> <5696CF08.8080700@imgtec.com>
+	<20160114121449.GC15828@arm.com> <5697F6D2.60409@imgtec.com>
 	<20160114203430.GC3818@linux.vnet.ibm.com>
 	<56980C91.1010403@imgtec.com>
 	<20160114212913.GF3818@linux.vnet.ibm.com>
-	<569814F2.50801@imgtec.com>
-	<20160114225510.GJ3818@linux.vnet.ibm.com>
+	<569814F2.50801@imgtec.com> <20160114225510.GJ3818@linux.vnet.ibm.com>
 	<56983054.4070807@imgtec.com>
 	<20160115004753.GN3818@linux.vnet.ibm.com>
-	<20160127104032.GB2939@linux-mips.org>
+	<56984642.3090106@imgtec.com>
+	<alpine.DEB.2.00.1601271116520.5958@tp.orcam.me.uk>
+	<56A9656D.3080707@imgtec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160127104032.GB2939@linux-mips.org>
+In-Reply-To: <56A9656D.3080707@imgtec.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,57 +27,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, user-mode-linux-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>
+To: Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, user-mode-linux-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, paulmck@linux.vnet.ibm.com, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, ddaney.cavm@gmail.com, Thomas Gleixner <tglx@linutronix.de>, linux-me
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 27 Jan 2016, Ralf Baechle wrote:
+On Thu, 28 Jan 2016, Leonid Yegoshin wrote:
 
-> > So you need to build a different kernel for some types of MIPS systems?
-> 
-> Yes.  We can't really do without.  Classic MIPS code is not relocatable
-> without the complexity of PIC code as used by ELF DSOs - and their
-> performanc penalty.  Plus we have a number of architecture revisions
-> ovr the decades, big and little endian, 32 and 64 bit as the major
-> stumbling stones.  There however are groups of similar systems that
-> can share kernel binaries.
+> In http://patchwork.linux-mips.org/patch/10505/ the very last mesg exchange
+> is:
+[...]
+> ... and that stops forever...
 
- Matt (cc-ed) has recently posted patches to add support for a relocatable 
-kernel, implemented without the usual overhead of PIC code.  It works by 
-retaining relocations in a fully-linked binary and then simply replaying 
-the work the static linker does when assigning addresses, as the image 
-loaded is copied to its intended destination at an early bootstrap stage.  
-See: 
-<http://www.linux-mips.org/cgi-bin/mesg.cgi?a=linux-mips&i=1449137297-30464-1-git-send-email-matt.redfearn%40imgtec.com> 
-for details.
-
- I think this framework can be reused by carefully choosing instructions 
-used in early bootstrap code, up to the relocation stage, so that it is 
-runnable anywhere (not the same as PIC!) like early ld.so initialisation 
-and then loading the whole attached image starting from an address where 
-RAM does exist on target hardware.
-
- Endianness is a different matter, obviously we can't build a single image 
-for both, although for distributions' sake an approach similar to one used 
-with bi-endian firmware (for hardware which has an easy way to switch the 
-endianness, e.g. a physical jumper or a configuration bit stored in flash 
-memory; not to be confused with the reverse user endianness mode) might be 
-feasible, by glueing two kernel images together and then selecting the 
-right one early in bootstrap, perhaps again reusing Matt's framework.  
-I'm not sure if this is worth the effort though, I suspect the usage level 
-of this feature would be minimal.
-
- All in all I think making a generic MIPS kernel just might be feasible, 
-but with the diversity of options available the effort required would be 
-enormous.  NetBSD for example I believe supports building a kernel that 
-correctly runs on both R3000 (MIPS I, 32-bit) and R4000 (MIPS III, 64-bit) 
-DEC hardware (as did DEC Ultrix, the vendor OS for these systems).  These 
-processors are different enough from each other that you cannot use the 
-same code for cache, memory and exception management in an OS kernel -- 
-backward compatibility is only provided for user software.  That proves 
-the concept, however in a very limited way only, not even covering SMP, 
-and their R4000 kernel does not support 64-bit userland I believe.  They 
-still have completely separate ports for other MIPS hardware, such as for 
-Broadcom SiByte SB-1 (MIPS64r1) processors.
+ Thanks for the reminder -- last June was very hectic, I travelled a lot 
+and I lost the discussion from my radar.  Apologies for that.  I replied 
+in that thread now with my results.  I hope this helps.
 
   Maciej
