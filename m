@@ -1,22 +1,14 @@
-From: "tip-bot for Michael S. Tsirkin" <tipbot@zytor.com>
-Subject: [tip:locking/core] locking/x86: Use mb() around clflush()
-Date: Fri, 29 Jan 2016 03:33:14 -0800
-Message-ID: <tip-ca59809ff6d572ae58fc6bedf7500f5a60fdbd64@git.kernel.org>
-References: <1453921746-16178-5-git-send-email-mst@redhat.com>
-Reply-To: luto@amacapital.net, dvlasenk@redhat.com, bitbucket@online.de,
-	oleg@redhat.com, len.brown@intel.com,
-	torvalds@linux-foundation.org, peterz@infradead.org,
-	tglx@linutronix.de, luto@kernel.org, akpm@linux-foundation.org,
-	dbueso@suse.de, brgerst@gmail.com, mst@redhat.com,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org, dave@stgolabs.net, bp@alien8.de,
-	paulmck@linux.vnet.ibm.com, hpa@zytor.com, mingo@kernel.org
+From: David Miller <davem@davemloft.net>
+Subject: Re: bonding (IEEE 802.3ad) not working with qemu/virtio
+Date: Fri, 29 Jan 2016 22:59:24 -0800 (PST)
+Message-ID: <20160129.225924.1343743091073159760.davem@davemloft.net>
+References: <56ABDA3D.8040100@cumulusnetworks.com> <28285.1454103900@famine>
+	<56ABDE2A.7010301@cumulusnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1453921746-16178-5-git-send-email-mst@redhat.com>
-Content-Disposition: inline
+In-Reply-To: <56ABDE2A.7010301@cumulusnetworks.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,65 +18,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-tip-commits@vger.kernel.org
-Cc: len.brown@intel.com, dave@stgolabs.net, dvlasenk@redhat.com, akpm@linux-foundation.org, mst@redhat.com, bitbucket@online.de, brgerst@gmail.com, dbueso@suse.de, oleg@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, peterz@infradead.org, luto@amacapital.net, bp@alien8.de, luto@kernel.org, hpa@zytor.com, tglx@linutronix.de, paulmck@linux.vnet.ibm.com, torvalds@linux-foundation.org, mingo@kernel.org
+To: nikolay@cumulusnetworks.com
+Cc: jiri@resnulli.us, mst@redhat.com, gospo@cumulusnetworks.com, virtualization@lists.linux-foundation.org, bjornar.ness@gmail.com, vfalico@gmail.com, netdev@vger.kernel.org, jay.vosburgh@canonical.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Commit-ID:  ca59809ff6d572ae58fc6bedf7500f5a60fdbd64
-Gitweb:     http://git.kernel.org/tip/ca59809ff6d572ae58fc6bedf7500f5a60fdbd64
-Author:     Michael S. Tsirkin <mst@redhat.com>
-AuthorDate: Thu, 28 Jan 2016 19:02:51 +0200
-Committer:  Ingo Molnar <mingo@kernel.org>
-CommitDate: Fri, 29 Jan 2016 09:40:10 +0100
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Fri, 29 Jan 2016 22:48:26 +0100
 
-locking/x86: Use mb() around clflush()
+> On 01/29/2016 10:45 PM, Jay Vosburgh wrote:
+>> Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
+>> =
 
-The following commit:
+>>> On 01/25/2016 05:24 PM, Bj=F8rnar Ness wrote:
+>>>> As subject says, 802.3ad bonding is not working with virtio network mo=
+del.
+>>>>
+>>>> The only errors I see is:
+>>>>
+>>>> No 802.3ad response from the link partner for any adapters in the bond.
+>>>>
+>>>> Dumping the network traffic shows that no LACP packets are sent from t=
+he
+>>>> host running with virtio driver, changing to for example e1000 solves
+>>>> this problem
+>>>> with no configuration changes.
+>>>>
+>>>> Is this a known problem?
+>>>>
+>>> [Including bonding maintainers for comments]
+>>>
+>>> Hi,
+>>> Here's a workaround patch for virtio_net devices that "cheats" the
+>>> duplex test (which is the actual problem). I've tested this locally
+>>> and it works for me.
+>>> I'd let the others comment on the implementation, there're other signs
+>>> that can be used to distinguish a virtio_net device so I'm open to sugg=
+estions.
+>>> Also feedback if this is at all acceptable would be appreciated.
+>> =
 
-  f8e617f4582995f ("sched/idle/x86: Optimize unnecessary mwait_idle() resched IPIs")
+>> 	Should virtio instead provide an arbitrary speed and full duplex
+>> to ethtool, as veth does?
+>> =
 
-adds memory barriers around clflush(), but this seems wrong for UP since
-barrier() has no effect on clflush().  We really want MFENCE, so switch
-to mb() instead.
+>> 	Creating a magic whitelist of devices deep inside the 802.3ad
+>> implementation seems less desirable.
+>> =
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@amacapital.net>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Brian Gerst <brgerst@gmail.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Davidlohr Bueso <dbueso@suse.de>
-Cc: Denys Vlasenko <dvlasenk@redhat.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Len Brown <len.brown@intel.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Mike Galbraith <bitbucket@online.de>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: virtualization <virtualization@lists.linux-foundation.org>
-Link: http://lkml.kernel.org/r/1453921746-16178-5-git-send-email-mst@redhat.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
----
- arch/x86/kernel/process.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+> TBH, I absolutely agree. In fact here's what we've been doing:
+> add set_settings which allows the user to set any speed/duplex
+> and get_settings of course to retrieve that. This is also useful
+> for testing other stuff that requires speed and duplex, not only
+> for the bonding case.
 
-diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
-index 9f7c21c..9decee2 100644
---- a/arch/x86/kernel/process.c
-+++ b/arch/x86/kernel/process.c
-@@ -418,9 +418,9 @@ static void mwait_idle(void)
- 	if (!current_set_polling_and_test()) {
- 		trace_cpu_idle_rcuidle(1, smp_processor_id());
- 		if (this_cpu_has(X86_BUG_CLFLUSH_MONITOR)) {
--			smp_mb(); /* quirk */
-+			mb(); /* quirk */
- 			clflush((void *)&current_thread_info()->flags);
--			smp_mb(); /* quirk */
-+			mb(); /* quirk */
- 		}
- 
- 		__monitor((void *)&current_thread_info()->flags, 0, 0);
+I also agree.  Having a whitelist is just rediculous.
+
+There should be a default speed/duplex setting for such devices as well.
+We can pick one that will be use universally for these kinds of devices.
