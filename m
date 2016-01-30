@@ -1,14 +1,16 @@
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+From: Jiri Pirko <jiri@resnulli.us>
 Subject: Re: bonding (IEEE 802.3ad) not working with qemu/virtio
-Date: Fri, 29 Jan 2016 22:48:26 +0100
-Message-ID: <56ABDE2A.7010301__8840.12817773527$1454179717$gmane$org@cumulusnetworks.com>
-References: <CAJO99TmB3957Wq3Cse7azgBxKeZ2BV6QihoyAsjUjyvzc-V8dQ@mail.gmail.com>
-	<56ABDA3D.8040100@cumulusnetworks.com> <28285.1454103900@famine>
+Date: Sat, 30 Jan 2016 12:34:11 +0100
+Message-ID: <20160130113411.GA2181__24998.2736459517$1454179727$gmane$org@nanopsycho.orion>
+References: <56ABDA3D.8040100@cumulusnetworks.com> <28285.1454103900@famine>
+	<56ABDE2A.7010301@cumulusnetworks.com>
+	<20160129.225924.1343743091073159760.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <28285.1454103900@famine>
+Content-Disposition: inline
+In-Reply-To: <20160129.225924.1343743091073159760.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,41 +20,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jay Vosburgh <jay.vosburgh@canonical.com>
-Cc: Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, =?UTF-8?Q?Bj=c3=b8rnar_Ness?= <bjornar.ness@gmail.com>, Veaceslav Falico <vfalico@gmail.com>, Andy Gospodarek <gospo@cumulusnetworks.com>
+To: David Miller <davem@davemloft.net>
+Cc: mst@redhat.com, nikolay@cumulusnetworks.com, gospo@cumulusnetworks.com, virtualization@lists.linux-foundation.org, bjornar.ness@gmail.com, vfalico@gmail.com, netdev@vger.kernel.org, jay.vosburgh@canonical.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMDEvMjkvMjAxNiAxMDo0NSBQTSwgSmF5IFZvc2J1cmdoIHdyb3RlOgo+IE5pa29sYXkgQWxl
-a3NhbmRyb3YgPG5pa29sYXlAY3VtdWx1c25ldHdvcmtzLmNvbT4gd3JvdGU6Cj4gCj4+IE9uIDAx
-LzI1LzIwMTYgMDU6MjQgUE0sIEJqw7hybmFyIE5lc3Mgd3JvdGU6Cj4+PiBBcyBzdWJqZWN0IHNh
-eXMsIDgwMi4zYWQgYm9uZGluZyBpcyBub3Qgd29ya2luZyB3aXRoIHZpcnRpbyBuZXR3b3JrIG1v
-ZGVsLgo+Pj4KPj4+IFRoZSBvbmx5IGVycm9ycyBJIHNlZSBpczoKPj4+Cj4+PiBObyA4MDIuM2Fk
-IHJlc3BvbnNlIGZyb20gdGhlIGxpbmsgcGFydG5lciBmb3IgYW55IGFkYXB0ZXJzIGluIHRoZSBi
-b25kLgo+Pj4KPj4+IER1bXBpbmcgdGhlIG5ldHdvcmsgdHJhZmZpYyBzaG93cyB0aGF0IG5vIExB
-Q1AgcGFja2V0cyBhcmUgc2VudCBmcm9tIHRoZQo+Pj4gaG9zdCBydW5uaW5nIHdpdGggdmlydGlv
-IGRyaXZlciwgY2hhbmdpbmcgdG8gZm9yIGV4YW1wbGUgZTEwMDAgc29sdmVzCj4+PiB0aGlzIHBy
-b2JsZW0KPj4+IHdpdGggbm8gY29uZmlndXJhdGlvbiBjaGFuZ2VzLgo+Pj4KPj4+IElzIHRoaXMg
-YSBrbm93biBwcm9ibGVtPwo+Pj4KPj4gW0luY2x1ZGluZyBib25kaW5nIG1haW50YWluZXJzIGZv
-ciBjb21tZW50c10KPj4KPj4gSGksCj4+IEhlcmUncyBhIHdvcmthcm91bmQgcGF0Y2ggZm9yIHZp
-cnRpb19uZXQgZGV2aWNlcyB0aGF0ICJjaGVhdHMiIHRoZQo+PiBkdXBsZXggdGVzdCAod2hpY2gg
-aXMgdGhlIGFjdHVhbCBwcm9ibGVtKS4gSSd2ZSB0ZXN0ZWQgdGhpcyBsb2NhbGx5Cj4+IGFuZCBp
-dCB3b3JrcyBmb3IgbWUuCj4+IEknZCBsZXQgdGhlIG90aGVycyBjb21tZW50IG9uIHRoZSBpbXBs
-ZW1lbnRhdGlvbiwgdGhlcmUncmUgb3RoZXIgc2lnbnMKPj4gdGhhdCBjYW4gYmUgdXNlZCB0byBk
-aXN0aW5ndWlzaCBhIHZpcnRpb19uZXQgZGV2aWNlIHNvIEknbSBvcGVuIHRvIHN1Z2dlc3Rpb25z
-Lgo+PiBBbHNvIGZlZWRiYWNrIGlmIHRoaXMgaXMgYXQgYWxsIGFjY2VwdGFibGUgd291bGQgYmUg
-YXBwcmVjaWF0ZWQuCj4gCj4gCVNob3VsZCB2aXJ0aW8gaW5zdGVhZCBwcm92aWRlIGFuIGFyYml0
-cmFyeSBzcGVlZCBhbmQgZnVsbCBkdXBsZXgKPiB0byBldGh0b29sLCBhcyB2ZXRoIGRvZXM/Cj4g
-Cj4gCUNyZWF0aW5nIGEgbWFnaWMgd2hpdGVsaXN0IG9mIGRldmljZXMgZGVlcCBpbnNpZGUgdGhl
-IDgwMi4zYWQKPiBpbXBsZW1lbnRhdGlvbiBzZWVtcyBsZXNzIGRlc2lyYWJsZS4KPiAKVEJILCBJ
-IGFic29sdXRlbHkgYWdyZWUuIEluIGZhY3QgaGVyZSdzIHdoYXQgd2UndmUgYmVlbiBkb2luZzoK
-YWRkIHNldF9zZXR0aW5ncyB3aGljaCBhbGxvd3MgdGhlIHVzZXIgdG8gc2V0IGFueSBzcGVlZC9k
-dXBsZXgKYW5kIGdldF9zZXR0aW5ncyBvZiBjb3Vyc2UgdG8gcmV0cmlldmUgdGhhdC4gVGhpcyBp
-cyBhbHNvIHVzZWZ1bApmb3IgdGVzdGluZyBvdGhlciBzdHVmZiB0aGF0IHJlcXVpcmVzIHNwZWVk
-IGFuZCBkdXBsZXgsIG5vdCBvbmx5CmZvciB0aGUgYm9uZGluZyBjYXNlLgoKSSdsbCBhZGQgdGhl
-IHZpcnRpb19uZXQgbWFpbnRhaW5lcnMgdG8gdGhlIGRpc2N1c3Npb24sIHNlZSBpZiBpdCdzCm9r
-YXkgd2l0aCBldmVyeW9uZSBhbmQgSSdsbCBtb3ZlIHRvIHNlbmQgcGF0Y2hlcyBvbmNlIG5ldC1u
-ZXh0IG9wZW5zIHVwLgoKVGhhbmtzIQoKCj4gCS1KCj4gCQo+IC0tLQo+IAktSmF5IFZvc2J1cmdo
-LCBqYXkudm9zYnVyZ2hAY2Fub25pY2FsLmNvbQo+IAoKX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
-YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
-b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Sat, Jan 30, 2016 at 07:59:24AM CET, davem@davemloft.net wrote:
+>From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+>Date: Fri, 29 Jan 2016 22:48:26 +0100
+>
+>> On 01/29/2016 10:45 PM, Jay Vosburgh wrote:
+>>> Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
+>>> =
+
+>>>> On 01/25/2016 05:24 PM, Bj=F8rnar Ness wrote:
+>>>>> As subject says, 802.3ad bonding is not working with virtio network m=
+odel.
+>>>>>
+>>>>> The only errors I see is:
+>>>>>
+>>>>> No 802.3ad response from the link partner for any adapters in the bon=
+d.
+>>>>>
+>>>>> Dumping the network traffic shows that no LACP packets are sent from =
+the
+>>>>> host running with virtio driver, changing to for example e1000 solves
+>>>>> this problem
+>>>>> with no configuration changes.
+>>>>>
+>>>>> Is this a known problem?
+>>>>>
+>>>> [Including bonding maintainers for comments]
+>>>>
+>>>> Hi,
+>>>> Here's a workaround patch for virtio_net devices that "cheats" the
+>>>> duplex test (which is the actual problem). I've tested this locally
+>>>> and it works for me.
+>>>> I'd let the others comment on the implementation, there're other signs
+>>>> that can be used to distinguish a virtio_net device so I'm open to sug=
+gestions.
+>>>> Also feedback if this is at all acceptable would be appreciated.
+>>> =
+
+>>> 	Should virtio instead provide an arbitrary speed and full duplex
+>>> to ethtool, as veth does?
+>>> =
+
+>>> 	Creating a magic whitelist of devices deep inside the 802.3ad
+>>> implementation seems less desirable.
+>>> =
+
+>> TBH, I absolutely agree. In fact here's what we've been doing:
+>> add set_settings which allows the user to set any speed/duplex
+>> and get_settings of course to retrieve that. This is also useful
+>> for testing other stuff that requires speed and duplex, not only
+>> for the bonding case.
+>
+>I also agree.  Having a whitelist is just rediculous.
+>
+>There should be a default speed/duplex setting for such devices as well.
+>We can pick one that will be use universally for these kinds of devices.
+
+Exposing made up speed for veth and virtio_net sounds odd to me. User
+see 10000Mb/s but it makes no sense at all. It is just confusing.
+
+I believe this is bonding bug and should be fixed in there. Team works
+fine with virtio_net device and lacp runner.
