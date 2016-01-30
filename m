@@ -1,15 +1,14 @@
-From: Jiri Pirko <jiri@resnulli.us>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 Subject: Re: bonding (IEEE 802.3ad) not working with qemu/virtio
-Date: Sat, 30 Jan 2016 12:34:11 +0100
-Message-ID: <20160130113411.GA2181__24998.2736459517$1454179727$gmane$org@nanopsycho.orion>
+Date: Sat, 30 Jan 2016 12:41:16 +0100
+Message-ID: <56ACA15C.1080403__19362.9332738512$1454179744$gmane$org@cumulusnetworks.com>
 References: <56ABDA3D.8040100@cumulusnetworks.com> <28285.1454103900@famine>
 	<56ABDE2A.7010301@cumulusnetworks.com>
 	<20160129.225924.1343743091073159760.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 In-Reply-To: <20160129.225924.1343743091073159760.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,17 +20,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: David Miller <davem@davemloft.net>
-Cc: mst@redhat.com, nikolay@cumulusnetworks.com, gospo@cumulusnetworks.com, virtualization@lists.linux-foundation.org, bjornar.ness@gmail.com, vfalico@gmail.com, netdev@vger.kernel.org, jay.vosburgh@canonical.com
+Cc: jiri@resnulli.us, mst@redhat.com, gospo@cumulusnetworks.com, virtualization@lists.linux-foundation.org, bjornar.ness@gmail.com, vfalico@gmail.com, netdev@vger.kernel.org, jay.vosburgh@canonical.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Sat, Jan 30, 2016 at 07:59:24AM CET, davem@davemloft.net wrote:
->From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
->Date: Fri, 29 Jan 2016 22:48:26 +0100
->
+On 01/30/2016 07:59 AM, David Miller wrote:
+> From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> Date: Fri, 29 Jan 2016 22:48:26 +0100
+> =
+
 >> On 01/29/2016 10:45 PM, Jay Vosburgh wrote:
 >>> Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
->>> =
-
+>>>
 >>>> On 01/25/2016 05:24 PM, Bj=F8rnar Ness wrote:
 >>>>> As subject says, 802.3ad bonding is not working with virtio network m=
 odel.
@@ -59,29 +58,38 @@ the
 >>>> that can be used to distinguish a virtio_net device so I'm open to sug=
 gestions.
 >>>> Also feedback if this is at all acceptable would be appreciated.
->>> =
-
+>>>
 >>> 	Should virtio instead provide an arbitrary speed and full duplex
 >>> to ethtool, as veth does?
->>> =
-
+>>>
 >>> 	Creating a magic whitelist of devices deep inside the 802.3ad
 >>> implementation seems less desirable.
->>> =
-
+>>>
 >> TBH, I absolutely agree. In fact here's what we've been doing:
 >> add set_settings which allows the user to set any speed/duplex
 >> and get_settings of course to retrieve that. This is also useful
 >> for testing other stuff that requires speed and duplex, not only
 >> for the bonding case.
->
->I also agree.  Having a whitelist is just rediculous.
->
->There should be a default speed/duplex setting for such devices as well.
->We can pick one that will be use universally for these kinds of devices.
+> =
 
-Exposing made up speed for veth and virtio_net sounds odd to me. User
-see 10000Mb/s but it makes no sense at all. It is just confusing.
+> I also agree.  Having a whitelist is just rediculous.
+> =
 
-I believe this is bonding bug and should be fixed in there. Team works
-fine with virtio_net device and lacp runner.
+> There should be a default speed/duplex setting for such devices as well.
+> We can pick one that will be use universally for these kinds of devices.
+> =
+
+Yes, that's the other thing - the default setting, from a brief grepping
+I see that veth uses 10Gbps, tun uses 10Mbps and batman-adv uses 10Mbps.
+
+If we add a default get_settings that can be used by virtual devices
+in ethtool that returns 10Gbps with the settings set like veth does
+sounds good to me. What do you think ?
+
+In fact they all set the same settings (apart from speed) so we can
+consolidate them in a single default setting init function and for the
+ones using different speed do something like:
+__ethtool_init_settings(); <- sets everything like veth would with 10Mbps s=
+peed
+__ethtool_cmd_speed_set(cmd, SPEED_10000);
+And we're done.
