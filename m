@@ -1,16 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: bonding (IEEE 802.3ad) not working with qemu/virtio
-Date: Sun, 31 Jan 2016 16:58:42 +0200
-Message-ID: <20160131165501-mutt-send-email-mst@redhat.com>
-References: <CAJO99TmB3957Wq3Cse7azgBxKeZ2BV6QihoyAsjUjyvzc-V8dQ@mail.gmail.com>
-	<56ABDA3D.8040100@cumulusnetworks.com> <28285.1454103900@famine>
-	<56ABDE2A.7010301@cumulusnetworks.com>
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH v5 00/10] virtio DMA API, yet again
+Date: Sun, 31 Jan 2016 20:06:16 +0100
+Message-ID: <20160131190616.GA15840@lst.de>
+References: <cover.1454034075.git.luto@kernel.org>
+	<1454065260.133285.107.camel@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <56ABDE2A.7010301@cumulusnetworks.com>
+In-Reply-To: <1454065260.133285.107.camel@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,82 +19,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: Jiri Pirko <jiri@resnulli.us>, Andy Gospodarek <gospo@cumulusnetworks.com>, virtualization@lists.linux-foundation.org, =?iso-8859-1?Q?Bj=F8rnar?= Ness <bjornar.ness@gmail.com>, Veaceslav Falico <vfalico@gmail.com>, netdev <netdev@vger.kernel.org>, Jay Vosburgh <jay.vosburgh@canonical.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>, Christian Borntraeger <borntraeger@de.ibm.com>, David Vrabel <david.vrabel@citrix.com>, Andy Lutomirski <luto@kernel.org>, xen-devel@lists.xenproject.org, sparclinux@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 29, 2016 at 10:48:26PM +0100, Nikolay Aleksandrov wrote:
-> On 01/29/2016 10:45 PM, Jay Vosburgh wrote:
-> > Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
-> > =
+On Fri, Jan 29, 2016 at 11:01:00AM +0000, David Woodhouse wrote:
+> Also, wasn't Christoph looking at making per-device DMA ops more
+> generic instead of an 'archdata' thing on basically every platform? Or
+> did I just imagine that part?
 
-> >> On 01/25/2016 05:24 PM, Bj=F8rnar Ness wrote:
-> >>> As subject says, 802.3ad bonding is not working with virtio network m=
-odel.
-> >>>
-> >>> The only errors I see is:
-> >>>
-> >>> No 802.3ad response from the link partner for any adapters in the bon=
-d.
-> >>>
-> >>> Dumping the network traffic shows that no LACP packets are sent from =
-the
-> >>> host running with virtio driver, changing to for example e1000 solves
-> >>> this problem
-> >>> with no configuration changes.
-> >>>
-> >>> Is this a known problem?
-> >>>
-> >> [Including bonding maintainers for comments]
-> >>
-> >> Hi,
-> >> Here's a workaround patch for virtio_net devices that "cheats" the
-> >> duplex test (which is the actual problem). I've tested this locally
-> >> and it works for me.
-> >> I'd let the others comment on the implementation, there're other signs
-> >> that can be used to distinguish a virtio_net device so I'm open to sug=
-gestions.
-> >> Also feedback if this is at all acceptable would be appreciated.
-> > =
-
-> > 	Should virtio instead provide an arbitrary speed and full duplex
-> > to ethtool, as veth does?
-> > =
-
-> > 	Creating a magic whitelist of devices deep inside the 802.3ad
-> > implementation seems less desirable.
-> > =
-
-> TBH, I absolutely agree. In fact here's what we've been doing:
-> add set_settings which allows the user to set any speed/duplex
-> and get_settings of course to retrieve that. This is also useful
-> for testing other stuff that requires speed and duplex, not only
-> for the bonding case.
-
-This looks like a very reasonable thing to do:
-user might have knowledge of the actual speed through
-some side-channel.
-
-We might also propagate it to hypervisor in the future.
-
-And this sound useful even if bonding is changed
-to allow DUPLEX_UNKNOWN.
-
-So please post this patch.
-
-
-> I'll add the virtio_net maintainers to the discussion, see if it's
-> okay with everyone and I'll move to send patches once net-next opens up.
-> =
-
-> Thanks!
-> =
-
-> =
-
-> > 	-J
-> > 	=
-
-> > ---
-> > 	-Jay Vosburgh, jay.vosburgh@canonical.com
-> > =
+What I've done for 4.5 is to switch all architectures to use DMA ops.
+This should make it fairly easy to have a generic dma ops pointer in the
+devie structure, but I have no need for that yet, and thus no short term
+plans to do that work myself.
