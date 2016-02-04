@@ -1,14 +1,15 @@
-From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: Re: [PATCH net-next] virtio_net: add ethtool support for set and
-	get of settings
-Date: Thu, 4 Feb 2016 10:53:07 +1100
-Message-ID: <20160204105307.62e6c934@samsung9>
-References: <1454417480-28672-1-git-send-email-razor@blackwall.org>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [PATCH v7 9/9] vring: Use the DMA API on Xen
+Date: Thu, 4 Feb 2016 09:49:22 -0800
+Message-ID: <CALCETrXs_2dhuBMo=oMDHF7W+QpVW5haj+audrZZo+f6sZJyNA@mail.gmail.com>
+References: <cover.1454477782.git.luto@kernel.org>
+	<a5b072806984a0fceb4f4d33cbeb1cea7d881e8b.1454477782.git.luto@kernel.org>
+	<56B1CD18.1050509@citrix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1454417480-28672-1-git-send-email-razor@blackwall.org>
+In-Reply-To: <56B1CD18.1050509@citrix.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,34 +19,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, virtualization@lists.linux-foundation.org, davem@davemloft.net
+To: David Vrabel <david.vrabel@citrix.com>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, sparclinux@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Woodhouse <dwmw2@infradead.org>, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue,  2 Feb 2016 13:51:20 +0100
-Nikolay Aleksandrov <razor@blackwall.org> wrote:
+On Wed, Feb 3, 2016 at 1:49 AM, David Vrabel <david.vrabel@citrix.com> wrote:
+> On 03/02/16 05:46, Andy Lutomirski wrote:
+>> Signed-off-by: Andy Lutomirski <luto@kernel.org>
+>
+> You forgot the previous Reviewed-by tags.
 
-> +static bool virtnet_validate_speed(u32 speed)
-> +{
-> +	switch (speed) {
-> +	case SPEED_10:
-> +	case SPEED_100:
-> +	case SPEED_1000:
-> +	case SPEED_2500:
-> +	case SPEED_5000:
-> +	case SPEED_10000:
-> +	case SPEED_20000:
-> +	case SPEED_25000:
-> +	case SPEED_40000:
-> +	case SPEED_50000:
-> +	case SPEED_56000:
-> +	case SPEED_100000:
-> +	case SPEED_UNKNOWN:
-> +		return true;
-> +	}
-> +
-> +	return false;
-> +}
+Whoops.  If I send another version, they'll be there.
 
-Why limit to only known values. This switch() will get out of
-date when some vendor introduces 64G or some other weird value.
+>
+> David
+
+
+
+-- 
+Andy Lutomirski
+AMA Capital Management, LLC
