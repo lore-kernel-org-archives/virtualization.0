@@ -1,17 +1,11 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 6/6] VMware balloon: Update vmw_balloon.c to use the
-	VMW_PORT macro
-Date: Mon, 8 Feb 2016 11:41:57 -0800
-Message-ID: <20160208194157.GA10802@kroah.com>
-References: <1449271183-1746-1-git-send-email-syeh@vmware.com>
-	<1453239965-1466-1-git-send-email-syeh@vmware.com>
-	<1453239965-1466-7-git-send-email-syeh@vmware.com>
+From: "Maria Lemos" <marialemos72@gmail.com>
+Subject: CFP: CISTI'2016 - 11th Iberian Conference on IST; Deadline: February
+	21
+Date: Tue, 9 Feb 2016 17:42:02 +0000
+Message-ID: <20160209174226.9D575E86@mail.linuxfoundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============7584710625790436444=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1453239965-1466-7-git-send-email-syeh@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,59 +15,147 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sinclair Yeh <syeh@vmware.com>
-Cc: pv-drivers@vmware.com, Xavier Deguillard <xdeguillard@vmware.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 19, 2016 at 01:46:05PM -0800, Sinclair Yeh wrote:
-> Updated VMWARE_BALLOON_CMD to use the common VMW_PORT macro.
-> Doing this rather than replacing all instances of VMWARE_BALLOON_CMD
-> to minimize code change.
-> 
-> Signed-off-by: Sinclair Yeh <syeh@vmware.com>
-> Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
-> Reviewed-by: Alok N Kataria <akataria@vmware.com>
-> Acked-by: Xavier Deguillard <xdeguillard@vmware.com>
-> Cc: pv-drivers@vmware.com
-> Cc: Xavier Deguillard <xdeguillard@vmware.com>
-> Cc: linux-kernel@vger.kernel.org
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+--===============7584710625790436444==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+--
+--------------------------------                            =20
+CISTI'2016 - 11th Iberian Conference on Information Systems and Techno=
+logies
+           June 15 - 18, 2016, Gran Canaria, Canary Islands, Spain
+               http://www.aisti.eu/cisti2016/index.php/en
+----------------------------------------------------------------------=
+--------------
+
+We are pleased to invite the academic and business community to submit=
+ their papers to CISTI'2016 - 11th Iberian Conference on Information S=
+ystems and Technologies, to be held in Gran Canaria, Canary Islands, S=
+pain, between the 15th and 18th of June 2016. Authors are encouraged t=
+o submit original scientific contributions such as state-of-art review=
+s and new research perspectives, groundbreaking ideas and/or architect=
+ures, solutions and/or applications for real problems, empirical and/o=
+r evaluation works, case studies, etc., in conformity with the themes =
+of this Conference.
+
+Four types of papers can be submitted:
+
+Full paper: Finished or consolidated R&D works, to be included in one =
+of the Conference themes. These papers are assigned  a 6-page limit.
+
+Short paper: Ongoing works with relevant preliminary results, opened t=
+o discussion. These papers are assigned a 4-page limit.
+
+Poster paper: Initial work with relevant ideas, opened to discussion. =
+These papers are assigned a 2-page limit.
+
+Company paper: Companies' papers  that show practical experience, R & =
+D, tools, etc., focused in some topics of the conference. These articl=
+es are abstracts with a maximum of 2 pages.
+
+Papers submitted for the Scientific Committee=92s evaluation must not =
+include any information leading to the authors=92 identification. Ther=
+efore, the authors=92 names, affiliations and bibliographic references=
+ should not be included in the early version. This information should =
+only be included in the final version.
+
+Submitted papers must not have been published and must not be under re=
+view for any other conference and national or international publication.
+
+Papers must comply with the format standard and be written in Portugue=
+se, Spanish or English.
+
+All papers will be subjected to a =93blind review=94 by at least two m=
+embers of the Scientific Committee.
+
+Full papers can be accepted as short papers or poster papers only. Sim=
+ilarly, short papers can be accepted as poster papers only. In these t=
+wo cases, the authors will be allowed to maintain the original number =
+of pages in the proceedings publication.
+
+The authors of accepted poster papers must also build and print a post=
+er to be exhibited during the Conference. This poster must follow an A=
+1 or A2 vertical format. The Conference includes Work Sessions where t=
+hese posters are presented and orally discussed, with a 5-minute limit=
+ per poster.
+
+The authors of accepted full papers will dispose of a 15-minute presen=
+tation in the Conference Work Session, and approximately 5 minutes of =
+discussion will follow each presentation. The authors of accepted shor=
+t papers and company papers will dispose of an 11-minute presentation =
+in the Conference Work Session, and approximately 4 minutes of discuss=
+ion will follow each presentation.
 
 
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+THEMES
 
-> -#define VMWARE_BALLOON_CMD(cmd, arg1, arg2, result)		\
-> -({								\
-> -	unsigned long __status, __dummy1, __dummy2, __dummy3;	\
-> -	__asm__ __volatile__ ("inl %%dx" :			\
-> -		"=a"(__status),					\
-> -		"=c"(__dummy1),					\
-> -		"=d"(__dummy2),					\
-> -		"=b"(result),					\
-> -		"=S" (__dummy3) :				\
-> -		"0"(VMW_BALLOON_HV_MAGIC),			\
-> -		"1"(VMW_BALLOON_CMD_##cmd),			\
-> -		"2"(VMW_BALLOON_HV_PORT),			\
-> -		"3"(arg1),					\
-> -		"4" (arg2) :					\
-> -		"memory");					\
-> -	if (VMW_BALLOON_CMD_##cmd == VMW_BALLOON_CMD_START)	\
-> -		result = __dummy1;				\
-> -	result &= -1UL;						\
-> -	__status & -1UL;					\
-> +#define VMWARE_BALLOON_CMD(cmd, arg1, arg2, result)			\
-> +({									\
-> +	unsigned long __status, __dummy1, __dummy2;			\
-> +	unsigned long __si, __di;					\
-> +	VMW_PORT(VMW_BALLOON_CMD_##cmd, arg1, arg2, 0,			\
-> +		 VMW_BALLOON_HV_PORT, VMW_BALLOON_HV_MAGIC,		\
-> +		 __status, result, __dummy1, __dummy2, __si, __di);	\
-> +	if (VMW_BALLOON_CMD_##cmd == VMW_BALLOON_CMD_START)		\
-> +		result = __dummy1;					\
-> +	result &= -1UL;							\
-> +	__status & -1UL;						\
->  })
+Submitted papers must follow the main themes proposed for the Conferen=
+ce (the topics proposed in each theme constitute a mere framework refe=
+rence; they are not intended as restrictive):
 
-Honestly, it doesn't look anymore "readable" to me, but it's your code
-to maintain, not mine... :)
+A) OMIS - Organizational Models and Information Systems
+
+B) KMDSS - Knowledge Management and Decision Support Systems
+
+C) SSAAT - Software Systems, Architectures, Applications and Tools
+
+D) CNMPS - Computer Networks, Mobility and Pervasive Systems
+
+E) HCC - Human Centered Computing
+
+F) HIS - Health Informatics
+
+G) ITE - Information Technologies in Education
+
+H) AEC =96 Architecture and Engineering of Construction
+
+
+PUBLICATION & INDEXING
+
+To ensure that the contribution (full paper, short paper, poster paper=
+ or company paper) is published in the Proceedings, at least one of th=
+e authors must be fully registered by the 11th of April, and the paper=
+ must comply with the suggested layout and page-limit. Additionally, a=
+ll recommended modifications must be addressed by the authors before t=
+hey submit the final version.
+
+No more than one paper per registration will be published in the Confe=
+rence Proceedings. An extra fee must be paid for publication of additi=
+onal papers, with a maximum of one additional paper per registration.
+
+Published full and short papers will be sent to EI, IEEE XPlore, INSPE=
+C, ISI, SCOPUS and Google Scholar.
+
+
+IMPORTANT DATES
+
+Paper submission: February 21, 2016
+
+Notification of acceptance: March 27, 2016
+
+Submission of accepted papers: April 10, 2016
+
+Payment of registration, to ensure the inclusion of an accepted paper =
+in the conference proceedings: April 8, 2016
+
+
+Best regards,
+
+CISTI'2016 Team
+http://www.aisti.eu/cisti2016/index.php/en
+
+
+--===============7584710625790436444==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============7584710625790436444==--
