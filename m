@@ -1,17 +1,12 @@
-From: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Subject: Re: [PATCH 1/2] vhost: helpers to enable/disable vring endianness
-Date: Wed, 10 Feb 2016 16:27:50 +0100
-Message-ID: <20160210162750.368b58ab@bahia.huguette.org>
-References: <20160113170934.23705.62626.stgit@bahia.huguette.org>
-	<20160113170941.23705.93915.stgit@bahia.huguette.org>
-	<20160210131723-mutt-send-email-mst@redhat.com>
-	<20160210131134.747352bd@bahia.huguette.org>
-	<20160210170404-mutt-send-email-mst@redhat.com>
+From: Ioan Raicu <iraicu@cs.iit.edu>
+Subject: attention all undergrads: BigDataX REU Site in Chicago IL --
+	applications due 02/29/2016
+Date: Thu, 11 Feb 2016 12:40:56 -0600
+Message-ID: <56BCD5B8.1090907@cs.iit.edu>
+Reply-To: iraicu@cs.iit.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============0166798569187770698=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160210170404-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,179 +16,231 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org, micro_publicity@crhc.uiuc.edu, performance@merlot.usc.edu, sigplan-l@acm.uiuc.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 10 Feb 2016 17:08:52 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+This is a multi-part message in MIME format.
+--===============0166798569187770698==
+Content-Type: multipart/alternative;
+ boundary="------------030703020608030209080903"
 
-> On Wed, Feb 10, 2016 at 01:11:34PM +0100, Greg Kurz wrote:
-> > On Wed, 10 Feb 2016 13:21:22 +0200
-> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> >   
-> > > On Wed, Jan 13, 2016 at 06:09:41PM +0100, Greg Kurz wrote:  
-> > > > The default use case for vhost is when the host and the vring have the
-> > > > same endianness (default native endianness). But there are cases where
-> > > > they differ and vhost should byteswap when accessing the vring:
-> > > > - the host is big endian and the vring comes from a virtio 1.0 device
-> > > >   which is always little endian
-> > > > - the architecture is bi-endian and the vring comes from a legacy virtio
-> > > >   device with a different endianness than the endianness of the host (aka
-> > > >   legacy cross-endian)
-> > > > 
-> > > > These cases are handled by the vq->is_le and the optional vq->user_be,
-> > > > with the following logic:
-> > > > - if none of the fields is enabled, vhost access the vring without byteswap
-> > > > - if the vring is virtio 1.0 and the host is big endian, vq->is_le is
-> > > >   enabled to enforce little endian access to the vring
-> > > > - if the vring is legacy cross-endian, userspace enables vq->user_be
-> > > >   to inform vhost about the vring endianness. This endianness is then
-> > > >   enforced for vring accesses through vq->is_le again
-> > > > 
-> > > > The logic is unclear in the current code.
-> > > > 
-> > > > This patch introduces helpers with explicit enable and disable semantics,
-> > > > for better clarity.
-> > > > 
-> > > > No behaviour change.
-> > > > 
-> > > > Signed-off-by: Greg Kurz <gkurz@linux.vnet.ibm.com>
-> > > > ---
-> > > >  drivers/vhost/vhost.c |   28 +++++++++++++++++++---------
-> > > >  1 file changed, 19 insertions(+), 9 deletions(-)
-> > > > 
-> > > > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > > > index ad2146a9ab2d..e02e06755ab7 100644
-> > > > --- a/drivers/vhost/vhost.c
-> > > > +++ b/drivers/vhost/vhost.c
-> > > > @@ -43,11 +43,16 @@ enum {
-> > > >  #define vhost_avail_event(vq) ((__virtio16 __user *)&vq->used->ring[vq->num])
-> > > >  
-> > > >  #ifdef CONFIG_VHOST_CROSS_ENDIAN_LEGACY
-> > > > -static void vhost_vq_reset_user_be(struct vhost_virtqueue *vq)
-> > > > +static void vhost_disable_user_be(struct vhost_virtqueue *vq)
-> > > >  {
-> > > >  	vq->user_be = !virtio_legacy_is_little_endian();
-> > > >  }
-> > > >      
-> > > 
-> > > Hmm this doesn't look like an improvement to me.
-> > > What does it mean to disable big endian? Make it little endian?  
-> > 
-> > The default behavior for the device is native endian.
-> > 
-> > The SET_VRING_ENDIAN ioctl is used to make the device big endian
-> > on little endian hosts, hence "enabling" cross-endian mode...
-> >   
-> > > Existing reset seems to make sense.
-> > >   
-> > 
-> > ... and we "disable" cross-endian mode on reset.  
-> 
-> OK but that's enable cross-endian. Not enable be.  We could have
-> something like vhost_disable_user_byte_swap though each time we try,
-> the result makes my head hurt: "swap" is a relative thing and hard to
-> keep track of.
-> 
+This is a multi-part message in MIME format.
+--------------030703020608030209080903
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-What about having something like below then ?
+BigDataX REU Program -- Summer 2016
+http://datasys.cs.iit.edu/grants/BigDataX/2016/index.html
 
-vhost_enable_cross_endian_big() to be called on little endian hosts with big endian devices
+The BigDataX (from theory to practice in Big Data computing at eXtreme 
+scales) is a Research Experiences for Undergraduates (REU) site in 
+Chicago Illinois. The program has four mentors at two institutions, the 
+Illinois Institute of Technology and University of Chicago, with a 
+variety of complementing expertise from theory to programming languages 
+to distributed systems. To apply to the program, see the online 
+application at 
+https://docs.google.com/forms/d/1ix7gAqroBhT199Yh3kDDg_fGuCj6dndZSbD1PG-_dy4/viewform 
+(deadline February 29th, 2016).
 
-vhost_enable_cross_endian_little() to be called on big endian hosts with little endian devices
+Institutions:
+- Illinois Institute of Technology (IIT): Computer Science & 
+Data-Intensive Distributed Systems Laboratory
+- UChicago: University of Chicago (UChicago): Computation Institute
 
-vhost_disable_cross_endian() to go back to the native endian default
+Mentors (bigdatax@datasys.cs.iit.edu):
+- Ioan Raicu (IIT)
+- Gruia Calinescu (IIT)
+- Mike Wilde (UChicago)
+- Justin Wozniak (UChicago)
 
-> > > > +static void vhost_enable_user_be(struct vhost_virtqueue *vq, bool user_be)
-> > > > +{
-> > > > +	vq->user_be = user_be;
-> > > > +}
-> > > > +    
-> > > 
-> > > And this is maybe "init_user_be"?
-> > >   
-> > 
-> > Anyway I don't mind changing the names to reset/init_user_be if you think it
-> > is clearer.
-> >   
-> > > >  static long vhost_set_vring_endian(struct vhost_virtqueue *vq, int __user *argp)
-> > > >  {
-> > > >  	struct vhost_vring_state s;
-> > > > @@ -62,7 +67,7 @@ static long vhost_set_vring_endian(struct vhost_virtqueue *vq, int __user *argp)
-> > > >  	    s.num != VHOST_VRING_BIG_ENDIAN)
-> > > >  		return -EINVAL;
-> > > >  
-> > > > -	vq->user_be = s.num;
-> > > > +	vhost_enable_user_be(vq, !!s.num);
-> > > >  
-> > > >  	return 0;
-> > > >  }
-> > > > @@ -81,7 +86,7 @@ static long vhost_get_vring_endian(struct vhost_virtqueue *vq, u32 idx,
-> > > >  	return 0;
-> > > >  }
-> > > >  
-> > > > -static void vhost_init_is_le(struct vhost_virtqueue *vq)
-> > > > +static void vhost_enable_is_le(struct vhost_virtqueue *vq)
-> > > >  {
-> > > >  	/* Note for legacy virtio: user_be is initialized at reset time
-> > > >  	 * according to the host endianness. If userspace does not set an    
-> > > 
-> > > Same thing really. I'd rather add "reset_is_le".
-> > >   
-> > > > @@ -91,7 +96,7 @@ static void vhost_init_is_le(struct vhost_virtqueue *vq)
-> > > >  	vq->is_le = vhost_has_feature(vq, VIRTIO_F_VERSION_1) || !vq->user_be;
-> > > >  }
-> > > >  #else
-> > > > -static void vhost_vq_reset_user_be(struct vhost_virtqueue *vq)
-> > > > +static void vhost_disable_user_be(struct vhost_virtqueue *vq)
-> > > >  {
-> > > >  }
-> > > >  
-> > > > @@ -106,13 +111,18 @@ static long vhost_get_vring_endian(struct vhost_virtqueue *vq, u32 idx,
-> > > >  	return -ENOIOCTLCMD;
-> > > >  }
-> > > >  
-> > > > -static void vhost_init_is_le(struct vhost_virtqueue *vq)
-> > > > +static void vhost_enable_is_le(struct vhost_virtqueue *vq)
-> > > >  {
-> > > >  	if (vhost_has_feature(vq, VIRTIO_F_VERSION_1))
-> > > >  		vq->is_le = true;
-> > > >  }
-> > > >  #endif /* CONFIG_VHOST_CROSS_ENDIAN_LEGACY */
-> > > >  
-> > > > +static void vhost_disable_is_le(struct vhost_virtqueue *vq)
-> > > > +{
-> > > > +	vq->is_le = virtio_legacy_is_little_endian();
-> > > > +}
-> > > > +
-> > > >  static void vhost_poll_func(struct file *file, wait_queue_head_t *wqh,
-> > > >  			    poll_table *pt)
-> > > >  {
-> > > > @@ -276,8 +286,8 @@ static void vhost_vq_reset(struct vhost_dev *dev,
-> > > >  	vq->call = NULL;
-> > > >  	vq->log_ctx = NULL;
-> > > >  	vq->memory = NULL;
-> > > > -	vq->is_le = virtio_legacy_is_little_endian();
-> > > > -	vhost_vq_reset_user_be(vq);
-> > > > +	vhost_disable_is_le(vq);
-> > > > +	vhost_disable_user_be(vq);
-> > > >  }
-> > > >  
-> > > >  static int vhost_worker(void *data)
-> > > > @@ -1157,11 +1167,11 @@ int vhost_init_used(struct vhost_virtqueue *vq)
-> > > >  	__virtio16 last_used_idx;
-> > > >  	int r;
-> > > >  	if (!vq->private_data) {
-> > > > -		vq->is_le = virtio_legacy_is_little_endian();
-> > > > +		vhost_disable_is_le(vq);
-> > > >  		return 0;
-> > > >  	}
-> > > >  
-> > > > -	vhost_init_is_le(vq);
-> > > > +	vhost_enable_is_le(vq);
-> > > >  
-> > > >  	r = vhost_update_used_flags(vq);
-> > > >  	if (r)    
-> > >   
-> 
+Projects:
+- Data-Intensive Computing Applications
+- Parallel Programming Systems
+- Distributed Storage Systems
+- Theory of Big Data
+
+Eligibility Requirements:
+- Undergraduate student in Mathematics, Computer Science, or Engineering 
+at a US institution
+- US citizen or permanent resident on or before May 23rd, 2015
+- Minimum GPA 3.3
+- 2 letters of recommendation
+
+Important Dates:
+- Application deadline: February 29th, 2016
+- Letters of recommendation deadline: March 7th, 2016
+- Notification of decision: March 21st, 2016
+- Program starts: May 23rd, 2016
+- Program ends: July 29th, 2016
+
+Program Highlights:
+- Spend 10 weeks immersed in research on Big Data at Illinois Institute 
+of Technology and University of Chicago
+- Prepare for graduate school
+- Publish papers and attend international conferences
+- Spend the summer in one of the greatest cities in the world, Chicago 
+Illinois
+
+Finances (per summer):
+- $5000 stipend
+- $600 relocation allowance
+- $650 travel funds to attend conference
+- Housing included on the IIT campus
+
+Online Application:
+To apply to the program, please submit your complete online application 
+by the February 29th deadline at 
+https://docs.google.com/forms/d/1ix7gAqroBhT199Yh3kDDg_fGuCj6dndZSbD1PG-_dy4/viewform. 
+For any questions, please send email to bigdatax@datasys.cs.iit.edu.
+
+
+
+-- 
+Ioan Raicu, Ph.D.
+Assistant Professor
+Computer Science, Illinois Institute of Technology
+Guest Research Faculty
+Math & Computer Science, Argonne National Laboratory
+http://www.cs.iit.edu/~iraicu/
+http://datasys.cs.iit.edu/
+
+
+--------------030703020608030209080903
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+<html>
+  <head>
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+    <div class="moz-text-flowed" style="font-family: -moz-fixed;
+      font-size: 14px;" lang="x-unicode">BigDataX REU Program -- Summer
+      2016<br>
+      <a class="moz-txt-link-freetext" href="http://datasys.cs.iit.edu/grants/BigDataX/2016/index.html">http://datasys.cs.iit.edu/grants/BigDataX/2016/index.html</a><br>
+      <br>
+      The BigDataX (from theory to practice in Big Data computing at
+      eXtreme scales) is a Research Experiences for Undergraduates (REU)
+      site in Chicago Illinois. The program has four mentors at two
+      institutions, the Illinois Institute of Technology and University
+      of Chicago, with a variety of complementing expertise from theory
+      to programming languages to distributed systems. To apply to the
+      program, see the online application at
+      <a class="moz-txt-link-freetext" href="https://docs.google.com/forms/d/1ix7gAqroBhT199Yh3kDDg_fGuCj6dndZSbD1PG-_dy4/viewform">https://docs.google.com/forms/d/1ix7gAqroBhT199Yh3kDDg_fGuCj6dndZSbD1PG-_dy4/viewform</a>
+
+      (deadline February 29th, 2016).
+      <br>
+      <br>
+      Institutions:
+      <br>
+      - Illinois Institute of Technology (IIT): Computer Science &amp;
+      Data-Intensive Distributed Systems Laboratory
+      <br>
+      - UChicago: University of Chicago (UChicago): Computation
+      Institute
+      <br>
+      <br>
+      Mentors (<a class="moz-txt-link-abbreviated"
+        href="mailto:bigdatax@datasys.cs.iit.edu">bigdatax@datasys.cs.iit.edu</a>):
+      <br>
+      - Ioan Raicu (IIT)
+      <br>
+      - Gruia Calinescu (IIT)
+      <br>
+      - Mike Wilde (UChicago)
+      <br>
+      - Justin Wozniak (UChicago)
+      <br>
+      <br>
+      Projects:
+      <br>
+      - Data-Intensive Computing Applications
+      <br>
+      - Parallel Programming Systems
+      <br>
+      - Distributed Storage Systems
+      <br>
+      - Theory of Big Data
+      <br>
+      <br>
+      Eligibility Requirements:
+      <br>
+      - Undergraduate student in Mathematics, Computer Science, or
+      Engineering at a US institution
+      <br>
+      - US citizen or permanent resident on or before May 23rd, 2015
+      <br>
+      - Minimum GPA 3.3
+      <br>
+      - 2 letters of recommendation
+      <br>
+      <br>
+      Important Dates: <br>
+      - Application deadline: February 29th, 2016<br>
+      - Letters of recommendation deadline: March 7th, 2016<br>
+      - Notification of decision: March 21st, 2016<br>
+      - Program starts: May 23rd, 2016<br>
+      - Program ends: July 29th, 2016<br>
+      <br>
+      Program Highlights:
+      <br>
+      - Spend 10 weeks immersed in research on Big Data at Illinois
+      Institute of Technology and University of Chicago
+      <br>
+      - Prepare for graduate school
+      <br>
+      - Publish papers and attend international conferences
+      <br>
+      - Spend the summer in one of the greatest cities in the world,
+      Chicago Illinois
+      <br>
+      <br>
+      Finances (per summer):
+      <br>
+      - $5000 stipend
+      <br>
+      - $600 relocation allowance
+      <br>
+      - $650 travel funds to attend conference
+      <br>
+      - Housing included on the IIT campus
+      <br>
+      <br>
+      Online Application:
+      <br>
+      To apply to the program, please submit your complete online
+      application by the February 29th deadline at
+      <a class="moz-txt-link-freetext" href="https://docs.google.com/forms/d/1ix7gAqroBhT199Yh3kDDg_fGuCj6dndZSbD1PG-_dy4/viewform">https://docs.google.com/forms/d/1ix7gAqroBhT199Yh3kDDg_fGuCj6dndZSbD1PG-_dy4/viewform</a>.
+
+      For any questions, please send email to
+      <a class="moz-txt-link-abbreviated" href="mailto:bigdatax@datasys.cs.iit.edu">bigdatax@datasys.cs.iit.edu</a>.<br>
+      <div class="moz-txt-sig"><br>
+        <br>
+        <br>
+      </div>
+    </div>
+    <pre class="moz-signature" cols="72">-- 
+Ioan Raicu, Ph.D.
+Assistant Professor 
+Computer Science, Illinois Institute of Technology
+Guest Research Faculty 
+Math &amp; Computer Science, Argonne National Laboratory
+<a class="moz-txt-link-freetext" href="http://www.cs.iit.edu/~iraicu/">http://www.cs.iit.edu/~iraicu/</a>
+<a class="moz-txt-link-freetext" href="http://datasys.cs.iit.edu/">http://datasys.cs.iit.edu/</a></pre>
+  </body>
+</html>
+
+--------------030703020608030209080903--
+
+--===============0166798569187770698==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============0166798569187770698==--
