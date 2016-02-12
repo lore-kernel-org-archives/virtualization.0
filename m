@@ -1,8 +1,8 @@
 From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: [PATCH 13/17] drm/qxl: removed optional dummy encoder mode_fixup
+Subject: [PATCH 14/17] drm/radeon: removed optional dummy encoder mode_fixup
 	function.
-Date: Fri, 12 Feb 2016 13:55:37 +0000
-Message-ID: <1455285337-3356-1-git-send-email-palminha__43944.2371753559$1455286865$gmane$org@synopsys.com>
+Date: Fri, 12 Feb 2016 13:55:50 +0000
+Message-ID: <1455285350-3403-1-git-send-email-palminha__36108.6057652303$1455286873$gmane$org@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -21,35 +21,29 @@ Cc: k.kozlowski@samsung.com, linux-samsung-soc@vger.kernel.org, heiko@sntech.de,
 List-Id: virtualization@lists.linuxfoundation.org
 
 ---
- drivers/gpu/drm/qxl/qxl_display.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/gpu/drm/radeon/atombios_encoders.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index 8627651..43e5f50 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -734,14 +734,6 @@ static void qxl_enc_dpms(struct drm_encoder *encoder, int mode)
- 	DRM_DEBUG("\n");
+diff --git a/drivers/gpu/drm/radeon/atombios_encoders.c b/drivers/gpu/drm/radeon/atombios_encoders.c
+index 01b20e1..1603751 100644
+--- a/drivers/gpu/drm/radeon/atombios_encoders.c
++++ b/drivers/gpu/drm/radeon/atombios_encoders.c
+@@ -2623,16 +2623,8 @@ radeon_atom_ext_dpms(struct drm_encoder *encoder, int mode)
+ 
  }
  
--static bool qxl_enc_mode_fixup(struct drm_encoder *encoder,
--			       const struct drm_display_mode *mode,
--			       struct drm_display_mode *adjusted_mode)
+-static bool radeon_atom_ext_mode_fixup(struct drm_encoder *encoder,
+-				       const struct drm_display_mode *mode,
+-				       struct drm_display_mode *adjusted_mode)
 -{
--	DRM_DEBUG("\n");
 -	return true;
 -}
 -
- static void qxl_enc_prepare(struct drm_encoder *encoder)
- {
- 	DRM_DEBUG("\n");
-@@ -864,7 +856,6 @@ static struct drm_encoder *qxl_best_encoder(struct drm_connector *connector)
- 
- static const struct drm_encoder_helper_funcs qxl_enc_helper_funcs = {
- 	.dpms = qxl_enc_dpms,
--	.mode_fixup = qxl_enc_mode_fixup,
- 	.prepare = qxl_enc_prepare,
- 	.mode_set = qxl_enc_mode_set,
- 	.commit = qxl_enc_commit,
+ static const struct drm_encoder_helper_funcs radeon_atom_ext_helper_funcs = {
+ 	.dpms = radeon_atom_ext_dpms,
+-	.mode_fixup = radeon_atom_ext_mode_fixup,
+ 	.prepare = radeon_atom_ext_prepare,
+ 	.mode_set = radeon_atom_ext_mode_set,
+ 	.commit = radeon_atom_ext_commit,
 -- 
 2.5.0
