@@ -1,12 +1,15 @@
 From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: [PATCH 17/17] drm/tilcdc: removed optional dummy encoder mode_fixup
+Subject: [PATCH 03/17] drm/exynos: removed optional dummy encoder mode_fixup
 	function.
-Date: Fri, 12 Feb 2016 13:56:26 +0000
-Message-ID: <1455285386-3547-1-git-send-email-palminha__31227.6841876612$1455286915$gmane$org@synopsys.com>
+Date: Fri, 12 Feb 2016 13:50:55 +0000
+Message-ID: <1455285069-2819-4-git-send-email-palminha__7933.14730185575$1455286919$gmane$org@synopsys.com>
+References: <daniel.vetter@ffwll.ch,>
+	<1455285069-2819-1-git-send-email-palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1455285069-2819-1-git-send-email-palminha@synopsys.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,63 +24,34 @@ Cc: k.kozlowski@samsung.com, linux-samsung-soc@vger.kernel.org, heiko@sntech.de,
 List-Id: virtualization@lists.linuxfoundation.org
 
 ---
- drivers/gpu/drm/tilcdc/tilcdc_panel.c  | 9 ---------
- drivers/gpu/drm/tilcdc/tilcdc_tfp410.c | 9 ---------
- 2 files changed, 18 deletions(-)
+ drivers/gpu/drm/exynos/exynos_drm_dsi.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/tilcdc/tilcdc_panel.c b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
-index 4dda6e2..8dcf02a 100644
---- a/drivers/gpu/drm/tilcdc/tilcdc_panel.c
-+++ b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
-@@ -70,14 +70,6 @@ static void panel_encoder_dpms(struct drm_encoder *encoder, int mode)
- 					 mode == DRM_MODE_DPMS_ON ? 1 : 0);
+diff --git a/drivers/gpu/drm/exynos/exynos_drm_dsi.c b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
+index e977a81..736115c 100644
+--- a/drivers/gpu/drm/exynos/exynos_drm_dsi.c
++++ b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
+@@ -1597,13 +1597,6 @@ static int exynos_dsi_create_connector(struct drm_encoder *encoder)
+ 	return 0;
  }
  
--static bool panel_encoder_mode_fixup(struct drm_encoder *encoder,
--		const struct drm_display_mode *mode,
--		struct drm_display_mode *adjusted_mode)
+-static bool exynos_dsi_mode_fixup(struct drm_encoder *encoder,
+-				  const struct drm_display_mode *mode,
+-				  struct drm_display_mode *adjusted_mode)
 -{
--	/* nothing needed */
 -	return true;
 -}
 -
- static void panel_encoder_prepare(struct drm_encoder *encoder)
- {
- 	struct panel_encoder *panel_encoder = to_panel_encoder(encoder);
-@@ -103,7 +95,6 @@ static const struct drm_encoder_funcs panel_encoder_funcs = {
- 
- static const struct drm_encoder_helper_funcs panel_encoder_helper_funcs = {
- 		.dpms           = panel_encoder_dpms,
--		.mode_fixup     = panel_encoder_mode_fixup,
- 		.prepare        = panel_encoder_prepare,
- 		.commit         = panel_encoder_commit,
- 		.mode_set       = panel_encoder_mode_set,
-diff --git a/drivers/gpu/drm/tilcdc/tilcdc_tfp410.c b/drivers/gpu/drm/tilcdc/tilcdc_tfp410.c
-index 5052a8a..1c23017 100644
---- a/drivers/gpu/drm/tilcdc/tilcdc_tfp410.c
-+++ b/drivers/gpu/drm/tilcdc/tilcdc_tfp410.c
-@@ -80,14 +80,6 @@ static void tfp410_encoder_dpms(struct drm_encoder *encoder, int mode)
- 	tfp410_encoder->dpms = mode;
+ static void exynos_dsi_mode_set(struct drm_encoder *encoder,
+ 				struct drm_display_mode *mode,
+ 				struct drm_display_mode *adjusted_mode)
+@@ -1623,7 +1616,6 @@ static void exynos_dsi_mode_set(struct drm_encoder *encoder,
  }
  
--static bool tfp410_encoder_mode_fixup(struct drm_encoder *encoder,
--		const struct drm_display_mode *mode,
--		struct drm_display_mode *adjusted_mode)
--{
--	/* nothing needed */
--	return true;
--}
--
- static void tfp410_encoder_prepare(struct drm_encoder *encoder)
- {
- 	tfp410_encoder_dpms(encoder, DRM_MODE_DPMS_OFF);
-@@ -112,7 +104,6 @@ static const struct drm_encoder_funcs tfp410_encoder_funcs = {
- 
- static const struct drm_encoder_helper_funcs tfp410_encoder_helper_funcs = {
- 		.dpms           = tfp410_encoder_dpms,
--		.mode_fixup     = tfp410_encoder_mode_fixup,
- 		.prepare        = tfp410_encoder_prepare,
- 		.commit         = tfp410_encoder_commit,
- 		.mode_set       = tfp410_encoder_mode_set,
+ static const struct drm_encoder_helper_funcs exynos_dsi_encoder_helper_funcs = {
+-	.mode_fixup = exynos_dsi_mode_fixup,
+ 	.mode_set = exynos_dsi_mode_set,
+ 	.enable = exynos_dsi_enable,
+ 	.disable = exynos_dsi_disable,
 -- 
 2.5.0
