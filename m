@@ -1,8 +1,8 @@
 From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: [PATCH 15/17] drm/rockchip: removed optional dummy encoder mode_fixup
+Subject: [PATCH 16/17] drm/sti: removed optional dummy encoder mode_fixup
 	function.
-Date: Fri, 12 Feb 2016 13:56:02 +0000
-Message-ID: <1455285362-3450-1-git-send-email-palminha__24837.4751573012$1455286878$gmane$org@synopsys.com>
+Date: Fri, 12 Feb 2016 13:56:13 +0000
+Message-ID: <1455285373-3497-1-git-send-email-palminha__41754.6140998185$1455286899$gmane$org@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -21,34 +21,50 @@ Cc: k.kozlowski@samsung.com, linux-samsung-soc@vger.kernel.org, heiko@sntech.de,
 List-Id: virtualization@lists.linuxfoundation.org
 
 ---
- drivers/gpu/drm/rockchip/dw-mipi-dsi.c | 8 --------
- 1 file changed, 8 deletions(-)
+ drivers/gpu/drm/sti/sti_tvout.c | 10 ----------
+ 1 file changed, 10 deletions(-)
 
-diff --git a/drivers/gpu/drm/rockchip/dw-mipi-dsi.c b/drivers/gpu/drm/rockchip/dw-mipi-dsi.c
-index f8f8f29..7766206 100644
---- a/drivers/gpu/drm/rockchip/dw-mipi-dsi.c
-+++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi.c
-@@ -875,13 +875,6 @@ static void dw_mipi_dsi_encoder_disable(struct drm_encoder *encoder)
- 	clk_disable_unprepare(dsi->pclk);
+diff --git a/drivers/gpu/drm/sti/sti_tvout.c b/drivers/gpu/drm/sti/sti_tvout.c
+index f2afcf5..24a3735 100644
+--- a/drivers/gpu/drm/sti/sti_tvout.c
++++ b/drivers/gpu/drm/sti/sti_tvout.c
+@@ -440,13 +440,6 @@ static void sti_tvout_encoder_dpms(struct drm_encoder *encoder, int mode)
+ {
  }
  
--static bool dw_mipi_dsi_encoder_mode_fixup(struct drm_encoder *encoder,
--					const struct drm_display_mode *mode,
--					struct drm_display_mode *adjusted_mode)
+-static bool sti_tvout_encoder_mode_fixup(struct drm_encoder *encoder,
+-				       const struct drm_display_mode *mode,
+-				       struct drm_display_mode *adjusted_mode)
 -{
 -	return true;
 -}
 -
- static void dw_mipi_dsi_encoder_commit(struct drm_encoder *encoder)
- {
- 	struct dw_mipi_dsi *dsi = encoder_to_dsi(encoder);
-@@ -931,7 +924,6 @@ static void dw_mipi_dsi_encoder_commit(struct drm_encoder *encoder)
+ static void sti_tvout_encoder_mode_set(struct drm_encoder *encoder,
+ 				       struct drm_display_mode *mode,
+ 				       struct drm_display_mode *adjusted_mode)
+@@ -486,7 +479,6 @@ static void sti_dvo_encoder_disable(struct drm_encoder *encoder)
  
- static struct drm_encoder_helper_funcs
- dw_mipi_dsi_encoder_helper_funcs = {
--	.mode_fixup = dw_mipi_dsi_encoder_mode_fixup,
- 	.commit = dw_mipi_dsi_encoder_commit,
- 	.mode_set = dw_mipi_dsi_encoder_mode_set,
- 	.disable = dw_mipi_dsi_encoder_disable,
+ static const struct drm_encoder_helper_funcs sti_dvo_encoder_helper_funcs = {
+ 	.dpms = sti_tvout_encoder_dpms,
+-	.mode_fixup = sti_tvout_encoder_mode_fixup,
+ 	.mode_set = sti_tvout_encoder_mode_set,
+ 	.prepare = sti_tvout_encoder_prepare,
+ 	.commit = sti_dvo_encoder_commit,
+@@ -540,7 +532,6 @@ static void sti_hda_encoder_disable(struct drm_encoder *encoder)
+ 
+ static const struct drm_encoder_helper_funcs sti_hda_encoder_helper_funcs = {
+ 	.dpms = sti_tvout_encoder_dpms,
+-	.mode_fixup = sti_tvout_encoder_mode_fixup,
+ 	.mode_set = sti_tvout_encoder_mode_set,
+ 	.prepare = sti_tvout_encoder_prepare,
+ 	.commit = sti_hda_encoder_commit,
+@@ -589,7 +580,6 @@ static void sti_hdmi_encoder_disable(struct drm_encoder *encoder)
+ 
+ static const struct drm_encoder_helper_funcs sti_hdmi_encoder_helper_funcs = {
+ 	.dpms = sti_tvout_encoder_dpms,
+-	.mode_fixup = sti_tvout_encoder_mode_fixup,
+ 	.mode_set = sti_tvout_encoder_mode_set,
+ 	.prepare = sti_tvout_encoder_prepare,
+ 	.commit = sti_hdmi_encoder_commit,
 -- 
 2.5.0
