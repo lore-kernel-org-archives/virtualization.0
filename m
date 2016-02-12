@@ -1,14 +1,16 @@
 From: Alex Deucher <alexdeucher@gmail.com>
-Subject: Re: [PATCH 14/17] drm/radeon: removed optional dummy encoder
+Subject: Re: [PATCH 04/17] drm/amdgpu: removed optional dummy encoder
 	mode_fixup function.
-Date: Fri, 12 Feb 2016 11:31:19 -0500
-Message-ID: <CADnq5_PchtK9bYHSAYjf6mnJ77+O9VzvbNxsoSLcafqYrhBF3A__13522.1757962883$1455296021$gmane$org@mail.gmail.com>
-References: <1455285350-3403-1-git-send-email-palminha@synopsys.com>
+Date: Fri, 12 Feb 2016 11:31:04 -0500
+Message-ID: <CADnq5_N1smWVyhC68fwS4DO_E9NJ=ztSZMaSoZ3YKvSCtaM8Zg__34725.0230181546$1455296021$gmane$org@mail.gmail.com>
+References: <daniel.vetter@ffwll.ch,>
+	<1455285069-2819-1-git-send-email-palminha@synopsys.com>
+	<1455285069-2819-5-git-send-email-palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1455285350-3403-1-git-send-email-palminha@synopsys.com>
+In-Reply-To: <1455285069-2819-5-git-send-email-palminha@synopsys.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,36 +24,80 @@ To: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
 Cc: k.kozlowski@samsung.com, linux-samsung-soc@vger.kernel.org, jingoohan1@gmail.com, Maling list - DRI developers <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, Benjamin Gaignard <benjamin.gaignard@linaro.org>, vincent.abriou@st.com, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Feb 12, 2016 at 8:55 AM, Carlos Palminha
+On Fri, Feb 12, 2016 at 8:50 AM, Carlos Palminha
 <CARLOS.PALMINHA@synopsys.com> wrote:
 > ---
->  drivers/gpu/drm/radeon/atombios_encoders.c | 8 --------
->  1 file changed, 8 deletions(-)
+>  drivers/gpu/drm/amd/amdgpu/dce_v10_0.c | 8 --------
+>  drivers/gpu/drm/amd/amdgpu/dce_v11_0.c | 8 --------
+>  drivers/gpu/drm/amd/amdgpu/dce_v8_0.c  | 8 --------
+>  3 files changed, 24 deletions(-)
 
 Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
 
 >
-> diff --git a/drivers/gpu/drm/radeon/atombios_encoders.c b/drivers/gpu/drm/radeon/atombios_encoders.c
-> index 01b20e1..1603751 100644
-> --- a/drivers/gpu/drm/radeon/atombios_encoders.c
-> +++ b/drivers/gpu/drm/radeon/atombios_encoders.c
-> @@ -2623,16 +2623,8 @@ radeon_atom_ext_dpms(struct drm_encoder *encoder, int mode)
+> diff --git a/drivers/gpu/drm/amd/amdgpu/dce_v10_0.c b/drivers/gpu/drm/amd/amdgpu/dce_v10_0.c
+> index 093599a..3483018 100644
+> --- a/drivers/gpu/drm/amd/amdgpu/dce_v10_0.c
+> +++ b/drivers/gpu/drm/amd/amdgpu/dce_v10_0.c
+> @@ -3624,16 +3624,8 @@ dce_v10_0_ext_dpms(struct drm_encoder *encoder, int mode)
 >
 >  }
 >
-> -static bool radeon_atom_ext_mode_fixup(struct drm_encoder *encoder,
-> -                                      const struct drm_display_mode *mode,
-> -                                      struct drm_display_mode *adjusted_mode)
+> -static bool dce_v10_0_ext_mode_fixup(struct drm_encoder *encoder,
+> -                                   const struct drm_display_mode *mode,
+> -                                   struct drm_display_mode *adjusted_mode)
 > -{
 > -       return true;
 > -}
 > -
->  static const struct drm_encoder_helper_funcs radeon_atom_ext_helper_funcs = {
->         .dpms = radeon_atom_ext_dpms,
-> -       .mode_fixup = radeon_atom_ext_mode_fixup,
->         .prepare = radeon_atom_ext_prepare,
->         .mode_set = radeon_atom_ext_mode_set,
->         .commit = radeon_atom_ext_commit,
+>  static const struct drm_encoder_helper_funcs dce_v10_0_ext_helper_funcs = {
+>         .dpms = dce_v10_0_ext_dpms,
+> -       .mode_fixup = dce_v10_0_ext_mode_fixup,
+>         .prepare = dce_v10_0_ext_prepare,
+>         .mode_set = dce_v10_0_ext_mode_set,
+>         .commit = dce_v10_0_ext_commit,
+> diff --git a/drivers/gpu/drm/amd/amdgpu/dce_v11_0.c b/drivers/gpu/drm/amd/amdgpu/dce_v11_0.c
+> index 8e67249..36deea1 100644
+> --- a/drivers/gpu/drm/amd/amdgpu/dce_v11_0.c
+> +++ b/drivers/gpu/drm/amd/amdgpu/dce_v11_0.c
+> @@ -3619,16 +3619,8 @@ dce_v11_0_ext_dpms(struct drm_encoder *encoder, int mode)
+>
+>  }
+>
+> -static bool dce_v11_0_ext_mode_fixup(struct drm_encoder *encoder,
+> -                                   const struct drm_display_mode *mode,
+> -                                   struct drm_display_mode *adjusted_mode)
+> -{
+> -       return true;
+> -}
+> -
+>  static const struct drm_encoder_helper_funcs dce_v11_0_ext_helper_funcs = {
+>         .dpms = dce_v11_0_ext_dpms,
+> -       .mode_fixup = dce_v11_0_ext_mode_fixup,
+>         .prepare = dce_v11_0_ext_prepare,
+>         .mode_set = dce_v11_0_ext_mode_set,
+>         .commit = dce_v11_0_ext_commit,
+> diff --git a/drivers/gpu/drm/amd/amdgpu/dce_v8_0.c b/drivers/gpu/drm/amd/amdgpu/dce_v8_0.c
+> index d0e128c..25dd8b6 100644
+> --- a/drivers/gpu/drm/amd/amdgpu/dce_v8_0.c
+> +++ b/drivers/gpu/drm/amd/amdgpu/dce_v8_0.c
+> @@ -3554,16 +3554,8 @@ dce_v8_0_ext_dpms(struct drm_encoder *encoder, int mode)
+>
+>  }
+>
+> -static bool dce_v8_0_ext_mode_fixup(struct drm_encoder *encoder,
+> -                                   const struct drm_display_mode *mode,
+> -                                   struct drm_display_mode *adjusted_mode)
+> -{
+> -       return true;
+> -}
+> -
+>  static const struct drm_encoder_helper_funcs dce_v8_0_ext_helper_funcs = {
+>         .dpms = dce_v8_0_ext_dpms,
+> -       .mode_fixup = dce_v8_0_ext_mode_fixup,
+>         .prepare = dce_v8_0_ext_prepare,
+>         .mode_set = dce_v8_0_ext_mode_set,
+>         .commit = dce_v8_0_ext_commit,
 > --
 > 2.5.0
 >
