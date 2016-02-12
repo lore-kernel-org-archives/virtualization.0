@@ -1,15 +1,12 @@
 From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: [PATCH 02/17] drm/udl: removed optional dummy encoder mode_fixup
+Subject: [PATCH 06/17] drm/bochs: removed optional dummy encoder mode_fixup
 	function.
-Date: Fri, 12 Feb 2016 13:50:54 +0000
-Message-ID: <1455285069-2819-3-git-send-email-palminha__235.657036728476$1455286976$gmane$org@synopsys.com>
-References: <daniel.vetter@ffwll.ch,>
-	<1455285069-2819-1-git-send-email-palminha@synopsys.com>
+Date: Fri, 12 Feb 2016 13:54:04 +0000
+Message-ID: <1455285244-2978-1-git-send-email-palminha__44923.140310175$1455286991$gmane$org@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1455285069-2819-1-git-send-email-palminha@synopsys.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,34 +21,34 @@ Cc: k.kozlowski@samsung.com, linux-samsung-soc@vger.kernel.org, heiko@sntech.de,
 List-Id: virtualization@lists.linuxfoundation.org
 
 ---
- drivers/gpu/drm/udl/udl_encoder.c | 8 --------
+ drivers/gpu/drm/bochs/bochs_kms.c | 8 --------
  1 file changed, 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/udl/udl_encoder.c b/drivers/gpu/drm/udl/udl_encoder.c
-index a181a64..59a4b34 100644
---- a/drivers/gpu/drm/udl/udl_encoder.c
-+++ b/drivers/gpu/drm/udl/udl_encoder.c
-@@ -26,13 +26,6 @@ static void udl_encoder_disable(struct drm_encoder *encoder)
- {
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index 2849f1b..317c27f 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -152,13 +152,6 @@ static void bochs_crtc_init(struct drm_device *dev)
+ 	drm_crtc_helper_add(crtc, &bochs_helper_funcs);
  }
  
--static bool udl_mode_fixup(struct drm_encoder *encoder,
--			   const struct drm_display_mode *mode,
--			   struct drm_display_mode *adjusted_mode)
+-static bool bochs_encoder_mode_fixup(struct drm_encoder *encoder,
+-				     const struct drm_display_mode *mode,
+-				     struct drm_display_mode *adjusted_mode)
 -{
 -	return true;
 -}
 -
- static void udl_encoder_prepare(struct drm_encoder *encoder)
- {
- }
-@@ -54,7 +47,6 @@ udl_encoder_dpms(struct drm_encoder *encoder, int mode)
+ static void bochs_encoder_mode_set(struct drm_encoder *encoder,
+ 				   struct drm_display_mode *mode,
+ 				   struct drm_display_mode *adjusted_mode)
+@@ -179,7 +172,6 @@ static void bochs_encoder_commit(struct drm_encoder *encoder)
  
- static const struct drm_encoder_helper_funcs udl_helper_funcs = {
- 	.dpms = udl_encoder_dpms,
--	.mode_fixup = udl_mode_fixup,
- 	.prepare = udl_encoder_prepare,
- 	.mode_set = udl_encoder_mode_set,
- 	.commit = udl_encoder_commit,
+ static const struct drm_encoder_helper_funcs bochs_encoder_helper_funcs = {
+ 	.dpms = bochs_encoder_dpms,
+-	.mode_fixup = bochs_encoder_mode_fixup,
+ 	.mode_set = bochs_encoder_mode_set,
+ 	.prepare = bochs_encoder_prepare,
+ 	.commit = bochs_encoder_commit,
 -- 
 2.5.0
