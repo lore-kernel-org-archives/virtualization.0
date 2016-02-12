@@ -1,12 +1,15 @@
 From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: [PATCH 08/17] drm/exynos: removed optional dummy encoder mode_fixup
+Subject: [PATCH 04/17] drm/amdgpu: removed optional dummy encoder mode_fixup
 	function.
-Date: Fri, 12 Feb 2016 13:54:36 +0000
-Message-ID: <1455285276-3117-1-git-send-email-palminha__9505.1538352438$1455287005$gmane$org@synopsys.com>
+Date: Fri, 12 Feb 2016 13:50:56 +0000
+Message-ID: <1455285069-2819-5-git-send-email-palminha__21695.1689254076$1455287017$gmane$org@synopsys.com>
+References: <daniel.vetter@ffwll.ch,>
+	<1455285069-2819-1-git-send-email-palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1455285069-2819-1-git-send-email-palminha@synopsys.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,88 +24,73 @@ Cc: k.kozlowski@samsung.com, linux-samsung-soc@vger.kernel.org, heiko@sntech.de,
 List-Id: virtualization@lists.linuxfoundation.org
 
 ---
- drivers/gpu/drm/exynos/exynos_dp_core.c  | 8 --------
- drivers/gpu/drm/exynos/exynos_drm_dpi.c  | 8 --------
- drivers/gpu/drm/exynos/exynos_drm_vidi.c | 8 --------
+ drivers/gpu/drm/amd/amdgpu/dce_v10_0.c | 8 --------
+ drivers/gpu/drm/amd/amdgpu/dce_v11_0.c | 8 --------
+ drivers/gpu/drm/amd/amdgpu/dce_v8_0.c  | 8 --------
  3 files changed, 24 deletions(-)
 
-diff --git a/drivers/gpu/drm/exynos/exynos_dp_core.c b/drivers/gpu/drm/exynos/exynos_dp_core.c
-index 673164b..9fd12c62 100644
---- a/drivers/gpu/drm/exynos/exynos_dp_core.c
-+++ b/drivers/gpu/drm/exynos/exynos_dp_core.c
-@@ -1155,13 +1155,6 @@ static int exynos_dp_create_connector(struct drm_encoder *encoder)
- 	return 0;
+diff --git a/drivers/gpu/drm/amd/amdgpu/dce_v10_0.c b/drivers/gpu/drm/amd/amdgpu/dce_v10_0.c
+index 093599a..3483018 100644
+--- a/drivers/gpu/drm/amd/amdgpu/dce_v10_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/dce_v10_0.c
+@@ -3624,16 +3624,8 @@ dce_v10_0_ext_dpms(struct drm_encoder *encoder, int mode)
+ 
  }
  
--static bool exynos_dp_mode_fixup(struct drm_encoder *encoder,
--				 const struct drm_display_mode *mode,
--				 struct drm_display_mode *adjusted_mode)
+-static bool dce_v10_0_ext_mode_fixup(struct drm_encoder *encoder,
+-				    const struct drm_display_mode *mode,
+-				    struct drm_display_mode *adjusted_mode)
 -{
 -	return true;
 -}
 -
- static void exynos_dp_mode_set(struct drm_encoder *encoder,
- 			       struct drm_display_mode *mode,
- 			       struct drm_display_mode *adjusted_mode)
-@@ -1177,7 +1170,6 @@ static void exynos_dp_disable(struct drm_encoder *encoder)
+ static const struct drm_encoder_helper_funcs dce_v10_0_ext_helper_funcs = {
+ 	.dpms = dce_v10_0_ext_dpms,
+-	.mode_fixup = dce_v10_0_ext_mode_fixup,
+ 	.prepare = dce_v10_0_ext_prepare,
+ 	.mode_set = dce_v10_0_ext_mode_set,
+ 	.commit = dce_v10_0_ext_commit,
+diff --git a/drivers/gpu/drm/amd/amdgpu/dce_v11_0.c b/drivers/gpu/drm/amd/amdgpu/dce_v11_0.c
+index 8e67249..36deea1 100644
+--- a/drivers/gpu/drm/amd/amdgpu/dce_v11_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/dce_v11_0.c
+@@ -3619,16 +3619,8 @@ dce_v11_0_ext_dpms(struct drm_encoder *encoder, int mode)
+ 
  }
  
- static const struct drm_encoder_helper_funcs exynos_dp_encoder_helper_funcs = {
--	.mode_fixup = exynos_dp_mode_fixup,
- 	.mode_set = exynos_dp_mode_set,
- 	.enable = exynos_dp_enable,
- 	.disable = exynos_dp_disable,
-diff --git a/drivers/gpu/drm/exynos/exynos_drm_dpi.c b/drivers/gpu/drm/exynos/exynos_drm_dpi.c
-index 05350ae..75e570f 100644
---- a/drivers/gpu/drm/exynos/exynos_drm_dpi.c
-+++ b/drivers/gpu/drm/exynos/exynos_drm_dpi.c
-@@ -128,13 +128,6 @@ static int exynos_dpi_create_connector(struct drm_encoder *encoder)
- 	return 0;
- }
- 
--static bool exynos_dpi_mode_fixup(struct drm_encoder *encoder,
--				  const struct drm_display_mode *mode,
--				  struct drm_display_mode *adjusted_mode)
+-static bool dce_v11_0_ext_mode_fixup(struct drm_encoder *encoder,
+-				    const struct drm_display_mode *mode,
+-				    struct drm_display_mode *adjusted_mode)
 -{
 -	return true;
 -}
 -
- static void exynos_dpi_mode_set(struct drm_encoder *encoder,
- 				struct drm_display_mode *mode,
- 				struct drm_display_mode *adjusted_mode)
-@@ -162,7 +155,6 @@ static void exynos_dpi_disable(struct drm_encoder *encoder)
+ static const struct drm_encoder_helper_funcs dce_v11_0_ext_helper_funcs = {
+ 	.dpms = dce_v11_0_ext_dpms,
+-	.mode_fixup = dce_v11_0_ext_mode_fixup,
+ 	.prepare = dce_v11_0_ext_prepare,
+ 	.mode_set = dce_v11_0_ext_mode_set,
+ 	.commit = dce_v11_0_ext_commit,
+diff --git a/drivers/gpu/drm/amd/amdgpu/dce_v8_0.c b/drivers/gpu/drm/amd/amdgpu/dce_v8_0.c
+index d0e128c..25dd8b6 100644
+--- a/drivers/gpu/drm/amd/amdgpu/dce_v8_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/dce_v8_0.c
+@@ -3554,16 +3554,8 @@ dce_v8_0_ext_dpms(struct drm_encoder *encoder, int mode)
+ 
  }
  
- static const struct drm_encoder_helper_funcs exynos_dpi_encoder_helper_funcs = {
--	.mode_fixup = exynos_dpi_mode_fixup,
- 	.mode_set = exynos_dpi_mode_set,
- 	.enable = exynos_dpi_enable,
- 	.disable = exynos_dpi_disable,
-diff --git a/drivers/gpu/drm/exynos/exynos_drm_vidi.c b/drivers/gpu/drm/exynos/exynos_drm_vidi.c
-index 62ac4e5..65108cb 100644
---- a/drivers/gpu/drm/exynos/exynos_drm_vidi.c
-+++ b/drivers/gpu/drm/exynos/exynos_drm_vidi.c
-@@ -410,13 +410,6 @@ static int vidi_create_connector(struct drm_encoder *encoder)
- 	return 0;
- }
- 
--static bool exynos_vidi_mode_fixup(struct drm_encoder *encoder,
--				 const struct drm_display_mode *mode,
--				 struct drm_display_mode *adjusted_mode)
+-static bool dce_v8_0_ext_mode_fixup(struct drm_encoder *encoder,
+-				    const struct drm_display_mode *mode,
+-				    struct drm_display_mode *adjusted_mode)
 -{
 -	return true;
 -}
 -
- static void exynos_vidi_mode_set(struct drm_encoder *encoder,
- 			       struct drm_display_mode *mode,
- 			       struct drm_display_mode *adjusted_mode)
-@@ -432,7 +425,6 @@ static void exynos_vidi_disable(struct drm_encoder *encoder)
- }
- 
- static const struct drm_encoder_helper_funcs exynos_vidi_encoder_helper_funcs = {
--	.mode_fixup = exynos_vidi_mode_fixup,
- 	.mode_set = exynos_vidi_mode_set,
- 	.enable = exynos_vidi_enable,
- 	.disable = exynos_vidi_disable,
+ static const struct drm_encoder_helper_funcs dce_v8_0_ext_helper_funcs = {
+ 	.dpms = dce_v8_0_ext_dpms,
+-	.mode_fixup = dce_v8_0_ext_mode_fixup,
+ 	.prepare = dce_v8_0_ext_prepare,
+ 	.mode_set = dce_v8_0_ext_mode_set,
+ 	.commit = dce_v8_0_ext_commit,
 -- 
 2.5.0
