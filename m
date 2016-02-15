@@ -1,8 +1,8 @@
 From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: [PATCH v2 09/17] drm/gma500: removed optional dummy encoder
+Subject: [PATCH v2 08/17] drm/exynos: removed optional dummy encoder
 	mode_fixup function.
-Date: Mon, 15 Feb 2016 13:00:00 +0000
-Message-ID: <b704458dc68a73cfb5507933c1df0c2a79e186eb.1455540137.git.palminha__41582.1635317572$1455541300$gmane$org@synopsys.com>
+Date: Mon, 15 Feb 2016 12:59:49 +0000
+Message-ID: <4906a9925eebbe55489b1005c449b426a61c09bd.1455540137.git.palminha__15797.6854047321$1455541309$gmane$org@synopsys.com>
 References: <cover.1455540137.git.palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -31,80 +31,88 @@ This patch set nukes all the dummy mode_fixup implementations.
 
 Signed-off-by: Carlos Palminha <palminha@synopsys.com>
 ---
- drivers/gpu/drm/gma500/cdv_intel_crt.c  | 1 -
- drivers/gpu/drm/gma500/cdv_intel_hdmi.c | 1 -
- drivers/gpu/drm/gma500/gma_display.c    | 7 -------
- drivers/gpu/drm/gma500/gma_display.h    | 3 ---
- drivers/gpu/drm/gma500/oaktrail_hdmi.c  | 1 -
- 5 files changed, 13 deletions(-)
+ drivers/gpu/drm/exynos/exynos_dp_core.c  | 8 --------
+ drivers/gpu/drm/exynos/exynos_drm_dpi.c  | 8 --------
+ drivers/gpu/drm/exynos/exynos_drm_vidi.c | 8 --------
+ 3 files changed, 24 deletions(-)
 
-diff --git a/drivers/gpu/drm/gma500/cdv_intel_crt.c b/drivers/gpu/drm/gma500/cdv_intel_crt.c
-index d0717a8..b837e7a 100644
---- a/drivers/gpu/drm/gma500/cdv_intel_crt.c
-+++ b/drivers/gpu/drm/gma500/cdv_intel_crt.c
-@@ -217,7 +217,6 @@ static int cdv_intel_crt_set_property(struct drm_connector *connector,
- 
- static const struct drm_encoder_helper_funcs cdv_intel_crt_helper_funcs = {
- 	.dpms = cdv_intel_crt_dpms,
--	.mode_fixup = gma_encoder_mode_fixup,
- 	.prepare = gma_encoder_prepare,
- 	.commit = gma_encoder_commit,
- 	.mode_set = cdv_intel_crt_mode_set,
-diff --git a/drivers/gpu/drm/gma500/cdv_intel_hdmi.c b/drivers/gpu/drm/gma500/cdv_intel_hdmi.c
-index ddf2d77..28f9d90 100644
---- a/drivers/gpu/drm/gma500/cdv_intel_hdmi.c
-+++ b/drivers/gpu/drm/gma500/cdv_intel_hdmi.c
-@@ -255,7 +255,6 @@ static void cdv_hdmi_destroy(struct drm_connector *connector)
- 
- static const struct drm_encoder_helper_funcs cdv_hdmi_helper_funcs = {
- 	.dpms = cdv_hdmi_dpms,
--	.mode_fixup = gma_encoder_mode_fixup,
- 	.prepare = gma_encoder_prepare,
- 	.mode_set = cdv_hdmi_mode_set,
- 	.commit = gma_encoder_commit,
-diff --git a/drivers/gpu/drm/gma500/gma_display.c b/drivers/gpu/drm/gma500/gma_display.c
-index ff17af4..9270821 100644
---- a/drivers/gpu/drm/gma500/gma_display.c
-+++ b/drivers/gpu/drm/gma500/gma_display.c
-@@ -478,13 +478,6 @@ int gma_crtc_cursor_move(struct drm_crtc *crtc, int x, int y)
+diff --git a/drivers/gpu/drm/exynos/exynos_dp_core.c b/drivers/gpu/drm/exynos/exynos_dp_core.c
+index 673164b..9fd12c62 100644
+--- a/drivers/gpu/drm/exynos/exynos_dp_core.c
++++ b/drivers/gpu/drm/exynos/exynos_dp_core.c
+@@ -1155,13 +1155,6 @@ static int exynos_dp_create_connector(struct drm_encoder *encoder)
  	return 0;
  }
  
--bool gma_encoder_mode_fixup(struct drm_encoder *encoder,
--			    const struct drm_display_mode *mode,
--			    struct drm_display_mode *adjusted_mode)
+-static bool exynos_dp_mode_fixup(struct drm_encoder *encoder,
+-				 const struct drm_display_mode *mode,
+-				 struct drm_display_mode *adjusted_mode)
 -{
 -	return true;
 -}
 -
- bool gma_crtc_mode_fixup(struct drm_crtc *crtc,
- 			 const struct drm_display_mode *mode,
- 			 struct drm_display_mode *adjusted_mode)
-diff --git a/drivers/gpu/drm/gma500/gma_display.h b/drivers/gpu/drm/gma500/gma_display.h
-index ed569d8..78b9f98 100644
---- a/drivers/gpu/drm/gma500/gma_display.h
-+++ b/drivers/gpu/drm/gma500/gma_display.h
-@@ -90,9 +90,6 @@ extern void gma_crtc_restore(struct drm_crtc *crtc);
- extern void gma_encoder_prepare(struct drm_encoder *encoder);
- extern void gma_encoder_commit(struct drm_encoder *encoder);
- extern void gma_encoder_destroy(struct drm_encoder *encoder);
--extern bool gma_encoder_mode_fixup(struct drm_encoder *encoder,
--				   const struct drm_display_mode *mode,
--				   struct drm_display_mode *adjusted_mode);
+ static void exynos_dp_mode_set(struct drm_encoder *encoder,
+ 			       struct drm_display_mode *mode,
+ 			       struct drm_display_mode *adjusted_mode)
+@@ -1177,7 +1170,6 @@ static void exynos_dp_disable(struct drm_encoder *encoder)
+ }
  
- /* Common clock related functions */
- extern const struct gma_limit_t *gma_limit(struct drm_crtc *crtc, int refclk);
-diff --git a/drivers/gpu/drm/gma500/oaktrail_hdmi.c b/drivers/gpu/drm/gma500/oaktrail_hdmi.c
-index 2d18499..8b2eb32 100644
---- a/drivers/gpu/drm/gma500/oaktrail_hdmi.c
-+++ b/drivers/gpu/drm/gma500/oaktrail_hdmi.c
-@@ -601,7 +601,6 @@ static void oaktrail_hdmi_destroy(struct drm_connector *connector)
+ static const struct drm_encoder_helper_funcs exynos_dp_encoder_helper_funcs = {
+-	.mode_fixup = exynos_dp_mode_fixup,
+ 	.mode_set = exynos_dp_mode_set,
+ 	.enable = exynos_dp_enable,
+ 	.disable = exynos_dp_disable,
+diff --git a/drivers/gpu/drm/exynos/exynos_drm_dpi.c b/drivers/gpu/drm/exynos/exynos_drm_dpi.c
+index 05350ae..75e570f 100644
+--- a/drivers/gpu/drm/exynos/exynos_drm_dpi.c
++++ b/drivers/gpu/drm/exynos/exynos_drm_dpi.c
+@@ -128,13 +128,6 @@ static int exynos_dpi_create_connector(struct drm_encoder *encoder)
+ 	return 0;
+ }
  
- static const struct drm_encoder_helper_funcs oaktrail_hdmi_helper_funcs = {
- 	.dpms = oaktrail_hdmi_dpms,
--	.mode_fixup = gma_encoder_mode_fixup,
- 	.prepare = gma_encoder_prepare,
- 	.mode_set = oaktrail_hdmi_mode_set,
- 	.commit = gma_encoder_commit,
+-static bool exynos_dpi_mode_fixup(struct drm_encoder *encoder,
+-				  const struct drm_display_mode *mode,
+-				  struct drm_display_mode *adjusted_mode)
+-{
+-	return true;
+-}
+-
+ static void exynos_dpi_mode_set(struct drm_encoder *encoder,
+ 				struct drm_display_mode *mode,
+ 				struct drm_display_mode *adjusted_mode)
+@@ -162,7 +155,6 @@ static void exynos_dpi_disable(struct drm_encoder *encoder)
+ }
+ 
+ static const struct drm_encoder_helper_funcs exynos_dpi_encoder_helper_funcs = {
+-	.mode_fixup = exynos_dpi_mode_fixup,
+ 	.mode_set = exynos_dpi_mode_set,
+ 	.enable = exynos_dpi_enable,
+ 	.disable = exynos_dpi_disable,
+diff --git a/drivers/gpu/drm/exynos/exynos_drm_vidi.c b/drivers/gpu/drm/exynos/exynos_drm_vidi.c
+index 62ac4e5..65108cb 100644
+--- a/drivers/gpu/drm/exynos/exynos_drm_vidi.c
++++ b/drivers/gpu/drm/exynos/exynos_drm_vidi.c
+@@ -410,13 +410,6 @@ static int vidi_create_connector(struct drm_encoder *encoder)
+ 	return 0;
+ }
+ 
+-static bool exynos_vidi_mode_fixup(struct drm_encoder *encoder,
+-				 const struct drm_display_mode *mode,
+-				 struct drm_display_mode *adjusted_mode)
+-{
+-	return true;
+-}
+-
+ static void exynos_vidi_mode_set(struct drm_encoder *encoder,
+ 			       struct drm_display_mode *mode,
+ 			       struct drm_display_mode *adjusted_mode)
+@@ -432,7 +425,6 @@ static void exynos_vidi_disable(struct drm_encoder *encoder)
+ }
+ 
+ static const struct drm_encoder_helper_funcs exynos_vidi_encoder_helper_funcs = {
+-	.mode_fixup = exynos_vidi_mode_fixup,
+ 	.mode_set = exynos_vidi_mode_set,
+ 	.enable = exynos_vidi_enable,
+ 	.disable = exynos_vidi_disable,
 -- 
 2.5.0
