@@ -1,8 +1,8 @@
 From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: [PATCH v2 14/17] drm/radeon: removed optional dummy encoder
+Subject: [PATCH v2 15/17] drm/rockchip: removed optional dummy encoder
 	mode_fixup function.
-Date: Mon, 15 Feb 2016 13:01:05 +0000
-Message-ID: <1b99680b8cf81977597dec5daedff9b684d3ed19.1455540137.git.palminha__37654.9856424846$1455541402$gmane$org@synopsys.com>
+Date: Mon, 15 Feb 2016 13:01:15 +0000
+Message-ID: <cae559aa2c04a906c21ed5ebe4861f92440e6910.1455540137.git.palminha__29363.8297742747$1455541408$gmane$org@synopsys.com>
 References: <cover.1455540137.git.palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -30,31 +30,35 @@ This patch set nukes all the dummy mode_fixup implementations.
 (made on top of Daniel topic/drm-misc branch)
 
 Signed-off-by: Carlos Palminha <palminha@synopsys.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
 ---
- drivers/gpu/drm/radeon/atombios_encoders.c | 8 --------
+ drivers/gpu/drm/rockchip/dw-mipi-dsi.c | 8 --------
  1 file changed, 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/radeon/atombios_encoders.c b/drivers/gpu/drm/radeon/atombios_encoders.c
-index 01b20e1..1603751 100644
---- a/drivers/gpu/drm/radeon/atombios_encoders.c
-+++ b/drivers/gpu/drm/radeon/atombios_encoders.c
-@@ -2623,16 +2623,8 @@ radeon_atom_ext_dpms(struct drm_encoder *encoder, int mode)
- 
+diff --git a/drivers/gpu/drm/rockchip/dw-mipi-dsi.c b/drivers/gpu/drm/rockchip/dw-mipi-dsi.c
+index f8f8f29..7766206 100644
+--- a/drivers/gpu/drm/rockchip/dw-mipi-dsi.c
++++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi.c
+@@ -875,13 +875,6 @@ static void dw_mipi_dsi_encoder_disable(struct drm_encoder *encoder)
+ 	clk_disable_unprepare(dsi->pclk);
  }
  
--static bool radeon_atom_ext_mode_fixup(struct drm_encoder *encoder,
--				       const struct drm_display_mode *mode,
--				       struct drm_display_mode *adjusted_mode)
+-static bool dw_mipi_dsi_encoder_mode_fixup(struct drm_encoder *encoder,
+-					const struct drm_display_mode *mode,
+-					struct drm_display_mode *adjusted_mode)
 -{
 -	return true;
 -}
 -
- static const struct drm_encoder_helper_funcs radeon_atom_ext_helper_funcs = {
- 	.dpms = radeon_atom_ext_dpms,
--	.mode_fixup = radeon_atom_ext_mode_fixup,
- 	.prepare = radeon_atom_ext_prepare,
- 	.mode_set = radeon_atom_ext_mode_set,
- 	.commit = radeon_atom_ext_commit,
+ static void dw_mipi_dsi_encoder_commit(struct drm_encoder *encoder)
+ {
+ 	struct dw_mipi_dsi *dsi = encoder_to_dsi(encoder);
+@@ -931,7 +924,6 @@ static void dw_mipi_dsi_encoder_commit(struct drm_encoder *encoder)
+ 
+ static struct drm_encoder_helper_funcs
+ dw_mipi_dsi_encoder_helper_funcs = {
+-	.mode_fixup = dw_mipi_dsi_encoder_mode_fixup,
+ 	.commit = dw_mipi_dsi_encoder_commit,
+ 	.mode_set = dw_mipi_dsi_encoder_mode_set,
+ 	.disable = dw_mipi_dsi_encoder_disable,
 -- 
 2.5.0
