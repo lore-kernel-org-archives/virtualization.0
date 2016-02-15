@@ -1,8 +1,8 @@
 From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: [PATCH v2 13/17] drm/qxl: removed optional dummy encoder mode_fixup
+Subject: [PATCH v2 06/17] drm/bochs: removed optional dummy encoder mode_fixup
 	function.
-Date: Mon, 15 Feb 2016 13:00:54 +0000
-Message-ID: <f35bc322f7af69ba0fea734d58b4daf5e0cd9786.1455540137.git.palminha__2682.52125611088$1455541379$gmane$org@synopsys.com>
+Date: Mon, 15 Feb 2016 12:59:12 +0000
+Message-ID: <d8b87edea28c8211e1711348143e4c355764a8c4.1455540137.git.palminha__41018.6968664222$1455541390$gmane$org@synopsys.com>
 References: <cover.1455540137.git.palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -31,35 +31,34 @@ This patch set nukes all the dummy mode_fixup implementations.
 
 Signed-off-by: Carlos Palminha <palminha@synopsys.com>
 ---
- drivers/gpu/drm/qxl/qxl_display.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/gpu/drm/bochs/bochs_kms.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index 8627651..43e5f50 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -734,14 +734,6 @@ static void qxl_enc_dpms(struct drm_encoder *encoder, int mode)
- 	DRM_DEBUG("\n");
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index 2849f1b..317c27f 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -152,13 +152,6 @@ static void bochs_crtc_init(struct drm_device *dev)
+ 	drm_crtc_helper_add(crtc, &bochs_helper_funcs);
  }
  
--static bool qxl_enc_mode_fixup(struct drm_encoder *encoder,
--			       const struct drm_display_mode *mode,
--			       struct drm_display_mode *adjusted_mode)
+-static bool bochs_encoder_mode_fixup(struct drm_encoder *encoder,
+-				     const struct drm_display_mode *mode,
+-				     struct drm_display_mode *adjusted_mode)
 -{
--	DRM_DEBUG("\n");
 -	return true;
 -}
 -
- static void qxl_enc_prepare(struct drm_encoder *encoder)
- {
- 	DRM_DEBUG("\n");
-@@ -864,7 +856,6 @@ static struct drm_encoder *qxl_best_encoder(struct drm_connector *connector)
+ static void bochs_encoder_mode_set(struct drm_encoder *encoder,
+ 				   struct drm_display_mode *mode,
+ 				   struct drm_display_mode *adjusted_mode)
+@@ -179,7 +172,6 @@ static void bochs_encoder_commit(struct drm_encoder *encoder)
  
- static const struct drm_encoder_helper_funcs qxl_enc_helper_funcs = {
- 	.dpms = qxl_enc_dpms,
--	.mode_fixup = qxl_enc_mode_fixup,
- 	.prepare = qxl_enc_prepare,
- 	.mode_set = qxl_enc_mode_set,
- 	.commit = qxl_enc_commit,
+ static const struct drm_encoder_helper_funcs bochs_encoder_helper_funcs = {
+ 	.dpms = bochs_encoder_dpms,
+-	.mode_fixup = bochs_encoder_mode_fixup,
+ 	.mode_set = bochs_encoder_mode_set,
+ 	.prepare = bochs_encoder_prepare,
+ 	.commit = bochs_encoder_commit,
 -- 
 2.5.0
