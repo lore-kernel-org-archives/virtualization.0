@@ -1,8 +1,8 @@
 From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: [PATCH v2 02/17] drm/udl: removed optional dummy encoder mode_fixup
+Subject: [PATCH v2 05/17] drm/ast: removed optional dummy encoder mode_fixup
 	function.
-Date: Mon, 15 Feb 2016 12:57:58 +0000
-Message-ID: <a7ebfb6c6c333056d0a77d2684c539107ee63589.1455540137.git.palminha__4746.70003536648$1455541160$gmane$org@synopsys.com>
+Date: Mon, 15 Feb 2016 12:59:00 +0000
+Message-ID: <12e1e900724c890166b88b0f4d67baba387482af.1455540137.git.palminha__49273.1997081593$1455541190$gmane$org@synopsys.com>
 References: <cover.1455540137.git.palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -31,34 +31,34 @@ This patch set nukes all the dummy mode_fixup implementations.
 
 Signed-off-by: Carlos Palminha <palminha@synopsys.com>
 ---
- drivers/gpu/drm/udl/udl_encoder.c | 8 --------
+ drivers/gpu/drm/ast/ast_mode.c | 8 --------
  1 file changed, 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/udl/udl_encoder.c b/drivers/gpu/drm/udl/udl_encoder.c
-index a181a64..59a4b34 100644
---- a/drivers/gpu/drm/udl/udl_encoder.c
-+++ b/drivers/gpu/drm/udl/udl_encoder.c
-@@ -26,13 +26,6 @@ static void udl_encoder_disable(struct drm_encoder *encoder)
- {
+diff --git a/drivers/gpu/drm/ast/ast_mode.c b/drivers/gpu/drm/ast/ast_mode.c
+index 0123458..f221e2d 100644
+--- a/drivers/gpu/drm/ast/ast_mode.c
++++ b/drivers/gpu/drm/ast/ast_mode.c
+@@ -710,13 +710,6 @@ static void ast_encoder_dpms(struct drm_encoder *encoder, int mode)
+ 
  }
  
--static bool udl_mode_fixup(struct drm_encoder *encoder,
+-static bool ast_mode_fixup(struct drm_encoder *encoder,
 -			   const struct drm_display_mode *mode,
 -			   struct drm_display_mode *adjusted_mode)
 -{
 -	return true;
 -}
 -
- static void udl_encoder_prepare(struct drm_encoder *encoder)
- {
- }
-@@ -54,7 +47,6 @@ udl_encoder_dpms(struct drm_encoder *encoder, int mode)
+ static void ast_encoder_mode_set(struct drm_encoder *encoder,
+ 			       struct drm_display_mode *mode,
+ 			       struct drm_display_mode *adjusted_mode)
+@@ -736,7 +729,6 @@ static void ast_encoder_commit(struct drm_encoder *encoder)
  
- static const struct drm_encoder_helper_funcs udl_helper_funcs = {
- 	.dpms = udl_encoder_dpms,
--	.mode_fixup = udl_mode_fixup,
- 	.prepare = udl_encoder_prepare,
- 	.mode_set = udl_encoder_mode_set,
- 	.commit = udl_encoder_commit,
+ static const struct drm_encoder_helper_funcs ast_enc_helper_funcs = {
+ 	.dpms = ast_encoder_dpms,
+-	.mode_fixup = ast_mode_fixup,
+ 	.prepare = ast_encoder_prepare,
+ 	.commit = ast_encoder_commit,
+ 	.mode_set = ast_encoder_mode_set,
 -- 
 2.5.0
