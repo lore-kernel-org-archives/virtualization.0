@@ -1,15 +1,15 @@
 From: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
-Subject: Re: [PATCH v2 03/17] drm/exynos: removed optional dummy encoder
+Subject: Re: [PATCH v2 09/17] drm/gma500: removed optional dummy encoder
 	mode_fixup function.
-Date: Mon, 15 Feb 2016 14:49:09 +0100
-Message-ID: <CAMeQTsZLdMOnk7-isneoUyFBbQdiRUsGH6+EhD8W1LNB=80LVQ__1207.52398293025$1455576477$gmane$org@mail.gmail.com>
+Date: Mon, 15 Feb 2016 15:24:01 +0100
+Message-ID: <CAMeQTsZ=JP36ry8u_WAWgjz4sa4SPSpQmq3n+dACq0JhHonVSw__63.1135692403362$1455576484$gmane$org@mail.gmail.com>
 References: <cover.1455540137.git.palminha@synopsys.com>
-	<3768b670931572de51fca1102efa18d20dd770ee.1455540137.git.palminha@synopsys.com>
+	<b704458dc68a73cfb5507933c1df0c2a79e186eb.1455540137.git.palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <3768b670931572de51fca1102efa18d20dd770ee.1455540137.git.palminha@synopsys.com>
+In-Reply-To: <b704458dc68a73cfb5507933c1df0c2a79e186eb.1455540137.git.palminha@synopsys.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,15 +23,7 @@ To: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
 Cc: k.kozlowski@samsung.com, linux-samsung-soc@vger.kernel.org, heiko@sntech.de, benjamin.gaignard@linaro.org, David Airlie <airlied@linux.ie>, jingoohan1@gmail.com, dri-devel <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, p.zabel@pengutronix.de, vincent.abriou@st.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Carlos
-
-Any particular reason why this patch isn't squashed with patch 8/17?
-
-Thanks
-Patrik
-
-
-On Mon, Feb 15, 2016 at 1:58 PM, Carlos Palminha
+On Mon, Feb 15, 2016 at 2:00 PM, Carlos Palminha
 <CARLOS.PALMINHA@synopsys.com> wrote:
 > mode_fixup function for encoder drivers became optional with patch
 > http://patchwork.freedesktop.org/patch/msgid/1455106522-32307-1-git-send-email-palminha@synopsys.com
@@ -41,36 +33,85 @@ On Mon, Feb 15, 2016 at 1:58 PM, Carlos Palminha
 > (made on top of Daniel topic/drm-misc branch)
 >
 > Signed-off-by: Carlos Palminha <palminha@synopsys.com>
+
+Reviewed-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+
 > ---
->  drivers/gpu/drm/exynos/exynos_drm_dsi.c | 8 --------
->  1 file changed, 8 deletions(-)
+>  drivers/gpu/drm/gma500/cdv_intel_crt.c  | 1 -
+>  drivers/gpu/drm/gma500/cdv_intel_hdmi.c | 1 -
+>  drivers/gpu/drm/gma500/gma_display.c    | 7 -------
+>  drivers/gpu/drm/gma500/gma_display.h    | 3 ---
+>  drivers/gpu/drm/gma500/oaktrail_hdmi.c  | 1 -
+>  5 files changed, 13 deletions(-)
 >
-> diff --git a/drivers/gpu/drm/exynos/exynos_drm_dsi.c b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-> index e977a81..736115c 100644
-> --- a/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-> +++ b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-> @@ -1597,13 +1597,6 @@ static int exynos_dsi_create_connector(struct drm_encoder *encoder)
+> diff --git a/drivers/gpu/drm/gma500/cdv_intel_crt.c b/drivers/gpu/drm/gma500/cdv_intel_crt.c
+> index d0717a8..b837e7a 100644
+> --- a/drivers/gpu/drm/gma500/cdv_intel_crt.c
+> +++ b/drivers/gpu/drm/gma500/cdv_intel_crt.c
+> @@ -217,7 +217,6 @@ static int cdv_intel_crt_set_property(struct drm_connector *connector,
+>
+>  static const struct drm_encoder_helper_funcs cdv_intel_crt_helper_funcs = {
+>         .dpms = cdv_intel_crt_dpms,
+> -       .mode_fixup = gma_encoder_mode_fixup,
+>         .prepare = gma_encoder_prepare,
+>         .commit = gma_encoder_commit,
+>         .mode_set = cdv_intel_crt_mode_set,
+> diff --git a/drivers/gpu/drm/gma500/cdv_intel_hdmi.c b/drivers/gpu/drm/gma500/cdv_intel_hdmi.c
+> index ddf2d77..28f9d90 100644
+> --- a/drivers/gpu/drm/gma500/cdv_intel_hdmi.c
+> +++ b/drivers/gpu/drm/gma500/cdv_intel_hdmi.c
+> @@ -255,7 +255,6 @@ static void cdv_hdmi_destroy(struct drm_connector *connector)
+>
+>  static const struct drm_encoder_helper_funcs cdv_hdmi_helper_funcs = {
+>         .dpms = cdv_hdmi_dpms,
+> -       .mode_fixup = gma_encoder_mode_fixup,
+>         .prepare = gma_encoder_prepare,
+>         .mode_set = cdv_hdmi_mode_set,
+>         .commit = gma_encoder_commit,
+> diff --git a/drivers/gpu/drm/gma500/gma_display.c b/drivers/gpu/drm/gma500/gma_display.c
+> index ff17af4..9270821 100644
+> --- a/drivers/gpu/drm/gma500/gma_display.c
+> +++ b/drivers/gpu/drm/gma500/gma_display.c
+> @@ -478,13 +478,6 @@ int gma_crtc_cursor_move(struct drm_crtc *crtc, int x, int y)
 >         return 0;
 >  }
 >
-> -static bool exynos_dsi_mode_fixup(struct drm_encoder *encoder,
-> -                                 const struct drm_display_mode *mode,
-> -                                 struct drm_display_mode *adjusted_mode)
+> -bool gma_encoder_mode_fixup(struct drm_encoder *encoder,
+> -                           const struct drm_display_mode *mode,
+> -                           struct drm_display_mode *adjusted_mode)
 > -{
 > -       return true;
 > -}
 > -
->  static void exynos_dsi_mode_set(struct drm_encoder *encoder,
->                                 struct drm_display_mode *mode,
->                                 struct drm_display_mode *adjusted_mode)
-> @@ -1623,7 +1616,6 @@ static void exynos_dsi_mode_set(struct drm_encoder *encoder,
->  }
+>  bool gma_crtc_mode_fixup(struct drm_crtc *crtc,
+>                          const struct drm_display_mode *mode,
+>                          struct drm_display_mode *adjusted_mode)
+> diff --git a/drivers/gpu/drm/gma500/gma_display.h b/drivers/gpu/drm/gma500/gma_display.h
+> index ed569d8..78b9f98 100644
+> --- a/drivers/gpu/drm/gma500/gma_display.h
+> +++ b/drivers/gpu/drm/gma500/gma_display.h
+> @@ -90,9 +90,6 @@ extern void gma_crtc_restore(struct drm_crtc *crtc);
+>  extern void gma_encoder_prepare(struct drm_encoder *encoder);
+>  extern void gma_encoder_commit(struct drm_encoder *encoder);
+>  extern void gma_encoder_destroy(struct drm_encoder *encoder);
+> -extern bool gma_encoder_mode_fixup(struct drm_encoder *encoder,
+> -                                  const struct drm_display_mode *mode,
+> -                                  struct drm_display_mode *adjusted_mode);
 >
->  static const struct drm_encoder_helper_funcs exynos_dsi_encoder_helper_funcs = {
-> -       .mode_fixup = exynos_dsi_mode_fixup,
->         .mode_set = exynos_dsi_mode_set,
->         .enable = exynos_dsi_enable,
->         .disable = exynos_dsi_disable,
+>  /* Common clock related functions */
+>  extern const struct gma_limit_t *gma_limit(struct drm_crtc *crtc, int refclk);
+> diff --git a/drivers/gpu/drm/gma500/oaktrail_hdmi.c b/drivers/gpu/drm/gma500/oaktrail_hdmi.c
+> index 2d18499..8b2eb32 100644
+> --- a/drivers/gpu/drm/gma500/oaktrail_hdmi.c
+> +++ b/drivers/gpu/drm/gma500/oaktrail_hdmi.c
+> @@ -601,7 +601,6 @@ static void oaktrail_hdmi_destroy(struct drm_connector *connector)
+>
+>  static const struct drm_encoder_helper_funcs oaktrail_hdmi_helper_funcs = {
+>         .dpms = oaktrail_hdmi_dpms,
+> -       .mode_fixup = gma_encoder_mode_fixup,
+>         .prepare = gma_encoder_prepare,
+>         .mode_set = oaktrail_hdmi_mode_set,
+>         .commit = gma_encoder_commit,
 > --
 > 2.5.0
 >
