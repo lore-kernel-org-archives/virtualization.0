@@ -1,8 +1,8 @@
 From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: [PATCH v2 15/17] drm/rockchip: removed optional dummy encoder
+Subject: [PATCH v2 17/17] drm/tilcdc: removed optional dummy encoder
 	mode_fixup function.
-Date: Mon, 15 Feb 2016 13:01:15 +0000
-Message-ID: <cae559aa2c04a906c21ed5ebe4861f92440e6910.1455540137.git.palminha__29363.8297742747$1455541408$gmane$org@synopsys.com>
+Date: Mon, 15 Feb 2016 13:01:35 +0000
+Message-ID: <4d838f580cf81068a4df2500a096d66f06f3ad37.1455540137.git.palminha__29971.6346119114$1455541436$gmane$org@synopsys.com>
 References: <cover.1455540137.git.palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -31,34 +31,63 @@ This patch set nukes all the dummy mode_fixup implementations.
 
 Signed-off-by: Carlos Palminha <palminha@synopsys.com>
 ---
- drivers/gpu/drm/rockchip/dw-mipi-dsi.c | 8 --------
- 1 file changed, 8 deletions(-)
+ drivers/gpu/drm/tilcdc/tilcdc_panel.c  | 9 ---------
+ drivers/gpu/drm/tilcdc/tilcdc_tfp410.c | 9 ---------
+ 2 files changed, 18 deletions(-)
 
-diff --git a/drivers/gpu/drm/rockchip/dw-mipi-dsi.c b/drivers/gpu/drm/rockchip/dw-mipi-dsi.c
-index f8f8f29..7766206 100644
---- a/drivers/gpu/drm/rockchip/dw-mipi-dsi.c
-+++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi.c
-@@ -875,13 +875,6 @@ static void dw_mipi_dsi_encoder_disable(struct drm_encoder *encoder)
- 	clk_disable_unprepare(dsi->pclk);
+diff --git a/drivers/gpu/drm/tilcdc/tilcdc_panel.c b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
+index 4dda6e2..8dcf02a 100644
+--- a/drivers/gpu/drm/tilcdc/tilcdc_panel.c
++++ b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
+@@ -70,14 +70,6 @@ static void panel_encoder_dpms(struct drm_encoder *encoder, int mode)
+ 					 mode == DRM_MODE_DPMS_ON ? 1 : 0);
  }
  
--static bool dw_mipi_dsi_encoder_mode_fixup(struct drm_encoder *encoder,
--					const struct drm_display_mode *mode,
--					struct drm_display_mode *adjusted_mode)
+-static bool panel_encoder_mode_fixup(struct drm_encoder *encoder,
+-		const struct drm_display_mode *mode,
+-		struct drm_display_mode *adjusted_mode)
 -{
+-	/* nothing needed */
 -	return true;
 -}
 -
- static void dw_mipi_dsi_encoder_commit(struct drm_encoder *encoder)
+ static void panel_encoder_prepare(struct drm_encoder *encoder)
  {
- 	struct dw_mipi_dsi *dsi = encoder_to_dsi(encoder);
-@@ -931,7 +924,6 @@ static void dw_mipi_dsi_encoder_commit(struct drm_encoder *encoder)
+ 	struct panel_encoder *panel_encoder = to_panel_encoder(encoder);
+@@ -103,7 +95,6 @@ static const struct drm_encoder_funcs panel_encoder_funcs = {
  
- static struct drm_encoder_helper_funcs
- dw_mipi_dsi_encoder_helper_funcs = {
--	.mode_fixup = dw_mipi_dsi_encoder_mode_fixup,
- 	.commit = dw_mipi_dsi_encoder_commit,
- 	.mode_set = dw_mipi_dsi_encoder_mode_set,
- 	.disable = dw_mipi_dsi_encoder_disable,
+ static const struct drm_encoder_helper_funcs panel_encoder_helper_funcs = {
+ 		.dpms           = panel_encoder_dpms,
+-		.mode_fixup     = panel_encoder_mode_fixup,
+ 		.prepare        = panel_encoder_prepare,
+ 		.commit         = panel_encoder_commit,
+ 		.mode_set       = panel_encoder_mode_set,
+diff --git a/drivers/gpu/drm/tilcdc/tilcdc_tfp410.c b/drivers/gpu/drm/tilcdc/tilcdc_tfp410.c
+index 5052a8a..1c23017 100644
+--- a/drivers/gpu/drm/tilcdc/tilcdc_tfp410.c
++++ b/drivers/gpu/drm/tilcdc/tilcdc_tfp410.c
+@@ -80,14 +80,6 @@ static void tfp410_encoder_dpms(struct drm_encoder *encoder, int mode)
+ 	tfp410_encoder->dpms = mode;
+ }
+ 
+-static bool tfp410_encoder_mode_fixup(struct drm_encoder *encoder,
+-		const struct drm_display_mode *mode,
+-		struct drm_display_mode *adjusted_mode)
+-{
+-	/* nothing needed */
+-	return true;
+-}
+-
+ static void tfp410_encoder_prepare(struct drm_encoder *encoder)
+ {
+ 	tfp410_encoder_dpms(encoder, DRM_MODE_DPMS_OFF);
+@@ -112,7 +104,6 @@ static const struct drm_encoder_funcs tfp410_encoder_funcs = {
+ 
+ static const struct drm_encoder_helper_funcs tfp410_encoder_helper_funcs = {
+ 		.dpms           = tfp410_encoder_dpms,
+-		.mode_fixup     = tfp410_encoder_mode_fixup,
+ 		.prepare        = tfp410_encoder_prepare,
+ 		.commit         = tfp410_encoder_commit,
+ 		.mode_set       = tfp410_encoder_mode_set,
 -- 
 2.5.0
