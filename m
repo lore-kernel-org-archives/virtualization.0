@@ -1,8 +1,8 @@
 From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: [PATCH v2 16/17] drm/sti: removed optional dummy encoder mode_fixup
-	function.
-Date: Mon, 15 Feb 2016 13:01:25 +0000
-Message-ID: <7f47c6a7b00e4f16af672ebf3a277e31ad117e21.1455540137.git.palminha__11244.9168962941$1455541361$gmane$org@synopsys.com>
+Subject: [PATCH v2 04/17] drm/amdgpu: removed optional dummy encoder
+	mode_fixup function.
+Date: Mon, 15 Feb 2016 12:58:31 +0000
+Message-ID: <8c4710ee930d2ab3a505b8d3cd724f4f4c79b3df.1455540137.git.palminha@synopsys.com>
 References: <cover.1455540137.git.palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -30,51 +30,75 @@ This patch set nukes all the dummy mode_fixup implementations.
 (made on top of Daniel topic/drm-misc branch)
 
 Signed-off-by: Carlos Palminha <palminha@synopsys.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
 ---
- drivers/gpu/drm/sti/sti_tvout.c | 10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/dce_v10_0.c | 8 --------
+ drivers/gpu/drm/amd/amdgpu/dce_v11_0.c | 8 --------
+ drivers/gpu/drm/amd/amdgpu/dce_v8_0.c  | 8 --------
+ 3 files changed, 24 deletions(-)
 
-diff --git a/drivers/gpu/drm/sti/sti_tvout.c b/drivers/gpu/drm/sti/sti_tvout.c
-index f2afcf5..24a3735 100644
---- a/drivers/gpu/drm/sti/sti_tvout.c
-+++ b/drivers/gpu/drm/sti/sti_tvout.c
-@@ -440,13 +440,6 @@ static void sti_tvout_encoder_dpms(struct drm_encoder *encoder, int mode)
- {
+diff --git a/drivers/gpu/drm/amd/amdgpu/dce_v10_0.c b/drivers/gpu/drm/amd/amdgpu/dce_v10_0.c
+index 093599a..3483018 100644
+--- a/drivers/gpu/drm/amd/amdgpu/dce_v10_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/dce_v10_0.c
+@@ -3624,16 +3624,8 @@ dce_v10_0_ext_dpms(struct drm_encoder *encoder, int mode)
+ 
  }
  
--static bool sti_tvout_encoder_mode_fixup(struct drm_encoder *encoder,
--				       const struct drm_display_mode *mode,
--				       struct drm_display_mode *adjusted_mode)
+-static bool dce_v10_0_ext_mode_fixup(struct drm_encoder *encoder,
+-				    const struct drm_display_mode *mode,
+-				    struct drm_display_mode *adjusted_mode)
 -{
 -	return true;
 -}
 -
- static void sti_tvout_encoder_mode_set(struct drm_encoder *encoder,
- 				       struct drm_display_mode *mode,
- 				       struct drm_display_mode *adjusted_mode)
-@@ -486,7 +479,6 @@ static void sti_dvo_encoder_disable(struct drm_encoder *encoder)
+ static const struct drm_encoder_helper_funcs dce_v10_0_ext_helper_funcs = {
+ 	.dpms = dce_v10_0_ext_dpms,
+-	.mode_fixup = dce_v10_0_ext_mode_fixup,
+ 	.prepare = dce_v10_0_ext_prepare,
+ 	.mode_set = dce_v10_0_ext_mode_set,
+ 	.commit = dce_v10_0_ext_commit,
+diff --git a/drivers/gpu/drm/amd/amdgpu/dce_v11_0.c b/drivers/gpu/drm/amd/amdgpu/dce_v11_0.c
+index 8e67249..36deea1 100644
+--- a/drivers/gpu/drm/amd/amdgpu/dce_v11_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/dce_v11_0.c
+@@ -3619,16 +3619,8 @@ dce_v11_0_ext_dpms(struct drm_encoder *encoder, int mode)
  
- static const struct drm_encoder_helper_funcs sti_dvo_encoder_helper_funcs = {
- 	.dpms = sti_tvout_encoder_dpms,
--	.mode_fixup = sti_tvout_encoder_mode_fixup,
- 	.mode_set = sti_tvout_encoder_mode_set,
- 	.prepare = sti_tvout_encoder_prepare,
- 	.commit = sti_dvo_encoder_commit,
-@@ -540,7 +532,6 @@ static void sti_hda_encoder_disable(struct drm_encoder *encoder)
+ }
  
- static const struct drm_encoder_helper_funcs sti_hda_encoder_helper_funcs = {
- 	.dpms = sti_tvout_encoder_dpms,
--	.mode_fixup = sti_tvout_encoder_mode_fixup,
- 	.mode_set = sti_tvout_encoder_mode_set,
- 	.prepare = sti_tvout_encoder_prepare,
- 	.commit = sti_hda_encoder_commit,
-@@ -589,7 +580,6 @@ static void sti_hdmi_encoder_disable(struct drm_encoder *encoder)
+-static bool dce_v11_0_ext_mode_fixup(struct drm_encoder *encoder,
+-				    const struct drm_display_mode *mode,
+-				    struct drm_display_mode *adjusted_mode)
+-{
+-	return true;
+-}
+-
+ static const struct drm_encoder_helper_funcs dce_v11_0_ext_helper_funcs = {
+ 	.dpms = dce_v11_0_ext_dpms,
+-	.mode_fixup = dce_v11_0_ext_mode_fixup,
+ 	.prepare = dce_v11_0_ext_prepare,
+ 	.mode_set = dce_v11_0_ext_mode_set,
+ 	.commit = dce_v11_0_ext_commit,
+diff --git a/drivers/gpu/drm/amd/amdgpu/dce_v8_0.c b/drivers/gpu/drm/amd/amdgpu/dce_v8_0.c
+index d0e128c..25dd8b6 100644
+--- a/drivers/gpu/drm/amd/amdgpu/dce_v8_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/dce_v8_0.c
+@@ -3554,16 +3554,8 @@ dce_v8_0_ext_dpms(struct drm_encoder *encoder, int mode)
  
- static const struct drm_encoder_helper_funcs sti_hdmi_encoder_helper_funcs = {
- 	.dpms = sti_tvout_encoder_dpms,
--	.mode_fixup = sti_tvout_encoder_mode_fixup,
- 	.mode_set = sti_tvout_encoder_mode_set,
- 	.prepare = sti_tvout_encoder_prepare,
- 	.commit = sti_hdmi_encoder_commit,
+ }
+ 
+-static bool dce_v8_0_ext_mode_fixup(struct drm_encoder *encoder,
+-				    const struct drm_display_mode *mode,
+-				    struct drm_display_mode *adjusted_mode)
+-{
+-	return true;
+-}
+-
+ static const struct drm_encoder_helper_funcs dce_v8_0_ext_helper_funcs = {
+ 	.dpms = dce_v8_0_ext_dpms,
+-	.mode_fixup = dce_v8_0_ext_mode_fixup,
+ 	.prepare = dce_v8_0_ext_prepare,
+ 	.mode_set = dce_v8_0_ext_mode_set,
+ 	.commit = dce_v8_0_ext_commit,
 -- 
 2.5.0
