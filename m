@@ -1,8 +1,8 @@
 From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: [PATCH v2 06/17] drm/bochs: removed optional dummy encoder mode_fixup
-	function.
-Date: Mon, 15 Feb 2016 12:59:12 +0000
-Message-ID: <d8b87edea28c8211e1711348143e4c355764a8c4.1455540137.git.palminha__41018.6968664222$1455541390$gmane$org@synopsys.com>
+Subject: [PATCH v2 14/17] drm/radeon: removed optional dummy encoder
+	mode_fixup function.
+Date: Mon, 15 Feb 2016 13:01:05 +0000
+Message-ID: <1b99680b8cf81977597dec5daedff9b684d3ed19.1455540137.git.palminha__37654.9856424846$1455541402$gmane$org@synopsys.com>
 References: <cover.1455540137.git.palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -30,35 +30,31 @@ This patch set nukes all the dummy mode_fixup implementations.
 (made on top of Daniel topic/drm-misc branch)
 
 Signed-off-by: Carlos Palminha <palminha@synopsys.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
 ---
- drivers/gpu/drm/bochs/bochs_kms.c | 8 --------
+ drivers/gpu/drm/radeon/atombios_encoders.c | 8 --------
  1 file changed, 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-index 2849f1b..317c27f 100644
---- a/drivers/gpu/drm/bochs/bochs_kms.c
-+++ b/drivers/gpu/drm/bochs/bochs_kms.c
-@@ -152,13 +152,6 @@ static void bochs_crtc_init(struct drm_device *dev)
- 	drm_crtc_helper_add(crtc, &bochs_helper_funcs);
+diff --git a/drivers/gpu/drm/radeon/atombios_encoders.c b/drivers/gpu/drm/radeon/atombios_encoders.c
+index 01b20e1..1603751 100644
+--- a/drivers/gpu/drm/radeon/atombios_encoders.c
++++ b/drivers/gpu/drm/radeon/atombios_encoders.c
+@@ -2623,16 +2623,8 @@ radeon_atom_ext_dpms(struct drm_encoder *encoder, int mode)
+ 
  }
  
--static bool bochs_encoder_mode_fixup(struct drm_encoder *encoder,
--				     const struct drm_display_mode *mode,
--				     struct drm_display_mode *adjusted_mode)
+-static bool radeon_atom_ext_mode_fixup(struct drm_encoder *encoder,
+-				       const struct drm_display_mode *mode,
+-				       struct drm_display_mode *adjusted_mode)
 -{
 -	return true;
 -}
 -
- static void bochs_encoder_mode_set(struct drm_encoder *encoder,
- 				   struct drm_display_mode *mode,
- 				   struct drm_display_mode *adjusted_mode)
-@@ -179,7 +172,6 @@ static void bochs_encoder_commit(struct drm_encoder *encoder)
- 
- static const struct drm_encoder_helper_funcs bochs_encoder_helper_funcs = {
- 	.dpms = bochs_encoder_dpms,
--	.mode_fixup = bochs_encoder_mode_fixup,
- 	.mode_set = bochs_encoder_mode_set,
- 	.prepare = bochs_encoder_prepare,
- 	.commit = bochs_encoder_commit,
+ static const struct drm_encoder_helper_funcs radeon_atom_ext_helper_funcs = {
+ 	.dpms = radeon_atom_ext_dpms,
+-	.mode_fixup = radeon_atom_ext_mode_fixup,
+ 	.prepare = radeon_atom_ext_prepare,
+ 	.mode_set = radeon_atom_ext_mode_set,
+ 	.commit = radeon_atom_ext_commit,
 -- 
 2.5.0
