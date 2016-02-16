@@ -1,8 +1,8 @@
 From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: [PATCH 11/16] drm/atmel-hldcd: removed optional dummy crtc mode_fixup
+Subject: [PATCH 16/16] drm/ast: removed optional dummy crtc mode_fixup
 	function.
-Date: Tue, 16 Feb 2016 14:19:06 +0000
-Message-ID: <e4bdb8552c245f8b73084b93da60460a00f7798c.1455630967.git.palminha__46496.5498577387$1455632654$gmane$org@synopsys.com>
+Date: Tue, 16 Feb 2016 14:20:14 +0000
+Message-ID: <0f8f948babd93fce8523253b0f525446e2f565db.1455630967.git.palminha@synopsys.com>
 References: <cover.1455630967.git.palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -27,39 +27,34 @@ This patch set nukes all the dummy crtc mode_fixup implementations.
 
 Signed-off-by: Carlos Palminha <palminha@synopsys.com>
 ---
- drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/gpu/drm/ast/ast_mode.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c b/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c
-index 9863291..58c4f78 100644
---- a/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c
-+++ b/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c
-@@ -121,13 +121,6 @@ static void atmel_hlcdc_crtc_mode_set_nofb(struct drm_crtc *c)
- 			   cfg);
+diff --git a/drivers/gpu/drm/ast/ast_mode.c b/drivers/gpu/drm/ast/ast_mode.c
+index 0123458..0deeecd 100644
+--- a/drivers/gpu/drm/ast/ast_mode.c
++++ b/drivers/gpu/drm/ast/ast_mode.c
+@@ -497,13 +497,6 @@ static void ast_crtc_dpms(struct drm_crtc *crtc, int mode)
+ 	}
  }
  
--static bool atmel_hlcdc_crtc_mode_fixup(struct drm_crtc *crtc,
--					const struct drm_display_mode *mode,
--					struct drm_display_mode *adjusted_mode)
+-static bool ast_crtc_mode_fixup(struct drm_crtc *crtc,
+-				const struct drm_display_mode *mode,
+-				struct drm_display_mode *adjusted_mode)
 -{
 -	return true;
 -}
 -
- static void atmel_hlcdc_crtc_disable(struct drm_crtc *c)
- {
- 	struct drm_device *dev = c->dev;
-@@ -261,7 +254,6 @@ static void atmel_hlcdc_crtc_atomic_flush(struct drm_crtc *crtc,
- }
+ /* ast is different - we will force move buffers out of VRAM */
+ static int ast_crtc_do_set_base(struct drm_crtc *crtc,
+ 				struct drm_framebuffer *fb,
+@@ -617,7 +610,6 @@ static void ast_crtc_commit(struct drm_crtc *crtc)
  
- static const struct drm_crtc_helper_funcs lcdc_crtc_helper_funcs = {
--	.mode_fixup = atmel_hlcdc_crtc_mode_fixup,
- 	.mode_set = drm_helper_crtc_mode_set,
- 	.mode_set_nofb = atmel_hlcdc_crtc_mode_set_nofb,
- 	.mode_set_base = drm_helper_crtc_mode_set_base,
-@@ -349,4 +341,3 @@ fail:
- 	atmel_hlcdc_crtc_destroy(&crtc->base);
- 	return ret;
- }
--
+ static const struct drm_crtc_helper_funcs ast_crtc_helper_funcs = {
+ 	.dpms = ast_crtc_dpms,
+-	.mode_fixup = ast_crtc_mode_fixup,
+ 	.mode_set = ast_crtc_mode_set,
+ 	.mode_set_base = ast_crtc_mode_set_base,
+ 	.disable = ast_crtc_disable,
 -- 
 2.5.0
