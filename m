@@ -1,8 +1,8 @@
 From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: [PATCH 09/16] drm/shmobile: removed optional dummy crtc mode_fixup
+Subject: [PATCH 04/16] drm/udl: removed optional dummy crtc mode_fixup
 	function.
-Date: Tue, 16 Feb 2016 14:18:40 +0000
-Message-ID: <c1652b5b8d84d857f8036a37d1d3e6123970e1a0.1455630967.git.palminha@synopsys.com>
+Date: Tue, 16 Feb 2016 14:17:33 +0000
+Message-ID: <11327d1a3c3b6623064f6d82efa96e7993f77f38.1455630967.git.palminha@synopsys.com>
 References: <cover.1455630967.git.palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -27,34 +27,35 @@ This patch set nukes all the dummy crtc mode_fixup implementations.
 
 Signed-off-by: Carlos Palminha <palminha@synopsys.com>
 ---
- drivers/gpu/drm/shmobile/shmob_drm_crtc.c | 8 --------
- 1 file changed, 8 deletions(-)
+ drivers/gpu/drm/udl/udl_modeset.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/shmobile/shmob_drm_crtc.c b/drivers/gpu/drm/shmobile/shmob_drm_crtc.c
-index 27342fd..88643ab 100644
---- a/drivers/gpu/drm/shmobile/shmob_drm_crtc.c
-+++ b/drivers/gpu/drm/shmobile/shmob_drm_crtc.c
-@@ -359,13 +359,6 @@ static void shmob_drm_crtc_dpms(struct drm_crtc *crtc, int mode)
- 	scrtc->dpms = mode;
+diff --git a/drivers/gpu/drm/udl/udl_modeset.c b/drivers/gpu/drm/udl/udl_modeset.c
+index 160ef2a..b87afee 100644
+--- a/drivers/gpu/drm/udl/udl_modeset.c
++++ b/drivers/gpu/drm/udl/udl_modeset.c
+@@ -279,14 +279,6 @@ static void udl_crtc_dpms(struct drm_crtc *crtc, int mode)
+ 
  }
  
--static bool shmob_drm_crtc_mode_fixup(struct drm_crtc *crtc,
--				      const struct drm_display_mode *mode,
--				      struct drm_display_mode *adjusted_mode)
+-static bool udl_crtc_mode_fixup(struct drm_crtc *crtc,
+-				  const struct drm_display_mode *mode,
+-				  struct drm_display_mode *adjusted_mode)
+-
 -{
 -	return true;
 -}
 -
- static void shmob_drm_crtc_mode_prepare(struct drm_crtc *crtc)
- {
- 	shmob_drm_crtc_dpms(crtc, DRM_MODE_DPMS_OFF);
-@@ -431,7 +424,6 @@ static int shmob_drm_crtc_mode_set_base(struct drm_crtc *crtc, int x, int y,
+ #if 0
+ static int
+ udl_pipe_set_base_atomic(struct drm_crtc *crtc, struct drm_framebuffer *fb,
+@@ -402,7 +394,6 @@ static void udl_crtc_commit(struct drm_crtc *crtc)
  
- static const struct drm_crtc_helper_funcs crtc_helper_funcs = {
- 	.dpms = shmob_drm_crtc_dpms,
--	.mode_fixup = shmob_drm_crtc_mode_fixup,
- 	.prepare = shmob_drm_crtc_mode_prepare,
- 	.commit = shmob_drm_crtc_mode_commit,
- 	.mode_set = shmob_drm_crtc_mode_set,
+ static const struct drm_crtc_helper_funcs udl_helper_funcs = {
+ 	.dpms = udl_crtc_dpms,
+-	.mode_fixup = udl_crtc_mode_fixup,
+ 	.mode_set = udl_crtc_mode_set,
+ 	.prepare = udl_crtc_prepare,
+ 	.commit = udl_crtc_commit,
 -- 
 2.5.0
