@@ -1,8 +1,8 @@
 From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: [PATCH 03/16] drm/mgag200: removed optional dummy crtc mode_fixup
+Subject: [PATCH 05/16] drm/gma: removed optional dummy crtc mode_fixup
 	function.
-Date: Tue, 16 Feb 2016 14:17:20 +0000
-Message-ID: <3d089c84bcb1aafd485d4944ad472f9843c38eaf.1455630967.git.palminha__8458.60307240418$1455632301$gmane$org@synopsys.com>
+Date: Tue, 16 Feb 2016 14:17:45 +0000
+Message-ID: <fc5717ec27bea9b114e48b9d3de1512cf48f44b6.1455630967.git.palminha__20593.8276638792$1455632315$gmane$org@synopsys.com>
 References: <cover.1455630967.git.palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -27,39 +27,150 @@ This patch set nukes all the dummy crtc mode_fixup implementations.
 
 Signed-off-by: Carlos Palminha <palminha@synopsys.com>
 ---
- drivers/gpu/drm/mgag200/mgag200_mode.c | 13 -------------
- 1 file changed, 13 deletions(-)
+ drivers/gpu/drm/gma500/cdv_intel_display.c   | 13 ++++++-------
+ drivers/gpu/drm/gma500/gma_display.c         |  7 -------
+ drivers/gpu/drm/gma500/gma_display.h         |  3 ---
+ drivers/gpu/drm/gma500/mdfld_intel_display.c |  2 --
+ drivers/gpu/drm/gma500/oaktrail_crtc.c       |  1 -
+ drivers/gpu/drm/gma500/psb_intel_display.c   |  1 -
+ 6 files changed, 6 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/gpu/drm/mgag200/mgag200_mode.c b/drivers/gpu/drm/mgag200/mgag200_mode.c
-index dc13c48..aa99c40 100644
---- a/drivers/gpu/drm/mgag200/mgag200_mode.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
-@@ -92,18 +92,6 @@ static inline void mga_wait_busy(struct mga_device *mdev)
- 	} while ((status & 0x01) && time_before(jiffies, timeout));
+diff --git a/drivers/gpu/drm/gma500/cdv_intel_display.c b/drivers/gpu/drm/gma500/cdv_intel_display.c
+index 6126546..17db4b4 100644
+--- a/drivers/gpu/drm/gma500/cdv_intel_display.c
++++ b/drivers/gpu/drm/gma500/cdv_intel_display.c
+@@ -116,7 +116,7 @@ static const struct gma_limit_t cdv_intel_limits[] = {
+ 	 .p1 = {.min = 1, .max = 10},
+ 	 .p2 = {.dot_limit = 225000, .p2_slow = 10, .p2_fast = 10},
+ 	 .find_pll = cdv_intel_find_dp_pll,
+-	 }	
++	}
+ };
+ 
+ #define _wait_for(COND, MS, W) ({ \
+@@ -245,7 +245,7 @@ cdv_dpll_set_clock_cdv(struct drm_device *dev, struct drm_crtc *crtc,
+ 	/* We don't know what the other fields of these regs are, so
+ 	 * leave them in place.
+ 	 */
+-	/* 
++	/*
+ 	 * The BIT 14:13 of 0x8010/0x8030 is used to select the ref clk
+ 	 * for the pipe A/B. Display spec 1.06 has wrong definition.
+ 	 * Correct definition is like below:
+@@ -256,7 +256,7 @@ cdv_dpll_set_clock_cdv(struct drm_device *dev, struct drm_crtc *crtc,
+ 	 *
+ 	 * if DPLLA sets 01 and DPLLB sets 02, both use clk from DPLLA
+ 	 *
+-	 */  
++	 */
+ 	ret = cdv_sb_read(dev, ref_sfr, &ref_value);
+ 	if (ret)
+ 		return ret;
+@@ -646,7 +646,7 @@ static int cdv_intel_crtc_mode_set(struct drm_crtc *crtc,
+ 		 * for DP/eDP. When using SSC clock, the ref clk is 100MHz.Otherwise
+ 		 * it will be 27MHz. From the VBIOS code it seems that the pipe A choose
+ 		 * 27MHz for DP/eDP while the Pipe B chooses the 100MHz.
+-		 */ 
++		 */
+ 		if (pipe == 0)
+ 			refclk = 27000;
+ 		else
+@@ -659,7 +659,7 @@ static int cdv_intel_crtc_mode_set(struct drm_crtc *crtc,
+ 	}
+ 
+ 	drm_mode_debug_printmodeline(adjusted_mode);
+-	
++
+ 	limit = gma_crtc->clock_funcs->limit(crtc, refclk);
+ 
+ 	ok = limit->find_pll(limit, crtc, adjusted_mode->clock, refclk,
+@@ -721,7 +721,7 @@ static int cdv_intel_crtc_mode_set(struct drm_crtc *crtc,
+ 			pipeconf |= PIPE_6BPC;
+ 	} else
+ 		pipeconf |= PIPE_8BPC;
+-			
++
+ 	/* Set up the display plane register */
+ 	dspcntr = DISPPLANE_GAMMA_ENABLE;
+ 
+@@ -974,7 +974,6 @@ struct drm_display_mode *cdv_intel_crtc_mode_get(struct drm_device *dev,
+ 
+ const struct drm_crtc_helper_funcs cdv_intel_helper_funcs = {
+ 	.dpms = gma_crtc_dpms,
+-	.mode_fixup = gma_crtc_mode_fixup,
+ 	.mode_set = cdv_intel_crtc_mode_set,
+ 	.mode_set_base = gma_pipe_set_base,
+ 	.prepare = gma_crtc_prepare,
+diff --git a/drivers/gpu/drm/gma500/gma_display.c b/drivers/gpu/drm/gma500/gma_display.c
+index ff17af4..d6a5c77 100644
+--- a/drivers/gpu/drm/gma500/gma_display.c
++++ b/drivers/gpu/drm/gma500/gma_display.c
+@@ -485,13 +485,6 @@ bool gma_encoder_mode_fixup(struct drm_encoder *encoder,
+ 	return true;
  }
  
--/*
-- * The core passes the desired mode to the CRTC code to see whether any
-- * CRTC-specific modifications need to be made to it. We're in a position
-- * to just pass that straight through, so this does nothing
-- */
--static bool mga_crtc_mode_fixup(struct drm_crtc *crtc,
--				const struct drm_display_mode *mode,
--				struct drm_display_mode *adjusted_mode)
+-bool gma_crtc_mode_fixup(struct drm_crtc *crtc,
+-			 const struct drm_display_mode *mode,
+-			 struct drm_display_mode *adjusted_mode)
 -{
 -	return true;
 -}
 -
- #define P_ARRAY_SIZE 9
+ void gma_crtc_prepare(struct drm_crtc *crtc)
+ {
+ 	const struct drm_crtc_helper_funcs *crtc_funcs = crtc->helper_private;
+diff --git a/drivers/gpu/drm/gma500/gma_display.h b/drivers/gpu/drm/gma500/gma_display.h
+index ed569d8..fc64241 100644
+--- a/drivers/gpu/drm/gma500/gma_display.h
++++ b/drivers/gpu/drm/gma500/gma_display.h
+@@ -75,9 +75,6 @@ extern void gma_crtc_load_lut(struct drm_crtc *crtc);
+ extern void gma_crtc_gamma_set(struct drm_crtc *crtc, u16 *red, u16 *green,
+ 			       u16 *blue, u32 start, u32 size);
+ extern void gma_crtc_dpms(struct drm_crtc *crtc, int mode);
+-extern bool gma_crtc_mode_fixup(struct drm_crtc *crtc,
+-				const struct drm_display_mode *mode,
+-				struct drm_display_mode *adjusted_mode);
+ extern void gma_crtc_prepare(struct drm_crtc *crtc);
+ extern void gma_crtc_commit(struct drm_crtc *crtc);
+ extern void gma_crtc_disable(struct drm_crtc *crtc);
+diff --git a/drivers/gpu/drm/gma500/mdfld_intel_display.c b/drivers/gpu/drm/gma500/mdfld_intel_display.c
+index acd3834..92e3f93e 100644
+--- a/drivers/gpu/drm/gma500/mdfld_intel_display.c
++++ b/drivers/gpu/drm/gma500/mdfld_intel_display.c
+@@ -1026,10 +1026,8 @@ mrst_crtc_mode_set_exit:
  
- static int mga_g200se_set_plls(struct mga_device *mdev, long clock)
-@@ -1410,7 +1398,6 @@ static const struct drm_crtc_funcs mga_crtc_funcs = {
- static const struct drm_crtc_helper_funcs mga_helper_funcs = {
- 	.disable = mga_crtc_disable,
- 	.dpms = mga_crtc_dpms,
--	.mode_fixup = mga_crtc_mode_fixup,
- 	.mode_set = mga_crtc_mode_set,
- 	.mode_set_base = mga_crtc_mode_set_base,
- 	.prepare = mga_crtc_prepare,
+ const struct drm_crtc_helper_funcs mdfld_helper_funcs = {
+ 	.dpms = mdfld_crtc_dpms,
+-	.mode_fixup = gma_crtc_mode_fixup,
+ 	.mode_set = mdfld_crtc_mode_set,
+ 	.mode_set_base = mdfld__intel_pipe_set_base,
+ 	.prepare = gma_crtc_prepare,
+ 	.commit = gma_crtc_commit,
+ };
+-
+diff --git a/drivers/gpu/drm/gma500/oaktrail_crtc.c b/drivers/gpu/drm/gma500/oaktrail_crtc.c
+index 1048f0c..da9fd34 100644
+--- a/drivers/gpu/drm/gma500/oaktrail_crtc.c
++++ b/drivers/gpu/drm/gma500/oaktrail_crtc.c
+@@ -657,7 +657,6 @@ pipe_set_base_exit:
+ 
+ const struct drm_crtc_helper_funcs oaktrail_helper_funcs = {
+ 	.dpms = oaktrail_crtc_dpms,
+-	.mode_fixup = gma_crtc_mode_fixup,
+ 	.mode_set = oaktrail_crtc_mode_set,
+ 	.mode_set_base = oaktrail_pipe_set_base,
+ 	.prepare = gma_crtc_prepare,
+diff --git a/drivers/gpu/drm/gma500/psb_intel_display.c b/drivers/gpu/drm/gma500/psb_intel_display.c
+index dcdbc37..398015b 100644
+--- a/drivers/gpu/drm/gma500/psb_intel_display.c
++++ b/drivers/gpu/drm/gma500/psb_intel_display.c
+@@ -430,7 +430,6 @@ struct drm_display_mode *psb_intel_crtc_mode_get(struct drm_device *dev,
+ 
+ const struct drm_crtc_helper_funcs psb_intel_helper_funcs = {
+ 	.dpms = gma_crtc_dpms,
+-	.mode_fixup = gma_crtc_mode_fixup,
+ 	.mode_set = psb_intel_crtc_mode_set,
+ 	.mode_set_base = gma_pipe_set_base,
+ 	.prepare = gma_crtc_prepare,
 -- 
 2.5.0
