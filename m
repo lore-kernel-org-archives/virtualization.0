@@ -1,8 +1,8 @@
 From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: [PATCH 04/16] drm/udl: removed optional dummy crtc mode_fixup
+Subject: [PATCH 13/16] drm/virtio: removed optional dummy crtc mode_fixup
 	function.
-Date: Tue, 16 Feb 2016 14:17:33 +0000
-Message-ID: <11327d1a3c3b6623064f6d82efa96e7993f77f38.1455630967.git.palminha@synopsys.com>
+Date: Tue, 16 Feb 2016 14:19:32 +0000
+Message-ID: <ae865f0deca4e64a0f47f2d2d14b54ff00c0672e.1455630967.git.palminha@synopsys.com>
 References: <cover.1455630967.git.palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -27,35 +27,34 @@ This patch set nukes all the dummy crtc mode_fixup implementations.
 
 Signed-off-by: Carlos Palminha <palminha@synopsys.com>
 ---
- drivers/gpu/drm/udl/udl_modeset.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_display.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/udl/udl_modeset.c b/drivers/gpu/drm/udl/udl_modeset.c
-index 160ef2a..b87afee 100644
---- a/drivers/gpu/drm/udl/udl_modeset.c
-+++ b/drivers/gpu/drm/udl/udl_modeset.c
-@@ -279,14 +279,6 @@ static void udl_crtc_dpms(struct drm_crtc *crtc, int mode)
- 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index a165f03..6a6cb73 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -237,13 +237,6 @@ virtio_gpu_framebuffer_init(struct drm_device *dev,
+ 	return 0;
  }
  
--static bool udl_crtc_mode_fixup(struct drm_crtc *crtc,
--				  const struct drm_display_mode *mode,
--				  struct drm_display_mode *adjusted_mode)
--
+-static bool virtio_gpu_crtc_mode_fixup(struct drm_crtc *crtc,
+-				       const struct drm_display_mode *mode,
+-				       struct drm_display_mode *adjusted_mode)
 -{
 -	return true;
 -}
 -
- #if 0
- static int
- udl_pipe_set_base_atomic(struct drm_crtc *crtc, struct drm_framebuffer *fb,
-@@ -402,7 +394,6 @@ static void udl_crtc_commit(struct drm_crtc *crtc)
- 
- static const struct drm_crtc_helper_funcs udl_helper_funcs = {
- 	.dpms = udl_crtc_dpms,
--	.mode_fixup = udl_crtc_mode_fixup,
- 	.mode_set = udl_crtc_mode_set,
- 	.prepare = udl_crtc_prepare,
- 	.commit = udl_crtc_commit,
+ static void virtio_gpu_crtc_mode_set_nofb(struct drm_crtc *crtc)
+ {
+ 	struct drm_device *dev = crtc->dev;
+@@ -277,7 +270,6 @@ static int virtio_gpu_crtc_atomic_check(struct drm_crtc *crtc,
+ static const struct drm_crtc_helper_funcs virtio_gpu_crtc_helper_funcs = {
+ 	.enable        = virtio_gpu_crtc_enable,
+ 	.disable       = virtio_gpu_crtc_disable,
+-	.mode_fixup    = virtio_gpu_crtc_mode_fixup,
+ 	.mode_set_nofb = virtio_gpu_crtc_mode_set_nofb,
+ 	.atomic_check  = virtio_gpu_crtc_atomic_check,
+ };
 -- 
 2.5.0
