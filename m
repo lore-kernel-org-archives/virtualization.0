@@ -1,16 +1,14 @@
-From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: Re: [PATCH 01/16] drm: fixes crct set_mode when crtc mode_fixup is
-	null.
-Date: Tue, 16 Feb 2016 15:24:05 +0000
-Message-ID: <56C33F15.2050307__23858.269773382$1455636411$gmane$org@synopsys.com>
-References: <cover.1455630967.git.palminha@synopsys.com>
-	<9d41105dee6632b4bb50e9555f2196ac249b9fce.1455630967.git.palminha@synopsys.com>
-	<20160216143733.GF32705@phenom.ffwll.local>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2 0/3] vhost: cross-endian code cleanup
+Date: Tue, 16 Feb 2016 17:34:13 +0200
+Message-ID: <20160216153413.GA32554@redhat.com>
+References: <20160216145418.7448.71329.stgit@bahia.lab.toulouse-stg.fr.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160216143733.GF32705@phenom.ffwll.local>
+Content-Disposition: inline
+In-Reply-To: <20160216145418.7448.71329.stgit@bahia.lab.toulouse-stg.fr.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,49 +18,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Vetter <daniel@ffwll.ch>, Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Cc: nicolas.pitre@linaro.org, boris.brezillon@free-electrons.com, jianwei.wang.chn@gmail.com, airlied@linux.ie, daniel.vetter@ffwll.ch, alison.wang@freescale.com, patrik.r.jakobsson@gmail.com, virtualization@lists.linux-foundation.org, linux-renesas-soc@vger.kernel.org, jani.nikula@intel.com, dri-devel@lists.freedesktop.org, benjamin.gaignard@linaro.org, vincent.abriou@st.com, sudipm.mukherjee@gmail.com, laurent.pinchart@ideasonboard.com
+To: Greg Kurz <gkurz@linux.vnet.ibm.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Thanks!
+On Tue, Feb 16, 2016 at 03:54:18PM +0100, Greg Kurz wrote:
+> This series is a new tentative to have cleaner cross-endian code.
+> 
+> Patches 1/3 is new: it fixes a side-effect in case vhost_init_used() fails.
+> 
+> Patch 2/3 comes from v1: it renames cross-endian helpers
+> 
+> Patch 3/3 is new: it simply renames vhost_init_used() as suggested by Michael.
 
-On 16-02-2016 14:37, Daniel Vetter wrote:
-> On Tue, Feb 16, 2016 at 02:10:03PM +0000, Carlos Palminha wrote:
->> This patch set nukes all the dummy crtc mode_fixup implementations.
->> (made on top of Daniel topic/drm-misc branch)
->>
->> Signed-off-by: Carlos Palminha <palminha@synopsys.com>
+Is this on top of my tree?
+
+> ---
 > 
-> Applied this one to drm-misc. I'll let the others hang out there for a bit
-> more to collect acks.
+> Greg Kurz (3):
+>       vhost: fix error path in vhost_init_used()
+>       vhost: rename cross-endian helpers
+>       vhost: rename vhost_init_used()
 > 
-> Thanks, Daniel
 > 
->> ---
->>  drivers/gpu/drm/drm_crtc_helper.c | 9 ++++++---
->>  1 file changed, 6 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/gpu/drm/drm_crtc_helper.c b/drivers/gpu/drm/drm_crtc_helper.c
->> index e70d064..7539eea 100644
->> --- a/drivers/gpu/drm/drm_crtc_helper.c
->> +++ b/drivers/gpu/drm/drm_crtc_helper.c
->> @@ -343,9 +343,12 @@ bool drm_crtc_helper_set_mode(struct drm_crtc *crtc,
->>  		}
->>  	}
->>  
->> -	if (!(ret = crtc_funcs->mode_fixup(crtc, mode, adjusted_mode))) {
->> -		DRM_DEBUG_KMS("CRTC fixup failed\n");
->> -		goto done;
->> +	if (crtc_funcs->mode_fixup) {
->> +		if (!(ret = crtc_funcs->mode_fixup(crtc, mode,
->> +						adjusted_mode))) {
->> +			DRM_DEBUG_KMS("CRTC fixup failed\n");
->> +			goto done;
->> +		}
->>  	}
->>  	DRM_DEBUG_KMS("[CRTC:%d:%s]\n", crtc->base.id, crtc->name);
->>  
->> -- 
->> 2.5.0
->>
-> 
+>  drivers/vhost/net.c   |    2 +-
+>  drivers/vhost/scsi.c  |    2 +-
+>  drivers/vhost/test.c  |    2 +-
+>  drivers/vhost/vhost.c |   49 +++++++++++++++++++++++++++++++++++++------------
+>  drivers/vhost/vhost.h |    2 +-
+>  5 files changed, 41 insertions(+), 16 deletions(-)
