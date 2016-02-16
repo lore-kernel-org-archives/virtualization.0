@@ -1,8 +1,8 @@
 From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: [PATCH 06/16] drm/rcar-du: removed optional dummy crtc mode_fixup
-	function.
-Date: Tue, 16 Feb 2016 14:18:00 +0000
-Message-ID: <becab4ff666eca77162e5cd978087f2d3fb3e308.1455630967.git.palminha@synopsys.com>
+Subject: [PATCH 12/16] drm/nouveau/dispnv04: removed optional dummy crtc
+	mode_fixup function.
+Date: Tue, 16 Feb 2016 14:19:19 +0000
+Message-ID: <897eae438eec566078b1872d7654c4863e4e4e57.1455630967.git.palminha@synopsys.com>
 References: <cover.1455630967.git.palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -27,35 +27,34 @@ This patch set nukes all the dummy crtc mode_fixup implementations.
 
 Signed-off-by: Carlos Palminha <palminha@synopsys.com>
 ---
- drivers/gpu/drm/rcar-du/rcar_du_crtc.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/gpu/drm/nouveau/dispnv04/crtc.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
-index 4ec80ae..627abc80 100644
---- a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
-+++ b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
-@@ -468,14 +468,6 @@ static void rcar_du_crtc_disable(struct drm_crtc *crtc)
- 	rcrtc->outputs = 0;
+diff --git a/drivers/gpu/drm/nouveau/dispnv04/crtc.c b/drivers/gpu/drm/nouveau/dispnv04/crtc.c
+index 6f04397..55ccbf0 100644
+--- a/drivers/gpu/drm/nouveau/dispnv04/crtc.c
++++ b/drivers/gpu/drm/nouveau/dispnv04/crtc.c
+@@ -227,13 +227,6 @@ nv_crtc_dpms(struct drm_crtc *crtc, int mode)
+ 	NVWriteVgaCrtc(dev, nv_crtc->index, NV_CIO_CRE_RPC1_INDEX, crtc1A);
  }
  
--static bool rcar_du_crtc_mode_fixup(struct drm_crtc *crtc,
--				    const struct drm_display_mode *mode,
--				    struct drm_display_mode *adjusted_mode)
+-static bool
+-nv_crtc_mode_fixup(struct drm_crtc *crtc, const struct drm_display_mode *mode,
+-		   struct drm_display_mode *adjusted_mode)
 -{
--	/* TODO Fixup modes */
 -	return true;
 -}
 -
- static void rcar_du_crtc_atomic_begin(struct drm_crtc *crtc,
- 				      struct drm_crtc_state *old_crtc_state)
+ static void
+ nv_crtc_mode_set_vga(struct drm_crtc *crtc, struct drm_display_mode *mode)
  {
-@@ -502,7 +494,6 @@ static void rcar_du_crtc_atomic_flush(struct drm_crtc *crtc,
- }
- 
- static const struct drm_crtc_helper_funcs crtc_helper_funcs = {
--	.mode_fixup = rcar_du_crtc_mode_fixup,
- 	.disable = rcar_du_crtc_disable,
- 	.enable = rcar_du_crtc_enable,
- 	.atomic_begin = rcar_du_crtc_atomic_begin,
+@@ -1093,7 +1086,6 @@ static const struct drm_crtc_helper_funcs nv04_crtc_helper_funcs = {
+ 	.dpms = nv_crtc_dpms,
+ 	.prepare = nv_crtc_prepare,
+ 	.commit = nv_crtc_commit,
+-	.mode_fixup = nv_crtc_mode_fixup,
+ 	.mode_set = nv_crtc_mode_set,
+ 	.mode_set_base = nv04_crtc_mode_set_base,
+ 	.mode_set_base_atomic = nv04_crtc_mode_set_base_atomic,
 -- 
 2.5.0
