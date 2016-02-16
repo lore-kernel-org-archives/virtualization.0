@@ -1,15 +1,15 @@
-From: Mark yao <mark.yao@rock-chips.com>
-Subject: Re: [PATCH v2 15/17] drm/rockchip: removed optional dummy encoder
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+Subject: Re: [PATCH 11/16] drm/atmel-hldcd: removed optional dummy crtc
 	mode_fixup function.
-Date: Tue, 16 Feb 2016 08:39:09 +0800
-Message-ID: <56C26FAD.5040102__3377.66420930183$1455657104$gmane$org@rock-chips.com>
-References: <cover.1455540137.git.palminha@synopsys.com>
-	<cae559aa2c04a906c21ed5ebe4861f92440e6910.1455540137.git.palminha@synopsys.com>
+Date: Tue, 16 Feb 2016 17:58:56 +0100
+Message-ID: <20160216175856.32bbb579__38694.0364995555$1455657111$gmane$org@bbrezillon>
+References: <cover.1455630967.git.palminha@synopsys.com>
+	<e4bdb8552c245f8b73084b93da60460a00f7798c.1455630967.git.palminha@synopsys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cae559aa2c04a906c21ed5ebe4861f92440e6910.1455540137.git.palminha@synopsys.com>
+In-Reply-To: <e4bdb8552c245f8b73084b93da60460a00f7798c.1455630967.git.palminha@synopsys.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,21 +19,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>, dri-devel@lists.freedesktop.org
-Cc: k.kozlowski@samsung.com, linux-samsung-soc@vger.kernel.org, heiko@sntech.de, benjamin.gaignard@linaro.org, airlied@linux.ie, jingoohan1@gmail.com, patrik.r.jakobsson@gmail.com, virtualization@lists.linux-foundation.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, p.zabel@pengutronix.de, vincent.abriou@st.com, linux-arm-kernel@lists.infradead.org
+To: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
+Cc: nicolas.pitre@linaro.org, jianwei.wang.chn@gmail.com, alison.wang@freescale.com, airlied@linux.ie, daniel.vetter@ffwll.ch, patrik.r.jakobsson@gmail.com, virtualization@lists.linux-foundation.org, linux-renesas-soc@vger.kernel.org, jani.nikula@intel.com, dri-devel@lists.freedesktop.org, benjamin.gaignard@linaro.org, vincent.abriou@st.com, sudipm.mukherjee@gmail.com, laurent.pinchart@ideasonboard.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjAxNuW5tDAy5pyIMTXml6UgMjE6MDEsIENhcmxvcyBQYWxtaW5oYSB3cm90ZToKPiBtb2Rl
-X2ZpeHVwIGZ1bmN0aW9uIGZvciBlbmNvZGVyIGRyaXZlcnMgYmVjYW1lIG9wdGlvbmFsIHdpdGgg
-cGF0Y2gKPiBodHRwOi8vcGF0Y2h3b3JrLmZyZWVkZXNrdG9wLm9yZy9wYXRjaC9tc2dpZC8xNDU1
-MTA2NTIyLTMyMzA3LTEtZ2l0LXNlbmQtZW1haWwtcGFsbWluaGFAc3lub3BzeXMuY29tCj4KPiBU
-aGlzIHBhdGNoIHNldCBudWtlcyBhbGwgdGhlIGR1bW15IG1vZGVfZml4dXAgaW1wbGVtZW50YXRp
-b25zLgo+Cj4gKG1hZGUgb24gdG9wIG9mIERhbmllbCB0b3BpYy9kcm0tbWlzYyBicmFuY2gpCj4K
-PiBTaWduZWQtb2ZmLWJ5OiBDYXJsb3MgUGFsbWluaGEgPHBhbG1pbmhhQHN5bm9wc3lzLmNvbT4K
-PiAtLS0KPiAgIGRyaXZlcnMvZ3B1L2RybS9yb2NrY2hpcC9kdy1taXBpLWRzaS5jIHwgOCAtLS0t
-LS0tLQo+ICAgMSBmaWxlIGNoYW5nZWQsIDggZGVsZXRpb25zKC0pCj4KPgpBY2tlZC1ieTogTWFy
-ayBZYW8gPG1hcmsueWFvQHJvY2stY2hpcHMuY29tPgoKVGhhbmtzCk1hcmsKCgpfX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
-aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
-Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
-b24=
+On Tue, 16 Feb 2016 14:19:06 +0000
+Carlos Palminha <CARLOS.PALMINHA@synopsys.com> wrote:
+
+> This patch set nukes all the dummy crtc mode_fixup implementations.
+> (made on top of Daniel topic/drm-misc branch)
+
+There's 2 typos in the subject line (s/hldcd/hlcdc/ and
+s/removed/remove/), and you're removing an empty line after
+atmel_hlcdc_crtc_create() definition (which is correct, but I'm not
+sure it should be part of the same patch).
+Otherwise it looks good to me.
+Once you've fixed those 2 things, you can add my
+
+Acked-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+
+> 
+> Signed-off-by: Carlos Palminha <palminha@synopsys.com>
+> ---
+>  drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c | 9 ---------
+>  1 file changed, 9 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c b/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c
+> index 9863291..58c4f78 100644
+> --- a/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c
+> +++ b/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c
+> @@ -121,13 +121,6 @@ static void atmel_hlcdc_crtc_mode_set_nofb(struct drm_crtc *c)
+>  			   cfg);
+>  }
+>  
+> -static bool atmel_hlcdc_crtc_mode_fixup(struct drm_crtc *crtc,
+> -					const struct drm_display_mode *mode,
+> -					struct drm_display_mode *adjusted_mode)
+> -{
+> -	return true;
+> -}
+> -
+>  static void atmel_hlcdc_crtc_disable(struct drm_crtc *c)
+>  {
+>  	struct drm_device *dev = c->dev;
+> @@ -261,7 +254,6 @@ static void atmel_hlcdc_crtc_atomic_flush(struct drm_crtc *crtc,
+>  }
+>  
+>  static const struct drm_crtc_helper_funcs lcdc_crtc_helper_funcs = {
+> -	.mode_fixup = atmel_hlcdc_crtc_mode_fixup,
+>  	.mode_set = drm_helper_crtc_mode_set,
+>  	.mode_set_nofb = atmel_hlcdc_crtc_mode_set_nofb,
+>  	.mode_set_base = drm_helper_crtc_mode_set_base,
+> @@ -349,4 +341,3 @@ fail:
+>  	atmel_hlcdc_crtc_destroy(&crtc->base);
+>  	return ret;
+>  }
+> -
+
+
+-- 
+Boris Brezillon, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
+
+
+-- 
+Boris Brezillon, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
