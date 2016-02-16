@@ -1,8 +1,8 @@
 From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: [PATCH 12/16] drm/nouveau/dispnv04: removed optional dummy crtc
-	mode_fixup function.
-Date: Tue, 16 Feb 2016 14:19:19 +0000
-Message-ID: <897eae438eec566078b1872d7654c4863e4e4e57.1455630967.git.palminha@synopsys.com>
+Subject: [PATCH 07/16] drm/omapdrm: removed optional dummy crtc mode_fixup
+	function.
+Date: Tue, 16 Feb 2016 14:18:12 +0000
+Message-ID: <101f043d5fa747291c09ae765bac4d55c6e39988.1455630967.git.palminha__26712.729156907$1455632500$gmane$org@synopsys.com>
 References: <cover.1455630967.git.palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -27,34 +27,34 @@ This patch set nukes all the dummy crtc mode_fixup implementations.
 
 Signed-off-by: Carlos Palminha <palminha@synopsys.com>
 ---
- drivers/gpu/drm/nouveau/dispnv04/crtc.c | 8 --------
+ drivers/gpu/drm/omapdrm/omap_crtc.c | 8 --------
  1 file changed, 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/dispnv04/crtc.c b/drivers/gpu/drm/nouveau/dispnv04/crtc.c
-index 6f04397..55ccbf0 100644
---- a/drivers/gpu/drm/nouveau/dispnv04/crtc.c
-+++ b/drivers/gpu/drm/nouveau/dispnv04/crtc.c
-@@ -227,13 +227,6 @@ nv_crtc_dpms(struct drm_crtc *crtc, int mode)
- 	NVWriteVgaCrtc(dev, nv_crtc->index, NV_CIO_CRE_RPC1_INDEX, crtc1A);
+diff --git a/drivers/gpu/drm/omapdrm/omap_crtc.c b/drivers/gpu/drm/omapdrm/omap_crtc.c
+index d38fcbc..483acdb 100644
+--- a/drivers/gpu/drm/omapdrm/omap_crtc.c
++++ b/drivers/gpu/drm/omapdrm/omap_crtc.c
+@@ -330,13 +330,6 @@ static void omap_crtc_destroy(struct drm_crtc *crtc)
+ 	kfree(omap_crtc);
  }
  
--static bool
--nv_crtc_mode_fixup(struct drm_crtc *crtc, const struct drm_display_mode *mode,
--		   struct drm_display_mode *adjusted_mode)
+-static bool omap_crtc_mode_fixup(struct drm_crtc *crtc,
+-		const struct drm_display_mode *mode,
+-		struct drm_display_mode *adjusted_mode)
 -{
 -	return true;
 -}
 -
- static void
- nv_crtc_mode_set_vga(struct drm_crtc *crtc, struct drm_display_mode *mode)
+ static void omap_crtc_enable(struct drm_crtc *crtc)
  {
-@@ -1093,7 +1086,6 @@ static const struct drm_crtc_helper_funcs nv04_crtc_helper_funcs = {
- 	.dpms = nv_crtc_dpms,
- 	.prepare = nv_crtc_prepare,
- 	.commit = nv_crtc_commit,
--	.mode_fixup = nv_crtc_mode_fixup,
- 	.mode_set = nv_crtc_mode_set,
- 	.mode_set_base = nv04_crtc_mode_set_base,
- 	.mode_set_base_atomic = nv04_crtc_mode_set_base_atomic,
+ 	struct omap_crtc *omap_crtc = to_omap_crtc(crtc);
+@@ -451,7 +444,6 @@ static const struct drm_crtc_funcs omap_crtc_funcs = {
+ };
+ 
+ static const struct drm_crtc_helper_funcs omap_crtc_helper_funcs = {
+-	.mode_fixup = omap_crtc_mode_fixup,
+ 	.mode_set_nofb = omap_crtc_mode_set_nofb,
+ 	.disable = omap_crtc_disable,
+ 	.enable = omap_crtc_enable,
 -- 
 2.5.0
