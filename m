@@ -1,8 +1,8 @@
 From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: [PATCH 14/16] drm/fsl-dcu: removed optional dummy crtc mode_fixup
+Subject: [PATCH 15/16] drm/bochs: removed optional dummy crtc mode_fixup
 	function.
-Date: Tue, 16 Feb 2016 14:19:46 +0000
-Message-ID: <a9827a57b25509dae29c0e8d09a9063a11970647.1455630967.git.palminha__42846.4715638713$1455632693$gmane$org@synopsys.com>
+Date: Tue, 16 Feb 2016 14:20:02 +0000
+Message-ID: <40a78cafba2cd5b391d244e806613192b3a31413.1455630967.git.palminha@synopsys.com>
 References: <cover.1455630967.git.palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -27,34 +27,34 @@ This patch set nukes all the dummy crtc mode_fixup implementations.
 
 Signed-off-by: Carlos Palminha <palminha@synopsys.com>
 ---
- drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_crtc.c | 8 --------
+ drivers/gpu/drm/bochs/bochs_kms.c | 8 --------
  1 file changed, 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_crtc.c b/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_crtc.c
-index d8ab8f0..9aa6ad5 100644
---- a/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_crtc.c
-+++ b/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_crtc.c
-@@ -72,13 +72,6 @@ static void fsl_dcu_drm_crtc_enable(struct drm_crtc *crtc)
- 		dev_err(fsl_dev->dev, "Enable CRTC failed\n");
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index 2849f1b..c922b48 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -30,13 +30,6 @@ static void bochs_crtc_dpms(struct drm_crtc *crtc, int mode)
+ 	}
  }
  
--static bool fsl_dcu_drm_crtc_mode_fixup(struct drm_crtc *crtc,
--					const struct drm_display_mode *mode,
--					struct drm_display_mode *adjusted_mode)
+-static bool bochs_crtc_mode_fixup(struct drm_crtc *crtc,
+-				  const struct drm_display_mode *mode,
+-				  struct drm_display_mode *adjusted_mode)
 -{
 -	return true;
 -}
 -
- static void fsl_dcu_drm_crtc_mode_set_nofb(struct drm_crtc *crtc)
+ static int bochs_crtc_mode_set_base(struct drm_crtc *crtc, int x, int y,
+ 				    struct drm_framebuffer *old_fb)
  {
- 	struct drm_device *dev = crtc->dev;
-@@ -153,7 +146,6 @@ static const struct drm_crtc_helper_funcs fsl_dcu_drm_crtc_helper_funcs = {
- 	.atomic_flush = fsl_dcu_drm_crtc_atomic_flush,
- 	.disable = fsl_dcu_drm_disable_crtc,
- 	.enable = fsl_dcu_drm_crtc_enable,
--	.mode_fixup = fsl_dcu_drm_crtc_mode_fixup,
- 	.mode_set_nofb = fsl_dcu_drm_crtc_mode_set_nofb,
- };
+@@ -135,7 +128,6 @@ static const struct drm_crtc_funcs bochs_crtc_funcs = {
  
+ static const struct drm_crtc_helper_funcs bochs_helper_funcs = {
+ 	.dpms = bochs_crtc_dpms,
+-	.mode_fixup = bochs_crtc_mode_fixup,
+ 	.mode_set = bochs_crtc_mode_set,
+ 	.mode_set_base = bochs_crtc_mode_set_base,
+ 	.prepare = bochs_crtc_prepare,
 -- 
 2.5.0
