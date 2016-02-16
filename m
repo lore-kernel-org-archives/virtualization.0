@@ -1,8 +1,8 @@
 From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: [PATCH 02/16] drm/cirrus: removed optional dummy crtc mode_fixup
+Subject: [PATCH 03/16] drm/mgag200: removed optional dummy crtc mode_fixup
 	function.
-Date: Tue, 16 Feb 2016 14:16:51 +0000
-Message-ID: <5a3c41fed15847549f9bdeae89b72705b4756cc4.1455630967.git.palminha__12877.9516242959$1455632275$gmane$org@synopsys.com>
+Date: Tue, 16 Feb 2016 14:17:20 +0000
+Message-ID: <3d089c84bcb1aafd485d4944ad472f9843c38eaf.1455630967.git.palminha__8458.60307240418$1455632301$gmane$org@synopsys.com>
 References: <cover.1455630967.git.palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -27,15 +27,15 @@ This patch set nukes all the dummy crtc mode_fixup implementations.
 
 Signed-off-by: Carlos Palminha <palminha@synopsys.com>
 ---
- drivers/gpu/drm/cirrus/cirrus_mode.c | 13 -------------
+ drivers/gpu/drm/mgag200/mgag200_mode.c | 13 -------------
  1 file changed, 13 deletions(-)
 
-diff --git a/drivers/gpu/drm/cirrus/cirrus_mode.c b/drivers/gpu/drm/cirrus/cirrus_mode.c
-index 4a02854..e7334a8 100644
---- a/drivers/gpu/drm/cirrus/cirrus_mode.c
-+++ b/drivers/gpu/drm/cirrus/cirrus_mode.c
-@@ -91,18 +91,6 @@ static void cirrus_crtc_dpms(struct drm_crtc *crtc, int mode)
- 	WREG_GFX(0xe, gr0e);
+diff --git a/drivers/gpu/drm/mgag200/mgag200_mode.c b/drivers/gpu/drm/mgag200/mgag200_mode.c
+index dc13c48..aa99c40 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_mode.c
++++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
+@@ -92,18 +92,6 @@ static inline void mga_wait_busy(struct mga_device *mdev)
+ 	} while ((status & 0x01) && time_before(jiffies, timeout));
  }
  
 -/*
@@ -43,23 +43,23 @@ index 4a02854..e7334a8 100644
 - * CRTC-specific modifications need to be made to it. We're in a position
 - * to just pass that straight through, so this does nothing
 - */
--static bool cirrus_crtc_mode_fixup(struct drm_crtc *crtc,
--				   const struct drm_display_mode *mode,
--				   struct drm_display_mode *adjusted_mode)
+-static bool mga_crtc_mode_fixup(struct drm_crtc *crtc,
+-				const struct drm_display_mode *mode,
+-				struct drm_display_mode *adjusted_mode)
 -{
 -	return true;
 -}
 -
- static void cirrus_set_start_address(struct drm_crtc *crtc, unsigned offset)
- {
- 	struct cirrus_device *cdev = crtc->dev->dev_private;
-@@ -372,7 +360,6 @@ static const struct drm_crtc_funcs cirrus_crtc_funcs = {
+ #define P_ARRAY_SIZE 9
  
- static const struct drm_crtc_helper_funcs cirrus_helper_funcs = {
- 	.dpms = cirrus_crtc_dpms,
--	.mode_fixup = cirrus_crtc_mode_fixup,
- 	.mode_set = cirrus_crtc_mode_set,
- 	.mode_set_base = cirrus_crtc_mode_set_base,
- 	.prepare = cirrus_crtc_prepare,
+ static int mga_g200se_set_plls(struct mga_device *mdev, long clock)
+@@ -1410,7 +1398,6 @@ static const struct drm_crtc_funcs mga_crtc_funcs = {
+ static const struct drm_crtc_helper_funcs mga_helper_funcs = {
+ 	.disable = mga_crtc_disable,
+ 	.dpms = mga_crtc_dpms,
+-	.mode_fixup = mga_crtc_mode_fixup,
+ 	.mode_set = mga_crtc_mode_set,
+ 	.mode_set_base = mga_crtc_mode_set_base,
+ 	.prepare = mga_crtc_prepare,
 -- 
 2.5.0
