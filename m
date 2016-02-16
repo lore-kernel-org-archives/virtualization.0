@@ -1,8 +1,8 @@
 From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: [PATCH 13/16] drm/virtio: removed optional dummy crtc mode_fixup
+Subject: [PATCH 06/16] drm/rcar-du: removed optional dummy crtc mode_fixup
 	function.
-Date: Tue, 16 Feb 2016 14:19:32 +0000
-Message-ID: <ae865f0deca4e64a0f47f2d2d14b54ff00c0672e.1455630967.git.palminha@synopsys.com>
+Date: Tue, 16 Feb 2016 14:18:00 +0000
+Message-ID: <becab4ff666eca77162e5cd978087f2d3fb3e308.1455630967.git.palminha@synopsys.com>
 References: <cover.1455630967.git.palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -27,34 +27,35 @@ This patch set nukes all the dummy crtc mode_fixup implementations.
 
 Signed-off-by: Carlos Palminha <palminha@synopsys.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_display.c | 8 --------
- 1 file changed, 8 deletions(-)
+ drivers/gpu/drm/rcar-du/rcar_du_crtc.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index a165f03..6a6cb73 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -237,13 +237,6 @@ virtio_gpu_framebuffer_init(struct drm_device *dev,
- 	return 0;
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
+index 4ec80ae..627abc80 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
++++ b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
+@@ -468,14 +468,6 @@ static void rcar_du_crtc_disable(struct drm_crtc *crtc)
+ 	rcrtc->outputs = 0;
  }
  
--static bool virtio_gpu_crtc_mode_fixup(struct drm_crtc *crtc,
--				       const struct drm_display_mode *mode,
--				       struct drm_display_mode *adjusted_mode)
+-static bool rcar_du_crtc_mode_fixup(struct drm_crtc *crtc,
+-				    const struct drm_display_mode *mode,
+-				    struct drm_display_mode *adjusted_mode)
 -{
+-	/* TODO Fixup modes */
 -	return true;
 -}
 -
- static void virtio_gpu_crtc_mode_set_nofb(struct drm_crtc *crtc)
+ static void rcar_du_crtc_atomic_begin(struct drm_crtc *crtc,
+ 				      struct drm_crtc_state *old_crtc_state)
  {
- 	struct drm_device *dev = crtc->dev;
-@@ -277,7 +270,6 @@ static int virtio_gpu_crtc_atomic_check(struct drm_crtc *crtc,
- static const struct drm_crtc_helper_funcs virtio_gpu_crtc_helper_funcs = {
- 	.enable        = virtio_gpu_crtc_enable,
- 	.disable       = virtio_gpu_crtc_disable,
--	.mode_fixup    = virtio_gpu_crtc_mode_fixup,
- 	.mode_set_nofb = virtio_gpu_crtc_mode_set_nofb,
- 	.atomic_check  = virtio_gpu_crtc_atomic_check,
- };
+@@ -502,7 +494,6 @@ static void rcar_du_crtc_atomic_flush(struct drm_crtc *crtc,
+ }
+ 
+ static const struct drm_crtc_helper_funcs crtc_helper_funcs = {
+-	.mode_fixup = rcar_du_crtc_mode_fixup,
+ 	.disable = rcar_du_crtc_disable,
+ 	.enable = rcar_du_crtc_enable,
+ 	.atomic_begin = rcar_du_crtc_atomic_begin,
 -- 
 2.5.0
