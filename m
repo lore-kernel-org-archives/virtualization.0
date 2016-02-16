@@ -1,8 +1,7 @@
 From: "Denis V. Lunev" <den@openvz.org>
-Subject: [PATCH 2/2] virtio_balloon: export 'available' memory to balloon
-	statistics
-Date: Tue, 16 Feb 2016 18:50:52 +0300
-Message-ID: <1455637852-7323-3-git-send-email-den__27185.9506996863$1455639133$gmane$org@openvz.org>
+Subject: [PATCH 1/2] calculate 'available' memory in the separate function
+Date: Tue, 16 Feb 2016 18:50:51 +0300
+Message-ID: <1455637852-7323-2-git-send-email-den__46480.4203402766$1455639136$gmane$org@openvz.org>
 References: <1455637852-7323-1-git-send-email-den@openvz.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,11 +22,13 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Igor Redko <redkoi@virtuozzo.com>
 
-Add a new field, VIRTIO_BALLOON_S_AVAIL, to virtio_balloon memory
-statistics protocol, corresponding to 'Available' in /proc/meminfo.
+Factor out calculation of the available memory counter into a separate
+exportable function, in order to be able to use it in other parts of
+the kernel.
 
-It indicates to the hypervisor how big the balloon can be inflated
-without pushing the guest system to swap.
+In particular, it appears a relevant metric to report to the
+hypervisor via virtio-balloon statistics interface (in a followup
+patch).
 
 Signed-off-by: Igor Redko <redkoi@virtuozzo.com>
 Reviewed-by: Roman Kagan <rkagan@virtuozzo.com>
@@ -35,58 +36,126 @@ Signed-off-by: Denis V. Lunev <den@openvz.org>
 CC: Michael S. Tsirkin <mst@redhat.com>
 CC: Andrew Morton <akpm@linux-foundation.org>
 ---
- drivers/virtio/virtio_balloon.c     | 6 ++++++
- include/uapi/linux/virtio_balloon.h | 3 ++-
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ fs/proc/meminfo.c  | 31 +------------------------------
+ include/linux/mm.h |  1 +
+ mm/page_alloc.c    | 43 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 45 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 0c3691f..f2b77de 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -30,6 +30,7 @@
- #include <linux/balloon_compaction.h>
- #include <linux/oom.h>
- #include <linux/wait.h>
-+#include <linux/mm.h>
+diff --git a/fs/proc/meminfo.c b/fs/proc/meminfo.c
+index df4661a..8372046 100644
+--- a/fs/proc/meminfo.c
++++ b/fs/proc/meminfo.c
+@@ -29,10 +29,7 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
+ 	unsigned long committed;
+ 	long cached;
+ 	long available;
+-	unsigned long pagecache;
+-	unsigned long wmark_low = 0;
+ 	unsigned long pages[NR_LRU_LISTS];
+-	struct zone *zone;
+ 	int lru;
  
  /*
-  * Balloon device works in 4K page units.  So each page is pointed to by
-@@ -229,10 +230,13 @@ static void update_balloon_stats(struct virtio_balloon *vb)
- 	unsigned long events[NR_VM_EVENT_ITEMS];
- 	struct sysinfo i;
- 	int idx = 0;
-+	long available;
+@@ -51,33 +48,7 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
+ 	for (lru = LRU_BASE; lru < NR_LRU_LISTS; lru++)
+ 		pages[lru] = global_page_state(NR_LRU_BASE + lru);
  
- 	all_vm_events(events);
- 	si_meminfo(&i);
- 
+-	for_each_zone(zone)
+-		wmark_low += zone->watermark[WMARK_LOW];
+-
+-	/*
+-	 * Estimate the amount of memory available for userspace allocations,
+-	 * without causing swapping.
+-	 */
+-	available = i.freeram - totalreserve_pages;
+-
+-	/*
+-	 * Not all the page cache can be freed, otherwise the system will
+-	 * start swapping. Assume at least half of the page cache, or the
+-	 * low watermark worth of cache, needs to stay.
+-	 */
+-	pagecache = pages[LRU_ACTIVE_FILE] + pages[LRU_INACTIVE_FILE];
+-	pagecache -= min(pagecache / 2, wmark_low);
+-	available += pagecache;
+-
+-	/*
+-	 * Part of the reclaimable slab consists of items that are in use,
+-	 * and cannot be freed. Cap this estimate at the low watermark.
+-	 */
+-	available += global_page_state(NR_SLAB_RECLAIMABLE) -
+-		     min(global_page_state(NR_SLAB_RECLAIMABLE) / 2, wmark_low);
+-
+-	if (available < 0)
+-		available = 0;
 +	available = si_mem_available();
-+
- 	update_stat(vb, idx++, VIRTIO_BALLOON_S_SWAP_IN,
- 				pages_to_bytes(events[PSWPIN]));
- 	update_stat(vb, idx++, VIRTIO_BALLOON_S_SWAP_OUT,
-@@ -243,6 +247,8 @@ static void update_balloon_stats(struct virtio_balloon *vb)
- 				pages_to_bytes(i.freeram));
- 	update_stat(vb, idx++, VIRTIO_BALLOON_S_MEMTOT,
- 				pages_to_bytes(i.totalram));
-+	update_stat(vb, idx++, VIRTIO_BALLOON_S_AVAIL,
-+				pages_to_bytes(available));
+ 
+ 	/*
+ 	 * Tagged format, for easy grepping and expansion.
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 516e149..a8c4144 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -1862,6 +1862,7 @@ extern int __meminit init_per_zone_wmark_min(void);
+ extern void mem_init(void);
+ extern void __init mmap_init(void);
+ extern void show_mem(unsigned int flags);
++extern long si_mem_available(void);
+ extern void si_meminfo(struct sysinfo * val);
+ extern void si_meminfo_node(struct sysinfo *val, int nid);
+ 
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 838ca8bb..dae813c 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -3603,6 +3603,49 @@ static inline void show_node(struct zone *zone)
+ 		printk("Node %d ", zone_to_nid(zone));
  }
  
- /*
-diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-index d7f1cbc..343d7dd 100644
---- a/include/uapi/linux/virtio_balloon.h
-+++ b/include/uapi/linux/virtio_balloon.h
-@@ -51,7 +51,8 @@ struct virtio_balloon_config {
- #define VIRTIO_BALLOON_S_MINFLT   3   /* Number of minor faults */
- #define VIRTIO_BALLOON_S_MEMFREE  4   /* Total amount of free memory */
- #define VIRTIO_BALLOON_S_MEMTOT   5   /* Total amount of memory */
--#define VIRTIO_BALLOON_S_NR       6
-+#define VIRTIO_BALLOON_S_AVAIL    6   /* Available memory as in /proc */
-+#define VIRTIO_BALLOON_S_NR       7
- 
- /*
-  * Memory statistics structure.
++long si_mem_available(void)
++{
++	long available;
++	unsigned long pagecache;
++	unsigned long wmark_low = 0;
++	unsigned long pages[NR_LRU_LISTS];
++	struct zone *zone;
++	int lru;
++
++	for (lru = LRU_BASE; lru < NR_LRU_LISTS; lru++)
++		pages[lru] = global_page_state(NR_LRU_BASE + lru);
++
++	for_each_zone(zone)
++		wmark_low += zone->watermark[WMARK_LOW];
++
++	/*
++	 * Estimate the amount of memory available for userspace allocations,
++	 * without causing swapping.
++	 */
++	available = global_page_state(NR_FREE_PAGES) - totalreserve_pages;
++
++	/*
++	 * Not all the page cache can be freed, otherwise the system will
++	 * start swapping. Assume at least half of the page cache, or the
++	 * low watermark worth of cache, needs to stay.
++	 */
++	pagecache = pages[LRU_ACTIVE_FILE] + pages[LRU_INACTIVE_FILE];
++	pagecache -= min(pagecache / 2, wmark_low);
++	available += pagecache;
++
++	/*
++	 * Part of the reclaimable slab consists of items that are in use,
++	 * and cannot be freed. Cap this estimate at the low watermark.
++	 */
++	available += global_page_state(NR_SLAB_RECLAIMABLE) -
++		     min(global_page_state(NR_SLAB_RECLAIMABLE) / 2, wmark_low);
++
++	if (available < 0)
++		available = 0;
++	return available;
++}
++EXPORT_SYMBOL_GPL(si_mem_available);
++
+ void si_meminfo(struct sysinfo *val)
+ {
+ 	val->totalram = totalram_pages;
 -- 
 2.5.0
