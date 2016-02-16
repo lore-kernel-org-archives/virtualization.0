@@ -1,14 +1,11 @@
-From: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Subject: Re: [PATCH v2 0/3] vhost: cross-endian code cleanup
-Date: Tue, 16 Feb 2016 16:43:16 +0100
-Message-ID: <20160216164316.24764e64@bahia.huguette.org>
-References: <20160216145418.7448.71329.stgit@bahia.lab.toulouse-stg.fr.ibm.com>
-	<20160216153413.GA32554@redhat.com>
+From: "Denis V. Lunev" <den@openvz.org>
+Subject: [PATCH 0/2] export 'available' memory to virtio balloon statistics
+Date: Tue, 16 Feb 2016 18:50:50 +0300
+Message-ID: <1455637852-7323-1-git-send-email-den__38023.3747455806$1455639118$gmane$org@openvz.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160216153413.GA32554@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,39 +15,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Igor Redko <redkoi@virtuozzo.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "Denis V. Lunev" <den@openvz.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 16 Feb 2016 17:34:13 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+Add a new field, VIRTIO_BALLOON_S_AVAIL, to virtio_balloon memory
+statistics protocol, corresponding to 'Available' in /proc/meminfo.
 
-> On Tue, Feb 16, 2016 at 03:54:18PM +0100, Greg Kurz wrote:
-> > This series is a new tentative to have cleaner cross-endian code.
-> > 
-> > Patches 1/3 is new: it fixes a side-effect in case vhost_init_used() fails.
-> > 
-> > Patch 2/3 comes from v1: it renames cross-endian helpers
-> > 
-> > Patch 3/3 is new: it simply renames vhost_init_used() as suggested by Michael.  
-> 
-> Is this on top of my tree?
-> 
+It indicates to the hypervisor how big the balloon can be inflated
+without pushing the guest system to swap. This metric would be very
+useful in VM orchestration software to improve memory management
+of different VMs under overcommit.
 
-No it's on top of Linus's but I can rebase.
+Signed-off-by: Igor Redko <redkoi@virtuozzo.com>
+Reviewed-by: Roman Kagan <rkagan@virtuozzo.com>
+Signed-off-by: Denis V. Lunev <den@openvz.org>
+CC: Michael S. Tsirkin <mst@redhat.com>
+CC: Andrew Morton <akpm@linux-foundation.org>
 
-> > ---
-> > 
-> > Greg Kurz (3):
-> >       vhost: fix error path in vhost_init_used()
-> >       vhost: rename cross-endian helpers
-> >       vhost: rename vhost_init_used()
-> > 
-> > 
-> >  drivers/vhost/net.c   |    2 +-
-> >  drivers/vhost/scsi.c  |    2 +-
-> >  drivers/vhost/test.c  |    2 +-
-> >  drivers/vhost/vhost.c |   49 +++++++++++++++++++++++++++++++++++++------------
-> >  drivers/vhost/vhost.h |    2 +-
-> >  5 files changed, 41 insertions(+), 16 deletions(-)  
-> 
+Igor Redko (2):
+  calculate 'available' memory in the separate function
+  virtio_balloon: export 'available' memory to balloon statistics
+
+ drivers/virtio/virtio_balloon.c     |  6 ++++++
+ fs/proc/meminfo.c                   | 31 +-------------------------
+ include/linux/mm.h                  |  1 +
+ include/uapi/linux/virtio_balloon.h |  3 ++-
+ mm/page_alloc.c                     | 43 +++++++++++++++++++++++++++++++++++++
+ 5 files changed, 53 insertions(+), 31 deletions(-)
+
+-- 
+2.5.0
