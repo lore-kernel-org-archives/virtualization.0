@@ -1,8 +1,8 @@
 From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: [PATCH 07/16] drm/omapdrm: removed optional dummy crtc mode_fixup
+Subject: [PATCH 10/16] drm/sti: removed optional dummy crtc mode_fixup
 	function.
-Date: Tue, 16 Feb 2016 14:18:12 +0000
-Message-ID: <101f043d5fa747291c09ae765bac4d55c6e39988.1455630967.git.palminha__26712.729156907$1455632500$gmane$org@synopsys.com>
+Date: Tue, 16 Feb 2016 14:18:53 +0000
+Message-ID: <08d27e27582fb2daa48555ab542245c6cf0a2268.1455630967.git.palminha__21240.4468017214$1455632565$gmane$org@synopsys.com>
 References: <cover.1455630967.git.palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -27,34 +27,35 @@ This patch set nukes all the dummy crtc mode_fixup implementations.
 
 Signed-off-by: Carlos Palminha <palminha@synopsys.com>
 ---
- drivers/gpu/drm/omapdrm/omap_crtc.c | 8 --------
- 1 file changed, 8 deletions(-)
+ drivers/gpu/drm/sti/sti_crtc.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/omapdrm/omap_crtc.c b/drivers/gpu/drm/omapdrm/omap_crtc.c
-index d38fcbc..483acdb 100644
---- a/drivers/gpu/drm/omapdrm/omap_crtc.c
-+++ b/drivers/gpu/drm/omapdrm/omap_crtc.c
-@@ -330,13 +330,6 @@ static void omap_crtc_destroy(struct drm_crtc *crtc)
- 	kfree(omap_crtc);
+diff --git a/drivers/gpu/drm/sti/sti_crtc.c b/drivers/gpu/drm/sti/sti_crtc.c
+index de11c7c..e04deed 100644
+--- a/drivers/gpu/drm/sti/sti_crtc.c
++++ b/drivers/gpu/drm/sti/sti_crtc.c
+@@ -51,14 +51,6 @@ static void sti_crtc_disabling(struct drm_crtc *crtc)
+ 	mixer->status = STI_MIXER_DISABLING;
  }
  
--static bool omap_crtc_mode_fixup(struct drm_crtc *crtc,
--		const struct drm_display_mode *mode,
--		struct drm_display_mode *adjusted_mode)
+-static bool sti_crtc_mode_fixup(struct drm_crtc *crtc,
+-				const struct drm_display_mode *mode,
+-				struct drm_display_mode *adjusted_mode)
 -{
+-	/* accept the provided drm_display_mode, do not fix it up */
 -	return true;
 -}
 -
- static void omap_crtc_enable(struct drm_crtc *crtc)
+ static int
+ sti_crtc_mode_set(struct drm_crtc *crtc, struct drm_display_mode *mode)
  {
- 	struct omap_crtc *omap_crtc = to_omap_crtc(crtc);
-@@ -451,7 +444,6 @@ static const struct drm_crtc_funcs omap_crtc_funcs = {
- };
- 
- static const struct drm_crtc_helper_funcs omap_crtc_helper_funcs = {
--	.mode_fixup = omap_crtc_mode_fixup,
- 	.mode_set_nofb = omap_crtc_mode_set_nofb,
- 	.disable = omap_crtc_disable,
- 	.enable = omap_crtc_enable,
+@@ -229,7 +221,6 @@ static void sti_crtc_atomic_flush(struct drm_crtc *crtc,
+ static const struct drm_crtc_helper_funcs sti_crtc_helper_funcs = {
+ 	.enable = sti_crtc_enable,
+ 	.disable = sti_crtc_disabling,
+-	.mode_fixup = sti_crtc_mode_fixup,
+ 	.mode_set = drm_helper_crtc_mode_set,
+ 	.mode_set_nofb = sti_crtc_mode_set_nofb,
+ 	.mode_set_base = drm_helper_crtc_mode_set_base,
 -- 
 2.5.0
