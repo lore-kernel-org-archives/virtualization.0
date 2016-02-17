@@ -1,15 +1,15 @@
 From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH 07/16] drm/omapdrm: removed optional dummy crtc mode_fixup
-	function.
-Date: Wed, 17 Feb 2016 17:24:08 +0200
-Message-ID: <12773333.2XRLo5cZeb__38604.5706960887$1455725045$gmane$org@avalon>
+Subject: Re: [PATCH 09/16] drm/shmobile: removed optional dummy crtc
+	mode_fixup function.
+Date: Wed, 17 Feb 2016 17:24:21 +0200
+Message-ID: <2650605.Mb3ma0pO7s__2389.50075950033$1455725055$gmane$org@avalon>
 References: <cover.1455630967.git.palminha@synopsys.com>
-	<101f043d5fa747291c09ae765bac4d55c6e39988.1455630967.git.palminha@synopsys.com>
+	<c1652b5b8d84d857f8036a37d1d3e6123970e1a0.1455630967.git.palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <101f043d5fa747291c09ae765bac4d55c6e39988.1455630967.git.palminha@synopsys.com>
+In-Reply-To: <c1652b5b8d84d857f8036a37d1d3e6123970e1a0.1455630967.git.palminha@synopsys.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,7 +27,7 @@ Hi Carlos,
 
 Thank you for the patch.
 
-On Tuesday 16 February 2016 14:18:12 Carlos Palminha wrote:
+On Tuesday 16 February 2016 14:18:40 Carlos Palminha wrote:
 > This patch set nukes all the dummy crtc mode_fixup implementations.
 > (made on top of Daniel topic/drm-misc branch)
 > 
@@ -36,35 +36,36 @@ On Tuesday 16 February 2016 14:18:12 Carlos Palminha wrote:
 Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
 > ---
->  drivers/gpu/drm/omapdrm/omap_crtc.c | 8 --------
+>  drivers/gpu/drm/shmobile/shmob_drm_crtc.c | 8 --------
 >  1 file changed, 8 deletions(-)
 > 
-> diff --git a/drivers/gpu/drm/omapdrm/omap_crtc.c
-> b/drivers/gpu/drm/omapdrm/omap_crtc.c index d38fcbc..483acdb 100644
-> --- a/drivers/gpu/drm/omapdrm/omap_crtc.c
-> +++ b/drivers/gpu/drm/omapdrm/omap_crtc.c
-> @@ -330,13 +330,6 @@ static void omap_crtc_destroy(struct drm_crtc *crtc)
->  	kfree(omap_crtc);
+> diff --git a/drivers/gpu/drm/shmobile/shmob_drm_crtc.c
+> b/drivers/gpu/drm/shmobile/shmob_drm_crtc.c index 27342fd..88643ab 100644
+> --- a/drivers/gpu/drm/shmobile/shmob_drm_crtc.c
+> +++ b/drivers/gpu/drm/shmobile/shmob_drm_crtc.c
+> @@ -359,13 +359,6 @@ static void shmob_drm_crtc_dpms(struct drm_crtc *crtc,
+> int mode) scrtc->dpms = mode;
 >  }
 > 
-> -static bool omap_crtc_mode_fixup(struct drm_crtc *crtc,
-> -		const struct drm_display_mode *mode,
-> -		struct drm_display_mode *adjusted_mode)
+> -static bool shmob_drm_crtc_mode_fixup(struct drm_crtc *crtc,
+> -				      const struct drm_display_mode *mode,
+> -				      struct drm_display_mode *adjusted_mode)
 > -{
 > -	return true;
 > -}
 > -
->  static void omap_crtc_enable(struct drm_crtc *crtc)
+>  static void shmob_drm_crtc_mode_prepare(struct drm_crtc *crtc)
 >  {
->  	struct omap_crtc *omap_crtc = to_omap_crtc(crtc);
-> @@ -451,7 +444,6 @@ static const struct drm_crtc_funcs omap_crtc_funcs = {
->  };
+>  	shmob_drm_crtc_dpms(crtc, DRM_MODE_DPMS_OFF);
+> @@ -431,7 +424,6 @@ static int shmob_drm_crtc_mode_set_base(struct drm_crtc
+> *crtc, int x, int y,
 > 
->  static const struct drm_crtc_helper_funcs omap_crtc_helper_funcs = {
-> -	.mode_fixup = omap_crtc_mode_fixup,
->  	.mode_set_nofb = omap_crtc_mode_set_nofb,
->  	.disable = omap_crtc_disable,
->  	.enable = omap_crtc_enable,
+>  static const struct drm_crtc_helper_funcs crtc_helper_funcs = {
+>  	.dpms = shmob_drm_crtc_dpms,
+> -	.mode_fixup = shmob_drm_crtc_mode_fixup,
+>  	.prepare = shmob_drm_crtc_mode_prepare,
+>  	.commit = shmob_drm_crtc_mode_commit,
+>  	.mode_set = shmob_drm_crtc_mode_set,
 
 -- 
 Regards,
