@@ -1,15 +1,12 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH 09/16] drm/shmobile: removed optional dummy crtc
-	mode_fixup function.
-Date: Wed, 17 Feb 2016 17:24:21 +0200
-Message-ID: <2650605.Mb3ma0pO7s__2389.50075950033$1455725055$gmane$org@avalon>
-References: <cover.1455630967.git.palminha@synopsys.com>
-	<c1652b5b8d84d857f8036a37d1d3e6123970e1a0.1455630967.git.palminha@synopsys.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] virtio_net: switch to build_skb for mrg_rxbuf
+Date: Sun, 21 Feb 2016 20:40:59 +0200
+Message-ID: <1456079998-5240-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <c1652b5b8d84d857f8036a37d1d3e6123970e1a0.1455630967.git.palminha@synopsys.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,55 +16,126 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Cc: nicolas.pitre@linaro.org, boris.brezillon@free-electrons.com, jianwei.wang.chn@gmail.com, airlied@linux.ie, daniel.vetter@ffwll.ch, alison.wang@freescale.com, patrik.r.jakobsson@gmail.com, virtualization@lists.linux-foundation.org, linux-renesas-soc@vger.kernel.org, jani.nikula@intel.com, dri-devel@lists.freedesktop.org, benjamin.gaignard@linaro.org, vincent.abriou@st.com, sudipm.mukherjee@gmail.com
+To: linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Carlos,
+For small packets data copy was observed to
+take up about 15% CPU time. Switch to build_skb
+and avoid the copy when using mergeable rx buffers.
 
-Thank you for the patch.
+As a bonus, medium-size skbs that fit in a page will be
+completely linear.
 
-On Tuesday 16 February 2016 14:18:40 Carlos Palminha wrote:
-> This patch set nukes all the dummy crtc mode_fixup implementations.
-> (made on top of Daniel topic/drm-misc branch)
-> 
-> Signed-off-by: Carlos Palminha <palminha@synopsys.com>
+Of course, we now need to lower the lower bound on packet size,
+to make sure a sane number of skbs fits in rx socket buffer.
+By how much? I don't know yet.
 
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+It might also be useful to prefetch the packet buffer since
+net stack will likely use it soon.
 
-> ---
->  drivers/gpu/drm/shmobile/shmob_drm_crtc.c | 8 --------
->  1 file changed, 8 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/shmobile/shmob_drm_crtc.c
-> b/drivers/gpu/drm/shmobile/shmob_drm_crtc.c index 27342fd..88643ab 100644
-> --- a/drivers/gpu/drm/shmobile/shmob_drm_crtc.c
-> +++ b/drivers/gpu/drm/shmobile/shmob_drm_crtc.c
-> @@ -359,13 +359,6 @@ static void shmob_drm_crtc_dpms(struct drm_crtc *crtc,
-> int mode) scrtc->dpms = mode;
->  }
-> 
-> -static bool shmob_drm_crtc_mode_fixup(struct drm_crtc *crtc,
-> -				      const struct drm_display_mode *mode,
-> -				      struct drm_display_mode *adjusted_mode)
-> -{
-> -	return true;
-> -}
-> -
->  static void shmob_drm_crtc_mode_prepare(struct drm_crtc *crtc)
->  {
->  	shmob_drm_crtc_dpms(crtc, DRM_MODE_DPMS_OFF);
-> @@ -431,7 +424,6 @@ static int shmob_drm_crtc_mode_set_base(struct drm_crtc
-> *crtc, int x, int y,
-> 
->  static const struct drm_crtc_helper_funcs crtc_helper_funcs = {
->  	.dpms = shmob_drm_crtc_dpms,
-> -	.mode_fixup = shmob_drm_crtc_mode_fixup,
->  	.prepare = shmob_drm_crtc_mode_prepare,
->  	.commit = shmob_drm_crtc_mode_commit,
->  	.mode_set = shmob_drm_crtc_mode_set,
+Lightly tested, in particular, I didn't yet test what this
+actually does to performance - sending this out for early
+feedback/flames.
 
+TODO: it appears that Linux won't handle correctly the case of first
+buffer being very small (or consisting exclusively of virtio header).
+This is already the case for current code, so don't bother
+testing yet.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/net/virtio_net.c | 44 +++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 35 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 767ab11..20f8dda 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -347,6 +347,26 @@ err:
+ 	return NULL;
+ }
+ 
++#define VNET_SKB_PAD (NET_SKB_PAD + NET_IP_ALIGN)
++#define VNET_SKB_BUG (VNET_SKB_PAD < sizeof(struct virtio_net_hdr_mrg_rxbuf))
++#define VNET_SKB_LEN(len) ((len) - sizeof(struct virtio_net_hdr_mrg_rxbuf))
++#define VNET_SKB_OFF VNET_SKB_LEN(VNET_SKB_PAD)
++
++static struct sk_buff *vnet_build_skb(struct virtnet_info *vi,
++				      void *buf,
++				      unsigned int len, unsigned int truesize)
++{
++	struct sk_buff *skb = build_skb(buf, truesize);
++
++	if (!skb)
++		return NULL;
++
++	skb_reserve(skb, VNET_SKB_PAD);
++	skb_put(skb, VNET_SKB_LEN(len));
++
++	return skb;
++}
++
+ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 					 struct virtnet_info *vi,
+ 					 struct receive_queue *rq,
+@@ -354,14 +374,13 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 					 unsigned int len)
+ {
+ 	void *buf = mergeable_ctx_to_buf_address(ctx);
+-	struct virtio_net_hdr_mrg_rxbuf *hdr = buf;
++	struct virtio_net_hdr_mrg_rxbuf *hdr = buf + VNET_SKB_OFF;
+ 	u16 num_buf = virtio16_to_cpu(vi->vdev, hdr->num_buffers);
+ 	struct page *page = virt_to_head_page(buf);
+-	int offset = buf - page_address(page);
+ 	unsigned int truesize = max(len, mergeable_ctx_to_buf_truesize(ctx));
++	int offset;
+ 
+-	struct sk_buff *head_skb = page_to_skb(vi, rq, page, offset, len,
+-					       truesize);
++	struct sk_buff *head_skb = vnet_build_skb(vi, buf, len, truesize);
+ 	struct sk_buff *curr_skb = head_skb;
+ 
+ 	if (unlikely(!curr_skb))
+@@ -606,11 +625,14 @@ static int add_recvbuf_big(struct virtnet_info *vi, struct receive_queue *rq,
+ 
+ static unsigned int get_mergeable_buf_len(struct ewma_pkt_len *avg_pkt_len)
+ {
+-	const size_t hdr_len = sizeof(struct virtio_net_hdr_mrg_rxbuf);
++	unsigned int hdr;
+ 	unsigned int len;
+ 
+-	len = hdr_len + clamp_t(unsigned int, ewma_pkt_len_read(avg_pkt_len),
+-			GOOD_PACKET_LEN, PAGE_SIZE - hdr_len);
++	hdr = ALIGN(VNET_SKB_PAD + sizeof(struct skb_shared_info),
++		    MERGEABLE_BUFFER_ALIGN);
++
++	len = hdr + clamp_t(unsigned int, ewma_pkt_len_read(avg_pkt_len),
++			       500 /* TODO */, PAGE_SIZE - hdr);
+ 	return ALIGN(len, MERGEABLE_BUFFER_ALIGN);
+ }
+ 
+@@ -626,7 +648,10 @@ static int add_recvbuf_mergeable(struct receive_queue *rq, gfp_t gfp)
+ 	if (unlikely(!skb_page_frag_refill(len, alloc_frag, gfp)))
+ 		return -ENOMEM;
+ 
+-	buf = (char *)page_address(alloc_frag->page) + alloc_frag->offset;
++	BUILD_BUG_ON(VNET_SKB_BUG);
++
++	buf = (char *)page_address(alloc_frag->page) + alloc_frag->offset +
++		VNET_SKB_OFF;
+ 	ctx = mergeable_buf_to_ctx(buf, len);
+ 	get_page(alloc_frag->page);
+ 	alloc_frag->offset += len;
+@@ -641,7 +666,8 @@ static int add_recvbuf_mergeable(struct receive_queue *rq, gfp_t gfp)
+ 		alloc_frag->offset += hole;
+ 	}
+ 
+-	sg_init_one(rq->sg, buf, len);
++	sg_init_one(rq->sg, buf,
++		    len - VNET_SKB_OFF - sizeof(struct skb_shared_info));
+ 	err = virtqueue_add_inbuf(rq->vq, rq->sg, 1, (void *)ctx, gfp);
+ 	if (err < 0)
+ 		put_page(virt_to_head_page(buf));
 -- 
-Regards,
-
-Laurent Pinchart
+MST
