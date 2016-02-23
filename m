@@ -1,14 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio_net: switch to build_skb for mrg_rxbuf
-Date: Sun, 21 Feb 2016 20:41:57 +0200
-Message-ID: <20160221204110-mutt-send-email-mst@redhat.com>
-References: <1456079998-5240-1-git-send-email-mst@redhat.com>
+Subject: Re: [PATCH 2/2] virtio_balloon: export 'available' memory to balloon
+	statistics
+Date: Tue, 23 Feb 2016 17:10:30 +0200
+Message-ID: <20160223170828-mutt-send-email-mst__45891.8759403334$1456240262$gmane$org@redhat.com>
+References: <1455637852-7323-1-git-send-email-den@openvz.org>
+	<1455637852-7323-3-git-send-email-den@openvz.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1456079998-5240-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1455637852-7323-3-git-send-email-den@openvz.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,131 +20,86 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Denis V. Lunev" <den@openvz.org>
+Cc: Igor Redko <redkoi@virtuozzo.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Feb 21, 2016 at 08:40:59PM +0200, Michael S. Tsirkin wrote:
-> For small packets data copy was observed to
-> take up about 15% CPU time. Switch to build_skb
-> and avoid the copy when using mergeable rx buffers.
+On Tue, Feb 16, 2016 at 06:50:52PM +0300, Denis V. Lunev wrote:
+> From: Igor Redko <redkoi@virtuozzo.com>
 > 
-> As a bonus, medium-size skbs that fit in a page will be
-> completely linear.
+> Add a new field, VIRTIO_BALLOON_S_AVAIL, to virtio_balloon memory
+> statistics protocol, corresponding to 'Available' in /proc/meminfo.
 > 
-> Of course, we now need to lower the lower bound on packet size,
-> to make sure a sane number of skbs fits in rx socket buffer.
-> By how much? I don't know yet.
+> It indicates to the hypervisor how big the balloon can be inflated
+> without pushing the guest system to swap.
 > 
-> It might also be useful to prefetch the packet buffer since
-> net stack will likely use it soon.
-> 
-> Lightly tested, in particular, I didn't yet test what this
-> actually does to performance - sending this out for early
-> feedback/flames.
-> 
-> TODO: it appears that Linux won't handle correctly the case of first
-> buffer being very small (or consisting exclusively of virtio header).
-> This is already the case for current code, so don't bother
-> testing yet.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Igor Redko <redkoi@virtuozzo.com>
+> Reviewed-by: Roman Kagan <rkagan@virtuozzo.com>
+> Signed-off-by: Denis V. Lunev <den@openvz.org>
+> CC: Michael S. Tsirkin <mst@redhat.com>
+> CC: Andrew Morton <akpm@linux-foundation.org>
 
-Oops. This should have been "RFC PATCH".
-Please don't merge it yet, it's just a preview.
+Oops - I missed the fact that this affects host/guest ABI.
+
+Can you please submit ABI update proposal to virtio tc?
+Spec patch would be even better.
+
+This is important to ensure there are no conflicts
+with other features being developed in parallel.
 
 > ---
->  drivers/net/virtio_net.c | 44 +++++++++++++++++++++++++++++++++++---------
->  1 file changed, 35 insertions(+), 9 deletions(-)
+>  drivers/virtio/virtio_balloon.c     | 6 ++++++
+>  include/uapi/linux/virtio_balloon.h | 3 ++-
+>  2 files changed, 8 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 767ab11..20f8dda 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -347,6 +347,26 @@ err:
->  	return NULL;
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 0c3691f..f2b77de 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -30,6 +30,7 @@
+>  #include <linux/balloon_compaction.h>
+>  #include <linux/oom.h>
+>  #include <linux/wait.h>
+> +#include <linux/mm.h>
+>  
+>  /*
+>   * Balloon device works in 4K page units.  So each page is pointed to by
+> @@ -229,10 +230,13 @@ static void update_balloon_stats(struct virtio_balloon *vb)
+>  	unsigned long events[NR_VM_EVENT_ITEMS];
+>  	struct sysinfo i;
+>  	int idx = 0;
+> +	long available;
+>  
+>  	all_vm_events(events);
+>  	si_meminfo(&i);
+>  
+> +	available = si_mem_available();
+> +
+>  	update_stat(vb, idx++, VIRTIO_BALLOON_S_SWAP_IN,
+>  				pages_to_bytes(events[PSWPIN]));
+>  	update_stat(vb, idx++, VIRTIO_BALLOON_S_SWAP_OUT,
+> @@ -243,6 +247,8 @@ static void update_balloon_stats(struct virtio_balloon *vb)
+>  				pages_to_bytes(i.freeram));
+>  	update_stat(vb, idx++, VIRTIO_BALLOON_S_MEMTOT,
+>  				pages_to_bytes(i.totalram));
+> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_AVAIL,
+> +				pages_to_bytes(available));
 >  }
 >  
-> +#define VNET_SKB_PAD (NET_SKB_PAD + NET_IP_ALIGN)
-> +#define VNET_SKB_BUG (VNET_SKB_PAD < sizeof(struct virtio_net_hdr_mrg_rxbuf))
-> +#define VNET_SKB_LEN(len) ((len) - sizeof(struct virtio_net_hdr_mrg_rxbuf))
-> +#define VNET_SKB_OFF VNET_SKB_LEN(VNET_SKB_PAD)
-> +
-> +static struct sk_buff *vnet_build_skb(struct virtnet_info *vi,
-> +				      void *buf,
-> +				      unsigned int len, unsigned int truesize)
-> +{
-> +	struct sk_buff *skb = build_skb(buf, truesize);
-> +
-> +	if (!skb)
-> +		return NULL;
-> +
-> +	skb_reserve(skb, VNET_SKB_PAD);
-> +	skb_put(skb, VNET_SKB_LEN(len));
-> +
-> +	return skb;
-> +}
-> +
->  static struct sk_buff *receive_mergeable(struct net_device *dev,
->  					 struct virtnet_info *vi,
->  					 struct receive_queue *rq,
-> @@ -354,14 +374,13 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
->  					 unsigned int len)
->  {
->  	void *buf = mergeable_ctx_to_buf_address(ctx);
-> -	struct virtio_net_hdr_mrg_rxbuf *hdr = buf;
-> +	struct virtio_net_hdr_mrg_rxbuf *hdr = buf + VNET_SKB_OFF;
->  	u16 num_buf = virtio16_to_cpu(vi->vdev, hdr->num_buffers);
->  	struct page *page = virt_to_head_page(buf);
-> -	int offset = buf - page_address(page);
->  	unsigned int truesize = max(len, mergeable_ctx_to_buf_truesize(ctx));
-> +	int offset;
+>  /*
+> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
+> index d7f1cbc..343d7dd 100644
+> --- a/include/uapi/linux/virtio_balloon.h
+> +++ b/include/uapi/linux/virtio_balloon.h
+> @@ -51,7 +51,8 @@ struct virtio_balloon_config {
+>  #define VIRTIO_BALLOON_S_MINFLT   3   /* Number of minor faults */
+>  #define VIRTIO_BALLOON_S_MEMFREE  4   /* Total amount of free memory */
+>  #define VIRTIO_BALLOON_S_MEMTOT   5   /* Total amount of memory */
+> -#define VIRTIO_BALLOON_S_NR       6
+> +#define VIRTIO_BALLOON_S_AVAIL    6   /* Available memory as in /proc */
+> +#define VIRTIO_BALLOON_S_NR       7
 >  
-> -	struct sk_buff *head_skb = page_to_skb(vi, rq, page, offset, len,
-> -					       truesize);
-> +	struct sk_buff *head_skb = vnet_build_skb(vi, buf, len, truesize);
->  	struct sk_buff *curr_skb = head_skb;
->  
->  	if (unlikely(!curr_skb))
-> @@ -606,11 +625,14 @@ static int add_recvbuf_big(struct virtnet_info *vi, struct receive_queue *rq,
->  
->  static unsigned int get_mergeable_buf_len(struct ewma_pkt_len *avg_pkt_len)
->  {
-> -	const size_t hdr_len = sizeof(struct virtio_net_hdr_mrg_rxbuf);
-> +	unsigned int hdr;
->  	unsigned int len;
->  
-> -	len = hdr_len + clamp_t(unsigned int, ewma_pkt_len_read(avg_pkt_len),
-> -			GOOD_PACKET_LEN, PAGE_SIZE - hdr_len);
-> +	hdr = ALIGN(VNET_SKB_PAD + sizeof(struct skb_shared_info),
-> +		    MERGEABLE_BUFFER_ALIGN);
-> +
-> +	len = hdr + clamp_t(unsigned int, ewma_pkt_len_read(avg_pkt_len),
-> +			       500 /* TODO */, PAGE_SIZE - hdr);
->  	return ALIGN(len, MERGEABLE_BUFFER_ALIGN);
->  }
->  
-> @@ -626,7 +648,10 @@ static int add_recvbuf_mergeable(struct receive_queue *rq, gfp_t gfp)
->  	if (unlikely(!skb_page_frag_refill(len, alloc_frag, gfp)))
->  		return -ENOMEM;
->  
-> -	buf = (char *)page_address(alloc_frag->page) + alloc_frag->offset;
-> +	BUILD_BUG_ON(VNET_SKB_BUG);
-> +
-> +	buf = (char *)page_address(alloc_frag->page) + alloc_frag->offset +
-> +		VNET_SKB_OFF;
->  	ctx = mergeable_buf_to_ctx(buf, len);
->  	get_page(alloc_frag->page);
->  	alloc_frag->offset += len;
-> @@ -641,7 +666,8 @@ static int add_recvbuf_mergeable(struct receive_queue *rq, gfp_t gfp)
->  		alloc_frag->offset += hole;
->  	}
->  
-> -	sg_init_one(rq->sg, buf, len);
-> +	sg_init_one(rq->sg, buf,
-> +		    len - VNET_SKB_OFF - sizeof(struct skb_shared_info));
->  	err = virtqueue_add_inbuf(rq->vq, rq->sg, 1, (void *)ctx, gfp);
->  	if (err < 0)
->  		put_page(virt_to_head_page(buf));
+>  /*
+>   * Memory statistics structure.
 > -- 
-> MST
+> 2.5.0
