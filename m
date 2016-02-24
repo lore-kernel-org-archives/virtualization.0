@@ -1,18 +1,12 @@
-From: "Denis V. Lunev" <den@openvz.org>
-Subject: Re: [PATCH 2/2] virtio_balloon: export 'available' memory to balloon
-	statistics
-Date: Tue, 23 Feb 2016 19:12:58 +0300
-Message-ID: <56CC850A.1060704@openvz.org>
-References: <1455637852-7323-1-git-send-email-den@openvz.org>
-	<1455637852-7323-3-git-send-email-den@openvz.org>
-	<20160223170828-mutt-send-email-mst@redhat.com>
-	<56CC7A37.2030807@openvz.org>
-	<20160223174952-mutt-send-email-mst@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] virtio_blk: VIRTIO_BLK_F_WCE->VIRTIO_BLK_F_FLUSH
+Date: Wed, 24 Feb 2016 17:11:10 +0200
+Message-ID: <1456326631-8478-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160223174952-mutt-send-email-mst@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,63 +16,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Igor Redko <redkoi@virtuozzo.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: pbonzini@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/23/2016 06:53 PM, Michael S. Tsirkin wrote:
-> On Tue, Feb 23, 2016 at 06:26:47PM +0300, Denis V. Lunev wrote:
->> On 02/23/2016 06:10 PM, Michael S. Tsirkin wrote:
->>> On Tue, Feb 16, 2016 at 06:50:52PM +0300, Denis V. Lunev wrote:
->>>> From: Igor Redko <redkoi@virtuozzo.com>
->>>>
->>>> Add a new field, VIRTIO_BALLOON_S_AVAIL, to virtio_balloon memory
->>>> statistics protocol, corresponding to 'Available' in /proc/meminfo.
->>>>
->>>> It indicates to the hypervisor how big the balloon can be inflated
->>>> without pushing the guest system to swap.
->>>>
->>>> Signed-off-by: Igor Redko <redkoi@virtuozzo.com>
->>>> Reviewed-by: Roman Kagan <rkagan@virtuozzo.com>
->>>> Signed-off-by: Denis V. Lunev <den@openvz.org>
->>>> CC: Michael S. Tsirkin <mst@redhat.com>
->>>> CC: Andrew Morton <akpm@linux-foundation.org>
->>> Oops - I missed the fact that this affects host/guest ABI.
->>>
->>> Can you please submit ABI update proposal to virtio tc?
->>> Spec patch would be even better.
->>>
->>> This is important to ensure there are no conflicts
->>> with other features being developed in parallel.
->> hmmm
->>
->>  From my point of view ABI remains untouched.
-> Anything exposed by guest to host is ABI.
-> Once we add stuff there, we never can remove it
-> as some host might rely on it.
->
->> The guest can send any amount of <tag>;<value>
->> pairs and unknown tags are properly ignored
->> by the host.
->>
->> That is why I think that this change is safe.
-> What happens if someone uses the tag you
-> used for VIRTIO_BALLOON_S_AVAIL, for some
-> other purpose?
-> Any tools using VIRTIO_BALLOON_S_AVAIL will be confused.
-actually this constant resides in QEMU only,
-values are reported above using JSON and
-string tags.
+Latest virtio spec says the feature bit name is VIRTIO_BLK_F_FLUSH,
+VIRTIO_BLK_F_WCE is the legacy name.  virtio blk header says exactly the
+reverse - fix that and update driver code to match.
 
-> Really, it's not hard to get a tag number from virtio TC,
-> so please just do this.
->
-ok. So do you propose to negotiate maximum allowed
-tag to send at the driver start time?
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+I'm inclined to merge it for the current kernel -
+safe and avoids confusion.
 
-we will have to guard this exchange with proper flag
-in feature space then. This could be done but from my
-point of view this looks like serious over-complication.
-Do we have somebody who can judge?
+ include/uapi/linux/virtio_blk.h | 6 +++---
+ drivers/block/virtio_blk.c      | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-Den
+diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux/virtio_blk.h
+index 19c66fc..c3f98df 100644
+--- a/include/uapi/linux/virtio_blk.h
++++ b/include/uapi/linux/virtio_blk.h
+@@ -43,11 +43,11 @@
+ #ifndef VIRTIO_BLK_NO_LEGACY
+ #define VIRTIO_BLK_F_BARRIER	0	/* Does host support barriers? */
+ #define VIRTIO_BLK_F_SCSI	7	/* Supports scsi command passthru */
+-#define VIRTIO_BLK_F_WCE	9	/* Writeback mode enabled after reset */
++#define VIRTIO_BLK_F_FLUSH	9	/* Writeback mode enabled after reset */
+ #define VIRTIO_BLK_F_CONFIG_WCE	11	/* Writeback mode available in config */
+ #ifndef __KERNEL__
+-/* Old (deprecated) name for VIRTIO_BLK_F_WCE. */
+-#define VIRTIO_BLK_F_FLUSH VIRTIO_BLK_F_WCE
++/* Old (deprecated) name for VIRTIO_BLK_F_FLUSH. */
++#define VIRTIO_BLK_F_WCE VIRTIO_BLK_F_FLUSH
+ #endif
+ #endif /* !VIRTIO_BLK_NO_LEGACY */
+ 
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 6ca3549..dbaebb0 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -478,7 +478,7 @@ static int virtblk_get_cache_mode(struct virtio_device *vdev)
+ 				   struct virtio_blk_config, wce,
+ 				   &writeback);
+ 	if (err)
+-		writeback = virtio_has_feature(vdev, VIRTIO_BLK_F_WCE);
++		writeback = virtio_has_feature(vdev, VIRTIO_BLK_F_FLUSH);
+ 
+ 	return writeback;
+ }
+@@ -833,14 +833,14 @@ static const struct virtio_device_id id_table[] = {
+ static unsigned int features_legacy[] = {
+ 	VIRTIO_BLK_F_SEG_MAX, VIRTIO_BLK_F_SIZE_MAX, VIRTIO_BLK_F_GEOMETRY,
+ 	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE, VIRTIO_BLK_F_SCSI,
+-	VIRTIO_BLK_F_WCE, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
++	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+ 	VIRTIO_BLK_F_MQ,
+ }
+ ;
+ static unsigned int features[] = {
+ 	VIRTIO_BLK_F_SEG_MAX, VIRTIO_BLK_F_SIZE_MAX, VIRTIO_BLK_F_GEOMETRY,
+ 	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
+-	VIRTIO_BLK_F_WCE, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
++	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+ 	VIRTIO_BLK_F_MQ,
+ };
+ 
+-- 
+MST
