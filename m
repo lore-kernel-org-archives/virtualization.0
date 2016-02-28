@@ -1,13 +1,15 @@
-From: David Miller <davem@davemloft.net>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH V3 0/3] basic busy polling support for vhost_net
-Date: Fri, 26 Feb 2016 11:45:02 -0500 (EST)
-Message-ID: <20160226.114502.171815325392990783.davem@davemloft.net>
+Date: Sun, 28 Feb 2016 11:12:55 +0200
+Message-ID: <20160228111248-mutt-send-email-mst@redhat.com>
 References: <1456476164-17242-1-git-send-email-jasowang@redhat.com>
+	<20160226.114502.171815325392990783.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1456476164-17242-1-git-send-email-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20160226.114502.171815325392990783.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,16 +19,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: yang.zhang.wz@gmail.com, RAPOPORT@il.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: David Miller <davem@davemloft.net>
+Cc: yang.zhang.wz@gmail.com, RAPOPORT@il.ibm.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 26 Feb 2016 16:42:41 +0800
+On Fri, Feb 26, 2016 at 11:45:02AM -0500, David Miller wrote:
+> From: Jason Wang <jasowang@redhat.com>
+> Date: Fri, 26 Feb 2016 16:42:41 +0800
+> 
+> > This series tries to add basic busy polling for vhost net. The idea is
+> > simple: at the end of tx/rx processing, busy polling for new tx added
+> > descriptor and rx receive socket for a while. The maximum number of
+> > time (in us) could be spent on busy polling was specified ioctl.
+> 
+> I'm assuming this will go through Michael's tree.
 
-> This series tries to add basic busy polling for vhost net. The idea is
-> simple: at the end of tx/rx processing, busy polling for new tx added
-> descriptor and rx receive socket for a while. The maximum number of
-> time (in us) could be spent on busy polling was specified ioctl.
-
-I'm assuming this will go through Michael's tree.
+Definitely.
