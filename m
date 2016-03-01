@@ -1,16 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH V3 3/3] vhost_net: basic polling support
-Date: Mon, 29 Feb 2016 11:03:54 +0200
-Message-ID: <20160229105517-mutt-send-email-mst@redhat.com>
-References: <1456476164-17242-1-git-send-email-jasowang@redhat.com>
-	<1456476164-17242-4-git-send-email-jasowang@redhat.com>
-	<20160228140937.GA8855@redhat.com> <56D3D404.6080600@redhat.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [PATCH 1/2] virtio/s390: use dev_to_virtio
+Date: Tue,  1 Mar 2016 13:44:52 +0100
+Message-ID: <1456836293-49239-2-git-send-email-cornelia.huck@de.ibm.com>
+References: <1456836293-49239-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <56D3D404.6080600@redhat.com>
+In-Reply-To: <1456836293-49239-1-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,69 +17,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: yang.zhang.wz@gmail.com, RAPOPORT@il.ibm.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: mst@redhat.com
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Geliang Tang <geliangtang@163.com>, virtualization@lists.linux-foundation.org, borntraeger@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Feb 29, 2016 at 01:15:48PM +0800, Jason Wang wrote:
-> 
-> 
-> On 02/28/2016 10:09 PM, Michael S. Tsirkin wrote:
-> > On Fri, Feb 26, 2016 at 04:42:44PM +0800, Jason Wang wrote:
-> >> > This patch tries to poll for new added tx buffer or socket receive
-> >> > queue for a while at the end of tx/rx processing. The maximum time
-> >> > spent on polling were specified through a new kind of vring ioctl.
-> >> > 
-> >> > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > Looks good overall, but I still see one problem.
-> >
-> >> > ---
-> >> >  drivers/vhost/net.c        | 79 +++++++++++++++++++++++++++++++++++++++++++---
-> >> >  drivers/vhost/vhost.c      | 14 ++++++++
-> >> >  drivers/vhost/vhost.h      |  1 +
-> >> >  include/uapi/linux/vhost.h |  6 ++++
-> >> >  4 files changed, 95 insertions(+), 5 deletions(-)
-> >> > 
-> >> > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> >> > index 9eda69e..c91af93 100644
-> >> > --- a/drivers/vhost/net.c
-> >> > +++ b/drivers/vhost/net.c
-> >> > @@ -287,6 +287,44 @@ static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
-> >> >  	rcu_read_unlock_bh();
-> >> >  }
-> >> >  
-> >> > +static inline unsigned long busy_clock(void)
-> >> > +{
-> >> > +	return local_clock() >> 10;
-> >> > +}
-> >> > +
-> >> > +static bool vhost_can_busy_poll(struct vhost_dev *dev,
-> >> > +				unsigned long endtime)
-> >> > +{
-> >> > +	return likely(!need_resched()) &&
-> >> > +	       likely(!time_after(busy_clock(), endtime)) &&
-> >> > +	       likely(!signal_pending(current)) &&
-> >> > +	       !vhost_has_work(dev) &&
-> >> > +	       single_task_running();
-> > So I find it quite unfortunate that this still uses single_task_running.
-> > This means that for example a SCHED_IDLE task will prevent polling from
-> > becoming active, and that seems like a bug, or at least
-> > an undocumented feature :).
-> 
-> Yes, it may need more thoughts.
-> 
-> >
-> > Unfortunately this logic affects the behaviour as observed
-> > by userspace, so we can't merge it like this and tune
-> > afterwards, since otherwise mangement tools will start
-> > depending on this logic.
-> >
-> >
-> 
-> How about remove single_task_running() first here and optimize on top?
-> We probably need something like this to handle overcommitment.
+From: Geliang Tang <geliangtang@163.com>
 
-Sounds good.
+Use dev_to_virtio() instead of open-coding it.
 
+Signed-off-by: Geliang Tang <geliangtang@163.com>
+Message-Id: <912bf59bd3a48f2d4d4994681e898dc084fe29d3.1451484163.git.geliangtang@163.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ drivers/s390/virtio/virtio_ccw.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index bf2d130..46b110a1 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -945,8 +945,7 @@ static struct virtio_config_ops virtio_ccw_config_ops = {
+ 
+ static void virtio_ccw_release_dev(struct device *_d)
+ {
+-	struct virtio_device *dev = container_of(_d, struct virtio_device,
+-						 dev);
++	struct virtio_device *dev = dev_to_virtio(_d);
+ 	struct virtio_ccw_device *vcdev = to_vc_device(dev);
+ 
+ 	kfree(vcdev->status);
 -- 
-MST
+2.3.9
