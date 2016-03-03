@@ -1,7 +1,8 @@
 From: Liang Li <liang.z.li@intel.com>
-Subject: [RFC qemu 1/4] pc: Add code to get the lowmem form PCMachineState
-Date: Thu,  3 Mar 2016 18:44:25 +0800
-Message-ID: <1457001868-15949-2-git-send-email-liang.z.li__15925.2577148893$1457019650$gmane$org@intel.com>
+Subject: [RFC qemu 4/4] migration: filter out guest's free pages in ram bulk
+	stage
+Date: Thu,  3 Mar 2016 18:44:28 +0800
+Message-ID: <1457001868-15949-5-git-send-email-liang.z.li__8297.37387034601$1457019664$gmane$org@intel.com>
 References: <1457001868-15949-1-git-send-email-liang.z.li@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,77 +22,126 @@ To: quintela@redhat.com, amit.shah@redhat.com, qemu-devel@nongnu.org, linux-kern
 Cc: ehabkost@redhat.com, kvm@vger.kernel.org, mst@redhat.com, Liang Li <liang.z.li@intel.com>, dgilbert@redhat.com, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, rth@twiddle.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-The lowmem will be used by the following patch to get
-a correct free pages bitmap.
+Get the free pages information through virtio and filter out the free
+pages in the ram bulk stage. This can significantly reduce the total
+live migration time as well as network traffic.
 
 Signed-off-by: Liang Li <liang.z.li@intel.com>
 ---
- hw/i386/pc.c         | 5 +++++
- hw/i386/pc_piix.c    | 1 +
- hw/i386/pc_q35.c     | 1 +
- include/hw/i386/pc.h | 3 ++-
- 4 files changed, 9 insertions(+), 1 deletion(-)
+ migration/ram.c | 52 ++++++++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 46 insertions(+), 6 deletions(-)
 
-diff --git a/hw/i386/pc.c b/hw/i386/pc.c
-index 0aeefd2..f794a84 100644
---- a/hw/i386/pc.c
-+++ b/hw/i386/pc.c
-@@ -1115,6 +1115,11 @@ void pc_hot_add_cpu(const int64_t id, Error **errp)
-     object_unref(OBJECT(cpu));
+diff --git a/migration/ram.c b/migration/ram.c
+index ee2547d..819553b 100644
+--- a/migration/ram.c
++++ b/migration/ram.c
+@@ -40,6 +40,7 @@
+ #include "trace.h"
+ #include "exec/ram_addr.h"
+ #include "qemu/rcu_queue.h"
++#include "sysemu/balloon.h"
+ 
+ #ifdef DEBUG_MIGRATION_RAM
+ #define DPRINTF(fmt, ...) \
+@@ -241,6 +242,7 @@ static struct BitmapRcu {
+     struct rcu_head rcu;
+     /* Main migration bitmap */
+     unsigned long *bmap;
++    unsigned long *free_pages_bmap;
+     /* bitmap of pages that haven't been sent even once
+      * only maintained and used in postcopy at the moment
+      * where it's used to send the dirtymap at the start
+@@ -561,12 +563,7 @@ ram_addr_t migration_bitmap_find_dirty(RAMBlock *rb,
+     unsigned long next;
+ 
+     bitmap = atomic_rcu_read(&migration_bitmap_rcu)->bmap;
+-    if (ram_bulk_stage && nr > base) {
+-        next = nr + 1;
+-    } else {
+-        next = find_next_bit(bitmap, size, nr);
+-    }
+-
++    next = find_next_bit(bitmap, size, nr);
+     *ram_addr_abs = next << TARGET_PAGE_BITS;
+     return (next - base) << TARGET_PAGE_BITS;
+ }
+@@ -1415,6 +1412,9 @@ void free_xbzrle_decoded_buf(void)
+ static void migration_bitmap_free(struct BitmapRcu *bmap)
+ {
+     g_free(bmap->bmap);
++    if (balloon_free_pages_support()) {
++        g_free(bmap->free_pages_bmap);
++    }
+     g_free(bmap->unsentmap);
+     g_free(bmap);
+ }
+@@ -1873,6 +1873,28 @@ err:
+     return ret;
  }
  
-+ram_addr_t pc_get_lowmem(PCMachineState *pcms)
++static void filter_out_guest_free_pages(unsigned long *free_pages_bmap)
 +{
-+   return pcms->lowmem;
-+}
++    RAMBlock *block;
++    DirtyMemoryBlocks *blocks;
++    unsigned long end, page;
 +
- void pc_cpus_init(PCMachineState *pcms)
++    blocks = atomic_rcu_read(&ram_list.dirty_memory[DIRTY_MEMORY_MIGRATION]);
++    block = QLIST_FIRST_RCU(&ram_list.blocks);
++    end = TARGET_PAGE_ALIGN(block->offset +
++                            block->used_length) >> TARGET_PAGE_BITS;
++    page = block->offset >> TARGET_PAGE_BITS;
++
++    while (page < end) {
++        unsigned long idx = page / DIRTY_MEMORY_BLOCK_SIZE;
++        unsigned long offset = page % DIRTY_MEMORY_BLOCK_SIZE;
++        unsigned long num = MIN(end - page, DIRTY_MEMORY_BLOCK_SIZE - offset);
++        unsigned long *p = free_pages_bmap + BIT_WORD(page);
++
++        slow_bitmap_complement(blocks->blocks[idx], p, num);
++        page += num;
++    }
++}
+ 
+ /* Each of ram_save_setup, ram_save_iterate and ram_save_complete has
+  * long-running RCU critical section.  When rcu-reclaims in the code
+@@ -1884,6 +1906,7 @@ static int ram_save_setup(QEMUFile *f, void *opaque)
  {
-     int i;
-diff --git a/hw/i386/pc_piix.c b/hw/i386/pc_piix.c
-index 6f8c2cd..268a08c 100644
---- a/hw/i386/pc_piix.c
-+++ b/hw/i386/pc_piix.c
-@@ -113,6 +113,7 @@ static void pc_init1(MachineState *machine,
-         }
+     RAMBlock *block;
+     int64_t ram_bitmap_pages; /* Size of bitmap in pages, including gaps */
++    uint64_t free_pages_count = 0;
+ 
+     dirty_rate_high_cnt = 0;
+     bitmap_sync_count = 0;
+@@ -1931,6 +1954,9 @@ static int ram_save_setup(QEMUFile *f, void *opaque)
+     ram_bitmap_pages = last_ram_offset() >> TARGET_PAGE_BITS;
+     migration_bitmap_rcu = g_new0(struct BitmapRcu, 1);
+     migration_bitmap_rcu->bmap = bitmap_new(ram_bitmap_pages);
++    if (balloon_free_pages_support()) {
++        migration_bitmap_rcu->free_pages_bmap = bitmap_new(ram_bitmap_pages);
++    }
+ 
+     if (migrate_postcopy_ram()) {
+         migration_bitmap_rcu->unsentmap = bitmap_new(ram_bitmap_pages);
+@@ -1945,6 +1971,20 @@ static int ram_save_setup(QEMUFile *f, void *opaque)
+                                             DIRTY_MEMORY_MIGRATION);
      }
- 
-+    pcms->lowmem = lowmem;
-     if (machine->ram_size >= lowmem) {
-         pcms->above_4g_mem_size = machine->ram_size - lowmem;
-         pcms->below_4g_mem_size = lowmem;
-diff --git a/hw/i386/pc_q35.c b/hw/i386/pc_q35.c
-index 46522c9..8d9bd39 100644
---- a/hw/i386/pc_q35.c
-+++ b/hw/i386/pc_q35.c
-@@ -101,6 +101,7 @@ static void pc_q35_init(MachineState *machine)
-         }
-     }
- 
-+    pcms->lowmem = lowmem;
-     if (machine->ram_size >= lowmem) {
-         pcms->above_4g_mem_size = machine->ram_size - lowmem;
-         pcms->below_4g_mem_size = lowmem;
-diff --git a/include/hw/i386/pc.h b/include/hw/i386/pc.h
-index 8b3546e..3694c91 100644
---- a/include/hw/i386/pc.h
-+++ b/include/hw/i386/pc.h
-@@ -60,7 +60,7 @@ struct PCMachineState {
-     bool nvdimm;
- 
-     /* RAM information (sizes, addresses, configuration): */
--    ram_addr_t below_4g_mem_size, above_4g_mem_size;
-+    ram_addr_t below_4g_mem_size, above_4g_mem_size, lowmem;
- 
-     /* CPU and apic information: */
-     bool apic_xrupt_override;
-@@ -229,6 +229,7 @@ void pc_hot_add_cpu(const int64_t id, Error **errp);
- void pc_acpi_init(const char *default_dsdt);
- 
- void pc_guest_info_init(PCMachineState *pcms);
-+ram_addr_t pc_get_lowmem(PCMachineState *pcms);
- 
- #define PCI_HOST_PROP_PCI_HOLE_START   "pci-hole-start"
- #define PCI_HOST_PROP_PCI_HOLE_END     "pci-hole-end"
+     memory_global_dirty_log_start();
++
++    if (balloon_free_pages_support() &&
++        balloon_get_free_pages(migration_bitmap_rcu->free_pages_bmap,
++                               &free_pages_count) == 0) {
++        qemu_mutex_unlock_iothread();
++        while (balloon_get_free_pages(migration_bitmap_rcu->free_pages_bmap,
++                                      &free_pages_count) == 0) {
++            usleep(1000);
++        }
++        qemu_mutex_lock_iothread();
++
++        filter_out_guest_free_pages(migration_bitmap_rcu->free_pages_bmap);
++    }
++
+     migration_bitmap_sync();
+     qemu_mutex_unlock_ramlist();
+     qemu_mutex_unlock_iothread();
 -- 
 1.8.3.1
