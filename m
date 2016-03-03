@@ -1,14 +1,14 @@
-From: Liang Li <liang.z.li@intel.com>
-Subject: [RFC kernel 2/2] virtio-balloon: extend balloon driver to support a
-	new feature
-Date: Thu,  3 Mar 2016 18:46:59 +0800
-Message-ID: <1457002019-15998-3-git-send-email-liang.z.li__2859.34559437937$1457019701$gmane$org@intel.com>
-References: <1457002019-15998-1-git-send-email-liang.z.li@intel.com>
+From: "Dr. David Alan Gilbert" <dgilbert@redhat.com>
+Subject: Re: [RFC qemu 0/4] A PV solution for live migration optimization
+Date: Thu, 3 Mar 2016 17:46:15 +0000
+Message-ID: <20160303174615.GF2115__13372.4572755911$1457030086$gmane$org@work-vm>
+References: <1457001868-15949-1-git-send-email-liang.z.li@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1457002019-15998-1-git-send-email-liang.z.li@intel.com>
+Content-Disposition: inline
+In-Reply-To: <1457001868-15949-1-git-send-email-liang.z.li@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,213 +18,102 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, linux-kernel@vger.kernel.org
-Cc: ehabkost@redhat.com, kvm@vger.kernel.org, Liang Li <liang.z.li@intel.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, dgilbert@redhat.com, rth@twiddle.net
+To: Liang Li <liang.z.li@intel.com>
+Cc: ehabkost@redhat.com, kvm@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, linux-mm@kvack.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, rth@twiddle.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Extend the virio balloon to support the new feature
-VIRTIO_BALLOON_F_GET_FREE_PAGES, so that we can use it to send the
-free pages information from guest to QEMU, and then optimize the
-live migration process.
+* Liang Li (liang.z.li@intel.com) wrote:
+> The current QEMU live migration implementation mark the all the
+> guest's RAM pages as dirtied in the ram bulk stage, all these pages
+> will be processed and that takes quit a lot of CPU cycles.
+> 
+> From guest's point of view, it doesn't care about the content in free
+> pages. We can make use of this fact and skip processing the free
+> pages in the ram bulk stage, it can save a lot CPU cycles and reduce
+> the network traffic significantly while speed up the live migration
+> process obviously.
+> 
+> This patch set is the QEMU side implementation.
+> 
+> The virtio-balloon is extended so that QEMU can get the free pages
+> information from the guest through virtio.
+> 
+> After getting the free pages information (a bitmap), QEMU can use it
+> to filter out the guest's free pages in the ram bulk stage. This make
+> the live migration process much more efficient.
 
-Signed-off-by: Liang Li <liang.z.li@intel.com>
----
- drivers/virtio/virtio_balloon.c     | 106 ++++++++++++++++++++++++++++++++++--
- include/uapi/linux/virtio_balloon.h |   1 +
- 2 files changed, 102 insertions(+), 5 deletions(-)
+Hi,
+  An interesting solution; I know a few different people have been looking
+at how to speed up ballooned VM migration.
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 0c3691f..7461d3e 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -45,9 +45,18 @@ static int oom_pages = OOM_VBALLOON_DEFAULT_PAGES;
- module_param(oom_pages, int, S_IRUSR | S_IWUSR);
- MODULE_PARM_DESC(oom_pages, "pages to free on OOM");
- 
-+extern void get_free_pages(unsigned long *free_page_bitmap,
-+			unsigned long *free_pages_num,
-+			unsigned long lowmem);
-+extern unsigned long get_total_pages_count(unsigned long lowmem);
-+
-+struct mem_layout {
-+	unsigned long low_mem;
-+};
-+
- struct virtio_balloon {
- 	struct virtio_device *vdev;
--	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq;
-+	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq, *free_pages_vq;
- 
- 	/* Where the ballooning thread waits for config to change. */
- 	wait_queue_head_t config_change;
-@@ -75,6 +84,11 @@ struct virtio_balloon {
- 	unsigned int num_pfns;
- 	u32 pfns[VIRTIO_BALLOON_ARRAY_PFNS_MAX];
- 
-+	unsigned long *free_pages;
-+	unsigned long free_pages_len;
-+	unsigned long free_pages_num;
-+	struct mem_layout mem_config;
-+
- 	/* Memory statistics */
- 	int need_stats_update;
- 	struct virtio_balloon_stat stats[VIRTIO_BALLOON_S_NR];
-@@ -245,6 +259,34 @@ static void update_balloon_stats(struct virtio_balloon *vb)
- 				pages_to_bytes(i.totalram));
- }
- 
-+static void update_free_pages_stats(struct virtio_balloon *vb)
-+{
-+	unsigned long total_page_count, bitmap_bytes;
-+
-+	total_page_count = get_total_pages_count(vb->mem_config.low_mem);
-+	bitmap_bytes = ALIGN(total_page_count, BITS_PER_LONG) / 8;
-+
-+	if (!vb->free_pages)
-+		vb->free_pages = kzalloc(bitmap_bytes, GFP_KERNEL);
-+	else {
-+		if (bitmap_bytes < vb->free_pages_len)
-+			memset(vb->free_pages, 0, bitmap_bytes);
-+		else {
-+			kfree(vb->free_pages);
-+			vb->free_pages = kzalloc(bitmap_bytes, GFP_KERNEL);
-+		}
-+	}
-+	if (!vb->free_pages) {
-+		vb->free_pages_len = 0;
-+		vb->free_pages_num = 0;
-+		return;
-+	}
-+
-+	vb->free_pages_len = bitmap_bytes;
-+	get_free_pages(vb->free_pages, &vb->free_pages_num,
-+		       vb->mem_config.low_mem);
-+}
-+
- /*
-  * While most virtqueues communicate guest-initiated requests to the hypervisor,
-  * the stats queue operates in reverse.  The driver initializes the virtqueue
-@@ -278,6 +320,39 @@ static void stats_handle_request(struct virtio_balloon *vb)
- 	virtqueue_kick(vq);
- }
- 
-+static void free_pages_handle_rq(struct virtio_balloon *vb)
-+{
-+	struct virtqueue *vq;
-+	struct scatterlist sg[3];
-+	unsigned int len;
-+	struct mem_layout *ptr_mem_layout;
-+	struct scatterlist sg_in;
-+
-+	vq = vb->free_pages_vq;
-+	ptr_mem_layout = virtqueue_get_buf(vq, &len);
-+
-+	if (!ptr_mem_layout)
-+		return;
-+	update_free_pages_stats(vb);
-+	sg_init_table(sg, 3);
-+	sg_set_buf(&sg[0], &(vb->free_pages_num), sizeof(vb->free_pages_num));
-+	sg_set_buf(&sg[1], &(vb->free_pages_len), sizeof(vb->free_pages_len));
-+	sg_set_buf(&sg[2], vb->free_pages, vb->free_pages_len);
-+
-+	sg_init_one(&sg_in, &vb->mem_config, sizeof(vb->mem_config));
-+
-+	virtqueue_add_outbuf(vq, &sg[0], 3, vb, GFP_KERNEL);
-+	virtqueue_add_inbuf(vq, &sg_in, 1, &vb->mem_config, GFP_KERNEL);
-+	virtqueue_kick(vq);
-+}
-+
-+static void free_pages_rq(struct virtqueue *vq)
-+{
-+	struct virtio_balloon *vb = vq->vdev->priv;
-+
-+	free_pages_handle_rq(vb);
-+}
-+
- static void virtballoon_changed(struct virtio_device *vdev)
- {
- 	struct virtio_balloon *vb = vdev->priv;
-@@ -386,16 +461,22 @@ static int balloon(void *_vballoon)
- 
- static int init_vqs(struct virtio_balloon *vb)
- {
--	struct virtqueue *vqs[3];
--	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_request };
--	static const char * const names[] = { "inflate", "deflate", "stats" };
-+	struct virtqueue *vqs[4];
-+	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack,
-+					 stats_request, free_pages_rq };
-+	const char *names[] = { "inflate", "deflate", "stats", "free_pages" };
- 	int err, nvqs;
- 
- 	/*
- 	 * We expect two virtqueues: inflate and deflate, and
- 	 * optionally stat.
- 	 */
--	nvqs = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ) ? 3 : 2;
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_GET_FREE_PAGES))
-+		nvqs = 4;
-+	else
-+		nvqs = virtio_has_feature(vb->vdev,
-+					  VIRTIO_BALLOON_F_STATS_VQ) ? 3 : 2;
-+
- 	err = vb->vdev->config->find_vqs(vb->vdev, nvqs, vqs, callbacks, names);
- 	if (err)
- 		return err;
-@@ -416,6 +497,16 @@ static int init_vqs(struct virtio_balloon *vb)
- 			BUG();
- 		virtqueue_kick(vb->stats_vq);
- 	}
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_GET_FREE_PAGES)) {
-+		struct scatterlist sg_in;
-+
-+		vb->free_pages_vq = vqs[3];
-+		sg_init_one(&sg_in, &vb->mem_config, sizeof(vb->mem_config));
-+		if (virtqueue_add_inbuf(vb->free_pages_vq, &sg_in, 1,
-+		    &vb->mem_config, GFP_KERNEL) < 0)
-+			BUG();
-+		virtqueue_kick(vb->free_pages_vq);
-+	}
- 	return 0;
- }
- 
-@@ -505,6 +596,9 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 	init_waitqueue_head(&vb->acked);
- 	vb->vdev = vdev;
- 	vb->need_stats_update = 0;
-+	vb->free_pages_num = 0;
-+	vb->free_pages_len = 0;
-+	vb->free_pages = NULL;
- 
- 	balloon_devinfo_init(&vb->vb_dev_info);
- #ifdef CONFIG_BALLOON_COMPACTION
-@@ -561,6 +655,7 @@ static void virtballoon_remove(struct virtio_device *vdev)
- 	unregister_oom_notifier(&vb->nb);
- 	kthread_stop(vb->thread);
- 	remove_common(vb);
-+	kfree(vb->free_pages);
- 	kfree(vb);
- }
- 
-@@ -599,6 +694,7 @@ static unsigned int features[] = {
- 	VIRTIO_BALLOON_F_MUST_TELL_HOST,
- 	VIRTIO_BALLOON_F_STATS_VQ,
- 	VIRTIO_BALLOON_F_DEFLATE_ON_OOM,
-+	VIRTIO_BALLOON_F_GET_FREE_PAGES,
- };
- 
- static struct virtio_driver virtio_balloon_driver = {
-diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-index d7f1cbc..54aaf20 100644
---- a/include/uapi/linux/virtio_balloon.h
-+++ b/include/uapi/linux/virtio_balloon.h
-@@ -34,6 +34,7 @@
- #define VIRTIO_BALLOON_F_MUST_TELL_HOST	0 /* Tell before reclaiming pages */
- #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
- #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
-+#define VIRTIO_BALLOON_F_GET_FREE_PAGES	3 /* Get free pages bitmap */
- 
- /* Size of a PFN in the balloon interface. */
- #define VIRTIO_BALLOON_PFN_SHIFT 12
--- 
-1.8.3.1
+  I wonder if it would be possible to avoid the kernel changes by
+parsing /proc/self/pagemap - if that can be used to detect unmapped/zero
+mapped pages in the guest ram, would it achieve the same result?
+
+> This RFC version doesn't take the post-copy and RDMA into
+> consideration, maybe both of them can benefit from this PV solution
+> by with some extra modifications.
+
+For postcopy to be safe, you would still need to send a message to the
+destination telling it that there were zero pages, otherwise the destination
+can't tell if it's supposed to request the page from the source or
+treat the page as zero.
+
+Dave
+
+> 
+> Performance data
+> ================
+> 
+> Test environment:
+> 
+> CPU: Intel (R) Xeon(R) CPU ES-2699 v3 @ 2.30GHz
+> Host RAM: 64GB
+> Host Linux Kernel:  4.2.0           Host OS: CentOS 7.1
+> Guest Linux Kernel:  4.5.rc6        Guest OS: CentOS 6.6
+> Network:  X540-AT2 with 10 Gigabit connection
+> Guest RAM: 8GB
+> 
+> Case 1: Idle guest just boots:
+> ============================================
+>                     | original  |    pv    
+> -------------------------------------------
+> total time(ms)      |    1894   |   421
+> --------------------------------------------
+> transferred ram(KB) |   398017  |  353242
+> ============================================
+> 
+> 
+> Case 2: The guest has ever run some memory consuming workload, the
+> workload is terminated just before live migration.
+> ============================================
+>                     | original  |    pv    
+> -------------------------------------------
+> total time(ms)      |   7436    |   552
+> --------------------------------------------
+> transferred ram(KB) |  8146291  |  361375
+> ============================================
+> 
+> Liang Li (4):
+>   pc: Add code to get the lowmem form PCMachineState
+>   virtio-balloon: Add a new feature to balloon device
+>   migration: not set migration bitmap in setup stage
+>   migration: filter out guest's free pages in ram bulk stage
+> 
+>  balloon.c                                       | 30 ++++++++-
+>  hw/i386/pc.c                                    |  5 ++
+>  hw/i386/pc_piix.c                               |  1 +
+>  hw/i386/pc_q35.c                                |  1 +
+>  hw/virtio/virtio-balloon.c                      | 81 ++++++++++++++++++++++++-
+>  include/hw/i386/pc.h                            |  3 +-
+>  include/hw/virtio/virtio-balloon.h              | 17 +++++-
+>  include/standard-headers/linux/virtio_balloon.h |  1 +
+>  include/sysemu/balloon.h                        | 10 ++-
+>  migration/ram.c                                 | 64 +++++++++++++++----
+>  10 files changed, 195 insertions(+), 18 deletions(-)
+> 
+> -- 
+> 1.8.3.1
+> 
+--
+Dr. David Alan Gilbert / dgilbert@redhat.com / Manchester, UK
