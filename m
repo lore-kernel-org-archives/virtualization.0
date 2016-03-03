@@ -1,7 +1,7 @@
 From: Liang Li <liang.z.li@intel.com>
-Subject: [RFC qemu 3/4] migration: not set migration bitmap in setup stage
-Date: Thu,  3 Mar 2016 18:44:27 +0800
-Message-ID: <1457001868-15949-4-git-send-email-liang.z.li__1277.74553043327$1457019642$gmane$org@intel.com>
+Subject: [RFC qemu 1/4] pc: Add code to get the lowmem form PCMachineState
+Date: Thu,  3 Mar 2016 18:44:25 +0800
+Message-ID: <1457001868-15949-2-git-send-email-liang.z.li__15925.2577148893$1457019650$gmane$org@intel.com>
 References: <1457001868-15949-1-git-send-email-liang.z.li@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,47 +21,77 @@ To: quintela@redhat.com, amit.shah@redhat.com, qemu-devel@nongnu.org, linux-kern
 Cc: ehabkost@redhat.com, kvm@vger.kernel.org, mst@redhat.com, Liang Li <liang.z.li@intel.com>, dgilbert@redhat.com, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, rth@twiddle.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Set ram_list.dirty_memory instead of migration bitmap, the migration
-bitmap will be update when doing migration_bitmap_sync().
-Set migration_dirty_pages to 0 and it will be updated by
-migration_dirty_pages() too.
-
-The following patch is based on this change.
+The lowmem will be used by the following patch to get
+a correct free pages bitmap.
 
 Signed-off-by: Liang Li <liang.z.li@intel.com>
 ---
- migration/ram.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ hw/i386/pc.c         | 5 +++++
+ hw/i386/pc_piix.c    | 1 +
+ hw/i386/pc_q35.c     | 1 +
+ include/hw/i386/pc.h | 3 ++-
+ 4 files changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/migration/ram.c b/migration/ram.c
-index 704f6a9..ee2547d 100644
---- a/migration/ram.c
-+++ b/migration/ram.c
-@@ -1931,19 +1931,19 @@ static int ram_save_setup(QEMUFile *f, void *opaque)
-     ram_bitmap_pages = last_ram_offset() >> TARGET_PAGE_BITS;
-     migration_bitmap_rcu = g_new0(struct BitmapRcu, 1);
-     migration_bitmap_rcu->bmap = bitmap_new(ram_bitmap_pages);
--    bitmap_set(migration_bitmap_rcu->bmap, 0, ram_bitmap_pages);
+diff --git a/hw/i386/pc.c b/hw/i386/pc.c
+index 0aeefd2..f794a84 100644
+--- a/hw/i386/pc.c
++++ b/hw/i386/pc.c
+@@ -1115,6 +1115,11 @@ void pc_hot_add_cpu(const int64_t id, Error **errp)
+     object_unref(OBJECT(cpu));
+ }
  
-     if (migrate_postcopy_ram()) {
-         migration_bitmap_rcu->unsentmap = bitmap_new(ram_bitmap_pages);
-         bitmap_set(migration_bitmap_rcu->unsentmap, 0, ram_bitmap_pages);
++ram_addr_t pc_get_lowmem(PCMachineState *pcms)
++{
++   return pcms->lowmem;
++}
++
+ void pc_cpus_init(PCMachineState *pcms)
+ {
+     int i;
+diff --git a/hw/i386/pc_piix.c b/hw/i386/pc_piix.c
+index 6f8c2cd..268a08c 100644
+--- a/hw/i386/pc_piix.c
++++ b/hw/i386/pc_piix.c
+@@ -113,6 +113,7 @@ static void pc_init1(MachineState *machine,
+         }
      }
  
--    /*
--     * Count the total number of pages used by ram blocks not including any
--     * gaps due to alignment or unplugs.
--     */
--    migration_dirty_pages = ram_bytes_total() >> TARGET_PAGE_BITS;
-+    migration_dirty_pages = 0;
++    pcms->lowmem = lowmem;
+     if (machine->ram_size >= lowmem) {
+         pcms->above_4g_mem_size = machine->ram_size - lowmem;
+         pcms->below_4g_mem_size = lowmem;
+diff --git a/hw/i386/pc_q35.c b/hw/i386/pc_q35.c
+index 46522c9..8d9bd39 100644
+--- a/hw/i386/pc_q35.c
++++ b/hw/i386/pc_q35.c
+@@ -101,6 +101,7 @@ static void pc_q35_init(MachineState *machine)
+         }
+     }
  
-+    QLIST_FOREACH_RCU(block, &ram_list.blocks, next) {
-+        cpu_physical_memory_set_dirty_range(block->offset,
-+                                            block->used_length,
-+                                            DIRTY_MEMORY_MIGRATION);
-+    }
-     memory_global_dirty_log_start();
-     migration_bitmap_sync();
-     qemu_mutex_unlock_ramlist();
++    pcms->lowmem = lowmem;
+     if (machine->ram_size >= lowmem) {
+         pcms->above_4g_mem_size = machine->ram_size - lowmem;
+         pcms->below_4g_mem_size = lowmem;
+diff --git a/include/hw/i386/pc.h b/include/hw/i386/pc.h
+index 8b3546e..3694c91 100644
+--- a/include/hw/i386/pc.h
++++ b/include/hw/i386/pc.h
+@@ -60,7 +60,7 @@ struct PCMachineState {
+     bool nvdimm;
+ 
+     /* RAM information (sizes, addresses, configuration): */
+-    ram_addr_t below_4g_mem_size, above_4g_mem_size;
++    ram_addr_t below_4g_mem_size, above_4g_mem_size, lowmem;
+ 
+     /* CPU and apic information: */
+     bool apic_xrupt_override;
+@@ -229,6 +229,7 @@ void pc_hot_add_cpu(const int64_t id, Error **errp);
+ void pc_acpi_init(const char *default_dsdt);
+ 
+ void pc_guest_info_init(PCMachineState *pcms);
++ram_addr_t pc_get_lowmem(PCMachineState *pcms);
+ 
+ #define PCI_HOST_PROP_PCI_HOLE_START   "pci-hole-start"
+ #define PCI_HOST_PROP_PCI_HOLE_END     "pci-hole-end"
 -- 
 1.8.3.1
