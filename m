@@ -1,20 +1,15 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [Qemu-devel] [RFC qemu 0/4] A PV solution for live migration
-	optimization
-Date: Fri, 4 Mar 2016 17:24:34 +0100
-Message-ID: <56D9B6C2.3070708__45391.3235840902$1457108696$gmane$org@redhat.com>
-References: <1457001868-15949-1-git-send-email-liang.z.li@intel.com>
-	<20160303174615.GF2115@work-vm>
-	<F2CBF3009FA73547804AE4C663CAB28E03770E33@SHSMSX101.ccr.corp.intel.com>
-	<20160304081411.GD9100@rkaganb.sw.ru>
-	<F2CBF3009FA73547804AE4C663CAB28E0377160A@SHSMSX101.ccr.corp.intel.com>
-	<20160304102346.GB2479@rkaganb.sw.ru>
-	<F2CBF3009FA73547804AE4C663CAB28E0414516C@shsmsx102.ccr.corp.intel.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH 00/16] drm crtc cleanup: nuke optional dummy crtc
+	mode_fixup function.
+Date: Fri, 4 Mar 2016 18:18:47 +0100
+Message-ID: <20160304171847.GA18536__48087.098732549$1457111947$gmane$org@phenom.ffwll.local>
+References: <cover.1455630967.git.palminha@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <F2CBF3009FA73547804AE4C663CAB28E0414516C@shsmsx102.ccr.corp.intel.com>
+Content-Disposition: inline
+In-Reply-To: <cover.1455630967.git.palminha@synopsys.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,27 +19,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Li, Liang Z" <liang.z.li@intel.com>, Roman Kagan <rkagan@virtuozzo.com>
-Cc: "ehabkost@redhat.com" <ehabkost@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "rth@twiddle.net" <rth@twiddle.net>
+To: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
+Cc: nicolas.pitre@linaro.org, boris.brezillon@free-electrons.com, jianwei.wang.chn@gmail.com, airlied@linux.ie, daniel.vetter@ffwll.ch, alison.wang@freescale.com, patrik.r.jakobsson@gmail.com, virtualization@lists.linux-foundation.org, linux-renesas-soc@vger.kernel.org, jani.nikula@intel.com, dri-devel@lists.freedesktop.org, benjamin.gaignard@linaro.org, vincent.abriou@st.com, sudipm.mukherjee@gmail.com, laurent.pinchart@ideasonboard.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, Feb 16, 2016 at 02:09:44PM +0000, Carlos Palminha wrote:
+> This patch set nukes all the dummy crtc mode_fixup implementations.
+> (made on top of Daniel topic/drm-misc branch)
+> 
+> Carlos Palminha (16):
+>   drm: fixes crct set_mode when crtc mode_fixup is null.
+>   drm/cirrus: removed optional dummy crtc mode_fixup function.
+>   drm/mgag200: removed optional dummy crtc mode_fixup function.
+>   drm/udl: removed optional dummy crtc mode_fixup function.
+>   drm/gma: removed optional dummy crtc mode_fixup function.
+>   drm/rcar-du: removed optional dummy crtc mode_fixup function.
+>   drm/omapdrm: removed optional dummy crtc mode_fixup function.
+>   drm/msm/mdp: removed optional dummy crtc mode_fixup function.
+>   drm/shmobile: removed optional dummy crtc mode_fixup function.
+>   drm/sti: removed optional dummy crtc mode_fixup function.
+>   drm/atmel-hldcd: removed optional dummy crtc mode_fixup function.
+>   drm/nouveau/dispnv04: removed optional dummy crtc mode_fixup function.
+>   drm/virtio: removed optional dummy crtc mode_fixup function.
+>   drm/fsl-dcu: removed optional dummy crtc mode_fixup function.
+>   drm/bochs: removed optional dummy crtc mode_fixup function.
+>   drm/ast: removed optional dummy crtc mode_fixup function.
 
+Pulled remaining ones into drm-misc, will send off in a pull request to
+Dave in a few days if it all checks out.
+-Daniel
 
-On 04/03/2016 15:26, Li, Liang Z wrote:
->> > 
->> > The memory usage will keep increasing due to ever growing caches, etc, so
->> > you'll be left with very little free memory fairly soon.
->> > 
-> I don't think so.
+> 
+>  drivers/gpu/drm/ast/ast_mode.c                 |  8 --------
+>  drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c |  9 ---------
+>  drivers/gpu/drm/bochs/bochs_kms.c              |  8 --------
+>  drivers/gpu/drm/cirrus/cirrus_mode.c           | 13 -------------
+>  drivers/gpu/drm/drm_crtc_helper.c              |  9 ++++++---
+>  drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_crtc.c     |  8 --------
+>  drivers/gpu/drm/gma500/cdv_intel_display.c     | 13 ++++++-------
+>  drivers/gpu/drm/gma500/gma_display.c           |  7 -------
+>  drivers/gpu/drm/gma500/gma_display.h           |  3 ---
+>  drivers/gpu/drm/gma500/mdfld_intel_display.c   |  2 --
+>  drivers/gpu/drm/gma500/oaktrail_crtc.c         |  1 -
+>  drivers/gpu/drm/gma500/psb_intel_display.c     |  1 -
+>  drivers/gpu/drm/mgag200/mgag200_mode.c         | 13 -------------
+>  drivers/gpu/drm/msm/mdp/mdp4/mdp4_crtc.c       |  8 --------
+>  drivers/gpu/drm/msm/mdp/mdp5/mdp5_crtc.c       |  8 --------
+>  drivers/gpu/drm/nouveau/dispnv04/crtc.c        |  8 --------
+>  drivers/gpu/drm/omapdrm/omap_crtc.c            |  8 --------
+>  drivers/gpu/drm/rcar-du/rcar_du_crtc.c         |  9 ---------
+>  drivers/gpu/drm/shmobile/shmob_drm_crtc.c      |  8 --------
+>  drivers/gpu/drm/sti/sti_crtc.c                 |  9 ---------
+>  drivers/gpu/drm/udl/udl_modeset.c              |  9 ---------
+>  drivers/gpu/drm/virtio/virtgpu_display.c       |  8 --------
+>  22 files changed, 12 insertions(+), 158 deletions(-)
+> 
+> -- 
+> 2.5.0
 > 
 
-Roman is right.  For example, here I am looking at a 64 GB (physical)
-machine which was booted about 30 minutes ago, and which is running
-disk-heavy workloads (installing VMs).
-
-Since I have started writing this email (2 minutes?), the amount of free
-memory has already gone down from 37 GB to 33 GB.  I expect that by the
-time I have finished running the workload, in two hours, it will not
-have any free memory.
-
-Paolo
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
