@@ -1,23 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [Qemu-devel] [RFC qemu 0/4] A PV solution for live migration
-	optimization
-Date: Fri, 4 Mar 2016 12:36:58 +0200
-Message-ID: <20160304122456-mutt-send-email-mst@redhat.com>
-References: <1457001868-15949-1-git-send-email-liang.z.li@intel.com>
-	<20160303174615.GF2115@work-vm>
-	<20160304075538.GC9100@rkaganb.sw.ru>
-	<F2CBF3009FA73547804AE4C663CAB28E037714DA@SHSMSX101.ccr.corp.intel.com>
-	<20160304083550.GE9100@rkaganb.sw.ru>
-	<20160304090820.GA2149@work-vm>
-	<F2CBF3009FA73547804AE4C663CAB28E03771639@SHSMSX101.ccr.corp.intel.com>
-	<20160304114519-mutt-send-email-mst@redhat.com>
-	<F2CBF3009FA73547804AE4C663CAB28E037717B5@SHSMSX101.ccr.corp.intel.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH V4 0/3] basic busy polling support for vhost_net
+Date: Fri,  4 Mar 2016 06:24:50 -0500
+Message-ID: <1457090693-55974-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <F2CBF3009FA73547804AE4C663CAB28E037717B5@SHSMSX101.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,46 +15,136 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Li, Liang Z" <liang.z.li@intel.com>
-Cc: "ehabkost@redhat.com" <ehabkost@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Roman Kagan <rkagan@virtuozzo.com>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "rth@twiddle.net" <rth@twiddle.net>
+To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: yang.zhang.wz@gmail.com, borntraeger@de.ibm.com, RAPOPORT@il.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Mar 04, 2016 at 10:11:00AM +0000, Li, Liang Z wrote:
-> > On Fri, Mar 04, 2016 at 09:12:12AM +0000, Li, Liang Z wrote:
-> > > > Although I wonder which is cheaper; that would be fairly expensive
-> > > > for the guest wouldn't it? And you'd somehow have to kick the guest
-> > > > before migration to do the ballooning - and how long would you wait for
-> > it to finish?
-> > >
-> > > About 5 seconds for an 8G guest, balloon to 1G. Get the free pages
-> > > bitmap take about 20ms for an 8G idle guest.
-> > >
-> > > Liang
-> > 
-> > Where is the time spent though? allocating within guest?
-> > Or passing the info to host?
-> > If the former, we can use existing inflate/deflate vqs:
-> > Have guest put each free page on inflate vq, then on deflate vq.
-> > 
-> 
-> Maybe I am not clear enough.
-> 
-> I mean if we inflate balloon before live migration, for a 8GB guest, it takes about 5 Seconds for the inflating operation to finish.
+This series tries to add basic busy polling for vhost net. The idea is
+simple: at the end of tx/rx processing, busy polling for new tx added
+descriptor and rx receive socket for a while. The maximum number of
+time (in us) could be spent on busy polling was specified ioctl.
 
-And these 5 seconds are spent where?
+Test A were done through:
 
-> For the PV solution, there is no need to inflate balloon before live migration, the only cost is to traversing the free_list to
->  construct the free pages bitmap, and it takes about 20ms for a 8GB idle guest( less if there is less free pages),
->  passing the free pages info to host will take about extra 3ms.
-> 
-> 
-> Liang
+- 50 us as busy loop timeout
+- Netperf 2.6
+- Two machines with back to back connected mlx4
+- Guest with 1 vcpus and 1 queue
 
-So now let's please stop talking about solutions at a high level and
-discuss the interface changes you make in detail.
-What makes it faster? Better host/guest interface? No need to go through
-buddy allocator within guest? Less interrupts? Something else?
+Results:
+- Obvious improvements (%5 - 20%) for latency (TCP_RR).
+- Get a better or minor regression on most of the TX tests, but see
+  some regression on 4096 size.
+- Except for 8 sessions of 4096 size RX, have a better or same
+  performance.
+- CPU utilization were incrased as expected.
 
+TCP_RR:
+size/session/+thu%/+normalize%/+tpkts%/+rpkts%/+ioexits%/
+    1/     1/   +8%/  -32%/   +8%/   +8%/   +7%
+    1/    50/   +7%/  -19%/   +7%/   +7%/   +1%
+    1/   100/   +5%/  -21%/   +5%/   +5%/    0%
+    1/   200/   +5%/  -21%/   +7%/   +7%/   +1%
+   64/     1/  +11%/  -29%/  +11%/  +11%/  +10%
+   64/    50/   +7%/  -19%/   +8%/   +8%/   +2%
+   64/   100/   +8%/  -18%/   +9%/   +9%/   +2%
+   64/   200/   +6%/  -19%/   +6%/   +6%/    0%
+  256/     1/   +7%/  -33%/   +7%/   +7%/   +6%
+  256/    50/   +7%/  -18%/   +7%/   +7%/    0%
+  256/   100/   +9%/  -18%/   +8%/   +8%/   +2%
+  256/   200/   +9%/  -18%/  +10%/  +10%/   +3%
+ 1024/     1/  +20%/  -28%/  +20%/  +20%/  +19%
+ 1024/    50/   +8%/  -18%/   +9%/   +9%/   +2%
+ 1024/   100/   +6%/  -19%/   +5%/   +5%/    0%
+ 1024/   200/   +8%/  -18%/   +9%/   +9%/   +2%
+Guest TX:
+size/session/+thu%/+normalize%/+tpkts%/+rpkts%/+ioexits%/
+   64/     1/   -5%/  -28%/  +11%/  +12%/  +10%
+   64/     4/   -2%/  -26%/  +13%/  +13%/  +13%
+   64/     8/   -6%/  -29%/   +9%/  +10%/  +10%
+  512/     1/  +15%/   -7%/  +13%/  +11%/   +3%
+  512/     4/  +17%/   -6%/  +18%/  +13%/  +11%
+  512/     8/  +14%/   -7%/  +13%/   +7%/   +7%
+ 1024/     1/  +27%/   -2%/  +26%/  +29%/  +12%
+ 1024/     4/   +8%/   -9%/   +6%/   +1%/   +6%
+ 1024/     8/  +41%/  +12%/  +34%/  +20%/   -3%
+ 4096/     1/  -22%/  -21%/  -36%/  +81%/+1360%
+ 4096/     4/  -57%/  -58%/ +286%/  +15%/+2074%
+ 4096/     8/  +67%/  +70%/  -45%/   -8%/  +63%
+16384/     1/   -2%/   -5%/   +5%/   -3%/  +80%
+16384/     4/    0%/    0%/    0%/   +4%/ +138%
+16384/     8/    0%/    0%/    0%/   +1%/  +41%
+65535/     1/   -3%/   -6%/   +2%/  +11%/ +113%
+65535/     4/   -2%/   -1%/   -2%/   -3%/ +484%
+65535/     8/    0%/   +1%/    0%/   +2%/  +40%
+Guest RX:
+size/session/+thu%/+normalize%/+tpkts%/+rpkts%/+ioexits%/
+   64/     1/  +31%/   -3%/   +8%/   +8%/   +8%
+   64/     4/  +11%/  -17%/  +13%/  +14%/  +15%
+   64/     8/   +4%/  -23%/  +11%/  +11%/  +12%
+  512/     1/  +24%/    0%/  +18%/  +14%/   -8%
+  512/     4/   +4%/  -15%/   +6%/   +5%/   +6%
+  512/     8/  +26%/    0%/  +21%/  +10%/   +3%
+ 1024/     1/  +88%/  +47%/  +69%/  +44%/  -30%
+ 1024/     4/  +18%/   -5%/  +19%/  +16%/   +2%
+ 1024/     8/  +15%/   -4%/  +13%/   +8%/   +1%
+ 4096/     1/   -3%/   -5%/   +2%/   -2%/  +41%
+ 4096/     4/   +2%/   +3%/  -20%/  -14%/  -24%
+ 4096/     8/  -43%/  -45%/  +69%/  -24%/  +94%
+16384/     1/   -3%/  -11%/  +23%/   +7%/  +42%
+16384/     4/   -3%/   -3%/   -4%/   +5%/ +115%
+16384/     8/   -1%/    0%/   -1%/   -3%/  +32%
+65535/     1/   +1%/    0%/   +2%/    0%/  +66%
+65535/     4/   -1%/   -1%/    0%/   +4%/ +492%
+65535/     8/    0%/   -1%/   -1%/   +4%/  +38%
 
-> > --
-> > MST
+Changes from V3:
+- drop single_task_running()
+- use cpu_relax_lowlatency() instead of cpu_relax()
+
+Changes from V2:
+- rename vhost_vq_more_avail() to vhost_vq_avail_empty(). And return
+false we __get_user() fails.
+- do not bother premmptions/timers for good path.
+- use vhost_vring_state as ioctl parameter instead of reinveting a new
+one.
+- add the unit of timeout (us) to the comment of new added ioctls
+
+Changes from V1:
+- remove the buggy vq_error() in vhost_vq_more_avail().
+- leave vhost_enable_notify() untouched.
+
+Changes from RFC V3:
+- small tweak on the code to avoid multiple duplicate conditions in
+critical path when busy loop is not enabled.
+- add the test result of multiple VMs
+
+Changes from RFC V2:
+- poll also at the end of rx handling
+- factor out the polling logic and optimize the code a little bit
+- add two ioctls to get and set the busy poll timeout
+- test on ixgbe (which can give more stable and reproducable numbers)
+instead of mlx4.
+
+Changes from RFC V1:
+- add a comment for vhost_has_work() to explain why it could be
+lockless
+- add param description for busyloop_timeout
+- split out the busy polling logic into a new helper
+- check and exit the loop when there's a pending signal
+- disable preemption during busy looping to make sure lock_clock() was
+correctly used.
+
+Jason Wang (3):
+  vhost: introduce vhost_has_work()
+  vhost: introduce vhost_vq_avail_empty()
+  vhost_net: basic polling support
+
+ drivers/vhost/net.c        | 78 +++++++++++++++++++++++++++++++++++++++++++---
+ drivers/vhost/vhost.c      | 35 +++++++++++++++++++++
+ drivers/vhost/vhost.h      |  3 ++
+ include/uapi/linux/vhost.h |  6 ++++
+ 4 files changed, 117 insertions(+), 5 deletions(-)
+
+-- 
+1.8.3.1
