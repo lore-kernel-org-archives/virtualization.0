@@ -1,25 +1,11 @@
-From: "Li, Liang Z" <liang.z.li@intel.com>
-Subject: RE: [Qemu-devel] [RFC qemu 0/4] A PV solution for live migration
-	optimization
-Date: Mon, 7 Mar 2016 15:06:25 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E04146E09@shsmsx102.ccr.corp.intel.com>
-References: <20160303174615.GF2115@work-vm>
-	<F2CBF3009FA73547804AE4C663CAB28E03770E33@SHSMSX101.ccr.corp.intel.com>
-	<20160304081411.GD9100@rkaganb.sw.ru>
-	<F2CBF3009FA73547804AE4C663CAB28E0377160A@SHSMSX101.ccr.corp.intel.com>
-	<20160304102346.GB2479@rkaganb.sw.ru>
-	<F2CBF3009FA73547804AE4C663CAB28E0414516C@shsmsx102.ccr.corp.intel.com>
-	<20160304163246-mutt-send-email-mst@redhat.com>
-	<F2CBF3009FA73547804AE4C663CAB28E041452EA@shsmsx102.ccr.corp.intel.com>
-	<20160305214748-mutt-send-email-mst@redhat.com>
-	<F2CBF3009FA73547804AE4C663CAB28E04146308@shsmsx102.ccr.corp.intel.com>
-	<20160307110852-mutt-send-email-mst@redhat.com>
+From: Jitendra Kolhe <jitendra.kolhe@hpe.com>
+Subject: [RFC qemu 0/4] A PV solution for live migration optimization
+Date: Fri,  4 Mar 2016 15:02:47 +0530
+Message-ID: <1457083967-13681-1-git-send-email-jitendra.kolhe__49877.5139371448$1457366562$gmane$org@hpe.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160307110852-mutt-send-email-mst@redhat.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,152 +15,100 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "riel@redhat.com" <riel@redhat.com>, "ehabkost@redhat.com" <ehabkost@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Roman Kagan <rkagan@virtuozzo.com>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "rth@twiddle.net" <rth@twiddle.net>
+To: liang.z.li@intel.com, dgilbert@redhat.com
+Cc: ehabkost@redhat.com, kvm@vger.kernel.org, simhan@hpe.com, mst@redhat.com, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, jitendra.kolhe@hpe.com, linux-mm@kvack.org, mohan_parthasarathy@hpe.com, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, rth@twiddle.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Cc: Roman Kagan; Dr. David Alan Gilbert; ehabkost@redhat.com;
-> kvm@vger.kernel.org; quintela@redhat.com; linux-kernel@vger.kernel.org;
-> qemu-devel@nongnu.org; linux-mm@kvack.org; amit.shah@redhat.com;
-> pbonzini@redhat.com; akpm@linux-foundation.org;
-> virtualization@lists.linux-foundation.org; rth@twiddle.net; riel@redhat.com
-> Subject: Re: [Qemu-devel] [RFC qemu 0/4] A PV solution for live migration
-> optimization
-> 
-> On Mon, Mar 07, 2016 at 06:49:19AM +0000, Li, Liang Z wrote:
-> > > > No. And it's exactly what I mean. The ballooned memory is still
-> > > > processed during live migration without skipping. The live
-> > > > migration code is
-> > > in migration/ram.c.
-> > >
-> > > So if guest acknowledged VIRTIO_BALLOON_F_MUST_TELL_HOST, we
-> can
-> > > teach qemu to skip these pages.
-> > > Want to write a patch to do this?
-> > >
 > >
-> > Yes, we really can teach qemu to skip these pages and it's not hard.
-> > The problem is the poor performance, this PV solution
-> 
-> Balloon is always PV. And do not call patches solutions please.
-> 
-
-OK.
-  
-> > is aimed to make it more
-> > efficient and reduce the performance impact on guest.
-> 
-> We need to get a bit beyond this.  You are making multiple changes, it seems
-> to make sense to split it all up, and analyse each change separately.  If you
-> don't this patchset will be stuck: as you have seen people aren't convinced it
-> actually helps with real workloads.
-> 
-Really, changing the virtio spec must have good reasons.
-
-> > > > >
-> > > > > > > > The only advantage of ' inflating the balloon before live
-> > > > > > > > migration' is simple,
-> > > > > > > nothing more.
-> > > > > > >
-> > > > > > > That's a big advantage.  Another one is that it does
-> > > > > > > something useful in real- world scenarios.
-> > > > > > >
-> > > > > >
-> > > > > > I don't think the heave performance impaction is something
-> > > > > > useful in real
-> > > > > world scenarios.
-> > > > > >
-> > > > > > Liang
-> > > > > > > Roman.
-> > > > >
-> > > > > So fix the performance then. You will have to try harder if you
-> > > > > want to convince people that the performance is due to bad
-> > > > > host/guest interface, and so we have to change *that*.
-> > > > >
-> > > >
-> > > > Actually, the PV solution is irrelevant with the balloon
-> > > > mechanism, I just use it to transfer information between host and
-> guest.
-> > > > I am not sure if I should implement a new virtio device, and I
-> > > > want to get the answer from the community.
-> > > > In this RFC patch, to make things simple, I choose to extend the
-> > > > virtio-balloon and use the extended interface to transfer the
-> > > > request and
-> > > free_page_bimap content.
-> > > >
-> > > > I am not intend to change the current virtio-balloon implementation.
-> > > >
-> > > > Liang
+> > * Liang Li (liang.z.li@intel.com) wrote:
+> > > The current QEMU live migration implementation mark the all the
+> > > guest's RAM pages as dirtied in the ram bulk stage, all these pages
+> > > will be processed and that takes quit a lot of CPU cycles.
 > > >
-> > > And the answer would depend on the answer to my question above.
-> > > Does balloon need an interface passing page bitmaps around?
-> >
-> > Yes, I need a new interface.
-> 
-> Possibly, but you will need to justify this at some level if you care about
-> upstreaming your patches.
-> 
-> > > Does this speed up any operations?
-> >
-> > No, a new interface will not speed up anything, but it is the easiest way to
-> solve the compatibility issue.
-> 
-> A bunch of new code is often easier to write than to figure out the old one,
-> but if we keep piling it up we'll end up with an unmaintainable mess. So we
-> are rather careful about adding new interfaces, and we try to make them
-> generic sometimes even at cost of slight inefficiencies.
-> 
-> > > OTOH what if you use the regular balloon interface with your patches?
+> > > From guest's point of view, it doesn't care about the content in free
+> > > pages. We can make use of this fact and skip processing the free pages
+> > > in the ram bulk stage, it can save a lot CPU cycles and reduce the
+> > > network traffic significantly while speed up the live migration
+> > > process obviously.
 > > >
+> > > This patch set is the QEMU side implementation.
+> > >
+> > > The virtio-balloon is extended so that QEMU can get the free pages
+> > > information from the guest through virtio.
+> > >
+> > > After getting the free pages information (a bitmap), QEMU can use it
+> > > to filter out the guest's free pages in the ram bulk stage. This make
+> > > the live migration process much more efficient.
 > >
-> > The regular balloon interfaces have their specific function and I can't use
-> them in my patches.
-> > If using these regular interface, I have to do a lot of changes to keep the
-> compatibility.
-> 
-> Why can't you?
-> 
-> What exactly do we need to change?
-> 
-> If we put things in terms of the balloon, that supports adding and removing
-> pages.
-> 
-> Using these terms, let's enumerate:
-> - a new method (e.g. new virtqueue) that adds and immediately removes
-> page in a balloon
-> 	clearly, you can add then remove using the existing interfaces
-> 	is a single command significantly faster than using existing two vqs?
-> - a new kind of request that says "add (and immediately remove?) as many
-> pages as you can"
-> 	sounds rather benign
-> - a new kind of message that adds multiple pages using a bitmap
->   	(instead of an address list)
-> 	again, is this significantly faster?
+> > Hi,
+> >   An interesting solution; I know a few different people have been looking at
+> > how to speed up ballooned VM migration.
+> >
+>
+> Ooh, different solutions for the same purpose, and both based on the balloon.
 
-More of less faster because of less data traffic. I didn't measure this,  I will do it and take a deep look
-at the way you suggest if we choose to make use of the virtio-balloon interface.
+We were also tying to address similar problem, without actually needing to modify
+the guest driver. Please find patch details under mail with subject.
+migration: skip sending ram pages released by virtio-balloon driver
 
-> 
-> Does not look like compatibility is an issue, to me.
-> 
-> 
-> At some level, your patches look like page hints.
-> If we have more patches in mind that use page hints, then a new hint device
-> might make sense.
-> 
+Thanks,
+- Jitendra
 
-Yes, I have ever considered to implement a new device, use the virtio-balloon to
-transfer the free pages information which is irrelevant  with the balloon mechanism
-is some more or less confusing.
-
-> However, people experimented with page hints in the past, so far this always
-> went nowhere.  E.g. I CC Rick who saw some problems when page hints
-> interact with huge pages. Rick, could you elaborate please?
-> 
-
-Thanks a lot. Can't wait to know the problems.
-
-Liang
-> 
-> --
-> MST
+>
+> >   I wonder if it would be possible to avoid the kernel changes by parsing
+> > /proc/self/pagemap - if that can be used to detect unmapped/zero mapped
+> > pages in the guest ram, would it achieve the same result?
+> >
+>
+> Only detect the unmapped/zero mapped pages is not enough. Consider the
+> situation like case 2, it can't achieve the same result.
+>
+> > > This RFC version doesn't take the post-copy and RDMA into
+> > > consideration, maybe both of them can benefit from this PV solution by
+> > > with some extra modifications.
+> >
+> > For postcopy to be safe, you would still need to send a message to the
+> > destination telling it that there were zero pages, otherwise the destination
+> > can't tell if it's supposed to request the page from the source or treat the
+> > page as zero.
+> >
+> > Dave
+>
+> I will consider this later, thanks, Dave.
+>
+> Liang
+>
+> >
+> > >
+> > > Performance data
+> > > ================
+> > >
+> > > Test environment:
+> > >
+> > > CPU: Intel (R) Xeon(R) CPU ES-2699 v3 @ 2.30GHz Host RAM: 64GB
+> > > Host Linux Kernel:  4.2.0           Host OS: CentOS 7.1
+> > > Guest Linux Kernel:  4.5.rc6        Guest OS: CentOS 6.6
+> > > Network:  X540-AT2 with 10 Gigabit connection Guest RAM: 8GB
+> > >
+> > > Case 1: Idle guest just boots:
+> > > ============================================
+> > >                     | original  |    pv
+> > > -------------------------------------------
+> > > total time(ms)      |    1894   |   421
+> > > --------------------------------------------
+> > > transferred ram(KB) |   398017  |  353242
+> > > ============================================
+> > >
+> > >
+> > > Case 2: The guest has ever run some memory consuming workload, the
+> > > workload is terminated just before live migration.
+> > > ============================================
+> > >                     | original  |    pv
+> > > -------------------------------------------
+> > > total time(ms)      |   7436    |   552
+> > > --------------------------------------------
+> > > transferred ram(KB) |  8146291  |  361375
+> > > ============================================
+> > >
+>
+>
