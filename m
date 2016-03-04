@@ -1,18 +1,19 @@
-From: Boris Brezillon <boris.brezillon@free-electrons.com>
-Subject: Re: [PATCH 11/16] drm/atmel-hldcd: removed optional dummy crtc
-	mode_fixup function.
-Date: Fri, 4 Mar 2016 11:17:44 +0100
-Message-ID: <20160304111744.5384f6da@bbrezillon>
-References: <cover.1455630967.git.palminha@synopsys.com>
-	<e4bdb8552c245f8b73084b93da60460a00f7798c.1455630967.git.palminha@synopsys.com>
-	<20160216175856.32bbb579@bbrezillon>
-	<56C43734.9050708@synopsys.com>
-	<20160217130801.GF32705@phenom.ffwll.local>
+From: Roman Kagan <rkagan@virtuozzo.com>
+Subject: Re: [Qemu-devel] [RFC qemu 0/4] A PV solution for live migration
+	optimization
+Date: Fri, 4 Mar 2016 13:23:47 +0300
+Message-ID: <20160304102346.GB2479__16193.7661272988$1457087061$gmane$org@rkaganb.sw.ru>
+References: <1457001868-15949-1-git-send-email-liang.z.li@intel.com>
+	<20160303174615.GF2115@work-vm>
+	<F2CBF3009FA73547804AE4C663CAB28E03770E33@SHSMSX101.ccr.corp.intel.com>
+	<20160304081411.GD9100@rkaganb.sw.ru>
+	<F2CBF3009FA73547804AE4C663CAB28E0377160A@SHSMSX101.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160217130801.GF32705@phenom.ffwll.local>
+Content-Disposition: inline
+In-Reply-To: <F2CBF3009FA73547804AE4C663CAB28E0377160A@SHSMSX101.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,31 +23,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Vetter <daniel@ffwll.ch>
-Cc: nicolas.pitre@linaro.org, jianwei.wang.chn@gmail.com, alison.wang@freescale.com, airlied@linux.ie, daniel.vetter@ffwll.ch, Carlos Palminha <CARLOS.PALMINHA@synopsys.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-renesas-soc@vger.kernel.org, jani.nikula@intel.com, patrik.r.jakobsson@gmail.com, benjamin.gaignard@linaro.org, vincent.abriou@st.com, sudipm.mukherjee@gmail.com, laurent.pinchart@ideasonboard.com
+To: "Li, Liang Z" <liang.z.li@intel.com>
+Cc: "ehabkost@redhat.com" <ehabkost@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "rth@twiddle.net" <rth@twiddle.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Daniel,
-
-On Wed, 17 Feb 2016 14:08:01 +0100
-Daniel Vetter <daniel@ffwll.ch> wrote:
-
-> On Wed, Feb 17, 2016 at 09:02:44AM +0000, Carlos Palminha wrote:
-> > Thanks Boris.
+On Fri, Mar 04, 2016 at 09:08:44AM +0000, Li, Liang Z wrote:
+> > On Fri, Mar 04, 2016 at 01:52:53AM +0000, Li, Liang Z wrote:
+> > > >   I wonder if it would be possible to avoid the kernel changes by
+> > > > parsing /proc/self/pagemap - if that can be used to detect
+> > > > unmapped/zero mapped pages in the guest ram, would it achieve the
+> > same result?
+> > >
+> > > Only detect the unmapped/zero mapped pages is not enough. Consider
+> > the
+> > > situation like case 2, it can't achieve the same result.
 > > 
-> > @Daniel, do you want me to resend this patch or will you fix it directly in mode-fixup git branch?
+> > Your case 2 doesn't exist in the real world.  If people could stop their main
+> > memory consumer in the guest prior to migration they wouldn't need live
+> > migration at all.
 > 
-> I can fix the typos, but I'm meh on the whitespace change ;-) Imo that
-> doesn't need a resend.
+> The case 2 is just a simplified scenario, not a real case.
+> As long as the guest's memory usage does not keep increasing, or not always run out,
+> it can be covered by the case 2.
 
-Oops, I forgot to answer to that one. I'm fine with the extra space
-removal too, you can apply it.
+The memory usage will keep increasing due to ever growing caches, etc,
+so you'll be left with very little free memory fairly soon.
 
-Thanks,
+> > I tend to think you can safely assume there's no free memory in the guest, so
+> > there's little point optimizing for it.
+> 
+> If this is true, we should not inflate the balloon either.
 
-Boris
+We certainly should if there's "available" memory, i.e. not free but
+cheap to reclaim.
 
--- 
-Boris Brezillon, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+> > OTOH it makes perfect sense optimizing for the unmapped memory that's
+> > made up, in particular, by the ballon, and consider inflating the balloon right
+> > before migration unless you already maintain it at the optimal size for other
+> > reasons (like e.g. a global resource manager optimizing the VM density).
+> > 
+> 
+> Yes, I believe the current balloon works and it's simple. Do you take the performance impact for consideration?
+> For and 8G guest, it takes about 5s to  inflating the balloon. But it only takes 20ms to  traverse the free_list and
+> construct the free pages bitmap.
+
+I don't have any feeling of how important the difference is.  And if the
+limiting factor for balloon inflation speed is the granularity of
+communication it may be worth optimizing that, because quick balloon
+reaction may be important in certain resource management scenarios.
+
+> By inflating the balloon, all the guest's pages are still be processed (zero page checking).
+
+Not sure what you mean.  If you describe the current state of affairs
+that's exactly the suggested optimization point: skip unmapped pages.
+
+> The only advantage of ' inflating the balloon before live migration' is simple, nothing more.
+
+That's a big advantage.  Another one is that it does something useful in
+real-world scenarios.
+
+Roman.
