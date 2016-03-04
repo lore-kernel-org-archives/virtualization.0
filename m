@@ -1,15 +1,14 @@
 From: "Li, Liang Z" <liang.z.li@intel.com>
-Subject: RE: [Qemu-devel] [RFC qemu 0/4] A PV solution for live migration
-	optimization
-Date: Fri, 4 Mar 2016 01:35:00 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E03770E06@SHSMSX101.ccr.corp.intel.com>
+Subject: RE: [RFC qemu 0/4] A PV solution for live migration optimization
+Date: Fri, 4 Mar 2016 01:52:53 +0000
+Message-ID: <F2CBF3009FA73547804AE4C663CAB28E03770E33@SHSMSX101.ccr.corp.intel.com>
 References: <1457001868-15949-1-git-send-email-liang.z.li@intel.com>
-	<20160303135833.GA9100@rkaganb.sw.ru>
+	<20160303174615.GF2115@work-vm>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160303135833.GA9100@rkaganb.sw.ru>
+In-Reply-To: <20160303174615.GF2115@work-vm>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,11 +19,13 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Roman Kagan <rkagan@virtuozzo.com>
-Cc: "ehabkost@redhat.com" <ehabkost@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>, "rth@twiddle.net" <rth@twiddle.net>
+To: "Dr. David Alan Gilbert" <dgilbert@redhat.com>
+Cc: "ehabkost@redhat.com" <ehabkost@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "rth@twiddle.net" <rth@twiddle.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> On Thu, Mar 03, 2016 at 06:44:24PM +0800, Liang Li wrote:
+> Subject: Re: [RFC qemu 0/4] A PV solution for live migration optimization
+> 
+> * Liang Li (liang.z.li@intel.com) wrote:
 > > The current QEMU live migration implementation mark the all the
 > > guest's RAM pages as dirtied in the ram bulk stage, all these pages
 > > will be processed and that takes quit a lot of CPU cycles.
@@ -43,10 +44,38 @@ List-Id: virtualization@lists.linuxfoundation.org
 > > After getting the free pages information (a bitmap), QEMU can use it
 > > to filter out the guest's free pages in the ram bulk stage. This make
 > > the live migration process much more efficient.
-> >
+> 
+> Hi,
+>   An interesting solution; I know a few different people have been looking at
+> how to speed up ballooned VM migration.
+> 
+
+Ooh, different solutions for the same purpose, and both based on the balloon.
+
+>   I wonder if it would be possible to avoid the kernel changes by parsing
+> /proc/self/pagemap - if that can be used to detect unmapped/zero mapped
+> pages in the guest ram, would it achieve the same result?
+> 
+
+Only detect the unmapped/zero mapped pages is not enough. Consider the 
+situation like case 2, it can't achieve the same result.
+
 > > This RFC version doesn't take the post-copy and RDMA into
 > > consideration, maybe both of them can benefit from this PV solution by
 > > with some extra modifications.
+> 
+> For postcopy to be safe, you would still need to send a message to the
+> destination telling it that there were zero pages, otherwise the destination
+> can't tell if it's supposed to request the page from the source or treat the
+> page as zero.
+> 
+> Dave
+
+I will consider this later, thanks, Dave.
+
+Liang
+
+> 
 > >
 > > Performance data
 > > ================
@@ -77,34 +106,4 @@ List-Id: virtualization@lists.linuxfoundation.org
 > > --------------------------------------------
 > > transferred ram(KB) |  8146291  |  361375
 > > ============================================
-> 
-> Both cases look very artificial to me.  Normally you migrate VMs which have
-> started long ago and which can't have their services terminated before the
-> migration, so I wouldn't expect any useful amount of free pages obtained
-> this way.
-> 
-
-Yes, it's somewhat artificial, just to emphasize the effect.  And I think these two
-cases are very easy to reproduce. Using the real workload and do the test
-in production environment will be more convince.
-
-We can predict that as long as the guest doesn't use out of its memory, this solution
-may still take affect and shorten the total live migration time. (Off cause, we should
-consider the time cost of the virtio communication.)
-
-> OTOH I don't see why you can't just inflate the balloon before the migration,
-> and really optimize the amount of transferred data this way?
-> With the recently proposed VIRTIO_BALLOON_S_AVAIL you can have a fairly
-> good estimate of the optimal balloon size, and with the recently merged
-> balloon deflation on OOM it's a safe thing to do without exposing the guest
-> workloads to OOM risks.
-> 
-> Roman.
-
-Thanks for your information.  The size of the free page bitmap is not very large, for a
-guest with 8GB RAM, only 256KB  extra memory is required.
-Comparing to this solution, inflate the balloon is more expensive. If the balloon size
-is not so optimal and guest request more memory during live migration, the guest's
-performance will be impacted.
-
-Liang
+> >
