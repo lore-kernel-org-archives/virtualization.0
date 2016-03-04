@@ -1,16 +1,18 @@
-From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Subject: Re: [PATCH 01/16] drm: fixes crct set_mode when crtc mode_fixup is
-	null.
-Date: Fri, 4 Mar 2016 10:14:48 +0000
-Message-ID: <56D96018.4020701__49768.6894298114$1457086549$gmane$org@synopsys.com>
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+Subject: Re: [PATCH 11/16] drm/atmel-hldcd: removed optional dummy crtc
+	mode_fixup function.
+Date: Fri, 4 Mar 2016 11:17:44 +0100
+Message-ID: <20160304111744.5384f6da@bbrezillon>
 References: <cover.1455630967.git.palminha@synopsys.com>
-	<9d41105dee6632b4bb50e9555f2196ac249b9fce.1455630967.git.palminha@synopsys.com>
-	<20160216143733.GF32705@phenom.ffwll.local>
+	<e4bdb8552c245f8b73084b93da60460a00f7798c.1455630967.git.palminha@synopsys.com>
+	<20160216175856.32bbb579@bbrezillon>
+	<56C43734.9050708@synopsys.com>
+	<20160217130801.GF32705@phenom.ffwll.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160216143733.GF32705@phenom.ffwll.local>
+In-Reply-To: <20160217130801.GF32705@phenom.ffwll.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,52 +23,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Daniel Vetter <daniel@ffwll.ch>
-Cc: nicolas.pitre@linaro.org, boris.brezillon@free-electrons.com, jianwei.wang.chn@gmail.com, airlied@linux.ie, daniel.vetter@ffwll.ch, alison.wang@freescale.com, patrik.r.jakobsson@gmail.com, virtualization@lists.linux-foundation.org, linux-renesas-soc@vger.kernel.org, jani.nikula@intel.com, dri-devel@lists.freedesktop.org, benjamin.gaignard@linaro.org, vincent.abriou@st.com, sudipm.mukherjee@gmail.com, laurent.pinchart@ideasonboard.com
+Cc: nicolas.pitre@linaro.org, jianwei.wang.chn@gmail.com, alison.wang@freescale.com, airlied@linux.ie, daniel.vetter@ffwll.ch, Carlos Palminha <CARLOS.PALMINHA@synopsys.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-renesas-soc@vger.kernel.org, jani.nikula@intel.com, patrik.r.jakobsson@gmail.com, benjamin.gaignard@linaro.org, vincent.abriou@st.com, sudipm.mukherjee@gmail.com, laurent.pinchart@ideasonboard.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+Hi Daniel,
 
+On Wed, 17 Feb 2016 14:08:01 +0100
+Daniel Vetter <daniel@ffwll.ch> wrote:
 
-On 16-02-2016 14:37, Daniel Vetter wrote:
-> On Tue, Feb 16, 2016 at 02:10:03PM +0000, Carlos Palminha wrote:
->> This patch set nukes all the dummy crtc mode_fixup implementations.
->> (made on top of Daniel topic/drm-misc branch)
->>
->> Signed-off-by: Carlos Palminha <palminha@synopsys.com>
+> On Wed, Feb 17, 2016 at 09:02:44AM +0000, Carlos Palminha wrote:
+> > Thanks Boris.
+> > 
+> > @Daniel, do you want me to resend this patch or will you fix it directly in mode-fixup git branch?
 > 
-> Applied this one to drm-misc. I'll let the others hang out there for a bit
-> more to collect acks.
+> I can fix the typos, but I'm meh on the whitespace change ;-) Imo that
+> doesn't need a resend.
 
-It seems that we are not getting more ACKs.
-How can we push this forward?
+Oops, I forgot to answer to that one. I'm fine with the extra space
+removal too, you can apply it.
 
-> 
-> Thanks, Daniel
-> 
->> ---
->>  drivers/gpu/drm/drm_crtc_helper.c | 9 ++++++---
->>  1 file changed, 6 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/gpu/drm/drm_crtc_helper.c b/drivers/gpu/drm/drm_crtc_helper.c
->> index e70d064..7539eea 100644
->> --- a/drivers/gpu/drm/drm_crtc_helper.c
->> +++ b/drivers/gpu/drm/drm_crtc_helper.c
->> @@ -343,9 +343,12 @@ bool drm_crtc_helper_set_mode(struct drm_crtc *crtc,
->>  		}
->>  	}
->>  
->> -	if (!(ret = crtc_funcs->mode_fixup(crtc, mode, adjusted_mode))) {
->> -		DRM_DEBUG_KMS("CRTC fixup failed\n");
->> -		goto done;
->> +	if (crtc_funcs->mode_fixup) {
->> +		if (!(ret = crtc_funcs->mode_fixup(crtc, mode,
->> +						adjusted_mode))) {
->> +			DRM_DEBUG_KMS("CRTC fixup failed\n");
->> +			goto done;
->> +		}
->>  	}
->>  	DRM_DEBUG_KMS("[CRTC:%d:%s]\n", crtc->base.id, crtc->name);
->>  
->> -- 
->> 2.5.0
->>
-> 
+Thanks,
+
+Boris
+
+-- 
+Boris Brezillon, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
