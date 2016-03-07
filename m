@@ -1,15 +1,25 @@
-From: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
-Subject: Re: [PATCH 05/16] drm/gma: removed optional dummy crtc mode_fixup
-	function.
-Date: Mon, 7 Mar 2016 15:31:02 +0100
-Message-ID: <CAMeQTsZe1JfvsOb8TkLVOSHcvLcsB5GkPKe-VfGL-F45zvE_Sg__37486.6696460687$1457361082$gmane$org@mail.gmail.com>
-References: <cover.1455630967.git.palminha@synopsys.com>
-	<fc5717ec27bea9b114e48b9d3de1512cf48f44b6.1455630967.git.palminha@synopsys.com>
+From: "Li, Liang Z" <liang.z.li@intel.com>
+Subject: RE: [Qemu-devel] [RFC qemu 0/4] A PV solution for live migration
+	optimization
+Date: Mon, 7 Mar 2016 15:06:25 +0000
+Message-ID: <F2CBF3009FA73547804AE4C663CAB28E04146E09@shsmsx102.ccr.corp.intel.com>
+References: <20160303174615.GF2115@work-vm>
+	<F2CBF3009FA73547804AE4C663CAB28E03770E33@SHSMSX101.ccr.corp.intel.com>
+	<20160304081411.GD9100@rkaganb.sw.ru>
+	<F2CBF3009FA73547804AE4C663CAB28E0377160A@SHSMSX101.ccr.corp.intel.com>
+	<20160304102346.GB2479@rkaganb.sw.ru>
+	<F2CBF3009FA73547804AE4C663CAB28E0414516C@shsmsx102.ccr.corp.intel.com>
+	<20160304163246-mutt-send-email-mst@redhat.com>
+	<F2CBF3009FA73547804AE4C663CAB28E041452EA@shsmsx102.ccr.corp.intel.com>
+	<20160305214748-mutt-send-email-mst@redhat.com>
+	<F2CBF3009FA73547804AE4C663CAB28E04146308@shsmsx102.ccr.corp.intel.com>
+	<20160307110852-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <fc5717ec27bea9b114e48b9d3de1512cf48f44b6.1455630967.git.palminha@synopsys.com>
+In-Reply-To: <20160307110852-mutt-send-email-mst@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,171 +29,152 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Cc: nicolas.pitre@linaro.org, boris.brezillon@free-electrons.com, jianwei.wang.chn@gmail.com, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, alison.wang@freescale.com, dri-devel <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, linux-renesas-soc@vger.kernel.org, Jani Nikula <jani.nikula@intel.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, vincent.abriou@st.com, Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "riel@redhat.com" <riel@redhat.com>, "ehabkost@redhat.com" <ehabkost@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Roman Kagan <rkagan@virtuozzo.com>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "rth@twiddle.net" <rth@twiddle.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 16, 2016 at 3:17 PM, Carlos Palminha
-<CARLOS.PALMINHA@synopsys.com> wrote:
-> This patch set nukes all the dummy crtc mode_fixup implementations.
-> (made on top of Daniel topic/drm-misc branch)
->
-> Signed-off-by: Carlos Palminha <palminha@synopsys.com>
+> Cc: Roman Kagan; Dr. David Alan Gilbert; ehabkost@redhat.com;
+> kvm@vger.kernel.org; quintela@redhat.com; linux-kernel@vger.kernel.org;
+> qemu-devel@nongnu.org; linux-mm@kvack.org; amit.shah@redhat.com;
+> pbonzini@redhat.com; akpm@linux-foundation.org;
+> virtualization@lists.linux-foundation.org; rth@twiddle.net; riel@redhat.com
+> Subject: Re: [Qemu-devel] [RFC qemu 0/4] A PV solution for live migration
+> optimization
+> 
+> On Mon, Mar 07, 2016 at 06:49:19AM +0000, Li, Liang Z wrote:
+> > > > No. And it's exactly what I mean. The ballooned memory is still
+> > > > processed during live migration without skipping. The live
+> > > > migration code is
+> > > in migration/ram.c.
+> > >
+> > > So if guest acknowledged VIRTIO_BALLOON_F_MUST_TELL_HOST, we
+> can
+> > > teach qemu to skip these pages.
+> > > Want to write a patch to do this?
+> > >
+> >
+> > Yes, we really can teach qemu to skip these pages and it's not hard.
+> > The problem is the poor performance, this PV solution
+> 
+> Balloon is always PV. And do not call patches solutions please.
+> 
 
-You should try to avoid mixing code style fixes with functional
-changes but in case of gma500 it's hard to resist. No need to change
-this.
+OK.
+  
+> > is aimed to make it more
+> > efficient and reduce the performance impact on guest.
+> 
+> We need to get a bit beyond this.  You are making multiple changes, it seems
+> to make sense to split it all up, and analyse each change separately.  If you
+> don't this patchset will be stuck: as you have seen people aren't convinced it
+> actually helps with real workloads.
+> 
+Really, changing the virtio spec must have good reasons.
 
-This might already have been merged but if not:
+> > > > >
+> > > > > > > > The only advantage of ' inflating the balloon before live
+> > > > > > > > migration' is simple,
+> > > > > > > nothing more.
+> > > > > > >
+> > > > > > > That's a big advantage.  Another one is that it does
+> > > > > > > something useful in real- world scenarios.
+> > > > > > >
+> > > > > >
+> > > > > > I don't think the heave performance impaction is something
+> > > > > > useful in real
+> > > > > world scenarios.
+> > > > > >
+> > > > > > Liang
+> > > > > > > Roman.
+> > > > >
+> > > > > So fix the performance then. You will have to try harder if you
+> > > > > want to convince people that the performance is due to bad
+> > > > > host/guest interface, and so we have to change *that*.
+> > > > >
+> > > >
+> > > > Actually, the PV solution is irrelevant with the balloon
+> > > > mechanism, I just use it to transfer information between host and
+> guest.
+> > > > I am not sure if I should implement a new virtio device, and I
+> > > > want to get the answer from the community.
+> > > > In this RFC patch, to make things simple, I choose to extend the
+> > > > virtio-balloon and use the extended interface to transfer the
+> > > > request and
+> > > free_page_bimap content.
+> > > >
+> > > > I am not intend to change the current virtio-balloon implementation.
+> > > >
+> > > > Liang
+> > >
+> > > And the answer would depend on the answer to my question above.
+> > > Does balloon need an interface passing page bitmaps around?
+> >
+> > Yes, I need a new interface.
+> 
+> Possibly, but you will need to justify this at some level if you care about
+> upstreaming your patches.
+> 
+> > > Does this speed up any operations?
+> >
+> > No, a new interface will not speed up anything, but it is the easiest way to
+> solve the compatibility issue.
+> 
+> A bunch of new code is often easier to write than to figure out the old one,
+> but if we keep piling it up we'll end up with an unmaintainable mess. So we
+> are rather careful about adding new interfaces, and we try to make them
+> generic sometimes even at cost of slight inefficiencies.
+> 
+> > > OTOH what if you use the regular balloon interface with your patches?
+> > >
+> >
+> > The regular balloon interfaces have their specific function and I can't use
+> them in my patches.
+> > If using these regular interface, I have to do a lot of changes to keep the
+> compatibility.
+> 
+> Why can't you?
+> 
+> What exactly do we need to change?
+> 
+> If we put things in terms of the balloon, that supports adding and removing
+> pages.
+> 
+> Using these terms, let's enumerate:
+> - a new method (e.g. new virtqueue) that adds and immediately removes
+> page in a balloon
+> 	clearly, you can add then remove using the existing interfaces
+> 	is a single command significantly faster than using existing two vqs?
+> - a new kind of request that says "add (and immediately remove?) as many
+> pages as you can"
+> 	sounds rather benign
+> - a new kind of message that adds multiple pages using a bitmap
+>   	(instead of an address list)
+> 	again, is this significantly faster?
 
-Reviewed-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+More of less faster because of less data traffic. I didn't measure this,  I will do it and take a deep look
+at the way you suggest if we choose to make use of the virtio-balloon interface.
 
-> ---
->  drivers/gpu/drm/gma500/cdv_intel_display.c   | 13 ++++++-------
->  drivers/gpu/drm/gma500/gma_display.c         |  7 -------
->  drivers/gpu/drm/gma500/gma_display.h         |  3 ---
->  drivers/gpu/drm/gma500/mdfld_intel_display.c |  2 --
->  drivers/gpu/drm/gma500/oaktrail_crtc.c       |  1 -
->  drivers/gpu/drm/gma500/psb_intel_display.c   |  1 -
->  6 files changed, 6 insertions(+), 21 deletions(-)
->
-> diff --git a/drivers/gpu/drm/gma500/cdv_intel_display.c b/drivers/gpu/drm/gma500/cdv_intel_display.c
-> index 6126546..17db4b4 100644
-> --- a/drivers/gpu/drm/gma500/cdv_intel_display.c
-> +++ b/drivers/gpu/drm/gma500/cdv_intel_display.c
-> @@ -116,7 +116,7 @@ static const struct gma_limit_t cdv_intel_limits[] = {
->          .p1 = {.min = 1, .max = 10},
->          .p2 = {.dot_limit = 225000, .p2_slow = 10, .p2_fast = 10},
->          .find_pll = cdv_intel_find_dp_pll,
-> -        }
-> +       }
->  };
->
->  #define _wait_for(COND, MS, W) ({ \
-> @@ -245,7 +245,7 @@ cdv_dpll_set_clock_cdv(struct drm_device *dev, struct drm_crtc *crtc,
->         /* We don't know what the other fields of these regs are, so
->          * leave them in place.
->          */
-> -       /*
-> +       /*
->          * The BIT 14:13 of 0x8010/0x8030 is used to select the ref clk
->          * for the pipe A/B. Display spec 1.06 has wrong definition.
->          * Correct definition is like below:
-> @@ -256,7 +256,7 @@ cdv_dpll_set_clock_cdv(struct drm_device *dev, struct drm_crtc *crtc,
->          *
->          * if DPLLA sets 01 and DPLLB sets 02, both use clk from DPLLA
->          *
-> -        */
-> +        */
->         ret = cdv_sb_read(dev, ref_sfr, &ref_value);
->         if (ret)
->                 return ret;
-> @@ -646,7 +646,7 @@ static int cdv_intel_crtc_mode_set(struct drm_crtc *crtc,
->                  * for DP/eDP. When using SSC clock, the ref clk is 100MHz.Otherwise
->                  * it will be 27MHz. From the VBIOS code it seems that the pipe A choose
->                  * 27MHz for DP/eDP while the Pipe B chooses the 100MHz.
-> -                */
-> +                */
->                 if (pipe == 0)
->                         refclk = 27000;
->                 else
-> @@ -659,7 +659,7 @@ static int cdv_intel_crtc_mode_set(struct drm_crtc *crtc,
->         }
->
->         drm_mode_debug_printmodeline(adjusted_mode);
-> -
-> +
->         limit = gma_crtc->clock_funcs->limit(crtc, refclk);
->
->         ok = limit->find_pll(limit, crtc, adjusted_mode->clock, refclk,
-> @@ -721,7 +721,7 @@ static int cdv_intel_crtc_mode_set(struct drm_crtc *crtc,
->                         pipeconf |= PIPE_6BPC;
->         } else
->                 pipeconf |= PIPE_8BPC;
-> -
-> +
->         /* Set up the display plane register */
->         dspcntr = DISPPLANE_GAMMA_ENABLE;
->
-> @@ -974,7 +974,6 @@ struct drm_display_mode *cdv_intel_crtc_mode_get(struct drm_device *dev,
->
->  const struct drm_crtc_helper_funcs cdv_intel_helper_funcs = {
->         .dpms = gma_crtc_dpms,
-> -       .mode_fixup = gma_crtc_mode_fixup,
->         .mode_set = cdv_intel_crtc_mode_set,
->         .mode_set_base = gma_pipe_set_base,
->         .prepare = gma_crtc_prepare,
-> diff --git a/drivers/gpu/drm/gma500/gma_display.c b/drivers/gpu/drm/gma500/gma_display.c
-> index ff17af4..d6a5c77 100644
-> --- a/drivers/gpu/drm/gma500/gma_display.c
-> +++ b/drivers/gpu/drm/gma500/gma_display.c
-> @@ -485,13 +485,6 @@ bool gma_encoder_mode_fixup(struct drm_encoder *encoder,
->         return true;
->  }
->
-> -bool gma_crtc_mode_fixup(struct drm_crtc *crtc,
-> -                        const struct drm_display_mode *mode,
-> -                        struct drm_display_mode *adjusted_mode)
-> -{
-> -       return true;
-> -}
-> -
->  void gma_crtc_prepare(struct drm_crtc *crtc)
->  {
->         const struct drm_crtc_helper_funcs *crtc_funcs = crtc->helper_private;
-> diff --git a/drivers/gpu/drm/gma500/gma_display.h b/drivers/gpu/drm/gma500/gma_display.h
-> index ed569d8..fc64241 100644
-> --- a/drivers/gpu/drm/gma500/gma_display.h
-> +++ b/drivers/gpu/drm/gma500/gma_display.h
-> @@ -75,9 +75,6 @@ extern void gma_crtc_load_lut(struct drm_crtc *crtc);
->  extern void gma_crtc_gamma_set(struct drm_crtc *crtc, u16 *red, u16 *green,
->                                u16 *blue, u32 start, u32 size);
->  extern void gma_crtc_dpms(struct drm_crtc *crtc, int mode);
-> -extern bool gma_crtc_mode_fixup(struct drm_crtc *crtc,
-> -                               const struct drm_display_mode *mode,
-> -                               struct drm_display_mode *adjusted_mode);
->  extern void gma_crtc_prepare(struct drm_crtc *crtc);
->  extern void gma_crtc_commit(struct drm_crtc *crtc);
->  extern void gma_crtc_disable(struct drm_crtc *crtc);
-> diff --git a/drivers/gpu/drm/gma500/mdfld_intel_display.c b/drivers/gpu/drm/gma500/mdfld_intel_display.c
-> index acd3834..92e3f93e 100644
-> --- a/drivers/gpu/drm/gma500/mdfld_intel_display.c
-> +++ b/drivers/gpu/drm/gma500/mdfld_intel_display.c
-> @@ -1026,10 +1026,8 @@ mrst_crtc_mode_set_exit:
->
->  const struct drm_crtc_helper_funcs mdfld_helper_funcs = {
->         .dpms = mdfld_crtc_dpms,
-> -       .mode_fixup = gma_crtc_mode_fixup,
->         .mode_set = mdfld_crtc_mode_set,
->         .mode_set_base = mdfld__intel_pipe_set_base,
->         .prepare = gma_crtc_prepare,
->         .commit = gma_crtc_commit,
->  };
-> -
-> diff --git a/drivers/gpu/drm/gma500/oaktrail_crtc.c b/drivers/gpu/drm/gma500/oaktrail_crtc.c
-> index 1048f0c..da9fd34 100644
-> --- a/drivers/gpu/drm/gma500/oaktrail_crtc.c
-> +++ b/drivers/gpu/drm/gma500/oaktrail_crtc.c
-> @@ -657,7 +657,6 @@ pipe_set_base_exit:
->
->  const struct drm_crtc_helper_funcs oaktrail_helper_funcs = {
->         .dpms = oaktrail_crtc_dpms,
-> -       .mode_fixup = gma_crtc_mode_fixup,
->         .mode_set = oaktrail_crtc_mode_set,
->         .mode_set_base = oaktrail_pipe_set_base,
->         .prepare = gma_crtc_prepare,
-> diff --git a/drivers/gpu/drm/gma500/psb_intel_display.c b/drivers/gpu/drm/gma500/psb_intel_display.c
-> index dcdbc37..398015b 100644
-> --- a/drivers/gpu/drm/gma500/psb_intel_display.c
-> +++ b/drivers/gpu/drm/gma500/psb_intel_display.c
-> @@ -430,7 +430,6 @@ struct drm_display_mode *psb_intel_crtc_mode_get(struct drm_device *dev,
->
->  const struct drm_crtc_helper_funcs psb_intel_helper_funcs = {
->         .dpms = gma_crtc_dpms,
-> -       .mode_fixup = gma_crtc_mode_fixup,
->         .mode_set = psb_intel_crtc_mode_set,
->         .mode_set_base = gma_pipe_set_base,
->         .prepare = gma_crtc_prepare,
+> 
+> Does not look like compatibility is an issue, to me.
+> 
+> 
+> At some level, your patches look like page hints.
+> If we have more patches in mind that use page hints, then a new hint device
+> might make sense.
+> 
+
+Yes, I have ever considered to implement a new device, use the virtio-balloon to
+transfer the free pages information which is irrelevant  with the balloon mechanism
+is some more or less confusing.
+
+> However, people experimented with page hints in the past, so far this always
+> went nowhere.  E.g. I CC Rick who saw some problems when page hints
+> interact with huge pages. Rick, could you elaborate please?
+> 
+
+Thanks a lot. Can't wait to know the problems.
+
+Liang
+> 
 > --
-> 2.5.0
->
+> MST
