@@ -1,15 +1,24 @@
-From: "Li, Liang Z" <liang.z.li@intel.com>
-Subject: RE: [RFC qemu 0/4] A PV solution for live migration optimization
-Date: Tue, 8 Mar 2016 13:11:30 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E0414811E__29407.959993887$1457442820$gmane$org@shsmsx102.ccr.corp.intel.com>
-References: <1457001868-15949-1-git-send-email-liang.z.li@intel.com>
-	<20160308111343.GM15443@grmbl.mre>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [Qemu-devel] [RFC qemu 0/4] A PV solution for live migration
+	optimization
+Date: Tue, 8 Mar 2016 16:03:31 +0200
+Message-ID: <20160308160145-mutt-send-email-mst__11061.1328891993$1457445834$gmane$org@redhat.com>
+References: <20160303174615.GF2115@work-vm>
+	<20160304075538.GC9100@rkaganb.sw.ru>
+	<F2CBF3009FA73547804AE4C663CAB28E037714DA@SHSMSX101.ccr.corp.intel.com>
+	<20160304083550.GE9100@rkaganb.sw.ru>
+	<20160304090820.GA2149@work-vm>
+	<F2CBF3009FA73547804AE4C663CAB28E03771639@SHSMSX101.ccr.corp.intel.com>
+	<20160304114519-mutt-send-email-mst@redhat.com>
+	<F2CBF3009FA73547804AE4C663CAB28E037717B5@SHSMSX101.ccr.corp.intel.com>
+	<20160304122456-mutt-send-email-mst@redhat.com>
+	<F2CBF3009FA73547804AE4C663CAB28E04145231@shsmsx102.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160308111343.GM15443@grmbl.mre>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <F2CBF3009FA73547804AE4C663CAB28E04145231@shsmsx102.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,59 +28,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: "ehabkost@redhat.com" <ehabkost@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>, "rth@twiddle.net" <rth@twiddle.net>
+To: "Li, Liang Z" <liang.z.li@intel.com>
+Cc: "ehabkost@redhat.com" <ehabkost@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Roman Kagan <rkagan@virtuozzo.com>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "rth@twiddle.net" <rth@twiddle.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Subject: Re: [RFC qemu 0/4] A PV solution for live migration optimization
+On Fri, Mar 04, 2016 at 03:13:03PM +0000, Li, Liang Z wrote:
+> > > Maybe I am not clear enough.
+> > >
+> > > I mean if we inflate balloon before live migration, for a 8GB guest, it takes
+> > about 5 Seconds for the inflating operation to finish.
+> > 
+> > And these 5 seconds are spent where?
+> > 
 > 
-> On (Thu) 03 Mar 2016 [18:44:24], Liang Li wrote:
-> > The current QEMU live migration implementation mark the all the
-> > guest's RAM pages as dirtied in the ram bulk stage, all these pages
-> > will be processed and that takes quit a lot of CPU cycles.
-> >
-> > From guest's point of view, it doesn't care about the content in free
-> > pages. We can make use of this fact and skip processing the free pages
-> > in the ram bulk stage, it can save a lot CPU cycles and reduce the
-> > network traffic significantly while speed up the live migration
-> > process obviously.
-> >
-> > This patch set is the QEMU side implementation.
-> >
-> > The virtio-balloon is extended so that QEMU can get the free pages
-> > information from the guest through virtio.
-> >
-> > After getting the free pages information (a bitmap), QEMU can use it
-> > to filter out the guest's free pages in the ram bulk stage. This make
-> > the live migration process much more efficient.
-> >
-> > This RFC version doesn't take the post-copy and RDMA into
-> > consideration, maybe both of them can benefit from this PV solution by
-> > with some extra modifications.
-> 
-> I like the idea, just have to prove (review) and test it a lot to ensure we don't
-> end up skipping pages that matter.
-> 
-> However, there are a couple of points:
-> 
-> In my opinion, the information that's exchanged between the guest and the
-> host should be exchanged over a virtio-serial channel rather than virtio-
-> balloon.  First, there's nothing related to the balloon here.
-> It just happens to be memory info.  Second, I would never enable balloon in
-> a guest that I want to be performance-sensitive.  So even if you add this as
-> part of balloon, you'll find no one is using this solution.
-> 
-> Secondly, I suggest virtio-serial, because it's meant exactly to exchange free-
-> flowing information between a host and a guest, and you don't need to
-> extend any part of the protocol for it (hence no changes necessary to the
-> spec).  You can see how spice, vnc, etc., use virtio-serial to exchange data.
-> 
-> 
-> 		Amit
+> The time is spent on allocating the pages and send the allocated pages pfns to QEMU
+> through virtio.
 
-I don't like to use the virtio-balloon too, and it's confusing. 
-It's grate if the virtio-serial can be used, I will take a look at it. 
+What if we skip allocating pages but use the existing interface to send pfns
+to QEMU?
 
-Thanks for your suggestion!
-
-Liang
+> > > For the PV solution, there is no need to inflate balloon before live
+> > > migration, the only cost is to traversing the free_list to  construct
+> > > the free pages bitmap, and it takes about 20ms for a 8GB idle guest( less if
+> > there is less free pages),  passing the free pages info to host will take about
+> > extra 3ms.
+> > >
+> > >
+> > > Liang
+> > 
+> > So now let's please stop talking about solutions at a high level and discuss the
+> > interface changes you make in detail.
+> > What makes it faster? Better host/guest interface? No need to go through
+> > buddy allocator within guest? Less interrupts? Something else?
+> > 
+> 
+> I assume you are familiar with the current virtio-balloon and how it works. 
+> The new interface is very simple, send a request to the virtio-balloon driver,
+> The virtio-driver will travers the '&zone->free_area[order].free_list[t])' to 
+> construct a 'free_page_bitmap', and then the driver will send the content
+> of  'free_page_bitmap' back to QEMU. That all the new interface does and
+> there are no ' alloc_page' related affairs, so it's faster.
+> 
+> 
+> Some code snippet:
+> ----------------------------------------------
+> +static void mark_free_pages_bitmap(struct zone *zone,
+> +		 unsigned long *free_page_bitmap, unsigned long pfn_gap) {
+> +	unsigned long pfn, flags, i;
+> +	unsigned int order, t;
+> +	struct list_head *curr;
+> +
+> +	if (zone_is_empty(zone))
+> +		return;
+> +
+> +	spin_lock_irqsave(&zone->lock, flags);
+> +
+> +	for_each_migratetype_order(order, t) {
+> +		list_for_each(curr, &zone->free_area[order].free_list[t]) {
+> +
+> +			pfn = page_to_pfn(list_entry(curr, struct page, lru));
+> +			for (i = 0; i < (1UL << order); i++) {
+> +				if ((pfn + i) >= PFN_4G)
+> +					set_bit_le(pfn + i - pfn_gap,
+> +						   free_page_bitmap);
+> +				else
+> +					set_bit_le(pfn + i, free_page_bitmap);
+> +			}
+> +		}
+> +	}
+> +
+> +	spin_unlock_irqrestore(&zone->lock, flags); }
+> ----------------------------------------------------
+> Sorry for my poor English and expression, if you still can't understand,
+> you could glance at the patch, total about 400 lines.
+> > 
+> > > > --
+> > > > MST
