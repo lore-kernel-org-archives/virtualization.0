@@ -1,23 +1,21 @@
 From: "Li, Liang Z" <liang.z.li@intel.com>
 Subject: RE: [Qemu-devel] [RFC qemu 0/4] A PV solution for live migration
 	optimization
-Date: Tue, 8 Mar 2016 14:17:59 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E041481F9__40409.5699581832$1457446722$gmane$org@shsmsx102.ccr.corp.intel.com>
-References: <20160303174615.GF2115@work-vm>
-	<20160304075538.GC9100@rkaganb.sw.ru>
-	<F2CBF3009FA73547804AE4C663CAB28E037714DA@SHSMSX101.ccr.corp.intel.com>
-	<20160304083550.GE9100@rkaganb.sw.ru> <20160304090820.GA2149@work-vm>
-	<F2CBF3009FA73547804AE4C663CAB28E03771639@SHSMSX101.ccr.corp.intel.com>
-	<20160304114519-mutt-send-email-mst@redhat.com>
-	<F2CBF3009FA73547804AE4C663CAB28E037717B5@SHSMSX101.ccr.corp.intel.com>
-	<20160304122456-mutt-send-email-mst@redhat.com>
-	<F2CBF3009FA73547804AE4C663CAB28E04145231@shsmsx102.ccr.corp.intel.com>
-	<20160308160145-mutt-send-email-mst@redhat.com>
+Date: Wed, 9 Mar 2016 06:18:00 +0000
+Message-ID: <F2CBF3009FA73547804AE4C663CAB28E04148E3A__8380.31852986223$1457504300$gmane$org@shsmsx102.ccr.corp.intel.com>
+References: <1457001868-15949-1-git-send-email-liang.z.li@intel.com>
+	<20160303174615.GF2115@work-vm>
+	<F2CBF3009FA73547804AE4C663CAB28E03770E33@SHSMSX101.ccr.corp.intel.com>
+	<20160304081411.GD9100@rkaganb.sw.ru>
+	<F2CBF3009FA73547804AE4C663CAB28E0377160A@SHSMSX101.ccr.corp.intel.com>
+	<20160304102346.GB2479@rkaganb.sw.ru>
+	<F2CBF3009FA73547804AE4C663CAB28E0414516C@shsmsx102.ccr.corp.intel.com>
+	<56D9B6C2.3070708@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160308160145-mutt-send-email-mst@redhat.com>
+In-Reply-To: <56D9B6C2.3070708@redhat.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,28 +26,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "ehabkost@redhat.com" <ehabkost@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Roman Kagan <rkagan@virtuozzo.com>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "rth@twiddle.net" <rth@twiddle.net>
+To: Paolo Bonzini <pbonzini@redhat.com>, Roman Kagan <rkagan@virtuozzo.com>
+Cc: "ehabkost@redhat.com" <ehabkost@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "rth@twiddle.net" <rth@twiddle.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> On Fri, Mar 04, 2016 at 03:13:03PM +0000, Li, Liang Z wrote:
-> > > > Maybe I am not clear enough.
-> > > >
-> > > > I mean if we inflate balloon before live migration, for a 8GB
-> > > > guest, it takes
-> > > about 5 Seconds for the inflating operation to finish.
-> > >
-> > > And these 5 seconds are spent where?
-> > >
+> On 04/03/2016 15:26, Li, Liang Z wrote:
+> >> >
+> >> > The memory usage will keep increasing due to ever growing caches,
+> >> > etc, so you'll be left with very little free memory fairly soon.
+> >> >
+> > I don't think so.
 > >
-> > The time is spent on allocating the pages and send the allocated pages
-> > pfns to QEMU through virtio.
 > 
-> What if we skip allocating pages but use the existing interface to send pfns to
-> QEMU?
->
+> Roman is right.  For example, here I am looking at a 64 GB (physical) machine
+> which was booted about 30 minutes ago, and which is running disk-heavy
+> workloads (installing VMs).
+> 
+> Since I have started writing this email (2 minutes?), the amount of free
+> memory has already gone down from 37 GB to 33 GB.  I expect that by the
+> time I have finished running the workload, in two hours, it will not have any
+> free memory.
+> 
+> Paolo
 
-I think it will be much faster, allocating pages is the main reason for the long time of the operation.
-Experiment is needed to get the exact time spend on sending the pfns.
+I have a VM which has 2GB of RAM, when the guest booted, there were about 1.4GB of free pages.
+Then I tried to download a large file from the internet with the browser, after the downloading finished,
+there were only 72MB of free pages left, as Roman pointed out, there were quite a lot of Cached memory.
+Then I tried to compile the QEMU, after the compiling finished, there were about 1.3G free pages.
 
-Liang
+So even the cache will increase to a large amount, it will be freed if there are some other specific workloads. 
+The cache memory is a big issue that should be taken into consideration.
+ How about reclaim some cache before getting the free pages information?  
+
+Liang 
