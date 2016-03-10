@@ -1,15 +1,15 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [Qemu-devel] [RFC kernel 0/2]A PV solution for KVM live
-	migration optimization
-Date: Thu, 10 Mar 2016 13:00:00 +0530
-Message-ID: <20160310073000.GA4678@grmbl.mre>
-References: <1457593292-30686-1-git-send-email-jitendra.kolhe@hpe.com>
+From: "Li, Liang Z" <liang.z.li@intel.com>
+Subject: RE: [RFC qemu 0/4] A PV solution for live migration optimization
+Date: Thu, 10 Mar 2016 07:44:19 +0000
+Message-ID: <F2CBF3009FA73547804AE4C663CAB28E0414A7E3__17589.0472172343$1457595890$gmane$org@shsmsx102.ccr.corp.intel.com>
+References: <1457001868-15949-1-git-send-email-liang.z.li@intel.com>
+	<20160308111343.GM15443@grmbl.mre>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1457593292-30686-1-git-send-email-jitendra.kolhe@hpe.com>
+In-Reply-To: <20160308111343.GM15443@grmbl.mre>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,39 +19,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jitendra Kolhe <jitendra.kolhe@hpe.com>
-Cc: ehabkost@redhat.com, kvm@vger.kernel.org, qemu-devel@nongnu.org, liang.z.li@intel.com, dgilbert@redhat.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mohan_parthasarathy@hpe.com, simhan@hpe.com, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, rth@twiddle.net
+To: Amit Shah <amit.shah@redhat.com>
+Cc: "ehabkost@redhat.com" <ehabkost@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>, "rth@twiddle.net" <rth@twiddle.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gKFRodSkgMTAgTWFyIDIwMTYgWzEyOjMxOjMyXSwgSml0ZW5kcmEgS29saGUgd3JvdGU6Cj4g
-T24gMy84LzIwMTYgNDo0NCBQTSwgQW1pdCBTaGFoIHdyb3RlOgo+ID4+Pj4gSGksCj4gPj4+PiAg
-IEFuIGludGVyZXN0aW5nIHNvbHV0aW9uOyBJIGtub3cgYSBmZXcgZGlmZmVyZW50IHBlb3BsZSBo
-YXZlIGJlZW4gbG9va2luZyBhdAo+ID4+Pj4gaG93IHRvIHNwZWVkIHVwIGJhbGxvb25lZCBWTSBt
-aWdyYXRpb24uCj4gPj4+Pgo+ID4+Pgo+ID4+PiBPb2gsIGRpZmZlcmVudCBzb2x1dGlvbnMgZm9y
-IHRoZSBzYW1lIHB1cnBvc2UsIGFuZCBib3RoIGJhc2VkIG9uIHRoZSBiYWxsb29uLgo+ID4+Cj4g
-Pj4gV2Ugd2VyZSBhbHNvIHR5aW5nIHRvIGFkZHJlc3Mgc2ltaWxhciBwcm9ibGVtLCB3aXRob3V0
-IGFjdHVhbGx5IG5lZWRpbmcgdG8gbW9kaWZ5Cj4gPj4gdGhlIGd1ZXN0IGRyaXZlci4gUGxlYXNl
-IGZpbmQgcGF0Y2ggZGV0YWlscyB1bmRlciBtYWlsIHdpdGggc3ViamVjdC4KPiA+PiBtaWdyYXRp
-b246IHNraXAgc2VuZGluZyByYW0gcGFnZXMgcmVsZWFzZWQgYnkgdmlydGlvLWJhbGxvb24gZHJp
-dmVyCj4gPgo+ID4gVGhlIHNjb3BlIG9mIHRoaXMgcGF0Y2ggc2VyaWVzIHNlZW1zIHRvIGJlIHdp
-ZGVyOiBkb24ndCBzZW5kIGZyZWUKPiA+IHBhZ2VzIHRvIGEgZGVzdCBhdCBhbGwsIHZzLiBkb24n
-dCBzZW5kIHBhZ2VzIHRoYXQgYXJlIGJhbGxvb25lZCBvdXQuCj4gCj4gSGksCj4gCj4gVGhhbmtz
-IGZvciB5b3VyIHJlc3BvbnNlLiBUaGUgc2NvcGUgb2YgdGhpcyBwYXRjaCBzZXJpZXMgZG9lc27i
-gJl0IHNlZW0gdG8gdGFrZSBjYXJlIAo+IG9mIGJhbGxvb25lZCBvdXQgcGFnZXMuIFRvIGJhbGxv
-b24gb3V0IGEgZ3Vlc3QgcmFtIHBhZ2UgdGhlIGd1ZXN0IGJhbGxvb24gZHJpdmVyIGRvZXMgCj4g
-YSBhbGxvY19wYWdlKCkgYW5kIHRoZW4gcmV0dXJuIHRoZSBndWVzdCBwZm4gdG8gUWVtdSwgc28g
-YmFsbG9vbmVkIG91dCBwYWdlcyB3aWxsIG5vdCAKPiBiZSBzZWVuIGFzIGZyZWUgcmFtIHBhZ2Vz
-IGJ5IHRoZSBndWVzdC4KPiBUaHVzIHdlIHdpbGwgc3RpbGwgZW5kIHVwIHNjYW5uaW5nIChmb3Ig
-emVybyBwYWdlKSBmb3IgYmFsbG9vbmVkIG91dCBwYWdlcyBkdXJpbmcgCj4gbWlncmF0aW9uLiBJ
-dCB3b3VsZCBiZSBpZGVhbCBpZiB3ZSBjb3VsZCBoYXZlIGJvdGggc29sdXRpb25zLgoKWWVzLCBv
-ZiBjb3Vyc2UgaXQgd291bGQgYmUgbmljZSB0byBoYXZlIGJvdGggc29sdXRpb25zLiAgTXkgcmVz
-cG9uc2Ugd2FzIHRvIHRoZSBsaW5lOgoKPiA+Pj4gT29oLCBkaWZmZXJlbnQgc29sdXRpb25zIGZv
-ciB0aGUgc2FtZSBwdXJwb3NlLCBhbmQgYm90aCBiYXNlZCBvbiB0aGUgYmFsbG9vbi4KCndoaWNo
-IHNvdW5kZWQgbWlzbGVhZGluZyB0byBtZSBmb3IgYSBjb3VwbGUgb2YgcmVhc29uczogMSwgYXMg
-eW91CmRlc2NyaWJlLCBwYWdlcyBiZWluZyBjb25zaWRlcmVkIGJ5IHRoaXMgcGF0Y2hzZXQgYW5k
-IHlvdXJzIGFyZQpkaWZmZXJlbnQ7IGFuZCAyLCBhcyBJIG1lbnRpb25lZCBpbiB0aGUgb3RoZXIg
-bWFpbCwgdGhpcyBwYXRjaHNldApkb2Vzbid0IHJlYWxseSBkZXBlbmQgb24gdGhlIGJhbGxvb24s
-IGFuZCBJIGJlbGlldmUgaXQgc2hvdWxkIG5vdC4KCgoJCUFtaXQKX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
-ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
-bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+> > This patch set is the QEMU side implementation.
+> >
+> > The virtio-balloon is extended so that QEMU can get the free pages
+> > information from the guest through virtio.
+> >
+> > After getting the free pages information (a bitmap), QEMU can use it
+> > to filter out the guest's free pages in the ram bulk stage. This make
+> > the live migration process much more efficient.
+> >
+> > This RFC version doesn't take the post-copy and RDMA into
+> > consideration, maybe both of them can benefit from this PV solution by
+> > with some extra modifications.
+> 
+> I like the idea, just have to prove (review) and test it a lot to ensure we don't
+> end up skipping pages that matter.
+> 
+> However, there are a couple of points:
+> 
+> In my opinion, the information that's exchanged between the guest and the
+> host should be exchanged over a virtio-serial channel rather than virtio-
+> balloon.  First, there's nothing related to the balloon here.
+> It just happens to be memory info.  Second, I would never enable balloon in
+> a guest that I want to be performance-sensitive.  So even if you add this as
+> part of balloon, you'll find no one is using this solution.
+> 
+> Secondly, I suggest virtio-serial, because it's meant exactly to exchange free-
+> flowing information between a host and a guest, and you don't need to
+> extend any part of the protocol for it (hence no changes necessary to the
+> spec).  You can see how spice, vnc, etc., use virtio-serial to exchange data.
+> 
+> 
+> 		Amit
+
+Hi Amit,
+
+ Could provide more information on how to use virtio-serial to exchange data?  Thread , Wiki or code are all OK. 
+ I have not find some useful information yet.
+
+Thanks
+Liang
