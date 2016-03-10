@@ -1,24 +1,18 @@
-From: Roman Kagan <rkagan@virtuozzo.com>
-Subject: Re: [Qemu-devel] [RFC qemu 0/4] A PV solution for live migration
-	optimization
-Date: Thu, 10 Mar 2016 13:21:30 +0300
-Message-ID: <20160310102129.GB14065@rkaganb.sw.ru>
-References: <F2CBF3009FA73547804AE4C663CAB28E0414516C@shsmsx102.ccr.corp.intel.com>
-	<20160304163246-mutt-send-email-mst@redhat.com>
-	<F2CBF3009FA73547804AE4C663CAB28E041452EA@shsmsx102.ccr.corp.intel.com>
-	<20160305214748-mutt-send-email-mst@redhat.com>
-	<F2CBF3009FA73547804AE4C663CAB28E04146308@shsmsx102.ccr.corp.intel.com>
-	<20160307110852-mutt-send-email-mst@redhat.com>
-	<20160309142851.GA9715@rkaganb.sw.ru>
-	<20160309173017-mutt-send-email-mst@redhat.com>
-	<20160309170438.GB9715@rkaganb.sw.ru>
-	<20160309193137-mutt-send-email-mst@redhat.com>
+From: "Dr. David Alan Gilbert" <dgilbert@redhat.com>
+Subject: Re: [RFC qemu 0/4] A PV solution for live migration optimization
+Date: Thu, 10 Mar 2016 11:18:45 +0000
+Message-ID: <20160310111844.GB2276__42342.5665860579$1457608751$gmane$org@work-vm>
+References: <1457001868-15949-1-git-send-email-liang.z.li@intel.com>
+	<20160308111343.GM15443@grmbl.mre>
+	<F2CBF3009FA73547804AE4C663CAB28E0414A7E3@shsmsx102.ccr.corp.intel.com>
+	<20160310075728.GB4678@grmbl.mre>
+	<F2CBF3009FA73547804AE4C663CAB28E0414A860@shsmsx102.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20160309193137-mutt-send-email-mst@redhat.com>
+In-Reply-To: <F2CBF3009FA73547804AE4C663CAB28E0414A860@shsmsx102.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,58 +22,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: riel@redhat.com, "ehabkost@redhat.com" <ehabkost@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "Li,
-	Liang Z" <liang.z.li@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "rth@twiddle.net" <rth@twiddle.net>
+To: "Li, Liang Z" <liang.z.li@intel.com>
+Cc: "ehabkost@redhat.com" <ehabkost@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, simhan@hpe.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, jitendra.kolhe@hpe.com, "linux-mm@kvack.org" <linux-mm@kvack.org>, mohan_parthasarathy@hpe.com, Amit Shah <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "rth@twiddle.net" <rth@twiddle.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 09, 2016 at 07:39:18PM +0200, Michael S. Tsirkin wrote:
-> On Wed, Mar 09, 2016 at 08:04:39PM +0300, Roman Kagan wrote:
-> > On Wed, Mar 09, 2016 at 05:41:39PM +0200, Michael S. Tsirkin wrote:
-> > > On Wed, Mar 09, 2016 at 05:28:54PM +0300, Roman Kagan wrote:
-> > > > For (1) I've been trying to make a point that skipping clean pages is
-> > > > much more likely to result in noticable benefit than free pages only.
-> > > 
-> > > I guess when you say clean you mean zero?
-> > 
-> > No I meant clean, i.e. those that could be evicted from RAM without
-> > causing I/O.
-> 
-> They must be migrated unless guest actually evicts them.
+Hi,
+  I'm just catching back up on this thread; so without reference to any
+particular previous mail in the thread.
 
-If the balloon is inflated the guest will.
+  1) How many of the free pages do we tell the host about?
+     Your main change is telling the host about all the
+     free pages.
+     If we tell the host about all the free pages, then we might
+     end up needing to allocate more pages and update the host
+     with pages we now want to use; that would have to wait for the
+     host to acknowledge that use of these pages, since if we don't
+     wait for it then it might have skipped migrating a page we
+     just started using (I don't understand how your series solves that).
+     So the guest probably needs to keep some free pages - how many?
 
-> It's not at all clear to me that it's always preferable
-> to drop all clean pages from pagecache. It is clearly is
-> going to slow the guest down significantly.
+  2) Clearing out caches
+     Does it make sense to clean caches?  They're apparently useful data
+     so if we clean them it's likely to slow the guest down; I guess
+     they're also likely to be fairly static data - so at least fairly
+     easy to migrate.
+     The answer here partially depends on what you want from your migration;
+     if you're after the fastest possible migration time it might make
+     sense to clean the caches and avoid migrating them; but that might
+     be at the cost of more disruption to the guest - there's a trade off
+     somewhere and it's not clear to me how you set that depending on your
+     guest/network/reqirements.
 
-That's a matter for optimization.  The current value for
-/proc/meminfo:MemAvailable (which is being proposed as a member of
-balloon stats, too) is a conservative estimate which will probably cover
-a good deal of cases.
+  3) Why is ballooning slow?
+     You've got a figure of 5s to balloon on an 8GB VM - but an 
+     8GB VM isn't huge; so I worry about how long it would take
+     on a big VM.   We need to understand why it's slow 
+       * is it due to the guest shuffling pages around? 
+       * is it due to the virtio-balloon protocol sending one page
+         at a time?
+         + Do balloon pages normally clump in physical memory
+            - i.e. would a 'large balloon' message help
+            - or do we need a bitmap because it tends not to clump?
 
-> > I must be missing something obvious, but how is that different from
-> > inflating and then immediately deflating the balloon?
-> 
-> It's exactly the same except
-> - we do not initiate this from host - it's guest doing
->   things for its own reasons
-> - a bit less guest/host interaction this way
+       * is it due to the madvise on the host?
+         If we were using the normal balloon messages, then we
+         could, during migration, just route those to the migration
+         code rather than bothering with the madvise.
+         If they're clumping together we could just turn that into
+         one big madvise; if they're not then would we benefit from
+         a call that lets us madvise lots of areas?
 
-I don't quite understand why you need to deflate the balloon until the
-VM is on the destination host.  deflate_on_oom will do it if the guest
-is really tight on memory; otherwise there appears to be no reason for
-it.  But then inflation followed immediately by deflation doubles the
-guest/host interactions rather than reduces them, no?
+  4) Speeding up the migration of those free pages
+    You're using the bitmap to avoid migrating those free pages; HPe's
+    patchset is reconstructing a bitmap from the balloon data;  OK, so
+    this all makes sense to avoid migrating them - I'd also been thinking
+    of using pagemap to spot zero pages that would help find other zero'd
+    pages, but perhaps ballooned is enough?
 
-> > it's just the granularity that makes things slow and
-> > stands in the way.
-> 
-> So we could request a specific page size/alignment from guest.
-> Send guest request to give us memory in aligned units of 2Mbytes,
-> and then host can treat each of these as a single huge page.
+  5) Second-migrate
+    Given a VM where you've done all those tricks on, what happens when
+    you migrate it a second time?   I guess you're aiming for the guest
+    to update it's bitmap;  HPe's solution is to migrate it's balloon
+    bitmap along with the migration data.
+     
+Dave
 
-I'd guess just coalescing contiguous pages would already speed things
-up.  I'll try to find some time to experiment with it.
-
-Roman.
+--
+Dr. David Alan Gilbert / dgilbert@redhat.com / Manchester, UK
