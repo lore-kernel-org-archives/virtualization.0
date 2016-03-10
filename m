@@ -1,15 +1,16 @@
-From: "Li, Liang Z" <liang.z.li@intel.com>
-Subject: RE: [RFC qemu 0/4] A PV solution for live migration optimization
-Date: Thu, 10 Mar 2016 07:44:19 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E0414A7E3__17589.0472172343$1457595890$gmane$org@shsmsx102.ccr.corp.intel.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [RFC qemu 0/4] A PV solution for live migration optimization
+Date: Thu, 10 Mar 2016 13:27:28 +0530
+Message-ID: <20160310075728.GB4678__44883.3643379205$1457596696$gmane$org@grmbl.mre>
 References: <1457001868-15949-1-git-send-email-liang.z.li@intel.com>
 	<20160308111343.GM15443@grmbl.mre>
+	<F2CBF3009FA73547804AE4C663CAB28E0414A7E3@shsmsx102.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160308111343.GM15443@grmbl.mre>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <F2CBF3009FA73547804AE4C663CAB28E0414A7E3@shsmsx102.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,47 +20,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
+To: "Li, Liang Z" <liang.z.li@intel.com>
 Cc: "ehabkost@redhat.com" <ehabkost@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>, "rth@twiddle.net" <rth@twiddle.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> > This patch set is the QEMU side implementation.
-> >
-> > The virtio-balloon is extended so that QEMU can get the free pages
-> > information from the guest through virtio.
-> >
-> > After getting the free pages information (a bitmap), QEMU can use it
-> > to filter out the guest's free pages in the ram bulk stage. This make
-> > the live migration process much more efficient.
-> >
-> > This RFC version doesn't take the post-copy and RDMA into
-> > consideration, maybe both of them can benefit from this PV solution by
-> > with some extra modifications.
+On (Thu) 10 Mar 2016 [07:44:19], Li, Liang Z wrote:
 > 
-> I like the idea, just have to prove (review) and test it a lot to ensure we don't
-> end up skipping pages that matter.
+> Hi Amit,
 > 
-> However, there are a couple of points:
-> 
-> In my opinion, the information that's exchanged between the guest and the
-> host should be exchanged over a virtio-serial channel rather than virtio-
-> balloon.  First, there's nothing related to the balloon here.
-> It just happens to be memory info.  Second, I would never enable balloon in
-> a guest that I want to be performance-sensitive.  So even if you add this as
-> part of balloon, you'll find no one is using this solution.
-> 
-> Secondly, I suggest virtio-serial, because it's meant exactly to exchange free-
-> flowing information between a host and a guest, and you don't need to
-> extend any part of the protocol for it (hence no changes necessary to the
-> spec).  You can see how spice, vnc, etc., use virtio-serial to exchange data.
-> 
-> 
-> 		Amit
+>  Could provide more information on how to use virtio-serial to exchange data?  Thread , Wiki or code are all OK. 
+>  I have not find some useful information yet.
 
-Hi Amit,
+See this commit in the Linux sources:
 
- Could provide more information on how to use virtio-serial to exchange data?  Thread , Wiki or code are all OK. 
- I have not find some useful information yet.
+108fc82596e3b66b819df9d28c1ebbc9ab5de14c
 
-Thanks
-Liang
+that adds a way to send guest trace data over to the host.  I think
+that's the most relevant to your use-case.  However, you'll have to
+add an in-kernel user of virtio-serial (like the virtio-console code
+-- the code that deals with tty and hvc currently).  There's no other
+non-tty user right now, and this is the right kind of use-case to add
+one for!
+
+For many other (userspace) use-cases, see the qemu-guest-agent in the
+qemu sources.
+
+The API is documented in the wiki:
+
+http://www.linux-kvm.org/page/Virtio-serial_API
+
+and the feature pages have some information that may help as well:
+
+https://fedoraproject.org/wiki/Features/VirtioSerial
+
+There are some links in here too:
+
+http://log.amitshah.net/2010/09/communication-between-guests-and-hosts/
+
+Hope this helps.
+
+
+		Amit
