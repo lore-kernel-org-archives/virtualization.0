@@ -1,8 +1,8 @@
-From: Rik van Riel <riel@redhat.com>
-Subject: Re: [Qemu-devel] [RFC qemu 0/4] A PV solution for live migration
+From: "Li, Liang Z" <liang.z.li@intel.com>
+Subject: RE: [Qemu-devel] [RFC qemu 0/4] A PV solution for live migration
 	optimization
-Date: Wed, 09 Mar 2016 14:38:52 -0500
-Message-ID: <1457552332.17933.24.camel__29467.9073653699$1457552372$gmane$org@redhat.com>
+Date: Thu, 10 Mar 2016 01:41:16 +0000
+Message-ID: <F2CBF3009FA73547804AE4C663CAB28E0414A41D__21220.0595684864$1457574095$gmane$org@shsmsx102.ccr.corp.intel.com>
 References: <F2CBF3009FA73547804AE4C663CAB28E0377160A@SHSMSX101.ccr.corp.intel.com>
 	<20160304102346.GB2479@rkaganb.sw.ru>
 	<F2CBF3009FA73547804AE4C663CAB28E0414516C@shsmsx102.ccr.corp.intel.com>
@@ -12,12 +12,14 @@ References: <F2CBF3009FA73547804AE4C663CAB28E0377160A@SHSMSX101.ccr.corp.intel.c
 	<F2CBF3009FA73547804AE4C663CAB28E04146308@shsmsx102.ccr.corp.intel.com>
 	<20160307110852-mutt-send-email-mst@redhat.com>
 	<20160309142851.GA9715@rkaganb.sw.ru>
-	<20160309173017-mutt-send-email-mst@redhat.com>
-	<20160309170438.GB9715@rkaganb.sw.ru>
+	<F2CBF3009FA73547804AE4C663CAB28E041498BA@shsmsx102.ccr.corp.intel.com>
+	<20160309172929-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6425303535296348133=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160309170438.GB9715@rkaganb.sw.ru>
+In-Reply-To: <20160309172929-mutt-send-email-mst@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,75 +29,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Roman Kagan <rkagan@virtuozzo.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "ehabkost@redhat.com" <ehabkost@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "Li,
-	Liang Z" <liang.z.li@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "rth@twiddle.net" <rth@twiddle.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "riel@redhat.com" <riel@redhat.com>, "ehabkost@redhat.com" <ehabkost@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Roman Kagan <rkagan@virtuozzo.com>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "rth@twiddle.net" <rth@twiddle.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
+> > > > > Yes, we really can teach qemu to skip these pages and it's not hard.
+> > > > > The problem is the poor performance, this PV solution
+> > > >
+> > > > Balloon is always PV. And do not call patches solutions please.
+> > > >
+> > > > > is aimed to make it more
+> > > > > efficient and reduce the performance impact on guest.
+> > > >
+> > > > We need to get a bit beyond this.  You are making multiple
+> > > > changes, it seems to make sense to split it all up, and analyse
+> > > > each change separately.
+> > >
+> > > Couldn't agree more.
+> > >
+> > > There are three stages in this optimization:
+> > >
+> > > 1) choosing which pages to skip
+> > >
+> > > 2) communicating them from guest to host
+> > >
+> > > 3) skip transferring uninteresting pages to the remote side on
+> > > migration
+> > >
+> > > For (3) there seems to be a low-hanging fruit to amend
+> > > migration/ram.c:iz_zero_range() to consult /proc/self/pagemap.  This
+> > > would work for guest RAM that hasn't been touched yet or which has
+> > > been ballooned out.
+> > >
+> > > For (1) I've been trying to make a point that skipping clean pages
+> > > is much more likely to result in noticable benefit than free pages only.
+> > >
+> >
+> > I am considering to drop the pagecache before getting the free pages.
+> >
+> > > As for (2), we do seem to have a problem with the existing balloon:
+> > > according to your measurements it's very slow; besides, I guess it
+> > > plays badly
+> >
+> > I didn't say communicating is slow. Even this is very slow, my
+> > solution use bitmap instead of PFNs, there is fewer data traffic, so it's
+> faster than the existing balloon which use PFNs.
+> 
+> By how much?
+> 
 
---===============6425303535296348133==
-Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature";
-	boundary="=-K0YSfgd+pCgmIgaD1fae"
+Haven't measured yet. 
+To identify a page, 1 bit is needed if using bitmap, 4 Bytes(32bit) is needed if using PFN, 
 
+For a guest with 8GB RAM,  the corresponding free page bitmap size is 256KB.
+And the corresponding total PFNs size is 8192KB. Assuming the inflating size
+is 7GB, the total PFNs size is 7168KB.
 
---=-K0YSfgd+pCgmIgaD1fae
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Maybe this is not the point.
 
-On Wed, 2016-03-09 at 20:04 +0300, Roman Kagan wrote:
-> On Wed, Mar 09, 2016 at 05:41:39PM +0200, Michael S. Tsirkin wrote:
-> > On Wed, Mar 09, 2016 at 05:28:54PM +0300, Roman Kagan wrote:
-> > > For (1) I've been trying to make a point that skipping clean
-> > > pages is
-> > > much more likely to result in noticable benefit than free pages
-> > > only.
-> >=20
-> > I guess when you say clean you mean zero?
->=20
-> No I meant clean, i.e. those that could be evicted from RAM without
-> causing I/O.
->=20
+Liang
 
-Programs in the guest may have that memory mmapped.
-This could include things like libraries and executables.
-
-How do you deal with the guest page cache containing
-references to now non-existent memory?
-
-How do you re-populate the memory on the destination
-host?
-
---=C2=A0
-All rights reversed
-
---=-K0YSfgd+pCgmIgaD1fae
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQEcBAABAgAGBQJW4HvMAAoJEM553pKExN6D5J8IAMBmqwQi+Hyqk1yRWjNTf7pD
-W9QbhicpkmXTphpgbwLoxlasBetwFhFkr7fg2bADCefMdP5UN/osupn6S9UXGudi
-ga1vaW6A3X/C1qaZ7iS8rulSNgJoQBBbCe2D7it5VZVsCCjQfw9XnqSDT6eoK/cG
-6MfuZBGZpN+W7TbyM1xYaJ2xYQjGzV2zbfV/rQw2y0B8uOlTNFGToeTf7q4z2d7Q
-ZIoJPFwuPUUQlQzrKRXu3qEjsVgyIJLleaaejpgGScN0WkAKZ58gD2UyQWUiCge7
-P8r3BFFBMoZukQS0/3UAH7psGOCvBX4EFK5M9FtDTghY1m8syJH8MGa0ALYY1Ng=
-=hi8W
------END PGP SIGNATURE-----
-
---=-K0YSfgd+pCgmIgaD1fae--
-
-
---===============6425303535296348133==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6425303535296348133==--
+> > > with transparent huge pages (as both the guest and the host work
+> > > with one 4k page at a time).  This is a problem for other use cases
+> > > of balloon (e.g. as a facility for resource management); tackling
+> > > that appears a more natural application for optimization efforts.
+> > >
+> > > Thanks,
+> > > Roman.
