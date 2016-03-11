@@ -1,14 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: virtio-vsock live migration
-Date: Fri, 11 Mar 2016 01:56:05 +0200
-Message-ID: <20160311014147-mutt-send-email-mst__2620.76619915224$1457654228$gmane$org@redhat.com>
-References: <20160303153737.GA19780@stefanha-x1.localdomain>
+From: "Li, Liang Z" <liang.z.li@intel.com>
+Subject: RE: [RFC qemu 0/4] A PV solution for live migration optimization
+Date: Fri, 11 Mar 2016 02:38:02 +0000
+Message-ID: <F2CBF3009FA73547804AE4C663CAB28E0414B118__16382.8334225856$1457663907$gmane$org@shsmsx102.ccr.corp.intel.com>
+References: <1457001868-15949-1-git-send-email-liang.z.li@intel.com>
+	<20160308111343.GM15443@grmbl.mre>
+	<F2CBF3009FA73547804AE4C663CAB28E0414A7E3@shsmsx102.ccr.corp.intel.com>
+	<20160310075728.GB4678@grmbl.mre>
+	<F2CBF3009FA73547804AE4C663CAB28E0414A860@shsmsx102.ccr.corp.intel.com>
+	<20160310111844.GB2276@work-vm>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160303153737.GA19780@stefanha-x1.localdomain>
+In-Reply-To: <20160310111844.GB2276@work-vm>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,123 +23,107 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Matt Benjamin <mbenjamin@redhat.com>, virtualization@lists.linux-foundation.org, Christoffer Dall <christoffer.dall@linaro.org>
+To: "Dr. David Alan Gilbert" <dgilbert@redhat.com>
+Cc: "ehabkost@redhat.com" <ehabkost@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "simhan@hpe.com" <simhan@hpe.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "jitendra.kolhe@hpe.com" <jitendra.kolhe@hpe.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "mohan_parthasarathy@hpe.com" <mohan_parthasarathy@hpe.com>, Amit Shah <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "rth@twiddle.net" <rth@twiddle.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 03, 2016 at 03:37:37PM +0000, Stefan Hajnoczi wrote:
-> Michael pointed out that the virtio-vsock draft specification does not
-> address live migration and in fact currently precludes migration.
 > 
-> Migration is fundamental so the device specification at least mustn't
-> preclude it.  Having brainstormed migration with Matthew Benjamin and
-> Michael Tsirkin, I am now summarizing the approach that I want to
-> include in the next draft specification.
+> Hi,
+>   I'm just catching back up on this thread; so without reference to any
+> particular previous mail in the thread.
 > 
-> Feedback and comments welcome!  In the meantime I will implement this in
-> code and update the draft specification.
-> 
-> 1. Requirements
-> 
-> Virtio-vsock is a new AF_VSOCK transport.  As such, it should provide at
-> least the same guarantees as the existing AF_VSOCK VMCI transport.  This
-> is for consistency and to allow code reuse across any AF_VSOCK
-> transport.
-> 
-> Virtio-vsock aims to replace virtio-serial by providing the same
-> guest/host communication ability but with sockets API semantics that are
-> more popular and convenient for application developers.  Therefore
-> virtio-vsock migration should provide at least the same level of
-> migration functionality as virtio-serial.
-> 
-> Ideally it should be possible to migrate applications using AF_VSOCK
-> together with the virtual machine so that guest<->host communication is
-> interrupted.  Neither AF_VSOCK VMCI nor virtio-serial support this
-> today.
+>   1) How many of the free pages do we tell the host about?
+>      Your main change is telling the host about all the
+>      free pages.
 
-I'm not sure why do you say this about virtio serial.
-It appears that if host pre-connected to destination
-qemu before migration, backend reconnects transparently
-on destination.
+Yes, all the guest's free pages.
 
+>      If we tell the host about all the free pages, then we might
+>      end up needing to allocate more pages and update the host
+>      with pages we now want to use; that would have to wait for the
+>      host to acknowledge that use of these pages, since if we don't
+>      wait for it then it might have skipped migrating a page we
+>      just started using (I don't understand how your series solves that).
+>      So the guest probably needs to keep some free pages - how many?
 
-> 2. Basic disruptive migration flow
-> 
-> When the virtual machine migrates from the source host to the
-> destination host, the guest's CID may change.  The CID namespace is
-> host-wide
+Actually, there is no need to care about whether the free pages will be used by the host.
+We only care about some of the free pages we get reused by the guest, right?
 
+The dirty page logging can be used to solve this, starting the dirty page logging before getting
+the free pages informant from guest. Even some of the free pages are modified by the guest
+during the process of getting the free pages information, these modified pages will be traced
+by the dirty page logging mechanism. So in the following migration_bitmap_sync() function.
+The pages in the free pages bitmap, but latter was modified, will be reset to dirty. We won't
+omit any dirtied pages.
 
-BTW, I think CIDs would have to become per network namespace.
+So, guest doesn't need to keep any free pages.
 
-> so other hosts may have CID collisions and allocate a new CID
-> for incoming migration VMs.
+>   2) Clearing out caches
+>      Does it make sense to clean caches?  They're apparently useful data
+>      so if we clean them it's likely to slow the guest down; I guess
+>      they're also likely to be fairly static data - so at least fairly
+>      easy to migrate.
+>      The answer here partially depends on what you want from your migration;
+>      if you're after the fastest possible migration time it might make
+>      sense to clean the caches and avoid migrating them; but that might
+>      be at the cost of more disruption to the guest - there's a trade off
+>      somewhere and it's not clear to me how you set that depending on your
+>      guest/network/reqirements.
+> 
 
-I guess all this is so that guest can retrieve its CID and
-send it to host using some side-channel?
+Yes, clean the caches is an option.  Let the users decide using it or not.
 
+>   3) Why is ballooning slow?
+>      You've got a figure of 5s to balloon on an 8GB VM - but an
+>      8GB VM isn't huge; so I worry about how long it would take
+>      on a big VM.   We need to understand why it's slow
+>        * is it due to the guest shuffling pages around?
+>        * is it due to the virtio-balloon protocol sending one page
+>          at a time?
+>          + Do balloon pages normally clump in physical memory
+>             - i.e. would a 'large balloon' message help
+>             - or do we need a bitmap because it tends not to clump?
+> 
 
-> The device notifies the guest that the CID has changed.  Guest sockets
-> are affected as follows:
-> 
->  * Established connections are reset (ECONNRESET) and the guest
->    application will have to reconnect.
-> 
->  * Listen sockets remain open.  The only thing to note is that
->    connections from the host are now made to the new CID.  This means
->    the local address of the listen socket is automatically updated to
->    the new CID.
-> 
->  * Sockets in other states are unchanged.
-> 
-> Applications must handle disruptive migration by reconnecting if
-> necessary after ECONNRESET.
-> 
-> 3. Checkpoint/restore for seamless migration
-> 
-> Applications that wish to communicate across live migration can do so
-> but this requires extra application-specific checkpoint/restore code.
-> 
-> This is similar to the approach taken by the CRIU project where
-> getsockopt()/setsockopt() is used to migrate socket state.  The
-> difference is that the application process is not automatically migrated
-> from the source host to the destination host.  Therefore, the
-> application needs to migrate its own state somehow.
-> 
-> The flow is as follows:
-> 
-> The application on the source host must quiesce (stop sending/receiving)
-> and use getsockopt() to extract socket state information from the host
-> kernel.
-> 
-> A new instance of the application is started on the destination host and
-> given the state so it can restore the connection.  The setsockopt()
-> syscall is used to restore socket state information.
-> 
-> The guest is given a list of <host_old_cid, host_new_cid, host_port,
-> guest_port> tuples for established connections that must not be reset
-> when the guest CID update notification is received.  These connections
-> will carry on as if nothing changed.
-> 
-> Note that the connection's remote address is updated from host_old_cid
-> to host_new_cid.  This allows remapping of CIDs (if necessary).
-> Typically this will be unused because the host always has well-known CID
-> 2.  In a guest<->guest scenario it may be used to remap CIDs.
-> 
-> 
-> For the time being I am focussing on the basic disruptive migration flow
-> only.  Checkpoint/restore can be added with a feature bit in the future.
-> It is a lot more complex and I'm not sure whether there will be any
-> users yet.
-> 
-> Stefan
+I didn't do a comprehensive test. But I found most of the time spending
+on allocating the pages and sending the PFNs to guest, I don't know that's
+the most time consuming operation, allocating the pages or sending the PFNs.
 
-This makes some things harder. For example, imagine a guest
-reboot mixed with migration. We don't know why did the connection
-die, so we'll retry connections until - when?
+>        * is it due to the madvise on the host?
+>          If we were using the normal balloon messages, then we
+>          could, during migration, just route those to the migration
+>          code rather than bothering with the madvise.
+>          If they're clumping together we could just turn that into
+>          one big madvise; if they're not then would we benefit from
+>          a call that lets us madvise lots of areas?
+> 
 
-Could you please describe some user of vsock and show how
-it recovers from destructive migration?
+My test showed madvise() is not the main reason for the long time, only taken
+10% of the total  inflating balloon operation time.
+Big madvise can more or less improve the performance.
 
--- 
-MST
+>   4) Speeding up the migration of those free pages
+>     You're using the bitmap to avoid migrating those free pages; HPe's
+>     patchset is reconstructing a bitmap from the balloon data;  OK, so
+>     this all makes sense to avoid migrating them - I'd also been thinking
+>     of using pagemap to spot zero pages that would help find other zero'd
+>     pages, but perhaps ballooned is enough?
+> 
+Could you describe your ideal with more details?
+
+>   5) Second-migrate
+>     Given a VM where you've done all those tricks on, what happens when
+>     you migrate it a second time?   I guess you're aiming for the guest
+>     to update it's bitmap;  HPe's solution is to migrate it's balloon
+>     bitmap along with the migration data.
+
+Nothing is special in the second migration, QEMU will request the guest for free pages
+Information, and the guest will traverse it's current free page list to construct a
+new free page bitmap and send it to QEMU. Just like in the first migration.
+
+Liang
+> 
+> Dave
+> 
+> --
+> Dr. David Alan Gilbert / dgilbert@redhat.com / Manchester, UK
