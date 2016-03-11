@@ -1,7 +1,7 @@
 From: Minchan Kim <minchan@kernel.org>
-Subject: [PATCH v1 08/19] zsmalloc: remove unused pool param in obj_free
-Date: Fri, 11 Mar 2016 16:30:12 +0900
-Message-ID: <1457681423-26664-9-git-send-email-minchan__27246.1511697204$1457682334$gmane$org@kernel.org>
+Subject: [PATCH v1 03/19] fs/anon_inodes: new interface to create new inode
+Date: Fri, 11 Mar 2016 16:30:07 +0900
+Message-ID: <1457681423-26664-4-git-send-email-minchan__10800.8491959938$1457682352$gmane$org@kernel.org>
 References: <1457681423-26664-1-git-send-email-minchan@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,44 +21,49 @@ To: Andrew Morton <akpm@linux-foundation.org>
 Cc: Rik van Riel <riel@redhat.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Minchan Kim <minchan@kernel.org>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gurugio@hanmail.net>, koct9i@gmail.com, jlayton@poochiereds.net, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Let's remove unused pool param in obj_free
+From: Gioh Kim <gurugio@hanmail.net>
 
+The anon_inodes has already complete interfaces to create manage
+many anonymous inodes but don't have interface to get
+new inode. Other sub-modules can create anonymous inode
+without creating and mounting it's own pseudo filesystem.
+
+Acked-by: Rafael Aquini <aquini@redhat.com>
+Signed-off-by: Gioh Kim <gurugio@hanmail.net>
 Signed-off-by: Minchan Kim <minchan@kernel.org>
 ---
- mm/zsmalloc.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ fs/anon_inodes.c            | 6 ++++++
+ include/linux/anon_inodes.h | 1 +
+ 2 files changed, 7 insertions(+)
 
-diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
-index 156edf909046..b4fb11831acb 100644
---- a/mm/zsmalloc.c
-+++ b/mm/zsmalloc.c
-@@ -1435,8 +1435,7 @@ unsigned long zs_malloc(struct zs_pool *pool, size_t size)
+diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
+index 80ef38c73e5a..1d51f96acdd9 100644
+--- a/fs/anon_inodes.c
++++ b/fs/anon_inodes.c
+@@ -162,6 +162,12 @@ int anon_inode_getfd(const char *name, const struct file_operations *fops,
  }
- EXPORT_SYMBOL_GPL(zs_malloc);
+ EXPORT_SYMBOL_GPL(anon_inode_getfd);
  
--static void obj_free(struct zs_pool *pool, struct size_class *class,
--			unsigned long obj)
-+static void obj_free(struct size_class *class, unsigned long obj)
++struct inode *anon_inode_new(void)
++{
++	return alloc_anon_inode(anon_inode_mnt->mnt_sb);
++}
++EXPORT_SYMBOL_GPL(anon_inode_new);
++
+ static int __init anon_inode_init(void)
  {
- 	struct link_free *link;
- 	struct page *first_page, *f_page;
-@@ -1482,7 +1481,7 @@ void zs_free(struct zs_pool *pool, unsigned long handle)
- 	class = pool->size_class[class_idx];
+ 	anon_inode_mnt = kern_mount(&anon_inode_fs_type);
+diff --git a/include/linux/anon_inodes.h b/include/linux/anon_inodes.h
+index 8013a45242fe..ddbd67f8a73f 100644
+--- a/include/linux/anon_inodes.h
++++ b/include/linux/anon_inodes.h
+@@ -15,6 +15,7 @@ struct file *anon_inode_getfile(const char *name,
+ 				void *priv, int flags);
+ int anon_inode_getfd(const char *name, const struct file_operations *fops,
+ 		     void *priv, int flags);
++struct inode *anon_inode_new(void);
  
- 	spin_lock(&class->lock);
--	obj_free(pool, class, obj);
-+	obj_free(class, obj);
- 	fullness = fix_fullness_group(class, first_page);
- 	if (fullness == ZS_EMPTY) {
- 		zs_stat_dec(class, OBJ_ALLOCATED, get_maxobj_per_zspage(
-@@ -1645,7 +1644,7 @@ static int migrate_zspage(struct zs_pool *pool, struct size_class *class,
- 		free_obj |= BIT(HANDLE_PIN_BIT);
- 		record_obj(handle, free_obj);
- 		unpin_tag(handle);
--		obj_free(pool, class, used_obj);
-+		obj_free(class, used_obj);
- 	}
+ #endif /* _LINUX_ANON_INODES_H */
  
- 	/* Remember last position in this iteration */
 -- 
 1.9.1
