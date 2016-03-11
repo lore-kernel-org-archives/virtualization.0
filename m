@@ -1,8 +1,7 @@
 From: Minchan Kim <minchan@kernel.org>
-Subject: [PATCH v1 01/19] mm: use put_page to free page instead of
-	putback_lru_page
-Date: Fri, 11 Mar 2016 16:30:05 +0900
-Message-ID: <1457681423-26664-2-git-send-email-minchan__20729.6274988495$1457682321$gmane$org@kernel.org>
+Subject: [PATCH v1 05/19] zsmalloc: use first_page rather than page
+Date: Fri, 11 Mar 2016 16:30:09 +0900
+Message-ID: <1457681423-26664-6-git-send-email-minchan__26024.766409728$1457682325$gmane$org@kernel.org>
 References: <1457681423-26664-1-git-send-email-minchan@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,130 +18,184 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Rik van Riel <riel@redhat.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Minchan Kim <minchan@kernel.org>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gurugio@hanmail.net>, koct9i@gmail.com, jlayton@poochiereds.net, Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
+Cc: Rik van Riel <riel@redhat.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Minchan Kim <minchan@kernel.org>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gurugio@hanmail.net>, koct9i@gmail.com, jlayton@poochiereds.net, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Procedure of page migration is as follows:
+This patch cleans up function parameter "struct page".
+Many functions of zsmalloc expects that page paramter is "first_page"
+so use "first_page" rather than "page" for code readability.
 
-First of all, it should isolate a page from LRU and try to
-migrate the page. If it is successful, it releases the page
-for freeing. Otherwise, it should put the page back to LRU
-list.
-
-For LRU pages, we have used putback_lru_page for both freeing
-and putback to LRU list. It's okay because put_page is aware of
-LRU list so if it releases last refcount of the page, it removes
-the page from LRU list. However, It makes unnecessary operations
-(e.g., lru_cache_add, pagevec and flags operations. It would be
-not significant but no worth to do) and harder to support new
-non-lru page migration because put_page isn't aware of non-lru
-page's data structure.
-
-To solve the problem, we can add new hook in put_page with
-PageMovable flags check but it can increase overhead in
-hot path and needs new locking scheme to stabilize the flag check
-with put_page.
-
-So, this patch cleans it up to divide two semantic(ie, put and putback).
-If migration is successful, use put_page instead of putback_lru_page and
-use putback_lru_page only on failure. That makes code more readable
-and doesn't add overhead in put_page.
-
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
 Signed-off-by: Minchan Kim <minchan@kernel.org>
 ---
- mm/migrate.c | 49 ++++++++++++++++++++++++++++++-------------------
- 1 file changed, 30 insertions(+), 19 deletions(-)
+ mm/zsmalloc.c | 62 ++++++++++++++++++++++++++++++-----------------------------
+ 1 file changed, 32 insertions(+), 30 deletions(-)
 
-diff --git a/mm/migrate.c b/mm/migrate.c
-index 3ad0fea5c438..bf31ea9ffaf8 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -907,6 +907,14 @@ static int __unmap_and_move(struct page *page, struct page *newpage,
- 		put_anon_vma(anon_vma);
- 	unlock_page(page);
- out:
-+	/* If migration is scucessful, move newpage to right list */
-+	if (rc == MIGRATEPAGE_SUCCESS) {
-+		if (unlikely(__is_movable_balloon_page(newpage)))
-+			put_page(newpage);
-+		else
-+			putback_lru_page(newpage);
-+	}
-+
- 	return rc;
+diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
+index 2d7c4c11fc63..bb29203ec6b3 100644
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -414,26 +414,28 @@ static int is_last_page(struct page *page)
+ 	return PagePrivate2(page);
  }
  
-@@ -940,6 +948,12 @@ static ICE_noinline int unmap_and_move(new_page_t get_new_page,
+-static void get_zspage_mapping(struct page *page, unsigned int *class_idx,
++static void get_zspage_mapping(struct page *first_page,
++				unsigned int *class_idx,
+ 				enum fullness_group *fullness)
+ {
+ 	unsigned long m;
+-	BUG_ON(!is_first_page(page));
++	BUG_ON(!is_first_page(first_page));
  
- 	if (page_count(page) == 1) {
- 		/* page was freed from under us. So we are done. */
-+		ClearPageActive(page);
-+		ClearPageUnevictable(page);
-+		if (put_new_page)
-+			put_new_page(newpage, private);
-+		else
-+			put_page(newpage);
+-	m = (unsigned long)page->mapping;
++	m = (unsigned long)first_page->mapping;
+ 	*fullness = m & FULLNESS_MASK;
+ 	*class_idx = (m >> FULLNESS_BITS) & CLASS_IDX_MASK;
+ }
+ 
+-static void set_zspage_mapping(struct page *page, unsigned int class_idx,
++static void set_zspage_mapping(struct page *first_page,
++				unsigned int class_idx,
+ 				enum fullness_group fullness)
+ {
+ 	unsigned long m;
+-	BUG_ON(!is_first_page(page));
++	BUG_ON(!is_first_page(first_page));
+ 
+ 	m = ((class_idx & CLASS_IDX_MASK) << FULLNESS_BITS) |
+ 			(fullness & FULLNESS_MASK);
+-	page->mapping = (struct address_space *)m;
++	first_page->mapping = (struct address_space *)m;
+ }
+ 
+ /*
+@@ -620,14 +622,14 @@ static inline void zs_pool_stat_destroy(struct zs_pool *pool)
+  * the pool (not yet implemented). This function returns fullness
+  * status of the given page.
+  */
+-static enum fullness_group get_fullness_group(struct page *page)
++static enum fullness_group get_fullness_group(struct page *first_page)
+ {
+ 	int inuse, max_objects;
+ 	enum fullness_group fg;
+-	BUG_ON(!is_first_page(page));
++	BUG_ON(!is_first_page(first_page));
+ 
+-	inuse = page->inuse;
+-	max_objects = page->objects;
++	inuse = first_page->inuse;
++	max_objects = first_page->objects;
+ 
+ 	if (inuse == 0)
+ 		fg = ZS_EMPTY;
+@@ -647,12 +649,12 @@ static enum fullness_group get_fullness_group(struct page *page)
+  * have. This functions inserts the given zspage into the freelist
+  * identified by <class, fullness_group>.
+  */
+-static void insert_zspage(struct page *page, struct size_class *class,
++static void insert_zspage(struct page *first_page, struct size_class *class,
+ 				enum fullness_group fullness)
+ {
+ 	struct page **head;
+ 
+-	BUG_ON(!is_first_page(page));
++	BUG_ON(!is_first_page(first_page));
+ 
+ 	if (fullness >= _ZS_NR_FULLNESS_GROUPS)
+ 		return;
+@@ -662,7 +664,7 @@ static void insert_zspage(struct page *page, struct size_class *class,
+ 
+ 	head = &class->fullness_list[fullness];
+ 	if (!*head) {
+-		*head = page;
++		*head = first_page;
+ 		return;
+ 	}
+ 
+@@ -670,21 +672,21 @@ static void insert_zspage(struct page *page, struct size_class *class,
+ 	 * We want to see more ZS_FULL pages and less almost
+ 	 * empty/full. Put pages with higher ->inuse first.
+ 	 */
+-	list_add_tail(&page->lru, &(*head)->lru);
+-	if (page->inuse >= (*head)->inuse)
+-		*head = page;
++	list_add_tail(&first_page->lru, &(*head)->lru);
++	if (first_page->inuse >= (*head)->inuse)
++		*head = first_page;
+ }
+ 
+ /*
+  * This function removes the given zspage from the freelist identified
+  * by <class, fullness_group>.
+  */
+-static void remove_zspage(struct page *page, struct size_class *class,
++static void remove_zspage(struct page *first_page, struct size_class *class,
+ 				enum fullness_group fullness)
+ {
+ 	struct page **head;
+ 
+-	BUG_ON(!is_first_page(page));
++	BUG_ON(!is_first_page(first_page));
+ 
+ 	if (fullness >= _ZS_NR_FULLNESS_GROUPS)
+ 		return;
+@@ -693,11 +695,11 @@ static void remove_zspage(struct page *page, struct size_class *class,
+ 	BUG_ON(!*head);
+ 	if (list_empty(&(*head)->lru))
+ 		*head = NULL;
+-	else if (*head == page)
++	else if (*head == first_page)
+ 		*head = (struct page *)list_entry((*head)->lru.next,
+ 					struct page, lru);
+ 
+-	list_del_init(&page->lru);
++	list_del_init(&first_page->lru);
+ 	zs_stat_dec(class, fullness == ZS_ALMOST_EMPTY ?
+ 			CLASS_ALMOST_EMPTY : CLASS_ALMOST_FULL, 1);
+ }
+@@ -712,21 +714,21 @@ static void remove_zspage(struct page *page, struct size_class *class,
+  * fullness group.
+  */
+ static enum fullness_group fix_fullness_group(struct size_class *class,
+-						struct page *page)
++						struct page *first_page)
+ {
+ 	int class_idx;
+ 	enum fullness_group currfg, newfg;
+ 
+-	BUG_ON(!is_first_page(page));
++	BUG_ON(!is_first_page(first_page));
+ 
+-	get_zspage_mapping(page, &class_idx, &currfg);
+-	newfg = get_fullness_group(page);
++	get_zspage_mapping(first_page, &class_idx, &currfg);
++	newfg = get_fullness_group(first_page);
+ 	if (newfg == currfg)
  		goto out;
- 	}
  
-@@ -952,9 +966,6 @@ static ICE_noinline int unmap_and_move(new_page_t get_new_page,
- 	}
+-	remove_zspage(page, class, currfg);
+-	insert_zspage(page, class, newfg);
+-	set_zspage_mapping(page, class_idx, newfg);
++	remove_zspage(first_page, class, currfg);
++	insert_zspage(first_page, class, newfg);
++	set_zspage_mapping(first_page, class_idx, newfg);
  
- 	rc = __unmap_and_move(page, newpage, force, mode);
--	if (rc == MIGRATEPAGE_SUCCESS)
--		put_new_page = NULL;
--
  out:
- 	if (rc != -EAGAIN) {
- 		/*
-@@ -966,28 +977,28 @@ static ICE_noinline int unmap_and_move(new_page_t get_new_page,
- 		list_del(&page->lru);
- 		dec_zone_page_state(page, NR_ISOLATED_ANON +
- 				page_is_file_cache(page));
--		/* Soft-offlined page shouldn't go through lru cache list */
-+	}
-+
-+	/*
-+	 * If migration is successful, drop the reference grabbed during
-+	 * isolation. Otherwise, restore the page to LRU list unless we
-+	 * want to retry.
-+	 */
-+	if (rc == MIGRATEPAGE_SUCCESS) {
-+		put_page(page);
- 		if (reason == MR_MEMORY_FAILURE) {
--			put_page(page);
- 			if (!test_set_page_hwpoison(page))
- 				num_poisoned_pages_inc();
--		} else
-+		}
-+	} else {
-+		if (rc != -EAGAIN)
- 			putback_lru_page(page);
-+		if (put_new_page)
-+			put_new_page(newpage, private);
-+		else
-+			put_page(newpage);
- 	}
+ 	return newfg;
+@@ -1231,11 +1233,11 @@ static bool can_merge(struct size_class *prev, int size, int pages_per_zspage)
+ 	return true;
+ }
  
--	/*
--	 * If migration was not successful and there's a freeing callback, use
--	 * it.  Otherwise, putback_lru_page() will drop the reference grabbed
--	 * during isolation.
--	 */
--	if (put_new_page)
--		put_new_page(newpage, private);
--	else if (unlikely(__is_movable_balloon_page(newpage))) {
--		/* drop our reference, page already in the balloon */
--		put_page(newpage);
--	} else
--		putback_lru_page(newpage);
--
- 	if (result) {
- 		if (rc)
- 			*result = rc;
+-static bool zspage_full(struct page *page)
++static bool zspage_full(struct page *first_page)
+ {
+-	BUG_ON(!is_first_page(page));
++	BUG_ON(!is_first_page(first_page));
+ 
+-	return page->inuse == page->objects;
++	return first_page->inuse == first_page->objects;
+ }
+ 
+ unsigned long zs_get_total_pages(struct zs_pool *pool)
 -- 
 1.9.1
