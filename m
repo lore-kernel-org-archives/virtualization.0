@@ -1,11 +1,14 @@
 From: Minchan Kim <minchan@kernel.org>
-Subject: [PATCH v1 00/19] Support non-lru page migration
-Date: Fri, 11 Mar 2016 16:30:04 +0900
-Message-ID: <1457681423-26664-1-git-send-email-minchan__47600.1808340245$1457682308$gmane$org@kernel.org>
+Subject: [PATCH v1 01/19] mm: use put_page to free page instead of
+	putback_lru_page
+Date: Fri, 11 Mar 2016 16:30:05 +0900
+Message-ID: <1457681423-26664-2-git-send-email-minchan__20729.6274988495$1457682321$gmane$org@kernel.org>
+References: <1457681423-26664-1-git-send-email-minchan@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1457681423-26664-1-git-send-email-minchan@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,118 +19,130 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Rik van Riel <riel@redhat.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Minchan Kim <minchan@kernel.org>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gurugio@hanmail.net>, koct9i@gmail.com, jlayton@poochiereds.net, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
+Cc: Rik van Riel <riel@redhat.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Minchan Kim <minchan@kernel.org>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gurugio@hanmail.net>, koct9i@gmail.com, jlayton@poochiereds.net, Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Recently, I got many reports about perfermance degradation
-in embedded system(Android mobile phone, webOS TV and so on)
-and failed to fork easily.
+Procedure of page migration is as follows:
 
-The problem was fragmentation caused by zram and GPU driver
-pages. Their pages cannot be migrated so compaction cannot
-work well, either so reclaimer ends up shrinking all of working
-set pages. It made system very slow and even to fail to fork
-easily.
+First of all, it should isolate a page from LRU and try to
+migrate the page. If it is successful, it releases the page
+for freeing. Otherwise, it should put the page back to LRU
+list.
 
-Other pain point is that they cannot work with CMA.
-Most of CMA memory space could be idle(ie, it could be used
-for movable pages unless driver is using) but if driver(i.e.,
-zram) cannot migrate his page, that memory space could be
-wasted. In our product which has big CMA memory, it reclaims
-zones too exccessively although there are lots of free space
-in CMA so system was very slow easily.
+For LRU pages, we have used putback_lru_page for both freeing
+and putback to LRU list. It's okay because put_page is aware of
+LRU list so if it releases last refcount of the page, it removes
+the page from LRU list. However, It makes unnecessary operations
+(e.g., lru_cache_add, pagevec and flags operations. It would be
+not significant but no worth to do) and harder to support new
+non-lru page migration because put_page isn't aware of non-lru
+page's data structure.
 
-To solve these problem, this patch try to add facility to
-migrate non-lru pages via introducing new friend functions
-of migratepage in address_space_operation and new page flags.
+To solve the problem, we can add new hook in put_page with
+PageMovable flags check but it can increase overhead in
+hot path and needs new locking scheme to stabilize the flag check
+with put_page.
 
-	(isolate_page, putback_page)
-	(PG_movable, PG_isolated)
+So, this patch cleans it up to divide two semantic(ie, put and putback).
+If migration is successful, use put_page instead of putback_lru_page and
+use putback_lru_page only on failure. That makes code more readable
+and doesn't add overhead in put_page.
 
-For details, please read description in
-"mm/compaction: support non-lru movable page migration".
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Signed-off-by: Minchan Kim <minchan@kernel.org>
+---
+ mm/migrate.c | 49 ++++++++++++++++++++++++++++++-------------------
+ 1 file changed, 30 insertions(+), 19 deletions(-)
 
-Originally, Gioh Kim tried to support this feature but he moved
-so I took over the work. But I took many code from his work and
-changed a little bit.
-Thanks, Gioh!
-
-And I should mention Konstantin Khlebnikov. He really heped Gioh
-at that time so he should deserve to have many credit, too.
-Thanks, Konstantin!
-
-This patchset consists of three parts
-
-1. add non-lru page migration feature
-
-  mm: use put_page to free page instead of putback_lru_page
-  fs/anon_inodes: new interface to create new inode
-  mm/compaction: support non-lru movable page migration
-
-2. rework KVM memory-ballooning
-
-  mm/balloon: use general movable page feature into balloon
-
-3. rework zsmalloc
-
-  zsmalloc: use first_page rather than page
-  zsmalloc: clean up many BUG_ON
-  zsmalloc: reordering function parameter
-  zsmalloc: remove unused pool param in obj_free
-  zsmalloc: keep max_object in size_class
-  zsmalloc: squeeze inuse into page->mapping
-  zsmalloc: squeeze freelist into page->mapping
-  zsmalloc: move struct zs_meta from mapping to freelist
-  zsmalloc: factor page chain functionality out
-  zsmalloc: separate free_zspage from putback_zspage
-  zsmalloc: zs_compact refactoring
-  zsmalloc: migrate head page of zspage
-  zsmalloc: use single linked list for page chain
-  zsmalloc: migrate tail pages in zspage
-  zram: use __GFP_MOVABLE for memory allocation
-
-Gioh Kim (1):
-  fs/anon_inodes: new interface to create new inode
-
-Minchan Kim (18):
-  mm: use put_page to free page instead of putback_lru_page
-  mm/compaction: support non-lru movable page migration
-  mm/balloon: use general movable page feature into balloon
-  zsmalloc: use first_page rather than page
-  zsmalloc: clean up many BUG_ON
-  zsmalloc: reordering function parameter
-  zsmalloc: remove unused pool param in obj_free
-  zsmalloc: keep max_object in size_class
-  zsmalloc: squeeze inuse into page->mapping
-  zsmalloc: squeeze freelist into page->mapping
-  zsmalloc: move struct zs_meta from mapping to freelist
-  zsmalloc: factor page chain functionality out
-  zsmalloc: separate free_zspage from putback_zspage
-  zsmalloc: zs_compact refactoring
-  zsmalloc: migrate head page of zspage
-  zsmalloc: use single linked list for page chain
-  zsmalloc: migrate tail pages in zspage
-  zram: use __GFP_MOVABLE for memory allocation
-
- Documentation/filesystems/Locking      |    4 +
- Documentation/filesystems/vfs.txt      |    5 +
- drivers/block/zram/zram_drv.c          |    3 +-
- drivers/virtio/virtio_balloon.c        |    4 +
- fs/anon_inodes.c                       |    6 +
- fs/proc/page.c                         |    3 +
- include/linux/anon_inodes.h            |    1 +
- include/linux/balloon_compaction.h     |   47 +-
- include/linux/compaction.h             |    8 +
- include/linux/fs.h                     |    2 +
- include/linux/migrate.h                |    2 +
- include/linux/page-flags.h             |   42 +-
- include/uapi/linux/kernel-page-flags.h |    1 +
- mm/balloon_compaction.c                |  101 +--
- mm/compaction.c                        |   15 +-
- mm/migrate.c                           |  197 +++--
- mm/vmscan.c                            |    2 +-
- mm/zsmalloc.c                          | 1295 +++++++++++++++++++++++---------
- 18 files changed, 1219 insertions(+), 519 deletions(-)
-
+diff --git a/mm/migrate.c b/mm/migrate.c
+index 3ad0fea5c438..bf31ea9ffaf8 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -907,6 +907,14 @@ static int __unmap_and_move(struct page *page, struct page *newpage,
+ 		put_anon_vma(anon_vma);
+ 	unlock_page(page);
+ out:
++	/* If migration is scucessful, move newpage to right list */
++	if (rc == MIGRATEPAGE_SUCCESS) {
++		if (unlikely(__is_movable_balloon_page(newpage)))
++			put_page(newpage);
++		else
++			putback_lru_page(newpage);
++	}
++
+ 	return rc;
+ }
+ 
+@@ -940,6 +948,12 @@ static ICE_noinline int unmap_and_move(new_page_t get_new_page,
+ 
+ 	if (page_count(page) == 1) {
+ 		/* page was freed from under us. So we are done. */
++		ClearPageActive(page);
++		ClearPageUnevictable(page);
++		if (put_new_page)
++			put_new_page(newpage, private);
++		else
++			put_page(newpage);
+ 		goto out;
+ 	}
+ 
+@@ -952,9 +966,6 @@ static ICE_noinline int unmap_and_move(new_page_t get_new_page,
+ 	}
+ 
+ 	rc = __unmap_and_move(page, newpage, force, mode);
+-	if (rc == MIGRATEPAGE_SUCCESS)
+-		put_new_page = NULL;
+-
+ out:
+ 	if (rc != -EAGAIN) {
+ 		/*
+@@ -966,28 +977,28 @@ static ICE_noinline int unmap_and_move(new_page_t get_new_page,
+ 		list_del(&page->lru);
+ 		dec_zone_page_state(page, NR_ISOLATED_ANON +
+ 				page_is_file_cache(page));
+-		/* Soft-offlined page shouldn't go through lru cache list */
++	}
++
++	/*
++	 * If migration is successful, drop the reference grabbed during
++	 * isolation. Otherwise, restore the page to LRU list unless we
++	 * want to retry.
++	 */
++	if (rc == MIGRATEPAGE_SUCCESS) {
++		put_page(page);
+ 		if (reason == MR_MEMORY_FAILURE) {
+-			put_page(page);
+ 			if (!test_set_page_hwpoison(page))
+ 				num_poisoned_pages_inc();
+-		} else
++		}
++	} else {
++		if (rc != -EAGAIN)
+ 			putback_lru_page(page);
++		if (put_new_page)
++			put_new_page(newpage, private);
++		else
++			put_page(newpage);
+ 	}
+ 
+-	/*
+-	 * If migration was not successful and there's a freeing callback, use
+-	 * it.  Otherwise, putback_lru_page() will drop the reference grabbed
+-	 * during isolation.
+-	 */
+-	if (put_new_page)
+-		put_new_page(newpage, private);
+-	else if (unlikely(__is_movable_balloon_page(newpage))) {
+-		/* drop our reference, page already in the balloon */
+-		put_page(newpage);
+-	} else
+-		putback_lru_page(newpage);
+-
+ 	if (result) {
+ 		if (rc)
+ 			*result = rc;
 -- 
 1.9.1
