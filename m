@@ -1,7 +1,7 @@
 From: Minchan Kim <minchan@kernel.org>
-Subject: [PATCH v1 13/19] zsmalloc: factor page chain functionality out
-Date: Fri, 11 Mar 2016 16:30:17 +0900
-Message-ID: <1457681423-26664-14-git-send-email-minchan__24250.6335293458$1457682463$gmane$org@kernel.org>
+Subject: [PATCH v1 14/19] zsmalloc: separate free_zspage from putback_zspage
+Date: Fri, 11 Mar 2016 16:30:18 +0900
+Message-ID: <1457681423-26664-15-git-send-email-minchan__43035.8507590883$1457682487$gmane$org@kernel.org>
 References: <1457681423-26664-1-git-send-email-minchan@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,151 +21,121 @@ To: Andrew Morton <akpm@linux-foundation.org>
 Cc: Rik van Riel <riel@redhat.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Minchan Kim <minchan@kernel.org>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gurugio@hanmail.net>, koct9i@gmail.com, jlayton@poochiereds.net, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-For migration, we need to create sub-page chain of zspage
-dynamically so this patch factors it out from alloc_zspage.
-
-As a minor refactoring, it makes OBJ_ALLOCATED_TAG assign
-more clear in obj_malloc(it could be another patch but it's
-trivial so I want to put together in this patch).
+Currently, putback_zspage does free zspage under class->lock
+if fullness become ZS_EMPTY but it makes trouble to implement
+locking scheme for new zspage migration.
+So, this patch is to separate free_zspage from putback_zspage
+and free zspage out of class->lock which is preparation for
+zspage migration.
 
 Signed-off-by: Minchan Kim <minchan@kernel.org>
 ---
- mm/zsmalloc.c | 78 ++++++++++++++++++++++++++++++++++-------------------------
- 1 file changed, 45 insertions(+), 33 deletions(-)
+ mm/zsmalloc.c | 46 +++++++++++++++++++++++-----------------------
+ 1 file changed, 23 insertions(+), 23 deletions(-)
 
 diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
-index bfc6a048afac..f86f8aaeb902 100644
+index f86f8aaeb902..49ae6531b7ad 100644
 --- a/mm/zsmalloc.c
 +++ b/mm/zsmalloc.c
-@@ -977,7 +977,9 @@ static void init_zspage(struct size_class *class, struct page *first_page)
- 	unsigned long off = 0;
- 	struct page *page = first_page;
- 
--	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
-+	first_page->freelist = NULL;
-+	INIT_LIST_HEAD(&first_page->lru);
-+	set_zspage_inuse(first_page, 0);
- 
- 	while (page) {
- 		struct page *next_page;
-@@ -1022,13 +1024,44 @@ static void init_zspage(struct size_class *class, struct page *first_page)
- 	set_freeobj(first_page, 0);
+@@ -945,7 +945,8 @@ static void reset_page(struct page *page)
+ 	page_mapcount_reset(page);
  }
  
-+static void create_page_chain(struct page *pages[], int nr_pages)
-+{
-+	int i;
-+	struct page *page;
-+	struct page *prev_page = NULL;
-+	struct page *first_page = NULL;
-+
-+	for (i = 0; i < nr_pages; i++) {
-+		page = pages[i];
-+
-+		INIT_LIST_HEAD(&page->lru);
-+		if (i == 0) {
-+			SetPagePrivate(page);
-+			set_page_private(page, 0);
-+			first_page = page;
-+		}
-+
-+		if (i == 1)
-+			set_page_private(first_page, (unsigned long)page);
-+		if (i >= 1)
-+			set_page_private(page, (unsigned long)first_page);
-+		if (i >= 2)
-+			list_add(&page->lru, &prev_page->lru);
-+		if (i == nr_pages - 1)
-+			SetPagePrivate2(page);
-+
-+		prev_page = page;
-+	}
-+}
-+
- /*
-  * Allocate a zspage for the given size class
-  */
- static struct page *alloc_zspage(struct size_class *class, gfp_t flags)
+-static void free_zspage(struct page *first_page)
++static void free_zspage(struct zs_pool *pool, struct size_class *class,
++			struct page *first_page)
  {
--	int i, error;
-+	int i;
- 	struct page *first_page = NULL, *uninitialized_var(prev_page);
-+	struct page *pages[ZS_MAX_PAGES_PER_ZSPAGE];
+ 	struct page *nextp, *tmp, *head_extra;
  
- 	/*
- 	 * Allocate individual pages and link them together as:
-@@ -1041,43 +1074,23 @@ static struct page *alloc_zspage(struct size_class *class, gfp_t flags)
- 	 * (i.e. no other sub-page has this flag set) and PG_private_2 to
- 	 * identify the last page.
- 	 */
--	error = -ENOMEM;
- 	for (i = 0; i < class->pages_per_zspage; i++) {
- 		struct page *page;
- 
- 		page = alloc_page(flags);
--		if (!page)
--			goto cleanup;
--
--		INIT_LIST_HEAD(&page->lru);
--		if (i == 0) {	/* first page */
--			page->freelist = NULL;
--			SetPagePrivate(page);
--			set_page_private(page, 0);
--			first_page = page;
--			set_zspage_inuse(page, 0);
-+		if (!page) {
-+			while (--i >= 0)
-+				__free_page(pages[i]);
-+			return NULL;
- 		}
--		if (i == 1)
--			set_page_private(first_page, (unsigned long)page);
--		if (i >= 1)
--			set_page_private(page, (unsigned long)first_page);
--		if (i >= 2)
--			list_add(&page->lru, &prev_page->lru);
--		if (i == class->pages_per_zspage - 1)	/* last page */
--			SetPagePrivate2(page);
--		prev_page = page;
-+
-+		pages[i] = page;
+@@ -968,6 +969,11 @@ static void free_zspage(struct page *first_page)
  	}
+ 	reset_page(head_extra);
+ 	__free_page(head_extra);
++
++	zs_stat_dec(class, OBJ_ALLOCATED, get_maxobj_per_zspage(
++			class->size, class->pages_per_zspage));
++	atomic_long_sub(class->pages_per_zspage,
++				&pool->pages_allocated);
+ }
  
-+	create_page_chain(pages, class->pages_per_zspage);
-+	first_page = pages[0];
- 	init_zspage(class, first_page);
- 
--	error = 0; /* Success */
--
--cleanup:
--	if (unlikely(error) && first_page) {
+ /* Initialize a newly allocated zspage */
+@@ -1557,13 +1563,8 @@ void zs_free(struct zs_pool *pool, unsigned long handle)
+ 	spin_lock(&class->lock);
+ 	obj_free(class, obj);
+ 	fullness = fix_fullness_group(class, first_page);
+-	if (fullness == ZS_EMPTY) {
+-		zs_stat_dec(class, OBJ_ALLOCATED, get_maxobj_per_zspage(
+-				class->size, class->pages_per_zspage));
+-		atomic_long_sub(class->pages_per_zspage,
+-				&pool->pages_allocated);
 -		free_zspage(first_page);
--		first_page = NULL;
+-	}
++	if (fullness == ZS_EMPTY)
++		free_zspage(pool, class, first_page);
+ 	spin_unlock(&class->lock);
+ 	unpin_tag(handle);
+ 
+@@ -1750,7 +1751,7 @@ static struct page *isolate_target_page(struct size_class *class)
+  * @class: destination class
+  * @first_page: target page
+  *
+- * Return @fist_page's fullness_group
++ * Return @first_page's updated fullness_group
+  */
+ static enum fullness_group putback_zspage(struct zs_pool *pool,
+ 			struct size_class *class,
+@@ -1762,15 +1763,6 @@ static enum fullness_group putback_zspage(struct zs_pool *pool,
+ 	insert_zspage(class, fullness, first_page);
+ 	set_zspage_mapping(first_page, class->index, fullness);
+ 
+-	if (fullness == ZS_EMPTY) {
+-		zs_stat_dec(class, OBJ_ALLOCATED, get_maxobj_per_zspage(
+-			class->size, class->pages_per_zspage));
+-		atomic_long_sub(class->pages_per_zspage,
+-				&pool->pages_allocated);
+-
+-		free_zspage(first_page);
 -	}
 -
- 	return first_page;
+ 	return fullness;
  }
  
-@@ -1419,7 +1432,6 @@ static unsigned long obj_malloc(struct size_class *class,
- 	unsigned long m_offset;
- 	void *vaddr;
+@@ -1833,23 +1825,31 @@ static void __zs_compact(struct zs_pool *pool, struct size_class *class)
+ 			if (!migrate_zspage(pool, class, &cc))
+ 				break;
  
--	handle |= OBJ_ALLOCATED_TAG;
- 	obj = get_freeobj(first_page);
- 	objidx_to_page_and_ofs(class, first_page, obj,
- 				&m_page, &m_offset);
-@@ -1429,10 +1441,10 @@ static unsigned long obj_malloc(struct size_class *class,
- 	set_freeobj(first_page, link->next >> OBJ_ALLOCATED_TAG);
- 	if (!class->huge)
- 		/* record handle in the header of allocated chunk */
--		link->handle = handle;
-+		link->handle = handle | OBJ_ALLOCATED_TAG;
- 	else
- 		/* record handle in first_page->private */
--		set_page_private(first_page, handle);
-+		set_page_private(first_page, handle | OBJ_ALLOCATED_TAG);
- 	kunmap_atomic(vaddr);
- 	mod_zspage_inuse(first_page, 1);
- 	zs_stat_inc(class, OBJ_USED, 1);
+-			putback_zspage(pool, class, dst_page);
++			VM_BUG_ON_PAGE(putback_zspage(pool, class,
++				dst_page) == ZS_EMPTY, dst_page);
+ 		}
+ 
+ 		/* Stop if we couldn't find slot */
+ 		if (dst_page == NULL)
+ 			break;
+ 
+-		putback_zspage(pool, class, dst_page);
+-		if (putback_zspage(pool, class, src_page) == ZS_EMPTY)
++		VM_BUG_ON_PAGE(putback_zspage(pool, class,
++				dst_page) == ZS_EMPTY, dst_page);
++		if (putback_zspage(pool, class, src_page) == ZS_EMPTY) {
+ 			pool->stats.pages_compacted += class->pages_per_zspage;
+-		spin_unlock(&class->lock);
++			spin_unlock(&class->lock);
++			free_zspage(pool, class, src_page);
++		} else {
++			spin_unlock(&class->lock);
++		}
++
+ 		cond_resched();
+ 		spin_lock(&class->lock);
+ 	}
+ 
+ 	if (src_page)
+-		putback_zspage(pool, class, src_page);
++		VM_BUG_ON_PAGE(putback_zspage(pool, class,
++				src_page) == ZS_EMPTY, src_page);
+ 
+ 	spin_unlock(&class->lock);
+ }
 -- 
 1.9.1
