@@ -1,18 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] virtio-vsock live migration
-Date: Wed, 16 Mar 2016 17:05:19 +0200
-Message-ID: <20160316163344-mutt-send-email-mst__10359.8878872164$1458140745$gmane$org@redhat.com>
-References: <20160303153737.GA19780@stefanha-x1.localdomain>
-	<20160314130150-mutt-send-email-mst@redhat.com>
-	<20160315151529.GB26263@stefanha-x1.localdomain>
-	<20160315180916-mutt-send-email-mst@redhat.com>
-	<20160316143200.GA689@stefanha-x1.localdomain>
+From: xuyiping <xuyiping@hisilicon.com>
+Subject: Re: [PATCH v1 09/19] zsmalloc: keep max_object in size_class
+Date: Sat, 12 Mar 2016 09:44:48 +0800
+Message-ID: <56E37490.7060606__44972.6212224506$1458151171$gmane$org@hisilicon.com>
+References: <1457681423-26664-1-git-send-email-minchan@kernel.org>
+	<1457681423-26664-10-git-send-email-minchan@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160316143200.GA689@stefanha-x1.localdomain>
+In-Reply-To: <1457681423-26664-10-git-send-email-minchan@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,130 +18,136 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Matt Benjamin <mbenjamin@redhat.com>, virtualization@lists.linux-foundation.org, Christoffer Dall <christoffer.dall@linaro.org>
+To: Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Rik van Riel <riel@redhat.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gurugio@hanmail.net>, koct9i@gmail.com, jlayton@poochiereds.net, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 16, 2016 at 02:32:00PM +0000, Stefan Hajnoczi wrote:
-> On Tue, Mar 15, 2016 at 06:12:55PM +0200, Michael S. Tsirkin wrote:
-> > On Tue, Mar 15, 2016 at 03:15:29PM +0000, Stefan Hajnoczi wrote:
-> > > On Mon, Mar 14, 2016 at 01:13:24PM +0200, Michael S. Tsirkin wrote:
-> > > > On Thu, Mar 03, 2016 at 03:37:37PM +0000, Stefan Hajnoczi wrote:
-> > > > > Michael pointed out that the virtio-vsock draft specification does not
-> > > > > address live migration and in fact currently precludes migration.
-> > > > > 
-> > > > > Migration is fundamental so the device specification at least mustn't
-> > > > > preclude it.  Having brainstormed migration with Matthew Benjamin and
-> > > > > Michael Tsirkin, I am now summarizing the approach that I want to
-> > > > > include in the next draft specification.
-> > > > > 
-> > > > > Feedback and comments welcome!  In the meantime I will implement this in
-> > > > > code and update the draft specification.
-> > > > 
-> > > > Most of the issue seems to be a consequence of using a 4 byte CID.
-> > > > 
-> > > > I think the right thing to do is just to teach guests
-> > > > about 64 bit CIDs.
-> > > > 
-> > > > For now, can we drop guest CID from guest to host communication completely,
-> > > > making CID only host-visible? Maybe leave the space
-> > > > in the packet so we can add CID there later.
-> > > > It seems that in theory this will allow changing CID
-> > > > during migration, transparently to the guest.
-> > > > 
-> > > > Guest visible CID is required for guest to guest communication -
-> > > > but IIUC that is not currently supported.
-> > > > Maybe that can be made conditional on 64 bit addressing.
-> > > > Alternatively, it seems much easier to accept that these channels get broken
-> > > > across migration.
-> > > 
-> > > I reached the conclusion that channels break across migration because:
-> > > 
-> > > 1. 32-bit CIDs are in sockaddr_vm and we'd break AF_VSOCK ABI by
-> > >    changing it to 64-bit.  Application code would be specific
-> > >    virtio-vsock and wouldn't work with other AF_VSOCK transports that
-> > >    use the 32-bit sockaddr_vm struct.
-> > 
-> > You don't have to repeat the IPv6 mistake.  Make all 32 bit CIDs
-> > 64 bit CIDs by padding with 0s, then 64 bit apps can use
-> > any CID.
-> > 
-> > Old 32 bit CID applications will not be able to use the extended
-> > addresses, but hardcoding bugs
-> > does not seem sane.
-> 
-> A mixed 32-bit and 64-bit CID world is complex.  The host doesn't know
-> in advance whether all applications (especially inside the guest) will
-> support 64-bit CIDs or not.  32-bit CID applications won't work if a
-> 64-bit CID has been assigned.
-
-Only for guest to guest communication, correct?
-Host can do dual addressing as well.
-Applications that do not want connections to be broken
-will use 64 bit addresses. Old applications will keep
-running until you migrate.
-
-> It also opens up the question how unique CIDs are allocated across
-> hosts.
-
-I think it's actually a good idea to define this, rather than
-leave things in the air. For example, EUI-64 can be used.
-
-> Given that AF_VSOCK in Linux already exists in the 32-bit CID version,
-> I'd prefer to make virtio-vsock compatible with that for the time being.
-
-Yes, so we cut corners in order to ship it quickly,
-but that is implementation. Linux can be extended.
-Why limit the protocol to follow current implementation bugs?
-
-> Extensions can be added in the future but just implementing existing
-> AF_VSOCK semantics will already allow the applications to run.
-
-It's an important goal. At the spec level, I do not think
-it is a good idea to put this limitation in, but users can
-just use a subset of the available address space in order
-to make existing apps work.
-
-> > > 2. Dropping guest CIDs from the protocol breaks network protocols that
-> > >    send addresses.
-> > 
-> > Stick it in config space if you really have to.
-> > But why do you need it on each packet?
-> 
-> If packets are implicitly guest<->host then adding guest<->guest
-> communication requires a virtio spec change.  If packets contain
-> source/destination CIDs then allowing/forbidding guest<->host or
-> guest<->guest communication is purely a host policy decision.  I think
-> it's worth keeping that in from the start.
-
-OK.
 
 
+On 2016/3/11 15:30, Minchan Kim wrote:
+> Every zspage in a size_class has same number of max objects so
+> we could move it to a size_class.
+>
+> Signed-off-by: Minchan Kim <minchan@kernel.org>
+> ---
+>   mm/zsmalloc.c | 29 ++++++++++++++---------------
+>   1 file changed, 14 insertions(+), 15 deletions(-)
+>
+> diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
+> index b4fb11831acb..ca663c82c1fc 100644
+> --- a/mm/zsmalloc.c
+> +++ b/mm/zsmalloc.c
+> @@ -32,8 +32,6 @@
+>    *	page->freelist: points to the first free object in zspage.
+>    *		Free objects are linked together using in-place
+>    *		metadata.
+> - *	page->objects: maximum number of objects we can store in this
+> - *		zspage (class->zspage_order * PAGE_SIZE / class->size)
+>    *	page->lru: links together first pages of various zspages.
+>    *		Basically forming list of zspages in a fullness group.
+>    *	page->mapping: class index and fullness group of the zspage
+> @@ -211,6 +209,7 @@ struct size_class {
+>   	 * of ZS_ALIGN.
+>   	 */
+>   	int size;
+> +	int objs_per_zspage;
+>   	unsigned int index;
+>
+>   	struct zs_size_stat stats;
+> @@ -622,21 +621,22 @@ static inline void zs_pool_stat_destroy(struct zs_pool *pool)
+>    * the pool (not yet implemented). This function returns fullness
+>    * status of the given page.
+>    */
+> -static enum fullness_group get_fullness_group(struct page *first_page)
+> +static enum fullness_group get_fullness_group(struct size_class *class,
+> +						struct page *first_page)
+>   {
+> -	int inuse, max_objects;
+> +	int inuse, objs_per_zspage;
+>   	enum fullness_group fg;
+>
+>   	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
+>
+>   	inuse = first_page->inuse;
+> -	max_objects = first_page->objects;
+> +	objs_per_zspage = class->objs_per_zspage;
+>
+>   	if (inuse == 0)
+>   		fg = ZS_EMPTY;
+> -	else if (inuse == max_objects)
+> +	else if (inuse == objs_per_zspage)
+>   		fg = ZS_FULL;
+> -	else if (inuse <= 3 * max_objects / fullness_threshold_frac)
+> +	else if (inuse <= 3 * objs_per_zspage / fullness_threshold_frac)
+>   		fg = ZS_ALMOST_EMPTY;
+>   	else
+>   		fg = ZS_ALMOST_FULL;
+> @@ -723,7 +723,7 @@ static enum fullness_group fix_fullness_group(struct size_class *class,
+>   	enum fullness_group currfg, newfg;
+>
+>   	get_zspage_mapping(first_page, &class_idx, &currfg);
+> -	newfg = get_fullness_group(first_page);
+> +	newfg = get_fullness_group(class, first_page);
+>   	if (newfg == currfg)
+>   		goto out;
+>
+> @@ -1003,9 +1003,6 @@ static struct page *alloc_zspage(struct size_class *class, gfp_t flags)
+>   	init_zspage(class, first_page);
+>
+>   	first_page->freelist = location_to_obj(first_page, 0);
+> -	/* Maximum number of objects we can store in this zspage */
+> -	first_page->objects = class->pages_per_zspage * PAGE_SIZE / class->size;
+> -
+>   	error = 0; /* Success */
+>
+>   cleanup:
+> @@ -1235,11 +1232,11 @@ static bool can_merge(struct size_class *prev, int size, int pages_per_zspage)
+>   	return true;
+>   }
+>
+> -static bool zspage_full(struct page *first_page)
+> +static bool zspage_full(struct size_class *class, struct page *first_page)
+>   {
+>   	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
+>
+> -	return first_page->inuse == first_page->objects;
+> +	return first_page->inuse == class->objs_per_zspage;
+>   }
+>
+>   unsigned long zs_get_total_pages(struct zs_pool *pool)
+> @@ -1625,7 +1622,7 @@ static int migrate_zspage(struct zs_pool *pool, struct size_class *class,
+>   		}
+>
+>   		/* Stop if there is no more space */
+> -		if (zspage_full(d_page)) {
+> +		if (zspage_full(class, d_page)) {
+>   			unpin_tag(handle);
+>   			ret = -ENOMEM;
+>   			break;
+> @@ -1684,7 +1681,7 @@ static enum fullness_group putback_zspage(struct zs_pool *pool,
+>   {
+>   	enum fullness_group fullness;
+>
+> -	fullness = get_fullness_group(first_page);
+> +	fullness = get_fullness_group(class, first_page);
+>   	insert_zspage(class, fullness, first_page);
+>   	set_zspage_mapping(first_page, class->index, fullness);
+>
+> @@ -1933,6 +1930,8 @@ struct zs_pool *zs_create_pool(const char *name, gfp_t flags)
+>   		class->size = size;
+>   		class->index = i;
+>   		class->pages_per_zspage = pages_per_zspage;
+> +		class->objs_per_zspage = class->pages_per_zspage *
+> +						PAGE_SIZE / class->size;
+>   		if (pages_per_zspage == 1 &&
+>   			get_maxobj_per_zspage(size, pages_per_zspage) == 1)
+>   			class->huge = true;
 
-> > >  NFS and netperf are the first two protocols I looked
-> > >    at and both transmit address information across the connection...
-> > 
-> > 
-> > Does netperf really attempt to get local IP
-> > and then send that inline within the connection?
-> 
-> Yes, netperf has separate control and data sockets.  I think part of the
-> reason for this split is that the control connection can communicate the
-> address details for the data connection over a different protocol (TCP +
-> RDMA?), but I'm not sure.
-> 
-> Stefan
+		computes the "objs_per_zspage" twice here.
 
-Thinking about it, netperf does not survive disconnects.
-So the current protocol would be useless for it.
-I am not sure about NFS but from (long past) experience it did not
-attempt to re-resolve the name to address, so changing an
-address would break it as well.
+		class->objs_per_zspage = get_maxobj_per_zspage(size,
+						pages_per_zspage);
+		if (pages_per_zspage == 1 && class->objs_per_zspage ==1)
+			class->huge = true;
 
-So I think these applications would have to use a 64 bit CID.
-
-Why, then, do we care about one aspect of these applications
-(creating connections) and not another (not breaking them)?
-
--- 
-MST
+>
