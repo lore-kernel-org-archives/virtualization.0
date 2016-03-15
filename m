@@ -1,16 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] virtio-vsock live migration
-Date: Tue, 15 Mar 2016 18:12:55 +0200
-Message-ID: <20160315180916-mutt-send-email-mst__49775.7874815308$1458058398$gmane$org@redhat.com>
-References: <20160303153737.GA19780@stefanha-x1.localdomain>
-	<20160314130150-mutt-send-email-mst@redhat.com>
-	<20160315151529.GB26263@stefanha-x1.localdomain>
+From: Vlastimil Babka <vbabka@suse.cz>
+Subject: Re: [PATCH v1 01/19] mm: use put_page to free page instead of
+	putback_lru_page
+Date: Tue, 15 Mar 2016 20:06:21 +0100
+Message-ID: <56E85D2D.6050808__42044.276421848$1458068806$gmane$org@suse.cz>
+References: <1457681423-26664-1-git-send-email-minchan@kernel.org>
+	<1457681423-26664-2-git-send-email-minchan@kernel.org>
+	<56E67AE1.60700@suse.cz> <20160315011656.GD19514@bbox>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160315151529.GB26263@stefanha-x1.localdomain>
+In-Reply-To: <20160315011656.GD19514@bbox>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,70 +20,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Matt Benjamin <mbenjamin@redhat.com>, virtualization@lists.linux-foundation.org, Christoffer Dall <christoffer.dall@linaro.org>
+To: Minchan Kim <minchan@kernel.org>
+Cc: jlayton@poochiereds.net, Rik van Riel <riel@redhat.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gurugio@hanmail.net>, Mel Gorman <mgorman@suse.de>, Andrew Morton <akpm@linux-foundation.org>, Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, koct9i@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 15, 2016 at 03:15:29PM +0000, Stefan Hajnoczi wrote:
-> On Mon, Mar 14, 2016 at 01:13:24PM +0200, Michael S. Tsirkin wrote:
-> > On Thu, Mar 03, 2016 at 03:37:37PM +0000, Stefan Hajnoczi wrote:
-> > > Michael pointed out that the virtio-vsock draft specification does not
-> > > address live migration and in fact currently precludes migration.
-> > > 
-> > > Migration is fundamental so the device specification at least mustn't
-> > > preclude it.  Having brainstormed migration with Matthew Benjamin and
-> > > Michael Tsirkin, I am now summarizing the approach that I want to
-> > > include in the next draft specification.
-> > > 
-> > > Feedback and comments welcome!  In the meantime I will implement this in
-> > > code and update the draft specification.
-> > 
-> > Most of the issue seems to be a consequence of using a 4 byte CID.
-> > 
-> > I think the right thing to do is just to teach guests
-> > about 64 bit CIDs.
-> > 
-> > For now, can we drop guest CID from guest to host communication completely,
-> > making CID only host-visible? Maybe leave the space
-> > in the packet so we can add CID there later.
-> > It seems that in theory this will allow changing CID
-> > during migration, transparently to the guest.
-> > 
-> > Guest visible CID is required for guest to guest communication -
-> > but IIUC that is not currently supported.
-> > Maybe that can be made conditional on 64 bit addressing.
-> > Alternatively, it seems much easier to accept that these channels get broken
-> > across migration.
+On 15.3.2016 2:16, Minchan Kim wrote:
+> On Mon, Mar 14, 2016 at 09:48:33AM +0100, Vlastimil Babka wrote:
+>> On 03/11/2016 08:30 AM, Minchan Kim wrote:
+>>
+>> Yeah, and compaction (perhaps also other migration users) has to
+>> drain the lru pvec... Getting rid of this stuff is worth even by
+>> itself.
 > 
-> I reached the conclusion that channels break across migration because:
-> 
-> 1. 32-bit CIDs are in sockaddr_vm and we'd break AF_VSOCK ABI by
->    changing it to 64-bit.  Application code would be specific
->    virtio-vsock and wouldn't work with other AF_VSOCK transports that
->    use the 32-bit sockaddr_vm struct.
+> Good note. Although we cannot remove lru pvec draining completely,
+> at least, this patch removes a case which should drain pvec for
+> returning freed page to buddy.
 
-You don't have to repeat the IPv6 mistake.  Make all 32 bit CIDs
-64 bit CIDs by padding with 0s, then 64 bit apps can use
-any CID.
-
-Old 32 bit CID applications will not be able to use the extended
-addresses, but hardcoding bugs
-does not seem sane.
-
-
-> 2. Dropping guest CIDs from the protocol breaks network protocols that
->    send addresses.
-
-Stick it in config space if you really have to.
-But why do you need it on each packet?
-
->  NFS and netperf are the first two protocols I looked
->    at and both transmit address information across the connection...
-
-
-Does netperf really attempt to get local IP
-and then send that inline within the connection?
-
-
--- 
-MST
+And this is in fact the only interesting case, right. The migrated page (at its
+new target) doesn't concern compaction that much, that can go to lru pvec just
+fine. But we do want the freed buddy pages to merge ASAP. I guess that's the
+same for CMA, page isolation...
