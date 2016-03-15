@@ -1,23 +1,16 @@
-From: "Dr. David Alan Gilbert" <dgilbert@redhat.com>
-Subject: Re: [RFC qemu 0/4] A PV solution for live migration optimization
-Date: Tue, 15 Mar 2016 19:55:16 +0000
-Message-ID: <20160315195515.GL11728@work-vm>
-References: <1457001868-15949-1-git-send-email-liang.z.li@intel.com>
-	<20160308111343.GM15443@grmbl.mre>
-	<F2CBF3009FA73547804AE4C663CAB28E0414A7E3@shsmsx102.ccr.corp.intel.com>
-	<20160310075728.GB4678@grmbl.mre>
-	<F2CBF3009FA73547804AE4C663CAB28E0414A860@shsmsx102.ccr.corp.intel.com>
-	<20160310111844.GB2276@work-vm>
-	<F2CBF3009FA73547804AE4C663CAB28E0414B118@shsmsx102.ccr.corp.intel.com>
-	<20160314170334.GK2234@work-vm>
-	<20160315121613-mutt-send-email-mst@redhat.com>
-	<F2CBF3009FA73547804AE4C663CAB28E0414E385@shsmsx102.ccr.corp.intel.com>
+From: Aaron Conole <aconole@redhat.com>
+Subject: Re: [RFC -next 2/2] virtio_net: Read and use the advised MTU
+Date: Tue, 15 Mar 2016 16:52:39 -0400
+Message-ID: <f7tmvpz8nvs.fsf@redhat.com>
+References: <1457620092-24170-1-git-send-email-aconole@redhat.com>
+	<1457620092-24170-3-git-send-email-aconole@redhat.com>
+	<1457621848.9753.44.camel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <F2CBF3009FA73547804AE4C663CAB28E0414E385@shsmsx102.ccr.corp.intel.com>
+In-Reply-To: <1457621848.9753.44.camel@redhat.com> (Paolo Abeni's message of
+	"Thu, 10 Mar 2016 15:57:28 +0100")
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,101 +20,95 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Li, Liang Z" <liang.z.li@intel.com>
-Cc: "ehabkost@redhat.com" <ehabkost@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "simhan@hpe.com" <simhan@hpe.com>, "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "jitendra.kolhe@hpe.com" <jitendra.kolhe@hpe.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "mohan_parthasarathy@hpe.com" <mohan_parthasarathy@hpe.com>, Amit Shah <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "rth@twiddle.net" <rth@twiddle.net>
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Li, Liang Z (liang.z.li@intel.com) wrote:
-> > On Mon, Mar 14, 2016 at 05:03:34PM +0000, Dr. David Alan Gilbert wrote:
-> > > * Li, Liang Z (liang.z.li@intel.com) wrote:
-> > > > >
-> > > > > Hi,
-> > > > >   I'm just catching back up on this thread; so without reference
-> > > > > to any particular previous mail in the thread.
-> > > > >
-> > > > >   1) How many of the free pages do we tell the host about?
-> > > > >      Your main change is telling the host about all the
-> > > > >      free pages.
-> > > >
-> > > > Yes, all the guest's free pages.
-> > > >
-> > > > >      If we tell the host about all the free pages, then we might
-> > > > >      end up needing to allocate more pages and update the host
-> > > > >      with pages we now want to use; that would have to wait for the
-> > > > >      host to acknowledge that use of these pages, since if we don't
-> > > > >      wait for it then it might have skipped migrating a page we
-> > > > >      just started using (I don't understand how your series solves that).
-> > > > >      So the guest probably needs to keep some free pages - how many?
-> > > >
-> > > > Actually, there is no need to care about whether the free pages will be
-> > used by the host.
-> > > > We only care about some of the free pages we get reused by the guest,
-> > right?
-> > > >
-> > > > The dirty page logging can be used to solve this, starting the dirty
-> > > > page logging before getting the free pages informant from guest.
-> > > > Even some of the free pages are modified by the guest during the
-> > > > process of getting the free pages information, these modified pages will
-> > be traced by the dirty page logging mechanism. So in the following
-> > migration_bitmap_sync() function.
-> > > > The pages in the free pages bitmap, but latter was modified, will be
-> > > > reset to dirty. We won't omit any dirtied pages.
-> > > >
-> > > > So, guest doesn't need to keep any free pages.
-> > >
-> > > OK, yes, that works; so we do:
-> > >   * enable dirty logging
-> > >   * ask guest for free pages
-> > >   * initialise the migration bitmap as everything-free
-> > >   * then later we do the normal sync-dirty bitmap stuff and it all just works.
-> > >
-> > > That's nice and simple.
-> > 
-> > This works once, sure. But there's an issue is that you have to defer migration
-> > until you get the free page list, and this only works once. So you end up with
-> > heuristics about how long to wait.
-> > 
-> > Instead I propose:
-> > 
-> > - mark all pages dirty as we do now.
-> > 
-> > - at start of migration, start tracking dirty
-> >   pages in kvm, and tell guest to start tracking free pages
-> > 
-> > we can now introduce any kind of delay, for example wait for ack from guest,
-> > or do whatever else, or even just start migrating pages
-> > 
-> > - repeatedly:
-> > 	- get list of free pages from guest
-> > 	- clear them in migration bitmap
-> > 	- get dirty list from kvm
-> > 
-> > - at end of migration, stop tracking writes in kvm,
-> >   and tell guest to stop tracking free pages
-> 
-> I had thought of filtering out the free pages in each migration bitmap synchronization. 
-> The advantage is we can skip process as many free pages as possible. Not just once.
-> The disadvantage is that we should change the current memory management code to track the free pages,
-> instead of traversing the free page list to construct the free pages bitmap, to reduce the overhead to get the free pages bitmap.
-> I am not sure the if the Kernel people would like it.
-> 
-> If keeping the traversing mechanism, because of the overhead, maybe it's not worth to filter out the free pages repeatedly.
+Paolo Abeni <pabeni@redhat.com> writes:
 
-Well, Michael's idea of not waiting for the dirty
-bitmap to be filled does make that idea of constnatly
-using the free-bitmap better.
+> On Thu, 2016-03-10 at 09:28 -0500, Aaron Conole wrote:
+>> This patch checks the feature bit for the VIRTIO_NET_F_MTU feature. If it
+>> exists, read the advised MTU and use it.
+>> 
+>> No proper error handling is provided for the case where a user changes the
+>> negotiated MTU. A future commit will add proper error handling. Instead, a
+>> warning is emitted if the guest changes the device MTU after previously being
+>> given advice.
+>> 
+>> Signed-off-by: Aaron Conole <aconole@redhat.com>
+>> ---
+>>  drivers/net/virtio_net.c | 15 ++++++++++++++-
+>>  1 file changed, 14 insertions(+), 1 deletion(-)
+>> 
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index 767ab11..7175563 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -146,6 +146,7 @@ struct virtnet_info {
+>>  	virtio_net_ctrl_ack ctrl_status;
+>>  	u8 ctrl_promisc;
+>>  	u8 ctrl_allmulti;
+>> +	bool negotiated_mtu;
+>>  };
+>>  
+>>  struct padded_vnet_hdr {
+>> @@ -1390,8 +1391,12 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
+>>  
+>>  static int virtnet_change_mtu(struct net_device *dev, int new_mtu)
+>>  {
+>> +	struct virtnet_info *vi = netdev_priv(dev);
+>>  	if (new_mtu < MIN_MTU || new_mtu > MAX_MTU)
+>>  		return -EINVAL;
+>> +	if (vi->negotiated_mtu == true) {
+>
+> why don't:
+>
+> if ((vi->negotiated_mtu == true) && (dev->mtu != new_mtu))
+>
+> ?
 
-In that case, is it easier if something (guest/host?)
-allocates some memory in the guests physical RAM space
-and just points the host to it, rather than having an 
-explicit 'send'.
+Okay, I'll put this test in.
 
-Dave
+>> +		pr_warn("changing mtu from negotiated mtu.");
+>> +	}
+>>  	dev->mtu = new_mtu;
+>>  	return 0;
+>>  }
+>> @@ -1836,6 +1841,13 @@ static int virtnet_probe(struct virtio_device *vdev)
+>>  	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_VQ))
+>>  		vi->has_cvq = true;
+>>  
+>> +	if (virtio_has_feature(vdev, VIRTIO_NET_F_MTU)) {
+>> +		vi->negotiated_mtu = true;
+>> +		dev->mtu = virtio_cread16(vdev,
+>> +					  offsetof(struct virtio_net_config,
+>> +						   mtu));
+>> +	}
+>> +
+>>  	if (vi->any_header_sg)
+>>  		dev->needed_headroom = vi->hdr_len;
+>>  
+>> @@ -2017,8 +2029,9 @@ static unsigned int features[] = {
+>>  	VIRTIO_NET_F_MRG_RXBUF, VIRTIO_NET_F_STATUS, VIRTIO_NET_F_CTRL_VQ,
+>>  	VIRTIO_NET_F_CTRL_RX, VIRTIO_NET_F_CTRL_VLAN,
+>>  	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ,
+>> -	VIRTIO_NET_F_CTRL_MAC_ADDR,
+>> +	VIRTIO_NET_F_CTRL_MAC_ADDR, 
+>
+> Here a trailing white space slipped-in.
+>
+> Otherwise LGTM.
+>
+> Paolo
 
-> Liang
-> 
-> 
-> 
-> 
---
-Dr. David Alan Gilbert / dgilbert@redhat.com / Manchester, UK
+D'oh! Okay, v2 will have this fixed.
+
+>>  	VIRTIO_F_ANY_LAYOUT,
+>> +	VIRTIO_NET_F_MTU,
+>>  };
+>>  
+>>  static struct virtio_driver virtio_net_driver = {
+
+Thanks so much for the review, Paolo!
+
+-Aaron
