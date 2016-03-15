@@ -1,17 +1,15 @@
-From: Minchan Kim <minchan@kernel.org>
-Subject: Re: [PATCH v1 01/19] mm: use put_page to free page instead of
-	putback_lru_page
-Date: Tue, 15 Mar 2016 10:16:56 +0900
-Message-ID: <20160315011656.GD19514@bbox>
-References: <1457681423-26664-1-git-send-email-minchan@kernel.org>
-	<1457681423-26664-2-git-send-email-minchan@kernel.org>
-	<56E67AE1.60700@suse.cz>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V4 0/3] basic busy polling support for vhost_net
+Date: Tue, 15 Mar 2016 11:10:44 +0800
+Message-ID: <56E77D34.3050104@redhat.com>
+References: <1457090693-55974-1-git-send-email-jasowang@redhat.com>
+	<20160309202645.030ad7b2@bahia.lab.toulouse-stg.fr.ibm.com>
+	<201603100648.u2A6mSTl020833@d06av07.portsmouth.uk.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <56E67AE1.60700@suse.cz>
+In-Reply-To: <201603100648.u2A6mSTl020833@d06av07.portsmouth.uk.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,68 +19,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vlastimil Babka <vbabka@suse.cz>
-Cc: jlayton@poochiereds.net, Rik van Riel <riel@redhat.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gurugio@hanmail.net>, Mel Gorman <mgorman@suse.de>, Andrew Morton <akpm@linux-foundation.org>, Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, koct9i@gmail.com
+To: Michael Rapoport <RAPOPORT@il.ibm.com>, Greg Kurz <gkurz@linux.vnet.ibm.com>
+Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, borntraeger@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Mar 14, 2016 at 09:48:33AM +0100, Vlastimil Babka wrote:
-> On 03/11/2016 08:30 AM, Minchan Kim wrote:
-> >Procedure of page migration is as follows:
-> >
-> >First of all, it should isolate a page from LRU and try to
-> >migrate the page. If it is successful, it releases the page
-> >for freeing. Otherwise, it should put the page back to LRU
-> >list.
-> >
-> >For LRU pages, we have used putback_lru_page for both freeing
-> >and putback to LRU list. It's okay because put_page is aware of
-> >LRU list so if it releases last refcount of the page, it removes
-> >the page from LRU list. However, It makes unnecessary operations
-> >(e.g., lru_cache_add, pagevec and flags operations.
-> 
-> Yeah, and compaction (perhaps also other migration users) has to
-> drain the lru pvec... Getting rid of this stuff is worth even by
-> itself.
 
-Good note. Although we cannot remove lru pvec draining completely,
-at least, this patch removes a case which should drain pvec for
-returning freed page to buddy.
 
-Thanks for the notice.
+On 03/10/2016 02:48 PM, Michael Rapoport wrote:
+> Hi Greg,
+>
+>> > Greg Kurz <gkurz@linux.vnet.ibm.com> wrote on 03/09/2016 09:26:45 PM:
+>>> > > On Fri,  4 Mar 2016 06:24:50 -0500
+>>> > > Jason Wang <jasowang@redhat.com> wrote:
+>> > 
+>>> > > This series tries to add basic busy polling for vhost net. The idea is
+>>> > > simple: at the end of tx/rx processing, busy polling for new tx added
+>>> > > descriptor and rx receive socket for a while. The maximum number of
+>>> > > time (in us) could be spent on busy polling was specified ioctl.
+>>> > > 
+>>> > > Test A were done through:
+>>> > > 
+>>> > > - 50 us as busy loop timeout
+>>> > > - Netperf 2.6
+>>> > > - Two machines with back to back connected mlx4
+>> > 
+>> > Hi Jason,
+>> > 
+>> > Could this also improve performance if both VMs are
+>> > on the same host system ?
+> I've experimented a little with Jason's patches and guest-to-guest netperf 
+> when both guests were on the same host, and I saw improvements for that 
+> case.
+>  
 
-> 
-> >It would be
-> >not significant but no worth to do) and harder to support new
-> >non-lru page migration because put_page isn't aware of non-lru
-> >page's data structure.
-> >
-> >To solve the problem, we can add new hook in put_page with
-> >PageMovable flags check but it can increase overhead in
-> >hot path and needs new locking scheme to stabilize the flag check
-> >with put_page.
-> >
-> >So, this patch cleans it up to divide two semantic(ie, put and putback).
-> >If migration is successful, use put_page instead of putback_lru_page and
-> >use putback_lru_page only on failure. That makes code more readable
-> >and doesn't add overhead in put_page.
-> 
-> I had an idea of checking for count==1 in putback_lru_page() which
-> would take the put_page() shortcut from there. But maybe it can't be
-> done nicely without races.
+Good to know this, I haven't tested this before but from the codes, it
+should work for VM2VM case too.
 
-I thought about it and we might do it via page_freeze_refs but
-what I want at this moment is to separte two semantic put and putback.
-;-)
-
-> 
-> >Cc: Vlastimil Babka <vbabka@suse.cz>
-> >Cc: Mel Gorman <mgorman@suse.de>
-> >Cc: Hugh Dickins <hughd@google.com>
-> >Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-> >Signed-off-by: Minchan Kim <minchan@kernel.org>
-> 
-> Acked-by: Vlastimil Babka <vbabka@suse.cz>
-> 
-> Note in -next/after 4.6-rc1 this will need some rebasing though.
-
-Thanks for the review!
+Thanks a lot for the testing.
