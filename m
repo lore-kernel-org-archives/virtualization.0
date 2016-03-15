@@ -1,13 +1,13 @@
 From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: virtio-vsock live migration
-Date: Tue, 15 Mar 2016 15:10:37 +0000
-Message-ID: <20160315151037.GA26263@stefanha-x1.localdomain>
+Subject: Re: [virtio-dev] virtio-vsock live migration
+Date: Tue, 15 Mar 2016 15:15:29 +0000
+Message-ID: <20160315151529.GB26263__43994.4844147705$1458057298$gmane$org@stefanha-x1.localdomain>
 References: <20160303153737.GA19780@stefanha-x1.localdomain>
-	<20160311014147-mutt-send-email-mst@redhat.com>
+	<20160314130150-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3443300674119373885=="
+Content-Type: multipart/mixed; boundary="===============7232141449177365250=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160311014147-mutt-send-email-mst@redhat.com>
+In-Reply-To: <20160314130150-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,18 +22,18 @@ Cc: virtio-dev@lists.oasis-open.org, Claudio Imbrenda <imbrenda@linux.vnet.ibm.c
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============3443300674119373885==
+--===============7232141449177365250==
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
+	protocol="application/pgp-signature"; boundary="3lcZGd9BuhuYXNfi"
 Content-Disposition: inline
 
 
---ikeVEW9yuYc//A+q
+--3lcZGd9BuhuYXNfi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 11, 2016 at 01:56:05AM +0200, Michael S. Tsirkin wrote:
+On Mon, Mar 14, 2016 at 01:13:24PM +0200, Michael S. Tsirkin wrote:
 > On Thu, Mar 03, 2016 at 03:37:37PM +0000, Stefan Hajnoczi wrote:
 > > Michael pointed out that the virtio-vsock draft specification does not
 > > address live migration and in fact currently precludes migration.
@@ -45,158 +45,55 @@ On Fri, Mar 11, 2016 at 01:56:05AM +0200, Michael S. Tsirkin wrote:
 > >=20
 > > Feedback and comments welcome!  In the meantime I will implement this in
 > > code and update the draft specification.
-> >=20
-> > 1. Requirements
-> >=20
-> > Virtio-vsock is a new AF_VSOCK transport.  As such, it should provide at
-> > least the same guarantees as the existing AF_VSOCK VMCI transport.  This
-> > is for consistency and to allow code reuse across any AF_VSOCK
-> > transport.
-> >=20
-> > Virtio-vsock aims to replace virtio-serial by providing the same
-> > guest/host communication ability but with sockets API semantics that are
-> > more popular and convenient for application developers.  Therefore
-> > virtio-vsock migration should provide at least the same level of
-> > migration functionality as virtio-serial.
-> >=20
-> > Ideally it should be possible to migrate applications using AF_VSOCK
-> > together with the virtual machine so that guest<->host communication is
-> > interrupted.  Neither AF_VSOCK VMCI nor virtio-serial support this
-> > today.
 >=20
-> I'm not sure why do you say this about virtio serial.
-> It appears that if host pre-connected to destination
-> qemu before migration, backend reconnects transparently
-> on destination.
-
-You are right, virtio-serial supports keeping active ports open across
-migration (as well as closing active ports across migration).  In
-virtio-vsock the equivalent would be setsockopt() CRIU-style socket
-migration which is not implemented today.
-
-> > 2. Basic disruptive migration flow
-> >=20
-> > When the virtual machine migrates from the source host to the
-> > destination host, the guest's CID may change.  The CID namespace is
-> > host-wide
+> Most of the issue seems to be a consequence of using a 4 byte CID.
 >=20
+> I think the right thing to do is just to teach guests
+> about 64 bit CIDs.
 >=20
-> BTW, I think CIDs would have to become per network namespace.
-
-Yes, I agree.
-
-> > so other hosts may have CID collisions and allocate a new CID
-> > for incoming migration VMs.
+> For now, can we drop guest CID from guest to host communication completel=
+y,
+> making CID only host-visible? Maybe leave the space
+> in the packet so we can add CID there later.
+> It seems that in theory this will allow changing CID
+> during migration, transparently to the guest.
 >=20
-> I guess all this is so that guest can retrieve its CID and
-> send it to host using some side-channel?
+> Guest visible CID is required for guest to guest communication -
+> but IIUC that is not currently supported.
+> Maybe that can be made conditional on 64 bit addressing.
+> Alternatively, it seems much easier to accept that these channels get bro=
+ken
+> across migration.
 
-Yes.
+I reached the conclusion that channels break across migration because:
 
-> > The device notifies the guest that the CID has changed.  Guest sockets
-> > are affected as follows:
-> >=20
-> >  * Established connections are reset (ECONNRESET) and the guest
-> >    application will have to reconnect.
-> >=20
-> >  * Listen sockets remain open.  The only thing to note is that
-> >    connections from the host are now made to the new CID.  This means
-> >    the local address of the listen socket is automatically updated to
-> >    the new CID.
-> >=20
-> >  * Sockets in other states are unchanged.
-> >=20
-> > Applications must handle disruptive migration by reconnecting if
-> > necessary after ECONNRESET.
-> >=20
-> > 3. Checkpoint/restore for seamless migration
-> >=20
-> > Applications that wish to communicate across live migration can do so
-> > but this requires extra application-specific checkpoint/restore code.
-> >=20
-> > This is similar to the approach taken by the CRIU project where
-> > getsockopt()/setsockopt() is used to migrate socket state.  The
-> > difference is that the application process is not automatically migrated
-> > from the source host to the destination host.  Therefore, the
-> > application needs to migrate its own state somehow.
-> >=20
-> > The flow is as follows:
-> >=20
-> > The application on the source host must quiesce (stop sending/receiving)
-> > and use getsockopt() to extract socket state information from the host
-> > kernel.
-> >=20
-> > A new instance of the application is started on the destination host and
-> > given the state so it can restore the connection.  The setsockopt()
-> > syscall is used to restore socket state information.
-> >=20
-> > The guest is given a list of <host_old_cid, host_new_cid, host_port,
-> > guest_port> tuples for established connections that must not be reset
-> > when the guest CID update notification is received.  These connections
-> > will carry on as if nothing changed.
-> >=20
-> > Note that the connection's remote address is updated from host_old_cid
-> > to host_new_cid.  This allows remapping of CIDs (if necessary).
-> > Typically this will be unused because the host always has well-known CID
-> > 2.  In a guest<->guest scenario it may be used to remap CIDs.
-> >=20
-> >=20
-> > For the time being I am focussing on the basic disruptive migration flow
-> > only.  Checkpoint/restore can be added with a feature bit in the future.
-> > It is a lot more complex and I'm not sure whether there will be any
-> > users yet.
-> >=20
-> > Stefan
->=20
-> This makes some things harder. For example, imagine a guest
-> reboot mixed with migration. We don't know why did the connection
-> die, so we'll retry connections until - when?
->=20
-> Could you please describe some user of vsock and show how
-> it recovers from destructive migration?
+1. 32-bit CIDs are in sockaddr_vm and we'd break AF_VSOCK ABI by
+   changing it to 64-bit.  Application code would be specific
+   virtio-vsock and wouldn't work with other AF_VSOCK transports that
+   use the 32-bit sockaddr_vm struct.
 
-qemu-guest-agent runs inside the guest with an AF_VSOCK listen socket.
+2. Dropping guest CIDs from the protocol breaks network protocols that
+   send addresses.  NFS and netperf are the first two protocols I looked
+   at and both transmit address information across the connection...
 
-libvirt arbitrates the qemu-guest-agent connection and provides an API
-for applications to send commands.
-
-When an application sends a command, libvirt checks if the connection to
-qemu-guest-agent is established.  If there is no connection libvirt will
-attempt to connect.
-
-The command is sent to qemu-guest-agent and the response is handed back
-to the guest application.  libvirt arbitrates access so commands from
-multiple applications are serialized.
-
-Live migration resets the established connection between
-qemu-guest-agent and the source host's libvirt daemon.  When an
-application issues the next qemu-guest-agent command the libvirt daemon
-on the destination host notices there is no established connection yet
-and starts a new one.
-
-Libvirt refuses to send qemu-guest-agent commands while live migration
-is in progress.
-
-Stefan
-
---ikeVEW9yuYc//A+q
+--3lcZGd9BuhuYXNfi
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQEcBAEBAgAGBQJW6CXtAAoJEJykq7OBq3PI99wIALdHrU0MJhYptbkFhyGSoB4X
-6NOiA9cfWaDQ9xZEdzuMko0+E6eLwudTSkjHfFLVSwtFEC1ywE5KZgOa4vu3mJ2S
-RjQzKZTvnx2ArTjoLwTatlVkW9YKEkng8Gb8F2A3FFflCGq2rmPSY08jJNXMc+Jm
-Vllu9sBDEvmEvSUTRKPDLqJSMqOnWcJDlA0j4iYYg6YMHuRogG8eAewHGWFzXPRD
-cuvzA1C0Pt5ezXXMyV67WM8cfFXX7AryxNgltTU72Ibvpc5FGLtMCRruIZBCCLv3
-EZEqrK+zE2kS3Di++5fBI6HmUcOJckF5rH6gV8FjF5/mI7Top/oVdmpsQym6IMg=
-=/xE+
+iQEcBAEBAgAGBQJW6CcRAAoJEJykq7OBq3PI5DwH/i5jb7qIf+pE0TgZtLiHooB3
+mkcevwHgsni+nMp6LozW/UQGuPkMlPYjklnSwI2kvROg8YziV15xZGOzVQ1IffHe
+4bg7Ns7QDW8DVbzQ8nIRUOPiUtVRNsV5pHr1G2o8W7CJj/C33bVrYX8oQf+2o0/H
+hQ8W7VpFVvJ4ff5lFF64AKl0CaST+j8Yf4EOML0Az8ZRUwccGwSjcful7u8xkARK
+WfbJwOR/AQZQbMpAUaSCuP8wdrJATG16JOSeADzRLCRGYC9DDUUjInFNFz17Jbcj
+9qr041lFDgYv/L8G1AzIhjaOLzuhrx+YQB2t616SQJwo65EMAI5CYNSUnadaDnU=
+=/41a
 -----END PGP SIGNATURE-----
 
---ikeVEW9yuYc//A+q--
+--3lcZGd9BuhuYXNfi--
 
---===============3443300674119373885==
+--===============7232141449177365250==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -206,4 +103,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3443300674119373885==--
+--===============7232141449177365250==--
