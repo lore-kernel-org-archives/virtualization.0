@@ -1,15 +1,15 @@
 From: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-Subject: Re: [PATCH v1 09/19] zsmalloc: keep max_object in size_class
-Date: Tue, 15 Mar 2016 15:28:24 +0900
-Message-ID: <20160315062824.GE1464__15956.2733992518$1458151242$gmane$org@swordfish>
+Subject: Re: [PATCH v1 11/19] zsmalloc: squeeze freelist into page->mapping
+Date: Tue, 15 Mar 2016 15:40:53 +0900
+Message-ID: <20160315064053.GF1464__33015.5382551768$1458151260$gmane$org@swordfish>
 References: <1457681423-26664-1-git-send-email-minchan@kernel.org>
-	<1457681423-26664-10-git-send-email-minchan@kernel.org>
+	<1457681423-26664-12-git-send-email-minchan@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1457681423-26664-10-git-send-email-minchan@kernel.org>
+In-Reply-To: <1457681423-26664-12-git-send-email-minchan@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,35 +24,44 @@ Cc: Rik van Riel <riel@redhat.com>, aquini@redhat.com, rknize@motorola.com, Serg
 List-Id: virtualization@lists.linuxfoundation.org
 
 On (03/11/16 16:30), Minchan Kim wrote:
-> Every zspage in a size_class has same number of max objects so
-> we could move it to a size_class.
-> 
-> Signed-off-by: Minchan Kim <minchan@kernel.org>
-> ---
->  mm/zsmalloc.c | 29 ++++++++++++++---------------
->  1 file changed, 14 insertions(+), 15 deletions(-)
-> 
-> diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
-> index b4fb11831acb..ca663c82c1fc 100644
-> --- a/mm/zsmalloc.c
-> +++ b/mm/zsmalloc.c
-> @@ -32,8 +32,6 @@
->   *	page->freelist: points to the first free object in zspage.
->   *		Free objects are linked together using in-place
->   *		metadata.
-> - *	page->objects: maximum number of objects we can store in this
-> - *		zspage (class->zspage_order * PAGE_SIZE / class->size)
->   *	page->lru: links together first pages of various zspages.
->   *		Basically forming list of zspages in a fullness group.
->   *	page->mapping: class index and fullness group of the zspage
-> @@ -211,6 +209,7 @@ struct size_class {
->  	 * of ZS_ALIGN.
->  	 */
->  	int size;
-> +	int objs_per_zspage;
->  	unsigned int index;
+> -static void *location_to_obj(struct page *page, unsigned long obj_idx)
+> +static void objidx_to_page_and_ofs(struct size_class *class,
+> +				struct page *first_page,
+> +				unsigned long obj_idx,
+> +				struct page **obj_page,
+> +				unsigned long *ofs_in_page)
 
-struct page ->objects "comes for free". now we don't use it, instead
-every size_class grows by 4 bytes? is there any reason for this?
+this looks big; 5 params, function "returning" both page and offset...
+any chance to split it in two steps, perhaps?
+
+besides, it is more intuitive (at least to me) when 'offset'
+shortened to 'offt', not 'ofs'.
 
 	-ss
+
+>  {
+> -	unsigned long obj;
+> +	int i;
+> +	unsigned long ofs;
+> +	struct page *cursor;
+> +	int nr_page;
+>  
+> -	if (!page) {
+> -		VM_BUG_ON(obj_idx);
+> -		return NULL;
+> -	}
+> +	ofs = obj_idx * class->size;
+> +	cursor = first_page;
+> +	nr_page = ofs >> PAGE_SHIFT;
+>  
+> -	obj = page_to_pfn(page) << OBJ_INDEX_BITS;
+> -	obj |= ((obj_idx) & OBJ_INDEX_MASK);
+> -	obj <<= OBJ_TAG_BITS;
+> +	*ofs_in_page = ofs & ~PAGE_MASK;
+> +
+> +	for (i = 0; i < nr_page; i++)
+> +		cursor = get_next_page(cursor);
+>  
+> -	return (void *)obj;
+> +	*obj_page = cursor;
+>  }
