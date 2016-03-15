@@ -1,15 +1,15 @@
 From: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-Subject: Re: [PATCH v1 08/19] zsmalloc: remove unused pool param in obj_free
-Date: Tue, 15 Mar 2016 15:21:52 +0900
-Message-ID: <20160315062152.GD1464__2063.8414928273$1458151231$gmane$org@swordfish>
+Subject: Re: [PATCH v1 09/19] zsmalloc: keep max_object in size_class
+Date: Tue, 15 Mar 2016 15:28:24 +0900
+Message-ID: <20160315062824.GE1464__15956.2733992518$1458151242$gmane$org@swordfish>
 References: <1457681423-26664-1-git-send-email-minchan@kernel.org>
-	<1457681423-26664-9-git-send-email-minchan@kernel.org>
+	<1457681423-26664-10-git-send-email-minchan@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1457681423-26664-9-git-send-email-minchan@kernel.org>
+In-Reply-To: <1457681423-26664-10-git-send-email-minchan@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,10 +24,35 @@ Cc: Rik van Riel <riel@redhat.com>, aquini@redhat.com, rknize@motorola.com, Serg
 List-Id: virtualization@lists.linuxfoundation.org
 
 On (03/11/16 16:30), Minchan Kim wrote:
-> Let's remove unused pool param in obj_free
+> Every zspage in a size_class has same number of max objects so
+> we could move it to a size_class.
 > 
 > Signed-off-by: Minchan Kim <minchan@kernel.org>
+> ---
+>  mm/zsmalloc.c | 29 ++++++++++++++---------------
+>  1 file changed, 14 insertions(+), 15 deletions(-)
+> 
+> diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
+> index b4fb11831acb..ca663c82c1fc 100644
+> --- a/mm/zsmalloc.c
+> +++ b/mm/zsmalloc.c
+> @@ -32,8 +32,6 @@
+>   *	page->freelist: points to the first free object in zspage.
+>   *		Free objects are linked together using in-place
+>   *		metadata.
+> - *	page->objects: maximum number of objects we can store in this
+> - *		zspage (class->zspage_order * PAGE_SIZE / class->size)
+>   *	page->lru: links together first pages of various zspages.
+>   *		Basically forming list of zspages in a fullness group.
+>   *	page->mapping: class index and fullness group of the zspage
+> @@ -211,6 +209,7 @@ struct size_class {
+>  	 * of ZS_ALIGN.
+>  	 */
+>  	int size;
+> +	int objs_per_zspage;
+>  	unsigned int index;
 
-Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+struct page ->objects "comes for free". now we don't use it, instead
+every size_class grows by 4 bytes? is there any reason for this?
 
 	-ss
