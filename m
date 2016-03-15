@@ -1,21 +1,16 @@
-From: "Li, Liang Z" <liang.z.li@intel.com>
-Subject: RE: [RFC qemu 0/4] A PV solution for live migration optimization
-Date: Tue, 15 Mar 2016 03:31:36 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E0414D67B__14078.8709199571$1458012733$gmane$org@shsmsx102.ccr.corp.intel.com>
-References: <1457001868-15949-1-git-send-email-liang.z.li@intel.com>
-	<20160308111343.GM15443@grmbl.mre>
-	<F2CBF3009FA73547804AE4C663CAB28E0414A7E3@shsmsx102.ccr.corp.intel.com>
-	<20160310075728.GB4678@grmbl.mre>
-	<F2CBF3009FA73547804AE4C663CAB28E0414A860@shsmsx102.ccr.corp.intel.com>
-	<20160310111844.GB2276@work-vm>
-	<F2CBF3009FA73547804AE4C663CAB28E0414B118@shsmsx102.ccr.corp.intel.com>
-	<20160314170334.GK2234@work-vm>
+From: Minchan Kim <minchan@kernel.org>
+Subject: Re: [PATCH v1 09/19] zsmalloc: keep max_object in size_class
+Date: Tue, 15 Mar 2016 15:41:26 +0900
+Message-ID: <20160315064126.GA2808__33023.9249663011$1458024067$gmane$org@bbox>
+References: <1457681423-26664-1-git-send-email-minchan@kernel.org>
+	<1457681423-26664-10-git-send-email-minchan@kernel.org>
+	<20160315062824.GE1464@swordfish>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160314170334.GK2234@work-vm>
-Content-Language: en-US
+In-Reply-To: <20160315062824.GE1464@swordfish>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,145 +20,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Dr. David Alan Gilbert" <dgilbert@redhat.com>
-Cc: "ehabkost@redhat.com" <ehabkost@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "simhan@hpe.com" <simhan@hpe.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "jitendra.kolhe@hpe.com" <jitendra.kolhe@hpe.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "mohan_parthasarathy@hpe.com" <mohan_parthasarathy@hpe.com>, Amit Shah <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "rth@twiddle.net" <rth@twiddle.net>
+To: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+Cc: Rik van Riel <riel@redhat.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gurugio@hanmail.net>, koct9i@gmail.com, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Andrew Morton <akpm@linux-foundation.org>, jlayton@poochiereds.net, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> > > Hi,
-> > >   I'm just catching back up on this thread; so without reference to
-> > > any particular previous mail in the thread.
-> > >
-> > >   1) How many of the free pages do we tell the host about?
-> > >      Your main change is telling the host about all the
-> > >      free pages.
-> >
-> > Yes, all the guest's free pages.
-> >
-> > >      If we tell the host about all the free pages, then we might
-> > >      end up needing to allocate more pages and update the host
-> > >      with pages we now want to use; that would have to wait for the
-> > >      host to acknowledge that use of these pages, since if we don't
-> > >      wait for it then it might have skipped migrating a page we
-> > >      just started using (I don't understand how your series solves that).
-> > >      So the guest probably needs to keep some free pages - how many?
-> >
-> > Actually, there is no need to care about whether the free pages will be
-> used by the host.
-> > We only care about some of the free pages we get reused by the guest,
-> right?
-> >
-> > The dirty page logging can be used to solve this, starting the dirty
-> > page logging before getting the free pages informant from guest. Even
-> > some of the free pages are modified by the guest during the process of
-> > getting the free pages information, these modified pages will be traced by
-> the dirty page logging mechanism. So in the following
-> migration_bitmap_sync() function.
-> > The pages in the free pages bitmap, but latter was modified, will be
-> > reset to dirty. We won't omit any dirtied pages.
-> >
-> > So, guest doesn't need to keep any free pages.
+On Tue, Mar 15, 2016 at 03:28:24PM +0900, Sergey Senozhatsky wrote:
+> On (03/11/16 16:30), Minchan Kim wrote:
+> > Every zspage in a size_class has same number of max objects so
+> > we could move it to a size_class.
+> > 
+> > Signed-off-by: Minchan Kim <minchan@kernel.org>
+> > ---
+> >  mm/zsmalloc.c | 29 ++++++++++++++---------------
+> >  1 file changed, 14 insertions(+), 15 deletions(-)
+> > 
+> > diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
+> > index b4fb11831acb..ca663c82c1fc 100644
+> > --- a/mm/zsmalloc.c
+> > +++ b/mm/zsmalloc.c
+> > @@ -32,8 +32,6 @@
+> >   *	page->freelist: points to the first free object in zspage.
+> >   *		Free objects are linked together using in-place
+> >   *		metadata.
+> > - *	page->objects: maximum number of objects we can store in this
+> > - *		zspage (class->zspage_order * PAGE_SIZE / class->size)
+> >   *	page->lru: links together first pages of various zspages.
+> >   *		Basically forming list of zspages in a fullness group.
+> >   *	page->mapping: class index and fullness group of the zspage
+> > @@ -211,6 +209,7 @@ struct size_class {
+> >  	 * of ZS_ALIGN.
+> >  	 */
+> >  	int size;
+> > +	int objs_per_zspage;
+> >  	unsigned int index;
 > 
-> OK, yes, that works; so we do:
->   * enable dirty logging
->   * ask guest for free pages
->   * initialise the migration bitmap as everything-free
->   * then later we do the normal sync-dirty bitmap stuff and it all just works.
-> 
-> That's nice and simple.
-> 
-> > >   2) Clearing out caches
-> > >      Does it make sense to clean caches?  They're apparently useful data
-> > >      so if we clean them it's likely to slow the guest down; I guess
-> > >      they're also likely to be fairly static data - so at least fairly
-> > >      easy to migrate.
-> > >      The answer here partially depends on what you want from your
-> migration;
-> > >      if you're after the fastest possible migration time it might make
-> > >      sense to clean the caches and avoid migrating them; but that might
-> > >      be at the cost of more disruption to the guest - there's a trade off
-> > >      somewhere and it's not clear to me how you set that depending on
-> your
-> > >      guest/network/reqirements.
-> > >
-> >
-> > Yes, clean the caches is an option.  Let the users decide using it or not.
-> >
-> > >   3) Why is ballooning slow?
-> > >      You've got a figure of 5s to balloon on an 8GB VM - but an
-> > >      8GB VM isn't huge; so I worry about how long it would take
-> > >      on a big VM.   We need to understand why it's slow
-> > >        * is it due to the guest shuffling pages around?
-> > >        * is it due to the virtio-balloon protocol sending one page
-> > >          at a time?
-> > >          + Do balloon pages normally clump in physical memory
-> > >             - i.e. would a 'large balloon' message help
-> > >             - or do we need a bitmap because it tends not to clump?
-> > >
-> >
-> > I didn't do a comprehensive test. But I found most of the time
-> > spending on allocating the pages and sending the PFNs to guest, I
-> > don't know that's the most time consuming operation, allocating the pages
-> or sending the PFNs.
-> 
-> It might be a good idea to analyse it a bit more to convince people where the
-> problem is.
-> 
+> struct page ->objects "comes for free". now we don't use it, instead
+> every size_class grows by 4 bytes? is there any reason for this?
 
-Yes, I will try to measure the time spending on different parts.
-
-> > >        * is it due to the madvise on the host?
-> > >          If we were using the normal balloon messages, then we
-> > >          could, during migration, just route those to the migration
-> > >          code rather than bothering with the madvise.
-> > >          If they're clumping together we could just turn that into
-> > >          one big madvise; if they're not then would we benefit from
-> > >          a call that lets us madvise lots of areas?
-> > >
-> >
-> > My test showed madvise() is not the main reason for the long time,
-> > only taken 10% of the total  inflating balloon operation time.
-> > Big madvise can more or less improve the performance.
+It is union with _mapcount and it is used by checking non-lru movable
+page in this patchset.
 > 
-> OK; 10% of the total is still pretty big even for your 8GB VM.
-> 
-> > >   4) Speeding up the migration of those free pages
-> > >     You're using the bitmap to avoid migrating those free pages; HPe's
-> > >     patchset is reconstructing a bitmap from the balloon data;  OK, so
-> > >     this all makes sense to avoid migrating them - I'd also been thinking
-> > >     of using pagemap to spot zero pages that would help find other zero'd
-> > >     pages, but perhaps ballooned is enough?
-> > >
-> > Could you describe your ideal with more details?
-> 
-> At the moment the migration code spends a fair amount of time checking if a
-> page is zero; I was thinking perhaps the qemu could just open
-> /proc/self/pagemap and check if the page was mapped; that would seem
-> cheap if we're checking big ranges; and that would find all the balloon pages.
-> 
-
-Even if virtio-balloon is not enabled, it can be used to find the pages that never used
-by guest.
-
-> > >   5) Second-migrate
-> > >     Given a VM where you've done all those tricks on, what happens when
-> > >     you migrate it a second time?   I guess you're aiming for the guest
-> > >     to update it's bitmap;  HPe's solution is to migrate it's balloon
-> > >     bitmap along with the migration data.
-> >
-> > Nothing is special in the second migration, QEMU will request the
-> > guest for free pages Information, and the guest will traverse it's
-> > current free page list to construct a new free page bitmap and send it to
-> QEMU. Just like in the first migration.
-> 
-> Right.
-> 
-> Dave
-> 
-> > Liang
-> > >
-> > > Dave
-> > >
-> > > --
-> > > Dr. David Alan Gilbert / dgilbert@redhat.com / Manchester, UK
-> --
-> Dr. David Alan Gilbert / dgilbert@redhat.com / Manchester, UK
+> 	-ss
