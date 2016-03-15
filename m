@@ -1,20 +1,17 @@
-From: "Dr. David Alan Gilbert" <dgilbert@redhat.com>
-Subject: Re: [RFC qemu 0/4] A PV solution for live migration optimization
-Date: Mon, 14 Mar 2016 17:03:34 +0000
-Message-ID: <20160314170334.GK2234__49171.680204063$1457975038$gmane$org@work-vm>
-References: <1457001868-15949-1-git-send-email-liang.z.li@intel.com>
-	<20160308111343.GM15443@grmbl.mre>
-	<F2CBF3009FA73547804AE4C663CAB28E0414A7E3@shsmsx102.ccr.corp.intel.com>
-	<20160310075728.GB4678@grmbl.mre>
-	<F2CBF3009FA73547804AE4C663CAB28E0414A860@shsmsx102.ccr.corp.intel.com>
-	<20160310111844.GB2276@work-vm>
-	<F2CBF3009FA73547804AE4C663CAB28E0414B118@shsmsx102.ccr.corp.intel.com>
+From: Minchan Kim <minchan@kernel.org>
+Subject: Re: [PATCH v1 01/19] mm: use put_page to free page instead of
+	putback_lru_page
+Date: Tue, 15 Mar 2016 10:16:56 +0900
+Message-ID: <20160315011656.GD19514@bbox>
+References: <1457681423-26664-1-git-send-email-minchan@kernel.org>
+	<1457681423-26664-2-git-send-email-minchan@kernel.org>
+	<56E67AE1.60700@suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <F2CBF3009FA73547804AE4C663CAB28E0414B118@shsmsx102.ccr.corp.intel.com>
+In-Reply-To: <56E67AE1.60700@suse.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,132 +21,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Li, Liang Z" <liang.z.li@intel.com>
-Cc: "ehabkost@redhat.com" <ehabkost@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "simhan@hpe.com" <simhan@hpe.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "jitendra.kolhe@hpe.com" <jitendra.kolhe@hpe.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "mohan_parthasarathy@hpe.com" <mohan_parthasarathy@hpe.com>, Amit Shah <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "rth@twiddle.net" <rth@twiddle.net>
+To: Vlastimil Babka <vbabka@suse.cz>
+Cc: jlayton@poochiereds.net, Rik van Riel <riel@redhat.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gurugio@hanmail.net>, Mel Gorman <mgorman@suse.de>, Andrew Morton <akpm@linux-foundation.org>, Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, koct9i@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Li, Liang Z (liang.z.li@intel.com) wrote:
-> > 
-> > Hi,
-> >   I'm just catching back up on this thread; so without reference to any
-> > particular previous mail in the thread.
-> > 
-> >   1) How many of the free pages do we tell the host about?
-> >      Your main change is telling the host about all the
-> >      free pages.
+On Mon, Mar 14, 2016 at 09:48:33AM +0100, Vlastimil Babka wrote:
+> On 03/11/2016 08:30 AM, Minchan Kim wrote:
+> >Procedure of page migration is as follows:
+> >
+> >First of all, it should isolate a page from LRU and try to
+> >migrate the page. If it is successful, it releases the page
+> >for freeing. Otherwise, it should put the page back to LRU
+> >list.
+> >
+> >For LRU pages, we have used putback_lru_page for both freeing
+> >and putback to LRU list. It's okay because put_page is aware of
+> >LRU list so if it releases last refcount of the page, it removes
+> >the page from LRU list. However, It makes unnecessary operations
+> >(e.g., lru_cache_add, pagevec and flags operations.
 > 
-> Yes, all the guest's free pages.
+> Yeah, and compaction (perhaps also other migration users) has to
+> drain the lru pvec... Getting rid of this stuff is worth even by
+> itself.
+
+Good note. Although we cannot remove lru pvec draining completely,
+at least, this patch removes a case which should drain pvec for
+returning freed page to buddy.
+
+Thanks for the notice.
+
 > 
-> >      If we tell the host about all the free pages, then we might
-> >      end up needing to allocate more pages and update the host
-> >      with pages we now want to use; that would have to wait for the
-> >      host to acknowledge that use of these pages, since if we don't
-> >      wait for it then it might have skipped migrating a page we
-> >      just started using (I don't understand how your series solves that).
-> >      So the guest probably needs to keep some free pages - how many?
+> >It would be
+> >not significant but no worth to do) and harder to support new
+> >non-lru page migration because put_page isn't aware of non-lru
+> >page's data structure.
+> >
+> >To solve the problem, we can add new hook in put_page with
+> >PageMovable flags check but it can increase overhead in
+> >hot path and needs new locking scheme to stabilize the flag check
+> >with put_page.
+> >
+> >So, this patch cleans it up to divide two semantic(ie, put and putback).
+> >If migration is successful, use put_page instead of putback_lru_page and
+> >use putback_lru_page only on failure. That makes code more readable
+> >and doesn't add overhead in put_page.
 > 
-> Actually, there is no need to care about whether the free pages will be used by the host.
-> We only care about some of the free pages we get reused by the guest, right?
+> I had an idea of checking for count==1 in putback_lru_page() which
+> would take the put_page() shortcut from there. But maybe it can't be
+> done nicely without races.
+
+I thought about it and we might do it via page_freeze_refs but
+what I want at this moment is to separte two semantic put and putback.
+;-)
+
 > 
-> The dirty page logging can be used to solve this, starting the dirty page logging before getting
-> the free pages informant from guest. Even some of the free pages are modified by the guest
-> during the process of getting the free pages information, these modified pages will be traced
-> by the dirty page logging mechanism. So in the following migration_bitmap_sync() function.
-> The pages in the free pages bitmap, but latter was modified, will be reset to dirty. We won't
-> omit any dirtied pages.
+> >Cc: Vlastimil Babka <vbabka@suse.cz>
+> >Cc: Mel Gorman <mgorman@suse.de>
+> >Cc: Hugh Dickins <hughd@google.com>
+> >Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+> >Signed-off-by: Minchan Kim <minchan@kernel.org>
 > 
-> So, guest doesn't need to keep any free pages.
-
-OK, yes, that works; so we do:
-  * enable dirty logging
-  * ask guest for free pages
-  * initialise the migration bitmap as everything-free
-  * then later we do the normal sync-dirty bitmap stuff and it all just works.
-
-That's nice and simple.
-
-> >   2) Clearing out caches
-> >      Does it make sense to clean caches?  They're apparently useful data
-> >      so if we clean them it's likely to slow the guest down; I guess
-> >      they're also likely to be fairly static data - so at least fairly
-> >      easy to migrate.
-> >      The answer here partially depends on what you want from your migration;
-> >      if you're after the fastest possible migration time it might make
-> >      sense to clean the caches and avoid migrating them; but that might
-> >      be at the cost of more disruption to the guest - there's a trade off
-> >      somewhere and it's not clear to me how you set that depending on your
-> >      guest/network/reqirements.
-> > 
+> Acked-by: Vlastimil Babka <vbabka@suse.cz>
 > 
-> Yes, clean the caches is an option.  Let the users decide using it or not.
-> 
-> >   3) Why is ballooning slow?
-> >      You've got a figure of 5s to balloon on an 8GB VM - but an
-> >      8GB VM isn't huge; so I worry about how long it would take
-> >      on a big VM.   We need to understand why it's slow
-> >        * is it due to the guest shuffling pages around?
-> >        * is it due to the virtio-balloon protocol sending one page
-> >          at a time?
-> >          + Do balloon pages normally clump in physical memory
-> >             - i.e. would a 'large balloon' message help
-> >             - or do we need a bitmap because it tends not to clump?
-> > 
-> 
-> I didn't do a comprehensive test. But I found most of the time spending
-> on allocating the pages and sending the PFNs to guest, I don't know that's
-> the most time consuming operation, allocating the pages or sending the PFNs.
+> Note in -next/after 4.6-rc1 this will need some rebasing though.
 
-It might be a good idea to analyse it a bit more to convince people where
-the problem is.
-
-> >        * is it due to the madvise on the host?
-> >          If we were using the normal balloon messages, then we
-> >          could, during migration, just route those to the migration
-> >          code rather than bothering with the madvise.
-> >          If they're clumping together we could just turn that into
-> >          one big madvise; if they're not then would we benefit from
-> >          a call that lets us madvise lots of areas?
-> > 
-> 
-> My test showed madvise() is not the main reason for the long time, only taken
-> 10% of the total  inflating balloon operation time.
-> Big madvise can more or less improve the performance.
-
-OK; 10% of the total is still pretty big even for your 8GB VM.
-
-> >   4) Speeding up the migration of those free pages
-> >     You're using the bitmap to avoid migrating those free pages; HPe's
-> >     patchset is reconstructing a bitmap from the balloon data;  OK, so
-> >     this all makes sense to avoid migrating them - I'd also been thinking
-> >     of using pagemap to spot zero pages that would help find other zero'd
-> >     pages, but perhaps ballooned is enough?
-> > 
-> Could you describe your ideal with more details?
-
-At the moment the migration code spends a fair amount of time checking if a page
-is zero; I was thinking perhaps the qemu could just open /proc/self/pagemap
-and check if the page was mapped; that would seem cheap if we're checking big
-ranges; and that would find all the balloon pages.
-
-> >   5) Second-migrate
-> >     Given a VM where you've done all those tricks on, what happens when
-> >     you migrate it a second time?   I guess you're aiming for the guest
-> >     to update it's bitmap;  HPe's solution is to migrate it's balloon
-> >     bitmap along with the migration data.
-> 
-> Nothing is special in the second migration, QEMU will request the guest for free pages
-> Information, and the guest will traverse it's current free page list to construct a
-> new free page bitmap and send it to QEMU. Just like in the first migration.
-
-Right.
-
-Dave
-
-> Liang
-> > 
-> > Dave
-> > 
-> > --
-> > Dr. David Alan Gilbert / dgilbert@redhat.com / Manchester, UK
---
-Dr. David Alan Gilbert / dgilbert@redhat.com / Manchester, UK
+Thanks for the review!
