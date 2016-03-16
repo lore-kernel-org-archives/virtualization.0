@@ -1,13 +1,14 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: Re: [RFC v2 -next 0/2] virtio-net: Advised MTU feature
-Date: Wed, 16 Mar 2016 00:55:30 -0400 (EDT)
-Message-ID: <1969060351.30231176.1458104130844.JavaMail.zimbra@redhat.com>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [RFC v2 -next 2/2] virtio_net: Read the advised MTU
+Date: Wed, 16 Mar 2016 17:11:38 +0300
+Message-ID: <56E9699A.9030908@cogentembedded.com>
 References: <1458075853-14789-1-git-send-email-aconole@redhat.com>
+	<1458075853-14789-3-git-send-email-aconole@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1458075853-14789-1-git-send-email-aconole@redhat.com>
+In-Reply-To: <1458075853-14789-3-git-send-email-aconole@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,41 +18,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Aaron Conole <aconole@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Aaron Conole <aconole@redhat.com>, netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+Hello.
 
-> 
-> The following series adds the ability for a hypervisor to set an MTU on the
-> guest during feature negotiation phase. This is useful for VM orchestration
-> when, for instance, tunneling is involved and the MTU of the various systems
-> should be homogenous.
-> 
-> The first patch adds the feature bit as described in the proposed VFIO spec
+On 3/16/2016 12:04 AM, Aaron Conole wrote:
 
-You mean VIRTIO spec?
-
-> addition found at
-> https://lists.oasis-open.org/archives/virtio-dev/201603/msg00001.html
-> 
-> The second patch adds a user of the bit, and a warning when the guest changes
-> the MTU from the hypervisor advised MTU. Future patches may add more thorough
-> error handling.
-> 
+> This patch checks the feature bit for the VIRTIO_NET_F_MTU feature. If it
+> exists, read the advised MTU and use it.
+>
+> No proper error handling is provided for the case where a user changes the
+> negotiated MTU. A future commit will add proper error handling. Instead, a
+> warning is emitted if the guest changes the device MTU after previously
+> being given advice.
+>
+> Signed-off-by: Aaron Conole <aconole@bytheb.org>
+> ---
 > v2:
-> * Whitespace and code style cleanups from Sergei Shtylyov and Paolo Abeni
-> * Additional test before printing a warning
-> 
-> Aaron Conole (2):
->   virtio: Start feature MTU support
->   virtio_net: Read the advised MTU
-> 
->  drivers/net/virtio_net.c        | 12 ++++++++++++
->  include/uapi/linux/virtio_net.h |  3 +++
->  2 files changed, 15 insertions(+)
-> 
-> --
-> 2.5.0
-> 
-> 
+> * Whitespace cleanup in the last hunk
+> * Code style change around the pr_warn
+> * Additional test for mtu change before printing warning
+>
+>   drivers/net/virtio_net.c | 12 ++++++++++++
+>   1 file changed, 12 insertions(+)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 767ab11..429fe01 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+[...]
+> @@ -1390,8 +1391,11 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
+>
+>   static int virtnet_change_mtu(struct net_device *dev, int new_mtu)
+>   {
+> +	struct virtnet_info *vi = netdev_priv(dev);
+>   	if (new_mtu < MIN_MTU || new_mtu > MAX_MTU)
+>   		return -EINVAL;
+> +	if ((vi->negotiated_mtu) && (dev->mtu != new_mtu))
+
+    Inner parens not needed, please be consistent with the code above.
+
+[...]
+
+MBR, Sergei
