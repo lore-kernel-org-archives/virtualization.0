@@ -1,12 +1,16 @@
-From: Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH net-next] virtio_net: replace netdev_alloc_skb_ip_align() with
-	napi_alloc_skb()
-Date: Thu, 17 Mar 2016 15:44:00 +0100
-Message-ID: <b436c3eb5d4c19e92184c27d89ec8118d6fd3f81.1458224603.git.pabeni@redhat.com>
+From: Aaron Conole <aconole@redhat.com>
+Subject: Re: [RFC v2 -next 1/2] virtio: Start feature MTU support
+Date: Thu, 17 Mar 2016 17:10:55 -0400
+Message-ID: <f7tfuvox128.fsf@redhat.com>
+References: <1458075853-14789-1-git-send-email-aconole@redhat.com>
+	<1458075853-14789-2-git-send-email-aconole@redhat.com>
+	<20160316112314.4510d386@samsung9>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20160316112314.4510d386@samsung9> (Stephen Hemminger's message
+	of "Wed, 16 Mar 2016 11:23:14 -0700")
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,30 +20,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Hannes Frederic Sowa <hannes@stressinduktion.org>, "Michael S. Tsirkin" <mst@redhat.com>
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This gives small but noticeable rx performance improvement (2-3%)
-and will allow exploiting future napi improvement.
+Stephen Hemminger <stephen@networkplumber.org> writes:
 
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
----
- drivers/net/virtio_net.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> On Tue, 15 Mar 2016 17:04:12 -0400
+> Aaron Conole <aconole@redhat.com> wrote:
+>
+>> --- a/include/uapi/linux/virtio_net.h
+>> +++ b/include/uapi/linux/virtio_net.h
+>> @@ -55,6 +55,7 @@
+>>  #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
+>>  					 * Steering */
+>>  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+>> +#define VIRTIO_NET_F_MTU 25	/* Device supports Default MTU Negotiation */
+>>  
+>>  #ifndef VIRTIO_NET_NO_LEGACY
+>>  #define VIRTIO_NET_F_GSO	6	/* Host handles pkts w/ any GSO type */
+>> @@ -73,6 +74,8 @@ struct virtio_net_config {
+>>  	 * Legal values are between 1 and 0x8000
+>>  	 */
+>>  	__u16 max_virtqueue_pairs;
+>> +	/* Default maximum transmit unit advice */
+>> +	__u16 mtu;
+>>  } __attribute__((packed));
+>>  
+>>  /*
+>
+> You can't change user visible headers without breaking ABI.
+> This structure might be used by other user code. Also how can this
+> work if host is using old size of structure.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index fb0eae4..49d84e5 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -260,7 +260,7 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
- 	p = page_address(page) + offset;
- 
- 	/* copy small packet so we can reuse these pages for small data */
--	skb = netdev_alloc_skb_ip_align(vi->dev, GOOD_COPY_LEN);
-+	skb = napi_alloc_skb(&rq->napi, GOOD_COPY_LEN);
- 	if (unlikely(!skb))
- 		return NULL;
- 
--- 
-1.8.3.1
+How else can this field be added and remain compliant with the spec? The
+spec requires that mtu be passed in the virtio_net_config field.
+
+As for old sizeof, I think the absence of the VIRTIO_NET_F_MTU bit being
+asserted is confirmation that mtu is not valid (at least, it is implied
+in the spec).
+
+Thanks so much for the review, Stephen!
+
+-Aaron
