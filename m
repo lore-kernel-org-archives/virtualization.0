@@ -1,15 +1,15 @@
-From: Aaron Conole <aconole@redhat.com>
-Subject: Re: [RFC v2 -next 0/2] virtio-net: Advised MTU feature
-Date: Thu, 17 Mar 2016 17:24:40 -0400
-Message-ID: <f7ty49gvluv.fsf@redhat.com>
+From: Stephen Hemminger <stephen@networkplumber.org>
+Subject: Re: [RFC v2 -next 1/2] virtio: Start feature MTU support
+Date: Thu, 17 Mar 2016 15:04:59 -0700
+Message-ID: <20160317150459.49bf5c9b@samsung9>
 References: <1458075853-14789-1-git-send-email-aconole@redhat.com>
-	<1969060351.30231176.1458104130844.JavaMail.zimbra@redhat.com>
+	<1458075853-14789-2-git-send-email-aconole@redhat.com>
+	<20160316112314.4510d386@samsung9> <f7tfuvox128.fsf@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1969060351.30231176.1458104130844.JavaMail.zimbra@redhat.com>
-	(Pankaj Gupta's message of "Wed, 16 Mar 2016 00:55:30 -0400 (EDT)")
+In-Reply-To: <f7tfuvox128.fsf@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,44 +19,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pankaj Gupta <pagupta@redhat.com>
+To: Aaron Conole <aconole@redhat.com>
 Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Pankaj Gupta <pagupta@redhat.com> writes:
+On Thu, 17 Mar 2016 17:10:55 -0400
+Aaron Conole <aconole@redhat.com> wrote:
 
->> 
->> The following series adds the ability for a hypervisor to set an MTU on the
->> guest during feature negotiation phase. This is useful for VM orchestration
->> when, for instance, tunneling is involved and the MTU of the various systems
->> should be homogenous.
->> 
->> The first patch adds the feature bit as described in the proposed VFIO spec
->
-> You mean VIRTIO spec?
+> Stephen Hemminger <stephen@networkplumber.org> writes:
+> 
+> > On Tue, 15 Mar 2016 17:04:12 -0400
+> > Aaron Conole <aconole@redhat.com> wrote:
+> >
+> >> --- a/include/uapi/linux/virtio_net.h
+> >> +++ b/include/uapi/linux/virtio_net.h
+> >> @@ -55,6 +55,7 @@
+> >>  #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
+> >>  					 * Steering */
+> >>  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+> >> +#define VIRTIO_NET_F_MTU 25	/* Device supports Default MTU Negotiation */
+> >>  
+> >>  #ifndef VIRTIO_NET_NO_LEGACY
+> >>  #define VIRTIO_NET_F_GSO	6	/* Host handles pkts w/ any GSO type */
+> >> @@ -73,6 +74,8 @@ struct virtio_net_config {
+> >>  	 * Legal values are between 1 and 0x8000
+> >>  	 */
+> >>  	__u16 max_virtqueue_pairs;
+> >> +	/* Default maximum transmit unit advice */
+> >> +	__u16 mtu;
+> >>  } __attribute__((packed));
+> >>  
+> >>  /*
+> >
+> > You can't change user visible headers without breaking ABI.
+> > This structure might be used by other user code. Also how can this
+> > work if host is using old size of structure.
+> 
+> How else can this field be added and remain compliant with the spec? The
+> spec requires that mtu be passed in the virtio_net_config field.
+> 
+> As for old sizeof, I think the absence of the VIRTIO_NET_F_MTU bit being
+> asserted is confirmation that mtu is not valid (at least, it is implied
+> in the spec).
 
-Yes, sorry.
-
->> addition found at
->> https://lists.oasis-open.org/archives/virtio-dev/201603/msg00001.html
->> 
->> The second patch adds a user of the bit, and a warning when the guest changes
->> the MTU from the hypervisor advised MTU. Future patches may add more thorough
->> error handling.
->> 
->> v2:
->> * Whitespace and code style cleanups from Sergei Shtylyov and Paolo Abeni
->> * Additional test before printing a warning
->> 
->> Aaron Conole (2):
->>   virtio: Start feature MTU support
->>   virtio_net: Read the advised MTU
->> 
->>  drivers/net/virtio_net.c        | 12 ++++++++++++
->>  include/uapi/linux/virtio_net.h |  3 +++
->>  2 files changed, 15 insertions(+)
->> 
->> --
->> 2.5.0
->> 
->> 
+Michael is right as long as the code checks for MTU flag before
+referencing the mtu field, everything is fine.  Actually, the structure
+is never used directly only by fetching fields with offsetof
