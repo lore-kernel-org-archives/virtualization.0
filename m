@@ -1,16 +1,16 @@
 From: Aaron Conole <aconole@redhat.com>
-Subject: Re: [RFC v2 -next 1/2] virtio: Start feature MTU support
-Date: Thu, 17 Mar 2016 17:10:55 -0400
-Message-ID: <f7tfuvox128.fsf@redhat.com>
+Subject: Re: [RFC v2 -next 2/2] virtio_net: Read the advised MTU
+Date: Thu, 17 Mar 2016 17:15:36 -0400
+Message-ID: <f7tbn6cx0uf.fsf@redhat.com>
 References: <1458075853-14789-1-git-send-email-aconole@redhat.com>
-	<1458075853-14789-2-git-send-email-aconole@redhat.com>
-	<20160316112314.4510d386@samsung9>
+	<1458075853-14789-3-git-send-email-aconole@redhat.com>
+	<56E9699A.9030908@cogentembedded.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160316112314.4510d386@samsung9> (Stephen Hemminger's message
-	of "Wed, 16 Mar 2016 11:23:14 -0700")
+In-Reply-To: <56E9699A.9030908@cogentembedded.com> (Sergei Shtylyov's message
+	of "Wed, 16 Mar 2016 17:11:38 +0300")
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,46 +20,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <stephen@networkplumber.org>
+To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Stephen Hemminger <stephen@networkplumber.org> writes:
+Sergei Shtylyov <sergei.shtylyov@cogentembedded.com> writes:
 
-> On Tue, 15 Mar 2016 17:04:12 -0400
-> Aaron Conole <aconole@redhat.com> wrote:
+> Hello.
 >
->> --- a/include/uapi/linux/virtio_net.h
->> +++ b/include/uapi/linux/virtio_net.h
->> @@ -55,6 +55,7 @@
->>  #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
->>  					 * Steering */
->>  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
->> +#define VIRTIO_NET_F_MTU 25	/* Device supports Default MTU Negotiation */
->>  
->>  #ifndef VIRTIO_NET_NO_LEGACY
->>  #define VIRTIO_NET_F_GSO	6	/* Host handles pkts w/ any GSO type */
->> @@ -73,6 +74,8 @@ struct virtio_net_config {
->>  	 * Legal values are between 1 and 0x8000
->>  	 */
->>  	__u16 max_virtqueue_pairs;
->> +	/* Default maximum transmit unit advice */
->> +	__u16 mtu;
->>  } __attribute__((packed));
->>  
->>  /*
+> On 3/16/2016 12:04 AM, Aaron Conole wrote:
 >
-> You can't change user visible headers without breaking ABI.
-> This structure might be used by other user code. Also how can this
-> work if host is using old size of structure.
+>> This patch checks the feature bit for the VIRTIO_NET_F_MTU feature. If it
+>> exists, read the advised MTU and use it.
+>>
+>> No proper error handling is provided for the case where a user changes the
+>> negotiated MTU. A future commit will add proper error handling. Instead, a
+>> warning is emitted if the guest changes the device MTU after previously
+>> being given advice.
+>>
+>> Signed-off-by: Aaron Conole <aconole@bytheb.org>
+>> ---
+>> v2:
+>> * Whitespace cleanup in the last hunk
+>> * Code style change around the pr_warn
+>> * Additional test for mtu change before printing warning
+>>
+>>   drivers/net/virtio_net.c | 12 ++++++++++++
+>>   1 file changed, 12 insertions(+)
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index 767ab11..429fe01 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+> [...]
+>> @@ -1390,8 +1391,11 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
+>>
+>>   static int virtnet_change_mtu(struct net_device *dev, int new_mtu)
+>>   {
+>> +	struct virtnet_info *vi = netdev_priv(dev);
+>>   	if (new_mtu < MIN_MTU || new_mtu > MAX_MTU)
+>>   		return -EINVAL;
+>> +	if ((vi->negotiated_mtu) && (dev->mtu != new_mtu))
+>
+>    Inner parens not needed, please be consistent with the code above.
 
-How else can this field be added and remain compliant with the spec? The
-spec requires that mtu be passed in the virtio_net_config field.
+Okay, I will do that.
 
-As for old sizeof, I think the absence of the VIRTIO_NET_F_MTU bit being
-asserted is confirmation that mtu is not valid (at least, it is implied
-in the spec).
-
-Thanks so much for the review, Stephen!
+Thanks so much for the review (again), Sergei!
 
 -Aaron
+
+> [...]
+>
+> MBR, Sergei
