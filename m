@@ -1,16 +1,16 @@
-From: David Vrabel <david.vrabel@citrix.com>
+From: Juergen Gross <jgross@suse.com>
 Subject: Re: [Xen-devel] [PATCH v2 5/6] virt, sched: add cpu pinning to
 	smp_call_sync_on_phys_cpu()
-Date: Mon, 21 Mar 2016 14:14:03 +0000
-Message-ID: <56F001AB.2000600@citrix.com>
+Date: Mon, 21 Mar 2016 15:21:04 +0100
+Message-ID: <56F00350.4000700@suse.com>
 References: <1458563075-30298-1-git-send-email-jgross@suse.com>
 	<1458563075-30298-6-git-send-email-jgross@suse.com>
-	<56F0087202000078000DED9F@prv-mh.provo.novell.com>
+	<56F0087202000078000DED9F@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <56F0087202000078000DED9F@prv-mh.provo.novell.com>
+In-Reply-To: <56F0087202000078000DED9F@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,14 +20,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jan Beulich <JBeulich@suse.com>, Juergen Gross <JGross@suse.com>
-Cc: jeremy@goop.org, hpa@zytor.com, peterz@infradead.org, x86@kernel.org, akataria@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, Jean Delvare <jdelvare@suse.com>, mingo@redhat.com, Douglas_Warzecha@dell.com, pali.rohar@gmail.com, xen-devel@lists.xenproject.org, tglx@linutronix.de, boris.ostrovsky@oracle.com, linux@roeck-us.net
+To: Jan Beulich <JBeulich@suse.com>
+Cc: jeremy@goop.org, Jean Delvare <jdelvare@suse.com>, hpa@zytor.com, peterz@infradead.org, x86@kernel.org, akataria@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, pali.rohar@gmail.com, xen-devel@lists.xenproject.org, tglx@linutronix.de, boris.ostrovsky@oracle.com, linux@roeck-us.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 21/03/16 13:42, Jan Beulich wrote:
->
+On 21/03/16 14:42, Jan Beulich wrote:
+>>>> On 21.03.16 at 13:24, <JGross@suse.com> wrote:
+>> @@ -758,9 +759,14 @@ struct smp_sync_call_struct {
+>>  static void smp_call_sync_callback(struct work_struct *work)
+>>  {
+>>  	struct smp_sync_call_struct *sscs;
+>> +	unsigned int cpu = smp_processor_id();
+> 
+> So this obtains the vCPU number, yet ...
+> 
+>>  	sscs = container_of(work, struct smp_sync_call_struct, work);
+>> +	preempt_disable();
+>> +	hypervisor_pin_vcpu(cpu);
+> 
+> ... here you're supposed to pass a pCPU number.
+> 
 > Also don't you need to call smp_processor_id() after preempt_disable()?
 
-I suggest using get_cpu()/put_cpu() here.
+No, I'm running on the workqueue bound to the specific (v)cpu and I'm
+expecting this vcpu to be pinned to the same numbered pcpu.
 
-David
+preempt_disable() is just called to avoid scheduling of another thread
+while the override pinning is active.
+
+
+Juergen
