@@ -1,7 +1,7 @@
 From: Minchan Kim <minchan@kernel.org>
-Subject: [PATCH v2 05/18] zsmalloc: remove unused pool param in obj_free
-Date: Mon, 21 Mar 2016 15:30:54 +0900
-Message-ID: <1458541867-27380-6-git-send-email-minchan__21778.9032649764$1458541868$gmane$org@kernel.org>
+Subject: [PATCH v2 03/18] zsmalloc: clean up many BUG_ON
+Date: Mon, 21 Mar 2016 15:30:52 +0900
+Message-ID: <1458541867-27380-4-git-send-email-minchan__484.332527457987$1458541879$gmane$org@kernel.org>
 References: <1458541867-27380-1-git-send-email-minchan@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,45 +21,204 @@ To: Andrew Morton <akpm@linux-foundation.org>
 Cc: Rik van Riel <riel@redhat.com>, YiPing Xu <xuyiping@hisilicon.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Chan Gyun Jeong <chan.jeong@lge.com>, Minchan Kim <minchan@kernel.org>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gi-oh.kim@profitbricks.com>, koct9i@gmail.com, Sangseok Lee <sangseok.lee@lge.com>, jlayton@poochiereds.net, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Let's remove unused pool param in obj_free
+There are many BUG_ON in zsmalloc.c which is not recommened so
+change them as alternatives.
+
+Normal rule is as follows:
+
+1. avoid BUG_ON if possible. Instead, use VM_BUG_ON or VM_BUG_ON_PAGE
+2. use VM_BUG_ON_PAGE if we need to see struct page's fields
+3. use those assertion in primitive functions so higher functions
+can rely on the assertion in the primitive function.
+4. Don't use assertion if following instruction can trigger Oops
 
 Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
 Signed-off-by: Minchan Kim <minchan@kernel.org>
 ---
- mm/zsmalloc.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ mm/zsmalloc.c | 42 +++++++++++++++---------------------------
+ 1 file changed, 15 insertions(+), 27 deletions(-)
 
 diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
-index 16556a6db628..a0890e9003e2 100644
+index b09a80d398c9..6a7b9313ee8c 100644
 --- a/mm/zsmalloc.c
 +++ b/mm/zsmalloc.c
-@@ -1438,8 +1438,7 @@ unsigned long zs_malloc(struct zs_pool *pool, size_t size)
- }
- EXPORT_SYMBOL_GPL(zs_malloc);
- 
--static void obj_free(struct zs_pool *pool, struct size_class *class,
--			unsigned long obj)
-+static void obj_free(struct size_class *class, unsigned long obj)
+@@ -418,7 +418,7 @@ static void get_zspage_mapping(struct page *first_page,
+ 				enum fullness_group *fullness)
  {
- 	struct link_free *link;
- 	struct page *first_page, *f_page;
-@@ -1485,7 +1484,7 @@ void zs_free(struct zs_pool *pool, unsigned long handle)
- 	class = pool->size_class[class_idx];
+ 	unsigned long m;
+-	BUG_ON(!is_first_page(first_page));
++	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
  
- 	spin_lock(&class->lock);
--	obj_free(pool, class, obj);
-+	obj_free(class, obj);
- 	fullness = fix_fullness_group(class, first_page);
- 	if (fullness == ZS_EMPTY) {
- 		zs_stat_dec(class, OBJ_ALLOCATED, get_maxobj_per_zspage(
-@@ -1648,7 +1647,7 @@ static int migrate_zspage(struct zs_pool *pool, struct size_class *class,
- 		free_obj |= BIT(HANDLE_PIN_BIT);
- 		record_obj(handle, free_obj);
- 		unpin_tag(handle);
--		obj_free(pool, class, used_obj);
-+		obj_free(class, used_obj);
+ 	m = (unsigned long)first_page->mapping;
+ 	*fullness = m & FULLNESS_MASK;
+@@ -430,7 +430,7 @@ static void set_zspage_mapping(struct page *first_page,
+ 				enum fullness_group fullness)
+ {
+ 	unsigned long m;
+-	BUG_ON(!is_first_page(first_page));
++	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
+ 
+ 	m = ((class_idx & CLASS_IDX_MASK) << FULLNESS_BITS) |
+ 			(fullness & FULLNESS_MASK);
+@@ -631,7 +631,8 @@ static enum fullness_group get_fullness_group(struct page *first_page)
+ {
+ 	int inuse, max_objects;
+ 	enum fullness_group fg;
+-	BUG_ON(!is_first_page(first_page));
++
++	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
+ 
+ 	inuse = first_page->inuse;
+ 	max_objects = first_page->objects;
+@@ -659,7 +660,7 @@ static void insert_zspage(struct page *first_page, struct size_class *class,
+ {
+ 	struct page **head;
+ 
+-	BUG_ON(!is_first_page(first_page));
++	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
+ 
+ 	if (fullness >= _ZS_NR_FULLNESS_GROUPS)
+ 		return;
+@@ -691,13 +692,13 @@ static void remove_zspage(struct page *first_page, struct size_class *class,
+ {
+ 	struct page **head;
+ 
+-	BUG_ON(!is_first_page(first_page));
++	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
+ 
+ 	if (fullness >= _ZS_NR_FULLNESS_GROUPS)
+ 		return;
+ 
+ 	head = &class->fullness_list[fullness];
+-	BUG_ON(!*head);
++	VM_BUG_ON_PAGE(!*head, first_page);
+ 	if (list_empty(&(*head)->lru))
+ 		*head = NULL;
+ 	else if (*head == first_page)
+@@ -724,8 +725,6 @@ static enum fullness_group fix_fullness_group(struct size_class *class,
+ 	int class_idx;
+ 	enum fullness_group currfg, newfg;
+ 
+-	BUG_ON(!is_first_page(first_page));
+-
+ 	get_zspage_mapping(first_page, &class_idx, &currfg);
+ 	newfg = get_fullness_group(first_page);
+ 	if (newfg == currfg)
+@@ -811,7 +810,7 @@ static void *location_to_obj(struct page *page, unsigned long obj_idx)
+ 	unsigned long obj;
+ 
+ 	if (!page) {
+-		BUG_ON(obj_idx);
++		VM_BUG_ON(obj_idx);
+ 		return NULL;
  	}
  
- 	/* Remember last position in this iteration */
+@@ -844,7 +843,7 @@ static unsigned long obj_to_head(struct size_class *class, struct page *page,
+ 			void *obj)
+ {
+ 	if (class->huge) {
+-		VM_BUG_ON(!is_first_page(page));
++		VM_BUG_ON_PAGE(!is_first_page(page), page);
+ 		return page_private(page);
+ 	} else
+ 		return *(unsigned long *)obj;
+@@ -894,8 +893,8 @@ static void free_zspage(struct page *first_page)
+ {
+ 	struct page *nextp, *tmp, *head_extra;
+ 
+-	BUG_ON(!is_first_page(first_page));
+-	BUG_ON(first_page->inuse);
++	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
++	VM_BUG_ON_PAGE(first_page->inuse, first_page);
+ 
+ 	head_extra = (struct page *)page_private(first_page);
+ 
+@@ -921,7 +920,8 @@ static void init_zspage(struct page *first_page, struct size_class *class)
+ 	unsigned long off = 0;
+ 	struct page *page = first_page;
+ 
+-	BUG_ON(!is_first_page(first_page));
++	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
++
+ 	while (page) {
+ 		struct page *next_page;
+ 		struct link_free *link;
+@@ -1238,7 +1238,7 @@ static bool can_merge(struct size_class *prev, int size, int pages_per_zspage)
+ 
+ static bool zspage_full(struct page *first_page)
+ {
+-	BUG_ON(!is_first_page(first_page));
++	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
+ 
+ 	return first_page->inuse == first_page->objects;
+ }
+@@ -1276,14 +1276,12 @@ void *zs_map_object(struct zs_pool *pool, unsigned long handle,
+ 	struct page *pages[2];
+ 	void *ret;
+ 
+-	BUG_ON(!handle);
+-
+ 	/*
+ 	 * Because we use per-cpu mapping areas shared among the
+ 	 * pools/users, we can't allow mapping in interrupt context
+ 	 * because it can corrupt another users mappings.
+ 	 */
+-	BUG_ON(in_interrupt());
++	WARN_ON_ONCE(in_interrupt());
+ 
+ 	/* From now on, migration cannot move the object */
+ 	pin_tag(handle);
+@@ -1327,8 +1325,6 @@ void zs_unmap_object(struct zs_pool *pool, unsigned long handle)
+ 	struct size_class *class;
+ 	struct mapping_area *area;
+ 
+-	BUG_ON(!handle);
+-
+ 	obj = handle_to_obj(handle);
+ 	obj_to_location(obj, &page, &obj_idx);
+ 	get_zspage_mapping(get_first_page(page), &class_idx, &fg);
+@@ -1448,8 +1444,6 @@ static void obj_free(struct zs_pool *pool, struct size_class *class,
+ 	unsigned long f_objidx, f_offset;
+ 	void *vaddr;
+ 
+-	BUG_ON(!obj);
+-
+ 	obj &= ~OBJ_ALLOCATED_TAG;
+ 	obj_to_location(obj, &f_page, &f_objidx);
+ 	first_page = get_first_page(f_page);
+@@ -1549,7 +1543,6 @@ static void zs_object_copy(unsigned long dst, unsigned long src,
+ 			kunmap_atomic(d_addr);
+ 			kunmap_atomic(s_addr);
+ 			s_page = get_next_page(s_page);
+-			BUG_ON(!s_page);
+ 			s_addr = kmap_atomic(s_page);
+ 			d_addr = kmap_atomic(d_page);
+ 			s_size = class->size - written;
+@@ -1559,7 +1552,6 @@ static void zs_object_copy(unsigned long dst, unsigned long src,
+ 		if (d_off >= PAGE_SIZE) {
+ 			kunmap_atomic(d_addr);
+ 			d_page = get_next_page(d_page);
+-			BUG_ON(!d_page);
+ 			d_addr = kmap_atomic(d_page);
+ 			d_size = class->size - written;
+ 			d_off = 0;
+@@ -1694,8 +1686,6 @@ static enum fullness_group putback_zspage(struct zs_pool *pool,
+ {
+ 	enum fullness_group fullness;
+ 
+-	BUG_ON(!is_first_page(first_page));
+-
+ 	fullness = get_fullness_group(first_page);
+ 	insert_zspage(first_page, class, fullness);
+ 	set_zspage_mapping(first_page, class->index, fullness);
+@@ -1756,8 +1746,6 @@ static void __zs_compact(struct zs_pool *pool, struct size_class *class)
+ 	spin_lock(&class->lock);
+ 	while ((src_page = isolate_source_page(class))) {
+ 
+-		BUG_ON(!is_first_page(src_page));
+-
+ 		if (!zs_can_compact(class))
+ 			break;
+ 
 -- 
 1.9.1
