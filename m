@@ -1,11 +1,13 @@
 From: Gustavo Padovan <gustavo@padovan.org>
-Subject: [PATCH 1/2] drm/virtio: use new drm_crtc_send_vblank_event()
-Date: Mon, 21 Mar 2016 16:23:06 -0300
-Message-ID: <1458588187-26002-1-git-send-email-gustavo__36980.5175149397$1458767070$gmane$org@padovan.org>
+Subject: [PATCH 2/2] drm/virtio: send vblank event on plane atomic update
+Date: Mon, 21 Mar 2016 16:23:07 -0300
+Message-ID: <1458588187-26002-2-git-send-email-gustavo__15353.2361532145$1458767077$gmane$org@padovan.org>
+References: <1458588187-26002-1-git-send-email-gustavo@padovan.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1458588187-26002-1-git-send-email-gustavo@padovan.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,25 +23,43 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
 
-Simplify code by using the new vblank crtc helpers.
+virtio_gpu was failing to send vblank events when using the atomic IOCTL
+with the DRM_MODE_PAGE_FLIP_EVENT flag set. This patch fixes each and
+enables atomic pageflips updates.
 
 Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
 ---
- drivers/gpu/drm/virtio/virtgpu_display.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index 429aa31..b70bb8b 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -163,7 +163,7 @@ static int virtio_gpu_page_flip(struct drm_crtc *crtc,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index 70b44a2..20260ad 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -63,9 +63,11 @@ static void virtio_gpu_plane_atomic_update(struct drm_plane *plane,
+ {
+ 	struct drm_device *dev = plane->dev;
+ 	struct virtio_gpu_device *vgdev = dev->dev_private;
+-	struct virtio_gpu_output *output = drm_crtc_to_virtio_gpu_output(plane->crtc);
++	struct drm_crtc *crtc = plane->crtc;
++	struct virtio_gpu_output *output = drm_crtc_to_virtio_gpu_output(crtc);
+ 	struct virtio_gpu_framebuffer *vgfb;
+ 	struct virtio_gpu_object *bo;
++	unsigned long flags;
+ 	uint32_t handle;
  
- 	if (event) {
- 		spin_lock_irqsave(&crtc->dev->event_lock, irqflags);
--		drm_send_vblank_event(crtc->dev, -1, event);
-+		drm_crtc_send_vblank_event(crtc, event);
- 		spin_unlock_irqrestore(&crtc->dev->event_lock, irqflags);
- 	}
+ 	if (plane->state->fb) {
+@@ -96,6 +98,11 @@ static void virtio_gpu_plane_atomic_update(struct drm_plane *plane,
+ 				      plane->state->crtc_y,
+ 				      plane->state->crtc_w,
+ 				      plane->state->crtc_h);
++
++	spin_lock_irqsave(&crtc->dev->event_lock, flags);
++	if (crtc->state->event)
++		drm_crtc_send_vblank_event(crtc, crtc->state->event);
++	spin_unlock_irqrestore(&crtc->dev->event_lock, flags);
+ }
+ 
  
 -- 
 2.5.0
