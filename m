@@ -1,12 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] virtio/vhost: new features, performance improvements, cleanups
-Date: Sun, 20 Mar 2016 15:58:48 +0200
-Message-ID: <20160320155848-mutt-send-email-mst@redhat.com>
+From: Minchan Kim <minchan@kernel.org>
+Subject: [PATCH v2 00/18] Support non-lru page migration
+Date: Mon, 21 Mar 2016 15:30:49 +0900
+Message-ID: <1458541867-27380-1-git-send-email-minchan__39713.0156554796$1458541824$gmane$org@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,103 +15,121 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: pmladek@suse.com, kvm@vger.kernel.org, geliangtang@163.com, netdev@vger.kernel.org, mst@redhat.com, sebott@linux.vnet.ibm.com, linux-kernel@vger.kernel.org, pmladek@suse.cz, virtualization@lists.linux-foundation.org, borntraeger@de.ibm.com, luto@kernel.org, pbonzini@redhat.com, pabeni@redhat.com, schwidefsky@de.ibm.com, gkurz@linux.vnet.ibm.com
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Rik van Riel <riel@redhat.com>, YiPing Xu <xuyiping@hisilicon.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Chan Gyun Jeong <chan.jeong@lge.com>, Minchan Kim <minchan@kernel.org>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gi-oh.kim@profitbricks.com>, koct9i@gmail.com, Sangseok Lee <sangseok.lee@lge.com>, jlayton@poochiereds.net, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit e1f33be9186363da7955bcb5f0b03e6685544c50:
+Recently, I got many reports about perfermance degradation
+in embedded system(Android mobile phone, webOS TV and so on)
+and failed to fork easily.
 
-  vhost: fix error path in vhost_init_used() (2016-03-02 17:01:49 +0200)
+The problem was fragmentation caused by zram and GPU driver
+pages. Their pages cannot be migrated so compaction cannot
+work well, either so reclaimer ends up shrinking all of working
+set pages. It made system very slow and even to fail to fork
+easily.
 
-are available in the git repository at:
+Other pain point is that they cannot work with CMA.
+Most of CMA memory space could be idle(ie, it could be used
+for movable pages unless driver is using) but if driver(i.e.,
+zram) cannot migrate his page, that memory space could be
+wasted. In our product which has big CMA memory, it reclaims
+zones too exccessively although there are lots of free space
+in CMA so system was very slow easily.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+To solve these problem, this patch try to add facility to
+migrate non-lru pages via introducing new friend functions
+of migratepage in address_space_operation and new page flags.
 
-for you to fetch changes up to c67f5db82027ba6d2ea4ac9176bc45996a03ae6a:
+	(isolate_page, putback_page)
+	(PG_movable, PG_isolated)
 
-  virtio_net: replace netdev_alloc_skb_ip_align() with napi_alloc_skb() (2016-03-17 17:42:00 +0200)
+For details, please read description in
+"mm/compaction: support non-lru movable page migration".
 
-----------------------------------------------------------------
-virtio/vhost: new features, performance improvements, cleanups
+Originally, Gioh Kim tried to support this feature but he moved
+so I took over the work. But I took many code from his work and
+changed a little bit.
+Thanks, Gioh!
 
-This adds basic polling support for vhost.
-Reworks virtio to optionally use DMA API, fixing it on Xen.
-Balloon stats gained a new entry.
-Using the new napi_alloc_skb speeds up virtio net.
-virtio blk stats can now be read while another VCPU
-us busy inflating or deflating the balloon.
-Plus misc cleanups in various places.
+And I should mention Konstantin Khlebnikov. He really heped Gioh
+at that time so he should deserve to have many credit, too.
+Thanks, Konstantin!
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+This patchset consists of five parts
 
-----------------------------------------------------------------
-Andy Lutomirski (6):
-      vring: Introduce vring_use_dma_api()
-      virtio_ring: Support DMA APIs
-      virtio: Add improved queue allocation API
-      virtio_mmio: Use the DMA API if enabled
-      virtio_pci: Use the DMA API if enabled
-      vring: Use the DMA API on Xen
+1. clean up migration
+  mm: use put_page to free page instead of putback_lru_page
 
-Christian Borntraeger (3):
-      dma: Provide simple noop dma ops
-      alpha/dma: use common noop dma ops
-      s390/dma: Allow per device dma ops
+2. zsmalloc clean-up for preparing page migration
+  zsmalloc: use first_page rather than page
+  zsmalloc: clean up many BUG_ON
+  zsmalloc: reordering function parameter
+  zsmalloc: remove unused pool param in obj_free
+  zsmalloc: keep max_object in size_class
+  zsmalloc: squeeze inuse into page->mapping
+  zsmalloc: squeeze freelist into page->mapping
+  zsmalloc: move struct zs_meta from mapping to freelist
+  zsmalloc: factor page chain functionality out
+  zsmalloc: separate free_zspage from putback_zspage
+  zsmalloc: zs_compact refactoring
 
-Cornelia Huck (1):
-      virtio/s390: size of SET_IND payload
+3. add non-lru page migration feature
+  mm/compaction: support non-lru movable page migration
 
-Geliang Tang (1):
-      virtio/s390: use dev_to_virtio
+4. rework KVM memory-ballooning
+  mm/balloon: use general movable page feature into balloon
 
-Greg Kurz (2):
-      vhost: rename cross-endian helpers
-      vhost: rename vhost_init_used()
+5. add zsmalloc page migration
+  zsmalloc: migrate head page of zspage
+  zsmalloc: use single linked list for page chain
+  zsmalloc: migrate tail pages in zspage
+  zram: use __GFP_MOVABLE for memory allocation
 
-Jason Wang (3):
-      vhost: introduce vhost_has_work()
-      vhost: introduce vhost_vq_avail_empty()
-      vhost_net: basic polling support
+* From v1
+  * rebase on v4.5-mmotm-2016-03-17-15-04
+  * reordering patches to merge clean-up patches first
+  * add Acked-by/Reviewed-by from Vlastimil and Sergey
+  * use each own mount model instead of reusing anon_inode_fs - Al Viro
+  * small changes - YiPing, Gioh
 
-Michael S. Tsirkin (1):
-      virtio_blk: VIRTIO_BLK_F_WCE->VIRTIO_BLK_F_FLUSH
+Minchan Kim (18):
+  mm: use put_page to free page instead of putback_lru_page
+  zsmalloc: use first_page rather than page
+  zsmalloc: clean up many BUG_ON
+  zsmalloc: reordering function parameter
+  zsmalloc: remove unused pool param in obj_free
+  zsmalloc: keep max_object in size_class
+  zsmalloc: squeeze inuse into page->mapping
+  zsmalloc: squeeze freelist into page->mapping
+  zsmalloc: move struct zs_meta from mapping to freelist
+  zsmalloc: factor page chain functionality out
+  zsmalloc: separate free_zspage from putback_zspage
+  zsmalloc: zs_compact refactoring
+  mm/compaction: support non-lru movable page migration
+  mm/balloon: use general movable page feature into balloon
+  zsmalloc: migrate head page of zspage
+  zsmalloc: use single linked list for page chain
+  zsmalloc: migrate tail pages in zspage
+  zram: use __GFP_MOVABLE for memory allocation
 
-Paolo Abeni (1):
-      virtio_net: replace netdev_alloc_skb_ip_align() with napi_alloc_skb()
+ Documentation/filesystems/Locking      |    4 +
+ Documentation/filesystems/vfs.txt      |    5 +
+ drivers/block/zram/zram_drv.c          |    3 +-
+ drivers/virtio/virtio_balloon.c        |   45 +-
+ fs/proc/page.c                         |    3 +
+ include/linux/balloon_compaction.h     |   47 +-
+ include/linux/fs.h                     |    2 +
+ include/linux/migrate.h                |    2 +
+ include/linux/page-flags.h             |   41 +-
+ include/uapi/linux/kernel-page-flags.h |    1 +
+ include/uapi/linux/magic.h             |    2 +
+ mm/balloon_compaction.c                |  101 +--
+ mm/compaction.c                        |   15 +-
+ mm/migrate.c                           |  198 +++--
+ mm/vmscan.c                            |    2 +-
+ mm/zsmalloc.c                          | 1338 +++++++++++++++++++++++---------
+ 16 files changed, 1284 insertions(+), 525 deletions(-)
 
-Petr Mladek (2):
-      virtio_balloon: Use a workqueue instead of "vballoon" kthread
-      virtio_balloon: Allow to resize and update the balloon stats in parallel
-
- arch/s390/include/asm/device.h      |   6 +-
- arch/s390/include/asm/dma-mapping.h |   6 +-
- drivers/vhost/vhost.h               |   5 +-
- drivers/virtio/virtio_pci_common.h  |   6 -
- include/linux/dma-mapping.h         |   2 +
- include/linux/virtio.h              |  23 +-
- include/linux/virtio_ring.h         |  35 +++
- include/uapi/linux/vhost.h          |   6 +
- include/uapi/linux/virtio_blk.h     |   6 +-
- tools/virtio/linux/dma-mapping.h    |  17 ++
- arch/alpha/kernel/pci-noop.c        |  46 +---
- arch/s390/pci/pci.c                 |   1 +
- arch/s390/pci/pci_dma.c             |   4 +-
- drivers/block/virtio_blk.c          |  11 +-
- drivers/net/virtio_net.c            |   2 +-
- drivers/s390/virtio/virtio_ccw.c    |  15 +-
- drivers/vhost/net.c                 |  80 ++++++-
- drivers/vhost/scsi.c                |   2 +-
- drivers/vhost/test.c                |   2 +-
- drivers/vhost/vhost.c               |  69 +++++-
- drivers/virtio/virtio_balloon.c     | 122 +++++-----
- drivers/virtio/virtio_mmio.c        |  67 ++----
- drivers/virtio/virtio_pci_legacy.c  |  42 ++--
- drivers/virtio/virtio_pci_modern.c  |  61 ++---
- drivers/virtio/virtio_ring.c        | 439 +++++++++++++++++++++++++++++++-----
- lib/dma-noop.c                      |  75 ++++++
- arch/s390/Kconfig                   |   5 +-
- drivers/virtio/Kconfig              |   2 +-
- lib/Makefile                        |   1 +
- 29 files changed, 823 insertions(+), 335 deletions(-)
- create mode 100644 tools/virtio/linux/dma-mapping.h
- create mode 100644 lib/dma-noop.c
+-- 
+1.9.1
