@@ -1,9 +1,8 @@
-From: Daniel Stone <daniel@fooishbar.org>
-Subject: Re: [PATCH 2/2] drm/virtio: send vblank event on plane atomic update
-Date: Tue, 22 Mar 2016 13:17:24 +0000
-Message-ID: <CAPj87rO5M3u-X6O6kOqcaXXM_gndAqE22Hr_oJ8Xj20idXaJtQ__2031.69483361325$1458767101$gmane$org@mail.gmail.com>
-References: <1458588187-26002-1-git-send-email-gustavo@padovan.org>
-	<1458588187-26002-2-git-send-email-gustavo@padovan.org>
+From: Gustavo Padovan <gustavo@padovan.org>
+Subject: [PATCH v2] drm/virtio: send vblank event after crtc updates
+Date: Tue, 22 Mar 2016 17:17:52 -0300
+Message-ID: <1458677872-6024-1-git-send-email-gustavo__48148.4305266806$1458767117$gmane$org@padovan.org>
+References: <1458588187-26002-2-git-send-email-gustavo@padovan.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -18,32 +17,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gustavo Padovan <gustavo@padovan.org>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, Gustavo Padovan <gustavo.padovan@collabora.co.uk>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+From: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
 
-On 21 March 2016 at 19:23, Gustavo Padovan <gustavo@padovan.org> wrote:
-> @@ -96,6 +98,11 @@ static void virtio_gpu_plane_atomic_update(struct drm_plane *plane,
->                                       plane->state->crtc_y,
->                                       plane->state->crtc_w,
->                                       plane->state->crtc_h);
-> +
-> +       spin_lock_irqsave(&crtc->dev->event_lock, flags);
-> +       if (crtc->state->event)
-> +               drm_crtc_send_vblank_event(crtc, crtc->state->event);
-> +       spin_unlock_irqrestore(&crtc->dev->event_lock, flags);
+virtio_gpu was failing to send vblank events when using the atomic IOCTL
+with the DRM_MODE_PAGE_FLIP_EVENT flag set. This patch fixes each and
+enables atomic pageflips updates.
 
-This seems like the wrong place to do it, in that it will generate one
-flip event per plane, rather than one per CRTC. So this should
-probably be done in the overall atomic_commit hook I think.
+Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
+---
+ drivers/gpu/drm/virtio/virtgpu_display.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-Also, without some kind of delay, this means that we'll generate
-flip-complete events immediately, which will cause compositors like
-Weston to render infinitely fast. It's probably worth looking at what
-happened when this came up with Bochs - I'm not sure if we fake a 16ms
-delay, or refuse to do async modesets, or what.
-
-Cheers,
-Daniel
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index b70bb8b..4f372e0 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -274,12 +274,24 @@ static int virtio_gpu_crtc_atomic_check(struct drm_crtc *crtc,
+ 	return 0;
+ }
+ 
++static void virtio_gpu_crtc_atomic_flush(struct drm_crtc *crtc,
++					 struct drm_crtc_state *old_state)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&crtc->dev->event_lock, flags);
++	if (crtc->state->event)
++		drm_crtc_send_vblank_event(crtc, crtc->state->event);
++	spin_unlock_irqrestore(&crtc->dev->event_lock, flags);
++}
++
+ static const struct drm_crtc_helper_funcs virtio_gpu_crtc_helper_funcs = {
+ 	.enable        = virtio_gpu_crtc_enable,
+ 	.disable       = virtio_gpu_crtc_disable,
+ 	.mode_fixup    = virtio_gpu_crtc_mode_fixup,
+ 	.mode_set_nofb = virtio_gpu_crtc_mode_set_nofb,
+ 	.atomic_check  = virtio_gpu_crtc_atomic_check,
++	.atomic_flush  = virtio_gpu_crtc_atomic_flush,
+ };
+ 
+ static void virtio_gpu_enc_mode_set(struct drm_encoder *encoder,
+-- 
+2.5.0
