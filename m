@@ -1,15 +1,11 @@
-From: Minchan Kim <minchan@kernel.org>
-Subject: Re: Re: [PATCH v2 13/18] mm/compaction: support non-lru movable
-	pagemigration
-Date: Thu, 24 Mar 2016 14:11:38 +0900
-Message-ID: <20160324051138.GA14101@bbox>
-References: <20160324052650.HM.e0000000006t8Yn@gurugio.wwl1662.hanmail.net>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [RFC PATCH V2 0/2] basic device IOTLB support
+Date: Fri, 25 Mar 2016 10:34:32 +0800
+Message-ID: <1458873274-13961-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160324052650.HM.e0000000006t8Yn@gurugio.wwl1662.hanmail.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,80 +15,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gioh Kim <gurugio@hanmail.net>
-Cc: Rik van Riel <riel@redhat.com>, YiPing Xu <xuyiping@hisilicon.com>, Andrew Morton <akpm@linux-foundation.org>, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Chan Gyun Jeong <chan.jeong@lge.com>, dri-devel@lists.freedesktop.org, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Mel Gorman <mgorman@suse.de>, Gioh Kim <gi-oh.kim@profitbricks.com>, koct9i@gmail.com, Sangseok Lee <sangseok.lee@lge.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, jlayton@poochiereds.net, Vlastimil Babka <vbabka@suse.cz>, aquini@redhat.com
+To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: pbonzini@redhat.com, qemu-devel@nongnu.org, peterx@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 24, 2016 at 05:26:50AM +0900, Gioh Kim wrote:
->    Hmmm... But, in failure case, is it safe to call putback_lru_page() for
->    them?
->    And, PageIsolated() would be left. Is it okay? It's not symmetric that
->    isolated page can be freed by decreasing ref count without calling
->    putback function. This should be clarified and documented.
-> 
->    I agree Joonsoo's idea.
-> 
->    Freeing isolated page out of putback() could be confused.
+This patch tries to implement an device IOTLB for vhost. This could be
+used with for co-operation with userspace(qemu) implementation of
+iommu for a secure DMA environment (DMAR) in guest.
 
-If we makes such rule, subsystem cannot free the isolated pages until VM calls
-putback. I don't think it's a good idea. With it, every users should make own
-deferred page freeing logic which might be more error-prone and obstacle for
-using this interface.
+The idea is simple. When vhost meets an IOTLB miss, it will request
+the assistance of userspace to do the translation, this is done
+through:
 
-I want to make client free his pages whenever he want if possible.
+- Fill the translation request in a preset userspace address (This
+  address is set through ioctl VHOST_SET_IOTLB_REQUEST_ENTRY).
+- Notify userspace through eventfd (This eventfd was set through ioctl
+  VHOST_SET_IOTLB_FD).
 
-> 
->    Every detail cannot be documented. And more documents mean less elegant
->    code.
-> 
->    Is it possible to free isolated page in putback()?
-> 
->    In move_to_new_page(), can we call a_ops->migratepage like following?
-> 
->    move_to_new_page()
-> 
->    {
-> 
->    mapping = page_mapping(page)
-> 
->    if (!mapping)
-> 
->        rc = migrate_page
-> 
->    else if (mapping->a_ops->migratepage && IsolatePage(page))
-> 
->       rc = mapping->a_ops->migratepage
-> 
+When userspace finishes the translation, it will update the vhost
+IOTLB through VHOST_UPDATE_IOTLB ioctl. Userspace is also in charge of
+snooping the IOTLB invalidation of IOMMU IOTLB and use
+VHOST_UPDATE_IOTLB to invalidate the possible entry in vhost.
 
-It's not a problem. The problem is that a page failed migration
-so VM will putback the page. But, between fail of migration and
-putback of isolated page, user can free the page. In this case,
-putback operation would be not called and pass the page in
-putback_lru_page.
+The codes were designed to be architecture independent. It should be
+easily ported to any architecture.
 
+Changes from V1:
+- support any size/range of updating and invalidation through
+  introducing the interval tree.
+- convert from per device iotlb request to per virtqueue iotlb
+  request, this solves the possible deadlock in V1.
+- read/write permission check support.
 
->    else
-> 
->        rc = fallback_migrate_page
-> 
->    ...
-> 
->       return rc
-> 
->    }
-> 
->    I'm sorry that I couldn't review in detail because I forgot many
->    details.
+Please review.
 
-You're a human being, not Alphago. :)
+Thanks
 
-Thanks for the review, Gioh!
+Jason Wang (2):
+  vhost: convert pre sorted vhost memory array to interval tree
+  vhost: device IOTLB API
 
-> 
->    [1][Kk8NwEH1.I.q95.FfPs-qw00]
->    [@from=gurugio&rcpt=minchan%40kernel%2Eorg&msgid=%3C20160324052650%2EHM
->    %2Ee0000000006t8Yn%40gurugio%2Ewwl1662%2Ehanmail%2Enet%3E]
-> 
-> References
-> 
->    1. mailto:gurugio@hanmail.net
+ drivers/vhost/net.c        |  14 +-
+ drivers/vhost/vhost.c      | 427 +++++++++++++++++++++++++++++++++++----------
+ drivers/vhost/vhost.h      |  42 ++++-
+ fs/eventfd.c               |   3 +-
+ include/uapi/linux/vhost.h |  35 ++++
+ 5 files changed, 419 insertions(+), 102 deletions(-)
+
+-- 
+2.5.0
