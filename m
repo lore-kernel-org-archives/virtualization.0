@@ -1,7 +1,7 @@
 From: Minchan Kim <minchan@kernel.org>
-Subject: [PATCH v3 03/16] mm: add non-lru movable page support document
-Date: Wed, 30 Mar 2016 16:12:02 +0900
-Message-ID: <1459321935-3655-4-git-send-email-minchan__7331.32831887833$1459321875$gmane$org@kernel.org>
+Subject: [PATCH v3 05/16] zsmalloc: keep max_object in size_class
+Date: Wed, 30 Mar 2016 16:12:04 +0900
+Message-ID: <1459321935-3655-6-git-send-email-minchan__29011.722157202$1459321890$gmane$org@kernel.org>
 References: <1459321935-3655-1-git-send-email-minchan@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,123 +18,128 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jonathan Corbet <corbet@lwn.net>, Rik van Riel <riel@redhat.com>, YiPing Xu <xuyiping@hisilicon.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Chan Gyun Jeong <chan.jeong@lge.com>, Minchan Kim <minchan@kernel.org>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gi-oh.kim@profitbricks.com>, koct9i@gmail.com, Sangseok Lee <sangseok.lee@lge.com>, jlayton@poochiereds.net, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
+Cc: Rik van Riel <riel@redhat.com>, YiPing Xu <xuyiping@hisilicon.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Chan Gyun Jeong <chan.jeong@lge.com>, Minchan Kim <minchan@kernel.org>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gi-oh.kim@profitbricks.com>, koct9i@gmail.com, Sangseok Lee <sangseok.lee@lge.com>, jlayton@poochiereds.net, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch describes what a subsystem should do for non-lru movable
-page supporting.
+Every zspage in a size_class has same number of max objects so
+we could move it to a size_class.
 
-Cc: Jonathan Corbet <corbet@lwn.net>
 Signed-off-by: Minchan Kim <minchan@kernel.org>
 ---
- Documentation/filesystems/vfs.txt | 11 ++++++-
- Documentation/vm/page_migration   | 69 ++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 78 insertions(+), 2 deletions(-)
+ mm/zsmalloc.c | 32 +++++++++++++++-----------------
+ 1 file changed, 15 insertions(+), 17 deletions(-)
 
-diff --git a/Documentation/filesystems/vfs.txt b/Documentation/filesystems/vfs.txt
-index 4c1b6c3b4bc8..d63142f8ed7b 100644
---- a/Documentation/filesystems/vfs.txt
-+++ b/Documentation/filesystems/vfs.txt
-@@ -752,12 +752,21 @@ struct address_space_operations {
-         and transfer data directly between the storage and the
-         application's address space.
+diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
+index a0890e9003e2..8649d0243e6c 100644
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -32,8 +32,6 @@
+  *	page->freelist: points to the first free object in zspage.
+  *		Free objects are linked together using in-place
+  *		metadata.
+- *	page->objects: maximum number of objects we can store in this
+- *		zspage (class->zspage_order * PAGE_SIZE / class->size)
+  *	page->lru: links together first pages of various zspages.
+  *		Basically forming list of zspages in a fullness group.
+  *	page->mapping: class index and fullness group of the zspage
+@@ -211,6 +209,7 @@ struct size_class {
+ 	 * of ZS_ALIGN.
+ 	 */
+ 	int size;
++	int objs_per_zspage;
+ 	unsigned int index;
  
-+  isolate_page: Called by the VM when isolating a movable non-lru page.
-+	If page is successfully isolated, we should mark the page as
-+	PG_isolated via __SetPageIsolated.
-+
-   migrate_page:  This is used to compact the physical memory usage.
-         If the VM wants to relocate a page (maybe off a memory card
-         that is signalling imminent failure) it will pass a new page
- 	and an old page to this function.  migrate_page should
- 	transfer any private data across and update any references
--        that it has to the page.
-+	that it has to the page. If migrated page is non-lru page,
-+	we should clear PG_isolated and PG_movable via __ClearPageIsolated
-+	and __ClearPageMovable.
-+
-+  putback_page: Called by the VM when isolated page's migration fails.
-+	We should clear PG_isolated marked in isolated_page function.
+ 	struct zs_size_stat stats;
+@@ -627,21 +626,22 @@ static inline void zs_pool_stat_destroy(struct zs_pool *pool)
+  * the pool (not yet implemented). This function returns fullness
+  * status of the given page.
+  */
+-static enum fullness_group get_fullness_group(struct page *first_page)
++static enum fullness_group get_fullness_group(struct size_class *class,
++						struct page *first_page)
+ {
+-	int inuse, max_objects;
++	int inuse, objs_per_zspage;
+ 	enum fullness_group fg;
  
-   launder_page: Called before freeing a page - it writes back the dirty page. To
-   	prevent redirtying the page, it is kept locked during the whole
-diff --git a/Documentation/vm/page_migration b/Documentation/vm/page_migration
-index fea5c0864170..c4e7551a414e 100644
---- a/Documentation/vm/page_migration
-+++ b/Documentation/vm/page_migration
-@@ -142,5 +142,72 @@ is increased so that the page cannot be freed while page migration occurs.
- 20. The new page is moved to the LRU and can be scanned by the swapper
-     etc again.
+ 	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
  
--Christoph Lameter, May 8, 2006.
-+C. Non-LRU Page migration
-+-------------------------
-+
-+Although original migration aimed for reducing the latency of memory access
-+for NUMA, compaction who want to create high-order page is also main customer.
-+
-+Ppage migration's disadvantage is that it was designed to migrate only
-+*LRU* pages. However, there are potential non-lru movable pages which can be
-+migrated in system, for example, zsmalloc, virtio-balloon pages.
-+For virtio-balloon pages, some parts of migration code path was hooked up
-+and added virtio-balloon specific functions to intercept logi.
-+It's too specific to one subsystem so other subsystem who want to make
-+their pages movable should add own specific hooks in migration path.
-+
-+To solve such problem, VM supports non-LRU page migration which provides
-+generic functions for non-LRU movable pages without needing subsystem
-+specific hook in mm/{migrate|compact}.c.
-+
-+If a subsystem want to make own pages movable, it should mark pages as
-+PG_movable via __SetPageMovable. __SetPageMovable needs address_space for
-+argument for register functions which will be called by VM.
-+
-+Three functions in address_space_operation related to non-lru movable page:
-+
-+	bool (*isolate_page) (struct page *, isolate_mode_t);
-+	int (*migratepage) (struct address_space *,
-+		struct page *, struct page *, enum migrate_mode);
-+	void (*putback_page)(struct page *);
-+
-+1. Isolation
-+
-+What VM expected on isolate_page of subsystem is to set PG_isolated flags
-+of the page if it was successful. With that, concurrent isolation among
-+CPUs skips the isolated page by other CPU earlier. VM calls isolate_page
-+under PG_lock of page. If a subsystem cannot isolate the page, it should
-+return false.
+ 	inuse = first_page->inuse;
+-	max_objects = first_page->objects;
++	objs_per_zspage = class->objs_per_zspage;
  
-+2. Migration
-+
-+After successful isolation, VM calls migratepage. The migratepage's goal is
-+to move content of the old page to new page and set up struct page fields
-+of new page. If migration is successful, subsystem should release old page's
-+refcount to free. Keep in mind that subsystem should clear PG_movable and
-+PG_isolated before releasing the refcount.  If everything are done, user
-+should return MIGRATEPAGE_SUCCESS. If subsystem cannot migrate the page
-+at the moment, migratepage can return -EAGAIN. On -EAGAIN, VM will retry page
-+migration because VM interprets -EAGAIN as "temporal migration failure".
-+
-+3. Putback
-+
-+If migration was unsuccessful, VM calls putback_page. The subsystem should
-+insert isolated page to own data structure again if it has. And subsystem
-+should clear PG_isolated which was marked in isolation step.
-+
-+Note about releasing page:
-+
-+Subsystem can release pages whenever it want but if it releses the page
-+which is already isolated, it should clear PG_isolated but doesn't touch
-+PG_movable under PG_lock. Instead of it, VM will clear PG_movable after
-+his job done. Otherweise, subsystem should clear both page flags before
-+releasing the page.
-+
-+Note about PG_isolated:
-+
-+PG_isolated check on a page is valid only if the page's flag is already
-+set to PG_movable.
-+
-+Christoph Lameter, May 8, 2006.
-+Minchan Kim, Mar 28, 2016.
+ 	if (inuse == 0)
+ 		fg = ZS_EMPTY;
+-	else if (inuse == max_objects)
++	else if (inuse == objs_per_zspage)
+ 		fg = ZS_FULL;
+-	else if (inuse <= 3 * max_objects / fullness_threshold_frac)
++	else if (inuse <= 3 * objs_per_zspage / fullness_threshold_frac)
+ 		fg = ZS_ALMOST_EMPTY;
+ 	else
+ 		fg = ZS_ALMOST_FULL;
+@@ -728,7 +728,7 @@ static enum fullness_group fix_fullness_group(struct size_class *class,
+ 	enum fullness_group currfg, newfg;
+ 
+ 	get_zspage_mapping(first_page, &class_idx, &currfg);
+-	newfg = get_fullness_group(first_page);
++	newfg = get_fullness_group(class, first_page);
+ 	if (newfg == currfg)
+ 		goto out;
+ 
+@@ -1008,9 +1008,6 @@ static struct page *alloc_zspage(struct size_class *class, gfp_t flags)
+ 	init_zspage(class, first_page);
+ 
+ 	first_page->freelist = location_to_obj(first_page, 0);
+-	/* Maximum number of objects we can store in this zspage */
+-	first_page->objects = class->pages_per_zspage * PAGE_SIZE / class->size;
+-
+ 	error = 0; /* Success */
+ 
+ cleanup:
+@@ -1238,11 +1235,11 @@ static bool can_merge(struct size_class *prev, int size, int pages_per_zspage)
+ 	return true;
+ }
+ 
+-static bool zspage_full(struct page *first_page)
++static bool zspage_full(struct size_class *class, struct page *first_page)
+ {
+ 	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
+ 
+-	return first_page->inuse == first_page->objects;
++	return first_page->inuse == class->objs_per_zspage;
+ }
+ 
+ unsigned long zs_get_total_pages(struct zs_pool *pool)
+@@ -1628,7 +1625,7 @@ static int migrate_zspage(struct zs_pool *pool, struct size_class *class,
+ 		}
+ 
+ 		/* Stop if there is no more space */
+-		if (zspage_full(d_page)) {
++		if (zspage_full(class, d_page)) {
+ 			unpin_tag(handle);
+ 			ret = -ENOMEM;
+ 			break;
+@@ -1687,7 +1684,7 @@ static enum fullness_group putback_zspage(struct zs_pool *pool,
+ {
+ 	enum fullness_group fullness;
+ 
+-	fullness = get_fullness_group(first_page);
++	fullness = get_fullness_group(class, first_page);
+ 	insert_zspage(class, fullness, first_page);
+ 	set_zspage_mapping(first_page, class->index, fullness);
+ 
+@@ -1936,8 +1933,9 @@ struct zs_pool *zs_create_pool(const char *name, gfp_t flags)
+ 		class->size = size;
+ 		class->index = i;
+ 		class->pages_per_zspage = pages_per_zspage;
+-		if (pages_per_zspage == 1 &&
+-			get_maxobj_per_zspage(size, pages_per_zspage) == 1)
++		class->objs_per_zspage = class->pages_per_zspage *
++						PAGE_SIZE / class->size;
++		if (pages_per_zspage == 1 && class->objs_per_zspage == 1)
+ 			class->huge = true;
+ 		spin_lock_init(&class->lock);
+ 		pool->size_class[i] = class;
 -- 
 1.9.1
