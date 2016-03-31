@@ -1,16 +1,18 @@
-From: Minchan Kim <minchan@kernel.org>
-Subject: Re: [PATCH v3 00/16] Support non-lru page migration
-Date: Thu, 31 Mar 2016 09:57:34 +0900
-Message-ID: <20160331005734.GC6736__46452.2059228786$1459385790$gmane$org@bbox>
-References: <1459321935-3655-1-git-send-email-minchan@kernel.org>
-	<20160330161141.4332b189e7a4930e117d765b@linux-foundation.org>
-	<20160331002932.GA1758@swordfish>
+From: "Sinclair Yeh" <syeh@vmware.com>
+Subject: Re: [PATCH 6/6] VMware balloon: Update vmw_balloon.c to use the
+	VMW_PORT macro
+Date: Thu, 31 Mar 2016 07:39:53 -0700
+Message-ID: <20160331143953.GA23662__35761.6846835755$1459435089$gmane$org@syeh-linux>
+References: <1449271183-1746-1-git-send-email-syeh@vmware.com>
+	<1453239965-1466-1-git-send-email-syeh@vmware.com>
+	<1453239965-1466-7-git-send-email-syeh@vmware.com>
+	<20160208194157.GA10802@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160331002932.GA1758@swordfish>
 Content-Disposition: inline
+In-Reply-To: <20160208194157.GA10802@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,22 +22,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-Cc: Rik van Riel <riel@redhat.com>, YiPing Xu <xuyiping@hisilicon.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Chan Gyun Jeong <chan.jeong@lge.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gi-oh.kim@profitbricks.com>, koct9i@gmail.com, Sangseok Lee <sangseok.lee@lge.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Andrew Morton <akpm@linux-foundation.org>, jlayton@poochiereds.net, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: pv-drivers@vmware.com, Xavier Deguillard <xdeguillard@vmware.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 31, 2016 at 09:29:32AM +0900, Sergey Senozhatsky wrote:
-> On (03/30/16 16:11), Andrew Morton wrote:
-> [..]
-> > > For details, please read description in
-> > > "mm/compaction: support non-lru movable page migration".
-> > 
-> > OK, I grabbed all these.
-> > 
-> > I wonder about testing coverage during the -next period.  How many
-> > people are likely to exercise these code paths in a serious way before
-> > it all hits mainline?
-> 
-> I'm hammering the zsmalloc part.
+Hi,
 
-Thanks, Sergey!
+Does any one know when this series will be applied?
+
+Sinclair
+
+On Mon, Feb 08, 2016 at 11:41:57AM -0800, Greg KH wrote:
+> On Tue, Jan 19, 2016 at 01:46:05PM -0800, Sinclair Yeh wrote:
+> > Updated VMWARE_BALLOON_CMD to use the common VMW_PORT macro.
+> > Doing this rather than replacing all instances of VMWARE_BALLOON_CMD
+> > to minimize code change.
+> > 
+> > Signed-off-by: Sinclair Yeh <syeh@vmware.com>
+> > Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
+> > Reviewed-by: Alok N Kataria <akataria@vmware.com>
+> > Acked-by: Xavier Deguillard <xdeguillard@vmware.com>
+> > Cc: pv-drivers@vmware.com
+> > Cc: Xavier Deguillard <xdeguillard@vmware.com>
+> > Cc: linux-kernel@vger.kernel.org
+> > Cc: virtualization@lists.linux-foundation.org
+> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> 
+> 
+> Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> 
+> > -#define VMWARE_BALLOON_CMD(cmd, arg1, arg2, result)		\
+> > -({								\
+> > -	unsigned long __status, __dummy1, __dummy2, __dummy3;	\
+> > -	__asm__ __volatile__ ("inl %%dx" :			\
+> > -		"=a"(__status),					\
+> > -		"=c"(__dummy1),					\
+> > -		"=d"(__dummy2),					\
+> > -		"=b"(result),					\
+> > -		"=S" (__dummy3) :				\
+> > -		"0"(VMW_BALLOON_HV_MAGIC),			\
+> > -		"1"(VMW_BALLOON_CMD_##cmd),			\
+> > -		"2"(VMW_BALLOON_HV_PORT),			\
+> > -		"3"(arg1),					\
+> > -		"4" (arg2) :					\
+> > -		"memory");					\
+> > -	if (VMW_BALLOON_CMD_##cmd == VMW_BALLOON_CMD_START)	\
+> > -		result = __dummy1;				\
+> > -	result &= -1UL;						\
+> > -	__status & -1UL;					\
+> > +#define VMWARE_BALLOON_CMD(cmd, arg1, arg2, result)			\
+> > +({									\
+> > +	unsigned long __status, __dummy1, __dummy2;			\
+> > +	unsigned long __si, __di;					\
+> > +	VMW_PORT(VMW_BALLOON_CMD_##cmd, arg1, arg2, 0,			\
+> > +		 VMW_BALLOON_HV_PORT, VMW_BALLOON_HV_MAGIC,		\
+> > +		 __status, result, __dummy1, __dummy2, __si, __di);	\
+> > +	if (VMW_BALLOON_CMD_##cmd == VMW_BALLOON_CMD_START)		\
+> > +		result = __dummy1;					\
+> > +	result &= -1UL;							\
+> > +	__status & -1UL;						\
+> >  })
+> 
+> Honestly, it doesn't look anymore "readable" to me, but it's your code
+> to maintain, not mine... :)
+> 
