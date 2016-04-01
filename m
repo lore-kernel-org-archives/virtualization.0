@@ -1,20 +1,14 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH v3 5/6] virt, sched: add cpu pinning to
-	smp_call_sync_on_phys_cpu()
-Date: Fri, 1 Apr 2016 11:26:25 +0200
-Message-ID: <56FE3EC1.7000800@suse.com>
-References: <1459494874-12194-1-git-send-email-jgross@suse.com>
-	<1459494874-12194-6-git-send-email-jgross@suse.com>
-	<20160401074325.GC12845@twins.programming.kicks-ass.net>
-	<56FE313E.9060804@suse.com>
-	<20160401084408.GF3448@twins.programming.kicks-ass.net>
-	<56FE3959.2030508@suse.com>
-	<20160401091507.GG3448@twins.programming.kicks-ass.net>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: Ballooning on TPS!=HPS hosts
+Date: Fri, 1 Apr 2016 16:22:34 +0530
+Message-ID: <20160401105234.GA21483@grmbl.mre>
+References: <20160331180024.GN2265@work-vm>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160401091507.GG3448@twins.programming.kicks-ass.net>
+Content-Disposition: inline
+In-Reply-To: <20160331180024.GN2265@work-vm>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,29 +18,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: x86@kernel.org, jeremy@goop.org, jdelvare@suse.com, konrad.wilk@oracle.com, hpa@zytor.com, akataria@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, pali.rohar@gmail.com, xen-devel@lists.xenproject.org, boris.ostrovsky@oracle.com, tglx@linutronix.de, linux@roeck-us.net
+To: "Dr. David Alan Gilbert" <dgilbert@redhat.com>
+Cc: lvivier@redhat.com, aarcange@redhat.com, drjones@redhat.com, qemu-devel@nongnu.org, Virtualization List <virtualization@lists.linux-foundation.org>, lcapitulino@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/04/16 11:15, Peter Zijlstra wrote:
-> On Fri, Apr 01, 2016 at 11:03:21AM +0200, Juergen Gross wrote:
->>> Maybe just make the vpin thing an option like:
->>>
->>> 	smp_call_on_cpu(int (*func)(void *), int phys_cpu);
-> 
->>> Also; is something like the vpin thing possible on KVM? because if we're
->>> going to expose it to generic code like this we had maybe look at wider
->>> support.
->>
->> It is necessary for dom0 under Xen. I don't think there is a need to do
->> this on KVM as a guest has no direct access to e.g. BIOS functions of
->> the real hardware and the host system needs no vcpu pinning. I'm not
->> sure about VMWare.
-> 
-> OK, then can we WARN if .phys=1 and the platform doesn't support it?
-> 
+CC'ing virtualization list.
 
-Yes, good idea.
+On (Thu) 31 Mar 2016 [19:00:24], Dr. David Alan Gilbert wrote:
+> Hi,
+>   I was reading the balloon code and am confused as to how/if ballooning
+> works on hosts where the host page size is larger than the
+> target page size.
+> 
+> static void balloon_page(void *addr, int deflate)
+> {
+> #if defined(__linux__)
+>     if (!qemu_balloon_is_inhibited() && (!kvm_enabled() ||
+>                                          kvm_has_sync_mmu())) {
+>         qemu_madvise(addr, TARGET_PAGE_SIZE,
+>                 deflate ? QEMU_MADV_WILLNEED : QEMU_MADV_DONTNEED);
+>     }
+> #endif
+> }
+> 
+> The virtio-balloon code only does stuff through ballon_page,
+> and an madvise DONTNEED should fail if you try and do it on
+> a size smaller than the host page size.  So does ballooning work on
+> Power/ARM?
+> 
+> Am I misunderstanding this?
 
+I think you're right.  Guess no one's tested this in such scenarios
+yet.
 
-Juergen
+> Of course looking at the above we won't actually generate an error since
+> we don't check the return of qemu_madvise.
+
+... at least we can deflate the balloon in case the madvise fails, so
+the guest can use the pages it's given us.
+
+> We have three sizes:
+>     a) host page size
+>     b) target page size
+>     c) VIRTIO_BALLOON_PFN_SHIFT
+> 
+>  c == 12 (4k) for everyone
+>  
+> 
+>     1) I think the virtio-balloon code needs to coallesce adjecent requests
+>       and call balloon_page on whole chunks at once passing a length.
+>     2) why does balloon_page use TARGET_PAGE_SIZE, ignoring anything else
+>        shouldn't it be 1 << VIRTIO_BALLOON_PFN_SHIFT ?
+>     3) I'm guessing the guest kernel doesn't know the host page size, so
+>        how can it know what size chunks of balloon to work in?
+
+Thanks,
+
+		Amit
