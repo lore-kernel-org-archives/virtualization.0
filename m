@@ -1,15 +1,16 @@
 From: Vlastimil Babka <vbabka@suse.cz>
-Subject: Re: [PATCH v3 03/16] mm: add non-lru movable page support document
-Date: Mon, 4 Apr 2016 15:09:22 +0200
-Message-ID: <57026782.3020201@suse.cz>
+Subject: Re: [PATCH v3 02/16] mm/compaction: support non-lru movable page
+	migration
+Date: Mon, 4 Apr 2016 15:24:34 +0200
+Message-ID: <57026B12.6060000__32076.3888689273$1459776302$gmane$org@suse.cz>
 References: <1459321935-3655-1-git-send-email-minchan@kernel.org>
-	<1459321935-3655-4-git-send-email-minchan@kernel.org>
-	<56FE87EA.60806@suse.cz> <20160404022552.GD6543@bbox>
+	<1459321935-3655-3-git-send-email-minchan@kernel.org>
+	<56FEE82A.30602@suse.cz> <20160404051225.GA6838@bbox>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160404022552.GD6543@bbox>
+In-Reply-To: <20160404051225.GA6838@bbox>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,114 +21,119 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Minchan Kim <minchan@kernel.org>
-Cc: jlayton@poochiereds.net, Rik van Riel <riel@redhat.com>, YiPing Xu <xuyiping@hisilicon.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Chan Gyun Jeong <chan.jeong@lge.com>, Jonathan Corbet <corbet@lwn.net>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gi-oh.kim@profitbricks.com>, Mel Gorman <mgorman@suse.de>, Sangseok Lee <sangseok.lee@lge.com>, Andrew Morton <akpm@linux-foundation.org>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, koct9i@gmail.com, Al Viro <viro@ZenIV.linux.org.uk>
+Cc: jlayton@poochiereds.net, Rik van Riel <riel@redhat.com>, YiPing Xu <xuyiping@hisilicon.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Chan Gyun Jeong <chan.jeong@lge.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gurugio@hanmail.net>, Gioh Kim <gi-oh.kim@profitbricks.com>, Mel Gorman <mgorman@suse.de>, Sangseok Lee <sangseok.lee@lge.com>, Andrew Morton <akpm@linux-foundation.org>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, koct9i@gmail.com, Al Viro <viro@ZenIV.linux.org.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/04/2016 04:25 AM, Minchan Kim wrote:
->>
->> Ah, I see, so it's designed with page lock to handle the concurrent isolations etc.
->>
->> In http://marc.info/?l=linux-mm&m=143816716511904&w=2 Mel has warned
->> about doing this in general under page_lock and suggested that each
->> user handles concurrent calls to isolate_page() internally. Might be
->> more generic that way, even if all current implementers will
->> actually use the page lock.
+On 04/04/2016 07:12 AM, Minchan Kim wrote:
+> On Fri, Apr 01, 2016 at 11:29:14PM +0200, Vlastimil Babka wrote:
+>> Might have been better as a separate migration patch and then a
+>> compaction patch. It's prefixed mm/compaction, but most changed are
+>> in mm/migrate.c
 >
-> We need PG_lock for two reasons.
->
-> Firstly, it guarantees page's flags operation(i.e., PG_movable, PG_isolated)
-> atomicity. Another thing is for stability for page->mapping->a_ops.
->
-> For example,
->
-> isolate_migratepages_block
->          if (PageMovable(page))
->                  isolate_movable_page
->                          get_page_unless_zero <--- 1
->                          trylock_page
->                          page->mapping->a_ops->isolate_page <--- 2
->
-> Between 1 and 2, driver can nullify page->mapping so we need PG_lock
+> Indeed. The title is rather misleading but not sure it's a good idea
+> to separate compaction and migration part.
 
-Hmm I see, that really doesn't seem easily solvable without page_lock.
-My idea is that compaction code would just check PageMovable() and 
-PageIsolated() to find a candidate. page->mapping->a_ops->isolate_page 
-would do the driver-specific necessary locking, revalidate if the page 
-state and succeed isolation, or fail. It would need to handle the 
-possibility that the page already doesn't belong to the mapping, which 
-is probably not a problem. But what if the driver is a module that was 
-already unloaded, and even though we did NULL-check each part from page 
-to isolate_page, it points to a function that's already gone? That would 
-need some extra handling to prevent that, hm...
+Guess it's better to see the new functions together with its user after 
+all, OK.
 
->>
->>> +2. Migration
->>> +
->>> +After successful isolation, VM calls migratepage. The migratepage's goal is
->>> +to move content of the old page to new page and set up struct page fields
->>> +of new page. If migration is successful, subsystem should release old page's
->>> +refcount to free. Keep in mind that subsystem should clear PG_movable and
->>> +PG_isolated before releasing the refcount.  If everything are done, user
->>> +should return MIGRATEPAGE_SUCCESS. If subsystem cannot migrate the page
->>> +at the moment, migratepage can return -EAGAIN. On -EAGAIN, VM will retry page
->>> +migration because VM interprets -EAGAIN as "temporal migration failure".
->>> +
->>> +3. Putback
->>> +
->>> +If migration was unsuccessful, VM calls putback_page. The subsystem should
->>> +insert isolated page to own data structure again if it has. And subsystem
->>> +should clear PG_isolated which was marked in isolation step.
->>> +
->>> +Note about releasing page:
->>> +
->>> +Subsystem can release pages whenever it want but if it releses the page
->>> +which is already isolated, it should clear PG_isolated but doesn't touch
->>> +PG_movable under PG_lock. Instead of it, VM will clear PG_movable after
->>> +his job done. Otherweise, subsystem should clear both page flags before
->>> +releasing the page.
->>
->> I don't understand this right now. But maybe I will get it after
->> reading the patches and suggest some improved wording here.
+> I will just resend to change the tile from "mm/compaction" to
+> "mm/migration".
+
+OK!
+
+>> Also I'm a bit uncomfortable how isolate_movable_page() blindly expects that
+>> page->mapping->a_ops->isolate_page exists for PageMovable() pages.
+>> What if it's a false positive on a PG_reclaim page? Can we rely on
+>> PG_reclaim always (and without races) implying PageLRU() so that we
+>> don't even attempt isolate_movable_page()?
 >
-> I will try to explain why such rule happens in there.
+> For now, we shouldn't have such a false positive because PageMovable
+> checks page->_mapcount == PAGE_MOVABLE_MAPCOUNT_VALUE as well as PG_movable
+> under PG_lock.
 >
-> The problem is that put_page is aware of PageLRU. So, if someone releases
-> last refcount of LRU page, __put_page checks PageLRU and then, clear the
-> flags and detatch the page in LRU list(i.e., data structure).
-> But in case of driver page, data structure like LRU among drivers is not only one.
-> IOW, we should add following code in put_page to handle various requirements
-> of driver page.
+> But I read your question about user-mapped drvier pages so we cannot
+> use _mapcount anymore so I will find another thing. A option is this.
 >
-> void __put_page(struct page *page)
+> static inline int PageMovable(struct page *page)
 > {
->          if (PageMovable(page)) {
->                  /*
->                   * It will tity up driver's data structure like LRU
->                   * and reset page's flags. And it should be atomic
->                   * and always successful
->                   */
->                  page->put(page);
->                  __ClearPageMovable(page);
->          } else if (PageCompound(page))
->                  __put_compound_page(page);
->          else
->                  __put_single_page(page);
+>          int ret = 0;
+>          struct address_space *mapping;
+>          struct address_space_operations *a_op;
+>
+>          if (!test_bit(PG_movable, &(page->flags))
+>                  goto out;
+>
+>          mapping = page->mapping;
+>          if (!mapping)
+>                  goto out;
+>
+>          a_op = mapping->a_op;
+>          if (!aop)
+>                  goto out;
+>          if (a_op->isolate_page)
+>                  ret = 1;
+> out:
+>          return ret;
 >
 > }
 >
-> I'd like to avoid add new branch for not popular job in put_page which is hot.
-> (Might change in future but not popular at the moment)
-> So, rule of driver is as follows.
->
-> When the driver releases the page and he found the page is PG_isolated,
-> he should unmark only PG_isolated, not PG_movable so migration side of
-> VM can catch it up "Hmm, the isolated non-lru page doesn't have PG_isolated
-> any more. It means drivers releases the page. So, let's put the page
-> instead of putback operation".
->
-> When the driver releases the page and he doesn't see PG_isolated mark
-> of the page, driver should reset both PG_isolated and PG_movable.
+> It works under PG_lock but with this, we need trylock_page to peek
+> whether it's movable non-lru or not for scanning pfn.
 
-Yeah think I understand now, thanks for the explanation. But since I 
-found the "freeing isolated page" part to be racy in the 02/16 
-subthread, it might be premature now to improve the wording now :/
+Hm I hoped that with READ_ONCE() we could do the peek safely without 
+trylock_page, if we use it only as a heuristic. But I guess it would 
+require at least RCU-level protection of the 
+page->mapping->a_op->isolate_page chain.
+
+> For avoiding that, we need another function to peek which just checks
+> PG_movable bit instead of all things.
+>
+>
+> /*
+>   * If @page_locked is false, we cannot guarantee page->mapping's stability
+>   * so just the function checks with PG_movable which could be false positive
+>   * so caller should check it again under PG_lock to check a_ops->isolate_page.
+>   */
+> static inline int PageMovable(struct page *page, bool page_locked)
+> {
+>          int ret = 0;
+>          struct address_space *mapping;
+>          struct address_space_operations *a_op;
+>
+>          if (!test_bit(PG_movable, &(page->flags))
+>                  goto out;
+>
+>          if (!page_locked) {
+>                  ret = 1;
+>                  goto out;
+>          }
+>
+>          mapping = page->mapping;
+>          if (!mapping)
+>                  goto out;
+>
+>          a_op = mapping->a_op;
+>          if (!aop)
+>                  goto out;
+>          if (a_op->isolate_page)
+>                  ret = 1;
+> out:
+>          return ret;
+> }
+
+I wouldn't put everything into single function, but create something 
+like __PageMovable() just for the unlocked peek. Unlike the 
+zone->lru_lock, we don't keep page_lock() across iterations in 
+isolate_migratepages_block(), as obviously each page has different lock.
+So the page_locked parameter would be always passed as constant, and at 
+that point it's better to have separate functions.
+
+So I guess the question is how many false positives from overlap with 
+PG_reclaim the scanner will hit if we give up on 
+PAGE_MOVABLE_MAPCOUNT_VALUE, as that will increase number of page locks 
+just to realize that it's not actual PageMovable() page...
+
+> Thanks for detail review, Vlastimil!
+> I will resend new versions after vacation in this week.
+
+You're welcome, great!
