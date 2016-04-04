@@ -1,12 +1,12 @@
-From: John Einar Reitan <john.reitan@foss.arm.com>
-Subject: Re: [PATCH v3 00/16] Support non-lru page migration
-Date: Mon, 4 Apr 2016 15:17:18 +0200
-Message-ID: <20160404131718.GA18963__13980.4544895471$1459786690$gmane$org@e106921-lin.trondheim.arm.com>
-References: <1459321935-3655-1-git-send-email-minchan@kernel.org>
+From: Jeff Mahoney <jeffm@suse.com>
+Subject: =?UTF-8?Q?[PATCH]_virtio:_fix_=22warning:_=e2=80=98queue=e2=80=99_m?=
+	=?UTF-8?Q?ay_be_used_uninitialized=22?=
+Date: Mon, 4 Apr 2016 14:14:19 -0400
+Message-ID: <5702AEFB.5090701@suse.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8442941942235766592=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1459321935-3655-1-git-send-email-minchan@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,88 +16,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Minchan Kim <minchan@kernel.org>
-Cc: Rik van Riel <riel@redhat.com>, YiPing Xu <xuyiping@hisilicon.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Chan Gyun Jeong <chan.jeong@lge.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gi-oh.kim@profitbricks.com>, koct9i@gmail.com, Sangseok Lee <sangseok.lee@lge.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Andrew Morton <akpm@linux-foundation.org>, jlayton@poochiereds.net, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
---===============8442941942235766592==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="sm4nu43k4a2Rpi4c"
-Content-Disposition: inline
-
-
---sm4nu43k4a2Rpi4c
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, Mar 30, 2016 at 04:11:59PM +0900, Minchan Kim wrote:
-> Recently, I got many reports about perfermance degradation
-> in embedded system(Android mobile phone, webOS TV and so on)
-> and failed to fork easily.
->=20
-> The problem was fragmentation caused by zram and GPU driver
-> pages. Their pages cannot be migrated so compaction cannot
-> work well, either so reclaimer ends up shrinking all of working
-> set pages. It made system very slow and even to fail to fork
-> easily.
->=20
-> Other pain point is that they cannot work with CMA.
-> Most of CMA memory space could be idle(ie, it could be used
-> for movable pages unless driver is using) but if driver(i.e.,
-> zram) cannot migrate his page, that memory space could be
-> wasted. In our product which has big CMA memory, it reclaims
-> zones too exccessively although there are lots of free space
-> in CMA so system was very slow easily.
->=20
-> To solve these problem, this patch try to add facility to
-> migrate non-lru pages via introducing new friend functions
-> of migratepage in address_space_operation and new page flags.
->=20
-> 	(isolate_page, putback_page)
-> 	(PG_movable, PG_isolated)
->=20
-> For details, please read description in
-> "mm/compaction: support non-lru movable page migration".
-
-Thanks, this mirrors what we see with the ARM Mali GPU drivers too.
-
-One thing with the current design which worries me is the potential
-for multiple calls due to many separated pages being migrated.
-On GPUs (or any other device) which has an IOMMU and L2 cache, which
-isn't coherent with the CPU, we must do L2 cache flush & invalidation
-per page. I guess batching pages isn't easily possible?
-
-
---sm4nu43k4a2Rpi4c
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQGcBAABCAAGBQJXAmlZAAoJEPmPNPdCQ4pIlBwL/1pxZRdGGS+YVXOWnKmLrVhR
-LwzyVmu02A7lMgHXoAMGHuWaH06mGRLfwgjU56fi2JnLeNkHR/wpR95gGckvS8zd
-xQmogKXU4ZE8xbqqft6qwxv3IE+mGkwCPMGrLVjvgfKR0/iJ7ojQYN9fhoV1Z3br
-Pn0/lhMdOqo1jnHHmMDp9PD6s32l3SdnISfjHXF72fSA5u4Uv/kITReSyRgaWQSB
-efJjZjM7QPPHomeUcy1u/ZdbJYI5FRnZpaNJMGuCX8d7hnlIu1WS7zdlJzhMs3qi
-mzU5/49J/eoycEadTFJD9VsvKKO0W5GpPP03A2PEHcsiGv3mEqjsnomNNCBLfebO
-2bT8pMYR3VV7/+W/DjEOvMvlWCrq01uxuJIcjJVpoC3Wh6aMJW8fX1Po8RZQIfRb
-+en68y8EocFXu1oevCEP2jBUmBpd/uXzLUStbHDbijDH3G53PBBsv8msFpm9HIfM
-Ice5LUXN2cBJcmwD0KwZwn9a2SUoy/NQesE50nBfSA==
-=0/aR
------END PGP SIGNATURE-----
-
---sm4nu43k4a2Rpi4c--
-
---===============8442941942235766592==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8442941942235766592==--
+VGhpcyBmaXhlcyB0aGUgZm9sbG93aW5nIHdhcm5pbmc6CmRyaXZlcnMvdmlydGlvL3ZpcnRpb19y
+aW5nLmM6MTAzMjo1OiB3YXJuaW5nOiDigJhxdWV1ZeKAmSBtYXkgYmUgdXNlZAp1bmluaXRpYWxp
+emVkIGluIHRoaXMgZnVuY3Rpb24KClRoZSBjb25kaXRpb25zIHRoYXQgZ292ZXJuIHdoZW4gcXVl
+dWUgaXMgc2V0IGFyZW4ndCBhcHBhcmVudCB0byBnY2MuCgpTZXR0aW5nIHF1ZXVlID0gTlVMTCBj
+bGVhcnMgdGhlIHdhcm5pbmcuCgpTaWduZWQtb2ZmLWJ5OiBKZWZmIE1haG9uZXkgPGplZmZtQHN1
+c2UuY29tPgotLS0KCiBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIHwgICAgMiArLQogMSBm
+aWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspLCAxIGRlbGV0aW9uKC0pCgotLS0gYS9kcml2ZXJz
+L3ZpcnRpby92aXJ0aW9fcmluZy5jCisrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMK
+QEAgLTEwMDYsNyArMTAwNiw3IEBAIHN0cnVjdCB2aXJ0cXVldWUgKnZyaW5nX2NyZWF0ZV92aXJ0
+cXVldWUKIAljb25zdCBjaGFyICpuYW1lKQogewogCXN0cnVjdCB2aXJ0cXVldWUgKnZxOwotCXZv
+aWQgKnF1ZXVlOworCXZvaWQgKnF1ZXVlID0gTlVMTDsKIAlkbWFfYWRkcl90IGRtYV9hZGRyOwog
+CXNpemVfdCBxdWV1ZV9zaXplX2luX2J5dGVzOwogCXN0cnVjdCB2cmluZyB2cmluZzsKCi0tIApK
+ZWZmIE1haG9uZXkKU1VTRSBMYWJzCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
+aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
+cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
