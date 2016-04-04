@@ -1,17 +1,15 @@
-From: Minchan Kim <minchan@kernel.org>
-Subject: Re: [PATCH v3 01/16] mm: use put_page to free page instead of
-	putback_lru_page
-Date: Mon, 4 Apr 2016 15:01:34 +0900
-Message-ID: <20160404060134.GA7555@bbox>
+From: Vlastimil Babka <vbabka@suse.cz>
+Subject: Re: [PATCH v3 03/16] mm: add non-lru movable page support document
+Date: Mon, 4 Apr 2016 15:09:22 +0200
+Message-ID: <57026782.3020201@suse.cz>
 References: <1459321935-3655-1-git-send-email-minchan@kernel.org>
-	<1459321935-3655-2-git-send-email-minchan@kernel.org>
-	<57020177.60006@gmail.com>
+	<1459321935-3655-4-git-send-email-minchan@kernel.org>
+	<56FE87EA.60806@suse.cz> <20160404022552.GD6543@bbox>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <57020177.60006@gmail.com>
-Content-Disposition: inline
+In-Reply-To: <20160404022552.GD6543@bbox>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,41 +19,115 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Balbir Singh <bsingharora@gmail.com>
-Cc: Rik van Riel <riel@redhat.com>, YiPing Xu <xuyiping@hisilicon.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Chan Gyun Jeong <chan.jeong@lge.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gi-oh.kim@profitbricks.com>, koct9i@gmail.com, Sangseok Lee <sangseok.lee@lge.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Andrew Morton <akpm@linux-foundation.org>, Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>, jlayton@poochiereds.net, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
+To: Minchan Kim <minchan@kernel.org>
+Cc: jlayton@poochiereds.net, Rik van Riel <riel@redhat.com>, YiPing Xu <xuyiping@hisilicon.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Chan Gyun Jeong <chan.jeong@lge.com>, Jonathan Corbet <corbet@lwn.net>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gi-oh.kim@profitbricks.com>, Mel Gorman <mgorman@suse.de>, Sangseok Lee <sangseok.lee@lge.com>, Andrew Morton <akpm@linux-foundation.org>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, koct9i@gmail.com, Al Viro <viro@ZenIV.linux.org.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 04, 2016 at 03:53:59PM +1000, Balbir Singh wrote:
-> 
-> 
-> On 30/03/16 18:12, Minchan Kim wrote:
-> > Procedure of page migration is as follows:
-> >
-> > First of all, it should isolate a page from LRU and try to
-> > migrate the page. If it is successful, it releases the page
-> > for freeing. Otherwise, it should put the page back to LRU
-> > list.
-> >
-> > For LRU pages, we have used putback_lru_page for both freeing
-> > and putback to LRU list. It's okay because put_page is aware of
-> > LRU list so if it releases last refcount of the page, it removes
-> > the page from LRU list. However, It makes unnecessary operations
-> > (e.g., lru_cache_add, pagevec and flags operations. It would be
-> > not significant but no worth to do) and harder to support new
-> > non-lru page migration because put_page isn't aware of non-lru
-> > page's data structure.
-> >
-> > To solve the problem, we can add new hook in put_page with
-> > PageMovable flags check but it can increase overhead in
-> > hot path and needs new locking scheme to stabilize the flag check
-> > with put_page.
-> >
-> > So, this patch cleans it up to divide two semantic(ie, put and putback).
-> > If migration is successful, use put_page instead of putback_lru_page and
-> > use putback_lru_page only on failure. That makes code more readable
-> > and doesn't add overhead in put_page.
-> So effectively when we return from unmap_and_move() the page is either
-> put_page or putback_lru_page() and the page is gone from under us.
+On 04/04/2016 04:25 AM, Minchan Kim wrote:
+>>
+>> Ah, I see, so it's designed with page lock to handle the concurrent isolations etc.
+>>
+>> In http://marc.info/?l=linux-mm&m=143816716511904&w=2 Mel has warned
+>> about doing this in general under page_lock and suggested that each
+>> user handles concurrent calls to isolate_page() internally. Might be
+>> more generic that way, even if all current implementers will
+>> actually use the page lock.
+>
+> We need PG_lock for two reasons.
+>
+> Firstly, it guarantees page's flags operation(i.e., PG_movable, PG_isolated)
+> atomicity. Another thing is for stability for page->mapping->a_ops.
+>
+> For example,
+>
+> isolate_migratepages_block
+>          if (PageMovable(page))
+>                  isolate_movable_page
+>                          get_page_unless_zero <--- 1
+>                          trylock_page
+>                          page->mapping->a_ops->isolate_page <--- 2
+>
+> Between 1 and 2, driver can nullify page->mapping so we need PG_lock
 
-I didn't get your point.
-Could you elaborate it more what you want to say about this patch?
+Hmm I see, that really doesn't seem easily solvable without page_lock.
+My idea is that compaction code would just check PageMovable() and 
+PageIsolated() to find a candidate. page->mapping->a_ops->isolate_page 
+would do the driver-specific necessary locking, revalidate if the page 
+state and succeed isolation, or fail. It would need to handle the 
+possibility that the page already doesn't belong to the mapping, which 
+is probably not a problem. But what if the driver is a module that was 
+already unloaded, and even though we did NULL-check each part from page 
+to isolate_page, it points to a function that's already gone? That would 
+need some extra handling to prevent that, hm...
+
+>>
+>>> +2. Migration
+>>> +
+>>> +After successful isolation, VM calls migratepage. The migratepage's goal is
+>>> +to move content of the old page to new page and set up struct page fields
+>>> +of new page. If migration is successful, subsystem should release old page's
+>>> +refcount to free. Keep in mind that subsystem should clear PG_movable and
+>>> +PG_isolated before releasing the refcount.  If everything are done, user
+>>> +should return MIGRATEPAGE_SUCCESS. If subsystem cannot migrate the page
+>>> +at the moment, migratepage can return -EAGAIN. On -EAGAIN, VM will retry page
+>>> +migration because VM interprets -EAGAIN as "temporal migration failure".
+>>> +
+>>> +3. Putback
+>>> +
+>>> +If migration was unsuccessful, VM calls putback_page. The subsystem should
+>>> +insert isolated page to own data structure again if it has. And subsystem
+>>> +should clear PG_isolated which was marked in isolation step.
+>>> +
+>>> +Note about releasing page:
+>>> +
+>>> +Subsystem can release pages whenever it want but if it releses the page
+>>> +which is already isolated, it should clear PG_isolated but doesn't touch
+>>> +PG_movable under PG_lock. Instead of it, VM will clear PG_movable after
+>>> +his job done. Otherweise, subsystem should clear both page flags before
+>>> +releasing the page.
+>>
+>> I don't understand this right now. But maybe I will get it after
+>> reading the patches and suggest some improved wording here.
+>
+> I will try to explain why such rule happens in there.
+>
+> The problem is that put_page is aware of PageLRU. So, if someone releases
+> last refcount of LRU page, __put_page checks PageLRU and then, clear the
+> flags and detatch the page in LRU list(i.e., data structure).
+> But in case of driver page, data structure like LRU among drivers is not only one.
+> IOW, we should add following code in put_page to handle various requirements
+> of driver page.
+>
+> void __put_page(struct page *page)
+> {
+>          if (PageMovable(page)) {
+>                  /*
+>                   * It will tity up driver's data structure like LRU
+>                   * and reset page's flags. And it should be atomic
+>                   * and always successful
+>                   */
+>                  page->put(page);
+>                  __ClearPageMovable(page);
+>          } else if (PageCompound(page))
+>                  __put_compound_page(page);
+>          else
+>                  __put_single_page(page);
+>
+> }
+>
+> I'd like to avoid add new branch for not popular job in put_page which is hot.
+> (Might change in future but not popular at the moment)
+> So, rule of driver is as follows.
+>
+> When the driver releases the page and he found the page is PG_isolated,
+> he should unmark only PG_isolated, not PG_movable so migration side of
+> VM can catch it up "Hmm, the isolated non-lru page doesn't have PG_isolated
+> any more. It means drivers releases the page. So, let's put the page
+> instead of putback operation".
+>
+> When the driver releases the page and he doesn't see PG_isolated mark
+> of the page, driver should reset both PG_isolated and PG_movable.
+
+Yeah think I understand now, thanks for the explanation. But since I 
+found the "freeing isolated page" part to be racy in the 02/16 
+subthread, it might be premature now to improve the wording now :/
