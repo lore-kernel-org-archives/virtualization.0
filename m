@@ -1,15 +1,14 @@
-From: Vlastimil Babka <vbabka@suse.cz>
-Subject: Re: [PATCH v3 04/16] mm/balloon: use general movable page feature
-	into balloon
-Date: Tue, 5 Apr 2016 14:03:05 +0200
-Message-ID: <5703A979.402@suse.cz>
-References: <1459321935-3655-1-git-send-email-minchan@kernel.org>
-	<1459321935-3655-5-git-send-email-minchan@kernel.org>
+From: Jeff Mahoney <jeffm@suse.com>
+Subject: =?UTF-8?Q?Re:_[PATCH]_virtio:_fix_=22warning:_=e2=80=98queue?=
+	=?UTF-8?Q?=e2=80=99_may_be_used_uninitialized=22?=
+Date: Tue, 5 Apr 2016 09:34:24 -0400
+Message-ID: <5703BEE0.5020206@suse.com>
+References: <5702AEFB.5090701@suse.com>
+	<20160405110113-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============2249687371614954184=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1459321935-3655-5-git-send-email-minchan@kernel.org>
+In-Reply-To: <20160405110113-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,99 +18,122 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Rik van Riel <riel@redhat.com>, YiPing Xu <xuyiping@hisilicon.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Chan Gyun Jeong <chan.jeong@lge.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gurugio@hanmail.net>, Gioh Kim <gi-oh.kim@profitbricks.com>, Mel Gorman <mgorman@suse.de>, Sangseok Lee <sangseok.lee@lge.com>, jlayton@poochiereds.net, Joonsoo Kim <iamjoonsoo.kim@lge.com>, koct9i@gmail.com, Al Viro <viro@ZenIV.linux.org.uk>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/30/2016 09:12 AM, Minchan Kim wrote:
-> Now, VM has a feature to migrate non-lru movable pages so
-> balloon doesn't need custom migration hooks in migrate.c
-> and compact.c. Instead, this patch implements page->mapping
-> ->{isolate|migrate|putback} functions.
->
-> With that, we could remove hooks for ballooning in general
-> migration functions and make balloon compaction simple.
->
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: Rafael Aquini <aquini@redhat.com>
-> Cc: Konstantin Khlebnikov <koct9i@gmail.com>
-> Signed-off-by: Gioh Kim <gurugio@hanmail.net>
-> Signed-off-by: Minchan Kim <minchan@kernel.org>
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============2249687371614954184==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="EEgkIeMVh2QJDpgS4jFsQWlDWecxXPths"
 
-I'm not familiar with the inode and pseudofs stuff, so just some things 
-I noticed:
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--EEgkIeMVh2QJDpgS4jFsQWlDWecxXPths
+Content-Type: multipart/mixed; boundary="AR2fcOjQ4PRxv0umXoQc0XFV5B3CevSrD"
+From: Jeff Mahoney <jeffm@suse.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+Message-ID: <5703BEE0.5020206@suse.com>
+Subject: =?UTF-8?Q?Re:_[PATCH]_virtio:_fix_=22warning:_=e2=80=98queue?=
+ =?UTF-8?Q?=e2=80=99_may_be_used_uninitialized=22?=
+References: <5702AEFB.5090701@suse.com>
+ <20160405110113-mutt-send-email-mst@redhat.com>
+In-Reply-To: <20160405110113-mutt-send-email-mst@redhat.com>
 
-> -#define PAGE_MOVABLE_MAPCOUNT_VALUE (-255)
-> +#define PAGE_MOVABLE_MAPCOUNT_VALUE (-256)
-> +#define PAGE_BALLOON_MAPCOUNT_VALUE PAGE_MOVABLE_MAPCOUNT_VALUE
->
->   static inline int PageMovable(struct page *page)
->   {
-> -	return ((test_bit(PG_movable, &(page)->flags) &&
-> -		atomic_read(&page->_mapcount) == PAGE_MOVABLE_MAPCOUNT_VALUE)
-> -		|| PageBalloon(page));
-> +	return (test_bit(PG_movable, &(page)->flags) &&
-> +		atomic_read(&page->_mapcount) == PAGE_MOVABLE_MAPCOUNT_VALUE);
->   }
->
->   /* Caller should hold a PG_lock */
-> @@ -645,6 +626,35 @@ static inline void __ClearPageMovable(struct page *page)
->
->   PAGEFLAG(Isolated, isolated, PF_ANY);
->
-> +static inline int PageBalloon(struct page *page)
-> +{
-> +	return atomic_read(&page->_mapcount) == PAGE_BALLOON_MAPCOUNT_VALUE
-> +		&& PagePrivate2(page);
-> +}
+--AR2fcOjQ4PRxv0umXoQc0XFV5B3CevSrD
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Hmm so you are now using PG_private_2 flag here, but it's not 
-documented. Also the only caller of PageBalloon() seems to be 
-stable_page_flags(). Which will now report all movable pages with 
-PG_private_2 as KPF_BALOON. Seems like an overkill and also not 
-reliable. Could it test e.g. page->mapping instead?
+On 4/5/16 4:04 AM, Michael S. Tsirkin wrote:
+> On Mon, Apr 04, 2016 at 02:14:19PM -0400, Jeff Mahoney wrote:
+>> This fixes the following warning:
+>> drivers/virtio/virtio_ring.c:1032:5: warning: =E2=80=98queue=E2=80=99 =
+may be used
+>> uninitialized in this function
+>>
+>> The conditions that govern when queue is set aren't apparent to gcc.
+>>
+>> Setting queue =3D NULL clears the warning.
+>>
+>> Signed-off-by: Jeff Mahoney <jeffm@suse.com>
+>=20
+> Which gcc version produces this warning?
+> I do not seem to see it with gcc 5.3.1.
 
-Or maybe if we manage to get rid of PAGE_MOVABLE_MAPCOUNT_VALUE, we can 
-keep PAGE_BALLOON_MAPCOUNT_VALUE to simply distinguish balloon pages for 
-stable_page_flags().
+gcc version 4.8.5 (SUSE Linux)
 
-> @@ -1033,7 +1019,7 @@ static int __unmap_and_move(struct page *page, struct page *newpage,
->   out:
->   	/* If migration is successful, move newpage to right list */
->   	if (rc == MIGRATEPAGE_SUCCESS) {
-> -		if (unlikely(__is_movable_balloon_page(newpage)))
-> +		if (unlikely(PageMovable(newpage)))
->   			put_page(newpage);
->   		else
->   			putback_lru_page(newpage);
+> Also - use uninitialized_var then?
 
-Hmm shouldn't the condition have been changed to
+If it were a fast path, sure, but otherwise the use of uninitialized_var
+just makes similar issues harder to debug if the code changes.
 
-if (unlikely(__is_movable_balloon_page(newpage)) || PageMovable(newpage)
+-Jeff
 
-by patch 02/16? And this patch should be just removing the 
-balloon-specific check? Otherwise it seems like between patches 02 and 
-04, other kinds of PageMovable pages were unnecessarily/wrongly routed 
-through putback_lru_page()?
+>> ---
+>>
+>>  drivers/virtio/virtio_ring.c |    2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> --- a/drivers/virtio/virtio_ring.c
+>> +++ b/drivers/virtio/virtio_ring.c
+>> @@ -1006,7 +1006,7 @@ struct virtqueue *vring_create_virtqueue
+>>  	const char *name)
+>>  {
+>>  	struct virtqueue *vq;
+>> -	void *queue;
+>> +	void *queue =3D NULL;
+>>  	dma_addr_t dma_addr;
+>>  	size_t queue_size_in_bytes;
+>>  	struct vring vring;
+>>
+>> --=20
+>> Jeff Mahoney
+>> SUSE Labs
+>=20
 
-> diff --git a/mm/vmscan.c b/mm/vmscan.c
-> index d82196244340..c7696a2e11c7 100644
-> --- a/mm/vmscan.c
-> +++ b/mm/vmscan.c
-> @@ -1254,7 +1254,7 @@ unsigned long reclaim_clean_pages_from_list(struct zone *zone,
->
->   	list_for_each_entry_safe(page, next, page_list, lru) {
->   		if (page_is_file_cache(page) && !PageDirty(page) &&
-> -		    !isolated_balloon_page(page)) {
-> +		    !PageIsolated(page)) {
->   			ClearPageActive(page);
->   			list_move(&page->lru, &clean_pages);
->   		}
 
-This looks like the same comment as above at first glance. But looking 
-closer, it's even weirder. isolated_balloon_page() was simply 
-PageBalloon() after d6d86c0a7f8dd... weird already. You replace it with 
-check for !PageIsolated() which looks like a more correct check, so ok. 
-Except the potential false positive with PG_owner_priv_1.
+--=20
+Jeff Mahoney
+SUSE Labs
 
-Thanks.
+
+--AR2fcOjQ4PRxv0umXoQc0XFV5B3CevSrD--
+
+--EEgkIeMVh2QJDpgS4jFsQWlDWecxXPths
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG/MacGPG2 v2.0.19 (Darwin)
+Comment: GPGTools - http://gpgtools.org
+
+iQIcBAEBAgAGBQJXA77gAAoJEB57S2MheeWynsIP/1AICmRAA14Hc8WQ5T68+Fy0
+4TJyYVNwcC04Fjcb/CvjQfVFTCNkNcaJehZcERL+UAsHb4TJ3H0HqsgpTodZ3y92
+vRMxsKoclEi004qWYV/pZIciLxIJDmZMIvWbo9ZZhrMEE+n/psWVofEVT1VSqtbN
+ZY1oiJRx5vdR10yWgV60CTimfOfRDWKnaooCsDnyv4owNbG18HOR4JfNE2uX5S3j
+5u/2dwkdWFDPNDkGGSKXiGWj/rAsu4zfx3IX+9kaP6a6c1rzTocLqk3ryFcs0q2v
+8t7xgyj5LT7VQmrsEbl/An7o8I6bAk30custu7RxAhtLREe/Ne2LdyYJphErMUbz
+9bi22MOAnN9UodXwKYhO/U/itk5xwXfT4GbAcf9/p3u5ug7Z2CbREnfLkJ1Qyw3K
+ZBmhHkcVrv0cO5IqlCCHktdZqQASNHiBUkN5oKZ6cA5eydwInm7KPsxDuQTVNJWD
+WmI8TteNT018Ygz7W7mNMS/V727n4k9TUkLaeJ2lv1m5+zSJwuOxbvouvDsA8hr1
+8wqbtAfK/5vME2D60tgaFVYS29Zp1HB43P2cjDIhfvOWxqwCVdHc/5BnV8jhhVB+
+1XgMBML/Zto10CJBsBDxgp0Y78cOvgV6ISoy0gdb9ZAOch2zPIOKJ/9ytEWq9ZOk
+QP8WPIz+Q53DNFQ4NozW
+=lYG5
+-----END PGP SIGNATURE-----
+
+--EEgkIeMVh2QJDpgS4jFsQWlDWecxXPths--
+
+--===============2249687371614954184==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============2249687371614954184==--
