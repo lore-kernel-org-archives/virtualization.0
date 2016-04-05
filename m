@@ -1,16 +1,15 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH v4 3/6] smp: add function to execute a function
-	synchronously on a cpu
-Date: Tue, 5 Apr 2016 12:05:34 +0200
-Message-ID: <57038DEE.3070201@suse.com>
-References: <1459833007-11618-1-git-send-email-jgross@suse.com>
-	<1459833007-11618-4-git-send-email-jgross@suse.com>
-	<20160405081107.GH3448@twins.programming.kicks-ass.net>
+From: Vlastimil Babka <vbabka@suse.cz>
+Subject: Re: [PATCH v3 04/16] mm/balloon: use general movable page feature
+	into balloon
+Date: Tue, 5 Apr 2016 14:03:05 +0200
+Message-ID: <5703A979.402@suse.cz>
+References: <1459321935-3655-1-git-send-email-minchan@kernel.org>
+	<1459321935-3655-5-git-send-email-minchan@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160405081107.GH3448@twins.programming.kicks-ass.net>
+In-Reply-To: <1459321935-3655-5-git-send-email-minchan@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,48 +19,99 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: x86@kernel.org, jeremy@goop.org, jdelvare@suse.com, hpa@zytor.com, akataria@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, pali.rohar@gmail.com, xen-devel@lists.xenproject.org, boris.ostrovsky@oracle.com, tglx@linutronix.de, linux@roeck-us.net
+To: Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Rik van Riel <riel@redhat.com>, YiPing Xu <xuyiping@hisilicon.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Chan Gyun Jeong <chan.jeong@lge.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gurugio@hanmail.net>, Gioh Kim <gi-oh.kim@profitbricks.com>, Mel Gorman <mgorman@suse.de>, Sangseok Lee <sangseok.lee@lge.com>, jlayton@poochiereds.net, Joonsoo Kim <iamjoonsoo.kim@lge.com>, koct9i@gmail.com, Al Viro <viro@ZenIV.linux.org.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05/04/16 10:11, Peter Zijlstra wrote:
-> On Tue, Apr 05, 2016 at 07:10:04AM +0200, Juergen Gross wrote:
->> +int smp_call_on_cpu(unsigned int cpu, bool pin, int (*func)(void *), void *par)
-> 
-> Why .pin and not .phys? .pin does not (to me) reflect the
-> hypervisor/physical-cpu thing.
+On 03/30/2016 09:12 AM, Minchan Kim wrote:
+> Now, VM has a feature to migrate non-lru movable pages so
+> balloon doesn't need custom migration hooks in migrate.c
+> and compact.c. Instead, this patch implements page->mapping
+> ->{isolate|migrate|putback} functions.
+>
+> With that, we could remove hooks for ballooning in general
+> migration functions and make balloon compaction simple.
+>
+> Cc: virtualization@lists.linux-foundation.org
+> Cc: Rafael Aquini <aquini@redhat.com>
+> Cc: Konstantin Khlebnikov <koct9i@gmail.com>
+> Signed-off-by: Gioh Kim <gurugio@hanmail.net>
+> Signed-off-by: Minchan Kim <minchan@kernel.org>
 
-I don't mind either way. As you don't like .pin, lets name it .phys.
+I'm not familiar with the inode and pseudofs stuff, so just some things 
+I noticed:
 
-> Also, as per smp_call_function_single() would it not be more consistent
-> to make this the last argument?
+> -#define PAGE_MOVABLE_MAPCOUNT_VALUE (-255)
+> +#define PAGE_MOVABLE_MAPCOUNT_VALUE (-256)
+> +#define PAGE_BALLOON_MAPCOUNT_VALUE PAGE_MOVABLE_MAPCOUNT_VALUE
+>
+>   static inline int PageMovable(struct page *page)
+>   {
+> -	return ((test_bit(PG_movable, &(page)->flags) &&
+> -		atomic_read(&page->_mapcount) == PAGE_MOVABLE_MAPCOUNT_VALUE)
+> -		|| PageBalloon(page));
+> +	return (test_bit(PG_movable, &(page)->flags) &&
+> +		atomic_read(&page->_mapcount) == PAGE_MOVABLE_MAPCOUNT_VALUE);
+>   }
+>
+>   /* Caller should hold a PG_lock */
+> @@ -645,6 +626,35 @@ static inline void __ClearPageMovable(struct page *page)
+>
+>   PAGEFLAG(Isolated, isolated, PF_ANY);
+>
+> +static inline int PageBalloon(struct page *page)
+> +{
+> +	return atomic_read(&page->_mapcount) == PAGE_BALLOON_MAPCOUNT_VALUE
+> +		&& PagePrivate2(page);
+> +}
 
-Okay, I'll change it.
+Hmm so you are now using PG_private_2 flag here, but it's not 
+documented. Also the only caller of PageBalloon() seems to be 
+stable_page_flags(). Which will now report all movable pages with 
+PG_private_2 as KPF_BALOON. Seems like an overkill and also not 
+reliable. Could it test e.g. page->mapping instead?
 
-> 
->> +{
->> +	struct smp_call_on_cpu_struct sscs = {
->> +		.work = __WORK_INITIALIZER(sscs.work, smp_call_on_cpu_callback),
->> +		.done = COMPLETION_INITIALIZER_ONSTACK(sscs.done),
->> +		.func = func,
->> +		.data = par,
->> +		.cpu  = pin ? cpu : -1,
->> +	};
->> +
->> +	if (cpu >= nr_cpu_ids)
-> 
-> You might want to also include cpu_online().
-> 
-> 	if (cpu >= nr_cpu_ids || !cpu_online(cpu))
+Or maybe if we manage to get rid of PAGE_MOVABLE_MAPCOUNT_VALUE, we can 
+keep PAGE_BALLOON_MAPCOUNT_VALUE to simply distinguish balloon pages for 
+stable_page_flags().
 
-Indeed, good idea.
+> @@ -1033,7 +1019,7 @@ static int __unmap_and_move(struct page *page, struct page *newpage,
+>   out:
+>   	/* If migration is successful, move newpage to right list */
+>   	if (rc == MIGRATEPAGE_SUCCESS) {
+> -		if (unlikely(__is_movable_balloon_page(newpage)))
+> +		if (unlikely(PageMovable(newpage)))
+>   			put_page(newpage);
+>   		else
+>   			putback_lru_page(newpage);
 
->> +		return -ENXIO;
-> 
-> Seeing how its fairly hard to schedule work on a cpu that's not actually
-> there.
+Hmm shouldn't the condition have been changed to
 
-Really? ;-)
+if (unlikely(__is_movable_balloon_page(newpage)) || PageMovable(newpage)
 
+by patch 02/16? And this patch should be just removing the 
+balloon-specific check? Otherwise it seems like between patches 02 and 
+04, other kinds of PageMovable pages were unnecessarily/wrongly routed 
+through putback_lru_page()?
 
-Juergen
+> diff --git a/mm/vmscan.c b/mm/vmscan.c
+> index d82196244340..c7696a2e11c7 100644
+> --- a/mm/vmscan.c
+> +++ b/mm/vmscan.c
+> @@ -1254,7 +1254,7 @@ unsigned long reclaim_clean_pages_from_list(struct zone *zone,
+>
+>   	list_for_each_entry_safe(page, next, page_list, lru) {
+>   		if (page_is_file_cache(page) && !PageDirty(page) &&
+> -		    !isolated_balloon_page(page)) {
+> +		    !PageIsolated(page)) {
+>   			ClearPageActive(page);
+>   			list_move(&page->lru, &clean_pages);
+>   		}
+
+This looks like the same comment as above at first glance. But looking 
+closer, it's even weirder. isolated_balloon_page() was simply 
+PageBalloon() after d6d86c0a7f8dd... weird already. You replace it with 
+check for !PageIsolated() which looks like a more correct check, so ok. 
+Except the potential false positive with PG_owner_priv_1.
+
+Thanks.
