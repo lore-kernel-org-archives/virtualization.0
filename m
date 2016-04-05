@@ -1,15 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio: fix =?utf-8?Q?=22warni?=
-	=?utf-8?B?bmc6IOKAmHF1ZXVl4oCZ?= may be used uninitialized"
-Date: Tue, 5 Apr 2016 11:04:10 +0300
-Message-ID: <20160405110113-mutt-send-email-mst@redhat.com>
-References: <5702AEFB.5090701@suse.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v4 3/6] smp: add function to execute a function
+	synchronously on a cpu
+Date: Tue, 5 Apr 2016 10:11:07 +0200
+Message-ID: <20160405081107.GH3448@twins.programming.kicks-ass.net>
+References: <1459833007-11618-1-git-send-email-jgross@suse.com>
+	<1459833007-11618-4-git-send-email-jgross@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <5702AEFB.5090701@suse.com>
+In-Reply-To: <1459833007-11618-4-git-send-email-jgross@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,27 +20,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeff Mahoney <jeffm@suse.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Juergen Gross <jgross@suse.com>
+Cc: x86@kernel.org, jeremy@goop.org, jdelvare@suse.com, hpa@zytor.com, akataria@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, pali.rohar@gmail.com, xen-devel@lists.xenproject.org, boris.ostrovsky@oracle.com, tglx@linutronix.de, linux@roeck-us.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBBcHIgMDQsIDIwMTYgYXQgMDI6MTQ6MTlQTSAtMDQwMCwgSmVmZiBNYWhvbmV5IHdy
-b3RlOgo+IFRoaXMgZml4ZXMgdGhlIGZvbGxvd2luZyB3YXJuaW5nOgo+IGRyaXZlcnMvdmlydGlv
-L3ZpcnRpb19yaW5nLmM6MTAzMjo1OiB3YXJuaW5nOiDigJhxdWV1ZeKAmSBtYXkgYmUgdXNlZAo+
-IHVuaW5pdGlhbGl6ZWQgaW4gdGhpcyBmdW5jdGlvbgo+IAo+IFRoZSBjb25kaXRpb25zIHRoYXQg
-Z292ZXJuIHdoZW4gcXVldWUgaXMgc2V0IGFyZW4ndCBhcHBhcmVudCB0byBnY2MuCj4gCj4gU2V0
-dGluZyBxdWV1ZSA9IE5VTEwgY2xlYXJzIHRoZSB3YXJuaW5nLgo+IAo+IFNpZ25lZC1vZmYtYnk6
-IEplZmYgTWFob25leSA8amVmZm1Ac3VzZS5jb20+CgpXaGljaCBnY2MgdmVyc2lvbiBwcm9kdWNl
-cyB0aGlzIHdhcm5pbmc/CkkgZG8gbm90IHNlZW0gdG8gc2VlIGl0IHdpdGggZ2NjIDUuMy4xLgpB
-bHNvIC0gdXNlIHVuaW5pdGlhbGl6ZWRfdmFyIHRoZW4/Cgo+IC0tLQo+IAo+ICBkcml2ZXJzL3Zp
-cnRpby92aXJ0aW9fcmluZy5jIHwgICAgMiArLQo+ICAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRp
-b24oKyksIDEgZGVsZXRpb24oLSkKPiAKPiAtLS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmlu
-Zy5jCj4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+IEBAIC0xMDA2LDcgKzEw
-MDYsNyBAQCBzdHJ1Y3QgdmlydHF1ZXVlICp2cmluZ19jcmVhdGVfdmlydHF1ZXVlCj4gIAljb25z
-dCBjaGFyICpuYW1lKQo+ICB7Cj4gIAlzdHJ1Y3QgdmlydHF1ZXVlICp2cTsKPiAtCXZvaWQgKnF1
-ZXVlOwo+ICsJdm9pZCAqcXVldWUgPSBOVUxMOwo+ICAJZG1hX2FkZHJfdCBkbWFfYWRkcjsKPiAg
-CXNpemVfdCBxdWV1ZV9zaXplX2luX2J5dGVzOwo+ICAJc3RydWN0IHZyaW5nIHZyaW5nOwo+IAo+
-IC0tIAo+IEplZmYgTWFob25leQo+IFNVU0UgTGFicwpfX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
-bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
-dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Tue, Apr 05, 2016 at 07:10:04AM +0200, Juergen Gross wrote:
+> +int smp_call_on_cpu(unsigned int cpu, bool pin, int (*func)(void *), void *par)
+
+Why .pin and not .phys? .pin does not (to me) reflect the
+hypervisor/physical-cpu thing.
+
+Also, as per smp_call_function_single() would it not be more consistent
+to make this the last argument?
+
+> +{
+> +	struct smp_call_on_cpu_struct sscs = {
+> +		.work = __WORK_INITIALIZER(sscs.work, smp_call_on_cpu_callback),
+> +		.done = COMPLETION_INITIALIZER_ONSTACK(sscs.done),
+> +		.func = func,
+> +		.data = par,
+> +		.cpu  = pin ? cpu : -1,
+> +	};
+> +
+> +	if (cpu >= nr_cpu_ids)
+
+You might want to also include cpu_online().
+
+	if (cpu >= nr_cpu_ids || !cpu_online(cpu))
+> +		return -ENXIO;
+
+Seeing how its fairly hard to schedule work on a cpu that's not actually
+there.
+
+> +
+> +	queue_work_on(cpu, system_wq, &sscs.work);
+> +	wait_for_completion(&sscs.done);
+> +
+> +	return sscs.ret;
+> +}
