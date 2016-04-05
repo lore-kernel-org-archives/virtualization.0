@@ -1,16 +1,19 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v4 3/6] smp: add function to execute a function
-	synchronously on a cpu
-Date: Tue, 5 Apr 2016 10:11:07 +0200
-Message-ID: <20160405081107.GH3448@twins.programming.kicks-ass.net>
-References: <1459833007-11618-1-git-send-email-jgross@suse.com>
-	<1459833007-11618-4-git-send-email-jgross@suse.com>
+From: Vlastimil Babka <vbabka@suse.cz>
+Subject: Re: [PATCH v3 01/16] mm: use put_page to free page instead of
+	putback_lru_page
+Date: Tue, 5 Apr 2016 10:20:50 +0200
+Message-ID: <57037562.3040203@suse.cz>
+References: <1459321935-3655-1-git-send-email-minchan@kernel.org>
+	<1459321935-3655-2-git-send-email-minchan@kernel.org>
+	<56FE706D.7080507@suse.cz> <20160404013917.GC6543@bbox>
+	<20160404044458.GA20250@hori1.linux.bs1.fc.nec.co.jp>
+	<57027E47.7070909@suse.cz>
+	<20160405015402.GA30962@hori1.linux.bs1.fc.nec.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1459833007-11618-4-git-send-email-jgross@suse.com>
+In-Reply-To: <20160405015402.GA30962@hori1.linux.bs1.fc.nec.co.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,41 +23,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Juergen Gross <jgross@suse.com>
-Cc: x86@kernel.org, jeremy@goop.org, jdelvare@suse.com, hpa@zytor.com, akataria@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, pali.rohar@gmail.com, xen-devel@lists.xenproject.org, boris.ostrovsky@oracle.com, tglx@linutronix.de, linux@roeck-us.net
+To: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Cc: Rik van Riel <riel@redhat.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, YiPing Xu <xuyiping@hisilicon.com>, "aquini@redhat.com" <aquini@redhat.com>, "rknize@motorola.com" <rknize@motorola.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Chan Gyun Jeong <chan.jeong@lge.com>, Hugh Dickins <hughd@google.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "bfields@fieldses.org" <bfields@fieldses.org>, Minchan Kim <minchan@kernel.org>, Gioh Kim <gi-oh.kim@profitbricks.com>, Mel Gorman <mgorman@suse.de>, Sangseok Lee <sangseok.lee@lge.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Andrew Morton <akpm@linux-foundation.org>, "jlayton@poochiereds.net" <jlayton@poochiereds.net>, "koct9i@gmail.com" <koct9i@gmail.com>, Al Viro <viro@ZenIV.linux.org.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 05, 2016 at 07:10:04AM +0200, Juergen Gross wrote:
-> +int smp_call_on_cpu(unsigned int cpu, bool pin, int (*func)(void *), void *par)
+On 04/05/2016 03:54 AM, Naoya Horiguchi wrote:
+> On Mon, Apr 04, 2016 at 04:46:31PM +0200, Vlastimil Babka wrote:
+>> On 04/04/2016 06:45 AM, Naoya Horiguchi wrote:
+>>> On Mon, Apr 04, 2016 at 10:39:17AM +0900, Minchan Kim wrote:
+> ...
+>>>>>
+>>>>> Also (but not your fault) the put_page() preceding
+>>>>> test_set_page_hwpoison(page)) IMHO deserves a comment saying which
+>>>>> pin we are releasing and which one we still have (hopefully? if I
+>>>>> read description of da1b13ccfbebe right) otherwise it looks like
+>>>>> doing something with a page that we just potentially freed.
+>>>>
+>>>> Yes, while I read the code, I had same question. I think the releasing
+>>>> refcount is for get_any_page.
+>>>
+>>> As the other callers of page migration do, soft_offline_page expects the
+>>> migration source page to be freed at this put_page() (no pin remains.)
+>>> The refcount released here is from isolate_lru_page() in __soft_offline_page().
+>>> (the pin by get_any_page is released by put_hwpoison_page just after it.)
+>>>
+>>> .. yes, doing something just after freeing page looks weird, but that's
+>>> how PageHWPoison flag works. IOW, many other page flags are maintained
+>>> only during one "allocate-free" life span, but PageHWPoison still does
+>>> its job beyond it.
+>>
+>> But what prevents the page from being allocated again between put_page()
+>> and test_set_page_hwpoison()? In that case we would be marking page
+>> poisoned while still in use, which is the same as marking it while still
+>> in use after a failed migration?
+> 
+> Actually nothing prevents that race. But I think that the result of the race
+> is that the error page can be reused for allocation, which results in killing
+> processes at page fault time. Soft offline is kind of mild/precautious thing
+> (for correctable errors that don't require immediate handling), so killing
+> processes looks to me an overkill. And marking hwpoison means that we can no
+> longer do retry from userspace.
 
-Why .pin and not .phys? .pin does not (to me) reflect the
-hypervisor/physical-cpu thing.
+So you agree that this race is a bug? It may turn a soft-offline attempt
+into a killed process. In that case we should fix it the same as we are
+fixing the failed migration case. Maybe it will be just enough to switch
+the test_set_page_hwpoison() and put_page() calls?
 
-Also, as per smp_call_function_single() would it not be more consistent
-to make this the last argument?
+> And another practical thing is the race with unpoison_memory() as described
+> in commit da1b13ccfbebe. unpoison_memory() properly works only for properly
+> poisoned pages, so doing unpoison for in-use hwpoisoned pages is fragile.
+> That's why I'd like to avoid setting PageHWPoison for in-use pages if possible.
+> 
+>> (Also, which part prevents pages with PageHWPoison to be allocated
+>> again, anyway? I can't find it and test_set_page_hwpoison() doesn't
+>> remove from buddy freelists).
+> 
+> check_new_page() in mm/page_alloc.c should prevent reallocation of PageHWPoison.
+> As you pointed out, memory error handler doens't remove it from buddy freelists.
 
-> +{
-> +	struct smp_call_on_cpu_struct sscs = {
-> +		.work = __WORK_INITIALIZER(sscs.work, smp_call_on_cpu_callback),
-> +		.done = COMPLETION_INITIALIZER_ONSTACK(sscs.done),
-> +		.func = func,
-> +		.data = par,
-> +		.cpu  = pin ? cpu : -1,
-> +	};
-> +
-> +	if (cpu >= nr_cpu_ids)
+Oh, I see. It's using __PG_HWPOISON wrapper, so I didn't notice it when
+searching. In any case that results in a bad_page() warning, right? Is
+it desirable for a soft-offlined page? If we didn't free poisoned pages
+to buddy system, they wouldn't trigger this warning.
 
-You might want to also include cpu_online().
+> BTW, it might be a bit off-topic, but recently I felt that check_new_page()
+> might be improvable, because when check_new_page() returns 1, the whole buddy
+> block (not only the bad page) seems to be leaked from buddy freelist.
+> For example, if thp (order 9) is requested, and PageHWPoison (or any other
+> types of bad pages) is found in an order 9 block, all 512 page are discarded.
+> Unpoison can't bring it back to buddy.
+> So, some code to split buddy block including bad page (and recovering code from
+> unpoison) might be helpful, although that's another story ...
 
-	if (cpu >= nr_cpu_ids || !cpu_online(cpu))
-> +		return -ENXIO;
+Hm sounds like another argument for not freeing the page to buddy lists
+in the first place. Maybe a hook in free_pages_check()?
 
-Seeing how its fairly hard to schedule work on a cpu that's not actually
-there.
-
-> +
-> +	queue_work_on(cpu, system_wq, &sscs.work);
-> +	wait_for_completion(&sscs.done);
-> +
-> +	return sscs.ret;
-> +}
+> Thanks,
+> Naoya Horiguchi
+> 
