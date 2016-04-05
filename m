@@ -1,16 +1,11 @@
-From: Balbir Singh <bsingharora@gmail.com>
-Subject: Re: [PATCH v3 01/16] mm: use put_page to free page instead of
-	putback_lru_page
-Date: Tue, 5 Apr 2016 13:10:38 +1000
-Message-ID: <57032CAE.10404__46546.690646983$1459825877$gmane$org@gmail.com>
-References: <1459321935-3655-1-git-send-email-minchan@kernel.org>
-	<1459321935-3655-2-git-send-email-minchan@kernel.org>
-	<57020177.60006@gmail.com> <20160404060134.GA7555@bbox>
+From: Juergen Gross <jgross@suse.com>
+Subject: [PATCH v4 0/6] Support calling functions on dedicated physical cpu
+Date: Tue,  5 Apr 2016 07:10:01 +0200
+Message-ID: <1459833007-11618-1-git-send-email-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160404060134.GA7555@bbox>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,48 +15,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Minchan Kim <minchan@kernel.org>
-Cc: Rik van Riel <riel@redhat.com>, YiPing Xu <xuyiping@hisilicon.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Chan Gyun Jeong <chan.jeong@lge.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gi-oh.kim@profitbricks.com>, koct9i@gmail.com, Sangseok Lee <sangseok.lee@lge.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Andrew Morton <akpm@linux-foundation.org>, Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>, jlayton@poochiereds.net, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
+To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org
+Cc: Juergen Gross <jgross@suse.com>, jeremy@goop.org, jdelvare@suse.com, peterz@infradead.org, hpa@zytor.com, akataria@vmware.com, x86@kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, pali.rohar@gmail.com, boris.ostrovsky@oracle.com, tglx@linutronix.de, linux@roeck-us.net
 List-Id: virtualization@lists.linuxfoundation.org
 
+Some hardware (e.g. Dell Studio laptops) require special functions to
+be called on physical cpu 0 in order to avoid occasional hangs. When
+running as dom0 under Xen this could be achieved only via special boot
+parameters (vcpu pinning) limiting the hypervisor in it's scheduling
+decisions.
+
+This patch series is adding a generic function to be able to temporarily
+pin a (virtual) cpu to a dedicated physical cpu for executing above
+mentioned functions on that specific cpu. The drivers (dcdbas and i8k)
+requiring this functionality are modified accordingly.
+
+Changes in V4:
+- move patches 5 and 6 further up in the series
+- patch 2 (was 5): WARN_ONCE in case platform doesn't support pinning
+  as requested by Peter Zijlstra
+- patch 3 (was 2): change return value in case of illegal cpu as
+  requested by Peter Zijlstra
+- patch 3 (was 2): make pinning of vcpu an option as suggested by
+  Peter Zijlstra
+- patches 5 and 6 (were 3 and 4): add call to get_online_cpus()
+
+Changes in V3:
+- use get_cpu()/put_cpu() as suggested by David Vrabel
+
+Changes in V2:
+- instead of manipulating the allowed set of cpus use cpu specific
+  workqueue as requested by Peter Zijlstra
+- add include/linux/hypervisor.h to hide architecture specific stuff
+  from generic kernel code
 
 
-On 04/04/16 16:01, Minchan Kim wrote:
-> On Mon, Apr 04, 2016 at 03:53:59PM +1000, Balbir Singh wrote:
->>
->> On 30/03/16 18:12, Minchan Kim wrote:
->>> Procedure of page migration is as follows:
->>>
->>> First of all, it should isolate a page from LRU and try to
->>> migrate the page. If it is successful, it releases the page
->>> for freeing. Otherwise, it should put the page back to LRU
->>> list.
->>>
->>> For LRU pages, we have used putback_lru_page for both freeing
->>> and putback to LRU list. It's okay because put_page is aware of
->>> LRU list so if it releases last refcount of the page, it removes
->>> the page from LRU list. However, It makes unnecessary operations
->>> (e.g., lru_cache_add, pagevec and flags operations. It would be
->>> not significant but no worth to do) and harder to support new
->>> non-lru page migration because put_page isn't aware of non-lru
->>> page's data structure.
->>>
->>> To solve the problem, we can add new hook in put_page with
->>> PageMovable flags check but it can increase overhead in
->>> hot path and needs new locking scheme to stabilize the flag check
->>> with put_page.
->>>
->>> So, this patch cleans it up to divide two semantic(ie, put and putback).
->>> If migration is successful, use put_page instead of putback_lru_page and
->>> use putback_lru_page only on failure. That makes code more readable
->>> and doesn't add overhead in put_page.
->> So effectively when we return from unmap_and_move() the page is either
->> put_page or putback_lru_page() and the page is gone from under us.
-> I didn't get your point.
-> Could you elaborate it more what you want to say about this patch?
+Juergen Gross (6):
+  xen: sync xen header
+  virt, sched: add generic vcpu pinning support
+  smp: add function to execute a function synchronously on a cpu
+  xen: add xen_pin_vcpu() to support calling functions on a dedicated
+    pcpu
+  dcdbas: make use of smp_call_on_cpu()
+  hwmon: use smp_call_on_cpu() for dell-smm i8k
 
-I was just adding to my understanding of this change based on your changelog.
-My understanding is that we take the extra reference in isolate_lru_page()
-but by the time we return from unmap_and_move() we drop the extra reference
+ MAINTAINERS                       |   1 +
+ arch/x86/include/asm/hypervisor.h |   4 ++
+ arch/x86/kernel/cpu/hypervisor.c  |  11 +++++
+ arch/x86/xen/enlighten.c          |  40 +++++++++++++++
+ drivers/firmware/dcdbas.c         |  51 +++++++++----------
+ drivers/hwmon/dell-smm-hwmon.c    |  35 +++++++------
+ include/linux/hypervisor.h        |  17 +++++++
+ include/linux/smp.h               |   2 +
+ include/xen/interface/sched.h     | 100 +++++++++++++++++++++++++++++++-------
+ kernel/smp.c                      |  51 +++++++++++++++++++
+ kernel/up.c                       |  18 +++++++
+ 11 files changed, 272 insertions(+), 58 deletions(-)
+ create mode 100644 include/linux/hypervisor.h
 
-Balbir Singh
+-- 
+2.6.2
