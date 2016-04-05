@@ -1,13 +1,16 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] virtio: virtio 1.0 cs04 spec compliance for reset
-Date: Tue, 5 Apr 2016 10:53:53 +0800
-Message-ID: <570328C1.9010709__7966.47258471257$1459824852$gmane$org@redhat.com>
-References: <1459686336-29527-1-git-send-email-mst@redhat.com>
+From: Balbir Singh <bsingharora@gmail.com>
+Subject: Re: [PATCH v3 01/16] mm: use put_page to free page instead of
+	putback_lru_page
+Date: Tue, 5 Apr 2016 13:10:38 +1000
+Message-ID: <57032CAE.10404__46546.690646983$1459825877$gmane$org@gmail.com>
+References: <1459321935-3655-1-git-send-email-minchan@kernel.org>
+	<1459321935-3655-2-git-send-email-minchan@kernel.org>
+	<57020177.60006@gmail.com> <20160404060134.GA7555@bbox>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1459686336-29527-1-git-send-email-mst@redhat.com>
+In-Reply-To: <20160404060134.GA7555@bbox>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,51 +20,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Bandan Das <bsd@redhat.com>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Minchan Kim <minchan@kernel.org>
+Cc: Rik van Riel <riel@redhat.com>, YiPing Xu <xuyiping@hisilicon.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Chan Gyun Jeong <chan.jeong@lge.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gi-oh.kim@profitbricks.com>, koct9i@gmail.com, Sangseok Lee <sangseok.lee@lge.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Andrew Morton <akpm@linux-foundation.org>, Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>, jlayton@poochiereds.net, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
-On 04/03/2016 08:26 PM, Michael S. Tsirkin wrote:
-> The spec says: after writing 0 to device_status, the driver MUST wait
-> for a read of device_status to return 0 before reinitializing the
-> device.
->
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/virtio/virtio_pci_modern.c | 11 ++++++++---
->  1 file changed, 8 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-> index f6f28cc..e76bd91 100644
-> --- a/drivers/virtio/virtio_pci_modern.c
-> +++ b/drivers/virtio/virtio_pci_modern.c
-> @@ -17,6 +17,7 @@
->   *
->   */
->  
-> +#include <linux/delay.h>
->  #define VIRTIO_PCI_NO_LEGACY
->  #include "virtio_pci_common.h"
->  
-> @@ -271,9 +272,13 @@ static void vp_reset(struct virtio_device *vdev)
->  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
->  	/* 0 status means a reset. */
->  	vp_iowrite8(0, &vp_dev->common->device_status);
-> -	/* Flush out the status write, and flush in device writes,
-> -	 * including MSI-X interrupts, if any. */
-> -	vp_ioread8(&vp_dev->common->device_status);
-> +	/* After writing 0 to device_status, the driver MUST wait for a read of
-> +	 * device_status to return 0 before reinitializing the device.
-> +	 * This will flush out the status write, and flush in device writes,
-> +	 * including MSI-X interrupts, if any.
-> +	 */
-> +	while (vp_ioread8(&vp_dev->common->device_status))
-> +		msleep(1);
->  	/* Flush pending VQ/configuration callbacks. */
->  	vp_synchronize_vectors(vdev);
->  }
+On 04/04/16 16:01, Minchan Kim wrote:
+> On Mon, Apr 04, 2016 at 03:53:59PM +1000, Balbir Singh wrote:
+>>
+>> On 30/03/16 18:12, Minchan Kim wrote:
+>>> Procedure of page migration is as follows:
+>>>
+>>> First of all, it should isolate a page from LRU and try to
+>>> migrate the page. If it is successful, it releases the page
+>>> for freeing. Otherwise, it should put the page back to LRU
+>>> list.
+>>>
+>>> For LRU pages, we have used putback_lru_page for both freeing
+>>> and putback to LRU list. It's okay because put_page is aware of
+>>> LRU list so if it releases last refcount of the page, it removes
+>>> the page from LRU list. However, It makes unnecessary operations
+>>> (e.g., lru_cache_add, pagevec and flags operations. It would be
+>>> not significant but no worth to do) and harder to support new
+>>> non-lru page migration because put_page isn't aware of non-lru
+>>> page's data structure.
+>>>
+>>> To solve the problem, we can add new hook in put_page with
+>>> PageMovable flags check but it can increase overhead in
+>>> hot path and needs new locking scheme to stabilize the flag check
+>>> with put_page.
+>>>
+>>> So, this patch cleans it up to divide two semantic(ie, put and putback).
+>>> If migration is successful, use put_page instead of putback_lru_page and
+>>> use putback_lru_page only on failure. That makes code more readable
+>>> and doesn't add overhead in put_page.
+>> So effectively when we return from unmap_and_move() the page is either
+>> put_page or putback_lru_page() and the page is gone from under us.
+> I didn't get your point.
+> Could you elaborate it more what you want to say about this patch?
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+I was just adding to my understanding of this change based on your changelog.
+My understanding is that we take the extra reference in isolate_lru_page()
+but by the time we return from unmap_and_move() we drop the extra reference
+
+Balbir Singh
