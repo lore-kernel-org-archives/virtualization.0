@@ -1,14 +1,17 @@
-From: Jeff Mahoney <jeffm@suse.com>
-Subject: =?UTF-8?Q?Re:_[PATCH]_virtio:_fix_=22warning:_=e2=80=98queue?=
-	=?UTF-8?Q?=e2=80=99_may_be_used_uninitialized=22?=
-Date: Tue, 5 Apr 2016 09:34:24 -0400
-Message-ID: <5703BEE0.5020206@suse.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio: fix =?utf-8?Q?=22warni?=
+	=?utf-8?B?bmc6IOKAmHF1ZXVl4oCZ?= may be used uninitialized"
+Date: Tue, 5 Apr 2016 17:00:27 +0300
+Message-ID: <20160405165814-mutt-send-email-mst@redhat.com>
 References: <5702AEFB.5090701@suse.com>
 	<20160405110113-mutt-send-email-mst@redhat.com>
+	<5703BEE0.5020206@suse.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2249687371614954184=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160405110113-mutt-send-email-mst@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <5703BEE0.5020206@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,122 +21,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jeff Mahoney <jeffm@suse.com>
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============2249687371614954184==
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="EEgkIeMVh2QJDpgS4jFsQWlDWecxXPths"
-
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---EEgkIeMVh2QJDpgS4jFsQWlDWecxXPths
-Content-Type: multipart/mixed; boundary="AR2fcOjQ4PRxv0umXoQc0XFV5B3CevSrD"
-From: Jeff Mahoney <jeffm@suse.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
-Message-ID: <5703BEE0.5020206@suse.com>
-Subject: =?UTF-8?Q?Re:_[PATCH]_virtio:_fix_=22warning:_=e2=80=98queue?=
- =?UTF-8?Q?=e2=80=99_may_be_used_uninitialized=22?=
-References: <5702AEFB.5090701@suse.com>
- <20160405110113-mutt-send-email-mst@redhat.com>
-In-Reply-To: <20160405110113-mutt-send-email-mst@redhat.com>
-
---AR2fcOjQ4PRxv0umXoQc0XFV5B3CevSrD
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-
-On 4/5/16 4:04 AM, Michael S. Tsirkin wrote:
-> On Mon, Apr 04, 2016 at 02:14:19PM -0400, Jeff Mahoney wrote:
->> This fixes the following warning:
->> drivers/virtio/virtio_ring.c:1032:5: warning: =E2=80=98queue=E2=80=99 =
-may be used
->> uninitialized in this function
->>
->> The conditions that govern when queue is set aren't apparent to gcc.
->>
->> Setting queue =3D NULL clears the warning.
->>
->> Signed-off-by: Jeff Mahoney <jeffm@suse.com>
->=20
-> Which gcc version produces this warning?
-> I do not seem to see it with gcc 5.3.1.
-
-gcc version 4.8.5 (SUSE Linux)
-
-> Also - use uninitialized_var then?
-
-If it were a fast path, sure, but otherwise the use of uninitialized_var
-just makes similar issues harder to debug if the code changes.
-
--Jeff
-
->> ---
->>
->>  drivers/virtio/virtio_ring.c |    2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> --- a/drivers/virtio/virtio_ring.c
->> +++ b/drivers/virtio/virtio_ring.c
->> @@ -1006,7 +1006,7 @@ struct virtqueue *vring_create_virtqueue
->>  	const char *name)
->>  {
->>  	struct virtqueue *vq;
->> -	void *queue;
->> +	void *queue =3D NULL;
->>  	dma_addr_t dma_addr;
->>  	size_t queue_size_in_bytes;
->>  	struct vring vring;
->>
->> --=20
->> Jeff Mahoney
->> SUSE Labs
->=20
-
-
---=20
-Jeff Mahoney
-SUSE Labs
-
-
---AR2fcOjQ4PRxv0umXoQc0XFV5B3CevSrD--
-
---EEgkIeMVh2QJDpgS4jFsQWlDWecxXPths
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG/MacGPG2 v2.0.19 (Darwin)
-Comment: GPGTools - http://gpgtools.org
-
-iQIcBAEBAgAGBQJXA77gAAoJEB57S2MheeWynsIP/1AICmRAA14Hc8WQ5T68+Fy0
-4TJyYVNwcC04Fjcb/CvjQfVFTCNkNcaJehZcERL+UAsHb4TJ3H0HqsgpTodZ3y92
-vRMxsKoclEi004qWYV/pZIciLxIJDmZMIvWbo9ZZhrMEE+n/psWVofEVT1VSqtbN
-ZY1oiJRx5vdR10yWgV60CTimfOfRDWKnaooCsDnyv4owNbG18HOR4JfNE2uX5S3j
-5u/2dwkdWFDPNDkGGSKXiGWj/rAsu4zfx3IX+9kaP6a6c1rzTocLqk3ryFcs0q2v
-8t7xgyj5LT7VQmrsEbl/An7o8I6bAk30custu7RxAhtLREe/Ne2LdyYJphErMUbz
-9bi22MOAnN9UodXwKYhO/U/itk5xwXfT4GbAcf9/p3u5ug7Z2CbREnfLkJ1Qyw3K
-ZBmhHkcVrv0cO5IqlCCHktdZqQASNHiBUkN5oKZ6cA5eydwInm7KPsxDuQTVNJWD
-WmI8TteNT018Ygz7W7mNMS/V727n4k9TUkLaeJ2lv1m5+zSJwuOxbvouvDsA8hr1
-8wqbtAfK/5vME2D60tgaFVYS29Zp1HB43P2cjDIhfvOWxqwCVdHc/5BnV8jhhVB+
-1XgMBML/Zto10CJBsBDxgp0Y78cOvgV6ISoy0gdb9ZAOch2zPIOKJ/9ytEWq9ZOk
-QP8WPIz+Q53DNFQ4NozW
-=lYG5
------END PGP SIGNATURE-----
-
---EEgkIeMVh2QJDpgS4jFsQWlDWecxXPths--
-
---===============2249687371614954184==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2249687371614954184==--
+T24gVHVlLCBBcHIgMDUsIDIwMTYgYXQgMDk6MzQ6MjRBTSAtMDQwMCwgSmVmZiBNYWhvbmV5IHdy
+b3RlOgo+IE9uIDQvNS8xNiA0OjA0IEFNLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPiBP
+biBNb24sIEFwciAwNCwgMjAxNiBhdCAwMjoxNDoxOVBNIC0wNDAwLCBKZWZmIE1haG9uZXkgd3Jv
+dGU6Cj4gPj4gVGhpcyBmaXhlcyB0aGUgZm9sbG93aW5nIHdhcm5pbmc6Cj4gPj4gZHJpdmVycy92
+aXJ0aW8vdmlydGlvX3JpbmcuYzoxMDMyOjU6IHdhcm5pbmc6IOKAmHF1ZXVl4oCZIG1heSBiZSB1
+c2VkCj4gPj4gdW5pbml0aWFsaXplZCBpbiB0aGlzIGZ1bmN0aW9uCj4gPj4KPiA+PiBUaGUgY29u
+ZGl0aW9ucyB0aGF0IGdvdmVybiB3aGVuIHF1ZXVlIGlzIHNldCBhcmVuJ3QgYXBwYXJlbnQgdG8g
+Z2NjLgo+ID4+Cj4gPj4gU2V0dGluZyBxdWV1ZSA9IE5VTEwgY2xlYXJzIHRoZSB3YXJuaW5nLgo+
+ID4+Cj4gPj4gU2lnbmVkLW9mZi1ieTogSmVmZiBNYWhvbmV5IDxqZWZmbUBzdXNlLmNvbT4KPiA+
+IAo+ID4gV2hpY2ggZ2NjIHZlcnNpb24gcHJvZHVjZXMgdGhpcyB3YXJuaW5nPwo+ID4gSSBkbyBu
+b3Qgc2VlbSB0byBzZWUgaXQgd2l0aCBnY2MgNS4zLjEuCj4gCj4gZ2NjIHZlcnNpb24gNC44LjUg
+KFNVU0UgTGludXgpCgpMb29rcyBsaWtlIGEgbWlub3IgY29tcGlsZXIgYnVnIHRoZW4sIGZpeGVk
+IHNpbmNlLgpJIGRvbid0IHRoaW5rIHdlIG5lZWQgdG8gd29ycnkgYWJvdXQgdGhhdCB0aGlzLgoK
+PiA+IEFsc28gLSB1c2UgdW5pbml0aWFsaXplZF92YXIgdGhlbj8KPiAKPiBJZiBpdCB3ZXJlIGEg
+ZmFzdCBwYXRoLCBzdXJlLCBidXQgb3RoZXJ3aXNlIHRoZSB1c2Ugb2YgdW5pbml0aWFsaXplZF92
+YXIKPiBqdXN0IG1ha2VzIHNpbWlsYXIgaXNzdWVzIGhhcmRlciB0byBkZWJ1ZyBpZiB0aGUgY29k
+ZSBjaGFuZ2VzLgo+IAo+IC1KZWZmCgpTYW1lIGRvZXMgPSBOVUxMIHRob3VnaC4gSXQncyBub3Qg
+bGlrZSB0aGluZ3Mgd2lsbCB3b3JrIHdpdGggcXVldWUgPT0KTlVMTCwgc28gaXQnbGwgc3RpbGwg
+Y3Jhc2ggaWYgaXQncyBub3QgaW5pdGVkIHByb3Blcmx5LgoKPiA+PiAtLS0KPiA+Pgo+ID4+ICBk
+cml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIHwgICAgMiArLQo+ID4+ICAxIGZpbGUgY2hhbmdl
+ZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkKPiA+Pgo+ID4+IC0tLSBhL2RyaXZlcnMv
+dmlydGlvL3ZpcnRpb19yaW5nLmMKPiA+PiArKysgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmlu
+Zy5jCj4gPj4gQEAgLTEwMDYsNyArMTAwNiw3IEBAIHN0cnVjdCB2aXJ0cXVldWUgKnZyaW5nX2Ny
+ZWF0ZV92aXJ0cXVldWUKPiA+PiAgCWNvbnN0IGNoYXIgKm5hbWUpCj4gPj4gIHsKPiA+PiAgCXN0
+cnVjdCB2aXJ0cXVldWUgKnZxOwo+ID4+IC0Jdm9pZCAqcXVldWU7Cj4gPj4gKwl2b2lkICpxdWV1
+ZSA9IE5VTEw7Cj4gPj4gIAlkbWFfYWRkcl90IGRtYV9hZGRyOwo+ID4+ICAJc2l6ZV90IHF1ZXVl
+X3NpemVfaW5fYnl0ZXM7Cj4gPj4gIAlzdHJ1Y3QgdnJpbmcgdnJpbmc7Cj4gPj4KPiA+PiAtLSAK
+PiA+PiBKZWZmIE1haG9uZXkKPiA+PiBTVVNFIExhYnMKPiA+IAo+IAo+IAo+IC0tIAo+IEplZmYg
+TWFob25leQo+IFNVU0UgTGFicwo+IAoKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
+b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
+b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
