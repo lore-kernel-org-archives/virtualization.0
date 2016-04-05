@@ -1,15 +1,14 @@
-From: Guenter Roeck <linux@roeck-us.net>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
 Subject: Re: [PATCH v4 6/6] hwmon: use smp_call_on_cpu() for dell-smm i8k
-Date: Tue, 5 Apr 2016 07:54:14 -0700
-Message-ID: <20160405145414.GB27359__21181.7726529718$1459885072$gmane$org@roeck-us.net>
+Date: Tue, 5 Apr 2016 21:31:52 +0200
+Message-ID: <201604052131.52765__7385.80370457402$1459885076$gmane$org@pali>
 References: <1459833007-11618-1-git-send-email-jgross@suse.com>
 	<1459833007-11618-7-git-send-email-jgross@suse.com>
+	<20160405145414.GB27359@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============6023069049545833921=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1459833007-11618-7-git-send-email-jgross@suse.com>
+In-Reply-To: <20160405145414.GB27359@roeck-us.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,105 +18,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Juergen Gross <jgross@suse.com>
-Cc: x86@kernel.org, jeremy@goop.org, jdelvare@suse.com, peterz@infradead.org, hpa@zytor.com, akataria@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, pali.rohar@gmail.com, xen-devel@lists.xenproject.org, boris.ostrovsky@oracle.com, tglx@linutronix.de
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Juergen Gross <jgross@suse.com>, x86@kernel.org, jeremy@goop.org, jdelvare@suse.com, peterz@infradead.org, akataria@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, hpa@zytor.com, xen-devel@lists.xenproject.org, boris.ostrovsky@oracle.com, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 05, 2016 at 07:10:07AM +0200, Juergen Gross wrote:
-> Use the smp_call_on_cpu() function to call system management
-> mode on cpu 0.
-> Make call secure by adding get_online_cpus() to avoid e.g. suspend
-> resume cycles in between.
-> 
-> Signed-off-by: Juergen Gross <jgross@suse.com>
-> ---
-> V4: add call to get_online_cpus()
+--===============6023069049545833921==
+Content-Type: multipart/signed;
+  boundary="nextPart1759490.KnKAIGVcLo";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 
-Pali, any chance to test this ?
+--nextPart1759490.KnKAIGVcLo
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thanks,
-Guenter
+On Tuesday 05 April 2016 16:54:14 Guenter Roeck wrote:
+> On Tue, Apr 05, 2016 at 07:10:07AM +0200, Juergen Gross wrote:
+> > Use the smp_call_on_cpu() function to call system management
+> > mode on cpu 0.
+> > Make call secure by adding get_online_cpus() to avoid e.g. suspend
+> > resume cycles in between.
+> >=20
+> > Signed-off-by: Juergen Gross <jgross@suse.com>
+> > ---
+> > V4: add call to get_online_cpus()
+>=20
+> Pali, any chance to test this ?
 
-> ---
->  drivers/hwmon/dell-smm-hwmon.c | 35 ++++++++++++++++++++---------------
->  1 file changed, 20 insertions(+), 15 deletions(-)
-> 
-> diff --git a/drivers/hwmon/dell-smm-hwmon.c b/drivers/hwmon/dell-smm-hwmon.c
-> index c43318d..643f3a1 100644
-> --- a/drivers/hwmon/dell-smm-hwmon.c
-> +++ b/drivers/hwmon/dell-smm-hwmon.c
-> @@ -21,6 +21,7 @@
->  
->  #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
->  
-> +#include <linux/cpu.h>
->  #include <linux/delay.h>
->  #include <linux/module.h>
->  #include <linux/types.h>
-> @@ -35,6 +36,7 @@
->  #include <linux/uaccess.h>
->  #include <linux/io.h>
->  #include <linux/sched.h>
-> +#include <linux/smp.h>
->  
->  #include <linux/i8k.h>
->  
-> @@ -130,23 +132,15 @@ static inline const char *i8k_get_dmi_data(int field)
->  /*
->   * Call the System Management Mode BIOS. Code provided by Jonathan Buzzard.
->   */
-> -static int i8k_smm(struct smm_regs *regs)
-> +static int i8k_smm_func(void *par)
->  {
->  	int rc;
-> +	struct smm_regs *regs = par;
->  	int eax = regs->eax;
-> -	cpumask_var_t old_mask;
->  
->  	/* SMM requires CPU 0 */
-> -	if (!alloc_cpumask_var(&old_mask, GFP_KERNEL))
-> -		return -ENOMEM;
-> -	cpumask_copy(old_mask, &current->cpus_allowed);
-> -	rc = set_cpus_allowed_ptr(current, cpumask_of(0));
-> -	if (rc)
-> -		goto out;
-> -	if (smp_processor_id() != 0) {
-> -		rc = -EBUSY;
-> -		goto out;
-> -	}
-> +	if (smp_processor_id() != 0)
-> +		return -EBUSY;
->  
->  #if defined(CONFIG_X86_64)
->  	asm volatile("pushq %%rax\n\t"
-> @@ -204,13 +198,24 @@ static int i8k_smm(struct smm_regs *regs)
->  	if (rc != 0 || (regs->eax & 0xffff) == 0xffff || regs->eax == eax)
->  		rc = -EINVAL;
->  
-> -out:
-> -	set_cpus_allowed_ptr(current, old_mask);
-> -	free_cpumask_var(old_mask);
->  	return rc;
->  }
->  
->  /*
-> + * Call the System Management Mode BIOS.
-> + */
-> +static int i8k_smm(struct smm_regs *regs)
-> +{
-> +	int ret;
-> +
-> +	get_online_cpus();
-> +	ret = smp_call_on_cpu(0, true, i8k_smm_func, regs);
-> +	put_online_cpus();
-> +
-> +	return ret;
-> +}
-> +
-> +/*
->   * Read the fan status.
->   */
->  static int i8k_get_fan_status(int fan)
-> -- 
-> 2.6.2
-> 
+I can test it, but just on machine where (probably) smm calls can be=20
+send from any cpu... Need some time for testing and I believe I can do=20
+that at the end of the week.
+
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--nextPart1759490.KnKAIGVcLo
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEABECAAYFAlcEEqgACgkQi/DJPQPkQ1JTRACdFYDnNujRzhYXtAftzeujrEQn
+aEIAoIWdkDdClVWVpsIMNcjmoXNNjbmq
+=fHEW
+-----END PGP SIGNATURE-----
+
+--nextPart1759490.KnKAIGVcLo--
+
+--===============6023069049545833921==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6023069049545833921==--
