@@ -1,7 +1,8 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH v4 2/6] virt, sched: add generic vcpu pinning support
-Date: Tue,  5 Apr 2016 07:10:03 +0200
-Message-ID: <1459833007-11618-3-git-send-email-jgross__17500.7585356527$1459833074$gmane$org@suse.com>
+Subject: [PATCH v4 3/6] smp: add function to execute a function synchronously
+	on a cpu
+Date: Tue,  5 Apr 2016 07:10:04 +0200
+Message-ID: <1459833007-11618-4-git-send-email-jgross@suse.com>
 References: <1459833007-11618-1-git-send-email-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,134 +22,119 @@ To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org
 Cc: Juergen Gross <jgross@suse.com>, jeremy@goop.org, jdelvare@suse.com, peterz@infradead.org, hpa@zytor.com, akataria@vmware.com, x86@kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, pali.rohar@gmail.com, boris.ostrovsky@oracle.com, tglx@linutronix.de, linux@roeck-us.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add generic virtualization support for pinning the current vcpu to a
-specified physical cpu. As this operation isn't performance critical
-(a very limited set of operations like BIOS calls and SMIs is expected
-to need this) just add a hypervisor specific indirection.
+On some hardware models (e.g. Dell Studio 1555 laptop) some hardware
+related functions (e.g. SMIs) are to be executed on physical cpu 0
+only. Instead of open coding such a functionality multiple times in
+the kernel add a service function for this purpose. This will enable
+the possibility to take special measures in virtualized environments
+like Xen, too.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
-V4: move this patch some places up in the series
-    WARN_ONCE in case platform doesn't support pinning as requested by
-    Peter Zijlstra
+V4: change return value in case of illegal cpu as requested by Peter Zijlstra
+    make pinning of vcpu an option as suggested by Peter Zijlstra
 
-V3: use getc_cpu()/put_cpu() as suggested by David Vrabel
-
-V2: adapt to using workqueues
-    add include/linux/hypervisor.h to hide architecture specific stuff
-    from generic kernel code
-
-In case paravirt maintainers don't want to be responsible for
-include/linux/hypervisor.h I could take it.
+V2: instead of manipulating the allowed set of cpus use cpu specific
+    workqueue as requested by Peter Zijlstra
 ---
- MAINTAINERS                       |  1 +
- arch/x86/include/asm/hypervisor.h |  4 ++++
- arch/x86/kernel/cpu/hypervisor.c  | 11 +++++++++++
- include/linux/hypervisor.h        | 17 +++++++++++++++++
- kernel/smp.c                      |  1 +
- kernel/up.c                       |  1 +
- 6 files changed, 35 insertions(+)
- create mode 100644 include/linux/hypervisor.h
+ include/linux/smp.h |  2 ++
+ kernel/smp.c        | 50 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ kernel/up.c         | 17 +++++++++++++++++
+ 3 files changed, 69 insertions(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 2ec5079..959173e 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -8330,6 +8330,7 @@ S:	Supported
- F:	Documentation/virtual/paravirt_ops.txt
- F:	arch/*/kernel/paravirt*
- F:	arch/*/include/asm/paravirt.h
-+F:	include/linux/hypervisor.h
+diff --git a/include/linux/smp.h b/include/linux/smp.h
+index c441407..3b5813b 100644
+--- a/include/linux/smp.h
++++ b/include/linux/smp.h
+@@ -196,4 +196,6 @@ extern void arch_enable_nonboot_cpus_end(void);
  
- PARIDE DRIVERS FOR PARALLEL PORT IDE DEVICES
- M:	Tim Waugh <tim@cyberelk.net>
-diff --git a/arch/x86/include/asm/hypervisor.h b/arch/x86/include/asm/hypervisor.h
-index 055ea99..67942b6 100644
---- a/arch/x86/include/asm/hypervisor.h
-+++ b/arch/x86/include/asm/hypervisor.h
-@@ -43,6 +43,9 @@ struct hypervisor_x86 {
+ void smp_setup_processor_id(void);
  
- 	/* X2APIC detection (run once per boot) */
- 	bool		(*x2apic_available)(void);
++int smp_call_on_cpu(unsigned int cpu, bool pin, int (*func)(void *), void *par);
 +
-+	/* pin current vcpu to specified physical cpu (run rarely) */
-+	void		(*pin_vcpu)(int);
- };
- 
- extern const struct hypervisor_x86 *x86_hyper;
-@@ -56,6 +59,7 @@ extern const struct hypervisor_x86 x86_hyper_kvm;
- extern void init_hypervisor(struct cpuinfo_x86 *c);
- extern void init_hypervisor_platform(void);
- extern bool hypervisor_x2apic_available(void);
-+extern void hypervisor_pin_vcpu(int cpu);
- #else
- static inline void init_hypervisor(struct cpuinfo_x86 *c) { }
- static inline void init_hypervisor_platform(void) { }
-diff --git a/arch/x86/kernel/cpu/hypervisor.c b/arch/x86/kernel/cpu/hypervisor.c
-index 73d391a..ff108f8 100644
---- a/arch/x86/kernel/cpu/hypervisor.c
-+++ b/arch/x86/kernel/cpu/hypervisor.c
-@@ -85,3 +85,14 @@ bool __init hypervisor_x2apic_available(void)
- 	       x86_hyper->x2apic_available &&
- 	       x86_hyper->x2apic_available();
- }
-+
-+void hypervisor_pin_vcpu(int cpu)
-+{
-+	if (!x86_hyper)
-+		return;
-+
-+	if (x86_hyper->pin_vcpu)
-+		x86_hyper->pin_vcpu(cpu);
-+	else
-+		WARN_ONCE(1, "vcpu pinning requested but not supported!\n");
-+}
-diff --git a/include/linux/hypervisor.h b/include/linux/hypervisor.h
-new file mode 100644
-index 0000000..3fa5ef2
---- /dev/null
-+++ b/include/linux/hypervisor.h
-@@ -0,0 +1,17 @@
-+#ifndef __LINUX_HYPEVISOR_H
-+#define __LINUX_HYPEVISOR_H
-+
-+/*
-+ *	Generic Hypervisor support
-+ *		Juergen Gross <jgross@suse.com>
-+ */
-+
-+#ifdef CONFIG_HYPERVISOR_GUEST
-+#include <asm/hypervisor.h>
-+#else
-+static inline void hypervisor_pin_vcpu(int cpu)
-+{
-+}
-+#endif
-+
-+#endif /* __LINUX_HYPEVISOR_H */
+ #endif /* __LINUX_SMP_H */
 diff --git a/kernel/smp.c b/kernel/smp.c
-index 7416544..9388064 100644
+index 9388064..357458b 100644
 --- a/kernel/smp.c
 +++ b/kernel/smp.c
-@@ -14,6 +14,7 @@
- #include <linux/smp.h>
- #include <linux/cpu.h>
- #include <linux/sched.h>
-+#include <linux/hypervisor.h>
- 
- #include "smpboot.h"
- 
+@@ -740,3 +740,53 @@ void wake_up_all_idle_cpus(void)
+ 	preempt_enable();
+ }
+ EXPORT_SYMBOL_GPL(wake_up_all_idle_cpus);
++
++/**
++ * smp_call_on_cpu - Call a function on a specific cpu
++ *
++ * Used to call a function on a specific cpu and wait for it to return.
++ * Optionally make sure the call is done on a specified physical cpu via vcpu
++ * pinning in order to support virtualized environments.
++ */
++struct smp_call_on_cpu_struct {
++	struct work_struct	work;
++	struct completion	done;
++	int			(*func)(void *);
++	void			*data;
++	int			ret;
++	int			cpu;
++};
++
++static void smp_call_on_cpu_callback(struct work_struct *work)
++{
++	struct smp_call_on_cpu_struct *sscs;
++
++	sscs = container_of(work, struct smp_call_on_cpu_struct, work);
++	if (sscs->cpu >= 0)
++		hypervisor_pin_vcpu(sscs->cpu);
++	sscs->ret = sscs->func(sscs->data);
++	if (sscs->cpu >= 0)
++		hypervisor_pin_vcpu(-1);
++
++	complete(&sscs->done);
++}
++
++int smp_call_on_cpu(unsigned int cpu, bool pin, int (*func)(void *), void *par)
++{
++	struct smp_call_on_cpu_struct sscs = {
++		.work = __WORK_INITIALIZER(sscs.work, smp_call_on_cpu_callback),
++		.done = COMPLETION_INITIALIZER_ONSTACK(sscs.done),
++		.func = func,
++		.data = par,
++		.cpu  = pin ? cpu : -1,
++	};
++
++	if (cpu >= nr_cpu_ids)
++		return -ENXIO;
++
++	queue_work_on(cpu, system_wq, &sscs.work);
++	wait_for_completion(&sscs.done);
++
++	return sscs.ret;
++}
++EXPORT_SYMBOL_GPL(smp_call_on_cpu);
 diff --git a/kernel/up.c b/kernel/up.c
-index 1760bf3..3ccee2b 100644
+index 3ccee2b..8266810b 100644
 --- a/kernel/up.c
 +++ b/kernel/up.c
-@@ -6,6 +6,7 @@
- #include <linux/kernel.h>
- #include <linux/export.h>
- #include <linux/smp.h>
-+#include <linux/hypervisor.h>
- 
- int smp_call_function_single(int cpu, void (*func) (void *info), void *info,
- 				int wait)
+@@ -83,3 +83,20 @@ void on_each_cpu_cond(bool (*cond_func)(int cpu, void *info),
+ 	preempt_enable();
+ }
+ EXPORT_SYMBOL(on_each_cpu_cond);
++
++int smp_call_on_cpu(unsigned int cpu, bool pin, int (*func)(void *), void *par)
++{
++	int ret;
++
++	if (cpu != 0)
++		return -ENXIO;
++
++	if (pin)
++		hypervisor_pin_vcpu(0);
++	ret = func(par);
++	if (pin)
++		hypervisor_pin_vcpu(-1);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(smp_call_on_cpu);
 -- 
 2.6.2
