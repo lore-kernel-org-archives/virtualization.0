@@ -1,12 +1,20 @@
-From: Jeff Mahoney <jeffm@suse.com>
-Subject: =?UTF-8?Q?[PATCH]_virtio:_fix_=22warning:_=e2=80=98queue=e2=80=99_m?=
-	=?UTF-8?Q?ay_be_used_uninitialized=22?=
-Date: Mon, 4 Apr 2016 14:14:19 -0400
-Message-ID: <5702AEFB.5090701@suse.com>
+From: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Subject: Re: [PATCH v3 01/16] mm: use put_page to free page instead of
+	putback_lru_page
+Date: Tue, 5 Apr 2016 01:54:03 +0000
+Message-ID: <20160405015402.GA30962@hori1.linux.bs1.fc.nec.co.jp>
+References: <1459321935-3655-1-git-send-email-minchan@kernel.org>
+	<1459321935-3655-2-git-send-email-minchan@kernel.org>
+	<56FE706D.7080507@suse.cz> <20160404013917.GC6543@bbox>
+	<20160404044458.GA20250@hori1.linux.bs1.fc.nec.co.jp>
+	<57027E47.7070909@suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <57027E47.7070909@suse.cz>
+Content-Language: ja-JP
+Content-ID: <A0174A3F3FD4774198D1716FADC66464@gisp.nec.co.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,22 +24,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
+To: Vlastimil Babka <vbabka@suse.cz>
+Cc: Rik van Riel <riel@redhat.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, YiPing Xu <xuyiping@hisilicon.com>, "aquini@redhat.com" <aquini@redhat.com>, "rknize@motorola.com" <rknize@motorola.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Chan Gyun Jeong <chan.jeong@lge.com>, Hugh Dickins <hughd@google.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "bfields@fieldses.org" <bfields@fieldses.org>, Minchan Kim <minchan@kernel.org>, Gioh Kim <gi-oh.kim@profitbricks.com>, Mel Gorman <mgorman@suse.de>, Sangseok Lee <sangseok.lee@lge.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Andrew Morton <akpm@linux-foundation.org>, "jlayton@poochiereds.net" <jlayton@poochiereds.net>, "koct9i@gmail.com" <koct9i@gmail.com>, Al Viro <viro@ZenIV.linux.org.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-VGhpcyBmaXhlcyB0aGUgZm9sbG93aW5nIHdhcm5pbmc6CmRyaXZlcnMvdmlydGlvL3ZpcnRpb19y
-aW5nLmM6MTAzMjo1OiB3YXJuaW5nOiDigJhxdWV1ZeKAmSBtYXkgYmUgdXNlZAp1bmluaXRpYWxp
-emVkIGluIHRoaXMgZnVuY3Rpb24KClRoZSBjb25kaXRpb25zIHRoYXQgZ292ZXJuIHdoZW4gcXVl
-dWUgaXMgc2V0IGFyZW4ndCBhcHBhcmVudCB0byBnY2MuCgpTZXR0aW5nIHF1ZXVlID0gTlVMTCBj
-bGVhcnMgdGhlIHdhcm5pbmcuCgpTaWduZWQtb2ZmLWJ5OiBKZWZmIE1haG9uZXkgPGplZmZtQHN1
-c2UuY29tPgotLS0KCiBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIHwgICAgMiArLQogMSBm
-aWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspLCAxIGRlbGV0aW9uKC0pCgotLS0gYS9kcml2ZXJz
-L3ZpcnRpby92aXJ0aW9fcmluZy5jCisrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMK
-QEAgLTEwMDYsNyArMTAwNiw3IEBAIHN0cnVjdCB2aXJ0cXVldWUgKnZyaW5nX2NyZWF0ZV92aXJ0
-cXVldWUKIAljb25zdCBjaGFyICpuYW1lKQogewogCXN0cnVjdCB2aXJ0cXVldWUgKnZxOwotCXZv
-aWQgKnF1ZXVlOworCXZvaWQgKnF1ZXVlID0gTlVMTDsKIAlkbWFfYWRkcl90IGRtYV9hZGRyOwog
-CXNpemVfdCBxdWV1ZV9zaXplX2luX2J5dGVzOwogCXN0cnVjdCB2cmluZyB2cmluZzsKCi0tIApK
-ZWZmIE1haG9uZXkKU1VTRSBMYWJzCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
-cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Mon, Apr 04, 2016 at 04:46:31PM +0200, Vlastimil Babka wrote:
+> On 04/04/2016 06:45 AM, Naoya Horiguchi wrote:
+> > On Mon, Apr 04, 2016 at 10:39:17AM +0900, Minchan Kim wrote:
+...
+> >>>
+> >>> Also (but not your fault) the put_page() preceding
+> >>> test_set_page_hwpoison(page)) IMHO deserves a comment saying which
+> >>> pin we are releasing and which one we still have (hopefully? if I
+> >>> read description of da1b13ccfbebe right) otherwise it looks like
+> >>> doing something with a page that we just potentially freed.
+> >>
+> >> Yes, while I read the code, I had same question. I think the releasing
+> >> refcount is for get_any_page.
+> > 
+> > As the other callers of page migration do, soft_offline_page expects the
+> > migration source page to be freed at this put_page() (no pin remains.)
+> > The refcount released here is from isolate_lru_page() in __soft_offline_page().
+> > (the pin by get_any_page is released by put_hwpoison_page just after it.)
+> > 
+> > .. yes, doing something just after freeing page looks weird, but that's
+> > how PageHWPoison flag works. IOW, many other page flags are maintained
+> > only during one "allocate-free" life span, but PageHWPoison still does
+> > its job beyond it.
+> 
+> But what prevents the page from being allocated again between put_page()
+> and test_set_page_hwpoison()? In that case we would be marking page
+> poisoned while still in use, which is the same as marking it while still
+> in use after a failed migration?
+
+Actually nothing prevents that race. But I think that the result of the race
+is that the error page can be reused for allocation, which results in killing
+processes at page fault time. Soft offline is kind of mild/precautious thing
+(for correctable errors that don't require immediate handling), so killing
+processes looks to me an overkill. And marking hwpoison means that we can no
+longer do retry from userspace.
+
+And another practical thing is the race with unpoison_memory() as described
+in commit da1b13ccfbebe. unpoison_memory() properly works only for properly
+poisoned pages, so doing unpoison for in-use hwpoisoned pages is fragile.
+That's why I'd like to avoid setting PageHWPoison for in-use pages if possible.
+
+> (Also, which part prevents pages with PageHWPoison to be allocated
+> again, anyway? I can't find it and test_set_page_hwpoison() doesn't
+> remove from buddy freelists).
+
+check_new_page() in mm/page_alloc.c should prevent reallocation of PageHWPoison.
+As you pointed out, memory error handler doens't remove it from buddy freelists.
+
+
+BTW, it might be a bit off-topic, but recently I felt that check_new_page()
+might be improvable, because when check_new_page() returns 1, the whole buddy
+block (not only the bad page) seems to be leaked from buddy freelist.
+For example, if thp (order 9) is requested, and PageHWPoison (or any other
+types of bad pages) is found in an order 9 block, all 512 page are discarded.
+Unpoison can't bring it back to buddy.
+So, some code to split buddy block including bad page (and recovering code from
+unpoison) might be helpful, although that's another story ...
+
+Thanks,
+Naoya Horiguchi
