@@ -1,17 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio: fix =?utf-8?Q?=22warni?=
-	=?utf-8?B?bmc6IOKAmHF1ZXVl4oCZ?= may be used uninitialized"
-Date: Tue, 5 Apr 2016 17:00:27 +0300
-Message-ID: <20160405165814-mutt-send-email-mst@redhat.com>
-References: <5702AEFB.5090701@suse.com>
-	<20160405110113-mutt-send-email-mst@redhat.com>
-	<5703BEE0.5020206@suse.com>
+From: Gustavo Padovan <gustavo@padovan.org>
+Subject: Re: [PATCH v2] drm/virtio: send vblank event after crtc updates
+Date: Tue, 5 Apr 2016 11:21:15 -0700
+Message-ID: <20160405182115.GB24204__4154.49854122034$1459880504$gmane$org@joana>
+References: <1458588187-26002-2-git-send-email-gustavo@padovan.org>
+	<1458677872-6024-1-git-send-email-gustavo@padovan.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <5703BEE0.5020206@suse.com>
+In-Reply-To: <1458677872-6024-1-git-send-email-gustavo@padovan.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,39 +19,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeff Mahoney <jeffm@suse.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, Gustavo Padovan <gustavo.padovan@collabora.co.uk>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBBcHIgMDUsIDIwMTYgYXQgMDk6MzQ6MjRBTSAtMDQwMCwgSmVmZiBNYWhvbmV5IHdy
-b3RlOgo+IE9uIDQvNS8xNiA0OjA0IEFNLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPiBP
-biBNb24sIEFwciAwNCwgMjAxNiBhdCAwMjoxNDoxOVBNIC0wNDAwLCBKZWZmIE1haG9uZXkgd3Jv
-dGU6Cj4gPj4gVGhpcyBmaXhlcyB0aGUgZm9sbG93aW5nIHdhcm5pbmc6Cj4gPj4gZHJpdmVycy92
-aXJ0aW8vdmlydGlvX3JpbmcuYzoxMDMyOjU6IHdhcm5pbmc6IOKAmHF1ZXVl4oCZIG1heSBiZSB1
-c2VkCj4gPj4gdW5pbml0aWFsaXplZCBpbiB0aGlzIGZ1bmN0aW9uCj4gPj4KPiA+PiBUaGUgY29u
-ZGl0aW9ucyB0aGF0IGdvdmVybiB3aGVuIHF1ZXVlIGlzIHNldCBhcmVuJ3QgYXBwYXJlbnQgdG8g
-Z2NjLgo+ID4+Cj4gPj4gU2V0dGluZyBxdWV1ZSA9IE5VTEwgY2xlYXJzIHRoZSB3YXJuaW5nLgo+
-ID4+Cj4gPj4gU2lnbmVkLW9mZi1ieTogSmVmZiBNYWhvbmV5IDxqZWZmbUBzdXNlLmNvbT4KPiA+
-IAo+ID4gV2hpY2ggZ2NjIHZlcnNpb24gcHJvZHVjZXMgdGhpcyB3YXJuaW5nPwo+ID4gSSBkbyBu
-b3Qgc2VlbSB0byBzZWUgaXQgd2l0aCBnY2MgNS4zLjEuCj4gCj4gZ2NjIHZlcnNpb24gNC44LjUg
-KFNVU0UgTGludXgpCgpMb29rcyBsaWtlIGEgbWlub3IgY29tcGlsZXIgYnVnIHRoZW4sIGZpeGVk
-IHNpbmNlLgpJIGRvbid0IHRoaW5rIHdlIG5lZWQgdG8gd29ycnkgYWJvdXQgdGhhdCB0aGlzLgoK
-PiA+IEFsc28gLSB1c2UgdW5pbml0aWFsaXplZF92YXIgdGhlbj8KPiAKPiBJZiBpdCB3ZXJlIGEg
-ZmFzdCBwYXRoLCBzdXJlLCBidXQgb3RoZXJ3aXNlIHRoZSB1c2Ugb2YgdW5pbml0aWFsaXplZF92
-YXIKPiBqdXN0IG1ha2VzIHNpbWlsYXIgaXNzdWVzIGhhcmRlciB0byBkZWJ1ZyBpZiB0aGUgY29k
-ZSBjaGFuZ2VzLgo+IAo+IC1KZWZmCgpTYW1lIGRvZXMgPSBOVUxMIHRob3VnaC4gSXQncyBub3Qg
-bGlrZSB0aGluZ3Mgd2lsbCB3b3JrIHdpdGggcXVldWUgPT0KTlVMTCwgc28gaXQnbGwgc3RpbGwg
-Y3Jhc2ggaWYgaXQncyBub3QgaW5pdGVkIHByb3Blcmx5LgoKPiA+PiAtLS0KPiA+Pgo+ID4+ICBk
-cml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIHwgICAgMiArLQo+ID4+ICAxIGZpbGUgY2hhbmdl
-ZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkKPiA+Pgo+ID4+IC0tLSBhL2RyaXZlcnMv
-dmlydGlvL3ZpcnRpb19yaW5nLmMKPiA+PiArKysgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmlu
-Zy5jCj4gPj4gQEAgLTEwMDYsNyArMTAwNiw3IEBAIHN0cnVjdCB2aXJ0cXVldWUgKnZyaW5nX2Ny
-ZWF0ZV92aXJ0cXVldWUKPiA+PiAgCWNvbnN0IGNoYXIgKm5hbWUpCj4gPj4gIHsKPiA+PiAgCXN0
-cnVjdCB2aXJ0cXVldWUgKnZxOwo+ID4+IC0Jdm9pZCAqcXVldWU7Cj4gPj4gKwl2b2lkICpxdWV1
-ZSA9IE5VTEw7Cj4gPj4gIAlkbWFfYWRkcl90IGRtYV9hZGRyOwo+ID4+ICAJc2l6ZV90IHF1ZXVl
-X3NpemVfaW5fYnl0ZXM7Cj4gPj4gIAlzdHJ1Y3QgdnJpbmcgdnJpbmc7Cj4gPj4KPiA+PiAtLSAK
-PiA+PiBKZWZmIE1haG9uZXkKPiA+PiBTVVNFIExhYnMKPiA+IAo+IAo+IAo+IC0tIAo+IEplZmYg
-TWFob25leQo+IFNVU0UgTGFicwo+IAoKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
-b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Hi,
+
+Any comment on this?
+
+	Gustavo
+
+2016-03-22 Gustavo Padovan <gustavo@padovan.org>:
+
+> From: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
+> 
+> virtio_gpu was failing to send vblank events when using the atomic IOCTL
+> with the DRM_MODE_PAGE_FLIP_EVENT flag set. This patch fixes each and
+> enables atomic pageflips updates.
+> 
+> Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_display.c | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
+> 
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+> index b70bb8b..4f372e0 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_display.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+> @@ -274,12 +274,24 @@ static int virtio_gpu_crtc_atomic_check(struct drm_crtc *crtc,
+>  	return 0;
+>  }
+>  
+> +static void virtio_gpu_crtc_atomic_flush(struct drm_crtc *crtc,
+> +					 struct drm_crtc_state *old_state)
+> +{
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&crtc->dev->event_lock, flags);
+> +	if (crtc->state->event)
+> +		drm_crtc_send_vblank_event(crtc, crtc->state->event);
+> +	spin_unlock_irqrestore(&crtc->dev->event_lock, flags);
+> +}
+> +
+>  static const struct drm_crtc_helper_funcs virtio_gpu_crtc_helper_funcs = {
+>  	.enable        = virtio_gpu_crtc_enable,
+>  	.disable       = virtio_gpu_crtc_disable,
+>  	.mode_fixup    = virtio_gpu_crtc_mode_fixup,
+>  	.mode_set_nofb = virtio_gpu_crtc_mode_set_nofb,
+>  	.atomic_check  = virtio_gpu_crtc_atomic_check,
+> +	.atomic_flush  = virtio_gpu_crtc_atomic_flush,
+>  };
+>  
+>  static void virtio_gpu_enc_mode_set(struct drm_encoder *encoder,
+> -- 
+> 2.5.0
+> 
+
+	Gustavo
