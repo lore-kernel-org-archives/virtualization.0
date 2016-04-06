@@ -1,7 +1,7 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH v5 6/6] hwmon: use smp_call_on_cpu() for dell-smm i8k
-Date: Wed,  6 Apr 2016 16:17:46 +0200
-Message-ID: <1459952266-3687-7-git-send-email-jgross@suse.com>
+Subject: [PATCH v5 2/6] virt, sched: add generic vcpu pinning support
+Date: Wed,  6 Apr 2016 16:17:42 +0200
+Message-ID: <1459952266-3687-3-git-send-email-jgross@suse.com>
 References: <1459952266-3687-1-git-send-email-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,93 +21,134 @@ To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org
 Cc: Juergen Gross <jgross@suse.com>, jeremy@goop.org, jdelvare@suse.com, peterz@infradead.org, hpa@zytor.com, akataria@vmware.com, x86@kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, pali.rohar@gmail.com, boris.ostrovsky@oracle.com, tglx@linutronix.de, linux@roeck-us.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use the smp_call_on_cpu() function to call system management
-mode on cpu 0.
-Make call secure by adding get_online_cpus() to avoid e.g. suspend
-resume cycles in between.
+Add generic virtualization support for pinning the current vcpu to a
+specified physical cpu. As this operation isn't performance critical
+(a very limited set of operations like BIOS calls and SMIs is expected
+to need this) just add a hypervisor specific indirection.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
-V4: add call to get_online_cpus()
----
- drivers/hwmon/dell-smm-hwmon.c | 35 ++++++++++++++++++++---------------
- 1 file changed, 20 insertions(+), 15 deletions(-)
+V4: move this patch some places up in the series
+    WARN_ONCE in case platform doesn't support pinning as requested by
+    Peter Zijlstra
 
-diff --git a/drivers/hwmon/dell-smm-hwmon.c b/drivers/hwmon/dell-smm-hwmon.c
-index c43318d..c91bf35 100644
---- a/drivers/hwmon/dell-smm-hwmon.c
-+++ b/drivers/hwmon/dell-smm-hwmon.c
-@@ -21,6 +21,7 @@
+V3: use getc_cpu()/put_cpu() as suggested by David Vrabel
+
+V2: adapt to using workqueues
+    add include/linux/hypervisor.h to hide architecture specific stuff
+    from generic kernel code
+
+In case paravirt maintainers don't want to be responsible for
+include/linux/hypervisor.h I could take it.
+---
+ MAINTAINERS                       |  1 +
+ arch/x86/include/asm/hypervisor.h |  4 ++++
+ arch/x86/kernel/cpu/hypervisor.c  | 11 +++++++++++
+ include/linux/hypervisor.h        | 17 +++++++++++++++++
+ kernel/smp.c                      |  1 +
+ kernel/up.c                       |  1 +
+ 6 files changed, 35 insertions(+)
+ create mode 100644 include/linux/hypervisor.h
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 40eb1db..d3bde4f 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -8330,6 +8330,7 @@ S:	Supported
+ F:	Documentation/virtual/paravirt_ops.txt
+ F:	arch/*/kernel/paravirt*
+ F:	arch/*/include/asm/paravirt.h
++F:	include/linux/hypervisor.h
  
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+ PARIDE DRIVERS FOR PARALLEL PORT IDE DEVICES
+ M:	Tim Waugh <tim@cyberelk.net>
+diff --git a/arch/x86/include/asm/hypervisor.h b/arch/x86/include/asm/hypervisor.h
+index 055ea99..67942b6 100644
+--- a/arch/x86/include/asm/hypervisor.h
++++ b/arch/x86/include/asm/hypervisor.h
+@@ -43,6 +43,9 @@ struct hypervisor_x86 {
  
-+#include <linux/cpu.h>
- #include <linux/delay.h>
- #include <linux/module.h>
- #include <linux/types.h>
-@@ -35,6 +36,7 @@
- #include <linux/uaccess.h>
- #include <linux/io.h>
- #include <linux/sched.h>
-+#include <linux/smp.h>
+ 	/* X2APIC detection (run once per boot) */
+ 	bool		(*x2apic_available)(void);
++
++	/* pin current vcpu to specified physical cpu (run rarely) */
++	void		(*pin_vcpu)(int);
+ };
  
- #include <linux/i8k.h>
- 
-@@ -130,23 +132,15 @@ static inline const char *i8k_get_dmi_data(int field)
- /*
-  * Call the System Management Mode BIOS. Code provided by Jonathan Buzzard.
-  */
--static int i8k_smm(struct smm_regs *regs)
-+static int i8k_smm_func(void *par)
- {
- 	int rc;
-+	struct smm_regs *regs = par;
- 	int eax = regs->eax;
--	cpumask_var_t old_mask;
- 
- 	/* SMM requires CPU 0 */
--	if (!alloc_cpumask_var(&old_mask, GFP_KERNEL))
--		return -ENOMEM;
--	cpumask_copy(old_mask, &current->cpus_allowed);
--	rc = set_cpus_allowed_ptr(current, cpumask_of(0));
--	if (rc)
--		goto out;
--	if (smp_processor_id() != 0) {
--		rc = -EBUSY;
--		goto out;
--	}
-+	if (smp_processor_id() != 0)
-+		return -EBUSY;
- 
- #if defined(CONFIG_X86_64)
- 	asm volatile("pushq %%rax\n\t"
-@@ -204,13 +198,24 @@ static int i8k_smm(struct smm_regs *regs)
- 	if (rc != 0 || (regs->eax & 0xffff) == 0xffff || regs->eax == eax)
- 		rc = -EINVAL;
- 
--out:
--	set_cpus_allowed_ptr(current, old_mask);
--	free_cpumask_var(old_mask);
- 	return rc;
+ extern const struct hypervisor_x86 *x86_hyper;
+@@ -56,6 +59,7 @@ extern const struct hypervisor_x86 x86_hyper_kvm;
+ extern void init_hypervisor(struct cpuinfo_x86 *c);
+ extern void init_hypervisor_platform(void);
+ extern bool hypervisor_x2apic_available(void);
++extern void hypervisor_pin_vcpu(int cpu);
+ #else
+ static inline void init_hypervisor(struct cpuinfo_x86 *c) { }
+ static inline void init_hypervisor_platform(void) { }
+diff --git a/arch/x86/kernel/cpu/hypervisor.c b/arch/x86/kernel/cpu/hypervisor.c
+index 73d391a..ff108f8 100644
+--- a/arch/x86/kernel/cpu/hypervisor.c
++++ b/arch/x86/kernel/cpu/hypervisor.c
+@@ -85,3 +85,14 @@ bool __init hypervisor_x2apic_available(void)
+ 	       x86_hyper->x2apic_available &&
+ 	       x86_hyper->x2apic_available();
  }
- 
- /*
-+ * Call the System Management Mode BIOS.
-+ */
-+static int i8k_smm(struct smm_regs *regs)
++
++void hypervisor_pin_vcpu(int cpu)
 +{
-+	int ret;
++	if (!x86_hyper)
++		return;
 +
-+	get_online_cpus();
-+	ret = smp_call_on_cpu(0, i8k_smm_func, regs, true);
-+	put_online_cpus();
-+
-+	return ret;
++	if (x86_hyper->pin_vcpu)
++		x86_hyper->pin_vcpu(cpu);
++	else
++		WARN_ONCE(1, "vcpu pinning requested but not supported!\n");
 +}
+diff --git a/include/linux/hypervisor.h b/include/linux/hypervisor.h
+new file mode 100644
+index 0000000..3fa5ef2
+--- /dev/null
++++ b/include/linux/hypervisor.h
+@@ -0,0 +1,17 @@
++#ifndef __LINUX_HYPEVISOR_H
++#define __LINUX_HYPEVISOR_H
 +
 +/*
-  * Read the fan status.
-  */
- static int i8k_get_fan_status(int fan)
++ *	Generic Hypervisor support
++ *		Juergen Gross <jgross@suse.com>
++ */
++
++#ifdef CONFIG_HYPERVISOR_GUEST
++#include <asm/hypervisor.h>
++#else
++static inline void hypervisor_pin_vcpu(int cpu)
++{
++}
++#endif
++
++#endif /* __LINUX_HYPEVISOR_H */
+diff --git a/kernel/smp.c b/kernel/smp.c
+index 7416544..9388064 100644
+--- a/kernel/smp.c
++++ b/kernel/smp.c
+@@ -14,6 +14,7 @@
+ #include <linux/smp.h>
+ #include <linux/cpu.h>
+ #include <linux/sched.h>
++#include <linux/hypervisor.h>
+ 
+ #include "smpboot.h"
+ 
+diff --git a/kernel/up.c b/kernel/up.c
+index 1760bf3..3ccee2b 100644
+--- a/kernel/up.c
++++ b/kernel/up.c
+@@ -6,6 +6,7 @@
+ #include <linux/kernel.h>
+ #include <linux/export.h>
+ #include <linux/smp.h>
++#include <linux/hypervisor.h>
+ 
+ int smp_call_function_single(int cpu, void (*func) (void *info), void *info,
+ 				int wait)
 -- 
 2.6.6
