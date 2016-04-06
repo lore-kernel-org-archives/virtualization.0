@@ -1,7 +1,7 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH v5 2/6] virt, sched: add generic vcpu pinning support
-Date: Wed,  6 Apr 2016 16:17:42 +0200
-Message-ID: <1459952266-3687-3-git-send-email-jgross@suse.com>
+Subject: [PATCH v5 1/6] xen: sync xen header
+Date: Wed,  6 Apr 2016 16:17:41 +0200
+Message-ID: <1459952266-3687-2-git-send-email-jgross@suse.com>
 References: <1459952266-3687-1-git-send-email-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,134 +21,191 @@ To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org
 Cc: Juergen Gross <jgross@suse.com>, jeremy@goop.org, jdelvare@suse.com, peterz@infradead.org, hpa@zytor.com, akataria@vmware.com, x86@kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, pali.rohar@gmail.com, boris.ostrovsky@oracle.com, tglx@linutronix.de, linux@roeck-us.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add generic virtualization support for pinning the current vcpu to a
-specified physical cpu. As this operation isn't performance critical
-(a very limited set of operations like BIOS calls and SMIs is expected
-to need this) just add a hypervisor specific indirection.
+Import the actual version of include/xen/interface/sched.h from Xen.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
+Acked-by: David Vrabel <david.vrabel@citrix.com>
 ---
-V4: move this patch some places up in the series
-    WARN_ONCE in case platform doesn't support pinning as requested by
-    Peter Zijlstra
+ include/xen/interface/sched.h | 100 ++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 82 insertions(+), 18 deletions(-)
 
-V3: use getc_cpu()/put_cpu() as suggested by David Vrabel
-
-V2: adapt to using workqueues
-    add include/linux/hypervisor.h to hide architecture specific stuff
-    from generic kernel code
-
-In case paravirt maintainers don't want to be responsible for
-include/linux/hypervisor.h I could take it.
----
- MAINTAINERS                       |  1 +
- arch/x86/include/asm/hypervisor.h |  4 ++++
- arch/x86/kernel/cpu/hypervisor.c  | 11 +++++++++++
- include/linux/hypervisor.h        | 17 +++++++++++++++++
- kernel/smp.c                      |  1 +
- kernel/up.c                       |  1 +
- 6 files changed, 35 insertions(+)
- create mode 100644 include/linux/hypervisor.h
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 40eb1db..d3bde4f 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -8330,6 +8330,7 @@ S:	Supported
- F:	Documentation/virtual/paravirt_ops.txt
- F:	arch/*/kernel/paravirt*
- F:	arch/*/include/asm/paravirt.h
-+F:	include/linux/hypervisor.h
+diff --git a/include/xen/interface/sched.h b/include/xen/interface/sched.h
+index f184909..a4c4d73 100644
+--- a/include/xen/interface/sched.h
++++ b/include/xen/interface/sched.h
+@@ -3,6 +3,24 @@
+  *
+  * Scheduler state interactions
+  *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this software and associated documentation files (the "Software"), to
++ * deal in the Software without restriction, including without limitation the
++ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
++ * sell copies of the Software, and to permit persons to whom the Software is
++ * furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ *
+  * Copyright (c) 2005, Keir Fraser <keir@xensource.com>
+  */
  
- PARIDE DRIVERS FOR PARALLEL PORT IDE DEVICES
- M:	Tim Waugh <tim@cyberelk.net>
-diff --git a/arch/x86/include/asm/hypervisor.h b/arch/x86/include/asm/hypervisor.h
-index 055ea99..67942b6 100644
---- a/arch/x86/include/asm/hypervisor.h
-+++ b/arch/x86/include/asm/hypervisor.h
-@@ -43,6 +43,9 @@ struct hypervisor_x86 {
+@@ -12,18 +30,30 @@
+ #include <xen/interface/event_channel.h>
  
- 	/* X2APIC detection (run once per boot) */
- 	bool		(*x2apic_available)(void);
-+
-+	/* pin current vcpu to specified physical cpu (run rarely) */
-+	void		(*pin_vcpu)(int);
- };
- 
- extern const struct hypervisor_x86 *x86_hyper;
-@@ -56,6 +59,7 @@ extern const struct hypervisor_x86 x86_hyper_kvm;
- extern void init_hypervisor(struct cpuinfo_x86 *c);
- extern void init_hypervisor_platform(void);
- extern bool hypervisor_x2apic_available(void);
-+extern void hypervisor_pin_vcpu(int cpu);
- #else
- static inline void init_hypervisor(struct cpuinfo_x86 *c) { }
- static inline void init_hypervisor_platform(void) { }
-diff --git a/arch/x86/kernel/cpu/hypervisor.c b/arch/x86/kernel/cpu/hypervisor.c
-index 73d391a..ff108f8 100644
---- a/arch/x86/kernel/cpu/hypervisor.c
-+++ b/arch/x86/kernel/cpu/hypervisor.c
-@@ -85,3 +85,14 @@ bool __init hypervisor_x2apic_available(void)
- 	       x86_hyper->x2apic_available &&
- 	       x86_hyper->x2apic_available();
- }
-+
-+void hypervisor_pin_vcpu(int cpu)
-+{
-+	if (!x86_hyper)
-+		return;
-+
-+	if (x86_hyper->pin_vcpu)
-+		x86_hyper->pin_vcpu(cpu);
-+	else
-+		WARN_ONCE(1, "vcpu pinning requested but not supported!\n");
-+}
-diff --git a/include/linux/hypervisor.h b/include/linux/hypervisor.h
-new file mode 100644
-index 0000000..3fa5ef2
---- /dev/null
-+++ b/include/linux/hypervisor.h
-@@ -0,0 +1,17 @@
-+#ifndef __LINUX_HYPEVISOR_H
-+#define __LINUX_HYPEVISOR_H
-+
-+/*
-+ *	Generic Hypervisor support
-+ *		Juergen Gross <jgross@suse.com>
+ /*
++ * Guest Scheduler Operations
++ *
++ * The SCHEDOP interface provides mechanisms for a guest to interact
++ * with the scheduler, including yield, blocking and shutting itself
++ * down.
 + */
 +
-+#ifdef CONFIG_HYPERVISOR_GUEST
-+#include <asm/hypervisor.h>
-+#else
-+static inline void hypervisor_pin_vcpu(int cpu)
-+{
-+}
-+#endif
++/*
+  * The prototype for this hypercall is:
+- *  long sched_op_new(int cmd, void *arg)
++ * long HYPERVISOR_sched_op(enum sched_op cmd, void *arg, ...)
++ *
+  * @cmd == SCHEDOP_??? (scheduler operation).
+  * @arg == Operation-specific extra argument(s), as described below.
++ * ...  == Additional Operation-specific extra arguments, described below.
+  *
+- * **NOTE**:
+- * Versions of Xen prior to 3.0.2 provide only the following legacy version
++ * Versions of Xen prior to 3.0.2 provided only the following legacy version
+  * of this hypercall, supporting only the commands yield, block and shutdown:
+  *  long sched_op(int cmd, unsigned long arg)
+  * @cmd == SCHEDOP_??? (scheduler operation).
+  * @arg == 0               (SCHEDOP_yield and SCHEDOP_block)
+  *      == SHUTDOWN_* code (SCHEDOP_shutdown)
++ *
++ * This legacy version is available to new guests as:
++ * long HYPERVISOR_sched_op_compat(enum sched_op cmd, unsigned long arg)
+  */
+ 
+ /*
+@@ -44,12 +74,17 @@
+ /*
+  * Halt execution of this domain (all VCPUs) and notify the system controller.
+  * @arg == pointer to sched_shutdown structure.
++ *
++ * If the sched_shutdown_t reason is SHUTDOWN_suspend then
++ * x86 PV guests must also set RDX (EDX for 32-bit guests) to the MFN
++ * of the guest's start info page.  RDX/EDX is the third hypercall
++ * argument.
++ *
++ * In addition, which reason is SHUTDOWN_suspend this hypercall
++ * returns 1 if suspend was cancelled or the domain was merely
++ * checkpointed, and 0 if it is resuming in a new domain.
+  */
+ #define SCHEDOP_shutdown    2
+-struct sched_shutdown {
+-    unsigned int reason; /* SHUTDOWN_* */
+-};
+-DEFINE_GUEST_HANDLE_STRUCT(sched_shutdown);
+ 
+ /*
+  * Poll a set of event-channel ports. Return when one or more are pending. An
+@@ -57,12 +92,6 @@ DEFINE_GUEST_HANDLE_STRUCT(sched_shutdown);
+  * @arg == pointer to sched_poll structure.
+  */
+ #define SCHEDOP_poll        3
+-struct sched_poll {
+-    GUEST_HANDLE(evtchn_port_t) ports;
+-    unsigned int nr_ports;
+-    uint64_t timeout;
+-};
+-DEFINE_GUEST_HANDLE_STRUCT(sched_poll);
+ 
+ /*
+  * Declare a shutdown for another domain. The main use of this function is
+@@ -71,15 +100,11 @@ DEFINE_GUEST_HANDLE_STRUCT(sched_poll);
+  * @arg == pointer to sched_remote_shutdown structure.
+  */
+ #define SCHEDOP_remote_shutdown        4
+-struct sched_remote_shutdown {
+-    domid_t domain_id;         /* Remote domain ID */
+-    unsigned int reason;       /* SHUTDOWN_xxx reason */
+-};
+ 
+ /*
+  * Latch a shutdown code, so that when the domain later shuts down it
+  * reports this code to the control tools.
+- * @arg == as for SCHEDOP_shutdown.
++ * @arg == sched_shutdown, as for SCHEDOP_shutdown.
+  */
+ #define SCHEDOP_shutdown_code 5
+ 
+@@ -92,10 +117,47 @@ struct sched_remote_shutdown {
+  * With id != 0 and timeout != 0, poke watchdog timer and set new timeout.
+  */
+ #define SCHEDOP_watchdog    6
 +
-+#endif /* __LINUX_HYPEVISOR_H */
-diff --git a/kernel/smp.c b/kernel/smp.c
-index 7416544..9388064 100644
---- a/kernel/smp.c
-+++ b/kernel/smp.c
-@@ -14,6 +14,7 @@
- #include <linux/smp.h>
- #include <linux/cpu.h>
- #include <linux/sched.h>
-+#include <linux/hypervisor.h>
++/*
++ * Override the current vcpu affinity by pinning it to one physical cpu or
++ * undo this override restoring the previous affinity.
++ * @arg == pointer to sched_pin_override structure.
++ *
++ * A negative pcpu value will undo a previous pin override and restore the
++ * previous cpu affinity.
++ * This call is allowed for the hardware domain only and requires the cpu
++ * to be part of the domain's cpupool.
++ */
++#define SCHEDOP_pin_override 7
++
++struct sched_shutdown {
++    unsigned int reason; /* SHUTDOWN_* => shutdown reason */
++};
++DEFINE_GUEST_HANDLE_STRUCT(sched_shutdown);
++
++struct sched_poll {
++    GUEST_HANDLE(evtchn_port_t) ports;
++    unsigned int nr_ports;
++    uint64_t timeout;
++};
++DEFINE_GUEST_HANDLE_STRUCT(sched_poll);
++
++struct sched_remote_shutdown {
++    domid_t domain_id;         /* Remote domain ID */
++    unsigned int reason;       /* SHUTDOWN_* => shutdown reason */
++};
++DEFINE_GUEST_HANDLE_STRUCT(sched_remote_shutdown);
++
+ struct sched_watchdog {
+     uint32_t id;                /* watchdog ID */
+     uint32_t timeout;           /* timeout */
+ };
++DEFINE_GUEST_HANDLE_STRUCT(sched_watchdog);
++
++struct sched_pin_override {
++    int32_t pcpu;
++};
++DEFINE_GUEST_HANDLE_STRUCT(sched_pin_override);
  
- #include "smpboot.h"
+ /*
+  * Reason codes for SCHEDOP_shutdown. These may be interpreted by control
+@@ -107,6 +169,7 @@ struct sched_watchdog {
+ #define SHUTDOWN_suspend    2  /* Clean up, save suspend info, kill.         */
+ #define SHUTDOWN_crash      3  /* Tell controller we've crashed.             */
+ #define SHUTDOWN_watchdog   4  /* Restart because watchdog time expired.     */
++
+ /*
+  * Domain asked to perform 'soft reset' for it. The expected behavior is to
+  * reset internal Xen state for the domain returning it to the point where it
+@@ -115,5 +178,6 @@ struct sched_watchdog {
+  * interfaces again.
+  */
+ #define SHUTDOWN_soft_reset 5
++#define SHUTDOWN_MAX        5  /* Maximum valid shutdown reason.             */
  
-diff --git a/kernel/up.c b/kernel/up.c
-index 1760bf3..3ccee2b 100644
---- a/kernel/up.c
-+++ b/kernel/up.c
-@@ -6,6 +6,7 @@
- #include <linux/kernel.h>
- #include <linux/export.h>
- #include <linux/smp.h>
-+#include <linux/hypervisor.h>
- 
- int smp_call_function_single(int cpu, void (*func) (void *info), void *info,
- 				int wait)
+ #endif /* __XEN_PUBLIC_SCHED_H__ */
 -- 
 2.6.6
