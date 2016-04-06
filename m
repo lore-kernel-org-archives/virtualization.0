@@ -1,21 +1,17 @@
-From: Vlastimil Babka <vbabka@suse.cz>
-Subject: Re: [PATCH v3 01/16] mm: use put_page to free page instead of
-	putback_lru_page
-Date: Wed, 6 Apr 2016 09:57:28 +0200
-Message-ID: <5704C168.1060803__15341.2676453174$1459929475$gmane$org@suse.cz>
-References: <1459321935-3655-1-git-send-email-minchan@kernel.org>
-	<1459321935-3655-2-git-send-email-minchan@kernel.org>
-	<56FE706D.7080507@suse.cz> <20160404013917.GC6543@bbox>
-	<20160404044458.GA20250@hori1.linux.bs1.fc.nec.co.jp>
-	<57027E47.7070909@suse.cz>
-	<20160405015402.GA30962@hori1.linux.bs1.fc.nec.co.jp>
-	<57037562.3040203@suse.cz>
-	<20160406005403.GA29576@hori1.linux.bs1.fc.nec.co.jp>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [virtio-dev] virtio-vsock live migration
+Date: Wed, 6 Apr 2016 13:55:50 +0100
+Message-ID: <20160406125550.GB17538__8191.25825441933$1459947366$gmane$org@stefanha-x1.localdomain>
+References: <20160303153737.GA19780@stefanha-x1.localdomain>
+	<20160314130150-mutt-send-email-mst@redhat.com>
+	<20160315151529.GB26263@stefanha-x1.localdomain>
+	<20160315180916-mutt-send-email-mst@redhat.com>
+	<20160316143200.GA689@stefanha-x1.localdomain>
+	<20160316163344-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8378040835710585699=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160406005403.GA29576@hori1.linux.bs1.fc.nec.co.jp>
+In-Reply-To: <20160316163344-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,103 +21,97 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Cc: Rik van Riel <riel@redhat.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, YiPing Xu <xuyiping@hisilicon.com>, "aquini@redhat.com" <aquini@redhat.com>, "rknize@motorola.com" <rknize@motorola.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Chan Gyun Jeong <chan.jeong@lge.com>, Hugh Dickins <hughd@google.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "bfields@fieldses.org" <bfields@fieldses.org>, Minchan Kim <minchan@kernel.org>, Gioh Kim <gi-oh.kim@profitbricks.com>, Mel Gorman <mgorman@suse.de>, Sangseok Lee <sangseok.lee@lge.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Andrew Morton <akpm@linux-foundation.org>, "jlayton@poochiereds.net" <jlayton@poochiereds.net>, "koct9i@gmail.com" <koct9i@gmail.com>, Al Viro <viro@ZenIV.linux.org.uk>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Matt Benjamin <mbenjamin@redhat.com>, virtualization@lists.linux-foundation.org, Christoffer Dall <christoffer.dall@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/06/2016 02:54 AM, Naoya Horiguchi wrote:
-> On Tue, Apr 05, 2016 at 10:20:50AM +0200, Vlastimil Babka wrote:
->>
->> So you agree that this race is a bug? It may turn a soft-offline attempt
->> into a killed process. In that case we should fix it the same as we are
->> fixing the failed migration case.
-> 
-> I agree, it's a bug, although rare and non-critical.
-> 
->> Maybe it will be just enough to switch
->> the test_set_page_hwpoison() and put_page() calls?
-> 
-> Unfortunately that restores the other race with unpoison (described below.)
-> Sorry for my bad/unclear statements, these races seems exclusive and a compatible
-> solution is not found, so I prioritized fixing the latter one by comparing
-> severity (the latter causes kernel crash,) which led to the current code.
 
-Ah, I see. However unpoison is a functionality just for stress-testing,
-and not expected to be used in production, right? So it's somewhat
-unfortunate trade-off with danger of soft-offlining killing an unrelated
-process.
+--===============8378040835710585699==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qcHopEYAB45HaUaB"
+Content-Disposition: inline
 
->>> And another practical thing is the race with unpoison_memory() as described
->>> in commit da1b13ccfbebe. unpoison_memory() properly works only for properly
->>> poisoned pages, so doing unpoison for in-use hwpoisoned pages is fragile.
->>> That's why I'd like to avoid setting PageHWPoison for in-use pages if possible.
->>>
->>>> (Also, which part prevents pages with PageHWPoison to be allocated
->>>> again, anyway? I can't find it and test_set_page_hwpoison() doesn't
->>>> remove from buddy freelists).
->>>
->>> check_new_page() in mm/page_alloc.c should prevent reallocation of PageHWPoison.
->>> As you pointed out, memory error handler doens't remove it from buddy freelists.
->>
->> Oh, I see. It's using __PG_HWPOISON wrapper, so I didn't notice it when
->> searching. In any case that results in a bad_page() warning, right? Is
->> it desirable for a soft-offlined page?
-> 
-> That's right, and the bad_page warning might be too strong for soft offlining.
-> We can't tell which of memory_failure/soft_offline_page a PageHWPoison came
-> from, but users can find other lines in dmesg which should tell that.
-> And memory error events can hit buddy pages directly, in that case we still
-> need the check in check_new_page().
 
-Ah, ok.
+--qcHopEYAB45HaUaB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->> If we didn't free poisoned pages
->> to buddy system, they wouldn't trigger this warning.
-> 
-> Actually, we didn't free at commit add05cecef80 ("mm: soft-offline: don't free
-> target page in successful page migration"), but that's was reverted in
-> commit f4c18e6f7b5b ("mm: check __PG_HWPOISON separately from PAGE_FLAGS_CHECK_AT_*").
-> Now I start thinking the revert was a bad decision, so I'll dig this problem again.
+On Wed, Mar 16, 2016 at 05:05:19PM +0200, Michael S. Tsirkin wrote:
+> > > >  NFS and netperf are the first two protocols I looked
+> > > >    at and both transmit address information across the connection...
+> > >=20
+> > >=20
+> > > Does netperf really attempt to get local IP
+> > > and then send that inline within the connection?
+> >=20
+> > Yes, netperf has separate control and data sockets.  I think part of the
+> > reason for this split is that the control connection can communicate the
+> > address details for the data connection over a different protocol (TCP +
+> > RDMA?), but I'm not sure.
+> >=20
+> > Stefan
+>=20
+> Thinking about it, netperf does not survive disconnects.
+> So the current protocol would be useless for it.
+> I am not sure about NFS but from (long past) experience it did not
+> attempt to re-resolve the name to address, so changing an
+> address would break it as well.
+>=20
+> So I think these applications would have to use a 64 bit CID.
+>=20
+> Why, then, do we care about one aspect of these applications
+> (creating connections) and not another (not breaking them)?
 
-Good.
+I care about mapping the semantics of AF_VSOCK to virtio-vsock.
+AF_VSOCK was implemented with the ability to plug in additional
+transports (like virtio).  This allows guest agents and other
+applications to compile once and run on any transport.
 
->>> BTW, it might be a bit off-topic, but recently I felt that check_new_page()
->>> might be improvable, because when check_new_page() returns 1, the whole buddy
->>> block (not only the bad page) seems to be leaked from buddy freelist.
->>> For example, if thp (order 9) is requested, and PageHWPoison (or any other
->>> types of bad pages) is found in an order 9 block, all 512 page are discarded.
->>> Unpoison can't bring it back to buddy.
->>> So, some code to split buddy block including bad page (and recovering code from
->>> unpoison) might be helpful, although that's another story ...
->>
->> Hm sounds like another argument for not freeing the page to buddy lists
->> in the first place. Maybe a hook in free_pages_check()?
-> 
-> Sounds a good idea. I'll try it, too.
+If we change virtio-vsock to rely on unique addresses across migration
+then we lose zero-configuration.  AF_VSOCK applications use the
+VMADDR_CID_HOST (2) constant to communicate with the host.  After live
+migration this well-known CID refers to the new host.  Applications
+would need to know a unique host CID in order to work correctly across
+live migration.
 
-So what I think could hopefully work is to replace the put_page() after
-migration with a hwpoison-specific construct that does something like:
+Although I appreciate your drive to make the device as flexible as
+possible, if we want to do this we are totally beyond AF_VSOCK semantics
+and would be better served by a separate effort that avoids confusion
+between class AF_VSOCK semantics and virtio socket semantics.
 
-if (put_page_testzero(page))
-     if (test_set_page_hwpoison()) ...
-     __put_page()
+Can we please treat AF_VSOCK semantics as the requirements we're trying
+to implement?  It supports qemu-guest-agent and as I described in a
+previous mail could also support transparent connection migration a la
+CRIU sockets.
 
-With some more thought about what other parts of put_page() apply - how
-to handle compound pages and zone-device pages.
+Stefan
 
-That should hopefully be the safest course. When put_page_testzero()
-succeeds, there should be no other (current of near-future) users of the
-page, and we can still do whatever we need before releasing to
-__put_page(). I.e. set the HWPoison flag, and maybe combine this with
-modification to free_pages_check() to divert it from becoming a buddy page.
+--qcHopEYAB45HaUaB
+Content-Type: application/pgp-signature; name="signature.asc"
 
-It should be even safer than the current "put_page();
-test_set_page_hwpoison();" approach in that we are currently not
-guaranteed that the put_page() is indeed releasing the last pin, but we
-set HWPoison in any case. Although we have just migrated the page away,
-there might be a pfn scanner holding its pin and checking the page.
-Hopefully no such scanner has a path that would break on HWPoison flag,
-but I don't know. By not setting the HWpoison when we don't succeed
-put_page_testzero(), we are safer. It's true the page might stay
-unpoisoned due to a temporary pin, but the process data was migrated
-away which is the important part, and userspace can retry anyway?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQEcBAEBAgAGBQJXBQdWAAoJEJykq7OBq3PI/XMH/j5GkuGK8lvvRwur5xDhTBkw
+1P5d1LQZpRhLc9mg/kjnRuU1avRhQWbZAttMEIXQLO7yDyvSKxblwfxheFOQhmKi
+YfNvnItvNrt7/31gIOQuiz4VXKFF+AAFt+lZzGY9krljITq7yz/uZyXg4CKhDH8H
+icSw8MCk3LKB5RWOgCHPJoB3E/51T9ato86m4yg5yz0nE7a4Ql3eKDF4cPP11PKS
+HOcCsVt8sQRlOonYrp36C8yLXXAE/Zmu6iaqUNvfylCevy6FydI991jdipsu9shp
+Ur9mcjJ4PK7iKkp1AYW9PwAmtnYPsSdVeTmiZ+ymefQeN9RMOgSRDzdkW90f+7c=
+=+RPt
+-----END PGP SIGNATURE-----
+
+--qcHopEYAB45HaUaB--
+
+--===============8378040835710585699==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8378040835710585699==--
