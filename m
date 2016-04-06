@@ -1,8 +1,8 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH v5 4/6] xen: add xen_pin_vcpu() to support calling functions
-	on a dedicated pcpu
-Date: Wed,  6 Apr 2016 16:17:44 +0200
-Message-ID: <1459952266-3687-5-git-send-email-jgross__46873.2694782831$1459952343$gmane$org@suse.com>
+Subject: [PATCH v5 3/6] smp: add function to execute a function synchronously
+	on a cpu
+Date: Wed,  6 Apr 2016 16:17:43 +0200
+Message-ID: <1459952266-3687-4-git-send-email-jgross__11483.6853849285$1459952357$gmane$org@suse.com>
 References: <1459952266-3687-1-git-send-email-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,79 +22,124 @@ To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org
 Cc: Juergen Gross <jgross@suse.com>, jeremy@goop.org, jdelvare@suse.com, peterz@infradead.org, hpa@zytor.com, akataria@vmware.com, x86@kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, pali.rohar@gmail.com, boris.ostrovsky@oracle.com, tglx@linutronix.de, linux@roeck-us.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Some hardware models (e.g. Dell Studio 1555 laptops) require calls to
-the firmware to be issued on cpu 0 only. As Dom0 might have to use
-these calls, add xen_pin_vcpu() to achieve this functionality.
-
-In case either the domain doesn't have the privilege to make the
-related hypercall or the hypervisor isn't supporting it, issue a
-warning once and disable further pinning attempts.
+On some hardware models (e.g. Dell Studio 1555 laptop) some hardware
+related functions (e.g. SMIs) are to be executed on physical cpu 0
+only. Instead of open coding such a functionality multiple times in
+the kernel add a service function for this purpose. This will enable
+the possibility to take special measures in virtualized environments
+like Xen, too.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
-Acked-by: David Vrabel <david.vrabel@citrix.com>
 ---
-V5: less wordy messages as requested by David Vrabel
----
- arch/x86/xen/enlighten.c | 40 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
+V5: rename and reshuffle parameters of smp_call_on_cpu() as requested by
+    Peter Zijlstra
+    test target cpu to be online as requested by Peter Zijlstra
 
-diff --git a/arch/x86/xen/enlighten.c b/arch/x86/xen/enlighten.c
-index 880862c..bfa2f21 100644
---- a/arch/x86/xen/enlighten.c
-+++ b/arch/x86/xen/enlighten.c
-@@ -1885,6 +1885,45 @@ static void xen_set_cpu_features(struct cpuinfo_x86 *c)
- 	}
- }
+V4: change return value in case of illegal cpu as requested by Peter Zijlstra
+    make pinning of vcpu an option as suggested by Peter Zijlstra
+
+V2: instead of manipulating the allowed set of cpus use cpu specific
+    workqueue as requested by Peter Zijlstra
+---
+ include/linux/smp.h |  3 +++
+ kernel/smp.c        | 50 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ kernel/up.c         | 17 +++++++++++++++++
+ 3 files changed, 70 insertions(+)
+
+diff --git a/include/linux/smp.h b/include/linux/smp.h
+index c441407..4f1c475 100644
+--- a/include/linux/smp.h
++++ b/include/linux/smp.h
+@@ -196,4 +196,7 @@ extern void arch_enable_nonboot_cpus_end(void);
  
-+static void xen_pin_vcpu(int cpu)
+ void smp_setup_processor_id(void);
+ 
++int smp_call_on_cpu(unsigned int cpu, int (*func)(void *), void *par,
++		    bool phys);
++
+ #endif /* __LINUX_SMP_H */
+diff --git a/kernel/smp.c b/kernel/smp.c
+index 9388064..f671948 100644
+--- a/kernel/smp.c
++++ b/kernel/smp.c
+@@ -740,3 +740,53 @@ void wake_up_all_idle_cpus(void)
+ 	preempt_enable();
+ }
+ EXPORT_SYMBOL_GPL(wake_up_all_idle_cpus);
++
++/**
++ * smp_call_on_cpu - Call a function on a specific cpu
++ *
++ * Used to call a function on a specific cpu and wait for it to return.
++ * Optionally make sure the call is done on a specified physical cpu via vcpu
++ * pinning in order to support virtualized environments.
++ */
++struct smp_call_on_cpu_struct {
++	struct work_struct	work;
++	struct completion	done;
++	int			(*func)(void *);
++	void			*data;
++	int			ret;
++	int			cpu;
++};
++
++static void smp_call_on_cpu_callback(struct work_struct *work)
 +{
-+	static bool disable_pinning;
-+	struct sched_pin_override pin_override;
-+	int ret;
++	struct smp_call_on_cpu_struct *sscs;
 +
-+	if (disable_pinning)
-+		return;
++	sscs = container_of(work, struct smp_call_on_cpu_struct, work);
++	if (sscs->cpu >= 0)
++		hypervisor_pin_vcpu(sscs->cpu);
++	sscs->ret = sscs->func(sscs->data);
++	if (sscs->cpu >= 0)
++		hypervisor_pin_vcpu(-1);
 +
-+	pin_override.pcpu = cpu;
-+	ret = HYPERVISOR_sched_op(SCHEDOP_pin_override, &pin_override);
-+
-+	/* Ignore errors when removing override. */
-+	if (cpu < 0)
-+		return;
-+
-+	switch (ret) {
-+	case -ENOSYS:
-+		pr_warn("Unable to pin on physical cpu %d. In case of problems consider vcpu pinning.\n",
-+			cpu);
-+		disable_pinning = true;
-+		break;
-+	case -EPERM:
-+		WARN(1, "Trying to pin vcpu without having privilege to do so\n");
-+		disable_pinning = true;
-+		break;
-+	case -EINVAL:
-+	case -EBUSY:
-+		pr_warn("Physical cpu %d not available for pinning. Check Xen cpu configuration.\n",
-+			cpu);
-+		break;
-+	case 0:
-+		break;
-+	default:
-+		WARN(1, "rc %d while trying to pin vcpu\n", ret);
-+		disable_pinning = true;
-+	}
++	complete(&sscs->done);
 +}
 +
- const struct hypervisor_x86 x86_hyper_xen = {
- 	.name			= "Xen",
- 	.detect			= xen_platform,
-@@ -1893,6 +1932,7 @@ const struct hypervisor_x86 x86_hyper_xen = {
- #endif
- 	.x2apic_available	= xen_x2apic_para_available,
- 	.set_cpu_features       = xen_set_cpu_features,
-+	.pin_vcpu               = xen_pin_vcpu,
- };
- EXPORT_SYMBOL(x86_hyper_xen);
- 
++int smp_call_on_cpu(unsigned int cpu, int (*func)(void *), void *par, bool phys)
++{
++	struct smp_call_on_cpu_struct sscs = {
++		.work = __WORK_INITIALIZER(sscs.work, smp_call_on_cpu_callback),
++		.done = COMPLETION_INITIALIZER_ONSTACK(sscs.done),
++		.func = func,
++		.data = par,
++		.cpu  = phys ? cpu : -1,
++	};
++
++	if (cpu >= nr_cpu_ids || !cpu_online(cpu))
++		return -ENXIO;
++
++	queue_work_on(cpu, system_wq, &sscs.work);
++	wait_for_completion(&sscs.done);
++
++	return sscs.ret;
++}
++EXPORT_SYMBOL_GPL(smp_call_on_cpu);
+diff --git a/kernel/up.c b/kernel/up.c
+index 3ccee2b..ee81ac9 100644
+--- a/kernel/up.c
++++ b/kernel/up.c
+@@ -83,3 +83,20 @@ void on_each_cpu_cond(bool (*cond_func)(int cpu, void *info),
+ 	preempt_enable();
+ }
+ EXPORT_SYMBOL(on_each_cpu_cond);
++
++int smp_call_on_cpu(unsigned int cpu, int (*func)(void *), void *par, bool phys)
++{
++	int ret;
++
++	if (cpu != 0)
++		return -ENXIO;
++
++	if (phys)
++		hypervisor_pin_vcpu(0);
++	ret = func(par);
++	if (phys)
++		hypervisor_pin_vcpu(-1);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(smp_call_on_cpu);
 -- 
 2.6.6
