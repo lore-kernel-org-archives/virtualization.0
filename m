@@ -1,13 +1,16 @@
-From: Ian Campbell <ian.campbell@docker.com>
-Subject: Re: [RFC v5 0/5] Add virtio transport for AF_VSOCK
-Date: Fri, 08 Apr 2016 16:35:05 +0100
-Message-ID: <1460129705.1749.25.camel__44813.0428012975$1460129876$gmane$org@docker.com>
-References: <1459520587-12337-1-git-send-email-stefanha@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] drivers/virtio/virtio_ring.c: Deinline virtqueue_add,
+	save 1016 bytes
+Date: Sat, 9 Apr 2016 23:14:37 +0300
+Message-ID: <20160409231155-mutt-send-email-mst@redhat.com>
+References: <1460141926-13069-1-git-send-email-dvlasenk@redhat.com>
+	<1460141926-13069-3-git-send-email-dvlasenk@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1459520587-12337-1-git-send-email-stefanha@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1460141926-13069-3-git-send-email-dvlasenk@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,61 +20,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org
-Cc: marius vlad <marius.vlad0@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>, Matt Benjamin <mbenjamin@redhat.com>, Greg Kurz <gkurz@linux.vnet.ibm.com>, Christoffer Dall <christoffer.dall@linaro.org>
+To: Denys Vlasenko <dvlasenk@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCAyMDE2LTA0LTAxIGF0IDE1OjIzICswMTAwLCBTdGVmYW4gSGFqbm9jemkgd3JvdGU6
-Cj4gVGhpcyBzZXJpZXMgaXMgYmFzZWQgb24gTWljaGFlbCBUc2lya2luJ3Mgdmhvc3QgYnJhbmNo
-ICh2NC41LXJjNikuCj4gCj4gSSdtIGFib3V0IHRvIHByb2Nlc3MgQ2xhdWRpbyBJbWJyZW5kYSdz
-IGxvY2tpbmcgZml4ZXMgZm9yIHZpcnRpby12c29jayBidXQKPiBmaXJzdCBJIHdhbnQgdG8gc2hh
-cmUgdGhlIGxhdGVzdCB2ZXJzaW9uIG9mIHRoZSBjb2RlLsKgwqBTZXZlcmFsIHBlb3BsZSBhcmUK
-PiBwbGF5aW5nIHdpdGggdnNvY2sgbm93IHNvIHNoYXJpbmcgdGhlIGxhdGVzdCBjb2RlIHNob3Vs
-ZCBhdm9pZCBkdXBsaWNhdGUgd29yay4KClRoYW5rcyBmb3IgdGhpcywgSSd2ZSBiZWVuIHVzaW5n
-IGl0IGluIG15IHByb2plY3QgYW5kIGl0IG1vc3RseSBzZWVtcwpmaW5lLgoKT25lIHdyaW5rbGUg
-SSBjYW1lIGFjcm9zcywgd2hpY2ggSSdtIG5vdCBzdXJlIGlmIGl0IGlzIGJ5IGRlc2lnbiBvciBh
-CnByb2JsZW0gaXMgdGhhdCBJIGNhbiBzZWUgdGhpcyBzZXF1ZW5jZSBjb21pbmcgZnJvbSB0aGUg
-Z3Vlc3QgKHdpdGgKb3RoZXIgYWN0aXZpdHkgaW4gYmV0d2Vlbik6CgrCoCDCoCAxKSBPUF9TSFVU
-RE9XTiB3LyBmbGFncyA9PSBTSFVURE9XTl9SWArCoMKgwqDCoDIpIE9QX1NIVVRET1dOIHcvIGZs
-YWdzID09IFNIVVRET1dOX1RYCsKgwqDCoMKgMykgT1BfU0hVVERPV04gdy8gZmxhZ3MgPT0gU0hV
-VERPV05fVFh8U0hVVERPV05fUlgKCkkgb3JpZ25hbGx5IGhhZCBteSBiYWNrZW5kIGNsb3NlIHRo
-aW5ncyBkb3duIGF0ICMyLCBob3dldmVyIHRoaXMgbWVhbnQKdGhhdCB3aGVuICMzIGFycml2ZWQg
-aXQgd2FzIGZvciBhIG5vbi1leGlzdGVudCBzb2NrZXQgKG9yLCB3b3JzZSwgYW4KYWN0aXZlIG9u
-ZSBpZiB0aGUgcG9ydHMgZ290IHJldXNlZCkuIEkgY2hlY2tlZCB2NSBvZiB0aGUgc3BlYwpwcm9w
-b3NhbFswXSB3aGljaCBzYXlzOgogICAgSWYgdGhlc2UgYml0cyBhcmUgc2V0IGFuZCB0aGVyZSBh
-cmUgbm8gbW9yZSB2aXJ0cXVldWUgYnVmZmVycwogICAgcGVuZGluZyB0aGUgc29ja2V0IGlzIGRp
-c2Nvbm5lY3RlZC4KCmJ1dCBJJ20gbm90IGVudGlyZWx5IHN1cmUgaWYgdGhpcyBiZWhhdmlvdXIg
-Y29udHJhZGljdHMgdGhpcyBvciBub3QKKHRoZSBiaXRzIGhhdmUgYm90aCBiZWVuIHNldCBhdCAj
-MiwgYnV0IG5vdCBhdCB0aGUgc2FtZSB0aW1lKS4KCkJUVywgaG93IGRvZXMgb25lIHRlbGwgaWYg
-dGhlcmUgYXJlIG5vIG1vcmUgdmlydHF1ZXVlIGJ1ZmZlcnMgcGVuZGluZwpvciBub3Qgd2hpbGUg
-cHJvY2Vzc2luZyB0aGUgb3A/CgpBbm90aGVyIHRoaW5nIEkgbm90aWNlZCwgd2hpY2ggaXMgcmVh
-bGx5IG1vcmUgdG8gZG8gd2l0aCB0aGUgZ2VuZXJpYwpBRl9WU09DSyBiaXRzIHRoYW4gYW55dGhp
-bmcgdG8gZG8gd2l0aCB5b3VyIHBhdGNoZXMgaXMgdGhhdCB0aGVyZSBpcyBubwpsaW1pdGF0aW9u
-cyBvbiB3aGljaCB2c29jayBwb3J0cyBhIG5vbi1wcml2aWxlZ2VkIHVzZXIgY2FuIGJpbmQgdG8g
-YW5kCnJlbGF0ZWRseSB0aGF0IHRoZXJlIGlzIG5vIG5ldG5zIHN1cHBvcnQgc28gZS5nLiB1c2Vy
-cyBpbiB1bnByb2l2aWxlZ2VkCmNvbnRhaW5lcnMgY2FuIGJpbmQgdG8gYW55IHZzb2NrIHBvcnQg
-YW5kIHRhbGsgdG8gdGhlIGhvc3QsIHdoaWNoIG1pZ2h0CmJlIHVuZGVzaXJhYmxlLiBGb3IgbXkg
-dXNlIGZvciBub3cgSSBqdXN0IHdlbnQgd2l0aCB0aGUgYmlnIGhhbW1lcgphcHByb2FjaCBvZiBk
-ZW55aW5nIGFjY2VzcyBmcm9tIGFueXRoaW5nIG90aGVyIHRoYW4gaW5pdF9uZXQKbmFtZXNwYWNl
-WzFdIHdoaWxlIEkgY29uc2lkZXIgd2hhdCB0aGUgcmlnaHQgYW5zd2VyIGlzLgoKSWFuLgoKWzBd
-wqBodHRwOi8vdGhyZWFkLmdtYW5lLm9yZy9nbWFuZS5jb21wLmVtdWxhdG9ycy52aXJ0aW8uZGV2
-ZWwvMTA5MgpbMV0KRnJvbSAzNjZjOWM0MmFmYjliZDU0ZjkyZjcyNTE4NDcwYzA5ZTQ2ZjEyZTg4
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBJYW4gQ2FtcGJlbGwgPGlhbi5jYW1wYmVs
-bEBkb2NrZXIuY29tPgpEYXRlOiBNb24sIDQgQXByIDIwMTYgMTQ6NTA6MTAgKzAxMDAKU3ViamVj
-dDogW1BBVENIXSBWU09DSzogT25seSBhbGxvdyBob3N0IG5ldHdvcmsgbmFtZXNwYWNlIHRvIHVz
-ZSBBRl9WU09DSy4KClRoZSBWU09DSyBhZGRyZXNzaW5nIHNjaGVtYSBkb2VzIG5vdCByZWFsbHkg
-bGVuZCBpdHNlbGYgdG8gc2ltcGx5IGNyZWF0aW5nIGFuCmFsdGVybmF0aXZlIGVuZCBwb2ludCBh
-ZGRyZXNzIHdpdGhpbiBhIG5hbWVzcGFjZS4KClNpZ25lZC1vZmYtYnk6IElhbiBDYW1wYmVsbCA8
-aWFuLmNhbXBiZWxsQGRvY2tlci5jb20+Ci0tLQrCoG5ldC92bXdfdnNvY2svYWZfdnNvY2suYyB8
-IDMgKysrCsKgMSBmaWxlIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygrKQoKZGlmZiAtLWdpdCBhL25l
-dC92bXdfdnNvY2svYWZfdnNvY2suYyBiL25ldC92bXdfdnNvY2svYWZfdnNvY2suYwppbmRleCAx
-ZTVmNWVkLi5jZGIzZGQzIDEwMDY0NAotLS0gYS9uZXQvdm13X3Zzb2NrL2FmX3Zzb2NrLmMKKysr
-IGIvbmV0L3Ztd192c29jay9hZl92c29jay5jCkBAIC0xODQwLDYgKzE4NDAsOSBAQCBzdGF0aWMg
-Y29uc3Qgc3RydWN0IHByb3RvX29wcyB2c29ja19zdHJlYW1fb3BzID0gewrCoHN0YXRpYyBpbnQg
-dnNvY2tfY3JlYXRlKHN0cnVjdCBuZXQgKm5ldCwgc3RydWN0IHNvY2tldCAqc29jaywKwqAJCQlp
-bnQgcHJvdG9jb2wsIGludCBrZXJuKQrCoHsKKwlpZiAoIW5ldF9lcShuZXQsICZpbml0X25ldCkp
-CisJCXJldHVybiAtRUFGTk9TVVBQT1JUOworCsKgCWlmICghc29jaykKwqAJCXJldHVybiAtRUlO
-VkFMOwrCoAotLcKgCjIuOC4wLnJjMwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
-QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Fri, Apr 08, 2016 at 08:58:44PM +0200, Denys Vlasenko wrote:
+> This function compiles to 839 bytes of machine code.
+> In C, it is ~150 lines long.
+> 
+> This function has 3 callsites.
+> 
+> Signed-off-by: Denys Vlasenko <dvlasenk@redhat.com>
+> CC: "Michael S. Tsirkin" <mst@redhat.com>
+> CC: virtualization@lists.linux-foundation.org
+> CC: linux-kernel@vger.kernel.org
+
+This function is one of the most performance critical ones in the driver, a
+bunch of tuning went into it, making this inline intentionally.  I'd
+have to see some numbers showing making it non-inline is a worth-while
+tradeoff.
+
+> ---
+>  drivers/virtio/virtio_ring.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index e12e385..77a4771 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -126,7 +126,7 @@ static struct vring_desc *alloc_indirect(struct virtqueue *_vq,
+>  	return desc;
+>  }
+>  
+> -static inline int virtqueue_add(struct virtqueue *_vq,
+> +static int virtqueue_add(struct virtqueue *_vq,
+>  				struct scatterlist *sgs[],
+>  				unsigned int total_sg,
+>  				unsigned int out_sgs,
+> -- 
+> 2.1.0
