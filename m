@@ -1,14 +1,13 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 2/2] s390x/virtio-ccw: set revision 2 as maximum revision
-	number
-Date: Mon, 11 Apr 2016 13:23:24 +0200
-Message-ID: <1460373804-43477-3-git-send-email-cornelia.huck__3166.68502423472$1460373835$gmane$org@de.ibm.com>
-References: <1460373804-43477-1-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 1/1] virtio/s390: support READ_STATUS command for virtio-ccw
+Date: Mon, 11 Apr 2016 13:23:37 +0200
+Message-ID: <1460373817-43522-2-git-send-email-cornelia.huck__18403.5374936231$1460373851$gmane$org@de.ibm.com>
+References: <1460373817-43522-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1460373804-43477-1-git-send-email-cornelia.huck@de.ibm.com>
+In-Reply-To: <1460373817-43522-1-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,28 +23,74 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Pierre Morel <pmorel@linux.vnet.ibm.com>
 
-We have everything needed for virtio-ccw revision 2 wired up now. Bump
-the maximum supported revision reported to the guest so they can make
-use of it.
+As virtio-1 introduced the possibility of the device manipulating the
+status byte, revision 2 of the virtio-ccw transport introduced a means
+of getting the status byte from the device via READ_STATUS. Let's wire
+it up for revisions >= 2 and fall back to returning the stored status
+byte if not supported.
 
 Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/s390x/virtio-ccw.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/virtio/virtio_ccw.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-diff --git a/hw/s390x/virtio-ccw.h b/hw/s390x/virtio-ccw.h
-index 6bc14ee..46b5ee6 100644
---- a/hw/s390x/virtio-ccw.h
-+++ b/hw/s390x/virtio-ccw.h
-@@ -97,7 +97,7 @@ struct VirtioCcwDevice {
- };
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 8688ad4..d3a98d3 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -145,6 +145,7 @@ static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
+ #define CCW_CMD_WRITE_CONF 0x21
+ #define CCW_CMD_WRITE_STATUS 0x31
+ #define CCW_CMD_READ_VQ_CONF 0x32
++#define CCW_CMD_READ_STATUS 0x72
+ #define CCW_CMD_SET_IND_ADAPTER 0x73
+ #define CCW_CMD_SET_VIRTIO_REV 0x83
  
- /* The maximum virtio revision we support. */
--#define VIRTIO_CCW_MAX_REV 1
-+#define VIRTIO_CCW_MAX_REV 2
- static inline int virtio_ccw_rev_max(VirtioCcwDevice *dev)
+@@ -160,6 +161,7 @@ static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
+ #define VIRTIO_CCW_DOING_SET_CONF_IND 0x04000000
+ #define VIRTIO_CCW_DOING_SET_IND_ADAPTER 0x08000000
+ #define VIRTIO_CCW_DOING_SET_VIRTIO_REV 0x10000000
++#define VIRTIO_CCW_DOING_READ_STATUS 0x20000000
+ #define VIRTIO_CCW_INTPARM_MASK 0xffff0000
+ 
+ static struct virtio_ccw_device *to_vc_device(struct virtio_device *vdev)
+@@ -902,6 +904,28 @@ out_free:
+ static u8 virtio_ccw_get_status(struct virtio_device *vdev)
  {
-     return dev->max_rev;
+ 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
++	u8 old_status = *vcdev->status;
++	struct ccw1 *ccw;
++
++	if (vcdev->revision < 1)
++		return *vcdev->status;
++
++	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
++	if (!ccw)
++		return old_status;
++
++	ccw->cmd_code = CCW_CMD_READ_STATUS;
++	ccw->flags = 0;
++	ccw->count = sizeof(*vcdev->status);
++	ccw->cda = (__u32)(unsigned long)vcdev->status;
++	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_READ_STATUS);
++/*
++ * If the channel program failed (should only happen if the device
++ * was hotunplugged, and then we clean up via the machine check
++ * handler anyway), vcdev->status was not overwritten and we just
++ * return the old status, which is fine.
++*/
++	kfree(ccw);
+ 
+ 	return *vcdev->status;
+ }
+@@ -997,6 +1021,7 @@ static void virtio_ccw_check_activity(struct virtio_ccw_device *vcdev,
+ 		case VIRTIO_CCW_DOING_READ_CONFIG:
+ 		case VIRTIO_CCW_DOING_WRITE_CONFIG:
+ 		case VIRTIO_CCW_DOING_WRITE_STATUS:
++		case VIRTIO_CCW_DOING_READ_STATUS:
+ 		case VIRTIO_CCW_DOING_SET_VQ:
+ 		case VIRTIO_CCW_DOING_SET_IND:
+ 		case VIRTIO_CCW_DOING_SET_CONF_IND:
 -- 
 2.6.6
