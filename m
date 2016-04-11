@@ -1,15 +1,13 @@
-From: Minchan Kim <minchan@kernel.org>
-Subject: Re: [PATCH v3 00/16] Support non-lru page migration
-Date: Mon, 11 Apr 2016 13:35:57 +0900
-Message-ID: <20160411043557.GC4804@bbox>
-References: <1459321935-3655-1-git-send-email-minchan@kernel.org>
-	<20160404131718.GA18963@e106921-lin.trondheim.arm.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [PATCH 1/2] s390x/virtio-ccw: respond to READ_STATUS command
+Date: Mon, 11 Apr 2016 13:23:23 +0200
+Message-ID: <1460373804-43477-2-git-send-email-cornelia.huck@de.ibm.com>
+References: <1460373804-43477-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160404131718.GA18963@e106921-lin.trondheim.arm.com>
+In-Reply-To: <1460373804-43477-1-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,52 +17,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, jlayton@poochiereds.net, bfields@fieldses.org, Vlastimil Babka <vbabka@suse.cz>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, koct9i@gmail.com, aquini@redhat.com, virtualization@lists.linux-foundation.org, Mel Gorman <mgorman@suse.de>, Hugh Dickins <hughd@google.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Rik van Riel <riel@redhat.com>, rknize@motorola.com, Gioh Kim <gi-oh.kim@profitbricks.com>, Sangseok Lee <sangseok.lee@lge.com>, Chan Gyun Jeong <chan.jeong@lge.com>, Al Viro <viro@ZenIV.linux.org.uk>, YiPing Xu <xuyiping@hisilicon.com>
+To: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org
+Cc: Pierre Morel <pmorel@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 04, 2016 at 03:17:18PM +0200, John Einar Reitan wrote:
-> On Wed, Mar 30, 2016 at 04:11:59PM +0900, Minchan Kim wrote:
-> > Recently, I got many reports about perfermance degradation
-> > in embedded system(Android mobile phone, webOS TV and so on)
-> > and failed to fork easily.
-> > 
-> > The problem was fragmentation caused by zram and GPU driver
-> > pages. Their pages cannot be migrated so compaction cannot
-> > work well, either so reclaimer ends up shrinking all of working
-> > set pages. It made system very slow and even to fail to fork
-> > easily.
-> > 
-> > Other pain point is that they cannot work with CMA.
-> > Most of CMA memory space could be idle(ie, it could be used
-> > for movable pages unless driver is using) but if driver(i.e.,
-> > zram) cannot migrate his page, that memory space could be
-> > wasted. In our product which has big CMA memory, it reclaims
-> > zones too exccessively although there are lots of free space
-> > in CMA so system was very slow easily.
-> > 
-> > To solve these problem, this patch try to add facility to
-> > migrate non-lru pages via introducing new friend functions
-> > of migratepage in address_space_operation and new page flags.
-> > 
-> > 	(isolate_page, putback_page)
-> > 	(PG_movable, PG_isolated)
-> > 
-> > For details, please read description in
-> > "mm/compaction: support non-lru movable page migration".
-> 
-> Thanks, this mirrors what we see with the ARM Mali GPU drivers too.
-> 
-> One thing with the current design which worries me is the potential
-> for multiple calls due to many separated pages being migrated.
-> On GPUs (or any other device) which has an IOMMU and L2 cache, which
-> isn't coherent with the CPU, we must do L2 cache flush & invalidation
-> per page. I guess batching pages isn't easily possible?
-> 
+From: Pierre Morel <pmorel@linux.vnet.ibm.com>
 
-Hmm, I think it seems to cause many code stirring but surely worth
-to work. So, IMMO, it would be better to add such feature after soft
-landing of current work.
+This patch adds the response to the READ_STATUS CCW command.
 
-Anyway, I will Cc'ed you in next revision.
+Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ hw/s390x/virtio-ccw.c | 20 ++++++++++++++++++++
+ hw/s390x/virtio-ccw.h |  1 +
+ 2 files changed, 21 insertions(+)
 
-Thanks.
+diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
+index d51642d..569ab26 100644
+--- a/hw/s390x/virtio-ccw.c
++++ b/hw/s390x/virtio-ccw.c
+@@ -525,6 +525,26 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
+             }
+         }
+         break;
++    case CCW_CMD_READ_STATUS:
++        if (check_len) {
++            if (ccw.count != sizeof(status)) {
++                ret = -EINVAL;
++                break;
++            }
++        } else if (ccw.count < sizeof(status)) {
++            /* Can't execute command. */
++            ret = -EINVAL;
++            break;
++        }
++        if (!ccw.cda) {
++            ret = -EFAULT;
++        } else {
++            address_space_stb(&address_space_memory, ccw.cda, vdev->status,
++                                        MEMTXATTRS_UNSPECIFIED, NULL);
++            sch->curr_status.scsw.count = ccw.count - sizeof(vdev->status);
++            ret = 0;
++        }
++        break;
+     case CCW_CMD_WRITE_STATUS:
+         if (check_len) {
+             if (ccw.count != sizeof(status)) {
+diff --git a/hw/s390x/virtio-ccw.h b/hw/s390x/virtio-ccw.h
+index 66c831b..6bc14ee 100644
+--- a/hw/s390x/virtio-ccw.h
++++ b/hw/s390x/virtio-ccw.h
+@@ -41,6 +41,7 @@
+ #define CCW_CMD_SET_IND      0x43
+ #define CCW_CMD_SET_CONF_IND 0x53
+ #define CCW_CMD_READ_VQ_CONF 0x32
++#define CCW_CMD_READ_STATUS  0x72
+ #define CCW_CMD_SET_IND_ADAPTER 0x73
+ #define CCW_CMD_SET_VIRTIO_REV 0x83
+ 
+-- 
+2.6.6
