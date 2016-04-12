@@ -1,13 +1,14 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
+From: Ian Campbell <ian.campbell@docker.com>
 Subject: Re: [RFC v5 0/5] Add virtio transport for AF_VSOCK
-Date: Tue, 12 Apr 2016 14:59:57 +0100
-Message-ID: <20160412135957.GB29405__36244.0931414769$1460469618$gmane$org@stefanha-x1.localdomain>
+Date: Tue, 12 Apr 2016 17:07:49 +0100
+Message-ID: <1460477269.24107.1.camel@docker.com>
 References: <1459520587-12337-1-git-send-email-stefanha@redhat.com>
 	<1460129705.1749.25.camel@docker.com>
 	<20160411104548.GA12826@stefanha-x1.localdomain>
 	<20160411154517-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5231921913264734572=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20160411154517-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
@@ -19,126 +20,89 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: marius vlad <marius.vlad0@gmail.com>, kvm@vger.kernel.org, Ian Campbell <ian.campbell@docker.com>, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>, Matt Benjamin <mbenjamin@redhat.com>, netdev@vger.kernel.org, Greg Kurz <gkurz@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, Christoffer Dall <christoffer.dall@linaro.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Stefan Hajnoczi <stefanha@gmail.com>
+Cc: marius vlad <marius.vlad0@gmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>, Matt Benjamin <mbenjamin@redhat.com>, Greg Kurz <gkurz@linux.vnet.ibm.com>, Christoffer Dall <christoffer.dall@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
---===============5231921913264734572==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FkmkrVfFsRoUs1wW"
-Content-Disposition: inline
-
-
---FkmkrVfFsRoUs1wW
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Apr 11, 2016 at 03:54:08PM +0300, Michael S. Tsirkin wrote:
-> On Mon, Apr 11, 2016 at 11:45:48AM +0100, Stefan Hajnoczi wrote:
-> > On Fri, Apr 08, 2016 at 04:35:05PM +0100, Ian Campbell wrote:
-> > > On Fri, 2016-04-01 at 15:23 +0100, Stefan Hajnoczi wrote:
-> > > > This series is based on Michael Tsirkin's vhost branch (v4.5-rc6).
-> > > >=20
-> > > > I'm about to process Claudio Imbrenda's locking fixes for virtio-vs=
-ock but
-> > > > first I want to share the latest version of the code.=A0=A0Several =
-people are
-> > > > playing with vsock now so sharing the latest code should avoid dupl=
-icate work.
-> > >=20
-> > > Thanks for this, I've been using it in my project and it mostly seems
-> > > fine.
-> > >=20
-> > > One wrinkle I came across, which I'm not sure if it is by design or a
-> > > problem is that I can see this sequence coming from the guest (with
-> > > other activity in between):
-> > >=20
-> > > =A0 =A0 1) OP_SHUTDOWN w/ flags =3D=3D SHUTDOWN_RX
-> > > =A0=A0=A0=A02) OP_SHUTDOWN w/ flags =3D=3D SHUTDOWN_TX
-> > > =A0=A0=A0=A03) OP_SHUTDOWN w/ flags =3D=3D SHUTDOWN_TX|SHUTDOWN_RX
-
-How did you trigger this sequence?  I'd like to reproduce it.
-
-> > > I orignally had my backend close things down at #2, however this meant
-> > > that when #3 arrived it was for a non-existent socket (or, worse, an
-> > > active one if the ports got reused). I checked v5 of the spec
-> > > proposal[0] which says:
-> > >     If these bits are set and there are no more virtqueue buffers
-> > >     pending the socket is disconnected.
-> > >=20
-> > > but I'm not entirely sure if this behaviour contradicts this or not
-> > > (the bits have both been set at #2, but not at the same time).
-> > >=20
-> > > BTW, how does one tell if there are no more virtqueue buffers pending
-> > > or not while processing the op?
-> >=20
-> > #2 is odd.  The shutdown bits are sticky so they cannot be cleared once
-> > set.  I would have expected just #1 and #3.  The behavior you observe
-> > look like a bug.
-> >=20
-> > The spec text does not convey the meaning of OP_SHUTDOWN well.
-> > OP_SHUTDOWN SHUTDOWN_TX|SHUTDOWN_RX means no further rx/tx is possible
-> > for this connection.  "there are no more virtqueue buffers pending the
-> > socket" really means that this isn't an immediate close from the
-> > perspective of the application.  If the application still has unread rx
-> > buffers then the socket stays readable until the rx data has been fully
-> > read.
->=20
-> Yes but you also wrote:
-> 	If these bits are set and there are no more virtqueue buffers
-> 	pending the socket is disconnected.
->=20
-> how does remote know that there are no buffers pending and so it's safe
-> to reuse the same source/destination address now?  Maybe destination
-> should send RST at that point?
-
-You are right, the source/destination address could be reused while the
-remote still has the connection in their table.  Connection
-establishment would fail with a RST reply.
-
-I can think of two solutions:
-
-1. Implementations must remove connections from their table as soon as
-   SHUTDOWN_TX|SHUTDOWN_RX is received.  This way the source/destination
-   address tuple can be reused immediately, i.e. new connections with
-   the same source/destination would be possible while an application is
-   still draining the receive buffers of an old connection.
-
-2. Extend the connection lifecycle so that an A->B
-   SHUTDOWN_TX|SHUTDOWN_RX must be followed by a by a B->A RST to close
-   a connection.  This way the source/destination address is only in use
-   once at a time.
-
-Option #2 seems safer because there is no overlap in source/destination
-address usage.
-
---FkmkrVfFsRoUs1wW
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQEcBAEBAgAGBQJXDP9dAAoJEJykq7OBq3PI0NoIAIrwDya3XHMJ1opnhXn1CNDg
-yi+7C4i+2JJKZ03Y4tsXCEH7IhxLuPU9u1fG0zi5KvZ9Uo8akcImNEheWBR77yQz
-dRsrp8eaIJhgXp9MVlh1qGVX0QxqZpf6rcNNWHvf1O1YTAk+5zWo0HfPiaGpIo4E
-1/s+rA3VuJ17B4tZi17vxejwpHR6/5u8Og3rtDqCIgPfcXYcsyEMymx7mI24Zveb
-1PIEIk5KGLR2u907bA+V5ZH5+eFdPbmkjjYkQTjOrbWKo3H8lvBfgr3JTxoVTP7x
-e1LmpKXCfaUbwKTQQ/A30/vrxNoBNNXUrII5+OTjx9PLP69BOck6BEJYBEJGReE=
-=10Gw
------END PGP SIGNATURE-----
-
---FkmkrVfFsRoUs1wW--
-
---===============5231921913264734572==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5231921913264734572==--
+U29tZSBob3cgU3RlZmFuJ3MgcmVwbHkgZGlzYXBlYXJlZCBmcm9tIG15IElOQk9YIChhbHRob3Vn
+aCBJIGRpZCBzZWUKaXQpIHNvIHJlcGx5aW5nIGhlcmUuCgpPbiBNb24sIDIwMTYtMDQtMTEgYXQg
+MTU6NTQgKzAzMDAsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBPbiBNb24sIEFwciAxMSwg
+MjAxNiBhdCAxMTo0NTo0OEFNICswMTAwLCBTdGVmYW4gSGFqbm9jemkgd3JvdGU6Cj4gPiAKPiA+
+IE9uIEZyaSwgQXByIDA4LCAyMDE2IGF0IDA0OjM1OjA1UE0gKzAxMDAsIElhbiBDYW1wYmVsbCB3
+cm90ZToKPiA+ID4gCj4gPiA+IE9uIEZyaSwgMjAxNi0wNC0wMSBhdCAxNToyMyArMDEwMCwgU3Rl
+ZmFuIEhham5vY3ppIHdyb3RlOgo+ID4gPiA+IAo+ID4gPiA+IFRoaXMgc2VyaWVzIGlzIGJhc2Vk
+IG9uIE1pY2hhZWwgVHNpcmtpbidzIHZob3N0IGJyYW5jaCAodjQuNS1yYzYpLgo+ID4gPiA+IAo+
+ID4gPiA+IEknbSBhYm91dCB0byBwcm9jZXNzIENsYXVkaW8gSW1icmVuZGEncyBsb2NraW5nIGZp
+eGVzIGZvciB2aXJ0aW8tdnNvY2sgYnV0Cj4gPiA+ID4gZmlyc3QgSSB3YW50IHRvIHNoYXJlIHRo
+ZSBsYXRlc3QgdmVyc2lvbiBvZiB0aGUgY29kZS7CoMKgU2V2ZXJhbCBwZW9wbGUgYXJlCj4gPiA+
+ID4gcGxheWluZyB3aXRoIHZzb2NrIG5vdyBzbyBzaGFyaW5nIHRoZSBsYXRlc3QgY29kZSBzaG91
+bGQgYXZvaWQgZHVwbGljYXRlIHdvcmsuCj4gPiA+IFRoYW5rcyBmb3IgdGhpcywgSSd2ZSBiZWVu
+IHVzaW5nIGl0IGluIG15IHByb2plY3QgYW5kIGl0IG1vc3RseSBzZWVtcwo+ID4gPiBmaW5lLgo+
+ID4gPiAKPiA+ID4gT25lIHdyaW5rbGUgSSBjYW1lIGFjcm9zcywgd2hpY2ggSSdtIG5vdCBzdXJl
+IGlmIGl0IGlzIGJ5IGRlc2lnbiBvciBhCj4gPiA+IHByb2JsZW0gaXMgdGhhdCBJIGNhbiBzZWUg
+dGhpcyBzZXF1ZW5jZSBjb21pbmcgZnJvbSB0aGUgZ3Vlc3QgKHdpdGgKPiA+ID4gb3RoZXIgYWN0
+aXZpdHkgaW4gYmV0d2Vlbik6Cj4gPiA+IAo+ID4gPiDCoCDCoCAxKSBPUF9TSFVURE9XTiB3LyBm
+bGFncyA9PSBTSFVURE9XTl9SWAo+ID4gPiDCoMKgwqDCoDIpIE9QX1NIVVRET1dOIHcvIGZsYWdz
+ID09IFNIVVRET1dOX1RYCj4gPiA+IMKgwqDCoMKgMykgT1BfU0hVVERPV04gdy8gZmxhZ3MgPT0g
+U0hVVERPV05fVFh8U0hVVERPV05fUlgKPiA+ID4gCj4gPiA+IEkgb3JpZ25hbGx5IGhhZCBteSBi
+YWNrZW5kIGNsb3NlIHRoaW5ncyBkb3duIGF0ICMyLCBob3dldmVyIHRoaXMgbWVhbnQKPiA+ID4g
+dGhhdCB3aGVuICMzIGFycml2ZWQgaXQgd2FzIGZvciBhIG5vbi1leGlzdGVudCBzb2NrZXQgKG9y
+LCB3b3JzZSwgYW4KPiA+ID4gYWN0aXZlIG9uZSBpZiB0aGUgcG9ydHMgZ290IHJldXNlZCkuIEkg
+Y2hlY2tlZCB2NSBvZiB0aGUgc3BlYwo+ID4gPiBwcm9wb3NhbFswXSB3aGljaCBzYXlzOgo+ID4g
+PiDCoMKgwqDCoElmIHRoZXNlIGJpdHMgYXJlIHNldCBhbmQgdGhlcmUgYXJlIG5vIG1vcmUgdmly
+dHF1ZXVlIGJ1ZmZlcnMKPiA+ID4gwqDCoMKgwqBwZW5kaW5nIHRoZSBzb2NrZXQgaXMgZGlzY29u
+bmVjdGVkLgo+ID4gPiAKPiA+ID4gYnV0IEknbSBub3QgZW50aXJlbHkgc3VyZSBpZiB0aGlzIGJl
+aGF2aW91ciBjb250cmFkaWN0cyB0aGlzIG9yIG5vdAo+ID4gPiAodGhlIGJpdHMgaGF2ZSBib3Ro
+IGJlZW4gc2V0IGF0ICMyLCBidXQgbm90IGF0IHRoZSBzYW1lIHRpbWUpLgo+ID4gPiAKPiA+ID4g
+QlRXLCBob3cgZG9lcyBvbmUgdGVsbCBpZiB0aGVyZSBhcmUgbm8gbW9yZSB2aXJ0cXVldWUgYnVm
+ZmVycyBwZW5kaW5nCj4gPiA+IG9yIG5vdCB3aGlsZSBwcm9jZXNzaW5nIHRoZSBvcD8KPiA+ICMy
+IGlzIG9kZC7CoMKgVGhlIHNodXRkb3duIGJpdHMgYXJlIHN0aWNreSBzbyB0aGV5IGNhbm5vdCBi
+ZSBjbGVhcmVkIG9uY2UKPiA+IHNldC7CoMKgSSB3b3VsZCBoYXZlIGV4cGVjdGVkIGp1c3QgIzEg
+YW5kICMzLsKgwqBUaGUgYmVoYXZpb3IgeW91IG9ic2VydmUKPiA+IGxvb2sgbGlrZSBhIGJ1Zy4K
+PiA+IAo+ID4gVGhlIHNwZWMgdGV4dCBkb2VzIG5vdCBjb252ZXkgdGhlIG1lYW5pbmcgb2YgT1Bf
+U0hVVERPV04gd2VsbC4KPiA+IE9QX1NIVVRET1dOIFNIVVRET1dOX1RYfFNIVVRET1dOX1JYIG1l
+YW5zIG5vIGZ1cnRoZXIgcngvdHggaXMgcG9zc2libGUKPiA+IGZvciB0aGlzIGNvbm5lY3Rpb24u
+wqDCoCJ0aGVyZSBhcmUgbm8gbW9yZSB2aXJ0cXVldWUgYnVmZmVycyBwZW5kaW5nIHRoZQo+ID4g
+c29ja2V0IiByZWFsbHkgbWVhbnMgdGhhdCB0aGlzIGlzbid0IGFuIGltbWVkaWF0ZSBjbG9zZSBm
+cm9tIHRoZQo+ID4gcGVyc3BlY3RpdmUgb2YgdGhlIGFwcGxpY2F0aW9uLsKgwqBJZiB0aGUgYXBw
+bGljYXRpb24gc3RpbGwgaGFzIHVucmVhZCByeAo+ID4gYnVmZmVycyB0aGVuIHRoZSBzb2NrZXQg
+c3RheXMgcmVhZGFibGUgdW50aWwgdGhlIHJ4IGRhdGEgaGFzIGJlZW4gZnVsbHkKPiA+IHJlYWQu
+CgpUaGFua3MsIGRpc3Rpbmd1aXNoaW5nIHRoZSBsb2NhbCBidWZmZXIgdG8gdGhlIGFwcGxpY2F0
+aW9uIGZyb20gdGhlCnZyaW5nIHdvdWxkIG1ha2UgdGhhdCBjbGVhcmVyLiBQZXJoYXBzIGJ5IG5v
+dCB0YWxraW5nIGFib3V0ICJ2aXJ0cXVldWUKYnVmZmVycyIgc2luY2UgdGhleSBzb3VuZCBsaWtl
+IGEgdnJpbmcgdGhpbmcuCgpIb3dldmVyLCBhcyBNaWNoYWVsIG9ic2VydmVzIEknbSBub3Qgc3Vy
+ZSB0aGF0J3MgdGhlIHdob2xlIHN0b3J5LgoKPiBZZXMgYnV0IHlvdSBhbHNvIHdyb3RlOgo+IAlJ
+ZiB0aGVzZSBiaXRzIGFyZSBzZXQgYW5kIHRoZXJlIGFyZSBubyBtb3JlIHZpcnRxdWV1ZSBidWZm
+ZXJzCj4gCXBlbmRpbmcgdGhlIHNvY2tldCBpcyBkaXNjb25uZWN0ZWQuCj4gCj4gaG93IGRvZXMg
+cmVtb3RlIGtub3cgdGhhdCB0aGVyZSBhcmUgbm8gYnVmZmVycyBwZW5kaW5nIGFuZCBzbyBpdCdz
+IHNhZmUKPiB0byByZXVzZSB0aGUgc2FtZSBzb3VyY2UvZGVzdGluYXRpb24gYWRkcmVzcyBub3c/
+CgpJbmRlZWQgdGhpcyBpcyBvbmUgb2YgdGhlIHRoaW5ncyBJIHN0cnVnZ2xlZCB3aXRoLiBlLmcu
+IElmIEkgc2VuZCBhClNIVVRET1dOX1JYIHRvIG15IHBlZXIgYW0gSSBzdXBwb3NlZCB0byB3YWl0
+IGZvciB0aGF0IGJ1ZmZlciB0byBjb21lCmJhY2sgKHNvIEkga25vdyB0aGUgcGVlciBoYXMgc2Vl
+biBpdCkgYW5kIHRoZW4gd2FpdCBmb3IgYW4gZW50aXJlCiJjeWNsZSIgb2YgdGhlIFRYIHJpbmcg
+dG8ga25vdyB0aGVyZSBpcyBub3RoaW5nIHN0aWxsIGluIGZsaWdodD8gVGhhdCdzCnNvbWUgdHJp
+Y2t5IGJvb2sta2VlcGluZy4KCj4gwqDCoE1heWJlIGRlc3RpbmF0aW9uCj4gc2hvdWxkIHNlbmQg
+UlNUIGF0IHRoYXQgcG9pbnQ/CgppLmUuIHVwb24gcmVjZWlwdCBvZiBTSFVURE9XTl9SWHxTSFVU
+RE9XTl9UWCBmcm9tIHRoZSBwZWVyIHlvdSBhcmUKZXhwZWN0ZWQgdG8gc2VuZCBhIFJTVC4gV2hl
+biB0aGUgcGVlciBvYnNlcnZlcyB0aGF0IHRoZW4gdGhleSBrbm93CnRoZXJlIGlzIG5vIGZ1cnRo
+ZXIgZGF0YSBpbiB0aGF0IGNvbm5lY3Rpb24gb24gdGhlIHJpbmc/CgpUaGF0IHNvdW5kcyBsaWtl
+IGl0IHdvdWxkIGJlIGhlbHBmdWwuCgo+ID4gPiBBbm90aGVyIHRoaW5nIEkgbm90aWNlZCwgd2hp
+Y2ggaXMgcmVhbGx5IG1vcmUgdG8gZG8gd2l0aCB0aGUgZ2VuZXJpYwo+ID4gPiBBRl9WU09DSyBi
+aXRzIHRoYW4gYW55dGhpbmcgdG8gZG8gd2l0aCB5b3VyIHBhdGNoZXMgaXMgdGhhdCB0aGVyZSBp
+cyBubwo+ID4gPiBsaW1pdGF0aW9ucyBvbiB3aGljaCB2c29jayBwb3J0cyBhIG5vbi1wcml2aWxl
+Z2VkIHVzZXIgY2FuIGJpbmQgdG8gYW5kCj4gPiA+IHJlbGF0ZWRseSB0aGF0IHRoZXJlIGlzIG5v
+IG5ldG5zIHN1cHBvcnQgc28gZS5nLiB1c2VycyBpbiB1bnByb2l2aWxlZ2VkCj4gPiA+IGNvbnRh
+aW5lcnMgY2FuIGJpbmQgdG8gYW55IHZzb2NrIHBvcnQgYW5kIHRhbGsgdG8gdGhlIGhvc3QsIHdo
+aWNoIG1pZ2h0Cj4gPiA+IGJlIHVuZGVzaXJhYmxlLiBGb3IgbXkgdXNlIGZvciBub3cgSSBqdXN0
+IHdlbnQgd2l0aCB0aGUgYmlnIGhhbW1lcgo+ID4gPiBhcHByb2FjaCBvZiBkZW55aW5nIGFjY2Vz
+cyBmcm9tIGFueXRoaW5nIG90aGVyIHRoYW4gaW5pdF9uZXQKPiA+ID4gbmFtZXNwYWNlWzFdIHdo
+aWxlIEkgY29uc2lkZXIgd2hhdCB0aGUgcmlnaHQgYW5zd2VyIGlzLgo+ID4gRnJvbSB0aGUgdmhv
+c3QgcG9pbnQgb2YgdmlldyBlYWNoIG5ldG5zIHNob3VsZCBoYXZlIGl0cyBvd24gQUZfVlNPQ0sK
+PiA+IG5hbWVzcGFjZS7CoMKgVGhpcyB3YXkgdHdvIGNvbnRhaW5lcnMgY291bGQgYWN0IGFzICJ0
+aGUgaG9zdCIgKENJRCAyKSBmb3IKPiA+IHRoZWlyIHJlc3BlY3RpdmUgZ3Vlc3RzLgoKV2hlbiB5
+b3Ugc2F5ICJzaG91bGQiIHlvdSBtZWFuIHRoYXQncyB0aGUgaW50ZW5kZWQgZGVzaWduIGFzIG9w
+cG9zZWQgdG8Kd2hhdCB0aGUgY3VycmVudCBjb2RlIGlzIGFjdHVhbGx5IGRvaW5nLCByaWdodD8K
+Cklhbi4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
+dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
+YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
+bmZvL3ZpcnR1YWxpemF0aW9u
