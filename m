@@ -1,16 +1,16 @@
 From: Ian Campbell <ian.campbell@docker.com>
 Subject: Re: [RFC v5 0/5] Add virtio transport for AF_VSOCK
-Date: Tue, 12 Apr 2016 17:07:49 +0100
-Message-ID: <1460477269.24107.1.camel@docker.com>
+Date: Tue, 12 Apr 2016 17:37:54 +0100
+Message-ID: <CAOc2ZU1Kaes-UVfFrKrE9QyLMWnAQ77+hkSAGJgD0gOuM8o_UQ@mail.gmail.com>
 References: <1459520587-12337-1-git-send-email-stefanha@redhat.com>
 	<1460129705.1749.25.camel@docker.com>
 	<20160411104548.GA12826@stefanha-x1.localdomain>
 	<20160411154517-mutt-send-email-mst@redhat.com>
+	<20160412135957.GB29405@stefanha-x1.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============8060150057196769230=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160411154517-mutt-send-email-mst@redhat.com>
+In-Reply-To: <20160412135957.GB29405@stefanha-x1.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,89 +20,346 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Stefan Hajnoczi <stefanha@gmail.com>
-Cc: marius vlad <marius.vlad0@gmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>, Matt Benjamin <mbenjamin@redhat.com>, Greg Kurz <gkurz@linux.vnet.ibm.com>, Christoffer Dall <christoffer.dall@linaro.org>
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: marius vlad <marius.vlad0@gmail.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, ijc@hellion.org.uk, virtualization@lists.linux-foundation.org, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>, Matt Benjamin <mbenjamin@redhat.com>, netdev@vger.kernel.org, Greg Kurz <gkurz@linux.vnet.ibm.com>, Christoffer Dall <christoffer.dall@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-U29tZSBob3cgU3RlZmFuJ3MgcmVwbHkgZGlzYXBlYXJlZCBmcm9tIG15IElOQk9YIChhbHRob3Vn
-aCBJIGRpZCBzZWUKaXQpIHNvIHJlcGx5aW5nIGhlcmUuCgpPbiBNb24sIDIwMTYtMDQtMTEgYXQg
-MTU6NTQgKzAzMDAsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBPbiBNb24sIEFwciAxMSwg
-MjAxNiBhdCAxMTo0NTo0OEFNICswMTAwLCBTdGVmYW4gSGFqbm9jemkgd3JvdGU6Cj4gPiAKPiA+
-IE9uIEZyaSwgQXByIDA4LCAyMDE2IGF0IDA0OjM1OjA1UE0gKzAxMDAsIElhbiBDYW1wYmVsbCB3
-cm90ZToKPiA+ID4gCj4gPiA+IE9uIEZyaSwgMjAxNi0wNC0wMSBhdCAxNToyMyArMDEwMCwgU3Rl
-ZmFuIEhham5vY3ppIHdyb3RlOgo+ID4gPiA+IAo+ID4gPiA+IFRoaXMgc2VyaWVzIGlzIGJhc2Vk
-IG9uIE1pY2hhZWwgVHNpcmtpbidzIHZob3N0IGJyYW5jaCAodjQuNS1yYzYpLgo+ID4gPiA+IAo+
-ID4gPiA+IEknbSBhYm91dCB0byBwcm9jZXNzIENsYXVkaW8gSW1icmVuZGEncyBsb2NraW5nIGZp
-eGVzIGZvciB2aXJ0aW8tdnNvY2sgYnV0Cj4gPiA+ID4gZmlyc3QgSSB3YW50IHRvIHNoYXJlIHRo
-ZSBsYXRlc3QgdmVyc2lvbiBvZiB0aGUgY29kZS7CoMKgU2V2ZXJhbCBwZW9wbGUgYXJlCj4gPiA+
-ID4gcGxheWluZyB3aXRoIHZzb2NrIG5vdyBzbyBzaGFyaW5nIHRoZSBsYXRlc3QgY29kZSBzaG91
-bGQgYXZvaWQgZHVwbGljYXRlIHdvcmsuCj4gPiA+IFRoYW5rcyBmb3IgdGhpcywgSSd2ZSBiZWVu
-IHVzaW5nIGl0IGluIG15IHByb2plY3QgYW5kIGl0IG1vc3RseSBzZWVtcwo+ID4gPiBmaW5lLgo+
-ID4gPiAKPiA+ID4gT25lIHdyaW5rbGUgSSBjYW1lIGFjcm9zcywgd2hpY2ggSSdtIG5vdCBzdXJl
-IGlmIGl0IGlzIGJ5IGRlc2lnbiBvciBhCj4gPiA+IHByb2JsZW0gaXMgdGhhdCBJIGNhbiBzZWUg
-dGhpcyBzZXF1ZW5jZSBjb21pbmcgZnJvbSB0aGUgZ3Vlc3QgKHdpdGgKPiA+ID4gb3RoZXIgYWN0
-aXZpdHkgaW4gYmV0d2Vlbik6Cj4gPiA+IAo+ID4gPiDCoCDCoCAxKSBPUF9TSFVURE9XTiB3LyBm
-bGFncyA9PSBTSFVURE9XTl9SWAo+ID4gPiDCoMKgwqDCoDIpIE9QX1NIVVRET1dOIHcvIGZsYWdz
-ID09IFNIVVRET1dOX1RYCj4gPiA+IMKgwqDCoMKgMykgT1BfU0hVVERPV04gdy8gZmxhZ3MgPT0g
-U0hVVERPV05fVFh8U0hVVERPV05fUlgKPiA+ID4gCj4gPiA+IEkgb3JpZ25hbGx5IGhhZCBteSBi
-YWNrZW5kIGNsb3NlIHRoaW5ncyBkb3duIGF0ICMyLCBob3dldmVyIHRoaXMgbWVhbnQKPiA+ID4g
-dGhhdCB3aGVuICMzIGFycml2ZWQgaXQgd2FzIGZvciBhIG5vbi1leGlzdGVudCBzb2NrZXQgKG9y
-LCB3b3JzZSwgYW4KPiA+ID4gYWN0aXZlIG9uZSBpZiB0aGUgcG9ydHMgZ290IHJldXNlZCkuIEkg
-Y2hlY2tlZCB2NSBvZiB0aGUgc3BlYwo+ID4gPiBwcm9wb3NhbFswXSB3aGljaCBzYXlzOgo+ID4g
-PiDCoMKgwqDCoElmIHRoZXNlIGJpdHMgYXJlIHNldCBhbmQgdGhlcmUgYXJlIG5vIG1vcmUgdmly
-dHF1ZXVlIGJ1ZmZlcnMKPiA+ID4gwqDCoMKgwqBwZW5kaW5nIHRoZSBzb2NrZXQgaXMgZGlzY29u
-bmVjdGVkLgo+ID4gPiAKPiA+ID4gYnV0IEknbSBub3QgZW50aXJlbHkgc3VyZSBpZiB0aGlzIGJl
-aGF2aW91ciBjb250cmFkaWN0cyB0aGlzIG9yIG5vdAo+ID4gPiAodGhlIGJpdHMgaGF2ZSBib3Ro
-IGJlZW4gc2V0IGF0ICMyLCBidXQgbm90IGF0IHRoZSBzYW1lIHRpbWUpLgo+ID4gPiAKPiA+ID4g
-QlRXLCBob3cgZG9lcyBvbmUgdGVsbCBpZiB0aGVyZSBhcmUgbm8gbW9yZSB2aXJ0cXVldWUgYnVm
-ZmVycyBwZW5kaW5nCj4gPiA+IG9yIG5vdCB3aGlsZSBwcm9jZXNzaW5nIHRoZSBvcD8KPiA+ICMy
-IGlzIG9kZC7CoMKgVGhlIHNodXRkb3duIGJpdHMgYXJlIHN0aWNreSBzbyB0aGV5IGNhbm5vdCBi
-ZSBjbGVhcmVkIG9uY2UKPiA+IHNldC7CoMKgSSB3b3VsZCBoYXZlIGV4cGVjdGVkIGp1c3QgIzEg
-YW5kICMzLsKgwqBUaGUgYmVoYXZpb3IgeW91IG9ic2VydmUKPiA+IGxvb2sgbGlrZSBhIGJ1Zy4K
-PiA+IAo+ID4gVGhlIHNwZWMgdGV4dCBkb2VzIG5vdCBjb252ZXkgdGhlIG1lYW5pbmcgb2YgT1Bf
-U0hVVERPV04gd2VsbC4KPiA+IE9QX1NIVVRET1dOIFNIVVRET1dOX1RYfFNIVVRET1dOX1JYIG1l
-YW5zIG5vIGZ1cnRoZXIgcngvdHggaXMgcG9zc2libGUKPiA+IGZvciB0aGlzIGNvbm5lY3Rpb24u
-wqDCoCJ0aGVyZSBhcmUgbm8gbW9yZSB2aXJ0cXVldWUgYnVmZmVycyBwZW5kaW5nIHRoZQo+ID4g
-c29ja2V0IiByZWFsbHkgbWVhbnMgdGhhdCB0aGlzIGlzbid0IGFuIGltbWVkaWF0ZSBjbG9zZSBm
-cm9tIHRoZQo+ID4gcGVyc3BlY3RpdmUgb2YgdGhlIGFwcGxpY2F0aW9uLsKgwqBJZiB0aGUgYXBw
-bGljYXRpb24gc3RpbGwgaGFzIHVucmVhZCByeAo+ID4gYnVmZmVycyB0aGVuIHRoZSBzb2NrZXQg
-c3RheXMgcmVhZGFibGUgdW50aWwgdGhlIHJ4IGRhdGEgaGFzIGJlZW4gZnVsbHkKPiA+IHJlYWQu
-CgpUaGFua3MsIGRpc3Rpbmd1aXNoaW5nIHRoZSBsb2NhbCBidWZmZXIgdG8gdGhlIGFwcGxpY2F0
-aW9uIGZyb20gdGhlCnZyaW5nIHdvdWxkIG1ha2UgdGhhdCBjbGVhcmVyLiBQZXJoYXBzIGJ5IG5v
-dCB0YWxraW5nIGFib3V0ICJ2aXJ0cXVldWUKYnVmZmVycyIgc2luY2UgdGhleSBzb3VuZCBsaWtl
-IGEgdnJpbmcgdGhpbmcuCgpIb3dldmVyLCBhcyBNaWNoYWVsIG9ic2VydmVzIEknbSBub3Qgc3Vy
-ZSB0aGF0J3MgdGhlIHdob2xlIHN0b3J5LgoKPiBZZXMgYnV0IHlvdSBhbHNvIHdyb3RlOgo+IAlJ
-ZiB0aGVzZSBiaXRzIGFyZSBzZXQgYW5kIHRoZXJlIGFyZSBubyBtb3JlIHZpcnRxdWV1ZSBidWZm
-ZXJzCj4gCXBlbmRpbmcgdGhlIHNvY2tldCBpcyBkaXNjb25uZWN0ZWQuCj4gCj4gaG93IGRvZXMg
-cmVtb3RlIGtub3cgdGhhdCB0aGVyZSBhcmUgbm8gYnVmZmVycyBwZW5kaW5nIGFuZCBzbyBpdCdz
-IHNhZmUKPiB0byByZXVzZSB0aGUgc2FtZSBzb3VyY2UvZGVzdGluYXRpb24gYWRkcmVzcyBub3c/
-CgpJbmRlZWQgdGhpcyBpcyBvbmUgb2YgdGhlIHRoaW5ncyBJIHN0cnVnZ2xlZCB3aXRoLiBlLmcu
-IElmIEkgc2VuZCBhClNIVVRET1dOX1JYIHRvIG15IHBlZXIgYW0gSSBzdXBwb3NlZCB0byB3YWl0
-IGZvciB0aGF0IGJ1ZmZlciB0byBjb21lCmJhY2sgKHNvIEkga25vdyB0aGUgcGVlciBoYXMgc2Vl
-biBpdCkgYW5kIHRoZW4gd2FpdCBmb3IgYW4gZW50aXJlCiJjeWNsZSIgb2YgdGhlIFRYIHJpbmcg
-dG8ga25vdyB0aGVyZSBpcyBub3RoaW5nIHN0aWxsIGluIGZsaWdodD8gVGhhdCdzCnNvbWUgdHJp
-Y2t5IGJvb2sta2VlcGluZy4KCj4gwqDCoE1heWJlIGRlc3RpbmF0aW9uCj4gc2hvdWxkIHNlbmQg
-UlNUIGF0IHRoYXQgcG9pbnQ/CgppLmUuIHVwb24gcmVjZWlwdCBvZiBTSFVURE9XTl9SWHxTSFVU
-RE9XTl9UWCBmcm9tIHRoZSBwZWVyIHlvdSBhcmUKZXhwZWN0ZWQgdG8gc2VuZCBhIFJTVC4gV2hl
-biB0aGUgcGVlciBvYnNlcnZlcyB0aGF0IHRoZW4gdGhleSBrbm93CnRoZXJlIGlzIG5vIGZ1cnRo
-ZXIgZGF0YSBpbiB0aGF0IGNvbm5lY3Rpb24gb24gdGhlIHJpbmc/CgpUaGF0IHNvdW5kcyBsaWtl
-IGl0IHdvdWxkIGJlIGhlbHBmdWwuCgo+ID4gPiBBbm90aGVyIHRoaW5nIEkgbm90aWNlZCwgd2hp
-Y2ggaXMgcmVhbGx5IG1vcmUgdG8gZG8gd2l0aCB0aGUgZ2VuZXJpYwo+ID4gPiBBRl9WU09DSyBi
-aXRzIHRoYW4gYW55dGhpbmcgdG8gZG8gd2l0aCB5b3VyIHBhdGNoZXMgaXMgdGhhdCB0aGVyZSBp
-cyBubwo+ID4gPiBsaW1pdGF0aW9ucyBvbiB3aGljaCB2c29jayBwb3J0cyBhIG5vbi1wcml2aWxl
-Z2VkIHVzZXIgY2FuIGJpbmQgdG8gYW5kCj4gPiA+IHJlbGF0ZWRseSB0aGF0IHRoZXJlIGlzIG5v
-IG5ldG5zIHN1cHBvcnQgc28gZS5nLiB1c2VycyBpbiB1bnByb2l2aWxlZ2VkCj4gPiA+IGNvbnRh
-aW5lcnMgY2FuIGJpbmQgdG8gYW55IHZzb2NrIHBvcnQgYW5kIHRhbGsgdG8gdGhlIGhvc3QsIHdo
-aWNoIG1pZ2h0Cj4gPiA+IGJlIHVuZGVzaXJhYmxlLiBGb3IgbXkgdXNlIGZvciBub3cgSSBqdXN0
-IHdlbnQgd2l0aCB0aGUgYmlnIGhhbW1lcgo+ID4gPiBhcHByb2FjaCBvZiBkZW55aW5nIGFjY2Vz
-cyBmcm9tIGFueXRoaW5nIG90aGVyIHRoYW4gaW5pdF9uZXQKPiA+ID4gbmFtZXNwYWNlWzFdIHdo
-aWxlIEkgY29uc2lkZXIgd2hhdCB0aGUgcmlnaHQgYW5zd2VyIGlzLgo+ID4gRnJvbSB0aGUgdmhv
-c3QgcG9pbnQgb2YgdmlldyBlYWNoIG5ldG5zIHNob3VsZCBoYXZlIGl0cyBvd24gQUZfVlNPQ0sK
-PiA+IG5hbWVzcGFjZS7CoMKgVGhpcyB3YXkgdHdvIGNvbnRhaW5lcnMgY291bGQgYWN0IGFzICJ0
-aGUgaG9zdCIgKENJRCAyKSBmb3IKPiA+IHRoZWlyIHJlc3BlY3RpdmUgZ3Vlc3RzLgoKV2hlbiB5
-b3Ugc2F5ICJzaG91bGQiIHlvdSBtZWFuIHRoYXQncyB0aGUgaW50ZW5kZWQgZGVzaWduIGFzIG9w
-cG9zZWQgdG8Kd2hhdCB0aGUgY3VycmVudCBjb2RlIGlzIGFjdHVhbGx5IGRvaW5nLCByaWdodD8K
-Cklhbi4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
-dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
-YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL3ZpcnR1YWxpemF0aW9u
+--===============8060150057196769230==
+Content-Type: multipart/alternative; boundary=001a1144400c6c719c05304c48c5
+
+--001a1144400c6c719c05304c48c5
+Content-Type: text/plain; charset=UTF-8
+
+For some reason your mails in this thread only appear in the gmail web UI
+and not on the IMAP version of my mailbox (my own and Michael's mails are
+fine).
+
+So I'm replying via the web interface, sorry for the inevitable formatting
+mess :-/
+
+I've CCd another mailbox in the hopes of getting your mails in that IMAP
+folder instead/aswell so I can avoid this next time.
+
+On 12 April 2016 at 14:59, Stefan Hajnoczi <stefanha@redhat.com> wrote:
+>
+> > > > One wrinkle I came across, which I'm not sure if it is by design or a
+> > > > problem is that I can see this sequence coming from the guest (with
+> > > > other activity in between):
+> > > >
+> > > >     1) OP_SHUTDOWN w/ flags == SHUTDOWN_RX
+> > > >     2) OP_SHUTDOWN w/ flags == SHUTDOWN_TX
+> > > >     3) OP_SHUTDOWN w/ flags == SHUTDOWN_TX|SHUTDOWN_RX
+>
+> How did you trigger this sequence?  I'd like to reproduce it.
+>
+
+Nothing magic. I've written some logging into my backend and captured the
+result for a simple backend initiated connection.
+
+In the log "TX" and "RX" indicate the thread doing the processing (with
+"TX" being the one which processes the guest's TX ring, i.e. data coming
+from the guest to the host). "<=" indicates a buffer going from guest to
+host and "=>" is from host to guest. NB that guest to host replies are
+queued synchronously by the TX thread onto the RX ring which is why the
+somewhat odd looking "TX: =>" combination can occur. A host initiated
+connection also happens from the TX thread in the same way.
+
+The trace is of a simple request response (which both fit in one buffer in
+each direction), the lines without an "?X:" prefix are my
+annotations/guesses as to what is going on:
+
+TX: =>SRC:00000002.00010002 DST:00000003.00000948
+TX:   LEN:00000000 TYPE:0001 OP:1=REQUEST
+TX:  FLAGS:00000000 BUF_ALLOC:00008000 FWD_CNT:00000000
+
+TX: <=SRC:00000003.00000948 DST:00000002.00010002
+TX:   LEN:00000000 TYPE:0001 OP:2=RESPONSE
+TX:  FLAGS:00000000 BUF_ALLOC:00040000 FWD_CNT:00000000
+
+REQUEST + RESPONSE == Channel open successfully
+
+RX: =>SRC:00000002.00010002 DST:00000003.00000948
+RX:   LEN:0000005e TYPE:0001 OP:5=RW
+RX:  FLAGS:00000000 BUF_ALLOC:00008000 FWD_CNT:00000000
+
+Host sends a request to the guest
+
+TX: <=SRC:00000003.00000948 DST:00000002.00010002
+TX:   LEN:00000000 TYPE:0001 OP:6=CREDIT_UPDATE
+TX:  FLAGS:00000000 BUF_ALLOC:00040000 FWD_CNT:0000005e
+
+Guest replies with a credit update
+
+TX: <=SRC:00000003.00000948 DST:00000002.00010002
+TX:   LEN:00000091 TYPE:0001 OP:5=RW
+TX:  FLAGS:00000000 BUF_ALLOC:00040000 FWD_CNT:0000005e
+
+Guest replies with the answer to the request
+
+RX: =>SRC:00000002.00010002 DST:00000003.00000948
+RX:   LEN:00000000 TYPE:0001 OP:4=SHUTDOWN
+RX:  FLAGS:00000002 BUF_ALLOC:00008000 FWD_CNT:00000091
+
+Host has sent its only request, so host app must have done
+shutdown(SHUT_WR) I suppose and host therefore sends SHUTDOWN_TX.
+
+TX: <=SRC:00000003.00000948 DST:00000002.00010002
+TX:   LEN:00000000 TYPE:0001 OP:4=SHUTDOWN
+TX:  FLAGS:00000001 BUF_ALLOC:00040000 FWD_CNT:0000005e
+
+Guest SHUTDOWN_RX. I'm not sure if this is a direct kernel response to the
+SHUTDOWN_TX or if the application inside the guest saw an EOF when reading
+the socket and did the corresponding shutdown(SHUT_RD).
+
+TX: <=SRC:00000003.00000948 DST:00000002.00010002
+TX:   LEN:00000000 TYPE:0001 OP:4=SHUTDOWN
+TX:  FLAGS:00000002 BUF_ALLOC:00040000 FWD_CNT:0000005e
+
+Guest SHUTDOWN_TX, I presume that having sent the only response it is going
+to it then does shutdown(SHUT_WR).
+
+TX: <=SRC:00000003.00000948 DST:00000002.00010002
+TX:   LEN:00000000 TYPE:0001 OP:4=SHUTDOWN
+TX:  FLAGS:00000003 BUF_ALLOC:00040000 FWD_CNT:0000005e
+
+Guest shuts down both directions.
+
+Perhaps the guest end is turning shutdown(foo) directly into a vsock
+message without or-ing in the current state?
+
+> > > I orignally had my backend close things down at #2, however this meant
+> > > > that when #3 arrived it was for a non-existent socket (or, worse, an
+> > > > active one if the ports got reused). I checked v5 of the spec
+> > > > proposal[0] which says:
+> > > >     If these bits are set and there are no more virtqueue buffers
+> > > >     pending the socket is disconnected.
+> > > >
+> > > > but I'm not entirely sure if this behaviour contradicts this or not
+> > > > (the bits have both been set at #2, but not at the same time).
+> > > >
+> > > > BTW, how does one tell if there are no more virtqueue buffers pending
+> > > > or not while processing the op?
+> > >
+> > > #2 is odd.  The shutdown bits are sticky so they cannot be cleared once
+> > > set.  I would have expected just #1 and #3.  The behavior you observe
+> > > look like a bug.
+> > >
+> > > The spec text does not convey the meaning of OP_SHUTDOWN well.
+> > > OP_SHUTDOWN SHUTDOWN_TX|SHUTDOWN_RX means no further rx/tx is possible
+> > > for this connection.  "there are no more virtqueue buffers pending the
+> > > socket" really means that this isn't an immediate close from the
+> > > perspective of the application.  If the application still has unread rx
+> > > buffers then the socket stays readable until the rx data has been fully
+> > > read.
+> >
+> > Yes but you also wrote:
+> >       If these bits are set and there are no more virtqueue buffers
+> >       pending the socket is disconnected.
+> >
+> > how does remote know that there are no buffers pending and so it's safe
+> > to reuse the same source/destination address now?  Maybe destination
+> > should send RST at that point?
+>
+> You are right, the source/destination address could be reused while the
+> remote still has the connection in their table.  Connection
+> establishment would fail with a RST reply.
+>
+> I can think of two solutions:
+>
+> 1. Implementations must remove connections from their table as soon as
+>    SHUTDOWN_TX|SHUTDOWN_RX is received.  This way the source/destination
+>    address tuple can be reused immediately, i.e. new connections with
+>    the same source/destination would be possible while an application is
+>    still draining the receive buffers of an old connection.
+>
+> 2. Extend the connection lifecycle so that an A->B
+>    SHUTDOWN_TX|SHUTDOWN_RX must be followed by a by a B->A RST to close
+>    a connection.  This way the source/destination address is only in use
+>    once at a time.
+>
+> Option #2 seems safer because there is no overlap in source/destination
+> address usage.
+>
+
+I agree (I hadn't seen this when I replied to Michael similar suggestion).
+
+Ian. (sorry again for the formatting)
+
+--001a1144400c6c719c05304c48c5
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">For some reason your mails in this thread only appear in t=
+he gmail web UI and not on the IMAP version of my mailbox (my own and Micha=
+el&#39;s mails are fine).<div><br></div><div>So I&#39;m replying via the we=
+b interface, sorry for the inevitable formatting mess :-/</div><div><br></d=
+iv><div>I&#39;ve CCd another mailbox in the hopes of getting your mails in =
+that IMAP folder instead/aswell so I can avoid this next time.<br><div clas=
+s=3D"gmail_extra"><br><div class=3D"gmail_quote">On 12 April 2016 at 14:59,=
+ Stefan Hajnoczi <span dir=3D"ltr">&lt;<a href=3D"mailto:stefanha@redhat.co=
+m" target=3D"_blank">stefanha@redhat.com</a>&gt;</span> wrote:<blockquote c=
+lass=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-left-width:1p=
+x;border-left-color:rgb(204,204,204);border-left-style:solid;padding-left:1=
+ex"><span class=3D"">
+&gt; &gt; &gt; One wrinkle I came across, which I&#39;m not sure if it is b=
+y design or a<br>
+&gt; &gt; &gt; problem is that I can see this sequence coming from the gues=
+t (with<br>
+&gt; &gt; &gt; other activity in between):<br>
+&gt; &gt; &gt;<br>
+&gt; &gt; &gt; =C2=A0 =C2=A0 1) OP_SHUTDOWN w/ flags =3D=3D SHUTDOWN_RX<br>
+&gt; &gt; &gt; =C2=A0=C2=A0=C2=A0=C2=A02) OP_SHUTDOWN w/ flags =3D=3D SHUTD=
+OWN_TX<br>
+&gt; &gt; &gt; =C2=A0=C2=A0=C2=A0=C2=A03) OP_SHUTDOWN w/ flags =3D=3D SHUTD=
+OWN_TX|SHUTDOWN_RX<br>
+<br>
+</span>How did you trigger this sequence?=C2=A0 I&#39;d like to reproduce i=
+t.<br></blockquote><div><br></div><div>Nothing magic. I&#39;ve written some=
+ logging into my backend and captured the result for a simple backend initi=
+ated connection.</div><div><br></div><div>In the log &quot;TX&quot; and &qu=
+ot;RX&quot; indicate the thread doing the processing (with &quot;TX&quot; b=
+eing the one which processes the guest&#39;s TX ring, i.e. data coming from=
+ the guest to the host). &quot;&lt;=3D&quot; indicates a buffer going from =
+guest to host and &quot;=3D&gt;&quot; is from host to guest. NB that guest =
+to host replies are queued synchronously by the TX thread onto the RX ring =
+which is why the somewhat odd looking &quot;TX: =3D&gt;&quot; combination c=
+an occur. A host initiated connection also happens from the TX thread in th=
+e same way.</div><div><br></div><div>The trace is of a simple request respo=
+nse (which both fit in one buffer in each direction), the lines without an =
+&quot;?X:&quot; prefix are my annotations/guesses as to what is going on:</=
+div><div><br></div><div><div>TX: =3D&gt;SRC:00000002.00010002 DST:00000003.=
+00000948</div><div>TX: =C2=A0 LEN:00000000 TYPE:0001 OP:1=3DREQUEST</div><d=
+iv>TX: =C2=A0FLAGS:00000000 BUF_ALLOC:00008000 FWD_CNT:00000000</div><div><=
+br></div><div>TX: &lt;=3DSRC:00000003.00000948 DST:00000002.00010002</div><=
+div>TX: =C2=A0 LEN:00000000 TYPE:0001 OP:2=3DRESPONSE</div><div>TX: =C2=A0F=
+LAGS:00000000 BUF_ALLOC:00040000 FWD_CNT:00000000</div><div><br></div><div>=
+REQUEST + RESPONSE =3D=3D Channel open successfully</div><div><br></div><di=
+v>RX: =3D&gt;SRC:00000002.00010002 DST:00000003.00000948</div><div>RX: =C2=
+=A0 LEN:0000005e TYPE:0001 OP:5=3DRW</div><div>RX: =C2=A0FLAGS:00000000 BUF=
+_ALLOC:00008000 FWD_CNT:00000000</div><div><br></div><div>Host sends a requ=
+est to the guest</div><div><br></div><div>TX: &lt;=3DSRC:00000003.00000948 =
+DST:00000002.00010002</div><div>TX: =C2=A0 LEN:00000000 TYPE:0001 OP:6=3DCR=
+EDIT_UPDATE</div><div>TX: =C2=A0FLAGS:00000000 BUF_ALLOC:00040000 FWD_CNT:0=
+000005e</div><div><br></div><div>Guest replies with a credit update</div><d=
+iv><br></div><div>TX: &lt;=3DSRC:00000003.00000948 DST:00000002.00010002</d=
+iv><div>TX: =C2=A0 LEN:00000091 TYPE:0001 OP:5=3DRW</div><div>TX: =C2=A0FLA=
+GS:00000000 BUF_ALLOC:00040000 FWD_CNT:0000005e</div><div><br></div><div>Gu=
+est replies with the answer to the request</div><div><br></div><div>RX: =3D=
+&gt;SRC:00000002.00010002 DST:00000003.00000948</div><div>RX: =C2=A0 LEN:00=
+000000 TYPE:0001 OP:4=3DSHUTDOWN</div><div>RX: =C2=A0FLAGS:00000002 BUF_ALL=
+OC:00008000 FWD_CNT:00000091</div><div><br></div><div>Host has sent its onl=
+y request, so host app must have done shutdown(SHUT_WR) I suppose and host =
+therefore sends SHUTDOWN_TX.</div><div><br></div><div>TX: &lt;=3DSRC:000000=
+03.00000948 DST:00000002.00010002</div><div>TX: =C2=A0 LEN:00000000 TYPE:00=
+01 OP:4=3DSHUTDOWN</div><div>TX: =C2=A0FLAGS:00000001 BUF_ALLOC:00040000 FW=
+D_CNT:0000005e</div><div><br></div><div>Guest SHUTDOWN_RX. I&#39;m not sure=
+ if this is a direct kernel response to the SHUTDOWN_TX or if the applicati=
+on inside the guest saw an EOF when reading the socket and did the correspo=
+nding shutdown(SHUT_RD).</div><div><br></div><div>TX: &lt;=3DSRC:00000003.0=
+0000948 DST:00000002.00010002</div><div>TX: =C2=A0 LEN:00000000 TYPE:0001 O=
+P:4=3DSHUTDOWN</div><div>TX: =C2=A0FLAGS:00000002 BUF_ALLOC:00040000 FWD_CN=
+T:0000005e</div><div><br></div><div>Guest SHUTDOWN_TX, I presume that havin=
+g sent the only response it is going to it then does shutdown(SHUT_WR).</di=
+v><div><br></div><div>TX: &lt;=3DSRC:00000003.00000948 DST:00000002.0001000=
+2</div><div>TX: =C2=A0 LEN:00000000 TYPE:0001 OP:4=3DSHUTDOWN</div><div>TX:=
+ =C2=A0FLAGS:00000003 BUF_ALLOC:00040000 FWD_CNT:0000005e</div></div><div><=
+br></div><div>Guest shuts down both directions.</div><div><br></div><div>Pe=
+rhaps the guest end is turning shutdown(foo) directly into a vsock message =
+without or-ing in the current state?</div><div><br></div><blockquote class=
+=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-left-width:1px;bo=
+rder-left-color:rgb(204,204,204);border-left-style:solid;padding-left:1ex">=
+<div><div class=3D"h5">
+&gt; &gt; &gt; I orignally had my backend close things down at #2, however =
+this meant<br>
+&gt; &gt; &gt; that when #3 arrived it was for a non-existent socket (or, w=
+orse, an<br>
+&gt; &gt; &gt; active one if the ports got reused). I checked v5 of the spe=
+c<br>
+&gt; &gt; &gt; proposal[0] which says:<br>
+&gt; &gt; &gt;=C2=A0 =C2=A0 =C2=A0If these bits are set and there are no mo=
+re virtqueue buffers<br>
+&gt; &gt; &gt;=C2=A0 =C2=A0 =C2=A0pending the socket is disconnected.<br>
+&gt; &gt; &gt;<br>
+&gt; &gt; &gt; but I&#39;m not entirely sure if this behaviour contradicts =
+this or not<br>
+&gt; &gt; &gt; (the bits have both been set at #2, but not at the same time=
+).<br>
+&gt; &gt; &gt;<br>
+&gt; &gt; &gt; BTW, how does one tell if there are no more virtqueue buffer=
+s pending<br>
+&gt; &gt; &gt; or not while processing the op?<br>
+&gt; &gt;<br>
+&gt; &gt; #2 is odd.=C2=A0 The shutdown bits are sticky so they cannot be c=
+leared once<br>
+&gt; &gt; set.=C2=A0 I would have expected just #1 and #3.=C2=A0 The behavi=
+or you observe<br>
+&gt; &gt; look like a bug.<br>
+&gt; &gt;<br>
+&gt; &gt; The spec text does not convey the meaning of OP_SHUTDOWN well.<br=
+>
+&gt; &gt; OP_SHUTDOWN SHUTDOWN_TX|SHUTDOWN_RX means no further rx/tx is pos=
+sible<br>
+&gt; &gt; for this connection.=C2=A0 &quot;there are no more virtqueue buff=
+ers pending the<br>
+&gt; &gt; socket&quot; really means that this isn&#39;t an immediate close =
+from the<br>
+&gt; &gt; perspective of the application.=C2=A0 If the application still ha=
+s unread rx<br>
+&gt; &gt; buffers then the socket stays readable until the rx data has been=
+ fully<br>
+&gt; &gt; read.<br>
+&gt;<br>
+&gt; Yes but you also wrote:<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0If these bits are set and there are no more =
+virtqueue buffers<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0pending the socket is disconnected.<br>
+&gt;<br>
+&gt; how does remote know that there are no buffers pending and so it&#39;s=
+ safe<br>
+&gt; to reuse the same source/destination address now?=C2=A0 Maybe destinat=
+ion<br>
+&gt; should send RST at that point?<br>
+<br>
+</div></div>You are right, the source/destination address could be reused w=
+hile the<br>
+remote still has the connection in their table.=C2=A0 Connection<br>
+establishment would fail with a RST reply.<br>
+<br>
+I can think of two solutions:<br>
+<br>
+1. Implementations must remove connections from their table as soon as<br>
+=C2=A0 =C2=A0SHUTDOWN_TX|SHUTDOWN_RX is received.=C2=A0 This way the source=
+/destination<br>
+=C2=A0 =C2=A0address tuple can be reused immediately, i.e. new connections =
+with<br>
+=C2=A0 =C2=A0the same source/destination would be possible while an applica=
+tion is<br>
+=C2=A0 =C2=A0still draining the receive buffers of an old connection.<br>
+<br>
+2. Extend the connection lifecycle so that an A-&gt;B<br>
+=C2=A0 =C2=A0SHUTDOWN_TX|SHUTDOWN_RX must be followed by a by a B-&gt;A RST=
+ to close<br>
+=C2=A0 =C2=A0a connection.=C2=A0 This way the source/destination address is=
+ only in use<br>
+=C2=A0 =C2=A0once at a time.<br>
+<br>
+Option #2 seems safer because there is no overlap in source/destination<br>
+address usage.<br>
+</blockquote></div><br></div></div><div class=3D"gmail_extra">I agree (I ha=
+dn&#39;t seen this when I replied to Michael similar suggestion).</div><div=
+ class=3D"gmail_extra"><br></div><div class=3D"gmail_extra">Ian. (sorry aga=
+in for the formatting)</div></div>
+
+--001a1144400c6c719c05304c48c5--
+
+--===============8060150057196769230==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8060150057196769230==--
