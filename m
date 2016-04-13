@@ -1,13 +1,17 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH v5 0/6] Support calling functions on dedicated physical cpu
-Date: Wed, 13 Apr 2016 10:49:01 +0200
-Message-ID: <570E07FD.4030403@suse.com>
-References: <1459952266-3687-1-git-send-email-jgross@suse.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [RFC v5 0/5] Add virtio transport for AF_VSOCK
+Date: Wed, 13 Apr 2016 14:38:44 +0100
+Message-ID: <20160413133844.GE9272@stefanha-x1.localdomain>
+References: <1459520587-12337-1-git-send-email-stefanha@redhat.com>
+	<1460129705.1749.25.camel@docker.com>
+	<20160411104548.GA12826@stefanha-x1.localdomain>
+	<20160411154517-mutt-send-email-mst@redhat.com>
+	<20160412135957.GB29405@stefanha-x1.localdomain>
+	<CAOc2ZU1Kaes-UVfFrKrE9QyLMWnAQ77+hkSAGJgD0gOuM8o_UQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8471023980913578178=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1459952266-3687-1-git-send-email-jgross@suse.com>
+In-Reply-To: <CAOc2ZU1Kaes-UVfFrKrE9QyLMWnAQ77+hkSAGJgD0gOuM8o_UQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,73 +21,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org
-Cc: jeremy@goop.org, jdelvare@suse.com, peterz@infradead.org, hpa@zytor.com, akataria@vmware.com, x86@kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, pali.rohar@gmail.com, boris.ostrovsky@oracle.com, tglx@linutronix.de, linux@roeck-us.net
+To: Ian Campbell <ian.campbell@docker.com>
+Cc: marius vlad <marius.vlad0@gmail.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, ijc@hellion.org.uk, virtualization@lists.linux-foundation.org, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>, Matt Benjamin <mbenjamin@redhat.com>, netdev@vger.kernel.org, Greg Kurz <gkurz@linux.vnet.ibm.com>, Christoffer Dall <christoffer.dall@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/04/16 16:17, Juergen Gross wrote:
-> Some hardware (e.g. Dell Studio laptops) require special functions to
-> be called on physical cpu 0 in order to avoid occasional hangs. When
-> running as dom0 under Xen this could be achieved only via special boot
-> parameters (vcpu pinning) limiting the hypervisor in it's scheduling
-> decisions.
-> 
-> This patch series is adding a generic function to be able to temporarily
-> pin a (virtual) cpu to a dedicated physical cpu for executing above
-> mentioned functions on that specific cpu. The drivers (dcdbas and i8k)
-> requiring this functionality are modified accordingly.
-> 
-> Changes in V5:
-> - patch 3: rename and reshuffle parameters of smp_call_on_cpu() as requested
->   by Peter Zijlstra
-> - patch 3: test target cpu to be online as requested by Peter Zijlstra
-> - patch 4: less wordy messages as requested by David Vrabel
-> 
-> Changes in V4:
-> - move patches 5 and 6 further up in the series
-> - patch 2 (was 5): WARN_ONCE in case platform doesn't support pinning
->   as requested by Peter Zijlstra
-> - patch 3 (was 2): change return value in case of illegal cpu as
->   requested by Peter Zijlstra
-> - patch 3 (was 2): make pinning of vcpu an option as suggested by
->   Peter Zijlstra
-> - patches 5 and 6 (were 3 and 4): add call to get_online_cpus()
-> 
-> Changes in V3:
-> - use get_cpu()/put_cpu() as suggested by David Vrabel
-> 
-> Changes in V2:
-> - instead of manipulating the allowed set of cpus use cpu specific
->   workqueue as requested by Peter Zijlstra
-> - add include/linux/hypervisor.h to hide architecture specific stuff
->   from generic kernel code
-> 
-> Juergen Gross (6):
->   xen: sync xen header
->   virt, sched: add generic vcpu pinning support
->   smp: add function to execute a function synchronously on a cpu
->   xen: add xen_pin_vcpu() to support calling functions on a dedicated
->     pcpu
->   dcdbas: make use of smp_call_on_cpu()
->   hwmon: use smp_call_on_cpu() for dell-smm i8k
-> 
->  MAINTAINERS                       |   1 +
->  arch/x86/include/asm/hypervisor.h |   4 ++
->  arch/x86/kernel/cpu/hypervisor.c  |  11 +++++
->  arch/x86/xen/enlighten.c          |  40 +++++++++++++++
->  drivers/firmware/dcdbas.c         |  51 +++++++++----------
->  drivers/hwmon/dell-smm-hwmon.c    |  35 +++++++------
->  include/linux/hypervisor.h        |  17 +++++++
->  include/linux/smp.h               |   3 ++
->  include/xen/interface/sched.h     | 100 +++++++++++++++++++++++++++++++-------
->  kernel/smp.c                      |  51 +++++++++++++++++++
->  kernel/up.c                       |  18 +++++++
->  11 files changed, 273 insertions(+), 58 deletions(-)
->  create mode 100644 include/linux/hypervisor.h
-> 
 
-So patches 1, 3 and 4 are acked. Any comments regarding patches 2, 5
-and 6?
+--===============8471023980913578178==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="vv4Sf/kQfcwinyKX"
+Content-Disposition: inline
 
 
-Juergen
+--vv4Sf/kQfcwinyKX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Tue, Apr 12, 2016 at 05:37:54PM +0100, Ian Campbell wrote:
+> Perhaps the guest end is turning shutdown(foo) directly into a vsock
+> message without or-ing in the current state?
+
+Yes, you are right:
+
+  lock_sock(sk);
+  sk->sk_shutdown |= mode;
+  sk->sk_state_change(sk);
+  release_sock(sk);
+
+  if (sk->sk_type == SOCK_STREAM) {
+      sock_reset_flag(sk, SOCK_DONE);
+      vsock_send_shutdown(sk, mode);
+
+Although sk_shutdown is ORed correctly, vsock_send_shutdown() is called with
+just the shutdown() argument.
+
+--vv4Sf/kQfcwinyKX
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQEcBAEBAgAGBQJXDkvjAAoJEJykq7OBq3PIr8AIAI9hLqLWfXLLf3d416wjMf5c
+h2/E0DX9GQ9BcWMlazKFevOuwo+RxwYOfeewiOj921be+NTVCbx/RnbtOWSOMHYN
+iP/kiIWj1tIQ0DigwNjH8+jRV8V/x0yVgMst8xkVWaa/OOfQYXfa7TDVSIbrc2W+
+TK9AQ+Qp9ZXEyDLnjw7GILYa8y9Iwt/BuE4q1v0ToHufRaR3Ayw1ozmsWG25z2En
+1bSSN3HuSJNTIDeISALiTmV+3cUYGZVXmxs56RHuzr7s5YhMii3w0KxeslwTB/Lq
+tHN07L0hRHPHALhINMfEvVvr8RVjEPfWUCWBbp8Bzbw5HGoarjmLn7EBdeyIO68=
+=Cup7
+-----END PGP SIGNATURE-----
+
+--vv4Sf/kQfcwinyKX--
+
+--===============8471023980913578178==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8471023980913578178==--
