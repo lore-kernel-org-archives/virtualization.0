@@ -1,11 +1,23 @@
-From: Gustavo Padovan <gustavo@padovan.org>
-Subject: [PATCH RESEND] drm/virtio: send vblank event after crtc updates
-Date: Thu, 14 Apr 2016 10:58:54 -0700
-Message-ID: <1460656734-17216-1-git-send-email-gustavo__8882.54390233687$1460656751$gmane$org@padovan.org>
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Subject: Re: [PATCH] documentation: Add disclaimer
+Date: Thu, 14 Apr 2016 14:40:15 -0700
+Message-ID: <20160414214015.GA31866@linux.vnet.ibm.com>
+References: <20160114120445.GB15828@arm.com> <56980145.5030901@imgtec.com>
+	<20160114204827.GE3818@linux.vnet.ibm.com>
+	<56981212.7050301@imgtec.com>
+	<20160114222046.GH3818@linux.vnet.ibm.com>
+	<20160126102402.GE6357@twins.programming.kicks-ass.net>
+	<20160126103200.GI6375@twins.programming.kicks-ass.net>
+	<20160126110053.GA21553@arm.com>
+	<20160126201143.GV4503@linux.vnet.ibm.com>
+	<20160127083546.GJ6357@twins.programming.kicks-ass.net>
+Reply-To: paulmck@linux.vnet.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20160127083546.GJ6357@twins.programming.kicks-ass.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,48 +27,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Airlie <airlied@linux.ie>
-Cc: open list <linux-kernel@vger.kernel.org>, Gustavo Padovan <gustavo.padovan@collabora.co.uk>, "open list:VIRTIO GPU DRIVER" <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, user-mode-linux-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>, ddaney.cavm@gmail.com, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
+On Wed, Jan 27, 2016 at 09:35:46AM +0100, Peter Zijlstra wrote:
+> On Tue, Jan 26, 2016 at 12:11:43PM -0800, Paul E. McKenney wrote:
+> > So Peter, would you like to update your patch to include yourself
+> > and Will as authors?
+> 
+> Sure, here goes.
+> 
+> ---
+> Subject: documentation: Add disclaimer
+> 
+> It appears people are reading this document as a requirements list for
+> building hardware. This is not the intent of this document. Nor is it
+> particularly suited for this purpose.
+> 
+> The primary purpose of this document is our collective attempt to define
+> a set of primitives that (hopefully) allow us to write correct code on
+> the myriad of SMP platforms Linux supports.
+> 
+> Its a definite work in progress as our understanding of these platforms,
+> and memory ordering in general, progresses.
+> 
+> Nor does being mentioned in this document mean we think its a
+> particularly good idea; the data dependency barrier required by Alpha
+> being a prime example. Yes we have it, no you're insane to require it
+> when building new hardware.
+> 
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 
-virtio_gpu was failing to send vblank events when using the atomic IOCTL
-with the DRM_MODE_PAGE_FLIP_EVENT flag set. This patch fixes each and
-enables atomic pageflips updates.
+Rather belatedly queued and pushed to -rcu, apologies for the delay.
+One minor edit noted below.
 
-Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
----
- drivers/gpu/drm/virtio/virtgpu_display.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+							Thanx, Paul
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index 4854dac..5fd1fd0 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -267,11 +267,23 @@ static int virtio_gpu_crtc_atomic_check(struct drm_crtc *crtc,
- 	return 0;
- }
- 
-+static void virtio_gpu_crtc_atomic_flush(struct drm_crtc *crtc,
-+					 struct drm_crtc_state *old_state)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&crtc->dev->event_lock, flags);
-+	if (crtc->state->event)
-+		drm_crtc_send_vblank_event(crtc, crtc->state->event);
-+	spin_unlock_irqrestore(&crtc->dev->event_lock, flags);
-+}
-+
- static const struct drm_crtc_helper_funcs virtio_gpu_crtc_helper_funcs = {
- 	.enable        = virtio_gpu_crtc_enable,
- 	.disable       = virtio_gpu_crtc_disable,
- 	.mode_set_nofb = virtio_gpu_crtc_mode_set_nofb,
- 	.atomic_check  = virtio_gpu_crtc_atomic_check,
-+	.atomic_flush  = virtio_gpu_crtc_atomic_flush,
- };
- 
- static void virtio_gpu_enc_mode_set(struct drm_encoder *encoder,
--- 
-2.5.5
+> ---
+>  Documentation/memory-barriers.txt | 18 +++++++++++++++++-
+>  1 file changed, 17 insertions(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/memory-barriers.txt b/Documentation/memory-barriers.txt
+> index a61be39c7b51..98626125f484 100644
+> --- a/Documentation/memory-barriers.txt
+> +++ b/Documentation/memory-barriers.txt
+> @@ -4,8 +4,24 @@
+> 
+>  By: David Howells <dhowells@redhat.com>
+>      Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+> +    Will Deacon <will.deacon@arm.com>
+> +    Peter Zijlstra <peterz@infradead.org>
+> 
+> -Contents:
+> +==========
+> +DISCLAIMER
+> +==========
+> +
+> +This document is not a specification; it is intentionally (for the sake of
+> +brevity) and unintentionally (due to being human) incomplete. This document is
+> +meant as a guide to using the various memory barriers provided by Linux, but
+> +in case of any doubt (and there are many) please ask.
+> +
+> +I repeat, this document is not a specification of what Linux expects from
+
+s/I/To/ because there is more than one author.
+
+> +hardware.
+> +
+> +========
+> +CONTENTS
+> +========
+> 
+>   (*) Abstract memory access model.
+> 
+> 
