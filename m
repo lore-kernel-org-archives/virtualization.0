@@ -1,13 +1,11 @@
 From: Gustavo Padovan <gustavo@padovan.org>
-Subject: [PATCH 13/14] drm/virtio: use drm_crtc_send_vblank_event()
-Date: Thu, 14 Apr 2016 10:48:24 -0700
-Message-ID: <1460656118-16766-13-git-send-email-gustavo@padovan.org>
-References: <1460656118-16766-1-git-send-email-gustavo@padovan.org>
+Subject: [PATCH RESEND] drm/virtio: send vblank event after crtc updates
+Date: Thu, 14 Apr 2016 10:58:54 -0700
+Message-ID: <1460656734-17216-1-git-send-email-gustavo__8882.54390233687$1460656751$gmane$org@padovan.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1460656118-16766-1-git-send-email-gustavo@padovan.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,31 +15,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Gustavo Padovan <gustavo.padovan@collabora.co.uk>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: David Airlie <airlied@linux.ie>
+Cc: open list <linux-kernel@vger.kernel.org>, Gustavo Padovan <gustavo.padovan@collabora.co.uk>, "open list:VIRTIO GPU DRIVER" <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
 
-Replace the legacy drm_send_vblank_event() with the new helper function.
+virtio_gpu was failing to send vblank events when using the atomic IOCTL
+with the DRM_MODE_PAGE_FLIP_EVENT flag set. This patch fixes each and
+enables atomic pageflips updates.
 
 Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
 ---
- drivers/gpu/drm/virtio/virtgpu_display.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/virtio/virtgpu_display.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index 4854dac..66be450 100644
+index 4854dac..5fd1fd0 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_display.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -163,7 +163,7 @@ static int virtio_gpu_page_flip(struct drm_crtc *crtc,
+@@ -267,11 +267,23 @@ static int virtio_gpu_crtc_atomic_check(struct drm_crtc *crtc,
+ 	return 0;
+ }
  
- 	if (event) {
- 		spin_lock_irqsave(&crtc->dev->event_lock, irqflags);
--		drm_send_vblank_event(crtc->dev, -1, event);
-+		drm_crtc_send_vblank_event(crtc, event);
- 		spin_unlock_irqrestore(&crtc->dev->event_lock, irqflags);
- 	}
++static void virtio_gpu_crtc_atomic_flush(struct drm_crtc *crtc,
++					 struct drm_crtc_state *old_state)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&crtc->dev->event_lock, flags);
++	if (crtc->state->event)
++		drm_crtc_send_vblank_event(crtc, crtc->state->event);
++	spin_unlock_irqrestore(&crtc->dev->event_lock, flags);
++}
++
+ static const struct drm_crtc_helper_funcs virtio_gpu_crtc_helper_funcs = {
+ 	.enable        = virtio_gpu_crtc_enable,
+ 	.disable       = virtio_gpu_crtc_disable,
+ 	.mode_set_nofb = virtio_gpu_crtc_mode_set_nofb,
+ 	.atomic_check  = virtio_gpu_crtc_atomic_check,
++	.atomic_flush  = virtio_gpu_crtc_atomic_flush,
+ };
  
+ static void virtio_gpu_enc_mode_set(struct drm_encoder *encoder,
 -- 
 2.5.5
