@@ -1,23 +1,12 @@
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Subject: Re: [PATCH] documentation: Add disclaimer
-Date: Thu, 14 Apr 2016 14:40:54 -0700
-Message-ID: <20160414214054.GB31866__38332.5531649918$1460670060$gmane$org@linux.vnet.ibm.com>
-References: <20160114120445.GB15828@arm.com> <56980145.5030901@imgtec.com>
-	<20160114204827.GE3818@linux.vnet.ibm.com>
-	<56981212.7050301@imgtec.com>
-	<20160114222046.GH3818@linux.vnet.ibm.com>
-	<20160126102402.GE6357@twins.programming.kicks-ass.net>
-	<20160126103200.GI6375@twins.programming.kicks-ass.net>
-	<20160126110053.GA21553@arm.com>
-	<20160126201143.GV4503@linux.vnet.ibm.com>
-	<15882.1453906627@warthog.procyon.org.uk>
-Reply-To: paulmck@linux.vnet.ibm.com
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [patch] virtio: Silence uninitialized variable warning
+Date: Fri, 15 Apr 2016 17:45:10 +0300
+Message-ID: <20160415144510.GB8953@mwanda>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <15882.1453906627@warthog.procyon.org.uk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,54 +16,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Howells <dhowells@redhat.com>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, user-mode-linux-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>, ddaney.cavm@gmail.com, Thomas Gleixner <tglx@linutr>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 27, 2016 at 02:57:07PM +0000, David Howells wrote:
-> Peter Zijlstra <peterz@infradead.org> wrote:
-> 
-> > +==========
-> > +DISCLAIMER
-> > +==========
-> > +
-> > +This document is not a specification; it is intentionally (for the sake of
-> > +brevity) and unintentionally (due to being human) incomplete. This document is
-> > +meant as a guide to using the various memory barriers provided by Linux, but
-> > +in case of any doubt (and there are many) please ask.
-> > +
-> > +I repeat, this document is not a specification of what Linux expects from
-> > +hardware.
-> 
-> The purpose of this document is twofold:
-> 
->  (1) to specify the minimum functionality that one can rely on for any
->      particular barrier, and
-> 
->  (2) to provide a guide as to how to use the barriers that are available.
-> 
-> Note that an architecture can provide more than the minimum requirement for
-> any particular barrier, but if the barrier provides less than that, it is
-> incorrect.
-> 
-> Note also that it is possible that a barrier may be a no-op for an
-> architecture because the way that arch works renders an explicit barrier
-> unnecessary in that case.
-> 
-> > +
-> 
-> Can you bung an extra blank line in here if you have to redo this at all?
+Smatch complains that we might not initialize "queue".  The issue is
+callers like setup_vq() from virtio_pci_modern.c where "num" could be
+something like 2 and "vring_align" is 64.  In that case, vring_size() is
+less than PAGE_SIZE.  It won't happen in real life, but we're getting
+the value of "num" from a register so it's not really possible to tell
+what value it holds with static analysis.
 
-Done as part of your patch.  Again, apologies for the delay.
+Let's just silence the warning.
 
-							Thanx, Paul
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-> > +========
-> > +CONTENTS
-> > +========
-> >  
-> >   (*) Abstract memory access model.
-> >  
-> 
-> David
-> 
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 5c802d4..ca6bfdd 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -1006,7 +1006,7 @@ struct virtqueue *vring_create_virtqueue(
+ 	const char *name)
+ {
+ 	struct virtqueue *vq;
+-	void *queue;
++	void *queue = NULL;
+ 	dma_addr_t dma_addr;
+ 	size_t queue_size_in_bytes;
+ 	struct vring vring;
