@@ -1,19 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC] fixup! virtio: convert to use DMA api
-Date: Mon, 18 Apr 2016 18:30:41 +0300
-Message-ID: <20160418182320-mutt-send-email-mst@redhat.com>
-References: <1460979793-6621-1-git-send-email-mst@redhat.com>
-	<1460980717.12793.43.camel@infradead.org>
-	<20160418160731-mutt-send-email-mst@redhat.com>
-	<1460988232.22654.7.camel@infradead.org>
-	<20160418170534-mutt-send-email-mst@redhat.com>
-	<1460992923.3765.8.camel@infradead.org>
+From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Subject: Re: [PATCH v3 05/16] zsmalloc: keep max_object in size_class
+Date: Mon, 18 Apr 2016 00:08:34 +0900
+Message-ID: <20160417150834.GB575__28242.6315978684$1460993733$gmane$org@swordfish>
+References: <1459321935-3655-1-git-send-email-minchan@kernel.org>
+	<1459321935-3655-6-git-send-email-minchan@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1460992923.3765.8.camel@infradead.org>
+In-Reply-To: <1459321935-3655-6-git-send-email-minchan@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,53 +19,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Wei Liu <wei.liu2@citrix.com>, Andy Lutomirski <luto@kernel.org>, qemu-block@nongnu.org, Christian Borntraeger <borntraeger@de.ibm.com>, qemu-devel@nongnu.org, peterx@redhat.com, linux-kernel@vger.kernel.org, Amit Shah <amit.shah@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, pbonzini@redhat.com, virtualization@lists.linux-foundation.org
+To: Minchan Kim <minchan@kernel.org>
+Cc: Rik van Riel <riel@redhat.com>, YiPing Xu <xuyiping@hisilicon.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Chan Gyun Jeong <chan.jeong@lge.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gi-oh.kim@profitbricks.com>, koct9i@gmail.com, Sangseok Lee <sangseok.lee@lge.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Andrew Morton <akpm@linux-foundation.org>, jlayton@poochiereds.net, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBBcHIgMTgsIDIwMTYgYXQgMTE6MjI6MDNBTSAtMDQwMCwgRGF2aWQgV29vZGhvdXNl
-IHdyb3RlOgo+IE9uIE1vbiwgMjAxNi0wNC0xOCBhdCAxNzoyMyArMDMwMCwgTWljaGFlbCBTLiBU
-c2lya2luIHdyb3RlOgo+ID4gCj4gPiBUaGlzIHBhdGNoIGRvZXNuJ3QgY2hhbmdlIERNQVIgdGFi
-bGVzLCBpdCBjcmVhdGVzIGEgd2F5IGZvciB2aXJ0aW8KPiA+IGRldmljZSB0byB0ZWxsIGd1ZXN0
-ICJJIG9iZXkgd2hhdCBETUFSIHRhYmxlcyB0ZWxsIHlvdSwgeW91IGNhbiBzdG9wCj4gPiBkb2lu
-ZyBoYWNrcyIuCj4gPiAKPiA+IEFuZCBhcyBQUEMgZ3V5cyBzZWVtIGFkYW1hbnQgdGhhdCBwbGF0
-Zm9ybSB0b29scyB0aGVyZSBhcmUgbm8gZ29vZCBmb3IKPiA+IHRoYXQgcHVycG9zZSwgdGhlcmUn
-cyBhbm90aGVyIGJpdCB0aGF0IHNheXMgImlnbm9yZSB3aGF0IHBsYXRmb3JtIHRlbGxzCj4gPiB5
-b3UsIEknbSBub3QgYSByZWFsIGRldmljZSAtIEknbSBwYXJ0IG9mIGh5cGVydmlzb3IgYW5kIEkg
-YnlwYXNzIHRoZQo+ID4gSU9NTVUiLgo+IAo+IC4uLgo+IAo+ICsvKiBSZXF1ZXN0IElPTU1VIHBh
-c3N0aHJvdWdoIChpZiBhdmFpbGFibGUpCj4gKyAqIFdpdGhvdXQgVklSVElPX0ZfSU9NTVVfUExB
-VEZPUk06IGJ5cGFzcyB0aGUgSU9NTVUgZXZlbiBpZiBlbmFibGVkLgo+ICsgKiBXaXRoIFZJUlRJ
-T19GX0lPTU1VX1BMQVRGT1JNOiBzdWdnZXN0IGRpc2FibGluZyBJT01NVS4KPiArICovCj4gKyNk
-ZWZpbmUgVklSVElPX0ZfSU9NTVVfUEFTU1RIUk9VR0jCoMKgwqDCoMKgMzMKPiArCj4gKy8qIERv
-IG5vdCBieXBhc3MgdGhlIElPTU1VIChpZiBjb25maWd1cmVkKSAqLwo+ICsjZGVmaW5lIFZJUlRJ
-T19GX0lPTU1VX1BMQVRGT1JNwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAzNAo+IAo+
-IE9LLi4uIGxldCdzIHNlZSBpZiBJIGNhbiByZWNvbmNpbGUgdGhvc2UgZGVzY3JpcHRpb25zIGNv
-aGVyZW50bHkuCj4gCj4gU2V0dGluZyAob25seSkgVklSVElPX0ZfSU9NTVVfUEFTU1RIUk9VR0gg
-aW5kaWNhdGVzIHRvIHRoZSBndWVzdCB0aGF0Cj4gaXRzIG93biBvcGVyYXRpbmcgc3lzdGVtJ3Mg
-SU9NTVUgY29kZSBpcyBleHBlY3RlZCB0byBiZSBicm9rZW4sIGFuZAo+IHRoYXQgdGhlIHZpcnRp
-byBkcml2ZXIgc2hvdWxkIGVzY2hldyB0aGUgRE1BIEFQST8KCk5vIC0gaXQgdGVsbHMgZ3Vlc3Qg
-dGhhdCBlLmcuIHRoZSBBQ1BJIHRhYmxlcyAob3Igd2hhdGV2ZXIgdGhlCmVxdWl2YWxlbnQgaXMp
-IGRvIG5vdCBtYXRjaCByZWFsaXR5IHdpdGggcmVzcGVjdCB0byB0aGlzIGRldmljZQpzaW5jZSBJ
-T01NVSBpcyBpZ25vcmVkIGJ5IGh5cGVydmlzb3IuCkh5cGVydmlzb3IgaGFzIG5vIGlkZWEgd2hh
-dCBkb2VzIGd1ZXN0IElPTU1VIGNvZGUgZG8gLSBob3BlZnVsbHkKaXQgaXMgbm90IGFjdHVhbGx5
-IGJyb2tlbi4KCj4gQW5kIHRoYXQgdGhlIGd1ZXN0IE9TCj4gY2Fubm90IGZ1cnRoZXIgYXNzaWdu
-IHRoZSBhZmZlY3RlZCBkZXZpY2UgdG8gYW55IG9mICppdHMqIG5lc3RlZAo+IGd1ZXN0cz8gTm90
-IHRoYXQgdGhlIGJyb2tlbiBJT01NVSBjb2RlIGluIHNhaWQgZ3Vlc3QgT1Mgd2lsbCBrbm93IHRo
-ZQo+IGxhdHRlciwgb2YgY291cnNlLgo+IAo+IFdpdGggVklSVElPX0ZfSU9NTVVfUExBVEZPUk0g
-c2V0LCBWSVJUSU9fRl9JT01NVV9QQVNTVEhST1VHSCBpcyBqdXN0IGEKPiAqaGludCosIHN1Z2dl
-c3RpbmcgdGhhdCB0aGUgZ3Vlc3QgT1Mgc2hvdWxkICpyZXF1ZXN0KiBhIHBhc3N0aHJvdWdoCj4g
-bWFwcGluZyBmcm9tIHRoZSBJT01NVT8KClJpZ2h0LiBCdXQgaXQnbGwgd29yayBjb3JyZWN0bHkg
-aWYgeW91IGRvbid0LgoKPiBWaWEgYSBkcml2ZXLihpDihpJJT01NVSBBUEkgd2hpY2ggZG9lc24n
-dCB5ZXQgZXhpc3QKPiBpbiBMaW51eCwgc2luY2Ugd2Ugb25seSBoYXZlICdpb21tdT1wdCcgb24g
-dGhlIGNvbW1hbmQgbGluZSBmb3IgdGhhdD8KPiAKPiBBbmQgaGF2aW5nICpuZWl0aGVyKiBvZiB0
-aG9zZSBiaXRzIHNldHMgaXMgdGhlIHN0YXR1cyBxdW8sIHdoaWNoIG1lYW5zCj4gdGhhdCB5b3Vy
-IE9TIGNvZGUgbWlnaHQgd2VsbCBiZSBicm9rZW4gYW5kIG5lZWQgeW91IHRvIGVzY2hldyB0aGUg
-RE1BCj4gQVBJLCBidXQgbWF5YmUgbm90LgoKClRoZSBzdGF0dXMgcXVvIGlzIHRoYXQgdGhhdCB0
-aGUgSU9NTVUgbWlnaHQgd2VsbCBiZSBieXBhc3NlZAphbmQgdGhlbiB5b3UgbmVlZCB0byBwcm9n
-cmFtIHBoeXNpY2FsIGFkZHJlc3NlcyBpbnRvIHRoZSBkZXZpY2UsCmJ1dCBtYXliZSBub3QuIElm
-IERNQSBBUEkgZG9lcyBub3QgZ2l2ZSB5b3UgcGh5c2ljYWwgYWRkcmVzc2VzLCB5b3UKbmVlZCB0
-byBieXBhc3MgaXQsIGJ1dCBoeXBlcnZpc29yIGRvZXMgbm90IGtub3cgb3IgY2FyZS4KCgo+IAo+
-IC0twqAKPiBkd213Mgo+IAo+IAoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
-cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Hello,
+
+On (03/30/16 16:12), Minchan Kim wrote:
+> 
+> Every zspage in a size_class has same number of max objects so
+> we could move it to a size_class.
+> 
+
+Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+
+	-ss
