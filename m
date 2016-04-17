@@ -1,15 +1,15 @@
 From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Subject: Re: [PATCH v3 06/16] zsmalloc: squeeze inuse into page->mapping
-Date: Mon, 18 Apr 2016 00:08:04 +0900
-Message-ID: <20160417150804.GA575__11987.6720746563$1460993740$gmane$org@swordfish>
+Subject: Re: [PATCH v3 07/16] zsmalloc: remove page_mapcount_reset
+Date: Mon, 18 Apr 2016 00:11:03 +0900
+Message-ID: <20160417151103.GC575__22431.0393249199$1460993744$gmane$org@swordfish>
 References: <1459321935-3655-1-git-send-email-minchan@kernel.org>
-	<1459321935-3655-7-git-send-email-minchan@kernel.org>
+	<1459321935-3655-8-git-send-email-minchan@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1459321935-3655-7-git-send-email-minchan@kernel.org>
+In-Reply-To: <1459321935-3655-8-git-send-email-minchan@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,67 +26,30 @@ List-Id: virtualization@lists.linuxfoundation.org
 Hello,
 
 On (03/30/16 16:12), Minchan Kim wrote:
-[..]
-> +static int get_zspage_inuse(struct page *first_page)
-> +{
-> +	struct zs_meta *m;
-> +
-> +	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
-> +
-> +	m = (struct zs_meta *)&first_page->mapping;
-..
-> +static void set_zspage_inuse(struct page *first_page, int val)
-> +{
-> +	struct zs_meta *m;
-> +
-> +	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
-> +
-> +	m = (struct zs_meta *)&first_page->mapping;
-..
-> +static void mod_zspage_inuse(struct page *first_page, int val)
-> +{
-> +	struct zs_meta *m;
-> +
-> +	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
-> +
-> +	m = (struct zs_meta *)&first_page->mapping;
-..
->  static void get_zspage_mapping(struct page *first_page,
->  				unsigned int *class_idx,
->  				enum fullness_group *fullness)
->  {
-> -	unsigned long m;
-> +	struct zs_meta *m;
-> +
->  	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
-> +	m = (struct zs_meta *)&first_page->mapping;
-..
->  static void set_zspage_mapping(struct page *first_page,
->  				unsigned int class_idx,
->  				enum fullness_group fullness)
->  {
-> +	struct zs_meta *m;
-> +
->  	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
->  
-> +	m = (struct zs_meta *)&first_page->mapping;
-> +	m->fullness = fullness;
-> +	m->class = class_idx;
->  }
-
-
-a nitpick: this
-
-	struct zs_meta *m;
-	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
-	m = (struct zs_meta *)&first_page->mapping;
-
-
-seems to be common in several places, may be it makes sense to
-factor it out and turn into a macro or a static inline helper?
-
-other than that, looks good to me
+> We don't use page->_mapcount any more so no need to reset.
+> 
+> Signed-off-by: Minchan Kim <minchan@kernel.org>
 
 Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
 
 	-ss
+
+> ---
+>  mm/zsmalloc.c | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
+> index 4dd72a803568..0f6cce9b9119 100644
+> --- a/mm/zsmalloc.c
+> +++ b/mm/zsmalloc.c
+> @@ -922,7 +922,6 @@ static void reset_page(struct page *page)
+>  	set_page_private(page, 0);
+>  	page->mapping = NULL;
+>  	page->freelist = NULL;
+> -	page_mapcount_reset(page);
+>  }
+>  
+>  static void free_zspage(struct page *first_page)
+> -- 
+> 1.9.1
+> 
