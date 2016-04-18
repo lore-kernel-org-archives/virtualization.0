@@ -1,21 +1,10 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC] fixup! virtio: convert to use DMA api
-Date: Mon, 18 Apr 2016 19:27:42 +0300
-Message-ID: <20160418190203-mutt-send-email-mst@redhat.com>
-References: <1460979793-6621-1-git-send-email-mst@redhat.com>
-	<1460980717.12793.43.camel@infradead.org>
-	<20160418160731-mutt-send-email-mst@redhat.com>
-	<1460988232.22654.7.camel@infradead.org>
-	<20160418170534-mutt-send-email-mst@redhat.com>
-	<1460992923.3765.8.camel@infradead.org>
-	<20160418182320-mutt-send-email-mst@redhat.com>
-	<1460994701.3765.23.camel@infradead.org>
+From: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Subject: Potential hang in virtnet_send_command
+Date: Mon, 18 Apr 2016 19:07:32 +0200
+Message-ID: <CAATJJ0JF7-ApjMO+XtsVgD8rU6WTCK28vTjmG-Aww-ASHw4cBQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============4654977085945591438=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1460994701.3765.23.camel@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,82 +14,90 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Wei Liu <wei.liu2@citrix.com>, Andy Lutomirski <luto@kernel.org>, qemu-block@nongnu.org, Christian Borntraeger <borntraeger@de.ibm.com>, qemu-devel@nongnu.org, peterx@redhat.com, linux-kernel@vger.kernel.org, Amit Shah <amit.shah@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, pbonzini@redhat.com, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: Thomas Monjalon <thomas.monjalon@6wind.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBBcHIgMTgsIDIwMTYgYXQgMTE6NTE6NDFBTSAtMDQwMCwgRGF2aWQgV29vZGhvdXNl
-IHdyb3RlOgo+IE9uIE1vbiwgMjAxNi0wNC0xOCBhdCAxODozMCArMDMwMCwgTWljaGFlbCBTLiBU
-c2lya2luIHdyb3RlOgo+ID4gCj4gPiA+IFNldHRpbmcgKG9ubHkpIFZJUlRJT19GX0lPTU1VX1BB
-U1NUSFJPVUdIIGluZGljYXRlcyB0byB0aGUgZ3Vlc3QgdGhhdAo+ID4gPiBpdHMgb3duIG9wZXJh
-dGluZyBzeXN0ZW0ncyBJT01NVSBjb2RlIGlzIGV4cGVjdGVkIHRvIGJlIGJyb2tlbiwgYW5kCj4g
-PiA+IHRoYXQgdGhlIHZpcnRpbyBkcml2ZXIgc2hvdWxkIGVzY2hldyB0aGUgRE1BIEFQST8KPiA+
-IAo+ID4gTm8gLSBpdCB0ZWxscyBndWVzdCB0aGF0IGUuZy4gdGhlIEFDUEkgdGFibGVzIChvciB3
-aGF0ZXZlciB0aGUKPiA+IGVxdWl2YWxlbnQgaXMpIGRvIG5vdCBtYXRjaCByZWFsaXR5IHdpdGgg
-cmVzcGVjdCB0byB0aGlzIGRldmljZQo+ID4gc2luY2UgSU9NTVUgaXMgaWdub3JlZCBieSBoeXBl
-cnZpc29yLgo+ID4gSHlwZXJ2aXNvciBoYXMgbm8gaWRlYSB3aGF0IGRvZXMgZ3Vlc3QgSU9NTVUg
-Y29kZSBkbyAtIGhvcGVmdWxseQo+ID4gaXQgaXMgbm90IGFjdHVhbGx5IGJyb2tlbi4KPiAKPiBP
-SywgdGhhdCBtYWtlcyBzZW5zZSDigJQgdGhhbmtzLgo+IAo+IFNvIHdoZXJlIHRoZSBwbGF0Zm9y
-bSAqZG9lcyogaGF2ZSBhIHdheSB0byBjb2hlcmVudGx5IHRlbGwgdGhlIGd1ZXN0Cj4gdGhhdCBz
-b21lIGRldmljZXMgYXJlIGJlaGluZCBhbmQgSU9NTVUgYW5kIHNvbWUgYXJlbid0LCB3ZSBzaG91
-bGQgbmV2ZXIKPiBzZWUgVklSVElPX0ZfSU9NTVVfUEFTU1RIUk9VR0ggJiYgIVZJUlRJT19GX0lP
-TU1VX1BMQVRGT1JNLiAoRXhjZXB0Cj4gcGVyaGFwcyB0ZW1wb3JhcmlseSBvbiB4ODYgdW50aWwg
-d2UgKmRvKiBmaXggdGhlIERNQVIgdGFibGVzIHRvIHRlbGwKPiB0aGUgdHJ1dGg7IHF2LikKPiAK
-PiBUaGlzIHNob3VsZCAqb25seSogYmUgYSBjcnV0Y2ggZm9yIHBsYXRmb3JtcyB3aGljaCBjYW5u
-b3QgcHJvcGVybHkKPiBjb252ZXkgdGhhdCBpbmZvcm1hdGlvbiBmcm9tIHRoZSBoeXBlcnZpc29y
-IHRvIHRoZSBndWVzdC4gSXQgc2hvdWxkIGJlCj4gY2xlYXJseSBkb2N1bWVudGVkICJ0aG91IHNo
-YWx0IG5vdCB1c2UgdGhpcyB1bmxlc3MgeW91J3ZlIGZpcnN0Cj4gYXR0ZW1wdGVkIHRvIGZpeCB0
-aGUgYnJva2VuIHBsYXRmb3JtIHRvIGdldCBpdCByaWdodCBmb3IgaXRzZWxmIi4KPiAKPiBBbmQg
-aWYgd2UgbG9vayBhdCBpdCBhcyBzdWNoLi4uIGRvZXMgaXQgbWFrZSBtb3JlIHNlbnNlIGZvciB0
-aGlzIHRvIGJlCj4gYSBtb3JlICpnZW5lcmljKiBxZW114oaQ4oaSZ3Vlc3QgaW50ZXJmYWNlPyBU
-aGF0IHdheSB0aGUgc29mdHdhcmUgaGFja3MgY2FuCj4gbGl2ZSBpbiB0aGUgT1MgSU9NTVUgY29k
-ZSB3aGVyZSB0aGV5IGJlbG9uZywgYW5kIHByZXZlbnQgYXNzaWdubWVudCB0bwo+IG5lc3RlZCBn
-dWVzdHMgZm9yIGV4YW1wbGUuIEFuZCBjYW4gY292ZXIgY2FzZXMgbGlrZSBhc3NpZ25lZCBQQ0kK
-PiBkZXZpY2VzIGluIGV4aXN0aW5nIHFlbXUveDg2IHdoaWNoIG5lZWQgdGhlIHNhbWUgdHJlYXRt
-ZW50Lgo+Cj4gUHV0IGFub3RoZXIgd2F5OiBpZiB3ZSdyZSBnb2luZyB0byBhZGQgY29kZSB0byB0
-aGUgZ3Vlc3QgT1MgdG8gbG9vayBhdAo+IHRoaXMgaW5mb3JtYXRpb24sIHdoeSBjYW4ndCB3ZSBh
-ZGQgdGhhdCBjb2RlIGluIHRoZSBndWVzdCdzIElPTU1VCj4gc3VwcG9ydCBpbnN0ZWFkLCB0byBs
-b29rIGF0IGFuIG91dC1vZi1iYW5kIHFlbXUtc3BlY2lmaWMgImlnbm9yZSBJT01NVQo+IGZvciB0
-aGVzZSBkZXZpY2VzIiBsaXN0IGluc3RlYWQ/CgpJIGJhbGsgYXQgYWRkaW5nIG1vcmUgaGFja3Mg
-dG8gYSBicm9rZW4gc3lzdGVtLiBNeSBnb2FscyBhcmUKbWVyZWx5IHRvCi0gbWFrZSB0aGluZ3Mg
-d29yayBjb3JyZWN0bHkgd2l0aCBhbiBJT01NVSBhbmQgbmV3IGd1ZXN0cywKICBzbyBwZW9wbGUg
-Y2FuIHVzZSB1c2Vyc3BhY2UgZHJpdmVycyB3aXRoIHZpcnRpbyBkZXZpY2VzCi0gcHJldmVudCBz
-ZWN1cml0eSByaXNrcyB3aGVuIGd1ZXN0IGtlcm5lbCBtaXN0YWtlbmx5IHRoaW5rcwogIGl0J3Mg
-cHJvdGVjdGVkIGJ5IGFuIElPTU1VLCBidXQgaW4gZmFjdCBpc24ndAotIGF2b2lkIGJyZWFraW5n
-IGFueSB3b3JraW5nIGNvbmZpZ3VyYXRpb25zCgpMb29raW5nIGF0IGd1ZXN0IGNvZGUsIGl0IGxv
-b2tzIGxpa2UgdmlydGlvIHdhcyBhbHdheXMKYnlwYXNzaW5nIHRoZSBJT01NVSBldmVuIGlmIGNv
-bmZpZ3VyZWQsIGJ1dCBubyBvdGhlcgpndWVzdCBkcml2ZXIgZGlkLgoKVGhpcyBtYWtlcyBtZSB0
-aGluayB0aGUgcHJvYmxlbSB3aGVyZSBndWVzdCBkcml2ZXJzCmlnbm9yZSB0aGUgSU9NTVUgaXMg
-dmlydGlvIHNwZWNpZmljCmFuZCBzbyBhIHZpcnRpbyBzcGVjaWZpYyBzb2x1dGlvbiBzZWVtcyBj
-bGVhbmVyLgoKVGhlIHByb2JsZW0gZm9yIGFzc2lnbmVkIGRldmljZXMgaXMgSU1ITyBkaWZmZXJl
-bnQ6IHRoZXkgYnlwYXNzCnRoZSBndWVzdCBJT01NVSB0b28gYnV0IG5vIGd1ZXN0IGRyaXZlciBr
-bm93cyBhYm91dCB0aGlzLApzbyBndWVzdHMgZG8gbm90IHdvcmsuIFNlZW1zIGNsZWFuZXIgdG8g
-Zml4IFFFTVUgdG8gbWFrZQpleGlzdGluZyBndWVzdHMgd29yay4KCgo+ID4gVGhlIHN0YXR1cyBx
-dW8gaXMgdGhhdCB0aGF0IHRoZSBJT01NVSBtaWdodCB3ZWxsIGJlIGJ5cGFzc2VkCj4gPiBhbmQg
-dGhlbiB5b3UgbmVlZCB0byBwcm9ncmFtIHBoeXNpY2FsIGFkZHJlc3NlcyBpbnRvIHRoZSBkZXZp
-Y2UsCj4gPiBidXQgbWF5YmUgbm90LiBJZiBETUEgQVBJIGRvZXMgbm90IGdpdmUgeW91IHBoeXNp
-Y2FsIGFkZHJlc3NlcywgeW91Cj4gPiBuZWVkIHRvIGJ5cGFzcyBpdCwgYnV0IGh5cGVydmlzb3Ig
-ZG9lcyBub3Qga25vdyBvciBjYXJlLgo+IAo+IFJpZ2h0LiBUaGUgc3RhdHVzIHF1byBpcyB0aGF0
-IHFlbXUgZG9lc24ndCBwcm92aWRlIGNvcnJlY3QgaW5mb3JtYXRpb24KPiBhYm91dCBJT01NVSB0
-b3BvbG9neSB0byBndWVzdHMsIGFuZCB0aGV5IGhhdmUgdG8gaGF2ZSBoZXVyaXN0aWNzIHRvCj4g
-d29yayBvdXQgd2hldGhlciB0byBlc2NoZXcgdGhlIElPTU1VIGZvciBhIGdpdmVuIGRldmljZSBv
-ciBub3QuIFRoaXMgaXMKPiB0cnVlIGZvciB2aXJ0aW8gYW5kIGFzc2lnbmVkIFBDSSBkZXZpY2Vz
-IGFsaWtlLgoKVHJ1ZSBidXQgSSB0aGluayB3ZSBzaG91bGQgZml4IFFFTVUgdG8gc2hhZG93IElP
-TU1VCnBhZ2UgdGFibGVzIGZvciBhc3NpZ25lZCBkZXZpY2VzLiBUaGlzIHNlZW1zIHJhdGhlcgpw
-b3NzaWJsZSB3aXRoIFZULUQsIGFuZCB0aGVyZSBhcmUgcGF0Y2hlcyBhbHJlYWR5IG9uIGxpc3Qu
-CgpJdCBsb29rcyBsaWtlIHRoaXMgd2lsbCBmaXggYWxsIGxlZ2FjeSBndWVzdHMgd2hpY2ggaXMK
-bXVjaCBuaWNlciB0aGFuIHdoYXQgeW91IHN1Z2dlc3Qgd2hpY2ggd2lsbCBvbmx5IGhlbHAgbmV3
-IGd1ZXN0cy4KCj4gRnVydGhlcm1vcmUsIHNvbWUgcGxhdGZvcm1zIGRvbid0ICpoYXZlKiBhIHN0
-YW5kYXJkIHdheSBmb3IgcWVtdSB0bwo+ICd0ZWxsIHRoZSB0cnV0aCcgdG8gdGhlIGd1ZXN0cywg
-YW5kIHRoYXQncyB3aGVyZSB0aGUgcmVhbCBmdW4gY29tZXMgaW4uCj4gQnV0IHN0aWxsLCBJJ2Qg
-bGlrZSB0byBzZWUgYSBnZW5lcmljIHNvbHV0aW9uIGZvciB0aGF0IGxhY2sgaW5zdGVhZCBvZgo+
-IGEgdmlydGlvLXNwZWNpZmljIGhhY2suCgpCdXQgdGhlIGlzc3VlIGlzIG5vdCBqdXN0IHRoZXNl
-IGhvbGVzLiAgRS5nLiB3aXRoIFZULUQgaXQgaXMgb25seSBlYXN5CnRvIGVtdWxhdGUgYmVjYXVz
-ZSB0aGVyZSdzIGEgImNhY2hpbmcgbW9kZSIgaG9vay4gSXQgaXMgZnVuZGFtZW50YWxseQpwYXJh
-dmlydHVhbGl6YXRpb24uICBTbyBhIGNvbXBsZXRlbHkgZ2VuZXJpYyBzb2x1dGlvbiB3b3VsZCBi
-ZSBhCnBhcmF2aXJ0dWFsaXplZCBJT01NVSBpbnRlcmZhY2UsIHJlcGxhY2luZyBWVC1EIGZvciBW
-TXMuIEl0IG1pZ2h0IGJlCmp1c3RpZmllZCBpZiBtYW55IHBsYXRmb3JtcyBoYXZlIGhhcmQgdG8g
-ZW11bGF0ZSBpbnRlcmZhY2VzLgoKCgo+IC0tIAo+IGR3bXcyCj4gCj4gCgoKX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
-ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
-bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+--===============4654977085945591438==
+Content-Type: multipart/alternative; boundary=001a1139b43a9a7e090530c5667e
+
+--001a1139b43a9a7e090530c5667e
+Content-Type: text/plain; charset=UTF-8
+
+Hi,
+I was debugging an issue caused by a bad usage of dpdk.
+That is fixed in the meantime and I'll backport that into our code as well.
+
+But along debugging that, I found a potential hang in virtnet_send_command
+that my case ran into.
+The following code can become an infinite loop:
+/* Spin for a response, the kick causes an ioport write, trapping
+ * into the hypervisor, so the request should be handled immediately.
+ */
+while (!virtqueue_get_buf(vi->cvq, &tmp) &&
+       !virtqueue_is_broken(vi->cvq))
+        cpu_relax();
+
+In my case dpdk broke something - not exactly clear what - and due to that
+following calls through virtnet_send_command ran into this hang.
+Effectively it seems that the buffers didn't get refreshed at all anymore.
+
+That said the dpdk issue to touch devices that belong to a kernel owned
+driver is fixed, so one could leave the code as is for now.
+Yet I wanted to make you aware in case you would vote for a time or retry
+based upper limit on that loop to avoid hangs - who knows what else might
+bring it in this broken state in a different case.
+
+Kind Regards,
+Christian Ehrhardt
+
+P.S.
+Steps to reproduce, backtraces and more data can be found in:
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1570195
+A general setup howto for DPDK in KVM guests which is a prereq is at:
+https://help.ubuntu.com/16.04/serverguide/DPDK.html#dpdk-in-guest
+
+--001a1139b43a9a7e090530c5667e
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div>Hi,</div><div>I was debugging an issue caused by a ba=
+d usage of dpdk.</div><div>That is fixed in the meantime and I&#39;ll backp=
+ort that into our code as well.</div><div><br></div>But along debugging tha=
+t, I found a potential hang in virtnet_send_command that my case ran into.<=
+br>The following code can become an infinite loop:<br><font face=3D"monospa=
+ce, monospace">/* Spin for a response, the kick causes an ioport write, tra=
+pping<br>=C2=A0* into the hypervisor, so the request should be handled imme=
+diately.<br>=C2=A0*/ =C2=A0=C2=A0<br>while (!virtqueue_get_buf(vi-&gt;cvq, =
+&amp;tmp) &amp;&amp; =C2=A0=C2=A0<br>=C2=A0 =C2=A0 =C2=A0 =C2=A0!virtqueue_=
+is_broken(vi-&gt;cvq)) =C2=A0=C2=A0<br>=C2=A0 =C2=A0 =C2=A0 =C2=A0 cpu_rela=
+x();</font><div><br></div><div>In my case dpdk broke something - not exactl=
+y clear what - and due to that following calls through=C2=A0virtnet_send_co=
+mmand ran into this hang.</div><div>Effectively it seems that the buffers d=
+idn&#39;t get refreshed at all anymore.</div><div><br></div><div>That said =
+the dpdk issue to touch devices that belong to a kernel owned driver is fix=
+ed, so one could leave the code as is for now.</div><div>Yet I wanted to ma=
+ke you aware in case you would vote for a time or retry based upper limit o=
+n that loop to avoid hangs - who knows what else might bring it in this bro=
+ken state in a different case.</div><div><br></div><div>Kind Regards,</div>=
+Christian Ehrhardt<br><br>P.S.<div>Steps to reproduce, backtraces and more =
+data can be found in:<div><a href=3D"https://bugs.launchpad.net/ubuntu/+sou=
+rce/linux/+bug/1570195">https://bugs.launchpad.net/ubuntu/+source/linux/+bu=
+g/1570195</a></div><div>A general setup howto for DPDK in KVM guests which =
+is a prereq is at:</div><div><a href=3D"https://help.ubuntu.com/16.04/serve=
+rguide/DPDK.html#dpdk-in-guest">https://help.ubuntu.com/16.04/serverguide/D=
+PDK.html#dpdk-in-guest</a><br><div><br></div></div></div></div>
+
+--001a1139b43a9a7e090530c5667e--
+
+--===============4654977085945591438==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============4654977085945591438==--
