@@ -1,14 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC 3/3] vfio: add virtio pci quirk
-Date: Mon, 18 Apr 2016 12:58:28 +0300
-Message-ID: <1460973374-32719-4-git-send-email-mst@redhat.com>
-References: <1460973374-32719-1-git-send-email-mst@redhat.com>
+Subject: [PATCH RFC] fixup! virtio: convert to use DMA api
+Date: Mon, 18 Apr 2016 14:47:24 +0300
+Message-ID: <1460979793-6621-1-git-send-email-mst__32001.4879609973$1460980072$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1460973374-32719-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,208 +16,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Wei Liu <wei.liu2@citrix.com>, kvm@vger.kernel.org, Julia Lawall <Julia.Lawall@lip6.fr>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Feng Wu <feng.wu@intel.com>, David Woodhouse <dwmw2@infradead.org>, Dan Carpenter <dan.carpenter@oracle.com>
+To: qemu-devel@nongnu.org, linux-kernel@vger.kernel.org
+Cc: Wei Liu <wei.liu2@citrix.com>, Andy Lutomirski <luto@kernel.org>, qemu-block@nongnu.org, Christian Borntraeger <borntraeger@de.ibm.com>, peterx@redhat.com, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, pbonzini@redhat.com, David Woodhouse <dwmw2@infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Modern virtio pci devices can set VIRTIO_F_IOMMU_PLATFORM
-to signal they are safe to use with an IOMMU.
+This adds a flag to enable/disable bypassing the IOMMU by
+virtio devices.
 
-Without this bit, exposing the device to userspace is unsafe, so probe
-and fail VFIO initialization unless noiommu is enabled.
+This is on top of patch
+http://article.gmane.org/gmane.comp.emulators.qemu/403467
+virtio: convert to use DMA api
+
+Tested with patchset
+http://article.gmane.org/gmane.linux.kernel.virtualization/27545
+virtio-pci: iommu support
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/vfio/pci/vfio_pci_private.h |   1 +
- drivers/vfio/pci/vfio_pci.c         |  11 +++
- drivers/vfio/pci/vfio_pci_virtio.c  | 135 ++++++++++++++++++++++++++++++++++++
- drivers/vfio/pci/Makefile           |   1 +
- 4 files changed, 148 insertions(+)
- create mode 100644 drivers/vfio/pci/vfio_pci_virtio.c
 
-diff --git a/drivers/vfio/pci/vfio_pci_private.h b/drivers/vfio/pci/vfio_pci_private.h
-index 8a7d546..604d445 100644
---- a/drivers/vfio/pci/vfio_pci_private.h
-+++ b/drivers/vfio/pci/vfio_pci_private.h
-@@ -130,4 +130,5 @@ static inline int vfio_pci_igd_init(struct vfio_pci_device *vdev)
- 	return -ENODEV;
- }
- #endif
-+extern int vfio_pci_virtio_quirk(struct vfio_pci_device *vdev, int noiommu);
- #endif /* VFIO_PCI_PRIVATE_H */
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index d622a41..2bb8c76 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -1125,6 +1125,17 @@ static int vfio_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 		return ret;
- 	}
+---
+ include/hw/virtio/virtio-access.h              | 3 ++-
+ include/hw/virtio/virtio.h                     | 6 +++++-
+ include/standard-headers/linux/virtio_config.h | 8 ++++++++
+ 3 files changed, 15 insertions(+), 2 deletions(-)
+
+diff --git a/include/hw/virtio/virtio-access.h b/include/hw/virtio/virtio-access.h
+index 967cc75..bb6f34e 100644
+--- a/include/hw/virtio/virtio-access.h
++++ b/include/hw/virtio/virtio-access.h
+@@ -23,7 +23,8 @@ static inline AddressSpace *virtio_get_dma_as(VirtIODevice *vdev)
+     BusState *qbus = qdev_get_parent_bus(DEVICE(vdev));
+     VirtioBusClass *k = VIRTIO_BUS_GET_CLASS(qbus);
  
-+	if (pdev->vendor == PCI_VENDOR_ID_REDHAT_QUMRANET &&
-+	    ((ret = vfio_pci_virtio_quirk(vdev, ret)))) {
-+		dev_warn(&vdev->pdev->dev,
-+			 "Failed to setup Virtio for VFIO\n");
-+		vfio_del_group_dev(&pdev->dev);
-+		vfio_iommu_group_put(group, &pdev->dev);
-+		kfree(vdev);
-+		return ret;
-+	}
-+
-+
- 	if (vfio_pci_is_vga(pdev)) {
- 		vga_client_register(pdev, vdev, NULL, vfio_pci_set_vga_decode);
- 		vga_set_legacy_decoding(pdev,
-diff --git a/drivers/vfio/pci/vfio_pci_virtio.c b/drivers/vfio/pci/vfio_pci_virtio.c
-new file mode 100644
-index 0000000..1a32064
---- /dev/null
-+++ b/drivers/vfio/pci/vfio_pci_virtio.c
-@@ -0,0 +1,135 @@
-+/*
-+ * VFIO PCI Intel Graphics support
-+ *
-+ * Copyright (C) 2016 Red Hat, Inc.  All rights reserved.
-+ *	Author: Alex Williamson <alex.williamson@redhat.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ * Register a device specific region through which to provide read-only
-+ * access to the Intel IGD opregion.  The register defining the opregion
-+ * address is also virtualized to prevent user modification.
+-    if (k->get_dma_as) {
++    if ((vdev->host_features & (0x1ULL << VIRTIO_F_IOMMU_PLATFORM)) &&
++        k->get_dma_as) {
+         return k->get_dma_as(qbus->parent);
+     }
+     return &address_space_memory;
+diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
+index b12faa9..34d3041 100644
+--- a/include/hw/virtio/virtio.h
++++ b/include/hw/virtio/virtio.h
+@@ -228,7 +228,11 @@ typedef struct VirtIORNGConf VirtIORNGConf;
+     DEFINE_PROP_BIT64("notify_on_empty", _state, _field,  \
+                       VIRTIO_F_NOTIFY_ON_EMPTY, true), \
+     DEFINE_PROP_BIT64("any_layout", _state, _field, \
+-                      VIRTIO_F_ANY_LAYOUT, true)
++                      VIRTIO_F_ANY_LAYOUT, true), \
++    DEFINE_PROP_BIT64("iommu_passthrough", _state, _field, \
++                      VIRTIO_F_IOMMU_PASSTHROUGH, false), \
++    DEFINE_PROP_BIT64("iommu_platform", _state, _field, \
++                      VIRTIO_F_IOMMU_PLATFORM, false)
+ 
+ hwaddr virtio_queue_get_desc_addr(VirtIODevice *vdev, int n);
+ hwaddr virtio_queue_get_avail_addr(VirtIODevice *vdev, int n);
+diff --git a/include/standard-headers/linux/virtio_config.h b/include/standard-headers/linux/virtio_config.h
+index bcc445b..5564dab 100644
+--- a/include/standard-headers/linux/virtio_config.h
++++ b/include/standard-headers/linux/virtio_config.h
+@@ -61,4 +61,12 @@
+ /* v1.0 compliant. */
+ #define VIRTIO_F_VERSION_1		32
+ 
++/* Request IOMMU passthrough (if available)
++ * Without VIRTIO_F_IOMMU_PLATFORM: bypass the IOMMU even if enabled.
++ * With VIRTIO_F_IOMMU_PLATFORM: suggest disabling IOMMU.
 + */
++#define VIRTIO_F_IOMMU_PASSTHROUGH	33
 +
-+#include <linux/io.h>
-+#include <linux/pci.h>
-+#include <linux/uaccess.h>
-+#include <linux/vfio.h>
-+#include <linux/virtio_pci.h>
-+#include <linux/virtio_config.h>
-+
-+#include "vfio_pci_private.h"
-+
-+/**
-+ * virtio_pci_find_capability - walk capabilities to find device info.
-+ * @dev: the pci device
-+ * @cfg_type: the VIRTIO_PCI_CAP_* value we seek
-+ *
-+ * Returns offset of the capability, or 0.
-+ */
-+static inline int virtio_pci_find_capability(struct pci_dev *dev, u8 cfg_type)
-+{
-+	int pos;
-+
-+	for (pos = pci_find_capability(dev, PCI_CAP_ID_VNDR);
-+	     pos > 0;
-+	     pos = pci_find_next_capability(dev, pos, PCI_CAP_ID_VNDR)) {
-+		u8 type;
-+		pci_read_config_byte(dev, pos + offsetof(struct virtio_pci_cap,
-+							 cfg_type),
-+				     &type);
-+
-+		if (type != cfg_type)
-+			continue;
-+
-+		/* Ignore structures with reserved BAR values */
-+		if (type != VIRTIO_PCI_CAP_PCI_CFG) {
-+			u8 bar;
-+
-+			pci_read_config_byte(dev, pos +
-+					     offsetof(struct virtio_pci_cap,
-+						      bar),
-+					     &bar);
-+			if (bar > 0x5)
-+				continue;
-+		}
-+
-+		return pos;
-+	}
-+	return 0;
-+}
-+
-+
-+int vfio_pci_virtio_quirk(struct vfio_pci_device *vdev, int noiommu)
-+{
-+	struct pci_dev *dev = vdev->pdev;
-+	int common, cfg;
-+	u32 features;
-+	u32 offset;
-+	u8 bar;
-+
-+	/* Without an IOMMU, we don't care */
-+	if (noiommu)
-+		return 0;
-+	/* Check whether device enforces the IOMMU correctly */
-+
-+	/*
-+	 * All modern devices must have common and cfg capabilities. We use cfg
-+	 * capability for access so that we don't need to worry about resource
-+	 * availability. Slow but sure.
-+	 * Note that all vendor-specific fields we access are little-endian
-+	 * which matches what pci config accessors expect, so they do byteswap
-+	 * for us if appropriate.
-+	 */
-+	common = virtio_pci_find_capability(dev, VIRTIO_PCI_CAP_COMMON_CFG);
-+	cfg = virtio_pci_find_capability(dev, VIRTIO_PCI_CAP_PCI_CFG);
-+	if (!cfg || !common) {
-+                dev_warn(&dev->dev,
-+                         "Virtio device lacks common or pci cfg.\n");
-+		return -ENODEV;
-+	}
-+
-+	pci_read_config_byte(dev, common + offsetof(struct virtio_pci_cap,
-+						    bar),
-+			     &bar);
-+	pci_read_config_dword(dev, common + offsetof(struct virtio_pci_cap,
-+						    offset),
-+			     &offset);
-+
-+	/* Program cfg capability for dword access into common cfg. */
-+	pci_write_config_byte(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
-+						  cap.bar),
-+			      bar);
-+	pci_write_config_dword(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
-+						   cap.length),
-+			       0x4);
-+
-+	/* Select features dword that has VIRTIO_F_IOMMU_PLATFORM. */
-+	pci_write_config_dword(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
-+						  cap.offset),
-+			       offset + offsetof(struct virtio_pci_common_cfg,
-+						 device_feature_select));
-+	pci_write_config_dword(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
-+						  pci_cfg_data),
-+			       VIRTIO_F_IOMMU_PLATFORM / 32);
-+
-+	/* Get the features dword. */
-+	pci_write_config_dword(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
-+						  cap.offset),
-+			       offset + offsetof(struct virtio_pci_common_cfg,
-+						 device_feature));
-+	pci_read_config_dword(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
-+						  pci_cfg_data),
-+			      &features);
-+
-+	/* Does this device obey the platform's IOMMU? If not it's an error. */
-+	if (!(features & (0x1 << (VIRTIO_F_IOMMU_PLATFORM % 32)))) {
-+                dev_warn(&dev->dev,
-+                         "Virtio device lacks VIRTIO_F_IOMMU_PLATFORM.\n");
-+		return -ENODEV;
-+	}
-+
-+	return 0;
-+}
-diff --git a/drivers/vfio/pci/Makefile b/drivers/vfio/pci/Makefile
-index 76d8ec0..e9b20e7 100644
---- a/drivers/vfio/pci/Makefile
-+++ b/drivers/vfio/pci/Makefile
-@@ -1,5 +1,6 @@
- 
- vfio-pci-y := vfio_pci.o vfio_pci_intrs.o vfio_pci_rdwr.o vfio_pci_config.o
-+vfio-pci-y += vfio_pci_virtio.o
- vfio-pci-$(CONFIG_VFIO_PCI_IGD) += vfio_pci_igd.o
- 
- obj-$(CONFIG_VFIO_PCI) += vfio-pci.o
++/* Do not bypass the IOMMU (if configured) */
++#define VIRTIO_F_IOMMU_PLATFORM		34
+ #endif /* _LINUX_VIRTIO_CONFIG_H */
 -- 
 MST
