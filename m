@@ -1,14 +1,16 @@
 From: David Woodhouse <dwmw2@infradead.org>
 Subject: Re: [PATCH RFC] fixup! virtio: convert to use DMA api
-Date: Mon, 18 Apr 2016 10:03:52 -0400
-Message-ID: <1460988232.22654.7.camel__4032.00114747069$1460990484$gmane$org@infradead.org>
+Date: Mon, 18 Apr 2016 11:22:03 -0400
+Message-ID: <1460992923.3765.8.camel@infradead.org>
 References: <1460979793-6621-1-git-send-email-mst@redhat.com>
 	<1460980717.12793.43.camel@infradead.org>
 	<20160418160731-mutt-send-email-mst@redhat.com>
+	<1460988232.22654.7.camel@infradead.org>
+	<20160418170534-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6267555761537182391=="
+Content-Type: multipart/mixed; boundary="===============7978674166218071775=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160418160731-mutt-send-email-mst@redhat.com>
+In-Reply-To: <20160418170534-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,42 +25,64 @@ Cc: Wei Liu <wei.liu2@citrix.com>, Andy Lutomirski <luto@kernel.org>, qemu-block
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============6267555761537182391==
+--===============7978674166218071775==
 Content-Type: multipart/signed; micalg="sha-1"; protocol="application/x-pkcs7-signature";
-	boundary="=-mB4IQ/ium+uXcv+/bGju"
+	boundary="=-Cd7vLFt0wvHwO6N28RYu"
 
 
---=-mB4IQ/ium+uXcv+/bGju
+--=-Cd7vLFt0wvHwO6N28RYu
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, 2016-04-18 at 16:12 +0300, Michael S. Tsirkin wrote:
-> I'm not sure I understand the issue.=C2=A0=C2=A0The public API is not abo=
-ut how
-> the driver works.=C2=A0=C2=A0It doesn't say "don't use DMA API" anywhere,=
- does it?
-> It's about telling device whether to obey the IOMMU and
-> about discovering whether a device is in fact under the IOMMU.
+On Mon, 2016-04-18 at 17:23 +0300, Michael S. Tsirkin wrote:
+>=20
+> This patch doesn't change DMAR tables, it creates a way for virtio
+> device to tell guest "I obey what DMAR tables tell you, you can stop
+> doing hacks".
+>=20
+> And as PPC guys seem adamant that platform tools there are no good for
+> that purpose, there's another bit that says "ignore what platform tells
+> you, I'm not a real device - I'm part of hypervisor and I bypass the
+> IOMMU".
 
-Apologies, I was wrongly reading this as a kernel patch.
+...
 
-After a brief struggle with "telling device whether to obey the IOMMU",
-which is obviously completely impossible from the guest kernel, I
-realise my mistake :)
++/* Request IOMMU passthrough (if available)
++ * Without VIRTIO_F_IOMMU_PLATFORM: bypass the IOMMU even if enabled.
++ * With VIRTIO_F_IOMMU_PLATFORM: suggest disabling IOMMU.
++ */
++#define VIRTIO_F_IOMMU_PASSTHROUGH=C2=A0=C2=A0=C2=A0=C2=A0=C2=A033
++
++/* Do not bypass the IOMMU (if configured) */
++#define VIRTIO_F_IOMMU_PLATFORM=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A034
 
-So... on x86 how does this get reflected in the DMAR tables that the
-guest BIOS presents to the guest kernel, so that the guest kernel
-*knows* which devices are behind which IOMMU?
+OK... let's see if I can reconcile those descriptions coherently.
 
-(And are you fixing the case of assigned PCI devices, which aren't
-behind any IOMMU, at the same time as you answer that? :)
+Setting (only) VIRTIO_F_IOMMU_PASSTHROUGH indicates to the guest that
+its own operating system's IOMMU code is expected to be broken, and
+that the virtio driver should eschew the DMA API? And that the guest OS
+cannot further assign the affected device to any of *its* nested
+guests? Not that the broken IOMMU code in said guest OS will know the
+latter, of course.
 
---=20
+With VIRTIO_F_IOMMU_PLATFORM set, VIRTIO_F_IOMMU_PASSTHROUGH is just a
+*hint*, suggesting that the guest OS should *request* a passthrough
+mapping from the IOMMU? Via a driver=E2=86=90=E2=86=92IOMMU API which doesn=
+'t yet exist
+in Linux, since we only have 'iommu=3Dpt' on the command line for that?
+
+And having *neither* of those bits sets is the status quo, which means
+that your OS code might well be broken and need you to eschew the DMA
+API, but maybe not.
+
+
+--=C2=A0
 dwmw2
 
 
 
---=-mB4IQ/ium+uXcv+/bGju
+--=-Cd7vLFt0wvHwO6N28RYu
 Content-Type: application/x-pkcs7-signature; name="smime.p7s"
 Content-Disposition: attachment; filename="smime.p7s"
 Content-Transfer-Encoding: base64
@@ -151,24 +175,24 @@ Qy7VFBkoLINszBrOUeIxggNvMIIDawIBATCBlDCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0
 YXJ0Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcx
 ODA2BgNVBAMTL1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENB
 AgMN7zcwCQYFKw4DAhoFAKCCAa8wGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0B
-CQUxDxcNMTYwNDE4MTQwMzUyWjAjBgkqhkiG9w0BCQQxFgQUn51b7oDslzBAUrmcpEPE0UAIDnow
+CQUxDxcNMTYwNDE4MTUyMjAzWjAjBgkqhkiG9w0BCQQxFgQUi6pSuKgnc7RGn8qr2qeVgSCxsLsw
 gaUGCSsGAQQBgjcQBDGBlzCBlDCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0YXJ0Q29tIEx0
 ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcxODA2BgNVBAMT
 L1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENBAgMN7zcwgacG
 CyqGSIb3DQEJEAILMYGXoIGUMIGMMQswCQYDVQQGEwJJTDEWMBQGA1UEChMNU3RhcnRDb20gTHRk
 LjErMCkGA1UECxMiU2VjdXJlIERpZ2l0YWwgQ2VydGlmaWNhdGUgU2lnbmluZzE4MDYGA1UEAxMv
 U3RhcnRDb20gQ2xhc3MgMSBQcmltYXJ5IEludGVybWVkaWF0ZSBDbGllbnQgQ0ECAw3vNzANBgkq
-hkiG9w0BAQEFAASCAQAFoiK1jzmdgfs9owMjGBgCSFi/j7y4ijqJ2hqMdGNQvmhslr3L4trLFgxg
-PJcYdEetysfwz1e5xa7CeZ9ebe7BgTU+I1OYO20oymd/fd6kA0d+cbtkAvKcJY8rYsByfdz/rnp/
-++vIK+Dhxy3FW6DQ8m34wC+AH2KpHqmYH2nAXSEHlY0zixpKTh5WE527klwipV/jOW2eMqal4z0N
-MAeMM9oATE5joTxgXwrMp4dK53J0keOB9xGZuWpeXt/+6aztIVuy59gHuETHIutU799fG+uGLes0
-D/YM5YSGT753EM02rIUe7hZvzgbHHQy7WhlA5tddYJdKD9B3/6rVQnc+AAAAAAAA
+hkiG9w0BAQEFAASCAQAFsuEm1zjCesBRp8n8dHTY6dFVGKEXr1qCVCftJNywaSPMOdC1sQi6+qfK
+e94gKuRUut/F9N9S0fbrImJGCLxr4rt9hEXjjH1wCAeD6Q0jrbgTJ3QVoKoLeU9uw1L6bD4NnQHp
+YaVo+vTKyUGfiUMsI57HGhgePRNaktsSLNAAa2hd75DKJjYo+1Cnl49SyzVW+2D48gGpgGDNWOJ1
+n5A6HIOo/vDc/ferUMuQDTCLwgxuu/nfO7Qcia6ZKdZMGLOz55szuNHDW2bsRqLQDqdcRxshj6ew
+ViNXCH1mK86GwpiHQWLpqdvuX6N3GdLJ0t+F2fKsK1hf4L3H7JMdNWRQAAAAAAAA
 
 
---=-mB4IQ/ium+uXcv+/bGju--
+--=-Cd7vLFt0wvHwO6N28RYu--
 
 
---===============6267555761537182391==
+--===============7978674166218071775==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -178,4 +202,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6267555761537182391==--
+--===============7978674166218071775==--
