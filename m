@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC 2/3] vfio: report group noiommu status
-Date: Mon, 18 Apr 2016 12:58:20 +0300
-Message-ID: <1460973374-32719-3-git-send-email-mst__30270.0602020652$1460973529$gmane$org@redhat.com>
+Subject: [PATCH RFC 3/3] vfio: add virtio pci quirk
+Date: Mon, 18 Apr 2016 12:58:28 +0300
+Message-ID: <1460973374-32719-4-git-send-email-mst@redhat.com>
 References: <1460973374-32719-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,92 +19,207 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: Julia Lawall <Julia.Lawall@lip6.fr>, Wei Liu <wei.liu2@citrix.com>, kvm@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Baptiste Reynal <b.reynal@virtualopensystems.com>, David Woodhouse <dwmw2@infradead.org>, Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Wei Liu <wei.liu2@citrix.com>, kvm@vger.kernel.org, Julia Lawall <Julia.Lawall@lip6.fr>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Feng Wu <feng.wu@intel.com>, David Woodhouse <dwmw2@infradead.org>, Dan Carpenter <dan.carpenter@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When using vfio, callers might want to know whether device is added to a
-regular group or an non-iommu group.
+Modern virtio pci devices can set VIRTIO_F_IOMMU_PLATFORM
+to signal they are safe to use with an IOMMU.
 
-Report this status from vfio_add_group_dev.
+Without this bit, exposing the device to userspace is unsafe, so probe
+and fail VFIO initialization unless noiommu is enabled.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/vfio/pci/vfio_pci.c                  | 2 +-
- drivers/vfio/platform/vfio_platform_common.c | 2 +-
- drivers/vfio/vfio.c                          | 5 ++++-
- Documentation/vfio.txt                       | 4 +++-
- 4 files changed, 9 insertions(+), 4 deletions(-)
+ drivers/vfio/pci/vfio_pci_private.h |   1 +
+ drivers/vfio/pci/vfio_pci.c         |  11 +++
+ drivers/vfio/pci/vfio_pci_virtio.c  | 135 ++++++++++++++++++++++++++++++++++++
+ drivers/vfio/pci/Makefile           |   1 +
+ 4 files changed, 148 insertions(+)
+ create mode 100644 drivers/vfio/pci/vfio_pci_virtio.c
 
+diff --git a/drivers/vfio/pci/vfio_pci_private.h b/drivers/vfio/pci/vfio_pci_private.h
+index 8a7d546..604d445 100644
+--- a/drivers/vfio/pci/vfio_pci_private.h
++++ b/drivers/vfio/pci/vfio_pci_private.h
+@@ -130,4 +130,5 @@ static inline int vfio_pci_igd_init(struct vfio_pci_device *vdev)
+ 	return -ENODEV;
+ }
+ #endif
++extern int vfio_pci_virtio_quirk(struct vfio_pci_device *vdev, int noiommu);
+ #endif /* VFIO_PCI_PRIVATE_H */
 diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index 712a849..d622a41 100644
+index d622a41..2bb8c76 100644
 --- a/drivers/vfio/pci/vfio_pci.c
 +++ b/drivers/vfio/pci/vfio_pci.c
-@@ -1119,7 +1119,7 @@ static int vfio_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	spin_lock_init(&vdev->irqlock);
- 
- 	ret = vfio_add_group_dev(&pdev->dev, &vfio_pci_ops, vdev);
--	if (ret) {
-+	if (ret < 0) {
- 		vfio_iommu_group_put(group, &pdev->dev);
- 		kfree(vdev);
- 		return ret;
-diff --git a/drivers/vfio/platform/vfio_platform_common.c b/drivers/vfio/platform/vfio_platform_common.c
-index e65b142..bf74e21 100644
---- a/drivers/vfio/platform/vfio_platform_common.c
-+++ b/drivers/vfio/platform/vfio_platform_common.c
-@@ -568,7 +568,7 @@ int vfio_platform_probe_common(struct vfio_platform_device *vdev,
- 	}
- 
- 	ret = vfio_add_group_dev(dev, &vfio_platform_ops, vdev);
--	if (ret) {
-+	if (ret < 0) {
- 		iommu_group_put(group);
+@@ -1125,6 +1125,17 @@ static int vfio_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
  		return ret;
  	}
-diff --git a/drivers/vfio/vfio.c b/drivers/vfio/vfio.c
-index 6fd6fa5..67db231 100644
---- a/drivers/vfio/vfio.c
-+++ b/drivers/vfio/vfio.c
-@@ -756,6 +756,7 @@ int vfio_add_group_dev(struct device *dev,
- 	struct iommu_group *iommu_group;
- 	struct vfio_group *group;
- 	struct vfio_device *device;
-+	int noiommu;
  
- 	iommu_group = iommu_group_get(dev);
- 	if (!iommu_group)
-@@ -791,6 +792,8 @@ int vfio_add_group_dev(struct device *dev,
- 		return PTR_ERR(device);
- 	}
- 
-+	noiommu = group->noiommu;
++	if (pdev->vendor == PCI_VENDOR_ID_REDHAT_QUMRANET &&
++	    ((ret = vfio_pci_virtio_quirk(vdev, ret)))) {
++		dev_warn(&vdev->pdev->dev,
++			 "Failed to setup Virtio for VFIO\n");
++		vfio_del_group_dev(&pdev->dev);
++		vfio_iommu_group_put(group, &pdev->dev);
++		kfree(vdev);
++		return ret;
++	}
 +
- 	/*
- 	 * Drop all but the vfio_device reference.  The vfio_device holds
- 	 * a reference to the vfio_group, which holds a reference to the
-@@ -798,7 +801,7 @@ int vfio_add_group_dev(struct device *dev,
- 	 */
- 	vfio_group_put(group);
++
+ 	if (vfio_pci_is_vga(pdev)) {
+ 		vga_client_register(pdev, vdev, NULL, vfio_pci_set_vga_decode);
+ 		vga_set_legacy_decoding(pdev,
+diff --git a/drivers/vfio/pci/vfio_pci_virtio.c b/drivers/vfio/pci/vfio_pci_virtio.c
+new file mode 100644
+index 0000000..1a32064
+--- /dev/null
++++ b/drivers/vfio/pci/vfio_pci_virtio.c
+@@ -0,0 +1,135 @@
++/*
++ * VFIO PCI Intel Graphics support
++ *
++ * Copyright (C) 2016 Red Hat, Inc.  All rights reserved.
++ *	Author: Alex Williamson <alex.williamson@redhat.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * Register a device specific region through which to provide read-only
++ * access to the Intel IGD opregion.  The register defining the opregion
++ * address is also virtualized to prevent user modification.
++ */
++
++#include <linux/io.h>
++#include <linux/pci.h>
++#include <linux/uaccess.h>
++#include <linux/vfio.h>
++#include <linux/virtio_pci.h>
++#include <linux/virtio_config.h>
++
++#include "vfio_pci_private.h"
++
++/**
++ * virtio_pci_find_capability - walk capabilities to find device info.
++ * @dev: the pci device
++ * @cfg_type: the VIRTIO_PCI_CAP_* value we seek
++ *
++ * Returns offset of the capability, or 0.
++ */
++static inline int virtio_pci_find_capability(struct pci_dev *dev, u8 cfg_type)
++{
++	int pos;
++
++	for (pos = pci_find_capability(dev, PCI_CAP_ID_VNDR);
++	     pos > 0;
++	     pos = pci_find_next_capability(dev, pos, PCI_CAP_ID_VNDR)) {
++		u8 type;
++		pci_read_config_byte(dev, pos + offsetof(struct virtio_pci_cap,
++							 cfg_type),
++				     &type);
++
++		if (type != cfg_type)
++			continue;
++
++		/* Ignore structures with reserved BAR values */
++		if (type != VIRTIO_PCI_CAP_PCI_CFG) {
++			u8 bar;
++
++			pci_read_config_byte(dev, pos +
++					     offsetof(struct virtio_pci_cap,
++						      bar),
++					     &bar);
++			if (bar > 0x5)
++				continue;
++		}
++
++		return pos;
++	}
++	return 0;
++}
++
++
++int vfio_pci_virtio_quirk(struct vfio_pci_device *vdev, int noiommu)
++{
++	struct pci_dev *dev = vdev->pdev;
++	int common, cfg;
++	u32 features;
++	u32 offset;
++	u8 bar;
++
++	/* Without an IOMMU, we don't care */
++	if (noiommu)
++		return 0;
++	/* Check whether device enforces the IOMMU correctly */
++
++	/*
++	 * All modern devices must have common and cfg capabilities. We use cfg
++	 * capability for access so that we don't need to worry about resource
++	 * availability. Slow but sure.
++	 * Note that all vendor-specific fields we access are little-endian
++	 * which matches what pci config accessors expect, so they do byteswap
++	 * for us if appropriate.
++	 */
++	common = virtio_pci_find_capability(dev, VIRTIO_PCI_CAP_COMMON_CFG);
++	cfg = virtio_pci_find_capability(dev, VIRTIO_PCI_CAP_PCI_CFG);
++	if (!cfg || !common) {
++                dev_warn(&dev->dev,
++                         "Virtio device lacks common or pci cfg.\n");
++		return -ENODEV;
++	}
++
++	pci_read_config_byte(dev, common + offsetof(struct virtio_pci_cap,
++						    bar),
++			     &bar);
++	pci_read_config_dword(dev, common + offsetof(struct virtio_pci_cap,
++						    offset),
++			     &offset);
++
++	/* Program cfg capability for dword access into common cfg. */
++	pci_write_config_byte(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
++						  cap.bar),
++			      bar);
++	pci_write_config_dword(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
++						   cap.length),
++			       0x4);
++
++	/* Select features dword that has VIRTIO_F_IOMMU_PLATFORM. */
++	pci_write_config_dword(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
++						  cap.offset),
++			       offset + offsetof(struct virtio_pci_common_cfg,
++						 device_feature_select));
++	pci_write_config_dword(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
++						  pci_cfg_data),
++			       VIRTIO_F_IOMMU_PLATFORM / 32);
++
++	/* Get the features dword. */
++	pci_write_config_dword(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
++						  cap.offset),
++			       offset + offsetof(struct virtio_pci_common_cfg,
++						 device_feature));
++	pci_read_config_dword(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
++						  pci_cfg_data),
++			      &features);
++
++	/* Does this device obey the platform's IOMMU? If not it's an error. */
++	if (!(features & (0x1 << (VIRTIO_F_IOMMU_PLATFORM % 32)))) {
++                dev_warn(&dev->dev,
++                         "Virtio device lacks VIRTIO_F_IOMMU_PLATFORM.\n");
++		return -ENODEV;
++	}
++
++	return 0;
++}
+diff --git a/drivers/vfio/pci/Makefile b/drivers/vfio/pci/Makefile
+index 76d8ec0..e9b20e7 100644
+--- a/drivers/vfio/pci/Makefile
++++ b/drivers/vfio/pci/Makefile
+@@ -1,5 +1,6 @@
  
--	return 0;
-+	return noiommu;
- }
- EXPORT_SYMBOL_GPL(vfio_add_group_dev);
+ vfio-pci-y := vfio_pci.o vfio_pci_intrs.o vfio_pci_rdwr.o vfio_pci_config.o
++vfio-pci-y += vfio_pci_virtio.o
+ vfio-pci-$(CONFIG_VFIO_PCI_IGD) += vfio_pci_igd.o
  
-diff --git a/Documentation/vfio.txt b/Documentation/vfio.txt
-index 1dd3fdd..d76be0f 100644
---- a/Documentation/vfio.txt
-+++ b/Documentation/vfio.txt
-@@ -259,7 +259,9 @@ extern void *vfio_del_group_dev(struct device *dev);
- 
- vfio_add_group_dev() indicates to the core to begin tracking the
- specified iommu_group and register the specified dev as owned by
--a VFIO bus driver.  The driver provides an ops structure for callbacks
-+a VFIO bus driver.  A negative return value indicates failure.
-+A positive return value indicates that an unsafe noiommu mode
-+is in use.  The driver provides an ops structure for callbacks
- similar to a file operations structure:
- 
- struct vfio_device_ops {
+ obj-$(CONFIG_VFIO_PCI) += vfio-pci.o
 -- 
 MST
