@@ -1,15 +1,15 @@
 From: Minchan Kim <minchan@kernel.org>
-Subject: Re: [PATCH v3 06/16] zsmalloc: squeeze inuse into page->mapping
-Date: Tue, 19 Apr 2016 16:40:59 +0900
-Message-ID: <20160419074059.GA18448__34952.8184430257$1461051626$gmane$org@bbox>
+Subject: Re: [PATCH v3 08/16] zsmalloc: squeeze freelist into page->mapping
+Date: Tue, 19 Apr 2016 16:42:39 +0900
+Message-ID: <20160419074239.GB18448@bbox>
 References: <1459321935-3655-1-git-send-email-minchan@kernel.org>
-	<1459321935-3655-7-git-send-email-minchan@kernel.org>
-	<20160417150804.GA575@swordfish>
+	<1459321935-3655-9-git-send-email-minchan@kernel.org>
+	<20160417155621.GE575@swordfish>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160417150804.GA575@swordfish>
+In-Reply-To: <20160417155621.GE575@swordfish>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,74 +24,51 @@ To: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
 Cc: Rik van Riel <riel@redhat.com>, YiPing Xu <xuyiping@hisilicon.com>, aquini@redhat.com, rknize@motorola.com, Chan Gyun Jeong <chan.jeong@lge.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gi-oh.kim@profitbricks.com>, koct9i@gmail.com, Sangseok Lee <sangseok.lee@lge.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Andrew Morton <akpm@linux-foundation.org>, jlayton@poochiereds.net, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 18, 2016 at 12:08:04AM +0900, Sergey Senozhatsky wrote:
+On Mon, Apr 18, 2016 at 12:56:21AM +0900, Sergey Senozhatsky wrote:
 > Hello,
 > 
 > On (03/30/16 16:12), Minchan Kim wrote:
 > [..]
-> > +static int get_zspage_inuse(struct page *first_page)
-> > +{
-> > +	struct zs_meta *m;
-> > +
-> > +	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
-> > +
-> > +	m = (struct zs_meta *)&first_page->mapping;
-> ..
-> > +static void set_zspage_inuse(struct page *first_page, int val)
-> > +{
-> > +	struct zs_meta *m;
-> > +
-> > +	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
-> > +
-> > +	m = (struct zs_meta *)&first_page->mapping;
-> ..
-> > +static void mod_zspage_inuse(struct page *first_page, int val)
-> > +{
-> > +	struct zs_meta *m;
-> > +
-> > +	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
-> > +
-> > +	m = (struct zs_meta *)&first_page->mapping;
-> ..
-> >  static void get_zspage_mapping(struct page *first_page,
-> >  				unsigned int *class_idx,
-> >  				enum fullness_group *fullness)
+> > +static void objidx_to_page_and_offset(struct size_class *class,
+> > +				struct page *first_page,
+> > +				unsigned long obj_idx,
+> > +				struct page **obj_page,
+> > +				unsigned long *offset_in_page)
 > >  {
-> > -	unsigned long m;
-> > +	struct zs_meta *m;
-> > +
-> >  	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
-> > +	m = (struct zs_meta *)&first_page->mapping;
-> ..
-> >  static void set_zspage_mapping(struct page *first_page,
-> >  				unsigned int class_idx,
-> >  				enum fullness_group fullness)
-> >  {
-> > +	struct zs_meta *m;
-> > +
-> >  	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
+> > -	unsigned long obj;
+> > +	int i;
+> > +	unsigned long offset;
+> > +	struct page *cursor;
+> > +	int nr_page;
 > >  
-> > +	m = (struct zs_meta *)&first_page->mapping;
-> > +	m->fullness = fullness;
-> > +	m->class = class_idx;
-> >  }
+> > -	if (!page) {
+> > -		VM_BUG_ON(obj_idx);
+> > -		return NULL;
+> > -	}
+> > +	offset = obj_idx * class->size;
 > 
+> so we already know the `offset' before we call objidx_to_page_and_offset(),
+> thus we can drop `struct size_class *class' and `obj_idx', and pass
+> `long obj_offset'  (which is `obj_idx * class->size') instead, right?
 > 
-> a nitpick: this
+> we also _may be_ can return `cursor' from the function.
 > 
-> 	struct zs_meta *m;
-> 	VM_BUG_ON_PAGE(!is_first_page(first_page), first_page);
-> 	m = (struct zs_meta *)&first_page->mapping;
+> static struct page *objidx_to_page_and_offset(struct page *first_page,
+> 					unsigned long obj_offset,
+> 					unsigned long *offset_in_page);
 > 
+> this can save ~20 instructions, which is not so terrible for a hot path
+> like obj_malloc(). what do you think?
 > 
-> seems to be common in several places, may be it makes sense to
-> factor it out and turn into a macro or a static inline helper?
+> well, seems that `unsigned long *offset_in_page' can be calculated
+> outside of this function too, it's basically
 > 
-> other than that, looks good to me
+> 	*offset_in_page = (obj_idx * class->size) & ~PAGE_MASK;
+> 
+> so we don't need to supply it to this function, nor modify it there.
+> which can save ~40 instructions on my system. does this sound silly?
 
-Yeb.
+Sound smart. :)
+At least, we will use it in hot path.
 
-> 
-> Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-
-Thanks for the review!
+Thanks!
