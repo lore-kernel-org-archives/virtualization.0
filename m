@@ -1,17 +1,17 @@
-From: Minchan Kim <minchan@kernel.org>
+From: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
 Subject: Re: [PATCH v3 11/16] zsmalloc: separate free_zspage from
 	putback_zspage
-Date: Tue, 19 Apr 2016 16:51:18 +0900
-Message-ID: <20160419075118.GD18448__3855.17194304175$1461052244$gmane$org@bbox>
+Date: Tue, 19 Apr 2016 16:53:34 +0900
+Message-ID: <20160419075334.GA537@swordfish>
 References: <1459321935-3655-1-git-send-email-minchan@kernel.org>
 	<1459321935-3655-12-git-send-email-minchan@kernel.org>
-	<20160418010408.GB5882@swordfish>
+	<20160418010408.GB5882@swordfish> <20160419075118.GD18448@bbox>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160418010408.GB5882@swordfish>
 Content-Disposition: inline
+In-Reply-To: <20160419075118.GD18448@bbox>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,100 +21,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-Cc: Rik van Riel <riel@redhat.com>, YiPing Xu <xuyiping@hisilicon.com>, aquini@redhat.com, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Chan Gyun Jeong <chan.jeong@lge.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Gioh Kim <gi-oh.kim@profitbricks.com>, koct9i@gmail.com, Sangseok Lee <sangseok.lee@lge.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Andrew Morton <akpm@linux-foundation.org>, jlayton@poochiereds.net, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
+To: Minchan Kim <minchan@kernel.org>
+Cc: Rik van Riel <riel@redhat.com>, YiPing Xu <xuyiping@hisilicon.com>, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, rknize@motorola.com, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Chan Gyun Jeong <chan.jeong@lge.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>, virtualization@lists.linux-foundation.org, bfields@fieldses.org, linux-mm@kvack.org, Mel Gorman <mgorman@suse.de>, Gioh Kim <gi-oh.kim@profitbricks.com>, koct9i@gmail.com, Sangseok Lee <sangseok.lee@lge.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Andrew Morton <akpm@linux-foundation.org>, jlayton@poochiereds.net, Vlastimil Babka <vbabka@suse.cz>, aquini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Sergey,
+Hello Minchan,
 
-On Mon, Apr 18, 2016 at 10:04:08AM +0900, Sergey Senozhatsky wrote:
-> Hello Minchan,
+On (04/19/16 16:51), Minchan Kim wrote:
+[..]
 > 
-> On (03/30/16 16:12), Minchan Kim wrote:
-> [..]
-> > @@ -1835,23 +1827,31 @@ static void __zs_compact(struct zs_pool *pool, struct size_class *class)
-> >  			if (!migrate_zspage(pool, class, &cc))
-> >  				break;
-> >  
-> > -			putback_zspage(pool, class, dst_page);
-> > +			VM_BUG_ON_PAGE(putback_zspage(pool, class,
-> > +				dst_page) == ZS_EMPTY, dst_page);
-> 
-> can this VM_BUG_ON_PAGE() condition ever be true?
+> I guess it is remained thing after I rebased to catch any mistake.
+> But I'm heavily chainging this part.
+> Please review next version instead of this after a few days. :)
 
-I guess it is remained thing after I rebased to catch any mistake.
-But I'm heavily chainging this part.
-Please review next version instead of this after a few days. :)
+ah, got it. thanks!
 
-> 
-> >  		}
-> >  		/* Stop if we couldn't find slot */
-> >  		if (dst_page == NULL)
-> >  			break;
-> > -		putback_zspage(pool, class, dst_page);
-> > -		if (putback_zspage(pool, class, src_page) == ZS_EMPTY)
-> > +		VM_BUG_ON_PAGE(putback_zspage(pool, class,
-> > +				dst_page) == ZS_EMPTY, dst_page);
-> 
-> hm... this VM_BUG_ON_PAGE(dst_page) is sort of confusing. under what
-> circumstances it can be true?
-> 
-> a minor nit, it took me some time (need some coffee I guess) to
-> correctly parse this macro wrapper
-> 
-> 		VM_BUG_ON_PAGE(putback_zspage(pool, class,
-> 			dst_page) == ZS_EMPTY, dst_page);
-> 
-> may be do it like:
-> 		fullness = putback_zspage(pool, class, dst_page);
-> 		VM_BUG_ON_PAGE(fullness == ZS_EMPTY, dst_page);
-> 
-> 
-> well, if we want to VM_BUG_ON_PAGE() at all. there haven't been any
-> problems with compaction, is there any specific reason these macros
-> were added?
-> 
-> 
-> 
-> > +		if (putback_zspage(pool, class, src_page) == ZS_EMPTY) {
-> >  			pool->stats.pages_compacted += class->pages_per_zspage;
-> > -		spin_unlock(&class->lock);
-> > +			spin_unlock(&class->lock);
-> > +			free_zspage(pool, class, src_page);
-> 
-> do we really need to free_zspage() out of class->lock?
-> wouldn't something like this
-> 
-> 		if (putback_zspage(pool, class, src_page) == ZS_EMPTY) {
-> 			pool->stats.pages_compacted += class->pages_per_zspage;
-> 			free_zspage(pool, class, src_page);
-> 		}
-> 		spin_unlock(&class->lock);
-> 
-> be simpler?
-
-The reason I did out of class->lock is deadlock between page_lock
-and class->lock with upcoming page migration.
-However, as I said, I'm now heavily changing the part. :)
-
-> 
-> besides, free_zspage() now updates class stats out of class lock,
-> not critical but still.
-> 
-> 	-ss
-> 
-> > +		} else {
-> > +			spin_unlock(&class->lock);
-> > +		}
-> > +
-> >  		cond_resched();
-> >  		spin_lock(&class->lock);
-> >  	}
-> >  
-> >  	if (src_page)
-> > -		putback_zspage(pool, class, src_page);
-> > +		VM_BUG_ON_PAGE(putback_zspage(pool, class,
-> > +				src_page) == ZS_EMPTY, src_page);
-> >  
-> >  	spin_unlock(&class->lock);
-> >  }
+	-ss
