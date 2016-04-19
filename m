@@ -1,23 +1,23 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH RFC] fixup! virtio: convert to use DMA api
-Date: Tue, 19 Apr 2016 19:04:43 +0300
-Message-ID: <20160419190314-mutt-send-email-mst__42221.120131626$1461081906$gmane$org@redhat.com>
-References: <20160418160731-mutt-send-email-mst@redhat.com>
-	<1460988232.22654.7.camel@infradead.org>
+Date: Tue, 19 Apr 2016 19:09:03 +0300
+Message-ID: <20160419190520-mutt-send-email-mst__22153.8947932006$1461082164$gmane$org@redhat.com>
+References: <1460988232.22654.7.camel@infradead.org>
 	<20160418170534-mutt-send-email-mst@redhat.com>
 	<1460992923.3765.8.camel@infradead.org>
 	<20160418182320-mutt-send-email-mst@redhat.com>
 	<1460994701.3765.23.camel@infradead.org>
 	<20160418190203-mutt-send-email-mst@redhat.com>
 	<1461004173.3765.73.camel@infradead.org>
-	<20160419103815-mutt-send-email-mst@redhat.com>
-	<CALCETrVBo-XBD53eStOCwJd53F7_VTnrMJ9rY7_cXwnt2Z6AOw@mail.gmail.com>
+	<CALCETrXGC9X6fndftzUKKQ76TXSARHotW8Kz3KcO6opQ-oLaqA@mail.gmail.com>
+	<20160419130732-mutt-send-email-mst@redhat.com>
+	<CALCETrX72XV25B-0GdaMyJNkJRvvC8MbT4G=L5oGR=D5stpG6w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CALCETrVBo-XBD53eStOCwJd53F7_VTnrMJ9rY7_cXwnt2Z6AOw@mail.gmail.com>
+In-Reply-To: <CALCETrX72XV25B-0GdaMyJNkJRvvC8MbT4G=L5oGR=D5stpG6w@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,23 +28,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andy Lutomirski <luto@amacapital.net>
-Cc: Wei Liu <wei.liu2@citrix.com>, kvm list <kvm@vger.kernel.org>, qemu-block@nongnu.org, Amit Shah <amit.shah@redhat.com>, "qemu-devel@nongnu.org Developers" <qemu-devel@nongnu.org>, peterx@redhat.com, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, David Woodhouse <dwmw2@infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Wei Liu <wei.liu2@citrix.com>, Andy Lutomirski <luto@kernel.org>, qemu-block@nongnu.org, Christian Borntraeger <borntraeger@de.ibm.com>, "qemu-devel@nongnu.org Developers" <qemu-devel@nongnu.org>, peterx@redhat.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Amit Shah <amit.shah@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, kvm list <kvm@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Woodhouse <dwmw2@infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 19, 2016 at 09:00:27AM -0700, Andy Lutomirski wrote:
-> On Apr 19, 2016 2:13 AM, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Tue, Apr 19, 2016 at 09:02:14AM -0700, Andy Lutomirski wrote:
+> On Tue, Apr 19, 2016 at 3:27 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> > On Mon, Apr 18, 2016 at 12:24:15PM -0700, Andy Lutomirski wrote:
+> >> On Mon, Apr 18, 2016 at 11:29 AM, David Woodhouse <dwmw2@infradead.org> wrote:
+> >> > For x86, you *can* enable virtio-behind-IOMMU if your DMAR tables tell
+> >> > the truth, and even legacy kernels ought to cope with that.
+> >> > FSVO 'ought to' where I suspect some of them will actually crash with a
+> >> > NULL pointer dereference if there's no "catch-all" DMAR unit in the
+> >> > tables, which puts it back into the same camp as ARM and Power.
+> >>
+> >> I think x86 may get a bit of a free pass here.  AFAIK the QEMU IOMMU
+> >> implementation on x86 has always been "experimental", so it just might
+> >> be okay to change it in a way that causes some older kernels to OOPS.
+> >>
+> >> --Andy
 > >
+> > Since it's experimental, it might be OK to change *guest kernels*
+> > such that they oops on old QEMU.
+> > But guest kernels were not experimental - so we need a QEMU mode that
+> > makes them work fine. The more functionality is available in this QEMU
+> > mode, the betterm because it's going to be the default for a while. For
+> > the same reason, it is preferable to also have new kernels not crash in
+> > this mode.
 > >
-> > I guess you are right in that we should split this part out.
-> > What I wanted is really the combination
-> > PASSTHROUGH && !PLATFORM so that we can say "ok we don't
-> > need to guess, this device actually bypasses the IOMMU".
 > 
-> What happens when you use a device like this on Xen or with a similar
-> software translation layer?
+> People add QEMU features that need new guest kernels all time time.
+> If you enable virtio-scsi and try to boot a guest that's too old, it
+> won't work.  So I don't see anything fundamentally wrong with saying
+> that the non-experimental QEMU Q35 IOMMU mode won't boot if the guest
+> kernel is too old.  It might be annoying, since old kernels do work on
+> actual Q35 hardware, but it at least seems to be that it might be
+> okay.
+> 
+> --Andy
 
-I think you don't use it on Xen since virtio doesn't bypass an IOMMU there.
-If you do you have misconfigured your device.
+Yes but we need a mode that makes both old and new kernels work, and
+that should be the default for a while.  this is what the
+IOMMU_PASSTHROUGH flag was about: old kernels ignore it and bypass DMA
+API, new kernels go "oh compatibility mode" and bypass the IOMMU
+within DMA API.
 
 -- 
 MST
