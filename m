@@ -1,23 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC] fixup! virtio: convert to use DMA api
-Date: Tue, 19 Apr 2016 12:13:29 +0300
-Message-ID: <20160419103815-mutt-send-email-mst@redhat.com>
-References: <1460979793-6621-1-git-send-email-mst@redhat.com>
-	<1460980717.12793.43.camel@infradead.org>
-	<20160418160731-mutt-send-email-mst@redhat.com>
-	<1460988232.22654.7.camel@infradead.org>
-	<20160418170534-mutt-send-email-mst@redhat.com>
-	<1460992923.3765.8.camel@infradead.org>
-	<20160418182320-mutt-send-email-mst@redhat.com>
-	<1460994701.3765.23.camel@infradead.org>
-	<20160418190203-mutt-send-email-mst@redhat.com>
-	<1461004173.3765.73.camel@infradead.org>
+Subject: Re: [PATCH RFC 3/3] vfio: add virtio pci quirk
+Date: Tue, 19 Apr 2016 12:58:53 +0300
+Message-ID: <20160419122114-mutt-send-email-mst@redhat.com>
+References: <1460973374-32719-1-git-send-email-mst@redhat.com>
+	<1460973374-32719-4-git-send-email-mst@redhat.com>
+	<20160418140006.5f68d516@t450s.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1461004173.3765.73.camel@infradead.org>
+In-Reply-To: <20160418140006.5f68d516@t450s.home>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,185 +20,249 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Wei Liu <wei.liu2@citrix.com>, Andy Lutomirski <luto@kernel.org>, qemu-block@nongnu.org, Christian Borntraeger <borntraeger@de.ibm.com>, qemu-devel@nongnu.org, peterx@redhat.com, linux-kernel@vger.kernel.org, Amit Shah <amit.shah@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, pbonzini@redhat.com, virtualization@lists.linux-foundation.org
+To: Alex Williamson <alex.williamson@redhat.com>
+Cc: Wei Liu <wei.liu2@citrix.com>, kvm@vger.kernel.org, Julia Lawall <Julia.Lawall@lip6.fr>, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Feng Wu <feng.wu@intel.com>, David Woodhouse <dwmw2@infradead.org>, Dan Carpenter <dan.carpenter@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBBcHIgMTgsIDIwMTYgYXQgMDI6Mjk6MzNQTSAtMDQwMCwgRGF2aWQgV29vZGhvdXNl
-IHdyb3RlOgo+IE9uIE1vbiwgMjAxNi0wNC0xOCBhdCAxOToyNyArMDMwMCwgTWljaGFlbCBTLiBU
-c2lya2luIHdyb3RlOgo+ID4gSSBiYWxrIGF0IGFkZGluZyBtb3JlIGhhY2tzIHRvIGEgYnJva2Vu
-IHN5c3RlbS4gTXkgZ29hbHMgYXJlCj4gPiBtZXJlbHkgdG8KPiA+IC0gbWFrZSB0aGluZ3Mgd29y
-ayBjb3JyZWN0bHkgd2l0aCBhbiBJT01NVSBhbmQgbmV3IGd1ZXN0cywKPiA+IMKgIHNvIHBlb3Bs
-ZSBjYW4gdXNlIHVzZXJzcGFjZSBkcml2ZXJzIHdpdGggdmlydGlvIGRldmljZXMKPiA+IC0gcHJl
-dmVudCBzZWN1cml0eSByaXNrcyB3aGVuIGd1ZXN0IGtlcm5lbCBtaXN0YWtlbmx5IHRoaW5rcwo+
-ID4gwqAgaXQncyBwcm90ZWN0ZWQgYnkgYW4gSU9NTVUsIGJ1dCBpbiBmYWN0IGlzbid0Cj4gPiAt
-IGF2b2lkIGJyZWFraW5nIGFueSB3b3JraW5nIGNvbmZpZ3VyYXRpb25zCj4gCj4gQUZBSUNUIHRo
-ZSBWSVJUSU9fRl9JT01NVV9QQVNTVEhST1VHSCB0aGluZyBzZWVtcyBvcnRob2dvbmFsIHRvIHRo
-aXMuCj4gVGhhdCdzIGp1c3QgYW4gb3B0aW1pc2F0aW9uLCBmb3IgdGVsbGluZyBhbiBPUyAieW91
-IGRvbid0IHJlYWxseSBuZWVkCj4gdG8gYm90aGVyIHdpdGggdGhlIElPTU1VLCBldmVuIHRob3Vn
-aCB5b3UgaXQgd29ya3MiLgo+IAo+IFRoZXJlIGFyZSB0d28gbWFpbiByZWFzb25zIHdoeSBhbiBv
-cGVyYXRpbmcgc3lzdGVtIG1pZ2h0IHdhbnQgdG8gdXNlCj4gdGhlIElPTU1VIHZpYSB0aGUgRE1B
-IEFQSSBmb3IgbmF0aXZlIGRyaXZlcnM6wqAKPiDCoC0gVG8gcHJvdGVjdCBhZ2FpbnN0IGRyaXZl
-ciBidWdzIHRyaWdnZXJpbmcgcm9ndWUgRE1BLgo+IMKgLSBUbyBwcm90ZWN0IGFnYWluc3QgaGFy
-ZHdhcmUgKG9yIGZpcm13YXJlKSBidWdzLgo+IAo+IFdpdGggdmlydGlvLCB0aGUgZmlyc3QgcmVh
-c29uIHN0aWxsIGV4aXN0cy4gQnV0IHRoZSBzZWNvbmQgaXMgbW9vdAo+IGJlY2F1c2UgdGhlIGRl
-dmljZSBpcyBwYXJ0IG9mIHRoZSBoeXBlcnZpc29yIGFuZCBpZiB0aGUgaHlwZXJ2aXNvciBpcwo+
-IHVudHJ1c3R3b3J0aHkgdGhlbiB5b3UncmUgc2NyZXdlZCBhbnl3YXkuLi4gYnV0IHRoZW4gYWdh
-aW4sIGluIFNvQwo+IGRldmljZXMgeW91IGNvdWxkIHJlcGxhY2UgJ2h5cGVydmlzb3InIHdpdGgg
-J2NoaXAnIGFuZCB0aGUgc2FtZSBpcwo+IHRydWUsIGlzbid0IGl0PyBJcyB0aGVyZSAqcmVhbGx5
-KiBhbnl0aGluZyB2aXJ0aW8tc3BlY2lmaWMgaGVyZT8KPgo+IFN1cmUsIEkgd2FudCBteSAqZXh0
-ZXJuYWwqIG5ldHdvcmsgZGV2aWNlIG9uIGEgUENJZSBjYXJkIHdpdGggc29mdHdhcmUtCj4gbG9h
-ZGFibGUgZmlybXdhcmUgdG8gYmUgYmVoaW5kIGFuIElPTU1VIGJlY2F1c2UgSSBkb24ndCB0cnVz
-dCBpdCBhcyBmYXIKPiBhcyBJIGNhbiB0aHJvdyBpdC4gQnV0IGZvciBvbi1Tb0MgZGV2aWNlcyBz
-dXJlbHkgdGhlIHNpdHVhdGlvbiBpcwo+ICpqdXN0KiB0aGUgc2FtZSBhcyBkZXZpY2VzIHByb3Zp
-ZGVkIGJ5IGEgaHlwZXJ2aXNvcj8KCkRlcGVuZHMgb24gaG93IFNvQyBpcyBkZXNpZ25lZCBJIGd1
-ZXNzLiAgQXQgdGhlIG1vbWVudCBzcGVjaWZpY2FsbHkgUUVNVQpydW5zIGV2ZXJ5dGhpbmcgaW4g
-YSBzaW5nbGUgbWVtb3J5IHNwYWNlIHNvIGFuIElPTU1VIHRhYmxlIGxvb2t1cCBkb2VzCm5vdCBv
-ZmZlciBhbnkgZXh0cmEgcHJvdGVjdGlvbi4gVGhhdCdzIG5vdCBhIG11c3QsIG9uZSBjb3VsZCBj
-b21lCnVwIHdpdGggbW9kdWxhciBoeXBlcnZpc29yIGRlc2lnbnMgLSBpdCdzIGp1c3Qgd2hhdCB3
-ZSBoYXZlIEFUTS4KCgo+IEFuZCBzb21lIHBlb3BsZSB3YW50IHRoYXQgZXh0ZXJuYWwgbmV0d29y
-ayBkZXZpY2UgdG8gdXNlIHBhc3N0aHJvdWdoCj4gYW55d2F5LCBmb3IgcGVyZm9ybWFuY2UgcmVh
-c29ucy4KClRoYXQncyBhIHBvbGljeSBkZWNpc2lvbiB0aG91Z2guCgo+IE9uIHRoZSB3aG9sZSwg
-dGhlcmUgYXJlICpwbGVudHkqIG9mIHJlYXNvbnMgd2h5IHdlIG1pZ2h0IHdhbnQgdG8gaGF2ZSBh
-Cj4gcGFzc3Rocm91Z2ggbWFwcGluZyBvbiBhIHBlci1kZXZpY2UgYmFzaXMsCgpUaGF0J3MgdHJ1
-ZS4gQW5kIGRyaXZlciBzZWN1cml0eSBhbHNvIG1pZ2h0IGRpZmZlciwgZm9yIGV4YW1wbGUgbWF5
-YmUgSQp0cnVzdCBhIGRpc3Ryby1zdXBwbGllZCBkcml2ZXIgbW9yZSB0aGFuIGFuIG91dCBvZiB0
-cmVlIG9uZS4gIE9yIG1heWJlIEkKdHJ1c3QgYSBkaXN0cm8tc3VwcGxpZWQgdXNlcnNwYWNlIGRy
-aXZlciBtb3JlIHRoYW4gYSBjbG9zZWQtc291cmNlIG9uZS4KQW5kIG1heWJlIEkgdHJ1c3QgZGV2
-aWNlcyBmcm9tIHNhbWUgdmVuZG9yIGFzIG15IGNoaXAgbW9yZSB0aGFuIGEgM3JkCnBhcnR5IG9u
-ZS4gIFNvIG9uZSBjYW4gZ2VuZXJhbGl6ZSB0aGlzIGV2ZW4gZnVydGhlciwgdGhpbmsgYWJvdXQg
-ZGV2aWNlCmFuZCBkcml2ZXIgc2VjdXJpdHkvdHJ1c3QgbGV2ZWwgYXMgYW4gaW50ZWdlciBhbmQg
-cGxhdGZvcm0gcHJvdGVjdGlvbiBhcyBhbgppbnRlZ2VyLgoKSWYgcGxhdGZvcm0gSU9NTVUgb2Zm
-ZXJzIHlvdSBleHRyYSBwcm90ZWN0aW9uIG92ZXIgdHJ1c3RpbmcgdGhlIGRldmljZQoodHJ1c3Qg
-PCBwcm90ZWN0aW9uKSBpdCBpbXByb3ZlcyB5b3Ugc2VjdXJpdHkgdG8gdXNlIHBsYXRmb3JtIHRv
-IGxpbWl0CnRoZSBkZXZpY2UuIElmIHRydXN0ID49IHByb3RlY3Rpb24gaXQganVzdCBhZGRzIG92
-ZXJoZWFkIHdpdGhvdXQKaW5jcmVhc2luZyB0aGUgc2VjdXJpdHkuCgo+IGFuZCBJIHJlYWxseSBz
-dHJ1Z2dsZSB0bwo+IGZpbmQganVzdGlmaWNhdGlvbiBmb3IgaGF2aW5nIHRoaXMgJ2hpbnQnIGlu
-IGEgdmlydGlvLXNwZWNpZmljIHdheS4KCkl0J3MgYSB3YXkuIE5vIHN5c3RlbSBzZWVtcyB0byBl
-eHBvc2UgdGhpcyBpbmZvcm1hdGlvbiBpbiBhIG1vcmUgZ2VuZXJpYwp3YXkgYXQgdGhlIG1vbWVu
-dCwgYW5kIGl0J3MgcG9ydGFibGUuIFdvdWxkIHlvdSBsaWtlIHRvIHB1c2ggZm9yIHNvbWUKa2lu
-ZCBvZiBzdGFuZGFydGl6YXRpb24gb2Ygc3VjaCBhIGhpbnQ/IEkgd291bGQgYmUgaW50ZXJlc3Rl
-ZAp0byBoZWFyIGFib3V0IHRoYXQuCgoKPiBBbmQgaXQncyBjb21wbGljYXRpbmcgdGhlIGRpc2N1
-c3Npb24gb2YgdGhlICphY3R1YWwqIGZpeCB3ZSdyZSBsb29raW5nCj4gYXQuCgpJIGd1ZXNzIHlv
-dSBhcmUgcmlnaHQgaW4gdGhhdCB3ZSBzaG91bGQgc3BsaXQgdGhpcyBwYXJ0IG91dC4KV2hhdCBJ
-IHdhbnRlZCBpcyByZWFsbHkgdGhlIGNvbWJpbmF0aW9uClBBU1NUSFJPVUdIICYmICFQTEFURk9S
-TSBzbyB0aGF0IHdlIGNhbiBzYXkgIm9rIHdlIGRvbid0Cm5lZWQgdG8gZ3Vlc3MsIHRoaXMgZGV2
-aWNlIGFjdHVhbGx5IGJ5cGFzc2VzIHRoZSBJT01NVSIuCgpBbmQgSSB0aG91Z2h0IGl0J3MgYSBu
-aWNlIGlkZWEgdG8gdXNlIFBBU1NUSFJPVUdIICYmIFBMQVRGT1JNCmFzIGEgaGludCBzaW5jZSBp
-dCBzZWVtZWQgdG8gYmUgdW51c2VkLgpCdXQgbWF5YmUgdGhlIGJlc3QgdGhpbmcgdG8gZG8gZm9y
-IG5vdyBpcyB0byBzYXkKLSBob3N0cyBzaG91bGQgbm90IHNldCBQQVNTVEhST1VHSCAmJiBQTEFU
-Rk9STQotIGd1ZXN0cyBzaG91bGQgaWdub3JlIFBBU1NUSFJPVUdIIGlmIFBMQVRGT1JNIGlzIHNl
-dAoKYW5kIHRoZW4gd2UgY2FuIGNvbWUgYmFjayB0byB0aGlzIG9wdGltaXphdGlvbiBpZGVhIGxh
-dGVyCmlmIGl0J3MgYXBwcm9wcmlhdGUuCgpTbyB5ZXMgSSB0aGluayB3ZSBuZWVkIHRoZSB0d28g
-Yml0cyBidXQgbm8gd2UgZG9uJ3QgbmVlZCB0bwptaXggdGhlIGhpbnQgZGlzY3Vzc2lvbiBpbiBo
-ZXJlLgoKPiA+IExvb2tpbmcgYXQgZ3Vlc3QgY29kZSwgaXQgbG9va3MgbGlrZSB2aXJ0aW8gd2Fz
-IGFsd2F5cwo+ID4gYnlwYXNzaW5nIHRoZSBJT01NVSBldmVuIGlmIGNvbmZpZ3VyZWQsIGJ1dCBu
-byBvdGhlcgo+ID4gZ3Vlc3QgZHJpdmVyIGRpZC4KPiA+IAo+ID4gVGhpcyBtYWtlcyBtZSB0aGlu
-ayB0aGUgcHJvYmxlbSB3aGVyZSBndWVzdCBkcml2ZXJzCj4gPiBpZ25vcmUgdGhlIElPTU1VIGlz
-IHZpcnRpbyBzcGVjaWZpYwo+ID4gYW5kIHNvIGEgdmlydGlvIHNwZWNpZmljIHNvbHV0aW9uIHNl
-ZW1zIGNsZWFuZXIuCj4gPiAKPiA+IFRoZSBwcm9ibGVtIGZvciBhc3NpZ25lZCBkZXZpY2VzIGlz
-IElNSE8gZGlmZmVyZW50OiB0aGV5IGJ5cGFzcwo+ID4gdGhlIGd1ZXN0IElPTU1VIHRvbyBidXQg
-bm8gZ3Vlc3QgZHJpdmVyIGtub3dzIGFib3V0IHRoaXMsCj4gPiBzbyBndWVzdHMgZG8gbm90IHdv
-cmsuIFNlZW1zIGNsZWFuZXIgdG8gZml4IFFFTVUgdG8gbWFrZQo+ID4gZXhpc3RpbmcgZ3Vlc3Rz
-IHdvcmsuCj4gCj4gSSBjZXJ0YWlubHkgYWdyZWUgdGhhdCBpdCdzIGJldHRlciB0byBmaXggUUVN
-VS4gV2hldGhlciBkZXZpY2VzIGFyZQo+IGJlaGluZCBhbiBJT01NVSBvciBub3QsIHRoZSBETUFS
-IHRhYmxlcyB3ZSBleHBvc2UgdG8gYSBndWVzdCBzaG91bGQKPiB0ZWxsIHRoZSB0cnV0aC4KPiAK
-PiBQYXJ0IG9mIHRoZSBpc3N1ZSBoZXJlIGlzIHZpcnRpby1zcGVjaWZpYzsgcGFydCBpc24ndC4K
-PiAKPiBCYXNpY2FsbHksIHdlIGhhdmUgYSBjb25qdW5jdGlvbiBvZiB0d28gc2VwYXJhdGUgYnVn
-cyB3aGljaCBoYXBwZW5lZCB0bwo+IHdvcmsgKGZvciB2aXJ0aW8pIOKAlCB0aGUgSU9NTVUgc3Vw
-cG9ydCBpbiBRRU1VIHdhc24ndCB3b3JraW5nIGZvciB2aXJ0aW8KPiAoYW5kIGFzc2lnbmVkKSBk
-ZXZpY2VzIGV2ZW4gdGhvdWdoIGl0IHRoZW9yZXRpY2FsbHkgKnNob3VsZCogaGF2ZSBiZWVuLAo+
-IGFuZCB0aGUgdmlydGlvIGRyaXZlcnMgd2VyZW4ndCB1c2luZyB0aGUgRE1BIEFQSSBhcyB0aGV5
-IHRoZW9yZXRpY2FsbHkKPiBzaG91bGQgaGF2ZSBiZWVuLgo+IAo+IFNvIHRoZXJlIHdlcmUgY29y
-bmVyIGNhc2VzIGxpa2UgYXNzaWduZWQgUENJIGRldmljZXMsIGFuZCByZWFsIGhhcmR3YXJlCj4g
-aW1wbGVtZW50YXRpb25zIG9mIHZpcnRpbyBzdHVmZiAoYW5kIHBlcmhhcHMgdmlydGlvIGRldmlj
-ZXMgYmVpbmcKPiBhc3NpZ25lZCB0byBuZXN0ZWQgZ3Vlc3RzKSB3aGljaCBkaWRuJ3Qgd29yay4g
-QnV0IGZvciB0aGUgKmNvbW1vbiogdXNlCj4gY2FzZSwgb25lIGJ1ZyBjYW5jZWxsZWQgb3V0IHRo
-ZSBvdGhlci4KPiAKPiBOb3cgd2Ugd2FudCB0byBmaXggYm90aCBidWdzLCBhbmQgb2YgY291cnNl
-IHRoYXQgaW52b2x2ZXMgY2FyZWZ1bGx5Cj4gY29vcmRpbmF0aW5nIGJvdGggZml4ZXMuCj4gCj4g
-SSAqbGlrZSogeW91ciBpZGVhIG9mIGEgZmxhZyBmcm9tIHRoZSBoeXBlcnZpc29yIHdoaWNoIGVz
-c2VudGlhbGx5IHNheXMKPiAidHJ1c3QgbWUsIEknbSB0ZWxsaW5nIHRoZSB0cnV0aCBub3ciLgo+
-IAo+IEJ1dCBkb24ndCB0aGluayB0aGF0IHdhbnRzIHRvIGJlIHZpcnRpby1zcGVjaWZpYywgYmVj
-YXVzZSB3ZSBhY3R1YWxseQo+IHdhbnQgaXQgdG8gY292ZXIgKmFsbCogdGhlIGNvcm5lciBjYXNl
-cywgbm90IGp1c3QgdGhlIGNvbW1vbiBjYXNlIHdoaWNoCj4gKmhhcHBlbmVkKiB0byB3b3JrIGJl
-Zm9yZSBkdWUgdG8gdGhlIGFsaWdubWVudCBvZiB0aGUgdHdvIHByZXZpb3VzCj4gYnVncy4KCkkg
-Z3Vlc3Mgd2UgZGlmZmVyIGhlcmUuIEkgY2FyZSBhYm91dCBmaXhpbmcgYnVncyBhbmQgbm90IGJy
-ZWFraW5nCndvcmtpbmcgc2V0dXBzIGJ1dCBJIHNlZSBsaXR0bGUgdmFsdWUgaW4gd29ya2luZyBh
-cm91bmQKZXhpc3RpbmcgYnVncyBpZiB0aGV5IGNhbiBiZSBmaXhlZCBhdCB0aGVpciBzb3VyY2Uu
-CgpCdWlsZGluZyBhIGdlbmVyaWMgbWVjaGFuaXNtIHRvIHJlcG9ydCB3aGljaCBkZXZpY2VzIGJ5
-cGFzcyB0aGUgSU9NTVUKaXNuJ3QgdHJpdmlhbCBiZWNhdXNlIHRoZXJlJ3Mgbm8gc2ltcGxlIGdl
-bmVyaWMgd2F5IHRvIGFkZHJlc3MKYW4gYXJiaXRyYXJ5IGRldmljZSBmcm9tIGh5cGVydmlzb3Iu
-IEZvciBleGFtcGxlLCBETUFSIHRhYmxlcwpjb21tb25seSB1c2UgYnVzIG51bWJlcnMgZm9yIHRo
-YXQgYnV0IHRoZXNlIGFyZSBndWVzdCAoYmlvcykgYXNzaWduZWQuClNvIGlmIHdlIHVzZWQgYnVz
-IG51bWJlcnMgd2UnZCBoYXZlIHRvIGFzayBiaW9zIHRvIGJ1aWxkIGEgY3VzdG9tCkFDUEkgdGFi
-bGUgYW5kIHN0aWNrIGJ1cyBudW1iZXJzIHRoZXJlLgoKPiBBbiB1cGRhdGVkIGd1ZXN0IE9TIGNh
-biBsb29rIGZvciB0aGlzIGZsYWcgKGluIGl0cyBnZW5lcmljIElPTU1VIGNvZGUpCj4gYW5kIGNh
-biBhcHBseSBhIGhldXJpc3RpYyBvZiBpdHMgb3duIHRvIHdvcmsgb3V0IHdoaWNoIGRldmljZXMg
-KmFyZW4ndCoKPiBiZWhpbmQgdGhlIElPTU1VLCBpZiB0aGUgZmxhZyBpc24ndCBwcmVzZW50LiBB
-bmQgaXQgY2FuIGdldCB0aGF0IHJpZ2h0Cj4gZXZlbiBmb3IgYXNzaWduZWQgZGV2aWNlcywgc28g
-dGhhdCBuZXcga2VybmVscyBjYW4gcnVuIGhhcHBpbHkgZXZlbiBvbgo+IHRvZGF5J3MgUUVNVSBp
-bnN0YW5jZXMuCgpXaXRoIGlvbW11IGVuYWJsZWQ/IFBvaW50IGlzLCBJIGRvbid0IHJlYWxseSBj
-YXJlIGFib3V0IHRoYXQuCkF0IHRoaXMgcG9pbnQgb25seSBhIHZlcnkgc21hbGwgbnVtYmVyIG9m
-IGRldmljZXMgd29yayB3aXRoIHRoaXMKSU9NTVUgYXQgYWxsLiBJIGV4cGVjdCB0aGF0IHdlJ2xs
-IGZpeCBhc3NpZ25lZCBkZXZpY2VzIHZlcnkgc29vbi4KCj4gQW5kIHRoZSB2aXJ0aW8gZHJpdmVy
-IGluIG5ldyBrZXJuZWxzIHNob3VsZAo+IGp1c3QgdXNlIHRoZSBETUEgQVBJIGFuZCBleHBlY3Qg
-aXQgdG8gd29yay4gSnVzdCBhcyB0aGUgdmFyaW91cyBkcml2ZXJzCj4gZm9yIGFzc2lnbmVkIFBD
-SSBkZXZpY2VzIGRvLgoKQWJzb2x1dGVseSBidXQgdGhhdCdzIGEgc2VwYXJhdGUgZGlzY3Vzc2lv
-bi4KCj4gVGhlIG90aGVyIGludGVyZXN0aW5nIGNhc2UgZm9yIGNvbXBhdGliaWxpdHkgaXMgb2xk
-IGtlcm5lbHMgcnVubmluZyBpbgo+IGEgbmV3IFFFTVUuIEFuZCBmb3IgdGhhdCBjYXNlLCB0aGlu
-Z3MgYXJlIGxpa2VseSB0byBicmVhayBpZiB5b3UKPiBzdWRkZW5seSBzdGFydCBwdXR0aW5nIHRo
-ZSB2aXJ0aW8gZGV2aWNlcyBiZWhpbmQgYW4gSU9NTVUuIFRoZXJlJ3MKPiBub3RoaW5nIHlvdSBj
-YW4gZG8gb24gQVJNIGFuZCBQb3dlciB0byBzdG9wIHRoYXQgYnJlYWthZ2UsIHNpbmNlIHRoZXkK
-PiBkb24ndCAqaGF2ZSogYSB3YXkgdG8gdGVsbCBsZWdhY3kgZ3Vlc3RzIHRoYXQgY2VydGFpbiBk
-ZXZpY2VzIGFyZW4ndAo+IHRyYW5zbGF0ZWQuIFNvIEkgc3VzcGVjdCB5b3UgcHJvYmFibHkgY2Fu
-J3QgZW5hYmxlIHZpcnRpby1iZWhpbmQtSU9NTVUKPiBpbiBRRU1VICpldmVyKiBmb3IgdGhvc2Ug
-cGxhdGZvcm1zIGFzIHRoZSBkZWZhdWx0IGJlaGF2aW91ci4KPiAKPiBGb3IgeDg2LCB5b3UgKmNh
-biogZW5hYmxlIHZpcnRpby1iZWhpbmQtSU9NTVUgaWYgeW91ciBETUFSIHRhYmxlcyB0ZWxsCj4g
-dGhlIHRydXRoLCBhbmQgZXZlbiBsZWdhY3kga2VybmVscyBvdWdodCB0byBjb3BlIHdpdGggdGhh
-dC4KCkkgZG9uJ3Qgc2VlIGhvdyBpbiB0aGF0IGxlZ2FjeSBrZXJuZWxzIGJ5cGFzc2VkIHRoZSBE
-TUEgQVBJLgpUbyBtZSBpdCBsb29rcyBsaWtlIHdlIGVpdGhlciB1c2UgcGh5c2ljYWwgYWRkcmVz
-c2VzIHRoYXQgdGhleSBnaXZlIHVzCm9yIHRoZXkgZG9uJ3Qgd29yayBhdCBhbGwgKGF0IGxlYXN0
-IHdpdGhvdXQgaW9tbXU9cHQpLApzaW5jZSB0aGUgVlQtRCBzcGVjIHNheXM6CglETUEgcmVxdWVz
-dHMgcHJvY2Vzc2VkIHRocm91Z2ggcm9vdC1lbnRyaWVzIHdpdGggcHJlc2VudCBmaWVsZAoJQ2xl
-YXIgcmVzdWx0IGluIHRyYW5zbGF0aW9uLWZhdWx0LgoKU28gSSBzdXNwZWN0IHRoZSBJT01NVV9Q
-TEFURk9STSBmbGFnIHdvdWxkIGhhdmUgdG8gc3RheSBvZmYKYnkgZGVmYXVsdCBmb3IgYSB3aGls
-ZS4KCgo+IEZTVk8gJ291Z2h0IHRvJyB3aGVyZSBJIHN1c3BlY3Qgc29tZSBvZiB0aGVtIHdpbGwg
-YWN0dWFsbHkgY3Jhc2ggd2l0aCBhCj4gTlVMTCBwb2ludGVyIGRlcmVmZXJlbmNlIGlmIHRoZXJl
-J3Mgbm8gImNhdGNoLWFsbCIgRE1BUiB1bml0IGluIHRoZQo+IHRhYmxlcywgd2hpY2ggcHV0cyBp
-dCBiYWNrIGludG8gdGhlIHNhbWUgY2FtcCBhcyBBUk0gYW5kIFBvd2VyLgoKUmlnaHQuICBUaGF0
-IHdvdWxkIGFsc28gYmUgYW4gaXNzdWUuCgo+IAo+ID4gVHJ1ZSBidXQgSSB0aGluayB3ZSBzaG91
-bGQgZml4IFFFTVUgdG8gc2hhZG93IElPTU1VCj4gPiBwYWdlIHRhYmxlcyBmb3IgYXNzaWduZWQg
-ZGV2aWNlcy4gVGhpcyBzZWVtcyByYXRoZXIKPiA+IHBvc3NpYmxlIHdpdGggVlQtRCwgYW5kIHRo
-ZXJlIGFyZSBwYXRjaGVzIGFscmVhZHkgb24gbGlzdC4KPiA+IAo+ID4gSXQgbG9va3MgbGlrZSB0
-aGlzIHdpbGwgZml4IGFsbCBsZWdhY3kgZ3Vlc3RzIHdoaWNoIGlzCj4gPiBtdWNoIG5pY2VyIHRo
-YW4gd2hhdCB5b3Ugc3VnZ2VzdCB3aGljaCB3aWxsIG9ubHkgaGVscCBuZXcgZ3Vlc3RzLgo+IAo+
-IFllcywgd2Ugc2hvdWxkIGRvIHRoYXQuIEFuZCBpbiB0aGUgc2hvcnQgdGVybSB3ZSBzaG91bGQg
-YXQgKmxlYXN0KiBmaXgKPiB0aGUgRE1BUiB0YWJsZXMgdG8gdGVsbCB0aGUgdHJ1dGguCgpSaWdo
-dC4gSG93ZXZlciwgdGhlIHdheSB0aW1pbmcgaGFwcGVucyB0byB3b3JrLCB3ZSBhcmUgb3V0IG9m
-IHRpbWUgdG8KZml4IGl0IGluIDIuNiBhbmQgd2UgYXJlIGhpZ2hseSBsaWtlbHkgdG8gaGF2ZSB0
-aGUgcHJvcGVyIFZGSU8gZml4IGluCjIuNy4gIFNvIEknbSBub3Qgc3VyZSB0aGVyZSdzIHNwYWNl
-IGZvciBhIHNob3J0IHRlcm0gZml4LgoKPiA+ID4gCj4gPiA+IEZ1cnRoZXJtb3JlLCBzb21lIHBs
-YXRmb3JtcyBkb24ndCAqaGF2ZSogYSBzdGFuZGFyZCB3YXkgZm9yIHFlbXUgdG8KPiA+ID4gJ3Rl
-bGwgdGhlIHRydXRoJyB0byB0aGUgZ3Vlc3RzLCBhbmQgdGhhdCdzIHdoZXJlIHRoZSByZWFsIGZ1
-biBjb21lcyBpbi4KPiA+ID4gQnV0IHN0aWxsLCBJJ2QgbGlrZSB0byBzZWUgYSBnZW5lcmljIHNv
-bHV0aW9uIGZvciB0aGF0IGxhY2sgaW5zdGVhZCBvZgo+ID4gPiBhIHZpcnRpby1zcGVjaWZpYyBo
-YWNrLgo+ID4gQnV0IHRoZSBpc3N1ZSBpcyBub3QganVzdCB0aGVzZSBob2xlcy7CoMKgRS5nLiB3
-aXRoIFZULUQgaXQgaXMgb25seSBlYXN5Cj4gPiB0byBlbXVsYXRlIGJlY2F1c2UgdGhlcmUncyBh
-ICJjYWNoaW5nIG1vZGUiIGhvb2suIEl0IGlzIGZ1bmRhbWVudGFsbHkKPiA+IHBhcmF2aXJ0dWFs
-aXphdGlvbi7CoMKgU28gYSBjb21wbGV0ZWx5IGdlbmVyaWMgc29sdXRpb24gd291bGQgYmUgYQo+
-ID4gcGFyYXZpcnR1YWxpemVkIElPTU1VIGludGVyZmFjZSwgcmVwbGFjaW5nIFZULUQgZm9yIFZN
-cy4gSXQgbWlnaHQgYmUKPiA+IGp1c3RpZmllZCBpZiBtYW55IHBsYXRmb3JtcyBoYXZlIGhhcmQg
-dG8gZW11bGF0ZSBpbnRlcmZhY2VzLgo+IAo+IEhtLCBJJ20gbm90IHN1cmUgSSB1bmRlcnN0YW5k
-IHRoZSBwb2ludCBoZXJlLgo+IAo+IEVpdGhlciB0aGVyZSBpcyBhIHdheSBmb3IgdGhlIGh5cGVy
-dmlzb3IgdG8gZXhwb3NlIGFuIElPTU1VIHRvIGEgZ3Vlc3QKPiAoYmUgaXQgZnVsbCBoYXJkd2Fy
-ZSB2aXJ0LCBvciBwYXJhdmlydCkuIE9yIHRoZXJlIGlzbid0Lgo+IAo+IElmIHRoZXJlIGlzLCBp
-dCBkb2Vzbid0IG1hdHRlciAqaG93KiBpdCdzIGRvbmUuCgpXZWxsIGl0IGRvZXMgbWF0dGVyIGZv
-ciBwZW9wbGUgZG9pbmcgaXQgOikKCj4gQW5kIGlmIHRoZXJlIGlzbid0LCB0aGUKPiB3aG9sZSBk
-aXNjdXNzaW9uIGlzIG1vb3QgYW55d2F5LgoKUG9pbnQgd2FzIHRoYXQgd2UgY2FuIGFsd2F5cyBi
-dWlsZCBhIHBhcmF2aXJ0IGludGVyZmFjZQppZiBpdCBkb2VzIG5vdCBleGlzdCwgYnV0IGl0J3Mg
-ZWFzaWVyIHRvIG1haW50YWluCmlmIGl0J3MgbWluaW1hbCwgYmVpbmcgYXMgY2xvc2UgdG8gZW11
-bGF0aW5nIGhhcmR3YXJlCmFzIHdlIGNhbi4KCj4gLS0gCj4gZHdtdzIKPiAKPiAKCgpfX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
-YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
-cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
-YXRpb24=
+On Mon, Apr 18, 2016 at 02:00:06PM -0600, Alex Williamson wrote:
+> On Mon, 18 Apr 2016 12:58:28 +0300
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> 
+> > Modern virtio pci devices can set VIRTIO_F_IOMMU_PLATFORM
+> > to signal they are safe to use with an IOMMU.
+> > 
+> > Without this bit, exposing the device to userspace is unsafe, so probe
+> > and fail VFIO initialization unless noiommu is enabled.
+> > 
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> >  drivers/vfio/pci/vfio_pci_private.h |   1 +
+> >  drivers/vfio/pci/vfio_pci.c         |  11 +++
+> >  drivers/vfio/pci/vfio_pci_virtio.c  | 135 ++++++++++++++++++++++++++++++++++++
+> >  drivers/vfio/pci/Makefile           |   1 +
+> >  4 files changed, 148 insertions(+)
+> >  create mode 100644 drivers/vfio/pci/vfio_pci_virtio.c
+> > 
+> > diff --git a/drivers/vfio/pci/vfio_pci_private.h b/drivers/vfio/pci/vfio_pci_private.h
+> > index 8a7d546..604d445 100644
+> > --- a/drivers/vfio/pci/vfio_pci_private.h
+> > +++ b/drivers/vfio/pci/vfio_pci_private.h
+> > @@ -130,4 +130,5 @@ static inline int vfio_pci_igd_init(struct vfio_pci_device *vdev)
+> >  	return -ENODEV;
+> >  }
+> >  #endif
+> > +extern int vfio_pci_virtio_quirk(struct vfio_pci_device *vdev, int noiommu);
+> >  #endif /* VFIO_PCI_PRIVATE_H */
+> > diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+> > index d622a41..2bb8c76 100644
+> > --- a/drivers/vfio/pci/vfio_pci.c
+> > +++ b/drivers/vfio/pci/vfio_pci.c
+> > @@ -1125,6 +1125,17 @@ static int vfio_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+> >  		return ret;
+> >  	}
+> >  
+> > +	if (pdev->vendor == PCI_VENDOR_ID_REDHAT_QUMRANET &&
+> 
+> Virtio really owns this entire vendor ID block?  Apparently nobody told
+> ivshmem: http://pci-ids.ucw.cz/read/PC/1af4/1110  Even the comment by
+> virtio_pci_id_table[] suggests virtio is only a subset even if the code
+> doesn't appear to honor that comment.  I don't know the history there,
+> but that seems like really inefficient use of an entire, coveted vendor
+> block.
+
+True - virtio spec also says it's up to 0x107f.
+
+
+> > +	    ((ret = vfio_pci_virtio_quirk(vdev, ret)))) {
+> 
+> Please don't set variables like this unless necessary.
+> 
+> if (vendor...) {
+>    ret = vfio_pci_virtio_quir...
+>    if (ret) {
+>        ...
+> 
+> > +		dev_warn(&vdev->pdev->dev,
+> > +			 "Failed to setup Virtio for VFIO\n");
+> > +		vfio_del_group_dev(&pdev->dev);
+> > +		vfio_iommu_group_put(group, &pdev->dev);
+> > +		kfree(vdev);
+> > +		return ret;
+> > +	}
+> > +
+> > +
+> >  	if (vfio_pci_is_vga(pdev)) {
+> >  		vga_client_register(pdev, vdev, NULL, vfio_pci_set_vga_decode);
+> >  		vga_set_legacy_decoding(pdev,
+> > diff --git a/drivers/vfio/pci/vfio_pci_virtio.c b/drivers/vfio/pci/vfio_pci_virtio.c
+> > new file mode 100644
+> > index 0000000..1a32064
+> > --- /dev/null
+> > +++ b/drivers/vfio/pci/vfio_pci_virtio.c
+> > @@ -0,0 +1,135 @@
+> > +/*
+> > + * VFIO PCI Intel Graphics support
+> > + *
+> > + * Copyright (C) 2016 Red Hat, Inc.  All rights reserved.
+> > + *	Author: Alex Williamson <alex.williamson@redhat.com>
+> > + *
+> 
+> Update
+> 
+> > + * This program is free software; you can redistribute it and/or modify
+> > + * it under the terms of the GNU General Public License version 2 as
+> > + * published by the Free Software Foundation.
+> > + *
+> > + * Register a device specific region through which to provide read-only
+> > + * access to the Intel IGD opregion.  The register defining the opregion
+> > + * address is also virtualized to prevent user modification.
+> 
+> Update
+> 
+> > + */
+> > +
+> > +#include <linux/io.h>
+> > +#include <linux/pci.h>
+> > +#include <linux/uaccess.h>
+> > +#include <linux/vfio.h>
+> > +#include <linux/virtio_pci.h>
+> > +#include <linux/virtio_config.h>
+> 
+> I don't see where io or uaccess are needed here.
+> 
+> > +
+> > +#include "vfio_pci_private.h"
+> > +
+> > +/**
+> > + * virtio_pci_find_capability - walk capabilities to find device info.
+> > + * @dev: the pci device
+> > + * @cfg_type: the VIRTIO_PCI_CAP_* value we seek
+> > + *
+> > + * Returns offset of the capability, or 0.
+> > + */
+> > +static inline int virtio_pci_find_capability(struct pci_dev *dev, u8 cfg_type)
+> 
+> This is called from probe code, why inline?  There's already a function
+> with this exact same name in virtio code, can we come up with something
+> unique to avoid confusion?
+> 
+> > +{
+> > +	int pos;
+> > +
+> > +	for (pos = pci_find_capability(dev, PCI_CAP_ID_VNDR);
+> > +	     pos > 0;
+> > +	     pos = pci_find_next_capability(dev, pos, PCI_CAP_ID_VNDR)) {
+> > +		u8 type;
+> > +		pci_read_config_byte(dev, pos + offsetof(struct virtio_pci_cap,
+> > +							 cfg_type),
+> > +				     &type);
+> > +
+> > +		if (type != cfg_type)
+> > +			continue;
+> > +
+> > +		/* Ignore structures with reserved BAR values */
+> > +		if (type != VIRTIO_PCI_CAP_PCI_CFG) {
+> > +			u8 bar;
+> > +
+> > +			pci_read_config_byte(dev, pos +
+> > +					     offsetof(struct virtio_pci_cap,
+> > +						      bar),
+> > +					     &bar);
+> > +			if (bar > 0x5)
+> > +				continue;
+> > +		}
+> > +
+> > +		return pos;
+> > +	}
+> > +	return 0;
+> > +}
+> > +
+> > +
+> > +int vfio_pci_virtio_quirk(struct vfio_pci_device *vdev, int noiommu)
+> > +{
+> > +	struct pci_dev *dev = vdev->pdev;
+> > +	int common, cfg;
+> > +	u32 features;
+> > +	u32 offset;
+> > +	u8 bar;
+> > +
+> > +	/* Without an IOMMU, we don't care */
+> > +	if (noiommu)
+> > +		return 0;
+> > +	/* Check whether device enforces the IOMMU correctly */
+> > +
+> > +	/*
+> > +	 * All modern devices must have common and cfg capabilities. We use cfg
+> > +	 * capability for access so that we don't need to worry about resource
+> > +	 * availability. Slow but sure.
+> > +	 * Note that all vendor-specific fields we access are little-endian
+> > +	 * which matches what pci config accessors expect, so they do byteswap
+> > +	 * for us if appropriate.
+> > +	 */
+> > +	common = virtio_pci_find_capability(dev, VIRTIO_PCI_CAP_COMMON_CFG);
+> > +	cfg = virtio_pci_find_capability(dev, VIRTIO_PCI_CAP_PCI_CFG);
+> > +	if (!cfg || !common) {
+> > +                dev_warn(&dev->dev,
+> > +                         "Virtio device lacks common or pci cfg.\n");
+> 
+> White space
+> 
+> > +		return -ENODEV;
+> > +	}
+> > +
+> > +	pci_read_config_byte(dev, common + offsetof(struct virtio_pci_cap,
+> > +						    bar),
+> > +			     &bar);
+> > +	pci_read_config_dword(dev, common + offsetof(struct virtio_pci_cap,
+> > +						    offset),
+> > +			     &offset);
+> > +
+> > +	/* Program cfg capability for dword access into common cfg. */
+> > +	pci_write_config_byte(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
+> > +						  cap.bar),
+> > +			      bar);
+> > +	pci_write_config_dword(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
+> > +						   cap.length),
+> > +			       0x4);
+> > +
+> > +	/* Select features dword that has VIRTIO_F_IOMMU_PLATFORM. */
+> > +	pci_write_config_dword(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
+> > +						  cap.offset),
+> > +			       offset + offsetof(struct virtio_pci_common_cfg,
+> > +						 device_feature_select));
+> > +	pci_write_config_dword(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
+> > +						  pci_cfg_data),
+> > +			       VIRTIO_F_IOMMU_PLATFORM / 32);
+> > +
+> > +	/* Get the features dword. */
+> > +	pci_write_config_dword(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
+> > +						  cap.offset),
+> > +			       offset + offsetof(struct virtio_pci_common_cfg,
+> > +						 device_feature));
+> > +	pci_read_config_dword(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
+> > +						  pci_cfg_data),
+> > +			      &features);
+> > +
+> > +	/* Does this device obey the platform's IOMMU? If not it's an error. */
+> > +	if (!(features & (0x1 << (VIRTIO_F_IOMMU_PLATFORM % 32)))) {
+> > +                dev_warn(&dev->dev,
+> > +                         "Virtio device lacks VIRTIO_F_IOMMU_PLATFORM.\n");
+> 
+> White space
+> 
+> > +		return -ENODEV;
+> > +	}
+> > +
+> > +	return 0;
+> > +}
+> > diff --git a/drivers/vfio/pci/Makefile b/drivers/vfio/pci/Makefile
+> > index 76d8ec0..e9b20e7 100644
+> > --- a/drivers/vfio/pci/Makefile
+> > +++ b/drivers/vfio/pci/Makefile
+> > @@ -1,5 +1,6 @@
+> >  
+> >  vfio-pci-y := vfio_pci.o vfio_pci_intrs.o vfio_pci_rdwr.o vfio_pci_config.o
+> > +vfio-pci-y += vfio_pci_virtio.o
+> >  vfio-pci-$(CONFIG_VFIO_PCI_IGD) += vfio_pci_igd.o
+> >  
+> >  obj-$(CONFIG_VFIO_PCI) += vfio-pci.o
