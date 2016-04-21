@@ -1,17 +1,12 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH v4 6/6] hwmon: use smp_call_on_cpu() for dell-smm i8k
-Date: Thu, 21 Apr 2016 15:27:35 +0200
-Message-ID: <20160421132735.GR29406@pali>
-References: <1459833007-11618-1-git-send-email-jgross@suse.com>
-	<1459833007-11618-7-git-send-email-jgross@suse.com>
-	<20160405145414.GB27359@roeck-us.net> <201604052131.52765@pali>
-	<20160421105724.GK29406@pali> <5718D1D4.3040309@suse.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH V2 RFC] fixup! virtio: convert to use DMA api
+Date: Thu, 21 Apr 2016 16:43:45 +0300
+Message-ID: <1461245745-6710-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <5718D1D4.3040309@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,48 +16,98 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Juergen Gross <jgross@suse.com>
-Cc: x86@kernel.org, jeremy@goop.org, jdelvare@suse.com, peterz@infradead.org, akataria@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, hpa@zytor.com, xen-devel@lists.xenproject.org, boris.ostrovsky@oracle.com, tglx@linutronix.de, Guenter Roeck <linux@roeck-us.net>
+To: qemu-devel@nongnu.org, linux-kernel@vger.kernel.org
+Cc: Wei Liu <wei.liu2@citrix.com>, Andy Lutomirski <luto@kernel.org>, qemu-block@nongnu.org, Christian Borntraeger <borntraeger@de.ibm.com>, peterx@redhat.com, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, pbonzini@redhat.com, David Woodhouse <dwmw2@infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1cnNkYXkgMjEgQXByaWwgMjAxNiAxNToxMjo1MiBKdWVyZ2VuIEdyb3NzIHdyb3RlOgo+
-IE9uIDIxLzA0LzE2IDEyOjU3LCBQYWxpIFJvaMOhciB3cm90ZToKPiA+IE9uIFR1ZXNkYXkgMDUg
-QXByaWwgMjAxNiAyMTozMTo1MiBQYWxpIFJvaMOhciB3cm90ZToKPiA+PiBPbiBUdWVzZGF5IDA1
-IEFwcmlsIDIwMTYgMTY6NTQ6MTQgR3VlbnRlciBSb2VjayB3cm90ZToKPiA+Pj4gT24gVHVlLCBB
-cHIgMDUsIDIwMTYgYXQgMDc6MTA6MDdBTSArMDIwMCwgSnVlcmdlbiBHcm9zcyB3cm90ZToKPiA+
-Pj4+IFVzZSB0aGUgc21wX2NhbGxfb25fY3B1KCkgZnVuY3Rpb24gdG8gY2FsbCBzeXN0ZW0gbWFu
-YWdlbWVudAo+ID4+Pj4gbW9kZSBvbiBjcHUgMC4KPiA+Pj4+IE1ha2UgY2FsbCBzZWN1cmUgYnkg
-YWRkaW5nIGdldF9vbmxpbmVfY3B1cygpIHRvIGF2b2lkIGUuZy4gc3VzcGVuZAo+ID4+Pj4gcmVz
-dW1lIGN5Y2xlcyBpbiBiZXR3ZWVuLgo+ID4+Pj4KPiA+Pj4+IFNpZ25lZC1vZmYtYnk6IEp1ZXJn
-ZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT4KPiA+Pj4+IC0tLQo+ID4+Pj4gVjQ6IGFkZCBjYWxs
-IHRvIGdldF9vbmxpbmVfY3B1cygpCj4gPj4+Cj4gPj4+IFBhbGksIGFueSBjaGFuY2UgdG8gdGVz
-dCB0aGlzID8KPiA+Pgo+ID4+IEkgY2FuIHRlc3QgaXQsIGJ1dCBqdXN0IG9uIG1hY2hpbmUgd2hl
-cmUgKHByb2JhYmx5KSBzbW0gY2FsbHMgY2FuIGJlIAo+ID4+IHNlbmQgZnJvbSBhbnkgY3B1Li4u
-IE5lZWQgc29tZSB0aW1lIGZvciB0ZXN0aW5nIGFuZCBJIGJlbGlldmUgSSBjYW4gZG8gCj4gPj4g
-dGhhdCBhdCB0aGUgZW5kIG9mIHRoZSB3ZWVrLgo+ID4gCj4gPiBTb3JyeSBJIGhhZCBhYnNvbHV0
-ZWx5IG5vIG1vcmUgZnJlZSB0aW1lIGxhc3Qgd2Vla2VuZCA6LSggQW5kIHNhbWUKPiA+IHByZWRp
-Y3Rpb24gaXMgZm9yIHRoaXMgd2Vla2VuZCBhbmQgYWxzbyBuZXh0IG9uZS4uLgo+IAo+IFBhbGks
-IEkndmUgZ290IGEgRGVsbCBsYXB0b3AgKExhdGl0dWRlIEU2NDQwKSBoZXJlLiBXb3VsZCB0aGlz
-IGRldmljZSBiZQo+IG9rYXkgZm9yIGEgdGVzdD8KCkhpIQoKUHJvcGVyIHJlZ3Jlc3Npb24gdGVz
-dCBzaG91bGQgY2hlY2sgaWYgdGhpcyBwYXRjaCBkb2VzIG5vdCBicmVhayBhbnkKZnVuY3Rpb24g
-b3IgZHJpdmVycyBkZXBlbmRlbnQgb24gZGNkYmFzLmtvLiBBbmQgc2hvdWxkIGJlIGRvbmUgb24g
-Ym90aApub3RlYm9vayBkZXZpY2VzOiB3aGljaCBuZWVkcyB0byBpc3N1ZSB0aGF0IHNtbSBjYWxs
-IG9uIGNwdSAwIGFuZCBhbHNvCm9uIHdoaWNoIGl0IGlzIG5vdCBuZWVkZWQuCgpTb21lIG5vdGVi
-b29rcyB3aGljaCBuZWVkcyBzbW0gY2FsbCB0byBpc3N1ZWQgZnJvbSBjcHUgMCBjYW4gYmUgZm91
-bmQgaW4KZ2l0IGNvbW1pdCBtZXNzYWdlcyBvZiBpOGssIGRlbGwtbGFwdG9wIG9yIGRjZGJhcyBr
-ZXJuZWwgZHJpdmVycy4KCj4gV2hhdCB3b3VsZCB5b3UgZG8gZm9yIHRlc3Rpbmc/IEluIGNhc2Ug
-eW91IGNhbiBnaXZlIG1lCj4gc29tZSBoaW50cyBob3cgdG8gZG8gYSBzZW5zaWJsZSB0ZXN0IEkn
-ZCBkbyBpdC4KClRlc3QgZS5nLiBkZWxsLWxhcHRvcC5rbyBkcml2ZXIuIEl0IHByb3ZpZGVzIC9z
-eXMgaW50ZXJmYWNlIGZvciBjaGFuZ2luZwprZXlib2FyZCBiYWNrbGlnaHQgb3IgY2hhbmdpbmcg
-cmZraWxsIHN3aXRjaGVzIChibHVldG9vdGggd2lmaSkuCgpBbHNvIHRlc3QgdG9vbHMgZnJvbSBs
-aWJzbWJpb3MgKHVzZXJzcGFjZSkgcGFja2FnZS4KClRoZXJlIG11c3QgYmUgbm8gZGlmZmVyZW5j
-ZSBpbiBvdXRwdXQvZnVuY3Rpb25hbGl0eSB3aXRoIG9yIHdpdGhvdXQgeW91cgpwYXRjaGVzLgoK
-PiBJJ3ZlIHZlcmlmaWVkIGJ5IGFkZGluZyBhIHByaW50aygpIHRvIHNtcF9jYWxsX29uX2NwdSgp
-IHRoYXQgYXQgbGVhc3QKPiBvbmUgb2YgdGhlIG1vZGlmaWVkIGRyaXZlcnMgaGFzIGJlZW4gdXNl
-ZCBkdXJpbmcgc3lzdGVtIGJvb3QuCgpBbHNvIHlvdSBjYW4gcGF0Y2ggaThrL2RjZGJhcyBzbW0g
-ZnVuY3Rpb24gdG8gcHJpbnQgY3B1IG51bWJlciBvbiB3aGljaAppcyBjb2RlIHJ1bm5pbmcgKHRv
-IHZlcmlmeSB0aGF0IGl0IHdhcyByZWFsbHkgY2FsbGVkIG9uIGNwdSAwIGFzCm5lZWRlZCkuCgot
-LSAKUGFsaSBSb2jDoXIKcGFsaS5yb2hhckBnbWFpbC5jb20KX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
-cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
-dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+This adds a flag to enable/disable bypassing the IOMMU by
+virtio devices.
+
+This is on top of patch
+http://article.gmane.org/gmane.comp.emulators.qemu/403467
+virtio: convert to use DMA api
+
+Tested with patchset
+http://article.gmane.org/gmane.linux.kernel.virtualization/27545
+virtio-pci: iommu support (note: bit number has been kept at 34
+intentionally to match posted guest code. a non-RFC version will
+renumber bits to be contigious).
+
+changes from v1:
+    drop PASSTHROUGH flag
+
+The interaction between virtio and DMA API is messy.
+
+On most systems with virtio, physical addresses match bus addresses,
+and it doesn't particularly matter whether we use the DMA API.
+
+On some systems, including Xen and any system with a physical device
+that speaks virtio behind a physical IOMMU, we must use the DMA API
+for virtio DMA to work at all.
+
+Add a feature bit to detect that: VIRTIO_F_IOMMU_PLATFORM.
+
+If not there, we preserve historic behavior and bypass the DMA
+API unless within Xen guest. This is actually required for
+systems, including SPARC and PPC64, where virtio-pci devices are
+enumerated as though they are behind an IOMMU, but the virtio host
+ignores the IOMMU, so we must either pretend that the IOMMU isn't
+there or somehow map everything as the identity.
+
+Re: non-virtio devices.
+
+It turns out that on old QEMU hosts, only emulated devices which were
+part of QEMU use the IOMMU.  Should we want to bypass the IOMMU for such
+devices *only*, it would be rather easy to detect them by looking at
+subsystem vendor and device ID. Thus, no new interfaces are required
+except for virtio which always uses the same subsystem vendor and device ID.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ include/hw/virtio/virtio-access.h              | 3 ++-
+ include/hw/virtio/virtio.h                     | 4 +++-
+ include/standard-headers/linux/virtio_config.h | 2 ++
+ 3 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/include/hw/virtio/virtio-access.h b/include/hw/virtio/virtio-access.h
+index 967cc75..bb6f34e 100644
+--- a/include/hw/virtio/virtio-access.h
++++ b/include/hw/virtio/virtio-access.h
+@@ -23,7 +23,8 @@ static inline AddressSpace *virtio_get_dma_as(VirtIODevice *vdev)
+     BusState *qbus = qdev_get_parent_bus(DEVICE(vdev));
+     VirtioBusClass *k = VIRTIO_BUS_GET_CLASS(qbus);
+ 
+-    if (k->get_dma_as) {
++    if (virtio_host_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM) &&
++        k->get_dma_as) {
+         return k->get_dma_as(qbus->parent);
+     }
+     return &address_space_memory;
+diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
+index b12faa9..44f3788 100644
+--- a/include/hw/virtio/virtio.h
++++ b/include/hw/virtio/virtio.h
+@@ -228,7 +228,9 @@ typedef struct VirtIORNGConf VirtIORNGConf;
+     DEFINE_PROP_BIT64("notify_on_empty", _state, _field,  \
+                       VIRTIO_F_NOTIFY_ON_EMPTY, true), \
+     DEFINE_PROP_BIT64("any_layout", _state, _field, \
+-                      VIRTIO_F_ANY_LAYOUT, true)
++                      VIRTIO_F_ANY_LAYOUT, true), \
++    DEFINE_PROP_BIT64("iommu_platform", _state, _field, \
++                      VIRTIO_F_IOMMU_PLATFORM, false)
+ 
+ hwaddr virtio_queue_get_desc_addr(VirtIODevice *vdev, int n);
+ hwaddr virtio_queue_get_avail_addr(VirtIODevice *vdev, int n);
+diff --git a/include/standard-headers/linux/virtio_config.h b/include/standard-headers/linux/virtio_config.h
+index bcc445b..3fcfbb1 100644
+--- a/include/standard-headers/linux/virtio_config.h
++++ b/include/standard-headers/linux/virtio_config.h
+@@ -61,4 +61,6 @@
+ /* v1.0 compliant. */
+ #define VIRTIO_F_VERSION_1		32
+ 
++/* Do not bypass the IOMMU (if configured) */
++#define VIRTIO_F_IOMMU_PLATFORM		34
+ #endif /* _LINUX_VIRTIO_CONFIG_H */
+-- 
+MST
