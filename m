@@ -1,23 +1,16 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [PATCH RFC] fixup! virtio: convert to use DMA api
-Date: Wed, 20 Apr 2016 08:43:20 -0700
-Message-ID: <CALCETrV8L70f69yo=SEOM9VYYWFec45FjntuZP6gyE3xcB-pEw__45878.6233015873$1461167042$gmane$org@mail.gmail.com>
-References: <20160419190520-mutt-send-email-mst@redhat.com>
-	<CALCETrWEo12k49kFmPA3NByXrLb8OYQEmDYoYgngQcxMZ=1Mzw@mail.gmail.com>
-	<20160419191914-mutt-send-email-mst@redhat.com>
-	<1461083204.20056.8.camel@infradead.org>
-	<20160419204907-mutt-send-email-mst@redhat.com>
-	<CALCETrXsbYj5c3j2em2-jrhBWp-VqRJd900s5WDdVUMCN2aiNg@mail.gmail.com>
-	<20160419231437-mutt-send-email-mst@redhat.com>
-	<CALCETrXqrbwvStj9MhKizceze56SAFH_hUJwsQ83NsSRzWiq8Q@mail.gmail.com>
-	<20160419235212-mutt-send-email-mst@redhat.com>
-	<CALCETrUif0iAFWFsz-i848yUO9WrXZ7q+Kx3-4wu-dQRiuCweg@mail.gmail.com>
-	<20160420161338-mutt-send-email-mst@redhat.com>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH v4 6/6] hwmon: use smp_call_on_cpu() for dell-smm i8k
+Date: Thu, 21 Apr 2016 12:57:24 +0200
+Message-ID: <20160421105724.GK29406@pali>
+References: <1459833007-11618-1-git-send-email-jgross@suse.com>
+	<1459833007-11618-7-git-send-email-jgross@suse.com>
+	<20160405145414.GB27359@roeck-us.net> <201604052131.52765@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160420161338-mutt-send-email-mst@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <201604052131.52765@pali>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,102 +20,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Wei Liu <wei.liu2@citrix.com>, qemu-block@nongnu.org, kvm list <kvm@vger.kernel.org>, Amit Shah <amit.shah@redhat.com>, "qemu-devel@nongnu.org Developers" <qemu-devel@nongnu.org>, peterx@redhat.com, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, David Woodhouse <dwmw2@infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Juergen Gross <jgross@suse.com>, x86@kernel.org, jeremy@goop.org, jdelvare@suse.com, peterz@infradead.org, akataria@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, hpa@zytor.com, xen-devel@lists.xenproject.org, boris.ostrovsky@oracle.com, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Apr 20, 2016 6:14 AM, "Michael S. Tsirkin" <mst@redhat.com> wrote:
->
-> On Tue, Apr 19, 2016 at 02:07:01PM -0700, Andy Lutomirski wrote:
-> > On Tue, Apr 19, 2016 at 1:54 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > On Tue, Apr 19, 2016 at 01:27:29PM -0700, Andy Lutomirski wrote:
-> > >> On Tue, Apr 19, 2016 at 1:16 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > >> > On Tue, Apr 19, 2016 at 11:01:38AM -0700, Andy Lutomirski wrote:
-> > >> >> On Tue, Apr 19, 2016 at 10:49 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > >> >> > On Tue, Apr 19, 2016 at 12:26:44PM -0400, David Woodhouse wrote:
-> > >> >> >> On Tue, 2016-04-19 at 19:20 +0300, Michael S. Tsirkin wrote:
-> > >> >> >> >
-> > >> >> >> > > I thought that PLATFORM served that purpose.  Woudn't the host
-> > >> >> >> > > advertise PLATFORM support and, if the guest doesn't ack it, the host
-> > >> >> >> > > device would skip translation?  Or is that problematic for vfio?
-> > >> >> >> >
-> > >> >> >> > Exactly that's problematic for security.
-> > >> >> >> > You can't allow guest driver to decide whether device skips security.
-> > >> >> >>
-> > >> >> >> Right. Because fundamentally, this *isn't* a property of the endpoint
-> > >> >> >> device, and doesn't live in virtio itself.
-> > >> >> >>
-> > >> >> >> It's a property of the platform IOMMU, and lives there.
-> > >> >> >
-> > >> >> > It's a property of the hypervisor virtio implementation, and lives there.
-> > >> >>
-> > >> >> It is now, but QEMU could, in principle, change the way it thinks
-> > >> >> about it so that virtio devices would use the QEMU DMA API but ask
-> > >> >> QEMU to pass everything through 1:1.  This would be entirely invisible
-> > >> >> to guests but would make it be a property of the IOMMU implementation.
-> > >> >> At that point, maybe QEMU could find a (platform dependent) way to
-> > >> >> tell the guest what's going on.
-> > >> >>
-> > >> >> FWIW, as far as I can tell, PPC and SPARC really could, in principle,
-> > >> >> set up 1:1 mappings in the guest so that the virtio devices would work
-> > >> >> regardless of whether QEMU is ignoring the IOMMU or not -- I think the
-> > >> >> only obstacle is that the PPC and SPARC 1:1 mappings are currectly set
-> > >> >> up with an offset.  I don't know too much about those platforms, but
-> > >> >> presumably the layout could be changed so that 1:1 really was 1:1.
-> > >> >>
-> > >> >> --Andy
-> > >> >
-> > >> > Sure. Do you see any reason why the decision to do this can't be
-> > >> > keyed off the virtio feature bit?
-> > >>
-> > >> I can think of three types of virtio host:
-> > >>
-> > >> a) virtio always bypasses the IOMMU.
-> > >>
-> > >> b) virtio never bypasses the IOMMU (unless DMAR tables or similar say
-> > >> it does) -- i.e. virtio works like any other device.
-> > >>
-> > >> c) virtio may bypass the IOMMU depending on what the guest asks it to do.
-> > >
-> > > d) some virtio devices bypass the IOMMU and some don't,
-> > > e.g. it's harder to support IOMMU with vhost.
-> > >
-> > >
-> > >> If this is keyed off a virtio feature bit and anyone tries to
-> > >> implement (c), the vfio is going to have a problem.  And, if it's
-> > >> keyed off a virtio feature bit, then (a) won't work on Xen or similar
-> > >> setups unless the Xen hypervisor adds a giant and probably unreliable
-> > >> kludge to support it.  Meanwhile, 4.6-rc works fine under Xen on a
-> > >> default x86 QEMU configuration, and I'd really like to keep it that
-> > >> way.
-> > >>
-> > >> What could plausibly work using a virtio feature bit is for a device
-> > >> to say "hey, I'm a new device and I support the platform-defined IOMMU
-> > >> mechanism".  This bit would be *set* on default IOMMU-less QEMU
-> > >> configurations and on physical virtio PCI cards.
-> > >
-> > > And clear on xen.
-> >
-> > How?  QEMU has no idea that the guest is running Xen.
->
-> I was under impression xen_enabled() is true in QEMU.
-> Am I wrong?
-
-I'd be rather surprised, given that QEMU would have to inspect the
-guest kernel to figure it out.  I'm talking about Xen under QEMU.  For
-example, if you feed QEMU a guest disk image that contains Fedora with
-the xen packages installed, you can boot it and get a grub menu.  If
-you ask grub to boot Xen, you get Xen.  If you ask grub to boot Linux
-directly, you don't get Xen.
-
-I assume xen_enabled is for QEMU under Xen, i.e. QEMU, running under
-Xen, supplying emulated devices to a Xen domU guest.  Since QEMU is
-seeing the guest address space directly, this should be much the same
-as QEMU !xen_enabled -- if you boot plain Linux, everything works, but
-if you do Xen -> QEMU -> HVM guest running Xen PV -> Linux, then
-virtio drivers in the Xen PV Linux guest need to translate addresses.
---Andy
-
->
-> --
-> MST
+T24gVHVlc2RheSAwNSBBcHJpbCAyMDE2IDIxOjMxOjUyIFBhbGkgUm9ow6FyIHdyb3RlOgo+IE9u
+IFR1ZXNkYXkgMDUgQXByaWwgMjAxNiAxNjo1NDoxNCBHdWVudGVyIFJvZWNrIHdyb3RlOgo+ID4g
+T24gVHVlLCBBcHIgMDUsIDIwMTYgYXQgMDc6MTA6MDdBTSArMDIwMCwgSnVlcmdlbiBHcm9zcyB3
+cm90ZToKPiA+ID4gVXNlIHRoZSBzbXBfY2FsbF9vbl9jcHUoKSBmdW5jdGlvbiB0byBjYWxsIHN5
+c3RlbSBtYW5hZ2VtZW50Cj4gPiA+IG1vZGUgb24gY3B1IDAuCj4gPiA+IE1ha2UgY2FsbCBzZWN1
+cmUgYnkgYWRkaW5nIGdldF9vbmxpbmVfY3B1cygpIHRvIGF2b2lkIGUuZy4gc3VzcGVuZAo+ID4g
+PiByZXN1bWUgY3ljbGVzIGluIGJldHdlZW4uCj4gPiA+IAo+ID4gPiBTaWduZWQtb2ZmLWJ5OiBK
+dWVyZ2VuIEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+Cj4gPiA+IC0tLQo+ID4gPiBWNDogYWRkIGNh
+bGwgdG8gZ2V0X29ubGluZV9jcHVzKCkKPiA+IAo+ID4gUGFsaSwgYW55IGNoYW5jZSB0byB0ZXN0
+IHRoaXMgPwo+IAo+IEkgY2FuIHRlc3QgaXQsIGJ1dCBqdXN0IG9uIG1hY2hpbmUgd2hlcmUgKHBy
+b2JhYmx5KSBzbW0gY2FsbHMgY2FuIGJlIAo+IHNlbmQgZnJvbSBhbnkgY3B1Li4uIE5lZWQgc29t
+ZSB0aW1lIGZvciB0ZXN0aW5nIGFuZCBJIGJlbGlldmUgSSBjYW4gZG8gCj4gdGhhdCBhdCB0aGUg
+ZW5kIG9mIHRoZSB3ZWVrLgoKU29ycnkgSSBoYWQgYWJzb2x1dGVseSBubyBtb3JlIGZyZWUgdGlt
+ZSBsYXN0IHdlZWtlbmQgOi0oIEFuZCBzYW1lCnByZWRpY3Rpb24gaXMgZm9yIHRoaXMgd2Vla2Vu
+ZCBhbmQgYWxzbyBuZXh0IG9uZS4uLgoKLS0gClBhbGkgUm9ow6FyCnBhbGkucm9oYXJAZ21haWwu
+Y29tCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
+YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
+aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
+by92aXJ0dWFsaXphdGlvbg==
