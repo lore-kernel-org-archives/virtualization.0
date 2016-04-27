@@ -1,16 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Andy Lutomirski <luto@amacapital.net>
 Subject: Re: [PATCH V2 RFC] fixup! virtio: convert to use DMA api
-Date: Wed, 27 Apr 2016 16:37:04 +0300
-Message-ID: <20160427153345-mutt-send-email-mst__47668.7614959248$1461764249$gmane$org@redhat.com>
+Date: Wed, 27 Apr 2016 07:31:43 -0700
+Message-ID: <CALCETrVkSSJbjoK8i7pLsSYR0o=Wy1UP-mrmn2uxYUd81g18dg@mail.gmail.com>
 References: <1461245745-6710-1-git-send-email-mst@redhat.com>
 	<20160421135416.GE11775@citrix.com>
 	<1461759501.118304.149.camel@infradead.org>
+	<20160427153345-mutt-send-email-mst@redhat.com>
+	<20160427142331.GH17926@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1461759501.118304.149.camel@infradead.org>
+In-Reply-To: <20160427142331.GH17926@8bytes.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,76 +21,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Wei Liu <wei.liu2@citrix.com>, Andy Lutomirski <luto@kernel.org>, qemu-block@nongnu.org, Christian Borntraeger <borntraeger@de.ibm.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, qemu-devel@nongnu.org, peterx@redhat.com, linux-kernel@vger.kernel.org, Amit Shah <amit.shah@redhat.com>, iommu@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, pbonzini@redhat.com, virtualization@lists.linux-foundation.org, Anthony PERARD <anthony.perard@citrix.com>
+To: Joerg Roedel <joro@8bytes.org>
+Cc: Anthony PERARD <anthony.perard@citrix.com>, Wei Liu <wei.liu2@citrix.com>, Stefan Hajnoczi <stefanha@redhat.com>, qemu-block@nongnu.org, "Michael S. Tsirkin" <mst@redhat.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, "qemu-devel@nongnu.org Developers" <qemu-devel@nongnu.org>, peterx@redhat.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, iommu@lists.linux-foundation.org, Andy Lutomirski <luto@kernel.org>, kvm list <kvm@vger.kernel.org>, Amit Shah <amit.shah@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Woodhouse <dwmw2@infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBBcHIgMjcsIDIwMTYgYXQgMDE6MTg6MjFQTSArMDEwMCwgRGF2aWQgV29vZGhvdXNl
-IHdyb3RlOgo+IAo+ID4gPiBPbiBzb21lIHN5c3RlbXMsIGluY2x1ZGluZyBYZW4gYW5kIGFueSBz
-eXN0ZW0gd2l0aCBhIHBoeXNpY2FsIGRldmljZQo+ID4gPiB0aGF0IHNwZWFrcyB2aXJ0aW8gYmVo
-aW5kIGEgcGh5c2ljYWwgSU9NTVUsIHdlIG11c3QgdXNlIHRoZSBETUEgQVBJCj4gPiA+IGZvciB2
-aXJ0aW8gRE1BIHRvIHdvcmsgYXQgYWxsLgo+ID4gPsKgCj4gPiA+IEFkZCBhIGZlYXR1cmUgYml0
-IHRvIGRldGVjdCB0aGF0OiBWSVJUSU9fRl9JT01NVV9QTEFURk9STS4KPiA+ID7CoAo+ID4gPiBJ
-ZiBub3QgdGhlcmUsIHdlIHByZXNlcnZlIGhpc3RvcmljIGJlaGF2aW9yIGFuZCBieXBhc3MgdGhl
-IERNQQo+ID4gPiBBUEkgdW5sZXNzIHdpdGhpbiBYZW4gZ3Vlc3QuIFRoaXMgaXMgYWN0dWFsbHkg
-cmVxdWlyZWQgZm9yCj4gPiA+IHN5c3RlbXMsIGluY2x1ZGluZyBTUEFSQyBhbmQgUFBDNjQsIHdo
-ZXJlIHZpcnRpby1wY2kgZGV2aWNlcyBhcmUKPiA+ID4gZW51bWVyYXRlZCBhcyB0aG91Z2ggdGhl
-eSBhcmUgYmVoaW5kIGFuIElPTU1VLCBidXQgdGhlIHZpcnRpbyBob3N0Cj4gPiA+IGlnbm9yZXMg
-dGhlIElPTU1VLCBzbyB3ZSBtdXN0IGVpdGhlciBwcmV0ZW5kIHRoYXQgdGhlIElPTU1VIGlzbid0
-Cj4gPiA+IHRoZXJlIG9yIHNvbWVob3cgbWFwIGV2ZXJ5dGhpbmcgYXMgdGhlIGlkZW50aXR5Lgo+
-ID4gPsKgCj4gPiA+IFJlOiBub24tdmlydGlvIGRldmljZXMuCj4gPiA+wqAKPiA+ID4gSXQgdHVy
-bnMgb3V0IHRoYXQgb24gb2xkIFFFTVUgaG9zdHMsIG9ubHkgZW11bGF0ZWQgZGV2aWNlcyB3aGlj
-aCB3ZXJlCj4gPiA+IHBhcnQgb2YgUUVNVSB1c2UgdGhlIElPTU1VLsKgIFNob3VsZCB3ZSB3YW50
-IHRvIGJ5cGFzcyB0aGUgSU9NTVUgZm9yIHN1Y2gKPiA+ID4gZGV2aWNlcyAqb25seSosIGl0IHdv
-dWxkIGJlIHJhdGhlciBlYXN5IHRvIGRldGVjdCB0aGVtIGJ5IGxvb2tpbmcgYXQKPiA+ID4gc3Vi
-c3lzdGVtIHZlbmRvciBhbmQgZGV2aWNlIElELiBUaHVzLCBubyBuZXcgaW50ZXJmYWNlcyBhcmUg
-cmVxdWlyZWQKPiA+ID4gZXhjZXB0IGZvciB2aXJ0aW8gd2hpY2ggYWx3YXlzIHVzZXMgdGhlIHNh
-bWUgc3Vic3lzdGVtIHZlbmRvciBhbmQgZGV2aWNlIElELgo+IAo+IEFwb2xvZ2llcyBmb3IgZHJv
-cHBpbmcgdGhpcyB0aHJlYWQ7IEkndmUgYmVlbiB0cmF2ZWxsaW5nLgo+IAo+IEJ1dCBzZXJpb3Vz
-bHksIE5PIQo+IAo+IEkgdW5kZXJzdGFuZCB3aHkgeW91IHdhbnQgdG8gc2VlIHRoaXMgYXMgYSB2
-aXJ0aW8tc3BlY2lmaWMgaXNzdWUsIGJ1dAo+IGl0IGlzbid0LiBBbmQgd2UgZG9uJ3QgKndhbnQq
-IGl0IHRvIGJlLgo+IAo+IEluIHRoZSBndWVzdCwgZHJpdmVycyBTSEFMTCB1c2UgdGhlIERNQSBB
-UEkuIEFuZCB0aGUgRE1BIEFQSSBTSEFMTCBkbwo+IHRoZSByaWdodCB0aGluZyBmb3IgZWFjaCBk
-ZXZpY2UgYWNjb3JkaW5nIHRvIGl0cyBuZWVkcy4KPiAKPiBTbyBhbnkgaW5mb3JtYXRpb24gcGFz
-c2VkIGZyb20gcWVtdSB0byB0aGUgZ3Vlc3Qgc2hvdWxkIGJlIGRpcmVjdGVkIGF0Cj4gdGhlIHBs
-YXRmb3JtIElPTU1VIGNvZGUgKG9yIGhhbmRsZWQgYnkgcWVtdS1kZXRlY3Rpb24gcXVpcmtzIGlu
-IHRoZQo+IGd1ZXN0LCBpZiB3ZSBtdXN0KS4KPiAKPiBJdCBpcyAqbm90KiBhY2NlcHRhYmxlIGZv
-ciB0aGUgdmlydGlvIGRyaXZlcnMgaW4gdGhlIGd1ZXN0IHRvIGp1c3QKPiBlc2NoZXcgdGhlIERN
-QSBBUEkgY29tcGxldGVseSwgdHJpZ2dlcmVkIGJ5IHNvbWUgZGV2aWNlLXNwZWNpZmljIGZsYWcu
-Cj4gCj4gVGhlIHFlbXUgaW1wbGVtZW50YXRpb24gaXMsIG9mIGNvdXJzZSwgbW9ub2xpdGhpYy4g
-SW4gcWVtdSB0aGUgZmFjdAo+IHRoYXQgdmlydGlvIGRvZXNuJ3QgZ2V0IHRyYW5zbGF0ZWQgYnkg
-dGhlIGVtdWxhdGVkIElPTU1VICppcyogYWN0dWFsbHkKPiBkb3duIHRvIGNvZGUgaW4gdGhlIHZp
-cnRpbyBpbXBsZW1lbnRhdGlvbi4gSSBnZXQgdGhhdC4KPiAKPiBCdXQgdGhlbiBhZ2FpbiwgaXQn
-cyBub3QganVzdCB2aXJ0aW8uICpBbnkqIGRldmljZSB3aGljaCB3ZSBlbXVsYXRlIGZvcgo+IHRo
-ZSBndWVzdCBjb3VsZCBoYXZlIHRoYXQgc2FtZSBpc3N1ZSwgYW5kIGFwcGVhciBhcyB1bnRyYW5z
-bGF0ZWQuIChBbmQKPiBhc3NpZ25lZCBQQ0kgZGV2aWNlcyBjdXJyZW50bHkgZG8pLgo+IAo+IExl
-dCdzIHRoaW5rIGFib3V0IHRoZSBwYXJhbGxlbCB3aXRoIGEgc3lzdGVtLW9uLWNoaXAuIExldCdz
-IHNheSB3ZSBoYXZlCj4gYSBwZXJpcGhlcmFsIHdoaWNoIGdvdCBpbmNsdWRlZCwgYnV0IHdoaWNo
-IHdhcyB3aXJlZCB1cCBzdWNoIHRoYXQgaXQKPiBieXBhc3NlcyB0aGUgSU9NTVUgYW5kIGdldHMg
-dG8gZG8gZGlyZWN0IHBoeXNpY2FsIERNQS4gSXMgdGhhdCBhCj4gZmVhdHVyZSBvZiB0aGF0IHNw
-ZWNpZmljIHBlcmlwaGVyYWw/IERvIHdlIGhhY2sgaXRzIGRyaXZlcnMgdG8gbWFrZSB0aGUKPiBk
-aXN0aW5jdGlvbiBiZXR3ZWVuIHRoaXMgaW5jYXJuYXRpb24sIGFuZCBhIG5vcm1hbCBkaXNjcmV0
-ZSB2ZXJzaW9uIG9mCj4gdGhlIHNhbWUgZGV2aWNlPyBObyEgSXQncyBhIGZlYXR1cmUgb2YgdGhl
-ICpzeXN0ZW0qCgpPbmUgY29ycmVjdGlvbjogaXQncyBhIGZlYXR1cmUgb2YgdGhlIGRldmljZSBp
-biB0aGUgc3lzdGVtLgpUaGVyZSBjb3VsZCBiZSBhIG1peCBvZiBkZXZpY2VzIGJ5cGFzc2luZyBh
-bmQgbm90CmJ5cGFzc2luZyB0aGUgSU9NTVUuCgo+IGFuZCBuZWVkcyB0byBiZQo+IGNvbnZleWVk
-IHRvIHRoZSBPUyBJT01NVSBjb2RlIHRvIGRvIHRoZSByaWdodCB0aGluZy4gTm90IHRvIHRoZSBk
-cml2ZXIuCj4gCj4gSW4gbXkgb3BpbmlvbiwgYWRkaW5nIHRoZSBWSVJUSU9fRl9JT01NVV9QTEFU
-Rk9STSBmZWF0dXJlIGJpdCBpcwo+IGFic29sdXRlbHkgdGhlIHdyb25nIHRoaW5nIHRvIGRvLgo+
-IAo+IFdoYXQgd2UgKnNob3VsZCogZG8gaXMgYSBwYXRjaHNldCBpbiB0aGUgZ3Vlc3Qgd2hpY2gg
-Ym90aCBmaXhlcyB2aXJ0aW8KPiBkcml2ZXJzIHRvICphbHdheXMqIHVzZSB0aGUgRE1BIEFQSSwg
-YW5kIGZpeGVzIHRoZSBETUEgQVBJIHRvIERUUlQgYXQKPiB0aGUgc2FtZSB0aW1lIOKAlCBieSBk
-ZXRlY3RpbmcgcWVtdSBhbmQgaW5zdGFsbGluZyBuby1vcCBETUEgb3BzIGZvciB0aGUKPiBhcHBy
-b3ByaWF0ZSBkZXZpY2VzLCBwZXJoYXBzLgoKU291bmRzIGdvb2QuIEFuZCBhIHdheSB0byBkZXRl
-Y3QgYXBwcm9wcmlhdGUgZGV2aWNlcyBjb3VsZApiZSBieSBsb29raW5nIGF0IHRoZSBmZWF0dXJl
-IGZsYWcsIHBlcmhhcHM/CgoKPiBUaGVuIHdlIGNhbiBsb29rIGF0IGdpdmluZyBxZW11IGEgd2F5
-IHRvIHByb3Blcmx5IGluZGljYXRlIHdoaWNoCj4gZGV2aWNlcyBpdCBhY3R1YWxseSBkb2VzIERN
-QSBtYXBwaW5nIGZvciwgc28gd2UgY2FuIHJlbW92ZSB0aG9zZQo+IGhldXJpc3RpYyBhc3N1bXB0
-aW9ucy4KPiAKPiBCdXQgdGhhdCBmbGFnIGRvZXMgKm5vdCogbGl2ZSBpbiB0aGUgdmlydGlvIGhv
-c3TihpDihpJndWVzdCBBQkkuCj4gCj4gLS0gCj4gRGF2aWQgV29vZGhvdXNlICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgIE9wZW4gU291cmNlIFRlY2hub2xvZ3kgQ2VudHJlCj4gRGF2aWQuV29v
-ZGhvdXNlQGludGVsLmNvbSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIEludGVsIENvcnBv
-cmF0aW9uCj4gCgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
-LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Wed, Apr 27, 2016 at 7:23 AM, Joerg Roedel <joro@8bytes.org> wrote:
+> On Wed, Apr 27, 2016 at 04:37:04PM +0300, Michael S. Tsirkin wrote:
+>> One correction: it's a feature of the device in the system.
+>> There could be a mix of devices bypassing and not
+>> bypassing the IOMMU.
+>
+> No, it really is not. A device can't chose to bypass the IOMMU. But the
+> IOMMU can chose to let the device bypass. So any fix here belongs
+> into the platform/iommu code too and not into some driver.
+>
+>> Sounds good. And a way to detect appropriate devices could
+>> be by looking at the feature flag, perhaps?
+>
+> Again, no! The way to detect that is to look into the iommu description
+> structures provided by the firmware. They provide everything necessary
+> to tell the iommu code which devices are not translated.
+>
+
+Except on PPC and SPARC.  As far as I know, those are the only
+problematic platforms.
+
+Is it too late to *disable* QEMU's q35-iommu thingy until it can be
+fixed to report correct data in the DMAR tables?
+
+--Andy
