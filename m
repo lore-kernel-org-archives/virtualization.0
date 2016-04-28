@@ -1,7 +1,8 @@
 From: Pan Xinhui <xinhui@linux.vnet.ibm.com>
-Subject: [PATCH] powerpc: enable qspinlock and its virtualization support
-Date: Thu, 28 Apr 2016 18:39:42 +0800
-Message-ID: <5721E86E.6090400__24628.5815992907$1462273086$gmane$org@linux.vnet.ibm.com>
+Subject: [PATCH resend] powerpc: enable qspinlock and its virtualization
+	support
+Date: Thu, 28 Apr 2016 18:55:10 +0800
+Message-ID: <5721EC0E.8040506__22340.9241917127$1462273099$gmane$org@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,13 +16,13 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Marc Zyngier <marc.zyngier@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Boqun Feng <boqun.feng@gmail.com>, Gavin Shan <gwshan@linux.vnet.ibm.com>, Waiman Long <waiman.long@hpe.com>, Adam Buchbinder <adam.buchbinder@gmail.com>, Chris Wright <chrisw@sous-sol.org>, "'Peter Zijlstra (Intel)\"" <peterz@infradead.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Alok Kataria <akataria@vmware.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, tglx@linutronix.de
+To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org
+Cc: jeremy@goop.org, tglx@linutronix.de, "'Peter Zijlstra (Intel)\"" <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Boqun Feng <boqun.feng@gmail.com>, gwshan@linux.vnet.ibm.com, Waiman Long <waiman.long@hpe.com>, chrisw@sous-sol.org, marc.zyngier@arm.com, Paul Mackerras <paulus@samba.org>, akataria@vmware.com, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, adam.buchbinder@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 
-This path aims to enable qspinlock on PPC. And on pseries platform, it also support
+This patch aims to enable qspinlock on PPC. And on pseries platform, it also support
 paravirt qspinlock.
 
 Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
@@ -355,5 +356,4 @@ index 6e944fc..c9f056e 100644
  }
  
  static int __init pSeries_init_panel(void)
--- 
-2.4.3
+-- 2.4.3
