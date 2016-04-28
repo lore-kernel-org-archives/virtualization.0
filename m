@@ -1,15 +1,14 @@
-From: Minchan Kim <minchan@kernel.org>
-Subject: Re: [PATCH v4 00/13] Support non-lru page migration
-Date: Thu, 28 Apr 2016 08:54:13 +0900
-Message-ID: <20160427235413.GA19222@bbox>
-References: <1461743305-19970-1-git-send-email-minchan@kernel.org>
-	<20160427132035.e96f99f3420c8fb0020b0fc4@linux-foundation.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] vhost_net: stop polling socket during rx processing
+Date: Thu, 28 Apr 2016 14:19:39 +0800
+Message-ID: <5721AB7B.8070806@redhat.com>
+References: <1461656153-24074-1-git-send-email-jasowang@redhat.com>
+	<20160427141317-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160427132035.e96f99f3420c8fb0020b0fc4@linux-foundation.org>
+In-Reply-To: <20160427141317-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,44 +18,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Rik van Riel <riel@redhat.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Rafael Aquini <aquini@redhat.com>, Jonathan Corbet <corbet@lwn.net>, Chan Gyun Jeong <chan.jeong@lge.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, John Einar Reitan <john.reitan@foss.arm.com>, linux-mm@kvack.org, Chulmin Kim <cmlaika.kim@samsung.com>, Gioh Kim <gi-oh.kim@profitbricks.com>, Konstantin Khlebnikov <koct9i@gmail.com>, Sangseok Lee <sangseok.lee@lge.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Kyeongdon Kim <kyeongdon.kim@lge.com>, Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello Andrew,
 
-On Wed, Apr 27, 2016 at 01:20:35PM -0700, Andrew Morton wrote:
-> On Wed, 27 Apr 2016 16:48:13 +0900 Minchan Kim <minchan@kernel.org> wrote:
-> 
-> > Recently, I got many reports about perfermance degradation in embedded
-> > system(Android mobile phone, webOS TV and so on) and easy fork fail.
-> > 
-> > The problem was fragmentation caused by zram and GPU driver mainly.
-> > With memory pressure, their pages were spread out all of pageblock and
-> > it cannot be migrated with current compaction algorithm which supports
-> > only LRU pages. In the end, compaction cannot work well so reclaimer
-> > shrinks all of working set pages. It made system very slow and even to
-> > fail to fork easily which requires order-[2 or 3] allocations.
-> > 
-> > Other pain point is that they cannot use CMA memory space so when OOM
-> > kill happens, I can see many free pages in CMA area, which is not
-> > memory efficient. In our product which has big CMA memory, it reclaims
-> > zones too exccessively to allocate GPU and zram page although there are
-> > lots of free space in CMA so system becomes very slow easily.
-> > 
-> > To solve these problem, this patch tries to add facility to migrate
-> > non-lru pages via introducing new functions and page flags to help
-> > migration.
-> 
-> I'm seeing some rejects here against Mel's changes and our patch
-> bandwidth is getting waaay way ahead of our review bandwidth.  So I
-> think I'll loadshed this patchset at this time, sorry.
 
-I expected the conflict with Mel's change in recent mmotm but doesn't want
-to send patches against recent mmotm because it has several problems in
-compaction so my test was really trobule.
-I just picked patches from Hugh and Vlastimil and finally can test on it.
-Anyway, I will rebase my patches on recent mmotm, hoping you picked every
-patches on compaction part and respin after a few days.
+On 04/27/2016 07:28 PM, Michael S. Tsirkin wrote:
+> On Tue, Apr 26, 2016 at 03:35:53AM -0400, Jason Wang wrote:
+>> We don't stop polling socket during rx processing, this will lead
+>> unnecessary wakeups from under layer net devices (E.g
+>> sock_def_readable() form tun). Rx will be slowed down in this
+>> way. This patch avoids this by stop polling socket during rx
+>> processing. A small drawback is that this introduces some overheads in
+>> light load case because of the extra start/stop polling, but single
+>> netperf TCP_RR does not notice any change. In a super heavy load case,
+>> e.g using pktgen to inject packet to guest, we get about ~17%
+>> improvement on pps:
+>>
+>> before: ~1370000 pkt/s
+>> after:  ~1500000 pkt/s
+>>
+>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+>
+> There is one other possible enhancement: we actually have the wait queue
+> lock taken in _wake_up, but we give it up only to take it again in the
+> handler.
+>
+> It would be nicer to just remove the entry when we wake
+> the vhost thread. Re-add it if required.
+> I think that something like the below would give you the necessary API.
+> Pls feel free to use it if you are going to implement a patch on top
+> doing this - that's not a reason not to include this simple patch
+> though.
 
-Thanks for let me knowing your plan.
+Thanks, this looks useful, will give it a try.
+
+>
+> --->
+>
+> wait: add API to drop a wait_queue_t entry from wake up handler
+>
+> A wake up handler might want to remove its own wait queue entry to avoid
+> future wakeups.  In particular, vhost has such a need.  As wait queue
+> lock is already taken, all we need is an API to remove the entry without
+> wait_queue_head_t which isn't currently accessible to wake up handlers.
+>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>
+> ---
+>
+> diff --git a/include/linux/wait.h b/include/linux/wait.h
+> index 27d7a0a..9c6604b 100644
+> --- a/include/linux/wait.h
+> +++ b/include/linux/wait.h
+> @@ -191,11 +191,17 @@ __add_wait_queue_tail_exclusive(wait_queue_head_t *q, wait_queue_t *wait)
+>  }
+>  
+>  static inline void
+> -__remove_wait_queue(wait_queue_head_t *head, wait_queue_t *old)
+> +__remove_wait_queue_entry(wait_queue_t *old)
+>  {
+>  	list_del(&old->task_list);
+>  }
+>  
+> +static inline void
+> +__remove_wait_queue(wait_queue_head_t *head, wait_queue_t *old)
+> +{
+> +	__remove_wait_queue_entry(old);
+> +}
+> +
+>  typedef int wait_bit_action_f(struct wait_bit_key *, int mode);
+>  void __wake_up(wait_queue_head_t *q, unsigned int mode, int nr, void *key);
+>  void __wake_up_locked_key(wait_queue_head_t *q, unsigned int mode, void *key);
