@@ -1,15 +1,23 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC PATCH V2 2/2] vhost: device IOTLB API
-Date: Thu, 28 Apr 2016 14:37:16 +0800
-Message-ID: <5721AF9C.9030209@redhat.com>
-References: <1458873274-13961-1-git-send-email-jasowang@redhat.com>
-	<1458873274-13961-3-git-send-email-jasowang@redhat.com>
-	<20160427143057-mutt-send-email-mst@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH V2 RFC] fixup! virtio: convert to use DMA api
+Date: Thu, 28 Apr 2016 17:34:51 +0300
+Message-ID: <20160428172039-mutt-send-email-mst__11607.0842989304$1461854116$gmane$org@redhat.com>
+References: <20160421135416.GE11775@citrix.com>
+	<1461759501.118304.149.camel@infradead.org>
+	<20160427153345-mutt-send-email-mst@redhat.com>
+	<20160427142331.GH17926@8bytes.org>
+	<20160427172630-mutt-send-email-mst@redhat.com>
+	<20160427145632.GI17926@8bytes.org>
+	<20160427180007-mutt-send-email-mst@redhat.com>
+	<1461770135.118304.152.camel@infradead.org>
+	<20160427211635-mutt-send-email-mst@redhat.com>
+	<1461784617.118304.181.camel@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160427143057-mutt-send-email-mst@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1461784617.118304.181.camel@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,160 +27,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, qemu-devel@nongnu.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, peterx@redhat.com, virtualization@lists.linux-foundation.org, pbonzini@redhat.com
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Wei Liu <wei.liu2@citrix.com>, Stefan Hajnoczi <stefanha@redhat.com>, qemu-block@nongnu.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Joerg Roedel <joro@8bytes.org>, qemu-devel@nongnu.org, peterx@redhat.com, linux-kernel@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, iommu@lists.linux-foundation.org, Andy Lutomirski <luto@kernel.org>, kvm@vger.kernel.org, Amit Shah <amit.shah@redhat.com>, pbonzini@redhat.com, virtualization@lists.linux-foundation.org, Anthony PERARD <anthony.perard@citrix.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, Apr 27, 2016 at 08:16:57PM +0100, David Woodhouse wrote:
+> On Wed, 2016-04-27 at 21:17 +0300, Michael S. Tsirkin wrote:
+> > 
+> > > Because it's a dirty hack in the *wrong* place.
+> > 
+> > No one came up with a better one so far :(
+> 
+> Seriously?
+> 
+> Take a look at drivers/iommu/intel-iommu.c. It has quirks for all kinds
+> of shitty devices that have to be put in passthrough mode or otherwise
+> excluded.
+
+I see work-arounds for broken IOMMUs but not for
+individual devices. Could you point me to a more specific
+example?
 
 
-On 04/27/2016 07:45 PM, Michael S. Tsirkin wrote:
-> On Fri, Mar 25, 2016 at 10:34:34AM +0800, Jason Wang wrote:
->> This patch tries to implement an device IOTLB for vhost. This could be
->> used with for co-operation with userspace(qemu) implementation of DMA
->> remapping.
->>
->> The idea is simple. When vhost meets an IOTLB miss, it will request
->> the assistance of userspace to do the translation, this is done
->> through:
->>
->> - Fill the translation request in a preset userspace address (This
->>   address is set through ioctl VHOST_SET_IOTLB_REQUEST_ENTRY).
->> - Notify userspace through eventfd (This eventfd was set through ioctl
->>   VHOST_SET_IOTLB_FD).
-> Why use an eventfd for this?
+> We don't actually *need* it for the Intel IOMMU; all we need is for
+> QEMU to stop lying in its DMAR tables.
 
-The aim is to implement the API all through ioctls.
+We need it for legacy QEMU anyway, and it's not easy for QEMU to stop
+lying about virtio, so we'll need it for a while.
+I think it's easy for QEMU to stop lying about assigned devices,
+so we don't need it for non-virtio devices.
 
->  We use them for interrupts because
-> that happens to be what kvm wants, but here - why don't we
-> just add a generic support for reading out events
-> on the vhost fd itself?
+> We *do* want the same kind of quirks in the relevant POWER and ARM
+> IOMMU code in the kernel. Do that (hell, a simple quirk for all virtio
+> devices will suffice, but NOT in the virtio driver
 
-I've considered this approach, but what's the advantages of this? I mean
-looks like all other ioctls could be done through vhost fd
-reading/writing too.
+Sure - that works. It does not have to be in the driver.
 
->
->> - device IOTLB were started and stopped through VHOST_RUN_IOTLB ioctl
->>
->> When userspace finishes the translation, it will update the vhost
->> IOTLB through VHOST_UPDATE_IOTLB ioctl. Userspace is also in charge of
->> snooping the IOTLB invalidation of IOMMU IOTLB and use
->> VHOST_UPDATE_IOTLB to invalidate the possible entry in vhost.
-> There's one problem here, and that is that VQs still do not undergo
-> translation.  In theory VQ could be mapped in such a way
-> that it's not contigious in userspace memory.
+>) at the same moment
+> you fix the virtio devices to use the DMA API. Job done.
+> 
+> Some time *later* we can work on *refining* that quirk, and a way for
+> QEMU to tell the guest (via something generic like fwcfg, maybe) that
+> some devices are and aren't translated.
 
-I'm not sure I get the issue, current vhost API support setting
-desc_user_addr, used_user_addr and avail_user_addr independently. So
-looks ok? If not, looks not a problem to device IOTLB API itself.
+I don't see why how fwcfg can work here. It's a static thing,
+devices can come and go with hotplug.
 
->
->
->> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> What limits amount of entries that kernel keeps around?
+> Actually, I'm about to look at moving dma_ops into struct device and
+> cleaning up the way we detect which IOMMU is attached, at device
+> instantiation time. Perhaps I can shove the virtio-exception quirk in
+> there while I'm at it...
 
-It depends on guest working set I think. Looking at
-http://dpdk.org/doc/guides/linux_gsg/sys_reqs.html:
+Sounds good.
 
-- For 2MB page size in guest, it suggests hugepages=1024
-- For 1GB page size, it suggests a hugepages=4
-
-So I choose 2048 to make sure it can cover this.
-
-> Do we want at least a mod parameter for this?
-
-Maybe.
-
->
->> ---
->>  drivers/vhost/net.c        |   6 +-
->>  drivers/vhost/vhost.c      | 301 +++++++++++++++++++++++++++++++++++++++------
->>  drivers/vhost/vhost.h      |  17 ++-
->>  fs/eventfd.c               |   3 +-
->>  include/uapi/linux/vhost.h |  35 ++++++
->>  5 files changed, 320 insertions(+), 42 deletions(-)
->>
-
-[...]
-
->> +struct vhost_iotlb_entry {
->> +	__u64 iova;
->> +	__u64 size;
->> +	__u64 userspace_addr;
-> Alignment requirements?
-
-The API does not require any alignment. Will add a comment for this.
-
->
->> +	struct {
->> +#define VHOST_ACCESS_RO      0x1
->> +#define VHOST_ACCESS_WO      0x2
->> +#define VHOST_ACCESS_RW      0x3
->> +		__u8  perm;
->> +#define VHOST_IOTLB_MISS           1
->> +#define VHOST_IOTLB_UPDATE         2
->> +#define VHOST_IOTLB_INVALIDATE     3
->> +		__u8  type;
->> +#define VHOST_IOTLB_INVALID        0x1
->> +#define VHOST_IOTLB_VALID          0x2
->> +		__u8  valid;
-> why do we need this flag?
-
-Useless, will remove.
-
->
->> +		__u8  u8_padding;
->> +		__u32 padding;
->> +	} flags;
->> +};
->> +
->> +struct vhost_vring_iotlb_entry {
->> +	unsigned int index;
->> +	__u64 userspace_addr;
->> +};
->> +
->>  struct vhost_memory_region {
->>  	__u64 guest_phys_addr;
->>  	__u64 memory_size; /* bytes */
->> @@ -127,6 +153,15 @@ struct vhost_memory {
->>  /* Set eventfd to signal an error */
->>  #define VHOST_SET_VRING_ERR _IOW(VHOST_VIRTIO, 0x22, struct vhost_vring_file)
->>  
->> +/* IOTLB */
->> +/* Specify an eventfd file descriptor to signle on IOTLB miss */
-> typo
-
-Will fix it.
-
->
->> +#define VHOST_SET_VRING_IOTLB_CALL _IOW(VHOST_VIRTIO, 0x23, struct      \
->> +                                        vhost_vring_file)
->> +#define VHOST_SET_VRING_IOTLB_REQUEST _IOW(VHOST_VIRTIO, 0x25, struct   \
->> +                                           vhost_vring_iotlb_entry)
->> +#define VHOST_UPDATE_IOTLB _IOW(VHOST_VIRTIO, 0x24, struct vhost_iotlb_entry)
->> +#define VHOST_RUN_IOTLB _IOW(VHOST_VIRTIO, 0x26, int)
->> +
-> Is the assumption that userspace must dedicate a thread to running the iotlb? 
-> I dislike this one.
-> Please support asynchronous APIs at least optionally to make
-> userspace make its own threading decisions.
-
-Nope, my qemu patches does not use a dedicated thread. This API is used
-to start or top DMAR according to e.g whether guest enable DMAR for
-intel IOMMU.
-
->
->>  /* VHOST_NET specific defines */
->>  
->>  /* Attach virtio net ring to a raw socket, or tap device.
-> Don't we need a feature bit for this?
-
-Yes we need it. The feature bit is not considered in this patch and
-looks like it was still under discussion. After we finalize it, I will add.
-
-> Are we short on feature bits? If yes maybe it's time to add
-> something like PROTOCOL_FEATURES that we have in vhost-user.
->
-
-I believe it can just work like VERSION_1, or is there anything I missed?
+> -- 
+> dwmw2
+> 
