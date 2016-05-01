@@ -1,18 +1,23 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC PATCH V2 2/2] vhost: device IOTLB API
-Date: Fri, 29 Apr 2016 12:44:07 +0800
-Message-ID: <5722E697.1060600@redhat.com>
-References: <1458873274-13961-1-git-send-email-jasowang@redhat.com>
-	<1458873274-13961-3-git-send-email-jasowang@redhat.com>
-	<20160427143057-mutt-send-email-mst@redhat.com>
-	<5721AF9C.9030209@redhat.com>
-	<20160428173543-mutt-send-email-mst@redhat.com>
-	<5722B511.6060401@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH V2 RFC] fixup! virtio: convert to use DMA api
+Date: Sun, 1 May 2016 13:37:49 +0300
+Message-ID: <20160501132934-mutt-send-email-mst@redhat.com>
+References: <20160427172630-mutt-send-email-mst@redhat.com>
+	<20160427145632.GI17926@8bytes.org>
+	<20160427180007-mutt-send-email-mst@redhat.com>
+	<1461770135.118304.152.camel@infradead.org>
+	<20160427211635-mutt-send-email-mst@redhat.com>
+	<1461784617.118304.181.camel@infradead.org>
+	<20160428172039-mutt-send-email-mst@redhat.com>
+	<1461856314.33870.98.camel@infradead.org>
+	<20160428182341-mutt-send-email-mst@redhat.com>
+	<1461858505.33870.108.camel@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5722B511.6060401@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1461858505.33870.108.camel@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,79 +27,80 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, qemu-devel@nongnu.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, peterx@redhat.com, virtualization@lists.linux-foundation.org, pbonzini@redhat.com
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Wei Liu <wei.liu2@citrix.com>, Stefan Hajnoczi <stefanha@redhat.com>, qemu-block@nongnu.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Joerg Roedel <joro@8bytes.org>, qemu-devel@nongnu.org, peterx@redhat.com, linux-kernel@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, iommu@lists.linux-foundation.org, Andy Lutomirski <luto@kernel.org>, kvm@vger.kernel.org, Amit Shah <amit.shah@redhat.com>, pbonzini@redhat.com, virtualization@lists.linux-foundation.org, Anthony PERARD <anthony.perard@citrix.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Thu, Apr 28, 2016 at 04:48:25PM +0100, David Woodhouse wrote:
+> On Thu, 2016-04-28 at 18:37 +0300, Michael S. Tsirkin wrote:
+> > OK, so for intel, it seems that it's enough to set
+> > 	pdev->dev.archdata.iommu = DUMMY_DEVICE_DOMAIN_INFO;
+> > for the device.
+> 
+> Yes, currently. Although that's vile. In fact what we *want* to happen
+> is for the intel-iommu code simply to decline to provide DMA ops for
+> this device, and let it fall back to the swiotlb or no-op DMA ops, as
+> appropriate.
+> 
+> As it is, we have the intel-iommu DMA ops *unconditionally, and they
+> have a hack to manually fall back to calling swiotlb. It's all just
+> horrid, which is why I want to clean it up with nice per-device DMA ops
+> and discovery thereof :)
+> 
+> > Do I have to poke at each iommu implementation to find
+> > a way to do this, or is there some way to do it
+> > portably?
+> 
+> There *will* be.... Christoph has already done some of the cleanup in
+> this space, and I need to take stock of what he's already done, and
+> finish off the parts I want to build on top of it.
+> 
+> > Not exactly - I think that future versions of qemu might lie
+> > about some devices but not others.
+> 
+> Can we keep this simple?
+> 
+> QEMU currently lies about some devices. Let's implement a heuristic for
+> the guest OS to know about that, and react accordingly.
+> 
+> Then let's fix QEMU to tell the truth. All the time, unconditionally.
+> Even on POWER/ARM where there's no obvious *way* for it to tell the
+> truth (because you don't have the flexibility that DMAR tables do), and
+> we need to devise a way to put it in the device-tree or fwcfg or
+> something else.
 
+Right.  Unfortunately all these aren't easy to implement at all.
+So I'm inclined to go the "something else" route.
+It has the added benefit of giving us a heuristic for free.
 
-On 04/29/2016 09:12 AM, Jason Wang wrote:
-> On 04/28/2016 10:43 PM, Michael S. Tsirkin wrote:
->> > On Thu, Apr 28, 2016 at 02:37:16PM +0800, Jason Wang wrote:
->>> >>
->>> >> On 04/27/2016 07:45 PM, Michael S. Tsirkin wrote:
->>>> >>> On Fri, Mar 25, 2016 at 10:34:34AM +0800, Jason Wang wrote:
->>>>> >>>> This patch tries to implement an device IOTLB for vhost. This could be
->>>>> >>>> used with for co-operation with userspace(qemu) implementation of DMA
->>>>> >>>> remapping.
->>>>> >>>>
->>>>> >>>> The idea is simple. When vhost meets an IOTLB miss, it will request
->>>>> >>>> the assistance of userspace to do the translation, this is done
->>>>> >>>> through:
->>>>> >>>>
->>>>> >>>> - Fill the translation request in a preset userspace address (This
->>>>> >>>>   address is set through ioctl VHOST_SET_IOTLB_REQUEST_ENTRY).
->>>>> >>>> - Notify userspace through eventfd (This eventfd was set through ioctl
->>>>> >>>>   VHOST_SET_IOTLB_FD).
->>>> >>> Why use an eventfd for this?
->>> >> The aim is to implement the API all through ioctls.
->>> >>
->>>> >>>  We use them for interrupts because
->>>> >>> that happens to be what kvm wants, but here - why don't we
->>>> >>> just add a generic support for reading out events
->>>> >>> on the vhost fd itself?
->>> >> I've considered this approach, but what's the advantages of this? I mean
->>> >> looks like all other ioctls could be done through vhost fd
->>> >> reading/writing too.
->> > read/write have a non-blocking flag.
->> >
->> > It's not useful for other ioctls but it's useful here.
->> >
-> Ok, this looks better.
->
->>>>> >>>> - device IOTLB were started and stopped through VHOST_RUN_IOTLB ioctl
->>>>> >>>>
->>>>> >>>> When userspace finishes the translation, it will update the vhost
->>>>> >>>> IOTLB through VHOST_UPDATE_IOTLB ioctl. Userspace is also in charge of
->>>>> >>>> snooping the IOTLB invalidation of IOMMU IOTLB and use
->>>>> >>>> VHOST_UPDATE_IOTLB to invalidate the possible entry in vhost.
->>>> >>> There's one problem here, and that is that VQs still do not undergo
->>>> >>> translation.  In theory VQ could be mapped in such a way
->>>> >>> that it's not contigious in userspace memory.
->>> >> I'm not sure I get the issue, current vhost API support setting
->>> >> desc_user_addr, used_user_addr and avail_user_addr independently. So
->>> >> looks ok? If not, looks not a problem to device IOTLB API itself.
->> > The problem is that addresses are all HVA.
->> >
->> > Without an iommu, we ask for them to be contigious and
->> > since bus address == GPA, this means contigious GPA =>
->> > contigious HVA. With an IOMMU you can map contigious
->> > bus address but non contigious GPA and non contigious HVA.
-> Yes, so the issue is we should not reuse VHOST_SET_VRING_ADDR and invent
-> a new ioctl to set bus addr (guest iova). The access the VQ through
-> device IOTLB too.
+> And only once QEMU consistently tells the *truth*, then we can start to
+> do new stuff and let it actually change its behaviour.
+> 
+> > DMAR is unfortunately not a good match for what people do with QEMU.
+> > 
+> > There is a patchset on list fixing translation of assigned
+> > devices. So the fix for these will simply be to do translation for
+> > all assigned devices. It's harder for virtio as it isn't always
+> > processed in QEMU - there's vhost in kernel and an out of process
+> > vhost-user plugin. So we can end up e.g. with modern QEMU which
+> > does translate in-process virtio but not out of process one.
+> 
+> Right... just stop. Fix QEMU to tell the truth first, and *then* once
+> we can trust it, we can start to change its behaviour. :)
+> 
+> > Unfortunately people got used to be able to put any device
+> > in any slot, and built external tools around that ability.
+> > It's rather painful to break this assumption.
+> 
+> Well, if you just said you have a patch set which allows translation of
+> assigned devices then you are most of the way there, aren't you? We
+> just need to fix the out-of-process virtio case, and everything can be
+> either translated or untranslated?
 
-Note that userspace has checked for this and fallback to userspace if it
-detects non contiguous GPA. Consider this happens rare, I'm not sure we
-should handle this.
+Absolutely. But that "just" will take a while.  With out of process
+there's always a chance that remote doesn't implement translation. E.g.
+new QEMU running on an old host kernel.
 
->
->> >
->> > Another concern: what if guest changes the GPA while keeping bus address
->> > constant? Normal devices will work because they only use
->> > bus addresses, but virtio will break.
-> If we access VQ through device IOTLB too, this could be solved.
->
-
-I don't see a reason why guest want change GPA during DMA. Even if it
-can, it needs lots of other synchronization.
+> -- 
+> dwmw2
+> 
