@@ -1,15 +1,11 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH] tools/virtio/ringtest: fix run-on-all.sh to work
-	without /dev/cpu
-Date: Wed, 4 May 2016 08:40:21 +0200
-Message-ID: <20160504084021.18cf98f0.cornelia.huck__6167.97062471068$1462344049$gmane$org@de.ibm.com>
-References: <1462342376-16065-1-git-send-email-rppt@linux.vnet.ibm.com>
-	<1462342376-16065-2-git-send-email-rppt@linux.vnet.ibm.com>
+From: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Subject: [PATCH] tools/virtio/ringtest: add usage example to README
+Date: Wed,  4 May 2016 09:12:55 +0300
+Message-ID: <1462342376-16065-1-git-send-email-rppt__35288.4600208656$1462349066$gmane$org@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1462342376-16065-2-git-send-email-rppt@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,38 +15,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed,  4 May 2016 09:12:56 +0300
-Mike Rapoport <rppt@linux.vnet.ibm.com> wrote:
+Having typical usage example in the README file is more convinient than in
+the git history...
 
-> /dev/cpu is only available on x86 with certain modules (e.g. msr) enabled.
-> Using /proc/cpuinfo to get processors count is more portable.
-> 
-> Signed-off-by: Mike Rapoport <rppt@linux.vnet.ibm.com>
-> ---
->  tools/virtio/ringtest/run-on-all.sh | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/tools/virtio/ringtest/run-on-all.sh b/tools/virtio/ringtest/run-on-all.sh
-> index 52b0f71..38ccfa3 100755
-> --- a/tools/virtio/ringtest/run-on-all.sh
-> +++ b/tools/virtio/ringtest/run-on-all.sh
-> @@ -3,10 +3,10 @@
->  #use last CPU for host. Why not the first?
->  #many devices tend to use cpu0 by default so
->  #it tends to be busier
-> -HOST_AFFINITY=$(cd /dev/cpu; ls|grep -v '[a-z]'|sort -n|tail -1)
-> +HOST_AFFINITY=$(($(grep -c processor /proc/cpuinfo) - 1))
->  
->  #run command on all cpus
-> -for cpu in $(cd /dev/cpu; ls|grep -v '[a-z]'|sort -n);
-> +for cpu in $(seq 0 $HOST_AFFINITY)
->  do
->  	#Don't run guest and host on same CPU
->  	#It actually works ok if using signalling
+Signed-off-by: Mike Rapoport <rppt@linux.vnet.ibm.com>
+---
+ tools/virtio/ringtest/README | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-As you're touching this anyway: Is there any way to avoid the
-architecture-specific /proc/cpuinfo and do whatever lscpu does?
+diff --git a/tools/virtio/ringtest/README b/tools/virtio/ringtest/README
+index 34e94c4..d83707a 100644
+--- a/tools/virtio/ringtest/README
++++ b/tools/virtio/ringtest/README
+@@ -1,2 +1,6 @@
+ Partial implementation of various ring layouts, useful to tune virtio design.
+ Uses shared memory heavily.
++
++Typical use:
++
++# sh run-on-all.sh perf stat -r 10 --log-fd 1 -- ./ring
+-- 
+1.9.1
