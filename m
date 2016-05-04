@@ -1,14 +1,15 @@
-From: Pan Xinhui <xinhui@linux.vnet.ibm.com>
-Subject: Re: [PATCH resend] powerpc: enable qspinlock and its virtualization
-	support
-Date: Fri, 29 Apr 2016 10:34:28 +0800
-Message-ID: <5722C834.1030209__37733.0713825815$1462273129$gmane$org@linux.vnet.ibm.com>
-References: <5721EC0E.8040506@linux.vnet.ibm.com> <57227BAA.7040807@hpe.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH] tools/virtio/ringtest: fix run-on-all.sh to work
+	without /dev/cpu
+Date: Wed, 4 May 2016 08:40:21 +0200
+Message-ID: <20160504084021.18cf98f0.cornelia.huck__6167.97062471068$1462344049$gmane$org@de.ibm.com>
+References: <1462342376-16065-1-git-send-email-rppt@linux.vnet.ibm.com>
+	<1462342376-16065-2-git-send-email-rppt@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <57227BAA.7040807@hpe.com>
+In-Reply-To: <1462342376-16065-2-git-send-email-rppt@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,68 +19,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Waiman Long <waiman.long@hpe.com>
-Cc: jeremy@goop.org, tglx@linutronix.de, peterz@infradead.org, Michael Ellerman <mpe@ellerman.id.au>, Boqun Feng <boqun.feng@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, marc.zyngier@arm.com, Paul Mackerras <paulus@samba.org>, akataria@vmware.com, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, linuxppc-dev@lists.ozlabs.org, adam.buchbinder@gmail.com, gwshan@linux.vnet.ibm.com
+To: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTblubQwNOaciDI55pelIDA1OjA3LCBXYWltYW4gTG9uZyB3cm90ZToKPiBPbiAwNC8y
-OC8yMDE2IDA2OjU1IEFNLCBQYW4gWGluaHVpIHdyb3RlOgo+PiBGcm9tOiBQYW4gWGluaHVpPHhp
-bmh1aS5wYW5AbGludXgudm5ldC5pYm0uY29tPgo+Pgo+PiBUaGlzIHBhdGNoIGFpbXMgdG8gZW5h
-YmxlIHFzcGlubG9jayBvbiBQUEMuIEFuZCBvbiBwc2VyaWVzIHBsYXRmb3JtLCBpdCBhbHNvIHN1
-cHBvcnQKPj4gcGFyYXZpcnQgcXNwaW5sb2NrLgo+Pgo+PiBTaWduZWQtb2ZmLWJ5OiBQYW4gWGlu
-aHVpPHhpbmh1aS5wYW5AbGludXgudm5ldC5pYm0uY29tPgo+PiAtLS0KPj4gICBhcmNoL3Bvd2Vy
-cGMvaW5jbHVkZS9hc20vcXNwaW5sb2NrLmggICAgICAgICAgICAgICB8IDM3ICsrKysrKysrKysr
-KysrKwo+PiAgIGFyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9xc3BpbmxvY2tfcGFyYXZpcnQuaCAg
-ICAgIHwgMzYgKysrKysrKysrKysrKysrCj4+ICAgLi4uL3Bvd2VycGMvaW5jbHVkZS9hc20vcXNw
-aW5sb2NrX3BhcmF2aXJ0X3R5cGVzLmggfCAxMyArKysrKysKPj4gICBhcmNoL3Bvd2VycGMvaW5j
-bHVkZS9hc20vc3BpbmxvY2suaCAgICAgICAgICAgICAgICB8IDMxICsrKysrKysrLS0tLS0KPj4g
-ICBhcmNoL3Bvd2VycGMvaW5jbHVkZS9hc20vc3BpbmxvY2tfdHlwZXMuaCAgICAgICAgICB8ICA0
-ICsrCj4+ICAgYXJjaC9wb3dlcnBjL2tlcm5lbC9wYXJhdmlydC5jICAgICAgICAgICAgICAgICAg
-ICAgfCA1MiArKysrKysrKysrKysrKysrKysrKysrCj4+ICAgYXJjaC9wb3dlcnBjL2xpYi9sb2Nr
-cy5jICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAzMiArKysrKysrKysrKysrCj4+ICAgYXJj
-aC9wb3dlcnBjL3BsYXRmb3Jtcy9wc2VyaWVzL3NldHVwLmMgICAgICAgICAgICAgfCAgNSArKysK
-Pj4gICA4IGZpbGVzIGNoYW5nZWQsIDE5OCBpbnNlcnRpb25zKCspLCAxMiBkZWxldGlvbnMoLSkK
-Pj4gICBjcmVhdGUgbW9kZSAxMDA2NDQgYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3FzcGlubG9j
-ay5oCj4+ICAgY3JlYXRlIG1vZGUgMTAwNjQ0IGFyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9xc3Bp
-bmxvY2tfcGFyYXZpcnQuaAo+PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBhcmNoL3Bvd2VycGMvaW5j
-bHVkZS9hc20vcXNwaW5sb2NrX3BhcmF2aXJ0X3R5cGVzLmgKPj4gICBjcmVhdGUgbW9kZSAxMDA2
-NDQgYXJjaC9wb3dlcnBjL2tlcm5lbC9wYXJhdmlydC5jCj4+Cj4+Cj4gCj4gVGhpcyBpcyBqdXN0
-IGFuIGVuYWJsZW1lbnQgcGF0Y2guIFlvdSB3aWxsIGFsc28gbmVlZCBhIHBhdGNoIHRvIGFjdGl2
-YXRlIHFzcGlubG9jayBmb3IsIGF0IGxlYXNlLCBzb21lIFBQQyBjb25maWdzLiBSaWdodD8KPiAK
-eWVwLCBJIHdhbnQgdG8gZW5hYmxlIHRoZXNlIGNvbmZpZyBhbmQgbWFrZWZpbGUgYXQgbGFzdC4K
-aXQganVzdCBsb29rcyBsaWtlCgpkaWZmIC0tZ2l0IGEvYXJjaC9wb3dlcnBjL2tlcm5lbC9NYWtl
-ZmlsZSBiL2FyY2gvcG93ZXJwYy9rZXJuZWwvTWFrZWZpbGUKaW5kZXggMmRhMzgwZi4uYWU3YzJm
-MSAxMDA2NDQKLS0tIGEvYXJjaC9wb3dlcnBjL2tlcm5lbC9NYWtlZmlsZQorKysgYi9hcmNoL3Bv
-d2VycGMva2VybmVsL01ha2VmaWxlCkBAIC01MCw2ICs1MCw3IEBAIG9iai0kKENPTkZJR19QUENf
-OTcwX05BUCkJKz0gaWRsZV9wb3dlcjQubwogb2JqLSQoQ09ORklHX1BQQ19QN19OQVApCSs9IGlk
-bGVfcG93ZXI3Lm8KIHByb2Nmcy15CQkJOj0gcHJvY19wb3dlcnBjLm8KIG9iai0kKENPTkZJR19Q
-Uk9DX0ZTKQkJKz0gJChwcm9jZnMteSkKK29iai0kKENPTkZJR19QQVJBVklSVF9TUElOTE9DS1Mp
-CSs9IHBhcmF2aXJ0Lm8KIHJ0YXNwY2ktJChDT05GSUdfUFBDNjQpLSQoQ09ORklHX1BDSSkJOj0g
-cnRhc19wY2kubwogb2JqLSQoQ09ORklHX1BQQ19SVEFTKQkJKz0gcnRhcy5vIHJ0YXMtcnRjLm8g
-JChydGFzcGNpLXkteSkKIG9iai0kKENPTkZJR19QUENfUlRBU19EQUVNT04pCSs9IHJ0YXNkLm8K
-ZGlmZiAtLWdpdCBhL2FyY2gvcG93ZXJwYy9wbGF0Zm9ybXMvcHNlcmllcy9LY29uZmlnIGIvYXJj
-aC9wb3dlcnBjL3BsYXRmb3Jtcy9wc2VyaWVzL0tjb25maWcKaW5kZXggYmVjOTBmYi4uNDY2MzJl
-NCAxMDA2NDQKLS0tIGEvYXJjaC9wb3dlcnBjL3BsYXRmb3Jtcy9wc2VyaWVzL0tjb25maWcKKysr
-IGIvYXJjaC9wb3dlcnBjL3BsYXRmb3Jtcy9wc2VyaWVzL0tjb25maWcKQEAgLTIxLDYgKzIxLDcg
-QEAgY29uZmlnIFBQQ19QU0VSSUVTCiAJc2VsZWN0IEhPVFBMVUdfQ1BVIGlmIFNNUAogCXNlbGVj
-dCBBUkNIX1JBTkRPTQogCXNlbGVjdCBQUENfRE9PUkJFTEwKKwlzZWxlY3QgQVJDSF9VU0VfUVVF
-VUVEX1NQSU5MT0NLUwogCWRlZmF1bHQgeQogCiBjb25maWcgUFBDX1NQTFBBUgpAQCAtMTI3LDMg
-KzEyOCwxMSBAQCBjb25maWcgSFZfUEVSRl9DVFJTCiAJICBzeXN0ZW1zLiAyNHg3IGlzIGF2YWls
-YWJsZSBvbiBQb3dlciA4IHN5c3RlbXMuCiAKICAgICAgICAgICBJZiB1bnN1cmUsIHNlbGVjdCBZ
-LgorCitjb25maWcgUEFSQVZJUlRfU1BJTkxPQ0tTCisJYm9vbCAiUGFyYXZpcnRpYWxpemF0aW9u
-IHN1cHBvcnQgZm9yIHFzcGlubG9jayIKKwlkZXBlbmRzIG9uIFBQQ19TUExQQVIgJiYgUVVFVUVE
-X1NQSU5MT0NLUworCWRlZmF1bHQgeQorCWhlbHAKKwkgIElmIHBsYXRmb3JtIHN1cHBvcnRzIHZp
-cnR1YWxpemF0aW9uLCBmb3IgZXhhbXBsZSBQb3dlclZNLCB0aGlzIG9wdGlvbgorCSAgY2FuIGxl
-dCBndWVzdCBoYXZlIGEgYmV0dGVyIHBlcmZvcm1hY2UuCi0tIAoyLjQuMwoKPiBJdCBoYXMgZGVw
-ZW5kZW5jeSBvbiB0aGUgcHZfd2FpdCgpIHBhdGNoIHRoYXQgSSBzZW50IG91dCBleHRlbmQgdGhl
-IHBhcmFtZXRlciBsaXN0LiBTb21lIHBlcmZvcm1hbmNlIGRhdGEgb24gaG93IFBQQyBzeXN0ZW0g
-d2lsbCBwZXJmb3JtIHdpdGggYW5kIHdpdGhvdXQgcXNwaW5sb2NrIHdpbGwgYWxzbyBiZSBoZWxw
-ZnVsIGRhdGEgcG9pbnRzLgo+IApGb3Igbm93LCBwdl93YWl0IGRlZmluZWQgaW4gcHBjIGlzIHN0
-YXRpYyBpbmxpbmUgdm9pZCBwdl93YWl0KHU4ICpwdHIsIHU4IHZhbCkKTXkgcGxhbiBpcyB0aGF0
-IHdhaXRpbmcgeW91ciBwYXRjaCBnb2VzIGluIGtlcm5lbCB0cmVlIGZpcnN0LCB0aGVuIEkgc2Vu
-ZCBvdXQgYW5vdGhlciBwYXRjaCB0byBleHRlbmQgdGhlIHBhcmFtZXRlciBsaXN0LgoKeWVzLCBJ
-IG5lZWQgY29weSBzb21lIHBlcmZvcm1hbmNlIGRhdGEgaW4gbXkgcGF0Y2gncyBjb21tZW50cy4K
-CnRoYW5rcwp4aW5odWkKPiBDaGVlcnMsCj4gTG9uZ21hbgo+IAoKX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
-ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
-bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Wed,  4 May 2016 09:12:56 +0300
+Mike Rapoport <rppt@linux.vnet.ibm.com> wrote:
+
+> /dev/cpu is only available on x86 with certain modules (e.g. msr) enabled.
+> Using /proc/cpuinfo to get processors count is more portable.
+> 
+> Signed-off-by: Mike Rapoport <rppt@linux.vnet.ibm.com>
+> ---
+>  tools/virtio/ringtest/run-on-all.sh | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/tools/virtio/ringtest/run-on-all.sh b/tools/virtio/ringtest/run-on-all.sh
+> index 52b0f71..38ccfa3 100755
+> --- a/tools/virtio/ringtest/run-on-all.sh
+> +++ b/tools/virtio/ringtest/run-on-all.sh
+> @@ -3,10 +3,10 @@
+>  #use last CPU for host. Why not the first?
+>  #many devices tend to use cpu0 by default so
+>  #it tends to be busier
+> -HOST_AFFINITY=$(cd /dev/cpu; ls|grep -v '[a-z]'|sort -n|tail -1)
+> +HOST_AFFINITY=$(($(grep -c processor /proc/cpuinfo) - 1))
+>  
+>  #run command on all cpus
+> -for cpu in $(cd /dev/cpu; ls|grep -v '[a-z]'|sort -n);
+> +for cpu in $(seq 0 $HOST_AFFINITY)
+>  do
+>  	#Don't run guest and host on same CPU
+>  	#It actually works ok if using signalling
+
+As you're touching this anyway: Is there any way to avoid the
+architecture-specific /proc/cpuinfo and do whatever lscpu does?
