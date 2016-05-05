@@ -1,15 +1,12 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v3] tools/virtio/ringtest: fix run-on-all.sh to work
-	without /dev/cpu
-Date: Wed, 4 May 2016 12:24:56 +0200
-Message-ID: <20160504122456.1146b011.cornelia.huck@de.ibm.com>
-References: <20160504101454.2b62e974.cornelia.huck@de.ibm.com>
-	<1462356950-3278-1-git-send-email-rppt@linux.vnet.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL] virtio/qemu: fixes for 4.6
+Date: Thu, 5 May 2016 16:04:55 +0300
+Message-ID: <20160505160455-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1462356950-3278-1-git-send-email-rppt@linux.vnet.ibm.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,42 +16,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dan.carpenter@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed,  4 May 2016 13:15:50 +0300
-Mike Rapoport <rppt@linux.vnet.ibm.com> wrote:
+The following changes since commit c3b46c73264b03000d1e18b22f5caf63332547c9:
 
-> /dev/cpu is only available on x86 with certain modules (e.g. msr) enabled.
-> Using lscpu to get processors count is more portable.
-> 
-> Signed-off-by: Mike Rapoport <rppt@linux.vnet.ibm.com>
-> ---
-> v3: simplify by using lscpu -p=cpu 
-> v2: use lspcu instead of /proc/cpuinfo as per Cornelia's suggestion
-> 
->  tools/virtio/ringtest/run-on-all.sh | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/tools/virtio/ringtest/run-on-all.sh b/tools/virtio/ringtest/run-on-all.sh
-> index 52b0f71..2e69ca8 100755
-> --- a/tools/virtio/ringtest/run-on-all.sh
-> +++ b/tools/virtio/ringtest/run-on-all.sh
-> @@ -3,10 +3,10 @@
->  #use last CPU for host. Why not the first?
->  #many devices tend to use cpu0 by default so
->  #it tends to be busier
-> -HOST_AFFINITY=$(cd /dev/cpu; ls|grep -v '[a-z]'|sort -n|tail -1)
-> +HOST_AFFINITY=$(lscpu -p=cpu | tail -1)
-> 
->  #run command on all cpus
-> -for cpu in $(cd /dev/cpu; ls|grep -v '[a-z]'|sort -n);
-> +for cpu in $(seq 0 $HOST_AFFINITY)
->  do
->  	#Don't run guest and host on same CPU
->  	#It actually works ok if using signalling
+  Linux 4.6-rc4 (2016-04-17 19:13:32 -0700)
 
-I think it's fine to depend on lscpu for such a test tool.
+are available in the git repository at:
 
-Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to e00f7bd221292b318d4d09c3f0c2c8af9b1e5edf:
+
+  virtio: Silence uninitialized variable warning (2016-05-01 15:50:08 +0300)
+
+----------------------------------------------------------------
+virtio/qemu: fixes for 4.6
+
+A couple of fixes for virtio and for the new QEMU fw cfg driver.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Dan Carpenter (2):
+      firmware: qemu_fw_cfg.c: potential unintialized variable
+      virtio: Silence uninitialized variable warning
+
+ drivers/firmware/qemu_fw_cfg.c | 2 +-
+ drivers/virtio/virtio_ring.c   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
