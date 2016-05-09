@@ -1,23 +1,17 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH V2 RFC] fixup! virtio: convert to use DMA api
-Date: Mon, 9 May 2016 13:09:24 +0200
-Message-ID: <57306FE4.4050006__45665.9412979663$1462792220$gmane$org@redhat.com>
-References: <20160427153345-mutt-send-email-mst@redhat.com>
-	<20160427142331.GH17926@8bytes.org>
-	<20160427172630-mutt-send-email-mst@redhat.com>
-	<20160427145632.GI17926@8bytes.org>
-	<20160427180007-mutt-send-email-mst@redhat.com>
-	<1461770135.118304.152.camel@infradead.org>
-	<20160427211635-mutt-send-email-mst@redhat.com>
-	<1461784617.118304.181.camel@infradead.org>
-	<20160428172039-mutt-send-email-mst@redhat.com>
-	<1461856314.33870.98.camel@infradead.org>
-	<20160428182341-mutt-send-email-mst@redhat.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH v4 6/6] hwmon: use smp_call_on_cpu() for dell-smm i8k
+Date: Mon, 9 May 2016 16:37:01 +0200
+Message-ID: <5730A08D.60100__41736.5749403418$1462805479$gmane$org@suse.com>
+References: <1459833007-11618-1-git-send-email-jgross@suse.com>
+	<1459833007-11618-7-git-send-email-jgross@suse.com>
+	<20160405145414.GB27359@roeck-us.net> <201604052131.52765@pali>
+	<20160421105724.GK29406@pali> <5718D1D4.3040309@suse.com>
+	<20160421132735.GR29406@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160428182341-mutt-send-email-mst@redhat.com>
+In-Reply-To: <20160421132735.GR29406@pali>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,26 +21,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, David Woodhouse <dwmw2@infradead.org>
-Cc: Wei Liu <wei.liu2@citrix.com>, Stefan Hajnoczi <stefanha@redhat.com>, qemu-block@nongnu.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Joerg Roedel <joro@8bytes.org>, qemu-devel@nongnu.org, peterx@redhat.com, linux-kernel@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, iommu@lists.linux-foundation.org, Andy Lutomirski <luto@kernel.org>, kvm@vger.kernel.org, Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org, Anthony PERARD <anthony.perard@citrix.com>
+To: =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali.rohar@gmail.com>
+Cc: x86@kernel.org, jeremy@goop.org, jdelvare@suse.com, peterz@infradead.org, akataria@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, hpa@zytor.com, xen-devel@lists.xenproject.org, boris.ostrovsky@oracle.com, tglx@linutronix.de, Guenter Roeck <linux@roeck-us.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 28/04/2016 17:37, Michael S. Tsirkin wrote:
-> > All the internally-emulated devices *can* be either translated or
-> > untranslated. That's just a matter of software. Surely, you currently
-> > *can't* have translated assigned devices (until someone implements the
-> > whole VT-d page table shadowing or whatever), so you'll be barred from
-> > assigning a device to a slot which *previously* had an untranslated
-> > device. But so what? Put it in a different slot instead.
-> 
-> Unfortunately people got used to be able to put any device
-> in any slot, and built external tools around that ability.
-> It's rather painful to break this assumption.
-
-Once you move to PCIe, a lot of things become more complicated.  This is
-just one of them; instead of needing half a dozen PCI bridges, you'll
-need half a dozen plus one.
-
-Paolo
+T24gMjEvMDQvMTYgMTU6MjcsIFBhbGkgUm9ow6FyIHdyb3RlOgo+IE9uIFRodXJzZGF5IDIxIEFw
+cmlsIDIwMTYgMTU6MTI6NTIgSnVlcmdlbiBHcm9zcyB3cm90ZToKPj4gT24gMjEvMDQvMTYgMTI6
+NTcsIFBhbGkgUm9ow6FyIHdyb3RlOgo+Pj4gT24gVHVlc2RheSAwNSBBcHJpbCAyMDE2IDIxOjMx
+OjUyIFBhbGkgUm9ow6FyIHdyb3RlOgo+Pj4+IE9uIFR1ZXNkYXkgMDUgQXByaWwgMjAxNiAxNjo1
+NDoxNCBHdWVudGVyIFJvZWNrIHdyb3RlOgo+Pj4+PiBPbiBUdWUsIEFwciAwNSwgMjAxNiBhdCAw
+NzoxMDowN0FNICswMjAwLCBKdWVyZ2VuIEdyb3NzIHdyb3RlOgo+Pj4+Pj4gVXNlIHRoZSBzbXBf
+Y2FsbF9vbl9jcHUoKSBmdW5jdGlvbiB0byBjYWxsIHN5c3RlbSBtYW5hZ2VtZW50Cj4+Pj4+PiBt
+b2RlIG9uIGNwdSAwLgo+Pj4+Pj4gTWFrZSBjYWxsIHNlY3VyZSBieSBhZGRpbmcgZ2V0X29ubGlu
+ZV9jcHVzKCkgdG8gYXZvaWQgZS5nLiBzdXNwZW5kCj4+Pj4+PiByZXN1bWUgY3ljbGVzIGluIGJl
+dHdlZW4uCj4+Pj4+Pgo+Pj4+Pj4gU2lnbmVkLW9mZi1ieTogSnVlcmdlbiBHcm9zcyA8amdyb3Nz
+QHN1c2UuY29tPgo+Pj4+Pj4gLS0tCj4+Pj4+PiBWNDogYWRkIGNhbGwgdG8gZ2V0X29ubGluZV9j
+cHVzKCkKPj4+Pj4KPj4+Pj4gUGFsaSwgYW55IGNoYW5jZSB0byB0ZXN0IHRoaXMgPwo+Pj4+Cj4+
+Pj4gSSBjYW4gdGVzdCBpdCwgYnV0IGp1c3Qgb24gbWFjaGluZSB3aGVyZSAocHJvYmFibHkpIHNt
+bSBjYWxscyBjYW4gYmUgCj4+Pj4gc2VuZCBmcm9tIGFueSBjcHUuLi4gTmVlZCBzb21lIHRpbWUg
+Zm9yIHRlc3RpbmcgYW5kIEkgYmVsaWV2ZSBJIGNhbiBkbyAKPj4+PiB0aGF0IGF0IHRoZSBlbmQg
+b2YgdGhlIHdlZWsuCj4+Pgo+Pj4gU29ycnkgSSBoYWQgYWJzb2x1dGVseSBubyBtb3JlIGZyZWUg
+dGltZSBsYXN0IHdlZWtlbmQgOi0oIEFuZCBzYW1lCj4+PiBwcmVkaWN0aW9uIGlzIGZvciB0aGlz
+IHdlZWtlbmQgYW5kIGFsc28gbmV4dCBvbmUuLi4KPj4KPj4gUGFsaSwgSSd2ZSBnb3QgYSBEZWxs
+IGxhcHRvcCAoTGF0aXR1ZGUgRTY0NDApIGhlcmUuIFdvdWxkIHRoaXMgZGV2aWNlIGJlCj4+IG9r
+YXkgZm9yIGEgdGVzdD8KPiAKPiBIaSEKPiAKPiBQcm9wZXIgcmVncmVzc2lvbiB0ZXN0IHNob3Vs
+ZCBjaGVjayBpZiB0aGlzIHBhdGNoIGRvZXMgbm90IGJyZWFrIGFueQo+IGZ1bmN0aW9uIG9yIGRy
+aXZlcnMgZGVwZW5kZW50IG9uIGRjZGJhcy5rby4gQW5kIHNob3VsZCBiZSBkb25lIG9uIGJvdGgK
+PiBub3RlYm9vayBkZXZpY2VzOiB3aGljaCBuZWVkcyB0byBpc3N1ZSB0aGF0IHNtbSBjYWxsIG9u
+IGNwdSAwIGFuZCBhbHNvCj4gb24gd2hpY2ggaXQgaXMgbm90IG5lZWRlZC4KCkhtbSwgY291bGRu
+J3QgZ2V0IG9uZSB3aGljaCBuZWVkcyBzbW0gdG8gYmUgY2FsbGVkIG9uIGNwdSAwLgpPVE9IIEkn
+dmUgZG9uZSB2YXJpb3VzIHRlc3RzIGFuZCBhZGRlZCBhIHByaW50aygpIGluIHJhaXNlX3NtbSgp
+CmFuZCBpOGtfc21tX2Z1bmMoKSBpc3N1aW5nIHRoZSBjcHUgbnVtYmVyIGl0IHdhcyBjYWxsZWQg
+b24uCgo+IFNvbWUgbm90ZWJvb2tzIHdoaWNoIG5lZWRzIHNtbSBjYWxsIHRvIGlzc3VlZCBmcm9t
+IGNwdSAwIGNhbiBiZSBmb3VuZCBpbgo+IGdpdCBjb21taXQgbWVzc2FnZXMgb2YgaThrLCBkZWxs
+LWxhcHRvcCBvciBkY2RiYXMga2VybmVsIGRyaXZlcnMuCj4gCj4+IFdoYXQgd291bGQgeW91IGRv
+IGZvciB0ZXN0aW5nPyBJbiBjYXNlIHlvdSBjYW4gZ2l2ZSBtZQo+PiBzb21lIGhpbnRzIGhvdyB0
+byBkbyBhIHNlbnNpYmxlIHRlc3QgSSdkIGRvIGl0Lgo+IAo+IFRlc3QgZS5nLiBkZWxsLWxhcHRv
+cC5rbyBkcml2ZXIuIEl0IHByb3ZpZGVzIC9zeXMgaW50ZXJmYWNlIGZvciBjaGFuZ2luZwo+IGtl
+eWJvYXJkIGJhY2tsaWdodCBvciBjaGFuZ2luZyByZmtpbGwgc3dpdGNoZXMgKGJsdWV0b290aCB3
+aWZpKS4KCkRvbmUuCgo+IEFsc28gdGVzdCB0b29scyBmcm9tIGxpYnNtYmlvcyAodXNlcnNwYWNl
+KSBwYWNrYWdlLgoKRG9uZS4KCj4gVGhlcmUgbXVzdCBiZSBubyBkaWZmZXJlbmNlIGluIG91dHB1
+dC9mdW5jdGlvbmFsaXR5IHdpdGggb3Igd2l0aG91dCB5b3VyCj4gcGF0Y2hlcy4KClZlcmlmaWVk
+LgoKPj4gSSd2ZSB2ZXJpZmllZCBieSBhZGRpbmcgYSBwcmludGsoKSB0byBzbXBfY2FsbF9vbl9j
+cHUoKSB0aGF0IGF0IGxlYXN0Cj4+IG9uZSBvZiB0aGUgbW9kaWZpZWQgZHJpdmVycyBoYXMgYmVl
+biB1c2VkIGR1cmluZyBzeXN0ZW0gYm9vdC4KPiAKPiBBbHNvIHlvdSBjYW4gcGF0Y2ggaThrL2Rj
+ZGJhcyBzbW0gZnVuY3Rpb24gdG8gcHJpbnQgY3B1IG51bWJlciBvbiB3aGljaAo+IGlzIGNvZGUg
+cnVubmluZyAodG8gdmVyaWZ5IHRoYXQgaXQgd2FzIHJlYWxseSBjYWxsZWQgb24gY3B1IDAgYXMK
+PiBuZWVkZWQpLgoKRG9uZS4KCkkgdGVzdGVkIHN1c3BlbmQvcmVzdW1lLCB0b28sIGFzIGFkZGlu
+ZyBnZXRfb25saW5lX2NwdXMoKSBtaWdodCBoYXZlCmNoYW5nZWQgYmVoYXZpb3IuIFdvcmtlZCBs
+aWtlIGEgY2hhcm0uIDotKQoKCkp1ZXJnZW4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
+dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
+dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
