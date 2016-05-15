@@ -1,18 +1,12 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH v4 6/6] hwmon: use smp_call_on_cpu() for dell-smm i8k
-Date: Thu, 12 May 2016 10:51:42 +0200
-Message-ID: <20160512085142.GX29844@pali>
-References: <1459833007-11618-1-git-send-email-jgross@suse.com>
-	<1459833007-11618-7-git-send-email-jgross@suse.com>
-	<20160405145414.GB27359@roeck-us.net> <201604052131.52765@pali>
-	<20160421105724.GK29406@pali> <5718D1D4.3040309@suse.com>
-	<20160421132735.GR29406@pali> <5730A08D.60100@suse.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] tools/virtio: add inorder option
+Date: Sun, 15 May 2016 13:03:35 +0300
+Message-ID: <1463306294-4325-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <5730A08D.60100@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,61 +16,196 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Juergen Gross <jgross@suse.com>
-Cc: x86@kernel.org, jeremy@goop.org, jdelvare@suse.com, peterz@infradead.org, akataria@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, hpa@zytor.com, xen-devel@lists.xenproject.org, boris.ostrovsky@oracle.com, tglx@linutronix.de, Guenter Roeck <linux@roeck-us.net>
+To: linux-kernel@vger.kernel.org
+Cc: Jesper Dangaard Brouer <jbrouer@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uZGF5IDA5IE1heSAyMDE2IDE2OjM3OjAxIEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6Cj4gT24g
-MjEvMDQvMTYgMTU6MjcsIFBhbGkgUm9ow6FyIHdyb3RlOgo+ID4gT24gVGh1cnNkYXkgMjEgQXBy
-aWwgMjAxNiAxNToxMjo1MiBKdWVyZ2VuIEdyb3NzIHdyb3RlOgo+ID4+IE9uIDIxLzA0LzE2IDEy
-OjU3LCBQYWxpIFJvaMOhciB3cm90ZToKPiA+Pj4gT24gVHVlc2RheSAwNSBBcHJpbCAyMDE2IDIx
-OjMxOjUyIFBhbGkgUm9ow6FyIHdyb3RlOgo+ID4+Pj4gT24gVHVlc2RheSAwNSBBcHJpbCAyMDE2
-IDE2OjU0OjE0IEd1ZW50ZXIgUm9lY2sgd3JvdGU6Cj4gPj4+Pj4gT24gVHVlLCBBcHIgMDUsIDIw
-MTYgYXQgMDc6MTA6MDdBTSArMDIwMCwgSnVlcmdlbiBHcm9zcyB3cm90ZToKPiA+Pj4+Pj4gVXNl
-IHRoZSBzbXBfY2FsbF9vbl9jcHUoKSBmdW5jdGlvbiB0byBjYWxsIHN5c3RlbSBtYW5hZ2VtZW50
-Cj4gPj4+Pj4+IG1vZGUgb24gY3B1IDAuCj4gPj4+Pj4+IE1ha2UgY2FsbCBzZWN1cmUgYnkgYWRk
-aW5nIGdldF9vbmxpbmVfY3B1cygpIHRvIGF2b2lkIGUuZy4gc3VzcGVuZAo+ID4+Pj4+PiByZXN1
-bWUgY3ljbGVzIGluIGJldHdlZW4uCj4gPj4+Pj4+Cj4gPj4+Pj4+IFNpZ25lZC1vZmYtYnk6IEp1
-ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT4KPiA+Pj4+Pj4gLS0tCj4gPj4+Pj4+IFY0OiBh
-ZGQgY2FsbCB0byBnZXRfb25saW5lX2NwdXMoKQo+ID4+Pj4+Cj4gPj4+Pj4gUGFsaSwgYW55IGNo
-YW5jZSB0byB0ZXN0IHRoaXMgPwo+ID4+Pj4KPiA+Pj4+IEkgY2FuIHRlc3QgaXQsIGJ1dCBqdXN0
-IG9uIG1hY2hpbmUgd2hlcmUgKHByb2JhYmx5KSBzbW0gY2FsbHMgY2FuIGJlIAo+ID4+Pj4gc2Vu
-ZCBmcm9tIGFueSBjcHUuLi4gTmVlZCBzb21lIHRpbWUgZm9yIHRlc3RpbmcgYW5kIEkgYmVsaWV2
-ZSBJIGNhbiBkbyAKPiA+Pj4+IHRoYXQgYXQgdGhlIGVuZCBvZiB0aGUgd2Vlay4KPiA+Pj4KPiA+
-Pj4gU29ycnkgSSBoYWQgYWJzb2x1dGVseSBubyBtb3JlIGZyZWUgdGltZSBsYXN0IHdlZWtlbmQg
-Oi0oIEFuZCBzYW1lCj4gPj4+IHByZWRpY3Rpb24gaXMgZm9yIHRoaXMgd2Vla2VuZCBhbmQgYWxz
-byBuZXh0IG9uZS4uLgo+ID4+Cj4gPj4gUGFsaSwgSSd2ZSBnb3QgYSBEZWxsIGxhcHRvcCAoTGF0
-aXR1ZGUgRTY0NDApIGhlcmUuIFdvdWxkIHRoaXMgZGV2aWNlIGJlCj4gPj4gb2theSBmb3IgYSB0
-ZXN0Pwo+ID4gCj4gPiBIaSEKPiA+IAo+ID4gUHJvcGVyIHJlZ3Jlc3Npb24gdGVzdCBzaG91bGQg
-Y2hlY2sgaWYgdGhpcyBwYXRjaCBkb2VzIG5vdCBicmVhayBhbnkKPiA+IGZ1bmN0aW9uIG9yIGRy
-aXZlcnMgZGVwZW5kZW50IG9uIGRjZGJhcy5rby4gQW5kIHNob3VsZCBiZSBkb25lIG9uIGJvdGgK
-PiA+IG5vdGVib29rIGRldmljZXM6IHdoaWNoIG5lZWRzIHRvIGlzc3VlIHRoYXQgc21tIGNhbGwg
-b24gY3B1IDAgYW5kIGFsc28KPiA+IG9uIHdoaWNoIGl0IGlzIG5vdCBuZWVkZWQuCj4gCj4gSG1t
-LCBjb3VsZG4ndCBnZXQgb25lIHdoaWNoIG5lZWRzIHNtbSB0byBiZSBjYWxsZWQgb24gY3B1IDAu
-Cj4gT1RPSCBJJ3ZlIGRvbmUgdmFyaW91cyB0ZXN0cyBhbmQgYWRkZWQgYSBwcmludGsoKSBpbiBy
-YWlzZV9zbW0oKQo+IGFuZCBpOGtfc21tX2Z1bmMoKSBpc3N1aW5nIHRoZSBjcHUgbnVtYmVyIGl0
-IHdhcyBjYWxsZWQgb24uCgpVbmRlcnN0b29kLCB0aG9zZSBtYWNoaW5lcyBhcmUgb2xkIGFuZCBw
-cm9iYWJseSByYXJlIG5vdy4KCj4gPiBTb21lIG5vdGVib29rcyB3aGljaCBuZWVkcyBzbW0gY2Fs
-bCB0byBpc3N1ZWQgZnJvbSBjcHUgMCBjYW4gYmUgZm91bmQgaW4KPiA+IGdpdCBjb21taXQgbWVz
-c2FnZXMgb2YgaThrLCBkZWxsLWxhcHRvcCBvciBkY2RiYXMga2VybmVsIGRyaXZlcnMuCj4gPiAK
-PiA+PiBXaGF0IHdvdWxkIHlvdSBkbyBmb3IgdGVzdGluZz8gSW4gY2FzZSB5b3UgY2FuIGdpdmUg
-bWUKPiA+PiBzb21lIGhpbnRzIGhvdyB0byBkbyBhIHNlbnNpYmxlIHRlc3QgSSdkIGRvIGl0Lgo+
-ID4gCj4gPiBUZXN0IGUuZy4gZGVsbC1sYXB0b3Aua28gZHJpdmVyLiBJdCBwcm92aWRlcyAvc3lz
-IGludGVyZmFjZSBmb3IgY2hhbmdpbmcKPiA+IGtleWJvYXJkIGJhY2tsaWdodCBvciBjaGFuZ2lu
-ZyByZmtpbGwgc3dpdGNoZXMgKGJsdWV0b290aCB3aWZpKS4KPiAKPiBEb25lLgo+IAo+ID4gQWxz
-byB0ZXN0IHRvb2xzIGZyb20gbGlic21iaW9zICh1c2Vyc3BhY2UpIHBhY2thZ2UuCj4gCj4gRG9u
-ZS4KPiAKPiA+IFRoZXJlIG11c3QgYmUgbm8gZGlmZmVyZW5jZSBpbiBvdXRwdXQvZnVuY3Rpb25h
-bGl0eSB3aXRoIG9yIHdpdGhvdXQgeW91cgo+ID4gcGF0Y2hlcy4KPiAKPiBWZXJpZmllZC4KPiAK
-PiA+PiBJJ3ZlIHZlcmlmaWVkIGJ5IGFkZGluZyBhIHByaW50aygpIHRvIHNtcF9jYWxsX29uX2Nw
-dSgpIHRoYXQgYXQgbGVhc3QKPiA+PiBvbmUgb2YgdGhlIG1vZGlmaWVkIGRyaXZlcnMgaGFzIGJl
-ZW4gdXNlZCBkdXJpbmcgc3lzdGVtIGJvb3QuCj4gPiAKPiA+IEFsc28geW91IGNhbiBwYXRjaCBp
-OGsvZGNkYmFzIHNtbSBmdW5jdGlvbiB0byBwcmludCBjcHUgbnVtYmVyIG9uIHdoaWNoCj4gPiBp
-cyBjb2RlIHJ1bm5pbmcgKHRvIHZlcmlmeSB0aGF0IGl0IHdhcyByZWFsbHkgY2FsbGVkIG9uIGNw
-dSAwIGFzCj4gPiBuZWVkZWQpLgo+IAo+IERvbmUuCj4gCj4gSSB0ZXN0ZWQgc3VzcGVuZC9yZXN1
-bWUsIHRvbywgYXMgYWRkaW5nIGdldF9vbmxpbmVfY3B1cygpIG1pZ2h0IGhhdmUKPiBjaGFuZ2Vk
-IGJlaGF2aW9yLiBXb3JrZWQgbGlrZSBhIGNoYXJtLiA6LSkKCk9rLCBJIHRoaW5rIHRoaXMgc2hv
-dWxkIGJlIGVub3VnaC4gWW91IGNhbiBhZGQgbXkgQWNrZWQtYnkuCgotLSAKUGFsaSBSb2jDoXIK
-cGFsaS5yb2hhckBnbWFpbC5jb20KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
-c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
-Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+skips ring accesses but drops out of order support
+At high level this follows alf design
+https://github.com/netoptimizer/prototype-kernel/blob/master/kernel/lib/alf_queue.c
+but on most (single-threaded) benchmarks this seems to be slower than the layout
+without index use.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ tools/virtio/ringtest/virtio_ring_0_9.c     | 49 ++++++++++++++++++++++++++++-
+ tools/virtio/ringtest/virtio_ring_inorder.c |  2 ++
+ tools/virtio/ringtest/Makefile              |  4 ++-
+ 3 files changed, 53 insertions(+), 2 deletions(-)
+ create mode 100644 tools/virtio/ringtest/virtio_ring_inorder.c
+
+diff --git a/tools/virtio/ringtest/virtio_ring_0_9.c b/tools/virtio/ringtest/virtio_ring_0_9.c
+index 47c9a1a..7618662 100644
+--- a/tools/virtio/ringtest/virtio_ring_0_9.c
++++ b/tools/virtio/ringtest/virtio_ring_0_9.c
+@@ -26,6 +26,14 @@ struct vring ring;
+  * high bits of ring id ^ 0x8000).
+  */
+ /* #ifdef RING_POLL */
++/* enabling the below activates experimental in-order code
++ * (which skips ring updates and reads and writes len in descriptor).
++ */
++/* #ifdef INORDER */
++
++#if defined(RING_POLL) && defined(INORDER)
++#error "RING_POLL and INORDER are mutually exclusive"
++#endif
+ 
+ /* how much padding is needed to avoid false cache sharing */
+ #define HOST_GUEST_PADDING 0x80
+@@ -35,7 +43,11 @@ struct guest {
+ 	unsigned short last_used_idx;
+ 	unsigned short num_free;
+ 	unsigned short kicked_avail_idx;
++#ifndef INORDER
+ 	unsigned short free_head;
++#else
++	unsigned short reserved_free_head;
++#endif
+ 	unsigned char reserved[HOST_GUEST_PADDING - 10];
+ } guest;
+ 
+@@ -66,8 +78,10 @@ void alloc_ring(void)
+ 	guest.avail_idx = 0;
+ 	guest.kicked_avail_idx = -1;
+ 	guest.last_used_idx = 0;
++#ifndef INORDER
+ 	/* Put everything in free lists. */
+ 	guest.free_head = 0;
++#endif
+ 	for (i = 0; i < ring_size - 1; i++)
+ 		ring.desc[i].next = i + 1;
+ 	host.used_idx = 0;
+@@ -84,13 +98,20 @@ void alloc_ring(void)
+ /* guest side */
+ int add_inbuf(unsigned len, void *buf, void *datap)
+ {
+-	unsigned head, avail;
++	unsigned head;
++#ifndef INORDER
++	unsigned avail;
++#endif
+ 	struct vring_desc *desc;
+ 
+ 	if (!guest.num_free)
+ 		return -1;
+ 
++#ifdef INORDER
++	head = (ring_size - 1) & (guest.avail_idx++);
++#else
+ 	head = guest.free_head;
++#endif
+ 	guest.num_free--;
+ 
+ 	desc = ring.desc;
+@@ -102,7 +123,9 @@ int add_inbuf(unsigned len, void *buf, void *datap)
+ 	 * descriptors.
+ 	 */
+ 	desc[head].flags &= ~VRING_DESC_F_NEXT;
++#ifndef INORDER
+ 	guest.free_head = desc[head].next;
++#endif
+ 
+ 	data[head].data = datap;
+ 
+@@ -113,8 +136,12 @@ int add_inbuf(unsigned len, void *buf, void *datap)
+ 	ring.avail->ring[avail & (ring_size - 1)] =
+ 		(head | (avail & ~(ring_size - 1))) ^ 0x8000;
+ #else
++#ifndef INORDER
++	/* Barrier A (for pairing) */
++	smp_release();
+ 	avail = (ring_size - 1) & (guest.avail_idx++);
+ 	ring.avail->ring[avail] = head;
++#endif
+ 	/* Barrier A (for pairing) */
+ 	smp_release();
+ #endif
+@@ -141,15 +168,27 @@ void *get_buf(unsigned *lenp, void **bufp)
+ 		return NULL;
+ 	/* Barrier B (for pairing) */
+ 	smp_acquire();
++#ifdef INORDER
++	head = (ring_size - 1) & guest.last_used_idx;
++	index = head;
++#else
+ 	head = (ring_size - 1) & guest.last_used_idx;
+ 	index = ring.used->ring[head].id;
+ #endif
++
++#endif
++#ifdef INORDER
++	*lenp = ring.desc[index].len;
++#else
+ 	*lenp = ring.used->ring[head].len;
++#endif
+ 	datap = data[index].data;
+ 	*bufp = (void*)(unsigned long)ring.desc[index].addr;
+ 	data[index].data = NULL;
++#ifndef INORDER
+ 	ring.desc[index].next = guest.free_head;
+ 	guest.free_head = index;
++#endif
+ 	guest.num_free++;
+ 	guest.last_used_idx++;
+ 	return datap;
+@@ -283,16 +322,24 @@ bool use_buf(unsigned *lenp, void **bufp)
+ 	smp_acquire();
+ 
+ 	used_idx &= ring_size - 1;
++#ifdef INORDER
++	head = used_idx;
++#else
+ 	head = ring.avail->ring[used_idx];
++#endif
+ 	desc = &ring.desc[head];
+ #endif
+ 
+ 	*lenp = desc->len;
+ 	*bufp = (void *)(unsigned long)desc->addr;
+ 
++#ifdef INORDER
++	desc->len = desc->len - 1;
++#else
+ 	/* now update used ring */
+ 	ring.used->ring[used_idx].id = head;
+ 	ring.used->ring[used_idx].len = desc->len - 1;
++#endif
+ 	/* Barrier B (for pairing) */
+ 	smp_release();
+ 	host.used_idx++;
+diff --git a/tools/virtio/ringtest/virtio_ring_inorder.c b/tools/virtio/ringtest/virtio_ring_inorder.c
+new file mode 100644
+index 0000000..2438ca5
+--- /dev/null
++++ b/tools/virtio/ringtest/virtio_ring_inorder.c
+@@ -0,0 +1,2 @@
++#define INORDER 1
++#include "virtio_ring_0_9.c"
+diff --git a/tools/virtio/ringtest/Makefile b/tools/virtio/ringtest/Makefile
+index feaa64a..8037971 100644
+--- a/tools/virtio/ringtest/Makefile
++++ b/tools/virtio/ringtest/Makefile
+@@ -1,6 +1,6 @@
+ all:
+ 
+-all: ring virtio_ring_0_9 virtio_ring_poll
++all: ring virtio_ring_0_9 virtio_ring_poll virtio_ring_inorder
+ 
+ CFLAGS += -Wall
+ CFLAGS += -pthread -O2 -ggdb
+@@ -13,10 +13,12 @@ virtio_ring_poll.o: virtio_ring_poll.c virtio_ring_0_9.c main.h
+ ring: ring.o main.o
+ virtio_ring_0_9: virtio_ring_0_9.o main.o
+ virtio_ring_poll: virtio_ring_poll.o main.o
++virtio_ring_inorder: virtio_ring_inorder.o main.o
+ clean:
+ 	-rm main.o
+ 	-rm ring.o ring
+ 	-rm virtio_ring_0_9.o virtio_ring_0_9
+ 	-rm virtio_ring_poll.o virtio_ring_poll
++	-rm virtio_ring_inorder.o virtio_ring_inorder
+ 
+ .PHONY: all clean
+-- 
+MST
