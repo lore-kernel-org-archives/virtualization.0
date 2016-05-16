@@ -1,8 +1,8 @@
 From: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
 Subject: Re: [PATCH v5 02/12] mm: migrate: support non-lru movable page
 	migration
-Date: Mon, 16 May 2016 16:04:55 +0900
-Message-ID: <20160516070455.GA28813__37515.369783114$1463382370$gmane$org@swordfish>
+Date: Mon, 16 May 2016 16:17:51 +0900
+Message-ID: <20160516071751.GA32079@swordfish>
 References: <1462760433-32357-1-git-send-email-minchan@kernel.org>
 	<1462760433-32357-3-git-send-email-minchan@kernel.org>
 Mime-Version: 1.0
@@ -25,6 +25,7 @@ Cc: Rik van Riel <riel@redhat.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail
 List-Id: virtualization@lists.linuxfoundation.org
 
 On (05/09/16 11:20), Minchan Kim wrote:
+[..]
 > +++ b/include/linux/migrate.h
 > @@ -32,11 +32,16 @@ extern char *migrate_reason_names[MR_TYPES];
 >  
@@ -44,22 +45,7 @@ On (05/09/16 11:20), Minchan Kim wrote:
 >  extern int migrate_prep(void);
 >  extern int migrate_prep_local(void);
 
-__ClearPageMovable() is under CONFIG_MIGRATION in include/linux/migrate.h,
-but zsmalloc checks for CONFIG_COMPACTION.
-
-can we have stub declarations of movable functions for !CONFIG_MIGRATION builds?
-otherwise the users (zsmalloc, for example) have to do things like
-
-static void reset_page(struct page *page)
-{
-#ifdef CONFIG_COMPACTION
-        __ClearPageMovable(page);
-#endif
-        clear_bit(PG_private, &page->flags);
-        clear_bit(PG_private_2, &page->flags);
-        set_page_private(page, 0);
-        ClearPageHugeObject(page);
-        page->freelist = NULL;
-}
+given that some of Movable users can be built as modules, shouldn't
+at least some of those symbols be exported via EXPORT_SYMBOL?
 
 	-ss
