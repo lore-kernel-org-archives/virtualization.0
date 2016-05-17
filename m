@@ -1,17 +1,13 @@
-From: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-Subject: Re: [PATCH v5 02/12] mm: migrate: support non-lru movable page
-	migration
-Date: Tue, 17 May 2016 10:30:09 +0900
-Message-ID: <20160517013009.GB497__11754.7669135549$1463448658$gmane$org@swordfish>
-References: <1462760433-32357-1-git-send-email-minchan@kernel.org>
-	<1462760433-32357-3-git-send-email-minchan@kernel.org>
-	<20160516071751.GA32079@swordfish> <20160517011850.GD31335@bbox>
+From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v2 3/6] powerpc: lib/locks.c: cpu yield/wake helper function
+Date: Tue, 17 May 2016 15:49:44 +0800
+Message-ID: <1463471387-5115-4-git-send-email-xinhui.pan__28927.3236565807$1463506556$gmane$org@linux.vnet.ibm.com>
+References: <1463471387-5115-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160517011850.GD31335@bbox>
+In-Reply-To: <1463471387-5115-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,45 +17,80 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Minchan Kim <minchan@kernel.org>
-Cc: Rik van Riel <riel@redhat.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, Jonathan Corbet <corbet@lwn.net>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, John Einar Reitan <john.reitan@foss.arm.com>, linux-mm@kvack.org, Gioh Kim <gi-oh.kim@profitbricks.com>, Mel Gorman <mgorman@suse.de>, Andrew Morton <akpm@linux-foundation.org>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Vlastimil Babka <vbabka@suse.cz>, Rafael Aquini <aquini@redhat.com>
+To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org
+Cc: mnipxh@163.com, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, peterz@infradead.org, benh@kernel.crashing.org, boqun.feng@gmail.com, waiman.long@hpe.com, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, paulmck@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (05/17/16 10:18), Minchan Kim wrote:
-[..]
-> > >  #ifdef CONFIG_MIGRATION
-> > >  
-> > > +extern int PageMovable(struct page *page);
-> > > +extern void __SetPageMovable(struct page *page, struct address_space *mapping);
-> > > +extern void __ClearPageMovable(struct page *page);
-> > >  extern void putback_movable_pages(struct list_head *l);
-> > >  extern int migrate_page(struct address_space *,
-> > >  			struct page *, struct page *, enum migrate_mode);
-> > >  extern int migrate_pages(struct list_head *l, new_page_t new, free_page_t free,
-> > >  		unsigned long private, enum migrate_mode mode, int reason);
-> > > +extern bool isolate_movable_page(struct page *page, isolate_mode_t mode);
-> > > +extern void putback_movable_page(struct page *page);
-> > >  
-> > >  extern int migrate_prep(void);
-> > >  extern int migrate_prep_local(void);
-> > 
-> > given that some of Movable users can be built as modules, shouldn't
-> > at least some of those symbols be exported via EXPORT_SYMBOL?
-> 
-> Those functions aim for VM compaction so driver shouldn't use it.
-> Only driver should be aware of are __SetPageMovable and __CleraPageMovable.
-> I will export them.
-> 
+pv-qspinlock core has pv_wait/pv_kick which will give a better
+performace by yielding and kicking cpu at some cases.
+lets support them by adding two corresponding helper functions.
 
-and PageMovable(), probably?
+Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+---
+ arch/powerpc/include/asm/spinlock.h |  4 ++++
+ arch/powerpc/lib/locks.c            | 32 ++++++++++++++++++++++++++++++++
+ 2 files changed, 36 insertions(+)
 
-zsmalloc():
-
-	VM_BUG_ON_PAGE(!PageMovable(page), page);
-
-
-> Thanks for the review, Sergey!
-
-no prob! sorry, I'm a bit slow and late here.
-
-	-ss
+diff --git a/arch/powerpc/include/asm/spinlock.h b/arch/powerpc/include/asm/spinlock.h
+index 4359ee6..3b65372 100644
+--- a/arch/powerpc/include/asm/spinlock.h
++++ b/arch/powerpc/include/asm/spinlock.h
+@@ -56,9 +56,13 @@
+ /* We only yield to the hypervisor if we are in shared processor mode */
+ #define SHARED_PROCESSOR (lppaca_shared_proc(local_paca->lppaca_ptr))
+ extern void __spin_yield(arch_spinlock_t *lock);
++extern void __spin_yield_cpu(int cpu);
++extern void __spin_wake_cpu(int cpu);
+ extern void __rw_yield(arch_rwlock_t *lock);
+ #else /* SPLPAR */
+ #define __spin_yield(x)	barrier()
++#define __spin_yield_cpu(x) barrier()
++#define __spin_wake_cpu(x) barrier()
+ #define __rw_yield(x)	barrier()
+ #define SHARED_PROCESSOR	0
+ #endif
+diff --git a/arch/powerpc/lib/locks.c b/arch/powerpc/lib/locks.c
+index a9ebd71..4109679a 100644
+--- a/arch/powerpc/lib/locks.c
++++ b/arch/powerpc/lib/locks.c
+@@ -23,6 +23,38 @@
+ #include <asm/hvcall.h>
+ #include <asm/smp.h>
+ 
++void __spin_yield_cpu(int cpu)
++{
++	unsigned int holder_cpu = cpu, yield_count;
++
++	if (cpu == -1) {
++		plpar_hcall_norets(H_CEDE);
++		return;
++	}
++	BUG_ON(holder_cpu >= nr_cpu_ids);
++	yield_count = be32_to_cpu(lppaca_of(holder_cpu).yield_count);
++	if ((yield_count & 1) == 0)
++		return;		/* virtual cpu is currently running */
++	rmb();
++	plpar_hcall_norets(H_CONFER,
++		get_hard_smp_processor_id(holder_cpu), yield_count);
++}
++EXPORT_SYMBOL_GPL(__spin_yield_cpu);
++
++void __spin_wake_cpu(int cpu)
++{
++	unsigned int holder_cpu = cpu, yield_count;
++
++	BUG_ON(holder_cpu >= nr_cpu_ids);
++	yield_count = be32_to_cpu(lppaca_of(holder_cpu).yield_count);
++	if ((yield_count & 1) == 0)
++		return;		/* virtual cpu is currently running */
++	rmb();
++	plpar_hcall_norets(H_PROD,
++		get_hard_smp_processor_id(holder_cpu));
++}
++EXPORT_SYMBOL_GPL(__spin_wake_cpu);
++
+ #ifndef CONFIG_QUEUED_SPINLOCKS
+ void __spin_yield(arch_spinlock_t *lock)
+ {
+-- 
+1.9.1
