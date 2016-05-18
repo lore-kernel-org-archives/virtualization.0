@@ -1,14 +1,13 @@
-From: Juergen Gross <kernel@pfupf.net>
-Subject: Re: [PATCH v5 0/6] Support calling functions on dedicated physical cpu
-Date: Tue, 17 May 2016 13:21:21 +0200
-Message-ID: <573AFEB1.1060704__22284.4346579679$1463506622$gmane$org@pfupf.net>
-References: <1459952266-3687-1-git-send-email-jgross@suse.com>
-	<570E07FD.4030403@suse.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC 1/1] virtio-balloon: handle virtio-1 endianness
+Date: Wed, 18 May 2016 14:12:43 +0200
+Message-ID: <1463573563-34081-2-git-send-email-cornelia.huck@de.ibm.com>
+References: <1463573563-34081-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <570E07FD.4030403@suse.com>
+In-Reply-To: <1463573563-34081-1-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,76 +17,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org
-Cc: jeremy@goop.org, jdelvare@suse.com, peterz@infradead.org, hpa@zytor.com, akataria@vmware.com, x86@kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, pali.rohar@gmail.com, boris.ostrovsky@oracle.com, tglx@linutronix.de, linux@roeck-us.net
+To: mst@redhat.com
+Cc: borntraeger@de.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 13/04/16 10:49, Juergen Gross wrote:
-> On 06/04/16 16:17, Juergen Gross wrote:
->> Some hardware (e.g. Dell Studio laptops) require special functions to
->> be called on physical cpu 0 in order to avoid occasional hangs. When
->> running as dom0 under Xen this could be achieved only via special boot
->> parameters (vcpu pinning) limiting the hypervisor in it's scheduling
->> decisions.
->>
->> This patch series is adding a generic function to be able to temporarily
->> pin a (virtual) cpu to a dedicated physical cpu for executing above
->> mentioned functions on that specific cpu. The drivers (dcdbas and i8k)
->> requiring this functionality are modified accordingly.
->>
->> Changes in V5:
->> - patch 3: rename and reshuffle parameters of smp_call_on_cpu() as requested
->>   by Peter Zijlstra
->> - patch 3: test target cpu to be online as requested by Peter Zijlstra
->> - patch 4: less wordy messages as requested by David Vrabel
->>
->> Changes in V4:
->> - move patches 5 and 6 further up in the series
->> - patch 2 (was 5): WARN_ONCE in case platform doesn't support pinning
->>   as requested by Peter Zijlstra
->> - patch 3 (was 2): change return value in case of illegal cpu as
->>   requested by Peter Zijlstra
->> - patch 3 (was 2): make pinning of vcpu an option as suggested by
->>   Peter Zijlstra
->> - patches 5 and 6 (were 3 and 4): add call to get_online_cpus()
->>
->> Changes in V3:
->> - use get_cpu()/put_cpu() as suggested by David Vrabel
->>
->> Changes in V2:
->> - instead of manipulating the allowed set of cpus use cpu specific
->>   workqueue as requested by Peter Zijlstra
->> - add include/linux/hypervisor.h to hide architecture specific stuff
->>   from generic kernel code
->>
->> Juergen Gross (6):
->>   xen: sync xen header
->>   virt, sched: add generic vcpu pinning support
->>   smp: add function to execute a function synchronously on a cpu
->>   xen: add xen_pin_vcpu() to support calling functions on a dedicated
->>     pcpu
->>   dcdbas: make use of smp_call_on_cpu()
->>   hwmon: use smp_call_on_cpu() for dell-smm i8k
->>
->>  MAINTAINERS                       |   1 +
->>  arch/x86/include/asm/hypervisor.h |   4 ++
->>  arch/x86/kernel/cpu/hypervisor.c  |  11 +++++
->>  arch/x86/xen/enlighten.c          |  40 +++++++++++++++
->>  drivers/firmware/dcdbas.c         |  51 +++++++++----------
->>  drivers/hwmon/dell-smm-hwmon.c    |  35 +++++++------
->>  include/linux/hypervisor.h        |  17 +++++++
->>  include/linux/smp.h               |   3 ++
->>  include/xen/interface/sched.h     | 100 +++++++++++++++++++++++++++++++-------
->>  kernel/smp.c                      |  51 +++++++++++++++++++
->>  kernel/up.c                       |  18 +++++++
->>  11 files changed, 273 insertions(+), 58 deletions(-)
->>  create mode 100644 include/linux/hypervisor.h
->>
-> 
-> So patches 1, 3 and 4 are acked. Any comments regarding patches 2, 5
-> and 6?
+As virtio-1 devices use little endian on their queues, we need
+to make sure the pfns are in virtio32 format before we put
+them on the queue.
 
-Patch 6 gained another Ack. What about 2 and 5?
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ drivers/virtio/virtio_balloon.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-
-Juergen
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 7b6d74f..89da06c 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -76,6 +76,7 @@ struct virtio_balloon {
+ 	/* The array of pfns we tell the Host about. */
+ 	unsigned int num_pfns;
+ 	u32 pfns[VIRTIO_BALLOON_ARRAY_PFNS_MAX];
++	__virtio32 vpfns[VIRTIO_BALLOON_ARRAY_PFNS_MAX];
+ 
+ 	/* Memory statistics */
+ 	struct virtio_balloon_stat stats[VIRTIO_BALLOON_S_NR];
+@@ -115,8 +116,11 @@ static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq)
+ {
+ 	struct scatterlist sg;
+ 	unsigned int len;
++	int i;
+ 
+-	sg_init_one(&sg, vb->pfns, sizeof(vb->pfns[0]) * vb->num_pfns);
++	for (i = 0; i < vb->num_pfns; i++)
++		vb->vpfns[i] = cpu_to_virtio32(vb->vdev, vb->pfns[i]);
++	sg_init_one(&sg, vb->vpfns, sizeof(vb->vpfns[0]) * vb->num_pfns);
+ 
+ 	/* We should always be able to add one buffer to an empty queue. */
+ 	virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+-- 
+2.6.6
