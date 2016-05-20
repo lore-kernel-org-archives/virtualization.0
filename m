@@ -1,7 +1,7 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 Subject: Re: [PATCH RFC kernel] balloon: speed up inflating/deflating process
-Date: Fri, 20 May 2016 13:19:51 +0200
-Message-ID: <3e47bf87-3e9d-f836-021b-8a90919f9002@redhat.com>
+Date: Fri, 20 May 2016 12:32:43 +0200
+Message-ID: <20160520123243.59b91c00.cornelia.huck__41487.2292000384$1463743637$gmane$org@de.ibm.com>
 References: <1463738386-30868-1-git-send-email-liang.z.li@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -17,33 +17,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Liang Li <liang.z.li@intel.com>, mst@redhat.com
-Cc: kvm@vger.kernel.org, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, amit.shah@redhat.com, akpm@linux-foundation.org, dgilbert@redhat.com
+To: Liang Li <liang.z.li@intel.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Fri, 20 May 2016 17:59:46 +0800
+Liang Li <liang.z.li@intel.com> wrote:
 
+> The implementation of the current virtio-balloon is not very efficient,
+> Bellow is test result of time spends on inflating the balloon to 3GB of
+> a 4GB idle guest:
+> 
+> a. allocating pages (6.5%, 103ms)
+> b. sending PFNs to host (68.3%, 787ms)
+> c. address translation (6.1%, 96ms)
+> d. madvise (19%, 300ms)
+> 
+> It takes about 1577ms for the whole inflating process to complete. The
+> test shows that the bottle neck is the stage b and stage d.
+> 
+> If using a bitmap to send the page info instead of the PFNs, we can
+> reduce the overhead spends on stage b quite a lot. Furthermore, it's
+> possible to do the address translation and do the madvise with a bulk
+> of pages, instead of the current page per page way, so the overhead of
+> stage c and stage d can also be reduced a lot.
+> 
+> This patch is the kernel side implementation which is intended to speed
+> up the inflating & deflating process by adding a new feature to the
+> virtio-balloon device. And now, inflating the balloon to 3GB of a 4GB
+> idle guest only takes 175ms, it's about 9 times as fast as before.
+> 
+> TODO: optimize stage a by allocating/freeing a chunk of pages instead
+> of a single page at a time.
 
-On 20/05/2016 11:59, Liang Li wrote:
+Not commenting on the approach, but...
+
+> 
+> Signed-off-by: Liang Li <liang.z.li@intel.com>
+> ---
+>  drivers/virtio/virtio_balloon.c     | 199 ++++++++++++++++++++++++++++++++++--
+>  include/uapi/linux/virtio_balloon.h |   1 +
+>  mm/page_alloc.c                     |   6 ++
+>  3 files changed, 198 insertions(+), 8 deletions(-)
+> 
+
+>  static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq)
+>  {
+> -	struct scatterlist sg;
+>  	unsigned int len;
+> 
+> -	sg_init_one(&sg, vb->pfns, sizeof(vb->pfns[0]) * vb->num_pfns);
+> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_PAGE_BITMAP)) {
+> +		u32 page_shift = PAGE_SHIFT;
+> +		unsigned long start_pfn, end_pfn, flags = 0, bmap_len;
+> +		struct scatterlist sg[5];
+> +
+> +		start_pfn = rounddown(vb->start_pfn, BITS_PER_LONG);
+> +		end_pfn = roundup(vb->end_pfn, BITS_PER_LONG);
+> +		bmap_len = (end_pfn - start_pfn) / BITS_PER_LONG * sizeof(long);
 > +
 > +		sg_init_table(sg, 5);
 > +		sg_set_buf(&sg[0], &flags, sizeof(flags));
 > +		sg_set_buf(&sg[1], &start_pfn, sizeof(start_pfn));
 > +		sg_set_buf(&sg[2], &page_shift, sizeof(page_shift));
 > +		sg_set_buf(&sg[3], &bmap_len, sizeof(bmap_len));
-
-These four should probably be placed in a single struct and therefore a
-single sg entry.  It might even be faster to place it together with the
-bitmap, thus avoiding the use of indirect descriptors.
-
-You should also test ballooning of a 64GB guest after filling in the
-page cache, not just ballooning of a freshly booted 4GB guest.  This
-will give you a much more sparse bitmap.  Still, the improvement in
-sending PFNs to the host are impressive.
-
-Thanks,
-
-Paolo
-
 > +		sg_set_buf(&sg[4], vb->page_bitmap +
 > +				 (start_pfn / BITS_PER_LONG), bmap_len);
 > +		virtqueue_add_outbuf(vq, sg, 5, vb, GFP_KERNEL);
+> +
+
+...you need to take care of the endianness of the data you put on the
+queue, otherwise virtio-1 on big endian won't work. (There's just been
+a patch for that problem.)
