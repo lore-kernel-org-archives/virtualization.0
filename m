@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] vhost: cleanups and fixes
-Date: Tue, 24 May 2016 14:57:06 +0300
-Message-ID: <20160524145706-mutt-send-email-mst@redhat.com>
+Subject: [PATCH] tools/virtio: add noring tool
+Date: Tue, 24 May 2016 15:23:25 +0300
+Message-ID: <1464092577-12135-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,41 +16,121 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 2dcd0af568b0cf583645c8a317dd12e344b1c72a:
+Useful to measure testing framework overhead.
 
-  Linux 4.6 (2016-05-15 15:43:13 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-
-for you to fetch changes up to bb991288728e6a47a6f0fac6a4e9dfaeecc27956:
-
-  ringtest: pass buf != NULL (2016-05-22 19:44:14 +0300)
-
-----------------------------------------------------------------
-virtio: patches for 4.7
-
-Looks like a quiet cycle for virtio.  There's a new inorder option for the
-ringtest tool, and a bugfix for balloon for ppc platforms when using virtio 1
-mode.
-
+Cc: Jesper Dangaard Brouer <brouer@redhat.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ tools/virtio/ringtest/noring.c | 69 ++++++++++++++++++++++++++++++++++++++++++
+ tools/virtio/ringtest/Makefile |  4 ++-
+ 2 files changed, 72 insertions(+), 1 deletion(-)
+ create mode 100644 tools/virtio/ringtest/noring.c
 
-----------------------------------------------------------------
-Michael S. Tsirkin (3):
-      virtio: add inorder option
-      virtio_balloon: fix PFN format for virtio-1
-      ringtest: pass buf != NULL
-
- drivers/virtio/virtio_balloon.c             | 20 +++++++-----
- tools/virtio/ringtest/main.c                |  2 +-
- tools/virtio/ringtest/virtio_ring_0_9.c     | 49 ++++++++++++++++++++++++++++-
- tools/virtio/ringtest/virtio_ring_inorder.c |  2 ++
- tools/virtio/ringtest/Makefile              |  5 ++-
- 5 files changed, 67 insertions(+), 11 deletions(-)
- create mode 100644 tools/virtio/ringtest/virtio_ring_inorder.c
+diff --git a/tools/virtio/ringtest/noring.c b/tools/virtio/ringtest/noring.c
+new file mode 100644
+index 0000000..eda2f48
+--- /dev/null
++++ b/tools/virtio/ringtest/noring.c
+@@ -0,0 +1,69 @@
++#define _GNU_SOURCE
++#include "main.h"
++#include <assert.h>
++
++/* stub implementation: useful for measuring overhead */
++void alloc_ring(void)
++{
++}
++
++/* guest side */
++int add_inbuf(unsigned len, void *buf, void *datap)
++{
++	return 0;
++}
++
++/*
++ * skb_array API provides no way for producer to find out whether a given
++ * buffer was consumed.  Our tests merely require that a successful get_buf
++ * implies that add_inbuf succeed in the past, and that add_inbuf will succeed,
++ * fake it accordingly.
++ */
++void *get_buf(unsigned *lenp, void **bufp)
++{
++	return "Buffer";
++}
++
++void poll_used(void)
++{
++}
++
++void disable_call()
++{
++	assert(0);
++}
++
++bool enable_call()
++{
++	assert(0);
++}
++
++void kick_available(void)
++{
++	assert(0);
++}
++
++/* host side */
++void disable_kick()
++{
++	assert(0);
++}
++
++bool enable_kick()
++{
++	assert(0);
++}
++
++void poll_avail(void)
++{
++}
++
++bool use_buf(unsigned *lenp, void **bufp)
++{
++	return true;
++}
++
++void call_used(void)
++{
++	assert(0);
++}
+diff --git a/tools/virtio/ringtest/Makefile b/tools/virtio/ringtest/Makefile
+index a8356d8..b3d5bc8 100644
+--- a/tools/virtio/ringtest/Makefile
++++ b/tools/virtio/ringtest/Makefile
+@@ -1,6 +1,6 @@
+ all:
+ 
+-all: ring virtio_ring_0_9 virtio_ring_poll virtio_ring_inorder skb_array
++all: ring virtio_ring_0_9 virtio_ring_poll virtio_ring_inorder skb_array noring
+ 
+ CFLAGS += -Wall
+ CFLAGS += -pthread -O2 -ggdb
+@@ -17,6 +17,7 @@ virtio_ring_0_9: virtio_ring_0_9.o main.o
+ virtio_ring_poll: virtio_ring_poll.o main.o
+ virtio_ring_inorder: virtio_ring_inorder.o main.o
+ skb_array: skb_array.o main.o
++noring: noring.o main.o
+ clean:
+ 	-rm main.o
+ 	-rm ring.o ring
+@@ -24,5 +25,6 @@ clean:
+ 	-rm virtio_ring_poll.o virtio_ring_poll
+ 	-rm virtio_ring_inorder.o virtio_ring_inorder
+ 	-rm skb_array.o skb_array
++	-rm noring.o noring
+ 
+ .PHONY: all clean
+-- 
+MST
