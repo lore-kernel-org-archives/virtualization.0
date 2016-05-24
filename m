@@ -1,15 +1,11 @@
-From: "Li, Liang Z" <liang.z.li@intel.com>
-Subject: RE: [PATCH RFC kernel] balloon: speed up inflating/deflating process
-Date: Tue, 24 May 2016 07:51:21 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E041A48B2__28115.9797254533$1464076299$gmane$org@shsmsx102.ccr.corp.intel.com>
-References: <1463738386-30868-1-git-send-email-liang.z.li@intel.com>
-	<3e47bf87-3e9d-f836-021b-8a90919f9002@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [RFC PATCH V3 0/3] basic device IOTLB support
+Date: Tue, 24 May 2016 17:36:22 +0800
+Message-ID: <1464082585-13049-1-git-send-email-jasowang__41178.9140351631$1464082607$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <3e47bf87-3e9d-f836-021b-8a90919f9002@redhat.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,42 +15,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>, "mst@redhat.com" <mst@redhat.com>
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>
+To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: vkaplans@redhat.com, wexu@redhat.com, peterx@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-> On 20/05/2016 11:59, Liang Li wrote:
-> > +
-> > +		sg_init_table(sg, 5);
-> > +		sg_set_buf(&sg[0], &flags, sizeof(flags));
-> > +		sg_set_buf(&sg[1], &start_pfn, sizeof(start_pfn));
-> > +		sg_set_buf(&sg[2], &page_shift, sizeof(page_shift));
-> > +		sg_set_buf(&sg[3], &bmap_len, sizeof(bmap_len));
-> 
-> These four should probably be placed in a single struct and therefore a single
-> sg entry.  It might even be faster to place it together with the bitmap, thus
-> avoiding the use of indirect descriptors.
-> 
+This patch tries to implement an device IOTLB for vhost. This could be
+used with for co-operation with userspace IOMMU implementation (qemu)
+for a secure DMA environment (DMAR) in guest.
 
-Yes, thanks for your suggestion.
+The idea is simple. When vhost meets an IOTLB miss, it will request
+the assistance of userspace to do the translation, this is done
+through:
 
-> You should also test ballooning of a 64GB guest after filling in the page cache,
-> not just ballooning of a freshly booted 4GB guest.  This will give you a much
-> more sparse bitmap.  Still, the improvement in sending PFNs to the host are
+- when there's a IOTLB miss, it will notify userspace through
+  vhost_net fd and then userspace read the fault address, size and
+  access from vhost fd.
+- userspace write the translation result back to vhost fd, vhost can
+  then update its IOTLB.
 
-I will include the test result for that case in next version.
+The codes were optimized for fixed mapping users e.g dpdk in guest. It
+will be slow if dynamic mappings were used in guest. We could do
+optimizations on top.
 
+The codes were designed to be architecture independent. It should be
+easily ported to any architecture.
 
-Thanks,
+Stress tested with l2fwd/vfio in guest with 4K/2M/1G page size. On 1G
+hugepage case, 100% TLB hit rate were noticed.
 
-Liang
+Changes from V2:
+- introduce memory accessors for vhost
+- switch from ioctls to oridinary file read/write for iotlb miss and
+  updating
+- do not assume virtqueue were virtually mapped contiguously, all
+  virtqueue access were done throug IOTLB
+- verify memory access during IOTLB update and fail early
+- introduce a module parameter for the size of IOTLB
 
-> impressive.
-> 
-> Thanks,
-> 
-> Paolo
-> 
-> > +		sg_set_buf(&sg[4], vb->page_bitmap +
-> > +				 (start_pfn / BITS_PER_LONG), bmap_len);
-> > +		virtqueue_add_outbuf(vq, sg, 5, vb, GFP_KERNEL);
+Changes from V1:
+- support any size/range of updating and invalidation through
+  introducing the interval tree.
+- convert from per device iotlb request to per virtqueue iotlb
+  request, this solves the possible deadlock in V1.
+- read/write permission check support.
+
+Please review.
+
+Jason Wang (3):
+  vhost: introduce vhost memory accessors
+  vhost: convert pre sorted vhost memory array to interval tree
+  vhost: device IOTLB API
+
+ drivers/vhost/net.c        |  63 +++-
+ drivers/vhost/vhost.c      | 760 ++++++++++++++++++++++++++++++++++++++-------
+ drivers/vhost/vhost.h      |  60 +++-
+ include/uapi/linux/vhost.h |  28 ++
+ 4 files changed, 790 insertions(+), 121 deletions(-)
+
+-- 
+2.7.4
