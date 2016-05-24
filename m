@@ -1,16 +1,19 @@
-From: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Subject: Re: [PATCH v3] tools/virtio/ringtest: fix run-on-all.sh to work
-	without /dev/cpu
-Date: Tue, 24 May 2016 15:41:33 +0300
-Message-ID: <20160524124133.GC4725@rapoport-lnx>
-References: <20160504101454.2b62e974.cornelia.huck@de.ibm.com>
-	<1462356950-3278-1-git-send-email-rppt@linux.vnet.ibm.com>
+From: "Li, Liang Z" <liang.z.li@intel.com>
+Subject: RE: [PATCH RFC kernel] balloon: speed up inflating/deflating process
+Date: Tue, 24 May 2016 14:36:08 +0000
+Message-ID: <F2CBF3009FA73547804AE4C663CAB28E041A5F5C__17833.2607298673$1464100592$gmane$org@shsmsx102.ccr.corp.intel.com>
+References: <1463738386-30868-1-git-send-email-liang.z.li@intel.com>
+	<20160520120038.GA28757@redhat.com>
+	<F2CBF3009FA73547804AE4C663CAB28E041A4BFD@shsmsx102.ccr.corp.intel.com>
+	<20160524130041-mutt-send-email-mst@redhat.com>
+	<F2CBF3009FA73547804AE4C663CAB28E041A4D21@shsmsx102.ccr.corp.intel.com>
+	<20160524111135.GA7392@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1462356950-3278-1-git-send-email-rppt@linux.vnet.ibm.com>
+In-Reply-To: <20160524111135.GA7392@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,42 +24,83 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Michael,
+> > > > > This can be pre-initialized, correct?
+> > > >
+> > > > pre-initialized? I am not quite understand your mean.
+> > >
+> > > I think you can maintain sg as part of device state and init sg with the
+> bitmap.
+> > >
+> >
+> > I got it.
+> >
+> > > > > This is grossly inefficient if you only requested a single page.
+> > > > > And it's also allocating memory very aggressively without ever
+> > > > > telling the host what is going on.
+> > > >
+> > > > If only requested a single page, there is no need  to send the
+> > > > entire page bitmap, This RFC patch has already considered about this.
+> > >
+> > > where's that addressed in code?
+> > >
+> >
+> > By record the start_pfn and end_pfn.
+> >
+> > The start_pfn & end_pfn will be updated in set_page_bitmap() and will
+> > be used in the function tell_host():
+> >
+> > ----------------------------------------------------------------------
+> > -----------
+> > +static void set_page_bitmap(struct virtio_balloon *vb, struct page
+> > +*page) {
+> > +	unsigned int i;
+> > +	unsigned long *bitmap = vb->page_bitmap;
+> > +	unsigned long balloon_pfn = page_to_balloon_pfn(page);
+> > +
+> > +	for (i = 0; i < VIRTIO_BALLOON_PAGES_PER_PAGE; i++)
+> > +		set_bit(balloon_pfn + i, bitmap);
+> 
+> BTW, there's a page size value in header so there is no longer need to set
+> multiple bits per page.
 
-Any updates on this?
+Yes, you are right.
 
-On Wed, May 04, 2016 at 01:15:50PM +0300, Mike Rapoport wrote:
-> /dev/cpu is only available on x86 with certain modules (e.g. msr) enabled.
-> Using lscpu to get processors count is more portable.
 > 
-> Signed-off-by: Mike Rapoport <rppt@linux.vnet.ibm.com>
-> ---
-> v3: simplify by using lscpu -p=cpu 
-> v2: use lspcu instead of /proc/cpuinfo as per Cornelia's suggestion
+> > +	if (balloon_pfn < vb->start_pfn)
+> > +		vb->start_pfn = balloon_pfn;
+> > +	if (balloon_pfn > vb->end_pfn)
+> > +		vb->end_pfn = balloon_pfn;
+> > +}
 > 
->  tools/virtio/ringtest/run-on-all.sh | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+> Sounds good, but you also need to limit by allocated bitmap size.
+
+Why should we limit the page bitmap size? Is it no good to send a large page bitmap?
+or to save the memory used for page bitmap? Or some other reason?
 > 
-> diff --git a/tools/virtio/ringtest/run-on-all.sh b/tools/virtio/ringtest/run-on-all.sh
-> index 52b0f71..2e69ca8 100755
-> --- a/tools/virtio/ringtest/run-on-all.sh
-> +++ b/tools/virtio/ringtest/run-on-all.sh
-> @@ -3,10 +3,10 @@
->  #use last CPU for host. Why not the first?
->  #many devices tend to use cpu0 by default so
->  #it tends to be busier
-> -HOST_AFFINITY=$(cd /dev/cpu; ls|grep -v '[a-z]'|sort -n|tail -1)
-> +HOST_AFFINITY=$(lscpu -p=cpu | tail -1)
+> >
+> > +		unsigned long start_pfn, end_pfn, flags = 0, bmap_len;
+> > +		struct scatterlist sg[5];
+> > +
+> > +		start_pfn = rounddown(vb->start_pfn, BITS_PER_LONG);
+> > +		end_pfn = roundup(vb->end_pfn, BITS_PER_LONG);
+> > +		bmap_len = (end_pfn - start_pfn) / BITS_PER_LONG *
+> sizeof(long);
+> > +
+> > +		sg_init_table(sg, 5);
+> > +		sg_set_buf(&sg[0], &flags, sizeof(flags));
+> > +		sg_set_buf(&sg[1], &start_pfn, sizeof(start_pfn));
+> > +		sg_set_buf(&sg[2], &page_shift, sizeof(page_shift));
+> > +		sg_set_buf(&sg[3], &bmap_len, sizeof(bmap_len));
+> > +		sg_set_buf(&sg[4], vb->page_bitmap +
+> > +				 (start_pfn / BITS_PER_LONG), bmap_len);
 > 
->  #run command on all cpus
-> -for cpu in $(cd /dev/cpu; ls|grep -v '[a-z]'|sort -n);
-> +for cpu in $(seq 0 $HOST_AFFINITY)
->  do
->  	#Don't run guest and host on same CPU
->  	#It actually works ok if using signalling
-> -- 
-> 1.9.1
-> 
+> Looks wrong. start_pfn should start at offset 0 I think ...
+
+I don't know what is wrong here, could you tell me why?
+
+Thanks!
+
+Liang
