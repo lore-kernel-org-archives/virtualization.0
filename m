@@ -1,7 +1,7 @@
-From: "Li, Liang Z" <liang.z.li@intel.com>
-Subject: RE: [PATCH RFC kernel] balloon: speed up inflating/deflating process
-Date: Tue, 24 May 2016 09:55:45 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E041A4C4A@shsmsx102.ccr.corp.intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RFC kernel] balloon: speed up inflating/deflating process
+Date: Tue, 24 May 2016 13:08:11 +0300
+Message-ID: <20160524130041-mutt-send-email-mst__39043.1398679086$1464084516$gmane$org@redhat.com>
 References: <1463738386-30868-1-git-send-email-liang.z.li@intel.com>
 	<20160520120038.GA28757@redhat.com>
 	<F2CBF3009FA73547804AE4C663CAB28E041A4BFD@shsmsx102.ccr.corp.intel.com>
@@ -9,8 +9,8 @@ Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <F2CBF3009FA73547804AE4C663CAB28E041A4BFD@shsmsx102.ccr.corp.intel.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,10 +20,11 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Li, Liang Z" <liang.z.li@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Li, Liang Z" <liang.z.li@intel.com>
 Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, May 24, 2016 at 09:51:46AM +0000, Li, Liang Z wrote:
 > > On Fri, May 20, 2016 at 05:59:46PM +0800, Liang Li wrote:
 > > > The implementation of the current virtio-balloon is not very
 > > > efficient, Bellow is test result of time spends on inflating the
@@ -33,22 +34,22 @@ List-Id: virtualization@lists.linuxfoundation.org
 > > > b. sending PFNs to host (68.3%, 787ms) c. address translation (6.1%,
 > > > 96ms) d. madvise (19%, 300ms)
 > > >
-> > > It takes about 1577ms for the whole inflating process to complete.
-> > > The test shows that the bottle neck is the stage b and stage d.
+> > > It takes about 1577ms for the whole inflating process to complete. The
+> > > test shows that the bottle neck is the stage b and stage d.
 > > >
 > > > If using a bitmap to send the page info instead of the PFNs, we can
 > > > reduce the overhead spends on stage b quite a lot. Furthermore, it's
-> > > possible to do the address translation and do the madvise with a
-> > > bulk of pages, instead of the current page per page way, so the
-> > > overhead of stage c and stage d can also be reduced a lot.
+> > > possible to do the address translation and do the madvise with a bulk
+> > > of pages, instead of the current page per page way, so the overhead of
+> > > stage c and stage d can also be reduced a lot.
 > > >
 > > > This patch is the kernel side implementation which is intended to
-> > > speed up the inflating & deflating process by adding a new feature
-> > > to the virtio-balloon device. And now, inflating the balloon to 3GB
-> > > of a 4GB idle guest only takes 175ms, it's about 9 times as fast as before.
+> > > speed up the inflating & deflating process by adding a new feature to
+> > > the virtio-balloon device. And now, inflating the balloon to 3GB of a
+> > > 4GB idle guest only takes 175ms, it's about 9 times as fast as before.
 > > >
-> > > TODO: optimize stage a by allocating/freeing a chunk of pages
-> > > instead of a single page at a time.
+> > > TODO: optimize stage a by allocating/freeing a chunk of pages instead
+> > > of a single page at a time.
 > > >
 > > > Signed-off-by: Liang Li <liang.z.li@intel.com>
 > > > ---
@@ -71,8 +72,8 @@ List-Id: virtualization@lists.linuxfoundation.org
 > > > +
 > > >  struct virtio_balloon {
 > > >  	struct virtio_device *vdev;
-> > >  	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq; @@ -62,6
-> > > +64,9 @@ struct virtio_balloon {
+> > >  	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq; @@ -62,6 +64,9
+> > > @@ struct virtio_balloon {
 > > >
 > > >  	/* Number of balloon pages we've told the Host we're not using. */
 > > >  	unsigned int num_pages;
@@ -90,24 +91,24 @@ List-Id: virtualization@lists.linuxfoundation.org
 > > > +	unsigned long max_pfn, bmap_bytes;
 > > > +
 > > > +	max_pfn = get_max_pfn();
-> >
+> > 
 > > This is racy. max_pfn could be increased by memory hotplug after you got it.
-> >
-> >
+> > 
+> > 
 > > > +	bmap_bytes = ALIGN(max_pfn, BITS_PER_LONG) / BITS_PER_BYTE;
 > > > +	if (!vb->page_bitmap)
 > > > +		vb->page_bitmap = kzalloc(bmap_bytes, GFP_KERNEL);
-> >
+> > 
 > > Likely to fail for a huge busy guest.
 > > Why not init on device probe?
 > > this way
 > > 	- probe will fail, or we can clear the feature bit
 > > 	- free memory is more likely to be available
-> >
+> > 
 > 
 > Very good suggestion!
 > 
-> >
+> > 
 > > > +	else {
 > > > +		if (bmap_bytes <= vb->bmap_len)
 > > > +			memset(vb->page_bitmap, 0, bmap_bytes);
@@ -130,7 +131,7 @@ List-Id: virtualization@lists.linuxfoundation.org
 > > > +	return 0;
 > > > +}
 > > > +
-> >
+> > 
 > > >  {
 > > > -	struct scatterlist sg;
 > > >  	unsigned int len;
@@ -154,12 +155,15 @@ List-Id: virtualization@lists.linuxfoundation.org
 > > > +		sg_set_buf(&sg[3], &bmap_len, sizeof(bmap_len));
 > > > +		sg_set_buf(&sg[4], vb->page_bitmap +
 > > > +				 (start_pfn / BITS_PER_LONG), bmap_len);
-> >
+> > 
 > > This can be pre-initialized, correct?
 > 
 > pre-initialized? I am not quite understand your mean.
-> 
-> >
+
+I think you can maintain sg as part of device state
+and init sg with the bitmap.
+
+> > 
 > > > +		virtqueue_add_outbuf(vq, sg, 5, vb, GFP_KERNEL);
 > > > +
 > > > +	} else {
@@ -179,8 +183,7 @@ List-Id: virtualization@lists.linuxfoundation.org
 > > >  	virtqueue_kick(vq);
 > > >
 > > >  	/* When host has read buffer, this completes via balloon_ack */ @@
-> > > -137,7 +193,21 @@ static void set_page_pfns(u32 pfns[], struct page
-> *page)
+> > > -137,7 +193,21 @@ static void set_page_pfns(u32 pfns[], struct page *page)
 > > >  		pfns[i] = page_to_balloon_pfn(page) + i;  }
 > > >
 > > > -static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
@@ -203,8 +206,7 @@ List-Id: virtualization@lists.linuxfoundation.org
 > > >  {
 > > >  	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
 > > >  	unsigned num_allocated_pages;
-> > > @@ -174,7 +244,104 @@ static unsigned fill_balloon(struct
-> > > virtio_balloon
+> > > @@ -174,7 +244,104 @@ static unsigned fill_balloon(struct virtio_balloon
 > > *vb, size_t num)
 > > >  	return num_allocated_pages;
 > > >  }
@@ -240,17 +242,22 @@ List-Id: virtualization@lists.linuxfoundation.org
 > > 	VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
 > > > +			adjust_managed_page_count(page, -1);
 > > > +	}
-> >
+> > 
 > > This is grossly inefficient if you only requested a single page.
-> > And it's also allocating memory very aggressively without ever telling
-> > the host what is going on.
+> > And it's also allocating memory very aggressively without ever telling the host
+> > what is going on.
 > 
-> If only requested a single page, there is no need  to send the entire page
-> bitmap, This RFC patch has already considered about this. But it can works
+> If only requested a single page, there is no need  to send the entire page bitmap,
+> This RFC patch has already considered about this.
 
-s/can/can't
-> very well if requesting several pages  which across a large range.
-> 
+where's that addressed in code?
+
+> But it can works very well if requesting
+> several pages  which across a large range.
+
+Some kind of limit on range would make sense though.
+It need not cover max pfn.
+
 > > > +
 > > > +	num_allocated_pages = vb->num_pfns;
 > > > +	/* Did we get any? */
@@ -336,8 +343,7 @@ s/can/can't
 > > >  {
 > > >  	unsigned num_freed_pages;
 > > >  	struct page *page;
-> > > @@ -215,11 +382,23 @@ static unsigned leak_balloon(struct
-> > > virtio_balloon
+> > > @@ -215,11 +382,23 @@ static unsigned leak_balloon(struct virtio_balloon
 > > *vb, size_t num)
 > > >  	 */
 > > >  	if (vb->num_pfns != 0)
@@ -363,8 +369,7 @@ s/can/can't
 > > >  static inline void update_stat(struct virtio_balloon *vb, int idx,
 > > >  			       u16 tag, u64 val)
 > > >  {
-> > > @@ -510,6 +689,8 @@ static int virtballoon_probe(struct
-> > > virtio_device
+> > > @@ -510,6 +689,8 @@ static int virtballoon_probe(struct virtio_device
 > > *vdev)
 > > >  	spin_lock_init(&vb->stop_update_lock);
 > > >  	vb->stop_update = false;
@@ -374,8 +379,7 @@ s/can/can't
 > > >  	mutex_init(&vb->balloon_lock);
 > > >  	init_waitqueue_head(&vb->acked);
 > > >  	vb->vdev = vdev;
-> > > @@ -567,6 +748,7 @@ static void virtballoon_remove(struct
-> > > virtio_device
+> > > @@ -567,6 +748,7 @@ static void virtballoon_remove(struct virtio_device
 > > *vdev)
 > > >  	cancel_work_sync(&vb->update_balloon_stats_work);
 > > >
@@ -425,44 +429,44 @@ s/can/can't
 > > >  #ifdef CONFIG_HIBERNATION
 > > >
 > > >  void mark_free_pages(struct zone *zone)
-> >
+> > 
 > > Suggestion to address all above comments:
 > > 	1. allocate a bunch of pages and link them up,
 > > 	   calculating the min and the max pfn.
 > > 	   if max-min exceeds the allocated bitmap size,
 > > 	   tell host.
 > 
-> I am not sure if it works well in some cases, e.g. The allocated pages are
-> across a wide range and the max-min > limit is very frequently to be true.
-> Then, there will be many times of virtio transmission and it's bad for
-> performance improvement. Right?
-> 
+> I am not sure if it works well in some cases, e.g. The allocated pages 
+> are across a wide range and the max-min > limit is very frequently to be true.
+> Then, there will be many times of virtio transmission and it's bad for performance
+> improvement. Right?
+
+It's a tradeoff for sure. Measure it, see what the overhead is.
+
 > 
 > > 	2. limit allocated bitmap size to something reasonable.
 > > 	   How about 32Kbytes? This is 256kilo bit in the map, which comes
 > > 	   out to 1Giga bytes of memory in the balloon.
 > 
 > So, even the VM has 1TB of RAM, the page bitmap will take 32MB of memory.
-> Maybe it's better to use a big page bitmap the save the pages allocated by
-> balloon,
-> and split the big page bitmap to 32K bytes unit, then transfer one unit at a
-> time.
-> 
+> Maybe it's better to use a big page bitmap the save the pages allocated by balloon,
+> and split the big page bitmap to 32K bytes unit, then transfer one unit at a time.
+
+How is this different from what I said?
+
 > 
 > Should we use a page bitmap to replace 'vb->pages' ?
 > 
-> How about rolling back to use PFNs if the count of requested pages is a small
-> number?
+> How about rolling back to use PFNs if the count of requested pages is a small number?
 > 
 > Liang
+
+That's why we have start pfn. you can use that to pass
+even a single page without a lot of overhead.
+
 > > > --
 > > > 1.9.1
 > > --
-> > To unsubscribe from this list: send the line "unsubscribe kvm" in the body
-> of
+> > To unsubscribe from this list: send the line "unsubscribe kvm" in the body of
 > > a message to majordomo@vger.kernel.org More majordomo info at
 > > http://vger.kernel.org/majordomo-info.html
-> --
-> To unsubscribe from this list: send the line "unsubscribe kvm" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
