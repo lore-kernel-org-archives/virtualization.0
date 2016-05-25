@@ -1,7 +1,7 @@
 From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v3 4/6] pv-qspinlock: powerpc support pv-qspinlock
-Date: Wed, 25 May 2016 16:18:07 +0800
-Message-ID: <1464164289-6124-5-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v3 1/6] qspinlock: powerpc support qspinlock
+Date: Wed, 25 May 2016 16:18:04 +0800
+Message-ID: <1464164289-6124-2-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 References: <1464164289-6124-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,187 +21,151 @@ To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@
 Cc: jeremy@goop.org, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, peterz@infradead.org, benh@kernel.crashing.org, chrisw@sous-sol.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, akataria@vmware.com, paulmck@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-As we need let pv-qspinlock-kernel run on all environment which might
-have no powervm, we should runtime choose which qspinlock version to
-use.
-
-The default pv-qspinlock use native version. pv_lock initialization
-should be done in bootstage with irq disabled. And if there is PHYP,
-restore pv_lock_ops callbacks to pv version.
+Base code to enable qspinlock on powerpc. this patch add some #ifdef
+here and there. Although there is no paravirt related code, we can
+successfully build a qspinlock kernel after apply this patch.
 
 Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 ---
- arch/powerpc/include/asm/qspinlock.h               | 17 ++++++++
- arch/powerpc/include/asm/qspinlock_paravirt.h      | 38 ++++++++++++++++++
- .../powerpc/include/asm/qspinlock_paravirt_types.h | 13 +++++++
- arch/powerpc/kernel/paravirt.c                     | 45 ++++++++++++++++++++++
- arch/powerpc/platforms/pseries/setup.c             |  5 +++
- 5 files changed, 118 insertions(+)
- create mode 100644 arch/powerpc/include/asm/qspinlock_paravirt.h
- create mode 100644 arch/powerpc/include/asm/qspinlock_paravirt_types.h
- create mode 100644 arch/powerpc/kernel/paravirt.c
+ arch/powerpc/include/asm/qspinlock.h      | 22 ++++++++++++++++++++++
+ arch/powerpc/include/asm/spinlock.h       | 27 +++++++++++++++------------
+ arch/powerpc/include/asm/spinlock_types.h |  4 ++++
+ arch/powerpc/lib/locks.c                  |  4 ++++
+ 4 files changed, 45 insertions(+), 12 deletions(-)
+ create mode 100644 arch/powerpc/include/asm/qspinlock.h
 
 diff --git a/arch/powerpc/include/asm/qspinlock.h b/arch/powerpc/include/asm/qspinlock.h
-index 5883954..4728f6e 100644
---- a/arch/powerpc/include/asm/qspinlock.h
+new file mode 100644
+index 0000000..5883954
+--- /dev/null
 +++ b/arch/powerpc/include/asm/qspinlock.h
-@@ -12,10 +12,27 @@ static inline void native_queued_spin_unlock(struct qspinlock *lock)
- 	smp_store_release((u8 *)lock, 0);
- }
- 
-+#ifdef CONFIG_PARAVIRT_SPINLOCKS
+@@ -0,0 +1,22 @@
++#ifndef _ASM_POWERPC_QSPINLOCK_H
++#define _ASM_POWERPC_QSPINLOCK_H
 +
-+#define __ARCH_NEED_PV_HASH_LOOKUP
++#include <asm-generic/qspinlock_types.h>
 +
-+#include <asm/qspinlock_paravirt.h>
++#define SPIN_THRESHOLD (1 << 15)
++#define queued_spin_unlock queued_spin_unlock
 +
-+static inline void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
++static inline void native_queued_spin_unlock(struct qspinlock *lock)
 +{
-+	pv_queued_spin_lock(lock, val);
++	/* no load/store can be across the unlock()*/
++	smp_store_release((u8 *)lock, 0);
 +}
 +
 +static inline void queued_spin_unlock(struct qspinlock *lock)
 +{
-+	pv_queued_spin_unlock(lock);
-+}
-+#else
- static inline void queued_spin_unlock(struct qspinlock *lock)
- {
- 	native_queued_spin_unlock(lock);
- }
-+#endif
- 
- #include <asm-generic/qspinlock.h>
- 
-diff --git a/arch/powerpc/include/asm/qspinlock_paravirt.h b/arch/powerpc/include/asm/qspinlock_paravirt.h
-new file mode 100644
-index 0000000..cd17a79
---- /dev/null
-+++ b/arch/powerpc/include/asm/qspinlock_paravirt.h
-@@ -0,0 +1,38 @@
-+#ifndef CONFIG_PARAVIRT_SPINLOCKS
-+#error "do not include this file"
-+#endif
-+
-+#ifndef _ASM_QSPINLOCK_PARAVIRT_H
-+#define _ASM_QSPINLOCK_PARAVIRT_H
-+
-+#include  <asm/qspinlock_paravirt_types.h>
-+
-+extern void pv_lock_init(void);
-+extern void native_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
-+extern void __pv_init_lock_hash(void);
-+extern void __pv_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
-+extern void __pv_queued_spin_unlock(struct qspinlock *lock);
-+
-+static inline void pv_queued_spin_lock(struct qspinlock *lock, u32 val)
-+{
-+	CLEAR_IO_SYNC;
-+	pv_lock_op.lock(lock, val);
-+}
-+
-+static inline void pv_queued_spin_unlock(struct qspinlock *lock)
-+{
-+	SYNC_IO;
-+	pv_lock_op.unlock(lock);
-+}
-+
-+static inline void pv_wait(u8 *ptr, u8 val, int lockcpu)
-+{
-+	pv_lock_op.wait(ptr, val, lockcpu);
-+}
-+
-+static inline void pv_kick(int cpu)
-+{
-+	pv_lock_op.kick(cpu);
-+}
-+
-+#endif
-diff --git a/arch/powerpc/include/asm/qspinlock_paravirt_types.h b/arch/powerpc/include/asm/qspinlock_paravirt_types.h
-new file mode 100644
-index 0000000..e1fdeb0
---- /dev/null
-+++ b/arch/powerpc/include/asm/qspinlock_paravirt_types.h
-@@ -0,0 +1,13 @@
-+#ifndef _ASM_QSPINLOCK_PARAVIRT_TYPES_H
-+#define _ASM_QSPINLOCK_PARAVIRT_TYPES_H
-+
-+struct pv_lock_ops {
-+	void (*lock)(struct qspinlock *lock, u32 val);
-+	void (*unlock)(struct qspinlock *lock);
-+	void (*wait)(u8 *ptr, u8 val, int cpu);
-+	void (*kick)(int cpu);
-+};
-+
-+extern struct pv_lock_ops pv_lock_op;
-+
-+#endif
-diff --git a/arch/powerpc/kernel/paravirt.c b/arch/powerpc/kernel/paravirt.c
-new file mode 100644
-index 0000000..4f19f7e
---- /dev/null
-+++ b/arch/powerpc/kernel/paravirt.c
-@@ -0,0 +1,45 @@
-+/*
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ */
-+
-+#include <linux/spinlock.h>
-+
-+static void __native_queued_spin_unlock(struct qspinlock *lock)
-+{
 +	native_queued_spin_unlock(lock);
 +}
 +
-+static void __pv_wait(u8 *ptr, u8 val, int cpu)
-+{
-+	HMT_low();
-+	if (READ_ONCE(*ptr) == val)
-+		__spin_yield_cpu(cpu);
-+	HMT_medium();
-+}
++#include <asm-generic/qspinlock.h>
 +
-+static void __pv_kick(int cpu)
-+{
-+	__spin_wake_cpu(cpu);
-+}
-+
-+struct pv_lock_ops pv_lock_op = {
-+	.lock = native_queued_spin_lock_slowpath,
-+	.unlock = __native_queued_spin_unlock,
-+	.wait = NULL,
-+	.kick = NULL,
-+};
-+EXPORT_SYMBOL(pv_lock_op);
-+
-+void __init pv_lock_init(void)
-+{
-+	if (SHARED_PROCESSOR) {
-+		__pv_init_lock_hash();
-+		pv_lock_op.lock = __pv_queued_spin_lock_slowpath;
-+		pv_lock_op.unlock = __pv_queued_spin_unlock;
-+		pv_lock_op.wait = __pv_wait;
-+		pv_lock_op.kick = __pv_kick;
-+	}
-+}
-diff --git a/arch/powerpc/platforms/pseries/setup.c b/arch/powerpc/platforms/pseries/setup.c
-index 6e944fc..c9f056e 100644
---- a/arch/powerpc/platforms/pseries/setup.c
-+++ b/arch/powerpc/platforms/pseries/setup.c
-@@ -547,6 +547,11 @@ static void __init pSeries_setup_arch(void)
- 				"%ld\n", rc);
- 		}
- 	}
-+
-+#ifdef CONFIG_PARAVIRT_SPINLOCKS
-+	pv_lock_init();
++#endif /* _ASM_POWERPC_QSPINLOCK_H */
+diff --git a/arch/powerpc/include/asm/spinlock.h b/arch/powerpc/include/asm/spinlock.h
+index 523673d..4359ee6 100644
+--- a/arch/powerpc/include/asm/spinlock.h
++++ b/arch/powerpc/include/asm/spinlock.h
+@@ -52,6 +52,20 @@
+ #define SYNC_IO
+ #endif
+ 
++#if defined(CONFIG_PPC_SPLPAR)
++/* We only yield to the hypervisor if we are in shared processor mode */
++#define SHARED_PROCESSOR (lppaca_shared_proc(local_paca->lppaca_ptr))
++extern void __spin_yield(arch_spinlock_t *lock);
++extern void __rw_yield(arch_rwlock_t *lock);
++#else /* SPLPAR */
++#define __spin_yield(x)	barrier()
++#define __rw_yield(x)	barrier()
++#define SHARED_PROCESSOR	0
 +#endif
 +
++#ifdef CONFIG_QUEUED_SPINLOCKS
++#include <asm/qspinlock.h>
++#else
+ static __always_inline int arch_spin_value_unlocked(arch_spinlock_t lock)
+ {
+ 	return lock.slock == 0;
+@@ -106,18 +120,6 @@ static inline int arch_spin_trylock(arch_spinlock_t *lock)
+  * held.  Conveniently, we have a word in the paca that holds this
+  * value.
+  */
+-
+-#if defined(CONFIG_PPC_SPLPAR)
+-/* We only yield to the hypervisor if we are in shared processor mode */
+-#define SHARED_PROCESSOR (lppaca_shared_proc(local_paca->lppaca_ptr))
+-extern void __spin_yield(arch_spinlock_t *lock);
+-extern void __rw_yield(arch_rwlock_t *lock);
+-#else /* SPLPAR */
+-#define __spin_yield(x)	barrier()
+-#define __rw_yield(x)	barrier()
+-#define SHARED_PROCESSOR	0
+-#endif
+-
+ static inline void arch_spin_lock(arch_spinlock_t *lock)
+ {
+ 	CLEAR_IO_SYNC;
+@@ -169,6 +171,7 @@ extern void arch_spin_unlock_wait(arch_spinlock_t *lock);
+ 	do { while (arch_spin_is_locked(lock)) cpu_relax(); } while (0)
+ #endif
+ 
++#endif /* !CONFIG_QUEUED_SPINLOCKS */
+ /*
+  * Read-write spinlocks, allowing multiple readers
+  * but only one writer.
+diff --git a/arch/powerpc/include/asm/spinlock_types.h b/arch/powerpc/include/asm/spinlock_types.h
+index 2351adc..bd7144e 100644
+--- a/arch/powerpc/include/asm/spinlock_types.h
++++ b/arch/powerpc/include/asm/spinlock_types.h
+@@ -5,11 +5,15 @@
+ # error "please don't include this file directly"
+ #endif
+ 
++#ifdef CONFIG_QUEUED_SPINLOCKS
++#include <asm-generic/qspinlock_types.h>
++#else
+ typedef struct {
+ 	volatile unsigned int slock;
+ } arch_spinlock_t;
+ 
+ #define __ARCH_SPIN_LOCK_UNLOCKED	{ 0 }
++#endif
+ 
+ typedef struct {
+ 	volatile signed int lock;
+diff --git a/arch/powerpc/lib/locks.c b/arch/powerpc/lib/locks.c
+index f7deebd..a9ebd71 100644
+--- a/arch/powerpc/lib/locks.c
++++ b/arch/powerpc/lib/locks.c
+@@ -23,6 +23,7 @@
+ #include <asm/hvcall.h>
+ #include <asm/smp.h>
+ 
++#ifndef CONFIG_QUEUED_SPINLOCKS
+ void __spin_yield(arch_spinlock_t *lock)
+ {
+ 	unsigned int lock_value, holder_cpu, yield_count;
+@@ -42,6 +43,7 @@ void __spin_yield(arch_spinlock_t *lock)
+ 		get_hard_smp_processor_id(holder_cpu), yield_count);
+ }
+ EXPORT_SYMBOL_GPL(__spin_yield);
++#endif
+ 
+ /*
+  * Waiting for a read lock or a write lock on a rwlock...
+@@ -69,6 +71,7 @@ void __rw_yield(arch_rwlock_t *rw)
+ }
+ #endif
+ 
++#ifndef CONFIG_QUEUED_SPINLOCKS
+ void arch_spin_unlock_wait(arch_spinlock_t *lock)
+ {
+ 	smp_mb();
+@@ -84,3 +87,4 @@ void arch_spin_unlock_wait(arch_spinlock_t *lock)
  }
  
- static int __init pSeries_init_panel(void)
+ EXPORT_SYMBOL(arch_spin_unlock_wait);
++#endif
 -- 
 1.9.1
