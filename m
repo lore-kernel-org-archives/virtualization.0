@@ -1,17 +1,11 @@
-From: Emil Velikov <emil.l.velikov@gmail.com>
-Subject: Re: [PATCH] Add virtio gpu driver.
-Date: Wed, 25 May 2016 17:44:55 +0100
-Message-ID: <CACvgo53ADmgiSHaHiUdwtO50un0exKXiaqkjScmp0VhmCCXEbA__32539.946671068$1464194713$gmane$org@mail.gmail.com>
-References: <1427213239-8775-1-git-send-email-kraxel@redhat.com>
-	<20150324165057.GN1349@phenom.ffwll.local>
-	<1427718227.3372.33.camel@nilsson.home.kraxel.org>
-	<20150330144927.GN23521@phenom.ffwll.local>
-	<CAKMK7uFUNT193f5djZD6T8cgRxxnZL73yrqbupPHOd2P-+Y=pQ@mail.gmail.com>
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: [PATCH] x86/paravirt: Do not trace _paravirt_ident_*() functions
+Date: Wed, 25 May 2016 13:47:26 -0400
+Message-ID: <20160525134726.6362a601__44717.4890702174$1464199624$gmane$org@gandalf.local.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAKMK7uFUNT193f5djZD6T8cgRxxnZL73yrqbupPHOd2P-+Y=pQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,43 +15,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Vetter <daniel@ffwll.ch>
-Cc: virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, "open list:ABI/API" <linux-api@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVERS" <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
-	NET..." <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, =?UTF-8?B?xYF1a2Fzeg==?= Daniluk <lukasz.daniluk@intel.com>, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, Alok Kataria <akataria@vmware.com>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 25 May 2016 at 17:40, Daniel Vetter <daniel@ffwll.ch> wrote:
-> On Mon, Mar 30, 2015 at 4:49 PM, Daniel Vetter <daniel@ffwll.ch> wrote:
->> On Mon, Mar 30, 2015 at 02:23:47PM +0200, Gerd Hoffmann wrote:
->>> > > Signed-off-by: Dave Airlie <airlied@redhat.com>
->>> > > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
->>> >
->>> > Standard request from my side for new drm drivers (especially if they're
->>> > this simple): Can you please update the drivers to latest drm internal
->>> > interfaces, i.e. using universal planes and atomic?
->>>
->>> Up'n'running.  Incremental patch:
->>>
->>> https://www.kraxel.org/cgit/linux/commit/?h=virtio-gpu-2d&id=b8edf4f38a1ec5a50f6ac8948521a12f862d3d5a
->>>
->>> v2 coming, but I'll go over the other reviews first.
->>
->> Looking good. Wrt pageflip the current MO is to handroll it in your
->> driver, common approach is to use the msm async commit implementation
->> msm_atomic_commit. The issue is simply that right now there's still no
->> useable generic vblank callback support (drm_irq.c is a mess) hence why
->> the core helpers don't support async flips yet.
->
-> I guess I didn't do a good job at looking at your v2: Cursor is still
-> using legacy interfaces and not a proper plane. Would be awesome if
-> you could fix that up. Atomic drivers really shouldn't use the legacy
-> cursor interfaces any more at all.
-
-Wild idea:
-Worth adding if (drm_core_check_feature(dev, DRIVER_ATOMIC)  {
-printf("abort abort"); return; }
-style of checks for the legacy (preatomic) kms helpers ?
-
-Or does it feel like an overkill ?
-
--Emil
+CsWBdWthc3ogRGFuaWx1ayByZXBvcnRlZCB0aGF0IG9uIGEgUkhFTCBrZXJuZWwgdGhhdCBoaXMg
+bWFjaGluZSB3b3VsZCBsb2NrIHVwCmFmdGVyIGVuYWJsaW5nIGZ1bmN0aW9uIHRyYWNlci4gSSBh
+c2tlZCBoaW0gdG8gYmlzZWN0IHRoZSBmdW5jdGlvbnMgd2l0aGluCmF2YWlsYWJsZV9maWx0ZXJf
+ZnVuY3Rpb25zLCB3aGljaCBoZSBkaWQgYW5kIGl0IGNhbWUgZG93biB0byB0aHJlZToKCiBfcGFy
+YXZpcnRfbm9wKCksIF9wYXJhdmlydF9pZGVudF8zMigpIGFuZCBfcGFyYXZpcnRfaWRlbnRfNjQo
+KQoKSXQgd2FzIGZvdW5kIHRoYXQgdGhpcyBpcyBvbmx5IGFuIGlzc3VlIHdoZW4gbm9yZXBsYWNl
+LXBhcmF2aXJ0IGlzIGFkZGVkIHRvCnRoZSBrZXJuZWwgY29tbWFuZCBsaW5lLgoKVGhpcyBtZWFu
+cyB0aGF0IHRob3NlIGZ1bmN0aW9ucyBhcmUgbW9zdCBsaWtlbHkgY2FsbGVkIHdpdGhpbiBjcml0
+aWNhbApzZWN0aW9ucyBvZiB0aGUgZnVudGlvbiB0cmFjZXIsIGFuZCBtdXN0IG5vdCBiZSB0cmFj
+ZWQuCgpJbiBuZXdlciBrZW5lbHMgX3BhcmF2aXJ0X25vcCgpIGlzIGRlZmluZWQgd2l0aGluIGdj
+YyBhc20oKSwgYW5kIGlzIG5vCmxvbmdlciBhbiBpc3N1ZS4gQnV0IGJvdGggX3BhcmF2aXJ0X2lk
+ZW50X3szMiw2NH0oKSBjYXVzZXMgdGhlIGZvbGxvd2luZwpzcGxhdCB3aGVuIHRoZXkgYXJlIHRy
+YWNlZDoKCiBtbS9wZ3RhYmxlLWdlbmVyaWMuYzozMzogYmFkIHBtZCBmZmZmODgwMGQyNDM1MTUw
+KDAwMDAwMDAwMDFkMDAwNTQpCiBtbS9wZ3RhYmxlLWdlbmVyaWMuYzozMzogYmFkIHBtZCBmZmZm
+ODgwMGQzNjI0MTkwKDAwMDAwMDAwMDFkMDAwNzApCiBtbS9wZ3RhYmxlLWdlbmVyaWMuYzozMzog
+YmFkIHBtZCBmZmZmODgwMGQzNmE1MTEwKDAwMDAwMDAwMDFkMDAwNTQpCiBtbS9wZ3RhYmxlLWdl
+bmVyaWMuYzozMzogYmFkIHBtZCBmZmZmODgwMTE4ZWIxNDUwKDAwMDAwMDAwMDFkMDAwNTQpCiBO
+TUkgd2F0Y2hkb2c6IEJVRzogc29mdCBsb2NrdXAgLSBDUFUjMiBzdHVjayBmb3IgMjJzISBbc3lz
+dGVtZC1qb3VybmFsOjQ2OV0KIE1vZHVsZXMgbGlua2VkIGluOiBlMTAwMGUKIENQVTogMiBQSUQ6
+IDQ2OSBDb21tOiBzeXN0ZW1kLWpvdXJuYWwgTm90IHRhaW50ZWQgNC42LjAtcmM0LXRlc3QrICM1
+MTMKIEhhcmR3YXJlIG5hbWU6IEhld2xldHQtUGFja2FyZCBIUCBDb21wYXEgUHJvIDYzMDAgU0ZG
+LzMzOUEsIEJJT1MgSzAxIHYwMi4wNSAwNS8wNy8yMDEyCiB0YXNrOiBmZmZmODgwMTE4Zjc0MGMw
+IHRpOiBmZmZmODgwMGQ0YWVjMDAwIHRhc2sudGk6IGZmZmY4ODAwZDRhZWMwMDAKIFJJUDogMDAx
+MDpbPGZmZmZmZmZmODExMzQxNDg+XSAgWzxmZmZmZmZmZjgxMTM0MTQ4Pl0gcXVldWVkX3NwaW5f
+bG9ja19zbG93cGF0aCsweDExOC8weDFhMAogUlNQOiAwMDE4OmZmZmY4ODAwZDRhZWZiOTAgIEVG
+TEFHUzogMDAwMDAyNDYKIFJBWDogMDAwMDAwMDAwMDAwMDAwMCBSQlg6IDAwMDAwMDAwMDAwMDAw
+MDAgUkNYOiBmZmZmODgwMTFlYjE2ZDQwCiBSRFg6IGZmZmZmZmZmODI0ODU3NjAgUlNJOiAwMDAw
+MDAwMDFmMjg4ODIwIFJESTogZmZmZmVhMDAwMDAwODAzMAogUkJQOiBmZmZmODgwMGQ0YWVmYjkw
+IFIwODogMDAwMDAwMDAwMDBjMDAwMCBSMDk6IDAwMDAwMDAwMDAwMDAwMDAKIFIxMDogZmZmZmZm
+ZmY4MjFjOGUwZSBSMTE6IDAwMDAwMDAwMDAwMDAwMDAgUjEyOiBmZmZmODgwMDAwMjAwZmI4CiBS
+MTM6IDAwMDA3ZjdhNGUzZjcwMDAgUjE0OiBmZmZmZWEwMDAzMDNmNjAwIFIxNTogZmZmZjg4MDBk
+NGI1NjJlMAogRlM6ICAwMDAwN2Y3YTRlM2Q3ODQwKDAwMDApIEdTOmZmZmY4ODAxMWViMDAwMDAo
+MDAwMCkga25sR1M6MDAwMDAwMDAwMDAwMDAwMAogQ1M6ICAwMDEwIERTOiAwMDAwIEVTOiAwMDAw
+IENSMDogMDAwMDAwMDA4MDA1MDAzMwogQ1IyOiAwMDAwN2Y3YTRlM2Y3MDAwIENSMzogMDAwMDAw
+MDBkM2U3MTAwMCBDUjQ6IDAwMDAwMDAwMDAxNDA2ZTAKIFN0YWNrOgogIGZmZmY4ODAwZDRhZWZi
+YTAgZmZmZmZmZmY4MWNjNWY0NyBmZmZmODgwMGQ0YWVmYzYwIGZmZmZmZmZmODEyMmMxNWIKICBm
+ZmZmODgwMGQ0YWVmY2IwIGZmZmY4ODAwZDRhZWZiZDAgZmZmZmZmZmY4MTFiZjRjYiAwMDAwMDAw
+MDAwMDAwMDAyCiAgMDAwMDAwMDAwMDAwMDAxNSBmZmZmODgwMGQyMjc2MDUwIDgwMDAwMDAwYzBm
+ZDg4NjcgZmZmZmVhMDAwMDAwODAzMAogQ2FsbCBUcmFjZToKICBbPGZmZmZmZmZmODFjYzVmNDc+
+XSBfcmF3X3NwaW5fbG9jaysweDI3LzB4MzAKICBbPGZmZmZmZmZmODEyMmMxNWI+XSBoYW5kbGVf
+cHRlX2ZhdWx0KzB4MTNkYi8weDE2YjAKICBbPGZmZmZmZmZmODExYmY0Y2I+XSA/IGZ1bmN0aW9u
+X3RyYWNlX2NhbGwrMHgxNWIvMHgxODAKICBbPGZmZmZmZmZmODEyMmFkODU+XSA/IGhhbmRsZV9w
+dGVfZmF1bHQrMHg1LzB4MTZiMAogIFs8ZmZmZmZmZmY4MTIyZTMyMj5dIGhhbmRsZV9tbV9mYXVs
+dCsweDMxMi8weDY3MAogIFs8ZmZmZmZmZmY4MTIzMTA2OD5dID8gZmluZF92bWErMHg2OC8weDcw
+CiAgWzxmZmZmZmZmZjgxMGFiNzQxPl0gX19kb19wYWdlX2ZhdWx0KzB4MWIxLzB4NGUwCiAgWzxm
+ZmZmZmZmZjgxMGFiYTkyPl0gZG9fcGFnZV9mYXVsdCsweDIyLzB4MzAKICBbPGZmZmZmZmZmODFj
+YzdmNjg+XSBwYWdlX2ZhdWx0KzB4MjgvMHgzMAogIFs8ZmZmZmZmZmY4MTU3NGFmNT5dID8gY29w
+eV91c2VyX2VuaGFuY2VkX2Zhc3Rfc3RyaW5nKzB4NS8weDEwCiAgWzxmZmZmZmZmZjgxMjlkZWM1
+Pl0gPyBzZXFfcmVhZCsweDMwNS8weDM3MAogIFs8ZmZmZmZmZmY4MTI3OTY2OD5dIF9fdmZzX3Jl
+YWQrMHgyOC8weGUwCiAgWzxmZmZmZmZmZjgxMjc5NjQ1Pl0gPyBfX3Zmc19yZWFkKzB4NS8weGUw
+CiAgWzxmZmZmZmZmZjgxMjc5NjQ1Pl0gPyBfX3Zmc19yZWFkKzB4NS8weGUwCiAgWzxmZmZmZmZm
+ZjgxMjc5ZGY2Pl0gdmZzX3JlYWQrMHg4Ni8weDEzMAogIFs8ZmZmZmZmZmY4MTI3YjIxNj5dIFN5
+U19yZWFkKzB4NDYvMHhhMAogIFs8ZmZmZmZmZmY4MWNjNjE3Nj5dIGVudHJ5X1NZU0NBTExfNjRf
+ZmFzdHBhdGgrMHgxZS8weGE4CiBDb2RlOiAxMiA0OCBjMSBlYSAwYyA4MyBlOCAwMSA4MyBlMiAz
+MCA0OCA5OCA0OCA4MSBjMiA0MCA2ZCAwMSAwMCA0OCAwMyAxNAogYzUgODAgNmEgNWQgODIgNDgg
+ODkgMGEgOGIgNDEgMDggODUgYzAgNzUgMDkgZjMgOTAgOGIgNDEgMDggPDg1PiBjMCA3NCBmNwog
+NGMgOGIgMDkgNGQgODUgYzkgNzQgMDggNDEgMGYgMTggMDkgZWIgMDIgZjMgOTAgOGIKClJlcG9y
+dGVkLWJ5OiDFgXVrYXN6IERhbmlsdWsgPGx1a2Fzei5kYW5pbHVrQGludGVsLmNvbT4KU2lnbmVk
+LW9mZi1ieTogU3RldmVuIFJvc3RlZHQgPHJvc3RlZHRAZ29vZG1pcy5vcmc+CgpkaWZmIC0tZ2l0
+IGEvYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0LmMgYi9hcmNoL3g4Ni9rZXJuZWwvcGFyYXZpcnQu
+YwppbmRleCBmMDhhYzI4YjgxMzYuLmY5NzVkMjI2YmU2ZSAxMDA2NDQKLS0tIGEvYXJjaC94ODYv
+a2VybmVsL3BhcmF2aXJ0LmMKKysrIGIvYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0LmMKQEAgLTU1
+LDEyICs1NSwxMiBAQCBhc20gKCIucHVzaHNlY3Rpb24gLmVudHJ5LnRleHQsIFwiYXhcIlxuIgog
+ICAgICAiLnBvcHNlY3Rpb24iKTsKIAogLyogaWRlbnRpdHkgZnVuY3Rpb24sIHdoaWNoIGNhbiBi
+ZSBpbmxpbmVkICovCi11MzIgX3BhcmF2aXJ0X2lkZW50XzMyKHUzMiB4KQordTMyIG5vdHJhY2Ug
+X3BhcmF2aXJ0X2lkZW50XzMyKHUzMiB4KQogewogCXJldHVybiB4OwogfQogCi11NjQgX3BhcmF2
+aXJ0X2lkZW50XzY0KHU2NCB4KQordTY0IG5vdHJhY2UgX3BhcmF2aXJ0X2lkZW50XzY0KHU2NCB4
+KQogewogCXJldHVybiB4OwogfQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
+dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
+L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
