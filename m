@@ -1,7 +1,7 @@
 From: "Li, Liang Z" <liang.z.li@intel.com>
 Subject: RE: [PATCH RFC kernel] balloon: speed up inflating/deflating process
-Date: Wed, 25 May 2016 00:52:19 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E041A65EF__12607.4239299216$1464137560$gmane$org@shsmsx102.ccr.corp.intel.com>
+Date: Wed, 25 May 2016 01:00:27 +0000
+Message-ID: <F2CBF3009FA73547804AE4C663CAB28E041A6625@shsmsx102.ccr.corp.intel.com>
 References: <1463738386-30868-1-git-send-email-liang.z.li@intel.com>
 	<20160520120038.GA28757@redhat.com>
 	<F2CBF3009FA73547804AE4C663CAB28E041A4BFD@shsmsx102.ccr.corp.intel.com>
@@ -29,18 +29,6 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> On Tue, May 24, 2016 at 02:36:08PM +0000, Li, Liang Z wrote:
-> > > > > > > This can be pre-initialized, correct?
-> > > > > >
-> > > > > > pre-initialized? I am not quite understand your mean.
-> > > > >
-> > > > > I think you can maintain sg as part of device state and init sg
-> > > > > with the
-> > > bitmap.
-> > > > >
-> > > >
-> > > > I got it.
-> > > >
 > > > > > > > This is grossly inefficient if you only requested a single page.
 > > > > > > > And it's also allocating memory very aggressively without
 > > > > > > > ever telling the host what is going on.
@@ -90,6 +78,9 @@ List-Id: virtualization@lists.linuxfoundation.org
 > 
 > To save memory. First allocating a large bitmap can fail, second this is pinned
 > memory that is wasted - it's unused most of the time while guest is running.
+
+Make sense.
+
 > 
 > > >
 > > > >
@@ -119,6 +110,16 @@ List-Id: virtualization@lists.linuxfoundation.org
 > 
 > start_pfn should mean "bit 0 in bitmap refers to pfn X".
 > So it does not make sense to also add it as offset within bitmap.
+
+I got it, but in my code, it's correct, because the page_bitmap is
+range from pfn 0 to max_pfn. 
+It should be changed if we are going to use a small page bitmap.
+
+Thanks!
+
+Liang
+
+
 > 
 > --
 > MST
