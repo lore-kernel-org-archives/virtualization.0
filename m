@@ -1,12 +1,13 @@
 From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v3 0/6] powerpc use pv-qpsinlock as the default spinlock
-	implemention
-Date: Wed, 25 May 2016 16:18:03 +0800
-Message-ID: <1464164289-6124-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v3 4/6] pv-qspinlock: powerpc support pv-qspinlock
+Date: Wed, 25 May 2016 16:18:07 +0800
+Message-ID: <1464164289-6124-5-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+References: <1464164289-6124-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1464164289-6124-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,63 +21,187 @@ To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@
 Cc: jeremy@goop.org, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, peterz@infradead.org, benh@kernel.crashing.org, chrisw@sous-sol.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, akataria@vmware.com, paulmck@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-change from v2:
-	__spin_yeild_cpu() will yield slices to lpar if target cpu is running.
-	remove unnecessary rmb() in __spin_yield/wake_cpu.
-	__pv_wait() will check the *ptr == val.
-	some commit message change
+As we need let pv-qspinlock-kernel run on all environment which might
+have no powervm, we should runtime choose which qspinlock version to
+use.
 
-change fome v1:
-	separate into 6 pathes from one patch
-	some minor code changes.
+The default pv-qspinlock use native version. pv_lock initialization
+should be done in bootstage with irq disabled. And if there is PHYP,
+restore pv_lock_ops callbacks to pv version.
 
-I do several tests on pseries IBM,8408-E8E with 32cpus, 64GB memory.
-benchmark test results are below.
-
-2 perf tests:
-perf bench futex hash
-perf bench futex lock-pi
-
-_____test________________spinlcok______________pv-qspinlcok_____
-|futex hash	|	556370 ops	|	629634 ops	|
-|futex lock-pi	|	362 ops		|	367 ops		|
-
-scheduler test:
-Test how many loops of schedule() can finish within 10 seconds on all cpus.
-
-_____test________________spinlcok______________pv-qspinlcok_____
-|schedule() loops|	322811921 	|	311449290	|
-
-kernel compiling test:
-build a linux kernel image to see how long it took
-
-_____test________________spinlcok______________pv-qspinlcok_____
-| compiling takes|	22m 		|	22m		|
-
-Pan Xinhui (6):
-  qspinlock: powerpc support qspinlock
-  powerpc: pseries/Kconfig: Add qspinlock build config
-  powerpc: lib/locks.c: Add cpu yield/wake helper function
-  pv-qspinlock: powerpc support pv-qspinlock
-  pv-qspinlock: use cmpxchg_release in __pv_queued_spin_unlock
-  powerpc: pseries: Add pv-qspinlock build config/make
-
- arch/powerpc/include/asm/qspinlock.h               | 39 +++++++++++++++++++
+Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+---
+ arch/powerpc/include/asm/qspinlock.h               | 17 ++++++++
  arch/powerpc/include/asm/qspinlock_paravirt.h      | 38 ++++++++++++++++++
  .../powerpc/include/asm/qspinlock_paravirt_types.h | 13 +++++++
- arch/powerpc/include/asm/spinlock.h                | 31 +++++++++------
- arch/powerpc/include/asm/spinlock_types.h          |  4 ++
- arch/powerpc/kernel/Makefile                       |  1 +
  arch/powerpc/kernel/paravirt.c                     | 45 ++++++++++++++++++++++
- arch/powerpc/lib/locks.c                           | 37 ++++++++++++++++++
- arch/powerpc/platforms/pseries/Kconfig             |  9 +++++
  arch/powerpc/platforms/pseries/setup.c             |  5 +++
- kernel/locking/qspinlock_paravirt.h                |  2 +-
- 11 files changed, 211 insertions(+), 13 deletions(-)
- create mode 100644 arch/powerpc/include/asm/qspinlock.h
+ 5 files changed, 118 insertions(+)
  create mode 100644 arch/powerpc/include/asm/qspinlock_paravirt.h
  create mode 100644 arch/powerpc/include/asm/qspinlock_paravirt_types.h
  create mode 100644 arch/powerpc/kernel/paravirt.c
 
+diff --git a/arch/powerpc/include/asm/qspinlock.h b/arch/powerpc/include/asm/qspinlock.h
+index 5883954..4728f6e 100644
+--- a/arch/powerpc/include/asm/qspinlock.h
++++ b/arch/powerpc/include/asm/qspinlock.h
+@@ -12,10 +12,27 @@ static inline void native_queued_spin_unlock(struct qspinlock *lock)
+ 	smp_store_release((u8 *)lock, 0);
+ }
+ 
++#ifdef CONFIG_PARAVIRT_SPINLOCKS
++
++#define __ARCH_NEED_PV_HASH_LOOKUP
++
++#include <asm/qspinlock_paravirt.h>
++
++static inline void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
++{
++	pv_queued_spin_lock(lock, val);
++}
++
++static inline void queued_spin_unlock(struct qspinlock *lock)
++{
++	pv_queued_spin_unlock(lock);
++}
++#else
+ static inline void queued_spin_unlock(struct qspinlock *lock)
+ {
+ 	native_queued_spin_unlock(lock);
+ }
++#endif
+ 
+ #include <asm-generic/qspinlock.h>
+ 
+diff --git a/arch/powerpc/include/asm/qspinlock_paravirt.h b/arch/powerpc/include/asm/qspinlock_paravirt.h
+new file mode 100644
+index 0000000..cd17a79
+--- /dev/null
++++ b/arch/powerpc/include/asm/qspinlock_paravirt.h
+@@ -0,0 +1,38 @@
++#ifndef CONFIG_PARAVIRT_SPINLOCKS
++#error "do not include this file"
++#endif
++
++#ifndef _ASM_QSPINLOCK_PARAVIRT_H
++#define _ASM_QSPINLOCK_PARAVIRT_H
++
++#include  <asm/qspinlock_paravirt_types.h>
++
++extern void pv_lock_init(void);
++extern void native_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
++extern void __pv_init_lock_hash(void);
++extern void __pv_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
++extern void __pv_queued_spin_unlock(struct qspinlock *lock);
++
++static inline void pv_queued_spin_lock(struct qspinlock *lock, u32 val)
++{
++	CLEAR_IO_SYNC;
++	pv_lock_op.lock(lock, val);
++}
++
++static inline void pv_queued_spin_unlock(struct qspinlock *lock)
++{
++	SYNC_IO;
++	pv_lock_op.unlock(lock);
++}
++
++static inline void pv_wait(u8 *ptr, u8 val, int lockcpu)
++{
++	pv_lock_op.wait(ptr, val, lockcpu);
++}
++
++static inline void pv_kick(int cpu)
++{
++	pv_lock_op.kick(cpu);
++}
++
++#endif
+diff --git a/arch/powerpc/include/asm/qspinlock_paravirt_types.h b/arch/powerpc/include/asm/qspinlock_paravirt_types.h
+new file mode 100644
+index 0000000..e1fdeb0
+--- /dev/null
++++ b/arch/powerpc/include/asm/qspinlock_paravirt_types.h
+@@ -0,0 +1,13 @@
++#ifndef _ASM_QSPINLOCK_PARAVIRT_TYPES_H
++#define _ASM_QSPINLOCK_PARAVIRT_TYPES_H
++
++struct pv_lock_ops {
++	void (*lock)(struct qspinlock *lock, u32 val);
++	void (*unlock)(struct qspinlock *lock);
++	void (*wait)(u8 *ptr, u8 val, int cpu);
++	void (*kick)(int cpu);
++};
++
++extern struct pv_lock_ops pv_lock_op;
++
++#endif
+diff --git a/arch/powerpc/kernel/paravirt.c b/arch/powerpc/kernel/paravirt.c
+new file mode 100644
+index 0000000..4f19f7e
+--- /dev/null
++++ b/arch/powerpc/kernel/paravirt.c
+@@ -0,0 +1,45 @@
++/*
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++
++#include <linux/spinlock.h>
++
++static void __native_queued_spin_unlock(struct qspinlock *lock)
++{
++	native_queued_spin_unlock(lock);
++}
++
++static void __pv_wait(u8 *ptr, u8 val, int cpu)
++{
++	HMT_low();
++	if (READ_ONCE(*ptr) == val)
++		__spin_yield_cpu(cpu);
++	HMT_medium();
++}
++
++static void __pv_kick(int cpu)
++{
++	__spin_wake_cpu(cpu);
++}
++
++struct pv_lock_ops pv_lock_op = {
++	.lock = native_queued_spin_lock_slowpath,
++	.unlock = __native_queued_spin_unlock,
++	.wait = NULL,
++	.kick = NULL,
++};
++EXPORT_SYMBOL(pv_lock_op);
++
++void __init pv_lock_init(void)
++{
++	if (SHARED_PROCESSOR) {
++		__pv_init_lock_hash();
++		pv_lock_op.lock = __pv_queued_spin_lock_slowpath;
++		pv_lock_op.unlock = __pv_queued_spin_unlock;
++		pv_lock_op.wait = __pv_wait;
++		pv_lock_op.kick = __pv_kick;
++	}
++}
+diff --git a/arch/powerpc/platforms/pseries/setup.c b/arch/powerpc/platforms/pseries/setup.c
+index 6e944fc..c9f056e 100644
+--- a/arch/powerpc/platforms/pseries/setup.c
++++ b/arch/powerpc/platforms/pseries/setup.c
+@@ -547,6 +547,11 @@ static void __init pSeries_setup_arch(void)
+ 				"%ld\n", rc);
+ 		}
+ 	}
++
++#ifdef CONFIG_PARAVIRT_SPINLOCKS
++	pv_lock_init();
++#endif
++
+ }
+ 
+ static int __init pSeries_init_panel(void)
 -- 
 1.9.1
