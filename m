@@ -1,7 +1,8 @@
 From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v3 6/6] powerpc: pseries: Add pv-qspinlock build config/make
-Date: Wed, 25 May 2016 16:18:09 +0800
-Message-ID: <1464164289-6124-7-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v3 5/6] pv-qspinlock: use cmpxchg_release in
+	__pv_queued_spin_unlock
+Date: Wed, 25 May 2016 16:18:08 +0800
+Message-ID: <1464164289-6124-6-git-send-email-xinhui.pan__12653.9388359108$1464164554$gmane$org@linux.vnet.ibm.com>
 References: <1464164289-6124-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,41 +22,28 @@ To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@
 Cc: jeremy@goop.org, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, peterz@infradead.org, benh@kernel.crashing.org, chrisw@sous-sol.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, akataria@vmware.com, paulmck@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-pseries has PowerVM support, the default option is Y.
+cmpxchg_release is light-wight than cmpxchg, we can gain a better
+performace then. On some arch like ppc, barrier impact the performace
+too much.
 
+Suggested-by:  Boqun Feng <boqun.feng@gmail.com>
 Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 ---
- arch/powerpc/kernel/Makefile           | 1 +
- arch/powerpc/platforms/pseries/Kconfig | 8 ++++++++
- 2 files changed, 9 insertions(+)
+ kernel/locking/qspinlock_paravirt.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/Makefile b/arch/powerpc/kernel/Makefile
-index 2da380f..ae7c2f1 100644
---- a/arch/powerpc/kernel/Makefile
-+++ b/arch/powerpc/kernel/Makefile
-@@ -50,6 +50,7 @@ obj-$(CONFIG_PPC_970_NAP)	+= idle_power4.o
- obj-$(CONFIG_PPC_P7_NAP)	+= idle_power7.o
- procfs-y			:= proc_powerpc.o
- obj-$(CONFIG_PROC_FS)		+= $(procfs-y)
-+obj-$(CONFIG_PARAVIRT_SPINLOCKS)	+= paravirt.o
- rtaspci-$(CONFIG_PPC64)-$(CONFIG_PCI)	:= rtas_pci.o
- obj-$(CONFIG_PPC_RTAS)		+= rtas.o rtas-rtc.o $(rtaspci-y-y)
- obj-$(CONFIG_PPC_RTAS_DAEMON)	+= rtasd.o
-diff --git a/arch/powerpc/platforms/pseries/Kconfig b/arch/powerpc/platforms/pseries/Kconfig
-index f669323..46632e4 100644
---- a/arch/powerpc/platforms/pseries/Kconfig
-+++ b/arch/powerpc/platforms/pseries/Kconfig
-@@ -128,3 +128,11 @@ config HV_PERF_CTRS
- 	  systems. 24x7 is available on Power 8 systems.
+diff --git a/kernel/locking/qspinlock_paravirt.h b/kernel/locking/qspinlock_paravirt.h
+index a5b1248..2bbffe4 100644
+--- a/kernel/locking/qspinlock_paravirt.h
++++ b/kernel/locking/qspinlock_paravirt.h
+@@ -614,7 +614,7 @@ __visible void __pv_queued_spin_unlock(struct qspinlock *lock)
+ 	 * unhash. Otherwise it would be possible to have multiple @lock
+ 	 * entries, which would be BAD.
+ 	 */
+-	locked = cmpxchg(&l->locked, _Q_LOCKED_VAL, 0);
++	locked = cmpxchg_release(&l->locked, _Q_LOCKED_VAL, 0);
+ 	if (likely(locked == _Q_LOCKED_VAL))
+ 		return;
  
-           If unsure, select Y.
-+
-+config PARAVIRT_SPINLOCKS
-+	bool "Paravirtialization support for qspinlock"
-+	depends on PPC_SPLPAR && QUEUED_SPINLOCKS
-+	default y
-+	help
-+	  If platform supports virtualization, for example PowerVM, this option
-+	  can let guest have a better performace.
 -- 
 1.9.1
