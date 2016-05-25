@@ -1,21 +1,12 @@
-From: "Li, Liang Z" <liang.z.li@intel.com>
-Subject: RE: [PATCH RFC kernel] balloon: speed up inflating/deflating process
-Date: Wed, 25 May 2016 01:00:27 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E041A6625@shsmsx102.ccr.corp.intel.com>
-References: <1463738386-30868-1-git-send-email-liang.z.li@intel.com>
-	<20160520120038.GA28757@redhat.com>
-	<F2CBF3009FA73547804AE4C663CAB28E041A4BFD@shsmsx102.ccr.corp.intel.com>
-	<20160524130041-mutt-send-email-mst@redhat.com>
-	<F2CBF3009FA73547804AE4C663CAB28E041A4D21@shsmsx102.ccr.corp.intel.com>
-	<20160524111135.GA7392@redhat.com>
-	<F2CBF3009FA73547804AE4C663CAB28E041A5F5C@shsmsx102.ccr.corp.intel.com>
-	<20160524181054-mutt-send-email-mst@redhat.com>
+From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v3 0/6] powerpc use pv-qpsinlock as the default spinlock
+	implemention
+Date: Wed, 25 May 2016 16:18:03 +0800
+Message-ID: <1464164289-6124-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160524181054-mutt-send-email-mst@redhat.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,101 +16,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>
+To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org
+Cc: jeremy@goop.org, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, peterz@infradead.org, benh@kernel.crashing.org, chrisw@sous-sol.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, akataria@vmware.com, paulmck@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-> > > > > > > This is grossly inefficient if you only requested a single page.
-> > > > > > > And it's also allocating memory very aggressively without
-> > > > > > > ever telling the host what is going on.
-> > > > > >
-> > > > > > If only requested a single page, there is no need  to send the
-> > > > > > entire page bitmap, This RFC patch has already considered about
-> this.
-> > > > >
-> > > > > where's that addressed in code?
-> > > > >
-> > > >
-> > > > By record the start_pfn and end_pfn.
-> > > >
-> > > > The start_pfn & end_pfn will be updated in set_page_bitmap() and
-> > > > will be used in the function tell_host():
-> > > >
-> > > > ------------------------------------------------------------------
-> > > > ----
-> > > > -----------
-> > > > +static void set_page_bitmap(struct virtio_balloon *vb, struct
-> > > > +page
-> > > > +*page) {
-> > > > +	unsigned int i;
-> > > > +	unsigned long *bitmap = vb->page_bitmap;
-> > > > +	unsigned long balloon_pfn = page_to_balloon_pfn(page);
-> > > > +
-> > > > +	for (i = 0; i < VIRTIO_BALLOON_PAGES_PER_PAGE; i++)
-> > > > +		set_bit(balloon_pfn + i, bitmap);
-> > >
-> > > BTW, there's a page size value in header so there is no longer need
-> > > to set multiple bits per page.
-> >
-> > Yes, you are right.
-> >
-> > >
-> > > > +	if (balloon_pfn < vb->start_pfn)
-> > > > +		vb->start_pfn = balloon_pfn;
-> > > > +	if (balloon_pfn > vb->end_pfn)
-> > > > +		vb->end_pfn = balloon_pfn;
-> > > > +}
-> > >
-> > > Sounds good, but you also need to limit by allocated bitmap size.
-> >
-> > Why should we limit the page bitmap size? Is it no good to send a large
-> page bitmap?
-> > or to save the memory used for page bitmap? Or some other reason?
-> 
-> To save memory. First allocating a large bitmap can fail, second this is pinned
-> memory that is wasted - it's unused most of the time while guest is running.
+change from v2:
+	__spin_yeild_cpu() will yield slices to lpar if target cpu is running.
+	remove unnecessary rmb() in __spin_yield/wake_cpu.
+	__pv_wait() will check the *ptr == val.
+	some commit message change
 
-Make sense.
+change fome v1:
+	separate into 6 pathes from one patch
+	some minor code changes.
 
-> 
-> > >
-> > > >
-> > > > +		unsigned long start_pfn, end_pfn, flags = 0, bmap_len;
-> > > > +		struct scatterlist sg[5];
-> > > > +
-> > > > +		start_pfn = rounddown(vb->start_pfn, BITS_PER_LONG);
-> > > > +		end_pfn = roundup(vb->end_pfn, BITS_PER_LONG);
-> > > > +		bmap_len = (end_pfn - start_pfn) / BITS_PER_LONG *
-> > > sizeof(long);
-> > > > +
-> > > > +		sg_init_table(sg, 5);
-> > > > +		sg_set_buf(&sg[0], &flags, sizeof(flags));
-> > > > +		sg_set_buf(&sg[1], &start_pfn, sizeof(start_pfn));
-> > > > +		sg_set_buf(&sg[2], &page_shift, sizeof(page_shift));
-> > > > +		sg_set_buf(&sg[3], &bmap_len, sizeof(bmap_len));
-> > > > +		sg_set_buf(&sg[4], vb->page_bitmap +
-> > > > +				 (start_pfn / BITS_PER_LONG), bmap_len);
-> > >
-> > > Looks wrong. start_pfn should start at offset 0 I think ...
-> >
-> > I don't know what is wrong here, could you tell me why?
-> >
-> > Thanks!
-> >
-> > Liang
-> 
-> start_pfn should mean "bit 0 in bitmap refers to pfn X".
-> So it does not make sense to also add it as offset within bitmap.
+I do several tests on pseries IBM,8408-E8E with 32cpus, 64GB memory.
+benchmark test results are below.
 
-I got it, but in my code, it's correct, because the page_bitmap is
-range from pfn 0 to max_pfn. 
-It should be changed if we are going to use a small page bitmap.
+2 perf tests:
+perf bench futex hash
+perf bench futex lock-pi
 
-Thanks!
+_____test________________spinlcok______________pv-qspinlcok_____
+|futex hash	|	556370 ops	|	629634 ops	|
+|futex lock-pi	|	362 ops		|	367 ops		|
 
-Liang
+scheduler test:
+Test how many loops of schedule() can finish within 10 seconds on all cpus.
 
+_____test________________spinlcok______________pv-qspinlcok_____
+|schedule() loops|	322811921 	|	311449290	|
 
-> 
-> --
-> MST
+kernel compiling test:
+build a linux kernel image to see how long it took
+
+_____test________________spinlcok______________pv-qspinlcok_____
+| compiling takes|	22m 		|	22m		|
+
+Pan Xinhui (6):
+  qspinlock: powerpc support qspinlock
+  powerpc: pseries/Kconfig: Add qspinlock build config
+  powerpc: lib/locks.c: Add cpu yield/wake helper function
+  pv-qspinlock: powerpc support pv-qspinlock
+  pv-qspinlock: use cmpxchg_release in __pv_queued_spin_unlock
+  powerpc: pseries: Add pv-qspinlock build config/make
+
+ arch/powerpc/include/asm/qspinlock.h               | 39 +++++++++++++++++++
+ arch/powerpc/include/asm/qspinlock_paravirt.h      | 38 ++++++++++++++++++
+ .../powerpc/include/asm/qspinlock_paravirt_types.h | 13 +++++++
+ arch/powerpc/include/asm/spinlock.h                | 31 +++++++++------
+ arch/powerpc/include/asm/spinlock_types.h          |  4 ++
+ arch/powerpc/kernel/Makefile                       |  1 +
+ arch/powerpc/kernel/paravirt.c                     | 45 ++++++++++++++++++++++
+ arch/powerpc/lib/locks.c                           | 37 ++++++++++++++++++
+ arch/powerpc/platforms/pseries/Kconfig             |  9 +++++
+ arch/powerpc/platforms/pseries/setup.c             |  5 +++
+ kernel/locking/qspinlock_paravirt.h                |  2 +-
+ 11 files changed, 211 insertions(+), 13 deletions(-)
+ create mode 100644 arch/powerpc/include/asm/qspinlock.h
+ create mode 100644 arch/powerpc/include/asm/qspinlock_paravirt.h
+ create mode 100644 arch/powerpc/include/asm/qspinlock_paravirt_types.h
+ create mode 100644 arch/powerpc/kernel/paravirt.c
+
+-- 
+1.9.1
