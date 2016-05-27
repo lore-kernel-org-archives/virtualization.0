@@ -1,17 +1,15 @@
-From: xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: Re: [PATCH v3 5/6] pv-qspinlock: use cmpxchg_release in
-	__pv_queued_spin_unlock
-Date: Fri, 27 May 2016 18:34:58 +0800
-Message-ID: <201605271035.u4RAXrs4019741@mx0a-001b2d01.pphosted.com>
-References: <1464164289-6124-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<1464164289-6124-6-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<20160526164729.GL3206@twins.programming.kicks-ass.net>
-	<20160526165712.GT3205@twins.programming.kicks-ass.net>
+From: Vlastimil Babka <vbabka@suse.cz>
+Subject: Re: [PATCH v6 02/12] mm: migrate: support non-lru movable page
+	migration
+Date: Fri, 27 May 2016 16:26:21 +0200
+Message-ID: <ebe3244c-4821-aad2-ed32-8e730a882438__13609.1475877494$1464359209$gmane$org@suse.cz>
+References: <1463754225-31311-1-git-send-email-minchan@kernel.org>
+	<1463754225-31311-3-git-send-email-minchan@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160526165712.GT3205@twins.programming.kicks-ass.net>
+In-Reply-To: <1463754225-31311-3-git-send-email-minchan@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,39 +19,361 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: jeremy@goop.org, mpe@ellerman.id.au, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, paulus@samba.org, benh@kernel.crashing.org, akataria@vmware.com, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
+To: Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Rik van Riel <riel@redhat.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Rafael Aquini <aquini@redhat.com>, Jonathan Corbet <corbet@lwn.net>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, John Einar Reitan <john.reitan@foss.arm.com>, linux-mm@kvack.org, Mel Gorman <mgorman@suse.de>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Gioh Kim <gi-oh.kim@profitbricks.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE25bm0MDXmnIgyN+aXpSAwMDo1NywgUGV0ZXIgWmlqbHN0cmEgd3JvdGU6Cj4gT24g
-VGh1LCBNYXkgMjYsIDIwMTYgYXQgMDY6NDc6MjlQTSArMDIwMCwgUGV0ZXIgWmlqbHN0cmEgd3Jv
-dGU6Cj4+IE9uIFdlZCwgTWF5IDI1LCAyMDE2IGF0IDA0OjE4OjA4UE0gKzA4MDAsIFBhbiBYaW5o
-dWkgd3JvdGU6Cj4+PiBjbXB4Y2hnX3JlbGVhc2UgaXMgbGlnaHQtd2lnaHQgdGhhbiBjbXB4Y2hn
-LCB3ZSBjYW4gZ2FpbiBhIGJldHRlcgo+Pj4gcGVyZm9ybWFjZSB0aGVuLiBPbiBzb21lIGFyY2gg
-bGlrZSBwcGMsIGJhcnJpZXIgaW1wYWN0IHRoZSBwZXJmb3JtYWNlCj4+PiB0b28gbXVjaC4KPj4+
-Cj4+PiBTdWdnZXN0ZWQtYnk6ICBCb3F1biBGZW5nIDxib3F1bi5mZW5nQGdtYWlsLmNvbT4KPj4+
-IFNpZ25lZC1vZmYtYnk6IFBhbiBYaW5odWkgPHhpbmh1aS5wYW5AbGludXgudm5ldC5pYm0uY29t
-Pgo+Pj4gLS0tCj4+PiAgIGtlcm5lbC9sb2NraW5nL3FzcGlubG9ja19wYXJhdmlydC5oIHwgMiAr
-LQo+Pj4gICAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkKPj4+
-Cj4+PiBkaWZmIC0tZ2l0IGEva2VybmVsL2xvY2tpbmcvcXNwaW5sb2NrX3BhcmF2aXJ0LmggYi9r
-ZXJuZWwvbG9ja2luZy9xc3BpbmxvY2tfcGFyYXZpcnQuaAo+Pj4gaW5kZXggYTViMTI0OC4uMmJi
-ZmZlNCAxMDA2NDQKPj4+IC0tLSBhL2tlcm5lbC9sb2NraW5nL3FzcGlubG9ja19wYXJhdmlydC5o
-Cj4+PiArKysgYi9rZXJuZWwvbG9ja2luZy9xc3BpbmxvY2tfcGFyYXZpcnQuaAo+Pj4gQEAgLTYx
-NCw3ICs2MTQsNyBAQCBfX3Zpc2libGUgdm9pZCBfX3B2X3F1ZXVlZF9zcGluX3VubG9jayhzdHJ1
-Y3QgcXNwaW5sb2NrICpsb2NrKQo+Pj4gICAJICogdW5oYXNoLiBPdGhlcndpc2UgaXQgd291bGQg
-YmUgcG9zc2libGUgdG8gaGF2ZSBtdWx0aXBsZSBAbG9jawo+Pj4gICAJICogZW50cmllcywgd2hp
-Y2ggd291bGQgYmUgQkFELgo+Pj4gICAJICovCj4+PiAtCWxvY2tlZCA9IGNtcHhjaGcoJmwtPmxv
-Y2tlZCwgX1FfTE9DS0VEX1ZBTCwgMCk7Cj4+PiArCWxvY2tlZCA9IGNtcHhjaGdfcmVsZWFzZSgm
-bC0+bG9ja2VkLCBfUV9MT0NLRURfVkFMLCAwKTsKPj4+ICAgCWlmIChsaWtlbHkobG9ja2VkID09
-IF9RX0xPQ0tFRF9WQUwpKQo+Pj4gICAJCXJldHVybjsKPj4KPj4gVGhpcyBwYXRjaCBmYWlscyB0
-byBleHBsYWluIF93aHlfIGl0IGNhbiBiZSByZWxheGVkLgo+Pgo+PiBBbmQgc2VlaW5nIGhvdyB0
-aGlzIGNtcHhjaGcoKSBjYW4gYWN0dWFsbHkgdW5sb2NrIHRoZSBsb2NrLCBJIGRvbid0IHNlZQo+
-PiBob3cgdGhpcyBjYW4gcG9zc2libHkgYmUgY29ycmVjdC4gTWF5YmUgY21weGNoZ19yZWxlYXNl
-KCksIGJ1dCByZWxheGVkCj4+IHNlZW1zIHZlcnkgd3JvbmcuCj4KPiBDbGVhcmx5IEkgbmVlZCB0
-byBzdG9wIHdvcmtpbmcgZm9yIHRoZSBkYXksIEkgY2FubmVhIHJlYWQuIFlvdSdyZSBkb2luZwo+
-IHJlbGVhc2UsIG5vdCByZWxheGVkLgo+Ck5ldmVyIG1pbmQuICB0aGFua3MgZm9yIHJldmlldyA6
-KQoKPiBTdGlsbCBDaGFuZ2Vsb2cgbmVlZHMgaW1wcm92ZW1lbnQuCj4KV2lsbCBkbyB0aGF0LgoK
-dGhhbmtzCnhpbmh1aQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On 05/20/2016 04:23 PM, Minchan Kim wrote:
+> We have allowed migration for only LRU pages until now and it was
+> enough to make high-order pages. But recently, embedded system(e.g.,
+> webOS, android) uses lots of non-movable pages(e.g., zram, GPU memory)
+> so we have seen several reports about troubles of small high-order
+> allocation. For fixing the problem, there were several efforts
+> (e,g,. enhance compaction algorithm, SLUB fallback to 0-order page,
+> reserved memory, vmalloc and so on) but if there are lots of
+> non-movable pages in system, their solutions are void in the long run.
+>
+> So, this patch is to support facility to change non-movable pages
+> with movable. For the feature, this patch introduces functions related
+> to migration to address_space_operations as well as some page flags.
+>
+> If a driver want to make own pages movable, it should define three functions
+> which are function pointers of struct address_space_operations.
+>
+> 1. bool (*isolate_page) (struct page *page, isolate_mode_t mode);
+>
+> What VM expects on isolate_page function of driver is to return *true*
+> if driver isolates page successfully. On returing true, VM marks the page
+> as PG_isolated so concurrent isolation in several CPUs skip the page
+> for isolation. If a driver cannot isolate the page, it should return *false*.
+>
+> Once page is successfully isolated, VM uses page.lru fields so driver
+> shouldn't expect to preserve values in that fields.
+>
+> 2. int (*migratepage) (struct address_space *mapping,
+> 		struct page *newpage, struct page *oldpage, enum migrate_mode);
+>
+> After isolation, VM calls migratepage of driver with isolated page.
+> The function of migratepage is to move content of the old page to new page
+> and set up fields of struct page newpage. Keep in mind that you should
+> clear PG_movable of oldpage via __ClearPageMovable under page_lock if you
+> migrated the oldpage successfully and returns 0.
+> If driver cannot migrate the page at the moment, driver can return -EAGAIN.
+> On -EAGAIN, VM will retry page migration in a short time because VM interprets
+> -EAGAIN as "temporal migration failure". On returning any error except -EAGAIN,
+> VM will give up the page migration without retrying in this time.
+>
+> Driver shouldn't touch page.lru field VM using in the functions.
+>
+> 3. void (*putback_page)(struct page *);
+>
+> If migration fails on isolated page, VM should return the isolated page
+> to the driver so VM calls driver's putback_page with migration failed page.
+> In this function, driver should put the isolated page back to the own data
+> structure.
+>
+> 4. non-lru movable page flags
+>
+> There are two page flags for supporting non-lru movable page.
+>
+> * PG_movable
+>
+> Driver should use the below function to make page movable under page_lock.
+>
+> 	void __SetPageMovable(struct page *page, struct address_space *mapping)
+>
+> It needs argument of address_space for registering migration family functions
+> which will be called by VM. Exactly speaking, PG_movable is not a real flag of
+> struct page. Rather than, VM reuses page->mapping's lower bits to represent it.
+>
+> 	#define PAGE_MAPPING_MOVABLE 0x2
+> 	page->mapping = page->mapping | PAGE_MAPPING_MOVABLE;
+
+Interesting, let's see how that works out...
+
+Overal this looks much better than the last version I checked!
+
+[...]
+
+> @@ -357,29 +360,37 @@ PAGEFLAG(Idle, idle, PF_ANY)
+>   * with the PAGE_MAPPING_ANON bit set to distinguish it.  See rmap.h.
+>   *
+>   * On an anonymous page in a VM_MERGEABLE area, if CONFIG_KSM is enabled,
+> - * the PAGE_MAPPING_KSM bit may be set along with the PAGE_MAPPING_ANON bit;
+> - * and then page->mapping points, not to an anon_vma, but to a private
+> + * the PAGE_MAPPING_MOVABLE bit may be set along with the PAGE_MAPPING_ANON
+> + * bit; and then page->mapping points, not to an anon_vma, but to a private
+>   * structure which KSM associates with that merged page.  See ksm.h.
+>   *
+> - * PAGE_MAPPING_KSM without PAGE_MAPPING_ANON is currently never used.
+> + * PAGE_MAPPING_KSM without PAGE_MAPPING_ANON is used for non-lru movable
+> + * page and then page->mapping points a struct address_space.
+>   *
+>   * Please note that, confusingly, "page_mapping" refers to the inode
+>   * address_space which maps the page from disk; whereas "page_mapped"
+>   * refers to user virtual address space into which the page is mapped.
+>   */
+> -#define PAGE_MAPPING_ANON	1
+> -#define PAGE_MAPPING_KSM	2
+> -#define PAGE_MAPPING_FLAGS	(PAGE_MAPPING_ANON | PAGE_MAPPING_KSM)
+> +#define PAGE_MAPPING_ANON	0x1
+> +#define PAGE_MAPPING_MOVABLE	0x2
+> +#define PAGE_MAPPING_KSM	(PAGE_MAPPING_ANON | PAGE_MAPPING_MOVABLE)
+> +#define PAGE_MAPPING_FLAGS	(PAGE_MAPPING_ANON | PAGE_MAPPING_MOVABLE)
+>
+> -static __always_inline int PageAnonHead(struct page *page)
+> +static __always_inline int PageMappingFlag(struct page *page)
+
+PageMappingFlags()?
+
+[...]
+
+> diff --git a/mm/compaction.c b/mm/compaction.c
+> index 1427366ad673..2d6862d0df60 100644
+> --- a/mm/compaction.c
+> +++ b/mm/compaction.c
+> @@ -81,6 +81,41 @@ static inline bool migrate_async_suitable(int migratetype)
+>
+>  #ifdef CONFIG_COMPACTION
+>
+> +int PageMovable(struct page *page)
+> +{
+> +	struct address_space *mapping;
+> +
+> +	WARN_ON(!PageLocked(page));
+
+Why not VM_BUG_ON_PAGE as elsewhere?
+
+> +	if (!__PageMovable(page))
+> +		goto out;
+
+Just return 0.
+
+> +
+> +	mapping = page_mapping(page);
+> +	if (mapping && mapping->a_ops && mapping->a_ops->isolate_page)
+> +		return 1;
+> +out:
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL(PageMovable);
+> +
+> +void __SetPageMovable(struct page *page, struct address_space *mapping)
+> +{
+> +	VM_BUG_ON_PAGE(!PageLocked(page), page);
+> +	VM_BUG_ON_PAGE((unsigned long)mapping & PAGE_MAPPING_MOVABLE, page);
+> +	page->mapping = (void *)((unsigned long)mapping | PAGE_MAPPING_MOVABLE);
+> +}
+> +EXPORT_SYMBOL(__SetPageMovable);
+> +
+> +void __ClearPageMovable(struct page *page)
+> +{
+> +	VM_BUG_ON_PAGE(!PageLocked(page), page);
+> +	VM_BUG_ON_PAGE(!PageMovable(page), page);
+> +	VM_BUG_ON_PAGE(!((unsigned long)page->mapping & PAGE_MAPPING_MOVABLE),
+> +				page);
+
+The last line sounds redundant, PageMovable() already checked this via 
+__PageMovable()
+
+
+> +	page->mapping = (void *)((unsigned long)page->mapping &
+> +				PAGE_MAPPING_MOVABLE);
+
+This should be negated to clear... use ~PAGE_MAPPING_MOVABLE ?
+
+> +}
+> +EXPORT_SYMBOL(__ClearPageMovable);
+> +
+>  /* Do not skip compaction more than 64 times */
+>  #define COMPACT_MAX_DEFER_SHIFT 6
+>
+> @@ -735,21 +770,6 @@ isolate_migratepages_block(struct compact_control *cc, unsigned long low_pfn,
+>  		}
+>
+>  		/*
+> -		 * Check may be lockless but that's ok as we recheck later.
+> -		 * It's possible to migrate LRU pages and balloon pages
+> -		 * Skip any other type of page
+> -		 */
+> -		is_lru = PageLRU(page);
+> -		if (!is_lru) {
+> -			if (unlikely(balloon_page_movable(page))) {
+> -				if (balloon_page_isolate(page)) {
+> -					/* Successfully isolated */
+> -					goto isolate_success;
+> -				}
+> -			}
+> -		}
+
+So this effectively prevents movable compound pages from being migrated. Are you 
+sure no users of this functionality are going to have compound pages? I assumed 
+that they could, and so made the code like this, with the is_lru variable (which 
+is redundant after your change).
+
+> -		/*
+>  		 * Regardless of being on LRU, compound pages such as THP and
+>  		 * hugetlbfs are not to be compacted. We can potentially save
+>  		 * a lot of iterations if we skip them at once. The check is
+> @@ -765,8 +785,38 @@ isolate_migratepages_block(struct compact_control *cc, unsigned long low_pfn,
+>  			goto isolate_fail;
+>  		}
+>
+> -		if (!is_lru)
+> +		/*
+> +		 * Check may be lockless but that's ok as we recheck later.
+> +		 * It's possible to migrate LRU and non-lru movable pages.
+> +		 * Skip any other type of page
+> +		 */
+> +		is_lru = PageLRU(page);
+> +		if (!is_lru) {
+> +			if (unlikely(balloon_page_movable(page))) {
+> +				if (balloon_page_isolate(page)) {
+> +					/* Successfully isolated */
+> +					goto isolate_success;
+> +				}
+> +			}
+
+[...]
+
+> +bool isolate_movable_page(struct page *page, isolate_mode_t mode)
+> +{
+> +	struct address_space *mapping;
+> +
+> +	/*
+> +	 * Avoid burning cycles with pages that are yet under __free_pages(),
+> +	 * or just got freed under us.
+> +	 *
+> +	 * In case we 'win' a race for a movable page being freed under us and
+> +	 * raise its refcount preventing __free_pages() from doing its job
+> +	 * the put_page() at the end of this block will take care of
+> +	 * release this page, thus avoiding a nasty leakage.
+> +	 */
+> +	if (unlikely(!get_page_unless_zero(page)))
+> +		goto out;
+> +
+> +	/*
+> +	 * Check PageMovable before holding a PG_lock because page's owner
+> +	 * assumes anybody doesn't touch PG_lock of newly allocated page
+> +	 * so unconditionally grapping the lock ruins page's owner side.
+> +	 */
+> +	if (unlikely(!__PageMovable(page)))
+> +		goto out_putpage;
+> +	/*
+> +	 * As movable pages are not isolated from LRU lists, concurrent
+> +	 * compaction threads can race against page migration functions
+> +	 * as well as race against the releasing a page.
+> +	 *
+> +	 * In order to avoid having an already isolated movable page
+> +	 * being (wrongly) re-isolated while it is under migration,
+> +	 * or to avoid attempting to isolate pages being released,
+> +	 * lets be sure we have the page lock
+> +	 * before proceeding with the movable page isolation steps.
+> +	 */
+> +	if (unlikely(!trylock_page(page)))
+> +		goto out_putpage;
+> +
+> +	if (!PageMovable(page) || PageIsolated(page))
+> +		goto out_no_isolated;
+> +
+> +	mapping = page_mapping(page);
+
+Hmm so on first tail page of a THP compound page, page->mapping will alias with 
+compound_mapcount. That can easily have a value matching PageMovable flags and 
+we'll proceed and start inspecting the compound head in page_mapping()... maybe 
+it's not a big deal, or we better check and skip PageTail first, must think 
+about it more...
+
+[...]
+
+> @@ -755,33 +844,69 @@ static int move_to_new_page(struct page *newpage, struct page *page,
+>  				enum migrate_mode mode)
+>  {
+>  	struct address_space *mapping;
+> -	int rc;
+> +	int rc = -EAGAIN;
+> +	bool is_lru = !__PageMovable(page);
+>
+>  	VM_BUG_ON_PAGE(!PageLocked(page), page);
+>  	VM_BUG_ON_PAGE(!PageLocked(newpage), newpage);
+>
+>  	mapping = page_mapping(page);
+> -	if (!mapping)
+> -		rc = migrate_page(mapping, newpage, page, mode);
+> -	else if (mapping->a_ops->migratepage)
+> -		/*
+> -		 * Most pages have a mapping and most filesystems provide a
+> -		 * migratepage callback. Anonymous pages are part of swap
+> -		 * space which also has its own migratepage callback. This
+> -		 * is the most common path for page migration.
+> -		 */
+> -		rc = mapping->a_ops->migratepage(mapping, newpage, page, mode);
+> -	else
+> -		rc = fallback_migrate_page(mapping, newpage, page, mode);
+> +	/*
+> +	 * In case of non-lru page, it could be released after
+> +	 * isolation step. In that case, we shouldn't try
+> +	 * fallback migration which is designed for LRU pages.
+> +	 */
+
+Hmm but is_lru was determined from !__PageMovable() above, also well after the 
+isolation step. So if the driver already released it, we wouldn't detect it? And 
+this function is all under same page lock, so if __PageMovable was true above, 
+so will be PageMovable below?
+
+> +	if (unlikely(!is_lru)) {
+> +		VM_BUG_ON_PAGE(!PageIsolated(page), page);
+> +		if (!PageMovable(page)) {
+> +			rc = MIGRATEPAGE_SUCCESS;
+> +			__ClearPageIsolated(page);
+> +			goto out;
+> +		}
+> +	}
+> +
+> +	if (likely(is_lru)) {
+> +		if (!mapping)
+> +			rc = migrate_page(mapping, newpage, page, mode);
+> +		else if (mapping->a_ops->migratepage)
+> +			/*
+> +			 * Most pages have a mapping and most filesystems
+> +			 * provide a migratepage callback. Anonymous pages
+> +			 * are part of swap space which also has its own
+> +			 * migratepage callback. This is the most common path
+> +			 * for page migration.
+> +			 */
+> +			rc = mapping->a_ops->migratepage(mapping, newpage,
+> +							page, mode);
+> +		else
+> +			rc = fallback_migrate_page(mapping, newpage,
+> +							page, mode);
+> +	} else {
+> +		rc = mapping->a_ops->migratepage(mapping, newpage,
+> +						page, mode);
+> +		WARN_ON_ONCE(rc == MIGRATEPAGE_SUCCESS &&
+> +			!PageIsolated(page));
+> +	}
+
+Why split the !is_lru handling in two places?
+
+>
+>  	/*
+>  	 * When successful, old pagecache page->mapping must be cleared before
+>  	 * page is freed; but stats require that PageAnon be left as PageAnon.
+>  	 */
+>  	if (rc == MIGRATEPAGE_SUCCESS) {
+> -		if (!PageAnon(page))
+> +		if (__PageMovable(page)) {
+> +			VM_BUG_ON_PAGE(!PageIsolated(page), page);
+> +
+> +			/*
+> +			 * We clear PG_movable under page_lock so any compactor
+> +			 * cannot try to migrate this page.
+> +			 */
+> +			__ClearPageIsolated(page);
+> +		}
+> +
+> +		if (!((unsigned long)page->mapping & PAGE_MAPPING_FLAGS))
+>  			page->mapping = NULL;
+
+The two lines above make little sense to me without a comment. Should the 
+condition be negated, even?
