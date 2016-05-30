@@ -1,18 +1,15 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v3 7/7] [wip] virtio-gpu: add page flip support
-Date: Mon, 30 May 2016 14:06:50 +0200
-Message-ID: <1464610010.5179.34.camel@redhat.com>
-References: <1443787104-24243-1-git-send-email-kraxel@redhat.com>
-	<1443787104-24243-8-git-send-email-kraxel@redhat.com>
-	<CAKMK7uFAjZ9DQSXwfJQWocjc1SXYORTCYdJ6i4d1i3p95Yai2w@mail.gmail.com>
-	<1464335163.10663.7.camel@redhat.com>
-	<20160527075027.GW27098@phenom.ffwll.local>
-	<20160530084233.GA27098@phenom.ffwll.local>
+From: Vlastimil Babka <vbabka@suse.cz>
+Subject: Re: [PATCH v6 03/12] mm: balloon: use general non-lru movable page
+	feature
+Date: Mon, 30 May 2016 14:16:28 +0200
+Message-ID: <94563783-c485-8046-528c-ef0cba747225__17624.3155649447$1464610613$gmane$org@suse.cz>
+References: <1463754225-31311-1-git-send-email-minchan@kernel.org>
+	<1463754225-31311-4-git-send-email-minchan@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160530084233.GA27098@phenom.ffwll.local>
+In-Reply-To: <1463754225-31311-4-git-send-email-minchan@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,33 +19,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Vetter <daniel@ffwll.ch>
-Cc: open list <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Rafael Aquini <aquini@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Konstantin Khlebnikov <koct9i@gmail.com>, Gioh Kim <gi-oh.kim@profitbricks.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
+On 05/20/2016 04:23 PM, Minchan Kim wrote:
+> Now, VM has a feature to migrate non-lru movable pages so
+> balloon doesn't need custom migration hooks in migrate.c
+> and compaction.c. Instead, this patch implements
+> page->mapping->a_ops->{isolate|migrate|putback} functions.
+>
+> With that, we could remove hooks for ballooning in general
+> migration functions and make balloon compaction simple.
+>
+> Cc: virtualization@lists.linux-foundation.org
+> Cc: Rafael Aquini <aquini@redhat.com>
+> Cc: Konstantin Khlebnikov <koct9i@gmail.com>
+> Signed-off-by: Gioh Kim <gi-oh.kim@profitbricks.com>
+> Signed-off-by: Minchan Kim <minchan@kernel.org>
 
-> > But I'll take you up on the implied offer to help out and test ;-)
-> 
-> git://people.freedesktop.org/~danvet/drm stuff
+Except for the inode/pseudofs stuff which I'm not familiar with,
 
-Tried that branch.
-
-> Would be really awesome if you could test this on virtio. Note that the
-> new nonblocking helpers require that your atomic backend gets the drm
-> event handling right. So if there's a bug in that logic then you'll see
-> lots of dmesg noise about waits timing out (after 10s of waiting). From a
-> quick inspection it should work though.
-
-No timeouts.  Yay!
-
-But it seems crtcs can be (temporarely) disabled now, so we might have
-to pick up the crtc from old_state in virtio_gpu_plane_atomic_update to
-figure which virtual output needs to be turned off.  Ran into this last
-week already.  Happened with multihead setups only, but the same patch
-fixes this one too ;)
-
-https://lists.freedesktop.org/archives/dri-devel/2016-May/108772.html
-
-cheers,
-  Gerd
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
