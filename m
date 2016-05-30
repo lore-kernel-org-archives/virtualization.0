@@ -1,15 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH V2 2/2] vhost_net: conditionally enable tx polling
-Date: Mon, 30 May 2016 18:55:21 +0300
-Message-ID: <20160530155521.GA5427__11692.1148765416$1464623740$gmane$org@redhat.com>
-References: <1464590874-39539-1-git-send-email-jasowang@redhat.com>
-	<1464590874-39539-3-git-send-email-jasowang@redhat.com>
+From: Minchan Kim <minchan@kernel.org>
+Subject: Re: PATCH v6v2 02/12] mm: migrate: support non-lru movable page
+	migration
+Date: Tue, 31 May 2016 01:25:23 +0900
+Message-ID: <20160530162523.GA18314@bbox>
+References: <1463754225-31311-1-git-send-email-minchan@kernel.org>
+	<1463754225-31311-3-git-send-email-minchan@kernel.org>
+	<20160530013926.GB8683@bbox>
+	<2bc277c4-4257-c6cb-2e37-ee5de985410b@suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <2bc277c4-4257-c6cb-2e37-ee5de985410b@suse.cz>
 Content-Disposition: inline
-In-Reply-To: <1464590874-39539-3-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,68 +22,130 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Vlastimil Babka <vbabka@suse.cz>
+Cc: Rik van Riel <riel@redhat.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Rafael Aquini <aquini@redhat.com>, Jonathan Corbet <corbet@lwn.net>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, John Einar Reitan <john.reitan@foss.arm.com>, linux-mm@kvack.org, Mel Gorman <mgorman@suse.de>, Andrew Morton <akpm@linux-foundation.org>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Gioh Kim <gi-oh.kim@profitbricks.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, May 30, 2016 at 02:47:54AM -0400, Jason Wang wrote:
-> We always poll tx for socket, this is sub optimal since:
+On Mon, May 30, 2016 at 11:36:07AM +0200, Vlastimil Babka wrote:
+> On 05/30/2016 03:39 AM, Minchan Kim wrote:
+> >After isolation, VM calls migratepage of driver with isolated page.
+> >The function of migratepage is to move content of the old page to new page
+> >and set up fields of struct page newpage. Keep in mind that you should
+> >clear PG_movable of oldpage via __ClearPageMovable under page_lock if you
+> >migrated the oldpage successfully and returns 0.
 > 
-> - it will be only used when we exceed the sndbuf of the socket.
-> - since we use two independent polls for tx and vq, this will slightly
->   increase the waitqueue traversing time and more important, vhost
->   could not benefit from commit
->   9e641bdcfa4ef4d6e2fbaa59c1be0ad5d1551fd5 ("net-tun: restructure
->   tun_do_read for better sleep/wakeup efficiency") even if we've
->   stopped rx polling during handle_rx since tx poll were still left in
->   the waitqueue.
+> This "clear PG_movable" is one of the reasons I was confused about
+> what __ClearPageMovable() really does. There's no actual
+> "PG_movable" page flag and the function doesn't clear even the
+> actual mapping flag :) Also same thing in the Documentation/ part.
+> 
+> Something like "... you should indicate to the VM that the oldpage
+> is no longer movable via __ClearPageMovable() ..."?
 
-Why is this an issue?
-sock_def_write_space only wakes up when queue is half empty,
-not on each packet.
-        if ((atomic_read(&sk->sk_wmem_alloc) << 1) <= sk->sk_sndbuf)
-
-I suspect the issue is with your previous patch,
-it now pokes at the spinlock on data path
-where it used not to.
-
-Is that right?
-
+It's better. I will change it.
 
 > 
-> Fix this by conditionally enable tx polling only when -EAGAIN were
-> met.
+> >--- a/mm/compaction.c
+> >+++ b/mm/compaction.c
+> >@@ -81,6 +81,39 @@ static inline bool migrate_async_suitable(int migratetype)
+> >
+> > #ifdef CONFIG_COMPACTION
+> >
+> >+int PageMovable(struct page *page)
+> >+{
+> >+	struct address_space *mapping;
+> >+
+> >+	VM_BUG_ON_PAGE(!PageLocked(page), page);
+> >+	if (!__PageMovable(page))
+> >+		return 0;
+> >+
+> >+	mapping = page_mapping(page);
+> >+	if (mapping && mapping->a_ops && mapping->a_ops->isolate_page)
+> >+		return 1;
+> >+
+> >+	return 0;
+> >+}
+> >+EXPORT_SYMBOL(PageMovable);
+> >+
+> >+void __SetPageMovable(struct page *page, struct address_space *mapping)
+> >+{
+> >+	VM_BUG_ON_PAGE(!PageLocked(page), page);
+> >+	VM_BUG_ON_PAGE((unsigned long)mapping & PAGE_MAPPING_MOVABLE, page);
+> >+	page->mapping = (void *)((unsigned long)mapping | PAGE_MAPPING_MOVABLE);
+> >+}
+> >+EXPORT_SYMBOL(__SetPageMovable);
+> >+
+> >+void __ClearPageMovable(struct page *page)
+> >+{
+> >+	VM_BUG_ON_PAGE(!PageLocked(page), page);
+> >+	VM_BUG_ON_PAGE(!PageMovable(page), page);
+> >+	page->mapping = (void *)((unsigned long)page->mapping &
+> >+				PAGE_MAPPING_MOVABLE);
+> >+}
+> >+EXPORT_SYMBOL(__ClearPageMovable);
 > 
-> Test shows about 8% improvement on guest rx pps.
+> The second confusing thing is that the function is named
+> __ClearPageMovable(), but what it really clears is the mapping
+> pointer,
+> which is not at all the opposite of what __SetPageMovable() does.
 > 
-> Before: ~1350000
-> After:  ~1460000
+> I know it's explained in the documentation, but it also deserves a
+> comment here so it doesn't confuse everyone who looks at it.
+> Even better would be a less confusing name for the function, but I
+> can't offer one right now.
+
+To me, __ClearPageMovable naming is suitable for user POV.
+It effectively makes the page unmovable. The confusion is just caused
+by the implementation and I don't prefer exported API depends on the
+implementation. So I want to add just comment.
+
+I didn't add comment above the function because I don't want to export
+internal implementation to the user. I think they don't need to know it.
+
+index a7df2ae71f2a..d1d2063b4fd9 100644
+--- a/mm/compaction.c
++++ b/mm/compaction.c
+@@ -108,6 +108,11 @@ void __ClearPageMovable(struct page *page)
+ {
+        VM_BUG_ON_PAGE(!PageLocked(page), page);
+        VM_BUG_ON_PAGE(!PageMovable(page), page);
++       /*
++        * Clear registered address_space val with keeping PAGE_MAPPING_MOVABLE
++        * flag so that VM can catch up released page by driver after isolation.
++        * With it, VM migration doesn't try to put it back.
++        */
+        page->mapping = (void *)((unsigned long)page->mapping &
+                                PAGE_MAPPING_MOVABLE);
+
 > 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/vhost/net.c | 3 +++
->  1 file changed, 3 insertions(+)
+> >diff --git a/mm/util.c b/mm/util.c
+> >index 917e0e3d0f8e..b756ee36f7f0 100644
+> >--- a/mm/util.c
+> >+++ b/mm/util.c
+> >@@ -399,10 +399,12 @@ struct address_space *page_mapping(struct page *page)
+> > 	}
+> >
+> > 	mapping = page->mapping;
 > 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index e91603b..5a05fa0 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -378,6 +378,7 @@ static void handle_tx(struct vhost_net *net)
->  		goto out;
->  
->  	vhost_disable_notify(&net->dev, vq);
-> +	vhost_net_disable_vq(net, vq);
->  
->  	hdr_size = nvq->vhost_hlen;
->  	zcopy = nvq->ubufs;
-> @@ -459,6 +460,8 @@ static void handle_tx(struct vhost_net *net)
->  					% UIO_MAXIOV;
->  			}
->  			vhost_discard_vq_desc(vq, 1);
-> +			if (err == -EAGAIN)
-> +				vhost_net_enable_vq(net, vq);
->  			break;
->  		}
->  		if (err != len)
-> -- 
-> 1.8.3.1
+> I'd probably use READ_ONCE() here to be safe. Not all callers are
+> under page lock?
+
+I don't understand. Yeah, all caller are not under page lock but at least,
+new user of movable pages should call it under page_lock.
+Yeah, I will write the rule down in document.
+In this case, what kinds of problem do you see?
+
+> 
+> >-	if ((unsigned long)mapping & PAGE_MAPPING_FLAGS)
+> >+	if ((unsigned long)mapping & PAGE_MAPPING_ANON)
+> > 		return NULL;
+> >-	return mapping;
+> >+
+> >+	return (void *)((unsigned long)mapping & ~PAGE_MAPPING_FLAGS);
+> > }
+> >+EXPORT_SYMBOL(page_mapping);
+> >
+> > /* Slow path of page_mapcount() for compound pages */
+> > int __page_mapcount(struct page *page)
+> >
+> 
