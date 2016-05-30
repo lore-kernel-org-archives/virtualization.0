@@ -1,15 +1,19 @@
-From: Vlastimil Babka <vbabka@suse.cz>
-Subject: Re: [PATCH v6 03/12] mm: balloon: use general non-lru movable page
-	feature
-Date: Mon, 30 May 2016 14:16:28 +0200
-Message-ID: <94563783-c485-8046-528c-ef0cba747225__17624.3155649447$1464610613$gmane$org@suse.cz>
-References: <1463754225-31311-1-git-send-email-minchan@kernel.org>
-	<1463754225-31311-4-git-send-email-minchan@kernel.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH] Add virtio gpu driver.
+Date: Mon, 30 May 2016 15:50:36 +0200
+Message-ID: <1464616236.5179.41.camel__29571.2468600415$1464616251$gmane$org@redhat.com>
+References: <1427213239-8775-1-git-send-email-kraxel@redhat.com>
+	<20150324165057.GN1349@phenom.ffwll.local>
+	<1427718227.3372.33.camel@nilsson.home.kraxel.org>
+	<20150330144927.GN23521@phenom.ffwll.local>
+	<CAKMK7uFUNT193f5djZD6T8cgRxxnZL73yrqbupPHOd2P-+Y=pQ@mail.gmail.com>
+	<1464335302.10663.10.camel@redhat.com>
+	<20160527090313.GX27098@phenom.ffwll.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1463754225-31311-4-git-send-email-minchan@kernel.org>
+In-Reply-To: <20160527090313.GX27098@phenom.ffwll.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,25 +23,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Rafael Aquini <aquini@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Konstantin Khlebnikov <koct9i@gmail.com>, Gioh Kim <gi-oh.kim@profitbricks.com>
+To: Daniel Vetter <daniel@ffwll.ch>
+Cc: virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, "open list:ABI/API" <linux-api@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, "open
+	list:DRM DRIVERS" <dri-devel@lists.freedesktop.org>, "open list:VIRTIO
+	CORE, NET..." <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05/20/2016 04:23 PM, Minchan Kim wrote:
-> Now, VM has a feature to migrate non-lru movable pages so
-> balloon doesn't need custom migration hooks in migrate.c
-> and compaction.c. Instead, this patch implements
-> page->mapping->a_ops->{isolate|migrate|putback} functions.
->
-> With that, we could remove hooks for ballooning in general
-> migration functions and make balloon compaction simple.
->
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: Rafael Aquini <aquini@redhat.com>
-> Cc: Konstantin Khlebnikov <koct9i@gmail.com>
-> Signed-off-by: Gioh Kim <gi-oh.kim@profitbricks.com>
-> Signed-off-by: Minchan Kim <minchan@kernel.org>
+  Hi,
 
-Except for the inode/pseudofs stuff which I'm not familiar with,
+> - add a small core function to registerr HOT_X/HOT_Y for a (cursor) plane,
+>   e.g. drm_plane_register_hotspot(). That should allocate the properties
+>   (if they don't exist yet) and then attach those props to the cursor. We
+>   don't want those props everywhere, but only on drivers that support/need
+>   them, aka virtual hw.
 
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Hmm, why is this special to virtual hw?
+
+>  	if (crtc->cursor) {
+> -		ret = drm_mode_cursor_universal(crtc, req, file_priv);
+> +		if (drm_core_check_feature(DRIVER_ATOMIC))
+> +			ret = drm_mode_cursor_atomic(crtc, req, file_priv);
+> +		else
+> +			ret = drm_mode_cursor_universal(crtc, req, file_priv);
+>  		goto out;
+
+>   drm_mode_cursor_atomic would simply be a fusing of
+>   drm_mode_cursor_universal + drm_atomic_helper_update_plane (dump all the
+>   intermediate variables and store directly in the plane state), with the
+>   addition of also storing hot_x/y into the plane state.
+
+Hmm, that'll either make drm_mode_cursor_atomic a big cut+pasted
+function, or need quite some refactoring to move common code into
+functions callable from both drm_mode_cursor_atomic
++drm_mode_cursor_universal ...
+
+Why attach the hotspot to the plane?  Wouldn't it make more sense to
+make it a framebuffer property?
+
+cheers,
+  Gerd
