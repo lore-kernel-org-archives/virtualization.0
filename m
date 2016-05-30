@@ -1,13 +1,18 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V2 2/2] vhost_net: conditionally enable tx polling
-Date: Mon, 30 May 2016 02:47:54 -0400
-Message-ID: <1464590874-39539-3-git-send-email-jasowang@redhat.com>
-References: <1464590874-39539-1-git-send-email-jasowang@redhat.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH v3 7/7] [wip] virtio-gpu: add page flip support
+Date: Mon, 30 May 2016 10:42:33 +0200
+Message-ID: <20160530084233.GA27098__30170.5347410918$1464597777$gmane$org@phenom.ffwll.local>
+References: <1443787104-24243-1-git-send-email-kraxel@redhat.com>
+	<1443787104-24243-8-git-send-email-kraxel@redhat.com>
+	<CAKMK7uFAjZ9DQSXwfJQWocjc1SXYORTCYdJ6i4d1i3p95Yai2w@mail.gmail.com>
+	<1464335163.10663.7.camel@redhat.com>
+	<20160527075027.GW27098@phenom.ffwll.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1464590874-39539-1-git-send-email-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20160527075027.GW27098@phenom.ffwll.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,53 +22,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel <dri-devel@lists.freedesktop.org>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We always poll tx for socket, this is sub optimal since:
+On Fri, May 27, 2016 at 09:50:27AM +0200, Daniel Vetter wrote:
+> On Fri, May 27, 2016 at 09:46:03AM +0200, Gerd Hoffmann wrote:
+> > On Mi, 2016-05-25 at 18:37 +0200, Daniel Vetter wrote:
+> > > On Fri, Oct 2, 2015 at 1:58 PM, Gerd Hoffmann <kraxel@redhat.com> wrote:
+> > > > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> > > 
+> > > So I entirely missed this, but this isn't really how to implement
+> > > page_flip for an atomic driver. Working on some stuff and will hack up
+> > > a likely totally broken patch, but should be enough as guideline.
+> > > -Daniel
+> > 
+> > Hmm, no patch in my inbox yet.  Care to send it over or give some hints
+> > what is wrong with this?
+> 
+> You should use drm_atomic_helper_page_flip as .page_flip hook instead of
+> rolling your own, when you have a brand-new atomic driver. If that helper
+> doesn't work that means you have a bug in your driver somewhere.
+> 
+> And indeed virtio just plugs in drm_atomic_helper_commit, which thus far
+> doesnt' do nonblocking commits, which means the page flip stuff won't
+> work. I'm working on generic nonblocking atomic to fix this up. Currently
+> still wip and buggy though, hence no patches.
+> 
+> But I'll take you up on the implied offer to help out and test ;-)
 
-- it will be only used when we exceed the sndbuf of the socket.
-- since we use two independent polls for tx and vq, this will slightly
-  increase the waitqueue traversing time and more important, vhost
-  could not benefit from commit
-  9e641bdcfa4ef4d6e2fbaa59c1be0ad5d1551fd5 ("net-tun: restructure
-  tun_do_read for better sleep/wakeup efficiency") even if we've
-  stopped rx polling during handle_rx since tx poll were still left in
-  the waitqueue.
+Ok, patches are now on the list and also in my fdo repo at:
 
-Fix this by conditionally enable tx polling only when -EAGAIN were
-met.
+https://cgit.freedesktop.org/~danvet/drm/log/
 
-Test shows about 8% improvement on guest rx pps.
+git://people.freedesktop.org/~danvet/drm stuff
 
-Before: ~1350000
-After:  ~1460000
+Would be really awesome if you could test this on virtio. Note that the
+new nonblocking helpers require that your atomic backend gets the drm
+event handling right. So if there's a bug in that logic then you'll see
+lots of dmesg noise about waits timing out (after 10s of waiting). From a
+quick inspection it should work though.
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/net.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index e91603b..5a05fa0 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -378,6 +378,7 @@ static void handle_tx(struct vhost_net *net)
- 		goto out;
- 
- 	vhost_disable_notify(&net->dev, vq);
-+	vhost_net_disable_vq(net, vq);
- 
- 	hdr_size = nvq->vhost_hlen;
- 	zcopy = nvq->ubufs;
-@@ -459,6 +460,8 @@ static void handle_tx(struct vhost_net *net)
- 					% UIO_MAXIOV;
- 			}
- 			vhost_discard_vq_desc(vq, 1);
-+			if (err == -EAGAIN)
-+				vhost_net_enable_vq(net, vq);
- 			break;
- 		}
- 		if (err != len)
+Upshot is that once you get normal modeset to work with those new helpers,
+then nonblocking should Just Work, and there's no need anymore for
+additional testing. Or at least shouldn't.
+-Daniel
 -- 
-1.8.3.1
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
