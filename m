@@ -1,15 +1,20 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V2 2/2] vhost_net: conditionally enable tx polling
-Date: Tue, 31 May 2016 11:23:10 +0800
-Message-ID: <574D039E.5020101@redhat.com>
-References: <1464590874-39539-1-git-send-email-jasowang@redhat.com>
-	<1464590874-39539-3-git-send-email-jasowang@redhat.com>
-	<20160530155521.GA5427@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH v3 7/7] [wip] virtio-gpu: add page flip support
+Date: Tue, 31 May 2016 08:18:20 +0200
+Message-ID: <1464675500.5978.15.camel__6944.19205324284$1464675516$gmane$org@redhat.com>
+References: <1443787104-24243-1-git-send-email-kraxel@redhat.com>
+	<1443787104-24243-8-git-send-email-kraxel@redhat.com>
+	<CAKMK7uFAjZ9DQSXwfJQWocjc1SXYORTCYdJ6i4d1i3p95Yai2w@mail.gmail.com>
+	<1464335163.10663.7.camel@redhat.com>
+	<20160527075027.GW27098@phenom.ffwll.local>
+	<20160530084233.GA27098@phenom.ffwll.local>
+	<1464610010.5179.34.camel@redhat.com>
+	<20160530144325.GJ27098@phenom.ffwll.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160530155521.GA5427@redhat.com>
+In-Reply-To: <20160530144325.GJ27098@phenom.ffwll.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,51 +24,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Daniel Vetter <daniel@ffwll.ch>
+Cc: open list <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE25bm0MDXmnIgzMOaXpSAyMzo1NSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIE1vbiwgTWF5IDMwLCAyMDE2IGF0IDAyOjQ3OjU0QU0gLTA0MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+IFdlIGFsd2F5cyBwb2xsIHR4IGZvciBzb2NrZXQsIHRoaXMgaXMgc3ViIG9wdGltYWwg
-c2luY2U6Cj4+Cj4+IC0gaXQgd2lsbCBiZSBvbmx5IHVzZWQgd2hlbiB3ZSBleGNlZWQgdGhlIHNu
-ZGJ1ZiBvZiB0aGUgc29ja2V0Lgo+PiAtIHNpbmNlIHdlIHVzZSB0d28gaW5kZXBlbmRlbnQgcG9s
-bHMgZm9yIHR4IGFuZCB2cSwgdGhpcyB3aWxsIHNsaWdodGx5Cj4+ICAgIGluY3JlYXNlIHRoZSB3
-YWl0cXVldWUgdHJhdmVyc2luZyB0aW1lIGFuZCBtb3JlIGltcG9ydGFudCwgdmhvc3QKPj4gICAg
-Y291bGQgbm90IGJlbmVmaXQgZnJvbSBjb21taXQKPj4gICAgOWU2NDFiZGNmYTRlZjRkNmUyZmJh
-YTU5YzFiZTBhZDVkMTU1MWZkNSAoIm5ldC10dW46IHJlc3RydWN0dXJlCj4+ICAgIHR1bl9kb19y
-ZWFkIGZvciBiZXR0ZXIgc2xlZXAvd2FrZXVwIGVmZmljaWVuY3kiKSBldmVuIGlmIHdlJ3ZlCj4+
-ICAgIHN0b3BwZWQgcnggcG9sbGluZyBkdXJpbmcgaGFuZGxlX3J4IHNpbmNlIHR4IHBvbGwgd2Vy
-ZSBzdGlsbCBsZWZ0IGluCj4+ICAgIHRoZSB3YWl0cXVldWUuCj4gV2h5IGlzIHRoaXMgYW4gaXNz
-dWU/Cj4gc29ja19kZWZfd3JpdGVfc3BhY2Ugb25seSB3YWtlcyB1cCB3aGVuIHF1ZXVlIGlzIGhh
-bGYgZW1wdHksCj4gbm90IG9uIGVhY2ggcGFja2V0Lgo+ICAgICAgICAgIGlmICgoYXRvbWljX3Jl
-YWQoJnNrLT5za193bWVtX2FsbG9jKSA8PCAxKSA8PSBzay0+c2tfc25kYnVmKQo+Cj4gSSBzdXNw
-ZWN0IHRoZSBpc3N1ZSBpcyB3aXRoIHlvdXIgcHJldmlvdXMgcGF0Y2gsCj4gaXQgbm93IHBva2Vz
-IGF0IHRoZSBzcGlubG9jayBvbiBkYXRhIHBhdGgKPiB3aGVyZSBpdCB1c2VkIG5vdCB0by4KPgo+
-IElzIHRoYXQgcmlnaHQ/CgpUaGUgcHJvYmxlbSBpcyBub3QgdHggd2FrZSB1cCBidXQgc3RpbGwg
-cnggd2FrZSB1cC4gUGF0Y2ggMSByZW1vdmVzIHJ4IApwb2xsLCBidXQgc3RpbGwgbGVmdCB0eCBw
-b2xsLiBTbyBpbiBzb2NrX2RlZl9yZWFkYWJsZSgpLCAKc2t3cV9oYXNfc2xlZXBlcigpIHJldHVy
-bnMgdHJ1ZSwgd2Ugc3RpbGwgbmVlZCB0byB0cmF2ZXJzZSB3YWl0cXVldWUgYW5kIAp0b3VjaCBz
-cGlubG9ja3MuIFdpdGggdGhpcyBwYXRjaCwgdW5sZXNzIGEgaGVhdnkgdHggbG9hZCwgdHggcG9s
-bCB3ZXJlIApkaXNhYmxlZCwgc29ja19kZWZfcmVhZGFibGUoKSBjYW4gcmV0dXJuIGZpbmlzaCB2
-ZXJ5IHNvb24uCgo+Cj4KPj4gRml4IHRoaXMgYnkgY29uZGl0aW9uYWxseSBlbmFibGUgdHggcG9s
-bGluZyBvbmx5IHdoZW4gLUVBR0FJTiB3ZXJlCj4+IG1ldC4KPj4KPj4gVGVzdCBzaG93cyBhYm91
-dCA4JSBpbXByb3ZlbWVudCBvbiBndWVzdCByeCBwcHMuCj4+Cj4+IEJlZm9yZTogfjEzNTAwMDAK
-Pj4gQWZ0ZXI6ICB+MTQ2MDAwMAo+Pgo+PiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBXYW5nIDxqYXNv
-d2FuZ0ByZWRoYXQuY29tPgo+PiAtLS0KPj4gICBkcml2ZXJzL3Zob3N0L25ldC5jIHwgMyArKysK
-Pj4gICAxIGZpbGUgY2hhbmdlZCwgMyBpbnNlcnRpb25zKCspCj4+Cj4+IGRpZmYgLS1naXQgYS9k
-cml2ZXJzL3Zob3N0L25ldC5jIGIvZHJpdmVycy92aG9zdC9uZXQuYwo+PiBpbmRleCBlOTE2MDNi
-Li41YTA1ZmEwIDEwMDY0NAo+PiAtLS0gYS9kcml2ZXJzL3Zob3N0L25ldC5jCj4+ICsrKyBiL2Ry
-aXZlcnMvdmhvc3QvbmV0LmMKPj4gQEAgLTM3OCw2ICszNzgsNyBAQCBzdGF0aWMgdm9pZCBoYW5k
-bGVfdHgoc3RydWN0IHZob3N0X25ldCAqbmV0KQo+PiAgIAkJZ290byBvdXQ7Cj4+ICAgCj4+ICAg
-CXZob3N0X2Rpc2FibGVfbm90aWZ5KCZuZXQtPmRldiwgdnEpOwo+PiArCXZob3N0X25ldF9kaXNh
-YmxlX3ZxKG5ldCwgdnEpOwo+PiAgIAo+PiAgIAloZHJfc2l6ZSA9IG52cS0+dmhvc3RfaGxlbjsK
-Pj4gICAJemNvcHkgPSBudnEtPnVidWZzOwo+PiBAQCAtNDU5LDYgKzQ2MCw4IEBAIHN0YXRpYyB2
-b2lkIGhhbmRsZV90eChzdHJ1Y3Qgdmhvc3RfbmV0ICpuZXQpCj4+ICAgCQkJCQklIFVJT19NQVhJ
-T1Y7Cj4+ICAgCQkJfQo+PiAgIAkJCXZob3N0X2Rpc2NhcmRfdnFfZGVzYyh2cSwgMSk7Cj4+ICsJ
-CQlpZiAoZXJyID09IC1FQUdBSU4pCj4+ICsJCQkJdmhvc3RfbmV0X2VuYWJsZV92cShuZXQsIHZx
-KTsKPj4gICAJCQlicmVhazsKPj4gICAJCX0KPj4gICAJCWlmIChlcnIgIT0gbGVuKQo+PiAtLSAK
-Pj4gMS44LjMuMQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
-LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+  Hi,
+
+> > https://lists.freedesktop.org/archives/dri-devel/2016-May/108772.html
+> 
+> Hm, smells more like virtio isn't too happy with the default ordering of
+> the commit operation. The default is:
+> 
+> - Disable any crtc/encoders that need to be disabled/change.
+> - Bash new plane setup into hw.
+> - Enable all crtcs/encoders that need to be enabled/have changed.
+> 
+> There's two problems:
+> - some hw gets real grumpy if you bash in plane state without the crtc
+>   state yet matching.
+> - if you do runtime pm nothing is enabled and the writes get lost at best,
+>   or hang your interconnect at worst.
+> 
+> That's why you can overwrite atomic_commit_tail, and use something more
+> sensible. See for example what it looks like for rockchip. I have a gut
+> feeling that should also take care of your troubles. Using the old crtc is
+> definitely not what you want.
+
+> Another option is that virtio isn't happy about bashing in plane state for
+> disabled crtc. Again helpers have you covered, look at the active_only
+> parameter for drm_atomic_helper_commit_planes().
+
+virtio-gpu is a bit simplified compared to real hardware, so there isn't
+really separate plane/crtc state.
+
+Right now the virtual outputs are linked to drm_crtc.  To apply any
+changes I need to lookup the crtc to figure which virtual output should
+be updated.
+
+So, setting active_only should make sure I have a valid crtc pointer on
+plane updates, right?  It probably also skips the disable + enable crtc
+steps on commit?  What happens when outputs are disabled?
+
+Maybe it makes sense to link our virtual outputs to (primary) planes not
+crtcs?
+
+cheers,
+  Gerd
