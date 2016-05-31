@@ -1,13 +1,11 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 5/5] virtio-gpu: pick up hotspot from framebuffer
-Date: Tue, 31 May 2016 12:53:13 +0200
-Message-ID: <1464691994-5704-6-git-send-email-kraxel__2988.96793178773$1464692051$gmane$org@redhat.com>
-References: <1464691994-5704-1-git-send-email-kraxel@redhat.com>
+Subject: [PATCH] virtio-gpu: use src not crtc
+Date: Tue, 31 May 2016 14:52:52 +0200
+Message-ID: <1464699172-26755-1-git-send-email-kraxel__21879.9254428179$1464699208$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1464691994-5704-1-git-send-email-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,48 +16,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, =?UTF-8?q?Marc-Andr=C3=A9=20Lureau?= <marcandre.lureau@gmail.com>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
+
+Pick up the correct source rectangle from framebuffer.
+Without this multihead setups are not working correctly.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_plane.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 31 ++++++++++++++++++-------------
+ 1 file changed, 18 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index 4780354..b7778a7 100644
+index b7778a7..925ca25 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -153,17 +153,23 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
+@@ -85,27 +85,32 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
+ 		if (bo->dumb) {
+ 			virtio_gpu_cmd_transfer_to_host_2d
+ 				(vgdev, handle, 0,
+-				 cpu_to_le32(plane->state->crtc_w),
+-				 cpu_to_le32(plane->state->crtc_h),
+-				 plane->state->crtc_x, plane->state->crtc_y, NULL);
++				 cpu_to_le32(plane->state->src_w >> 16),
++				 cpu_to_le32(plane->state->src_h >> 16),
++				 plane->state->src_x >> 16,
++				 plane->state->src_y >> 16, NULL);
+ 		}
+ 	} else {
+ 		handle = 0;
  	}
  
- 	if (plane->state->fb != old_state->fb) {
--		DRM_DEBUG("update, handle %d, +%d+%d\n", handle,
-+		DRM_DEBUG("update, handle %d, pos +%d+%d, hot %d,%d\n", handle,
- 			  plane->state->crtc_x,
--			  plane->state->crtc_y);
-+			  plane->state->crtc_y,
-+			  plane->state->fb ? plane->state->fb->hot_x : 0,
-+			  plane->state->fb ? plane->state->fb->hot_y : 0);
- 		output->cursor.hdr.type =
- 			cpu_to_le32(VIRTIO_GPU_CMD_UPDATE_CURSOR);
- 		output->cursor.resource_id = cpu_to_le32(handle);
--#if 0
--		/* TODO */
--		output->cursor.hot_x = cpu_to_le32(hot_x);
--		output->cursor.hot_y = cpu_to_le32(hot_y);
--#endif
-+		if (plane->state->fb) {
-+			output->cursor.hot_x =
-+				cpu_to_le32(plane->state->fb->hot_x);
-+			output->cursor.hot_y =
-+				cpu_to_le32(plane->state->fb->hot_y);
-+		} else {
-+			output->cursor.hot_x = cpu_to_le32(0);
-+			output->cursor.hot_y = cpu_to_le32(0);
-+		}
- 	} else {
- 		DRM_DEBUG("move +%d+%d\n",
- 			  plane->state->crtc_x,
+-	DRM_DEBUG("handle 0x%x, crtc %dx%d+%d+%d\n", handle,
++	DRM_DEBUG("handle 0x%x, crtc %dx%d+%d+%d, src %dx%d+%d+%d\n", handle,
+ 		  plane->state->crtc_w, plane->state->crtc_h,
+-		  plane->state->crtc_x, plane->state->crtc_y);
++		  plane->state->crtc_x, plane->state->crtc_y,
++		  plane->state->src_w >> 16,
++		  plane->state->src_h >> 16,
++		  plane->state->src_x >> 16,
++		  plane->state->src_y >> 16);
+ 	virtio_gpu_cmd_set_scanout(vgdev, output->index, handle,
+-				   plane->state->crtc_w,
+-				   plane->state->crtc_h,
+-				   plane->state->crtc_x,
+-				   plane->state->crtc_y);
++				   plane->state->src_w >> 16,
++				   plane->state->src_h >> 16,
++				   plane->state->src_x >> 16,
++				   plane->state->src_y >> 16);
+ 	virtio_gpu_cmd_resource_flush(vgdev, handle,
+-				      plane->state->crtc_x,
+-				      plane->state->crtc_y,
+-				      plane->state->crtc_w,
+-				      plane->state->crtc_h);
++				      plane->state->src_x >> 16,
++				      plane->state->src_y >> 16,
++				      plane->state->src_w >> 16,
++				      plane->state->src_h >> 16);
+ }
+ 
+ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
 -- 
 1.8.3.1
