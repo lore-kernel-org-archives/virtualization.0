@@ -1,13 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V3 2/2] vhost_net: conditionally enable tx polling
-Date: Wed,  1 Jun 2016 01:56:34 -0400
-Message-ID: <1464760594-30326-3-git-send-email-jasowang@redhat.com>
-References: <1464760594-30326-1-git-send-email-jasowang@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [edk2] KVM Forum 2016: Call For Participation
+Date: Wed, 1 Jun 2016 16:50:45 +0200
+Message-ID: <25ae2291-da39-7651-4f44-ba2c1dcc5037@redhat.com>
+References: <56E1B83D.7070601@redhat.com>
+Reply-To: Paolo Bonzini <pbonzini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1464760594-30326-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <56E1B83D.7070601@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,53 +18,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: qemu-devel <qemu-devel@nongnu.org>, KVM list <kvm@vger.kernel.org>, libvir-list@redhat.com, "edk2-devel@ml01.01.org" <edk2-devel@ml01.01.org>, "seabios@seabios.org" <seabios@seabios.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We always poll tx for socket, this is sub optimal since:
 
-- it will be only used when we exceed the sndbuf of the socket.
-- since we use two independent polls for tx and vq, this will slightly
-  increase the waitqueue traversing time and more important, vhost
-  could not benefit from commit
-  9e641bdcfa4ef4d6e2fbaa59c1be0ad5d1551fd5 ("net-tun: restructure
-  tun_do_read for better sleep/wakeup efficiency") even if we've
-  stopped rx polling during handle_rx since tx poll were still left in
-  the waitqueue.
 
-Fix this by conditionally enable tx polling only when -EAGAIN were
-met.
+On 10/03/2016 19:09, Paolo Bonzini wrote:
+> ===============
+> IMPORTANT DATES
+> ===============
+> Notification: May 27, 2015
 
-Test shows about 8% improvement on guest rx pps.
+On behalf of the program committee, I apologize for the delay in sending
+out the notifications.  If you need to know in advance whether your talk
+has been accepted, please contact me offlist.
 
-Before: ~1350000
-After:  ~1460000
+Thanks,
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/net.c | 3 +++
- 1 file changed, 3 insertions(+)
+Paolo
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 1d3e45f..e75ffcc 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -378,6 +378,7 @@ static void handle_tx(struct vhost_net *net)
- 		goto out;
- 
- 	vhost_disable_notify(&net->dev, vq);
-+	vhost_net_disable_vq(net, vq);
- 
- 	hdr_size = nvq->vhost_hlen;
- 	zcopy = nvq->ubufs;
-@@ -459,6 +460,8 @@ static void handle_tx(struct vhost_net *net)
- 					% UIO_MAXIOV;
- 			}
- 			vhost_discard_vq_desc(vq, 1);
-+			if (err == -EAGAIN)
-+				vhost_net_enable_vq(net, vq);
- 			break;
- 		}
- 		if (err != len)
--- 
-1.8.3.1
+> Schedule announced: June 3, 2015
+> Event dates: August 24-26, 2016
+> 
+> Thank you for your interest in KVM. We're looking forward to your
+> submissions and seeing you at the KVM Forum 2016 in August!
+> 
+> -your KVM Forum 2016 Program Committee
+> 
+> Please contact us with any questions or comments at
+> kvm-forum-2016-pc@redhat.com
+> 
