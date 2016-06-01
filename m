@@ -1,14 +1,13 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [edk2] KVM Forum 2016: Call For Participation
-Date: Wed, 1 Jun 2016 16:50:45 +0200
-Message-ID: <25ae2291-da39-7651-4f44-ba2c1dcc5037@redhat.com>
-References: <56E1B83D.7070601@redhat.com>
-Reply-To: Paolo Bonzini <pbonzini@redhat.com>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH v7 00/12] Support non-lru page migration
+Date: Wed, 1 Jun 2016 14:41:51 -0700
+Message-ID: <20160601144151.c9e5c560be29cae9a3ff1f1e__4258.24700291759$1464817339$gmane$org@linux-foundation.org>
+References: <1464736881-24886-1-git-send-email-minchan@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <56E1B83D.7070601@redhat.com>
+In-Reply-To: <1464736881-24886-1-git-send-email-minchan@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,33 +17,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: qemu-devel <qemu-devel@nongnu.org>, KVM list <kvm@vger.kernel.org>, libvir-list@redhat.com, "edk2-devel@ml01.01.org" <edk2-devel@ml01.01.org>, "seabios@seabios.org" <seabios@seabios.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: Minchan Kim <minchan@kernel.org>
+Cc: Rik van Riel <riel@redhat.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Rafael Aquini <aquini@redhat.com>, Jonathan Corbet <corbet@lwn.net>, Chan Gyun Jeong <chan.jeong@lge.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, John Einar Reitan <john.reitan@foss.arm.com>, linux-mm@kvack.org, Chulmin Kim <cmlaika.kim@samsung.com>, Gioh Kim <gi-oh.kim@profitbricks.com>, Konstantin Khlebnikov <koct9i@gmail.com>, Sangseok Lee <sangseok.lee@lge.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Kyeongdon Kim <kyeongdon.kim@lge.com>, Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed,  1 Jun 2016 08:21:09 +0900 Minchan Kim <minchan@kernel.org> wrote:
 
-
-On 10/03/2016 19:09, Paolo Bonzini wrote:
-> ===============
-> IMPORTANT DATES
-> ===============
-> Notification: May 27, 2015
-
-On behalf of the program committee, I apologize for the delay in sending
-out the notifications.  If you need to know in advance whether your talk
-has been accepted, please contact me offlist.
-
-Thanks,
-
-Paolo
-
-> Schedule announced: June 3, 2015
-> Event dates: August 24-26, 2016
+> Recently, I got many reports about perfermance degradation in embedded
+> system(Android mobile phone, webOS TV and so on) and easy fork fail.
 > 
-> Thank you for your interest in KVM. We're looking forward to your
-> submissions and seeing you at the KVM Forum 2016 in August!
+> The problem was fragmentation caused by zram and GPU driver mainly.
+> With memory pressure, their pages were spread out all of pageblock and
+> it cannot be migrated with current compaction algorithm which supports
+> only LRU pages. In the end, compaction cannot work well so reclaimer
+> shrinks all of working set pages. It made system very slow and even to
+> fail to fork easily which requires order-[2 or 3] allocations.
 > 
-> -your KVM Forum 2016 Program Committee
-> 
-> Please contact us with any questions or comments at
-> kvm-forum-2016-pc@redhat.com
-> 
+> Other pain point is that they cannot use CMA memory space so when OOM
+> kill happens, I can see many free pages in CMA area, which is not
+> memory efficient. In our product which has big CMA memory, it reclaims
+> zones too exccessively to allocate GPU and zram page although there are
+> lots of free space in CMA so system becomes very slow easily.
+
+But this isn't presently implemented for GPU drivers or for CMA, yes?
+
+What's the story there?
