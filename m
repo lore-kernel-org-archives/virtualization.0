@@ -1,8 +1,7 @@
 From: Boris Brezillon <boris.brezillon@free-electrons.com>
-Subject: [PATCH 13/20] drm: tegra: Rely on the default ->best_encoder()
-	behavior
-Date: Thu,  2 Jun 2016 16:31:40 +0200
-Message-ID: <1464877907-27723-14-git-send-email-boris.brezillon__11924.0328706384$1464878129$gmane$org@free-electrons.com>
+Subject: [PATCH 14/20] drm: vc4: Rely on the default ->best_encoder() behavior
+Date: Thu,  2 Jun 2016 16:31:41 +0200
+Message-ID: <1464877907-27723-15-git-send-email-boris.brezillon__36642.2446015806$1464878137$gmane$org@free-electrons.com>
 References: <1464877907-27723-1-git-send-email-boris.brezillon@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,100 +21,70 @@ To: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, dri-devel@
 Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Heiko Stuebner <heiko@sntech.de>, Stefan Agner <stefan@agner.ch>, virtualization@lists.linux-foundation.org, Eric Anholt <eric@anholt.net>, Thierry Reding <thierry.reding@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-samsung-soc@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, Alexey Brodkin <abrodkin@synopsys.com>, Kyungmin Park <kyungmin.park@samsung.com>, linux-rockchip@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>, Kukjin Kim <kgene@kernel.org>, linux-tegra@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>, Inki Dae <inki.dae@sam>
 List-Id: virtualization@lists.linuxfoundation.org
 
-All outputs have a 1:1 relationship between connectors and encoders
-and the driver is relying on the atomic helpers: we can drop the custom
-->best_encoder() implementation and let the core call
+All outputs have a 1:1 relationship between connectors and encoders and
+the driver is relying on the atomic helpers: we can drop the custom
+->best_encoder() implementations and let the core call
 drm_atomic_helper_best_encoder() for us.
 
 Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
 ---
- drivers/gpu/drm/tegra/drm.h    | 2 --
- drivers/gpu/drm/tegra/dsi.c    | 1 -
- drivers/gpu/drm/tegra/hdmi.c   | 1 -
- drivers/gpu/drm/tegra/output.c | 8 --------
- drivers/gpu/drm/tegra/rgb.c    | 1 -
- drivers/gpu/drm/tegra/sor.c    | 1 -
- 6 files changed, 14 deletions(-)
+ drivers/gpu/drm/vc4/vc4_dpi.c  | 9 ---------
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 9 ---------
+ 2 files changed, 18 deletions(-)
 
-diff --git a/drivers/gpu/drm/tegra/drm.h b/drivers/gpu/drm/tegra/drm.h
-index f52d6cb2..0ddcce1 100644
---- a/drivers/gpu/drm/tegra/drm.h
-+++ b/drivers/gpu/drm/tegra/drm.h
-@@ -239,8 +239,6 @@ int tegra_output_init(struct drm_device *drm, struct tegra_output *output);
- void tegra_output_exit(struct tegra_output *output);
- 
- int tegra_output_connector_get_modes(struct drm_connector *connector);
--struct drm_encoder *
--tegra_output_connector_best_encoder(struct drm_connector *connector);
- enum drm_connector_status
- tegra_output_connector_detect(struct drm_connector *connector, bool force);
- void tegra_output_connector_destroy(struct drm_connector *connector);
-diff --git a/drivers/gpu/drm/tegra/dsi.c b/drivers/gpu/drm/tegra/dsi.c
-index d1239eb..099cccb 100644
---- a/drivers/gpu/drm/tegra/dsi.c
-+++ b/drivers/gpu/drm/tegra/dsi.c
-@@ -794,7 +794,6 @@ tegra_dsi_connector_mode_valid(struct drm_connector *connector,
- static const struct drm_connector_helper_funcs tegra_dsi_connector_helper_funcs = {
- 	.get_modes = tegra_output_connector_get_modes,
- 	.mode_valid = tegra_dsi_connector_mode_valid,
--	.best_encoder = tegra_output_connector_best_encoder,
- };
- 
- static const struct drm_encoder_funcs tegra_dsi_encoder_funcs = {
-diff --git a/drivers/gpu/drm/tegra/hdmi.c b/drivers/gpu/drm/tegra/hdmi.c
-index b7ef492..2fdb879 100644
---- a/drivers/gpu/drm/tegra/hdmi.c
-+++ b/drivers/gpu/drm/tegra/hdmi.c
-@@ -806,7 +806,6 @@ static const struct drm_connector_helper_funcs
- tegra_hdmi_connector_helper_funcs = {
- 	.get_modes = tegra_output_connector_get_modes,
- 	.mode_valid = tegra_hdmi_connector_mode_valid,
--	.best_encoder = tegra_output_connector_best_encoder,
- };
- 
- static const struct drm_encoder_funcs tegra_hdmi_encoder_funcs = {
-diff --git a/drivers/gpu/drm/tegra/output.c b/drivers/gpu/drm/tegra/output.c
-index 46664b6..1480f6a 100644
---- a/drivers/gpu/drm/tegra/output.c
-+++ b/drivers/gpu/drm/tegra/output.c
-@@ -42,14 +42,6 @@ int tegra_output_connector_get_modes(struct drm_connector *connector)
- 	return err;
+diff --git a/drivers/gpu/drm/vc4/vc4_dpi.c b/drivers/gpu/drm/vc4/vc4_dpi.c
+index 9817dbf..dba1114 100644
+--- a/drivers/gpu/drm/vc4/vc4_dpi.c
++++ b/drivers/gpu/drm/vc4/vc4_dpi.c
+@@ -208,14 +208,6 @@ static int vc4_dpi_connector_get_modes(struct drm_connector *connector)
+ 	return 0;
  }
  
--struct drm_encoder *
--tegra_output_connector_best_encoder(struct drm_connector *connector)
+-static struct drm_encoder *
+-vc4_dpi_connector_best_encoder(struct drm_connector *connector)
 -{
--	struct tegra_output *output = connector_to_output(connector);
--
--	return &output->encoder;
+-	struct vc4_dpi_connector *dpi_connector =
+-		to_vc4_dpi_connector(connector);
+-	return dpi_connector->encoder;
 -}
 -
- enum drm_connector_status
- tegra_output_connector_detect(struct drm_connector *connector, bool force)
- {
-diff --git a/drivers/gpu/drm/tegra/rgb.c b/drivers/gpu/drm/tegra/rgb.c
-index e246334..a131b44 100644
---- a/drivers/gpu/drm/tegra/rgb.c
-+++ b/drivers/gpu/drm/tegra/rgb.c
-@@ -112,7 +112,6 @@ tegra_rgb_connector_mode_valid(struct drm_connector *connector,
- static const struct drm_connector_helper_funcs tegra_rgb_connector_helper_funcs = {
- 	.get_modes = tegra_output_connector_get_modes,
- 	.mode_valid = tegra_rgb_connector_mode_valid,
--	.best_encoder = tegra_output_connector_best_encoder,
+ static const struct drm_connector_funcs vc4_dpi_connector_funcs = {
+ 	.dpms = drm_atomic_helper_connector_dpms,
+ 	.detect = vc4_dpi_connector_detect,
+@@ -228,7 +220,6 @@ static const struct drm_connector_funcs vc4_dpi_connector_funcs = {
+ 
+ static const struct drm_connector_helper_funcs vc4_dpi_connector_helper_funcs = {
+ 	.get_modes = vc4_dpi_connector_get_modes,
+-	.best_encoder = vc4_dpi_connector_best_encoder,
  };
  
- static const struct drm_encoder_funcs tegra_rgb_encoder_funcs = {
-diff --git a/drivers/gpu/drm/tegra/sor.c b/drivers/gpu/drm/tegra/sor.c
-index 757c6e8..34958d7 100644
---- a/drivers/gpu/drm/tegra/sor.c
-+++ b/drivers/gpu/drm/tegra/sor.c
-@@ -1087,7 +1087,6 @@ tegra_sor_connector_mode_valid(struct drm_connector *connector,
- static const struct drm_connector_helper_funcs tegra_sor_connector_helper_funcs = {
- 	.get_modes = tegra_sor_connector_get_modes,
- 	.mode_valid = tegra_sor_connector_mode_valid,
--	.best_encoder = tegra_output_connector_best_encoder,
+ static struct drm_connector *vc4_dpi_connector_init(struct drm_device *dev,
+diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
+index fd2644d..68df91c 100644
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -208,14 +208,6 @@ static int vc4_hdmi_connector_get_modes(struct drm_connector *connector)
+ 	return ret;
+ }
+ 
+-static struct drm_encoder *
+-vc4_hdmi_connector_best_encoder(struct drm_connector *connector)
+-{
+-	struct vc4_hdmi_connector *hdmi_connector =
+-		to_vc4_hdmi_connector(connector);
+-	return hdmi_connector->encoder;
+-}
+-
+ static const struct drm_connector_funcs vc4_hdmi_connector_funcs = {
+ 	.dpms = drm_atomic_helper_connector_dpms,
+ 	.detect = vc4_hdmi_connector_detect,
+@@ -228,7 +220,6 @@ static const struct drm_connector_funcs vc4_hdmi_connector_funcs = {
+ 
+ static const struct drm_connector_helper_funcs vc4_hdmi_connector_helper_funcs = {
+ 	.get_modes = vc4_hdmi_connector_get_modes,
+-	.best_encoder = vc4_hdmi_connector_best_encoder,
  };
  
- static const struct drm_encoder_funcs tegra_sor_encoder_funcs = {
+ static struct drm_connector *vc4_hdmi_connector_init(struct drm_device *dev,
 -- 
 2.7.4
