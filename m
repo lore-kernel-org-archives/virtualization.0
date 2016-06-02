@@ -1,8 +1,7 @@
 From: Boris Brezillon <boris.brezillon@free-electrons.com>
-Subject: [PATCH 10/20] drm: rockchip: Rely on the default ->best_encoder()
-	behavior
-Date: Thu,  2 Jun 2016 16:31:37 +0200
-Message-ID: <1464877907-27723-11-git-send-email-boris.brezillon__27695.5785848715$1464878077$gmane$org@free-electrons.com>
+Subject: [PATCH 11/20] drm: sti: Rely on the default ->best_encoder() behavior
+Date: Thu,  2 Jun 2016 16:31:38 +0200
+Message-ID: <1464877907-27723-12-git-send-email-boris.brezillon__113.168665166263$1464878086$gmane$org@free-electrons.com>
 References: <1464877907-27723-1-git-send-email-boris.brezillon@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,66 +21,92 @@ To: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, dri-devel@
 Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Heiko Stuebner <heiko@sntech.de>, Stefan Agner <stefan@agner.ch>, virtualization@lists.linux-foundation.org, Eric Anholt <eric@anholt.net>, Thierry Reding <thierry.reding@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-samsung-soc@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, Alexey Brodkin <abrodkin@synopsys.com>, Kyungmin Park <kyungmin.park@samsung.com>, linux-rockchip@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>, Kukjin Kim <kgene@kernel.org>, linux-tegra@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>, Inki Dae <inki.dae@sam>
 List-Id: virtualization@lists.linuxfoundation.org
 
-All outputss have a 1:1 relationship between connectors and encoders
+All outputs have a 1:1 relationship between connectors and encoders
 and the driver is relying on the atomic helpers: we can drop the custom
-->best_encoder() implementations  and let the core call
+->best_encoder() implementations and let the core call
 drm_atomic_helper_best_encoder() for us.
 
 Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
 ---
- drivers/gpu/drm/rockchip/dw-mipi-dsi.c | 9 ---------
- drivers/gpu/drm/rockchip/inno_hdmi.c   | 9 ---------
- 2 files changed, 18 deletions(-)
+ drivers/gpu/drm/sti/sti_dvo.c  | 10 ----------
+ drivers/gpu/drm/sti/sti_hda.c  | 10 ----------
+ drivers/gpu/drm/sti/sti_hdmi.c | 10 ----------
+ 3 files changed, 30 deletions(-)
 
-diff --git a/drivers/gpu/drm/rockchip/dw-mipi-dsi.c b/drivers/gpu/drm/rockchip/dw-mipi-dsi.c
-index dedc65b..ca22e5e 100644
---- a/drivers/gpu/drm/rockchip/dw-mipi-dsi.c
-+++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi.c
-@@ -964,18 +964,9 @@ static enum drm_mode_status dw_mipi_dsi_mode_valid(
- 	return mode_status;
- }
- 
--static struct drm_encoder *dw_mipi_dsi_connector_best_encoder(
--					struct drm_connector *connector)
--{
--	struct dw_mipi_dsi *dsi = con_to_dsi(connector);
--
--	return &dsi->encoder;
--}
--
- static struct drm_connector_helper_funcs dw_mipi_dsi_connector_helper_funcs = {
- 	.get_modes = dw_mipi_dsi_connector_get_modes,
- 	.mode_valid = dw_mipi_dsi_mode_valid,
--	.best_encoder = dw_mipi_dsi_connector_best_encoder,
- };
- 
- static enum drm_connector_status
-diff --git a/drivers/gpu/drm/rockchip/inno_hdmi.c b/drivers/gpu/drm/rockchip/inno_hdmi.c
-index f8b4feb..006260d 100644
---- a/drivers/gpu/drm/rockchip/inno_hdmi.c
-+++ b/drivers/gpu/drm/rockchip/inno_hdmi.c
-@@ -579,14 +579,6 @@ inno_hdmi_connector_mode_valid(struct drm_connector *connector,
+diff --git a/drivers/gpu/drm/sti/sti_dvo.c b/drivers/gpu/drm/sti/sti_dvo.c
+index 25f7663..d5627d1 100644
+--- a/drivers/gpu/drm/sti/sti_dvo.c
++++ b/drivers/gpu/drm/sti/sti_dvo.c
+@@ -384,20 +384,10 @@ static int sti_dvo_connector_mode_valid(struct drm_connector *connector,
  	return MODE_OK;
  }
  
--static struct drm_encoder *
--inno_hdmi_connector_best_encoder(struct drm_connector *connector)
+-struct drm_encoder *sti_dvo_best_encoder(struct drm_connector *connector)
 -{
--	struct inno_hdmi *hdmi = to_inno_hdmi(connector);
+-	struct sti_dvo_connector *dvo_connector
+-		= to_sti_dvo_connector(connector);
 -
--	return &hdmi->encoder;
+-	/* Best encoder is the one associated during connector creation */
+-	return dvo_connector->encoder;
 -}
 -
- static int
- inno_hdmi_probe_single_connector_modes(struct drm_connector *connector,
- 				       uint32_t maxX, uint32_t maxY)
-@@ -613,7 +605,6 @@ static struct drm_connector_funcs inno_hdmi_connector_funcs = {
- static struct drm_connector_helper_funcs inno_hdmi_connector_helper_funcs = {
- 	.get_modes = inno_hdmi_connector_get_modes,
- 	.mode_valid = inno_hdmi_connector_mode_valid,
--	.best_encoder = inno_hdmi_connector_best_encoder,
+ static const
+ struct drm_connector_helper_funcs sti_dvo_connector_helper_funcs = {
+ 	.get_modes = sti_dvo_connector_get_modes,
+ 	.mode_valid = sti_dvo_connector_mode_valid,
+-	.best_encoder = sti_dvo_best_encoder,
  };
  
- static int inno_hdmi_register(struct drm_device *drm, struct inno_hdmi *hdmi)
+ static enum drm_connector_status
+diff --git a/drivers/gpu/drm/sti/sti_hda.c b/drivers/gpu/drm/sti/sti_hda.c
+index f7d3464..c4649f5 100644
+--- a/drivers/gpu/drm/sti/sti_hda.c
++++ b/drivers/gpu/drm/sti/sti_hda.c
+@@ -676,20 +676,10 @@ static int sti_hda_connector_mode_valid(struct drm_connector *connector,
+ 	return MODE_OK;
+ }
+ 
+-struct drm_encoder *sti_hda_best_encoder(struct drm_connector *connector)
+-{
+-	struct sti_hda_connector *hda_connector
+-		= to_sti_hda_connector(connector);
+-
+-	/* Best encoder is the one associated during connector creation */
+-	return hda_connector->encoder;
+-}
+-
+ static const
+ struct drm_connector_helper_funcs sti_hda_connector_helper_funcs = {
+ 	.get_modes = sti_hda_connector_get_modes,
+ 	.mode_valid = sti_hda_connector_mode_valid,
+-	.best_encoder = sti_hda_best_encoder,
+ };
+ 
+ static enum drm_connector_status
+diff --git a/drivers/gpu/drm/sti/sti_hdmi.c b/drivers/gpu/drm/sti/sti_hdmi.c
+index 6ef0715..dc9ab6e 100644
+--- a/drivers/gpu/drm/sti/sti_hdmi.c
++++ b/drivers/gpu/drm/sti/sti_hdmi.c
+@@ -897,20 +897,10 @@ static int sti_hdmi_connector_mode_valid(struct drm_connector *connector,
+ 	return MODE_OK;
+ }
+ 
+-struct drm_encoder *sti_hdmi_best_encoder(struct drm_connector *connector)
+-{
+-	struct sti_hdmi_connector *hdmi_connector
+-		= to_sti_hdmi_connector(connector);
+-
+-	/* Best encoder is the one associated during connector creation */
+-	return hdmi_connector->encoder;
+-}
+-
+ static const
+ struct drm_connector_helper_funcs sti_hdmi_connector_helper_funcs = {
+ 	.get_modes = sti_hdmi_connector_get_modes,
+ 	.mode_valid = sti_hdmi_connector_mode_valid,
+-	.best_encoder = sti_hdmi_best_encoder,
+ };
+ 
+ /* get detection status of display device */
 -- 
 2.7.4
