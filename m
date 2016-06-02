@@ -1,7 +1,8 @@
 From: Boris Brezillon <boris.brezillon@free-electrons.com>
-Subject: [PATCH 02/20] drm: arc: Rely on the default ->best_encoder() behavior
-Date: Thu,  2 Jun 2016 16:31:29 +0200
-Message-ID: <1464877907-27723-3-git-send-email-boris.brezillon__37553.1008736745$1464877953$gmane$org@free-electrons.com>
+Subject: [PATCH 03/20] drm: atmel-hlcdc: Rely on the default ->best_encoder()
+	behavior
+Date: Thu,  2 Jun 2016 16:31:30 +0200
+Message-ID: <1464877907-27723-4-git-send-email-boris.brezillon__22910.2084217176$1464877970$gmane$org@free-electrons.com>
 References: <1464877907-27723-1-git-send-email-boris.brezillon@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,49 +24,39 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 We have a 1:1 relationship between connectors and encoders and the
 driver is relying on the atomic helpers: we can drop the custom
-->best_encoder(), and let the core call drm_atomic_helper_best_encoder()
+->best_encoder() and let the core call drm_atomic_helper_best_encoder()
 for us.
 
 Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
 ---
- drivers/gpu/drm/arc/arcpgu_hdmi.c | 18 ------------------
- 1 file changed, 18 deletions(-)
+ drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_output.c | 12 ------------
+ 1 file changed, 12 deletions(-)
 
-diff --git a/drivers/gpu/drm/arc/arcpgu_hdmi.c b/drivers/gpu/drm/arc/arcpgu_hdmi.c
-index 08b6bae..b7a8b2a 100644
---- a/drivers/gpu/drm/arc/arcpgu_hdmi.c
-+++ b/drivers/gpu/drm/arc/arcpgu_hdmi.c
-@@ -46,23 +46,6 @@ static int arcpgu_drm_connector_get_modes(struct drm_connector *connector)
- 	return sfuncs->get_modes(&slave->base, connector);
+diff --git a/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_output.c b/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_output.c
+index 39802c0..473a475 100644
+--- a/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_output.c
++++ b/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_output.c
+@@ -113,21 +113,9 @@ static int atmel_hlcdc_rgb_mode_valid(struct drm_connector *connector,
+ 	return atmel_hlcdc_dc_mode_valid(rgb->dc, mode);
  }
  
--struct drm_encoder *
--arcpgu_drm_connector_best_encoder(struct drm_connector *connector)
+-
+-
+-static struct drm_encoder *
+-atmel_hlcdc_rgb_best_encoder(struct drm_connector *connector)
 -{
--	struct drm_encoder_slave *slave;
--	struct arcpgu_drm_connector *con =
--		container_of(connector, struct arcpgu_drm_connector, connector);
+-	struct atmel_hlcdc_rgb_output *rgb =
+-			drm_connector_to_atmel_hlcdc_rgb_output(connector);
 -
--	slave = con->encoder_slave;
--	if (slave == NULL) {
--		dev_err(connector->dev->dev,
--			"connector_best_encoder: cannot find slave encoder for connector\n");
--		return NULL;
--	}
--
--	return &slave->base;
+-	return &rgb->encoder;
 -}
 -
- static enum drm_connector_status
- arcpgu_drm_connector_detect(struct drm_connector *connector, bool force)
- {
-@@ -97,7 +80,6 @@ static void arcpgu_drm_connector_destroy(struct drm_connector *connector)
- static const struct drm_connector_helper_funcs
- arcpgu_drm_connector_helper_funcs = {
- 	.get_modes = arcpgu_drm_connector_get_modes,
--	.best_encoder = arcpgu_drm_connector_best_encoder,
+ static const struct drm_connector_helper_funcs atmel_hlcdc_panel_connector_helper_funcs = {
+ 	.get_modes = atmel_hlcdc_panel_get_modes,
+ 	.mode_valid = atmel_hlcdc_rgb_mode_valid,
+-	.best_encoder = atmel_hlcdc_rgb_best_encoder,
  };
  
- static const struct drm_connector_funcs arcpgu_drm_connector_funcs = {
+ static enum drm_connector_status
 -- 
 2.7.4
