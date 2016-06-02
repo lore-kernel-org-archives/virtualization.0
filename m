@@ -1,14 +1,11 @@
-From: Boris Brezillon <boris.brezillon@free-electrons.com>
-Subject: [PATCH 20/20] drm/bridge: dw-hdmi: Use
-	drm_atomic_helper_best_encoder()
-Date: Thu,  2 Jun 2016 16:31:47 +0200
-Message-ID: <1464877907-27723-21-git-send-email-boris.brezillon__35994.3772237331$1464878209$gmane$org@free-electrons.com>
-References: <1464877907-27723-1-git-send-email-boris.brezillon@free-electrons.com>
+From: Aaron Conole <aconole@redhat.com>
+Subject: [PATCH -next 0/2] virtio-net: Advised MTU feature
+Date: Thu,  2 Jun 2016 11:43:29 -0400
+Message-ID: <1464882211-18723-1-git-send-email-aconole@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1464877907-27723-1-git-send-email-boris.brezillon@free-electrons.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,52 +15,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org, Daniel Vetter <daniel.vetter@intel.com>
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Heiko Stuebner <heiko@sntech.de>, Stefan Agner <stefan@agner.ch>, virtualization@lists.linux-foundation.org, Eric Anholt <eric@anholt.net>, Thierry Reding <thierry.reding@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-samsung-soc@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, Alexey Brodkin <abrodkin@synopsys.com>, Kyungmin Park <kyungmin.park@samsung.com>, linux-rockchip@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>, Kukjin Kim <kgene@kernel.org>, linux-tegra@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>, Inki Dae <inki.dae@sam>
+To: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We have a 1:1 relationship between connectors and encoders, which means
-we can rely on the drm_atomic_helper_best_encoder() behavior.
+The following series adds the ability for a hypervisor to set an MTU on the
+guest during feature negotiation phase. This is useful for VM orchestration
+when, for instance, tunneling is involved and the MTU of the various systems
+should be homogenous.
 
-We still have to explicitly assign ->best_encoder() to
-drm_atomic_helper_best_encoder(), because the automated fallback to
-drm_atomic_helper_best_encoder() when ->best_encoder() is NULL is only
-available when the DRM device is using the atomic helpers, and this bridge
-is compatible with non-atomic and atomic devices.
+The first patch adds the feature bit as described in the proposed VFIO spec
+addition found at
+https://lists.oasis-open.org/archives/virtio-dev/201603/msg00001.html
 
-Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
----
- drivers/gpu/drm/bridge/dw-hdmi.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+The second patch adds a user of the bit, and a warning when the guest changes
+the MTU from the hypervisor advised MTU. Future patches may add more thorough
+error handling.
 
-diff --git a/drivers/gpu/drm/bridge/dw-hdmi.c b/drivers/gpu/drm/bridge/dw-hdmi.c
-index c9d9412..70b1f7d 100644
---- a/drivers/gpu/drm/bridge/dw-hdmi.c
-+++ b/drivers/gpu/drm/bridge/dw-hdmi.c
-@@ -1476,15 +1476,6 @@ dw_hdmi_connector_mode_valid(struct drm_connector *connector,
- 	return mode_status;
- }
- 
--static struct drm_encoder *dw_hdmi_connector_best_encoder(struct drm_connector
--							   *connector)
--{
--	struct dw_hdmi *hdmi = container_of(connector, struct dw_hdmi,
--					     connector);
--
--	return hdmi->encoder;
--}
--
- static void dw_hdmi_connector_destroy(struct drm_connector *connector)
- {
- 	drm_connector_unregister(connector);
-@@ -1525,7 +1516,7 @@ static const struct drm_connector_funcs dw_hdmi_atomic_connector_funcs = {
- static const struct drm_connector_helper_funcs dw_hdmi_connector_helper_funcs = {
- 	.get_modes = dw_hdmi_connector_get_modes,
- 	.mode_valid = dw_hdmi_connector_mode_valid,
--	.best_encoder = dw_hdmi_connector_best_encoder,
-+	.best_encoder = drm_atomic_helper_best_encoder,
- };
- 
- static const struct drm_bridge_funcs dw_hdmi_bridge_funcs = {
+Aaron Conole (2):
+  virtio: Start feature MTU support
+  virtio_net: Read the advised MTU
+
+ drivers/net/virtio_net.c        | 7 +++++++
+ include/uapi/linux/virtio_net.h | 2 ++
+ 2 files changed, 9 insertions(+)
+
 -- 
-2.7.4
+2.5.5
