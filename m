@@ -1,13 +1,15 @@
-From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v5 2/6] powerpc: pseries/Kconfig: Add qspinlock build config
-Date: Thu,  2 Jun 2016 17:22:46 +0800
-Message-ID: <1464859370-5162-4-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-References: <1464859370-5162-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v5 0/6] powerPC/pSeries use pv-qpsinlock as the default
+	spinlock implemention
+Date: Thu, 2 Jun 2016 11:33:50 +0200
+Message-ID: <20160602093350.GY3190@twins.programming.kicks-ass.net>
+References: <1464859590-5292-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1464859370-5162-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <1464859590-5292-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,28 +19,10 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.orgv, virtualization@lists.linux-foundation.org
-Cc: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, peterz@infradead.org, benh@kernel.crashing.org, waiman.long@hpe.com, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, paulmck@linux.vnet.ibm.com
+To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Cc: mpe@ellerman.id.au, linux-kernel@vger.kernel.org, waiman.long@hpe.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, benh@kernel.crashing.org, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-pseries will use qspinlock by default.
 
-Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
----
- arch/powerpc/platforms/pseries/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/platforms/pseries/Kconfig b/arch/powerpc/platforms/pseries/Kconfig
-index bec90fb..f669323 100644
---- a/arch/powerpc/platforms/pseries/Kconfig
-+++ b/arch/powerpc/platforms/pseries/Kconfig
-@@ -21,6 +21,7 @@ config PPC_PSERIES
- 	select HOTPLUG_CPU if SMP
- 	select ARCH_RANDOM
- 	select PPC_DOORBELL
-+	select ARCH_USE_QUEUED_SPINLOCKS
- 	default y
- 
- config PPC_SPLPAR
--- 
-2.4.11
+I'm thinking one copy a day is quite enough... 
