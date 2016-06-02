@@ -1,15 +1,12 @@
-From: Minchan Kim <minchan@kernel.org>
-Subject: Re: [PATCH v7 00/12] Support non-lru page migration
-Date: Thu, 2 Jun 2016 09:36:27 +0900
-Message-ID: <20160602003627.GC1736__23047.8143007078$1464827765$gmane$org@bbox>
-References: <1464736881-24886-1-git-send-email-minchan@kernel.org>
-	<20160601144151.c9e5c560be29cae9a3ff1f1e@linux-foundation.org>
+From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v5 0/6] powerPC/pSeries use pv-qpsinlock as the default
+	spinlock implemention
+Date: Thu,  2 Jun 2016 17:22:43 +0800
+Message-ID: <1464859370-5162-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160601144151.c9e5c560be29cae9a3ff1f1e@linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,36 +16,95 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Rik van Riel <riel@redhat.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Rafael Aquini <aquini@redhat.com>, Jonathan Corbet <corbet@lwn.net>, Chan Gyun Jeong <chan.jeong@lge.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, John Einar Reitan <john.reitan@foss.arm.com>, linux-mm@kvack.org, Chulmin Kim <cmlaika.kim@samsung.com>, Gioh Kim <gi-oh.kim@profitbricks.com>, Konstantin Khlebnikov <koct9i@gmail.com>, Sangseok Lee <sangseok.lee@lge.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Kyeongdon Kim <kyeongdon.kim@lge.com>, Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
+To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.orgv, virtualization@lists.linux-foundation.org
+Cc: peterz@infradead.org, benh@kernel.crashing.org, waiman.long@hpe.com, root <root@ltcalpine2-lp13.aus.stglabs.ibm.com>, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, paulmck@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 01, 2016 at 02:41:51PM -0700, Andrew Morton wrote:
-> On Wed,  1 Jun 2016 08:21:09 +0900 Minchan Kim <minchan@kernel.org> wrote:
-> 
-> > Recently, I got many reports about perfermance degradation in embedded
-> > system(Android mobile phone, webOS TV and so on) and easy fork fail.
-> > 
-> > The problem was fragmentation caused by zram and GPU driver mainly.
-> > With memory pressure, their pages were spread out all of pageblock and
-> > it cannot be migrated with current compaction algorithm which supports
-> > only LRU pages. In the end, compaction cannot work well so reclaimer
-> > shrinks all of working set pages. It made system very slow and even to
-> > fail to fork easily which requires order-[2 or 3] allocations.
-> > 
-> > Other pain point is that they cannot use CMA memory space so when OOM
-> > kill happens, I can see many free pages in CMA area, which is not
-> > memory efficient. In our product which has big CMA memory, it reclaims
-> > zones too exccessively to allocate GPU and zram page although there are
-> > lots of free space in CMA so system becomes very slow easily.
-> 
-> But this isn't presently implemented for GPU drivers or for CMA, yes?
+From: root <root@ltcalpine2-lp13.aus.stglabs.ibm.com>
 
-For GPU driver, Gioh implemented but it was proprietary so couldn't
-contribute.
+change from v4:
+	BUG FIX. thanks boqun reporting this issue.
+	struct  __qspinlock has different layout in bigendian mahcine.
+	native_queued_spin_unlock() may write value to a wrong address. now fix it.
+	
+change from v3:
+	a big change in [PATCH v4 4/6] pv-qspinlock: powerpc support pv-qspinlock
+	no other patch changed.
+	and the patch cover letter tilte has changed as only pseries may need use pv-qspinlock, not all powerpc.
 
-For CMA, [zram: use __GFP_MOVABLE for memory allocation] added __GFP_MOVABLE
-for zsmalloc page allocation so it can use CMA area automatically now.
+	1) __pv_wait will not return until *ptr != val as Waiman gives me a tip.
+	2) support lock holder serching by storing cpu number into a hash table(implemented as an array)
+	This is because lock_stealing hit too much, up to 10%~20% of all the successful lock(), and avoid
+	vcpu slices bounce.
+	
+change from v2:
+	__spin_yeild_cpu() will yield slices to lpar if target cpu is running.
+	remove unnecessary rmb() in __spin_yield/wake_cpu.
+	__pv_wait() will check the *ptr == val.
+	some commit message change
 
-> 
-> What's the story there?
+change fome v1:
+	separate into 6 pathes from one patch
+	some minor code changes.
+
+I do several tests on pseries IBM,8408-E8E with 32cpus, 64GB memory, kernel 4.6
+benchmark test results are below.
+
+2 perf tests:
+perf bench futex hash
+perf bench futex lock-pi
+
+_____test________________spinlcok______________pv-qspinlcok_____
+|futex hash	|	528572 ops	|	573238 ops	|
+|futex lock-pi	|	354 ops		|	352 ops		|
+
+scheduler test:
+Test how many loops of schedule() can finish within 10 seconds on all cpus.
+
+_____test________________spinlcok______________pv-qspinlcok_____
+|schedule() loops|	340890082 	|	331730973	|
+
+kernel compiling test:
+build a default linux kernel image to see how long it took
+
+_____test________________spinlcok______________pv-qspinlcok_____
+| compiling takes|	22m 		|	22m		|
+
+some notes:
+the performace is as good as current spinlock's. in some case better while some cases worse.
+But in some other tests(not listed here), we verify the two spinlock's workloads by perf record&report.
+pv-qspinlock is light-weight than current spinlock.
+This patch series depends on 2 patches:
+[patch]powerpc: Implement {cmp}xchg for u8 and u16
+[patch]locking/pvqspinlock: Add lock holder CPU argument to pv_wait() from Waiman
+
+Some other patches in Waiman's "locking/pvqspinlock: Fix missed PV wakeup & support PPC" are not applied for now.
+
+
+Pan Xinhui (6):
+  qspinlock: powerpc support qspinlock
+  powerpc: pseries/Kconfig: Add qspinlock build config
+  powerpc: lib/locks.c: Add cpu yield/wake helper function
+  pv-qspinlock: powerpc support pv-qspinlock
+  pv-qspinlock: use cmpxchg_release in __pv_queued_spin_unlock
+  powerpc: pseries: Add pv-qspinlock build config/make
+
+ arch/powerpc/include/asm/qspinlock.h               |  41 +++++++
+ arch/powerpc/include/asm/qspinlock_paravirt.h      |  38 +++++++
+ .../powerpc/include/asm/qspinlock_paravirt_types.h |  13 +++
+ arch/powerpc/include/asm/spinlock.h                |  31 ++++--
+ arch/powerpc/include/asm/spinlock_types.h          |   4 +
+ arch/powerpc/kernel/Makefile                       |   1 +
+ arch/powerpc/kernel/paravirt.c                     | 121 +++++++++++++++++++++
+ arch/powerpc/lib/locks.c                           |  37 +++++++
+ arch/powerpc/platforms/pseries/Kconfig             |   9 ++
+ arch/powerpc/platforms/pseries/setup.c             |   5 +
+ kernel/locking/qspinlock_paravirt.h                |   2 +-
+ 11 files changed, 289 insertions(+), 13 deletions(-)
+ create mode 100644 arch/powerpc/include/asm/qspinlock.h
+ create mode 100644 arch/powerpc/include/asm/qspinlock_paravirt.h
+ create mode 100644 arch/powerpc/include/asm/qspinlock_paravirt_types.h
+ create mode 100644 arch/powerpc/kernel/paravirt.c
+
+-- 
+2.4.11
