@@ -1,13 +1,15 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH V3 0/2] vhost_net polling optimization
-Date: Thu, 02 Jun 2016 12:08:06 -0700 (PDT)
-Message-ID: <20160602.120806.2233781548139724198.davem@davemloft.net>
-References: <1464760594-30326-1-git-send-email-jasowang@redhat.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: [PATCH 16/20] drm: omap: Rely on the default ->best_encoder()
+	behavior
+Date: Fri, 03 Jun 2016 00:00:07 +0300
+Message-ID: <3702911.4V6efqXNem__42381.0457032689$1464901515$gmane$org@avalon>
+References: <1464877907-27723-1-git-send-email-boris.brezillon@free-electrons.com>
+	<1464877907-27723-17-git-send-email-boris.brezillon@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1464760594-30326-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <1464877907-27723-17-git-send-email-boris.brezillon@free-electrons.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,31 +19,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+To: Boris Brezillon <boris.brezillon@free-electrons.com>
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Heiko Stuebner <heiko@sntech.de>, David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Eric Anholt <eric@anholt.net>, Th ierry Re ding <thierry.reding@gmail.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Daniel Vetter <daniel.vetter@intel.com>, Alexandre Courbot <gnurou@gmail.com>, linux-samsung-soc@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, Alexey Brodkin <abrodkin@synopsys.com>, Kyungmin Park <kyungmin.park@samsung.com>, linux-rockchip@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>, Kukjin Kim <kgene@kernel.org>, linux-tegra@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>, Inki Dae <inki.dae@samsung.com>, linux-mediatek@list
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed,  1 Jun 2016 01:56:32 -0400
+Hi Boris,
 
-> This series tries to optimize vhost_net polling at two points:
-> 
-> - Stop rx polling for reduicng the unnecessary wakeups during
->   handle_rx().
-> - Conditonally enable tx polling for reducing the unnecessary
->   traversing and spinlock touching.
-> 
-> Test shows about 17% improvement on rx pps.
-> 
-> Please review
-> 
-> Changes from V2:
-> - Don't enable rx vq if we meet an err or rx vq is empty
-> Changes from V1:
-> - use vhost_net_disable_vq()/vhost_net_enable_vq() instead of open
->   coding.
-> - Add a new patch for conditionally enable tx polling.
+Thank you for the patch.
 
-Michael, please review this patch series.
+On Thursday 02 Jun 2016 16:31:43 Boris Brezillon wrote:
+> We have a 1:1 relationship between connectors and encoders and the
+> driver is relying on the atomic helpers: we can drop the custom
+> ->best_encoder() implementation and let the core call
+> drm_atomic_helper_best_encoder() for us.
+> 
+> Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+> ---
+>  drivers/gpu/drm/omapdrm/omap_connector.c | 8 --------
+>  1 file changed, 8 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/omapdrm/omap_connector.c
+> b/drivers/gpu/drm/omapdrm/omap_connector.c index ce2d67b..80af5e1 100644
+> --- a/drivers/gpu/drm/omapdrm/omap_connector.c
+> +++ b/drivers/gpu/drm/omapdrm/omap_connector.c
+> @@ -256,13 +256,6 @@ static int omap_connector_mode_valid(struct
+> drm_connector *connector, return ret;
+>  }
+> 
+> -struct drm_encoder *omap_connector_attached_encoder(
+> -		struct drm_connector *connector)
+> -{
+> -	struct omap_connector *omap_connector = to_omap_connector(connector);
+> -	return omap_connector->encoder;
 
-Thanks.
+The omap_connector::encoder field is assigned but not used anymore, you can 
+remove it.
+
+With that fixed,
+
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+
+> -}
+> -
+>  static const struct drm_connector_funcs omap_connector_funcs = {
+>  	.dpms = drm_atomic_helper_connector_dpms,
+>  	.reset = drm_atomic_helper_connector_reset,
+> @@ -276,7 +269,6 @@ static const struct drm_connector_funcs
+> omap_connector_funcs = { static const struct drm_connector_helper_funcs
+> omap_connector_helper_funcs = { .get_modes = omap_connector_get_modes,
+>  	.mode_valid = omap_connector_mode_valid,
+> -	.best_encoder = omap_connector_attached_encoder,
+>  };
+> 
+>  /* initialize connector */
+
+-- 
+Regards,
+
+Laurent Pinchart
