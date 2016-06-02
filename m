@@ -1,19 +1,18 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH v5 1/6] qspinlock: powerpc support qspinlock
-Date: Tue, 07 Jun 2016 07:41:37 +1000
-Message-ID: <1465249297.4274.72.camel@kernel.crashing.org>
-References: <1464859370-5162-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<1464859370-5162-3-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<1464917520.26773.11.camel@kernel.crashing.org>
-	<1464917548.26773.12.camel@au1.ibm.com>
-	<57510353.1020209@linux.vnet.ibm.com>
-	<1464928427.26773.26.camel@kernel.crashing.org>
-	<20160606155907.GH30909@twins.programming.kicks-ass.net>
+From: Chris Wilson <chris@chris-wilson.co.uk>
+Subject: Re: [Intel-gfx] [PATCH 01/20] drm/atomic: Fix remaining places where
+	!funcs->best_encoder is valid
+Date: Thu, 2 Jun 2016 23:40:04 +0100
+Message-ID: <20160602224004.GA1819__20888.8725880117$1465252414$gmane$org@nuc-i3427.alporthouse.com>
+References: <1464877907-27723-1-git-send-email-boris.brezillon@free-electrons.com>
+	<1464877907-27723-2-git-send-email-boris.brezillon@free-electrons.com>
+	<8671722.LHaiaBNqfE@avalon>
+	<CAKMK7uHyqNbA8Scw2fE0geAyNt0a0XVtzf81nwWjEhbZ-gAvKw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160606155907.GH30909@twins.programming.kicks-ass.net>
+Content-Disposition: inline
+In-Reply-To: <CAKMK7uHyqNbA8Scw2fE0geAyNt0a0XVtzf81nwWjEhbZ-gAvKw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,40 +22,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: mpe@ellerman.id.au, linux-kernel@vger.kernel.org, waiman.long@hpe.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, xinhui <xinhui.pan@linux.vnet.ibm.com>, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
+To: Daniel Vetter <daniel@ffwll.ch>
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Heiko Stuebner <heiko@sntech.de>, David Airlie <airlied@linux.ie>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
+	NET..." <virtualization@lists.linux-foundation.org>, Matthias Brugger <matthias.bgg@gmail.com>, Thierry Re ding <thierry.reding@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Daniel Vetter <daniel.vetter@intel.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Joonyoung Shim <jy0922.shim@samsung.com>, Alexey Brodkin <abrodkin@synopsys.com>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, Chen-Yu Tsai <wens@csie.org>, Kukjin Kim <kgene@kernel.org>, Stephen Warren <swarren@wwwdotorg.org>, linux-arm-msm <linux-arm-msm@vger.kernel.org>in
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCAyMDE2LTA2LTA2IGF0IDE3OjU5ICswMjAwLCBQZXRlciBaaWpsc3RyYSB3cm90ZToK
-PiBPbiBGcmksIEp1biAwMywgMjAxNiBhdCAwMjozMzo0N1BNICsxMDAwLCBCZW5qYW1pbiBIZXJy
-ZW5zY2htaWR0IHdyb3RlOgo+ID4gCj4gPiDCoC0gRm9yIHRoZSBhYm92ZSwgY2FuIHlvdSBzaG93
-IChvciBkZXNjcmliZSkgd2hlcmUgdGhlIHFzcGlubG9jawo+ID4gwqAgwqBpbXByb3ZlcyB0aGlu
-Z3MgY29tcGFyZWQgdG8gb3VyIGN1cnJlbnQgbG9ja3MuCj4gU28gY3VycmVudGx5IFBQQyBoYXMg
-YSBmYWlybHkgc3RyYWlnaHQgZm9yd2FyZCB0ZXN0LWFuZC1zZXQgc3BpbmxvY2sKPiBJSVJDLiBZ
-b3UgaGF2ZSB0aGlzIGJlY2F1c2UgTFBBUi92aXJ0IG11Y2sgYW5kIGxvY2sgaG9sZGVyIHByZWVt
-cHRpb24KPiBpc3N1ZXMgZXRjLi4KPiBxc3BpbmxvY2sgaXMgMSkgYSBmYWlyIGxvY2sgKGxpa2Ug
-dGlja2V0IGxvY2tzKSBhbmQgMikgcHJvdmlkZXMKPiBvdXQtb2Ytd29yZCBzcGlubmluZywgcmVk
-dWNpbmcgY2FjaGVsaW5lIHByZXNzdXJlLgoKVGhhbmtzIFBldGVyLiBJIHRoaW5rIEkgdW5kZXJz
-dGFuZCB0aGUgdGhlb3J5LCBidXQgSSdkIGxpa2Ugc2VlIGl0CnRyYW5zbGF0ZSBpbnRvIHJlYWwg
-bnVtYmVycy4KCj4gRXNwLiBvbiBtdWx0aS1zb2NrZXQgeDg2IHdlIHNhdyB0aGUgb3V0LW9mLXdv
-cmQgc3Bpbm5pbmcgYmVpbmcgYSBiaWcgd2luCj4gb3ZlciBvdXIgdGlja2V0IGxvY2tzLgo+IAo+
-IEFuZCBmYWlybmVzcywgYnJvdWdodCB0byB1cyBieSB0aGUgdGlja2V0IGxvY2tzIGEgbG9uZyB0
-aW1lIGFnbywKPiBlbGltaW5hdGVkIHN0YXJ2YXRpb24gaXNzdWVzIHdlIGhhZCwgd2hlcmUgYSBz
-cGlubmVyIGxvY2FsIHRvIHRoZSBob2xkZXIKPiB3b3VsZCAnYWx3YXlzJyB3aW4gZnJvbSBhIHNw
-aW5uZXIgZnVydGhlciBhd2F5LiBTbyB1bmRlciBoZWF2eSBlbm91Z2gKPiBsb2NhbCBjb250ZW50
-aW9uLCB0aGUgc3Bpbm5lcnMgb24gJ3JlbW90ZScgQ1BVcyB3b3VsZCAnbmV2ZXInIGdldCB0byBv
-d24KPiB0aGUgbG9jay4KCkkgdGhpbmsgb3VyIEhXIGhhcyB0d2Vha3MgdG8gYXZvaWQgdGhhdCBm
-cm9tIGhhcHBlbmluZyB3aXRoIHRoZSBzaW1wbGUKbG9ja3MgaW4gdGhlIHVuZGVybHlpbmcgbGwv
-c2MgaW1wbGVtZW50YXRpb24uIEluIGFueSBjYXNlLCB3aGF0IEknbQphc2tpbmcgaXMgYWN0dWFs
-IHRlc3RzIHRvIHZlcmlmeSBpdCB3b3JrcyBhcyBleHBlY3RlZCBmb3IgdXMuCgo+IHB2LXFzcGlu
-bG9jayB0cmllcyB0byBwcmVzZXJ2ZSB0aGUgZmFpcm5lc3Mgd2hpbGUgYWxsb3dpbmcgbGltaXRl
-ZCBsb2NrCj4gc3RlYWxpbmcgYW5kIGV4cGxpY2l0bHkgbWFuYWdpbmcgd2hpY2ggdmNwdXMgdG8g
-d2FrZS4KClJpZ2h0Lgo+ID4gCj4gPiAJV2hpbGUgdGhlcmUncwo+ID4gwqAgwqB0aGVvcnkgYW5k
-IHRvIHNvbWUgZXh0ZW50IHByYWN0aWNlIG9uIHg4NiwgaXQgd291bGQgYmUgbmljZSB0bwo+ID4g
-wqAgwqB2YWxpZGF0ZSB0aGUgZWZmZWN0cyBvbiBQT1dFUi4KPiBSaWdodDsgc28gdGhhdCB3aWxs
-IGhhdmUgdG8gYmUgZnJvbSBiZW5jaG1hcmtzIHdoaWNoIEkgY2Fubm90IGhlbHAgeW91Cj4gd2l0
-aCA7LSkKClByZWNpc2VseSA6LSkgVGhpcyBpcyB3aGF0IEkgd2FzIGFza2luZyBmb3IgOy0pCgpD
-aGVlcnMsCkJlbi4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
-eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
-bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Thu, Jun 02, 2016 at 11:57:02PM +0200, Daniel Vetter wrote:
+> drm_encoder_find is an idr lookup. That should be plenty fast,
+> especially for modeset code. Usually what's too expensive even for
+> modeset code is linear list walks. But Chris just submitted patches to
+> convert most of them into simple lookups.
+
+For the idr_find, I'm tempted to replace the mutex with a rwlock. It
+helps pathological cases, but in reality there are more crucial
+locks around the hw that limit concurrency. ;-)
+-Chris
+
+-- 
+Chris Wilson, Intel Open Source Technology Centre
