@@ -1,12 +1,14 @@
 From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 Subject: [PATCH v5 0/6] powerPC/pSeries use pv-qpsinlock as the default
 	spinlock implemention
-Date: Thu,  2 Jun 2016 17:22:43 +0800
-Message-ID: <1464859370-5162-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Date: Thu,  2 Jun 2016 17:22:44 +0800
+Message-ID: <1464859370-5162-2-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+References: <1464859370-5162-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1464859370-5162-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
