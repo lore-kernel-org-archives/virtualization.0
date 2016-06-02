@@ -1,8 +1,7 @@
 From: Boris Brezillon <boris.brezillon@free-electrons.com>
-Subject: [PATCH 01/20] drm/atomic: Fix remaining places where
-	!funcs->best_encoder is valid
-Date: Thu,  2 Jun 2016 16:31:28 +0200
-Message-ID: <1464877907-27723-2-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH 02/20] drm: arc: Rely on the default ->best_encoder() behavior
+Date: Thu,  2 Jun 2016 16:31:29 +0200
+Message-ID: <1464877907-27723-3-git-send-email-boris.brezillon__37553.1008736745$1464877953$gmane$org@free-electrons.com>
 References: <1464877907-27723-1-git-send-email-boris.brezillon@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,56 +21,51 @@ To: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, dri-devel@
 Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Heiko Stuebner <heiko@sntech.de>, Stefan Agner <stefan@agner.ch>, virtualization@lists.linux-foundation.org, Eric Anholt <eric@anholt.net>, Thierry Reding <thierry.reding@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-samsung-soc@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, Alexey Brodkin <abrodkin@synopsys.com>, Kyungmin Park <kyungmin.park@samsung.com>, linux-rockchip@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>, Kukjin Kim <kgene@kernel.org>, linux-tegra@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>, Inki Dae <inki.dae@sam>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Adapt drm_pick_crtcs() and update_connector_routing() to fallback to
-drm_atomic_helper_best_encoder() if funcs->best_encoder() is NULL so
-that DRM drivers can leave this hook unassigned if they know they want
-to use drm_atomic_helper_best_encoder().
+We have a 1:1 relationship between connectors and encoders and the
+driver is relying on the atomic helpers: we can drop the custom
+->best_encoder(), and let the core call drm_atomic_helper_best_encoder()
+for us.
 
 Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
 ---
- drivers/gpu/drm/drm_atomic_helper.c |  4 +++-
- drivers/gpu/drm/drm_fb_helper.c     | 13 ++++++++++++-
- 2 files changed, 15 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/arc/arcpgu_hdmi.c | 18 ------------------
+ 1 file changed, 18 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_atomic_helper.c b/drivers/gpu/drm/drm_atomic_helper.c
-index f6a3350..849d029 100644
---- a/drivers/gpu/drm/drm_atomic_helper.c
-+++ b/drivers/gpu/drm/drm_atomic_helper.c
-@@ -300,8 +300,10 @@ update_connector_routing(struct drm_atomic_state *state,
- 	if (funcs->atomic_best_encoder)
- 		new_encoder = funcs->atomic_best_encoder(connector,
- 							 connector_state);
--	else
-+	else if (funcs->best_encoder)
- 		new_encoder = funcs->best_encoder(connector);
-+	else
-+		new_encoder = drm_atomic_helper_best_encoder(connector);
+diff --git a/drivers/gpu/drm/arc/arcpgu_hdmi.c b/drivers/gpu/drm/arc/arcpgu_hdmi.c
+index 08b6bae..b7a8b2a 100644
+--- a/drivers/gpu/drm/arc/arcpgu_hdmi.c
++++ b/drivers/gpu/drm/arc/arcpgu_hdmi.c
+@@ -46,23 +46,6 @@ static int arcpgu_drm_connector_get_modes(struct drm_connector *connector)
+ 	return sfuncs->get_modes(&slave->base, connector);
+ }
  
- 	if (!new_encoder) {
- 		DRM_DEBUG_ATOMIC("No suitable encoder found for [CONNECTOR:%d:%s]\n",
-diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
-index 7c2eb75..d44389a 100644
---- a/drivers/gpu/drm/drm_fb_helper.c
-+++ b/drivers/gpu/drm/drm_fb_helper.c
-@@ -2000,7 +2000,18 @@ static int drm_pick_crtcs(struct drm_fb_helper *fb_helper,
- 		my_score++;
+-struct drm_encoder *
+-arcpgu_drm_connector_best_encoder(struct drm_connector *connector)
+-{
+-	struct drm_encoder_slave *slave;
+-	struct arcpgu_drm_connector *con =
+-		container_of(connector, struct arcpgu_drm_connector, connector);
+-
+-	slave = con->encoder_slave;
+-	if (slave == NULL) {
+-		dev_err(connector->dev->dev,
+-			"connector_best_encoder: cannot find slave encoder for connector\n");
+-		return NULL;
+-	}
+-
+-	return &slave->base;
+-}
+-
+ static enum drm_connector_status
+ arcpgu_drm_connector_detect(struct drm_connector *connector, bool force)
+ {
+@@ -97,7 +80,6 @@ static void arcpgu_drm_connector_destroy(struct drm_connector *connector)
+ static const struct drm_connector_helper_funcs
+ arcpgu_drm_connector_helper_funcs = {
+ 	.get_modes = arcpgu_drm_connector_get_modes,
+-	.best_encoder = arcpgu_drm_connector_best_encoder,
+ };
  
- 	connector_funcs = connector->helper_private;
--	encoder = connector_funcs->best_encoder(connector);
-+
-+	/*
-+	 * If the DRM device implements atomic hooks and ->best_encoder() is
-+	 * NULL we fallback to the default drm_atomic_helper_best_encoder()
-+	 * helper.
-+	 */
-+	if (fb_helper->dev->mode_config.funcs->atomic_commit &&
-+	    !connector_funcs->best_encoder)
-+		encoder = drm_atomic_helper_best_encoder(connector);
-+	else
-+		encoder = connector_funcs->best_encoder(connector);
-+
- 	if (!encoder)
- 		goto out;
- 
+ static const struct drm_connector_funcs arcpgu_drm_connector_funcs = {
 -- 
 2.7.4
