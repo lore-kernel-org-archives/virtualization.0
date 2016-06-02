@@ -1,15 +1,13 @@
-From: Rick Jones <rick.jones2@hpe.com>
-Subject: Re: [PATCH -next 2/2] virtio_net: Read the advised MTU
-Date: Thu, 2 Jun 2016 11:02:43 -0700
-Message-ID: <575074C3.8040908@hpe.com>
-References: <1464882211-18723-1-git-send-email-aconole@redhat.com>
-	<1464882211-18723-3-git-send-email-aconole@redhat.com>
-	<5750578E.4040406@hpe.com> <f7tmvn3sep3.fsf@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH V3 0/2] vhost_net polling optimization
+Date: Thu, 02 Jun 2016 12:08:06 -0700 (PDT)
+Message-ID: <20160602.120806.2233781548139724198.davem@davemloft.net>
+References: <1464760594-30326-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <f7tmvn3sep3.fsf@redhat.com>
+In-Reply-To: <1464760594-30326-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,28 +17,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Aaron Conole <aconole@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: jasowang@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/02/2016 10:06 AM, Aaron Conole wrote:
-> Rick Jones <rick.jones2@hpe.com> writes:
->> One of the things I've been doing has been setting-up a cluster
->> (OpenStack) with JumboFrames, and then setting MTUs on instance vNICs
->> by hand to measure different MTU sizes.  It would be a shame if such a
->> thing were not possible in the future.  Keeping a warning if shrinking
->> the MTU would be good, leave the error (perhaps) to if an attempt is
->> made to go beyond the advised value.
->
-> This was cut because it didn't make sense for such a warning to
-> be issued, but it seems like perhaps you may want such a feature?  I
-> agree with Michael, after thinking about it, that I don't know what sort
-> of use the warning would serve.  After all, if you're changing the MTU,
-> you must have wanted such a change to occur?
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed,  1 Jun 2016 01:56:32 -0400
 
-I don't need a warning, was simply willing to live with one when 
-shrinking the MTU.  Didn't want an error.
+> This series tries to optimize vhost_net polling at two points:
+> 
+> - Stop rx polling for reduicng the unnecessary wakeups during
+>   handle_rx().
+> - Conditonally enable tx polling for reducing the unnecessary
+>   traversing and spinlock touching.
+> 
+> Test shows about 17% improvement on rx pps.
+> 
+> Please review
+> 
+> Changes from V2:
+> - Don't enable rx vq if we meet an err or rx vq is empty
+> Changes from V1:
+> - use vhost_net_disable_vq()/vhost_net_enable_vq() instead of open
+>   coding.
+> - Add a new patch for conditionally enable tx polling.
 
-happy benchmarking,
+Michael, please review this patch series.
 
-rick jones
+Thanks.
