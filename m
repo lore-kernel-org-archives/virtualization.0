@@ -1,16 +1,16 @@
 From: Aaron Conole <aconole@redhat.com>
-Subject: Re: [PATCH -next 2/2] virtio_net: Read the advised MTU
-Date: Thu, 02 Jun 2016 13:06:32 -0400
-Message-ID: <f7tmvn3sep3.fsf__13544.6692155258$1464887214$gmane$org@redhat.com>
+Subject: Re: [PATCH -next 1/2] virtio: Start feature MTU support
+Date: Thu, 02 Jun 2016 13:10:03 -0400
+Message-ID: <f7tinxrsej8.fsf@redhat.com>
 References: <1464882211-18723-1-git-send-email-aconole@redhat.com>
-	<1464882211-18723-3-git-send-email-aconole@redhat.com>
-	<5750578E.4040406@hpe.com>
+	<1464882211-18723-2-git-send-email-aconole@redhat.com>
+	<20160602191702-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5750578E.4040406@hpe.com> (Rick Jones's message of "Thu, 2 Jun
-	2016 08:58:06 -0700")
+In-Reply-To: <20160602191702-mutt-send-email-mst@redhat.com> (Michael
+	S. Tsirkin's message of "Thu, 2 Jun 2016 19:17:17 +0300")
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,41 +20,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rick Jones <rick.jones2@hpe.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+"Michael S. Tsirkin" <mst@redhat.com> writes:
 
-Hi Rick,
-
-In the future, please don't cut the list.
-
-Rick Jones <rick.jones2@hpe.com> writes:
-
-> On 06/02/2016 08:43 AM, Aaron Conole wrote:
->> This patch checks the feature bit for the VIRTIO_NET_F_MTU feature. If it
->> exists, read the advised MTU and use it.
->>
->> No proper error handling is provided for the case where a user changes the
->> negotiated MTU. A future commit will add proper error handling. Instead, a
->> warning is emitted if the guest changes the device MTU after previously
->> being given advice.
+> On Thu, Jun 02, 2016 at 11:43:30AM -0400, Aaron Conole wrote:
+>> This commit adds the feature bit and associated mtu device entry for the
+>> virtio network device. Future commits will make use of these bits to
+>> support negotiated MTU.
 >
-> One of the things I've been doing has been setting-up a cluster
-> (OpenStack) with JumboFrames, and then setting MTUs on instance vNICs
-> by hand to measure different MTU sizes.  It would be a shame if such a
-> thing were not possible in the future.  Keeping a warning if shrinking
-> the MTU would be good, leave the error (perhaps) to if an attempt is
-> made to go beyond the advised value.
+> why split it out? Pls squash with the next patch.
 
-This was cut because it didn't make sense for such a warning to
-be issued, but it seems like perhaps you may want such a feature?  I
-agree with Michael, after thinking about it, that I don't know what sort
-of use the warning would serve.  After all, if you're changing the MTU,
-you must have wanted such a change to occur?
+Okay.  I thought the usual method was make a commit which introduces the
+data structure changes, and then make a commit which hooks it up.  I'll
+squash this in the future.
 
--Aaron
-
-> happy benchmarking,
->
-> rick jones
+>> Signed-off-by: Aaron Conole <aconole@redhat.com>
+>> ---
+>>  include/uapi/linux/virtio_net.h | 2 ++
+>>  1 file changed, 2 insertions(+)
+>> 
+>> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+>> index ec32293..751ff59 100644
+>> --- a/include/uapi/linux/virtio_net.h
+>> +++ b/include/uapi/linux/virtio_net.h
+>> @@ -73,6 +73,8 @@ struct virtio_net_config {
+>>  	 * Legal values are between 1 and 0x8000
+>>  	 */
+>>  	__u16 max_virtqueue_pairs;
+>> +	/* Default maximum transmit unit advice */
+>> +	__u16 mtu;
+>>  } __attribute__((packed));
+>>  
+>>  /*
+>> -- 
+>> 2.5.5
