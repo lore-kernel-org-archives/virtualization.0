@@ -1,16 +1,14 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH 01/20] drm/atomic: Fix remaining places where
-	!funcs->best_encoder is valid
-Date: Thu, 2 Jun 2016 23:57:02 +0200
-Message-ID: <CAKMK7uHyqNbA8Scw2fE0geAyNt0a0XVtzf81nwWjEhbZ-gAvKw__30993.3183518753$1464904644$gmane$org@mail.gmail.com>
-References: <1464877907-27723-1-git-send-email-boris.brezillon@free-electrons.com>
-	<1464877907-27723-2-git-send-email-boris.brezillon@free-electrons.com>
-	<8671722.LHaiaBNqfE@avalon>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH v5 1/6] qspinlock: powerpc support qspinlock
+Date: Fri, 03 Jun 2016 11:32:00 +1000
+Message-ID: <1464917520.26773.11.camel__32506.3768345446$1464921192$gmane$org@kernel.crashing.org>
+References: <1464859370-5162-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+	<1464859370-5162-3-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <8671722.LHaiaBNqfE@avalon>
+In-Reply-To: <1464859370-5162-3-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,97 +18,102 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Heiko Stuebner <heiko@sntech.de>, David Airlie <airlied@linux.ie>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
-	NET..." <virtualization@lists.linux-foundation.org>, Eric Anholt <eric@anholt.net>, Thierry Re ding <thierry.reding@gmail.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Daniel Vetter <daniel.vetter@intel.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Joonyoung Shim <jy0922.shim@samsung.com>, Alexey Brodkin <abrodkin@synopsys.com>, Rob Clark <robdclark@gmail.com>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, Chen-Yu Tsai <wens@csie.org>, Kukjin Kim <kgene@kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, Stephen Warren <swarren@wwwdotorg.org>, linux-arm-msm <linux-ar>
+To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.orgv, virtualization@lists.linux-foundation.org
+Cc: peterz@infradead.org, mpe@ellerman.id.au, waiman.long@hpe.com, mingo@redhat.com, paulus@samba.org, paulmck@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 2, 2016 at 11:05 PM, Laurent Pinchart
-<laurent.pinchart@ideasonboard.com> wrote:
-> Hi Boris,
->
-> Thank you for the patch.
->
-> On Thursday 02 Jun 2016 16:31:28 Boris Brezillon wrote:
->> Adapt drm_pick_crtcs() and update_connector_routing() to fallback to
->> drm_atomic_helper_best_encoder() if funcs->best_encoder() is NULL so
->> that DRM drivers can leave this hook unassigned if they know they want
->> to use drm_atomic_helper_best_encoder().
->
-> Could you please update include/drm/drm_modeset_helper_vtables.h to document
-> this new behaviour ?
-
-Thanks for reminding me. Please update hooks for both
-atomic_best_encoder and best_encoder. Also mention that it's only
-optional for atomic drivers. There's lots of examples in that file for
-the wording usually used.
-
-> The only drawback I see in this patch is the additional object lookup
-> performed by drm_atomic_helper_best_encoder() at runtime. I wonder if we could
-> somehow cache the information, as the assignment can't change when there's a
-> 1:1 correspondence between encoders and connectors.
-
-drm_encoder_find is an idr lookup. That should be plenty fast,
-especially for modeset code. Usually what's too expensive even for
-modeset code is linear list walks. But Chris just submitted patches to
-convert most of them into simple lookups.
--Daniel
-
->>> Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
->> ---
->>  drivers/gpu/drm/drm_atomic_helper.c |  4 +++-
->>  drivers/gpu/drm/drm_fb_helper.c     | 13 ++++++++++++-
->>  2 files changed, 15 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/gpu/drm/drm_atomic_helper.c
->> b/drivers/gpu/drm/drm_atomic_helper.c index f6a3350..849d029 100644
->> --- a/drivers/gpu/drm/drm_atomic_helper.c
->> +++ b/drivers/gpu/drm/drm_atomic_helper.c
->> @@ -300,8 +300,10 @@ update_connector_routing(struct drm_atomic_state
->> *state, if (funcs->atomic_best_encoder)
->>               new_encoder = funcs->atomic_best_encoder(connector,
->>                                                        connector_state);
->> -     else
->> +     else if (funcs->best_encoder)
->>               new_encoder = funcs->best_encoder(connector);
->> +     else
->> +             new_encoder = drm_atomic_helper_best_encoder(connector);
->>
->>       if (!new_encoder) {
->>               DRM_DEBUG_ATOMIC("No suitable encoder found for [CONNECTOR:%d:%s]\n",
->> diff --git a/drivers/gpu/drm/drm_fb_helper.c
->> b/drivers/gpu/drm/drm_fb_helper.c index 7c2eb75..d44389a 100644
->> --- a/drivers/gpu/drm/drm_fb_helper.c
->> +++ b/drivers/gpu/drm/drm_fb_helper.c
->> @@ -2000,7 +2000,18 @@ static int drm_pick_crtcs(struct drm_fb_helper
->> *fb_helper, my_score++;
->>
->>       connector_funcs = connector->helper_private;
->> -     encoder = connector_funcs->best_encoder(connector);
->> +
->> +     /*
->> +      * If the DRM device implements atomic hooks and ->best_encoder() is
->> +      * NULL we fallback to the default drm_atomic_helper_best_encoder()
->> +      * helper.
->> +      */
->> +     if (fb_helper->dev->mode_config.funcs->atomic_commit &&
->> +         !connector_funcs->best_encoder)
->> +             encoder = drm_atomic_helper_best_encoder(connector);
->> +     else
->> +             encoder = connector_funcs->best_encoder(connector);
->> +
->>       if (!encoder)
->>               goto out;
->
-> --
-> Regards,
->
-> Laurent Pinchart
->
-
-
-
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-+41 (0) 79 365 57 48 - http://blog.ffwll.ch
+T24gVGh1LCAyMDE2LTA2LTAyIGF0IDE3OjIyICswODAwLCBQYW4gWGluaHVpIHdyb3RlOgo+IEJh
+c2UgY29kZSB0byBlbmFibGUgcXNwaW5sb2NrIG9uIHBvd2VycGMuIHRoaXMgcGF0Y2ggYWRkIHNv
+bWUgI2lmZGVmCj4gaGVyZSBhbmQgdGhlcmUuIEFsdGhvdWdoIHRoZXJlIGlzIG5vIHBhcmF2aXJ0
+IHJlbGF0ZWQgY29kZSwgd2UgY2FuCj4gc3VjY2Vzc2Z1bGx5IGJ1aWxkIGEgcXNwaW5sb2NrIGtl
+cm5lbCBhZnRlciBhcHBseSB0aGlzIHBhdGNoLgoKVGhpcyBpcyBtaXNzaW5nIHRoZSBJT19TWU5D
+IHN0dWZmIC4uLiBJdCBtZWFucyB3ZSdsbCBmYWlsIHRvIGRvIGEgZnVsbApzeW5jIHRvIG9yZGVy
+IHZzIE1NSU9zLgoKWW91IG5lZWQgdG8gYWRkIHRoYXQgYmFjayBpbiB0aGUgdW5sb2NrIHBhdGgu
+Cgo+IFNpZ25lZC1vZmYtYnk6IFBhbiBYaW5odWkgPHhpbmh1aS5wYW5AbGludXgudm5ldC5pYm0u
+Y29tPgo+IC0tLQo+IMKgYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3FzcGlubG9jay5owqDCoMKg
+wqDCoMKgfCAyNgo+ICsrKysrKysrKysrKysrKysrKysrKysrKysrCj4gwqBhcmNoL3Bvd2VycGMv
+aW5jbHVkZS9hc20vc3BpbmxvY2suaMKgwqDCoMKgwqDCoMKgfCAyNyArKysrKysrKysrKysrKyst
+LS0tCj4gLS0tLS0tLS0KPiDCoGFyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9zcGlubG9ja190eXBl
+cy5oIHzCoMKgNCArKysrCj4gwqBhcmNoL3Bvd2VycGMvbGliL2xvY2tzLmPCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqB8wqDCoDQgKysrKwo+IMKgNCBmaWxlcyBjaGFuZ2VkLCA0
+OSBpbnNlcnRpb25zKCspLCAxMiBkZWxldGlvbnMoLSkKPiDCoGNyZWF0ZSBtb2RlIDEwMDY0NCBh
+cmNoL3Bvd2VycGMvaW5jbHVkZS9hc20vcXNwaW5sb2NrLmgKPiAKPiBkaWZmIC0tZ2l0IGEvYXJj
+aC9wb3dlcnBjL2luY2x1ZGUvYXNtL3FzcGlubG9jay5oCj4gYi9hcmNoL3Bvd2VycGMvaW5jbHVk
+ZS9hc20vcXNwaW5sb2NrLmgKPiBuZXcgZmlsZSBtb2RlIDEwMDY0NAo+IGluZGV4IDAwMDAwMDAu
+LmZjODNjZDIKPiAtLS0gL2Rldi9udWxsCj4gKysrIGIvYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNt
+L3FzcGlubG9jay5oCj4gQEAgLTAsMCArMSwyNiBAQAo+ICsjaWZuZGVmIF9BU01fUE9XRVJQQ19R
+U1BJTkxPQ0tfSAo+ICsjZGVmaW5lIF9BU01fUE9XRVJQQ19RU1BJTkxPQ0tfSAo+ICsKPiArI2lu
+Y2x1ZGUgPGFzbS1nZW5lcmljL3FzcGlubG9ja190eXBlcy5oPgo+ICsKPiArI2RlZmluZSBTUElO
+X1RIUkVTSE9MRCAoMSA8PCAxNSkKPiArI2RlZmluZSBxdWV1ZWRfc3Bpbl91bmxvY2sgcXVldWVk
+X3NwaW5fdW5sb2NrCj4gKwo+ICtzdGF0aWMgaW5saW5lIHZvaWQgbmF0aXZlX3F1ZXVlZF9zcGlu
+X3VubG9jayhzdHJ1Y3QgcXNwaW5sb2NrICpsb2NrKQo+ICt7Cj4gKwl1OCAqbG9ja2VkID0gKHU4
+ICopbG9jazsKPiArI2lmZGVmIF9fQklHX0VORElBTgo+ICsJbG9ja2VkICs9IDM7Cj4gKyNlbmRp
+Zgo+ICsJLyogbm8gbG9hZC9zdG9yZSBjYW4gYmUgYWNyb3NzIHRoZSB1bmxvY2soKSovCj4gKwlz
+bXBfc3RvcmVfcmVsZWFzZShsb2NrZWQsIDApOwo+ICt9Cj4gKwo+ICtzdGF0aWMgaW5saW5lIHZv
+aWQgcXVldWVkX3NwaW5fdW5sb2NrKHN0cnVjdCBxc3BpbmxvY2sgKmxvY2spCj4gK3sKPiArCW5h
+dGl2ZV9xdWV1ZWRfc3Bpbl91bmxvY2sobG9jayk7Cj4gK30KPiArCj4gKyNpbmNsdWRlIDxhc20t
+Z2VuZXJpYy9xc3BpbmxvY2suaD4KPiArCj4gKyNlbmRpZiAvKiBfQVNNX1BPV0VSUENfUVNQSU5M
+T0NLX0ggKi8KPiBkaWZmIC0tZ2l0IGEvYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3NwaW5sb2Nr
+LmgKPiBiL2FyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9zcGlubG9jay5oCj4gaW5kZXggNTIzNjcz
+ZC4uNDM1OWVlNiAxMDA2NDQKPiAtLS0gYS9hcmNoL3Bvd2VycGMvaW5jbHVkZS9hc20vc3Bpbmxv
+Y2suaAo+ICsrKyBiL2FyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9zcGlubG9jay5oCj4gQEAgLTUy
+LDYgKzUyLDIwIEBACj4gwqAjZGVmaW5lIFNZTkNfSU8KPiDCoCNlbmRpZgo+IMKgCj4gKyNpZiBk
+ZWZpbmVkKENPTkZJR19QUENfU1BMUEFSKQo+ICsvKiBXZSBvbmx5IHlpZWxkIHRvIHRoZSBoeXBl
+cnZpc29yIGlmIHdlIGFyZSBpbiBzaGFyZWQgcHJvY2Vzc29yCj4gbW9kZSAqLwo+ICsjZGVmaW5l
+IFNIQVJFRF9QUk9DRVNTT1IgKGxwcGFjYV9zaGFyZWRfcHJvYyhsb2NhbF9wYWNhLQo+ID5scHBh
+Y2FfcHRyKSkKPiArZXh0ZXJuIHZvaWQgX19zcGluX3lpZWxkKGFyY2hfc3BpbmxvY2tfdCAqbG9j
+ayk7Cj4gK2V4dGVybiB2b2lkIF9fcndfeWllbGQoYXJjaF9yd2xvY2tfdCAqbG9jayk7Cj4gKyNl
+bHNlIC8qIFNQTFBBUiAqLwo+ICsjZGVmaW5lIF9fc3Bpbl95aWVsZCh4KQliYXJyaWVyKCkKPiAr
+I2RlZmluZSBfX3J3X3lpZWxkKHgpCWJhcnJpZXIoKQo+ICsjZGVmaW5lIFNIQVJFRF9QUk9DRVNT
+T1IJMAo+ICsjZW5kaWYKPiArCj4gKyNpZmRlZiBDT05GSUdfUVVFVUVEX1NQSU5MT0NLUwo+ICsj
+aW5jbHVkZSA8YXNtL3FzcGlubG9jay5oPgo+ICsjZWxzZQo+IMKgc3RhdGljIF9fYWx3YXlzX2lu
+bGluZSBpbnQgYXJjaF9zcGluX3ZhbHVlX3VubG9ja2VkKGFyY2hfc3BpbmxvY2tfdAo+IGxvY2sp
+Cj4gwqB7Cj4gwqAJcmV0dXJuIGxvY2suc2xvY2sgPT0gMDsKPiBAQCAtMTA2LDE4ICsxMjAsNiBA
+QCBzdGF0aWMgaW5saW5lIGludAo+IGFyY2hfc3Bpbl90cnlsb2NrKGFyY2hfc3BpbmxvY2tfdCAq
+bG9jaykKPiDCoCAqIGhlbGQuwqDCoENvbnZlbmllbnRseSwgd2UgaGF2ZSBhIHdvcmQgaW4gdGhl
+IHBhY2EgdGhhdCBob2xkcyB0aGlzCj4gwqAgKiB2YWx1ZS4KPiDCoCAqLwo+IC0KPiAtI2lmIGRl
+ZmluZWQoQ09ORklHX1BQQ19TUExQQVIpCj4gLS8qIFdlIG9ubHkgeWllbGQgdG8gdGhlIGh5cGVy
+dmlzb3IgaWYgd2UgYXJlIGluIHNoYXJlZCBwcm9jZXNzb3IKPiBtb2RlICovCj4gLSNkZWZpbmUg
+U0hBUkVEX1BST0NFU1NPUiAobHBwYWNhX3NoYXJlZF9wcm9jKGxvY2FsX3BhY2EtCj4gPmxwcGFj
+YV9wdHIpKQo+IC1leHRlcm4gdm9pZCBfX3NwaW5feWllbGQoYXJjaF9zcGlubG9ja190ICpsb2Nr
+KTsKPiAtZXh0ZXJuIHZvaWQgX19yd195aWVsZChhcmNoX3J3bG9ja190ICpsb2NrKTsKPiAtI2Vs
+c2UgLyogU1BMUEFSICovCj4gLSNkZWZpbmUgX19zcGluX3lpZWxkKHgpCWJhcnJpZXIoKQo+IC0j
+ZGVmaW5lIF9fcndfeWllbGQoeCkJYmFycmllcigpCj4gLSNkZWZpbmUgU0hBUkVEX1BST0NFU1NP
+UgkwCj4gLSNlbmRpZgo+IC0KPiDCoHN0YXRpYyBpbmxpbmUgdm9pZCBhcmNoX3NwaW5fbG9jayhh
+cmNoX3NwaW5sb2NrX3QgKmxvY2spCj4gwqB7Cj4gwqAJQ0xFQVJfSU9fU1lOQzsKPiBAQCAtMTY5
+LDYgKzE3MSw3IEBAIGV4dGVybiB2b2lkIGFyY2hfc3Bpbl91bmxvY2tfd2FpdChhcmNoX3NwaW5s
+b2NrX3QKPiAqbG9jayk7Cj4gwqAJZG8geyB3aGlsZSAoYXJjaF9zcGluX2lzX2xvY2tlZChsb2Nr
+KSkgY3B1X3JlbGF4KCk7IH0gd2hpbGUKPiAoMCkKPiDCoCNlbmRpZgo+IMKgCj4gKyNlbmRpZiAv
+KiAhQ09ORklHX1FVRVVFRF9TUElOTE9DS1MgKi8KPiDCoC8qCj4gwqAgKiBSZWFkLXdyaXRlIHNw
+aW5sb2NrcywgYWxsb3dpbmcgbXVsdGlwbGUgcmVhZGVycwo+IMKgICogYnV0IG9ubHkgb25lIHdy
+aXRlci4KPiBkaWZmIC0tZ2l0IGEvYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3NwaW5sb2NrX3R5
+cGVzLmgKPiBiL2FyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9zcGlubG9ja190eXBlcy5oCj4gaW5k
+ZXggMjM1MWFkYy4uYmQ3MTQ0ZSAxMDA2NDQKPiAtLS0gYS9hcmNoL3Bvd2VycGMvaW5jbHVkZS9h
+c20vc3BpbmxvY2tfdHlwZXMuaAo+ICsrKyBiL2FyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9zcGlu
+bG9ja190eXBlcy5oCj4gQEAgLTUsMTEgKzUsMTUgQEAKPiDCoCMgZXJyb3IgInBsZWFzZSBkb24n
+dCBpbmNsdWRlIHRoaXMgZmlsZSBkaXJlY3RseSIKPiDCoCNlbmRpZgo+IMKgCj4gKyNpZmRlZiBD
+T05GSUdfUVVFVUVEX1NQSU5MT0NLUwo+ICsjaW5jbHVkZSA8YXNtLWdlbmVyaWMvcXNwaW5sb2Nr
+X3R5cGVzLmg+Cj4gKyNlbHNlCj4gwqB0eXBlZGVmIHN0cnVjdCB7Cj4gwqAJdm9sYXRpbGUgdW5z
+aWduZWQgaW50IHNsb2NrOwo+IMKgfSBhcmNoX3NwaW5sb2NrX3Q7Cj4gwqAKPiDCoCNkZWZpbmUg
+X19BUkNIX1NQSU5fTE9DS19VTkxPQ0tFRAl7IDAgfQo+ICsjZW5kaWYKPiDCoAo+IMKgdHlwZWRl
+ZiBzdHJ1Y3Qgewo+IMKgCXZvbGF0aWxlIHNpZ25lZCBpbnQgbG9jazsKPiBkaWZmIC0tZ2l0IGEv
+YXJjaC9wb3dlcnBjL2xpYi9sb2Nrcy5jIGIvYXJjaC9wb3dlcnBjL2xpYi9sb2Nrcy5jCj4gaW5k
+ZXggZjdkZWViZC4uYTllYmQ3MSAxMDA2NDQKPiAtLS0gYS9hcmNoL3Bvd2VycGMvbGliL2xvY2tz
+LmMKPiArKysgYi9hcmNoL3Bvd2VycGMvbGliL2xvY2tzLmMKPiBAQCAtMjMsNiArMjMsNyBAQAo+
+IMKgI2luY2x1ZGUgPGFzbS9odmNhbGwuaD4KPiDCoCNpbmNsdWRlIDxhc20vc21wLmg+Cj4gwqAK
+PiArI2lmbmRlZiBDT05GSUdfUVVFVUVEX1NQSU5MT0NLUwo+IMKgdm9pZCBfX3NwaW5feWllbGQo
+YXJjaF9zcGlubG9ja190ICpsb2NrKQo+IMKgewo+IMKgCXVuc2lnbmVkIGludCBsb2NrX3ZhbHVl
+LCBob2xkZXJfY3B1LCB5aWVsZF9jb3VudDsKPiBAQCAtNDIsNiArNDMsNyBAQCB2b2lkIF9fc3Bp
+bl95aWVsZChhcmNoX3NwaW5sb2NrX3QgKmxvY2spCj4gwqAJCWdldF9oYXJkX3NtcF9wcm9jZXNz
+b3JfaWQoaG9sZGVyX2NwdSksIHlpZWxkX2NvdW50KTsKPiDCoH0KPiDCoEVYUE9SVF9TWU1CT0xf
+R1BMKF9fc3Bpbl95aWVsZCk7Cj4gKyNlbmRpZgo+IMKgCj4gwqAvKgo+IMKgICogV2FpdGluZyBm
+b3IgYSByZWFkIGxvY2sgb3IgYSB3cml0ZSBsb2NrIG9uIGEgcndsb2NrLi4uCj4gQEAgLTY5LDYg
+KzcxLDcgQEAgdm9pZCBfX3J3X3lpZWxkKGFyY2hfcndsb2NrX3QgKnJ3KQo+IMKgfQo+IMKgI2Vu
+ZGlmCj4gwqAKPiArI2lmbmRlZiBDT05GSUdfUVVFVUVEX1NQSU5MT0NLUwo+IMKgdm9pZCBhcmNo
+X3NwaW5fdW5sb2NrX3dhaXQoYXJjaF9zcGlubG9ja190ICpsb2NrKQo+IMKgewo+IMKgCXNtcF9t
+YigpOwo+IEBAIC04NCwzICs4Nyw0IEBAIHZvaWQgYXJjaF9zcGluX3VubG9ja193YWl0KGFyY2hf
+c3BpbmxvY2tfdCAqbG9jaykKPiDCoH0KPiDCoAo+IMKgRVhQT1JUX1NZTUJPTChhcmNoX3NwaW5f
+dW5sb2NrX3dhaXQpOwo+ICsjZW5kaWYKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
+QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
+Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
