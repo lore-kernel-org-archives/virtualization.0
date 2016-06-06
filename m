@@ -1,11 +1,17 @@
-From: Aaron Conole <aconole@redhat.com>
-Subject: [PATCH v3] virtio-net: Add initial MTU advice feature
-Date: Fri,  3 Jun 2016 16:57:12 -0400
-Message-ID: <1464987432-1458-1-git-send-email-aconole__21335.4904474274$1464987465$gmane$org@redhat.com>
+From: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Subject: Re: [PATCH v3] tools/virtio/ringtest: fix run-on-all.sh to work
+	without /dev/cpu
+Date: Mon, 6 Jun 2016 09:55:59 +0300
+Message-ID: <201606060656.u566rhst006487@mx0a-001b2d01.pphosted.com>
+References: <20160504101454.2b62e974.cornelia.huck@de.ibm.com>
+	<1462356950-3278-1-git-send-email-rppt@linux.vnet.ibm.com>
+	<20160524124133.GC4725@rapoport-lnx>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20160524124133.GC4725@rapoport-lnx>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,79 +21,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This commit adds the feature bit and associated mtu device entry for the
-virtio network device.  When a virtio device comes up, it checks the
-feature bit for the VIRTIO_NET_F_MTU feature.  If such feature bit is
-enabled, the driver will read the advised MTU and use it as the initial
-value.
+Ping?
 
-Signed-off-by: Aaron Conole <aconole@redhat.com>
----
-v2->v3:
-* Added a check for the MTU, and a bit clear for it being out of range.
-
- drivers/net/virtio_net.c        | 10 ++++++++++
- include/uapi/linux/virtio_net.h |  3 +++
- 2 files changed, 13 insertions(+)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index e0638e5..192f321 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1780,6 +1780,7 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	struct net_device *dev;
- 	struct virtnet_info *vi;
- 	u16 max_queue_pairs;
-+	int mtu;
- 
- 	if (!vdev->config->get) {
- 		dev_err(&vdev->dev, "%s failure: config access disabled\n",
-@@ -1896,6 +1897,14 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_VQ))
- 		vi->has_cvq = true;
- 
-+	if (virtio_has_feature(vdev, VIRTIO_NET_F_MTU)) {
-+		mtu = virtio_cread16(vdev,
-+				     offsetof(struct virtio_net_config,
-+					      mtu));
-+		if (virtnet_change_mtu(dev, mtu))
-+			__virtio_clear_bit(vdev, VIRTIO_NET_F_MTU);
-+	}
-+
- 	if (vi->any_header_sg)
- 		dev->needed_headroom = vi->hdr_len;
- 
-@@ -2067,6 +2076,7 @@ static unsigned int features[] = {
- 	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ,
- 	VIRTIO_NET_F_CTRL_MAC_ADDR,
- 	VIRTIO_F_ANY_LAYOUT,
-+	VIRTIO_NET_F_MTU,
- };
- 
- static struct virtio_driver virtio_net_driver = {
-diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-index ec32293..1ab4ea6 100644
---- a/include/uapi/linux/virtio_net.h
-+++ b/include/uapi/linux/virtio_net.h
-@@ -55,6 +55,7 @@
- #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
- 					 * Steering */
- #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
-+#define VIRTIO_NET_F_MTU 25	/* Initial MTU advice */
- 
- #ifndef VIRTIO_NET_NO_LEGACY
- #define VIRTIO_NET_F_GSO	6	/* Host handles pkts w/ any GSO type */
-@@ -73,6 +74,8 @@ struct virtio_net_config {
- 	 * Legal values are between 1 and 0x8000
- 	 */
- 	__u16 max_virtqueue_pairs;
-+	/* Default maximum transmit unit advice */
-+	__u16 mtu;
- } __attribute__((packed));
- 
- /*
--- 
-2.5.5
+On Tue, May 24, 2016 at 03:41:33PM +0300, Mike Rapoport wrote:
+> Michael,
+> 
+> Any updates on this?
+> 
+> On Wed, May 04, 2016 at 01:15:50PM +0300, Mike Rapoport wrote:
+> > /dev/cpu is only available on x86 with certain modules (e.g. msr) enabled.
+> > Using lscpu to get processors count is more portable.
+> > 
+> > Signed-off-by: Mike Rapoport <rppt@linux.vnet.ibm.com>
+> > ---
+> > v3: simplify by using lscpu -p=cpu 
+> > v2: use lspcu instead of /proc/cpuinfo as per Cornelia's suggestion
+> > 
+> >  tools/virtio/ringtest/run-on-all.sh | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/tools/virtio/ringtest/run-on-all.sh b/tools/virtio/ringtest/run-on-all.sh
+> > index 52b0f71..2e69ca8 100755
+> > --- a/tools/virtio/ringtest/run-on-all.sh
+> > +++ b/tools/virtio/ringtest/run-on-all.sh
+> > @@ -3,10 +3,10 @@
+> >  #use last CPU for host. Why not the first?
+> >  #many devices tend to use cpu0 by default so
+> >  #it tends to be busier
+> > -HOST_AFFINITY=$(cd /dev/cpu; ls|grep -v '[a-z]'|sort -n|tail -1)
+> > +HOST_AFFINITY=$(lscpu -p=cpu | tail -1)
+> > 
+> >  #run command on all cpus
+> > -for cpu in $(cd /dev/cpu; ls|grep -v '[a-z]'|sort -n);
+> > +for cpu in $(seq 0 $HOST_AFFINITY)
+> >  do
+> >  	#Don't run guest and host on same CPU
+> >  	#It actually works ok if using signalling
+> > -- 
+> > 1.9.1
+> > 
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe kvm" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
