@@ -1,18 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3] tools/virtio/ringtest: fix run-on-all.sh to work
-	without /dev/cpu
-Date: Mon, 6 Jun 2016 16:57:17 +0300
-Message-ID: <20160606165656-mutt-send-email-mst__6513.30943587727$1465221462$gmane$org@redhat.com>
-References: <20160504101454.2b62e974.cornelia.huck@de.ibm.com>
-	<1462356950-3278-1-git-send-email-rppt@linux.vnet.ibm.com>
-	<20160524124133.GC4725@rapoport-lnx>
-	<201606060656.u566rhsn006487@mx0a-001b2d01.pphosted.com>
+From: Gustavo Padovan <gustavo@padovan.org>
+Subject: [PATCH RESEND 06/14] drm/virtio: use drm_crtc_send_vblank_event()
+Date: Mon,  6 Jun 2016 11:41:37 -0300
+Message-ID: <1465224105-21485-6-git-send-email-gustavo@padovan.org>
+References: <1465224105-21485-1-git-send-email-gustavo@padovan.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <201606060656.u566rhsn006487@mx0a-001b2d01.pphosted.com>
+In-Reply-To: <1465224105-21485-1-git-send-email-gustavo@padovan.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,56 +17,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Gustavo Padovan <gustavo.padovan@collabora.co.uk>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-It's queued in my tree and will be merged shortly.
-Thanks!
+From: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
 
-On Mon, Jun 06, 2016 at 09:55:59AM +0300, Mike Rapoport wrote:
-> Ping?
-> 
-> On Tue, May 24, 2016 at 03:41:33PM +0300, Mike Rapoport wrote:
-> > Michael,
-> > 
-> > Any updates on this?
-> > 
-> > On Wed, May 04, 2016 at 01:15:50PM +0300, Mike Rapoport wrote:
-> > > /dev/cpu is only available on x86 with certain modules (e.g. msr) enabled.
-> > > Using lscpu to get processors count is more portable.
-> > > 
-> > > Signed-off-by: Mike Rapoport <rppt@linux.vnet.ibm.com>
-> > > ---
-> > > v3: simplify by using lscpu -p=cpu 
-> > > v2: use lspcu instead of /proc/cpuinfo as per Cornelia's suggestion
-> > > 
-> > >  tools/virtio/ringtest/run-on-all.sh | 4 ++--
-> > >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > > 
-> > > diff --git a/tools/virtio/ringtest/run-on-all.sh b/tools/virtio/ringtest/run-on-all.sh
-> > > index 52b0f71..2e69ca8 100755
-> > > --- a/tools/virtio/ringtest/run-on-all.sh
-> > > +++ b/tools/virtio/ringtest/run-on-all.sh
-> > > @@ -3,10 +3,10 @@
-> > >  #use last CPU for host. Why not the first?
-> > >  #many devices tend to use cpu0 by default so
-> > >  #it tends to be busier
-> > > -HOST_AFFINITY=$(cd /dev/cpu; ls|grep -v '[a-z]'|sort -n|tail -1)
-> > > +HOST_AFFINITY=$(lscpu -p=cpu | tail -1)
-> > > 
-> > >  #run command on all cpus
-> > > -for cpu in $(cd /dev/cpu; ls|grep -v '[a-z]'|sort -n);
-> > > +for cpu in $(seq 0 $HOST_AFFINITY)
-> > >  do
-> > >  	#Don't run guest and host on same CPU
-> > >  	#It actually works ok if using signalling
-> > > -- 
-> > > 1.9.1
-> > > 
-> > 
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe kvm" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > 
+Replace the legacy drm_send_vblank_event() with the new helper function.
+
+Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
+---
+ drivers/gpu/drm/virtio/virtgpu_display.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index d4305da..ba5e11b 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -156,7 +156,7 @@ static int virtio_gpu_page_flip(struct drm_crtc *crtc,
+ 
+ 	if (event) {
+ 		spin_lock_irqsave(&crtc->dev->event_lock, irqflags);
+-		drm_send_vblank_event(crtc->dev, -1, event);
++		drm_crtc_send_vblank_event(crtc, event);
+ 		spin_unlock_irqrestore(&crtc->dev->event_lock, irqflags);
+ 	}
+ 
+-- 
+2.5.5
