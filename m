@@ -1,19 +1,19 @@
-From: Peter Zijlstra <peterz@infradead.org>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Subject: Re: [PATCH v5 1/6] qspinlock: powerpc support qspinlock
-Date: Mon, 6 Jun 2016 17:59:07 +0200
-Message-ID: <20160606155907.GH30909@twins.programming.kicks-ass.net>
+Date: Tue, 07 Jun 2016 07:41:37 +1000
+Message-ID: <1465249297.4274.72.camel@kernel.crashing.org>
 References: <1464859370-5162-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 	<1464859370-5162-3-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 	<1464917520.26773.11.camel@kernel.crashing.org>
 	<1464917548.26773.12.camel@au1.ibm.com>
 	<57510353.1020209@linux.vnet.ibm.com>
 	<1464928427.26773.26.camel@kernel.crashing.org>
+	<20160606155907.GH30909@twins.programming.kicks-ass.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1464928427.26773.26.camel@kernel.crashing.org>
+In-Reply-To: <20160606155907.GH30909@twins.programming.kicks-ass.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,36 +23,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Peter Zijlstra <peterz@infradead.org>
 Cc: mpe@ellerman.id.au, linux-kernel@vger.kernel.org, waiman.long@hpe.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, xinhui <xinhui.pan@linux.vnet.ibm.com>, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jun 03, 2016 at 02:33:47PM +1000, Benjamin Herrenschmidt wrote:
-> =A0- For the above, can you show (or describe) where the qspinlock
-> =A0 =A0improves things compared to our current locks.
-
-So currently PPC has a fairly straight forward test-and-set spinlock
-IIRC. You have this because LPAR/virt muck and lock holder preemption
-issues etc..
-
-qspinlock is 1) a fair lock (like ticket locks) and 2) provides
-out-of-word spinning, reducing cacheline pressure.
-
-Esp. on multi-socket x86 we saw the out-of-word spinning being a big win
-over our ticket locks.
-
-And fairness, brought to us by the ticket locks a long time ago,
-eliminated starvation issues we had, where a spinner local to the holder
-would 'always' win from a spinner further away. So under heavy enough
-local contention, the spinners on 'remote' CPUs would 'never' get to own
-the lock.
-
-pv-qspinlock tries to preserve the fairness while allowing limited lock
-stealing and explicitly managing which vcpus to wake.
-
->	While there's
-> =A0 =A0theory and to some extent practice on x86, it would be nice to
-> =A0 =A0validate the effects on POWER.
-
-Right; so that will have to be from benchmarks which I cannot help you
-with ;-)
+T24gTW9uLCAyMDE2LTA2LTA2IGF0IDE3OjU5ICswMjAwLCBQZXRlciBaaWpsc3RyYSB3cm90ZToK
+PiBPbiBGcmksIEp1biAwMywgMjAxNiBhdCAwMjozMzo0N1BNICsxMDAwLCBCZW5qYW1pbiBIZXJy
+ZW5zY2htaWR0IHdyb3RlOgo+ID4gCj4gPiDCoC0gRm9yIHRoZSBhYm92ZSwgY2FuIHlvdSBzaG93
+IChvciBkZXNjcmliZSkgd2hlcmUgdGhlIHFzcGlubG9jawo+ID4gwqAgwqBpbXByb3ZlcyB0aGlu
+Z3MgY29tcGFyZWQgdG8gb3VyIGN1cnJlbnQgbG9ja3MuCj4gU28gY3VycmVudGx5IFBQQyBoYXMg
+YSBmYWlybHkgc3RyYWlnaHQgZm9yd2FyZCB0ZXN0LWFuZC1zZXQgc3BpbmxvY2sKPiBJSVJDLiBZ
+b3UgaGF2ZSB0aGlzIGJlY2F1c2UgTFBBUi92aXJ0IG11Y2sgYW5kIGxvY2sgaG9sZGVyIHByZWVt
+cHRpb24KPiBpc3N1ZXMgZXRjLi4KPiBxc3BpbmxvY2sgaXMgMSkgYSBmYWlyIGxvY2sgKGxpa2Ug
+dGlja2V0IGxvY2tzKSBhbmQgMikgcHJvdmlkZXMKPiBvdXQtb2Ytd29yZCBzcGlubmluZywgcmVk
+dWNpbmcgY2FjaGVsaW5lIHByZXNzdXJlLgoKVGhhbmtzIFBldGVyLiBJIHRoaW5rIEkgdW5kZXJz
+dGFuZCB0aGUgdGhlb3J5LCBidXQgSSdkIGxpa2Ugc2VlIGl0CnRyYW5zbGF0ZSBpbnRvIHJlYWwg
+bnVtYmVycy4KCj4gRXNwLiBvbiBtdWx0aS1zb2NrZXQgeDg2IHdlIHNhdyB0aGUgb3V0LW9mLXdv
+cmQgc3Bpbm5pbmcgYmVpbmcgYSBiaWcgd2luCj4gb3ZlciBvdXIgdGlja2V0IGxvY2tzLgo+IAo+
+IEFuZCBmYWlybmVzcywgYnJvdWdodCB0byB1cyBieSB0aGUgdGlja2V0IGxvY2tzIGEgbG9uZyB0
+aW1lIGFnbywKPiBlbGltaW5hdGVkIHN0YXJ2YXRpb24gaXNzdWVzIHdlIGhhZCwgd2hlcmUgYSBz
+cGlubmVyIGxvY2FsIHRvIHRoZSBob2xkZXIKPiB3b3VsZCAnYWx3YXlzJyB3aW4gZnJvbSBhIHNw
+aW5uZXIgZnVydGhlciBhd2F5LiBTbyB1bmRlciBoZWF2eSBlbm91Z2gKPiBsb2NhbCBjb250ZW50
+aW9uLCB0aGUgc3Bpbm5lcnMgb24gJ3JlbW90ZScgQ1BVcyB3b3VsZCAnbmV2ZXInIGdldCB0byBv
+d24KPiB0aGUgbG9jay4KCkkgdGhpbmsgb3VyIEhXIGhhcyB0d2Vha3MgdG8gYXZvaWQgdGhhdCBm
+cm9tIGhhcHBlbmluZyB3aXRoIHRoZSBzaW1wbGUKbG9ja3MgaW4gdGhlIHVuZGVybHlpbmcgbGwv
+c2MgaW1wbGVtZW50YXRpb24uIEluIGFueSBjYXNlLCB3aGF0IEknbQphc2tpbmcgaXMgYWN0dWFs
+IHRlc3RzIHRvIHZlcmlmeSBpdCB3b3JrcyBhcyBleHBlY3RlZCBmb3IgdXMuCgo+IHB2LXFzcGlu
+bG9jayB0cmllcyB0byBwcmVzZXJ2ZSB0aGUgZmFpcm5lc3Mgd2hpbGUgYWxsb3dpbmcgbGltaXRl
+ZCBsb2NrCj4gc3RlYWxpbmcgYW5kIGV4cGxpY2l0bHkgbWFuYWdpbmcgd2hpY2ggdmNwdXMgdG8g
+d2FrZS4KClJpZ2h0Lgo+ID4gCj4gPiAJV2hpbGUgdGhlcmUncwo+ID4gwqAgwqB0aGVvcnkgYW5k
+IHRvIHNvbWUgZXh0ZW50IHByYWN0aWNlIG9uIHg4NiwgaXQgd291bGQgYmUgbmljZSB0bwo+ID4g
+wqAgwqB2YWxpZGF0ZSB0aGUgZWZmZWN0cyBvbiBQT1dFUi4KPiBSaWdodDsgc28gdGhhdCB3aWxs
+IGhhdmUgdG8gYmUgZnJvbSBiZW5jaG1hcmtzIHdoaWNoIEkgY2Fubm90IGhlbHAgeW91Cj4gd2l0
+aCA7LSkKClByZWNpc2VseSA6LSkgVGhpcyBpcyB3aGF0IEkgd2FzIGFza2luZyBmb3IgOy0pCgpD
+aGVlcnMsCkJlbi4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
+eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
+bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
