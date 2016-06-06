@@ -1,13 +1,19 @@
-From: Gustavo Padovan <gustavo@padovan.org>
-Subject: [PATCH RESEND 06/14] drm/virtio: use drm_crtc_send_vblank_event()
-Date: Mon,  6 Jun 2016 11:41:37 -0300
-Message-ID: <1465224105-21485-6-git-send-email-gustavo@padovan.org>
-References: <1465224105-21485-1-git-send-email-gustavo@padovan.org>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v5 1/6] qspinlock: powerpc support qspinlock
+Date: Mon, 6 Jun 2016 17:59:07 +0200
+Message-ID: <20160606155907.GH30909@twins.programming.kicks-ass.net>
+References: <1464859370-5162-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+	<1464859370-5162-3-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+	<1464917520.26773.11.camel@kernel.crashing.org>
+	<1464917548.26773.12.camel@au1.ibm.com>
+	<57510353.1020209@linux.vnet.ibm.com>
+	<1464928427.26773.26.camel@kernel.crashing.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1465224105-21485-1-git-send-email-gustavo@padovan.org>
+Content-Disposition: inline
+In-Reply-To: <1464928427.26773.26.camel@kernel.crashing.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,31 +23,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Gustavo Padovan <gustavo.padovan@collabora.co.uk>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: mpe@ellerman.id.au, linux-kernel@vger.kernel.org, waiman.long@hpe.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, xinhui <xinhui.pan@linux.vnet.ibm.com>, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
+On Fri, Jun 03, 2016 at 02:33:47PM +1000, Benjamin Herrenschmidt wrote:
+> =A0- For the above, can you show (or describe) where the qspinlock
+> =A0 =A0improves things compared to our current locks.
 
-Replace the legacy drm_send_vblank_event() with the new helper function.
+So currently PPC has a fairly straight forward test-and-set spinlock
+IIRC. You have this because LPAR/virt muck and lock holder preemption
+issues etc..
 
-Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
----
- drivers/gpu/drm/virtio/virtgpu_display.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+qspinlock is 1) a fair lock (like ticket locks) and 2) provides
+out-of-word spinning, reducing cacheline pressure.
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index d4305da..ba5e11b 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -156,7 +156,7 @@ static int virtio_gpu_page_flip(struct drm_crtc *crtc,
- 
- 	if (event) {
- 		spin_lock_irqsave(&crtc->dev->event_lock, irqflags);
--		drm_send_vblank_event(crtc->dev, -1, event);
-+		drm_crtc_send_vblank_event(crtc, event);
- 		spin_unlock_irqrestore(&crtc->dev->event_lock, irqflags);
- 	}
- 
--- 
-2.5.5
+Esp. on multi-socket x86 we saw the out-of-word spinning being a big win
+over our ticket locks.
+
+And fairness, brought to us by the ticket locks a long time ago,
+eliminated starvation issues we had, where a spinner local to the holder
+would 'always' win from a spinner further away. So under heavy enough
+local contention, the spinners on 'remote' CPUs would 'never' get to own
+the lock.
+
+pv-qspinlock tries to preserve the fairness while allowing limited lock
+stealing and explicitly managing which vcpus to wake.
+
+>	While there's
+> =A0 =A0theory and to some extent practice on x86, it would be nice to
+> =A0 =A0validate the effects on POWER.
+
+Right; so that will have to be from benchmarks which I cannot help you
+with ;-)
