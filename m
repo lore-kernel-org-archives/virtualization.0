@@ -1,15 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH V3 2/2] vhost_net: conditionally enable tx polling
-Date: Tue, 7 Jun 2016 15:26:31 +0300
-Message-ID: <20160607152407-mutt-send-email-mst@redhat.com>
-References: <1464760594-30326-1-git-send-email-jasowang@redhat.com>
-	<1464760594-30326-3-git-send-email-jasowang@redhat.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH v2 01/20] drm/atomic: Fix remaining places where
+	!funcs->best_encoder is valid
+Date: Tue, 7 Jun 2016 16:39:34 +0200
+Message-ID: <20160607143934.GA3363__48151.4382096522$1465310411$gmane$org@phenom.ffwll.local>
+References: <1465300095-16971-1-git-send-email-boris.brezillon@free-electrons.com>
+	<1465300095-16971-2-git-send-email-boris.brezillon@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1464760594-30326-3-git-send-email-jasowang@redhat.com>
+In-Reply-To: <1465300095-16971-2-git-send-email-boris.brezillon@free-electrons.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,60 +20,103 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Boris Brezillon <boris.brezillon@free-electrons.com>
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Heiko Stuebner <heiko@sntech.de>, David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Eric Anholt <eric@anholt.net>, Thierry Reding <thierry.reding@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Daniel Vetter <daniel.vetter@intel.com>, Alexandre Courbot <gnurou@gmail.com>, linux-samsung-soc@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, Alexey Brodkin <abrodkin@synopsys.com>, Kyungmin Park <kyungmin.park@samsung.com>, linux-rockchip@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>, Kukjin Kim <kgene@kernel.org>, linux-tegra@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 01, 2016 at 01:56:34AM -0400, Jason Wang wrote:
-> We always poll tx for socket, this is sub optimal since:
+On Tue, Jun 07, 2016 at 01:47:56PM +0200, Boris Brezillon wrote:
+> Adapt drm_pick_crtcs() and update_connector_routing() to fallback to
+> drm_atomic_helper_best_encoder() if funcs->best_encoder() is NULL so
+> that DRM drivers can leave this hook unassigned if they know they want
+> to use drm_atomic_helper_best_encoder().
 > 
-> - it will be only used when we exceed the sndbuf of the socket.
-> - since we use two independent polls for tx and vq, this will slightly
->   increase the waitqueue traversing time and more important, vhost
->   could not benefit from commit
->   9e641bdcfa4ef4d6e2fbaa59c1be0ad5d1551fd5 ("net-tun: restructure
->   tun_do_read for better sleep/wakeup efficiency") even if we've
->   stopped rx polling during handle_rx since tx poll were still left in
->   the waitqueue.
+> Update the vtables documentation accordingly.
 > 
-> Fix this by conditionally enable tx polling only when -EAGAIN were
-> met.
-> 
-> Test shows about 8% improvement on guest rx pps.
-> 
-> Before: ~1350000
-> After:  ~1460000
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+
+Applied to drm-misc, thanks. I think I'll wait with the driver patches
+until next week or so.
+-Daniel
+
 > ---
->  drivers/vhost/net.c | 3 +++
->  1 file changed, 3 insertions(+)
+>  drivers/gpu/drm/drm_atomic_helper.c      |  4 +++-
+>  drivers/gpu/drm/drm_fb_helper.c          | 13 ++++++++++++-
+>  include/drm/drm_modeset_helper_vtables.h | 10 ++++++++--
+>  3 files changed, 23 insertions(+), 4 deletions(-)
 > 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 1d3e45f..e75ffcc 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -378,6 +378,7 @@ static void handle_tx(struct vhost_net *net)
+> diff --git a/drivers/gpu/drm/drm_atomic_helper.c b/drivers/gpu/drm/drm_atomic_helper.c
+> index f6a3350..849d029 100644
+> --- a/drivers/gpu/drm/drm_atomic_helper.c
+> +++ b/drivers/gpu/drm/drm_atomic_helper.c
+> @@ -300,8 +300,10 @@ update_connector_routing(struct drm_atomic_state *state,
+>  	if (funcs->atomic_best_encoder)
+>  		new_encoder = funcs->atomic_best_encoder(connector,
+>  							 connector_state);
+> -	else
+> +	else if (funcs->best_encoder)
+>  		new_encoder = funcs->best_encoder(connector);
+> +	else
+> +		new_encoder = drm_atomic_helper_best_encoder(connector);
+>  
+>  	if (!new_encoder) {
+>  		DRM_DEBUG_ATOMIC("No suitable encoder found for [CONNECTOR:%d:%s]\n",
+> diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
+> index 7c2eb75..d44389a 100644
+> --- a/drivers/gpu/drm/drm_fb_helper.c
+> +++ b/drivers/gpu/drm/drm_fb_helper.c
+> @@ -2000,7 +2000,18 @@ static int drm_pick_crtcs(struct drm_fb_helper *fb_helper,
+>  		my_score++;
+>  
+>  	connector_funcs = connector->helper_private;
+> -	encoder = connector_funcs->best_encoder(connector);
+> +
+> +	/*
+> +	 * If the DRM device implements atomic hooks and ->best_encoder() is
+> +	 * NULL we fallback to the default drm_atomic_helper_best_encoder()
+> +	 * helper.
+> +	 */
+> +	if (fb_helper->dev->mode_config.funcs->atomic_commit &&
+> +	    !connector_funcs->best_encoder)
+> +		encoder = drm_atomic_helper_best_encoder(connector);
+> +	else
+> +		encoder = connector_funcs->best_encoder(connector);
+> +
+>  	if (!encoder)
 >  		goto out;
 >  
->  	vhost_disable_notify(&net->dev, vq);
-> +	vhost_net_disable_vq(net, vq);
->  
->  	hdr_size = nvq->vhost_hlen;
->  	zcopy = nvq->ubufs;
-> @@ -459,6 +460,8 @@ static void handle_tx(struct vhost_net *net)
->  					% UIO_MAXIOV;
->  			}
->  			vhost_discard_vq_desc(vq, 1);
-> +			if (err == -EAGAIN)
-> +				vhost_net_enable_vq(net, vq);
->  			break;
->  		}
->  		if (err != len)
-
-This seems rather risky. What if TX failed for some other reason?
-Polling won't ever be re-enabled ...
-
-
+> diff --git a/include/drm/drm_modeset_helper_vtables.h b/include/drm/drm_modeset_helper_vtables.h
+> index d4619dc..4e7a53b 100644
+> --- a/include/drm/drm_modeset_helper_vtables.h
+> +++ b/include/drm/drm_modeset_helper_vtables.h
+> @@ -736,6 +736,11 @@ struct drm_connector_helper_funcs {
+>  	 * inspect dynamic configuration state should instead use
+>  	 * @atomic_best_encoder.
+>  	 *
+> +	 * You can leave this function to NULL if the connector is only
+> +	 * attached to a single encoder and you are using the atomic helpers.
+> +	 * In this case, the core will call drm_atomic_helper_best_encoder()
+> +	 * for you.
+> +	 *
+>  	 * RETURNS:
+>  	 *
+>  	 * Encoder that should be used for the given connector and connector
+> @@ -752,8 +757,9 @@ struct drm_connector_helper_funcs {
+>  	 * need to select the best encoder depending upon the desired
+>  	 * configuration and can't select it statically.
+>  	 *
+> -	 * This function is used by drm_atomic_helper_check_modeset() and either
+> -	 * this or @best_encoder is required.
+> +	 * This function is used by drm_atomic_helper_check_modeset().
+> +	 * If it is not implemented, the core will fallback to @best_encoder
+> +	 * (or drm_atomic_helper_best_encoder() if @best_encoder is NULL).
+>  	 *
+>  	 * NOTE:
+>  	 *
 > -- 
-> 1.8.3.1
+> 2.7.4
+> 
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
