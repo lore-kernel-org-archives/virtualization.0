@@ -1,8 +1,8 @@
 From: Boris Brezillon <boris.brezillon@free-electrons.com>
-Subject: [PATCH v2 18/20] drm/bridge: ptn3460: Rely on the default
+Subject: [PATCH v2 17/20] drm/bridge: anx78xx: Rely on the default
 	->best_encoder() behavior
-Date: Tue,  7 Jun 2016 13:48:13 +0200
-Message-ID: <1465300095-16971-19-git-send-email-boris.brezillon__10991.6084948511$1465300355$gmane$org@free-electrons.com>
+Date: Tue,  7 Jun 2016 13:48:12 +0200
+Message-ID: <1465300095-16971-18-git-send-email-boris.brezillon__2494.30268672786$1465300373$gmane$org@free-electrons.com>
 References: <1465300095-16971-1-git-send-email-boris.brezillon@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -28,29 +28,29 @@ and let the core call drm_atomic_helper_best_encoder() for us.
 
 Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
 ---
- drivers/gpu/drm/bridge/nxp-ptn3460.c | 8 --------
+ drivers/gpu/drm/bridge/analogix-anx78xx.c | 8 --------
  1 file changed, 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/nxp-ptn3460.c b/drivers/gpu/drm/bridge/nxp-ptn3460.c
-index 7ecd59f..93f3dac 100644
---- a/drivers/gpu/drm/bridge/nxp-ptn3460.c
-+++ b/drivers/gpu/drm/bridge/nxp-ptn3460.c
-@@ -235,16 +235,8 @@ out:
+diff --git a/drivers/gpu/drm/bridge/analogix-anx78xx.c b/drivers/gpu/drm/bridge/analogix-anx78xx.c
+index d087b05..f9f03bc 100644
+--- a/drivers/gpu/drm/bridge/analogix-anx78xx.c
++++ b/drivers/gpu/drm/bridge/analogix-anx78xx.c
+@@ -986,16 +986,8 @@ unlock:
  	return num_modes;
  }
  
--static struct drm_encoder *ptn3460_best_encoder(struct drm_connector *connector)
+-static struct drm_encoder *anx78xx_best_encoder(struct drm_connector *connector)
 -{
--	struct ptn3460_bridge *ptn_bridge = connector_to_ptn3460(connector);
+-	struct anx78xx *anx78xx = connector_to_anx78xx(connector);
 -
--	return ptn_bridge->bridge.encoder;
+-	return anx78xx->bridge.encoder;
 -}
 -
- static const struct drm_connector_helper_funcs ptn3460_connector_helper_funcs = {
- 	.get_modes = ptn3460_get_modes,
--	.best_encoder = ptn3460_best_encoder,
+ static const struct drm_connector_helper_funcs anx78xx_connector_helper_funcs = {
+ 	.get_modes = anx78xx_get_modes,
+-	.best_encoder = anx78xx_best_encoder,
  };
  
- static enum drm_connector_status ptn3460_detect(struct drm_connector *connector,
+ static enum drm_connector_status anx78xx_detect(struct drm_connector *connector,
 -- 
 2.7.4
