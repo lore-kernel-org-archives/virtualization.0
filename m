@@ -1,14 +1,14 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH RESEND 06/14] drm/virtio: use drm_crtc_send_vblank_event()
-Date: Tue, 07 Jun 2016 10:39:15 +0200
-Message-ID: <1465288755.14901.4.camel__28176.6481152319$1465288773$gmane$org@redhat.com>
-References: <1465224105-21485-1-git-send-email-gustavo@padovan.org>
-	<1465224105-21485-6-git-send-email-gustavo@padovan.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3] virtio-net: Add initial MTU advice feature
+Date: Tue, 7 Jun 2016 12:21:48 +0300
+Message-ID: <20160607121706-mutt-send-email-mst__39356.6837221899$1465291324$gmane$org@redhat.com>
+References: <1464987432-1458-1-git-send-email-aconole@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1465224105-21485-6-git-send-email-gustavo@padovan.org>
+Content-Disposition: inline
+In-Reply-To: <1464987432-1458-1-git-send-email-aconole@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,38 +18,88 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gustavo Padovan <gustavo@padovan.org>
-Cc: David Airlie <airlied@linux.ie>, Gustavo Padovan <gustavo.padovan@collabora.co.uk>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open
-	list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: Aaron Conole <aconole@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mo, 2016-06-06 at 11:41 -0300, Gustavo Padovan wrote:
-> From: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
+On Fri, Jun 03, 2016 at 04:57:12PM -0400, Aaron Conole wrote:
+> This commit adds the feature bit and associated mtu device entry for the
+> virtio network device.  When a virtio device comes up, it checks the
+> feature bit for the VIRTIO_NET_F_MTU feature.  If such feature bit is
+> enabled, the driver will read the advised MTU and use it as the initial
+> value.
 > 
-> Replace the legacy drm_send_vblank_event() with the new helper function.
-> 
-> Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
+> Signed-off-by: Aaron Conole <aconole@redhat.com>
 > ---
->  drivers/gpu/drm/virtio/virtgpu_display.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> v2->v3:
+> * Added a check for the MTU, and a bit clear for it being out of range.
 > 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-> index d4305da..ba5e11b 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_display.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-> @@ -156,7 +156,7 @@ static int virtio_gpu_page_flip(struct drm_crtc *crtc,
+>  drivers/net/virtio_net.c        | 10 ++++++++++
+>  include/uapi/linux/virtio_net.h |  3 +++
+>  2 files changed, 13 insertions(+)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index e0638e5..192f321 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -1780,6 +1780,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	struct net_device *dev;
+>  	struct virtnet_info *vi;
+>  	u16 max_queue_pairs;
+> +	int mtu;
 >  
->  	if (event) {
->  		spin_lock_irqsave(&crtc->dev->event_lock, irqflags);
-> -		drm_send_vblank_event(crtc->dev, -1, event);
-> +		drm_crtc_send_vblank_event(crtc, event);
->  		spin_unlock_irqrestore(&crtc->dev->event_lock, irqflags);
->  	}
+>  	if (!vdev->config->get) {
+>  		dev_err(&vdev->dev, "%s failure: config access disabled\n",
+> @@ -1896,6 +1897,14 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_VQ))
+>  		vi->has_cvq = true;
+>  
+> +	if (virtio_has_feature(vdev, VIRTIO_NET_F_MTU)) {
+> +		mtu = virtio_cread16(vdev,
+> +				     offsetof(struct virtio_net_config,
+> +					      mtu));
+> +		if (virtnet_change_mtu(dev, mtu))
+> +			__virtio_clear_bit(vdev, VIRTIO_NET_F_MTU);
+> +	}
+> +
+>  	if (vi->any_header_sg)
+>  		dev->needed_headroom = vi->hdr_len;
+>  
+> @@ -2067,6 +2076,7 @@ static unsigned int features[] = {
+>  	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ,
+>  	VIRTIO_NET_F_CTRL_MAC_ADDR,
+>  	VIRTIO_F_ANY_LAYOUT,
+> +	VIRTIO_NET_F_MTU,
+>  };
+>  
+>  static struct virtio_driver virtio_net_driver = {
+> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+> index ec32293..1ab4ea6 100644
+> --- a/include/uapi/linux/virtio_net.h
+> +++ b/include/uapi/linux/virtio_net.h
+> @@ -55,6 +55,7 @@
+>  #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
+>  					 * Steering */
+>  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+> +#define VIRTIO_NET_F_MTU 25	/* Initial MTU advice */
+>  
+>  #ifndef VIRTIO_NET_NO_LEGACY
+>  #define VIRTIO_NET_F_GSO	6	/* Host handles pkts w/ any GSO type */
 
-Daniel Vetter has a series in flight which drops the whole
-virtio_gpu_page_flip function in favor of drm_atomic_helper_page_flip.
 
-https://lists.freedesktop.org/archives/dri-devel/2016-May/108699.html
+Oops I just notices this conflicts with virtio spec which says
+devices must only use features up to 24.
+Please post a follow-up patch changing this to bit 3.
 
-cheers,
-  Gerd
+
+> @@ -73,6 +74,8 @@ struct virtio_net_config {
+>  	 * Legal values are between 1 and 0x8000
+>  	 */
+>  	__u16 max_virtqueue_pairs;
+> +	/* Default maximum transmit unit advice */
+> +	__u16 mtu;
+>  } __attribute__((packed));
+>  
+>  /*
+> -- 
+> 2.5.5
