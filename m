@@ -1,8 +1,8 @@
 From: Boris Brezillon <boris.brezillon@free-electrons.com>
-Subject: [PATCH v2 15/20] drm: virtgpu: Rely on the default ->best_encoder()
+Subject: [PATCH v2 14/20] drm: vc4: Rely on the default ->best_encoder()
 	behavior
-Date: Tue,  7 Jun 2016 13:48:10 +0200
-Message-ID: <1465300095-16971-16-git-send-email-boris.brezillon__12633.3454194993$1465300339$gmane$org@free-electrons.com>
+Date: Tue,  7 Jun 2016 13:48:09 +0200
+Message-ID: <1465300095-16971-15-git-send-email-boris.brezillon__9792.78870295293$1465300339$gmane$org@free-electrons.com>
 References: <1465300095-16971-1-git-send-email-boris.brezillon@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,43 +22,70 @@ To: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, dri-devel@
 Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Heiko Stuebner <heiko@sntech.de>, Stefan Agner <stefan@agner.ch>, virtualization@lists.linux-foundation.org, Eric Anholt <eric@anholt.net>, Thierry Reding <thierry.reding@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-samsung-soc@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, Alexey Brodkin <abrodkin@synopsys.com>, Kyungmin Park <kyungmin.park@samsung.com>, linux-rockchip@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>, Kukjin Kim <kgene@kernel.org>, linux-tegra@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>, Inki Dae <inki.dae@sam>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The virtgpu output exposes a 1:1 relationship between connectors and
-encoders and the driver is relying on the atomic helpers: we can drop
-the custom ->best_encoder() implementation and let the core call
+All outputs have a 1:1 relationship between connectors and encoders and
+the driver is relying on the atomic helpers: we can drop the custom
+->best_encoder() implementations and let the core call
 drm_atomic_helper_best_encoder() for us.
 
 Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_display.c | 10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/gpu/drm/vc4/vc4_dpi.c  | 9 ---------
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 9 ---------
+ 2 files changed, 18 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index d4305da..4d41dcb 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -341,15 +341,6 @@ static int virtio_gpu_conn_mode_valid(struct drm_connector *connector,
- 	return MODE_BAD;
+diff --git a/drivers/gpu/drm/vc4/vc4_dpi.c b/drivers/gpu/drm/vc4/vc4_dpi.c
+index 9817dbf..dba1114 100644
+--- a/drivers/gpu/drm/vc4/vc4_dpi.c
++++ b/drivers/gpu/drm/vc4/vc4_dpi.c
+@@ -208,14 +208,6 @@ static int vc4_dpi_connector_get_modes(struct drm_connector *connector)
+ 	return 0;
  }
  
--static struct drm_encoder*
--virtio_gpu_best_encoder(struct drm_connector *connector)
+-static struct drm_encoder *
+-vc4_dpi_connector_best_encoder(struct drm_connector *connector)
 -{
--	struct virtio_gpu_output *virtio_gpu_output =
--		drm_connector_to_virtio_gpu_output(connector);
--
--	return &virtio_gpu_output->enc;
+-	struct vc4_dpi_connector *dpi_connector =
+-		to_vc4_dpi_connector(connector);
+-	return dpi_connector->encoder;
 -}
 -
- static const struct drm_encoder_helper_funcs virtio_gpu_enc_helper_funcs = {
- 	.mode_set   = virtio_gpu_enc_mode_set,
- 	.enable     = virtio_gpu_enc_enable,
-@@ -359,7 +350,6 @@ static const struct drm_encoder_helper_funcs virtio_gpu_enc_helper_funcs = {
- static const struct drm_connector_helper_funcs virtio_gpu_conn_helper_funcs = {
- 	.get_modes    = virtio_gpu_conn_get_modes,
- 	.mode_valid   = virtio_gpu_conn_mode_valid,
--	.best_encoder = virtio_gpu_best_encoder,
+ static const struct drm_connector_funcs vc4_dpi_connector_funcs = {
+ 	.dpms = drm_atomic_helper_connector_dpms,
+ 	.detect = vc4_dpi_connector_detect,
+@@ -228,7 +220,6 @@ static const struct drm_connector_funcs vc4_dpi_connector_funcs = {
+ 
+ static const struct drm_connector_helper_funcs vc4_dpi_connector_helper_funcs = {
+ 	.get_modes = vc4_dpi_connector_get_modes,
+-	.best_encoder = vc4_dpi_connector_best_encoder,
  };
  
- static enum drm_connector_status virtio_gpu_conn_detect(
+ static struct drm_connector *vc4_dpi_connector_init(struct drm_device *dev,
+diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
+index fd2644d..68df91c 100644
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -208,14 +208,6 @@ static int vc4_hdmi_connector_get_modes(struct drm_connector *connector)
+ 	return ret;
+ }
+ 
+-static struct drm_encoder *
+-vc4_hdmi_connector_best_encoder(struct drm_connector *connector)
+-{
+-	struct vc4_hdmi_connector *hdmi_connector =
+-		to_vc4_hdmi_connector(connector);
+-	return hdmi_connector->encoder;
+-}
+-
+ static const struct drm_connector_funcs vc4_hdmi_connector_funcs = {
+ 	.dpms = drm_atomic_helper_connector_dpms,
+ 	.detect = vc4_hdmi_connector_detect,
+@@ -228,7 +220,6 @@ static const struct drm_connector_funcs vc4_hdmi_connector_funcs = {
+ 
+ static const struct drm_connector_helper_funcs vc4_hdmi_connector_helper_funcs = {
+ 	.get_modes = vc4_hdmi_connector_get_modes,
+-	.best_encoder = vc4_hdmi_connector_best_encoder,
+ };
+ 
+ static struct drm_connector *vc4_hdmi_connector_init(struct drm_device *dev,
 -- 
 2.7.4
