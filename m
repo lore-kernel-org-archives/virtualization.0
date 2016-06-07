@@ -1,15 +1,13 @@
-From: Mark yao <mark.yao@rock-chips.com>
-Subject: Re: [PATCH 10/20] drm: rockchip: Rely on the default ->best_encoder()
-	behavior
-Date: Tue, 7 Jun 2016 08:51:54 +0800
-Message-ID: <57561AAA.5060500__27639.3774118789$1465260763$gmane$org@rock-chips.com>
-References: <1464877907-27723-1-git-send-email-boris.brezillon@free-electrons.com>
-	<1464877907-27723-11-git-send-email-boris.brezillon@free-electrons.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH v3] virtio-net: Add initial MTU advice feature
+Date: Mon, 06 Jun 2016 21:10:59 -0400 (EDT)
+Message-ID: <20160606.211059.447701408091916319.davem@davemloft.net>
+References: <1464987432-1458-1-git-send-email-aconole@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1464877907-27723-11-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1464987432-1458-1-git-send-email-aconole@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,56 +17,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Boris Brezillon <boris.brezillon@free-electrons.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org, Daniel Vetter <daniel.vetter@intel.com>
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Heiko Stuebner <heiko@sntech.de>, Stefan Agner <stefan@agner.ch>, virtualization@lists.linux-foundation.org, Eric Anholt <eric@anholt.net>, Thierry Reding <thierry.reding@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-samsung-soc@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, Alexey Brodkin <abrodkin@synopsys.com>, Kyungmin Park <kyungmin.park@samsung.com>, linux-rockchip@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>, Kukjin Kim <kgene@kernel.org>, linux-tegra@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>, Inki Dae <inki.dae@samsung.com>, linux-mediatek@lists.infradead.org, Matthi
+To: aconole@redhat.com
+Cc: netdev@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjAxNuW5tDA25pyIMDLml6UgMjI6MzEsIEJvcmlzIEJyZXppbGxvbiB3cm90ZToKPiBBbGwg
-b3V0cHV0c3MgaGF2ZSBhIDE6MSByZWxhdGlvbnNoaXAgYmV0d2VlbiBjb25uZWN0b3JzIGFuZCBl
-bmNvZGVycwo+IGFuZCB0aGUgZHJpdmVyIGlzIHJlbHlpbmcgb24gdGhlIGF0b21pYyBoZWxwZXJz
-OiB3ZSBjYW4gZHJvcCB0aGUgY3VzdG9tCj4gLT5iZXN0X2VuY29kZXIoKSBpbXBsZW1lbnRhdGlv
-bnMgIGFuZCBsZXQgdGhlIGNvcmUgY2FsbAo+IGRybV9hdG9taWNfaGVscGVyX2Jlc3RfZW5jb2Rl
-cigpIGZvciB1cy4KCkdvb2QsIEFsbCBjb25uZWN0b3JzIGFuZCBlbmNvZGVycyBpcyAxOjEgcmVs
-YXRpb25zaGlwIG9uIHJvY2tjaGlwIApvdXRwdXRzLCBzbwoKQWNrZWQtYnk6IE1hcmsgWWFvIDxt
-YXJrLnlhb0Byb2NrLWNoaXBzLmNvbT4KCj4KPiBTaWduZWQtb2ZmLWJ5OiBCb3JpcyBCcmV6aWxs
-b24gPGJvcmlzLmJyZXppbGxvbkBmcmVlLWVsZWN0cm9ucy5jb20+Cj4gLS0tCj4gICBkcml2ZXJz
-L2dwdS9kcm0vcm9ja2NoaXAvZHctbWlwaS1kc2kuYyB8IDkgLS0tLS0tLS0tCj4gICBkcml2ZXJz
-L2dwdS9kcm0vcm9ja2NoaXAvaW5ub19oZG1pLmMgICB8IDkgLS0tLS0tLS0tCj4gICAyIGZpbGVz
-IGNoYW5nZWQsIDE4IGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2Ry
-bS9yb2NrY2hpcC9kdy1taXBpLWRzaS5jIGIvZHJpdmVycy9ncHUvZHJtL3JvY2tjaGlwL2R3LW1p
-cGktZHNpLmMKPiBpbmRleCBkZWRjNjViLi5jYTIyZTVlIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMv
-Z3B1L2RybS9yb2NrY2hpcC9kdy1taXBpLWRzaS5jCj4gKysrIGIvZHJpdmVycy9ncHUvZHJtL3Jv
-Y2tjaGlwL2R3LW1pcGktZHNpLmMKPiBAQCAtOTY0LDE4ICs5NjQsOSBAQCBzdGF0aWMgZW51bSBk
-cm1fbW9kZV9zdGF0dXMgZHdfbWlwaV9kc2lfbW9kZV92YWxpZCgKPiAgIAlyZXR1cm4gbW9kZV9z
-dGF0dXM7Cj4gICB9Cj4gICAKPiAtc3RhdGljIHN0cnVjdCBkcm1fZW5jb2RlciAqZHdfbWlwaV9k
-c2lfY29ubmVjdG9yX2Jlc3RfZW5jb2RlcigKPiAtCQkJCQlzdHJ1Y3QgZHJtX2Nvbm5lY3RvciAq
-Y29ubmVjdG9yKQo+IC17Cj4gLQlzdHJ1Y3QgZHdfbWlwaV9kc2kgKmRzaSA9IGNvbl90b19kc2ko
-Y29ubmVjdG9yKTsKPiAtCj4gLQlyZXR1cm4gJmRzaS0+ZW5jb2RlcjsKPiAtfQo+IC0KPiAgIHN0
-YXRpYyBzdHJ1Y3QgZHJtX2Nvbm5lY3Rvcl9oZWxwZXJfZnVuY3MgZHdfbWlwaV9kc2lfY29ubmVj
-dG9yX2hlbHBlcl9mdW5jcyA9IHsKPiAgIAkuZ2V0X21vZGVzID0gZHdfbWlwaV9kc2lfY29ubmVj
-dG9yX2dldF9tb2RlcywKPiAgIAkubW9kZV92YWxpZCA9IGR3X21pcGlfZHNpX21vZGVfdmFsaWQs
-Cj4gLQkuYmVzdF9lbmNvZGVyID0gZHdfbWlwaV9kc2lfY29ubmVjdG9yX2Jlc3RfZW5jb2RlciwK
-PiAgIH07Cj4gICAKPiAgIHN0YXRpYyBlbnVtIGRybV9jb25uZWN0b3Jfc3RhdHVzCj4gZGlmZiAt
-LWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9yb2NrY2hpcC9pbm5vX2hkbWkuYyBiL2RyaXZlcnMvZ3B1
-L2RybS9yb2NrY2hpcC9pbm5vX2hkbWkuYwo+IGluZGV4IGY4YjRmZWIuLjAwNjI2MGQgMTAwNjQ0
-Cj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL3JvY2tjaGlwL2lubm9faGRtaS5jCj4gKysrIGIvZHJp
-dmVycy9ncHUvZHJtL3JvY2tjaGlwL2lubm9faGRtaS5jCj4gQEAgLTU3OSwxNCArNTc5LDYgQEAg
-aW5ub19oZG1pX2Nvbm5lY3Rvcl9tb2RlX3ZhbGlkKHN0cnVjdCBkcm1fY29ubmVjdG9yICpjb25u
-ZWN0b3IsCj4gICAJcmV0dXJuIE1PREVfT0s7Cj4gICB9Cj4gICAKPiAtc3RhdGljIHN0cnVjdCBk
-cm1fZW5jb2RlciAqCj4gLWlubm9faGRtaV9jb25uZWN0b3JfYmVzdF9lbmNvZGVyKHN0cnVjdCBk
-cm1fY29ubmVjdG9yICpjb25uZWN0b3IpCj4gLXsKPiAtCXN0cnVjdCBpbm5vX2hkbWkgKmhkbWkg
-PSB0b19pbm5vX2hkbWkoY29ubmVjdG9yKTsKPiAtCj4gLQlyZXR1cm4gJmhkbWktPmVuY29kZXI7
-Cj4gLX0KPiAtCj4gICBzdGF0aWMgaW50Cj4gICBpbm5vX2hkbWlfcHJvYmVfc2luZ2xlX2Nvbm5l
-Y3Rvcl9tb2RlcyhzdHJ1Y3QgZHJtX2Nvbm5lY3RvciAqY29ubmVjdG9yLAo+ICAgCQkJCSAgICAg
-ICB1aW50MzJfdCBtYXhYLCB1aW50MzJfdCBtYXhZKQo+IEBAIC02MTMsNyArNjA1LDYgQEAgc3Rh
-dGljIHN0cnVjdCBkcm1fY29ubmVjdG9yX2Z1bmNzIGlubm9faGRtaV9jb25uZWN0b3JfZnVuY3Mg
-PSB7Cj4gICBzdGF0aWMgc3RydWN0IGRybV9jb25uZWN0b3JfaGVscGVyX2Z1bmNzIGlubm9faGRt
-aV9jb25uZWN0b3JfaGVscGVyX2Z1bmNzID0gewo+ICAgCS5nZXRfbW9kZXMgPSBpbm5vX2hkbWlf
-Y29ubmVjdG9yX2dldF9tb2RlcywKPiAgIAkubW9kZV92YWxpZCA9IGlubm9faGRtaV9jb25uZWN0
-b3JfbW9kZV92YWxpZCwKPiAtCS5iZXN0X2VuY29kZXIgPSBpbm5vX2hkbWlfY29ubmVjdG9yX2Jl
-c3RfZW5jb2RlciwKPiAgIH07Cj4gICAKPiAgIHN0YXRpYyBpbnQgaW5ub19oZG1pX3JlZ2lzdGVy
-KHN0cnVjdCBkcm1fZGV2aWNlICpkcm0sIHN0cnVjdCBpbm5vX2hkbWkgKmhkbWkpCgoKLS0gCu+8
-rWFyayBZYW8KCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-XwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
-Zm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4v
-bGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+From: Aaron Conole <aconole@redhat.com>
+Date: Fri,  3 Jun 2016 16:57:12 -0400
+
+> This commit adds the feature bit and associated mtu device entry for the
+> virtio network device.  When a virtio device comes up, it checks the
+> feature bit for the VIRTIO_NET_F_MTU feature.  If such feature bit is
+> enabled, the driver will read the advised MTU and use it as the initial
+> value.
+> 
+> Signed-off-by: Aaron Conole <aconole@redhat.com>
+
+Applied, thanks.
