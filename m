@@ -1,14 +1,15 @@
-From: Boris Brezillon <boris.brezillon@free-electrons.com>
-Subject: [PATCH v2 20/20] drm/bridge: dw-hdmi: Use
-	drm_atomic_helper_best_encoder()
-Date: Tue,  7 Jun 2016 13:48:15 +0200
-Message-ID: <1465300095-16971-21-git-send-email-boris.brezillon__15591.3791539662$1465300397$gmane$org@free-electrons.com>
-References: <1465300095-16971-1-git-send-email-boris.brezillon@free-electrons.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH V3 1/2] vhost_net: stop polling socket during rx processing
+Date: Tue, 7 Jun 2016 15:23:13 +0300
+Message-ID: <20160607152135-mutt-send-email-mst@redhat.com>
+References: <1464760594-30326-1-git-send-email-jasowang@redhat.com>
+	<1464760594-30326-2-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1465300095-16971-1-git-send-email-boris.brezillon@free-electrons.com>
+Content-Disposition: inline
+In-Reply-To: <1464760594-30326-2-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,52 +19,165 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org, Daniel Vetter <daniel.vetter@intel.com>
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Heiko Stuebner <heiko@sntech.de>, Stefan Agner <stefan@agner.ch>, virtualization@lists.linux-foundation.org, Eric Anholt <eric@anholt.net>, Thierry Reding <thierry.reding@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-samsung-soc@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, Alexey Brodkin <abrodkin@synopsys.com>, Kyungmin Park <kyungmin.park@samsung.com>, linux-rockchip@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>, Kukjin Kim <kgene@kernel.org>, linux-tegra@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>, Inki Dae <inki.dae@sam>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We have a 1:1 relationship between connectors and encoders, which means
-we can rely on the drm_atomic_helper_best_encoder() behavior.
+On Wed, Jun 01, 2016 at 01:56:33AM -0400, Jason Wang wrote:
+> We don't stop rx polling socket during rx processing, this will lead
+> unnecessary wakeups from under layer net devices (E.g
+> sock_def_readable() form tun). Rx will be slowed down in this
+> way. This patch avoids this by stop polling socket during rx
+> processing. A small drawback is that this introduces some overheads in
+> light load case because of the extra start/stop polling, but single
+> netperf TCP_RR does not notice any change. In a super heavy load case,
+> e.g using pktgen to inject packet to guest, we get about ~8.8%
+> improvement on pps:
+> 
+> before: ~1240000 pkt/s
+> after:  ~1350000 pkt/s
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-We still have to explicitly assign ->best_encoder() to
-drm_atomic_helper_best_encoder(), because the automated fallback to
-drm_atomic_helper_best_encoder() when ->best_encoder() is NULL is only
-available when the DRM device is using the atomic helpers, and this bridge
-is compatible with non-atomic and atomic devices.
+I guess this works though I suspect it's even faster to
+maintain some state in the vq structure so we don't need
+to play with waitq all the time.
 
-Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
----
- drivers/gpu/drm/bridge/dw-hdmi.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+For now
 
-diff --git a/drivers/gpu/drm/bridge/dw-hdmi.c b/drivers/gpu/drm/bridge/dw-hdmi.c
-index c9d9412..70b1f7d 100644
---- a/drivers/gpu/drm/bridge/dw-hdmi.c
-+++ b/drivers/gpu/drm/bridge/dw-hdmi.c
-@@ -1476,15 +1476,6 @@ dw_hdmi_connector_mode_valid(struct drm_connector *connector,
- 	return mode_status;
- }
- 
--static struct drm_encoder *dw_hdmi_connector_best_encoder(struct drm_connector
--							   *connector)
--{
--	struct dw_hdmi *hdmi = container_of(connector, struct dw_hdmi,
--					     connector);
--
--	return hdmi->encoder;
--}
--
- static void dw_hdmi_connector_destroy(struct drm_connector *connector)
- {
- 	drm_connector_unregister(connector);
-@@ -1525,7 +1516,7 @@ static const struct drm_connector_funcs dw_hdmi_atomic_connector_funcs = {
- static const struct drm_connector_helper_funcs dw_hdmi_connector_helper_funcs = {
- 	.get_modes = dw_hdmi_connector_get_modes,
- 	.mode_valid = dw_hdmi_connector_mode_valid,
--	.best_encoder = dw_hdmi_connector_best_encoder,
-+	.best_encoder = drm_atomic_helper_best_encoder,
- };
- 
- static const struct drm_bridge_funcs dw_hdmi_bridge_funcs = {
--- 
-2.7.4
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+
+
+> ---
+>  drivers/vhost/net.c | 64 +++++++++++++++++++++++++++--------------------------
+>  1 file changed, 33 insertions(+), 31 deletions(-)
+> 
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index f744eeb..1d3e45f 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -301,6 +301,32 @@ static bool vhost_can_busy_poll(struct vhost_dev *dev,
+>  	       !vhost_has_work(dev);
+>  }
+>  
+> +static void vhost_net_disable_vq(struct vhost_net *n,
+> +				 struct vhost_virtqueue *vq)
+> +{
+> +	struct vhost_net_virtqueue *nvq =
+> +		container_of(vq, struct vhost_net_virtqueue, vq);
+> +	struct vhost_poll *poll = n->poll + (nvq - n->vqs);
+> +	if (!vq->private_data)
+> +		return;
+> +	vhost_poll_stop(poll);
+> +}
+> +
+> +static int vhost_net_enable_vq(struct vhost_net *n,
+> +				struct vhost_virtqueue *vq)
+> +{
+> +	struct vhost_net_virtqueue *nvq =
+> +		container_of(vq, struct vhost_net_virtqueue, vq);
+> +	struct vhost_poll *poll = n->poll + (nvq - n->vqs);
+> +	struct socket *sock;
+> +
+> +	sock = vq->private_data;
+> +	if (!sock)
+> +		return 0;
+> +
+> +	return vhost_poll_start(poll, sock->file);
+> +}
+> +
+>  static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
+>  				    struct vhost_virtqueue *vq,
+>  				    struct iovec iov[], unsigned int iov_size,
+> @@ -613,6 +639,7 @@ static void handle_rx(struct vhost_net *net)
+>  	if (!sock)
+>  		goto out;
+>  	vhost_disable_notify(&net->dev, vq);
+> +	vhost_net_disable_vq(net, vq);
+>  
+>  	vhost_hlen = nvq->vhost_hlen;
+>  	sock_hlen = nvq->sock_hlen;
+> @@ -629,7 +656,7 @@ static void handle_rx(struct vhost_net *net)
+>  					likely(mergeable) ? UIO_MAXIOV : 1);
+>  		/* On error, stop handling until the next kick. */
+>  		if (unlikely(headcount < 0))
+> -			break;
+> +			goto out;
+>  		/* On overrun, truncate and discard */
+>  		if (unlikely(headcount > UIO_MAXIOV)) {
+>  			iov_iter_init(&msg.msg_iter, READ, vq->iov, 1, 1);
+> @@ -648,7 +675,7 @@ static void handle_rx(struct vhost_net *net)
+>  			}
+>  			/* Nothing new?  Wait for eventfd to tell us
+>  			 * they refilled. */
+> -			break;
+> +			goto out;
+>  		}
+>  		/* We don't need to be notified again. */
+>  		iov_iter_init(&msg.msg_iter, READ, vq->iov, in, vhost_len);
+> @@ -676,7 +703,7 @@ static void handle_rx(struct vhost_net *net)
+>  					 &fixup) != sizeof(hdr)) {
+>  				vq_err(vq, "Unable to write vnet_hdr "
+>  				       "at addr %p\n", vq->iov->iov_base);
+> -				break;
+> +				goto out;
+>  			}
+>  		} else {
+>  			/* Header came from socket; we'll need to patch
+> @@ -692,7 +719,7 @@ static void handle_rx(struct vhost_net *net)
+>  				 &fixup) != sizeof num_buffers) {
+>  			vq_err(vq, "Failed num_buffers write");
+>  			vhost_discard_vq_desc(vq, headcount);
+> -			break;
+> +			goto out;
+>  		}
+>  		vhost_add_used_and_signal_n(&net->dev, vq, vq->heads,
+>  					    headcount);
+> @@ -701,9 +728,10 @@ static void handle_rx(struct vhost_net *net)
+>  		total_len += vhost_len;
+>  		if (unlikely(total_len >= VHOST_NET_WEIGHT)) {
+>  			vhost_poll_queue(&vq->poll);
+> -			break;
+> +			goto out;
+>  		}
+>  	}
+> +	vhost_net_enable_vq(net, vq);
+>  out:
+>  	mutex_unlock(&vq->mutex);
+>  }
+> @@ -782,32 +810,6 @@ static int vhost_net_open(struct inode *inode, struct file *f)
+>  	return 0;
+>  }
+>  
+> -static void vhost_net_disable_vq(struct vhost_net *n,
+> -				 struct vhost_virtqueue *vq)
+> -{
+> -	struct vhost_net_virtqueue *nvq =
+> -		container_of(vq, struct vhost_net_virtqueue, vq);
+> -	struct vhost_poll *poll = n->poll + (nvq - n->vqs);
+> -	if (!vq->private_data)
+> -		return;
+> -	vhost_poll_stop(poll);
+> -}
+> -
+> -static int vhost_net_enable_vq(struct vhost_net *n,
+> -				struct vhost_virtqueue *vq)
+> -{
+> -	struct vhost_net_virtqueue *nvq =
+> -		container_of(vq, struct vhost_net_virtqueue, vq);
+> -	struct vhost_poll *poll = n->poll + (nvq - n->vqs);
+> -	struct socket *sock;
+> -
+> -	sock = vq->private_data;
+> -	if (!sock)
+> -		return 0;
+> -
+> -	return vhost_poll_start(poll, sock->file);
+> -}
+> -
+>  static struct socket *vhost_net_stop_vq(struct vhost_net *n,
+>  					struct vhost_virtqueue *vq)
+>  {
+> -- 
+> 1.8.3.1
