@@ -1,8 +1,8 @@
 From: Boris Brezillon <boris.brezillon@free-electrons.com>
-Subject: [PATCH v2 17/20] drm/bridge: anx78xx: Rely on the default
+Subject: [PATCH v2 19/20] drm/bridge: ps8622: Rely on the default
 	->best_encoder() behavior
-Date: Tue,  7 Jun 2016 13:48:12 +0200
-Message-ID: <1465300095-16971-18-git-send-email-boris.brezillon__2494.30268672786$1465300373$gmane$org@free-electrons.com>
+Date: Tue,  7 Jun 2016 13:48:14 +0200
+Message-ID: <1465300095-16971-20-git-send-email-boris.brezillon__42180.0477467061$1465300390$gmane$org@free-electrons.com>
 References: <1465300095-16971-1-git-send-email-boris.brezillon@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -28,29 +28,31 @@ and let the core call drm_atomic_helper_best_encoder() for us.
 
 Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
 ---
- drivers/gpu/drm/bridge/analogix-anx78xx.c | 8 --------
- 1 file changed, 8 deletions(-)
+ drivers/gpu/drm/bridge/parade-ps8622.c | 10 ----------
+ 1 file changed, 10 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/analogix-anx78xx.c b/drivers/gpu/drm/bridge/analogix-anx78xx.c
-index d087b05..f9f03bc 100644
---- a/drivers/gpu/drm/bridge/analogix-anx78xx.c
-+++ b/drivers/gpu/drm/bridge/analogix-anx78xx.c
-@@ -986,16 +986,8 @@ unlock:
- 	return num_modes;
+diff --git a/drivers/gpu/drm/bridge/parade-ps8622.c b/drivers/gpu/drm/bridge/parade-ps8622.c
+index be881e9..5cd8dd7 100644
+--- a/drivers/gpu/drm/bridge/parade-ps8622.c
++++ b/drivers/gpu/drm/bridge/parade-ps8622.c
+@@ -474,18 +474,8 @@ static int ps8622_get_modes(struct drm_connector *connector)
+ 	return drm_panel_get_modes(ps8622->panel);
  }
  
--static struct drm_encoder *anx78xx_best_encoder(struct drm_connector *connector)
+-static struct drm_encoder *ps8622_best_encoder(struct drm_connector *connector)
 -{
--	struct anx78xx *anx78xx = connector_to_anx78xx(connector);
+-	struct ps8622_bridge *ps8622;
 -
--	return anx78xx->bridge.encoder;
+-	ps8622 = connector_to_ps8622(connector);
+-
+-	return ps8622->bridge.encoder;
 -}
 -
- static const struct drm_connector_helper_funcs anx78xx_connector_helper_funcs = {
- 	.get_modes = anx78xx_get_modes,
--	.best_encoder = anx78xx_best_encoder,
+ static const struct drm_connector_helper_funcs ps8622_connector_helper_funcs = {
+ 	.get_modes = ps8622_get_modes,
+-	.best_encoder = ps8622_best_encoder,
  };
  
- static enum drm_connector_status anx78xx_detect(struct drm_connector *connector,
+ static enum drm_connector_status ps8622_detect(struct drm_connector *connector,
 -- 
 2.7.4
