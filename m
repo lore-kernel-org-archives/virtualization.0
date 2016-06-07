@@ -1,13 +1,14 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v3] virtio-net: Add initial MTU advice feature
-Date: Mon, 06 Jun 2016 21:10:59 -0400 (EDT)
-Message-ID: <20160606.211059.447701408091916319.davem@davemloft.net>
-References: <1464987432-1458-1-git-send-email-aconole@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH RESEND 06/14] drm/virtio: use drm_crtc_send_vblank_event()
+Date: Tue, 07 Jun 2016 10:39:15 +0200
+Message-ID: <1465288755.14901.4.camel__28176.6481152319$1465288773$gmane$org@redhat.com>
+References: <1465224105-21485-1-git-send-email-gustavo@padovan.org>
+	<1465224105-21485-6-git-send-email-gustavo@padovan.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1464987432-1458-1-git-send-email-aconole@redhat.com>
+In-Reply-To: <1465224105-21485-6-git-send-email-gustavo@padovan.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,19 +18,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: aconole@redhat.com
-Cc: netdev@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Gustavo Padovan <gustavo@padovan.org>
+Cc: David Airlie <airlied@linux.ie>, Gustavo Padovan <gustavo.padovan@collabora.co.uk>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open
+	list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Aaron Conole <aconole@redhat.com>
-Date: Fri,  3 Jun 2016 16:57:12 -0400
-
-> This commit adds the feature bit and associated mtu device entry for the
-> virtio network device.  When a virtio device comes up, it checks the
-> feature bit for the VIRTIO_NET_F_MTU feature.  If such feature bit is
-> enabled, the driver will read the advised MTU and use it as the initial
-> value.
+On Mo, 2016-06-06 at 11:41 -0300, Gustavo Padovan wrote:
+> From: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
 > 
-> Signed-off-by: Aaron Conole <aconole@redhat.com>
+> Replace the legacy drm_send_vblank_event() with the new helper function.
+> 
+> Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_display.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+> index d4305da..ba5e11b 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_display.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+> @@ -156,7 +156,7 @@ static int virtio_gpu_page_flip(struct drm_crtc *crtc,
+>  
+>  	if (event) {
+>  		spin_lock_irqsave(&crtc->dev->event_lock, irqflags);
+> -		drm_send_vblank_event(crtc->dev, -1, event);
+> +		drm_crtc_send_vblank_event(crtc, event);
+>  		spin_unlock_irqrestore(&crtc->dev->event_lock, irqflags);
+>  	}
 
-Applied, thanks.
+Daniel Vetter has a series in flight which drops the whole
+virtio_gpu_page_flip function in favor of drm_atomic_helper_page_flip.
+
+https://lists.freedesktop.org/archives/dri-devel/2016-May/108699.html
+
+cheers,
+  Gerd
