@@ -1,8 +1,8 @@
 From: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Subject: [PATCH 5/6] virtio_net: use common code for virtio_net_hdr and skb
-	GSO conversion
-Date: Wed,  8 Jun 2016 16:09:21 +0300
-Message-ID: <1465391362-18437-6-git-send-email-rppt@linux.vnet.ibm.com>
+Subject: [PATCH 6/6] packet: use common code for virtio_net_hdr and skb GSO
+	conversion
+Date: Wed,  8 Jun 2016 16:09:22 +0300
+Message-ID: <1465391362-18437-7-git-send-email-rppt@linux.vnet.ibm.com>
 References: <1465391362-18437-1-git-send-email-rppt@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,114 +23,59 @@ Cc: netdev@vger.kernel.org, Mike Rapoport <rppt@linux.vnet.ibm.com>, linux-kerne
 List-Id: virtualization@lists.linuxfoundation.org
 
 Replace open coded conversion between virtio_net_hdr to skb GSO info with
-virtio_net_hdr_{from,to}_skb
+virtio_net_hdr_from_skb
 
 Signed-off-by: Mike Rapoport <rppt@linux.vnet.ibm.com>
 ---
- drivers/net/virtio_net.c | 78 +++++++-----------------------------------------
- 1 file changed, 10 insertions(+), 68 deletions(-)
+ net/packet/af_packet.c | 36 ++----------------------------------
+ 1 file changed, 2 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index e0638e5..9af0a98 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -479,51 +479,19 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
- 	stats->rx_packets++;
- 	u64_stats_update_end(&stats->rx_syncp);
+diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
+index 4040eb9..ec35aa9 100644
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -1978,40 +1978,8 @@ static int __packet_rcv_vnet(const struct sk_buff *skb,
+ {
+ 	*vnet_hdr = (const struct virtio_net_hdr) { 0 };
  
--	if (hdr->hdr.flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
--		pr_debug("Needs csum!\n");
--		if (!skb_partial_csum_set(skb,
--			  virtio16_to_cpu(vi->vdev, hdr->hdr.csum_start),
--			  virtio16_to_cpu(vi->vdev, hdr->hdr.csum_offset)))
--			goto frame_err;
--	} else if (hdr->hdr.flags & VIRTIO_NET_HDR_F_DATA_VALID) {
-+	if (hdr->hdr.flags & VIRTIO_NET_HDR_F_DATA_VALID)
- 		skb->ip_summed = CHECKSUM_UNNECESSARY;
--	}
- 
- 	skb->protocol = eth_type_trans(skb, dev);
- 	pr_debug("Receiving skb proto 0x%04x len %i type %i\n",
- 		 ntohs(skb->protocol), skb->len, skb->pkt_type);
- 
--	if (hdr->hdr.gso_type != VIRTIO_NET_HDR_GSO_NONE) {
--		pr_debug("GSO!\n");
--		switch (hdr->hdr.gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
--		case VIRTIO_NET_HDR_GSO_TCPV4:
--			skb_shinfo(skb)->gso_type = SKB_GSO_TCPV4;
--			break;
--		case VIRTIO_NET_HDR_GSO_UDP:
--			skb_shinfo(skb)->gso_type = SKB_GSO_UDP;
--			break;
--		case VIRTIO_NET_HDR_GSO_TCPV6:
--			skb_shinfo(skb)->gso_type = SKB_GSO_TCPV6;
--			break;
--		default:
--			net_warn_ratelimited("%s: bad gso type %u.\n",
--					     dev->name, hdr->hdr.gso_type);
--			goto frame_err;
--		}
--
--		if (hdr->hdr.gso_type & VIRTIO_NET_HDR_GSO_ECN)
--			skb_shinfo(skb)->gso_type |= SKB_GSO_TCP_ECN;
--
--		skb_shinfo(skb)->gso_size = virtio16_to_cpu(vi->vdev,
--							    hdr->hdr.gso_size);
--		if (skb_shinfo(skb)->gso_size == 0) {
--			net_warn_ratelimited("%s: zero gso size.\n", dev->name);
--			goto frame_err;
--		}
--
--		/* Header must be checked, and gso_segs computed. */
--		skb_shinfo(skb)->gso_type |= SKB_GSO_DODGY;
--		skb_shinfo(skb)->gso_segs = 0;
-+	if (virtio_net_hdr_to_skb(skb, &hdr->hdr,
-+				  virtio_is_little_endian(vi->vdev))) {
-+		net_warn_ratelimited("%s: bad gso: type: %u, size: %u\n",
-+				     dev->name, hdr->hdr.gso_type,
-+				     hdr->hdr.gso_size);
-+		goto frame_err;
- 	}
- 
- 	napi_gro_receive(&rq->napi, skb);
-@@ -868,35 +836,9 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
- 	else
- 		hdr = skb_vnet_hdr(skb);
- 
--	if (skb->ip_summed == CHECKSUM_PARTIAL) {
--		hdr->hdr.flags = VIRTIO_NET_HDR_F_NEEDS_CSUM;
--		hdr->hdr.csum_start = cpu_to_virtio16(vi->vdev,
--						skb_checksum_start_offset(skb));
--		hdr->hdr.csum_offset = cpu_to_virtio16(vi->vdev,
--							 skb->csum_offset);
--	} else {
--		hdr->hdr.flags = 0;
--		hdr->hdr.csum_offset = hdr->hdr.csum_start = 0;
--	}
--
 -	if (skb_is_gso(skb)) {
--		hdr->hdr.hdr_len = cpu_to_virtio16(vi->vdev, skb_headlen(skb));
--		hdr->hdr.gso_size = cpu_to_virtio16(vi->vdev,
--						    skb_shinfo(skb)->gso_size);
--		if (skb_shinfo(skb)->gso_type & SKB_GSO_TCPV4)
--			hdr->hdr.gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
--		else if (skb_shinfo(skb)->gso_type & SKB_GSO_TCPV6)
--			hdr->hdr.gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
--		else if (skb_shinfo(skb)->gso_type & SKB_GSO_UDP)
--			hdr->hdr.gso_type = VIRTIO_NET_HDR_GSO_UDP;
+-		struct skb_shared_info *sinfo = skb_shinfo(skb);
+-
+-		/* This is a hint as to how much should be linear. */
+-		vnet_hdr->hdr_len =
+-			__cpu_to_virtio16(vio_le(), skb_headlen(skb));
+-		vnet_hdr->gso_size =
+-			__cpu_to_virtio16(vio_le(), sinfo->gso_size);
+-
+-		if (sinfo->gso_type & SKB_GSO_TCPV4)
+-			vnet_hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
+-		else if (sinfo->gso_type & SKB_GSO_TCPV6)
+-			vnet_hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
+-		else if (sinfo->gso_type & SKB_GSO_UDP)
+-			vnet_hdr->gso_type = VIRTIO_NET_HDR_GSO_UDP;
+-		else if (sinfo->gso_type & SKB_GSO_FCOE)
+-			return -EINVAL;
 -		else
 -			BUG();
--		if (skb_shinfo(skb)->gso_type & SKB_GSO_TCP_ECN)
--			hdr->hdr.gso_type |= VIRTIO_NET_HDR_GSO_ECN;
--	} else {
--		hdr->hdr.gso_type = VIRTIO_NET_HDR_GSO_NONE;
--		hdr->hdr.gso_size = hdr->hdr.hdr_len = 0;
--	}
-+	if (virtio_net_hdr_from_skb(skb, &hdr->hdr,
-+				    virtio_is_little_endian(vi->vdev)))
+-
+-		if (sinfo->gso_type & SKB_GSO_TCP_ECN)
+-			vnet_hdr->gso_type |= VIRTIO_NET_HDR_GSO_ECN;
+-	} else
+-		vnet_hdr->gso_type = VIRTIO_NET_HDR_GSO_NONE;
+-
+-	if (skb->ip_summed == CHECKSUM_PARTIAL) {
+-		vnet_hdr->flags = VIRTIO_NET_HDR_F_NEEDS_CSUM;
+-		vnet_hdr->csum_start = __cpu_to_virtio16(vio_le(),
+-				  skb_checksum_start_offset(skb));
+-		vnet_hdr->csum_offset = __cpu_to_virtio16(vio_le(),
+-						 skb->csum_offset);
+-	} else if (skb->ip_summed == CHECKSUM_UNNECESSARY) {
+-		vnet_hdr->flags = VIRTIO_NET_HDR_F_DATA_VALID;
+-	} /* else everything is zero */
++	if (virtio_net_hdr_from_skb(skb, vnet_hdr, vio_le()))
 +		BUG();
  
- 	if (vi->mergeable_rx_bufs)
- 		hdr->num_buffers = 0;
+ 	return 0;
+ }
 -- 
 1.9.1
