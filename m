@@ -1,15 +1,11 @@
-From: Matthias Brugger <matthias.bgg@gmail.com>
-Subject: Re: [PATCH v2 07/20] drm: mediatek: Rely on the default
-	->best_encoder() behavior
-Date: Wed, 8 Jun 2016 13:17:07 +0200
-Message-ID: <5757FEB3.8050001__35229.3093958453$1465487272$gmane$org@gmail.com>
-References: <1465300095-16971-1-git-send-email-boris.brezillon@free-electrons.com>
-	<1465300095-16971-8-git-send-email-boris.brezillon@free-electrons.com>
+From: Aaron Conole <aconole@redhat.com>
+Subject: [PATCH -next] virtio_net: Update the feature bit to comply with spec
+Date: Thu,  9 Jun 2016 13:41:15 -0400
+Message-ID: <1465494075-31170-1-git-send-email-aconole__8666.78576353497$1465494101$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1465300095-16971-8-git-send-email-boris.brezillon@free-electrons.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,51 +15,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Boris Brezillon <boris.brezillon@free-electrons.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org, Daniel Vetter <daniel.vetter@intel.com>
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Heiko Stuebner <heiko@sntech.de>, Stefan Agner <stefan@agner.ch>, virtualization@lists.linux-foundation.org, Eric Anholt <eric@anholt.net>, Thierry Reding <thierry.reding@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-samsung-soc@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, Alexey Brodkin <abrodkin@synopsys.com>, Kyungmin Park <kyungmin.park@samsung.com>, linux-rockchip@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>, Kukjin Kim <kgene@kernel.org>, Stephen Warren <swarren@wwwdotorg.org>, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>, Inki Dae <inki.dae@samsung.com>, linux-mediatek@lists.infradead.org, linux-tegra@vger.kernel.org, Vincent
+To: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+A draft version of the MTU Advice feature bit was specified as 25.  This
+bit is not within the allowed range for network device feature bits, and
+should be changed to be feature bit 3 to fully comply with the spec.
 
+Fixes 14de9d114a82 ('virtio-net: Add initial MTU advice feature')
+Signed-off-by: Aaron Conole <aconole@redhat.com>
+Suggested-by: "Michael S. Tsirkin" <mst@redhat.com>
+---
+ include/uapi/linux/virtio_net.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-On 07/06/16 13:48, Boris Brezillon wrote:
-> We have a 1:1 relationship between connectors and encoders and the
-> driver is relying on the atomic helpers: we can drop the custom
-> ->best_encoder() implementation and let the core call
-> drm_atomic_helper_best_encoder() for us.
->
-> Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
-
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-
-> ---
->   drivers/gpu/drm/mediatek/mtk_dsi.c | 9 ---------
->   1 file changed, 9 deletions(-)
->
-> diff --git a/drivers/gpu/drm/mediatek/mtk_dsi.c b/drivers/gpu/drm/mediatek/mtk_dsi.c
-> index 2d808e5..7343ffc 100644
-> --- a/drivers/gpu/drm/mediatek/mtk_dsi.c
-> +++ b/drivers/gpu/drm/mediatek/mtk_dsi.c
-> @@ -575,14 +575,6 @@ static int mtk_dsi_connector_get_modes(struct drm_connector *connector)
->   	return drm_panel_get_modes(dsi->panel);
->   }
->
-> -static struct drm_encoder *mtk_dsi_connector_best_encoder(
-> -		struct drm_connector *connector)
-> -{
-> -	struct mtk_dsi *dsi = connector_to_dsi(connector);
-> -
-> -	return &dsi->encoder;
-> -}
-> -
->   static const struct drm_encoder_helper_funcs mtk_dsi_encoder_helper_funcs = {
->   	.mode_fixup = mtk_dsi_encoder_mode_fixup,
->   	.mode_set = mtk_dsi_encoder_mode_set,
-> @@ -603,7 +595,6 @@ static const struct drm_connector_funcs mtk_dsi_connector_funcs = {
->   static const struct drm_connector_helper_funcs
->   	mtk_dsi_connector_helper_funcs = {
->   	.get_modes = mtk_dsi_connector_get_modes,
-> -	.best_encoder = mtk_dsi_connector_best_encoder,
->   };
->
->   static int mtk_drm_attach_bridge(struct drm_bridge *bridge,
->
+diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+index 1ab4ea6..0da0e3a 100644
+--- a/include/uapi/linux/virtio_net.h
++++ b/include/uapi/linux/virtio_net.h
+@@ -35,6 +35,7 @@
+ #define VIRTIO_NET_F_CSUM	0	/* Host handles pkts w/ partial csum */
+ #define VIRTIO_NET_F_GUEST_CSUM	1	/* Guest handles pkts w/ partial csum */
+ #define VIRTIO_NET_F_CTRL_GUEST_OFFLOADS 2 /* Dynamic offload configuration. */
++#define VIRTIO_NET_F_MTU	3	/* Initial MTU advice */
+ #define VIRTIO_NET_F_MAC	5	/* Host has given MAC address. */
+ #define VIRTIO_NET_F_GUEST_TSO4	7	/* Guest can handle TSOv4 in. */
+ #define VIRTIO_NET_F_GUEST_TSO6	8	/* Guest can handle TSOv6 in. */
+@@ -55,7 +56,6 @@
+ #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
+ 					 * Steering */
+ #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+-#define VIRTIO_NET_F_MTU 25	/* Initial MTU advice */
+ 
+ #ifndef VIRTIO_NET_NO_LEGACY
+ #define VIRTIO_NET_F_GSO	6	/* Host handles pkts w/ any GSO type */
+-- 
+2.5.5
