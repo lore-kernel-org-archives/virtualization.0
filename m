@@ -1,14 +1,13 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 0/6] virtio_net: use common code for virtio_net_hdr and
-	skb GSO conversion
-Date: Fri, 10 Jun 2016 23:04:18 -0700 (PDT)
-Message-ID: <20160610.230418.775808325943254175.davem@davemloft.net>
-References: <1465391362-18437-1-git-send-email-rppt@linux.vnet.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH] virtio_balloon: fix PFN format for virtio-1
+Date: Mon, 13 Jun 2016 09:15:44 +0200
+Message-ID: <575E5DA0.1080906__14129.1245622144$1465813031$gmane$org@de.ibm.com>
+References: <1463574848-15630-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1465391362-18437-1-git-send-email-rppt@linux.vnet.ibm.com>
+In-Reply-To: <1463574848-15630-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,14 +17,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rppt@linux.vnet.ibm.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Date: Wed,  8 Jun 2016 16:09:16 +0300
+On 05/18/2016 02:38 PM, Michael S. Tsirkin wrote:
+> Everything should be LE when using virtio-1, but
+> the linux balloon driver does not seem to care about that.
+> 
+> Cc: stable@vger.kernel.org
+> Reported-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-> This patches introduce virtio_net_hdr_{from,to}_skb functions for
-> conversion of GSO information between skb and virtio_net_hdr.
+The final commit in Linus tree does not contain cc stable
+see
+https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit?id=87c9403b0d1de4676b0bd273eea68fcf6de68e68
 
-Looks like a nice cleanup to me, series applied, thanks Mike.
+But it is certainly table material.
+
+Christian
