@@ -1,13 +1,14 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH v5 6/6] hwmon: use smp_call_on_cpu() for dell-smm i8k
-Date: Mon, 13 Jun 2016 21:05:29 +0200
-Message-ID: <201606132105.29573@pali>
-References: <1459952266-3687-1-git-send-email-jgross@suse.com>
-	<1459952266-3687-7-git-send-email-jgross@suse.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH v8 2/5] ptr_ring: ring test
+Date: Mon, 13 Jun 2016 23:54:36 +0300
+Message-ID: <20160613235436-mutt-send-email-mst__6570.09232459149$1465851355$gmane$org@redhat.com>
+References: <1465851234-13558-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8911136902728691291=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1459952266-3687-7-git-send-email-jgross@suse.com>
+Content-Disposition: inline
+In-Reply-To: <1465851234-13558-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,62 +18,252 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Juergen Gross <jgross@suse.com>
-Cc: x86@kernel.org, jeremy@goop.org, jdelvare@suse.com, peterz@infradead.org, akataria@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, hpa@zytor.com, xen-devel@lists.xenproject.org, boris.ostrovsky@oracle.com, tglx@linutronix.de, linux@roeck-us.net
+To: linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>, netdev@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, brouer@redhat.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============8911136902728691291==
-Content-Type: multipart/signed;
-  boundary="nextPart1914347.VdCyj8eYVV";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+Add ringtest based unit test for ptr ring.
 
---nextPart1914347.VdCyj8eYVV
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ tools/virtio/ringtest/ptr_ring.c | 192 +++++++++++++++++++++++++++++++++++++++
+ tools/virtio/ringtest/Makefile   |   5 +-
+ 2 files changed, 196 insertions(+), 1 deletion(-)
+ create mode 100644 tools/virtio/ringtest/ptr_ring.c
 
-On Wednesday 06 April 2016 16:17:46 Juergen Gross wrote:
-> Use the smp_call_on_cpu() function to call system management
-> mode on cpu 0.
-> Make call secure by adding get_online_cpus() to avoid e.g. suspend
-> resume cycles in between.
->=20
-> Signed-off-by: Juergen Gross <jgross@suse.com>
-> ---
-> V4: add call to get_online_cpus()
-> ---
->  drivers/hwmon/dell-smm-hwmon.c | 35
-
-As mentioned in discussion under V4, you can add my Acked-by.
-
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---nextPart1914347.VdCyj8eYVV
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAldfA/kACgkQi/DJPQPkQ1IsBACgtP36FkPCfKZdOMi15f9Ez6Kn
-aHsAnApJ9m1FHxNOOU3vj7tmMGvb4N1c
-=1A/l
------END PGP SIGNATURE-----
-
---nextPart1914347.VdCyj8eYVV--
-
---===============8911136902728691291==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8911136902728691291==--
+diff --git a/tools/virtio/ringtest/ptr_ring.c b/tools/virtio/ringtest/ptr_ring.c
+new file mode 100644
+index 0000000..74abd74
+--- /dev/null
++++ b/tools/virtio/ringtest/ptr_ring.c
+@@ -0,0 +1,192 @@
++#define _GNU_SOURCE
++#include "main.h"
++#include <stdlib.h>
++#include <stdio.h>
++#include <string.h>
++#include <pthread.h>
++#include <malloc.h>
++#include <assert.h>
++#include <errno.h>
++#include <limits.h>
++
++#define SMP_CACHE_BYTES 64
++#define cache_line_size() SMP_CACHE_BYTES
++#define ____cacheline_aligned_in_smp __attribute__ ((aligned (SMP_CACHE_BYTES)))
++#define unlikely(x)    (__builtin_expect(!!(x), 0))
++#define ALIGN(x, a) (((x) + (a) - 1) / (a) * (a))
++typedef pthread_spinlock_t  spinlock_t;
++
++typedef int gfp_t;
++static void *kzalloc(unsigned size, gfp_t gfp)
++{
++	void *p = memalign(64, size);
++	if (!p)
++		return p;
++	memset(p, 0, size);
++
++	return p;
++}
++
++static void kfree(void *p)
++{
++	if (p)
++		free(p);
++}
++
++static void spin_lock_init(spinlock_t *lock)
++{
++	int r = pthread_spin_init(lock, 0);
++	assert(!r);
++}
++
++static void spin_lock(spinlock_t *lock)
++{
++	int ret = pthread_spin_lock(lock);
++	assert(!ret);
++}
++
++static void spin_unlock(spinlock_t *lock)
++{
++	int ret = pthread_spin_unlock(lock);
++	assert(!ret);
++}
++
++static void spin_lock_bh(spinlock_t *lock)
++{
++	spin_lock(lock);
++}
++
++static void spin_unlock_bh(spinlock_t *lock)
++{
++	spin_unlock(lock);
++}
++
++static void spin_lock_irq(spinlock_t *lock)
++{
++	spin_lock(lock);
++}
++
++static void spin_unlock_irq(spinlock_t *lock)
++{
++	spin_unlock(lock);
++}
++
++static void spin_lock_irqsave(spinlock_t *lock, unsigned long f)
++{
++	spin_lock(lock);
++}
++
++static void spin_unlock_irqrestore(spinlock_t *lock, unsigned long f)
++{
++	spin_unlock(lock);
++}
++
++#include "../../../include/linux/ptr_ring.h"
++
++static unsigned long long headcnt, tailcnt;
++static struct ptr_ring array ____cacheline_aligned_in_smp;
++
++/* implemented by ring */
++void alloc_ring(void)
++{
++	int ret = ptr_ring_init(&array, ring_size, 0);
++	assert(!ret);
++}
++
++/* guest side */
++int add_inbuf(unsigned len, void *buf, void *datap)
++{
++	int ret;
++
++	ret = __ptr_ring_produce(&array, buf);
++	if (ret >= 0) {
++		ret = 0;
++		headcnt++;
++	}
++
++	return ret;
++}
++
++/*
++ * ptr_ring API provides no way for producer to find out whether a given
++ * buffer was consumed.  Our tests merely require that a successful get_buf
++ * implies that add_inbuf succeed in the past, and that add_inbuf will succeed,
++ * fake it accordingly.
++ */
++void *get_buf(unsigned *lenp, void **bufp)
++{
++	void *datap;
++
++	if (tailcnt == headcnt || __ptr_ring_full(&array))
++		datap = NULL;
++	else {
++		datap = "Buffer\n";
++		++tailcnt;
++	}
++
++	return datap;
++}
++
++void poll_used(void)
++{
++	void *b;
++
++	do {
++		if (tailcnt == headcnt || __ptr_ring_full(&array)) {
++			b = NULL;
++			barrier();
++		} else {
++			b = "Buffer\n";
++		}
++	} while (!b);
++}
++
++void disable_call()
++{
++	assert(0);
++}
++
++bool enable_call()
++{
++	assert(0);
++}
++
++void kick_available(void)
++{
++	assert(0);
++}
++
++/* host side */
++void disable_kick()
++{
++	assert(0);
++}
++
++bool enable_kick()
++{
++	assert(0);
++}
++
++void poll_avail(void)
++{
++	void *b;
++
++	do {
++		barrier();
++		b = __ptr_ring_peek(&array);
++	} while (!b);
++}
++
++bool use_buf(unsigned *lenp, void **bufp)
++{
++	void *ptr;
++
++	ptr = __ptr_ring_consume(&array);
++
++	return ptr;
++}
++
++void call_used(void)
++{
++	assert(0);
++}
+diff --git a/tools/virtio/ringtest/Makefile b/tools/virtio/ringtest/Makefile
+index 6173ada..877a8a4 100644
+--- a/tools/virtio/ringtest/Makefile
++++ b/tools/virtio/ringtest/Makefile
+@@ -1,6 +1,6 @@
+ all:
+ 
+-all: ring virtio_ring_0_9 virtio_ring_poll virtio_ring_inorder noring
++all: ring virtio_ring_0_9 virtio_ring_poll virtio_ring_inorder ptr_ring noring
+ 
+ CFLAGS += -Wall
+ CFLAGS += -pthread -O2 -ggdb
+@@ -8,6 +8,7 @@ LDFLAGS += -pthread -O2 -ggdb
+ 
+ main.o: main.c main.h
+ ring.o: ring.c main.h
++ptr_ring.o: ptr_ring.c main.h ../../../include/linux/ptr_ring.h
+ virtio_ring_0_9.o: virtio_ring_0_9.c main.h
+ virtio_ring_poll.o: virtio_ring_poll.c virtio_ring_0_9.c main.h
+ virtio_ring_inorder.o: virtio_ring_inorder.c virtio_ring_0_9.c main.h
+@@ -15,6 +16,7 @@ ring: ring.o main.o
+ virtio_ring_0_9: virtio_ring_0_9.o main.o
+ virtio_ring_poll: virtio_ring_poll.o main.o
+ virtio_ring_inorder: virtio_ring_inorder.o main.o
++ptr_ring: ptr_ring.o main.o
+ noring: noring.o main.o
+ clean:
+ 	-rm main.o
+@@ -22,6 +24,7 @@ clean:
+ 	-rm virtio_ring_0_9.o virtio_ring_0_9
+ 	-rm virtio_ring_poll.o virtio_ring_poll
+ 	-rm virtio_ring_inorder.o virtio_ring_inorder
++	-rm ptr_ring.o ptr_ring
+ 	-rm noring.o noring
+ 
+ .PHONY: all clean
+-- 
+MST
