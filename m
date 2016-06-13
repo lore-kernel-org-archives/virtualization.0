@@ -1,15 +1,13 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH] virtio_balloon: fix PFN format for virtio-1
-Date: Mon, 13 Jun 2016 20:50:54 +0200
-Message-ID: <575F008E.9040601__21942.4836607233$1465843908$gmane$org@de.ibm.com>
-References: <1463574848-15630-1-git-send-email-mst@redhat.com>
-	<20160613210800-mutt-send-email-mst@redhat.com>
-	<20160613183559.GA10149@kroah.com>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH v5 6/6] hwmon: use smp_call_on_cpu() for dell-smm i8k
+Date: Mon, 13 Jun 2016 21:05:29 +0200
+Message-ID: <201606132105.29573@pali>
+References: <1459952266-3687-1-git-send-email-jgross@suse.com>
+	<1459952266-3687-7-git-send-email-jgross@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8911136902728691291=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160613183559.GA10149@kroah.com>
+In-Reply-To: <1459952266-3687-7-git-send-email-jgross@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,33 +17,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <gregkh@linuxfoundation.org>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Juergen Gross <jgross@suse.com>
+Cc: x86@kernel.org, jeremy@goop.org, jdelvare@suse.com, peterz@infradead.org, akataria@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, hpa@zytor.com, xen-devel@lists.xenproject.org, boris.ostrovsky@oracle.com, tglx@linutronix.de, linux@roeck-us.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/13/2016 08:35 PM, Greg KH wrote:
-> On Mon, Jun 13, 2016 at 09:08:44PM +0300, Michael S. Tsirkin wrote:
->> On Wed, May 18, 2016 at 03:38:53PM +0300, Michael S. Tsirkin wrote:
->>> Everything should be LE when using virtio-1, but
->>> the linux balloon driver does not seem to care about that.
->>>
->>> Cc: stable@vger.kernel.org
->>> Reported-by: Cornelia Huck <cornelia.huck@de.ibm.com>
->>> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->>
->> Forgot to CC stable.
->> Please consider this patch for inclusion in the next stable Linux.
-> 
-> Someone needs to tell stable@ the git comit id of the patch when it hits
-> Linus's tree...
-> 
-> thanks,
-> 
-> greg k-h
-> 
+--===============8911136902728691291==
+Content-Type: multipart/signed;
+  boundary="nextPart1914347.VdCyj8eYVV";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 
-See my mail,
-https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit?id=87c9403b0d1de4676b0bd273eea68fcf6de68e68
+--nextPart1914347.VdCyj8eYVV
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-commit	87c9403b0d1de4676b0bd273eea
-virtio_balloon: fix PFN format for virtio-1
+On Wednesday 06 April 2016 16:17:46 Juergen Gross wrote:
+> Use the smp_call_on_cpu() function to call system management
+> mode on cpu 0.
+> Make call secure by adding get_online_cpus() to avoid e.g. suspend
+> resume cycles in between.
+>=20
+> Signed-off-by: Juergen Gross <jgross@suse.com>
+> ---
+> V4: add call to get_online_cpus()
+> ---
+>  drivers/hwmon/dell-smm-hwmon.c | 35
+
+As mentioned in discussion under V4, you can add my Acked-by.
+
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--nextPart1914347.VdCyj8eYVV
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEABECAAYFAldfA/kACgkQi/DJPQPkQ1IsBACgtP36FkPCfKZdOMi15f9Ez6Kn
+aHsAnApJ9m1FHxNOOU3vj7tmMGvb4N1c
+=1A/l
+-----END PGP SIGNATURE-----
+
+--nextPart1914347.VdCyj8eYVV--
+
+--===============8911136902728691291==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8911136902728691291==--
