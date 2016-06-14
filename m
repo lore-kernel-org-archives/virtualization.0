@@ -1,17 +1,13 @@
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [RFC PATCH] vhost, mm: make sure that oom_reaper doesn't reap
-	memory read by vhost
-Date: Mon, 20 Jun 2016 11:35:05 +0200
-Message-ID: <20160620093505.GA4601@dhcp22.suse.cz>
-References: <1466154017-2222-1-git-send-email-mhocko@kernel.org>
-	<20160618025904-mutt-send-email-mst@redhat.com>
-	<20160619213543.GA32752@dhcp22.suse.cz>
+From: =?UTF-8?B?TWFyYy1BbmRyw6kgTHVyZWF1?= <marcandre.lureau@gmail.com>
+Subject: Re: [PATCH] virtio-gpu: use src not crtc
+Date: Tue, 14 Jun 2016 12:13:50 +0200
+Message-ID: <CAJ+F1CKQNpJ+=i3wq2JDJi8Z+tyK1=wBEmYTE=NfNJ20VKEoDA__6956.87162592566$1466419378$gmane$org@mail.gmail.com>
+References: <1464699172-26755-1-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160619213543.GA32752@dhcp22.suse.cz>
+In-Reply-To: <1464699172-26755-1-git-send-email-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,52 +17,89 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Vladimir Davydov <vdavydov@parallels.com>, Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, virtualization@lists.linux-foundation.org, LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun 19-06-16 23:35:43, Michal Hocko wrote:
-> On Sat 18-06-16 03:09:02, Michael S. Tsirkin wrote:
-> > On Fri, Jun 17, 2016 at 11:00:17AM +0200, Michal Hocko wrote:
-[...]
-> > > diff --git a/include/linux/uaccess.h b/include/linux/uaccess.h
-> > > index 349557825428..b1f314fca3c8 100644
-> > > --- a/include/linux/uaccess.h
-> > > +++ b/include/linux/uaccess.h
-> > > @@ -76,6 +76,28 @@ static inline unsigned long __copy_from_user_nocache(void *to,
-> > >  #endif		/* ARCH_HAS_NOCACHE_UACCESS */
-> > >  
-> > >  /*
-> > > + * A safe variant of __get_user for for use_mm() users to have a
-> > > + * gurantee that the address space wasn't reaped in the background
-> > > + */
-> > > +#define __get_user_mm(mm, x, ptr)				\
-> > > +({								\
-> > > +	int ___gu_err = __get_user(x, ptr);			\
-> > > +	if (!___gu_err && test_bit(MMF_UNSTABLE, &mm->flags))	\
-> > 
-> > test_bit is somewhat expensive. See my old mail
-> > 	x86/bitops: implement __test_bit
-> 
-> Do you have a msg_id?
-> 
-> > I dropped it as virtio just switched to simple &/| for features,
-> > but we might need something like this now.
-> 
-> Is this such a hot path that something like this would make a visible
-> difference? 
-
-OK, so I've tried to apply your patch [1] and updated both __get_user_mm
-and __copy_from_user_mm and the result is a code size reduction:
-   text    data     bss     dec     hex filename
-  12835       2      32   12869    3245 drivers/vhost/vhost.o
-  12882       2      32   12916    3274 drivers/vhost/vhost.o.before
-
-This is really tiny and I cannot tell anything about the performance. Should
-I resurrect your patch and push it together with this change or this can happen
-later?
-
-[1] http://lkml.kernel.org/r/1440776707-22016-1-git-send-email-mst@redhat.com
--- 
-Michal Hocko
-SUSE Labs
+SGkKCk9uIFR1ZSwgTWF5IDMxLCAyMDE2IGF0IDI6NTIgUE0sIEdlcmQgSG9mZm1hbm4gPGtyYXhl
+bEByZWRoYXQuY29tPiB3cm90ZToKPiBQaWNrIHVwIHRoZSBjb3JyZWN0IHNvdXJjZSByZWN0YW5n
+bGUgZnJvbSBmcmFtZWJ1ZmZlci4KPiBXaXRob3V0IHRoaXMgbXVsdGloZWFkIHNldHVwcyBhcmUg
+bm90IHdvcmtpbmcgY29ycmVjdGx5Lgo+Cj4gU2lnbmVkLW9mZi1ieTogR2VyZCBIb2ZmbWFubiA8
+a3JheGVsQHJlZGhhdC5jb20+CgpSZXZpZXdlZC1ieTogTWFyYy1BbmRyw6kgTHVyZWF1IDxtYXJj
+YW5kcmUubHVyZWF1QHJlZGhhdC5jb20+CgpBZGRpdGlvbmFsbHksIEkgaGFkIHRvIG1vZGlmeSB0
+aGUgcGFnZV9mbGlwKCkgZnVuY3Rpb24gdG8gdGFrZSB0aGUKcGxhbmUgc291cmNlIGNvb3JkaW5h
+dGVzIGZvciB2aXJnbC8zZCBtdWx0aWhlYWQgdG8gd29yay4gRmVlbCBmcmVlIHRvCnNxdWFzaC4K
+Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9kaXNwbGF5LmMKKysrIGIvZHJp
+dmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X2Rpc3BsYXkuYwpAQCAtNjgsMTEgKzY4LDE2IEBA
+IHN0YXRpYyBpbnQgdmlydGlvX2dwdV9wYWdlX2ZsaXAoc3RydWN0IGRybV9jcnRjICpjcnRjLAog
+ICAgICAgICAgICAgICAgICAgICAgICAgMCwgMCwgTlVMTCk7CiAgICAgICAgfQogICAgICAgIHZp
+cnRpb19ncHVfY21kX3NldF9zY2Fub3V0KHZnZGV2LCBvdXRwdXQtPmluZGV4LCBoYW5kbGUsCi0g
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY3J0Yy0+bW9kZS5oZGlzcGxheSwKLSAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjcnRjLT5tb2RlLnZkaXNwbGF5LCAwLCAw
+KTsKLSAgICAgICB2aXJ0aW9fZ3B1X2NtZF9yZXNvdXJjZV9mbHVzaCh2Z2RldiwgaGFuZGxlLCAw
+LCAwLAotICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNydGMtPm1vZGUuaGRp
+c3BsYXksCi0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY3J0Yy0+bW9kZS52
+ZGlzcGxheSk7CisgICAgICAgICAgICAgICAgICAgICAgIHBsYW5lLT5zdGF0ZS0+c3JjX3cgPj4g
+MTYsCisgICAgICAgICAgICAgICAgICAgICAgIHBsYW5lLT5zdGF0ZS0+c3JjX2ggPj4gMTYsCisg
+ICAgICAgICAgICAgICAgICAgICAgIHBsYW5lLT5zdGF0ZS0+c3JjX3ggPj4gMTYsCisgICAgICAg
+ICAgICAgICAgICAgICAgIHBsYW5lLT5zdGF0ZS0+c3JjX3kgPj4gMTYpOworCisgICAgICAgdmly
+dGlvX2dwdV9jbWRfcmVzb3VyY2VfZmx1c2godmdkZXYsIGhhbmRsZSwKKyAgICAgICAgICAgICAg
+ICAgICAgICAgcGxhbmUtPnN0YXRlLT5zcmNfeCA+PiAxNiwKKyAgICAgICAgICAgICAgICAgICAg
+ICAgcGxhbmUtPnN0YXRlLT5zcmNfeSA+PiAxNiwKKyAgICAgICAgICAgICAgICAgICAgICAgcGxh
+bmUtPnN0YXRlLT5zcmNfdyA+PiAxNiwKKyAgICAgICAgICAgICAgICAgICAgICAgcGxhbmUtPnN0
+YXRlLT5zcmNfaCk7Cgo+IC0tLQo+ICBkcml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfcGxh
+bmUuYyB8IDMxICsrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0KPiAgMSBmaWxlIGNoYW5n
+ZWQsIDE4IGluc2VydGlvbnMoKyksIDEzIGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBhL2Ry
+aXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9wbGFuZS5jIGIvZHJpdmVycy9ncHUvZHJtL3Zp
+cnRpby92aXJ0Z3B1X3BsYW5lLmMKPiBpbmRleCBiNzc3OGE3Li45MjVjYTI1IDEwMDY0NAo+IC0t
+LSBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9wbGFuZS5jCj4gKysrIGIvZHJpdmVy
+cy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X3BsYW5lLmMKPiBAQCAtODUsMjcgKzg1LDMyIEBAIHN0
+YXRpYyB2b2lkIHZpcnRpb19ncHVfcHJpbWFyeV9wbGFuZV91cGRhdGUoc3RydWN0IGRybV9wbGFu
+ZSAqcGxhbmUsCj4gICAgICAgICAgICAgICAgIGlmIChiby0+ZHVtYikgewo+ICAgICAgICAgICAg
+ICAgICAgICAgICAgIHZpcnRpb19ncHVfY21kX3RyYW5zZmVyX3RvX2hvc3RfMmQKPiAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICh2Z2RldiwgaGFuZGxlLCAwLAo+IC0gICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgIGNwdV90b19sZTMyKHBsYW5lLT5zdGF0ZS0+Y3J0Y193KSwK
+PiAtICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjcHVfdG9fbGUzMihwbGFuZS0+c3Rh
+dGUtPmNydGNfaCksCj4gLSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcGxhbmUtPnN0
+YXRlLT5jcnRjX3gsIHBsYW5lLT5zdGF0ZS0+Y3J0Y195LCBOVUxMKTsKPiArICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICBjcHVfdG9fbGUzMihwbGFuZS0+c3RhdGUtPnNyY193ID4+IDE2
+KSwKPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjcHVfdG9fbGUzMihwbGFuZS0+
+c3RhdGUtPnNyY19oID4+IDE2KSwKPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBw
+bGFuZS0+c3RhdGUtPnNyY194ID4+IDE2LAo+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIHBsYW5lLT5zdGF0ZS0+c3JjX3kgPj4gMTYsIE5VTEwpOwo+ICAgICAgICAgICAgICAgICB9
+Cj4gICAgICAgICB9IGVsc2Ugewo+ICAgICAgICAgICAgICAgICBoYW5kbGUgPSAwOwo+ICAgICAg
+ICAgfQo+Cj4gLSAgICAgICBEUk1fREVCVUcoImhhbmRsZSAweCV4LCBjcnRjICVkeCVkKyVkKyVk
+XG4iLCBoYW5kbGUsCj4gKyAgICAgICBEUk1fREVCVUcoImhhbmRsZSAweCV4LCBjcnRjICVkeCVk
+KyVkKyVkLCBzcmMgJWR4JWQrJWQrJWRcbiIsIGhhbmRsZSwKPiAgICAgICAgICAgICAgICAgICBw
+bGFuZS0+c3RhdGUtPmNydGNfdywgcGxhbmUtPnN0YXRlLT5jcnRjX2gsCj4gLSAgICAgICAgICAg
+ICAgICAgcGxhbmUtPnN0YXRlLT5jcnRjX3gsIHBsYW5lLT5zdGF0ZS0+Y3J0Y195KTsKPiArICAg
+ICAgICAgICAgICAgICBwbGFuZS0+c3RhdGUtPmNydGNfeCwgcGxhbmUtPnN0YXRlLT5jcnRjX3ks
+Cj4gKyAgICAgICAgICAgICAgICAgcGxhbmUtPnN0YXRlLT5zcmNfdyA+PiAxNiwKPiArICAgICAg
+ICAgICAgICAgICBwbGFuZS0+c3RhdGUtPnNyY19oID4+IDE2LAo+ICsgICAgICAgICAgICAgICAg
+IHBsYW5lLT5zdGF0ZS0+c3JjX3ggPj4gMTYsCj4gKyAgICAgICAgICAgICAgICAgcGxhbmUtPnN0
+YXRlLT5zcmNfeSA+PiAxNik7Cj4gICAgICAgICB2aXJ0aW9fZ3B1X2NtZF9zZXRfc2Nhbm91dCh2
+Z2Rldiwgb3V0cHV0LT5pbmRleCwgaGFuZGxlLAo+IC0gICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgcGxhbmUtPnN0YXRlLT5jcnRjX3csCj4gLSAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICBwbGFuZS0+c3RhdGUtPmNydGNfaCwKPiAtICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgIHBsYW5lLT5zdGF0ZS0+Y3J0Y194LAo+IC0gICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgcGxhbmUtPnN0YXRlLT5jcnRjX3kpOwo+ICsgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgcGxhbmUtPnN0YXRlLT5zcmNfdyA+PiAxNiwKPiArICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIHBsYW5lLT5zdGF0ZS0+c3JjX2ggPj4gMTYsCj4gKyAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBwbGFuZS0+c3RhdGUtPnNyY194ID4+IDE2
+LAo+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcGxhbmUtPnN0YXRlLT5zcmNf
+eSA+PiAxNik7Cj4gICAgICAgICB2aXJ0aW9fZ3B1X2NtZF9yZXNvdXJjZV9mbHVzaCh2Z2Rldiwg
+aGFuZGxlLAo+IC0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcGxhbmUtPnN0
+YXRlLT5jcnRjX3gsCj4gLSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBwbGFu
+ZS0+c3RhdGUtPmNydGNfeSwKPiAtICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+IHBsYW5lLT5zdGF0ZS0+Y3J0Y193LAo+IC0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgcGxhbmUtPnN0YXRlLT5jcnRjX2gpOwo+ICsgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgcGxhbmUtPnN0YXRlLT5zcmNfeCA+PiAxNiwKPiArICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgIHBsYW5lLT5zdGF0ZS0+c3JjX3kgPj4gMTYsCj4gKyAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBwbGFuZS0+c3RhdGUtPnNyY193ID4+IDE2
+LAo+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcGxhbmUtPnN0YXRlLT5z
+cmNfaCA+PiAxNik7Cj4gIH0KPgo+ICBzdGF0aWMgdm9pZCB2aXJ0aW9fZ3B1X2N1cnNvcl9wbGFu
+ZV91cGRhdGUoc3RydWN0IGRybV9wbGFuZSAqcGxhbmUsCj4gLS0KPiAxLjguMy4xCj4KCgoKLS0g
+Ck1hcmMtQW5kcsOpIEx1cmVhdQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
+dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
+L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
