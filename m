@@ -1,14 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v8 2/5] ptr_ring: ring test
-Date: Mon, 13 Jun 2016 23:54:36 +0300
-Message-ID: <20160613235436-mutt-send-email-mst__6570.09232459149$1465851355$gmane$org@redhat.com>
-References: <1465851234-13558-1-git-send-email-mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC PATCH V3 0/3] basic device IOTLB support
+Date: Tue, 14 Jun 2016 18:40:53 +0800
+Message-ID: <575FDF35.40201__38071.3227707476$1465900880$gmane$org@redhat.com>
+References: <1464082585-13049-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1465851234-13558-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1464082585-13049-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,252 +17,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>, netdev@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, brouer@redhat.com, davem@davemloft.net
+To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: vkaplans@redhat.com, wexu@redhat.com, peterx@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add ringtest based unit test for ptr ring.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- tools/virtio/ringtest/ptr_ring.c | 192 +++++++++++++++++++++++++++++++++++++++
- tools/virtio/ringtest/Makefile   |   5 +-
- 2 files changed, 196 insertions(+), 1 deletion(-)
- create mode 100644 tools/virtio/ringtest/ptr_ring.c
-
-diff --git a/tools/virtio/ringtest/ptr_ring.c b/tools/virtio/ringtest/ptr_ring.c
-new file mode 100644
-index 0000000..74abd74
---- /dev/null
-+++ b/tools/virtio/ringtest/ptr_ring.c
-@@ -0,0 +1,192 @@
-+#define _GNU_SOURCE
-+#include "main.h"
-+#include <stdlib.h>
-+#include <stdio.h>
-+#include <string.h>
-+#include <pthread.h>
-+#include <malloc.h>
-+#include <assert.h>
-+#include <errno.h>
-+#include <limits.h>
-+
-+#define SMP_CACHE_BYTES 64
-+#define cache_line_size() SMP_CACHE_BYTES
-+#define ____cacheline_aligned_in_smp __attribute__ ((aligned (SMP_CACHE_BYTES)))
-+#define unlikely(x)    (__builtin_expect(!!(x), 0))
-+#define ALIGN(x, a) (((x) + (a) - 1) / (a) * (a))
-+typedef pthread_spinlock_t  spinlock_t;
-+
-+typedef int gfp_t;
-+static void *kzalloc(unsigned size, gfp_t gfp)
-+{
-+	void *p = memalign(64, size);
-+	if (!p)
-+		return p;
-+	memset(p, 0, size);
-+
-+	return p;
-+}
-+
-+static void kfree(void *p)
-+{
-+	if (p)
-+		free(p);
-+}
-+
-+static void spin_lock_init(spinlock_t *lock)
-+{
-+	int r = pthread_spin_init(lock, 0);
-+	assert(!r);
-+}
-+
-+static void spin_lock(spinlock_t *lock)
-+{
-+	int ret = pthread_spin_lock(lock);
-+	assert(!ret);
-+}
-+
-+static void spin_unlock(spinlock_t *lock)
-+{
-+	int ret = pthread_spin_unlock(lock);
-+	assert(!ret);
-+}
-+
-+static void spin_lock_bh(spinlock_t *lock)
-+{
-+	spin_lock(lock);
-+}
-+
-+static void spin_unlock_bh(spinlock_t *lock)
-+{
-+	spin_unlock(lock);
-+}
-+
-+static void spin_lock_irq(spinlock_t *lock)
-+{
-+	spin_lock(lock);
-+}
-+
-+static void spin_unlock_irq(spinlock_t *lock)
-+{
-+	spin_unlock(lock);
-+}
-+
-+static void spin_lock_irqsave(spinlock_t *lock, unsigned long f)
-+{
-+	spin_lock(lock);
-+}
-+
-+static void spin_unlock_irqrestore(spinlock_t *lock, unsigned long f)
-+{
-+	spin_unlock(lock);
-+}
-+
-+#include "../../../include/linux/ptr_ring.h"
-+
-+static unsigned long long headcnt, tailcnt;
-+static struct ptr_ring array ____cacheline_aligned_in_smp;
-+
-+/* implemented by ring */
-+void alloc_ring(void)
-+{
-+	int ret = ptr_ring_init(&array, ring_size, 0);
-+	assert(!ret);
-+}
-+
-+/* guest side */
-+int add_inbuf(unsigned len, void *buf, void *datap)
-+{
-+	int ret;
-+
-+	ret = __ptr_ring_produce(&array, buf);
-+	if (ret >= 0) {
-+		ret = 0;
-+		headcnt++;
-+	}
-+
-+	return ret;
-+}
-+
-+/*
-+ * ptr_ring API provides no way for producer to find out whether a given
-+ * buffer was consumed.  Our tests merely require that a successful get_buf
-+ * implies that add_inbuf succeed in the past, and that add_inbuf will succeed,
-+ * fake it accordingly.
-+ */
-+void *get_buf(unsigned *lenp, void **bufp)
-+{
-+	void *datap;
-+
-+	if (tailcnt == headcnt || __ptr_ring_full(&array))
-+		datap = NULL;
-+	else {
-+		datap = "Buffer\n";
-+		++tailcnt;
-+	}
-+
-+	return datap;
-+}
-+
-+void poll_used(void)
-+{
-+	void *b;
-+
-+	do {
-+		if (tailcnt == headcnt || __ptr_ring_full(&array)) {
-+			b = NULL;
-+			barrier();
-+		} else {
-+			b = "Buffer\n";
-+		}
-+	} while (!b);
-+}
-+
-+void disable_call()
-+{
-+	assert(0);
-+}
-+
-+bool enable_call()
-+{
-+	assert(0);
-+}
-+
-+void kick_available(void)
-+{
-+	assert(0);
-+}
-+
-+/* host side */
-+void disable_kick()
-+{
-+	assert(0);
-+}
-+
-+bool enable_kick()
-+{
-+	assert(0);
-+}
-+
-+void poll_avail(void)
-+{
-+	void *b;
-+
-+	do {
-+		barrier();
-+		b = __ptr_ring_peek(&array);
-+	} while (!b);
-+}
-+
-+bool use_buf(unsigned *lenp, void **bufp)
-+{
-+	void *ptr;
-+
-+	ptr = __ptr_ring_consume(&array);
-+
-+	return ptr;
-+}
-+
-+void call_used(void)
-+{
-+	assert(0);
-+}
-diff --git a/tools/virtio/ringtest/Makefile b/tools/virtio/ringtest/Makefile
-index 6173ada..877a8a4 100644
---- a/tools/virtio/ringtest/Makefile
-+++ b/tools/virtio/ringtest/Makefile
-@@ -1,6 +1,6 @@
- all:
- 
--all: ring virtio_ring_0_9 virtio_ring_poll virtio_ring_inorder noring
-+all: ring virtio_ring_0_9 virtio_ring_poll virtio_ring_inorder ptr_ring noring
- 
- CFLAGS += -Wall
- CFLAGS += -pthread -O2 -ggdb
-@@ -8,6 +8,7 @@ LDFLAGS += -pthread -O2 -ggdb
- 
- main.o: main.c main.h
- ring.o: ring.c main.h
-+ptr_ring.o: ptr_ring.c main.h ../../../include/linux/ptr_ring.h
- virtio_ring_0_9.o: virtio_ring_0_9.c main.h
- virtio_ring_poll.o: virtio_ring_poll.c virtio_ring_0_9.c main.h
- virtio_ring_inorder.o: virtio_ring_inorder.c virtio_ring_0_9.c main.h
-@@ -15,6 +16,7 @@ ring: ring.o main.o
- virtio_ring_0_9: virtio_ring_0_9.o main.o
- virtio_ring_poll: virtio_ring_poll.o main.o
- virtio_ring_inorder: virtio_ring_inorder.o main.o
-+ptr_ring: ptr_ring.o main.o
- noring: noring.o main.o
- clean:
- 	-rm main.o
-@@ -22,6 +24,7 @@ clean:
- 	-rm virtio_ring_0_9.o virtio_ring_0_9
- 	-rm virtio_ring_poll.o virtio_ring_poll
- 	-rm virtio_ring_inorder.o virtio_ring_inorder
-+	-rm ptr_ring.o ptr_ring
- 	-rm noring.o noring
- 
- .PHONY: all clean
--- 
-MST
+CgpPbiAyMDE25bm0MDXmnIgyNOaXpSAxNzozNiwgSmFzb24gV2FuZyB3cm90ZToKPiBUaGlzIHBh
+dGNoIHRyaWVzIHRvIGltcGxlbWVudCBhbiBkZXZpY2UgSU9UTEIgZm9yIHZob3N0LiBUaGlzIGNv
+dWxkIGJlCj4gdXNlZCB3aXRoIGZvciBjby1vcGVyYXRpb24gd2l0aCB1c2Vyc3BhY2UgSU9NTVUg
+aW1wbGVtZW50YXRpb24gKHFlbXUpCj4gZm9yIGEgc2VjdXJlIERNQSBlbnZpcm9ubWVudCAoRE1B
+UikgaW4gZ3Vlc3QuCj4KPiBUaGUgaWRlYSBpcyBzaW1wbGUuIFdoZW4gdmhvc3QgbWVldHMgYW4g
+SU9UTEIgbWlzcywgaXQgd2lsbCByZXF1ZXN0Cj4gdGhlIGFzc2lzdGFuY2Ugb2YgdXNlcnNwYWNl
+IHRvIGRvIHRoZSB0cmFuc2xhdGlvbiwgdGhpcyBpcyBkb25lCj4gdGhyb3VnaDoKPgo+IC0gd2hl
+biB0aGVyZSdzIGEgSU9UTEIgbWlzcywgaXQgd2lsbCBub3RpZnkgdXNlcnNwYWNlIHRocm91Z2gK
+PiAgICB2aG9zdF9uZXQgZmQgYW5kIHRoZW4gdXNlcnNwYWNlIHJlYWQgdGhlIGZhdWx0IGFkZHJl
+c3MsIHNpemUgYW5kCj4gICAgYWNjZXNzIGZyb20gdmhvc3QgZmQuCj4gLSB1c2Vyc3BhY2Ugd3Jp
+dGUgdGhlIHRyYW5zbGF0aW9uIHJlc3VsdCBiYWNrIHRvIHZob3N0IGZkLCB2aG9zdCBjYW4KPiAg
+ICB0aGVuIHVwZGF0ZSBpdHMgSU9UTEIuCj4KPiBUaGUgY29kZXMgd2VyZSBvcHRpbWl6ZWQgZm9y
+IGZpeGVkIG1hcHBpbmcgdXNlcnMgZS5nIGRwZGsgaW4gZ3Vlc3QuIEl0Cj4gd2lsbCBiZSBzbG93
+IGlmIGR5bmFtaWMgbWFwcGluZ3Mgd2VyZSB1c2VkIGluIGd1ZXN0LiBXZSBjb3VsZCBkbwo+IG9w
+dGltaXphdGlvbnMgb24gdG9wLgo+Cj4gVGhlIGNvZGVzIHdlcmUgZGVzaWduZWQgdG8gYmUgYXJj
+aGl0ZWN0dXJlIGluZGVwZW5kZW50LiBJdCBzaG91bGQgYmUKPiBlYXNpbHkgcG9ydGVkIHRvIGFu
+eSBhcmNoaXRlY3R1cmUuCj4KPiBTdHJlc3MgdGVzdGVkIHdpdGggbDJmd2QvdmZpbyBpbiBndWVz
+dCB3aXRoIDRLLzJNLzFHIHBhZ2Ugc2l6ZS4gT24gMUcKPiBodWdlcGFnZSBjYXNlLCAxMDAlIFRM
+QiBoaXQgcmF0ZSB3ZXJlIG5vdGljZWQuCj4KPiBDaGFuZ2VzIGZyb20gVjI6Cj4gLSBpbnRyb2R1
+Y2UgbWVtb3J5IGFjY2Vzc29ycyBmb3Igdmhvc3QKPiAtIHN3aXRjaCBmcm9tIGlvY3RscyB0byBv
+cmlkaW5hcnkgZmlsZSByZWFkL3dyaXRlIGZvciBpb3RsYiBtaXNzIGFuZAo+ICAgIHVwZGF0aW5n
+Cj4gLSBkbyBub3QgYXNzdW1lIHZpcnRxdWV1ZSB3ZXJlIHZpcnR1YWxseSBtYXBwZWQgY29udGln
+dW91c2x5LCBhbGwKPiAgICB2aXJ0cXVldWUgYWNjZXNzIHdlcmUgZG9uZSB0aHJvdWcgSU9UTEIK
+PiAtIHZlcmlmeSBtZW1vcnkgYWNjZXNzIGR1cmluZyBJT1RMQiB1cGRhdGUgYW5kIGZhaWwgZWFy
+bHkKPiAtIGludHJvZHVjZSBhIG1vZHVsZSBwYXJhbWV0ZXIgZm9yIHRoZSBzaXplIG9mIElPVExC
+Cj4KPiBDaGFuZ2VzIGZyb20gVjE6Cj4gLSBzdXBwb3J0IGFueSBzaXplL3JhbmdlIG9mIHVwZGF0
+aW5nIGFuZCBpbnZhbGlkYXRpb24gdGhyb3VnaAo+ICAgIGludHJvZHVjaW5nIHRoZSBpbnRlcnZh
+bCB0cmVlLgo+IC0gY29udmVydCBmcm9tIHBlciBkZXZpY2UgaW90bGIgcmVxdWVzdCB0byBwZXIg
+dmlydHF1ZXVlIGlvdGxiCj4gICAgcmVxdWVzdCwgdGhpcyBzb2x2ZXMgdGhlIHBvc3NpYmxlIGRl
+YWRsb2NrIGluIFYxLgo+IC0gcmVhZC93cml0ZSBwZXJtaXNzaW9uIGNoZWNrIHN1cHBvcnQuCj4K
+PiBQbGVhc2UgcmV2aWV3LgoKSGF2ZSBhIGJlbmNobWFyayBvbiB0aGlzLiBUZXN0IHdhcyBkb25l
+IHdpdGggbDJmd2QgaW4gZ3Vlc3QuCgpGb3IgMk1CIHBhZ2UsIG5vIGRpZmZlcmVuY2UgaW4gNjRC
+IHBlcmZvcm1hbmNlIGFuZCBJIG5vdGljZSBhIDQlLTUlIGRyb3AgCmZvciAxNTAwQiBwZXJmb3Jt
+YW5jZSBjb21wYXJlIHRvIFVJTyBpbiBndWVzdC4gV2UgY2FuIGFkZCBzb21lIHNob3J0Y3V0IAp0
+byBieXBhc3MgdGhlIElPVExCIGZvciB2aXJ0cXVldWUgYWNjZXNzaW5nLCBidXQgSSB0aGluayBp
+dCdzIGJldHRlciB0byAKYmUgZG9uZSBvbiB0b3AuCgo+Cj4gSmFzb24gV2FuZyAoMyk6Cj4gICAg
+dmhvc3Q6IGludHJvZHVjZSB2aG9zdCBtZW1vcnkgYWNjZXNzb3JzCj4gICAgdmhvc3Q6IGNvbnZl
+cnQgcHJlIHNvcnRlZCB2aG9zdCBtZW1vcnkgYXJyYXkgdG8gaW50ZXJ2YWwgdHJlZQo+ICAgIHZo
+b3N0OiBkZXZpY2UgSU9UTEIgQVBJCj4KPiAgIGRyaXZlcnMvdmhvc3QvbmV0LmMgICAgICAgIHwg
+IDYzICsrKy0KPiAgIGRyaXZlcnMvdmhvc3Qvdmhvc3QuYyAgICAgIHwgNzYwICsrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0tLQo+ICAgZHJpdmVycy92aG9zdC92aG9z
+dC5oICAgICAgfCAgNjAgKysrLQo+ICAgaW5jbHVkZS91YXBpL2xpbnV4L3Zob3N0LmggfCAgMjgg
+KysKPiAgIDQgZmlsZXMgY2hhbmdlZCwgNzkwIGluc2VydGlvbnMoKyksIDEyMSBkZWxldGlvbnMo
+LSkKPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
+dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
+YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
+bmZvL3ZpcnR1YWxpemF0aW9u
