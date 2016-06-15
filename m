@@ -1,12 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] vhost: docs/tests
-Date: Tue, 14 Jun 2016 23:17:03 +0300
-Message-ID: <20160614231703-mutt-send-email-mst@redhat.com>
+From: Minchan Kim <minchan@kernel.org>
+Subject: Re: [PATCH v6v3 02/12] mm: migrate: support non-lru movable page
+	migration
+Date: Wed, 15 Jun 2016 11:32:49 +0900
+Message-ID: <20160615023249.GG17127__5309.80405533246$1465957984$gmane$org@bbox>
+References: <1463754225-31311-1-git-send-email-minchan@kernel.org>
+	<1463754225-31311-3-git-send-email-minchan@kernel.org>
+	<20160530013926.GB8683@bbox> <20160531000117.GB18314@bbox>
+	<575E7F0B.8010201@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <575E7F0B.8010201@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,44 +22,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, rppt@linux.vnet.ibm.com, geert@linux-m68k.org
+To: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+Cc: Rik van Riel <riel@redhat.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Rafael Aquini <aquini@redhat.com>, Jonathan Corbet <corbet@lwn.net>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, John Einar Reitan <john.reitan@foss.arm.com>, linux-mm@kvack.org, Gioh Kim <gi-oh.kim@profitbricks.com>, Mel Gorman <mgorman@suse.de>, Andrew Morton <akpm@linux-foundation.org>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Vlastimil Babka <vbabka@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit af8c34ce6ae32addda3788d54a7e340cad22516b:
+Hi,
 
-  Linux 4.7-rc2 (2016-06-05 14:31:26 -0700)
+On Mon, Jun 13, 2016 at 03:08:19PM +0530, Anshuman Khandual wrote:
+> On 05/31/2016 05:31 AM, Minchan Kim wrote:
+> > @@ -791,6 +921,7 @@ static int __unmap_and_move(struct page *page, struct page *newpage,
+> >  	int rc = -EAGAIN;
+> >  	int page_was_mapped = 0;
+> >  	struct anon_vma *anon_vma = NULL;
+> > +	bool is_lru = !__PageMovable(page);
+> >  
+> >  	if (!trylock_page(page)) {
+> >  		if (!force || mode == MIGRATE_ASYNC)
+> > @@ -871,6 +1002,11 @@ static int __unmap_and_move(struct page *page, struct page *newpage,
+> >  		goto out_unlock_both;
+> >  	}
+> >  
+> > +	if (unlikely(!is_lru)) {
+> > +		rc = move_to_new_page(newpage, page, mode);
+> > +		goto out_unlock_both;
+> > +	}
+> > +
+> 
+> Hello Minchan,
+> 
+> I might be missing something here but does this implementation support the
+> scenario where these non LRU pages owned by the driver mapped as PTE into
+> process page table ? Because the "goto out_unlock_both" statement above
+> skips all the PTE unmap, putting a migration PTE and removing the migration
+> PTE steps.
 
-are available in the git repository at:
+You're right. Unfortunately, it doesn't support right now but surely,
+it's my TODO after landing this work.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+Could you share your usecase?
 
-for you to fetch changes up to 139ab4d4e68b8cf2a611b06c006a2195dc6bedf1:
+It would be helpful for merging when I wll send patchset.
 
-  tools/virtio: add noring tool (2016-06-06 13:00:11 +0300)
-
-----------------------------------------------------------------
-virtio: docs, tests for 4.7
-
-This merely has some documentation and a new test, seems safe to merge.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Geert Uytterhoeven (1):
-      MAINTAINERS: Add file patterns for virtio device tree bindings
-
-Michael S. Tsirkin (1):
-      tools/virtio: add noring tool
-
-Mike Rapoport (2):
-      tools/virtio/ringtest: add usage example to README
-      tools/virtio/ringtest: fix run-on-all.sh to work without /dev/cpu
-
- tools/virtio/ringtest/noring.c      | 69 +++++++++++++++++++++++++++++++++++++
- MAINTAINERS                         |  1 +
- tools/virtio/ringtest/Makefile      |  4 ++-
- tools/virtio/ringtest/README        |  4 +++
- tools/virtio/ringtest/run-on-all.sh |  4 +--
- 5 files changed, 79 insertions(+), 3 deletions(-)
- create mode 100644 tools/virtio/ringtest/noring.c
+Thanks!
