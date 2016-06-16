@@ -1,19 +1,17 @@
 From: Minchan Kim <minchan@kernel.org>
-Subject: Re: [PATCH v6v3 02/12] mm: migrate: support non-lru movable page
-	migration
-Date: Thu, 16 Jun 2016 14:37:54 +0900
-Message-ID: <20160616053754.GQ17127__48751.8548070968$1466055484$gmane$org@bbox>
-References: <1463754225-31311-1-git-send-email-minchan@kernel.org>
-	<1463754225-31311-3-git-send-email-minchan@kernel.org>
-	<20160530013926.GB8683@bbox> <20160531000117.GB18314@bbox>
-	<575E7F0B.8010201@linux.vnet.ibm.com> <20160615023249.GG17127@bbox>
-	<5760F970.7060805@linux.vnet.ibm.com> <20160616002617.GM17127@bbox>
-	<5762200F.5040908@linux.vnet.ibm.com>
+Subject: Re: [PATCH v7 00/12] Support non-lru page migration
+Date: Thu, 16 Jun 2016 15:47:53 +0900
+Message-ID: <20160616064753.GR17127__32420.9638675258$1466059694$gmane$org@bbox>
+References: <1464736881-24886-1-git-send-email-minchan@kernel.org>
+	<20160615075909.GA425@swordfish> <20160615231248.GI17127@bbox>
+	<20160616024827.GA497@swordfish> <20160616025800.GO17127@bbox>
+	<20160616042343.GA516@swordfish> <20160616044710.GP17127@bbox>
+	<20160616052209.GB516@swordfish>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5762200F.5040908@linux.vnet.ibm.com>
+In-Reply-To: <20160616052209.GB516@swordfish>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,86 +22,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-Cc: Rik van Riel <riel@redhat.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Rafael Aquini <aquini@redhat.com>, Jonathan Corbet <corbet@lwn.net>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, John Einar Reitan <john.reitan@foss.arm.com>, linux-mm@kvack.org, Gioh Kim <gi-oh.kim@profitbricks.com>, Mel Gorman <mgorman@suse.de>, Andrew Morton <akpm@linux-foundation.org>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Vlastimil Babka <vbabka@suse.cz>
+To: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+Cc: Rik van Riel <riel@redhat.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>, Jonathan Corbet <corbet@lwn.net>, Chan Gyun Jeong <chan.jeong@lge.com>, Rafael Aquini <aquini@redhat.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, John Einar Reitan <john.reitan@foss.arm.com>, linux-mm@kvack.org, Chulmin Kim <cmlaika.kim@samsung.com>, Gioh Kim <gi-oh.kim@profitbricks.com>, Konstantin Khlebnikov <koct9i@gmail.com>, Sangseok Lee <sangseok.lee@lge.com>, Andrew Morton <akpm@linux-foundation.org>, Kyeongdon Kim <kyeongdon.kim@lge.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 16, 2016 at 09:12:07AM +0530, Anshuman Khandual wrote:
-> On 06/16/2016 05:56 AM, Minchan Kim wrote:
-> > On Wed, Jun 15, 2016 at 12:15:04PM +0530, Anshuman Khandual wrote:
-> >> On 06/15/2016 08:02 AM, Minchan Kim wrote:
-> >>> Hi,
-> >>>
-> >>> On Mon, Jun 13, 2016 at 03:08:19PM +0530, Anshuman Khandual wrote:
-> >>>>> On 05/31/2016 05:31 AM, Minchan Kim wrote:
-> >>>>>>> @@ -791,6 +921,7 @@ static int __unmap_and_move(struct page *page, struct page *newpage,
-> >>>>>>>  	int rc = -EAGAIN;
-> >>>>>>>  	int page_was_mapped = 0;
-> >>>>>>>  	struct anon_vma *anon_vma = NULL;
-> >>>>>>> +	bool is_lru = !__PageMovable(page);
-> >>>>>>>  
-> >>>>>>>  	if (!trylock_page(page)) {
-> >>>>>>>  		if (!force || mode == MIGRATE_ASYNC)
-> >>>>>>> @@ -871,6 +1002,11 @@ static int __unmap_and_move(struct page *page, struct page *newpage,
-> >>>>>>>  		goto out_unlock_both;
-> >>>>>>>  	}
-> >>>>>>>  
-> >>>>>>> +	if (unlikely(!is_lru)) {
-> >>>>>>> +		rc = move_to_new_page(newpage, page, mode);
-> >>>>>>> +		goto out_unlock_both;
-> >>>>>>> +	}
-> >>>>>>> +
-> >>>>>
-> >>>>> Hello Minchan,
-> >>>>>
-> >>>>> I might be missing something here but does this implementation support the
-> >>>>> scenario where these non LRU pages owned by the driver mapped as PTE into
-> >>>>> process page table ? Because the "goto out_unlock_both" statement above
-> >>>>> skips all the PTE unmap, putting a migration PTE and removing the migration
-> >>>>> PTE steps.
-> >>> You're right. Unfortunately, it doesn't support right now but surely,
-> >>> it's my TODO after landing this work.
-> >>>
-> >>> Could you share your usecase?
-> >>
-> >> Sure.
+On Thu, Jun 16, 2016 at 02:22:09PM +0900, Sergey Senozhatsky wrote:
+> On (06/16/16 13:47), Minchan Kim wrote:
+> [..]
+> > > this is what I'm getting with the [zsmalloc: keep first object offset in struct page]
+> > > applied:  "count:0 mapcount:-127". which may be not related to zsmalloc at this point.
+> > > 
+> > > kernel: BUG: Bad page state in process khugepaged  pfn:101db8
+> > > kernel: page:ffffea0004076e00 count:0 mapcount:-127 mapping:          (null) index:0x1
 > > 
-> > Thanks a lot!
+> > Hm, it seems double free.
 > > 
-> >>
-> >> My driver has privately managed non LRU pages which gets mapped into user space
-> >> process page table through f_ops->mmap() and vmops->fault() which then updates
-> >> the file RMAP (page->mapping->i_mmap) through page_add_file_rmap(page). One thing
-> > 
-> > Hmm, page_add_file_rmap is not exported function. How does your driver can use it?
+> > It doen't happen if you disable zram? IOW, it seems to be related
+> > zsmalloc migration?
 > 
-> Its not using the function directly, I just re-iterated the sequence of functions
-> above. (do_set_pte -> page_add_file_rmap) gets called after we grab the page from
-> driver through (__do_fault->vma->vm_ops->fault()).
+> need to test more, can't confidently answer now.
 > 
-> > Do you use vm_insert_pfn?
-> > What type your vma is? VM_PFNMMAP or VM_MIXEDMAP?
+> > How easy can you reprodcue it? Could you bisect it?
 > 
-> I dont use vm_insert_pfn(). Here is the sequence of events how the user space
-> VMA gets the non LRU pages from the driver.
-> 
-> - Driver registers a character device with 'struct file_operations' binding
-> - Then the 'fops->mmap()' just binds the incoming 'struct vma' with a 'struct
->   vm_operations_struct' which provides the 'vmops->fault()' routine which
->   basically traps all page faults on the VMA and provides one page at a time
->   through a driver specific allocation routine which hands over non LRU pages
-> 
-> The VMA is not anything special as such. Its what we get when we try to do a
-> simple mmap() on a file descriptor pointing to a character device. I can
-> figure out all the VM_* flags it holds after creation.
-> 
-> > 
-> > I want to make dummy driver to simulate your case.
-> 
-> Sure. I hope the above mentioned steps will help you but in case you need more
-> information, please do let me know.
+> it takes some (um.. random) time to trigger the bug.
+> I'll try to come up with more details.
 
-I got understood now. :)
-I will test it with dummy driver and will Cc'ed when I send a patch.
+Could you revert [1] and retest?
 
-Thanks.
+[1] mm/compaction: split freepages without holding the zone lock
+
+> 
+> 	-ss
+> 
+> > > kernel: flags: 0x8000000000000000()
+> > > kernel: page dumped because: nonzero mapcount
+> > > kernel: Modules linked in: lzo zram zsmalloc mousedev coretemp hwmon crc32c_intel snd_hda_codec_realtek i2c_i801 snd_hda_codec_generic r8169 mii snd_hda_intel snd_hda_codec snd_hda_core acpi_cpufreq snd_pcm snd_timer snd soundcore lpc_ich processor mfd_core sch_fq_codel sd_mod hid_generic usb
+> > > kernel: CPU: 3 PID: 38 Comm: khugepaged Not tainted 4.7.0-rc3-next-20160615-dbg-00005-gfd11984-dirty #491
+> > > kernel:  0000000000000000 ffff8801124c73f8 ffffffff814d69b0 ffffea0004076e00
+> > > kernel:  ffffffff81e658a0 ffff8801124c7420 ffffffff811e9b63 0000000000000000
+> > > kernel:  ffffea0004076e00 ffffffff81e658a0 ffff8801124c7440 ffffffff811e9ca9
+> > > kernel: Call Trace:
+> > > kernel:  [<ffffffff814d69b0>] dump_stack+0x68/0x92
+> > > kernel:  [<ffffffff811e9b63>] bad_page+0x158/0x1a2
+> > > kernel:  [<ffffffff811e9ca9>] free_pages_check_bad+0xfc/0x101
+> > > kernel:  [<ffffffff811ee516>] free_hot_cold_page+0x135/0x5de
+> > > kernel:  [<ffffffff811eea26>] __free_pages+0x67/0x72
+> > > kernel:  [<ffffffff81227c63>] release_freepages+0x13a/0x191
+> > > kernel:  [<ffffffff8122b3c2>] compact_zone+0x845/0x1155
+> > > kernel:  [<ffffffff8122ab7d>] ? compaction_suitable+0x76/0x76
+> > > kernel:  [<ffffffff8122bdb2>] compact_zone_order+0xe0/0x167
+> > > kernel:  [<ffffffff8122bcd2>] ? compact_zone+0x1155/0x1155
+> > > kernel:  [<ffffffff8122ce88>] try_to_compact_pages+0x2f1/0x648
+> > > kernel:  [<ffffffff8122ce88>] ? try_to_compact_pages+0x2f1/0x648
+> > > kernel:  [<ffffffff8122cb97>] ? compaction_zonelist_suitable+0x3a6/0x3a6
+> > > kernel:  [<ffffffff811ef1ea>] ? get_page_from_freelist+0x2c0/0x133c
+> > > kernel:  [<ffffffff811f0350>] __alloc_pages_direct_compact+0xea/0x30d
+> > > kernel:  [<ffffffff811f0266>] ? get_page_from_freelist+0x133c/0x133c
+> > > kernel:  [<ffffffff811ee3b2>] ? drain_all_pages+0x1d6/0x205
+> > > kernel:  [<ffffffff811f21a8>] __alloc_pages_nodemask+0x143d/0x16b6
+> > > kernel:  [<ffffffff8111f405>] ? debug_show_all_locks+0x226/0x226
+> > > kernel:  [<ffffffff811f0d6b>] ? warn_alloc_failed+0x24c/0x24c
+> > > kernel:  [<ffffffff81110ffc>] ? finish_wait+0x1a4/0x1b0
+> > > kernel:  [<ffffffff81122faf>] ? lock_acquire+0xec/0x147
+> > > kernel:  [<ffffffff81d32ed0>] ? _raw_spin_unlock_irqrestore+0x3b/0x5c
+> > > kernel:  [<ffffffff81d32edc>] ? _raw_spin_unlock_irqrestore+0x47/0x5c
+> > > kernel:  [<ffffffff81110ffc>] ? finish_wait+0x1a4/0x1b0
+> > > kernel:  [<ffffffff8128f73a>] khugepaged+0x1d4/0x484f
+> > > kernel:  [<ffffffff8128f566>] ? hugepage_vma_revalidate+0xef/0xef
+> > > kernel:  [<ffffffff810d5bcc>] ? finish_task_switch+0x3de/0x484
+> > > kernel:  [<ffffffff81d32f18>] ? _raw_spin_unlock_irq+0x27/0x45
+> > > kernel:  [<ffffffff8111d13f>] ? trace_hardirqs_on_caller+0x3d2/0x492
+> > > kernel:  [<ffffffff81111487>] ? prepare_to_wait_event+0x3f7/0x3f7
+> > > kernel:  [<ffffffff81d28bf5>] ? __schedule+0xa4d/0xd16
+> > > kernel:  [<ffffffff810cd0de>] kthread+0x252/0x261 > > > kernel:  [<ffffffff8128f566>] ? hugepage_vma_revalidate+0xef/0xef > > > kernel:  [<ffffffff810cce8c>] ? kthread_create_on_node+0x377/0x377 > > > kernel:  [<ffffffff81d3387f>] ret_from_fork+0x1f/0x40 > > > kernel:  [<ffffffff810cce8c>] ? kthread_create_on_node+0x377/0x377 > > > -- Reboot --
