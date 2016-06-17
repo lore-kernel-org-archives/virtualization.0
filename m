@@ -1,19 +1,13 @@
-From: Minchan Kim <minchan@kernel.org>
-Subject: Re: [PATCH v7 00/12] Support non-lru page migration
-Date: Thu, 16 Jun 2016 19:09:32 +0900
-Message-ID: <20160616100932.GS17127__49713.2596829489$1466071792$gmane$org@bbox>
-References: <1464736881-24886-1-git-send-email-minchan@kernel.org>
-	<20160615075909.GA425@swordfish> <20160615231248.GI17127@bbox>
-	<20160616024827.GA497@swordfish> <20160616025800.GO17127@bbox>
-	<20160616042343.GA516@swordfish> <20160616044710.GP17127@bbox>
-	<20160616052209.GB516@swordfish> <20160616064753.GR17127@bbox>
-	<20160616084211.GA432@swordfish>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next V2] tun: introduce tx skb ring
+Date: Thu, 16 Jun 2016 17:01:31 -0700 (PDT)
+Message-ID: <20160616.170131.1753206993488742551.davem@davemloft.net>
+References: <1465979897-4445-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160616084211.GA432@swordfish>
-Content-Disposition: inline
+In-Reply-To: <1465979897-4445-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,45 +17,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-Cc: Rik van Riel <riel@redhat.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>, Jonathan Corbet <corbet@lwn.net>, Chan Gyun Jeong <chan.jeong@lge.com>, Rafael Aquini <aquini@redhat.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, John Einar Reitan <john.reitan@foss.arm.com>, linux-mm@kvack.org, Chulmin Kim <cmlaika.kim@samsung.com>, Gioh Kim <gi-oh.kim@profitbricks.com>, Konstantin Khlebnikov <koct9i@gmail.com>, Sangseok Lee <sangseok.lee@lge.com>, Andrew Morton <akpm@linux-foundation.org>, Kyeongdon Kim <kyeongdon.kim@lge.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
+To: jasowang@redhat.com
+Cc: kvm@vger.kernel.org, eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, brouer@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 16, 2016 at 05:42:11PM +0900, Sergey Senozhatsky wrote:
-> On (06/16/16 15:47), Minchan Kim wrote:
-> > > [..]
-> > > > > this is what I'm getting with the [zsmalloc: keep first object offset in struct page]
-> > > > > applied:  "count:0 mapcount:-127". which may be not related to zsmalloc at this point.
-> > > > > 
-> > > > > kernel: BUG: Bad page state in process khugepaged  pfn:101db8
-> > > > > kernel: page:ffffea0004076e00 count:0 mapcount:-127 mapping:          (null) index:0x1
-> > > > 
-> > > > Hm, it seems double free.
-> > > > 
-> > > > It doen't happen if you disable zram? IOW, it seems to be related
-> > > > zsmalloc migration?
-> > > 
-> > > need to test more, can't confidently answer now.
-> > > 
-> > > > How easy can you reprodcue it? Could you bisect it?
-> > > 
-> > > it takes some (um.. random) time to trigger the bug.
-> > > I'll try to come up with more details.
-> > 
-> > Could you revert [1] and retest?
-> > 
-> > [1] mm/compaction: split freepages without holding the zone lock
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 15 Jun 2016 16:38:17 +0800
+
+> We used to queue tx packets in sk_receive_queue, this is less
+> efficient since it requires spinlocks to synchronize between producer
+> and consumer.
 > 
-> ok, so this is not related to zsmalloc. finally manged to reproduce
-> it. will fork a separate thread.
+> This patch tries to address this by:
+> 
+> - introduce a new mode which will be only enabled with IFF_TX_ARRAY
+>   set and switch from sk_receive_queue to a fixed size of skb
+>   array with 256 entries in this mode.
+> - introduce a new proto_ops peek_len which was used for peeking the
+>   skb length.
+> - implement a tun version of peek_len for vhost_net to use and convert
+>   vhost_net to use peek_len if possible.
+> 
+> Pktgen test shows about 18% improvement on guest receiving pps for small
+> buffers:
+> 
+> Before: ~1220000pps
+> After : ~1440000pps
+> 
+> The reason why I stick to new mode is because:
+> 
+> - though resize is supported by skb array, in multiqueue mode, it's
+>   not easy to recover from a partial success of queue resizing.
+> - tx_queue_len is a user visible feature.
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-The reason I mentioned [1] is that it seems to have a bug.
-
-isolate_freepages_block
-  __isolate_free_page
-    if(!zone_watermark_ok())
-      return 0;
-  list_add_tail(&page->lru, freelist);
-
-However, the page is not isolated.
-Joonsoo?
+Michael, can you please review this, especially as this is the first
+user of your new infrastructure :-)
