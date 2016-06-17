@@ -1,14 +1,18 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next V2] tun: introduce tx skb ring
-Date: Fri, 17 Jun 2016 15:22:27 +0800
-Message-ID: <5763A533.8030206__35376.920112367$1466148168$gmane$org@redhat.com>
-References: <1465979897-4445-1-git-send-email-jasowang@redhat.com>
-	<20160617033218-mutt-send-email-mst@redhat.com>
+From: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Subject: Re: [PATCH v7 00/12] Support non-lru page migration
+Date: Fri, 17 Jun 2016 16:28:48 +0900
+Message-ID: <20160617072848.GC810__8113.4834014394$1466148417$gmane$org@js1304-P5Q-DELUXE>
+References: <20160615075909.GA425@swordfish> <20160615231248.GI17127@bbox>
+	<20160616024827.GA497@swordfish> <20160616025800.GO17127@bbox>
+	<20160616042343.GA516@swordfish> <20160616044710.GP17127@bbox>
+	<20160616052209.GB516@swordfish> <20160616064753.GR17127@bbox>
+	<20160616084211.GA432@swordfish> <20160616100932.GS17127@bbox>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160617033218-mutt-send-email-mst@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20160616100932.GS17127@bbox>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,38 +22,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, eric.dumazet@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, brouer@redhat.com, davem@davemloft.net
+To: Minchan Kim <minchan@kernel.org>
+Cc: Rik van Riel <riel@redhat.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, Jonathan Corbet <corbet@lwn.net>, Chan Gyun Jeong <chan.jeong@lge.com>, Rafael Aquini <aquini@redhat.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, John Einar Reitan <john.reitan@foss.arm.com>, linux-mm@kvack.org, Chulmin Kim <cmlaika.kim@samsung.com>, Gioh Kim <gi-oh.kim@profitbricks.com>, Konstantin Khlebnikov <koct9i@gmail.com>, Sangseok Lee <sangseok.lee@lge.com>, Andrew Morton <akpm@linux-foundation.org>, Kyeongdon Kim <kyeongdon.kim@lge.com>, Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>, Vlastimil Babka <vbabka@suse.cz>, Mel Gorman <mgorman@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE25bm0MDbmnIgxN+aXpSAwODo0MSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIFdlZCwgSnVuIDE1LCAyMDE2IGF0IDA0OjM4OjE3UE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+ID5XZSB1c2VkIHRvIHF1ZXVlIHR4IHBhY2tldHMgaW4gc2tfcmVjZWl2ZV9xdWV1ZSwg
-dGhpcyBpcyBsZXNzCj4+ID5lZmZpY2llbnQgc2luY2UgaXQgcmVxdWlyZXMgc3BpbmxvY2tzIHRv
-IHN5bmNocm9uaXplIGJldHdlZW4gcHJvZHVjZXIKPj4gPmFuZCBjb25zdW1lci4KPj4gPgo+PiA+
-VGhpcyBwYXRjaCB0cmllcyB0byBhZGRyZXNzIHRoaXMgYnk6Cj4+ID4KPj4gPi0gaW50cm9kdWNl
-IGEgbmV3IG1vZGUgd2hpY2ggd2lsbCBiZSBvbmx5IGVuYWJsZWQgd2l0aCBJRkZfVFhfQVJSQVkK
-Pj4gPiAgIHNldCBhbmQgc3dpdGNoIGZyb20gc2tfcmVjZWl2ZV9xdWV1ZSB0byBhIGZpeGVkIHNp
-emUgb2Ygc2tiCj4+ID4gICBhcnJheSB3aXRoIDI1NiBlbnRyaWVzIGluIHRoaXMgbW9kZS4KPj4g
-Pi0gaW50cm9kdWNlIGEgbmV3IHByb3RvX29wcyBwZWVrX2xlbiB3aGljaCB3YXMgdXNlZCBmb3Ig
-cGVla2luZyB0aGUKPj4gPiAgIHNrYiBsZW5ndGguCj4+ID4tIGltcGxlbWVudCBhIHR1biB2ZXJz
-aW9uIG9mIHBlZWtfbGVuIGZvciB2aG9zdF9uZXQgdG8gdXNlIGFuZCBjb252ZXJ0Cj4+ID4gICB2
-aG9zdF9uZXQgdG8gdXNlIHBlZWtfbGVuIGlmIHBvc3NpYmxlLgo+PiA+Cj4+ID5Qa3RnZW4gdGVz
-dCBzaG93cyBhYm91dCAxOCUgaW1wcm92ZW1lbnQgb24gZ3Vlc3QgcmVjZWl2aW5nIHBwcyBmb3Ig
-c21hbGwKPj4gPmJ1ZmZlcnM6Cj4+ID4KPj4gPkJlZm9yZTogfjEyMjAwMDBwcHMKPj4gPkFmdGVy
-IDogfjE0NDAwMDBwcHMKPj4gPgo+PiA+VGhlIHJlYXNvbiB3aHkgSSBzdGljayB0byBuZXcgbW9k
-ZSBpcyBiZWNhdXNlOgo+PiA+Cj4+ID4tIHRob3VnaCByZXNpemUgaXMgc3VwcG9ydGVkIGJ5IHNr
-YiBhcnJheSwgaW4gbXVsdGlxdWV1ZSBtb2RlLCBpdCdzCj4+ID4gICBub3QgZWFzeSB0byByZWNv
-dmVyIGZyb20gYSBwYXJ0aWFsIHN1Y2Nlc3Mgb2YgcXVldWUgcmVzaXppbmcuCj4+ID4tIHR4X3F1
-ZXVlX2xlbiBpcyBhIHVzZXIgdmlzaWJsZSBmZWF0dXJlLgo+PiA+Cj4+ID5TaWduZWQtb2ZmLWJ5
-OiBKYXNvbiBXYW5nPGphc293YW5nQHJlZGhhdC5jb20+Cj4gSSBzdGlsbCB0aGluayBpdCdzIHdy
-b25nIHRvIGFkZCBhIG5ldyBmZWF0dXJlIGZvciB0aGlzLgo+IEZvciBleGFtcGxlLCB3aHkgMjU2
-IGVudHJpZXM/CgpJdCdzIHRoZSB2YWx1ZSBvZiB2aXJ0cXVldWUgc2l6ZSBzdXBwb3J0ZWQgYnkg
-cWVtdS4KCj4gUXVldWUgbGVuIGlzIHVzZXIgdmlzaWJsZSBidXQgaXQncyB0aGVyZSBwcmVjaXNl
-bHkgZm9yIHRoaXMKPiByZWFzb24gc28gcGVvcGxlIGNhbiB0dW5lIHF1ZXVlIGZvciB3b3JrbG9h
-ZC4KClJpZ2h0LgoKPgo+IFdvdWxkIGl0IGhlbHAgdG8gaGF2ZSBwdHJfcmluZ19yZXNpemUgdGhh
-dCBnZXRzIGFuIGFycmF5IG9mCj4gcmluZ3MgYW5kIHJlc2l6ZXMgdGhlbSBib3RoIHRvIHNhbWUg
-bGVuZ3RoPwoKWWVzLCB0aGF0IHdvdWxkIGJlIHZlcnkgaGVscGZ1bC4KX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
-aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
-dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Thu, Jun 16, 2016 at 07:09:32PM +0900, Minchan Kim wrote:
+> On Thu, Jun 16, 2016 at 05:42:11PM +0900, Sergey Senozhatsky wrote:
+> > On (06/16/16 15:47), Minchan Kim wrote:
+> > > > [..]
+> > > > > > this is what I'm getting with the [zsmalloc: keep first object offset in struct page]
+> > > > > > applied:  "count:0 mapcount:-127". which may be not related to zsmalloc at this point.
+> > > > > > 
+> > > > > > kernel: BUG: Bad page state in process khugepaged  pfn:101db8
+> > > > > > kernel: page:ffffea0004076e00 count:0 mapcount:-127 mapping:          (null) index:0x1
+> > > > > 
+> > > > > Hm, it seems double free.
+> > > > > 
+> > > > > It doen't happen if you disable zram? IOW, it seems to be related
+> > > > > zsmalloc migration?
+> > > > 
+> > > > need to test more, can't confidently answer now.
+> > > > 
+> > > > > How easy can you reprodcue it? Could you bisect it?
+> > > > 
+> > > > it takes some (um.. random) time to trigger the bug.
+> > > > I'll try to come up with more details.
+> > > 
+> > > Could you revert [1] and retest?
+> > > 
+> > > [1] mm/compaction: split freepages without holding the zone lock
+> > 
+> > ok, so this is not related to zsmalloc. finally manged to reproduce
+> > it. will fork a separate thread.
+> 
+> The reason I mentioned [1] is that it seems to have a bug.
+> 
+> isolate_freepages_block
+>   __isolate_free_page
+>     if(!zone_watermark_ok())
+>       return 0;
+>   list_add_tail(&page->lru, freelist);
+> 
+> However, the page is not isolated.
+> Joonsoo?
+
+Good job!
+I will fix it soon.
+
+Thanks.
