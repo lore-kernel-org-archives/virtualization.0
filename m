@@ -1,17 +1,13 @@
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [RFC PATCH] vhost, mm: make sure that oom_reaper doesn't reap
-	memory read by vhost
-Date: Sun, 19 Jun 2016 23:52:58 +0200
-Message-ID: <20160619215258.GA2110__2400.89042713425$1466373206$gmane$org@dhcp22.suse.cz>
-References: <1466154017-2222-1-git-send-email-mhocko@kernel.org>
-	<20160618025904-mutt-send-email-mst@redhat.com>
-	<20160619213543.GA32752@dhcp22.suse.cz>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH v5 0/6] Support calling functions on dedicated physical cpu
+Date: Mon, 20 Jun 2016 10:40:15 +0200
+Message-ID: <5767ABEF.9010204@suse.com>
+References: <1459952266-3687-1-git-send-email-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160619213543.GA32752@dhcp22.suse.cz>
+In-Reply-To: <1459952266-3687-1-git-send-email-jgross@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,30 +17,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Vladimir Davydov <vdavydov@parallels.com>, Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, virtualization@lists.linux-foundation.org, LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+To: mingo@redhat.com, peterz@infradead.org
+Cc: x86@kernel.org, jeremy@goop.org, jdelvare@suse.com, hpa@zytor.com, akataria@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, pali.rohar@gmail.com, xen-devel@lists.xenproject.org, boris.ostrovsky@oracle.com, tglx@linutronix.de, linux@roeck-us.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun 19-06-16 23:35:43, Michal Hocko wrote:
-> On Sat 18-06-16 03:09:02, Michael S. Tsirkin wrote:
-> > On Fri, Jun 17, 2016 at 11:00:17AM +0200, Michal Hocko wrote:
-[...]
-> > >  /*
-> > > + * A safe variant of __get_user for for use_mm() users to have a
-> > > + * gurantee that the address space wasn't reaped in the background
-> > > + */
-> > > +#define __get_user_mm(mm, x, ptr)				\
-> > > +({								\
-> > > +	int ___gu_err = __get_user(x, ptr);			\
-> > > +	if (!___gu_err && test_bit(MMF_UNSTABLE, &mm->flags))	\
-> > 
-> > test_bit is somewhat expensive. See my old mail
-> > 	x86/bitops: implement __test_bit
+On 06/04/16 16:17, Juergen Gross wrote:
+> Some hardware (e.g. Dell Studio laptops) require special functions to
+> be called on physical cpu 0 in order to avoid occasional hangs. When
+> running as dom0 under Xen this could be achieved only via special boot
+> parameters (vcpu pinning) limiting the hypervisor in it's scheduling
+> decisions.
 > 
-> Do you have a msg_id?
+> This patch series is adding a generic function to be able to temporarily
+> pin a (virtual) cpu to a dedicated physical cpu for executing above
+> mentioned functions on that specific cpu. The drivers (dcdbas and i8k)
+> requiring this functionality are modified accordingly.
 
-Found it
-http://lkml.kernel.org/r/1440776707-22016-1-git-send-email-mst@redhat.com
--- 
-Michal Hocko
-SUSE Labs
+Peter, Ingo,
+
+is one of you considering to take this series for 4.8? I know not all
+patches got an Ack, OTOH maintainers had 2.5 months time to object.
+
+I'd really appreciate this series would make it into 4.8.
+
+
+Juergen
+
+> 
+> Changes in V5:
+> - patch 3: rename and reshuffle parameters of smp_call_on_cpu() as requested
+>   by Peter Zijlstra
+> - patch 3: test target cpu to be online as requested by Peter Zijlstra
+> - patch 4: less wordy messages as requested by David Vrabel
+> 
+> Changes in V4:
+> - move patches 5 and 6 further up in the series
+> - patch 2 (was 5): WARN_ONCE in case platform doesn't support pinning
+>   as requested by Peter Zijlstra
+> - patch 3 (was 2): change return value in case of illegal cpu as
+>   requested by Peter Zijlstra
+> - patch 3 (was 2): make pinning of vcpu an option as suggested by
+>   Peter Zijlstra
+> - patches 5 and 6 (were 3 and 4): add call to get_online_cpus()
+> 
+> Changes in V3:
+> - use get_cpu()/put_cpu() as suggested by David Vrabel
+> 
+> Changes in V2:
+> - instead of manipulating the allowed set of cpus use cpu specific
+>   workqueue as requested by Peter Zijlstra
+> - add include/linux/hypervisor.h to hide architecture specific stuff
+>   from generic kernel code
+> 
+> Juergen Gross (6):
+>   xen: sync xen header
+>   virt, sched: add generic vcpu pinning support
+>   smp: add function to execute a function synchronously on a cpu
+>   xen: add xen_pin_vcpu() to support calling functions on a dedicated
+>     pcpu
+>   dcdbas: make use of smp_call_on_cpu()
+>   hwmon: use smp_call_on_cpu() for dell-smm i8k
+> 
+>  MAINTAINERS                       |   1 +
+>  arch/x86/include/asm/hypervisor.h |   4 ++
+>  arch/x86/kernel/cpu/hypervisor.c  |  11 +++++
+>  arch/x86/xen/enlighten.c          |  40 +++++++++++++++
+>  drivers/firmware/dcdbas.c         |  51 +++++++++----------
+>  drivers/hwmon/dell-smm-hwmon.c    |  35 +++++++------
+>  include/linux/hypervisor.h        |  17 +++++++
+>  include/linux/smp.h               |   3 ++
+>  include/xen/interface/sched.h     | 100 +++++++++++++++++++++++++++++++-------
+>  kernel/smp.c                      |  51 +++++++++++++++++++
+>  kernel/up.c                       |  18 +++++++
+>  11 files changed, 273 insertions(+), 58 deletions(-)
+>  create mode 100644 include/linux/hypervisor.h
+> 
