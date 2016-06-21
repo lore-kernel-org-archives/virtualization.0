@@ -1,10 +1,20 @@
-From: Frank Steinborn <steinex@nognu.de>
-Subject: Heavy clock drifts inside of KVM guests (qemu-kvm 2.1.2)
-Date: Tue, 21 Jun 2016 11:50:32 +0200
-Message-ID: <CANhLx2OteUHmoHMzfOeZw95t7AazEDk1a6VTXyZD0=i+PFGvMA@mail.gmail.com>
+From: xinhui <xinhui.pan@linux.vnet.ibm.com>
+Subject: Re: [PATCH v5 1/6] qspinlock: powerpc support qspinlock
+Date: Tue, 21 Jun 2016 20:35:22 +0800
+Message-ID: <5769348A.1060505@linux.vnet.ibm.com>
+References: <1464859370-5162-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+	<1464859370-5162-3-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+	<1464917520.26773.11.camel@kernel.crashing.org>
+	<1464917548.26773.12.camel@au1.ibm.com>
+	<57510353.1020209@linux.vnet.ibm.com>
+	<1464928427.26773.26.camel@kernel.crashing.org>
+	<20160606155907.GH30909@twins.programming.kicks-ass.net>
+	<1465249297.4274.72.camel@kernel.crashing.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6485938086763592352=="
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1465249297.4274.72.camel@kernel.crashing.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -14,117 +24,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, qemu-discuss@nongnu.org
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Peter Zijlstra <peterz@infradead.org>
+Cc: mpe@ellerman.id.au, linux-kernel@vger.kernel.org, waiman.long@hpe.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============6485938086763592352==
-Content-Type: multipart/alternative; boundary=001a11410ece87c7fb0535c6c021
-
---001a11410ece87c7fb0535c6c021
-Content-Type: text/plain; charset=UTF-8
-
-Dear list(s),
-
-we are running a cluster of virtual machines on ganeti 2.15.2 on top of
-qemu-kvm 2.1.2. Hosts are Debian jessie (Kernel 3.16). We have big trouble
-with timekeeping on guests, no matter if these guests are lenny, squeeze,
-wheezy or jessie. Clock drifts heavily on some, others are fine. There is
-no obvious pattern on which guest this happens and on which not, but it
-seems the clock drifts heavier on guests that are idle and have nothing to
-do. Some more facts:
-
-* Clocksource on all hosts are set to tsc
-* Clocksource on all guests are set to kvm-clock
-* CPUs on the hosts are Intel Xeons, all have these related flags: tsc,
-constant_tsc, nonstop_tsc. One host has tsc_deadline_timer as an extra,
-because it's a newer Xeon, but it doesn't seem to make a difference in
-drifting.
-* Most guests complain about "Clocksource tsc unstable" in dmesg after boot
-(even when set to clocksource=kvm-clock)
-* The hosts don't drift at all, we only see the issue in guests
-* We don't use CPU pinning for KVM guests
-* We run OpenNTPD 5.7p4 on both the hosts and the guests (we build this for
-ourselves, so the version is the same in every guest across every Debian
-version)
-
-We tried different things to debug the cause of this issue but we're out if
-ideas now. This is what we have tested so far:
-
-* Newer kernel from jessie-backports
-* Newer qemu-kvm from jessie-backports
-* Set clocksource=hpet on the hosts, this made drifts even worse (not
-tested yet: acpi_pm)
-* Tried to run guests without kvm_steal_time setting
-* Tried without running OpenNTPD on the guests
-
-We have some hints along our investigations. Novell for example says that
-CPU pinning may help on drifting guests:
-https://www.novell.com/support/kb/doc.php?id=7008698
-
-Others suggested using an "failover clocksource" on the guests:
-https://blog.laimbock.com/tag/clocksource_failover/
-
-However, before we just continue to poke around in the dark, we wanted to
-hear input from virtualization experts that may have stumbled across
-something like this before. Any input would be greatly appreciated!
-
-Please reply directly, as I'm not subscribed to the list. And sorry for
-cross-posting this to several lists at once, we just hope to get as much
-feedback as possible.
-
-Thanks in advance,
-Frank
-
---001a11410ece87c7fb0535c6c021
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr">Dear list(s),<br><br>we are running a cluster of virtual m=
-achines on ganeti 2.15.2 on top of qemu-kvm 2.1.2. Hosts are Debian jessie =
-(Kernel 3.16). We have big trouble with timekeeping on guests, no matter if=
- these guests are lenny, squeeze, wheezy or jessie. Clock drifts heavily on=
- some, others are fine. There is no obvious pattern on which guest this hap=
-pens and on which not, but it seems the clock drifts heavier on guests that=
- are idle and have nothing to do. Some more facts:<br><br>* Clocksource on =
-all hosts are set to tsc<br>* Clocksource on all guests are set to kvm-cloc=
-k<br>* CPUs on the hosts are Intel Xeons, all have these related flags: tsc=
-, constant_tsc, nonstop_tsc. One host has tsc_deadline_timer as an extra, b=
-ecause it&#39;s a newer Xeon, but it doesn&#39;t seem to make a difference =
-in drifting.<br>* Most guests complain about &quot;Clocksource tsc unstable=
-&quot; in dmesg after boot (even when set to clocksource=3Dkvm-clock)<br>* =
-The hosts don&#39;t drift at all, we only see the issue in guests<br>* We d=
-on&#39;t use CPU pinning for KVM guests<br>* We run OpenNTPD 5.7p4 on both =
-the hosts and the guests (we build this for ourselves, so the version is th=
-e same in every guest across every Debian version)<br><br>We tried differen=
-t things to debug the cause of this issue but we&#39;re out if ideas now. T=
-his is what we have tested so far:<br><br>* Newer kernel from jessie-backpo=
-rts<br>* Newer qemu-kvm from jessie-backports<br>* Set clocksource=3Dhpet o=
-n the hosts, this made drifts even worse (not tested yet: acpi_pm)<br>* Tri=
-ed to run guests without kvm_steal_time setting<br>* Tried without running =
-OpenNTPD on the guests<br><br>We have some hints along our investigations. =
-Novell for example says that CPU pinning may help on drifting guests:<br><a=
- href=3D"https://www.novell.com/support/kb/doc.php?id=3D7008698">https://ww=
-w.novell.com/support/kb/doc.php?id=3D7008698</a><br><br>Others suggested us=
-ing an &quot;failover clocksource&quot; on the guests:<br><a href=3D"https:=
-//blog.laimbock.com/tag/clocksource_failover/">https://blog.laimbock.com/ta=
-g/clocksource_failover/</a><br><br>However, before we just continue to poke=
- around in the dark, we wanted to hear input from virtualization experts th=
-at may have stumbled across something like this before. Any input would be =
-greatly appreciated!<br><br>Please reply directly, as I&#39;m not subscribe=
-d to the list. And sorry for cross-posting this to several lists at once, w=
-e just hope to get as much feedback as possible.<br><br>Thanks in advance,<=
-br>Frank<br></div>
-
---001a11410ece87c7fb0535c6c021--
-
---===============6485938086763592352==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6485938086763592352==--
+CgpPbiAyMDE25bm0MDbmnIgwN+aXpSAwNTo0MSwgQmVuamFtaW4gSGVycmVuc2NobWlkdCB3cm90
+ZToKPiBPbiBNb24sIDIwMTYtMDYtMDYgYXQgMTc6NTkgKzAyMDAsIFBldGVyIFppamxzdHJhIHdy
+b3RlOgo+PiBPbiBGcmksIEp1biAwMywgMjAxNiBhdCAwMjozMzo0N1BNICsxMDAwLCBCZW5qYW1p
+biBIZXJyZW5zY2htaWR0IHdyb3RlOgo+Pj4KPj4+ICAgLSBGb3IgdGhlIGFib3ZlLCBjYW4geW91
+IHNob3cgKG9yIGRlc2NyaWJlKSB3aGVyZSB0aGUgcXNwaW5sb2NrCj4+PiAgICAgaW1wcm92ZXMg
+dGhpbmdzIGNvbXBhcmVkIHRvIG91ciBjdXJyZW50IGxvY2tzLgo+PiBTbyBjdXJyZW50bHkgUFBD
+IGhhcyBhIGZhaXJseSBzdHJhaWdodCBmb3J3YXJkIHRlc3QtYW5kLXNldCBzcGlubG9jawo+PiBJ
+SVJDLiBZb3UgaGF2ZSB0aGlzIGJlY2F1c2UgTFBBUi92aXJ0IG11Y2sgYW5kIGxvY2sgaG9sZGVy
+IHByZWVtcHRpb24KPj4gaXNzdWVzIGV0Yy4uCj4+IHFzcGlubG9jayBpcyAxKSBhIGZhaXIgbG9j
+ayAobGlrZSB0aWNrZXQgbG9ja3MpIGFuZCAyKSBwcm92aWRlcwo+PiBvdXQtb2Ytd29yZCBzcGlu
+bmluZywgcmVkdWNpbmcgY2FjaGVsaW5lIHByZXNzdXJlLgo+Cj4gVGhhbmtzIFBldGVyLiBJIHRo
+aW5rIEkgdW5kZXJzdGFuZCB0aGUgdGhlb3J5LCBidXQgSSdkIGxpa2Ugc2VlIGl0Cj4gdHJhbnNs
+YXRlIGludG8gcmVhbCBudW1iZXJzLgo+Cj4+IEVzcC4gb24gbXVsdGktc29ja2V0IHg4NiB3ZSBz
+YXcgdGhlIG91dC1vZi13b3JkIHNwaW5uaW5nIGJlaW5nIGEgYmlnIHdpbgo+PiBvdmVyIG91ciB0
+aWNrZXQgbG9ja3MuCj4+Cj4+IEFuZCBmYWlybmVzcywgYnJvdWdodCB0byB1cyBieSB0aGUgdGlj
+a2V0IGxvY2tzIGEgbG9uZyB0aW1lIGFnbywKPj4gZWxpbWluYXRlZCBzdGFydmF0aW9uIGlzc3Vl
+cyB3ZSBoYWQsIHdoZXJlIGEgc3Bpbm5lciBsb2NhbCB0byB0aGUgaG9sZGVyCj4+IHdvdWxkICdh
+bHdheXMnIHdpbiBmcm9tIGEgc3Bpbm5lciBmdXJ0aGVyIGF3YXkuIFNvIHVuZGVyIGhlYXZ5IGVu
+b3VnaAo+PiBsb2NhbCBjb250ZW50aW9uLCB0aGUgc3Bpbm5lcnMgb24gJ3JlbW90ZScgQ1BVcyB3
+b3VsZCAnbmV2ZXInIGdldCB0byBvd24KPj4gdGhlIGxvY2suCj4KPiBJIHRoaW5rIG91ciBIVyBo
+YXMgdHdlYWtzIHRvIGF2b2lkIHRoYXQgZnJvbSBoYXBwZW5pbmcgd2l0aCB0aGUgc2ltcGxlCj4g
+bG9ja3MgaW4gdGhlIHVuZGVybHlpbmcgbGwvc2MgaW1wbGVtZW50YXRpb24uIEluIGFueSBjYXNl
+LCB3aGF0IEknbQo+IGFza2luZyBpcyBhY3R1YWwgdGVzdHMgdG8gdmVyaWZ5IGl0IHdvcmtzIGFz
+IGV4cGVjdGVkIGZvciB1cy4KPgpJRiBIVyBoYXMgc3VjaCB0d2Vha3MgdGhlbiB0aGVyZSBtdXNo
+IGJlIHBlcmZvcm1hbmNlIGRyb3Agd2hlbiB0b3RhbCBjcHUncyBudW1iZXIgZ3Jvd3MgdXAuCkFu
+ZCBJIGdvdCBzdWNoIGNsdWVzCgpvbmUgc2ltcGxlIGJlbmNobWFyayB0ZXN0OgppdCB0ZXN0cyBo
+b3cgbWFueSBzcGluX2xvY2svc3Bpbl91bmxvY2sgcGFpcnMgY2FuIGJlIGRvbmUgd2l0aGluIDE1
+IHNlY29uZHMgb24gYWxsIGNwdXMuCnNheSwKd2hpbGUoIWRvbmUpIHsKCXNwaW5fbG9jaygpCgl0
+aGlzX2NwdV9pbmMobG9vcHMpCglzcGluX3VubG9jaygpCn0KCkkgZG8gdGhlIHRlc3Qgb24gdHdv
+IG1hY2hpbmVzLCBvbmUgaXMgdXNpbmcgcG93ZXJLVk0sIGFuZCB0aGUgb3RoZXIgaXMgdXNpbmcg
+cEh5cC4KdGhlIHJlc3VsdCBiZWxvdyBzaG93cyB3aGF0IHRoZSBzdW0gb2YgbG9vcHMgaXMgaW4g
+dGhlIGVuZCwgd2l0aCB4eHh4SyBmb3JtLgoKY3B1IGNvdW50CXwgcHYtcXNwaW5sb2NrCXwgdGVz
+dC1zZXQgc3BpbmxvY2t8Ci0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0KOCAocG93ZXJLVk0pCXwJNjI4MzBLCXwJNjczNDBLCXwKLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCjggKHBIeXApCXwJNDk4MDBLCXwJ
+NTkzMzBLCXwKLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+CjMyIChwSHlwKQl8CTg3NTgwSwl8CTIwOTkwSwl8Ci0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KCndoaWxlIGNwdSBjb3VudCBncm93cyB1cCwgdGhlIGxv
+Y2svdW5sb2NrIHBhaXJzIG9wcyBvZiB0ZXN0LXNldCBzcGlubG9jayBkcm9wcyB2ZXJ5IG11Y2gu
+CnRoaXMgaXMgYmVjYXVzZSB0aGUgY2FjaGUgYm91bmNpbmcgaW4gZGlmZmVyZW50IHBoeXNpY2Fs
+IGNwdXMuCgpTbyB0byB2ZXJpZnkgaG93IGJvdGggc3BpbmxvY2sgaW1wYWN0IHRoZSBkYXRhLWNh
+Y2hlLAphbm90aGVyIHNpbXBsZSBiZW5jaG1hcmsgdGVzdC4KY29kZSBsb29rcyBsaWtlOgoKc3Ry
+dWN0IF94IHsKCXNwaW5sb2NrX3QgbGs7Cgl1bnNpZ25lZCBsb25nIHg7Cn0geDsKCndoaWxlKCF0
+aGlzX2NwdV9yZWFkKHN0b3ApKSB7CglpbnQgaSA9IDB4ZmYKCXNwaW5fbG9jayh4LmxrKQoJdGhp
+c19jcHVfaW5jKGxvb3BzKQoJd2hpbGUoaS0tKQoJCVJFQURfT05DRSh4LngpOwoJc3Bpbl91bmxv
+Y2soeC5saykKfQoKdGhlIHJlc3VsdCBiZWxvdyBzaG93cyB3aGF0IHRoZSBzdW0gb2YgbG9vcHMg
+aXMgaW4gdGhlIGVuZCwgd2l0aCB4eHh4SyBmb3JtLgoKY3B1IGNvdW50CXwgcHYtcXNwaW5sb2Nr
+CXwgdGVzdC1zZXQgc3BpbmxvY2t8Ci0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLQo4IChwSHlwKQl8CTEzMjQwSwl8CTk3ODBLCXwKLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCjMyIChwSHlwKQl8CTI1NzkwSwl8CTk3
+MDBLCXwKLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCgpv
+YnZpb3VzbHkgcHYtcXNwaW5sb2NrIGlzIG1vcmUgY2FjaGUtZnJpZW5kbHksIGFuZCBoYXMgYmV0
+dGVyIHBlcmZvcm1hbmNlIHRoYW4gdGVzdC1zZXQgc3BpbmxvY2suCgpNb3JlIHRlc3QgaXMgZ29p
+bmcgb24sIEkgd2lsbCBzZW5kIG91dCBuZXcgcGF0Y2ggc2V0IHdpdGggdGhlIHJlc3VsdC4KSE9Q
+RSAqd2l0aGluKiB0aGlzIHdlZWsuIHVuaXhiZW5jaCByZWFsbHkgdGFrZXMgYSBsb25nIHRpbWUu
+Cgp0aGFua3MKeGluaHVpCj4+IHB2LXFzcGlubG9jayB0cmllcyB0byBwcmVzZXJ2ZSB0aGUgZmFp
+cm5lc3Mgd2hpbGUgYWxsb3dpbmcgbGltaXRlZCBsb2NrCj4+IHN0ZWFsaW5nIGFuZCBleHBsaWNp
+dGx5IG1hbmFnaW5nIHdoaWNoIHZjcHVzIHRvIHdha2UuCj4KPiBSaWdodC4KPj4+Cj4+PiAJV2hp
+bGUgdGhlcmUncwo+Pj4gICAgIHRoZW9yeSBhbmQgdG8gc29tZSBleHRlbnQgcHJhY3RpY2Ugb24g
+eDg2LCBpdCB3b3VsZCBiZSBuaWNlIHRvCj4+PiAgICAgdmFsaWRhdGUgdGhlIGVmZmVjdHMgb24g
+UE9XRVIuCj4+IFJpZ2h0OyBzbyB0aGF0IHdpbGwgaGF2ZSB0byBiZSBmcm9tIGJlbmNobWFya3Mg
+d2hpY2ggSSBjYW5ub3QgaGVscCB5b3UKPj4gd2l0aCA7LSkKPgo+IFByZWNpc2VseSA6LSkgVGhp
+cyBpcyB3aGF0IEkgd2FzIGFza2luZyBmb3IgOy0pCj4KPiBDaGVlcnMsCj4gQmVuLgo+CgpfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
+biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
+aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
+bGl6YXRpb24=
