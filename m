@@ -1,15 +1,11 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next V2] tun: introduce tx skb ring
-Date: Thu, 23 Jun 2016 13:14:07 +0800
-Message-ID: <576B701F.2020105@redhat.com>
-References: <1465979897-4445-1-git-send-email-jasowang@redhat.com>
-	<20160617033218-mutt-send-email-mst@redhat.com>
-	<20160622211620-mutt-send-email-mst@redhat.com>
+Subject: [PATCH V2 0/3] basic device IOTLB support for vhost_net
+Date: Thu, 23 Jun 2016 02:04:29 -0400
+Message-ID: <1466661872-29165-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160622211620-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,17 +15,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, eric.dumazet@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, brouer@redhat.com, davem@davemloft.net
+To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: vkaplans@redhat.com, wexu@redhat.com, peterx@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE25bm0MDbmnIgyM+aXpSAwMjoxOCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIEZyaSwgSnVuIDE3LCAyMDE2IGF0IDAzOjQxOjIwQU0gKzAzMDAsIE1pY2hhZWwgUy4gVHNp
-cmtpbiB3cm90ZToKPj4gPldvdWxkIGl0IGhlbHAgdG8gaGF2ZSBwdHJfcmluZ19yZXNpemUgdGhh
-dCBnZXRzIGFuIGFycmF5IG9mCj4+ID5yaW5ncyBhbmQgcmVzaXplcyB0aGVtIGJvdGggdG8gc2Ft
-ZSBsZW5ndGg/Cj4gT0ssIGhlcmUgaXQgaXMuIFVudGVzdGVkIHNvIGZhciwgYW5kIG5vIHNrYiB3
-cmFwcGVyLgo+IFBscyBsZXQgbWUga25vdyB3aGV0aGVyIHRoaXMgaXMgd2hhdCB5b3UgaGFkIGlu
-IG1pbmQuCgpFeGFjdGx5IHdoYXQgSSB3YW50LgoKVGhhbmtzCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
-aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
-bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+This patch tries to implement an device IOTLB for vhost. This could be
+used with for co-operation with userspace IOMMU implementation (qemu)
+for a secure DMA environment (DMAR) in guest.
+
+The idea is simple. When vhost meets an IOTLB miss, it will request
+the assistance of userspace to do the translation, this is done
+through:
+
+- when there's a IOTLB miss, it will notify userspace through
+  vhost_net fd and then userspace read the fault address, size and
+  access from vhost fd.
+- userspace write the translation result back to vhost fd, vhost can
+  then update its IOTLB.
+
+The codes were optimized for fixed mapping users e.g dpdk in guest. It
+will be slow if dynamic mappings were used in guest. We could do
+optimizations on top.
+
+The codes were designed to be architecture independent. It should be
+easily ported to any architecture.
+
+Stress tested with l2fwd/vfio in guest with 4K/2M/1G page size. On 1G
+hugepage case, 100% TLB hit rate were noticed.
+
+Have a benchmark on this. Test was done with l2fwd in guest.For 2MB
+page, no difference in 64B performance and I notice a 4%-5% drop for
+1500B performance compare to UIO in guest. We can add some shortcut to
+bypass the IOTLB for virtqueue accessing, but I think it's better to
+do this on top.
+
+Changes from V1:
+- Fix i386 build warnings
+- Drop access paramter for vhost_get_vq_desc() (fix VHOST SCSI build error)
+
+Changes from RFC V3:
+- rebase on latest
+- minor tweak on commit log
+- use VHOST_ACCESS_RO instead of VHOST_ACCESS_WO in vhost_copy_from_user()
+- switch to use atomic userspace access helper in vhost_get/put_user()
+- remove debug codes in vhost_iotlb_miss()
+- use FIFO instead of FILO when doing TLB replacement
+- fix unbalanced lock in vhost_process_iotlb_msg()
+
+Changes from RFC V2:
+- introduce memory accessors for vhost
+- switch from ioctls to oridinary file read/write for iotlb miss and
+  updating
+- do not assume virtqueue were virtually mapped contiguously, all
+  virtqueue access were done throug IOTLB
+- verify memory access during IOTLB update and fail early
+- introduce a module parameter for the size of IOTLB
+
+Changes from RFC V1:
+- support any size/range of updating and invalidation through
+  introducing the interval tree.
+- convert from per device iotlb request to per virtqueue iotlb
+  request, this solves the possible deadlock in V1.
+- read/write permission check support.
+
+Please review.
+
+Jason Wang (3):
+  vhost: introduce vhost memory accessors
+  vhost: convert pre sorted vhost memory array to interval tree
+  vhost: device IOTLB API
+
+ drivers/vhost/net.c        |  58 +++-
+ drivers/vhost/vhost.c      | 806 +++++++++++++++++++++++++++++++++++++++------
+ drivers/vhost/vhost.h      |  57 +++-
+ include/uapi/linux/vhost.h |  28 ++
+ 4 files changed, 829 insertions(+), 120 deletions(-)
+
+-- 
+1.8.3.1
