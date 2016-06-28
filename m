@@ -1,17 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next V2] tun: introduce tx skb ring
-Date: Tue, 28 Jun 2016 10:09:42 +0300
-Message-ID: <20160628100907-mutt-send-email-mst@redhat.com>
-References: <1465979897-4445-1-git-send-email-jasowang@redhat.com>
-	<20160617033218-mutt-send-email-mst@redhat.com>
-	<20160622211620-mutt-send-email-mst@redhat.com>
-	<576B701F.2020105@redhat.com>
+From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v2 1/4] kernel/sched: introduce vcpu preempted check interface
+Date: Tue, 28 Jun 2016 10:43:08 -0400
+Message-ID: <1467124991-13164-2-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+References: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <576B701F.2020105@redhat.com>
+In-Reply-To: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,39 +17,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, eric.dumazet@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, brouer@redhat.com, davem@davemloft.net
+To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org
+Cc: dave@stgolabs.net, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, peterz@infradead.org, mpe@ellerman.id.au, boqun.feng@gmail.com, will.deacon@arm.com, waiman.long@hpe.com, mingo@redhat.com, paulus@samba.org, benh@kernel.crashing.org, schwidefsky@de.ibm.com, paulmck@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBKdW4gMjMsIDIwMTYgYXQgMDE6MTQ6MDdQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE25bm0MDbmnIgyM+aXpSAwMjoxOCwgTWljaGFlbCBTLiBUc2lya2lu
-IHdyb3RlOgo+ID4gT24gRnJpLCBKdW4gMTcsIDIwMTYgYXQgMDM6NDE6MjBBTSArMDMwMCwgTWlj
-aGFlbCBTLiBUc2lya2luIHdyb3RlOgo+ID4gPiA+V291bGQgaXQgaGVscCB0byBoYXZlIHB0cl9y
-aW5nX3Jlc2l6ZSB0aGF0IGdldHMgYW4gYXJyYXkgb2YKPiA+ID4gPnJpbmdzIGFuZCByZXNpemVz
-IHRoZW0gYm90aCB0byBzYW1lIGxlbmd0aD8KPiA+IE9LLCBoZXJlIGl0IGlzLiBVbnRlc3RlZCBz
-byBmYXIsIGFuZCBubyBza2Igd3JhcHBlci4KPiA+IFBscyBsZXQgbWUga25vdyB3aGV0aGVyIHRo
-aXMgaXMgd2hhdCB5b3UgaGFkIGluIG1pbmQuCj4gCj4gRXhhY3RseSB3aGF0IEkgd2FudC4KPiAK
-PiBUaGFua3MKCk9rIGFuZCB0aGlzIGZvciBza2JfYXJyYXkKCi0tPgpza2JfYXJyYXk6IGFkZCB3
-cmFwcGVycyBmb3IgcmVzaXppbmcKClNpZ25lZC1vZmYtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8
-bXN0QHJlZGhhdC5jb20+CgotLQoKZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvc2tiX2FycmF5
-LmggYi9pbmNsdWRlL2xpbnV4L3NrYl9hcnJheS5oCmluZGV4IGM5MDA3MDguLjdlMDFjMWYgMTAw
-NjQ0Ci0tLSBhL2luY2x1ZGUvbGludXgvc2tiX2FycmF5LmgKKysrIGIvaW5jbHVkZS9saW51eC9z
-a2JfYXJyYXkuaApAQCAtMTUxLDE2ICsxNTEsMjQgQEAgc3RhdGljIGlubGluZSBpbnQgc2tiX2Fy
-cmF5X2luaXQoc3RydWN0IHNrYl9hcnJheSAqYSwgaW50IHNpemUsIGdmcF90IGdmcCkKIAlyZXR1
-cm4gcHRyX3JpbmdfaW5pdCgmYS0+cmluZywgc2l6ZSwgMCwgZ2ZwKTsKIH0KIAotdm9pZCBfX3Nr
-Yl9hcnJheV9kZXN0cm95X3NrYih2b2lkICpwdHIpCitzdGF0aWMgdm9pZCBfX3NrYl9hcnJheV9k
-ZXN0cm95X3NrYih2b2lkICpwdHIpCiB7CiAJa2ZyZWVfc2tiKHB0cik7CiB9CiAKLWludCBza2Jf
-YXJyYXlfcmVzaXplKHN0cnVjdCBza2JfYXJyYXkgKmEsIGludCBzaXplLCBnZnBfdCBnZnApCitz
-dGF0aWMgaW5saW5lIGludCBza2JfYXJyYXlfcmVzaXplKHN0cnVjdCBza2JfYXJyYXkgKmEsIGlu
-dCBzaXplLCBnZnBfdCBnZnApCiB7CiAJcmV0dXJuIHB0cl9yaW5nX3Jlc2l6ZSgmYS0+cmluZywg
-c2l6ZSwgZ2ZwLCBfX3NrYl9hcnJheV9kZXN0cm95X3NrYik7CiB9CiAKK3N0YXRpYyBpbmxpbmUg
-aW50IHNrYl9yYWF5X3Jlc2l6ZV9tdWx0aXBsZShzdHJ1Y3Qgc2tiX2FycmF5ICoqcmluZ3MsIGlu
-dCBucmluZ3MsCisJCQkJCSAgIGludCBzaXplLCBnZnBfdCBnZnApCit7CisJQlVJTERfQlVHX09O
-KG9mZnNldG9mKHN0cnVjdCBza2JfYXJyYXksIHJpbmcpKTsKKwlwdHJfcmluZ19yZXNpemVfbXVs
-dGlwbGUoKHN0cnVjdCBwdHJfcmluZyAqKilyaW5ncywgbnJpbmdzLCBzaXplLCBnZnAsCisJCQkJ
-IF9fc2tiX2FycmF5X2Rlc3Ryb3lfc2tiKTsKK30KKwogc3RhdGljIGlubGluZSB2b2lkIHNrYl9h
-cnJheV9jbGVhbnVwKHN0cnVjdCBza2JfYXJyYXkgKmEpCiB7CiAJcHRyX3JpbmdfY2xlYW51cCgm
-YS0+cmluZywgX19za2JfYXJyYXlfZGVzdHJveV9za2IpOwpfX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
-dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
-eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+This patch support to fix lock holder preemption issue.
+
+For kernel users, we could use bool vcpu_is_preempted(int cpu) to detech if
+one vcpu is preempted or not.
+
+The default implementation is a macro defined by false. So compiler can
+wrap it out if arch dose not support such vcpu pteempted check.
+
+Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+---
+ include/linux/sched.h | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 6e42ada..cbe0574 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -3293,6 +3293,18 @@ static inline void set_task_cpu(struct task_struct *p, unsigned int cpu)
+ 
+ #endif /* CONFIG_SMP */
+ 
++/*
++ * In order to deal with a various lock holder preemption issues provide an
++ * interface to see if a vCPU is currently running or not.
++ *
++ * This allows us to terminate optimistic spin loops and block, analogous to
++ * the native optimistic spin heuristic of testing if the lock owner task is
++ * running or not.
++ */
++#ifndef vcpu_is_preempted
++#define vcpu_is_preempted(cpu)	false
++#endif
++
+ extern long sched_setaffinity(pid_t pid, const struct cpumask *new_mask);
+ extern long sched_getaffinity(pid_t pid, struct cpumask *mask);
+ 
+-- 
+2.4.11
