@@ -1,7 +1,7 @@
 From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v2 3/4] locking/osq: Drop the overload of osq_lock()
-Date: Tue, 28 Jun 2016 10:43:10 -0400
-Message-ID: <1467124991-13164-4-git-send-email-xinhui.pan__6806.53413660384$1467110703$gmane$org@linux.vnet.ibm.com>
+Subject: [PATCH v2 2/4] powerpc/spinlock: support vcpu preempted check
+Date: Tue, 28 Jun 2016 10:43:09 -0400
+Message-ID: <1467124991-13164-3-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 References: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,71 +21,54 @@ To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@
 Cc: dave@stgolabs.net, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, peterz@infradead.org, mpe@ellerman.id.au, boqun.feng@gmail.com, will.deacon@arm.com, waiman.long@hpe.com, mingo@redhat.com, paulus@samba.org, benh@kernel.crashing.org, schwidefsky@de.ibm.com, paulmck@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-An over-committed guest with more vCPUs than pCPUs has a heavy overload in
-osq_lock().
+This is to fix some lock holder preemption issues. Some other locks
+implementation do a spin loop before acquiring the lock itself. Currently
+kernel has an interface of bool vcpu_is_preempted(int cpu). It take the cpu
+as parameter and return true if the cpu is preempted. Then kernel can break
+the spin loops upon on the retval of vcpu_is_preempted.
 
-This is because vCPU A hold the osq lock and yield out, vCPU B wait per_cpu
-node->locked to be set. IOW, vCPU B wait vCPU A to run and unlock the osq
-lock.
+As kernel has used this interface, So lets support it.
 
-Kernel has an interface bool vcpu_is_preempted(int cpu) to see if a vCPU is
-currently running or not. So break the spin loops on true condition.
-
-test case:
-perf record -a perf bench sched messaging -g 400 -p && perf report
-
-before patch:
-18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
-12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
- 5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
- 3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
- 3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
- 3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
- 2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
-
-after patch:
-20.68%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner
- 8.45%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
- 4.12%  sched-messaging  [kernel.vmlinux]  [k] system_call
- 3.01%  sched-messaging  [kernel.vmlinux]  [k] system_call_common
- 2.83%  sched-messaging  [kernel.vmlinux]  [k] copypage_power7
- 2.64%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
- 2.00%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
+Only pSeries need supoort it. And the fact is powerNV are built into same
+kernel image with pSeries. So we need return false if we are runnig as
+powerNV. The another fact is that lppaca->yiled_count keeps zero on
+powerNV. So we can just skip the machine type.
 
 Suggested-by: Boqun Feng <boqun.feng@gmail.com>
+Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 ---
- kernel/locking/osq_lock.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ arch/powerpc/include/asm/spinlock.h | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/kernel/locking/osq_lock.c b/kernel/locking/osq_lock.c
-index 05a3785..39d1385 100644
---- a/kernel/locking/osq_lock.c
-+++ b/kernel/locking/osq_lock.c
-@@ -21,6 +21,11 @@ static inline int encode_cpu(int cpu_nr)
- 	return cpu_nr + 1;
- }
+diff --git a/arch/powerpc/include/asm/spinlock.h b/arch/powerpc/include/asm/spinlock.h
+index 523673d..3ac9fcb 100644
+--- a/arch/powerpc/include/asm/spinlock.h
++++ b/arch/powerpc/include/asm/spinlock.h
+@@ -52,6 +52,24 @@
+ #define SYNC_IO
+ #endif
  
-+static inline int node_cpu(struct optimistic_spin_node *node)
++/*
++ * This support kernel to check if one cpu is preempted or not.
++ * Then we can fix some lock holder preemption issue.
++ */
++#ifdef CONFIG_PPC_PSERIES
++#define vcpu_is_preempted vcpu_is_preempted
++static inline bool vcpu_is_preempted(int cpu)
 +{
-+	return node->cpu - 1;
++	/*
++	 * pSeries and powerNV can be built into same kernel image. In
++	 * principle we need return false directly if we are running as
++	 * powerNV. However the yield_count is always zero on powerNV, So
++	 * skip such machine type check
++	 */
++	return !!(be32_to_cpu(lppaca_of(cpu).yield_count) & 1);
 +}
++#endif
 +
- static inline struct optimistic_spin_node *decode_cpu(int encoded_cpu_val)
+ static __always_inline int arch_spin_value_unlocked(arch_spinlock_t lock)
  {
- 	int cpu_nr = encoded_cpu_val - 1;
-@@ -118,8 +123,11 @@ bool osq_lock(struct optimistic_spin_queue *lock)
- 	while (!READ_ONCE(node->locked)) {
- 		/*
- 		 * If we need to reschedule bail... so we can block.
-+		 * Use vcpu_is_preempted to detech lock holder preemption issue
-+		 * and break. vcpu_is_preempted is a macro defined by false if
-+		 * arch does not support vcpu preempted check,
- 		 */
--		if (need_resched())
-+		if (need_resched() || vcpu_is_preempted(node_cpu(node->prev)))
- 			goto unqueue;
- 
- 		cpu_relax_lowlatency();
+ 	return lock.slock == 0;
 -- 
 2.4.11
