@@ -1,20 +1,17 @@
-From: Minchan Kim <minchan@kernel.org>
-Subject: Re: [PATCH v6v3 02/12] mm: migrate: support non-lru movable page
-	migration
-Date: Tue, 28 Jun 2016 15:39:12 +0900
-Message-ID: <20160628063912.GA25560__22859.512086916$1467095955$gmane$org@bbox>
-References: <1463754225-31311-3-git-send-email-minchan@kernel.org>
-	<20160530013926.GB8683@bbox> <20160531000117.GB18314@bbox>
-	<575E7F0B.8010201@linux.vnet.ibm.com> <20160615023249.GG17127@bbox>
-	<5760F970.7060805@linux.vnet.ibm.com> <20160616002617.GM17127@bbox>
-	<5762200F.5040908@linux.vnet.ibm.com> <20160616053754.GQ17127@bbox>
-	<5770BEC5.3010807@linux.vnet.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next V2] tun: introduce tx skb ring
+Date: Tue, 28 Jun 2016 10:09:42 +0300
+Message-ID: <20160628100907-mutt-send-email-mst@redhat.com>
+References: <1465979897-4445-1-git-send-email-jasowang@redhat.com>
+	<20160617033218-mutt-send-email-mst@redhat.com>
+	<20160622211620-mutt-send-email-mst@redhat.com>
+	<576B701F.2020105@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <5770BEC5.3010807@linux.vnet.ibm.com>
+In-Reply-To: <576B701F.2020105@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,187 +21,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-Cc: Rik van Riel <riel@redhat.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Rafael Aquini <aquini@redhat.com>, Jonathan Corbet <corbet@lwn.net>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, John Einar Reitan <john.reitan@foss.arm.com>, linux-mm@kvack.org, Gioh Kim <gi-oh.kim@profitbricks.com>, Mel Gorman <mgorman@suse.de>, Andrew Morton <akpm@linux-foundation.org>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Vlastimil Babka <vbabka@suse.cz>
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, eric.dumazet@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, brouer@redhat.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 27, 2016 at 11:21:01AM +0530, Anshuman Khandual wrote:
-> On 06/16/2016 11:07 AM, Minchan Kim wrote:
-> > On Thu, Jun 16, 2016 at 09:12:07AM +0530, Anshuman Khandual wrote:
-> >> On 06/16/2016 05:56 AM, Minchan Kim wrote:
-> >>> On Wed, Jun 15, 2016 at 12:15:04PM +0530, Anshuman Khandual wrote:
-> >>>> On 06/15/2016 08:02 AM, Minchan Kim wrote:
-> >>>>> Hi,
-> >>>>>
-> >>>>> On Mon, Jun 13, 2016 at 03:08:19PM +0530, Anshuman Khandual wrote:
-> >>>>>>> On 05/31/2016 05:31 AM, Minchan Kim wrote:
-> >>>>>>>>> @@ -791,6 +921,7 @@ static int __unmap_and_move(struct page *page, struct page *newpage,
-> >>>>>>>>>  	int rc = -EAGAIN;
-> >>>>>>>>>  	int page_was_mapped = 0;
-> >>>>>>>>>  	struct anon_vma *anon_vma = NULL;
-> >>>>>>>>> +	bool is_lru = !__PageMovable(page);
-> >>>>>>>>>  
-> >>>>>>>>>  	if (!trylock_page(page)) {
-> >>>>>>>>>  		if (!force || mode == MIGRATE_ASYNC)
-> >>>>>>>>> @@ -871,6 +1002,11 @@ static int __unmap_and_move(struct page *page, struct page *newpage,
-> >>>>>>>>>  		goto out_unlock_both;
-> >>>>>>>>>  	}
-> >>>>>>>>>  
-> >>>>>>>>> +	if (unlikely(!is_lru)) {
-> >>>>>>>>> +		rc = move_to_new_page(newpage, page, mode);
-> >>>>>>>>> +		goto out_unlock_both;
-> >>>>>>>>> +	}
-> >>>>>>>>> +
-> >>>>>>>
-> >>>>>>> Hello Minchan,
-> >>>>>>>
-> >>>>>>> I might be missing something here but does this implementation support the
-> >>>>>>> scenario where these non LRU pages owned by the driver mapped as PTE into
-> >>>>>>> process page table ? Because the "goto out_unlock_both" statement above
-> >>>>>>> skips all the PTE unmap, putting a migration PTE and removing the migration
-> >>>>>>> PTE steps.
-> >>>>> You're right. Unfortunately, it doesn't support right now but surely,
-> >>>>> it's my TODO after landing this work.
-> >>>>>
-> >>>>> Could you share your usecase?
-> >>>>
-> >>>> Sure.
-> >>>
-> >>> Thanks a lot!
-> >>>
-> >>>>
-> >>>> My driver has privately managed non LRU pages which gets mapped into user space
-> >>>> process page table through f_ops->mmap() and vmops->fault() which then updates
-> >>>> the file RMAP (page->mapping->i_mmap) through page_add_file_rmap(page). One thing
-> >>>
-> >>> Hmm, page_add_file_rmap is not exported function. How does your driver can use it?
-> >>
-> >> Its not using the function directly, I just re-iterated the sequence of functions
-> >> above. (do_set_pte -> page_add_file_rmap) gets called after we grab the page from
-> >> driver through (__do_fault->vma->vm_ops->fault()).
-> >>
-> >>> Do you use vm_insert_pfn?
-> >>> What type your vma is? VM_PFNMMAP or VM_MIXEDMAP?
-> >>
-> >> I dont use vm_insert_pfn(). Here is the sequence of events how the user space
-> >> VMA gets the non LRU pages from the driver.
-> >>
-> >> - Driver registers a character device with 'struct file_operations' binding
-> >> - Then the 'fops->mmap()' just binds the incoming 'struct vma' with a 'struct
-> >>   vm_operations_struct' which provides the 'vmops->fault()' routine which
-> >>   basically traps all page faults on the VMA and provides one page at a time
-> >>   through a driver specific allocation routine which hands over non LRU pages
-> >>
-> >> The VMA is not anything special as such. Its what we get when we try to do a
-> >> simple mmap() on a file descriptor pointing to a character device. I can
-> >> figure out all the VM_* flags it holds after creation.
-> >>
-> >>>
-> >>> I want to make dummy driver to simulate your case.
-> >>
-> >> Sure. I hope the above mentioned steps will help you but in case you need more
-> >> information, please do let me know.
-> > 
-> > I got understood now. :)
-> > I will test it with dummy driver and will Cc'ed when I send a patch.
-> 
-> Hello Minchan,
-> 
-> Do you have any updates on this ? The V7 of the series still has this limitation.
-> Did you get a chance to test the driver out ? I am still concerned about how to
-> handle the struct address_space override problem within the struct page.
-
-Hi Anshuman,
-
-Slow but I am working on that. :) However, as I said, I want to do it
-after soft landing of current non-lru-no-mapped page migration to solve
-current real field issues.
-
-About the overriding problem of non-lru-mapped-page, I implemented dummy
-driver as miscellaneous device and in test_mmap(file_operations.mmap),
-I changed a_ops with my address_space_operations.
-
-int test_mmap(struct file *filp, struct vm_area_struct *vma)
-{
-        filp->f_mapping->a_ops = &test_aops;
-        vma->vm_ops = &test_vm_ops;
-        vma->vm_private_data = filp->private_data;
-        return 0;
-}
-
-test_aops should have *set_page_dirty* overriding.
-
-static int test_set_pag_dirty(struct page *page)
-{
-        if (!PageDirty(page))
-                SetPageDirty*page);
-        return 0;
-}
-
-Otherwise, it goes BUG_ON during radix tree operation because
-currently try_to_unmap is designed for file-lru pages which lives
-in page cache so it propagates page table dirty bit to PG_dirty flag
-of struct page by set_page_dirty. And set_page_dirty want to mark
-dirty tag in radix tree node but it's character driver so the page
-cache doesn't have it. That's why we encounter BUG_ON in radix tree
-operation. Anyway, to test, I implemented set_page_dirty in my dummy
-driver.
-
-With only that, it doesn't work because I need to modify migrate.c to
-work non-lru-mapped-page and changing PG_isolated flag which is
-override of PG_reclaim which is cleared in set_page_dirty.
-
-With that, it seems to work. But I'm not saying it's right model now
-for device drivers. In runtime, replacing filp->f_mapping->a_ops with
-custom a_ops of own driver seems to be hacky to me.
-So, I'm considering now new pseudo fs "movable_inode" which will
-support 
-
-struct file *movable_inode_getfile(const char *name,
-                        const struct file_operations *fop,
-                        const struct address_space_operations *a_ops)
-{
-        struct path path;
-        struct qstr this;
-        struct inode *inode;
-        struct super_block *sb;
-
-        this.name = name;
-        this.len = strlen(name);
-        this.hash = 0;
-        sb = movable_mnt.mnt_sb;
-        patch.denty = d_alloc_pseudo(movable_inode_mnt->mnt_sb, &this);
-        patch.mnt = mntget(movable_inode_mnt);
-        
-        inode = new_inode(sb);
-        ..
-        ..
-        inode->i_mapping->a_ops = a_ops;
-        d_instantiate(path.dentry, inode);
-
-        return alloc_file(&path, FMODE_WRITE | FMODE_READ, f_op);
-}
-
-And in our driver, we can change vma->vm_file with new one.
-
-int test_mmap(struct file *filp, struct vm_area_structd *vma)
-{
-        struct file *newfile = movable_inode_getfile("[test"],
-                                filep->f_op, &test_aops);
-        vma->vm_file = newfile;
-        ..
-        ..
-}
-
-When I read mmap_region in mm/mmap.c, it's reasonable usecase
-which dirver's mmap changes vma->vm_file with own file.
-
-Anyway, it needs many subtle changes in mm/vfs/driver side so
-need to review from each maintainers related subsystem so I
-want to not be hurry.
-
-Thanks.
-
-> 
-> - Anshuman
-> 
+T24gVGh1LCBKdW4gMjMsIDIwMTYgYXQgMDE6MTQ6MDdQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiAKPiBPbiAyMDE25bm0MDbmnIgyM+aXpSAwMjoxOCwgTWljaGFlbCBTLiBUc2lya2lu
+IHdyb3RlOgo+ID4gT24gRnJpLCBKdW4gMTcsIDIwMTYgYXQgMDM6NDE6MjBBTSArMDMwMCwgTWlj
+aGFlbCBTLiBUc2lya2luIHdyb3RlOgo+ID4gPiA+V291bGQgaXQgaGVscCB0byBoYXZlIHB0cl9y
+aW5nX3Jlc2l6ZSB0aGF0IGdldHMgYW4gYXJyYXkgb2YKPiA+ID4gPnJpbmdzIGFuZCByZXNpemVz
+IHRoZW0gYm90aCB0byBzYW1lIGxlbmd0aD8KPiA+IE9LLCBoZXJlIGl0IGlzLiBVbnRlc3RlZCBz
+byBmYXIsIGFuZCBubyBza2Igd3JhcHBlci4KPiA+IFBscyBsZXQgbWUga25vdyB3aGV0aGVyIHRo
+aXMgaXMgd2hhdCB5b3UgaGFkIGluIG1pbmQuCj4gCj4gRXhhY3RseSB3aGF0IEkgd2FudC4KPiAK
+PiBUaGFua3MKCk9rIGFuZCB0aGlzIGZvciBza2JfYXJyYXkKCi0tPgpza2JfYXJyYXk6IGFkZCB3
+cmFwcGVycyBmb3IgcmVzaXppbmcKClNpZ25lZC1vZmYtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8
+bXN0QHJlZGhhdC5jb20+CgotLQoKZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvc2tiX2FycmF5
+LmggYi9pbmNsdWRlL2xpbnV4L3NrYl9hcnJheS5oCmluZGV4IGM5MDA3MDguLjdlMDFjMWYgMTAw
+NjQ0Ci0tLSBhL2luY2x1ZGUvbGludXgvc2tiX2FycmF5LmgKKysrIGIvaW5jbHVkZS9saW51eC9z
+a2JfYXJyYXkuaApAQCAtMTUxLDE2ICsxNTEsMjQgQEAgc3RhdGljIGlubGluZSBpbnQgc2tiX2Fy
+cmF5X2luaXQoc3RydWN0IHNrYl9hcnJheSAqYSwgaW50IHNpemUsIGdmcF90IGdmcCkKIAlyZXR1
+cm4gcHRyX3JpbmdfaW5pdCgmYS0+cmluZywgc2l6ZSwgMCwgZ2ZwKTsKIH0KIAotdm9pZCBfX3Nr
+Yl9hcnJheV9kZXN0cm95X3NrYih2b2lkICpwdHIpCitzdGF0aWMgdm9pZCBfX3NrYl9hcnJheV9k
+ZXN0cm95X3NrYih2b2lkICpwdHIpCiB7CiAJa2ZyZWVfc2tiKHB0cik7CiB9CiAKLWludCBza2Jf
+YXJyYXlfcmVzaXplKHN0cnVjdCBza2JfYXJyYXkgKmEsIGludCBzaXplLCBnZnBfdCBnZnApCitz
+dGF0aWMgaW5saW5lIGludCBza2JfYXJyYXlfcmVzaXplKHN0cnVjdCBza2JfYXJyYXkgKmEsIGlu
+dCBzaXplLCBnZnBfdCBnZnApCiB7CiAJcmV0dXJuIHB0cl9yaW5nX3Jlc2l6ZSgmYS0+cmluZywg
+c2l6ZSwgZ2ZwLCBfX3NrYl9hcnJheV9kZXN0cm95X3NrYik7CiB9CiAKK3N0YXRpYyBpbmxpbmUg
+aW50IHNrYl9yYWF5X3Jlc2l6ZV9tdWx0aXBsZShzdHJ1Y3Qgc2tiX2FycmF5ICoqcmluZ3MsIGlu
+dCBucmluZ3MsCisJCQkJCSAgIGludCBzaXplLCBnZnBfdCBnZnApCit7CisJQlVJTERfQlVHX09O
+KG9mZnNldG9mKHN0cnVjdCBza2JfYXJyYXksIHJpbmcpKTsKKwlwdHJfcmluZ19yZXNpemVfbXVs
+dGlwbGUoKHN0cnVjdCBwdHJfcmluZyAqKilyaW5ncywgbnJpbmdzLCBzaXplLCBnZnAsCisJCQkJ
+IF9fc2tiX2FycmF5X2Rlc3Ryb3lfc2tiKTsKK30KKwogc3RhdGljIGlubGluZSB2b2lkIHNrYl9h
+cnJheV9jbGVhbnVwKHN0cnVjdCBza2JfYXJyYXkgKmEpCiB7CiAJcHRyX3JpbmdfY2xlYW51cCgm
+YS0+cmluZywgX19za2JfYXJyYXlfZGVzdHJveV9za2IpOwpfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
+dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
+eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
