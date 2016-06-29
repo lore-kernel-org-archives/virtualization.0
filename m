@@ -1,8 +1,8 @@
 From: Liang Li <liang.z.li@intel.com>
-Subject: [PATCH v2 kernel 5/7] virtio-balloon: define feature bit and head for
-	misc virt queue
-Date: Wed, 29 Jun 2016 18:32:18 +0800
-Message-ID: <1467196340-22079-6-git-send-email-liang.z.li__6431.87206374041$1467196848$gmane$org@intel.com>
+Subject: [PATCH v2 kernel 6/7] mm: add the related functions to get free page
+	info
+Date: Wed, 29 Jun 2016 18:32:19 +0800
+Message-ID: <1467196340-22079-7-git-send-email-liang.z.li__18324.4923632175$1467196862$gmane$org@intel.com>
 References: <1467196340-22079-1-git-send-email-liang.z.li@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,64 +19,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: mst@redhat.com
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, Liang Li <liang.z.li@intel.com>, qemu-devel@nongnu.org, dgilbert@redhat.com, Amit Shah <amit.shah@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, Liang Li <liang.z.li@intel.com>, qemu-devel@nongnu.org, dgilbert@redhat.com, Amit Shah <amit.shah@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org, Mel Gorman <mgorman@techsingularity.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Define a new feature bit which supports a new virtual queue. This
-new virtual qeuque is for information exchange between hypervisor
-and guest. The VMM hypervisor can make use of this virtual queue
-to request the guest do some operations, e.g. drop page cache,
-synchronize file system, etc. And the VMM hypervisor can get some
-of guest's runtime information through this virtual queue, e.g. the
-guest's free page information, which can be used for live migration
-optimization.
+Save the free page info into a page bitmap, will be used in virtio
+balloon device driver.
 
 Signed-off-by: Liang Li <liang.z.li@intel.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Mel Gorman <mgorman@techsingularity.net>
 Cc: Michael S. Tsirkin <mst@redhat.com>
 Cc: Paolo Bonzini <pbonzini@redhat.com>
 Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
 Cc: Amit Shah <amit.shah@redhat.com>
 ---
- include/uapi/linux/virtio_balloon.h | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ mm/page_alloc.c | 46 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 46 insertions(+)
 
-diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-index d3b182a..be4880f 100644
---- a/include/uapi/linux/virtio_balloon.h
-+++ b/include/uapi/linux/virtio_balloon.h
-@@ -35,6 +35,7 @@
- #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
- #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
- #define VIRTIO_BALLOON_F_PAGE_BITMAP	3 /* Send page info with bitmap */
-+#define VIRTIO_BALLOON_F_MISC_VQ	4 /* Misc info virtqueue */
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 2083b40..c2a6669 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -4521,6 +4521,52 @@ unsigned long get_max_pfn(void)
+ }
+ EXPORT_SYMBOL(get_max_pfn);
  
- /* Size of a PFN in the balloon interface. */
- #define VIRTIO_BALLOON_PFN_SHIFT 12
-@@ -101,4 +102,25 @@ struct balloon_bmap_hdr {
- 	__virtio64 bmap_len;
- };
- 
-+enum balloon_req_id {
-+	/* Get free pages information */
-+	BALLOON_GET_FREE_PAGES,
-+};
++static void mark_free_pages_bitmap(struct zone *zone, unsigned long start_pfn,
++	unsigned long end_pfn, unsigned long *bitmap, unsigned long len)
++{
++	unsigned long pfn, flags, page_num;
++	unsigned int order, t;
++	struct list_head *curr;
 +
-+enum balloon_flag {
-+	/* Have more data for a request */
-+	BALLOON_FLAG_CONT,
-+	/* No more data for a request */
-+	BALLOON_FLAG_DONE,
-+};
++	if (zone_is_empty(zone))
++		return;
++	end_pfn = min(start_pfn + len, end_pfn);
++	spin_lock_irqsave(&zone->lock, flags);
 +
-+struct balloon_req_hdr {
-+	/* Used to distinguish different request */
-+	__virtio16 cmd;
-+	/* Reserved */
-+	__virtio16 reserved[3];
-+	/* Request parameter */
-+	__virtio64 param;
-+};
++	for_each_migratetype_order(order, t) {
++		list_for_each(curr, &zone->free_area[order].free_list[t]) {
++			pfn = page_to_pfn(list_entry(curr, struct page, lru));
++			if (pfn >= start_pfn && pfn <= end_pfn) {
++				page_num = 1UL << order;
++				if (pfn + page_num > end_pfn)
++					page_num = end_pfn - pfn;
++				bitmap_set(bitmap, pfn - start_pfn, page_num);
++			}
++		}
++	}
 +
- #endif /* _LINUX_VIRTIO_BALLOON_H */
++	spin_unlock_irqrestore(&zone->lock, flags);
++}
++
++int get_free_pages(unsigned long start_pfn, unsigned long end_pfn,
++		unsigned long *bitmap, unsigned long len)
++{
++	struct zone *zone;
++	int ret = 0;
++
++	if (bitmap == NULL || start_pfn > end_pfn || start_pfn >= max_pfn)
++		return 0;
++	if (end_pfn < max_pfn)
++		ret = 1;
++	if (end_pfn >= max_pfn)
++		ret = 0;
++
++	for_each_populated_zone(zone)
++		mark_free_pages_bitmap(zone, start_pfn, end_pfn, bitmap, len);
++	return ret;
++}
++EXPORT_SYMBOL(get_free_pages);
++
+ static void zoneref_set_zone(struct zone *zone, struct zoneref *zoneref)
+ {
+ 	zoneref->zone = zone;
 -- 
 1.8.3.1
