@@ -1,17 +1,11 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next V2] tun: introduce tx skb ring
-Date: Thu, 30 Jun 2016 09:50:36 +0800
-Message-ID: <57747AEC.8050307@redhat.com>
-References: <1465979897-4445-1-git-send-email-jasowang@redhat.com>
-	<20160617033218-mutt-send-email-mst@redhat.com>
-	<20160622211620-mutt-send-email-mst@redhat.com>
-	<576B701F.2020105@redhat.com>
-	<20160628100907-mutt-send-email-mst@redhat.com>
+From: Fam Zheng <famz@redhat.com>
+Subject: [PATCH v2 00/12] gendisk: Generate uevent after attribute available
+Date: Thu, 30 Jun 2016 09:59:41 +0800
+Message-ID: <20160630015953.6888-1-famz@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160628100907-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,47 +15,115 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, eric.dumazet@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, brouer@redhat.com, davem@davemloft.net
+To: linux-kernel@vger.kernel.org
+Cc: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-nvme@lists.infradead.org, virtualization@lists.linux-foundation.org, Keith Busch <keith.busch@intel.com>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Christoph Hellwig <hch@infradead.org>, Shaohua Li <shli@kernel.org>, Nitin Gupta <ngupta@vflare.org>, famz@redhat.com, Jiri Kosina <jikos@kernel.org>, linux-block@vger.kernel.org, "Ed L. Cashin" <ed.cashin@acm.org>, Jens Axboe <axboe@kernel.dk>, linux-raid@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>, linux-mmc@vger.kernel.org, Minchan Kim <minchan@kernel.org>, linux-mtd@lists.infradead.org, Brian Norris <computersforpeace@gmail.com>, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE25bm0MDbmnIgyOOaXpSAxNTowOSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIFRodSwgSnVuIDIzLCAyMDE2IGF0IDAxOjE0OjA3UE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+Cj4+IE9uIDIwMTblubQwNuaciDIz5pelIDAyOjE4LCBNaWNoYWVsIFMuIFRzaXJraW4g
-d3JvdGU6Cj4+PiBPbiBGcmksIEp1biAxNywgMjAxNiBhdCAwMzo0MToyMEFNICswMzAwLCBNaWNo
-YWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+Pj4+IFdvdWxkIGl0IGhlbHAgdG8gaGF2ZSBwdHJfcmlu
-Z19yZXNpemUgdGhhdCBnZXRzIGFuIGFycmF5IG9mCj4+Pj4+IHJpbmdzIGFuZCByZXNpemVzIHRo
-ZW0gYm90aCB0byBzYW1lIGxlbmd0aD8KPj4+IE9LLCBoZXJlIGl0IGlzLiBVbnRlc3RlZCBzbyBm
-YXIsIGFuZCBubyBza2Igd3JhcHBlci4KPj4+IFBscyBsZXQgbWUga25vdyB3aGV0aGVyIHRoaXMg
-aXMgd2hhdCB5b3UgaGFkIGluIG1pbmQuCj4+IEV4YWN0bHkgd2hhdCBJIHdhbnQuCj4+Cj4+IFRo
-YW5rcwo+IE9rIGFuZCB0aGlzIGZvciBza2JfYXJyYXkKPgo+IC0tPgo+IHNrYl9hcnJheTogYWRk
-IHdyYXBwZXJzIGZvciByZXNpemluZwo+Cj4gU2lnbmVkLW9mZi1ieTogTWljaGFlbCBTLiBUc2ly
-a2luIDxtc3RAcmVkaGF0LmNvbT4KPgo+IC0tCj4KPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51
-eC9za2JfYXJyYXkuaCBiL2luY2x1ZGUvbGludXgvc2tiX2FycmF5LmgKPiBpbmRleCBjOTAwNzA4
-Li43ZTAxYzFmIDEwMDY0NAo+IC0tLSBhL2luY2x1ZGUvbGludXgvc2tiX2FycmF5LmgKPiArKysg
-Yi9pbmNsdWRlL2xpbnV4L3NrYl9hcnJheS5oCj4gQEAgLTE1MSwxNiArMTUxLDI0IEBAIHN0YXRp
-YyBpbmxpbmUgaW50IHNrYl9hcnJheV9pbml0KHN0cnVjdCBza2JfYXJyYXkgKmEsIGludCBzaXpl
-LCBnZnBfdCBnZnApCj4gICAJcmV0dXJuIHB0cl9yaW5nX2luaXQoJmEtPnJpbmcsIHNpemUsIDAs
-IGdmcCk7Cj4gICB9Cj4gICAKPiAtdm9pZCBfX3NrYl9hcnJheV9kZXN0cm95X3NrYih2b2lkICpw
-dHIpCj4gK3N0YXRpYyB2b2lkIF9fc2tiX2FycmF5X2Rlc3Ryb3lfc2tiKHZvaWQgKnB0cikKPiAg
-IHsKPiAgIAlrZnJlZV9za2IocHRyKTsKPiAgIH0KPiAgIAo+IC1pbnQgc2tiX2FycmF5X3Jlc2l6
-ZShzdHJ1Y3Qgc2tiX2FycmF5ICphLCBpbnQgc2l6ZSwgZ2ZwX3QgZ2ZwKQo+ICtzdGF0aWMgaW5s
-aW5lIGludCBza2JfYXJyYXlfcmVzaXplKHN0cnVjdCBza2JfYXJyYXkgKmEsIGludCBzaXplLCBn
-ZnBfdCBnZnApCj4gICB7Cj4gICAJcmV0dXJuIHB0cl9yaW5nX3Jlc2l6ZSgmYS0+cmluZywgc2l6
-ZSwgZ2ZwLCBfX3NrYl9hcnJheV9kZXN0cm95X3NrYik7Cj4gICB9CgpXaWxsIHNwbGl0IHVwIHRo
-ZSBhYm92ZSB0d2VhayBpbnRvIGFub3RoZXIgcGF0Y2ggd2hlbiByZXBvc3RpbmcuCgo+ICAgCj4g
-K3N0YXRpYyBpbmxpbmUgaW50IHNrYl9yYWF5X3Jlc2l6ZV9tdWx0aXBsZShzdHJ1Y3Qgc2tiX2Fy
-cmF5ICoqcmluZ3MsIGludCBucmluZ3MsCgpJIHRoaW5rIHlvdSBtZWFuICdza2JfYXJyYXlfcmVz
-aXplJyBoZXJlLgoKPiArCQkJCQkgICBpbnQgc2l6ZSwgZ2ZwX3QgZ2ZwKQo+ICt7Cj4gKwlCVUlM
-RF9CVUdfT04ob2Zmc2V0b2Yoc3RydWN0IHNrYl9hcnJheSwgcmluZykpOwo+ICsJcHRyX3Jpbmdf
-cmVzaXplX211bHRpcGxlKChzdHJ1Y3QgcHRyX3JpbmcgKiopcmluZ3MsIG5yaW5ncywgc2l6ZSwg
-Z2ZwLAo+ICsJCQkJIF9fc2tiX2FycmF5X2Rlc3Ryb3lfc2tiKTsKClRoaXMgc2hvdWxkIGJlIHJl
-dHVybiBwdHJfcmluZ19yZXNpemVfbXVsdGlwbGUoLi4uCgo+ICt9Cj4gKwo+ICAgc3RhdGljIGlu
-bGluZSB2b2lkIHNrYl9hcnJheV9jbGVhbnVwKHN0cnVjdCBza2JfYXJyYXkgKmEpCj4gICB7Cj4g
-ICAJcHRyX3JpbmdfY2xlYW51cCgmYS0+cmluZywgX19za2JfYXJyYXlfZGVzdHJveV9za2IpOwoK
-V2l0aCB0aGlzLCBsb29rcyBsaWtlIHRoZXJlJ3Mgbm8gbmVlZCBmb3IgYSBuZXcgZmxhZy4gV2ls
-bCByZXBvc3QgdGhlIApzZXJpZXMgd2l0aCB0aG9zZSB0d28gcGF0Y2hlcy4KClRoYW5rcwpfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
-biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
-aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
-bGl6YXRpb24=
+The race condition is noticed between disk_add() and disk attributes, on
+virtio-blk hotplug.
+
+Userspace listens to the KOBJ_ADD uevent generated in add_disk(). At that
+point we haven't created the serial attribute file, therefore depending
+on how fast udev reacts, the /dev/disk/by-id/ entry doesn't always get
+created.
+
+As pointed out by Christoph Hellwig in the specific fix [1], virtio-blk is not
+the only driver that suffers from this, so we cannot count on every driver to
+send events manually. Moreover as suggested in uevent documentation, it is
+advised to defer the KOBJ_ADD event until all attributes are ready:
+
+Documentation/kobject.txt:
+> Use the KOBJ_ADD action for when the kobject is first added to the kernel.
+> This should be done only after any attributes or children of the kobject
+> have been initialized properly, as userspace will instantly start to look
+> for them when this call happens.
+
+Unfortunately it seems impossible to fix this generally without touching the
+offending callers.  The approach I'm proposing here is adding a flag to
+suppress uevent in add_disk(), which is patch 1, then in later patches, convert
+any caller to only trigger the uevent when attributes are added.
+
+[1] https://lkml.org/lkml/2016/6/28/550
+
+Fam Zheng (12):
+  genhd: Add "gen_uevent" parameter to add_disk
+  genhd: Honor gen_uevent and add disk_gen_uevents
+  virtio-blk: Generate uevent after attribute available
+  axonrom: Generate uevent after attribute available
+  aoeblk: Generate uevent after attribute available
+  mtip32xx: Generate uevent after attribute available
+  pktcdvd: Generate uevent after attribute available
+  zram: Generate uevent after attribute available
+  md: Generate uevent after attribute available
+  mmc: Generate uevent after attribute available
+  mtd: Generate uevent after attribute available
+  nvme: Generate uevent after attribute available
+
+ arch/m68k/emu/nfblock.c                     |  2 +-
+ arch/powerpc/sysdev/axonram.c               |  3 ++-
+ arch/um/drivers/ubd_kern.c                  |  2 +-
+ arch/xtensa/platforms/iss/simdisk.c         |  2 +-
+ block/genhd.c                               | 26 +++++++++++++++++++++-----
+ drivers/block/DAC960.c                      |  2 +-
+ drivers/block/amiflop.c                     |  2 +-
+ drivers/block/aoe/aoeblk.c                  |  3 ++-
+ drivers/block/ataflop.c                     |  2 +-
+ drivers/block/brd.c                         |  4 ++--
+ drivers/block/cciss.c                       |  2 +-
+ drivers/block/drbd/drbd_main.c              |  2 +-
+ drivers/block/floppy.c                      |  2 +-
+ drivers/block/hd.c                          |  2 +-
+ drivers/block/loop.c                        |  2 +-
+ drivers/block/mg_disk.c                     |  2 +-
+ drivers/block/mtip32xx/mtip32xx.c           |  3 ++-
+ drivers/block/nbd.c                         |  2 +-
+ drivers/block/null_blk.c                    |  2 +-
+ drivers/block/osdblk.c                      |  2 +-
+ drivers/block/paride/pcd.c                  |  2 +-
+ drivers/block/paride/pd.c                   |  2 +-
+ drivers/block/paride/pf.c                   |  2 +-
+ drivers/block/pktcdvd.c                     |  4 +++-
+ drivers/block/ps3disk.c                     |  2 +-
+ drivers/block/ps3vram.c                     |  2 +-
+ drivers/block/rbd.c                         |  2 +-
+ drivers/block/rsxx/dev.c                    |  2 +-
+ drivers/block/skd_main.c                    |  2 +-
+ drivers/block/sunvdc.c                      |  2 +-
+ drivers/block/swim.c                        |  2 +-
+ drivers/block/swim3.c                       |  2 +-
+ drivers/block/sx8.c                         |  2 +-
+ drivers/block/umem.c                        |  2 +-
+ drivers/block/virtio_blk.c                  |  3 ++-
+ drivers/block/xen-blkfront.c                |  2 +-
+ drivers/block/xsysace.c                     |  2 +-
+ drivers/block/z2ram.c                       |  2 +-
+ drivers/block/zram/zram_drv.c               |  3 ++-
+ drivers/cdrom/gdrom.c                       |  2 +-
+ drivers/ide/ide-cd.c                        |  2 +-
+ drivers/ide/ide-gd.c                        |  2 +-
+ drivers/lightnvm/core.c                     |  2 +-
+ drivers/md/bcache/super.c                   |  4 ++--
+ drivers/md/dm.c                             |  2 +-
+ drivers/md/md.c                             |  3 ++-
+ drivers/memstick/core/ms_block.c            |  2 +-
+ drivers/memstick/core/mspro_block.c         |  2 +-
+ drivers/mmc/card/block.c                    |  3 ++-
+ drivers/mtd/mtd_blkdevs.c                   |  3 ++-
+ drivers/mtd/ubi/block.c                     |  2 +-
+ drivers/nvdimm/blk.c                        |  2 +-
+ drivers/nvdimm/btt.c                        |  2 +-
+ drivers/nvdimm/pmem.c                       |  2 +-
+ drivers/nvme/host/core.c                    |  3 ++-
+ drivers/s390/block/dasd_genhd.c             |  2 +-
+ drivers/s390/block/dcssblk.c                |  2 +-
+ drivers/s390/block/scm_blk.c                |  2 +-
+ drivers/s390/block/xpram.c                  |  2 +-
+ drivers/sbus/char/jsflash.c                 |  2 +-
+ drivers/scsi/sd.c                           |  2 +-
+ drivers/scsi/sr.c                           |  2 +-
+ drivers/staging/lustre/lustre/llite/lloop.c |  2 +-
+ include/linux/genhd.h                       |  3 ++-
+ 64 files changed, 98 insertions(+), 70 deletions(-)
+
+-- 
+2.9.0
