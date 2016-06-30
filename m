@@ -1,7 +1,7 @@
 From: Fam Zheng <famz@redhat.com>
-Subject: [PATCH v2 11/12] mtd: Generate uevent after attribute available
-Date: Thu, 30 Jun 2016 09:59:52 +0800
-Message-ID: <20160630015953.6888-12-famz__47514.8692880341$1467252145$gmane$org@redhat.com>
+Subject: [PATCH v2 12/12] nvme: Generate uevent after attribute available
+Date: Thu, 30 Jun 2016 09:59:53 +0800
+Message-ID: <20160630015953.6888-13-famz__11474.8367028826$1467252162$gmane$org@redhat.com>
 References: <20160630015953.6888-1-famz@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -27,28 +27,26 @@ disk_gen_uevents interface.
 
 Signed-off-by: Fam Zheng <famz@redhat.com>
 ---
- drivers/mtd/mtd_blkdevs.c | 3 ++-
+ drivers/nvme/host/core.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/mtd_blkdevs.c b/drivers/mtd/mtd_blkdevs.c
-index ab3bc22..6848141 100644
---- a/drivers/mtd/mtd_blkdevs.c
-+++ b/drivers/mtd/mtd_blkdevs.c
-@@ -436,13 +436,14 @@ int add_mtd_blktrans_dev(struct mtd_blktrans_dev *new)
- 	if (new->readonly)
- 		set_disk_ro(gd, 1);
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index fd70894..2655521 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -1462,11 +1462,12 @@ static void nvme_alloc_ns(struct nvme_ctrl *ctrl, unsigned nsid)
+ 	if (ns->type == NVME_NS_LIGHTNVM)
+ 		return;
  
--	add_disk(gd, true);
-+	add_disk(gd, false);
- 
- 	if (new->disk_attributes) {
- 		ret = sysfs_create_group(&disk_to_dev(gd)->kobj,
- 					new->disk_attributes);
- 		WARN_ON(ret);
- 	}
-+	disk_gen_uevents(gd);
- 	return 0;
- error4:
- 	blk_cleanup_queue(new->rq);
+-	add_disk(ns->disk, true);
++	add_disk(ns->disk, false);
+ 	if (sysfs_create_group(&disk_to_dev(ns->disk)->kobj,
+ 					&nvme_ns_attr_group))
+ 		pr_warn("%s: failed to create sysfs group for identification\n",
+ 			ns->disk->disk_name);
++	disk_gen_uevents(ns->disk);
+ 	return;
+  out_free_disk:
+ 	kfree(disk);
 -- 
 2.9.0
