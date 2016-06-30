@@ -1,7 +1,7 @@
 From: Fam Zheng <famz@redhat.com>
-Subject: [PATCH v2 10/12] mmc: Generate uevent after attribute available
-Date: Thu, 30 Jun 2016 09:59:51 +0800
-Message-ID: <20160630015953.6888-11-famz__39933.8180003271$1467252144$gmane$org@redhat.com>
+Subject: [PATCH v2 11/12] mtd: Generate uevent after attribute available
+Date: Thu, 30 Jun 2016 09:59:52 +0800
+Message-ID: <20160630015953.6888-12-famz__47514.8692880341$1467252145$gmane$org@redhat.com>
 References: <20160630015953.6888-1-famz@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -27,29 +27,28 @@ disk_gen_uevents interface.
 
 Signed-off-by: Fam Zheng <famz@redhat.com>
 ---
- drivers/mmc/card/block.c | 3 ++-
+ drivers/mtd/mtd_blkdevs.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/card/block.c b/drivers/mmc/card/block.c
-index 94cf51e..4007106 100644
---- a/drivers/mmc/card/block.c
-+++ b/drivers/mmc/card/block.c
-@@ -2457,7 +2457,7 @@ static int mmc_add_disk(struct mmc_blk_data *md)
- 	int ret;
- 	struct mmc_card *card = md->queue.card;
+diff --git a/drivers/mtd/mtd_blkdevs.c b/drivers/mtd/mtd_blkdevs.c
+index ab3bc22..6848141 100644
+--- a/drivers/mtd/mtd_blkdevs.c
++++ b/drivers/mtd/mtd_blkdevs.c
+@@ -436,13 +436,14 @@ int add_mtd_blktrans_dev(struct mtd_blktrans_dev *new)
+ 	if (new->readonly)
+ 		set_disk_ro(gd, 1);
  
--	add_disk(md->disk, true);
-+	add_disk(md->disk, false);
- 	md->force_ro.show = force_ro_show;
- 	md->force_ro.store = force_ro_store;
- 	sysfs_attr_init(&md->force_ro.attr);
-@@ -2466,6 +2466,7 @@ static int mmc_add_disk(struct mmc_blk_data *md)
- 	ret = device_create_file(disk_to_dev(md->disk), &md->force_ro);
- 	if (ret)
- 		goto force_ro_fail;
-+	disk_gen_uevents(md->disk);
+-	add_disk(gd, true);
++	add_disk(gd, false);
  
- 	if ((md->area_type & MMC_BLK_DATA_AREA_BOOT) &&
- 	     card->ext_csd.boot_ro_lockable) {
+ 	if (new->disk_attributes) {
+ 		ret = sysfs_create_group(&disk_to_dev(gd)->kobj,
+ 					new->disk_attributes);
+ 		WARN_ON(ret);
+ 	}
++	disk_gen_uevents(gd);
+ 	return 0;
+ error4:
+ 	blk_cleanup_queue(new->rq);
 -- 
 2.9.0
