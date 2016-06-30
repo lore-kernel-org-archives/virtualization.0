@@ -1,13 +1,15 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next V3 6/6] tun: switch to use skb array for tx
-Date: Thu, 30 Jun 2016 11:52:59 +0800
-Message-ID: <1467258779-3539-7-git-send-email-jasowang@redhat.com>
+Subject: Re: [PATCH net-next V3 5/6] net: introduce NETDEV_CHANGE_TX_QUEUE_LEN
+Date: Thu, 30 Jun 2016 13:12:38 +0800
+Message-ID: <5774AA46.3090604@redhat.com>
 References: <1467258779-3539-1-git-send-email-jasowang@redhat.com>
+	<1467258779-3539-6-git-send-email-jasowang@redhat.com>
+	<5774A67B.1060802@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1467258779-3539-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <5774A67B.1060802@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,339 +19,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, davem@davemloft.net
+To: John Fastabend <john.fastabend@gmail.com>, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, davem@davemloft.net
 Cc: brouer@redhat.com, eric.dumazet@gmail.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We used to queue tx packets in sk_receive_queue, this is less
-efficient since it requires spinlocks to synchronize between producer
-and consumer.
-
-This patch tries to address this by:
-
-- switch from sk_receive_queue to a skb_array, and resize it when
-  tx_queue_len was changed.
-- introduce a new proto_ops peek_len which was used for peeking the
-  skb length.
-- implement a tun version of peek_len for vhost_net to use and convert
-  vhost_net to use peek_len if possible.
-
-Pktgen test shows about 15.3% improvement on guest receiving pps for small
-buffers:
-
-Before: ~1300000pps
-After : ~1500000pps
-
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/tun.c   | 138 +++++++++++++++++++++++++++++++++++++++++++++++++---
- drivers/vhost/net.c |  16 +++++-
- include/linux/net.h |   1 +
- 3 files changed, 146 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index 4884802..3be69ea 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -71,6 +71,7 @@
- #include <net/sock.h>
- #include <linux/seq_file.h>
- #include <linux/uio.h>
-+#include <linux/skb_array.h>
- 
- #include <asm/uaccess.h>
- 
-@@ -167,6 +168,7 @@ struct tun_file {
- 	};
- 	struct list_head next;
- 	struct tun_struct *detached;
-+	struct skb_array tx_array;
- };
- 
- struct tun_flow_entry {
-@@ -515,7 +517,11 @@ static struct tun_struct *tun_enable_queue(struct tun_file *tfile)
- 
- static void tun_queue_purge(struct tun_file *tfile)
- {
--	skb_queue_purge(&tfile->sk.sk_receive_queue);
-+	struct sk_buff *skb;
-+
-+	while ((skb = skb_array_consume(&tfile->tx_array)) != NULL)
-+		kfree_skb(skb);
-+
- 	skb_queue_purge(&tfile->sk.sk_error_queue);
- }
- 
-@@ -560,6 +566,8 @@ static void __tun_detach(struct tun_file *tfile, bool clean)
- 			    tun->dev->reg_state == NETREG_REGISTERED)
- 				unregister_netdevice(tun->dev);
- 		}
-+		if (tun)
-+			skb_array_cleanup(&tfile->tx_array);
- 		sock_put(&tfile->sk);
- 	}
- }
-@@ -613,6 +621,7 @@ static void tun_detach_all(struct net_device *dev)
- static int tun_attach(struct tun_struct *tun, struct file *file, bool skip_filter)
- {
- 	struct tun_file *tfile = file->private_data;
-+	struct net_device *dev = tun->dev;
- 	int err;
- 
- 	err = security_tun_dev_attach(tfile->socket.sk, tun->security);
-@@ -642,6 +651,13 @@ static int tun_attach(struct tun_struct *tun, struct file *file, bool skip_filte
- 		if (!err)
- 			goto out;
- 	}
-+
-+	if (!tfile->detached &&
-+	    skb_array_init(&tfile->tx_array, dev->tx_queue_len, GFP_KERNEL)) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
-+
- 	tfile->queue_index = tun->numqueues;
- 	tfile->socket.sk->sk_shutdown &= ~RCV_SHUTDOWN;
- 	rcu_assign_pointer(tfile->tun, tun);
-@@ -891,8 +907,8 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
- 
- 	nf_reset(skb);
- 
--	/* Enqueue packet */
--	skb_queue_tail(&tfile->socket.sk->sk_receive_queue, skb);
-+	if (skb_array_produce(&tfile->tx_array, skb))
-+		goto drop;
- 
- 	/* Notify and wake up reader process */
- 	if (tfile->flags & TUN_FASYNC)
-@@ -1107,7 +1123,7 @@ static unsigned int tun_chr_poll(struct file *file, poll_table *wait)
- 
- 	poll_wait(file, sk_sleep(sk), wait);
- 
--	if (!skb_queue_empty(&sk->sk_receive_queue))
-+	if (!skb_array_empty(&tfile->tx_array))
- 		mask |= POLLIN | POLLRDNORM;
- 
- 	if (sock_writeable(sk) ||
-@@ -1426,22 +1442,61 @@ done:
- 	return total;
- }
- 
-+static struct sk_buff *tun_ring_recv(struct tun_file *tfile, int noblock,
-+				     int *err)
-+{
-+	DECLARE_WAITQUEUE(wait, current);
-+	struct sk_buff *skb = NULL;
-+
-+	skb = skb_array_consume(&tfile->tx_array);
-+	if (skb)
-+		goto out;
-+	if (noblock) {
-+		*err = -EAGAIN;
-+		goto out;
-+	}
-+
-+	add_wait_queue(&tfile->wq.wait, &wait);
-+	current->state = TASK_INTERRUPTIBLE;
-+
-+	while (1) {
-+		skb = skb_array_consume(&tfile->tx_array);
-+		if (skb)
-+			break;
-+		if (signal_pending(current)) {
-+			*err = -ERESTARTSYS;
-+			break;
-+		}
-+		if (tfile->socket.sk->sk_shutdown & RCV_SHUTDOWN) {
-+			*err = -EFAULT;
-+			break;
-+		}
-+
-+		schedule();
-+	};
-+
-+	current->state = TASK_RUNNING;
-+	remove_wait_queue(&tfile->wq.wait, &wait);
-+
-+out:
-+	return skb;
-+}
-+
- static ssize_t tun_do_read(struct tun_struct *tun, struct tun_file *tfile,
- 			   struct iov_iter *to,
- 			   int noblock)
- {
- 	struct sk_buff *skb;
- 	ssize_t ret;
--	int peeked, err, off = 0;
-+	int err;
- 
- 	tun_debug(KERN_INFO, tun, "tun_do_read\n");
- 
- 	if (!iov_iter_count(to))
- 		return 0;
- 
--	/* Read frames from queue */
--	skb = __skb_recv_datagram(tfile->socket.sk, noblock ? MSG_DONTWAIT : 0,
--				  &peeked, &off, &err);
-+	/* Read frames from ring */
-+	skb = tun_ring_recv(tfile, noblock, &err);
- 	if (!skb)
- 		return err;
- 
-@@ -1574,8 +1629,25 @@ out:
- 	return ret;
- }
- 
-+static int tun_peek_len(struct socket *sock)
-+{
-+	struct tun_file *tfile = container_of(sock, struct tun_file, socket);
-+	struct tun_struct *tun;
-+	int ret = 0;
-+
-+	tun = __tun_get(tfile);
-+	if (!tun)
-+		return 0;
-+
-+	ret = skb_array_peek_len(&tfile->tx_array);
-+	tun_put(tun);
-+
-+	return ret;
-+}
-+
- /* Ops structure to mimic raw sockets with tun */
- static const struct proto_ops tun_socket_ops = {
-+	.peek_len = tun_peek_len,
- 	.sendmsg = tun_sendmsg,
- 	.recvmsg = tun_recvmsg,
- };
-@@ -2397,6 +2469,53 @@ static const struct ethtool_ops tun_ethtool_ops = {
- 	.get_ts_info	= ethtool_op_get_ts_info,
- };
- 
-+static int tun_queue_resize(struct tun_struct *tun)
-+{
-+	struct net_device *dev = tun->dev;
-+	struct tun_file *tfile;
-+	struct skb_array **arrays;
-+	int n = tun->numqueues + tun->numdisabled;
-+	int ret, i;
-+
-+	arrays = kmalloc(sizeof *arrays * n, GFP_KERNEL);
-+	if (!arrays)
-+		return -ENOMEM;
-+
-+	for (i = 0; i < tun->numqueues; i++) {
-+		tfile = rtnl_dereference(tun->tfiles[i]);
-+		arrays[i] = &tfile->tx_array;
-+	}
-+	list_for_each_entry(tfile, &tun->disabled, next)
-+		arrays[i++] = &tfile->tx_array;
-+
-+	ret = skb_array_resize_multiple(arrays, n,
-+					dev->tx_queue_len, GFP_KERNEL);
-+
-+	kfree(arrays);
-+	return ret;
-+}
-+
-+static int tun_device_event(struct notifier_block *unused,
-+			    unsigned long event, void *ptr)
-+{
-+	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
-+	struct tun_struct *tun = netdev_priv(dev);
-+
-+	switch (event) {
-+	case NETDEV_CHANGE_TX_QUEUE_LEN:
-+		if (tun_queue_resize(tun))
-+			return NOTIFY_BAD;
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	return NOTIFY_DONE;
-+}
-+
-+static struct notifier_block tun_notifier_block __read_mostly = {
-+	.notifier_call	= tun_device_event,
-+};
- 
- static int __init tun_init(void)
- {
-@@ -2416,6 +2535,8 @@ static int __init tun_init(void)
- 		pr_err("Can't register misc device %d\n", TUN_MINOR);
- 		goto err_misc;
- 	}
-+
-+	register_netdevice_notifier(&tun_notifier_block);
- 	return  0;
- err_misc:
- 	rtnl_link_unregister(&tun_link_ops);
-@@ -2427,6 +2548,7 @@ static void tun_cleanup(void)
- {
- 	misc_deregister(&tun_miscdev);
- 	rtnl_link_unregister(&tun_link_ops);
-+	unregister_netdevice_notifier(&tun_notifier_block);
- }
- 
- /* Get an underlying socket object from tun file.  Returns error unless file is
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 1d3e45f..e032ca3 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -481,10 +481,14 @@ out:
- 
- static int peek_head_len(struct sock *sk)
- {
-+	struct socket *sock = sk->sk_socket;
- 	struct sk_buff *head;
- 	int len = 0;
- 	unsigned long flags;
- 
-+	if (sock->ops->peek_len)
-+		return sock->ops->peek_len(sock);
-+
- 	spin_lock_irqsave(&sk->sk_receive_queue.lock, flags);
- 	head = skb_peek(&sk->sk_receive_queue);
- 	if (likely(head)) {
-@@ -497,6 +501,16 @@ static int peek_head_len(struct sock *sk)
- 	return len;
- }
- 
-+static int sk_has_rx_data(struct sock *sk)
-+{
-+	struct socket *sock = sk->sk_socket;
-+
-+	if (sock->ops->peek_len)
-+		return sock->ops->peek_len(sock);
-+
-+	return skb_queue_empty(&sk->sk_receive_queue);
-+}
-+
- static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk)
- {
- 	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
-@@ -513,7 +527,7 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk)
- 		endtime = busy_clock() + vq->busyloop_timeout;
- 
- 		while (vhost_can_busy_poll(&net->dev, endtime) &&
--		       skb_queue_empty(&sk->sk_receive_queue) &&
-+		       !sk_has_rx_data(sk) &&
- 		       vhost_vq_avail_empty(&net->dev, vq))
- 			cpu_relax_lowlatency();
- 
-diff --git a/include/linux/net.h b/include/linux/net.h
-index 9aa49a0..b6b3843 100644
---- a/include/linux/net.h
-+++ b/include/linux/net.h
-@@ -185,6 +185,7 @@ struct proto_ops {
- 	ssize_t 	(*splice_read)(struct socket *sock,  loff_t *ppos,
- 				       struct pipe_inode_info *pipe, size_t len, unsigned int flags);
- 	int		(*set_peek_off)(struct sock *sk, int val);
-+	int		(*peek_len)(struct socket *sock);
- };
- 
- #define DECLARE_SOCKADDR(type, dst, src)	\
--- 
-2.7.4
+CgpPbiAyMDE25bm0MDbmnIgzMOaXpSAxMjo1NiwgSm9obiBGYXN0YWJlbmQgd3JvdGU6Cj4gT24g
+MTYtMDYtMjkgMDg6NTIgUE0sIEphc29uIFdhbmcgd3JvdGU6Cj4+IFRoaXMgcGF0Y2ggaW50cm9k
+dWNlcyBhIG5ldyBldmVudCAtIE5FVERFVl9DSEFOR0VfVFhfUVVFVUVfTEVOLCB0aGlzCj4+IHdp
+bGwgYmUgdHJpZ2dlcmVkIHdoZW4gdHhfcXVldWVfbGVuLiBJdCBjb3VsZCBiZSB1c2VkIGJ5IG5l
+dCBkZXZpY2UKPj4gd2hvIHdhbnQgdG8gZG8gc29tZSBwcm9jZXNzaW5nIGF0IHRoYXQgdGltZS4g
+QW4gZXhhbXBsZSBpcyB0dW4gd2hvIG1heQo+PiB3YW50IHRvIHJlc2l6ZSB0eCBhcnJheSB3aGVu
+IHR4X3F1ZXVlX2xlbiBpcyBjaGFuZ2VkLgo+Pgo+PiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBXYW5n
+IDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+PiAtLS0KPj4gICBpbmNsdWRlL2xpbnV4L25ldGRldmlj
+ZS5oIHwgIDEgKwo+PiAgIG5ldC9jb3JlL25ldC1zeXNmcy5jICAgICAgfCAxNSArKysrKysrKysr
+KysrKy0KPj4gICAyIGZpbGVzIGNoYW5nZWQsIDE1IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24o
+LSkKPj4KPj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvbmV0ZGV2aWNlLmggYi9pbmNsdWRl
+L2xpbnV4L25ldGRldmljZS5oCj4+IGluZGV4IGU4NGQ5ZDIuLjdkYzJlYzcgMTAwNjQ0Cj4+IC0t
+LSBhL2luY2x1ZGUvbGludXgvbmV0ZGV2aWNlLmgKPj4gKysrIGIvaW5jbHVkZS9saW51eC9uZXRk
+ZXZpY2UuaAo+PiBAQCAtMjIzNyw2ICsyMjM3LDcgQEAgc3RydWN0IG5ldGRldl9sYWdfbG93ZXJf
+c3RhdGVfaW5mbyB7Cj4+ICAgI2RlZmluZSBORVRERVZfUFJFQ0hBTkdFVVBQRVIJMHgwMDFBCj4+
+ICAgI2RlZmluZSBORVRERVZfQ0hBTkdFTE9XRVJTVEFURQkweDAwMUIKPj4gICAjZGVmaW5lIE5F
+VERFVl9VRFBfVFVOTkVMX1BVU0hfSU5GTwkweDAwMUMKPj4gKyNkZWZpbmUgTkVUREVWX0NIQU5H
+RV9UWF9RVUVVRV9MRU4JMHgwMDFFCj4+ICAgCj4+ICAgaW50IHJlZ2lzdGVyX25ldGRldmljZV9u
+b3RpZmllcihzdHJ1Y3Qgbm90aWZpZXJfYmxvY2sgKm5iKTsKPj4gICBpbnQgdW5yZWdpc3Rlcl9u
+ZXRkZXZpY2Vfbm90aWZpZXIoc3RydWN0IG5vdGlmaWVyX2Jsb2NrICpuYik7Cj4+IGRpZmYgLS1n
+aXQgYS9uZXQvY29yZS9uZXQtc3lzZnMuYyBiL25ldC9jb3JlL25ldC1zeXNmcy5jCj4+IGluZGV4
+IDdhMGI2MTYuLjZlNGYzNDcgMTAwNjQ0Cj4+IC0tLSBhL25ldC9jb3JlL25ldC1zeXNmcy5jCj4+
+ICsrKyBiL25ldC9jb3JlL25ldC1zeXNmcy5jCj4+IEBAIC0zMjIsNyArMzIyLDIwIEBAIE5FVERF
+VklDRV9TSE9XX1JXKGZsYWdzLCBmbXRfaGV4KTsKPj4gICAKPj4gICBzdGF0aWMgaW50IGNoYW5n
+ZV90eF9xdWV1ZV9sZW4oc3RydWN0IG5ldF9kZXZpY2UgKmRldiwgdW5zaWduZWQgbG9uZyBuZXdf
+bGVuKQo+PiAgIHsKPj4gLQlkZXYtPnR4X3F1ZXVlX2xlbiA9IG5ld19sZW47Cj4+ICsJaW50IHJl
+cywgb3JpZ19sZW4gPSBkZXYtPnR4X3F1ZXVlX2xlbjsKPj4gKwo+PiArCWlmIChuZXdfbGVuICE9
+IG9yaWdfbGVuKSB7Cj4+ICsJCWRldi0+dHhfcXVldWVfbGVuID0gbmV3X2xlbjsKPj4gKwkJcmVz
+ID0gY2FsbF9uZXRkZXZpY2Vfbm90aWZpZXJzKE5FVERFVl9DSEFOR0VfVFhfUVVFVUVfTEVOLCBk
+ZXYpOwo+PiArCQlyZXMgPSBub3RpZmllcl90b19lcnJubyhyZXMpOwo+PiArCQlpZiAocmVzKSB7
+Cj4+ICsJCQluZXRkZXZfZXJyKGRldiwKPj4gKwkJCQkgICAicmVmdXNlZCB0byBjaGFuZ2UgZGV2
+aWNlIHR4X3F1ZXVlX2xlblxuIik7Cj4+ICsJCQlkZXYtPnR4X3F1ZXVlX2xlbiA9IG9yaWdfbGVu
+Owo+PiArCQkJcmV0dXJuIC1FRkFVTFQ7Cj4+ICsJCX0KPj4gKwl9Cj4+ICsKPj4gICAJcmV0dXJu
+IDA7Cj4+ICAgfQo+PiAgIAo+Pgo+IEFja2VkLWJ5OiBKb2huIEZhc3RhYmVuZCA8am9obi5yLmZh
+c3RhYmVuZEBpbnRlbC5jb20+Cj4KPiBHcmVhdCB0aW1pbmcgSSB3YXMganVzdCBsb29raW5nIGlu
+dG8gdGhpcyBiZWNhdXNlIEkgbmVlZCBpdCBmb3IgdGhlCj4gcWRpc2Mgc2lkZS4KPgo+IEl0IGxv
+b2tzIGxpa2UgdGhpcyBjb3ZlcnMgdGhlIHN5c2ZzIGNoYW5nZSBidXQgdGhlIHR4X3F1ZXVlX2xl
+biBjYW4KPiBhbHNvIGJlIGNoYW5nZWQgdmlhIHJ0bmV0bGluayBhcyB3ZWxsLiBTbyB3ZSBuZWVk
+IGFub3RoZXIgcGF0Y2ggZm9yCj4gdGhhdCBwYXRoIHJpZ2h0Pwo+Cj4gICAgICAgICAgaWYgKHRi
+W0lGTEFfVFhRTEVOXSkgewo+ICAgICAgICAgICAgICAgICAgdW5zaWduZWQgbG9uZyB2YWx1ZSA9
+IG5sYV9nZXRfdTMyKHRiW0lGTEFfVFhRTEVOXSk7Cj4KPiAgICAgICAgICAgICAgICAgIGlmIChk
+ZXYtPnR4X3F1ZXVlX2xlbiBeIHZhbHVlKQo+ICAgICAgICAgICAgICAgICAgICAgICAgICBzdGF0
+dXMgfD0gRE9fU0VUTElOS19OT1RJRlk7Cj4KPiAgICAgICAgICAgICAgICAgIGRldi0+dHhfcXVl
+dWVfbGVuID0gdmFsdWU7Cj4gICAgICAgICAgfQo+Cj4gVGhhbmtzLAo+IEpvaG4KPgoKUmlnaHQs
+IHdpbGwgZG8gdGhpcyBpbiBuZXh0IHZlcnNpb24uCgpUaGFua3MKX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
+ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
+bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
