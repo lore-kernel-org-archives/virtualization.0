@@ -1,19 +1,15 @@
-From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-Subject: Re: [PATCH v6v3 02/12] mm: migrate: support non-lru movable page
-	migration
-Date: Thu, 30 Jun 2016 11:26:45 +0530
-Message-ID: <5774B49D.6080000__38364.9440519095$1467266253$gmane$org@linux.vnet.ibm.com>
-References: <1463754225-31311-3-git-send-email-minchan@kernel.org>
-	<20160530013926.GB8683@bbox> <20160531000117.GB18314@bbox>
-	<575E7F0B.8010201@linux.vnet.ibm.com> <20160615023249.GG17127@bbox>
-	<5760F970.7060805@linux.vnet.ibm.com> <20160616002617.GM17127@bbox>
-	<5762200F.5040908@linux.vnet.ibm.com> <20160616053754.GQ17127@bbox>
-	<5770BEC5.3010807@linux.vnet.ibm.com> <20160628063912.GA25560@bbox>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next V3 5/6] net: introduce NETDEV_CHANGE_TX_QUEUE_LEN
+Date: Thu, 30 Jun 2016 13:59:47 +0800
+Message-ID: <5774B553.5070701@redhat.com>
+References: <1467258779-3539-1-git-send-email-jasowang@redhat.com>
+	<1467258779-3539-6-git-send-email-jasowang@redhat.com>
+	<5774A67B.1060802@gmail.com> <5774AA46.3090604@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160628063912.GA25560@bbox>
+In-Reply-To: <5774AA46.3090604@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,214 +19,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Minchan Kim <minchan@kernel.org>
-Cc: Rik van Riel <riel@redhat.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Rafael Aquini <aquini@redhat.com>, Jonathan Corbet <corbet@lwn.net>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, John Einar Reitan <john.reitan@foss.arm.com>, linux-mm@kvack.org, Gioh Kim <gi-oh.kim@profitbricks.com>, Mel Gorman <mgorman@suse.de>, Andrew Morton <akpm@linux-foundation.org>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Vlastimil Babka <vbabka@suse.cz>
+To: John Fastabend <john.fastabend@gmail.com>, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, davem@davemloft.net
+Cc: brouer@redhat.com, eric.dumazet@gmail.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/28/2016 12:09 PM, Minchan Kim wrote:
-> On Mon, Jun 27, 2016 at 11:21:01AM +0530, Anshuman Khandual wrote:
->> On 06/16/2016 11:07 AM, Minchan Kim wrote:
->>> On Thu, Jun 16, 2016 at 09:12:07AM +0530, Anshuman Khandual wrote:
->>>> On 06/16/2016 05:56 AM, Minchan Kim wrote:
->>>>> On Wed, Jun 15, 2016 at 12:15:04PM +0530, Anshuman Khandual wrote:
->>>>>> On 06/15/2016 08:02 AM, Minchan Kim wrote:
->>>>>>> Hi,
->>>>>>>
->>>>>>> On Mon, Jun 13, 2016 at 03:08:19PM +0530, Anshuman Khandual wrote:
->>>>>>>>> On 05/31/2016 05:31 AM, Minchan Kim wrote:
->>>>>>>>>>> @@ -791,6 +921,7 @@ static int __unmap_and_move(struct page *page, struct page *newpage,
->>>>>>>>>>>  	int rc = -EAGAIN;
->>>>>>>>>>>  	int page_was_mapped = 0;
->>>>>>>>>>>  	struct anon_vma *anon_vma = NULL;
->>>>>>>>>>> +	bool is_lru = !__PageMovable(page);
->>>>>>>>>>>  
->>>>>>>>>>>  	if (!trylock_page(page)) {
->>>>>>>>>>>  		if (!force || mode == MIGRATE_ASYNC)
->>>>>>>>>>> @@ -871,6 +1002,11 @@ static int __unmap_and_move(struct page *page, struct page *newpage,
->>>>>>>>>>>  		goto out_unlock_both;
->>>>>>>>>>>  	}
->>>>>>>>>>>  
->>>>>>>>>>> +	if (unlikely(!is_lru)) {
->>>>>>>>>>> +		rc = move_to_new_page(newpage, page, mode);
->>>>>>>>>>> +		goto out_unlock_both;
->>>>>>>>>>> +	}
->>>>>>>>>>> +
->>>>>>>>>
->>>>>>>>> Hello Minchan,
->>>>>>>>>
->>>>>>>>> I might be missing something here but does this implementation support the
->>>>>>>>> scenario where these non LRU pages owned by the driver mapped as PTE into
->>>>>>>>> process page table ? Because the "goto out_unlock_both" statement above
->>>>>>>>> skips all the PTE unmap, putting a migration PTE and removing the migration
->>>>>>>>> PTE steps.
->>>>>>> You're right. Unfortunately, it doesn't support right now but surely,
->>>>>>> it's my TODO after landing this work.
->>>>>>>
->>>>>>> Could you share your usecase?
->>>>>>
->>>>>> Sure.
->>>>>
->>>>> Thanks a lot!
->>>>>
->>>>>>
->>>>>> My driver has privately managed non LRU pages which gets mapped into user space
->>>>>> process page table through f_ops->mmap() and vmops->fault() which then updates
->>>>>> the file RMAP (page->mapping->i_mmap) through page_add_file_rmap(page). One thing
->>>>>
->>>>> Hmm, page_add_file_rmap is not exported function. How does your driver can use it?
->>>>
->>>> Its not using the function directly, I just re-iterated the sequence of functions
->>>> above. (do_set_pte -> page_add_file_rmap) gets called after we grab the page from
->>>> driver through (__do_fault->vma->vm_ops->fault()).
->>>>
->>>>> Do you use vm_insert_pfn?
->>>>> What type your vma is? VM_PFNMMAP or VM_MIXEDMAP?
->>>>
->>>> I dont use vm_insert_pfn(). Here is the sequence of events how the user space
->>>> VMA gets the non LRU pages from the driver.
->>>>
->>>> - Driver registers a character device with 'struct file_operations' binding
->>>> - Then the 'fops->mmap()' just binds the incoming 'struct vma' with a 'struct
->>>>   vm_operations_struct' which provides the 'vmops->fault()' routine which
->>>>   basically traps all page faults on the VMA and provides one page at a time
->>>>   through a driver specific allocation routine which hands over non LRU pages
->>>>
->>>> The VMA is not anything special as such. Its what we get when we try to do a
->>>> simple mmap() on a file descriptor pointing to a character device. I can
->>>> figure out all the VM_* flags it holds after creation.
->>>>
->>>>>
->>>>> I want to make dummy driver to simulate your case.
->>>>
->>>> Sure. I hope the above mentioned steps will help you but in case you need more
->>>> information, please do let me know.
->>>
->>> I got understood now. :)
->>> I will test it with dummy driver and will Cc'ed when I send a patch.
->>
->> Hello Minchan,
->>
->> Do you have any updates on this ? The V7 of the series still has this limitation.
->> Did you get a chance to test the driver out ? I am still concerned about how to
->> handle the struct address_space override problem within the struct page.
-> 
-> Hi Anshuman,
-> 
-> Slow but I am working on that. :) However, as I said, I want to do it
-
-I really appreciate. Was just curious about the problem and any potential
-solution we can look into.
-
-> after soft landing of current non-lru-no-mapped page migration to solve
-> current real field issues.
-
-yeah it makes sense.
-
-> 
-> About the overriding problem of non-lru-mapped-page, I implemented dummy
-> driver as miscellaneous device and in test_mmap(file_operations.mmap),
-> I changed a_ops with my address_space_operations.
-> 
-> int test_mmap(struct file *filp, struct vm_area_struct *vma)
-> {
->         filp->f_mapping->a_ops = &test_aops;
->         vma->vm_ops = &test_vm_ops;
->         vma->vm_private_data = filp->private_data;
->         return 0;
-> }
-> 
-
-Okay.
-
-> test_aops should have *set_page_dirty* overriding.
-> 
-> static int test_set_pag_dirty(struct page *page)
-> {
->         if (!PageDirty(page))
->                 SetPageDirty*page);
->         return 0;
-> }
-> 
-> Otherwise, it goes BUG_ON during radix tree operation because
-> currently try_to_unmap is designed for file-lru pages which lives
-> in page cache so it propagates page table dirty bit to PG_dirty flag
-> of struct page by set_page_dirty. And set_page_dirty want to mark
-> dirty tag in radix tree node but it's character driver so the page
-> cache doesn't have it. That's why we encounter BUG_ON in radix tree
-> operation. Anyway, to test, I implemented set_page_dirty in my dummy
-> driver.
-
-Okay and the above test_set_page_dirty() example is sufficient ?
-
-> 
-> With only that, it doesn't work because I need to modify migrate.c to
-> work non-lru-mapped-page and changing PG_isolated flag which is
-> override of PG_reclaim which is cleared in set_page_dirty.
-
-Got it, so what changes you did ? Implemented PG_isolated differently
-not by overriding PG_reclaim or something else ? Yes set_page_dirty
-indeed clears the PG_reclaim flag.
-
-> 
-> With that, it seems to work. But I'm not saying it's right model now
-
-So the mapped pages migration was successful ? Even after overloading
-filp->f_mapping->a_ops = &test_aops, we still have the RMAP information
-intact with filp->f_mappinp pointed interval tree. But would really like
-to see the code changes.
-
-> for device drivers. In runtime, replacing filp->f_mapping->a_ops with
-> custom a_ops of own driver seems to be hacky to me.
-
-Yeah I thought so.
-
-> So, I'm considering now new pseudo fs "movable_inode" which will
-> support 
-> 
-> struct file *movable_inode_getfile(const char *name,
->                         const struct file_operations *fop,
->                         const struct address_space_operations *a_ops)
-> {
->         struct path path;
->         struct qstr this;
->         struct inode *inode;
->         struct super_block *sb;
-> 
->         this.name = name;
->         this.len = strlen(name);
->         this.hash = 0;
->         sb = movable_mnt.mnt_sb;
->         patch.denty = d_alloc_pseudo(movable_inode_mnt->mnt_sb, &this);
->         patch.mnt = mntget(movable_inode_mnt);
->         
->         inode = new_inode(sb);
->         ..
->         ..
->         inode->i_mapping->a_ops = a_ops;
->         d_instantiate(path.dentry, inode);
-> 
->         return alloc_file(&path, FMODE_WRITE | FMODE_READ, f_op);
-> }
-> 
-> And in our driver, we can change vma->vm_file with new one.
-> 
-> int test_mmap(struct file *filp, struct vm_area_structd *vma)
-> {
->         struct file *newfile = movable_inode_getfile("[test"],
->                                 filep->f_op, &test_aops);
->         vma->vm_file = newfile;
->         ..
->         ..
-> }
-> 
-> When I read mmap_region in mm/mmap.c, it's reasonable usecase
-> which dirver's mmap changes vma->vm_file with own file.
-
-I will look into these details.
-
-> Anyway, it needs many subtle changes in mm/vfs/driver side so
-> need to review from each maintainers related subsystem so I
-> want to not be hurry.
-
-Sure, makes sense. Mean while it will be really great if you could share
-your code changes as described above, so that I can try them out.
+CgpPbiAyMDE25bm0MDbmnIgzMOaXpSAxMzoxMiwgSmFzb24gV2FuZyB3cm90ZToKPgo+Cj4gT24g
+MjAxNuW5tDA25pyIMzDml6UgMTI6NTYsIEpvaG4gRmFzdGFiZW5kIHdyb3RlOgo+PiBPbiAxNi0w
+Ni0yOSAwODo1MiBQTSwgSmFzb24gV2FuZyB3cm90ZToKPj4+IFRoaXMgcGF0Y2ggaW50cm9kdWNl
+cyBhIG5ldyBldmVudCAtIE5FVERFVl9DSEFOR0VfVFhfUVVFVUVfTEVOLCB0aGlzCj4+PiB3aWxs
+IGJlIHRyaWdnZXJlZCB3aGVuIHR4X3F1ZXVlX2xlbi4gSXQgY291bGQgYmUgdXNlZCBieSBuZXQg
+ZGV2aWNlCj4+PiB3aG8gd2FudCB0byBkbyBzb21lIHByb2Nlc3NpbmcgYXQgdGhhdCB0aW1lLiBB
+biBleGFtcGxlIGlzIHR1biB3aG8gbWF5Cj4+PiB3YW50IHRvIHJlc2l6ZSB0eCBhcnJheSB3aGVu
+IHR4X3F1ZXVlX2xlbiBpcyBjaGFuZ2VkLgo+Pj4KPj4+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdh
+bmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4+PiAtLS0KPj4+ICAgaW5jbHVkZS9saW51eC9uZXRk
+ZXZpY2UuaCB8ICAxICsKPj4+ICAgbmV0L2NvcmUvbmV0LXN5c2ZzLmMgICAgICB8IDE1ICsrKysr
+KysrKysrKysrLQo+Pj4gICAyIGZpbGVzIGNoYW5nZWQsIDE1IGluc2VydGlvbnMoKyksIDEgZGVs
+ZXRpb24oLSkKPj4+Cj4+PiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC9uZXRkZXZpY2UuaCBi
+L2luY2x1ZGUvbGludXgvbmV0ZGV2aWNlLmgKPj4+IGluZGV4IGU4NGQ5ZDIuLjdkYzJlYzcgMTAw
+NjQ0Cj4+PiAtLS0gYS9pbmNsdWRlL2xpbnV4L25ldGRldmljZS5oCj4+PiArKysgYi9pbmNsdWRl
+L2xpbnV4L25ldGRldmljZS5oCj4+PiBAQCAtMjIzNyw2ICsyMjM3LDcgQEAgc3RydWN0IG5ldGRl
+dl9sYWdfbG93ZXJfc3RhdGVfaW5mbyB7Cj4+PiAgICNkZWZpbmUgTkVUREVWX1BSRUNIQU5HRVVQ
+UEVSICAgIDB4MDAxQQo+Pj4gICAjZGVmaW5lIE5FVERFVl9DSEFOR0VMT1dFUlNUQVRFICAgIDB4
+MDAxQgo+Pj4gICAjZGVmaW5lIE5FVERFVl9VRFBfVFVOTkVMX1BVU0hfSU5GTyAgICAweDAwMUMK
+Pj4+ICsjZGVmaW5lIE5FVERFVl9DSEFOR0VfVFhfUVVFVUVfTEVOICAgIDB4MDAxRQo+Pj4gICAg
+IGludCByZWdpc3Rlcl9uZXRkZXZpY2Vfbm90aWZpZXIoc3RydWN0IG5vdGlmaWVyX2Jsb2NrICpu
+Yik7Cj4+PiAgIGludCB1bnJlZ2lzdGVyX25ldGRldmljZV9ub3RpZmllcihzdHJ1Y3Qgbm90aWZp
+ZXJfYmxvY2sgKm5iKTsKPj4+IGRpZmYgLS1naXQgYS9uZXQvY29yZS9uZXQtc3lzZnMuYyBiL25l
+dC9jb3JlL25ldC1zeXNmcy5jCj4+PiBpbmRleCA3YTBiNjE2Li42ZTRmMzQ3IDEwMDY0NAo+Pj4g
+LS0tIGEvbmV0L2NvcmUvbmV0LXN5c2ZzLmMKPj4+ICsrKyBiL25ldC9jb3JlL25ldC1zeXNmcy5j
+Cj4+PiBAQCAtMzIyLDcgKzMyMiwyMCBAQCBORVRERVZJQ0VfU0hPV19SVyhmbGFncywgZm10X2hl
+eCk7Cj4+PiAgICAgc3RhdGljIGludCBjaGFuZ2VfdHhfcXVldWVfbGVuKHN0cnVjdCBuZXRfZGV2
+aWNlICpkZXYsIHVuc2lnbmVkIAo+Pj4gbG9uZyBuZXdfbGVuKQo+Pj4gICB7Cj4+PiAtICAgIGRl
+di0+dHhfcXVldWVfbGVuID0gbmV3X2xlbjsKPj4+ICsgICAgaW50IHJlcywgb3JpZ19sZW4gPSBk
+ZXYtPnR4X3F1ZXVlX2xlbjsKPj4+ICsKPj4+ICsgICAgaWYgKG5ld19sZW4gIT0gb3JpZ19sZW4p
+IHsKPj4+ICsgICAgICAgIGRldi0+dHhfcXVldWVfbGVuID0gbmV3X2xlbjsKPj4+ICsgICAgICAg
+IHJlcyA9IGNhbGxfbmV0ZGV2aWNlX25vdGlmaWVycyhORVRERVZfQ0hBTkdFX1RYX1FVRVVFX0xF
+TiwgCj4+PiBkZXYpOwo+Pj4gKyAgICAgICAgcmVzID0gbm90aWZpZXJfdG9fZXJybm8ocmVzKTsK
+Pj4+ICsgICAgICAgIGlmIChyZXMpIHsKPj4+ICsgICAgICAgICAgICBuZXRkZXZfZXJyKGRldiwK
+Pj4+ICsgICAgICAgICAgICAgICAgICAgInJlZnVzZWQgdG8gY2hhbmdlIGRldmljZSB0eF9xdWV1
+ZV9sZW5cbiIpOwo+Pj4gKyAgICAgICAgICAgIGRldi0+dHhfcXVldWVfbGVuID0gb3JpZ19sZW47
+Cj4+PiArICAgICAgICAgICAgcmV0dXJuIC1FRkFVTFQ7Cj4+PiArICAgICAgICB9Cj4+PiArICAg
+IH0KPj4+ICsKPj4+ICAgICAgIHJldHVybiAwOwo+Pj4gICB9Cj4+Pgo+PiBBY2tlZC1ieTogSm9o
+biBGYXN0YWJlbmQgPGpvaG4uci5mYXN0YWJlbmRAaW50ZWwuY29tPgo+Pgo+PiBHcmVhdCB0aW1p
+bmcgSSB3YXMganVzdCBsb29raW5nIGludG8gdGhpcyBiZWNhdXNlIEkgbmVlZCBpdCBmb3IgdGhl
+Cj4+IHFkaXNjIHNpZGUuCj4+Cj4+IEl0IGxvb2tzIGxpa2UgdGhpcyBjb3ZlcnMgdGhlIHN5c2Zz
+IGNoYW5nZSBidXQgdGhlIHR4X3F1ZXVlX2xlbiBjYW4KPj4gYWxzbyBiZSBjaGFuZ2VkIHZpYSBy
+dG5ldGxpbmsgYXMgd2VsbC4gU28gd2UgbmVlZCBhbm90aGVyIHBhdGNoIGZvcgo+PiB0aGF0IHBh
+dGggcmlnaHQ/Cj4+Cj4+ICAgICAgICAgIGlmICh0YltJRkxBX1RYUUxFTl0pIHsKPj4gICAgICAg
+ICAgICAgICAgICB1bnNpZ25lZCBsb25nIHZhbHVlID0gbmxhX2dldF91MzIodGJbSUZMQV9UWFFM
+RU5dKTsKPj4KPj4gICAgICAgICAgICAgICAgICBpZiAoZGV2LT50eF9xdWV1ZV9sZW4gXiB2YWx1
+ZSkKPj4gICAgICAgICAgICAgICAgICAgICAgICAgIHN0YXR1cyB8PSBET19TRVRMSU5LX05PVElG
+WTsKPj4KPj4gICAgICAgICAgICAgICAgICBkZXYtPnR4X3F1ZXVlX2xlbiA9IHZhbHVlOwo+PiAg
+ICAgICAgICB9Cj4+Cj4+IFRoYW5rcywKPj4gSm9obgo+Pgo+Cj4gUmlnaHQsIHdpbGwgZG8gdGhp
+cyBpbiBuZXh0IHZlcnNpb24uCj4KPiBUaGFua3MKCk9rLCBzaW5jZSBNaWNoYWVsIGhhcyBhY2tl
+ZCBvbiB0aGUgc2VyaWVzLCB3aWxsIHByZXBhcmUgYSBwYXRjaCBvbiB0b3AuCgpUaGFua3MKX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
+b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
+Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
+YWxpemF0aW9u
