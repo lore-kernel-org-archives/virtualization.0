@@ -1,7 +1,7 @@
 From: Fam Zheng <famz@redhat.com>
-Subject: [PATCH v2 05/12] aoeblk: Generate uevent after attribute available
-Date: Thu, 30 Jun 2016 09:59:46 +0800
-Message-ID: <20160630015953.6888-6-famz@redhat.com>
+Subject: [PATCH v2 08/12] zram: Generate uevent after attribute available
+Date: Thu, 30 Jun 2016 09:59:49 +0800
+Message-ID: <20160630015953.6888-9-famz@redhat.com>
 References: <20160630015953.6888-1-famz@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -27,24 +27,29 @@ disk_gen_uevents interface.
 
 Signed-off-by: Fam Zheng <famz@redhat.com>
 ---
- drivers/block/aoe/aoeblk.c | 3 ++-
+ drivers/block/zram/zram_drv.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/block/aoe/aoeblk.c b/drivers/block/aoe/aoeblk.c
-index e91c5f1..f0cf4d6 100644
---- a/drivers/block/aoe/aoeblk.c
-+++ b/drivers/block/aoe/aoeblk.c
-@@ -417,9 +417,10 @@ aoeblk_gdalloc(void *vp)
+diff --git a/drivers/block/zram/zram_drv.c b/drivers/block/zram/zram_drv.c
+index d735513..83f10a0 100644
+--- a/drivers/block/zram/zram_drv.c
++++ b/drivers/block/zram/zram_drv.c
+@@ -1287,7 +1287,7 @@ static int zram_add(void)
+ 		zram->disk->queue->limits.discard_zeroes_data = 0;
+ 	queue_flag_set_unlocked(QUEUE_FLAG_DISCARD, zram->disk->queue);
  
- 	spin_unlock_irqrestore(&d->lock, flags);
+-	add_disk(zram->disk, true);
++	add_disk(zram->disk, false);
  
--	add_disk(gd, true);
-+	add_disk(gd, false);
- 	aoedisk_add_sysfs(d);
- 	aoedisk_add_debugfs(d);
-+	disk_gen_uevents(gd);
+ 	ret = sysfs_create_group(&disk_to_dev(zram->disk)->kobj,
+ 				&zram_disk_attr_group);
+@@ -1296,6 +1296,7 @@ static int zram_add(void)
+ 				device_id);
+ 		goto out_free_disk;
+ 	}
++	disk_gen_uevents(zram->disk);
+ 	strlcpy(zram->compressor, default_compressor, sizeof(zram->compressor));
+ 	zram->meta = NULL;
  
- 	spin_lock_irqsave(&d->lock, flags);
- 	WARN_ON(!(d->flags & DEVFL_GD_NOW));
 -- 
 2.9.0
