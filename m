@@ -1,17 +1,16 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH v2 00/12] gendisk: Generate uevent after attribute
-	available
-Date: Wed, 29 Jun 2016 23:38:39 -0700
-Message-ID: <20160630063839.GA17205@infradead.org>
-References: <20160630015953.6888-1-famz@redhat.com>
-	<20160630062442.GA19761@infradead.org>
-	<20160630063554.GE23296@ad.usersys.redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next V3 5/6] net: introduce NETDEV_CHANGE_TX_QUEUE_LEN
+Date: Thu, 30 Jun 2016 14:43:00 +0800
+Message-ID: <5774BF74.9000508@redhat.com>
+References: <1467258779-3539-1-git-send-email-jasowang@redhat.com>
+	<1467258779-3539-6-git-send-email-jasowang@redhat.com>
+	<5774A67B.1060802@gmail.com> <5774AA46.3090604@redhat.com>
+	<5774B553.5070701@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160630063554.GE23296@ad.usersys.redhat.com>
+In-Reply-To: <5774B553.5070701@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,12 +20,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Fam Zheng <famz@redhat.com>
-Cc: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-nvme@lists.infradead.org, virtualization@lists.linux-foundation.org, Keith Busch <keith.busch@intel.com>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Christoph Hellwig <hch@infradead.org>, Shaohua Li <shli@kernel.org>, Nitin Gupta <ngupta@vflare.org>, Jiri Kosina <jikos@kernel.org>, linux-raid@vger.kernel.org, dan.j.williams@intel.com, "Ed L. Cashin" <ed.cashin@acm.org>, Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>, linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org, Minchan Kim <minchan@kernel.org>, linux-mtd@lists.infradead.org, Brian Norris <computersforpeace@gmail.com>, linuxppc-dev@lists.ozlabs.org
+To: John Fastabend <john.fastabend@gmail.com>, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, davem@davemloft.net
+Cc: brouer@redhat.com, eric.dumazet@gmail.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 30, 2016 at 02:35:54PM +0800, Fam Zheng wrote:
-> also more code and less flexible IMO.  For example, we need at least two
-> variants, for attribute_group and device_attribute separately, right?
-
-Yes, or maybe just a calling convention that just passes both.
+CgpPbiAyMDE25bm0MDbmnIgzMOaXpSAxMzo1OSwgSmFzb24gV2FuZyB3cm90ZToKPgo+Cj4gT24g
+MjAxNuW5tDA25pyIMzDml6UgMTM6MTIsIEphc29uIFdhbmcgd3JvdGU6Cj4+Cj4+Cj4+IE9uIDIw
+MTblubQwNuaciDMw5pelIDEyOjU2LCBKb2huIEZhc3RhYmVuZCB3cm90ZToKPj4+IE9uIDE2LTA2
+LTI5IDA4OjUyIFBNLCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4+IFRoaXMgcGF0Y2ggaW50cm9kdWNl
+cyBhIG5ldyBldmVudCAtIE5FVERFVl9DSEFOR0VfVFhfUVVFVUVfTEVOLCB0aGlzCj4+Pj4gd2ls
+bCBiZSB0cmlnZ2VyZWQgd2hlbiB0eF9xdWV1ZV9sZW4uIEl0IGNvdWxkIGJlIHVzZWQgYnkgbmV0
+IGRldmljZQo+Pj4+IHdobyB3YW50IHRvIGRvIHNvbWUgcHJvY2Vzc2luZyBhdCB0aGF0IHRpbWUu
+IEFuIGV4YW1wbGUgaXMgdHVuIHdobyBtYXkKPj4+PiB3YW50IHRvIHJlc2l6ZSB0eCBhcnJheSB3
+aGVuIHR4X3F1ZXVlX2xlbiBpcyBjaGFuZ2VkLgo+Pj4+Cj4+Pj4gU2lnbmVkLW9mZi1ieTogSmFz
+b24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KPj4+PiAtLS0KPj4+PiAgIGluY2x1ZGUvbGlu
+dXgvbmV0ZGV2aWNlLmggfCAgMSArCj4+Pj4gICBuZXQvY29yZS9uZXQtc3lzZnMuYyAgICAgIHwg
+MTUgKysrKysrKysrKysrKystCj4+Pj4gICAyIGZpbGVzIGNoYW5nZWQsIDE1IGluc2VydGlvbnMo
+KyksIDEgZGVsZXRpb24oLSkKPj4+Pgo+Pj4+IGRpZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4L25l
+dGRldmljZS5oIGIvaW5jbHVkZS9saW51eC9uZXRkZXZpY2UuaAo+Pj4+IGluZGV4IGU4NGQ5ZDIu
+LjdkYzJlYzcgMTAwNjQ0Cj4+Pj4gLS0tIGEvaW5jbHVkZS9saW51eC9uZXRkZXZpY2UuaAo+Pj4+
+ICsrKyBiL2luY2x1ZGUvbGludXgvbmV0ZGV2aWNlLmgKPj4+PiBAQCAtMjIzNyw2ICsyMjM3LDcg
+QEAgc3RydWN0IG5ldGRldl9sYWdfbG93ZXJfc3RhdGVfaW5mbyB7Cj4+Pj4gICAjZGVmaW5lIE5F
+VERFVl9QUkVDSEFOR0VVUFBFUiAgICAweDAwMUEKPj4+PiAgICNkZWZpbmUgTkVUREVWX0NIQU5H
+RUxPV0VSU1RBVEUgICAgMHgwMDFCCj4+Pj4gICAjZGVmaW5lIE5FVERFVl9VRFBfVFVOTkVMX1BV
+U0hfSU5GTyAgICAweDAwMUMKPj4+PiArI2RlZmluZSBORVRERVZfQ0hBTkdFX1RYX1FVRVVFX0xF
+TiAgICAweDAwMUUKPj4+PiAgICAgaW50IHJlZ2lzdGVyX25ldGRldmljZV9ub3RpZmllcihzdHJ1
+Y3Qgbm90aWZpZXJfYmxvY2sgKm5iKTsKPj4+PiAgIGludCB1bnJlZ2lzdGVyX25ldGRldmljZV9u
+b3RpZmllcihzdHJ1Y3Qgbm90aWZpZXJfYmxvY2sgKm5iKTsKPj4+PiBkaWZmIC0tZ2l0IGEvbmV0
+L2NvcmUvbmV0LXN5c2ZzLmMgYi9uZXQvY29yZS9uZXQtc3lzZnMuYwo+Pj4+IGluZGV4IDdhMGI2
+MTYuLjZlNGYzNDcgMTAwNjQ0Cj4+Pj4gLS0tIGEvbmV0L2NvcmUvbmV0LXN5c2ZzLmMKPj4+PiAr
+KysgYi9uZXQvY29yZS9uZXQtc3lzZnMuYwo+Pj4+IEBAIC0zMjIsNyArMzIyLDIwIEBAIE5FVERF
+VklDRV9TSE9XX1JXKGZsYWdzLCBmbXRfaGV4KTsKPj4+PiAgICAgc3RhdGljIGludCBjaGFuZ2Vf
+dHhfcXVldWVfbGVuKHN0cnVjdCBuZXRfZGV2aWNlICpkZXYsIHVuc2lnbmVkIAo+Pj4+IGxvbmcg
+bmV3X2xlbikKPj4+PiAgIHsKPj4+PiAtICAgIGRldi0+dHhfcXVldWVfbGVuID0gbmV3X2xlbjsK
+Pj4+PiArICAgIGludCByZXMsIG9yaWdfbGVuID0gZGV2LT50eF9xdWV1ZV9sZW47Cj4+Pj4gKwo+
+Pj4+ICsgICAgaWYgKG5ld19sZW4gIT0gb3JpZ19sZW4pIHsKPj4+PiArICAgICAgICBkZXYtPnR4
+X3F1ZXVlX2xlbiA9IG5ld19sZW47Cj4+Pj4gKyAgICAgICAgcmVzID0gY2FsbF9uZXRkZXZpY2Vf
+bm90aWZpZXJzKE5FVERFVl9DSEFOR0VfVFhfUVVFVUVfTEVOLCAKPj4+PiBkZXYpOwo+Pj4+ICsg
+ICAgICAgIHJlcyA9IG5vdGlmaWVyX3RvX2Vycm5vKHJlcyk7Cj4+Pj4gKyAgICAgICAgaWYgKHJl
+cykgewo+Pj4+ICsgICAgICAgICAgICBuZXRkZXZfZXJyKGRldiwKPj4+PiArICAgICAgICAgICAg
+ICAgICAgICJyZWZ1c2VkIHRvIGNoYW5nZSBkZXZpY2UgdHhfcXVldWVfbGVuXG4iKTsKPj4+PiAr
+ICAgICAgICAgICAgZGV2LT50eF9xdWV1ZV9sZW4gPSBvcmlnX2xlbjsKPj4+PiArICAgICAgICAg
+ICAgcmV0dXJuIC1FRkFVTFQ7Cj4+Pj4gKyAgICAgICAgfQo+Pj4+ICsgICAgfQo+Pj4+ICsKPj4+
+PiAgICAgICByZXR1cm4gMDsKPj4+PiAgIH0KPj4+Pgo+Pj4gQWNrZWQtYnk6IEpvaG4gRmFzdGFi
+ZW5kIDxqb2huLnIuZmFzdGFiZW5kQGludGVsLmNvbT4KPj4+Cj4+PiBHcmVhdCB0aW1pbmcgSSB3
+YXMganVzdCBsb29raW5nIGludG8gdGhpcyBiZWNhdXNlIEkgbmVlZCBpdCBmb3IgdGhlCj4+PiBx
+ZGlzYyBzaWRlLgo+Pj4KPj4+IEl0IGxvb2tzIGxpa2UgdGhpcyBjb3ZlcnMgdGhlIHN5c2ZzIGNo
+YW5nZSBidXQgdGhlIHR4X3F1ZXVlX2xlbiBjYW4KPj4+IGFsc28gYmUgY2hhbmdlZCB2aWEgcnRu
+ZXRsaW5rIGFzIHdlbGwuIFNvIHdlIG5lZWQgYW5vdGhlciBwYXRjaCBmb3IKPj4+IHRoYXQgcGF0
+aCByaWdodD8KPj4+Cj4+PiAgICAgICAgICBpZiAodGJbSUZMQV9UWFFMRU5dKSB7Cj4+PiAgICAg
+ICAgICAgICAgICAgIHVuc2lnbmVkIGxvbmcgdmFsdWUgPSBubGFfZ2V0X3UzMih0YltJRkxBX1RY
+UUxFTl0pOwo+Pj4KPj4+ICAgICAgICAgICAgICAgICAgaWYgKGRldi0+dHhfcXVldWVfbGVuIF4g
+dmFsdWUpCj4+PiAgICAgICAgICAgICAgICAgICAgICAgICAgc3RhdHVzIHw9IERPX1NFVExJTktf
+Tk9USUZZOwo+Pj4KPj4+ICAgICAgICAgICAgICAgICAgZGV2LT50eF9xdWV1ZV9sZW4gPSB2YWx1
+ZTsKPj4+ICAgICAgICAgIH0KPj4+Cj4+PiBUaGFua3MsCj4+PiBKb2huCj4+Pgo+Pgo+PiBSaWdo
+dCwgd2lsbCBkbyB0aGlzIGluIG5leHQgdmVyc2lvbi4KPj4KPj4gVGhhbmtzCj4KPiBPaywgc2lu
+Y2UgTWljaGFlbCBoYXMgYWNrZWQgb24gdGhlIHNlcmllcywgd2lsbCBwcmVwYXJlIGEgcGF0Y2gg
+b24gdG9wLgo+Cj4gVGhhbmtzIAoKU2luY2Uga2J1aWxkIHRlc3Qgcm9ib3QgaGFzIGZvdW5kIGEg
+bWlub3IgaXNzdWUgb24gdGhpcyBzZXJpZXMsIEkgd2lsbCAKcG9zdCB2NCB3aXRoIHRoaXMgZml4
+ZWQuCgpUaGFua3MKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
+LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
