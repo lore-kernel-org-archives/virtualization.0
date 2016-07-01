@@ -1,17 +1,14 @@
-From: Fam Zheng <famz@redhat.com>
-Subject: Re: [PATCH v2 04/12] axonrom: Generate uevent after attribute
-	available
-Date: Fri, 1 Jul 2016 09:03:07 +0800
-Message-ID: <20160701010307.GC10122@ad.usersys.redhat.com>
-References: <20160630015953.6888-1-famz@redhat.com>
-	<20160630015953.6888-5-famz@redhat.com>
-	<CAA9_cmf0cKZXdQ2N3iSbwVqgLDGJ7TMvVYuZTqjVE-7EqHHcdg@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next V4 0/6] switch to use tx skb array in tun
+Date: Fri, 1 Jul 2016 14:04:01 +0800
+Message-ID: <577607D1.9070307@redhat.com>
+References: <1467269136-8082-1-git-send-email-jasowang@redhat.com>
+	<20160630184242-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAA9_cmf0cKZXdQ2N3iSbwVqgLDGJ7TMvVYuZTqjVE-7EqHHcdg@mail.gmail.com>
+In-Reply-To: <20160630184242-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,55 +18,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dan Williams <dan.j.williams@gmail.com>
-Cc: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-nvme@lists.infradead.org, virtualization@lists.linux-foundation.org, Keith Busch <keith.busch@intel.com>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Christoph Hellwig <hch@infradead.org>, Shaohua Li <shli@kernel.org>, Nitin Gupta <ngupta@vflare.org>, Jiri Kosina <jikos@kernel.org>, linux-block@vger.kernel.org, "Ed L. Cashin" <ed.cashin@acm.org>, Jens Axboe <axboe@kernel.dk>, linux-raid <linux-raid@vger.kernel.org>, David Woodhouse <dwmw2@infradead.org>, "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Minchan Kim <minchan@kernel.org>, linux-mtd@lists.infradead.org, Brian Norris <computersforpeace@gmail.com>linuxppc-dev <l>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, eric.dumazet@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, brouer@redhat.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 06/30 15:10, Dan Williams wrote:
-> On Wed, Jun 29, 2016 at 6:59 PM, Fam Zheng <famz@redhat.com> wrote:
-> > It is documented that KOBJ_ADD should be generated after the object's
-> > attributes and children are ready.  We can achieve this with the new
-> > disk_gen_uevents interface.
-> >
-> > Signed-off-by: Fam Zheng <famz@redhat.com>
-> > ---
-> >  arch/powerpc/sysdev/axonram.c | 3 ++-
-> >  1 file changed, 2 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/arch/powerpc/sysdev/axonram.c b/arch/powerpc/sysdev/axonram.c
-> > index 4efd69b..27e7175 100644
-> > --- a/arch/powerpc/sysdev/axonram.c
-> > +++ b/arch/powerpc/sysdev/axonram.c
-> > @@ -238,7 +238,7 @@ static int axon_ram_probe(struct platform_device *device)
-> >         set_capacity(bank->disk, bank->size >> AXON_RAM_SECTOR_SHIFT);
-> >         blk_queue_make_request(bank->disk->queue, axon_ram_make_request);
-> >         blk_queue_logical_block_size(bank->disk->queue, AXON_RAM_SECTOR_SIZE);
-> > -       add_disk(bank->disk, true);
-> > +       add_disk(bank->disk, false);
-> >
-> >         bank->irq_id = irq_of_parse_and_map(device->dev.of_node, 0);
-> >         if (bank->irq_id == NO_IRQ) {
-> > @@ -262,6 +262,7 @@ static int axon_ram_probe(struct platform_device *device)
-> >                 rc = -EFAULT;
-> >                 goto failed;
-> >         }
-> > +       disk_gen_uevents(bank->disk);
-> 
-> I assume you are doing this after:
-> 
->    rc = device_create_file(&device->dev, &dev_attr_ecc);
-> 
-> ...so that userspace gets notified of the new attribute, but this
-> attribute is on the parent device, not the disk itself.  Instead I
-> think this attribute should simply be registered before the call to
-> add_disk().  Then the KOBJ_ADD event for the disk comes after the
-> attribute is available.  It's still not a clean fit, because userspace
-> should not be expecting a child device uevent to signal new attributes
-> available on the parent.
-
-Yes you are right, this patch is a mistake. Moving to before add_disk makes
-sense to me.
-
-Thanks for taking a look!
-
-Fam
+CgpPbiAyMDE25bm0MDbmnIgzMOaXpSAyMzo0NSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIFRodSwgSnVuIDMwLCAyMDE2IGF0IDAyOjQ1OjMwUE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4+ID5IaSBhbGw6Cj4+ID4KPj4gPlRoaXMgc2VyaWVzIHRyaWVzIHRvIHN3aXRjaCB0byB1
+c2Ugc2tiIGFycmF5IGluIHR1bi4gVGhpcyBpcyB1c2VkIHRvCj4+ID5lbGltaW5hdGUgdGhlIHNw
+aW5sb2NrIGNvbnRlbnRpb24gYmV0d2VlbiBwcm9kdWNlciBhbmQgY29uc3VtZXIuIFRoZQo+PiA+
+Y29udmVyc2lvbiB3YXMgc3RyYWlnaHRmb3J3YXJkOiBqdXN0IGludHJvZGNlIGEgdHggc2tiIGFy
+cmF5IGFuZCB1c2UKPj4gPml0IGluc3RlYWQgb2Ygc2tfcmVjZWl2ZV9xdWV1ZS4KPj4gPgo+PiA+
+QSBtaW5vciBpc3N1ZSBpcyB0byBrZWVwIHRoZSB0eF9xdWV1ZV9sZW4gYmVoYXZpb3VyLCBzaW5j
+ZSB0dW4gdXNlZCB0bwo+PiA+dXNlIGl0IGZvciB0aGUgbGVuZ3RoIG9mIHNrX3JlY2VpdmVfcXVl
+dWUuIFRoaXMgaXMgZG9uZSB0aHJvdWdoOgo+PiA+Cj4+ID4tIGFkZCB0aGUgYWJpbGl0eSB0byBy
+ZXNpemUgbXVsdGlwbGUgcmluZ3MgYXQgb25jZSB0byBhdm9pZCBoYW5kbGluZwo+PiA+ICAgcGFy
+dGlhbCByZXNpemUgZmFpbHVyZSBmb3IgbXV0aXBsZSByaW5ncy4KPj4gPi0gYWRkIHRoZSBzdXBw
+b3J0IGZvciB6ZXJvIGxlbmd0aCByaW5nLgo+PiA+LSBpbnRyb2R1Y2UgYSBub3RpZmllciB3aGlj
+aCB3YXMgdHJpZ2dlcmVkIHdoZW4gdHhfcXVldWVfbGVuIHdhcwo+PiA+ICAgY2hhbmdlZCBmb3Ig
+YSBuZXRkZXYuCj4+ID4tIHJlc2l6ZSBhbGwgcXVldWVzIGR1cmluZyB0aGUgdHhfcXVldWVfbGVu
+IGNoYW5naW5nLgo+PiA+Cj4+ID5UZXN0cyBzaG93cyBhYm91dCAxNSUgaW1wcm92ZW1lbnQgb24g
+Z3Vlc3QgcnggcHBzOgo+PiA+Cj4+ID5CZWZvcmU6IH4xMzAwMDAwcHBzCj4+ID5BZnRlciA6IH4x
+NTAwMDAwcHBzCj4gQWNrZWQtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbjxtc3RAcmVkaGF0LmNvbT4K
+Pgo+IEFja2VkLWZyb20tYWx0aXR1ZGU6IDM0Njk3IGZlZXQuCgpXb3csIHRoYW5rcyBhIGxvdCEK
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6
+YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24u
+b3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3Zp
+cnR1YWxpemF0aW9u
