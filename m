@@ -1,19 +1,14 @@
-From: xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: Re: [PATCH v2 2/4] powerpc/spinlock: support vcpu preempted check
-Date: Wed, 06 Jul 2016 18:18:27 +0800
-Message-ID: <577CDAF3.4030401@linux.vnet.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH v2 0/4] implement vcpu preempted check
+Date: Wed, 6 Jul 2016 12:44:58 +0200
+Message-ID: <14a24854-9787-e4a1-c9a8-76eba4e97301@redhat.com>
 References: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<1467124991-13164-3-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<CANRm+CxQMSrg69p2Xey829Mz4Au9YCai+4JD17i9urdbj0VgkQ@mail.gmail.com>
-	<577C8FE3.3010208@linux.vnet.ibm.com>
-	<CANRm+CySutzEYQuCaeqyLKKVPPcFDFT94UsNaYWo8fU43VsSig@mail.gmail.com>
-	<20160706075814.GF30921@twins.programming.kicks-ass.net>
-	<CANRm+Cz5-XGDTNkZ_RcoX+gxF_+JDpUB6OB+ECOQcScuaeKfGA@mail.gmail.com>
+	<20160706065255.GH30909@twins.programming.kicks-ass.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CANRm+Cz5-XGDTNkZ_RcoX+gxF_+JDpUB6OB+ECOQcScuaeKfGA@mail.gmail.com>
+In-Reply-To: <20160706065255.GH30909@twins.programming.kicks-ass.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,27 +18,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wanpeng Li <kernellwp@gmail.com>, Peter Zijlstra <peterz@infradead.org>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, Davidlohr Bueso <dave@stgolabs.net>, kvm <kvm@vger.kernel.org>, mpe@ellerman.id.au, boqun.feng@gmail.com, will.deacon@arm.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Waiman Long <waiman.long@hpe.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Paul Mackerras <paulus@samba.org>, benh@kernel.crashing.org, schwidefsky@de.ibm.com, Paolo Bonzini <pbonzini@redhat.com>, Paul McKenney <paulmck@linux.vnet.ibm.com>, linuxppc-dev@lists.ozlabs.org
+To: Peter Zijlstra <peterz@infradead.org>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Cc: linux-s390@vger.kernel.org, dave@stgolabs.net, mpe@ellerman.id.au, boqun.feng@gmail.com, will.deacon@arm.com, linux-kernel@vger.kernel.org, waiman.long@hpe.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, benh@kernel.crashing.org, schwidefsky@de.ibm.com, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTblubQwN+aciDA25pelIDE2OjMyLCBXYW5wZW5nIExpIHdyb3RlOgo+IDIwMTYtMDct
-MDYgMTU6NTggR01UKzA4OjAwIFBldGVyIFppamxzdHJhIDxwZXRlcnpAaW5mcmFkZWFkLm9yZz46
-Cj4+IE9uIFdlZCwgSnVsIDA2LCAyMDE2IGF0IDAyOjQ2OjM0UE0gKzA4MDAsIFdhbnBlbmcgTGkg
-d3JvdGU6Cj4+Pj4gU08gaXQncyBlYXN5IGZvciBwcGMgdG8gaW1wbGVtZW50IHN1Y2ggaW50ZXJm
-YWNlLiBOb3RlIHRoYXQgeWllbGRfY291bnQgaXMKPj4+PiBzZXQgYnkgcG93ZXJWTS9LVk0uCj4+
-Pj4gYW5kIG9ubHkgcFNlcmllcyBjYW4gcnVuIGEgZ3Vlc3QgZm9yIG5vdy4gOikKPj4+Pgo+Pj4+
-IEkgYWxzbyByZXZpZXcgeDg2IHJlbGF0ZWQgY29kZSwgbG9va3MgbGlrZSB3ZSBuZWVkIGFkZCBv
-bmUgaHllci1jYWxsIHRvIGdldAo+Pj4+IHN1Y2ggdmNwdSBwcmVlbXB0aW9uIGluZm8/Cj4+Pgo+
-Pj4gVGhlcmUgaXMgbm8gc3VjaCBzdHVmZiB0byByZWNvcmQgbG9jayBob2xkZXIgaW4geDg2IGt2
-bSwgbWF5YmUgd2UKPj4+IGRvbid0IG5lZWQgdG8gZGVwZW5kIG9uIFBMRSBoYW5kbGVyIGFsZ29y
-aXRobSB0byBndWVzcyBpdCBpZiB3ZSBjYW4KPj4+IGtub3cgbG9jayBob2xkZXIgdkNQVSBkaXJl
-Y3RseS4KPj4KPj4geDg2L2t2bSBoYXMgdmNwdS0+cHJlZW1wdGVkIHRvIGluZGljYXRlIGlmIGEg
-dmNwdSBpcyBjdXJyZW50bHkgcHJlZW1wdGVkCj4+IG9yIG5vdC4gSSdtIGp1c3Qgbm90IHN1cmUg
-aWYgdGhhdCBpcyB2aXNpYmxlIHRvIHRoZSBndWVzdCBvciBob3cgdG8gbWFrZQo+PiBpdCBzby4K
-Pgo+IFllYWgsIEkgbWlzcyBpdC4gSSBjYW4gYmUgdGhlIHZvbHVudGVlciB0byBkbyBpdCBpZiB0
-aGVyZSBpcyBhbnkgaWRlYSwKPiBwaW5nIFBhb2xvLiA6KQo+CmdsYWQgdG8ga25vdyB0aGF0LiA6
-KQoKCj4gUmVnYXJkcywKPiBXYW5wZW5nIExpCj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
-aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
-bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+
+
+On 06/07/2016 08:52, Peter Zijlstra wrote:
+> On Tue, Jun 28, 2016 at 10:43:07AM -0400, Pan Xinhui wrote:
+>> change fomr v1:
+>> 	a simplier definition of default vcpu_is_preempted
+>> 	skip mahcine type check on ppc, and add config. remove dedicated macro.
+>> 	add one patch to drop overload of rwsem_spin_on_owner and mutex_spin_on_owner. 
+>> 	add more comments
+>> 	thanks boqun and Peter's suggestion.
+>>
+>> This patch set aims to fix lock holder preemption issues.
+>>
+>> test-case:
+>> perf record -a perf bench sched messaging -g 400 -p && perf report
+>>
+>> 18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
+>> 12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
+>>  5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
+>>  3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
+>>  3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
+>>  3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
+>>  2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
+>>
+>> We introduce interface bool vcpu_is_preempted(int cpu) and use it in some spin
+>> loops of osq_lock, rwsem_spin_on_owner and mutex_spin_on_owner.
+>> These spin_on_onwer variant also cause rcu stall before we apply this patch set
+>>
+> 
+> Paolo, could you help out with an (x86) KVM interface for this?
+
+If it's just for spin loops, you can check if the version field in the
+steal time structure has changed.
+
+Paolo
+
+> Waiman, could you see if you can utilize this to get rid of the
+> SPIN_THRESHOLD in qspinlock_paravirt?
+> 
