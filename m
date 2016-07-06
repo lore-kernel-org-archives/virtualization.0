@@ -1,15 +1,15 @@
-From: "Li, Liang Z" <liang.z.li@intel.com>
-Subject: RE: [PATCH v2 kernel 0/7] Extend virtio-balloon for fast
-	(de)inflating & fast live migration
-Date: Wed, 6 Jul 2016 00:43:47 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E0420058B__41020.2613952153$1467765848$gmane$org@shsmsx102.ccr.corp.intel.com>
-References: <1467196340-22079-1-git-send-email-liang.z.li@intel.com>
+From: xinhui <xinhui.pan@linux.vnet.ibm.com>
+Subject: Re: [PATCH v2 2/4] powerpc/spinlock: support vcpu preempted check
+Date: Wed, 06 Jul 2016 12:58:11 +0800
+Message-ID: <577C8FE3.3010208@linux.vnet.ibm.com>
+References: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+	<1467124991-13164-3-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+	<CANRm+CxQMSrg69p2Xey829Mz4Au9YCai+4JD17i9urdbj0VgkQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1467196340-22079-1-git-send-email-liang.z.li@intel.com>
-Content-Language: en-US
+In-Reply-To: <CANRm+CxQMSrg69p2Xey829Mz4Au9YCai+4JD17i9urdbj0VgkQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,62 +19,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "mst@redhat.com" <mst@redhat.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Wanpeng Li <kernellwp@gmail.com>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, Davidlohr Bueso <dave@stgolabs.net>, Peter Zijlstra <peterz@infradead.org>, mpe@ellerman.id.au, boqun.feng@gmail.com, will.deacon@arm.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Waiman Long <waiman.long@hpe.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Paul Mackerras <paulus@samba.org>, benh@kernel.crashing.org, schwidefsky@de.ibm.com, Paul McKenney <paulmck@linux.vnet.ibm.com>, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ping ...
-
-Liang
-
-> -----Original Message-----
-> From: Li, Liang Z
-> Sent: Wednesday, June 29, 2016 6:32 PM
-> To: mst@redhat.com
-> Cc: linux-kernel@vger.kernel.org; virtualization@lists.linux-foundation.org;
-> kvm@vger.kernel.org; qemu-devel@nongnu.org; virtio-dev@lists.oasis-
-> open.org; dgilbert@redhat.com; quintela@redhat.com; Li, Liang Z
-> Subject: [PATCH v2 kernel 0/7] Extend virtio-balloon for fast (de)inflating &
-> fast live migration
-> 
-> This patch set contains two parts of changes to the virtio-balloon.
-> 
-> One is the change for speeding up the inflating & deflating process, the main
-> idea of this optimization is to use bitmap to send the page information to
-> host instead of the PFNs, to reduce the overhead of virtio data transmission,
-> address translation and madvise(). This can help to improve the performance
-> by about 85%.
-> 
-> Another change is for speeding up live migration. By skipping process guest's
-> free pages in the first round of data copy, to reduce needless data processing,
-> this can help to save quite a lot of CPU cycles and network bandwidth. We
-> put guest's free page information in bitmap and send it to host with the virt
-> queue of virtio-balloon. For an idle 8GB guest, this can help to shorten the
-> total live migration time from 2Sec to about 500ms in the 10Gbps network
-> environment.
-> 
-> 
-> Changes from v1 to v2:
->     * Abandon the patch for dropping page cache.
->     * Put some structures to uapi head file.
->     * Use a new way to determine the page bitmap size.
->     * Use a unified way to send the free page information with the bitmap
->     * Address the issues referred in MST's comments
-> 
-> Liang Li (7):
->   virtio-balloon: rework deflate to add page to a list
->   virtio-balloon: define new feature bit and page bitmap head
->   mm: add a function to get the max pfn
->   virtio-balloon: speed up inflate/deflate process
->   virtio-balloon: define feature bit and head for misc virt queue
->   mm: add the related functions to get free page info
->   virtio-balloon: tell host vm's free page info
-> 
->  drivers/virtio/virtio_balloon.c     | 306
-> +++++++++++++++++++++++++++++++-----
->  include/uapi/linux/virtio_balloon.h |  41 +++++
->  mm/page_alloc.c                     |  52 ++++++
->  3 files changed, 359 insertions(+), 40 deletions(-)
-> 
-> --
-> 1.8.3.1
+SGksIHdhbnBlbmcKCk9uIDIwMTblubQwN+aciDA15pelIDE3OjU3LCBXYW5wZW5nIExpIHdyb3Rl
+Ogo+IEhpIFhpbmh1aSwKPiAyMDE2LTA2LTI4IDIyOjQzIEdNVCswODowMCBQYW4gWGluaHVpIDx4
+aW5odWkucGFuQGxpbnV4LnZuZXQuaWJtLmNvbT46Cj4+IFRoaXMgaXMgdG8gZml4IHNvbWUgbG9j
+ayBob2xkZXIgcHJlZW1wdGlvbiBpc3N1ZXMuIFNvbWUgb3RoZXIgbG9ja3MKPj4gaW1wbGVtZW50
+YXRpb24gZG8gYSBzcGluIGxvb3AgYmVmb3JlIGFjcXVpcmluZyB0aGUgbG9jayBpdHNlbGYuIEN1
+cnJlbnRseQo+PiBrZXJuZWwgaGFzIGFuIGludGVyZmFjZSBvZiBib29sIHZjcHVfaXNfcHJlZW1w
+dGVkKGludCBjcHUpLiBJdCB0YWtlIHRoZSBjcHUKPj4gYXMgcGFyYW1ldGVyIGFuZCByZXR1cm4g
+dHJ1ZSBpZiB0aGUgY3B1IGlzIHByZWVtcHRlZC4gVGhlbiBrZXJuZWwgY2FuIGJyZWFrCj4+IHRo
+ZSBzcGluIGxvb3BzIHVwb24gb24gdGhlIHJldHZhbCBvZiB2Y3B1X2lzX3ByZWVtcHRlZC4KPj4K
+Pj4gQXMga2VybmVsIGhhcyB1c2VkIHRoaXMgaW50ZXJmYWNlLCBTbyBsZXRzIHN1cHBvcnQgaXQu
+Cj4+Cj4+IE9ubHkgcFNlcmllcyBuZWVkIHN1cG9vcnQgaXQuIEFuZCB0aGUgZmFjdCBpcyBwb3dl
+ck5WIGFyZSBidWlsdCBpbnRvIHNhbWUKPj4ga2VybmVsIGltYWdlIHdpdGggcFNlcmllcy4gU28g
+d2UgbmVlZCByZXR1cm4gZmFsc2UgaWYgd2UgYXJlIHJ1bm5pZyBhcwo+PiBwb3dlck5WLiBUaGUg
+YW5vdGhlciBmYWN0IGlzIHRoYXQgbHBwYWNhLT55aWxlZF9jb3VudCBrZWVwcyB6ZXJvIG9uCj4+
+IHBvd2VyTlYuIFNvIHdlIGNhbiBqdXN0IHNraXAgdGhlIG1hY2hpbmUgdHlwZS4KPgo+IExvY2sg
+aG9sZGVyIHZDUFUgcHJlZW1wdGlvbiBjYW4gYmUgZGV0ZWN0ZWQgYnkgaGFyZHdhcmUgcFNlcmll
+cyBvcgo+IHBhcmF2aXJ0IG1ldGhvZD8KPgpUaGVyZSBpcyBvbmUgc2hhcmQgc3RydWN0IGJldHdl
+ZW4ga2VybmVsIGFuZCBwb3dlclZNL0tWTS4gQW5kIHdlIHJlYWQgdGhlIHlpZWxkX2NvdW50IG9m
+IHRoaXMgc3RydWN0IHRvIGRldGVjdCBpZiBvbmUgdmNwdSBpcyBydW5uaW5nIG9yIG5vdC4KU08g
+aXQncyBlYXN5IGZvciBwcGMgdG8gaW1wbGVtZW50IHN1Y2ggaW50ZXJmYWNlLiBOb3RlIHRoYXQg
+eWllbGRfY291bnQgaXMgc2V0IGJ5IHBvd2VyVk0vS1ZNLgphbmQgb25seSBwU2VyaWVzIGNhbiBy
+dW4gYSBndWVzdCBmb3Igbm93LiA6KQoKSSBhbHNvIHJldmlldyB4ODYgcmVsYXRlZCBjb2RlLCBs
+b29rcyBsaWtlIHdlIG5lZWQgYWRkIG9uZSBoeWVyLWNhbGwgdG8gZ2V0IHN1Y2ggdmNwdSBwcmVl
+bXB0aW9uIGluZm8/Cgp0aGFua3MKeGludWkKPiBSZWdhcmRzLAo+IFdhbnBlbmcgTGkKPgoKX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
+b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
+Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
+YWxpemF0aW9u
