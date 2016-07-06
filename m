@@ -1,16 +1,14 @@
-From: Wanpeng Li <kernellwp@gmail.com>
-Subject: Re: [PATCH v2 2/4] powerpc/spinlock: support vcpu preempted check
-Date: Wed, 6 Jul 2016 14:46:34 +0800
-Message-ID: <CANRm+CySutzEYQuCaeqyLKKVPPcFDFT94UsNaYWo8fU43VsSig@mail.gmail.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v2 0/4] implement vcpu preempted check
+Date: Wed, 6 Jul 2016 08:52:55 +0200
+Message-ID: <20160706065255.GH30909@twins.programming.kicks-ass.net>
 References: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<1467124991-13164-3-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<CANRm+CxQMSrg69p2Xey829Mz4Au9YCai+4JD17i9urdbj0VgkQ@mail.gmail.com>
-	<577C8FE3.3010208@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <577C8FE3.3010208@linux.vnet.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,40 +18,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: xinhui <xinhui.pan@linux.vnet.ibm.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, Davidlohr Bueso <dave@stgolabs.net>, kvm <kvm@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, mpe@ellerman.id.au, boqun.feng@gmail.com, will.deacon@arm.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Waiman Long <waiman.long@hpe.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Paul Mackerras <paulus@samba.org>, benh@kernel.crashing.org, schwidefsky@de.ibm.com, Paolo Bonzini <pbonzini@redhat.com>, Paul McKenney <paulmck@linux.vnet.ibm.com>, linuxppc-dev@lists.ozlabs.org
+To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Cc: linux-s390@vger.kernel.org, dave@stgolabs.net, mpe@ellerman.id.au, boqun.feng@gmail.com, will.deacon@arm.com, linux-kernel@vger.kernel.org, waiman.long@hpe.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, benh@kernel.crashing.org, schwidefsky@de.ibm.com, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Q2MgUGFvbG8sIGt2bSBtbAoyMDE2LTA3LTA2IDEyOjU4IEdNVCswODowMCB4aW5odWkgPHhpbmh1
-aS5wYW5AbGludXgudm5ldC5pYm0uY29tPjoKPiBIaSwgd2FucGVuZwo+Cj4gT24gMjAxNuW5tDA3
-5pyIMDXml6UgMTc6NTcsIFdhbnBlbmcgTGkgd3JvdGU6Cj4+Cj4+IEhpIFhpbmh1aSwKPj4gMjAx
-Ni0wNi0yOCAyMjo0MyBHTVQrMDg6MDAgUGFuIFhpbmh1aSA8eGluaHVpLnBhbkBsaW51eC52bmV0
-LmlibS5jb20+Ogo+Pj4KPj4+IFRoaXMgaXMgdG8gZml4IHNvbWUgbG9jayBob2xkZXIgcHJlZW1w
-dGlvbiBpc3N1ZXMuIFNvbWUgb3RoZXIgbG9ja3MKPj4+IGltcGxlbWVudGF0aW9uIGRvIGEgc3Bp
-biBsb29wIGJlZm9yZSBhY3F1aXJpbmcgdGhlIGxvY2sgaXRzZWxmLiBDdXJyZW50bHkKPj4+IGtl
-cm5lbCBoYXMgYW4gaW50ZXJmYWNlIG9mIGJvb2wgdmNwdV9pc19wcmVlbXB0ZWQoaW50IGNwdSku
-IEl0IHRha2UgdGhlCj4+PiBjcHUKPj4+IGFzIHBhcmFtZXRlciBhbmQgcmV0dXJuIHRydWUgaWYg
-dGhlIGNwdSBpcyBwcmVlbXB0ZWQuIFRoZW4ga2VybmVsIGNhbgo+Pj4gYnJlYWsKPj4+IHRoZSBz
-cGluIGxvb3BzIHVwb24gb24gdGhlIHJldHZhbCBvZiB2Y3B1X2lzX3ByZWVtcHRlZC4KPj4+Cj4+
-PiBBcyBrZXJuZWwgaGFzIHVzZWQgdGhpcyBpbnRlcmZhY2UsIFNvIGxldHMgc3VwcG9ydCBpdC4K
-Pj4+Cj4+PiBPbmx5IHBTZXJpZXMgbmVlZCBzdXBvb3J0IGl0LiBBbmQgdGhlIGZhY3QgaXMgcG93
-ZXJOViBhcmUgYnVpbHQgaW50byBzYW1lCj4+PiBrZXJuZWwgaW1hZ2Ugd2l0aCBwU2VyaWVzLiBT
-byB3ZSBuZWVkIHJldHVybiBmYWxzZSBpZiB3ZSBhcmUgcnVubmlnIGFzCj4+PiBwb3dlck5WLiBU
-aGUgYW5vdGhlciBmYWN0IGlzIHRoYXQgbHBwYWNhLT55aWxlZF9jb3VudCBrZWVwcyB6ZXJvIG9u
-Cj4+PiBwb3dlck5WLiBTbyB3ZSBjYW4ganVzdCBza2lwIHRoZSBtYWNoaW5lIHR5cGUuCj4+Cj4+
-Cj4+IExvY2sgaG9sZGVyIHZDUFUgcHJlZW1wdGlvbiBjYW4gYmUgZGV0ZWN0ZWQgYnkgaGFyZHdh
-cmUgcFNlcmllcyBvcgo+PiBwYXJhdmlydCBtZXRob2Q/Cj4+Cj4gVGhlcmUgaXMgb25lIHNoYXJk
-IHN0cnVjdCBiZXR3ZWVuIGtlcm5lbCBhbmQgcG93ZXJWTS9LVk0uIEFuZCB3ZSByZWFkIHRoZQo+
-IHlpZWxkX2NvdW50IG9mIHRoaXMgc3RydWN0IHRvIGRldGVjdCBpZiBvbmUgdmNwdSBpcyBydW5u
-aW5nIG9yIG5vdC4KPiBTTyBpdCdzIGVhc3kgZm9yIHBwYyB0byBpbXBsZW1lbnQgc3VjaCBpbnRl
-cmZhY2UuIE5vdGUgdGhhdCB5aWVsZF9jb3VudCBpcwo+IHNldCBieSBwb3dlclZNL0tWTS4KPiBh
-bmQgb25seSBwU2VyaWVzIGNhbiBydW4gYSBndWVzdCBmb3Igbm93LiA6KQo+Cj4gSSBhbHNvIHJl
-dmlldyB4ODYgcmVsYXRlZCBjb2RlLCBsb29rcyBsaWtlIHdlIG5lZWQgYWRkIG9uZSBoeWVyLWNh
-bGwgdG8gZ2V0Cj4gc3VjaCB2Y3B1IHByZWVtcHRpb24gaW5mbz8KClRoZXJlIGlzIG5vIHN1Y2gg
-c3R1ZmYgdG8gcmVjb3JkIGxvY2sgaG9sZGVyIGluIHg4NiBrdm0sIG1heWJlIHdlCmRvbid0IG5l
-ZWQgdG8gZGVwZW5kIG9uIFBMRSBoYW5kbGVyIGFsZ29yaXRobSB0byBndWVzcyBpdCBpZiB3ZSBj
-YW4Ka25vdyBsb2NrIGhvbGRlciB2Q1BVIGRpcmVjdGx5LgoKUmVnYXJkcywKV2FucGVuZyBMaQpf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
-dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
-cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
-dHVhbGl6YXRpb24=
+On Tue, Jun 28, 2016 at 10:43:07AM -0400, Pan Xinhui wrote:
+> change fomr v1:
+> 	a simplier definition of default vcpu_is_preempted
+> 	skip mahcine type check on ppc, and add config. remove dedicated macro.
+> 	add one patch to drop overload of rwsem_spin_on_owner and mutex_spin_on_owner. 
+> 	add more comments
+> 	thanks boqun and Peter's suggestion.
+> 
+> This patch set aims to fix lock holder preemption issues.
+> 
+> test-case:
+> perf record -a perf bench sched messaging -g 400 -p && perf report
+> 
+> 18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
+> 12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
+>  5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
+>  3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
+>  3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
+>  3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
+>  2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
+> 
+> We introduce interface bool vcpu_is_preempted(int cpu) and use it in some spin
+> loops of osq_lock, rwsem_spin_on_owner and mutex_spin_on_owner.
+> These spin_on_onwer variant also cause rcu stall before we apply this patch set
+> 
+
+Paolo, could you help out with an (x86) KVM interface for this?
+
+Waiman, could you see if you can utilize this to get rid of the
+SPIN_THRESHOLD in qspinlock_paravirt?
