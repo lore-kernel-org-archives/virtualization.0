@@ -1,14 +1,14 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH v2 0/4] implement vcpu preempted check
-Date: Wed, 6 Jul 2016 12:44:58 +0200
-Message-ID: <14a24854-9787-e4a1-c9a8-76eba4e97301@redhat.com>
+From: Balbir Singh <bsingharora@gmail.com>
+Subject: Re: [PATCH v2 2/4] powerpc/spinlock: support vcpu preempted check
+Date: Wed, 06 Jul 2016 20:54:14 +1000
+Message-ID: <1467802454.9143.1.camel@gmail.com>
 References: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<20160706065255.GH30909@twins.programming.kicks-ass.net>
+	<1467124991-13164-3-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160706065255.GH30909@twins.programming.kicks-ass.net>
+In-Reply-To: <1467124991-13164-3-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,46 +18,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Cc: linux-s390@vger.kernel.org, dave@stgolabs.net, mpe@ellerman.id.au, boqun.feng@gmail.com, will.deacon@arm.com, linux-kernel@vger.kernel.org, waiman.long@hpe.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, benh@kernel.crashing.org, schwidefsky@de.ibm.com, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
+To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org
+Cc: dave@stgolabs.net, peterz@infradead.org, mpe@ellerman.id.au, boqun.feng@gmail.com, will.deacon@arm.com, waiman.long@hpe.com, mingo@redhat.com, paulus@samba.org, benh@kernel.crashing.org, schwidefsky@de.ibm.com, paulmck@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 06/07/2016 08:52, Peter Zijlstra wrote:
-> On Tue, Jun 28, 2016 at 10:43:07AM -0400, Pan Xinhui wrote:
->> change fomr v1:
->> 	a simplier definition of default vcpu_is_preempted
->> 	skip mahcine type check on ppc, and add config. remove dedicated macro.
->> 	add one patch to drop overload of rwsem_spin_on_owner and mutex_spin_on_owner. 
->> 	add more comments
->> 	thanks boqun and Peter's suggestion.
->>
->> This patch set aims to fix lock holder preemption issues.
->>
->> test-case:
->> perf record -a perf bench sched messaging -g 400 -p && perf report
->>
->> 18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
->> 12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
->>  5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
->>  3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
->>  3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
->>  3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
->>  2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
->>
->> We introduce interface bool vcpu_is_preempted(int cpu) and use it in some spin
->> loops of osq_lock, rwsem_spin_on_owner and mutex_spin_on_owner.
->> These spin_on_onwer variant also cause rcu stall before we apply this patch set
->>
-> 
-> Paolo, could you help out with an (x86) KVM interface for this?
-
-If it's just for spin loops, you can check if the version field in the
-steal time structure has changed.
-
-Paolo
-
-> Waiman, could you see if you can utilize this to get rid of the
-> SPIN_THRESHOLD in qspinlock_paravirt?
-> 
+T24gVHVlLCAyMDE2LTA2LTI4IGF0IDEwOjQzIC0wNDAwLCBQYW4gWGluaHVpIHdyb3RlOgo+IFRo
+aXMgaXMgdG8gZml4IHNvbWUgbG9jayBob2xkZXIgcHJlZW1wdGlvbiBpc3N1ZXMuIFNvbWUgb3Ro
+ZXIgbG9ja3MKPiBpbXBsZW1lbnRhdGlvbiBkbyBhIHNwaW4gbG9vcCBiZWZvcmUgYWNxdWlyaW5n
+IHRoZSBsb2NrIGl0c2VsZi4gQ3VycmVudGx5Cj4ga2VybmVsIGhhcyBhbiBpbnRlcmZhY2Ugb2Yg
+Ym9vbCB2Y3B1X2lzX3ByZWVtcHRlZChpbnQgY3B1KS4gSXQgdGFrZSB0aGUgY3B1CgkJCQkJCQkJ
+Xl4gdGFrZXMKPiBhcyBwYXJhbWV0ZXIgYW5kIHJldHVybiB0cnVlIGlmIHRoZSBjcHUgaXMgcHJl
+ZW1wdGVkLiBUaGVuIGtlcm5lbCBjYW4gYnJlYWsKPiB0aGUgc3BpbiBsb29wcyB1cG9uIG9uIHRo
+ZSByZXR2YWwgb2YgdmNwdV9pc19wcmVlbXB0ZWQuCj7CoAo+IEFzIGtlcm5lbCBoYXMgdXNlZCB0
+aGlzIGludGVyZmFjZSwgU28gbGV0cyBzdXBwb3J0IGl0Lgo+wqAKPiBPbmx5IHBTZXJpZXMgbmVl
+ZCBzdXBvb3J0IGl0LiBBbmQgdGhlIGZhY3QgaXMgcG93ZXJOViBhcmUgYnVpbHQgaW50byBzYW1l
+CgkJwqDCoMKgXl4gc3VwcG9ydAo+IGtlcm5lbCBpbWFnZSB3aXRoIHBTZXJpZXMuIFNvIHdlIG5l
+ZWQgcmV0dXJuIGZhbHNlIGlmIHdlIGFyZSBydW5uaWcgYXMKPiBwb3dlck5WLiBUaGUgYW5vdGhl
+ciBmYWN0IGlzIHRoYXQgbHBwYWNhLT55aWxlZF9jb3VudCBrZWVwcyB6ZXJvIG9uCgkJCQkJwqDC
+oF5eIHlpZWxkCj4gcG93ZXJOVi4gU28gd2UgY2FuIGp1c3Qgc2tpcCB0aGUgbWFjaGluZSB0eXBl
+Lgo+wqAKPiBTdWdnZXN0ZWQtYnk6IEJvcXVuIEZlbmcgPGJvcXVuLmZlbmdAZ21haWwuY29tPgo+
+IFN1Z2dlc3RlZC1ieTogUGV0ZXIgWmlqbHN0cmEgKEludGVsKSA8cGV0ZXJ6QGluZnJhZGVhZC5v
+cmc+Cj4gU2lnbmVkLW9mZi1ieTogUGFuIFhpbmh1aSA8eGluaHVpLnBhbkBsaW51eC52bmV0Lmli
+bS5jb20+Cj4gLS0tCj4gwqBhcmNoL3Bvd2VycGMvaW5jbHVkZS9hc20vc3BpbmxvY2suaCB8IDE4
+ICsrKysrKysrKysrKysrKysrKwo+IMKgMSBmaWxlIGNoYW5nZWQsIDE4IGluc2VydGlvbnMoKykK
+PsKgCj4gZGlmZiAtLWdpdCBhL2FyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9zcGlubG9jay5oIGIv
+YXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3NwaW5sb2NrLmgKPiBpbmRleCA1MjM2NzNkLi4zYWM5
+ZmNiIDEwMDY0NAo+IC0tLSBhL2FyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9zcGlubG9jay5oCj4g
+KysrIGIvYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3NwaW5sb2NrLmgKPiBAQCAtNTIsNiArNTIs
+MjQgQEAKPiDCoCNkZWZpbmUgU1lOQ19JTwo+IMKgI2VuZGlmCj4gwqAKPiArLyoKPiArICogVGhp
+cyBzdXBwb3J0IGtlcm5lbCB0byBjaGVjayBpZiBvbmUgY3B1IGlzIHByZWVtcHRlZCBvciBub3Qu
+Cj4gKyAqIFRoZW4gd2UgY2FuIGZpeCBzb21lIGxvY2sgaG9sZGVyIHByZWVtcHRpb24gaXNzdWUu
+Cj4gKyAqLwo+ICsjaWZkZWYgQ09ORklHX1BQQ19QU0VSSUVTCj4gKyNkZWZpbmUgdmNwdV9pc19w
+cmVlbXB0ZWQgdmNwdV9pc19wcmVlbXB0ZWQKPiArc3RhdGljIGlubGluZSBib29sIHZjcHVfaXNf
+cHJlZW1wdGVkKGludCBjcHUpCj4gK3sKPiArCS8qCj4gKwnCoCogcFNlcmllcyBhbmQgcG93ZXJO
+ViBjYW4gYmUgYnVpbHQgaW50byBzYW1lIGtlcm5lbCBpbWFnZS4gSW4KPiArCcKgKiBwcmluY2lw
+bGUgd2UgbmVlZCByZXR1cm4gZmFsc2UgZGlyZWN0bHkgaWYgd2UgYXJlIHJ1bm5pbmcgYXMKPiAr
+CcKgKiBwb3dlck5WLiBIb3dldmVyIHRoZSB5aWVsZF9jb3VudCBpcyBhbHdheXMgemVybyBvbiBw
+b3dlck5WLCBTbwo+ICsJwqAqIHNraXAgc3VjaCBtYWNoaW5lIHR5cGUgY2hlY2sKCk9yIHlvdSBj
+b3VsZCB1c2UgdGhlIHBwY19tZCBpbnRlcmZhY2UgY2FsbGJhY2tzIGlmIHJlcXVpcmVkLCBidXQg
+eW91cgpzb2x1dGlvbiB3b3JrcyBhcyB3ZWxsCgo+ICsJwqAqLwo+ICsJcmV0dXJuICEhKGJlMzJf
+dG9fY3B1KGxwcGFjYV9vZihjcHUpLnlpZWxkX2NvdW50KSAmIDEpOwo+ICt9Cj4gKyNlbmRpZgo+
+ICsKPiDCoHN0YXRpYyBfX2Fsd2F5c19pbmxpbmUgaW50IGFyY2hfc3Bpbl92YWx1ZV91bmxvY2tl
+ZChhcmNoX3NwaW5sb2NrX3QgbG9jaykKPiDCoHsKPiDCoAlyZXR1cm4gbG9jay5zbG9jayA9PSAw
+OwoKCkJhbGJpciBTaW5naC4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3Rz
+LmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9t
+YWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
