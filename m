@@ -1,16 +1,14 @@
-From: Juergen Gross <jgross@suse.com>
+From: xinhui <xinhui.pan@linux.vnet.ibm.com>
 Subject: Re: [PATCH v2 0/4] implement vcpu preempted check
-Date: Wed, 6 Jul 2016 10:38:57 +0200
-Message-ID: <577CC3A1.3070002@suse.com>
+Date: Wed, 06 Jul 2016 18:05:58 +0800
+Message-ID: <577CD806.8000008@linux.vnet.ibm.com>
 References: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 	<20160706065255.GH30909@twins.programming.kicks-ass.net>
-	<577CB786.8000902@suse.com>
-	<20160706081920.GG30921@twins.programming.kicks-ass.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160706081920.GG30921@twins.programming.kicks-ass.net>
+In-Reply-To: <20160706065255.GH30909@twins.programming.kicks-ass.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,26 +19,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Peter Zijlstra <peterz@infradead.org>
-Cc: linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, dave@stgolabs.net, benh@kernel.crashing.org, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, boqun.feng@gmail.com, will.deacon@arm.com, linux-kernel@vger.kernel.org, waiman.long@hpe.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, schwidefsky@de.ibm.com, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org, dave@stgolabs.net, mpe@ellerman.id.au, boqun.feng@gmail.com, will.deacon@arm.com, linux-kernel@vger.kernel.org, waiman.long@hpe.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, benh@kernel.crashing.org, schwidefsky@de.ibm.com, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/07/16 10:19, Peter Zijlstra wrote:
-> On Wed, Jul 06, 2016 at 09:47:18AM +0200, Juergen Gross wrote:
->> On 06/07/16 08:52, Peter Zijlstra wrote:
-> 
->>> Paolo, could you help out with an (x86) KVM interface for this?
->>
->> Xen support of this interface should be rather easy. Could you please
->> Cc: xen-devel-request@lists.xenproject.org in the next version?
-> 
-> So meta question; aren't all you virt people looking at the regular
-> virtualization list? Or should we really dig out all the various
-> hypervisor lists and Cc them?
-
-Hmm, good question. Up to now I didn't look at the virtualization list,
-just changed that. :-)
-
-Can't speak for the other virt people.
-
-
-Juergen
+CgpPbiAyMDE25bm0MDfmnIgwNuaXpSAxNDo1MiwgUGV0ZXIgWmlqbHN0cmEgd3JvdGU6Cj4gT24g
+VHVlLCBKdW4gMjgsIDIwMTYgYXQgMTA6NDM6MDdBTSAtMDQwMCwgUGFuIFhpbmh1aSB3cm90ZToK
+Pj4gY2hhbmdlIGZvbXIgdjE6Cj4+IAlhIHNpbXBsaWVyIGRlZmluaXRpb24gb2YgZGVmYXVsdCB2
+Y3B1X2lzX3ByZWVtcHRlZAo+PiAJc2tpcCBtYWhjaW5lIHR5cGUgY2hlY2sgb24gcHBjLCBhbmQg
+YWRkIGNvbmZpZy4gcmVtb3ZlIGRlZGljYXRlZCBtYWNyby4KPj4gCWFkZCBvbmUgcGF0Y2ggdG8g
+ZHJvcCBvdmVybG9hZCBvZiByd3NlbV9zcGluX29uX293bmVyIGFuZCBtdXRleF9zcGluX29uX293
+bmVyLgo+PiAJYWRkIG1vcmUgY29tbWVudHMKPj4gCXRoYW5rcyBib3F1biBhbmQgUGV0ZXIncyBz
+dWdnZXN0aW9uLgo+Pgo+PiBUaGlzIHBhdGNoIHNldCBhaW1zIHRvIGZpeCBsb2NrIGhvbGRlciBw
+cmVlbXB0aW9uIGlzc3Vlcy4KPj4KPj4gdGVzdC1jYXNlOgo+PiBwZXJmIHJlY29yZCAtYSBwZXJm
+IGJlbmNoIHNjaGVkIG1lc3NhZ2luZyAtZyA0MDAgLXAgJiYgcGVyZiByZXBvcnQKPj4KPj4gMTgu
+MDklICBzY2hlZC1tZXNzYWdpbmcgIFtrZXJuZWwudm1saW51eF0gIFtrXSBvc3FfbG9jawo+PiAx
+Mi4yOCUgIHNjaGVkLW1lc3NhZ2luZyAgW2tlcm5lbC52bWxpbnV4XSAgW2tdIHJ3c2VtX3NwaW5f
+b25fb3duZXIKPj4gICA1LjI3JSAgc2NoZWQtbWVzc2FnaW5nICBba2VybmVsLnZtbGludXhdICBb
+a10gbXV0ZXhfdW5sb2NrCj4+ICAgMy44OSUgIHNjaGVkLW1lc3NhZ2luZyAgW2tlcm5lbC52bWxp
+bnV4XSAgW2tdIHdhaXRfY29uc2lkZXJfdGFzawo+PiAgIDMuNjQlICBzY2hlZC1tZXNzYWdpbmcg
+IFtrZXJuZWwudm1saW51eF0gIFtrXSBfcmF3X3dyaXRlX2xvY2tfaXJxCj4+ICAgMy40MSUgIHNj
+aGVkLW1lc3NhZ2luZyAgW2tlcm5lbC52bWxpbnV4XSAgW2tdIG11dGV4X3NwaW5fb25fb3duZXIu
+aXMKPj4gICAyLjQ5JSAgc2NoZWQtbWVzc2FnaW5nICBba2VybmVsLnZtbGludXhdICBba10gc3lz
+dGVtX2NhbGwKPj4KPj4gV2UgaW50cm9kdWNlIGludGVyZmFjZSBib29sIHZjcHVfaXNfcHJlZW1w
+dGVkKGludCBjcHUpIGFuZCB1c2UgaXQgaW4gc29tZSBzcGluCj4+IGxvb3BzIG9mIG9zcV9sb2Nr
+LCByd3NlbV9zcGluX29uX293bmVyIGFuZCBtdXRleF9zcGluX29uX293bmVyLgo+PiBUaGVzZSBz
+cGluX29uX29ud2VyIHZhcmlhbnQgYWxzbyBjYXVzZSByY3Ugc3RhbGwgYmVmb3JlIHdlIGFwcGx5
+IHRoaXMgcGF0Y2ggc2V0Cj4+Cj4KPiBQYW9sbywgY291bGQgeW91IGhlbHAgb3V0IHdpdGggYW4g
+KHg4NikgS1ZNIGludGVyZmFjZSBmb3IgdGhpcz8KPgo+IFdhaW1hbiwgY291bGQgeW91IHNlZSBp
+ZiB5b3UgY2FuIHV0aWxpemUgdGhpcyB0byBnZXQgcmlkIG9mIHRoZQo+IFNQSU5fVEhSRVNIT0xE
+IGluIHFzcGlubG9ja19wYXJhdmlydD8KPgpobW0uIG1heWJlIHNvbWV0aGluZyBsaWtlIGJlbG93
+LiB3YWl0X25vZGUgY2FuIGdvIGludG8gcHZfd2FpdCgpIGVhcmxpZXIgYXMgc29vbiBhcyB0aGUg
+cHJldiBjcHUgaXMgcHJlZW1wdGVkLgpidXQgZm9yIHRoZSB3YWl0X2hlYWQsIGFzIHFzcGlubG9j
+ayBkb2VzIG5vdCByZWNvcmQgdGhlIGxvY2tfaG9sZGVyIGNvcnJlY3RseSh0aGFua3MgdG8gbG9j
+ayBzdGVhbGluZyksIHZjcHUgcHJlZW1wdGlvbiBjaGVjayBtaWdodCBnZXQgd3JvbmcgcmVzdWx0
+cy4KCldhaW1hbiwgSSBoYXZlIHVzZWQgb25lIGhhc2ggdGFibGUgdG8ga2VlcCB0aGUgbG9jayBo
+b2xkZXIgaW4gbXkgcHBjIGltcGxlbWVudGF0aW9uIHBhdGNoLiBJIHRoaW5rIHdlIGNvdWxkIGRv
+IHNvbWV0aGluZyBzaW1pbGFyIGluIGdlbmVyaWMgY29kZT8KCmRpZmYgLS1naXQgYS9rZXJuZWwv
+bG9ja2luZy9xc3BpbmxvY2tfcGFyYXZpcnQuaCBiL2tlcm5lbC9sb2NraW5nL3FzcGlubG9ja19w
+YXJhdmlydC5oCmluZGV4IDc0YzRhODYuLjQwNTYwZTggMTAwNjQ0Ci0tLSBhL2tlcm5lbC9sb2Nr
+aW5nL3FzcGlubG9ja19wYXJhdmlydC5oCisrKyBiL2tlcm5lbC9sb2NraW5nL3FzcGlubG9ja19w
+YXJhdmlydC5oCkBAIC0zMTIsNyArMzEyLDggQEAgcHZfd2FpdF9lYXJseShzdHJ1Y3QgcHZfbm9k
+ZSAqcHJldiwgaW50IGxvb3ApCiAgICAgICAgIGlmICgobG9vcCAmIFBWX1BSRVZfQ0hFQ0tfTUFT
+SykgIT0gMCkKICAgICAgICAgICAgICAgICByZXR1cm4gZmFsc2U7CiAgCi0gICAgICAgcmV0dXJu
+IFJFQURfT05DRShwcmV2LT5zdGF0ZSkgIT0gdmNwdV9ydW5uaW5nOworICAgICAgIHJldHVybiBS
+RUFEX09OQ0UocHJldi0+c3RhdGUpICE9IHZjcHVfcnVubmluZyB8fAorICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIHZjcHVfaXNfcHJlZW1wdGVkKHByZXYtPmNwdSk7CiAgfQogIAogIC8q
+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
+aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
+bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
+dmlydHVhbGl6YXRpb24=
