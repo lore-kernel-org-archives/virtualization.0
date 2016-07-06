@@ -1,14 +1,16 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH] virtio: Return correct errno for function init_vq's
-	failure
-Date: Wed, 6 Jul 2016 11:18:32 +0200
-Message-ID: <20160706111832.5d4d6f43.cornelia.huck__44426.204407546$1467802986$gmane$org@de.ibm.com>
-References: <1466993358-12064-1-git-send-email-mnghuan@gmail.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v2 0/4] implement vcpu preempted check
+Date: Wed, 6 Jul 2016 13:59:54 +0200
+Message-ID: <20160706115954.GK30921__8947.93173433772$1467806447$gmane$org@twins.programming.kicks-ass.net>
+References: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+	<20160706065255.GH30909@twins.programming.kicks-ass.net>
+	<14a24854-9787-e4a1-c9a8-76eba4e97301@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1466993358-12064-1-git-send-email-mnghuan@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <14a24854-9787-e4a1-c9a8-76eba4e97301@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,57 +20,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Minfei Huang <mnghuan@gmail.com>, mst@redhat.com
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Minfei Huang <minfei.hmf@alibaba-inc.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: linux-s390@vger.kernel.org, dave@stgolabs.net, benh@kernel.crashing.org, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, boqun.feng@gmail.com, will.deacon@arm.com, linux-kernel@vger.kernel.org, waiman.long@hpe.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, schwidefsky@de.ibm.com, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 27 Jun 2016 10:09:18 +0800
-Minfei Huang <mnghuan@gmail.com> wrote:
-
-> The error number -ENOENT or 0 will be returned, if we can not allocate
-> more memory in function init_vq. If host can support multiple virtual
-> queues, and we fails to allocate necessary memory structures for vq,
-> kernel may crash due to incorrect returning.
+On Wed, Jul 06, 2016 at 12:44:58PM +0200, Paolo Bonzini wrote:
+> > Paolo, could you help out with an (x86) KVM interface for this?
 > 
-> To fix it, kernel will return correct value in init_vq.
-> 
-> Signed-off-by: Minfei Huang <mnghuan@gmail.com>
-> Signed-off-by: Minfei Huang <minfei.hmf@alibaba-inc.com>
-> ---
->  drivers/block/virtio_blk.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 42758b5..40ecb2b 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -393,11 +393,10 @@ static int init_vq(struct virtio_blk *vblk)
->  	if (err)
->  		num_vqs = 1;
-> 
-> +	err = -ENOMEM;
->  	vblk->vqs = kmalloc(sizeof(*vblk->vqs) * num_vqs, GFP_KERNEL);
-> -	if (!vblk->vqs) {
-> -		err = -ENOMEM;
-> +	if (!vblk->vqs)
->  		goto out;
-> -	}
-> 
->  	names = kmalloc(sizeof(*names) * num_vqs, GFP_KERNEL);
->  	if (!names)
+> If it's just for spin loops, you can check if the version field in the
+> steal time structure has changed.
 
-The error handling in this function looks horrible.
+That would require remembering the old value, no?
 
-When mq was introduced, init_vq started mixing up several things:
-- The mq feature is not available - which is not an error, and
-therefore should not have any influence on the return code.
-- One of the several memory allocations failed - only ->vqs gets
-special treatment, however.
-- The ->find_vqs callback failed.
+That would work with a previous interface proposal, see:
 
-Your patch fixes the code, but it is still very convoluted due to the
-temporary arrays.
+  http://lkml.kernel.org/r/1466937715-6683-2-git-send-email-xinhui.pan@linux.vnet.ibm.com
 
-May it be worthwile to introduce a helper for setting up the virtqueues
-where all virtqueues are essentially the same and just get a
-consecutive number? Michael?
+the vcpu_get_yield_count() thing would match that I think.
+
+However the current proposal:
+
+  http://lkml.kernel.org/r/1467124991-13164-2-git-send-email-xinhui.pan@linux.vnet.ibm.com
+
+dropped that in favour of only vcpu_is_preempted(), which requires being
+able to tell if a (remote) vcpu is currently running or not, which iirc,
+isn't possible with the steal time sequence count.
