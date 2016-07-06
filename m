@@ -1,15 +1,16 @@
-From: xinhui <xinhui.pan@linux.vnet.ibm.com>
+From: Wanpeng Li <kernellwp@gmail.com>
 Subject: Re: [PATCH v2 2/4] powerpc/spinlock: support vcpu preempted check
-Date: Wed, 06 Jul 2016 12:58:11 +0800
-Message-ID: <577C8FE3.3010208@linux.vnet.ibm.com>
+Date: Wed, 6 Jul 2016 14:46:34 +0800
+Message-ID: <CANRm+CySutzEYQuCaeqyLKKVPPcFDFT94UsNaYWo8fU43VsSig@mail.gmail.com>
 References: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 	<1467124991-13164-3-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 	<CANRm+CxQMSrg69p2Xey829Mz4Au9YCai+4JD17i9urdbj0VgkQ@mail.gmail.com>
+	<577C8FE3.3010208@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CANRm+CxQMSrg69p2Xey829Mz4Au9YCai+4JD17i9urdbj0VgkQ@mail.gmail.com>
+In-Reply-To: <577C8FE3.3010208@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,35 +20,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wanpeng Li <kernellwp@gmail.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, Davidlohr Bueso <dave@stgolabs.net>, Peter Zijlstra <peterz@infradead.org>, mpe@ellerman.id.au, boqun.feng@gmail.com, will.deacon@arm.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Waiman Long <waiman.long@hpe.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Paul Mackerras <paulus@samba.org>, benh@kernel.crashing.org, schwidefsky@de.ibm.com, Paul McKenney <paulmck@linux.vnet.ibm.com>, linuxppc-dev@lists.ozlabs.org
+To: xinhui <xinhui.pan@linux.vnet.ibm.com>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, Davidlohr Bueso <dave@stgolabs.net>, kvm <kvm@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, mpe@ellerman.id.au, boqun.feng@gmail.com, will.deacon@arm.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Waiman Long <waiman.long@hpe.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Paul Mackerras <paulus@samba.org>, benh@kernel.crashing.org, schwidefsky@de.ibm.com, Paolo Bonzini <pbonzini@redhat.com>, Paul McKenney <paulmck@linux.vnet.ibm.com>, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGksIHdhbnBlbmcKCk9uIDIwMTblubQwN+aciDA15pelIDE3OjU3LCBXYW5wZW5nIExpIHdyb3Rl
-Ogo+IEhpIFhpbmh1aSwKPiAyMDE2LTA2LTI4IDIyOjQzIEdNVCswODowMCBQYW4gWGluaHVpIDx4
-aW5odWkucGFuQGxpbnV4LnZuZXQuaWJtLmNvbT46Cj4+IFRoaXMgaXMgdG8gZml4IHNvbWUgbG9j
-ayBob2xkZXIgcHJlZW1wdGlvbiBpc3N1ZXMuIFNvbWUgb3RoZXIgbG9ja3MKPj4gaW1wbGVtZW50
-YXRpb24gZG8gYSBzcGluIGxvb3AgYmVmb3JlIGFjcXVpcmluZyB0aGUgbG9jayBpdHNlbGYuIEN1
-cnJlbnRseQo+PiBrZXJuZWwgaGFzIGFuIGludGVyZmFjZSBvZiBib29sIHZjcHVfaXNfcHJlZW1w
-dGVkKGludCBjcHUpLiBJdCB0YWtlIHRoZSBjcHUKPj4gYXMgcGFyYW1ldGVyIGFuZCByZXR1cm4g
-dHJ1ZSBpZiB0aGUgY3B1IGlzIHByZWVtcHRlZC4gVGhlbiBrZXJuZWwgY2FuIGJyZWFrCj4+IHRo
-ZSBzcGluIGxvb3BzIHVwb24gb24gdGhlIHJldHZhbCBvZiB2Y3B1X2lzX3ByZWVtcHRlZC4KPj4K
-Pj4gQXMga2VybmVsIGhhcyB1c2VkIHRoaXMgaW50ZXJmYWNlLCBTbyBsZXRzIHN1cHBvcnQgaXQu
-Cj4+Cj4+IE9ubHkgcFNlcmllcyBuZWVkIHN1cG9vcnQgaXQuIEFuZCB0aGUgZmFjdCBpcyBwb3dl
-ck5WIGFyZSBidWlsdCBpbnRvIHNhbWUKPj4ga2VybmVsIGltYWdlIHdpdGggcFNlcmllcy4gU28g
-d2UgbmVlZCByZXR1cm4gZmFsc2UgaWYgd2UgYXJlIHJ1bm5pZyBhcwo+PiBwb3dlck5WLiBUaGUg
-YW5vdGhlciBmYWN0IGlzIHRoYXQgbHBwYWNhLT55aWxlZF9jb3VudCBrZWVwcyB6ZXJvIG9uCj4+
-IHBvd2VyTlYuIFNvIHdlIGNhbiBqdXN0IHNraXAgdGhlIG1hY2hpbmUgdHlwZS4KPgo+IExvY2sg
-aG9sZGVyIHZDUFUgcHJlZW1wdGlvbiBjYW4gYmUgZGV0ZWN0ZWQgYnkgaGFyZHdhcmUgcFNlcmll
-cyBvcgo+IHBhcmF2aXJ0IG1ldGhvZD8KPgpUaGVyZSBpcyBvbmUgc2hhcmQgc3RydWN0IGJldHdl
-ZW4ga2VybmVsIGFuZCBwb3dlclZNL0tWTS4gQW5kIHdlIHJlYWQgdGhlIHlpZWxkX2NvdW50IG9m
-IHRoaXMgc3RydWN0IHRvIGRldGVjdCBpZiBvbmUgdmNwdSBpcyBydW5uaW5nIG9yIG5vdC4KU08g
-aXQncyBlYXN5IGZvciBwcGMgdG8gaW1wbGVtZW50IHN1Y2ggaW50ZXJmYWNlLiBOb3RlIHRoYXQg
-eWllbGRfY291bnQgaXMgc2V0IGJ5IHBvd2VyVk0vS1ZNLgphbmQgb25seSBwU2VyaWVzIGNhbiBy
-dW4gYSBndWVzdCBmb3Igbm93LiA6KQoKSSBhbHNvIHJldmlldyB4ODYgcmVsYXRlZCBjb2RlLCBs
-b29rcyBsaWtlIHdlIG5lZWQgYWRkIG9uZSBoeWVyLWNhbGwgdG8gZ2V0IHN1Y2ggdmNwdSBwcmVl
-bXB0aW9uIGluZm8/Cgp0aGFua3MKeGludWkKPiBSZWdhcmRzLAo+IFdhbnBlbmcgTGkKPgoKX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
-b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
-Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
-YWxpemF0aW9u
+Q2MgUGFvbG8sIGt2bSBtbAoyMDE2LTA3LTA2IDEyOjU4IEdNVCswODowMCB4aW5odWkgPHhpbmh1
+aS5wYW5AbGludXgudm5ldC5pYm0uY29tPjoKPiBIaSwgd2FucGVuZwo+Cj4gT24gMjAxNuW5tDA3
+5pyIMDXml6UgMTc6NTcsIFdhbnBlbmcgTGkgd3JvdGU6Cj4+Cj4+IEhpIFhpbmh1aSwKPj4gMjAx
+Ni0wNi0yOCAyMjo0MyBHTVQrMDg6MDAgUGFuIFhpbmh1aSA8eGluaHVpLnBhbkBsaW51eC52bmV0
+LmlibS5jb20+Ogo+Pj4KPj4+IFRoaXMgaXMgdG8gZml4IHNvbWUgbG9jayBob2xkZXIgcHJlZW1w
+dGlvbiBpc3N1ZXMuIFNvbWUgb3RoZXIgbG9ja3MKPj4+IGltcGxlbWVudGF0aW9uIGRvIGEgc3Bp
+biBsb29wIGJlZm9yZSBhY3F1aXJpbmcgdGhlIGxvY2sgaXRzZWxmLiBDdXJyZW50bHkKPj4+IGtl
+cm5lbCBoYXMgYW4gaW50ZXJmYWNlIG9mIGJvb2wgdmNwdV9pc19wcmVlbXB0ZWQoaW50IGNwdSku
+IEl0IHRha2UgdGhlCj4+PiBjcHUKPj4+IGFzIHBhcmFtZXRlciBhbmQgcmV0dXJuIHRydWUgaWYg
+dGhlIGNwdSBpcyBwcmVlbXB0ZWQuIFRoZW4ga2VybmVsIGNhbgo+Pj4gYnJlYWsKPj4+IHRoZSBz
+cGluIGxvb3BzIHVwb24gb24gdGhlIHJldHZhbCBvZiB2Y3B1X2lzX3ByZWVtcHRlZC4KPj4+Cj4+
+PiBBcyBrZXJuZWwgaGFzIHVzZWQgdGhpcyBpbnRlcmZhY2UsIFNvIGxldHMgc3VwcG9ydCBpdC4K
+Pj4+Cj4+PiBPbmx5IHBTZXJpZXMgbmVlZCBzdXBvb3J0IGl0LiBBbmQgdGhlIGZhY3QgaXMgcG93
+ZXJOViBhcmUgYnVpbHQgaW50byBzYW1lCj4+PiBrZXJuZWwgaW1hZ2Ugd2l0aCBwU2VyaWVzLiBT
+byB3ZSBuZWVkIHJldHVybiBmYWxzZSBpZiB3ZSBhcmUgcnVubmlnIGFzCj4+PiBwb3dlck5WLiBU
+aGUgYW5vdGhlciBmYWN0IGlzIHRoYXQgbHBwYWNhLT55aWxlZF9jb3VudCBrZWVwcyB6ZXJvIG9u
+Cj4+PiBwb3dlck5WLiBTbyB3ZSBjYW4ganVzdCBza2lwIHRoZSBtYWNoaW5lIHR5cGUuCj4+Cj4+
+Cj4+IExvY2sgaG9sZGVyIHZDUFUgcHJlZW1wdGlvbiBjYW4gYmUgZGV0ZWN0ZWQgYnkgaGFyZHdh
+cmUgcFNlcmllcyBvcgo+PiBwYXJhdmlydCBtZXRob2Q/Cj4+Cj4gVGhlcmUgaXMgb25lIHNoYXJk
+IHN0cnVjdCBiZXR3ZWVuIGtlcm5lbCBhbmQgcG93ZXJWTS9LVk0uIEFuZCB3ZSByZWFkIHRoZQo+
+IHlpZWxkX2NvdW50IG9mIHRoaXMgc3RydWN0IHRvIGRldGVjdCBpZiBvbmUgdmNwdSBpcyBydW5u
+aW5nIG9yIG5vdC4KPiBTTyBpdCdzIGVhc3kgZm9yIHBwYyB0byBpbXBsZW1lbnQgc3VjaCBpbnRl
+cmZhY2UuIE5vdGUgdGhhdCB5aWVsZF9jb3VudCBpcwo+IHNldCBieSBwb3dlclZNL0tWTS4KPiBh
+bmQgb25seSBwU2VyaWVzIGNhbiBydW4gYSBndWVzdCBmb3Igbm93LiA6KQo+Cj4gSSBhbHNvIHJl
+dmlldyB4ODYgcmVsYXRlZCBjb2RlLCBsb29rcyBsaWtlIHdlIG5lZWQgYWRkIG9uZSBoeWVyLWNh
+bGwgdG8gZ2V0Cj4gc3VjaCB2Y3B1IHByZWVtcHRpb24gaW5mbz8KClRoZXJlIGlzIG5vIHN1Y2gg
+c3R1ZmYgdG8gcmVjb3JkIGxvY2sgaG9sZGVyIGluIHg4NiBrdm0sIG1heWJlIHdlCmRvbid0IG5l
+ZWQgdG8gZGVwZW5kIG9uIFBMRSBoYW5kbGVyIGFsZ29yaXRobSB0byBndWVzcyBpdCBpZiB3ZSBj
+YW4Ka25vdyBsb2NrIGhvbGRlciB2Q1BVIGRpcmVjdGx5LgoKUmVnYXJkcywKV2FucGVuZyBMaQpf
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
+dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
+cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
+dHVhbGl6YXRpb24=
