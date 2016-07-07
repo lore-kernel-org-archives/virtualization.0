@@ -1,20 +1,13 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v2 0/4] implement vcpu preempted check
-Date: Thu, 7 Jul 2016 13:21:21 +0200
-Message-ID: <20160707112121.GJ30927@twins.programming.kicks-ass.net>
-References: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<20160706065255.GH30909@twins.programming.kicks-ass.net>
-	<14a24854-9787-e4a1-c9a8-76eba4e97301@redhat.com>
-	<CANRm+CwXLsNrC59g6tZk=U+T0Scn_O=b60NPESJXU6uaP7-AsA@mail.gmail.com>
-	<8e8edf1b-b64b-3c44-b580-b9271663844c@redhat.com>
-	<CANRm+Cz1Ncxm7g0ophT+ijUmqnmTq9VwCZau3wMS56Vkm2+7fQ@mail.gmail.com>
-	<20160707094215.GT30921@twins.programming.kicks-ass.net>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [PATCH 2/2] virtio/s390: deprecate old transport
+Date: Thu,  7 Jul 2016 17:07:57 +0200
+Message-ID: <1467904077-1887-3-git-send-email-cornelia.huck@de.ibm.com>
+References: <1467904077-1887-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160707094215.GT30921@twins.programming.kicks-ass.net>
+In-Reply-To: <1467904077-1887-1-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,32 +17,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wanpeng Li <kernellwp@gmail.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, Davidlohr Bueso <dave@stgolabs.net>, benh@kernel.crashing.org, kvm <kvm@vger.kernel.org>, mpe@ellerman.id.au, boqun.feng@gmail.com, will.deacon@arm.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Waiman Long <waiman.long@hpe.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Paul Mackerras <paulus@samba.org>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, schwidefsky@de.ibm.com, Paolo Bonzini <pbonzini@redhat.com>, Paul McKenney <paulmck@linux.vnet.ibm.com>, linuxppc-dev@lists.ozlabs.org
+To: mst@redhat.com
+Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 07, 2016 at 11:42:15AM +0200, Peter Zijlstra wrote:
-> +static void update_steal_time_preempt(struct kvm_vcpu *vcpu)
-> +{
-> +	struct kvm_steal_time *st;
-> +
-> +	if (!(vcpu->arch.st.msr_val & KVM_MSR_ENABLED))
-> +		return;
-> +
-> +	if (unlikely(kvm_read_guest_cached(vcpu->kvm, &vcpu->arch.st.stime,
-> +		&vcpu->arch.st.steal, sizeof(struct kvm_steal_time))))
-> +		return;
-> +
-> +	st = &vcpu->arch.st.steal;
-> +
-> +	st->pad[KVM_ST_PAD_PREEMPT] = 1; /* we've stopped running */
+There only ever have been two host implementations of the old
+s390-virtio (pre-ccw) transport: the experimental kuli userspace,
+and qemu. As qemu switched its default to ccw with 2.4 (with most
+users having used ccw well before that) and removed the old transport
+entirely in 2.6, s390-virtio probably hasn't been in active use for
+quite some time and is therefore likely to bitrot.
 
-So maybe have this be:
+Let's start the slow march towards removing the code by deprecating
+it.
 
-	... = kvm_vcpu_running();
+Note that this also deprecates the early virtio console code, which
+has been causing trouble in the guest without being wired up in any
+relevant hypervisor code.
 
-That avoids marking the vcpu preempted when we do hlt and such.
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Reviewed-by: Sascha Silbe <silbe@linux.vnet.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ arch/s390/Kconfig                | 13 +++++++++++++
+ drivers/s390/virtio/Makefile     |  6 +++++-
+ drivers/s390/virtio/kvm_virtio.c |  2 ++
+ 3 files changed, 20 insertions(+), 1 deletion(-)
 
-> +	kvm_write_guest_cached(vcpu->kvm, &vcpu->arch.st.stime,
-> +		st, sizeof(struct kvm_steal_time));
-> +}
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index a8c2590..80fffc2 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -875,4 +875,17 @@ config S390_GUEST
+ 	  Select this option if you want to run the kernel as a guest under
+ 	  the KVM hypervisor.
+ 
++config S390_GUEST_OLD_TRANSPORT
++	def_bool y
++	prompt "Guest support for old s390 virtio transport (DEPRECATED)"
++	depends on S390_GUEST
++	help
++	  Enable this option to add support for the old s390-virtio
++	  transport (i.e. virtio devices NOT based on virtio-ccw). This
++	  type of virtio devices is only available on the experimental
++	  kuli userspace or with old (< 2.6) qemu. If you are running
++	  with a modern version of qemu (which supports virtio-ccw since
++	  1.4 and uses it by default since version 2.4), you probably won't
++	  need this.
++
+ endmenu
+diff --git a/drivers/s390/virtio/Makefile b/drivers/s390/virtio/Makefile
+index 241891a..df40692 100644
+--- a/drivers/s390/virtio/Makefile
++++ b/drivers/s390/virtio/Makefile
+@@ -6,4 +6,8 @@
+ # it under the terms of the GNU General Public License (version 2 only)
+ # as published by the Free Software Foundation.
+ 
+-obj-$(CONFIG_S390_GUEST) += kvm_virtio.o virtio_ccw.o
++s390-virtio-objs := virtio_ccw.o
++ifdef CONFIG_S390_GUEST_OLD_TRANSPORT
++s390-virtio-objs += kvm_virtio.o
++endif
++obj-$(CONFIG_S390_GUEST) += $(s390-virtio-objs)
+diff --git a/drivers/s390/virtio/kvm_virtio.c b/drivers/s390/virtio/kvm_virtio.c
+index b0a849f..5e5c11f 100644
+--- a/drivers/s390/virtio/kvm_virtio.c
++++ b/drivers/s390/virtio/kvm_virtio.c
+@@ -458,6 +458,8 @@ static int __init kvm_devices_init(void)
+ 	if (test_devices_support(total_memory_size) < 0)
+ 		return -ENODEV;
+ 
++	pr_warn("The s390-virtio transport is deprecated. Please switch to a modern host providing virtio-ccw.\n");
++
+ 	rc = vmem_add_mapping(total_memory_size, PAGE_SIZE);
+ 	if (rc)
+ 		return rc;
+-- 
+2.6.6
