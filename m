@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH net-next V4 0/6] switch to use tx skb array in tun
-Date: Fri, 8 Jul 2016 09:19:35 +0300
-Message-ID: <20160708091855-mutt-send-email-mst@redhat.com>
+Date: Fri, 8 Jul 2016 09:19:54 +0300
+Message-ID: <20160708091940-mutt-send-email-mst__5083.76961010999$1467958815$gmane$org@redhat.com>
 References: <CAEfhGixKLfLOj11ERgPhpVB+UXbqxrvkQKgQgn19bDjroO_4dQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -41,8 +41,7 @@ On Wed, Jul 06, 2016 at 01:45:58PM -0400, Craig Gallek wrote:
 > let me know.
 
 
-Don't see anything obvious. I'm traveling, will look at it when I'm back
-unless it's fixed by then. Jason, any idea?
+Uploading your .config might help BTW.
 
 > [   72.322236] BUG: unable to handle kernel NULL pointer dereference
 > at 0000000000000010
