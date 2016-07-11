@@ -1,12 +1,14 @@
-From: "Denis V. Lunev" <den@openvz.org>
-Subject: [PATCH 1/1] balloon: check the number of available pages in leak
-	balloon
-Date: Mon, 11 Jul 2016 15:28:59 +0300
-Message-ID: <1468240139-16873-1-git-send-email-den__45827.5989316919$1468242635$gmane$org@openvz.org>
+From: Waiman Long <waiman.long@hpe.com>
+Subject: Re: [PATCH v2 0/4] implement vcpu preempted check
+Date: Mon, 11 Jul 2016 11:10:15 -0400
+Message-ID: <5783B6D7.7020903@hpe.com>
+References: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+	<20160706065255.GH30909@twins.programming.kicks-ass.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20160706065255.GH30909@twins.programming.kicks-ass.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,41 +18,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Cc: den@openvz.org, Konstantin Neumoin <kneumoin@virtuozzo.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: linux-s390@vger.kernel.org, dave@stgolabs.net, benh@kernel.crashing.org, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, boqun.feng@gmail.com, will.deacon@arm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, schwidefsky@de.ibm.com, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Konstantin Neumoin <kneumoin@virtuozzo.com>
+On 07/06/2016 02:52 AM, Peter Zijlstra wrote:
+> On Tue, Jun 28, 2016 at 10:43:07AM -0400, Pan Xinhui wrote:
+>> change fomr v1:
+>> 	a simplier definition of default vcpu_is_preempted
+>> 	skip mahcine type check on ppc, and add config. remove dedicated macro.
+>> 	add one patch to drop overload of rwsem_spin_on_owner and mutex_spin_on_owner.
+>> 	add more comments
+>> 	thanks boqun and Peter's suggestion.
+>>
+>> This patch set aims to fix lock holder preemption issues.
+>>
+>> test-case:
+>> perf record -a perf bench sched messaging -g 400 -p&&  perf report
+>>
+>> 18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
+>> 12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
+>>   5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
+>>   3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
+>>   3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
+>>   3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
+>>   2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
+>>
+>> We introduce interface bool vcpu_is_preempted(int cpu) and use it in some spin
+>> loops of osq_lock, rwsem_spin_on_owner and mutex_spin_on_owner.
+>> These spin_on_onwer variant also cause rcu stall before we apply this patch set
+>>
+> Paolo, could you help out with an (x86) KVM interface for this?
+>
+> Waiman, could you see if you can utilize this to get rid of the
+> SPIN_THRESHOLD in qspinlock_paravirt?
 
-The balloon has a special mechanism that is subscribed to the oom
-notification which leads to deflation for a fixed number of pages.
-The number is always fixed even when the balloon is fully deflated.
-But leak_balloon did not expect that the pages to deflate will be more
-than taken, and raise a "BUG" in balloon_page_dequeue when page list
-will be empty.
+That API is certainly useful to make the paravirt spinlock perform 
+better. However, I am not sure if we can completely get rid of the 
+SPIN_THRESHOLD at this point. It is not just the kvm, the xen code need 
+to be modified as well.
 
-So, the simplest solution would be to check that the number of releases
-pages is less or equal to the number taken pages.
-
-Signed-off-by: Konstantin Neumoin <kneumoin@virtuozzo.com>
-Signed-off-by: Denis V. Lunev <den@openvz.org>
-CC: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/virtio/virtio_balloon.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 476c0e3..f6ea8f4 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -202,6 +202,8 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
- 	num = min(num, ARRAY_SIZE(vb->pfns));
- 
- 	mutex_lock(&vb->balloon_lock);
-+	/* We can't release more pages than taken */
-+	num = min(num, (size_t)vb->num_pages);
- 	for (vb->num_pfns = 0; vb->num_pfns < num;
- 	     vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
- 		page = balloon_page_dequeue(vb_dev_info);
--- 
-2.1.4
+Cheers,
+Longman
