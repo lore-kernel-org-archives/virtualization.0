@@ -1,9 +1,9 @@
 From: "ML" <marialemos72@gmail.com>
-Subject: WorldCIST'17 - Call for Workshops Proposals
-Date: Wed, 13 Jul 2016 11:28:32 +0100
-Message-ID: <20160713103707.CC6A2949@mail.linuxfoundation.org>
+Subject: [WorldCIST'17]: Call for Workshops Proposals
+Date: Wed, 13 Jul 2016 10:34:05 +0100
+Message-ID: <E1bNGYV-0004Af-Am@21852.s.t4vps.eu>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6584593939102143890=="
+Content-Type: multipart/mixed; boundary="===============3264187691309703997=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,7 +17,7 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============6584593939102143890==
+--===============3264187691309703997==
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
@@ -104,7 +104,7 @@ WorldCIST'17
 http://www.worldcist.org/
 
 
---===============6584593939102143890==
+--===============3264187691309703997==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -114,4 +114,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6584593939102143890==--
+--===============3264187691309703997==--
