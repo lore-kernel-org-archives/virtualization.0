@@ -1,10 +1,16 @@
-From: "ML" <marialemos72@gmail.com>
-Subject: [WorldCIST'17]: Call for Workshops Proposals
-Date: Wed, 13 Jul 2016 10:34:05 +0100
-Message-ID: <E1bNGYV-0004Af-Am@21852.s.t4vps.eu>
+From: Minfei Huang <mnghuan@gmail.com>
+Subject: Re: [PATCH] virtio: Return correct errno for function init_vq's
+	failure
+Date: Wed, 13 Jul 2016 19:54:00 +0800
+Message-ID: <20160713115400.GA16403@MinfeideMacBook-Pro.local>
+References: <1466993358-12064-1-git-send-email-mnghuan@gmail.com>
+	<20160706111832.5d4d6f43.cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3264187691309703997=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20160706111832.5d4d6f43.cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -14,104 +20,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: Minfei Huang <minfei.hmf@alibaba-inc.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============3264187691309703997==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On 07/06/16 at 11:18P, Cornelia Huck wrote:
+> On Mon, 27 Jun 2016 10:09:18 +0800
+> Minfei Huang <mnghuan@gmail.com> wrote:
+> 
+> > The error number -ENOENT or 0 will be returned, if we can not allocate
+> > more memory in function init_vq. If host can support multiple virtual
+> > queues, and we fails to allocate necessary memory structures for vq,
+> > kernel may crash due to incorrect returning.
+> > 
+> > To fix it, kernel will return correct value in init_vq.
+> The error handling in this function looks horrible.
+> 
+> When mq was introduced, init_vq started mixing up several things:
+> - The mq feature is not available - which is not an error, and
+> therefore should not have any influence on the return code.
+> - One of the several memory allocations failed - only ->vqs gets
+> special treatment, however.
+> - The ->find_vqs callback failed.
 
----------
-WorldCIST'17 - 5th World Conference on Information Systems and Technol=
-ogies=20
-Porto Santo Island, Madeira, Portugal
-11th-13th of April 2017
-http://www.worldcist.org/
--------------------------------------------
+Yep. And without this patch, it is silent for boot failure. I think it
+makes sense to let user notify about this failure.
 
+> 
+> Your patch fixes the code, but it is still very convoluted due to the
+> temporary arrays.
+> 
+> May it be worthwile to introduce a helper for setting up the virtqueues
+> where all virtqueues are essentially the same and just get a
+> consecutive number? Michael?
+> 
 
-WORKSHOP FORMAT
+Hmm, How about refactor this function to make it more readable, since we
+do a lot of work in it.
 
-The Information Systems and Technologies research and industrial commu=
-nity is invited to submit proposals of Workshops for WorldCist'17 =96 =
-5th World Conference on Information Systems and Technologies to be hel=
-d at Porto Santo Island, Madeira, Portugal, 11th - 13th of April 2017:=
- http://www.worldcist.org/
+I will post an update to refactor this function.
 
-Workshops should focus on a specific scientific subject on the scope o=
-f WorldCist'17 but not directly included on the main conference areas.=
- Each workshop will be coordinated by an Organizing Committee composed=
- of, at least, two researchers in the field, preferably from different=
- institutions and different countries. The organizers should create an=
- international Program Committee for the Workshop, with recognized res=
-earchers within the specific Workshop scientific area. Each workshop s=
-hould have at least 10 submissions and 5 accepted papers in order to b=
-e conducted at WorldCist'17.
-
-The selection of Workshops will be performed by WorldCist'17 Conferenc=
-e/Workshop Chairs. Workshops full and short papers will be published i=
-n the conference main proceedings in specific Workshop chapters publis=
-hed by Springer in a book of the AISC series. Proceedings will be subm=
-itted for indexation by ISI Thomson, SCOPUS, DBLP, EI-Compendex among =
-several other scientific databases. Extended versions of best selected=
- papers will be published in journals indexed by ISI/SCI, SCOPUS and D=
-BLP. Detailed and up-to-date information may be found at WorldCist'17 =
-website: http://www.worldcist.org/
-
-WORKSHOP ORGANIZATION
-
-The Organizing Committee of each Workshop will be responsible for:
--    Producing and distributing the Workshop Call for Papers (CFP);
--    Coordinating the review and selection process for the papers subm=
-itted to the Workshop, as Workshop chairs (on the paper submission sys=
-tem to be installed);
--    Delivering the final versions of the papers accepted for the Work=
-shop in accordance with the guidelines and deadlines defined by WorldC=
-ist'17 organizers;
--    Coordinating and chairing the Workshop sessions at the conference.
-WorldCist'17 organizers reserve the right to cancel any Workshop if de=
-adlines are missed or if the number of registered attendees is too low=
- to support the costs associated with the Workshop.
-
-PROPOSAL CONTENT
-
-Workshop proposals should contain the following information:
--    Workshop title;
--    Brief description of the specific scientific scope of the Workshop;
--    List of topics of interest (max 15 topics);
--    Reasons the Workshop should be held within WorldCist=9217;
--    Name, postal address, phone and email of all the members of the W=
-orkshop Organizing Committee;
--    Proposal for the Workshop Program Committee (Names and affiliatio=
-ns).
-
-Proposals should be submitted electronically by email to worldcist at =
-gmail.com (cc: lpreis at dsi.uminho.pt), in PDF, (in English), by July=
- 31, 2016.
-
-IMPORTANT DATES
-
--    Deadline for Workshop proposals: July 31, 2016
--    Notification of Workshop acceptance: September 11, 2016
--    Deadline for paper submission: November 27, 2016
--    Notification of paper acceptance: December 25, 2016
--    Deadline for final versions and conference registration: January =
-8, 2017
--    Conference dates: April 11-13, 2017
-
-
-WorldCIST'17
-http://www.worldcist.org/
-
-
---===============3264187691309703997==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3264187691309703997==--
+Thanks
+Minfei
