@@ -1,15 +1,10 @@
-From: Waiman Long <waiman.long@hpe.com>
-Subject: Re: [PATCH v2 0/4] implement vcpu preempted check
-Date: Tue, 12 Jul 2016 14:16:30 -0400
-Message-ID: <578533FE.9050606@hpe.com>
-References: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<20160706065255.GH30909@twins.programming.kicks-ass.net>
-	<5783B6D7.7020903@hpe.com> <57846F02.7000306@suse.com>
+From: "ML" <marialemos72@gmail.com>
+Subject: WorldCIST'17 - Call for Workshops Proposals
+Date: Wed, 13 Jul 2016 11:28:32 +0100
+Message-ID: <20160713103707.CC6A2949@mail.linuxfoundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============6584593939102143890=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <57846F02.7000306@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,64 +14,104 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Juergen Gross <jgross@suse.com>
-Cc: linux-s390@vger.kernel.org, dave@stgolabs.net, Peter Zijlstra <peterz@infradead.org>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, boqun.feng@gmail.com, will.deacon@arm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, benh@kernel.crashing.org, schwidefsky@de.ibm.com, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/12/2016 12:16 AM, Juergen Gross wrote:
-> On 11/07/16 17:10, Waiman Long wrote:
->> On 07/06/2016 02:52 AM, Peter Zijlstra wrote:
->>> On Tue, Jun 28, 2016 at 10:43:07AM -0400, Pan Xinhui wrote:
->>>> change fomr v1:
->>>>      a simplier definition of default vcpu_is_preempted
->>>>      skip mahcine type check on ppc, and add config. remove dedicated
->>>> macro.
->>>>      add one patch to drop overload of rwsem_spin_on_owner and
->>>> mutex_spin_on_owner.
->>>>      add more comments
->>>>      thanks boqun and Peter's suggestion.
->>>>
->>>> This patch set aims to fix lock holder preemption issues.
->>>>
->>>> test-case:
->>>> perf record -a perf bench sched messaging -g 400 -p&&   perf report
->>>>
->>>> 18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
->>>> 12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
->>>>    5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
->>>>    3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
->>>>    3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
->>>>    3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
->>>>    2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
->>>>
->>>> We introduce interface bool vcpu_is_preempted(int cpu) and use it in
->>>> some spin
->>>> loops of osq_lock, rwsem_spin_on_owner and mutex_spin_on_owner.
->>>> These spin_on_onwer variant also cause rcu stall before we apply this
->>>> patch set
->>>>
->>> Paolo, could you help out with an (x86) KVM interface for this?
->>>
->>> Waiman, could you see if you can utilize this to get rid of the
->>> SPIN_THRESHOLD in qspinlock_paravirt?
->> That API is certainly useful to make the paravirt spinlock perform
->> better. However, I am not sure if we can completely get rid of the
->> SPIN_THRESHOLD at this point. It is not just the kvm, the xen code need
->> to be modified as well.
-> This should be rather easy. The relevant information is included in the
-> runstate data mapped into kernel memory. I can provide a patch for Xen
-> if needed.
->
->
-> Juergen
+--===============6584593939102143890==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Thanks for the offering. We will wait until Xinhui's patch comes through 
-before working on the next step.
+---------
+WorldCIST'17 - 5th World Conference on Information Systems and Technol=
+ogies=20
+Porto Santo Island, Madeira, Portugal
+11th-13th of April 2017
+http://www.worldcist.org/
+-------------------------------------------
 
-As for the elimination of SPIN_THRESHOLD, the queue head may not always 
-have the right CPU number of the lock holder. So I don't think we can 
-eliminate that for the queue head spinning. I think we can eliminates 
-the SPIN_THRESHOLD spinning for the other queue node vCPUs.
 
-Cheers,
-Longman
+WORKSHOP FORMAT
+
+The Information Systems and Technologies research and industrial commu=
+nity is invited to submit proposals of Workshops for WorldCist'17 =96 =
+5th World Conference on Information Systems and Technologies to be hel=
+d at Porto Santo Island, Madeira, Portugal, 11th - 13th of April 2017:=
+ http://www.worldcist.org/
+
+Workshops should focus on a specific scientific subject on the scope o=
+f WorldCist'17 but not directly included on the main conference areas.=
+ Each workshop will be coordinated by an Organizing Committee composed=
+ of, at least, two researchers in the field, preferably from different=
+ institutions and different countries. The organizers should create an=
+ international Program Committee for the Workshop, with recognized res=
+earchers within the specific Workshop scientific area. Each workshop s=
+hould have at least 10 submissions and 5 accepted papers in order to b=
+e conducted at WorldCist'17.
+
+The selection of Workshops will be performed by WorldCist'17 Conferenc=
+e/Workshop Chairs. Workshops full and short papers will be published i=
+n the conference main proceedings in specific Workshop chapters publis=
+hed by Springer in a book of the AISC series. Proceedings will be subm=
+itted for indexation by ISI Thomson, SCOPUS, DBLP, EI-Compendex among =
+several other scientific databases. Extended versions of best selected=
+ papers will be published in journals indexed by ISI/SCI, SCOPUS and D=
+BLP. Detailed and up-to-date information may be found at WorldCist'17 =
+website: http://www.worldcist.org/
+
+WORKSHOP ORGANIZATION
+
+The Organizing Committee of each Workshop will be responsible for:
+-    Producing and distributing the Workshop Call for Papers (CFP);
+-    Coordinating the review and selection process for the papers subm=
+itted to the Workshop, as Workshop chairs (on the paper submission sys=
+tem to be installed);
+-    Delivering the final versions of the papers accepted for the Work=
+shop in accordance with the guidelines and deadlines defined by WorldC=
+ist'17 organizers;
+-    Coordinating and chairing the Workshop sessions at the conference.
+WorldCist'17 organizers reserve the right to cancel any Workshop if de=
+adlines are missed or if the number of registered attendees is too low=
+ to support the costs associated with the Workshop.
+
+PROPOSAL CONTENT
+
+Workshop proposals should contain the following information:
+-    Workshop title;
+-    Brief description of the specific scientific scope of the Workshop;
+-    List of topics of interest (max 15 topics);
+-    Reasons the Workshop should be held within WorldCist=9217;
+-    Name, postal address, phone and email of all the members of the W=
+orkshop Organizing Committee;
+-    Proposal for the Workshop Program Committee (Names and affiliatio=
+ns).
+
+Proposals should be submitted electronically by email to worldcist at =
+gmail.com (cc: lpreis at dsi.uminho.pt), in PDF, (in English), by July=
+ 31, 2016.
+
+IMPORTANT DATES
+
+-    Deadline for Workshop proposals: July 31, 2016
+-    Notification of Workshop acceptance: September 11, 2016
+-    Deadline for paper submission: November 27, 2016
+-    Notification of paper acceptance: December 25, 2016
+-    Deadline for final versions and conference registration: January =
+8, 2017
+-    Conference dates: April 11-13, 2017
+
+
+WorldCIST'17
+http://www.worldcist.org/
+
+
+--===============6584593939102143890==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6584593939102143890==--
