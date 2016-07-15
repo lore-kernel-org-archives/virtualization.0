@@ -1,16 +1,15 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH] virtio: Return correct errno for function init_vq's
-	failure
-Date: Wed, 13 Jul 2016 14:05:40 +0200
-Message-ID: <20160713140540.78c9ab01.cornelia.huck@de.ibm.com>
-References: <1466993358-12064-1-git-send-email-mnghuan@gmail.com>
-	<20160706111832.5d4d6f43.cornelia.huck@de.ibm.com>
-	<20160713115400.GA16403@MinfeideMacBook-Pro.local>
+From: Pan Xinhui <xinhui@linux.vnet.ibm.com>
+Subject: Re: [PATCH v2 2/4] powerpc/spinlock: support vcpu preempted check
+Date: Fri, 15 Jul 2016 23:35:14 +0800
+Message-ID: <3290f85e-932c-250c-6e28-8ec41ae829df__7974.27717266164$1468596935$gmane$org@linux.vnet.ibm.com>
+References: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+	<1467124991-13164-3-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+	<1467802454.9143.1.camel@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160713115400.GA16403@MinfeideMacBook-Pro.local>
+In-Reply-To: <1467802454.9143.1.camel@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,50 +19,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Minfei Huang <mnghuan@gmail.com>
-Cc: Minfei Huang <minfei.hmf@alibaba-inc.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
+To: Balbir Singh <bsingharora@gmail.com>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org
+Cc: dave@stgolabs.net, peterz@infradead.org, mpe@ellerman.id.au, boqun.feng@gmail.com, will.deacon@arm.com, waiman.long@hpe.com, mingo@redhat.com, paulus@samba.org, benh@kernel.crashing.org, schwidefsky@de.ibm.com, paulmck@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 13 Jul 2016 19:54:00 +0800
-Minfei Huang <mnghuan@gmail.com> wrote:
-
-> On 07/06/16 at 11:18P, Cornelia Huck wrote:
-> > On Mon, 27 Jun 2016 10:09:18 +0800
-> > Minfei Huang <mnghuan@gmail.com> wrote:
-> > 
-> > > The error number -ENOENT or 0 will be returned, if we can not allocate
-> > > more memory in function init_vq. If host can support multiple virtual
-> > > queues, and we fails to allocate necessary memory structures for vq,
-> > > kernel may crash due to incorrect returning.
-> > > 
-> > > To fix it, kernel will return correct value in init_vq.
-> > The error handling in this function looks horrible.
-> > 
-> > When mq was introduced, init_vq started mixing up several things:
-> > - The mq feature is not available - which is not an error, and
-> > therefore should not have any influence on the return code.
-> > - One of the several memory allocations failed - only ->vqs gets
-> > special treatment, however.
-> > - The ->find_vqs callback failed.
-> 
-> Yep. And without this patch, it is silent for boot failure. I think it
-> makes sense to let user notify about this failure.
-
-Agreed.
-
-> 
-> > 
-> > Your patch fixes the code, but it is still very convoluted due to the
-> > temporary arrays.
-> > 
-> > May it be worthwile to introduce a helper for setting up the virtqueues
-> > where all virtqueues are essentially the same and just get a
-> > consecutive number? Michael?
-> > 
-> 
-> Hmm, How about refactor this function to make it more readable, since we
-> do a lot of work in it.
-> 
-> I will post an update to refactor this function.
-
-Anything to make this more readable probably helps :)
+SGksIEJhaWJpcgoJc29ycnkgZm9yIGxhdGUgcmVzcG9uY2UsIEkgbWlzc2VkIHJlYWRpbmcgeW91
+ciBtYWlsLgoK5ZyoIDE2LzcvNiAxODo1NCwgQmFsYmlyIFNpbmdoIOWGmemBkzoKPiBPbiBUdWUs
+IDIwMTYtMDYtMjggYXQgMTA6NDMgLTA0MDAsIFBhbiBYaW5odWkgd3JvdGU6Cj4+IFRoaXMgaXMg
+dG8gZml4IHNvbWUgbG9jayBob2xkZXIgcHJlZW1wdGlvbiBpc3N1ZXMuIFNvbWUgb3RoZXIgbG9j
+a3MKPj4gaW1wbGVtZW50YXRpb24gZG8gYSBzcGluIGxvb3AgYmVmb3JlIGFjcXVpcmluZyB0aGUg
+bG9jayBpdHNlbGYuIEN1cnJlbnRseQo+PiBrZXJuZWwgaGFzIGFuIGludGVyZmFjZSBvZiBib29s
+IHZjcHVfaXNfcHJlZW1wdGVkKGludCBjcHUpLiBJdCB0YWtlIHRoZSBjcHUKPiAJCQkJCQkJCV5e
+IHRha2VzCj4+IGFzIHBhcmFtZXRlciBhbmQgcmV0dXJuIHRydWUgaWYgdGhlIGNwdSBpcyBwcmVl
+bXB0ZWQuIFRoZW4ga2VybmVsIGNhbiBicmVhawo+PiB0aGUgc3BpbiBsb29wcyB1cG9uIG9uIHRo
+ZSByZXR2YWwgb2YgdmNwdV9pc19wcmVlbXB0ZWQuCj4+Cj4+IEFzIGtlcm5lbCBoYXMgdXNlZCB0
+aGlzIGludGVyZmFjZSwgU28gbGV0cyBzdXBwb3J0IGl0Lgo+Pgo+PiBPbmx5IHBTZXJpZXMgbmVl
+ZCBzdXBvb3J0IGl0LiBBbmQgdGhlIGZhY3QgaXMgcG93ZXJOViBhcmUgYnVpbHQgaW50byBzYW1l
+Cj4gCQkgICBeXiBzdXBwb3J0Cj4+IGtlcm5lbCBpbWFnZSB3aXRoIHBTZXJpZXMuIFNvIHdlIG5l
+ZWQgcmV0dXJuIGZhbHNlIGlmIHdlIGFyZSBydW5uaWcgYXMKPj4gcG93ZXJOVi4gVGhlIGFub3Ro
+ZXIgZmFjdCBpcyB0aGF0IGxwcGFjYS0+eWlsZWRfY291bnQga2VlcHMgemVybyBvbgo+IAkJCQkJ
+ICBeXiB5aWVsZAo+PiBwb3dlck5WLiBTbyB3ZSBjYW4ganVzdCBza2lwIHRoZSBtYWNoaW5lIHR5
+cGUuCj4+CgpCbGFtZSBvbiBtZSwgSSBpbmRlZWQgbmVlZCBhdm9pZCBzdWNoIHR5cG8uLgp0aGFu
+a3MgZm9yIHBvaW50aW5nIGl0IG91dC4KCj4+IFN1Z2dlc3RlZC1ieTogQm9xdW4gRmVuZyA8Ym9x
+dW4uZmVuZ0BnbWFpbC5jb20+Cj4+IFN1Z2dlc3RlZC1ieTogUGV0ZXIgWmlqbHN0cmEgKEludGVs
+KSA8cGV0ZXJ6QGluZnJhZGVhZC5vcmc+Cj4+IFNpZ25lZC1vZmYtYnk6IFBhbiBYaW5odWkgPHhp
+bmh1aS5wYW5AbGludXgudm5ldC5pYm0uY29tPgo+PiAtLS0KPj4gIGFyY2gvcG93ZXJwYy9pbmNs
+dWRlL2FzbS9zcGlubG9jay5oIHwgMTggKysrKysrKysrKysrKysrKysrCj4+ICAxIGZpbGUgY2hh
+bmdlZCwgMTggaW5zZXJ0aW9ucygrKQo+Pgo+PiBkaWZmIC0tZ2l0IGEvYXJjaC9wb3dlcnBjL2lu
+Y2x1ZGUvYXNtL3NwaW5sb2NrLmggYi9hcmNoL3Bvd2VycGMvaW5jbHVkZS9hc20vc3BpbmxvY2su
+aAo+PiBpbmRleCA1MjM2NzNkLi4zYWM5ZmNiIDEwMDY0NAo+PiAtLS0gYS9hcmNoL3Bvd2VycGMv
+aW5jbHVkZS9hc20vc3BpbmxvY2suaAo+PiArKysgYi9hcmNoL3Bvd2VycGMvaW5jbHVkZS9hc20v
+c3BpbmxvY2suaAo+PiBAQCAtNTIsNiArNTIsMjQgQEAKPj4gICNkZWZpbmUgU1lOQ19JTwo+PiAg
+I2VuZGlmCj4+Cj4+ICsvKgo+PiArICogVGhpcyBzdXBwb3J0IGtlcm5lbCB0byBjaGVjayBpZiBv
+bmUgY3B1IGlzIHByZWVtcHRlZCBvciBub3QuCj4+ICsgKiBUaGVuIHdlIGNhbiBmaXggc29tZSBs
+b2NrIGhvbGRlciBwcmVlbXB0aW9uIGlzc3VlLgo+PiArICovCj4+ICsjaWZkZWYgQ09ORklHX1BQ
+Q19QU0VSSUVTCj4+ICsjZGVmaW5lIHZjcHVfaXNfcHJlZW1wdGVkIHZjcHVfaXNfcHJlZW1wdGVk
+Cj4+ICtzdGF0aWMgaW5saW5lIGJvb2wgdmNwdV9pc19wcmVlbXB0ZWQoaW50IGNwdSkKPj4gK3sK
+Pj4gKwkvKgo+PiArCSAqIHBTZXJpZXMgYW5kIHBvd2VyTlYgY2FuIGJlIGJ1aWx0IGludG8gc2Ft
+ZSBrZXJuZWwgaW1hZ2UuIEluCj4+ICsJICogcHJpbmNpcGxlIHdlIG5lZWQgcmV0dXJuIGZhbHNl
+IGRpcmVjdGx5IGlmIHdlIGFyZSBydW5uaW5nIGFzCj4+ICsJICogcG93ZXJOVi4gSG93ZXZlciB0
+aGUgeWllbGRfY291bnQgaXMgYWx3YXlzIHplcm8gb24gcG93ZXJOViwgU28KPj4gKwkgKiBza2lw
+IHN1Y2ggbWFjaGluZSB0eXBlIGNoZWNrCj4KPiBPciB5b3UgY291bGQgdXNlIHRoZSBwcGNfbWQg
+aW50ZXJmYWNlIGNhbGxiYWNrcyBpZiByZXF1aXJlZCwgYnV0IHlvdXIKPiBzb2x1dGlvbiB3b3Jr
+cyBhcyB3ZWxsCj4KCnRoYW5rcywgU28gSSBjYW4ga2VlcCBteSBjb2RlIGFzIGlzLgoKdGhhbmtz
+Cnhpbmh1aQoKPj4gKwkgKi8KPj4gKwlyZXR1cm4gISEoYmUzMl90b19jcHUobHBwYWNhX29mKGNw
+dSkueWllbGRfY291bnQpICYgMSk7Cj4+ICt9Cj4+ICsjZW5kaWYKPj4gKwo+PiAgc3RhdGljIF9f
+YWx3YXlzX2lubGluZSBpbnQgYXJjaF9zcGluX3ZhbHVlX3VubG9ja2VkKGFyY2hfc3BpbmxvY2tf
+dCBsb2NrKQo+PiAgewo+PiAgCXJldHVybiBsb2NrLnNsb2NrID09IDA7Cj4KPgo+IEJhbGJpciBT
+aW5naC4KPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
+VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
+dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL3ZpcnR1YWxpemF0aW9u
