@@ -1,16 +1,16 @@
 From: Namhyung Kim <namhyung@kernel.org>
-Subject: Re: [PATCH 1/3] virtio: Basic implementation of virtio pstore driver
-Date: Mon, 18 Jul 2016 17:29:55 +0900
-Message-ID: <20160718082955.GA12086__15366.2790930413$1468853125$gmane$org@danjae.aot.lge.com>
+Subject: Re: [PATCH 2/3] qemu: Implement virtio-pstore device
+Date: Mon, 18 Jul 2016 17:33:35 +0900
+Message-ID: <20160718083335.GB12086__4167.09398055008$1468853143$gmane$org@danjae.aot.lge.com>
 References: <1468816661-6345-1-git-send-email-namhyung@kernel.org>
-	<1468816661-6345-2-git-send-email-namhyung@kernel.org>
-	<20160718095439.1eabb340.cornelia.huck@de.ibm.com>
+	<1468816661-6345-3-git-send-email-namhyung@kernel.org>
+	<578C852A.1030502@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20160718095439.1eabb340.cornelia.huck@de.ibm.com>
+In-Reply-To: <578C852A.1030502@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,122 +20,133 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
 Cc: Tony Luck <tony.luck@intel.com>, Radim Kr??m???? <rkrcmar@redhat.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Anton Vorontsov <anton@enomsg.org>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, qemu-devel@nongnu.org, Minchan Kim <minchan@kernel.org>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Hello,
 
-On Mon, Jul 18, 2016 at 09:54:39AM +0200, Cornelia Huck wrote:
-> On Mon, 18 Jul 2016 13:37:39 +0900
-> Namhyung Kim <namhyung@kernel.org> wrote:
+On Mon, Jul 18, 2016 at 09:28:42AM +0200, Christian Borntraeger wrote:
+> On 07/18/2016 06:37 AM, Namhyung Kim wrote:
 > 
-> > The virtio pstore driver provides interface to the pstore subsystem so
-> > that the guest kernel's log/dump message can be saved on the host
-> > machine.  Users can access the log file directly on the host, or on the
-> > guest at the next boot using pstore filesystem.  It currently deals with
-> > kernel log (printk) buffer only, but we can extend it to have other
-> > information (like ftrace dump) later.
-> 
-> Like the idea.
+> Can you do the virtio-mmio and virtio-ccw plumbing as well, or
+> do you need help with that?
 
-Thanks!
-
-> 
-> > 
-> > It supports legacy PCI device using single order-2 page buffer.  As all
-> 
-> There should not be anything in there that limits this to pci, no?
-
-Yep, there's no restriction AFAIK.  I just choose it to implement the poc
-code quickly.
-
-> 
-> > operation of pstore is synchronous, it would be fine IMHO.  However I
-> > don't know how to make write operation synchronous since it's called
-> > with a spinlock held (from any context including NMI).
-> > 
-> > Cc: Paolo Bonzini <pbonzini@redhat.com>
-> > Cc: Radim Kr??m???? <rkrcmar@redhat.com>
-> > Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> > Cc: Anthony Liguori <aliguori@amazon.com>
-> > Cc: Anton Vorontsov <anton@enomsg.org>
-> > Cc: Colin Cross <ccross@android.com>
-> > Cc: Kees Cook <keescook@chromium.org>
-> > Cc: Tony Luck <tony.luck@intel.com>
-> > Cc: Steven Rostedt <rostedt@goodmis.org>
-> > Cc: Ingo Molnar <mingo@kernel.org>
-> > Cc: Minchan Kim <minchan@kernel.org>
-> > Cc: kvm@vger.kernel.org
-> > Cc: qemu-devel@nongnu.org
-> > Cc: virtualization@lists.linux-foundation.org
-> > Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-> > ---
-> >  drivers/virtio/Kconfig             |  10 ++
-> >  drivers/virtio/Makefile            |   1 +
-> >  drivers/virtio/virtio_pstore.c     | 317 +++++++++++++++++++++++++++++++++++++
-> >  include/uapi/linux/Kbuild          |   1 +
-> >  include/uapi/linux/virtio_ids.h    |   1 +
-> >  include/uapi/linux/virtio_pstore.h |  53 +++++++
-> >  6 files changed, 383 insertions(+)
-> >  create mode 100644 drivers/virtio/virtio_pstore.c
-> >  create mode 100644 include/uapi/linux/virtio_pstore.h
-> > 
-> 
-> (...)
-> 
-> > diff --git a/drivers/virtio/virtio_pstore.c b/drivers/virtio/virtio_pstore.c
-> > new file mode 100644
-> > index 000000000000..6fe62c0f1508
-> > --- /dev/null
-> > +++ b/drivers/virtio/virtio_pstore.c
-> > @@ -0,0 +1,317 @@
-> > +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-> > +
-> > +#include <linux/kernel.h>
-> > +#include <linux/module.h>
-> > +#include <linux/pstore.h>
-> > +#include <linux/virtio.h>
-> > +#include <linux/virtio_config.h>
-> > +#include <uapi/linux/virtio_ids.h>
-> > +#include <uapi/linux/virtio_pstore.h>
-> > +
-> > +#define VIRT_PSTORE_ORDER    2
-> > +#define VIRT_PSTORE_BUFSIZE  (4096 << VIRT_PSTORE_ORDER)
-> 
-> It may make sense to make the size of the buffer configurable through
-> the config space.
-
-Right.  I'm considering it too, but it needs a buffer larger than
-kmsg_bytes (= 10K) to work properly in the current implementation.  As
-this version is just to verify the idea is sane and useful, I used a
-fixed size buffer.  Will change in the next version.
-
-> 
-> (...)
-> 
-> > diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
-> > index 77925f587b15..cba63225d85a 100644
-> > --- a/include/uapi/linux/virtio_ids.h
-> > +++ b/include/uapi/linux/virtio_ids.h
-> > @@ -41,5 +41,6 @@
-> >  #define VIRTIO_ID_CAIF	       12 /* Virtio caif */
-> >  #define VIRTIO_ID_GPU          16 /* virtio GPU */
-> >  #define VIRTIO_ID_INPUT        18 /* virtio input */
-> > +#define VIRTIO_ID_PSTORE       19 /* virtio pstore */
-> 
-> This id is already used by one of the new device types queued but not
-> yet in the standard. IIRC, 22 is the next free one.
-
-Ok, will update.
-
-> 
-> Speaking of the standard: I think it makes sense to at least reserve a
-> device id for pstore, as the idea is sound. Maybe prepare a patch to
-> the standard as well if you have time?
-
-I'd love to.  As I mentioned earlier, I don't have enough knowledge in
-this area.  Could you please provide some links about how can I do that?
+Any help would be greatly appreciated!
 
 Thanks,
 Namhyung
+
+
+> 
+> [...]
+> > diff --git a/hw/virtio/virtio-pci.c b/hw/virtio/virtio-pci.c
+> > index 2b34b43..8281b80 100644
+> > --- a/hw/virtio/virtio-pci.c
+> > +++ b/hw/virtio/virtio-pci.c
+> > @@ -2416,6 +2416,55 @@ static const TypeInfo virtio_host_pci_info = {
+> >  };
+> >  #endif
+> > 
+> > +/* virtio-pstore-pci */
+> > +
+> > +static void virtio_pstore_pci_realize(VirtIOPCIProxy *vpci_dev, Error **errp)
+> > +{
+> > +    VirtIOPstorePCI *vps = VIRTIO_PSTORE_PCI(vpci_dev);
+> > +    DeviceState *vdev = DEVICE(&vps->vdev);
+> > +    Error *err = NULL;
+> > +
+> > +    qdev_set_parent_bus(vdev, BUS(&vpci_dev->bus));
+> > +    object_property_set_bool(OBJECT(vdev), true, "realized", &err);
+> > +    if (err) {
+> > +        error_propagate(errp, err);
+> > +        return;
+> > +    }
+> > +}
+> > +
+> > +static void virtio_pstore_pci_class_init(ObjectClass *klass, void *data)
+> > +{
+> > +    DeviceClass *dc = DEVICE_CLASS(klass);
+> > +    VirtioPCIClass *k = VIRTIO_PCI_CLASS(klass);
+> > +    PCIDeviceClass *pcidev_k = PCI_DEVICE_CLASS(klass);
+> > +
+> > +    k->realize = virtio_pstore_pci_realize;
+> > +    set_bit(DEVICE_CATEGORY_MISC, dc->categories);
+> > +
+> > +    pcidev_k->vendor_id = PCI_VENDOR_ID_REDHAT_QUMRANET;
+> > +    pcidev_k->device_id = PCI_DEVICE_ID_VIRTIO_PSTORE;
+> > +    pcidev_k->revision = VIRTIO_PCI_ABI_VERSION;
+> > +    pcidev_k->class_id = PCI_CLASS_OTHERS;
+> > +}
+> > +
+> > +static void virtio_pstore_pci_instance_init(Object *obj)
+> > +{
+> > +    VirtIOPstorePCI *dev = VIRTIO_PSTORE_PCI(obj);
+> > +
+> > +    virtio_instance_init_common(obj, &dev->vdev, sizeof(dev->vdev),
+> > +                                TYPE_VIRTIO_PSTORE);
+> > +    object_property_add_alias(obj, "directory", OBJECT(&dev->vdev),
+> > +                              "directory", &error_abort);
+> > +}
+> > +
+> > +static const TypeInfo virtio_pstore_pci_info = {
+> > +    .name          = TYPE_VIRTIO_PSTORE_PCI,
+> > +    .parent        = TYPE_VIRTIO_PCI,
+> > +    .instance_size = sizeof(VirtIOPstorePCI),
+> > +    .instance_init = virtio_pstore_pci_instance_init,
+> > +    .class_init    = virtio_pstore_pci_class_init,
+> > +};
+> > +
+> >  /* virtio-pci-bus */
+> > 
+> >  static void virtio_pci_bus_new(VirtioBusState *bus, size_t bus_size,
+> > @@ -2485,6 +2534,7 @@ static void virtio_pci_register_types(void)
+> >  #ifdef CONFIG_VHOST_SCSI
+> >      type_register_static(&vhost_scsi_pci_info);
+> >  #endif
+> > +    type_register_static(&virtio_pstore_pci_info);
+> >  }
+> > 
+> >  type_init(virtio_pci_register_types)
+> > diff --git a/hw/virtio/virtio-pci.h b/hw/virtio/virtio-pci.h
+> > index e4548c2..b4c039f 100644
+> > --- a/hw/virtio/virtio-pci.h
+> > +++ b/hw/virtio/virtio-pci.h
+> > @@ -31,6 +31,7 @@
+> >  #ifdef CONFIG_VHOST_SCSI
+> >  #include "hw/virtio/vhost-scsi.h"
+> >  #endif
+> > +#include "hw/virtio/virtio-pstore.h"
+> > 
+> >  typedef struct VirtIOPCIProxy VirtIOPCIProxy;
+> >  typedef struct VirtIOBlkPCI VirtIOBlkPCI;
+> > @@ -44,6 +45,7 @@ typedef struct VirtIOInputPCI VirtIOInputPCI;
+> >  typedef struct VirtIOInputHIDPCI VirtIOInputHIDPCI;
+> >  typedef struct VirtIOInputHostPCI VirtIOInputHostPCI;
+> >  typedef struct VirtIOGPUPCI VirtIOGPUPCI;
+> > +typedef struct VirtIOPstorePCI VirtIOPstorePCI;
+> > 
+> >  /* virtio-pci-bus */
+> > 
+> > @@ -311,6 +313,18 @@ struct VirtIOGPUPCI {
+> >      VirtIOGPU vdev;
+> >  };
+> > 
+> > +/*
+> > + * virtio-pstore-pci: This extends VirtioPCIProxy.
+> > + */
+> > +#define TYPE_VIRTIO_PSTORE_PCI "virtio-pstore-pci"
+> > +#define VIRTIO_PSTORE_PCI(obj) \
+> > +        OBJECT_CHECK(VirtIOPstorePCI, (obj), TYPE_VIRTIO_PSTORE_PCI)
+> > +
+> > +struct VirtIOPstorePCI {
+> > +    VirtIOPCIProxy parent_obj;
+> > +    VirtIOPstore vdev;
+> > +};
+> > +
+> >  /* Virtio ABI version, if we increment this, we break the guest driver. */
+> >  #define VIRTIO_PCI_ABI_VERSION          0
+> > 
+> 
+> [...]
+> 
