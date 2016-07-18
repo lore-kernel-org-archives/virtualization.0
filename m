@@ -1,14 +1,14 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 2/3] qemu: Implement virtio-pstore device
-Date: Mon, 18 Jul 2016 09:28:42 +0200
-Message-ID: <578C852A.1030502@de.ibm.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH 1/3] virtio: Basic implementation of virtio pstore driver
+Date: Mon, 18 Jul 2016 09:54:39 +0200
+Message-ID: <20160718095439.1eabb340.cornelia.huck__49584.4828234569$1468828527$gmane$org@de.ibm.com>
 References: <1468816661-6345-1-git-send-email-namhyung@kernel.org>
-	<1468816661-6345-3-git-send-email-namhyung@kernel.org>
+	<1468816661-6345-2-git-send-email-namhyung@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1468816661-6345-3-git-send-email-namhyung@kernel.org>
+In-Reply-To: <1468816661-6345-2-git-send-email-namhyung@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,122 +18,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Namhyung Kim <namhyung@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: Tony Luck <tony.luck@intel.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Namhyung Kim <namhyung@gmail.com>, Anton Vorontsov <anton@enomsg.org>, qemu-devel@nongnu.org, Steven Rostedt <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Minchan Kim <minchan@kernel.org>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, Paolo Bonzini <pbonzini@redhat.com>, Ingo Molnar <mingo@kernel.org>
+To: Namhyung Kim <namhyung@kernel.org>
+Cc: Tony Luck <tony.luck@intel.com>, Radim =?UTF-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Anton Vorontsov <anton@enomsg.org>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, qemu-devel@nongnu.org, Minchan Kim <minchan@kernel.org>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/18/2016 06:37 AM, Namhyung Kim wrote:
-
-Can you do the virtio-mmio and virtio-ccw plumbing as well, or
-do you need help with that?
-
-[...]
-> diff --git a/hw/virtio/virtio-pci.c b/hw/virtio/virtio-pci.c
-> index 2b34b43..8281b80 100644
-> --- a/hw/virtio/virtio-pci.c
-> +++ b/hw/virtio/virtio-pci.c
-> @@ -2416,6 +2416,55 @@ static const TypeInfo virtio_host_pci_info = {
->  };
->  #endif
-> 
-> +/* virtio-pstore-pci */
-> +
-> +static void virtio_pstore_pci_realize(VirtIOPCIProxy *vpci_dev, Error **errp)
-> +{
-> +    VirtIOPstorePCI *vps = VIRTIO_PSTORE_PCI(vpci_dev);
-> +    DeviceState *vdev = DEVICE(&vps->vdev);
-> +    Error *err = NULL;
-> +
-> +    qdev_set_parent_bus(vdev, BUS(&vpci_dev->bus));
-> +    object_property_set_bool(OBJECT(vdev), true, "realized", &err);
-> +    if (err) {
-> +        error_propagate(errp, err);
-> +        return;
-> +    }
-> +}
-> +
-> +static void virtio_pstore_pci_class_init(ObjectClass *klass, void *data)
-> +{
-> +    DeviceClass *dc = DEVICE_CLASS(klass);
-> +    VirtioPCIClass *k = VIRTIO_PCI_CLASS(klass);
-> +    PCIDeviceClass *pcidev_k = PCI_DEVICE_CLASS(klass);
-> +
-> +    k->realize = virtio_pstore_pci_realize;
-> +    set_bit(DEVICE_CATEGORY_MISC, dc->categories);
-> +
-> +    pcidev_k->vendor_id = PCI_VENDOR_ID_REDHAT_QUMRANET;
-> +    pcidev_k->device_id = PCI_DEVICE_ID_VIRTIO_PSTORE;
-> +    pcidev_k->revision = VIRTIO_PCI_ABI_VERSION;
-> +    pcidev_k->class_id = PCI_CLASS_OTHERS;
-> +}
-> +
-> +static void virtio_pstore_pci_instance_init(Object *obj)
-> +{
-> +    VirtIOPstorePCI *dev = VIRTIO_PSTORE_PCI(obj);
-> +
-> +    virtio_instance_init_common(obj, &dev->vdev, sizeof(dev->vdev),
-> +                                TYPE_VIRTIO_PSTORE);
-> +    object_property_add_alias(obj, "directory", OBJECT(&dev->vdev),
-> +                              "directory", &error_abort);
-> +}
-> +
-> +static const TypeInfo virtio_pstore_pci_info = {
-> +    .name          = TYPE_VIRTIO_PSTORE_PCI,
-> +    .parent        = TYPE_VIRTIO_PCI,
-> +    .instance_size = sizeof(VirtIOPstorePCI),
-> +    .instance_init = virtio_pstore_pci_instance_init,
-> +    .class_init    = virtio_pstore_pci_class_init,
-> +};
-> +
->  /* virtio-pci-bus */
-> 
->  static void virtio_pci_bus_new(VirtioBusState *bus, size_t bus_size,
-> @@ -2485,6 +2534,7 @@ static void virtio_pci_register_types(void)
->  #ifdef CONFIG_VHOST_SCSI
->      type_register_static(&vhost_scsi_pci_info);
->  #endif
-> +    type_register_static(&virtio_pstore_pci_info);
->  }
-> 
->  type_init(virtio_pci_register_types)
-> diff --git a/hw/virtio/virtio-pci.h b/hw/virtio/virtio-pci.h
-> index e4548c2..b4c039f 100644
-> --- a/hw/virtio/virtio-pci.h
-> +++ b/hw/virtio/virtio-pci.h
-> @@ -31,6 +31,7 @@
->  #ifdef CONFIG_VHOST_SCSI
->  #include "hw/virtio/vhost-scsi.h"
->  #endif
-> +#include "hw/virtio/virtio-pstore.h"
-> 
->  typedef struct VirtIOPCIProxy VirtIOPCIProxy;
->  typedef struct VirtIOBlkPCI VirtIOBlkPCI;
-> @@ -44,6 +45,7 @@ typedef struct VirtIOInputPCI VirtIOInputPCI;
->  typedef struct VirtIOInputHIDPCI VirtIOInputHIDPCI;
->  typedef struct VirtIOInputHostPCI VirtIOInputHostPCI;
->  typedef struct VirtIOGPUPCI VirtIOGPUPCI;
-> +typedef struct VirtIOPstorePCI VirtIOPstorePCI;
-> 
->  /* virtio-pci-bus */
-> 
-> @@ -311,6 +313,18 @@ struct VirtIOGPUPCI {
->      VirtIOGPU vdev;
->  };
-> 
-> +/*
-> + * virtio-pstore-pci: This extends VirtioPCIProxy.
-> + */
-> +#define TYPE_VIRTIO_PSTORE_PCI "virtio-pstore-pci"
-> +#define VIRTIO_PSTORE_PCI(obj) \
-> +        OBJECT_CHECK(VirtIOPstorePCI, (obj), TYPE_VIRTIO_PSTORE_PCI)
-> +
-> +struct VirtIOPstorePCI {
-> +    VirtIOPCIProxy parent_obj;
-> +    VirtIOPstore vdev;
-> +};
-> +
->  /* Virtio ABI version, if we increment this, we break the guest driver. */
->  #define VIRTIO_PCI_ABI_VERSION          0
-> 
-
-[...]
+T24gTW9uLCAxOCBKdWwgMjAxNiAxMzozNzozOSArMDkwMApOYW1oeXVuZyBLaW0gPG5hbWh5dW5n
+QGtlcm5lbC5vcmc+IHdyb3RlOgoKPiBUaGUgdmlydGlvIHBzdG9yZSBkcml2ZXIgcHJvdmlkZXMg
+aW50ZXJmYWNlIHRvIHRoZSBwc3RvcmUgc3Vic3lzdGVtIHNvCj4gdGhhdCB0aGUgZ3Vlc3Qga2Vy
+bmVsJ3MgbG9nL2R1bXAgbWVzc2FnZSBjYW4gYmUgc2F2ZWQgb24gdGhlIGhvc3QKPiBtYWNoaW5l
+LiAgVXNlcnMgY2FuIGFjY2VzcyB0aGUgbG9nIGZpbGUgZGlyZWN0bHkgb24gdGhlIGhvc3QsIG9y
+IG9uIHRoZQo+IGd1ZXN0IGF0IHRoZSBuZXh0IGJvb3QgdXNpbmcgcHN0b3JlIGZpbGVzeXN0ZW0u
+ICBJdCBjdXJyZW50bHkgZGVhbHMgd2l0aAo+IGtlcm5lbCBsb2cgKHByaW50aykgYnVmZmVyIG9u
+bHksIGJ1dCB3ZSBjYW4gZXh0ZW5kIGl0IHRvIGhhdmUgb3RoZXIKPiBpbmZvcm1hdGlvbiAobGlr
+ZSBmdHJhY2UgZHVtcCkgbGF0ZXIuCgpMaWtlIHRoZSBpZGVhLgoKPiAKPiBJdCBzdXBwb3J0cyBs
+ZWdhY3kgUENJIGRldmljZSB1c2luZyBzaW5nbGUgb3JkZXItMiBwYWdlIGJ1ZmZlci4gIEFzIGFs
+bAoKVGhlcmUgc2hvdWxkIG5vdCBiZSBhbnl0aGluZyBpbiB0aGVyZSB0aGF0IGxpbWl0cyB0aGlz
+IHRvIHBjaSwgbm8/Cgo+IG9wZXJhdGlvbiBvZiBwc3RvcmUgaXMgc3luY2hyb25vdXMsIGl0IHdv
+dWxkIGJlIGZpbmUgSU1ITy4gIEhvd2V2ZXIgSQo+IGRvbid0IGtub3cgaG93IHRvIG1ha2Ugd3Jp
+dGUgb3BlcmF0aW9uIHN5bmNocm9ub3VzIHNpbmNlIGl0J3MgY2FsbGVkCj4gd2l0aCBhIHNwaW5s
+b2NrIGhlbGQgKGZyb20gYW55IGNvbnRleHQgaW5jbHVkaW5nIE5NSSkuCj4gCj4gQ2M6IFBhb2xv
+IEJvbnppbmkgPHBib256aW5pQHJlZGhhdC5jb20+Cj4gQ2M6IFJhZGltIEtyxI1tw6HFmSA8cmty
+Y21hckByZWRoYXQuY29tPgo+IENjOiAiTWljaGFlbCBTLiBUc2lya2luIiA8bXN0QHJlZGhhdC5j
+b20+Cj4gQ2M6IEFudGhvbnkgTGlndW9yaSA8YWxpZ3VvcmlAYW1hem9uLmNvbT4KPiBDYzogQW50
+b24gVm9yb250c292IDxhbnRvbkBlbm9tc2cub3JnPgo+IENjOiBDb2xpbiBDcm9zcyA8Y2Nyb3Nz
+QGFuZHJvaWQuY29tPgo+IENjOiBLZWVzIENvb2sgPGtlZXNjb29rQGNocm9taXVtLm9yZz4KPiBD
+YzogVG9ueSBMdWNrIDx0b255Lmx1Y2tAaW50ZWwuY29tPgo+IENjOiBTdGV2ZW4gUm9zdGVkdCA8
+cm9zdGVkdEBnb29kbWlzLm9yZz4KPiBDYzogSW5nbyBNb2xuYXIgPG1pbmdvQGtlcm5lbC5vcmc+
+Cj4gQ2M6IE1pbmNoYW4gS2ltIDxtaW5jaGFuQGtlcm5lbC5vcmc+Cj4gQ2M6IGt2bUB2Z2VyLmtl
+cm5lbC5vcmcKPiBDYzogcWVtdS1kZXZlbEBub25nbnUub3JnCj4gQ2M6IHZpcnR1YWxpemF0aW9u
+QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCj4gU2lnbmVkLW9mZi1ieTogTmFtaHl1bmcgS2lt
+IDxuYW1oeXVuZ0BrZXJuZWwub3JnPgo+IC0tLQo+ICBkcml2ZXJzL3ZpcnRpby9LY29uZmlnICAg
+ICAgICAgICAgIHwgIDEwICsrCj4gIGRyaXZlcnMvdmlydGlvL01ha2VmaWxlICAgICAgICAgICAg
+fCAgIDEgKwo+ICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcHN0b3JlLmMgICAgIHwgMzE3ICsrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysKPiAgaW5jbHVkZS91YXBpL2xpbnV4L0ti
+dWlsZCAgICAgICAgICB8ICAgMSArCj4gIGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9faWRzLmgg
+ICAgfCAgIDEgKwo+ICBpbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX3BzdG9yZS5oIHwgIDUzICsr
+KysrKysKPiAgNiBmaWxlcyBjaGFuZ2VkLCAzODMgaW5zZXJ0aW9ucygrKQo+ICBjcmVhdGUgbW9k
+ZSAxMDA2NDQgZHJpdmVycy92aXJ0aW8vdmlydGlvX3BzdG9yZS5jCj4gIGNyZWF0ZSBtb2RlIDEw
+MDY0NCBpbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX3BzdG9yZS5oCj4gCgooLi4uKQoKPiBkaWZm
+IC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3BzdG9yZS5jIGIvZHJpdmVycy92aXJ0aW8v
+dmlydGlvX3BzdG9yZS5jCj4gbmV3IGZpbGUgbW9kZSAxMDA2NDQKPiBpbmRleCAwMDAwMDAwMDAw
+MDAuLjZmZTYyYzBmMTUwOAo+IC0tLSAvZGV2L251bGwKPiArKysgYi9kcml2ZXJzL3ZpcnRpby92
+aXJ0aW9fcHN0b3JlLmMKPiBAQCAtMCwwICsxLDMxNyBAQAo+ICsjZGVmaW5lIHByX2ZtdChmbXQp
+IEtCVUlMRF9NT0ROQU1FICI6ICIgZm10Cj4gKwo+ICsjaW5jbHVkZSA8bGludXgva2VybmVsLmg+
+Cj4gKyNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4KPiArI2luY2x1ZGUgPGxpbnV4L3BzdG9yZS5o
+Pgo+ICsjaW5jbHVkZSA8bGludXgvdmlydGlvLmg+Cj4gKyNpbmNsdWRlIDxsaW51eC92aXJ0aW9f
+Y29uZmlnLmg+Cj4gKyNpbmNsdWRlIDx1YXBpL2xpbnV4L3ZpcnRpb19pZHMuaD4KPiArI2luY2x1
+ZGUgPHVhcGkvbGludXgvdmlydGlvX3BzdG9yZS5oPgo+ICsKPiArI2RlZmluZSBWSVJUX1BTVE9S
+RV9PUkRFUiAgICAyCj4gKyNkZWZpbmUgVklSVF9QU1RPUkVfQlVGU0laRSAgKDQwOTYgPDwgVklS
+VF9QU1RPUkVfT1JERVIpCgpJdCBtYXkgbWFrZSBzZW5zZSB0byBtYWtlIHRoZSBzaXplIG9mIHRo
+ZSBidWZmZXIgY29uZmlndXJhYmxlIHRocm91Z2gKdGhlIGNvbmZpZyBzcGFjZS4KCiguLi4pCgo+
+IGRpZmYgLS1naXQgYS9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2lkcy5oIGIvaW5jbHVkZS91
+YXBpL2xpbnV4L3ZpcnRpb19pZHMuaAo+IGluZGV4IDc3OTI1ZjU4N2IxNS4uY2JhNjMyMjVkODVh
+IDEwMDY0NAo+IC0tLSBhL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9faWRzLmgKPiArKysgYi9p
+bmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2lkcy5oCj4gQEAgLTQxLDUgKzQxLDYgQEAKPiAgI2Rl
+ZmluZSBWSVJUSU9fSURfQ0FJRgkgICAgICAgMTIgLyogVmlydGlvIGNhaWYgKi8KPiAgI2RlZmlu
+ZSBWSVJUSU9fSURfR1BVICAgICAgICAgIDE2IC8qIHZpcnRpbyBHUFUgKi8KPiAgI2RlZmluZSBW
+SVJUSU9fSURfSU5QVVQgICAgICAgIDE4IC8qIHZpcnRpbyBpbnB1dCAqLwo+ICsjZGVmaW5lIFZJ
+UlRJT19JRF9QU1RPUkUgICAgICAgMTkgLyogdmlydGlvIHBzdG9yZSAqLwoKVGhpcyBpZCBpcyBh
+bHJlYWR5IHVzZWQgYnkgb25lIG9mIHRoZSBuZXcgZGV2aWNlIHR5cGVzIHF1ZXVlZCBidXQgbm90
+CnlldCBpbiB0aGUgc3RhbmRhcmQuIElJUkMsIDIyIGlzIHRoZSBuZXh0IGZyZWUgb25lLgoKU3Bl
+YWtpbmcgb2YgdGhlIHN0YW5kYXJkOiBJIHRoaW5rIGl0IG1ha2VzIHNlbnNlIHRvIGF0IGxlYXN0
+IHJlc2VydmUgYQpkZXZpY2UgaWQgZm9yIHBzdG9yZSwgYXMgdGhlIGlkZWEgaXMgc291bmQuIE1h
+eWJlIHByZXBhcmUgYSBwYXRjaCB0bwp0aGUgc3RhbmRhcmQgYXMgd2VsbCBpZiB5b3UgaGF2ZSB0
+aW1lPwoKPiAgCj4gICNlbmRpZiAvKiBfTElOVVhfVklSVElPX0lEU19IICovCgpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
+aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
+Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
+b24=
