@@ -1,16 +1,13 @@
 From: Namhyung Kim <namhyung@kernel.org>
-Subject: Re: [PATCH 2/3] qemu: Implement virtio-pstore device
-Date: Mon, 18 Jul 2016 23:21:18 +0900
-Message-ID: <20160718142118.GA16575__14161.9147886106$1468853175$gmane$org@danjae.aot.lge.com>
+Subject: [PATCH 1/3] virtio: Basic implementation of virtio pstore driver
+Date: Mon, 18 Jul 2016 13:37:39 +0900
+Message-ID: <1468816661-6345-2-git-send-email-namhyung__16367.0522430495$1468853809$gmane$org@kernel.org>
 References: <1468816661-6345-1-git-send-email-namhyung@kernel.org>
-	<1468816661-6345-3-git-send-email-namhyung@kernel.org>
-	<20160718100353.GA15163@stefanha-x1.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160718100353.GA15163@stefanha-x1.localdomain>
+In-Reply-To: <1468816661-6345-1-git-send-email-namhyung@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,468 +17,260 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: Tony Luck <tony.luck@intel.com>, Radim Kr??m???? <rkrcmar@redhat.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Anton Vorontsov <anton@enomsg.org>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, qemu-devel@nongnu.org, Minchan Kim <minchan@kernel.org>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@kernel.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Tony Luck <tony.luck@intel.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Anton Vorontsov <anton@enomsg.org>, qemu-devel@nongnu.org, Steven Rostedt <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Minchan Kim <minchan@kernel.org>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, Paolo Bonzini <pbonzini@redhat.com>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello,
-
-On Mon, Jul 18, 2016 at 11:03:53AM +0100, Stefan Hajnoczi wrote:
-> On Mon, Jul 18, 2016 at 01:37:40PM +0900, Namhyung Kim wrote:
-> > From: Namhyung Kim <namhyung@gmail.com>
-> > 
-> > Add virtio pstore device to allow kernel log files saved on the host.
-> > It will save the log files on the directory given by pstore device
-> > option.
-> > 
-> >   $ qemu-system-x86_64 -device virtio-pstore,directory=dir-xx ...
-> > 
-> >   (guest) # echo c > /proc/sysrq-trigger
-> > 
-> >   $ ls dir-xx
-> >   dmesg-0.enc.z  dmesg-1.enc.z
-> > 
-> > The log files are usually compressed using zlib.  Users can see the log
-> > messages directly on the host or on the guest (using pstore filesystem).
-> 
-> The implementation is synchronous (i.e. can pause guest code execution),
-> does not handle write errors, and does not limit the amount of data the
-> guest can write.  This is sufficient for ad-hoc debugging and usage with
-> trusted guests.
-> 
-> If you want this to be available in environments where the guest isn't
-> trusted then there must be a limit on how much the guest can write or
-> some kind of log rotation.
-
-Right.  The synchronous IO is required by the pstore subsystem
-implementation AFAIK (it uses a single psinfo->buf in the loop).  And
-I agree that it should have a way to handle write errors and to limit
-amount of data.
-
-> 
-> > 
-> > Cc: Paolo Bonzini <pbonzini@redhat.com>
-> > Cc: Radim Kr??m???? <rkrcmar@redhat.com>
-> > Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> > Cc: Anthony Liguori <aliguori@amazon.com>
-> > Cc: Anton Vorontsov <anton@enomsg.org>
-> > Cc: Colin Cross <ccross@android.com>
-> > Cc: Kees Cook <keescook@chromium.org>
-> > Cc: Tony Luck <tony.luck@intel.com>
-> > Cc: Steven Rostedt <rostedt@goodmis.org>
-> > Cc: Ingo Molnar <mingo@kernel.org>
-> > Cc: Minchan Kim <minchan@kernel.org>
-> > Cc: kvm@vger.kernel.org
-> > Cc: qemu-devel@nongnu.org
-> > Cc: virtualization@lists.linux-foundation.org
-> > Signed-off-by: Namhyung Kim <namhyung@gmail.com>
-> > ---
-
-[SNIP]
-> > +
-> > +static void virtio_pstore_to_filename(VirtIOPstore *s, char *buf, size_t sz,
-> > +                                      struct virtio_pstore_hdr *hdr)
-> > +{
-> > +    const char *basename;
-> > +
-> > +    switch (hdr->type) {
-> 
-> Missing le16_to_cpu()?
-> 
-> > +    case VIRTIO_PSTORE_TYPE_DMESG:
-> > +        basename = "dmesg";
-> > +        break;
-> > +    default:
-> > +        basename = "unknown";
-> > +        break;
-> > +    }
-> > +
-> > +    snprintf(buf, sz, "%s/%s-%llu%s", s->directory, basename,
-> > +             (unsigned long long) hdr->id,
-> 
-> Missing le64_to_cpu()?
-> 
-> > +             hdr->flags & VIRTIO_PSTORE_FL_COMPRESSED ? ".enc.z" : "");
-> 
-> Missing le32_to_cpu()?
-
-Oops, will fix.
-
-> 
-> > +}
-> > +
-> > +static void virtio_pstore_from_filename(VirtIOPstore *s, char *name,
-> > +                                        char *buf, size_t sz,
-> > +                                        struct virtio_pstore_hdr *hdr)
-> > +{
-> > +    size_t len = strlen(name);
-> > +
-> > +    hdr->flags = 0;
-> > +    if (!strncmp(name + len - 6, ".enc.z", 6)) {
-> 
-> Please use g_str_has_suffix(name, ".enc.z") to avoid accessing before
-> the beginning of the string if the filename is shorter than 6
-> characters.
-
-Ah, ok.
-
-> 
-> > +        hdr->flags |= VIRTIO_PSTORE_FL_COMPRESSED;
-> > +    }
-> > +
-> > +    snprintf(buf, sz, "%s/%s", s->directory, name);
-> > +
-> > +    if (!strncmp(name, "dmesg-", 6)) {
-> 
-> g_str_has_prefix(name, "dmesg-")
-> 
-> > +        hdr->type = cpu_to_le16(VIRTIO_PSTORE_TYPE_DMESG);
-> > +        name += 6;
-> > +    } else if (!strncmp(name, "unknown-", 8)) {
-> 
-> g_str_has_prefix(name, "unknown-")
-
-Will change.
-
-> 
-> > +        hdr->type = cpu_to_le16(VIRTIO_PSTORE_TYPE_UNKNOWN);
-> > +        name += 8;
-> > +    }
-> > +
-> > +    qemu_strtoull(name, NULL, 0, &hdr->id);
-> > +}
-> > +
-> > +static ssize_t virtio_pstore_do_open(VirtIOPstore *s)
-> > +{
-> > +    s->dir = opendir(s->directory);
-> > +    if (s->dir == NULL) {
-> > +        return -1;
-> > +    }
-> > +
-> > +    return 0;
-> > +}
-> > +
-> > +static ssize_t virtio_pstore_do_read(VirtIOPstore *s, void *buf, size_t sz,
-> > +                                      struct virtio_pstore_hdr *hdr)
-> > +{
-> > +    char path[PATH_MAX];
-> > +    FILE *fp;
-> > +    ssize_t len;
-> > +    struct stat stbuf;
-> > +    struct dirent *dent;
-> > +
-> > +    if (s->dir == NULL) {
-> > +        return -1;
-> > +    }
-> > +
-> > +    dent = readdir(s->dir);
-> > +    while (dent) {
-> > +        if (dent->d_name[0] != '.') {
-> > +            break;
-> > +        }
-> > +        dent = readdir(s->dir);
-> > +    }
-> > +
-> > +    if (dent == NULL) {
-> > +        return 0;
-> > +    }
-> > +
-> > +    virtio_pstore_from_filename(s, dent->d_name, path, sizeof(path), hdr);
-> > +    if (stat(path, &stbuf) < 0) {
-> > +        return -1;
-> > +    }
-> 
-> Please use fstat(fileno(fp), &stbuf) after opening the file instead.
-> The race condition doesn't matter in this case but the race-free code is
-> just as simple so it's one less thing someone reading the code has to
-> worry about.
-
-Fair enough.
-
-> 
-> > +
-> > +    fp = fopen(path, "r");
-> > +    if (fp == NULL) {
-> > +        error_report("cannot open %s (%p %p)", path, s, s->directory);
-> > +        return -1;
-> > +    }
-> > +
-> > +    len = fread(buf, 1, sz, fp);
-> > +    if (len < 0 && errno == EAGAIN) {
-> > +        len = 0;
-> > +    }
-> > +
-> > +    hdr->id = cpu_to_le64(hdr->id);
-> > +    hdr->flags = cpu_to_le32(hdr->flags);
-> > +    hdr->time_sec = cpu_to_le64(stbuf.st_ctim.tv_sec);
-> > +    hdr->time_nsec = cpu_to_le32(stbuf.st_ctim.tv_nsec);
-> > +
-> > +    fclose(fp);
-> > +    return len;
-> > +}
-> > +
-
-[SNIP]
-> > +static void virtio_pstore_handle_io(VirtIODevice *vdev, VirtQueue *vq)
-> > +{
-> > +    VirtIOPstore *s = VIRTIO_PSTORE(vdev);
-> > +    VirtQueueElement *elem;
-> > +    struct virtio_pstore_hdr *hdr;
-> > +    ssize_t len;
-> > +
-> > +    for (;;) {
-> > +        elem = virtqueue_pop(vq, sizeof(VirtQueueElement));
-> > +        if (!elem) {
-> > +            return;
-> > +        }
-> > +
-> > +        hdr = elem->out_sg[0].iov_base;
-> > +        if (elem->out_sg[0].iov_len != sizeof(*hdr)) {
-> > +            error_report("invalid header size: %u",
-> > +                         (unsigned)elem->out_sg[0].iov_len);
-> > +            exit(1);
-> > +        }
-> 
-> Please use iov_to_buf() instead of directly accessing out_sg[].  Virtio
-> devices are not supposed to assume a particular iovec layout.  In other
-> words, virtio_pstore_hdr could be split across multiple out_sg[] iovecs.
-
-I got it.
-
-> 
-> You must also copy in data (similar to Linux syscall implementations) to
-> prevent the guest from modifying data while the command is processed.
-> Such race conditions could lead to security bugs.
-
-Ok, but this assumes the operation is synchronous.  I agree on your
-opinion if I could make it async.
-
-> 
-> > +
-> > +        switch (hdr->cmd) {
-> > +        case VIRTIO_PSTORE_CMD_OPEN:
-> > +            len = virtio_pstore_do_open(s);
-> > +            break;
-> > +        case VIRTIO_PSTORE_CMD_READ:
-> > +            len = virtio_pstore_do_read(s, elem->in_sg[0].iov_base,
-> > +                                        elem->in_sg[0].iov_len, hdr);
-> 
-> Same issue with iovec layout for in_sg[] here.  The guest driver must be
-> able to submit any in_sg[] iovec array and the device cannot assume
-> in_sg[0] is the only iovec to fill.
-
-Ok.
-
-> 
-> > +            break;
-> > +        case VIRTIO_PSTORE_CMD_WRITE:
-> > +            len = virtio_pstore_do_write(s, elem->out_sg[1].iov_base,
-> > +                                         elem->out_sg[1].iov_len, hdr);
-> > +            break;
-> > +        case VIRTIO_PSTORE_CMD_CLOSE:
-> > +            len = virtio_pstore_do_close(s);
-> > +            break;
-> > +        case VIRTIO_PSTORE_CMD_ERASE:
-> > +            len = virtio_pstore_do_erase(s, hdr);
-> > +            break;
-> > +        default:
-> > +            len = -1;
-> > +            break;
-> > +        }
-> > +
-> > +        if (len < 0) {
-> > +            return;
-> > +        }
-> > +
-> > +        virtqueue_push(vq, elem, len);
-> > +
-> > +        virtio_notify(vdev, vq);
-> > +        g_free(elem);
-> > +    }
-> > +}
-> > +
-> > +static void virtio_pstore_device_realize(DeviceState *dev, Error **errp)
-> > +{
-> > +    VirtIODevice *vdev = VIRTIO_DEVICE(dev);
-> > +    VirtIOPstore *s = VIRTIO_PSTORE(dev);
-> > +
-> > +    virtio_init(vdev, "virtio-pstore", VIRTIO_ID_PSTORE, 0);
-> > +
-> > +    s->vq = virtio_add_queue(vdev, 128, virtio_pstore_handle_io);
-> > +}
-> > +
-> > +static void virtio_pstore_device_unrealize(DeviceState *dev, Error **errp)
-> > +{
-> > +    VirtIODevice *vdev = VIRTIO_DEVICE(dev);
-> > +
-> > +    virtio_cleanup(vdev);
-> > +}
-> > +
-> > +static uint64_t get_features(VirtIODevice *vdev, uint64_t f, Error **errp)
-> > +{
-> > +    return f;
-> > +}
-> > +
-> > +static void pstore_get_directory(Object *obj, Visitor *v,
-> > +                                 const char *name, void *opaque,
-> > +                                 Error **errp)
-> > +{
-> > +    VirtIOPstore *s = opaque;
-> > +
-> > +    visit_type_str(v, name, &s->directory, errp);
-> > +}
-> > +
-> > +static void pstore_set_directory(Object *obj, Visitor *v,
-> > +                                 const char *name, void *opaque,
-> > +                                 Error **errp)
-> > +{
-> > +    VirtIOPstore *s = opaque;
-> > +    Error *local_err = NULL;
-> > +    char *value;
-> > +
-> > +    visit_type_str(v, name, &value, &local_err);
-> > +    if (local_err) {
-> > +        error_propagate(errp, local_err);
-> > +        return;
-> > +    }
-> > +
-> > +    g_free(s->directory);
-> > +    s->directory = strdup(value);
-> 
-> Please use g_strdup() since this is paired with g_free().
-> 
-> Or even simpler would be s->directory = value and do not g_free(value)
-> below.
-
-Ok, I was not sure whether I could use it without alloc/free pair.
-Will do it simpler way then. :)
-
-
-> 
-> > +
-> > +    g_free(value);
-> > +}
-> > +
-> > +static void pstore_release_directory(Object *obj, const char *name,
-> > +                                     void *opaque)
-> > +{
-> > +    VirtIOPstore *s = opaque;
-> > +
-> > +    g_free(s->directory);
-> > +    s->directory = NULL;
-> > +}
-> > +
-> > +static Property virtio_pstore_properties[] = {
-> > +    DEFINE_PROP_END_OF_LIST(),
-> > +};
-> > +
-> > +static void virtio_pstore_instance_init(Object *obj)
-> > +{
-> > +    VirtIOPstore *s = VIRTIO_PSTORE(obj);
-> > +
-> > +    object_property_add(obj, "directory", "str",
-> > +                        pstore_get_directory, pstore_set_directory,
-> > +                        pstore_release_directory, s, NULL);
-> > +}
-> > +
-> > +static void virtio_pstore_class_init(ObjectClass *klass, void *data)
-> > +{
-> > +    DeviceClass *dc = DEVICE_CLASS(klass);
-> > +    VirtioDeviceClass *vdc = VIRTIO_DEVICE_CLASS(klass);
-> > +
-> > +    dc->props = virtio_pstore_properties;
-> > +    set_bit(DEVICE_CATEGORY_MISC, dc->categories);
-> > +    vdc->realize = virtio_pstore_device_realize;
-> > +    vdc->unrealize = virtio_pstore_device_unrealize;
-> > +    vdc->get_features = get_features;
-> > +}
-> > +
-> > +static const TypeInfo virtio_pstore_info = {
-> > +    .name = TYPE_VIRTIO_PSTORE,
-> > +    .parent = TYPE_VIRTIO_DEVICE,
-> > +    .instance_size = sizeof(VirtIOPstore),
-> > +    .instance_init = virtio_pstore_instance_init,
-> > +    .class_init = virtio_pstore_class_init,
-> > +};
-> > +
-> > +static void virtio_register_types(void)
-> > +{
-> > +    type_register_static(&virtio_pstore_info);
-> > +}
-> > +
-> > +type_init(virtio_register_types)
-> > diff --git a/include/hw/pci/pci.h b/include/hw/pci/pci.h
-> > index 9ed1624..5689c6f 100644
-> > --- a/include/hw/pci/pci.h
-> > +++ b/include/hw/pci/pci.h
-> > @@ -79,6 +79,7 @@
-> >  #define PCI_DEVICE_ID_VIRTIO_SCSI        0x1004
-> >  #define PCI_DEVICE_ID_VIRTIO_RNG         0x1005
-> >  #define PCI_DEVICE_ID_VIRTIO_9P          0x1009
-> > +#define PCI_DEVICE_ID_VIRTIO_PSTORE      0x100a
-> >  
-> >  #define PCI_VENDOR_ID_REDHAT             0x1b36
-> >  #define PCI_DEVICE_ID_REDHAT_BRIDGE      0x0001
-> > diff --git a/include/hw/virtio/virtio-pstore.h b/include/hw/virtio/virtio-pstore.h
-> > new file mode 100644
-> > index 0000000..74cd1f6
-> > --- /dev/null
-> > +++ b/include/hw/virtio/virtio-pstore.h
-> > @@ -0,0 +1,30 @@
-> > +/*
-> > + * Virtio Pstore Support
-> > + *
-> > + * Authors:
-> > + *  Namhyung Kim      <namhyung@gmail.com>
-> > + *
-> > + * This work is licensed under the terms of the GNU GPL, version 2.  See
-> > + * the COPYING file in the top-level directory.
-> > + *
-> > + */
-> > +
-> > +#ifndef _QEMU_VIRTIO_PSTORE_H
-> > +#define _QEMU_VIRTIO_PSTORE_H
-> > +
-> > +#include "standard-headers/linux/virtio_pstore.h"
-> > +#include "hw/virtio/virtio.h"
-> > +#include "hw/pci/pci.h"
-> > +
-> > +#define TYPE_VIRTIO_PSTORE "virtio-pstore-device"
-> > +#define VIRTIO_PSTORE(obj) \
-> > +        OBJECT_CHECK(VirtIOPstore, (obj), TYPE_VIRTIO_PSTORE)
-> > +
-> > +typedef struct VirtIOPstore {
-> > +    VirtIODevice parent_obj;
-> > +    VirtQueue *vq;
-> > +    char *directory;
-> > +    DIR *dir;
-> > +} VirtIOPstore;
-> > +
-> > +#endif
-> > diff --git a/include/standard-headers/linux/virtio_ids.h b/include/standard-headers/linux/virtio_ids.h
-> > index 77925f5..cba6322 100644
-> > --- a/include/standard-headers/linux/virtio_ids.h
-> > +++ b/include/standard-headers/linux/virtio_ids.h
-> > @@ -41,5 +41,6 @@
-> >  #define VIRTIO_ID_CAIF	       12 /* Virtio caif */
-> >  #define VIRTIO_ID_GPU          16 /* virtio GPU */
-> >  #define VIRTIO_ID_INPUT        18 /* virtio input */
-> > +#define VIRTIO_ID_PSTORE       19 /* virtio pstore */
-> 
-> 19 has already been reserved.  22 is the next free ID (vsock, crypto,
-> and sdm are currently under review and already use 19, 20, and 21).
-
-I wasn't aware of the ongoing works but Cornelia already told me about
-it.  Will update.
-
-> 
-> Please send a VIRTIO draft specification to
-> virtio-dev@lists.oasis-open.org.  You can find information on the VIRTIO
-> standards process here:
-> https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=virtio
-
-Thank you very much for this information and your detailed review!
-I'll take a look at the virtio standards process too.
-
-Thanks,
-Namhyung
+VGhlIHZpcnRpbyBwc3RvcmUgZHJpdmVyIHByb3ZpZGVzIGludGVyZmFjZSB0byB0aGUgcHN0b3Jl
+IHN1YnN5c3RlbSBzbwp0aGF0IHRoZSBndWVzdCBrZXJuZWwncyBsb2cvZHVtcCBtZXNzYWdlIGNh
+biBiZSBzYXZlZCBvbiB0aGUgaG9zdAptYWNoaW5lLiAgVXNlcnMgY2FuIGFjY2VzcyB0aGUgbG9n
+IGZpbGUgZGlyZWN0bHkgb24gdGhlIGhvc3QsIG9yIG9uIHRoZQpndWVzdCBhdCB0aGUgbmV4dCBi
+b290IHVzaW5nIHBzdG9yZSBmaWxlc3lzdGVtLiAgSXQgY3VycmVudGx5IGRlYWxzIHdpdGgKa2Vy
+bmVsIGxvZyAocHJpbnRrKSBidWZmZXIgb25seSwgYnV0IHdlIGNhbiBleHRlbmQgaXQgdG8gaGF2
+ZSBvdGhlcgppbmZvcm1hdGlvbiAobGlrZSBmdHJhY2UgZHVtcCkgbGF0ZXIuCgpJdCBzdXBwb3J0
+cyBsZWdhY3kgUENJIGRldmljZSB1c2luZyBzaW5nbGUgb3JkZXItMiBwYWdlIGJ1ZmZlci4gIEFz
+IGFsbApvcGVyYXRpb24gb2YgcHN0b3JlIGlzIHN5bmNocm9ub3VzLCBpdCB3b3VsZCBiZSBmaW5l
+IElNSE8uICBIb3dldmVyIEkKZG9uJ3Qga25vdyBob3cgdG8gbWFrZSB3cml0ZSBvcGVyYXRpb24g
+c3luY2hyb25vdXMgc2luY2UgaXQncyBjYWxsZWQKd2l0aCBhIHNwaW5sb2NrIGhlbGQgKGZyb20g
+YW55IGNvbnRleHQgaW5jbHVkaW5nIE5NSSkuCgpDYzogUGFvbG8gQm9uemluaSA8cGJvbnppbmlA
+cmVkaGF0LmNvbT4KQ2M6IFJhZGltIEtyxI1tw6HFmSA8cmtyY21hckByZWRoYXQuY29tPgpDYzog
+Ik1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQuY29tPgpDYzogQW50aG9ueSBMaWd1b3Jp
+IDxhbGlndW9yaUBhbWF6b24uY29tPgpDYzogQW50b24gVm9yb250c292IDxhbnRvbkBlbm9tc2cu
+b3JnPgpDYzogQ29saW4gQ3Jvc3MgPGNjcm9zc0BhbmRyb2lkLmNvbT4KQ2M6IEtlZXMgQ29vayA8
+a2Vlc2Nvb2tAY2hyb21pdW0ub3JnPgpDYzogVG9ueSBMdWNrIDx0b255Lmx1Y2tAaW50ZWwuY29t
+PgpDYzogU3RldmVuIFJvc3RlZHQgPHJvc3RlZHRAZ29vZG1pcy5vcmc+CkNjOiBJbmdvIE1vbG5h
+ciA8bWluZ29Aa2VybmVsLm9yZz4KQ2M6IE1pbmNoYW4gS2ltIDxtaW5jaGFuQGtlcm5lbC5vcmc+
+CkNjOiBrdm1Admdlci5rZXJuZWwub3JnCkNjOiBxZW11LWRldmVsQG5vbmdudS5vcmcKQ2M6IHZp
+cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnClNpZ25lZC1vZmYtYnk6IE5h
+bWh5dW5nIEtpbSA8bmFtaHl1bmdAa2VybmVsLm9yZz4KLS0tCiBkcml2ZXJzL3ZpcnRpby9LY29u
+ZmlnICAgICAgICAgICAgIHwgIDEwICsrCiBkcml2ZXJzL3ZpcnRpby9NYWtlZmlsZSAgICAgICAg
+ICAgIHwgICAxICsKIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19wc3RvcmUuYyAgICAgfCAzMTcgKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKwogaW5jbHVkZS91YXBpL2xpbnV4L0ti
+dWlsZCAgICAgICAgICB8ICAgMSArCiBpbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2lkcy5oICAg
+IHwgICAxICsKIGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fcHN0b3JlLmggfCAgNTMgKysrKysr
+KwogNiBmaWxlcyBjaGFuZ2VkLCAzODMgaW5zZXJ0aW9ucygrKQogY3JlYXRlIG1vZGUgMTAwNjQ0
+IGRyaXZlcnMvdmlydGlvL3ZpcnRpb19wc3RvcmUuYwogY3JlYXRlIG1vZGUgMTAwNjQ0IGluY2x1
+ZGUvdWFwaS9saW51eC92aXJ0aW9fcHN0b3JlLmgKCmRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRp
+by9LY29uZmlnIGIvZHJpdmVycy92aXJ0aW8vS2NvbmZpZwppbmRleCA3NzU5MDMyMGQ0NGMuLjhm
+MGU2Yzc5NmMxMiAxMDA2NDQKLS0tIGEvZHJpdmVycy92aXJ0aW8vS2NvbmZpZworKysgYi9kcml2
+ZXJzL3ZpcnRpby9LY29uZmlnCkBAIC01OCw2ICs1OCwxNiBAQCBjb25maWcgVklSVElPX0lOUFVU
+CiAKIAkgSWYgdW5zdXJlLCBzYXkgTS4KIAorY29uZmlnIFZJUlRJT19QU1RPUkUKKwl0cmlzdGF0
+ZSAiVmlydGlvIHBzdG9yZSBkcml2ZXIiCisJZGVwZW5kcyBvbiBWSVJUSU8KKwlkZXBlbmRzIG9u
+IFBTVE9SRQorCS0tLWhlbHAtLS0KKwkgVGhpcyBkcml2ZXIgc3VwcG9ydHMgdmlydGlvIHBzdG9y
+ZSBkZXZpY2VzIHRvIHNhdmUvcmVzdG9yZQorCSBwYW5pYyBhbmQgb29wcyBtZXNzYWdlcyBvbiB0
+aGUgaG9zdC4KKworCSBJZiB1bnN1cmUsIHNheSBNLgorCiAgY29uZmlnIFZJUlRJT19NTUlPCiAJ
+dHJpc3RhdGUgIlBsYXRmb3JtIGJ1cyBkcml2ZXIgZm9yIG1lbW9yeSBtYXBwZWQgdmlydGlvIGRl
+dmljZXMiCiAJZGVwZW5kcyBvbiBIQVNfSU9NRU0gJiYgSEFTX0RNQQpkaWZmIC0tZ2l0IGEvZHJp
+dmVycy92aXJ0aW8vTWFrZWZpbGUgYi9kcml2ZXJzL3ZpcnRpby9NYWtlZmlsZQppbmRleCA0MWUz
+MGUzZGM4NDIuLmJlZTY4Y2IyNmQ0OCAxMDA2NDQKLS0tIGEvZHJpdmVycy92aXJ0aW8vTWFrZWZp
+bGUKKysrIGIvZHJpdmVycy92aXJ0aW8vTWFrZWZpbGUKQEAgLTUsMyArNSw0IEBAIHZpcnRpb19w
+Y2kteSA6PSB2aXJ0aW9fcGNpX21vZGVybi5vIHZpcnRpb19wY2lfY29tbW9uLm8KIHZpcnRpb19w
+Y2ktJChDT05GSUdfVklSVElPX1BDSV9MRUdBQ1kpICs9IHZpcnRpb19wY2lfbGVnYWN5Lm8KIG9i
+ai0kKENPTkZJR19WSVJUSU9fQkFMTE9PTikgKz0gdmlydGlvX2JhbGxvb24ubwogb2JqLSQoQ09O
+RklHX1ZJUlRJT19JTlBVVCkgKz0gdmlydGlvX2lucHV0Lm8KK29iai0kKENPTkZJR19WSVJUSU9f
+UFNUT1JFKSArPSB2aXJ0aW9fcHN0b3JlLm8KZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3Zp
+cnRpb19wc3RvcmUuYyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wc3RvcmUuYwpuZXcgZmlsZSBt
+b2RlIDEwMDY0NAppbmRleCAwMDAwMDAwMDAwMDAuLjZmZTYyYzBmMTUwOAotLS0gL2Rldi9udWxs
+CisrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wc3RvcmUuYwpAQCAtMCwwICsxLDMxNyBAQAor
+I2RlZmluZSBwcl9mbXQoZm10KSBLQlVJTERfTU9ETkFNRSAiOiAiIGZtdAorCisjaW5jbHVkZSA8
+bGludXgva2VybmVsLmg+CisjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+CisjaW5jbHVkZSA8bGlu
+dXgvcHN0b3JlLmg+CisjaW5jbHVkZSA8bGludXgvdmlydGlvLmg+CisjaW5jbHVkZSA8bGludXgv
+dmlydGlvX2NvbmZpZy5oPgorI2luY2x1ZGUgPHVhcGkvbGludXgvdmlydGlvX2lkcy5oPgorI2lu
+Y2x1ZGUgPHVhcGkvbGludXgvdmlydGlvX3BzdG9yZS5oPgorCisjZGVmaW5lIFZJUlRfUFNUT1JF
+X09SREVSICAgIDIKKyNkZWZpbmUgVklSVF9QU1RPUkVfQlVGU0laRSAgKDQwOTYgPDwgVklSVF9Q
+U1RPUkVfT1JERVIpCisKK3N0cnVjdCB2aXJ0aW9fcHN0b3JlIHsKKwlzdHJ1Y3QgdmlydGlvX2Rl
+dmljZQkqdmRldjsKKwlzdHJ1Y3QgdmlydHF1ZXVlCSp2cTsKKwlzdHJ1Y3QgcHN0b3JlX2luZm8J
+IHBzdG9yZTsKKwlzdHJ1Y3QgdmlydGlvX3BzdG9yZV9oZHIgaGRyOworCXNpemVfdAkJCSBidWZs
+ZW47CisJdTY0CQkJIGlkOworCisJLyogV2FpdGluZyBmb3IgaG9zdCB0byBhY2sgKi8KKwl3YWl0
+X3F1ZXVlX2hlYWRfdAlhY2tlZDsKK307CisKK3N0YXRpYyB1MTYgdG9fdmlydGlvX3R5cGUoc3Ry
+dWN0IHZpcnRpb19wc3RvcmUgKnZwcywgZW51bSBwc3RvcmVfdHlwZV9pZCB0eXBlKQoreworCXUx
+NiByZXQ7CisKKwlzd2l0Y2ggKHR5cGUpIHsKKwljYXNlIFBTVE9SRV9UWVBFX0RNRVNHOgorCQly
+ZXQgPSBjcHVfdG9fdmlydGlvMTYodnBzLT52ZGV2LCBWSVJUSU9fUFNUT1JFX1RZUEVfRE1FU0cp
+OworCQlicmVhazsKKwlkZWZhdWx0OgorCQlyZXQgPSBjcHVfdG9fdmlydGlvMTYodnBzLT52ZGV2
+LCBWSVJUSU9fUFNUT1JFX1RZUEVfVU5LTk9XTik7CisJCWJyZWFrOworCX0KKworCXJldHVybiBy
+ZXQ7Cit9CisKK3N0YXRpYyBlbnVtIHBzdG9yZV90eXBlX2lkIGZyb21fdmlydGlvX3R5cGUoc3Ry
+dWN0IHZpcnRpb19wc3RvcmUgKnZwcywgdTE2IHR5cGUpCit7CisJZW51bSBwc3RvcmVfdHlwZV9p
+ZCByZXQ7CisKKwlzd2l0Y2ggKHZpcnRpbzE2X3RvX2NwdSh2cHMtPnZkZXYsIHR5cGUpKSB7CisJ
+Y2FzZSBWSVJUSU9fUFNUT1JFX1RZUEVfRE1FU0c6CisJCXJldCA9IFBTVE9SRV9UWVBFX0RNRVNH
+OworCQlicmVhazsKKwlkZWZhdWx0OgorCQlyZXQgPSBQU1RPUkVfVFlQRV9VTktOT1dOOworCQli
+cmVhazsKKwl9CisKKwlyZXR1cm4gcmV0OworfQorCitzdGF0aWMgdm9pZCB2aXJ0cHN0b3JlX2Fj
+ayhzdHJ1Y3QgdmlydHF1ZXVlICp2cSkKK3sKKwlzdHJ1Y3QgdmlydGlvX3BzdG9yZSAqdnBzID0g
+dnEtPnZkZXYtPnByaXY7CisKKwl3YWtlX3VwKCZ2cHMtPmFja2VkKTsKK30KKworc3RhdGljIGlu
+dCB2aXJ0X3BzdG9yZV9vcGVuKHN0cnVjdCBwc3RvcmVfaW5mbyAqcHNpKQoreworCXN0cnVjdCB2
+aXJ0aW9fcHN0b3JlICp2cHMgPSBwc2ktPmRhdGE7CisJc3RydWN0IHZpcnRpb19wc3RvcmVfaGRy
+ICpoZHIgPSAmdnBzLT5oZHI7CisJc3RydWN0IHNjYXR0ZXJsaXN0IHNnWzFdOworCXVuc2lnbmVk
+IGludCBsZW47CisKKwloZHItPmNtZCA9IGNwdV90b192aXJ0aW8xNih2cHMtPnZkZXYsIFZJUlRJ
+T19QU1RPUkVfQ01EX09QRU4pOworCisJc2dfaW5pdF9vbmUoc2csIGhkciwgc2l6ZW9mKCpoZHIp
+KTsKKwl2aXJ0cXVldWVfYWRkX291dGJ1Zih2cHMtPnZxLCBzZywgMSwgdnBzLCBHRlBfS0VSTkVM
+KTsKKwl2aXJ0cXVldWVfa2ljayh2cHMtPnZxKTsKKworCXdhaXRfZXZlbnQodnBzLT5hY2tlZCwg
+dmlydHF1ZXVlX2dldF9idWYodnBzLT52cSwgJmxlbikpOworCXJldHVybiAwOworfQorCitzdGF0
+aWMgaW50IHZpcnRfcHN0b3JlX2Nsb3NlKHN0cnVjdCBwc3RvcmVfaW5mbyAqcHNpKQoreworCXN0
+cnVjdCB2aXJ0aW9fcHN0b3JlICp2cHMgPSBwc2ktPmRhdGE7CisJc3RydWN0IHZpcnRpb19wc3Rv
+cmVfaGRyICpoZHIgPSAmdnBzLT5oZHI7CisJc3RydWN0IHNjYXR0ZXJsaXN0IHNnWzFdOworCXVu
+c2lnbmVkIGludCBsZW47CisKKwloZHItPmNtZCA9IGNwdV90b192aXJ0aW8xNih2cHMtPnZkZXYs
+IFZJUlRJT19QU1RPUkVfQ01EX0NMT1NFKTsKKworCXNnX2luaXRfb25lKHNnLCBoZHIsIHNpemVv
+ZigqaGRyKSk7CisJdmlydHF1ZXVlX2FkZF9vdXRidWYodnBzLT52cSwgc2csIDEsIHZwcywgR0ZQ
+X0tFUk5FTCk7CisJdmlydHF1ZXVlX2tpY2sodnBzLT52cSk7CisKKwl3YWl0X2V2ZW50KHZwcy0+
+YWNrZWQsIHZpcnRxdWV1ZV9nZXRfYnVmKHZwcy0+dnEsICZsZW4pKTsKKwlyZXR1cm4gMDsKK30K
+Kworc3RhdGljIHNzaXplX3QgdmlydF9wc3RvcmVfcmVhZCh1NjQgKmlkLCBlbnVtIHBzdG9yZV90
+eXBlX2lkICp0eXBlLAorCQkJCWludCAqY291bnQsIHN0cnVjdCB0aW1lc3BlYyAqdGltZSwKKwkJ
+CQljaGFyICoqYnVmLCBib29sICpjb21wcmVzc2VkLAorCQkJCXN0cnVjdCBwc3RvcmVfaW5mbyAq
+cHNpKQoreworCXN0cnVjdCB2aXJ0aW9fcHN0b3JlICp2cHMgPSBwc2ktPmRhdGE7CisJc3RydWN0
+IHZpcnRpb19wc3RvcmVfaGRyICpoZHIgPSAmdnBzLT5oZHI7CisJc3RydWN0IHNjYXR0ZXJsaXN0
+IHNnaVsxXSwgc2dvWzFdOworCXN0cnVjdCBzY2F0dGVybGlzdCAqc2dzWzJdID0geyBzZ28sIHNn
+aSB9OworCXVuc2lnbmVkIGludCBsZW47CisJdW5zaWduZWQgaW50IGZsYWdzOworCXZvaWQgKmJm
+OworCisJaGRyLT5jbWQgPSBjcHVfdG9fdmlydGlvMTYodnBzLT52ZGV2LCBWSVJUSU9fUFNUT1JF
+X0NNRF9SRUFEKTsKKworCXNnX2luaXRfb25lKHNnbywgaGRyLCBzaXplb2YoKmhkcikpOworCXNn
+X2luaXRfb25lKHNnaSwgcHNpLT5idWYsIHBzaS0+YnVmc2l6ZSk7CisJdmlydHF1ZXVlX2FkZF9z
+Z3ModnBzLT52cSwgc2dzLCAxLCAxLCB2cHMsIEdGUF9LRVJORUwpOworCXZpcnRxdWV1ZV9raWNr
+KHZwcy0+dnEpOworCisJd2FpdF9ldmVudCh2cHMtPmFja2VkLCB2aXJ0cXVldWVfZ2V0X2J1Zih2
+cHMtPnZxLCAmbGVuKSk7CisJaWYgKGxlbiA9PSAwKQorCQlyZXR1cm4gMDsKKworCWJmID0ga21h
+bGxvYyhsZW4sIEdGUF9LRVJORUwpOworCWlmIChiZiA9PSBOVUxMKQorCQlyZXR1cm4gLUVOT01F
+TTsKKworCSppZCA9IHZpcnRpbzY0X3RvX2NwdSh2cHMtPnZkZXYsIGhkci0+aWQpOworCSp0eXBl
+ID0gZnJvbV92aXJ0aW9fdHlwZSh2cHMsIGhkci0+dHlwZSk7CisKKwlmbGFncyA9IHZpcnRpbzMy
+X3RvX2NwdSh2cHMtPnZkZXYsIGhkci0+ZmxhZ3MpOworCSpjb21wcmVzc2VkID0gZmxhZ3MgJiBW
+SVJUSU9fUFNUT1JFX0ZMX0NPTVBSRVNTRUQ7CisJKmNvdW50ID0gMTsKKworCXRpbWUtPnR2X3Nl
+YyAgPSB2aXJ0aW82NF90b19jcHUodnBzLT52ZGV2LCBoZHItPnRpbWVfc2VjKTsKKwl0aW1lLT50
+dl9uc2VjID0gdmlydGlvMzJfdG9fY3B1KHZwcy0+dmRldiwgaGRyLT50aW1lX25zZWMpOworCisJ
+bWVtY3B5KGJmLCBwc2ktPmJ1ZiwgbGVuKTsKKwkqYnVmID0gYmY7CisKKwlyZXR1cm4gbGVuOwor
+fQorCitzdGF0aWMgaW50IG5vdHJhY2UgdmlydF9wc3RvcmVfd3JpdGUoZW51bSBwc3RvcmVfdHlw
+ZV9pZCB0eXBlLAorCQkJCSAgICAgZW51bSBrbXNnX2R1bXBfcmVhc29uIHJlYXNvbiwKKwkJCQkg
+ICAgIHU2NCAqaWQsIHVuc2lnbmVkIGludCBwYXJ0LCBpbnQgY291bnQsCisJCQkJICAgICBib29s
+IGNvbXByZXNzZWQsIHNpemVfdCBzaXplLAorCQkJCSAgICAgc3RydWN0IHBzdG9yZV9pbmZvICpw
+c2kpCit7CisJc3RydWN0IHZpcnRpb19wc3RvcmUgKnZwcyA9IHBzaS0+ZGF0YTsKKwlzdHJ1Y3Qg
+dmlydGlvX3BzdG9yZV9oZHIgKmhkciA9ICZ2cHMtPmhkcjsKKwlzdHJ1Y3Qgc2NhdHRlcmxpc3Qg
+c2dbMl07CisJdW5zaWduZWQgaW50IGZsYWdzID0gY29tcHJlc3NlZCA/IFZJUlRJT19QU1RPUkVf
+RkxfQ09NUFJFU1NFRCA6IDA7CisKKwkqaWQgPSB2cHMtPmlkKys7CisKKwloZHItPmNtZCAgID0g
+Y3B1X3RvX3ZpcnRpbzE2KHZwcy0+dmRldiwgVklSVElPX1BTVE9SRV9DTURfV1JJVEUpOworCWhk
+ci0+aWQJICAgPSBjcHVfdG9fdmlydGlvNjQodnBzLT52ZGV2LCAqaWQpOworCWhkci0+ZmxhZ3Mg
+PSBjcHVfdG9fdmlydGlvMzIodnBzLT52ZGV2LCBmbGFncyk7CisJaGRyLT50eXBlICA9IHRvX3Zp
+cnRpb190eXBlKHZwcywgdHlwZSk7CisKKwlzZ19pbml0X3RhYmxlKHNnLCAyKTsKKwlzZ19zZXRf
+YnVmKCZzZ1swXSwgaGRyLCBzaXplb2YoKmhkcikpOworCXNnX3NldF9idWYoJnNnWzFdLCBwc2kt
+PmJ1Ziwgc2l6ZSk7CisJdmlydHF1ZXVlX2FkZF9vdXRidWYodnBzLT52cSwgc2csIDIsIHZwcywg
+R0ZQX0FUT01JQyk7CisJdmlydHF1ZXVlX2tpY2sodnBzLT52cSk7CisKKwkvKiBUT0RPOiBtYWtl
+IGl0IHN5bmNocm9ub3VzICovCisJcmV0dXJuIDA7Cit9CisKK3N0YXRpYyBpbnQgdmlydF9wc3Rv
+cmVfZXJhc2UoZW51bSBwc3RvcmVfdHlwZV9pZCB0eXBlLCB1NjQgaWQsIGludCBjb3VudCwKKwkJ
+CSAgICAgc3RydWN0IHRpbWVzcGVjIHRpbWUsIHN0cnVjdCBwc3RvcmVfaW5mbyAqcHNpKQorewor
+CXN0cnVjdCB2aXJ0aW9fcHN0b3JlICp2cHMgPSBwc2ktPmRhdGE7CisJc3RydWN0IHZpcnRpb19w
+c3RvcmVfaGRyICpoZHIgPSAmdnBzLT5oZHI7CisJc3RydWN0IHNjYXR0ZXJsaXN0IHNnWzFdOwor
+CXVuc2lnbmVkIGludCBsZW47CisKKwloZHItPmNtZCAgID0gY3B1X3RvX3ZpcnRpbzE2KHZwcy0+
+dmRldiwgVklSVElPX1BTVE9SRV9DTURfRVJBU0UpOworCWhkci0+aWQJICAgPSBjcHVfdG9fdmly
+dGlvNjQodnBzLT52ZGV2LCBpZCk7CisJaGRyLT50eXBlICA9IHRvX3ZpcnRpb190eXBlKHZwcywg
+dHlwZSk7CisKKwlzZ19pbml0X29uZShzZywgaGRyLCBzaXplb2YoKmhkcikpOworCXZpcnRxdWV1
+ZV9hZGRfb3V0YnVmKHZwcy0+dnEsIHNnLCAxLCB2cHMsIEdGUF9LRVJORUwpOworCXZpcnRxdWV1
+ZV9raWNrKHZwcy0+dnEpOworCisJd2FpdF9ldmVudCh2cHMtPmFja2VkLCB2aXJ0cXVldWVfZ2V0
+X2J1Zih2cHMtPnZxLCAmbGVuKSk7CisJcmV0dXJuIDA7Cit9CisKK3N0YXRpYyBpbnQgdmlydF9w
+c3RvcmVfaW5pdChzdHJ1Y3QgdmlydGlvX3BzdG9yZSAqdnBzKQoreworCXN0cnVjdCBwc3RvcmVf
+aW5mbyAqcHNpbmZvID0gJnZwcy0+cHN0b3JlOworCWludCBlcnI7CisKKwl2cHMtPmlkID0gMDsK
+Kwl2cHMtPmJ1ZmxlbiA9IDA7CisJcHNpbmZvLT5idWZzaXplID0gVklSVF9QU1RPUkVfQlVGU0la
+RTsKKwlwc2luZm8tPmJ1ZiA9ICh2b2lkICopX19nZXRfZnJlZV9wYWdlcyhHRlBfS0VSTkVMLCBW
+SVJUX1BTVE9SRV9PUkRFUik7CisJaWYgKCFwc2luZm8tPmJ1ZikgeworCQlwcl9lcnIoImNhbm5v
+dCBhbGxvY2F0ZSBwc3RvcmUgYnVmZmVyXG4iKTsKKwkJcmV0dXJuIC1FTk9NRU07CisJfQorCisJ
+cHNpbmZvLT5vd25lciA9IFRISVNfTU9EVUxFOworCXBzaW5mby0+bmFtZSAgPSAidmlydGlvIjsK
+Kwlwc2luZm8tPm9wZW4gID0gdmlydF9wc3RvcmVfb3BlbjsKKwlwc2luZm8tPmNsb3NlID0gdmly
+dF9wc3RvcmVfY2xvc2U7CisJcHNpbmZvLT5yZWFkICA9IHZpcnRfcHN0b3JlX3JlYWQ7CisJcHNp
+bmZvLT5lcmFzZSA9IHZpcnRfcHN0b3JlX2VyYXNlOworCXBzaW5mby0+d3JpdGUgPSB2aXJ0X3Bz
+dG9yZV93cml0ZTsKKwlwc2luZm8tPmZsYWdzID0gUFNUT1JFX0ZMQUdTX0ZSQUdJTEU7CisJcHNp
+bmZvLT5kYXRhICA9IHZwczsKKwlzcGluX2xvY2tfaW5pdCgmcHNpbmZvLT5idWZfbG9jayk7CisK
+KwllcnIgPSBwc3RvcmVfcmVnaXN0ZXIocHNpbmZvKTsKKwlpZiAoZXJyKQorCQlrZnJlZShwc2lu
+Zm8tPmJ1Zik7CisKKwlyZXR1cm4gZXJyOworfQorCitzdGF0aWMgaW50IHZpcnRfcHN0b3JlX2V4
+aXQoc3RydWN0IHZpcnRpb19wc3RvcmUgKnZwcykKK3sKKwlzdHJ1Y3QgcHN0b3JlX2luZm8gKnBz
+aW5mbyA9ICZ2cHMtPnBzdG9yZTsKKworCXBzdG9yZV91bnJlZ2lzdGVyKHBzaW5mbyk7CisKKwlm
+cmVlX3BhZ2VzKCh1bnNpZ25lZCBsb25nKXBzaW5mby0+YnVmLCBWSVJUX1BTVE9SRV9PUkRFUik7
+CisJcHNpbmZvLT5idWZzaXplID0gMDsKKworCXJldHVybiAwOworfQorCitzdGF0aWMgaW50IHZp
+cnRwc3RvcmVfcHJvYmUoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCit7CisJc3RydWN0IHZp
+cnRpb19wc3RvcmUgKnZwczsKKwlpbnQgZXJyOworCisJaWYgKCF2ZGV2LT5jb25maWctPmdldCkg
+eworCQlkZXZfZXJyKCZ2ZGV2LT5kZXYsICIlcyBmYWlsdXJlOiBjb25maWcgYWNjZXNzIGRpc2Fi
+bGVkXG4iLAorCQkJX19mdW5jX18pOworCQlyZXR1cm4gLUVJTlZBTDsKKwl9CisKKwl2ZGV2LT5w
+cml2ID0gdnBzID0ga21hbGxvYyhzaXplb2YoKnZwcyksIEdGUF9LRVJORUwpOworCWlmICghdnBz
+KSB7CisJCWVyciA9IC1FTk9NRU07CisJCWdvdG8gb3V0OworCX0KKworCXZwcy0+dmRldiA9IHZk
+ZXY7CisKKwl2cHMtPnZxID0gdmlydGlvX2ZpbmRfc2luZ2xlX3ZxKHZkZXYsIHZpcnRwc3RvcmVf
+YWNrLCAicHN0b3JlIik7CisJaWYgKElTX0VSUih2cHMtPnZxKSkgeworCQllcnIgPSBQVFJfRVJS
+KHZwcy0+dnEpOworCQlnb3RvIG91dF9mcmVlOworCX0KKworCWVyciA9IHZpcnRfcHN0b3JlX2lu
+aXQodnBzKTsKKwlpZiAoZXJyKQorCQlnb3RvIG91dF9kZWxfdnE7CisKKwlpbml0X3dhaXRxdWV1
+ZV9oZWFkKCZ2cHMtPmFja2VkKTsKKworCXZpcnRpb19kZXZpY2VfcmVhZHkodmRldik7CisJZGV2
+X2luZm8oJnZkZXYtPmRldiwgInZpcnRpbyBwc3RvcmUgZHJpdmVyIGluaXQ6IG9rXG4iKTsKKwor
+CXJldHVybiAwOworCitvdXRfZGVsX3ZxOgorCXZkZXYtPmNvbmZpZy0+ZGVsX3Zxcyh2ZGV2KTsK
+K291dF9mcmVlOgorCWtmcmVlKHZwcyk7CitvdXQ6CisJZGV2X2VycigmdmRldi0+ZGV2LCAidmly
+dGlvIHBzdG9yZSBkcml2ZXIgaW5pdDogZmFpbGVkIHdpdGggJWRcbiIsIGVycik7CisJcmV0dXJu
+IGVycjsKK30KKworc3RhdGljIHZvaWQgdmlydHBzdG9yZV9yZW1vdmUoc3RydWN0IHZpcnRpb19k
+ZXZpY2UgKnZkZXYpCit7CisJc3RydWN0IHZpcnRpb19wc3RvcmUgKnZwcyA9IHZkZXYtPnByaXY7
+CisKKwl2aXJ0X3BzdG9yZV9leGl0KHZwcyk7CisKKwkvKiBOb3cgd2UgcmVzZXQgdGhlIGRldmlj
+ZSBzbyB3ZSBjYW4gY2xlYW4gdXAgdGhlIHF1ZXVlcy4gKi8KKwl2ZGV2LT5jb25maWctPnJlc2V0
+KHZkZXYpOworCisJdmRldi0+Y29uZmlnLT5kZWxfdnFzKHZkZXYpOworCisJa2ZyZWUodnBzKTsK
+K30KKworc3RhdGljIHVuc2lnbmVkIGludCBmZWF0dXJlc1tdID0geworfTsKKworc3RhdGljIHN0
+cnVjdCB2aXJ0aW9fZGV2aWNlX2lkIGlkX3RhYmxlW10gPSB7CisJeyBWSVJUSU9fSURfUFNUT1JF
+LCBWSVJUSU9fREVWX0FOWV9JRCB9LAorCXsgMCB9LAorfTsKKworc3RhdGljIHN0cnVjdCB2aXJ0
+aW9fZHJpdmVyIHZpcnRpb19wc3RvcmVfZHJpdmVyID0geworCS5kcml2ZXIubmFtZSAgICAgICAg
+ID0gS0JVSUxEX01PRE5BTUUsCisJLmRyaXZlci5vd25lciAgICAgICAgPSBUSElTX01PRFVMRSwK
+KwkuZmVhdHVyZV90YWJsZSAgICAgICA9IGZlYXR1cmVzLAorCS5mZWF0dXJlX3RhYmxlX3NpemUg
+ID0gQVJSQVlfU0laRShmZWF0dXJlcyksCisJLmlkX3RhYmxlICAgICAgICAgICAgPSBpZF90YWJs
+ZSwKKwkucHJvYmUgICAgICAgICAgICAgICA9IHZpcnRwc3RvcmVfcHJvYmUsCisJLnJlbW92ZSAg
+ICAgICAgICAgICAgPSB2aXJ0cHN0b3JlX3JlbW92ZSwKK307CisKK21vZHVsZV92aXJ0aW9fZHJp
+dmVyKHZpcnRpb19wc3RvcmVfZHJpdmVyKTsKK01PRFVMRV9ERVZJQ0VfVEFCTEUodmlydGlvLCBp
+ZF90YWJsZSk7CisKK01PRFVMRV9MSUNFTlNFKCJHUEwiKTsKK01PRFVMRV9BVVRIT1IoIk5hbWh5
+dW5nIEtpbSA8bmFtaHl1bmdAa2VybmVsLm9yZz4iKTsKK01PRFVMRV9ERVNDUklQVElPTigiVmly
+dGlvIHBzdG9yZSBkcml2ZXIiKTsKZGlmZiAtLWdpdCBhL2luY2x1ZGUvdWFwaS9saW51eC9LYnVp
+bGQgYi9pbmNsdWRlL3VhcGkvbGludXgvS2J1aWxkCmluZGV4IDhiZGFlMzRkMWY5YS4uNTdiMGQw
+OGRiMzIyIDEwMDY0NAotLS0gYS9pbmNsdWRlL3VhcGkvbGludXgvS2J1aWxkCisrKyBiL2luY2x1
+ZGUvdWFwaS9saW51eC9LYnVpbGQKQEAgLTQ0OCw2ICs0NDgsNyBAQCBoZWFkZXIteSArPSB2aXJ0
+aW9faWRzLmgKIGhlYWRlci15ICs9IHZpcnRpb19pbnB1dC5oCiBoZWFkZXIteSArPSB2aXJ0aW9f
+bmV0LmgKIGhlYWRlci15ICs9IHZpcnRpb19wY2kuaAoraGVhZGVyLXkgKz0gdmlydGlvX3BzdG9y
+ZS5oCiBoZWFkZXIteSArPSB2aXJ0aW9fcmluZy5oCiBoZWFkZXIteSArPSB2aXJ0aW9fcm5nLmgK
+IGhlYWRlci15ICs9IHZpcnRpb19zY3NpLmgKZGlmZiAtLWdpdCBhL2luY2x1ZGUvdWFwaS9saW51
+eC92aXJ0aW9faWRzLmggYi9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2lkcy5oCmluZGV4IDc3
+OTI1ZjU4N2IxNS4uY2JhNjMyMjVkODVhIDEwMDY0NAotLS0gYS9pbmNsdWRlL3VhcGkvbGludXgv
+dmlydGlvX2lkcy5oCisrKyBiL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9faWRzLmgKQEAgLTQx
+LDUgKzQxLDYgQEAKICNkZWZpbmUgVklSVElPX0lEX0NBSUYJICAgICAgIDEyIC8qIFZpcnRpbyBj
+YWlmICovCiAjZGVmaW5lIFZJUlRJT19JRF9HUFUgICAgICAgICAgMTYgLyogdmlydGlvIEdQVSAq
+LwogI2RlZmluZSBWSVJUSU9fSURfSU5QVVQgICAgICAgIDE4IC8qIHZpcnRpbyBpbnB1dCAqLwor
+I2RlZmluZSBWSVJUSU9fSURfUFNUT1JFICAgICAgIDE5IC8qIHZpcnRpbyBwc3RvcmUgKi8KIAog
+I2VuZGlmIC8qIF9MSU5VWF9WSVJUSU9fSURTX0ggKi8KZGlmZiAtLWdpdCBhL2luY2x1ZGUvdWFw
+aS9saW51eC92aXJ0aW9fcHN0b3JlLmggYi9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX3BzdG9y
+ZS5oCm5ldyBmaWxlIG1vZGUgMTAwNjQ0CmluZGV4IDAwMDAwMDAwMDAwMC4uMGFhMTU3NWVlMzVm
+Ci0tLSAvZGV2L251bGwKKysrIGIvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19wc3RvcmUuaApA
+QCAtMCwwICsxLDUzIEBACisjaWZuZGVmIF9MSU5VWF9WSVJUSU9fUFNUT1JFX0gKKyNkZWZpbmUg
+X0xJTlVYX1ZJUlRJT19QU1RPUkVfSAorLyogVGhpcyBoZWFkZXIgaXMgQlNEIGxpY2Vuc2VkIHNv
+IGFueW9uZSBjYW4gdXNlIHRoZSBkZWZpbml0aW9ucyB0byBpbXBsZW1lbnQKKyAqIGNvbXBhdGli
+bGUgZHJpdmVycy9zZXJ2ZXJzLgorICoKKyAqIFJlZGlzdHJpYnV0aW9uIGFuZCB1c2UgaW4gc291
+cmNlIGFuZCBiaW5hcnkgZm9ybXMsIHdpdGggb3Igd2l0aG91dAorICogbW9kaWZpY2F0aW9uLCBh
+cmUgcGVybWl0dGVkIHByb3ZpZGVkIHRoYXQgdGhlIGZvbGxvd2luZyBjb25kaXRpb25zCisgKiBh
+cmUgbWV0OgorICogMS4gUmVkaXN0cmlidXRpb25zIG9mIHNvdXJjZSBjb2RlIG11c3QgcmV0YWlu
+IHRoZSBhYm92ZSBjb3B5cmlnaHQKKyAqICAgIG5vdGljZSwgdGhpcyBsaXN0IG9mIGNvbmRpdGlv
+bnMgYW5kIHRoZSBmb2xsb3dpbmcgZGlzY2xhaW1lci4KKyAqIDIuIFJlZGlzdHJpYnV0aW9ucyBp
+biBiaW5hcnkgZm9ybSBtdXN0IHJlcHJvZHVjZSB0aGUgYWJvdmUgY29weXJpZ2h0CisgKiAgICBu
+b3RpY2UsIHRoaXMgbGlzdCBvZiBjb25kaXRpb25zIGFuZCB0aGUgZm9sbG93aW5nIGRpc2NsYWlt
+ZXIgaW4gdGhlCisgKiAgICBkb2N1bWVudGF0aW9uIGFuZC9vciBvdGhlciBtYXRlcmlhbHMgcHJv
+dmlkZWQgd2l0aCB0aGUgZGlzdHJpYnV0aW9uLgorICogMy4gTmVpdGhlciB0aGUgbmFtZSBvZiBJ
+Qk0gbm9yIHRoZSBuYW1lcyBvZiBpdHMgY29udHJpYnV0b3JzCisgKiAgICBtYXkgYmUgdXNlZCB0
+byBlbmRvcnNlIG9yIHByb21vdGUgcHJvZHVjdHMgZGVyaXZlZCBmcm9tIHRoaXMgc29mdHdhcmUK
+KyAqICAgIHdpdGhvdXQgc3BlY2lmaWMgcHJpb3Igd3JpdHRlbiBwZXJtaXNzaW9uLgorICogVEhJ
+UyBTT0ZUV0FSRSBJUyBQUk9WSURFRCBCWSBUSEUgQ09QWVJJR0hUIEhPTERFUlMgQU5EIENPTlRS
+SUJVVE9SUyBgYEFTIElTJycgQU5ECisgKiBBTlkgRVhQUkVTUyBPUiBJTVBMSUVEIFdBUlJBTlRJ
+RVMsIElOQ0xVRElORywgQlVUIE5PVCBMSU1JVEVEIFRPLCBUSEUKKyAqIElNUExJRUQgV0FSUkFO
+VElFUyBPRiBNRVJDSEFOVEFCSUxJVFkgQU5EIEZJVE5FU1MgRk9SIEEgUEFSVElDVUxBUiBQVVJQ
+T1NFCisgKiBBUkUgRElTQ0xBSU1FRC4gIElOIE5PIEVWRU5UIFNIQUxMIElCTSBPUiBDT05UUklC
+VVRPUlMgQkUgTElBQkxFCisgKiBGT1IgQU5ZIERJUkVDVCwgSU5ESVJFQ1QsIElOQ0lERU5UQUws
+IFNQRUNJQUwsIEVYRU1QTEFSWSwgT1IgQ09OU0VRVUVOVElBTAorICogREFNQUdFUyAoSU5DTFVE
+SU5HLCBCVVQgTk9UIExJTUlURUQgVE8sIFBST0NVUkVNRU5UIE9GIFNVQlNUSVRVVEUgR09PRFMK
+KyAqIE9SIFNFUlZJQ0VTOyBMT1NTIE9GIFVTRSwgREFUQSwgT1IgUFJPRklUUzsgT1IgQlVTSU5F
+U1MgSU5URVJSVVBUSU9OKQorICogSE9XRVZFUiBDQVVTRUQgQU5EIE9OIEFOWSBUSEVPUlkgT0Yg
+TElBQklMSVRZLCBXSEVUSEVSIElOIENPTlRSQUNULCBTVFJJQ1QKKyAqIExJQUJJTElUWSwgT1Ig
+VE9SVCAoSU5DTFVESU5HIE5FR0xJR0VOQ0UgT1IgT1RIRVJXSVNFKSBBUklTSU5HIElOIEFOWSBX
+QVkKKyAqIE9VVCBPRiBUSEUgVVNFIE9GIFRISVMgU09GVFdBUkUsIEVWRU4gSUYgQURWSVNFRCBP
+RiBUSEUgUE9TU0lCSUxJVFkgT0YKKyAqIFNVQ0ggREFNQUdFLiAqLworI2luY2x1ZGUgPGxpbnV4
+L3R5cGVzLmg+CisjaW5jbHVkZSA8bGludXgvdmlydGlvX3R5cGVzLmg+CisKKyNkZWZpbmUgVklS
+VElPX1BTVE9SRV9DTURfTlVMTCAgIDAKKyNkZWZpbmUgVklSVElPX1BTVE9SRV9DTURfT1BFTiAg
+IDEKKyNkZWZpbmUgVklSVElPX1BTVE9SRV9DTURfUkVBRCAgIDIKKyNkZWZpbmUgVklSVElPX1BT
+VE9SRV9DTURfV1JJVEUgIDMKKyNkZWZpbmUgVklSVElPX1BTVE9SRV9DTURfRVJBU0UgIDQKKyNk
+ZWZpbmUgVklSVElPX1BTVE9SRV9DTURfQ0xPU0UgIDUKKworI2RlZmluZSBWSVJUSU9fUFNUT1JF
+X1RZUEVfVU5LTk9XTiAgMAorI2RlZmluZSBWSVJUSU9fUFNUT1JFX1RZUEVfRE1FU0cgICAgMQor
+CisjZGVmaW5lIFZJUlRJT19QU1RPUkVfRkxfQ09NUFJFU1NFRCAgMQorCitzdHJ1Y3QgdmlydGlv
+X3BzdG9yZV9oZHIgeworCV9fdmlydGlvNjQJCWlkOworCV9fdmlydGlvMzIJCWZsYWdzOworCV9f
+dmlydGlvMTYJCWNtZDsKKwlfX3ZpcnRpbzE2CQl0eXBlOworCV9fdmlydGlvNjQJCXRpbWVfc2Vj
+OworCV9fdmlydGlvMzIJCXRpbWVfbnNlYzsKKwlfX3ZpcnRpbzMyCQl1bnVzZWQ7Cit9OworCisj
+ZW5kaWYgLyogX0xJTlVYX1ZJUlRJT19QU1RPUkVfSCAqLwotLSAKMi44LjAKCl9fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
+bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
+L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
+bg==
