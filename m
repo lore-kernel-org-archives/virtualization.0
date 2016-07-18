@@ -1,10 +1,14 @@
-From: Minfei Huang <mnghuan@gmail.com>
-Subject: [PATCH v2] virtio_blk: Fix a slient kernel panic
-Date: Mon, 18 Jul 2016 13:20:57 +0800
-Message-ID: <CACUiTC_PcLo7HfGT4cTA+bWxn9r9f=nh+sBiFi5b4vbvYBZekA@mail.gmail.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH 2/3] qemu: Implement virtio-pstore device
+Date: Mon, 18 Jul 2016 09:28:42 +0200
+Message-ID: <578C852A.1030502@de.ibm.com>
+References: <1468816661-6345-1-git-send-email-namhyung@kernel.org>
+	<1468816661-6345-3-git-send-email-namhyung@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=001a113e4d6216e9bf0537e222b6
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1468816661-6345-3-git-send-email-namhyung@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -14,89 +18,122 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: Minfei Huang <minfei.hmf@alibaba-inc.com>, lkml <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Namhyung Kim <namhyung@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Cc: Tony Luck <tony.luck@intel.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Namhyung Kim <namhyung@gmail.com>, Anton Vorontsov <anton@enomsg.org>, qemu-devel@nongnu.org, Steven Rostedt <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Minchan Kim <minchan@kernel.org>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, Paolo Bonzini <pbonzini@redhat.com>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
---001a113e4d6216e9bf0537e222b6
-Content-Type: multipart/alternative; boundary=001a113e4d6216e9b90537e222b4
+On 07/18/2016 06:37 AM, Namhyung Kim wrote:
 
---001a113e4d6216e9b90537e222b4
-Content-Type: text/plain; charset=UTF-8
+Can you do the virtio-mmio and virtio-ccw plumbing as well, or
+do you need help with that?
 
+[...]
+> diff --git a/hw/virtio/virtio-pci.c b/hw/virtio/virtio-pci.c
+> index 2b34b43..8281b80 100644
+> --- a/hw/virtio/virtio-pci.c
+> +++ b/hw/virtio/virtio-pci.c
+> @@ -2416,6 +2416,55 @@ static const TypeInfo virtio_host_pci_info = {
+>  };
+>  #endif
+> 
+> +/* virtio-pstore-pci */
+> +
+> +static void virtio_pstore_pci_realize(VirtIOPCIProxy *vpci_dev, Error **errp)
+> +{
+> +    VirtIOPstorePCI *vps = VIRTIO_PSTORE_PCI(vpci_dev);
+> +    DeviceState *vdev = DEVICE(&vps->vdev);
+> +    Error *err = NULL;
+> +
+> +    qdev_set_parent_bus(vdev, BUS(&vpci_dev->bus));
+> +    object_property_set_bool(OBJECT(vdev), true, "realized", &err);
+> +    if (err) {
+> +        error_propagate(errp, err);
+> +        return;
+> +    }
+> +}
+> +
+> +static void virtio_pstore_pci_class_init(ObjectClass *klass, void *data)
+> +{
+> +    DeviceClass *dc = DEVICE_CLASS(klass);
+> +    VirtioPCIClass *k = VIRTIO_PCI_CLASS(klass);
+> +    PCIDeviceClass *pcidev_k = PCI_DEVICE_CLASS(klass);
+> +
+> +    k->realize = virtio_pstore_pci_realize;
+> +    set_bit(DEVICE_CATEGORY_MISC, dc->categories);
+> +
+> +    pcidev_k->vendor_id = PCI_VENDOR_ID_REDHAT_QUMRANET;
+> +    pcidev_k->device_id = PCI_DEVICE_ID_VIRTIO_PSTORE;
+> +    pcidev_k->revision = VIRTIO_PCI_ABI_VERSION;
+> +    pcidev_k->class_id = PCI_CLASS_OTHERS;
+> +}
+> +
+> +static void virtio_pstore_pci_instance_init(Object *obj)
+> +{
+> +    VirtIOPstorePCI *dev = VIRTIO_PSTORE_PCI(obj);
+> +
+> +    virtio_instance_init_common(obj, &dev->vdev, sizeof(dev->vdev),
+> +                                TYPE_VIRTIO_PSTORE);
+> +    object_property_add_alias(obj, "directory", OBJECT(&dev->vdev),
+> +                              "directory", &error_abort);
+> +}
+> +
+> +static const TypeInfo virtio_pstore_pci_info = {
+> +    .name          = TYPE_VIRTIO_PSTORE_PCI,
+> +    .parent        = TYPE_VIRTIO_PCI,
+> +    .instance_size = sizeof(VirtIOPstorePCI),
+> +    .instance_init = virtio_pstore_pci_instance_init,
+> +    .class_init    = virtio_pstore_pci_class_init,
+> +};
+> +
+>  /* virtio-pci-bus */
+> 
+>  static void virtio_pci_bus_new(VirtioBusState *bus, size_t bus_size,
+> @@ -2485,6 +2534,7 @@ static void virtio_pci_register_types(void)
+>  #ifdef CONFIG_VHOST_SCSI
+>      type_register_static(&vhost_scsi_pci_info);
+>  #endif
+> +    type_register_static(&virtio_pstore_pci_info);
+>  }
+> 
+>  type_init(virtio_pci_register_types)
+> diff --git a/hw/virtio/virtio-pci.h b/hw/virtio/virtio-pci.h
+> index e4548c2..b4c039f 100644
+> --- a/hw/virtio/virtio-pci.h
+> +++ b/hw/virtio/virtio-pci.h
+> @@ -31,6 +31,7 @@
+>  #ifdef CONFIG_VHOST_SCSI
+>  #include "hw/virtio/vhost-scsi.h"
+>  #endif
+> +#include "hw/virtio/virtio-pstore.h"
+> 
+>  typedef struct VirtIOPCIProxy VirtIOPCIProxy;
+>  typedef struct VirtIOBlkPCI VirtIOBlkPCI;
+> @@ -44,6 +45,7 @@ typedef struct VirtIOInputPCI VirtIOInputPCI;
+>  typedef struct VirtIOInputHIDPCI VirtIOInputHIDPCI;
+>  typedef struct VirtIOInputHostPCI VirtIOInputHostPCI;
+>  typedef struct VirtIOGPUPCI VirtIOGPUPCI;
+> +typedef struct VirtIOPstorePCI VirtIOPstorePCI;
+> 
+>  /* virtio-pci-bus */
+> 
+> @@ -311,6 +313,18 @@ struct VirtIOGPUPCI {
+>      VirtIOGPU vdev;
+>  };
+> 
+> +/*
+> + * virtio-pstore-pci: This extends VirtioPCIProxy.
+> + */
+> +#define TYPE_VIRTIO_PSTORE_PCI "virtio-pstore-pci"
+> +#define VIRTIO_PSTORE_PCI(obj) \
+> +        OBJECT_CHECK(VirtIOPstorePCI, (obj), TYPE_VIRTIO_PSTORE_PCI)
+> +
+> +struct VirtIOPstorePCI {
+> +    VirtIOPCIProxy parent_obj;
+> +    VirtIOPstore vdev;
+> +};
+> +
+>  /* Virtio ABI version, if we increment this, we break the guest driver. */
+>  #define VIRTIO_PCI_ABI_VERSION          0
+> 
 
-
---001a113e4d6216e9b90537e222b4
-Content-Type: text/html; charset=UTF-8
-
-<div dir="ltr"><br></div>
-
---001a113e4d6216e9b90537e222b4--
-
---001a113e4d6216e9bf0537e222b6
-Content-Type: application/octet-stream;
-	name="0001-virtio_blk-Fix-a-slient-kernel-panic.patch"
-Content-Disposition: attachment;
-	filename="0001-virtio_blk-Fix-a-slient-kernel-panic.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_iqrl0kot0
-
-RnJvbSA3N2JmZjgyMjM4YTk1NmZmOGVlNWYxOTQ2ODk2MWI2ODYzYmRmZTg4IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBNaW5mZWkgSHVhbmcgPG1uZ2h1YW5AZ21haWwuY29tPgpEYXRl
-OiBGcmksIDE1IEp1bCAyMDE2IDA5OjA3OjQ3ICswODAwClN1YmplY3Q6IFtQQVRDSCB2Ml0gdmly
-dGlvX2JsazogRml4IGEgc2xpZW50IGtlcm5lbCBwYW5pYwoKV2UgZG8gYSBsb3Qgb2YgbWVtb3J5
-IGFsbG9jYXRpb24gaW4gZnVuY3Rpb24gaW5pdF92cSwgYW5kIGRvbid0IGhhbmRsZQp0aGUgYWxs
-b2NhdGlvbiBmYWlsdXJlIHByb3Blcmx5LiBUaGVuIHRoaXMgZnVuY3Rpb24gd2lsbCByZXR1cm4g
-MCwKYWx0aG91Z2ggaW5pdGlhbGl6YXRpb24gZmFpbHMgZHVlIHRvIGxhY2tpbmcgbWVtb3J5LiBB
-dCB0aGF0IG1vbWVudCwKa2VybmVsIHdpbGwgcGFuaWMgaW4gZ3Vlc3QgbWFjaGluZSwgaWYgdmly
-dGlvIGlzIHVzZWQgdG8gZHJpdmUgZGlzay4KClRvIGZpeCB0aGlzIGJ1Zywgd2Ugc2hvdWxkIHRh
-a2UgY2FyZSBvZiBhbGxvY2F0aW9uIGZhaWx1cmUsIGFuZCByZXR1cm4KY29ycmVjdCB2YWx1ZSB0
-byBsZXQgY2FsbGVyIGtub3cgd2hhdCBoYXBwZW4uCgpUZXN0ZWQtYnk6IENoYW8gRmFuIDxmYW5j
-LmZuc3RAY24uZnVqaXRzdS5jb20+ClNpZ25lZC1vZmYtYnk6IE1pbmZlaSBIdWFuZyA8bWluZmVp
-LmhtZkBhbGliYWJhLWluYy5jb20+ClNpZ25lZC1vZmYtYnk6IE1pbmZlaSBIdWFuZyA8bW5naHVh
-bkBnbWFpbC5jb20+Ci0tLQp2MToKLSBSZWZhY3RvciB0aGUgcGF0Y2ggdG8gbWFrZSBjb2RlIG1v
-cmUgcmVhZGFibGUKLS0tCiBkcml2ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYyB8IDMyICsrKysrKysr
-KysrLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiAxIGZpbGUgY2hhbmdlZCwgMTEgaW5zZXJ0aW9ucygr
-KSwgMjEgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9ibG9jay92aXJ0aW9fYmxr
-LmMgYi9kcml2ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYwppbmRleCA0Mjc1OGI1Li5kOTIwNTEyIDEw
-MDY0NAotLS0gYS9kcml2ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYworKysgYi9kcml2ZXJzL2Jsb2Nr
-L3ZpcnRpb19ibGsuYwpAQCAtMzgxLDkgKzM4MSw5IEBAIHN0YXRpYyBpbnQgaW5pdF92cShzdHJ1
-Y3QgdmlydGlvX2JsayAqdmJsaykKIHsKIAlpbnQgZXJyID0gMDsKIAlpbnQgaTsKLQl2cV9jYWxs
-YmFja190ICoqY2FsbGJhY2tzOwotCWNvbnN0IGNoYXIgKipuYW1lczsKLQlzdHJ1Y3QgdmlydHF1
-ZXVlICoqdnFzOworCXZxX2NhbGxiYWNrX3QgKipjYWxsYmFja3MgPSBOVUxMOworCWNvbnN0IGNo
-YXIgKipuYW1lcyA9IE5VTEw7CisJc3RydWN0IHZpcnRxdWV1ZSAqKnZxcyA9IE5VTEw7CiAJdW5z
-aWduZWQgc2hvcnQgbnVtX3ZxczsKIAlzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldiA9IHZibGst
-PnZkZXY7CiAKQEAgLTM5NCwyMiArMzk0LDE2IEBAIHN0YXRpYyBpbnQgaW5pdF92cShzdHJ1Y3Qg
-dmlydGlvX2JsayAqdmJsaykKIAkJbnVtX3ZxcyA9IDE7CiAKIAl2YmxrLT52cXMgPSBrbWFsbG9j
-KHNpemVvZigqdmJsay0+dnFzKSAqIG51bV92cXMsIEdGUF9LRVJORUwpOwotCWlmICghdmJsay0+
-dnFzKSB7Ci0JCWVyciA9IC1FTk9NRU07Ci0JCWdvdG8gb3V0OwotCX0KKwlpZiAoIXZibGstPnZx
-cykKKwkJcmV0dXJuIC1FTk9NRU07CiAKIAluYW1lcyA9IGttYWxsb2Moc2l6ZW9mKCpuYW1lcykg
-KiBudW1fdnFzLCBHRlBfS0VSTkVMKTsKLQlpZiAoIW5hbWVzKQotCQlnb3RvIGVycl9uYW1lczsK
-LQogCWNhbGxiYWNrcyA9IGttYWxsb2Moc2l6ZW9mKCpjYWxsYmFja3MpICogbnVtX3ZxcywgR0ZQ
-X0tFUk5FTCk7Ci0JaWYgKCFjYWxsYmFja3MpCi0JCWdvdG8gZXJyX2NhbGxiYWNrczsKLQogCXZx
-cyA9IGttYWxsb2Moc2l6ZW9mKCp2cXMpICogbnVtX3ZxcywgR0ZQX0tFUk5FTCk7Ci0JaWYgKCF2
-cXMpCi0JCWdvdG8gZXJyX3ZxczsKKwlpZiAoIW5hbWVzIHx8ICFjYWxsYmFja3MgfHwgIXZxcykg
-eworCQllcnIgPSAtRU5PTUVNOworCQlnb3RvIG91dDsKKwl9CiAKIAlmb3IgKGkgPSAwOyBpIDwg
-bnVtX3ZxczsgaSsrKSB7CiAJCWNhbGxiYWNrc1tpXSA9IHZpcnRibGtfZG9uZTsKQEAgLTQyMCw3
-ICs0MTQsNyBAQCBzdGF0aWMgaW50IGluaXRfdnEoc3RydWN0IHZpcnRpb19ibGsgKnZibGspCiAJ
-LyogRGlzY292ZXIgdmlydHF1ZXVlcyBhbmQgd3JpdGUgaW5mb3JtYXRpb24gdG8gY29uZmlndXJh
-dGlvbi4gICovCiAJZXJyID0gdmRldi0+Y29uZmlnLT5maW5kX3Zxcyh2ZGV2LCBudW1fdnFzLCB2
-cXMsIGNhbGxiYWNrcywgbmFtZXMpOwogCWlmIChlcnIpCi0JCWdvdG8gZXJyX2ZpbmRfdnFzOwor
-CQlnb3RvIG91dDsKIAogCWZvciAoaSA9IDA7IGkgPCBudW1fdnFzOyBpKyspIHsKIAkJc3Bpbl9s
-b2NrX2luaXQoJnZibGstPnZxc1tpXS5sb2NrKTsKQEAgLTQyOCwxNiArNDIyLDEyIEBAIHN0YXRp
-YyBpbnQgaW5pdF92cShzdHJ1Y3QgdmlydGlvX2JsayAqdmJsaykKIAl9CiAJdmJsay0+bnVtX3Zx
-cyA9IG51bV92cXM7CiAKLSBlcnJfZmluZF92cXM6CitvdXQ6CiAJa2ZyZWUodnFzKTsKLSBlcnJf
-dnFzOgogCWtmcmVlKGNhbGxiYWNrcyk7Ci0gZXJyX2NhbGxiYWNrczoKIAlrZnJlZShuYW1lcyk7
-Ci0gZXJyX25hbWVzOgogCWlmIChlcnIpCiAJCWtmcmVlKHZibGstPnZxcyk7Ci0gb3V0OgogCXJl
-dHVybiBlcnI7CiB9CiAKLS0gCjIuNy40IChBcHBsZSBHaXQtNjYpCgo=
---001a113e4d6216e9bf0537e222b6
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---001a113e4d6216e9bf0537e222b6--
+[...]
