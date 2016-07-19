@@ -1,30 +1,17 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH] virtio-balloon: Delete an unnecessary check before the
-	function call "iput"
-Date: Mon, 18 Jul 2016 21:25:02 +0200
-Message-ID: <b6855b5c-386b-bed9-f374-96481506056e__5591.31955164975$1468870246$gmane$org@users.sourceforge.net>
-References: <5307CAA2.8060406@users.sourceforge.net>
-	<alpine.DEB.2.02.1402212321410.2043@localhost6.localdomain6>
-	<530A086E.8010901@users.sourceforge.net>
-	<alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6>
-	<530A72AA.3000601@users.sourceforge.net>
-	<alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6>
-	<530B5FB6.6010207@users.sourceforge.net>
-	<alpine.DEB.2.10.1402241710370.2074@hadrien>
-	<530C5E18.1020800@users.sourceforge.net>
-	<alpine.DEB.2.10.1402251014170.2080@hadrien>
-	<530CD2C4.4050903@users.sourceforge.net>
-	<alpine.DEB.2.10.1402251840450.7035@hadrien>
-	<530CF8FF.8080600@users.sourceforge.net>
-	<alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6>
-	<530DD06F.4090703@users.sourceforge.net>
-	<alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6>
-	<5317A59D.4@users.sourceforge.net>
+From: Minfei Huang <mnfhuang@gmail.com>
+Subject: Re: [PATCH v2] virtio_blk: Fix a slient kernel panic
+Date: Tue, 19 Jul 2016 08:37:15 +0800
+Message-ID: <20160719003715.GA41853@MinfeideMacBook-Pro.local>
+References: <1468850489-40157-1-git-send-email-mnghuan@gmail.com>
+	<20160718172128.5b8c10b1.cornelia.huck@de.ibm.com>
+	<20160718160421.GA20047@huangminfeis-MacBook-Pro.local>
+	<20160718182534.7b0bdfe9.cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5317A59D.4@users.sourceforge.net>
+Content-Disposition: inline
+In-Reply-To: <20160718182534.7b0bdfe9.cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -34,36 +21,118 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Julia Lawall <julia.lawall@lip6.fr>, kernel-janitors@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: Minfei Huang <minfei.hmf@alibaba-inc.com>, fanc.fnst@cn.fujitsu.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com, Minfei Huang <mnfhuang@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Mon, 18 Jul 2016 21:17:18 +0200
+On 07/18/16 at 06:25P, Cornelia Huck wrote:
+> On Tue, 19 Jul 2016 00:18:32 +0800
+> Minfei Huang <mnfhuang@gmail.com> wrote:
+> 
+> > On 07/18/16 at 05:21P, Cornelia Huck wrote:
+> > > On Mon, 18 Jul 2016 22:01:29 +0800
+> > > Minfei Huang <mnfhuang@gmail.com> wrote:
+> > > > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> > > > index 42758b5..d920512 100644
+> > > > --- a/drivers/block/virtio_blk.c
+> > > > +++ b/drivers/block/virtio_blk.c
+> > > > @@ -381,9 +381,9 @@ static int init_vq(struct virtio_blk *vblk)
+> > > >  {
+> > > >  	int err = 0;
+> > > >  	int i;
+> > > > -	vq_callback_t **callbacks;
+> > > > -	const char **names;
+> > > > -	struct virtqueue **vqs;
+> > > > +	vq_callback_t **callbacks = NULL;
+> > > > +	const char **names = NULL;
+> > > > +	struct virtqueue **vqs = NULL;
+> > > 
+> > > If you init the variables to NULL anyway...
+> > 
+> > Hi, Cornelia.
+> > 
+> > Thanks for reviewing this patch.
+> > 
+> > Seems there is no need to init these variables to NULL. I will remove
+> > them laster.
+> 
+> Fine with me.
+> 
+> > 
+> > > 
+> > > >  	unsigned short num_vqs;
+> > > >  	struct virtio_device *vdev = vblk->vdev;
+> > > > 
+> > > > @@ -394,22 +394,16 @@ static int init_vq(struct virtio_blk *vblk)
+> > > >  		num_vqs = 1;
+> > > > 
+> > > 
+> > > ...just do
+> > > 
+> > > err = -ENOMEM;
+> > > 
+> > > here and...
+> > > 
+> > > >  	vblk->vqs = kmalloc(sizeof(*vblk->vqs) * num_vqs, GFP_KERNEL);
+> > > > -	if (!vblk->vqs) {
+> > > > -		err = -ENOMEM;
+> > > > -		goto out;
+> > > > -	}
+> > > > +	if (!vblk->vqs)
+> > > > +		return -ENOMEM;
+> > > > 
+> > > >  	names = kmalloc(sizeof(*names) * num_vqs, GFP_KERNEL);
+> > > > -	if (!names)
+> > > > -		goto err_names;
+> > > > -
+> > > >  	callbacks = kmalloc(sizeof(*callbacks) * num_vqs, GFP_KERNEL);
+> > > > -	if (!callbacks)
+> > > > -		goto err_callbacks;
+> > > > -
+> > > >  	vqs = kmalloc(sizeof(*vqs) * num_vqs, GFP_KERNEL);
+> > > > -	if (!vqs)
+> > > > -		goto err_vqs;
+> > > > +	if (!names || !callbacks || !vqs) {
+> > > > +		err = -ENOMEM;
+> > > > +		goto out;
+> > > > +	}
+> > > 
+> > > ...you could use the
+> > > 
+> > > foo = kmalloc(...);
+> > > if (!foo)
+> > > 	goto out;
+> > > 
+> > > sequence in any case. This avoids trying again and again if e.g. the
+> > > names allocation already failed.
+> > 
+> > For this implementation, I have referred others which calls
+> > vdev->config->find_vqs as well. Yes, this continues trying to allocate
+> > memory, although memory allocation failed before.
+> 
+> It might not be the best idea, though; although it should hopefully be
+> a not-so-common occurrence.
 
-The iput() function tests whether its argument is NULL and then
-returns immediately. Thus the test around the call is not needed.
+Yep, for that memont, there is enough memory to be allocated.
 
-This issue was detected by using the Coccinelle software.
+> 
+> > 
+> > > 
+> > > Alternatively, you should be fine if you don't init the variables to
+> > > NULL: The code is now either taking an early exit or setting all of the
+> > > variables anyway.
+> > > 
+> > 
+> > It's a big change if we refactor the helper ->find_vqs, since other
+> > devices also call it.
+> 
+> Actually, I was referring to not initializing the variables to NULL in
+> this function and keeping the rest of your changes: IOW, just what you
+> suggested above :)
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/virtio/virtio_balloon.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Ok. I will repost an update to fix it.
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 888d5f8..81f7d6c 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -611,8 +611,7 @@ static void virtballoon_remove(struct virtio_device *vdev)
- 	cancel_work_sync(&vb->update_balloon_stats_work);
- 
- 	remove_common(vb);
--	if (vb->vb_dev_info.inode)
--		iput(vb->vb_dev_info.inode);
-+	iput(vb->vb_dev_info.inode);
- 	kfree(vb);
- }
- 
--- 
-2.9.2
+Thanks
+Minfei
+
+> 
