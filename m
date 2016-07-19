@@ -1,11 +1,14 @@
-From: Namhyung Kim <namhyung@gmail.com>
-Subject: [PATCH] content: Reserve virtio device ID for pstore
-Date: Wed, 20 Jul 2016 00:13:37 +0900
-Message-ID: <1468941217-12904-1-git-send-email-namhyung__38394.6592257873$1469306739$gmane$org@gmail.com>
+From: Sean Paul via Virtualization <virtualization@lists.linux-foundation.org>
+Subject: Re: [PATCH -next] drm/virtio: Fix non static symbol warning
+Date: Tue, 19 Jul 2016 15:45:02 -0400
+Message-ID: <CAOw6vbJOGL13JJSgGiT3uE8q9pqYf+X1Rr4=WiW+2KP-Od6xYA__30983.5525732071$1469306747$gmane$org@mail.gmail.com>
+References: <1468932356-26678-1-git-send-email-weiyj_lk@163.com>
+Reply-To: Sean Paul <seanpaul@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1468932356-26678-1-git-send-email-weiyj_lk@163.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,32 +18,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org
-Cc: Namhyung Kim <namhyung@kernel.org>, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Wei Yongjun <weiyj_lk@163.com>
+Cc: David Airlie <airlied@linux.ie>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Wei Yongjun <yongjun_wei@trendmicro.com.cn>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Namhyung Kim <namhyung@kernel.org>
+On Tue, Jul 19, 2016 at 8:45 AM, Wei Yongjun <weiyj_lk@163.com> wrote:
+> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+>
+> Fixes the following sparse warning:
+>
+> drivers/gpu/drm/virtio/virtgpu_display.c:349:37: warning:
+>   symbol 'virtio_mode_config_helpers' was not declared. Should it be static?
+>
+> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
 
-This patch just reserve next available device ID for pstore device
-type.  The device specification for pstore will come later.
+Applied to drm-misc
 
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
----
- content.tex | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/content.tex b/content.tex
-index d989d98..10bacc5 100644
---- a/content.tex
-+++ b/content.tex
-@@ -2990,6 +2990,8 @@ Device ID  &  Virtio Device    \\
- \hline
- 18         &   Input device \\
- \hline
-+22         &   pstore device \\
-+\hline
- \end{tabular}
- 
- Some of the devices above are unspecified by this document,
--- 
-2.8.0
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_display.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+> index fdfc711..4e192aa 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_display.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+> @@ -346,7 +346,7 @@ static void vgdev_atomic_commit_tail(struct drm_atomic_state *state)
+>         drm_atomic_helper_cleanup_planes(dev, state);
+>  }
+>
+> -struct drm_mode_config_helper_funcs virtio_mode_config_helpers = {
+> +static struct drm_mode_config_helper_funcs virtio_mode_config_helpers = {
+>         .atomic_commit_tail = vgdev_atomic_commit_tail,
+>  };
+>
+>
