@@ -1,18 +1,18 @@
 From: Namhyung Kim <namhyung@kernel.org>
-Subject: Re: [PATCH 2/3] qemu: Implement virtio-pstore device
-Date: Wed, 20 Jul 2016 21:46:11 +0900
-Message-ID: <20160720124611.GB5682@danjae.aot.lge.com>
+Subject: Re: [PATCH 1/3] virtio: Basic implementation of virtio pstore driver
+Date: Wed, 20 Jul 2016 21:56:19 +0900
+Message-ID: <CAM9d7cinK951NOk3HBnmFbJEFYGSQoJQSHVrBZtfECFPXByXBg@mail.gmail.com>
 References: <1468816661-6345-1-git-send-email-namhyung@kernel.org>
-	<1468816661-6345-3-git-send-email-namhyung@kernel.org>
-	<20160718100353.GA15163@stefanha-x1.localdomain>
-	<20160718142118.GA16575@danjae.aot.lge.com>
-	<20160720082906.GB13233@stefanha-x1.localdomain>
+	<1468816661-6345-2-git-send-email-namhyung@kernel.org>
+	<CAGXu5jL8frrV99QXrw4touwnXAX0pesxKJnq4Bd_2QZDip7K6Q@mail.gmail.com>
+	<20160718055037.GA8051@danjae.aot.lge.com>
+	<CAGXu5jJBM6GLwR6B28US11v90pFsiU2yJddm4V6kx3CHdLcOqQ@mail.gmail.com>
+	<20160719134303.GA20047@danjae.aot.lge.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160720082906.GB13233@stefanha-x1.localdomain>
+In-Reply-To: <20160719134303.GA20047@danjae.aot.lge.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,59 +22,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: Tony Luck <tony.luck@intel.com>, Radim Kr??m???? <rkrcmar@redhat.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Anton Vorontsov <anton@enomsg.org>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, qemu-devel@nongnu.org, Minchan Kim <minchan@kernel.org>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@kernel.org>
+To: Kees Cook <keescook@chromium.org>
+Cc: Tony Luck <tony.luck@intel.com>, Radim Kr??m???? <rkrcmar@redhat.com>, KVM <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Anton Vorontsov <anton@enomsg.org>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, qemu-devel <qemu-devel@nongnu.org>, Minchan Kim <minchan@kernel.org>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, Paolo Bonzini <pbonzini@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 20, 2016 at 09:29:06AM +0100, Stefan Hajnoczi wrote:
-> On Mon, Jul 18, 2016 at 11:21:18PM +0900, Namhyung Kim wrote:
-> > On Mon, Jul 18, 2016 at 11:03:53AM +0100, Stefan Hajnoczi wrote:
-> > > On Mon, Jul 18, 2016 at 01:37:40PM +0900, Namhyung Kim wrote:
-> > > > From: Namhyung Kim <namhyung@gmail.com>
-> > > > 
-> > > > Add virtio pstore device to allow kernel log files saved on the host.
-> > > > It will save the log files on the directory given by pstore device
-> > > > option.
-> > > > 
-> > > >   $ qemu-system-x86_64 -device virtio-pstore,directory=dir-xx ...
-> > > > 
-> > > >   (guest) # echo c > /proc/sysrq-trigger
-> > > > 
-> > > >   $ ls dir-xx
-> > > >   dmesg-0.enc.z  dmesg-1.enc.z
-> > > > 
-> > > > The log files are usually compressed using zlib.  Users can see the log
-> > > > messages directly on the host or on the guest (using pstore filesystem).
-> > > 
-> > > The implementation is synchronous (i.e. can pause guest code execution),
-> > > does not handle write errors, and does not limit the amount of data the
-> > > guest can write.  This is sufficient for ad-hoc debugging and usage with
-> > > trusted guests.
-> > > 
-> > > If you want this to be available in environments where the guest isn't
-> > > trusted then there must be a limit on how much the guest can write or
-> > > some kind of log rotation.
-> > 
-> > Right.  The synchronous IO is required by the pstore subsystem
-> > implementation AFAIK (it uses a single psinfo->buf in the loop).
-> 
-> The pstore subsystem in Linux may be synchronous but the QEMU device
-> emulation does not have to be synchronous.
-> 
-> Synchronous device emulation means that no other vcpu or QEMU main loop
-> processing can occur while device emulation is blocked in a syscall.
-> This can make the QEMU monitor unavailable for libvirt and management
-> tools.  The guest can experience jitter since vcpus freeze if they
-> vmexit while device emulation is blocked (it holds the QEMU global
-> mutex and prevents other QEMU threads from making progress).
+On Tue, Jul 19, 2016 at 10:43 PM, Namhyung Kim <namhyung@kernel.org> wrote:
+> The other one is the file management on the host side.  I am thinking
+> of a simple way that the log file is splitted when it exceeds the half
+> of the allowed max size.  It would be configurable and might allow
+> unlimited logs if user requests it explicitly (if qemu guys say ok)..
 
-Thanks for your detailed explanation.  I'll try to change pstore
-implementation to deal with async devices.
+On a second thought, I think that size of log file should not exceed
+the pstore buffer size in order to be read back later.  When total size
+of log files becomes larger then the limit, the oldest file of same
+type can be deleted. This way looks simpler to manage IMHO.
+
+Also I think the pstore id should be managed by host device rather
+than guest driver to handle splitted files properly.
 
 Thanks,
 Namhyung
-
-> 
-> You could use include/io.h for asynchronous I/O (qio_channel_add_watch()).
-> 
-> Stefan
