@@ -1,15 +1,13 @@
-From: "Li, Liang Z" <liang.z.li@intel.com>
-Subject: RE: [PATCH v2 kernel 0/7] Extend virtio-balloon for fast
-	(de)inflating & fast live migration
-Date: Thu, 21 Jul 2016 08:14:09 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E0420D5A1__5234.02318726784$1469088867$gmane$org@shsmsx102.ccr.corp.intel.com>
-References: <1467196340-22079-1-git-send-email-liang.z.li@intel.com>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: linux-next: Tree for Jul 21 (gpu/virtio)
+Date: Thu, 21 Jul 2016 09:21:44 -0700
+Message-ID: <eae4bce5-3624-7ef7-f6b8-ca2c3caad2d0__27347.5503352985$1469118129$gmane$org@infradead.org>
+References: <20160721165631.6508756a@canb.auug.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1467196340-22079-1-git-send-email-liang.z.li@intel.com>
-Content-Language: en-US
+In-Reply-To: <20160721165631.6508756a@canb.auug.org.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,66 +17,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "mst@redhat.com" <mst@redhat.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org
+Cc: David Airlie <airlied@linux.ie>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, dri-devel <dri-devel@lists.freedesktop.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Michael,
+On 07/20/16 23:56, Stephen Rothwell wrote:
+> Hi all,
+> 
+> Changes since 20160720:
+> 
 
-If you have time, could you help to review this patch set?
+on x86_64, when CONFIG_FB is not enabled:
 
-Thanks!
-Liang
+ERROR: "remove_conflicting_framebuffers" [drivers/gpu/drm/virtio/virtio-gpu.ko] undefined!
 
 
-> -----Original Message-----
-> From: Li, Liang Z
-> Sent: Wednesday, June 29, 2016 6:32 PM
-> To: mst@redhat.com
-> Cc: linux-kernel@vger.kernel.org; virtualization@lists.linux-foundation.org;
-> kvm@vger.kernel.org; qemu-devel@nongnu.org; virtio-dev@lists.oasis-
-> open.org; dgilbert@redhat.com; quintela@redhat.com; Li, Liang Z
-> Subject: [PATCH v2 kernel 0/7] Extend virtio-balloon for fast (de)inflating &
-> fast live migration
-> 
-> This patch set contains two parts of changes to the virtio-balloon.
-> 
-> One is the change for speeding up the inflating & deflating process, the main
-> idea of this optimization is to use bitmap to send the page information to
-> host instead of the PFNs, to reduce the overhead of virtio data transmission,
-> address translation and madvise(). This can help to improve the performance
-> by about 85%.
-> 
-> Another change is for speeding up live migration. By skipping process guest's
-> free pages in the first round of data copy, to reduce needless data processing,
-> this can help to save quite a lot of CPU cycles and network bandwidth. We
-> put guest's free page information in bitmap and send it to host with the virt
-> queue of virtio-balloon. For an idle 8GB guest, this can help to shorten the
-> total live migration time from 2Sec to about 500ms in the 10Gbps network
-> environment.
-> 
-> 
-> Changes from v1 to v2:
->     * Abandon the patch for dropping page cache.
->     * Put some structures to uapi head file.
->     * Use a new way to determine the page bitmap size.
->     * Use a unified way to send the free page information with the bitmap
->     * Address the issues referred in MST's comments
-> 
-> Liang Li (7):
->   virtio-balloon: rework deflate to add page to a list
->   virtio-balloon: define new feature bit and page bitmap head
->   mm: add a function to get the max pfn
->   virtio-balloon: speed up inflate/deflate process
->   virtio-balloon: define feature bit and head for misc virt queue
->   mm: add the related functions to get free page info
->   virtio-balloon: tell host vm's free page info
-> 
->  drivers/virtio/virtio_balloon.c     | 306
-> +++++++++++++++++++++++++++++++-----
->  include/uapi/linux/virtio_balloon.h |  41 +++++
->  mm/page_alloc.c                     |  52 ++++++
->  3 files changed, 359 insertions(+), 40 deletions(-)
-> 
-> --
-> 1.8.3.1
+-- 
+~Randy
