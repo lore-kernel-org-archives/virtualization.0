@@ -1,13 +1,15 @@
-From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v3 3/4] locking/osq: Drop the overhead of osq_lock()
-Date: Thu, 21 Jul 2016 07:45:13 -0400
-Message-ID: <1469101514-49475-4-git-send-email-xinhui.pan__16565.648178994$1469087278$gmane$org@linux.vnet.ibm.com>
-References: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+From: "Li, Liang Z" <liang.z.li@intel.com>
+Subject: RE: [PATCH v2 kernel 0/7] Extend virtio-balloon for fast
+	(de)inflating & fast live migration
+Date: Thu, 21 Jul 2016 08:14:09 +0000
+Message-ID: <F2CBF3009FA73547804AE4C663CAB28E0420D5A1__5234.02318726784$1469088867$gmane$org@shsmsx102.ccr.corp.intel.com>
+References: <1467196340-22079-1-git-send-email-liang.z.li@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+In-Reply-To: <1467196340-22079-1-git-send-email-liang.z.li@intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,75 +19,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org
-Cc: kernellwp@gmail.com, jgross@suse.com, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, peterz@infradead.org, benh@kernel.crashing.org, will.deacon@arm.com, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com
+To: "mst@redhat.com" <mst@redhat.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-An over-committed guest with more vCPUs than pCPUs has a heavy overhead in
-osq_lock().
+Hi Michael,
 
-This is because vCPU A hold the osq lock and yield out, vCPU B wait per_cpu
-node->locked to be set. IOW, vCPU B wait vCPU A to run and unlock the osq
-lock.
+If you have time, could you help to review this patch set?
 
-Kernel has an interface bool vcpu_is_preempted(int cpu) to see if a vCPU is
-currently running or not. So break the spin loops on true condition.
+Thanks!
+Liang
 
-test case:
-perf record -a perf bench sched messaging -g 400 -p && perf report
 
-before patch:
-18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
-12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
- 5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
- 3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
- 3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
- 3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
- 2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
-
-after patch:
-20.68%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner
- 8.45%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
- 4.12%  sched-messaging  [kernel.vmlinux]  [k] system_call
- 3.01%  sched-messaging  [kernel.vmlinux]  [k] system_call_common
- 2.83%  sched-messaging  [kernel.vmlinux]  [k] copypage_power7
- 2.64%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
- 2.00%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
-
-Suggested-by: Boqun Feng <boqun.feng@gmail.com>
-Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
----
- kernel/locking/osq_lock.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
-
-diff --git a/kernel/locking/osq_lock.c b/kernel/locking/osq_lock.c
-index 05a3785..858a0ed 100644
---- a/kernel/locking/osq_lock.c
-+++ b/kernel/locking/osq_lock.c
-@@ -21,6 +21,11 @@ static inline int encode_cpu(int cpu_nr)
- 	return cpu_nr + 1;
- }
- 
-+static inline int node_cpu(struct optimistic_spin_node *node)
-+{
-+	return node->cpu - 1;
-+}
-+
- static inline struct optimistic_spin_node *decode_cpu(int encoded_cpu_val)
- {
- 	int cpu_nr = encoded_cpu_val - 1;
-@@ -118,8 +123,11 @@ bool osq_lock(struct optimistic_spin_queue *lock)
- 	while (!READ_ONCE(node->locked)) {
- 		/*
- 		 * If we need to reschedule bail... so we can block.
-+		 * Use vcpu_is_preempted to detech lock holder preemption issue
-+		 * and break the loop. vcpu_is_preempted is a macro defined by
-+		 * false if arch does not support vcpu preempted check,
- 		 */
--		if (need_resched())
-+		if (need_resched() || vcpu_is_preempted(node_cpu(node->prev)))
- 			goto unqueue;
- 
- 		cpu_relax_lowlatency();
--- 
-2.4.11
+> -----Original Message-----
+> From: Li, Liang Z
+> Sent: Wednesday, June 29, 2016 6:32 PM
+> To: mst@redhat.com
+> Cc: linux-kernel@vger.kernel.org; virtualization@lists.linux-foundation.org;
+> kvm@vger.kernel.org; qemu-devel@nongnu.org; virtio-dev@lists.oasis-
+> open.org; dgilbert@redhat.com; quintela@redhat.com; Li, Liang Z
+> Subject: [PATCH v2 kernel 0/7] Extend virtio-balloon for fast (de)inflating &
+> fast live migration
+> 
+> This patch set contains two parts of changes to the virtio-balloon.
+> 
+> One is the change for speeding up the inflating & deflating process, the main
+> idea of this optimization is to use bitmap to send the page information to
+> host instead of the PFNs, to reduce the overhead of virtio data transmission,
+> address translation and madvise(). This can help to improve the performance
+> by about 85%.
+> 
+> Another change is for speeding up live migration. By skipping process guest's
+> free pages in the first round of data copy, to reduce needless data processing,
+> this can help to save quite a lot of CPU cycles and network bandwidth. We
+> put guest's free page information in bitmap and send it to host with the virt
+> queue of virtio-balloon. For an idle 8GB guest, this can help to shorten the
+> total live migration time from 2Sec to about 500ms in the 10Gbps network
+> environment.
+> 
+> 
+> Changes from v1 to v2:
+>     * Abandon the patch for dropping page cache.
+>     * Put some structures to uapi head file.
+>     * Use a new way to determine the page bitmap size.
+>     * Use a unified way to send the free page information with the bitmap
+>     * Address the issues referred in MST's comments
+> 
+> Liang Li (7):
+>   virtio-balloon: rework deflate to add page to a list
+>   virtio-balloon: define new feature bit and page bitmap head
+>   mm: add a function to get the max pfn
+>   virtio-balloon: speed up inflate/deflate process
+>   virtio-balloon: define feature bit and head for misc virt queue
+>   mm: add the related functions to get free page info
+>   virtio-balloon: tell host vm's free page info
+> 
+>  drivers/virtio/virtio_balloon.c     | 306
+> +++++++++++++++++++++++++++++++-----
+>  include/uapi/linux/virtio_balloon.h |  41 +++++
+>  mm/page_alloc.c                     |  52 ++++++
+>  3 files changed, 359 insertions(+), 40 deletions(-)
+> 
+> --
+> 1.8.3.1
