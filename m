@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v3] virtio: new feature to detect IOMMU device quirk
-Date: Mon, 25 Jul 2016 22:13:05 +0300
-Message-ID: <20160725214322-mutt-send-email-mst__39121.7320379384$1469474002$gmane$org@kernel.org>
+Date: Tue, 26 Jul 2016 21:50:56 +0300
+Message-ID: <20160726185056.GA16244__18233.2159289674$1469559073$gmane$org@redhat.com>
 References: <20160719053823-mutt-send-email-mst@redhat.com>
 	<20160725075009.GA25638@infradead.org>
 Mime-Version: 1.0
@@ -38,11 +38,7 @@ On Mon, Jul 25, 2016 at 12:50:09AM -0700, Christoph Hellwig wrote:
 > > the device is behind an IOMMU.
 > 
 > This is the wrong way around.
-
-Well given there are tons of quirky devices out there
-and they have this bit set to 0, I don't think we can change this.
-New devices will have it set to 1.
-
+> 
 > > Note: it has to be a per-device quirk because for example, there could
 > > be a mix of passed-through and virtual virtio devices. As another
 > > example, some devices could be implemented by an out of process
@@ -65,8 +61,14 @@ New devices will have it set to 1.
 > operation vectors for DMA, so the only thing you need is a dma_ops
 > pointer in struct device initialized to what get_dma_ops returns.
 
-And then pci_dma_configure would have a quirk to
-set that for legacy virtio devices?
+Given the timing, I suspect this will mean missing 4.8 though and I'd
+much rather have something working finally and clean it up later.
+
+And from experience, people seem to find it easier to re-factor
+and clean up working code.
+
+This patch is all of 10 lines so I'm comfortable including it right away -
+I'll add a big TODO in v4 so we don't forget.
 
 -- 
 MST
