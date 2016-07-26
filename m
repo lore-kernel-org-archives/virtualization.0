@@ -1,15 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3] virtio: new feature to detect IOMMU device quirk
-Date: Tue, 26 Jul 2016 21:50:56 +0300
-Message-ID: <20160726185056.GA16244__18233.2159289674$1469559073$gmane$org@redhat.com>
-References: <20160719053823-mutt-send-email-mst@redhat.com>
-	<20160725075009.GA25638@infradead.org>
+Subject: Re: [PATCH v2 kernel 0/7] Extend virtio-balloon for fast
+	(de)inflating & fast live migration
+Date: Tue, 26 Jul 2016 21:55:13 +0300
+Message-ID: <20160726215256-mutt-send-email-mst__26130.3560961553$1469559337$gmane$org@kernel.org>
+References: <1467196340-22079-1-git-send-email-liang.z.li@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20160725075009.GA25638@infradead.org>
+In-Reply-To: <1467196340-22079-1-git-send-email-liang.z.li@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,56 +19,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Liang Li <liang.z.li@intel.com>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, dgilbert@redhat.com, linux-mm@kvack.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 25, 2016 at 12:50:09AM -0700, Christoph Hellwig wrote:
-> On Tue, Jul 19, 2016 at 05:38:23AM +0300, Michael S. Tsirkin wrote:
-> > 
-> > On other systems, including SPARC and PPC64, virtio-pci devices are
-> > enumerated as though they are behind an IOMMU, but the virtio host
-> > ignores the IOMMU, so we must either pretend that the IOMMU isn't
-> > there or somehow map everything as the identity.
-> > 
-> > Add a feature bit to detect that quirk: VIRTIO_F_IOMMU_PLATFORM.
-> > 
-> > Any device with this feature bit set to 0 needs a quirk and has to be
-> > passed physical addresses (as opposed to bus addresses) even though
-> > the device is behind an IOMMU.
+On Wed, Jun 29, 2016 at 06:32:13PM +0800, Liang Li wrote:
+> This patch set contains two parts of changes to the virtio-balloon. 
 > 
-> This is the wrong way around.
+> One is the change for speeding up the inflating & deflating process,
+> the main idea of this optimization is to use bitmap to send the page
+> information to host instead of the PFNs, to reduce the overhead of
+> virtio data transmission, address translation and madvise(). This can
+> help to improve the performance by about 85%.
 > 
-> > Note: it has to be a per-device quirk because for example, there could
-> > be a mix of passed-through and virtual virtio devices. As another
-> > example, some devices could be implemented by an out of process
-> > hypervisor backend (in case of qemu vhost, or vhost-user) and so support
-> > for an IOMMU needs to be coded up separately.
-> > 
-> > It would be cleanest to handle this in IOMMU core code, but that needs
-> > per-device DMA ops. While we are waiting for that to be implemented, use
-> > a work-around in virtio core.
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
-> > 
-> > wanted to use per-device dma ops but that does not
-> > seem to be ready. So let's put this in virtio
-> > code for now, and move when it becomes possible.
+> Another change is for speeding up live migration. By skipping process
+> guest's free pages in the first round of data copy, to reduce needless
+> data processing, this can help to save quite a lot of CPU cycles and
+> network bandwidth. We put guest's free page information in bitmap and
+> send it to host with the virt queue of virtio-balloon. For an idle 8GB
+> guest, this can help to shorten the total live migration time from 2Sec
+> to about 500ms in the 10Gbps network environment.  
+
+So I'm fine with this patchset, but I noticed it was not
+yet reviewed by MM people. And that is not surprising since
+you did not copy memory management mailing list on it.
+
+I added linux-mm@kvack.org Cc on this mail but this might not be enough.
+
+Please repost (e.g. [PATCH v2 repost]) copying the relevant mailing list
+so we can get some reviews.
+
+
 > 
-> So work on making it ready.  We're close to there, and given that
-> virtio needs it, finish it off.  We now have everyone using the
-> operation vectors for DMA, so the only thing you need is a dma_ops
-> pointer in struct device initialized to what get_dma_ops returns.
-
-Given the timing, I suspect this will mean missing 4.8 though and I'd
-much rather have something working finally and clean it up later.
-
-And from experience, people seem to find it easier to re-factor
-and clean up working code.
-
-This patch is all of 10 lines so I'm comfortable including it right away -
-I'll add a big TODO in v4 so we don't forget.
-
--- 
-MST
+> Changes from v1 to v2:
+>     * Abandon the patch for dropping page cache.
+>     * Put some structures to uapi head file.
+>     * Use a new way to determine the page bitmap size.
+>     * Use a unified way to send the free page information with the bitmap 
+>     * Address the issues referred in MST's comments
+> 
+> Liang Li (7):
+>   virtio-balloon: rework deflate to add page to a list
+>   virtio-balloon: define new feature bit and page bitmap head
+>   mm: add a function to get the max pfn
+>   virtio-balloon: speed up inflate/deflate process
+>   virtio-balloon: define feature bit and head for misc virt queue
+>   mm: add the related functions to get free page info
+>   virtio-balloon: tell host vm's free page info
+> 
+>  drivers/virtio/virtio_balloon.c     | 306 +++++++++++++++++++++++++++++++-----
+>  include/uapi/linux/virtio_balloon.h |  41 +++++
+>  mm/page_alloc.c                     |  52 ++++++
+>  3 files changed, 359 insertions(+), 40 deletions(-)
+> 
+> -- 
+> 1.8.3.1
