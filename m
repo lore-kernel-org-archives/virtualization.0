@@ -1,16 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 repost 7/7] virtio-balloon: tell host vm's free page
-	info
-Date: Thu, 28 Jul 2016 01:00:19 +0300
-Message-ID: <20160728004606-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH v2 repost 6/7] mm: add the related functions to get free
+	page info
+Date: Thu, 28 Jul 2016 01:05:12 +0300
+Message-ID: <20160728010030-mutt-send-email-mst__43440.2620922357$1469657140$gmane$org@kernel.org>
 References: <1469582616-5729-1-git-send-email-liang.z.li@intel.com>
-	<1469582616-5729-8-git-send-email-liang.z.li@intel.com>
+	<1469582616-5729-7-git-send-email-liang.z.li@intel.com>
+	<5798E418.7080608@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1469582616-5729-8-git-send-email-liang.z.li@intel.com>
+In-Reply-To: <5798E418.7080608@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,217 +21,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Liang Li <liang.z.li@intel.com>
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, Amit Shah <amit.shah@redhat.com>, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, Vlastimil Babka <vbabka@suse.cz>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org, Mel Gorman <mgorman@techsingularity.net>, dgilbert@redhat.com
+To: Dave Hansen <dave.hansen@intel.com>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, Amit Shah <amit.shah@redhat.com>, Liang Li <liang.z.li@intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Vlastimil Babka <vbabka@suse.cz>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Mel Gorman <mgorman@techsingularity.net>, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 27, 2016 at 09:23:36AM +0800, Liang Li wrote:
-> Support the request for vm's free page information, response with
-> a page bitmap. QEMU can make use of this free page bitmap to speed
-> up live migration process by skipping process the free pages.
+On Wed, Jul 27, 2016 at 09:40:56AM -0700, Dave Hansen wrote:
+> On 07/26/2016 06:23 PM, Liang Li wrote:
+> > +	for_each_migratetype_order(order, t) {
+> > +		list_for_each(curr, &zone->free_area[order].free_list[t]) {
+> > +			pfn = page_to_pfn(list_entry(curr, struct page, lru));
+> > +			if (pfn >= start_pfn && pfn <= end_pfn) {
+> > +				page_num = 1UL << order;
+> > +				if (pfn + page_num > end_pfn)
+> > +					page_num = end_pfn - pfn;
+> > +				bitmap_set(bitmap, pfn - start_pfn, page_num);
+> > +			}
+> > +		}
+> > +	}
 > 
-> Signed-off-by: Liang Li <liang.z.li@intel.com>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Vlastimil Babka <vbabka@suse.cz>
-> Cc: Mel Gorman <mgorman@techsingularity.net>
-> Cc: Paolo Bonzini <pbonzini@redhat.com>
-> Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
-> Cc: Amit Shah <amit.shah@redhat.com>
-> ---
->  drivers/virtio/virtio_balloon.c | 104 +++++++++++++++++++++++++++++++++++++---
->  1 file changed, 98 insertions(+), 6 deletions(-)
+> Nit:  The 'page_num' nomenclature really confused me here.  It is the
+> number of bits being set in the bitmap.  Seems like calling it nr_pages
+> or num_pages would be more appropriate.
 > 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 2d18ff6..5ca4ad3 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -62,10 +62,13 @@ module_param(oom_pages, int, S_IRUSR | S_IWUSR);
->  MODULE_PARM_DESC(oom_pages, "pages to free on OOM");
->  
->  extern unsigned long get_max_pfn(void);
-> +extern int get_free_pages(unsigned long start_pfn, unsigned long end_pfn,
-> +		unsigned long *bitmap, unsigned long len);
-> +
->  
->  struct virtio_balloon {
->  	struct virtio_device *vdev;
-> -	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq;
-> +	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq, *misc_vq;
->  
->  	/* The balloon servicing is delegated to a freezable workqueue. */
->  	struct work_struct update_balloon_stats_work;
-> @@ -89,6 +92,8 @@ struct virtio_balloon {
->  	unsigned long pfn_limit;
->  	/* Used to record the processed pfn range */
->  	unsigned long min_pfn, max_pfn, start_pfn, end_pfn;
-> +	/* Request header */
-> +	struct balloon_req_hdr req_hdr;
->  	/*
->  	 * The pages we've told the Host we're not using are enqueued
->  	 * at vb_dev_info->pages list.
-> @@ -373,6 +378,49 @@ static void update_balloon_stats(struct virtio_balloon *vb)
->  				pages_to_bytes(available));
->  }
->  
-> +static void update_free_pages_stats(struct virtio_balloon *vb,
+> Isn't this bitmap out of date by the time it's send up to the
+> hypervisor?  Is there something that makes the inaccuracy OK here?
 
-why _stats?
+Yes. Calling these free pages is unfortunate. It's likely to confuse
+people thinking they can just discard these pages.
 
-> +				unsigned long req_id)
-> +{
-> +	struct scatterlist sg_in, sg_out;
-> +	unsigned long pfn = 0, bmap_len, max_pfn;
-> +	struct virtqueue *vq = vb->misc_vq;
-> +	struct balloon_bmap_hdr *hdr = vb->bmap_hdr;
-> +	int ret = 1;
-> +
-> +	max_pfn = get_max_pfn();
-> +	mutex_lock(&vb->balloon_lock);
-> +	while (pfn < max_pfn) {
-> +		memset(vb->page_bitmap, 0, vb->bmap_len);
-> +		ret = get_free_pages(pfn, pfn + vb->pfn_limit,
-> +			vb->page_bitmap, vb->bmap_len * BITS_PER_BYTE);
-> +		hdr->cmd = cpu_to_virtio16(vb->vdev, BALLOON_GET_FREE_PAGES);
-> +		hdr->page_shift = cpu_to_virtio16(vb->vdev, PAGE_SHIFT);
-> +		hdr->req_id = cpu_to_virtio64(vb->vdev, req_id);
-> +		hdr->start_pfn = cpu_to_virtio64(vb->vdev, pfn);
-> +		bmap_len = vb->pfn_limit / BITS_PER_BYTE;
-> +		if (!ret) {
-> +			hdr->flag = cpu_to_virtio16(vb->vdev,
-> +							BALLOON_FLAG_DONE);
-> +			if (pfn + vb->pfn_limit > max_pfn)
-> +				bmap_len = (max_pfn - pfn) / BITS_PER_BYTE;
-> +		} else
-> +			hdr->flag = cpu_to_virtio16(vb->vdev,
-> +							BALLOON_FLAG_CONT);
-> +		hdr->bmap_len = cpu_to_virtio64(vb->vdev, bmap_len);
-> +		sg_init_one(&sg_out, hdr,
-> +			 sizeof(struct balloon_bmap_hdr) + bmap_len);
+Hypervisor sends a request. We respond with this list of pages, and
+the guarantee hypervisor needs is that these were free sometime between request
+and response, so they are safe to free if they are unmodified
+since the request. hypervisor can detect modifications so
+it can detect modifications itself and does not need guest help.
 
-Wait a second. This adds the same buffer multiple times in a loop.
-We will overwrite the buffer without waiting for
-hypervisor to process it. What did I miss?
-> +
-> +		virtqueue_add_outbuf(vq, &sg_out, 1, vb, GFP_KERNEL);
+Maybe just call these "free if unmodified" and reflect this
+everywhere - verbose but hey. Better naming suggestions would be
+welcome.
 
-this can fail. you want to maybe make sure vq has enough space
-before you use it or check error and wait.
-
-> +		virtqueue_kick(vq);
-
-why kick here within loop? wait until done. in fact kick
-outside lock is better for smp.
-
-> +		pfn += vb->pfn_limit;
-> +	}
-> +
-> +	sg_init_one(&sg_in, &vb->req_hdr, sizeof(vb->req_hdr));
-> +	virtqueue_add_inbuf(vq, &sg_in, 1, &vb->req_hdr, GFP_KERNEL);
-> +	virtqueue_kick(vq);
-> +	mutex_unlock(&vb->balloon_lock);
-> +}
-> +
->  /*
->   * While most virtqueues communicate guest-initiated requests to the hypervisor,
->   * the stats queue operates in reverse.  The driver initializes the virtqueue
-> @@ -511,18 +559,49 @@ static void update_balloon_size_func(struct work_struct *work)
->  		queue_work(system_freezable_wq, work);
->  }
->  
-> +static void misc_handle_rq(struct virtio_balloon *vb)
-> +{
-> +	struct balloon_req_hdr *ptr_hdr;
-> +	unsigned int len;
-> +
-> +	ptr_hdr = virtqueue_get_buf(vb->misc_vq, &len);
-> +	if (!ptr_hdr || len != sizeof(vb->req_hdr))
-> +		return;
-> +
-> +	switch (ptr_hdr->cmd) {
-> +	case BALLOON_GET_FREE_PAGES:
-> +		update_free_pages_stats(vb, ptr_hdr->param);
-> +		break;
-> +	default:
-> +		break;
-> +	}
-> +}
-> +
-> +static void misc_request(struct virtqueue *vq)
-> +{
-> +	struct virtio_balloon *vb = vq->vdev->priv;
-> +
-> +	misc_handle_rq(vb);
-> +}
-> +
->  static int init_vqs(struct virtio_balloon *vb)
->  {
-> -	struct virtqueue *vqs[3];
-> -	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_request };
-> -	static const char * const names[] = { "inflate", "deflate", "stats" };
-> +	struct virtqueue *vqs[4];
-> +	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack,
-> +					 stats_request, misc_request };
-> +	static const char * const names[] = { "inflate", "deflate", "stats",
-> +						 "misc" };
->  	int err, nvqs;
->  
->  	/*
->  	 * We expect two virtqueues: inflate and deflate, and
->  	 * optionally stat.
->  	 */
-> -	nvqs = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ) ? 3 : 2;
-> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_MISC_VQ))
-> +		nvqs = 4;
-
-Does misc vq depend on stats vq feature then? if yes please validate that.
-
-
-> +	else
-> +		nvqs = virtio_has_feature(vb->vdev,
-> +					  VIRTIO_BALLOON_F_STATS_VQ) ? 3 : 2;
-
-Replace that ? with else too pls.
-
->  	err = vb->vdev->config->find_vqs(vb->vdev, nvqs, vqs, callbacks, names);
->  	if (err)
->  		return err;
-> @@ -543,6 +622,16 @@ static int init_vqs(struct virtio_balloon *vb)
->  			BUG();
->  		virtqueue_kick(vb->stats_vq);
->  	}
-> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_MISC_VQ)) {
-> +		struct scatterlist sg_in;
-> +
-> +		vb->misc_vq = vqs[3];
-> +		sg_init_one(&sg_in, &vb->req_hdr, sizeof(vb->req_hdr));
-> +		if (virtqueue_add_inbuf(vb->misc_vq, &sg_in, 1,
-> +		    &vb->req_hdr, GFP_KERNEL) < 0)
-> +			BUG();
-> +		virtqueue_kick(vb->misc_vq);
-> +	}
->  	return 0;
->  }
->  
-> @@ -639,8 +728,10 @@ static int virtballoon_probe(struct virtio_device *vdev)
->  	vb->bmap_hdr = kzalloc(hdr_len + vb->bmap_len, GFP_KERNEL);
->  
->  	/* Clear the feature bit if memory allocation fails */
-> -	if (!vb->bmap_hdr)
-> +	if (!vb->bmap_hdr) {
->  		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_BITMAP);
-> +		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_MISC_VQ);
-> +	}
->  	else
->  		vb->page_bitmap = vb->bmap_hdr + hdr_len;
->  	mutex_init(&vb->balloon_lock);
-> @@ -743,6 +834,7 @@ static unsigned int features[] = {
->  	VIRTIO_BALLOON_F_STATS_VQ,
->  	VIRTIO_BALLOON_F_DEFLATE_ON_OOM,
->  	VIRTIO_BALLOON_F_PAGE_BITMAP,
-> +	VIRTIO_BALLOON_F_MISC_VQ,
->  };
->  
->  static struct virtio_driver virtio_balloon_driver = {
-> -- 
-> 1.9.1
+-- 
+MST
