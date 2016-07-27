@@ -1,12 +1,19 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v4] virtio: new feature to detect IOMMU device quirk
-Date: Thu, 28 Jul 2016 01:50:52 +0300
-Message-ID: <1469659378-15957-1-git-send-email-mst@redhat.com>
+Subject: Re: [PATCH v2 repost 6/7] mm: add the related functions to get free
+	page info
+Date: Thu, 28 Jul 2016 02:05:04 +0300
+Message-ID: <20160728015205-mutt-send-email-mst__19197.1151777127$1469660726$gmane$org@kernel.org>
+References: <1469582616-5729-1-git-send-email-liang.z.li@intel.com>
+	<1469582616-5729-7-git-send-email-liang.z.li@intel.com>
+	<5798E418.7080608@intel.com>
+	<20160728010030-mutt-send-email-mst@kernel.org>
+	<579932D9.6000106@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <579932D9.6000106@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,118 +23,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Christoph Hellwig <hch@infradead.org>, virtualization@lists.linux-foundation.org
+To: Dave Hansen <dave.hansen@intel.com>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, Amit Shah <amit.shah@redhat.com>, Liang Li <liang.z.li@intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Vlastimil Babka <vbabka@suse.cz>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Mel Gorman <mgorman@techsingularity.net>, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The interaction between virtio and IOMMUs is messy.
+On Wed, Jul 27, 2016 at 03:16:57PM -0700, Dave Hansen wrote:
+> On 07/27/2016 03:05 PM, Michael S. Tsirkin wrote:
+> > On Wed, Jul 27, 2016 at 09:40:56AM -0700, Dave Hansen wrote:
+> >> On 07/26/2016 06:23 PM, Liang Li wrote:
+> >>> +	for_each_migratetype_order(order, t) {
+> >>> +		list_for_each(curr, &zone->free_area[order].free_list[t]) {
+> >>> +			pfn = page_to_pfn(list_entry(curr, struct page, lru));
+> >>> +			if (pfn >= start_pfn && pfn <= end_pfn) {
+> >>> +				page_num = 1UL << order;
+> >>> +				if (pfn + page_num > end_pfn)
+> >>> +					page_num = end_pfn - pfn;
+> >>> +				bitmap_set(bitmap, pfn - start_pfn, page_num);
+> >>> +			}
+> >>> +		}
+> >>> +	}
+> >>
+> >> Nit:  The 'page_num' nomenclature really confused me here.  It is the
+> >> number of bits being set in the bitmap.  Seems like calling it nr_pages
+> >> or num_pages would be more appropriate.
+> >>
+> >> Isn't this bitmap out of date by the time it's send up to the
+> >> hypervisor?  Is there something that makes the inaccuracy OK here?
+> > 
+> > Yes. Calling these free pages is unfortunate. It's likely to confuse
+> > people thinking they can just discard these pages.
+> > 
+> > Hypervisor sends a request. We respond with this list of pages, and
+> > the guarantee hypervisor needs is that these were free sometime between request
+> > and response, so they are safe to free if they are unmodified
+> > since the request. hypervisor can detect modifications so
+> > it can detect modifications itself and does not need guest help.
+> 
+> Ahh, that makes sense.
+> 
+> So the hypervisor is trying to figure out: "Which pages do I move?".  It
+> wants to know which pages the guest thinks have good data and need to
+> move.  But, the list of free pages is (likely) smaller than the list of
+> pages with good data, so it asks for that instead.
+> 
+> A write to a page means that it has valuable data, regardless of whether
+> it was in the free list or not.
+> 
+> The hypervisor only skips moving pages that were free *and* were never
+> written to.
 
-On most systems with virtio, physical addresses match bus addresses,
-and it doesn't particularly matter which one we use to program
-the device.
+Right - except never is a long time, so we just need it "since the request
+was received".
 
-On some systems, including Xen and any system with a physical device
-that speaks virtio behind a physical IOMMU, we must program the IOMMU
-for virtio DMA to work at all.
+> So we never lose data, even if this "get free page info"
+> stuff is totally out of date.
 
-On other systems, including SPARC and PPC64, virtio-pci devices are
-enumerated as though they are behind an IOMMU, but the virtio host
-ignores the IOMMU, so we must either pretend that the IOMMU isn't
-there or somehow map everything as the identity.
+So if you include pages that were written to before the request
+then yes data will be lost. This is why we do this scan
+after we get the request and not e.g. on boot :)
 
-Add a feature bit to detect that quirk: VIRTIO_F_IOMMU_PLATFORM.
+> The patch description and code comments are, um, a _bit_ light for this
+> level of subtlety. :)
 
-Any device with this feature bit set to 0 needs a quirk and has to be
-passed physical addresses (as opposed to bus addresses) even though
-the device is behind an IOMMU.
+Add to that, for any page it is safe to skip and not add it to list.
+So the requirement is for when page must *not* be on this list:
+it must not be there if it is needed by guest but was not
+modified since the request.
 
-Note: it has to be a per-device quirk because for example, there could
-be a mix of passed-through and virtual virtio devices. As another
-example, some devices could be implemented by an out of process
-hypervisor backend (in case of qemu vhost, or vhost-user) and so support
-for an IOMMU needs to be coded up separately.
+Calling it "free" will just keep confusing people.  Either use the
+verbose "free or modified" or invent a new word like "discardable" and
+add a comment explaining that page is always discardable unless it's
+content is needed by Linux but was not modified since the request.
 
-It would be cleanest to handle this in IOMMU core code, but that needs
-per-device DMA ops. This should not be hard to do, and it will serve
-to replace the existing Xen hacks, but doesn't seem practical for 4.8
-and we don't want to defer hardware support until that's ready.
-Add a TODO so we remember to clean it up for 4.9.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
-
-Changes from v3:
-	In response to Christoph's comments, add TODO so we remember to
-	move this into DMA core.  Definitely something we want to do but doesn't
-	seem practical for this release cycle.
-
- include/uapi/linux/virtio_config.h |  4 +++-
- drivers/virtio/virtio_ring.c       | 15 ++++++++++++++-
- 2 files changed, 17 insertions(+), 2 deletions(-)
-
-diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
-index 4cb65bb..3f6195e 100644
---- a/include/uapi/linux/virtio_config.h
-+++ b/include/uapi/linux/virtio_config.h
-@@ -49,7 +49,7 @@
-  * transport being used (eg. virtio_ring), the rest are per-device feature
-  * bits. */
- #define VIRTIO_TRANSPORT_F_START	28
--#define VIRTIO_TRANSPORT_F_END		33
-+#define VIRTIO_TRANSPORT_F_END		34
- 
- #ifndef VIRTIO_CONFIG_NO_LEGACY
- /* Do we get callbacks when the ring is completely used, even if we've
-@@ -63,4 +63,6 @@
- /* v1.0 compliant. */
- #define VIRTIO_F_VERSION_1		32
- 
-+/* Do not bypass the IOMMU (if configured) */
-+#define VIRTIO_F_IOMMU_PLATFORM		33
- #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index ca6bfdd..a0571f6 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -117,7 +117,10 @@ struct vring_virtqueue {
- #define to_vvq(_vq) container_of(_vq, struct vring_virtqueue, vq)
- 
- /*
-- * The interaction between virtio and a possible IOMMU is a mess.
-+ * Modern virtio devices might set feature bits to specify whether
-+ * they use the platform IOMMU. If there, just use the DMA API.
-+ *
-+ * If not there, the interaction between virtio and DMA API is messy.
-  *
-  * On most systems with virtio, physical addresses match bus addresses,
-  * and it doesn't particularly matter whether we use the DMA API.
-@@ -133,10 +136,18 @@ struct vring_virtqueue {
-  *
-  * For the time being, we preserve historic behavior and bypass the DMA
-  * API.
-+ *
-+ * TODO: install a per-device DMA ops structure that does the right thing
-+ * taking into account all the above quirks, and use the DMA API
-+ * unconditionally on data path.
-  */
- 
- static bool vring_use_dma_api(struct virtio_device *vdev)
- {
-+	if (virtio_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM))
-+		return true;
-+
-+	/* Otherwise, we are left to guess. */
- 	/*
- 	 * In theory, it's possible to have a buggy QEMU-supposed
- 	 * emulated Q35 IOMMU and Xen enabled at the same time.  On
-@@ -1099,6 +1110,8 @@ void vring_transport_features(struct virtio_device *vdev)
- 			break;
- 		case VIRTIO_F_VERSION_1:
- 			break;
-+		case VIRTIO_F_IOMMU_PLATFORM:
-+			break;
- 		default:
- 			/* We don't understand this bit. */
- 			__virtio_clear_bit(vdev, i);
 -- 
 MST
