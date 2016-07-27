@@ -1,16 +1,18 @@
-From: Namhyung Kim <namhyung@kernel.org>
-Subject: Re: [Qemu-devel] [PATCH 6/7] qemu: Implement virtio-pstore device
-Date: Sat, 30 Jul 2016 17:57:02 +0900
-Message-ID: <20160730085702.GB26275@danjae.aot.lge.com>
-References: <1469632111-23260-1-git-send-email-namhyung@kernel.org>
-	<1469632111-23260-7-git-send-email-namhyung@kernel.org>
-	<20160728132239.GM22677@redhat.com>
+From: Zhangfei Gao <zhangfei.gao@gmail.com>
+Subject: Re: ext4 error when testing virtio-scsi & vhost-scsi
+Date: Wed, 27 Jul 2016 15:58:55 +0800
+Message-ID: <CAMj5BkifLL=3C5f0VZKhpNmi81em8P5VNupr7d7_aD=uo2Hwow__33854.7000581913$1469899203$gmane$org@mail.gmail.com>
+References: <CAMj5BkiVGQ4dAUY+wi-+O4qRdVS6YPiUP2BpsiE5y0r+2AhLgw@mail.gmail.com>
+	<CAMj5BkiKC2m3PLHvoDWwyj9BQZ-Bg5mD0f1J0kZcpwroH+rR1g@mail.gmail.com>
+	<CAMj5BkgSXjD+_GB_VPgizowyyJ1uYxLiKd7ehQmEdVvnuY55cA@mail.gmail.com>
+	<20160712164324.GC11020@thunk.org>
+	<CAMj5BkgTycMbfQpUVAV17ahYT1sGm6w3YDtpz0E--vN=tF55xA@mail.gmail.com>
+	<CAMj5BkicJhB1Bk6q_ZT_nMKSPWf1XEGchtnGnMPFy=O_0x91hA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160728132239.GM22677@redhat.com>
+In-Reply-To: <CAMj5BkicJhB1Bk6q_ZT_nMKSPWf1XEGchtnGnMPFy=O_0x91hA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,264 +22,159 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Daniel P. Berrange" <berrange@redhat.com>
-Cc: Tony Luck <tony.luck@intel.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Radim Kr??m???? <rkrcmar@redhat.com>, LKML <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org, Steven Rostedt <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Minchan Kim <minchan@kernel.org>, Anton Vorontsov <anton@enomsg.org>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, Paolo Bonzini <pbonzini@redhat.com>, Ingo Molnar <mingo@kernel.org>
+To: Theodore Ts'o <tytso@mit.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Nicholas Bellinger <nab@linux-iscsi.org>
+Cc: linux-ext4@vger.kernel.org, target-devel@vger.kernel.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 28, 2016 at 02:22:39PM +0100, Daniel P. Berrange wrote:
-> On Thu, Jul 28, 2016 at 12:08:30AM +0900, Namhyung Kim wrote:
-> > Add virtio pstore device to allow kernel log files saved on the host.
-> > It will save the log files on the directory given by pstore device
-> > option.
-> > 
-> >   $ qemu-system-x86_64 -device virtio-pstore,directory=dir-xx ...
-> > 
-> >   (guest) # echo c > /proc/sysrq-trigger
-> > 
-> >   $ ls dir-xx
-> >   dmesg-1.enc.z  dmesg-2.enc.z
-> > 
-> > The log files are usually compressed using zlib.  Users can see the log
-> > messages directly on the host or on the guest (using pstore filesystem).
-> > 
-> > The 'directory' property is required for virtio-pstore device to work.
-> > It also adds 'bufsize' and 'console' (boolean) properties.
-> > 
-> > Cc: Paolo Bonzini <pbonzini@redhat.com>
-> > Cc: Radim Kr??m???? <rkrcmar@redhat.com>
-> > Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> > Cc: Anthony Liguori <aliguori@amazon.com>
-> > Cc: Anton Vorontsov <anton@enomsg.org>
-> > Cc: Colin Cross <ccross@android.com>
-> > Cc: Kees Cook <keescook@chromium.org>
-> > Cc: Tony Luck <tony.luck@intel.com>
-> > Cc: Steven Rostedt <rostedt@goodmis.org>
-> > Cc: Ingo Molnar <mingo@kernel.org>
-> > Cc: Minchan Kim <minchan@kernel.org>
-> > Cc: kvm@vger.kernel.org
-> > Cc: qemu-devel@nongnu.org
-> > Cc: virtualization@lists.linux-foundation.org
-> > Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-> > ---
+Hi, Michael
 
-[SNIP]
-> > +static void virtio_pstore_to_filename(VirtIOPstore *s, char *buf, size_t sz,
-> > +                                      struct virtio_pstore_req *req)
-> > +{
-> > +    const char *basename;
-> > +    unsigned long long id = 0;
-> > +    unsigned int flags = le32_to_cpu(req->flags);
-> > +
-> > +    switch (le16_to_cpu(req->type)) {
-> > +    case VIRTIO_PSTORE_TYPE_DMESG:
-> > +        basename = "dmesg";
-> > +        id = s->id++;
-> > +        break;
-> > +    case VIRTIO_PSTORE_TYPE_CONSOLE:
-> > +        basename = "console";
-> > +        if (s->console_id) {
-> > +            id = s->console_id;
-> > +        } else {
-> > +            id = s->console_id = s->id++;
-> > +        }
-> > +        break;
-> > +    default:
-> > +        basename = "unknown";
-> > +        break;
-> > +    }
-> > +
-> > +    snprintf(buf, sz, "%s/%s-%llu%s", s->directory, basename, id,
-> > +             flags & VIRTIO_PSTORE_FL_COMPRESSED ? ".enc.z" : "");
-> 
-> Please use g_strdup_printf() instead of splattering into a pre-allocated
-> buffer than may or may not be large enough.
+I have met ext4 error when using vhost_scsi on arm64 platform, and
+suspect it is vhost_scsi issue.
 
-OK.
-
-> 
-> > +}
-> > +
-> > +static void virtio_pstore_from_filename(VirtIOPstore *s, char *name,
-> > +                                        char *buf, size_t sz,
-> > +                                        struct virtio_pstore_fileinfo *info)
-> > +{
-> > +    snprintf(buf, sz, "%s/%s", s->directory, name);
-> > +
-> > +    if (g_str_has_prefix(name, "dmesg-")) {
-> > +        info->type = VIRTIO_PSTORE_TYPE_DMESG;
-> > +        name += strlen("dmesg-");
-> > +    } else if (g_str_has_prefix(name, "console-")) {
-> > +        info->type = VIRTIO_PSTORE_TYPE_CONSOLE;
-> > +        name += strlen("console-");
-> > +    } else if (g_str_has_prefix(name, "unknown-")) {
-> > +        info->type = VIRTIO_PSTORE_TYPE_UNKNOWN;
-> > +        name += strlen("unknown-");
-> > +    }
-> > +
-> > +    qemu_strtoull(name, NULL, 0, &info->id);
-> > +
-> > +    info->flags = 0;
-> > +    if (g_str_has_suffix(name, ".enc.z")) {
-> > +        info->flags |= VIRTIO_PSTORE_FL_COMPRESSED;
-> > +    }
-> > +}
-> > +
-> > +static ssize_t virtio_pstore_do_open(VirtIOPstore *s)
-> > +{
-> > +    s->dirp = opendir(s->directory);
-> > +    if (s->dirp == NULL) {
-> > +        return -1;
-> > +    }
-> > +
-> > +    return 0;
-> > +}
-> > +
-> > +static ssize_t virtio_pstore_do_read(VirtIOPstore *s, struct iovec *in_sg,
-> > +                                     unsigned int in_num,
-> > +                                     struct virtio_pstore_res *res)
-> > +{
-> > +    char path[PATH_MAX];
-> 
-> Don't declare PATH_MAX sized variables
-
-Will change to use g_strdup_printf() as you said.
-
-> 
-> > +    int fd;
-> > +    ssize_t len;
-> > +    struct stat stbuf;
-> > +    struct dirent *dent;
-> > +    int sg_num = in_num;
-> > +    struct iovec sg[sg_num];
-> 
-> 'sg_num' is initialized from 'in_num' which comes from the
-> guest, and I'm not seeing anything which is bounds-checking
-> the 'in_num' value. So you've possibly got a security flaw here
-> I think, if the guest can cause QEMU to allocate arbitrary stack
-> memory & thus overflow by setting arbitrarily large in_num.
-
-Will add a bound check then.
-
-> 
-> > +    struct virtio_pstore_fileinfo info;
-> > +    size_t offset = sizeof(*res) + sizeof(info);
-> > +
-> > +    if (s->dirp == NULL) {
-> > +        return -1;
-> > +    }
-> > +
-> > +    dent = readdir(s->dirp);
-> > +    while (dent) {
-> > +        if (dent->d_name[0] != '.') {
-> > +            break;
-> > +        }
-> > +        dent = readdir(s->dirp);
-> > +    }
-> > +
-> > +    if (dent == NULL) {
-> > +        return 0;
-> > +    }
-> 
-> So this seems to just be picking the first filename reported by
-> readdir that isn't starting with '.'. Surely this can't the right
-> logic when your corresponding do_write method can pick several
-> different filenames, its potluck which do_read will give back.
-
-Do you mean that it'd be better to check a list of known filenames and
-fail if not?
-
-> 
-> > +
-> > +    /* skip res and fileinfo */
-> > +    sg_num = iov_copy(sg, sg_num, in_sg, in_num, offset,
-> > +                      iov_size(in_sg, in_num) - offset);
-> > +
-> > +    virtio_pstore_from_filename(s, dent->d_name, path, sizeof(path), &info);
-> > +    fd = open(path, O_RDONLY);
-> > +    if (fd < 0) {
-> > +        error_report("cannot open %s", path);
-> > +        return -1;
-> > +    }
-> > +
-> > +    if (fstat(fd, &stbuf) < 0) {
-> > +        len = -1;
-> > +        goto out;
-> > +    }
-> > +
-> > +    len = readv(fd, sg, sg_num);
-> > +    if (len < 0) {
-> > +        if (errno == EAGAIN) {
-> > +            len = 0;
-> > +        }
-> > +        goto out;
-> > +    }
-> > +
-> > +    info.id        = cpu_to_le64(info.id);
-> > +    info.type      = cpu_to_le16(info.type);
-> > +    info.flags     = cpu_to_le32(info.flags);
-> > +    info.len       = cpu_to_le32(len);
-> > +    info.time_sec  = cpu_to_le64(stbuf.st_ctim.tv_sec);
-> > +    info.time_nsec = cpu_to_le32(stbuf.st_ctim.tv_nsec);
-> > +
-> > +    iov_from_buf(in_sg, in_num, sizeof(*res), &info, sizeof(info));
-> > +    len += sizeof(info);
-> > +
-> > + out:
-> > +    close(fd);
-> > +    return len;
-> > +}
-> > +
-> > +static ssize_t virtio_pstore_do_write(VirtIOPstore *s, struct iovec *out_sg,
-> > +                                      unsigned int out_num,
-> > +                                      struct virtio_pstore_req *req)
-> > +{
-> > +    char path[PATH_MAX];
-> > +    int fd;
-> > +    ssize_t len;
-> > +    unsigned short type;
-> > +    int flags = O_WRONLY | O_CREAT;
-> > +
-> > +    /* we already consume the req */
-> > +    iov_discard_front(&out_sg, &out_num, sizeof(*req));
-> > +
-> > +    virtio_pstore_to_filename(s, path, sizeof(path), req);
-> > +
-> > +    type = le16_to_cpu(req->type);
-> > +
-> > +    if (type == VIRTIO_PSTORE_TYPE_DMESG) {
-> > +        flags |= O_TRUNC;
-> > +    } else if (type == VIRTIO_PSTORE_TYPE_CONSOLE) {
-> > +        flags |= O_APPEND;
-> 
-> Using O_APPEND will cause the file to grow without bound on the
-> host, which is highly undesirable, aka a security flaw.
-
-Right.  The plan is to add size checking and to split if it exceeds
-some limit.  And we can keep some number of recent files only.
-
-Thanks,
-Namhyung
+Ext4 error when testing virtio_scsi & vhost_scsi
 
 
-> 
-> > +    }
-> > +
-> > +    fd = open(path, flags, 0644);
-> > +    if (fd < 0) {
-> > +        error_report("cannot open %s", path);
-> > +        return -1;
-> > +    }
-> > +    len = writev(fd, out_sg, out_num);
-> > +    close(fd);
-> > +
-> > +    return len;
-> > +}
-> 
-> 
-> Regards,
-> Daniel
-> -- 
-> |: http://berrange.com      -o-    http://www.flickr.com/photos/dberrange/ :|
-> |: http://libvirt.org              -o-             http://virt-manager.org :|
-> |: http://autobuild.org       -o-         http://search.cpan.org/~danberr/ :|
-> |: http://entangle-photo.org       -o-       http://live.gnome.org/gtk-vnc :|
+No issue:
+1. virtio_scsi, ext4
+2. vhost_scsi & virtio_scsi, ext2
+3.  Instead of vhost, also tried loopback and no problem.
+Using loopback, host can use the new block device, while vhost is used
+by guest (qemu).
+http://www.linux-iscsi.org/wiki/Tcm_loop
+Test directly in host, not find ext4 error.
+
+
+
+Have issue:
+1. vhost_scsi & virtio_scsi, ext4
+a. iblock
+b, fileio, file located in /tmp (ram), no device based.
+
+2, Have tried 4.7-r2 and 4.5-rc1 on D02 board, both have issue.
+Since I need kvm specific patch for D02, so it may not freely to switch
+to older version.
+
+3. Also test with ext4, disabling journal
+mkfs.ext4 -O ^has_journal /dev/sda
+
+
+Do you have any suggestion?
+
+Thanks
+
+On Tue, Jul 19, 2016 at 4:21 PM, Zhangfei Gao <zhangfei.gao@gmail.com> wrote:
+> On Tue, Jul 19, 2016 at 3:56 PM, Zhangfei Gao <zhangfei.gao@gmail.com> wrote:
+>> Dear Ted
+>>
+>> On Wed, Jul 13, 2016 at 12:43 AM, Theodore Ts'o <tytso@mit.edu> wrote:
+>>> On Tue, Jul 12, 2016 at 03:14:38PM +0800, Zhangfei Gao wrote:
+>>>> Some update:
+>>>>
+>>>> If test with ext2, no problem in iblock.
+>>>> If test with ext4, ext4_mb_generate_buddy reported error in the
+>>>> removing files after reboot.
+>>>>
+>>>>
+>>>> root@(none)$ rm test
+>>>> [   21.006549] EXT4-fs error (device sda): ext4_mb_generate_buddy:758: group 18
+>>>> , block bitmap and bg descriptor inconsistent: 26464 vs 25600 free clusters
+>>>> [   21.008249] JBD2: Spotted dirty metadata buffer (dev = sda, blocknr = 0). Th
+>>>> ere's a risk of filesystem corruption in case of system crash.
+>>>>
+>>>> Any special notes of using ext4 in qemu?
+>>>
+>>> Ext4 has more runtime consistency checking than ext2.  So just because
+>>> ext4 complains doesn't mean that there isn't a problem with the file
+>>> system; it just means that ext4 is more likely to notice before you
+>>> lose user data.
+>>>
+>>> So if you test with ext2, try running e2fsck afterwards, to make sure
+>>> the file system is consistent.
+>>>
+>>> Given that I'm reguarly testing ext4 using kvm, and I haven't seen
+>>> anything like this in a very long time, I suspect the problemb is with
+>>> your SCSI code, and not with ext4.
+>>>
+>>
+>> Do you know what's the possible reason of this error.
+>>
+>> Have tried 4.7-rc2, same issue exist.
+>> It can be reproduced by fileio and iblock as backstore.
+>> It is easier to happen in qemu like this process:
+>> qemu-> mount-> dd xx -> umout -> mount -> rm xx, then the error may
+>> happen, no need to reboot.
+>>
+>> ramdisk can not cause error just because it just malloc and memcpy,
+>> while not going to blk layer.
+>>
+>> Also tried creating one file in /tmp, used as fileio, also can reproduce.
+>> So no real device is based.
+>>
+>> like:
+>> cd /tmp
+>> dd if=/dev/zero of=test bs=1M count=1024; sync;
+>> targetcli
+>> #targetcli
+>> (targetcli) /> cd backstores/fileio
+>> (targetcli) /> create name=file_backend file_or_dev=/tmp/test size=1G
+>> (targetcli) /> cd /vhost
+>> (targetcli) /> create wwn=naa.60014052cc816bf4
+>> (targetcli) /> cd naa.60014052cc816bf4/tpgt1/luns
+>> (targetcli) /> create /backstores/fileio/file_backend
+>> (targetcli) /> cd /
+>> (targetcli) /> saveconfig
+>> (targetcli) /> exit
+>>
+>> /work/qemu.git/aarch64-softmmu/qemu-system-aarch64 \
+>>     -enable-kvm -nographic -kernel Image \
+>>     -device vhost-scsi-pci,wwpn=naa.60014052cc816bf4 \
+>>     -m 512 -M virt -cpu host \
+>>     -append "earlyprintk console=ttyAMA0 mem=512M"
+>>
+>> in qemu:
+>> mkfs.ext4 /dev/sda
+>> mount /dev/sda /mnt/
+>> sync; date; dd if=/dev/zero of=/mnt/test bs=1M count=100; sync; date;
+>>
+>> using dd test, then some error happen.
+>> log like:
+>> oot@(none)$ sync; date; dd if=/dev/zero of=test bs=1M count=100; sync;; date;
+>> [ 1789.917963] sbc_parse_cdb cdb[0]=0x35
+>> [ 1789.922000] fd_execute_sync_cache immed=0
+>> Tue Jul 19 07:26:12 UTC 2016
+>> [  200.712879] EXT4-fs error (device sda) [ 1790.191770] sbc_parse_cdb
+>> cdb[0]=0x2a
+>> in ext4_reserve_inode_write:5362[ 1790.198382]  fd_execute_rw
+>> : Corrupt filesystem
+>> [  200.729001] EXT4-fs error (device sda) [ 1790.207843] sbc_parse_cdb
+>> cdb[0]=0x2a
+>> in ext4_reserve_inode_write:5362[ 1790.214495]  fd_execute_rw
+>> : Corrupt filesystem
+>>
+>> Looks like the error usually happens after SYCHRONIZE CACHE, but not
+>> for sure it is always happen after sync cache.
+>>
+> It is not always happen after SYCHRONIZE CACHE
+>
+> Just tried in qemu: mount-> dd xx -> umount -> mount -> rm xx
+> ram based, (/tmp/test), no reboot.
+>
+> root@(none)$ cd /mnt
+> root@(none)$ ls
+> [  301.444966]  sbc_parse_cdb cdb[0]=0x28
+> [  301.449003]  fd_execute_rw
+> lost+found  test
+> root@(none)$ rm test
+> [  304.281920]  sbc_parse_cdb cdb[0]=0x28
+> [  304.285955]  fd_execute_rw
+> [  118.002338] EXT4-fs error (device sda):[  304.290685] gzf sbc_parse_cdb cdb[0
+> ]=0x28
+>  ext4_mb_generate_buddy:758: gro[  304.296737] gzf fd_execute_rw
+> up 3, block bitmap and bg descri[  304.304099]  sbc_parse_cdb cdb[0]=0x28
+> ptor inconsistent: 21504 vs 2143[  304.309322]  fd_execute_rw
+> 9 free clusters
+> [  118.015903] JBD2: Spotted dirty metadata buffer (dev = sda, blocknr = 0). The
+> re's a risk of filesystem corruption in case of system crash.
+> root@(none)$
+>
+> Thanks
