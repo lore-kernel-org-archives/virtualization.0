@@ -1,11 +1,13 @@
 From: Namhyung Kim <namhyung@kernel.org>
-Subject: [RFC/PATCHSET 0/7] virtio: Implement virtio pstore device (v2)
-Date: Thu, 28 Jul 2016 00:08:24 +0900
-Message-ID: <1469632111-23260-1-git-send-email-namhyung__34259.10334704$1469632201$gmane$org@kernel.org>
+Subject: [PATCH 1/7] pstore: Split pstore fragile flags
+Date: Thu, 28 Jul 2016 00:08:25 +0900
+Message-ID: <1469632111-23260-2-git-send-email-namhyung@kernel.org>
+References: <1469632111-23260-1-git-send-email-namhyung@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1469632111-23260-1-git-send-email-namhyung@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,115 +18,131 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
-Cc: Tony Luck <tony.luck@intel.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Kees Cook <keescook@chromium.org>, "Michael S. Tsirkin" <mst@redhat.com>, Anton Vorontsov <anton@enomsg.org>, Will Deacon <will.deacon@arm.com>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Minchan Kim <minchan@kernel.org>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, Paolo Bonzini <pbonzini@redhat.com>, Ingo Molnar <mingo@kernel.org>
+Cc: Tony Luck <tony.luck@intel.com>, Kees Cook <keescook@chromium.org>, Matt Fleming <matt@codeblueprint.co.uk>, Anton Vorontsov <anton@enomsg.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, LKML <linux-kernel@vger.kernel.org>, linux-acpi@vger.kernel.org, linux-efi@vger.kernel.org, Colin Cross <ccross@android.com>, Len Brown <lenb@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGVsbG8sCgpUaGlzIGlzIHYyIG9mIHRoZSB2aXJ0aW8tcHN0b3JlIHdvcmsuICBJbiB0aGlzIHBh
-dGNoc2V0IEkgYWRkcmVzc2VkCm1vc3Qgb2YgZmVlZGJhY2tzIGZyb20gcHJldmlvdXMgdmVyc2lv
-bi4gIExpbWl0aW5nIGRpc2sgc2l6ZSBpcyBub3QKaW1wbGVtZW50ZWQgeWV0LgoKICogY2hhbmdl
-cyBpbiB2MikKICAtIHVwZGF0ZSBWSVJUSU9fSURfUFNUT1JFIHRvIDIyICAoQ29ybmVsaWEsIFN0
-ZWZhbikKICAtIG1ha2UgYnVmZmVyIHNpemUgY29uZmlndXJhYmxlICAoQ29ybmVsaWEpCiAgLSBz
-dXBwb3J0IFBTVE9SRV9UWVBFX0NPTlNPTEUgIChLZWVzKQogIC0gdXNlIHNlcGFyYXRlIHZpcnRx
-dWV1ZXMgZm9yIHJlYWQgYW5kIHdyaXRlCiAgLSBzdXBwb3J0IGNvbmN1cnJlbnQgYXN5bmMgd3Jp
-dGUKICAtIG1hbmFnZSBwc3RvcmUgKGZpbGUpIGlkIGluIGRldmljZSBzaWRlCiAgLSBmaXggdmFy
-aW91cyBtaXN0YWtlcyBpbiBxZW11IGRldmljZSAgKFN0ZWZhbikKCkl0IHN0YXJ0ZWQgZnJvbSB0
-aGUgZmFjdCB0aGF0IGR1bXBpbmcgZnRyYWNlIGJ1ZmZlciBhdCBrZXJuZWwKb29wcy9wYW5pYyB0
-YWtlcyB0b28gbXVjaCB0aW1lLiAgQWx0aG91Z2ggdGhlcmUncyBhIHdheSB0byByZWR1Y2UgdGhl
-CnNpemUgb2YgdGhlIG9yaWdpbmFsIGRhdGEsIHNvbWV0aW1lcyBJIHdhbnQgdG8gaGF2ZSB0aGUg
-aW5mb3JtYXRpb24gYXMKbWFueSBhcyBwb3NzaWJsZS4gIE1heWJlIGtleGVjL2tkdW1wIGNhbiBz
-b2x2ZSB0aGlzIHByb2JsZW0gYnV0IGl0CmNvbnN1bWVzIHNvbWUgcG9ydGlvbiBvZiBndWVzdCBt
-ZW1vcnkgc28gSSdkIGxpa2UgdG8gYXZvaWQgaXQuICBBbmQgSQprbm93IHRoZSBxZW11ICsgY3Jh
-c2h0b29sIGNhbiBkdW1wIGFuZCBhbmFseXplIHRoZSB3aG9sZSBndWVzdCBtZW1vcnkKaW5jbHVk
-aW5nIHRoZSBmdHJhY2UgYnVmZmVyIHdpdGhvdXQgd2FzdGluZyBndWVzdCBtZW1vcnksIGJ1dCBp
-dCBhZGRzCm9uZSBtb3JlIGxheWVyIGFuZCBoYXMgc29tZSBsaW1pdGF0aW9uIGFzIGFuIG91dC1v
-Zi10cmVlIHRvb2wgbGlrZSBub3QKYmVpbmcgaW4gc3luYyB3aXRoIHRoZSBrZXJuZWwgY2hhbmdl
-cy4KClNvIEkgdGhpbmsgaXQnZCBiZSBncmVhdCB1c2luZyB0aGUgcHN0b3JlIGludGVyZmFjZSB0
-byBkdW1wIGd1ZXN0Cmtlcm5lbCBkYXRhIG9uIHRoZSBob3N0LiAgT25lIGNhbiByZWFkIHRoZSBk
-YXRhIG9uIHRoZSBob3N0IGRpcmVjdGx5Cm9yIG9uIHRoZSBndWVzdCAoYXQgdGhlIG5leHQgYm9v
-dCkgdXNpbmcgcHN0b3JlIGZpbGVzeXN0ZW0gYXMgdXN1YWwuCldoaWxlIHRoaXMgcGF0Y2hzZXQg
-b25seSBpbXBsZW1lbnRzIGR1bXBpbmcga2VybmVsIGxvZyBidWZmZXIsIGl0IGNhbgpiZSBleHRl
-bmRlZCB0byBoYXZlIGZ0cmFjZSBidWZmZXIgYW5kIHByb2JhYmx5IHNvbWUgbW9yZS4uCgpUaGUg
-cGF0Y2ggMDAwMS0wMDAzIGFyZSBwcmVwYXJhdGlvbiBmb3IgcHN0b3JlIHRvIHN1cHBvcnQgdmly
-dGlvCmRldmljZSB3aGljaCByZXF1aXJlcyBhc3luYyB3cml0ZS4gIFRoZSBwYXRjaCAwMDA0IGlt
-cGxlbWVudHMgdmlydGlvCnBzdG9yZSBkcml2ZXIuICBJdCBoYXMgdHdvIHZpcnQgcXVldWUgZm9y
-IChzeW5jKSByZWFkIGFuZCAoYXN5bmMpCndyaXRlLCBwc3RvcmUgYnVmZmVyIGFuZCBpbyByZXF1
-ZXN0IGFuZCByZXNwb25zZSBzdHJ1Y3R1cmUuICBUaGUKdmlydGlvX3BzdG9yZV9yZXEgc3RydWN0
-IGlzIHRvIGdpdmUgaW5mb3JtYXRpb24gYWJvdXQgdGhlIGN1cnJlbnQKcHN0b3JlIG9wZXJhdGlv
-bi4gIFRoZSByZXN1bHQgd2lsbCBiZSB3cml0dGVuIHRvIHRoZSB2aXJ0aW9fcHN0b3JlX3Jlcwpz
-dHJ1Y3QuICBGb3IgcmVhZCBvcGVyYXRpb24gaXQgYWxzbyB1c2VzIHZpcnRpb19wc3RvcmVfZmls
-ZWluZm8gc3RydWN0LgoKVGhlIHBhdGNoIDAwMDUgYWRkcyBzdXBwb3J0IGZvciBQU1RPUkVfVFlQ
-RV9DT05TT0xFIHdoaWNoIHdhcwpyZXF1ZXN0ZWQgYnkgS2Vlcy4gIFRoZSBjb25zb2xlIGRhdGEg
-aXMgYXBwZW5kZWQgdG8gYSBzaW5nbGUgZmlsZSBmb3IKbm93LgoKVGhlIHBhdGNoIDAwMDYgYW5k
-IDAwMDcgaW1wbGVtZW50IHZpcnRpby1wc3RvcmUgbGVnYWN5IFBDSSBkZXZpY2Ugb24KcWVtdS1r
-dm0gYW5kIGt2bXRvb2wgcmVzcGVjdGl2ZWx5LiAgSSByZWZlcmVuY2VkIHZpcnRpby1iYWxvb24g
-YW5kCnZpcnRpby1ybmcgaW1wbGVtZW50YXRpb25zIGFuZCBJIGRvbid0IGtub3cgd2hldGhlciBr
-dm10b29sIHN1cHBvcnRzCm1vZGVybiB2aXJ0aW8gMS4wKyBzcGVjLiAgT3RoZXIgdHJhbnNwb3J0
-cyBtaWdodCBiZSBzdXBwb3J0ZWQgbGF0ZXIuCgpGb3IgZXhhbXBsZSwgdXNpbmcgdmlydGlvLXBz
-dG9yZSBvbiBxZW11IGxvb2tzIGxpa2UgYmVsb3c6CgogICQgcWVtdS1zeXN0ZW0teDg2XzY0IC1l
-bmFibGUta3ZtIC1kZXZpY2UgdmlydGlvLXBzdG9yZSxkaXJlY3Rvcnk9eHh4CgpXaGVuIGd1ZXN0
-IGtlcm5lbCBnZXRzIHBhbmljIHRoZSBsb2cgbWVzc2FnZXMgd2lsbCBiZSBzYXZlZCB1bmRlciB0
-aGUKeHh4IGRpcmVjdG9yeS4KCiAgJCBscyB4eHgKICBkbWVzZy0xLmVuYy56ICBkbWVzZy0yLmVu
-Yy56CgpBcyB5b3UgY2FuIHNlZSB0aGUgcHN0b3JlIHN1YnN5c3RlbSBjb21wcmVzc2VzIHRoZSBs
-b2cgZGF0YSB1c2luZyB6bGliCihub3cgc3VwcG9ydHMgbHpvIGFuZCBsejQgdG9vKS4gIFRoZSBk
-YXRhIGNhbiBiZSBleHRyYWN0ZWQgd2l0aCB0aGUKZm9sbG93aW5nIGNvbW1hbmQ6CgogICQgY2F0
-IHh4eC9kbWVzZy0xLmVuYy56IHwgXAogID4gcHl0aG9uIC1jICdpbXBvcnQgc3lzLCB6bGliOyBw
-cmludCh6bGliLmRlY29tcHJlc3Moc3lzLnN0ZGluLnJlYWQoKSkpJwogIE9vcHMjMSBQYXJ0MQog
-IDw1PlsgICAgMC4wMDAwMDBdIExpbnV4IHZlcnNpb24gNC42LjBrdm0rIChuYW1oeXVuZ0BkYW5q
-YWUpIChnY2MgdmVyc2lvbiA1LjMuMCAoR0NDKSApICMxNDUgU01QIE1vbiBKdWwgMTggMTA6MjI6
-NDUgS1NUIDIwMTYKICA8Nj5bICAgIDAuMDAwMDAwXSBDb21tYW5kIGxpbmU6IHJvb3Q9L2Rldi92
-ZGEgY29uc29sZT10dHlTMAogIDw2PlsgICAgMC4wMDAwMDBdIHg4Ni9mcHU6IExlZ2FjeSB4ODcg
-RlBVIGRldGVjdGVkLgogIDw2PlsgICAgMC4wMDAwMDBdIHg4Ni9mcHU6IFVzaW5nICdlYWdlcicg
-RlBVIGNvbnRleHQgc3dpdGNoZXMuCiAgPDY+WyAgICAwLjAwMDAwMF0gZTgyMDogQklPUy1wcm92
-aWRlZCBwaHlzaWNhbCBSQU0gbWFwOgogIDw2PlsgICAgMC4wMDAwMDBdIEJJT1MtZTgyMDogW21l
-bSAweDAwMDAwMDAwMDAwMDAwMDAtMHgwMDAwMDAwMDAwMDlmYmZmXSB1c2FibGUKICA8Nj5bICAg
-IDAuMDAwMDAwXSBCSU9TLWU4MjA6IFttZW0gMHgwMDAwMDAwMDAwMDlmYzAwLTB4MDAwMDAwMDAw
-MDA5ZmZmZl0gcmVzZXJ2ZWQKICA8Nj5bICAgIDAuMDAwMDAwXSBCSU9TLWU4MjA6IFttZW0gMHgw
-MDAwMDAwMDAwMGYwMDAwLTB4MDAwMDAwMDAwMDBmZmZmZl0gcmVzZXJ2ZWQKICA8Nj5bICAgIDAu
-MDAwMDAwXSBCSU9TLWU4MjA6IFttZW0gMHgwMDAwMDAwMDAwMTAwMDAwLTB4MDAwMDAwMDAwN2Zk
-ZGZmZl0gdXNhYmxlCiAgPDY+WyAgICAwLjAwMDAwMF0gQklPUy1lODIwOiBbbWVtIDB4MDAwMDAw
-MDAwN2ZkZTAwMC0weDAwMDAwMDAwMDdmZmZmZmZdIHJlc2VydmVkCiAgPDY+WyAgICAwLjAwMDAw
-MF0gQklPUy1lODIwOiBbbWVtIDB4MDAwMDAwMDBmZWZmYzAwMC0weDAwMDAwMDAwZmVmZmZmZmZd
-IHJlc2VydmVkCiAgPDY+WyAgICAwLjAwMDAwMF0gQklPUy1lODIwOiBbbWVtIDB4MDAwMDAwMDBm
-ZmZjMDAwMC0weDAwMDAwMDAwZmZmZmZmZmZdIHJlc2VydmVkCiAgPDY+WyAgICAwLjAwMDAwMF0g
-TlggKEV4ZWN1dGUgRGlzYWJsZSkgcHJvdGVjdGlvbjogYWN0aXZlCiAgPDY+WyAgICAwLjAwMDAw
-MF0gU01CSU9TIDIuOCBwcmVzZW50LgogIDw3PlsgICAgMC4wMDAwMDBdIERNSTogUUVNVSBTdGFu
-ZGFyZCBQQyAoaTQ0MEZYICsgUElJWCwgMTk5NiksIEJJT1MgcmVsLTEuOS4zLTAtZ2UyZmM0MWUt
-cHJlYnVpbHQucWVtdS1wcm9qZWN0Lm9yZyAwNC8wMS8yMDE0CiAgLi4uCgpUbyBlbmFibGUgUFNU
-T1JFX1RZUEVfQ09OU09MRSwgYWRkICdjb25zb2xlPXRydWUnIHRvIHZpcnRpby1wc3RvcmUKZGV2
-aWNlIG9wdGlvbi4gIEFsc28gJ2J1ZnNpemUnIG9wdGlvbiBjYW4gc2V0IGRpZmZlcmVudCBzaXpl
-IGZvcgpwc3RvcmUgYnVmZmVyIChkZWZhdWx0IGlzIDE2SykuICBNYXliZSB3ZSBjYW4gYWRkIGEg
-Y29uZmlnIG9wdGlvbiB0bwpjb250cm9sIHRoZSBjb21wcmVzc2lvbiBsYXRlci4KCkN1cnJlbnRs
-eSB0aGUga3ZtdG9vbCBkb2Vzbid0IHN1cHBvcnQgYW55IG9wdGlvbnMgZXhjZXB0IHRoZSBkaXJl
-Y3RvcnkKdGhlIHBzdG9yZSBzYXZlcyB0aGUgbG9ncy4KCgpOYW1oeXVuZyBLaW0gKDcpOgogIHBz
-dG9yZTogU3BsaXQgcHN0b3JlIGZyYWdpbGUgZmxhZ3MKICBwc3RvcmUvcmFtOiBTZXQgcHN0b3Jl
-IGZsYWdzIGR5bmFtaWNhbGx5CiAgcHN0b3JlOiBNYW5hZ2UgYnVmZmVyIHBvc2l0aW9uIGZvciBh
-c3luYyB3cml0ZQogIHZpcnRpbzogQmFzaWMgaW1wbGVtZW50YXRpb24gb2YgdmlydGlvIHBzdG9y
-ZSBkcml2ZXIKICB2aXJ0aW8tcHN0b3JlOiBTdXBwb3J0IFBTVE9SRV9UWVBFX0NPTlNPTEUKICBx
-ZW11OiBJbXBsZW1lbnQgdmlydGlvLXBzdG9yZSBkZXZpY2UKICBrdm10b29sOiBJbXBsZW1lbnQg
-dmlydGlvLXBzdG9yZSBkZXZpY2UKCiBkcml2ZXJzL2FjcGkvYXBlaS9lcnN0LmMgICAgICAgICAg
-ICAgfCAgIDIgKy0KIGRyaXZlcnMvZmlybXdhcmUvZWZpL2VmaS1wc3RvcmUuYyAgICB8ICAgNCAr
-LQogZHJpdmVycy92aXJ0aW8vS2NvbmZpZyAgICAgICAgICAgICAgIHwgIDEwICsKIGRyaXZlcnMv
-dmlydGlvL01ha2VmaWxlICAgICAgICAgICAgICB8ICAgMSArCiBkcml2ZXJzL3ZpcnRpby92aXJ0
-aW9fcHN0b3JlLmMgICAgICAgfCA0MjEgKysrKysrKysrKysrKysrKysrKysrCiBmcy9wc3RvcmUv
-cGxhdGZvcm0uYyAgICAgICAgICAgICAgICAgfCAgNjUgKysrLQogZnMvcHN0b3JlL3JhbS5jICAg
-ICAgICAgICAgICAgICAgICAgIHwgICA4ICsKIGluY2x1ZGUvbGludXgvcHN0b3JlLmggICAgICAg
-ICAgICAgICB8ICAgOSArLQogaW5jbHVkZS91YXBpL2xpbnV4L0tidWlsZCAgICAgICAgICAgIHwg
-ICAxICsKIGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9faWRzLmggICAgICB8ICAgMSArCiBpbmNs
-dWRlL3VhcGkvbGludXgvdmlydGlvX3BzdG9yZS5oICAgfCAgNzggKysrLQogMTEgZmlsZXMgY2hh
-bmdlZCwgNTgwIGluc2VydGlvbnMoKyksIDIwIGRlbGV0aW9ucygtKQogY3JlYXRlIG1vZGUgMTAw
-NjQ0IGRyaXZlcnMvdmlydGlvL3ZpcnRpb19wc3RvcmUuYwogY3JlYXRlIG1vZGUgMTAwNjQ0IGlu
-Y2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fcHN0b3JlLmgKCgpDYzogUGFvbG8gQm9uemluaSA8cGJv
-bnppbmlAcmVkaGF0LmNvbT4KQ2M6IFJhZGltIEtyxI1tw6HFmSA8cmtyY21hckByZWRoYXQuY29t
-PgpDYzogIk1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQuY29tPgpDYzogQW50aG9ueSBM
-aWd1b3JpIDxhbGlndW9yaUBhbWF6b24uY29tPgpDYzogQW50b24gVm9yb250c292IDxhbnRvbkBl
-bm9tc2cub3JnPgpDYzogQ29saW4gQ3Jvc3MgPGNjcm9zc0BhbmRyb2lkLmNvbT4KQ2M6IEtlZXMg
-Q29vayA8a2Vlc2Nvb2tAY2hyb21pdW0ub3JnPgpDYzogVG9ueSBMdWNrIDx0b255Lmx1Y2tAaW50
-ZWwuY29tPgpDYzogU3RldmVuIFJvc3RlZHQgPHJvc3RlZHRAZ29vZG1pcy5vcmc+CkNjOiBJbmdv
-IE1vbG5hciA8bWluZ29Aa2VybmVsLm9yZz4KQ2M6IE1pbmNoYW4gS2ltIDxtaW5jaGFuQGtlcm5l
-bC5vcmc+CkNjOiBXaWxsIERlYWNvbiA8d2lsbC5kZWFjb25AYXJtLmNvbT4KQ2M6IGt2bUB2Z2Vy
-Lmtlcm5lbC5vcmcKQ2M6IHFlbXUtZGV2ZWxAbm9uZ251Lm9yZwpDYzogdmlydHVhbGl6YXRpb25A
-bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKClRoYW5rcywKTmFtaHl1bmcKCgotLSAKMi44LjAK
-Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxp
-emF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
-Lm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
-aXJ0dWFsaXphdGlvbg==
+This patch adds new PSTORE_FLAGS for each pstore type so that they can
+be enabled separately.  This is a preparation for ongoing virtio-pstore
+work to support those types flexibly.
+
+The PSTORE_FLAGS_FRAGILE is changed to PSTORE_FLAGS_DMESG to preserve the
+original behavior.
+
+Cc: Anton Vorontsov <anton@enomsg.org>
+Cc: Colin Cross <ccross@android.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Len Brown <lenb@kernel.org>
+Cc: Matt Fleming <matt@codeblueprint.co.uk>
+Cc: linux-acpi@vger.kernel.org
+Cc: linux-efi@vger.kernel.org
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+---
+ drivers/acpi/apei/erst.c          |  2 +-
+ drivers/firmware/efi/efi-pstore.c |  2 +-
+ fs/pstore/platform.c              | 17 ++++++++++-------
+ fs/pstore/ram.c                   |  2 ++
+ include/linux/pstore.h            |  7 ++++++-
+ 5 files changed, 20 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/acpi/apei/erst.c b/drivers/acpi/apei/erst.c
+index f096ab3cb54d..ec4f507b524f 100644
+--- a/drivers/acpi/apei/erst.c
++++ b/drivers/acpi/apei/erst.c
+@@ -938,7 +938,7 @@ static int erst_clearer(enum pstore_type_id type, u64 id, int count,
+ static struct pstore_info erst_info = {
+ 	.owner		= THIS_MODULE,
+ 	.name		= "erst",
+-	.flags		= PSTORE_FLAGS_FRAGILE,
++	.flags		= PSTORE_FLAGS_DMESG,
+ 	.open		= erst_open_pstore,
+ 	.close		= erst_close_pstore,
+ 	.read		= erst_reader,
+diff --git a/drivers/firmware/efi/efi-pstore.c b/drivers/firmware/efi/efi-pstore.c
+index 30a24d09ea6c..4daa5acd9117 100644
+--- a/drivers/firmware/efi/efi-pstore.c
++++ b/drivers/firmware/efi/efi-pstore.c
+@@ -362,7 +362,7 @@ static int efi_pstore_erase(enum pstore_type_id type, u64 id, int count,
+ static struct pstore_info efi_pstore_info = {
+ 	.owner		= THIS_MODULE,
+ 	.name		= "efi",
+-	.flags		= PSTORE_FLAGS_FRAGILE,
++	.flags		= PSTORE_FLAGS_DMESG,
+ 	.open		= efi_pstore_open,
+ 	.close		= efi_pstore_close,
+ 	.read		= efi_pstore_read,
+diff --git a/fs/pstore/platform.c b/fs/pstore/platform.c
+index 16ecca5b72d8..76dd604a0f2c 100644
+--- a/fs/pstore/platform.c
++++ b/fs/pstore/platform.c
+@@ -659,13 +659,14 @@ int pstore_register(struct pstore_info *psi)
+ 	if (pstore_is_mounted())
+ 		pstore_get_records(0);
+ 
+-	pstore_register_kmsg();
+-
+-	if ((psi->flags & PSTORE_FLAGS_FRAGILE) == 0) {
++	if (psi->flags & PSTORE_FLAGS_DMESG)
++		pstore_register_kmsg();
++	if (psi->flags & PSTORE_FLAGS_CONSOLE)
+ 		pstore_register_console();
++	if (psi->flags & PSTORE_FLAGS_FTRACE)
+ 		pstore_register_ftrace();
++	if (psi->flags & PSTORE_FLAGS_PMSG)
+ 		pstore_register_pmsg();
+-	}
+ 
+ 	if (pstore_update_ms >= 0) {
+ 		pstore_timer.expires = jiffies +
+@@ -689,12 +690,14 @@ EXPORT_SYMBOL_GPL(pstore_register);
+ 
+ void pstore_unregister(struct pstore_info *psi)
+ {
+-	if ((psi->flags & PSTORE_FLAGS_FRAGILE) == 0) {
++	if (psi->flags & PSTORE_FLAGS_PMSG)
+ 		pstore_unregister_pmsg();
++	if (psi->flags & PSTORE_FLAGS_FTRACE)
+ 		pstore_unregister_ftrace();
++	if (psi->flags & PSTORE_FLAGS_CONSOLE)
+ 		pstore_unregister_console();
+-	}
+-	pstore_unregister_kmsg();
++	if (psi->flags & PSTORE_FLAGS_DMESG)
++		pstore_unregister_kmsg();
+ 
+ 	free_buf_for_compression();
+ 
+diff --git a/fs/pstore/ram.c b/fs/pstore/ram.c
+index 47516a794011..ba19a74e95bc 100644
+--- a/fs/pstore/ram.c
++++ b/fs/pstore/ram.c
+@@ -624,6 +624,8 @@ static int ramoops_probe(struct platform_device *pdev)
+ 		goto fail_clear;
+ 	}
+ 
++	cxt->pstore.flags = PSTORE_FLAGS_ALL;
++
+ 	err = pstore_register(&cxt->pstore);
+ 	if (err) {
+ 		pr_err("registering with pstore failed\n");
+diff --git a/include/linux/pstore.h b/include/linux/pstore.h
+index 899e95e84400..069b96faf478 100644
+--- a/include/linux/pstore.h
++++ b/include/linux/pstore.h
+@@ -74,7 +74,12 @@ struct pstore_info {
+ 	void		*data;
+ };
+ 
+-#define	PSTORE_FLAGS_FRAGILE	1
++#define PSTORE_FLAGS_DMESG	(1 << 0)
++#define PSTORE_FLAGS_CONSOLE	(1 << 1)
++#define PSTORE_FLAGS_FTRACE	(1 << 2)
++#define PSTORE_FLAGS_PMSG	(1 << 3)
++
++#define PSTORE_FLAGS_ALL	((1 << 4) - 1)
+ 
+ extern int pstore_register(struct pstore_info *);
+ extern void pstore_unregister(struct pstore_info *);
+-- 
+2.8.0
