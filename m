@@ -1,13 +1,16 @@
-From: Namhyung Kim <namhyung@kernel.org>
-Subject: [PATCH 7/7] kvmtool: Implement virtio-pstore device
-Date: Thu, 28 Jul 2016 00:08:31 +0900
-Message-ID: <1469632111-23260-8-git-send-email-namhyung__17370.1336527758$1469632287$gmane$org@kernel.org>
-References: <1469632111-23260-1-git-send-email-namhyung@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2 repost 4/7] virtio-balloon: speed up inflate/deflate
+	process
+Date: Thu, 28 Jul 2016 00:36:33 +0300
+Message-ID: <20160728002243-mutt-send-email-mst__21978.7546819591$1469655419$gmane$org@kernel.org>
+References: <1469582616-5729-1-git-send-email-liang.z.li@intel.com>
+	<1469582616-5729-5-git-send-email-liang.z.li@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1469632111-23260-1-git-send-email-namhyung@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1469582616-5729-5-git-send-email-liang.z.li@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,638 +20,417 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
-Cc: Tony Luck <tony.luck@intel.com>, Kees Cook <keescook@chromium.org>, Anton Vorontsov <anton@enomsg.org>, Will Deacon <will.deacon@arm.com>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Colin Cross <ccross@android.com>, Ingo Molnar <mingo@kernel.org>
+To: Liang Li <liang.z.li@intel.com>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, Amit Shah <amit.shah@redhat.com>, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, Vlastimil Babka <vbabka@suse.cz>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org, Mel Gorman <mgorman@techsingularity.net>, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add virtio pstore device to allow kernel log messages saved on the
-host.  With this patch, it will save the log files under directory given
-by --pstore option.
+On Wed, Jul 27, 2016 at 09:23:33AM +0800, Liang Li wrote:
+> The implementation of the current virtio-balloon is not very
+> efficient, the time spends on different stages of inflating
+> the balloon to 7GB of a 8GB idle guest:
+> 
+> a. allocating pages (6.5%)
+> b. sending PFNs to host (68.3%)
+> c. address translation (6.1%)
+> d. madvise (19%)
+> 
+> It takes about 4126ms for the inflating process to complete.
+> Debugging shows that the bottle neck are the stage b and stage d.
+> 
+> If using a bitmap to send the page info instead of the PFNs, we
+> can reduce the overhead in stage b quite a lot. Furthermore, we
+> can do the address translation and call madvise() with a bulk of
+> RAM pages, instead of the current page per page way, the overhead
+> of stage c and stage d can also be reduced a lot.
+> 
+> This patch is the kernel side implementation which is intended to
+> speed up the inflating & deflating process by adding a new feature
+> to the virtio-balloon device. With this new feature, inflating the
+> balloon to 7GB of a 8GB idle guest only takes 590ms, the
+> performance improvement is about 85%.
+> 
+> TODO: optimize stage a by allocating/freeing a chunk of pages
+> instead of a single page at a time.
+> 
+> Signed-off-by: Liang Li <liang.z.li@intel.com>
+> Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Vlastimil Babka <vbabka@suse.cz>
+> Cc: Mel Gorman <mgorman@techsingularity.net>
+> Cc: Paolo Bonzini <pbonzini@redhat.com>
+> Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
+> Cc: Amit Shah <amit.shah@redhat.com>
+> ---
+>  drivers/virtio/virtio_balloon.c | 184 +++++++++++++++++++++++++++++++++++-----
+>  1 file changed, 162 insertions(+), 22 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 8d649a2..2d18ff6 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -41,10 +41,28 @@
+>  #define OOM_VBALLOON_DEFAULT_PAGES 256
+>  #define VIRTBALLOON_OOM_NOTIFY_PRIORITY 80
+>  
+> +/*
+> + * VIRTIO_BALLOON_PFNS_LIMIT is used to limit the size of page bitmap
+> + * to prevent a very large page bitmap, there are two reasons for this:
+> + * 1) to save memory.
+> + * 2) allocate a large bitmap may fail.
+> + *
+> + * The actual limit of pfn is determined by:
+> + * pfn_limit = min(max_pfn, VIRTIO_BALLOON_PFNS_LIMIT);
+> + *
+> + * If system has more pages than VIRTIO_BALLOON_PFNS_LIMIT, we will scan
+> + * the page list and send the PFNs with several times. To reduce the
+> + * overhead of scanning the page list. VIRTIO_BALLOON_PFNS_LIMIT should
+> + * be set with a value which can cover most cases.
 
-  $ lkvm run --pstore=dir-xx
+So what if it covers 1/32 of the memory? We'll do 32 exits and not 1,
+still not a big deal for a big guest.
 
-  (guest) # echo c > /proc/sysrq-trigger
+> + */
+> +#define VIRTIO_BALLOON_PFNS_LIMIT ((32 * (1ULL << 30)) >> PAGE_SHIFT) /* 32GB */
 
-  $ ls dir-xx
-  dmesg-1.enc.z  dmesg-2.enc.z
+I already said this with a smaller limit.
 
-The log files are usually compressed using zlib.  User can easily see
-the messages on the host or on the guest (using pstore filesystem).
+	2<< 30  is 2G but that is not a useful comment.
+	pls explain what is the reason for this selection.
 
-Cc: Anton Vorontsov <anton@enomsg.org>
-Cc: Colin Cross <ccross@android.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
----
- Makefile                     |   1 +
- builtin-run.c                |   2 +
- include/kvm/kvm-config.h     |   1 +
- include/kvm/virtio-pci-dev.h |   2 +
- include/kvm/virtio-pstore.h  |  57 ++++++
- include/linux/virtio_ids.h   |   1 +
- virtio/pstore.c              | 459 +++++++++++++++++++++++++++++++++++++++++++
- 7 files changed, 523 insertions(+)
- create mode 100644 include/kvm/virtio-pstore.h
- create mode 100644 virtio/pstore.c
+Still applies here.
 
-diff --git a/Makefile b/Makefile
-index 1f0196f..d7462b9 100644
---- a/Makefile
-+++ b/Makefile
-@@ -67,6 +67,7 @@ OBJS	+= virtio/net.o
- OBJS	+= virtio/rng.o
- OBJS    += virtio/balloon.o
- OBJS	+= virtio/pci.o
-+OBJS	+= virtio/pstore.o
- OBJS	+= disk/blk.o
- OBJS	+= disk/qcow.o
- OBJS	+= disk/raw.o
-diff --git a/builtin-run.c b/builtin-run.c
-index 72b878d..08c12dd 100644
---- a/builtin-run.c
-+++ b/builtin-run.c
-@@ -128,6 +128,8 @@ void kvm_run_set_wrapper_sandbox(void)
- 			" rootfs"),					\
- 	OPT_STRING('\0', "hugetlbfs", &(cfg)->hugetlbfs_path, "path",	\
- 			"Hugetlbfs path"),				\
-+	OPT_STRING('\0', "pstore", &(cfg)->pstore_path, "path",		\
-+			"pstore data path"),				\
- 									\
- 	OPT_GROUP("Kernel options:"),					\
- 	OPT_STRING('k', "kernel", &(cfg)->kernel_filename, "kernel",	\
-diff --git a/include/kvm/kvm-config.h b/include/kvm/kvm-config.h
-index 386fa8c..42b7651 100644
---- a/include/kvm/kvm-config.h
-+++ b/include/kvm/kvm-config.h
-@@ -45,6 +45,7 @@ struct kvm_config {
- 	const char *hugetlbfs_path;
- 	const char *custom_rootfs_name;
- 	const char *real_cmdline;
-+	const char *pstore_path;
- 	struct virtio_net_params *net_params;
- 	bool single_step;
- 	bool vnc;
-diff --git a/include/kvm/virtio-pci-dev.h b/include/kvm/virtio-pci-dev.h
-index 48ae018..4339d94 100644
---- a/include/kvm/virtio-pci-dev.h
-+++ b/include/kvm/virtio-pci-dev.h
-@@ -15,6 +15,7 @@
- #define PCI_DEVICE_ID_VIRTIO_BLN		0x1005
- #define PCI_DEVICE_ID_VIRTIO_SCSI		0x1008
- #define PCI_DEVICE_ID_VIRTIO_9P			0x1009
-+#define PCI_DEVICE_ID_VIRTIO_PSTORE		0x100a
- #define PCI_DEVICE_ID_VESA			0x2000
- #define PCI_DEVICE_ID_PCI_SHMEM			0x0001
- 
-@@ -34,5 +35,6 @@
- #define PCI_CLASS_RNG				0xff0000
- #define PCI_CLASS_BLN				0xff0000
- #define PCI_CLASS_9P				0xff0000
-+#define PCI_CLASS_PSTORE			0xff0000
- 
- #endif /* VIRTIO_PCI_DEV_H_ */
-diff --git a/include/kvm/virtio-pstore.h b/include/kvm/virtio-pstore.h
-new file mode 100644
-index 0000000..670d5e3
---- /dev/null
-+++ b/include/kvm/virtio-pstore.h
-@@ -0,0 +1,57 @@
-+#ifndef KVM__PSTORE_VIRTIO_H
-+#define KVM__PSTORE_VIRTIO_H
-+
-+#include <kvm/virtio.h>
-+#include <sys/types.h>
-+
-+#define VIRTIO_PSTORE_CMD_NULL   0
-+#define VIRTIO_PSTORE_CMD_OPEN   1
-+#define VIRTIO_PSTORE_CMD_READ   2
-+#define VIRTIO_PSTORE_CMD_WRITE  3
-+#define VIRTIO_PSTORE_CMD_ERASE  4
-+#define VIRTIO_PSTORE_CMD_CLOSE  5
-+
-+#define VIRTIO_PSTORE_TYPE_UNKNOWN  0
-+#define VIRTIO_PSTORE_TYPE_DMESG    1
-+#define VIRTIO_PSTORE_TYPE_CONSOLE  2
-+
-+#define VIRTIO_PSTORE_FL_COMPRESSED  1
-+
-+#define VIRTIO_PSTORE_CONFIG_FL_CONSOLE  (1 << 0)
-+
-+struct virtio_pstore_req {
-+	__virtio16		cmd;
-+	__virtio16		type;
-+	__virtio32		flags;
-+	__virtio64		id;
-+	__virtio32		count;
-+	__virtio32		reserved;
-+};
-+
-+struct virtio_pstore_res {
-+	__virtio16		cmd;
-+	__virtio16		type;
-+	__virtio32		ret;
-+};
-+
-+struct virtio_pstore_fileinfo {
-+	__virtio64		id;
-+	__virtio32		count;
-+	__virtio16		type;
-+	__virtio16		unused;
-+	__virtio32		flags;
-+	__virtio32		len;
-+	__virtio64		time_sec;
-+	__virtio32		time_nsec;
-+	__virtio32		reserved;
-+};
-+
-+struct virtio_pstore_config {
-+	__virtio32		bufsize;
-+	__virtio32		flags;
-+};
-+
-+int virtio_pstore__init(struct kvm *kvm);
-+int virtio_pstore__exit(struct kvm *kvm);
-+
-+#endif /* KVM__PSTORE_VIRTIO_H */
-diff --git a/include/linux/virtio_ids.h b/include/linux/virtio_ids.h
-index 5f60aa4..40eabf7 100644
---- a/include/linux/virtio_ids.h
-+++ b/include/linux/virtio_ids.h
-@@ -40,5 +40,6 @@
- #define VIRTIO_ID_RPROC_SERIAL 11 /* virtio remoteproc serial link */
- #define VIRTIO_ID_CAIF	       12 /* Virtio caif */
- #define VIRTIO_ID_INPUT        18 /* virtio input */
-+#define VIRTIO_ID_PSTORE       22 /* virtio pstore */
- 
- #endif /* _LINUX_VIRTIO_IDS_H */
-diff --git a/virtio/pstore.c b/virtio/pstore.c
-new file mode 100644
-index 0000000..8290c14
---- /dev/null
-+++ b/virtio/pstore.c
-@@ -0,0 +1,459 @@
-+#include "kvm/virtio-pstore.h"
-+
-+#include "kvm/virtio-pci-dev.h"
-+
-+#include "kvm/virtio.h"
-+#include "kvm/util.h"
-+#include "kvm/kvm.h"
-+#include "kvm/threadpool.h"
-+#include "kvm/guest_compat.h"
-+
-+#include <linux/virtio_ring.h>
-+
-+#include <linux/list.h>
-+#include <fcntl.h>
-+#include <dirent.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
-+#include <pthread.h>
-+#include <linux/kernel.h>
-+#include <sys/eventfd.h>
-+
-+#define NUM_VIRT_QUEUES			2
-+#define VIRTIO_PSTORE_QUEUE_SIZE	128
-+
-+struct io_thread_arg {
-+	struct kvm		*kvm;
-+	struct pstore_dev	*pdev;
-+};
-+
-+struct pstore_dev {
-+	struct list_head	list;
-+	struct virtio_device	vdev;
-+	pthread_t		io_thread;
-+	int			io_efd;
-+	int			done;
-+
-+	struct virtio_pstore_config *config;
-+
-+	int			fd;
-+	DIR			*dir;
-+	u64			id;
-+	u64			console_id;
-+
-+	/* virtio queue */
-+	struct virt_queue	vqs[NUM_VIRT_QUEUES];
-+};
-+
-+static LIST_HEAD(pdevs);
-+static int compat_id = -1;
-+
-+static u8 *get_config(struct kvm *kvm, void *dev)
-+{
-+	struct pstore_dev *pdev = dev;
-+
-+	return (u8*)pdev->config;
-+}
-+
-+static u32 get_host_features(struct kvm *kvm, void *dev)
-+{
-+	/* Unused */
-+	return 0;
-+}
-+
-+static void set_guest_features(struct kvm *kvm, void *dev, u32 features)
-+{
-+	/* Unused */
-+}
-+
-+static void virtio_pstore_to_filename(struct kvm *kvm, struct pstore_dev *pdev,
-+				      char *buf, size_t sz,
-+				      struct virtio_pstore_req *req)
-+{
-+	const char *basename;
-+	unsigned long long id = 0;
-+	unsigned int flags = virtio_host_to_guest_u64(pdev->vqs, req->flags);
-+
-+	switch (req->type) {
-+	case VIRTIO_PSTORE_TYPE_DMESG:
-+		basename = "dmesg";
-+		id = pdev->id++;
-+		break;
-+	case VIRTIO_PSTORE_TYPE_CONSOLE:
-+		basename = "console";
-+		if (pdev->console_id)
-+			id = pdev->console_id;
-+		else
-+			id = pdev->console_id = pdev->id++;
-+		break;
-+	default:
-+		basename = "unknown";
-+		break;
-+	}
-+
-+	snprintf(buf, sz, "%s/%s-%llu%s", kvm->cfg.pstore_path, basename, id,
-+		 flags & VIRTIO_PSTORE_FL_COMPRESSED ? ".enc.z" : "");
-+}
-+
-+static void virtio_pstore_from_filename(struct kvm *kvm, char *name,
-+					char *buf, size_t sz,
-+					struct virtio_pstore_fileinfo *info)
-+{
-+	size_t len = strlen(name);
-+
-+	snprintf(buf, sz, "%s/%s", kvm->cfg.pstore_path, name);
-+
-+	info->flags = 0;
-+	if (len > 6 && !strncmp(name + len - 6, ".enc.z", 6))
-+		info->flags |= VIRTIO_PSTORE_FL_COMPRESSED;
-+
-+	if (!strncmp(name, "dmesg-", 6)) {
-+		info->type = VIRTIO_PSTORE_TYPE_DMESG;
-+		name += strlen("dmesg-");
-+	} else if (!strncmp(name, "console-", 8)) {
-+		info->type = VIRTIO_PSTORE_TYPE_CONSOLE;
-+		name += strlen("console-");
-+	} else if (!strncmp(name, "unknown-", 8)) {
-+		info->type = VIRTIO_PSTORE_TYPE_UNKNOWN;
-+		name += strlen("unknown-");
-+	}
-+
-+	info->id = strtoul(name, NULL, 0);
-+}
-+
-+static int virtio_pstore_do_open(struct kvm *kvm, struct pstore_dev *pdev,
-+				 struct virtio_pstore_req *req,
-+				 struct iovec *iov)
-+{
-+	pdev->dir = opendir(kvm->cfg.pstore_path);
-+	if (pdev->dir == NULL)
-+		return -errno;
-+
-+	return 0;
-+}
-+
-+static int virtio_pstore_do_close(struct kvm *kvm, struct pstore_dev *pdev,
-+				  struct virtio_pstore_req *req,
-+				  struct iovec *iov)
-+{
-+	if (pdev->dir == NULL)
-+		return -1;
-+
-+	closedir(pdev->dir);
-+	pdev->dir = NULL;
-+
-+	return 0;
-+}
-+
-+static ssize_t virtio_pstore_do_read(struct kvm *kvm, struct pstore_dev *pdev,
-+				     struct virtio_pstore_req *req,
-+				     struct iovec *iov,
-+				     struct virtio_pstore_fileinfo *info)
-+{
-+	char path[PATH_MAX];
-+	FILE *fp;
-+	ssize_t len = 0;
-+	struct stat stbuf;
-+	struct dirent *dent;
-+
-+	if (pdev->dir == NULL)
-+		return 0;
-+
-+	dent = readdir(pdev->dir);
-+	while (dent) {
-+		if (dent->d_name[0] != '.')
-+			break;
-+		dent = readdir(pdev->dir);
-+	}
-+
-+	if (dent == NULL)
-+		return 0;
-+
-+	virtio_pstore_from_filename(kvm, dent->d_name, path, sizeof(path), info);
-+	fp = fopen(path, "r");
-+	if (fp == NULL)
-+		return -1;
-+
-+	if (fstat(fileno(fp), &stbuf) < 0)
-+		return -1;
-+
-+	len = fread(iov[3].iov_base, 1, iov[3].iov_len, fp);
-+	if (len < 0 && errno == EAGAIN) {
-+		len = 0;
-+		goto out;
-+	}
-+
-+	info->id     = virtio_host_to_guest_u64(pdev->vqs, info->id);
-+	info->type   = virtio_host_to_guest_u64(pdev->vqs, info->type);
-+	info->flags  = virtio_host_to_guest_u32(pdev->vqs, info->flags);
-+	info->len    = virtio_host_to_guest_u32(pdev->vqs, len);
-+
-+	info->time_sec  = virtio_host_to_guest_u64(pdev->vqs, stbuf.st_ctim.tv_sec);
-+	info->time_nsec = virtio_host_to_guest_u32(pdev->vqs, stbuf.st_ctim.tv_nsec);
-+
-+	len += sizeof(*info);
-+
-+out:
-+	fclose(fp);
-+	return len;
-+}
-+
-+static ssize_t virtio_pstore_do_write(struct kvm *kvm, struct pstore_dev *pdev,
-+				      struct virtio_pstore_req *req,
-+				      struct iovec *iov)
-+{
-+	char path[PATH_MAX];
-+	FILE *fp;
-+	ssize_t len = 0;
-+
-+	virtio_pstore_to_filename(kvm, pdev, path, sizeof(path), req);
-+
-+	fp = fopen(path, "a");
-+	if (fp == NULL)
-+		return -1;
-+
-+	len = fwrite(iov[1].iov_base, 1, iov[1].iov_len, fp);
-+	if (len < 0 && errno == EAGAIN)
-+		len = 0;
-+
-+	fclose(fp);
-+	return 0;
-+}
-+
-+static ssize_t virtio_pstore_do_erase(struct kvm *kvm, struct pstore_dev *pdev,
-+				      struct virtio_pstore_req *req,
-+				      struct iovec *iov)
-+{
-+	char path[PATH_MAX];
-+
-+	virtio_pstore_to_filename(kvm, pdev, path, sizeof(path), req);
-+
-+	return unlink(path);
-+}
-+
-+static bool virtio_pstore_do_io_request(struct kvm *kvm, struct pstore_dev *pdev,
-+					struct virt_queue *vq)
-+{
-+	struct iovec iov[VIRTIO_PSTORE_QUEUE_SIZE];
-+	struct virtio_pstore_req *req;
-+	struct virtio_pstore_res *res;
-+	struct virtio_pstore_fileinfo *info;
-+	ssize_t len = 0;
-+	u16 out, in, head;
-+	int ret = 0;
-+
-+	head = virt_queue__get_iov(vq, iov, &out, &in, kvm);
-+
-+	if (iov[0].iov_len != sizeof(*req) || iov[out].iov_len != sizeof(*res)) {
-+		return false;
-+	}
-+
-+	req = iov[0].iov_base;
-+	res = iov[out].iov_base;
-+
-+	switch (virtio_guest_to_host_u16(vq, req->cmd)) {
-+	case VIRTIO_PSTORE_CMD_OPEN:
-+		ret = virtio_pstore_do_open(kvm, pdev, req, iov);
-+		break;
-+	case VIRTIO_PSTORE_CMD_READ:
-+		info = iov[out + 1].iov_base;
-+		ret = virtio_pstore_do_read(kvm, pdev, req, iov, info);
-+		if (ret > 0) {
-+			len = ret;
-+			ret = 0;
-+		}
-+		break;
-+	case VIRTIO_PSTORE_CMD_WRITE:
-+		ret = virtio_pstore_do_write(kvm, pdev, req, iov);
-+		break;
-+	case VIRTIO_PSTORE_CMD_CLOSE:
-+		ret = virtio_pstore_do_close(kvm, pdev, req, iov);
-+		break;
-+	case VIRTIO_PSTORE_CMD_ERASE:
-+		ret = virtio_pstore_do_erase(kvm, pdev, req, iov);
-+		break;
-+	default:
-+		return false;
-+	}
-+
-+	res->cmd  = req->cmd;
-+	res->type = req->type;
-+	res->ret  = virtio_host_to_guest_u32(vq, ret);
-+
-+	virt_queue__set_used_elem(vq, head, sizeof(*res) + len);
-+
-+	return ret == 0;
-+}
-+
-+static void virtio_pstore_do_io(struct kvm *kvm, struct pstore_dev *pdev,
-+				struct virt_queue *vq)
-+{
-+	bool done = false;
-+
-+	while (virt_queue__available(vq)) {
-+		virtio_pstore_do_io_request(kvm, pdev, vq);
-+		done = true;
-+	}
-+
-+	if (done)
-+		pdev->vdev.ops->signal_vq(kvm, &pdev->vdev, vq - pdev->vqs);
-+}
-+
-+static void *virtio_pstore_io_thread(void *arg)
-+{
-+	struct io_thread_arg *io_arg = arg;
-+	struct pstore_dev *pdev = io_arg->pdev;
-+	struct kvm *kvm = io_arg->kvm;
-+	u64 data;
-+	int r;
-+
-+	kvm__set_thread_name("virtio-pstore-io");
-+
-+	while (!pdev->done) {
-+		r = read(pdev->io_efd, &data, sizeof(u64));
-+		if (r < 0)
-+			continue;
-+
-+		virtio_pstore_do_io(kvm, pdev, &pdev->vqs[0]);
-+		virtio_pstore_do_io(kvm, pdev, &pdev->vqs[1]);
-+	}
-+	free(io_arg);
-+
-+	pthread_exit(NULL);
-+	return NULL;
-+}
-+
-+static int init_vq(struct kvm *kvm, void *dev, u32 vq, u32 page_size, u32 align,
-+		   u32 pfn)
-+{
-+	struct pstore_dev *pdev = dev;
-+	struct virt_queue *queue;
-+	void *p;
-+
-+	compat__remove_message(compat_id);
-+
-+	queue		= &pdev->vqs[vq];
-+	queue->pfn	= pfn;
-+	p		= virtio_get_vq(kvm, queue->pfn, page_size);
-+
-+	vring_init(&queue->vring, VIRTIO_PSTORE_QUEUE_SIZE, p, align);
-+
-+	return 0;
-+}
-+
-+static int notify_vq(struct kvm *kvm, void *dev, u32 vq)
-+{
-+	struct pstore_dev *pdev = dev;
-+	u64 data = 1;
-+	int r;
-+
-+	r = write(pdev->io_efd, &data, sizeof(data));
-+	if (r < 0)
-+		return r;
-+
-+	return 0;
-+}
-+
-+static int get_pfn_vq(struct kvm *kvm, void *dev, u32 vq)
-+{
-+	struct pstore_dev *pdev = dev;
-+
-+	return pdev->vqs[vq].pfn;
-+}
-+
-+static int get_size_vq(struct kvm *kvm, void *dev, u32 vq)
-+{
-+	return VIRTIO_PSTORE_QUEUE_SIZE;
-+}
-+
-+static int set_size_vq(struct kvm *kvm, void *dev, u32 vq, int size)
-+{
-+	/* FIXME: dynamic */
-+	return size;
-+}
-+
-+static struct virtio_ops pstore_dev_virtio_ops = {
-+	.get_config		= get_config,
-+	.get_host_features	= get_host_features,
-+	.set_guest_features	= set_guest_features,
-+	.init_vq		= init_vq,
-+	.notify_vq		= notify_vq,
-+	.get_pfn_vq		= get_pfn_vq,
-+	.get_size_vq		= get_size_vq,
-+	.set_size_vq		= set_size_vq,
-+};
-+
-+int virtio_pstore__init(struct kvm *kvm)
-+{
-+	struct pstore_dev *pdev;
-+	struct io_thread_arg *io_arg = NULL;
-+	int r;
-+
-+	if (!kvm->cfg.pstore_path)
-+		return 0;
-+
-+	pdev = calloc(1, sizeof(*pdev));
-+	if (pdev == NULL)
-+		return -ENOMEM;
-+
-+	pdev->config = calloc(1, sizeof(*pdev->config));
-+	if (pdev->config == NULL) {
-+		r = -ENOMEM;
-+		goto cleanup;
-+	}
-+
-+	pdev->id = 1;
-+	pdev->console_id = 0;
-+
-+	io_arg = malloc(sizeof(*io_arg));
-+	if (io_arg == NULL) {
-+		r = -ENOMEM;
-+		goto cleanup;
-+	}
-+
-+	pdev->io_efd = eventfd(0, 0);
-+
-+	*io_arg = (struct io_thread_arg) {
-+		.pdev   = pdev,
-+		.kvm    = kvm,
-+	};
-+	r = pthread_create(&pdev->io_thread, NULL,
-+			   virtio_pstore_io_thread, io_arg);
-+	if (r < 0)
-+		goto cleanup;
-+
-+	r = virtio_init(kvm, pdev, &pdev->vdev, &pstore_dev_virtio_ops,
-+			VIRTIO_DEFAULT_TRANS(kvm), PCI_DEVICE_ID_VIRTIO_PSTORE,
-+			VIRTIO_ID_PSTORE, PCI_CLASS_PSTORE);
-+	if (r < 0)
-+		goto cleanup;
-+
-+	list_add_tail(&pdev->list, &pdevs);
-+
-+	if (compat_id == -1)
-+		compat_id = virtio_compat_add_message("virtio-pstore", "CONFIG_VIRTIO_PSTORE");
-+	return 0;
-+
-+cleanup:
-+	free(io_arg);
-+	free(pdev->config);
-+	free(pdev);
-+
-+	return r;
-+}
-+virtio_dev_init(virtio_pstore__init);
-+
-+int virtio_pstore__exit(struct kvm *kvm)
-+{
-+	struct pstore_dev *pdev, *tmp;
-+
-+	list_for_each_entry_safe(pdev, tmp, &pdevs, list) {
-+		list_del(&pdev->list);
-+		close(pdev->io_efd);
-+		pdev->vdev.ops->exit(kvm, &pdev->vdev);
-+		free(pdev);
-+	}
-+
-+	return 0;
-+}
-+virtio_dev_exit(virtio_pstore__exit);
--- 
-2.8.0
+
+> +
+>  static int oom_pages = OOM_VBALLOON_DEFAULT_PAGES;
+>  module_param(oom_pages, int, S_IRUSR | S_IWUSR);
+>  MODULE_PARM_DESC(oom_pages, "pages to free on OOM");
+>  
+> +extern unsigned long get_max_pfn(void);
+> +
+>  struct virtio_balloon {
+>  	struct virtio_device *vdev;
+>  	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq;
+> @@ -62,6 +80,15 @@ struct virtio_balloon {
+>  
+>  	/* Number of balloon pages we've told the Host we're not using. */
+>  	unsigned int num_pages;
+> +	/* Pointer of the bitmap header. */
+> +	void *bmap_hdr;
+> +	/* Bitmap and length used to tell the host the pages */
+> +	unsigned long *page_bitmap;
+> +	unsigned long bmap_len;
+> +	/* Pfn limit */
+> +	unsigned long pfn_limit;
+> +	/* Used to record the processed pfn range */
+> +	unsigned long min_pfn, max_pfn, start_pfn, end_pfn;
+>  	/*
+>  	 * The pages we've told the Host we're not using are enqueued
+>  	 * at vb_dev_info->pages list.
+> @@ -105,12 +132,45 @@ static void balloon_ack(struct virtqueue *vq)
+>  	wake_up(&vb->acked);
+>  }
+>  
+> +static inline void init_pfn_range(struct virtio_balloon *vb)
+> +{
+> +	vb->min_pfn = ULONG_MAX;
+> +	vb->max_pfn = 0;
+> +}
+> +
+> +static inline void update_pfn_range(struct virtio_balloon *vb,
+> +				 struct page *page)
+> +{
+> +	unsigned long balloon_pfn = page_to_balloon_pfn(page);
+> +
+> +	if (balloon_pfn < vb->min_pfn)
+> +		vb->min_pfn = balloon_pfn;
+> +	if (balloon_pfn > vb->max_pfn)
+> +		vb->max_pfn = balloon_pfn;
+> +}
+> +
+>  static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq)
+>  {
+>  	struct scatterlist sg;
+>  	unsigned int len;
+>  
+> -	sg_init_one(&sg, vb->pfns, sizeof(vb->pfns[0]) * vb->num_pfns);
+> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_PAGE_BITMAP)) {
+> +		struct balloon_bmap_hdr *hdr = vb->bmap_hdr;
+> +		unsigned long bmap_len;
+> +
+> +		/* cmd and req_id are not used here, set them to 0 */
+> +		hdr->cmd = cpu_to_virtio16(vb->vdev, 0);
+> +		hdr->page_shift = cpu_to_virtio16(vb->vdev, PAGE_SHIFT);
+> +		hdr->reserved = cpu_to_virtio16(vb->vdev, 0);
+> +		hdr->req_id = cpu_to_virtio64(vb->vdev, 0);
+
+no need to swap 0, just fill it in. in fact you allocated all 0s
+so no need to touch these fields at all.
+
+> +		hdr->start_pfn = cpu_to_virtio64(vb->vdev, vb->start_pfn);
+> +		bmap_len = min(vb->bmap_len,
+> +			(vb->end_pfn - vb->start_pfn) / BITS_PER_BYTE);
+> +		hdr->bmap_len = cpu_to_virtio64(vb->vdev, bmap_len);
+> +		sg_init_one(&sg, hdr,
+> +			 sizeof(struct balloon_bmap_hdr) + bmap_len);
+> +	} else
+> +		sg_init_one(&sg, vb->pfns, sizeof(vb->pfns[0]) * vb->num_pfns);
+>  
+>  	/* We should always be able to add one buffer to an empty queue. */
+>  	virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+> @@ -118,7 +178,6 @@ static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq)
+>  
+>  	/* When host has read buffer, this completes via balloon_ack */
+>  	wait_event(vb->acked, virtqueue_get_buf(vq, &len));
+> -
+>  }
+>  
+>  static void set_page_pfns(struct virtio_balloon *vb,
+> @@ -133,13 +192,53 @@ static void set_page_pfns(struct virtio_balloon *vb,
+>  					  page_to_balloon_pfn(page) + i);
+>  }
+>  
+> -static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
+> +static void set_page_bitmap(struct virtio_balloon *vb,
+> +			 struct list_head *pages, struct virtqueue *vq)
+> +{
+> +	unsigned long pfn;
+> +	struct page *page;
+> +	bool found;
+> +
+> +	vb->min_pfn = rounddown(vb->min_pfn, BITS_PER_LONG);
+> +	vb->max_pfn = roundup(vb->max_pfn, BITS_PER_LONG);
+> +	for (pfn = vb->min_pfn; pfn < vb->max_pfn;
+> +			pfn += vb->pfn_limit) {
+> +		vb->start_pfn = pfn + vb->pfn_limit;
+> +		vb->end_pfn = pfn;
+> +		memset(vb->page_bitmap, 0, vb->bmap_len);
+> +		found = false;
+> +		list_for_each_entry(page, pages, lru) {
+> +			unsigned long balloon_pfn = page_to_balloon_pfn(page);
+> +
+> +			if (balloon_pfn < pfn ||
+> +				 balloon_pfn >= pfn + vb->pfn_limit)
+> +				continue;
+> +			set_bit(balloon_pfn - pfn, vb->page_bitmap);
+> +			if (balloon_pfn > vb->end_pfn)
+> +				vb->end_pfn = balloon_pfn;
+> +			if (balloon_pfn < vb->start_pfn)
+> +				vb->start_pfn = balloon_pfn;
+> +			found = true;
+> +		}
+> +		if (found) {
+> +			vb->start_pfn = rounddown(vb->start_pfn, BITS_PER_LONG);
+> +			vb->end_pfn = roundup(vb->end_pfn, BITS_PER_LONG);
+> +			tell_host(vb, vq);
+> +		}
+> +	}
+> +}
+> +
+> +static unsigned int fill_balloon(struct virtio_balloon *vb, size_t num,
+> +				 bool use_bmap)
+>  {
+>  	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
+> -	unsigned num_allocated_pages;
+> +	unsigned int num_allocated_pages;
+>  
+> -	/* We can only do one array worth at a time. */
+> -	num = min(num, ARRAY_SIZE(vb->pfns));
+> +	if (use_bmap)
+> +		init_pfn_range(vb);
+> +	else
+> +		/* We can only do one array worth at a time. */
+> +		num = min(num, ARRAY_SIZE(vb->pfns));
+>  
+>  	mutex_lock(&vb->balloon_lock);
+>  	for (vb->num_pfns = 0; vb->num_pfns < num;
+> @@ -154,7 +253,10 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
+>  			msleep(200);
+>  			break;
+>  		}
+> -		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
+> +		if (use_bmap)
+> +			update_pfn_range(vb, page);
+> +		else
+> +			set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
+>  		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
+>  		if (!virtio_has_feature(vb->vdev,
+>  					VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+> @@ -163,8 +265,13 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
+>  
+>  	num_allocated_pages = vb->num_pfns;
+>  	/* Did we get any? */
+> -	if (vb->num_pfns != 0)
+> -		tell_host(vb, vb->inflate_vq);
+> +	if (vb->num_pfns != 0) {
+> +		if (use_bmap)
+> +			set_page_bitmap(vb, &vb_dev_info->pages,
+> +					vb->inflate_vq);
+> +		else
+> +			tell_host(vb, vb->inflate_vq);
+> +	}
+>  	mutex_unlock(&vb->balloon_lock);
+>  
+>  	return num_allocated_pages;
+> @@ -184,15 +291,19 @@ static void release_pages_balloon(struct virtio_balloon *vb,
+>  	}
+>  }
+>  
+> -static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
+> +static unsigned int leak_balloon(struct virtio_balloon *vb, size_t num,
+> +				bool use_bmap)
+>  {
+> -	unsigned num_freed_pages;
+> +	unsigned int num_freed_pages;
+>  	struct page *page;
+>  	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
+>  	LIST_HEAD(pages);
+>  
+> -	/* We can only do one array worth at a time. */
+> -	num = min(num, ARRAY_SIZE(vb->pfns));
+> +	if (use_bmap)
+> +		init_pfn_range(vb);
+> +	else
+> +		/* We can only do one array worth at a time. */
+> +		num = min(num, ARRAY_SIZE(vb->pfns));
+>  
+>  	mutex_lock(&vb->balloon_lock);
+>  	for (vb->num_pfns = 0; vb->num_pfns < num;
+> @@ -200,7 +311,10 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
+>  		page = balloon_page_dequeue(vb_dev_info);
+>  		if (!page)
+>  			break;
+> -		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
+> +		if (use_bmap)
+> +			update_pfn_range(vb, page);
+> +		else
+> +			set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
+>  		list_add(&page->lru, &pages);
+>  		vb->num_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
+>  	}
+> @@ -211,9 +325,14 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
+>  	 * virtio_has_feature(vdev, VIRTIO_BALLOON_F_MUST_TELL_HOST);
+>  	 * is true, we *have* to do it in this order
+>  	 */
+> -	if (vb->num_pfns != 0)
+> -		tell_host(vb, vb->deflate_vq);
+> -	release_pages_balloon(vb, &pages);
+> +	if (vb->num_pfns != 0) {
+> +		if (use_bmap)
+> +			set_page_bitmap(vb, &pages, vb->deflate_vq);
+> +		else
+> +			tell_host(vb, vb->deflate_vq);
+> +
+> +		release_pages_balloon(vb, &pages);
+> +	}
+>  	mutex_unlock(&vb->balloon_lock);
+>  	return num_freed_pages;
+>  }
+> @@ -347,13 +466,15 @@ static int virtballoon_oom_notify(struct notifier_block *self,
+>  	struct virtio_balloon *vb;
+>  	unsigned long *freed;
+>  	unsigned num_freed_pages;
+> +	bool use_bmap;
+>  
+>  	vb = container_of(self, struct virtio_balloon, nb);
+>  	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+>  		return NOTIFY_OK;
+>  
+>  	freed = parm;
+> -	num_freed_pages = leak_balloon(vb, oom_pages);
+> +	use_bmap = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_PAGE_BITMAP);
+> +	num_freed_pages = leak_balloon(vb, oom_pages, use_bmap);
+>  	update_balloon_size(vb);
+>  	*freed += num_freed_pages;
+>  
+> @@ -373,15 +494,17 @@ static void update_balloon_size_func(struct work_struct *work)
+>  {
+>  	struct virtio_balloon *vb;
+>  	s64 diff;
+> +	bool use_bmap;
+>  
+>  	vb = container_of(work, struct virtio_balloon,
+>  			  update_balloon_size_work);
+> +	use_bmap = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_PAGE_BITMAP);
+>  	diff = towards_target(vb);
+>  
+>  	if (diff > 0)
+> -		diff -= fill_balloon(vb, diff);
+> +		diff -= fill_balloon(vb, diff, use_bmap);
+>  	else if (diff < 0)
+> -		diff += leak_balloon(vb, -diff);
+> +		diff += leak_balloon(vb, -diff, use_bmap);
+>  	update_balloon_size(vb);
+>  
+>  	if (diff)
+> @@ -489,7 +612,7 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
+>  static int virtballoon_probe(struct virtio_device *vdev)
+>  {
+>  	struct virtio_balloon *vb;
+> -	int err;
+> +	int err, hdr_len;
+>  
+>  	if (!vdev->config->get) {
+>  		dev_err(&vdev->dev, "%s failure: config access disabled\n",
+> @@ -508,6 +631,18 @@ static int virtballoon_probe(struct virtio_device *vdev)
+>  	spin_lock_init(&vb->stop_update_lock);
+>  	vb->stop_update = false;
+>  	vb->num_pages = 0;
+> +	vb->pfn_limit = VIRTIO_BALLOON_PFNS_LIMIT;
+> +	vb->pfn_limit = min(vb->pfn_limit, get_max_pfn());
+> +	vb->bmap_len = ALIGN(vb->pfn_limit, BITS_PER_LONG) /
+> +		 BITS_PER_BYTE + 2 * sizeof(unsigned long);
+
+What are these 2 longs in aid of?
+
+> +	hdr_len = sizeof(struct balloon_bmap_hdr);
+> +	vb->bmap_hdr = kzalloc(hdr_len + vb->bmap_len, GFP_KERNEL);
+
+So it can go up to 1MByte but adding header size etc you need a higher
+order allocation. This is a waste, there is no need to have a power of
+two allocation. Start from the other side. Say "I want to allocate
+32KBytes for the bitmap". Subtract the header and you get bitmap size.
+Calculate the pfn limit from there.
+
+
+> +
+> +	/* Clear the feature bit if memory allocation fails */
+> +	if (!vb->bmap_hdr)
+> +		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_BITMAP);
+> +	else
+> +		vb->page_bitmap = vb->bmap_hdr + hdr_len;
+>  	mutex_init(&vb->balloon_lock);
+>  	init_waitqueue_head(&vb->acked);
+>  	vb->vdev = vdev;
+> @@ -541,9 +676,12 @@ out:
+>  
+>  static void remove_common(struct virtio_balloon *vb)
+>  {
+> +	bool use_bmap;
+> +
+> +	use_bmap = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_PAGE_BITMAP);
+>  	/* There might be pages left in the balloon: free them. */
+>  	while (vb->num_pages)
+> -		leak_balloon(vb, vb->num_pages);
+> +		leak_balloon(vb, vb->num_pages, use_bmap);
+>  	update_balloon_size(vb);
+>  
+>  	/* Now we reset the device so we can clean up the queues. */
+> @@ -565,6 +703,7 @@ static void virtballoon_remove(struct virtio_device *vdev)
+>  	cancel_work_sync(&vb->update_balloon_stats_work);
+>  
+>  	remove_common(vb);
+> +	kfree(vb->page_bitmap);
+>  	kfree(vb);
+>  }
+>  
+> @@ -603,6 +742,7 @@ static unsigned int features[] = {
+>  	VIRTIO_BALLOON_F_MUST_TELL_HOST,
+>  	VIRTIO_BALLOON_F_STATS_VQ,
+>  	VIRTIO_BALLOON_F_DEFLATE_ON_OOM,
+> +	VIRTIO_BALLOON_F_PAGE_BITMAP,
+>  };
+>  
+>  static struct virtio_driver virtio_balloon_driver = {
+> -- 
+> 1.9.1
