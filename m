@@ -1,8 +1,8 @@
 From: Liang Li <liang.z.li@intel.com>
-Subject: [PATCH v2 repost 1/7] virtio-balloon: rework deflate to add page to a
-	list
-Date: Wed, 27 Jul 2016 09:23:30 +0800
-Message-ID: <1469582616-5729-2-git-send-email-liang.z.li__29199.7011671358$1469583081$gmane$org@intel.com>
+Subject: [PATCH v2 repost 2/7] virtio-balloon: define new feature bit and page
+	bitmap head
+Date: Wed, 27 Jul 2016 09:23:31 +0800
+Message-ID: <1469582616-5729-3-git-send-email-liang.z.li__5023.12042885951$1469583083$gmane$org@intel.com>
 References: <1469582616-5729-1-git-send-email-liang.z.li@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,83 +22,58 @@ To: linux-kernel@vger.kernel.org
 Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, Amit Shah <amit.shah@redhat.com>, Liang Li <liang.z.li@intel.com>, qemu-devel@nongnu.org, dgilbert@redhat.com, linux-mm@kvack.org, "Michael S. Tsirkin" <mst@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-will allow faster notifications using a bitmap down the road.
-balloon_pfn_to_page() can be removed because it's useless.
+Add a new feature which supports sending the page information with
+a bitmap. The current implementation uses PFNs array, which is not
+very efficient. Using bitmap can improve the performance of
+inflating/deflating significantly
+
+The page bitmap header will used to tell the host some information
+about the page bitmap. e.g. the page size, page bitmap length and
+start pfn.
 
 Signed-off-by: Liang Li <liang.z.li@intel.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Cc: Michael S. Tsirkin <mst@redhat.com>
 Cc: Paolo Bonzini <pbonzini@redhat.com>
 Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
 Cc: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/virtio/virtio_balloon.c | 22 ++++++++--------------
- 1 file changed, 8 insertions(+), 14 deletions(-)
+ include/uapi/linux/virtio_balloon.h | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 476c0e3..8d649a2 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -98,12 +98,6 @@ static u32 page_to_balloon_pfn(struct page *page)
- 	return pfn * VIRTIO_BALLOON_PAGES_PER_PAGE;
- }
+diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
+index 343d7dd..d3b182a 100644
+--- a/include/uapi/linux/virtio_balloon.h
++++ b/include/uapi/linux/virtio_balloon.h
+@@ -34,6 +34,7 @@
+ #define VIRTIO_BALLOON_F_MUST_TELL_HOST	0 /* Tell before reclaiming pages */
+ #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
+ #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
++#define VIRTIO_BALLOON_F_PAGE_BITMAP	3 /* Send page info with bitmap */
  
--static struct page *balloon_pfn_to_page(u32 pfn)
--{
--	BUG_ON(pfn % VIRTIO_BALLOON_PAGES_PER_PAGE);
--	return pfn_to_page(pfn / VIRTIO_BALLOON_PAGES_PER_PAGE);
--}
--
- static void balloon_ack(struct virtqueue *vq)
- {
- 	struct virtio_balloon *vb = vq->vdev->priv;
-@@ -176,18 +170,16 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
- 	return num_allocated_pages;
- }
+ /* Size of a PFN in the balloon interface. */
+ #define VIRTIO_BALLOON_PFN_SHIFT 12
+@@ -82,4 +83,22 @@ struct virtio_balloon_stat {
+ 	__virtio64 val;
+ } __attribute__((packed));
  
--static void release_pages_balloon(struct virtio_balloon *vb)
-+static void release_pages_balloon(struct virtio_balloon *vb,
-+				 struct list_head *pages)
- {
--	unsigned int i;
--	struct page *page;
-+	struct page *page, *next;
- 
--	/* Find pfns pointing at start of each page, get pages and free them. */
--	for (i = 0; i < vb->num_pfns; i += VIRTIO_BALLOON_PAGES_PER_PAGE) {
--		page = balloon_pfn_to_page(virtio32_to_cpu(vb->vdev,
--							   vb->pfns[i]));
-+	list_for_each_entry_safe(page, next, pages, lru) {
- 		if (!virtio_has_feature(vb->vdev,
- 					VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
- 			adjust_managed_page_count(page, 1);
-+		list_del(&page->lru);
- 		put_page(page); /* balloon reference */
- 	}
- }
-@@ -197,6 +189,7 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
- 	unsigned num_freed_pages;
- 	struct page *page;
- 	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
-+	LIST_HEAD(pages);
- 
- 	/* We can only do one array worth at a time. */
- 	num = min(num, ARRAY_SIZE(vb->pfns));
-@@ -208,6 +201,7 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
- 		if (!page)
- 			break;
- 		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
-+		list_add(&page->lru, &pages);
- 		vb->num_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
- 	}
- 
-@@ -219,7 +213,7 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
- 	 */
- 	if (vb->num_pfns != 0)
- 		tell_host(vb, vb->deflate_vq);
--	release_pages_balloon(vb);
-+	release_pages_balloon(vb, &pages);
- 	mutex_unlock(&vb->balloon_lock);
- 	return num_freed_pages;
- }
++/* Page bitmap header structure */
++struct balloon_bmap_hdr {
++	/* Used to distinguish different request */
++	__virtio16 cmd;
++	/* Shift width of page in the bitmap */
++	__virtio16 page_shift;
++	/* flag used to identify different status */
++	__virtio16 flag;
++	/* Reserved */
++	__virtio16 reserved;
++	/* ID of the request */
++	__virtio64 req_id;
++	/* The pfn of 0 bit in the bitmap */
++	__virtio64 start_pfn;
++	/* The length of the bitmap, in bytes */
++	__virtio64 bmap_len;
++};
++
+ #endif /* _LINUX_VIRTIO_BALLOON_H */
 -- 
 1.9.1
