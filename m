@@ -1,19 +1,14 @@
-From: "Li, Liang Z" <liang.z.li@intel.com>
-Subject: RE: [virtio-dev] Re: [PATCH v2 repost 4/7] virtio-balloon: speed up
-	inflate/deflate process
-Date: Thu, 28 Jul 2016 06:36:18 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E04214103__10057.3057229214$1469687800$gmane$org@shsmsx102.ccr.corp.intel.com>
-References: <1469582616-5729-1-git-send-email-liang.z.li@intel.com>
-	<1469582616-5729-5-git-send-email-liang.z.li@intel.com>
-	<5798DB49.7030803@intel.com>
-	<F2CBF3009FA73547804AE4C663CAB28E04213CCB@shsmsx102.ccr.corp.intel.com>
-	<20160728044000-mutt-send-email-mst@kernel.org>
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH v4] virtio: new feature to detect IOMMU device quirk
+Date: Wed, 27 Jul 2016 23:59:18 -0700
+Message-ID: <20160728065918.GA22392@infradead.org>
+References: <1469659378-15957-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160728044000-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1469659378-15957-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,54 +19,8 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Hansen,
-	Dave" <dave.hansen@intel.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, Amit Shah <amit.shah@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Vlastimil Babka <vbabka@suse.cz>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Mel Gorman <mgorman@techsingularity.net>, "dgilbert@redhat.com" <dgilbert@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> > > This ends up doing a 1MB kmalloc() right?  That seems a _bit_ big.
-> > > How big was the pfn buffer before?
-> >
-> > Yes, it is if the max pfn is more than 32GB.
-> > The size of the pfn buffer use before is 256*4 = 1024 Bytes, it's too
-> > small, and it's the main reason for bad performance.
-> > Use the max 1MB kmalloc is a balance between performance and
-> > flexibility, a large page bitmap covers the range of all the memory is
-> > no good for a system with huge amount of memory. If the bitmap is too
-> > small, it means we have to traverse a long list for many times, and it's bad
-> for performance.
-> >
-> > Thanks!
-> > Liang
-> 
-> There are all your implementation decisions though.
-> 
-> If guest memory is so fragmented that you only have order 0 4k pages, then
-> allocating a huge 1M contigious chunk is very problematic in and of itself.
-> 
-
-The memory is allocated in the probe stage. This will not happen if the driver is
- loaded when booting the guest.
-
-> Most people rarely migrate and do not care how fast that happens.
-> Wasting a large chunk of memory (and it's zeroed for no good reason, so you
-> actually request host memory for it) for everyone to speed it up when it
-> does happen is not really an option.
-> 
-If people don't plan to do inflating/deflating, they should not enable the virtio-balloon
-at the beginning, once they decide to use it, the driver should provide better performance
-as much as possible.
-
-1MB is a very small portion for a VM with more than 32GB memory and it's the *worst case*, 
-for VM with less than 32GB memory, the amount of RAM depends on VM's memory size
-and will be less than 1MB.
-
-If 1MB is too big, how about 512K, or 256K?  32K seems too small.
-
-Liang
-
-> --
-> MST
-> 
-> ---------------------------------------------------------------------
-> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
-> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
+Again, this is still the wrong way around.  A "noiommu" feature is a
+quirk and should not be the default.
