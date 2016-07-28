@@ -1,20 +1,13 @@
-From: Zhangfei Gao <zhangfei.gao@gmail.com>
-Subject: Re: ext4 error when testing virtio-scsi & vhost-scsi
-Date: Thu, 28 Jul 2016 09:29:35 +0800
-Message-ID: <CAMj5BkgqYq4feie3HVpp673JyFq+SEXRn2YiaO=v_v9RqW_pBw__9638.13995845175$1469899271$gmane$org@mail.gmail.com>
-References: <CAMj5BkiVGQ4dAUY+wi-+O4qRdVS6YPiUP2BpsiE5y0r+2AhLgw@mail.gmail.com>
-	<CAMj5BkiKC2m3PLHvoDWwyj9BQZ-Bg5mD0f1J0kZcpwroH+rR1g@mail.gmail.com>
-	<CAMj5BkgSXjD+_GB_VPgizowyyJ1uYxLiKd7ehQmEdVvnuY55cA@mail.gmail.com>
-	<20160712164324.GC11020@thunk.org>
-	<CAMj5BkgTycMbfQpUVAV17ahYT1sGm6w3YDtpz0E--vN=tF55xA@mail.gmail.com>
-	<CAMj5BkicJhB1Bk6q_ZT_nMKSPWf1XEGchtnGnMPFy=O_0x91hA@mail.gmail.com>
-	<CAMj5BkifLL=3C5f0VZKhpNmi81em8P5VNupr7d7_aD=uo2Hwow@mail.gmail.com>
-	<20160727155608.GC1659@quack2.suse.cz>
+From: Alex Xu via Virtualization <virtualization@lists.linux-foundation.org>
+Subject: getrandom waits for a long time when /dev/random is insufficiently
+	read from
+Date: Thu, 28 Jul 2016 18:07:32 -0400
+Message-ID: <20160728180732.12d38880__42443.7190908522$1469899283$gmane$org@alex-desktop>
+Reply-To: Alex Xu <alex_y_xu@yahoo.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160727155608.GC1659@quack2.suse.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,178 +17,94 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jan Kara <jack@suse.cz>
-Cc: Theodore Ts'o <tytso@mit.edu>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, linux-ext4@vger.kernel.org
+To: linux-crypto@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi, Jan
+Linux 4.6, also tried 4.7, qemu 2.6, using this C program:
 
-On Wed, Jul 27, 2016 at 11:56 PM, Jan Kara <jack@suse.cz> wrote:
-> Hi!
->
-> On Wed 27-07-16 15:58:55, Zhangfei Gao wrote:
->> Hi, Michael
->>
->> I have met ext4 error when using vhost_scsi on arm64 platform, and
->> suspect it is vhost_scsi issue.
->>
->> Ext4 error when testing virtio_scsi & vhost_scsi
->>
->>
->> No issue:
->> 1. virtio_scsi, ext4
->> 2. vhost_scsi & virtio_scsi, ext2
->> 3.  Instead of vhost, also tried loopback and no problem.
->> Using loopback, host can use the new block device, while vhost is used
->> by guest (qemu).
->> http://www.linux-iscsi.org/wiki/Tcm_loop
->> Test directly in host, not find ext4 error.
->>
->>
->>
->> Have issue:
->> 1. vhost_scsi & virtio_scsi, ext4
->> a. iblock
->> b, fileio, file located in /tmp (ram), no device based.
->>
->> 2, Have tried 4.7-r2 and 4.5-rc1 on D02 board, both have issue.
->> Since I need kvm specific patch for D02, so it may not freely to switch
->> to older version.
->>
->> 3. Also test with ext4, disabling journal
->> mkfs.ext4 -O ^has_journal /dev/sda
->>
->>
->> Do you have any suggestion?
->
-> So can you mount the filesystem with errors=remount-ro to avoid clobbering
-> the fs after the problem happens? And then run e2fsck on the problematic
-> filesystem and send the output here?
->
+#include <fcntl.h>
+#include <stdlib.h>
+#include <syscall.h>
+#include <unistd.h>
 
-Tested twice, log pasted.
-Both using fileio, located in host ramfs /tmp
-Before e2fsck, umount /dev/sda
+int main(int argc, char *argv[]) {
+    char buf[16];
+    int fd;
 
-1.
-root@(none)$ mount -o errors=remount-ro /dev/sda /mnt
-[   22.812053] EXT4-fs (sda): mounted filesystem with ordered data
-mode. Opts: errors=remount-ro
-$ rm /mnt/test
-[  108.388905] EXT4-fs error (device sda) in
-ext4_reserve_inode_write:5362: Corrupt filesystem
-[  108.406930] Aborting journal on device sda-8.
-[  108.414120] EXT4-fs (sda): Remounting filesystem read-only
-[  108.414847] EXT4-fs error (device sda) in ext4_dirty_inode:5487: IO failure
-[  108.423571] EXT4-fs error (device sda) in ext4_free_blocks:4904:
-Journal has aborted
-[  108.431919] EXT4-fs error (device sda) in
-ext4_reserve_inode_write:5362: Corrupt filesystem
-[  108.440269] EXT4-fs error (device sda) in
-ext4_reserve_inode_write:5362: Corrupt filesystem
-[  108.448568] EXT4-fs error (device sda) in
-ext4_ext_remove_space:3058: IO failure
-[  108.456917] EXT4-fs error (device sda) in ext4_ext_truncate:4657:
-Corrupt filesystem
-[  108.465267] EXT4-fs error (device sda) in
-ext4_reserve_inode_write:5362: Corrupt filesystem
-[  108.473567] EXT4-fs error (device sda) in ext4_truncate:4150: IO failure
-[  108.481917] EXT4-fs error (device sda) in
-ext4_reserve_inode_write:5362: Corrupt filesystem
-root@(none)$ e2fsck /dev/sda
-e2fsck 1.42.9 (28-Dec-2013)
-/dev/sda is mounted.
-e2fsck: Cannot continue, aborting.
+    if (argc != 2)
+        return 1;
 
+    for (int i = 0; i < atoi(argv[1]); i++) {
+        sleep(1);
 
-root@(none)$ umount /mnt
-[  260.756250] EXT4-fs error (device sda): ext4_put_super:837:
-Couldn't clean up the journal
-root@(none)$ umount /mnt           e2fsck /dev/sda
-e2fsck 1.42.9 (28-Dec-2013)
-ext2fs_open2: Bad magic number in super-block
-e2fsck: Superblock invalid, trying backup blocks...
-Superblock needs_recovery flag is clear, but journal has data.
-Recovery flag not set in backup superblock, so running journal anyway.
-/dev/sda: recovering journal
-Pass 1: Checking inodes, blocks, and sizes
-Pass 2: Checking directory structure
-Pass 3: Checking directory connectivity
-Pass 4: Checking reference counts
-Pass 5: Checking group summary information
-Free blocks count wrong for group #1 (32703, counted=8127).
-Fix<y>? yes
-Free blocks count wrong for group #2 (32768, counted=31744).
-Fix<y>? yes
-Free blocks count wrong (249509, counted=223909).
-Fix<y>? yes
-Free inodes count wrong for group #0 (8181, counted=8180).
-Fix<y>? yes
-Free inodes count wrong (65525, counted=65524).
-Fix<y>? yes
+        if ((fd = open("/dev/random", O_RDONLY)) == -1)
+            return 2;
 
-/dev/sda: ***** FILE SYSTEM WAS MODIFIED *****
-/dev/sda: 12/65536 files (8.3% non-contiguous), 38235/262144 blocks
-root@(none)$
+        if (read(fd, buf, sizeof(buf)) < 1)
+            return 3;
 
-2.
+        if (close(fd) == -1)
+            return 4;
+    }
 
- root@(none)$ rm /mnt/test
-[   71.021484] EXT4-fs error (device sda) in
-ext4_reserve_inode_write:5362: Corrupt filesystem
-[   71.044959] Aborting journal on device sda-8.
-[   71.052152] EXT4-fs (sda): Remounting filesystem read-only
-[   71.052833] EXT4-fs error (device sda) in ext4_dirty_inode:5487: IO failure
-[   71.061600] EXT4-fs error (device sda) in ext4_free_blocks:4904:
-Journal has aborted
-[   71.069948] EXT4-fs error (device sda) in
-ext4_reserve_inode_write:5362: Corrupt filesystem
-[   71.078296] EXT4-fs error (device sda) in
-ext4_reserve_inode_write:5362: Corrupt filesystem
-[   71.086597] EXT4-fs error (device sda) in
-ext4_ext_remove_space:3058: IO failure
-[   71.094946] EXT4-fs error (device sda) in ext4_ext_truncate:4657:
-Corrupt filesystem
-[   71.103296] EXT4-fs error (device sda) in
-ext4_reserve_inode_write:5362: Corrupt filesystem
-[   71.111595] EXT4-fs error (device sda) in ext4_truncate:4150: IO failure
-[   71.119946] EXT4-fs error (device sda) in
-ext4_reserve_inode_write:5362: Corrupt filesystem
-root@(none)$ e2fsck /dev/sda
-e2fsck 1.42.9 (28-Dec-2013)
-/dev/sda is mounted.
-e2fsck: Cannot continue, aborting.
+    sleep(2);
 
+    if (syscall(SYS_getrandom, buf, sizeof(buf), 0) == -1)
+        return 5;
 
-root@(none)$ umou nt /mnt/
-[   92.103221] EXT4-fs error (device sda): ext4_put_super:837:
-Couldn't clean up the journal
-root@(none)$ umount /mnt/            e2fsck /dev/sda
-e2fsck 1.42.9 (28-Dec-2013)
-ext2fs_open2: Bad magic number in super-block
-e2fsck: Superblock invalid, trying backup blocks...
-Superblock needs_recovery flag is clear, but journal has data.
-Recovery flag not set in backup superblock, so running journal anyway.
-/dev/sda: recovering journal
-Pass 1: Checking inodes, blocks, and sizes
-Pass 2: Checking directory structure
-Pass 3: Checking directory connectivity
-Pass 4: Checking reference counts
-Pass 5: Checking group summary information
-Free blocks count wrong for group #1 (32703, counted=8127).
-Fix<y>? yes
-Free blocks count wrong for group #2 (32768, counted=31744).
-Fix<y>? yes
-Free blocks count wrong (249509, counted=223909).
-Fix<y>? yes
-Free inodes count wrong for group #0 (8181, counted=8180).
-Fix<y>? yes
-Free inodes count wrong (65525, counted=65524).
-Fix<y>? yes
+    return 0;
+}
 
-/dev/sda: ***** FILE SYSTEM WAS MODIFIED *****
-/dev/sda: 12/65536 files (8.3% non-contiguous), 38235/262144 blocks
-root@(none)$
+$ qemu-system-x86_64 -nodefaults -machine q35,accel=kvm -nographic -object rng-random,id=rng0,filename=/dev/urandom -device virtio-rng-pci,rng=rng0 -kernel linux-4.7/arch/x86/boot/bzImage -fsdev local,path="$PWD/root",security_model=none,id=root -device virtio-9p-pci,fsdev=root,mount_tag=/dev/root -device virtio-serial -chardev stdio,id=stdio -device virtconsole,chardev=stdio -monitor none -append "root=/dev/root rw rootfstype=9p rootflags=trans=virtio console=hvc0 init=/strace /test 2"
+execve("/test", ["/test", "2"], [/* 2 vars */]) = 0
+arch_prctl(ARCH_SET_FS, 0x601098)       = 0
+set_tid_address(0x6010d0)               = 29
+nanosleep({1, 0}, 0x7ffcdb7ea6b0)       = 0
+open("/dev/random", O_RDONLY)           = 3
+read(3, "P'\333\362\352\247\212\272\357E?\343", 16) = 12
+close(3)                                = 0
+nanosleep({1, 0}, 0x7ffcdb7ea6b0)       = 0
+open("/dev/random", O_RDONLY)           = 3
+read(3, ">>9\252]\332T\322dL\203\231C\255\303\376", 16) = 16
+close(3)                                = 0
+nanosleep({2, 0}, 0x7ffcdb7ea6e0)       = 0
+getrandom(<some time later>[   89.166661] random: nonblocking pool is initialized
+"\217\0\206\220\36t\3\353\t\227\377\356\315\320\2452", 16, 0) = 16
+exit_group(0)                           = ?
++++ exited with 0 +++
 
+Identical command but replaced 2 iterations with 3:
 
-Thanks
+$ qemu-system-x86_64 -nodefaults -machine q35,accel=kvm -nographic -object rng-random,id=rng0,filename=/dev/urandom -device virtio-rng-pci,rng=rng0 -kernel linux-4.7/arch/x86/boot/bzImage -fsdev local,path="$PWD/root",security_model=none,id=root -device virtio-9p-pci,fsdev=root,mount_tag=/dev/root -device virtio-serial -chardev stdio,id=stdio -device virtconsole,chardev=stdio -monitor none -append "root=/dev/root rw rootfstype=9p rootflags=trans=virtio console=hvc0 init=/strace /test 3"
+execve("/test", ["/test", "3"], [/* 2 vars */]) = 0
+arch_prctl(ARCH_SET_FS, 0x601098)       = 0
+set_tid_address(0x6010d0)               = 29
+nanosleep({1, 0}, 0x7ffc9e13fb70)       = 0
+open("/dev/random", O_RDONLY)           = 3
+read(3, ">\202\264\350\226\364\364\320'-\200\16", 16) = 12
+close(3)                                = 0
+nanosleep({1, 0}, 0x7ffc9e13fb70)       = 0
+open("/dev/random", O_RDONLY)           = 3
+read(3, "\377:\2076\213q0E\307\377\\\234\217\"g\254", 16) = 16
+close(3)                                = 0
+nanosleep({1, 0}, 0x7ffc9e13fb70)       = 0
+open("/dev/random", O_RDONLY)           = 3
+read(3, [    3.312266] random: nonblocking pool is initialized
+"O\2112g\375\25]\270\347\v\34XP", 16) = 13
+close(3)                                = 0
+nanosleep({2, 0}, 0x7ffc9e13fba0)       = 0
+getrandom("\215\317\207/\324\6\300\216\332zN\351a\323\231\36", 16, 0) = 16
+exit_group(0)                           = ?
++++ exited with 0 +++
+
+(irrelevant kernel messages have been removed for clarity)
+
+Removing the calls to "sleep" produces similar results except without
+sleeping or the corresponding strace output. Running both commands
+repeatedly also produces similar results; the timing of the getrandom
+return and "random: nonblocking pool is initialized" message
+is different for each run, but it always takes 90-100 seconds.
+
+Sorry if these aren't the right lists or if this is a known issue.
+
+Please CC me on replies.
