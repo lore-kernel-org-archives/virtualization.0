@@ -1,18 +1,20 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 repost 7/7] virtio-balloon: tell host vm's free page
-	info
-Date: Fri, 29 Jul 2016 00:37:24 +0300
-Message-ID: <20160729003622-mutt-send-email-mst__12909.730608999$1469741877$gmane$org@kernel.org>
+Subject: Re: [virtio-dev] Re: [PATCH v2 repost 4/7] virtio-balloon: speed up
+	inflate/deflate process
+Date: Fri, 29 Jul 2016 00:51:31 +0300
+Message-ID: <20160729003759-mutt-send-email-mst__39591.5104462349$1469742712$gmane$org@kernel.org>
 References: <1469582616-5729-1-git-send-email-liang.z.li@intel.com>
-	<1469582616-5729-8-git-send-email-liang.z.li@intel.com>
-	<20160728004606-mutt-send-email-mst@kernel.org>
-	<F2CBF3009FA73547804AE4C663CAB28E042141EE@shsmsx102.ccr.corp.intel.com>
+	<1469582616-5729-5-git-send-email-liang.z.li@intel.com>
+	<5798DB49.7030803@intel.com>
+	<F2CBF3009FA73547804AE4C663CAB28E04213CCB@shsmsx102.ccr.corp.intel.com>
+	<20160728044000-mutt-send-email-mst@kernel.org>
+	<F2CBF3009FA73547804AE4C663CAB28E04214103@shsmsx102.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <F2CBF3009FA73547804AE4C663CAB28E042141EE@shsmsx102.ccr.corp.intel.com>
+In-Reply-To: <F2CBF3009FA73547804AE4C663CAB28E04214103@shsmsx102.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,97 +25,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Li, Liang Z" <liang.z.li@intel.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Amit Shah <amit.shah@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Vlastimil Babka <vbabka@suse.cz>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Mel Gorman <mgorman@techsingularity.net>, "dgilbert@redhat.com" <dgilbert@redhat.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Hansen,
+	Dave" <dave.hansen@intel.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, Amit Shah <amit.shah@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Vlastimil Babka <vbabka@suse.cz>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Mel Gorman <mgorman@techsingularity.net>, "dgilbert@redhat.com" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 28, 2016 at 07:50:52AM +0000, Li, Liang Z wrote:
-> > >  }
+On Thu, Jul 28, 2016 at 06:36:18AM +0000, Li, Liang Z wrote:
+> > > > This ends up doing a 1MB kmalloc() right?  That seems a _bit_ big.
+> > > > How big was the pfn buffer before?
 > > >
-> > > +static void update_free_pages_stats(struct virtio_balloon *vb,
-> > 
-> > why _stats?
-> 
-> Will change.
-> 
-> > > +	max_pfn = get_max_pfn();
-> > > +	mutex_lock(&vb->balloon_lock);
-> > > +	while (pfn < max_pfn) {
-> > > +		memset(vb->page_bitmap, 0, vb->bmap_len);
-> > > +		ret = get_free_pages(pfn, pfn + vb->pfn_limit,
-> > > +			vb->page_bitmap, vb->bmap_len * BITS_PER_BYTE);
-> > > +		hdr->cmd = cpu_to_virtio16(vb->vdev,
-> > BALLOON_GET_FREE_PAGES);
-> > > +		hdr->page_shift = cpu_to_virtio16(vb->vdev, PAGE_SHIFT);
-> > > +		hdr->req_id = cpu_to_virtio64(vb->vdev, req_id);
-> > > +		hdr->start_pfn = cpu_to_virtio64(vb->vdev, pfn);
-> > > +		bmap_len = vb->pfn_limit / BITS_PER_BYTE;
-> > > +		if (!ret) {
-> > > +			hdr->flag = cpu_to_virtio16(vb->vdev,
-> > > +
-> > 	BALLOON_FLAG_DONE);
-> > > +			if (pfn + vb->pfn_limit > max_pfn)
-> > > +				bmap_len = (max_pfn - pfn) /
-> > BITS_PER_BYTE;
-> > > +		} else
-> > > +			hdr->flag = cpu_to_virtio16(vb->vdev,
-> > > +
-> > 	BALLOON_FLAG_CONT);
-> > > +		hdr->bmap_len = cpu_to_virtio64(vb->vdev, bmap_len);
-> > > +		sg_init_one(&sg_out, hdr,
-> > > +			 sizeof(struct balloon_bmap_hdr) + bmap_len);
-> > 
-> > Wait a second. This adds the same buffer multiple times in a loop.
-> > We will overwrite the buffer without waiting for hypervisor to process it.
-> > What did I miss?
-> 
-> I am no quite sure about this part, I though the virtqueue_kick(vq) will prevent
-> the buffer from overwrite, I realized it's wrong.
-> 
-> > > +
-> > > +		virtqueue_add_outbuf(vq, &sg_out, 1, vb, GFP_KERNEL);
-> > 
-> > this can fail. you want to maybe make sure vq has enough space before you
-> > use it or check error and wait.
-> > 
-> > > +		virtqueue_kick(vq);
-> > 
-> > why kick here within loop? wait until done. in fact kick outside lock is better
-> > for smp.
-> 
-> I will change this part in v3.
-> 
-> > 
-> > > +		pfn += vb->pfn_limit;
-> > > +	static const char * const names[] = { "inflate", "deflate", "stats",
-> > > +						 "misc" };
-> > >  	int err, nvqs;
+> > > Yes, it is if the max pfn is more than 32GB.
+> > > The size of the pfn buffer use before is 256*4 = 1024 Bytes, it's too
+> > > small, and it's the main reason for bad performance.
+> > > Use the max 1MB kmalloc is a balance between performance and
+> > > flexibility, a large page bitmap covers the range of all the memory is
+> > > no good for a system with huge amount of memory. If the bitmap is too
+> > > small, it means we have to traverse a long list for many times, and it's bad
+> > for performance.
 > > >
-> > >  	/*
-> > >  	 * We expect two virtqueues: inflate and deflate, and
-> > >  	 * optionally stat.
-> > >  	 */
-> > > -	nvqs = virtio_has_feature(vb->vdev,
-> > VIRTIO_BALLOON_F_STATS_VQ) ? 3 : 2;
-> > > +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_MISC_VQ))
-> > > +		nvqs = 4;
+> > > Thanks!
+> > > Liang
 > > 
-> > Does misc vq depend on stats vq feature then? if yes please validate that.
+> > There are all your implementation decisions though.
+> > 
+> > If guest memory is so fragmented that you only have order 0 4k pages, then
+> > allocating a huge 1M contigious chunk is very problematic in and of itself.
+> > 
 > 
-> Yes, what's you mean by 'validate' that?
+> The memory is allocated in the probe stage. This will not happen if the driver is
+>  loaded when booting the guest.
+> 
+> > Most people rarely migrate and do not care how fast that happens.
+> > Wasting a large chunk of memory (and it's zeroed for no good reason, so you
+> > actually request host memory for it) for everyone to speed it up when it
+> > does happen is not really an option.
+> > 
+> If people don't plan to do inflating/deflating, they should not enable the virtio-balloon
+> at the beginning, once they decide to use it, the driver should provide better performance
+> as much as possible.
 
-Either handle misc vq without a stats vq, or
-clear VIRTIO_BALLOON_F_MISC_VQ if stats vq is off.
+The reason people inflate/deflate is so they can overcommit memory.
+Do they need to overcommit very quickly? I don't see why.
+So let's get what we can for free but I don't really believe
+people would want to pay for it.
 
-> > 
-> > 
-> > > +	else
-> > > +		nvqs = virtio_has_feature(vb->vdev,
-> > > +					  VIRTIO_BALLOON_F_STATS_VQ) ? 3 :
-> > 2;
-> > 
-> > Replace that ? with else too pls.
+> 1MB is a very small portion for a VM with more than 32GB memory and it's the *worst case*, 
+> for VM with less than 32GB memory, the amount of RAM depends on VM's memory size
+> and will be less than 1MB.
+
+It's guest memmory so might all be in swap and never touched,
+your memset at probe time will fault it in and make hypervisor
+actually pay for it.
+
+> If 1MB is too big, how about 512K, or 256K?  32K seems too small.
 > 
-> Will change.
-> 
-> Thanks!
 > Liang
+
+It's only small because it makes you rescan the free list.
+So maybe you should do something else.
+I looked at it a bit. Instead of scanning the free list, how about
+scanning actual page structures? If page is unused, pass it to host.
+Solves the problem of rescanning multiple times, does it not?
+
+
+Another idea: allocate a small bitmap at probe time (e.g. for deflate),
+allocate a bunch more on each request. Use something like
+GFP_ATOMIC and a scatter/gather, if that fails use the smaller bitmap.
+
+
+
+> > --
+> > MST
+> > 
+> > ---------------------------------------------------------------------
+> > To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
+> > For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
