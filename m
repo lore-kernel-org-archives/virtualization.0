@@ -1,7 +1,7 @@
 From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: [RFC v6 1/6] VSOCK: transport-specific vsock_transport functions
-Date: Thu, 28 Jul 2016 15:36:30 +0100
-Message-ID: <1469716595-13591-2-git-send-email-stefanha__49221.9988875606$1469716626$gmane$org@redhat.com>
+Subject: [RFC v6 2/6] VSOCK: defer sock removal to transports
+Date: Thu, 28 Jul 2016 15:36:31 +0100
+Message-ID: <1469716595-13591-3-git-send-email-stefanha__43783.2111878835$1469716632$gmane$org@redhat.com>
 References: <1469716595-13591-1-git-send-email-stefanha@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,54 +21,78 @@ To: kvm@vger.kernel.org
 Cc: marius vlad <marius.vlad0@gmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Ian Campbell <ian.campbell@docker.com>, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>, ggarcia@abra.uab.cat, Matt Benjamin <mbenjamin@redhat.com>, Greg Kurz <gkurz@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, Christoffer Dall <christoffer.dall@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-struct vsock_transport contains function pointers called by AF_VSOCK
-core code.  The transport may want its own transport-specific function
-pointers and they can be added after struct vsock_transport.
+The virtio transport will implement graceful shutdown and the related
+SO_LINGER socket option.  This requires orphaning the sock but keeping
+it in the table of connections after .release().
 
-Allow the transport to fetch vsock_transport.  It can downcast it to
-access transport-specific function pointers.
-
-The virtio transport will use this.
+This patch adds the vsock_remove_sock() function and leaves it up to the
+transport when to remove the sock.
 
 Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
 ---
- include/net/af_vsock.h   | 3 +++
- net/vmw_vsock/af_vsock.c | 9 +++++++++
- 2 files changed, 12 insertions(+)
+ include/net/af_vsock.h         |  1 +
+ net/vmw_vsock/af_vsock.c       | 16 ++++++++++------
+ net/vmw_vsock/vmci_transport.c |  2 ++
+ 3 files changed, 13 insertions(+), 6 deletions(-)
 
 diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-index e9eb2d6..23f5525 100644
+index 23f5525..3af0b22 100644
 --- a/include/net/af_vsock.h
 +++ b/include/net/af_vsock.h
-@@ -165,6 +165,9 @@ static inline int vsock_core_init(const struct vsock_transport *t)
- }
- void vsock_core_exit(void);
+@@ -180,6 +180,7 @@ void vsock_remove_connected(struct vsock_sock *vsk);
+ struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr);
+ struct sock *vsock_find_connected_socket(struct sockaddr_vm *src,
+ 					 struct sockaddr_vm *dst);
++void vsock_remove_sock(struct vsock_sock *vsk);
+ void vsock_for_each_connected_socket(void (*fn)(struct sock *sk));
  
-+/* The transport may downcast this to access transport-specific functions */
-+const struct vsock_transport *vsock_core_get_transport(void);
-+
- /**** UTILS ****/
- 
- void vsock_release_pending(struct sock *pending);
+ #endif /* __AF_VSOCK_H__ */
 diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index b96ac91..e34d96f 100644
+index e34d96f..17dbbe6 100644
 --- a/net/vmw_vsock/af_vsock.c
 +++ b/net/vmw_vsock/af_vsock.c
-@@ -1995,6 +1995,15 @@ void vsock_core_exit(void)
+@@ -344,6 +344,16 @@ static bool vsock_in_connected_table(struct vsock_sock *vsk)
+ 	return ret;
  }
- EXPORT_SYMBOL_GPL(vsock_core_exit);
  
-+const struct vsock_transport *vsock_core_get_transport(void)
++void vsock_remove_sock(struct vsock_sock *vsk)
 +{
-+	/* vsock_register_mutex not taken since only the transport uses this
-+	 * function and only while registered.
-+	 */
-+	return transport;
-+}
-+EXPORT_SYMBOL_GPL(vsock_core_get_transport);
++	if (vsock_in_bound_table(vsk))
++		vsock_remove_bound(vsk);
 +
- MODULE_AUTHOR("VMware, Inc.");
- MODULE_DESCRIPTION("VMware Virtual Socket Family");
- MODULE_VERSION("1.0.1.0-k");
++	if (vsock_in_connected_table(vsk))
++		vsock_remove_connected(vsk);
++}
++EXPORT_SYMBOL_GPL(vsock_remove_sock);
++
+ void vsock_for_each_connected_socket(void (*fn)(struct sock *sk))
+ {
+ 	int i;
+@@ -660,12 +670,6 @@ static void __vsock_release(struct sock *sk)
+ 		vsk = vsock_sk(sk);
+ 		pending = NULL;	/* Compiler warning. */
+ 
+-		if (vsock_in_bound_table(vsk))
+-			vsock_remove_bound(vsk);
+-
+-		if (vsock_in_connected_table(vsk))
+-			vsock_remove_connected(vsk);
+-
+ 		transport->release(vsk);
+ 
+ 		lock_sock(sk);
+diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+index 4120b7a..4be4fbb 100644
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -1644,6 +1644,8 @@ static void vmci_transport_destruct(struct vsock_sock *vsk)
+ 
+ static void vmci_transport_release(struct vsock_sock *vsk)
+ {
++	vsock_remove_sock(vsk);
++
+ 	if (!vmci_handle_is_invalid(vmci_trans(vsk)->dg_handle)) {
+ 		vmci_datagram_destroy_handle(vmci_trans(vsk)->dg_handle);
+ 		vmci_trans(vsk)->dg_handle = VMCI_INVALID_HANDLE;
 -- 
 2.7.4
