@@ -1,13 +1,15 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: [RFC v6 6/6] VSOCK: Add Makefile and Kconfig
-Date: Thu, 28 Jul 2016 15:36:35 +0100
-Message-ID: <1469716595-13591-7-git-send-email-stefanha__37214.7776456133$1469716715$gmane$org@redhat.com>
-References: <1469716595-13591-1-git-send-email-stefanha@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v4] virtio: new feature to detect IOMMU device quirk
+Date: Fri, 29 Jul 2016 00:28:23 +0300
+Message-ID: <20160729001244-mutt-send-email-mst@kernel.org>
+References: <1469659378-15957-1-git-send-email-mst@redhat.com>
+	<20160728065918.GA22392@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1469716595-13591-1-git-send-email-stefanha@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20160728065918.GA22392@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,120 +19,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org
-Cc: marius vlad <marius.vlad0@gmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Ian Campbell <ian.campbell@docker.com>, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>, ggarcia@abra.uab.cat, Matt Benjamin <mbenjamin@redhat.com>, Asias He <asias@redhat.com>, Greg Kurz <gkurz@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, Christoffer Dall <christoffer.dall@linaro.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Asias He <asias@redhat.com>
+On Wed, Jul 27, 2016 at 11:59:18PM -0700, Christoph Hellwig wrote:
+> Again, this is still the wrong way around.  A "noiommu" feature is a
+> quirk and should not be the default.
 
-Enable virtio-vsock and vhost-vsock.
+Christoph, I'm not sure what you mean by the default here.
 
-Signed-off-by: Asias He <asias@redhat.com>
-Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
----
-v6:
- * Rename to virtio-vsock kernel modules to vmw_vsock_virtio_transport*
-   instead of just virtio_transport to make the name clearer [Ian
-   Campbell]
-v4:
- * Make checkpatch.pl happy with longer option description
- * Clarify dependency on virtio rather than QEMU as suggested by Alex
-   Bennee
-v3:
- * Don't put vhost vsock driver into staging
- * Add missing Kconfig dependencies (Arnd Bergmann <arnd@arndb.de>)
----
- drivers/vhost/Kconfig  | 15 +++++++++++++++
- drivers/vhost/Makefile |  4 ++++
- net/vmw_vsock/Kconfig  | 20 ++++++++++++++++++++
- net/vmw_vsock/Makefile |  6 ++++++
- 4 files changed, 45 insertions(+)
+We read a register from the device (bit 33 in the feature qword)
+and act on it.
 
-diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
-index 533eaf0..d7aae9e 100644
---- a/drivers/vhost/Kconfig
-+++ b/drivers/vhost/Kconfig
-@@ -21,6 +21,21 @@ config VHOST_SCSI
- 	Say M here to enable the vhost_scsi TCM fabric module
- 	for use with virtio-scsi guests
- 
-+config VHOST_VSOCK
-+	tristate "vhost virtio-vsock driver"
-+	depends on VSOCKETS && EVENTFD
-+	select VIRTIO_VSOCKETS_COMMON
-+	select VHOST
-+	select VHOST_RING
-+	default n
-+	---help---
-+	This kernel module can be loaded in the host kernel to provide AF_VSOCK
-+	sockets for communicating with guests.  The guests must have the
-+	virtio_transport.ko driver loaded to use the virtio-vsock device.
+The specific register value is 0 on noiommu quirky devices
+(it happened to be that way in the past),
+and 1 on clean iommu devices.
+
+ static bool vring_use_dma_api(struct virtio_device *vdev)
+ {
++       if (virtio_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM))
++               return true;
 +
-+	To compile this driver as a module, choose M here: the module will be called
-+	vhost_vsock.
-+
- config VHOST_RING
- 	tristate
- 	---help---
-diff --git a/drivers/vhost/Makefile b/drivers/vhost/Makefile
-index e0441c3..6b012b9 100644
---- a/drivers/vhost/Makefile
-+++ b/drivers/vhost/Makefile
-@@ -4,5 +4,9 @@ vhost_net-y := net.o
- obj-$(CONFIG_VHOST_SCSI) += vhost_scsi.o
- vhost_scsi-y := scsi.o
- 
-+obj-$(CONFIG_VHOST_VSOCK) += vhost_vsock.o
-+vhost_vsock-y := vsock.o
-+
- obj-$(CONFIG_VHOST_RING) += vringh.o
-+
- obj-$(CONFIG_VHOST)	+= vhost.o
-diff --git a/net/vmw_vsock/Kconfig b/net/vmw_vsock/Kconfig
-index 14810ab..8831e7c 100644
---- a/net/vmw_vsock/Kconfig
-+++ b/net/vmw_vsock/Kconfig
-@@ -26,3 +26,23 @@ config VMWARE_VMCI_VSOCKETS
- 
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called vmw_vsock_vmci_transport. If unsure, say N.
-+
-+config VIRTIO_VSOCKETS
-+	tristate "virtio transport for Virtual Sockets"
-+	depends on VSOCKETS && VIRTIO
-+	select VIRTIO_VSOCKETS_COMMON
-+	help
-+	  This module implements a virtio transport for Virtual Sockets.
-+
-+	  Enable this transport if your Virtual Machine host supports Virtual
-+	  Sockets over virtio.
-+
-+	  To compile this driver as a module, choose M here: the module will be
-+	  called vmw_vsock_virtio_transport. If unsure, say N.
-+
-+config VIRTIO_VSOCKETS_COMMON
-+	tristate
-+	help
-+	  This option is selected by any driver which needs to access
-+	  the virtio_vsock.  The module will be called
-+	  vmw_vsock_virtio_transport_common.
-diff --git a/net/vmw_vsock/Makefile b/net/vmw_vsock/Makefile
-index 2ce52d7..bc27c70 100644
---- a/net/vmw_vsock/Makefile
-+++ b/net/vmw_vsock/Makefile
-@@ -1,7 +1,13 @@
- obj-$(CONFIG_VSOCKETS) += vsock.o
- obj-$(CONFIG_VMWARE_VMCI_VSOCKETS) += vmw_vsock_vmci_transport.o
-+obj-$(CONFIG_VIRTIO_VSOCKETS) += vmw_vsock_virtio_transport.o
-+obj-$(CONFIG_VIRTIO_VSOCKETS_COMMON) += vmw_vsock_virtio_transport_common.o
- 
- vsock-y += af_vsock.o vsock_addr.o
- 
- vmw_vsock_vmci_transport-y += vmci_transport.o vmci_transport_notify.o \
- 	vmci_transport_notify_qstate.o
-+
-+vmw_vsock_virtio_transport-y += virtio_transport.o
-+
-+vmw_vsock_virtio_transport_common-y += virtio_transport_common.o
++       /* Otherwise, we are left to guess. */
+
+As a hypothesis, do you object to use of virtio_has_feature?
+
+Yes this might be confusing but in fact that
+is just testing a cached register bit: at init time we read it:
+
+        device_features = dev->config->get_features(dev);
+
+        ....
+        vdev->features = device_features
+
+and later
+
+            return vdev->features & BIT_ULL(fbit);
+
+I'll add a comment clarifying that in the next version.
+
 -- 
-2.7.4
+MST
