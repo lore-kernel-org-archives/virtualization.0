@@ -1,18 +1,20 @@
-From: Alex Xu via Virtualization <virtualization@lists.linux-foundation.org>
-Subject: Re: getrandom waits for a long time when /dev/random is
-	insufficiently read from
-Date: Fri, 29 Jul 2016 13:31:14 -0400
-Message-ID: <20160729133114.37ff14ef.alex_y_xu__5020.03326914764$1469899364$gmane$org@yahoo.ca>
-References: <20160728180732.12d38880@alex-desktop>
-	<2622345.NpnZjxROFX@tauon.atsec.com>
-	<20160729101407.03123327.alex_y_xu@yahoo.ca>
-	<2790164.RXkTBNoHIv@tauon.atsec.com>
-Reply-To: Alex Xu <alex_y_xu@yahoo.ca>
+From: Dave Hansen <dave.hansen@intel.com>
+Subject: Re: [virtio-dev] Re: [PATCH v2 repost 4/7] virtio-balloon: speed up
+	inflate/deflate process
+Date: Fri, 29 Jul 2016 12:48:27 -0700
+Message-ID: <579BB30B.2040704__5213.3327852518$1469899377$gmane$org@intel.com>
+References: <1469582616-5729-1-git-send-email-liang.z.li@intel.com>
+	<1469582616-5729-5-git-send-email-liang.z.li@intel.com>
+	<5798DB49.7030803@intel.com>
+	<F2CBF3009FA73547804AE4C663CAB28E04213CCB@shsmsx102.ccr.corp.intel.com>
+	<20160728044000-mutt-send-email-mst@kernel.org>
+	<F2CBF3009FA73547804AE4C663CAB28E04214103@shsmsx102.ccr.corp.intel.com>
+	<20160729003759-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <2790164.RXkTBNoHIv@tauon.atsec.com>
+In-Reply-To: <20160729003759-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,75 +24,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephan Mueller <smueller@chronox.de>, virtualization@lists.linux-foundation.org
-Cc: Linux Crypto Mailing List <linux-crypto@vger.kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>, "Li, Liang Z" <liang.z.li@intel.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Amit Shah <amit.shah@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Vlastimil Babka <vbabka@suse.cz>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Mel Gorman <mgorman@techsingularity.net>, "dgilbert@redhat.com" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 29 Jul 2016 19:03:51 +0200
-Stephan Mueller <smueller@chronox.de> wrote as excerpted:
-> Am Freitag, 29. Juli 2016, 10:14:07 CEST schrieb Alex Xu:
-> > I don't follow. Assuming you are correct and this is the issue, then
-> > reading 128 bits (16 bytes) from /dev/random should "exhaust the
-> > supply" and then both reads from /dev/random and calling getrandom
-> > should block.  
-> 
-> You assume that getrandom works like /dev/random. This is not the
-> case. It is a full deterministic RNG like /dev/urandom (which is
-> seeded during its operation as entropy is available).
+On 07/28/2016 02:51 PM, Michael S. Tsirkin wrote:
+>> > If 1MB is too big, how about 512K, or 256K?  32K seems too small.
+>> > 
+> It's only small because it makes you rescan the free list.
+> So maybe you should do something else.
+> I looked at it a bit. Instead of scanning the free list, how about
+> scanning actual page structures? If page is unused, pass it to host.
+> Solves the problem of rescanning multiple times, does it not?
 
-My understanding was that all three methods of obtaining entropy from
-userspace all receive data from the CSPRNG in the kernel, and that the
-only difference is that /dev/random and getrandom may block depending
-on the kernel's estimate of the currently available entropy.
+FWIW, I think the new data structure needs some work.
 
-> getrandom *only* differs from /dev/*u*random in that it waits
-> initially such that the system collected 128 bits of entropy.
+Before, we had a potentially very long list of 4k areas.  Now, we've
+just got a very large bitmap.  The bitmap might not even be very dense
+if we are ballooning relatively few things.
 
-I agree, this is the documented behavior of getrandom.
+Can I suggest an alternate scheme?  I think you actually need a hybrid
+scheme that has bitmaps but also allows more flexibility in the pfn
+ranges.  The payload could be a number of records each containing 3 things:
 
-> But you point to a real issue: when /dev/random is pulled before
-> getrandom (and yet insufficient entropy is present), then the
-> getrandom call will be woken up when the input_pool received 128
-> bits. But those 128 bits are fed from the input_pool to the
-> blocking_pool based on the caller at the /dev/ random device. This
-> implies that the reader for getrandom will NOT be able to obtain data
-> from the input_pool and the nonblocking_pool because the transfer
-> operation will not succeed. This implies that the nonblocking_pool
-> remains unseeded and yet getrandom returns data to the caller.
+	pfn, page order, length of bitmap (maybe in powers of 2)
 
-I don't understand what this means. For my use case, hwrng is fed from
-the host's urandom, so none of /dev/random, /dev/hwrng, /dev/urandom,
-or getrandom with any flags in the guest should ever block except
-possibly for very large amounts requested (megabytes at least).
+Each record is followed by the bitmap.  Or, if the bitmap length is 0,
+immediately followed by another record.  A bitmap length of 0 implies a
+bitmap with the least significant bit set.  Page order specifies how
+many pages each bit represents.
 
-> > That, however, is not the behavior I observed, which is that reading
-> > any amount from /dev/random will never block (since it is fed
-> > from /dev/urandom on the host side) whereas calling getrandom will
-> > always block unless /dev/random is read from first.  
-> 
-> That is a different issue that I did not read from your initial
-> explanation.
-> 
-> I need to look into it a bit deeper.
+This scheme could easily encode the new data structure you are proposing
+by just setting pfn=0, order=0, and a very long bitmap length.  But, it
+could handle sparse bitmaps much better *and* represent large pages much
+more efficiently.
 
-I have been trying to explain the same problem the entire time. Let me
-be clear what the problem is as I see it:
-
-When qemu is started with -object rng-random,filename=/dev/urandom, and
-immediately (i.e. with no initrd and as the first thing in init):
-
-1. the guest runs dd if=/dev/random, there is no blocking and tons of
-data goes to the screen. the data appears to be random.
-
-2. the guest runs getrandom with any requested amount (tested 1 byte
-and 16 bytes) and no flags, it blocks for 90-110 seconds while the
-"non-blocking pool is initialized". the returned data appears to be
-random.
-
-3. the guest runs getrandom with GRND_RANDOM with any requested amount,
-it returns the desired amount or possibly less, but in my experience at
-least 10 bytes. the returned data appears to be random.
-
-I believe that the difference between cases 1 and 2 is a bug, since
-based on my previous statement, in this scenario, getrandom should
-never block.
+There's plenty of space to fit a whole record in 64 bits.
