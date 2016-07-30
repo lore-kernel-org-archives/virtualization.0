@@ -1,20 +1,19 @@
-From: Dave Hansen <dave.hansen@intel.com>
-Subject: Re: [virtio-dev] Re: [PATCH v2 repost 4/7] virtio-balloon: speed up
-	inflate/deflate process
-Date: Fri, 29 Jul 2016 12:48:27 -0700
-Message-ID: <579BB30B.2040704__5213.3327852518$1469899377$gmane$org@intel.com>
-References: <1469582616-5729-1-git-send-email-liang.z.li@intel.com>
-	<1469582616-5729-5-git-send-email-liang.z.li@intel.com>
-	<5798DB49.7030803@intel.com>
-	<F2CBF3009FA73547804AE4C663CAB28E04213CCB@shsmsx102.ccr.corp.intel.com>
-	<20160728044000-mutt-send-email-mst@kernel.org>
-	<F2CBF3009FA73547804AE4C663CAB28E04214103@shsmsx102.ccr.corp.intel.com>
-	<20160729003759-mutt-send-email-mst@kernel.org>
+From: Theodore Ts'o <tytso@mit.edu>
+Subject: Re: getrandom waits for a long time when /dev/random is
+	insufficiently read from
+Date: Sat, 30 Jul 2016 18:09:22 -0400
+Message-ID: <20160730220922.GA12853@thunk.org>
+References: <20160728180732.12d38880@alex-desktop>
+	<2622345.NpnZjxROFX@tauon.atsec.com>
+	<20160729101407.03123327.alex_y_xu@yahoo.ca>
+	<2790164.RXkTBNoHIv@tauon.atsec.com>
+	<20160729133114.37ff14ef.alex_y_xu@yahoo.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160729003759-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20160729133114.37ff14ef.alex_y_xu@yahoo.ca>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,39 +23,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, "Li, Liang Z" <liang.z.li@intel.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Amit Shah <amit.shah@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Vlastimil Babka <vbabka@suse.cz>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Mel Gorman <mgorman@techsingularity.net>, "dgilbert@redhat.com" <dgilbert@redhat.com>
+To: Alex Xu <alex_y_xu@yahoo.ca>
+Cc: Stephan Mueller <smueller@chronox.de>, Linux Crypto Mailing List <linux-crypto@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/28/2016 02:51 PM, Michael S. Tsirkin wrote:
->> > If 1MB is too big, how about 512K, or 256K?  32K seems too small.
->> > 
-> It's only small because it makes you rescan the free list.
-> So maybe you should do something else.
-> I looked at it a bit. Instead of scanning the free list, how about
-> scanning actual page structures? If page is unused, pass it to host.
-> Solves the problem of rescanning multiple times, does it not?
+On Fri, Jul 29, 2016 at 01:31:14PM -0400, Alex Xu wrote:
+> 
+> My understanding was that all three methods of obtaining entropy from
+> userspace all receive data from the CSPRNG in the kernel, and that the
+> only difference is that /dev/random and getrandom may block depending
+> on the kernel's estimate of the currently available entropy.
 
-FWIW, I think the new data structure needs some work.
+This is incorrect.
 
-Before, we had a potentially very long list of 4k areas.  Now, we've
-just got a very large bitmap.  The bitmap might not even be very dense
-if we are ballooning relatively few things.
+/dev/random is a legacy interface which dates back to a time when
+people didn't have as much trust in the cryptographic primitives ---
+when there was concerns that the NSA might have put a back-door into
+SHA-1, for example.  (As it turns out; we were wrong.  NSA put the
+back door into Dual EC DRBG.)  So it uses a strategy of an extremely
+conservative entropy estimator, and will allow N bytes to be
+/dev/random pool as the entropy estimator believes that it has
+gathered at least N bytes of entropy from environmental noise.
 
-Can I suggest an alternate scheme?  I think you actually need a hybrid
-scheme that has bitmaps but also allows more flexibility in the pfn
-ranges.  The payload could be a number of records each containing 3 things:
+/dev/urandom uses a different output pool from /dev/random (the random
+and urandom pools both draw from an common input pool).  Originally
+the /dev/urandom pool drew from the input pool as needed, but it
+wouldn't block if there was insufficient entropy.  Over time, it now
+has limits about how quickly it can draw from the input pool, and it
+behaves more and more like a CSPRNG.  In fact, in the most recent set
+of patches which Linus has accepted for v4.8-rc1, the urandom pool has
+been replaced by an actual CSPRNG using the ChaCha-20 stream cipher.
 
-	pfn, page order, length of bitmap (maybe in powers of 2)
+The getrandom(2) system call uses the same output pool (4.7 and
+earlier) or CSPRG (starting with v4.8-rc1) as /dev/urandom.  The big
+difference is that it blocks until we know for sure that the output
+pool or CSRPNG has been seeded with 128 bits of entropy.  We don't do
+this with /dev/urandom for backwards compatibility reasons.  (For
+example, if we did make /dev/urandom block until it was seeded, it
+would break systemd, because systemd and progams run by systemd draws
+from /dev/urandom before it has been initialized, and if /dev/urandom
+were to block, the boot would hang, and with the system quiscient, we
+wouldn't get much environmental noise, and the system would hang
+hours.)
 
-Each record is followed by the bitmap.  Or, if the bitmap length is 0,
-immediately followed by another record.  A bitmap length of 0 implies a
-bitmap with the least significant bit set.  Page order specifies how
-many pages each bit represents.
+> When qemu is started with -object rng-random,filename=/dev/urandom, and
+> immediately (i.e. with no initrd and as the first thing in init):
+> 
+> 1. the guest runs dd if=/dev/random, there is no blocking and tons of
+> data goes to the screen. the data appears to be random.
+> 
+> 2. the guest runs getrandom with any requested amount (tested 1 byte
+> and 16 bytes) and no flags, it blocks for 90-110 seconds while the
+> "non-blocking pool is initialized". the returned data appears to be
+> random.
+> 
+> 3. the guest runs getrandom with GRND_RANDOM with any requested amount,
+> it returns the desired amount or possibly less, but in my experience at
+> least 10 bytes. the returned data appears to be random.
+> 
+> I believe that the difference between cases 1 and 2 is a bug, since
+> based on my previous statement, in this scenario, getrandom should
+> never block.
 
-This scheme could easily encode the new data structure you are proposing
-by just setting pfn=0, order=0, and a very long bitmap length.  But, it
-could handle sparse bitmaps much better *and* represent large pages much
-more efficiently.
+This is correct; and it has been fixed in the patches in v4.8-rc1.
+The patch which fixes this has been marked for backporting to stable
+kernels:
 
-There's plenty of space to fit a whole record in 64 bits.
+commit 3371f3da08cff4b75c1f2dce742d460539d6566d
+Author: Theodore Ts'o <tytso@mit.edu>
+Date:   Sun Jun 12 18:11:51 2016 -0400
+
+    random: initialize the non-blocking pool via add_hwgenerator_randomness()
+    
+    If we have a hardware RNG and are using the in-kernel rngd, we should
+    use this to initialize the non-blocking pool so that getrandom(2)
+    doesn't block unnecessarily.
+    
+    Cc: stable@kernel.org
+    Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+
+Basically, the urandom pool (now CSRPNG) wasn't getting initialized
+from the hardware random number generator.  Most people didn't notice
+because very few people actually *use* hardware random number
+generators (although it's much more common in VM's, which is how
+you're using it), and use of getrandom(2) is still relatively rare,
+given that glibc hasn't yet seen fit to support it yet.
+
+Cheers,
+
+					- Ted
