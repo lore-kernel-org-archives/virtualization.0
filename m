@@ -1,18 +1,16 @@
-From: "Daniel P. Berrange" <berrange@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH 6/7] qemu: Implement virtio-pstore device
-Date: Mon, 1 Aug 2016 10:24:39 +0100
-Message-ID: <20160801092439.GF6455@redhat.com>
-References: <1469632111-23260-1-git-send-email-namhyung@kernel.org>
-	<1469632111-23260-7-git-send-email-namhyung@kernel.org>
-	<20160728132239.GM22677@redhat.com>
-	<20160730085702.GB26275@danjae.aot.lge.com>
-Reply-To: "Daniel P. Berrange" <berrange@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH] drivers: virtio_blk: notify blk-core when hw-queue number
+	changes
+Date: Mon, 1 Aug 2016 11:58:52 +0200
+Message-ID: <b17ce95d-b11c-a74b-4118-ac8fa0be4bc1@redhat.com>
+References: <1465811906-24510-1-git-send-email-bob.liu__9616.24590349874$1465832216$gmane$org@oracle.com>
+	<3cd56d3a-85f0-9cce-d42f-f4eace84667b@redhat.com>
+	<5799BFC0.1060804@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160730085702.GB26275@danjae.aot.lge.com>
+In-Reply-To: <5799BFC0.1060804@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,72 +20,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Namhyung Kim <namhyung@kernel.org>
-Cc: Tony Luck <tony.luck@intel.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Radim Kr??m???? <rkrcmar@redhat.com>, LKML <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org, Steven Rostedt <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Minchan Kim <minchan@kernel.org>, Anton Vorontsov <anton@enomsg.org>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, Paolo Bonzini <pbonzini@redhat.com>, Ingo Molnar <mingo@kernel.org>
+To: Bob Liu <bob.liu@oracle.com>
+Cc: mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Jul 30, 2016 at 05:57:02PM +0900, Namhyung Kim wrote:
-> On Thu, Jul 28, 2016 at 02:22:39PM +0100, Daniel P. Berrange wrote:
-> > > +static void virtio_pstore_from_filename(VirtIOPstore *s, char *name,
-> > > +                                        char *buf, size_t sz,
-> > > +                                        struct virtio_pstore_fileinfo *info)
-> > > +{
-> > > +    snprintf(buf, sz, "%s/%s", s->directory, name);
-> > > +
-> > > +    if (g_str_has_prefix(name, "dmesg-")) {
-> > > +        info->type = VIRTIO_PSTORE_TYPE_DMESG;
-> > > +        name += strlen("dmesg-");
-> > > +    } else if (g_str_has_prefix(name, "console-")) {
-> > > +        info->type = VIRTIO_PSTORE_TYPE_CONSOLE;
-> > > +        name += strlen("console-");
-> > > +    } else if (g_str_has_prefix(name, "unknown-")) {
-> > > +        info->type = VIRTIO_PSTORE_TYPE_UNKNOWN;
-> > > +        name += strlen("unknown-");
-> > > +    }
-
-[snip]
-
-> > > +    struct virtio_pstore_fileinfo info;
-> > > +    size_t offset = sizeof(*res) + sizeof(info);
-> > > +
-> > > +    if (s->dirp == NULL) {
-> > > +        return -1;
-> > > +    }
-> > > +
-> > > +    dent = readdir(s->dirp);
-> > > +    while (dent) {
-> > > +        if (dent->d_name[0] != '.') {
-> > > +            break;
-> > > +        }
-> > > +        dent = readdir(s->dirp);
-> > > +    }
-> > > +
-> > > +    if (dent == NULL) {
-> > > +        return 0;
-> > > +    }
-> > 
-> > So this seems to just be picking the first filename reported by
-> > readdir that isn't starting with '.'. Surely this can't the right
-> > logic when your corresponding do_write method can pick several
-> > different filenames, its potluck which do_read will give back.
-> 
-> Do you mean that it'd be better to check a list of known filenames and
-> fail if not?
-
-No, I mean that you have several different VIRTIO_PSTORE_TYPE_nnn and
-use a different file for each constant. When reading this directory
-though you're not looking for the file corresponding to any given
-VIRTIO_PSTORE_TYPE_nnn - you're simply reading whichever file is found
-first. So you might have just read a TYPE_CONSOLE or have read a
-TYPE_DMESG - it surely doesn't make sense to randonly read either
-TYPE_CONSOLE or TYPE_DMESG based on whatever order readdir() lists
-the files.
 
 
-Regards,
-Daniel
--- 
-|: http://berrange.com      -o-    http://www.flickr.com/photos/dberrange/ :|
-|: http://libvirt.org              -o-             http://virt-manager.org :|
-|: http://autobuild.org       -o-         http://search.cpan.org/~danberr/ :|
-|: http://entangle-photo.org       -o-       http://live.gnome.org/gtk-vnc :|
+On 28/07/2016 10:18, Bob Liu wrote:
+>>> >> A guest might be migrated to other hosts with different num_queues, the
+>>> >> blk-core should aware of that else the reference of &vblk->vqs[qid] may be wrong.
+>>> >>
+>>> >> Signed-off-by: Bob Liu <bob.liu@oracle.com>
+>>> >> ---
+>>> >>  drivers/block/virtio_blk.c | 3 +++
+>>> >>  1 file changed, 3 insertions(+)
+>>> >>
+>>> >> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+>>> >> index 42758b5..c169238 100644
+>>> >> --- a/drivers/block/virtio_blk.c
+>>> >> +++ b/drivers/block/virtio_blk.c
+>>> >> @@ -819,6 +819,9 @@ static int virtblk_restore(struct virtio_device *vdev)
+>>> >>  	if (ret)
+>>> >>  		return ret;
+>>> >>  
+>>> >> +	if (vblk->num_vqs != vblk->tag_set.nr_hw_queues)
+>>> >> +		blk_mq_update_nr_hw_queues(&vblk->tag_set, vblk->num_vqs);
+>>> >> +
+>>> >>  	virtio_device_ready(vdev);
+>>> >>  
+>>> >>  	blk_mq_start_stopped_hw_queues(vblk->disk->queue, true);
+>>> >>
+>> > 
+>> > This should never happen; it'd be a configuration problem.
+>> > 
+> Do you mean all hosts have to be configured with the same number of ->num_vqs?
+> What about cases like migrating a guest from HostA to HostB while HostB is much more powerful
+> and would like to run more hardware queues to get better performance.
+
+The number of queues should be equal to the number of CPUs for the
+guest, not to the number of CPUs or queues on the host.  The idea is to
+have one queue per guest vCPU.
+
+Paolo
