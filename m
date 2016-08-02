@@ -1,7 +1,7 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 Subject: Re: [PATCH 0904/1285] Replace numeric parameter like 0444 with macro
-Date: Tue, 2 Aug 2016 16:05:00 +0200
-Message-ID: <f900f5ee-35de-6e81-0814-d28e83df1d17@de.ibm.com>
+Date: Tue, 2 Aug 2016 16:11:44 +0200
+Message-ID: <20160802161144.538ee7a6.cornelia.huck@de.ibm.com>
 References: <20160802115646.10237-1-baolex.ni@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -17,22 +17,13 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Baole Ni <baolex.ni@intel.com>, cornelia.huck@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, dwmw2@infradead.org, m.chehab@samsung.com, pawel@osciak.com, m.szyprowski@samsung.com, kyungmin.park@samsung.com, k.kozlowski@samsung.com
-Cc: linux-s390@vger.kernel.org, chuansheng.liu@intel.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Baole Ni <baolex.ni@intel.com>
+Cc: linux-s390@vger.kernel.org, k.kozlowski@samsung.com, chuansheng.liu@intel.com, kvm@vger.kernel.org, pawel@osciak.com, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kyungmin.park@samsung.com, schwidefsky@de.ibm.com, m.szyprowski@samsung.com, dwmw2@infradead.org, m.chehab@samsung.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-In general, I find sending 1285 patches to lkml unfriendly without doing a
-precheck if the general idea is good.
-This is especially true as you did NOT provide a cover letter that would
-allow to hide this thread on lkml.
+On Tue,  2 Aug 2016 19:56:46 +0800
+Baole Ni <baolex.ni@intel.com> wrote:
 
-
-Regarding this particular patch, I do not really like this change, as I find
-"0444" much easier to parse than "S_IRUSR | S_IRGRP | S_IROTH"
-
-Christian
-
-On 08/02/2016 01:56 PM, Baole Ni wrote:
 > I find that the developers often just specified the numeric value
 > when calling a macro which is defined with a parameter for access permission.
 > As we know, these numeric value for access permission have had the corresponding macro,
@@ -58,4 +49,9 @@ On 08/02/2016 01:56 PM, Baole Ni wrote:
 >  MODULE_PARM_DESC(no_auto, "list of ccw bus id ranges not to be auto-onlined");
 > 
 >  static int virtio_ccw_check_autoonline(struct ccw_device *cdev)
-> 
+
+NACK. I find 0444 more readable.
+
+<And some general remarks: Your patches are lacking a proper component
+prefix and have a rather long list of people on to: ...and sending
+1000+ patches to lkml at once is not a very good idea either.>
