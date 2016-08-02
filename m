@@ -1,14 +1,11 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH] drm/virtio: fix building without CONFIG_FBDEV
-Date: Tue, 2 Aug 2016 15:58:38 +0200
-Message-ID: <20160802135838.GQ6232@phenom.ffwll.local>
-References: <20160802100922.3914038-1-arnd@arndb.de>
+From: Wei Yongjun <weiyj.lk@gmail.com>
+Subject: [PATCH -next] virtio: fix possible memory leak in virtqueue_add()
+Date: Tue,  2 Aug 2016 13:59:05 +0000
+Message-ID: <1470146345-19531-1-git-send-email-weiyj.lk@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160802100922.3914038-1-arnd@arndb.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,56 +15,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Archit Taneja <architt@codeaurora.org>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, Emil Velikov <emil.l.velikov@gmail.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Tobias Jakobi <tjakobi@math.uni-bielefeld.de>
+To: "Michael S . Tsirkin" <mst@redhat.com>
+Cc: Wei Yongjun <weiyj.lk@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 02, 2016 at 12:09:15PM +0200, Arnd Bergmann wrote:
-> Removing the build-time dependency on DRM_KMS_FB_HELPER means
-> we can now build with CONFIG_FB disabled or as a loadable module,
-> leading to a link error:
-> 
-> ERROR: "remove_conflicting_framebuffers" [drivers/gpu/drm/virtio/virtio-gpu.ko] undefined!
-> 
-> There is no need to call remove_conflicting_framebuffers() if
-> CONFIG_FB is disabled, or if the virtio-gpu driver is built-in
-> and CONFIG_FB=m, as there won't be any prior consoles that
-> are registered at that point.
-> 
-> This adds a compile-time check in the driver to ensure we only
-> attempt to call that function if either CONFIG_FB=y or
-> both subsystems are configured as loadable modules.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> Fixes: 0b6320dfdfea ("drm/virtio: make fbdev support really optional")
+desc may malloced in virtqueue_add() and should be freed before
+leaving from the error handling cases, otherwise it will cause
+memory leak.
 
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Wei Yongjun <weiyj.lk@gmail.com>
+---
+ drivers/virtio/virtio_ring.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Dave, can you pls pick this one up directly?
--Daniel
-
-> ---
->  drivers/gpu/drm/virtio/virtgpu_drm_bus.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drm_bus.c b/drivers/gpu/drm/virtio/virtgpu_drm_bus.c
-> index 7f0e93f87a55..2087569ae8d7 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drm_bus.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drm_bus.c
-> @@ -65,7 +65,7 @@ int drm_virtio_init(struct drm_driver *driver, struct virtio_device *vdev)
->  		DRM_INFO("pci: %s detected\n",
->  			 vga ? "virtio-vga" : "virtio-gpu-pci");
->  		dev->pdev = pdev;
-> -		if (vga)
-> +		if (IS_REACHABLE(CONFIG_FB) && vga)
->  			virtio_pci_kick_out_firmware_fb(pdev);
->  	}
->  
-> -- 
-> 2.9.0
-> 
-
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 114a0c8..bda71ef 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -328,6 +328,7 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+ 		if (out_sgs)
+ 			vq->notify(&vq->vq);
+ 		END_USE(vq);
++		kfree(desc);
+ 		return -ENOSPC;
+ 	}
