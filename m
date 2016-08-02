@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH -next] VSOCK: Use kvfree()
-Date: Tue, 2 Aug 2016 16:52:47 +0300
-Message-ID: <20160802165239-mutt-send-email-mst@kernel.org>
-References: <1470145842-17614-1-git-send-email-weiyj.lk@gmail.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH] drm/virtio: fix building without CONFIG_FBDEV
+Date: Tue, 2 Aug 2016 15:58:38 +0200
+Message-ID: <20160802135838.GQ6232@phenom.ffwll.local>
+References: <20160802100922.3914038-1-arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1470145842-17614-1-git-send-email-weiyj.lk@gmail.com>
+In-Reply-To: <20160802100922.3914038-1-arnd@arndb.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,34 +18,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Yongjun <weiyj.lk@gmail.com>
-Cc: kvm@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Archit Taneja <architt@codeaurora.org>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, Emil Velikov <emil.l.velikov@gmail.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Tobias Jakobi <tjakobi@math.uni-bielefeld.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 02, 2016 at 01:50:42PM +0000, Wei Yongjun wrote:
-> Use kvfree() instead of open-coding it.
+On Tue, Aug 02, 2016 at 12:09:15PM +0200, Arnd Bergmann wrote:
+> Removing the build-time dependency on DRM_KMS_FB_HELPER means
+> we can now build with CONFIG_FB disabled or as a loadable module,
+> leading to a link error:
 > 
-> Signed-off-by: Wei Yongjun <weiyj.lk@gmail.com>
+> ERROR: "remove_conflicting_framebuffers" [drivers/gpu/drm/virtio/virtio-gpu.ko] undefined!
+> 
+> There is no need to call remove_conflicting_framebuffers() if
+> CONFIG_FB is disabled, or if the virtio-gpu driver is built-in
+> and CONFIG_FB=m, as there won't be any prior consoles that
+> are registered at that point.
+> 
+> This adds a compile-time check in the driver to ensure we only
+> attempt to call that function if either CONFIG_FB=y or
+> both subsystems are configured as loadable modules.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Fixes: 0b6320dfdfea ("drm/virtio: make fbdev support really optional")
 
-Applied, thanks!
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+
+Dave, can you pls pick this one up directly?
+-Daniel
 
 > ---
->  drivers/vhost/vsock.c | 5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
+>  drivers/gpu/drm/virtio/virtgpu_drm_bus.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> index 028ca16..0ddf3a2 100644
-> --- a/drivers/vhost/vsock.c
-> +++ b/drivers/vhost/vsock.c
-> @@ -434,10 +434,7 @@ err:
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drm_bus.c b/drivers/gpu/drm/virtio/virtgpu_drm_bus.c
+> index 7f0e93f87a55..2087569ae8d7 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drm_bus.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drm_bus.c
+> @@ -65,7 +65,7 @@ int drm_virtio_init(struct drm_driver *driver, struct virtio_device *vdev)
+>  		DRM_INFO("pci: %s detected\n",
+>  			 vga ? "virtio-vga" : "virtio-gpu-pci");
+>  		dev->pdev = pdev;
+> -		if (vga)
+> +		if (IS_REACHABLE(CONFIG_FB) && vga)
+>  			virtio_pci_kick_out_firmware_fb(pdev);
+>  	}
 >  
->  static void vhost_vsock_free(struct vhost_vsock *vsock)
->  {
-> -	if (is_vmalloc_addr(vsock))
-> -		vfree(vsock);
-> -	else
-> -		kfree(vsock);
-> +	kvfree(vsock);
->  }
->  
->  static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
+> -- 
+> 2.9.0
+> 
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
