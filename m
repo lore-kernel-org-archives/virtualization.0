@@ -1,7 +1,7 @@
 From: Baole Ni <baolex.ni@intel.com>
-Subject: [PATCH 0213/1285] Replace numeric parameter like 0444 with macro
-Date: Tue,  2 Aug 2016 18:50:15 +0800
-Message-ID: <20160802105015.27957-1-baolex.ni@intel.com>
+Subject: [PATCH 0214/1285] Replace numeric parameter like 0444 with macro
+Date: Tue,  2 Aug 2016 18:50:20 +0800
+Message-ID: <20160802105020.28023-1-baolex.ni@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -28,21 +28,21 @@ thus, I suggest replacing the numeric parameter with the macro.
 Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
 Signed-off-by: Baole Ni <baolex.ni@intel.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_drv.c | 2 +-
+ drivers/gpu/drm/virtio/virtgpu_kms.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-index 3cc7afa..d40bc45 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-@@ -38,7 +38,7 @@ static struct drm_driver driver;
- static int virtio_gpu_modeset = -1;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index 4150873..1b7bd86 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -31,7 +31,7 @@
+ static int virtio_gpu_fbdev = 1;
  
- MODULE_PARM_DESC(modeset, "Disable/Enable modesetting");
--module_param_named(modeset, virtio_gpu_modeset, int, 0400);
-+module_param_named(modeset, virtio_gpu_modeset, int, S_IRUSR);
+ MODULE_PARM_DESC(fbdev, "Disable/Enable framebuffer device & console");
+-module_param_named(fbdev, virtio_gpu_fbdev, int, 0400);
++module_param_named(fbdev, virtio_gpu_fbdev, int, S_IRUSR);
  
- static int virtio_gpu_probe(struct virtio_device *vdev)
+ static void virtio_gpu_config_changed_work_func(struct work_struct *work)
  {
 -- 
 2.9.2
