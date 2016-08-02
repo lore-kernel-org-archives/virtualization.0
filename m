@@ -1,11 +1,15 @@
-From: Wei Yongjun <weiyj.lk@gmail.com>
-Subject: [PATCH -next] VSOCK: Use kvfree()
-Date: Tue,  2 Aug 2016 13:50:42 +0000
-Message-ID: <1470145842-17614-1-git-send-email-weiyj.lk@gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH -next] vhost: fix missing unlock on error in
+	vhost_net_set_features()
+Date: Tue, 2 Aug 2016 16:52:22 +0300
+Message-ID: <20160802165146-mutt-send-email-mst@kernel.org>
+References: <1470145810-17513-1-git-send-email-weiyj.lk@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1470145810-17513-1-git-send-email-weiyj.lk@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,30 +19,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Wei Yongjun <weiyj.lk@gmail.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Wei Yongjun <weiyj.lk@gmail.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use kvfree() instead of open-coding it.
+On Tue, Aug 02, 2016 at 01:50:10PM +0000, Wei Yongjun wrote:
+> Add the missing unlock before return from function
+> vhost_net_set_features() in the error handling case.
+> 
+> Fixes: eefe82d9b81f ('vhost: new device IOTLB API')
+> Signed-off-by: Wei Yongjun <weiyj.lk@gmail.com>
 
-Signed-off-by: Wei Yongjun <weiyj.lk@gmail.com>
----
- drivers/vhost/vsock.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+Thanks!
+I'll squash this into the offending commit.
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index 028ca16..0ddf3a2 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -434,10 +434,7 @@ err:
- 
- static void vhost_vsock_free(struct vhost_vsock *vsock)
- {
--	if (is_vmalloc_addr(vsock))
--		vfree(vsock);
--	else
--		kfree(vsock);
-+	kvfree(vsock);
- }
- 
- static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
+> ---
+>  drivers/vhost/net.c | 13 ++++++++-----
+>  1 file changed, 8 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index c6bdd90..5dc128a 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -1104,13 +1104,12 @@ static int vhost_net_set_features(struct vhost_net *n, u64 features)
+>  	}
+>  	mutex_lock(&n->dev.mutex);
+>  	if ((features & (1 << VHOST_F_LOG_ALL)) &&
+> -	    !vhost_log_access_ok(&n->dev)) {
+> -		mutex_unlock(&n->dev.mutex);
+> -		return -EFAULT;
+> -	}
+> +	    !vhost_log_access_ok(&n->dev))
+> +		goto out_unlock;
+> +
+>  	if ((features & (1ULL << VIRTIO_F_IOMMU_PLATFORM))) {
+>  		if (vhost_init_device_iotlb(&n->dev, true))
+> -			return -EFAULT;
+> +			goto out_unlock;
+>  	}
+>  
+>  	for (i = 0; i < VHOST_NET_VQ_MAX; ++i) {
+> @@ -1122,6 +1121,10 @@ static int vhost_net_set_features(struct vhost_net *n, u64 features)
+>  	}
+>  	mutex_unlock(&n->dev.mutex);
+>  	return 0;
+> +
+> +out_unlock:
+> +	mutex_unlock(&n->dev.mutex);
+> +	return -EFAULT;
+>  }
+>  
+>  static long vhost_net_set_owner(struct vhost_net *n)
