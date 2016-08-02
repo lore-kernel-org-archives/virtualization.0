@@ -1,7 +1,7 @@
 From: Baole Ni <baolex.ni@intel.com>
-Subject: [PATCH 0753/1285] Replace numeric parameter like 0444 with macro
-Date: Tue,  2 Aug 2016 19:42:57 +0800
-Message-ID: <20160802114257.32317-1-baolex.ni@intel.com>
+Subject: [PATCH 0904/1285] Replace numeric parameter like 0444 with macro
+Date: Tue,  2 Aug 2016 19:56:46 +0800
+Message-ID: <20160802115646.10237-1-baolex.ni@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,8 +15,8 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, f.fainelli@gmail.com, bkenward@solarflare.com, linux-driver@qlogic.com, computersforpeace@gmail.com, m.chehab@samsung.com, pawel@osciak.com, m.szyprowski@samsung.com, kyungmin.park@samsung.com, k.kozlowski@samsung.com
-Cc: pabeni@redhat.com, daniel@iogearbox.net, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, baolex.ni@intel.com, hannes@stressinduktion.org, chuansheng.liu@intel.com
+To: borntraeger@de.ibm.com, cornelia.huck@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, dwmw2@infradead.org, m.chehab@samsung.com, pawel@osciak.com, m.szyprowski@samsung.com, kyungmin.park@samsung.com, k.kozlowski@samsung.com
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, baolex.ni@intel.com, chuansheng.liu@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 I find that the developers often just specified the numeric value
@@ -28,27 +28,21 @@ thus, I suggest replacing the numeric parameter with the macro.
 Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
 Signed-off-by: Baole Ni <baolex.ni@intel.com>
 ---
- drivers/net/virtio_net.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/s390/virtio/virtio_ccw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index e0638e5..39815e4 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -30,11 +30,11 @@
- #include <net/busy_poll.h>
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 8688ad4..56d3671 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -1074,7 +1074,7 @@ static unsigned long devs_no_auto[__MAX_SSID + 1][__DEV_WORDS];
  
- static int napi_weight = NAPI_POLL_WEIGHT;
--module_param(napi_weight, int, 0444);
-+module_param(napi_weight, int, S_IRUSR | S_IRGRP | S_IROTH);
+ static char *no_auto = "";
  
- static bool csum = true, gso = true;
--module_param(csum, bool, 0444);
--module_param(gso, bool, 0444);
-+module_param(csum, bool, S_IRUSR | S_IRGRP | S_IROTH);
-+module_param(gso, bool, S_IRUSR | S_IRGRP | S_IROTH);
+-module_param(no_auto, charp, 0444);
++module_param(no_auto, charp, S_IRUSR | S_IRGRP | S_IROTH);
+ MODULE_PARM_DESC(no_auto, "list of ccw bus id ranges not to be auto-onlined");
  
- /* FIXME: MTU in config. */
- #define GOOD_PACKET_LEN (ETH_HLEN + VLAN_HLEN + ETH_DATA_LEN)
+ static int virtio_ccw_check_autoonline(struct ccw_device *cdev)
 -- 
 2.9.2
