@@ -1,13 +1,13 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH 0904/1285] Replace numeric parameter like 0444 with macro
-Date: Tue, 2 Aug 2016 16:11:44 +0200
-Message-ID: <20160802161144.538ee7a6.cornelia.huck@de.ibm.com>
-References: <20160802115646.10237-1-baolex.ni@intel.com>
+From: Wei Yongjun <weiyj.lk@gmail.com>
+Subject: [PATCH -next v2] virtio: fix possible memory leak in virtqueue_add()
+Date: Tue,  2 Aug 2016 14:16:31 +0000
+Message-ID: <1470147391-20549-1-git-send-email-weiyj.lk@gmail.com>
+References: <1470146345-19531-1-git-send-email-weiyj.lk@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160802115646.10237-1-baolex.ni@intel.com>
+In-Reply-To: <1470146345-19531-1-git-send-email-weiyj.lk@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,41 +17,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Baole Ni <baolex.ni@intel.com>
-Cc: linux-s390@vger.kernel.org, k.kozlowski@samsung.com, chuansheng.liu@intel.com, kvm@vger.kernel.org, pawel@osciak.com, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kyungmin.park@samsung.com, schwidefsky@de.ibm.com, m.szyprowski@samsung.com, dwmw2@infradead.org, m.chehab@samsung.com
+To: "Michael S . Tsirkin" <mst@redhat.com>
+Cc: Wei Yongjun <weiyj.lk@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue,  2 Aug 2016 19:56:46 +0800
-Baole Ni <baolex.ni@intel.com> wrote:
+'desc' is malloced in virtqueue_add() and should be freed before
+leaving from the error handling cases, otherwise it will cause
+memory leak.
 
-> I find that the developers often just specified the numeric value
-> when calling a macro which is defined with a parameter for access permission.
-> As we know, these numeric value for access permission have had the corresponding macro,
-> and that using macro can improve the robustness and readability of the code,
-> thus, I suggest replacing the numeric parameter with the macro.
-> 
-> Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
-> Signed-off-by: Baole Ni <baolex.ni@intel.com>
-> ---
->  drivers/s390/virtio/virtio_ccw.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index 8688ad4..56d3671 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -1074,7 +1074,7 @@ static unsigned long devs_no_auto[__MAX_SSID + 1][__DEV_WORDS];
-> 
->  static char *no_auto = "";
-> 
-> -module_param(no_auto, charp, 0444);
-> +module_param(no_auto, charp, S_IRUSR | S_IRGRP | S_IROTH);
->  MODULE_PARM_DESC(no_auto, "list of ccw bus id ranges not to be auto-onlined");
-> 
->  static int virtio_ccw_check_autoonline(struct ccw_device *cdev)
+Signed-off-by: Wei Yongjun <weiyj.lk@gmail.com>
+---
+ drivers/virtio/virtio_ring.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-NACK. I find 0444 more readable.
-
-<And some general remarks: Your patches are lacking a proper component
-prefix and have a rather long list of people on to: ...and sending
-1000+ patches to lkml at once is not a very good idea either.>
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 114a0c8..e4be912 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -328,6 +328,8 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+ 		if (out_sgs)
+ 			vq->notify(&vq->vq);
+ 		END_USE(vq);
++		if (indirect)
++			kfree(desc);
+ 		return -ENOSPC;
+ 	}
