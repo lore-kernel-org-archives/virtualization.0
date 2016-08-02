@@ -1,7 +1,7 @@
 From: Baole Ni <baolex.ni@intel.com>
-Subject: [PATCH 0991/1285] Replace numeric parameter like 0444 with macro
-Date: Tue,  2 Aug 2016 20:06:01 +0800
-Message-ID: <20160802120601.16143-1-baolex.ni@intel.com>
+Subject: [PATCH 0992/1285] Replace numeric parameter like 0444 with macro
+Date: Tue,  2 Aug 2016 20:06:07 +0800
+Message-ID: <20160802120607.16209-1-baolex.ni__12876.1031352498$1470143438$gmane$org@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -28,21 +28,21 @@ thus, I suggest replacing the numeric parameter with the macro.
 Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
 Signed-off-by: Baole Ni <baolex.ni@intel.com>
 ---
- drivers/vhost/net.c | 2 +-
+ drivers/vhost/vhost.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index f744eeb..e6d5620 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 669fef1..bf338d1 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
 @@ -31,7 +31,7 @@
  #include "vhost.h"
  
- static int experimental_zcopytx = 1;
--module_param(experimental_zcopytx, int, 0444);
-+module_param(experimental_zcopytx, int, S_IRUSR | S_IRGRP | S_IROTH);
- MODULE_PARM_DESC(experimental_zcopytx, "Enable Zero Copy TX;"
- 		                       " 1 -Enable; 0 - Disable");
+ static ushort max_mem_regions = 64;
+-module_param(max_mem_regions, ushort, 0444);
++module_param(max_mem_regions, ushort, S_IRUSR | S_IRGRP | S_IROTH);
+ MODULE_PARM_DESC(max_mem_regions,
+ 	"Maximum number of memory regions in memory map. (default: 64)");
  
 -- 
 2.9.2
