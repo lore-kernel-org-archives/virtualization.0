@@ -1,7 +1,7 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH] drm/virtio: fix building without CONFIG_FBDEV
-Date: Tue,  2 Aug 2016 12:09:15 +0200
-Message-ID: <20160802100922.3914038-1-arnd__18274.9667474583$1470132664$gmane$org@arndb.de>
+From: Baole Ni <baolex.ni@intel.com>
+Subject: [PATCH 0095/1285] Replace numeric parameter like 0444 with macro
+Date: Tue,  2 Aug 2016 18:40:17 +0800
+Message-ID: <20160802104017.20091-1-baolex.ni__1126.11843874237$1470143372$gmane$org@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,43 +15,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>
-Cc: Archit Taneja <architt@codeaurora.org>, Arnd Bergmann <arnd@arndb.de>, Daniel Vetter <daniel.vetter@ffwll.ch>, Emil Velikov <emil.l.velikov@gmail.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Tobias Jakobi <tjakobi@math.uni-bielefeld.de>
+To: mst@redhat.com, pjk1939@linux.vnet.ibm.com, pavel@ucw.cz, gregkh@linuxfoundation.org, hpa@zytor.com, x86@kernel.org
+Cc: martin.petersen@oracle.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, baolex.ni@intel.com, chuansheng.liu@intel.com, kent.overstreet@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Removing the build-time dependency on DRM_KMS_FB_HELPER means
-we can now build with CONFIG_FB disabled or as a loadable module,
-leading to a link error:
+I find that the developers often just specified the numeric value
+when calling a macro which is defined with a parameter for access permission.
+As we know, these numeric value for access permission have had the corresponding macro,
+and that using macro can improve the robustness and readability of the code,
+thus, I suggest replacing the numeric parameter with the macro.
 
-ERROR: "remove_conflicting_framebuffers" [drivers/gpu/drm/virtio/virtio-gpu.ko] undefined!
-
-There is no need to call remove_conflicting_framebuffers() if
-CONFIG_FB is disabled, or if the virtio-gpu driver is built-in
-and CONFIG_FB=m, as there won't be any prior consoles that
-are registered at that point.
-
-This adds a compile-time check in the driver to ensure we only
-attempt to call that function if either CONFIG_FB=y or
-both subsystems are configured as loadable modules.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Fixes: 0b6320dfdfea ("drm/virtio: make fbdev support really optional")
+Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
+Signed-off-by: Baole Ni <baolex.ni@intel.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_drm_bus.c | 2 +-
+ drivers/block/virtio_blk.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drm_bus.c b/drivers/gpu/drm/virtio/virtgpu_drm_bus.c
-index 7f0e93f87a55..2087569ae8d7 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drm_bus.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drm_bus.c
-@@ -65,7 +65,7 @@ int drm_virtio_init(struct drm_driver *driver, struct virtio_device *vdev)
- 		DRM_INFO("pci: %s detected\n",
- 			 vga ? "virtio-vga" : "virtio-gpu-pci");
- 		dev->pdev = pdev;
--		if (vga)
-+		if (IS_REACHABLE(CONFIG_FB) && vga)
- 			virtio_pci_kick_out_firmware_fb(pdev);
- 	}
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 42758b5..786a393 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -561,7 +561,7 @@ static struct blk_mq_ops virtio_mq_ops = {
+ };
  
+ static unsigned int virtblk_queue_depth;
+-module_param_named(queue_depth, virtblk_queue_depth, uint, 0444);
++module_param_named(queue_depth, virtblk_queue_depth, uint, S_IRUSR | S_IRGRP | S_IROTH);
+ 
+ static int virtblk_probe(struct virtio_device *vdev)
+ {
 -- 
-2.9.0
+2.9.2
