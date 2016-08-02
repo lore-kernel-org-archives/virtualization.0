@@ -1,7 +1,7 @@
 From: Baole Ni <baolex.ni@intel.com>
-Subject: [PATCH 0214/1285] Replace numeric parameter like 0444 with macro
-Date: Tue,  2 Aug 2016 18:50:20 +0800
-Message-ID: <20160802105020.28023-1-baolex.ni@intel.com>
+Subject: [PATCH 0753/1285] Replace numeric parameter like 0444 with macro
+Date: Tue,  2 Aug 2016 19:42:57 +0800
+Message-ID: <20160802114257.32317-1-baolex.ni@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,8 +15,8 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: airlied@linux.ie, kraxel@redhat.com, kyungmin.park@samsung.com, kgene@kernel.org, k.kozlowski@samsung.com, dougthompson@xmission.com, bp@alien8.de
-Cc: linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, baolex.ni@intel.com, alexander.deucher@amd.com, chuansheng.liu@intel.com, ville.syrjala@linux.intel.com
+To: mst@redhat.com, f.fainelli@gmail.com, bkenward@solarflare.com, linux-driver@qlogic.com, computersforpeace@gmail.com, m.chehab@samsung.com, pawel@osciak.com, m.szyprowski@samsung.com, kyungmin.park@samsung.com, k.kozlowski@samsung.com
+Cc: pabeni@redhat.com, daniel@iogearbox.net, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, baolex.ni@intel.com, hannes@stressinduktion.org, chuansheng.liu@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 I find that the developers often just specified the numeric value
@@ -28,21 +28,27 @@ thus, I suggest replacing the numeric parameter with the macro.
 Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
 Signed-off-by: Baole Ni <baolex.ni@intel.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_kms.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/virtio_net.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index 4150873..1b7bd86 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -31,7 +31,7 @@
- static int virtio_gpu_fbdev = 1;
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index e0638e5..39815e4 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -30,11 +30,11 @@
+ #include <net/busy_poll.h>
  
- MODULE_PARM_DESC(fbdev, "Disable/Enable framebuffer device & console");
--module_param_named(fbdev, virtio_gpu_fbdev, int, 0400);
-+module_param_named(fbdev, virtio_gpu_fbdev, int, S_IRUSR);
+ static int napi_weight = NAPI_POLL_WEIGHT;
+-module_param(napi_weight, int, 0444);
++module_param(napi_weight, int, S_IRUSR | S_IRGRP | S_IROTH);
  
- static void virtio_gpu_config_changed_work_func(struct work_struct *work)
- {
+ static bool csum = true, gso = true;
+-module_param(csum, bool, 0444);
+-module_param(gso, bool, 0444);
++module_param(csum, bool, S_IRUSR | S_IRGRP | S_IROTH);
++module_param(gso, bool, S_IRUSR | S_IRGRP | S_IROTH);
+ 
+ /* FIXME: MTU in config. */
+ #define GOOD_PACKET_LEN (ETH_HLEN + VLAN_HLEN + ETH_DATA_LEN)
 -- 
 2.9.2
