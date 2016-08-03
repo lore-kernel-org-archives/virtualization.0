@@ -1,13 +1,12 @@
-From: Wei Yongjun <weiyj.lk@gmail.com>
-Subject: [PATCH -next v2] virtio: fix possible memory leak in virtqueue_add()
-Date: Tue,  2 Aug 2016 14:16:31 +0000
-Message-ID: <1470147391-20549-1-git-send-email-weiyj.lk@gmail.com>
-References: <1470146345-19531-1-git-send-email-weiyj.lk@gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] virtio: fix error handling for debug builds
+Date: Wed, 3 Aug 2016 07:21:22 +0300
+Message-ID: <1470198074-23894-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1470146345-19531-1-git-send-email-weiyj.lk@gmail.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,28 +16,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S . Tsirkin" <mst@redhat.com>
-Cc: Wei Yongjun <weiyj.lk@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: Wei Yongjun <weiyj.lk@gmail.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-'desc' is malloced in virtqueue_add() and should be freed before
-leaving from the error handling cases, otherwise it will cause
-memory leak.
+On error, virtqueue_add calls START_USE but not
+END_USE. Thankfully that's normally empty anyway,
+but might not be when debugging. Fix it up.
 
-Signed-off-by: Wei Yongjun <weiyj.lk@gmail.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/virtio/virtio_ring.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/virtio/virtio_ring.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 114a0c8..e4be912 100644
+index 5ed228d..e383ecd 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -328,6 +328,8 @@ static inline int virtqueue_add(struct virtqueue *_vq,
- 		if (out_sgs)
- 			vq->notify(&vq->vq);
- 		END_USE(vq);
-+		if (indirect)
-+			kfree(desc);
- 		return -ENOSPC;
- 	}
+@@ -428,6 +428,7 @@ unmap_release:
+ 	if (indirect)
+ 		kfree(desc);
+ 
++	END_USE(vq);
+ 	return -EIO;
+ }
+ 
+-- 
+MST
