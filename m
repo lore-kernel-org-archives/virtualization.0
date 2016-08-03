@@ -1,10 +1,12 @@
-From: "Maria Lemos" <marialemos72@gmail.com>
-Subject: WorldCIST'17 - Call for Workshops Proposals; Deadline: September 5
-Date: Wed, 3 Aug 2016 13:48:43 +0100
-Message-ID: <20160803124854.0C3437AA@mail.linuxfoundation.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL] vhost: new features for 4.8
+Date: Wed, 3 Aug 2016 17:14:42 +0300
+Message-ID: <20160803171442-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6304081474902676740=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -14,107 +16,100 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: weiyj.lk@gmail.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, kneumoin@virtuozzo.com, linux-kernel@vger.kernel.org, imbrenda@linux.vnet.ibm.com, stefanha@redhat.com, den@openvz.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============6304081474902676740==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I already have more bugfixes on top queued, but not regression
+fixes so it does not seem worth it to delay this anymore.
 
---
------
----------
-WorldCIST'17 - 5th World Conference on Information Systems and Technol=
-ogies=20
-Porto Santo Island, Madeira, Portugal
-11th-13th of April 2017
-http://www.worldcist.org/
--------------------------------------------
+The following changes since commit 523d939ef98fd712632d93a5a2b588e477a7565e:
 
+  Linux 4.7 (2016-07-24 12:23:50 -0700)
 
-WORKSHOP FORMAT
+are available in the git repository at:
 
-The Information Systems and Technologies research and industrial commu=
-nity is invited to submit proposals of Workshops for WorldCist'17 =96 =
-5th World Conference on Information Systems and Technologies to be hel=
-d at Porto Santo Island, Madeira, Portugal, 11th - 13th of April 2017:=
- http://www.worldcist.org/
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-Workshops should focus on a specific scientific subject on the scope o=
-f WorldCist'17 but not directly included on the main conference areas.=
- Each workshop will be coordinated by an Organizing Committee composed=
- of, at least, two researchers in the field, preferably from different=
- institutions and different countries. The organizers should create an=
- international Program Committee for the Workshop, with recognized res=
-earchers within the specific Workshop scientific area. Each workshop s=
-hould have at least 10 submissions and 5 accepted papers in order to b=
-e conducted at WorldCist'17.
+for you to fetch changes up to b226acab2f6aaa45c2af27279b63f622b23a44bd:
 
-The selection of Workshops will be performed by WorldCist'17 Conferenc=
-e/Workshop Chairs. Workshops full and short papers will be published i=
-n the conference main proceedings in specific Workshop chapters publis=
-hed by Springer in a book of the AISC series. Proceedings will be subm=
-itted for indexation by ISI Thomson, SCOPUS, DBLP, EI-Compendex among =
-several other scientific databases. Extended versions of best selected=
- papers will be published in journals indexed by ISI/SCI, SCOPUS and D=
-BLP. Detailed and up-to-date information may be found at WorldCist'17 =
-website: http://www.worldcist.org/
+  VSOCK: Use kvfree() (2016-08-02 16:56:08 +0300)
 
-WORKSHOP ORGANIZATION
+----------------------------------------------------------------
+virtio/vhost: new features for 4.8
 
-The Organizing Committee of each Workshop will be responsible for:
--    Producing and distributing the Workshop Call for Papers (CFP);
--    Coordinating the review and selection process for the papers subm=
-itted to the Workshop, as Workshop chairs (on the paper submission sys=
-tem to be installed);
--    Delivering the final versions of the papers accepted for the Work=
-shop in accordance with the guidelines and deadlines defined by WorldC=
-ist'17 organizers;
--    Coordinating and chairing the Workshop sessions at the conference.
-WorldCist'17 organizers reserve the right to cancel any Workshop if de=
-adlines are missed or if the number of registered attendees is too low=
- to support the costs associated with the Workshop.
+- New vsock device support in host and guest
+- Platform IOMMU support in host and guest,
+  including compatibility quirks for legacy systems.
+- Misc fixes and cleanups.
 
-PROPOSAL CONTENT
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Workshop proposals should contain the following information:
--    Workshop title;
--    Brief description of the specific scientific scope of the Workshop;
--    List of topics of interest (max 15 topics);
--    Reasons the Workshop should be held within WorldCist=9217;
--    Name, postal address, phone and email of all the members of the W=
-orkshop Organizing Committee;
--    Proposal for the Workshop Program Committee (Names and affiliatio=
-ns).
+----------------------------------------------------------------
+Asias He (4):
+      VSOCK: Introduce virtio_vsock_common.ko
+      VSOCK: Introduce virtio_transport.ko
+      VSOCK: Introduce vhost_vsock.ko
+      VSOCK: Add Makefile and Kconfig
 
-Proposals should be submitted electronically by email to worldcist at =
-gmail.com (cc: lpreis at dsi.uminho.pt), in PDF, (in English), by July=
- 31, 2016.
+Jason Wang (5):
+      vhost: simplify work flushing
+      vhost: lockless enqueuing
+      vhost: introduce vhost memory accessors
+      vhost: convert pre sorted vhost memory array to interval tree
+      vhost: new device IOTLB API
 
-IMPORTANT DATES
+Konstantin Neumoin (1):
+      balloon: check the number of available pages in leak balloon
 
--    Deadline for Workshop proposals: September 5, 2016
--    Notification of Workshop acceptance: September 11, 2016
--    Deadline for paper submission: November 27, 2016
--    Notification of paper acceptance: December 25, 2016
--    Deadline for final versions and conference registration: January =
-8, 2017
--    Conference dates: April 11-13, 2017
+Michael S. Tsirkin (6):
+      virtio: new feature to detect IOMMU device quirk
+      vop: pull in vhost Kconfig
+      vhost: drop vringh dependency
+      vhost: drop vringh dependency
+      vhost: detect 32 bit integer wrap around
+      vhost: split out vringh Kconfig
 
+Stefan Hajnoczi (2):
+      VSOCK: transport-specific vsock_transport functions
+      VSOCK: defer sock removal to transports
 
-WorldCIST'17
-http://www.worldcist.org/
+Wei Yongjun (1):
+      VSOCK: Use kvfree()
 
-
-
---===============6304081474902676740==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6304081474902676740==--
+ drivers/vhost/vhost.h                              |  64 +-
+ include/linux/virtio_config.h                      |  13 +
+ include/linux/virtio_vsock.h                       | 154 ++++
+ include/net/af_vsock.h                             |   6 +
+ .../trace/events/vsock_virtio_transport_common.h   | 144 +++
+ include/uapi/linux/vhost.h                         |  33 +
+ include/uapi/linux/virtio_config.h                 |  10 +-
+ include/uapi/linux/virtio_ids.h                    |   1 +
+ include/uapi/linux/virtio_vsock.h                  |  94 ++
+ drivers/vhost/net.c                                |  67 +-
+ drivers/vhost/vhost.c                              | 927 +++++++++++++++----
+ drivers/vhost/vsock.c                              | 719 +++++++++++++++
+ drivers/virtio/virtio_balloon.c                    |   2 +
+ drivers/virtio/virtio_ring.c                       |  15 +-
+ net/vmw_vsock/af_vsock.c                           |  25 +-
+ net/vmw_vsock/virtio_transport.c                   | 624 +++++++++++++
+ net/vmw_vsock/virtio_transport_common.c            | 992 +++++++++++++++++++++
+ net/vmw_vsock/vmci_transport.c                     |   2 +
+ MAINTAINERS                                        |  13 +
+ drivers/Makefile                                   |   1 +
+ drivers/misc/mic/Kconfig                           |   4 +
+ drivers/net/caif/Kconfig                           |   2 +-
+ drivers/vhost/Kconfig                              |  18 +-
+ drivers/vhost/Kconfig.vringh                       |   5 +
+ drivers/vhost/Makefile                             |   4 +
+ include/uapi/linux/Kbuild                          |   1 +
+ net/vmw_vsock/Kconfig                              |  20 +
+ net/vmw_vsock/Makefile                             |   6 +
+ 28 files changed, 3765 insertions(+), 201 deletions(-)
+ create mode 100644 include/linux/virtio_vsock.h
+ create mode 100644 include/trace/events/vsock_virtio_transport_common.h
+ create mode 100644 include/uapi/linux/virtio_vsock.h
+ create mode 100644 drivers/vhost/vsock.c
+ create mode 100644 net/vmw_vsock/virtio_transport.c
+ create mode 100644 net/vmw_vsock/virtio_transport_common.c
+ create mode 100644 drivers/vhost/Kconfig.vringh
