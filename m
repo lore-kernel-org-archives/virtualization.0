@@ -1,12 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] vhost: new features for 4.8
-Date: Wed, 3 Aug 2016 17:14:42 +0300
-Message-ID: <20160803171442-mutt-send-email-mst@kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Minfei Huang <minfei.hmf@alibaba-inc.com>
+Subject: Re: [PATCH v3] virtio_blk: Fix a slient kernel panic
+Date: Thu, 4 Aug 2016 13:35:09 +0800
+Message-ID: <383B4F24-A757-4206-B251-04B9FBC4FBCD@alibaba-inc.com>
+References: <1468902762-43268-1-git-send-email-mnfhuang@gmail.com>
+	<CAJSP0QUZ-=va4yOLMciG0V0L9N+XcDAcc82vVfdTw=RY-UXVcw@mail.gmail.com>
+Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
+Content-Type: multipart/mixed; boundary="===============5773711041336854247=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <CAJSP0QUZ-=va4yOLMciG0V0L9N+XcDAcc82vVfdTw=RY-UXVcw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,100 +17,115 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: weiyj.lk@gmail.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, kneumoin@virtuozzo.com, linux-kernel@vger.kernel.org, imbrenda@linux.vnet.ibm.com, stefanha@redhat.com, den@openvz.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Stefan Hajnoczi <stefanha@gmail.com>
+Cc: fanc.fnst@cn.fujitsu.com, linux-kernel <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-I already have more bugfixes on top queued, but not regression
-fixes so it does not seem worth it to delay this anymore.
 
-The following changes since commit 523d939ef98fd712632d93a5a2b588e477a7565e:
+--===============5773711041336854247==
+Content-Type: multipart/signed; boundary="Apple-Mail=_17A6AEBA-DF31-4B79-B521-D93463786A2B"; protocol="application/pkcs7-signature"; micalg=sha1
 
-  Linux 4.7 (2016-07-24 12:23:50 -0700)
 
-are available in the git repository at:
+--Apple-Mail=_17A6AEBA-DF31-4B79-B521-D93463786A2B
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset=us-ascii
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+Hi, Michael.
 
-for you to fetch changes up to b226acab2f6aaa45c2af27279b63f622b23a44bd:
+Since Stefan and Cornelia have review-acked this patch, could you mind
+helping review this patch?
 
-  VSOCK: Use kvfree() (2016-08-02 16:56:08 +0300)
+Thanks
+Minfei
 
-----------------------------------------------------------------
-virtio/vhost: new features for 4.8
+> On Jul 29, 2016, at 16:26, Stefan Hajnoczi <stefanha@gmail.com> wrote:
+> 
+> On Tue, Jul 19, 2016 at 5:32 AM, Minfei Huang <mnfhuang@gmail.com> wrote:
+>> From: Minfei Huang <mnghuan@gmail.com>
+>> 
+>> We do a lot of memory allocation in function init_vq, and don't handle
+>> the allocation failure properly. Then this function will return 0,
+>> although initialization fails due to lacking memory. At that moment,
+>> kernel will panic in guest machine, if virtio is used to drive disk.
+>> 
+>> To fix this bug, we should take care of allocation failure, and return
+>> correct value to let caller know what happen.
+>> 
+>> Tested-by: Chao Fan <fanc.fnst@cn.fujitsu.com>
+>> Signed-off-by: Minfei Huang <minfei.hmf@alibaba-inc.com>
+>> Signed-off-by: Minfei Huang <mnghuan@gmail.com>
+>> ---
+>> v2:
+>> - Remove useless initialisation to NULL
+>> v1:
+>> - Refactor the patch to make code more readable
+>> ---
+>> drivers/block/virtio_blk.c | 26 ++++++++------------------
+>> 1 file changed, 8 insertions(+), 18 deletions(-)
+> 
+> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
-- New vsock device support in host and guest
-- Platform IOMMU support in host and guest,
-  including compatibility quirks for legacy systems.
-- Misc fixes and cleanups.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+--Apple-Mail=_17A6AEBA-DF31-4B79-B521-D93463786A2B
+Content-Disposition: attachment;
+	filename=smime.p7s
+Content-Type: application/pkcs7-signature;
+	name=smime.p7s
+Content-Transfer-Encoding: base64
 
-----------------------------------------------------------------
-Asias He (4):
-      VSOCK: Introduce virtio_vsock_common.ko
-      VSOCK: Introduce virtio_transport.ko
-      VSOCK: Introduce vhost_vsock.ko
-      VSOCK: Add Makefile and Kconfig
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIG7TCCAzow
+ggKjoAMCAQICAQMwDQYJKoZIhvcNAQEFBQAwgZAxJjAkBgkqhkiG9w0BCQEWF2FsaWxhbmdAYWxp
+YmFiYS1pbmMuY29tMRMwEQYDVQQDDApBbGlsYW5nIENBMQwwCgYDVQQLDANJbmMxEDAOBgNVBAoM
+B0FsaWJhYmExETAPBgNVBAcMCEhhbmdaaG91MREwDwYDVQQIDAhaaGVKaWFuZzELMAkGA1UEBhMC
+Q04wHhcNMTQwMzIxMTgyNjQ4WhcNMzQwMzE2MTgyNjQ4WjA/MR0wGwYDVQQDDBRBbGlsYW5nIENs
+YXNzIDMgUm9vdDEMMAoGA1UECwwDSW5jMRAwDgYDVQQKDAdBbGliYWJhMIGfMA0GCSqGSIb3DQEB
+AQUAA4GNADCBiQKBgQDkSZUxhsryrulw7ShMNYBuF61+lkYT1/ydmAXyMyMXhSGaKJo6onqdui8W
+3X8TZ44E5ZMEMM3rTb0o3+t6N2G9qstbpfm/wnxlNsdFKBZAQpsTp7YKDaVGo1iMir6NE5VXtlZc
+ZlfdXLncAGxGIDITf6+7nvWWU2eQCAdeGH4+iwIDAQABo4HzMIHwMB0GA1UdDgQWBBS8GDnn09jS
+1FKSW9ID4Szifw9bNTCBvQYDVR0jBIG1MIGygBRsQqcG9DDm61l1oc2mKWiF5GLUraGBlqSBkzCB
+kDEmMCQGCSqGSIb3DQEJARYXYWxpbGFuZ0BhbGliYWJhLWluYy5jb20xEzARBgNVBAMMCkFsaWxh
+bmcgQ0ExDDAKBgNVBAsMA0luYzEQMA4GA1UECgwHQWxpYmFiYTERMA8GA1UEBwwISGFuZ1pob3Ux
+ETAPBgNVBAgMCFpoZUppYW5nMQswCQYDVQQGEwJDToIBATAPBgNVHRMBAf8EBTADAQH/MA0GCSqG
+SIb3DQEBBQUAA4GBAAfkwgwem9gawUb7wU4oiGw2aCw6QbKgfSBv+Dj6RiA4CJztW0IF6g6cRM85
+Uv6+AoGyC14x871UJBHNt75ZBgSyvZpXu2n3BLQmTe3gQNXsipOvCSlM2V98U/KVKRgUgzb6dNDd
+jMzv9yEIGuar9zbk5GRDDSQR+qTM+a8i2umFMIIDqzCCAxSgAwIBAgIGAVUPrrJzMA0GCSqGSIb3
+DQEBBQUAMD8xHTAbBgNVBAMMFEFsaWxhbmcgQ2xhc3MgMyBSb290MQwwCgYDVQQLDANJbmMxEDAO
+BgNVBAoMB0FsaWJhYmEwHhcNMTYwNjAxMDU1NTU1WhcNMjEwNTMxMDU1NTU1WjCB2zEpMCcGCSqG
+SIb3DQEJARYabWluZmVpLmhtZkBhbGliYWJhLWluYy5jb20xDzANBgNVBAMMBjExMzAzNTFKMEgG
+A1UEDAxBMTEzMDM1fE1ETVNFUlZFUjU1QTFFQUZGLTM4OEQtNTA1Ri1COEFDLUNFRUQzNkM5RUQ1
+NHxmNDVjODljYjM0MTkxDDAKBgNVBAsMA0luYzEQMA4GA1UECgwHQWxpYmFiYTERMA8GA1UEBwwI
+SGFuZ1pob3UxETAPBgNVBAgMCFpoZUppYW5nMQswCQYDVQQGEwJDTjCBnzANBgkqhkiG9w0BAQEF
+AAOBjQAwgYkCgYEAoQP5AB+zGOj1kQmLU2TOrZOrHMdjx//VHpNfn8k3oxuiuMJSmOfHmOeaurks
+qZUz7EoQtyDn8alAQ9t9Zx9sRIlXKlcouZYClQ1Hfh5n531YaOOImYmpOENUGo1nzOydZZ8S7ciy
+iR1E9nWrNFyA3gZpegzRIMLLwvzZ5wyHhoECAwEAAaOCARMwggEPMBgGBikBAQINHgQOBAxmNDVj
+ODljYjM0MTkwDwYGKQEBAgQeBAUEA29zeDA5BgYpAQECDB4ELwQtTURNU0VSVkVSNTVBMUVBRkYt
+Mzg4RC01MDVGLUI4QUMtQ0VFRDM2QzlFRDU0MBIGBikBAQILHgQIBAYxMTMwMzUwRQYDVR0lBD4w
+PAYIKwYBBQUHAwEGCCsGAQUFBwMCBggrBgEFBQcDBAYIKwYBBQUHAw0GCCsGAQUFBwMOBggrBgEF
+BQcDETAMBgNVHQ8EBQMDB/+AMB0GA1UdDgQWBBSO56p18ShLWQWQMh/iUGRoFnLK/jAfBgNVHSME
+GDAWgBS8GDnn09jS1FKSW9ID4Szifw9bNTANBgkqhkiG9w0BAQUFAAOBgQBek3RUP+ru9F7OkTJI
+Jas0xBvfC8RCxifD7EG/VSLb43hsd2my9sgyQN1x32sJmBlmeUpAAjZ4a2x35Jyxs26VJEknasub
+8x7pcDjSL4KkNS1IjWPFaRzx7JTTGwfcEIxlIxFhG8PvWWKRgJjJzDS8fPQ1dSqh8oyxPJ73PD3X
++DGCAgYwggICAgEBMEkwPzEdMBsGA1UEAwwUQWxpbGFuZyBDbGFzcyAzIFJvb3QxDDAKBgNVBAsM
+A0luYzEQMA4GA1UECgwHQWxpYmFiYQIGAVUPrrJzMAkGBSsOAwIaBQCgggETMBgGCSqGSIb3DQEJ
+AzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTE2MDgwNDA1MzUxMFowIwYJKoZIhvcNAQkE
+MRYEFOlAbAP8Kc6N7cMR+Fd3PAv5NjjrMFgGCSsGAQQBgjcQBDFLMEkwPzEdMBsGA1UEAwwUQWxp
+bGFuZyBDbGFzcyAzIFJvb3QxDDAKBgNVBAsMA0luYzEQMA4GA1UECgwHQWxpYmFiYQIGAVUPrrJz
+MFoGCyqGSIb3DQEJEAILMUugSTA/MR0wGwYDVQQDDBRBbGlsYW5nIENsYXNzIDMgUm9vdDEMMAoG
+A1UECwwDSW5jMRAwDgYDVQQKDAdBbGliYWJhAgYBVQ+usnMwDQYJKoZIhvcNAQEBBQAEgYAtHSVa
+eVmrHWB2UCH9f9EWxoXbdErbqkulUuuQ2XKj9jTvdPhIYw4f4mf0n817xONdorn402Qnc5+g8heF
+eZid0ncRGHpYkdsnUa+KjREGhHaRp47q5BFulbucBbsiTqT6ASD8serBcHt4h0RwFnsOWB/wDVU+
+9POFHX0fsl47DQAAAAAAAA==
+--Apple-Mail=_17A6AEBA-DF31-4B79-B521-D93463786A2B--
 
-Jason Wang (5):
-      vhost: simplify work flushing
-      vhost: lockless enqueuing
-      vhost: introduce vhost memory accessors
-      vhost: convert pre sorted vhost memory array to interval tree
-      vhost: new device IOTLB API
+--===============5773711041336854247==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Konstantin Neumoin (1):
-      balloon: check the number of available pages in leak balloon
-
-Michael S. Tsirkin (6):
-      virtio: new feature to detect IOMMU device quirk
-      vop: pull in vhost Kconfig
-      vhost: drop vringh dependency
-      vhost: drop vringh dependency
-      vhost: detect 32 bit integer wrap around
-      vhost: split out vringh Kconfig
-
-Stefan Hajnoczi (2):
-      VSOCK: transport-specific vsock_transport functions
-      VSOCK: defer sock removal to transports
-
-Wei Yongjun (1):
-      VSOCK: Use kvfree()
-
- drivers/vhost/vhost.h                              |  64 +-
- include/linux/virtio_config.h                      |  13 +
- include/linux/virtio_vsock.h                       | 154 ++++
- include/net/af_vsock.h                             |   6 +
- .../trace/events/vsock_virtio_transport_common.h   | 144 +++
- include/uapi/linux/vhost.h                         |  33 +
- include/uapi/linux/virtio_config.h                 |  10 +-
- include/uapi/linux/virtio_ids.h                    |   1 +
- include/uapi/linux/virtio_vsock.h                  |  94 ++
- drivers/vhost/net.c                                |  67 +-
- drivers/vhost/vhost.c                              | 927 +++++++++++++++----
- drivers/vhost/vsock.c                              | 719 +++++++++++++++
- drivers/virtio/virtio_balloon.c                    |   2 +
- drivers/virtio/virtio_ring.c                       |  15 +-
- net/vmw_vsock/af_vsock.c                           |  25 +-
- net/vmw_vsock/virtio_transport.c                   | 624 +++++++++++++
- net/vmw_vsock/virtio_transport_common.c            | 992 +++++++++++++++++++++
- net/vmw_vsock/vmci_transport.c                     |   2 +
- MAINTAINERS                                        |  13 +
- drivers/Makefile                                   |   1 +
- drivers/misc/mic/Kconfig                           |   4 +
- drivers/net/caif/Kconfig                           |   2 +-
- drivers/vhost/Kconfig                              |  18 +-
- drivers/vhost/Kconfig.vringh                       |   5 +
- drivers/vhost/Makefile                             |   4 +
- include/uapi/linux/Kbuild                          |   1 +
- net/vmw_vsock/Kconfig                              |  20 +
- net/vmw_vsock/Makefile                             |   6 +
- 28 files changed, 3765 insertions(+), 201 deletions(-)
- create mode 100644 include/linux/virtio_vsock.h
- create mode 100644 include/trace/events/vsock_virtio_transport_common.h
- create mode 100644 include/uapi/linux/virtio_vsock.h
- create mode 100644 drivers/vhost/vsock.c
- create mode 100644 net/vmw_vsock/virtio_transport.c
- create mode 100644 net/vmw_vsock/virtio_transport_common.c
- create mode 100644 drivers/vhost/Kconfig.vringh
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5773711041336854247==--
