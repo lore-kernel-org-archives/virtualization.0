@@ -1,8 +1,7 @@
 From: Liang Li <liang.z.li@intel.com>
-Subject: [PATCH v3 kernel 2/7] virtio-balloon: define new feature bit and page
-	bitmap head
-Date: Mon,  8 Aug 2016 14:35:29 +0800
-Message-ID: <1470638134-24149-3-git-send-email-liang.z.li__45356.9107842215$1470638622$gmane$org@intel.com>
+Subject: [PATCH v3 kernel 3/7] mm: add a function to get the max pfn
+Date: Mon,  8 Aug 2016 14:35:30 +0800
+Message-ID: <1470638134-24149-4-git-send-email-liang.z.li__41006.0989707292$1470638634$gmane$org@intel.com>
 References: <1470638134-24149-1-git-send-email-liang.z.li@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,62 +18,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, Amit Shah <amit.shah@redhat.com>, Liang Li <liang.z.li@intel.com>, dave.hansen@intel.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, "Michael S. Tsirkin" <mst@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, dgilbert@redhat.com
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, Amit Shah <amit.shah@redhat.com>, Liang Li <liang.z.li@intel.com>, dave.hansen@intel.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, "Michael S. Tsirkin" <mst@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Mel Gorman <mgorman@techsingularity.net>, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a new feature which supports sending the page information with
-a bitmap. The current implementation uses PFNs array, which is not
-very efficient. Using bitmap can improve the performance of
-inflating/deflating significantly
-
-The page bitmap header will used to tell the host some information
-about the page bitmap. e.g. the page size, page bitmap length and
-start pfn.
+Expose the function to get the max pfn, so it can be used in the
+virtio-balloon device driver. Simply include the 'linux/bootmem.h'
+is not enough, if the device driver is built to a module, directly
+refer the max_pfn lead to build failed.
 
 Signed-off-by: Liang Li <liang.z.li@intel.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Mel Gorman <mgorman@techsingularity.net>
 Cc: Michael S. Tsirkin <mst@redhat.com>
 Cc: Paolo Bonzini <pbonzini@redhat.com>
 Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
 Cc: Amit Shah <amit.shah@redhat.com>
 Cc: Dave Hansen <dave.hansen@intel.com>
 ---
- include/uapi/linux/virtio_balloon.h | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ include/linux/mm.h |  1 +
+ mm/page_alloc.c    | 10 ++++++++++
+ 2 files changed, 11 insertions(+)
 
-diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-index 343d7dd..d3b182a 100644
---- a/include/uapi/linux/virtio_balloon.h
-+++ b/include/uapi/linux/virtio_balloon.h
-@@ -34,6 +34,7 @@
- #define VIRTIO_BALLOON_F_MUST_TELL_HOST	0 /* Tell before reclaiming pages */
- #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
- #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
-+#define VIRTIO_BALLOON_F_PAGE_BITMAP	3 /* Send page info with bitmap */
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 08ed53e..5873057 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -1788,6 +1788,7 @@ extern void free_area_init(unsigned long * zones_size);
+ extern void free_area_init_node(int nid, unsigned long * zones_size,
+ 		unsigned long zone_start_pfn, unsigned long *zholes_size);
+ extern void free_initmem(void);
++extern unsigned long get_max_pfn(void);
  
- /* Size of a PFN in the balloon interface. */
- #define VIRTIO_BALLOON_PFN_SHIFT 12
-@@ -82,4 +83,22 @@ struct virtio_balloon_stat {
- 	__virtio64 val;
- } __attribute__((packed));
+ /*
+  * Free reserved pages within range [PAGE_ALIGN(start), end & PAGE_MASK)
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index fb975ce..3373704 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -4391,6 +4391,16 @@ void show_free_areas(unsigned int filter)
+ 	show_swap_cache_info();
+ }
  
-+/* Page bitmap header structure */
-+struct balloon_bmap_hdr {
-+	/* Used to distinguish different request */
-+	__virtio16 cmd;
-+	/* Shift width of page in the bitmap */
-+	__virtio16 page_shift;
-+	/* flag used to identify different status */
-+	__virtio16 flag;
-+	/* Reserved */
-+	__virtio16 reserved;
-+	/* ID of the request */
-+	__virtio64 req_id;
-+	/* The pfn of 0 bit in the bitmap */
-+	__virtio64 start_pfn;
-+	/* The length of the bitmap, in bytes */
-+	__virtio64 bmap_len;
-+};
++/*
++ * The max_pfn can change because of memory hot plug, so it's only good
++ * as a hint. e.g. for sizing data structures.
++ */
++unsigned long get_max_pfn(void)
++{
++	return max_pfn;
++}
++EXPORT_SYMBOL(get_max_pfn);
 +
- #endif /* _LINUX_VIRTIO_BALLOON_H */
+ static void zoneref_set_zone(struct zone *zone, struct zoneref *zoneref)
+ {
+ 	zoneref->zone = zone;
 -- 
 1.8.3.1
