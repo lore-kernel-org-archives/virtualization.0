@@ -1,14 +1,14 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH 0/2] virtio/s390 patches for 4.8
-Date: Mon, 8 Aug 2016 13:39:10 +0200
-Message-ID: <20160808133910.0bb69cea.cornelia.huck@de.ibm.com>
-References: <1467904077-1887-1-git-send-email-cornelia.huck@de.ibm.com>
-	<20160707194246-mutt-send-email-mst@redhat.com>
+From: Dave Hansen <dave.hansen@intel.com>
+Subject: Re: [PATCH v3 kernel 0/7] Extend virtio-balloon for fast
+	(de)inflating & fast live migration
+Date: Mon, 8 Aug 2016 09:15:58 -0700
+Message-ID: <57A8B03E.4080709__15314.5512602807$1470672981$gmane$org@intel.com>
+References: <1470638134-24149-1-git-send-email-liang.z.li@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160707194246-mutt-send-email-mst@redhat.com>
+In-Reply-To: <1470638134-24149-1-git-send-email-liang.z.li@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,46 +18,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+To: Liang Li <liang.z.li@intel.com>, linux-kernel@vger.kernel.org
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 7 Jul 2016 19:42:52 +0300
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+On 08/07/2016 11:35 PM, Liang Li wrote:
+> Dave Hansen suggested a new scheme to encode the data structure,
+> because of additional complexity, it's not implemented in v3.
 
-> On Thu, Jul 07, 2016 at 05:07:55PM +0200, Cornelia Huck wrote:
-> > Michael,
-> > 
-> > here are two virtio/s390 patches for 4.8.
-> > 
-> > First, Jing Liu noticed that she could trigger panics while playing
-> > around with hvc0 as preferred console but no virtio console: This
-> > can be fixed by not discarding our early_put_chars after init (as
-> > the minimal fix).
-> > 
-> > This made us wonder why we still have that code around when no current
-> > host code supports the old transport: We have no idea whether this
-> > still works, and it's probably a good idea to put a deprecation
-> > message in there to check whether anyone screams.
-> > 
-> > Patches are against your vhost branch.
-> 
-> thanks!
+FWIW, I don't think it takes any additional complexity here, at least in
+the guest implementation side.  The thing I suggested would just mean
+explicitly calling out that there was a single bitmap instead of
+implying it in the ABI.
 
-Hm, don't see these in 4.8-rc1...
-
-> 
-> > Christian Borntraeger (1):
-> >   virtio/s390: keep early_put_chars
-> > 
-> > Cornelia Huck (1):
-> >   virtio/s390: deprecate old transport
-> > 
-> >  arch/s390/Kconfig                | 13 +++++++++++++
-> >  drivers/s390/virtio/Makefile     |  6 +++++-
-> >  drivers/s390/virtio/kvm_virtio.c |  4 +++-
-> >  3 files changed, 21 insertions(+), 2 deletions(-)
-> > 
-> > -- 
-> > 2.6.6
-> 
+Do you think the scheme I suggested is the way to go?
