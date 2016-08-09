@@ -1,13 +1,16 @@
-From: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH] x86/paravirt: Do not trace _paravirt_ident_*() functions
-Date: Mon, 8 Aug 2016 16:09:29 -0400
-Message-ID: <20160808160929.35d34a31__13571.8697136783$1470688007$gmane$org@gandalf.local.home>
-References: <20160525134726.6362a601@gandalf.local.home>
+From: "Li, Liang Z" <liang.z.li@intel.com>
+Subject: RE: [PATCH v3 kernel 0/7] Extend virtio-balloon for fast
+	(de)inflating & fast live migration
+Date: Tue, 9 Aug 2016 02:52:41 +0000
+Message-ID: <F2CBF3009FA73547804AE4C663CAB28E0421A844__22203.7978856408$1470711177$gmane$org@shsmsx102.ccr.corp.intel.com>
+References: <1470638134-24149-1-git-send-email-liang.z.li@intel.com>
+	<57A8B03E.4080709@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160525134726.6362a601@gandalf.local.home>
+In-Reply-To: <57A8B03E.4080709@intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,83 +20,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, =?UTF-8?B?xYF1a2Fzeg==?= Daniluk <lukasz.daniluk@intel.com>, x86@kernel.org, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, Alok Kataria <akataria@vmware.com>, Ingo Molnar <mingo@kernel.org>
+To: "Hansen, Dave" <dave.hansen@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CkhtbSwgSSdtIGd1ZXNzaW5nIHRoaXMgcGF0Y2ggZ290IGxvc3QuCgotLSBTdGV2ZQoKCk9uIFdl
-ZCwgMjUgTWF5IDIwMTYgMTM6NDc6MjYgLTA0MDAKU3RldmVuIFJvc3RlZHQgPHJvc3RlZHRAZ29v
-ZG1pcy5vcmc+IHdyb3RlOgoKPiDFgXVrYXN6IERhbmlsdWsgcmVwb3J0ZWQgdGhhdCBvbiBhIFJI
-RUwga2VybmVsIHRoYXQgaGlzIG1hY2hpbmUgd291bGQgbG9jayB1cAo+IGFmdGVyIGVuYWJsaW5n
-IGZ1bmN0aW9uIHRyYWNlci4gSSBhc2tlZCBoaW0gdG8gYmlzZWN0IHRoZSBmdW5jdGlvbnMgd2l0
-aGluCj4gYXZhaWxhYmxlX2ZpbHRlcl9mdW5jdGlvbnMsIHdoaWNoIGhlIGRpZCBhbmQgaXQgY2Ft
-ZSBkb3duIHRvIHRocmVlOgo+IAo+ICBfcGFyYXZpcnRfbm9wKCksIF9wYXJhdmlydF9pZGVudF8z
-MigpIGFuZCBfcGFyYXZpcnRfaWRlbnRfNjQoKQo+IAo+IEl0IHdhcyBmb3VuZCB0aGF0IHRoaXMg
-aXMgb25seSBhbiBpc3N1ZSB3aGVuIG5vcmVwbGFjZS1wYXJhdmlydCBpcyBhZGRlZCB0bwo+IHRo
-ZSBrZXJuZWwgY29tbWFuZCBsaW5lLgo+IAo+IFRoaXMgbWVhbnMgdGhhdCB0aG9zZSBmdW5jdGlv
-bnMgYXJlIG1vc3QgbGlrZWx5IGNhbGxlZCB3aXRoaW4gY3JpdGljYWwKPiBzZWN0aW9ucyBvZiB0
-aGUgZnVudGlvbiB0cmFjZXIsIGFuZCBtdXN0IG5vdCBiZSB0cmFjZWQuCj4gCj4gSW4gbmV3ZXIg
-a2VuZWxzIF9wYXJhdmlydF9ub3AoKSBpcyBkZWZpbmVkIHdpdGhpbiBnY2MgYXNtKCksIGFuZCBp
-cyBubwo+IGxvbmdlciBhbiBpc3N1ZS4gQnV0IGJvdGggX3BhcmF2aXJ0X2lkZW50X3szMiw2NH0o
-KSBjYXVzZXMgdGhlIGZvbGxvd2luZwo+IHNwbGF0IHdoZW4gdGhleSBhcmUgdHJhY2VkOgo+IAo+
-ICBtbS9wZ3RhYmxlLWdlbmVyaWMuYzozMzogYmFkIHBtZCBmZmZmODgwMGQyNDM1MTUwKDAwMDAw
-MDAwMDFkMDAwNTQpCj4gIG1tL3BndGFibGUtZ2VuZXJpYy5jOjMzOiBiYWQgcG1kIGZmZmY4ODAw
-ZDM2MjQxOTAoMDAwMDAwMDAwMWQwMDA3MCkKPiAgbW0vcGd0YWJsZS1nZW5lcmljLmM6MzM6IGJh
-ZCBwbWQgZmZmZjg4MDBkMzZhNTExMCgwMDAwMDAwMDAxZDAwMDU0KQo+ICBtbS9wZ3RhYmxlLWdl
-bmVyaWMuYzozMzogYmFkIHBtZCBmZmZmODgwMTE4ZWIxNDUwKDAwMDAwMDAwMDFkMDAwNTQpCj4g
-IE5NSSB3YXRjaGRvZzogQlVHOiBzb2Z0IGxvY2t1cCAtIENQVSMyIHN0dWNrIGZvciAyMnMhIFtz
-eXN0ZW1kLWpvdXJuYWw6NDY5XQo+ICBNb2R1bGVzIGxpbmtlZCBpbjogZTEwMDBlCj4gIENQVTog
-MiBQSUQ6IDQ2OSBDb21tOiBzeXN0ZW1kLWpvdXJuYWwgTm90IHRhaW50ZWQgNC42LjAtcmM0LXRl
-c3QrICM1MTMKPiAgSGFyZHdhcmUgbmFtZTogSGV3bGV0dC1QYWNrYXJkIEhQIENvbXBhcSBQcm8g
-NjMwMCBTRkYvMzM5QSwgQklPUyBLMDEgdjAyLjA1IDA1LzA3LzIwMTIKPiAgdGFzazogZmZmZjg4
-MDExOGY3NDBjMCB0aTogZmZmZjg4MDBkNGFlYzAwMCB0YXNrLnRpOiBmZmZmODgwMGQ0YWVjMDAw
-Cj4gIFJJUDogMDAxMDpbPGZmZmZmZmZmODExMzQxNDg+XSAgWzxmZmZmZmZmZjgxMTM0MTQ4Pl0g
-cXVldWVkX3NwaW5fbG9ja19zbG93cGF0aCsweDExOC8weDFhMAo+ICBSU1A6IDAwMTg6ZmZmZjg4
-MDBkNGFlZmI5MCAgRUZMQUdTOiAwMDAwMDI0Ngo+ICBSQVg6IDAwMDAwMDAwMDAwMDAwMDAgUkJY
-OiAwMDAwMDAwMDAwMDAwMDAwIFJDWDogZmZmZjg4MDExZWIxNmQ0MAo+ICBSRFg6IGZmZmZmZmZm
-ODI0ODU3NjAgUlNJOiAwMDAwMDAwMDFmMjg4ODIwIFJESTogZmZmZmVhMDAwMDAwODAzMAo+ICBS
-QlA6IGZmZmY4ODAwZDRhZWZiOTAgUjA4OiAwMDAwMDAwMDAwMGMwMDAwIFIwOTogMDAwMDAwMDAw
-MDAwMDAwMAo+ICBSMTA6IGZmZmZmZmZmODIxYzhlMGUgUjExOiAwMDAwMDAwMDAwMDAwMDAwIFIx
-MjogZmZmZjg4MDAwMDIwMGZiOAo+ICBSMTM6IDAwMDA3ZjdhNGUzZjcwMDAgUjE0OiBmZmZmZWEw
-MDAzMDNmNjAwIFIxNTogZmZmZjg4MDBkNGI1NjJlMAo+ICBGUzogIDAwMDA3ZjdhNGUzZDc4NDAo
-MDAwMCkgR1M6ZmZmZjg4MDExZWIwMDAwMCgwMDAwKSBrbmxHUzowMDAwMDAwMDAwMDAwMDAwCj4g
-IENTOiAgMDAxMCBEUzogMDAwMCBFUzogMDAwMCBDUjA6IDAwMDAwMDAwODAwNTAwMzMKPiAgQ1Iy
-OiAwMDAwN2Y3YTRlM2Y3MDAwIENSMzogMDAwMDAwMDBkM2U3MTAwMCBDUjQ6IDAwMDAwMDAwMDAx
-NDA2ZTAKPiAgU3RhY2s6Cj4gICBmZmZmODgwMGQ0YWVmYmEwIGZmZmZmZmZmODFjYzVmNDcgZmZm
-Zjg4MDBkNGFlZmM2MCBmZmZmZmZmZjgxMjJjMTViCj4gICBmZmZmODgwMGQ0YWVmY2IwIGZmZmY4
-ODAwZDRhZWZiZDAgZmZmZmZmZmY4MTFiZjRjYiAwMDAwMDAwMDAwMDAwMDAyCj4gICAwMDAwMDAw
-MDAwMDAwMDE1IGZmZmY4ODAwZDIyNzYwNTAgODAwMDAwMDBjMGZkODg2NyBmZmZmZWEwMDAwMDA4
-MDMwCj4gIENhbGwgVHJhY2U6Cj4gICBbPGZmZmZmZmZmODFjYzVmNDc+XSBfcmF3X3NwaW5fbG9j
-aysweDI3LzB4MzAKPiAgIFs8ZmZmZmZmZmY4MTIyYzE1Yj5dIGhhbmRsZV9wdGVfZmF1bHQrMHgx
-M2RiLzB4MTZiMAo+ICAgWzxmZmZmZmZmZjgxMWJmNGNiPl0gPyBmdW5jdGlvbl90cmFjZV9jYWxs
-KzB4MTViLzB4MTgwCj4gICBbPGZmZmZmZmZmODEyMmFkODU+XSA/IGhhbmRsZV9wdGVfZmF1bHQr
-MHg1LzB4MTZiMAo+ICAgWzxmZmZmZmZmZjgxMjJlMzIyPl0gaGFuZGxlX21tX2ZhdWx0KzB4MzEy
-LzB4NjcwCj4gICBbPGZmZmZmZmZmODEyMzEwNjg+XSA/IGZpbmRfdm1hKzB4NjgvMHg3MAo+ICAg
-WzxmZmZmZmZmZjgxMGFiNzQxPl0gX19kb19wYWdlX2ZhdWx0KzB4MWIxLzB4NGUwCj4gICBbPGZm
-ZmZmZmZmODEwYWJhOTI+XSBkb19wYWdlX2ZhdWx0KzB4MjIvMHgzMAo+ICAgWzxmZmZmZmZmZjgx
-Y2M3ZjY4Pl0gcGFnZV9mYXVsdCsweDI4LzB4MzAKPiAgIFs8ZmZmZmZmZmY4MTU3NGFmNT5dID8g
-Y29weV91c2VyX2VuaGFuY2VkX2Zhc3Rfc3RyaW5nKzB4NS8weDEwCj4gICBbPGZmZmZmZmZmODEy
-OWRlYzU+XSA/IHNlcV9yZWFkKzB4MzA1LzB4MzcwCj4gICBbPGZmZmZmZmZmODEyNzk2Njg+XSBf
-X3Zmc19yZWFkKzB4MjgvMHhlMAo+ICAgWzxmZmZmZmZmZjgxMjc5NjQ1Pl0gPyBfX3Zmc19yZWFk
-KzB4NS8weGUwCj4gICBbPGZmZmZmZmZmODEyNzk2NDU+XSA/IF9fdmZzX3JlYWQrMHg1LzB4ZTAK
-PiAgIFs8ZmZmZmZmZmY4MTI3OWRmNj5dIHZmc19yZWFkKzB4ODYvMHgxMzAKPiAgIFs8ZmZmZmZm
-ZmY4MTI3YjIxNj5dIFN5U19yZWFkKzB4NDYvMHhhMAo+ICAgWzxmZmZmZmZmZjgxY2M2MTc2Pl0g
-ZW50cnlfU1lTQ0FMTF82NF9mYXN0cGF0aCsweDFlLzB4YTgKPiAgQ29kZTogMTIgNDggYzEgZWEg
-MGMgODMgZTggMDEgODMgZTIgMzAgNDggOTggNDggODEgYzIgNDAgNmQgMDEgMDAgNDggMDMgMTQK
-PiAgYzUgODAgNmEgNWQgODIgNDggODkgMGEgOGIgNDEgMDggODUgYzAgNzUgMDkgZjMgOTAgOGIg
-NDEgMDggPDg1PiBjMCA3NCBmNwo+ICA0YyA4YiAwOSA0ZCA4NSBjOSA3NCAwOCA0MSAwZiAxOCAw
-OSBlYiAwMiBmMyA5MCA4Ygo+IAo+IFJlcG9ydGVkLWJ5OiDFgXVrYXN6IERhbmlsdWsgPGx1a2Fz
-ei5kYW5pbHVrQGludGVsLmNvbT4KPiBTaWduZWQtb2ZmLWJ5OiBTdGV2ZW4gUm9zdGVkdCA8cm9z
-dGVkdEBnb29kbWlzLm9yZz4KPiAKPiBkaWZmIC0tZ2l0IGEvYXJjaC94ODYva2VybmVsL3BhcmF2
-aXJ0LmMgYi9hcmNoL3g4Ni9rZXJuZWwvcGFyYXZpcnQuYwo+IGluZGV4IGYwOGFjMjhiODEzNi4u
-Zjk3NWQyMjZiZTZlIDEwMDY0NAo+IC0tLSBhL2FyY2gveDg2L2tlcm5lbC9wYXJhdmlydC5jCj4g
-KysrIGIvYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0LmMKPiBAQCAtNTUsMTIgKzU1LDEyIEBAIGFz
-bSAoIi5wdXNoc2VjdGlvbiAuZW50cnkudGV4dCwgXCJheFwiXG4iCj4gICAgICAgIi5wb3BzZWN0
-aW9uIik7Cj4gIAo+ICAvKiBpZGVudGl0eSBmdW5jdGlvbiwgd2hpY2ggY2FuIGJlIGlubGluZWQg
-Ki8KPiAtdTMyIF9wYXJhdmlydF9pZGVudF8zMih1MzIgeCkKPiArdTMyIG5vdHJhY2UgX3BhcmF2
-aXJ0X2lkZW50XzMyKHUzMiB4KQo+ICB7Cj4gIAlyZXR1cm4geDsKPiAgfQo+ICAKPiAtdTY0IF9w
-YXJhdmlydF9pZGVudF82NCh1NjQgeCkKPiArdTY0IG5vdHJhY2UgX3BhcmF2aXJ0X2lkZW50XzY0
-KHU2NCB4KQo+ICB7Cj4gIAlyZXR1cm4geDsKPiAgfQoKX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
-YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
-b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+> Subject: Re: [PATCH v3 kernel 0/7] Extend virtio-balloon for fast (de)inflating
+> & fast live migration
+> 
+> On 08/07/2016 11:35 PM, Liang Li wrote:
+> > Dave Hansen suggested a new scheme to encode the data structure,
+> > because of additional complexity, it's not implemented in v3.
+> 
+> FWIW, I don't think it takes any additional complexity here, at least in the
+> guest implementation side.  The thing I suggested would just mean explicitly
+> calling out that there was a single bitmap instead of implying it in the ABI.
+> 
+> Do you think the scheme I suggested is the way to go?
+
+Yes, I think so.  And I will do that in the later version. In this V3, I just want to solve the 
+issue caused by a large page bitmap in v2.
+
+Liang
