@@ -1,7 +1,7 @@
 From: Fam Zheng <famz@redhat.com>
-Subject: [PATCH 13/15] aoeblk: Pass attribute group to device_add_disk
-Date: Wed, 17 Aug 2016 15:15:13 +0800
-Message-ID: <1471418115-3654-14-git-send-email-famz__35359.9534174011$1471418280$gmane$org@redhat.com>
+Subject: [PATCH 14/15] axonram: Pass attribute group to device_add_disk
+Date: Wed, 17 Aug 2016 15:15:14 +0800
+Message-ID: <1471418115-3654-15-git-send-email-famz__39985.5380099781$1471418296$gmane$org@redhat.com>
 References: <1471418115-3654-1-git-send-email-famz@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -28,46 +28,60 @@ example udev checks availability of certain attributes and initializes
 /dev entries conditionally.
 
 device_add_disk can handle adding attribute group better, so use it.
+Meanwhile, handle the error of device_add_disk.
 
 Signed-off-by: Fam Zheng <famz@redhat.com>
 ---
- drivers/block/aoe/aoeblk.c | 10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ arch/powerpc/sysdev/axonram.c | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/block/aoe/aoeblk.c b/drivers/block/aoe/aoeblk.c
-index 4edfff2..d1b7541 100644
---- a/drivers/block/aoe/aoeblk.c
-+++ b/drivers/block/aoe/aoeblk.c
-@@ -177,7 +177,7 @@ static struct attribute *aoe_attrs[] = {
- 	NULL,
+diff --git a/arch/powerpc/sysdev/axonram.c b/arch/powerpc/sysdev/axonram.c
+index 6aef6c2..23109e3 100644
+--- a/arch/powerpc/sysdev/axonram.c
++++ b/arch/powerpc/sysdev/axonram.c
+@@ -158,6 +158,15 @@ static const struct block_device_operations axon_ram_devops = {
+ 	.direct_access	= axon_ram_direct_access
  };
  
--static const struct attribute_group attr_group = {
-+static struct attribute_group attr_group = {
- 	.attrs = aoe_attrs,
- };
++static struct attribute *axon_attrs[] = {
++	&dev_attr_ecc.attr,
++	NULL,
++};
++
++static struct attribute_group axon_attr_group = {
++	.attrs = axon_attrs,
++};
++
+ /**
+  * axon_ram_probe - probe() method for platform driver
+  * @device: see platform_driver method
+@@ -237,7 +246,12 @@ static int axon_ram_probe(struct platform_device *device)
+ 	set_capacity(bank->disk, bank->size >> AXON_RAM_SECTOR_SHIFT);
+ 	blk_queue_make_request(bank->disk->queue, axon_ram_make_request);
+ 	blk_queue_logical_block_size(bank->disk->queue, AXON_RAM_SECTOR_SIZE);
+-	device_add_disk(&device->dev, bank->disk, NULL);
++	rc = device_add_disk(&device->dev, bank->disk, &axon_attr_group);
++	if (rc != 0) {
++		dev_err(&device->dev, "Cannot create disk\n");
++		rc = -EFAULT;
++		goto failed;
++	}
  
-@@ -219,11 +219,6 @@ aoedisk_rm_debugfs(struct aoedev *d)
- 	d->debugfs = NULL;
- }
+ 	bank->irq_id = irq_of_parse_and_map(device->dev.of_node, 0);
+ 	if (bank->irq_id == NO_IRQ) {
+@@ -255,13 +269,6 @@ static int axon_ram_probe(struct platform_device *device)
+ 		goto failed;
+ 	}
  
--static int
--aoedisk_add_sysfs(struct aoedev *d)
--{
--	return sysfs_create_group(&disk_to_dev(d->gd)->kobj, &attr_group);
--}
- void
- aoedisk_rm_sysfs(struct aoedev *d)
- {
-@@ -417,8 +412,7 @@ aoeblk_gdalloc(void *vp)
+-	rc = device_create_file(&device->dev, &dev_attr_ecc);
+-	if (rc != 0) {
+-		dev_err(&device->dev, "Cannot create sysfs file\n");
+-		rc = -EFAULT;
+-		goto failed;
+-	}
+-
+ 	azfs_minor += bank->disk->minors;
  
- 	spin_unlock_irqrestore(&d->lock, flags);
- 
--	device_add_disk(NULL, gd, NULL);
--	aoedisk_add_sysfs(d);
-+	device_add_disk(NULL, gd, &attr_group);
- 	aoedisk_add_debugfs(d);
- 
- 	spin_lock_irqsave(&d->lock, flags);
+ 	return 0;
 -- 
 2.7.4
