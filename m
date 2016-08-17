@@ -1,12 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] vhost: fixes for 4.8
-Date: Tue, 16 Aug 2016 17:37:04 +0300
-Message-ID: <20160816173704-mutt-send-email-mst@kernel.org>
+From: Fam Zheng <famz@redhat.com>
+Subject: [PATCH 00/15] Fix issue with KOBJ_ADD uevent versus disk attributes
+Date: Wed, 17 Aug 2016 15:15:00 +0800
+Message-ID: <1471418115-3654-1-git-send-email-famz__37862.2193275534$1471418132$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,45 +15,110 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, ggarcia@abra.uab.cat
+To: linux-kernel@vger.kernel.org
+Cc: Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, Michael Ellerman <mpe@ellerman.id.au>, virtualization@lists.linux-foundation.org, linux-nvme@lists.infradead.org, "Ed L. Cashin" <ed.cashin@acm.org>, Keith Busch <keith.busch@intel.com>, Minchan Kim <minchan@kernel.org>, Paul Mackerras <paulus@samba.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-mtd@lists.infradead.org, Brian Norris <computersforpeace@gmail.com>, linuxppc-dev@lists.ozlabs.org, David Woodhouse <dwmw2@infradead.org>, Nitin Gupta <ngupta@vflare.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 3b2fbb3f06efe5bd2dfdce2a1db703e23c1a78af:
+This is an attempt to fix the issue that some disks' sysfs attributes are not
+ready at the time its KOBJ_ADD event is sent.
 
-  virtio/s390: deprecate old transport (2016-08-09 13:42:41 +0300)
+The symptom is during device hotplug, udev may fail to find certain attributes,
+such as serial or wwn, of the disk. As a result the /dev/disk/by-id entries are
+not created.
 
-are available in the git repository at:
+The cause is device_add_disk emits the uevent before returning, and the callers
+have to create sysfs entries after that.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+The fix here is to pass attr_groups from callers to device_add_disk, so it can
+be added before KOBJ_ADD.
 
-for you to fetch changes up to 6be3ffaa0e15c64f560904b025f5c50bef5886f9:
+Also add basic error handling around device_add_disk code, (or add FIXME
+comment where work is left).
 
-  tools/virtio: add dma stubs (2016-08-15 05:05:51 +0300)
+Fam Zheng (15):
+  disk: Drop add_disk in favor of device_add_disk
+  genhd: Return error from register_disk()
+  genhd: Return error from blk_register_region
+  block: Return error from blk_integrity_add
+  genhd: Return error from disk_{add,alloc}_events
+  genhd: Add return code to device_add_disk
+  genhd: Add attribute group parameter to device_add_disk
+  nvme: Pass attribute group to device_add_disk
+  virtio-blk: Pass attribute group to device_add_disk
+  mtd: Pass attribute group to device_add_disk
+  zram: Pass attribute group to device_add_disk
+  mtip: Pass attribute group to device_add_disk
+  aoeblk: Pass attribute group to device_add_disk
+  axonram: Pass attribute group to device_add_disk
+  block: Add FIXME comment to handle device_add_disk error
 
-----------------------------------------------------------------
-virtio/vhost: fixes for 4.8
+ arch/m68k/emu/nfblock.c             |   3 +-
+ arch/powerpc/sysdev/axonram.c       |  23 +++++---
+ arch/um/drivers/ubd_kern.c          |   3 +-
+ arch/xtensa/platforms/iss/simdisk.c |   3 +-
+ block/blk-integrity.c               |  12 ++--
+ block/genhd.c                       | 112 +++++++++++++++++++++++++-----------
+ drivers/block/DAC960.c              |   3 +-
+ drivers/block/amiflop.c             |   3 +-
+ drivers/block/aoe/aoeblk.c          |  13 ++---
+ drivers/block/ataflop.c             |   3 +-
+ drivers/block/brd.c                 |   6 +-
+ drivers/block/cciss.c               |   3 +-
+ drivers/block/drbd/drbd_main.c      |   3 +-
+ drivers/block/floppy.c              |   5 +-
+ drivers/block/hd.c                  |   3 +-
+ drivers/block/loop.c                |   3 +-
+ drivers/block/mg_disk.c             |   3 +-
+ drivers/block/mtip32xx/mtip32xx.c   |  39 +++----------
+ drivers/block/nbd.c                 |   3 +-
+ drivers/block/null_blk.c            |   3 +-
+ drivers/block/osdblk.c              |   3 +-
+ drivers/block/paride/pcd.c          |   3 +-
+ drivers/block/paride/pd.c           |   3 +-
+ drivers/block/paride/pf.c           |   3 +-
+ drivers/block/pktcdvd.c             |   3 +-
+ drivers/block/ps3disk.c             |   3 +-
+ drivers/block/ps3vram.c             |   3 +-
+ drivers/block/rbd.c                 |   3 +-
+ drivers/block/rsxx/dev.c            |   3 +-
+ drivers/block/skd_main.c            |   5 +-
+ drivers/block/sunvdc.c              |   3 +-
+ drivers/block/swim.c                |   3 +-
+ drivers/block/swim3.c               |   3 +-
+ drivers/block/sx8.c                 |   3 +-
+ drivers/block/umem.c                |   3 +-
+ drivers/block/virtio_blk.c          |  38 ++++++++----
+ drivers/block/xen-blkfront.c        |   3 +-
+ drivers/block/xsysace.c             |   3 +-
+ drivers/block/z2ram.c               |   3 +-
+ drivers/block/zram/zram_drv.c       |   7 +--
+ drivers/cdrom/gdrom.c               |   3 +-
+ drivers/ide/ide-cd.c                |   3 +-
+ drivers/ide/ide-gd.c                |   3 +-
+ drivers/lightnvm/gennvm.c           |   3 +-
+ drivers/md/bcache/super.c           |   6 +-
+ drivers/md/dm.c                     |   3 +-
+ drivers/md/md.c                     |   5 +-
+ drivers/memstick/core/ms_block.c    |   3 +-
+ drivers/memstick/core/mspro_block.c |   3 +-
+ drivers/mmc/card/block.c            |   3 +-
+ drivers/mtd/mtd_blkdevs.c           |   9 +--
+ drivers/mtd/ubi/block.c             |   3 +-
+ drivers/nvdimm/blk.c                |   3 +-
+ drivers/nvdimm/btt.c                |   3 +-
+ drivers/nvdimm/pmem.c               |   3 +-
+ drivers/nvme/host/core.c            |   7 +--
+ drivers/s390/block/dasd_genhd.c     |   3 +-
+ drivers/s390/block/dcssblk.c        |   3 +-
+ drivers/s390/block/scm_blk.c        |   3 +-
+ drivers/s390/block/xpram.c          |   3 +-
+ drivers/sbus/char/jsflash.c         |   3 +-
+ drivers/scsi/sd.c                   |   3 +-
+ drivers/scsi/sr.c                   |   5 +-
+ drivers/scsi/st.c                   |   4 +-
+ fs/block_dev.c                      |   2 +-
+ include/linux/genhd.h               |  21 +++----
+ 66 files changed, 277 insertions(+), 186 deletions(-)
 
-- Test fixes.
-- A vsock fix.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Gerard Garcia (1):
-      vhost/vsock: drop space available check for TX vq
-
-Michael S. Tsirkin (3):
-      ringtest: test build fix
-      vhost/test: fix after swiotlb changes
-      tools/virtio: add dma stubs
-
- tools/virtio/linux/dma-mapping.h   | 16 ++++++++++++++++
- tools/virtio/linux/kernel.h        | 14 ++++++++++++++
- tools/virtio/linux/slab.h          |  4 ++++
- tools/virtio/linux/virtio.h        |  6 +++++-
- tools/virtio/linux/virtio_config.h | 13 +++++++++++++
- drivers/vhost/test.c               |  8 ++++----
- net/vmw_vsock/virtio_transport.c   | 10 +++-------
- tools/virtio/ringtest/ptr_ring.c   |  1 +
- 8 files changed, 60 insertions(+), 12 deletions(-)
+-- 
+2.7.4
