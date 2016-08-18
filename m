@@ -1,18 +1,15 @@
-From: Fam Zheng <famz@redhat.com>
-Subject: Re: [PATCH 06/15] genhd: Add return code to device_add_disk
-Date: Wed, 17 Aug 2016 17:14:22 +0800
-Message-ID: <20160817091422.GE19326__26810.4077586488$1471425698$gmane$org@al.usersys.redhat.com>
-References: <1471418115-3654-1-git-send-email-famz@redhat.com>
-	<1471418115-3654-7-git-send-email-famz@redhat.com>
-	<20160817104914.37087cb3.cornelia.huck@de.ibm.com>
-	<20160817084823.GB19326@al.usersys.redhat.com>
-	<20160817110645.45370f57.cornelia.huck@de.ibm.com>
+From: "Li, Liang Z" <liang.z.li@intel.com>
+Subject: RE: [PATCH v3 kernel 0/7] Extend virtio-balloon for fast
+	(de)inflating & fast live migration
+Date: Thu, 18 Aug 2016 01:05:53 +0000
+Message-ID: <F2CBF3009FA73547804AE4C663CAB28E04220EDA__49965.4115330943$1471482373$gmane$org@shsmsx102.ccr.corp.intel.com>
+References: <1470638134-24149-1-git-send-email-liang.z.li@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160817110645.45370f57.cornelia.huck@de.ibm.com>
+In-Reply-To: <1470638134-24149-1-git-send-email-liang.z.li@intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,116 +19,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: Jens Axboe <axboe@kernel.dk>, Keith Busch <keith.busch@intel.com>, Brian Norris <computersforpeace@gmail.com>, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, Michael Ellerman <mpe@ellerman.id.au>, linux-kernel@vger.kernel.org, linux-nvme@lists.infradead.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, Minchan Kim <minchan@kernel.org>, Paul Mackerras <paulus@samba.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-mtd@lists.infradead.org, "Ed L. Cashin" <ed.cashin@acm.org>, linuxppc-dev@lists.ozlabs.org, David Woodhouse <dwmw2@infradead.org>, Nitin Gupta <ngupta@vflare.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Hansen, Dave" <dave.hansen@intel.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 08/17 11:06, Cornelia Huck wrote:
-> On Wed, 17 Aug 2016 16:48:23 +0800
-> Fam Zheng <famz@redhat.com> wrote:
-> 
-> > On Wed, 08/17 10:49, Cornelia Huck wrote:
-> > > On Wed, 17 Aug 2016 15:15:06 +0800
-> > > Fam Zheng <famz@redhat.com> wrote:
-> > > 
-> > > > @@ -613,10 +614,8 @@ void device_add_disk(struct device *parent, struct gendisk *disk)
-> > > >  	disk->flags |= GENHD_FL_UP;
-> > > > 
-> > > >  	retval = blk_alloc_devt(&disk->part0, &devt);
-> > > > -	if (retval) {
-> > > > -		WARN_ON(1);
-> > > > -		return;
-> > > > -	}
-> > > > +	if (retval)
-> > > > +		goto fail;
-> > > >  	disk_to_dev(disk)->devt = devt;
-> > > > 
-> > > >  	/* ->major and ->first_minor aren't supposed to be
-> > > > @@ -625,16 +624,26 @@ void device_add_disk(struct device *parent, struct gendisk *disk)
-> > > >  	disk->major = MAJOR(devt);
-> > > >  	disk->first_minor = MINOR(devt);
-> > > > 
-> > > > -	disk_alloc_events(disk);
-> > > > +	retval = disk_alloc_events(disk);
-> > > > +	if (retval)
-> > > > +		goto fail;
-> > > > 
-> > > >  	/* Register BDI before referencing it from bdev */
-> > > >  	bdi = &disk->queue->backing_dev_info;
-> > > > -	bdi_register_owner(bdi, disk_to_dev(disk));
-> > > > +	retval = bdi_register_owner(bdi, disk_to_dev(disk));
-> > > > +	if (retval)
-> > > > +		goto fail;
-> > > > 
-> > > > -	blk_register_region(disk_devt(disk), disk->minors, NULL,
-> > > > -			    exact_match, exact_lock, disk);
-> > > > -	register_disk(parent, disk);
-> > > > -	blk_register_queue(disk);
-> > > > +	retval = blk_register_region(disk_devt(disk), disk->minors, NULL,
-> > > > +				     exact_match, exact_lock, disk);
-> > > > +	if (retval)
-> > > > +		goto fail;
-> > > > +	retval = register_disk(parent, disk);
-> > > > +	if (retval)
-> > > > +		goto fail;
-> > > > +	retval = blk_register_queue(disk);
-> > > > +	if (retval)
-> > > > +		goto fail;
-> > > > 
-> > > >  	/*
-> > > >  	 * Take an extra ref on queue which will be put on disk_release()
-> > > > @@ -644,10 +653,20 @@ void device_add_disk(struct device *parent, struct gendisk *disk)
-> > > > 
-> > > >  	retval = sysfs_create_link(&disk_to_dev(disk)->kobj, &bdi->dev->kobj,
-> > > >  				   "bdi");
-> > > > +	if (retval)
-> > > > +		goto fail;
-> > > > +
-> > > > +	retval = disk_add_events(disk);
-> > > > +	if (retval)
-> > > > +		goto fail;
-> > > > +
-> > > > +	retval = blk_integrity_add(disk);
-> > > > +	if (retval)
-> > > > +		goto fail;
-> > > > +	return 0;
-> > > > +fail:
-> > > >  	WARN_ON(retval);
-> > > > -
-> > > > -	disk_add_events(disk);
-> > > > -	blk_integrity_add(disk);
-> > > > +	return retval;
-> > > >  }
-> > > 
-> > > Noticed this when trying to figure out whether the error handling in
-> > > virtio_blk was correct:
-> > > 
-> > > Shouldn't you try to cleanup/rewind so that any structures are in a
-> > > sane state after failure? The caller doesn't know where device_add_disk
-> > > failed, and calling del_gendisk unconditionally like virtio_blk does is
-> > > probably not the right thing to do (at the very least, I don't think
-> > > unregistering a device that has not been registered is likely to work).
-> > > 
-> > 
-> > Yes, I think all callers need to be reviewed before device_add_disk do the
-> > clean up on error. For this patchset I wanted to keep the change small.
-> 
-> But do the callers even have a chance to do this correctly right now?
-> They will either clean up too much, or too little. ('Too little' is
-> probably the more common case, given that you just added error
-> propagation...)
+Hi Michael,
 
-Right, which is pre-exising.
+Could you help to review this version when you have time? 
 
+Thanks!
+Liang
+
+> -----Original Message-----
+> From: Li, Liang Z
+> Sent: Monday, August 08, 2016 2:35 PM
+> To: linux-kernel@vger.kernel.org
+> Cc: virtualization@lists.linux-foundation.org; linux-mm@kvack.org; virtio-
+> dev@lists.oasis-open.org; kvm@vger.kernel.org; qemu-devel@nongnu.org;
+> quintela@redhat.com; dgilbert@redhat.com; Hansen, Dave; Li, Liang Z
+> Subject: [PATCH v3 kernel 0/7] Extend virtio-balloon for fast (de)inflating &
+> fast live migration
 > 
-> Can you make del_gendisk handle devices partially setup via
-> device_add_disk in all cases? Then you could mandate pairing
-> device_add_disk with del_gendisk in all cases, error or not, and you
-> should have a better chance on avoiding introducing new errors.
+> This patch set contains two parts of changes to the virtio-balloon.
 > 
-
-Of course, the plan is to write patches on top. I'm not cleaning up anything
-here because I'm concerned callers may double free (and I didn't look hard into
-that).
-
-Fam
+> One is the change for speeding up the inflating & deflating process, the main
+> idea of this optimization is to use bitmap to send the page information to
+> host instead of the PFNs, to reduce the overhead of virtio data transmission,
+> address translation and madvise(). This can help to improve the performance
+> by about 85%.
+> 
+> Another change is for speeding up live migration. By skipping process guest's
+> free pages in the first round of data copy, to reduce needless data processing,
+> this can help to save quite a lot of CPU cycles and network bandwidth. We
+> put guest's free page information in bitmap and send it to host with the virt
+> queue of virtio-balloon. For an idle 8GB guest, this can help to shorten the
+> total live migration time from 2Sec to about 500ms in the 10Gbps network
+> environment.
+> 
+> Dave Hansen suggested a new scheme to encode the data structure,
+> because of additional complexity, it's not implemented in v3.
+> 
+> Changes from v2 to v3:
+>     * Change the name of 'free page' to 'unused page'.
+>     * Use the scatter & gather bitmap instead of a 1MB page bitmap.
+>     * Fix overwriting the page bitmap after kicking.
+>     * Some of MST's comments for v2.
+> 
+> Changes from v1 to v2:
+>     * Abandon the patch for dropping page cache.
+>     * Put some structures to uapi head file.
+>     * Use a new way to determine the page bitmap size.
+>     * Use a unified way to send the free page information with the bitmap
+>     * Address the issues referred in MST's comments
+> 
+> 
+> Liang Li (7):
+>   virtio-balloon: rework deflate to add page to a list
+>   virtio-balloon: define new feature bit and page bitmap head
+>   mm: add a function to get the max pfn
+>   virtio-balloon: speed up inflate/deflate process
+>   mm: add the related functions to get unused page
+>   virtio-balloon: define feature bit and head for misc virt queue
+>   virtio-balloon: tell host vm's unused page info
+> 
+>  drivers/virtio/virtio_balloon.c     | 390
+> ++++++++++++++++++++++++++++++++----
+>  include/linux/mm.h                  |   3 +
+>  include/uapi/linux/virtio_balloon.h |  41 ++++
+>  mm/page_alloc.c                     |  94 +++++++++
+>  4 files changed, 485 insertions(+), 43 deletions(-)
+> 
+> --
+> 1.8.3.1
