@@ -1,15 +1,10 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH] virtio-gpu: Use memdup_user() rather than duplicating
-	its implementation
-Date: Fri, 19 Aug 2016 09:50:49 +0200
-Message-ID: <20160819075049.GV6232__12367.3022528694$1471593064$gmane$org@phenom.ffwll.local>
-References: <401e68fc-5515-7a7a-be2e-503dee676b34@users.sourceforge.net>
+From: "ML" <marialemos72@gmail.com>
+Subject: WorldCIST'17 - Call for Workshops Proposals; Deadline: September 5
+Date: Fri, 19 Aug 2016 15:42:24 +0100
+Message-ID: <20160819144230.2CD668D4@mail.linuxfoundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============2692346253142622761=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <401e68fc-5515-7a7a-be2e-503dee676b34@users.sourceforge.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,61 +14,108 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: SF Markus Elfring <elfring@users.sourceforge.net>
-Cc: David Airlie <airlied@linux.ie>, kernel-janitors@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Julia Lawall <julia.lawall@lip6.fr>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Aug 18, 2016 at 10:42:06PM +0200, SF Markus Elfring wrote:
-> From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Thu, 18 Aug 2016 22:35:14 +0200
-> 
-> Reuse existing functionality from memdup_user() instead of keeping
-> duplicate source code.
-> 
-> This issue was detected by using the Coccinelle software.
-> 
-> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+--===============2692346253142622761==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Applied to drm-misc.
--Daniel
+--
+-----
+---------
+WorldCIST'17 - 5th World Conference on Information Systems and Technol=
+ogies=20
+Porto Santo Island, Madeira, Portugal
+11th-13th of April 2017
+http://www.worldcist.org/
+-------------------------------------------
 
-> ---
->  drivers/gpu/drm/virtio/virtgpu_ioctl.c | 13 ++++---------
->  1 file changed, 4 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> index c046903..512e7cd 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> @@ -152,15 +152,10 @@ static int virtio_gpu_execbuffer(struct drm_device *dev,
->  	if (ret)
->  		goto out_free;
->  
-> -	buf = kmalloc(exbuf->size, GFP_KERNEL);
-> -	if (!buf) {
-> -		ret = -ENOMEM;
-> -		goto out_unresv;
-> -	}
-> -	if (copy_from_user(buf, (void __user *)(uintptr_t)exbuf->command,
-> -			   exbuf->size)) {
-> -		kfree(buf);
-> -		ret = -EFAULT;
-> +	buf = memdup_user((void __user *)(uintptr_t)exbuf->command,
-> +			  exbuf->size);
-> +	if (IS_ERR(buf)) {
-> +		ret = PTR_ERR(buf);
->  		goto out_unresv;
->  	}
->  	virtio_gpu_cmd_submit(vgdev, buf, exbuf->size,
-> -- 
-> 2.9.3
-> 
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
 
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+WORKSHOP FORMAT
+
+The Information Systems and Technologies research and industrial commu=
+nity is invited to submit proposals of Workshops for WorldCist'17 =96 =
+5th World Conference on Information Systems and Technologies to be hel=
+d at Porto Santo Island, Madeira, Portugal, 11th - 13th of April 2017:=
+ http://www.worldcist.org/
+
+Workshops should focus on a specific scientific subject on the scope o=
+f WorldCist'17 but not directly included on the main conference areas.=
+ Each workshop will be coordinated by an Organizing Committee composed=
+ of, at least, two researchers in the field, preferably from different=
+ institutions and different countries. The organizers should create an=
+ international Program Committee for the Workshop, with recognized res=
+earchers within the specific Workshop scientific area. Each workshop s=
+hould have at least 10 submissions and 5 accepted papers in order to b=
+e conducted at WorldCist'17.
+
+The selection of Workshops will be performed by WorldCist'17 Conferenc=
+e/Workshop Chairs. Workshops full and short papers will be published i=
+n the conference main proceedings in specific Workshop chapters publis=
+hed by Springer in a book of the AISC series. Proceedings will be subm=
+itted for indexation by ISI Thomson, SCOPUS, DBLP, EI-Compendex among =
+several other scientific databases. Extended versions of best selected=
+ papers will be published in journals indexed by ISI/SCI, SCOPUS and D=
+BLP. Detailed and up-to-date information may be found at WorldCist'17 =
+website: http://www.worldcist.org/
+
+WORKSHOP ORGANIZATION
+
+The Organizing Committee of each Workshop will be responsible for:
+-    Producing and distributing the Workshop Call for Papers (CFP);
+-    Coordinating the review and selection process for the papers subm=
+itted to the Workshop, as Workshop chairs (on the paper submission sys=
+tem to be installed);
+-    Delivering the final versions of the papers accepted for the Work=
+shop in accordance with the guidelines and deadlines defined by WorldC=
+ist'17 organizers;
+-    Coordinating and chairing the Workshop sessions at the conference.
+WorldCist'17 organizers reserve the right to cancel any Workshop if de=
+adlines are missed or if the number of registered attendees is too low=
+ to support the costs associated with the Workshop.
+
+PROPOSAL CONTENT
+
+Workshop proposals should contain the following information:
+-    Workshop title;
+-    Brief description of the specific scientific scope of the Workshop;
+-    List of topics of interest (max 15 topics);
+-    Reasons the Workshop should be held within WorldCist=9217;
+-    Name, postal address, phone and email of all the members of the W=
+orkshop Organizing Committee;
+-    Proposal for the Workshop Program Committee (Names and affiliatio=
+ns).
+
+Proposals should be submitted electronically by email to worldcist at =
+gmail.com (cc: lpreis at dsi.uminho.pt), in PDF, (in English), by July=
+ 31, 2016.
+
+IMPORTANT DATES
+
+-    Deadline for Workshop proposals: September 5, 2016
+-    Notification of Workshop acceptance: September 11, 2016
+-    Deadline for paper submission: November 27, 2016
+-    Notification of paper acceptance: December 25, 2016
+-    Deadline for final versions and conference registration: January =
+8, 2017
+-    Conference dates: April 11-13, 2017
+
+
+WorldCIST'17
+http://www.worldcist.org/
+
+
+
+
+--===============2692346253142622761==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============2692346253142622761==--
