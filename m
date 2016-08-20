@@ -1,9 +1,10 @@
-From: "ML" <marialemos72@gmail.com>
-Subject: WorldCIST'17 - Call for Workshops Proposals; Deadline: September 5
-Date: Fri, 19 Aug 2016 15:42:24 +0100
-Message-ID: <20160819144230.2CD668D4@mail.linuxfoundation.org>
+From: Namhyung Kim <namhyung@kernel.org>
+Subject: [RFC/PATCHSET 0/3] virtio: Implement virtio pstore device (v3)
+Date: Sat, 20 Aug 2016 17:07:41 +0900
+Message-ID: <20160820080744.10344-1-namhyung@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2692346253142622761=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,108 +15,104 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+Cc: Tony Luck <tony.luck@intel.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Kees Cook <keescook@chromium.org>, "Michael S. Tsirkin" <mst@redhat.com>, Anton Vorontsov <anton@enomsg.org>, Will Deacon <will.deacon@arm.com>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Minchan Kim <minchan@kernel.org>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, Paolo Bonzini <pbonzini@redhat.com>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============2692346253142622761==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
---
------
----------
-WorldCIST'17 - 5th World Conference on Information Systems and Technol=
-ogies=20
-Porto Santo Island, Madeira, Portugal
-11th-13th of April 2017
-http://www.worldcist.org/
--------------------------------------------
-
-
-WORKSHOP FORMAT
-
-The Information Systems and Technologies research and industrial commu=
-nity is invited to submit proposals of Workshops for WorldCist'17 =96 =
-5th World Conference on Information Systems and Technologies to be hel=
-d at Porto Santo Island, Madeira, Portugal, 11th - 13th of April 2017:=
- http://www.worldcist.org/
-
-Workshops should focus on a specific scientific subject on the scope o=
-f WorldCist'17 but not directly included on the main conference areas.=
- Each workshop will be coordinated by an Organizing Committee composed=
- of, at least, two researchers in the field, preferably from different=
- institutions and different countries. The organizers should create an=
- international Program Committee for the Workshop, with recognized res=
-earchers within the specific Workshop scientific area. Each workshop s=
-hould have at least 10 submissions and 5 accepted papers in order to b=
-e conducted at WorldCist'17.
-
-The selection of Workshops will be performed by WorldCist'17 Conferenc=
-e/Workshop Chairs. Workshops full and short papers will be published i=
-n the conference main proceedings in specific Workshop chapters publis=
-hed by Springer in a book of the AISC series. Proceedings will be subm=
-itted for indexation by ISI Thomson, SCOPUS, DBLP, EI-Compendex among =
-several other scientific databases. Extended versions of best selected=
- papers will be published in journals indexed by ISI/SCI, SCOPUS and D=
-BLP. Detailed and up-to-date information may be found at WorldCist'17 =
-website: http://www.worldcist.org/
-
-WORKSHOP ORGANIZATION
-
-The Organizing Committee of each Workshop will be responsible for:
--    Producing and distributing the Workshop Call for Papers (CFP);
--    Coordinating the review and selection process for the papers subm=
-itted to the Workshop, as Workshop chairs (on the paper submission sys=
-tem to be installed);
--    Delivering the final versions of the papers accepted for the Work=
-shop in accordance with the guidelines and deadlines defined by WorldC=
-ist'17 organizers;
--    Coordinating and chairing the Workshop sessions at the conference.
-WorldCist'17 organizers reserve the right to cancel any Workshop if de=
-adlines are missed or if the number of registered attendees is too low=
- to support the costs associated with the Workshop.
-
-PROPOSAL CONTENT
-
-Workshop proposals should contain the following information:
--    Workshop title;
--    Brief description of the specific scientific scope of the Workshop;
--    List of topics of interest (max 15 topics);
--    Reasons the Workshop should be held within WorldCist=9217;
--    Name, postal address, phone and email of all the members of the W=
-orkshop Organizing Committee;
--    Proposal for the Workshop Program Committee (Names and affiliatio=
-ns).
-
-Proposals should be submitted electronically by email to worldcist at =
-gmail.com (cc: lpreis at dsi.uminho.pt), in PDF, (in English), by July=
- 31, 2016.
-
-IMPORTANT DATES
-
--    Deadline for Workshop proposals: September 5, 2016
--    Notification of Workshop acceptance: September 11, 2016
--    Deadline for paper submission: November 27, 2016
--    Notification of paper acceptance: December 25, 2016
--    Deadline for final versions and conference registration: January =
-8, 2017
--    Conference dates: April 11-13, 2017
-
-
-WorldCIST'17
-http://www.worldcist.org/
-
-
-
-
---===============2692346253142622761==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2692346253142622761==--
+SGVsbG8sCgpUaGlzIGlzIGFub3RoZXIgaXRlcmF0aW9uIG9mIHRoZSB2aXJ0aW8tcHN0b3JlIHdv
+cmsuICBJbiB0aGlzIHBhdGNoc2V0CkkgYWRkcmVzc2VkIG1vc3Qgb2YgZmVlZGJhY2tzIGZyb20g
+cHJldmlvdXMgdmVyc2lvbiBhbmQgZHJvb3BlZCB0aGUKc3VwcG9ydCBmb3IgUFNUT1JFX1RZUEVf
+Q09OU09MRSBmb3Igc2ltcGxpY2l0eS4gIEl0J2xsIGJlIGFkZGVkIG9uY2UgdGhlIGJhc2ljIGlt
+cGxlbWVudGF0aW9uCgogKiBjaGFuZ2VzIGluIHYzKQogIC0gdXNlIFFJT0NoYW5uZWwgQVBJICAo
+U3RlZmFuLCBEYW5pZWwpCiAgLSBhZGQgYm91bmQgY2hlY2sgZm9yIG1hbGNpb3VzIGd1ZXN0cyAg
+KERhbmllbCkKICAtIGRyb3Agc3VwcG9ydCBQU1RPUkVfVFlQRV9DT05TT0xFIGZvciBub3cKICAt
+IHVwZGF0ZSBsaWNlbnNlIHRvIGFsbG93IEdQTCB2MiBvciBsYXRlciAgKE1pY2hhZWwpCiAgLSBs
+aW1pdCBudW1iZXIgb2YgcHN0b3JlIGZpbGVzIG9uIHFlbXUKCiAqIGNoYW5nZXMgaW4gdjIpCiAg
+LSB1cGRhdGUgVklSVElPX0lEX1BTVE9SRSB0byAyMiAgKENvcm5lbGlhLCBTdGVmYW4pCiAgLSBt
+YWtlIGJ1ZmZlciBzaXplIGNvbmZpZ3VyYWJsZSAgKENvcm5lbGlhKQogIC0gc3VwcG9ydCBQU1RP
+UkVfVFlQRV9DT05TT0xFICAoS2VlcykKICAtIHVzZSBzZXBhcmF0ZSB2aXJ0cXVldWVzIGZvciBy
+ZWFkIGFuZCB3cml0ZQogIC0gc3VwcG9ydCBjb25jdXJyZW50IGFzeW5jIHdyaXRlCiAgLSBtYW5h
+Z2UgcHN0b3JlIChmaWxlKSBpZCBpbiBkZXZpY2Ugc2lkZQogIC0gZml4IHZhcmlvdXMgbWlzdGFr
+ZXMgaW4gcWVtdSBkZXZpY2UgIChTdGVmYW4pCgpJdCBzdGFydGVkIGZyb20gdGhlIGZhY3QgdGhh
+dCBkdW1waW5nIGZ0cmFjZSBidWZmZXIgYXQga2VybmVsCm9vcHMvcGFuaWMgdGFrZXMgdG9vIG11
+Y2ggdGltZS4gIEFsdGhvdWdoIHRoZXJlJ3MgYSB3YXkgdG8gcmVkdWNlIHRoZQpzaXplIG9mIHRo
+ZSBvcmlnaW5hbCBkYXRhLCBzb21ldGltZXMgSSB3YW50IHRvIGhhdmUgdGhlIGluZm9ybWF0aW9u
+IGFzCm1hbnkgYXMgcG9zc2libGUuICBNYXliZSBrZXhlYy9rZHVtcCBjYW4gc29sdmUgdGhpcyBw
+cm9ibGVtIGJ1dCBpdApjb25zdW1lcyBzb21lIHBvcnRpb24gb2YgZ3Vlc3QgbWVtb3J5IHNvIEkn
+ZCBsaWtlIHRvIGF2b2lkIGl0LiAgQW5kIEkKa25vdyB0aGUgcWVtdSArIGNyYXNodG9vbCBjYW4g
+ZHVtcCBhbmQgYW5hbHl6ZSB0aGUgd2hvbGUgZ3Vlc3QgbWVtb3J5CmluY2x1ZGluZyB0aGUgZnRy
+YWNlIGJ1ZmZlciB3aXRob3V0IHdhc3RpbmcgZ3Vlc3QgbWVtb3J5LCBidXQgaXQgYWRkcwpvbmUg
+bW9yZSBsYXllciBhbmQgaGFzIHNvbWUgbGltaXRhdGlvbiBhcyBhbiBvdXQtb2YtdHJlZSB0b29s
+IGxpa2Ugbm90CmJlaW5nIGluIHN5bmMgd2l0aCB0aGUga2VybmVsIGNoYW5nZXMuCgpTbyBJIHRo
+aW5rIGl0J2QgYmUgZ3JlYXQgdXNpbmcgdGhlIHBzdG9yZSBpbnRlcmZhY2UgdG8gZHVtcCBndWVz
+dAprZXJuZWwgZGF0YSBvbiB0aGUgaG9zdC4gIE9uZSBjYW4gcmVhZCB0aGUgZGF0YSBvbiB0aGUg
+aG9zdCBkaXJlY3RseQpvciBvbiB0aGUgZ3Vlc3QgKGF0IHRoZSBuZXh0IGJvb3QpIHVzaW5nIHBz
+dG9yZSBmaWxlc3lzdGVtIGFzIHVzdWFsLgpXaGlsZSB0aGlzIHBhdGNoc2V0IG9ubHkgaW1wbGVt
+ZW50cyBkdW1waW5nIGtlcm5lbCBsb2cgYnVmZmVyLCBpdCBjYW4KYmUgZXh0ZW5kZWQgdG8gaGF2
+ZSBmdHJhY2UgYnVmZmVyIGFuZCBwcm9iYWJseSBzb21lIG1vcmUuLgoKVGhlIHBhdGNoIDAwMDEg
+aW1wbGVtZW50cyB2aXJ0aW8gcHN0b3JlIGRyaXZlci4gIEl0IGhhcyB0d28gdmlydCBxdWV1ZQpm
+b3IgKHN5bmMpIHJlYWQgYW5kIChhc3luYykgd3JpdGUsIHBzdG9yZSBidWZmZXIgYW5kIGlvIHJl
+cXVlc3QgYW5kCnJlc3BvbnNlIHN0cnVjdHVyZS4gIFRoZSB2aXJ0aW9fcHN0b3JlX3JlcSBzdHJ1
+Y3QgaXMgdG8gZ2l2ZQppbmZvcm1hdGlvbiBhYm91dCB0aGUgY3VycmVudCBwc3RvcmUgb3BlcmF0
+aW9uLiAgVGhlIHJlc3VsdCB3aWxsIGJlCndyaXR0ZW4gdG8gdGhlIHZpcnRpb19wc3RvcmVfcmVz
+IHN0cnVjdC4gIEZvciByZWFkIG9wZXJhdGlvbiBpdCBhbHNvCnVzZXMgdmlydGlvX3BzdG9yZV9m
+aWxlaW5mbyBzdHJ1Y3QuCgpUaGUgcGF0Y2ggMDAwMiBhbmQgMDAwMyBpbXBsZW1lbnQgdmlydGlv
+LXBzdG9yZSBsZWdhY3kgUENJIGRldmljZSBvbgpxZW11LWt2bSBhbmQga3ZtdG9vbCByZXNwZWN0
+aXZlbHkuICBJIHJlZmVyZW5jZWQgdmlydGlvLWJhbG9vbiBhbmQKdmlydGlvLXJuZyBpbXBsZW1l
+bnRhdGlvbnMgYW5kIEkgZG9uJ3Qga25vdyB3aGV0aGVyIGt2bXRvb2wgc3VwcG9ydHMKbW9kZXJu
+IHZpcnRpbyAxLjArIHNwZWMuICBPdGhlciB0cmFuc3BvcnRzIG1pZ2h0IGJlIHN1cHBvcnRlZCBs
+YXRlci4KCkZvciBleGFtcGxlLCB1c2luZyB2aXJ0aW8tcHN0b3JlIG9uIHFlbXUgbG9va3MgbGlr
+ZSBiZWxvdzoKCiAgJCBxZW11LXN5c3RlbS14ODZfNjQgLWVuYWJsZS1rdm0gLWRldmljZSB2aXJ0
+aW8tcHN0b3JlLGRpcmVjdG9yeT14eHgKCldoZW4gZ3Vlc3Qga2VybmVsIGdldHMgcGFuaWMgdGhl
+IGxvZyBtZXNzYWdlcyB3aWxsIGJlIHNhdmVkIHVuZGVyIHRoZQp4eHggZGlyZWN0b3J5LgoKICAk
+IGxzIHh4eAogIGRtZXNnLTEuZW5jLnogIGRtZXNnLTIuZW5jLnoKCkFzIHlvdSBjYW4gc2VlIHRo
+ZSBwc3RvcmUgc3Vic3lzdGVtIGNvbXByZXNzZXMgdGhlIGxvZyBkYXRhIHVzaW5nIHpsaWIKKG5v
+dyBzdXBwb3J0cyBsem8gYW5kIGx6NCB0b28pLiAgVGhlIGRhdGEgY2FuIGJlIGV4dHJhY3RlZCB3
+aXRoIHRoZQpmb2xsb3dpbmcgY29tbWFuZDoKCiAgJCBjYXQgeHh4L2RtZXNnLTEuZW5jLnogfCBc
+CiAgPiBweXRob24gLWMgJ2ltcG9ydCBzeXMsIHpsaWI7IHByaW50KHpsaWIuZGVjb21wcmVzcyhz
+eXMuc3RkaW4ucmVhZCgpKSknCiAgT29wcyMxIFBhcnQxCiAgPDU+WyAgICAwLjAwMDAwMF0gTGlu
+dXggdmVyc2lvbiA0LjYuMGt2bSsgKG5hbWh5dW5nQGRhbmphZSkgKGdjYyB2ZXJzaW9uIDUuMy4w
+IChHQ0MpICkgIzE0NSBTTVAgTW9uIEp1bCAxOCAxMDoyMjo0NSBLU1QgMjAxNgogIDw2PlsgICAg
+MC4wMDAwMDBdIENvbW1hbmQgbGluZTogcm9vdD0vZGV2L3ZkYSBjb25zb2xlPXR0eVMwCiAgPDY+
+WyAgICAwLjAwMDAwMF0geDg2L2ZwdTogTGVnYWN5IHg4NyBGUFUgZGV0ZWN0ZWQuCiAgPDY+WyAg
+ICAwLjAwMDAwMF0geDg2L2ZwdTogVXNpbmcgJ2VhZ2VyJyBGUFUgY29udGV4dCBzd2l0Y2hlcy4K
+ICA8Nj5bICAgIDAuMDAwMDAwXSBlODIwOiBCSU9TLXByb3ZpZGVkIHBoeXNpY2FsIFJBTSBtYXA6
+CiAgPDY+WyAgICAwLjAwMDAwMF0gQklPUy1lODIwOiBbbWVtIDB4MDAwMDAwMDAwMDAwMDAwMC0w
+eDAwMDAwMDAwMDAwOWZiZmZdIHVzYWJsZQogIDw2PlsgICAgMC4wMDAwMDBdIEJJT1MtZTgyMDog
+W21lbSAweDAwMDAwMDAwMDAwOWZjMDAtMHgwMDAwMDAwMDAwMDlmZmZmXSByZXNlcnZlZAogIDw2
+PlsgICAgMC4wMDAwMDBdIEJJT1MtZTgyMDogW21lbSAweDAwMDAwMDAwMDAwZjAwMDAtMHgwMDAw
+MDAwMDAwMGZmZmZmXSByZXNlcnZlZAogIDw2PlsgICAgMC4wMDAwMDBdIEJJT1MtZTgyMDogW21l
+bSAweDAwMDAwMDAwMDAxMDAwMDAtMHgwMDAwMDAwMDA3ZmRkZmZmXSB1c2FibGUKICA8Nj5bICAg
+IDAuMDAwMDAwXSBCSU9TLWU4MjA6IFttZW0gMHgwMDAwMDAwMDA3ZmRlMDAwLTB4MDAwMDAwMDAw
+N2ZmZmZmZl0gcmVzZXJ2ZWQKICA8Nj5bICAgIDAuMDAwMDAwXSBCSU9TLWU4MjA6IFttZW0gMHgw
+MDAwMDAwMGZlZmZjMDAwLTB4MDAwMDAwMDBmZWZmZmZmZl0gcmVzZXJ2ZWQKICA8Nj5bICAgIDAu
+MDAwMDAwXSBCSU9TLWU4MjA6IFttZW0gMHgwMDAwMDAwMGZmZmMwMDAwLTB4MDAwMDAwMDBmZmZm
+ZmZmZl0gcmVzZXJ2ZWQKICA8Nj5bICAgIDAuMDAwMDAwXSBOWCAoRXhlY3V0ZSBEaXNhYmxlKSBw
+cm90ZWN0aW9uOiBhY3RpdmUKICA8Nj5bICAgIDAuMDAwMDAwXSBTTUJJT1MgMi44IHByZXNlbnQu
+CiAgPDc+WyAgICAwLjAwMDAwMF0gRE1JOiBRRU1VIFN0YW5kYXJkIFBDIChpNDQwRlggKyBQSUlY
+LCAxOTk2KSwgQklPUyByZWwtMS45LjMtMC1nZTJmYzQxZS1wcmVidWlsdC5xZW11LXByb2plY3Qu
+b3JnIDA0LzAxLzIwMTQKICAuLi4KCgpOYW1oeXVuZyBLaW0gKDMpOgogIHZpcnRpbzogQmFzaWMg
+aW1wbGVtZW50YXRpb24gb2YgdmlydGlvIHBzdG9yZSBkcml2ZXIKICBxZW11OiBJbXBsZW1lbnQg
+dmlydGlvLXBzdG9yZSBkZXZpY2UKICBrdm10b29sOiBJbXBsZW1lbnQgdmlydGlvLXBzdG9yZSBk
+ZXZpY2UKCiBkcml2ZXJzL3ZpcnRpby9LY29uZmlnICAgICAgICAgICAgIHwgIDEwICsKIGRyaXZl
+cnMvdmlydGlvL01ha2VmaWxlICAgICAgICAgICAgfCAgIDEgKwogZHJpdmVycy92aXJ0aW8vdmly
+dGlvX3BzdG9yZS5jICAgICB8IDQxNyArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrCiBpbmNsdWRlL3VhcGkvbGludXgvS2J1aWxkICAgICAgICAgIHwgICAxICsKIGluY2x1ZGUv
+dWFwaS9saW51eC92aXJ0aW9faWRzLmggICAgfCAgIDEgKwogaW5jbHVkZS91YXBpL2xpbnV4L3Zp
+cnRpb19wc3RvcmUuaCB8ICA3NCArKysrKysrCiA2IGZpbGVzIGNoYW5nZWQsIDUwNCBpbnNlcnRp
+b25zKCspCiBjcmVhdGUgbW9kZSAxMDA2NDQgZHJpdmVycy92aXJ0aW8vdmlydGlvX3BzdG9yZS5j
+CiBjcmVhdGUgbW9kZSAxMDA2NDQgaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19wc3RvcmUuaAoK
+CkNjOiBQYW9sbyBCb256aW5pIDxwYm9uemluaUByZWRoYXQuY29tPgpDYzogUmFkaW0gS3LEjW3D
+ocWZIDxya3JjbWFyQHJlZGhhdC5jb20+CkNjOiAiTWljaGFlbCBTLiBUc2lya2luIiA8bXN0QHJl
+ZGhhdC5jb20+CkNjOiBBbnRob255IExpZ3VvcmkgPGFsaWd1b3JpQGFtYXpvbi5jb20+CkNjOiBB
+bnRvbiBWb3JvbnRzb3YgPGFudG9uQGVub21zZy5vcmc+CkNjOiBDb2xpbiBDcm9zcyA8Y2Nyb3Nz
+QGFuZHJvaWQuY29tPgpDYzogS2VlcyBDb29rIDxrZWVzY29va0BjaHJvbWl1bS5vcmc+CkNjOiBU
+b255IEx1Y2sgPHRvbnkubHVja0BpbnRlbC5jb20+CkNjOiBTdGV2ZW4gUm9zdGVkdCA8cm9zdGVk
+dEBnb29kbWlzLm9yZz4KQ2M6IEluZ28gTW9sbmFyIDxtaW5nb0BrZXJuZWwub3JnPgpDYzogTWlu
+Y2hhbiBLaW0gPG1pbmNoYW5Aa2VybmVsLm9yZz4KQ2M6IFdpbGwgRGVhY29uIDx3aWxsLmRlYWNv
+bkBhcm0uY29tPgpDYzoga3ZtQHZnZXIua2VybmVsLm9yZwpDYzogcWVtdS1kZXZlbEBub25nbnUu
+b3JnCkNjOiB2aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwoKVGhhbmtz
+LApOYW1oeXVuZwoKCi0tIAoyLjkuMwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
+QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
+Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
