@@ -1,12 +1,13 @@
-From: Jonathan Corbet <corbet@lwn.net>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 Subject: Re: [PATCH] CodingStyle: add some more error handling guidelines
-Date: Mon, 22 Aug 2016 08:16:17 -0600
-Message-ID: <20160822081617.386db8cd__42022.8781331845$1471875394$gmane$org@lwn.net>
+Date: Mon, 22 Aug 2016 17:23:04 +0300
+Message-ID: <20160822142304.GD4129@mwanda>
 References: <1471874251-7721-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <1471874251-7721-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,12 +19,10 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Julia Lawall <julia.lawall@lip6.fr>, Dan Carpenter <dan.carpenter@oracle.com>
+Cc: linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Julia Lawall <julia.lawall@lip6.fr>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 22 Aug 2016 16:57:46 +0300
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
+On Mon, Aug 22, 2016 at 04:57:46PM +0300, Michael S. Tsirkin wrote:
 > commit commit ea04036032edda6f771c1381d03832d2ed0f6c31 ("CodingStyle:
 > add some more error handling guidelines") suggests never naming goto
 > labels after the goto location - that is the error that is handled.
@@ -35,42 +34,33 @@ On Mon, 22 Aug 2016 16:57:46 +0300
 >                 foo = kmalloc(SIZE, GFP_KERNEL);
 >                 if (!foo)
 >                         goto err_foo;
-> 
->                 foo->bar = kmalloc(SIZE, GFP_KERNEL);
->                 if (!foo->bar)
->                         goto err_bar;
->                 ...
-> 
->                 kfree(foo->bar);
->         err_bar:
-> 
->                 kfree(foo);
->         err_foo:
-> 
->                 return ret;
 
-Hmm, I've never encountered that style, but I've never gone looking for it
-either.  I find it a little confusing to detach a label from the code it
-will run.  Is this really something we want to encourage?  I kind of think
-this one needs some acks before I can consider it.
+Come-from labels are a common anti-pattern.  The don't add any
+information if you are reading a function from start to end/top to
+bottom.  Imagine if we named all functions after then functions which
+called them.  This is the same concept.
 
-> diff --git a/tools/virtio/ringtest/main.h b/tools/virtio/ringtest/main.h
-> index 16917ac..e4d76c3 100644
-> --- a/tools/virtio/ringtest/main.h
-> +++ b/tools/virtio/ringtest/main.h
-> @@ -80,7 +80,9 @@ extern unsigned ring_size;
->  
->  /* Is there a portable way to do this? */
->  #if defined(__x86_64__) || defined(__i386__)
-> -#define cpu_relax() asm ("rep; nop" ::: "memory")
-> +#define cpu_relax() do { \
-> +	asm ("rep; nop" ::: "memory"); \
-> +} while (0)
->  #else
->  #define cpu_relax() assert(0)
->  #endif
+What does goto err_foo tell you?  Nothing...  But goto err_free_bar
+tells you exactly what it does.
 
-This hunk seems somehow unrelated, either that or I really haven't
-understood the proposal :)
+Creating a new label for each goto means you can search easily,
+I suppose, but jumping down to the bottom of the function and then back
+up disrupts the flow.  We're not really using the name itself in that
+case, we're just treating the text as a opaque search string and not
+meaningful for its own sake.
 
-jon
+I see a lot of error handling bugs where people get confused or often
+they just decide that error handling is too complicated and they leave
+it out.  But error handling is really simple to write correctly if you
+follow a few simple rules.
+
+1) Don't just use one out label for everything.  Doing multiple things
+   makes the code more complicated and bug prone.
+2) Don't free things which haven't been allocated.
+3) Unwind in the reverse order that you allocated things.
+4) Use meaningful names which tell what the goto does.
+5) If there is an if statement in allocation code, then put an mirror if
+   statement in the unwind code.
+
+regards,
+dan carpenter
