@@ -1,11 +1,14 @@
-From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Subject: [PATCH 1/1] virtio-gpu: avoid possible NULL pointer dereference
-Date: Sun, 21 Aug 2016 23:06:06 +0200
-Message-ID: <1471813566-5324-1-git-send-email-xypron.glpk__23810.4987577119$1472119818$gmane$org@gmx.de>
+From: =?utf-8?Q?Bj=C3=B8rn_Mork?= <bjorn@mork.no>
+Subject: Re: [PATCH] CodingStyle: add some more error handling guidelines
+Date: Tue, 23 Aug 2016 13:03:15 +0200
+Message-ID: <87mvk3vjbg.fsf__19406.1060356491$1472119819$gmane$org@miraculix.mork.no>
+References: <1471874251-7721-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1471874251-7721-1-git-send-email-mst@redhat.com> (Michael
+	S. Tsirkin's message of "Mon, 22 Aug 2016 16:57:46 +0300")
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,44 +18,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>
-Cc: Heinrich Schuchardt <xypron.glpk@gmx.de>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Julia Lawall <julia.lawall@lip6.fr>, Dan Carpenter <dan.carpenter@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-If output is NULL it is not permissable to dereference it.
-So we should leave the respective function in this case.
-
-The inconsistency was indicated by cppcheck.
-No actual NULL pointer dereference was observed.
-
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
----
- drivers/gpu/drm/virtio/virtgpu_plane.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index 925ca25..ba28c0f 100644
---- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -76,7 +76,8 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
- 		output = drm_crtc_to_virtio_gpu_output(plane->state->crtc);
- 	if (old_state->crtc)
- 		output = drm_crtc_to_virtio_gpu_output(old_state->crtc);
--	WARN_ON(!output);
-+	if (WARN_ON(!output))
-+		return;
- 
- 	if (plane->state->fb) {
- 		vgfb = to_virtio_gpu_framebuffer(plane->state->fb);
-@@ -129,7 +130,8 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
- 		output = drm_crtc_to_virtio_gpu_output(plane->state->crtc);
- 	if (old_state->crtc)
- 		output = drm_crtc_to_virtio_gpu_output(old_state->crtc);
--	WARN_ON(!output);
-+	if (WARN_ON(!output))
-+		return;
- 
- 	if (plane->state->fb) {
- 		vgfb = to_virtio_gpu_framebuffer(plane->state->fb);
--- 
-2.1.4
+Ik1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQuY29tPiB3cml0ZXM6Cgo+ICAgICAgICAg
+ICAgICAgICBmb28gPSBrbWFsbG9jKFNJWkUsIEdGUF9LRVJORUwpOwo+ICAgICAgICAgICAgICAg
+ICBpZiAoIWZvbykKPiAgICAgICAgICAgICAgICAgICAgICAgICBnb3RvIGVycl9mb287Cj4KPiAg
+ICAgICAgICAgICAgICAgZm9vLT5iYXIgPSBrbWFsbG9jKFNJWkUsIEdGUF9LRVJORUwpOwo+ICAg
+ICAgICAgICAgICAgICBpZiAoIWZvby0+YmFyKQo+ICAgICAgICAgICAgICAgICAgICAgICAgIGdv
+dG8gZXJyX2JhcjsKPiAgICAgICAgICAgICAgICAgLi4uCj4KPiAgICAgICAgICAgICAgICAga2Zy
+ZWUoZm9vLT5iYXIpOwo+ICAgICAgICAgZXJyX2JhcjoKPgo+ICAgICAgICAgICAgICAgICBrZnJl
+ZShmb28pOwo+ICAgICAgICAgZXJyX2ZvbzoKPgo+ICAgICAgICAgICAgICAgICByZXR1cm4gcmV0
+OwoKCkkgYmVsaWV2ZSB0aGUgQ29kaW5nU3R5bGUgYWxyZWFkeSBjb250YWluIGZhciB0b28gbXVj
+aCBwZXJzb25hbCBzdHlsZSB0bwpiZSB1c2VmdWwgYXMgcmVhbCBzdHlsZSBndWlkZS4gIEZXSVcs
+IEkgcHJlZmVyIGEgc2luZ2xlIGVycm9yIGxhYmVsLCBhdAp0aGUgImNvc3QiIG9mIGFkZGl0aW9u
+YWwgdGVzdHMgaW4gdGhlIGVycm9yIHBhdGg6CgoKICAgICAgICAgICAgICAgICBmb28gPSBrbWFs
+bG9jKFNJWkUsIEdGUF9LRVJORUwpOwogICAgICAgICAgICAgICAgIGlmICghZm9vKQogICAgICAg
+ICAgICAgICAgICAgICAgICAgZ290byBlcnI7CiAgICAgICAgICAgICAgICAgZm9vLT5iYXIgPSBr
+bWFsbG9jKFNJWkUsIEdGUF9LRVJORUwpOwogICAgICAgICAgICAgICAgIGlmICghZm9vLT5iYXIp
+CiAgICAgICAgICAgICAgICAgICAgICAgICBnb3RvIGVycjsKICAgICAgICAgICAgICAgICAuLi4K
+IAkJIGlmIChyZXQpCgkJCWdvdG8gZXJyOwogICAgICAgICAgICAgICAgIHJldHVybiAwOwogICAg
+ICBlcnI6CiAgICAgICAgICAgICAgICAgaWYgKGZvbykKICAgICAgICAgICAgICAgICAgICAgICAg
+a2ZyZWUoZm9vLT5iYXIpOwogICAgICAgICAgICAgICAgIGtmcmVlKGZvbyk7CiAgICAgICAgICAg
+ICAgICAgcmV0dXJuIHJldDsKCgpUaGUgYWR2YW50YWdlIGlzIHRoYXQgSSBkb24ndCBoYXZlIHRv
+IG1hbmFnZSBYIGRpZmZlcmVudCBsYWJlbHMsCmVuc3VyaW5nIHRoYXQgdGhleSBoYXZlIHRoZSBv
+cmRlciBpcyBjb3JyZWN0IGlmIHNvbWUgcGFydCBvZiB0aGUKZnVuY3Rpb24gaXMgcmVmYWN0b3Jl
+ZCBldGMuICBUaGF0IHRlbmRzIHRvIGdldCB0b28gY29tcGxpY2F0ZWQgZm9yIG15CnNpbXBsZSBi
+cmFpbi4gQW5kIHNpbmNlIHRoZSBlcnJvciBwYXRoIGlzIHJhcmVseSB0ZXN0ZWQsIGNvbXBsaWNh
+dGVkCmVxdWFscyBidWdneS4KCk15IHNhbXBsZSB3aWxsIG9mIGNvdXJzZSB0cmlnZ2VyIGFsbCB0
+aG9zZSBuaWNlICJvcHRpbWl6aW5nIHRoZSBlcnJvcgpwYXRoIiBwYXRjaGVzLCBidXQgSSBpZ25v
+cmUgdGhvc2UgYW55d2F5IHNvIHRoYXQncyBub3QgYSBiaWcgZGVhbC4KCgpCasO4cm4KX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
+bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
+dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
+emF0aW9u
