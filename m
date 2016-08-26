@@ -1,8 +1,8 @@
 From: Peter Griffin <peter.griffin@linaro.org>
-Subject: [PATCH v8 03/18] dmaengine: st_fdma: Add STMicroelectronics FDMA DT
-	binding documentation
-Date: Fri, 26 Aug 2016 15:56:38 +0100
-Message-ID: <1472223413-7254-4-git-send-email-peter.griffin__25734.2662233443$1472226738$gmane$org@linaro.org>
+Subject: [PATCH v8 04/18] dmaengine: st_fdma: Add STMicroelectronics FDMA
+	driver header file
+Date: Fri, 26 Aug 2016 15:56:39 +0100
+Message-ID: <1472223413-7254-5-git-send-email-peter.griffin__25658.1129892313$1472226754$gmane$org@linaro.org>
 References: <1472223413-7254-1-git-send-email-peter.griffin@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,109 +22,265 @@ To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kernel@s
 Cc: devicetree@vger.kernel.org, linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, peter.griffin@linaro.org, dmaengine@vger.kernel.org, lee.jones@linaro.org, Ludovic Barre <ludovic.barre@st.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds the DT binding documentation for the FDMA constroller
-found on STi based chipsets from STMicroelectronics.
+This header file will also be used by the dma xbar driver in the
+future.
 
 Signed-off-by: Ludovic Barre <ludovic.barre@st.com>
 Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
-Acked-by: Rob Herring <robh@kernel.org>
 ---
- Documentation/devicetree/bindings/dma/st_fdma.txt | 87 +++++++++++++++++++++++
- 1 file changed, 87 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/dma/st_fdma.txt
+ drivers/dma/st_fdma.h | 244 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 244 insertions(+)
+ create mode 100644 drivers/dma/st_fdma.h
 
-diff --git a/Documentation/devicetree/bindings/dma/st_fdma.txt b/Documentation/devicetree/bindings/dma/st_fdma.txt
+diff --git a/drivers/dma/st_fdma.h b/drivers/dma/st_fdma.h
 new file mode 100644
-index 0000000..495d853
+index 0000000..16fa6f5
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/dma/st_fdma.txt
-@@ -0,0 +1,87 @@
-+* STMicroelectronics Flexible Direct Memory Access Device Tree bindings
++++ b/drivers/dma/st_fdma.h
+@@ -0,0 +1,244 @@
++/*
++ * st_fdma.h
++ *
++ * Copyright (C) 2014 STMicroelectronics
++ * Author: Ludovic Barre <Ludovic.barre@st.com>
++ * License terms:  GNU General Public License (GPL), version 2
++ */
++#ifndef __DMA_ST_FDMA_H
++#define __DMA_ST_FDMA_H
 +
-+The FDMA is a general-purpose direct memory access controller capable of
-+supporting 16 independent DMA channels. It accepts up to 32 DMA requests.
-+The FDMA is based on a Slim processor which requires a firmware.
++#include <linux/dmaengine.h>
++#include <linux/dmapool.h>
++#include <linux/io.h>
++#include <linux/remoteproc/st_slim_rproc.h>
++#include "virt-dma.h"
 +
-+* FDMA Controller
++#define ST_FDMA_NR_DREQS 32
 +
-+Required properties:
-+- compatible	: Should be one of
-+		 - st,stih407-fdma-mpe31-11, "st,slim-rproc";
-+		 - st,stih407-fdma-mpe31-12, "st,slim-rproc";
-+		 - st,stih407-fdma-mpe31-13, "st,slim-rproc";
-+- reg		: Should contain an entry for each name in reg-names
-+- reg-names	: Must contain "slimcore", "dmem", "peripherals", "imem" entries
-+- interrupts	: Should contain one interrupt shared by all channels
-+- dma-channels	: Number of channels supported by the controller
-+- #dma-cells	: Must be <3>. See DMA client section below
-+- clocks	: Must contain an entry for each clock
-+See: Documentation/devicetree/bindings/clock/clock-bindings.txt
++#define FW_NAME_SIZE 30
 +
++/**
++ * struct st_fdma_generic_node - Free running/paced generic node
++ *
++ * @length: Length in bytes of a line in a 2D mem to mem
++ * @sstride: Stride, in bytes, between source lines in a 2D data move
++ * @dstride: Stride, in bytes, between destination lines in a 2D data move
++ */
++struct st_fdma_generic_node {
++	u32 length;
++	u32 sstride;
++	u32 dstride;
++};
 +
-+Example:
-+
-+	fdma0: dma-controller@8e20000 {
-+		compatible = "st,stih407-fdma-mpe31-11", "st,slim-rproc";
-+		reg = <0x8e20000 0x8000>,
-+		      <0x8e30000 0x3000>,
-+		      <0x8e37000 0x1000>,
-+		      <0x8e38000 0x8000>;
-+		reg-names = "slimcore", "dmem", "peripherals", "imem";
-+		clocks = <&clk_s_c0_flexgen CLK_FDMA>,
-+			 <&clk_s_c0_flexgen CLK_EXT2F_A9>,
-+			 <&clk_s_c0_flexgen CLK_EXT2F_A9>,
-+			 <&clk_s_c0_flexgen CLK_EXT2F_A9>;
-+		interrupts = <GIC_SPI 5 IRQ_TYPE_NONE>;
-+		dma-channels = <16>;
-+		#dma-cells = <3>;
++/**
++ * struct st_fdma_hw_node - Node structure used by fdma hw
++ *
++ * @next: Pointer to next node
++ * @control: Transfer Control Parameters
++ * @nbytes: Number of Bytes to read
++ * @saddr: Source address
++ * @daddr: Destination address
++ *
++ * @generic: generic node for free running/paced transfert type
++ * 2 others transfert type are possible, but not yet implemented
++ *
++ * The NODE structures must be aligned to a 32 byte boundary
++ */
++struct st_fdma_hw_node {
++	u32 next;
++	u32 control;
++	u32 nbytes;
++	u32 saddr;
++	u32 daddr;
++	union {
++		struct st_fdma_generic_node generic;
 +	};
++} __aligned(32);
 +
-+* DMA client
++/*
++ * node control parameters
++ */
++#define FDMA_NODE_CTRL_REQ_MAP_MASK	GENMASK(4, 0)
++#define FDMA_NODE_CTRL_REQ_MAP_FREE_RUN	0x0
++#define FDMA_NODE_CTRL_REQ_MAP_DREQ(n)	((n)&FDMA_NODE_CTRL_REQ_MAP_MASK)
++#define FDMA_NODE_CTRL_REQ_MAP_EXT		FDMA_NODE_CTRL_REQ_MAP_MASK
++#define FDMA_NODE_CTRL_SRC_MASK		GENMASK(6, 5)
++#define FDMA_NODE_CTRL_SRC_STATIC	BIT(5)
++#define FDMA_NODE_CTRL_SRC_INCR		BIT(6)
++#define FDMA_NODE_CTRL_DST_MASK		GENMASK(8, 7)
++#define FDMA_NODE_CTRL_DST_STATIC	BIT(7)
++#define FDMA_NODE_CTRL_DST_INCR		BIT(8)
++#define FDMA_NODE_CTRL_SECURE		BIT(15)
++#define FDMA_NODE_CTRL_PAUSE_EON	BIT(30)
++#define FDMA_NODE_CTRL_INT_EON		BIT(31)
 +
-+Required properties:
-+- dmas: Comma separated list of dma channel requests
-+- dma-names: Names of the aforementioned requested channels
++/**
++ * struct st_fdma_sw_node - descriptor structure for link list
++ *
++ * @pdesc: Physical address of desc
++ * @node: link used for putting this into a channel queue
++ */
++struct st_fdma_sw_node {
++	dma_addr_t pdesc;
++	struct st_fdma_hw_node *desc;
++};
 +
-+Each dmas request consists of 4 cells:
-+1. A phandle pointing to the FDMA controller
-+2. The request line number
-+3. A 32bit mask specifying (see include/linux/platform_data/dma-st-fdma.h)
-+ -bit 2-0: Holdoff value, dreq will be masked for
-+	0x0: 0-0.5us
-+	0x1: 0.5-1us
-+	0x2: 1-1.5us
-+ -bit 17: data swap
-+	0x0: disabled
-+	0x1: enabled
-+ -bit 21: Increment Address
-+	0x0: no address increment between transfers
-+	0x1: increment address between transfers
-+ -bit 22: 2 STBus Initiator Coprocessor interface
-+	0x0: high priority port
-+	0x1: low priority port
-+4. transfers type
-+ 0 free running
-+ 1 paced
++#define NAME_SZ 10
 +
-+Example:
++struct st_fdma_driverdata {
++	u32 id;
++	char name[NAME_SZ];
++};
 +
-+	sti_uni_player2: sti-uni-player@2 {
-+		compatible = "st,sti-uni-player";
-+		status = "disabled";
-+		#sound-dai-cells = <0>;
-+		st,syscfg = <&syscfg_core>;
-+		clocks = <&clk_s_d0_flexgen CLK_PCM_2>;
-+		assigned-clocks = <&clk_s_d0_flexgen CLK_PCM_2>;
-+		assigned-clock-parents = <&clk_s_d0_quadfs 2>;
-+		assigned-clock-rates = <50000000>;
-+		reg = <0x8D82000 0x158>;
-+		interrupts = <GIC_SPI 86 IRQ_TYPE_NONE>;
-+		dmas = <&fdma0 4 0 1>;
-+		dai-name = "Uni Player #1 (DAC)";
-+		dma-names = "tx";
-+		st,uniperiph-id = <2>;
-+		st,version = <5>;
-+		st,mode = "PCM";
-+	};
++struct st_fdma_desc {
++	struct virt_dma_desc vdesc;
++	struct st_fdma_chan *fchan;
++	bool iscyclic;
++	unsigned int n_nodes;
++	struct st_fdma_sw_node node[];
++};
++
++enum st_fdma_type {
++	ST_FDMA_TYPE_FREE_RUN,
++	ST_FDMA_TYPE_PACED,
++};
++
++struct st_fdma_cfg {
++	struct device_node *of_node;
++	enum st_fdma_type type;
++	dma_addr_t dev_addr;
++	enum dma_transfer_direction dir;
++	int req_line; /* request line */
++	long req_ctrl; /* Request control */
++};
++
++struct st_fdma_chan {
++	struct st_fdma_dev *fdev;
++	struct dma_pool *node_pool;
++	struct dma_slave_config scfg;
++	struct st_fdma_cfg cfg;
++
++	int dreq_line;
++
++	struct virt_dma_chan vchan;
++	struct st_fdma_desc *fdesc;
++	enum dma_status	status;
++};
++
++struct st_fdma_dev {
++	struct device *dev;
++	const struct st_fdma_driverdata *drvdata;
++	struct dma_device dma_device;
++
++	struct st_slim_rproc *slim_rproc;
++
++	int irq;
++
++	struct st_fdma_chan *chans;
++
++	spinlock_t dreq_lock;
++	unsigned long dreq_mask;
++
++	u32 nr_channels;
++	char fw_name[FW_NAME_SIZE];
++};
++
++/* Peripheral Registers*/
++
++#define FDMA_CMD_STA_OFST	0xFC0
++#define FDMA_CMD_SET_OFST	0xFC4
++#define FDMA_CMD_CLR_OFST	0xFC8
++#define FDMA_CMD_MASK_OFST	0xFCC
++#define FDMA_CMD_START(ch)		(0x1 << (ch << 1))
++#define FDMA_CMD_PAUSE(ch)		(0x2 << (ch << 1))
++#define FDMA_CMD_FLUSH(ch)		(0x3 << (ch << 1))
++
++#define FDMA_INT_STA_OFST	0xFD0
++#define FDMA_INT_STA_CH			0x1
++#define FDMA_INT_STA_ERR		0x2
++
++#define FDMA_INT_SET_OFST	0xFD4
++#define FDMA_INT_CLR_OFST	0xFD8
++#define FDMA_INT_MASK_OFST	0xFDC
++
++#define fdma_read(fdev, name) \
++	readl((fdev)->slim_rproc->peri + name)
++
++#define fdma_write(fdev, val, name) \
++	writel((val), (fdev)->slim_rproc->peri + name)
++
++/* fchan interface (dmem) */
++#define FDMA_CH_CMD_OFST	0x200
++#define FDMA_CH_CMD_STA_MASK		GENMASK(1, 0)
++#define FDMA_CH_CMD_STA_IDLE		(0x0)
++#define FDMA_CH_CMD_STA_START		(0x1)
++#define FDMA_CH_CMD_STA_RUNNING		(0x2)
++#define FDMA_CH_CMD_STA_PAUSED		(0x3)
++#define FDMA_CH_CMD_ERR_MASK		GENMASK(4, 2)
++#define FDMA_CH_CMD_ERR_INT		(0x0 << 2)
++#define FDMA_CH_CMD_ERR_NAND		(0x1 << 2)
++#define FDMA_CH_CMD_ERR_MCHI		(0x2 << 2)
++#define FDMA_CH_CMD_DATA_MASK		GENMASK(31, 5)
++#define fchan_read(fchan, name) \
++	readl((fchan)->fdev->slim_rproc->mem[ST_SLIM_DMEM].cpu_addr \
++			+ (fchan)->vchan.chan.chan_id * 0x4 \
++			+ name)
++
++#define fchan_write(fchan, val, name) \
++	writel((val), (fchan)->fdev->slim_rproc->mem[ST_SLIM_DMEM].cpu_addr \
++			+ (fchan)->vchan.chan.chan_id * 0x4 \
++			+ name)
++
++/* req interface */
++#define FDMA_REQ_CTRL_OFST	0x240
++#define dreq_write(fchan, val, name) \
++	writel((val), (fchan)->fdev->slim_rproc->mem[ST_SLIM_DMEM].cpu_addr \
++			+ fchan->dreq_line * 0x04 \
++			+ name)
++/* node interface */
++#define FDMA_NODE_SZ 128
++#define FDMA_PTRN_OFST		0x800
++#define FDMA_CNTN_OFST		0x808
++#define FDMA_SADDRN_OFST	0x80c
++#define FDMA_DADDRN_OFST	0x810
++#define fnode_read(fchan, name) \
++	readl((fchan)->fdev->slim_rproc->mem[ST_SLIM_DMEM].cpu_addr \
++			+ (fchan)->vchan.chan.chan_id * FDMA_NODE_SZ \
++			+ name)
++
++#define fnode_write(fchan, val, name) \
++	writel((val), (fchan)->fdev->slim_rproc->mem[ST_SLIM_DMEM].cpu_addr \
++			+ (fchan)->vchan.chan.chan_id * FDMA_NODE_SZ \
++			+ name)
++
++/*
++ * request control bits
++ */
++#define FDMA_REQ_CTRL_NUM_OPS_MASK	GENMASK(31, 24)
++#define FDMA_REQ_CTRL_NUM_OPS(n)	(FDMA_REQ_CTRL_NUM_OPS_MASK & \
++					((n) << 24))
++#define FDMA_REQ_CTRL_INITIATOR_MASK	BIT(22)
++#define FDMA_REQ_CTRL_INIT0		(0x0 << 22)
++#define FDMA_REQ_CTRL_INIT1		(0x1 << 22)
++#define FDMA_REQ_CTRL_INC_ADDR_ON	BIT(21)
++#define FDMA_REQ_CTRL_DATA_SWAP_ON	BIT(17)
++#define FDMA_REQ_CTRL_WNR		BIT(14)
++#define FDMA_REQ_CTRL_OPCODE_MASK	GENMASK(7, 4)
++#define FDMA_REQ_CTRL_OPCODE_LD_ST1	(0x0 << 4)
++#define FDMA_REQ_CTRL_OPCODE_LD_ST2	(0x1 << 4)
++#define FDMA_REQ_CTRL_OPCODE_LD_ST4	(0x2 << 4)
++#define FDMA_REQ_CTRL_OPCODE_LD_ST8	(0x3 << 4)
++#define FDMA_REQ_CTRL_OPCODE_LD_ST16	(0x4 << 4)
++#define FDMA_REQ_CTRL_OPCODE_LD_ST32	(0x5 << 4)
++#define FDMA_REQ_CTRL_OPCODE_LD_ST64	(0x6 << 4)
++#define FDMA_REQ_CTRL_HOLDOFF_MASK	GENMASK(2, 0)
++#define FDMA_REQ_CTRL_HOLDOFF(n)	((n) & FDMA_REQ_CTRL_HOLDOFF_MASK)
++
++/* bits used by client to configure request control */
++#define FDMA_REQ_CTRL_CFG_MASK (FDMA_REQ_CTRL_HOLDOFF_MASK | \
++				FDMA_REQ_CTRL_DATA_SWAP_ON | \
++				FDMA_REQ_CTRL_INC_ADDR_ON | \
++				FDMA_REQ_CTRL_INITIATOR_MASK)
++
++#endif	/* __DMA_ST_FDMA_H */
 -- 
 1.9.1
