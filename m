@@ -1,7 +1,8 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH v6 2/6] virt, sched: add generic vcpu pinning support
-Date: Mon, 29 Aug 2016 08:48:43 +0200
-Message-ID: <1472453327-19050-3-git-send-email-jgross@suse.com>
+Subject: [PATCH v6 4/6] xen: add xen_pin_vcpu() to support calling functions
+	on a dedicated pcpu
+Date: Mon, 29 Aug 2016 08:48:45 +0200
+Message-ID: <1472453327-19050-5-git-send-email-jgross@suse.com>
 References: <1472453327-19050-1-git-send-email-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,134 +22,79 @@ To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org
 Cc: Juergen Gross <jgross@suse.com>, jeremy@goop.org, jdelvare@suse.com, peterz@infradead.org, hpa@zytor.com, akataria@vmware.com, x86@kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, pali.rohar@gmail.com, boris.ostrovsky@oracle.com, tglx@linutronix.de, linux@roeck-us.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add generic virtualization support for pinning the current vcpu to a
-specified physical cpu. As this operation isn't performance critical
-(a very limited set of operations like BIOS calls and SMIs is expected
-to need this) just add a hypervisor specific indirection.
+Some hardware models (e.g. Dell Studio 1555 laptops) require calls to
+the firmware to be issued on cpu 0 only. As Dom0 might have to use
+these calls, add xen_pin_vcpu() to achieve this functionality.
+
+In case either the domain doesn't have the privilege to make the
+related hypercall or the hypervisor isn't supporting it, issue a
+warning once and disable further pinning attempts.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
+Acked-by: David Vrabel <david.vrabel@citrix.com>
 ---
-V4: move this patch some places up in the series
-    WARN_ONCE in case platform doesn't support pinning as requested by
-    Peter Zijlstra
-
-V3: use getc_cpu()/put_cpu() as suggested by David Vrabel
-
-V2: adapt to using workqueues
-    add include/linux/hypervisor.h to hide architecture specific stuff
-    from generic kernel code
-
-In case paravirt maintainers don't want to be responsible for
-include/linux/hypervisor.h I could take it.
+V5: less wordy messages as requested by David Vrabel
 ---
- MAINTAINERS                       |  1 +
- arch/x86/include/asm/hypervisor.h |  4 ++++
- arch/x86/kernel/cpu/hypervisor.c  | 11 +++++++++++
- include/linux/hypervisor.h        | 17 +++++++++++++++++
- kernel/smp.c                      |  1 +
- kernel/up.c                       |  1 +
- 6 files changed, 35 insertions(+)
- create mode 100644 include/linux/hypervisor.h
+ arch/x86/xen/enlighten.c | 40 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 71aa5da..93bcac5 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -8844,6 +8844,7 @@ S:	Supported
- F:	Documentation/virtual/paravirt_ops.txt
- F:	arch/*/kernel/paravirt*
- F:	arch/*/include/asm/paravirt.h
-+F:	include/linux/hypervisor.h
- 
- PARIDE DRIVERS FOR PARALLEL PORT IDE DEVICES
- M:	Tim Waugh <tim@cyberelk.net>
-diff --git a/arch/x86/include/asm/hypervisor.h b/arch/x86/include/asm/hypervisor.h
-index 055ea99..67942b6 100644
---- a/arch/x86/include/asm/hypervisor.h
-+++ b/arch/x86/include/asm/hypervisor.h
-@@ -43,6 +43,9 @@ struct hypervisor_x86 {
- 
- 	/* X2APIC detection (run once per boot) */
- 	bool		(*x2apic_available)(void);
-+
-+	/* pin current vcpu to specified physical cpu (run rarely) */
-+	void		(*pin_vcpu)(int);
- };
- 
- extern const struct hypervisor_x86 *x86_hyper;
-@@ -56,6 +59,7 @@ extern const struct hypervisor_x86 x86_hyper_kvm;
- extern void init_hypervisor(struct cpuinfo_x86 *c);
- extern void init_hypervisor_platform(void);
- extern bool hypervisor_x2apic_available(void);
-+extern void hypervisor_pin_vcpu(int cpu);
- #else
- static inline void init_hypervisor(struct cpuinfo_x86 *c) { }
- static inline void init_hypervisor_platform(void) { }
-diff --git a/arch/x86/kernel/cpu/hypervisor.c b/arch/x86/kernel/cpu/hypervisor.c
-index 27e4665..35691a6 100644
---- a/arch/x86/kernel/cpu/hypervisor.c
-+++ b/arch/x86/kernel/cpu/hypervisor.c
-@@ -86,3 +86,14 @@ bool __init hypervisor_x2apic_available(void)
- 	       x86_hyper->x2apic_available &&
- 	       x86_hyper->x2apic_available();
+diff --git a/arch/x86/xen/enlighten.c b/arch/x86/xen/enlighten.c
+index b86ebb1..bc9aaba 100644
+--- a/arch/x86/xen/enlighten.c
++++ b/arch/x86/xen/enlighten.c
+@@ -1925,6 +1925,45 @@ static void xen_set_cpu_features(struct cpuinfo_x86 *c)
+ 	}
  }
-+
-+void hypervisor_pin_vcpu(int cpu)
+ 
++static void xen_pin_vcpu(int cpu)
 +{
-+	if (!x86_hyper)
++	static bool disable_pinning;
++	struct sched_pin_override pin_override;
++	int ret;
++
++	if (disable_pinning)
 +		return;
 +
-+	if (x86_hyper->pin_vcpu)
-+		x86_hyper->pin_vcpu(cpu);
-+	else
-+		WARN_ONCE(1, "vcpu pinning requested but not supported!\n");
++	pin_override.pcpu = cpu;
++	ret = HYPERVISOR_sched_op(SCHEDOP_pin_override, &pin_override);
++
++	/* Ignore errors when removing override. */
++	if (cpu < 0)
++		return;
++
++	switch (ret) {
++	case -ENOSYS:
++		pr_warn("Unable to pin on physical cpu %d. In case of problems consider vcpu pinning.\n",
++			cpu);
++		disable_pinning = true;
++		break;
++	case -EPERM:
++		WARN(1, "Trying to pin vcpu without having privilege to do so\n");
++		disable_pinning = true;
++		break;
++	case -EINVAL:
++	case -EBUSY:
++		pr_warn("Physical cpu %d not available for pinning. Check Xen cpu configuration.\n",
++			cpu);
++		break;
++	case 0:
++		break;
++	default:
++		WARN(1, "rc %d while trying to pin vcpu\n", ret);
++		disable_pinning = true;
++	}
 +}
-diff --git a/include/linux/hypervisor.h b/include/linux/hypervisor.h
-new file mode 100644
-index 0000000..3fa5ef2
---- /dev/null
-+++ b/include/linux/hypervisor.h
-@@ -0,0 +1,17 @@
-+#ifndef __LINUX_HYPEVISOR_H
-+#define __LINUX_HYPEVISOR_H
 +
-+/*
-+ *	Generic Hypervisor support
-+ *		Juergen Gross <jgross@suse.com>
-+ */
-+
-+#ifdef CONFIG_HYPERVISOR_GUEST
-+#include <asm/hypervisor.h>
-+#else
-+static inline void hypervisor_pin_vcpu(int cpu)
-+{
-+}
-+#endif
-+
-+#endif /* __LINUX_HYPEVISOR_H */
-diff --git a/kernel/smp.c b/kernel/smp.c
-index 3aa642d..4274ca5 100644
---- a/kernel/smp.c
-+++ b/kernel/smp.c
-@@ -14,6 +14,7 @@
- #include <linux/smp.h>
- #include <linux/cpu.h>
- #include <linux/sched.h>
-+#include <linux/hypervisor.h>
+ const struct hypervisor_x86 x86_hyper_xen = {
+ 	.name			= "Xen",
+ 	.detect			= xen_platform,
+@@ -1933,6 +1972,7 @@ const struct hypervisor_x86 x86_hyper_xen = {
+ #endif
+ 	.x2apic_available	= xen_x2apic_para_available,
+ 	.set_cpu_features       = xen_set_cpu_features,
++	.pin_vcpu               = xen_pin_vcpu,
+ };
+ EXPORT_SYMBOL(x86_hyper_xen);
  
- #include "smpboot.h"
- 
-diff --git a/kernel/up.c b/kernel/up.c
-index 1760bf3..3ccee2b 100644
---- a/kernel/up.c
-+++ b/kernel/up.c
-@@ -6,6 +6,7 @@
- #include <linux/kernel.h>
- #include <linux/export.h>
- #include <linux/smp.h>
-+#include <linux/hypervisor.h>
- 
- int smp_call_function_single(int cpu, void (*func) (void *info), void *info,
- 				int wait)
 -- 
 2.6.6
