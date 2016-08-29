@@ -1,8 +1,7 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH v6 4/6] xen: add xen_pin_vcpu() to support calling functions
-	on a dedicated pcpu
-Date: Mon, 29 Aug 2016 08:48:45 +0200
-Message-ID: <1472453327-19050-5-git-send-email-jgross@suse.com>
+Subject: [PATCH v6 6/6] hwmon: use smp_call_on_cpu() for dell-smm i8k
+Date: Mon, 29 Aug 2016 08:48:47 +0200
+Message-ID: <1472453327-19050-7-git-send-email-jgross@suse.com>
 References: <1472453327-19050-1-git-send-email-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,79 +21,102 @@ To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org
 Cc: Juergen Gross <jgross@suse.com>, jeremy@goop.org, jdelvare@suse.com, peterz@infradead.org, hpa@zytor.com, akataria@vmware.com, x86@kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, pali.rohar@gmail.com, boris.ostrovsky@oracle.com, tglx@linutronix.de, linux@roeck-us.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Some hardware models (e.g. Dell Studio 1555 laptops) require calls to
-the firmware to be issued on cpu 0 only. As Dom0 might have to use
-these calls, add xen_pin_vcpu() to achieve this functionality.
-
-In case either the domain doesn't have the privilege to make the
-related hypercall or the hypervisor isn't supporting it, issue a
-warning once and disable further pinning attempts.
+Use the smp_call_on_cpu() function to call system management
+mode on cpu 0.
+Make call secure by adding get_online_cpus() to avoid e.g. suspend
+resume cycles in between.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
-Acked-by: David Vrabel <david.vrabel@citrix.com>
 ---
-V5: less wordy messages as requested by David Vrabel
+V4: add call to get_online_cpus()
 ---
- arch/x86/xen/enlighten.c | 40 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
+ drivers/hwmon/dell-smm-hwmon.c | 36 ++++++++++++++++++++----------------
+ 1 file changed, 20 insertions(+), 16 deletions(-)
 
-diff --git a/arch/x86/xen/enlighten.c b/arch/x86/xen/enlighten.c
-index b86ebb1..bc9aaba 100644
---- a/arch/x86/xen/enlighten.c
-+++ b/arch/x86/xen/enlighten.c
-@@ -1925,6 +1925,45 @@ static void xen_set_cpu_features(struct cpuinfo_x86 *c)
- 	}
+diff --git a/drivers/hwmon/dell-smm-hwmon.c b/drivers/hwmon/dell-smm-hwmon.c
+index acf9c03..34704b0 100644
+--- a/drivers/hwmon/dell-smm-hwmon.c
++++ b/drivers/hwmon/dell-smm-hwmon.c
+@@ -21,6 +21,7 @@
+ 
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+ 
++#include <linux/cpu.h>
+ #include <linux/delay.h>
+ #include <linux/module.h>
+ #include <linux/types.h>
+@@ -36,6 +37,7 @@
+ #include <linux/io.h>
+ #include <linux/sched.h>
+ #include <linux/ctype.h>
++#include <linux/smp.h>
+ 
+ #include <linux/i8k.h>
+ 
+@@ -134,11 +136,11 @@ static inline const char *i8k_get_dmi_data(int field)
+ /*
+  * Call the System Management Mode BIOS. Code provided by Jonathan Buzzard.
+  */
+-static int i8k_smm(struct smm_regs *regs)
++static int i8k_smm_func(void *par)
+ {
+ 	int rc;
++	struct smm_regs *regs = par;
+ 	int eax = regs->eax;
+-	cpumask_var_t old_mask;
+ 
+ #ifdef DEBUG
+ 	int ebx = regs->ebx;
+@@ -149,16 +151,8 @@ static int i8k_smm(struct smm_regs *regs)
+ #endif
+ 
+ 	/* SMM requires CPU 0 */
+-	if (!alloc_cpumask_var(&old_mask, GFP_KERNEL))
+-		return -ENOMEM;
+-	cpumask_copy(old_mask, &current->cpus_allowed);
+-	rc = set_cpus_allowed_ptr(current, cpumask_of(0));
+-	if (rc)
+-		goto out;
+-	if (smp_processor_id() != 0) {
+-		rc = -EBUSY;
+-		goto out;
+-	}
++	if (smp_processor_id() != 0)
++		return -EBUSY;
+ 
+ #if defined(CONFIG_X86_64)
+ 	asm volatile("pushq %%rax\n\t"
+@@ -216,10 +210,6 @@ static int i8k_smm(struct smm_regs *regs)
+ 	if (rc != 0 || (regs->eax & 0xffff) == 0xffff || regs->eax == eax)
+ 		rc = -EINVAL;
+ 
+-out:
+-	set_cpus_allowed_ptr(current, old_mask);
+-	free_cpumask_var(old_mask);
+-
+ #ifdef DEBUG
+ 	rettime = ktime_get();
+ 	delta = ktime_sub(rettime, calltime);
+@@ -232,6 +222,20 @@ out:
  }
  
-+static void xen_pin_vcpu(int cpu)
+ /*
++ * Call the System Management Mode BIOS.
++ */
++static int i8k_smm(struct smm_regs *regs)
 +{
-+	static bool disable_pinning;
-+	struct sched_pin_override pin_override;
 +	int ret;
 +
-+	if (disable_pinning)
-+		return;
++	get_online_cpus();
++	ret = smp_call_on_cpu(0, i8k_smm_func, regs, true);
++	put_online_cpus();
 +
-+	pin_override.pcpu = cpu;
-+	ret = HYPERVISOR_sched_op(SCHEDOP_pin_override, &pin_override);
-+
-+	/* Ignore errors when removing override. */
-+	if (cpu < 0)
-+		return;
-+
-+	switch (ret) {
-+	case -ENOSYS:
-+		pr_warn("Unable to pin on physical cpu %d. In case of problems consider vcpu pinning.\n",
-+			cpu);
-+		disable_pinning = true;
-+		break;
-+	case -EPERM:
-+		WARN(1, "Trying to pin vcpu without having privilege to do so\n");
-+		disable_pinning = true;
-+		break;
-+	case -EINVAL:
-+	case -EBUSY:
-+		pr_warn("Physical cpu %d not available for pinning. Check Xen cpu configuration.\n",
-+			cpu);
-+		break;
-+	case 0:
-+		break;
-+	default:
-+		WARN(1, "rc %d while trying to pin vcpu\n", ret);
-+		disable_pinning = true;
-+	}
++	return ret;
 +}
 +
- const struct hypervisor_x86 x86_hyper_xen = {
- 	.name			= "Xen",
- 	.detect			= xen_platform,
-@@ -1933,6 +1972,7 @@ const struct hypervisor_x86 x86_hyper_xen = {
- #endif
- 	.x2apic_available	= xen_x2apic_para_available,
- 	.set_cpu_features       = xen_set_cpu_features,
-+	.pin_vcpu               = xen_pin_vcpu,
- };
- EXPORT_SYMBOL(x86_hyper_xen);
- 
++/*
+  * Read the fan status.
+  */
+ static int i8k_get_fan_status(int fan)
 -- 
 2.6.6
