@@ -1,7 +1,7 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH v6 6/6] hwmon: use smp_call_on_cpu() for dell-smm i8k
-Date: Mon, 29 Aug 2016 08:48:47 +0200
-Message-ID: <1472453327-19050-7-git-send-email-jgross@suse.com>
+Subject: [PATCH v6 1/6] xen: sync xen header
+Date: Mon, 29 Aug 2016 08:48:42 +0200
+Message-ID: <1472453327-19050-2-git-send-email-jgross__48194.2113874995$1472453464$gmane$org@suse.com>
 References: <1472453327-19050-1-git-send-email-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,102 +21,191 @@ To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org
 Cc: Juergen Gross <jgross@suse.com>, jeremy@goop.org, jdelvare@suse.com, peterz@infradead.org, hpa@zytor.com, akataria@vmware.com, x86@kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, pali.rohar@gmail.com, boris.ostrovsky@oracle.com, tglx@linutronix.de, linux@roeck-us.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use the smp_call_on_cpu() function to call system management
-mode on cpu 0.
-Make call secure by adding get_online_cpus() to avoid e.g. suspend
-resume cycles in between.
+Import the actual version of include/xen/interface/sched.h from Xen.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
+Acked-by: David Vrabel <david.vrabel@citrix.com>
 ---
-V4: add call to get_online_cpus()
----
- drivers/hwmon/dell-smm-hwmon.c | 36 ++++++++++++++++++++----------------
- 1 file changed, 20 insertions(+), 16 deletions(-)
+ include/xen/interface/sched.h | 100 ++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 82 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/hwmon/dell-smm-hwmon.c b/drivers/hwmon/dell-smm-hwmon.c
-index acf9c03..34704b0 100644
---- a/drivers/hwmon/dell-smm-hwmon.c
-+++ b/drivers/hwmon/dell-smm-hwmon.c
-@@ -21,6 +21,7 @@
- 
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
- 
-+#include <linux/cpu.h>
- #include <linux/delay.h>
- #include <linux/module.h>
- #include <linux/types.h>
-@@ -36,6 +37,7 @@
- #include <linux/io.h>
- #include <linux/sched.h>
- #include <linux/ctype.h>
-+#include <linux/smp.h>
- 
- #include <linux/i8k.h>
- 
-@@ -134,11 +136,11 @@ static inline const char *i8k_get_dmi_data(int field)
- /*
-  * Call the System Management Mode BIOS. Code provided by Jonathan Buzzard.
+diff --git a/include/xen/interface/sched.h b/include/xen/interface/sched.h
+index f184909..a4c4d73 100644
+--- a/include/xen/interface/sched.h
++++ b/include/xen/interface/sched.h
+@@ -3,6 +3,24 @@
+  *
+  * Scheduler state interactions
+  *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this software and associated documentation files (the "Software"), to
++ * deal in the Software without restriction, including without limitation the
++ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
++ * sell copies of the Software, and to permit persons to whom the Software is
++ * furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ *
+  * Copyright (c) 2005, Keir Fraser <keir@xensource.com>
   */
--static int i8k_smm(struct smm_regs *regs)
-+static int i8k_smm_func(void *par)
- {
- 	int rc;
-+	struct smm_regs *regs = par;
- 	int eax = regs->eax;
--	cpumask_var_t old_mask;
  
- #ifdef DEBUG
- 	int ebx = regs->ebx;
-@@ -149,16 +151,8 @@ static int i8k_smm(struct smm_regs *regs)
- #endif
- 
- 	/* SMM requires CPU 0 */
--	if (!alloc_cpumask_var(&old_mask, GFP_KERNEL))
--		return -ENOMEM;
--	cpumask_copy(old_mask, &current->cpus_allowed);
--	rc = set_cpus_allowed_ptr(current, cpumask_of(0));
--	if (rc)
--		goto out;
--	if (smp_processor_id() != 0) {
--		rc = -EBUSY;
--		goto out;
--	}
-+	if (smp_processor_id() != 0)
-+		return -EBUSY;
- 
- #if defined(CONFIG_X86_64)
- 	asm volatile("pushq %%rax\n\t"
-@@ -216,10 +210,6 @@ static int i8k_smm(struct smm_regs *regs)
- 	if (rc != 0 || (regs->eax & 0xffff) == 0xffff || regs->eax == eax)
- 		rc = -EINVAL;
- 
--out:
--	set_cpus_allowed_ptr(current, old_mask);
--	free_cpumask_var(old_mask);
--
- #ifdef DEBUG
- 	rettime = ktime_get();
- 	delta = ktime_sub(rettime, calltime);
-@@ -232,6 +222,20 @@ out:
- }
+@@ -12,18 +30,30 @@
+ #include <xen/interface/event_channel.h>
  
  /*
-+ * Call the System Management Mode BIOS.
++ * Guest Scheduler Operations
++ *
++ * The SCHEDOP interface provides mechanisms for a guest to interact
++ * with the scheduler, including yield, blocking and shutting itself
++ * down.
 + */
-+static int i8k_smm(struct smm_regs *regs)
-+{
-+	int ret;
-+
-+	get_online_cpus();
-+	ret = smp_call_on_cpu(0, i8k_smm_func, regs, true);
-+	put_online_cpus();
-+
-+	return ret;
-+}
 +
 +/*
-  * Read the fan status.
+  * The prototype for this hypercall is:
+- *  long sched_op_new(int cmd, void *arg)
++ * long HYPERVISOR_sched_op(enum sched_op cmd, void *arg, ...)
++ *
+  * @cmd == SCHEDOP_??? (scheduler operation).
+  * @arg == Operation-specific extra argument(s), as described below.
++ * ...  == Additional Operation-specific extra arguments, described below.
+  *
+- * **NOTE**:
+- * Versions of Xen prior to 3.0.2 provide only the following legacy version
++ * Versions of Xen prior to 3.0.2 provided only the following legacy version
+  * of this hypercall, supporting only the commands yield, block and shutdown:
+  *  long sched_op(int cmd, unsigned long arg)
+  * @cmd == SCHEDOP_??? (scheduler operation).
+  * @arg == 0               (SCHEDOP_yield and SCHEDOP_block)
+  *      == SHUTDOWN_* code (SCHEDOP_shutdown)
++ *
++ * This legacy version is available to new guests as:
++ * long HYPERVISOR_sched_op_compat(enum sched_op cmd, unsigned long arg)
   */
- static int i8k_get_fan_status(int fan)
+ 
+ /*
+@@ -44,12 +74,17 @@
+ /*
+  * Halt execution of this domain (all VCPUs) and notify the system controller.
+  * @arg == pointer to sched_shutdown structure.
++ *
++ * If the sched_shutdown_t reason is SHUTDOWN_suspend then
++ * x86 PV guests must also set RDX (EDX for 32-bit guests) to the MFN
++ * of the guest's start info page.  RDX/EDX is the third hypercall
++ * argument.
++ *
++ * In addition, which reason is SHUTDOWN_suspend this hypercall
++ * returns 1 if suspend was cancelled or the domain was merely
++ * checkpointed, and 0 if it is resuming in a new domain.
+  */
+ #define SCHEDOP_shutdown    2
+-struct sched_shutdown {
+-    unsigned int reason; /* SHUTDOWN_* */
+-};
+-DEFINE_GUEST_HANDLE_STRUCT(sched_shutdown);
+ 
+ /*
+  * Poll a set of event-channel ports. Return when one or more are pending. An
+@@ -57,12 +92,6 @@ DEFINE_GUEST_HANDLE_STRUCT(sched_shutdown);
+  * @arg == pointer to sched_poll structure.
+  */
+ #define SCHEDOP_poll        3
+-struct sched_poll {
+-    GUEST_HANDLE(evtchn_port_t) ports;
+-    unsigned int nr_ports;
+-    uint64_t timeout;
+-};
+-DEFINE_GUEST_HANDLE_STRUCT(sched_poll);
+ 
+ /*
+  * Declare a shutdown for another domain. The main use of this function is
+@@ -71,15 +100,11 @@ DEFINE_GUEST_HANDLE_STRUCT(sched_poll);
+  * @arg == pointer to sched_remote_shutdown structure.
+  */
+ #define SCHEDOP_remote_shutdown        4
+-struct sched_remote_shutdown {
+-    domid_t domain_id;         /* Remote domain ID */
+-    unsigned int reason;       /* SHUTDOWN_xxx reason */
+-};
+ 
+ /*
+  * Latch a shutdown code, so that when the domain later shuts down it
+  * reports this code to the control tools.
+- * @arg == as for SCHEDOP_shutdown.
++ * @arg == sched_shutdown, as for SCHEDOP_shutdown.
+  */
+ #define SCHEDOP_shutdown_code 5
+ 
+@@ -92,10 +117,47 @@ struct sched_remote_shutdown {
+  * With id != 0 and timeout != 0, poke watchdog timer and set new timeout.
+  */
+ #define SCHEDOP_watchdog    6
++
++/*
++ * Override the current vcpu affinity by pinning it to one physical cpu or
++ * undo this override restoring the previous affinity.
++ * @arg == pointer to sched_pin_override structure.
++ *
++ * A negative pcpu value will undo a previous pin override and restore the
++ * previous cpu affinity.
++ * This call is allowed for the hardware domain only and requires the cpu
++ * to be part of the domain's cpupool.
++ */
++#define SCHEDOP_pin_override 7
++
++struct sched_shutdown {
++    unsigned int reason; /* SHUTDOWN_* => shutdown reason */
++};
++DEFINE_GUEST_HANDLE_STRUCT(sched_shutdown);
++
++struct sched_poll {
++    GUEST_HANDLE(evtchn_port_t) ports;
++    unsigned int nr_ports;
++    uint64_t timeout;
++};
++DEFINE_GUEST_HANDLE_STRUCT(sched_poll);
++
++struct sched_remote_shutdown {
++    domid_t domain_id;         /* Remote domain ID */
++    unsigned int reason;       /* SHUTDOWN_* => shutdown reason */
++};
++DEFINE_GUEST_HANDLE_STRUCT(sched_remote_shutdown);
++
+ struct sched_watchdog {
+     uint32_t id;                /* watchdog ID */
+     uint32_t timeout;           /* timeout */
+ };
++DEFINE_GUEST_HANDLE_STRUCT(sched_watchdog);
++
++struct sched_pin_override {
++    int32_t pcpu;
++};
++DEFINE_GUEST_HANDLE_STRUCT(sched_pin_override);
+ 
+ /*
+  * Reason codes for SCHEDOP_shutdown. These may be interpreted by control
+@@ -107,6 +169,7 @@ struct sched_watchdog {
+ #define SHUTDOWN_suspend    2  /* Clean up, save suspend info, kill.         */
+ #define SHUTDOWN_crash      3  /* Tell controller we've crashed.             */
+ #define SHUTDOWN_watchdog   4  /* Restart because watchdog time expired.     */
++
+ /*
+  * Domain asked to perform 'soft reset' for it. The expected behavior is to
+  * reset internal Xen state for the domain returning it to the point where it
+@@ -115,5 +178,6 @@ struct sched_watchdog {
+  * interfaces again.
+  */
+ #define SHUTDOWN_soft_reset 5
++#define SHUTDOWN_MAX        5  /* Maximum valid shutdown reason.             */
+ 
+ #endif /* __XEN_PUBLIC_SCHED_H__ */
 -- 
 2.6.6
