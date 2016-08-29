@@ -1,11 +1,14 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH v6 0/6] Support calling functions on dedicated physical cpu
-Date: Mon, 29 Aug 2016 08:48:41 +0200
-Message-ID: <1472453327-19050-1-git-send-email-jgross@suse.com>
+Subject: [PATCH v6 3/6] smp: add function to execute a function synchronously
+	on a cpu
+Date: Mon, 29 Aug 2016 08:48:44 +0200
+Message-ID: <1472453327-19050-4-git-send-email-jgross@suse.com>
+References: <1472453327-19050-1-git-send-email-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1472453327-19050-1-git-send-email-jgross@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,67 +22,126 @@ To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org
 Cc: Juergen Gross <jgross@suse.com>, jeremy@goop.org, jdelvare@suse.com, peterz@infradead.org, hpa@zytor.com, akataria@vmware.com, x86@kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, pali.rohar@gmail.com, boris.ostrovsky@oracle.com, tglx@linutronix.de, linux@roeck-us.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Some hardware (e.g. Dell Studio laptops) require special functions to
-be called on physical cpu 0 in order to avoid occasional hangs. When
-running as dom0 under Xen this could be achieved only via special boot
-parameters (vcpu pinning) limiting the hypervisor in it's scheduling
-decisions.
+On some hardware models (e.g. Dell Studio 1555 laptop) some hardware
+related functions (e.g. SMIs) are to be executed on physical cpu 0
+only. Instead of open coding such a functionality multiple times in
+the kernel add a service function for this purpose. This will enable
+the possibility to take special measures in virtualized environments
+like Xen, too.
 
-This patch series is adding a generic function to be able to temporarily
-pin a (virtual) cpu to a dedicated physical cpu for executing above
-mentioned functions on that specific cpu. The drivers (dcdbas and i8k)
-requiring this functionality are modified accordingly.
+Signed-off-by: Juergen Gross <jgross@suse.com>
+---
+V5: rename and reshuffle parameters of smp_call_on_cpu() as requested by
+    Peter Zijlstra
+    test target cpu to be online as requested by Peter Zijlstra
 
-Changes in V6:
-- rebased to kernel 4.8-rc4
+V4: change return value in case of illegal cpu as requested by Peter Zijlstra
+    make pinning of vcpu an option as suggested by Peter Zijlstra
 
-Changes in V5:
-- patch 3: rename and reshuffle parameters of smp_call_on_cpu() as requested
-  by Peter Zijlstra
-- patch 3: test target cpu to be online as requested by Peter Zijlstra
-- patch 4: less wordy messages as requested by David Vrabel
+V2: instead of manipulating the allowed set of cpus use cpu specific
+    workqueue as requested by Peter Zijlstra
+---
+ include/linux/smp.h |  3 +++
+ kernel/smp.c        | 50 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ kernel/up.c         | 17 +++++++++++++++++
+ 3 files changed, 70 insertions(+)
 
-Changes in V4:
-- move patches 5 and 6 further up in the series
-- patch 2 (was 5): WARN_ONCE in case platform doesn't support pinning
-  as requested by Peter Zijlstra
-- patch 3 (was 2): change return value in case of illegal cpu as
-  requested by Peter Zijlstra
-- patch 3 (was 2): make pinning of vcpu an option as suggested by
-  Peter Zijlstra
-- patches 5 and 6 (were 3 and 4): add call to get_online_cpus()
-
-Changes in V3:
-- use get_cpu()/put_cpu() as suggested by David Vrabel
-
-Changes in V2:
-- instead of manipulating the allowed set of cpus use cpu specific
-  workqueue as requested by Peter Zijlstra
-- add include/linux/hypervisor.h to hide architecture specific stuff
-  from generic kernel code
-
-Juergen Gross (6):
-  xen: sync xen header
-  virt, sched: add generic vcpu pinning support
-  smp: add function to execute a function synchronously on a cpu
-  xen: add xen_pin_vcpu() to support calling functions on a dedicated
-    pcpu
-  dcdbas: make use of smp_call_on_cpu()
-  hwmon: use smp_call_on_cpu() for dell-smm i8k
-
- MAINTAINERS                       |   1 +
- arch/x86/include/asm/hypervisor.h |   4 ++
- arch/x86/kernel/cpu/hypervisor.c  |  11 +++++
- arch/x86/xen/enlighten.c          |  40 +++++++++++++++
- drivers/firmware/dcdbas.c         |  51 +++++++++----------
- drivers/hwmon/dell-smm-hwmon.c    |  36 ++++++++------
- include/linux/hypervisor.h        |  17 +++++++
- include/linux/smp.h               |   3 ++
- include/xen/interface/sched.h     | 100 +++++++++++++++++++++++++++++++-------
- kernel/smp.c                      |  51 +++++++++++++++++++
- kernel/up.c                       |  18 +++++++
- 11 files changed, 273 insertions(+), 59 deletions(-)
- create mode 100644 include/linux/hypervisor.h
-
+diff --git a/include/linux/smp.h b/include/linux/smp.h
+index eccae469..8e0cb7a 100644
+--- a/include/linux/smp.h
++++ b/include/linux/smp.h
+@@ -196,6 +196,9 @@ extern void arch_enable_nonboot_cpus_end(void);
+ 
+ void smp_setup_processor_id(void);
+ 
++int smp_call_on_cpu(unsigned int cpu, int (*func)(void *), void *par,
++		    bool phys);
++
+ /* SMP core functions */
+ int smpcfd_prepare_cpu(unsigned int cpu);
+ int smpcfd_dead_cpu(unsigned int cpu);
+diff --git a/kernel/smp.c b/kernel/smp.c
+index 4274ca5..f4f6137 100644
+--- a/kernel/smp.c
++++ b/kernel/smp.c
+@@ -725,3 +725,53 @@ void wake_up_all_idle_cpus(void)
+ 	preempt_enable();
+ }
+ EXPORT_SYMBOL_GPL(wake_up_all_idle_cpus);
++
++/**
++ * smp_call_on_cpu - Call a function on a specific cpu
++ *
++ * Used to call a function on a specific cpu and wait for it to return.
++ * Optionally make sure the call is done on a specified physical cpu via vcpu
++ * pinning in order to support virtualized environments.
++ */
++struct smp_call_on_cpu_struct {
++	struct work_struct	work;
++	struct completion	done;
++	int			(*func)(void *);
++	void			*data;
++	int			ret;
++	int			cpu;
++};
++
++static void smp_call_on_cpu_callback(struct work_struct *work)
++{
++	struct smp_call_on_cpu_struct *sscs;
++
++	sscs = container_of(work, struct smp_call_on_cpu_struct, work);
++	if (sscs->cpu >= 0)
++		hypervisor_pin_vcpu(sscs->cpu);
++	sscs->ret = sscs->func(sscs->data);
++	if (sscs->cpu >= 0)
++		hypervisor_pin_vcpu(-1);
++
++	complete(&sscs->done);
++}
++
++int smp_call_on_cpu(unsigned int cpu, int (*func)(void *), void *par, bool phys)
++{
++	struct smp_call_on_cpu_struct sscs = {
++		.work = __WORK_INITIALIZER(sscs.work, smp_call_on_cpu_callback),
++		.done = COMPLETION_INITIALIZER_ONSTACK(sscs.done),
++		.func = func,
++		.data = par,
++		.cpu  = phys ? cpu : -1,
++	};
++
++	if (cpu >= nr_cpu_ids || !cpu_online(cpu))
++		return -ENXIO;
++
++	queue_work_on(cpu, system_wq, &sscs.work);
++	wait_for_completion(&sscs.done);
++
++	return sscs.ret;
++}
++EXPORT_SYMBOL_GPL(smp_call_on_cpu);
+diff --git a/kernel/up.c b/kernel/up.c
+index 3ccee2b..ee81ac9 100644
+--- a/kernel/up.c
++++ b/kernel/up.c
+@@ -83,3 +83,20 @@ void on_each_cpu_cond(bool (*cond_func)(int cpu, void *info),
+ 	preempt_enable();
+ }
+ EXPORT_SYMBOL(on_each_cpu_cond);
++
++int smp_call_on_cpu(unsigned int cpu, int (*func)(void *), void *par, bool phys)
++{
++	int ret;
++
++	if (cpu != 0)
++		return -ENXIO;
++
++	if (phys)
++		hypervisor_pin_vcpu(0);
++	ret = func(par);
++	if (phys)
++		hypervisor_pin_vcpu(-1);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(smp_call_on_cpu);
 -- 
 2.6.6
