@@ -1,7 +1,7 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH v6 5/6] dcdbas: make use of smp_call_on_cpu()
-Date: Mon, 29 Aug 2016 08:48:46 +0200
-Message-ID: <1472453327-19050-6-git-send-email-jgross@suse.com>
+Subject: [PATCH v6 2/6] virt, sched: add generic vcpu pinning support
+Date: Mon, 29 Aug 2016 08:48:43 +0200
+Message-ID: <1472453327-19050-3-git-send-email-jgross@suse.com>
 References: <1472453327-19050-1-git-send-email-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,97 +21,134 @@ To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org
 Cc: Juergen Gross <jgross@suse.com>, jeremy@goop.org, jdelvare@suse.com, peterz@infradead.org, hpa@zytor.com, akataria@vmware.com, x86@kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, david.vrabel@citrix.com, Douglas_Warzecha@dell.com, pali.rohar@gmail.com, boris.ostrovsky@oracle.com, tglx@linutronix.de, linux@roeck-us.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use smp_call_on_cpu() to raise SMI on cpu 0.
-Make call secure by adding get_online_cpus() to avoid e.g. suspend
-resume cycles in between.
+Add generic virtualization support for pinning the current vcpu to a
+specified physical cpu. As this operation isn't performance critical
+(a very limited set of operations like BIOS calls and SMIs is expected
+to need this) just add a hypervisor specific indirection.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
-V4: add call to get_online_cpus()
----
- drivers/firmware/dcdbas.c | 51 ++++++++++++++++++++++++-----------------------
- 1 file changed, 26 insertions(+), 25 deletions(-)
+V4: move this patch some places up in the series
+    WARN_ONCE in case platform doesn't support pinning as requested by
+    Peter Zijlstra
 
-diff --git a/drivers/firmware/dcdbas.c b/drivers/firmware/dcdbas.c
-index 829eec8..2fe1a13 100644
---- a/drivers/firmware/dcdbas.c
-+++ b/drivers/firmware/dcdbas.c
-@@ -23,6 +23,7 @@
- #include <linux/platform_device.h>
- #include <linux/dma-mapping.h>
- #include <linux/errno.h>
-+#include <linux/cpu.h>
- #include <linux/gfp.h>
- #include <linux/init.h>
- #include <linux/kernel.h>
-@@ -238,33 +239,14 @@ static ssize_t host_control_on_shutdown_store(struct device *dev,
- 	return count;
+V3: use getc_cpu()/put_cpu() as suggested by David Vrabel
+
+V2: adapt to using workqueues
+    add include/linux/hypervisor.h to hide architecture specific stuff
+    from generic kernel code
+
+In case paravirt maintainers don't want to be responsible for
+include/linux/hypervisor.h I could take it.
+---
+ MAINTAINERS                       |  1 +
+ arch/x86/include/asm/hypervisor.h |  4 ++++
+ arch/x86/kernel/cpu/hypervisor.c  | 11 +++++++++++
+ include/linux/hypervisor.h        | 17 +++++++++++++++++
+ kernel/smp.c                      |  1 +
+ kernel/up.c                       |  1 +
+ 6 files changed, 35 insertions(+)
+ create mode 100644 include/linux/hypervisor.h
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 71aa5da..93bcac5 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -8844,6 +8844,7 @@ S:	Supported
+ F:	Documentation/virtual/paravirt_ops.txt
+ F:	arch/*/kernel/paravirt*
+ F:	arch/*/include/asm/paravirt.h
++F:	include/linux/hypervisor.h
+ 
+ PARIDE DRIVERS FOR PARALLEL PORT IDE DEVICES
+ M:	Tim Waugh <tim@cyberelk.net>
+diff --git a/arch/x86/include/asm/hypervisor.h b/arch/x86/include/asm/hypervisor.h
+index 055ea99..67942b6 100644
+--- a/arch/x86/include/asm/hypervisor.h
++++ b/arch/x86/include/asm/hypervisor.h
+@@ -43,6 +43,9 @@ struct hypervisor_x86 {
+ 
+ 	/* X2APIC detection (run once per boot) */
+ 	bool		(*x2apic_available)(void);
++
++	/* pin current vcpu to specified physical cpu (run rarely) */
++	void		(*pin_vcpu)(int);
+ };
+ 
+ extern const struct hypervisor_x86 *x86_hyper;
+@@ -56,6 +59,7 @@ extern const struct hypervisor_x86 x86_hyper_kvm;
+ extern void init_hypervisor(struct cpuinfo_x86 *c);
+ extern void init_hypervisor_platform(void);
+ extern bool hypervisor_x2apic_available(void);
++extern void hypervisor_pin_vcpu(int cpu);
+ #else
+ static inline void init_hypervisor(struct cpuinfo_x86 *c) { }
+ static inline void init_hypervisor_platform(void) { }
+diff --git a/arch/x86/kernel/cpu/hypervisor.c b/arch/x86/kernel/cpu/hypervisor.c
+index 27e4665..35691a6 100644
+--- a/arch/x86/kernel/cpu/hypervisor.c
++++ b/arch/x86/kernel/cpu/hypervisor.c
+@@ -86,3 +86,14 @@ bool __init hypervisor_x2apic_available(void)
+ 	       x86_hyper->x2apic_available &&
+ 	       x86_hyper->x2apic_available();
  }
- 
--/**
-- * dcdbas_smi_request: generate SMI request
-- *
-- * Called with smi_data_lock.
-- */
--int dcdbas_smi_request(struct smi_cmd *smi_cmd)
-+static int raise_smi(void *par)
- {
--	cpumask_var_t old_mask;
--	int ret = 0;
-+	struct smi_cmd *smi_cmd = par;
- 
--	if (smi_cmd->magic != SMI_CMD_MAGIC) {
--		dev_info(&dcdbas_pdev->dev, "%s: invalid magic value\n",
--			 __func__);
--		return -EBADR;
--	}
--
--	/* SMI requires CPU 0 */
--	if (!alloc_cpumask_var(&old_mask, GFP_KERNEL))
--		return -ENOMEM;
--
--	cpumask_copy(old_mask, &current->cpus_allowed);
--	set_cpus_allowed_ptr(current, cpumask_of(0));
- 	if (smp_processor_id() != 0) {
- 		dev_dbg(&dcdbas_pdev->dev, "%s: failed to get CPU 0\n",
- 			__func__);
--		ret = -EBUSY;
--		goto out;
-+		return -EBUSY;
- 	}
- 
- 	/* generate SMI */
-@@ -280,9 +262,28 @@ int dcdbas_smi_request(struct smi_cmd *smi_cmd)
- 		: "memory"
- 	);
- 
--out:
--	set_cpus_allowed_ptr(current, old_mask);
--	free_cpumask_var(old_mask);
-+	return 0;
-+}
-+/**
-+ * dcdbas_smi_request: generate SMI request
-+ *
-+ * Called with smi_data_lock.
-+ */
-+int dcdbas_smi_request(struct smi_cmd *smi_cmd)
++
++void hypervisor_pin_vcpu(int cpu)
 +{
-+	int ret;
++	if (!x86_hyper)
++		return;
 +
-+	if (smi_cmd->magic != SMI_CMD_MAGIC) {
-+		dev_info(&dcdbas_pdev->dev, "%s: invalid magic value\n",
-+			 __func__);
-+		return -EBADR;
-+	}
++	if (x86_hyper->pin_vcpu)
++		x86_hyper->pin_vcpu(cpu);
++	else
++		WARN_ONCE(1, "vcpu pinning requested but not supported!\n");
++}
+diff --git a/include/linux/hypervisor.h b/include/linux/hypervisor.h
+new file mode 100644
+index 0000000..3fa5ef2
+--- /dev/null
++++ b/include/linux/hypervisor.h
+@@ -0,0 +1,17 @@
++#ifndef __LINUX_HYPEVISOR_H
++#define __LINUX_HYPEVISOR_H
 +
-+	/* SMI requires CPU 0 */
-+	get_online_cpus();
-+	ret = smp_call_on_cpu(0, raise_smi, smi_cmd, true);
-+	put_online_cpus();
++/*
++ *	Generic Hypervisor support
++ *		Juergen Gross <jgross@suse.com>
++ */
 +
- 	return ret;
- }
++#ifdef CONFIG_HYPERVISOR_GUEST
++#include <asm/hypervisor.h>
++#else
++static inline void hypervisor_pin_vcpu(int cpu)
++{
++}
++#endif
++
++#endif /* __LINUX_HYPEVISOR_H */
+diff --git a/kernel/smp.c b/kernel/smp.c
+index 3aa642d..4274ca5 100644
+--- a/kernel/smp.c
++++ b/kernel/smp.c
+@@ -14,6 +14,7 @@
+ #include <linux/smp.h>
+ #include <linux/cpu.h>
+ #include <linux/sched.h>
++#include <linux/hypervisor.h>
  
+ #include "smpboot.h"
+ 
+diff --git a/kernel/up.c b/kernel/up.c
+index 1760bf3..3ccee2b 100644
+--- a/kernel/up.c
++++ b/kernel/up.c
+@@ -6,6 +6,7 @@
+ #include <linux/kernel.h>
+ #include <linux/export.h>
+ #include <linux/smp.h>
++#include <linux/hypervisor.h>
+ 
+ int smp_call_function_single(int cpu, void (*func) (void *info), void *info,
+ 				int wait)
 -- 
 2.6.6
