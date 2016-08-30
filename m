@@ -1,17 +1,11 @@
-From: Peter Griffin <peter.griffin@linaro.org>
-Subject: Re: [PATCH v8 15/18] ARM: STi: DT: STiH407: Add uniperif reader dt
-	nodes
-Date: Tue, 30 Aug 2016 15:21:12 +0100
-Message-ID: <20160830142112.GA22514@griffinp-ThinkPad-X1-Carbon-2nd>
-References: <1472223413-7254-1-git-send-email-peter.griffin@linaro.org>
-	<1472223413-7254-16-git-send-email-peter.griffin@linaro.org>
-	<20160830100148.GO1661@dell>
+From: Andy Lutomirski <luto@kernel.org>
+Subject: [PATCH] virtio_console: Stop doing DMA on the stack
+Date: Tue, 30 Aug 2016 08:04:15 -0700
+Message-ID: <0afe68f9b4be6c95af9e7672b07acd0274c26dfe.1472569320.git.luto@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160830100148.GO1661@dell>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,107 +15,87 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: devicetree@vger.kernel.org, kernel@stlinux.com, vinod.koul@intel.com, Arnaud Pouliquen <arnaud.pouliquen@st.com>, linux-remoteproc@vger.kernel.org, patrice.chotard@st.com, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, airlied@linux.ie, dmaengine@vger.kernel.org, dan.j.williams@intel.com, bjorn.andersson@linaro.org, virtualization@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org
+To: x86@kernel.org, Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
+Cc: linux-kernel@vger.kernel.org, Andy Lutomirski <luto@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Lee,
+virtio_console uses a small DMA buffer for control requests.  Move
+that buffer into heap memory.
 
-Thanks for reviewing and your very valuable feedback.
+Doing virtio DMA on the stack is normally okay on non-DMA-API virtio
+systems (which is currently most of them), but it breaks completely
+if the stack is virtually mapped.
 
-On Tue, 30 Aug 2016, Lee Jones wrote:
+Tested by typing both directions using picocom aimed at /dev/hvc0.
 
-> On Fri, 26 Aug 2016, Peter Griffin wrote:
-> 
-> > This patch adds the DT node for the uniperif reader
-> > IP block found on STiH407 family silicon.
-> > 
-> > Signed-off-by: Arnaud Pouliquen <arnaud.pouliquen@st.com>
-> > Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
-> > ---
-> >  arch/arm/boot/dts/stih407-family.dtsi | 26 ++++++++++++++++++++++++++
-> >  1 file changed, 26 insertions(+)
-> > 
-> > diff --git a/arch/arm/boot/dts/stih407-family.dtsi b/arch/arm/boot/dts/stih407-family.dtsi
-> > index d263c96..bdddf2c 100644
-> > --- a/arch/arm/boot/dts/stih407-family.dtsi
-> > +++ b/arch/arm/boot/dts/stih407-family.dtsi
-> > @@ -956,5 +956,31 @@
-> >  			st,version = <5>;
-> >  			st,mode = "SPDIF";
-> >  		};
-> > +
-> > +		sti_uni_reader0: sti-uni-reader@0 {
-> > +			compatible = "st,sti-uni-reader";
-> > +			status = "disabled";
-> 
-> I find it's normally nicer to place the status of the node at the
-> bottom, separated by a '\n'.
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+---
 
-Ok I'll add a superflous '\n' in the next version.
+Hi all-
 
->  There isn't a functional difference
-> admittedly, but it would be my preference, since it's not describing
-> the device per se.
+This is currently broken in tip:x86/asm.  If you (Amit) like this patch,
+would it make sense for Ingo to add it to -tip?
 
-Will change to your preference in the next version.
+Thanks,
+Andy
 
-> 
-> > +			#sound-dai-cells = <0>;
-> > +			st,syscfg = <&syscfg_core>;
-> > +			reg = <0x8D83000 0x158>;
-> 
-> We usually use lower-case for the address.
+ drivers/char/virtio_console.c | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
-Will fix.
-
-> 
-> Since this has a 'reg' property, the '0' in the node name does not
-> look appropriate.
-
-Will fix.
-> 
-> > +			interrupts = <GIC_SPI 87 IRQ_TYPE_NONE>;
-> > +			dmas = <&fdma0 5 0 1>;
-> > +			dma-names = "rx";
-> > +			dai-name = "Uni Reader #0 (PCM IN)";
-> 
-> Oooo, not seen something like this before.
-> 
-> If it does not already have one, it would require a DT Ack.
-
-No idea, the driver got merged 1 year ago.
-
-Arnaud did you get a DT ack when you merged this driver & binding?
-> 
-> > +			st,version = <3>;
-> 
-> This will likely need a DT Ack too.  We usually encode this sort of
-> information in the compatible string.
-
-See 05c1b4480e86a871b18030d6f3d532dc0ecdf38c
-> 
-> > +		};
-> > +
-> > +		sti_uni_reader1: sti-uni-reader@1 {
-> > +			compatible = "st,sti-uni-reader";
-> > +			status = "disabled";
-> > +			#sound-dai-cells = <0>;
-> > +			st,syscfg = <&syscfg_core>;
-> > +			reg = <0x8D84000 0x158>;
-> > +			interrupts = <GIC_SPI 88 IRQ_TYPE_NONE>;
-> > +			dmas = <&fdma0 6 0 1>;
-> > +			dma-names = "rx";
-> > +			dai-name = "Uni Reader #1 (HDMI RX)";
-> > +			st,version = <3>;
-> > +		};
-> 
-> All as above.
-> 
-> >  	};
-> >  };
-> 
-
-Regards,
-
-Peter.
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index d2406fe25533..5da47e26a012 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -165,6 +165,12 @@ struct ports_device {
+ 	 */
+ 	struct virtqueue *c_ivq, *c_ovq;
+ 
++	/*
++	 * A control packet buffer for guest->host requests, protected
++	 * by c_ovq_lock.
++	 */
++	struct virtio_console_control cpkt;
++
+ 	/* Array of per-port IO virtqueues */
+ 	struct virtqueue **in_vqs, **out_vqs;
+ 
+@@ -560,28 +566,29 @@ static ssize_t __send_control_msg(struct ports_device *portdev, u32 port_id,
+ 				  unsigned int event, unsigned int value)
+ {
+ 	struct scatterlist sg[1];
+-	struct virtio_console_control cpkt;
+ 	struct virtqueue *vq;
+ 	unsigned int len;
+ 
+ 	if (!use_multiport(portdev))
+ 		return 0;
+ 
+-	cpkt.id = cpu_to_virtio32(portdev->vdev, port_id);
+-	cpkt.event = cpu_to_virtio16(portdev->vdev, event);
+-	cpkt.value = cpu_to_virtio16(portdev->vdev, value);
+-
+ 	vq = portdev->c_ovq;
+ 
+-	sg_init_one(sg, &cpkt, sizeof(cpkt));
+-
+ 	spin_lock(&portdev->c_ovq_lock);
+-	if (virtqueue_add_outbuf(vq, sg, 1, &cpkt, GFP_ATOMIC) == 0) {
++
++	portdev->cpkt.id = cpu_to_virtio32(portdev->vdev, port_id);
++	portdev->cpkt.event = cpu_to_virtio16(portdev->vdev, event);
++	portdev->cpkt.value = cpu_to_virtio16(portdev->vdev, value);
++
++	sg_init_one(sg, &portdev->cpkt, sizeof(struct virtio_console_control));
++
++	if (virtqueue_add_outbuf(vq, sg, 1, &portdev->cpkt, GFP_ATOMIC) == 0) {
+ 		virtqueue_kick(vq);
+ 		while (!virtqueue_get_buf(vq, &len)
+ 			&& !virtqueue_is_broken(vq))
+ 			cpu_relax();
+ 	}
++
+ 	spin_unlock(&portdev->c_ovq_lock);
+ 	return 0;
+ }
+-- 
+2.7.4
