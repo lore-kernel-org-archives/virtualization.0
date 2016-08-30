@@ -1,16 +1,18 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v8 14/18] ARM: STi: DT: STiH407: Add uniperif player dt
-	nodes
-Date: Tue, 30 Aug 2016 11:02:58 +0100
-Message-ID: <20160830100258.GP1661__27483.6021163084$1472560931$gmane$org@dell>
-References: <1472223413-7254-1-git-send-email-peter.griffin@linaro.org>
-	<1472223413-7254-15-git-send-email-peter.griffin@linaro.org>
+From: Alex Williamson <alex.williamson@redhat.com>
+Subject: Re: [PATCH v2 2/2] vfio: add virtio pci quirk
+Date: Tue, 30 Aug 2016 06:46:12 -0600
+Message-ID: <20160830064612.5d8598b3__42960.1068761714$1472561190$gmane$org@t450s.home>
+References: <1472523968-9540-1-git-send-email-mst@redhat.com>
+	<1472523968-9540-3-git-send-email-mst@redhat.com>
+	<20160829212325.32467efc@t450s.home>
+	<20160829215220.0efb91b7@t450s.home>
+	<20160829225304.17238cfd@t450s.home>
+	<20160830081834-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1472223413-7254-15-git-send-email-peter.griffin@linaro.org>
+In-Reply-To: <20160830081834-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,72 +22,329 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Griffin <peter.griffin@linaro.org>
-Cc: devicetree@vger.kernel.org, kernel@stlinux.com, vinod.koul@intel.com, Arnaud Pouliquen <arnaud.pouliquen@st.com>, linux-remoteproc@vger.kernel.org, patrice.chotard@st.com, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, airlied@linux.ie, dmaengine@vger.kernel.org, dan.j.williams@intel.com, bjorn.andersson@linaro.org, virtualization@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Feng Wu <feng.wu@intel.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, Julia Lawall <Julia.Lawall@lip6.fr>, Yongji Xie <xyjxie@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, Dan Carpenter <dan.carpenter@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCAyNiBBdWcgMjAxNiwgUGV0ZXIgR3JpZmZpbiB3cm90ZToKCj4gVGhpcyBwYXRjaCBh
-ZGRzIHRoZSBEVCBub2RlcyBmb3IgdGhlIHVuaXBlcmlmIHBsYXllcgo+IElQIGJsb2NrcyBmb3Vu
-ZCBvbiBTVGlINDA3IGZhbWlseSBzaWxpY29uLgo+IAo+IFNpZ25lZC1vZmYtYnk6IEFybmF1ZCBQ
-b3VsaXF1ZW4gPGFybmF1ZC5wb3VsaXF1ZW5Ac3QuY29tPgo+IFNpZ25lZC1vZmYtYnk6IFBldGVy
-IEdyaWZmaW4gPHBldGVyLmdyaWZmaW5AbGluYXJvLm9yZz4KPiAtLS0KPiAgYXJjaC9hcm0vYm9v
-dC9kdHMvc3RpaDQwNy1mYW1pbHkuZHRzaSB8IDc2ICsrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKysrCj4gIDEgZmlsZSBjaGFuZ2VkLCA3NiBpbnNlcnRpb25zKCspCgpTYW1lIGNvbW1l
-bnRzIGFzIGluIHBhdGNoIDE0LgoKPiBkaWZmIC0tZ2l0IGEvYXJjaC9hcm0vYm9vdC9kdHMvc3Rp
-aDQwNy1mYW1pbHkuZHRzaSBiL2FyY2gvYXJtL2Jvb3QvZHRzL3N0aWg0MDctZmFtaWx5LmR0c2kK
-PiBpbmRleCBkMTI1OGQ1Li5kMjYzYzk2IDEwMDY0NAo+IC0tLSBhL2FyY2gvYXJtL2Jvb3QvZHRz
-L3N0aWg0MDctZmFtaWx5LmR0c2kKPiArKysgYi9hcmNoL2FybS9ib290L2R0cy9zdGloNDA3LWZh
-bWlseS5kdHNpCj4gQEAgLTg4MCw1ICs4ODAsODEgQEAKPiAgCQkJc3RhdHVzID0gImRpc2FibGVk
-IjsKPiAgCQkJc3Qsc3lzY2ZnID0gPCZzeXNjZmdfY29yZT47Cj4gIAkJfTsKPiArCj4gKwkJc3Rp
-X3VuaV9wbGF5ZXIwOiBzdGktdW5pLXBsYXllckAwIHsKPiArCQkJY29tcGF0aWJsZSA9ICJzdCxz
-dGktdW5pLXBsYXllciI7Cj4gKwkJCXN0YXR1cyA9ICJkaXNhYmxlZCI7Cj4gKwkJCSNzb3VuZC1k
-YWktY2VsbHMgPSA8MD47Cj4gKwkJCXN0LHN5c2NmZyA9IDwmc3lzY2ZnX2NvcmU+Owo+ICsJCQlj
-bG9ja3MgPSA8JmNsa19zX2QwX2ZsZXhnZW4gQ0xLX1BDTV8wPjsKPiArCQkJYXNzaWduZWQtY2xv
-Y2tzID0gPCZjbGtfc19kMF9xdWFkZnMgMD4sIDwmY2xrX3NfZDBfZmxleGdlbiBDTEtfUENNXzA+
-Owo+ICsJCQlhc3NpZ25lZC1jbG9jay1wYXJlbnRzID0gPDA+LCA8JmNsa19zX2QwX3F1YWRmcyAw
-PjsKPiArCQkJYXNzaWduZWQtY2xvY2stcmF0ZXMgPSA8NTAwMDAwMDA+Owo+ICsJCQlyZWcgPSA8
-MHg4RDgwMDAwIDB4MTU4PjsKPiArCQkJaW50ZXJydXB0cyA9IDxHSUNfU1BJIDg0IElSUV9UWVBF
-X05PTkU+Owo+ICsJCQlkbWFzID0gPCZmZG1hMCAyIDAgMT47Cj4gKwkJCWRhaS1uYW1lID0gIlVu
-aSBQbGF5ZXIgIzAgKEhETUkpIjsKPiArCQkJZG1hLW5hbWVzID0gInR4IjsKPiArCQkJc3QsdW5p
-cGVyaXBoLWlkID0gPDA+Owo+ICsJCQlzdCx2ZXJzaW9uID0gPDU+Owo+ICsJCQlzdCxtb2RlID0g
-IkhETUkiOwo+ICsJCX07Cj4gKwo+ICsJCXN0aV91bmlfcGxheWVyMTogc3RpLXVuaS1wbGF5ZXJA
-MSB7Cj4gKwkJCWNvbXBhdGlibGUgPSAic3Qsc3RpLXVuaS1wbGF5ZXIiOwo+ICsJCQlzdGF0dXMg
-PSAiZGlzYWJsZWQiOwo+ICsJCQkjc291bmQtZGFpLWNlbGxzID0gPDA+Owo+ICsJCQlzdCxzeXNj
-ZmcgPSA8JnN5c2NmZ19jb3JlPjsKPiArCQkJY2xvY2tzID0gPCZjbGtfc19kMF9mbGV4Z2VuIENM
-S19QQ01fMT47Cj4gKwkJCWFzc2lnbmVkLWNsb2NrcyA9IDwmY2xrX3NfZDBfcXVhZGZzIDE+LCA8
-JmNsa19zX2QwX2ZsZXhnZW4gQ0xLX1BDTV8xPjsKPiArCQkJYXNzaWduZWQtY2xvY2stcGFyZW50
-cyA9IDwwPiwgPCZjbGtfc19kMF9xdWFkZnMgMT47Cj4gKwkJCWFzc2lnbmVkLWNsb2NrLXJhdGVz
-ID0gPDUwMDAwMDAwPjsKPiArCQkJcmVnID0gPDB4OEQ4MTAwMCAweDE1OD47Cj4gKwkJCWludGVy
-cnVwdHMgPSA8R0lDX1NQSSA4NSBJUlFfVFlQRV9OT05FPjsKPiArCQkJZG1hcyA9IDwmZmRtYTAg
-MyAwIDE+Owo+ICsJCQlkYWktbmFtZSA9ICJVbmkgUGxheWVyICMxIChQSU8pIjsKPiArCQkJZG1h
-LW5hbWVzID0gInR4IjsKPiArCQkJc3QsdW5pcGVyaXBoLWlkID0gPDE+Owo+ICsJCQlzdCx2ZXJz
-aW9uID0gPDU+Owo+ICsJCQlzdCxtb2RlID0gIlBDTSI7Cj4gKwkJfTsKPiArCj4gKwkJc3RpX3Vu
-aV9wbGF5ZXIyOiBzdGktdW5pLXBsYXllckAyIHsKPiArCQkJY29tcGF0aWJsZSA9ICJzdCxzdGkt
-dW5pLXBsYXllciI7Cj4gKwkJCXN0YXR1cyA9ICJkaXNhYmxlZCI7Cj4gKwkJCSNzb3VuZC1kYWkt
-Y2VsbHMgPSA8MD47Cj4gKwkJCXN0LHN5c2NmZyA9IDwmc3lzY2ZnX2NvcmU+Owo+ICsJCQljbG9j
-a3MgPSA8JmNsa19zX2QwX2ZsZXhnZW4gQ0xLX1BDTV8yPjsKPiArCQkJYXNzaWduZWQtY2xvY2tz
-ID0gPCZjbGtfc19kMF9xdWFkZnMgMj4sIDwmY2xrX3NfZDBfZmxleGdlbiBDTEtfUENNXzI+Owo+
-ICsJCQlhc3NpZ25lZC1jbG9jay1wYXJlbnRzID0gPDA+LCA8JmNsa19zX2QwX3F1YWRmcyAyPjsK
-PiArCQkJYXNzaWduZWQtY2xvY2stcmF0ZXMgPSA8NTAwMDAwMDA+Owo+ICsJCQlyZWcgPSA8MHg4
-RDgyMDAwIDB4MTU4PjsKPiArCQkJaW50ZXJydXB0cyA9IDxHSUNfU1BJIDg2IElSUV9UWVBFX05P
-TkU+Owo+ICsJCQlkbWFzID0gPCZmZG1hMCA0IDAgMT47Cj4gKwkJCWRhaS1uYW1lID0gIlVuaSBQ
-bGF5ZXIgIzEgKERBQykiOwo+ICsJCQlkbWEtbmFtZXMgPSAidHgiOwo+ICsJCQlzdCx1bmlwZXJp
-cGgtaWQgPSA8Mj47Cj4gKwkJCXN0LHZlcnNpb24gPSA8NT47Cj4gKwkJCXN0LG1vZGUgPSAiUENN
-IjsKPiArCQl9Owo+ICsKPiArCQlzdGlfdW5pX3BsYXllcjM6IHN0aS11bmktcGxheWVyQDMgewo+
-ICsJCQljb21wYXRpYmxlID0gInN0LHN0aS11bmktcGxheWVyIjsKPiArCQkJc3RhdHVzID0gImRp
-c2FibGVkIjsKPiArCQkJI3NvdW5kLWRhaS1jZWxscyA9IDwwPjsKPiArCQkJc3Qsc3lzY2ZnID0g
-PCZzeXNjZmdfY29yZT47Cj4gKwkJCWNsb2NrcyA9IDwmY2xrX3NfZDBfZmxleGdlbiBDTEtfU1BE
-SUZGPjsKPiArCQkJYXNzaWduZWQtY2xvY2tzID0gPCZjbGtfc19kMF9xdWFkZnMgMz4sIDwmY2xr
-X3NfZDBfZmxleGdlbiBDTEtfU1BESUZGPjsKPiArCQkJYXNzaWduZWQtY2xvY2stcGFyZW50cyA9
-IDwwPiwgPCZjbGtfc19kMF9xdWFkZnMgMz47Cj4gKwkJCWFzc2lnbmVkLWNsb2NrLXJhdGVzID0g
-PDUwMDAwMDAwPjsKPiArCQkJcmVnID0gPDB4OEQ4NTAwMCAweDE1OD47Cj4gKwkJCWludGVycnVw
-dHMgPSA8R0lDX1NQSSA4OSBJUlFfVFlQRV9OT05FPjsKPiArCQkJZG1hcyA9IDwmZmRtYTAgNyAw
-IDE+Owo+ICsJCQlkbWEtbmFtZXMgPSAidHgiOwo+ICsJCQlkYWktbmFtZSA9ICJVbmkgUGxheWVy
-ICMxIChQSU8pIjsKPiArCQkJc3QsdW5pcGVyaXBoLWlkID0gPDM+Owo+ICsJCQlzdCx2ZXJzaW9u
-ID0gPDU+Owo+ICsJCQlzdCxtb2RlID0gIlNQRElGIjsKPiArCQl9Owo+ICAJfTsKPiAgfTsKCi0t
-IApMZWUgSm9uZXMKTGluYXJvIFNUTWljcm9lbGVjdHJvbmljcyBMYW5kaW5nIFRlYW0gTGVhZApM
-aW5hcm8ub3JnIOKUgiBPcGVuIHNvdXJjZSBzb2Z0d2FyZSBmb3IgQVJNIFNvQ3MKRm9sbG93IExp
-bmFybzogRmFjZWJvb2sgfCBUd2l0dGVyIHwgQmxvZwpfX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
-bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
-dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Tue, 30 Aug 2016 08:20:38 +0300
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
+
+> On Mon, Aug 29, 2016 at 10:53:04PM -0600, Alex Williamson wrote:
+> > On Mon, 29 Aug 2016 21:52:20 -0600
+> > Alex Williamson <alex.williamson@redhat.com> wrote:
+> >   
+> > > On Mon, 29 Aug 2016 21:23:25 -0600
+> > > Alex Williamson <alex.williamson@redhat.com> wrote:
+> > >   
+> > > > On Tue, 30 Aug 2016 05:27:17 +0300
+> > > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > >     
+> > > > > Modern virtio pci devices can set VIRTIO_F_IOMMU_PLATFORM
+> > > > > to signal they are safe to use with an IOMMU.
+> > > > > 
+> > > > > Without this bit, exposing the device to userspace is unsafe, so probe
+> > > > > and fail VFIO initialization unless noiommu is enabled.
+> > > > > 
+> > > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > > > > ---
+> > > > >  drivers/vfio/pci/vfio_pci_private.h |   1 +
+> > > > >  drivers/vfio/pci/vfio_pci.c         |  14 ++++
+> > > > >  drivers/vfio/pci/vfio_pci_virtio.c  | 140 ++++++++++++++++++++++++++++++++++++
+> > > > >  drivers/vfio/pci/Makefile           |   1 +
+> > > > >  4 files changed, 156 insertions(+)
+> > > > >  create mode 100644 drivers/vfio/pci/vfio_pci_virtio.c
+> > > > > 
+> > > > > diff --git a/drivers/vfio/pci/vfio_pci_private.h b/drivers/vfio/pci/vfio_pci_private.h
+> > > > > index 2128de8..2bd5616 100644
+> > > > > --- a/drivers/vfio/pci/vfio_pci_private.h
+> > > > > +++ b/drivers/vfio/pci/vfio_pci_private.h
+> > > > > @@ -139,4 +139,5 @@ static inline int vfio_pci_igd_init(struct vfio_pci_device *vdev)
+> > > > >  	return -ENODEV;
+> > > > >  }
+> > > > >  #endif
+> > > > > +extern int vfio_pci_virtio_quirk(struct vfio_pci_device *vdev, bool noiommu);
+> > > > >  #endif /* VFIO_PCI_PRIVATE_H */
+> > > > > diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+> > > > > index d624a52..e93bf0c 100644
+> > > > > --- a/drivers/vfio/pci/vfio_pci.c
+> > > > > +++ b/drivers/vfio/pci/vfio_pci.c
+> > > > > @@ -1236,6 +1236,20 @@ static int vfio_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+> > > > >  		return ret;
+> > > > >  	}
+> > > > >  
+> > > > > +	if (pdev->vendor == PCI_VENDOR_ID_REDHAT_QUMRANET) {      
+> > > > 
+> > > > Perhaps a vfio_pci_is_virtio() like vga below?  Let's test the device
+> > > > ID range initially as well, this test raised a big red flag for me
+> > > > whether all devices within this vendor ID were virtio.
+> > > >     
+> > > > > +		bool noiommu = vfio_is_noiommu_group_dev(&pdev->dev);      
+> > > > 
+> > > > I think you can use iommu_present() for this and avoid patch 1of2.
+> > > > noiommu is mutually exclusive to an iommu being present.  Seems like
+> > > > all of this logic should be in the quirk itself, I'm not sure what it
+> > > > buys to get the value here but wait until later to use it.  Using
+> > > > iommu_present() could also move this test much earlier in
+> > > > vfio_pci_probe() making the exit path easier.    
+> > > 
+> > > Except then I'm reintroducing the bug fixed by 16ab8a5cbea4 since
+> > > iommu_present() assumes an IOMMU API based device.  I'll try to think if
+> > > there's another way to avoid adding the is_noiommu function.  Thanks,  
+> > 
+> > I think something like this would do it.
+> > 
+> > --- a/drivers/vfio/pci/vfio_pci.c
+> > +++ b/drivers/vfio/pci/vfio_pci.c
+> > @@ -1214,6 +1214,22 @@ static int vfio_pci_probe(struct pci_dev *pdev, const str
+> >         if (pdev->hdr_type != PCI_HEADER_TYPE_NORMAL)
+> >                 return -EINVAL;
+> >  
+> > +       /*
+> > +        * Filter out virtio devices that do not honor the iommu,
+> > +        * but only for real iommu groups.
+> > +        */
+> > +       if (vfio_pci_is_virtio(pdev)) {
+> > +               struct iommu_group *tmp = iommu_group_get(&pdev->dev);
+> > +
+> > +               if (tmp) {
+> > +                       iommu_group_put(tmp);
+> > +
+> > +                       ret = vfio_pci_virtio_quirk(pdev);
+> > +                       if (ret)
+> > +                               return ret;
+> > +               }
+> > +       }
+> > +
+> >         group = vfio_iommu_group_get(&pdev->dev);
+> >         if (!group)
+> >                 return -EINVAL;
+> > 
+> > Thanks,
+> > Alex  
+> 
+> Yes but I think this will also prevent binding
+> a vfio-noiommu to this device.
+> 
+> Arguably this is a separate bug as it's already impossible ...
+> but now that we are disabling regular vfio the noiommu
+> fallback becomes more important.
+> 
+> Any hints on how to fix?
+
+I don't follow, prior to noiommu, we'd simply call iommu_group_get() and
+rely on the iommu group created by the iommu driver.  Either there is
+one and we allow binding to vfio-pci or there is not one and we would
+fail.  With noiommu, vfio_iommu_group_get() wraps that call in some
+logic that potentially creates an iommu group if noiommu is enabled.
+So if we use the real iommu_group_get() prior to that and a group
+exists, we know we're not using noiommu and we can test the virtio
+device.  If the group doesn't exist here, noiommu plays out the same as
+it would otherwise (depending on noiommu enabling), a virtio device can
+be bound regardless of its capabilities and features.  I think that's
+what we want, right?  Thanks,
+
+Alex
+
+> > > > > +
+> > > > > +		ret = vfio_pci_virtio_quirk(vdev, noiommu);
+> > > > > +		if (ret) {
+> > > > > +			dev_warn(&vdev->pdev->dev,
+> > > > > +				 "Failed to setup Virtio for VFIO\n");
+> > > > > +			vfio_del_group_dev(&pdev->dev);
+> > > > > +			vfio_iommu_group_put(group, &pdev->dev);
+> > > > > +			kfree(vdev);
+> > > > > +			return ret;
+> > > > > +		}
+> > > > > +	}
+> > > > > +
+> > > > >  	if (vfio_pci_is_vga(pdev)) {
+> > > > >  		vga_client_register(pdev, vdev, NULL, vfio_pci_set_vga_decode);
+> > > > >  		vga_set_legacy_decoding(pdev,
+> > > > > diff --git a/drivers/vfio/pci/vfio_pci_virtio.c b/drivers/vfio/pci/vfio_pci_virtio.c
+> > > > > new file mode 100644
+> > > > > index 0000000..e1ecffd
+> > > > > --- /dev/null
+> > > > > +++ b/drivers/vfio/pci/vfio_pci_virtio.c
+> > > > > @@ -0,0 +1,140 @@
+> > > > > +/*
+> > > > > + * VFIO PCI Intel Graphics support      
+> > > >       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^    
+> > > > > + *
+> > > > > + * Copyright (C) 2016 Red Hat, Inc.  All rights reserved.
+> > > > > + *	Author: Alex Williamson <alex.williamson@redhat.com>      
+> > > > 
+> > > > Update.
+> > > >     
+> > > > > + *
+> > > > > + * This program is free software; you can redistribute it and/or modify
+> > > > > + * it under the terms of the GNU General Public License version 2 as
+> > > > > + * published by the Free Software Foundation.
+> > > > > + *
+> > > > > + * Register a device specific region through which to provide read-only
+> > > > > + * access to the Intel IGD opregion.  The register defining the opregion
+> > > > > + * address is also virtualized to prevent user modification.
+> > > > > + */
+> > > > > +
+> > > > > +#include <linux/io.h>
+> > > > > +#include <linux/pci.h>
+> > > > > +#include <linux/uaccess.h>      
+> > > > 
+> > > > Are io.h and uaccess.h needed?
+> > > >     
+> > > > > +#include <linux/vfio.h>
+> > > > > +#include <linux/virtio_pci.h>
+> > > > > +#include <linux/virtio_config.h>
+> > > > > +
+> > > > > +#include "vfio_pci_private.h"
+> > > > > +
+> > > > > +/**
+> > > > > + * virtio_pci_find_capability - walk capabilities to find device info.
+> > > > > + * @dev: the pci device
+> > > > > + * @cfg_type: the VIRTIO_PCI_CAP_* value we seek
+> > > > > + *
+> > > > > + * Returns offset of the capability, or 0.
+> > > > > + */
+> > > > > +static inline int virtio_pci_find_capability(struct pci_dev *dev, u8 cfg_type)      
+> > > > 
+> > > > Does inlining this really make sense?
+> > > >     
+> > > > > +{
+> > > > > +	int pos;
+> > > > > +
+> > > > > +	for (pos = pci_find_capability(dev, PCI_CAP_ID_VNDR);
+> > > > > +	     pos > 0;
+> > > > > +	     pos = pci_find_next_capability(dev, pos, PCI_CAP_ID_VNDR)) {
+> > > > > +		u8 type;
+> > > > > +		pci_read_config_byte(dev, pos + offsetof(struct virtio_pci_cap,
+> > > > > +							 cfg_type),
+> > > > > +				     &type);
+> > > > > +
+> > > > > +		if (type != cfg_type)
+> > > > > +			continue;
+> > > > > +
+> > > > > +		/* Ignore structures with reserved BAR values */
+> > > > > +		if (type != VIRTIO_PCI_CAP_PCI_CFG) {
+> > > > > +			u8 bar;
+> > > > > +
+> > > > > +			pci_read_config_byte(dev, pos +
+> > > > > +					     offsetof(struct virtio_pci_cap,
+> > > > > +						      bar),
+> > > > > +					     &bar);
+> > > > > +			if (bar > 0x5)      
+> > > > 
+> > > > s/0x5/PCI_STD_RESOURCE_END/
+> > > >     
+> > > > > +				continue;
+> > > > > +		}
+> > > > > +
+> > > > > +		return pos;
+> > > > > +	}
+> > > > > +	return 0;
+> > > > > +}
+> > > > > +
+> > > > > +
+> > > > > +int vfio_pci_virtio_quirk(struct vfio_pci_device *vdev, bool noiommu)
+> > > > > +{
+> > > > > +	struct pci_dev *dev = vdev->pdev;      
+> > > > 
+> > > > Please use *pdev for consistency with the rest of drivers/vfio/pci/*
+> > > > 
+> > > > Also, is there any reason to pass the vfio_pci_device?  There's nothing
+> > > > vfio here otherwise and we could remove more #includes.
+> > > >     
+> > > > > +	int common, cfg;
+> > > > > +	u32 features;
+> > > > > +	u32 offset;
+> > > > > +	u8 bar;
+> > > > > +
+> > > > > +	/* Without an IOMMU, we don't care */
+> > > > > +	if (noiommu)
+> > > > > +		return 0;
+> > > > > +
+> > > > > +        /* Virtio only owns devices >= 0x1000 and <= 0x107f: leave the rest. */
+> > > > > +        if (dev->device < 0x1000 || dev->device > 0x107f)
+> > > > > +                return 0;      
+> > > > 
+> > > > Whitespace
+> > > >     
+> > > > > +
+> > > > > +	/* Check whether device enforces the IOMMU correctly */
+> > > > > +
+> > > > > +	/*
+> > > > > +	 * All modern devices must have common and cfg capabilities. We use cfg
+> > > > > +	 * capability for access so that we don't need to worry about resource
+> > > > > +	 * availability. Slow but sure.
+> > > > > +	 * Note that all vendor-specific fields we access are little-endian
+> > > > > +	 * which matches what pci config accessors expect, so they do byteswap
+> > > > > +	 * for us if appropriate.
+> > > > > +	 */
+> > > > > +	common = virtio_pci_find_capability(dev, VIRTIO_PCI_CAP_COMMON_CFG);
+> > > > > +	cfg = virtio_pci_find_capability(dev, VIRTIO_PCI_CAP_PCI_CFG);
+> > > > > +	if (!cfg || !common) {
+> > > > > +                dev_warn(&dev->dev,
+> > > > > +                         "Virtio device lacks common or pci cfg.\n");      
+> > > > 
+> > > > Whitespace
+> > > >     
+> > > > > +		return -ENODEV;
+> > > > > +	}
+> > > > > +
+> > > > > +	pci_read_config_byte(dev, common + offsetof(struct virtio_pci_cap,
+> > > > > +						    bar),
+> > > > > +			     &bar);
+> > > > > +	pci_read_config_dword(dev, common + offsetof(struct virtio_pci_cap,
+> > > > > +						    offset),
+> > > > > +			     &offset);
+> > > > > +
+> > > > > +	/* Program cfg capability for dword access into common cfg. */
+> > > > > +	pci_write_config_byte(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
+> > > > > +						  cap.bar),
+> > > > > +			      bar);
+> > > > > +	pci_write_config_dword(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
+> > > > > +						   cap.length),
+> > > > > +			       0x4);
+> > > > > +
+> > > > > +	/* Select features dword that has VIRTIO_F_IOMMU_PLATFORM. */
+> > > > > +	pci_write_config_dword(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
+> > > > > +						  cap.offset),
+> > > > > +			       offset + offsetof(struct virtio_pci_common_cfg,
+> > > > > +						 device_feature_select));
+> > > > > +	pci_write_config_dword(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
+> > > > > +						  pci_cfg_data),
+> > > > > +			       VIRTIO_F_IOMMU_PLATFORM / 32);
+> > > > > +
+> > > > > +	/* Get the features dword. */
+> > > > > +	pci_write_config_dword(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
+> > > > > +						  cap.offset),
+> > > > > +			       offset + offsetof(struct virtio_pci_common_cfg,
+> > > > > +						 device_feature));
+> > > > > +	pci_read_config_dword(dev, cfg + offsetof(struct virtio_pci_cfg_cap,
+> > > > > +						  pci_cfg_data),
+> > > > > +			      &features);
+> > > > > +
+> > > > > +	/* Does this device obey the platform's IOMMU? If not it's an error. */
+> > > > > +	if (!(features & (0x1 << (VIRTIO_F_IOMMU_PLATFORM % 32)))) {
+> > > > > +                dev_warn(&dev->dev,
+> > > > > +                         "Virtio device lacks VIRTIO_F_IOMMU_PLATFORM.\n");      
+> > > > 
+> > > > Whitespace
+> > > >     
+> > > > > +		return -ENODEV;
+> > > > > +	}
+> > > > > +
+> > > > > +	return 0;
+> > > > > +}
+> > > > > diff --git a/drivers/vfio/pci/Makefile b/drivers/vfio/pci/Makefile
+> > > > > index 76d8ec0..e9b20e7 100644
+> > > > > --- a/drivers/vfio/pci/Makefile
+> > > > > +++ b/drivers/vfio/pci/Makefile
+> > > > > @@ -1,5 +1,6 @@
+> > > > >  
+> > > > >  vfio-pci-y := vfio_pci.o vfio_pci_intrs.o vfio_pci_rdwr.o vfio_pci_config.o
+> > > > > +vfio-pci-y += vfio_pci_virtio.o
+> > > > >  vfio-pci-$(CONFIG_VFIO_PCI_IGD) += vfio_pci_igd.o
+> > > > >  
+> > > > >  obj-$(CONFIG_VFIO_PCI) += vfio-pci.o      
+> > > > 
+> > > > Thanks,
+> > > > Alex    
