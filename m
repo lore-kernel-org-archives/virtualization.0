@@ -1,7 +1,7 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Alex Williamson <alex.williamson@redhat.com>
 Subject: Re: [PATCH v2 2/2] vfio: add virtio pci quirk
-Date: Tue, 30 Aug 2016 06:57:33 +0300
-Message-ID: <20160830065655-mutt-send-email-mst@kernel.org>
+Date: Mon, 29 Aug 2016 22:53:04 -0600
+Message-ID: <20160829225304.17238cfd@t450s.home>
 References: <1472523968-9540-1-git-send-email-mst@redhat.com>
 	<1472523968-9540-3-git-send-email-mst@redhat.com>
 	<20160829212325.32467efc@t450s.home>
@@ -10,7 +10,6 @@ Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 In-Reply-To: <20160829215220.0efb91b7@t450s.home>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,17 +20,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alex Williamson <alex.williamson@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Feng Wu <feng.wu@intel.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, Julia Lawall <Julia.Lawall@lip6.fr>, Yongji Xie <xyjxie@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, Dan Carpenter <dan.carpenter@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Aug 29, 2016 at 09:52:20PM -0600, Alex Williamson wrote:
+On Mon, 29 Aug 2016 21:52:20 -0600
+Alex Williamson <alex.williamson@redhat.com> wrote:
+
 > On Mon, 29 Aug 2016 21:23:25 -0600
 > Alex Williamson <alex.williamson@redhat.com> wrote:
 > 
 > > On Tue, 30 Aug 2016 05:27:17 +0300
 > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > 
+> >   
 > > > Modern virtio pci devices can set VIRTIO_F_IOMMU_PLATFORM
 > > > to signal they are safe to use with an IOMMU.
 > > > 
@@ -65,32 +66,56 @@ On Mon, Aug 29, 2016 at 09:52:20PM -0600, Alex Williamson wrote:
 > > >  		return ret;
 > > >  	}
 > > >  
-> > > +	if (pdev->vendor == PCI_VENDOR_ID_REDHAT_QUMRANET) {  
+> > > +	if (pdev->vendor == PCI_VENDOR_ID_REDHAT_QUMRANET) {    
 > > 
 > > Perhaps a vfio_pci_is_virtio() like vga below?  Let's test the device
 > > ID range initially as well, this test raised a big red flag for me
 > > whether all devices within this vendor ID were virtio.
-> > 
-> > > +		bool noiommu = vfio_is_noiommu_group_dev(&pdev->dev);  
+> >   
+> > > +		bool noiommu = vfio_is_noiommu_group_dev(&pdev->dev);    
 > > 
 > > I think you can use iommu_present() for this and avoid patch 1of2.
 > > noiommu is mutually exclusive to an iommu being present.  Seems like
 > > all of this logic should be in the quirk itself, I'm not sure what it
 > > buys to get the value here but wait until later to use it.  Using
 > > iommu_present() could also move this test much earlier in
-> > vfio_pci_probe() making the exit path easier.
+> > vfio_pci_probe() making the exit path easier.  
 > 
 > Except then I'm reintroducing the bug fixed by 16ab8a5cbea4 since
 > iommu_present() assumes an IOMMU API based device.  I'll try to think if
 > there's another way to avoid adding the is_noiommu function.  Thanks,
-> 
-> Alex
 
-FWIW I'm only too happy if you take over this patch.
-You need Jason's recent patchset to QEMU to test,
-but otherwise no special hardware is required.
+I think something like this would do it.
 
-> > 
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -1214,6 +1214,22 @@ static int vfio_pci_probe(struct pci_dev *pdev, const str
+        if (pdev->hdr_type != PCI_HEADER_TYPE_NORMAL)
+                return -EINVAL;
+ 
++       /*
++        * Filter out virtio devices that do not honor the iommu,
++        * but only for real iommu groups.
++        */
++       if (vfio_pci_is_virtio(pdev)) {
++               struct iommu_group *tmp = iommu_group_get(&pdev->dev);
++
++               if (tmp) {
++                       iommu_group_put(tmp);
++
++                       ret = vfio_pci_virtio_quirk(pdev);
++                       if (ret)
++                               return ret;
++               }
++       }
++
+        group = vfio_iommu_group_get(&pdev->dev);
+        if (!group)
+                return -EINVAL;
+
+Thanks,
+Alex
+
 > > > +
 > > > +		ret = vfio_pci_virtio_quirk(vdev, noiommu);
 > > > +		if (ret) {
@@ -113,14 +138,14 @@ but otherwise no special hardware is required.
 > > > +++ b/drivers/vfio/pci/vfio_pci_virtio.c
 > > > @@ -0,0 +1,140 @@
 > > > +/*
-> > > + * VFIO PCI Intel Graphics support  
-> >       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> > > + * VFIO PCI Intel Graphics support    
+> >       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
 > > > + *
 > > > + * Copyright (C) 2016 Red Hat, Inc.  All rights reserved.
-> > > + *	Author: Alex Williamson <alex.williamson@redhat.com>  
+> > > + *	Author: Alex Williamson <alex.williamson@redhat.com>    
 > > 
 > > Update.
-> > 
+> >   
 > > > + *
 > > > + * This program is free software; you can redistribute it and/or modify
 > > > + * it under the terms of the GNU General Public License version 2 as
@@ -133,10 +158,10 @@ but otherwise no special hardware is required.
 > > > +
 > > > +#include <linux/io.h>
 > > > +#include <linux/pci.h>
-> > > +#include <linux/uaccess.h>  
+> > > +#include <linux/uaccess.h>    
 > > 
 > > Are io.h and uaccess.h needed?
-> > 
+> >   
 > > > +#include <linux/vfio.h>
 > > > +#include <linux/virtio_pci.h>
 > > > +#include <linux/virtio_config.h>
@@ -150,10 +175,10 @@ but otherwise no special hardware is required.
 > > > + *
 > > > + * Returns offset of the capability, or 0.
 > > > + */
-> > > +static inline int virtio_pci_find_capability(struct pci_dev *dev, u8 cfg_type)  
+> > > +static inline int virtio_pci_find_capability(struct pci_dev *dev, u8 cfg_type)    
 > > 
 > > Does inlining this really make sense?
-> > 
+> >   
 > > > +{
 > > > +	int pos;
 > > > +
@@ -176,10 +201,10 @@ but otherwise no special hardware is required.
 > > > +					     offsetof(struct virtio_pci_cap,
 > > > +						      bar),
 > > > +					     &bar);
-> > > +			if (bar > 0x5)  
+> > > +			if (bar > 0x5)    
 > > 
 > > s/0x5/PCI_STD_RESOURCE_END/
-> > 
+> >   
 > > > +				continue;
 > > > +		}
 > > > +
@@ -191,13 +216,13 @@ but otherwise no special hardware is required.
 > > > +
 > > > +int vfio_pci_virtio_quirk(struct vfio_pci_device *vdev, bool noiommu)
 > > > +{
-> > > +	struct pci_dev *dev = vdev->pdev;  
+> > > +	struct pci_dev *dev = vdev->pdev;    
 > > 
 > > Please use *pdev for consistency with the rest of drivers/vfio/pci/*
 > > 
 > > Also, is there any reason to pass the vfio_pci_device?  There's nothing
 > > vfio here otherwise and we could remove more #includes.
-> > 
+> >   
 > > > +	int common, cfg;
 > > > +	u32 features;
 > > > +	u32 offset;
@@ -209,10 +234,10 @@ but otherwise no special hardware is required.
 > > > +
 > > > +        /* Virtio only owns devices >= 0x1000 and <= 0x107f: leave the rest. */
 > > > +        if (dev->device < 0x1000 || dev->device > 0x107f)
-> > > +                return 0;  
+> > > +                return 0;    
 > > 
 > > Whitespace
-> > 
+> >   
 > > > +
 > > > +	/* Check whether device enforces the IOMMU correctly */
 > > > +
@@ -228,10 +253,10 @@ but otherwise no special hardware is required.
 > > > +	cfg = virtio_pci_find_capability(dev, VIRTIO_PCI_CAP_PCI_CFG);
 > > > +	if (!cfg || !common) {
 > > > +                dev_warn(&dev->dev,
-> > > +                         "Virtio device lacks common or pci cfg.\n");  
+> > > +                         "Virtio device lacks common or pci cfg.\n");    
 > > 
 > > Whitespace
-> > 
+> >   
 > > > +		return -ENODEV;
 > > > +	}
 > > > +
@@ -271,10 +296,10 @@ but otherwise no special hardware is required.
 > > > +	/* Does this device obey the platform's IOMMU? If not it's an error. */
 > > > +	if (!(features & (0x1 << (VIRTIO_F_IOMMU_PLATFORM % 32)))) {
 > > > +                dev_warn(&dev->dev,
-> > > +                         "Virtio device lacks VIRTIO_F_IOMMU_PLATFORM.\n");  
+> > > +                         "Virtio device lacks VIRTIO_F_IOMMU_PLATFORM.\n");    
 > > 
 > > Whitespace
-> > 
+> >   
 > > > +		return -ENODEV;
 > > > +	}
 > > > +
@@ -290,7 +315,7 @@ but otherwise no special hardware is required.
 > > > +vfio-pci-y += vfio_pci_virtio.o
 > > >  vfio-pci-$(CONFIG_VFIO_PCI_IGD) += vfio_pci_igd.o
 > > >  
-> > >  obj-$(CONFIG_VFIO_PCI) += vfio-pci.o  
+> > >  obj-$(CONFIG_VFIO_PCI) += vfio-pci.o    
 > > 
 > > Thanks,
-> > Alex
+> > Alex  
