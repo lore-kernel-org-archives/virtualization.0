@@ -1,15 +1,15 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v8 12/18] ARM: DT: STiH407: Add spdif_out pinctrl config
-Date: Tue, 30 Aug 2016 11:22:43 +0100
-Message-ID: <20160830102243.GS1661__21581.6238116988$1472563334$gmane$org@dell>
+Subject: Re: [PATCH v8 18/18] drm/virtio: kconfig: Fixup white space.
+Date: Tue, 30 Aug 2016 10:54:25 +0100
+Message-ID: <20160830095425.GK1661__33576.8059282147$1472566033$gmane$org@dell>
 References: <1472223413-7254-1-git-send-email-peter.griffin@linaro.org>
-	<1472223413-7254-13-git-send-email-peter.griffin@linaro.org>
+	<1472223413-7254-19-git-send-email-peter.griffin@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1472223413-7254-13-git-send-email-peter.griffin@linaro.org>
+In-Reply-To: <1472223413-7254-19-git-send-email-peter.griffin@linaro.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,28 +20,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Peter Griffin <peter.griffin@linaro.org>
-Cc: devicetree@vger.kernel.org, kernel@stlinux.com, vinod.koul@intel.com, Arnaud Pouliquen <arnaud.pouliquen@st.com>, linux-remoteproc@vger.kernel.org, patrice.chotard@st.com, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, airlied@linux.ie, dmaengine@vger.kernel.org, dan.j.williams@intel.com, bjorn.andersson@linaro.org, virtualization@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org
+Cc: devicetree@vger.kernel.org, kernel@stlinux.com, vinod.koul@intel.com, linux-remoteproc@vger.kernel.org, patrice.chotard@st.com, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, airlied@linux.ie, dmaengine@vger.kernel.org, dan.j.williams@intel.com, bjorn.andersson@linaro.org, virtualization@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCAyNiBBdWcgMjAxNiwgUGV0ZXIgR3JpZmZpbiB3cm90ZToKCj4gVGhpcyBwYXRjaCBh
-ZGRzIHRoZSBwaW5jdHJsIGNvbmZpZyBmb3IgdGhlIHNwaWRmIG91dAo+IHBpbnMgdXNlZCBieSB0
-aGUgc2FzZyBjb2RlYyBJUC4KPiAKPiBTaWduZWQtb2ZmLWJ5OiBBcm5hdWQgUG91bGlxdWVuIDxh
-cm5hdWQucG91bGlxdWVuQHN0LmNvbT4KPiBTaWduZWQtb2ZmLWJ5OiBQZXRlciBHcmlmZmluIDxw
-ZXRlci5ncmlmZmluQGxpbmFyby5vcmc+Cj4gLS0tCj4gIGFyY2gvYXJtL2Jvb3QvZHRzL3N0aWg0
-MDctcGluY3RybC5kdHNpIHwgOCArKysrKysrKwo+ICAxIGZpbGUgY2hhbmdlZCwgOCBpbnNlcnRp
-b25zKCspCgpBY2tlZC1ieTogTGVlIEpvbmVzIDxsZWUuam9uZXNAbGluYXJvLm9yZz4KCj4gZGlm
-ZiAtLWdpdCBhL2FyY2gvYXJtL2Jvb3QvZHRzL3N0aWg0MDctcGluY3RybC5kdHNpIGIvYXJjaC9h
-cm0vYm9vdC9kdHMvc3RpaDQwNy1waW5jdHJsLmR0c2kKPiBpbmRleCA1MzdkYjdlLi41OThkYmFi
-IDEwMDY0NAo+IC0tLSBhL2FyY2gvYXJtL2Jvb3QvZHRzL3N0aWg0MDctcGluY3RybC5kdHNpCj4g
-KysrIGIvYXJjaC9hcm0vYm9vdC9kdHMvc3RpaDQwNy1waW5jdHJsLmR0c2kKPiBAQCAtMTExNCw2
-ICsxMTE0LDE0IEBACj4gIAkJCQl9Owo+ICAJCQl9Owo+ICAKPiArCQkJc3BkaWZfb3V0IHsKPiAr
-CQkJCXBpbmN0cmxfc3BkaWZfb3V0OiBzcGRpZl9vdXR7Cj4gKwkJCQkJc3QscGlucyB7Cj4gKwkJ
-CQkJCXNwZGlmX291dCA9IDwmcGlvMzQgNyBBTFQxIE9VVD47Cj4gKwkJCQkJfTsKPiArCQkJCX07
-Cj4gKwkJCX07Cj4gKwo+ICAJCQlzZXJpYWwzIHsKPiAgCQkJCXBpbmN0cmxfc2VyaWFsMzogc2Vy
-aWFsMy0wIHsKPiAgCQkJCQlzdCxwaW5zIHsKCi0tIApMZWUgSm9uZXMKTGluYXJvIFNUTWljcm9l
-bGVjdHJvbmljcyBMYW5kaW5nIFRlYW0gTGVhZApMaW5hcm8ub3JnIOKUgiBPcGVuIHNvdXJjZSBz
-b2Z0d2FyZSBmb3IgQVJNIFNvQ3MKRm9sbG93IExpbmFybzogRmFjZWJvb2sgfCBUd2l0dGVyIHwg
-QmxvZwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
-dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
-dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
-Zm8vdmlydHVhbGl6YXRpb24=
+T24gRnJpLCAyNiBBdWcgMjAxNiwgUGV0ZXIgR3JpZmZpbiB3cm90ZToKCj4gVXNlIHRhYnMgaW5z
+dGVhZCBvZiBzcGFjZXMuCj4gCj4gU2lnbmVkLW9mZi1ieTogUGV0ZXIgR3JpZmZpbiA8cGV0ZXIu
+Z3JpZmZpbkBsaW5hcm8ub3JnPgo+IC0tLQo+ICBkcml2ZXJzL2dwdS9kcm0vdmlydGlvL0tjb25m
+aWcgfCA2ICsrKy0tLQo+ICAxIGZpbGUgY2hhbmdlZCwgMyBpbnNlcnRpb25zKCspLCAzIGRlbGV0
+aW9ucygtKQoKRm9yIG15IG93biByZWZlcmVuY2U6CiAgQWNrZWQtYnk6IExlZSBKb25lcyA8bGVl
+LmpvbmVzQGxpbmFyby5vcmc+Cgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vdmlydGlv
+L0tjb25maWcgYi9kcml2ZXJzL2dwdS9kcm0vdmlydGlvL0tjb25maWcKPiBpbmRleCA5MDM1N2Q5
+Li4yZDgzOTMyIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vS2NvbmZpZwo+
+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vS2NvbmZpZwo+IEBAIC0yLDEwICsyLDEwIEBA
+IGNvbmZpZyBEUk1fVklSVElPX0dQVQo+ICAJdHJpc3RhdGUgIlZpcnRpbyBHUFUgZHJpdmVyIgo+
+ICAJZGVwZW5kcyBvbiBEUk0KPiAgCXNlbGVjdCBWSVJUSU8KPiAtICAgICAgICBzZWxlY3QgRFJN
+X0tNU19IRUxQRVIKPiAtICAgICAgICBzZWxlY3QgRFJNX1RUTQo+ICsJc2VsZWN0IERSTV9LTVNf
+SEVMUEVSCj4gKwlzZWxlY3QgRFJNX1RUTQo+ICAJaGVscAo+ICAJICAgVGhpcyBpcyB0aGUgdmly
+dHVhbCBHUFUgZHJpdmVyIGZvciB2aXJ0aW8uICBJdCBjYW4gYmUgdXNlZCB3aXRoCj4gLSAgICAg
+ICAgICAgUUVNVSBiYXNlZCBWTU1zIChsaWtlIEtWTSBvciBYZW4pLgo+ICsJICAgUUVNVSBiYXNl
+ZCBWTU1zIChsaWtlIEtWTSBvciBYZW4pLgo+ICAKPiAgCSAgIElmIHVuc3VyZSBzYXkgTS4KCi0t
+IApMZWUgSm9uZXMKTGluYXJvIFNUTWljcm9lbGVjdHJvbmljcyBMYW5kaW5nIFRlYW0gTGVhZApM
+aW5hcm8ub3JnIOKUgiBPcGVuIHNvdXJjZSBzb2Z0d2FyZSBmb3IgQVJNIFNvQ3MKRm9sbG93IExp
+bmFybzogRmFjZWJvb2sgfCBUd2l0dGVyIHwgQmxvZwpfX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
+bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
+dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
