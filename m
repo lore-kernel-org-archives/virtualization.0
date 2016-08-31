@@ -1,16 +1,11 @@
-From: "Li, Liang Z" <liang.z.li@intel.com>
-Subject: RE: [PATCH v3 kernel 0/7] Extend virtio-balloon for fast
-	(de)inflating & fast live migration
-Date: Wed, 31 Aug 2016 06:28:10 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E3A01BCFE__19239.2822624699$1472624915$gmane$org@shsmsx102.ccr.corp.intel.com>
-References: <1470638134-24149-1-git-send-email-liang.z.li@intel.com>
-	<F2CBF3009FA73547804AE4C663CAB28E04220EDA@shsmsx102.ccr.corp.intel.com>
+From: Namhyung Kim <namhyung@kernel.org>
+Subject: [RFC/PATCHSET 0/3] virtio: Implement virtio pstore device (v4)
+Date: Wed, 31 Aug 2016 17:07:59 +0900
+Message-ID: <20160831080802.13408-1-namhyung@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <F2CBF3009FA73547804AE4C663CAB28E04220EDA@shsmsx102.ccr.corp.intel.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,94 +15,106 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "'Michael S. Tsirkin'" <mst@redhat.com>
-Cc: "'virtio-dev@lists.oasis-open.org'" <virtio-dev@lists.oasis-open.org>, "'kvm@vger.kernel.org'" <kvm@vger.kernel.org>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "Hansen, Dave" <dave.hansen@intel.com>, "'qemu-devel@nongnu.org'" <qemu-devel@nongnu.org>, "'virtualization@lists.linux-foundation.org'" <virtualization@lists.linux-foundation.org>, "'linux-mm@kvack.org'" <linux-mm@kvack.org>, "'dgilbert@redhat.com'" <dgilbert@redhat.com>
+To: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, qemu-devel@nongnu.org
+Cc: Tony Luck <tony.luck@intel.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Kees Cook <keescook@chromium.org>, "Michael S. Tsirkin" <mst@redhat.com>, Anton Vorontsov <anton@enomsg.org>, Will Deacon <will.deacon@arm.com>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Minchan Kim <minchan@kernel.org>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, Paolo Bonzini <pbonzini@redhat.com>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Michael,
-
-I know you are very busy. If you have time, could you help to take a look at this patch set?
-
-Thanks!
-Liang
-
-> -----Original Message-----
-> From: Li, Liang Z
-> Sent: Thursday, August 18, 2016 9:06 AM
-> To: Michael S. Tsirkin
-> Cc: virtualization@lists.linux-foundation.org; linux-mm@kvack.org; virtio-
-> dev@lists.oasis-open.org; kvm@vger.kernel.org; qemu-devel@nongnu.org;
-> quintela@redhat.com; dgilbert@redhat.com; Hansen, Dave; linux-
-> kernel@vger.kernel.org
-> Subject: RE: [PATCH v3 kernel 0/7] Extend virtio-balloon for fast (de)inflating
-> & fast live migration
-> 
-> Hi Michael,
-> 
-> Could you help to review this version when you have time?
-> 
-> Thanks!
-> Liang
-> 
-> > -----Original Message-----
-> > From: Li, Liang Z
-> > Sent: Monday, August 08, 2016 2:35 PM
-> > To: linux-kernel@vger.kernel.org
-> > Cc: virtualization@lists.linux-foundation.org; linux-mm@kvack.org;
-> > virtio- dev@lists.oasis-open.org; kvm@vger.kernel.org;
-> > qemu-devel@nongnu.org; quintela@redhat.com; dgilbert@redhat.com;
-> > Hansen, Dave; Li, Liang Z
-> > Subject: [PATCH v3 kernel 0/7] Extend virtio-balloon for fast
-> > (de)inflating & fast live migration
-> >
-> > This patch set contains two parts of changes to the virtio-balloon.
-> >
-> > One is the change for speeding up the inflating & deflating process,
-> > the main idea of this optimization is to use bitmap to send the page
-> > information to host instead of the PFNs, to reduce the overhead of
-> > virtio data transmission, address translation and madvise(). This can
-> > help to improve the performance by about 85%.
-> >
-> > Another change is for speeding up live migration. By skipping process
-> > guest's free pages in the first round of data copy, to reduce needless
-> > data processing, this can help to save quite a lot of CPU cycles and
-> > network bandwidth. We put guest's free page information in bitmap and
-> > send it to host with the virt queue of virtio-balloon. For an idle 8GB
-> > guest, this can help to shorten the total live migration time from
-> > 2Sec to about 500ms in the 10Gbps network environment.
-> >
-> > Dave Hansen suggested a new scheme to encode the data structure,
-> > because of additional complexity, it's not implemented in v3.
-> >
-> > Changes from v2 to v3:
-> >     * Change the name of 'free page' to 'unused page'.
-> >     * Use the scatter & gather bitmap instead of a 1MB page bitmap.
-> >     * Fix overwriting the page bitmap after kicking.
-> >     * Some of MST's comments for v2.
-> >
-> > Changes from v1 to v2:
-> >     * Abandon the patch for dropping page cache.
-> >     * Put some structures to uapi head file.
-> >     * Use a new way to determine the page bitmap size.
-> >     * Use a unified way to send the free page information with the bitmap
-> >     * Address the issues referred in MST's comments
-> >
-> >
-> > Liang Li (7):
-> >   virtio-balloon: rework deflate to add page to a list
-> >   virtio-balloon: define new feature bit and page bitmap head
-> >   mm: add a function to get the max pfn
-> >   virtio-balloon: speed up inflate/deflate process
-> >   mm: add the related functions to get unused page
-> >   virtio-balloon: define feature bit and head for misc virt queue
-> >   virtio-balloon: tell host vm's unused page info
-> >
-> >  drivers/virtio/virtio_balloon.c     | 390
-> > ++++++++++++++++++++++++++++++++----
-> >  include/linux/mm.h                  |   3 +
-> >  include/uapi/linux/virtio_balloon.h |  41 ++++
-> >  mm/page_alloc.c                     |  94 +++++++++
-> >  4 files changed, 485 insertions(+), 43 deletions(-)
-> >
-> > --
-> > 1.8.3.1
+SGVsbG8sCgpUaGlzIGlzIGFub3RoZXIgaXRlcmF0aW9uIG9mIHRoZSB2aXJ0aW8tcHN0b3JlIHdv
+cmsuICBJJ3ZlIGFkZHJlc3NlZAphbGwgY29tbWVudHMgZnJvbSBEYW5pZWwgQmVycmFuZ2Ugb24g
+dGhlIHFlbXUgc2lkZS4KCiAqIGNoYW5nZXMgaW4gdjQpCiAgLSB1c2UgcWlvX2NoYW5uZWxfZmls
+ZV9uZXdfcGF0aCgpICAoRGFuaWVsKQogIC0gcmVuYW1lIHRvIGRlbGV0ZV9vbGRfcHN0b3JlX2Zp
+bGUgIChEYW5pZWwpCiAgLSBjb252ZXJ0IEdfUkVNT1ZFX1NPVVJDRSB0byBGQUxTRSAgKERhbmll
+bCkKCiAqIGNoYW5nZXMgaW4gdjMpCiAgLSB1c2UgUUlPQ2hhbm5lbCBBUEkgIChTdGVmYW4sIERh
+bmllbCkKICAtIGFkZCBib3VuZCBjaGVjayBmb3IgbWFsY2lvdXMgZ3Vlc3RzICAoRGFuaWVsKQog
+IC0gZHJvcCBzdXBwb3J0IFBTVE9SRV9UWVBFX0NPTlNPTEUgZm9yIG5vdwogIC0gdXBkYXRlIGxp
+Y2Vuc2UgdG8gYWxsb3cgR1BMIHYyIG9yIGxhdGVyICAoTWljaGFlbCkKICAtIGxpbWl0IG51bWJl
+ciBvZiBwc3RvcmUgZmlsZXMgb24gcWVtdQoKICogY2hhbmdlcyBpbiB2MikKICAtIHVwZGF0ZSBW
+SVJUSU9fSURfUFNUT1JFIHRvIDIyICAoQ29ybmVsaWEsIFN0ZWZhbikKICAtIG1ha2UgYnVmZmVy
+IHNpemUgY29uZmlndXJhYmxlICAoQ29ybmVsaWEpCiAgLSBzdXBwb3J0IFBTVE9SRV9UWVBFX0NP
+TlNPTEUgIChLZWVzKQogIC0gdXNlIHNlcGFyYXRlIHZpcnRxdWV1ZXMgZm9yIHJlYWQgYW5kIHdy
+aXRlCiAgLSBzdXBwb3J0IGNvbmN1cnJlbnQgYXN5bmMgd3JpdGUKICAtIG1hbmFnZSBwc3RvcmUg
+KGZpbGUpIGlkIGluIGRldmljZSBzaWRlCiAgLSBmaXggdmFyaW91cyBtaXN0YWtlcyBpbiBxZW11
+IGRldmljZSAgKFN0ZWZhbikKCkl0IHN0YXJ0ZWQgZnJvbSB0aGUgZmFjdCB0aGF0IGR1bXBpbmcg
+ZnRyYWNlIGJ1ZmZlciBhdCBrZXJuZWwKb29wcy9wYW5pYyB0YWtlcyB0b28gbXVjaCB0aW1lLiAg
+QWx0aG91Z2ggdGhlcmUncyBhIHdheSB0byByZWR1Y2UgdGhlCnNpemUgb2YgdGhlIG9yaWdpbmFs
+IGRhdGEsIHNvbWV0aW1lcyBJIHdhbnQgdG8gaGF2ZSB0aGUgaW5mb3JtYXRpb24gYXMKbWFueSBh
+cyBwb3NzaWJsZS4gIE1heWJlIGtleGVjL2tkdW1wIGNhbiBzb2x2ZSB0aGlzIHByb2JsZW0gYnV0
+IGl0CmNvbnN1bWVzIHNvbWUgcG9ydGlvbiBvZiBndWVzdCBtZW1vcnkgc28gSSdkIGxpa2UgdG8g
+YXZvaWQgaXQuICBBbmQgSQprbm93IHRoZSBxZW11ICsgY3Jhc2h0b29sIGNhbiBkdW1wIGFuZCBh
+bmFseXplIHRoZSB3aG9sZSBndWVzdCBtZW1vcnkKaW5jbHVkaW5nIHRoZSBmdHJhY2UgYnVmZmVy
+IHdpdGhvdXQgd2FzdGluZyBndWVzdCBtZW1vcnksIGJ1dCBpdCBhZGRzCm9uZSBtb3JlIGxheWVy
+IGFuZCBoYXMgc29tZSBsaW1pdGF0aW9uIGFzIGFuIG91dC1vZi10cmVlIHRvb2wgbGlrZSBub3QK
+YmVpbmcgaW4gc3luYyB3aXRoIHRoZSBrZXJuZWwgY2hhbmdlcy4KClNvIEkgdGhpbmsgaXQnZCBi
+ZSBncmVhdCB1c2luZyB0aGUgcHN0b3JlIGludGVyZmFjZSB0byBkdW1wIGd1ZXN0Cmtlcm5lbCBk
+YXRhIG9uIHRoZSBob3N0LiAgT25lIGNhbiByZWFkIHRoZSBkYXRhIG9uIHRoZSBob3N0IGRpcmVj
+dGx5Cm9yIG9uIHRoZSBndWVzdCAoYXQgdGhlIG5leHQgYm9vdCkgdXNpbmcgcHN0b3JlIGZpbGVz
+eXN0ZW0gYXMgdXN1YWwuCldoaWxlIHRoaXMgcGF0Y2hzZXQgb25seSBpbXBsZW1lbnRzIGR1bXBp
+bmcga2VybmVsIGxvZyBidWZmZXIsIGl0IGNhbgpiZSBleHRlbmRlZCB0byBoYXZlIGZ0cmFjZSBi
+dWZmZXIgYW5kIHByb2JhYmx5IHNvbWUgbW9yZS4uCgpUaGUgcGF0Y2ggMDAwMSBpbXBsZW1lbnRz
+IHZpcnRpbyBwc3RvcmUgZHJpdmVyLiAgSXQgaGFzIHR3byB2aXJ0IHF1ZXVlCmZvciAoc3luYykg
+cmVhZCBhbmQgKGFzeW5jKSB3cml0ZSwgcHN0b3JlIGJ1ZmZlciBhbmQgaW8gcmVxdWVzdCBhbmQK
+cmVzcG9uc2Ugc3RydWN0dXJlLiAgVGhlIHZpcnRpb19wc3RvcmVfcmVxIHN0cnVjdCBpcyB0byBn
+aXZlCmluZm9ybWF0aW9uIGFib3V0IHRoZSBjdXJyZW50IHBzdG9yZSBvcGVyYXRpb24uICBUaGUg
+cmVzdWx0IHdpbGwgYmUKd3JpdHRlbiB0byB0aGUgdmlydGlvX3BzdG9yZV9yZXMgc3RydWN0LiAg
+Rm9yIHJlYWQgb3BlcmF0aW9uIGl0IGFsc28KdXNlcyB2aXJ0aW9fcHN0b3JlX2ZpbGVpbmZvIHN0
+cnVjdC4KClRoZSBwYXRjaCAwMDAyIGFuZCAwMDAzIGltcGxlbWVudCB2aXJ0aW8tcHN0b3JlIGxl
+Z2FjeSBQQ0kgZGV2aWNlIG9uCnFlbXUta3ZtIGFuZCBrdm10b29sIHJlc3BlY3RpdmVseS4gIEkg
+cmVmZXJlbmNlZCB2aXJ0aW8tYmFsb29uIGFuZAp2aXJ0aW8tcm5nIGltcGxlbWVudGF0aW9ucyBh
+bmQgSSBkb24ndCBrbm93IHdoZXRoZXIga3ZtdG9vbCBzdXBwb3J0cwptb2Rlcm4gdmlydGlvIDEu
+MCsgc3BlYy4gIE90aGVyIHRyYW5zcG9ydHMgbWlnaHQgYmUgc3VwcG9ydGVkIGxhdGVyLgoKRm9y
+IGV4YW1wbGUsIHVzaW5nIHZpcnRpby1wc3RvcmUgb24gcWVtdSBsb29rcyBsaWtlIGJlbG93OgoK
+ICAkIHFlbXUtc3lzdGVtLXg4Nl82NCAtZW5hYmxlLWt2bSAtZGV2aWNlIHZpcnRpby1wc3RvcmUs
+ZGlyZWN0b3J5PXh4eAoKV2hlbiBndWVzdCBrZXJuZWwgZ2V0cyBwYW5pYyB0aGUgbG9nIG1lc3Nh
+Z2VzIHdpbGwgYmUgc2F2ZWQgdW5kZXIgdGhlCnh4eCBkaXJlY3RvcnkuCgogICQgbHMgeHh4CiAg
+ZG1lc2ctMS5lbmMueiAgZG1lc2ctMi5lbmMuegoKQXMgeW91IGNhbiBzZWUgdGhlIHBzdG9yZSBz
+dWJzeXN0ZW0gY29tcHJlc3NlcyB0aGUgbG9nIGRhdGEgdXNpbmcgemxpYgoobm93IHN1cHBvcnRz
+IGx6byBhbmQgbHo0IHRvbykuICBUaGUgZGF0YSBjYW4gYmUgZXh0cmFjdGVkIHdpdGggdGhlCmZv
+bGxvd2luZyBjb21tYW5kOgoKICAkIGNhdCB4eHgvZG1lc2ctMS5lbmMueiB8IFwKICA+IHB5dGhv
+biAtYyAnaW1wb3J0IHN5cywgemxpYjsgcHJpbnQoemxpYi5kZWNvbXByZXNzKHN5cy5zdGRpbi5y
+ZWFkKCkpKScKICBPb3BzIzEgUGFydDEKICA8NT5bICAgIDAuMDAwMDAwXSBMaW51eCB2ZXJzaW9u
+IDQuNi4wa3ZtKyAobmFtaHl1bmdAZGFuamFlKSAoZ2NjIHZlcnNpb24gNS4zLjAgKEdDQykgKSAj
+MTQ1IFNNUCBNb24gSnVsIDE4IDEwOjIyOjQ1IEtTVCAyMDE2CiAgPDY+WyAgICAwLjAwMDAwMF0g
+Q29tbWFuZCBsaW5lOiByb290PS9kZXYvdmRhIGNvbnNvbGU9dHR5UzAKICA8Nj5bICAgIDAuMDAw
+MDAwXSB4ODYvZnB1OiBMZWdhY3kgeDg3IEZQVSBkZXRlY3RlZC4KICA8Nj5bICAgIDAuMDAwMDAw
+XSB4ODYvZnB1OiBVc2luZyAnZWFnZXInIEZQVSBjb250ZXh0IHN3aXRjaGVzLgogIDw2PlsgICAg
+MC4wMDAwMDBdIGU4MjA6IEJJT1MtcHJvdmlkZWQgcGh5c2ljYWwgUkFNIG1hcDoKICA8Nj5bICAg
+IDAuMDAwMDAwXSBCSU9TLWU4MjA6IFttZW0gMHgwMDAwMDAwMDAwMDAwMDAwLTB4MDAwMDAwMDAw
+MDA5ZmJmZl0gdXNhYmxlCiAgPDY+WyAgICAwLjAwMDAwMF0gQklPUy1lODIwOiBbbWVtIDB4MDAw
+MDAwMDAwMDA5ZmMwMC0weDAwMDAwMDAwMDAwOWZmZmZdIHJlc2VydmVkCiAgPDY+WyAgICAwLjAw
+MDAwMF0gQklPUy1lODIwOiBbbWVtIDB4MDAwMDAwMDAwMDBmMDAwMC0weDAwMDAwMDAwMDAwZmZm
+ZmZdIHJlc2VydmVkCiAgPDY+WyAgICAwLjAwMDAwMF0gQklPUy1lODIwOiBbbWVtIDB4MDAwMDAw
+MDAwMDEwMDAwMC0weDAwMDAwMDAwMDdmZGRmZmZdIHVzYWJsZQogIDw2PlsgICAgMC4wMDAwMDBd
+IEJJT1MtZTgyMDogW21lbSAweDAwMDAwMDAwMDdmZGUwMDAtMHgwMDAwMDAwMDA3ZmZmZmZmXSBy
+ZXNlcnZlZAogIDw2PlsgICAgMC4wMDAwMDBdIEJJT1MtZTgyMDogW21lbSAweDAwMDAwMDAwZmVm
+ZmMwMDAtMHgwMDAwMDAwMGZlZmZmZmZmXSByZXNlcnZlZAogIDw2PlsgICAgMC4wMDAwMDBdIEJJ
+T1MtZTgyMDogW21lbSAweDAwMDAwMDAwZmZmYzAwMDAtMHgwMDAwMDAwMGZmZmZmZmZmXSByZXNl
+cnZlZAogIDw2PlsgICAgMC4wMDAwMDBdIE5YIChFeGVjdXRlIERpc2FibGUpIHByb3RlY3Rpb246
+IGFjdGl2ZQogIDw2PlsgICAgMC4wMDAwMDBdIFNNQklPUyAyLjggcHJlc2VudC4KICA8Nz5bICAg
+IDAuMDAwMDAwXSBETUk6IFFFTVUgU3RhbmRhcmQgUEMgKGk0NDBGWCArIFBJSVgsIDE5OTYpLCBC
+SU9TIHJlbC0xLjkuMy0wLWdlMmZjNDFlLXByZWJ1aWx0LnFlbXUtcHJvamVjdC5vcmcgMDQvMDEv
+MjAxNAogIC4uLgoKCk5hbWh5dW5nIEtpbSAoMyk6CiAgdmlydGlvOiBCYXNpYyBpbXBsZW1lbnRh
+dGlvbiBvZiB2aXJ0aW8gcHN0b3JlIGRyaXZlcgogIHFlbXU6IEltcGxlbWVudCB2aXJ0aW8tcHN0
+b3JlIGRldmljZQogIGt2bXRvb2w6IEltcGxlbWVudCB2aXJ0aW8tcHN0b3JlIGRldmljZQoKCiBk
+cml2ZXJzL3ZpcnRpby9LY29uZmlnICAgICAgICAgICAgIHwgIDEwICsKIGRyaXZlcnMvdmlydGlv
+L01ha2VmaWxlICAgICAgICAgICAgfCAgIDEgKwogZHJpdmVycy92aXJ0aW8vdmlydGlvX3BzdG9y
+ZS5jICAgICB8IDQxNyArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrCiBpbmNs
+dWRlL3VhcGkvbGludXgvS2J1aWxkICAgICAgICAgIHwgICAxICsKIGluY2x1ZGUvdWFwaS9saW51
+eC92aXJ0aW9faWRzLmggICAgfCAgIDEgKwogaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19wc3Rv
+cmUuaCB8ICA3NCArKysrKysrCiA2IGZpbGVzIGNoYW5nZWQsIDUwNCBpbnNlcnRpb25zKCspCiBj
+cmVhdGUgbW9kZSAxMDA2NDQgZHJpdmVycy92aXJ0aW8vdmlydGlvX3BzdG9yZS5jCiBjcmVhdGUg
+bW9kZSAxMDA2NDQgaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19wc3RvcmUuaAoKCkNjOiBQYW9s
+byBCb256aW5pIDxwYm9uemluaUByZWRoYXQuY29tPgpDYzogUmFkaW0gS3LEjW3DocWZIDxya3Jj
+bWFyQHJlZGhhdC5jb20+CkNjOiAiTWljaGFlbCBTLiBUc2lya2luIiA8bXN0QHJlZGhhdC5jb20+
+CkNjOiBBbnRob255IExpZ3VvcmkgPGFsaWd1b3JpQGFtYXpvbi5jb20+CkNjOiBBbnRvbiBWb3Jv
+bnRzb3YgPGFudG9uQGVub21zZy5vcmc+CkNjOiBDb2xpbiBDcm9zcyA8Y2Nyb3NzQGFuZHJvaWQu
+Y29tPgpDYzogS2VlcyBDb29rIDxrZWVzY29va0BjaHJvbWl1bS5vcmc+CkNjOiBUb255IEx1Y2sg
+PHRvbnkubHVja0BpbnRlbC5jb20+CkNjOiBTdGV2ZW4gUm9zdGVkdCA8cm9zdGVkdEBnb29kbWlz
+Lm9yZz4KQ2M6IEluZ28gTW9sbmFyIDxtaW5nb0BrZXJuZWwub3JnPgpDYzogTWluY2hhbiBLaW0g
+PG1pbmNoYW5Aa2VybmVsLm9yZz4KQ2M6IFdpbGwgRGVhY29uIDx3aWxsLmRlYWNvbkBhcm0uY29t
+PgpDYzoga3ZtQHZnZXIua2VybmVsLm9yZwpDYzogcWVtdS1kZXZlbEBub25nbnUub3JnCkNjOiB2
+aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpDYzogdmlydGlvLWRldkBs
+aXN0cy5vYXNpcy1vcGVuLm9yZwpUaGFua3MsCk5hbWh5dW5nCgoKLS0gCjIuOS4zCgpfX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
+YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
+cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
+YXRpb24=
