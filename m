@@ -1,11 +1,13 @@
 From: Gustavo Padovan <gustavo@padovan.org>
-Subject: [PATCH 1/2] drm/virtio: drop virtio_gpu_execbuffer_ioctl() wrapping
-Date: Wed, 31 Aug 2016 12:26:52 -0400
-Message-ID: <1472660813-28219-1-git-send-email-gustavo@padovan.org>
+Subject: [PATCH 2/2] drm/virtio: add real fence context and seqno
+Date: Wed, 31 Aug 2016 12:26:53 -0400
+Message-ID: <1472660813-28219-2-git-send-email-gustavo@padovan.org>
+References: <1472660813-28219-1-git-send-email-gustavo@padovan.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1472660813-28219-1-git-send-email-gustavo@padovan.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,57 +23,52 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
 
-Instead of wrapping virtio_gpu_execbuffer() to execute the ioctl
-just execute it directly.
+virtio fences were created with no fence context, which would make then
+clash with an allocated fence context.
 
 Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
 ---
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 24 ++++++++----------------
- 1 file changed, 8 insertions(+), 16 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_drv.h   | 1 +
+ drivers/gpu/drm/virtio/virtgpu_fence.c | 2 +-
+ drivers/gpu/drm/virtio/virtgpu_kms.c   | 1 +
+ 3 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index c046903..e0613a9 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -89,10 +89,16 @@ static void virtio_gpu_unref_list(struct list_head *head)
- 	}
- }
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index b18ef31..06ad923 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -75,6 +75,7 @@ typedef void (*virtio_gpu_resp_cb)(struct virtio_gpu_device *vgdev,
+ struct virtio_gpu_fence_driver {
+ 	atomic64_t       last_seq;
+ 	uint64_t         sync_seq;
++	uint64_t         context;
+ 	struct list_head fences;
+ 	spinlock_t       lock;
+ };
+diff --git a/drivers/gpu/drm/virtio/virtgpu_fence.c b/drivers/gpu/drm/virtio/virtgpu_fence.c
+index cf44187..f3f70fa 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_fence.c
++++ b/drivers/gpu/drm/virtio/virtgpu_fence.c
+@@ -89,7 +89,7 @@ int virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
+ 	(*fence)->drv = drv;
+ 	(*fence)->seq = ++drv->sync_seq;
+ 	fence_init(&(*fence)->f, &virtio_fence_ops, &drv->lock,
+-		   0, (*fence)->seq);
++		   drv->context, (*fence)->seq);
+ 	fence_get(&(*fence)->f);
+ 	list_add_tail(&(*fence)->node, &drv->fences);
+ 	spin_unlock_irqrestore(&drv->lock, irq_flags);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index 4150873..036b0fb 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -159,6 +159,7 @@ int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
+ 	virtio_gpu_init_vq(&vgdev->ctrlq, virtio_gpu_dequeue_ctrl_func);
+ 	virtio_gpu_init_vq(&vgdev->cursorq, virtio_gpu_dequeue_cursor_func);
  
--static int virtio_gpu_execbuffer(struct drm_device *dev,
--				 struct drm_virtgpu_execbuffer *exbuf,
-+/*
-+ * Usage of execbuffer:
-+ * Relocations need to take into account the full VIRTIO_GPUDrawable size.
-+ * However, the command as passed from user space must *not* contain the initial
-+ * VIRTIO_GPUReleaseInfo struct (first XXX bytes)
-+ */
-+static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
- 				 struct drm_file *drm_file)
- {
-+	struct drm_virtgpu_execbuffer *exbuf = data;
- 	struct virtio_gpu_device *vgdev = dev->dev_private;
- 	struct virtio_gpu_fpriv *vfpriv = drm_file->driver_priv;
- 	struct drm_gem_object *gobj;
-@@ -182,20 +188,6 @@ out_free:
- 	return ret;
- }
- 
--/*
-- * Usage of execbuffer:
-- * Relocations need to take into account the full VIRTIO_GPUDrawable size.
-- * However, the command as passed from user space must *not* contain the initial
-- * VIRTIO_GPUReleaseInfo struct (first XXX bytes)
-- */
--static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
--				       struct drm_file *file_priv)
--{
--	struct drm_virtgpu_execbuffer *execbuffer = data;
--	return virtio_gpu_execbuffer(dev, execbuffer, file_priv);
--}
--
--
- static int virtio_gpu_getparam_ioctl(struct drm_device *dev, void *data,
- 				     struct drm_file *file_priv)
- {
++	vgdev->fence_drv.context = fence_context_alloc(1);
+ 	spin_lock_init(&vgdev->fence_drv.lock);
+ 	INIT_LIST_HEAD(&vgdev->fence_drv.fences);
+ 	INIT_LIST_HEAD(&vgdev->cap_cache);
 -- 
 2.5.5
