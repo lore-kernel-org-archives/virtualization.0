@@ -1,17 +1,18 @@
-From: Peter Griffin <peter.griffin@linaro.org>
+From: Lee Jones <lee.jones@linaro.org>
 Subject: Re: [PATCH v8 01/18] remoteproc: st_slim_rproc: add a slimcore rproc
 	driver
-Date: Wed, 31 Aug 2016 12:11:36 +0100
-Message-ID: <20160831111136.GA16490@griffinp-ThinkPad-X1-Carbon-2nd>
+Date: Wed, 31 Aug 2016 12:24:05 +0100
+Message-ID: <20160831112405.GI27357__34947.2188776874$1472642553$gmane$org@dell>
 References: <1472223413-7254-1-git-send-email-peter.griffin@linaro.org>
 	<1472223413-7254-2-git-send-email-peter.griffin@linaro.org>
-	<20160830123453.GG10121@dell> <20160830165409.GM15161@tuxbot>
+	<20160830123453.GG10121@dell>
+	<20160830154451.GB22514@griffinp-ThinkPad-X1-Carbon-2nd>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20160830165409.GM15161@tuxbot>
+In-Reply-To: <20160830154451.GB22514@griffinp-ThinkPad-X1-Carbon-2nd>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,45 +22,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: devicetree@vger.kernel.org, kernel@stlinux.com, vinod.koul@intel.com, linux-remoteproc@vger.kernel.org, patrice.chotard@st.com, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, airlied@linux.ie, dmaengine@vger.kernel.org, dan.j.williams@intel.com, virtualization@lists.linux-foundation.org, Lee Jones <lee.jones@linaro.org>, linux-arm-kernel@lists.infradead.org
+To: Peter Griffin <peter.griffin@linaro.org>
+Cc: devicetree@vger.kernel.org, kernel@stlinux.com, vinod.koul@intel.com, linux-remoteproc@vger.kernel.org, patrice.chotard@st.com, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, airlied@linux.ie, dmaengine@vger.kernel.org, dan.j.williams@intel.com, bjorn.andersson@linaro.org, virtualization@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Bjorn,
-
-On Tue, 30 Aug 2016, Bjorn Andersson wrote:
-
-> On Tue 30 Aug 05:34 PDT 2016, Lee Jones wrote:
-> 
-> Thanks for your review Lee.
-> 
-> > On Fri, 26 Aug 2016, Peter Griffin wrote:
-> [..]
-> > > diff --git a/drivers/remoteproc/Kconfig b/drivers/remoteproc/Kconfig
-> > > index 1a8bf76a..06765e0 100644
-> > > --- a/drivers/remoteproc/Kconfig
-> > > +++ b/drivers/remoteproc/Kconfig
-> > > @@ -100,4 +100,12 @@ config ST_REMOTEPROC
-> > >  	  processor framework.
-> > >  	  This can be either built-in or a loadable module.
-> > >  
-> > > +config ST_SLIM_REMOTEPROC
-> > > +	tristate "ST Slim remoteproc support"
-> > > +	select REMOTEPROC
-> > > +	help
-> > > +	  Say y here to support firmware loading on IP based around
-> > > +	  the Slim core.
-> > > +	  If unsure say N.
-> 
-> Saw one more thing when browsing through...
-> 
-> As this piece of code doesn't do anything on its own and is going to be
-> selected by the "function driver" I don't think this should be
-> user-selectable.
-
-Applogies, I believe you pointed this out in a previous review, but it seems to
-have slipped through the net. Will fix in the next version.
-
-Regards,
-
-Peter.
+T24gVHVlLCAzMCBBdWcgMjAxNiwgUGV0ZXIgR3JpZmZpbiB3cm90ZToKPiBPbiBUdWUsIDMwIEF1
+ZyAyMDE2LCBMZWUgSm9uZXMgd3JvdGU6Cj4gPiBPbiBGcmksIDI2IEF1ZyAyMDE2LCBQZXRlciBH
+cmlmZmluIHdyb3RlOgo+ID4gCj4gPiA+IHNsaW0gY29yZSBpcyB1c2VkIGFzIGEgYmFzaXMgZm9y
+IG1hbnkgSVBzIGluIHRoZSBTVGkKPiA+ID4gY2hpcHNldHMgc3VjaCBhcyBmZG1hIGFuZCBkZW11
+eC4gVG8gYXZvaWQgZHVwbGljYXRpbmcKPiA+ID4gdGhlIGVsZiBsb2FkaW5nIGNvZGUgaW4gZWFj
+aCBkZXZpY2UgZHJpdmVyIGEgc2xpbQo+ID4gPiBycHJvYyBkcml2ZXIgaGFzIGJlZW4gY3JlYXRl
+ZC4KPiA+ID4gCj4gPiA+IFRoaXMgZHJpdmVyIGlzIGRlc2lnbmVkIHRvIGJlIHVzZWQgYnkgb3Ro
+ZXIgZGV2aWNlIGRyaXZlcnMKPiA+ID4gc3VjaCBhcyBmZG1hLCBvciBkZW11eCB3aG9zZSBJUCBp
+cyBiYXNlZCBhcm91bmQgYSBzbGltIGNvcmUuCj4gPiA+IFRoZSBkZXZpY2UgZHJpdmVyIGNhbiBj
+YWxsIHNsaW1fcnByb2NfYWxsb2MoKSB0byBhbGxvY2F0ZQo+ID4gPiBhIHNsaW0gcnByb2MgYW5k
+IHNsaW1fcnByb2NfcHV0KCkgd2hlbiBmaW5pc2hlZC4KPiA+ID4gCj4gPiA+IFRoaXMgZHJpdmVy
+IHRha2VzIGNhcmUgb2YgaW9yZW1hcHBpbmcgdGhlIHNsaW0KPiA+ID4gcmVnaXN0ZXJzIChkbWVt
+LCBpbWVtLCBzbGltY29yZSwgcGVyaXBoZXJhbHMpLCB3aG9zZSBvZmZzZXRzCj4gPiA+IGFuZCBz
+aXplcyBjYW4gY2hhbmdlIGJldHdlZW4gSVAncy4gSXQgYWxzbyBvYnRhaW5zIGFuZCBlbmFibGVz
+Cj4gPiA+IGFueSBjbG9ja3MgdXNlZCBieSB0aGUgZGV2aWNlLiBUaGlzIGFwcHJvYWNoIGF2b2lk
+cyBoYXZpbmcKPiA+ID4gYSBkb3VibGUgbWFwcGluZyBvZiB0aGUgcmVnaXN0ZXJzIGFzIHNsaW1f
+cnByb2MgZG9lcyBub3QgcmVnaXN0ZXIKPiA+ID4gaXRzIG93biBwbGF0Zm9ybSBkZXZpY2UuIEl0
+IGFsc28gbWFwcyB3ZWxsIHRvIGRldmljZSB0cmVlCj4gPiA+IGFic3RyYWN0aW9uIGFzIGl0IGFs
+bG93cyB1cyB0byBoYXZlIG9uZSBkdCBub2RlIGZvciB0aGUgd2hvbGUKPiA+ID4gZGV2aWNlLgo+
+ID4gPiAKPiA+ID4gQWxsIG9mIHRoZSBnZW5lcmljIHJwcm9jIGVsZiBsb2FkaW5nIGNvZGUgY2Fu
+IGJlIHJldXNlZCwgYW5kCj4gPiA+IHdlIHByb3ZpZGUgc3RhcnQoKSBzdG9wKCkgaG9va3MgdG8g
+c3RhcnQgYW5kIHN0b3AgdGhlIHNsaW0KPiA+ID4gY29yZSBvbmNlIHRoZSBmaXJtd2FyZSBoYXMg
+YmVlbiBsb2FkZWQuIFRoaXMgaGFzIGJlZW4gdGVzdGVkCj4gPiA+IHN1Y2Nlc3NmdWxseSB3aXRo
+IGZkbWEgZHJpdmVyLgo+ID4gCj4gPiBOaXQuICBJdCB3b3VsZCBiZSBnb29kIHRvIHVzZSBhIGNv
+bnN0YW50IGxpbmUtd3JhcC4KPiA+IAo+ID4gJ00teCBwb3N0LW1vZGUnIHdpbGwgaGVscCB3aXRo
+IHRoaXMuCj4gCj4gQ2FuIHlvdSBwcm92aWRlIHRoZSBtYWdpYyB3aGljaCBtYWtlcyB0aGlzIGhh
+cHBlbiBmb3IgR0lUIGNvbW1pdCBtZXNzYWdlcz8KCkkgdGVuZCB0byBkbyBpdCBtYW51YWxseS4g
+IEhvd2V2ZXIgYSAzIHNlY29uZCBHb29nbGUgc2VhcmNoIHByb2R1Y2VkClswXSwgd2hpY2ggbG9v
+a3MgbGlrZSBpdCBjb3VsZCBiZSBmdW4vdXNlZnVsLgoKWzBdIGh0dHBzOi8vd3d3LmVtYWNzd2lr
+aS5vcmcvZW1hY3MvR2l0CgpbLi4uXQoKPiA+ID4gKyAqIExpY2Vuc2UgdGVybXM6ICBHTlUgR2Vu
+ZXJhbCBQdWJsaWMgTGljZW5zZSAoR1BMKSwgdmVyc2lvbiAyCj4gPiAKPiA+IEFyZSB5b3Ugc3Vy
+ZSBTVCBhcmUgb2theSB3aXRoIHRoZSBzaG9ydGVuZWQgdmVyc2lvbiBvZiB0aGUgR1BMPwo+IAo+
+IERvIHlvdSBtZWFuIHRoZSBiYW5uZXIgc2hvdWxkIGJlIGxpa2UgdGhpcz8KPiAKPiAgKiBUaGlz
+IHByb2dyYW0gaXMgZnJlZSBzb2Z0d2FyZTsgeW91IGNhbiByZWRpc3RyaWJ1dGUgaXQgYW5kL29y
+IG1vZGlmeQo+ICAqIGl0IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGlj
+IExpY2Vuc2UgYXMgcHVibGlzaGVkIGJ5Cj4gICogdGhlIEZyZWUgU29mdHdhcmUgRm91bmRhdGlv
+bjsgZWl0aGVyIHZlcnNpb24gMiBvZiB0aGUgTGljZW5zZSwgb3IKPiAgKiAoYXQgeW91ciBvcHRp
+b24pIGFueSBsYXRlciB2ZXJzaW9uLgoKWWVzLCBleGFjdGx5LgoKWy4uLl0KCj4gPiA+ICsvKiBz
+bGltY29yZSByZWdpc3RlcnMgKi8KPiA+IAo+ID4gV2hhdCdzIGl0IGNhbGxlZD8gc2xpbWNvcmUs
+IHNsaW0gY29yZSwgU1QgU2xpbT8KPiAKPiBJdCBpcyB1c3VhbGx5IHJlZmVycmVkIHRvIGFzIFNM
+SU0gY29yZSwgb3IgU0xJTSBDUFUgaW4gdGhlIHZhcmlvdXMgZnVuY3Rpb25hbAo+IHNwZWNpZmlj
+YXRpb25zLgo+IAo+ID4gCj4gPiBQbGVhc2UgYmUgY29uc2lzdGVudC4gIFVzZSB0aGUgbmFtZSBm
+cm9tIHRoZSBkYXRhc2hlZXQuCj4gCj4gT0suIFRoZSBkYXRhc2hlZXQgaXNuJ3QgY29uc2lzdGVu
+dCBlaXRoZXIsIHNvIHdlIHdpbGwgc2V0dGxlIG9uIFNMSU0gY29yZSBhbmQKPiBTTElNIENQVS4K
+ClBlcmZlY3QuCgotLSAKTGVlIEpvbmVzCkxpbmFybyBTVE1pY3JvZWxlY3Ryb25pY3MgTGFuZGlu
+ZyBUZWFtIExlYWQKTGluYXJvLm9yZyDilIIgT3BlbiBzb3VyY2Ugc29mdHdhcmUgZm9yIEFSTSBT
+b0NzCkZvbGxvdyBMaW5hcm86IEZhY2Vib29rIHwgVHdpdHRlciB8IEJsb2cKX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
+ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
+bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
