@@ -1,16 +1,17 @@
-From: Wanpeng Li <kernellwp@gmail.com>
-Subject: Re: [PATCH v3 kernel 0/7] Extend virtio-balloon for fast
-	(de)inflating & fast live migration
-Date: Thu, 1 Sep 2016 14:01:56 +0800
-Message-ID: <CANRm+Cx-JzR-JhRwy9RShFGeC5SHw9HKesXnPyy9BiBmhQgiCQ@mail.gmail.com>
-References: <1470638134-24149-1-git-send-email-liang.z.li@intel.com>
-	<CANRm+Cy=p8PKg8HqRp7apU0D9X=gpnrahtXRq+S+5Gq863VO8g@mail.gmail.com>
-	<F2CBF3009FA73547804AE4C663CAB28E3A01C59B@shsmsx102.ccr.corp.intel.com>
+From: Peter Griffin <peter.griffin@linaro.org>
+Subject: Re: [PATCH v8 05/18] dmaengine: st_fdma: Add STMicroelectronics FDMA
+	engine driver support
+Date: Thu, 1 Sep 2016 11:06:19 +0100
+Message-ID: <20160901100619.GA8268__7143.0561402396$1472724408$gmane$org@griffinp-ThinkPad-X1-Carbon-2nd>
+References: <1472223413-7254-1-git-send-email-peter.griffin@linaro.org>
+	<1472223413-7254-6-git-send-email-peter.griffin@linaro.org>
+	<20160830163019.GM9355@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <F2CBF3009FA73547804AE4C663CAB28E3A01C59B@shsmsx102.ccr.corp.intel.com>
+Content-Disposition: inline
+In-Reply-To: <20160830163019.GM9355@localhost>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,52 +21,101 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Li, Liang Z" <liang.z.li@intel.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, kvm <kvm@vger.kernel.org>, "Hansen, Dave" <dave.hansen@intel.com>, "qemu-devel@nongnu.org Developers" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>
+To: Vinod Koul <vinod.koul@intel.com>
+Cc: devicetree@vger.kernel.org, kernel@stlinux.com, airlied@linux.ie, linux-remoteproc@vger.kernel.org, virtualization@lists.linux-foundation.org, patrice.chotard@st.com, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, Ludovic Barre <ludovic.barre@st.com>, dmaengine@vger.kernel.org, dan.j.williams@intel.com, bjorn.andersson@linaro.org, lee.jones@linaro.org, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-2016-09-01 13:46 GMT+08:00 Li, Liang Z <liang.z.li@intel.com>:
->> Subject: Re: [PATCH v3 kernel 0/7] Extend virtio-balloon for fast (de)inflating
->> & fast live migration
->>
->> 2016-08-08 14:35 GMT+08:00 Liang Li <liang.z.li@intel.com>:
->> > This patch set contains two parts of changes to the virtio-balloon.
->> >
->> > One is the change for speeding up the inflating & deflating process,
->> > the main idea of this optimization is to use bitmap to send the page
->> > information to host instead of the PFNs, to reduce the overhead of
->> > virtio data transmission, address translation and madvise(). This can
->> > help to improve the performance by about 85%.
->> >
->> > Another change is for speeding up live migration. By skipping process
->> > guest's free pages in the first round of data copy, to reduce needless
->> > data processing, this can help to save quite a lot of CPU cycles and
->> > network bandwidth. We put guest's free page information in bitmap and
->> > send it to host with the virt queue of virtio-balloon. For an idle 8GB
->> > guest, this can help to shorten the total live migration time from
->> > 2Sec to about 500ms in the 10Gbps network environment.
->>
->> I just read the slides of this feature for recent kvm forum, the cloud
->> providers more care about live migration downtime to avoid customers'
->> perception than total time, however, this feature will increase downtime
->> when acquire the benefit of reducing total time, maybe it will be more
->> acceptable if there is no downside for downtime.
->>
->> Regards,
->> Wanpeng Li
->
-> In theory, there is no factor that will increase the downtime. There is no additional operation
-> and no more data copy during the stop and copy stage. But in the test, the downtime increases
-> and this can be reproduced. I think the busy network line maybe the reason for this. With this
->  optimization, a huge amount of data is written to the socket in a shorter time, so some of the write
-> operation may need to wait. Without this optimization, zero page checking takes more time,
-> the network is not so busy.
->
-> If the guest is not an idle one, I think the gap of the downtime will not so obvious.  Anyway, the
+Hi Vinod,
 
-http://www.linux-kvm.org/images/c/c3/03x06B-Liang_Li-Real_Time_and_Fast_Live_Migration_Update_for_NFV.pdf
-The slides show almost the similar percentage for the idle and the
-non-idle guests, they both increase  ~50% downtime.
+Thanks for reviewing.
 
-Regards,
-Wanpeng Li
+On Tue, 30 Aug 2016, Vinod Koul wrote:
+
+> On Fri, Aug 26, 2016 at 03:56:40PM +0100, Peter Griffin wrote:
+> 
+> >  config STM32_DMA
+> >  	bool "STMicroelectronics STM32 DMA support"
+> >  	depends on ARCH_STM32
+> > @@ -567,7 +580,6 @@ config ZX_DMA
+> >  	help
+> >  	  Support the DMA engine for ZTE ZX296702 platform devices.
+> >  
+> > -
+> 
+> unrelated change?
+
+OK will remove and send a separate patch.
+> 
+> > +	fdev->chans = devm_kzalloc(&pdev->dev,
+> > +				   fdev->nr_channels
+> > +				   * sizeof(struct st_fdma_chan), GFP_KERNEL);
+> 
+> devm_kcalloc()
+
+Will fix in next version.
+
+> 
+> > +	if (!fdev->chans)
+> > +		return -ENOMEM;
+> > +
+> > +	fdev->dev = &pdev->dev;
+> > +	fdev->drvdata = drvdata;
+> > +	platform_set_drvdata(pdev, fdev);
+> > +
+> > +	fdev->irq = platform_get_irq(pdev, 0);
+> > +	if (fdev->irq < 0) {
+> > +		dev_err(&pdev->dev, "Failed to get irq resource\n");
+> > +		return -EINVAL;
+> > +	}
+> > +
+> > +	ret = devm_request_irq(&pdev->dev, fdev->irq, st_fdma_irq_handler, 0,
+> > +			       dev_name(&pdev->dev), fdev);
+> > +	if (ret) {
+> > +		dev_err(&pdev->dev, "Failed to request irq (%d)\n", ret);
+> > +		goto err;
+> > +	}
+> > +
+> > +	fdev->slim_rproc = st_slim_rproc_alloc(pdev, fdev->fw_name);
+> > +	if (!fdev->slim_rproc) {
+> > +		ret = PTR_ERR(fdev->slim_rproc);
+> > +		dev_err(&pdev->dev, "slim_rproc_alloc failed (%d)\n", ret);
+> > +		goto err;
+> > +	}
+> > +
+> > +	/* Initialise list of FDMA channels */
+> > +	INIT_LIST_HEAD(&fdev->dma_device.channels);
+> > +	for (i = 0; i < fdev->nr_channels; i++) {
+> > +		struct st_fdma_chan *fchan = &fdev->chans[i];
+> > +
+> > +		fchan->fdev = fdev;
+> > +		fchan->vchan.desc_free = st_fdma_free_desc;
+> > +		vchan_init(&fchan->vchan, &fdev->dma_device);
+> 
+> this initialized a tasklet
+> 
+> > +static int st_fdma_remove(struct platform_device *pdev)
+> > +{
+> > +	struct st_fdma_dev *fdev = platform_get_drvdata(pdev);
+> > +
+> > +	devm_free_irq(&pdev->dev, fdev->irq, fdev);
+> > +	st_slim_rproc_put(fdev->slim_rproc);
+> > +	of_dma_controller_free(pdev->dev.of_node);
+> > +	dma_async_device_unregister(&fdev->dma_device);
+> 
+> and that vchan tasklet is not quisced here :(
+
+Eeek, good spot. Will fix in next version.
+
+> 
+> > +MODULE_LICENSE("GPL v2");
+> > +MODULE_DESCRIPTION("STMicroelectronics FDMA engine driver");
+> > +MODULE_AUTHOR("Ludovic.barre <Ludovic.barre@st.com>");
+> > +MODULE_AUTHOR("Peter Griffin <peter.griffin@linaro.org>");
+> 
+> No MODULE_ALIAS?
+
+Will add in next version.
+
+regards,
+
+Peter. 
