@@ -1,13 +1,16 @@
-From: Gustavo Padovan <gustavo@padovan.org>
-Subject: [PATCH 2/2] drm/virtio: add real fence context and seqno
-Date: Wed, 31 Aug 2016 12:26:53 -0400
-Message-ID: <1472660813-28219-2-git-send-email-gustavo@padovan.org>
-References: <1472660813-28219-1-git-send-email-gustavo@padovan.org>
+From: Namhyung Kim <namhyung@kernel.org>
+Subject: Re: [PATCH 1/3] virtio: Basic implementation of virtio pstore driver
+Date: Thu, 1 Sep 2016 09:03:06 +0900
+Message-ID: <20160901000306.GA9510__31815.107263583$1472688200$gmane$org@sejong>
+References: <20160831080802.13408-1-namhyung@kernel.org>
+	<20160831080802.13408-2-namhyung@kernel.org>
+	<20160831175007-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1472660813-28219-1-git-send-email-gustavo@padovan.org>
+In-Reply-To: <20160831175007-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,58 +20,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Airlie <airlied@linux.ie>
-Cc: open list <linux-kernel@vger.kernel.org>, Gustavo Padovan <gustavo.padovan@collabora.co.uk>, "open list:VIRTIO GPU DRIVER" <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, Tony Luck <tony.luck@intel.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, Anton Vorontsov <anton@enomsg.org>, Will Deacon <will.deacon@arm.com>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, qemu-devel@nongnu.org, Minchan Kim <minchan@kernel.org>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
-
-virtio fences were created with no fence context, which would make then
-clash with an allocated fence context.
-
-Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
----
- drivers/gpu/drm/virtio/virtgpu_drv.h   | 1 +
- drivers/gpu/drm/virtio/virtgpu_fence.c | 2 +-
- drivers/gpu/drm/virtio/virtgpu_kms.c   | 1 +
- 3 files changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index b18ef31..06ad923 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -75,6 +75,7 @@ typedef void (*virtio_gpu_resp_cb)(struct virtio_gpu_device *vgdev,
- struct virtio_gpu_fence_driver {
- 	atomic64_t       last_seq;
- 	uint64_t         sync_seq;
-+	uint64_t         context;
- 	struct list_head fences;
- 	spinlock_t       lock;
- };
-diff --git a/drivers/gpu/drm/virtio/virtgpu_fence.c b/drivers/gpu/drm/virtio/virtgpu_fence.c
-index cf44187..f3f70fa 100644
---- a/drivers/gpu/drm/virtio/virtgpu_fence.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_fence.c
-@@ -89,7 +89,7 @@ int virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
- 	(*fence)->drv = drv;
- 	(*fence)->seq = ++drv->sync_seq;
- 	fence_init(&(*fence)->f, &virtio_fence_ops, &drv->lock,
--		   0, (*fence)->seq);
-+		   drv->context, (*fence)->seq);
- 	fence_get(&(*fence)->f);
- 	list_add_tail(&(*fence)->node, &drv->fences);
- 	spin_unlock_irqrestore(&drv->lock, irq_flags);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index 4150873..036b0fb 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -159,6 +159,7 @@ int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
- 	virtio_gpu_init_vq(&vgdev->ctrlq, virtio_gpu_dequeue_ctrl_func);
- 	virtio_gpu_init_vq(&vgdev->cursorq, virtio_gpu_dequeue_cursor_func);
- 
-+	vgdev->fence_drv.context = fence_context_alloc(1);
- 	spin_lock_init(&vgdev->fence_drv.lock);
- 	INIT_LIST_HEAD(&vgdev->fence_drv.fences);
- 	INIT_LIST_HEAD(&vgdev->cap_cache);
--- 
-2.5.5
+SGkgTWljaGFlbCwKCk9uIFdlZCwgQXVnIDMxLCAyMDE2IGF0IDA1OjU0OjA0UE0gKzAzMDAsIE1p
+Y2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBPbiBXZWQsIEF1ZyAzMSwgMjAxNiBhdCAwNTowODow
+MFBNICswOTAwLCBOYW1oeXVuZyBLaW0gd3JvdGU6Cj4gPiBUaGUgdmlydGlvIHBzdG9yZSBkcml2
+ZXIgcHJvdmlkZXMgaW50ZXJmYWNlIHRvIHRoZSBwc3RvcmUgc3Vic3lzdGVtIHNvCj4gPiB0aGF0
+IHRoZSBndWVzdCBrZXJuZWwncyBsb2cvZHVtcCBtZXNzYWdlIGNhbiBiZSBzYXZlZCBvbiB0aGUg
+aG9zdAo+ID4gbWFjaGluZS4gIFVzZXJzIGNhbiBhY2Nlc3MgdGhlIGxvZyBmaWxlIGRpcmVjdGx5
+IG9uIHRoZSBob3N0LCBvciBvbiB0aGUKPiA+IGd1ZXN0IGF0IHRoZSBuZXh0IGJvb3QgdXNpbmcg
+cHN0b3JlIGZpbGVzeXN0ZW0uICBJdCBjdXJyZW50bHkgZGVhbHMgd2l0aAo+ID4ga2VybmVsIGxv
+ZyAocHJpbnRrKSBidWZmZXIgb25seSwgYnV0IHdlIGNhbiBleHRlbmQgaXQgdG8gaGF2ZSBvdGhl
+cgo+ID4gaW5mb3JtYXRpb24gKGxpa2UgZnRyYWNlIGR1bXApIGxhdGVyLgo+ID4gCj4gPiBJdCBz
+dXBwb3J0cyBsZWdhY3kgUENJIGRldmljZSB1c2luZyBzaW5nbGUgb3JkZXItMiBwYWdlIGJ1ZmZl
+ci4gIEl0IHVzZXMKPiA+IHR3byB2aXJ0cXVldWVzIC0gb25lIGZvciAoc3luYykgcmVhZCBhbmQg
+YW5vdGhlciBmb3IgKGFzeW5jKSB3cml0ZS4KPiA+IFNpbmNlIGl0IGNhbm5vdCB3YWl0IGZvciB3
+cml0ZSBmaW5pc2hlZCwgaXQgc3VwcG9ydHMgdXAgdG8gMTI4Cj4gPiBjb25jdXJyZW50IElPLiAg
+VGhlIGJ1ZmZlciBzaXplIGlzIGNvbmZpZ3VyYWJsZSBub3cuCj4gPiAKPiA+IENjOiBQYW9sbyBC
+b256aW5pIDxwYm9uemluaUByZWRoYXQuY29tPgo+ID4gQ2M6IFJhZGltIEtyxI1tw6HFmSA8cmty
+Y21hckByZWRoYXQuY29tPgo+ID4gQ2M6ICJNaWNoYWVsIFMuIFRzaXJraW4iIDxtc3RAcmVkaGF0
+LmNvbT4KPiA+IENjOiBBbnRob255IExpZ3VvcmkgPGFsaWd1b3JpQGFtYXpvbi5jb20+Cj4gPiBD
+YzogQW50b24gVm9yb250c292IDxhbnRvbkBlbm9tc2cub3JnPgo+ID4gQ2M6IENvbGluIENyb3Nz
+IDxjY3Jvc3NAYW5kcm9pZC5jb20+Cj4gPiBDYzogS2VlcyBDb29rIDxrZWVzY29va0BjaHJvbWl1
+bS5vcmc+Cj4gPiBDYzogVG9ueSBMdWNrIDx0b255Lmx1Y2tAaW50ZWwuY29tPgo+ID4gQ2M6IFN0
+ZXZlbiBSb3N0ZWR0IDxyb3N0ZWR0QGdvb2RtaXMub3JnPgo+ID4gQ2M6IEluZ28gTW9sbmFyIDxt
+aW5nb0BrZXJuZWwub3JnPgo+ID4gQ2M6IE1pbmNoYW4gS2ltIDxtaW5jaGFuQGtlcm5lbC5vcmc+
+Cj4gPiBDYzogV2lsbCBEZWFjb24gPHdpbGwuZGVhY29uQGFybS5jb20+Cj4gPiBDYzoga3ZtQHZn
+ZXIua2VybmVsLm9yZwo+ID4gQ2M6IHFlbXUtZGV2ZWxAbm9uZ251Lm9yZwo+ID4gQ2M6IHZpcnR1
+YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCj4gPiBDYzogdmlydGlvLWRldkBs
+aXN0cy5vYXNpcy1vcGVuLm9yZwo+ID4gU2lnbmVkLW9mZi1ieTogTmFtaHl1bmcgS2ltIDxuYW1o
+eXVuZ0BrZXJuZWwub3JnPgo+ID4gLS0tCgpbU05JUF0KPiA+ICsjZGVmaW5lIFRZUEVfVEFCTEVf
+RU5UUlkoX2VudHJ5KQkJCQlcCj4gPiArCXsgUFNUT1JFX1RZUEVfIyNfZW50cnksIFZJUlRJT19Q
+U1RPUkVfVFlQRV8jI19lbnRyeSB9Cj4gPiArCj4gPiArc3RydWN0IHR5cGVfdGFibGUgewo+ID4g
+KwlpbnQgcHN0b3JlOwo+ID4gKwl1MTYgdmlydGlvOwo+ID4gK30gdHlwZV90YWJsZVtdID0gewo+
+ID4gKwlUWVBFX1RBQkxFX0VOVFJZKERNRVNHKSwKPiA+ICt9Owo+ID4gKwo+ID4gKyN1bmRlZiBU
+WVBFX1RBQkxFX0VOVFJZCj4gPiArCj4gPiArCj4gPiArc3RhdGljIHUxNiB0b192aXJ0aW9fdHlw
+ZShzdHJ1Y3QgdmlydGlvX3BzdG9yZSAqdnBzLCBlbnVtIHBzdG9yZV90eXBlX2lkIHR5cGUpCj4g
+PiArewo+ID4gKwl1bnNpZ25lZCBpbnQgaTsKPiA+ICsKPiA+ICsJZm9yIChpID0gMDsgaSA8IEFS
+UkFZX1NJWkUodHlwZV90YWJsZSk7IGkrKykgewo+ID4gKwkJaWYgKHR5cGUgPT0gdHlwZV90YWJs
+ZVtpXS5wc3RvcmUpCj4gPiArCQkJcmV0dXJuIGNwdV90b192aXJ0aW8xNih2cHMtPnZkZXYsIHR5
+cGVfdGFibGVbaV0udmlydGlvKTsKPiAKPiBEb2VzIHRoaXMgcGFzcyBzcGFyc2UgY2hlY2tzPyBJ
+ZiB5ZXMgSSdtIHN1cnByaXNlZCAtIHRoaXMgY2xlYXJseQo+IHJldHVybnMgYSB2aXJ0aW8xNiB0
+eXBlLgoKQWgsIGRpZG4ndCBydW4gc3BhcnNlLiAgV2lsbCBjaGFuZ2UgaXQgdG8gcmV0dXJuIGEg
+X19sZTE2IHR5cGUKKGFjY29yZGluZyB0byB5b3VyIGNvbW1lbnQgYmVsb3cpLgoKPiAKPiAKPiA+
+ICsJfQo+ID4gKwo+ID4gKwlyZXR1cm4gY3B1X3RvX3ZpcnRpbzE2KHZwcy0+dmRldiwgVklSVElP
+X1BTVE9SRV9UWVBFX1VOS05PV04pOwo+ID4gK30KPiA+ICsKPiA+ICtzdGF0aWMgZW51bSBwc3Rv
+cmVfdHlwZV9pZCBmcm9tX3ZpcnRpb190eXBlKHN0cnVjdCB2aXJ0aW9fcHN0b3JlICp2cHMsIHUx
+NiB0eXBlKQoKVGhpcyBvbmUgc2hvdWxkIGJlICdfX2xlMTYgdHlwZScgYXMgd2VsbC4KCgo+ID4g
+K3sKPiA+ICsJdW5zaWduZWQgaW50IGk7Cj4gPiArCj4gPiArCWZvciAoaSA9IDA7IGkgPCBBUlJB
+WV9TSVpFKHR5cGVfdGFibGUpOyBpKyspIHsKPiA+ICsJCWlmICh2aXJ0aW8xNl90b19jcHUodnBz
+LT52ZGV2LCB0eXBlKSA9PSB0eXBlX3RhYmxlW2ldLnZpcnRpbykKPiA+ICsJCQlyZXR1cm4gdHlw
+ZV90YWJsZVtpXS5wc3RvcmU7Cj4gPiArCX0KPiA+ICsKPiA+ICsJcmV0dXJuIFBTVE9SRV9UWVBF
+X1VOS05PV047Cj4gPiArfQo+ID4gKwoKW1NOSVBdCj4gPiArCj4gPiArc3RydWN0IHZpcnRpb19w
+c3RvcmVfcmVxIHsKPiA+ICsJX192aXJ0aW8xNgkJY21kOwo+ID4gKwlfX3ZpcnRpbzE2CQl0eXBl
+Owo+ID4gKwlfX3ZpcnRpbzMyCQlmbGFnczsKPiA+ICsJX192aXJ0aW82NAkJaWQ7Cj4gPiArCV9f
+dmlydGlvMzIJCWNvdW50Owo+ID4gKwlfX3ZpcnRpbzMyCQlyZXNlcnZlZDsKPiA+ICt9Owo+ID4g
+Kwo+ID4gK3N0cnVjdCB2aXJ0aW9fcHN0b3JlX3JlcyB7Cj4gPiArCV9fdmlydGlvMTYJCWNtZDsK
+PiA+ICsJX192aXJ0aW8xNgkJdHlwZTsKPiA+ICsJX192aXJ0aW8zMgkJcmV0Owo+ID4gK307Cj4g
+Cj4gSXMgdGhlcmUgYSByZWFzb24gdG8gc3VwcG9ydCBsZWdhY3kgZW5kaWFuLW5lc3M/Cj4gSWYg
+bm90LCB5b3UgY2FuIGp1c3QgdXNlIF9fbGUgZm9ybWF0cy4KCkkganVzdCBkaWRuJ3Qga25vdyB3
+aGF0J3MgdGhlIHByZWZlcnJlZCB0eXBlLiAgV2lsbCBjaGFuZ2UhCgpUaGFua3MsCk5hbWh5dW5n
+Cgo+IAo+IAo+ID4gK3N0cnVjdCB2aXJ0aW9fcHN0b3JlX2ZpbGVpbmZvIHsKPiA+ICsJX192aXJ0
+aW82NAkJaWQ7Cj4gPiArCV9fdmlydGlvMzIJCWNvdW50Owo+ID4gKwlfX3ZpcnRpbzE2CQl0eXBl
+Owo+ID4gKwlfX3ZpcnRpbzE2CQl1bnVzZWQ7Cj4gPiArCV9fdmlydGlvMzIJCWZsYWdzOwo+ID4g
+KwlfX3ZpcnRpbzMyCQlsZW47Cj4gPiArCV9fdmlydGlvNjQJCXRpbWVfc2VjOwo+ID4gKwlfX3Zp
+cnRpbzMyCQl0aW1lX25zZWM7Cj4gPiArCV9fdmlydGlvMzIJCXJlc2VydmVkOwo+ID4gK307Cj4g
+PiArCj4gPiArc3RydWN0IHZpcnRpb19wc3RvcmVfY29uZmlnIHsKPiA+ICsJX192aXJ0aW8zMgkJ
+YnVmc2l6ZTsKPiA+ICt9Owo+ID4gKwo+ID4gKyNlbmRpZiAvKiBfTElOVVhfVklSVElPX1BTVE9S
+RV9IICovCj4gPiAtLSAKPiA+IDIuOS4zCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
+bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
+bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
