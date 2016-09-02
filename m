@@ -1,14 +1,16 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH] x86/paravirt: Do not trace _paravirt_ident_*() functions
-Date: Fri, 2 Sep 2016 09:41:40 -0700
-Message-ID: <CA+55aFwSPhYp6VwzNs0BfGuGOD=PGCThqC0ABS672cXUykcO4A@mail.gmail.com>
-References: <20160525134726.6362a601@gandalf.local.home>
-	<20160902104630.4b004e09@gandalf.local.home>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio-blk: Generate uevent after attribute available
+Date: Sat, 3 Sep 2016 01:56:43 +0300
+Message-ID: <20160903015630-mutt-send-email-mst@kernel.org>
+References: <20160628023915.6012-1-famz@redhat.com>
+	<20160628114553.GA18354@infradead.org>
+	<20160629012414.GA23296@ad.usersys.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160902104630.4b004e09@gandalf.local.home>
+Content-Disposition: inline
+In-Reply-To: <20160629012414.GA23296@ad.usersys.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,15 +20,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, =?UTF-8?Q?=C5=81ukasz_Daniluk?= <lukasz.daniluk@intel.com>, Andrew Morton <akpm@linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Chris Wright <chrisw@sous-sol.org>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, Alok Kataria <akataria@vmware.com>, Ingo Molnar <mingo@kernel.org>
+To: Fam Zheng <famz@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 2, 2016 at 7:46 AM, Steven Rostedt <rostedt@goodmis.org> wrote:
->
-> Can someone please pull this in. And mark it for stable, it goes
-> probably as far back as 2.6.32.
+On Wed, Jun 29, 2016 at 09:24:15AM +0800, Fam Zheng wrote:
+> On Tue, 06/28 04:45, Christoph Hellwig wrote:
+> > On Tue, Jun 28, 2016 at 10:39:15AM +0800, Fam Zheng wrote:
+> > > Userspace listens to the KOBJ_ADD uevent generated in add_disk. At that
+> > > point we haven't created the serial attribute file, therefore depending
+> > > on how fast udev reacts, the /dev/disk/by-id/ entry doesn't always get
+> > > created.
+> > > 
+> > > This race condition can be easily reproduced by hot plugging a number of
+> > > virtio-blk disks.
+> > > 
+> > > Also in systemd, there used to be a related workaround in udev rules
+> > > called 'WAIT_FOR="serial"', but it is removed in later versions.
+> > > 
+> > > Now let's generate a KOBJ_CHANGE event after the attributes are ready.
+> > 
+> > The same race is present in other drivers as well, e.g. nvme.  Please
+> > find a way to make this work properly without needing to hack every
+> > driver to send events manually.
+> 
+> OK, I'll take a look today!
+> 
+> Fam
 
-Applied.
+Was this fixed in the generic code?
 
-             Linus
+-- 
+MST
