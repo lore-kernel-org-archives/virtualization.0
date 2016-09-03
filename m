@@ -1,16 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Fam Zheng <famz@redhat.com>
 Subject: Re: [PATCH] virtio-blk: Generate uevent after attribute available
-Date: Sat, 3 Sep 2016 01:56:43 +0300
-Message-ID: <20160903015630-mutt-send-email-mst@kernel.org>
+Date: Sat, 3 Sep 2016 15:08:33 +0800
+Message-ID: <20160903070833.GA23269@al.usersys.redhat.com>
 References: <20160628023915.6012-1-famz@redhat.com>
 	<20160628114553.GA18354@infradead.org>
 	<20160629012414.GA23296@ad.usersys.redhat.com>
+	<20160903015630-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20160629012414.GA23296@ad.usersys.redhat.com>
+In-Reply-To: <20160903015630-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,35 +21,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Fam Zheng <famz@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 29, 2016 at 09:24:15AM +0800, Fam Zheng wrote:
-> On Tue, 06/28 04:45, Christoph Hellwig wrote:
-> > On Tue, Jun 28, 2016 at 10:39:15AM +0800, Fam Zheng wrote:
-> > > Userspace listens to the KOBJ_ADD uevent generated in add_disk. At that
-> > > point we haven't created the serial attribute file, therefore depending
-> > > on how fast udev reacts, the /dev/disk/by-id/ entry doesn't always get
-> > > created.
+On Sat, 09/03 01:56, Michael S. Tsirkin wrote:
+> On Wed, Jun 29, 2016 at 09:24:15AM +0800, Fam Zheng wrote:
+> > On Tue, 06/28 04:45, Christoph Hellwig wrote:
+> > > On Tue, Jun 28, 2016 at 10:39:15AM +0800, Fam Zheng wrote:
+> > > > Userspace listens to the KOBJ_ADD uevent generated in add_disk. At that
+> > > > point we haven't created the serial attribute file, therefore depending
+> > > > on how fast udev reacts, the /dev/disk/by-id/ entry doesn't always get
+> > > > created.
+> > > > 
+> > > > This race condition can be easily reproduced by hot plugging a number of
+> > > > virtio-blk disks.
+> > > > 
+> > > > Also in systemd, there used to be a related workaround in udev rules
+> > > > called 'WAIT_FOR="serial"', but it is removed in later versions.
+> > > > 
+> > > > Now let's generate a KOBJ_CHANGE event after the attributes are ready.
 > > > 
-> > > This race condition can be easily reproduced by hot plugging a number of
-> > > virtio-blk disks.
-> > > 
-> > > Also in systemd, there used to be a related workaround in udev rules
-> > > called 'WAIT_FOR="serial"', but it is removed in later versions.
-> > > 
-> > > Now let's generate a KOBJ_CHANGE event after the attributes are ready.
+> > > The same race is present in other drivers as well, e.g. nvme.  Please
+> > > find a way to make this work properly without needing to hack every
+> > > driver to send events manually.
 > > 
-> > The same race is present in other drivers as well, e.g. nvme.  Please
-> > find a way to make this work properly without needing to hack every
-> > driver to send events manually.
+> > OK, I'll take a look today!
+> > 
+> > Fam
 > 
-> OK, I'll take a look today!
-> 
-> Fam
+> Was this fixed in the generic code?
 
-Was this fixed in the generic code?
+A proposed fix is:
 
--- 
-MST
+https://lkml.org/lkml/2016/8/17/81
+
+Fam
