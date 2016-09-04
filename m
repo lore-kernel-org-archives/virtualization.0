@@ -1,15 +1,13 @@
-From: "Razya Ladelsky" <RAZYA@il.ibm.com>
-Subject: Re: [PATCH] vhost: Add polling mode
-Date: Sun, 4 Sep 2016 11:45:23 +0300
-Message-ID: <OFFD7F2B1C.489CB2FF-ONC2257D31.002B16DD-C2258024.003019C1__26268.8637165867$1472992329$gmane$org@notes.na.collabserv.com>
-References: <1407659404-razya@il.ibm.com>
-	<20140810083035.0CF58380729@moren.haifa.ibm.com>
-	<20140810194559.GA4344@redhat.com>
+From: Namhyung Kim <namhyung@kernel.org>
+Subject: [PATCH 1/3] virtio: Basic implementation of virtio pstore driver
+Date: Sun,  4 Sep 2016 23:38:58 +0900
+Message-ID: <20160904143900.14850-2-namhyung@kernel.org>
+References: <20160904143900.14850-1-namhyung@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140810194559.GA4344@redhat.com>
+In-Reply-To: <20160904143900.14850-1-namhyung@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,662 +17,311 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Yossi_Kuperman1/Haifa/IBM%IBMIL@d06av08.portsmouth.uk.ibm.com, kvm@vger.kernel.org, Joel_Nider/Haifa/IBM%IBMIL@d06av08.portsmouth.uk.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, abel.gordon@gmail.com, Alex_Glikson/Haifa/IBM%IBMIL@d06av08.portsmouth.uk.ibm.com, Eran_Raichstein/Haifa/IBM%IBMIL@d06av08.portsmouth.uk.ibm.com, virtualization@lists.linux-foundation.org
+To: virtio-dev@lists.oasis-open.org
+Cc: Anton Vorontsov <anton@enomsg.org>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, qemu-devel@nongnu.org, "Michael S. Tsirkin" <mst@redhat.com>, Will Deacon <will.deacon@arm.com>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Minchan Kim <minchan@kernel.org>, Tony Luck <tony.luck@intel.com>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, Paolo Bonzini <pbonzini@redhat.com>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> wrote on 10/08/2014 10:45:59 PM:
-
-> From: "Michael S. Tsirkin" <mst@redhat.com>
-> To: Razya Ladelsky/Haifa/IBM@IBMIL, 
-> Cc: kvm@vger.kernel.org, Alex Glikson/Haifa/IBM@IBMIL, Eran 
-> Raichstein/Haifa/IBM@IBMIL, Yossi Kuperman1/Haifa/IBM@IBMIL, Joel 
-> Nider/Haifa/IBM@IBMIL, abel.gordon@gmail.com, linux-
-> kernel@vger.kernel.org, netdev@vger.kernel.org, 
-> virtualization@lists.linux-foundation.org
-> Date: 10/08/2014 10:45 PM
-> Subject: Re: [PATCH] vhost: Add polling mode
-> 
-> On Sun, Aug 10, 2014 at 11:30:35AM +0300, Razya Ladelsky wrote:
-> > From: Razya Ladelsky <razya@il.ibm.com>
-> > Date: Thu, 31 Jul 2014 09:47:20 +0300
-> > Subject: [PATCH] vhost: Add polling mode
-> > 
-> > When vhost is waiting for buffers from the guest driver (e.g., 
-> more packets to
-> > send in vhost-net's transmit queue), it normally goes to sleep and
-> waits for the
-> > guest to "kick" it. This kick involves a PIO in the guest, and 
-> therefore an exit
-> > (and possibly userspace involvement in translating this PIO exit into 
-a file
-> > descriptor event), all of which hurts performance.
-> > 
-> > If the system is under-utilized (has cpu time to spare), vhost can
-> continuously
-> > poll the virtqueues for new buffers, and avoid asking the guest to 
-kick us.
-> > This patch adds an optional polling mode to vhost, that can be enabled 
-via a
-> > kernel module parameter, "poll_start_rate".
-> > 
-> > When polling is active for a virtqueue, the guest is asked to disable
-> > notification (kicks), and the worker thread continuously checks 
-> for new buffers.
-> > When it does discover new buffers, it simulates a "kick" by invoking 
-the
-> > underlying backend driver (such as vhost-net), which thinks it got
-> a real kick
-> > from the guest, and acts accordingly. If the underlying driver 
-> asks not to be
-> > kicked, we disable polling on this virtqueue.
-> > 
-> > We start polling on a virtqueue when we notice it has work to do. 
-Polling on
-> > this virtqueue is later disabled after 3 seconds of polling 
-> turning up no new
-> > work, as in this case we are better off returning to the exit-
-> based notification
-> > mechanism. The default timeout of 3 seconds can be changed with the
-> > "poll_stop_idle" kernel module parameter.
-> > 
-> > This polling approach makes lot of sense for new HW with posted-
-> interrupts for
-> > which we have exitless host-to-guest notifications. But even with 
-> support for
-> > posted interrupts, guest-to-host communication still causes exits.
-> Polling adds
-> > the missing part.
-> > 
-> > When systems are overloaded, there won't be enough cpu time for the 
-various
-> > vhost threads to poll their guests' devices. For these scenarios, 
-> we plan to add
-> > support for vhost threads that can be shared by multiple devices, even 
-of
-> > multiple vms.
-> > Our ultimate goal is to implement the I/O acceleration features 
-> described in:
-> > KVM Forum 2013: Efficient and Scalable Virtio (by Abel Gordon)
-> > https://www.youtube.com/watch?v=9EyweibHfEs
-> > and
-> > https://www.mail-archive.com/kvm@vger.kernel.org/msg98179.html
-> > 
-> > I ran some experiments with TCP stream netperf and filebench 
-> (having 2 threads
-> > performing random reads) benchmarks on an IBM System x3650 M4.
-> > I have two machines, A and B. A hosts the vms, B runs the netserver.
-> > The vms (on A) run netperf, its destination server is running on B.
-> > All runs loaded the guests in a way that they were (cpu) 
-> saturated. For example,
-> > I ran netperf with 64B messages, which is heavily loading the vm 
-> (which is why
-> > its throughput is low).
-> > The idea was to get it 100% loaded, so we can see that the polling
-> is getting it
-> > to produce higher throughput.
-> 
-> And, did your tests actually produce 100% load on both host CPUs?
-> 
-
-The vm indeed utilized 100% cpu, whether polling was enabled or not.
-The vhost thread utilized less than 100% (of the other cpu) when polling 
-was disabled.
-Enabling polling increased its utilization to 100% (in which case both 
-cpus were 100% utilized). 
- 
-
-> > The system had two cores per guest, as to allow for both the vcpu 
-> and the vhost
-> > thread to run concurrently for maximum throughput (but I didn't 
-> pin the threads
-> > to specific cores).
-> > My experiments were fair in a sense that for both cases, with or 
-without
-> > polling, I run both threads, vcpu and vhost, on 2 cores (set their
-> affinity that
-> > way). The only difference was whether polling was enabled/disabled.
-> > 
-> > Results:
-> > 
-> > Netperf, 1 vm:
-> > The polling patch improved throughput by ~33% (1516 MB/sec -> 2046 
-MB/sec).
-> > Number of exits/sec decreased 6x.
-> > The same improvement was shown when I tested with 3 vms running 
-netperf
-> > (4086 MB/sec -> 5545 MB/sec).
-> > 
-> > filebench, 1 vm:
-> > ops/sec improved by 13% with the polling patch. Number of exits 
-> was reduced by
-> > 31%.
-> > The same experiment with 3 vms running filebench showed similar 
-numbers.
-> > 
-> > Signed-off-by: Razya Ladelsky <razya@il.ibm.com>
-> > ---
-> >  drivers/vhost/net.c   |    6 +-
-> >  drivers/vhost/scsi.c  |    6 +-
-> >  drivers/vhost/vhost.c |  245 ++++++++++++++++++++++++++++++++++++
-> +++++++++++--
-> >  drivers/vhost/vhost.h |   38 +++++++-
-> >  4 files changed, 277 insertions(+), 18 deletions(-)
-> > 
-> > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> > index 971a760..558aecb 100644
-> > --- a/drivers/vhost/net.c
-> > +++ b/drivers/vhost/net.c
-> > @@ -742,8 +742,10 @@ static int vhost_net_open(struct inode 
-> *inode, struct file *f)
-> >     }
-> >     vhost_dev_init(dev, vqs, VHOST_NET_VQ_MAX);
-> > 
-> > -   vhost_poll_init(n->poll + VHOST_NET_VQ_TX, handle_tx_net, POLLOUT, 
-dev);
-> > -   vhost_poll_init(n->poll + VHOST_NET_VQ_RX, handle_rx_net, POLLIN, 
-dev);
-> > +   vhost_poll_init(n->poll + VHOST_NET_VQ_TX, handle_tx_net, POLLOUT,
-> > +         vqs[VHOST_NET_VQ_TX]);
-> > +   vhost_poll_init(n->poll + VHOST_NET_VQ_RX, handle_rx_net, POLLIN,
-> > +         vqs[VHOST_NET_VQ_RX]);
-> > 
-> >     f->private_data = n;
-> > 
-> > diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-> > index 4f4ffa4..665eeeb 100644
-> > --- a/drivers/vhost/scsi.c
-> > +++ b/drivers/vhost/scsi.c
-> > @@ -1528,9 +1528,9 @@ static int vhost_scsi_open(struct inode 
-> *inode, struct file *f)
-> >     if (!vqs)
-> >        goto err_vqs;
-> > 
-> > -   vhost_work_init(&vs->vs_completion_work, 
-vhost_scsi_complete_cmd_work);
-> > -   vhost_work_init(&vs->vs_event_work, tcm_vhost_evt_work);
-> > -
-> > +   vhost_work_init(&vs->vs_completion_work, NULL,
-> > +                  vhost_scsi_complete_cmd_work);
-> > +   vhost_work_init(&vs->vs_event_work, NULL, tcm_vhost_evt_work);
-> >     vs->vs_events_nr = 0;
-> >     vs->vs_events_missed = false;
-> > 
-> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > index c90f437..fbe8174 100644
-> > --- a/drivers/vhost/vhost.c
-> > +++ b/drivers/vhost/vhost.c
-> > @@ -24,9 +24,17 @@
-> >  #include <linux/slab.h>
-> >  #include <linux/kthread.h>
-> >  #include <linux/cgroup.h>
-> > +#include <linux/jiffies.h>
-> >  #include <linux/module.h>
-> > 
-> >  #include "vhost.h"
-> > +static int poll_start_rate = 0;
-> > +module_param(poll_start_rate, int, S_IRUGO|S_IWUSR);
-> > +MODULE_PARM_DESC(poll_start_rate, "Start continuous polling of 
-> virtqueue when rate of events is at least this number per jiffy. If 
-> 0, never start polling.");
-> > +
-> > +static int poll_stop_idle = 3*HZ; /* 3 seconds */
-> > +module_param(poll_stop_idle, int, S_IRUGO|S_IWUSR);
-> > +MODULE_PARM_DESC(poll_stop_idle, "Stop continuous polling of 
-> virtqueue after this many jiffies of no work.");
-> > 
-> >  enum {
-> >     VHOST_MEMORY_MAX_NREGIONS = 64,
-> > @@ -58,27 +66,28 @@ static int vhost_poll_wakeup(wait_queue_t 
-> *wait, unsigned mode, int sync,
-> >     return 0;
-> >  }
-> > 
-> > -void vhost_work_init(struct vhost_work *work, vhost_work_fn_t fn)
-> > +void vhost_work_init(struct vhost_work *work, struct vhost_virtqueue 
-*vq,
-> > +                     vhost_work_fn_t fn)
-> >  {
-> >     INIT_LIST_HEAD(&work->node);
-> >     work->fn = fn;
-> >     init_waitqueue_head(&work->done);
-> >     work->flushing = 0;
-> >     work->queue_seq = work->done_seq = 0;
-> > +   work->vq = vq;
-> >  }
-> >  EXPORT_SYMBOL_GPL(vhost_work_init);
-> > 
-> >  /* Init poll structure */
-> >  void vhost_poll_init(struct vhost_poll *poll, vhost_work_fn_t fn,
-> > -           unsigned long mask, struct vhost_dev *dev)
-> > +           unsigned long mask, struct vhost_virtqueue *vq)
-> >  {
-> >     init_waitqueue_func_entry(&poll->wait, vhost_poll_wakeup);
-> >     init_poll_funcptr(&poll->table, vhost_poll_func);
-> >     poll->mask = mask;
-> > -   poll->dev = dev;
-> > +   poll->dev = vq->dev;
-> >     poll->wqh = NULL;
-> > -
-> > -   vhost_work_init(&poll->work, fn);
-> > +   vhost_work_init(&poll->work, vq, fn);
-> >  }
-> >  EXPORT_SYMBOL_GPL(vhost_poll_init);
-> > 
-> > @@ -174,6 +183,86 @@ void vhost_poll_queue(struct vhost_poll *poll)
-> >  }
-> >  EXPORT_SYMBOL_GPL(vhost_poll_queue);
-> > 
-> > +/* Enable or disable virtqueue polling (vqpoll.enabled) for a 
-virtqueue.
-> > + *
-> > + * Enabling this mode it tells the guest not to notify ("kick") us 
-when its
-> > + * has made more work available on this virtqueue; Rather, we 
-> will continuously
-> > + * poll this virtqueue in the worker thread. If multiple 
-> virtqueues are polled,
-> > + * the worker thread polls them all, e.g., in a round-robin fashion.
-> > + * Note that vqpoll.enabled doesn't always mean that this virtqueue 
-is
-> > + * actually being polled: The backend (e.g., net.c) may 
-> temporarily disable it
-> > + * using vhost_disable/enable_notify(), while vqpoll.enabled is 
-unchanged.
-> > + *
-> > + * It is assumed that these functions are called relatively 
-> rarely, when vhost
-> > + * notices that this virtqueue's usage pattern significantly 
-> changed in a way
-> > + * that makes polling more efficient than notification, or vice 
-versa.
-> > + * Also, we assume that vhost_vq_disable_vqpoll() is always called on 
-vq
-> > + * cleanup, so any allocations done by vhost_vq_enable_vqpoll() can 
-be
-> > + * reclaimed.
-> > + */
-> > +static void vhost_vq_enable_vqpoll(struct vhost_virtqueue *vq)
-> > +{
-> > +   if (vq->vqpoll.enabled)
-> > +      return; /* already enabled, nothing to do */
-> > +   if (!vq->handle_kick)
-> > +      return; /* polling will be a waste of time if no callback! */
-> > +   if (!(vq->used_flags & VRING_USED_F_NO_NOTIFY)) {
-> > +      /* vq has guest notifications enabled. Disable them,
-> > +         and instead add vq to the polling list */
-> > +      vhost_disable_notify(vq->dev, vq);
-> > +      list_add_tail(&vq->vqpoll.link, &vq->dev->vqpoll_list);
-> > +   }
-> > +   vq->vqpoll.jiffies_last_kick = jiffies;
-> > +   __get_user(vq->avail_idx, &vq->avail->idx);
-> > +   vq->vqpoll.enabled = true;
-> > +
-> > +   /* Map userspace's vq->avail to the kernel's memory space. */
-> > +   if (get_user_pages_fast((unsigned long)vq->avail, 1, 0,
-> > +      &vq->vqpoll.avail_page) != 1) {
-> > +      /* TODO: can this happen, as we check access
-> > +      to vq->avail in advance? */
-> > +      BUG();
-> > +   }
-> > +   vq->vqpoll.avail_mapped = (struct vring_avail *) (
-> > +      (unsigned long)kmap(vq->vqpoll.avail_page) |
-> > +      ((unsigned long)vq->avail & ~PAGE_MASK));
-> > +}
-> > +
-> > +/*
-> > + * This function doesn't always succeed in changing the mode. 
-Sometimes
-> > + * a temporary race condition prevents turning on guest 
-notifications, so
-> > + * vq should be polled next time again.
-> > + */
-> > +static void vhost_vq_disable_vqpoll(struct vhost_virtqueue *vq)
-> > +{
-> > +   if (!vq->vqpoll.enabled)
-> > +      return; /* already disabled, nothing to do */
-> > +
-> > +   vq->vqpoll.enabled = false;
-> > +
-> > +   if (!list_empty(&vq->vqpoll.link)) {
-> > +      /* vq is on the polling list, remove it from this list and
-> > +       * instead enable guest notifications. */
-> > +      list_del_init(&vq->vqpoll.link);
-> > +      if (unlikely(vhost_enable_notify(vq->dev, vq))
-> > +         && !vq->vqpoll.shutdown) {
-> > +         /* Race condition: guest wrote before we enabled
-> > +          * notification, so we'll never get a notification for
-> > +          * this work - so continue polling mode for a while. */
-> > +         vhost_disable_notify(vq->dev, vq);
-> > +         vq->vqpoll.enabled = true;
-> > +         vhost_enable_notify(vq->dev, vq);
-> > +         return;
-> > +      }
-> > +   }
-> > +
-> > +   if (vq->vqpoll.avail_mapped) {
-> > +      kunmap(vq->vqpoll.avail_page);
-> > +      put_page(vq->vqpoll.avail_page);
-> > +      vq->vqpoll.avail_mapped = 0;
-> > +   }
-> > +}
-> > +
-> >  static void vhost_vq_reset(struct vhost_dev *dev,
-> >              struct vhost_virtqueue *vq)
-> >  {
-> > @@ -199,6 +288,48 @@ static void vhost_vq_reset(struct vhost_dev *dev,
-> >     vq->call = NULL;
-> >     vq->log_ctx = NULL;
-> >     vq->memory = NULL;
-> > +   INIT_LIST_HEAD(&vq->vqpoll.link);
-> > +   vq->vqpoll.enabled = false;
-> > +   vq->vqpoll.shutdown = false;
-> > +   vq->vqpoll.avail_mapped = NULL;
-> > +}
-> > +
-> > +/* roundrobin_poll() takes worker->vqpoll_list, and returns one of 
-the
-> > + * virtqueues which the caller should kick, or NULL in case none 
-should be
-> > + * kicked. roundrobin_poll() also disables polling on a 
-virtqueuewhich has
-> > + * been polled for too long without success.
-> > + *
-> > + * This current implementation (the "round-robin" implementation) 
-only
-> > + * polls the first vq in the list, returning it or NULL as 
-appropriate, and
-> > + * moves this vq to the end of the list, so next time a different one 
-is
-> > + * polled.
-> > + */
-> > +static struct vhost_virtqueue *roundrobin_poll(struct list_head 
-*list)
-> > +{
-> > +   struct vhost_virtqueue *vq;
-> > +   u16 avail_idx;
-> > +
-> > +   if (list_empty(list))
-> > +      return NULL;
-> > +
-> > +   vq = list_first_entry(list, struct vhost_virtqueue, vqpoll.link);
-> > +   WARN_ON(!vq->vqpoll.enabled);
-> > +   list_move_tail(&vq->vqpoll.link, list);
-> > +
-> > +   /* See if there is any new work available from the guest. */
-> > +   /* TODO: can check the optional idx feature, and if we haven't
-> > +   * reached that idx yet, don't kick... */
-> > +   avail_idx = vq->vqpoll.avail_mapped->idx;
-> > +   if (avail_idx != vq->last_avail_idx)
-> > +      return vq;
-> > +
-> > +   if (jiffies > vq->vqpoll.jiffies_last_kick + poll_stop_idle) {
-> > +      /* We've been polling this virtqueue for a long time with no
-> > +      * results, so switch back to guest notification
-> > +      */
-> > +      vhost_vq_disable_vqpoll(vq);
-> > +   }
-> > +   return NULL;
-> >  }
-> > 
-> >  static int vhost_worker(void *data)
-> > @@ -237,12 +368,62 @@ static int vhost_worker(void *data)
-> >        spin_unlock_irq(&dev->work_lock);
-> > 
-> >        if (work) {
-> > +         struct vhost_virtqueue *vq = work->vq;
-> >           __set_current_state(TASK_RUNNING);
-> >           work->fn(work);
-> > +         /* Keep track of the work rate, for deciding when to
-> > +          * enable polling */
-> > +         if (vq) {
-> > +            if (vq->vqpoll.jiffies_last_work != jiffies) {
-> > +               vq->vqpoll.jiffies_last_work = jiffies;
-> > +               vq->vqpoll.work_this_jiffy = 0;
-> > +            }
-> > +            vq->vqpoll.work_this_jiffy++;
-> > +         }
-> > +         /* If vq is in the round-robin list of virtqueues being
-> > +          * constantly checked by this thread, move vq the end
-> > +          * of the queue, because it had its fair chance now.
-> > +          */
-> > +         if (vq && !list_empty(&vq->vqpoll.link)) {
-> > +            list_move_tail(&vq->vqpoll.link,
-> > +               &dev->vqpoll_list);
-> > +         }
-> > +         /* Otherwise, if this vq is looking for notifications
-> > +          * but vq polling is not enabled for it, do it now.
-> > +          */
-> > +         else if (poll_start_rate && vq && vq->handle_kick &&
-> > +            !vq->vqpoll.enabled &&
-> > +            !vq->vqpoll.shutdown &&
-> > +            !(vq->used_flags & VRING_USED_F_NO_NOTIFY) &&
-> > +            vq->vqpoll.work_this_jiffy >=
-> > +               poll_start_rate) {
-> > +            vhost_vq_enable_vqpoll(vq);
-> > +         }
-> > +      }
-> > +      /* Check one virtqueue from the round-robin list */
-> > +      if (!list_empty(&dev->vqpoll_list)) {
-> > +         struct vhost_virtqueue *vq;
-> > +
-> > +         vq = roundrobin_poll(&dev->vqpoll_list);
-> > +
-> > +         if (vq) {
-> > +            vq->handle_kick(&vq->poll.work);
-> > +            vq->vqpoll.jiffies_last_kick = jiffies;
-> > +         }
-> > +
-> > +         /* If our polling list isn't empty, ask to continue
-> > +          * running this thread, don't yield.
-> > +          */
-> > +         __set_current_state(TASK_RUNNING);
-> >           if (need_resched())
-> >              schedule();
-> > -      } else
-> > -         schedule();
-> > +      } else {
-> > +         if (work) {
-> > +            if (need_resched())
-> > +               schedule();
-> > +         } else
-> > +            schedule();
-> > +      }
-> > 
-> >     }
-> >     unuse_mm(dev->mm);
-> > @@ -306,6 +487,7 @@ void vhost_dev_init(struct vhost_dev *dev,
-> >     dev->mm = NULL;
-> >     spin_lock_init(&dev->work_lock);
-> >     INIT_LIST_HEAD(&dev->work_list);
-> > +   INIT_LIST_HEAD(&dev->vqpoll_list);
-> >     dev->worker = NULL;
-> > 
-> >     for (i = 0; i < dev->nvqs; ++i) {
-> > @@ -318,7 +500,7 @@ void vhost_dev_init(struct vhost_dev *dev,
-> >        vhost_vq_reset(dev, vq);
-> >        if (vq->handle_kick)
-> >           vhost_poll_init(&vq->poll, vq->handle_kick,
-> > -               POLLIN, dev);
-> > +               POLLIN, vq);
-> >     }
-> >  }
-> >  EXPORT_SYMBOL_GPL(vhost_dev_init);
-> > @@ -350,7 +532,7 @@ static int vhost_attach_cgroups(struct vhost_dev 
-*dev)
-> >     struct vhost_attach_cgroups_struct attach;
-> > 
-> >     attach.owner = current;
-> > -   vhost_work_init(&attach.work, vhost_attach_cgroups_work);
-> > +   vhost_work_init(&attach.work, NULL, vhost_attach_cgroups_work);
-> >     vhost_work_queue(dev, &attach.work);
-> >     vhost_work_flush(dev, &attach.work);
-> >     return attach.ret;
-> > @@ -444,6 +626,26 @@ void vhost_dev_stop(struct vhost_dev *dev)
-> >  }
-> >  EXPORT_SYMBOL_GPL(vhost_dev_stop);
-> > 
-> > +/* shutdown_vqpoll() asks the worker thread to shut down virtqueue 
-polling
-> > + * mode for a given virtqueue which is itself being shut down. We ask 
-the
-> > + * worker thread to do this rather than doing it directly, so that we 
-don't
-> > + * race with the worker thread's use of the queue.
-> > + */
-> > +static void shutdown_vqpoll_work(struct vhost_work *work)
-> > +{
-> > +   work->vq->vqpoll.shutdown = true;
-> > +   vhost_vq_disable_vqpoll(work->vq);
-> > +   WARN_ON(work->vq->vqpoll.avail_mapped);
-> > +}
-> > +
-> > +static void shutdown_vqpoll(struct vhost_virtqueue *vq)
-> > +{
-> > +   struct vhost_work work;
-> > +
-> > +   vhost_work_init(&work, vq, shutdown_vqpoll_work);
-> > +   vhost_work_queue(vq->dev, &work);
-> > +   vhost_work_flush(vq->dev, &work);
-> > +}
-> >  /* Caller should have device mutex if and only if locked is set */
-> >  void vhost_dev_cleanup(struct vhost_dev *dev, bool locked)
-> >  {
-> > @@ -460,6 +662,7 @@ void vhost_dev_cleanup(struct vhost_dev *dev, 
-> bool locked)
-> >           eventfd_ctx_put(dev->vqs[i]->call_ctx);
-> >        if (dev->vqs[i]->call)
-> >           fput(dev->vqs[i]->call);
-> > +      shutdown_vqpoll(dev->vqs[i]);
-> >        vhost_vq_reset(dev, dev->vqs[i]);
-> >     }
-> >     vhost_dev_free_iovecs(dev);
-> > @@ -1491,6 +1694,19 @@ bool vhost_enable_notify(struct vhost_dev 
-> *dev, struct vhost_virtqueue *vq)
-> >     u16 avail_idx;
-> >     int r;
-> > 
-> > +   /* In polling mode, when the backend (e.g., net.c) asks to enable
-> > +    * notifications, we don't enable guest notifications. Instead, 
-start
-> > +    * polling on this vq by adding it to the round-robin list.
-> > +    */
-> > +   if (vq->vqpoll.enabled) {
-> > +      if (list_empty(&vq->vqpoll.link)) {
-> > +         list_add_tail(&vq->vqpoll.link,
-> > +            &vq->dev->vqpoll_list);
-> > +         vq->vqpoll.jiffies_last_kick = jiffies;
-> > +      }
-> > +      return false;
-> > +   }
-> > +
-> >     if (!(vq->used_flags & VRING_USED_F_NO_NOTIFY))
-> >        return false;
-> >     vq->used_flags &= ~VRING_USED_F_NO_NOTIFY;
-> > @@ -1528,6 +1744,17 @@ void vhost_disable_notify(struct vhost_dev 
-> *dev, struct vhost_virtqueue *vq)
-> >  {
-> >     int r;
-> > 
-> > +   /* If this virtqueue is vqpoll.enabled, and on the polling list, 
-it
-> > +    * will generate notifications even if the guest is asked not to 
-send
-> > +    * them. So we must remove it from the round-robin polling list.
-> > +    * Note that vqpoll.enabled remains set.
-> > +    */
-> > +   if (vq->vqpoll.enabled) {
-> > +      if (!list_empty(&vq->vqpoll.link))
-> > +         list_del_init(&vq->vqpoll.link);
-> > +      return;
-> > +   }
-> > +
-> >     if (vq->used_flags & VRING_USED_F_NO_NOTIFY)
-> >        return;
-> >     vq->used_flags |= VRING_USED_F_NO_NOTIFY;
-> > diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> > index 3eda654..11aaaf4 100644
-> > --- a/drivers/vhost/vhost.h
-> > +++ b/drivers/vhost/vhost.h
-> > @@ -24,6 +24,7 @@ struct vhost_work {
-> >     int           flushing;
-> >     unsigned        queue_seq;
-> >     unsigned        done_seq;
-> > +   struct vhost_virtqueue    *vq;
-> >  };
-> > 
-> >  /* Poll a file (eventfd or socket) */
-> > @@ -37,11 +38,12 @@ struct vhost_poll {
-> >     struct vhost_dev    *dev;
-> >  };
-> > 
-> > -void vhost_work_init(struct vhost_work *work, vhost_work_fn_t fn);
-> > +void vhost_work_init(struct vhost_work *work, struct vhost_virtqueue 
-*vq,
-> > +                     vhost_work_fn_t fn);
-> >  void vhost_work_queue(struct vhost_dev *dev, struct vhost_work 
-*work);
-> > 
-> >  void vhost_poll_init(struct vhost_poll *poll, vhost_work_fn_t fn,
-> > -           unsigned long mask, struct vhost_dev *dev);
-> > +           unsigned long mask, struct vhost_virtqueue  *vq);
-> >  int vhost_poll_start(struct vhost_poll *poll, struct file *file);
-> >  void vhost_poll_stop(struct vhost_poll *poll);
-> >  void vhost_poll_flush(struct vhost_poll *poll);
-> > @@ -54,8 +56,6 @@ struct vhost_log {
-> >     u64 len;
-> >  };
-> > 
-> > -struct vhost_virtqueue;
-> > -
-> >  /* The virtqueue structure describes a queue attached to a device. */
-> >  struct vhost_virtqueue {
-> >     struct vhost_dev *dev;
-> > @@ -110,6 +110,35 @@ struct vhost_virtqueue {
-> >     /* Log write descriptors */
-> >     void __user *log_base;
-> >     struct vhost_log *log;
-> > +   struct {
-> > +      /* When a virtqueue is in vqpoll.enabled mode, it declares
-> > +       * that instead of using guest notifications (kicks) to
-> > +       * discover new work, we prefer to continuously poll this
-> > +       * virtqueue in the worker thread.
-> > +       * If !enabled, the rest of the fields below are undefined.
-> > +       */
-> > +      bool enabled;
-> > +      /* vqpoll.enabled doesn't always mean that this virtqueue is
-> > +       * actually being polled: The backend (e.g., net.c) may
-> > +       * temporarily disable it using vhost_disable/enable_notify().
-> > +       * vqpoll.link is used to maintain the thread's round-robin
-> > +       * list of virtqueues that actually need to be polled.
-> > +       * Note list_empty(link) means this virtqueue isn't polled.
-> > +       */
-> > +      struct list_head link;
-> > +      /* If this flag is true, the virtqueue is being shut down,
-> > +       * so vqpoll should not be re-enabled.
-> > +       */
-> > +      bool shutdown;
-> > +      /* Various counters used to decide when to enter polling mode
-> > +       * or leave it and return to notification mode.
-> > +       */
-> > +      unsigned long jiffies_last_kick;
-> > +      unsigned long jiffies_last_work;
-> > +      int work_this_jiffy;
-> > +      struct page *avail_page;
-> > +      volatile struct vring_avail *avail_mapped;
-> > +   } vqpoll;
-> >  };
-> > 
-> >  struct vhost_dev {
-> > @@ -123,6 +152,7 @@ struct vhost_dev {
-> >     spinlock_t work_lock;
-> >     struct list_head work_list;
-> >     struct task_struct *worker;
-> > +   struct list_head vqpoll_list;
-> >  };
-> > 
-> >  void vhost_dev_init(struct vhost_dev *, struct vhost_virtqueue 
-> **vqs, int nvqs);
-> > -- 
-> > 1.7.9.5
-> 
+VGhlIHZpcnRpbyBwc3RvcmUgZHJpdmVyIHByb3ZpZGVzIGludGVyZmFjZSB0byB0aGUgcHN0b3Jl
+IHN1YnN5c3RlbSBzbwp0aGF0IHRoZSBndWVzdCBrZXJuZWwncyBsb2cvZHVtcCBtZXNzYWdlIGNh
+biBiZSBzYXZlZCBvbiB0aGUgaG9zdAptYWNoaW5lLiAgVXNlcnMgY2FuIGFjY2VzcyB0aGUgbG9n
+IGZpbGUgZGlyZWN0bHkgb24gdGhlIGhvc3QsIG9yIG9uIHRoZQpndWVzdCBhdCB0aGUgbmV4dCBi
+b290IHVzaW5nIHBzdG9yZSBmaWxlc3lzdGVtLiAgSXQgY3VycmVudGx5IGRlYWxzIHdpdGgKa2Vy
+bmVsIGxvZyAocHJpbnRrKSBidWZmZXIgb25seSwgYnV0IHdlIGNhbiBleHRlbmQgaXQgdG8gaGF2
+ZSBvdGhlcgppbmZvcm1hdGlvbiAobGlrZSBmdHJhY2UgZHVtcCkgbGF0ZXIuCgpJdCBzdXBwb3J0
+cyBsZWdhY3kgUENJIGRldmljZSB1c2luZyBhIDE2SyBidWZmZXIgYnkgZGVmYXVsdCBhbmQgaXQn
+cwpjb25maWd1cmFibGUuICBJdCB1c2VzIHR3byB2aXJ0cXVldWVzIC0gb25lIGZvciAoc3luYykg
+cmVhZCBhbmQgYW5vdGhlcgpmb3IgKGFzeW5jKSB3cml0ZS4gIFNpbmNlIGl0IGNhbm5vdCB3YWl0
+IGZvciB3cml0ZSBmaW5pc2hlZCwgaXQgc3VwcG9ydHMKdXAgdG8gMTI4IGNvbmN1cnJlbnQgSU8u
+CgpDYzogUGFvbG8gQm9uemluaSA8cGJvbnppbmlAcmVkaGF0LmNvbT4KQ2M6IFJhZGltIEtyxI1t
+w6HFmSA8cmtyY21hckByZWRoYXQuY29tPgpDYzogIk1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEBy
+ZWRoYXQuY29tPgpDYzogQW50aG9ueSBMaWd1b3JpIDxhbGlndW9yaUBhbWF6b24uY29tPgpDYzog
+QW50b24gVm9yb250c292IDxhbnRvbkBlbm9tc2cub3JnPgpDYzogQ29saW4gQ3Jvc3MgPGNjcm9z
+c0BhbmRyb2lkLmNvbT4KQ2M6IEtlZXMgQ29vayA8a2Vlc2Nvb2tAY2hyb21pdW0ub3JnPgpDYzog
+VG9ueSBMdWNrIDx0b255Lmx1Y2tAaW50ZWwuY29tPgpDYzogU3RldmVuIFJvc3RlZHQgPHJvc3Rl
+ZHRAZ29vZG1pcy5vcmc+CkNjOiBJbmdvIE1vbG5hciA8bWluZ29Aa2VybmVsLm9yZz4KQ2M6IE1p
+bmNoYW4gS2ltIDxtaW5jaGFuQGtlcm5lbC5vcmc+CkNjOiBXaWxsIERlYWNvbiA8d2lsbC5kZWFj
+b25AYXJtLmNvbT4KQ2M6IHZpcnRpby1kZXZAbGlzdHMub2FzaXMtb3Blbi5vcmcKQ2M6IGt2bUB2
+Z2VyLmtlcm5lbC5vcmcKQ2M6IHFlbXUtZGV2ZWxAbm9uZ251Lm9yZwpDYzogdmlydHVhbGl6YXRp
+b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKU2lnbmVkLW9mZi1ieTogTmFtaHl1bmcgS2lt
+IDxuYW1oeXVuZ0BrZXJuZWwub3JnPgotLS0KIGRyaXZlcnMvdmlydGlvL0tjb25maWcgICAgICAg
+ICAgICAgfCAgMTAgKwogZHJpdmVycy92aXJ0aW8vTWFrZWZpbGUgICAgICAgICAgICB8ICAgMSAr
+CiBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcHN0b3JlLmMgICAgIHwgNDE3ICsrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysKIGluY2x1ZGUvdWFwaS9saW51eC9LYnVpbGQgICAgICAg
+ICAgfCAgIDEgKwogaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19pZHMuaCAgICB8ICAgMSArCiBp
+bmNsdWRlL3VhcGkvbGludXgvdmlydGlvX3BzdG9yZS5oIHwgIDc0ICsrKysrKysKIDYgZmlsZXMg
+Y2hhbmdlZCwgNTA0IGluc2VydGlvbnMoKykKIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL3Zp
+cnRpby92aXJ0aW9fcHN0b3JlLmMKIGNyZWF0ZSBtb2RlIDEwMDY0NCBpbmNsdWRlL3VhcGkvbGlu
+dXgvdmlydGlvX3BzdG9yZS5oCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vS2NvbmZpZyBi
+L2RyaXZlcnMvdmlydGlvL0tjb25maWcKaW5kZXggNzc1OTAzMjBkNDRjLi44ZjBlNmM3OTZjMTIg
+MTAwNjQ0Ci0tLSBhL2RyaXZlcnMvdmlydGlvL0tjb25maWcKKysrIGIvZHJpdmVycy92aXJ0aW8v
+S2NvbmZpZwpAQCAtNTgsNiArNTgsMTYgQEAgY29uZmlnIFZJUlRJT19JTlBVVAogCiAJIElmIHVu
+c3VyZSwgc2F5IE0uCiAKK2NvbmZpZyBWSVJUSU9fUFNUT1JFCisJdHJpc3RhdGUgIlZpcnRpbyBw
+c3RvcmUgZHJpdmVyIgorCWRlcGVuZHMgb24gVklSVElPCisJZGVwZW5kcyBvbiBQU1RPUkUKKwkt
+LS1oZWxwLS0tCisJIFRoaXMgZHJpdmVyIHN1cHBvcnRzIHZpcnRpbyBwc3RvcmUgZGV2aWNlcyB0
+byBzYXZlL3Jlc3RvcmUKKwkgcGFuaWMgYW5kIG9vcHMgbWVzc2FnZXMgb24gdGhlIGhvc3QuCisK
+KwkgSWYgdW5zdXJlLCBzYXkgTS4KKwogIGNvbmZpZyBWSVJUSU9fTU1JTwogCXRyaXN0YXRlICJQ
+bGF0Zm9ybSBidXMgZHJpdmVyIGZvciBtZW1vcnkgbWFwcGVkIHZpcnRpbyBkZXZpY2VzIgogCWRl
+cGVuZHMgb24gSEFTX0lPTUVNICYmIEhBU19ETUEKZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlv
+L01ha2VmaWxlIGIvZHJpdmVycy92aXJ0aW8vTWFrZWZpbGUKaW5kZXggNDFlMzBlM2RjODQyLi5i
+ZWU2OGNiMjZkNDggMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvdmlydGlvL01ha2VmaWxlCisrKyBiL2Ry
+aXZlcnMvdmlydGlvL01ha2VmaWxlCkBAIC01LDMgKzUsNCBAQCB2aXJ0aW9fcGNpLXkgOj0gdmly
+dGlvX3BjaV9tb2Rlcm4ubyB2aXJ0aW9fcGNpX2NvbW1vbi5vCiB2aXJ0aW9fcGNpLSQoQ09ORklH
+X1ZJUlRJT19QQ0lfTEVHQUNZKSArPSB2aXJ0aW9fcGNpX2xlZ2FjeS5vCiBvYmotJChDT05GSUdf
+VklSVElPX0JBTExPT04pICs9IHZpcnRpb19iYWxsb29uLm8KIG9iai0kKENPTkZJR19WSVJUSU9f
+SU5QVVQpICs9IHZpcnRpb19pbnB1dC5vCitvYmotJChDT05GSUdfVklSVElPX1BTVE9SRSkgKz0g
+dmlydGlvX3BzdG9yZS5vCmRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcHN0b3Jl
+LmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcHN0b3JlLmMKbmV3IGZpbGUgbW9kZSAxMDA2NDQK
+aW5kZXggMDAwMDAwMDAwMDAwLi5jOGZkOGUzOWQxYjgKLS0tIC9kZXYvbnVsbAorKysgYi9kcml2
+ZXJzL3ZpcnRpby92aXJ0aW9fcHN0b3JlLmMKQEAgLTAsMCArMSw0MTcgQEAKKyNkZWZpbmUgcHJf
+Zm10KGZtdCkgS0JVSUxEX01PRE5BTUUgIjogIiBmbXQKKworI2luY2x1ZGUgPGxpbnV4L2tlcm5l
+bC5oPgorI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPgorI2luY2x1ZGUgPGxpbnV4L3BzdG9yZS5o
+PgorI2luY2x1ZGUgPGxpbnV4L3ZpcnRpby5oPgorI2luY2x1ZGUgPGxpbnV4L3ZpcnRpb19jb25m
+aWcuaD4KKyNpbmNsdWRlIDx1YXBpL2xpbnV4L3ZpcnRpb19pZHMuaD4KKyNpbmNsdWRlIDx1YXBp
+L2xpbnV4L3ZpcnRpb19wc3RvcmUuaD4KKworI2RlZmluZSBWSVJUX1BTVE9SRV9PUkRFUiAgICAy
+CisjZGVmaW5lIFZJUlRfUFNUT1JFX0JVRlNJWkUgICg0MDk2IDw8IFZJUlRfUFNUT1JFX09SREVS
+KQorI2RlZmluZSBWSVJUX1BTVE9SRV9OUl9SRVEgICAxMjgKKworc3RydWN0IHZpcnRpb19wc3Rv
+cmUgeworCXN0cnVjdCB2aXJ0aW9fZGV2aWNlCSp2ZGV2OworCXN0cnVjdCB2aXJ0cXVldWUJKnZx
+WzJdOworCXN0cnVjdCBwc3RvcmVfaW5mbwkgcHN0b3JlOworCXN0cnVjdCB2aXJ0aW9fcHN0b3Jl
+X3JlcSByZXFbVklSVF9QU1RPUkVfTlJfUkVRXTsKKwlzdHJ1Y3QgdmlydGlvX3BzdG9yZV9yZXMg
+cmVzW1ZJUlRfUFNUT1JFX05SX1JFUV07CisJdW5zaWduZWQgaW50CQkgcmVxX2lkOworCisJLyog
+V2FpdGluZyBmb3IgaG9zdCB0byBhY2sgKi8KKwl3YWl0X3F1ZXVlX2hlYWRfdAlhY2tlZDsKKwlp
+bnQJCQlmYWlsZWQ7Cit9OworCisjZGVmaW5lIFRZUEVfVEFCTEVfRU5UUlkoX2VudHJ5KQkJCQlc
+CisJeyBQU1RPUkVfVFlQRV8jI19lbnRyeSwgVklSVElPX1BTVE9SRV9UWVBFXyMjX2VudHJ5IH0K
+Kworc3RydWN0IHR5cGVfdGFibGUgeworCWludCBwc3RvcmU7CisJdTE2IHZpcnRpbzsKK30gdHlw
+ZV90YWJsZVtdID0geworCVRZUEVfVEFCTEVfRU5UUlkoRE1FU0cpLAorfTsKKworI3VuZGVmIFRZ
+UEVfVEFCTEVfRU5UUlkKKworCitzdGF0aWMgX19sZTE2IHRvX3ZpcnRpb190eXBlKGVudW0gcHN0
+b3JlX3R5cGVfaWQgdHlwZSkKK3sKKwl1bnNpZ25lZCBpbnQgaTsKKworCWZvciAoaSA9IDA7IGkg
+PCBBUlJBWV9TSVpFKHR5cGVfdGFibGUpOyBpKyspIHsKKwkJaWYgKHR5cGUgPT0gdHlwZV90YWJs
+ZVtpXS5wc3RvcmUpCisJCQlyZXR1cm4gY3B1X3RvX2xlMTYodHlwZV90YWJsZVtpXS52aXJ0aW8p
+OworCX0KKworCXJldHVybiBjcHVfdG9fbGUxNihWSVJUSU9fUFNUT1JFX1RZUEVfVU5LTk9XTik7
+Cit9CisKK3N0YXRpYyBlbnVtIHBzdG9yZV90eXBlX2lkIGZyb21fdmlydGlvX3R5cGUoX19sZTE2
+IHR5cGUpCit7CisJdW5zaWduZWQgaW50IGk7CisKKwlmb3IgKGkgPSAwOyBpIDwgQVJSQVlfU0la
+RSh0eXBlX3RhYmxlKTsgaSsrKSB7CisJCWlmIChsZTE2X3RvX2NwdSh0eXBlKSA9PSB0eXBlX3Rh
+YmxlW2ldLnZpcnRpbykKKwkJCXJldHVybiB0eXBlX3RhYmxlW2ldLnBzdG9yZTsKKwl9CisKKwly
+ZXR1cm4gUFNUT1JFX1RZUEVfVU5LTk9XTjsKK30KKworc3RhdGljIHZvaWQgdmlydHBzdG9yZV9h
+Y2soc3RydWN0IHZpcnRxdWV1ZSAqdnEpCit7CisJc3RydWN0IHZpcnRpb19wc3RvcmUgKnZwcyA9
+IHZxLT52ZGV2LT5wcml2OworCisJd2FrZV91cCgmdnBzLT5hY2tlZCk7Cit9CisKK3N0YXRpYyB2
+b2lkIHZpcnRwc3RvcmVfY2hlY2soc3RydWN0IHZpcnRxdWV1ZSAqdnEpCit7CisJc3RydWN0IHZp
+cnRpb19wc3RvcmUgKnZwcyA9IHZxLT52ZGV2LT5wcml2OworCXN0cnVjdCB2aXJ0aW9fcHN0b3Jl
+X3JlcyAqcmVzOworCXVuc2lnbmVkIGludCBsZW47CisKKwlyZXMgPSB2aXJ0cXVldWVfZ2V0X2J1
+Zih2cSwgJmxlbik7CisJaWYgKHJlcyA9PSBOVUxMKQorCQlyZXR1cm47CisKKwlpZiAobGUzMl90
+b19jcHUocmVzLT5yZXQpIDwgMCkKKwkJdnBzLT5mYWlsZWQgPSAxOworfQorCitzdGF0aWMgdm9p
+ZCB2aXJ0X3BzdG9yZV9nZXRfcmVxcyhzdHJ1Y3QgdmlydGlvX3BzdG9yZSAqdnBzLAorCQkJCSBz
+dHJ1Y3QgdmlydGlvX3BzdG9yZV9yZXEgKipwcmVxLAorCQkJCSBzdHJ1Y3QgdmlydGlvX3BzdG9y
+ZV9yZXMgKipwcmVzKQoreworCXVuc2lnbmVkIGludCBpZHggPSB2cHMtPnJlcV9pZCsrICUgVklS
+VF9QU1RPUkVfTlJfUkVROworCisJKnByZXEgPSAmdnBzLT5yZXFbaWR4XTsKKwkqcHJlcyA9ICZ2
+cHMtPnJlc1tpZHhdOworCisJbWVtc2V0KCpwcmVxLCAwLCBzaXplb2YoKipwcmVxKSk7CisJbWVt
+c2V0KCpwcmVzLCAwLCBzaXplb2YoKipwcmVzKSk7Cit9CisKK3N0YXRpYyBpbnQgdmlydF9wc3Rv
+cmVfb3BlbihzdHJ1Y3QgcHN0b3JlX2luZm8gKnBzaSkKK3sKKwlzdHJ1Y3QgdmlydGlvX3BzdG9y
+ZSAqdnBzID0gcHNpLT5kYXRhOworCXN0cnVjdCB2aXJ0aW9fcHN0b3JlX3JlcSAqcmVxOworCXN0
+cnVjdCB2aXJ0aW9fcHN0b3JlX3JlcyAqcmVzOworCXN0cnVjdCBzY2F0dGVybGlzdCBzZ29bMV0s
+IHNnaVsxXTsKKwlzdHJ1Y3Qgc2NhdHRlcmxpc3QgKnNnc1syXSA9IHsgc2dvLCBzZ2kgfTsKKwl1
+bnNpZ25lZCBpbnQgbGVuOworCisJdmlydF9wc3RvcmVfZ2V0X3JlcXModnBzLCAmcmVxLCAmcmVz
+KTsKKworCXJlcS0+Y21kID0gY3B1X3RvX2xlMTYoVklSVElPX1BTVE9SRV9DTURfT1BFTik7CisK
+KwlzZ19pbml0X29uZShzZ28sIHJlcSwgc2l6ZW9mKCpyZXEpKTsKKwlzZ19pbml0X29uZShzZ2ks
+IHJlcywgc2l6ZW9mKCpyZXMpKTsKKwl2aXJ0cXVldWVfYWRkX3Nncyh2cHMtPnZxWzBdLCBzZ3Ms
+IDEsIDEsIHZwcywgR0ZQX0tFUk5FTCk7CisJdmlydHF1ZXVlX2tpY2sodnBzLT52cVswXSk7CisK
+Kwl3YWl0X2V2ZW50KHZwcy0+YWNrZWQsIHZpcnRxdWV1ZV9nZXRfYnVmKHZwcy0+dnFbMF0sICZs
+ZW4pKTsKKwlyZXR1cm4gbGUzMl90b19jcHUocmVzLT5yZXQpOworfQorCitzdGF0aWMgaW50IHZp
+cnRfcHN0b3JlX2Nsb3NlKHN0cnVjdCBwc3RvcmVfaW5mbyAqcHNpKQoreworCXN0cnVjdCB2aXJ0
+aW9fcHN0b3JlICp2cHMgPSBwc2ktPmRhdGE7CisJc3RydWN0IHZpcnRpb19wc3RvcmVfcmVxICpy
+ZXEgPSAmdnBzLT5yZXFbdnBzLT5yZXFfaWRdOworCXN0cnVjdCB2aXJ0aW9fcHN0b3JlX3JlcyAq
+cmVzID0gJnZwcy0+cmVzW3Zwcy0+cmVxX2lkXTsKKwlzdHJ1Y3Qgc2NhdHRlcmxpc3Qgc2dvWzFd
+LCBzZ2lbMV07CisJc3RydWN0IHNjYXR0ZXJsaXN0ICpzZ3NbMl0gPSB7IHNnbywgc2dpIH07CisJ
+dW5zaWduZWQgaW50IGxlbjsKKworCXZpcnRfcHN0b3JlX2dldF9yZXFzKHZwcywgJnJlcSwgJnJl
+cyk7CisKKwlyZXEtPmNtZCA9IGNwdV90b19sZTE2KFZJUlRJT19QU1RPUkVfQ01EX0NMT1NFKTsK
+KworCXNnX2luaXRfb25lKHNnbywgcmVxLCBzaXplb2YoKnJlcSkpOworCXNnX2luaXRfb25lKHNn
+aSwgcmVzLCBzaXplb2YoKnJlcykpOworCXZpcnRxdWV1ZV9hZGRfc2dzKHZwcy0+dnFbMF0sIHNn
+cywgMSwgMSwgdnBzLCBHRlBfS0VSTkVMKTsKKwl2aXJ0cXVldWVfa2ljayh2cHMtPnZxWzBdKTsK
+KworCXdhaXRfZXZlbnQodnBzLT5hY2tlZCwgdmlydHF1ZXVlX2dldF9idWYodnBzLT52cVswXSwg
+JmxlbikpOworCXJldHVybiBsZTMyX3RvX2NwdShyZXMtPnJldCk7Cit9CisKK3N0YXRpYyBzc2l6
+ZV90IHZpcnRfcHN0b3JlX3JlYWQodTY0ICppZCwgZW51bSBwc3RvcmVfdHlwZV9pZCAqdHlwZSwK
+KwkJCQlpbnQgKmNvdW50LCBzdHJ1Y3QgdGltZXNwZWMgKnRpbWUsCisJCQkJY2hhciAqKmJ1Ziwg
+Ym9vbCAqY29tcHJlc3NlZCwKKwkJCQlzc2l6ZV90ICplY2Nfbm90aWNlX3NpemUsCisJCQkJc3Ry
+dWN0IHBzdG9yZV9pbmZvICpwc2kpCit7CisJc3RydWN0IHZpcnRpb19wc3RvcmUgKnZwcyA9IHBz
+aS0+ZGF0YTsKKwlzdHJ1Y3QgdmlydGlvX3BzdG9yZV9yZXEgKnJlcTsKKwlzdHJ1Y3QgdmlydGlv
+X3BzdG9yZV9yZXMgKnJlczsKKwlzdHJ1Y3QgdmlydGlvX3BzdG9yZV9maWxlaW5mbyBpbmZvOwor
+CXN0cnVjdCBzY2F0dGVybGlzdCBzZ29bMV0sIHNnaVszXTsKKwlzdHJ1Y3Qgc2NhdHRlcmxpc3Qg
+KnNnc1syXSA9IHsgc2dvLCBzZ2kgfTsKKwl1bnNpZ25lZCBpbnQgbGVuOworCXVuc2lnbmVkIGlu
+dCBmbGFnczsKKwlpbnQgcmV0OworCXZvaWQgKmJmOworCisJdmlydF9wc3RvcmVfZ2V0X3JlcXMo
+dnBzLCAmcmVxLCAmcmVzKTsKKworCXJlcS0+Y21kID0gY3B1X3RvX2xlMTYoVklSVElPX1BTVE9S
+RV9DTURfUkVBRCk7CisKKwlzZ19pbml0X29uZShzZ28sIHJlcSwgc2l6ZW9mKCpyZXEpKTsKKwlz
+Z19pbml0X3RhYmxlKHNnaSwgMyk7CisJc2dfc2V0X2J1Zigmc2dpWzBdLCByZXMsIHNpemVvZigq
+cmVzKSk7CisJc2dfc2V0X2J1Zigmc2dpWzFdLCAmaW5mbywgc2l6ZW9mKGluZm8pKTsKKwlzZ19z
+ZXRfYnVmKCZzZ2lbMl0sIHBzaS0+YnVmLCBwc2ktPmJ1ZnNpemUpOworCXZpcnRxdWV1ZV9hZGRf
+c2dzKHZwcy0+dnFbMF0sIHNncywgMSwgMSwgdnBzLCBHRlBfS0VSTkVMKTsKKwl2aXJ0cXVldWVf
+a2ljayh2cHMtPnZxWzBdKTsKKworCXdhaXRfZXZlbnQodnBzLT5hY2tlZCwgdmlydHF1ZXVlX2dl
+dF9idWYodnBzLT52cVswXSwgJmxlbikpOworCWlmIChsZW4gPCBzaXplb2YoKnJlcykgKyBzaXpl
+b2YoaW5mbykpCisJCXJldHVybiAtMTsKKworCXJldCA9IGxlMzJfdG9fY3B1KHJlcy0+cmV0KTsK
+KwlpZiAocmV0IDwgMCkKKwkJcmV0dXJuIHJldDsKKworCWxlbiA9IGxlMzJfdG9fY3B1KGluZm8u
+bGVuKTsKKworCWJmID0ga21hbGxvYyhsZW4sIEdGUF9LRVJORUwpOworCWlmIChiZiA9PSBOVUxM
+KQorCQlyZXR1cm4gLUVOT01FTTsKKworCSppZCAgICA9IGxlNjRfdG9fY3B1KGluZm8uaWQpOwor
+CSp0eXBlICA9IGZyb21fdmlydGlvX3R5cGUoaW5mby50eXBlKTsKKwkqY291bnQgPSBsZTMyX3Rv
+X2NwdShpbmZvLmNvdW50KTsKKworCWZsYWdzID0gbGUzMl90b19jcHUoaW5mby5mbGFncyk7CisJ
+KmNvbXByZXNzZWQgPSBmbGFncyAmIFZJUlRJT19QU1RPUkVfRkxfQ09NUFJFU1NFRDsKKworCXRp
+bWUtPnR2X3NlYyAgPSBsZTY0X3RvX2NwdShpbmZvLnRpbWVfc2VjKTsKKwl0aW1lLT50dl9uc2Vj
+ID0gbGUzMl90b19jcHUoaW5mby50aW1lX25zZWMpOworCisJbWVtY3B5KGJmLCBwc2ktPmJ1Ziwg
+bGVuKTsKKwkqYnVmID0gYmY7CisKKwlyZXR1cm4gbGVuOworfQorCitzdGF0aWMgaW50IG5vdHJh
+Y2UgdmlydF9wc3RvcmVfd3JpdGUoZW51bSBwc3RvcmVfdHlwZV9pZCB0eXBlLAorCQkJCSAgICAg
+ZW51bSBrbXNnX2R1bXBfcmVhc29uIHJlYXNvbiwKKwkJCQkgICAgIHU2NCAqaWQsIHVuc2lnbmVk
+IGludCBwYXJ0LCBpbnQgY291bnQsCisJCQkJICAgICBib29sIGNvbXByZXNzZWQsIHNpemVfdCBz
+aXplLAorCQkJCSAgICAgc3RydWN0IHBzdG9yZV9pbmZvICpwc2kpCit7CisJc3RydWN0IHZpcnRp
+b19wc3RvcmUgKnZwcyA9IHBzaS0+ZGF0YTsKKwlzdHJ1Y3QgdmlydGlvX3BzdG9yZV9yZXEgKnJl
+cTsKKwlzdHJ1Y3QgdmlydGlvX3BzdG9yZV9yZXMgKnJlczsKKwlzdHJ1Y3Qgc2NhdHRlcmxpc3Qg
+c2dvWzJdLCBzZ2lbMV07CisJc3RydWN0IHNjYXR0ZXJsaXN0ICpzZ3NbMl0gPSB7IHNnbywgc2dp
+IH07CisJdW5zaWduZWQgaW50IGZsYWdzID0gY29tcHJlc3NlZCA/IFZJUlRJT19QU1RPUkVfRkxf
+Q09NUFJFU1NFRCA6IDA7CisKKwlpZiAodnBzLT5mYWlsZWQpCisJCXJldHVybiAtMTsKKworCSpp
+ZCA9IHZwcy0+cmVxX2lkOworCXZpcnRfcHN0b3JlX2dldF9yZXFzKHZwcywgJnJlcSwgJnJlcyk7
+CisKKwlyZXEtPmNtZCAgID0gY3B1X3RvX2xlMTYoVklSVElPX1BTVE9SRV9DTURfV1JJVEUpOwor
+CXJlcS0+dHlwZSAgPSB0b192aXJ0aW9fdHlwZSh0eXBlKTsKKwlyZXEtPmZsYWdzID0gY3B1X3Rv
+X2xlMzIoZmxhZ3MpOworCisJc2dfaW5pdF90YWJsZShzZ28sIDIpOworCXNnX3NldF9idWYoJnNn
+b1swXSwgcmVxLCBzaXplb2YoKnJlcSkpOworCXNnX3NldF9idWYoJnNnb1sxXSwgcHNpLT5idWYs
+IHNpemUpOworCXNnX2luaXRfb25lKHNnaSwgcmVzLCBzaXplb2YoKnJlcykpOworCXZpcnRxdWV1
+ZV9hZGRfc2dzKHZwcy0+dnFbMV0sIHNncywgMSwgMSwgdnBzLCBHRlBfQVRPTUlDKTsKKwl2aXJ0
+cXVldWVfa2ljayh2cHMtPnZxWzFdKTsKKworCXJldHVybiAwOworfQorCitzdGF0aWMgaW50IHZp
+cnRfcHN0b3JlX2VyYXNlKGVudW0gcHN0b3JlX3R5cGVfaWQgdHlwZSwgdTY0IGlkLCBpbnQgY291
+bnQsCisJCQkgICAgIHN0cnVjdCB0aW1lc3BlYyB0aW1lLCBzdHJ1Y3QgcHN0b3JlX2luZm8gKnBz
+aSkKK3sKKwlzdHJ1Y3QgdmlydGlvX3BzdG9yZSAqdnBzID0gcHNpLT5kYXRhOworCXN0cnVjdCB2
+aXJ0aW9fcHN0b3JlX3JlcSAqcmVxOworCXN0cnVjdCB2aXJ0aW9fcHN0b3JlX3JlcyAqcmVzOwor
+CXN0cnVjdCBzY2F0dGVybGlzdCBzZ29bMV0sIHNnaVsxXTsKKwlzdHJ1Y3Qgc2NhdHRlcmxpc3Qg
+KnNnc1syXSA9IHsgc2dvLCBzZ2kgfTsKKwl1bnNpZ25lZCBpbnQgbGVuOworCisJdmlydF9wc3Rv
+cmVfZ2V0X3JlcXModnBzLCAmcmVxLCAmcmVzKTsKKworCXJlcS0+Y21kICAgPSBjcHVfdG9fbGUx
+NihWSVJUSU9fUFNUT1JFX0NNRF9FUkFTRSk7CisJcmVxLT50eXBlICA9IHRvX3ZpcnRpb190eXBl
+KHR5cGUpOworCXJlcS0+aWQJICAgPSBjcHVfdG9fbGU2NChpZCk7CisJcmVxLT5jb3VudCA9IGNw
+dV90b19sZTMyKGNvdW50KTsKKworCXNnX2luaXRfb25lKHNnbywgcmVxLCBzaXplb2YoKnJlcSkp
+OworCXNnX2luaXRfb25lKHNnaSwgcmVzLCBzaXplb2YoKnJlcykpOworCXZpcnRxdWV1ZV9hZGRf
+c2dzKHZwcy0+dnFbMF0sIHNncywgMSwgMSwgdnBzLCBHRlBfS0VSTkVMKTsKKwl2aXJ0cXVldWVf
+a2ljayh2cHMtPnZxWzBdKTsKKworCXdhaXRfZXZlbnQodnBzLT5hY2tlZCwgdmlydHF1ZXVlX2dl
+dF9idWYodnBzLT52cVswXSwgJmxlbikpOworCXJldHVybiBsZTMyX3RvX2NwdShyZXMtPnJldCk7
+Cit9CisKK3N0YXRpYyBpbnQgdmlydF9wc3RvcmVfaW5pdChzdHJ1Y3QgdmlydGlvX3BzdG9yZSAq
+dnBzKQoreworCXN0cnVjdCBwc3RvcmVfaW5mbyAqcHNpbmZvID0gJnZwcy0+cHN0b3JlOworCWlu
+dCBlcnI7CisKKwlpZiAoIXBzaW5mby0+YnVmc2l6ZSkKKwkJcHNpbmZvLT5idWZzaXplID0gVklS
+VF9QU1RPUkVfQlVGU0laRTsKKworCXBzaW5mby0+YnVmID0gYWxsb2NfcGFnZXNfZXhhY3QocHNp
+bmZvLT5idWZzaXplLCBHRlBfS0VSTkVMKTsKKwlpZiAoIXBzaW5mby0+YnVmKSB7CisJCXByX2Vy
+cigiY2Fubm90IGFsbG9jYXRlIHBzdG9yZSBidWZmZXJcbiIpOworCQlyZXR1cm4gLUVOT01FTTsK
+Kwl9CisKKwlwc2luZm8tPm93bmVyID0gVEhJU19NT0RVTEU7CisJcHNpbmZvLT5uYW1lICA9ICJ2
+aXJ0aW8iOworCXBzaW5mby0+b3BlbiAgPSB2aXJ0X3BzdG9yZV9vcGVuOworCXBzaW5mby0+Y2xv
+c2UgPSB2aXJ0X3BzdG9yZV9jbG9zZTsKKwlwc2luZm8tPnJlYWQgID0gdmlydF9wc3RvcmVfcmVh
+ZDsKKwlwc2luZm8tPmVyYXNlID0gdmlydF9wc3RvcmVfZXJhc2U7CisJcHNpbmZvLT53cml0ZSA9
+IHZpcnRfcHN0b3JlX3dyaXRlOworCXBzaW5mby0+ZmxhZ3MgPSBQU1RPUkVfRkxBR1NfRlJBR0lM
+RTsKKworCXBzaW5mby0+ZGF0YSAgPSB2cHM7CisJc3Bpbl9sb2NrX2luaXQoJnBzaW5mby0+YnVm
+X2xvY2spOworCisJZXJyID0gcHN0b3JlX3JlZ2lzdGVyKHBzaW5mbyk7CisJaWYgKGVycikKKwkJ
+a2ZyZWUocHNpbmZvLT5idWYpOworCisJcmV0dXJuIGVycjsKK30KKworc3RhdGljIGludCB2aXJ0
+X3BzdG9yZV9leGl0KHN0cnVjdCB2aXJ0aW9fcHN0b3JlICp2cHMpCit7CisJc3RydWN0IHBzdG9y
+ZV9pbmZvICpwc2luZm8gPSAmdnBzLT5wc3RvcmU7CisKKwlwc3RvcmVfdW5yZWdpc3Rlcihwc2lu
+Zm8pOworCisJZnJlZV9wYWdlc19leGFjdChwc2luZm8tPmJ1ZiwgcHNpbmZvLT5idWZzaXplKTsK
+Kwlwc2luZm8tPmJ1ZiA9IE5VTEw7CisJcHNpbmZvLT5idWZzaXplID0gMDsKKworCXJldHVybiAw
+OworfQorCitzdGF0aWMgaW50IHZpcnRwc3RvcmVfaW5pdF92cXMoc3RydWN0IHZpcnRpb19wc3Rv
+cmUgKnZwcykKK3sKKwl2cV9jYWxsYmFja190ICpjYWxsYmFja3NbXSA9IHsgdmlydHBzdG9yZV9h
+Y2ssIHZpcnRwc3RvcmVfY2hlY2sgfTsKKwljb25zdCBjaGFyICpuYW1lc1tdID0geyAicHN0b3Jl
+X3JlYWQiLCAicHN0b3JlX3dyaXRlIiB9OworCisJcmV0dXJuIHZwcy0+dmRldi0+Y29uZmlnLT5m
+aW5kX3Zxcyh2cHMtPnZkZXYsIDIsIHZwcy0+dnEsCisJCQkJCSAgIGNhbGxiYWNrcywgbmFtZXMp
+OworfQorCitzdGF0aWMgdm9pZCB2aXJ0cHN0b3JlX2luaXRfY29uZmlnKHN0cnVjdCB2aXJ0aW9f
+cHN0b3JlICp2cHMpCit7CisJdTMyIGJ1ZnNpemU7CisKKwl2aXJ0aW9fY3JlYWQodnBzLT52ZGV2
+LCBzdHJ1Y3QgdmlydGlvX3BzdG9yZV9jb25maWcsIGJ1ZnNpemUsICZidWZzaXplKTsKKworCXZw
+cy0+cHN0b3JlLmJ1ZnNpemUgPSBQQUdFX0FMSUdOKGJ1ZnNpemUpOworfQorCitzdGF0aWMgdm9p
+ZCB2aXJ0cHN0b3JlX2NvbmZpcm1fY29uZmlnKHN0cnVjdCB2aXJ0aW9fcHN0b3JlICp2cHMpCit7
+CisJdTMyIGJ1ZnNpemUgPSB2cHMtPnBzdG9yZS5idWZzaXplOworCisJdmlydGlvX2N3cml0ZSh2
+cHMtPnZkZXYsIHN0cnVjdCB2aXJ0aW9fcHN0b3JlX2NvbmZpZywgYnVmc2l6ZSwKKwkJICAgICAm
+YnVmc2l6ZSk7Cit9CisKK3N0YXRpYyBpbnQgdmlydHBzdG9yZV9wcm9iZShzdHJ1Y3QgdmlydGlv
+X2RldmljZSAqdmRldikKK3sKKwlzdHJ1Y3QgdmlydGlvX3BzdG9yZSAqdnBzOworCWludCBlcnI7
+CisKKwlpZiAoIXZkZXYtPmNvbmZpZy0+Z2V0KSB7CisJCWRldl9lcnIoJnZkZXYtPmRldiwgImRy
+aXZlciBpbml0OiBjb25maWcgYWNjZXNzIGRpc2FibGVkXG4iKTsKKwkJcmV0dXJuIC1FSU5WQUw7
+CisJfQorCisJdmRldi0+cHJpdiA9IHZwcyA9IGt6YWxsb2Moc2l6ZW9mKCp2cHMpLCBHRlBfS0VS
+TkVMKTsKKwlpZiAoIXZwcykgeworCQllcnIgPSAtRU5PTUVNOworCQlnb3RvIG91dDsKKwl9CisJ
+dnBzLT52ZGV2ID0gdmRldjsKKworCWVyciA9IHZpcnRwc3RvcmVfaW5pdF92cXModnBzKTsKKwlp
+ZiAoZXJyIDwgMCkKKwkJZ290byBvdXRfZnJlZTsKKworCXZpcnRwc3RvcmVfaW5pdF9jb25maWco
+dnBzKTsKKworCWVyciA9IHZpcnRfcHN0b3JlX2luaXQodnBzKTsKKwlpZiAoZXJyKQorCQlnb3Rv
+IG91dF9kZWxfdnE7CisKKwl2aXJ0cHN0b3JlX2NvbmZpcm1fY29uZmlnKHZwcyk7CisKKwlpbml0
+X3dhaXRxdWV1ZV9oZWFkKCZ2cHMtPmFja2VkKTsKKworCXZpcnRpb19kZXZpY2VfcmVhZHkodmRl
+dik7CisKKwlkZXZfaW5mbygmdmRldi0+ZGV2LCAiZHJpdmVyIGluaXQ6IG9rIChidWZzaXplID0g
+JWx1SywgZmxhZ3MgPSAleClcbiIsCisJCSB2cHMtPnBzdG9yZS5idWZzaXplID4+IDEwLCB2cHMt
+PnBzdG9yZS5mbGFncyk7CisKKwlyZXR1cm4gMDsKKworb3V0X2RlbF92cToKKwl2ZGV2LT5jb25m
+aWctPmRlbF92cXModmRldik7CitvdXRfZnJlZToKKwlrZnJlZSh2cHMpOworb3V0OgorCWRldl9l
+cnIoJnZkZXYtPmRldiwgImRyaXZlciBpbml0OiBmYWlsZWQgd2l0aCAlZFxuIiwgZXJyKTsKKwly
+ZXR1cm4gZXJyOworfQorCitzdGF0aWMgdm9pZCB2aXJ0cHN0b3JlX3JlbW92ZShzdHJ1Y3Qgdmly
+dGlvX2RldmljZSAqdmRldikKK3sKKwlzdHJ1Y3QgdmlydGlvX3BzdG9yZSAqdnBzID0gdmRldi0+
+cHJpdjsKKworCXZpcnRfcHN0b3JlX2V4aXQodnBzKTsKKworCS8qIE5vdyB3ZSByZXNldCB0aGUg
+ZGV2aWNlIHNvIHdlIGNhbiBjbGVhbiB1cCB0aGUgcXVldWVzLiAqLworCXZkZXYtPmNvbmZpZy0+
+cmVzZXQodmRldik7CisKKwl2ZGV2LT5jb25maWctPmRlbF92cXModmRldik7CisKKwlrZnJlZSh2
+cHMpOworfQorCitzdGF0aWMgdW5zaWduZWQgaW50IGZlYXR1cmVzW10gPSB7Cit9OworCitzdGF0
+aWMgc3RydWN0IHZpcnRpb19kZXZpY2VfaWQgaWRfdGFibGVbXSA9IHsKKwl7IFZJUlRJT19JRF9Q
+U1RPUkUsIFZJUlRJT19ERVZfQU5ZX0lEIH0sCisJeyAwIH0sCit9OworCitzdGF0aWMgc3RydWN0
+IHZpcnRpb19kcml2ZXIgdmlydGlvX3BzdG9yZV9kcml2ZXIgPSB7CisJLmRyaXZlci5uYW1lICAg
+ICAgICAgPSBLQlVJTERfTU9ETkFNRSwKKwkuZHJpdmVyLm93bmVyICAgICAgICA9IFRISVNfTU9E
+VUxFLAorCS5mZWF0dXJlX3RhYmxlICAgICAgID0gZmVhdHVyZXMsCisJLmZlYXR1cmVfdGFibGVf
+c2l6ZSAgPSBBUlJBWV9TSVpFKGZlYXR1cmVzKSwKKwkuaWRfdGFibGUgICAgICAgICAgICA9IGlk
+X3RhYmxlLAorCS5wcm9iZSAgICAgICAgICAgICAgID0gdmlydHBzdG9yZV9wcm9iZSwKKwkucmVt
+b3ZlICAgICAgICAgICAgICA9IHZpcnRwc3RvcmVfcmVtb3ZlLAorfTsKKworbW9kdWxlX3ZpcnRp
+b19kcml2ZXIodmlydGlvX3BzdG9yZV9kcml2ZXIpOworTU9EVUxFX0RFVklDRV9UQUJMRSh2aXJ0
+aW8sIGlkX3RhYmxlKTsKKworTU9EVUxFX0xJQ0VOU0UoIkdQTCIpOworTU9EVUxFX0FVVEhPUigi
+TmFtaHl1bmcgS2ltIDxuYW1oeXVuZ0BrZXJuZWwub3JnPiIpOworTU9EVUxFX0RFU0NSSVBUSU9O
+KCJWaXJ0aW8gcHN0b3JlIGRyaXZlciIpOwpkaWZmIC0tZ2l0IGEvaW5jbHVkZS91YXBpL2xpbnV4
+L0tidWlsZCBiL2luY2x1ZGUvdWFwaS9saW51eC9LYnVpbGQKaW5kZXggNmQ0ZTkyY2NkYzkxLi45
+YmJiMTU1NGQ4YjIgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvdWFwaS9saW51eC9LYnVpbGQKKysrIGIv
+aW5jbHVkZS91YXBpL2xpbnV4L0tidWlsZApAQCAtNDQ5LDYgKzQ0OSw3IEBAIGhlYWRlci15ICs9
+IHZpcnRpb19pZHMuaAogaGVhZGVyLXkgKz0gdmlydGlvX2lucHV0LmgKIGhlYWRlci15ICs9IHZp
+cnRpb19uZXQuaAogaGVhZGVyLXkgKz0gdmlydGlvX3BjaS5oCitoZWFkZXIteSArPSB2aXJ0aW9f
+cHN0b3JlLmgKIGhlYWRlci15ICs9IHZpcnRpb19yaW5nLmgKIGhlYWRlci15ICs9IHZpcnRpb19y
+bmcuaAogaGVhZGVyLXkgKz0gdmlydGlvX3Njc2kuaApkaWZmIC0tZ2l0IGEvaW5jbHVkZS91YXBp
+L2xpbnV4L3ZpcnRpb19pZHMuaCBiL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9faWRzLmgKaW5k
+ZXggNzc5MjVmNTg3YjE1Li5jNzJhOWFiNTg4YzAgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvdWFwaS9s
+aW51eC92aXJ0aW9faWRzLmgKKysrIGIvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19pZHMuaApA
+QCAtNDEsNSArNDEsNiBAQAogI2RlZmluZSBWSVJUSU9fSURfQ0FJRgkgICAgICAgMTIgLyogVmly
+dGlvIGNhaWYgKi8KICNkZWZpbmUgVklSVElPX0lEX0dQVSAgICAgICAgICAxNiAvKiB2aXJ0aW8g
+R1BVICovCiAjZGVmaW5lIFZJUlRJT19JRF9JTlBVVCAgICAgICAgMTggLyogdmlydGlvIGlucHV0
+ICovCisjZGVmaW5lIFZJUlRJT19JRF9QU1RPUkUgICAgICAgMjIgLyogdmlydGlvIHBzdG9yZSAq
+LwogCiAjZW5kaWYgLyogX0xJTlVYX1ZJUlRJT19JRFNfSCAqLwpkaWZmIC0tZ2l0IGEvaW5jbHVk
+ZS91YXBpL2xpbnV4L3ZpcnRpb19wc3RvcmUuaCBiL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9f
+cHN0b3JlLmgKbmV3IGZpbGUgbW9kZSAxMDA2NDQKaW5kZXggMDAwMDAwMDAwMDAwLi41N2MzNTMy
+N2Y1M2IKLS0tIC9kZXYvbnVsbAorKysgYi9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX3BzdG9y
+ZS5oCkBAIC0wLDAgKzEsNzQgQEAKKyNpZm5kZWYgX0xJTlVYX1ZJUlRJT19QU1RPUkVfSAorI2Rl
+ZmluZSBfTElOVVhfVklSVElPX1BTVE9SRV9ICisvKiBUaGlzIGhlYWRlciBpcyBCU0QgbGljZW5z
+ZWQgc28gYW55b25lIGNhbiB1c2UgdGhlIGRlZmluaXRpb25zIHRvIGltcGxlbWVudAorICogY29t
+cGF0aWJsZSBkcml2ZXJzL3NlcnZlcnMuCisgKgorICogUmVkaXN0cmlidXRpb24gYW5kIHVzZSBp
+biBzb3VyY2UgYW5kIGJpbmFyeSBmb3Jtcywgd2l0aCBvciB3aXRob3V0CisgKiBtb2RpZmljYXRp
+b24sIGFyZSBwZXJtaXR0ZWQgcHJvdmlkZWQgdGhhdCB0aGUgZm9sbG93aW5nIGNvbmRpdGlvbnMK
+KyAqIGFyZSBtZXQ6CisgKiAxLiBSZWRpc3RyaWJ1dGlvbnMgb2Ygc291cmNlIGNvZGUgbXVzdCBy
+ZXRhaW4gdGhlIGFib3ZlIGNvcHlyaWdodAorICogICAgbm90aWNlLCB0aGlzIGxpc3Qgb2YgY29u
+ZGl0aW9ucyBhbmQgdGhlIGZvbGxvd2luZyBkaXNjbGFpbWVyLgorICogMi4gUmVkaXN0cmlidXRp
+b25zIGluIGJpbmFyeSBmb3JtIG11c3QgcmVwcm9kdWNlIHRoZSBhYm92ZSBjb3B5cmlnaHQKKyAq
+ICAgIG5vdGljZSwgdGhpcyBsaXN0IG9mIGNvbmRpdGlvbnMgYW5kIHRoZSBmb2xsb3dpbmcgZGlz
+Y2xhaW1lciBpbiB0aGUKKyAqICAgIGRvY3VtZW50YXRpb24gYW5kL29yIG90aGVyIG1hdGVyaWFs
+cyBwcm92aWRlZCB3aXRoIHRoZSBkaXN0cmlidXRpb24uCisgKiAzLiBOZWl0aGVyIHRoZSBuYW1l
+IG9mIElCTSBub3IgdGhlIG5hbWVzIG9mIGl0cyBjb250cmlidXRvcnMKKyAqICAgIG1heSBiZSB1
+c2VkIHRvIGVuZG9yc2Ugb3IgcHJvbW90ZSBwcm9kdWN0cyBkZXJpdmVkIGZyb20gdGhpcyBzb2Z0
+d2FyZQorICogICAgd2l0aG91dCBzcGVjaWZpYyBwcmlvciB3cml0dGVuIHBlcm1pc3Npb24uCisg
+KiBUSElTIFNPRlRXQVJFIElTIFBST1ZJREVEIEJZIFRIRSBDT1BZUklHSFQgSE9MREVSUyBBTkQg
+Q09OVFJJQlVUT1JTIGBgQVMgSVMnJyBBTkQKKyAqIEFOWSBFWFBSRVNTIE9SIElNUExJRUQgV0FS
+UkFOVElFUywgSU5DTFVESU5HLCBCVVQgTk9UIExJTUlURUQgVE8sIFRIRQorICogSU1QTElFRCBX
+QVJSQU5USUVTIE9GIE1FUkNIQU5UQUJJTElUWSBBTkQgRklUTkVTUyBGT1IgQSBQQVJUSUNVTEFS
+IFBVUlBPU0UKKyAqIEFSRSBESVNDTEFJTUVELiAgSU4gTk8gRVZFTlQgU0hBTEwgSUJNIE9SIENP
+TlRSSUJVVE9SUyBCRSBMSUFCTEUKKyAqIEZPUiBBTlkgRElSRUNULCBJTkRJUkVDVCwgSU5DSURF
+TlRBTCwgU1BFQ0lBTCwgRVhFTVBMQVJZLCBPUiBDT05TRVFVRU5USUFMCisgKiBEQU1BR0VTIChJ
+TkNMVURJTkcsIEJVVCBOT1QgTElNSVRFRCBUTywgUFJPQ1VSRU1FTlQgT0YgU1VCU1RJVFVURSBH
+T09EUworICogT1IgU0VSVklDRVM7IExPU1MgT0YgVVNFLCBEQVRBLCBPUiBQUk9GSVRTOyBPUiBC
+VVNJTkVTUyBJTlRFUlJVUFRJT04pCisgKiBIT1dFVkVSIENBVVNFRCBBTkQgT04gQU5ZIFRIRU9S
+WSBPRiBMSUFCSUxJVFksIFdIRVRIRVIgSU4gQ09OVFJBQ1QsIFNUUklDVAorICogTElBQklMSVRZ
+LCBPUiBUT1JUIChJTkNMVURJTkcgTkVHTElHRU5DRSBPUiBPVEhFUldJU0UpIEFSSVNJTkcgSU4g
+QU5ZIFdBWQorICogT1VUIE9GIFRIRSBVU0UgT0YgVEhJUyBTT0ZUV0FSRSwgRVZFTiBJRiBBRFZJ
+U0VEIE9GIFRIRSBQT1NTSUJJTElUWSBPRgorICogU1VDSCBEQU1BR0UuICovCisjaW5jbHVkZSA8
+bGludXgvdHlwZXMuaD4KKyNpbmNsdWRlIDxsaW51eC92aXJ0aW9fdHlwZXMuaD4KKworI2RlZmlu
+ZSBWSVJUSU9fUFNUT1JFX0NNRF9OVUxMICAgMAorI2RlZmluZSBWSVJUSU9fUFNUT1JFX0NNRF9P
+UEVOICAgMQorI2RlZmluZSBWSVJUSU9fUFNUT1JFX0NNRF9SRUFEICAgMgorI2RlZmluZSBWSVJU
+SU9fUFNUT1JFX0NNRF9XUklURSAgMworI2RlZmluZSBWSVJUSU9fUFNUT1JFX0NNRF9FUkFTRSAg
+NAorI2RlZmluZSBWSVJUSU9fUFNUT1JFX0NNRF9DTE9TRSAgNQorCisjZGVmaW5lIFZJUlRJT19Q
+U1RPUkVfVFlQRV9VTktOT1dOICAwCisjZGVmaW5lIFZJUlRJT19QU1RPUkVfVFlQRV9ETUVTRyAg
+ICAxCisKKyNkZWZpbmUgVklSVElPX1BTVE9SRV9GTF9DT01QUkVTU0VEICAxCisKK3N0cnVjdCB2
+aXJ0aW9fcHN0b3JlX3JlcSB7CisJX19sZTE2CQljbWQ7CisJX19sZTE2CQl0eXBlOworCV9fbGUz
+MgkJZmxhZ3M7CisJX19sZTY0CQlpZDsKKwlfX2xlMzIJCWNvdW50OworCV9fbGUzMgkJcmVzZXJ2
+ZWQ7Cit9OworCitzdHJ1Y3QgdmlydGlvX3BzdG9yZV9yZXMgeworCV9fbGUxNgkJY21kOworCV9f
+bGUxNgkJdHlwZTsKKwlfX2xlMzIJCXJldDsKK307CisKK3N0cnVjdCB2aXJ0aW9fcHN0b3JlX2Zp
+bGVpbmZvIHsKKwlfX2xlNjQJCWlkOworCV9fbGUzMgkJY291bnQ7CisJX19sZTE2CQl0eXBlOwor
+CV9fbGUxNgkJdW51c2VkOworCV9fbGUzMgkJZmxhZ3M7CisJX19sZTMyCQlsZW47CisJX19sZTY0
+CQl0aW1lX3NlYzsKKwlfX2xlMzIJCXRpbWVfbnNlYzsKKwlfX2xlMzIJCXJlc2VydmVkOworfTsK
+Kworc3RydWN0IHZpcnRpb19wc3RvcmVfY29uZmlnIHsKKwlfX2xlMzIJCWJ1ZnNpemU7Cit9Owor
+CisjZW5kaWYgLyogX0xJTlVYX1ZJUlRJT19QU1RPUkVfSCAqLwotLSAKMi45LjMKCl9fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
+aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
+czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
+dGlvbg==
