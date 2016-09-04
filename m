@@ -1,17 +1,15 @@
-From: Fam Zheng <famz@redhat.com>
-Subject: Re: [PATCH] virtio-blk: Generate uevent after attribute available
-Date: Sat, 3 Sep 2016 15:08:33 +0800
-Message-ID: <20160903070833.GA23269@al.usersys.redhat.com>
-References: <20160628023915.6012-1-famz@redhat.com>
-	<20160628114553.GA18354@infradead.org>
-	<20160629012414.GA23296@ad.usersys.redhat.com>
-	<20160903015630-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 09/15] virtio-blk: Pass attribute group to device_add_disk
+Date: Sun, 4 Sep 2016 07:18:22 +0300
+Message-ID: <20160904041822.wxab7bsq4pnj4spr@redhat.com>
+References: <1471418115-3654-1-git-send-email-famz@redhat.com>
+	<1471418115-3654-10-git-send-email-famz@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20160903015630-mutt-send-email-mst@kernel.org>
+In-Reply-To: <1471418115-3654-10-git-send-email-famz@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,39 +19,107 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Fam Zheng <famz@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-nvme@lists.infradead.org, "Ed L. Cashin" <ed.cashin@acm.org>, Keith Busch <keith.busch@intel.com>, Minchan Kim <minchan@kernel.org>, Paul Mackerras <paulus@samba.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-mtd@lists.infradead.org, Brian Norris <computersforpeace@gmail.com>, linuxppc-dev@lists.ozlabs.org, David Woodhouse <dwmw2@infradead.org>, Nitin Gupta <ngupta@vflare.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 09/03 01:56, Michael S. Tsirkin wrote:
-> On Wed, Jun 29, 2016 at 09:24:15AM +0800, Fam Zheng wrote:
-> > On Tue, 06/28 04:45, Christoph Hellwig wrote:
-> > > On Tue, Jun 28, 2016 at 10:39:15AM +0800, Fam Zheng wrote:
-> > > > Userspace listens to the KOBJ_ADD uevent generated in add_disk. At that
-> > > > point we haven't created the serial attribute file, therefore depending
-> > > > on how fast udev reacts, the /dev/disk/by-id/ entry doesn't always get
-> > > > created.
-> > > > 
-> > > > This race condition can be easily reproduced by hot plugging a number of
-> > > > virtio-blk disks.
-> > > > 
-> > > > Also in systemd, there used to be a related workaround in udev rules
-> > > > called 'WAIT_FOR="serial"', but it is removed in later versions.
-> > > > 
-> > > > Now let's generate a KOBJ_CHANGE event after the attributes are ready.
-> > > 
-> > > The same race is present in other drivers as well, e.g. nvme.  Please
-> > > find a way to make this work properly without needing to hack every
-> > > driver to send events manually.
-> > 
-> > OK, I'll take a look today!
-> > 
-> > Fam
+On Wed, Aug 17, 2016 at 03:15:09PM +0800, Fam Zheng wrote:
+> Previously after device_add_disk returns, the KOBJ_ADD uevent is already
+> emitted. Adding attributes after that is a poor usage of kobject, and
+> in practice may result in race conditions with userspace, for
+> example udev checks availability of certain attributes and initializes
+> /dev entries conditionally.
 > 
-> Was this fixed in the generic code?
+> device_add_disk can handle adding attribute group better, so use it.
+> 
+> Meanwhile, handle error of device_add_disk.
+> 
+> Signed-off-by: Fam Zheng <famz@redhat.com>
 
-A proposed fix is:
+Feel free to merge this with the rest of patchset
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-https://lkml.org/lkml/2016/8/17/81
 
-Fam
+
+> ---
+>  drivers/block/virtio_blk.c | 38 +++++++++++++++++++++++++++-----------
+>  1 file changed, 27 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 4564df5..ff60d82 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -522,10 +522,10 @@ virtblk_cache_type_show(struct device *dev, struct device_attribute *attr,
+>  	return snprintf(buf, 40, "%s\n", virtblk_cache_types[writeback]);
+>  }
+>  
+> -static const struct device_attribute dev_attr_cache_type_ro =
+> +static struct device_attribute dev_attr_cache_type_ro =
+>  	__ATTR(cache_type, S_IRUGO,
+>  	       virtblk_cache_type_show, NULL);
+> -static const struct device_attribute dev_attr_cache_type_rw =
+> +static struct device_attribute dev_attr_cache_type_rw =
+>  	__ATTR(cache_type, S_IRUGO|S_IWUSR,
+>  	       virtblk_cache_type_show, virtblk_cache_type_store);
+>  
+> @@ -550,6 +550,26 @@ static struct blk_mq_ops virtio_mq_ops = {
+>  static unsigned int virtblk_queue_depth;
+>  module_param_named(queue_depth, virtblk_queue_depth, uint, 0444);
+>  
+> +static struct attribute *virtblk_attrs_ro[] = {
+> +	&dev_attr_serial.attr,
+> +	&dev_attr_cache_type_ro.attr,
+> +	NULL
+> +};
+> +
+> +static struct attribute *virtblk_attrs_rw[] = {
+> +	&dev_attr_serial.attr,
+> +	&dev_attr_cache_type_rw.attr,
+> +	NULL
+> +};
+> +
+> +static struct attribute_group virtblk_attr_group_ro = {
+> +	.attrs		= virtblk_attrs_ro,
+> +};
+> +
+> +static struct attribute_group virtblk_attr_group_rw = {
+> +	.attrs		= virtblk_attrs_rw,
+> +};
+> +
+>  static int virtblk_probe(struct virtio_device *vdev)
+>  {
+>  	struct virtio_blk *vblk;
+> @@ -560,6 +580,7 @@ static int virtblk_probe(struct virtio_device *vdev)
+>  	u32 v, blk_size, sg_elems, opt_io_size;
+>  	u16 min_io_size;
+>  	u8 physical_block_exp, alignment_offset;
+> +	struct attribute_group *attr_group;
+>  
+>  	if (!vdev->config->get) {
+>  		dev_err(&vdev->dev, "%s failure: config access disabled\n",
+> @@ -719,19 +740,14 @@ static int virtblk_probe(struct virtio_device *vdev)
+>  
+>  	virtio_device_ready(vdev);
+>  
+> -	device_add_disk(&vdev->dev, vblk->disk, NULL);
+> -	err = device_create_file(disk_to_dev(vblk->disk), &dev_attr_serial);
+> -	if (err)
+> -		goto out_del_disk;
+> -
+>  	if (virtio_has_feature(vdev, VIRTIO_BLK_F_CONFIG_WCE))
+> -		err = device_create_file(disk_to_dev(vblk->disk),
+> -					 &dev_attr_cache_type_rw);
+> +		attr_group = &virtblk_attr_group_rw;
+>  	else
+> -		err = device_create_file(disk_to_dev(vblk->disk),
+> -					 &dev_attr_cache_type_ro);
+> +		attr_group = &virtblk_attr_group_ro;
+> +	err = device_add_disk(&vdev->dev, vblk->disk, attr_group);
+>  	if (err)
+>  		goto out_del_disk;
+> +
+>  	return 0;
+>  
+>  out_del_disk:
+> -- 
+> 2.7.4
