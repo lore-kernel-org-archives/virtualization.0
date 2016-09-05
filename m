@@ -1,7 +1,7 @@
 From: Peter Griffin <peter.griffin@linaro.org>
-Subject: [PATCH v9 07/19] MAINTAINERS: Add FDMA driver files to STi section.
-Date: Mon,  5 Sep 2016 14:16:49 +0100
-Message-ID: <1473081421-16555-8-git-send-email-peter.griffin@linaro.org>
+Subject: [PATCH v9 08/19] ARM: multi_v7_defconfig: Enable STi FDMA driver
+Date: Mon,  5 Sep 2016 14:16:50 +0100
+Message-ID: <1473081421-16555-9-git-send-email-peter.griffin__31317.3637878664$1473081545$gmane$org@linaro.org>
 References: <1473081421-16555-1-git-send-email-peter.griffin@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,26 +21,25 @@ To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kernel@s
 Cc: devicetree@vger.kernel.org, linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, peter.griffin@linaro.org, dmaengine@vger.kernel.org, lee.jones@linaro.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds the FDMA driver files to the STi
-section of the maintainers file.
+This DMA controller is found on all STi chipsets.
 
 Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
 Acked-by: Lee Jones <lee.jones@linaro.org>
 ---
- MAINTAINERS | 1 +
+ arch/arm/configs/multi_v7_defconfig | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 5dd3b24..d21a7b5 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1739,6 +1739,7 @@ F:	drivers/char/hw_random/st-rng.c
- F:	drivers/clocksource/arm_global_timer.c
- F:	drivers/clocksource/clksrc_st_lpc.c
- F:	drivers/cpufreq/sti-cpufreq.c
-+F:	drivers/dma/st_fdma*
- F:	drivers/i2c/busses/i2c-st.c
- F:	drivers/media/rc/st_rc.c
- F:	drivers/media/platform/sti/c8sectpfe/
+diff --git a/arch/arm/configs/multi_v7_defconfig b/arch/arm/configs/multi_v7_defconfig
+index ea23250..998578a 100644
+--- a/arch/arm/configs/multi_v7_defconfig
++++ b/arch/arm/configs/multi_v7_defconfig
+@@ -784,6 +784,7 @@ CONFIG_DMA_OMAP=y
+ CONFIG_QCOM_BAM_DMA=y
+ CONFIG_XILINX_VDMA=y
+ CONFIG_DMA_SUN6I=y
++CONFIG_ST_FDMA=m
+ CONFIG_STAGING=y
+ CONFIG_SENSORS_ISL29018=y
+ CONFIG_SENSORS_ISL29028=y
 -- 
 1.9.1
