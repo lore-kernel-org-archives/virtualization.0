@@ -1,7 +1,8 @@
 From: Peter Griffin <peter.griffin@linaro.org>
-Subject: [PATCH v9 15/19] ARM: STi: DT: STiH407: Add uniperif reader dt nodes
-Date: Mon,  5 Sep 2016 14:16:57 +0100
-Message-ID: <1473081421-16555-16-git-send-email-peter.griffin__37080.8700602085$1473081634$gmane$org@linaro.org>
+Subject: [PATCH v9 16/19] ARM: DT: STi: stihxxx-b2120: Add DT nodes for STi
+	audio card
+Date: Mon,  5 Sep 2016 14:16:58 +0100
+Message-ID: <1473081421-16555-17-git-send-email-peter.griffin__29669.4945231595$1473081648$gmane$org@linaro.org>
 References: <1473081421-16555-1-git-send-email-peter.griffin@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,50 +22,68 @@ To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kernel@s
 Cc: devicetree@vger.kernel.org, Arnaud Pouliquen <arnaud.pouliquen@st.com>, linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, peter.griffin@linaro.org, dmaengine@vger.kernel.org, lee.jones@linaro.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds the DT node for the uniperif reader
-IP block found on STiH407 family silicon.
+This patch enables the uniperif players 2 & 3 for b2120 boards
+and also adds the "simple-audio-card" device node to interconnect
+the SoC sound device and the codec.
 
 Signed-off-by: Arnaud Pouliquen <arnaud.pouliquen@st.com>
 Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
 ---
- arch/arm/boot/dts/stih407-family.dtsi | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ arch/arm/boot/dts/stihxxx-b2120.dtsi | 45 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 45 insertions(+)
 
-diff --git a/arch/arm/boot/dts/stih407-family.dtsi b/arch/arm/boot/dts/stih407-family.dtsi
-index 1edc36c..883019a 100644
---- a/arch/arm/boot/dts/stih407-family.dtsi
-+++ b/arch/arm/boot/dts/stih407-family.dtsi
-@@ -960,5 +960,33 @@
- 
- 			status = "disabled";
+diff --git a/arch/arm/boot/dts/stihxxx-b2120.dtsi b/arch/arm/boot/dts/stihxxx-b2120.dtsi
+index 722c63f..4939501 100644
+--- a/arch/arm/boot/dts/stihxxx-b2120.dtsi
++++ b/arch/arm/boot/dts/stihxxx-b2120.dtsi
+@@ -131,5 +131,50 @@
+ 				dvb-card	= <STV0367_TDA18212_NIMA_1>;
+ 			};
  		};
 +
-+		sti_uni_reader0: sti-uni-reader@8d83000 {
-+			compatible = "st,sti-uni-reader";
-+			#sound-dai-cells = <0>;
-+			st,syscfg = <&syscfg_core>;
-+			reg = <0x8d83000 0x158>;
-+			interrupts = <GIC_SPI 87 IRQ_TYPE_NONE>;
-+			dmas = <&fdma0 5 0 1>;
-+			dma-names = "rx";
-+			dai-name = "Uni Reader #0 (PCM IN)";
-+			st,version = <3>;
-+
-+			status = "disabled";
++		sti_uni_player2: sti-uni-player@8d82000 {
++			status = "okay";
 +		};
 +
-+		sti_uni_reader1: sti-uni-reader@8d84000 {
-+			compatible = "st,sti-uni-reader";
-+			#sound-dai-cells = <0>;
-+			st,syscfg = <&syscfg_core>;
-+			reg = <0x8d84000 0x158>;
-+			interrupts = <GIC_SPI 88 IRQ_TYPE_NONE>;
-+			dmas = <&fdma0 6 0 1>;
-+			dma-names = "rx";
-+			dai-name = "Uni Reader #1 (HDMI RX)";
-+			st,version = <3>;
++		sti_uni_player3: sti-uni-player@8d85000 {
++			status = "okay";
++		};
 +
-+			status = "disabled";
++		sti_sasg_codec: sti-sasg-codec {
++			status = "okay";
++			pinctrl-names = "default";
++			pinctrl-0 = <&pinctrl_spdif_out>;
++		};
++
++		sound {
++			compatible = "simple-audio-card";
++			simple-audio-card,name = "sti audio card";
++			status = "okay";
++
++			simple-audio-card,dai-link@0 {
++				/* DAC */
++				format = "i2s";
++				mclk-fs = <256>;
++				cpu {
++					sound-dai = <&sti_uni_player2>;
++				};
++
++				codec {
++					sound-dai = <&sti_sasg_codec 1>;
++				};
++			};
++			simple-audio-card,dai-link@1 {
++				/* SPDIF */
++				format = "left_j";
++				mclk-fs = <128>;
++				cpu {
++					sound-dai = <&sti_uni_player3>;
++				};
++
++				codec {
++					sound-dai = <&sti_sasg_codec 0>;
++				};
++			};
 +		};
  	};
  };
