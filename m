@@ -1,7 +1,7 @@
 From: Peter Griffin <peter.griffin@linaro.org>
-Subject: [PATCH v9 13/19] ARM: STi: DT: STiH407: Add sti-sasg-codec dt node
-Date: Mon,  5 Sep 2016 14:16:55 +0100
-Message-ID: <1473081421-16555-14-git-send-email-peter.griffin__34693.9499410384$1473081625$gmane$org@linaro.org>
+Subject: [PATCH v9 15/19] ARM: STi: DT: STiH407: Add uniperif reader dt nodes
+Date: Mon,  5 Sep 2016 14:16:57 +0100
+Message-ID: <1473081421-16555-16-git-send-email-peter.griffin__37080.8700602085$1473081634$gmane$org@linaro.org>
 References: <1473081421-16555-1-git-send-email-peter.griffin@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,29 +21,50 @@ To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kernel@s
 Cc: devicetree@vger.kernel.org, Arnaud Pouliquen <arnaud.pouliquen@st.com>, linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, peter.griffin@linaro.org, dmaengine@vger.kernel.org, lee.jones@linaro.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds the dt node for the internal audio
-codec IP.
+This patch adds the DT node for the uniperif reader
+IP block found on STiH407 family silicon.
 
 Signed-off-by: Arnaud Pouliquen <arnaud.pouliquen@st.com>
 Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
 ---
- arch/arm/boot/dts/stih407-family.dtsi | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/arm/boot/dts/stih407-family.dtsi | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
 diff --git a/arch/arm/boot/dts/stih407-family.dtsi b/arch/arm/boot/dts/stih407-family.dtsi
-index 45cab30..d1258d5 100644
+index 1edc36c..883019a 100644
 --- a/arch/arm/boot/dts/stih407-family.dtsi
 +++ b/arch/arm/boot/dts/stih407-family.dtsi
-@@ -873,5 +873,12 @@
- 				<&clk_s_c0_flexgen CLK_TX_ICN_DISP_0>,
- 				<&clk_s_c0_flexgen CLK_EXT2F_A9>;
+@@ -960,5 +960,33 @@
+ 
+ 			status = "disabled";
  		};
 +
-+		sti_sasg_codec: sti-sasg-codec {
-+			compatible = "st,stih407-sas-codec";
-+			#sound-dai-cells = <1>;
-+			status = "disabled";
++		sti_uni_reader0: sti-uni-reader@8d83000 {
++			compatible = "st,sti-uni-reader";
++			#sound-dai-cells = <0>;
 +			st,syscfg = <&syscfg_core>;
++			reg = <0x8d83000 0x158>;
++			interrupts = <GIC_SPI 87 IRQ_TYPE_NONE>;
++			dmas = <&fdma0 5 0 1>;
++			dma-names = "rx";
++			dai-name = "Uni Reader #0 (PCM IN)";
++			st,version = <3>;
++
++			status = "disabled";
++		};
++
++		sti_uni_reader1: sti-uni-reader@8d84000 {
++			compatible = "st,sti-uni-reader";
++			#sound-dai-cells = <0>;
++			st,syscfg = <&syscfg_core>;
++			reg = <0x8d84000 0x158>;
++			interrupts = <GIC_SPI 88 IRQ_TYPE_NONE>;
++			dmas = <&fdma0 6 0 1>;
++			dma-names = "rx";
++			dai-name = "Uni Reader #1 (HDMI RX)";
++			st,version = <3>;
++
++			status = "disabled";
 +		};
  	};
  };
