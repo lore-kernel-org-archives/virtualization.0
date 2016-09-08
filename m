@@ -1,13 +1,15 @@
-From: Aaron Conole <aconole@redhat.com>
-Subject: [PATCH v9] virtio-net: add Max MTU configuration field
-Date: Tue,  6 Sep 2016 10:31:01 -0400
-Message-ID: <1473172261-3478-1-git-send-email-aconole__805.778013500635$1473212695$gmane$org@redhat.com>
+From: Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH] virtio_console: Stop doing DMA on the stack
+Date: Thu, 8 Sep 2016 08:49:43 +0200
+Message-ID: <20160908064943.GA25876__16662.7385108315$1473317397$gmane$org@gmail.com>
+References: <0afe68f9b4be6c95af9e7672b07acd0274c26dfe.1472569320.git.luto@kernel.org>
+	<20160906070343.GD3100@amit-lp.rh>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Resent-Message-ID: <20160907014443.tbdgvwfd2axvoexa@redhat.com>
-Resent-To: virtualization@lists.linux-foundation.org
+Content-Disposition: inline
+In-Reply-To: <20160906070343.GD3100@amit-lp.rh>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,147 +19,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Victor Kaplansky <vkaplans@redhat.com>, Maxime Coquelin <maxime.coquelin@redhat.com>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: x86@kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Andy Lutomirski <luto@kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-It is helpful for a host to indicate it's MTU to be set on guest NICs
-other than the assumed 1500 byte value.  This helps in situations where
-the host network is using Jumbo Frames, or aiding in PMTU discovery by
-configuring a homogenous network.  It is also helpful for sizing receive
-buffers correctly.
 
-The change adds a new field to configuration area of network
-devices.  It will be used to pass a maximum MTU from the device to
-the driver.  This will be used by the driver as a maximum value for
-packet sizes during transmission, without segmentation offloading.
+* Amit Shah <amit.shah@redhat.com> wrote:
 
-In addition, in order to support backward and forward compatibility,
-we introduce a new feature bit called VIRTIO_NET_F_MTU.
+> On (Tue) 30 Aug 2016 [08:04:15], Andy Lutomirski wrote:
+> > virtio_console uses a small DMA buffer for control requests.  Move
+> > that buffer into heap memory.
+> > 
+> > Doing virtio DMA on the stack is normally okay on non-DMA-API virtio
+> > systems (which is currently most of them), but it breaks completely
+> > if the stack is virtually mapped.
+> > 
+> > Tested by typing both directions using picocom aimed at /dev/hvc0.
+> > 
+> > Signed-off-by: Andy Lutomirski <luto@kernel.org>
+> 
+> Looks fine,
+> 
+> Reviewed-by: Amit Shah <amit.shah@redhat.com>
+> 
+> > ---
+> > 
+> > Hi all-
+> > 
+> > This is currently broken in tip:x86/asm.  If you (Amit) like this patch,
+> > would it make sense for Ingo to add it to -tip?
+> 
+> Yes, I'm fine with that.
 
-VIRTIO-152
-Signed-off-by: Aaron Conole <aconole@redhat.com>
-Cc: Victor Kaplansky <victork@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Maxime Coquelin <maxime.coquelin@redhat.com>
+Thanks! FYI, this patch now lives as:
 
----
-v1:
-This is an attempt at continuing the work done by Victor Kaplansky on
-mtu negiotiation for virtio-net devices. It attempts to pick up from
-https://lists.oasis-open.org/archives/virtio-dev/201508/msg00007.html
-and is just a minor blurb from the first patch along with the 2nd patch
-from the series, and some of the feedback integrated.
+  9472fe7040bb ("virtio_console: Stop doing DMA on the stack")
 
-v2:
-Rephrase and provide a mechanism for guest->host and host->guest
-communication through a driver read-only and driver write-only field.
+in tip:x86/asm, and is targeted for a v4.9 merge.
 
-v3:
-Converted to just support initial MTU. Guest->host and Host->guest MTU
-changes are outside the scope of this change.
+Thanks,
 
-v4:
-Removed references to 'initial', since that condition cannot be tested.
-Simply state that if the driver will use the mtu field, it must
-negotiate the feature bit, and if not, it must not.
-
-v5:
-After feedback from Michael S. Tsirkin
-
-v6:
-Bit has to change to bit 25 due to an undocumented bit 24 being taken.
-
-v7:
-Partial rewrite with feedback from MST.  Additional conformance statements
-added.
-
-v8:
-Clarified the new conformance statements.
-
-v9:
-Updated the commit log for correctness.  Added ACKs from
-Michael S. Tsirkin, and Maxime Coquelin.  Included the virtio
-issue id.
-
- Note: should this proposal be accepted and approved, one or more
-       claims disclosed to the TC admin and listed on the Virtio TC
-       IPR page https://www.oasis-open.org/committees/virtio/ipr.php
-       might become Essential Claims.
-
-
- content.tex | 34 ++++++++++++++++++++++++++++++++++
- 1 file changed, 34 insertions(+)
-
-diff --git a/content.tex b/content.tex
-index 4b45678..b90cbad 100644
---- a/content.tex
-+++ b/content.tex
-@@ -3049,6 +3049,14 @@ features.
- \item[VIRTIO_NET_F_CTRL_GUEST_OFFLOADS (2)] Control channel offloads
-         reconfiguration support.
- 
-+\item[VIRTIO_NET_F_MTU(3)] Maximum negotiated MTU is supported. If
-+    offered by the device, device advises driver about the value of
-+    MTU to be used. If negotiated, the driver uses \field{mtu} as
-+    the maximum MTU value supplied to the operating system.
-+
-+    Note: many operating systems override the MTU value provided by the
-+    driver.
-+
- \item[VIRTIO_NET_F_MAC (5)] Device has given MAC address.
- 
- \item[VIRTIO_NET_F_GUEST_TSO4 (7)] Driver can receive TSOv4.
-@@ -3140,11 +3148,16 @@ of each of transmit and receive virtqueues (receiveq1\ldots receiveqN
- and transmitq1\ldots transmitqN respectively) that can be configured once VIRTIO_NET_F_MQ
- is negotiated.
- 
-+The following driver-read-only field, \field{mtu} only exists if
-+VIRTIO_NET_F_MTU is set. This field specifies the maximum MTU for the driver to
-+use.
-+
- \begin{lstlisting}
- struct virtio_net_config {
-         u8 mac[6];
-         le16 status;
-         le16 max_virtqueue_pairs;
-+        le16 mtu;
- };
- \end{lstlisting}
- 
-@@ -3153,6 +3166,18 @@ struct virtio_net_config {
- The device MUST set \field{max_virtqueue_pairs} to between 1 and 0x8000 inclusive,
- if it offers VIRTIO_NET_F_MQ.
- 
-+The device MUST set \field{mtu} to between 68 and 65535 inclusive,
-+if it offers VIRTIO_NET_F_MTU.
-+
-+The device MUST NOT modify \field{mtu} once it has been set.
-+
-+The device MUST NOT pass received packets that exceed \field{mtu} size
-+with \field{gso_type} NONE or ECN if it offers VIRTIO_NET_F_MTU.
-+
-+The device MUST forward transmitted packets of up to MTU size with
-+\field{gso_type} NONE or ECN, and do so without fragmentation, if it
-+offers VIRTIO_NET_F_MTU.
-+
- \drivernormative{\subsubsection}{Device configuration layout}{Device Types / Network Device / Device configuration layout}
- 
- A driver SHOULD negotiate VIRTIO_NET_F_MAC if the device offers it.
-@@ -3165,6 +3190,15 @@ If the driver does not negotiate the VIRTIO_NET_F_STATUS feature, it SHOULD
- assume the link is active, otherwise it SHOULD read the link status from
- the bottom bit of \field{status}.
- 
-+If the device offers VIRTIO_NET_F_MTU, a driver MUST supply enough receive
-+buffers of size \field{mtu} to be able to receive at least one receive
-+packet with \field{gso_type} NONE or ECN.
-+
-+A driver SHOULD negotiate VIRTIO_NET_F_MTU if the device offers it.
-+
-+If the device offers VIRTIO_NET_F_MTU, a driver MUST NOT transmit packets of
-+size exceeding the value of \field{mtu} with \field{gso_type} NONE or ECN
-+
- \subsubsection{Legacy Interface: Device configuration layout}\label{sec:Device Types / Network Device / Device configuration layout / Legacy Interface: Device configuration layout}
- \label{sec:Device Types / Block Device / Feature bits / Device configuration layout / Legacy Interface: Device configuration layout}
- When using the legacy interface, transitional devices and drivers
--- 
-2.7.4
+	Ingo
