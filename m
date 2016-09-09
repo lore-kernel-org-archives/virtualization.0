@@ -1,14 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 1/1] balloon: stop inflate balloon after oom notification
-Date: Fri, 9 Sep 2016 20:46:48 +0300
-Message-ID: <20160909203714-mutt-send-email-mst@kernel.org>
-References: <1473429284-26441-1-git-send-email-den@openvz.org>
+Subject: Re: [PATCH] virtio_console: Stop doing DMA on the stack
+Date: Fri, 9 Sep 2016 21:10:30 +0300
+Message-ID: <20160909210940-mutt-send-email-mst@kernel.org>
+References: <0afe68f9b4be6c95af9e7672b07acd0274c26dfe.1472569320.git.luto@kernel.org>
+	<20160906070343.GD3100@amit-lp.rh>
+	<20160908064943.GA25876@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1473429284-26441-1-git-send-email-den@openvz.org>
+In-Reply-To: <20160908064943.GA25876@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,98 +20,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Denis V. Lunev" <den@openvz.org>
-Cc: Konstantin Neumoin <kneumoin@virtuozzo.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Ingo Molnar <mingo@kernel.org>
+Cc: Amit Shah <amit.shah@redhat.com>, x86@kernel.org, linux-kernel@vger.kernel.org, Andy Lutomirski <luto@kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 09, 2016 at 04:54:44PM +0300, Denis V. Lunev wrote:
-> From: Konstantin Neumoin <kneumoin@virtuozzo.com>
+On Thu, Sep 08, 2016 at 08:49:43AM +0200, Ingo Molnar wrote:
 > 
-> At this moment oom notification in balloon does not work as expected.
-> After virtballoon_oom_notify there is an infinitive loop:
->  - virtballoon_oom_notify was called and balloon was deflated
->  - balloon get notification that config was changed, compare target and
->    actual and try to reach target again.
+> * Amit Shah <amit.shah@redhat.com> wrote:
 > 
-> This patch adds global variable fail_counter which indicates that oom has
-> been happened. We check that fail_counter was changed between calls
-> update_balloon_size_func. In this case we should not try to inflate balloon
-> even if actual != target.
-
-Doesn't look right to me. What if it triggered an hour ago?
-We really need mm core to expose an oom_in_progress flag that we can test.
-
-More implementation comments below.
-
+> > On (Tue) 30 Aug 2016 [08:04:15], Andy Lutomirski wrote:
+> > > virtio_console uses a small DMA buffer for control requests.  Move
+> > > that buffer into heap memory.
+> > > 
+> > > Doing virtio DMA on the stack is normally okay on non-DMA-API virtio
+> > > systems (which is currently most of them), but it breaks completely
+> > > if the stack is virtually mapped.
+> > > 
+> > > Tested by typing both directions using picocom aimed at /dev/hvc0.
+> > > 
+> > > Signed-off-by: Andy Lutomirski <luto@kernel.org>
+> > 
+> > Looks fine,
+> > 
+> > Reviewed-by: Amit Shah <amit.shah@redhat.com>
+> > 
+> > > ---
+> > > 
+> > > Hi all-
+> > > 
+> > > This is currently broken in tip:x86/asm.  If you (Amit) like this patch,
+> > > would it make sense for Ingo to add it to -tip?
+> > 
+> > Yes, I'm fine with that.
 > 
-> Signed-off-by: Konstantin Neumoin <kneumoin@virtuozzo.com>
-> Signed-off-by: Denis V. Lunev <den@openvz.org>
-> CC: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/virtio/virtio_balloon.c | 15 +++++++++++++++
->  1 file changed, 15 insertions(+)
+> Thanks! FYI, this patch now lives as:
 > 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 4e7003d..253bf05 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -50,6 +50,8 @@ MODULE_PARM_DESC(oom_pages, "pages to free on OOM");
->  static struct vfsmount *balloon_mnt;
->  #endif
->  
-> +static unsigned long fail_count;
-> +
->  struct virtio_balloon {
->  	struct virtio_device *vdev;
->  	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq;
-> @@ -361,6 +363,8 @@ static int virtballoon_oom_notify(struct notifier_block *self,
->  	unsigned long *freed;
->  	unsigned num_freed_pages;
->  
-> +	fail_count++;
-> +
->  	vb = container_of(self, struct virtio_balloon, nb);
->  	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
->  		return NOTIFY_OK;
+>   9472fe7040bb ("virtio_console: Stop doing DMA on the stack")
+> 
+> in tip:x86/asm, and is targeted for a v4.9 merge.
+> 
+> Thanks,
+> 
+> 	Ingo
 
-OOM should not interfere with ballooning unless
-VIRTIO_BALLOON_F_DEFLATE_ON_OOM has been negotiated.
-
-
-> @@ -386,11 +390,22 @@ static void update_balloon_size_func(struct work_struct *work)
->  {
->  	struct virtio_balloon *vb;
->  	s64 diff;
-> +	static unsigned long fc;
-> +
-> +	if (fc == 0)
-> +		fc = fail_count;
-
-Why?
-
->  
->  	vb = container_of(work, struct virtio_balloon,
->  			  update_balloon_size_work);
->  	diff = towards_target(vb);
->  
-> +	if (fc != fail_count) {
-> +		fc = fail_count;
-
-Unlikely to work correctly if there are multiple balloon devices.
-
-
-> +		/* Don't inflate balloon after oom notification */
-> +		if (diff > 0)
-> +			return;
-> +	}
-> +
->  	if (diff > 0)
->  		diff -= fill_balloon(vb, diff);
->  	else if (diff < 0)
-
-I'd rather make it per-device.
-Absence of memory ordering primitives of any kind also
-looks suspicious.
-
-> -- 
-> 2.7.4
+Thinking about it, maybe we should put it in 4.8
+after all, for benefit of systems using DMA API with virtio.
+Thoughts?
