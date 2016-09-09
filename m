@@ -1,14 +1,11 @@
-From: Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH 1/3] virtio: Basic implementation of virtio pstore driver
-Date: Thu, 8 Sep 2016 13:49:56 -0700
-Message-ID: <CAGXu5jLxe2w+w8h_C9FC6zG6xODVcuwiSnVzHxNDJZy_bOqviA@mail.gmail.com>
-References: <20160904143900.14850-1-namhyung@kernel.org>
-	<20160904143900.14850-2-namhyung@kernel.org>
+From: "Denis V. Lunev" <den@openvz.org>
+Subject: [PATCH 1/1] balloon: stop inflate balloon after oom notification
+Date: Fri,  9 Sep 2016 16:54:44 +0300
+Message-ID: <1473429284-26441-1-git-send-email-den__14994.2084368833$1473430268$gmane$org@openvz.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160904143900.14850-2-namhyung@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,38 +15,73 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Namhyung Kim <namhyung@kernel.org>
-Cc: virtio-dev@lists.oasis-open.org, Anton Vorontsov <anton@enomsg.org>, KVM <kvm@vger.kernel.org>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, qemu-devel <qemu-devel@nongnu.org>, "Michael S. Tsirkin" <mst@redhat.com>, Will Deacon <will.deacon@arm.com>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Minchan Kim <minchan@kernel.org>, Tony Luck <tony.luck@intel.com>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, Paolo Bonzini <pbonzini@redhat.com>, Ingo Molnar <mingo@kernel.org>
+Cc: "Denis V . Lunev" <den@openvz.org>, Konstantin Neumoin <kneumoin@virtuozzo.com>, "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gU3VuLCBTZXAgNCwgMjAxNiBhdCA3OjM4IEFNLCBOYW1oeXVuZyBLaW0gPG5hbWh5dW5nQGtl
-cm5lbC5vcmc+IHdyb3RlOgo+IFRoZSB2aXJ0aW8gcHN0b3JlIGRyaXZlciBwcm92aWRlcyBpbnRl
-cmZhY2UgdG8gdGhlIHBzdG9yZSBzdWJzeXN0ZW0gc28KPiB0aGF0IHRoZSBndWVzdCBrZXJuZWwn
-cyBsb2cvZHVtcCBtZXNzYWdlIGNhbiBiZSBzYXZlZCBvbiB0aGUgaG9zdAo+IG1hY2hpbmUuICBV
-c2VycyBjYW4gYWNjZXNzIHRoZSBsb2cgZmlsZSBkaXJlY3RseSBvbiB0aGUgaG9zdCwgb3Igb24g
-dGhlCj4gZ3Vlc3QgYXQgdGhlIG5leHQgYm9vdCB1c2luZyBwc3RvcmUgZmlsZXN5c3RlbS4gIEl0
-IGN1cnJlbnRseSBkZWFscyB3aXRoCj4ga2VybmVsIGxvZyAocHJpbnRrKSBidWZmZXIgb25seSwg
-YnV0IHdlIGNhbiBleHRlbmQgaXQgdG8gaGF2ZSBvdGhlcgo+IGluZm9ybWF0aW9uIChsaWtlIGZ0
-cmFjZSBkdW1wKSBsYXRlci4KPgo+IEl0IHN1cHBvcnRzIGxlZ2FjeSBQQ0kgZGV2aWNlIHVzaW5n
-IGEgMTZLIGJ1ZmZlciBieSBkZWZhdWx0IGFuZCBpdCdzCj4gY29uZmlndXJhYmxlLiAgSXQgdXNl
-cyB0d28gdmlydHF1ZXVlcyAtIG9uZSBmb3IgKHN5bmMpIHJlYWQgYW5kIGFub3RoZXIKPiBmb3Ig
-KGFzeW5jKSB3cml0ZS4gIFNpbmNlIGl0IGNhbm5vdCB3YWl0IGZvciB3cml0ZSBmaW5pc2hlZCwg
-aXQgc3VwcG9ydHMKPiB1cCB0byAxMjggY29uY3VycmVudCBJTy4KPgo+IENjOiBQYW9sbyBCb256
-aW5pIDxwYm9uemluaUByZWRoYXQuY29tPgo+IENjOiBSYWRpbSBLcsSNbcOhxZkgPHJrcmNtYXJA
-cmVkaGF0LmNvbT4KPiBDYzogIk1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQuY29tPgo+
-IENjOiBBbnRob255IExpZ3VvcmkgPGFsaWd1b3JpQGFtYXpvbi5jb20+Cj4gQ2M6IEFudG9uIFZv
-cm9udHNvdiA8YW50b25AZW5vbXNnLm9yZz4KPiBDYzogQ29saW4gQ3Jvc3MgPGNjcm9zc0BhbmRy
-b2lkLmNvbT4KPiBDYzogS2VlcyBDb29rIDxrZWVzY29va0BjaHJvbWl1bS5vcmc+Cj4gQ2M6IFRv
-bnkgTHVjayA8dG9ueS5sdWNrQGludGVsLmNvbT4KPiBDYzogU3RldmVuIFJvc3RlZHQgPHJvc3Rl
-ZHRAZ29vZG1pcy5vcmc+Cj4gQ2M6IEluZ28gTW9sbmFyIDxtaW5nb0BrZXJuZWwub3JnPgo+IENj
-OiBNaW5jaGFuIEtpbSA8bWluY2hhbkBrZXJuZWwub3JnPgo+IENjOiBXaWxsIERlYWNvbiA8d2ls
-bC5kZWFjb25AYXJtLmNvbT4KPiBDYzogdmlydGlvLWRldkBsaXN0cy5vYXNpcy1vcGVuLm9yZwo+
-IENjOiBrdm1Admdlci5rZXJuZWwub3JnCj4gQ2M6IHFlbXUtZGV2ZWxAbm9uZ251Lm9yZwo+IENj
-OiB2aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwo+IFNpZ25lZC1vZmYt
-Ynk6IE5hbWh5dW5nIEtpbSA8bmFtaHl1bmdAa2VybmVsLm9yZz4KCldoaWxlIEkgY2FuJ3Qgc3Bl
-YWsgdG8gdGhlIHZpcnRpbyBwYXJ0cywgdGhlIGludGVyZmFjZSBpbnRvIHBzdG9yZQpsb29rcyBm
-aW5lIHRvIG1lLiA6KQoKUmV2aWV3ZWQtYnk6IEtlZXMgQ29vayA8a2Vlc2Nvb2tAY2hyb21pdW0u
-b3JnPgoKLUtlZXMKCi0tIApLZWVzIENvb2sKTmV4dXMgU2VjdXJpdHkKX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
-aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
-dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+From: Konstantin Neumoin <kneumoin@virtuozzo.com>
+
+At this moment oom notification in balloon does not work as expected.
+After virtballoon_oom_notify there is an infinitive loop:
+ - virtballoon_oom_notify was called and balloon was deflated
+ - balloon get notification that config was changed, compare target and
+   actual and try to reach target again.
+
+This patch adds global variable fail_counter which indicates that oom has
+been happened. We check that fail_counter was changed between calls
+update_balloon_size_func. In this case we should not try to inflate balloon
+even if actual != target.
+
+Signed-off-by: Konstantin Neumoin <kneumoin@virtuozzo.com>
+Signed-off-by: Denis V. Lunev <den@openvz.org>
+CC: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/virtio/virtio_balloon.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 4e7003d..253bf05 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -50,6 +50,8 @@ MODULE_PARM_DESC(oom_pages, "pages to free on OOM");
+ static struct vfsmount *balloon_mnt;
+ #endif
+ 
++static unsigned long fail_count;
++
+ struct virtio_balloon {
+ 	struct virtio_device *vdev;
+ 	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq;
+@@ -361,6 +363,8 @@ static int virtballoon_oom_notify(struct notifier_block *self,
+ 	unsigned long *freed;
+ 	unsigned num_freed_pages;
+ 
++	fail_count++;
++
+ 	vb = container_of(self, struct virtio_balloon, nb);
+ 	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+ 		return NOTIFY_OK;
+@@ -386,11 +390,22 @@ static void update_balloon_size_func(struct work_struct *work)
+ {
+ 	struct virtio_balloon *vb;
+ 	s64 diff;
++	static unsigned long fc;
++
++	if (fc == 0)
++		fc = fail_count;
+ 
+ 	vb = container_of(work, struct virtio_balloon,
+ 			  update_balloon_size_work);
+ 	diff = towards_target(vb);
+ 
++	if (fc != fail_count) {
++		fc = fail_count;
++		/* Don't inflate balloon after oom notification */
++		if (diff > 0)
++			return;
++	}
++
+ 	if (diff > 0)
+ 		diff -= fill_balloon(vb, diff);
+ 	else if (diff < 0)
+-- 
+2.7.4
