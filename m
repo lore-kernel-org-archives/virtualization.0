@@ -1,12 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] virtio: fixes for 4.8
-Date: Sat, 10 Sep 2016 00:48:55 +0300
-Message-ID: <20160910004855-mutt-send-email-mst@kernel.org>
+From: Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH] virtio_console: Stop doing DMA on the stack
+Date: Sat, 10 Sep 2016 06:33:48 +0200
+Message-ID: <20160910043348.GA6061@gmail.com>
+References: <0afe68f9b4be6c95af9e7672b07acd0274c26dfe.1472569320.git.luto@kernel.org>
+	<20160906070343.GD3100@amit-lp.rh>
+	<20160908064943.GA25876@gmail.com>
+	<20160909210940-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <20160909210940-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,42 +21,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, arnd@arndb.de, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, luto@kernel.org, baoyou.xie@linaro.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Amit Shah <amit.shah@redhat.com>, x86@kernel.org, linux-kernel@vger.kernel.org, Andy Lutomirski <luto@kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 3eab887a55424fc2c27553b7bfe32330df83f7b8:
 
-  Linux 4.8-rc4 (2016-08-28 15:04:33 -0700)
+* Michael S. Tsirkin <mst@redhat.com> wrote:
 
-are available in the git repository at:
+> On Thu, Sep 08, 2016 at 08:49:43AM +0200, Ingo Molnar wrote:
+> > 
+> > * Amit Shah <amit.shah@redhat.com> wrote:
+> > 
+> > > On (Tue) 30 Aug 2016 [08:04:15], Andy Lutomirski wrote:
+> > > > virtio_console uses a small DMA buffer for control requests.  Move
+> > > > that buffer into heap memory.
+> > > > 
+> > > > Doing virtio DMA on the stack is normally okay on non-DMA-API virtio
+> > > > systems (which is currently most of them), but it breaks completely
+> > > > if the stack is virtually mapped.
+> > > > 
+> > > > Tested by typing both directions using picocom aimed at /dev/hvc0.
+> > > > 
+> > > > Signed-off-by: Andy Lutomirski <luto@kernel.org>
+> > > 
+> > > Looks fine,
+> > > 
+> > > Reviewed-by: Amit Shah <amit.shah@redhat.com>
+> > > 
+> > > > ---
+> > > > 
+> > > > Hi all-
+> > > > 
+> > > > This is currently broken in tip:x86/asm.  If you (Amit) like this patch,
+> > > > would it make sense for Ingo to add it to -tip?
+> > > 
+> > > Yes, I'm fine with that.
+> > 
+> > Thanks! FYI, this patch now lives as:
+> > 
+> >   9472fe7040bb ("virtio_console: Stop doing DMA on the stack")
+> > 
+> > in tip:x86/asm, and is targeted for a v4.9 merge.
+> > 
+> > Thanks,
+> > 
+> > 	Ingo
+> 
+> Thinking about it, maybe we should put it in 4.8
+> after all, for benefit of systems using DMA API with virtio.
+> Thoughts?
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+So CONFIG_VMAP_STACK=y is only going to be enabled for v4.9 - the enabling commit 
+is part of tip:x86/asm as well. So AFAICS the commit is not strictly needed for 
+v4.8.
 
-for you to fetch changes up to 5e59d9a1aed26abcc79abe78af5cfd34e53cbe7f:
+Thanks,
 
-  virtio_console: Stop doing DMA on the stack (2016-09-09 21:12:45 +0300)
-
-----------------------------------------------------------------
-virtio: fixes for 4.8
-
-This includes a couple of bugfixs for virtio.
-
-The virtio console patch is actually also
-in x86/tip targeting 4.9 because it helps vmap
-stacks, but it also fixes IOMMU_PLATFORM which
-was added in 4.8, and it seems important not to
-ship that in a broken configuration.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Andy Lutomirski (1):
-      virtio_console: Stop doing DMA on the stack
-
-Baoyou Xie (1):
-      virtio: mark vring_dma_dev() static
-
- drivers/char/virtio_console.c | 23 +++++++++++++++--------
- drivers/virtio/virtio_ring.c  |  2 +-
- 2 files changed, 16 insertions(+), 9 deletions(-)
+	Ingo
