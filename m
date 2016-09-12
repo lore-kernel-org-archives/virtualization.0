@@ -1,17 +1,12 @@
-From: Ingo Molnar <mingo@kernel.org>
-Subject: Re: [PATCH] virtio_console: Stop doing DMA on the stack
-Date: Sat, 10 Sep 2016 06:33:48 +0200
-Message-ID: <20160910043348.GA6061@gmail.com>
-References: <0afe68f9b4be6c95af9e7672b07acd0274c26dfe.1472569320.git.luto@kernel.org>
-	<20160906070343.GD3100@amit-lp.rh>
-	<20160908064943.GA25876@gmail.com>
-	<20160909210940-mutt-send-email-mst@kernel.org>
+From: Will Deacon <will.deacon@arm.com>
+Subject: [PATCH] virtio_pci: Limit DMA mask to 44 bits for legacy virtio
+	devices
+Date: Mon, 12 Sep 2016 13:10:41 +0100
+Message-ID: <1473682241-21984-1-git-send-email-will.deacon@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160909210940-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,60 +16,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Amit Shah <amit.shah@redhat.com>, x86@kernel.org, linux-kernel@vger.kernel.org, Andy Lutomirski <luto@kernel.org>, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+Cc: Will Deacon <will.deacon@arm.com>, Andy Lutomirski <luto@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Legacy virtio defines the virtqueue base using a 32-bit PFN field, with
+a read-only register indicating a fixed page size of 4k.
 
-* Michael S. Tsirkin <mst@redhat.com> wrote:
+This can cause problems for DMA allocators that allocate top down from
+the DMA mask, which is set to 64 bits. In this case, the addresses are
+silently truncated to 44-bit, leading to IOMMU faults, failure to read
+from the queue or data corruption.
 
-> On Thu, Sep 08, 2016 at 08:49:43AM +0200, Ingo Molnar wrote:
-> > 
-> > * Amit Shah <amit.shah@redhat.com> wrote:
-> > 
-> > > On (Tue) 30 Aug 2016 [08:04:15], Andy Lutomirski wrote:
-> > > > virtio_console uses a small DMA buffer for control requests.  Move
-> > > > that buffer into heap memory.
-> > > > 
-> > > > Doing virtio DMA on the stack is normally okay on non-DMA-API virtio
-> > > > systems (which is currently most of them), but it breaks completely
-> > > > if the stack is virtually mapped.
-> > > > 
-> > > > Tested by typing both directions using picocom aimed at /dev/hvc0.
-> > > > 
-> > > > Signed-off-by: Andy Lutomirski <luto@kernel.org>
-> > > 
-> > > Looks fine,
-> > > 
-> > > Reviewed-by: Amit Shah <amit.shah@redhat.com>
-> > > 
-> > > > ---
-> > > > 
-> > > > Hi all-
-> > > > 
-> > > > This is currently broken in tip:x86/asm.  If you (Amit) like this patch,
-> > > > would it make sense for Ingo to add it to -tip?
-> > > 
-> > > Yes, I'm fine with that.
-> > 
-> > Thanks! FYI, this patch now lives as:
-> > 
-> >   9472fe7040bb ("virtio_console: Stop doing DMA on the stack")
-> > 
-> > in tip:x86/asm, and is targeted for a v4.9 merge.
-> > 
-> > Thanks,
-> > 
-> > 	Ingo
-> 
-> Thinking about it, maybe we should put it in 4.8
-> after all, for benefit of systems using DMA API with virtio.
-> Thoughts?
+This patch restricts the DMA mask for legacy PCI virtio devices to
+44 bits, which matches the specification.
 
-So CONFIG_VMAP_STACK=y is only going to be enabled for v4.9 - the enabling commit 
-is part of tip:x86/asm as well. So AFAICS the commit is not strictly needed for 
-v4.8.
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+---
+ drivers/virtio/virtio_pci_legacy.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Thanks,
-
-	Ingo
+diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+index 8c4e61783441..f4852febd40c 100644
+--- a/drivers/virtio/virtio_pci_legacy.c
++++ b/drivers/virtio/virtio_pci_legacy.c
+@@ -212,12 +212,12 @@ int virtio_pci_legacy_probe(struct virtio_pci_device *vp_dev)
+ 		return -ENODEV;
+ 	}
+ 
+-	rc = dma_set_mask_and_coherent(&pci_dev->dev, DMA_BIT_MASK(64));
++	rc = dma_set_mask_and_coherent(&pci_dev->dev, DMA_BIT_MASK(44));
+ 	if (rc)
+ 		rc = dma_set_mask_and_coherent(&pci_dev->dev,
+ 						DMA_BIT_MASK(32));
+ 	if (rc)
+-		dev_warn(&pci_dev->dev, "Failed to enable 64-bit or 32-bit DMA.  Trying to continue, but this might not work.\n");
++		dev_warn(&pci_dev->dev, "Failed to enable 44-bit or 32-bit DMA.  Trying to continue, but this might not work.\n");
+ 
+ 	rc = pci_request_region(pci_dev, 0, "virtio-pci-legacy");
+ 	if (rc)
+-- 
+2.1.4
