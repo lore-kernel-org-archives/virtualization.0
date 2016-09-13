@@ -1,8 +1,7 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 3/4] virtio_blk: Delete an unnecessary initialisation in
-	init_vq()
-Date: Tue, 13 Sep 2016 14:14:12 +0200
-Message-ID: <52a07fc8-21a0-8f98-fa9d-5751fbf95afa__17204.6931497336$1473768894$gmane$org@users.sourceforge.net>
+Subject: [PATCH 4/4] virtio_blk: Rename a jump label in virtblk_get_id()
+Date: Tue, 13 Sep 2016 14:15:20 +0200
+Message-ID: <a303f7a6-c675-5228-99bd-a03c9e9252e9__4838.51443646035$1473768940$gmane$org@users.sourceforge.net>
 References: <566ABCD9.1060404@users.sourceforge.net>
 	<02054675-8395-ac81-6863-e3a5cbfc9032@users.sourceforge.net>
 Mime-Version: 1.0
@@ -24,29 +23,31 @@ Cc: Julia Lawall <julia.lawall@lip6.fr>, kernel-janitors@vger.kernel.org, LKML <
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Tue, 13 Sep 2016 13:43:50 +0200
+Date: Tue, 13 Sep 2016 13:50:56 +0200
 
-The local variable "err" will be set to an appropriate value
-by a following statement.
-Thus omit the explicit initialisation at the beginning.
+Adjust a jump label according to the current Linux coding style convention.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- drivers/block/virtio_blk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/block/virtio_blk.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index d28dbcf..696f452 100644
+index 696f452..fef2bd0 100644
 --- a/drivers/block/virtio_blk.c
 +++ b/drivers/block/virtio_blk.c
-@@ -376,7 +376,7 @@ static void virtblk_config_changed(struct virtio_device *vdev)
+@@ -247,10 +247,10 @@ static int virtblk_get_id(struct gendisk *disk, char *id_str)
  
- static int init_vq(struct virtio_blk *vblk)
- {
--	int err = 0;
-+	int err;
- 	int i;
- 	vq_callback_t **callbacks;
- 	const char **names;
+ 	err = blk_rq_map_kern(q, req, id_str, VIRTIO_BLK_ID_BYTES, GFP_KERNEL);
+ 	if (err)
+-		goto out;
++		goto put_request;
+ 
+ 	err = blk_execute_rq(vblk->disk->queue, vblk->disk, req, false);
+-out:
++ put_request:
+ 	blk_put_request(req);
+ 	return err;
+ }
 -- 
 2.10.0
