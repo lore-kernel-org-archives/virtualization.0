@@ -1,7 +1,7 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 03/11] virtio_console: Rename a jump label in init()
-Date: Wed, 14 Sep 2016 16:02:19 +0200
-Message-ID: <47b70aab-df6b-0765-e666-ceaff93ffad8__6047.3128840842$1473861795$gmane$org@users.sourceforge.net>
+Subject: [PATCH 04/11] virtio_console: Rename jump labels in virtcons_probe()
+Date: Wed, 14 Sep 2016 16:03:15 +0200
+Message-ID: <b1201791-5078-ca9d-e5af-df6ebd05d67b__28009.4667374671$1473861861$gmane$org@users.sourceforge.net>
 References: <566ABCD9.1060404@users.sourceforge.net>
 	<020438b9-a7f8-0050-04c1-43382ba60b75@users.sourceforge.net>
 Mime-Version: 1.0
@@ -23,39 +23,76 @@ Cc: Julia Lawall <julia.lawall@lip6.fr>, kernel-janitors@vger.kernel.org, LKML <
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Wed, 14 Sep 2016 14:10:24 +0200
+Date: Wed, 14 Sep 2016 14:24:05 +0200
 
 Adjust jump labels according to the current Linux coding style convention.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- drivers/char/virtio_console.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/char/virtio_console.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index bf0ad57..004314e 100644
+index 004314e..768bbb7 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -2309,7 +2309,7 @@ static int __init init(void)
- 	err = register_virtio_driver(&virtio_console);
- 	if (err < 0) {
- 		pr_err("Error %d registering virtio driver\n", err);
+@@ -2037,7 +2037,7 @@ static int virtcons_probe(struct virtio_device *vdev)
+ 	portdev = kmalloc(sizeof(*portdev), GFP_KERNEL);
+ 	if (!portdev) {
+ 		err = -ENOMEM;
+-		goto fail;
++		goto exit;
+ 	}
+ 
+ 	/* Attach this portdev to this virtio_device, and vice-versa. */
+@@ -2051,7 +2051,7 @@ static int virtcons_probe(struct virtio_device *vdev)
+ 			"Error %d registering chrdev for device %u\n",
+ 			portdev->chr_major, vdev->index);
+ 		err = portdev->chr_major;
 -		goto free;
-+		goto remove;
++		goto free_port;
  	}
- 	err = register_virtio_driver(&virtio_rproc_serial);
+ 
+ 	multiport = false;
+@@ -2068,7 +2068,7 @@ static int virtcons_probe(struct virtio_device *vdev)
+ 	err = init_vqs(portdev);
  	if (err < 0) {
-@@ -2318,9 +2318,9 @@ static int __init init(void)
- 		goto unregister;
+ 		dev_err(&vdev->dev, "Error %d initializing vqs\n", err);
+-		goto free_chrdev;
++		goto unregister;
  	}
+ 
+ 	spin_lock_init(&portdev->ports_lock);
+@@ -2091,7 +2091,7 @@ static int virtcons_probe(struct virtio_device *vdev)
+ 			dev_err(&vdev->dev,
+ 				"Error allocating buffers for control queue\n");
+ 			err = -ENOMEM;
+-			goto free_vqs;
++			goto send_control_message;
+ 		}
+ 	} else {
+ 		/*
+@@ -2121,17 +2121,16 @@ static int virtcons_probe(struct virtio_device *vdev)
+ 		wait_for_completion(&early_console_added);
+ 
  	return 0;
--unregister:
+-
+-free_vqs:
++ send_control_message:
+ 	/* The host might want to notify mgmt sw about device add failure */
+ 	__send_control_msg(portdev, VIRTIO_CONSOLE_BAD_ID,
+ 			   VIRTIO_CONSOLE_DEVICE_READY, 0);
+ 	remove_vqs(portdev);
+-free_chrdev:
 + unregister:
- 	unregister_virtio_driver(&virtio_console);
+ 	unregister_chrdev(portdev->chr_major, "virtio-portsdev");
 -free:
-+ remove:
- 	debugfs_remove_recursive(pdrvdata.debugfs_dir);
- 	class_destroy(pdrvdata.class);
++ free_port:
+ 	kfree(portdev);
+-fail:
++ exit:
  	return err;
+ }
+ 
 -- 
 2.10.0
