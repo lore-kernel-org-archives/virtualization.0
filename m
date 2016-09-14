@@ -1,8 +1,7 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 07/11] virtio_console: Rename a jump label in
-	port_fops_splice_write()
-Date: Wed, 14 Sep 2016 16:06:05 +0200
-Message-ID: <cb8e64ec-5917-ce0d-cc95-845f8ce0fa34@users.sourceforge.net>
+Subject: [PATCH 08/11] virtio_console: Rename jump labels in port_fops_write()
+Date: Wed, 14 Sep 2016 16:07:07 +0200
+Message-ID: <ff122e8a-0789-a5e8-4d9f-6fd342bfd82d__47153.3731245019$1473862067$gmane$org@users.sourceforge.net>
 References: <566ABCD9.1060404@users.sourceforge.net>
 	<020438b9-a7f8-0050-04c1-43382ba60b75@users.sourceforge.net>
 Mime-Version: 1.0
@@ -24,9 +23,9 @@ Cc: Julia Lawall <julia.lawall@lip6.fr>, kernel-janitors@vger.kernel.org, LKML <
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Wed, 14 Sep 2016 15:01:51 +0200
+Date: Wed, 14 Sep 2016 15:07:42 +0200
 
-Adjust a jump label according to the current Linux coding style convention.
+Adjust jump labels according to the current Linux coding style convention.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
@@ -34,39 +33,32 @@ Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
  1 file changed, 4 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 99dc659..d8681d9 100644
+index d8681d9..babc812 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -947,17 +947,17 @@ static ssize_t port_fops_splice_write(struct pipe_inode_info *pipe,
- 	pipe_lock(pipe);
- 	if (!pipe->nrbufs) {
- 		ret = 0;
--		goto error_out;
-+		goto unlock;
+@@ -842,7 +842,7 @@ static ssize_t port_fops_write(struct file *filp, const char __user *ubuf,
+ 	ret = copy_from_user(buf->buf, ubuf, count);
+ 	if (ret) {
+ 		ret = -EFAULT;
+-		goto free_buf;
++		goto free_buffer;
  	}
  
- 	ret = wait_port_writable(port, filp->f_flags & O_NONBLOCK);
- 	if (ret < 0)
--		goto error_out;
-+		goto unlock;
+ 	/*
+@@ -857,11 +857,10 @@ static ssize_t port_fops_write(struct file *filp, const char __user *ubuf,
+ 	ret = __send_to_port(port, sg, 1, count, buf, nonblock);
  
- 	buf = alloc_buf(port->out_vq, 0, pipe->nrbufs);
- 	if (!buf) {
- 		ret = -ENOMEM;
--		goto error_out;
-+		goto unlock;
- 	}
- 
- 	sgl.n = 0;
-@@ -973,8 +973,7 @@ static ssize_t port_fops_splice_write(struct pipe_inode_info *pipe,
- 	if (unlikely(ret <= 0))
- 		free_buf(buf, true);
- 	return ret;
+ 	if (nonblock && ret > 0)
+-		goto out;
 -
--error_out:
-+ unlock:
- 	pipe_unlock(pipe);
+-free_buf:
++		goto exit;
++ free_buffer:
+ 	free_buf(buf, true);
+-out:
++ exit:
  	return ret;
  }
+ 
 -- 
 2.10.0
