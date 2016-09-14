@@ -1,14 +1,15 @@
 From: Patrice Chotard <patrice.chotard@st.com>
-Subject: Re: [PATCH v9 12/19] ARM: DT: STiH407: Add spdif_out pinctrl config
-Date: Wed, 14 Sep 2016 14:00:45 +0200
-Message-ID: <d05117cc-cccf-b39d-cd25-d9aa182e3f31__30259.8400078297$1474143923$gmane$org@st.com>
+Subject: Re: [PATCH v9 10/19] ARM: DT: STiH407: Add i2s_out pinctrl
+	configuration
+Date: Wed, 14 Sep 2016 14:00:11 +0200
+Message-ID: <2784abd2-59ed-33d1-60d8-e7b9e4e777a6__37303.3896823928$1474143931$gmane$org@st.com>
 References: <1473081421-16555-1-git-send-email-peter.griffin@linaro.org>
-	<1473081421-16555-13-git-send-email-peter.griffin@linaro.org>
+	<1473081421-16555-11-git-send-email-peter.griffin@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1473081421-16555-13-git-send-email-peter.griffin@linaro.org>
+In-Reply-To: <1473081421-16555-11-git-send-email-peter.griffin@linaro.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,28 +26,43 @@ List-Id: virtualization@lists.linuxfoundation.org
 Hi Peter
 
 On 09/05/2016 03:16 PM, Peter Griffin wrote:
-> This patch adds the pinctrl config for the spidf out
-> pins used by the sasg codec IP.
+> This patch adds the pinctrl config for the i2s_out pins
+> used by the uniperif player IP.
 > 
 > Signed-off-by: Arnaud Pouliquen <arnaud.pouliquen@st.com>
 > Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
 > Acked-by: Lee Jones <lee.jones@linaro.org>
 > ---
->  arch/arm/boot/dts/stih407-pinctrl.dtsi | 8 ++++++++
->  1 file changed, 8 insertions(+)
+>  arch/arm/boot/dts/stih407-pinctrl.dtsi | 23 +++++++++++++++++++++++
+>  1 file changed, 23 insertions(+)
 > 
 > diff --git a/arch/arm/boot/dts/stih407-pinctrl.dtsi b/arch/arm/boot/dts/stih407-pinctrl.dtsi
-> index 537db7e..598dbab 100644
+> index a538ae5..0fb5c8a 100644
 > --- a/arch/arm/boot/dts/stih407-pinctrl.dtsi
 > +++ b/arch/arm/boot/dts/stih407-pinctrl.dtsi
-> @@ -1114,6 +1114,14 @@
+> @@ -1067,6 +1067,29 @@
 >  				};
 >  			};
 >  
-> +			spdif_out {
-> +				pinctrl_spdif_out: spdif_out{
+> +			i2s_out {
+> +				pinctrl_i2s_8ch_out: i2s_8ch_out{
 > +					st,pins {
-> +						spdif_out = <&pio34 7 ALT1 OUT>;
+> +						mclk = <&pio33 5 ALT1 OUT>;
+> +						lrclk = <&pio33 7 ALT1 OUT>;
+> +						sclk = <&pio33 6 ALT1 OUT>;
+> +						data0 = <&pio33 4 ALT1 OUT>;
+> +						data1 = <&pio34 0 ALT1 OUT>;
+> +						data2 = <&pio34 1 ALT1 OUT>;
+> +						data3 = <&pio34 2 ALT1 OUT>;
+> +					};
+> +				};
+> +
+> +				pinctrl_i2s_2ch_out: i2s_2ch_out{
+> +					st,pins {
+> +						mclk = <&pio33 5 ALT1 OUT>;
+> +						lrclk = <&pio33 7 ALT1 OUT>;
+> +						sclk = <&pio33 6 ALT1 OUT>;
+> +						data0 = <&pio33 4 ALT1 OUT>;
 > +					};
 > +				};
 > +			};
@@ -55,7 +71,6 @@ On 09/05/2016 03:16 PM, Peter Griffin wrote:
 >  				pinctrl_serial3: serial3-0 {
 >  					st,pins {
 > 
-
 
 
 Applied for STi next
