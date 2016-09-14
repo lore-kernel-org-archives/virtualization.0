@@ -1,7 +1,7 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 04/11] virtio_console: Rename jump labels in virtcons_probe()
-Date: Wed, 14 Sep 2016 16:03:15 +0200
-Message-ID: <b1201791-5078-ca9d-e5af-df6ebd05d67b__28009.4667374671$1473861861$gmane$org@users.sourceforge.net>
+Subject: [PATCH 05/11] virtio_console: Rename jump labels in add_port()
+Date: Wed, 14 Sep 2016 16:04:03 +0200
+Message-ID: <85ca0841-c36d-12d2-b978-dbac04e19c5d__38876.9944118851$1473861899$gmane$org@users.sourceforge.net>
 References: <566ABCD9.1060404@users.sourceforge.net>
 	<020438b9-a7f8-0050-04c1-43382ba60b75@users.sourceforge.net>
 Mime-Version: 1.0
@@ -23,76 +23,86 @@ Cc: Julia Lawall <julia.lawall@lip6.fr>, kernel-janitors@vger.kernel.org, LKML <
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Wed, 14 Sep 2016 14:24:05 +0200
+Date: Wed, 14 Sep 2016 14:53:00 +0200
 
 Adjust jump labels according to the current Linux coding style convention.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- drivers/char/virtio_console.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ drivers/char/virtio_console.c | 21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 004314e..768bbb7 100644
+index 768bbb7..40b8775 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -2037,7 +2037,7 @@ static int virtcons_probe(struct virtio_device *vdev)
- 	portdev = kmalloc(sizeof(*portdev), GFP_KERNEL);
- 	if (!portdev) {
+@@ -1399,7 +1399,7 @@ static int add_port(struct ports_device *portdev, u32 id)
+ 	port = kmalloc(sizeof(*port), GFP_KERNEL);
+ 	if (!port) {
  		err = -ENOMEM;
 -		goto fail;
-+		goto exit;
++		goto send_control_message;
  	}
+ 	kref_init(&port->kref);
  
- 	/* Attach this portdev to this virtio_device, and vice-versa. */
-@@ -2051,7 +2051,7 @@ static int virtcons_probe(struct virtio_device *vdev)
- 			"Error %d registering chrdev for device %u\n",
- 			portdev->chr_major, vdev->index);
- 		err = portdev->chr_major;
--		goto free;
-+		goto free_port;
- 	}
- 
- 	multiport = false;
-@@ -2068,7 +2068,7 @@ static int virtcons_probe(struct virtio_device *vdev)
- 	err = init_vqs(portdev);
+@@ -1434,7 +1434,7 @@ static int add_port(struct ports_device *portdev, u32 id)
  	if (err < 0) {
- 		dev_err(&vdev->dev, "Error %d initializing vqs\n", err);
--		goto free_chrdev;
-+		goto unregister;
+ 		dev_err(&port->portdev->vdev->dev,
+ 			"Error %d adding cdev for port %u\n", err, id);
+-		goto free_cdev;
++		goto delete_cdev;
+ 	}
+ 	port->dev = device_create(pdrvdata.class, &port->portdev->vdev->dev,
+ 				  devt, port, "vport%up%u",
+@@ -1444,7 +1444,7 @@ static int add_port(struct ports_device *portdev, u32 id)
+ 		dev_err(&port->portdev->vdev->dev,
+ 			"Error %d creating device for port %u\n",
+ 			err, id);
+-		goto free_cdev;
++		goto delete_cdev;
  	}
  
- 	spin_lock_init(&portdev->ports_lock);
-@@ -2091,7 +2091,7 @@ static int virtcons_probe(struct virtio_device *vdev)
- 			dev_err(&vdev->dev,
- 				"Error allocating buffers for control queue\n");
- 			err = -ENOMEM;
--			goto free_vqs;
-+			goto send_control_message;
- 		}
- 	} else {
- 		/*
-@@ -2121,17 +2121,16 @@ static int virtcons_probe(struct virtio_device *vdev)
- 		wait_for_completion(&early_console_added);
+ 	spin_lock_init(&port->inbuf_lock);
+@@ -1456,7 +1456,7 @@ static int add_port(struct ports_device *portdev, u32 id)
+ 	if (!nr_added_bufs) {
+ 		dev_err(port->dev, "Error allocating inbufs\n");
+ 		err = -ENOMEM;
+-		goto free_device;
++		goto destroy_device;
+ 	}
  
+ 	if (is_rproc_serial(port->portdev->vdev))
+@@ -1473,7 +1473,7 @@ static int add_port(struct ports_device *portdev, u32 id)
+ 		 */
+ 		err = init_port_console(port);
+ 		if (err)
+-			goto free_inbufs;
++			goto free_buffers;
+ 	}
+ 
+ 	spin_lock_irq(&portdev->ports_lock);
+@@ -1500,17 +1500,16 @@ static int add_port(struct ports_device *portdev, u32 id)
+ 							 &port_debugfs_ops);
+ 	}
  	return 0;
 -
--free_vqs:
-+ send_control_message:
- 	/* The host might want to notify mgmt sw about device add failure */
- 	__send_control_msg(portdev, VIRTIO_CONSOLE_BAD_ID,
- 			   VIRTIO_CONSOLE_DEVICE_READY, 0);
- 	remove_vqs(portdev);
--free_chrdev:
-+ unregister:
- 	unregister_chrdev(portdev->chr_major, "virtio-portsdev");
--free:
+-free_inbufs:
++ free_buffers:
+ 	while ((buf = virtqueue_detach_unused_buf(port->in_vq)))
+ 		free_buf(buf, true);
+-free_device:
++ destroy_device:
+ 	device_destroy(pdrvdata.class, port->dev->devt);
+-free_cdev:
++ delete_cdev:
+ 	cdev_del(port->cdev);
+-free_port:
 + free_port:
- 	kfree(portdev);
+ 	kfree(port);
 -fail:
-+ exit:
++ send_control_message:
+ 	/* The host might want to notify management sw about port add failure */
+ 	__send_control_msg(portdev, id, VIRTIO_CONSOLE_PORT_READY, 0);
  	return err;
- }
- 
 -- 
 2.10.0
