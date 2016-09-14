@@ -1,7 +1,7 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 10/11] virtio_console: Rename jump labels in alloc_buf()
-Date: Wed, 14 Sep 2016 16:09:03 +0200
-Message-ID: <7529185b-100b-6724-f4a9-eb3b4d290ed7__41164.8532878191$1473862202$gmane$org@users.sourceforge.net>
+Subject: [PATCH 11/11] virtio_console: Rename a jump label in five functions
+Date: Wed, 14 Sep 2016 16:10:04 +0200
+Message-ID: <3fe1a284-eda5-9951-c978-17fa4ea7d501@users.sourceforge.net>
 References: <566ABCD9.1060404@users.sourceforge.net>
 	<020438b9-a7f8-0050-04c1-43382ba60b75@users.sourceforge.net>
 Mime-Version: 1.0
@@ -23,55 +23,84 @@ Cc: Julia Lawall <julia.lawall@lip6.fr>, kernel-janitors@vger.kernel.org, LKML <
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Wed, 14 Sep 2016 15:20:30 +0200
+Date: Wed, 14 Sep 2016 15:37:52 +0200
 
-Adjust jump labels according to the current Linux coding style convention.
+Adjust a jump label according to the current Linux coding style convention.
+Thus replace the identifier "out" by "unlock".
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- drivers/char/virtio_console.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/char/virtio_console.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 69c6718..0c4d4e7 100644
+index 0c4d4e7..6c90c9c 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -431,7 +431,7 @@ static struct port_buffer *alloc_buf(struct virtqueue *vq, size_t buf_size,
- 	buf = kmalloc(sizeof(*buf) + sizeof(struct scatterlist) * pages,
- 		      GFP_KERNEL);
- 	if (!buf)
--		goto fail;
-+		goto exit;
- 
- 	buf->sgpages = pages;
- 	if (pages > 0) {
-@@ -451,7 +451,7 @@ static struct port_buffer *alloc_buf(struct virtqueue *vq, size_t buf_size,
- 		 * in dma-coherent.c
- 		 */
- 		if (!vq->vdev->dev.parent || !vq->vdev->dev.parent->parent)
--			goto free_buf;
-+			goto free_buffer;
- 		buf->dev = vq->vdev->dev.parent->parent;
- 
- 		/* Increase device refcnt to avoid freeing it */
-@@ -464,15 +464,14 @@ static struct port_buffer *alloc_buf(struct virtqueue *vq, size_t buf_size,
+@@ -257,11 +257,11 @@ static struct port *find_port_by_vtermno(u32 vtermno)
+ 	list_for_each_entry(cons, &pdrvdata.consoles, list) {
+ 		if (cons->vtermno == vtermno) {
+ 			port = container_of(cons, struct port, cons);
+-			goto out;
++			goto unlock;
+ 		}
  	}
- 
- 	if (!buf->buf)
--		goto free_buf;
-+		goto free_buffer;
- 	buf->len = 0;
- 	buf->offset = 0;
- 	buf->size = buf_size;
- 	return buf;
--
--free_buf:
-+ free_buffer:
- 	kfree(buf);
--fail:
-+ exit:
- 	return NULL;
+ 	port = NULL;
+-out:
++ unlock:
+ 	spin_unlock_irqrestore(&pdrvdata_lock, flags);
+ 	return port;
  }
+@@ -276,11 +276,11 @@ static struct port *find_port_by_devt_in_portdev(struct ports_device *portdev,
+ 	list_for_each_entry(port, &portdev->ports, list) {
+ 		if (port->cdev->dev == dev) {
+ 			kref_get(&port->kref);
+-			goto out;
++			goto unlock;
+ 		}
+ 	}
+ 	port = NULL;
+-out:
++ unlock:
+ 	spin_unlock_irqrestore(&portdev->ports_lock, flags);
  
+ 	return port;
+@@ -296,10 +296,10 @@ static struct port *find_port_by_devt(dev_t dev)
+ 	list_for_each_entry(portdev, &pdrvdata.portdevs, list) {
+ 		port = find_port_by_devt_in_portdev(portdev, dev);
+ 		if (port)
+-			goto out;
++			goto unlock;
+ 	}
+ 	port = NULL;
+-out:
++ unlock:
+ 	spin_unlock_irqrestore(&pdrvdata_lock, flags);
+ 	return port;
+ }
+@@ -312,9 +312,9 @@ static struct port *find_port_by_id(struct ports_device *portdev, u32 id)
+ 	spin_lock_irqsave(&portdev->ports_lock, flags);
+ 	list_for_each_entry(port, &portdev->ports, list)
+ 		if (port->id == id)
+-			goto out;
++			goto unlock;
+ 	port = NULL;
+-out:
++ unlock:
+ 	spin_unlock_irqrestore(&portdev->ports_lock, flags);
+ 
+ 	return port;
+@@ -329,9 +329,9 @@ static struct port *find_port_by_vq(struct ports_device *portdev,
+ 	spin_lock_irqsave(&portdev->ports_lock, flags);
+ 	list_for_each_entry(port, &portdev->ports, list)
+ 		if (port->in_vq == vq || port->out_vq == vq)
+-			goto out;
++			goto unlock;
+ 	port = NULL;
+-out:
++ unlock:
+ 	spin_unlock_irqrestore(&portdev->ports_lock, flags);
+ 	return port;
+ }
 -- 
 2.10.0
