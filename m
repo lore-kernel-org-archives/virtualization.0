@@ -1,14 +1,16 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 11/11] virtio_console: Rename a jump label in five functions
-Date: Wed, 14 Sep 2016 16:10:04 +0200
-Message-ID: <3fe1a284-eda5-9951-c978-17fa4ea7d501@users.sourceforge.net>
-References: <566ABCD9.1060404@users.sourceforge.net>
-	<020438b9-a7f8-0050-04c1-43382ba60b75@users.sourceforge.net>
+From: Will Deacon <will.deacon@arm.com>
+Subject: Re: [PATCH v2] virtio_pci: Limit DMA mask to 44 bits for legacy
+	virtio devices
+Date: Wed, 14 Sep 2016 17:03:04 +0100
+Message-ID: <20160914160304.GH19622@arm.com>
+References: <1473851788-31504-1-git-send-email-will.deacon@arm.com>
+	<20160914154034-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <020438b9-a7f8-0050-04c1-43382ba60b75@users.sourceforge.net>
+Content-Disposition: inline
+In-Reply-To: <20160914154034-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,89 +20,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Michael S. Tsirkin" <mst@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>
-Cc: Julia Lawall <julia.lawall@lip6.fr>, kernel-janitors@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Andy Lutomirski <luto@kernel.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Wed, 14 Sep 2016 15:37:52 +0200
+Hi Michael,
 
-Adjust a jump label according to the current Linux coding style convention.
-Thus replace the identifier "out" by "unlock".
+On Wed, Sep 14, 2016 at 03:42:25PM +0300, Michael S. Tsirkin wrote:
+> On Wed, Sep 14, 2016 at 12:16:28PM +0100, Will Deacon wrote:
+> > Legacy virtio defines the virtqueue base using a 32-bit PFN field, with
+> > a read-only register indicating a fixed page size of 4k.
+> > 
+> > This can cause problems for DMA allocators that allocate top down from
+> > the DMA mask, which is set to 64 bits. In this case, the addresses are
+> > silently truncated to 44-bit, leading to IOMMU faults, failure to read
+> > from the queue or data corruption.
+> > 
+> > This patch restricts the DMA mask for legacy PCI virtio devices to
+> > 44 bits, which matches the specification.
+> > 
+> > Cc: Andy Lutomirski <luto@kernel.org>
+> > Cc: Michael S. Tsirkin <mst@redhat.com>
+> > Cc: Benjamin Serebrin <serebrin@google.com>
+> > Signed-off-by: Will Deacon <will.deacon@arm.com>
+> > ---
+> >  drivers/virtio/virtio_pci_legacy.c | 9 +++++++--
+> >  1 file changed, 7 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+> > index 8c4e61783441..efb3f5dff4b7 100644
+> > --- a/drivers/virtio/virtio_pci_legacy.c
+> > +++ b/drivers/virtio/virtio_pci_legacy.c
+> > @@ -212,12 +212,17 @@ int virtio_pci_legacy_probe(struct virtio_pci_device *vp_dev)
+> >  		return -ENODEV;
+> >  	}
+> >  
+> > -	rc = dma_set_mask_and_coherent(&pci_dev->dev, DMA_BIT_MASK(64));
+> > +	/*
+> > +	 * The virtio ring base address is expressed as a 32-bit PFN, with a
+> > +	 * page size of 1 << VIRTIO_PCI_QUEUE_ADDR_SHIFT.
+> > +	 */
+> > +	rc = dma_set_mask_and_coherent(&pci_dev->dev,
+> > +				DMA_BIT_MASK(32 + VIRTIO_PCI_QUEUE_ADDR_SHIFT));
+> 
+> So why not limit just the coherent mask, as I suggested in a comment on v1?
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/char/virtio_console.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+Sorry, I completely missed that suggestion. I'll roll a v3 with that
+included, although I'll rejig things a bit to make the error handling
+a bit more bearable.
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 0c4d4e7..6c90c9c 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -257,11 +257,11 @@ static struct port *find_port_by_vtermno(u32 vtermno)
- 	list_for_each_entry(cons, &pdrvdata.consoles, list) {
- 		if (cons->vtermno == vtermno) {
- 			port = container_of(cons, struct port, cons);
--			goto out;
-+			goto unlock;
- 		}
- 	}
- 	port = NULL;
--out:
-+ unlock:
- 	spin_unlock_irqrestore(&pdrvdata_lock, flags);
- 	return port;
- }
-@@ -276,11 +276,11 @@ static struct port *find_port_by_devt_in_portdev(struct ports_device *portdev,
- 	list_for_each_entry(port, &portdev->ports, list) {
- 		if (port->cdev->dev == dev) {
- 			kref_get(&port->kref);
--			goto out;
-+			goto unlock;
- 		}
- 	}
- 	port = NULL;
--out:
-+ unlock:
- 	spin_unlock_irqrestore(&portdev->ports_lock, flags);
- 
- 	return port;
-@@ -296,10 +296,10 @@ static struct port *find_port_by_devt(dev_t dev)
- 	list_for_each_entry(portdev, &pdrvdata.portdevs, list) {
- 		port = find_port_by_devt_in_portdev(portdev, dev);
- 		if (port)
--			goto out;
-+			goto unlock;
- 	}
- 	port = NULL;
--out:
-+ unlock:
- 	spin_unlock_irqrestore(&pdrvdata_lock, flags);
- 	return port;
- }
-@@ -312,9 +312,9 @@ static struct port *find_port_by_id(struct ports_device *portdev, u32 id)
- 	spin_lock_irqsave(&portdev->ports_lock, flags);
- 	list_for_each_entry(port, &portdev->ports, list)
- 		if (port->id == id)
--			goto out;
-+			goto unlock;
- 	port = NULL;
--out:
-+ unlock:
- 	spin_unlock_irqrestore(&portdev->ports_lock, flags);
- 
- 	return port;
-@@ -329,9 +329,9 @@ static struct port *find_port_by_vq(struct ports_device *portdev,
- 	spin_lock_irqsave(&portdev->ports_lock, flags);
- 	list_for_each_entry(port, &portdev->ports, list)
- 		if (port->in_vq == vq || port->out_vq == vq)
--			goto out;
-+			goto unlock;
- 	port = NULL;
--out:
-+ unlock:
- 	spin_unlock_irqrestore(&portdev->ports_lock, flags);
- 	return port;
- }
--- 
-2.10.0
+> >  	if (rc)
+> >  		rc = dma_set_mask_and_coherent(&pci_dev->dev,
+> >  						DMA_BIT_MASK(32));
+> >  	if (rc)
+> > -		dev_warn(&pci_dev->dev, "Failed to enable 64-bit or 32-bit DMA.  Trying to continue, but this might not work.\n");
+> > +		dev_warn(&pci_dev->dev, "Failed to enable %d-bit or 32-bit DMA.  Trying to continue, but this might not work.\n", 32 + VIRTIO_PCI_QUEUE_ADDR_SHIFT);
+> 
+> 
+> I'd rather we split this.
+
+I'll actually just leave like it was in the first place if we're trying a
+64-bit streaming mask.
+
+Stay tuned,
+
+Will
