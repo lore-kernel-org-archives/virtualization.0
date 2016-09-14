@@ -1,15 +1,15 @@
 From: Patrice Chotard <patrice.chotard@st.com>
-Subject: Re: [PATCH v9 14/19] ARM: STi: DT: STiH407: Add uniperif player dt
-	nodes
-Date: Wed, 14 Sep 2016 14:01:15 +0200
-Message-ID: <e55bbf9e-c18e-7dc5-4f18-647cca52cba5__23333.3813179799$1474143855$gmane$org@st.com>
+Subject: Re: [PATCH v9 11/19] ARM: DT: STiH407: Add i2s_in pinctrl
+	configuration
+Date: Wed, 14 Sep 2016 14:00:27 +0200
+Message-ID: <7a9dd279-5c70-01d4-b002-5ebff06a316c__26146.6604927138$1474143872$gmane$org@st.com>
 References: <1473081421-16555-1-git-send-email-peter.griffin@linaro.org>
-	<1473081421-16555-15-git-send-email-peter.griffin@linaro.org>
+	<1473081421-16555-12-git-send-email-peter.griffin@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1473081421-16555-15-git-send-email-peter.griffin@linaro.org>
+In-Reply-To: <1473081421-16555-12-git-send-email-peter.griffin@linaro.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,106 +26,53 @@ List-Id: virtualization@lists.linuxfoundation.org
 Hi Peter
 
 On 09/05/2016 03:16 PM, Peter Griffin wrote:
-> This patch adds the DT nodes for the uniperif player
-> IP blocks found on STiH407 family silicon.
+> This patch adds the pinctrl config for the i2s_in pins
+> used by the uniperif reader IP.
 > 
 > Signed-off-by: Arnaud Pouliquen <arnaud.pouliquen@st.com>
 > Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
+> Acked-by: Lee Jones <lee.jones@linaro.org>
 > ---
->  arch/arm/boot/dts/stih407-family.dtsi | 80 +++++++++++++++++++++++++++++++++++
->  1 file changed, 80 insertions(+)
+>  arch/arm/boot/dts/stih407-pinctrl.dtsi | 24 ++++++++++++++++++++++++
+>  1 file changed, 24 insertions(+)
 > 
-> diff --git a/arch/arm/boot/dts/stih407-family.dtsi b/arch/arm/boot/dts/stih407-family.dtsi
-> index d1258d5..1edc36c 100644
-> --- a/arch/arm/boot/dts/stih407-family.dtsi
-> +++ b/arch/arm/boot/dts/stih407-family.dtsi
-> @@ -880,5 +880,85 @@
->  			status = "disabled";
->  			st,syscfg = <&syscfg_core>;
->  		};
+> diff --git a/arch/arm/boot/dts/stih407-pinctrl.dtsi b/arch/arm/boot/dts/stih407-pinctrl.dtsi
+> index 0fb5c8a..537db7e 100644
+> --- a/arch/arm/boot/dts/stih407-pinctrl.dtsi
+> +++ b/arch/arm/boot/dts/stih407-pinctrl.dtsi
+> @@ -1090,6 +1090,30 @@
+>  				};
+>  			};
+>  
+> +			i2s_in {
+> +				pinctrl_i2s_8ch_in: i2s_8ch_in{
+> +					st,pins {
+> +						mclk = <&pio32 5 ALT1 IN>;
+> +						lrclk = <&pio32 7 ALT1 IN>;
+> +						sclk = <&pio32 6 ALT1 IN>;
+> +						data0 = <&pio32 4 ALT1 IN>;
+> +						data1 = <&pio33 0 ALT1 IN>;
+> +						data2 = <&pio33 1 ALT1 IN>;
+> +						data3 = <&pio33 2 ALT1 IN>;
+> +						data4 = <&pio33 3 ALT1 IN>;
+> +					};
+> +				};
 > +
-> +		sti_uni_player0: sti-uni-player@8d80000 {
-> +			compatible = "st,sti-uni-player";
-> +			#sound-dai-cells = <0>;
-> +			st,syscfg = <&syscfg_core>;
-> +			clocks = <&clk_s_d0_flexgen CLK_PCM_0>;
-> +			assigned-clocks = <&clk_s_d0_quadfs 0>, <&clk_s_d0_flexgen CLK_PCM_0>;
-> +			assigned-clock-parents = <0>, <&clk_s_d0_quadfs 0>;
-> +			assigned-clock-rates = <50000000>;
-> +			reg = <0x8d80000 0x158>;
-> +			interrupts = <GIC_SPI 84 IRQ_TYPE_NONE>;
-> +			dmas = <&fdma0 2 0 1>;
-> +			dai-name = "Uni Player #0 (HDMI)";
-> +			dma-names = "tx";
-> +			st,uniperiph-id = <0>;
-> +			st,version = <5>;
-> +			st,mode = "HDMI";
+> +				pinctrl_i2s_2ch_in: i2s_2ch_in{
+> +					st,pins {
+> +						mclk = <&pio32 5 ALT1 IN>;
+> +						lrclk = <&pio32 7 ALT1 IN>;
+> +						sclk = <&pio32 6 ALT1 IN>;
+> +						data0 = <&pio32 4 ALT1 IN>;
+> +					};
+> +				};
+> +			};
 > +
-> +			status		= "disabled";
-> +		};
-> +
-> +		sti_uni_player1: sti-uni-player@8d81000 {
-> +			compatible = "st,sti-uni-player";
-> +			#sound-dai-cells = <0>;
-> +			st,syscfg = <&syscfg_core>;
-> +			clocks = <&clk_s_d0_flexgen CLK_PCM_1>;
-> +			assigned-clocks = <&clk_s_d0_quadfs 1>, <&clk_s_d0_flexgen CLK_PCM_1>;
-> +			assigned-clock-parents = <0>, <&clk_s_d0_quadfs 1>;
-> +			assigned-clock-rates = <50000000>;
-> +			reg = <0x8d81000 0x158>;
-> +			interrupts = <GIC_SPI 85 IRQ_TYPE_NONE>;
-> +			dmas = <&fdma0 3 0 1>;
-> +			dai-name = "Uni Player #1 (PIO)";
-> +			dma-names = "tx";
-> +			st,uniperiph-id = <1>;
-> +			st,version = <5>;
-> +			st,mode = "PCM";
-> +
-> +			status = "disabled";
-> +		};
-> +
-> +		sti_uni_player2: sti-uni-player@8d82000 {
-> +			compatible = "st,sti-uni-player";
-> +			#sound-dai-cells = <0>;
-> +			st,syscfg = <&syscfg_core>;
-> +			clocks = <&clk_s_d0_flexgen CLK_PCM_2>;
-> +			assigned-clocks = <&clk_s_d0_quadfs 2>, <&clk_s_d0_flexgen CLK_PCM_2>;
-> +			assigned-clock-parents = <0>, <&clk_s_d0_quadfs 2>;
-> +			assigned-clock-rates = <50000000>;
-> +			reg = <0x8d82000 0x158>;
-> +			interrupts = <GIC_SPI 86 IRQ_TYPE_NONE>;
-> +			dmas = <&fdma0 4 0 1>;
-> +			dai-name = "Uni Player #1 (DAC)";
-> +			dma-names = "tx";
-> +			st,uniperiph-id = <2>;
-> +			st,version = <5>;
-> +			st,mode = "PCM";
-> +
-> +			status = "disabled";
-> +		};
-> +
-> +		sti_uni_player3: sti-uni-player@8d85000 {
-> +			compatible = "st,sti-uni-player";
-> +			#sound-dai-cells = <0>;
-> +			st,syscfg = <&syscfg_core>;
-> +			clocks = <&clk_s_d0_flexgen CLK_SPDIFF>;
-> +			assigned-clocks = <&clk_s_d0_quadfs 3>, <&clk_s_d0_flexgen CLK_SPDIFF>;
-> +			assigned-clock-parents = <0>, <&clk_s_d0_quadfs 3>;
-> +			assigned-clock-rates = <50000000>;
-> +			reg = <0x8d85000 0x158>;
-> +			interrupts = <GIC_SPI 89 IRQ_TYPE_NONE>;
-> +			dmas = <&fdma0 7 0 1>;
-> +			dma-names = "tx";
-> +			dai-name = "Uni Player #1 (PIO)";
-> +			st,uniperiph-id = <3>;
-> +			st,version = <5>;
-> +			st,mode = "SPDIF";
-> +
-> +			status = "disabled";
-> +		};
->  	};
->  };
+>  			serial3 {
+>  				pinctrl_serial3: serial3-0 {
+>  					st,pins {
 > 
+
 
 
 Applied for STi next
