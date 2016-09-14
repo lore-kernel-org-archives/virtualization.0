@@ -1,16 +1,14 @@
 From: Patrice Chotard <patrice.chotard@st.com>
-Subject: Re: [PATCH v9 00/19] Add support for FDMA DMA controller and slim
-	core rproc found on STi chipsets
-Date: Wed, 14 Sep 2016 08:59:32 +0200
-Message-ID: <01669e54-8410-76cd-11f8-fce5cbeefbdc__33113.2159372375$1474143844$gmane$org@st.com>
+Subject: Re: [PATCH v9 06/19] ARM: STi: DT: STiH407: Add FDMA driver dt nodes.
+Date: Wed, 14 Sep 2016 13:59:39 +0200
+Message-ID: <4a816a43-607a-784a-935c-d83c9436f285__19912.2889702723$1474143850$gmane$org@st.com>
 References: <1473081421-16555-1-git-send-email-peter.griffin@linaro.org>
-	<20160913093107.GA10953@griffinp-ThinkPad-X1-Carbon-2nd>
-	<20160913180616.GD21438@tuxbot>
+	<1473081421-16555-7-git-send-email-peter.griffin@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160913180616.GD21438@tuxbot>
+In-Reply-To: <1473081421-16555-7-git-send-email-peter.griffin@linaro.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,65 +18,86 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bjorn Andersson <bjorn.andersson@linaro.org>, Peter Griffin <peter.griffin@linaro.org>, vinod.koul@intel.com
-Cc: devicetree@vger.kernel.org, kernel@stlinux.com, airlied@linux.ie, linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, dmaengine@vger.kernel.org, dan.j.williams@intel.com, lee.jones@linaro.org, linux-arm-kernel@lists.infradead.org
+To: Peter Griffin <peter.griffin@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kernel@stlinux.com, vinod.koul@intel.com, dan.j.williams@intel.com, airlied@linux.ie, kraxel@redhat.com, ohad@wizery.com, bjorn.andersson@linaro.org
+Cc: devicetree@vger.kernel.org, linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, dmaengine@vger.kernel.org, lee.jones@linaro.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Bjorn
+Hi Peter
 
-On 09/13/2016 08:06 PM, Bjorn Andersson wrote:
-> On Tue 13 Sep 02:31 PDT 2016, Peter Griffin wrote:
+On 09/05/2016 03:16 PM, Peter Griffin wrote:
+> These nodes are required to get the fdma driver working
+> on STiH407 based silicon.
 > 
->> Hi Vinod & Bjorn,
->>
->> [..]
->>
->> On Mon, 05 Sep 2016, Peter Griffin wrote:
->>
->>> v8 actions some review feedback from Bjorn to the slim rproc driver, and also includes
->>> a patch which fixes a recursive Kconfig error which is triggered when st_fdma selects
->>> slim_rproc driver. The series has also been rebased on v4.8-rc3.
->>>
->>> v9 actions some review feedback from Bjorn, Lee and Vinod. See below. Importantly a bug
->>> was found during testing now that the platform boots without clk_ignore_unused parameter
->>> whereby the clocks would not be enabled properly before firmware loading was attempted.
->>>
->>> regards,
->>>
->>> Peter.
->>>
->>> Changes since v8:
->>>  - Add MODULE_ALIAS (Vinod)
->>>  - devm_kzalloc to devm_kcalloc (Vinod)
->>>  - quisce tasklet initialised by vchan_init() (Vinod)
->>>  - Don't make SLIM rproc user selectable (Bjorn)
->>>  - slim_rproc: Ensure clocks enabled before firmware load (Peter)
->>>  - Various code style nits / commit message change (Lee)
->>>  - Separate patch for '\n' kconfig removal (Vinod)
->>
->> I hate to send a ping,
+> Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
+> Acked-by: Lee Jones <lee.jones@linaro.org>
+> ---
+>  arch/arm/boot/dts/stih407-family.dtsi | 52 +++++++++++++++++++++++++++++++++++
+>  1 file changed, 52 insertions(+)
 > 
-> Sorry about that.
+> diff --git a/arch/arm/boot/dts/stih407-family.dtsi b/arch/arm/boot/dts/stih407-family.dtsi
+> index d294e82..45cab30 100644
+> --- a/arch/arm/boot/dts/stih407-family.dtsi
+> +++ b/arch/arm/boot/dts/stih407-family.dtsi
+> @@ -821,5 +821,57 @@
+>  			clock-frequency	= <600000000>;
+>  			st,syscfg	= <&syscfg_core 0x224>;
+>  		};
+> +
+> +		/* fdma audio */
+> +		fdma0: dma-controller@8e20000 {
+> +			compatible = "st,stih407-fdma-mpe31-11", "st,slim-rproc";
+> +			reg = <0x8e20000 0x8000>,
+> +			      <0x8e30000 0x3000>,
+> +			      <0x8e37000 0x1000>,
+> +			      <0x8e38000 0x8000>;
+> +			reg-names = "slimcore", "dmem", "peripherals", "imem";
+> +			clocks = <&clk_s_c0_flexgen CLK_FDMA>,
+> +				 <&clk_s_c0_flexgen CLK_EXT2F_A9>,
+> +				 <&clk_s_c0_flexgen CLK_EXT2F_A9>,
+> +				 <&clk_s_c0_flexgen CLK_EXT2F_A9>;
+> +			interrupts = <GIC_SPI 5 IRQ_TYPE_NONE>;
+> +			dma-channels = <16>;
+> +			#dma-cells = <3>;
+> +		};
+> +
+> +		/* fdma app */
+> +		fdma1: dma-controller@8e40000 {
+> +			compatible = "st,stih407-fdma-mpe31-12", "st,slim-rproc";
+> +			reg = <0x8e40000 0x8000>,
+> +			      <0x8e50000 0x3000>,
+> +			      <0x8e57000 0x1000>,
+> +			      <0x8e58000 0x8000>;
+> +			reg-names = "slimcore", "dmem", "peripherals", "imem";
+> +			clocks = <&clk_s_c0_flexgen CLK_FDMA>,
+> +				<&clk_s_c0_flexgen CLK_TX_ICN_DMU>,
+> +				<&clk_s_c0_flexgen CLK_TX_ICN_DMU>,
+> +				<&clk_s_c0_flexgen CLK_EXT2F_A9>;
+> +
+> +			interrupts = <GIC_SPI 7 IRQ_TYPE_NONE>;
+> +			dma-channels = <16>;
+> +			#dma-cells = <3>;
+> +		};
+> +
+> +		/* fdma free running */
+> +		fdma2: dma-controller@8e60000 {
+> +			compatible = "st,stih407-fdma-mpe31-13", "st,slim-rproc";
+> +			reg = <0x8e60000 0x8000>,
+> +			      <0x8e70000 0x3000>,
+> +			      <0x8e77000 0x1000>,
+> +			      <0x8e78000 0x8000>;
+> +			reg-names = "slimcore", "dmem", "peripherals", "imem";
+> +			interrupts = <GIC_SPI 9 IRQ_TYPE_NONE>;
+> +			dma-channels = <16>;
+> +			#dma-cells = <3>;
+> +			clocks = <&clk_s_c0_flexgen CLK_FDMA>,
+> +				<&clk_s_c0_flexgen CLK_EXT2F_A9>,
+> +				<&clk_s_c0_flexgen CLK_TX_ICN_DISP_0>,
+> +				<&clk_s_c0_flexgen CLK_EXT2F_A9>;
+> +		};
+>  	};
+>  };
 > 
->> but do you think we can merge this fdma series? It has gone
->> through quite a few review rounds now.
->>
-> 
-> I think the remoteproc part looks good.
-> 
-> Vinod, I don't have any changes queued in remoteproc that should cause
-> merge issues. If you want to you could take the remoteproc patch
-> through your tree.
-> 
-> 
-> I do however think that the dts patches should go through arm-soc.
 
-I will take care about dts patches by adding them in the next STi DT pull request
+Applied for STi next
 
 Thanks
-Patrice
-
-> 
-> Regards,
-> Bjorn
-> 
