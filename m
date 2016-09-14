@@ -1,7 +1,7 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 08/11] virtio_console: Rename jump labels in port_fops_write()
-Date: Wed, 14 Sep 2016 16:07:07 +0200
-Message-ID: <ff122e8a-0789-a5e8-4d9f-6fd342bfd82d__47153.3731245019$1473862067$gmane$org@users.sourceforge.net>
+Subject: [PATCH 09/11] virtio_console: Rename a jump label in __send_to_port()
+Date: Wed, 14 Sep 2016 16:08:13 +0200
+Message-ID: <30bfb090-db1c-6515-2d13-0acd6e67d1c2__5922.85753596133$1473862152$gmane$org@users.sourceforge.net>
 References: <566ABCD9.1060404@users.sourceforge.net>
 	<020438b9-a7f8-0050-04c1-43382ba60b75@users.sourceforge.net>
 Mime-Version: 1.0
@@ -23,42 +23,44 @@ Cc: Julia Lawall <julia.lawall@lip6.fr>, kernel-janitors@vger.kernel.org, LKML <
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Wed, 14 Sep 2016 15:07:42 +0200
+Date: Wed, 14 Sep 2016 15:15:06 +0200
 
-Adjust jump labels according to the current Linux coding style convention.
+Adjust a jump label according to the current Linux coding style convention.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- drivers/char/virtio_console.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/char/virtio_console.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index d8681d9..babc812 100644
+index babc812..69c6718 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -842,7 +842,7 @@ static ssize_t port_fops_write(struct file *filp, const char __user *ubuf,
- 	ret = copy_from_user(buf->buf, ubuf, count);
- 	if (ret) {
- 		ret = -EFAULT;
--		goto free_buf;
-+		goto free_buffer;
+@@ -634,14 +634,14 @@ static ssize_t __send_to_port(struct port *port, struct scatterlist *sg,
+ 
+ 	if (err) {
+ 		in_count = 0;
+-		goto done;
++		goto unlock;
  	}
  
+ 	if (out_vq->num_free == 0)
+ 		port->outvq_full = true;
+ 
+ 	if (nonblock)
+-		goto done;
++		goto unlock;
+ 
  	/*
-@@ -857,11 +857,10 @@ static ssize_t port_fops_write(struct file *filp, const char __user *ubuf,
- 	ret = __send_to_port(port, sg, 1, count, buf, nonblock);
+ 	 * Wait till the host acknowledges it pushed out the data we
+@@ -655,7 +655,7 @@ static ssize_t __send_to_port(struct port *port, struct scatterlist *sg,
+ 	while (!virtqueue_get_buf(out_vq, &len)
+ 		&& !virtqueue_is_broken(out_vq))
+ 		cpu_relax();
+-done:
++ unlock:
+ 	spin_unlock_irqrestore(&port->outvq_lock, flags);
  
- 	if (nonblock && ret > 0)
--		goto out;
--
--free_buf:
-+		goto exit;
-+ free_buffer:
- 	free_buf(buf, true);
--out:
-+ exit:
- 	return ret;
- }
- 
+ 	port->stats.bytes_sent += in_count;
 -- 
 2.10.0
