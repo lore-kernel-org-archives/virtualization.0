@@ -1,8 +1,7 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 02/11] virtio_console: Less function calls in init_vqs() after
-	error detection
-Date: Wed, 14 Sep 2016 16:01:28 +0200
-Message-ID: <490b98e1-6129-f11f-55ff-94219ebce6d6@users.sourceforge.net>
+Subject: [PATCH 03/11] virtio_console: Rename a jump label in init()
+Date: Wed, 14 Sep 2016 16:02:19 +0200
+Message-ID: <47b70aab-df6b-0765-e666-ceaff93ffad8__6047.3128840842$1473861795$gmane$org@users.sourceforge.net>
 References: <566ABCD9.1060404@users.sourceforge.net>
 	<020438b9-a7f8-0050-04c1-43382ba60b75@users.sourceforge.net>
 Mime-Version: 1.0
@@ -24,100 +23,39 @@ Cc: Julia Lawall <julia.lawall@lip6.fr>, kernel-janitors@vger.kernel.org, LKML <
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Wed, 14 Sep 2016 14:00:35 +0200
+Date: Wed, 14 Sep 2016 14:10:24 +0200
 
-The kfree() function was called in up to five cases
-by the init_vqs() function during error handling even if
-the passed variable contained a null pointer.
-
-* Return directly after a call of the function "kmalloc_array" failed
-  at the beginning.
-
-* Split a condition check for memory allocation failures so that
-  each pointer from these function calls will be checked immediately.
-
-  See also background information:
-  Topic "CWE-754: Improper check for unusual or exceptional conditions"
-  Link: https://cwe.mitre.org/data/definitions/754.html
-
-* Adjust jump targets according to the Linux coding style convention.
+Adjust jump labels according to the current Linux coding style convention.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- drivers/char/virtio_console.c | 32 ++++++++++++++++++++++++++------
- 1 file changed, 26 insertions(+), 6 deletions(-)
+ drivers/char/virtio_console.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 325ebc6..bf0ad57 100644
+index bf0ad57..004314e 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -1882,20 +1882,37 @@ static int init_vqs(struct ports_device *portdev)
- 	nr_queues = use_multiport(portdev) ? (nr_ports + 1) * 2 : 2;
- 
- 	vqs = kmalloc_array(nr_queues, sizeof(*vqs), GFP_KERNEL);
-+	if (!vqs)
-+		return -ENOMEM;
-+
- 	io_callbacks = kmalloc_array(nr_queues,
- 				     sizeof(*io_callbacks),
- 				     GFP_KERNEL);
-+	if (!io_callbacks) {
-+		err = -ENOMEM;
-+		goto free_vqs;
-+	}
-+
- 	io_names = kmalloc_array(nr_queues, sizeof(*io_names), GFP_KERNEL);
-+	if (!io_names) {
-+		err = -ENOMEM;
-+		goto free_callbacks;
-+	}
-+
- 	portdev->in_vqs = kmalloc_array(nr_ports,
- 					sizeof(*portdev->in_vqs),
- 					GFP_KERNEL);
-+	if (!portdev->in_vqs) {
-+		err = -ENOMEM;
-+		goto free_names;
-+	}
-+
- 	portdev->out_vqs = kmalloc_array(nr_ports,
- 					 sizeof(*portdev->out_vqs),
- 					 GFP_KERNEL);
--	if (!vqs || !io_callbacks || !io_names || !portdev->in_vqs ||
--	    !portdev->out_vqs) {
-+	if (!portdev->out_vqs) {
- 		err = -ENOMEM;
+@@ -2309,7 +2309,7 @@ static int __init init(void)
+ 	err = register_virtio_driver(&virtio_console);
+ 	if (err < 0) {
+ 		pr_err("Error %d registering virtio driver\n", err);
 -		goto free;
-+		goto free_in_vqs;
++		goto remove;
  	}
- 
- 	/*
-@@ -1929,7 +1946,7 @@ static int init_vqs(struct ports_device *portdev)
- 					      io_callbacks,
- 					      (const char **)io_names);
- 	if (err)
--		goto free;
-+		goto free_out_vqs;
- 
- 	j = 0;
- 	portdev->in_vqs[0] = vqs[0];
-@@ -1950,12 +1967,15 @@ static int init_vqs(struct ports_device *portdev)
- 	kfree(vqs);
- 
+ 	err = register_virtio_driver(&virtio_rproc_serial);
+ 	if (err < 0) {
+@@ -2318,9 +2318,9 @@ static int __init init(void)
+ 		goto unregister;
+ 	}
  	return 0;
--
+-unregister:
++ unregister:
+ 	unregister_virtio_driver(&virtio_console);
 -free:
-+ free_out_vqs:
- 	kfree(portdev->out_vqs);
-+ free_in_vqs:
- 	kfree(portdev->in_vqs);
-+ free_names:
- 	kfree(io_names);
-+ free_callbacks:
- 	kfree(io_callbacks);
-+ free_vqs:
- 	kfree(vqs);
- 
++ remove:
+ 	debugfs_remove_recursive(pdrvdata.debugfs_dir);
+ 	class_destroy(pdrvdata.class);
  	return err;
 -- 
 2.10.0
