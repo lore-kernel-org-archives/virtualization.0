@@ -1,15 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2] virtio_pci: Limit DMA mask to 44 bits for legacy
-	virtio devices
-Date: Wed, 14 Sep 2016 15:42:25 +0300
-Message-ID: <20160914154034-mutt-send-email-mst@kernel.org>
-References: <1473851788-31504-1-git-send-email-will.deacon@arm.com>
+From: Vinod Koul <vinod.koul@intel.com>
+Subject: Re: [PATCH v9 00/19] Add support for FDMA DMA controller and slim
+	core rproc found on STi chipsets
+Date: Wed, 14 Sep 2016 18:37:40 +0530
+Message-ID: <20160914130739.GE13920__6912.95643705434$1473857984$gmane$org@localhost>
+References: <1473081421-16555-1-git-send-email-peter.griffin@linaro.org>
+	<20160913093107.GA10953@griffinp-ThinkPad-X1-Carbon-2nd>
+	<20160913180616.GD21438@tuxbot>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1473851788-31504-1-git-send-email-will.deacon@arm.com>
+In-Reply-To: <20160913180616.GD21438@tuxbot>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,60 +21,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Will Deacon <will.deacon@arm.com>
-Cc: Andy Lutomirski <luto@kernel.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: devicetree@vger.kernel.org, kernel@stlinux.com, airlied@linux.ie, linux-remoteproc@vger.kernel.org, patrice.chotard@st.com, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, Peter Griffin <peter.griffin@linaro.org>, dmaengine@vger.kernel.org, dan.j.williams@intel.com, virtualization@lists.linux-foundation.org, lee.jones@linaro.org, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Sep 14, 2016 at 12:16:28PM +0100, Will Deacon wrote:
-> Legacy virtio defines the virtqueue base using a 32-bit PFN field, with
-> a read-only register indicating a fixed page size of 4k.
+On Tue, Sep 13, 2016 at 11:06:16AM -0700, Bjorn Andersson wrote:
+> > I hate to send a ping,
 > 
-> This can cause problems for DMA allocators that allocate top down from
-> the DMA mask, which is set to 64 bits. In this case, the addresses are
-> silently truncated to 44-bit, leading to IOMMU faults, failure to read
-> from the queue or data corruption.
+> Sorry about that.
 > 
-> This patch restricts the DMA mask for legacy PCI virtio devices to
-> 44 bits, which matches the specification.
+> > but do you think we can merge this fdma series? It has gone
+> > through quite a few review rounds now.
+> > 
 > 
-> Cc: Andy Lutomirski <luto@kernel.org>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Cc: Benjamin Serebrin <serebrin@google.com>
-> Signed-off-by: Will Deacon <will.deacon@arm.com>
-> ---
->  drivers/virtio/virtio_pci_legacy.c | 9 +++++++--
->  1 file changed, 7 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
-> index 8c4e61783441..efb3f5dff4b7 100644
-> --- a/drivers/virtio/virtio_pci_legacy.c
-> +++ b/drivers/virtio/virtio_pci_legacy.c
-> @@ -212,12 +212,17 @@ int virtio_pci_legacy_probe(struct virtio_pci_device *vp_dev)
->  		return -ENODEV;
->  	}
->  
-> -	rc = dma_set_mask_and_coherent(&pci_dev->dev, DMA_BIT_MASK(64));
-> +	/*
-> +	 * The virtio ring base address is expressed as a 32-bit PFN, with a
-> +	 * page size of 1 << VIRTIO_PCI_QUEUE_ADDR_SHIFT.
-> +	 */
-> +	rc = dma_set_mask_and_coherent(&pci_dev->dev,
-> +				DMA_BIT_MASK(32 + VIRTIO_PCI_QUEUE_ADDR_SHIFT));
+> I think the remoteproc part looks good.
 
-So why not limit just the coherent mask, as I suggested in a comment on v1?
-
->  	if (rc)
->  		rc = dma_set_mask_and_coherent(&pci_dev->dev,
->  						DMA_BIT_MASK(32));
->  	if (rc)
-> -		dev_warn(&pci_dev->dev, "Failed to enable 64-bit or 32-bit DMA.  Trying to continue, but this might not work.\n");
-> +		dev_warn(&pci_dev->dev, "Failed to enable %d-bit or 32-bit DMA.  Trying to continue, but this might not work.\n", 32 + VIRTIO_PCI_QUEUE_ADDR_SHIFT);
+yeah I was waiting for ack on other patches. But looks like at least
+remoteproc ones have it
 
 
-I'd rather we split this.
+> Vinod, I don't have any changes queued in remoteproc that should cause
+> merge issues. If you want to you could take the remoteproc patch
+> through your tree.
 
->  
->  	rc = pci_request_region(pci_dev, 0, "virtio-pci-legacy");
->  	if (rc)
-> -- 
-> 2.1.4
+I rechecked the dma part, they look good to me, so I should be able to apply
+these. I will wait a day for ack/nacks. It is the time to speak up :)
+
+-- 
+~Vinod
