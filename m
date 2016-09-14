@@ -1,17 +1,14 @@
-From: Vinod Koul <vinod.koul@intel.com>
-Subject: Re: [PATCH v9 00/19] Add support for FDMA DMA controller and slim
-	core rproc found on STi chipsets
-Date: Wed, 14 Sep 2016 18:37:40 +0530
-Message-ID: <20160914130739.GE13920__6912.95643705434$1473857984$gmane$org@localhost>
-References: <1473081421-16555-1-git-send-email-peter.griffin@linaro.org>
-	<20160913093107.GA10953@griffinp-ThinkPad-X1-Carbon-2nd>
-	<20160913180616.GD21438@tuxbot>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [PATCH 00/11] virtio-console: Fine-tuning for 14 function
+	implementations
+Date: Wed, 14 Sep 2016 15:56:03 +0200
+Message-ID: <020438b9-a7f8-0050-04c1-43382ba60b75@users.sourceforge.net>
+References: <566ABCD9.1060404@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160913180616.GD21438@tuxbot>
+In-Reply-To: <566ABCD9.1060404@users.sourceforge.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,31 +18,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: devicetree@vger.kernel.org, kernel@stlinux.com, airlied@linux.ie, linux-remoteproc@vger.kernel.org, patrice.chotard@st.com, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, Peter Griffin <peter.griffin@linaro.org>, dmaengine@vger.kernel.org, dan.j.williams@intel.com, virtualization@lists.linux-foundation.org, lee.jones@linaro.org, linux-arm-kernel@lists.infradead.org
+To: virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Michael S. Tsirkin" <mst@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>
+Cc: Julia Lawall <julia.lawall@lip6.fr>, kernel-janitors@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Sep 13, 2016 at 11:06:16AM -0700, Bjorn Andersson wrote:
-> > I hate to send a ping,
-> 
-> Sorry about that.
-> 
-> > but do you think we can merge this fdma series? It has gone
-> > through quite a few review rounds now.
-> > 
-> 
-> I think the remoteproc part looks good.
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Wed, 14 Sep 2016 15:43:21 +0200
 
-yeah I was waiting for ack on other patches. But looks like at least
-remoteproc ones have it
+Several update suggestions were taken into account
+from static source code analysis.
 
+Markus Elfring (11):
+  Use kmalloc_array() in init_vqs()
+  Less function calls in init_vqs() after error detection
+  Rename a jump label in init()
+  Rename jump labels in virtcons_probe()
+  Rename jump labels in add_port()
+  Rename a jump label in port_fops_open()
+  Rename a jump label in port_fops_splice_write()
+  Rename jump labels in port_fops_write()
+  Rename a jump label in __send_to_port()
+  Rename jump labels in alloc_buf()
+  Rename a jump label in five functions
 
-> Vinod, I don't have any changes queued in remoteproc that should cause
-> merge issues. If you want to you could take the remoteproc patch
-> through your tree.
-
-I rechecked the dma part, they look good to me, so I should be able to apply
-these. I will wait a day for ack/nacks. It is the time to speak up :)
+ drivers/char/virtio_console.c | 155 ++++++++++++++++++++++++------------------
+ 1 file changed, 87 insertions(+), 68 deletions(-)
 
 -- 
-~Vinod
+2.10.0
