@@ -1,13 +1,11 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 2/2] tools/virtio/ringtest: tweaks for s390
-Date: Mon, 19 Sep 2016 17:06:56 +0200
-Message-ID: <20160919150656.6194-3-cornelia.huck@de.ibm.com>
-References: <20160919150656.6194-1-cornelia.huck@de.ibm.com>
+Subject: [PATCH 0/2] virtio-ringtest: more enablement
+Date: Mon, 19 Sep 2016 17:06:54 +0200
+Message-ID: <20160919150656.6194-1-cornelia.huck__49303.1928352595$1474297668$gmane$org@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160919150656.6194-1-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,46 +19,21 @@ To: mst@redhat.com
 Cc: pasic@linux.vnet.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Halil Pasic <pasic@linux.vnet.ibm.com>
+Hi Michael,
 
-Make ringtest work on s390 too.
+here are two patches by Halil so that we can get ringtest going on
+our platform as well.
 
-Signed-off-by: Halil Pasic <pasic@linux.vnet.ibm.com>
-Acked-by: Sascha Silbe <silbe@linux.vnet.ibm.com>
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
----
- tools/virtio/ringtest/main.h | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+Question: Do you have an idea on how realistic the timings are
+supposed to be? The s390 path is, well, 'tweak me'...
 
-diff --git a/tools/virtio/ringtest/main.h b/tools/virtio/ringtest/main.h
-index 16917ac..7806b7b 100644
---- a/tools/virtio/ringtest/main.h
-+++ b/tools/virtio/ringtest/main.h
-@@ -26,6 +26,16 @@ static inline void wait_cycles(unsigned long long cycles)
- #define VMEXIT_CYCLES 500
- #define VMENTRY_CYCLES 500
- 
-+#elif defined(__s390x__)
-+static inline void wait_cycles(unsigned long long cycles)
-+{
-+	asm volatile("0: brctg %0,0b" : : "d" (cycles));
-+}
-+
-+/* tweak me */
-+#define VMEXIT_CYCLES 200
-+#define VMENTRY_CYCLES 200
-+
- #else
- static inline void wait_cycles(unsigned long long cycles)
- {
-@@ -81,6 +91,8 @@ extern unsigned ring_size;
- /* Is there a portable way to do this? */
- #if defined(__x86_64__) || defined(__i386__)
- #define cpu_relax() asm ("rep; nop" ::: "memory")
-+#elif defined(__s390x__)
-+#define cpu_relax() barrier()
- #else
- #define cpu_relax() assert(0)
- #endif
+Halil Pasic (2):
+  tools/virtio/ringtest: fix run-on-all.sh for offline cpus
+  tools/virtio/ringtest: tweaks for s390
+
+ tools/virtio/ringtest/main.h        | 12 ++++++++++++
+ tools/virtio/ringtest/run-on-all.sh |  5 +++--
+ 2 files changed, 15 insertions(+), 2 deletions(-)
+
 -- 
 2.8.4
