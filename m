@@ -1,10 +1,10 @@
-From: "ML" <marialemos72@gmail.com>
-Subject: Call for Papers - WorldCIST'17 - 5th World Conference on Information
-	Systems and Technologies (Published by Springer)
-Date: Sun, 18 Sep 2016 12:35:22 +0100
-Message-ID: <201609181135.u8IBZovW011556@smtp.dei.uc.pt>
+From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v7 0/6] Implement qspinlock/pv-qspinlock on ppc
+Date: Mon, 19 Sep 2016 05:23:51 -0400
+Message-ID: <1474277037-15200-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2203699183468112587=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,209 +15,127 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Cc: xinhui.pan@linux.vnet.ibm.com, peterz@infradead.org, benh@kernel.crashing.org, waiman.long@hpe.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, paulmck@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============2203699183468112587==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hi All,
+  this is the fairlock patchset. You can apply them and build successfully.
+patches are based on 4.8-rc4.
+  qspinlock can avoid waiter starved issue. It has about the same speed in
+single-thread and it can be much faster in high contention situations
+especially when the spinlock is embedded within the data structure to be
+protected.
 
-*
-** Apologize if you receive multiple copies of this email, or if its c=
-ontent is irrelevant for you.
-*
-** Please forward for your contacts. Thank you very much!
-*
+v6 -> v7:
+	rebase onto 4.8-rc4
+no changelog anymore, sorry for that. I hope there is a very careful review.
 
+Todo:
+	we can save one function call overhead. As we can use feature-fixup to patch
+the binary code. Currently there is pv_lock_ops->lock(lock) and ->unlock(lock) to acquire/release the lock.
 
----------
-WorldCIST'17 - 5th World Conference on Information Systems and Technol=
-ogies=20
-Porto santo Isalnd, Madeira, Portugal
-11th-13th of April 2017
-http://www.worldcist.org/
--------------------------------------------
+some benchmark result below
 
+perf bench
+these numbers are ops per sec, So the higher the better.
+*******************************************
+on pSeries with 32 vcpus, 32Gb memory, pHyp.
+------------------------------------------------------------------------------------
+	test case		| pv-qspinlock  |  qspinlock 	| current-spinlock
+------------------------------------------------------------------------------------
+futex hash			| 618572	| 552332	| 553788
+futex lock-pi			| 364		| 364		| 364
+sched pipe			| 78984		| 76060		| 81454
+------------------------------------------------------------------------------------
 
-SCOPE
+unix bench:
+these numbers are scores, So the higher the better.
+************************************************
+on PowerNV with 16 cores(cpus) (smt off), 32Gb memory:
+-------------
+pv-qspinlock and qspinlock have very similar results because pv-qspinlock use native version
+which is only having one callback overhead
+------------------------------------------------------------------------------------
+	test case		| pv-qspinlock and qspinlock | current-spinlock
+------------------------------------------------------------------------------------
+Execl Throughput                               761.1             761.4
+File Copy 1024 bufsize 2000 maxblocks         1259.8            1286.6
+File Copy 256 bufsize 500 maxblocks            782.2             790.3
+File Copy 4096 bufsize 8000 maxblocks         2741.5            2817.4
+Pipe Throughput                               1063.2            1036.7
+Pipe-based Context Switching                   284.7             281.1
+Process Creation                               679.6             649.1
+Shell Scripts (1 concurrent)                  1933.2            1922.9
+Shell Scripts (8 concurrent)                  5003.3            4899.8
+System Call Overhead                           900.6             896.8
+                                             ==========================
+System Benchmarks Index Score                 1139.3 	 	 1133.0
+--------------------------------------------------------------------------- ---------
 
-The WorldCist'17 - 5th World Conference on Information Systems and Tec=
-hnologies, to be held at Porto Santo Island, Madeira, Portugal, 11 - 1=
-3 April 2017, is a global forum for researchers and practitioners to p=
-resent and discuss the most recent innovations, trends, results, exper=
-iences and concerns in the several perspectives of Information Systems=
- and Technologies.
+*******************************************
+on pSeries with 32 vcpus, 32Gb memory, pHyp.
+------------------------------------------------------------------------------------
+	test case		|	pv-qspinlock |	qspinlock | current-spinlock
+------------------------------------------------------------------------------------
+Execl Throughput                             877.1         891.2         872.8
+File Copy 1024 bufsize 2000 maxblocks       1390.4        1399.2        1395.0
+File Copy 256 bufsize 500 maxblocks          882.4         889.5         881.8
+File Copy 4096 bufsize 8000 maxblocks       3112.3        3113.4        3121.7
+Pipe Throughput                             1095.8        1162.6        1158.5
+Pipe-based Context Switching                 194.9         192.7         200.7
+Process Creation                             518.4         526.4         509.1
+Shell Scripts (1 concurrent)                1401.9        1413.9        1402.2
+Shell Scripts (8 concurrent)                3215.6        3246.6        3229.1
+System Call Overhead                         833.2         892.4         888.1
+                                          ====================================
+System Benchmarks Index Score               1033.7        1052.5        1047.8
+------------------------------------------------------------------------------------
 
-We are pleased to invite you to submit your papers to WorldCist'17 (ht=
-tp://www.worldcist.org/). All submissions will be reviewed on the basi=
-s of relevance, originality, importance and clarity.
-
-
-THEMES
-
-Submitted papers should be related with one or more of the main themes=
- proposed for the Conference:
-
-A) Information and Knowledge Management (IKM);
-B) Organizational Models and Information Systems (OMIS);
-C) Software and Systems Modeling (SSM);
-D) Software Systems, Architectures, Applications and Tools (SSAAT);
-E) Multimedia Systems and Applications (MSA);
-F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
-G) Intelligent and Decision Support Systems (IDSS);
-H) Big Data Analytics and Applications (BDAA);
-I) Human-Computer Interaction (HCI);
-J) Ethics, Computers and Security (ECS)
-K) Health Informatics (HIS);
-L) Information Technologies in Education (ITE);
-M) Information Technologies in Radiocommunications (ITR).
-
-
-TYPES of SUBMISSIONS AND DECISIONS
-
-Four types of papers can be submitted:
-
-- Full paper: Finished or consolidated R&D works, to be included in on=
-e of the Conference themes. These papers are assigned a 10-page limit.
-
-- Short paper: Ongoing works with relevant preliminary results, open t=
-o discussion. These papers are assigned a 7-page limit.
-
-- Poster paper: Initial work with relevant ideas, open to discussion. =
-These papers are assigned to a 4-page limit.
-
-- Company paper: Companies' papers that show practical experience, R &=
- D, tools, etc., focused on some topics of the conference. These paper=
-s are assigned to a 4-page limit.
-
-Submitted papers must comply with the format of Advances in Intelligen=
-t Systems and Computing Series (see Instructions for Authors at Spring=
-er Website or download a DOC example) be written in English, must not =
-have been published before, not be under review for any other conferen=
-ce or publication and not include any information leading to the autho=
-rs=92 identification. Therefore, the authors=92 names, affiliations an=
-d bibliographic references should not be included in the version for e=
-valuation by the Program Committee. This information should only be in=
-cluded in the camera-ready version, saved in Word or Latex format and =
-also in PDF format. These files must be accompanied by the Consent to =
-Publication form filled out, in a ZIP file, and uploaded at the confer=
-ence management system.
-
-All papers will be subjected to a =93double-blind review=94 by at leas=
-t two members of the Program Committee.
-
-Based on Program Committee evaluation, a paper can be rejected or acce=
-pted by the Conference Chairs. In the later case, it can be accepted a=
-s the type originally submitted or as another type. Thus, full papers =
-can be accepted as short papers or poster papers only. Similarly, shor=
-t papers can be accepted as poster papers only. In these cases, the au=
-thors will be allowed to maintain the original number of pages in the =
-camera-ready version.
-
-The authors of accepted poster papers must also build and print a post=
-er to be exhibited during the Conference. This poster must follow an A=
-1 or A2 vertical format. The Conference can includes Work Sessions whe=
-re these posters are presented and orally discussed, with a 5 minute l=
-imit per poster.
-
-The authors of accepted full papers will have 15 minutes to present th=
-eir work in a Conference Work Session; approximately 5 minutes of disc=
-ussion will follow each presentation. The authors of accepted short pa=
-pers and company papers will have 11 minutes to present their work in =
-a Conference Work Session; approximately 4 minutes of discussion will =
-follow each presentation.
+******************************************
+on pSeries with 32 vcpus, 16Gb memory, KVM.
+------------------------------------------------------------------------------------
+	test case		|	pv-qspinlock |	qspinlock | current-spinlock
+------------------------------------------------------------------------------------
+Execl Throughput                             497.4        518.7         497.8
+File Copy 1024 bufsize 2000 maxblocks       1368.8       1390.1        1343.3
+File Copy 256 bufsize 500 maxblocks          857.7        859.8         831.4
+File Copy 4096 bufsize 8000 maxblocks       2851.7       2838.1        2785.5
+Pipe Throughput                             1221.9       1265.3        1250.4
+Pipe-based Context Switching                 529.8        578.1         564.2
+Process Creation                             408.4        421.6         287.6
+Shell Scripts (1 concurrent)                1201.8       1215.3        1185.8
+Shell Scripts (8 concurrent)                3758.4       3799.3        3878.9
+System Call Overhead                        1008.3       1122.6        1134.2
+                                          =====================================
+System Benchmarks Index Score               1072.0       1108.9        1050.6
+------------------------------------------------------------------------------------
 
 
-PUBLICATION & INDEXING
+Pan Xinhui (6):
+  pv-qspinlock: use cmpxchg_release in __pv_queued_spin_unlock
+  powerpc/qspinlock: powerpc support qspinlock
+  powerpc: pseries/Kconfig: Add qspinlock build config
+  powerpc: lib/locks.c: Add cpu yield/wake helper function
+  powerpc/pv-qspinlock: powerpc support pv-qspinlock
+  powerpc: pSeries: Add pv-qspinlock build config/make
 
-To ensure that a full paper, short paper, poster paper or company pape=
-r is published in the Proceedings, at least one of the authors must be=
- fully registered by the 8th of January 2017, and the paper must compl=
-y with the suggested layout and page-limit. Additionally, all recommen=
-ded changes must be addressed by the authors before they submit the ca=
-mera-ready version.
+ arch/powerpc/include/asm/qspinlock.h               |  93 +++++++++++++
+ arch/powerpc/include/asm/qspinlock_paravirt.h      |  36 +++++
+ .../powerpc/include/asm/qspinlock_paravirt_types.h |  13 ++
+ arch/powerpc/include/asm/spinlock.h                |  35 +++--
+ arch/powerpc/include/asm/spinlock_types.h          |   4 +
+ arch/powerpc/kernel/Makefile                       |   1 +
+ arch/powerpc/kernel/paravirt.c                     | 153 +++++++++++++++++++++
+ arch/powerpc/lib/locks.c                           | 122 ++++++++++++++++
+ arch/powerpc/platforms/pseries/Kconfig             |   9 ++
+ arch/powerpc/platforms/pseries/setup.c             |   5 +
+ kernel/locking/qspinlock_paravirt.h                |   2 +-
+ 11 files changed, 459 insertions(+), 14 deletions(-)
+ create mode 100644 arch/powerpc/include/asm/qspinlock.h
+ create mode 100644 arch/powerpc/include/asm/qspinlock_paravirt.h
+ create mode 100644 arch/powerpc/include/asm/qspinlock_paravirt_types.h
+ create mode 100644 arch/powerpc/kernel/paravirt.c
 
-No more than one paper per registration will be published in the Confe=
-rence Proceedings. An extra fee must be paid for publication of additi=
-onal papers, with a maximum of one additional paper per registration. =
-One registration permits only the participation of one author in the c=
-onference.
-
-Full and short papers will be published in Proceedings by Springer, in=
- Advances in Intelligent Systems and Computing Series. Poster and comp=
-any papers will be published by AISTI.
-
-Published full and short papers will be submitted for indexation by IS=
-I, EI-Compendex, SCOPUS, DBLP and Google Scholar, among others, and wi=
-ll be available in the SpringerLink Digital Library.
-
-The authors of the best selected papers will be invited to extend them=
- for publication in international journals indexed by ISI/SCI, SCOPUS =
-and DBLP, among others, such as:
-
-- International Journal of Neural Systems (IF: 6.085 / Q1)
-- Integrated Computer-Aided Engineering (IF: 4.981 / Q1)
-- International Journal of Information Management (IF: 2.692 / Q1)
-- Electronic Commerce Research and Applications (IF: 2.139 / Q1)
-- Computers, Environment and Urban Systems (IF: 2.092 / Q1)
-- Data Mining and Knowledge Discovery (IF: 1.759 / Q1)
-- Journal of Medical Systems (IF: 2.213 / Q2)
-- Journal of Business Research (IF: 2.129 / Q2)
-- Pervasive and Mobile Computing (IF: 1.719 / Q2)
-- Knowledge and Information Systems (IF: 1.702 / Q2)
-- Journal of Grid Computing (IF: 1.561 / Q2) - Special Issue on "Big D=
-ata"
-- Cluster Computing (IF:1.514 / Q2) - Special Issue on "Advanced Machi=
-ne Learning in Parallel and Distributed Knowledge Discovery"
-- International Journal of Critical Infrastructure Protection (IF: 1.3=
-51 / Q2)
-- Expert Systems - Journal of Knowledge Engineering (IF: 0.947 / Q3)
-- Concurrency and Computation: Practice and Experience (IF: 0.942 / Q3)
-- Ethics and Information Technology (IF: 0.739 / Q3)
-- Engineering Computations (IF: 0.691 / Q3)
-- Advances in Complex Systems (IF: 0.461 / Q3)
-- Computing and Informatics (IF: 0.504 / Q4)
-- AI Communications (IF: 0.364 / Q4)
-- Journal of Hospitality and Tourism Technology (SR: 0.672 / Q2)
-- Transforming Government: People, Process and Policy (SR: 0.642 / Q2)
-- TEM Journal - Technology, Education, Management, Informatics (ISI - =
-Emerging Sources Citation Index)
-- Computer Methods in Biomechanics and Biomedical Engineering - Imagin=
-g & Visualization (ISI - Emerging Sources Citation Index)
-- Journal of Information Systems Engineering & Management
-
-
-IMPORTANT DATES
-
-Paper Submission: November 13, 2016
-
-Notification of Acceptance: December 25, 20156
-
-Payment of Registration, to ensure the inclusion of an accepted paper =
-in the conference proceedings: January 8, 2017.
-
-Camera-ready Submission: January 8, 2017
-
-
--
-
-WorldCIST'17
-http://www.worldcist.org/
-
-
-
-
-
-
-
---===============2203699183468112587==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2203699183468112587==--
+-- 
+2.4.11
