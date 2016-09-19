@@ -1,13 +1,11 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 1/2] tools/virtio/ringtest: fix run-on-all.sh for offline cpus
-Date: Mon, 19 Sep 2016 17:06:55 +0200
-Message-ID: <20160919150656.6194-2-cornelia.huck__22779.5333871201$1474297675$gmane$org@de.ibm.com>
-References: <20160919150656.6194-1-cornelia.huck@de.ibm.com>
+From: Aaron Conole <aconole@redhat.com>
+Subject: [PATCH v11] virtio-net: add Max MTU configuration field
+Date: Mon, 19 Sep 2016 11:10:26 -0400
+Message-ID: <1474297826-7642-1-git-send-email-aconole@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160919150656.6194-1-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,49 +15,158 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: pasic@linux.vnet.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+Cc: Victor Kaplansky <vkaplans@redhat.com>, Maxime Coquelin <maxime.coquelin@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Halil Pasic <pasic@linux.vnet.ibm.com>
+It is helpful for a host to indicate it's MTU to be set on guest NICs
+other than the assumed 1500 byte value.  This helps in situations where
+the host network is using Jumbo Frames, or aiding in PMTU discovery by
+configuring a homogenous network.  It is also helpful for sizing receive
+buffers correctly.
 
-Since ef1b144d ("tools/virtio/ringtest: fix run-on-all.sh to work
-without /dev/cpu") run-on-all.sh uses seq 0 $HOST_AFFINITY as the list
-of ids of the CPUs to run the command on (assuming ids of online CPUs
-are consecutive and start from 0), where $HOST_AFFINITY is the highest
-CPU id in the system previously determined using lscpu.  This can fail
-on systems with offline CPUs.
+The change adds a new field to configuration area of network
+devices.  It will be used to pass a maximum MTU from the device to
+the driver.  This will be used by the driver as a maximum value for
+packet sizes during transmission, without segmentation offloading.
 
-Instead let's use lscpu to determine the list of online CPUs.
+In addition, in order to support backward and forward compatibility,
+we introduce a new feature bit called VIRTIO_NET_F_MTU.
 
-Signed-off-by: Halil Pasic <pasic@linux.vnet.ibm.com>
-Fixes: ef1b144d ("tools/virtio/ringtest: fix run-on-all.sh to work without
-/dev/cpu")
-Reviewed-by: Sascha Silbe <silbe@linux.vnet.ibm.com>
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+VIRTIO-152
+Signed-off-by: Aaron Conole <aconole@redhat.com>
+Cc: Victor Kaplansky <victork@redhat.com>
+Reviewed-by: Hannes Reiencke <hare@suse.de>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Maxime Coquelin <maxime.coquelin@redhat.com>
 ---
- tools/virtio/ringtest/run-on-all.sh | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+   Note: should this proposal be accepted and approved, one or more
+   claims disclosed to the TC admin and listed on the Virtio TC
+   IPR page https://www.oasis-open.org/committees/virtio/ipr.php
+   might become Essential Claims.
 
-diff --git a/tools/virtio/ringtest/run-on-all.sh b/tools/virtio/ringtest/run-on-all.sh
-index 2e69ca8..29b0d39 100755
---- a/tools/virtio/ringtest/run-on-all.sh
-+++ b/tools/virtio/ringtest/run-on-all.sh
-@@ -1,12 +1,13 @@
- #!/bin/sh
+v1:
+This is an attempt at continuing the work done by Victor Kaplansky on
+mtu negiotiation for virtio-net devices. It attempts to pick up from
+https://lists.oasis-open.org/archives/virtio-dev/201508/msg00007.html
+and is just a minor blurb from the first patch along with the 2nd patch
+from the series, and some of the feedback integrated.
+
+v2:
+Rephrase and provide a mechanism for guest->host and host->guest
+communication through a driver read-only and driver write-only field.
+
+v3:
+Converted to just support initial MTU. Guest->host and Host->guest MTU
+changes are outside the scope of this change.
+
+v4:
+Removed references to 'initial', since that condition cannot be tested.
+Simply state that if the driver will use the mtu field, it must
+negotiate the feature bit, and if not, it must not.
+
+v5:
+After feedback from Michael S. Tsirkin
+
+v6:
+Bit has to change to bit 25 due to an undocumented bit 24 being taken.
+
+v7:
+Partial rewrite with feedback from MST.  Additional conformance statements
+added.
+
+v8:
+Clarified the new conformance statements.
+
+v9:
+Updated the commit log for correctness.  Added ACKs from
+Michael S. Tsirkin, and Maxime Coquelin.  Included the virtio
+issue id.
+
+v10:
+Update the conformance statement wordings from previous 'offered' form
+to 'succesfully negotiated' form.
+
+v11:
+Clarified size w.r.t. MTU - buffer sizes must also add extra space for ethernet
+headers.  Also updated the feature bit description.
+
+ content.tex | 37 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
+
+diff --git a/content.tex b/content.tex
+index 4b45678..45b94c6 100644
+--- a/content.tex
++++ b/content.tex
+@@ -3049,6 +3049,11 @@ features.
+ \item[VIRTIO_NET_F_CTRL_GUEST_OFFLOADS (2)] Control channel offloads
+         reconfiguration support.
  
-+CPUS_ONLINE=$(lscpu --online -p=cpu|grep -v -e '#')
- #use last CPU for host. Why not the first?
- #many devices tend to use cpu0 by default so
- #it tends to be busier
--HOST_AFFINITY=$(lscpu -p=cpu | tail -1)
-+HOST_AFFINITY=$(echo "${CPUS_ONLINE}"|tail -n 1)
++\item[VIRTIO_NET_F_MTU(3)] Device maximum MTU reporting is supported. If
++    offered by the device, device advises driver about the value of
++    its maximum MTU. If negotiated, the driver uses \field{mtu} as
++    the maximum MTU value.
++
+ \item[VIRTIO_NET_F_MAC (5)] Device has given MAC address.
  
- #run command on all cpus
--for cpu in $(seq 0 $HOST_AFFINITY)
-+for cpu in $CPUS_ONLINE
- do
- 	#Don't run guest and host on same CPU
- 	#It actually works ok if using signalling
+ \item[VIRTIO_NET_F_GUEST_TSO4 (7)] Driver can receive TSOv4.
+@@ -3140,11 +3145,16 @@ of each of transmit and receive virtqueues (receiveq1\ldots receiveqN
+ and transmitq1\ldots transmitqN respectively) that can be configured once VIRTIO_NET_F_MQ
+ is negotiated.
+ 
++The following driver-read-only field, \field{mtu} only exists if
++VIRTIO_NET_F_MTU is set. This field specifies the maximum MTU for the driver to
++use.
++
+ \begin{lstlisting}
+ struct virtio_net_config {
+         u8 mac[6];
+         le16 status;
+         le16 max_virtqueue_pairs;
++        le16 mtu;
+ };
+ \end{lstlisting}
+ 
+@@ -3153,6 +3163,23 @@ struct virtio_net_config {
+ The device MUST set \field{max_virtqueue_pairs} to between 1 and 0x8000 inclusive,
+ if it offers VIRTIO_NET_F_MQ.
+ 
++The device MUST set \field{mtu} to between 68 and 65535 inclusive,
++if it offers VIRTIO_NET_F_MTU.
++
++The device SHOULD set \field{mtu} to at least 1280, if it offers
++VIRTIO_NET_F_MTU.
++
++The device MUST NOT modify \field{mtu} once it has been set.
++
++The device MUST NOT pass received packets that exceed \field{mtu} (plus low
++level ethernet header length) size with \field{gso_type} NONE or ECN
++after VIRTIO_NET_F_MTU has been successfully negotiated.
++
++The device MUST forward transmitted packets of up to \field{mtu} (plus low
++level ethernet header length) size with \field{gso_type} NONE or ECN, and do
++so without fragmentation, after VIRTIO_NET_F_MTU has been successfully
++negotiated.
++
+ \drivernormative{\subsubsection}{Device configuration layout}{Device Types / Network Device / Device configuration layout}
+ 
+ A driver SHOULD negotiate VIRTIO_NET_F_MAC if the device offers it.
+@@ -3165,6 +3192,16 @@ If the driver does not negotiate the VIRTIO_NET_F_STATUS feature, it SHOULD
+ assume the link is active, otherwise it SHOULD read the link status from
+ the bottom bit of \field{status}.
+ 
++A driver SHOULD negotiate VIRTIO_NET_F_MTU if the device offers it.
++
++If the driver negotiates VIRTIO_NET_F_MTU, it MUST supply enough receive
++buffers of size \field{mtu} (plus low level ethernet header length) to be
++able to receive at least one receive packet with \field{gso_type} NONE or ECN.
++
++If the driver negotiates VIRTIO_NET_F_MTU, it MUST NOT transmit packets of
++size exceeding the value of \field{mtu} (plus low level ethernet header length)
++with \field{gso_type} NONE or ECN
++
+ \subsubsection{Legacy Interface: Device configuration layout}\label{sec:Device Types / Network Device / Device configuration layout / Legacy Interface: Device configuration layout}
+ \label{sec:Device Types / Block Device / Feature bits / Device configuration layout / Legacy Interface: Device configuration layout}
+ When using the legacy interface, transitional devices and drivers
 -- 
-2.8.4
+2.7.4
