@@ -1,13 +1,14 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH 2/3] qemu: Implement virtio-pstore device
-Date: Thu, 22 Sep 2016 13:23:16 +0100
-Message-ID: <20160922122316.GB8221@stefanha-x1.localdomain>
-References: <20160904143900.14850-1-namhyung@kernel.org>
-	<20160904143900.14850-3-namhyung@kernel.org>
+From: Boqun Feng <boqun.feng@gmail.com>
+Subject: Re: [PATCH v7 4/6] powerpc: lib/locks.c: Add cpu yield/wake helper
+	function
+Date: Thu, 22 Sep 2016 23:17:16 +0800
+Message-ID: <20160922151716.GA22004@tardis.cn.ibm.com>
+References: <1474277037-15200-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+	<1474277037-15200-5-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3454327237998688072=="
+Content-Type: multipart/mixed; boundary="===============5440842545899613629=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160904143900.14850-3-namhyung@kernel.org>
+In-Reply-To: <1474277037-15200-5-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,137 +18,168 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Namhyung Kim <namhyung@kernel.org>
-Cc: virtio-dev@lists.oasis-open.org, Tony Luck <tony.luck@intel.com>, "Daniel P . Berrange" <berrange@redhat.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, Namhyung Kim <namhyung@gmail.com>, Anton Vorontsov <anton@enomsg.org>, qemu-devel@nongnu.org, Steven Rostedt <rostedt@goodmis.org>, LKML <linux-kernel@vger.kernel.org>, Minchan Kim <minchan@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@kernel.org>
+To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Cc: peterz@infradead.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org, waiman.long@hpe.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============3454327237998688072==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bCsyhTFzCvuiizWE"
+--===============5440842545899613629==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
 Content-Disposition: inline
 
 
---bCsyhTFzCvuiizWE
+--yrj/dFKFPuw6o+aM
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, Sep 04, 2016 at 11:38:59PM +0900, Namhyung Kim wrote:
-> +static void virtio_pstore_handle_io(VirtIODevice *vdev, VirtQueue *vq)
+Hi Xinhui,
+
+On Mon, Sep 19, 2016 at 05:23:55AM -0400, Pan Xinhui wrote:
+> Add two corresponding helper functions to support pv-qspinlock.
+>=20
+> For normal use, __spin_yield_cpu will confer current vcpu slices to the
+> target vcpu(say, a lock holder). If target vcpu is not specified or it
+> is in running state, such conferging to lpar happens or not depends.
+>=20
+> Because hcall itself will introduce latency and a little overhead. And
+> we do NOT want to suffer any latency on some cases, e.g. in interrupt han=
+dler.
+> The second parameter *confer* can indicate such case.
+>=20
+> __spin_wake_cpu is simpiler, it will wake up one vcpu regardless of its
+> current vcpu state.
+>=20
+> Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+> ---
+>  arch/powerpc/include/asm/spinlock.h |  4 +++
+>  arch/powerpc/lib/locks.c            | 59 +++++++++++++++++++++++++++++++=
+++++++
+>  2 files changed, 63 insertions(+)
+>=20
+> diff --git a/arch/powerpc/include/asm/spinlock.h b/arch/powerpc/include/a=
+sm/spinlock.h
+> index 6aef8dd..abb6b0f 100644
+> --- a/arch/powerpc/include/asm/spinlock.h
+> +++ b/arch/powerpc/include/asm/spinlock.h
+> @@ -56,9 +56,13 @@
+>  /* We only yield to the hypervisor if we are in shared processor mode */
+>  #define SHARED_PROCESSOR (lppaca_shared_proc(local_paca->lppaca_ptr))
+>  extern void __spin_yield(arch_spinlock_t *lock);
+> +extern void __spin_yield_cpu(int cpu, int confer);
+> +extern void __spin_wake_cpu(int cpu);
+>  extern void __rw_yield(arch_rwlock_t *lock);
+>  #else /* SPLPAR */
+>  #define __spin_yield(x)	barrier()
+> +#define __spin_yield_cpu(x,y) barrier()
+> +#define __spin_wake_cpu(x) barrier()
+>  #define __rw_yield(x)	barrier()
+>  #define SHARED_PROCESSOR	0
+>  #endif
+> diff --git a/arch/powerpc/lib/locks.c b/arch/powerpc/lib/locks.c
+> index 6574626..892df7d 100644
+> --- a/arch/powerpc/lib/locks.c
+> +++ b/arch/powerpc/lib/locks.c
+> @@ -23,6 +23,65 @@
+>  #include <asm/hvcall.h>
+>  #include <asm/smp.h>
+> =20
+> +/*
+> + * confer our slices to a specified cpu and return. If it is already run=
+ning or
+> + * cpu is -1, then we will check confer. If confer is NULL, we will retu=
+rn
+> + * otherwise we confer our slices to lpar.
+> + */
+> +void __spin_yield_cpu(int cpu, int confer)
 > +{
-> +    VirtIOPstore *s = VIRTIO_PSTORE(vdev);
-> +    VirtQueueElement *elem;
-> +    struct virtio_pstore_req req;
-> +    struct virtio_pstore_res res;
-> +    ssize_t len = 0;
-> +    int ret;
+> +	unsigned int holder_cpu =3D cpu, yield_count;
 > +
-> +    for (;;) {
-> +        elem = virtqueue_pop(vq, sizeof(VirtQueueElement));
-> +        if (!elem) {
-> +            return;
-> +        }
+
+You don't need @holder_cpu at all, do you?
+
+> +	if (cpu =3D=3D -1)
+> +		goto yield_to_lpar;
 > +
-> +        if (elem->out_num < 1 || elem->in_num < 1) {
-> +            error_report("request or response buffer is missing");
-> +            exit(1);
-
-The new virtio_error() function might be available, depending on when
-this patch series is merged.  virtio_error() should be used instead of
-exit(1).  See "[PATCH v5 0/9] virtio: avoid exit() when device enters
-invalid states" on qemu-devel.
-
-> +        }
+> +	BUG_ON(holder_cpu >=3D nr_cpu_ids);
+> +	yield_count =3D be32_to_cpu(lppaca_of(holder_cpu).yield_count);
 > +
-> +        if (elem->out_num > 2 || elem->in_num > 3) {
-> +            error_report("invalid number of input/output buffer");
-> +            exit(1);
-> +        }
-
-The VIRTIO specification requires that flexible framing is supported.
-The device cannot make assumptions about the scatter-gather list.  It
-must support any layout (e.g. even multiple 1-byte iovecs making up the
-buffer).
-
+> +	/* if cpu is running, confer slices to lpar conditionally*/
+> +	if ((yield_count & 1) =3D=3D 0)
+> +		goto yield_to_lpar;
 > +
-> +        len = iov_to_buf(elem->out_sg, elem->out_num, 0, &req, sizeof(req));
-> +        if (len != (ssize_t)sizeof(req)) {
-> +            error_report("invalid request size: %ld", (long)len);
-> +            exit(1);
-> +        }
-> +        res.cmd  = req.cmd;
-> +        res.type = req.type;
+> +	plpar_hcall_norets(H_CONFER,
+> +		get_hard_smp_processor_id(holder_cpu), yield_count);
+> +	return;
 > +
-> +        switch (le16_to_cpu(req.cmd)) {
-> +        case VIRTIO_PSTORE_CMD_OPEN:
-> +            ret = virtio_pstore_do_open(s);
-> +            break;
-> +        case VIRTIO_PSTORE_CMD_CLOSE:
-> +            ret = virtio_pstore_do_close(s);
-> +            break;
-> +        case VIRTIO_PSTORE_CMD_ERASE:
-> +            ret = virtio_pstore_do_erase(s, &req);
-> +            break;
-> +        case VIRTIO_PSTORE_CMD_READ:
-> +            ret = virtio_pstore_do_read(s, elem);
-> +            if (ret == 1) {
-> +                /* async channel io */
-> +                continue;
-> +            }
-> +            break;
-> +        case VIRTIO_PSTORE_CMD_WRITE:
-> +            ret = virtio_pstore_do_write(s, elem, &req);
-> +            if (ret == 1) {
-> +                /* async channel io */
-> +                continue;
-> +            }
-> +            break;
-> +        default:
-> +            ret = -1;
-> +            break;
-> +        }
+> +yield_to_lpar:
+> +	if (confer)
+> +		plpar_hcall_norets(H_CONFER, -1, 0);
+> +}
+> +EXPORT_SYMBOL_GPL(__spin_yield_cpu);
 > +
-> +        res.ret = ret;
-
-Missing cpu_to_le()?
-
-> +static void pstore_set_bufsize(Object *obj, Visitor *v,
-> +                               const char *name, void *opaque,
-> +                               Error **errp)
+> +void __spin_wake_cpu(int cpu)
 > +{
-> +    VirtIOPstore *s = opaque;
-> +    Error *error = NULL;
-> +    uint64_t value;
+> +	unsigned int holder_cpu =3D cpu;
 > +
-> +    visit_type_size(v, name, &value, &error);
-> +    if (error) {
-> +        error_propagate(errp, error);
-> +        return;
-> +    }
+
+Ditto.
+
+Regards,
+Boqun
+
+> +	BUG_ON(holder_cpu >=3D nr_cpu_ids);
+> +	/*
+> +	 * NOTE: we should always do this hcall regardless of
+> +	 * the yield_count of the holder_cpu.
+> +	 * as thers might be a case like below;
+> +	 * CPU 	1				2
+> +	 *				yielded =3D true
+> +	 *	if (yielded)
+> +	 * 	__spin_wake_cpu()
+> +	 * 				__spin_yield_cpu()
+> +	 *
+> +	 * So we might lose a wake if we check the yield_count and
+> +	 * return directly if the holder_cpu is running.
+> +	 * IOW. do NOT code like below.
+> +	 *  yield_count =3D be32_to_cpu(lppaca_of(holder_cpu).yield_count);
+> +	 *  if ((yield_count & 1) =3D=3D 0)
+> +	 *  	return;
+> +	 *
+> +	 * a PROD hcall marks the target_cpu proded, which cause the next cede =
+or confer
+> +	 * called on the target_cpu invalid.
+> +	 */
+> +	plpar_hcall_norets(H_PROD,
+> +		get_hard_smp_processor_id(holder_cpu));
+> +}
+> +EXPORT_SYMBOL_GPL(__spin_wake_cpu);
 > +
-> +    if (value < 4096) {
-> +        error_setg(&error, "Warning: too small buffer size: %"PRIu64, value);
+>  #ifndef CONFIG_QUEUED_SPINLOCKS
+>  void __spin_yield(arch_spinlock_t *lock)
+>  {
+> --=20
+> 2.4.11
+>=20
 
-This is an error, not a warning.  Please remove "Warning:" so it's clear
-to the user that this message caused QEMU to fail.
-
---bCsyhTFzCvuiizWE
+--yrj/dFKFPuw6o+aM
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEcBAEBAgAGBQJX4800AAoJEJykq7OBq3PI56YH/RZyTlY9qokAxEoZ6Gys6cVX
-s1wXJGIOhH3kjnnehO1a+ihZopW7kpNS8i0Mz1Alw5nQ4O8qEQa1lHbFwn1szgl0
-0TGEfqcVX+pgxUI8K5ppiSA9zUssF5ihs00Y0SBumEUl1xKwi32GySIe+nvVRRHE
-d28AbJ1Faq2nhc3M5xABAFEJp55EmTHraB7AouQQ1MZWo9w3SspSHKwGsevdHFEu
-KAOOQgQ9vJDQFaN/eE5DP5AQfzyNTgK1rHk74q9OxlEjy4LxXMHbrt1+z1BrBtCx
-3/4/HZCW9vnanUrPmVb+cL6Ld8OdEr2OyBDFgWcwz4UkaI8FEIFPSjGE6Tc2iUY=
-=I0cq
+iQEcBAABCAAGBQJX4/X4AAoJEEl56MO1B/q4y6gH/2AGxmEsj0HH4US1mcYUC7Qt
+jlvBMes+KDlso1yy+lG5M3U8dmfWVjiN+QHQq/XT7RSU9u69sY0mPzifrRhBt4eF
+Jir1MwKnW4VymB5gjbJakNNaCL48OpaGm4wBZFqkl+9y36Cb3v7ZuSIXtVLbQwmj
+oJt0baU46hGpGKcgAqhPthPqOkaZW/1z8ifW+tZWI84kR+AvstZXYfNgcWqvun7V
+rAddDUiPCoWImT7pzvyrllwp7bMAeezaAALlj5AxfVD6py4mcUfl4itjhT8b6J4v
+QbOwzHakp/UmLlMEairtDiLFglZTbCHY2dm+PCb2myqw1bsGKTdRAnGZIo5CV74=
+=y/qP
 -----END PGP SIGNATURE-----
 
---bCsyhTFzCvuiizWE--
+--yrj/dFKFPuw6o+aM--
 
---===============3454327237998688072==
+--===============5440842545899613629==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -157,4 +189,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3454327237998688072==--
+--===============5440842545899613629==--
