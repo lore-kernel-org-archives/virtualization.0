@@ -1,14 +1,13 @@
-From: xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: Re: [PATCH v7 6/6] powerpc: pSeries: Add pv-qspinlock build
-	config/make
-Date: Thu, 22 Sep 2016 13:54:30 +0800
-Message-ID: <57E37216.1030505@linux.vnet.ibm.com>
-References: <201609191651.3BF51xRa%fengguang.wu@intel.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH 1/3] virtio: Basic implementation of virtio pstore driver
+Date: Thu, 22 Sep 2016 12:57:44 +0100
+Message-ID: <20160922115744.GA8221__38306.6119197339$1474545494$gmane$org@stefanha-x1.localdomain>
+References: <20160904143900.14850-1-namhyung@kernel.org>
+	<20160904143900.14850-2-namhyung@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============2280657147849284507=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201609191651.3BF51xRa%fengguang.wu@intel.com>
+In-Reply-To: <20160904143900.14850-2-namhyung@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,214 +17,380 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kbuild test robot <lkp@intel.com>
-Cc: peterz@infradead.org, mpe@ellerman.id.au, linux-kernel@vger.kernel.org, waiman.long@hpe.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, kbuild-all@01.org, benh@kernel.crashing.org, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
+To: Namhyung Kim <namhyung@kernel.org>
+Cc: virtio-dev@lists.oasis-open.org, Tony Luck <tony.luck@intel.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, Anton Vorontsov <anton@enomsg.org>, Will Deacon <will.deacon@arm.com>, qemu-devel@nongnu.org, Steven Rostedt <rostedt@goodmis.org>, LKML <linux-kernel@vger.kernel.org>, Minchan Kim <minchan@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-aGksIGFsbAoJb2ssIHRoaXMgcGF0Y2ggc2V0IGRlcGVuZHMgb24KaHR0cHM6Ly9wYXRjaHdvcmsu
-a2VybmVsLm9yZy9wYXRjaC84OTUzOTgxLyBbVjRdIHBvd2VycGM6IEltcGxlbWVudCB7Y21wfXhj
-aGcgZm9yIHU4IGFuZCB1MTYKCnNvcnJ5LgoKT24gMjAxNuW5tDA55pyIMTnml6UgMTY6NTgsIGti
-dWlsZCB0ZXN0IHJvYm90IHdyb3RlOgo+IEhpIFBhbiwKPgo+IFthdXRvIGJ1aWxkIHRlc3QgRVJS
-T1Igb24gcG93ZXJwYy9uZXh0XQo+IFthbHNvIGJ1aWxkIHRlc3QgRVJST1Igb24gdjQuOC1yYzcg
-bmV4dC0yMDE2MDkxNl0KPiBbaWYgeW91ciBwYXRjaCBpcyBhcHBsaWVkIHRvIHRoZSB3cm9uZyBn
-aXQgdHJlZSwgcGxlYXNlIGRyb3AgdXMgYSBub3RlIHRvIGhlbHAgaW1wcm92ZSB0aGUgc3lzdGVt
-XQo+IFtTdWdnZXN0IHRvIHVzZSBnaXQoPj0yLjkuMCkgZm9ybWF0LXBhdGNoIC0tYmFzZT08Y29t
-bWl0PiAob3IgLS1iYXNlPWF1dG8gZm9yIGNvbnZlbmllbmNlKSB0byByZWNvcmQgd2hhdCAocHVi
-bGljLCB3ZWxsLWtub3duKSBjb21taXQgeW91ciBwYXRjaCBzZXJpZXMgd2FzIGJ1aWx0IG9uXQo+
-IFtDaGVjayBodHRwczovL2dpdC1zY20uY29tL2RvY3MvZ2l0LWZvcm1hdC1wYXRjaCBmb3IgbW9y
-ZSBpbmZvcm1hdGlvbl0KPgo+IHVybDogICAgaHR0cHM6Ly9naXRodWIuY29tLzBkYXktY2kvbGlu
-dXgvY29tbWl0cy9QYW4tWGluaHVpL0ltcGxlbWVudC1xc3BpbmxvY2stcHYtcXNwaW5sb2NrLW9u
-LXBwYy8yMDE2MDkxOS0xMzMxMzAKPiBiYXNlOiAgIGh0dHBzOi8vZ2l0Lmtlcm5lbC5vcmcvcHVi
-L3NjbS9saW51eC9rZXJuZWwvZ2l0L3Bvd2VycGMvbGludXguZ2l0IG5leHQKPiBjb25maWc6IHBv
-d2VycGMtYWxseWVzY29uZmlnIChhdHRhY2hlZCBhcyAuY29uZmlnKQo+IGNvbXBpbGVyOiBwb3dl
-cnBjNjQtbGludXgtZ251LWdjYyAoRGViaWFuIDYuMS4xLTkpIDYuMS4xIDIwMTYwNzA1Cj4gcmVw
-cm9kdWNlOgo+ICAgICAgICAgIHdnZXQgaHR0cHM6Ly9naXQua2VybmVsLm9yZy9jZ2l0L2xpbnV4
-L2tlcm5lbC9naXQvd2ZnL2xrcC10ZXN0cy5naXQvcGxhaW4vc2Jpbi9tYWtlLmNyb3NzIC1PIH4v
-YmluL21ha2UuY3Jvc3MKPiAgICAgICAgICBjaG1vZCAreCB+L2Jpbi9tYWtlLmNyb3NzCj4gICAg
-ICAgICAgIyBzYXZlIHRoZSBhdHRhY2hlZCAuY29uZmlnIHRvIGxpbnV4IGJ1aWxkIHRyZWUKPiAg
-ICAgICAgICBtYWtlLmNyb3NzIEFSQ0g9cG93ZXJwYwo+Cj4gQWxsIGVycm9ycyAobmV3IG9uZXMg
-cHJlZml4ZWQgYnkgPj4pOgo+Cj4gICAgIGluY2x1ZGUvbGludXgvY29tcGlsZXIuaDo0OTE6Mjog
-bm90ZTogaW4gZXhwYW5zaW9uIG9mIG1hY3JvICdfY29tcGlsZXRpbWVfYXNzZXJ0Jwo+ICAgICAg
-IF9jb21waWxldGltZV9hc3NlcnQoY29uZGl0aW9uLCBtc2csIF9fY29tcGlsZXRpbWVfYXNzZXJ0
-XywgX19MSU5FX18pCj4gICAgICAgXn5+fn5+fn5+fn5+fn5+fn5+fgo+ICAgICBpbmNsdWRlL2xp
-bnV4L2J1Zy5oOjUxOjM3OiBub3RlOiBpbiBleHBhbnNpb24gb2YgbWFjcm8gJ2NvbXBpbGV0aW1l
-X2Fzc2VydCcKPiAgICAgICNkZWZpbmUgQlVJTERfQlVHX09OX01TRyhjb25kLCBtc2cpIGNvbXBp
-bGV0aW1lX2Fzc2VydCghKGNvbmQpLCBtc2cpCj4gICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICBefn5+fn5+fn5+fn5+fn5+fn4KPiAgICAgYXJjaC9wb3dlcnBjL2luY2x1
-ZGUvYXNtL2NtcHhjaGcuaDozMjY6Mjogbm90ZTogaW4gZXhwYW5zaW9uIG9mIG1hY3JvICdCVUlM
-RF9CVUdfT05fTVNHJwo+ICAgICAgIEJVSUxEX0JVR19PTl9NU0coMSwgIlVuc3VwcG9ydGVkIHNp
-emUgZm9yIF9fY21weGNoZyIpOwo+ICAgICAgIF5+fn5+fn5+fn5+fn5+fn4KPiAgICAgSW4gZnVu
-Y3Rpb24gJ19fY21weGNoZycsCj4gICAgICAgICBpbmxpbmVkIGZyb20gJ3B2X3dhaXRfbm9kZScg
-YXQga2VybmVsL2xvY2tpbmcvcXNwaW5sb2NrX3BhcmF2aXJ0Lmg6MzI4OjMsCj4gICAgICAgICBp
-bmxpbmVkIGZyb20gJ19fcHZfcXVldWVkX3NwaW5fbG9ja19zbG93cGF0aCcgYXQga2VybmVsL2xv
-Y2tpbmcvcXNwaW5sb2NrLmM6NTM4OjM6Cj4gICAgIGluY2x1ZGUvbGludXgvY29tcGlsZXIuaDo0
-OTE6Mzg6IGVycm9yOiBjYWxsIHRvICdfX2NvbXBpbGV0aW1lX2Fzc2VydF8zMjYnIGRlY2xhcmVk
-IHdpdGggYXR0cmlidXRlIGVycm9yOiBVbnN1cHBvcnRlZCBzaXplIGZvciBfX2NtcHhjaGcKPiAg
-ICAgICBfY29tcGlsZXRpbWVfYXNzZXJ0KGNvbmRpdGlvbiwgbXNnLCBfX2NvbXBpbGV0aW1lX2Fz
-c2VydF8sIF9fTElORV9fKQo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgIF4KPiAgICAgaW5jbHVkZS9saW51eC9jb21waWxlci5oOjQ3NDo0OiBub3RlOiBpbiBkZWZp
-bml0aW9uIG9mIG1hY3JvICdfX2NvbXBpbGV0aW1lX2Fzc2VydCcKPiAgICAgICAgIHByZWZpeCAj
-IyBzdWZmaXgoKTsgICAgXAo+ICAgICAgICAgXn5+fn5+Cj4gICAgIGluY2x1ZGUvbGludXgvY29t
-cGlsZXIuaDo0OTE6Mjogbm90ZTogaW4gZXhwYW5zaW9uIG9mIG1hY3JvICdfY29tcGlsZXRpbWVf
-YXNzZXJ0Jwo+ICAgICAgIF9jb21waWxldGltZV9hc3NlcnQoY29uZGl0aW9uLCBtc2csIF9fY29t
-cGlsZXRpbWVfYXNzZXJ0XywgX19MSU5FX18pCj4gICAgICAgXn5+fn5+fn5+fn5+fn5+fn5+fgo+
-ICAgICBpbmNsdWRlL2xpbnV4L2J1Zy5oOjUxOjM3OiBub3RlOiBpbiBleHBhbnNpb24gb2YgbWFj
-cm8gJ2NvbXBpbGV0aW1lX2Fzc2VydCcKPiAgICAgICNkZWZpbmUgQlVJTERfQlVHX09OX01TRyhj
-b25kLCBtc2cpIGNvbXBpbGV0aW1lX2Fzc2VydCghKGNvbmQpLCBtc2cpCj4gICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICBefn5+fn5+fn5+fn5+fn5+fn4KPiAgICAgYXJj
-aC9wb3dlcnBjL2luY2x1ZGUvYXNtL2NtcHhjaGcuaDozMjY6Mjogbm90ZTogaW4gZXhwYW5zaW9u
-IG9mIG1hY3JvICdCVUlMRF9CVUdfT05fTVNHJwo+ICAgICAgIEJVSUxEX0JVR19PTl9NU0coMSwg
-IlVuc3VwcG9ydGVkIHNpemUgZm9yIF9fY21weGNoZyIpOwo+ICAgICAgIF5+fn5+fn5+fn5+fn5+
-fn4KPiAgICAgSW4gZnVuY3Rpb24gJ19fY21weGNoZycsCj4gICAgICAgICBpbmxpbmVkIGZyb20g
-J3B2X3dhaXRfaGVhZF9vcl9sb2NrJyBhdCBrZXJuZWwvbG9ja2luZy9xc3BpbmxvY2tfcGFyYXZp
-cnQuaDoxMDk6MTAsCj4gICAgICAgICBpbmxpbmVkIGZyb20gJ19fcHZfcXVldWVkX3NwaW5fbG9j
-a19zbG93cGF0aCcgYXQga2VybmVsL2xvY2tpbmcvcXNwaW5sb2NrLmM6NTczOjU6Cj4gICAgIGlu
-Y2x1ZGUvbGludXgvY29tcGlsZXIuaDo0OTE6Mzg6IGVycm9yOiBjYWxsIHRvICdfX2NvbXBpbGV0
-aW1lX2Fzc2VydF8zMjYnIGRlY2xhcmVkIHdpdGggYXR0cmlidXRlIGVycm9yOiBVbnN1cHBvcnRl
-ZCBzaXplIGZvciBfX2NtcHhjaGcKPiAgICAgICBfY29tcGlsZXRpbWVfYXNzZXJ0KGNvbmRpdGlv
-biwgbXNnLCBfX2NvbXBpbGV0aW1lX2Fzc2VydF8sIF9fTElORV9fKQo+ICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgIF4KPiAgICAgaW5jbHVkZS9saW51eC9jb21waWxl
-ci5oOjQ3NDo0OiBub3RlOiBpbiBkZWZpbml0aW9uIG9mIG1hY3JvICdfX2NvbXBpbGV0aW1lX2Fz
-c2VydCcKPiAgICAgICAgIHByZWZpeCAjIyBzdWZmaXgoKTsgICAgXAo+ICAgICAgICAgXn5+fn5+
-Cj4gICAgIGluY2x1ZGUvbGludXgvY29tcGlsZXIuaDo0OTE6Mjogbm90ZTogaW4gZXhwYW5zaW9u
-IG9mIG1hY3JvICdfY29tcGlsZXRpbWVfYXNzZXJ0Jwo+ICAgICAgIF9jb21waWxldGltZV9hc3Nl
-cnQoY29uZGl0aW9uLCBtc2csIF9fY29tcGlsZXRpbWVfYXNzZXJ0XywgX19MSU5FX18pCj4gICAg
-ICAgXn5+fn5+fn5+fn5+fn5+fn5+fgo+ICAgICBpbmNsdWRlL2xpbnV4L2J1Zy5oOjUxOjM3OiBu
-b3RlOiBpbiBleHBhbnNpb24gb2YgbWFjcm8gJ2NvbXBpbGV0aW1lX2Fzc2VydCcKPiAgICAgICNk
-ZWZpbmUgQlVJTERfQlVHX09OX01TRyhjb25kLCBtc2cpIGNvbXBpbGV0aW1lX2Fzc2VydCghKGNv
-bmQpLCBtc2cpCj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBefn5+
-fn5+fn5+fn5+fn5+fn4KPiAgICAgYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL2NtcHhjaGcuaDoz
-MjY6Mjogbm90ZTogaW4gZXhwYW5zaW9uIG9mIG1hY3JvICdCVUlMRF9CVUdfT05fTVNHJwo+ICAg
-ICAgIEJVSUxEX0JVR19PTl9NU0coMSwgIlVuc3VwcG9ydGVkIHNpemUgZm9yIF9fY21weGNoZyIp
-Owo+ICAgICAgIF5+fn5+fn5+fn5+fn5+fn4KPiAgICAgSW4gZnVuY3Rpb24gJ19feGNoZ19yZWxh
-eGVkJywKPiAgICAgICAgIGlubGluZWQgZnJvbSAncHZfd2FpdF9oZWFkX29yX2xvY2snIGF0IGtl
-cm5lbC9sb2NraW5nL3FzcGlubG9ja19wYXJhdmlydC5oOjQ0Mjo4LAo+ICAgICAgICAgaW5saW5l
-ZCBmcm9tICdfX3B2X3F1ZXVlZF9zcGluX2xvY2tfc2xvd3BhdGgnIGF0IGtlcm5lbC9sb2NraW5n
-L3FzcGlubG9jay5jOjU3Mzo1Ogo+ICAgICBpbmNsdWRlL2xpbnV4L2NvbXBpbGVyLmg6NDkxOjM4
-OiBlcnJvcjogY2FsbCB0byAnX19jb21waWxldGltZV9hc3NlcnRfMTEzJyBkZWNsYXJlZCB3aXRo
-IGF0dHJpYnV0ZSBlcnJvcjogVW5zdXBwb3J0ZWQgc2l6ZSBmb3IgX194Y2hnX2xvY2FsCj4gICAg
-ICAgX2NvbXBpbGV0aW1lX2Fzc2VydChjb25kaXRpb24sIG1zZywgX19jb21waWxldGltZV9hc3Nl
-cnRfLCBfX0xJTkVfXykKPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICBeCj4gICAgIGluY2x1ZGUvbGludXgvY29tcGlsZXIuaDo0NzQ6NDogbm90ZTogaW4gZGVmaW5p
-dGlvbiBvZiBtYWNybyAnX19jb21waWxldGltZV9hc3NlcnQnCj4gICAgICAgICBwcmVmaXggIyMg
-c3VmZml4KCk7ICAgIFwKPiAgICAgICAgIF5+fn5+fgo+ICAgICBpbmNsdWRlL2xpbnV4L2NvbXBp
-bGVyLmg6NDkxOjI6IG5vdGU6IGluIGV4cGFuc2lvbiBvZiBtYWNybyAnX2NvbXBpbGV0aW1lX2Fz
-c2VydCcKPiAgICAgICBfY29tcGlsZXRpbWVfYXNzZXJ0KGNvbmRpdGlvbiwgbXNnLCBfX2NvbXBp
-bGV0aW1lX2Fzc2VydF8sIF9fTElORV9fKQo+ICAgICAgIF5+fn5+fn5+fn5+fn5+fn5+fn4KPiAg
-ICAgaW5jbHVkZS9saW51eC9idWcuaDo1MTozNzogbm90ZTogaW4gZXhwYW5zaW9uIG9mIG1hY3Jv
-ICdjb21waWxldGltZV9hc3NlcnQnCj4gICAgICAjZGVmaW5lIEJVSUxEX0JVR19PTl9NU0coY29u
-ZCwgbXNnKSBjb21waWxldGltZV9hc3NlcnQoIShjb25kKSwgbXNnKQo+ICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgXn5+fn5+fn5+fn5+fn5+fn5+Cj4gICAgIGFyY2gv
-cG93ZXJwYy9pbmNsdWRlL2FzbS9jbXB4Y2hnLmg6MTEzOjI6IG5vdGU6IGluIGV4cGFuc2lvbiBv
-ZiBtYWNybyAnQlVJTERfQlVHX09OX01TRycKPiAgICAgICBCVUlMRF9CVUdfT05fTVNHKDEsICJV
-bnN1cHBvcnRlZCBzaXplIGZvciBfX3hjaGdfbG9jYWwiKTsKPiAgICAgICBefn5+fn5+fn5+fn5+
-fn5+Cj4gICAgIEluIGZ1bmN0aW9uICdfX2NtcHhjaGcnLAo+ICAgICAgICAgaW5saW5lZCBmcm9t
-ICdwdl9raWNrX25vZGUnIGF0IGtlcm5lbC9sb2NraW5nL3FzcGlubG9ja19wYXJhdmlydC5oOjM2
-Njo2LAo+ICAgICAgICAgaW5saW5lZCBmcm9tICdfX3B2X3F1ZXVlZF9zcGluX2xvY2tfc2xvd3Bh
-dGgnIGF0IGtlcm5lbC9sb2NraW5nL3FzcGlubG9jay5jOjYxNjoyOgo+ICAgICBpbmNsdWRlL2xp
-bnV4L2NvbXBpbGVyLmg6NDkxOjM4OiBlcnJvcjogY2FsbCB0byAnX19jb21waWxldGltZV9hc3Nl
-cnRfMzI2JyBkZWNsYXJlZCB3aXRoIGF0dHJpYnV0ZSBlcnJvcjogVW5zdXBwb3J0ZWQgc2l6ZSBm
-b3IgX19jbXB4Y2hnCj4gICAgICAgX2NvbXBpbGV0aW1lX2Fzc2VydChjb25kaXRpb24sIG1zZywg
-X19jb21waWxldGltZV9hc3NlcnRfLCBfX0xJTkVfXykKPiAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICBeCj4gICAgIGluY2x1ZGUvbGludXgvY29tcGlsZXIuaDo0NzQ6
-NDogbm90ZTogaW4gZGVmaW5pdGlvbiBvZiBtYWNybyAnX19jb21waWxldGltZV9hc3NlcnQnCj4g
-ICAgICAgICBwcmVmaXggIyMgc3VmZml4KCk7ICAgIFwKPiAgICAgICAgIF5+fn5+fgo+ICAgICBp
-bmNsdWRlL2xpbnV4L2NvbXBpbGVyLmg6NDkxOjI6IG5vdGU6IGluIGV4cGFuc2lvbiBvZiBtYWNy
-byAnX2NvbXBpbGV0aW1lX2Fzc2VydCcKPiAgICAgICBfY29tcGlsZXRpbWVfYXNzZXJ0KGNvbmRp
-dGlvbiwgbXNnLCBfX2NvbXBpbGV0aW1lX2Fzc2VydF8sIF9fTElORV9fKQo+ICAgICAgIF5+fn5+
-fn5+fn5+fn5+fn5+fn4KPiAgICAgaW5jbHVkZS9saW51eC9idWcuaDo1MTozNzogbm90ZTogaW4g
-ZXhwYW5zaW9uIG9mIG1hY3JvICdjb21waWxldGltZV9hc3NlcnQnCj4gICAgICAjZGVmaW5lIEJV
-SUxEX0JVR19PTl9NU0coY29uZCwgbXNnKSBjb21waWxldGltZV9hc3NlcnQoIShjb25kKSwgbXNn
-KQo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXn5+fn5+fn5+fn5+
-fn5+fn5+Cj4gICAgIGFyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9jbXB4Y2hnLmg6MzI2OjI6IG5v
-dGU6IGluIGV4cGFuc2lvbiBvZiBtYWNybyAnQlVJTERfQlVHX09OX01TRycKPiAgICAgICBCVUlM
-RF9CVUdfT05fTVNHKDEsICJVbnN1cHBvcnRlZCBzaXplIGZvciBfX2NtcHhjaGciKTsKPiAgICAg
-ICBefn5+fn5+fn5+fn5+fn5+Cj4gICAgIEluIGZ1bmN0aW9uICdfX3hjaGdfcmVsYXhlZCcsCj4g
-ICAgICAgICBpbmxpbmVkIGZyb20gJ19fcHZfcXVldWVkX3NwaW5fbG9ja19zbG93cGF0aCcgYXQg
-a2VybmVsL2xvY2tpbmcvcXNwaW5sb2NrLmM6MTg0OjE0Ogo+ICAgICBpbmNsdWRlL2xpbnV4L2Nv
-bXBpbGVyLmg6NDkxOjM4OiBlcnJvcjogY2FsbCB0byAnX19jb21waWxldGltZV9hc3NlcnRfMTEz
-JyBkZWNsYXJlZCB3aXRoIGF0dHJpYnV0ZSBlcnJvcjogVW5zdXBwb3J0ZWQgc2l6ZSBmb3IgX194
-Y2hnX2xvY2FsCj4gICAgICAgX2NvbXBpbGV0aW1lX2Fzc2VydChjb25kaXRpb24sIG1zZywgX19j
-b21waWxldGltZV9hc3NlcnRfLCBfX0xJTkVfXykKPiAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICBeCj4gICAgIGluY2x1ZGUvbGludXgvY29tcGlsZXIuaDo0NzQ6NDog
-bm90ZTogaW4gZGVmaW5pdGlvbiBvZiBtYWNybyAnX19jb21waWxldGltZV9hc3NlcnQnCj4gICAg
-ICAgICBwcmVmaXggIyMgc3VmZml4KCk7ICAgIFwKPiAgICAgICAgIF5+fn5+fgo+ICAgICBpbmNs
-dWRlL2xpbnV4L2NvbXBpbGVyLmg6NDkxOjI6IG5vdGU6IGluIGV4cGFuc2lvbiBvZiBtYWNybyAn
-X2NvbXBpbGV0aW1lX2Fzc2VydCcKPiAgICAgICBfY29tcGlsZXRpbWVfYXNzZXJ0KGNvbmRpdGlv
-biwgbXNnLCBfX2NvbXBpbGV0aW1lX2Fzc2VydF8sIF9fTElORV9fKQo+ICAgICAgIF5+fn5+fn5+
-fn5+fn5+fn5+fn4KPiAgICAgaW5jbHVkZS9saW51eC9idWcuaDo1MTozNzogbm90ZTogaW4gZXhw
-YW5zaW9uIG9mIG1hY3JvICdjb21waWxldGltZV9hc3NlcnQnCj4gICAgICAjZGVmaW5lIEJVSUxE
-X0JVR19PTl9NU0coY29uZCwgbXNnKSBjb21waWxldGltZV9hc3NlcnQoIShjb25kKSwgbXNnKQo+
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXn5+fn5+fn5+fn5+fn5+
-fn5+Cj4gICAgIGFyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9jbXB4Y2hnLmg6MTEzOjI6IG5vdGU6
-IGluIGV4cGFuc2lvbiBvZiBtYWNybyAnQlVJTERfQlVHX09OX01TRycKPiAgICAgICBCVUlMRF9C
-VUdfT05fTVNHKDEsICJVbnN1cHBvcnRlZCBzaXplIGZvciBfX3hjaGdfbG9jYWwiKTsKPiAgICAg
-ICBefn5+fn5+fn5+fn5+fn5+Cj4gICAgIEluIGZ1bmN0aW9uICdfX2NtcHhjaGdfcmVsYXhlZCcs
-Cj4gICAgICAgICBpbmxpbmVkIGZyb20gJ19fcHZfcXVldWVkX3NwaW5fdW5sb2NrJyBhdCBrZXJu
-ZWwvbG9ja2luZy9xc3BpbmxvY2tfcGFyYXZpcnQuaDo1NDc6MTE6Cj4+PiBpbmNsdWRlL2xpbnV4
-L2NvbXBpbGVyLmg6NDkxOjM4OiBlcnJvcjogY2FsbCB0byAnX19jb21waWxldGltZV9hc3NlcnRf
-MzU4JyBkZWNsYXJlZCB3aXRoIGF0dHJpYnV0ZSBlcnJvcjogVW5zdXBwb3J0ZWQgc2l6ZSBmb3Ig
-X19jbXB4Y2hnX3JlbGF4ZWQKPiAgICAgICBfY29tcGlsZXRpbWVfYXNzZXJ0KGNvbmRpdGlvbiwg
-bXNnLCBfX2NvbXBpbGV0aW1lX2Fzc2VydF8sIF9fTElORV9fKQo+ICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgIF4KPiAgICAgaW5jbHVkZS9saW51eC9jb21waWxlci5o
-OjQ3NDo0OiBub3RlOiBpbiBkZWZpbml0aW9uIG9mIG1hY3JvICdfX2NvbXBpbGV0aW1lX2Fzc2Vy
-dCcKPiAgICAgICAgIHByZWZpeCAjIyBzdWZmaXgoKTsgICAgXAo+ICAgICAgICAgXn5+fn5+Cj4g
-ICAgIGluY2x1ZGUvbGludXgvY29tcGlsZXIuaDo0OTE6Mjogbm90ZTogaW4gZXhwYW5zaW9uIG9m
-IG1hY3JvICdfY29tcGlsZXRpbWVfYXNzZXJ0Jwo+ICAgICAgIF9jb21waWxldGltZV9hc3NlcnQo
-Y29uZGl0aW9uLCBtc2csIF9fY29tcGlsZXRpbWVfYXNzZXJ0XywgX19MSU5FX18pCj4gICAgICAg
-Xn5+fn5+fn5+fn5+fn5+fn5+fgo+ICAgICBpbmNsdWRlL2xpbnV4L2J1Zy5oOjUxOjM3OiBub3Rl
-OiBpbiBleHBhbnNpb24gb2YgbWFjcm8gJ2NvbXBpbGV0aW1lX2Fzc2VydCcKPiAgICAgICNkZWZp
-bmUgQlVJTERfQlVHX09OX01TRyhjb25kLCBtc2cpIGNvbXBpbGV0aW1lX2Fzc2VydCghKGNvbmQp
-LCBtc2cpCj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBefn5+fn5+
-fn5+fn5+fn5+fn4KPiAgICAgYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL2NtcHhjaGcuaDozNTg6
-Mjogbm90ZTogaW4gZXhwYW5zaW9uIG9mIG1hY3JvICdCVUlMRF9CVUdfT05fTVNHJwo+ICAgICAg
-IEJVSUxEX0JVR19PTl9NU0coMSwgIlVuc3VwcG9ydGVkIHNpemUgZm9yIF9fY21weGNoZ19yZWxh
-eGVkIik7Cj4gICAgICAgXn5+fn5+fn5+fn5+fn5+fgo+Cj4gdmltICsvX19jb21waWxldGltZV9h
-c3NlcnRfMzU4ICs0OTEgaW5jbHVkZS9saW51eC9jb21waWxlci5oCj4KPiA5YThhYjFjMyBEYW5p
-ZWwgU2FudG9zICAyMDEzLTAyLTIxICA0NzUgIAkJX19jb21waWxldGltZV9lcnJvcl9mYWxsYmFj
-ayhfX2NvbmQpOwkJCVwKPiA5YThhYjFjMyBEYW5pZWwgU2FudG9zICAyMDEzLTAyLTIxICA0NzYg
-IAl9IHdoaWxlICgwKQo+IDlhOGFiMWMzIERhbmllbCBTYW50b3MgIDIwMTMtMDItMjEgIDQ3Nwo+
-IDlhOGFiMWMzIERhbmllbCBTYW50b3MgIDIwMTMtMDItMjEgIDQ3OCAgI2RlZmluZSBfY29tcGls
-ZXRpbWVfYXNzZXJ0KGNvbmRpdGlvbiwgbXNnLCBwcmVmaXgsIHN1ZmZpeCkgXAo+IDlhOGFiMWMz
-IERhbmllbCBTYW50b3MgIDIwMTMtMDItMjEgIDQ3OSAgCV9fY29tcGlsZXRpbWVfYXNzZXJ0KGNv
-bmRpdGlvbiwgbXNnLCBwcmVmaXgsIHN1ZmZpeCkKPiA5YThhYjFjMyBEYW5pZWwgU2FudG9zICAy
-MDEzLTAyLTIxICA0ODAKPiA5YThhYjFjMyBEYW5pZWwgU2FudG9zICAyMDEzLTAyLTIxICA0ODEg
-IC8qKgo+IDlhOGFiMWMzIERhbmllbCBTYW50b3MgIDIwMTMtMDItMjEgIDQ4MiAgICogY29tcGls
-ZXRpbWVfYXNzZXJ0IC0gYnJlYWsgYnVpbGQgYW5kIGVtaXQgbXNnIGlmIGNvbmRpdGlvbiBpcyBm
-YWxzZQo+IDlhOGFiMWMzIERhbmllbCBTYW50b3MgIDIwMTMtMDItMjEgIDQ4MyAgICogQGNvbmRp
-dGlvbjogYSBjb21waWxlLXRpbWUgY29uc3RhbnQgY29uZGl0aW9uIHRvIGNoZWNrCj4gOWE4YWIx
-YzMgRGFuaWVsIFNhbnRvcyAgMjAxMy0wMi0yMSAgNDg0ICAgKiBAbXNnOiAgICAgICBhIG1lc3Nh
-Z2UgdG8gZW1pdCBpZiBjb25kaXRpb24gaXMgZmFsc2UKPiA5YThhYjFjMyBEYW5pZWwgU2FudG9z
-ICAyMDEzLTAyLTIxICA0ODUgICAqCj4gOWE4YWIxYzMgRGFuaWVsIFNhbnRvcyAgMjAxMy0wMi0y
-MSAgNDg2ICAgKiBJbiB0cmFkaXRpb24gb2YgUE9TSVggYXNzZXJ0LCB0aGlzIG1hY3JvIHdpbGwg
-YnJlYWsgdGhlIGJ1aWxkIGlmIHRoZQo+IDlhOGFiMWMzIERhbmllbCBTYW50b3MgIDIwMTMtMDIt
-MjEgIDQ4NyAgICogc3VwcGxpZWQgY29uZGl0aW9uIGlzICpmYWxzZSosIGVtaXR0aW5nIHRoZSBz
-dXBwbGllZCBlcnJvciBtZXNzYWdlIGlmIHRoZQo+IDlhOGFiMWMzIERhbmllbCBTYW50b3MgIDIw
-MTMtMDItMjEgIDQ4OCAgICogY29tcGlsZXIgaGFzIHN1cHBvcnQgdG8gZG8gc28uCj4gOWE4YWIx
-YzMgRGFuaWVsIFNhbnRvcyAgMjAxMy0wMi0yMSAgNDg5ICAgKi8KPiA5YThhYjFjMyBEYW5pZWwg
-U2FudG9zICAyMDEzLTAyLTIxICA0OTAgICNkZWZpbmUgY29tcGlsZXRpbWVfYXNzZXJ0KGNvbmRp
-dGlvbiwgbXNnKSBcCj4gOWE4YWIxYzMgRGFuaWVsIFNhbnRvcyAgMjAxMy0wMi0yMSBANDkxICAJ
-X2NvbXBpbGV0aW1lX2Fzc2VydChjb25kaXRpb24sIG1zZywgX19jb21waWxldGltZV9hc3NlcnRf
-LCBfX0xJTkVfXykKPiA5YThhYjFjMyBEYW5pZWwgU2FudG9zICAyMDEzLTAyLTIxICA0OTIKPiA0
-NzkzM2FkNCBQZXRlciBaaWpsc3RyYSAyMDEzLTExLTA2ICA0OTMgICNkZWZpbmUgY29tcGlsZXRp
-bWVfYXNzZXJ0X2F0b21pY190eXBlKHQpCQkJCVwKPiA0NzkzM2FkNCBQZXRlciBaaWpsc3RyYSAy
-MDEzLTExLTA2ICA0OTQgIAljb21waWxldGltZV9hc3NlcnQoX19uYXRpdmVfd29yZCh0KSwJCQkJ
-XAo+IDQ3OTMzYWQ0IFBldGVyIFppamxzdHJhIDIwMTMtMTEtMDYgIDQ5NSAgCQkiTmVlZCBuYXRp
-dmUgd29yZCBzaXplZCBzdG9yZXMvbG9hZHMgZm9yIGF0b21pY2l0eS4iKQo+IDQ3OTMzYWQ0IFBl
-dGVyIFppamxzdHJhIDIwMTMtMTEtMDYgIDQ5Ngo+IDljM2NkYzFmIExpbnVzIFRvcnZhbGRzIDIw
-MDgtMDUtMTAgIDQ5NyAgLyoKPiA5YzNjZGMxZiBMaW51cyBUb3J2YWxkcyAyMDA4LTA1LTEwICA0
-OTggICAqIFByZXZlbnQgdGhlIGNvbXBpbGVyIGZyb20gbWVyZ2luZyBvciByZWZldGNoaW5nIGFj
-Y2Vzc2VzLiAgVGhlIGNvbXBpbGVyCj4gOWMzY2RjMWYgTGludXMgVG9ydmFsZHMgMjAwOC0wNS0x
-MCAgNDk5ICAgKiBpcyBhbHNvIGZvcmJpZGRlbiBmcm9tIHJlb3JkZXJpbmcgc3VjY2Vzc2l2ZSBp
-bnN0YW5jZXMgb2YgQUNDRVNTX09OQ0UoKSwKPgo+IDo6Ojo6OiBUaGUgY29kZSBhdCBsaW5lIDQ5
-MSB3YXMgZmlyc3QgaW50cm9kdWNlZCBieSBjb21taXQKPiA6Ojo6OjogOWE4YWIxYzM5OTcwYTQ5
-MzhhNzJkOTRlNmZkMTNiZTg4YTc5NzU5MCBidWcuaCwgY29tcGlsZXIuaDogaW50cm9kdWNlIGNv
-bXBpbGV0aW1lX2Fzc2VydCAmIEJVSUxEX0JVR19PTl9NU0cKPgo+IDo6Ojo6OiBUTzogRGFuaWVs
-IFNhbnRvcyA8ZGFuaWVsLnNhbnRvc0Bwb2JveC5jb20+Cj4gOjo6Ojo6IENDOiBMaW51cyBUb3J2
-YWxkcyA8dG9ydmFsZHNAbGludXgtZm91bmRhdGlvbi5vcmc+Cj4KPiAtLS0KPiAwLURBWSBrZXJu
-ZWwgdGVzdCBpbmZyYXN0cnVjdHVyZSAgICAgICAgICAgICAgICBPcGVuIFNvdXJjZSBUZWNobm9s
-b2d5IENlbnRlcgo+IGh0dHBzOi8vbGlzdHMuMDEub3JnL3BpcGVybWFpbC9rYnVpbGQtYWxsICAg
-ICAgICAgICAgICAgICAgIEludGVsIENvcnBvcmF0aW9uCj4KCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
-aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
-bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+
+--===============2280657147849284507==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="liOOAslEiF7prFVr"
+Content-Disposition: inline
+
+
+--liOOAslEiF7prFVr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Sun, Sep 04, 2016 at 11:38:58PM +0900, Namhyung Kim wrote:
+> The virtio pstore driver provides interface to the pstore subsystem so
+> that the guest kernel's log/dump message can be saved on the host
+> machine.  Users can access the log file directly on the host, or on the
+> guest at the next boot using pstore filesystem.  It currently deals with
+> kernel log (printk) buffer only, but we can extend it to have other
+> information (like ftrace dump) later.
+>=20
+> It supports legacy PCI device using a 16K buffer by default and it's
+> configurable.  It uses two virtqueues - one for (sync) read and another
+> for (async) write.  Since it cannot wait for write finished, it supports
+> up to 128 concurrent IO.
+
+Please document the locks that this code relies on.  It is generally not
+safe to call virtqueue_*() from multiple threads.  I also wonder about
+locking for virtio_pstore->req_id and other fields.  Are locks missing
+or is something in pstore ensuring safety?
+
+> +static int virt_pstore_open(struct pstore_info *psi)
+> +{
+> +	struct virtio_pstore *vps =3D psi->data;
+> +	struct virtio_pstore_req *req;
+> +	struct virtio_pstore_res *res;
+> +	struct scatterlist sgo[1], sgi[1];
+> +	struct scatterlist *sgs[2] =3D { sgo, sgi };
+> +	unsigned int len;
+> +
+> +	virt_pstore_get_reqs(vps, &req, &res);
+> +
+> +	req->cmd =3D cpu_to_le16(VIRTIO_PSTORE_CMD_OPEN);
+> +
+> +	sg_init_one(sgo, req, sizeof(*req));
+> +	sg_init_one(sgi, res, sizeof(*res));
+> +	virtqueue_add_sgs(vps->vq[0], sgs, 1, 1, vps, GFP_KERNEL);
+> +	virtqueue_kick(vps->vq[0]);
+> +
+> +	wait_event(vps->acked, virtqueue_get_buf(vps->vq[0], &len));
+> +	return le32_to_cpu(res->ret);
+
+This assumes the device puts compatible Linux errno values in res->ret.
+The function doesn't need to return -errno if I'm reading fs/pstore/
+code correctly.  You could return -1 on error to avoid making this
+assumption.  The same applies to other res->ret usage below.
+
+> +}
+> +
+> +static int virt_pstore_close(struct pstore_info *psi)
+> +{
+> +	struct virtio_pstore *vps =3D psi->data;
+> +	struct virtio_pstore_req *req =3D &vps->req[vps->req_id];
+> +	struct virtio_pstore_res *res =3D &vps->res[vps->req_id];
+
+Assigning &vps->req[vps->req_id]/&vps->res[vps->req_id] is unnecessary,
+virt_pstore_get_reqs() handles that below.
+
+> +	struct scatterlist sgo[1], sgi[1];
+> +	struct scatterlist *sgs[2] =3D { sgo, sgi };
+> +	unsigned int len;
+> +
+> +	virt_pstore_get_reqs(vps, &req, &res);
+> +
+> +	req->cmd =3D cpu_to_le16(VIRTIO_PSTORE_CMD_CLOSE);
+> +
+> +	sg_init_one(sgo, req, sizeof(*req));
+> +	sg_init_one(sgi, res, sizeof(*res));
+> +	virtqueue_add_sgs(vps->vq[0], sgs, 1, 1, vps, GFP_KERNEL);
+> +	virtqueue_kick(vps->vq[0]);
+> +
+> +	wait_event(vps->acked, virtqueue_get_buf(vps->vq[0], &len));
+> +	return le32_to_cpu(res->ret);
+> +}
+> +
+> +static ssize_t virt_pstore_read(u64 *id, enum pstore_type_id *type,
+> +				int *count, struct timespec *time,
+> +				char **buf, bool *compressed,
+> +				ssize_t *ecc_notice_size,
+> +				struct pstore_info *psi)
+> +{
+> +	struct virtio_pstore *vps =3D psi->data;
+> +	struct virtio_pstore_req *req;
+> +	struct virtio_pstore_res *res;
+> +	struct virtio_pstore_fileinfo info;
+> +	struct scatterlist sgo[1], sgi[3];
+> +	struct scatterlist *sgs[2] =3D { sgo, sgi };
+> +	unsigned int len;
+> +	unsigned int flags;
+> +	int ret;
+> +	void *bf;
+> +
+> +	virt_pstore_get_reqs(vps, &req, &res);
+> +
+> +	req->cmd =3D cpu_to_le16(VIRTIO_PSTORE_CMD_READ);
+> +
+> +	sg_init_one(sgo, req, sizeof(*req));
+> +	sg_init_table(sgi, 3);
+> +	sg_set_buf(&sgi[0], res, sizeof(*res));
+> +	sg_set_buf(&sgi[1], &info, sizeof(info));
+> +	sg_set_buf(&sgi[2], psi->buf, psi->bufsize);
+> +	virtqueue_add_sgs(vps->vq[0], sgs, 1, 1, vps, GFP_KERNEL);
+> +	virtqueue_kick(vps->vq[0]);
+> +
+> +	wait_event(vps->acked, virtqueue_get_buf(vps->vq[0], &len));
+> +	if (len < sizeof(*res) + sizeof(info))
+> +		return -1;
+> +
+> +	ret =3D le32_to_cpu(res->ret);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	len =3D le32_to_cpu(info.len);
+
+We trust the device but a length check would be nice here to be clear
+that the memcpy() below is always safe:
+
+if (len > psi->bufsize)
+    return -1;
+
+> +
+> +	bf =3D kmalloc(len, GFP_KERNEL);
+> +	if (bf =3D=3D NULL)
+> +		return -ENOMEM;
+
+There's no point in returning -ENOMEM if we return -1 and res->ret
+above.  The caller has no way of knowing the true meaning of the return
+value.  I would return -1 to be clear that there are no error constants.
+
+> +
+> +	*id    =3D le64_to_cpu(info.id);
+> +	*type  =3D from_virtio_type(info.type);
+> +	*count =3D le32_to_cpu(info.count);
+> +
+> +	flags =3D le32_to_cpu(info.flags);
+> +	*compressed =3D flags & VIRTIO_PSTORE_FL_COMPRESSED;
+> +
+> +	time->tv_sec  =3D le64_to_cpu(info.time_sec);
+> +	time->tv_nsec =3D le32_to_cpu(info.time_nsec);
+> +
+> +	memcpy(bf, psi->buf, len);
+> +	*buf =3D bf;
+> +
+> +	return len;
+> +}
+> +
+> +static int notrace virt_pstore_write(enum pstore_type_id type,
+> +				     enum kmsg_dump_reason reason,
+> +				     u64 *id, unsigned int part, int count,
+> +				     bool compressed, size_t size,
+> +				     struct pstore_info *psi)
+> +{
+> +	struct virtio_pstore *vps =3D psi->data;
+> +	struct virtio_pstore_req *req;
+> +	struct virtio_pstore_res *res;
+> +	struct scatterlist sgo[2], sgi[1];
+> +	struct scatterlist *sgs[2] =3D { sgo, sgi };
+> +	unsigned int flags =3D compressed ? VIRTIO_PSTORE_FL_COMPRESSED : 0;
+> +
+> +	if (vps->failed)
+> +		return -1;
+> +
+> +	*id =3D vps->req_id;
+> +	virt_pstore_get_reqs(vps, &req, &res);
+
+This function does not wait for a response from the device so you cannot
+call virt_pstore_get_reqs() without risk of reusing an in-flight buffer.
+
+> +
+> +	req->cmd   =3D cpu_to_le16(VIRTIO_PSTORE_CMD_WRITE);
+> +	req->type  =3D to_virtio_type(type);
+> +	req->flags =3D cpu_to_le32(flags);
+> +
+> +	sg_init_table(sgo, 2);
+> +	sg_set_buf(&sgo[0], req, sizeof(*req));
+> +	sg_set_buf(&sgo[1], psi->buf, size);
+> +	sg_init_one(sgi, res, sizeof(*res));
+> +	virtqueue_add_sgs(vps->vq[1], sgs, 1, 1, vps, GFP_ATOMIC);
+
+If we don't wait for request completion then virtqueue_add_sgs() could
+fail here if the virtqueue is already full.
+
+> +	virtqueue_kick(vps->vq[1]);
+> +
+> +	return 0;
+> +}
+> +
+> +static int virt_pstore_erase(enum pstore_type_id type, u64 id, int count,
+> +			     struct timespec time, struct pstore_info *psi)
+> +{
+> +	struct virtio_pstore *vps =3D psi->data;
+> +	struct virtio_pstore_req *req;
+> +	struct virtio_pstore_res *res;
+> +	struct scatterlist sgo[1], sgi[1];
+> +	struct scatterlist *sgs[2] =3D { sgo, sgi };
+> +	unsigned int len;
+> +
+> +	virt_pstore_get_reqs(vps, &req, &res);
+> +
+> +	req->cmd   =3D cpu_to_le16(VIRTIO_PSTORE_CMD_ERASE);
+> +	req->type  =3D to_virtio_type(type);
+> +	req->id	   =3D cpu_to_le64(id);
+> +	req->count =3D cpu_to_le32(count);
+> +
+> +	sg_init_one(sgo, req, sizeof(*req));
+> +	sg_init_one(sgi, res, sizeof(*res));
+> +	virtqueue_add_sgs(vps->vq[0], sgs, 1, 1, vps, GFP_KERNEL);
+> +	virtqueue_kick(vps->vq[0]);
+
+Erase commands are sent on the "read" virtqueue, not the "write"
+virtqueue?
+
+> +
+> +	wait_event(vps->acked, virtqueue_get_buf(vps->vq[0], &len));
+> +	return le32_to_cpu(res->ret);
+> +}
+> +
+> +static int virt_pstore_init(struct virtio_pstore *vps)
+> +{
+> +	struct pstore_info *psinfo =3D &vps->pstore;
+> +	int err;
+> +
+> +	if (!psinfo->bufsize)
+> +		psinfo->bufsize =3D VIRT_PSTORE_BUFSIZE;
+> +
+> +	psinfo->buf =3D alloc_pages_exact(psinfo->bufsize, GFP_KERNEL);
+> +	if (!psinfo->buf) {
+> +		pr_err("cannot allocate pstore buffer\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	psinfo->owner =3D THIS_MODULE;
+> +	psinfo->name  =3D "virtio";
+> +	psinfo->open  =3D virt_pstore_open;
+> +	psinfo->close =3D virt_pstore_close;
+> +	psinfo->read  =3D virt_pstore_read;
+> +	psinfo->erase =3D virt_pstore_erase;
+> +	psinfo->write =3D virt_pstore_write;
+> +	psinfo->flags =3D PSTORE_FLAGS_FRAGILE;
+> +
+> +	psinfo->data  =3D vps;
+> +	spin_lock_init(&psinfo->buf_lock);
+> +
+> +	err =3D pstore_register(psinfo);
+> +	if (err)
+> +		kfree(psinfo->buf);
+
+Should this be free_pages_exact() instead of kfree()?
+
+Is it safe to call pstore_register() before the remaining initialization
+steps?
+
+My understanding is that if pstore is already mounted then requests will
+immediately be sent.  In order to support this we'd need to initialize
+everything else first before calling pstore_register().
+
+> +
+> +	return err;
+> +}
+> +
+> +static int virt_pstore_exit(struct virtio_pstore *vps)
+> +{
+> +	struct pstore_info *psinfo =3D &vps->pstore;
+> +
+> +	pstore_unregister(psinfo);
+> +
+> +	free_pages_exact(psinfo->buf, psinfo->bufsize);
+> +	psinfo->buf =3D NULL;
+> +	psinfo->bufsize =3D 0;
+> +
+> +	return 0;
+> +}
+> +
+> +static int virtpstore_init_vqs(struct virtio_pstore *vps)
+> +{
+> +	vq_callback_t *callbacks[] =3D { virtpstore_ack, virtpstore_check };
+> +	const char *names[] =3D { "pstore_read", "pstore_write" };
+> +
+> +	return vps->vdev->config->find_vqs(vps->vdev, 2, vps->vq,
+> +					   callbacks, names);
+> +}
+> +
+> +static void virtpstore_init_config(struct virtio_pstore *vps)
+> +{
+> +	u32 bufsize;
+> +
+> +	virtio_cread(vps->vdev, struct virtio_pstore_config, bufsize, &bufsize);
+> +
+> +	vps->pstore.bufsize =3D PAGE_ALIGN(bufsize);
+> +}
+> +
+> +static void virtpstore_confirm_config(struct virtio_pstore *vps)
+> +{
+> +	u32 bufsize =3D vps->pstore.bufsize;
+> +
+> +	virtio_cwrite(vps->vdev, struct virtio_pstore_config, bufsize,
+> +		     &bufsize);
+> +}
+> +
+> +static int virtpstore_probe(struct virtio_device *vdev)
+> +{
+> +	struct virtio_pstore *vps;
+> +	int err;
+> +
+> +	if (!vdev->config->get) {
+> +		dev_err(&vdev->dev, "driver init: config access disabled\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	vdev->priv =3D vps =3D kzalloc(sizeof(*vps), GFP_KERNEL);
+> +	if (!vps) {
+> +		err =3D -ENOMEM;
+> +		goto out;
+> +	}
+> +	vps->vdev =3D vdev;
+> +
+> +	err =3D virtpstore_init_vqs(vps);
+> +	if (err < 0)
+> +		goto out_free;
+> +
+> +	virtpstore_init_config(vps);
+> +
+> +	err =3D virt_pstore_init(vps);
+> +	if (err)
+> +		goto out_del_vq;
+> +
+> +	virtpstore_confirm_config(vps);
+> +
+> +	init_waitqueue_head(&vps->acked);
+> +
+> +	virtio_device_ready(vdev);
+
+This call is needed if the .probe() function uses virtqueues before
+returning.  Right now it either doesn't use the virtqueues or it has
+already used them in virt_pstore_init().  Please move this before
+pstore_register().
+
+--liOOAslEiF7prFVr
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJX48c4AAoJEJykq7OBq3PI7kYH/AqkN5Uc0mGDZvGowVbqhmHP
+eG95fWTU0F/sm2po6PGWTbM+hf+vPg0l7CuQcYHmjSu9xN7Elg5XS1C4DJffsYAv
+Pmg6UCqS4NEq5DiFYM2y6XMY8Oh0gFN+Mw61XF4JmeWc4JBQEmLxcjxPsPCzM1WJ
+YMse7mAEbJIGK0kNWxt0ENP2Wg1Rgq2MF8hQEsqSy8MTRMLd8GnQc04xRd60sa2x
+h3x3tbfWrF8/LatfnzBeuRoylJl+sDl5zgJ8rj8w99r2pQDrHprLd5XFAflOIlB6
+a1V5AGcXlFtgXiHS5oGPbLYAqT5x7UgxV/zXjOgbwTm22b9SnFfnxHY9R6841t0=
+=ylUR
+-----END PGP SIGNATURE-----
+
+--liOOAslEiF7prFVr--
+
+--===============2280657147849284507==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============2280657147849284507==--
