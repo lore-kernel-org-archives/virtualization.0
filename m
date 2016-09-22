@@ -1,14 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 1/1] update balloon size in balloon "probe"
-Date: Fri, 23 Sep 2016 21:58:37 +0300
-Message-ID: <20160923215334-mutt-send-email-mst__22592.410996049$1474657144$gmane$org@kernel.org>
-References: <1474638477-8658-1-git-send-email-den@openvz.org>
+From: Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [PATCH v7 6/6] powerpc: pSeries: Add pv-qspinlock build
+	config/make
+Date: Thu, 22 Sep 2016 20:31:59 +1000
+Message-ID: <87a8f08bts.fsf__2467.3985819847$1474829895$gmane$org@concordia.ellerman.id.au>
+References: <201609191651.3BF51xRa%fengguang.wu@intel.com>
+	<57E37216.1030505@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1474638477-8658-1-git-send-email-den@openvz.org>
+In-Reply-To: <57E37216.1030505@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,83 +19,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Denis V. Lunev" <den@openvz.org>
-Cc: Konstantin Neumoin <kneumoin@virtuozzo.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: xinhui <xinhui.pan@linux.vnet.ibm.com>, kbuild test robot <lkp@intel.com>
+Cc: peterz@infradead.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org, waiman.long@hpe.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, kbuild-all@01.org, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 23, 2016 at 04:47:57PM +0300, Denis V. Lunev wrote:
-> From: Konstantin Neumoin <kneumoin@virtuozzo.com>
-> 
-> Patch
->     Commit 3d2a3774c1b046f548ebea0391a602fd5685a307
->     Author: Michael S. Tsirkin <mst@redhat.com>
->     Date:   Tue Mar 10 11:55:08 2015 +1030
->     virtio-balloon: do not call blocking ops when !TASK_RUNNING
-> has added a regression. Original code with wait_event_interruptible
-> checked the condition before start waiting and started balloon operations
-> if necessary.
+xinhui <xinhui.pan@linux.vnet.ibm.com> writes:
 
-I don't get it, sorry.
+> hi, all
+> 	ok, this patch set depends on
+> https://patchwork.kernel.org/patch/8953981/ [V4] powerpc: Implement {cmp}xchg for u8 and u16
 
-+               add_wait_queue(&vb->config_change, &wait);
-+               for (;;) {
-+                       if ((diff = towards_target(vb)) != 0 ||
-+                           vb->need_stats_update ||
-+                           kthread_should_stop() ||
-+                           freezing(current))
-+                               break;
-+                       wait_woken(&wait, TASK_INTERRUPTIBLE, MAX_SCHEDULE_TIMEOUT);
-+               }
-+               remove_wait_queue(&vb->config_change, &wait);
+AKA: https://patchwork.ozlabs.org/patch/615480/
 
-Seems to check the condition before waiting.
+Sorry I saw the discussion on that and thought there'd be a new version.
+But now I read the whole thread it looks like it was OK in the end.
 
-The issue is more likely with this patch:
+I'll try and get it merged.
 
-	commit fad7b7b27b6a168ca8ebc84482043886f837b89d
-	Author: Petr Mladek <pmladek@suse.com>
-	Date:   Mon Jan 25 17:38:05 2016 +0100
-
-	    virtio_balloon: Use a workqueue instead of "vballoon" kthread
-    
-
-
-> Right now balloon is not inflated if ballon target is set before the
-> driver is loaded.
-> 
-> Signed-off-by: Konstantin Neumoin <kneumoin@virtuozzo.com>
-> Signed-off-by: Denis V. Lunev <den@openvz.org>
-> CC: "Michael S. Tsirkin" <mst@redhat.com>
-> ---
->  drivers/virtio/virtio_balloon.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 4e7003d..0a6c10f 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -577,6 +577,10 @@ static int virtballoon_probe(struct virtio_device *vdev)
->  
->  	virtio_device_ready(vdev);
->  
-> +	if (towards_target(vb))
-> +		virtballoon_changed(vdev);
-> +	update_balloon_size(vb);
-> +
->  	return 0;
->  
->  out_del_vqs:
-
-
-I know we have same thing on restore, but it seems bogus
-there as well:
-        if (towards_target(vb))
-                virtballoon_changed(vdev);
-        update_balloon_size(vb);
-
-makes no sense because virtballoon_changed merely queues
-the work.
-
-
-> -- 
-> 2.7.4
+cheers
