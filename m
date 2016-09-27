@@ -1,7 +1,7 @@
-From: Baoyou Xie <baoyou.xie@linaro.org>
-Subject: [PATCH] vhost: mark symbols static in vhost.c
-Date: Mon, 26 Sep 2016 19:45:03 +0800
-Message-ID: <1474890303-3456-1-git-send-email-baoyou.xie@linaro.org>
+From: Jorgen Hansen <jhansen@vmware.com>
+Subject: [PATCH] VSOCK: Don't dec ack backlog twice for rejected connections
+Date: Mon, 26 Sep 2016 23:59:53 -0700
+Message-ID: <1474959593-15311-1-git-send-email-jhansen__45239.9657959633$1474959616$gmane$org@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,42 +15,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: kvm@vger.kernel.org, arnd@arndb.de, netdev@vger.kernel.org, tang.qiang007@zte.com.cn, xie.baoyou@zte.com.cn, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, han.fei@zte.com.cn, baoyou.xie@linaro.org
+To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org, Jorgen Hansen <jhansen@vmware.com>, davem@davemloft.net, stefanha@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-We get 4 warnings when building kernel with W=1:
-drivers/vhost/vhost.c:52:23: warning: no previous prototype for 'vhost_umem_interval_tree_insert' [-Wmissing-prototypes]
-drivers/vhost/vhost.c:52:23: warning: no previous prototype for 'vhost_umem_interval_tree_remove' [-Wmissing-prototypes]
-drivers/vhost/vhost.c:52:23: warning: no previous prototype for 'vhost_umem_interval_tree_iter_first' [-Wmissing-prototypes]
-drivers/vhost/vhost.c:52:23: warning: no previous prototype for 'vhost_umem_interval_tree_iter_next' [-Wmissing-prototypes]
+If a pending socket is marked as rejected, we will decrease the
+sk_ack_backlog twice. So don't decrement it for rejected sockets
+in vsock_pending_work().
 
-In fact, these functions are defined in the
-macro 'INTERVAL_TREE_DEFINE' in include/linux/interval_tree_generic.h
-and don't need a declaration, but can be made static.
+Testing of the rejected socket path was done through code
+modifications.
 
-so this patch marks these functions with 'static' by modifying
-the macro.
-
-Signed-off-by: Baoyou Xie <baoyou.xie@linaro.org>
+Reported-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
+Reviewed-by: Adit Ranadive <aditr@vmware.com>
+Reviewed-by: Aditya Sarwade <asarwade@vmware.com>
 ---
- drivers/vhost/vhost.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/vmw_vsock/af_vsock.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index c6f2d89..99c6d0d 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -48,8 +48,8 @@ enum {
- #define vhost_avail_event(vq) ((__virtio16 __user *)&vq->used->ring[vq->num])
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 17dbbe6..8a398b3 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -465,6 +465,8 @@ void vsock_pending_work(struct work_struct *work)
  
- INTERVAL_TREE_DEFINE(struct vhost_umem_node,
--		     rb, __u64, __subtree_last,
--		     START, LAST, , vhost_umem_interval_tree);
-+		     rb, __u64, __subtree_last, START, LAST,
-+		     static, vhost_umem_interval_tree);
+ 	if (vsock_is_pending(sk)) {
+ 		vsock_remove_pending(listener, sk);
++
++		listener->sk_ack_backlog--;
+ 	} else if (!vsk->rejected) {
+ 		/* We are not on the pending list and accept() did not reject
+ 		 * us, so we must have been accepted by our user process.  We
+@@ -475,8 +477,6 @@ void vsock_pending_work(struct work_struct *work)
+ 		goto out;
+ 	}
  
- #ifdef CONFIG_VHOST_CROSS_ENDIAN_LEGACY
- static void vhost_disable_cross_endian(struct vhost_virtqueue *vq)
+-	listener->sk_ack_backlog--;
+-
+ 	/* We need to remove ourself from the global connected sockets list so
+ 	 * incoming packets can't find this socket, and to reduce the reference
+ 	 * count.
+@@ -2010,5 +2010,5 @@ EXPORT_SYMBOL_GPL(vsock_core_get_transport);
+ 
+ MODULE_AUTHOR("VMware, Inc.");
+ MODULE_DESCRIPTION("VMware Virtual Socket Family");
+-MODULE_VERSION("1.0.1.0-k");
++MODULE_VERSION("1.0.2.0-k");
+ MODULE_LICENSE("GPL v2");
 -- 
-2.7.4
+1.7.0
