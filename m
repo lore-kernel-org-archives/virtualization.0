@@ -1,12 +1,14 @@
-From: Will Deacon <will.deacon@arm.com>
-Subject: VIRTIO_F_IOMMU_PLATFORM
-Date: Tue, 27 Sep 2016 09:57:14 +0100
-Message-ID: <20160927085713.GB3489@arm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] VSOCK: Don't dec ack backlog twice for rejected
+	connections
+Date: Tue, 27 Sep 2016 07:59:56 -0400 (EDT)
+Message-ID: <20160927.075956.93420092875299733.davem@davemloft.net>
+References: <1474959593-15311-1-git-send-email-jhansen@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <1474959593-15311-1-git-send-email-jhansen@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,23 +18,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: virtualization@lists.linux-foundation.org
+To: jhansen@vmware.com
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, gregkh@linuxfoundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Michael,
+From: Jorgen Hansen <jhansen@vmware.com>
+Date: Mon, 26 Sep 2016 23:59:53 -0700
 
-In commit 1a937693993f ("virtio: new feature to detect IOMMU device quirk"),
-you added a new feature bit (VIRTIO_F_IOMMU_PLATFORM) to describe whether
-or not a given virtio device requires physical address or bus addresses.
+> If a pending socket is marked as rejected, we will decrease the
+> sk_ack_backlog twice. So don't decrement it for rejected sockets
+> in vsock_pending_work().
+> 
+> Testing of the rejected socket path was done through code
+> modifications.
+> 
+> Reported-by: Stefan Hajnoczi <stefanha@redhat.com>
+> Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
+> Reviewed-by: Adit Ranadive <aditr@vmware.com>
+> Reviewed-by: Aditya Sarwade <asarwade@vmware.com>
 
-Is there a plan to get this incorporated into the virtio spec [1]? At the
-moment, I can't see a working draft that includes the new bit. Having it
-in the spec would help convince implementors that it's not just a Linux
-thing.
-
-Thanks,
-
-Will
-
-[1] http://docs.oasis-open.org/virtio/virtio/v1.0/cs04/virtio-v1.0-cs04.html
+Applied, thanks.
