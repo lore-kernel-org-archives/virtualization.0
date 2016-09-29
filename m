@@ -1,14 +1,11 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v3 0/4] implement vcpu preempted check
-Date: Thu, 29 Sep 2016 12:10:40 +0200
-Message-ID: <20160929101040.GV5016@twins.programming.kicks-ass.net>
-References: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+From: "Denis V. Lunev" <den@openvz.org>
+Subject: [PATCH v2 1/1] virtio: update balloon size in balloon "probe"
+Date: Thu, 29 Sep 2016 13:17:12 +0300
+Message-ID: <1475144232-10579-1-git-send-email-den@openvz.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,27 +15,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Cc: kernellwp@gmail.com, linux-s390@vger.kernel.org, jgross@suse.com, kvm@vger.kernel.org, xen-devel-request@lists.xenproject.org, will.deacon@arm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, benh@kernel.crashing.org, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
+To: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: den@openvz.org, Konstantin Neumoin <kneumoin@virtuozzo.com>, "Michael S . Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 21, 2016 at 07:45:10AM -0400, Pan Xinhui wrote:
-> change from v2:
-> 	no code change, fix typos, update some comments
-> 
-> change from v1:
-> 	a simplier definition of default vcpu_is_preempted
-> 	skip mahcine type check on ppc, and add config. remove dedicated macro.
-> 	add one patch to drop overload of rwsem_spin_on_owner and mutex_spin_on_owner. 
-> 	add more comments
-> 	thanks boqun and Peter's suggestion.
-> 
-> This patch set aims to fix lock holder preemption issues.
+From: Konstantin Neumoin <kneumoin@virtuozzo.com>
 
-So I really like the concept, but I would also really like to see
-support for more hypervisors included before we can move forward with
-this.
+The following commit 'fad7b7b27b6a (virtio_balloon: Use a workqueue
+instead of "vballoon" kthread)' has added a regression. Original code with
+kthread starts the thread inside probe and checks the necessity to update
+balloon inside the thread immediately.
 
-Please consider s390 and (x86/arm) KVM. Once we have a few, more can
-follow later, but I think its important to not only have PPC support for
-this.
+Nowadays the code behaves differently. Work is queued only on the first
+command from the host after the negotiation. Thus there is a window
+especially at the guest startup or the module reloading when the balloon
+size is not updated until the notification from the host.
+
+This patch adds balloon size check at the end of the probe to match
+original behaviour.
+
+Signed-off-by: Konstantin Neumoin <kneumoin@virtuozzo.com>
+Signed-off-by: Denis V. Lunev <den@openvz.org>
+CC: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/virtio/virtio_balloon.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+Changes from v1:
+- fixed description
+- removed update_balloon_size() call
+
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 4e7003d..181793f 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -577,6 +577,8 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 
+ 	virtio_device_ready(vdev);
+ 
++	if (towards_target(vb))
++		virtballoon_changed(vdev);
+ 	return 0;
+ 
+ out_del_vqs:
+-- 
+2.7.4
