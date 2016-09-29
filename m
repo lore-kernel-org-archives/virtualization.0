@@ -1,11 +1,13 @@
-From: Colin King <colin.king@canonical.com>
-Subject: [PATCH] virtio/s390: add missing \n to end of dev_err message
-Date: Tue, 27 Sep 2016 13:08:44 -0700
-Message-ID: <20160927200844.16008-1-colin.king__5160.31401134587$1475473063$gmane$org@canonical.com>
+From: Renat Valiullin <rvaliullin@vmware.com>
+Subject: [PATCH] x86/vmware: Skip lapic calibration on VMware.
+Date: Thu, 29 Sep 2016 17:51:26 +0000
+Message-ID: <9FDEBA6F-7CB2-4637-BFC7-EA336B97EDAD__30789.5334241495$1475473065$gmane$org@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Language: en-US
+Content-ID: <2B172A673B2F23408743AFCF49625366@namprd05.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,31 +17,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+To: Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, "x86@kernel.org" <x86@kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Colin Ian King <colin.king@canonical.com>
-
-Trival fix, dev_err message is missing a \n, so add it.
-
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- drivers/s390/virtio/virtio_ccw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 8688ad4..9d36dc4 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -462,7 +462,7 @@ static void virtio_ccw_del_vq(struct virtqueue *vq, struct ccw1 *ccw)
- 	 * This may happen on device detach.
- 	 */
- 	if (ret && (ret != -ENODEV))
--		dev_warn(&vq->vdev->dev, "Error %d while deleting queue %d",
-+		dev_warn(&vq->vdev->dev, "Error %d while deleting queue %d\n",
- 			 ret, index);
- 
- 	vring_del_virtqueue(vq);
--- 
-2.9.3
+SW4gdmlydHVhbGl6ZWQgZW52aXJvbm1lbnQgdGhlIEFQSUMgdGltZXIgY2FsaWJyYXRpb24gY291
+bGQgZ28gd3JvbmcNCndoZW4gdGhlIGhvc3QgaXMgb3ZlcmNvbW1pdHRlZCBvciB0aGUgZ3Vlc3Qg
+aXMgcnVubmluZyBuZXN0ZWQsDQp0aGlzIHdvdWxkIHJlc3VsdCBpbsKgdGhlIEFQSUMgdGltZXJz
+IG9wZXJhdGluZyBhdCBhbiBpbmNvcnJlY3QgZnJlcXVlbmN5Lg0KU2luY2UgVk13YXJlIHN1cHBv
+cnRzIGEgbWVjaGFuaXNtIHRvIHJldHJpZXZlIHRoZSBsb2NhbCBBUElDIGZyZXF1ZW5jeQ0Kd2Ug
+Y2FuIGFzayB0aGUgaHlwZXJ2aXNvciBmb3IgaXQgYW5kIHNraXAgdGhpcyBBUElDIGNhbGlicmF0
+aW9uIGxvb3AuDQoNClNpZ25lZC1vZmYtYnk6IFJlbmF0IFZhbGl1bGxpbiA8cnZhbGl1bGxpbkB2
+bXdhcmUuY29tPg0KQWNrZWQtYnk6IEFsb2sgTiBLYXRhcmlhIDxha2F0YXJpYUB2bXdhcmUuY29t
+Pg0KLS0tDQogYXJjaC94ODYva2VybmVsL2NwdS92bXdhcmUuYyB8IDExICsrKysrKysrKy0tDQog
+MSBmaWxlIGNoYW5nZWQsIDkgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkNCg0KZGlmZiAt
+LWdpdCBhL2FyY2gveDg2L2tlcm5lbC9jcHUvdm13YXJlLmMgYi9hcmNoL3g4Ni9rZXJuZWwvY3B1
+L3Ztd2FyZS5jDQppbmRleCAxZmYwNTk4Li42MzE2MjQwIDEwMDY0NA0KLS0tIGEvYXJjaC94ODYv
+a2VybmVsL2NwdS92bXdhcmUuYw0KKysrIGIvYXJjaC94ODYva2VybmVsL2NwdS92bXdhcmUuYw0K
+QEAgLTI3LDYgKzI3LDcgQEANCiAjaW5jbHVkZSA8YXNtL2RpdjY0Lmg+DQogI2luY2x1ZGUgPGFz
+bS94ODZfaW5pdC5oPg0KICNpbmNsdWRlIDxhc20vaHlwZXJ2aXNvci5oPg0KKyNpbmNsdWRlIDxh
+c20vYXBpYy5oPg0KDQogI2RlZmluZSBDUFVJRF9WTVdBUkVfSU5GT19MRUFGIDB4NDAwMDAwMDAN
+CiAjZGVmaW5lIFZNV0FSRV9IWVBFUlZJU09SX01BR0lDICAgICAgICAweDU2NEQ1ODY4DQpAQCAt
+ODIsOSArODMsMTUgQEAgc3RhdGljIHZvaWQgX19pbml0IHZtd2FyZV9wbGF0Zm9ybV9zZXR1cCh2
+b2lkKQ0KDQogICAgICAgIFZNV0FSRV9QT1JUKEdFVEhaLCBlYXgsIGVieCwgZWN4LCBlZHgpOw0K
+DQotICAgICAgIGlmIChlYnggIT0gVUlOVF9NQVgpDQorICAgICAgIGlmIChlYnggIT0gVUlOVF9N
+QVgpIHsNCiAgICAgICAgICAgICAgICB4ODZfcGxhdGZvcm0uY2FsaWJyYXRlX3RzYyA9IHZtd2Fy
+ZV9nZXRfdHNjX2toejsNCi0gICAgICAgZWxzZQ0KKyNpZmRlZiBDT05GSUdfWDg2X0xPQ0FMX0FQ
+SUMNCisgICAgICAgICAgICAgICAvKiBTa2lwIGxhcGljIGNhbGlicmF0aW9uIHNpbmNlIHdlIGtu
+b3cgdGhlIGJ1cyBmcmVxdWVuY3kuICovDQorICAgICAgICAgICAgICAgbGFwaWNfdGltZXJfZnJl
+cXVlbmN5ID0gZWN4IC8gSFo7DQorICAgICAgICAgICAgICAgcHJfaW5mbygiSG9zdCBidXMgY2xv
+Y2sgc3BlZWQgcmVhZCBmcm9tIGh5cGVydmlzb3IgOiAldSBIelxuIiwNCisgICAgICAgICAgICAg
+ICAgICAgICAgIGVjeCk7DQorI2VuZGlmDQorICAgICAgIH0gZWxzZQ0KICAgICAgICAgICAgICAg
+IHByX3dhcm4oIkZhaWxlZCB0byBnZXQgVFNDIGZyZXEgZnJvbSB0aGUgaHlwZXJ2aXNvclxuIik7
+DQogfQ0KDQotLSANCjIuNy40DQoNCg0KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
+QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
+Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
