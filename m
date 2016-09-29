@@ -1,13 +1,14 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH] virtio/s390: add missing \n to end of dev_err message
-Date: Wed, 28 Sep 2016 08:38:55 +0200
-Message-ID: <ec73622e-075f-a14b-0a6d-af07dc4d2d8b__32869.8282748975$1475044773$gmane$org@de.ibm.com>
-References: <20160927200844.16008-1-colin.king@canonical.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v3 0/4] implement vcpu preempted check
+Date: Thu, 29 Sep 2016 12:10:40 +0200
+Message-ID: <20160929101040.GV5016@twins.programming.kicks-ass.net>
+References: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160927200844.16008-1-colin.king@canonical.com>
+Content-Disposition: inline
+In-Reply-To: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,33 +18,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Colin King <colin.king@canonical.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Cc: kernellwp@gmail.com, linux-s390@vger.kernel.org, jgross@suse.com, kvm@vger.kernel.org, xen-devel-request@lists.xenproject.org, will.deacon@arm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, benh@kernel.crashing.org, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 09/27/2016 10:08 PM, Colin King wrote:
-> From: Colin Ian King <colin.king@canonical.com>
+On Thu, Jul 21, 2016 at 07:45:10AM -0400, Pan Xinhui wrote:
+> change from v2:
+> 	no code change, fix typos, update some comments
 > 
-> Trival fix, dev_err message is missing a \n, so add it.
+> change from v1:
+> 	a simplier definition of default vcpu_is_preempted
+> 	skip mahcine type check on ppc, and add config. remove dedicated macro.
+> 	add one patch to drop overload of rwsem_spin_on_owner and mutex_spin_on_owner. 
+> 	add more comments
+> 	thanks boqun and Peter's suggestion.
 > 
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> ---
->  drivers/s390/virtio/virtio_ccw.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index 8688ad4..9d36dc4 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -462,7 +462,7 @@ static void virtio_ccw_del_vq(struct virtqueue *vq, struct ccw1 *ccw)
->  	 * This may happen on device detach.
->  	 */
->  	if (ret && (ret != -ENODEV))
-> -		dev_warn(&vq->vdev->dev, "Error %d while deleting queue %d",
-> +		dev_warn(&vq->vdev->dev, "Error %d while deleting queue %d\n",
->  			 ret, index);
-> 
->  	vring_del_virtqueue(vq);
-> 
+> This patch set aims to fix lock holder preemption issues.
 
-Thanks, applied.
+So I really like the concept, but I would also really like to see
+support for more hypervisors included before we can move forward with
+this.
+
+Please consider s390 and (x86/arm) KVM. Once we have a few, more can
+follow later, but I think its important to not only have PPC support for
+this.
