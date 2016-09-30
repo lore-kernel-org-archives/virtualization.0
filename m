@@ -1,11 +1,20 @@
-From: "ML" <marialemos72@gmail.com>
-Subject: Call for Papers - WorldCIST'17 - 5th World Conference on Information
-	Systems and Technologies (Published by Springer)
-Date: Fri, 30 Sep 2016 10:10:51 +0100
-Message-ID: <201609300911.u8U9BDl3000411@smtp2.dei.uc.pt>
+From: Pan Xinhui <xinhui@linux.vnet.ibm.com>
+Subject: Re: [PATCH v3 0/4] implement vcpu preempted check
+Date: Fri, 30 Sep 2016 17:31:48 +0800
+Message-ID: <ce64b907-6316-7c36-428b-680d869ef045@linux.vnet.ibm.com>
+References: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+	<20160929101040.GV5016@twins.programming.kicks-ass.net>
+	<166f3bad-f700-4624-6c1c-996f90ad609c@de.ibm.com>
+	<20160929103133.GW5016@twins.programming.kicks-ass.net>
+	<496ba299-1f1d-e98b-7827-f861eeea5558@linux.vnet.ibm.com>
+	<2136938368.606190.1475218738567.JavaMail.zimbra@redhat.com>
+	<caabadb6-fe62-aaf7-260f-79f230d03a1c@linux.vnet.ibm.com>
+	<f0e8b549-e647-6a01-a93d-9f192adc70c6@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4822091409393454053=="
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <f0e8b549-e647-6a01-a93d-9f192adc70c6@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,207 +24,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: kernellwp@gmail.com, linux-s390@vger.kernel.org, benh@kernel.crashing.org, jgross@suse.com, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, will deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, xen-devel-request@lists.xenproject.org, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============4822091409393454053==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-*
-** Best papers will be published in more than twenty SCI/SSCI-indexed =
-journals
-*
-
----------------------------------------------------------
-WorldCIST'17 - 5th World Conference on Information Systems and Technol=
-ogies=20
-Porto Santo Island, Madeira, Portugal
-11th-13th of April 2017
-http://www.worldcist.org/
-------------------------------
-
-
-SCOPE
-
-The WorldCist'17 - 5th World Conference on Information Systems and Tec=
-hnologies, to be held at Porto Santo Island, Madeira, Portugal, 11 - 1=
-3 April 2017, is a global forum for researchers and practitioners to p=
-resent and discuss the most recent innovations, trends, results, exper=
-iences and concerns in the several perspectives of Information Systems=
- and Technologies.
-
-We are pleased to invite you to submit your papers to WorldCist'17 (ht=
-tp://www.worldcist.org/). All submissions will be reviewed on the basi=
-s of relevance, originality, importance and clarity.
-
-
-THEMES
-
-Submitted papers should be related with one or more of the main themes=
- proposed for the Conference:
-
-A) Information and Knowledge Management (IKM);
-B) Organizational Models and Information Systems (OMIS);
-C) Software and Systems Modeling (SSM);
-D) Software Systems, Architectures, Applications and Tools (SSAAT);
-E) Multimedia Systems and Applications (MSA);
-F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
-G) Intelligent and Decision Support Systems (IDSS);
-H) Big Data Analytics and Applications (BDAA);
-I) Human-Computer Interaction (HCI);
-J) Ethics, Computers and Security (ECS)
-K) Health Informatics (HIS);
-L) Information Technologies in Education (ITE);
-M) Information Technologies in Radiocommunications (ITR).
-
-
-TYPES of SUBMISSIONS AND DECISIONS
-
-Four types of papers can be submitted:
-
-- Full paper: Finished or consolidated R&D works, to be included in on=
-e of the Conference themes. These papers are assigned a 10-page limit.
-
-- Short paper: Ongoing works with relevant preliminary results, open t=
-o discussion. These papers are assigned a 7-page limit.
-
-- Poster paper: Initial work with relevant ideas, open to discussion. =
-These papers are assigned to a 4-page limit.
-
-- Company paper: Companies' papers that show practical experience, R &=
- D, tools, etc., focused on some topics of the conference. These paper=
-s are assigned to a 4-page limit.
-
-Submitted papers must comply with the format of Advances in Intelligen=
-t Systems and Computing Series (see Instructions for Authors at Spring=
-er Website or download a DOC example) be written in English, must not =
-have been published before, not be under review for any other conferen=
-ce or publication and not include any information leading to the autho=
-rs=92 identification. Therefore, the authors=92 names, affiliations an=
-d bibliographic references should not be included in the version for e=
-valuation by the Program Committee. This information should only be in=
-cluded in the camera-ready version, saved in Word or Latex format and =
-also in PDF format. These files must be accompanied by the Consent to =
-Publication form filled out, in a ZIP file, and uploaded at the confer=
-ence management system.
-
-All papers will be subjected to a =93double-blind review=94 by at leas=
-t two members of the Program Committee.
-
-Based on Program Committee evaluation, a paper can be rejected or acce=
-pted by the Conference Chairs. In the later case, it can be accepted a=
-s the type originally submitted or as another type. Thus, full papers =
-can be accepted as short papers or poster papers only. Similarly, shor=
-t papers can be accepted as poster papers only. In these cases, the au=
-thors will be allowed to maintain the original number of pages in the =
-camera-ready version.
-
-The authors of accepted poster papers must also build and print a post=
-er to be exhibited during the Conference. This poster must follow an A=
-1 or A2 vertical format. The Conference can includes Work Sessions whe=
-re these posters are presented and orally discussed, with a 5 minute l=
-imit per poster.
-
-The authors of accepted full papers will have 15 minutes to present th=
-eir work in a Conference Work Session; approximately 5 minutes of disc=
-ussion will follow each presentation. The authors of accepted short pa=
-pers and company papers will have 11 minutes to present their work in =
-a Conference Work Session; approximately 4 minutes of discussion will =
-follow each presentation.
-
-
-PUBLICATION & INDEXING
-
-To ensure that a full paper, short paper, poster paper or company pape=
-r is published in the Proceedings, at least one of the authors must be=
- fully registered by the 8th of January 2017, and the paper must compl=
-y with the suggested layout and page-limit. Additionally, all recommen=
-ded changes must be addressed by the authors before they submit the ca=
-mera-ready version.
-
-No more than one paper per registration will be published in the Confe=
-rence Proceedings. An extra fee must be paid for publication of additi=
-onal papers, with a maximum of one additional paper per registration. =
-One registration permits only the participation of one author in the c=
-onference.
-
-Full and short papers will be published in Proceedings by Springer, in=
- Advances in Intelligent Systems and Computing Series. Poster and comp=
-any papers will be published by AISTI.
-
-Published full and short papers will be submitted for indexation by IS=
-I, EI-Compendex, SCOPUS, DBLP and Google Scholar, among others, and wi=
-ll be available in the SpringerLink Digital Library.
-
-The authors of the best selected papers will be invited to extend them=
- for publication in international journals indexed by ISI/SCI, SCOPUS =
-and DBLP, among others, such as:
-
-- International Journal of Neural Systems (IF: 6.085 / Q1)
-- Integrated Computer-Aided Engineering (IF: 4.981 / Q1)
-- International Journal of Information Management (IF: 2.692 / Q1)
-- Electronic Commerce Research and Applications (IF: 2.139 / Q1)
-- Computers, Environment and Urban Systems (IF: 2.092 / Q1)
-- Data Mining and Knowledge Discovery (IF: 1.759 / Q1)
-- Journal of Medical Systems (IF: 2.213 / Q2)
-- Journal of Business Research (IF: 2.129 / Q2)
-- Pervasive and Mobile Computing (IF: 1.719 / Q2)
-- Knowledge and Information Systems (IF: 1.702 / Q2)
-- Journal of Grid Computing (IF: 1.561 / Q2) - Special Issue on "Big D=
-ata"
-- Cluster Computing (IF:1.514 / Q2) - Special Issue on "Advanced Machi=
-ne Learning in Parallel and Distributed Knowledge Discovery"
-- International Journal of Critical Infrastructure Protection (IF: 1.3=
-51 / Q2)
-- Expert Systems - Journal of Knowledge Engineering (IF: 0.947 / Q3)
-- Concurrency and Computation: Practice and Experience (IF: 0.942 / Q3)
-- Science of Computer Programming (IF: 0.828 / Q3)
-- Ethics and Information Technology (IF: 0.739 / Q3)
-- Engineering Computations (IF: 0.691 / Q3)
-- Advances in Complex Systems (IF: 0.461 / Q3)
-- Computing and Informatics (IF: 0.504 / Q4)
-- AI Communications (IF: 0.364 / Q4)
-- Journal of Hospitality and Tourism Technology (SR: 0.672 / Q2)
-- Transforming Government: People, Process and Policy (SR: 0.642 / Q2)
-- TEM Journal - Technology, Education, Management, Informatics (ISI - =
-Emerging Sources Citation Index)
-- Computer Methods in Biomechanics and Biomedical Engineering - Imagin=
-g & Visualization (ISI - Emerging Sources Citation Index)
-- Journal of Information Systems Engineering & Management
-
-
-IMPORTANT DATES
-
-Paper Submission: November 13, 2016
-
-Notification of Acceptance: December 25, 20156
-
-Payment of Registration, to ensure the inclusion of an accepted paper =
-in the conference proceedings: January 8, 2017.
-
-Camera-ready Submission: January 8, 2017
-
-
--
-
-Website of WorldCIST'17
-http://www.worldcist.org/
-
-
-
-
-
-
-
---===============4822091409393454053==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4822091409393454053==--
+CgrlnKggMjAxNi85LzMwIDE3OjA4LCBQYW9sbyBCb256aW5pIOWGmemBkzoKPgo+Cj4gT24gMzAv
+MDkvMjAxNiAxMDo1MiwgUGFuIFhpbmh1aSB3cm90ZToKPj4+IHg4NiBoYXMgbm8gaHlwZXJ2aXNv
+ciBzdXBwb3J0LCBhbmQgSSdkIGxpa2UgdG8gdW5kZXJzdGFuZCB0aGUgZGVzaXJlZAo+Pj4gc2Vt
+YW50aWNzIGZpcnN0LCBzbyBJIGRvbid0IHRoaW5rIGl0IHNob3VsZCBibG9jayB0aGlzIHNlcmll
+cy4gIEluCj4+Cj4+IE9uY2UgYSBndWVzdCBkbyBhIGh5cGVyY2FsbCBvciBzb21ldGhpbmcgc2lt
+aWxhciwgSU9XLCB0aGVyZSBpcyBhCj4+IGt2bV9ndWVzdF9leGl0LiB3ZSB0aGluayB0aGlzIGlz
+IGEgbG9jayBob2xkZXIgcHJlZW1wdGlvbi4KPj4gQWRuIFBQQyBpbXBsZW1lbnQgaXQgaW4gdGhp
+cyB3YXkuCj4KPiBPaywgZ29vZC4KPgo+Pj4gcGFydGljdWxhciwgdGhlcmUgYXJlIGF0IGxlYXN0
+IHRoZSBmb2xsb3dpbmcgY2hvaWNlczoKPj4+Cj4+PiAxKSBleGl0IHRvIHVzZXJzcGFjZSAoNS0x
+MC4wMDAgY2xvY2sgY3ljbGVzIGJlc3QgY2FzZSkgY291bnRzIGFzCj4+PiBsb2NrIGhvbGRlciBw
+cmVlbXB0aW9uCj4+Pgo+Pj4gMikgYW55IHRpbWUgdGhlIHZDUFUgdGhyZWFkIG5vdCBydW5uaW5n
+IGNvdW50cyBhcyBsb2NrIGhvbGRlcgo+Pj4gcHJlZW1wdGlvbgo+Pj4KPj4+IFRvIGltcGxlbWVu
+dCB0aGUgbGF0dGVyIHlvdSdkIG5lZWQgYSBoeXBlcmNhbGwgb3IgTVNSIChhdCBsZWFzdCBhcwo+
+Pj4gYSBzbG93IHBhdGgpLCBiZWNhdXNlIHRoZSBLVk0gcHJlZW1wdCBub3RpZmllciBpcyBvbmx5
+IGFjdGl2ZQo+Pj4gZHVyaW5nIHRoZSBLVk1fUlVOIGlvY3RsLgo+Pgo+PiBzZWVtcyBhIGxpdHRs
+ZSBleHBlbnNpdmUuIDooCj4+IEhvdyBtYW55IGNsb2NrIGN5Y2xlcyBpdCBtaWdodCBjb3N0Lgo+
+Cj4gQW4gTVNSIHJlYWQgaXMgYWJvdXQgMTUwMCBjbG9jayBjeWNsZXMsIGJ1dCBpdCBuZWVkIG5v
+dCBiZSB0aGUgZmFzdCBwYXRoCj4gKGUuZy4gdXNlIGEgYml0IHRvIGNoZWNrIGlmIHRoZSBDUFUg
+aXMgcnVubmluZywgaWYgbm90IHVzZSB0aGUgTVNSIHRvCj4gY2hlY2sgaWYgdGhlIENQVSBpcyBp
+biB1c2Vyc3BhY2UgYnV0IHRoZSBDUFUgdGhyZWFkIGlzIHNjaGVkdWxlZCkuICBCdXQKPiBpdCdz
+IG5vdCBuZWNlc3NhcnkgaWYgeW91IGFyZSBqdXN0IG1hdGNoaW5nIFBQQyBzZW1hbnRpY3MuCj4K
+PiBUaGVuIHRoZSBzaW1wbGVzdCB0aGluZyBpcyB0byB1c2UgdGhlIGt2bV9zdGVhbF90aW1lIHN0
+cnVjdCwgYW5kIGFkZCBhCj4gbmV3IGZpZWxkIHRvIGl0IHRoYXQgcmVwbGFjZXMgcGFkWzBdLiAg
+WW91IGNhbiB3cml0ZSBhIDAgdG8gdGhlIGZsYWcgaW4KPiByZWNvcmRfc3RlYWxfdGltZSAobm90
+IHByZWVtcHRlZCkgYW5kIGEgMSBpbiBrdm1fYXJjaF92Y3B1X3B1dAo+IChwcmVlbXB0ZWQpLiAg
+cmVjb3JkX3N0ZWFsX3RpbWUgaXMgY2FsbGVkIGJlZm9yZSB0aGUgVk0gc3RhcnRzIHJ1bm5pbmcs
+Cj4gaW1tZWRpYXRlbHkgYWZ0ZXIgS1ZNX1JVTiBhbmQgYWxzbyBhZnRlciBldmVyeSBzY2hlZF9p
+bi4KPgo+IElmIEtWTSBkb2Vzbid0IGltcGxlbWVudCB0aGUgZmxhZywgaXQgd29uJ3QgdG91Y2gg
+dGhhdCBmaWVsZCBhdCBhbGwuICBTbwo+IHRoZSBrZXJuZWwgY2FuIHdyaXRlIGEgMCwgbWVhbmlu
+ZyAibm90IHByZWVtcHRlZCIsIGFuZCBub3QgY2FyZSBpZiB0aGUKPiBoeXBlcnZpc29yIGltcGxl
+bWVudHMgdGhlIGZsYWcgb3Igbm90OiB0aGUgYW5zd2VyIHdpbGwgYWx3YXlzIGJlIHNhZmUuCj4K
+PiBUaGUgcG9pbnRlciB0byB0aGUgZmxhZyBjYW4gYmUgcGxhY2VkIGluIGEgcGVyLWNwdSB1MzIq
+LCBhbmQgYWdhaW4gaWYKPiB0aGUgdTMyKiBpcyBOVUxMIHRoYXQgbWVhbnMgIm5vdCBwcmVlbXB0
+ZWQiLgo+CnJlYWxseSBuaWNlIHN1Z2dlc3Rpb24hICBUaGF0J3Mgd2hhdCBJIHdhbnQgOikKCnRo
+YW5rcwp4aW5odWkKCj4gUGFvbG8KPgo+Cj4+IEkgYW0gc3RpbGwgbG9va2luZyBmb3Igb25lIHNo
+YXJlZCBzdHJ1Y3QgYmV0d2VlbiBrdm0gYW5kIGd1ZXN0IGtlcm5lbCBvbgo+PiB4ODYuCj4+IGFu
+ZCBldmVyeSB0aW1lIGt2bV9ndWVzdF9leGl0L2VudGVyIGNhbGxlZCwgd2Ugc3RvcmUgc29tZSBp
+bmZvIGluIGl0LiBTbwo+PiBndWVzdCBrZXJuZWwgY2FuIGNoZWNrIG9uZSB2Y3B1IGlzIHJ1bm5p
+bmcgb3Igbm90IHF1aWNrbHkuCj4+Cj4+IHRoYW5rcwo+PiB4aW5odWkKPj4KPj4+IFBhb2xvCj4+
+Pgo+Pgo+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
+aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
+bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
+dGluZm8vdmlydHVhbGl6YXRpb24=
