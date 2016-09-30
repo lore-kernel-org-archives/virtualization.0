@@ -1,19 +1,11 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH v3 0/4] implement vcpu preempted check
-Date: Fri, 30 Sep 2016 11:08:10 +0200
-Message-ID: <f0e8b549-e647-6a01-a93d-9f192adc70c6__30832.6691658751$1475226525$gmane$org@redhat.com>
-References: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<20160929101040.GV5016@twins.programming.kicks-ass.net>
-	<166f3bad-f700-4624-6c1c-996f90ad609c@de.ibm.com>
-	<20160929103133.GW5016@twins.programming.kicks-ass.net>
-	<496ba299-1f1d-e98b-7827-f861eeea5558@linux.vnet.ibm.com>
-	<2136938368.606190.1475218738567.JavaMail.zimbra@redhat.com>
-	<caabadb6-fe62-aaf7-260f-79f230d03a1c@linux.vnet.ibm.com>
+From: "ML" <marialemos72@gmail.com>
+Subject: Call for Papers - WorldCIST'17 - 5th World Conference on Information
+	Systems and Technologies (Published by Springer)
+Date: Fri, 30 Sep 2016 10:10:51 +0100
+Message-ID: <201609300911.u8U9BDl3000411@smtp2.dei.uc.pt>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============4822091409393454053=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <caabadb6-fe62-aaf7-260f-79f230d03a1c@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,66 +15,207 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pan Xinhui <xinhui@linux.vnet.ibm.com>
-Cc: kernellwp@gmail.com, linux-s390@vger.kernel.org, benh@kernel.crashing.org, jgross@suse.com, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, will deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, xen-devel-request@lists.xenproject.org, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+--===============4822091409393454053==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+*
+** Best papers will be published in more than twenty SCI/SSCI-indexed =
+journals
+*
+
+---------------------------------------------------------
+WorldCIST'17 - 5th World Conference on Information Systems and Technol=
+ogies=20
+Porto Santo Island, Madeira, Portugal
+11th-13th of April 2017
+http://www.worldcist.org/
+------------------------------
 
 
-On 30/09/2016 10:52, Pan Xinhui wrote:
->> x86 has no hypervisor support, and I'd like to understand the desired
->> semantics first, so I don't think it should block this series.  In
-> 
-> Once a guest do a hypercall or something similar, IOW, there is a
-> kvm_guest_exit. we think this is a lock holder preemption.
-> Adn PPC implement it in this way.
+SCOPE
 
-Ok, good.
+The WorldCist'17 - 5th World Conference on Information Systems and Tec=
+hnologies, to be held at Porto Santo Island, Madeira, Portugal, 11 - 1=
+3 April 2017, is a global forum for researchers and practitioners to p=
+resent and discuss the most recent innovations, trends, results, exper=
+iences and concerns in the several perspectives of Information Systems=
+ and Technologies.
 
->> particular, there are at least the following choices:
->>
->> 1) exit to userspace (5-10.000 clock cycles best case) counts as
->> lock holder preemption
->>
->> 2) any time the vCPU thread not running counts as lock holder
->> preemption
->>
->> To implement the latter you'd need a hypercall or MSR (at least as
->> a slow path), because the KVM preempt notifier is only active
->> during the KVM_RUN ioctl.
->
-> seems a little expensive. :(
-> How many clock cycles it might cost.
-
-An MSR read is about 1500 clock cycles, but it need not be the fast path
-(e.g. use a bit to check if the CPU is running, if not use the MSR to
-check if the CPU is in userspace but the CPU thread is scheduled).  But
-it's not necessary if you are just matching PPC semantics.
-
-Then the simplest thing is to use the kvm_steal_time struct, and add a
-new field to it that replaces pad[0].  You can write a 0 to the flag in
-record_steal_time (not preempted) and a 1 in kvm_arch_vcpu_put
-(preempted).  record_steal_time is called before the VM starts running,
-immediately after KVM_RUN and also after every sched_in.
-
-If KVM doesn't implement the flag, it won't touch that field at all.  So
-the kernel can write a 0, meaning "not preempted", and not care if the
-hypervisor implements the flag or not: the answer will always be safe.
-
-The pointer to the flag can be placed in a per-cpu u32*, and again if
-the u32* is NULL that means "not preempted".
-
-Paolo
+We are pleased to invite you to submit your papers to WorldCist'17 (ht=
+tp://www.worldcist.org/). All submissions will be reviewed on the basi=
+s of relevance, originality, importance and clarity.
 
 
-> I am still looking for one shared struct between kvm and guest kernel on
-> x86.
-> and every time kvm_guest_exit/enter called, we store some info in it. So
-> guest kernel can check one vcpu is running or not quickly.
-> 
-> thanks
-> xinhui
-> 
->> Paolo
->>
-> 
+THEMES
+
+Submitted papers should be related with one or more of the main themes=
+ proposed for the Conference:
+
+A) Information and Knowledge Management (IKM);
+B) Organizational Models and Information Systems (OMIS);
+C) Software and Systems Modeling (SSM);
+D) Software Systems, Architectures, Applications and Tools (SSAAT);
+E) Multimedia Systems and Applications (MSA);
+F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
+G) Intelligent and Decision Support Systems (IDSS);
+H) Big Data Analytics and Applications (BDAA);
+I) Human-Computer Interaction (HCI);
+J) Ethics, Computers and Security (ECS)
+K) Health Informatics (HIS);
+L) Information Technologies in Education (ITE);
+M) Information Technologies in Radiocommunications (ITR).
+
+
+TYPES of SUBMISSIONS AND DECISIONS
+
+Four types of papers can be submitted:
+
+- Full paper: Finished or consolidated R&D works, to be included in on=
+e of the Conference themes. These papers are assigned a 10-page limit.
+
+- Short paper: Ongoing works with relevant preliminary results, open t=
+o discussion. These papers are assigned a 7-page limit.
+
+- Poster paper: Initial work with relevant ideas, open to discussion. =
+These papers are assigned to a 4-page limit.
+
+- Company paper: Companies' papers that show practical experience, R &=
+ D, tools, etc., focused on some topics of the conference. These paper=
+s are assigned to a 4-page limit.
+
+Submitted papers must comply with the format of Advances in Intelligen=
+t Systems and Computing Series (see Instructions for Authors at Spring=
+er Website or download a DOC example) be written in English, must not =
+have been published before, not be under review for any other conferen=
+ce or publication and not include any information leading to the autho=
+rs=92 identification. Therefore, the authors=92 names, affiliations an=
+d bibliographic references should not be included in the version for e=
+valuation by the Program Committee. This information should only be in=
+cluded in the camera-ready version, saved in Word or Latex format and =
+also in PDF format. These files must be accompanied by the Consent to =
+Publication form filled out, in a ZIP file, and uploaded at the confer=
+ence management system.
+
+All papers will be subjected to a =93double-blind review=94 by at leas=
+t two members of the Program Committee.
+
+Based on Program Committee evaluation, a paper can be rejected or acce=
+pted by the Conference Chairs. In the later case, it can be accepted a=
+s the type originally submitted or as another type. Thus, full papers =
+can be accepted as short papers or poster papers only. Similarly, shor=
+t papers can be accepted as poster papers only. In these cases, the au=
+thors will be allowed to maintain the original number of pages in the =
+camera-ready version.
+
+The authors of accepted poster papers must also build and print a post=
+er to be exhibited during the Conference. This poster must follow an A=
+1 or A2 vertical format. The Conference can includes Work Sessions whe=
+re these posters are presented and orally discussed, with a 5 minute l=
+imit per poster.
+
+The authors of accepted full papers will have 15 minutes to present th=
+eir work in a Conference Work Session; approximately 5 minutes of disc=
+ussion will follow each presentation. The authors of accepted short pa=
+pers and company papers will have 11 minutes to present their work in =
+a Conference Work Session; approximately 4 minutes of discussion will =
+follow each presentation.
+
+
+PUBLICATION & INDEXING
+
+To ensure that a full paper, short paper, poster paper or company pape=
+r is published in the Proceedings, at least one of the authors must be=
+ fully registered by the 8th of January 2017, and the paper must compl=
+y with the suggested layout and page-limit. Additionally, all recommen=
+ded changes must be addressed by the authors before they submit the ca=
+mera-ready version.
+
+No more than one paper per registration will be published in the Confe=
+rence Proceedings. An extra fee must be paid for publication of additi=
+onal papers, with a maximum of one additional paper per registration. =
+One registration permits only the participation of one author in the c=
+onference.
+
+Full and short papers will be published in Proceedings by Springer, in=
+ Advances in Intelligent Systems and Computing Series. Poster and comp=
+any papers will be published by AISTI.
+
+Published full and short papers will be submitted for indexation by IS=
+I, EI-Compendex, SCOPUS, DBLP and Google Scholar, among others, and wi=
+ll be available in the SpringerLink Digital Library.
+
+The authors of the best selected papers will be invited to extend them=
+ for publication in international journals indexed by ISI/SCI, SCOPUS =
+and DBLP, among others, such as:
+
+- International Journal of Neural Systems (IF: 6.085 / Q1)
+- Integrated Computer-Aided Engineering (IF: 4.981 / Q1)
+- International Journal of Information Management (IF: 2.692 / Q1)
+- Electronic Commerce Research and Applications (IF: 2.139 / Q1)
+- Computers, Environment and Urban Systems (IF: 2.092 / Q1)
+- Data Mining and Knowledge Discovery (IF: 1.759 / Q1)
+- Journal of Medical Systems (IF: 2.213 / Q2)
+- Journal of Business Research (IF: 2.129 / Q2)
+- Pervasive and Mobile Computing (IF: 1.719 / Q2)
+- Knowledge and Information Systems (IF: 1.702 / Q2)
+- Journal of Grid Computing (IF: 1.561 / Q2) - Special Issue on "Big D=
+ata"
+- Cluster Computing (IF:1.514 / Q2) - Special Issue on "Advanced Machi=
+ne Learning in Parallel and Distributed Knowledge Discovery"
+- International Journal of Critical Infrastructure Protection (IF: 1.3=
+51 / Q2)
+- Expert Systems - Journal of Knowledge Engineering (IF: 0.947 / Q3)
+- Concurrency and Computation: Practice and Experience (IF: 0.942 / Q3)
+- Science of Computer Programming (IF: 0.828 / Q3)
+- Ethics and Information Technology (IF: 0.739 / Q3)
+- Engineering Computations (IF: 0.691 / Q3)
+- Advances in Complex Systems (IF: 0.461 / Q3)
+- Computing and Informatics (IF: 0.504 / Q4)
+- AI Communications (IF: 0.364 / Q4)
+- Journal of Hospitality and Tourism Technology (SR: 0.672 / Q2)
+- Transforming Government: People, Process and Policy (SR: 0.642 / Q2)
+- TEM Journal - Technology, Education, Management, Informatics (ISI - =
+Emerging Sources Citation Index)
+- Computer Methods in Biomechanics and Biomedical Engineering - Imagin=
+g & Visualization (ISI - Emerging Sources Citation Index)
+- Journal of Information Systems Engineering & Management
+
+
+IMPORTANT DATES
+
+Paper Submission: November 13, 2016
+
+Notification of Acceptance: December 25, 20156
+
+Payment of Registration, to ensure the inclusion of an accepted paper =
+in the conference proceedings: January 8, 2017.
+
+Camera-ready Submission: January 8, 2017
+
+
+-
+
+Website of WorldCIST'17
+http://www.worldcist.org/
+
+
+
+
+
+
+
+--===============4822091409393454053==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============4822091409393454053==--
