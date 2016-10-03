@@ -1,16 +1,15 @@
-From: Konstantin Neumoin <kneumoin@virtuozzo.com>
-Subject: Re: [PATCH 1/1] update balloon size in balloon "probe"
-Date: Wed, 28 Sep 2016 17:03:50 +0300
-Message-ID: <4f17023e-7e29-2c55-f7b7-0eff2dd014b3__27952.8829655193$1475473066$gmane$org@virtuozzo.com>
-References: <1474638477-8658-1-git-send-email-den@openvz.org>
-	<20160923215334-mutt-send-email-mst@kernel.org>
-	<c41cf1cf-35e5-1f31-0d2c-9864e6012ac9@virtuozzo.com>
-Reply-To: kneumoin@virtuozzo.com
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH 4/4] virtio_blk: Rename a jump label in virtblk_get_id()
+Date: Mon, 3 Oct 2016 10:07:01 +0100
+Message-ID: <CAJSP0QV2WUJPqeiSKcWiXWk+AoJ2MGo2zG4=JQ2tfpTprAyV=g__11438.8339258314$1475485652$gmane$org@mail.gmail.com>
+References: <566ABCD9.1060404@users.sourceforge.net>
+	<02054675-8395-ac81-6863-e3a5cbfc9032@users.sourceforge.net>
+	<a303f7a6-c675-5228-99bd-a03c9e9252e9@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <c41cf1cf-35e5-1f31-0d2c-9864e6012ac9@virtuozzo.com>
+In-Reply-To: <a303f7a6-c675-5228-99bd-a03c9e9252e9@users.sourceforge.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,98 +19,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, "Denis V. Lunev" <den@openvz.org>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: SF Markus Elfring <elfring@users.sourceforge.net>
+Cc: Julia Lawall <julia.lawall@lip6.fr>, "Michael S. Tsirkin" <mst@redhat.com>, kernel-janitors@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 09/26/2016 10:16 AM, Konstantin Neumoin wrote:
-> On 09/23/2016 09:58 PM, Michael S. Tsirkin wrote:
->> On Fri, Sep 23, 2016 at 04:47:57PM +0300, Denis V. Lunev wrote:
->>> From: Konstantin Neumoin <kneumoin@virtuozzo.com>
->>>
->>> Patch
->>>      Commit 3d2a3774c1b046f548ebea0391a602fd5685a307
->>>      Author: Michael S. Tsirkin <mst@redhat.com>
->>>      Date:   Tue Mar 10 11:55:08 2015 +1030
->>>      virtio-balloon: do not call blocking ops when !TASK_RUNNING
->>> has added a regression. Original code with wait_event_interruptible
->>> checked the condition before start waiting and started balloon 
->>> operations
->>> if necessary.
->> I don't get it, sorry.
->>
->> +               add_wait_queue(&vb->config_change, &wait);
->> +               for (;;) {
->> +                       if ((diff = towards_target(vb)) != 0 ||
->> +                           vb->need_stats_update ||
->> +                           kthread_should_stop() ||
->> +                           freezing(current))
->> +                               break;
->> +                       wait_woken(&wait, TASK_INTERRUPTIBLE, 
->> MAX_SCHEDULE_TIMEOUT);
->> +               }
->> +               remove_wait_queue(&vb->config_change, &wait);
->>
->> Seems to check the condition before waiting.
->>
->> The issue is more likely with this patch:
->>
->>     commit fad7b7b27b6a168ca8ebc84482043886f837b89d
->>     Author: Petr Mladek <pmladek@suse.com>
->>     Date:   Mon Jan 25 17:38:05 2016 +0100
->>
->>         virtio_balloon: Use a workqueue instead of "vballoon" kthread
-> yes, you are right, sorry, commit message is incorrect.
->>
->>
->>> Right now balloon is not inflated if ballon target is set before the
->>> driver is loaded.
->>>
->>> Signed-off-by: Konstantin Neumoin <kneumoin@virtuozzo.com>
->>> Signed-off-by: Denis V. Lunev <den@openvz.org>
->>> CC: "Michael S. Tsirkin" <mst@redhat.com>
->>> ---
->>>   drivers/virtio/virtio_balloon.c | 4 ++++
->>>   1 file changed, 4 insertions(+)
->>>
->>> diff --git a/drivers/virtio/virtio_balloon.c 
->>> b/drivers/virtio/virtio_balloon.c
->>> index 4e7003d..0a6c10f 100644
->>> --- a/drivers/virtio/virtio_balloon.c
->>> +++ b/drivers/virtio/virtio_balloon.c
->>> @@ -577,6 +577,10 @@ static int virtballoon_probe(struct 
->>> virtio_device *vdev)
->>>         virtio_device_ready(vdev);
->>>   +    if (towards_target(vb))
->>> +        virtballoon_changed(vdev);
->>> +    update_balloon_size(vb);
->>> +
->>>       return 0;
->>>     out_del_vqs:
->>
->> I know we have same thing on restore, but it seems bogus
->> there as well:
->>          if (towards_target(vb))
->>                  virtballoon_changed(vdev);
->>          update_balloon_size(vb);
->>
->> makes no sense because virtballoon_changed merely queues
->> the work.
->  in virtballoon_probe we just init work items, but if we have a target 
-> - num_pages != 0
-> we will catch it only after virtballoon_changed will be called, isn't it?
+On Tue, Sep 13, 2016 at 1:15 PM, SF Markus Elfring
+<elfring@users.sourceforge.net> wrote:
+> From: Markus Elfring <elfring@users.sourceforge.net>
+> Date: Tue, 13 Sep 2016 13:50:56 +0200
 >
->  So, I believe, on probe, we have to do the same thing as on restore: 
-> check towards_target(vb)
-> and call virtballoon_changed(vdev) if necessary.
->>
+> Adjust a jump label according to the current Linux coding style convention.
 
-  Also we could try inflate the balloon once(by fill_balloon()) on probe 
-and it leads to config change,
-but we will not receive this notification because of config change 
-pending will be enabled after
-drv->prob() in virtio_dev_probe.
->>> -- 
->>> 2.7.4
+I think you mean "goto label".  "Jump label" has a different meaning,
+see <linux/jump_label.h>.
+
+> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+> ---
+>  drivers/block/virtio_blk.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 >
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 696f452..fef2bd0 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -247,10 +247,10 @@ static int virtblk_get_id(struct gendisk *disk, char *id_str)
 >
+>         err = blk_rq_map_kern(q, req, id_str, VIRTIO_BLK_ID_BYTES, GFP_KERNEL);
+>         if (err)
+> -               goto out;
+> +               goto put_request;
+>
+>         err = blk_execute_rq(vblk->disk->queue, vblk->disk, req, false);
+> -out:
+> + put_request:
+
+I checked Documentation/CodingStyle and see no reason to rename the label.
+
+It's also not clear why you added a space.  The CodingStyle example
+does not use a space before the label.
