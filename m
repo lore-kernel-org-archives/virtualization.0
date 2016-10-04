@@ -1,16 +1,17 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: Re: virtio_blk: Rename a jump label in virtblk_get_id()
-Date: Mon, 3 Oct 2016 14:12:39 +0200
-Message-ID: <051e7718-b5bb-e716-b2c0-515ee4488c4a__20640.615389175$1475496796$gmane$org@users.sourceforge.net>
-References: <566ABCD9.1060404@users.sourceforge.net>
-	<02054675-8395-ac81-6863-e3a5cbfc9032@users.sourceforge.net>
-	<a303f7a6-c675-5228-99bd-a03c9e9252e9@users.sourceforge.net>
-	<CAJSP0QV2WUJPqeiSKcWiXWk+AoJ2MGo2zG4=JQ2tfpTprAyV=g@mail.gmail.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH v2 1/1] s390/spinlock: Provide vcpu_is_preempted
+Date: Tue, 4 Oct 2016 12:17:32 +0200
+Message-ID: <3195b219-28f3-883a-7f3f-c555860098fb@de.ibm.com>
+References: <1475164265-246160-1-git-send-email-borntraeger@de.ibm.com>
+	<1475164265-246160-2-git-send-email-borntraeger@de.ibm.com>
+	<b2ace794-c1cc-11be-f9f5-d6429e192825@linux.vnet.ibm.com>
+	<20160930055236.GB22004@tardis.cn.ibm.com>
+	<99d81ce9-8362-1b6b-15e1-e451ed379d50@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJSP0QV2WUJPqeiSKcWiXWk+AoJ2MGo2zG4=JQ2tfpTprAyV=g@mail.gmail.com>
+In-Reply-To: <99d81ce9-8362-1b6b-15e1-e451ed379d50@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,42 +21,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: Julia Lawall <julia.lawall@lip6.fr>, "Michael S. Tsirkin" <mst@redhat.com>, kernel-janitors@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: Pan Xinhui <xinhui@linux.vnet.ibm.com>, Boqun Feng <boqun.feng@gmail.com>
+Cc: kernellwp@gmail.com, linux-s390@vger.kernel.org, benh@kernel.crashing.org, jgross@suse.com, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, will.deacon@arm.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, xen-devel-request@lists.xenproject.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
->> Adjust a jump label according to the current Linux coding style convention.
-> 
-> I think you mean "goto label".  "Jump label" has a different meaning,
-> see <linux/jump_label.h>.
-
-Does a "goto" statement jump to the code position finally
-which is specified by the label?
-
-
->> @@ -247,10 +247,10 @@ static int virtblk_get_id(struct gendisk *disk, char *id_str)
->>
->>         err = blk_rq_map_kern(q, req, id_str, VIRTIO_BLK_ID_BYTES, GFP_KERNEL);
->>         if (err)
->> -               goto out;
->> +               goto put_request;
->>
->>         err = blk_execute_rq(vblk->disk->queue, vblk->disk, req, false);
->> -out:
->> + put_request:
-> 
-> I checked Documentation/CodingStyle and see no reason to rename the label.
-
-Can the suggested longer identifier explain better the "what" and "why"
-for this software situation?
-
-
-> It's also not clear why you added a space.  The CodingStyle example
-> does not use a space before the label.
-
-Do you find information from a commit like "docs: Remove space-before-label guidance
-from CodingStyle" (from 2016-09-21) interesting?   ;-)
-https://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git/commit/Documentation/CodingStyle?id=79c70c304b0b443429b2a0019518532c5162817a
-
-Regards,
-Markus
+T24gMDkvMzAvMjAxNiAwODozNSBBTSwgUGFuIFhpbmh1aSB3cm90ZToKPiAKPiAKPiDlnKggMjAx
+Ni85LzMwIDEzOjUyLCBCb3F1biBGZW5nIOWGmemBkzoKPj4gT24gRnJpLCBTZXAgMzAsIDIwMTYg
+YXQgMTI6NDk6NTJQTSArMDgwMCwgUGFuIFhpbmh1aSB3cm90ZToKPj4+Cj4+Pgo+Pj4g5ZyoIDIw
+MTYvOS8yOSAyMzo1MSwgQ2hyaXN0aWFuIEJvcm50cmFlZ2VyIOWGmemBkzoKPj4+PiB0aGlzIGlt
+cGxlbWVudHMgdGhlIHMzOTAgYmFja2VuZCBmb3IgY29tbWl0Cj4+Pj4gImtlcm5lbC9zY2hlZDog
+aW50cm9kdWNlIHZjcHUgcHJlZW1wdGVkIGNoZWNrIGludGVyZmFjZSIKPj4+PiBieSByZXdvcmtp
+bmcgdGhlIGV4aXN0aW5nIHNtcF92Y3B1X3NjaGVkdWxlZCBpbnRvCj4+Pj4gYXJjaF92Y3B1X2lz
+X3ByZWVtcHRlZC4gV2UgY2FuIHRoZW4gYWxzbyBnZXQgcmlkIG9mIHRoZQo+Pj4+IGxvY2FsIGNw
+dV9pc19wcmVlbXB0ZWQgZnVuY3Rpb24gYnkgbW92aW5nIHRoZQo+Pj4+IENJRl9FTkFCTEVEX1dB
+SVQgdGVzdCBpbnRvIGFyY2hfdmNwdV9pc19wcmVlbXB0ZWQuCj4+Pj4KPj4+PiBTaWduZWQtb2Zm
+LWJ5OiBDaHJpc3RpYW4gQm9ybnRyYWVnZXIgPGJvcm50cmFlZ2VyQGRlLmlibS5jb20+Cj4+Pj4g
+LS0tCj4+Pgo+Pj4gaGksIENocmlzdGlhbgo+Pj4gICAgIHRoYW5rcyBmb3IgeW91ciBwYXRjaCEK
+Pj4+Cj4+Pj4gIGFyY2gvczM5MC9pbmNsdWRlL2FzbS9zcGlubG9jay5oIHwgIDMgKysrCj4+Pj4g
+IGFyY2gvczM5MC9rZXJuZWwvc21wLmMgICAgICAgICAgIHwgIDkgKysrKysrKy0tCj4+Pj4gIGFy
+Y2gvczM5MC9saWIvc3BpbmxvY2suYyAgICAgICAgIHwgMjUgKysrKysrKystLS0tLS0tLS0tLS0t
+LS0tLQo+Pj4+ICAzIGZpbGVzIGNoYW5nZWQsIDE4IGluc2VydGlvbnMoKyksIDE5IGRlbGV0aW9u
+cygtKQo+Pj4+Cj4+Pj4gZGlmZiAtLWdpdCBhL2FyY2gvczM5MC9pbmNsdWRlL2FzbS9zcGlubG9j
+ay5oIGIvYXJjaC9zMzkwL2luY2x1ZGUvYXNtL3NwaW5sb2NrLmgKPj4+PiBpbmRleCA2M2ViZjM3
+Li5lMTZlMDJmIDEwMDY0NAo+Pj4+IC0tLSBhL2FyY2gvczM5MC9pbmNsdWRlL2FzbS9zcGlubG9j
+ay5oCj4+Pj4gKysrIGIvYXJjaC9zMzkwL2luY2x1ZGUvYXNtL3NwaW5sb2NrLmgKPj4+PiBAQCAt
+MjEsNiArMjEsOSBAQCBfcmF3X2NvbXBhcmVfYW5kX3N3YXAodW5zaWduZWQgaW50ICpsb2NrLCB1
+bnNpZ25lZCBpbnQgb2xkLCB1bnNpZ25lZCBpbnQgbmV3KQo+Pj4+ICAgICAgcmV0dXJuIF9fc3lu
+Y19ib29sX2NvbXBhcmVfYW5kX3N3YXAobG9jaywgb2xkLCBuZXcpOwo+Pj4+ICB9Cj4+Pj4KPj4+
+PiArYm9vbCBhcmNoX3ZjcHVfaXNfcHJlZW1wdGVkKGludCBjcHUpOwo+Pj4+ICsjZGVmaW5lIHZj
+cHVfaXNfcHJlZW1wdGVkIGFyY2hfdmNwdV9pc19wcmVlbXB0ZWQKPj4+PiArCj4+Pj4gIC8qCj4+
+Pj4gICAqIFNpbXBsZSBzcGluIGxvY2sgb3BlcmF0aW9ucy4gIFRoZXJlIGFyZSB0d28gdmFyaWFu
+dHMsIG9uZSBjbGVhcnMgSVJRJ3MKPj4+PiAgICogb24gdGhlIGxvY2FsIHByb2Nlc3Nvciwgb25l
+IGRvZXMgbm90Lgo+Pj4+IGRpZmYgLS1naXQgYS9hcmNoL3MzOTAva2VybmVsL3NtcC5jIGIvYXJj
+aC9zMzkwL2tlcm5lbC9zbXAuYwo+Pj4+IGluZGV4IDdiODlhNzUuLjRhYWRkMTYgMTAwNjQ0Cj4+
+Pj4gLS0tIGEvYXJjaC9zMzkwL2tlcm5lbC9zbXAuYwo+Pj4+ICsrKyBiL2FyY2gvczM5MC9rZXJu
+ZWwvc21wLmMKPj4+PiBAQCAtMzc2LDEwICszNzYsMTUgQEAgaW50IHNtcF9maW5kX3Byb2Nlc3Nv
+cl9pZCh1MTYgYWRkcmVzcykKPj4+PiAgICAgIHJldHVybiAtMTsKPj4+PiAgfQo+Pj4+Cj4+Pj4g
+LWludCBzbXBfdmNwdV9zY2hlZHVsZWQoaW50IGNwdSkKPj4+IHJvb3RAbHRjYWxwaW5lMi1scDEz
+On4vbGludXgjIGdpdCBncmVwIC13biBzbXBfdmNwdV9zY2hlZHVsZWQgYXJjaC9zMzkwLwo+Pj4g
+YXJjaC9zMzkwL2luY2x1ZGUvYXNtL3NtcC5oOjM0OmV4dGVybiBpbnQgc21wX3ZjcHVfc2NoZWR1
+bGVkKGludCBjcHUpOwo+Pj4gYXJjaC9zMzkwL2luY2x1ZGUvYXNtL3NtcC5oOjU2OnN0YXRpYyBp
+bmxpbmUgaW50IHNtcF92Y3B1X3NjaGVkdWxlZChpbnQgY3B1KSB7IHJldHVybiAxOyB9Cj4+PiBh
+cmNoL3MzOTAva2VybmVsL3NtcC5jOjM3MTppbnQgc21wX3ZjcHVfc2NoZWR1bGVkKGludCBjcHUp
+Cj4+PiBhcmNoL3MzOTAvbGliL3NwaW5sb2NrLmM6NDQ6ICAgIGlmIChzbXBfdmNwdV9zY2hlZHVs
+ZWQoY3B1KSkKPj4+Cj4+Pj4gK2Jvb2wgYXJjaF92Y3B1X2lzX3ByZWVtcHRlZChpbnQgY3B1KQo+
+Pj4+ICB7Cj4+Pj4gLSAgICByZXR1cm4gcGNwdV9ydW5uaW5nKHBjcHVfZGV2aWNlcyArIGNwdSk7
+Cj4+Pj4gKyAgICBpZiAodGVzdF9jcHVfZmxhZ19vZihDSUZfRU5BQkxFRF9XQUlULCBjcHUpKQo+
+Pj4+ICsgICAgICAgIHJldHVybiBmYWxzZTsKPj4+PiArICAgIGlmIChwY3B1X3J1bm5pbmcocGNw
+dV9kZXZpY2VzICsgY3B1KSkKPj4+PiArICAgICAgICByZXR1cm4gZmFsc2U7Cj4+PiBJIHNhdyBz
+bXBfdmNwdV9zY2hlZHVsZWQoKSByZXR1cm5zIHRydWUgYWx3YXlzIG9uICFTTVAgc3lzdGVtLgo+
+Pj4KPj4+IG1heWJlIHdlIGNhbiBkbyBzb21lZ3RoaW5nIHNpbGltYXIuIGxpa2UgYmVsb3cKPj4+
+Cj4+PiAjaWZuZGVmIENPTkZJR19TTVAKPj4+IHN0YXRpYyBpbmxpbmUgYm9vbCBhcmNoX3ZjcHVf
+aXNfcHJlZW1wdGVkKGludCBjcHUpIHsgcmV0dXJuICF0ZXN0X2NwdV9mbGFnX29mKENJRl9FTkFC
+TEVEX1dBSVQsIGNwdSk7IH0KPj4+ICNlbHNlCj4+PiAuLi4KPj4+Cj4+PiBidXQgSSBjYW4ndCBo
+ZWxwIHRoaW5raW5nIHRoYXQgaWYgdGhpcyBpcyBhIVNNUCBzeXN0ZW0sIG1heWJlIHdlIGNvdWxk
+IG9ubHkKPj4+ICNpZm5kZWYgQ09ORklHX1NNUAo+Pj4gc3RhdGljIGlubGluZSBib29sIGFyY2hf
+dmNwdV9pc19wcmVlbXB0ZWQoaW50IGNwdSkgeyByZXR1cm4gZmFsc2U7IH0KPj4+ICNlbHNlCj4+
+Cj4+IFdoeSBkbyB3ZSBuZWVkIGEgdmNwdV9pc19wcmVlbXB0ZWQoKSBpbXBsZW1lbnRhdGlvbiBm
+b3IgVVA/IFdoZXJlIHdpbGwKPj4geW91IHVzZSBpdD8KPj4KPiB5ZXAsIEkgYWxzbyB3b25kZXIg
+dGhhdCA6KQo+IAo+IEJ1dCB0aGVyZSBpcyBhIGRlZmluaXRhaW9uIG9mIHNtcF92Y3B1X3NjaGVk
+dWxlZCgpIGZvciAhU01QIGtlcm5lbC4KPiBTbyBJIGFtIGEgbGl0dGxlIHdvcnJpZWQgdGhhdCBz
+b21lIGNvZGUgaGFzIGluY2x1ZGVkIHRoaXMgc3BpbmxvY2suaCBmb3IgVVAga2VybmVsIGFsc28u
+Cj4gCj4gSGksIENocmlzdGlhbgo+ICAgICBDb3VsZCB5b3UgaGVscCBjb25maXJtcyB0aGF0IHlv
+dXIgcGF0Y2ggd29ya3Mgb24gVVA/IDopCgpNeSBwYXRjaCBhcyBpcyBzZWVtcyB0byB3b3JrIGZp
+bmUgZm9yICFTTVAuIFNvIGl0IGxvb2tzIGxpa2UgdGhlIGV4dHJhIGRlZmluZQppcyBub3QgbmVj
+ZXNzYXJ5IGFuZCB3ZSBjb3VsZCBzaW1wbHkgZ28gd2l0aCB2MgoKCgoKX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
+aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
+dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
