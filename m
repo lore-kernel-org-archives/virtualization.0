@@ -1,14 +1,12 @@
-From: Konstantin Neumoin <kneumoin@virtuozzo.com>
-Subject: Re: [PATCH v2 1/1] virtio: update balloon size in balloon "probe"
-Date: Tue, 4 Oct 2016 13:47:38 +0300
-Message-ID: <dddfda46-3209-d3f4-4c57-4aa9756d3327__26767.117487225$1475578087$gmane$org@virtuozzo.com>
-References: <1475144232-10579-1-git-send-email-den@openvz.org>
-Reply-To: kneumoin@virtuozzo.com
+From: Renat Valiullin <rvaliullin@vmware.com>
+Subject: [PATCH] x86/vmware: Skip lapic calibration on VMware.
+Date: Tue, 4 Oct 2016 13:11:48 -0700
+Message-ID: <20161004201148.GA1421@uu64vm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1475144232-10579-1-git-send-email-den@openvz.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,49 +16,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Cc: "Denis V. Lunev" <den@openvz.org>, "Michael S . Tsirkin" <mst@redhat.com>
+To: Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-ping
+In virtualized environment the APIC timer calibration could go wrong
+when the host is overcommitted or the guest is running nested,
+this would result in the APIC timers operating at an incorrect frequency.
+Since VMware supports a mechanism to retrieve the local APIC frequency
+we can ask the hypervisor for it and skip this APIC calibration loop.
 
-On 09/29/2016 01:17 PM, Denis V. Lunev wrote:
-> From: Konstantin Neumoin <kneumoin@virtuozzo.com>
->
-> The following commit 'fad7b7b27b6a (virtio_balloon: Use a workqueue
-> instead of "vballoon" kthread)' has added a regression. Original code with
-> kthread starts the thread inside probe and checks the necessity to update
-> balloon inside the thread immediately.
->
-> Nowadays the code behaves differently. Work is queued only on the first
-> command from the host after the negotiation. Thus there is a window
-> especially at the guest startup or the module reloading when the balloon
-> size is not updated until the notification from the host.
->
-> This patch adds balloon size check at the end of the probe to match
-> original behaviour.
->
-> Signed-off-by: Konstantin Neumoin <kneumoin@virtuozzo.com>
-> Signed-off-by: Denis V. Lunev <den@openvz.org>
-> CC: Michael S. Tsirkin <mst@redhat.com>
-> ---
->   drivers/virtio/virtio_balloon.c | 2 ++
->   1 file changed, 2 insertions(+)
->
-> Changes from v1:
-> - fixed description
-> - removed update_balloon_size() call
->
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 4e7003d..181793f 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -577,6 +577,8 @@ static int virtballoon_probe(struct virtio_device *vdev)
->   
->   	virtio_device_ready(vdev);
->   
-> +	if (towards_target(vb))
-> +		virtballoon_changed(vdev);
->   	return 0;
->   
->   out_del_vqs:
+Signed-off-by: Renat Valiullin <rvaliullin@vmware.com>
+Acked-by: Alok N Kataria <akataria@vmware.com>
+---
+ arch/x86/kernel/cpu/vmware.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
+index 1ff0598..8116057 100644
+--- a/arch/x86/kernel/cpu/vmware.c
++++ b/arch/x86/kernel/cpu/vmware.c
+@@ -27,6 +27,7 @@
+ #include <asm/div64.h>
+ #include <asm/x86_init.h>
+ #include <asm/hypervisor.h>
++#include <asm/apic.h>
+ 
+ #define CPUID_VMWARE_INFO_LEAF	0x40000000
+ #define VMWARE_HYPERVISOR_MAGIC	0x564D5868
+@@ -82,10 +83,17 @@ static void __init vmware_platform_setup(void)
+ 
+ 	VMWARE_PORT(GETHZ, eax, ebx, ecx, edx);
+ 
+-	if (ebx != UINT_MAX)
++	if (ebx != UINT_MAX) {
+ 		x86_platform.calibrate_tsc = vmware_get_tsc_khz;
+-	else
++#ifdef CONFIG_X86_LOCAL_APIC
++		/* Skip lapic calibration since we know the bus frequency. */
++		lapic_timer_frequency = ecx / HZ;
++		pr_info("Host bus clock speed read from hypervisor : %u Hz\n",
++			ecx);
++#endif
++	} else {
+ 		pr_warn("Failed to get TSC freq from the hypervisor\n");
++	}
+ }
+ 
+ /*
+-- 
+2.7.4
