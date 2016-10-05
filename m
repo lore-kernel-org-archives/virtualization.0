@@ -1,12 +1,13 @@
-From: Renat Valiullin <rvaliullin@vmware.com>
-Subject: [PATCH] x86/vmware: Skip lapic calibration on VMware.
-Date: Tue, 4 Oct 2016 13:11:48 -0700
-Message-ID: <20161004201148.GA1421@uu64vm>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH v3 0/4] implement vcpu preempted check
+Date: Wed, 5 Oct 2016 13:00:51 +0200
+Message-ID: <847f7377-61d3-835e-458b-aa9f4f5fcf8c@de.ibm.com>
+References: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,52 +17,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org
+Cc: kernellwp@gmail.com, jgross@suse.com, peterz@infradead.org, benh@kernel.crashing.org, will.deacon@arm.com, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-In virtualized environment the APIC timer calibration could go wrong
-when the host is overcommitted or the guest is running nested,
-this would result in the APIC timers operating at an incorrect frequency.
-Since VMware supports a mechanism to retrieve the local APIC frequency
-we can ask the hypervisor for it and skip this APIC calibration loop.
+On 07/21/2016 01:45 PM, Pan Xinhui wrote:
+> change from v2:
+> 	no code change, fix typos, update some comments
+> 
+> change from v1:
+> 	a simplier definition of default vcpu_is_preempted
+> 	skip mahcine type check on ppc, and add config. remove dedicated macro.
+> 	add one patch to drop overload of rwsem_spin_on_owner and mutex_spin_on_owner. 
+> 	add more comments
+> 	thanks boqun and Peter's suggestion.
+> 
+> This patch set aims to fix lock holder preemption issues.
+> 
+> test-case:
+> perf record -a perf bench sched messaging -g 400 -p && perf report
+> 
+> before patch:
+> 18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
+> 12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
+>  5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
+>  3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
+>  3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
+>  3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
+>  2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
+> 
+> after patch:
+>  9.99%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
+>  5.28%  sched-messaging  [unknown]         [H] 0xc0000000000768e0
+>  4.27%  sched-messaging  [kernel.vmlinux]  [k] __copy_tofrom_user_power7
+>  3.77%  sched-messaging  [kernel.vmlinux]  [k] copypage_power7
+>  3.24%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
+>  3.02%  sched-messaging  [kernel.vmlinux]  [k] system_call
+>  2.69%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
+> 
+> We introduce interface bool vcpu_is_preempted(int cpu) and use it in some spin
+> loops of osq_lock, rwsem_spin_on_owner and mutex_spin_on_owner.
+> These spin_on_onwer variant also cause rcu stall before we apply this patch set
+> 
+> Pan Xinhui (4):
+>   kernel/sched: introduce vcpu preempted check interface
+>   powerpc/spinlock: support vcpu preempted check
+>   locking/osq: Drop the overhead of osq_lock()
+>   kernel/locking: Drop the overhead of {mutex,rwsem}_spin_on_owner
+> 
+>  arch/powerpc/include/asm/spinlock.h | 18 ++++++++++++++++++
+>  include/linux/sched.h               | 12 ++++++++++++
+>  kernel/locking/mutex.c              | 15 +++++++++++++--
+>  kernel/locking/osq_lock.c           | 10 +++++++++-
+>  kernel/locking/rwsem-xadd.c         | 16 +++++++++++++---
+>  5 files changed, 65 insertions(+), 6 deletions(-)
+> 
 
-Signed-off-by: Renat Valiullin <rvaliullin@vmware.com>
-Acked-by: Alok N Kataria <akataria@vmware.com>
----
- arch/x86/kernel/cpu/vmware.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
-
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 1ff0598..8116057 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -27,6 +27,7 @@
- #include <asm/div64.h>
- #include <asm/x86_init.h>
- #include <asm/hypervisor.h>
-+#include <asm/apic.h>
- 
- #define CPUID_VMWARE_INFO_LEAF	0x40000000
- #define VMWARE_HYPERVISOR_MAGIC	0x564D5868
-@@ -82,10 +83,17 @@ static void __init vmware_platform_setup(void)
- 
- 	VMWARE_PORT(GETHZ, eax, ebx, ecx, edx);
- 
--	if (ebx != UINT_MAX)
-+	if (ebx != UINT_MAX) {
- 		x86_platform.calibrate_tsc = vmware_get_tsc_khz;
--	else
-+#ifdef CONFIG_X86_LOCAL_APIC
-+		/* Skip lapic calibration since we know the bus frequency. */
-+		lapic_timer_frequency = ecx / HZ;
-+		pr_info("Host bus clock speed read from hypervisor : %u Hz\n",
-+			ecx);
-+#endif
-+	} else {
- 		pr_warn("Failed to get TSC freq from the hypervisor\n");
-+	}
- }
- 
- /*
--- 
-2.7.4
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+for the full series. With my patch on top this really improves
+some benchmarks for overcommitted KVM guests.
