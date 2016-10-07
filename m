@@ -1,21 +1,11 @@
-From: Peter Griffin <peter.griffin@linaro.org>
-Subject: Re: [PATCH v9 17/19] drm/virtio: kconfig: Fix recursive dependency
-	issue.
-Date: Fri, 7 Oct 2016 18:44:41 +0100
-Message-ID: <20161007174441.GA27720@griffinp-ThinkPad-X1-Carbon-2nd>
-References: <1473081421-16555-1-git-send-email-peter.griffin@linaro.org>
-	<1473081421-16555-18-git-send-email-peter.griffin@linaro.org>
-	<CACvgo52_g7anGBd9HTUyYsbp5QmQEk9LR3nNHgSTgjQ29G3ViA@mail.gmail.com>
-	<20160920083251.GB26093@griffinp-ThinkPad-X1-Carbon-2nd>
-	<8760pqncee.fsf@intel.com>
-	<20161006093721.GA436@griffinp-ThinkPad-X1-Carbon-2nd>
-	<CACvgo50vU5_=KFUCAZDaQPepPdsbnF8KN1b+f6KJNuBW6qRdSg@mail.gmail.com>
+From: "ML" <marialemos72@gmail.com>
+Subject: CFP - WorldCIST'2017 - 5th World Conference on Information Systems
+	and Technologies (Published by Springer)
+Date: Fri, 7 Oct 2016 19:00:32 +0100
+Message-ID: <201610071800.u97I05On015600@smtp2.dei.uc.pt>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============7876016368682722800=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CACvgo50vU5_=KFUCAZDaQPepPdsbnF8KN1b+f6KJNuBW6qRdSg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,64 +15,219 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Emil Velikov <emil.l.velikov@gmail.com>
-Cc: devicetree <devicetree@vger.kernel.org>, kernel@stlinux.com, Arnd Bergmann <arnd@arndb.de>, vinod.koul@intel.com, linux-remoteproc@vger.kernel.org, patrice.chotard@st.com, Jani Nikula <jani.nikula@linux.intel.com>, "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, dmaengine@vger.kernel.org, LAKML <linux-arm-kernel@lists.infradead.org>, dan.j.williams@intel.com, Bjorn Andersson <bjorn.andersson@linaro.org>, Lee Jones <lee.jones@linaro.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGkgRW1pbCwKCk9uIFRodSwgMDYgT2N0IDIwMTYsIEVtaWwgVmVsaWtvdiB3cm90ZToKCj4gT24g
-NiBPY3RvYmVyIDIwMTYgYXQgMTA6MzcsIFBldGVyIEdyaWZmaW4gPHBldGVyLmdyaWZmaW5AbGlu
-YXJvLm9yZz4gd3JvdGU6Cj4gCj4gPiBJbiBmYWN0IHRoZSBoZWxwIHRleHQgZm9yIFZJUlRJTyBl
-dmVuIHN0YXRlcyB0aGlzIG9wdGlvbiBzaG91bGQgYmUgc2VsZWN0ZWQKPiA+IGJ5IGFueSBkcml2
-ZXIgd2hpY2ggaW1wbGVtZW50cyB2aXJ0aW8uCj4gPgo+IEFsbW9zdCBidXQgbm90IHF1aXRlLiBJ
-dCBzYXlzOgo+IAo+ICJUaGlzIG9wdGlvbiBpcyBzZWxlY3RlZCBieSBhbnkgZHJpdmVyIHdoaWNo
-IGltcGxlbWVudHMgdGhlIHZpcnRpbyBfYnVzXyIKPiAKCkFoIEkgdGhvdWdodCBEUk1fVklSVElP
-X0dQVSB3YXMgaW1wbGVtZW50aW5nIGEgdmlydGlvIGJ1cywgYnVzIGl0IHNlZW1zIHRoYXQgaXQg
-CnVzZXMgcGNpLiBXaGljaCBkb2VzIHJhaXNlIHRoZSBxdWVzdGlvbiBvZiB3aHkgaXQgaXMgZGVw
-ZW5kaW5nIG9uIFZJUlRJTyBhdCBhbGwKYW5kIG5vdCBWSVJUSU9fUENJLgoKPiBSRU1PVEVQUk9D
-IG9idmlvdXNseSBkb2VzIHRoYXQgd2hpbGUgdGhlIFNUIFNMSU0gZHJpdmVyIGRvZXMgbm90LiBU
-aHVzCj4gdGhlIGxhdHRlciBzaG91bGQgX25vdF8gc2VsZWN0LCBiZSB0aGF0IGV4cGxpY2l0bHkg
-b3IgaW1wbGljaXRseSB2aWEKPiBSRU1PVEVQUk9DLCB0aGUgc3ltYm9sLgoKWWVwIE9LLgoKPiAK
-PiA+Pgo+ID4+IFBlb3BsZSB0ZW5kIHRvIGFidXNlIHNlbGVjdCBiZWNhdXNlIGl0J3MgImNvbnZl
-bmllbnQiLiBJZiB5b3UgZGVwZW5kLAo+ID4+IGJ1dCBzb21lIG9mIHlvdXIgZGVwZW5kZW5jaWVz
-IGFyZW4ndCBtZXQsIHlvdSdyZSBpbiBmb3Igc29tZSBkaWdnaW5nCj4gPj4gdGhyb3VnaCBLY29u
-ZmlnIHRvIGZpbmQgdGhlIG1pc3NpbmcgZGVwcy4gSnVzdCB0byBtYWtlIHRoZSBvcHRpb24geW91
-Cj4gPj4gd2FudCB2aXNpYmxlIGluIG1lbnVjb25maWcuIElmIHlvdSBpbnN0ZWFkIHNlbGVjdCBz
-b21ldGhpbmcgd2l0aAo+ID4+IGRlcGVuZGVuY2llcywgaXQnbGwgYmUgcmlnaHQgbW9zdCBvZiB0
-aGUgdGltZSwgYW5kIGl0J3MgImNvbnZlbmllbnQiLAo+ID4+IHVudGlsIGl0IGJyZWFrcy4gKEFu
-ZCBoZXksIGl0IHVzdWFsbHkgYnJlYWtzIGZvciBzb21lb25lIGVsc2Ugd2l0aCBzb21lCj4gPj4g
-b3RoZXIgY29uZmlnLCBzbyBpdCdzIHN0aWxsIGNvbnZlbmllbnQgZm9yIHlvdS4pCj4gPgo+ID4g
-SSdtIHN1cmUgdGhleSBkbyBidXQgaW4gdGhpcyBjYXNlIGl0IGlzIGFjdHVhbGx5IHRoZSB1c2Ug
-b2YgJ2RlcGVuZHMgb24nCj4gPiB3aGljaCBoYXMgY2F1c2VkIHRoZSBicmVha2FnZSBhbmQgaW5j
-b252ZW5pZW5jZSBmb3Igc29tZWJvZHkgZWxzZSBhbmQgc2FkbHkgdGhpcwo+ID4gaW5jb252aWVu
-aWNlIGlzIHN0aWxsIG9uLWdvaW5nIGR1ZSB0byB0aGlzIHBhdGNoIG5vdCBiZWluZyBhcHBsaWVk
-IG9yIGdldHRpbmcgYW4KPiA+IGFja2VkLWJ5IGZyb20gdGhlIGFwcHJvcHJpYXRlIG1haW50YWlu
-ZXJzLgo+ID4KPiBTdXJlbHkgeW91J3JlIG5vdCBzYXlpbmcgdGhhdCBwcmUtZXhpc3RpbmcgZHJp
-dmVyIGZvbGxvd2luZyB0aGUKPiBkb2N1bWVudGF0aW9uLCBpcyAnY2F1c2luZyBicmVha2FnZScg
-Zm9yIGEgbmV3IGRyaXZlciB7YWIsbWlzfXVzaW5nIGEKPiBmZWF0dXJlID8KCllvdXIgcmlnaHQg
-SSB3YXNuJ3Qgc2F5aW5nIHRoYXQgOikKCk15IHBvaW50IHdhcyB0aGF0IHRoaXMgcGF0Y2ggd2Fz
-bid0ICd3cm9uZycgd2hlbiByZWZlcnJpbmcgdG8gdGhlIEtjb25maWcKZG9jdW1lbnRhdGlvbiBK
-YW5pIHJlZmVyZW5jZWQgYXMgVklSVElPIGhhcyBubyBkZXBlbmRlbmNpZXMuCgpBbHNvIEkgdGhv
-dWdodCBEUk1fVklSVElPX0dQVSBkcml2ZXIgaW1wbGVtZW50ZWQgYSBWSVJUSU8gYnVzIHdoaWNo
-IHJlLWVuZm9yY2VkCnRoZSB2aWV3IHRoYXQgaXQgc2hvdWxkIGJlIHNlbGVjdGluZyBWSVJUSU8u
-IAoKPiAKPiBUaGlzIHJlbWluZHMgbWUgYW4gb2xkIHNheWluZzogIklmIHRoZSBzaG9lIGRvZXNu
-4oCZdCBmaXQsIGl0IGRvZXNu4oCZdAo+IG1lYW4gdGhlcmUgaXMgYW55dGhpbmcgd3Jvbmcgd2l0
-aCB5b3VyIGZlZXQuIgoKSWYgdGhlIHNob2UgZG9lc24ndCBmaXQsIGNob3Agb2ZmIHRoZSBsZWcg
-OikKCj4gWW91IHNlZW0gdG8gYmUgc3VnZ2VzdGluZyB0aGUgb3Bwb3NpdGUgPwo+IAo+ID4+Cj4g
-Pj4gUGVyaGFwcyBrY29uZmlnIHNob3VsZCBjb21wbGFpbiBhYm91dCBzZWxlY3RpbmcgdmlzaWJs
-ZSBzeW1ib2xzIGFuZAo+ID4+IHN5bWJvbHMgd2l0aCBkZXBlbmRlbmNpZXMuCj4gPgo+ID4gVGhh
-dCBzb3VuZHMgbGlrZSBpdCB3b3VsZCBiZSBhIHVzZWZ1bCBhZGRpdGlvbi4KPiA+Cj4gPiBJcyBp
-dCBwb3NzaWJsZSB0byBnZXQgdGhpcyBwYXRjaCBhcHBsaWVkIG9yIGFuIGFja2VkLWJ5IHRvIGF2
-b2lkIGZ1cnRoZXIgZGVsYXkKPiA+IHRvIHRoZSBmZG1hIHNlcmllcz8KPiA+Cj4gUGxlYXNlIGRv
-bid0IGFwcGx5IGR1Y3QgdGFwZSwgZXNwZWNpYWxseSB3aGVyZSBpdCdzIF9ub3RfIG5lZWRlZC4K
-PiAKPiAkIHNlZCAtaSBzL3NlbGVjdCBSRU1PVEVQUk9DL2RlcGVuZHMgb24gUkVNT1RFUFJPQy8g
-ZHJpdmVycy9yZW1vdGVwcm9jL0tjb25maWcKPiAKPiAuLi4gd2lsbCByZXNvbHZlIHRoaW5ncyBp
-biB0aGUgcmlnaHQgcGxhY2UuIFRoZSBhbHRlcm5hdGl2ZSB3aWxsIGxlYWQKPiB0byByYW5kb20g
-aXNzdWVzIGluIG90aGVyIHN1YnN5c3RlbXMuCj4gCgpJZiBCam9ybiBpcyBPSyB3aXRoIGl0LCB0
-aGVuIGl0IGlzIGZpbmUgd2l0aCBtZS4KCkkgd2lsbCB1cGRhdGUgcmVtb3RlcHJvYyBLY29uZmln
-IHNldHVwIGluIGZkbWEgdjEwLCB0aGlzIHdpbGwgZHJvcCB0aGUKcmVxdWlyZW1lbnQgZm9yIHRo
-aXMgcGF0Y2ggaW4gZHJtIHN1YnN5c3RlbS4KCkkgY2FuIHRoZW4gc2VuZCB0aGUgd2hpdGVzcGFj
-ZSBjbGVhbnVwIHBhdGNoIHNlcGFyYXRlbHkgdG8gRFJNIE1MLgoKcmVnYXJkcywKClBldGVyLgpf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
-dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
-cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
-dHVhbGl6YXRpb24=
+--===============7876016368682722800==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Please disseminate by your contacts. Thank you!
+
+*Best papers published in more than twenty SCI/SSCI-indexed journals
+----------------------------------------------------------------------=
+-----
+WorldCIST'17 - 5th World Conference on Information Systems and Technol=
+ogies=20
+Porto Santo Island, Madeira, Portugal
+11th-13th of April 2017
+http://www.worldcist.org/
+--------------------------------------------------------------------
+
+
+SCOPE
+
+The WorldCist'17 - 5th World Conference on Information Systems and Tec=
+hnologies, to be held at Porto Santo Island, Madeira, Portugal, 11 - 1=
+3 April 2017, is a global forum for researchers and practitioners to p=
+resent and discuss the most recent innovations, trends, results, exper=
+iences and concerns in the several perspectives of Information Systems=
+ and Technologies.
+
+We are pleased to invite you to submit your papers to WorldCist'17 (ht=
+tp://www.worldcist.org/). All submissions will be reviewed on the basi=
+s of relevance, originality, importance and clarity.
+
+
+THEMES
+
+Submitted papers should be related with one or more of the main themes=
+ proposed for the Conference:
+
+A) Information and Knowledge Management (IKM);
+B) Organizational Models and Information Systems (OMIS);
+C) Software and Systems Modeling (SSM);
+D) Software Systems, Architectures, Applications and Tools (SSAAT);
+E) Multimedia Systems and Applications (MSA);
+F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
+G) Intelligent and Decision Support Systems (IDSS);
+H) Big Data Analytics and Applications (BDAA);
+I) Human-Computer Interaction (HCI);
+J) Ethics, Computers and Security (ECS)
+K) Health Informatics (HIS);
+L) Information Technologies in Education (ITE);
+M) Information Technologies in Radiocommunications (ITR).
+
+
+TYPES of SUBMISSIONS AND DECISIONS
+
+Four types of papers can be submitted:
+
+- Full paper: Finished or consolidated R&D works, to be included in on=
+e of the Conference themes. These papers are assigned a 10-page limit.
+
+- Short paper: Ongoing works with relevant preliminary results, open t=
+o discussion. These papers are assigned a 7-page limit.
+
+- Poster paper: Initial work with relevant ideas, open to discussion. =
+These papers are assigned to a 4-page limit.
+
+- Company paper: Companies' papers that show practical experience, R &=
+ D, tools, etc., focused on some topics of the conference. These paper=
+s are assigned to a 4-page limit.
+
+Submitted papers must comply with the format of Advances in Intelligen=
+t Systems and Computing Series (see Instructions for Authors at Spring=
+er Website or download a DOC example) be written in English, must not =
+have been published before, not be under review for any other conferen=
+ce or publication and not include any information leading to the autho=
+rs=92 identification. Therefore, the authors=92 names, affiliations an=
+d bibliographic references should not be included in the version for e=
+valuation by the Program Committee. This information should only be in=
+cluded in the camera-ready version, saved in Word or Latex format and =
+also in PDF format. These files must be accompanied by the Consent to =
+Publication form filled out, in a ZIP file, and uploaded at the confer=
+ence management system.
+
+All papers will be subjected to a =93double-blind review=94 by at leas=
+t two members of the Program Committee.
+
+Based on Program Committee evaluation, a paper can be rejected or acce=
+pted by the Conference Chairs. In the later case, it can be accepted a=
+s the type originally submitted or as another type. Thus, full papers =
+can be accepted as short papers or poster papers only. Similarly, shor=
+t papers can be accepted as poster papers only. In these cases, the au=
+thors will be allowed to maintain the original number of pages in the =
+camera-ready version.
+
+The authors of accepted poster papers must also build and print a post=
+er to be exhibited during the Conference. This poster must follow an A=
+1 or A2 vertical format. The Conference can includes Work Sessions whe=
+re these posters are presented and orally discussed, with a 5 minute l=
+imit per poster.
+
+The authors of accepted full papers will have 15 minutes to present th=
+eir work in a Conference Work Session; approximately 5 minutes of disc=
+ussion will follow each presentation. The authors of accepted short pa=
+pers and company papers will have 11 minutes to present their work in =
+a Conference Work Session; approximately 4 minutes of discussion will =
+follow each presentation.
+
+
+PUBLICATION & INDEXING
+
+To ensure that a full paper, short paper, poster paper or company pape=
+r is published in the Proceedings, at least one of the authors must be=
+ fully registered by the 8th of January 2017, and the paper must compl=
+y with the suggested layout and page-limit. Additionally, all recommen=
+ded changes must be addressed by the authors before they submit the ca=
+mera-ready version.
+
+No more than one paper per registration will be published in the Confe=
+rence Proceedings. An extra fee must be paid for publication of additi=
+onal papers, with a maximum of one additional paper per registration. =
+One registration permits only the participation of one author in the c=
+onference.
+
+Full and short papers will be published in Proceedings by Springer, in=
+ Advances in Intelligent Systems and Computing Series. Poster and comp=
+any papers will be published by AISTI.
+
+Published full and short papers will be submitted for indexation by IS=
+I, EI-Compendex, SCOPUS, DBLP and Google Scholar, among others, and wi=
+ll be available in the SpringerLink Digital Library.
+
+The authors of the best selected papers will be invited to extend them=
+ for publication in international journals indexed by ISI/SCI, SCOPUS =
+and DBLP, among others, such as:
+
+- International Journal of Neural Systems (IF: 6.085 / Q1)
+- Integrated Computer-Aided Engineering (IF: 4.981 / Q1)
+- International Journal of Information Management (IF: 2.692 / Q1)
+- Electronic Commerce Research and Applications (IF: 2.139 / Q1)
+- Computers, Environment and Urban Systems (IF: 2.092 / Q1)
+- Data Mining and Knowledge Discovery (IF: 1.759 / Q1)
+- Journal of Medical Systems (IF: 2.213 / Q2)
+- Journal of Business Research (IF: 2.129 / Q2)
+- Pervasive and Mobile Computing (IF: 1.719 / Q2)
+- Knowledge and Information Systems (IF: 1.702 / Q2)
+- Journal of Grid Computing (IF: 1.561 / Q2) - Special Issue on "Big D=
+ata"
+- Cluster Computing (IF:1.514 / Q2) - Special Issue on "Advanced Machi=
+ne Learning in Parallel and Distributed Knowledge Discovery"
+- International Journal of Critical Infrastructure Protection (IF: 1.3=
+51 / Q2)
+- Expert Systems - Journal of Knowledge Engineering (IF: 0.947 / Q3)
+- Concurrency and Computation: Practice and Experience (IF: 0.942 / Q3)
+- Science of Computer Programming (IF: 0.828 / Q3)
+- Ethics and Information Technology (IF: 0.739 / Q3)
+- Annals of Telecommunications (IF: 0.722 / Q3)
+- Engineering Computations (IF: 0.691 / Q3)
+- Advances in Complex Systems (IF: 0.461 / Q3)
+- Computing and Informatics (IF: 0.504 / Q4)
+- AI Communications (IF: 0.364 / Q4)
+- Journal of Hospitality and Tourism Technology (SR: 0.672 / Q2)
+- Transforming Government: People, Process and Policy (SR: 0.642 / Q2)
+- TEM Journal - Technology, Education, Management, Informatics (ISI - =
+Emerging Sources Citation Index)
+- Computer Methods in Biomechanics and Biomedical Engineering - Imagin=
+g & Visualization (ISI - Emerging Sources Citation Index)
+- Journal of Information Systems Engineering & Management
+
+
+IMPORTANT DATES
+
+Paper Submission: November 13, 2016
+
+Notification of Acceptance: December 25, 20156
+
+Payment of Registration, to ensure the inclusion of an accepted paper =
+in the conference proceedings: January 8, 2017.
+
+Camera-ready Submission: January 8, 2017
+
+
+-
+
+Website of WorldCIST'17
+http://www.worldcist.org/
+
+
+-
+
+Best regards,
+
+AISTI
+http://www.aisti.eu/
+
+
+----
+PS: If you do not wish to receive any more notices from AISTI (http://=
+www.aisti.eu) just reply to this message with the word REMOVE in the s=
+ubject line.
+
+
+
+
+
+--===============7876016368682722800==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============7876016368682722800==--
