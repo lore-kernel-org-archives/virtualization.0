@@ -1,17 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: VIRTIO_F_IOMMU_PLATFORM
-Date: Tue, 11 Oct 2016 04:51:05 +0300
-Message-ID: <20161011044951-mutt-send-email-mst@kernel.org>
-References: <20160927085713.GB3489@arm.com>
-	<20161007042434.jpu7ql3djfo6o6kd@redhat.com>
-	<20161010165903.GH14561@arm.com>
-	<20161010210411-mutt-send-email-mst@kernel.org>
+From: Juergen Gross <jgross@suse.com>
+Subject: [PATCH] virtio: remove config.c
+Date: Tue, 11 Oct 2016 11:02:14 +0200
+Message-ID: <1476176534-15815-1-git-send-email-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20161010210411-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,55 +15,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Will Deacon <will.deacon@arm.com>
-Cc: virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Juergen Gross <jgross@suse.com>, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Oct 10, 2016 at 09:07:35PM +0300, Michael S. Tsirkin wrote:
-> On Mon, Oct 10, 2016 at 05:59:03PM +0100, Will Deacon wrote:
-> > On Fri, Oct 07, 2016 at 07:24:34AM +0300, Michael S. Tsirkin wrote:
-> > > On Tue, Sep 27, 2016 at 09:57:14AM +0100, Will Deacon wrote:
-> > > > Hi Michael,
-> > > > 
-> > > > In commit 1a937693993f ("virtio: new feature to detect IOMMU device quirk"),
-> > > > you added a new feature bit (VIRTIO_F_IOMMU_PLATFORM) to describe whether
-> > > > or not a given virtio device requires physical address or bus addresses.
-> > > > 
-> > > > Is there a plan to get this incorporated into the virtio spec [1]? At the
-> > > > moment, I can't see a working draft that includes the new bit. Having it
-> > > > in the spec would help convince implementors that it's not just a Linux
-> > > > thing.
-> > > > 
-> > > > Thanks,
-> > > > 
-> > > > Will
-> > > > 
-> > > > [1] http://docs.oasis-open.org/virtio/virtio/v1.0/cs04/virtio-v1.0-cs04.html
-> > > 
-> > > Absolutely. Want to contribute a patch?
-> > 
-> > I could have a look. Is there a git repo for the sources to the working
-> > draft?
-> > 
-> > Will
-> 
-> Yes, though unfortunately it's svn :(
-> 
-> git svn clone --stdlayout https://tools.oasis-open.org/version-control/svn/virtio
-> 
-> Check out the main branch.
-> 
-> Patches must be sent to virtio-dev or virtio-comments list (subscription
-> required).
-> 
-> Thanks!
+Remove unused file config.c
 
-A faster way is to go through a git mirror. See
+Signed-off-by: Juergen Gross <jgross@suse.com>
+---
+ drivers/virtio/config.c | 12 ------------
+ 1 file changed, 12 deletions(-)
+ delete mode 100644 drivers/virtio/config.c
 
-https://tools.oasis-open.org/version-control/svn/virtio/trunk/git-svn.txt
-section named "Faster initial clone from git mirror".
-
-
-
-> -- 
-> MST
+diff --git a/drivers/virtio/config.c b/drivers/virtio/config.c
+deleted file mode 100644
+index f70bcd2..0000000
+--- a/drivers/virtio/config.c
++++ /dev/null
+@@ -1,12 +0,0 @@
+-/* Configuration space parsing helpers for virtio.
+- *
+- * The configuration is [type][len][... len bytes ...] fields.
+- *
+- * Copyright 2007 Rusty Russell, IBM Corporation.
+- * GPL v2 or later.
+- */
+-#include <linux/err.h>
+-#include <linux/virtio.h>
+-#include <linux/virtio_config.h>
+-#include <linux/bug.h>
+-
+-- 
+2.6.6
