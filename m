@@ -1,7 +1,7 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH] virtio: remove config.c
-Date: Tue, 11 Oct 2016 11:02:14 +0200
-Message-ID: <1476176534-15815-1-git-send-email-jgross@suse.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH] virtio-gpu: fix vblank events
+Date: Thu, 13 Oct 2016 13:55:05 +0200
+Message-ID: <1476359705-12589-1-git-send-email-kraxel__25529.9065066085$1476359742$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,35 +15,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: Juergen Gross <jgross@suse.com>, mst@redhat.com
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, "daniel.vetter" <daniel.vetter@ffwll.ch>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, =?UTF-8?q?Marc-Andr=C3=A9=20Lureau?= <marcandre.lureau@gmail.com>, David Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Remove unused file config.c
+virtio-gpu sends vblank events in virtio_gpu_crtc_atomic_flush, and
+because of that it must be called for disabled planes too.  Ask
+drm_atomic_helper_commit_planes to do that.
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/virtio/config.c | 12 ------------
- 1 file changed, 12 deletions(-)
- delete mode 100644 drivers/virtio/config.c
+ drivers/gpu/drm/virtio/virtgpu_display.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/virtio/config.c b/drivers/virtio/config.c
-deleted file mode 100644
-index f70bcd2..0000000
---- a/drivers/virtio/config.c
-+++ /dev/null
-@@ -1,12 +0,0 @@
--/* Configuration space parsing helpers for virtio.
-- *
-- * The configuration is [type][len][... len bytes ...] fields.
-- *
-- * Copyright 2007 Rusty Russell, IBM Corporation.
-- * GPL v2 or later.
-- */
--#include <linux/err.h>
--#include <linux/virtio.h>
--#include <linux/virtio_config.h>
--#include <linux/bug.h>
--
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index 4e192aa..75ec172 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -338,7 +338,7 @@ static void vgdev_atomic_commit_tail(struct drm_atomic_state *state)
+ 
+ 	drm_atomic_helper_commit_modeset_disables(dev, state);
+ 	drm_atomic_helper_commit_modeset_enables(dev, state);
+-	drm_atomic_helper_commit_planes(dev, state, true);
++	drm_atomic_helper_commit_planes(dev, state, false);
+ 
+ 	drm_atomic_helper_commit_hw_done(state);
+ 
 -- 
-2.6.6
+1.8.3.1
