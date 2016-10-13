@@ -1,11 +1,12 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH] virtio-gpu: fix vblank events
-Date: Thu, 13 Oct 2016 13:55:05 +0200
-Message-ID: <1476359705-12589-1-git-send-email-kraxel__25529.9065066085$1476359742$gmane$org@redhat.com>
+From: Renat Valiullin <rvaliullin@vmware.com>
+Subject: [PATCH] x86/vmware: Skip timer_irq_works() check on VMware
+Date: Thu, 13 Oct 2016 11:45:39 -0700
+Message-ID: <20161013184539.GA11497@rvaliullin-vm>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,31 +16,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, "daniel.vetter" <daniel.vetter@ffwll.ch>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, =?UTF-8?q?Marc-Andr=C3=A9=20Lureau?= <marcandre.lureau@gmail.com>, David Airlie <airlied@redhat.com>
+To: Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio-gpu sends vblank events in virtio_gpu_crtc_atomic_flush, and
-because of that it must be called for disabled planes too.  Ask
-drm_atomic_helper_commit_planes to do that.
+The timer_irq_works() boot check may sometimes fail in a VM, when
+the Host is overcommitted or when the Guest is running nested.
+Since the intended check is unnecessary on VMware's virtual
+hardware, this change by-passes it.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Signed-off-by: Renat Valiullin <rvaliullin@vmware.com>
+Acked-by: Alok N Kataria <akataria@vmware.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_display.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/cpu/vmware.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index 4e192aa..75ec172 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -338,7 +338,7 @@ static void vgdev_atomic_commit_tail(struct drm_atomic_state *state)
+diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
+index 8116057..5130985 100644
+--- a/arch/x86/kernel/cpu/vmware.c
++++ b/arch/x86/kernel/cpu/vmware.c
+@@ -27,6 +27,7 @@
+ #include <asm/div64.h>
+ #include <asm/x86_init.h>
+ #include <asm/hypervisor.h>
++#include <asm/timer.h>
+ #include <asm/apic.h>
  
- 	drm_atomic_helper_commit_modeset_disables(dev, state);
- 	drm_atomic_helper_commit_modeset_enables(dev, state);
--	drm_atomic_helper_commit_planes(dev, state, true);
-+	drm_atomic_helper_commit_planes(dev, state, false);
+ #define CPUID_VMWARE_INFO_LEAF	0x40000000
+@@ -94,6 +95,10 @@ static void __init vmware_platform_setup(void)
+ 	} else {
+ 		pr_warn("Failed to get TSC freq from the hypervisor\n");
+ 	}
++
++#ifdef CONFIG_X86_IO_APIC
++	no_timer_check = 1;
++#endif
+ }
  
- 	drm_atomic_helper_commit_hw_done(state);
- 
+ /*
 -- 
-1.8.3.1
+2.7.4
