@@ -1,13 +1,14 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v4 0/5] implement vcpu preempted check
-Date: Wed, 19 Oct 2016 08:47:09 +0200
-Message-ID: <e3fd1bd3-c57d-f0b0-68c4-ecd450d1ad32@de.ibm.com>
-References: <1476872416-42752-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Subject: Re: [PATCH v2 1/1] s390/spinlock: Provide vcpu_is_preempted
+Date: Wed, 19 Oct 2016 08:56:36 +0200
+Message-ID: <190cd825-ca7c-d160-a0ac-4e0d27ac4a93__40191.4119757295$1476860222$gmane$org@de.ibm.com>
+References: <1475164265-246160-1-git-send-email-borntraeger@de.ibm.com>
+	<1475164265-246160-2-git-send-email-borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1476872416-42752-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+In-Reply-To: <1475164265-246160-2-git-send-email-borntraeger@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,102 +18,166 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org
-Cc: kernellwp@gmail.com, jgross@suse.com, peterz@infradead.org, benh@kernel.crashing.org, will.deacon@arm.com, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, boqun.feng@gmail.com
+To: Peter Zijlstra <peterz@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: kernellwp@gmail.com, linux-s390@vger.kernel.org, benh@kernel.crashing.org, jgross@suse.com, kvm@vger.kernel.org, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, will.deacon@arm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, xen-devel-request@lists.xenproject.org, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/19/2016 12:20 PM, Pan Xinhui wrote:
-> change from v3:
-> 	add x86 vcpu preempted check patch
+On 09/29/2016 05:51 PM, Christian Borntraeger wrote:
+> this implements the s390 backend for commit
+> "kernel/sched: introduce vcpu preempted check interface"
+> by reworking the existing smp_vcpu_scheduled into
+> arch_vcpu_is_preempted. We can then also get rid of the
+> local cpu_is_preempted function by moving the
+> CIF_ENABLED_WAIT test into arch_vcpu_is_preempted.
+> 
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 
-If you want you could add the s390 patch that I provided for your last version.
-I also gave my Acked-by for all previous patches.
 
+Martin, Peter,
 
+I think we could go with the patch as is. In other words not providing
+arch_vcpu_is_preempted for !CONFIG_SMP.
 
-> change from v2:
-> 	no code change, fix typos, update some comments
-> change from v1:
-> 	a simplier definition of default vcpu_is_preempted
-> 	skip mahcine type check on ppc, and add config. remove dedicated macro.
-> 	add one patch to drop overload of rwsem_spin_on_owner and mutex_spin_on_owner. 
-> 	add more comments
-> 	thanks boqun and Peter's suggestion.
+This will result in compile errors if code does spinning or yielding for
+non-SMP kernels - which does not make sense to me, so this might actually
+be a nice indicator.
+If you prefer the !CONFIG_SMP implementation let me know and I will respin.
+
+In any case, Martin if the patch is ok for you, can you ack, so that Peter 
+can take that patch together with Pan Xinhui series?
+
+> ---
+>  arch/s390/include/asm/spinlock.h |  3 +++
+>  arch/s390/kernel/smp.c           |  9 +++++++--
+>  arch/s390/lib/spinlock.c         | 25 ++++++++-----------------
+>  3 files changed, 18 insertions(+), 19 deletions(-)
 > 
-> This patch set aims to fix lock holder preemption issues.
+> diff --git a/arch/s390/include/asm/spinlock.h b/arch/s390/include/asm/spinlock.h
+> index 63ebf37..e16e02f 100644
+> --- a/arch/s390/include/asm/spinlock.h
+> +++ b/arch/s390/include/asm/spinlock.h
+> @@ -21,6 +21,9 @@ _raw_compare_and_swap(unsigned int *lock, unsigned int old, unsigned int new)
+>  	return __sync_bool_compare_and_swap(lock, old, new);
+>  }
 > 
-> test-case:
-> perf record -a perf bench sched messaging -g 400 -p && perf report
+> +bool arch_vcpu_is_preempted(int cpu);
+> +#define vcpu_is_preempted arch_vcpu_is_preempted
+> +
+>  /*
+>   * Simple spin lock operations.  There are two variants, one clears IRQ's
+>   * on the local processor, one does not.
+> diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+> index 7b89a75..4aadd16 100644
+> --- a/arch/s390/kernel/smp.c
+> +++ b/arch/s390/kernel/smp.c
+> @@ -376,10 +376,15 @@ int smp_find_processor_id(u16 address)
+>  	return -1;
+>  }
 > 
-> 18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
-> 12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
->  5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
->  3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
->  3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
->  3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
->  2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
+> -int smp_vcpu_scheduled(int cpu)
+> +bool arch_vcpu_is_preempted(int cpu)
+>  {
+> -	return pcpu_running(pcpu_devices + cpu);
+> +	if (test_cpu_flag_of(CIF_ENABLED_WAIT, cpu))
+> +		return false;
+> +	if (pcpu_running(pcpu_devices + cpu))
+> +		return false;
+> +	return true;
+>  }
+> +EXPORT_SYMBOL(arch_vcpu_is_preempted);
 > 
-> We introduce interface bool vcpu_is_preempted(int cpu) and use it in some spin
-> loops of osq_lock, rwsem_spin_on_owner and mutex_spin_on_owner.
-> These spin_on_onwer variant also cause rcu stall before we apply this patch set
+>  void smp_yield_cpu(int cpu)
+>  {
+> diff --git a/arch/s390/lib/spinlock.c b/arch/s390/lib/spinlock.c
+> index e5f50a7..e48a48e 100644
+> --- a/arch/s390/lib/spinlock.c
+> +++ b/arch/s390/lib/spinlock.c
+> @@ -37,15 +37,6 @@ static inline void _raw_compare_and_delay(unsigned int *lock, unsigned int old)
+>  	asm(".insn rsy,0xeb0000000022,%0,0,%1" : : "d" (old), "Q" (*lock));
+>  }
 > 
-> We also have observed some performace improvements.
-> 
-> PPC test result:
-> 
-> 1 copy - 0.94%
-> 2 copy - 7.17%
-> 4 copy - 11.9%
-> 8 copy -  3.04%
-> 16 copy - 15.11%
-> 
-> details below:
-> Without patch:
-> 
-> 1 copy - File Write 4096 bufsize 8000 maxblocks      2188223.0 KBps  (30.0 s, 1 samples)
-> 2 copy - File Write 4096 bufsize 8000 maxblocks      1804433.0 KBps  (30.0 s, 1 samples)
-> 4 copy - File Write 4096 bufsize 8000 maxblocks      1237257.0 KBps  (30.0 s, 1 samples)
-> 8 copy - File Write 4096 bufsize 8000 maxblocks      1032658.0 KBps  (30.0 s, 1 samples)
-> 16 copy - File Write 4096 bufsize 8000 maxblocks       768000.0 KBps  (30.1 s, 1 samples)
-> 
-> With patch: 
-> 
-> 1 copy - File Write 4096 bufsize 8000 maxblocks      2209189.0 KBps  (30.0 s, 1 samples)
-> 2 copy - File Write 4096 bufsize 8000 maxblocks      1943816.0 KBps  (30.0 s, 1 samples)
-> 4 copy - File Write 4096 bufsize 8000 maxblocks      1405591.0 KBps  (30.0 s, 1 samples)
-> 8 copy - File Write 4096 bufsize 8000 maxblocks      1065080.0 KBps  (30.0 s, 1 samples)
-> 16 copy - File Write 4096 bufsize 8000 maxblocks       904762.0 KBps  (30.0 s, 1 samples)
-> 
-> X86 test result:
-> 	test-case			after-patch	  before-patch
-> Execl Throughput                       |    18307.9 lps  |    11701.6 lps 
-> File Copy 1024 bufsize 2000 maxblocks  |  1352407.3 KBps |   790418.9 KBps
-> File Copy 256 bufsize 500 maxblocks    |   367555.6 KBps |   222867.7 KBps
-> File Copy 4096 bufsize 8000 maxblocks  |  3675649.7 KBps |  1780614.4 KBps
-> Pipe Throughput                        | 11872208.7 lps  | 11855628.9 lps 
-> Pipe-based Context Switching           |  1495126.5 lps  |  1490533.9 lps 
-> Process Creation                       |    29881.2 lps  |    28572.8 lps 
-> Shell Scripts (1 concurrent)           |    23224.3 lpm  |    22607.4 lpm 
-> Shell Scripts (8 concurrent)           |     3531.4 lpm  |     3211.9 lpm 
-> System Call Overhead                   | 10385653.0 lps  | 10419979.0 lps 
-> 
-> Pan Xinhui (5):
->   kernel/sched: introduce vcpu preempted check interface
->   locking/osq: Drop the overload of osq_lock()
->   kernel/locking: Drop the overload of {mutex,rwsem}_spin_on_owner
->   powerpc/spinlock: support vcpu preempted check
->   x86, kvm: support vcpu preempted check
-> 
->  arch/powerpc/include/asm/spinlock.h   |  8 ++++++++
->  arch/x86/include/asm/paravirt_types.h |  6 ++++++
->  arch/x86/include/asm/spinlock.h       |  8 ++++++++
->  arch/x86/include/uapi/asm/kvm_para.h  |  3 ++-
->  arch/x86/kernel/kvm.c                 | 11 +++++++++++
->  arch/x86/kernel/paravirt.c            | 11 +++++++++++
->  arch/x86/kvm/x86.c                    | 12 ++++++++++++
->  include/linux/sched.h                 | 12 ++++++++++++
->  kernel/locking/mutex.c                | 15 +++++++++++++--
->  kernel/locking/osq_lock.c             | 10 +++++++++-
->  kernel/locking/rwsem-xadd.c           | 16 +++++++++++++---
->  11 files changed, 105 insertions(+), 7 deletions(-)
+> -static inline int cpu_is_preempted(int cpu)
+> -{
+> -	if (test_cpu_flag_of(CIF_ENABLED_WAIT, cpu))
+> -		return 0;
+> -	if (smp_vcpu_scheduled(cpu))
+> -		return 0;
+> -	return 1;
+> -}
+> -
+>  void arch_spin_lock_wait(arch_spinlock_t *lp)
+>  {
+>  	unsigned int cpu = SPINLOCK_LOCKVAL;
+> @@ -62,7 +53,7 @@ void arch_spin_lock_wait(arch_spinlock_t *lp)
+>  			continue;
+>  		}
+>  		/* First iteration: check if the lock owner is running. */
+> -		if (first_diag && cpu_is_preempted(~owner)) {
+> +		if (first_diag && arch_vcpu_is_preempted(~owner)) {
+>  			smp_yield_cpu(~owner);
+>  			first_diag = 0;
+>  			continue;
+> @@ -81,7 +72,7 @@ void arch_spin_lock_wait(arch_spinlock_t *lp)
+>  		 * yield the CPU unconditionally. For LPAR rely on the
+>  		 * sense running status.
+>  		 */
+> -		if (!MACHINE_IS_LPAR || cpu_is_preempted(~owner)) {
+> +		if (!MACHINE_IS_LPAR || arch_vcpu_is_preempted(~owner)) {
+>  			smp_yield_cpu(~owner);
+>  			first_diag = 0;
+>  		}
+> @@ -108,7 +99,7 @@ void arch_spin_lock_wait_flags(arch_spinlock_t *lp, unsigned long flags)
+>  			continue;
+>  		}
+>  		/* Check if the lock owner is running. */
+> -		if (first_diag && cpu_is_preempted(~owner)) {
+> +		if (first_diag && arch_vcpu_is_preempted(~owner)) {
+>  			smp_yield_cpu(~owner);
+>  			first_diag = 0;
+>  			continue;
+> @@ -127,7 +118,7 @@ void arch_spin_lock_wait_flags(arch_spinlock_t *lp, unsigned long flags)
+>  		 * yield the CPU unconditionally. For LPAR rely on the
+>  		 * sense running status.
+>  		 */
+> -		if (!MACHINE_IS_LPAR || cpu_is_preempted(~owner)) {
+> +		if (!MACHINE_IS_LPAR || arch_vcpu_is_preempted(~owner)) {
+>  			smp_yield_cpu(~owner);
+>  			first_diag = 0;
+>  		}
+> @@ -165,7 +156,7 @@ void _raw_read_lock_wait(arch_rwlock_t *rw)
+>  	owner = 0;
+>  	while (1) {
+>  		if (count-- <= 0) {
+> -			if (owner && cpu_is_preempted(~owner))
+> +			if (owner && arch_vcpu_is_preempted(~owner))
+>  				smp_yield_cpu(~owner);
+>  			count = spin_retry;
+>  		}
+> @@ -211,7 +202,7 @@ void _raw_write_lock_wait(arch_rwlock_t *rw, unsigned int prev)
+>  	owner = 0;
+>  	while (1) {
+>  		if (count-- <= 0) {
+> -			if (owner && cpu_is_preempted(~owner))
+> +			if (owner && arch_vcpu_is_preempted(~owner))
+>  				smp_yield_cpu(~owner);
+>  			count = spin_retry;
+>  		}
+> @@ -241,7 +232,7 @@ void _raw_write_lock_wait(arch_rwlock_t *rw)
+>  	owner = 0;
+>  	while (1) {
+>  		if (count-- <= 0) {
+> -			if (owner && cpu_is_preempted(~owner))
+> +			if (owner && arch_vcpu_is_preempted(~owner))
+>  				smp_yield_cpu(~owner);
+>  			count = spin_retry;
+>  		}
+> @@ -285,7 +276,7 @@ void arch_lock_relax(unsigned int cpu)
+>  {
+>  	if (!cpu)
+>  		return;
+> -	if (MACHINE_IS_LPAR && !cpu_is_preempted(~cpu))
+> +	if (MACHINE_IS_LPAR && !arch_vcpu_is_preempted(~cpu))
+>  		return;
+>  	smp_yield_cpu(~cpu);
+>  }
 > 
