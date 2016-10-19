@@ -1,16 +1,16 @@
-From: Aaron Conole <aconole@bytheb.org>
-Subject: Re: [PATCH net-next 5/6] net: use core MTU range checking in virt
-	drivers
-Date: Wed, 19 Oct 2016 09:06:24 -0400
-Message-ID: <f7toa2gmqsv.fsf__6049.90244978598$1476890630$gmane$org@redhat.com>
-References: <20161019023333.15760-1-jarod@redhat.com>
-	<20161019023333.15760-6-jarod@redhat.com>
+From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Subject: Re: [PATCH v2 34/37] docs: fix locations of several documents that
+	got moved
+Date: Wed, 19 Oct 2016 11:59:18 -0200
+Message-ID: <20161019115918.1162d16e__28760.0797987126$1476890632$gmane$org@vento.lan>
+References: <cover.1476801354.git.mchehab@s-opensource.com>
+	<28c1f5d3867174a7017e3f3d9e9e4ebb096ceed8.1476801354.git.mchehab@s-opensource.com>
+	<20161019103442.GD1461@amd>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161019023333.15760-6-jarod@redhat.com> (Jarod Wilson's message
-	of "Tue, 18 Oct 2016 22:33:32 -0400")
+In-Reply-To: <20161019103442.GD1461@amd>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,35 +20,103 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jarod Wilson <jarod@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "VMware,
-	Inc." <pv-drivers@vmware.com>, netdev@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Shrikrishna Khare <skhare@vmware.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Nicolas Pitre <nicolas.pitre@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Chris Metcalf <cmetcalf@ezchip.com>, Peter Loeffler <peter.loeffler@guruz.at>, Finn Thain <fthain@telegraphics.com.au>, Yaowei Bai <baiyaowei@cmss.chinamobile.com>, Jakub Wilk <jwilk@jwilk.net>, linux-acpi@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, Guenter Roeck <linux@roeck-us.net>, Petr Mladek <pmladek@suse.com>, Jean Delvare <jdelvare@suse.com>, linux-pm@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Karsten Keil <isdn@linux-pingi.de>, Jiri Kosina <jkosina@suse.cz>, "seokhoon.yoon" <iamyooon@gmail.com>, Li Zefan <lizefan@huawei.com>, Ryan Swan <ryan@ryanswan.com>, Joe Perches <joe@perches.com>, Andrew Morton <akpm@linux-foundation.org>, Mark
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jarod Wilson <jarod@redhat.com> writes:
+Em Wed, 19 Oct 2016 12:34:42 +0200
+Pavel Machek <pavel@ucw.cz> escreveu:
 
-> hyperv_net:
-> - set min/max_mtu
->
-> virtio_net:
-> - set min/max_mtu
-> - remove virtnet_change_mtu
->
-> vmxnet3:
-> - set min/max_mtu
->
-> CC: netdev@vger.kernel.org
-> CC: virtualization@lists.linux-foundation.org
-> CC: "K. Y. Srinivasan" <kys@microsoft.com>
-> CC: Haiyang Zhang <haiyangz@microsoft.com>
-> CC: "Michael S. Tsirkin" <mst@redhat.com>
-> CC: Shrikrishna Khare <skhare@vmware.com>
-> CC: "VMware, Inc." <pv-drivers@vmware.com>
-> Signed-off-by: Jarod Wilson <jarod@redhat.com>
-> ---
+> Hi!
+> 
+> 
+> > --- a/Documentation/ABI/testing/sysfs-kernel-slab
+> > +++ b/Documentation/ABI/testing/sysfs-kernel-slab
+> > @@ -347,7 +347,7 @@ Description:
+> >  		because of fragmentation, SLUB will retry with the minimum order
+> >  		possible depending on its characteristics.
+> >  		When debug_guardpage_minorder=N (N > 0) parameter is specified
+> > -		(see Documentation/kernel-parameters.txt), the minimum possible
+> > +		(see Documentation/admin-guide/kernel-parameters.rst), the minimum possible
+> >  		order is used and this sysfs entry can not be used to change
+> >  		the order at run time.  
+> 
+> Dunno, but kernel-parameters.txt was already quite long... for a file
+> that is referenced quite often. Adding admin-guide/ into the path does
+> not really help.
 
+The big string name starts with Documentation/ :) There are some discussions 
+about changing it to doc/ (or docs/). Also, as you said, kernel-parameters
+is already a big name. Perhaps we could use, instead, "kernel-parms".
 
-The virtnet change looks good to me.  It simplifies an enhancement that
-I was about to propose, so I'll let yours land first.
+If we rename kernel-parameters.rst to kernel-parms.rst, plus the doc/ rename,
+then the string size will actually reduce:
 
--Aaron
+-		(see Documentation/kernel-parameters.txt), the minimum possible
++		(see doc/admin-guide/kernel-parms.rst), the minimum possible
+
+> Maybe admin-guide should go directly into Documentation/ , as that's
+> what our users are interested in?
+
+There are several problems if we keep them at Documentation/ dir:
+
+- We'll end by mixing documents already converted to ReST with documents
+  not converted yet;
+
+- A rename is needed anyway, as Sphinx only accepts ReST files that end
+  with the extension(s) defined at Documentation/conf.py (currently,
+  .rst);
+
+- A partial documentation build is made by sub-directory. If we put
+  files under /Documentation, there's no way to build just one
+  book.
+
+> Plus, I'm not sure how many developers will figure out that process/
+> is what describes kernel patch submission process. We have processes
+> in the kernel, after all...
+
+Do you have a better idea?
+
+> Could we leave symlinks in place? 
+
+My initial patch did that. It created symlinks on the
+Documentation/user (with was the previous name for the admin's guide).
+
+The big issue is how to identify what files at Documentation/ that
+were not converted yet.
+
+On this patch series, we opted to move the file and keep just a
+reference to the most relevant ones, pointing to the new location:
+	https://git.linuxtv.org/mchehab/experimental.git/commit/?h=lkml-books-v2&id=217462c76ee1c12b45750723059a3461018b6975
+	https://git.linuxtv.org/mchehab/experimental.git/commit/?h=lkml-books-v2&id=d15595a318356804ed1bc42f509e72de9d031513
+
+We could do something similar to Documentation/kernel-parameters.txt.
+Yet, the best is, IMHO, to keep this on the absolute minimum of files,
+as it also makes harder to identify what txt files still require conversion.
+
+> People say "please follow
+> CodingStyle" when reviewing patches. Saying "please follow
+> process/conding-style.rst" ... somehow I don't think that's going to
+> happen.
+
+As we have a Documentation/CodingStyle (pointing to the new location),
+this should still work. 
+
+That's said, using my maintainer's hat, when I review patches from a newbie,
+I actually prefer to point them to some location with the current
+practices, as they usually don't know much about the Kernel's way to
+receive patch. So, I reply with something like:
+
+	"Please read this:
+		https://mchehab.fedorapeople.org/kernel_docs/process/index.html
+	 with instructions about how to submit your work"
+
+For an old contributor, I just say: "please follow the coding style" 
+or I reply with the output of checkpatch.pl.
+
+Maybe it is just me, but I very much prefer to point to some URL with
+everything packed altogether than to do several reviews until someone
+RTFM (Read The Fine Manual), and starts to submit it right.
+
+Thanks,
+Mauro
