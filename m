@@ -1,14 +1,16 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH v2 34/37] docs: fix locations of several documents that
-	got moved
-Date: Wed, 19 Oct 2016 12:34:42 +0200
-Message-ID: <20161019103442.GD1461__10319.7624128827$1476873307$gmane$org@amd>
-References: <cover.1476801354.git.mchehab@s-opensource.com>
-	<28c1f5d3867174a7017e3f3d9e9e4ebb096ceed8.1476801354.git.mchehab@s-opensource.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next 5/6] net: use core MTU range checking in virt
+	drivers
+Date: Wed, 19 Oct 2016 16:59:46 +0300
+Message-ID: <20161019165629-mutt-send-email-mst@kernel.org>
+References: <20161019023333.15760-1-jarod@redhat.com>
+	<20161019023333.15760-6-jarod@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5464703155517790997=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <28c1f5d3867174a7017e3f3d9e9e4ebb096ceed8.1476801354.git.mchehab@s-opensource.com>
+Content-Disposition: inline
+In-Reply-To: <20161019023333.15760-6-jarod@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,82 +20,86 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Cc: Nicolas Pitre <nicolas.pitre@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Chris Metcalf <cmetcalf@ezchip.com>, Peter Loeffler <peter.loeffler@guruz.at>, Finn Thain <fthain@telegraphics.com.au>, Yaowei Bai <baiyaowei@cmss.chinamobile.com>, Jakub Wilk <jwilk@jwilk.net>, linux-acpi@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, Guenter Roeck <linux@roeck-us.net>, Petr Mladek <pmladek@suse.com>, Jean Delvare <jdelvare@suse.com>, linux-pm@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Karsten Keil <isdn@linux-pingi.de>, Jiri Kosina <jkosina@suse.cz>, "seokhoon.yoon" <iamyooon@gmail.com>, Li Zefan <lizefan@huawei.com>, Ryan Swan <ryan@ryanswan.com>, Joe Perches <joe@perches.com>, Andrew Morton <akpm@linux-foundation.org>, Mark
+To: Jarod Wilson <jarod@redhat.com>
+Cc: "VMware, Inc." <pv-drivers@vmware.com>, netdev@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Shrikrishna Khare <skhare@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, Oct 18, 2016 at 10:33:32PM -0400, Jarod Wilson wrote:
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index fad84f3..4885a42 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -1419,17 +1419,6 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
+>  	.set_settings = virtnet_set_settings,
+>  };
+>  
+> -#define MIN_MTU 68
+> -#define MAX_MTU 65535
+> -
+> -static int virtnet_change_mtu(struct net_device *dev, int new_mtu)
+> -{
+> -	if (new_mtu < MIN_MTU || new_mtu > MAX_MTU)
+> -		return -EINVAL;
+> -	dev->mtu = new_mtu;
+> -	return 0;
+> -}
+> -
+>  static const struct net_device_ops virtnet_netdev = {
+>  	.ndo_open            = virtnet_open,
+>  	.ndo_stop   	     = virtnet_close,
+> @@ -1437,7 +1426,6 @@ static const struct net_device_ops virtnet_netdev = {
+>  	.ndo_validate_addr   = eth_validate_addr,
+>  	.ndo_set_mac_address = virtnet_set_mac_address,
+>  	.ndo_set_rx_mode     = virtnet_set_rx_mode,
+> -	.ndo_change_mtu	     = virtnet_change_mtu,
+>  	.ndo_get_stats64     = virtnet_stats,
+>  	.ndo_vlan_rx_add_vid = virtnet_vlan_rx_add_vid,
+>  	.ndo_vlan_rx_kill_vid = virtnet_vlan_rx_kill_vid,
+> @@ -1748,6 +1736,9 @@ static bool virtnet_validate_features(struct virtio_device *vdev)
+>  	return true;
+>  }
+>  
+> +#define MIN_MTU ETH_MIN_MTU
+> +#define MAX_MTU 65535
+> +
 
---===============5464703155517790997==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Km1U/tdNT/EmXiR1"
-Content-Disposition: inline
+Do we need a common macro for this?
 
+>  static int virtnet_probe(struct virtio_device *vdev)
+>  {
+>  	int i, err;
+> @@ -1821,6 +1812,10 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  
+>  	dev->vlan_features = dev->features;
+>  
+> +	/* MTU range: 68 - 65535 */
+> +	dev->min_mtu = MIN_MTU;
+> +	dev->max_mtu = MAX_MTU;
+> +
+>  	/* Configuration may specify what MAC to use.  Otherwise random. */
+>  	if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC))
+>  		virtio_cread_bytes(vdev,
+> @@ -1875,8 +1870,10 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  		mtu = virtio_cread16(vdev,
+>  				     offsetof(struct virtio_net_config,
+>  					      mtu));
+> -		if (virtnet_change_mtu(dev, mtu))
+> +		if (mtu >= dev->min_mtu && mtu <= dev->max_mtu) {
+> +			dev->mtu = mtu;
+>  			__virtio_clear_bit(vdev, VIRTIO_NET_F_MTU);
 
---Km1U/tdNT/EmXiR1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I think the logic is wrong here:
 
-Hi!
+If mtu is legal, we set it but do not tell host.
+If it's out of range we tell host we use it
+but don't actually.
 
+Should be the reverse.
 
-> --- a/Documentation/ABI/testing/sysfs-kernel-slab
-> +++ b/Documentation/ABI/testing/sysfs-kernel-slab
-> @@ -347,7 +347,7 @@ Description:
->  		because of fragmentation, SLUB will retry with the minimum order
->  		possible depending on its characteristics.
->  		When debug_guardpage_minorder=3DN (N > 0) parameter is specified
-> -		(see Documentation/kernel-parameters.txt), the minimum possible
-> +		(see Documentation/admin-guide/kernel-parameters.rst), the minimum pos=
-sible
->  		order is used and this sysfs entry can not be used to change
->  		the order at run time.
+> +		}
+>  	}
+>  
+>  	if (vi->any_header_sg)
 
-Dunno, but kernel-parameters.txt was already quite long... for a file
-that is referenced quite often. Adding admin-guide/ into the path does
-not really help.
-
-Maybe admin-guide should go directly into Documentation/ , as that's
-what our users are interested in?
-
-Plus, I'm not sure how many developers will figure out that process/
-is what describes kernel patch submission process. We have processes
-in the kernel, after all...
-
-Could we leave symlinks in place? People say "please follow
-CodingStyle" when reviewing patches. Saying "please follow
-process/conding-style.rst" ... somehow I don't think that's going to
-happen.
-
-Best regards,
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---Km1U/tdNT/EmXiR1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlgHTEIACgkQMOfwapXb+vIOHQCffkWad/67/hPT1um2PTOxE/VH
-cGcAn2DSAakkiqxfcuv58QhQpk7mN3cQ
-=PJG5
------END PGP SIGNATURE-----
-
---Km1U/tdNT/EmXiR1--
-
---===============5464703155517790997==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5464703155517790997==--
+-- 
+MST
