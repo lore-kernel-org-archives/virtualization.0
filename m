@@ -1,10 +1,14 @@
-From: "ML" <marialemos72@gmail.com>
-Subject: Call for Papers - WorldCIST'17 Workshops - Porto Santo Island
-Date: Wed, 19 Oct 2016 18:04:50 +0100
-Message-ID: <201610191704.u9JH4MSx016471@smtp.dei.uc.pt>
+From: Pan Xinhui <xinhui@linux.vnet.ibm.com>
+Subject: Re: [PATCH v4 0/5] implement vcpu preempted check
+Date: Thu, 20 Oct 2016 01:08:02 +0800
+Message-ID: <59e0f857-0a5c-929d-98dc-878e97bcfb3c@linux.vnet.ibm.com>
+References: <1476872416-42752-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+	<a801cd40-1019-01e2-1013-f04363fc7f31@suse.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5156948246077770934=="
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <a801cd40-1019-01e2-1013-f04363fc7f31@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -14,139 +18,96 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Juergen Gross <jgross@suse.com>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org
+Cc: kernellwp@gmail.com, peterz@infradead.org, benh@kernel.crashing.org, will.deacon@arm.com, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, boqun.feng@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============5156948246077770934==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Please disseminate by your contacts. Thank you!
-
-*Best papers published in SCI/SSCI-indexed journals
-----------------------------------------------------------------------=
------
-WorldCIST'17 - 5th World Conference on Information Systems and Technol=
-ogies=20
-Porto Santo Island, Madeira, Portugal
-11th-13th of April 2017
-http://www.worldcist.org/
---------------------------------------------------------------------
-
-WorldCIST 2017 will feature a total of 18 Workshops. Paper submission =
-for all Workshops must be performed at https://easychair.org/conferenc=
-es/?conf=3Dworldcist_workshops2017 selecting the desired Workshop. Wor=
-kshop papers (Full =96 10 Pages and Short =96 7 Pages) will be publish=
-ed by Springer AISC series and the authors of the best Workshop paper =
-will be invited to extend their work for publication at top Internatio=
-nal Journals (indexed by ISI Web of Knowledge and SCOPUS). Paper submi=
-ssion is open until November 27th for all Workshops.
-
-WORKSHOPS
-=95    BIO - Business Intelligence in Organizations
-=95    CMAIPA - Computational Methods and Applications for Image Proce=
-ssing and Analysis
-=95    CSQA - Computer Supported Qualitative Analysis
-=95    ESG - Educational and Serious Games
-=95    ETCBPM - Emerging Trends and Challenges in Business Process Man=
-agement
-=95    HISISE - Workshop on Healthcare Information Systems Interoperab=
-ility, Security and Efficiency
-=95    HMInARMM - Human-Machine Interfaces in Automation, Robotics, Me=
-chanics and Mechatronics
-=95    ICDSS - Intelligent and Collaborative Decision Support Systems =
-for Improving Manufacturing Processes
-=95    ICTwithUAV - ICT solutions with Unmanned Aircraft Vehicles
-=95    IoT4Health - Workshop on Internet of Things for Health
-=95    ISM - Intelligent Systems and Machines
-=95    ISTA - Information Systems and Technologies Adoption
-=95    MAMM&MJ - Managing Audiovisual Mass Media (governance, funding =
-and innovation) and Mobile Journalism
-=95    NPAT - New Pedagogical Approaches with Technologies
-=95    PIS - Workshop on Pervasive Information Systems
-=95    RSPPI - Resources Sharing between Private and Public Institutions
-=95    SIdEWayS - Social Media World Sensors
-=95    TinW - Technologies in the Workplace - Use and Impact on Workers
-
-IMPORTANT DATES
-=95 Deadline for paper submission: November 27th, 2016
-=95 Notification of paper acceptance: December 25th, 2016
-=95 Deadline for final versions and conference registration: January 8=
-th, 2017
-=95 Conference dates: April 11 -13, 2017
-
-SUBMISSION AND PAPER FORMAT
-Please Submit your paper at: https://easychair.org/conferences/?conf=
-=3Dworldcist_workshops2017
-Two types of papers can be submitted to workshops (both will be publis=
-hed at the Springer AISC proceedings):
-- Full papers: Finished or consolidated R&D works. These papers are as=
-signed a 10-page limit.
-- Short papers: Finished or consolidated R&D works and also Ongoing wo=
-rk but with relevant preliminary results, open to discussion. These pa=
-pers are assigned a 7-page limit.
-Submitted papers must comply with the format of Advances in Intelligen=
-t Systems and Computing Series (see Instructions for Authors at Spring=
-er Website or download a DOC example) be written in English, must not =
-have been published before, not be under review for any other conferen=
-ce, workshop or publication.
-Paper should not include any information leading to the authors=92 ide=
-ntification (in order to enable double blind review). Therefore, the a=
-uthors=92 names, affiliations and bibliographic references should not =
-be included in the version for evaluation by the Program Committee. Th=
-is information should only be included in the camera-ready version, sa=
-ved in Word or Latex format and also in PDF format. These files must b=
-e accompanied by the Publication form filled out, in a ZIP file, and u=
-ploaded at the conference management system.
-All papers will be subjected to a =93double-blind review=94 by at leas=
-t two/three members of the Program Committee. Based on Program Committ=
-ee evaluation, a paper can be rejected or accepted by the Conference C=
-hairs. In the latter case, it can be accepted as the type originally s=
-ubmitted or as another type. Thus, full papers can be accepted as shor=
-t papers.
-
-PUBLICATION AND INDEXING
-Workshop papers will be published in the AISC Springer Conference Proc=
-eedings. To ensure that a paper is published in the Proceedings, at le=
-ast one of the authors must be fully registered by 11th of January 201=
-7, and the paper must comply with the suggested layout and page-limit.=
- Additionally, all recommended changes must be addressed by the author=
-s before they submit the camera-ready version. No more than one paper =
-per registration will be published in the Conference Proceedings. An e=
-xtra fee must be paid for publication of additional papers, with a max=
-imum of one additional paper per registration. Full and short papers w=
-ill be published in the Conference Proceedings by Springer, in Advance=
-s in Intelligent Systems and Computing. Published full and short paper=
-s will be submitted for indexation by ISI, EI-Compendex, SCOPUS and DB=
-LP, among others, and will be available in the SpringerLink Digital Li=
-brary. The authors of the best selected papers will be invited to exte=
-nd them for publication in renowned international journals indexed by =
-ISI, SCOPUS and DBLP (see the information available at the main confer=
-ence CFP for more details).
-
-
-
-Website of WorldCIST'17: http://www.worldcist.org/
-
-
-Best regards,
-
-Maria Lemos
-AISTI
-http://www.aisti.eu/
-
-
-
-
-
---===============5156948246077770934==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5156948246077770934==--
+CuWcqCAyMDE2LzEwLzE5IDIzOjU4LCBKdWVyZ2VuIEdyb3NzIOWGmemBkzoKPiBPbiAxOS8xMC8x
+NiAxMjoyMCwgUGFuIFhpbmh1aSB3cm90ZToKPj4gY2hhbmdlIGZyb20gdjM6Cj4+IAlhZGQgeDg2
+IHZjcHUgcHJlZW1wdGVkIGNoZWNrIHBhdGNoCj4+IGNoYW5nZSBmcm9tIHYyOgo+PiAJbm8gY29k
+ZSBjaGFuZ2UsIGZpeCB0eXBvcywgdXBkYXRlIHNvbWUgY29tbWVudHMKPj4gY2hhbmdlIGZyb20g
+djE6Cj4+IAlhIHNpbXBsaWVyIGRlZmluaXRpb24gb2YgZGVmYXVsdCB2Y3B1X2lzX3ByZWVtcHRl
+ZAo+PiAJc2tpcCBtYWhjaW5lIHR5cGUgY2hlY2sgb24gcHBjLCBhbmQgYWRkIGNvbmZpZy4gcmVt
+b3ZlIGRlZGljYXRlZCBtYWNyby4KPj4gCWFkZCBvbmUgcGF0Y2ggdG8gZHJvcCBvdmVybG9hZCBv
+ZiByd3NlbV9zcGluX29uX293bmVyIGFuZCBtdXRleF9zcGluX29uX293bmVyLgo+PiAJYWRkIG1v
+cmUgY29tbWVudHMKPj4gCXRoYW5rcyBib3F1biBhbmQgUGV0ZXIncyBzdWdnZXN0aW9uLgo+Pgo+
+PiBUaGlzIHBhdGNoIHNldCBhaW1zIHRvIGZpeCBsb2NrIGhvbGRlciBwcmVlbXB0aW9uIGlzc3Vl
+cy4KPj4KPj4gdGVzdC1jYXNlOgo+PiBwZXJmIHJlY29yZCAtYSBwZXJmIGJlbmNoIHNjaGVkIG1l
+c3NhZ2luZyAtZyA0MDAgLXAgJiYgcGVyZiByZXBvcnQKPj4KPj4gMTguMDklICBzY2hlZC1tZXNz
+YWdpbmcgIFtrZXJuZWwudm1saW51eF0gIFtrXSBvc3FfbG9jawo+PiAxMi4yOCUgIHNjaGVkLW1l
+c3NhZ2luZyAgW2tlcm5lbC52bWxpbnV4XSAgW2tdIHJ3c2VtX3NwaW5fb25fb3duZXIKPj4gIDUu
+MjclICBzY2hlZC1tZXNzYWdpbmcgIFtrZXJuZWwudm1saW51eF0gIFtrXSBtdXRleF91bmxvY2sK
+Pj4gIDMuODklICBzY2hlZC1tZXNzYWdpbmcgIFtrZXJuZWwudm1saW51eF0gIFtrXSB3YWl0X2Nv
+bnNpZGVyX3Rhc2sKPj4gIDMuNjQlICBzY2hlZC1tZXNzYWdpbmcgIFtrZXJuZWwudm1saW51eF0g
+IFtrXSBfcmF3X3dyaXRlX2xvY2tfaXJxCj4+ICAzLjQxJSAgc2NoZWQtbWVzc2FnaW5nICBba2Vy
+bmVsLnZtbGludXhdICBba10gbXV0ZXhfc3Bpbl9vbl9vd25lci5pcwo+PiAgMi40OSUgIHNjaGVk
+LW1lc3NhZ2luZyAgW2tlcm5lbC52bWxpbnV4XSAgW2tdIHN5c3RlbV9jYWxsCj4+Cj4+IFdlIGlu
+dHJvZHVjZSBpbnRlcmZhY2UgYm9vbCB2Y3B1X2lzX3ByZWVtcHRlZChpbnQgY3B1KSBhbmQgdXNl
+IGl0IGluIHNvbWUgc3Bpbgo+PiBsb29wcyBvZiBvc3FfbG9jaywgcndzZW1fc3Bpbl9vbl9vd25l
+ciBhbmQgbXV0ZXhfc3Bpbl9vbl9vd25lci4KPj4gVGhlc2Ugc3Bpbl9vbl9vbndlciB2YXJpYW50
+IGFsc28gY2F1c2UgcmN1IHN0YWxsIGJlZm9yZSB3ZSBhcHBseSB0aGlzIHBhdGNoIHNldAo+Pgo+
+PiBXZSBhbHNvIGhhdmUgb2JzZXJ2ZWQgc29tZSBwZXJmb3JtYWNlIGltcHJvdmVtZW50cy4KPj4K
+Pj4gUFBDIHRlc3QgcmVzdWx0Ogo+Pgo+PiAxIGNvcHkgLSAwLjk0JQo+PiAyIGNvcHkgLSA3LjE3
+JQo+PiA0IGNvcHkgLSAxMS45JQo+PiA4IGNvcHkgLSAgMy4wNCUKPj4gMTYgY29weSAtIDE1LjEx
+JQo+Pgo+PiBkZXRhaWxzIGJlbG93Ogo+PiBXaXRob3V0IHBhdGNoOgo+Pgo+PiAxIGNvcHkgLSBG
+aWxlIFdyaXRlIDQwOTYgYnVmc2l6ZSA4MDAwIG1heGJsb2NrcyAgICAgIDIxODgyMjMuMCBLQnBz
+ICAoMzAuMCBzLCAxIHNhbXBsZXMpCj4+IDIgY29weSAtIEZpbGUgV3JpdGUgNDA5NiBidWZzaXpl
+IDgwMDAgbWF4YmxvY2tzICAgICAgMTgwNDQzMy4wIEtCcHMgICgzMC4wIHMsIDEgc2FtcGxlcykK
+Pj4gNCBjb3B5IC0gRmlsZSBXcml0ZSA0MDk2IGJ1ZnNpemUgODAwMCBtYXhibG9ja3MgICAgICAx
+MjM3MjU3LjAgS0JwcyAgKDMwLjAgcywgMSBzYW1wbGVzKQo+PiA4IGNvcHkgLSBGaWxlIFdyaXRl
+IDQwOTYgYnVmc2l6ZSA4MDAwIG1heGJsb2NrcyAgICAgIDEwMzI2NTguMCBLQnBzICAoMzAuMCBz
+LCAxIHNhbXBsZXMpCj4+IDE2IGNvcHkgLSBGaWxlIFdyaXRlIDQwOTYgYnVmc2l6ZSA4MDAwIG1h
+eGJsb2NrcyAgICAgICA3NjgwMDAuMCBLQnBzICAoMzAuMSBzLCAxIHNhbXBsZXMpCj4+Cj4+IFdp
+dGggcGF0Y2g6Cj4+Cj4+IDEgY29weSAtIEZpbGUgV3JpdGUgNDA5NiBidWZzaXplIDgwMDAgbWF4
+YmxvY2tzICAgICAgMjIwOTE4OS4wIEtCcHMgICgzMC4wIHMsIDEgc2FtcGxlcykKPj4gMiBjb3B5
+IC0gRmlsZSBXcml0ZSA0MDk2IGJ1ZnNpemUgODAwMCBtYXhibG9ja3MgICAgICAxOTQzODE2LjAg
+S0JwcyAgKDMwLjAgcywgMSBzYW1wbGVzKQo+PiA0IGNvcHkgLSBGaWxlIFdyaXRlIDQwOTYgYnVm
+c2l6ZSA4MDAwIG1heGJsb2NrcyAgICAgIDE0MDU1OTEuMCBLQnBzICAoMzAuMCBzLCAxIHNhbXBs
+ZXMpCj4+IDggY29weSAtIEZpbGUgV3JpdGUgNDA5NiBidWZzaXplIDgwMDAgbWF4YmxvY2tzICAg
+ICAgMTA2NTA4MC4wIEtCcHMgICgzMC4wIHMsIDEgc2FtcGxlcykKPj4gMTYgY29weSAtIEZpbGUg
+V3JpdGUgNDA5NiBidWZzaXplIDgwMDAgbWF4YmxvY2tzICAgICAgIDkwNDc2Mi4wIEtCcHMgICgz
+MC4wIHMsIDEgc2FtcGxlcykKPj4KPj4gWDg2IHRlc3QgcmVzdWx0Ogo+PiAJdGVzdC1jYXNlCQkJ
+YWZ0ZXItcGF0Y2gJICBiZWZvcmUtcGF0Y2gKPj4gRXhlY2wgVGhyb3VnaHB1dCAgICAgICAgICAg
+ICAgICAgICAgICAgfCAgICAxODMwNy45IGxwcyAgfCAgICAxMTcwMS42IGxwcwo+PiBGaWxlIENv
+cHkgMTAyNCBidWZzaXplIDIwMDAgbWF4YmxvY2tzICB8ICAxMzUyNDA3LjMgS0JwcyB8ICAgNzkw
+NDE4LjkgS0Jwcwo+PiBGaWxlIENvcHkgMjU2IGJ1ZnNpemUgNTAwIG1heGJsb2NrcyAgICB8ICAg
+MzY3NTU1LjYgS0JwcyB8ICAgMjIyODY3LjcgS0Jwcwo+PiBGaWxlIENvcHkgNDA5NiBidWZzaXpl
+IDgwMDAgbWF4YmxvY2tzICB8ICAzNjc1NjQ5LjcgS0JwcyB8ICAxNzgwNjE0LjQgS0Jwcwo+PiBQ
+aXBlIFRocm91Z2hwdXQgICAgICAgICAgICAgICAgICAgICAgICB8IDExODcyMjA4LjcgbHBzICB8
+IDExODU1NjI4LjkgbHBzCj4+IFBpcGUtYmFzZWQgQ29udGV4dCBTd2l0Y2hpbmcgICAgICAgICAg
+IHwgIDE0OTUxMjYuNSBscHMgIHwgIDE0OTA1MzMuOSBscHMKPj4gUHJvY2VzcyBDcmVhdGlvbiAg
+ICAgICAgICAgICAgICAgICAgICAgfCAgICAyOTg4MS4yIGxwcyAgfCAgICAyODU3Mi44IGxwcwo+
+PiBTaGVsbCBTY3JpcHRzICgxIGNvbmN1cnJlbnQpICAgICAgICAgICB8ICAgIDIzMjI0LjMgbHBt
+ICB8ICAgIDIyNjA3LjQgbHBtCj4+IFNoZWxsIFNjcmlwdHMgKDggY29uY3VycmVudCkgICAgICAg
+ICAgIHwgICAgIDM1MzEuNCBscG0gIHwgICAgIDMyMTEuOSBscG0KPj4gU3lzdGVtIENhbGwgT3Zl
+cmhlYWQgICAgICAgICAgICAgICAgICAgfCAxMDM4NTY1My4wIGxwcyAgfCAxMDQxOTk3OS4wIGxw
+cwo+Pgo+PiBQYW4gWGluaHVpICg1KToKPj4gICBrZXJuZWwvc2NoZWQ6IGludHJvZHVjZSB2Y3B1
+IHByZWVtcHRlZCBjaGVjayBpbnRlcmZhY2UKPj4gICBsb2NraW5nL29zcTogRHJvcCB0aGUgb3Zl
+cmxvYWQgb2Ygb3NxX2xvY2soKQo+PiAgIGtlcm5lbC9sb2NraW5nOiBEcm9wIHRoZSBvdmVybG9h
+ZCBvZiB7bXV0ZXgscndzZW19X3NwaW5fb25fb3duZXIKPj4gICBwb3dlcnBjL3NwaW5sb2NrOiBz
+dXBwb3J0IHZjcHUgcHJlZW1wdGVkIGNoZWNrCj4+ICAgeDg2LCBrdm06IHN1cHBvcnQgdmNwdSBw
+cmVlbXB0ZWQgY2hlY2sKPgo+IFRoZSBhdHRhY2hlZCBwYXRjaCBhZGRzIFhlbiBzdXBwb3J0IGZv
+ciB4ODYuIFBsZWFzZSB0ZWxsIG1lIHdoZXRoZXIgeW91Cj4gd2FudCB0byBhZGQgdGhpcyBwYXRj
+aCB0byB5b3VyIHNlcmllcyBvciBpZiBJIHNob3VsZCBwb3N0IGl0IHdoZW4geW91cgo+IHNlcmll
+cyBoYXMgYmVlbiBhY2NlcHRlZC4KPgpoaSwgSnVlcmdlbgoJWW91ciBwYXRjaCBpcyBwcmV0dHkg
+c21hbGwgYW5kIG5pY2UgOikgdGhhbmtzIQpJIGNhbiBpbmNsdWRlIHlvdXIgcGF0Y2ggaW50byBt
+eSBuZXh0IHBhdGNoc2V0IGFmdGVyIHRoaXMgcGF0Y2hzZXQgcmV2aWV3ZWQuIDopCgoKPiBZb3Ug
+Y2FuIGFkZCBteQo+Cj4gVGVzdGVkLWJ5OiBKdWVyZ2VuIEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+
+Cj4KPiBmb3IgcGF0Y2hlcyAxLTMgYW5kIDUgKHBhcmF2aXJ0IHBhcnRzIG9ubHkpLgo+CgpUaGFu
+a3MgYSBsb3QhCgp4aW5odWkKCj4KPiBKdWVyZ2VuCj4KPj4KPj4gIGFyY2gvcG93ZXJwYy9pbmNs
+dWRlL2FzbS9zcGlubG9jay5oICAgfCAgOCArKysrKysrKwo+PiAgYXJjaC94ODYvaW5jbHVkZS9h
+c20vcGFyYXZpcnRfdHlwZXMuaCB8ICA2ICsrKysrKwo+PiAgYXJjaC94ODYvaW5jbHVkZS9hc20v
+c3BpbmxvY2suaCAgICAgICB8ICA4ICsrKysrKysrCj4+ICBhcmNoL3g4Ni9pbmNsdWRlL3VhcGkv
+YXNtL2t2bV9wYXJhLmggIHwgIDMgKystCj4+ICBhcmNoL3g4Ni9rZXJuZWwva3ZtLmMgICAgICAg
+ICAgICAgICAgIHwgMTEgKysrKysrKysrKysKPj4gIGFyY2gveDg2L2tlcm5lbC9wYXJhdmlydC5j
+ICAgICAgICAgICAgfCAxMSArKysrKysrKysrKwo+PiAgYXJjaC94ODYva3ZtL3g4Ni5jICAgICAg
+ICAgICAgICAgICAgICB8IDEyICsrKysrKysrKysrKwo+PiAgaW5jbHVkZS9saW51eC9zY2hlZC5o
+ICAgICAgICAgICAgICAgICB8IDEyICsrKysrKysrKysrKwo+PiAga2VybmVsL2xvY2tpbmcvbXV0
+ZXguYyAgICAgICAgICAgICAgICB8IDE1ICsrKysrKysrKysrKystLQo+PiAga2VybmVsL2xvY2tp
+bmcvb3NxX2xvY2suYyAgICAgICAgICAgICB8IDEwICsrKysrKysrKy0KPj4gIGtlcm5lbC9sb2Nr
+aW5nL3J3c2VtLXhhZGQuYyAgICAgICAgICAgfCAxNiArKysrKysrKysrKysrLS0tCj4+ICAxMSBm
+aWxlcyBjaGFuZ2VkLCAxMDUgaW5zZXJ0aW9ucygrKSwgNyBkZWxldGlvbnMoLSkKPj4KPgoKX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
+b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
+Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
+YWxpemF0aW9u
