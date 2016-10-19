@@ -1,16 +1,18 @@
-From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: Re: [PATCH v2 34/37] docs: fix locations of several documents that
-	got moved
-Date: Wed, 19 Oct 2016 11:59:18 -0200
-Message-ID: <20161019115918.1162d16e__28760.0797987126$1476890632$gmane$org@vento.lan>
-References: <cover.1476801354.git.mchehab@s-opensource.com>
-	<28c1f5d3867174a7017e3f3d9e9e4ebb096ceed8.1476801354.git.mchehab@s-opensource.com>
-	<20161019103442.GD1461@amd>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: Re: [PATCH net-next 5/6] net: use core MTU range checking in virt
+	drivers
+Date: Wed, 19 Oct 2016 10:17:58 -0400
+Message-ID: <20161019141758.GC18569__14277.3271109492$1476890668$gmane$org@redhat.com>
+References: <20161019023333.15760-1-jarod@redhat.com>
+	<20161019023333.15760-6-jarod@redhat.com>
+	<20161019165629-mutt-send-email-mst@kernel.org>
+	<20161019170330-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161019103442.GD1461@amd>
+Content-Disposition: inline
+In-Reply-To: <20161019170330-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,103 +22,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Nicolas Pitre <nicolas.pitre@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Chris Metcalf <cmetcalf@ezchip.com>, Peter Loeffler <peter.loeffler@guruz.at>, Finn Thain <fthain@telegraphics.com.au>, Yaowei Bai <baiyaowei@cmss.chinamobile.com>, Jakub Wilk <jwilk@jwilk.net>, linux-acpi@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, Guenter Roeck <linux@roeck-us.net>, Petr Mladek <pmladek@suse.com>, Jean Delvare <jdelvare@suse.com>, linux-pm@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Karsten Keil <isdn@linux-pingi.de>, Jiri Kosina <jkosina@suse.cz>, "seokhoon.yoon" <iamyooon@gmail.com>, Li Zefan <lizefan@huawei.com>, Ryan Swan <ryan@ryanswan.com>, Joe Perches <joe@perches.com>, Andrew Morton <akpm@linux-foundation.org>, Mark
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "VMware, Inc." <pv-drivers@vmware.com>, netdev@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Shrikrishna Khare <skhare@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Em Wed, 19 Oct 2016 12:34:42 +0200
-Pavel Machek <pavel@ucw.cz> escreveu:
-
-> Hi!
+On Wed, Oct 19, 2016 at 05:03:43PM +0300, Michael S. Tsirkin wrote:
+> On Wed, Oct 19, 2016 at 04:59:46PM +0300, Michael S. Tsirkin wrote:
+> > On Tue, Oct 18, 2016 at 10:33:32PM -0400, Jarod Wilson wrote:
+> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > index fad84f3..4885a42 100644
+> > > --- a/drivers/net/virtio_net.c
+> > > +++ b/drivers/net/virtio_net.c
+> > > @@ -1419,17 +1419,6 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
+> > >  	.set_settings = virtnet_set_settings,
+> > >  };
+> > >  
+> > > -#define MIN_MTU 68
+> > > -#define MAX_MTU 65535
+> > > -
+> > > -static int virtnet_change_mtu(struct net_device *dev, int new_mtu)
+> > > -{
+> > > -	if (new_mtu < MIN_MTU || new_mtu > MAX_MTU)
+> > > -		return -EINVAL;
+> > > -	dev->mtu = new_mtu;
+> > > -	return 0;
+> > > -}
+> > > -
+> > >  static const struct net_device_ops virtnet_netdev = {
+> > >  	.ndo_open            = virtnet_open,
+> > >  	.ndo_stop   	     = virtnet_close,
+> > > @@ -1437,7 +1426,6 @@ static const struct net_device_ops virtnet_netdev = {
+> > >  	.ndo_validate_addr   = eth_validate_addr,
+> > >  	.ndo_set_mac_address = virtnet_set_mac_address,
+> > >  	.ndo_set_rx_mode     = virtnet_set_rx_mode,
+> > > -	.ndo_change_mtu	     = virtnet_change_mtu,
+> > >  	.ndo_get_stats64     = virtnet_stats,
+> > >  	.ndo_vlan_rx_add_vid = virtnet_vlan_rx_add_vid,
+> > >  	.ndo_vlan_rx_kill_vid = virtnet_vlan_rx_kill_vid,
+> > > @@ -1748,6 +1736,9 @@ static bool virtnet_validate_features(struct virtio_device *vdev)
+> > >  	return true;
+> > >  }
+> > >  
+> > > +#define MIN_MTU ETH_MIN_MTU
+> > > +#define MAX_MTU 65535
+> > > +
+> > 
+> > Do we need a common macro for this?
 > 
-> 
-> > --- a/Documentation/ABI/testing/sysfs-kernel-slab
-> > +++ b/Documentation/ABI/testing/sysfs-kernel-slab
-> > @@ -347,7 +347,7 @@ Description:
-> >  		because of fragmentation, SLUB will retry with the minimum order
-> >  		possible depending on its characteristics.
-> >  		When debug_guardpage_minorder=N (N > 0) parameter is specified
-> > -		(see Documentation/kernel-parameters.txt), the minimum possible
-> > +		(see Documentation/admin-guide/kernel-parameters.rst), the minimum possible
-> >  		order is used and this sysfs entry can not be used to change
-> >  		the order at run time.  
-> 
-> Dunno, but kernel-parameters.txt was already quite long... for a file
-> that is referenced quite often. Adding admin-guide/ into the path does
-> not really help.
+> I think it's actually IP_MAX_MTU.
 
-The big string name starts with Documentation/ :) There are some discussions 
-about changing it to doc/ (or docs/). Also, as you said, kernel-parameters
-is already a big name. Perhaps we could use, instead, "kernel-parms".
+Ah, yes, it is. I'm not sure why I didn't use that...
 
-If we rename kernel-parameters.rst to kernel-parms.rst, plus the doc/ rename,
-then the string size will actually reduce:
-
--		(see Documentation/kernel-parameters.txt), the minimum possible
-+		(see doc/admin-guide/kernel-parms.rst), the minimum possible
-
-> Maybe admin-guide should go directly into Documentation/ , as that's
-> what our users are interested in?
-
-There are several problems if we keep them at Documentation/ dir:
-
-- We'll end by mixing documents already converted to ReST with documents
-  not converted yet;
-
-- A rename is needed anyway, as Sphinx only accepts ReST files that end
-  with the extension(s) defined at Documentation/conf.py (currently,
-  .rst);
-
-- A partial documentation build is made by sub-directory. If we put
-  files under /Documentation, there's no way to build just one
-  book.
-
-> Plus, I'm not sure how many developers will figure out that process/
-> is what describes kernel patch submission process. We have processes
-> in the kernel, after all...
-
-Do you have a better idea?
-
-> Could we leave symlinks in place? 
-
-My initial patch did that. It created symlinks on the
-Documentation/user (with was the previous name for the admin's guide).
-
-The big issue is how to identify what files at Documentation/ that
-were not converted yet.
-
-On this patch series, we opted to move the file and keep just a
-reference to the most relevant ones, pointing to the new location:
-	https://git.linuxtv.org/mchehab/experimental.git/commit/?h=lkml-books-v2&id=217462c76ee1c12b45750723059a3461018b6975
-	https://git.linuxtv.org/mchehab/experimental.git/commit/?h=lkml-books-v2&id=d15595a318356804ed1bc42f509e72de9d031513
-
-We could do something similar to Documentation/kernel-parameters.txt.
-Yet, the best is, IMHO, to keep this on the absolute minimum of files,
-as it also makes harder to identify what txt files still require conversion.
-
-> People say "please follow
-> CodingStyle" when reviewing patches. Saying "please follow
-> process/conding-style.rst" ... somehow I don't think that's going to
-> happen.
-
-As we have a Documentation/CodingStyle (pointing to the new location),
-this should still work. 
-
-That's said, using my maintainer's hat, when I review patches from a newbie,
-I actually prefer to point them to some location with the current
-practices, as they usually don't know much about the Kernel's way to
-receive patch. So, I reply with something like:
-
-	"Please read this:
-		https://mchehab.fedorapeople.org/kernel_docs/process/index.html
-	 with instructions about how to submit your work"
-
-For an old contributor, I just say: "please follow the coding style" 
-or I reply with the output of checkpatch.pl.
-
-Maybe it is just me, but I very much prefer to point to some URL with
-everything packed altogether than to do several reviews until someone
-RTFM (Read The Fine Manual), and starts to submit it right.
-
-Thanks,
-Mauro
+-- 
+Jarod Wilson
+jarod@redhat.com
