@@ -1,17 +1,16 @@
-From: Wei Liu <wei.liu2@citrix.com>
-Subject: Re: [PATCH net-next v2 6/9] net: use core MTU range checking in virt
-	drivers
-Date: Fri, 21 Oct 2016 11:09:09 +0100
-Message-ID: <20161021100909.GS2639__34596.2317580872$1477045145$gmane$org@citrix.com>
-References: <20161019023333.15760-1-jarod@redhat.com>
-	<20161020175524.6184-1-jarod@redhat.com>
-	<20161020175524.6184-7-jarod@redhat.com>
+From: David Laight <David.Laight@ACULAB.COM>
+Subject: RE: [PATCH v5 9/9] Documentation: virtual: kvm: Support vcpu
+	preempted check
+Date: Fri, 21 Oct 2016 11:27:55 +0000
+Message-ID: <063D6719AE5E284EB5DD2968C1650D6DB0207B44__17173.0564129122$1477051242$gmane$org@AcuExch.aculab.com>
+References: <1476998874-2089-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+	<1476998874-2089-10-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20161020175524.6184-7-jarod@redhat.com>
+In-Reply-To: <1476998874-2089-10-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,42 +20,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jarod Wilson <jarod@redhat.com>
-Cc: David Kershner <david.kershner@unisys.com>, Wei Liu <wei.liu2@citrix.com>, "Michael S. Tsirkin" <mst@redhat.com>, "VMware,
-	Inc." <pv-drivers@vmware.com>, netdev@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Durrant <paul.durrant@citrix.com>, Shrikrishna Khare <skhare@vmware.com>
+To: 'Pan Xinhui' <xinhui.pan@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "xen-devel-request@lists.xenproject.org" <xen-devel-request@lists.xenproject.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>
+Cc: "kernellwp@gmail.com" <kernellwp@gmail.com>, "jgross@suse.com" <jgross@suse.com>, "rkrcmar@redhat.com" <rkrcmar@redhat.com>, "peterz@infradead.org" <peterz@infradead.org>, "boqun.feng@gmail.com" <boqun.feng@gmail.com>, "will.deacon@arm.com" <will.deacon@arm.com>, "mingo@redhat.com" <mingo@redhat.com>, "paulus@samba.org" <paulus@samba.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "paulmck@linux.vnet.ibm.com" <paulmck@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Oct 20, 2016 at 01:55:21PM -0400, Jarod Wilson wrote:
-> hyperv_net:
-> - set min/max_mtu, per Haiyang, after rndis_filter_device_add
+From: Pan Xinhui
+> Sent: 20 October 2016 22:28
+> Commit ("x86, kvm: support vcpu preempted check") add one field "__u8
+> preempted" into struct kvm_steal_time. This field tells if one vcpu is
+> running or not.
 > 
-> virtio_net:
-> - set min/max_mtu
-> - remove virtnet_change_mtu
+> It is zero if 1) some old KVM deos not support this filed. 2) the vcpu is
+> preempted. Other values means the vcpu has been preempted.
 > 
-> vmxnet3:
-> - set min/max_mtu
+> Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+> ---
+>  Documentation/virtual/kvm/msr.txt | 8 +++++++-
+>  1 file changed, 7 insertions(+), 1 deletion(-)
 > 
-> xen-netback:
-> - min_mtu = 0, max_mtu = 65517
-> 
-> xen-netfront:
-> - min_mtu = 0, max_mtu = 65535
-> 
-> unisys/visor:
-> - clean up defines a little to not clash with network core or add
->   redundat definitions
-> 
-> CC: netdev@vger.kernel.org
-> CC: virtualization@lists.linux-foundation.org
-> CC: "K. Y. Srinivasan" <kys@microsoft.com>
-> CC: Haiyang Zhang <haiyangz@microsoft.com>
-> CC: "Michael S. Tsirkin" <mst@redhat.com>
-> CC: Shrikrishna Khare <skhare@vmware.com>
-> CC: "VMware, Inc." <pv-drivers@vmware.com>
-> CC: Wei Liu <wei.liu2@citrix.com>
-> CC: Paul Durrant <paul.durrant@citrix.com>
-> CC: David Kershner <david.kershner@unisys.com>
-> Signed-off-by: Jarod Wilson <jarod@redhat.com>
+> diff --git a/Documentation/virtual/kvm/msr.txt b/Documentation/virtual/kvm/msr.txt
+> index 2a71c8f..3376f13 100644
+> --- a/Documentation/virtual/kvm/msr.txt
+> +++ b/Documentation/virtual/kvm/msr.txt
+> @@ -208,7 +208,8 @@ MSR_KVM_STEAL_TIME: 0x4b564d03
+>  		__u64 steal;
+>  		__u32 version;
+>  		__u32 flags;
+> -		__u32 pad[12];
+> +		__u8  preempted;
+> +		__u32 pad[11];
+>  	}
 
-Acked-by: Wei Liu <wei.liu2@citrix.com>
+I think I'd be explicit about the 3 pad bytes you've left.
+
+	David
