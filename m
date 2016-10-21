@@ -1,14 +1,12 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v5 0/9] implement vcpu preempted check
-Date: Fri, 21 Oct 2016 07:40:50 +0200
-Message-ID: <20161021054050.GX3102__9417.73703457347$1477030785$gmane$org@twins.programming.kicks-ass.net>
-References: <1476998874-2089-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+From: Liang Li <liang.z.li@intel.com>
+Subject: [RESEND PATCH v3 kernel 0/7] Extend virtio-balloon for fast
+	(de)inflating & fast live migration
+Date: Fri, 21 Oct 2016 14:24:33 +0800
+Message-ID: <1477031080-12616-1-git-send-email-liang.z.li@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1476998874-2089-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,14 +16,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Cc: kernellwp@gmail.com, linux-s390@vger.kernel.org, jgross@suse.com, kvm@vger.kernel.org, rkrcmar@redhat.com, xen-devel-request@lists.xenproject.org, will.deacon@arm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, benh@kernel.crashing.org, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org, boqun.feng@gmail.com
+To: mst@redhat.com
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, amit.shah@redhat.com, Liang Li <liang.z.li@intel.com>, dave.hansen@intel.com, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, virtualization@lists.linux-foundation.org, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Oct 20, 2016 at 05:27:45PM -0400, Pan Xinhui wrote:
+This patch set contains two parts of changes to the virtio-balloon.
+ 
+One is the change for speeding up the inflating & deflating process,
+the main idea of this optimization is to use bitmap to send the page
+information to host instead of the PFNs, to reduce the overhead of
+virtio data transmission, address translation and madvise(). This can
+help to improve the performance by about 85%.
+ 
+Another change is for speeding up live migration. By skipping process
+guest's free pages in the first round of data copy, to reduce needless
+data processing, this can help to save quite a lot of CPU cycles and
+network bandwidth. We put guest's free page information in bitmap and
+send it to host with the virt queue of virtio-balloon. For an idle 8GB
+guest, this can help to shorten the total live migration time from 2Sec
+to about 500ms in the 10Gbps network environment.
+ 
+Dave Hansen suggested a new scheme to encode the data structure,
+because of additional complexity, it's not implemented in v3.
+ 
+Changes from v2 to v3:
+    * Change the name of 'free page' to 'unused page'.
+    * Use the scatter & gather bitmap instead of a 1MB page bitmap.
+    * Fix overwriting the page bitmap after kicking.
+    * Some of MST's comments for v2.
+ 
+Changes from v1 to v2:
+    * Abandon the patch for dropping page cache.
+    * Put some structures to uapi head file.
+    * Use a new way to determine the page bitmap size.
+    * Use a unified way to send the free page information with the bitmap
+    * Address the issues referred in MST's comments
 
-> 
-> This patch set aims to fix lock holder preemption issues.
+Liang Li (7):
+  virtio-balloon: rework deflate to add page to a list
+  virtio-balloon: define new feature bit and page bitmap head
+  mm: add a function to get the max pfn
+  virtio-balloon: speed up inflate/deflate process
+  mm: add the related functions to get unused page
+  virtio-balloon: define feature bit and head for misc virt queue
+  virtio-balloon: tell host vm's unused page info
 
-Thanks, this looks very good. I'll wait for ACKs from at least the KVM
-people, since that was I think the most contentious patch.
+ drivers/virtio/virtio_balloon.c     | 390 ++++++++++++++++++++++++++++++++----
+ include/linux/mm.h                  |   3 +
+ include/uapi/linux/virtio_balloon.h |  41 ++++
+ mm/page_alloc.c                     |  94 +++++++++
+ 4 files changed, 485 insertions(+), 43 deletions(-)
+
+-- 
+1.8.3.1
