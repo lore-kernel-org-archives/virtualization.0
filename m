@@ -1,19 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next v2 6/9] net: use core MTU range checking in virt
-	drivers
-Date: Fri, 21 Oct 2016 06:36:25 +0300
-Message-ID: <20161021063505-mutt-send-email-mst@kernel.org>
-References: <20161019023333.15760-1-jarod@redhat.com>
-	<20161020175524.6184-1-jarod@redhat.com>
-	<20161020175524.6184-7-jarod@redhat.com>
-	<20161020231559-mutt-send-email-mst@kernel.org>
-	<20161021023720.GA11396@redhat.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH v5 7/9] x86, xen: support vcpu preempted check
+Date: Fri, 21 Oct 2016 07:08:19 +0200
+Message-ID: <7ebcc196-e483-097c-41c8-070b46297c9d__28655.822776682$1477026527$gmane$org@suse.com>
+References: <1476998874-2089-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+	<1476998874-2089-8-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20161021023720.GA11396@redhat.com>
+In-Reply-To: <1476998874-2089-8-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,94 +18,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jarod Wilson <jarod@redhat.com>
-Cc: Aaron Conole <aconole@bytheb.org>, David Kershner <david.kershner@unisys.com>, Wei Liu <wei.liu2@citrix.com>, "VMware,
-	Inc." <pv-drivers@vmware.com>, netdev@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Durrant <paul.durrant@citrix.com>, Shrikrishna Khare <skhare@vmware.com>
+To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org
+Cc: kernellwp@gmail.com, rkrcmar@redhat.com, peterz@infradead.org, benh@kernel.crashing.org, will.deacon@arm.com, mingo@redhat.com, paulus@samba.org, David Vrabel <david.vrabel@citrix.com>, mpe@ellerman.id.au, pbonzini@redhat.com, Boris Ostrovsky <boris.ostrovsky@oracle.com>, paulmck@linux.vnet.ibm.com, boqun.feng@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Oct 20, 2016 at 10:37:20PM -0400, Jarod Wilson wrote:
-> On Thu, Oct 20, 2016 at 11:23:54PM +0300, Michael S. Tsirkin wrote:
-> > On Thu, Oct 20, 2016 at 01:55:21PM -0400, Jarod Wilson wrote:
-> ...
-> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > index fad84f3..720809f 100644
-> > > --- a/drivers/net/virtio_net.c
-> > > +++ b/drivers/net/virtio_net.c
-> > > @@ -1419,17 +1419,6 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
-> > >  	.set_settings = virtnet_set_settings,
-> > >  };
-> > >  
-> > > -#define MIN_MTU 68
-> > > -#define MAX_MTU 65535
-> > > -
-> > > -static int virtnet_change_mtu(struct net_device *dev, int new_mtu)
-> > > -{
-> > > -	if (new_mtu < MIN_MTU || new_mtu > MAX_MTU)
-> > > -		return -EINVAL;
-> > > -	dev->mtu = new_mtu;
-> > > -	return 0;
-> > > -}
-> > > -
-> > >  static const struct net_device_ops virtnet_netdev = {
-> > >  	.ndo_open            = virtnet_open,
-> > >  	.ndo_stop   	     = virtnet_close,
-> > > @@ -1437,7 +1426,6 @@ static const struct net_device_ops virtnet_netdev = {
-> > >  	.ndo_validate_addr   = eth_validate_addr,
-> > >  	.ndo_set_mac_address = virtnet_set_mac_address,
-> > >  	.ndo_set_rx_mode     = virtnet_set_rx_mode,
-> > > -	.ndo_change_mtu	     = virtnet_change_mtu,
-> > >  	.ndo_get_stats64     = virtnet_stats,
-> > >  	.ndo_vlan_rx_add_vid = virtnet_vlan_rx_add_vid,
-> > >  	.ndo_vlan_rx_kill_vid = virtnet_vlan_rx_kill_vid,
-> > > @@ -1748,6 +1736,9 @@ static bool virtnet_validate_features(struct virtio_device *vdev)
-> > >  	return true;
-> > >  }
-> > >  
-> > > +#define MIN_MTU ETH_MIN_MTU
-> > > +#define MAX_MTU ETH_MAX_MTU
-> > > +
-> > 
-> > Can we drop these btw?
+Corrected xen-devel mailing list address, added other Xen maintainers
+
+On 20/10/16 23:27, Pan Xinhui wrote:
+> From: Juergen Gross <jgross@suse.com>
 > 
-> Bah. Yeah. Should have just used them directly. I didn't add ETH_MAX_MTU
-> until after doing the virtio_net changes, so I missed that.
+> Support the vcpu_is_preempted() functionality under Xen. This will
+> enhance lock performance on overcommitted hosts (more runnable vcpus
+> than physical cpus in the system) as doing busy waits for preempted
+> vcpus will hurt system performance far worse than early yielding.
 > 
-> > >  static int virtnet_probe(struct virtio_device *vdev)
-> > >  {
-> > >  	int i, err;
-> > > @@ -1821,6 +1812,10 @@ static int virtnet_probe(struct virtio_device *vdev)
-> > >  
-> > >  	dev->vlan_features = dev->features;
-> > >  
-> > > +	/* MTU range: 68 - 65535 */
-> > > +	dev->min_mtu = MIN_MTU;
-> > > +	dev->max_mtu = MAX_MTU;
-> > > +
-> > >  	/* Configuration may specify what MAC to use.  Otherwise random. */
-> > >  	if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC))
-> > >  		virtio_cread_bytes(vdev,
-> > > @@ -1875,8 +1870,10 @@ static int virtnet_probe(struct virtio_device *vdev)
-> > >  		mtu = virtio_cread16(vdev,
-> > >  				     offsetof(struct virtio_net_config,
-> > >  					      mtu));
-> > > -		if (virtnet_change_mtu(dev, mtu))
-> > > +		if (mtu < dev->min_mtu || mtu > dev->max_mtu)
-> > 
-> > In fact the > max_mtu branch does not make sense since a 16 bit
-> > value can't exceed MAX_MTU.
+> A quick test (4 vcpus on 1 physical cpu doing a parallel build job
+> with "make -j 8") reduced system time by about 5% with this patch.
 > 
-> Hm. mtu is declared as an int, not sure if there's any sort of type
-> promotion to be worried about (not an area I know much/anything about).
-
-Not by design, that's for sure.
-
-> Certainly something that could be looked into as a minor optimization,
-> though it's only in a probe path and shouldn't hurt anything, so ... meh?
-
-Right. Aaron said he's working on a patch that essentially does
-dev->max_mtu = mtu after validation, so this part will look
-a bit silly there.
-
-> -- 
-> Jarod Wilson
-> jarod@redhat.com
+> Signed-off-by: Juergen Gross <jgross@suse.com>
+> Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+> ---
+>  arch/x86/xen/spinlock.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
+> index 3d6e006..74756bb 100644
+> --- a/arch/x86/xen/spinlock.c
+> +++ b/arch/x86/xen/spinlock.c
+> @@ -114,7 +114,6 @@ void xen_uninit_lock_cpu(int cpu)
+>  	per_cpu(irq_name, cpu) = NULL;
+>  }
+>  
+> -
+>  /*
+>   * Our init of PV spinlocks is split in two init functions due to us
+>   * using paravirt patching and jump labels patching and having to do
+> @@ -137,6 +136,8 @@ void __init xen_init_spinlocks(void)
+>  	pv_lock_ops.queued_spin_unlock = PV_CALLEE_SAVE(__pv_queued_spin_unlock);
+>  	pv_lock_ops.wait = xen_qlock_wait;
+>  	pv_lock_ops.kick = xen_qlock_kick;
+> +
+> +	pv_lock_ops.vcpu_is_preempted = xen_vcpu_stolen;
+>  }
+>  
+>  /*
+> 
