@@ -1,16 +1,18 @@
-From: Pan Xinhui <xinhui@linux.vnet.ibm.com>
-Subject: Re: [PATCH v5 9/9] Documentation: virtual: kvm: Support vcpu
-	preempted check
-Date: Fri, 21 Oct 2016 09:42:22 +0800
-Message-ID: <26e3f487-10e5-3a45-0b8d-e4554d716ae8@linux.vnet.ibm.com>
-References: <1476998874-2089-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<1476998874-2089-10-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<20161021012348.GC8429@tardis.cn.ibm.com>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: Re: [PATCH net-next v2 6/9] net: use core MTU range checking in virt
+	drivers
+Date: Thu, 20 Oct 2016 22:37:20 -0400
+Message-ID: <20161021023720.GA11396@redhat.com>
+References: <20161019023333.15760-1-jarod@redhat.com>
+	<20161020175524.6184-1-jarod@redhat.com>
+	<20161020175524.6184-7-jarod@redhat.com>
+	<20161020231559-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161021012348.GC8429@tardis.cn.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <20161020231559-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,44 +22,86 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Boqun Feng <boqun.feng@gmail.com>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Cc: kernellwp@gmail.com, linux-s390@vger.kernel.org, jgross@suse.com, kvm@vger.kernel.org, rkrcmar@redhat.com, peterz@infradead.org, xen-devel-request@lists.xenproject.org, will.deacon@arm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, benh@kernel.crashing.org, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Aaron Conole <aconole@bytheb.org>, David Kershner <david.kershner@unisys.com>, Wei Liu <wei.liu2@citrix.com>, "VMware,
+	Inc." <pv-drivers@vmware.com>, netdev@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Durrant <paul.durrant@citrix.com>, Shrikrishna Khare <skhare@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgrlnKggMjAxNi8xMC8yMSAwOToyMywgQm9xdW4gRmVuZyDlhpnpgZM6Cj4gT24gVGh1LCBPY3Qg
-MjAsIDIwMTYgYXQgMDU6Mjc6NTRQTSAtMDQwMCwgUGFuIFhpbmh1aSB3cm90ZToKPj4gQ29tbWl0
-ICgieDg2LCBrdm06IHN1cHBvcnQgdmNwdSBwcmVlbXB0ZWQgY2hlY2siKSBhZGQgb25lIGZpZWxk
-ICJfX3U4Cj4+IHByZWVtcHRlZCIgaW50byBzdHJ1Y3Qga3ZtX3N0ZWFsX3RpbWUuIFRoaXMgZmll
-bGQgdGVsbHMgaWYgb25lIHZjcHUgaXMKPj4gcnVubmluZyBvciBub3QuCj4+Cj4+IEl0IGlzIHpl
-cm8gaWYgMSkgc29tZSBvbGQgS1ZNIGRlb3Mgbm90IHN1cHBvcnQgdGhpcyBmaWxlZC4gMikgdGhl
-IHZjcHUgaXMKPj4gcHJlZW1wdGVkLiBPdGhlciB2YWx1ZXMgbWVhbnMgdGhlIHZjcHUgaGFzIGJl
-ZW4gcHJlZW1wdGVkLgo+ICAgXl5eXl5eXl5eCj4gcy9wcmVlbXB0ZWQvbm90IHByZWVtcHRlZAo+
-Cnllcy4gdGhlIGxlc3Mgb2YgKm5vdCogZGVmaW5pdGVseSBzb3VsZCBiZSBhdm9pZGVkLi4KPiBB
-bmQgYmV0dGVyIHRvIGZpeCBvdGhlciB0eXBvcyBpbiB0aGUgY29tbWl0IGxvZyA7LSkKPiBNYXli
-ZSB5b3UgY2FuIHRyeSBhc3BlbGw/IFRoYXQgd29ya3MgZm9yIG1lLgo+Ckkgd2lsbCB0cnkgaXQu
-IDopCgo+IFJlZ2FyZHMsCj4gQm9xdW4KPgo+Pgo+PiBTaWduZWQtb2ZmLWJ5OiBQYW4gWGluaHVp
-IDx4aW5odWkucGFuQGxpbnV4LnZuZXQuaWJtLmNvbT4KPj4gLS0tCj4+ICBEb2N1bWVudGF0aW9u
-L3ZpcnR1YWwva3ZtL21zci50eHQgfCA4ICsrKysrKystCj4+ICAxIGZpbGUgY2hhbmdlZCwgNyBp
-bnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCj4+Cj4+IGRpZmYgLS1naXQgYS9Eb2N1bWVudGF0
-aW9uL3ZpcnR1YWwva3ZtL21zci50eHQgYi9Eb2N1bWVudGF0aW9uL3ZpcnR1YWwva3ZtL21zci50
-eHQKPj4gaW5kZXggMmE3MWM4Zi4uMzM3NmYxMyAxMDA2NDQKPj4gLS0tIGEvRG9jdW1lbnRhdGlv
-bi92aXJ0dWFsL2t2bS9tc3IudHh0Cj4+ICsrKyBiL0RvY3VtZW50YXRpb24vdmlydHVhbC9rdm0v
-bXNyLnR4dAo+PiBAQCAtMjA4LDcgKzIwOCw4IEBAIE1TUl9LVk1fU1RFQUxfVElNRTogMHg0YjU2
-NGQwMwo+PiAgCQlfX3U2NCBzdGVhbDsKPj4gIAkJX191MzIgdmVyc2lvbjsKPj4gIAkJX191MzIg
-ZmxhZ3M7Cj4+IC0JCV9fdTMyIHBhZFsxMl07Cj4+ICsJCV9fdTggIHByZWVtcHRlZDsKPj4gKwkJ
-X191MzIgcGFkWzExXTsKPj4gIAl9Cj4+Cj4+ICAJd2hvc2UgZGF0YSB3aWxsIGJlIGZpbGxlZCBp
-biBieSB0aGUgaHlwZXJ2aXNvciBwZXJpb2RpY2FsbHkuIE9ubHkgb25lCj4+IEBAIC0yMzIsNiAr
-MjMzLDExIEBAIE1TUl9LVk1fU1RFQUxfVElNRTogMHg0YjU2NGQwMwo+PiAgCQluYW5vc2Vjb25k
-cy4gVGltZSBkdXJpbmcgd2hpY2ggdGhlIHZjcHUgaXMgaWRsZSwgd2lsbCBub3QgYmUKPj4gIAkJ
-cmVwb3J0ZWQgYXMgc3RlYWwgdGltZS4KPj4KPj4gKwkJcHJlZW1wdGVkOiBpbmRpY2F0ZSB0aGUg
-VkNQVSB3aG8gb3ducyB0aGlzIHN0cnVjdCBpcyBydW5uaW5nIG9yCj4+ICsJCW5vdC4gTm9uLXpl
-cm8gdmFsdWVzIG1lYW4gdGhlIFZDUFUgaGFzIGJlZW4gcHJlZW1wdGVkLiBaZXJvCj4+ICsJCW1l
-YW5zIHRoZSBWQ1BVIGlzIG5vdCBwcmVlbXB0ZWQuIE5PVEUsIGl0IGlzIGFsd2F5cyB6ZXJvIGlm
-IHRoZQo+PiArCQl0aGUgaHlwZXJ2aXNvciBkb2Vzbid0IHN1cHBvcnQgdGhpcyBmaWVsZC4KPj4g
-Kwo+PiAgTVNSX0tWTV9FT0lfRU46IDB4NGI1NjRkMDQKPj4gIAlkYXRhOiBCaXQgMCBpcyAxIHdo
-ZW4gUFYgZW5kIG9mIGludGVycnVwdCBpcyBlbmFibGVkIG9uIHRoZSB2Y3B1OyAwCj4+ICAJd2hl
-biBkaXNhYmxlZC4gIEJpdCAxIGlzIHJlc2VydmVkIGFuZCBtdXN0IGJlIHplcm8uICBXaGVuIFBW
-IGVuZCBvZgo+PiAtLQo+PiAyLjQuMTEKPj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
-dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
-dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Thu, Oct 20, 2016 at 11:23:54PM +0300, Michael S. Tsirkin wrote:
+> On Thu, Oct 20, 2016 at 01:55:21PM -0400, Jarod Wilson wrote:
+...
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index fad84f3..720809f 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -1419,17 +1419,6 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
+> >  	.set_settings = virtnet_set_settings,
+> >  };
+> >  
+> > -#define MIN_MTU 68
+> > -#define MAX_MTU 65535
+> > -
+> > -static int virtnet_change_mtu(struct net_device *dev, int new_mtu)
+> > -{
+> > -	if (new_mtu < MIN_MTU || new_mtu > MAX_MTU)
+> > -		return -EINVAL;
+> > -	dev->mtu = new_mtu;
+> > -	return 0;
+> > -}
+> > -
+> >  static const struct net_device_ops virtnet_netdev = {
+> >  	.ndo_open            = virtnet_open,
+> >  	.ndo_stop   	     = virtnet_close,
+> > @@ -1437,7 +1426,6 @@ static const struct net_device_ops virtnet_netdev = {
+> >  	.ndo_validate_addr   = eth_validate_addr,
+> >  	.ndo_set_mac_address = virtnet_set_mac_address,
+> >  	.ndo_set_rx_mode     = virtnet_set_rx_mode,
+> > -	.ndo_change_mtu	     = virtnet_change_mtu,
+> >  	.ndo_get_stats64     = virtnet_stats,
+> >  	.ndo_vlan_rx_add_vid = virtnet_vlan_rx_add_vid,
+> >  	.ndo_vlan_rx_kill_vid = virtnet_vlan_rx_kill_vid,
+> > @@ -1748,6 +1736,9 @@ static bool virtnet_validate_features(struct virtio_device *vdev)
+> >  	return true;
+> >  }
+> >  
+> > +#define MIN_MTU ETH_MIN_MTU
+> > +#define MAX_MTU ETH_MAX_MTU
+> > +
+> 
+> Can we drop these btw?
+
+Bah. Yeah. Should have just used them directly. I didn't add ETH_MAX_MTU
+until after doing the virtio_net changes, so I missed that.
+
+> >  static int virtnet_probe(struct virtio_device *vdev)
+> >  {
+> >  	int i, err;
+> > @@ -1821,6 +1812,10 @@ static int virtnet_probe(struct virtio_device *vdev)
+> >  
+> >  	dev->vlan_features = dev->features;
+> >  
+> > +	/* MTU range: 68 - 65535 */
+> > +	dev->min_mtu = MIN_MTU;
+> > +	dev->max_mtu = MAX_MTU;
+> > +
+> >  	/* Configuration may specify what MAC to use.  Otherwise random. */
+> >  	if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC))
+> >  		virtio_cread_bytes(vdev,
+> > @@ -1875,8 +1870,10 @@ static int virtnet_probe(struct virtio_device *vdev)
+> >  		mtu = virtio_cread16(vdev,
+> >  				     offsetof(struct virtio_net_config,
+> >  					      mtu));
+> > -		if (virtnet_change_mtu(dev, mtu))
+> > +		if (mtu < dev->min_mtu || mtu > dev->max_mtu)
+> 
+> In fact the > max_mtu branch does not make sense since a 16 bit
+> value can't exceed MAX_MTU.
+
+Hm. mtu is declared as an int, not sure if there's any sort of type
+promotion to be worried about (not an area I know much/anything about).
+Certainly something that could be looked into as a minor optimization,
+though it's only in a probe path and shouldn't hurt anything, so ... meh?
+
+-- 
+Jarod Wilson
+jarod@redhat.com
