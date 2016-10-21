@@ -1,15 +1,14 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH/RFC 0/5] cpu_relax: introduce yield, remove lowlatency
-Date: Fri, 21 Oct 2016 11:12:19 -0400 (EDT)
-Message-ID: <20161021.111219.988688105971081562.davem__33394.9184547693$1477062783$gmane$org@davemloft.net>
-References: <1477051138-1610-1-git-send-email-borntraeger@de.ibm.com>
-	<20161021.105727.140184460493941551.davem@davemloft.net>
-	<2cf23cb7-05c5-0a2d-2ed5-aa90d582f802@de.ibm.com>
+From: Dave Hansen <dave.hansen@intel.com>
+Subject: Re: [RESEND PATCH v3 kernel 0/7] Extend virtio-balloon for fast
+	(de)inflating & fast live migration
+Date: Fri, 21 Oct 2016 10:25:21 -0700
+Message-ID: <580A4F81.60201@intel.com>
+References: <1477031080-12616-1-git-send-email-liang.z.li@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <2cf23cb7-05c5-0a2d-2ed5-aa90d582f802@de.ibm.com>
+In-Reply-To: <1477031080-12616-1-git-send-email-liang.z.li@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,34 +18,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: borntraeger@de.ibm.com
-Cc: linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, peterz@infradead.org, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org, npiggin@gmail.com, virtualization@lists.linux-foundation.org, noamc@ezchip.com, schwidefsky@de.ibm.com, xen-devel@lists.xenproject.org, linuxppc-dev@lists.ozlabs.org
+To: Liang Li <liang.z.li@intel.com>, mst@redhat.com
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, amit.shah@redhat.com, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, virtualization@lists.linux-foundation.org, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Fri, 21 Oct 2016 17:08:54 +0200
+On 10/20/2016 11:24 PM, Liang Li wrote:
+> Dave Hansen suggested a new scheme to encode the data structure,
+> because of additional complexity, it's not implemented in v3.
 
-> On 10/21/2016 04:57 PM, David Miller wrote:
->> From: Christian Borntraeger <borntraeger@de.ibm.com>
->> Date: Fri, 21 Oct 2016 13:58:53 +0200
->> 
->>> For spinning loops people did often use barrier() or cpu_relax().
->>> For most architectures cpu_relax and barrier are the same, but on
->>> some architectures cpu_relax can add some latency. For example on s390
->>> cpu_relax gives up the time slice to the hypervisor. On power cpu_relax
->>> tries to give some of the CPU to the neighbor threads. To reduce the
->>> latency another variant cpu_relax_lowlatency was introduced. Before this
->>> is used in more and more places, lets revert the logic of provide a new
->>> function cpu_relax_yield that can spend some time and for s390 yields
->>> the guest CPU.
->> 
->> Sparc64, fwiw, behaves similarly to powerpc.
-> 
-> As sparc currently defines cpu_relax_lowlatency to cpu_relax, this patch set
-> should be a no-op then for sparc, correct?
-> 
-> My intend was that cpu_relax should not add a huge latency but can certainly
-> push some cpu power to hardware threads of the same core. This seems to be
-> the case for sparc/power and some arc variants. 
-
-Agreed.
+So, what do you want done with this patch set?  Do you want it applied
+as-is so that we can introduce a new host/guest ABI that we must support
+until the end of time?  Then, we go back in a year or two and add the
+newer format that addresses the deficiencies that this ABI has with a
+third version?
