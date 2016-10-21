@@ -1,15 +1,20 @@
-From: Juergen Gross <lists@pfupf.net>
-Subject: Re: [PATCH 2/5] stop_machine: yield CPU during stop machine
-Date: Fri, 21 Oct 2016 14:41:41 +0200
-Message-ID: <d7caed29-9c7a-6324-9da8-6a9a28bda98a__28459.2766584412$1477054435$gmane$org@pfupf.net>
-References: <1477051138-1610-1-git-send-email-borntraeger@de.ibm.com>
-	<1477051138-1610-3-git-send-email-borntraeger@de.ibm.com>
-	<20161021120536.GC3142@twins.programming.kicks-ass.net>
+From: Aaron Conole <aconole@bytheb.org>
+Subject: Re: [PATCH net-next v2 6/9] net: use core MTU range checking in virt
+	drivers
+Date: Fri, 21 Oct 2016 09:24:25 -0400
+Message-ID: <f7tshrpygvq.fsf@redhat.com>
+References: <20161019023333.15760-1-jarod@redhat.com>
+	<20161020175524.6184-1-jarod@redhat.com>
+	<20161020175524.6184-7-jarod@redhat.com>
+	<20161020231559-mutt-send-email-mst@kernel.org>
+	<20161021023720.GA11396@redhat.com>
+	<20161021063505-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161021120536.GC3142@twins.programming.kicks-ass.net>
+In-Reply-To: <20161021063505-mutt-send-email-mst@kernel.org> (Michael
+	S. Tsirkin's message of "Fri, 21 Oct 2016 06:36:25 +0300")
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,48 +24,100 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-arch@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, kvm@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>, virtualization@lists.linux-foundation.org, Noam Camus <noamc@ezchip.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, xen-devel@lists.xenproject.org, linuxppc-dev@lists.ozlabs.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jarod Wilson <jarod@redhat.com>, David Kershner <david.kershner@unisys.com>, Wei Liu <wei.liu2@citrix.com>, "VMware,
+	Inc." <pv-drivers@vmware.com>, netdev@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Durrant <paul.durrant@citrix.com>, Shrikrishna Khare <skhare@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 21/10/16 14:05, Peter Zijlstra wrote:
-> On Fri, Oct 21, 2016 at 01:58:55PM +0200, Christian Borntraeger wrote:
->> stop_machine can take a very long time if the hypervisor does
->> overcommitment for guest CPUs. When waiting for "the one", lets
->> give up our CPU by using the new cpu_relax_yield.
-> 
-> This seems something that would apply to most other virt stuff. Lets Cc
-> a few more lists for that.
+"Michael S. Tsirkin" <mst@redhat.com> writes:
 
-Corrected xen-devel mail address.
+> On Thu, Oct 20, 2016 at 10:37:20PM -0400, Jarod Wilson wrote:
+>> On Thu, Oct 20, 2016 at 11:23:54PM +0300, Michael S. Tsirkin wrote:
+>> > On Thu, Oct 20, 2016 at 01:55:21PM -0400, Jarod Wilson wrote:
+>> ...
+>> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> > > index fad84f3..720809f 100644
+>> > > --- a/drivers/net/virtio_net.c
+>> > > +++ b/drivers/net/virtio_net.c
+>> > > @@ -1419,17 +1419,6 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
+>> > >  	.set_settings = virtnet_set_settings,
+>> > >  };
+>> > >  
+>> > > -#define MIN_MTU 68
+>> > > -#define MAX_MTU 65535
+>> > > -
+>> > > -static int virtnet_change_mtu(struct net_device *dev, int new_mtu)
+>> > > -{
+>> > > -	if (new_mtu < MIN_MTU || new_mtu > MAX_MTU)
+>> > > -		return -EINVAL;
+>> > > -	dev->mtu = new_mtu;
+>> > > -	return 0;
+>> > > -}
+>> > > -
+>> > >  static const struct net_device_ops virtnet_netdev = {
+>> > >  	.ndo_open            = virtnet_open,
+>> > >  	.ndo_stop   	     = virtnet_close,
+>> > > @@ -1437,7 +1426,6 @@ static const struct net_device_ops virtnet_netdev = {
+>> > >  	.ndo_validate_addr   = eth_validate_addr,
+>> > >  	.ndo_set_mac_address = virtnet_set_mac_address,
+>> > >  	.ndo_set_rx_mode     = virtnet_set_rx_mode,
+>> > > -	.ndo_change_mtu	     = virtnet_change_mtu,
+>> > >  	.ndo_get_stats64     = virtnet_stats,
+>> > >  	.ndo_vlan_rx_add_vid = virtnet_vlan_rx_add_vid,
+>> > >  	.ndo_vlan_rx_kill_vid = virtnet_vlan_rx_kill_vid,
+>> > > @@ -1748,6 +1736,9 @@ static bool virtnet_validate_features(struct virtio_device *vdev)
+>> > >  	return true;
+>> > >  }
+>> > >  
+>> > > +#define MIN_MTU ETH_MIN_MTU
+>> > > +#define MAX_MTU ETH_MAX_MTU
+>> > > +
+>> > 
+>> > Can we drop these btw?
+>> 
+>> Bah. Yeah. Should have just used them directly. I didn't add ETH_MAX_MTU
+>> until after doing the virtio_net changes, so I missed that.
+>> 
+>> > >  static int virtnet_probe(struct virtio_device *vdev)
+>> > >  {
+>> > >  	int i, err;
+>> > > @@ -1821,6 +1812,10 @@ static int virtnet_probe(struct virtio_device *vdev)
+>> > >  
+>> > >  	dev->vlan_features = dev->features;
+>> > >  
+>> > > +	/* MTU range: 68 - 65535 */
+>> > > +	dev->min_mtu = MIN_MTU;
+>> > > +	dev->max_mtu = MAX_MTU;
+>> > > +
+>> > >  	/* Configuration may specify what MAC to use.  Otherwise random. */
+>> > >  	if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC))
+>> > >  		virtio_cread_bytes(vdev,
+>> > > @@ -1875,8 +1870,10 @@ static int virtnet_probe(struct virtio_device *vdev)
+>> > >  		mtu = virtio_cread16(vdev,
+>> > >  				     offsetof(struct virtio_net_config,
+>> > >  					      mtu));
+>> > > -		if (virtnet_change_mtu(dev, mtu))
+>> > > +		if (mtu < dev->min_mtu || mtu > dev->max_mtu)
+>> > 
+>> > In fact the > max_mtu branch does not make sense since a 16 bit
+>> > value can't exceed MAX_MTU.
+>> 
+>> Hm. mtu is declared as an int, not sure if there's any sort of type
+>> promotion to be worried about (not an area I know much/anything about).
+>
+> Not by design, that's for sure.
 
+If you're really worried, we could declare it as a u16. The value
+returned from virtio_cread16 is type u16, and there are no type
+promotion rules I'm aware of that would do the wrong thing there.
 
-Juergen
+>> Certainly something that could be looked into as a minor optimization,
+>> though it's only in a probe path and shouldn't hurt anything, so ... meh?
+>
+> Right. Aaron said he's working on a patch that essentially does
+> dev->max_mtu = mtu after validation, so this part will look
+> a bit silly there.
 
-> 
->> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
->> ---
->>  kernel/stop_machine.c | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/kernel/stop_machine.c b/kernel/stop_machine.c
->> index ec9ab2f..1eb8266 100644
->> --- a/kernel/stop_machine.c
->> +++ b/kernel/stop_machine.c
->> @@ -194,7 +194,7 @@ static int multi_cpu_stop(void *data)
->>  	/* Simple state machine */
->>  	do {
->>  		/* Chill out and ensure we re-read multi_stop_state. */
->> -		cpu_relax();
->> +		cpu_relax_yield();
->>  		if (msdata->state != curstate) {
->>  			curstate = msdata->state;
->>  			switch (curstate) {
->> -- 
->> 2.5.5
->>
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
-> 
+Agreed, but I can do that in my patch if you don't want the extra churn.
+
+-Aaron
