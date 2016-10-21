@@ -1,14 +1,14 @@
-From: Sean Paul via Virtualization <virtualization@lists.linux-foundation.org>
-Subject: Re: [PATCH] drm/virtio: kconfig: Fixup white space.
-Date: Fri, 21 Oct 2016 10:53:27 -0400
-Message-ID: <CAOw6vbLjxghzxVdNYADTSPSfJq51YHJQHQ5VMJEmtHqVKmu+kw@mail.gmail.com>
-References: <1475913318-12275-1-git-send-email-peter.griffin@linaro.org>
-Reply-To: Sean Paul <seanpaul@google.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH/RFC 0/5] cpu_relax: introduce yield, remove lowlatency
+Date: Fri, 21 Oct 2016 17:08:54 +0200
+Message-ID: <2cf23cb7-05c5-0a2d-2ed5-aa90d582f802@de.ibm.com>
+References: <1477051138-1610-1-git-send-email-borntraeger@de.ibm.com>
+	<20161021.105727.140184460493941551.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1475913318-12275-1-git-send-email-peter.griffin@linaro.org>
+In-Reply-To: <20161021.105727.140184460493941551.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,40 +18,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Griffin <peter.griffin@linaro.org>
-Cc: kernel@stlinux.com, Dave Airlie <airlied@linux.ie>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Lee Jones <lee.jones@linaro.org>, Linux ARM Kernel <linux-arm-kernel@lists.infradead.org>
+To: David Miller <davem@davemloft.net>
+Cc: linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, KVM list <kvm@vger.kernel.org>, peterz@infradead.org, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org, npiggin@gmail.com, virtualization@lists.linux-foundation.org, noamc@ezchip.com, schwidefsky@de.ibm.com, xen-devel@lists.xenproject.org, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Oct 8, 2016 at 3:55 AM, Peter Griffin <peter.griffin@linaro.org> wrote:
-> Use tabs instead of spaces.
->
-> Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
-> Acked-by: Lee Jones <lee.jones@linaro.org>
+On 10/21/2016 04:57 PM, David Miller wrote:
+> From: Christian Borntraeger <borntraeger@de.ibm.com>
+> Date: Fri, 21 Oct 2016 13:58:53 +0200
+> 
+>> For spinning loops people did often use barrier() or cpu_relax().
+>> For most architectures cpu_relax and barrier are the same, but on
+>> some architectures cpu_relax can add some latency. For example on s390
+>> cpu_relax gives up the time slice to the hypervisor. On power cpu_relax
+>> tries to give some of the CPU to the neighbor threads. To reduce the
+>> latency another variant cpu_relax_lowlatency was introduced. Before this
+>> is used in more and more places, lets revert the logic of provide a new
+>> function cpu_relax_yield that can spend some time and for s390 yields
+>> the guest CPU.
+> 
+> Sparc64, fwiw, behaves similarly to powerpc.
 
-Applied to drm-misc, thanks
+As sparc currently defines cpu_relax_lowlatency to cpu_relax, this patch set
+should be a no-op then for sparc, correct?
 
-> ---
->  drivers/gpu/drm/virtio/Kconfig | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/gpu/drm/virtio/Kconfig b/drivers/gpu/drm/virtio/Kconfig
-> index e1afc3d..81d1807 100644
-> --- a/drivers/gpu/drm/virtio/Kconfig
-> +++ b/drivers/gpu/drm/virtio/Kconfig
-> @@ -1,10 +1,10 @@
->  config DRM_VIRTIO_GPU
->         tristate "Virtio GPU driver"
->         depends on DRM && VIRTIO
-> -        select DRM_KMS_HELPER
-> -        select DRM_TTM
-> +       select DRM_KMS_HELPER
-> +       select DRM_TTM
->         help
->            This is the virtual GPU driver for virtio.  It can be used with
-> -           QEMU based VMMs (like KVM or Xen).
-> +          QEMU based VMMs (like KVM or Xen).
->
->            If unsure say M.
-> --
-> 1.9.1
->
+My intend was that cpu_relax should not add a huge latency but can certainly
+push some cpu power to hardware threads of the same core. This seems to be
+the case for sparc/power and some arc variants. 
+
+Christian
