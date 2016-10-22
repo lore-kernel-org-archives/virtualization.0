@@ -1,12 +1,15 @@
-From: Alexey Makhalov <amakhalov@vmware.com>
-Subject: [PATCH] x86/vmware: Read tsc_khz only once - at boot time
-Date: Wed, 19 Oct 2016 22:02:11 -0700
-Message-ID: <20161020050211.GA25304__5952.01042383469$1477935935$gmane$org@amakhalov-virtual-machine>
+From: Nicholas Piggin <npiggin@gmail.com>
+Subject: Re: [PATCH 2/5] stop_machine: yield CPU during stop machine
+Date: Sat, 22 Oct 2016 11:06:36 +1100
+Message-ID: <20161022110636.410f20bd__329.869721508835$1477935964$gmane$org@roar.ozlabs.ibm.com>
+References: <1477051138-1610-1-git-send-email-borntraeger@de.ibm.com>
+	<1477051138-1610-3-git-send-email-borntraeger@de.ibm.com>
+	<20161021120536.GC3142@twins.programming.kicks-ass.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20161021120536.GC3142@twins.programming.kicks-ass.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,83 +19,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: linux-arch@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, kvm@vger.kernel.org, xen-devel-request@lists.xenproject.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Noam Camus <noamc@ezchip.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Re-factor the vmware platform setup code to query the hypervisor for tsc
-frequency only once during boot. Since the VMware hypervisor guarantees
-constant TSC, calibrate_tsc now uses the saved value.
+On Fri, 21 Oct 2016 14:05:36 +0200
+Peter Zijlstra <peterz@infradead.org> wrote:
 
-Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
-Acked-by: Alok N Kataria <akataria@vmware.com>
----
- arch/x86/kernel/cpu/vmware.c | 37 ++++++++++++++++++-------------------
- 1 file changed, 18 insertions(+), 19 deletions(-)
+> On Fri, Oct 21, 2016 at 01:58:55PM +0200, Christian Borntraeger wrote:
+> > stop_machine can take a very long time if the hypervisor does
+> > overcommitment for guest CPUs. When waiting for "the one", lets
+> > give up our CPU by using the new cpu_relax_yield.  
+> 
+> This seems something that would apply to most other virt stuff. Lets Cc
+> a few more lists for that.
+> 
+> > Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> > ---
+> >  kernel/stop_machine.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/kernel/stop_machine.c b/kernel/stop_machine.c
+> > index ec9ab2f..1eb8266 100644
+> > --- a/kernel/stop_machine.c
+> > +++ b/kernel/stop_machine.c
+> > @@ -194,7 +194,7 @@ static int multi_cpu_stop(void *data)
+> >  	/* Simple state machine */
+> >  	do {
+> >  		/* Chill out and ensure we re-read multi_stop_state. */
+> > -		cpu_relax();
+> > +		cpu_relax_yield();
+> >  		if (msdata->state != curstate) {
+> >  			curstate = msdata->state;
+> >  			switch (curstate) {
+> > -- 
+> > 2.5.5
+> >   
 
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 5130985..46c7b9d 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -48,6 +48,8 @@
- 			"2"(VMWARE_HYPERVISOR_PORT), "3"(UINT_MAX) :	\
- 			"memory");
- 
-+static unsigned long vmware_tsc_khz __ro_after_init;
-+
- static inline int __vmware_platform(void)
- {
- 	uint32_t eax, ebx, ecx, edx;
-@@ -57,35 +59,32 @@ static inline int __vmware_platform(void)
- 
- static unsigned long vmware_get_tsc_khz(void)
- {
--	uint64_t tsc_hz, lpj;
--	uint32_t eax, ebx, ecx, edx;
--
--	VMWARE_PORT(GETHZ, eax, ebx, ecx, edx);
--
--	tsc_hz = eax | (((uint64_t)ebx) << 32);
--	do_div(tsc_hz, 1000);
--	BUG_ON(tsc_hz >> 32);
--	pr_info("TSC freq read from hypervisor : %lu.%03lu MHz\n",
--			 (unsigned long) tsc_hz / 1000,
--			 (unsigned long) tsc_hz % 1000);
--
--	if (!preset_lpj) {
--		lpj = ((u64)tsc_hz * 1000);
--		do_div(lpj, HZ);
--		preset_lpj = lpj;
--	}
--
--	return tsc_hz;
-+	return vmware_tsc_khz;
- }
- 
- static void __init vmware_platform_setup(void)
- {
- 	uint32_t eax, ebx, ecx, edx;
-+	uint64_t lpj, tsc_khz;
- 
- 	VMWARE_PORT(GETHZ, eax, ebx, ecx, edx);
- 
- 	if (ebx != UINT_MAX) {
-+		lpj = tsc_khz = eax | (((uint64_t)ebx) << 32);
-+		do_div(tsc_khz, 1000);
-+		WARN_ON(tsc_khz >> 32);
-+		pr_info("TSC freq read from hypervisor : %lu.%03lu MHz\n",
-+			(unsigned long) tsc_khz / 1000,
-+			(unsigned long) tsc_khz % 1000);
-+
-+		if (!preset_lpj) {
-+			do_div(lpj, HZ);
-+			preset_lpj = lpj;
-+		}
-+
-+		vmware_tsc_khz = tsc_khz;
- 		x86_platform.calibrate_tsc = vmware_get_tsc_khz;
-+
- #ifdef CONFIG_X86_LOCAL_APIC
- 		/* Skip lapic calibration since we know the bus frequency. */
- 		lapic_timer_frequency = ecx / HZ;
--- 
-1.9.1
+This is the only caller of cpu_relax_yield()?
+
+As a step to removing cpu_yield_lowlatency this series is nice so I
+have no objection. But "general" kernel coders still have basically
+no chance of using this properly.
+
+I wonder what can be done about that. I've got that spin_do/while
+series I'll rebase on top of this, but a spin_yield variant of them
+is of no more help to the caller.
+
+What makes this unique? Long latency and not performance critical?
+Most places where we spin and maybe yield have been moved to arch
+code, but I wonder whether we can make an easier to use architecture
+independent API?
+
+Thanks,
+Nick
