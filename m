@@ -1,17 +1,16 @@
-From: xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: Re: [PATCH v5 9/9] Documentation: virtual: kvm: Support vcpu preempted
-	check
-Date: Mon, 24 Oct 2016 10:46:54 +0800
-Message-ID: <580D761E.5000508@linux.vnet.ibm.com>
-References: <1476998874-2089-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<1476998874-2089-10-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<063D6719AE5E284EB5DD2968C1650D6DB0207B44@AcuExch.aculab.com>
-	<20161021183951.GA29131@potion>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH 2/5] stop_machine: yield CPU during stop machine
+Date: Mon, 24 Oct 2016 09:52:31 +0200
+Message-ID: <251574ff-13ba-c0df-76c3-cb7df30894cb@de.ibm.com>
+References: <1477051138-1610-1-git-send-email-borntraeger@de.ibm.com>
+	<1477051138-1610-3-git-send-email-borntraeger@de.ibm.com>
+	<20161021120536.GC3142@twins.programming.kicks-ass.net>
+	<20161022110636.410f20bd@roar.ozlabs.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161021183951.GA29131@potion>
+In-Reply-To: <20161022110636.410f20bd@roar.ozlabs.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,33 +20,86 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "rkrcmar@redhat.com" <rkrcmar@redhat.com>, David Laight <David.Laight@ACULAB.COM>
-Cc: "kernellwp@gmail.com" <kernellwp@gmail.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "jgross@suse.com" <jgross@suse.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "peterz@infradead.org" <peterz@infradead.org>, "xen-devel-request@lists.xenproject.org" <xen-devel-request@lists.xenproject.org>, "boqun.feng@gmail.com" <boqun.feng@gmail.com>, "will.deacon@arm.com" <will.deacon@arm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mingo@redhat.com" <mingo@redhat.com>, "paulus@samba.org" <paulus@samba.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "paulmck@linux.vnet.ibm.com" <paulmck@linux.vnet.ibm.com>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
+To: Nicholas Piggin <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>
+Cc: linux-arch@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, kvm@vger.kernel.org, xen-devel-request@lists.xenproject.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Noam Camus <noamc@ezchip.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE25bm0MTDmnIgyMuaXpSAwMjozOSwgcmtyY21hckByZWRoYXQuY29tIHdyb3RlOgo+
-IDIwMTYtMTAtMjEgMTE6MjcrMDAwMCwgRGF2aWQgTGFpZ2h0Ogo+PiBGcm9tOiBQYW4gWGluaHVp
-Cj4+PiBTZW50OiAyMCBPY3RvYmVyIDIwMTYgMjI6MjgKPj4+IENvbW1pdCAoIng4Niwga3ZtOiBz
-dXBwb3J0IHZjcHUgcHJlZW1wdGVkIGNoZWNrIikgYWRkIG9uZSBmaWVsZCAiX191OAo+Pj4gcHJl
-ZW1wdGVkIiBpbnRvIHN0cnVjdCBrdm1fc3RlYWxfdGltZS4gVGhpcyBmaWVsZCB0ZWxscyBpZiBv
-bmUgdmNwdSBpcwo+Pj4gcnVubmluZyBvciBub3QuCj4+Pgo+Pj4gSXQgaXMgemVybyBpZiAxKSBz
-b21lIG9sZCBLVk0gZGVvcyBub3Qgc3VwcG9ydCB0aGlzIGZpbGVkLiAyKSB0aGUgdmNwdSBpcwo+
-Pj4gcHJlZW1wdGVkLiBPdGhlciB2YWx1ZXMgbWVhbnMgdGhlIHZjcHUgaGFzIGJlZW4gcHJlZW1w
-dGVkLgo+Pj4KPj4+IFNpZ25lZC1vZmYtYnk6IFBhbiBYaW5odWkgPHhpbmh1aS5wYW5AbGludXgu
-dm5ldC5pYm0uY29tPgo+Pj4gLS0tCj4+PiAgIERvY3VtZW50YXRpb24vdmlydHVhbC9rdm0vbXNy
-LnR4dCB8IDggKysrKysrKy0KPj4+ICAgMSBmaWxlIGNoYW5nZWQsIDcgaW5zZXJ0aW9ucygrKSwg
-MSBkZWxldGlvbigtKQo+Pj4KPj4+IGRpZmYgLS1naXQgYS9Eb2N1bWVudGF0aW9uL3ZpcnR1YWwv
-a3ZtL21zci50eHQgYi9Eb2N1bWVudGF0aW9uL3ZpcnR1YWwva3ZtL21zci50eHQKPj4+IGluZGV4
-IDJhNzFjOGYuLjMzNzZmMTMgMTAwNjQ0Cj4+PiAtLS0gYS9Eb2N1bWVudGF0aW9uL3ZpcnR1YWwv
-a3ZtL21zci50eHQKPj4+ICsrKyBiL0RvY3VtZW50YXRpb24vdmlydHVhbC9rdm0vbXNyLnR4dAo+
-Pj4gQEAgLTIwOCw3ICsyMDgsOCBAQCBNU1JfS1ZNX1NURUFMX1RJTUU6IDB4NGI1NjRkMDMKPj4+
-ICAgCQlfX3U2NCBzdGVhbDsKPj4+ICAgCQlfX3UzMiB2ZXJzaW9uOwo+Pj4gICAJCV9fdTMyIGZs
-YWdzOwo+Pj4gLQkJX191MzIgcGFkWzEyXTsKPj4+ICsJCV9fdTggIHByZWVtcHRlZDsKPj4+ICsJ
-CV9fdTMyIHBhZFsxMV07Cj4+PiAgIAl9Cj4+Cj4+IEkgdGhpbmsgSSdkIGJlIGV4cGxpY2l0IGFi
-b3V0IHRoZSAzIHBhZCBieXRlcyB5b3UndmUgbGVmdC4KPgo+IFNlY29uZGVkLgo+Cj4gV2l0aCB0
-aGF0IGNoYW5nZSBhcmUgYWxsIEtWTSBiaXRzCj4KbGlrZSBiZWxvdz8KX191OCBwcmVlbXB0ZWQ7
-Cl9fdTgga3ZtX3BhZFszXTsKCgo+IEFja2VkLWJ5OiBSYWRpbSBLcsSNbcOhxZkgPHJrcmNtYXJA
-cmVkaGF0LmNvbT4KPgp0aGFua3MhCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
-bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
-b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On 10/22/2016 02:06 AM, Nicholas Piggin wrote:
+> On Fri, 21 Oct 2016 14:05:36 +0200
+> Peter Zijlstra <peterz@infradead.org> wrote:
+> 
+>> On Fri, Oct 21, 2016 at 01:58:55PM +0200, Christian Borntraeger wrote:
+>>> stop_machine can take a very long time if the hypervisor does
+>>> overcommitment for guest CPUs. When waiting for "the one", lets
+>>> give up our CPU by using the new cpu_relax_yield.  
+>>
+>> This seems something that would apply to most other virt stuff. Lets Cc
+>> a few more lists for that.
+>>
+>>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>>> ---
+>>>  kernel/stop_machine.c | 2 +-
+>>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>>
+>>> diff --git a/kernel/stop_machine.c b/kernel/stop_machine.c
+>>> index ec9ab2f..1eb8266 100644
+>>> --- a/kernel/stop_machine.c
+>>> +++ b/kernel/stop_machine.c
+>>> @@ -194,7 +194,7 @@ static int multi_cpu_stop(void *data)
+>>>  	/* Simple state machine */
+>>>  	do {
+>>>  		/* Chill out and ensure we re-read multi_stop_state. */
+>>> -		cpu_relax();
+>>> +		cpu_relax_yield();
+>>>  		if (msdata->state != curstate) {
+>>>  			curstate = msdata->state;
+>>>  			switch (curstate) {
+>>> -- 
+>>> 2.5.5
+>>>   
+> 
+> This is the only caller of cpu_relax_yield()?
+
+As of today yes. Right now the yielding (call to hypervisor) in 
+cpu_relax is only done for s390. Some time ago Heiko did remove 
+that also from s390 with commit 57f2ffe14fd125c2 ("s390: remove 
+diag 44 calls from cpu_relax()")
+
+As it turns out this make stop_machine run really slow on virtualized
+systems. For example the kprobes test during bootup took several seconds 
+instead of just running unnoticed with large guests. Therefore, we 
+reintroduced that with commit 4d92f50249eb ("s390: reintroduce diag 44
+calls for cpu_relax()"), but the only place where we noticed the missing
+yield was in the stop_machine code.
+
+I would assume that we might find some other places where this makes
+sense in the future, but I expect that we have much less places for 
+yield than we need for lowlatency.
+
+PS: We do something similar for our arch implementation for spinlocks,
+but there  we use the directed yield as we know which CPU holds the lock.
+
+
+> 
+> As a step to removing cpu_yield_lowlatency this series is nice so I
+> have no objection. But "general" kernel coders still have basically
+> no chance of using this properly.
+> 
+> I wonder what can be done about that. I've got that spin_do/while
+> series I'll rebase on top of this, but a spin_yield variant of them
+> is of no more help to the caller.
+> 
+> What makes this unique? Long latency and not performance critical?
+
+I think what makes this unique is that ALL cpus spin and wait for one.
+It was really the only place that I noticed a regression with Heikos
+first patch.
+
+> Most places where we spin and maybe yield have been moved to arch
+> code, but I wonder whether we can make an easier to use architecture
+> independent API?
+
+
+Peter, I will fixup the patch set (I forgot to remove the lowlatency
+in 2 places) and push it on my tree for linux-next. Lets see what happens.
+Would the tip tree be the right place if things work out ok?
