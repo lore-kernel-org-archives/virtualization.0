@@ -1,15 +1,18 @@
-From: xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: Re: [PATCH v5 9/9] Documentation: virtual: kvm: Support vcpu preempted
-	check
-Date: Mon, 24 Oct 2016 16:12:29 +0800
-Message-ID: <580DC26D.4040908__49235.3678135716$1477296808$gmane$org@linux.vnet.ibm.com>
-References: <1476998874-2089-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<1476998874-2089-10-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH 2/5] stop_machine: yield CPU during stop machine
+Date: Mon, 24 Oct 2016 10:47:47 +0200
+Message-ID: <20161024084747.GE3102@twins.programming.kicks-ass.net>
+References: <1477051138-1610-1-git-send-email-borntraeger@de.ibm.com>
+	<1477051138-1610-3-git-send-email-borntraeger@de.ibm.com>
+	<20161021120536.GC3142@twins.programming.kicks-ass.net>
+	<20161022110636.410f20bd@roar.ozlabs.ibm.com>
+	<251574ff-13ba-c0df-76c3-cb7df30894cb@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1476998874-2089-10-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <251574ff-13ba-c0df-76c3-cb7df30894cb@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,45 +22,15 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org
-Cc: kernellwp@gmail.com, jgross@suse.com, rkrcmar@redhat.com, peterz@infradead.org, benh@kernel.crashing.org, will.deacon@arm.com, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, boqun.feng@gmail.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linux-arch@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, kvm@vger.kernel.org, xen-devel-request@lists.xenproject.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>, virtualization@lists.linux-foundation.org, Noam Camus <noamc@ezchip.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-VGhpcyBpcyBuZXcgdmVyc2lvbiBmb3IgW1BBVENIIHY2IDkvOV0gRG9jdW1lbnRhdGlvbjogdmly
-dHVhbDoga3ZtOiBTdXBwb3J0IHZjcHUgcHJlZW1wdGVkIGNoZWNrCmNoYW5nZToKCWFuIGV4cGxp
-Y2l0IHBhZFszXSBhZnRlciBfX3U4IHByZWVtcHRlZC4KCWEgdHlwbyBmaXggaW4gdGhlIGNvbW1p
-dCBsb2cuCgkKIEZyb20gZGVmYWM2NGQ3YzZhNTBkNWYxOGVmNjRhN2M3NzZhZjNlMjFlOGI2OCBN
-b24gU2VwIDE3IDAwOjAwOjAwIDIwMDEKRnJvbTogUGFuIFhpbmh1aSA8eGluaHVpLnBhbkBsaW51
-eC52bmV0LmlibS5jb20+CkRhdGU6IFRodSwgMjAgT2N0IDIwMTYgMDk6MzM6MzYgLTA0MDAKU3Vi
-amVjdDogW1BBVENIIHY2IDkvOV0gRG9jdW1lbnRhdGlvbjogdmlydHVhbDoga3ZtOiBTdXBwb3J0
-IHZjcHUgcHJlZW1wdGVkIGNoZWNrCgpDb21taXQgKCJ4ODYsIGt2bTogc3VwcG9ydCB2Y3B1IHBy
-ZWVtcHRlZCBjaGVjayIpIGFkZCBvbmUgZmllbGQgIl9fdTgKcHJlZW1wdGVkIiBpbnRvIHN0cnVj
-dCBrdm1fc3RlYWxfdGltZS4gVGhpcyBmaWVsZCB0ZWxscyBpZiBvbmUgdmNwdSBpcwpydW5uaW5n
-IG9yIG5vdC4KCkl0IGlzIHplcm8gaWYgMSkgc29tZSBvbGQgS1ZNIGRlb3Mgbm90IHN1cHBvcnQg
-dGhpcyBmaWxlZC4gMikgdGhlIHZjcHUgaXMKbm90IHByZWVtcHRlZC4gT3RoZXIgdmFsdWVzIG1l
-YW4gdGhlIHZjcHUgaGFzIGJlZW4gcHJlZW1wdGVkLgoKU2lnbmVkLW9mZi1ieTogUGFuIFhpbmh1
-aSA8eGluaHVpLnBhbkBsaW51eC52bmV0LmlibS5jb20+CkFja2VkLWJ5OiBSYWRpbSBLcsSNbcOh
-xZkgPHJrcmNtYXJAcmVkaGF0LmNvbT4KLS0tCiAgRG9jdW1lbnRhdGlvbi92aXJ0dWFsL2t2bS9t
-c3IudHh0IHwgOSArKysrKysrKy0KICAxIGZpbGUgY2hhbmdlZCwgOCBpbnNlcnRpb25zKCspLCAx
-IGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0IGEvRG9jdW1lbnRhdGlvbi92aXJ0dWFsL2t2bS9tc3Iu
-dHh0IGIvRG9jdW1lbnRhdGlvbi92aXJ0dWFsL2t2bS9tc3IudHh0CmluZGV4IDJhNzFjOGYuLmFi
-MmFiNzYgMTAwNjQ0Ci0tLSBhL0RvY3VtZW50YXRpb24vdmlydHVhbC9rdm0vbXNyLnR4dAorKysg
-Yi9Eb2N1bWVudGF0aW9uL3ZpcnR1YWwva3ZtL21zci50eHQKQEAgLTIwOCw3ICsyMDgsOSBAQCBN
-U1JfS1ZNX1NURUFMX1RJTUU6IDB4NGI1NjRkMDMKICAJCV9fdTY0IHN0ZWFsOwogIAkJX191MzIg
-dmVyc2lvbjsKICAJCV9fdTMyIGZsYWdzOwotCQlfX3UzMiBwYWRbMTJdOworCQlfX3U4ICBwcmVl
-bXB0ZWQ7CisJCV9fdTggIHU4X3BhZFszXTsKKwkJX191MzIgcGFkWzExXTsKICAJfQogIAogIAl3
-aG9zZSBkYXRhIHdpbGwgYmUgZmlsbGVkIGluIGJ5IHRoZSBoeXBlcnZpc29yIHBlcmlvZGljYWxs
-eS4gT25seSBvbmUKQEAgLTIzMiw2ICsyMzQsMTEgQEAgTVNSX0tWTV9TVEVBTF9USU1FOiAweDRi
-NTY0ZDAzCiAgCQluYW5vc2Vjb25kcy4gVGltZSBkdXJpbmcgd2hpY2ggdGhlIHZjcHUgaXMgaWRs
-ZSwgd2lsbCBub3QgYmUKICAJCXJlcG9ydGVkIGFzIHN0ZWFsIHRpbWUuCiAgCisJCXByZWVtcHRl
-ZDogaW5kaWNhdGUgdGhlIFZDUFUgd2hvIG93bnMgdGhpcyBzdHJ1Y3QgaXMgcnVubmluZyBvcgor
-CQlub3QuIE5vbi16ZXJvIHZhbHVlcyBtZWFuIHRoZSBWQ1BVIGhhcyBiZWVuIHByZWVtcHRlZC4g
-WmVybworCQltZWFucyB0aGUgVkNQVSBpcyBub3QgcHJlZW1wdGVkLiBOT1RFLCBpdCBpcyBhbHdh
-eXMgemVybyBpZiB0aGUKKwkJdGhlIGh5cGVydmlzb3IgZG9lc24ndCBzdXBwb3J0IHRoaXMgZmll
-bGQuCisKICBNU1JfS1ZNX0VPSV9FTjogMHg0YjU2NGQwNAogIAlkYXRhOiBCaXQgMCBpcyAxIHdo
-ZW4gUFYgZW5kIG9mIGludGVycnVwdCBpcyBlbmFibGVkIG9uIHRoZSB2Y3B1OyAwCiAgCXdoZW4g
-ZGlzYWJsZWQuICBCaXQgMSBpcyByZXNlcnZlZCBhbmQgbXVzdCBiZSB6ZXJvLiAgV2hlbiBQViBl
-bmQgb2YKLS0gCjIuNC4xMQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3Rz
-LmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9t
-YWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Mon, Oct 24, 2016 at 09:52:31AM +0200, Christian Borntraeger wrote:
+> Peter, I will fixup the patch set (I forgot to remove the lowlatency
+> in 2 places) and push it on my tree for linux-next. Lets see what happens.
+> Would the tip tree be the right place if things work out ok?
+
+I think so, you're touching a fair bit of kernel/locking/ and there's
+bound to be some conflicts with work there. So carrying it in the
+locking tree might be best.
