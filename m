@@ -1,7 +1,7 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Jarod Wilson <jarod@redhat.com>
 Subject: Re: [PATCH] virtio-net: Update the mtu code to match virtio spec
-Date: Tue, 25 Oct 2016 19:41:07 +0300
-Message-ID: <20161025194036-mutt-send-email-mst@kernel.org>
+Date: Tue, 25 Oct 2016 13:09:29 -0400
+Message-ID: <20161025170929.GW42084@redhat.com>
 References: <1477413335-17296-1-git-send-email-aconole@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,7 +19,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Aaron Conole <aconole@redhat.com>
-Cc: netdev@vger.kernel.org, Jarod Wilson <jarod@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 On Tue, Oct 25, 2016 at 12:35:35PM -0400, Aaron Conole wrote:
@@ -38,30 +38,10 @@ On Tue, Oct 25, 2016 at 12:35:35PM -0400, Aaron Conole wrote:
 > Cc: Jarod Wilson <jarod@redhat.com>
 > Signed-off-by: Aaron Conole <aconole@redhat.com>
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Worksforme.
 
-> ---
->  drivers/net/virtio_net.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 720809f..2cafd12 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -1870,10 +1870,12 @@ static int virtnet_probe(struct virtio_device *vdev)
->  		mtu = virtio_cread16(vdev,
->  				     offsetof(struct virtio_net_config,
->  					      mtu));
-> -		if (mtu < dev->min_mtu || mtu > dev->max_mtu)
-> +		if (mtu < dev->min_mtu) {
->  			__virtio_clear_bit(vdev, VIRTIO_NET_F_MTU);
-> -		else
-> +		} else {
->  			dev->mtu = mtu;
-> +			dev->max_mtu = mtu;
-> +		}
->  	}
->  
->  	if (vi->any_header_sg)
-> -- 
-> 2.7.4
+Acked-by: Jarod Wilson <jarod@redhat.com>
+
+-- 
+Jarod Wilson
+jarod@redhat.com
