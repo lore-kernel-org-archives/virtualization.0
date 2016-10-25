@@ -1,13 +1,17 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL v2 1/5] processor.h: introduce cpu_relax_yield
-Date: Tue, 25 Oct 2016 11:03:11 +0200
-Message-ID: <1477386195-32736-2-git-send-email-borntraeger__15582.5374335565$1477386319$gmane$org@de.ibm.com>
-References: <1477386195-32736-1-git-send-email-borntraeger@de.ibm.com>
+From: "Li, Liang Z" <liang.z.li@intel.com>
+Subject: RE: [RESEND PATCH v3 kernel 4/7] virtio-balloon: speed up
+	inflate/deflate process
+Date: Tue, 25 Oct 2016 09:46:33 +0000
+Message-ID: <F2CBF3009FA73547804AE4C663CAB28E3A0FBCDC__5547.11787631295$1477388985$gmane$org@shsmsx102.ccr.corp.intel.com>
+References: <1477031080-12616-1-git-send-email-liang.z.li@intel.com>
+	<1477031080-12616-5-git-send-email-liang.z.li@intel.com>
+	<20161025091821-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1477386195-32736-1-git-send-email-borntraeger@de.ibm.com>
+In-Reply-To: <20161025091821-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,477 +21,232 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: linux-arch@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, kvm@vger.kernel.org, Will Deacon <will.deacon@arm.com>, x86@kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>, Russell King <linux@armlinux.org.uk>, sparclinux@vger.kernel.org, Noam Camus <noamc@ezchip.com>, Catalin Marinas <catalin.marinas@arm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, xen-devel@lists.xenproject.org, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, Ingo Molnar <mingo@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "Hansen,
+	Dave" <dave.hansen@intel.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-For spinning loops people do often use barrier() or cpu_relax().
-For most architectures cpu_relax and barrier are the same, but on
-some architectures cpu_relax can add some latency.
-For example on power,sparc64 and arc, cpu_relax can shift the CPU
-towards other hardware threads in an SMT environment.
-On s390 cpu_relax does even more, it uses an hypercall to the
-hypervisor to give up the timeslice.
-In contrast to the SMT yielding this can result in larger latencies.
-In some places this latency is unwanted, so another variant
-"cpu_relax_lowlatency" was introduced. Before this is used in more
-and more places, lets revert the logic and provide a cpu_relax_yield
-that can be called in places where yielding is more important than
-latency. By default this is the same as cpu_relax on all architectures.
+> > +static inline void init_pfn_range(struct virtio_balloon *vb) {
+> > +	vb->min_pfn = ULONG_MAX;
+> > +	vb->max_pfn = 0;
+> > +}
+> > +
+> > +static inline void update_pfn_range(struct virtio_balloon *vb,
+> > +				 struct page *page)
+> > +{
+> > +	unsigned long balloon_pfn = page_to_balloon_pfn(page);
+> > +
+> > +	if (balloon_pfn < vb->min_pfn)
+> > +		vb->min_pfn = balloon_pfn;
+> > +	if (balloon_pfn > vb->max_pfn)
+> > +		vb->max_pfn = balloon_pfn;
+> > +}
+> > +
+> 
+> rename to hint these are all bitmap related.
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/alpha/include/asm/processor.h      | 1 +
- arch/arc/include/asm/processor.h        | 2 ++
- arch/arm/include/asm/processor.h        | 1 +
- arch/arm64/include/asm/processor.h      | 1 +
- arch/avr32/include/asm/processor.h      | 1 +
- arch/blackfin/include/asm/processor.h   | 1 +
- arch/c6x/include/asm/processor.h        | 1 +
- arch/cris/include/asm/processor.h       | 1 +
- arch/frv/include/asm/processor.h        | 1 +
- arch/h8300/include/asm/processor.h      | 1 +
- arch/hexagon/include/asm/processor.h    | 1 +
- arch/ia64/include/asm/processor.h       | 1 +
- arch/m32r/include/asm/processor.h       | 1 +
- arch/m68k/include/asm/processor.h       | 1 +
- arch/metag/include/asm/processor.h      | 1 +
- arch/microblaze/include/asm/processor.h | 1 +
- arch/mips/include/asm/processor.h       | 1 +
- arch/mn10300/include/asm/processor.h    | 1 +
- arch/nios2/include/asm/processor.h      | 1 +
- arch/openrisc/include/asm/processor.h   | 1 +
- arch/parisc/include/asm/processor.h     | 1 +
- arch/powerpc/include/asm/processor.h    | 1 +
- arch/s390/include/asm/processor.h       | 3 ++-
- arch/s390/kernel/processor.c            | 4 ++--
- arch/score/include/asm/processor.h      | 1 +
- arch/sh/include/asm/processor.h         | 1 +
- arch/sparc/include/asm/processor_32.h   | 1 +
- arch/sparc/include/asm/processor_64.h   | 1 +
- arch/tile/include/asm/processor.h       | 1 +
- arch/unicore32/include/asm/processor.h  | 1 +
- arch/x86/include/asm/processor.h        | 1 +
- arch/x86/um/asm/processor.h             | 1 +
- arch/xtensa/include/asm/processor.h     | 1 +
- 33 files changed, 36 insertions(+), 3 deletions(-)
+Will change in v4.
 
-diff --git a/arch/alpha/include/asm/processor.h b/arch/alpha/include/asm/processor.h
-index 43a7559..0556fda 100644
---- a/arch/alpha/include/asm/processor.h
-+++ b/arch/alpha/include/asm/processor.h
-@@ -58,6 +58,7 @@ unsigned long get_wchan(struct task_struct *p);
-   ((tsk) == current ? rdusp() : task_thread_info(tsk)->pcb.usp)
- 
- #define cpu_relax()	barrier()
-+#define cpu_relax_yield() cpu_relax()
- #define cpu_relax_lowlatency() cpu_relax()
- 
- #define ARCH_HAS_PREFETCH
-diff --git a/arch/arc/include/asm/processor.h b/arch/arc/include/asm/processor.h
-index 16b630f..6c158d5 100644
---- a/arch/arc/include/asm/processor.h
-+++ b/arch/arc/include/asm/processor.h
-@@ -60,6 +60,7 @@ struct task_struct;
- #ifndef CONFIG_EZNPS_MTM_EXT
- 
- #define cpu_relax()		barrier()
-+#define cpu_relax_yield()	cpu_relax()
- #define cpu_relax_lowlatency()	cpu_relax()
- 
- #else
-@@ -67,6 +68,7 @@ struct task_struct;
- #define cpu_relax()     \
- 	__asm__ __volatile__ (".word %0" : : "i"(CTOP_INST_SCHD_RW) : "memory")
- 
-+#define cpu_relax_yield()	cpu_relax()
- #define cpu_relax_lowlatency()	barrier()
- 
- #endif
-diff --git a/arch/arm/include/asm/processor.h b/arch/arm/include/asm/processor.h
-index 8a1e8e9..db660e0 100644
---- a/arch/arm/include/asm/processor.h
-+++ b/arch/arm/include/asm/processor.h
-@@ -82,6 +82,7 @@ unsigned long get_wchan(struct task_struct *p);
- #define cpu_relax()			barrier()
- #endif
- 
-+#define cpu_relax_yield()  	              cpu_relax()
- #define cpu_relax_lowlatency()                cpu_relax()
- 
- #define task_pt_regs(p) \
-diff --git a/arch/arm64/include/asm/processor.h b/arch/arm64/include/asm/processor.h
-index 60e3482..3f9b0e5 100644
---- a/arch/arm64/include/asm/processor.h
-+++ b/arch/arm64/include/asm/processor.h
-@@ -149,6 +149,7 @@ static inline void cpu_relax(void)
- 	asm volatile("yield" ::: "memory");
- }
- 
-+#define cpu_relax_yield()                     cpu_relax()
- #define cpu_relax_lowlatency()                cpu_relax()
- 
- /* Thread switching */
-diff --git a/arch/avr32/include/asm/processor.h b/arch/avr32/include/asm/processor.h
-index 941593c..e412e8b 100644
---- a/arch/avr32/include/asm/processor.h
-+++ b/arch/avr32/include/asm/processor.h
-@@ -92,6 +92,7 @@ extern struct avr32_cpuinfo boot_cpu_data;
- #define TASK_UNMAPPED_BASE	(PAGE_ALIGN(TASK_SIZE / 3))
- 
- #define cpu_relax()		barrier()
-+#define cpu_relax_yield()	cpu_relax()
- #define cpu_relax_lowlatency()        cpu_relax()
- #define cpu_sync_pipeline()	asm volatile("sub pc, -2" : : : "memory")
- 
-diff --git a/arch/blackfin/include/asm/processor.h b/arch/blackfin/include/asm/processor.h
-index 0c265ab..8b8704a 100644
---- a/arch/blackfin/include/asm/processor.h
-+++ b/arch/blackfin/include/asm/processor.h
-@@ -92,6 +92,7 @@ unsigned long get_wchan(struct task_struct *p);
- #define	KSTK_ESP(tsk)	((tsk) == current ? rdusp() : (tsk)->thread.usp)
- 
- #define cpu_relax()    	smp_mb()
-+#define cpu_relax_yield()      cpu_relax()
- #define cpu_relax_lowlatency() cpu_relax()
- 
- /* Get the Silicon Revision of the chip */
-diff --git a/arch/c6x/include/asm/processor.h b/arch/c6x/include/asm/processor.h
-index f2ef31b..914d730 100644
---- a/arch/c6x/include/asm/processor.h
-+++ b/arch/c6x/include/asm/processor.h
-@@ -121,6 +121,7 @@ extern unsigned long get_wchan(struct task_struct *p);
- #define KSTK_ESP(task)	(task_pt_regs(task)->sp)
- 
- #define cpu_relax()		do { } while (0)
-+#define cpu_relax_yield()             cpu_relax()
- #define cpu_relax_lowlatency()        cpu_relax()
- 
- extern const struct seq_operations cpuinfo_op;
-diff --git a/arch/cris/include/asm/processor.h b/arch/cris/include/asm/processor.h
-index 862126b..01dd52e 100644
---- a/arch/cris/include/asm/processor.h
-+++ b/arch/cris/include/asm/processor.h
-@@ -63,6 +63,7 @@ static inline void release_thread(struct task_struct *dead_task)
- #define init_stack      (init_thread_union.stack)
- 
- #define cpu_relax()     barrier()
-+#define cpu_relax_yield() cpu_relax()
- #define cpu_relax_lowlatency() cpu_relax()
- 
- void default_idle(void);
-diff --git a/arch/frv/include/asm/processor.h b/arch/frv/include/asm/processor.h
-index 73f0a79..4d00d65 100644
---- a/arch/frv/include/asm/processor.h
-+++ b/arch/frv/include/asm/processor.h
-@@ -107,6 +107,7 @@ unsigned long get_wchan(struct task_struct *p);
- #define	KSTK_ESP(tsk)	((tsk)->thread.frame0->sp)
- 
- #define cpu_relax() barrier()
-+#define cpu_relax_yield() cpu_relax()
- #define cpu_relax_lowlatency() cpu_relax()
- 
- /* data cache prefetch */
-diff --git a/arch/h8300/include/asm/processor.h b/arch/h8300/include/asm/processor.h
-index 111df73..683a061 100644
---- a/arch/h8300/include/asm/processor.h
-+++ b/arch/h8300/include/asm/processor.h
-@@ -127,6 +127,7 @@ unsigned long get_wchan(struct task_struct *p);
- #define	KSTK_ESP(tsk)	((tsk) == current ? rdusp() : (tsk)->thread.usp)
- 
- #define cpu_relax()    barrier()
-+#define cpu_relax_yield() cpu_relax()
- #define cpu_relax_lowlatency()	cpu_relax()
- 
- #define HARD_RESET_NOW() ({		\
-diff --git a/arch/hexagon/include/asm/processor.h b/arch/hexagon/include/asm/processor.h
-index d850113..1558ddb 100644
---- a/arch/hexagon/include/asm/processor.h
-+++ b/arch/hexagon/include/asm/processor.h
-@@ -56,6 +56,7 @@ struct thread_struct {
- }
- 
- #define cpu_relax() __vmyield()
-+#define cpu_relax_yield() cpu_relax()
- #define cpu_relax_lowlatency() cpu_relax()
- 
- /*
-diff --git a/arch/ia64/include/asm/processor.h b/arch/ia64/include/asm/processor.h
-index ce53c50..4654b71 100644
---- a/arch/ia64/include/asm/processor.h
-+++ b/arch/ia64/include/asm/processor.h
-@@ -547,6 +547,7 @@ ia64_eoi (void)
- }
- 
- #define cpu_relax()	ia64_hint(ia64_hint_pause)
-+#define cpu_relax_yield() cpu_relax()
- #define cpu_relax_lowlatency() cpu_relax()
- 
- static inline int
-diff --git a/arch/m32r/include/asm/processor.h b/arch/m32r/include/asm/processor.h
-index 9f8fd9b..b262037 100644
---- a/arch/m32r/include/asm/processor.h
-+++ b/arch/m32r/include/asm/processor.h
-@@ -133,6 +133,7 @@ unsigned long get_wchan(struct task_struct *p);
- #define KSTK_ESP(tsk)  ((tsk)->thread.sp)
- 
- #define cpu_relax()	barrier()
-+#define cpu_relax_yield() cpu_relax()
- #define cpu_relax_lowlatency() cpu_relax()
- 
- #endif /* _ASM_M32R_PROCESSOR_H */
-diff --git a/arch/m68k/include/asm/processor.h b/arch/m68k/include/asm/processor.h
-index c84a218..13e07ae 100644
---- a/arch/m68k/include/asm/processor.h
-+++ b/arch/m68k/include/asm/processor.h
-@@ -156,6 +156,7 @@ unsigned long get_wchan(struct task_struct *p);
- #define task_pt_regs(tsk)	((struct pt_regs *) ((tsk)->thread.esp0))
- 
- #define cpu_relax()	barrier()
-+#define cpu_relax_yield() cpu_relax()
- #define cpu_relax_lowlatency() cpu_relax()
- 
- #endif
-diff --git a/arch/metag/include/asm/processor.h b/arch/metag/include/asm/processor.h
-index a0333eb..61d6e27 100644
---- a/arch/metag/include/asm/processor.h
-+++ b/arch/metag/include/asm/processor.h
-@@ -152,6 +152,7 @@ unsigned long get_wchan(struct task_struct *p);
- #define user_stack_pointer(regs)        ((regs)->ctx.AX[0].U0)
- 
- #define cpu_relax()     barrier()
-+#define cpu_relax_yield() cpu_relax()
- #define cpu_relax_lowlatency()  cpu_relax()
- 
- extern void setup_priv(void);
-diff --git a/arch/microblaze/include/asm/processor.h b/arch/microblaze/include/asm/processor.h
-index c38d0dd..fd7dd11 100644
---- a/arch/microblaze/include/asm/processor.h
-+++ b/arch/microblaze/include/asm/processor.h
-@@ -22,6 +22,7 @@
- extern const struct seq_operations cpuinfo_op;
- 
- # define cpu_relax()		barrier()
-+# define cpu_relax_yield() cpu_relax()
- # define cpu_relax_lowlatency()	cpu_relax()
- 
- #define task_pt_regs(tsk) \
-diff --git a/arch/mips/include/asm/processor.h b/arch/mips/include/asm/processor.h
-index 0d36c87..9a656f6 100644
---- a/arch/mips/include/asm/processor.h
-+++ b/arch/mips/include/asm/processor.h
-@@ -389,6 +389,7 @@ unsigned long get_wchan(struct task_struct *p);
- #define KSTK_STATUS(tsk) (task_pt_regs(tsk)->cp0_status)
- 
- #define cpu_relax()	barrier()
-+#define cpu_relax_yield() cpu_relax()
- #define cpu_relax_lowlatency() cpu_relax()
- 
- /*
-diff --git a/arch/mn10300/include/asm/processor.h b/arch/mn10300/include/asm/processor.h
-index b10ba12..89f63d1 100644
---- a/arch/mn10300/include/asm/processor.h
-+++ b/arch/mn10300/include/asm/processor.h
-@@ -69,6 +69,7 @@ extern void print_cpu_info(struct mn10300_cpuinfo *);
- extern void dodgy_tsc(void);
- 
- #define cpu_relax() barrier()
-+#define cpu_relax_yield() cpu_relax()
- #define cpu_relax_lowlatency() cpu_relax()
- 
- /*
-diff --git a/arch/nios2/include/asm/processor.h b/arch/nios2/include/asm/processor.h
-index 1c953f0..303e593 100644
---- a/arch/nios2/include/asm/processor.h
-+++ b/arch/nios2/include/asm/processor.h
-@@ -88,6 +88,7 @@ extern unsigned long get_wchan(struct task_struct *p);
- #define KSTK_ESP(tsk)	((tsk)->thread.kregs->sp)
- 
- #define cpu_relax()	barrier()
-+#define cpu_relax_yield() cpu_relax()
- #define cpu_relax_lowlatency()  cpu_relax()
- 
- #endif /* __ASSEMBLY__ */
-diff --git a/arch/openrisc/include/asm/processor.h b/arch/openrisc/include/asm/processor.h
-index 70334c9..6ecfc2a 100644
---- a/arch/openrisc/include/asm/processor.h
-+++ b/arch/openrisc/include/asm/processor.h
-@@ -92,6 +92,7 @@ extern unsigned long thread_saved_pc(struct task_struct *t);
- #define init_stack      (init_thread_union.stack)
- 
- #define cpu_relax()     barrier()
-+#define cpu_relax_yield() cpu_relax()
- #define cpu_relax_lowlatency() cpu_relax()
- 
- #endif /* __ASSEMBLY__ */
-diff --git a/arch/parisc/include/asm/processor.h b/arch/parisc/include/asm/processor.h
-index 2e674e1..ea2ff9f 100644
---- a/arch/parisc/include/asm/processor.h
-+++ b/arch/parisc/include/asm/processor.h
-@@ -309,6 +309,7 @@ extern unsigned long get_wchan(struct task_struct *p);
- #define KSTK_ESP(tsk)	((tsk)->thread.regs.gr[30])
- 
- #define cpu_relax()	barrier()
-+#define cpu_relax_yield() cpu_relax()
- #define cpu_relax_lowlatency() cpu_relax()
- 
- /*
-diff --git a/arch/powerpc/include/asm/processor.h b/arch/powerpc/include/asm/processor.h
-index c07c31b..908fa7c 100644
---- a/arch/powerpc/include/asm/processor.h
-+++ b/arch/powerpc/include/asm/processor.h
-@@ -404,6 +404,7 @@ static inline unsigned long __pack_fe01(unsigned int fpmode)
- #define cpu_relax()	barrier()
- #endif
- 
-+#define cpu_relax_yield() cpu_relax()
- #define cpu_relax_lowlatency() cpu_relax()
- 
- /* Check that a certain kernel stack pointer is valid in task_struct p */
-diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
-index 0332317..d05965b 100644
---- a/arch/s390/include/asm/processor.h
-+++ b/arch/s390/include/asm/processor.h
-@@ -234,8 +234,9 @@ static inline unsigned short stap(void)
- /*
-  * Give up the time slice of the virtual PU.
-  */
--void cpu_relax(void);
-+void cpu_relax_yield(void);
- 
-+#define cpu_relax() cpu_relax_yield()
- #define cpu_relax_lowlatency()  barrier()
- 
- #define ECAG_CACHE_ATTRIBUTE	0
-diff --git a/arch/s390/kernel/processor.c b/arch/s390/kernel/processor.c
-index 81d0808..9e60ef1 100644
---- a/arch/s390/kernel/processor.c
-+++ b/arch/s390/kernel/processor.c
-@@ -53,7 +53,7 @@ void s390_update_cpu_mhz(void)
- 		on_each_cpu(update_cpu_mhz, NULL, 0);
- }
- 
--void notrace cpu_relax(void)
-+void notrace cpu_relax_yield(void)
- {
- 	if (!smp_cpu_mtid && MACHINE_HAS_DIAG44) {
- 		diag_stat_inc(DIAG_STAT_X044);
-@@ -61,7 +61,7 @@ void notrace cpu_relax(void)
- 	}
- 	barrier();
- }
--EXPORT_SYMBOL(cpu_relax);
-+EXPORT_SYMBOL(cpu_relax_yield);
- 
- /*
-  * cpu_init - initializes state that is per-CPU.
-diff --git a/arch/score/include/asm/processor.h b/arch/score/include/asm/processor.h
-index 851f441..e8e87b4 100644
---- a/arch/score/include/asm/processor.h
-+++ b/arch/score/include/asm/processor.h
-@@ -24,6 +24,7 @@ extern unsigned long get_wchan(struct task_struct *p);
- #define current_text_addr() ({ __label__ _l; _l: &&_l; })
- 
- #define cpu_relax()		barrier()
-+#define cpu_relax_yield()	cpu_relax()
- #define cpu_relax_lowlatency()        cpu_relax()
- #define release_thread(thread)	do {} while (0)
- 
-diff --git a/arch/sh/include/asm/processor.h b/arch/sh/include/asm/processor.h
-index f9a0994..099a991 100644
---- a/arch/sh/include/asm/processor.h
-+++ b/arch/sh/include/asm/processor.h
-@@ -97,6 +97,7 @@ extern struct sh_cpuinfo cpu_data[];
- 
- #define cpu_sleep()	__asm__ __volatile__ ("sleep" : : : "memory")
- #define cpu_relax()	barrier()
-+#define cpu_relax_yield() cpu_relax()
- #define cpu_relax_lowlatency() cpu_relax()
- 
- void default_idle(void);
-diff --git a/arch/sparc/include/asm/processor_32.h b/arch/sparc/include/asm/processor_32.h
-index 812fd08..50e908a3c 100644
---- a/arch/sparc/include/asm/processor_32.h
-+++ b/arch/sparc/include/asm/processor_32.h
-@@ -119,6 +119,7 @@ extern struct task_struct *last_task_used_math;
- int do_mathemu(struct pt_regs *regs, struct task_struct *fpt);
- 
- #define cpu_relax()	barrier()
-+#define cpu_relax_yield() cpu_relax()
- #define cpu_relax_lowlatency() cpu_relax()
- 
- extern void (*sparc_idle)(void);
-diff --git a/arch/sparc/include/asm/processor_64.h b/arch/sparc/include/asm/processor_64.h
-index ce2595c..3e8fac7 100644
---- a/arch/sparc/include/asm/processor_64.h
-+++ b/arch/sparc/include/asm/processor_64.h
-@@ -216,6 +216,7 @@ unsigned long get_wchan(struct task_struct *task);
- 				     "nop\n\t"				\
- 				     ".previous"			\
- 				     ::: "memory")
-+#define cpu_relax_yield() cpu_relax()
- #define cpu_relax_lowlatency() cpu_relax()
- 
- /* Prefetch support.  This is tuned for UltraSPARC-III and later.
-diff --git a/arch/tile/include/asm/processor.h b/arch/tile/include/asm/processor.h
-index 0684e88..91a39a5 100644
---- a/arch/tile/include/asm/processor.h
-+++ b/arch/tile/include/asm/processor.h
-@@ -264,6 +264,7 @@ static inline void cpu_relax(void)
- 	barrier();
- }
- 
-+#define cpu_relax_yield() cpu_relax()
- #define cpu_relax_lowlatency() cpu_relax()
- 
- /* Info on this processor (see fs/proc/cpuinfo.c) */
-diff --git a/arch/unicore32/include/asm/processor.h b/arch/unicore32/include/asm/processor.h
-index 8d21b7a..fc54d5d 100644
---- a/arch/unicore32/include/asm/processor.h
-+++ b/arch/unicore32/include/asm/processor.h
-@@ -71,6 +71,7 @@ extern void release_thread(struct task_struct *);
- unsigned long get_wchan(struct task_struct *p);
- 
- #define cpu_relax()			barrier()
-+#define cpu_relax_yield()		cpu_relax()
- #define cpu_relax_lowlatency()                cpu_relax()
- 
- #define task_pt_regs(p) \
-diff --git a/arch/x86/include/asm/processor.h b/arch/x86/include/asm/processor.h
-index 984a7bf..44adada 100644
---- a/arch/x86/include/asm/processor.h
-+++ b/arch/x86/include/asm/processor.h
-@@ -588,6 +588,7 @@ static __always_inline void cpu_relax(void)
- 	rep_nop();
- }
- 
-+#define cpu_relax_yield() cpu_relax()
- #define cpu_relax_lowlatency() cpu_relax()
- 
- /* Stop speculative execution and prefetching of modified code. */
-diff --git a/arch/x86/um/asm/processor.h b/arch/x86/um/asm/processor.h
-index 233ee09..01597af 100644
---- a/arch/x86/um/asm/processor.h
-+++ b/arch/x86/um/asm/processor.h
-@@ -26,6 +26,7 @@ static inline void rep_nop(void)
- }
- 
- #define cpu_relax()		rep_nop()
-+#define cpu_relax_yield()	cpu_relax()
- #define cpu_relax_lowlatency()	cpu_relax()
- 
- #define task_pt_regs(t) (&(t)->thread.regs)
-diff --git a/arch/xtensa/include/asm/processor.h b/arch/xtensa/include/asm/processor.h
-index b42d68b..fe14dc2 100644
---- a/arch/xtensa/include/asm/processor.h
-+++ b/arch/xtensa/include/asm/processor.h
-@@ -206,6 +206,7 @@ extern unsigned long get_wchan(struct task_struct *p);
- #define KSTK_ESP(tsk)		(task_pt_regs(tsk)->areg[1])
- 
- #define cpu_relax()  barrier()
-+#define cpu_relax_yield() cpu_relax()
- #define cpu_relax_lowlatency() cpu_relax()
- 
- /* Special register access. */
--- 
-2.5.5
+> 
+> 
+> >  static void tell_host(struct virtio_balloon *vb, struct virtqueue
+> > *vq)  {
+> > -	struct scatterlist sg;
+> > -	unsigned int len;
+> > +	struct scatterlist sg, sg2[BALLOON_BMAP_COUNT + 1];
+> > +	unsigned int len, i;
+> > +
+> > +	if (virtio_has_feature(vb->vdev,
+> VIRTIO_BALLOON_F_PAGE_BITMAP)) {
+> > +		struct balloon_bmap_hdr *hdr = vb->bmap_hdr;
+> > +		unsigned long bmap_len;
+> > +		int nr_pfn, nr_used_bmap, nr_buf;
+> > +
+> > +		nr_pfn = vb->end_pfn - vb->start_pfn + 1;
+> > +		nr_pfn = roundup(nr_pfn, BITS_PER_LONG);
+> > +		nr_used_bmap = nr_pfn / PFNS_PER_BMAP;
+> > +		bmap_len = nr_pfn / BITS_PER_BYTE;
+> > +		nr_buf = nr_used_bmap + 1;
+> > +
+> > +		/* cmd, reserved and req_id are init to 0, unused here */
+> > +		hdr->page_shift = cpu_to_virtio16(vb->vdev, PAGE_SHIFT);
+> > +		hdr->start_pfn = cpu_to_virtio64(vb->vdev, vb->start_pfn);
+> > +		hdr->bmap_len = cpu_to_virtio64(vb->vdev, bmap_len);
+> > +		sg_init_table(sg2, nr_buf);
+> > +		sg_set_buf(&sg2[0], hdr, sizeof(struct balloon_bmap_hdr));
+> > +		for (i = 0; i < nr_used_bmap; i++) {
+> > +			unsigned int  buf_len = BALLOON_BMAP_SIZE;
+> > +
+> > +			if (i + 1 == nr_used_bmap)
+> > +				buf_len = bmap_len - BALLOON_BMAP_SIZE
+> * i;
+> > +			sg_set_buf(&sg2[i + 1], vb->page_bitmap[i],
+> buf_len);
+> > +		}
+> >
+> > -	sg_init_one(&sg, vb->pfns, sizeof(vb->pfns[0]) * vb->num_pfns);
+> > +		while (vq->num_free < nr_buf)
+> > +			msleep(2);
+> 
+> 
+> What's going on here? Who is expected to update num_free?
+> 
+
+I just want to wait until the vq have enough space to write the bitmap, I thought qemu
+side will update the vq->num_free, is it wrong?
+
+> 
+> 
+> > +		if (virtqueue_add_outbuf(vq, sg2, nr_buf, vb, GFP_KERNEL)
+> == 0)
+> > +			virtqueue_kick(vq);
+> >
+> > -	/* We should always be able to add one buffer to an empty queue.
+> */
+> > -	virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+> > -	virtqueue_kick(vq);
+> > +	} else {
+> > +		sg_init_one(&sg, vb->pfns, sizeof(vb->pfns[0]) * vb-
+> >num_pfns);
+> > +
+> > +		/* We should always be able to add one buffer to an empty
+> > +		 * queue. */
+> 
+> Pls use a multiple comment style consistent with kernel coding style.
+
+Will change in next version.
+
+> 
+> > +		virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+> > +		virtqueue_kick(vq);
+> > +	}
+> >
+> >  	/* When host has read buffer, this completes via balloon_ack */
+> >  	wait_event(vb->acked, virtqueue_get_buf(vq, &len)); @@ -138,13
+> > +199,93 @@ static void set_page_pfns(struct virtio_balloon *vb,
+> >  					  page_to_balloon_pfn(page) + i);  }
+> >
+> > -static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
+> > +static void extend_page_bitmap(struct virtio_balloon *vb) {
+> > +	int i;
+> > +	unsigned long bmap_len, bmap_count;
+> > +
+> > +	bmap_len = ALIGN(get_max_pfn(), BITS_PER_LONG) /
+> BITS_PER_BYTE;
+> > +	bmap_count = bmap_len / BALLOON_BMAP_SIZE;
+> > +	if (bmap_len % BALLOON_BMAP_SIZE)
+> > +		bmap_count++;
+> > +	if (bmap_count > BALLOON_BMAP_COUNT)
+> > +		bmap_count = BALLOON_BMAP_COUNT;
+> > +
+> 
+> This is doing simple things in tricky ways.
+> Please use macros such as ALIGN and max instead of if.
+> 
+
+Will change.
+
+> 
+> > +	for (i = 1; i < bmap_count; i++) {
+> 
+> why 1?
+
+In probe stage, already allocated one bitmap.
+
+> 
+> > +		vb->page_bitmap[i] = kmalloc(BALLOON_BMAP_SIZE,
+> GFP_ATOMIC);
+> 
+> why GFP_ATOMIC?
+
+Yes, GFP_ATOMIC is not necessary.
+
+> and what will free the previous buffer?
+
+The previous buffer will not be freed.
+
+> 
+> 
+> > +		if (vb->page_bitmap[i])
+> > +			vb->nr_page_bmap++;
+> > +		else
+> > +			break;
+> 
+> and what will happen then?
+
+I plan to use the previous allocated buffer to save the bitmap, need more code for kmalloc failure?
+
+> > -static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
+> > +static unsigned int leak_balloon(struct virtio_balloon *vb, size_t num,
+> > +				bool use_bmap)
+> 
+> this is just a feature bit - why not get it internally?
+
+Indeed.
+
+> > @@ -218,8 +374,14 @@ static unsigned leak_balloon(struct virtio_balloon
+> *vb, size_t num)
+> >  	 * virtio_has_feature(vdev, VIRTIO_BALLOON_F_MUST_TELL_HOST);
+> >  	 * is true, we *have* to do it in this order
+> >  	 */
+> > -	if (vb->num_pfns != 0)
+> > -		tell_host(vb, vb->deflate_vq);
+> > +	if (vb->num_pfns != 0) {
+> > +		if (use_bmap)
+> > +			set_page_bitmap(vb, &pages, vb->deflate_vq);
+> > +		else
+> > +			tell_host(vb, vb->deflate_vq);
+> > +
+> > +		release_pages_balloon(vb, &pages);
+> > +	}
+> >  	release_pages_balloon(vb, &pages);
+> >  	mutex_unlock(&vb->balloon_lock);
+> >  	return num_freed_pages;
+> > @@ -354,13 +516,15 @@ static int virtballoon_oom_notify(struct
+> notifier_block *self,
+> >  	struct virtio_balloon *vb;
+> >  	unsigned long *freed;
+> >  	unsigned num_freed_pages;
+> > +	bool use_bmap;
+> >
+> >  	vb = container_of(self, struct virtio_balloon, nb);
+> >  	if (!virtio_has_feature(vb->vdev,
+> VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+> >  		return NOTIFY_OK;
+> >
+> >  	freed = parm;
+> > -	num_freed_pages = leak_balloon(vb, oom_pages);
+> > +	use_bmap = virtio_has_feature(vb->vdev,
+> VIRTIO_BALLOON_F_PAGE_BITMAP);
+> > +	num_freed_pages = leak_balloon(vb, oom_pages, use_bmap);
+> >  	update_balloon_size(vb);
+> >  	*freed += num_freed_pages;
+> >
+> > @@ -380,15 +544,19 @@ static void update_balloon_size_func(struct
+> > work_struct *work)  {
+> >  	struct virtio_balloon *vb;
+> >  	s64 diff;
+> > +	bool use_bmap;
+> >
+> >  	vb = container_of(work, struct virtio_balloon,
+> >  			  update_balloon_size_work);
+> >  	diff = towards_target(vb);
+> > +	use_bmap = virtio_has_feature(vb->vdev,
+> VIRTIO_BALLOON_F_PAGE_BITMAP);
+> > +	if (use_bmap && diff && vb->nr_page_bmap == 1)
+> > +		extend_page_bitmap(vb);
+> 
+> So you allocate it on first use, then keep it around until device remove?
+> Seems ugly.
+
+Yes, this version behave like this.
+
+> Needs comments explaining the motivation for this.
+> Can't we free it immediately when it becomes unused?
+> 
+
+Yes, it can be freed immediately, will change in v4.
+
+Thanks for your time and your valuable comments! I will send out the v4 soon.
+
+Liang
