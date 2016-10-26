@@ -1,11 +1,13 @@
 From: Alexey Makhalov <amakhalov@vmware.com>
-Subject: [PATCH 0/3] x86/vmware guest improvements
-Date: Tue, 25 Oct 2016 22:20:35 -0700
-Message-ID: <20161026052038.77042-1-amakhalov__28077.4015620866$1477935970$gmane$org@vmware.com>
+Subject: [PATCH 2/3] x86/vmware: Add basic paravirt ops support
+Date: Tue, 25 Oct 2016 22:26:00 -0700
+Message-ID: <20161026052600.77535-1-amakhalov__22752.6522161954$1477935983$gmane$org@vmware.com>
+References: <20161026052038.77042-1-amakhalov@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20161026052038.77042-1-amakhalov@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,16 +21,48 @@ To: corbet@lwn.net, akataria@vmware.com, tglx@linutronix.de, mingo@redhat.com, h
 Cc: time-lords@vmware.com, monitor-list@vmware.com, pv-drivers@vmware.com, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Alexey Makhalov <amakhalov@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patchset includes several VMware guest improvements:
+Add basic paravirt support:
+ 1. set pv_info.name to "VMware" to have proper boot log message
+	Booting paravirtualized kernel on VMware
+    instead of "... on bare hardware"
+ 2. set pv_cpu_ops.io_delay() to empty function - paravirt_nop() to
+    avoid vm-exits on IO delays.
 
-Alexey Makhalov (3):
-  x86/vmware: Use tsc_khz value for calibrate_cpu()
-  x86/vmware: Add basic paravirt ops support
-  x86/vmware: Add paravirt sched clock
+Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
+Acked-by: Alok N Kataria <akataria@vmware.com>
+---
+ arch/x86/kernel/cpu/vmware.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
- Documentation/kernel-parameters.txt |  4 +++
- arch/x86/kernel/cpu/vmware.c        | 51 +++++++++++++++++++++++++++++++++++++
- 2 files changed, 55 insertions(+)
-
+diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
+index 480790f..e3fb320 100644
+--- a/arch/x86/kernel/cpu/vmware.c
++++ b/arch/x86/kernel/cpu/vmware.c
+@@ -61,6 +61,16 @@ static unsigned long vmware_get_tsc_khz(void)
+ 	return vmware_tsc_khz;
+ }
+ 
++#ifdef CONFIG_PARAVIRT
++static void __init vmware_paravirt_ops_setup(void)
++{
++	pv_info.name = "VMware";
++	pv_cpu_ops.io_delay = paravirt_nop;
++}
++#else
++#define vmware_paravirt_ops_setup() do {} while (0)
++#endif
++
+ static void __init vmware_platform_setup(void)
+ {
+ 	uint32_t eax, ebx, ecx, edx;
+@@ -94,6 +104,8 @@ static void __init vmware_platform_setup(void)
+ 	} else {
+ 		pr_warn("Failed to get TSC freq from the hypervisor\n");
+ 	}
++
++	vmware_paravirt_ops_setup();
+ }
+ 
+ /*
 -- 
 2.10.1
