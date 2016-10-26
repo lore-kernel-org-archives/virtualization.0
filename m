@@ -1,15 +1,11 @@
-From: Nicholas Piggin <npiggin@gmail.com>
-Subject: Re: [PATCH 2/5] stop_machine: yield CPU during stop machine
-Date: Sat, 22 Oct 2016 11:06:36 +1100
-Message-ID: <20161022110636.410f20bd__329.869721508835$1477935964$gmane$org@roar.ozlabs.ibm.com>
-References: <1477051138-1610-1-git-send-email-borntraeger@de.ibm.com>
-	<1477051138-1610-3-git-send-email-borntraeger@de.ibm.com>
-	<20161021120536.GC3142@twins.programming.kicks-ass.net>
+From: Alexey Makhalov <amakhalov@vmware.com>
+Subject: [PATCH 0/3] x86/vmware guest improvements
+Date: Tue, 25 Oct 2016 22:20:35 -0700
+Message-ID: <20161026052038.77042-1-amakhalov__28077.4015620866$1477935970$gmane$org@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161021120536.GC3142@twins.programming.kicks-ass.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,57 +15,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: linux-arch@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, kvm@vger.kernel.org, xen-devel-request@lists.xenproject.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Noam Camus <noamc@ezchip.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linuxppc-dev@lists.ozlabs.org
+To: corbet@lwn.net, akataria@vmware.com, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, x86@kernel.org
+Cc: time-lords@vmware.com, monitor-list@vmware.com, pv-drivers@vmware.com, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Alexey Makhalov <amakhalov@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 21 Oct 2016 14:05:36 +0200
-Peter Zijlstra <peterz@infradead.org> wrote:
+This patchset includes several VMware guest improvements:
 
-> On Fri, Oct 21, 2016 at 01:58:55PM +0200, Christian Borntraeger wrote:
-> > stop_machine can take a very long time if the hypervisor does
-> > overcommitment for guest CPUs. When waiting for "the one", lets
-> > give up our CPU by using the new cpu_relax_yield.  
-> 
-> This seems something that would apply to most other virt stuff. Lets Cc
-> a few more lists for that.
-> 
-> > Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> > ---
-> >  kernel/stop_machine.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/kernel/stop_machine.c b/kernel/stop_machine.c
-> > index ec9ab2f..1eb8266 100644
-> > --- a/kernel/stop_machine.c
-> > +++ b/kernel/stop_machine.c
-> > @@ -194,7 +194,7 @@ static int multi_cpu_stop(void *data)
-> >  	/* Simple state machine */
-> >  	do {
-> >  		/* Chill out and ensure we re-read multi_stop_state. */
-> > -		cpu_relax();
-> > +		cpu_relax_yield();
-> >  		if (msdata->state != curstate) {
-> >  			curstate = msdata->state;
-> >  			switch (curstate) {
-> > -- 
-> > 2.5.5
-> >   
+Alexey Makhalov (3):
+  x86/vmware: Use tsc_khz value for calibrate_cpu()
+  x86/vmware: Add basic paravirt ops support
+  x86/vmware: Add paravirt sched clock
 
-This is the only caller of cpu_relax_yield()?
+ Documentation/kernel-parameters.txt |  4 +++
+ arch/x86/kernel/cpu/vmware.c        | 51 +++++++++++++++++++++++++++++++++++++
+ 2 files changed, 55 insertions(+)
 
-As a step to removing cpu_yield_lowlatency this series is nice so I
-have no objection. But "general" kernel coders still have basically
-no chance of using this properly.
-
-I wonder what can be done about that. I've got that spin_do/while
-series I'll rebase on top of this, but a spin_yield variant of them
-is of no more help to the caller.
-
-What makes this unique? Long latency and not performance critical?
-Most places where we spin and maybe yield have been moved to arch
-code, but I wonder whether we can make an easier to use architecture
-independent API?
-
-Thanks,
-Nick
+-- 
+2.10.1
