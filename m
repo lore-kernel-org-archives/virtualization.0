@@ -1,17 +1,14 @@
-From: "Li, Liang Z" <liang.z.li@intel.com>
-Subject: RE: [RESEND PATCH v3 kernel 0/7] Extend virtio-balloon for fast
-	(de)inflating & fast live migration
-Date: Wed, 26 Oct 2016 10:13:47 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E3A0FD05E__18965.1071130813$1477476866$gmane$org@shsmsx102.ccr.corp.intel.com>
-References: <1477031080-12616-1-git-send-email-liang.z.li@intel.com>
-	<580A4F81.60201@intel.com>
-	<F2CBF3009FA73547804AE4C663CAB28E3A0FD034@shsmsx102.ccr.corp.intel.com>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH 3/3] x86/vmware: Add paravirt sched clock
+Date: Wed, 26 Oct 2016 12:18:33 +0200 (CEST)
+Message-ID: <alpine.DEB.2.20.1610261213000.4983@nanos>
+References: <20161026052038.77042-1-amakhalov@vmware.com>
+	<20161026052640.77585-1-amakhalov@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <F2CBF3009FA73547804AE4C663CAB28E3A0FD034@shsmsx102.ccr.corp.intel.com>
-Content-Language: en-US
+In-Reply-To: <20161026052640.77585-1-amakhalov@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,45 +18,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Li, Liang Z" <liang.z.li@intel.com>, "Hansen, Dave" <dave.hansen@intel.com>, "mst@redhat.com" <mst@redhat.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>
+To: Alexey Makhalov <amakhalov@vmware.com>
+Cc: corbet@lwn.net, time-lords@vmware.com, linux-doc@vger.kernel.org, pv-drivers@vmware.com, x86@kernel.org, linux-kernel@vger.kernel.org, monitor-list@vmware.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, hpa@zytor.com, akataria@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-> > On 10/20/2016 11:24 PM, Liang Li wrote:
-> > > Dave Hansen suggested a new scheme to encode the data structure,
-> > > because of additional complexity, it's not implemented in v3.
-> >
-> > So, what do you want done with this patch set?  Do you want it applied
-> > as-is so that we can introduce a new host/guest ABI that we must
-> > support until the end of time?  Then, we go back in a year or two and
-> > add the newer format that addresses the deficiencies that this ABI has with
-> a third version?
-> >
-> 
-> Hi Dave & Michael,
-> 
-> I am working on Dave's new bitmap schema, I have finished the part of
-> getting the 'hybrid scheme bitmap'
-> and found the complexity was more than I expected.  The main issue is more
-> memory is required to  save the 'hybrid scheme bitmap' beside that used to
-> save the raw page bitmap, for the worst case, the memory required is 3
-> times than that in the previous implementation.
-> 
+On Tue, 25 Oct 2016, Alexey Makhalov wrote:
+> no-vmw-sched-clock kernel parameter is added to switch back to the
+> native_sched_clock() implementation.
 
-3 times memory required is not accurate, please ignore this. sorry ...
-The complexity is the point. 
+You are not switching back. The parameter is used to disable the paravirt
+sched clock.
 
-> I am wondering if I should continue, as an alternative solution, how about
-> using PFNs array when inflating/deflating only a few pages? Things will be
-> much more simple.
-> 
-> 
-> Thanks!
-> Liang
-> 
-> 
-> 
-> 
-> ---------------------------------------------------------------------
-> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
-> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
+>  #ifdef CONFIG_PARAVIRT
+> +static struct cyc2ns_data vmware_cyc2ns __ro_after_init;
+> +
+> +static int vmw_sched_clock __initdata = 1;
+> +static __init int setup_vmw_sched_clock(char *s)
+
+Please stop glueing a variable to a function w/o a new line between
+them. It's just stopping the reading flow.
+
+> +{
+> +	vmw_sched_clock = 0;
+> +	return 0;
+> +}
+> +early_param("no-vmw-sched-clock", setup_vmw_sched_clock);
+> +
+> +static unsigned long long vmware_sched_clock(void)
+> +{
+> +	unsigned long long ns;
+> +
+> +	ns = mul_u64_u32_shr(rdtsc(), vmware_cyc2ns.cyc2ns_mul,
+> +			     vmware_cyc2ns.cyc2ns_shift);
+> +	ns -= vmware_cyc2ns.cyc2ns_offset;
+> +	return ns;
+> +}
+> +
+>  static void __init vmware_paravirt_ops_setup(void)
+>  {
+>  	pv_info.name = "VMware";
+>  	pv_cpu_ops.io_delay = paravirt_nop;
+> +
+> +	if (vmware_tsc_khz && vmw_sched_clock) {
+> +		unsigned long long tsc_now = rdtsc();
+> +
+> +		clocks_calc_mult_shift(&vmware_cyc2ns.cyc2ns_mul,
+> +				       &vmware_cyc2ns.cyc2ns_shift,
+> +				       vmware_tsc_khz,
+> +				       NSEC_PER_MSEC, 0);
+> +		vmware_cyc2ns.cyc2ns_offset =
+> +			mul_u64_u32_shr(tsc_now, vmware_cyc2ns.cyc2ns_mul,
+> +					vmware_cyc2ns.cyc2ns_shift);
+> +
+> +		pv_time_ops.sched_clock = vmware_sched_clock;
+> +		pr_info("vmware: using sched offset of %llu ns\n",
+
+Please use pr_fmt instead of adding the prefix to every print.
+
+Thanks,
+
+	tglx
