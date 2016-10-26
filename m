@@ -1,16 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RESEND PATCH v3 kernel 2/7] virtio-balloon: define new feature
-	bit and page bitmap head
-Date: Wed, 26 Oct 2016 18:35:54 +0300
-Message-ID: <20161026162123-mutt-send-email-mst@kernel.org>
+From: Dave Hansen <dave.hansen@intel.com>
+Subject: Re: [RESEND PATCH v3 kernel 0/7] Extend virtio-balloon for fast
+	(de)inflating & fast live migration
+Date: Wed, 26 Oct 2016 11:11:19 -0700
+Message-ID: <5810F1C7.4060807__25553.5711454742$1477505504$gmane$org@intel.com>
 References: <1477031080-12616-1-git-send-email-liang.z.li@intel.com>
-	<1477031080-12616-3-git-send-email-liang.z.li@intel.com>
+	<580A4F81.60201@intel.com>
+	<F2CBF3009FA73547804AE4C663CAB28E3A0FD034@shsmsx102.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1477031080-12616-3-git-send-email-liang.z.li@intel.com>
+In-Reply-To: <F2CBF3009FA73547804AE4C663CAB28E3A0FD034@shsmsx102.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,81 +20,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Liang Li <liang.z.li@intel.com>
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, amit.shah@redhat.com, dave.hansen@intel.com, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, virtualization@lists.linux-foundation.org, dgilbert@redhat.com
+To: "Li, Liang Z" <liang.z.li@intel.com>, "mst@redhat.com" <mst@redhat.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Oct 21, 2016 at 02:24:35PM +0800, Liang Li wrote:
-> Add a new feature which supports sending the page information with
-> a bitmap. The current implementation uses PFNs array, which is not
-> very efficient. Using bitmap can improve the performance of
-> inflating/deflating significantly
-> 
-> The page bitmap header will used to tell the host some information
-> about the page bitmap. e.g. the page size, page bitmap length and
-> start pfn.
-> 
-> Signed-off-by: Liang Li <liang.z.li@intel.com>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Cc: Paolo Bonzini <pbonzini@redhat.com>
-> Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
-> Cc: Amit Shah <amit.shah@redhat.com>
-> ---
->  include/uapi/linux/virtio_balloon.h | 19 +++++++++++++++++++
->  1 file changed, 19 insertions(+)
-> 
-> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-> index 343d7dd..d3b182a 100644
-> --- a/include/uapi/linux/virtio_balloon.h
-> +++ b/include/uapi/linux/virtio_balloon.h
-> @@ -34,6 +34,7 @@
->  #define VIRTIO_BALLOON_F_MUST_TELL_HOST	0 /* Tell before reclaiming pages */
->  #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
->  #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
-> +#define VIRTIO_BALLOON_F_PAGE_BITMAP	3 /* Send page info with bitmap */
->  
->  /* Size of a PFN in the balloon interface. */
->  #define VIRTIO_BALLOON_PFN_SHIFT 12
-> @@ -82,4 +83,22 @@ struct virtio_balloon_stat {
->  	__virtio64 val;
->  } __attribute__((packed));
->  
-> +/* Page bitmap header structure */
-> +struct balloon_bmap_hdr {
+On 10/26/2016 03:06 AM, Li, Liang Z wrote:
+> I am working on Dave's new bitmap schema, I have finished the part of
+> getting the 'hybrid scheme bitmap' and found the complexity was more
+> than I expected. The main issue is more memory is required to save
+> the 'hybrid scheme bitmap' beside that used to save the raw page
+> bitmap, for the worst case, the memory required is 3 times than that
+> in the previous implementation.
 
-Should be virtio_balloon.
+Really?  Could you please describe the scenario where this occurs?
 
-> +	/* Used to distinguish different request */
+> I am wondering if I should continue, as an alternative solution, how about using PFNs array when
+> inflating/deflating only a few pages? Things will be much more
+> simple.
 
-different requests? what are the legal values?
+Yes, using pfn lists is more efficient than using bitmaps for sparse
+bitmaps.  Yes, there will be cases where it is preferable to just use
+pfn lists vs. any kind of bitmap.
 
-> +	__virtio16 cmd;
-> +	/* Shift width of page in the bitmap */
+But, what does it matter?  At least with your current scheme where we go
+out and collect get_unused_pages(), we do the allocation up front.  The
+space efficiency doesn't matter at all for small sizes since we do the
+constant-size allocation *anyway*.
 
-In which units?
-
-> +	__virtio16 page_shift;
-> +	/* flag used to identify different status */
-
-this comment does not seem to add any value.
-
-> +	__virtio16 flag;
-> +	/* Reserved */
-
-this too
-
-> +	__virtio16 reserved;
-> +	/* ID of the request */
-> +	__virtio64 req_id;
-> +	/* The pfn of 0 bit in the bitmap */
-> +	__virtio64 start_pfn;
-> +	/* The length of the bitmap, in bytes */
-
-Why not in bits?
-
-> +	__virtio64 bmap_len;
-> +};
-> +
->  #endif /* _LINUX_VIRTIO_BALLOON_H */
-> -- 
-> 1.8.3.1
+I'm also pretty sure you can pack the pfn and page order into a single
+64-bit word and have no bitmap for a given record.  That would make it
+pack just as well as the old pfns alone.  Right?
