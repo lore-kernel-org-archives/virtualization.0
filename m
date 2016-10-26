@@ -1,14 +1,16 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH 3/3] x86/vmware: Add paravirt sched clock
-Date: Wed, 26 Oct 2016 12:18:33 +0200 (CEST)
-Message-ID: <alpine.DEB.2.20.1610261213000.4983@nanos>
-References: <20161026052038.77042-1-amakhalov@vmware.com>
-	<20161026052640.77585-1-amakhalov@vmware.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RESEND PATCH v3 kernel 2/7] virtio-balloon: define new feature
+	bit and page bitmap head
+Date: Wed, 26 Oct 2016 18:35:54 +0300
+Message-ID: <20161026162123-mutt-send-email-mst@kernel.org>
+References: <1477031080-12616-1-git-send-email-liang.z.li@intel.com>
+	<1477031080-12616-3-git-send-email-liang.z.li@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161026052640.77585-1-amakhalov@vmware.com>
+Content-Disposition: inline
+In-Reply-To: <1477031080-12616-3-git-send-email-liang.z.li@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,63 +20,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alexey Makhalov <amakhalov@vmware.com>
-Cc: corbet@lwn.net, time-lords@vmware.com, linux-doc@vger.kernel.org, pv-drivers@vmware.com, x86@kernel.org, linux-kernel@vger.kernel.org, monitor-list@vmware.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, hpa@zytor.com, akataria@vmware.com
+To: Liang Li <liang.z.li@intel.com>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, amit.shah@redhat.com, dave.hansen@intel.com, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, virtualization@lists.linux-foundation.org, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 25 Oct 2016, Alexey Makhalov wrote:
-> no-vmw-sched-clock kernel parameter is added to switch back to the
-> native_sched_clock() implementation.
+On Fri, Oct 21, 2016 at 02:24:35PM +0800, Liang Li wrote:
+> Add a new feature which supports sending the page information with
+> a bitmap. The current implementation uses PFNs array, which is not
+> very efficient. Using bitmap can improve the performance of
+> inflating/deflating significantly
+> 
+> The page bitmap header will used to tell the host some information
+> about the page bitmap. e.g. the page size, page bitmap length and
+> start pfn.
+> 
+> Signed-off-by: Liang Li <liang.z.li@intel.com>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Cc: Paolo Bonzini <pbonzini@redhat.com>
+> Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
+> Cc: Amit Shah <amit.shah@redhat.com>
+> ---
+>  include/uapi/linux/virtio_balloon.h | 19 +++++++++++++++++++
+>  1 file changed, 19 insertions(+)
+> 
+> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
+> index 343d7dd..d3b182a 100644
+> --- a/include/uapi/linux/virtio_balloon.h
+> +++ b/include/uapi/linux/virtio_balloon.h
+> @@ -34,6 +34,7 @@
+>  #define VIRTIO_BALLOON_F_MUST_TELL_HOST	0 /* Tell before reclaiming pages */
+>  #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
+>  #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
+> +#define VIRTIO_BALLOON_F_PAGE_BITMAP	3 /* Send page info with bitmap */
+>  
+>  /* Size of a PFN in the balloon interface. */
+>  #define VIRTIO_BALLOON_PFN_SHIFT 12
+> @@ -82,4 +83,22 @@ struct virtio_balloon_stat {
+>  	__virtio64 val;
+>  } __attribute__((packed));
+>  
+> +/* Page bitmap header structure */
+> +struct balloon_bmap_hdr {
 
-You are not switching back. The parameter is used to disable the paravirt
-sched clock.
+Should be virtio_balloon.
 
->  #ifdef CONFIG_PARAVIRT
-> +static struct cyc2ns_data vmware_cyc2ns __ro_after_init;
-> +
-> +static int vmw_sched_clock __initdata = 1;
-> +static __init int setup_vmw_sched_clock(char *s)
+> +	/* Used to distinguish different request */
 
-Please stop glueing a variable to a function w/o a new line between
-them. It's just stopping the reading flow.
+different requests? what are the legal values?
 
-> +{
-> +	vmw_sched_clock = 0;
-> +	return 0;
-> +}
-> +early_param("no-vmw-sched-clock", setup_vmw_sched_clock);
-> +
-> +static unsigned long long vmware_sched_clock(void)
-> +{
-> +	unsigned long long ns;
-> +
-> +	ns = mul_u64_u32_shr(rdtsc(), vmware_cyc2ns.cyc2ns_mul,
-> +			     vmware_cyc2ns.cyc2ns_shift);
-> +	ns -= vmware_cyc2ns.cyc2ns_offset;
-> +	return ns;
-> +}
-> +
->  static void __init vmware_paravirt_ops_setup(void)
->  {
->  	pv_info.name = "VMware";
->  	pv_cpu_ops.io_delay = paravirt_nop;
-> +
-> +	if (vmware_tsc_khz && vmw_sched_clock) {
-> +		unsigned long long tsc_now = rdtsc();
-> +
-> +		clocks_calc_mult_shift(&vmware_cyc2ns.cyc2ns_mul,
-> +				       &vmware_cyc2ns.cyc2ns_shift,
-> +				       vmware_tsc_khz,
-> +				       NSEC_PER_MSEC, 0);
-> +		vmware_cyc2ns.cyc2ns_offset =
-> +			mul_u64_u32_shr(tsc_now, vmware_cyc2ns.cyc2ns_mul,
-> +					vmware_cyc2ns.cyc2ns_shift);
-> +
-> +		pv_time_ops.sched_clock = vmware_sched_clock;
-> +		pr_info("vmware: using sched offset of %llu ns\n",
+> +	__virtio16 cmd;
+> +	/* Shift width of page in the bitmap */
 
-Please use pr_fmt instead of adding the prefix to every print.
+In which units?
 
-Thanks,
+> +	__virtio16 page_shift;
+> +	/* flag used to identify different status */
 
-	tglx
+this comment does not seem to add any value.
+
+> +	__virtio16 flag;
+> +	/* Reserved */
+
+this too
+
+> +	__virtio16 reserved;
+> +	/* ID of the request */
+> +	__virtio64 req_id;
+> +	/* The pfn of 0 bit in the bitmap */
+> +	__virtio64 start_pfn;
+> +	/* The length of the bitmap, in bytes */
+
+Why not in bits?
+
+> +	__virtio64 bmap_len;
+> +};
+> +
+>  #endif /* _LINUX_VIRTIO_BALLOON_H */
+> -- 
+> 1.8.3.1
