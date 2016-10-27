@@ -1,14 +1,14 @@
-From: Tim Mann <mann@vmware.com>
-Subject: Re: [PATCH 2/3] x86/vmware: Add basic paravirt ops support
-Date: Wed, 26 Oct 2016 13:47:07 -0700
-Message-ID: <20161026134707.1e445c37__15893.8545654111$1477936058$gmane$org@manzanita>
-References: <20161026052038.77042-1-amakhalov@vmware.com>
-	<20161026052600.77535-1-amakhalov@vmware.com>
+From: Alexey Makhalov <amakhalov@vmware.com>
+Subject: [RESEND PATCH 3/3] x86/vmware: Add paravirt sched clock
+Date: Thu, 27 Oct 2016 12:44:54 -0700
+Message-ID: <20161027194454.9729-3-amakhalov__16619.2203331322$1477936081$gmane$org@vmware.com>
+References: <alpine.DEB.2.20.1610262247030.5013@nanos>
+	<20161027194454.9729-1-amakhalov@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161026052600.77535-1-amakhalov@vmware.com>
+In-Reply-To: <20161027194454.9729-1-amakhalov@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,64 +18,107 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alexey Makhalov <amakhalov@vmware.com>
-Cc: time-lords@vmware.com, corbet@lwn.net, pv-drivers@vmware.com, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, monitor-list@vmware.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, hpa@zytor.com, akataria@vmware.com, tglx@linutronix.de
+To: corbet@lwn.net, akataria@vmware.com, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, x86@kernel.org
+Cc: pv-drivers@vmware.com, virtualization@lists.linux-foundation.org, Alexey Makhalov <amakhalov@vmware.com>, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-I believe our trademark guidelines say we aren't supposed to use VMware as a
-noun to mean a product, only to mean the company.  So we can say "running on
-VMware ESXi" or "running in a VMware virtual machine", but "running on VMware"
-is wrong.  There is supposedly some good legal reason for this related to
-keeping our trademark.
+Set pv_time_ops.sched_clock to vmware_sched_clock(). It is simplified
+version of native_sched_clock() without ring buffer of mult/shift/offset
+triplets and preempt toggling.
+Since VMware hypervisor provides constant tsc we can use constant
+mult/shift/offset triplet calculated at boot time.
 
-On Tue, 25 Oct 2016 22:26:00 -0700, Alexey Makhalov <amakhalov@vmware.com>
-wrote:
-> Add basic paravirt support:
->  1. set pv_info.name to "VMware" to have proper boot log message
-> 	Booting paravirtualized kernel on VMware
->     instead of "... on bare hardware"
->  2. set pv_cpu_ops.io_delay() to empty function - paravirt_nop() to
->     avoid vm-exits on IO delays.
-> 
-> Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
-> Acked-by: Alok N Kataria <akataria@vmware.com>
-> ---
->  arch/x86/kernel/cpu/vmware.c | 12 ++++++++++++
->  1 file changed, 12 insertions(+)
-> 
-> diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-> index 480790f..e3fb320 100644
-> --- a/arch/x86/kernel/cpu/vmware.c
-> +++ b/arch/x86/kernel/cpu/vmware.c
-> @@ -61,6 +61,16 @@ static unsigned long vmware_get_tsc_khz(void)
->  	return vmware_tsc_khz;
->  }
->  
-> +#ifdef CONFIG_PARAVIRT
-> +static void __init vmware_paravirt_ops_setup(void)
-> +{
-> +	pv_info.name = "VMware";
-> +	pv_cpu_ops.io_delay = paravirt_nop;
-> +}
-> +#else
-> +#define vmware_paravirt_ops_setup() do {} while (0)
-> +#endif
-> +
->  static void __init vmware_platform_setup(void)
->  {
->  	uint32_t eax, ebx, ecx, edx;
-> @@ -94,6 +104,8 @@ static void __init vmware_platform_setup(void)
->  	} else {
->  		pr_warn("Failed to get TSC freq from the hypervisor\n");
->  	}
-> +
-> +	vmware_paravirt_ops_setup();
->  }
->  
->  /*
+no-vmw-sched-clock kernel parameter is added to disable the paravirt
+sched clock.
 
+Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
+Acked-by: Alok N Kataria <akataria@vmware.com>
+---
+ Documentation/kernel-parameters.txt |  4 ++++
+ arch/x86/kernel/cpu/vmware.c        | 41 +++++++++++++++++++++++++++++++++++++
+ 2 files changed, 45 insertions(+)
 
-
+diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
+index 37babf9..b3b2ec0 100644
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -2754,6 +2754,10 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
+ 	no-kvmapf	[X86,KVM] Disable paravirtualized asynchronous page
+ 			fault handling.
+ 
++	no-vmw-sched-clock
++			[X86,PV_OPS] Disable paravirtualized VMware scheduler
++			clock and use the default one.
++
+ 	no-steal-acc    [X86,KVM] Disable paravirtualized steal time accounting.
+ 			steal time is computed, but won't influence scheduler
+ 			behaviour
+diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
+index 098a524..9b29511 100644
+--- a/arch/x86/kernel/cpu/vmware.c
++++ b/arch/x86/kernel/cpu/vmware.c
+@@ -24,10 +24,15 @@
+ #include <linux/dmi.h>
+ #include <linux/init.h>
+ #include <linux/export.h>
++#include <linux/clocksource.h>
+ #include <asm/div64.h>
+ #include <asm/x86_init.h>
+ #include <asm/hypervisor.h>
+ #include <asm/apic.h>
++#include <asm/timer.h>
++
++#undef pr_fmt
++#define pr_fmt(fmt)	"vmware: " fmt
+ 
+ #define CPUID_VMWARE_INFO_LEAF	0x40000000
+ #define VMWARE_HYPERVISOR_MAGIC	0x564D5868
+@@ -62,10 +67,46 @@ static unsigned long vmware_get_tsc_khz(void)
+ }
+ 
+ #ifdef CONFIG_PARAVIRT
++static struct cyc2ns_data vmware_cyc2ns __ro_after_init;
++static int vmw_sched_clock __initdata = 1;
++
++static __init int setup_vmw_sched_clock(char *s)
++{
++	vmw_sched_clock = 0;
++	return 0;
++}
++early_param("no-vmw-sched-clock", setup_vmw_sched_clock);
++
++static unsigned long long vmware_sched_clock(void)
++{
++	unsigned long long ns;
++
++	ns = mul_u64_u32_shr(rdtsc(), vmware_cyc2ns.cyc2ns_mul,
++			     vmware_cyc2ns.cyc2ns_shift);
++	ns -= vmware_cyc2ns.cyc2ns_offset;
++	return ns;
++}
++
+ static void __init vmware_paravirt_ops_setup(void)
+ {
+ 	pv_info.name = "VMware hypervisor";
+ 	pv_cpu_ops.io_delay = paravirt_nop;
++
++	if (vmware_tsc_khz && vmw_sched_clock) {
++		unsigned long long tsc_now = rdtsc();
++
++		clocks_calc_mult_shift(&vmware_cyc2ns.cyc2ns_mul,
++				       &vmware_cyc2ns.cyc2ns_shift,
++				       vmware_tsc_khz,
++				       NSEC_PER_MSEC, 0);
++		vmware_cyc2ns.cyc2ns_offset =
++			mul_u64_u32_shr(tsc_now, vmware_cyc2ns.cyc2ns_mul,
++					vmware_cyc2ns.cyc2ns_shift);
++
++		pv_time_ops.sched_clock = vmware_sched_clock;
++		pr_info("using sched offset of %llu ns\n",
++			vmware_cyc2ns.cyc2ns_offset);
++	}
+ }
+ #else
+ #define vmware_paravirt_ops_setup() do {} while (0)
 -- 
-Tim Mann                  | work: mann@vmware.com  home: tim@tim-mann.org
-VMware Sr. Staff Engineer | http://www.vmware.com  http://tim-mann.org
+2.10.1
