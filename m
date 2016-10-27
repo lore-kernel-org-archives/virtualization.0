@@ -1,18 +1,16 @@
-From: "Li, Liang Z" <liang.z.li@intel.com>
-Subject: RE: [RESEND PATCH v3 kernel 0/7] Extend virtio-balloon for fast
-	(de)inflating & fast live migration
-Date: Thu, 27 Oct 2016 00:51:13 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E3A0FEBC7@shsmsx102.ccr.corp.intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RESEND PATCH v3 kernel 6/7] virtio-balloon: define feature bit
+	and head for misc virt queue
+Date: Thu, 27 Oct 2016 21:29:38 +0300
+Message-ID: <20161027211928-mutt-send-email-mst__2486.95619307018$1477593023$gmane$org@kernel.org>
 References: <1477031080-12616-1-git-send-email-liang.z.li@intel.com>
-	<580A4F81.60201@intel.com>
-	<F2CBF3009FA73547804AE4C663CAB28E3A0FD034@shsmsx102.ccr.corp.intel.com>
-	<5810F1C7.4060807@intel.com>
+	<1477031080-12616-7-git-send-email-liang.z.li@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5810F1C7.4060807@intel.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1477031080-12616-7-git-send-email-liang.z.li@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,38 +20,90 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Hansen, Dave" <dave.hansen@intel.com>, "mst@redhat.com" <mst@redhat.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>
+To: Liang Li <liang.z.li@intel.com>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, amit.shah@redhat.com, dave.hansen@intel.com, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, virtualization@lists.linux-foundation.org, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-> On 10/26/2016 03:06 AM, Li, Liang Z wrote:
-> > I am working on Dave's new bitmap schema, I have finished the part of
-> > getting the 'hybrid scheme bitmap' and found the complexity was more
-> > than I expected. The main issue is more memory is required to save the
-> > 'hybrid scheme bitmap' beside that used to save the raw page bitmap,
-> > for the worst case, the memory required is 3 times than that in the
-> > previous implementation.
-> 
-> Really?  Could you please describe the scenario where this occurs?
-> > I am wondering if I should continue, as an alternative solution, how
-> > about using PFNs array when inflating/deflating only a few pages?
-> > Things will be much more simple.
-> 
-> Yes, using pfn lists is more efficient than using bitmaps for sparse bitmaps.
-> Yes, there will be cases where it is preferable to just use pfn lists vs. any kind
-> of bitmap.
-> 
-> But, what does it matter?  At least with your current scheme where we go
-> out and collect get_unused_pages(), we do the allocation up front.  The
-> space efficiency doesn't matter at all for small sizes since we do the constant-
-> size allocation *anyway*.
-> 
-> I'm also pretty sure you can pack the pfn and page order into a single 64-bit
-> word and have no bitmap for a given record.  That would make it pack just as
-> well as the old pfns alone.  Right?
+On Fri, Oct 21, 2016 at 02:24:39PM +0800, Liang Li wrote:
+> Define a new feature bit which supports a new virtual queue. This
+> new virtual qeuque is for information exchange between hypervisor
+> and guest. The VMM hypervisor can make use of this virtual queue
+> to request the guest do some operations, e.g. drop page cache,
+> synchronize file system, etc.
 
-Yes, thanks for reminding, I am using 128 bit now, I will change it to 64 bit.
-Let me finish the v4 first.
+Can we call this something more informative pls?
+host request vq?
 
-Thanks!
-Liang
+> And the VMM hypervisor can get some
+> of guest's runtime information through this virtual queue, e.g. the
+> guest's unused page information, which can be used for live migration
+> optimization.
+
+I guess the idea is that guest gets requests from host and
+then responds to them on this vq. Pls document.
+
+> 
+> Signed-off-by: Liang Li <liang.z.li@intel.com>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Cc: Paolo Bonzini <pbonzini@redhat.com>
+> Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
+> Cc: Amit Shah <amit.shah@redhat.com>
+> ---
+>  include/uapi/linux/virtio_balloon.h | 22 ++++++++++++++++++++++
+>  1 file changed, 22 insertions(+)
+> 
+> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
+> index d3b182a..3a9d633 100644
+> --- a/include/uapi/linux/virtio_balloon.h
+> +++ b/include/uapi/linux/virtio_balloon.h
+> @@ -35,6 +35,7 @@
+>  #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
+>  #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
+>  #define VIRTIO_BALLOON_F_PAGE_BITMAP	3 /* Send page info with bitmap */
+> +#define VIRTIO_BALLOON_F_MISC_VQ	4 /* Misc info virtqueue */
+>  
+>  /* Size of a PFN in the balloon interface. */
+>  #define VIRTIO_BALLOON_PFN_SHIFT 12
+> @@ -101,4 +102,25 @@ struct balloon_bmap_hdr {
+>  	__virtio64 bmap_len;
+>  };
+>  
+> +enum balloon_req_id {
+> +	/* Get unused pages information */
+
+unused page information
+
+
+> +	BALLOON_GET_UNUSED_PAGES,
+> +};
+> +
+> +enum balloon_flag {
+> +	/* Have more data for a request */
+> +	BALLOON_FLAG_CONT,
+> +	/* No more data for a request */
+> +	BALLOON_FLAG_DONE,
+> +};
+
+is this a bit number or a value? Pls name consistently.
+
+> +
+> +struct balloon_req_hdr {
+> +	/* Used to distinguish different request */
+
+requests
+
+> +	__virtio16 cmd;
+> +	/* Reserved */
+> +	__virtio16 reserved[3];
+> +	/* Request parameter */
+> +	__virtio64 param;
+> +};
+> +
+>  #endif /* _LINUX_VIRTIO_BALLOON_H */
+
+
+Prefix structs with virtio_ as well pls.
+Also, wouldn't it simplify code if we use __le for new structs?
+
+> -- 
+> 1.8.3.1
