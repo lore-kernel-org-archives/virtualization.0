@@ -1,11 +1,12 @@
 From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v6 10/11] x86, xen: support vcpu preempted check
-Date: Fri, 28 Oct 2016 04:11:26 -0400
-Message-ID: <1477642287-24104-11-git-send-email-xinhui.pan__26248.4121173204$1477628875$gmane$org@linux.vnet.ibm.com>
+Subject: [PATCH v6 11/11] Documentation: virtual: kvm: Support vcpu preempted
+	check
+Date: Fri, 28 Oct 2016 04:11:27 -0400
+Message-ID: <1477642287-24104-12-git-send-email-xinhui.pan__33153.2967197292$1477628880$gmane$org@linux.vnet.ibm.com>
 References: <1477642287-24104-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <1477642287-24104-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
@@ -21,42 +22,33 @@ To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@
 Cc: kernellwp@gmail.com, jgross@suse.com, David.Laight@ACULAB.COM, rkrcmar@redhat.com, peterz@infradead.org, benh@kernel.crashing.org, will.deacon@arm.com, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, boqun.feng@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Juergen Gross <jgross@suse.com>
-
-Support the vcpu_is_preempted() functionality under Xen. This will
-enhance lock performance on overcommitted hosts (more runnable vcpus
-than physical cpus in the system) as doing busy waits for preempted
-vcpus will hurt system performance far worse than early yielding.
-
-A quick test (4 vcpus on 1 physical cpu doing a parallel build job
-with "make -j 8") reduced system time by about 5% with this patch.
-
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
----
- arch/x86/xen/spinlock.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
-index 3d6e006..74756bb 100644
---- a/arch/x86/xen/spinlock.c
-+++ b/arch/x86/xen/spinlock.c
-@@ -114,7 +114,6 @@ void xen_uninit_lock_cpu(int cpu)
- 	per_cpu(irq_name, cpu) = NULL;
- }
- 
--
- /*
-  * Our init of PV spinlocks is split in two init functions due to us
-  * using paravirt patching and jump labels patching and having to do
-@@ -137,6 +136,8 @@ void __init xen_init_spinlocks(void)
- 	pv_lock_ops.queued_spin_unlock = PV_CALLEE_SAVE(__pv_queued_spin_unlock);
- 	pv_lock_ops.wait = xen_qlock_wait;
- 	pv_lock_ops.kick = xen_qlock_kick;
-+
-+	pv_lock_ops.vcpu_is_preempted = xen_vcpu_stolen;
- }
- 
- /*
--- 
-2.4.11
+Q29tbWl0ICgieDg2LCBrdm06IHN1cHBvcnQgdmNwdSBwcmVlbXB0ZWQgY2hlY2siKSBhZGQgb25l
+IGZpZWxkICJfX3U4CnByZWVtcHRlZCIgaW50byBzdHJ1Y3Qga3ZtX3N0ZWFsX3RpbWUuIFRoaXMg
+ZmllbGQgdGVsbHMgaWYgb25lIHZjcHUgaXMKcnVubmluZyBvciBub3QuCgpJdCBpcyB6ZXJvIGlm
+IDEpIHNvbWUgb2xkIEtWTSBkZW9zIG5vdCBzdXBwb3J0IHRoaXMgZmlsZWQuIDIpIHRoZSB2Y3B1
+IGlzCm5vdCBwcmVlbXB0ZWQuIE90aGVyIHZhbHVlcyBtZWFucyB0aGUgdmNwdSBoYXMgYmVlbiBw
+cmVlbXB0ZWQuCgpTaWduZWQtb2ZmLWJ5OiBQYW4gWGluaHVpIDx4aW5odWkucGFuQGxpbnV4LnZu
+ZXQuaWJtLmNvbT4KQWNrZWQtYnk6IFJhZGltIEtyxI1tw6HFmSA8cmtyY21hckByZWRoYXQuY29t
+PgotLS0KIERvY3VtZW50YXRpb24vdmlydHVhbC9rdm0vbXNyLnR4dCB8IDkgKysrKysrKystCiAx
+IGZpbGUgY2hhbmdlZCwgOCBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0
+IGEvRG9jdW1lbnRhdGlvbi92aXJ0dWFsL2t2bS9tc3IudHh0IGIvRG9jdW1lbnRhdGlvbi92aXJ0
+dWFsL2t2bS9tc3IudHh0CmluZGV4IDJhNzFjOGYuLmFiMmFiNzYgMTAwNjQ0Ci0tLSBhL0RvY3Vt
+ZW50YXRpb24vdmlydHVhbC9rdm0vbXNyLnR4dAorKysgYi9Eb2N1bWVudGF0aW9uL3ZpcnR1YWwv
+a3ZtL21zci50eHQKQEAgLTIwOCw3ICsyMDgsOSBAQCBNU1JfS1ZNX1NURUFMX1RJTUU6IDB4NGI1
+NjRkMDMKIAkJX191NjQgc3RlYWw7CiAJCV9fdTMyIHZlcnNpb247CiAJCV9fdTMyIGZsYWdzOwot
+CQlfX3UzMiBwYWRbMTJdOworCQlfX3U4ICBwcmVlbXB0ZWQ7CisJCV9fdTggIHU4X3BhZFszXTsK
+KwkJX191MzIgcGFkWzExXTsKIAl9CiAKIAl3aG9zZSBkYXRhIHdpbGwgYmUgZmlsbGVkIGluIGJ5
+IHRoZSBoeXBlcnZpc29yIHBlcmlvZGljYWxseS4gT25seSBvbmUKQEAgLTIzMiw2ICsyMzQsMTEg
+QEAgTVNSX0tWTV9TVEVBTF9USU1FOiAweDRiNTY0ZDAzCiAJCW5hbm9zZWNvbmRzLiBUaW1lIGR1
+cmluZyB3aGljaCB0aGUgdmNwdSBpcyBpZGxlLCB3aWxsIG5vdCBiZQogCQlyZXBvcnRlZCBhcyBz
+dGVhbCB0aW1lLgogCisJCXByZWVtcHRlZDogaW5kaWNhdGUgdGhlIFZDUFUgd2hvIG93bnMgdGhp
+cyBzdHJ1Y3QgaXMgcnVubmluZyBvcgorCQlub3QuIE5vbi16ZXJvIHZhbHVlcyBtZWFuIHRoZSBW
+Q1BVIGhhcyBiZWVuIHByZWVtcHRlZC4gWmVybworCQltZWFucyB0aGUgVkNQVSBpcyBub3QgcHJl
+ZW1wdGVkLiBOT1RFLCBpdCBpcyBhbHdheXMgemVybyBpZiB0aGUKKwkJdGhlIGh5cGVydmlzb3Ig
+ZG9lc24ndCBzdXBwb3J0IHRoaXMgZmllbGQuCisKIE1TUl9LVk1fRU9JX0VOOiAweDRiNTY0ZDA0
+CiAJZGF0YTogQml0IDAgaXMgMSB3aGVuIFBWIGVuZCBvZiBpbnRlcnJ1cHQgaXMgZW5hYmxlZCBv
+biB0aGUgdmNwdTsgMAogCXdoZW4gZGlzYWJsZWQuICBCaXQgMSBpcyByZXNlcnZlZCBhbmQgbXVz
+dCBiZSB6ZXJvLiAgV2hlbiBQViBlbmQgb2YKLS0gCjIuNC4xMQoKX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
+ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
+bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
