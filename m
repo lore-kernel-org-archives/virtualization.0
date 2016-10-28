@@ -1,7 +1,8 @@
 From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v6 02/11] locking/osq: Drop the overload of osq_lock()
-Date: Fri, 28 Oct 2016 04:11:18 -0400
-Message-ID: <1477642287-24104-3-git-send-email-xinhui.pan__17229.4556200088$1477628772$gmane$org@linux.vnet.ibm.com>
+Subject: [PATCH v6 01/11] kernel/sched: introduce vcpu preempted check
+	interface
+Date: Fri, 28 Oct 2016 04:11:17 -0400
+Message-ID: <1477642287-24104-2-git-send-email-xinhui.pan__39982.8134607107$1477628774$gmane$org@linux.vnet.ibm.com>
 References: <1477642287-24104-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,73 +22,44 @@ To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@
 Cc: kernellwp@gmail.com, jgross@suse.com, David.Laight@ACULAB.COM, rkrcmar@redhat.com, peterz@infradead.org, benh@kernel.crashing.org, will.deacon@arm.com, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, boqun.feng@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-An over-committed guest with more vCPUs than pCPUs has a heavy overload in
-osq_lock().
+This patch support to fix lock holder preemption issue.
 
-This is because vCPU A hold the osq lock and yield out, vCPU B wait per_cpu
-node->locked to be set. IOW, vCPU B wait vCPU A to run and unlock the osq
-lock.
+For kernel users, we could use bool vcpu_is_preempted(int cpu) to detech if
+one vcpu is preempted or not.
 
-Kernel has an interface bool vcpu_is_preempted(int cpu) to see if a vCPU is
-currently running or not. So break the spin loops on true condition.
+The default implementation is a macro defined by false. So compiler can
+wrap it out if arch dose not support such vcpu pteempted check.
 
-test case:
-perf record -a perf bench sched messaging -g 400 -p && perf report
-
-before patch:
-18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
-12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
- 5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
- 3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
- 3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
- 3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
- 2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
-
-after patch:
-20.68%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner
- 8.45%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
- 4.12%  sched-messaging  [kernel.vmlinux]  [k] system_call
- 3.01%  sched-messaging  [kernel.vmlinux]  [k] system_call_common
- 2.83%  sched-messaging  [kernel.vmlinux]  [k] copypage_power7
- 2.64%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
- 2.00%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
-
-Suggested-by: Boqun Feng <boqun.feng@gmail.com>
+Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Tested-by: Juergen Gross <jgross@suse.com>
 ---
- kernel/locking/osq_lock.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ include/linux/sched.h | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/kernel/locking/osq_lock.c b/kernel/locking/osq_lock.c
-index 05a3785..39d1385 100644
---- a/kernel/locking/osq_lock.c
-+++ b/kernel/locking/osq_lock.c
-@@ -21,6 +21,11 @@ static inline int encode_cpu(int cpu_nr)
- 	return cpu_nr + 1;
- }
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 348f51b..44c1ce7 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -3506,6 +3506,18 @@ static inline void set_task_cpu(struct task_struct *p, unsigned int cpu)
  
-+static inline int node_cpu(struct optimistic_spin_node *node)
-+{
-+	return node->cpu - 1;
-+}
+ #endif /* CONFIG_SMP */
+ 
++/*
++ * In order to deal with a various lock holder preemption issues provide an
++ * interface to see if a vCPU is currently running or not.
++ *
++ * This allows us to terminate optimistic spin loops and block, analogous to
++ * the native optimistic spin heuristic of testing if the lock owner task is
++ * running or not.
++ */
++#ifndef vcpu_is_preempted
++#define vcpu_is_preempted(cpu)	false
++#endif
 +
- static inline struct optimistic_spin_node *decode_cpu(int encoded_cpu_val)
- {
- 	int cpu_nr = encoded_cpu_val - 1;
-@@ -118,8 +123,11 @@ bool osq_lock(struct optimistic_spin_queue *lock)
- 	while (!READ_ONCE(node->locked)) {
- 		/*
- 		 * If we need to reschedule bail... so we can block.
-+		 * Use vcpu_is_preempted to detech lock holder preemption issue
-+		 * and break. vcpu_is_preempted is a macro defined by false if
-+		 * arch does not support vcpu preempted check,
- 		 */
--		if (need_resched())
-+		if (need_resched() || vcpu_is_preempted(node_cpu(node->prev)))
- 			goto unqueue;
+ extern long sched_setaffinity(pid_t pid, const struct cpumask *new_mask);
+ extern long sched_getaffinity(pid_t pid, struct cpumask *mask);
  
- 		cpu_relax_lowlatency();
 -- 
 2.4.11
