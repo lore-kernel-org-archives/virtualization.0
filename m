@@ -1,7 +1,7 @@
 From: Alexey Makhalov <amakhalov@vmware.com>
-Subject: [PATCH v3 1/3] x86/vmware: Use tsc_khz value for calibrate_cpu()
-Date: Fri, 28 Oct 2016 00:54:30 -0700
-Message-ID: <20161028075432.90579-2-amakhalov__36052.1303992302$1477936117$gmane$org@vmware.com>
+Subject: [PATCH v3 3/3] x86/vmware: Add paravirt sched clock
+Date: Fri, 28 Oct 2016 00:54:32 -0700
+Message-ID: <20161028075432.90579-4-amakhalov__9302.86585721678$1477936121$gmane$org@vmware.com>
 References: <alpine.DEB.2.20.1610272244060.4913@nanos>
 	<20161028075432.90579-1-amakhalov@vmware.com>
 Mime-Version: 1.0
@@ -22,33 +22,109 @@ To: corbet@lwn.net, akataria@vmware.com, tglx@linutronix.de, mingo@redhat.com, h
 Cc: pv-drivers@vmware.com, virtualization@lists.linux-foundation.org, Alexey Makhalov <amakhalov@vmware.com>, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Commit aa297292d708 ("x86/tsc: Enumerate SKL cpu_khz and tsc_khz via
-CPUID") separated the calibration mechanisms for cpu_khz and tsc_khz.
+The default sched_clock() implementation is native_sched_clock(). It
+contains code to handle non constant frequency TSCs, which creates
+overhead for systems with constant frequency TSCs.
 
-Since the vmware hypervisor provides a constant frequency TSC to the guest,
-this change can lead to divergence between the tsc and the cpu frequency
-after vmotion, which might confuse the user.
+The vmware hypervisor guarantees a constant frequency TSC, so
+native_sched_clock() is not required and slower than a dedicated function
+which operates with one time calculated conversion factors.
 
-Solve this by overriding the x86 platform cpu calibration callback with the
-vmware specific tsc calibration function.
+Calculate the conversion factors at boot time from the tsc frequency and
+install an optimized sched_clock() function via paravirt ops.
+
+The paravirtualized clock can be disabled on the kernel command line with
+the new 'no-vmw-sched-clock' option.
 
 Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
 Acked-by: Alok N Kataria <akataria@vmware.com>
 ---
- arch/x86/kernel/cpu/vmware.c | 1 +
- 1 file changed, 1 insertion(+)
+ Documentation/kernel-parameters.txt |  4 ++++
+ arch/x86/kernel/cpu/vmware.c        | 42 +++++++++++++++++++++++++++++++++++++
+ 2 files changed, 46 insertions(+)
 
+diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
+index 37babf9..b3b2ec0 100644
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -2754,6 +2754,10 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
+ 	no-kvmapf	[X86,KVM] Disable paravirtualized asynchronous page
+ 			fault handling.
+ 
++	no-vmw-sched-clock
++			[X86,PV_OPS] Disable paravirtualized VMware scheduler
++			clock and use the default one.
++
+ 	no-steal-acc    [X86,KVM] Disable paravirtualized steal time accounting.
+ 			steal time is computed, but won't influence scheduler
+ 			behaviour
 diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 4e34da4b..480790f 100644
+index 098a524..cdbe38b 100644
 --- a/arch/x86/kernel/cpu/vmware.c
 +++ b/arch/x86/kernel/cpu/vmware.c
-@@ -83,6 +83,7 @@ static void __init vmware_platform_setup(void)
+@@ -24,10 +24,15 @@
+ #include <linux/dmi.h>
+ #include <linux/init.h>
+ #include <linux/export.h>
++#include <linux/clocksource.h>
+ #include <asm/div64.h>
+ #include <asm/x86_init.h>
+ #include <asm/hypervisor.h>
+ #include <asm/apic.h>
++#include <asm/timer.h>
++
++#undef pr_fmt
++#define pr_fmt(fmt)	"vmware: " fmt
  
- 		vmware_tsc_khz = tsc_khz;
- 		x86_platform.calibrate_tsc = vmware_get_tsc_khz;
-+		x86_platform.calibrate_cpu = vmware_get_tsc_khz;
+ #define CPUID_VMWARE_INFO_LEAF	0x40000000
+ #define VMWARE_HYPERVISOR_MAGIC	0x564D5868
+@@ -62,10 +67,47 @@ static unsigned long vmware_get_tsc_khz(void)
+ }
  
- #ifdef CONFIG_X86_LOCAL_APIC
- 		/* Skip lapic calibration since we know the bus frequency. */
+ #ifdef CONFIG_PARAVIRT
++static struct cyc2ns_data vmware_cyc2ns __ro_after_init;
++static int vmw_sched_clock __initdata = 1;
++
++static __init int setup_vmw_sched_clock(char *s)
++{
++	vmw_sched_clock = 0;
++	return 0;
++}
++early_param("no-vmw-sched-clock", setup_vmw_sched_clock);
++
++static unsigned long long vmware_sched_clock(void)
++{
++	unsigned long long ns;
++
++	ns = mul_u64_u32_shr(rdtsc(), vmware_cyc2ns.cyc2ns_mul,
++			     vmware_cyc2ns.cyc2ns_shift);
++	ns -= vmware_cyc2ns.cyc2ns_offset;
++	return ns;
++}
++
++static void __init vmware_sched_clock_setup(void)
++{
++	struct cyc2ns_data *d = &vmware_cyc2ns;
++	unsigned long long tsc_now = rdtsc();
++
++	clocks_calc_mult_shift(&d->cyc2ns_mul, &d->cyc2ns_shift,
++			       vmware_tsc_khz, NSEC_PER_MSEC, 0);
++	d->cyc2ns_offset = mul_u64_u32_shr(tsc_now, d->cyc2ns_mul,
++					   d->cyc2ns_shift);
++
++	pv_time_ops.sched_clock = vmware_sched_clock;
++	pr_info("using sched offset of %llu ns\n", d->cyc2ns_offset);
++}
++
+ static void __init vmware_paravirt_ops_setup(void)
+ {
+ 	pv_info.name = "VMware hypervisor";
+ 	pv_cpu_ops.io_delay = paravirt_nop;
++
++	if (vmware_tsc_khz && vmw_sched_clock)
++		vmware_sched_clock_setup();
+ }
+ #else
+ #define vmware_paravirt_ops_setup() do {} while (0)
 -- 
 2.10.1
