@@ -1,11 +1,14 @@
 From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v6 00/11] implement vcpu preempted check
-Date: Fri, 28 Oct 2016 04:11:16 -0400
-Message-ID: <1477642287-24104-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v6 03/11] kernel/locking: Drop the overload of {mutex,
+	rwsem}_spin_on_owner
+Date: Fri, 28 Oct 2016 04:11:19 -0400
+Message-ID: <1477642287-24104-4-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+References: <1477642287-24104-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1477642287-24104-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,119 +22,108 @@ To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@
 Cc: kernellwp@gmail.com, jgross@suse.com, David.Laight@ACULAB.COM, rkrcmar@redhat.com, peterz@infradead.org, benh@kernel.crashing.org, will.deacon@arm.com, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, boqun.feng@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-change from v5:
-	spilt x86/kvm patch into guest/host part.
-	introduce kvm_write_guest_offset_cached.
-	fix some typos.
-	rebase patch onto 4.9.2
-change from v4:
-	spilt x86 kvm vcpu preempted check into two patches.
-	add documentation patch.
-	add x86 vcpu preempted check patch under xen
-	add s390 vcpu preempted check patch 
-change from v3:
-	add x86 vcpu preempted check patch
-change from v2:
-	no code change, fix typos, update some comments
-change from v1:
-	a simplier definition of default vcpu_is_preempted
-	skip mahcine type check on ppc, and add config. remove dedicated macro.
-	add one patch to drop overload of rwsem_spin_on_owner and mutex_spin_on_owner. 
-	add more comments
-	thanks boqun and Peter's suggestion.
+An over-committed guest with more vCPUs than pCPUs has a heavy overload in
+the two spin_on_owner. This blames on the lock holder preemption issue.
 
-This patch set aims to fix lock holder preemption issues.
+Kernel has an interface bool vcpu_is_preempted(int cpu) to see if a vCPU is
+currently running or not. So break the spin loops on true condition.
 
 test-case:
 perf record -a perf bench sched messaging -g 400 -p && perf report
 
-18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
-12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
- 5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
- 3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
- 3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
- 3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
- 2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
+before patch:
+20.68%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner
+ 8.45%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
+ 4.12%  sched-messaging  [kernel.vmlinux]  [k] system_call
+ 3.01%  sched-messaging  [kernel.vmlinux]  [k] system_call_common
+ 2.83%  sched-messaging  [kernel.vmlinux]  [k] copypage_power7
+ 2.64%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
+ 2.00%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
 
-We introduce interface bool vcpu_is_preempted(int cpu) and use it in some spin
-loops of osq_lock, rwsem_spin_on_owner and mutex_spin_on_owner.
-These spin_on_onwer variant also cause rcu stall before we apply this patch set
+after patch:
+ 9.99%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
+ 5.28%  sched-messaging  [unknown]         [H] 0xc0000000000768e0
+ 4.27%  sched-messaging  [kernel.vmlinux]  [k] __copy_tofrom_user_power7
+ 3.77%  sched-messaging  [kernel.vmlinux]  [k] copypage_power7
+ 3.24%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
+ 3.02%  sched-messaging  [kernel.vmlinux]  [k] system_call
+ 2.69%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
 
-We also have observed some performace improvements in uninx benchmark tests.
+Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Tested-by: Juergen Gross <jgross@suse.com>
+---
+ kernel/locking/mutex.c      | 15 +++++++++++++--
+ kernel/locking/rwsem-xadd.c | 16 +++++++++++++---
+ 2 files changed, 26 insertions(+), 5 deletions(-)
 
-PPC test result:
-1 copy - 0.94%
-2 copy - 7.17%
-4 copy - 11.9%
-8 copy -  3.04%
-16 copy - 15.11%
-
-details below:
-Without patch:
-
-1 copy - File Write 4096 bufsize 8000 maxblocks      2188223.0 KBps  (30.0 s, 1 samples)
-2 copy - File Write 4096 bufsize 8000 maxblocks      1804433.0 KBps  (30.0 s, 1 samples)
-4 copy - File Write 4096 bufsize 8000 maxblocks      1237257.0 KBps  (30.0 s, 1 samples)
-8 copy - File Write 4096 bufsize 8000 maxblocks      1032658.0 KBps  (30.0 s, 1 samples)
-16 copy - File Write 4096 bufsize 8000 maxblocks       768000.0 KBps  (30.1 s, 1 samples)
-
-With patch: 
-
-1 copy - File Write 4096 bufsize 8000 maxblocks      2209189.0 KBps  (30.0 s, 1 samples)
-2 copy - File Write 4096 bufsize 8000 maxblocks      1943816.0 KBps  (30.0 s, 1 samples)
-4 copy - File Write 4096 bufsize 8000 maxblocks      1405591.0 KBps  (30.0 s, 1 samples)
-8 copy - File Write 4096 bufsize 8000 maxblocks      1065080.0 KBps  (30.0 s, 1 samples)
-16 copy - File Write 4096 bufsize 8000 maxblocks       904762.0 KBps  (30.0 s, 1 samples)
-
-X86 test result:
-	test-case			after-patch	  before-patch
-Execl Throughput                       |    18307.9 lps  |    11701.6 lps 
-File Copy 1024 bufsize 2000 maxblocks  |  1352407.3 KBps |   790418.9 KBps
-File Copy 256 bufsize 500 maxblocks    |   367555.6 KBps |   222867.7 KBps
-File Copy 4096 bufsize 8000 maxblocks  |  3675649.7 KBps |  1780614.4 KBps
-Pipe Throughput                        | 11872208.7 lps  | 11855628.9 lps 
-Pipe-based Context Switching           |  1495126.5 lps  |  1490533.9 lps 
-Process Creation                       |    29881.2 lps  |    28572.8 lps 
-Shell Scripts (1 concurrent)           |    23224.3 lpm  |    22607.4 lpm 
-Shell Scripts (8 concurrent)           |     3531.4 lpm  |     3211.9 lpm 
-System Call Overhead                   | 10385653.0 lps  | 10419979.0 lps 
-
-Christian Borntraeger (1):
-  s390/spinlock: Provide vcpu_is_preempted
-
-Juergen Gross (1):
-  x86, xen: support vcpu preempted check
-
-Pan Xinhui (9):
-  kernel/sched: introduce vcpu preempted check interface
-  locking/osq: Drop the overload of osq_lock()
-  kernel/locking: Drop the overload of {mutex,rwsem}_spin_on_owner
-  powerpc/spinlock: support vcpu preempted check
-  x86, paravirt: Add interface to support kvm/xen vcpu preempted check
-  KVM: Introduce kvm_write_guest_offset_cached
-  x86, kvm/x86.c: support vcpu preempted check
-  x86, kernel/kvm.c: support vcpu preempted check
-  Documentation: virtual: kvm: Support vcpu preempted check
-
- Documentation/virtual/kvm/msr.txt     |  9 ++++++++-
- arch/powerpc/include/asm/spinlock.h   |  8 ++++++++
- arch/s390/include/asm/spinlock.h      |  8 ++++++++
- arch/s390/kernel/smp.c                |  9 +++++++--
- arch/s390/lib/spinlock.c              | 25 ++++++++-----------------
- arch/x86/include/asm/paravirt_types.h |  2 ++
- arch/x86/include/asm/spinlock.h       |  8 ++++++++
- arch/x86/include/uapi/asm/kvm_para.h  |  4 +++-
- arch/x86/kernel/kvm.c                 | 12 ++++++++++++
- arch/x86/kernel/paravirt-spinlocks.c  |  6 ++++++
- arch/x86/kvm/x86.c                    | 16 ++++++++++++++++
- arch/x86/xen/spinlock.c               |  3 ++-
- include/linux/kvm_host.h              |  2 ++
- include/linux/sched.h                 | 12 ++++++++++++
- kernel/locking/mutex.c                | 15 +++++++++++++--
- kernel/locking/osq_lock.c             | 10 +++++++++-
- kernel/locking/rwsem-xadd.c           | 16 +++++++++++++---
- virt/kvm/kvm_main.c                   | 20 ++++++++++++++------
- 18 files changed, 151 insertions(+), 34 deletions(-)
-
+diff --git a/kernel/locking/mutex.c b/kernel/locking/mutex.c
+index a70b90d..82108f5 100644
+--- a/kernel/locking/mutex.c
++++ b/kernel/locking/mutex.c
+@@ -236,7 +236,13 @@ bool mutex_spin_on_owner(struct mutex *lock, struct task_struct *owner)
+ 		 */
+ 		barrier();
+ 
+-		if (!owner->on_cpu || need_resched()) {
++		/*
++		 * Use vcpu_is_preempted to detech lock holder preemption issue
++		 * and break. vcpu_is_preempted is a macro defined by false if
++		 * arch does not support vcpu preempted check,
++		 */
++		if (!owner->on_cpu || need_resched() ||
++				vcpu_is_preempted(task_cpu(owner))) {
+ 			ret = false;
+ 			break;
+ 		}
+@@ -261,8 +267,13 @@ static inline int mutex_can_spin_on_owner(struct mutex *lock)
+ 
+ 	rcu_read_lock();
+ 	owner = READ_ONCE(lock->owner);
++
++	/*
++	 * As lock holder preemption issue, we both skip spinning if task is not
++	 * on cpu or its cpu is preempted
++	 */
+ 	if (owner)
+-		retval = owner->on_cpu;
++		retval = owner->on_cpu && !vcpu_is_preempted(task_cpu(owner));
+ 	rcu_read_unlock();
+ 	/*
+ 	 * if lock->owner is not set, the mutex owner may have just acquired
+diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
+index 2337b4b..0897179 100644
+--- a/kernel/locking/rwsem-xadd.c
++++ b/kernel/locking/rwsem-xadd.c
+@@ -336,7 +336,11 @@ static inline bool rwsem_can_spin_on_owner(struct rw_semaphore *sem)
+ 		goto done;
+ 	}
+ 
+-	ret = owner->on_cpu;
++	/*
++	 * As lock holder preemption issue, we both skip spinning if task is not
++	 * on cpu or its cpu is preempted
++	 */
++	ret = owner->on_cpu && !vcpu_is_preempted(task_cpu(owner));
+ done:
+ 	rcu_read_unlock();
+ 	return ret;
+@@ -362,8 +366,14 @@ static noinline bool rwsem_spin_on_owner(struct rw_semaphore *sem)
+ 		 */
+ 		barrier();
+ 
+-		/* abort spinning when need_resched or owner is not running */
+-		if (!owner->on_cpu || need_resched()) {
++		/*
++		 * abort spinning when need_resched or owner is not running or
++		 * owner's cpu is preempted. vcpu_is_preempted is a macro
++		 * defined by false if arch does not support vcpu preempted
++		 * check
++		 */
++		if (!owner->on_cpu || need_resched() ||
++				vcpu_is_preempted(task_cpu(owner))) {
+ 			rcu_read_unlock();
+ 			return false;
+ 		}
 -- 
 2.4.11
