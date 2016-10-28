@@ -1,7 +1,7 @@
 From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v6 04/11] powerpc/spinlock: support vcpu preempted check
-Date: Fri, 28 Oct 2016 04:11:20 -0400
-Message-ID: <1477642287-24104-5-git-send-email-xinhui.pan__35267.738501034$1477628826$gmane$org@linux.vnet.ibm.com>
+Subject: [PATCH v6 07/11] KVM: Introduce kvm_write_guest_offset_cached
+Date: Fri, 28 Oct 2016 04:11:23 -0400
+Message-ID: <1477642287-24104-8-git-send-email-xinhui.pan__21627.6511936032$1477628828$gmane$org@linux.vnet.ibm.com>
 References: <1477642287-24104-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,44 +21,78 @@ To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@
 Cc: kernellwp@gmail.com, jgross@suse.com, David.Laight@ACULAB.COM, rkrcmar@redhat.com, peterz@infradead.org, benh@kernel.crashing.org, will.deacon@arm.com, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, boqun.feng@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is to fix some lock holder preemption issues. Some other locks
-implementation do a spin loop before acquiring the lock itself.
-Currently kernel has an interface of bool vcpu_is_preempted(int cpu). It
-takes the cpu as parameter and return true if the cpu is preempted. Then
-kernel can break the spin loops upon on the retval of vcpu_is_preempted.
+It allows us to update some status or field of one struct partially.
 
-As kernel has used this interface, So lets support it.
+We can also save one kvm_read_guest_cached if we just update one filed
+of the struct regardless of its current value.
 
-Only pSeries need support it. And the fact is powerNV are built into
-same kernel image with pSeries. So we need return false if we are runnig
-as powerNV. The another fact is that lppaca->yiled_count keeps zero on
-powerNV. So we can just skip the machine type check.
-
-Suggested-by: Boqun Feng <boqun.feng@gmail.com>
-Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 ---
- arch/powerpc/include/asm/spinlock.h | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ include/linux/kvm_host.h |  2 ++
+ virt/kvm/kvm_main.c      | 20 ++++++++++++++------
+ 2 files changed, 16 insertions(+), 6 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/spinlock.h b/arch/powerpc/include/asm/spinlock.h
-index fa37fe9..8c1b913 100644
---- a/arch/powerpc/include/asm/spinlock.h
-+++ b/arch/powerpc/include/asm/spinlock.h
-@@ -52,6 +52,14 @@
- #define SYNC_IO
- #endif
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 01c0b9c..6f00237 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -645,6 +645,8 @@ int kvm_write_guest(struct kvm *kvm, gpa_t gpa, const void *data,
+ 		    unsigned long len);
+ int kvm_write_guest_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
+ 			   void *data, unsigned long len);
++int kvm_write_guest_offset_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
++			   void *data, int offset, unsigned long len);
+ int kvm_gfn_to_hva_cache_init(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
+ 			      gpa_t gpa, unsigned long len);
+ int kvm_clear_guest_page(struct kvm *kvm, gfn_t gfn, int offset, int len);
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 2907b7b..95308ee 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1972,30 +1972,38 @@ int kvm_gfn_to_hva_cache_init(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
+ }
+ EXPORT_SYMBOL_GPL(kvm_gfn_to_hva_cache_init);
  
-+#ifdef CONFIG_PPC_PSERIES
-+#define vcpu_is_preempted vcpu_is_preempted
-+static inline bool vcpu_is_preempted(int cpu)
-+{
-+	return !!(be32_to_cpu(lppaca_of(cpu).yield_count) & 1);
-+}
-+#endif
-+
- static __always_inline int arch_spin_value_unlocked(arch_spinlock_t lock)
+-int kvm_write_guest_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
+-			   void *data, unsigned long len)
++int kvm_write_guest_offset_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
++			   void *data, int offset, unsigned long len)
  {
- 	return lock.slock == 0;
+ 	struct kvm_memslots *slots = kvm_memslots(kvm);
+ 	int r;
++	gpa_t gpa = ghc->gpa + offset;
+ 
+-	BUG_ON(len > ghc->len);
++	BUG_ON(len + offset > ghc->len);
+ 
+ 	if (slots->generation != ghc->generation)
+ 		kvm_gfn_to_hva_cache_init(kvm, ghc, ghc->gpa, ghc->len);
+ 
+ 	if (unlikely(!ghc->memslot))
+-		return kvm_write_guest(kvm, ghc->gpa, data, len);
++		return kvm_write_guest(kvm, gpa, data, len);
+ 
+ 	if (kvm_is_error_hva(ghc->hva))
+ 		return -EFAULT;
+ 
+-	r = __copy_to_user((void __user *)ghc->hva, data, len);
++	r = __copy_to_user((void __user *)ghc->hva + offset, data, len);
+ 	if (r)
+ 		return -EFAULT;
+-	mark_page_dirty_in_slot(ghc->memslot, ghc->gpa >> PAGE_SHIFT);
++	mark_page_dirty_in_slot(ghc->memslot, gpa >> PAGE_SHIFT);
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(kvm_write_guest_offset_cached);
++
++int kvm_write_guest_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
++			   void *data, unsigned long len)
++{
++	return kvm_write_guest_offset_cached(kvm, ghc, data, 0, len);
++}
+ EXPORT_SYMBOL_GPL(kvm_write_guest_cached);
+ 
+ int kvm_read_guest_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
 -- 
 2.4.11
