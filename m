@@ -1,8 +1,7 @@
 From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v6 06/11] x86,
-	paravirt: Add interface to support kvm/xen vcpu preempted check
-Date: Fri, 28 Oct 2016 04:11:22 -0400
-Message-ID: <1477642287-24104-7-git-send-email-xinhui.pan__1510.53505619547$1477628824$gmane$org@linux.vnet.ibm.com>
+Subject: [PATCH v6 04/11] powerpc/spinlock: support vcpu preempted check
+Date: Fri, 28 Oct 2016 04:11:20 -0400
+Message-ID: <1477642287-24104-5-git-send-email-xinhui.pan__35267.738501034$1477628826$gmane$org@linux.vnet.ibm.com>
 References: <1477642287-24104-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,79 +24,41 @@ List-Id: virtualization@lists.linuxfoundation.org
 This is to fix some lock holder preemption issues. Some other locks
 implementation do a spin loop before acquiring the lock itself.
 Currently kernel has an interface of bool vcpu_is_preempted(int cpu). It
-takes the cpu as parameter and return true if the cpu is preempted.
-Then kernel can break the spin loops upon on the retval of
-vcpu_is_preempted.
+takes the cpu as parameter and return true if the cpu is preempted. Then
+kernel can break the spin loops upon on the retval of vcpu_is_preempted.
 
 As kernel has used this interface, So lets support it.
 
-To deal with kernel and kvm/xen, add vcpu_is_preempted into struct
-pv_lock_ops.
+Only pSeries need support it. And the fact is powerNV are built into
+same kernel image with pSeries. So we need return false if we are runnig
+as powerNV. The another fact is that lppaca->yiled_count keeps zero on
+powerNV. So we can just skip the machine type check.
 
-Then kvm or xen could provide their own implementation to support
-vcpu_is_preempted.
-
+Suggested-by: Boqun Feng <boqun.feng@gmail.com>
+Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 ---
- arch/x86/include/asm/paravirt_types.h | 2 ++
- arch/x86/include/asm/spinlock.h       | 8 ++++++++
- arch/x86/kernel/paravirt-spinlocks.c  | 6 ++++++
- 3 files changed, 16 insertions(+)
+ arch/powerpc/include/asm/spinlock.h | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 0f400c0..38c3bb7 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -310,6 +310,8 @@ struct pv_lock_ops {
+diff --git a/arch/powerpc/include/asm/spinlock.h b/arch/powerpc/include/asm/spinlock.h
+index fa37fe9..8c1b913 100644
+--- a/arch/powerpc/include/asm/spinlock.h
++++ b/arch/powerpc/include/asm/spinlock.h
+@@ -52,6 +52,14 @@
+ #define SYNC_IO
+ #endif
  
- 	void (*wait)(u8 *ptr, u8 val);
- 	void (*kick)(int cpu);
-+
-+	bool (*vcpu_is_preempted)(int cpu);
- };
- 
- /* This contains all the paravirt structures: we get a convenient
-diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
-index 921bea7..0526f59 100644
---- a/arch/x86/include/asm/spinlock.h
-+++ b/arch/x86/include/asm/spinlock.h
-@@ -26,6 +26,14 @@
- extern struct static_key paravirt_ticketlocks_enabled;
- static __always_inline bool static_key_false(struct static_key *key);
- 
-+#ifdef CONFIG_PARAVIRT_SPINLOCKS
++#ifdef CONFIG_PPC_PSERIES
 +#define vcpu_is_preempted vcpu_is_preempted
 +static inline bool vcpu_is_preempted(int cpu)
 +{
-+	return pv_lock_ops.vcpu_is_preempted(cpu);
++	return !!(be32_to_cpu(lppaca_of(cpu).yield_count) & 1);
 +}
 +#endif
 +
- #include <asm/qspinlock.h>
- 
- /*
-diff --git a/arch/x86/kernel/paravirt-spinlocks.c b/arch/x86/kernel/paravirt-spinlocks.c
-index 2c55a00..2f204dd 100644
---- a/arch/x86/kernel/paravirt-spinlocks.c
-+++ b/arch/x86/kernel/paravirt-spinlocks.c
-@@ -21,12 +21,18 @@ bool pv_is_native_spin_unlock(void)
- 		__raw_callee_save___native_queued_spin_unlock;
- }
- 
-+static bool native_vcpu_is_preempted(int cpu)
-+{
-+	return 0;
-+}
-+
- struct pv_lock_ops pv_lock_ops = {
- #ifdef CONFIG_SMP
- 	.queued_spin_lock_slowpath = native_queued_spin_lock_slowpath,
- 	.queued_spin_unlock = PV_CALLEE_SAVE(__native_queued_spin_unlock),
- 	.wait = paravirt_nop,
- 	.kick = paravirt_nop,
-+	.vcpu_is_preempted = native_vcpu_is_preempted,
- #endif /* SMP */
- };
- EXPORT_SYMBOL(pv_lock_ops);
+ static __always_inline int arch_spin_value_unlocked(arch_spinlock_t lock)
+ {
+ 	return lock.slock == 0;
 -- 
 2.4.11
