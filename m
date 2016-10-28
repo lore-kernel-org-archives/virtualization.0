@@ -1,14 +1,13 @@
 From: Alexey Makhalov <amakhalov@vmware.com>
-Subject: [PATCH v3 2/3] x86/vmware: Add basic paravirt ops support
-Date: Fri, 28 Oct 2016 00:54:31 -0700
-Message-ID: <20161028075432.90579-3-amakhalov__15313.9436421499$1477936090$gmane$org@vmware.com>
+Subject: [PATCH v3 0/3] x86/vmware guest improvements
+Date: Fri, 28 Oct 2016 00:54:29 -0700
+Message-ID: <20161028075432.90579-1-amakhalov__13020.8614319146$1477936107$gmane$org@vmware.com>
 References: <alpine.DEB.2.20.1610272244060.4913@nanos>
-	<20161028075432.90579-1-amakhalov@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161028075432.90579-1-amakhalov@vmware.com>
+In-Reply-To: <alpine.DEB.2.20.1610272244060.4913@nanos>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,48 +21,23 @@ To: corbet@lwn.net, akataria@vmware.com, tglx@linutronix.de, mingo@redhat.com, h
 Cc: pv-drivers@vmware.com, virtualization@lists.linux-foundation.org, Alexey Makhalov <amakhalov@vmware.com>, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add basic paravirt support:
- 1. set pv_info.name to "VMware hypervisor" to have proper boot log message
-	Booting paravirtualized kernel on VMware hypervisor
-    instead of "... on bare hardware"
- 2. set pv_cpu_ops.io_delay() to empty function - paravirt_nop() to
-    avoid vm-exits on IO delays.
+Thanks Thomas for the valuable comments.
 
-Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
-Acked-by: Alok N Kataria <akataria@vmware.com>
----
- arch/x86/kernel/cpu/vmware.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+Changelog for the updated patchset:
+v1->v2 - Update pvinfo.name.
+v2->v3 - Address comments from Thomas G,
+	 * Created separate function: vmware_sched_clock_setup() (patch 3/3)
+	 * Updated commit descriptions for 1/3 and 3/3
 
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 480790f..098a524 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -61,6 +61,16 @@ static unsigned long vmware_get_tsc_khz(void)
- 	return vmware_tsc_khz;
- }
- 
-+#ifdef CONFIG_PARAVIRT
-+static void __init vmware_paravirt_ops_setup(void)
-+{
-+	pv_info.name = "VMware hypervisor";
-+	pv_cpu_ops.io_delay = paravirt_nop;
-+}
-+#else
-+#define vmware_paravirt_ops_setup() do {} while (0)
-+#endif
-+
- static void __init vmware_platform_setup(void)
- {
- 	uint32_t eax, ebx, ecx, edx;
-@@ -94,6 +104,8 @@ static void __init vmware_platform_setup(void)
- 	} else {
- 		pr_warn("Failed to get TSC freq from the hypervisor\n");
- 	}
-+
-+	vmware_paravirt_ops_setup();
- }
- 
- /*
+
+Alexey Makhalov (3):
+  x86/vmware: Use tsc_khz value for calibrate_cpu()
+  x86/vmware: Add basic paravirt ops support
+  x86/vmware: Add paravirt sched clock
+
+ Documentation/kernel-parameters.txt |  4 +++
+ arch/x86/kernel/cpu/vmware.c        | 55 +++++++++++++++++++++++++++++++++++++
+ 2 files changed, 59 insertions(+)
+
 -- 
 2.10.1
