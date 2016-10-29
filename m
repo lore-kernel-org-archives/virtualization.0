@@ -1,14 +1,15 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v2 net-next] virtio-net: Update the mtu code to match
-	virtio spec
-Date: Sat, 29 Oct 2016 12:01:02 -0400 (EDT)
-Message-ID: <20161029.120102.2254330014511044545.davem@davemloft.net>
-References: <1477426332-31093-1-git-send-email-aconole@redhat.com>
+From: Davidlohr Bueso <dave@stgolabs.net>
+Subject: Re: [PATCH v6 02/11] locking/osq: Drop the overload of osq_lock()
+Date: Sat, 29 Oct 2016 09:52:16 -0700
+Message-ID: <20161029165216.GA17451__46212.1740718887$1477760648$gmane$org@linux-80c1.suse>
+References: <1477642287-24104-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+	<1477642287-24104-3-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1477426332-31093-1-git-send-email-aconole@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1477642287-24104-3-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,27 +19,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: aconole@redhat.com
-Cc: jarod@redhat.com, netdev@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Cc: kvm@vger.kernel.org, rkrcmar@redhat.com, peterz@infradead.org, benh@kernel.crashing.org, will.deacon@arm.com, virtualization@lists.linux-foundation.org, paulus@samba.org, kernellwp@gmail.com, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, x86@kernel.org, mingo@redhat.com, xen-devel@lists.xenproject.org, paulmck@linux.vnet.ibm.com, boqun.feng@gmail.com, jgross@suse.com, linux-kernel@vger.kernel.org, David.Laight@ACULAB.COM, mpe@ellerman.id.au, pbonzini@redhat.com, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Aaron Conole <aconole@redhat.com>
-Date: Tue, 25 Oct 2016 16:12:12 -0400
+On Fri, 28 Oct 2016, Pan Xinhui wrote:
+> 		/*
+> 		 * If we need to reschedule bail... so we can block.
+>+		 * Use vcpu_is_preempted to detech lock holder preemption issue
+                                            ^^ detect
+>+		 * and break. 
 
-> The virtio committee recently ratified a change, VIRTIO-152, which
-> defines the mtu field to be 'max' MTU, not simply desired MTU.
-> 
-> This commit brings the virtio-net device in compliance with VIRTIO-152.
-> 
-> Additionally, drop the max_mtu branch - it cannot be taken since the u16
-> returned by virtio_cread16 will never exceed the initial value of
-> max_mtu.
-> 
-> Signed-off-by: Aaron Conole <aconole@redhat.com>
-> Acked-by: "Michael S. Tsirkin" <mst@redhat.com>
-> Acked-by: Jarod Wilson <jarod@redhat.com>
-> ---
-> Nothing code-wise has changed, but I've included the ACKs and fixed up the
-> subject line.
+Could you please remove the rest of this comment? Its just noise to point out
+that vcpu_is_preempted is a macro defined by arch/false. This is standard protocol
+in the kernel.
 
-Applied, thanks.
+Same goes for all locks you change with this.
+
+Thanks,
+Davidlohr
+
+>                * vcpu_is_preempted is a macro defined by false if
+>+		 * arch does not support vcpu preempted check,
+> 		 */
+>-		if (need_resched())
+>+		if (need_resched() || vcpu_is_preempted(node_cpu(node->prev)))
+> 			goto unqueue;
+>
+> 		cpu_relax_lowlatency();
+>-- 
+>2.4.11
+>
