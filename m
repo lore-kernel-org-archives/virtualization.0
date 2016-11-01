@@ -1,14 +1,12 @@
-From: Alexey Makhalov <amakhalov@vmware.com>
-Subject: [PATCH v3 3/3] x86/vmware: Add paravirt sched clock
-Date: Fri, 28 Oct 2016 00:54:32 -0700
-Message-ID: <20161028075432.90579-4-amakhalov__9302.86585721678$1477936121$gmane$org@vmware.com>
-References: <alpine.DEB.2.20.1610272244060.4913@nanos>
-	<20161028075432.90579-1-amakhalov@vmware.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL] virtio: tests, cleanups and fixes
+Date: Tue, 1 Nov 2016 02:11:25 +0200
+Message-ID: <20161101021125-mutt-send-email-mst__41926.6019519002$1477959591$gmane$org@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161028075432.90579-1-amakhalov@vmware.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,113 +16,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: corbet@lwn.net, akataria@vmware.com, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, x86@kernel.org
-Cc: pv-drivers@vmware.com, virtualization@lists.linux-foundation.org, Alexey Makhalov <amakhalov@vmware.com>, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: jgross@suse.com, lprosek@redhat.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, kneumoin@virtuozzo.com, will.deacon@arm.com, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, luto@kernel.org, pbonzini@redhat.com, den@openvz.org, matt.redfearn@imgtec.com, elfring@users.sourceforge.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-The default sched_clock() implementation is native_sched_clock(). It
-contains code to handle non constant frequency TSCs, which creates
-overhead for systems with constant frequency TSCs.
+The following changes since commit a909d3e636995ba7c349e2ca5dbb528154d4ac30:
 
-The vmware hypervisor guarantees a constant frequency TSC, so
-native_sched_clock() is not required and slower than a dedicated function
-which operates with one time calculated conversion factors.
+  Linux 4.9-rc3 (2016-10-29 13:52:02 -0700)
 
-Calculate the conversion factors at boot time from the tsc frequency and
-install an optimized sched_clock() function via paravirt ops.
+are available in the git repository at:
 
-The paravirtualized clock can be disabled on the kernel command line with
-the new 'no-vmw-sched-clock' option.
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
-Acked-by: Alok N Kataria <akataria@vmware.com>
----
- Documentation/kernel-parameters.txt |  4 ++++
- arch/x86/kernel/cpu/vmware.c        | 42 +++++++++++++++++++++++++++++++++++++
- 2 files changed, 46 insertions(+)
+for you to fetch changes up to 75bfa81bf0897ba87f1e1b9b576a07536029b86a:
 
-diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
-index 37babf9..b3b2ec0 100644
---- a/Documentation/kernel-parameters.txt
-+++ b/Documentation/kernel-parameters.txt
-@@ -2754,6 +2754,10 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
- 	no-kvmapf	[X86,KVM] Disable paravirtualized asynchronous page
- 			fault handling.
- 
-+	no-vmw-sched-clock
-+			[X86,PV_OPS] Disable paravirtualized VMware scheduler
-+			clock and use the default one.
-+
- 	no-steal-acc    [X86,KVM] Disable paravirtualized steal time accounting.
- 			steal time is computed, but won't influence scheduler
- 			behaviour
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 098a524..cdbe38b 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -24,10 +24,15 @@
- #include <linux/dmi.h>
- #include <linux/init.h>
- #include <linux/export.h>
-+#include <linux/clocksource.h>
- #include <asm/div64.h>
- #include <asm/x86_init.h>
- #include <asm/hypervisor.h>
- #include <asm/apic.h>
-+#include <asm/timer.h>
-+
-+#undef pr_fmt
-+#define pr_fmt(fmt)	"vmware: " fmt
- 
- #define CPUID_VMWARE_INFO_LEAF	0x40000000
- #define VMWARE_HYPERVISOR_MAGIC	0x564D5868
-@@ -62,10 +67,47 @@ static unsigned long vmware_get_tsc_khz(void)
- }
- 
- #ifdef CONFIG_PARAVIRT
-+static struct cyc2ns_data vmware_cyc2ns __ro_after_init;
-+static int vmw_sched_clock __initdata = 1;
-+
-+static __init int setup_vmw_sched_clock(char *s)
-+{
-+	vmw_sched_clock = 0;
-+	return 0;
-+}
-+early_param("no-vmw-sched-clock", setup_vmw_sched_clock);
-+
-+static unsigned long long vmware_sched_clock(void)
-+{
-+	unsigned long long ns;
-+
-+	ns = mul_u64_u32_shr(rdtsc(), vmware_cyc2ns.cyc2ns_mul,
-+			     vmware_cyc2ns.cyc2ns_shift);
-+	ns -= vmware_cyc2ns.cyc2ns_offset;
-+	return ns;
-+}
-+
-+static void __init vmware_sched_clock_setup(void)
-+{
-+	struct cyc2ns_data *d = &vmware_cyc2ns;
-+	unsigned long long tsc_now = rdtsc();
-+
-+	clocks_calc_mult_shift(&d->cyc2ns_mul, &d->cyc2ns_shift,
-+			       vmware_tsc_khz, NSEC_PER_MSEC, 0);
-+	d->cyc2ns_offset = mul_u64_u32_shr(tsc_now, d->cyc2ns_mul,
-+					   d->cyc2ns_shift);
-+
-+	pv_time_ops.sched_clock = vmware_sched_clock;
-+	pr_info("using sched offset of %llu ns\n", d->cyc2ns_offset);
-+}
-+
- static void __init vmware_paravirt_ops_setup(void)
- {
- 	pv_info.name = "VMware hypervisor";
- 	pv_cpu_ops.io_delay = paravirt_nop;
-+
-+	if (vmware_tsc_khz && vmw_sched_clock)
-+		vmware_sched_clock_setup();
- }
- #else
- #define vmware_paravirt_ops_setup() do {} while (0)
--- 
-2.10.1
+  virtio_ring: mark vring_dma_dev inline (2016-10-31 00:40:08 +0200)
+
+----------------------------------------------------------------
+virtio: tests, fixes and cleanups
+
+Just minor tweaks, there's nothing major in this cycle.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Juergen Gross (1):
+      virtio: remove config.c
+
+Konstantin Neumoin (1):
+      virtio: update balloon size in balloon "probe"
+
+Ladi Prosek (1):
+      virtio_ring: Make interrupt suppression spec compliant
+
+Markus Elfring (2):
+      virtio_blk: Use kmalloc_array() in init_vq()
+      virtio_blk: Delete an unnecessary initialisation in init_vq()
+
+Matt Redfearn (1):
+      virtio: console: Unlock vqs while freeing buffers
+
+Michael S. Tsirkin (2):
+      virtio/vhost: add Jason to list of maintainers
+      virtio_ring: mark vring_dma_dev inline
+
+Paolo Bonzini (3):
+      ringtest: use link-time optimization
+      ringtest: commonize implementation of poll_avail/poll_used
+      ringtest: poll for new buffers once before updating event index
+
+Will Deacon (1):
+      virtio_pci: Limit DMA mask to 44 bits for legacy virtio devices
+
+ tools/virtio/ringtest/main.h            |  4 +--
+ drivers/block/virtio_blk.c              | 10 +++---
+ drivers/char/virtio_console.c           | 22 ++++++++----
+ drivers/virtio/config.c                 | 12 -------
+ drivers/virtio/virtio_balloon.c         |  2 ++
+ drivers/virtio/virtio_pci_legacy.c      | 16 ++++++---
+ drivers/virtio/virtio_ring.c            | 16 +++++----
+ tools/virtio/ringtest/main.c            | 20 ++++++++---
+ tools/virtio/ringtest/noring.c          |  6 ++--
+ tools/virtio/ringtest/ptr_ring.c        | 22 +++---------
+ tools/virtio/ringtest/ring.c            | 18 ++++------
+ tools/virtio/ringtest/virtio_ring_0_9.c | 64 ++++++++-------------------------
+ MAINTAINERS                             |  2 ++
+ tools/virtio/ringtest/Makefile          |  4 +--
+ 14 files changed, 96 insertions(+), 122 deletions(-)
+ delete mode 100644 drivers/virtio/config.c
