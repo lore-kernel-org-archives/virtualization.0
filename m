@@ -1,13 +1,15 @@
-From: Liang Li <liang.z.li@intel.com>
-Subject: [PATCH kernel v4 7/7] virtio-balloon: tell host vm's unused page info
-Date: Wed,  2 Nov 2016 14:17:27 +0800
-Message-ID: <1478067447-24654-8-git-send-email-liang.z.li__17712.1832305149$1478068359$gmane$org@intel.com>
-References: <1478067447-24654-1-git-send-email-liang.z.li@intel.com>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH v2 34/37] docs: fix locations of several documents that
+	got moved
+Date: Wed, 2 Nov 2016 10:31:54 +0100
+Message-ID: <20161102093154.GC23350@amd>
+References: <cover.1476801354.git.mchehab@s-opensource.com>
+	<28c1f5d3867174a7017e3f3d9e9e4ebb096ceed8.1476801354.git.mchehab@s-opensource.com>
+	<20161019103442.GD1461@amd> <20161019115918.1162d16e@vento.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============7680369000982517778=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1478067447-24654-1-git-send-email-liang.z.li@intel.com>
+In-Reply-To: <20161019115918.1162d16e@vento.lan>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,224 +19,98 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, dave.hansen@intel.com
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, Liang Li <liang.z.li@intel.com>, qemu-devel@nongnu.org, dgilbert@redhat.com, linux-mm@kvack.org, amit.shah@redhat.com, pbonzini@redhat.com, virtualization@lists.linux-foundation.org, mgorman@techsingularity.net
+To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Cc: Nicolas Pitre <nicolas.pitre@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Chris Metcalf <cmetcalf@ezchip.com>, Peter Loeffler <peter.loeffler@guruz.at>, Finn Thain <fthain@telegraphics.com.au>, Yaowei Bai <baiyaowei@cmss.chinamobile.com>, Jakub Wilk <jwilk@jwilk.net>, linux-acpi@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, Guenter Roeck <linux@roeck-us.net>, Petr Mladek <pmladek@suse.com>, Jean Delvare <jdelvare@suse.com>, linux-pm@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Karsten Keil <isdn@linux-pingi.de>, Jiri Kosina <jkosina@suse.cz>, "seokhoon.yoon" <iamyooon@gmail.com>, Li Zefan <lizefan@huawei.com>, Ryan Swan <ryan@ryanswan.com>, Joe Perches <joe@perches.com>, Andrew Morton <akpm@linux-foundation.org>, Mark
 List-Id: virtualization@lists.linuxfoundation.org
 
-Support the request for vm's unused page information, response with
-a page bitmap. QEMU can make use of this bitmap and the dirty page
-logging mechanism to skip the transportation of some of these unused
-pages, this is very helpful to reduce the network traffic and  speed
-up the live migration process.
 
-Signed-off-by: Liang Li <liang.z.li@intel.com>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: Amit Shah <amit.shah@redhat.com>
-Cc: Dave Hansen <dave.hansen@intel.com>
----
- drivers/virtio/virtio_balloon.c | 128 +++++++++++++++++++++++++++++++++++++---
- 1 file changed, 121 insertions(+), 7 deletions(-)
+--===============7680369000982517778==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+nBD6E3TurpgldQp"
+Content-Disposition: inline
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index c6c94b6..ba2d37b 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -56,7 +56,7 @@
- 
- struct virtio_balloon {
- 	struct virtio_device *vdev;
--	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq;
-+	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq, *req_vq;
- 
- 	/* The balloon servicing is delegated to a freezable workqueue. */
- 	struct work_struct update_balloon_stats_work;
-@@ -83,6 +83,8 @@ struct virtio_balloon {
- 	unsigned int nr_page_bmap;
- 	/* Used to record the processed pfn range */
- 	unsigned long min_pfn, max_pfn, start_pfn, end_pfn;
-+	/* Request header */
-+	struct virtio_balloon_req_hdr req_hdr;
- 	/*
- 	 * The pages we've told the Host we're not using are enqueued
- 	 * at vb_dev_info->pages list.
-@@ -552,6 +554,63 @@ static void update_balloon_stats(struct virtio_balloon *vb)
- 				pages_to_bytes(available));
- }
- 
-+static void send_unused_pages_info(struct virtio_balloon *vb,
-+				unsigned long req_id)
-+{
-+	struct scatterlist sg_in;
-+	unsigned long pfn = 0, bmap_len, pfn_limit, last_pfn, nr_pfn;
-+	struct virtqueue *vq = vb->req_vq;
-+	struct virtio_balloon_resp_hdr *hdr = vb->resp_hdr;
-+	int ret = 1, used_nr_bmap = 0, i;
-+
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_PAGE_BITMAP) &&
-+		vb->nr_page_bmap == 1)
-+		extend_page_bitmap(vb);
-+
-+	pfn_limit = PFNS_PER_BMAP * vb->nr_page_bmap;
-+	mutex_lock(&vb->balloon_lock);
-+	last_pfn = get_max_pfn();
-+
-+	while (ret) {
-+		clear_page_bitmap(vb);
-+		ret = get_unused_pages(pfn, pfn + pfn_limit, vb->page_bitmap,
-+			 PFNS_PER_BMAP, vb->nr_page_bmap);
-+		if (ret < 0)
-+			break;
-+		hdr->cmd = BALLOON_GET_UNUSED_PAGES;
-+		hdr->id = req_id;
-+		bmap_len = BALLOON_BMAP_SIZE * vb->nr_page_bmap;
-+
-+		if (!ret) {
-+			hdr->flag = BALLOON_FLAG_DONE;
-+			nr_pfn = last_pfn - pfn;
-+			used_nr_bmap = nr_pfn / PFNS_PER_BMAP;
-+			if (nr_pfn % PFNS_PER_BMAP)
-+				used_nr_bmap++;
-+			bmap_len = nr_pfn / BITS_PER_BYTE;
-+		} else {
-+			hdr->flag = BALLOON_FLAG_CONT;
-+			used_nr_bmap = vb->nr_page_bmap;
-+		}
-+		for (i = 0; i < used_nr_bmap; i++) {
-+			unsigned int bmap_size = BALLOON_BMAP_SIZE;
-+
-+			if (i + 1 == used_nr_bmap)
-+				bmap_size = bmap_len - BALLOON_BMAP_SIZE * i;
-+			set_bulk_pages(vb, vq, pfn + i * PFNS_PER_BMAP,
-+				 vb->page_bitmap[i], bmap_size, true);
-+		}
-+		if (vb->resp_pos > 0)
-+			send_resp_data(vb, vq, true);
-+		pfn += pfn_limit;
-+	}
-+
-+	mutex_unlock(&vb->balloon_lock);
-+	sg_init_one(&sg_in, &vb->req_hdr, sizeof(vb->req_hdr));
-+	virtqueue_add_inbuf(vq, &sg_in, 1, &vb->req_hdr, GFP_KERNEL);
-+	virtqueue_kick(vq);
-+}
-+
- /*
-  * While most virtqueues communicate guest-initiated requests to the hypervisor,
-  * the stats queue operates in reverse.  The driver initializes the virtqueue
-@@ -686,18 +745,56 @@ static void update_balloon_size_func(struct work_struct *work)
- 		queue_work(system_freezable_wq, work);
- }
- 
-+static void misc_handle_rq(struct virtio_balloon *vb)
-+{
-+	struct virtio_balloon_req_hdr *ptr_hdr;
-+	unsigned int len;
-+
-+	ptr_hdr = virtqueue_get_buf(vb->req_vq, &len);
-+	if (!ptr_hdr || len != sizeof(vb->req_hdr))
-+		return;
-+
-+	switch (ptr_hdr->cmd) {
-+	case BALLOON_GET_UNUSED_PAGES:
-+		send_unused_pages_info(vb, ptr_hdr->param);
-+		break;
-+	default:
-+		break;
-+	}
-+}
-+
-+static void misc_request(struct virtqueue *vq)
-+{
-+	struct virtio_balloon *vb = vq->vdev->priv;
-+
-+	misc_handle_rq(vb);
-+}
-+
- static int init_vqs(struct virtio_balloon *vb)
- {
--	struct virtqueue *vqs[3];
--	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_request };
--	static const char * const names[] = { "inflate", "deflate", "stats" };
-+	struct virtqueue *vqs[4];
-+	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack,
-+					 stats_request, misc_request };
-+	static const char * const names[] = { "inflate", "deflate", "stats",
-+						 "misc" };
- 	int err, nvqs;
- 
- 	/*
- 	 * We expect two virtqueues: inflate and deflate, and
- 	 * optionally stat.
- 	 */
--	nvqs = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ) ? 3 : 2;
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_HOST_REQ_VQ))
-+		nvqs = 4;
-+	else if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ))
-+		nvqs = 3;
-+	else
-+		nvqs = 2;
-+
-+	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
-+		__virtio_clear_bit(vb->vdev, VIRTIO_BALLOON_F_PAGE_BITMAP);
-+		__virtio_clear_bit(vb->vdev, VIRTIO_BALLOON_F_HOST_REQ_VQ);
-+	}
-+
- 	err = vb->vdev->config->find_vqs(vb->vdev, nvqs, vqs, callbacks, names);
- 	if (err)
- 		return err;
-@@ -718,6 +815,18 @@ static int init_vqs(struct virtio_balloon *vb)
- 			BUG();
- 		virtqueue_kick(vb->stats_vq);
- 	}
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_HOST_REQ_VQ)) {
-+		struct scatterlist sg_in;
-+
-+		vb->req_vq = vqs[3];
-+		sg_init_one(&sg_in, &vb->req_hdr, sizeof(vb->req_hdr));
-+		if (virtqueue_add_inbuf(vb->req_vq, &sg_in, 1,
-+		    &vb->req_hdr, GFP_KERNEL) < 0)
-+			__virtio_clear_bit(vb->vdev,
-+					VIRTIO_BALLOON_F_HOST_REQ_VQ);
-+		else
-+			virtqueue_kick(vb->req_vq);
-+	}
- 	return 0;
- }
- 
-@@ -851,11 +960,13 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 	vb->resp_hdr = kzalloc(sizeof(struct virtio_balloon_resp_hdr),
- 				 GFP_KERNEL);
- 	/* Clear the feature bit if memory allocation fails */
--	if (!vb->resp_hdr)
-+	if (!vb->resp_hdr) {
- 		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_BITMAP);
--	else {
-+		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_HOST_REQ_VQ);
-+	} else {
- 		vb->page_bitmap[0] = kmalloc(BALLOON_BMAP_SIZE, GFP_KERNEL);
- 		if (!vb->page_bitmap[0]) {
-+			__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_HOST_REQ_VQ);
- 			__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_BITMAP);
- 			kfree(vb->resp_hdr);
- 		} else {
-@@ -864,6 +975,8 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 			if (!vb->resp_data) {
- 				__virtio_clear_bit(vdev,
- 						VIRTIO_BALLOON_F_PAGE_BITMAP);
-+				__virtio_clear_bit(vdev,
-+						VIRTIO_BALLOON_F_HOST_REQ_VQ);
- 				kfree(vb->page_bitmap[0]);
- 				kfree(vb->resp_hdr);
- 			}
-@@ -987,6 +1100,7 @@ static int virtballoon_restore(struct virtio_device *vdev)
- 	VIRTIO_BALLOON_F_STATS_VQ,
- 	VIRTIO_BALLOON_F_DEFLATE_ON_OOM,
- 	VIRTIO_BALLOON_F_PAGE_BITMAP,
-+	VIRTIO_BALLOON_F_HOST_REQ_VQ,
- };
- 
- static struct virtio_driver virtio_balloon_driver = {
--- 
-1.8.3.1
+
+--+nBD6E3TurpgldQp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi!
+
+> > Dunno, but kernel-parameters.txt was already quite long... for a file
+> > that is referenced quite often. Adding admin-guide/ into the path does
+> > not really help.
+>=20
+> The big string name starts with Documentation/ :) There are some discussi=
+ons=20
+> about changing it to doc/ (or docs/). Also, as you said, kernel-parameters
+> is already a big name. Perhaps we could use, instead,
+> > "kernel-parms".
+
+cmdline?
+
+> If we rename kernel-parameters.rst to kernel-parms.rst, plus the doc/ ren=
+ame,
+> then the string size will actually reduce:
+>=20
+> -		(see Documentation/kernel-parameters.txt), the minimum possible
+> +		(see doc/admin-guide/kernel-parms.rst), the minimum possible
+>=20
+> > Maybe admin-guide should go directly into Documentation/ , as that's
+> > what our users are interested in?
+>=20
+> There are several problems if we keep them at Documentation/ dir:
+>=20
+> - We'll end by mixing documents already converted to ReST with documents
+>   not converted yet;
+>=20
+> - A rename is needed anyway, as Sphinx only accepts ReST files that end
+>   with the extension(s) defined at Documentation/conf.py (currently,
+>   .rst);
+>=20
+> - A partial documentation build is made by sub-directory. If we put
+>   files under /Documentation, there's no way to build just one
+>   book.
+
+Well, documentation is primarily for users. I'm sure tools can adapt...
+
+> > Plus, I'm not sure how many developers will figure out that process/
+> > is what describes kernel patch submission process. We have processes
+> > in the kernel, after all...
+>=20
+> Do you have a better idea?
+
+development/ ?
+
+Best regards,
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--+nBD6E3TurpgldQp
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlgZsooACgkQMOfwapXb+vKDEwCdEmlwjrrTY1HV6PoP/Pyie4I+
+oBMAnjN0WHtyXtQBydl/7WLL5tES6tZi
+=EDvv
+-----END PGP SIGNATURE-----
+
+--+nBD6E3TurpgldQp--
+
+--===============7680369000982517778==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============7680369000982517778==--
