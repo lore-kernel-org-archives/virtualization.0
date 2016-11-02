@@ -1,12 +1,14 @@
 From: Liang Li <liang.z.li@intel.com>
-Subject: [PATCH kernel v4 0/7] Extend virtio-balloon for fast (de)inflating &
-	fast live migration
-Date: Wed,  2 Nov 2016 14:17:20 +0800
-Message-ID: <1478067447-24654-1-git-send-email-liang.z.li@intel.com>
+Subject: [PATCH kernel v4 2/7] virtio-balloon: define new feature bit and head
+	struct
+Date: Wed,  2 Nov 2016 14:17:22 +0800
+Message-ID: <1478067447-24654-3-git-send-email-liang.z.li__40470.6274894581$1478068261$gmane$org@intel.com>
+References: <1478067447-24654-1-git-send-email-liang.z.li@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1478067447-24654-1-git-send-email-liang.z.li@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,55 +22,59 @@ To: mst@redhat.com, dave.hansen@intel.com
 Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, Liang Li <liang.z.li@intel.com>, qemu-devel@nongnu.org, dgilbert@redhat.com, linux-mm@kvack.org, amit.shah@redhat.com, pbonzini@redhat.com, virtualization@lists.linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch set contains two parts of changes to the virtio-balloon.
- 
-One is the change for speeding up the inflating & deflating process,
-the main idea of this optimization is to use bitmap to send the page
-information to host instead of the PFNs, to reduce the overhead of
-virtio data transmission, address translation and madvise(). This can
-help to improve the performance by about 85%.
- 
-Another change is for speeding up live migration. By skipping process
-guest's unused pages in the first round of data copy, to reduce needless
-data processing, this can help to save quite a lot of CPU cycles and
-network bandwidth. We put guest's unused page information in a bitmap
-and send it to host with the virt queue of virtio-balloon. For an idle
-guest with 8GB RAM, this can help to shorten the total live migration
-time from 2Sec to about 500ms in 10Gbps network environment.
- 
-Changes from v3 to v4:
-    * Use the new scheme suggested by Dave Hansen to encode the bitmap.
-    * Add code which is missed in v3 to handle migrate page. 
-    * Free the memory for bitmap intime once the operation is done.
-    * Address some of the comments in v3.
+Add a new feature which supports sending the page information with
+a bitmap. The current implementation uses PFNs array, which is not
+very efficient. Using bitmap can improve the performance of
+inflating/deflating significantly
 
-Changes from v2 to v3:
-    * Change the name of 'free page' to 'unused page'.
-    * Use the scatter & gather bitmap instead of a 1MB page bitmap.
-    * Fix overwriting the page bitmap after kicking.
-    * Some of MST's comments for v2.
+The page bitmap header will used to tell the host some information
+about the page bitmap. e.g. the page size, page bitmap length and
+start pfn.
+
+Signed-off-by: Liang Li <liang.z.li@intel.com>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: Amit Shah <amit.shah@redhat.com>
+Cc: Dave Hansen <dave.hansen@intel.com>
+---
+ include/uapi/linux/virtio_balloon.h | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
+index 343d7dd..bed6f41 100644
+--- a/include/uapi/linux/virtio_balloon.h
++++ b/include/uapi/linux/virtio_balloon.h
+@@ -34,6 +34,7 @@
+ #define VIRTIO_BALLOON_F_MUST_TELL_HOST	0 /* Tell before reclaiming pages */
+ #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
+ #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
++#define VIRTIO_BALLOON_F_PAGE_BITMAP	3 /* Send page info with bitmap */
  
-Changes from v1 to v2:
-    * Abandon the patch for dropping page cache.
-    * Put some structures to uapi head file.
-    * Use a new way to determine the page bitmap size.
-    * Use a unified way to send the free page information with the bitmap
-    * Address the issues referred in MST's comments
-
-Liang Li (7):
-  virtio-balloon: rework deflate to add page to a list
-  virtio-balloon: define new feature bit and head struct
-  mm: add a function to get the max pfn
-  virtio-balloon: speed up inflate/deflate process
-  mm: add the related functions to get unused page
-  virtio-balloon: define flags and head for host request vq
-  virtio-balloon: tell host vm's unused page info
-
- drivers/virtio/virtio_balloon.c     | 546 ++++++++++++++++++++++++++++++++----
- include/linux/mm.h                  |   3 +
- include/uapi/linux/virtio_balloon.h |  41 +++
- mm/page_alloc.c                     |  95 +++++++
- 4 files changed, 636 insertions(+), 49 deletions(-)
-
+ /* Size of a PFN in the balloon interface. */
+ #define VIRTIO_BALLOON_PFN_SHIFT 12
+@@ -82,4 +83,22 @@ struct virtio_balloon_stat {
+ 	__virtio64 val;
+ } __attribute__((packed));
+ 
++/* Response header structure */
++struct virtio_balloon_resp_hdr {
++	__le64 cmd : 8; /* Distinguish different requests type */
++	__le64 flag: 8; /* Mark status for a specific request type */
++	__le64 id : 16; /* Distinguish requests of a specific type */
++	__le64 data_len: 32; /* Length of the following data, in bytes */
++};
++
++/* Page bitmap header structure */
++struct virtio_balloon_bmap_hdr {
++	struct {
++		__le64 start_pfn : 52; /* start pfn for the bitmap */
++		__le64 page_shift : 6; /* page shift width, in bytes */
++		__le64 bmap_len : 6;  /* bitmap length, in bytes */
++	} head;
++	__le64 bmap[0];
++};
++
+ #endif /* _LINUX_VIRTIO_BALLOON_H */
 -- 
 1.8.3.1
