@@ -1,7 +1,8 @@
 From: Liang Li <liang.z.li@intel.com>
-Subject: [PATCH kernel v4 3/7] mm: add a function to get the max pfn
-Date: Wed,  2 Nov 2016 14:17:23 +0800
-Message-ID: <1478067447-24654-4-git-send-email-liang.z.li__36829.1617990055$1478068322$gmane$org@intel.com>
+Subject: [PATCH kernel v4 6/7] virtio-balloon: define flags and head for host
+	request vq
+Date: Wed,  2 Nov 2016 14:17:26 +0800
+Message-ID: <1478067447-24654-7-git-send-email-liang.z.li__37454.7751308002$1478068337$gmane$org@intel.com>
 References: <1478067447-24654-1-git-send-email-liang.z.li@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,10 +22,14 @@ To: mst@redhat.com, dave.hansen@intel.com
 Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, Liang Li <liang.z.li@intel.com>, qemu-devel@nongnu.org, dgilbert@redhat.com, linux-mm@kvack.org, amit.shah@redhat.com, pbonzini@redhat.com, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Expose the function to get the max pfn, so it can be used in the
-virtio-balloon device driver. Simply include the 'linux/bootmem.h'
-is not enough, if the device driver is built to a module, directly
-refer the max_pfn lead to build failed.
+Define the flags and head struct for a new host request virtual
+queue. Guest can get requests from host and then responds to them on
+this new virtual queue.
+Host can make use of this virtual queue to request the guest do some
+operations, e.g. drop page cache, synchronize file system, etc.
+And the hypervisor can get some of guest's runtime information
+through this virtual queue too, e.g. the guest's unused page
+information, which can be used for live migration optimization.
 
 Signed-off-by: Liang Li <liang.z.li@intel.com>
 Cc: Andrew Morton <akpm@linux-foundation.org>
@@ -35,42 +40,46 @@ Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
 Cc: Amit Shah <amit.shah@redhat.com>
 Cc: Dave Hansen <dave.hansen@intel.com>
 ---
- include/linux/mm.h |  1 +
- mm/page_alloc.c    | 10 ++++++++++
- 2 files changed, 11 insertions(+)
+ include/uapi/linux/virtio_balloon.h | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index a92c8d7..f47862a 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1772,6 +1772,7 @@ static inline spinlock_t *pmd_lock(struct mm_struct *mm, pmd_t *pmd)
- extern void free_area_init_node(int nid, unsigned long * zones_size,
- 		unsigned long zone_start_pfn, unsigned long *zholes_size);
- extern void free_initmem(void);
-+extern unsigned long get_max_pfn(void);
+diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
+index bed6f41..c4e34d0 100644
+--- a/include/uapi/linux/virtio_balloon.h
++++ b/include/uapi/linux/virtio_balloon.h
+@@ -35,6 +35,7 @@
+ #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
+ #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
+ #define VIRTIO_BALLOON_F_PAGE_BITMAP	3 /* Send page info with bitmap */
++#define VIRTIO_BALLOON_F_HOST_REQ_VQ	4 /* Host request virtqueue */
  
- /*
-  * Free reserved pages within range [PAGE_ALIGN(start), end & PAGE_MASK)
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 8fd42aa..12cc8ed 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -4428,6 +4428,16 @@ void show_free_areas(unsigned int filter)
- 	show_swap_cache_info();
- }
+ /* Size of a PFN in the balloon interface. */
+ #define VIRTIO_BALLOON_PFN_SHIFT 12
+@@ -101,4 +102,25 @@ struct virtio_balloon_bmap_hdr {
+ 	__le64 bmap[0];
+ };
  
-+/*
-+ * The max_pfn can change because of memory hot plug, so it's only good
-+ * as a hint. e.g. for sizing data structures.
-+ */
-+unsigned long get_max_pfn(void)
-+{
-+	return max_pfn;
-+}
-+EXPORT_SYMBOL(get_max_pfn);
++enum virtio_balloon_req_id {
++	/* Get unused page information */
++	BALLOON_GET_UNUSED_PAGES,
++};
 +
- static void zoneref_set_zone(struct zone *zone, struct zoneref *zoneref)
- {
- 	zoneref->zone = zone;
++enum virtio_balloon_flag {
++	/* Have more data for a request */
++	BALLOON_FLAG_CONT,
++	/* No more data for a request */
++	BALLOON_FLAG_DONE,
++};
++
++struct virtio_balloon_req_hdr {
++	/* Used to distinguish different requests */
++	__le16 cmd;
++	/* Reserved */
++	__le16 reserved[3];
++	/* Request parameter */
++	__le64 param;
++};
++
+ #endif /* _LINUX_VIRTIO_BALLOON_H */
 -- 
 1.8.3.1
