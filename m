@@ -1,12 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] virtio: tests, cleanups and fixes
-Date: Tue, 1 Nov 2016 02:11:25 +0200
-Message-ID: <20161101021125-mutt-send-email-mst__41926.6019519002$1477959591$gmane$org@kernel.org>
+From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v7 00/11] implement vcpu preempted check
+Date: Wed,  2 Nov 2016 05:08:27 -0400
+Message-ID: <1478077718-37424-1-git-send-email-xinhui.pan__36837.1216733523$1478063618$gmane$org@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,71 +15,126 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: jgross@suse.com, lprosek@redhat.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, kneumoin@virtuozzo.com, will.deacon@arm.com, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, luto@kernel.org, pbonzini@redhat.com, den@openvz.org, matt.redfearn@imgtec.com, elfring@users.sourceforge.net
+To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org
+Cc: kernellwp@gmail.com, jgross@suse.com, dave@stgolabs.net, David.Laight@ACULAB.COM, rkrcmar@redhat.com, peterz@infradead.org, benh@kernel.crashing.org, konrad.wilk@oracle.com, will.deacon@arm.com, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, boqun.feng@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit a909d3e636995ba7c349e2ca5dbb528154d4ac30:
+change from v6:
+	fix typos and remove uncessary comments.
+change from v5:
+	spilt x86/kvm patch into guest/host part.
+	introduce kvm_write_guest_offset_cached.
+	fix some typos.
+	rebase patch onto 4.9.2
+change from v4:
+	spilt x86 kvm vcpu preempted check into two patches.
+	add documentation patch.
+	add x86 vcpu preempted check patch under xen
+	add s390 vcpu preempted check patch 
+change from v3:
+	add x86 vcpu preempted check patch
+change from v2:
+	no code change, fix typos, update some comments
+change from v1:
+	a simplier definition of default vcpu_is_preempted
+	skip mahcine type check on ppc, and add config. remove dedicated macro.
+	add one patch to drop overload of rwsem_spin_on_owner and mutex_spin_on_owner. 
+	add more comments
+	thanks boqun and Peter's suggestion.
 
-  Linux 4.9-rc3 (2016-10-29 13:52:02 -0700)
+This patch set aims to fix lock holder preemption issues.
 
-are available in the git repository at:
+test-case:
+perf record -a perf bench sched messaging -g 400 -p && perf report
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
+12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
+ 5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
+ 3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
+ 3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
+ 3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
+ 2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
 
-for you to fetch changes up to 75bfa81bf0897ba87f1e1b9b576a07536029b86a:
+We introduce interface bool vcpu_is_preempted(int cpu) and use it in some spin
+loops of osq_lock, rwsem_spin_on_owner and mutex_spin_on_owner.
+These spin_on_onwer variant also cause rcu stall before we apply this patch set
 
-  virtio_ring: mark vring_dma_dev inline (2016-10-31 00:40:08 +0200)
+We also have observed some performace improvements in uninx benchmark tests.
 
-----------------------------------------------------------------
-virtio: tests, fixes and cleanups
+PPC test result:
+1 copy - 0.94%
+2 copy - 7.17%
+4 copy - 11.9%
+8 copy -  3.04%
+16 copy - 15.11%
 
-Just minor tweaks, there's nothing major in this cycle.
+details below:
+Without patch:
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+1 copy - File Write 4096 bufsize 8000 maxblocks      2188223.0 KBps  (30.0 s, 1 samples)
+2 copy - File Write 4096 bufsize 8000 maxblocks      1804433.0 KBps  (30.0 s, 1 samples)
+4 copy - File Write 4096 bufsize 8000 maxblocks      1237257.0 KBps  (30.0 s, 1 samples)
+8 copy - File Write 4096 bufsize 8000 maxblocks      1032658.0 KBps  (30.0 s, 1 samples)
+16 copy - File Write 4096 bufsize 8000 maxblocks       768000.0 KBps  (30.1 s, 1 samples)
 
-----------------------------------------------------------------
+With patch: 
+
+1 copy - File Write 4096 bufsize 8000 maxblocks      2209189.0 KBps  (30.0 s, 1 samples)
+2 copy - File Write 4096 bufsize 8000 maxblocks      1943816.0 KBps  (30.0 s, 1 samples)
+4 copy - File Write 4096 bufsize 8000 maxblocks      1405591.0 KBps  (30.0 s, 1 samples)
+8 copy - File Write 4096 bufsize 8000 maxblocks      1065080.0 KBps  (30.0 s, 1 samples)
+16 copy - File Write 4096 bufsize 8000 maxblocks       904762.0 KBps  (30.0 s, 1 samples)
+
+X86 test result:
+	test-case			after-patch	  before-patch
+Execl Throughput                       |    18307.9 lps  |    11701.6 lps 
+File Copy 1024 bufsize 2000 maxblocks  |  1352407.3 KBps |   790418.9 KBps
+File Copy 256 bufsize 500 maxblocks    |   367555.6 KBps |   222867.7 KBps
+File Copy 4096 bufsize 8000 maxblocks  |  3675649.7 KBps |  1780614.4 KBps
+Pipe Throughput                        | 11872208.7 lps  | 11855628.9 lps 
+Pipe-based Context Switching           |  1495126.5 lps  |  1490533.9 lps 
+Process Creation                       |    29881.2 lps  |    28572.8 lps 
+Shell Scripts (1 concurrent)           |    23224.3 lpm  |    22607.4 lpm 
+Shell Scripts (8 concurrent)           |     3531.4 lpm  |     3211.9 lpm 
+System Call Overhead                   | 10385653.0 lps  | 10419979.0 lps 
+
+
+Christian Borntraeger (1):
+  s390/spinlock: Provide vcpu_is_preempted
+
 Juergen Gross (1):
-      virtio: remove config.c
+  x86, xen: support vcpu preempted check
 
-Konstantin Neumoin (1):
-      virtio: update balloon size in balloon "probe"
+Pan Xinhui (9):
+  kernel/sched: introduce vcpu preempted check interface
+  locking/osq: Drop the overload of osq_lock()
+  kernel/locking: Drop the overload of {mutex,rwsem}_spin_on_owner
+  powerpc/spinlock: support vcpu preempted check
+  x86, paravirt: Add interface to support kvm/xen vcpu preempted check
+  KVM: Introduce kvm_write_guest_offset_cached
+  x86, kvm/x86.c: support vcpu preempted check
+  x86, kernel/kvm.c: support vcpu preempted check
+  Documentation: virtual: kvm: Support vcpu preempted check
 
-Ladi Prosek (1):
-      virtio_ring: Make interrupt suppression spec compliant
+ Documentation/virtual/kvm/msr.txt     |  9 ++++++++-
+ arch/powerpc/include/asm/spinlock.h   |  8 ++++++++
+ arch/s390/include/asm/spinlock.h      |  8 ++++++++
+ arch/s390/kernel/smp.c                |  9 +++++++--
+ arch/s390/lib/spinlock.c              | 25 ++++++++-----------------
+ arch/x86/include/asm/paravirt_types.h |  2 ++
+ arch/x86/include/asm/spinlock.h       |  8 ++++++++
+ arch/x86/include/uapi/asm/kvm_para.h  |  4 +++-
+ arch/x86/kernel/kvm.c                 | 12 ++++++++++++
+ arch/x86/kernel/paravirt-spinlocks.c  |  6 ++++++
+ arch/x86/kvm/x86.c                    | 16 ++++++++++++++++
+ arch/x86/xen/spinlock.c               |  3 ++-
+ include/linux/kvm_host.h              |  2 ++
+ include/linux/sched.h                 | 12 ++++++++++++
+ kernel/locking/mutex.c                | 13 +++++++++++--
+ kernel/locking/osq_lock.c             |  8 +++++++-
+ kernel/locking/rwsem-xadd.c           | 14 +++++++++++---
+ virt/kvm/kvm_main.c                   | 20 ++++++++++++++------
+ 18 files changed, 145 insertions(+), 34 deletions(-)
 
-Markus Elfring (2):
-      virtio_blk: Use kmalloc_array() in init_vq()
-      virtio_blk: Delete an unnecessary initialisation in init_vq()
-
-Matt Redfearn (1):
-      virtio: console: Unlock vqs while freeing buffers
-
-Michael S. Tsirkin (2):
-      virtio/vhost: add Jason to list of maintainers
-      virtio_ring: mark vring_dma_dev inline
-
-Paolo Bonzini (3):
-      ringtest: use link-time optimization
-      ringtest: commonize implementation of poll_avail/poll_used
-      ringtest: poll for new buffers once before updating event index
-
-Will Deacon (1):
-      virtio_pci: Limit DMA mask to 44 bits for legacy virtio devices
-
- tools/virtio/ringtest/main.h            |  4 +--
- drivers/block/virtio_blk.c              | 10 +++---
- drivers/char/virtio_console.c           | 22 ++++++++----
- drivers/virtio/config.c                 | 12 -------
- drivers/virtio/virtio_balloon.c         |  2 ++
- drivers/virtio/virtio_pci_legacy.c      | 16 ++++++---
- drivers/virtio/virtio_ring.c            | 16 +++++----
- tools/virtio/ringtest/main.c            | 20 ++++++++---
- tools/virtio/ringtest/noring.c          |  6 ++--
- tools/virtio/ringtest/ptr_ring.c        | 22 +++---------
- tools/virtio/ringtest/ring.c            | 18 ++++------
- tools/virtio/ringtest/virtio_ring_0_9.c | 64 ++++++++-------------------------
- MAINTAINERS                             |  2 ++
- tools/virtio/ringtest/Makefile          |  4 +--
- 14 files changed, 96 insertions(+), 122 deletions(-)
- delete mode 100644 drivers/virtio/config.c
+-- 
+2.4.11
