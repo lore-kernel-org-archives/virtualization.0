@@ -1,15 +1,12 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH v2 34/37] docs: fix locations of several documents that
-	got moved
-Date: Wed, 2 Nov 2016 10:31:54 +0100
-Message-ID: <20161102093154.GC23350@amd>
-References: <cover.1476801354.git.mchehab@s-opensource.com>
-	<28c1f5d3867174a7017e3f3d9e9e4ebb096ceed8.1476801354.git.mchehab@s-opensource.com>
-	<20161019103442.GD1461@amd> <20161019115918.1162d16e@vento.lan>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] virtio-net: drop legacy features in virtio 1 mode
+Date: Fri, 4 Nov 2016 12:55:36 +0200
+Message-ID: <1478256865-29003-1-git-send-email-mst__45756.6171921373$1478256966$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7680369000982517778=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161019115918.1162d16e@vento.lan>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,98 +16,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Cc: Nicolas Pitre <nicolas.pitre@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Chris Metcalf <cmetcalf@ezchip.com>, Peter Loeffler <peter.loeffler@guruz.at>, Finn Thain <fthain@telegraphics.com.au>, Yaowei Bai <baiyaowei@cmss.chinamobile.com>, Jakub Wilk <jwilk@jwilk.net>, linux-acpi@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, Guenter Roeck <linux@roeck-us.net>, Petr Mladek <pmladek@suse.com>, Jean Delvare <jdelvare@suse.com>, linux-pm@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Karsten Keil <isdn@linux-pingi.de>, Jiri Kosina <jkosina@suse.cz>, "seokhoon.yoon" <iamyooon@gmail.com>, Li Zefan <lizefan@huawei.com>, Ryan Swan <ryan@ryanswan.com>, Joe Perches <joe@perches.com>, Andrew Morton <akpm@linux-foundation.org>, Mark
+To: linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+Virtio 1.0 spec says VIRTIO_F_ANY_LAYOUT and VIRTIO_NET_F_GSO are
+legacy-only feature bits. Do not negotiate them in virtio 1 mode.  Note
+this is a spec violation so we need to backport it to stable/downstream
+kernels.
 
---===============7680369000982517778==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+nBD6E3TurpgldQp"
-Content-Disposition: inline
+Cc: stable@vger.kernel.org
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/net/virtio_net.c | 30 ++++++++++++++++++++----------
+ 1 file changed, 20 insertions(+), 10 deletions(-)
 
-
---+nBD6E3TurpgldQp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi!
-
-> > Dunno, but kernel-parameters.txt was already quite long... for a file
-> > that is referenced quite often. Adding admin-guide/ into the path does
-> > not really help.
->=20
-> The big string name starts with Documentation/ :) There are some discussi=
-ons=20
-> about changing it to doc/ (or docs/). Also, as you said, kernel-parameters
-> is already a big name. Perhaps we could use, instead,
-> > "kernel-parms".
-
-cmdline?
-
-> If we rename kernel-parameters.rst to kernel-parms.rst, plus the doc/ ren=
-ame,
-> then the string size will actually reduce:
->=20
-> -		(see Documentation/kernel-parameters.txt), the minimum possible
-> +		(see doc/admin-guide/kernel-parms.rst), the minimum possible
->=20
-> > Maybe admin-guide should go directly into Documentation/ , as that's
-> > what our users are interested in?
->=20
-> There are several problems if we keep them at Documentation/ dir:
->=20
-> - We'll end by mixing documents already converted to ReST with documents
->   not converted yet;
->=20
-> - A rename is needed anyway, as Sphinx only accepts ReST files that end
->   with the extension(s) defined at Documentation/conf.py (currently,
->   .rst);
->=20
-> - A partial documentation build is made by sub-directory. If we put
->   files under /Documentation, there's no way to build just one
->   book.
-
-Well, documentation is primarily for users. I'm sure tools can adapt...
-
-> > Plus, I'm not sure how many developers will figure out that process/
-> > is what describes kernel patch submission process. We have processes
-> > in the kernel, after all...
->=20
-> Do you have a better idea?
-
-development/ ?
-
-Best regards,
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---+nBD6E3TurpgldQp
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlgZsooACgkQMOfwapXb+vKDEwCdEmlwjrrTY1HV6PoP/Pyie4I+
-oBMAnjN0WHtyXtQBydl/7WLL5tES6tZi
-=EDvv
------END PGP SIGNATURE-----
-
---+nBD6E3TurpgldQp--
-
---===============7680369000982517778==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7680369000982517778==--
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 7a00365..b19fb4d 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2089,23 +2089,33 @@ static struct virtio_device_id id_table[] = {
+ 	{ 0 },
+ };
+ 
++#define VIRTNET_FEATURES \
++	VIRTIO_NET_F_CSUM, VIRTIO_NET_F_GUEST_CSUM, \
++	VIRTIO_NET_F_MAC, \
++	VIRTIO_NET_F_HOST_TSO4, VIRTIO_NET_F_HOST_UFO, VIRTIO_NET_F_HOST_TSO6, \
++	VIRTIO_NET_F_HOST_ECN, VIRTIO_NET_F_GUEST_TSO4, VIRTIO_NET_F_GUEST_TSO6, \
++	VIRTIO_NET_F_GUEST_ECN, VIRTIO_NET_F_GUEST_UFO, \
++	VIRTIO_NET_F_MRG_RXBUF, VIRTIO_NET_F_STATUS, VIRTIO_NET_F_CTRL_VQ, \
++	VIRTIO_NET_F_CTRL_RX, VIRTIO_NET_F_CTRL_VLAN, \
++	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ, \
++	VIRTIO_NET_F_CTRL_MAC_ADDR, \
++	VIRTIO_NET_F_MTU
++
+ static unsigned int features[] = {
+-	VIRTIO_NET_F_CSUM, VIRTIO_NET_F_GUEST_CSUM,
+-	VIRTIO_NET_F_GSO, VIRTIO_NET_F_MAC,
+-	VIRTIO_NET_F_HOST_TSO4, VIRTIO_NET_F_HOST_UFO, VIRTIO_NET_F_HOST_TSO6,
+-	VIRTIO_NET_F_HOST_ECN, VIRTIO_NET_F_GUEST_TSO4, VIRTIO_NET_F_GUEST_TSO6,
+-	VIRTIO_NET_F_GUEST_ECN, VIRTIO_NET_F_GUEST_UFO,
+-	VIRTIO_NET_F_MRG_RXBUF, VIRTIO_NET_F_STATUS, VIRTIO_NET_F_CTRL_VQ,
+-	VIRTIO_NET_F_CTRL_RX, VIRTIO_NET_F_CTRL_VLAN,
+-	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ,
+-	VIRTIO_NET_F_CTRL_MAC_ADDR,
++	VIRTNET_FEATURES,
++};
++
++static unsigned int features_legacy[] = {
++	VIRTNET_FEATURES,
++	VIRTIO_NET_F_GSO,
+ 	VIRTIO_F_ANY_LAYOUT,
+-	VIRTIO_NET_F_MTU,
+ };
+ 
+ static struct virtio_driver virtio_net_driver = {
+ 	.feature_table = features,
+ 	.feature_table_size = ARRAY_SIZE(features),
++	.feature_table_legacy = features_legacy,
++	.feature_table_size_legacy = ARRAY_SIZE(features_legacy),
+ 	.driver.name =	KBUILD_MODNAME,
+ 	.driver.owner =	THIS_MODULE,
+ 	.id_table =	id_table,
+-- 
+MST
