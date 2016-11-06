@@ -1,7 +1,7 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 4/7] virtio_pci: split the INTx case out of vp_try_to_find_vqs
-Date: Sun,  6 Nov 2016 15:09:40 -0800
-Message-ID: <1478473783-12589-5-git-send-email-hch__28380.1890480847$1478473852$gmane$org@lst.de>
+Subject: [PATCH 5/7] virtio_pci: add a helper to request MSI-X interrupts
+Date: Sun,  6 Nov 2016 15:09:41 -0800
+Message-ID: <1478473783-12589-6-git-send-email-hch__24467.7807008431$1478473877$gmane$org@lst.de>
 References: <1478473783-12589-1-git-send-email-hch@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,151 +21,91 @@ To: mst@redhat.com
 Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-There is basically no shared logic with the two MSI-X variants, so move
-it into a separate function.  Also remove the fairly pointless
-vp_request_intx wrapper while we're at it.
+Factor out some duplicated code to format that MSI-X vector name and
+request the interrupt for it.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/virtio/virtio_pci_common.c | 89 ++++++++++++++++++++++----------------
- 1 file changed, 52 insertions(+), 37 deletions(-)
+ drivers/virtio/virtio_pci_common.c | 38 +++++++++++++++-----------------------
+ 1 file changed, 15 insertions(+), 23 deletions(-)
 
 diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index f6c5499..644bd80 100644
+index 644bd80..7c44891 100644
 --- a/drivers/virtio/virtio_pci_common.c
 +++ b/drivers/virtio/virtio_pci_common.c
-@@ -167,18 +167,6 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
- 	return err;
+@@ -102,11 +102,19 @@ static irqreturn_t vp_interrupt(int irq, void *opaque)
+ 	return vp_vring_interrupt(irq, opaque);
  }
  
--static int vp_request_intx(struct virtio_device *vdev)
--{
--	int err;
--	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--
--	err = request_irq(vp_dev->pci_dev->irq, vp_interrupt,
--			  IRQF_SHARED, dev_name(&vdev->dev), vp_dev);
--	if (!err)
--		vp_dev->intx_enabled = 1;
--	return err;
--}
--
- static struct virtqueue *vp_setup_vq(struct virtio_device *vdev, unsigned index,
- 				     void (*callback)(struct virtqueue *vq),
- 				     const char *name,
-@@ -281,7 +269,6 @@ static int vp_try_to_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 			      struct virtqueue *vqs[],
- 			      vq_callback_t *callbacks[],
- 			      const char * const names[],
--			      bool use_msix,
- 			      bool per_vq_vectors)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-@@ -292,28 +279,21 @@ static int vp_try_to_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 	if (!vp_dev->vqs)
- 		return -ENOMEM;
- 
--	if (!use_msix) {
--		/* Old style: one normal interrupt for change and all vqs. */
--		err = vp_request_intx(vdev);
--		if (err)
--			goto error_find;
-+	if (per_vq_vectors) {
-+		/* Best option: one for change interrupt, one per vq. */
-+		nvectors = 1;
-+		for (i = 0; i < nvqs; ++i)
-+			if (callbacks[i])
-+				++nvectors;
- 	} else {
--		if (per_vq_vectors) {
--			/* Best option: one for change interrupt, one per vq. */
--			nvectors = 1;
--			for (i = 0; i < nvqs; ++i)
--				if (callbacks[i])
--					++nvectors;
--		} else {
--			/* Second best: one for change, shared for all vqs. */
--			nvectors = 2;
--		}
--
--		err = vp_request_msix_vectors(vdev, nvectors, per_vq_vectors);
--		if (err)
--			goto error_find;
-+		/* Second best: one for change, shared for all vqs. */
-+		nvectors = 2;
- 	}
- 
-+	err = vp_request_msix_vectors(vdev, nvectors, per_vq_vectors);
-+	if (err)
-+		goto error_find;
-+
- 	vp_dev->per_vq_vectors = per_vq_vectors;
- 	allocated_vectors = vp_dev->msix_used_vectors;
- 	for (i = 0; i < nvqs; ++i) {
-@@ -356,6 +336,43 @@ static int vp_try_to_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 	return err;
- }
- 
-+static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned nvqs,
-+		struct virtqueue *vqs[], vq_callback_t *callbacks[],
-+		const char * const names[])
++static int vp_request_msix_vector(struct virtio_pci_device *vp_dev, int vec,
++		irq_handler_t handler, const char *name, void *dev_id)
 +{
-+	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-+	int i, err;
-+
-+	vp_dev->vqs = kcalloc(nvqs, sizeof(*vp_dev->vqs), GFP_KERNEL);
-+	if (!vp_dev->vqs)
-+		return -ENOMEM;
-+
-+	err = request_irq(vp_dev->pci_dev->irq, vp_interrupt, IRQF_SHARED,
-+			dev_name(&vdev->dev), vp_dev);
-+	if (err)
-+		goto out_del_vqs;
-+
-+	vp_dev->intx_enabled = 1;
-+	vp_dev->per_vq_vectors = false;
-+	for (i = 0; i < nvqs; ++i) {
-+		if (!names[i]) {
-+			vqs[i] = NULL;
-+			continue;
-+		}
-+		vqs[i] = vp_setup_vq(vdev, i, callbacks[i], names[i],
-+				VIRTIO_MSI_NO_VECTOR);
-+		if (IS_ERR(vqs[i])) {
-+			err = PTR_ERR(vqs[i]);
-+			goto out_del_vqs;
-+		}
-+	}
-+
-+	return 0;
-+out_del_vqs:
-+	vp_del_vqs(vdev);
-+	return err;
++	snprintf(vp_dev->msix_names[vec], sizeof(vp_dev->msix_names[vec]),
++			"%s-%s", dev_name(&vp_dev->vdev.dev), name);
++	return request_irq(pci_irq_vector(vp_dev->pci_dev, vec), handler, 0,
++			vp_dev->msix_names[vec], dev_id);
 +}
 +
- /* the config->find_vqs() implementation */
- int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 		struct virtqueue *vqs[],
-@@ -365,17 +382,15 @@ int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 	int err;
+ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
+ 				   bool per_vq_vectors)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+-	const char *name = dev_name(&vp_dev->vdev.dev);
+ 	unsigned i, v;
+ 	int err = -ENOMEM;
  
- 	/* Try MSI-X with one vector per queue. */
--	err = vp_try_to_find_vqs(vdev, nvqs, vqs, callbacks, names, true, true);
-+	err = vp_try_to_find_vqs(vdev, nvqs, vqs, callbacks, names, true);
- 	if (!err)
- 		return 0;
- 	/* Fallback: MSI-X with one vector for config, one shared for queues. */
--	err = vp_try_to_find_vqs(vdev, nvqs, vqs, callbacks, names,
--				 true, false);
-+	err = vp_try_to_find_vqs(vdev, nvqs, vqs, callbacks, names, false);
- 	if (!err)
- 		return 0;
- 	/* Finally fall back to regular interrupts. */
--	return vp_try_to_find_vqs(vdev, nvqs, vqs, callbacks, names,
--				  false, false);
-+	return vp_find_vqs_intx(vdev, nvqs, vqs, callbacks, names);
- }
+@@ -133,15 +141,10 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
+ 	vp_dev->msix_enabled = 1;
  
- const char *vp_bus_name(struct virtio_device *vdev)
+ 	/* Set the vector used for configuration */
+-	v = vp_dev->msix_used_vectors;
+-	snprintf(vp_dev->msix_names[v], sizeof *vp_dev->msix_names,
+-		 "%s-config", name);
+-	err = request_irq(pci_irq_vector(vp_dev->pci_dev, v),
+-			  vp_config_changed, 0, vp_dev->msix_names[v],
+-			  vp_dev);
++	err = vp_request_msix_vector(vp_dev, vp_dev->msix_used_vectors++,
++			vp_config_changed, "config", vp_dev);
+ 	if (err)
+ 		goto error;
+-	++vp_dev->msix_used_vectors;
+ 
+ 	v = vp_dev->config_vector(vp_dev, v);
+ 	/* Verify we had enough resources to assign the vector */
+@@ -152,15 +155,10 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
+ 
+ 	if (!per_vq_vectors) {
+ 		/* Shared vector for all VQs */
+-		v = vp_dev->msix_used_vectors;
+-		snprintf(vp_dev->msix_names[v], sizeof *vp_dev->msix_names,
+-			 "%s-virtqueues", name);
+-		err = request_irq(pci_irq_vector(vp_dev->pci_dev, v),
+-				  vp_vring_interrupt, 0, vp_dev->msix_names[v],
+-				  vp_dev);
++		err = vp_request_msix_vector(vp_dev, vp_dev->msix_used_vectors++,
++				vp_vring_interrupt, "virtqueues", vp_dev);
+ 		if (err)
+ 			goto error;
+-		++vp_dev->msix_used_vectors;
+ 	}
+ 	return 0;
+ error:
+@@ -316,14 +314,8 @@ static int vp_try_to_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 			continue;
+ 
+ 		/* allocate per-vq irq if available and necessary */
+-		snprintf(vp_dev->msix_names[msix_vec],
+-			 sizeof *vp_dev->msix_names,
+-			 "%s-%s",
+-			 dev_name(&vp_dev->vdev.dev), names[i]);
+-		err = request_irq(pci_irq_vector(vp_dev->pci_dev, msix_vec),
+-				  vring_interrupt, 0,
+-				  vp_dev->msix_names[msix_vec],
+-				  vqs[i]);
++		err = vp_request_msix_vector(vp_dev, msix_vec, vring_interrupt,
++				names[i], vqs[i]);
+ 		if (err) {
+ 			vp_del_vq(vqs[i]);
+ 			goto error_find;
 -- 
 2.1.4
