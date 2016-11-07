@@ -1,17 +1,11 @@
-From: "Li, Liang Z" <liang.z.li@intel.com>
-Subject: RE: [PATCH kernel v4 7/7] virtio-balloon: tell host vm's unused
-	page info
-Date: Mon, 7 Nov 2016 03:37:58 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E3A106DAA__26878.7982211963$1478489895$gmane$org@shsmsx102.ccr.corp.intel.com>
-References: <1478067447-24654-1-git-send-email-liang.z.li@intel.com>
-	<1478067447-24654-8-git-send-email-liang.z.li@intel.com>
-	<b25eac6e-3744-3874-93a8-02f814549adf@intel.com>
+From: Jiri Slaby <jslaby@suse.cz>
+Subject: BUG: 'list_empty(&vgdev->free_vbufs)' is true!
+Date: Mon, 7 Nov 2016 09:43:24 +0100
+Message-ID: <bfe29853-694b-6cb5-02e7-6986a9927438@suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <b25eac6e-3744-3874-93a8-02f814549adf@intel.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,92 +15,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Hansen, Dave" <dave.hansen@intel.com>, "mst@redhat.com" <mst@redhat.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mgorman@techsingularity.net" <mgorman@techsingularity.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Linux kernel mailing list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Please squish this and patch 5 together.  It makes no sense to separate them.
-> 
+Hi,
 
-OK.
-
-> > +static void send_unused_pages_info(struct virtio_balloon *vb,
-> > +				unsigned long req_id)
-> > +{
-> > +	struct scatterlist sg_in;
-> > +	unsigned long pfn = 0, bmap_len, pfn_limit, last_pfn, nr_pfn;
-> > +	struct virtqueue *vq = vb->req_vq;
-> > +	struct virtio_balloon_resp_hdr *hdr = vb->resp_hdr;
-> > +	int ret = 1, used_nr_bmap = 0, i;
-> > +
-> > +	if (virtio_has_feature(vb->vdev,
-> VIRTIO_BALLOON_F_PAGE_BITMAP) &&
-> > +		vb->nr_page_bmap == 1)
-> > +		extend_page_bitmap(vb);
-> > +
-> > +	pfn_limit = PFNS_PER_BMAP * vb->nr_page_bmap;
-> > +	mutex_lock(&vb->balloon_lock);
-> > +	last_pfn = get_max_pfn();
-> > +
-> > +	while (ret) {
-> > +		clear_page_bitmap(vb);
-> > +		ret = get_unused_pages(pfn, pfn + pfn_limit, vb-
-> >page_bitmap,
-> > +			 PFNS_PER_BMAP, vb->nr_page_bmap);
-> 
-> This changed the underlying data structure without changing the way that
-> the structure is populated.
-> 
-> This algorithm picks a "PFNS_PER_BMAP * vb->nr_page_bmap"-sized set of
-> pfns, allocates a bitmap for them, the loops through all zones looking for
-> pages in any free list that are in that range.
-> 
-> Unpacking all the indirection, it looks like this:
-> 
-> for (pfn = 0; pfn < get_max_pfn(); pfn += BITMAP_SIZE_IN_PFNS)
-> 	for_each_populated_zone(zone)
-> 		for_each_migratetype_order(order, t)
-> 			list_for_each(..., &zone->free_area[order])...
-> 
-> Let's say we do a 32k bitmap that can hold ~1M pages.  That's 4GB of RAM.
-> On a 1TB system, that's 256 passes through the top-level loop.
-> The bottom-level lists have tens of thousands of pages in them, even on my
-> laptop.  Only 1/256 of these pages will get consumed in a given pass.
-> 
-Your description is not exactly.
-A 32k bitmap is used only when there is few free memory left in the system and when 
-the extend_page_bitmap() failed to allocate more memory for the bitmap. Or dozens of 
-32k split bitmap will be used, this version limit the bitmap count to 32, it means we can use
-at most 32*32 kB for the bitmap, which can cover 128GB for RAM. We can increase the bitmap
-count limit to a larger value if 32 is not big enough.
-
-> That's an awfully inefficient way of doing it.  This patch essentially changed
-> the data structure without changing the algorithm to populate it.
-> 
-> Please change the *algorithm* to use the new data structure efficiently.
->  Such a change would only do a single pass through each freelist, and would
-> choose whether to use the extent-based (pfn -> range) or bitmap-based
-> approach based on the contents of the free lists.
-
-Save the free page info to a raw bitmap first and then process the raw bitmap to
-get the proper ' extent-based ' and  'bitmap-based' is the most efficient way I can 
-come up with to save the virtio data transmission.  Do you have some better idea?
+I can relatively easily reproduce this bug:
+BUG: 'list_empty(&vgdev->free_vbufs)' is true!
+------------[ cut here ]------------
+kernel BUG at /home/latest/linux/drivers/gpu/drm/virtio/virtgpu_vq.c:130!
+invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+Modules linked in:
+CPU: 1 PID: 355 Comm: kworker/1:2 Not tainted 4.9.0-rc2-next-20161028+ #32
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+rel-1.9.3-0-ge2fc41e-prebuilt.qemu-project.org 04/01/2014
+Workqueue: events drm_fb_helper_dirty_work
+task: ffff88007b124980 task.stack: ffff88007b8a0000
+RIP: 0010:virtio_gpu_get_vbuf+0x32e/0x630
+RSP: 0018:ffff88007b8a78c0 EFLAGS: 00010286
+RAX: 000000000000002e RBX: 1ffff1000f714f1d RCX: 0000000000000000
+RDX: 000000000000002e RSI: 0000000000000001 RDI: ffffed000f714f0e
+RBP: ffff88007b8a7970 R08: 0000000000000001 R09: 0000000000000000
+R10: 0000000000000002 R11: 0000000000000001 R12: 0000000000000030
+R13: ffff88007caeaba8 R14: 0000000000000018 R15: ffff88007cae0000
+FS:  0000000000000000(0000) GS:ffff88007dc80000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000601028 CR3: 000000007740d000 CR4: 00000000000006e0
+Call Trace:
+Code: df 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 bb 01 00 00 4c 89 69 e8
+eb 9e 48 c7 c6 e0 d2 d1 83 48 c7 c7 20 d3 d1 83 e8 6c fb 04 ff <0f> 0b
+48 c7 c7 a0 fb b0 85 e8 09 95 86 ff 48 c7 c6 c0 d3 d1 83
+RIP: virtio_gpu_get_vbuf+0x32e/0x630 RSP: ffff88007b8a78c0
 
 
-In the QEMU, no matter how we encode the bitmap, the raw format bitmap will be
-used in the end.  But what I did in this version is:
-   kernel: get the raw bitmap  --> encode the bitmap
-   QEMU: decode the bitmap --> get the raw bitmap
+There is no stacktrace, as the kernel starts panicing all over the place
+during its generation. Any ideas?
 
-Is it worth to do this kind of job here? we can save the virtio data transmission, but at the
-same time, we did extra work.
-
-It seems the benefit we get for this feature is not as big as that in fast balloon inflating/deflating.
-> 
-> You should not be using get_max_pfn().  Any patch set that continues to use
-> it is not likely to be using a proper algorithm.
-
-Do you have any suggestion about how to avoid it?
-
-Thanks!
-Liang
+thanks,
+-- 
+js
+suse labs
