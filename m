@@ -1,11 +1,13 @@
-From: Jiri Slaby <jslaby@suse.cz>
-Subject: BUG: 'list_empty(&vgdev->free_vbufs)' is true!
-Date: Mon, 7 Nov 2016 09:43:24 +0100
-Message-ID: <bfe29853-694b-6cb5-02e7-6986a9927438@suse.cz>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] virtio-net: drop legacy features in virtio 1 mode
+Date: Mon, 7 Nov 2016 17:17:38 +0800
+Message-ID: <64fb12f5-3724-f35b-1a83-44e4ae2d0f20@redhat.com>
+References: <1478256865-29003-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1478256865-29003-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,43 +17,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Linux kernel mailing list <linux-kernel@vger.kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
-
-I can relatively easily reproduce this bug:
-BUG: 'list_empty(&vgdev->free_vbufs)' is true!
-------------[ cut here ]------------
-kernel BUG at /home/latest/linux/drivers/gpu/drm/virtio/virtgpu_vq.c:130!
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN
-Modules linked in:
-CPU: 1 PID: 355 Comm: kworker/1:2 Not tainted 4.9.0-rc2-next-20161028+ #32
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-rel-1.9.3-0-ge2fc41e-prebuilt.qemu-project.org 04/01/2014
-Workqueue: events drm_fb_helper_dirty_work
-task: ffff88007b124980 task.stack: ffff88007b8a0000
-RIP: 0010:virtio_gpu_get_vbuf+0x32e/0x630
-RSP: 0018:ffff88007b8a78c0 EFLAGS: 00010286
-RAX: 000000000000002e RBX: 1ffff1000f714f1d RCX: 0000000000000000
-RDX: 000000000000002e RSI: 0000000000000001 RDI: ffffed000f714f0e
-RBP: ffff88007b8a7970 R08: 0000000000000001 R09: 0000000000000000
-R10: 0000000000000002 R11: 0000000000000001 R12: 0000000000000030
-R13: ffff88007caeaba8 R14: 0000000000000018 R15: ffff88007cae0000
-FS:  0000000000000000(0000) GS:ffff88007dc80000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000601028 CR3: 000000007740d000 CR4: 00000000000006e0
-Call Trace:
-Code: df 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 bb 01 00 00 4c 89 69 e8
-eb 9e 48 c7 c6 e0 d2 d1 83 48 c7 c7 20 d3 d1 83 e8 6c fb 04 ff <0f> 0b
-48 c7 c7 a0 fb b0 85 e8 09 95 86 ff 48 c7 c6 c0 d3 d1 83
-RIP: virtio_gpu_get_vbuf+0x32e/0x630 RSP: ffff88007b8a78c0
-
-
-There is no stacktrace, as the kernel starts panicing all over the place
-during its generation. Any ideas?
-
-thanks,
--- 
-js
-suse labs
+CgpPbiAyMDE25bm0MTHmnIgwNOaXpSAxODo1NSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IFZpcnRpbyAxLjAgc3BlYyBzYXlzIFZJUlRJT19GX0FOWV9MQVlPVVQgYW5kIFZJUlRJT19ORVRf
+Rl9HU08gYXJlCj4gbGVnYWN5LW9ubHkgZmVhdHVyZSBiaXRzLiBEbyBub3QgbmVnb3RpYXRlIHRo
+ZW0gaW4gdmlydGlvIDEgbW9kZS4gIE5vdGUKPiB0aGlzIGlzIGEgc3BlYyB2aW9sYXRpb24gc28g
+d2UgbmVlZCB0byBiYWNrcG9ydCBpdCB0byBzdGFibGUvZG93bnN0cmVhbQo+IGtlcm5lbHMuCj4K
+PiBDYzogc3RhYmxlQHZnZXIua2VybmVsLm9yZwo+IFNpZ25lZC1vZmYtYnk6IE1pY2hhZWwgUy4g
+VHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+Cj4gLS0tCj4gICBkcml2ZXJzL25ldC92aXJ0aW9fbmV0
+LmMgfCAzMCArKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0KPiAgIDEgZmlsZSBjaGFuZ2Vk
+LCAyMCBpbnNlcnRpb25zKCspLCAxMCBkZWxldGlvbnMoLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2
+ZXJzL25ldC92aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiBpbmRleCA3
+YTAwMzY1Li5iMTlmYjRkIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+
+ICsrKyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+IEBAIC0yMDg5LDIzICsyMDg5LDMzIEBA
+IHN0YXRpYyBzdHJ1Y3QgdmlydGlvX2RldmljZV9pZCBpZF90YWJsZVtdID0gewo+ICAgCXsgMCB9
+LAo+ICAgfTsKPiAgIAo+ICsjZGVmaW5lIFZJUlRORVRfRkVBVFVSRVMgXAo+ICsJVklSVElPX05F
+VF9GX0NTVU0sIFZJUlRJT19ORVRfRl9HVUVTVF9DU1VNLCBcCj4gKwlWSVJUSU9fTkVUX0ZfTUFD
+LCBcCj4gKwlWSVJUSU9fTkVUX0ZfSE9TVF9UU080LCBWSVJUSU9fTkVUX0ZfSE9TVF9VRk8sIFZJ
+UlRJT19ORVRfRl9IT1NUX1RTTzYsIFwKPiArCVZJUlRJT19ORVRfRl9IT1NUX0VDTiwgVklSVElP
+X05FVF9GX0dVRVNUX1RTTzQsIFZJUlRJT19ORVRfRl9HVUVTVF9UU082LCBcCj4gKwlWSVJUSU9f
+TkVUX0ZfR1VFU1RfRUNOLCBWSVJUSU9fTkVUX0ZfR1VFU1RfVUZPLCBcCj4gKwlWSVJUSU9fTkVU
+X0ZfTVJHX1JYQlVGLCBWSVJUSU9fTkVUX0ZfU1RBVFVTLCBWSVJUSU9fTkVUX0ZfQ1RSTF9WUSwg
+XAo+ICsJVklSVElPX05FVF9GX0NUUkxfUlgsIFZJUlRJT19ORVRfRl9DVFJMX1ZMQU4sIFwKPiAr
+CVZJUlRJT19ORVRfRl9HVUVTVF9BTk5PVU5DRSwgVklSVElPX05FVF9GX01RLCBcCj4gKwlWSVJU
+SU9fTkVUX0ZfQ1RSTF9NQUNfQUREUiwgXAo+ICsJVklSVElPX05FVF9GX01UVQo+ICsKPiAgIHN0
+YXRpYyB1bnNpZ25lZCBpbnQgZmVhdHVyZXNbXSA9IHsKPiAtCVZJUlRJT19ORVRfRl9DU1VNLCBW
+SVJUSU9fTkVUX0ZfR1VFU1RfQ1NVTSwKPiAtCVZJUlRJT19ORVRfRl9HU08sIFZJUlRJT19ORVRf
+Rl9NQUMsCj4gLQlWSVJUSU9fTkVUX0ZfSE9TVF9UU080LCBWSVJUSU9fTkVUX0ZfSE9TVF9VRk8s
+IFZJUlRJT19ORVRfRl9IT1NUX1RTTzYsCj4gLQlWSVJUSU9fTkVUX0ZfSE9TVF9FQ04sIFZJUlRJ
+T19ORVRfRl9HVUVTVF9UU080LCBWSVJUSU9fTkVUX0ZfR1VFU1RfVFNPNiwKPiAtCVZJUlRJT19O
+RVRfRl9HVUVTVF9FQ04sIFZJUlRJT19ORVRfRl9HVUVTVF9VRk8sCj4gLQlWSVJUSU9fTkVUX0Zf
+TVJHX1JYQlVGLCBWSVJUSU9fTkVUX0ZfU1RBVFVTLCBWSVJUSU9fTkVUX0ZfQ1RSTF9WUSwKPiAt
+CVZJUlRJT19ORVRfRl9DVFJMX1JYLCBWSVJUSU9fTkVUX0ZfQ1RSTF9WTEFOLAo+IC0JVklSVElP
+X05FVF9GX0dVRVNUX0FOTk9VTkNFLCBWSVJUSU9fTkVUX0ZfTVEsCj4gLQlWSVJUSU9fTkVUX0Zf
+Q1RSTF9NQUNfQUREUiwKPiArCVZJUlRORVRfRkVBVFVSRVMsCj4gK307Cj4gKwo+ICtzdGF0aWMg
+dW5zaWduZWQgaW50IGZlYXR1cmVzX2xlZ2FjeVtdID0gewo+ICsJVklSVE5FVF9GRUFUVVJFUywK
+PiArCVZJUlRJT19ORVRfRl9HU08sCj4gICAJVklSVElPX0ZfQU5ZX0xBWU9VVCwKPiAtCVZJUlRJ
+T19ORVRfRl9NVFUsCj4gICB9Owo+ICAgCj4gICBzdGF0aWMgc3RydWN0IHZpcnRpb19kcml2ZXIg
+dmlydGlvX25ldF9kcml2ZXIgPSB7Cj4gICAJLmZlYXR1cmVfdGFibGUgPSBmZWF0dXJlcywKPiAg
+IAkuZmVhdHVyZV90YWJsZV9zaXplID0gQVJSQVlfU0laRShmZWF0dXJlcyksCj4gKwkuZmVhdHVy
+ZV90YWJsZV9sZWdhY3kgPSBmZWF0dXJlc19sZWdhY3ksCj4gKwkuZmVhdHVyZV90YWJsZV9zaXpl
+X2xlZ2FjeSA9IEFSUkFZX1NJWkUoZmVhdHVyZXNfbGVnYWN5KSwKPiAgIAkuZHJpdmVyLm5hbWUg
+PQlLQlVJTERfTU9ETkFNRSwKPiAgIAkuZHJpdmVyLm93bmVyID0JVEhJU19NT0RVTEUsCj4gICAJ
+LmlkX3RhYmxlID0JaWRfdGFibGUsCgpBY2tlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVk
+aGF0LmNvbT4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
+VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
+dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL3ZpcnR1YWxpemF0aW9u
