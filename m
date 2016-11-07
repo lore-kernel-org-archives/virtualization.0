@@ -1,13 +1,17 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] virtio-net: drop legacy features in virtio 1 mode
-Date: Mon, 7 Nov 2016 17:17:38 +0800
-Message-ID: <64fb12f5-3724-f35b-1a83-44e4ae2d0f20@redhat.com>
-References: <1478256865-29003-1-git-send-email-mst@redhat.com>
+From: Dave Hansen <dave.hansen@intel.com>
+Subject: Re: [PATCH kernel v4 7/7] virtio-balloon: tell host vm's unused page
+	info
+Date: Mon, 7 Nov 2016 09:23:38 -0800
+Message-ID: <281acd8d-fd94-6318-35e5-9eb130303dc6__2825.23038699782$1478539451$gmane$org@intel.com>
+References: <1478067447-24654-1-git-send-email-liang.z.li@intel.com>
+	<1478067447-24654-8-git-send-email-liang.z.li@intel.com>
+	<b25eac6e-3744-3874-93a8-02f814549adf@intel.com>
+	<F2CBF3009FA73547804AE4C663CAB28E3A106DAA@shsmsx102.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1478256865-29003-1-git-send-email-mst@redhat.com>
+In-Reply-To: <F2CBF3009FA73547804AE4C663CAB28E3A106DAA@shsmsx102.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,53 +21,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Li, Liang Z" <liang.z.li@intel.com>, "mst@redhat.com" <mst@redhat.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mgorman@techsingularity.net" <mgorman@techsingularity.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE25bm0MTHmnIgwNOaXpSAxODo1NSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IFZpcnRpbyAxLjAgc3BlYyBzYXlzIFZJUlRJT19GX0FOWV9MQVlPVVQgYW5kIFZJUlRJT19ORVRf
-Rl9HU08gYXJlCj4gbGVnYWN5LW9ubHkgZmVhdHVyZSBiaXRzLiBEbyBub3QgbmVnb3RpYXRlIHRo
-ZW0gaW4gdmlydGlvIDEgbW9kZS4gIE5vdGUKPiB0aGlzIGlzIGEgc3BlYyB2aW9sYXRpb24gc28g
-d2UgbmVlZCB0byBiYWNrcG9ydCBpdCB0byBzdGFibGUvZG93bnN0cmVhbQo+IGtlcm5lbHMuCj4K
-PiBDYzogc3RhYmxlQHZnZXIua2VybmVsLm9yZwo+IFNpZ25lZC1vZmYtYnk6IE1pY2hhZWwgUy4g
-VHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+Cj4gLS0tCj4gICBkcml2ZXJzL25ldC92aXJ0aW9fbmV0
-LmMgfCAzMCArKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0KPiAgIDEgZmlsZSBjaGFuZ2Vk
-LCAyMCBpbnNlcnRpb25zKCspLCAxMCBkZWxldGlvbnMoLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2
-ZXJzL25ldC92aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiBpbmRleCA3
-YTAwMzY1Li5iMTlmYjRkIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+
-ICsrKyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+IEBAIC0yMDg5LDIzICsyMDg5LDMzIEBA
-IHN0YXRpYyBzdHJ1Y3QgdmlydGlvX2RldmljZV9pZCBpZF90YWJsZVtdID0gewo+ICAgCXsgMCB9
-LAo+ICAgfTsKPiAgIAo+ICsjZGVmaW5lIFZJUlRORVRfRkVBVFVSRVMgXAo+ICsJVklSVElPX05F
-VF9GX0NTVU0sIFZJUlRJT19ORVRfRl9HVUVTVF9DU1VNLCBcCj4gKwlWSVJUSU9fTkVUX0ZfTUFD
-LCBcCj4gKwlWSVJUSU9fTkVUX0ZfSE9TVF9UU080LCBWSVJUSU9fTkVUX0ZfSE9TVF9VRk8sIFZJ
-UlRJT19ORVRfRl9IT1NUX1RTTzYsIFwKPiArCVZJUlRJT19ORVRfRl9IT1NUX0VDTiwgVklSVElP
-X05FVF9GX0dVRVNUX1RTTzQsIFZJUlRJT19ORVRfRl9HVUVTVF9UU082LCBcCj4gKwlWSVJUSU9f
-TkVUX0ZfR1VFU1RfRUNOLCBWSVJUSU9fTkVUX0ZfR1VFU1RfVUZPLCBcCj4gKwlWSVJUSU9fTkVU
-X0ZfTVJHX1JYQlVGLCBWSVJUSU9fTkVUX0ZfU1RBVFVTLCBWSVJUSU9fTkVUX0ZfQ1RSTF9WUSwg
-XAo+ICsJVklSVElPX05FVF9GX0NUUkxfUlgsIFZJUlRJT19ORVRfRl9DVFJMX1ZMQU4sIFwKPiAr
-CVZJUlRJT19ORVRfRl9HVUVTVF9BTk5PVU5DRSwgVklSVElPX05FVF9GX01RLCBcCj4gKwlWSVJU
-SU9fTkVUX0ZfQ1RSTF9NQUNfQUREUiwgXAo+ICsJVklSVElPX05FVF9GX01UVQo+ICsKPiAgIHN0
-YXRpYyB1bnNpZ25lZCBpbnQgZmVhdHVyZXNbXSA9IHsKPiAtCVZJUlRJT19ORVRfRl9DU1VNLCBW
-SVJUSU9fTkVUX0ZfR1VFU1RfQ1NVTSwKPiAtCVZJUlRJT19ORVRfRl9HU08sIFZJUlRJT19ORVRf
-Rl9NQUMsCj4gLQlWSVJUSU9fTkVUX0ZfSE9TVF9UU080LCBWSVJUSU9fTkVUX0ZfSE9TVF9VRk8s
-IFZJUlRJT19ORVRfRl9IT1NUX1RTTzYsCj4gLQlWSVJUSU9fTkVUX0ZfSE9TVF9FQ04sIFZJUlRJ
-T19ORVRfRl9HVUVTVF9UU080LCBWSVJUSU9fTkVUX0ZfR1VFU1RfVFNPNiwKPiAtCVZJUlRJT19O
-RVRfRl9HVUVTVF9FQ04sIFZJUlRJT19ORVRfRl9HVUVTVF9VRk8sCj4gLQlWSVJUSU9fTkVUX0Zf
-TVJHX1JYQlVGLCBWSVJUSU9fTkVUX0ZfU1RBVFVTLCBWSVJUSU9fTkVUX0ZfQ1RSTF9WUSwKPiAt
-CVZJUlRJT19ORVRfRl9DVFJMX1JYLCBWSVJUSU9fTkVUX0ZfQ1RSTF9WTEFOLAo+IC0JVklSVElP
-X05FVF9GX0dVRVNUX0FOTk9VTkNFLCBWSVJUSU9fTkVUX0ZfTVEsCj4gLQlWSVJUSU9fTkVUX0Zf
-Q1RSTF9NQUNfQUREUiwKPiArCVZJUlRORVRfRkVBVFVSRVMsCj4gK307Cj4gKwo+ICtzdGF0aWMg
-dW5zaWduZWQgaW50IGZlYXR1cmVzX2xlZ2FjeVtdID0gewo+ICsJVklSVE5FVF9GRUFUVVJFUywK
-PiArCVZJUlRJT19ORVRfRl9HU08sCj4gICAJVklSVElPX0ZfQU5ZX0xBWU9VVCwKPiAtCVZJUlRJ
-T19ORVRfRl9NVFUsCj4gICB9Owo+ICAgCj4gICBzdGF0aWMgc3RydWN0IHZpcnRpb19kcml2ZXIg
-dmlydGlvX25ldF9kcml2ZXIgPSB7Cj4gICAJLmZlYXR1cmVfdGFibGUgPSBmZWF0dXJlcywKPiAg
-IAkuZmVhdHVyZV90YWJsZV9zaXplID0gQVJSQVlfU0laRShmZWF0dXJlcyksCj4gKwkuZmVhdHVy
-ZV90YWJsZV9sZWdhY3kgPSBmZWF0dXJlc19sZWdhY3ksCj4gKwkuZmVhdHVyZV90YWJsZV9zaXpl
-X2xlZ2FjeSA9IEFSUkFZX1NJWkUoZmVhdHVyZXNfbGVnYWN5KSwKPiAgIAkuZHJpdmVyLm5hbWUg
-PQlLQlVJTERfTU9ETkFNRSwKPiAgIAkuZHJpdmVyLm93bmVyID0JVEhJU19NT0RVTEUsCj4gICAJ
-LmlkX3RhYmxlID0JaWRfdGFibGUsCgpBY2tlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVk
-aGF0LmNvbT4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
-VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
-dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On 11/06/2016 07:37 PM, Li, Liang Z wrote:
+>> Let's say we do a 32k bitmap that can hold ~1M pages.  That's 4GB of RAM.
+>> On a 1TB system, that's 256 passes through the top-level loop.
+>> The bottom-level lists have tens of thousands of pages in them, even on my
+>> laptop.  Only 1/256 of these pages will get consumed in a given pass.
+>>
+> Your description is not exactly.
+> A 32k bitmap is used only when there is few free memory left in the system and when 
+> the extend_page_bitmap() failed to allocate more memory for the bitmap. Or dozens of 
+> 32k split bitmap will be used, this version limit the bitmap count to 32, it means we can use
+> at most 32*32 kB for the bitmap, which can cover 128GB for RAM. We can increase the bitmap
+> count limit to a larger value if 32 is not big enough.
+
+OK, so it tries to allocate a large bitmap.  But, if it fails, it will
+try to work with a smaller bitmap.  Correct?
+
+So, what's the _worst_ case?  It sounds like it is even worse than I was
+positing.
+
+>> That's an awfully inefficient way of doing it.  This patch essentially changed
+>> the data structure without changing the algorithm to populate it.
+>>
+>> Please change the *algorithm* to use the new data structure efficiently.
+>>  Such a change would only do a single pass through each freelist, and would
+>> choose whether to use the extent-based (pfn -> range) or bitmap-based
+>> approach based on the contents of the free lists.
+> 
+> Save the free page info to a raw bitmap first and then process the raw bitmap to
+> get the proper ' extent-based ' and  'bitmap-based' is the most efficient way I can 
+> come up with to save the virtio data transmission.  Do you have some better idea?
+
+That's kinda my point.  This patch *does* processing to try to pack the
+bitmaps full of pages from the various pfn ranges.  It's a form of
+processing that gets *REALLY*, *REALLY* bad in some (admittedly obscure)
+cases.
+
+Let's not pretend that making an essentially unlimited number of passes
+over the free lists is not processing.
+
+1. Allocate as large of a bitmap as you can. (what you already do)
+2. Iterate from the largest freelist order.  Store those pages in the
+   bitmap.
+3. If you can no longer fit pages in the bitmap, return the list that
+   you have.
+4. Make an approximation about where the bitmap does not make any more,
+   and fall back to listing individual PFNs.  This would make sens, for
+   instance in a large zone with very few free order-0 pages left.
+			
+
+> It seems the benefit we get for this feature is not as big as that in fast balloon inflating/deflating.
+>>
+>> You should not be using get_max_pfn().  Any patch set that continues to use
+>> it is not likely to be using a proper algorithm.
+> 
+> Do you have any suggestion about how to avoid it?
+
+Yes: get the pfns from the page free lists alone.  Don't derive them
+from the pfn limits of the system or zones.
