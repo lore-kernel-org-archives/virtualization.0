@@ -1,14 +1,17 @@
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 7/7] virtio_pci: clean up interrupt state in struct
-	virtio_pci_device
-Date: Sun,  6 Nov 2016 15:09:43 -0800
-Message-ID: <1478473783-12589-8-git-send-email-hch__31668.368043802$1478473920$gmane$org@lst.de>
-References: <1478473783-12589-1-git-send-email-hch@lst.de>
+From: "Li, Liang Z" <liang.z.li@intel.com>
+Subject: RE: [PATCH kernel v4 7/7] virtio-balloon: tell host vm's unused
+	page info
+Date: Mon, 7 Nov 2016 03:37:58 +0000
+Message-ID: <F2CBF3009FA73547804AE4C663CAB28E3A106DAA__26878.7982211963$1478489895$gmane$org@shsmsx102.ccr.corp.intel.com>
+References: <1478067447-24654-1-git-send-email-liang.z.li@intel.com>
+	<1478067447-24654-8-git-send-email-liang.z.li@intel.com>
+	<b25eac6e-3744-3874-93a8-02f814549adf@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1478473783-12589-1-git-send-email-hch@lst.de>
+In-Reply-To: <b25eac6e-3744-3874-93a8-02f814549adf@intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,261 +21,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Hansen, Dave" <dave.hansen@intel.com>, "mst@redhat.com" <mst@redhat.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mgorman@techsingularity.net" <mgorman@techsingularity.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Currently there is a lot of interrupt-related state in struct
-virtio_pci_device, must of which is not needed:
+> Please squish this and patch 5 together.  It makes no sense to separate them.
+> 
 
- - msix_enabled is stored in struct pci_device and can be used there
- - msix_enabled isn't needed as we can call pci_free_irq_vectors even
-   for the INTx case and it will do the right thing, as will a call
-   to pci_irq_vector for vector 0
- - used_msix_vectors is not needed because we can just subtract the number
-   of per-VQ vectors from the total number and get it
- - per_vq_vectors is not needed as we can just check the msix_vec field
-   in the VQ for a valid vector
+OK.
 
-This just laves us with the old msix_vectors field that has been renamed
-to irq_vectors and will be maintained for the INTx case as well to make
-our life easier.
+> > +static void send_unused_pages_info(struct virtio_balloon *vb,
+> > +				unsigned long req_id)
+> > +{
+> > +	struct scatterlist sg_in;
+> > +	unsigned long pfn = 0, bmap_len, pfn_limit, last_pfn, nr_pfn;
+> > +	struct virtqueue *vq = vb->req_vq;
+> > +	struct virtio_balloon_resp_hdr *hdr = vb->resp_hdr;
+> > +	int ret = 1, used_nr_bmap = 0, i;
+> > +
+> > +	if (virtio_has_feature(vb->vdev,
+> VIRTIO_BALLOON_F_PAGE_BITMAP) &&
+> > +		vb->nr_page_bmap == 1)
+> > +		extend_page_bitmap(vb);
+> > +
+> > +	pfn_limit = PFNS_PER_BMAP * vb->nr_page_bmap;
+> > +	mutex_lock(&vb->balloon_lock);
+> > +	last_pfn = get_max_pfn();
+> > +
+> > +	while (ret) {
+> > +		clear_page_bitmap(vb);
+> > +		ret = get_unused_pages(pfn, pfn + pfn_limit, vb-
+> >page_bitmap,
+> > +			 PFNS_PER_BMAP, vb->nr_page_bmap);
+> 
+> This changed the underlying data structure without changing the way that
+> the structure is populated.
+> 
+> This algorithm picks a "PFNS_PER_BMAP * vb->nr_page_bmap"-sized set of
+> pfns, allocates a bitmap for them, the loops through all zones looking for
+> pages in any free list that are in that range.
+> 
+> Unpacking all the indirection, it looks like this:
+> 
+> for (pfn = 0; pfn < get_max_pfn(); pfn += BITMAP_SIZE_IN_PFNS)
+> 	for_each_populated_zone(zone)
+> 		for_each_migratetype_order(order, t)
+> 			list_for_each(..., &zone->free_area[order])...
+> 
+> Let's say we do a 32k bitmap that can hold ~1M pages.  That's 4GB of RAM.
+> On a 1TB system, that's 256 passes through the top-level loop.
+> The bottom-level lists have tens of thousands of pages in them, even on my
+> laptop.  Only 1/256 of these pages will get consumed in a given pass.
+> 
+Your description is not exactly.
+A 32k bitmap is used only when there is few free memory left in the system and when 
+the extend_page_bitmap() failed to allocate more memory for the bitmap. Or dozens of 
+32k split bitmap will be used, this version limit the bitmap count to 32, it means we can use
+at most 32*32 kB for the bitmap, which can cover 128GB for RAM. We can increase the bitmap
+count limit to a larger value if 32 is not big enough.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/virtio/virtio_pci_common.c | 64 ++++++++++++++------------------------
- drivers/virtio/virtio_pci_common.h | 12 ++-----
- drivers/virtio/virtio_pci_legacy.c |  2 +-
- drivers/virtio/virtio_pci_modern.c |  2 +-
- include/uapi/linux/virtio_pci.h    |  2 +-
- 5 files changed, 29 insertions(+), 53 deletions(-)
+> That's an awfully inefficient way of doing it.  This patch essentially changed
+> the data structure without changing the algorithm to populate it.
+> 
+> Please change the *algorithm* to use the new data structure efficiently.
+>  Such a change would only do a single pass through each freelist, and would
+> choose whether to use the extent-based (pfn -> range) or bitmap-based
+> approach based on the contents of the free lists.
 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 3f166bc..4b2af83 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -33,10 +33,7 @@ void vp_synchronize_vectors(struct virtio_device *vdev)
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	int i;
- 
--	if (vp_dev->intx_enabled)
--		synchronize_irq(vp_dev->pci_dev->irq);
--
--	for (i = 0; i < vp_dev->msix_vectors; ++i)
-+	for (i = 0; i < vp_dev->irq_vectors; ++i)
- 		synchronize_irq(pci_irq_vector(vp_dev->pci_dev, i));
- }
- 
-@@ -117,8 +114,6 @@ static int vp_setup_msix_vectors(struct virtio_device *vdev, int nvectors)
- 	unsigned i, v;
- 	int err = -ENOMEM;
- 
--	vp_dev->msix_vectors = nvectors;
--
- 	vp_dev->msix_names = kmalloc(nvectors * sizeof *vp_dev->msix_names,
- 				     GFP_KERNEL);
- 	if (!vp_dev->msix_names)
-@@ -137,10 +132,9 @@ static int vp_setup_msix_vectors(struct virtio_device *vdev, int nvectors)
- 			PCI_IRQ_MSIX);
- 	if (err < 0)
- 		goto error;
--	vp_dev->msix_enabled = 1;
- 
- 	/* Set the vector used for configuration */
--	err = vp_request_msix_vector(vp_dev, vp_dev->msix_used_vectors++,
-+	err = vp_request_msix_vector(vp_dev, vp_dev->irq_vectors++,
- 			vp_config_changed, "config", vp_dev);
- 	if (err)
- 		goto error;
-@@ -211,46 +205,40 @@ void vp_del_vqs(struct virtio_device *vdev)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	struct virtqueue *vq, *n;
-+	int irq_vectors = vp_dev->irq_vectors;
- 	int i;
- 
- 	list_for_each_entry_safe(vq, n, &vdev->vqs, list) {
--		if (vp_dev->per_vq_vectors) {
--			int v = vp_dev->vqs[vq->index]->msix_vector;
-+		int vec = vp_dev->vqs[vq->index]->msix_vector;
- 
--			if (v != VIRTIO_MSI_NO_VECTOR)
--				free_irq(pci_irq_vector(vp_dev->pci_dev, v),
--					vq);
-+		if (vec != VIRTIO_MSI_NO_VECTOR && vec != VP_MSIX_VQ_VECTOR) {
-+			free_irq(pci_irq_vector(vp_dev->pci_dev, vec), vq);
-+			irq_vectors--;
- 		}
--		vp_del_vq(vq);
--	}
--	vp_dev->per_vq_vectors = false;
- 
--	if (vp_dev->intx_enabled) {
--		free_irq(vp_dev->pci_dev->irq, vp_dev);
--		vp_dev->intx_enabled = 0;
-+		vp_del_vq(vq);
- 	}
- 
--	for (i = 0; i < vp_dev->msix_used_vectors; ++i)
-+	for (i = irq_vectors - 1; i >= 0; i--)
- 		free_irq(pci_irq_vector(vp_dev->pci_dev, i), vp_dev);
- 
--	for (i = 0; i < vp_dev->msix_vectors; i++)
--		if (vp_dev->msix_affinity_masks[i])
-+	if (vp_dev->msix_affinity_masks) {
-+		for (i = 0; i < vp_dev->irq_vectors; i++)
- 			free_cpumask_var(vp_dev->msix_affinity_masks[i]);
-+		kfree(vp_dev->msix_affinity_masks);
-+		vp_dev->msix_affinity_masks = NULL;
-+	}
- 
--	if (vp_dev->msix_enabled) {
--		/* Disable the vector used for configuration */
-+	/* Disable the vector used for configuration */
-+	if (vp_dev->pci_dev->msix_enabled)
- 		vp_dev->config_vector(vp_dev, VIRTIO_MSI_NO_VECTOR);
- 
--		pci_free_irq_vectors(vp_dev->pci_dev);
--		vp_dev->msix_enabled = 0;
--	}
-+	pci_free_irq_vectors(vp_dev->pci_dev);
-+	vp_dev->irq_vectors = 0;
- 
--	vp_dev->msix_vectors = 0;
--	vp_dev->msix_used_vectors = 0;
- 	kfree(vp_dev->msix_names);
- 	vp_dev->msix_names = NULL;
--	kfree(vp_dev->msix_affinity_masks);
--	vp_dev->msix_affinity_masks = NULL;
-+
- 	kfree(vp_dev->vqs);
- 	vp_dev->vqs = NULL;
- }
-@@ -260,7 +248,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
- 		const char * const names[])
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--	int i, err, nvectors = 1, allocated_vectors;
-+	int i, err, nvectors = 1;
- 	u16 msix_vec;
- 
- 	vp_dev->vqs = kcalloc(nvqs, sizeof(*vp_dev->vqs), GFP_KERNEL);
-@@ -275,15 +263,13 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
- 	if (err)
- 		goto out_del_vqs;
- 
--	vp_dev->per_vq_vectors = true;
--	allocated_vectors = vp_dev->msix_used_vectors;
- 	for (i = 0; i < nvqs; ++i) {
- 		if (!names[i])
- 			continue;
- 		if (!callbacks[i])
- 			msix_vec = VIRTIO_MSI_NO_VECTOR;
- 		else
--			msix_vec = allocated_vectors++;
-+			msix_vec = vp_dev->irq_vectors++;
- 
- 		vqs[i] = vp_setup_vq(vdev, i, callbacks[i], names[i], msix_vec);
- 		if (IS_ERR(vqs[i])) {
-@@ -319,12 +305,11 @@ static int vp_find_vqs_msix_shared(struct virtio_device *vdev, unsigned nvqs,
- 	err = vp_setup_msix_vectors(vdev, 2);
- 	if (err)
- 		goto out_del_vqs;
--	err = vp_request_msix_vector(vp_dev, vp_dev->msix_used_vectors++,
-+	err = vp_request_msix_vector(vp_dev, vp_dev->irq_vectors++,
- 			vp_vring_interrupt, "virtqueues", vp_dev);
- 	if (err)
- 		goto out_del_vqs;
- 
--	vp_dev->per_vq_vectors = false;
- 	for (i = 0; i < nvqs; ++i) {
- 		if (!names[i])
- 			continue;
-@@ -358,9 +343,8 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned nvqs,
- 			dev_name(&vdev->dev), vp_dev);
- 	if (err)
- 		goto out_del_vqs;
-+	vp_dev->irq_vectors = 1;
- 
--	vp_dev->intx_enabled = 1;
--	vp_dev->per_vq_vectors = false;
- 	for (i = 0; i < nvqs; ++i) {
- 		if (!names[i]) {
- 			vqs[i] = NULL;
-@@ -423,7 +407,7 @@ int vp_set_vq_affinity(struct virtqueue *vq, int cpu)
- 	if (!vq->callback)
- 		return -EINVAL;
- 
--	if (vp_dev->msix_enabled) {
-+	if (vp_dev->pci_dev->msix_enabled) {
- 		mask = vp_dev->msix_affinity_masks[info->msix_vector];
- 		irq = pci_irq_vector(vp_dev->pci_dev, info->msix_vector);
- 		if (cpu == -1)
-diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-index b2f6662..d3e3a1b 100644
---- a/drivers/virtio/virtio_pci_common.h
-+++ b/drivers/virtio/virtio_pci_common.h
-@@ -82,20 +82,12 @@ struct virtio_pci_device {
- 	/* array of all queues for house-keeping */
- 	struct virtio_pci_vq_info **vqs;
- 
--	/* MSI-X support */
--	int msix_enabled;
--	int intx_enabled;
- 	cpumask_var_t *msix_affinity_masks;
- 	/* Name strings for interrupts. This size should be enough,
- 	 * and I'm too lazy to allocate each name separately. */
- 	char (*msix_names)[256];
--	/* Number of available vectors */
--	unsigned msix_vectors;
--	/* Vectors allocated, excluding per-vq vectors if any */
--	unsigned msix_used_vectors;
--
--	/* Whether we have vector per vq */
--	bool per_vq_vectors;
-+	/* Total number of interrupt vectors (INTx or MSI-X) */
-+	unsigned irq_vectors;
- 
- 	struct virtqueue *(*setup_vq)(struct virtio_pci_device *vp_dev,
- 				      struct virtio_pci_vq_info *info,
-diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
-index 8c4e617..25f90f0 100644
---- a/drivers/virtio/virtio_pci_legacy.c
-+++ b/drivers/virtio/virtio_pci_legacy.c
-@@ -169,7 +169,7 @@ static void del_vq(struct virtio_pci_vq_info *info)
- 
- 	iowrite16(vq->index, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_SEL);
- 
--	if (vp_dev->msix_enabled) {
-+	if (vp_dev->pci_dev->msix_enabled) {
- 		iowrite16(VIRTIO_MSI_NO_VECTOR,
- 			  vp_dev->ioaddr + VIRTIO_MSI_QUEUE_VECTOR);
- 		/* Flush the write out to device */
-diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index e76bd91..e18d0b0 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -416,7 +416,7 @@ static void del_vq(struct virtio_pci_vq_info *info)
- 
- 	vp_iowrite16(vq->index, &vp_dev->common->queue_select);
- 
--	if (vp_dev->msix_enabled) {
-+	if (vp_dev->pci_dev->msix_enabled) {
- 		vp_iowrite16(VIRTIO_MSI_NO_VECTOR,
- 			     &vp_dev->common->queue_msix_vector);
- 		/* Flush the write out to device */
-diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
-index 90007a1..15b4385 100644
---- a/include/uapi/linux/virtio_pci.h
-+++ b/include/uapi/linux/virtio_pci.h
-@@ -79,7 +79,7 @@
-  * configuration space */
- #define VIRTIO_PCI_CONFIG_OFF(msix_enabled)	((msix_enabled) ? 24 : 20)
- /* Deprecated: please use VIRTIO_PCI_CONFIG_OFF instead */
--#define VIRTIO_PCI_CONFIG(dev)	VIRTIO_PCI_CONFIG_OFF((dev)->msix_enabled)
-+#define VIRTIO_PCI_CONFIG(dev)	VIRTIO_PCI_CONFIG_OFF((dev)->pci_dev->msix_enabled)
- 
- /* Virtio ABI version, this must match exactly */
- #define VIRTIO_PCI_ABI_VERSION		0
--- 
-2.1.4
+Save the free page info to a raw bitmap first and then process the raw bitmap to
+get the proper ' extent-based ' and  'bitmap-based' is the most efficient way I can 
+come up with to save the virtio data transmission.  Do you have some better idea?
+
+
+In the QEMU, no matter how we encode the bitmap, the raw format bitmap will be
+used in the end.  But what I did in this version is:
+   kernel: get the raw bitmap  --> encode the bitmap
+   QEMU: decode the bitmap --> get the raw bitmap
+
+Is it worth to do this kind of job here? we can save the virtio data transmission, but at the
+same time, we did extra work.
+
+It seems the benefit we get for this feature is not as big as that in fast balloon inflating/deflating.
+> 
+> You should not be using get_max_pfn().  Any patch set that continues to use
+> it is not likely to be using a proper algorithm.
+
+Do you have any suggestion about how to avoid it?
+
+Thanks!
+Liang
