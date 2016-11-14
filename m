@@ -1,15 +1,11 @@
-From: Jiri Slaby <jslaby@suse.cz>
-Subject: Re: BUG: 'list_empty(&vgdev->free_vbufs)' is true!
-Date: Fri, 11 Nov 2016 17:28:22 +0100
-Message-ID: <f006e3a6-51d2-4092-57b6-eea7ff64f58f__43041.7813513943$1478881729$gmane$org@suse.cz>
-References: <bfe29853-694b-6cb5-02e7-6986a9927438@suse.cz>
-	<20161108223153-mutt-send-email-mst@kernel.org>
-	<1478678517.2078.12.camel@redhat.com>
+From: Felipe Franciosi <felipe@nutanix.com>
+Subject: [PATCH] virtio_ring: fix description of virtqueue_get_buf
+Date: Mon, 14 Nov 2016 06:16:15 -0800
+Message-ID: <1479132975-8517-1-git-send-email-felipe@nutanix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1478678517.2078.12.camel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,53 +15,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, Linux kernel mailing list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: Felipe Franciosi <felipe@nutanix.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/09/2016, 09:01 AM, Gerd Hoffmann wrote:
-> On Di, 2016-11-08 at 22:37 +0200, Michael S. Tsirkin wrote:
->> On Mon, Nov 07, 2016 at 09:43:24AM +0100, Jiri Slaby wrote:
->>> Hi,
->>>
->>> I can relatively easily reproduce this bug:
-> 
-> How?
+The device (not the driver) populates the used ring and includes the len
+of how much data was written.
 
-Run dmesg -w in the qemu window (virtio_gpu) to see a lot of output.
-Run pps [1] without exit(0); on e.g. serial console.
-Wait a bit. The lot of output causes the BUG.
+Signed-off-by: Felipe Franciosi <felipe@nutanix.com>
+---
+ drivers/virtio/virtio_ring.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-[1] https://github.com/jirislaby/collected_sources/blob/master/pps.c
-
->>> BUG: 'list_empty(&vgdev->free_vbufs)' is true!
-> 
->> The following might be helpful for debugging - if kernel still will
->> not stop panicing, we are looking at some kind
->> of memory corruption.
-> 
-> Looking carefully through the code I think it isn't impossible to
-> trigger this, but you need for that:
-> 
->   (1) command queue full (quite possible),
->   (2) cursor queue full too (unlikely), and
->   (3) multiple threads trying to submit commands and waiting for free
->       space in the command queue (possible with virgl enabled).
-
-I use -vga virtio with no -display option, so no virtgl, I suppose:
-[drm] virgl 3d acceleration not available
-
-> Do things improve if you allocate some extra bufs?
-> 
->  int virtio_gpu_alloc_vbufs(struct virtio_gpu_device *vgdev)
->  {
->         struct virtio_gpu_vbuffer *vbuf;
-> -       int i, size, count = 0;
-> +       int i, size, count = 16;
-
-This seems to help.
-
-thanks,
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 489bfc6..8a0d6a9 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -649,7 +649,7 @@ static inline bool more_used(const struct vring_virtqueue *vq)
+  * @vq: the struct virtqueue we're talking about.
+  * @len: the length written into the buffer
+  *
+- * If the driver wrote data into the buffer, @len will be set to the
++ * If the device wrote data into the buffer, @len will be set to the
+  * amount written.  This means you don't need to clear the buffer
+  * beforehand to ensure there's no data leakage in the case of short
+  * writes.
 -- 
-js
-suse labs
+1.9.4
