@@ -1,18 +1,18 @@
 From: Namhyung Kim <namhyung@kernel.org>
-Subject: Re: [PATCH 1/3] virtio: Basic implementation of virtio pstore driver
-Date: Tue, 15 Nov 2016 14:50:11 +0900
-Message-ID: <20161115055011.GB15992@danjae.aot.lge.com>
+Subject: Re: [PATCH 2/3] qemu: Implement virtio-pstore device
+Date: Tue, 15 Nov 2016 15:23:36 +0900
+Message-ID: <20161115062336.GA16821@danjae.aot.lge.com>
 References: <20160820080744.10344-1-namhyung@kernel.org>
-	<20160820080744.10344-2-namhyung@kernel.org>
-	<20161110182611-mutt-send-email-mst@kernel.org>
-	<20161115045021.GA15992@danjae.aot.lge.com>
-	<20161115065658-mutt-send-email-mst@kernel.org>
+	<20160820080744.10344-3-namhyung@kernel.org>
+	<20160913155710.3q6yj6yqdyozemul@redhat.com>
+	<20160916100547.GC2474@danjae.aot.lge.com>
+	<20161111004710-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20161115065658-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20161111004710-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,44 +23,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, Tony Luck <tony.luck@intel.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, Anton Vorontsov <anton@enomsg.org>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, qemu-devel@nongnu.org, Minchan Kim <minchan@kernel.org>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@kernel.org>
+Cc: virtio-dev@lists.oasis-open.org, Tony Luck <tony.luck@intel.com>, "Daniel P . Berrange" <berrange@redhat.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, Anton Vorontsov <anton@enomsg.org>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, qemu-devel@nongnu.org, Minchan Kim <minchan@kernel.org>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Nov 15, 2016 at 07:06:28AM +0200, Michael S. Tsirkin wrote:
-> On Tue, Nov 15, 2016 at 01:50:21PM +0900, Namhyung Kim wrote:
-> > On Thu, Nov 10, 2016 at 06:39:55PM +0200, Michael S. Tsirkin wrote:
-> > [SNIP]
-> > > > +struct virtio_pstore_fileinfo {
-> > > > +	__virtio64		id;
-> > > > +	__virtio32		count;
-> > > > +	__virtio16		type;
-> > > > +	__virtio16		unused;
-> > > > +	__virtio32		flags;
-> > > > +	__virtio32		len;
-> > > > +	__virtio64		time_sec;
-> > > > +	__virtio32		time_nsec;
-> > > > +	__virtio32		reserved;
-> > > > +};
+On Fri, Nov 11, 2016 at 12:50:03AM +0200, Michael S. Tsirkin wrote:
+> On Fri, Sep 16, 2016 at 07:05:47PM +0900, Namhyung Kim wrote:
+> > On Tue, Sep 13, 2016 at 06:57:10PM +0300, Michael S. Tsirkin wrote:
+> > > On Sat, Aug 20, 2016 at 05:07:43PM +0900, Namhyung Kim wrote:
 > > > > +
-> > > > +struct virtio_pstore_config {
-> > > > +	__virtio32		bufsize;
-> > > > +};
-> > > > +
+> > > > +/* the index should match to the type value */
+> > > > +static const char *virtio_pstore_file_prefix[] = {
+> > > > +    "unknown-",		/* VIRTIO_PSTORE_TYPE_UNKNOWN */
 > > > 
-> > > What exactly does each field mean? I'm especially
-> > > interested in time fields - maintaining a consistent
-> > > time between host and guest is not a simple problem.
+> > > Is there value in treating everything unexpected as "unknown"
+> > > and rotating them as if they were logs?
+> > > It might be better to treat everything that's not known
+> > > as guest error.
 > > 
-> > These are required by pstore and will be used to create corresponding
-> > files in the pstore filesystem.  The time fields are for mtime and
-> > ctime and, I think, it's just a hint for user and doesn't require
-> > strict consistency.
+> > I was thinking about the version mismatch between the kernel and qemu.
+> > I'd like to make the device can deal with a new kernel version which
+> > might implement a new pstore message type.  It will be saved as
+> > unknown but the kernel can read it properly later.
 > 
-> Pls add documentation. I would just drop hints for now.
+> Well it'll have a different prefix. E.g. if kernel has
+> two different types they will end up in the same
+> file, hardly what was wanted.
 
-Well, I'll add docmentation.  But I think just dropping might not good
-since they all have host time and it's helpful to know their relative
-difference in guest.
+Right, I think it needs to add 'type' info to the filename for unknown
+type.
 
 Thanks,
 Namhyung
