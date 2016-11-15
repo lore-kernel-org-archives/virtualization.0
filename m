@@ -1,11 +1,13 @@
-From: Felipe Franciosi <felipe@nutanix.com>
-Subject: [PATCH] virtio_ring: fix description of virtqueue_get_buf
-Date: Mon, 14 Nov 2016 06:16:15 -0800
-Message-ID: <1479132975-8517-1-git-send-email-felipe@nutanix.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] virtio_ring: fix description of virtqueue_get_buf
+Date: Tue, 15 Nov 2016 11:21:48 +0800
+Message-ID: <276972d5-ee01-9c4a-d3cc-0db4d0dd2b7b@redhat.com>
+References: <1479132975-8517-1-git-send-email-felipe@nutanix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1479132975-8517-1-git-send-email-felipe@nutanix.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,30 +17,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: Felipe Franciosi <felipe@nutanix.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Felipe Franciosi <felipe@nutanix.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The device (not the driver) populates the used ring and includes the len
-of how much data was written.
-
-Signed-off-by: Felipe Franciosi <felipe@nutanix.com>
----
- drivers/virtio/virtio_ring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 489bfc6..8a0d6a9 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -649,7 +649,7 @@ static inline bool more_used(const struct vring_virtqueue *vq)
-  * @vq: the struct virtqueue we're talking about.
-  * @len: the length written into the buffer
-  *
-- * If the driver wrote data into the buffer, @len will be set to the
-+ * If the device wrote data into the buffer, @len will be set to the
-  * amount written.  This means you don't need to clear the buffer
-  * beforehand to ensure there's no data leakage in the case of short
-  * writes.
--- 
-1.9.4
+CgpPbiAyMDE25bm0MTHmnIgxNOaXpSAyMjoxNiwgRmVsaXBlIEZyYW5jaW9zaSB3cm90ZToKPiBU
+aGUgZGV2aWNlIChub3QgdGhlIGRyaXZlcikgcG9wdWxhdGVzIHRoZSB1c2VkIHJpbmcgYW5kIGlu
+Y2x1ZGVzIHRoZSBsZW4KPiBvZiBob3cgbXVjaCBkYXRhIHdhcyB3cml0dGVuLgo+Cj4gU2lnbmVk
+LW9mZi1ieTogRmVsaXBlIEZyYW5jaW9zaSA8ZmVsaXBlQG51dGFuaXguY29tPgo+IC0tLQo+ICAg
+ZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYyB8IDIgKy0KPiAgIDEgZmlsZSBjaGFuZ2VkLCAx
+IGluc2VydGlvbigrKSwgMSBkZWxldGlvbigtKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmly
+dGlvL3ZpcnRpb19yaW5nLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gaW5kZXgg
+NDg5YmZjNi4uOGEwZDZhOSAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmlu
+Zy5jCj4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+IEBAIC02NDksNyArNjQ5
+LDcgQEAgc3RhdGljIGlubGluZSBib29sIG1vcmVfdXNlZChjb25zdCBzdHJ1Y3QgdnJpbmdfdmly
+dHF1ZXVlICp2cSkKPiAgICAqIEB2cTogdGhlIHN0cnVjdCB2aXJ0cXVldWUgd2UncmUgdGFsa2lu
+ZyBhYm91dC4KPiAgICAqIEBsZW46IHRoZSBsZW5ndGggd3JpdHRlbiBpbnRvIHRoZSBidWZmZXIK
+PiAgICAqCj4gLSAqIElmIHRoZSBkcml2ZXIgd3JvdGUgZGF0YSBpbnRvIHRoZSBidWZmZXIsIEBs
+ZW4gd2lsbCBiZSBzZXQgdG8gdGhlCj4gKyAqIElmIHRoZSBkZXZpY2Ugd3JvdGUgZGF0YSBpbnRv
+IHRoZSBidWZmZXIsIEBsZW4gd2lsbCBiZSBzZXQgdG8gdGhlCj4gICAgKiBhbW91bnQgd3JpdHRl
+bi4gIFRoaXMgbWVhbnMgeW91IGRvbid0IG5lZWQgdG8gY2xlYXIgdGhlIGJ1ZmZlcgo+ICAgICog
+YmVmb3JlaGFuZCB0byBlbnN1cmUgdGhlcmUncyBubyBkYXRhIGxlYWthZ2UgaW4gdGhlIGNhc2Ug
+b2Ygc2hvcnQKPiAgICAqIHdyaXRlcy4KClJldmlld2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2Fu
+Z0ByZWRoYXQuY29tPgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
+dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
+YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
