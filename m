@@ -1,17 +1,19 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [GIT PULL v2 1/5] processor.h: introduce cpu_relax_yield
-Date: Tue, 15 Nov 2016 14:52:03 +0100
-Message-ID: <7ebfbdba-02bb-e837-dbce-6a5acaf3a374@de.ibm.com>
-References: <1477386195-32736-1-git-send-email-borntraeger@de.ibm.com>
-	<1477386195-32736-2-git-send-email-borntraeger@de.ibm.com>
-	<20161115123029.GT1041@n2100.armlinux.org.uk>
-	<7f7850e4-c7bb-9cc1-2d65-a1555e97988a@de.ibm.com>
-	<20161115133758.GV1041@n2100.armlinux.org.uk>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 1/3] virtio: Basic implementation of virtio pstore driver
+Date: Tue, 15 Nov 2016 16:35:06 +0200
+Message-ID: <20161115163342-mutt-send-email-mst@kernel.org>
+References: <20160820080744.10344-1-namhyung@kernel.org>
+	<20160820080744.10344-2-namhyung@kernel.org>
+	<20161110182611-mutt-send-email-mst@kernel.org>
+	<20161115045021.GA15992@danjae.aot.lge.com>
+	<20161115065658-mutt-send-email-mst@kernel.org>
+	<20161115055011.GB15992@danjae.aot.lge.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161115133758.GV1041@n2100.armlinux.org.uk>
+Content-Disposition: inline
+In-Reply-To: <20161115055011.GB15992@danjae.aot.lge.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,50 +23,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Russell King - ARM Linux <linux@armlinux.org.uk>
-Cc: linux-arch@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Will Deacon <will.deacon@arm.com>, x86@kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>, virtualization@lists.linux-foundation.org, sparclinux@vger.kernel.org, Noam Camus <noamc@ezchip.com>, Catalin Marinas <catalin.marinas@arm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, xen-devel@lists.xenproject.org, linuxppc-dev@lists.ozlabs.org, Ingo Molnar <mingo@kernel.org>
+To: Namhyung Kim <namhyung@kernel.org>
+Cc: virtio-dev@lists.oasis-open.org, Tony Luck <tony.luck@intel.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, Anton Vorontsov <anton@enomsg.org>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, qemu-devel@nongnu.org, Minchan Kim <minchan@kernel.org>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/15/2016 02:37 PM, Russell King - ARM Linux wrote:
-> On Tue, Nov 15, 2016 at 02:19:53PM +0100, Christian Borntraeger wrote:
->> On 11/15/2016 01:30 PM, Russell King - ARM Linux wrote:
->>> On Tue, Oct 25, 2016 at 11:03:11AM +0200, Christian Borntraeger wrote:
->>>> For spinning loops people do often use barrier() or cpu_relax().
->>>> For most architectures cpu_relax and barrier are the same, but on
->>>> some architectures cpu_relax can add some latency.
->>>> For example on power,sparc64 and arc, cpu_relax can shift the CPU
->>>> towards other hardware threads in an SMT environment.
->>>> On s390 cpu_relax does even more, it uses an hypercall to the
->>>> hypervisor to give up the timeslice.
->>>> In contrast to the SMT yielding this can result in larger latencies.
->>>> In some places this latency is unwanted, so another variant
->>>> "cpu_relax_lowlatency" was introduced. Before this is used in more
->>>> and more places, lets revert the logic and provide a cpu_relax_yield
->>>> that can be called in places where yielding is more important than
->>>> latency. By default this is the same as cpu_relax on all architectures.
->>>
->>> Rather than having to update all these architectures in this way, can't
->>> we put in some linux/*.h header something like:
->>>
->>> #ifndef cpu_relax_yield
->>> #define cpu_relax_yield() cpu_relax()
->>> #endif
->>>
->>> so only those architectures that need to do something need to be
->>> modified?
->>
->> These patches are part of linux-next since a month or so, changing that 
->> would invalidate all the next testing. If people want that, I can certainly
->> do that, though.
+On Tue, Nov 15, 2016 at 02:50:11PM +0900, Namhyung Kim wrote:
+> On Tue, Nov 15, 2016 at 07:06:28AM +0200, Michael S. Tsirkin wrote:
+> > On Tue, Nov 15, 2016 at 01:50:21PM +0900, Namhyung Kim wrote:
+> > > On Thu, Nov 10, 2016 at 06:39:55PM +0200, Michael S. Tsirkin wrote:
+> > > [SNIP]
+> > > > > +struct virtio_pstore_fileinfo {
+> > > > > +	__virtio64		id;
+> > > > > +	__virtio32		count;
+> > > > > +	__virtio16		type;
+> > > > > +	__virtio16		unused;
+> > > > > +	__virtio32		flags;
+> > > > > +	__virtio32		len;
+> > > > > +	__virtio64		time_sec;
+> > > > > +	__virtio32		time_nsec;
+> > > > > +	__virtio32		reserved;
+> > > > > +};
+> > > > > +
+> > > > > +struct virtio_pstore_config {
+> > > > > +	__virtio32		bufsize;
+> > > > > +};
+> > > > > +
+> > > > 
+> > > > What exactly does each field mean? I'm especially
+> > > > interested in time fields - maintaining a consistent
+> > > > time between host and guest is not a simple problem.
+> > > 
+> > > These are required by pstore and will be used to create corresponding
+> > > files in the pstore filesystem.  The time fields are for mtime and
+> > > ctime and, I think, it's just a hint for user and doesn't require
+> > > strict consistency.
+> > 
+> > Pls add documentation. I would just drop hints for now.
 > 
-> It's three weeks since you posted them.  For one of those weeks (the
-> week you posted them) I was away, and missed them while catching up.
-> Sorry, but it sometimes takes a while to spot things amongst the
-> backlog, and normally takes some subsequent activity on the thread to
-> bring it back into view.
+> Well, I'll add docmentation.  But I think just dropping might not good
+> since they all have host time and it's helpful to know their relative
+> difference in guest.
+> 
+> Thanks,
+> Namhyung
 
-Absolutely no need to apologize. Thank you for doing the review and the proposal. 
-I will do whatever is consensus, but since this looks like tip/locking material
-I will wait for Peter or Ingo to decide about the if and how.
+If it's part of host/guest ABI it needs to be better defined.
+"It's just a hint does not need to be exact" is too vague,
+we need to specify what kind of change will or will not
+break guests.
 
-Christian
+-- 
+MST
