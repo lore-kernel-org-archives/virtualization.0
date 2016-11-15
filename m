@@ -1,19 +1,12 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 1/3] virtio: Basic implementation of virtio pstore driver
-Date: Tue, 15 Nov 2016 15:38:42 +0100
-Message-ID: <a6fc0acb-6ecc-a184-9e06-e76c7398fc08__44618.5530665845$1479220781$gmane$org@redhat.com>
-References: <20160820080744.10344-1-namhyung@kernel.org>
-	<20160820080744.10344-2-namhyung@kernel.org>
-	<20161110182611-mutt-send-email-mst@kernel.org>
-	<20161115045021.GA15992@danjae.aot.lge.com>
-	<20161115065658-mutt-send-email-mst@kernel.org>
-	<f514ac65-3105-a12c-9e10-2d3b1e8a0516@redhat.com>
-	<20161115143629.GA29740@danjae.aot.lge.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH] vhost/scsi: Remove unused but set variable
+Date: Tue, 15 Nov 2016 14:40:15 +0000
+Message-ID: <20161115144015.GA17672__5282.47245024449$1479220855$gmane$org@stefanha-x1.localdomain>
+References: <20161111132710.25804-1-tklauser@distanz.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============5133331331998713192=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161115143629.GA29740@danjae.aot.lge.com>
+In-Reply-To: <20161111132710.25804-1-tklauser@distanz.ch>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,49 +16,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Namhyung Kim <namhyung@kernel.org>
-Cc: virtio-dev@lists.oasis-open.org, Tony Luck <tony.luck@intel.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, qemu-devel@nongnu.org, Minchan Kim <minchan@kernel.org>, Anton Vorontsov <anton@enomsg.org>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@kernel.org>
+To: Tobias Klauser <tklauser@distanz.ch>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
+--===============5133331331998713192==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
+Content-Disposition: inline
 
-On 15/11/2016 15:36, Namhyung Kim wrote:
-> Hi,
-> 
-> On Tue, Nov 15, 2016 at 10:57:29AM +0100, Paolo Bonzini wrote:
->>
->>
->> On 15/11/2016 06:06, Michael S. Tsirkin wrote:
->>> On Tue, Nov 15, 2016 at 01:50:21PM +0900, Namhyung Kim wrote:
->>>> Hi Michael,
->>>>
->>>> On Thu, Nov 10, 2016 at 06:39:55PM +0200, Michael S. Tsirkin wrote:
->>>>> On Sat, Aug 20, 2016 at 05:07:42PM +0900, Namhyung Kim wrote:
->>>>>> The virtio pstore driver provides interface to the pstore subsystem so
->>>>>> that the guest kernel's log/dump message can be saved on the host
->>>>>> machine.  Users can access the log file directly on the host, or on the
->>>>>> guest at the next boot using pstore filesystem.  It currently deals with
->>>>>> kernel log (printk) buffer only, but we can extend it to have other
->>>>>> information (like ftrace dump) later.
->>>>>>
->>>>>> It supports legacy PCI device using single order-2 page buffer.
->>>>>
->>>>> Do you mean a legacy virtio device? I don't see why
->>>>> you would want to support pre-1.0 mode.
->>>>> If you drop that, you can drop all cpu_to_virtio things
->>>>> and just use __le accessors.
->>>>
->>>> I was thinking about the kvmtools which lacks 1.0 support AFAIK.
->>>
->>> Unless kvmtools wants to be left behind it has to go 1.0.
->>
->> And it also has to go ACPI.  Is there any reason, apart from kvmtool, to
->> make a completely new virtio device, with no support in existing guests,
->> rather than implement ACPI ERST?
-> 
-> Well, I know nothing about ACPI.  It looks like a huge spec and I
-> don't want to dig into it just for this.
 
-ERST (error record serialization table) is a small subset of the ACPI spec.
+--pf9I7BMVVzbSWLtt
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Paolo
+On Fri, Nov 11, 2016 at 02:27:10PM +0100, Tobias Klauser wrote:
+> Remove the unused but set variable se_tpg in vhost_scsi_nexus_cb() to
+> fix the following GCC warning when building with 'W=3D1':
+>=20
+>   drivers/vhost/scsi.c:1752:26: warning: variable =E2=80=98se_tpg=E2=80=
+=99 set but not used
+>=20
+> Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+> ---
+>  drivers/vhost/scsi.c | 2 --
+>  1 file changed, 2 deletions(-)
+
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--pf9I7BMVVzbSWLtt
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJYKx5PAAoJEJykq7OBq3PImQcH/Aoa5H9+lNxRYg8r2gWqmK2q
+tmr1SFEOp5+cvnlV3JtvMgdlxtX75JQBxlZmysV6e1SBGefZbfdv56HnKLXzQajS
+6c2+78i5A9SLcXCh+PG+q4VcNwQ3TXHA6TZoq/VFEjgYAxV8GaXCpzcj6mSfg7G2
+PWx0UxExCM/1lRJg15RSHtWtiD1yJ2BcYUz/gUvLZWw00FIrYoJo/em/weMSHrpl
+eeXF+IvSIFcxbpMYPeqiMJW0q8PrHvbDD/RE8qqBOo1GtIIsB1A48j/KpTcx8Uv4
+jfemoid0F1ognvqzt4rW7QpOVJ/YaaA4GS0nnRqAufT0Bd1LgJkALcWRA2nC6jI=
+=9RfQ
+-----END PGP SIGNATURE-----
+
+--pf9I7BMVVzbSWLtt--
+
+--===============5133331331998713192==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5133331331998713192==--
