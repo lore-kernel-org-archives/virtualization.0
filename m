@@ -1,19 +1,19 @@
-From: Namhyung Kim <namhyung@kernel.org>
-Subject: Re: [PATCH 1/3] virtio: Basic implementation of virtio pstore driver
-Date: Tue, 15 Nov 2016 23:36:29 +0900
-Message-ID: <20161115143629.GA29740@danjae.aot.lge.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 2/3] qemu: Implement virtio-pstore device
+Date: Tue, 15 Nov 2016 16:38:45 +0200
+Message-ID: <20161115163735-mutt-send-email-mst__9121.44441758773$1479220776$gmane$org@kernel.org>
 References: <20160820080744.10344-1-namhyung@kernel.org>
-	<20160820080744.10344-2-namhyung@kernel.org>
-	<20161110182611-mutt-send-email-mst@kernel.org>
-	<20161115045021.GA15992@danjae.aot.lge.com>
-	<20161115065658-mutt-send-email-mst@kernel.org>
-	<f514ac65-3105-a12c-9e10-2d3b1e8a0516@redhat.com>
+	<20160820080744.10344-3-namhyung@kernel.org>
+	<20160913155710.3q6yj6yqdyozemul@redhat.com>
+	<20160916100547.GC2474@danjae.aot.lge.com>
+	<20161111004710-mutt-send-email-mst@kernel.org>
+	<20161115062336.GA16821@danjae.aot.lge.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <f514ac65-3105-a12c-9e10-2d3b1e8a0516@redhat.com>
+In-Reply-To: <20161115062336.GA16821@danjae.aot.lge.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,48 +23,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, Tony Luck <tony.luck@intel.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, qemu-devel@nongnu.org, Minchan Kim <minchan@kernel.org>, Anton Vorontsov <anton@enomsg.org>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@kernel.org>
+To: Namhyung Kim <namhyung@kernel.org>
+Cc: virtio-dev@lists.oasis-open.org, Tony Luck <tony.luck@intel.com>, "Daniel P . Berrange" <berrange@redhat.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, Anton Vorontsov <anton@enomsg.org>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, qemu-devel@nongnu.org, Minchan Kim <minchan@kernel.org>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
-
-On Tue, Nov 15, 2016 at 10:57:29AM +0100, Paolo Bonzini wrote:
-> 
-> 
-> On 15/11/2016 06:06, Michael S. Tsirkin wrote:
-> > On Tue, Nov 15, 2016 at 01:50:21PM +0900, Namhyung Kim wrote:
-> >> Hi Michael,
-> >>
-> >> On Thu, Nov 10, 2016 at 06:39:55PM +0200, Michael S. Tsirkin wrote:
-> >>> On Sat, Aug 20, 2016 at 05:07:42PM +0900, Namhyung Kim wrote:
-> >>>> The virtio pstore driver provides interface to the pstore subsystem so
-> >>>> that the guest kernel's log/dump message can be saved on the host
-> >>>> machine.  Users can access the log file directly on the host, or on the
-> >>>> guest at the next boot using pstore filesystem.  It currently deals with
-> >>>> kernel log (printk) buffer only, but we can extend it to have other
-> >>>> information (like ftrace dump) later.
-> >>>>
-> >>>> It supports legacy PCI device using single order-2 page buffer.
-> >>>
-> >>> Do you mean a legacy virtio device? I don't see why
-> >>> you would want to support pre-1.0 mode.
-> >>> If you drop that, you can drop all cpu_to_virtio things
-> >>> and just use __le accessors.
-> >>
-> >> I was thinking about the kvmtools which lacks 1.0 support AFAIK.
+On Tue, Nov 15, 2016 at 03:23:36PM +0900, Namhyung Kim wrote:
+> On Fri, Nov 11, 2016 at 12:50:03AM +0200, Michael S. Tsirkin wrote:
+> > On Fri, Sep 16, 2016 at 07:05:47PM +0900, Namhyung Kim wrote:
+> > > On Tue, Sep 13, 2016 at 06:57:10PM +0300, Michael S. Tsirkin wrote:
+> > > > On Sat, Aug 20, 2016 at 05:07:43PM +0900, Namhyung Kim wrote:
+> > > > > +
+> > > > > +/* the index should match to the type value */
+> > > > > +static const char *virtio_pstore_file_prefix[] = {
+> > > > > +    "unknown-",		/* VIRTIO_PSTORE_TYPE_UNKNOWN */
+> > > > 
+> > > > Is there value in treating everything unexpected as "unknown"
+> > > > and rotating them as if they were logs?
+> > > > It might be better to treat everything that's not known
+> > > > as guest error.
+> > > 
+> > > I was thinking about the version mismatch between the kernel and qemu.
+> > > I'd like to make the device can deal with a new kernel version which
+> > > might implement a new pstore message type.  It will be saved as
+> > > unknown but the kernel can read it properly later.
 > > 
-> > Unless kvmtools wants to be left behind it has to go 1.0.
+> > Well it'll have a different prefix. E.g. if kernel has
+> > two different types they will end up in the same
+> > file, hardly what was wanted.
 > 
-> And it also has to go ACPI.  Is there any reason, apart from kvmtool, to
-> make a completely new virtio device, with no support in existing guests,
-> rather than implement ACPI ERST?
+> Right, I think it needs to add 'type' info to the filename for unknown
+> type.
+> 
+> Thanks,
+> Namhyung
 
-Well, I know nothing about ACPI.  It looks like a huge spec and I
-don't want to dig into it just for this.
+And that opens all kind of resource management issues as guest
+might be able to open a ton of these unexpected types.
+So don't try to predict the future, if you add a new type
+you add a feature flag. Ignore or error on things you can
+not handle.
 
-What I want is to speed up dumping guest kernel message (especially
-for ftrace dump).
-
-Thanks,
-Namhyung
+-- 
+MST
