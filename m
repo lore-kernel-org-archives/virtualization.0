@@ -1,12 +1,15 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH] vhost/vsock: Remove unused but set variable
-Date: Tue, 15 Nov 2016 13:00:58 +0000
-Message-ID: <20161115130058.GC6012__39550.9364935153$1479214898$gmane$org@stefanha-x1.localdomain>
-References: <20161111132631.25708-1-tklauser@distanz.ch>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [GIT PULL v2 1/5] processor.h: introduce cpu_relax_yield
+Date: Tue, 15 Nov 2016 14:19:53 +0100
+Message-ID: <7f7850e4-c7bb-9cc1-2d65-a1555e97988a@de.ibm.com>
+References: <1477386195-32736-1-git-send-email-borntraeger@de.ibm.com>
+	<1477386195-32736-2-git-send-email-borntraeger@de.ibm.com>
+	<20161115123029.GT1041@n2100.armlinux.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1858697995786640786=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161111132631.25708-1-tklauser@distanz.ch>
+In-Reply-To: <20161115123029.GT1041@n2100.armlinux.org.uk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,60 +19,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tobias Klauser <tklauser@distanz.ch>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Russell King - ARM Linux <linux@armlinux.org.uk>
+Cc: linux-arch@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Will Deacon <will.deacon@arm.com>, x86@kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>, virtualization@lists.linux-foundation.org, sparclinux@vger.kernel.org, Noam Camus <noamc@ezchip.com>, Catalin Marinas <catalin.marinas@arm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, xen-devel@lists.xenproject.org, linuxppc-dev@lists.ozlabs.org, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On 11/15/2016 01:30 PM, Russell King - ARM Linux wrote:
+> On Tue, Oct 25, 2016 at 11:03:11AM +0200, Christian Borntraeger wrote:
+>> For spinning loops people do often use barrier() or cpu_relax().
+>> For most architectures cpu_relax and barrier are the same, but on
+>> some architectures cpu_relax can add some latency.
+>> For example on power,sparc64 and arc, cpu_relax can shift the CPU
+>> towards other hardware threads in an SMT environment.
+>> On s390 cpu_relax does even more, it uses an hypercall to the
+>> hypervisor to give up the timeslice.
+>> In contrast to the SMT yielding this can result in larger latencies.
+>> In some places this latency is unwanted, so another variant
+>> "cpu_relax_lowlatency" was introduced. Before this is used in more
+>> and more places, lets revert the logic and provide a cpu_relax_yield
+>> that can be called in places where yielding is more important than
+>> latency. By default this is the same as cpu_relax on all architectures.
+> 
+> Rather than having to update all these architectures in this way, can't
+> we put in some linux/*.h header something like:
+> 
+> #ifndef cpu_relax_yield
+> #define cpu_relax_yield() cpu_relax()
+> #endif
+> 
+> so only those architectures that need to do something need to be
+> modified?
 
---===============1858697995786640786==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="YD3LsXFS42OYHhNZ"
-Content-Disposition: inline
-
-
---YD3LsXFS42OYHhNZ
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Nov 11, 2016 at 02:26:31PM +0100, Tobias Klauser wrote:
-> Remove the unused but set variable vq in vhost_transport_send_pkt() to
-> fix the following GCC warning when building with 'W=3D1':
->=20
->   drivers/vhost/vsock.c:198:26: warning: variable =E2=80=98vq=E2=80=99 se=
-t but not used
->=20
-> Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
-> ---
->  drivers/vhost/vsock.c | 3 ---
->  1 file changed, 3 deletions(-)
-
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---YD3LsXFS42OYHhNZ
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAEBAgAGBQJYKwcKAAoJEJykq7OBq3PI7l4H/2hM846kAdyckXOmKFaWRPCp
-POz3MKelNXQbNDDEIUvZ7T1tkspG8HwvrD07Ghxvx+2Q4dGE0YjMlEWHiir47lpb
-3Q0KPPwKMMGgBZt8FqJQ7F/2WTcRHivZKTfEsdR6n3xYqAIh5K2NnG6Ees9v/FPQ
-ltrQkZhHRXETE3qUeMlH12r0WKvQ+wwFsL2dGp2LJWdshnv7Io1VS1sb11PdSoxl
-9i/igk/DsJpCFne1ot8PJSHv/RHi7w2XKvwZ7siWBA4+Fumr+p2kvnlh0aFv8Bz3
-P6kcZto9YI7ZGk3EAVgxfcZHVfiGwezrrCR/Wtb/62APcvKecJYSBIZYadWP9KQ=
-=q08I
------END PGP SIGNATURE-----
-
---YD3LsXFS42OYHhNZ--
-
---===============1858697995786640786==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1858697995786640786==--
+These patches are part of linux-next since a month or so, changing that 
+would invalidate all the next testing. If people want that, I can certainly
+do that, though.
