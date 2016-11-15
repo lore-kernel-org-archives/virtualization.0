@@ -1,17 +1,13 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 1/3] virtio: Basic implementation of virtio pstore driver
-Date: Tue, 15 Nov 2016 10:57:29 +0100
-Message-ID: <f514ac65-3105-a12c-9e10-2d3b1e8a0516__17003.2917907976$1479203887$gmane$org@redhat.com>
-References: <20160820080744.10344-1-namhyung@kernel.org>
-	<20160820080744.10344-2-namhyung@kernel.org>
-	<20161110182611-mutt-send-email-mst@kernel.org>
-	<20161115045021.GA15992@danjae.aot.lge.com>
-	<20161115065658-mutt-send-email-mst@kernel.org>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [GIT PULL v2 0/5] cpu_relax: drop lowlatency, introduce yield
+Date: Tue, 15 Nov 2016 11:15:13 +0100
+Message-ID: <75f6869e-a2a2-6394-aeda-a30d59b3baa1__33415.4855846011$1479204940$gmane$org@de.ibm.com>
+References: <1477386195-32736-1-git-send-email-borntraeger@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161115065658-mutt-send-email-mst@kernel.org>
+In-Reply-To: <1477386195-32736-1-git-send-email-borntraeger@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,181 +17,118 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Namhyung Kim <namhyung@kernel.org>
-Cc: virtio-dev@lists.oasis-open.org, Tony Luck <tony.luck@intel.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Anton Vorontsov <anton@enomsg.org>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, qemu-devel@nongnu.org, Minchan Kim <minchan@kernel.org>, Anthony Liguori <aliguori@amazon.com>, Colin Cross <ccross@android.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@kernel.org>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: linux-arch@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, kvm@vger.kernel.org, Will Deacon <will.deacon@arm.com>, x86@kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>, Russell King <linux@armlinux.org.uk>, sparclinux@vger.kernel.org, Noam Camus <noamc@ezchip.com>, Catalin Marinas <catalin.marinas@arm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, xen-devel@lists.xenproject.org, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAxNS8xMS8yMDE2IDA2OjA2LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24gVHVl
-LCBOb3YgMTUsIDIwMTYgYXQgMDE6NTA6MjFQTSArMDkwMCwgTmFtaHl1bmcgS2ltIHdyb3RlOgo+
-PiBIaSBNaWNoYWVsLAo+Pgo+PiBPbiBUaHUsIE5vdiAxMCwgMjAxNiBhdCAwNjozOTo1NVBNICsw
-MjAwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+PiBPbiBTYXQsIEF1ZyAyMCwgMjAxNiBh
-dCAwNTowNzo0MlBNICswOTAwLCBOYW1oeXVuZyBLaW0gd3JvdGU6Cj4+Pj4gVGhlIHZpcnRpbyBw
-c3RvcmUgZHJpdmVyIHByb3ZpZGVzIGludGVyZmFjZSB0byB0aGUgcHN0b3JlIHN1YnN5c3RlbSBz
-bwo+Pj4+IHRoYXQgdGhlIGd1ZXN0IGtlcm5lbCdzIGxvZy9kdW1wIG1lc3NhZ2UgY2FuIGJlIHNh
-dmVkIG9uIHRoZSBob3N0Cj4+Pj4gbWFjaGluZS4gIFVzZXJzIGNhbiBhY2Nlc3MgdGhlIGxvZyBm
-aWxlIGRpcmVjdGx5IG9uIHRoZSBob3N0LCBvciBvbiB0aGUKPj4+PiBndWVzdCBhdCB0aGUgbmV4
-dCBib290IHVzaW5nIHBzdG9yZSBmaWxlc3lzdGVtLiAgSXQgY3VycmVudGx5IGRlYWxzIHdpdGgK
-Pj4+PiBrZXJuZWwgbG9nIChwcmludGspIGJ1ZmZlciBvbmx5LCBidXQgd2UgY2FuIGV4dGVuZCBp
-dCB0byBoYXZlIG90aGVyCj4+Pj4gaW5mb3JtYXRpb24gKGxpa2UgZnRyYWNlIGR1bXApIGxhdGVy
-Lgo+Pj4+Cj4+Pj4gSXQgc3VwcG9ydHMgbGVnYWN5IFBDSSBkZXZpY2UgdXNpbmcgc2luZ2xlIG9y
-ZGVyLTIgcGFnZSBidWZmZXIuCj4+Pgo+Pj4gRG8geW91IG1lYW4gYSBsZWdhY3kgdmlydGlvIGRl
-dmljZT8gSSBkb24ndCBzZWUgd2h5Cj4+PiB5b3Ugd291bGQgd2FudCB0byBzdXBwb3J0IHByZS0x
-LjAgbW9kZS4KPj4+IElmIHlvdSBkcm9wIHRoYXQsIHlvdSBjYW4gZHJvcCBhbGwgY3B1X3RvX3Zp
-cnRpbyB0aGluZ3MKPj4+IGFuZCBqdXN0IHVzZSBfX2xlIGFjY2Vzc29ycy4KPj4KPj4gSSB3YXMg
-dGhpbmtpbmcgYWJvdXQgdGhlIGt2bXRvb2xzIHdoaWNoIGxhY2tzIDEuMCBzdXBwb3J0IEFGQUlL
-Lgo+IAo+IFVubGVzcyBrdm10b29scyB3YW50cyB0byBiZSBsZWZ0IGJlaGluZCBpdCBoYXMgdG8g
-Z28gMS4wLgoKQW5kIGl0IGFsc28gaGFzIHRvIGdvIEFDUEkuICBJcyB0aGVyZSBhbnkgcmVhc29u
-LCBhcGFydCBmcm9tIGt2bXRvb2wsIHRvCm1ha2UgYSBjb21wbGV0ZWx5IG5ldyB2aXJ0aW8gZGV2
-aWNlLCB3aXRoIG5vIHN1cHBvcnQgaW4gZXhpc3RpbmcgZ3Vlc3RzLApyYXRoZXIgdGhhbiBpbXBs
-ZW1lbnQgQUNQSSBFUlNUPwoKUGFvbG8KCj4+ICBCdXQKPj4gSSB0aGluayBpdCdkIGJlIGJldHRl
-ciB0byBhbHdheXMgdXNlIF9fbGUgdHlwZSBhbnl3YXkuICBXaWxsIGNoYW5nZS4KPj4KPj4KPj4+
-Cj4+Pj4gSXQgdXNlcwo+Pj4+IHR3byB2aXJ0cXVldWVzIC0gb25lIGZvciAoc3luYykgcmVhZCBh
-bmQgYW5vdGhlciBmb3IgKGFzeW5jKSB3cml0ZS4KPj4+PiBTaW5jZSBpdCBjYW5ub3Qgd2FpdCBm
-b3Igd3JpdGUgZmluaXNoZWQsIGl0IHN1cHBvcnRzIHVwIHRvIDEyOAo+Pj4+IGNvbmN1cnJlbnQg
-SU8uICBUaGUgYnVmZmVyIHNpemUgaXMgY29uZmlndXJhYmxlIG5vdy4KPj4+Pgo+Pj4+IENjOiBQ
-YW9sbyBCb256aW5pIDxwYm9uemluaUByZWRoYXQuY29tPgo+Pj4+IENjOiBSYWRpbSBLcsSNbcOh
-xZkgPHJrcmNtYXJAcmVkaGF0LmNvbT4KPj4+PiBDYzogIk1pY2hhZWwgUy4gVHNpcmtpbiIgPG1z
-dEByZWRoYXQuY29tPgo+Pj4+IENjOiBBbnRob255IExpZ3VvcmkgPGFsaWd1b3JpQGFtYXpvbi5j
-b20+Cj4+Pj4gQ2M6IEFudG9uIFZvcm9udHNvdiA8YW50b25AZW5vbXNnLm9yZz4KPj4+PiBDYzog
-Q29saW4gQ3Jvc3MgPGNjcm9zc0BhbmRyb2lkLmNvbT4KPj4+PiBDYzogS2VlcyBDb29rIDxrZWVz
-Y29va0BjaHJvbWl1bS5vcmc+Cj4+Pj4gQ2M6IFRvbnkgTHVjayA8dG9ueS5sdWNrQGludGVsLmNv
-bT4KPj4+PiBDYzogU3RldmVuIFJvc3RlZHQgPHJvc3RlZHRAZ29vZG1pcy5vcmc+Cj4+Pj4gQ2M6
-IEluZ28gTW9sbmFyIDxtaW5nb0BrZXJuZWwub3JnPgo+Pj4+IENjOiBNaW5jaGFuIEtpbSA8bWlu
-Y2hhbkBrZXJuZWwub3JnPgo+Pj4+IENjOiBrdm1Admdlci5rZXJuZWwub3JnCj4+Pj4gQ2M6IHFl
-bXUtZGV2ZWxAbm9uZ251Lm9yZwo+Pj4+IENjOiB2aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
-b3VuZGF0aW9uLm9yZwo+Pj4+IFNpZ25lZC1vZmYtYnk6IE5hbWh5dW5nIEtpbSA8bmFtaHl1bmdA
-a2VybmVsLm9yZz4KPj4+PiAtLS0KPj4+PiAgZHJpdmVycy92aXJ0aW8vS2NvbmZpZyAgICAgICAg
-ICAgICB8ICAxMCArCj4+Pj4gIGRyaXZlcnMvdmlydGlvL01ha2VmaWxlICAgICAgICAgICAgfCAg
-IDEgKwo+Pj4+ICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcHN0b3JlLmMgICAgIHwgNDE3ICsrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysKPj4+PiAgaW5jbHVkZS91YXBpL2xpbnV4
-L0tidWlsZCAgICAgICAgICB8ICAgMSArCj4+Pj4gIGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9f
-aWRzLmggICAgfCAgIDEgKwo+Pj4+ICBpbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX3BzdG9yZS5o
-IHwgIDc0ICsrKysrKysKPj4+PiAgNiBmaWxlcyBjaGFuZ2VkLCA1MDQgaW5zZXJ0aW9ucygrKQo+
-Pj4+ICBjcmVhdGUgbW9kZSAxMDA2NDQgZHJpdmVycy92aXJ0aW8vdmlydGlvX3BzdG9yZS5jCj4+
-Pj4gIGNyZWF0ZSBtb2RlIDEwMDY0NCBpbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX3BzdG9yZS5o
-Cj4+Pj4KPj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vS2NvbmZpZyBiL2RyaXZlcnMv
-dmlydGlvL0tjb25maWcKPj4+PiBpbmRleCA3NzU5MDMyMGQ0NGMuLjhmMGU2Yzc5NmMxMiAxMDA2
-NDQKPj4+PiAtLS0gYS9kcml2ZXJzL3ZpcnRpby9LY29uZmlnCj4+Pj4gKysrIGIvZHJpdmVycy92
-aXJ0aW8vS2NvbmZpZwo+Pj4+IEBAIC01OCw2ICs1OCwxNiBAQCBjb25maWcgVklSVElPX0lOUFVU
-Cj4+Pj4gIAo+Pj4+ICAJIElmIHVuc3VyZSwgc2F5IE0uCj4+Pj4gIAo+Pj4+ICtjb25maWcgVklS
-VElPX1BTVE9SRQo+Pj4+ICsJdHJpc3RhdGUgIlZpcnRpbyBwc3RvcmUgZHJpdmVyIgo+Pj4+ICsJ
-ZGVwZW5kcyBvbiBWSVJUSU8KPj4+PiArCWRlcGVuZHMgb24gUFNUT1JFCj4+Pj4gKwktLS1oZWxw
-LS0tCj4+Pj4gKwkgVGhpcyBkcml2ZXIgc3VwcG9ydHMgdmlydGlvIHBzdG9yZSBkZXZpY2VzIHRv
-IHNhdmUvcmVzdG9yZQo+Pj4+ICsJIHBhbmljIGFuZCBvb3BzIG1lc3NhZ2VzIG9uIHRoZSBob3N0
-Lgo+Pj4+ICsKPj4+PiArCSBJZiB1bnN1cmUsIHNheSBNLgo+Pj4+ICsKPj4+PiAgIGNvbmZpZyBW
-SVJUSU9fTU1JTwo+Pj4+ICAJdHJpc3RhdGUgIlBsYXRmb3JtIGJ1cyBkcml2ZXIgZm9yIG1lbW9y
-eSBtYXBwZWQgdmlydGlvIGRldmljZXMiCj4+Pj4gIAlkZXBlbmRzIG9uIEhBU19JT01FTSAmJiBI
-QVNfRE1BCj4+Pj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL01ha2VmaWxlIGIvZHJpdmVy
-cy92aXJ0aW8vTWFrZWZpbGUKPj4+PiBpbmRleCA0MWUzMGUzZGM4NDIuLmJlZTY4Y2IyNmQ0OCAx
-MDA2NDQKPj4+PiAtLS0gYS9kcml2ZXJzL3ZpcnRpby9NYWtlZmlsZQo+Pj4+ICsrKyBiL2RyaXZl
-cnMvdmlydGlvL01ha2VmaWxlCj4+Pj4gQEAgLTUsMyArNSw0IEBAIHZpcnRpb19wY2kteSA6PSB2
-aXJ0aW9fcGNpX21vZGVybi5vIHZpcnRpb19wY2lfY29tbW9uLm8KPj4+PiAgdmlydGlvX3BjaS0k
-KENPTkZJR19WSVJUSU9fUENJX0xFR0FDWSkgKz0gdmlydGlvX3BjaV9sZWdhY3kubwo+Pj4+ICBv
-YmotJChDT05GSUdfVklSVElPX0JBTExPT04pICs9IHZpcnRpb19iYWxsb29uLm8KPj4+PiAgb2Jq
-LSQoQ09ORklHX1ZJUlRJT19JTlBVVCkgKz0gdmlydGlvX2lucHV0Lm8KPj4+PiArb2JqLSQoQ09O
-RklHX1ZJUlRJT19QU1RPUkUpICs9IHZpcnRpb19wc3RvcmUubwo+Pj4+IGRpZmYgLS1naXQgYS9k
-cml2ZXJzL3ZpcnRpby92aXJ0aW9fcHN0b3JlLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcHN0
-b3JlLmMKPj4+PiBuZXcgZmlsZSBtb2RlIDEwMDY0NAo+Pj4+IGluZGV4IDAwMDAwMDAwMDAwMC4u
-MGE2M2M3ZGI0Mjc4Cj4+Pj4gLS0tIC9kZXYvbnVsbAo+Pj4+ICsrKyBiL2RyaXZlcnMvdmlydGlv
-L3ZpcnRpb19wc3RvcmUuYwo+Pj4+IEBAIC0wLDAgKzEsNDE3IEBACj4+Pj4gKyNkZWZpbmUgcHJf
-Zm10KGZtdCkgS0JVSUxEX01PRE5BTUUgIjogIiBmbXQKPj4+PiArCj4+Pj4gKyNpbmNsdWRlIDxs
-aW51eC9rZXJuZWwuaD4KPj4+PiArI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPgo+Pj4+ICsjaW5j
-bHVkZSA8bGludXgvcHN0b3JlLmg+Cj4+Pj4gKyNpbmNsdWRlIDxsaW51eC92aXJ0aW8uaD4KPj4+
-PiArI2luY2x1ZGUgPGxpbnV4L3ZpcnRpb19jb25maWcuaD4KPj4+PiArI2luY2x1ZGUgPHVhcGkv
-bGludXgvdmlydGlvX2lkcy5oPgo+Pj4+ICsjaW5jbHVkZSA8dWFwaS9saW51eC92aXJ0aW9fcHN0
-b3JlLmg+Cj4+Pj4gKwo+Pj4+ICsjZGVmaW5lIFZJUlRfUFNUT1JFX09SREVSICAgIDIKPj4+PiAr
-I2RlZmluZSBWSVJUX1BTVE9SRV9CVUZTSVpFICAoNDA5NiA8PCBWSVJUX1BTVE9SRV9PUkRFUikK
-Pj4+PiArI2RlZmluZSBWSVJUX1BTVE9SRV9OUl9SRVEgICAxMjgKPj4+PiArCj4+Pj4gK3N0cnVj
-dCB2aXJ0aW9fcHN0b3JlIHsKPj4+PiArCXN0cnVjdCB2aXJ0aW9fZGV2aWNlCSp2ZGV2Owo+Pj4+
-ICsJc3RydWN0IHZpcnRxdWV1ZQkqdnFbMl07Cj4+Pgo+Pj4gSSdkIGFkZCBuYW1lZCBmaWVsZHMg
-aW5zdGVhZCBvZiBhbiBhcnJheSBoZXJlLCB2cVswXQo+Pj4gdnFbMV0gYWxsIG92ZXIgdGhlIHBs
-YWNlIGlzIGhhcmQgdG8gcmVhZC4KPj4KPj4gV2lsbCBjaGFuZ2UuCj4+Cj4+Pgo+Pj4+ICsJc3Ry
-dWN0IHBzdG9yZV9pbmZvCSBwc3RvcmU7Cj4+Pj4gKwlzdHJ1Y3QgdmlydGlvX3BzdG9yZV9yZXEg
-cmVxW1ZJUlRfUFNUT1JFX05SX1JFUV07Cj4+Pj4gKwlzdHJ1Y3QgdmlydGlvX3BzdG9yZV9yZXMg
-cmVzW1ZJUlRfUFNUT1JFX05SX1JFUV07Cj4+Pj4gKwl1bnNpZ25lZCBpbnQJCSByZXFfaWQ7Cj4+
-Pj4gKwo+Pj4+ICsJLyogV2FpdGluZyBmb3IgaG9zdCB0byBhY2sgKi8KPj4+PiArCXdhaXRfcXVl
-dWVfaGVhZF90CWFja2VkOwo+Pj4+ICsJaW50CQkJZmFpbGVkOwo+Pj4+ICt9Owo+Pj4+ICsKPj4+
-PiArI2RlZmluZSBUWVBFX1RBQkxFX0VOVFJZKF9lbnRyeSkJCQkJXAo+Pj4+ICsJeyBQU1RPUkVf
-VFlQRV8jI19lbnRyeSwgVklSVElPX1BTVE9SRV9UWVBFXyMjX2VudHJ5IH0KPj4+PiArCj4+Pj4g
-K3N0cnVjdCB0eXBlX3RhYmxlIHsKPj4+PiArCWludCBwc3RvcmU7Cj4+Pj4gKwl1MTYgdmlydGlv
-Owo+Pj4+ICt9IHR5cGVfdGFibGVbXSA9IHsKPj4+PiArCVRZUEVfVEFCTEVfRU5UUlkoRE1FU0cp
-LAo+Pj4+ICt9Owo+Pj4+ICsKPj4+PiArI3VuZGVmIFRZUEVfVEFCTEVfRU5UUlkKPj4+Cj4+PiBs
-ZXQncyBhdm9pZCBtYWNyb3MgZm9yIG5vdyBwbHMuIEluIGZhY3QsIEkgd291bGQganVzdCBvcGVu
-LWNvZGUgdGhpcwo+Pj4gaW4gdG9fdmlydGlvX3R5cGUgYmVsb3cuIFdlIGNhbiBhbHdheXMgY2hh
-bmdlIG91ciBtaW5kcyBsYXRlciBpZgo+Pj4gbG90cyBvZiB0eXBlcyBhcmUgYWRkZWQuCj4+Cj4+
-IFllcC4KPj4KPj4+Cj4+Pj4gKwo+Pj4+ICsKPj4+Cj4+PiBzaW5nbGUgZW1vdHkgbGluZSBwbHMK
-Pj4KPj4gT2suCj4+Cj4+Pgo+Pj4+ICtzdGF0aWMgdTE2IHRvX3ZpcnRpb190eXBlKHN0cnVjdCB2
-aXJ0aW9fcHN0b3JlICp2cHMsIGVudW0gcHN0b3JlX3R5cGVfaWQgdHlwZSkKPj4+PiArewo+Pj4+
-ICsJdW5zaWduZWQgaW50IGk7Cj4+Pj4gKwo+Pj4+ICsJZm9yIChpID0gMDsgaSA8IEFSUkFZX1NJ
-WkUodHlwZV90YWJsZSk7IGkrKykgewo+Pj4+ICsJCWlmICh0eXBlID09IHR5cGVfdGFibGVbaV0u
-cHN0b3JlKQo+Pj4+ICsJCQlyZXR1cm4gY3B1X3RvX3ZpcnRpbzE2KHZwcy0+dmRldiwgdHlwZV90
-YWJsZVtpXS52aXJ0aW8pOwo+Pj4+ICsJfQo+Pj4+ICsKPj4+PiArCXJldHVybiBjcHVfdG9fdmly
-dGlvMTYodnBzLT52ZGV2LCBWSVJUSU9fUFNUT1JFX1RZUEVfVU5LTk9XTik7Cj4+Pgo+Pj4gVGhp
-cyBhc3NpZ25zIHUxNiB0byBfX3ZpcnRpbyB0eXBlLCBzcGFyc2Ugd2lsbCB3YXJuCj4+PiBpZiB5
-b3UgZW5hYmxlIGVuZGlhbi1uZXNzIGNoZWNrcy4KPj4+IFBscyBmaXggdGhhdCBhbmQgZ2VuZXJh
-bGx5LCBwbGVhc2UgbWFrZSBzdXJlIHRoaXMgaXMKPj4+IGNsZWFuIGZyb20gc3BhcnNlIHdhcm5p
-bmdzLgo+Pgo+PiBJJ2xsIHJ1biBzcGFyc2UgYmVmb3JlIHNlbmRpbmcgcGF0Y2ggbmV4dCB0aW1l
-Lgo+Pgo+Pj4KPj4+PiArfQo+Pj4+ICsKPj4+PiArc3RhdGljIGVudW0gcHN0b3JlX3R5cGVfaWQg
-ZnJvbV92aXJ0aW9fdHlwZShzdHJ1Y3QgdmlydGlvX3BzdG9yZSAqdnBzLCB1MTYgdHlwZSkKPj4+
-PiArewo+Pj4+ICsJdW5zaWduZWQgaW50IGk7Cj4+Pj4gKwo+Pj4+ICsJZm9yIChpID0gMDsgaSA8
-IEFSUkFZX1NJWkUodHlwZV90YWJsZSk7IGkrKykgewo+Pj4+ICsJCWlmICh2aXJ0aW8xNl90b19j
-cHUodnBzLT52ZGV2LCB0eXBlKSA9PSB0eXBlX3RhYmxlW2ldLnZpcnRpbykKPj4+PiArCQkJcmV0
-dXJuIHR5cGVfdGFibGVbaV0ucHN0b3JlOwo+Pj4+ICsJfQo+Pj4+ICsKPj4+PiArCXJldHVybiBQ
-U1RPUkVfVFlQRV9VTktOT1dOOwo+Pj4+ICt9Cj4+Pj4gKwo+Pj4+ICtzdGF0aWMgdm9pZCB2aXJ0
-cHN0b3JlX2FjayhzdHJ1Y3QgdmlydHF1ZXVlICp2cSkKPj4+PiArewo+Pj4+ICsJc3RydWN0IHZp
-cnRpb19wc3RvcmUgKnZwcyA9IHZxLT52ZGV2LT5wcml2Owo+Pj4+ICsKPj4+PiArCXdha2VfdXAo
-JnZwcy0+YWNrZWQpOwo+Pj4+ICt9Cj4+Pj4gKwo+Pj4+ICtzdGF0aWMgdm9pZCB2aXJ0cHN0b3Jl
-X2NoZWNrKHN0cnVjdCB2aXJ0cXVldWUgKnZxKQo+Pj4+ICt7Cj4+Pj4gKwlzdHJ1Y3QgdmlydGlv
-X3BzdG9yZSAqdnBzID0gdnEtPnZkZXYtPnByaXY7Cj4+Pj4gKwlzdHJ1Y3QgdmlydGlvX3BzdG9y
-ZV9yZXMgKnJlczsKPj4+PiArCXVuc2lnbmVkIGludCBsZW47Cj4+Pj4gKwo+Pj4+ICsJcmVzID0g
-dmlydHF1ZXVlX2dldF9idWYodnEsICZsZW4pOwo+Pj4+ICsJaWYgKHJlcyA9PSBOVUxMKQo+Pj4+
-ICsJCXJldHVybjsKPj4+PiArCj4+Pj4gKwlpZiAodmlydGlvMzJfdG9fY3B1KHZxLT52ZGV2LCBy
-ZXMtPnJldCkgPCAwKQo+Pj4+ICsJCXZwcy0+ZmFpbGVkID0gMTsKPj4+PiArfQo+Pj4+ICsKPj4+
-PiArc3RhdGljIHZvaWQgdmlydF9wc3RvcmVfZ2V0X3JlcXMoc3RydWN0IHZpcnRpb19wc3RvcmUg
-KnZwcywKPj4+PiArCQkJCSBzdHJ1Y3QgdmlydGlvX3BzdG9yZV9yZXEgKipwcmVxLAo+Pj4+ICsJ
-CQkJIHN0cnVjdCB2aXJ0aW9fcHN0b3JlX3JlcyAqKnByZXMpCj4+Pj4gK3sKPj4+PiArCXVuc2ln
-bmVkIGludCBpZHggPSB2cHMtPnJlcV9pZCsrICUgVklSVF9QU1RPUkVfTlJfUkVROwo+Pj4+ICsK
-Pj4+PiArCSpwcmVxID0gJnZwcy0+cmVxW2lkeF07Cj4+Pj4gKwkqcHJlcyA9ICZ2cHMtPnJlc1tp
-ZHhdOwo+Pj4+ICsKPj4+PiArCW1lbXNldCgqcHJlcSwgMCwgc2l6ZW9mKCoqcHJlcSkpOwo+Pj4+
-ICsJbWVtc2V0KCpwcmVzLCAwLCBzaXplb2YoKipwcmVzKSk7Cj4+Pj4gK30KPj4+PiArCj4+Pj4g
-K3N0YXRpYyBpbnQgdmlydF9wc3RvcmVfb3BlbihzdHJ1Y3QgcHN0b3JlX2luZm8gKnBzaSkKPj4+
-PiArewo+Pj4+ICsJc3RydWN0IHZpcnRpb19wc3RvcmUgKnZwcyA9IHBzaS0+ZGF0YTsKPj4+PiAr
-CXN0cnVjdCB2aXJ0aW9fcHN0b3JlX3JlcSAqcmVxOwo+Pj4+ICsJc3RydWN0IHZpcnRpb19wc3Rv
-cmVfcmVzICpyZXM7Cj4+Pj4gKwlzdHJ1Y3Qgc2NhdHRlcmxpc3Qgc2dvWzFdLCBzZ2lbMV07Cj4+
-Pj4gKwlzdHJ1Y3Qgc2NhdHRlcmxpc3QgKnNnc1syXSA9IHsgc2dvLCBzZ2kgfTsKPj4+PiArCXVu
-c2lnbmVkIGludCBsZW47Cj4+Pj4gKwo+Pj4+ICsJdmlydF9wc3RvcmVfZ2V0X3JlcXModnBzLCAm
-cmVxLCAmcmVzKTsKPj4+PiArCj4+Pj4gKwlyZXEtPmNtZCA9IGNwdV90b192aXJ0aW8xNih2cHMt
-PnZkZXYsIFZJUlRJT19QU1RPUkVfQ01EX09QRU4pOwo+Pj4+ICsKPj4+PiArCXNnX2luaXRfb25l
-KHNnbywgcmVxLCBzaXplb2YoKnJlcSkpOwo+Pj4+ICsJc2dfaW5pdF9vbmUoc2dpLCByZXMsIHNp
-emVvZigqcmVzKSk7Cj4+Pj4gKwl2aXJ0cXVldWVfYWRkX3Nncyh2cHMtPnZxWzBdLCBzZ3MsIDEs
-IDEsIHZwcywgR0ZQX0tFUk5FTCk7Cj4+Pj4gKwl2aXJ0cXVldWVfa2ljayh2cHMtPnZxWzBdKTsK
-Pj4+PiArCj4+Pj4gKwl3YWl0X2V2ZW50KHZwcy0+YWNrZWQsIHZpcnRxdWV1ZV9nZXRfYnVmKHZw
-cy0+dnFbMF0sICZsZW4pKTsKPj4+Cj4+PiBEb2VzIHRoaXMgYmxvY2sgdXNlcnNwYWNlIGluIGFu
-IHVuaW50ZXJydXB0aWJsZSB3YWl0IGlmCj4+PiBoYXJkd2FyZSBpcyBzbG93PyBUaGF0J3Mgbm90
-IG5pY2UuCj4+Cj4+IFllcywgYnV0IGl0J3Mgbm90IGEgY29tbW9uIG9wZXJhdGlvbiBhbmQgSSBq
-dXN0IHdhbnRlZCB0byBtYWtlIGl0Cj4+IHNpbXBsZS4KPj4KPj4KPj4+Cj4+Pj4gKwlyZXR1cm4g
-dmlydGlvMzJfdG9fY3B1KHZwcy0+dmRldiwgcmVzLT5yZXQpOwo+Pj4+ICt9Cj4+Pj4gKwo+Pgo+
-PiBbU05JUF0KPj4+PiArc3RydWN0IHZpcnRpb19wc3RvcmVfZmlsZWluZm8gewo+Pj4+ICsJX192
-aXJ0aW82NAkJaWQ7Cj4+Pj4gKwlfX3ZpcnRpbzMyCQljb3VudDsKPj4+PiArCV9fdmlydGlvMTYJ
-CXR5cGU7Cj4+Pj4gKwlfX3ZpcnRpbzE2CQl1bnVzZWQ7Cj4+Pj4gKwlfX3ZpcnRpbzMyCQlmbGFn
-czsKPj4+PiArCV9fdmlydGlvMzIJCWxlbjsKPj4+PiArCV9fdmlydGlvNjQJCXRpbWVfc2VjOwo+
-Pj4+ICsJX192aXJ0aW8zMgkJdGltZV9uc2VjOwo+Pj4+ICsJX192aXJ0aW8zMgkJcmVzZXJ2ZWQ7
-Cj4+Pj4gK307Cj4+Pj4gKwo+Pj4+ICtzdHJ1Y3QgdmlydGlvX3BzdG9yZV9jb25maWcgewo+Pj4+
-ICsJX192aXJ0aW8zMgkJYnVmc2l6ZTsKPj4+PiArfTsKPj4+PiArCj4+Pgo+Pj4gV2hhdCBleGFj
-dGx5IGRvZXMgZWFjaCBmaWVsZCBtZWFuPyBJJ20gZXNwZWNpYWxseQo+Pj4gaW50ZXJlc3RlZCBp
-biB0aW1lIGZpZWxkcyAtIG1haW50YWluaW5nIGEgY29uc2lzdGVudAo+Pj4gdGltZSBiZXR3ZWVu
-IGhvc3QgYW5kIGd1ZXN0IGlzIG5vdCBhIHNpbXBsZSBwcm9ibGVtLgo+Pgo+PiBUaGVzZSBhcmUg
-cmVxdWlyZWQgYnkgcHN0b3JlIGFuZCB3aWxsIGJlIHVzZWQgdG8gY3JlYXRlIGNvcnJlc3BvbmRp
-bmcKPj4gZmlsZXMgaW4gdGhlIHBzdG9yZSBmaWxlc3lzdGVtLiAgVGhlIHRpbWUgZmllbGRzIGFy
-ZSBmb3IgbXRpbWUgYW5kCj4+IGN0aW1lIGFuZCwgSSB0aGluaywgaXQncyBqdXN0IGEgaGludCBm
-b3IgdXNlciBhbmQgZG9lc24ndCByZXF1aXJlCj4+IHN0cmljdCBjb25zaXN0ZW5jeS4KPiAKPiBQ
-bHMgYWRkIGRvY3VtZW50YXRpb24uIEkgd291bGQganVzdCBkcm9wIGhpbnRzIGZvciBub3cuCj4g
-Cj4+Cj4+IFRoYW5rcyBmb3IgeW91ciByZXZpZXchCj4+IE5hbWh5dW5nCj4+Cj4+Pgo+Pj4+ICsj
-ZW5kaWYgLyogX0xJTlVYX1ZJUlRJT19QU1RPUkVfSCAqLwo+Pj4+IC0tIAo+Pj4+IDIuOS4zCj4g
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KPiBWaXJ0dWFs
-aXphdGlvbiBtYWlsaW5nIGxpc3QKPiBWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
-aW9uLm9yZwo+IGh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL3ZpcnR1YWxpemF0aW9uCj4gCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
-cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On 10/25/2016 11:03 AM, Christian Borntraeger wrote:
+> Peter,
+> 
+> here is v2 with some improved patch descriptions and some fixes. The
+> previous version has survived one day of linux-next and I only changed
+> small parts.
+> So unless there is some other issue, feel free to pull (or to apply
+> the patches) to tip/locking.
+> 
+> The following changes since commit 07d9a380680d1c0eb51ef87ff2eab5c994949e69:
+> 
+>   Linux 4.9-rc2 (2016-10-23 17:10:14 -0700)
+> 
+> are available in the git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/borntraeger/linux.git  tags/cpurelax
+> 
+> for you to fetch changes up to dcc37f9044436438360402714b7544a8e8779b07:
+> 
+>   processor.h: remove cpu_relax_lowlatency (2016-10-25 09:49:57 +0200)
+
+Ping.
+
+Peter, you had these patches in your
+https://git.kernel.org/cgit/linux/kernel/git/peterz/queue.git/
+repository, but now the patches are gone. 
+Any feedback?
+
+
+
+> 
+> ----------------------------------------------------------------
+> cpu_relax: drop lowlatency, introduce yield
+> 
+> For spinning loops people do often use barrier() or cpu_relax().
+> For most architectures cpu_relax and barrier are the same, but on
+> some architectures cpu_relax can add some latency.
+> For example on power,sparc64 and arc, cpu_relax can shift the CPU
+> towards other hardware threads in an SMT environment.
+> On s390 cpu_relax does even more, it uses an hypercall to the
+> hypervisor to give up the timeslice.
+> In contrast to the SMT yielding this can result in larger latencies.
+> In some places this latency is unwanted, so another variant
+> "cpu_relax_lowlatency" was introduced. Before this is used in more
+> and more places, lets revert the logic and provide a cpu_relax_yield
+> that can be called in places where yielding is more important than
+> latency. By default this is the same as cpu_relax on all architectures.
+> 
+> So my proposal boils down to:
+> - lowest latency: use barrier() or mb() if necessary
+> - low latency: use cpu_relax (e.g. might give up some cpu for the other
+>   _hardware_ threads)
+> - really give up CPU: use  cpu_relax_yield
+> 
+> PS: In the long run I would also try to provide for s390 something
+> like cpu_relax_yield_to with a cpu number (or just add that to
+> cpu_relax_yield), since a yield_to is always better than a yield as
+> long as we know the waiter.
+> 
+> ----------------------------------------------------------------
+> Christian Borntraeger (5):
+>       processor.h: introduce cpu_relax_yield
+>       stop_machine: yield CPU during stop machine
+>       s390: make cpu_relax a barrier again
+>       processor.h: Remove cpu_relax_lowlatency users
+>       processor.h: remove cpu_relax_lowlatency
+> 
+>  arch/alpha/include/asm/processor.h      | 2 +-
+>  arch/arc/include/asm/processor.h        | 4 ++--
+>  arch/arm/include/asm/processor.h        | 2 +-
+>  arch/arm64/include/asm/processor.h      | 2 +-
+>  arch/avr32/include/asm/processor.h      | 2 +-
+>  arch/blackfin/include/asm/processor.h   | 2 +-
+>  arch/c6x/include/asm/processor.h        | 2 +-
+>  arch/cris/include/asm/processor.h       | 2 +-
+>  arch/frv/include/asm/processor.h        | 2 +-
+>  arch/h8300/include/asm/processor.h      | 2 +-
+>  arch/hexagon/include/asm/processor.h    | 2 +-
+>  arch/ia64/include/asm/processor.h       | 2 +-
+>  arch/m32r/include/asm/processor.h       | 2 +-
+>  arch/m68k/include/asm/processor.h       | 2 +-
+>  arch/metag/include/asm/processor.h      | 2 +-
+>  arch/microblaze/include/asm/processor.h | 2 +-
+>  arch/mips/include/asm/processor.h       | 2 +-
+>  arch/mn10300/include/asm/processor.h    | 2 +-
+>  arch/nios2/include/asm/processor.h      | 2 +-
+>  arch/openrisc/include/asm/processor.h   | 2 +-
+>  arch/parisc/include/asm/processor.h     | 2 +-
+>  arch/powerpc/include/asm/processor.h    | 2 +-
+>  arch/s390/include/asm/processor.h       | 4 ++--
+>  arch/s390/kernel/processor.c            | 4 ++--
+>  arch/score/include/asm/processor.h      | 2 +-
+>  arch/sh/include/asm/processor.h         | 2 +-
+>  arch/sparc/include/asm/processor_32.h   | 2 +-
+>  arch/sparc/include/asm/processor_64.h   | 2 +-
+>  arch/tile/include/asm/processor.h       | 2 +-
+>  arch/unicore32/include/asm/processor.h  | 2 +-
+>  arch/x86/include/asm/processor.h        | 2 +-
+>  arch/x86/um/asm/processor.h             | 2 +-
+>  arch/xtensa/include/asm/processor.h     | 2 +-
+>  drivers/gpu/drm/i915/i915_gem_request.c | 2 +-
+>  drivers/vhost/net.c                     | 4 ++--
+>  kernel/locking/mcs_spinlock.h           | 4 ++--
+>  kernel/locking/mutex.c                  | 4 ++--
+>  kernel/locking/osq_lock.c               | 6 +++---
+>  kernel/locking/qrwlock.c                | 6 +++---
+>  kernel/locking/rwsem-xadd.c             | 4 ++--
+>  kernel/stop_machine.c                   | 2 +-
+>  lib/lockref.c                           | 2 +-
+>  42 files changed, 53 insertions(+), 53 deletions(-)
+> 
