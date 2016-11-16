@@ -1,13 +1,16 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH 1/1] sched: provide common cpu_relax_yield definition
-Date: Wed, 16 Nov 2016 13:34:22 +0100
-Message-ID: <c41d574c-c89e-e518-91bb-3acd701e5023@redhat.com>
-References: <1479298985-191589-1-git-send-email-borntraeger@de.ibm.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: BUG: 'list_empty(&vgdev->free_vbufs)' is true!
+Date: Wed, 16 Nov 2016 14:12:55 +0100
+Message-ID: <1479301975.25611.23.camel@redhat.com>
+References: <bfe29853-694b-6cb5-02e7-6986a9927438@suse.cz>
+	<20161108223153-mutt-send-email-mst@kernel.org>
+	<1478678517.2078.12.camel@redhat.com>
+	<f006e3a6-51d2-4092-57b6-eea7ff64f58f@suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1479298985-191589-1-git-send-email-borntraeger@de.ibm.com>
+In-Reply-To: <f006e3a6-51d2-4092-57b6-eea7ff64f58f@suse.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,21 +20,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>
-Cc: linux-arch@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, kvm@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, x86@kernel.org, Will Deacon <will.deacon@arm.com>, Russell King <linux@armlinux.org.uk>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org, Noam Camus <noamc@ezchip.com>, Nicholas Piggin <npiggin@gmail.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, xen-devel@lists.xenproject.org, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, Ingo Molnar <mingo@kernel.org>
+To: Jiri Slaby <jslaby@suse.cz>
+Cc: David Airlie <airlied@linux.ie>, virtualization@lists.linux-foundation.org, Linux kernel mailing list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am 16.11.2016 um 13:23 schrieb Christian Borntraeger:
-> No need to duplicate the same define everywhere. Since
-> the only user is stop-machine and the only provider is
-> s390, we can use a default implementation of cpu_relax_yield
-> in sched.h.
->
-> Suggested-by: Russell King <linux@armlinux.org.uk>
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+On Fr, 2016-11-11 at 17:28 +0100, Jiri Slaby wrote:
+> On 11/09/2016, 09:01 AM, Gerd Hoffmann wrote:
+> > On Di, 2016-11-08 at 22:37 +0200, Michael S. Tsirkin wrote:
+> >> On Mon, Nov 07, 2016 at 09:43:24AM +0100, Jiri Slaby wrote:
+> >>> Hi,
+> >>>
+> >>> I can relatively easily reproduce this bug:
+> > 
+> > How?
+> 
+> Run dmesg -w in the qemu window (virtio_gpu) to see a lot of output.
+> Run pps [1] without exit(0); on e.g. serial console.
+> Wait a bit. The lot of output causes the BUG.
+> 
+> [1] https://github.com/jirislaby/collected_sources/blob/master/pps.c
 
-Looks good to me!
+Doesn't reproduce here.
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+Running "while true; do dmesg; done" on the virtio-gpu fbcon.
+Running the pps fork bomb on the serial console.
 
-David
+Can watch dmesg printing the kernel messages over and over, until the
+shell can't spawn dmesg any more due to the fork bomb hitting the
+process limit.  No BUG() triggered.
+
+Tried spice, gtk and sdl.
+
+Hmm.
+
+Any ideas what else might be needed to reproduce it?
+
+cheers,
+  Gerd
