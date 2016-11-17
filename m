@@ -1,7 +1,7 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 06/11] virtio_pci: use msix_enable flag in struct pci_dev
-Date: Thu, 17 Nov 2016 11:43:18 +0100
-Message-ID: <1479379403-27880-7-git-send-email-hch__3944.06039636142$1479379486$gmane$org@lst.de>
+Subject: [PATCH 07/11] virtio_pci: simplify MSI-X setup
+Date: Thu, 17 Nov 2016 11:43:19 +0100
+Message-ID: <1479379403-27880-8-git-send-email-hch__42314.4975131892$1479379498$gmane$org@lst.de>
 References: <1479379403-27880-1-git-send-email-hch@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,103 +21,124 @@ To: mst@redhat.com
 Cc: axboe@kernel.dk, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Instead of duplicating it.
+Try to grab the MSI-X vectors early and fall back to the shared one
+before doing tons of allocations.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/virtio/virtio_pci_common.c | 7 ++-----
- drivers/virtio/virtio_pci_common.h | 2 --
- drivers/virtio/virtio_pci_legacy.c | 2 +-
- drivers/virtio/virtio_pci_modern.c | 2 +-
- include/uapi/linux/virtio_pci.h    | 2 +-
- 5 files changed, 5 insertions(+), 10 deletions(-)
+ drivers/virtio/virtio_pci_common.c | 52 +++++++++++++++++++-------------------
+ 1 file changed, 26 insertions(+), 26 deletions(-)
 
 diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 9e6c9d8..03d3a3b 100644
+index 03d3a3b..90d7975 100644
 --- a/drivers/virtio/virtio_pci_common.c
 +++ b/drivers/virtio/virtio_pci_common.c
-@@ -133,7 +133,6 @@ static int vp_setup_msix_vectors(struct virtio_device *vdev, int nvectors)
- 			PCI_IRQ_MSIX);
- 	if (err < 0)
- 		goto error;
--	vp_dev->msix_enabled = 1;
+@@ -114,6 +114,18 @@ static int vp_setup_msix_vectors(struct virtio_device *vdev, int nvectors)
+ 	unsigned i;
+ 	int err = -ENOMEM;
  
++	/* Try one vector per queue first. */
++	err = pci_alloc_irq_vectors(vp_dev->pci_dev, nvectors, nvectors,
++			PCI_IRQ_MSIX);
++	if (err < 0) {
++		/* Fallback to one vector for config, one shared for queues. */
++		err = pci_alloc_irq_vectors(vp_dev->pci_dev, 2, 2,
++				PCI_IRQ_MSIX);
++		if (err < 0)
++			goto error;
++		nvectors = 2;
++	}
++
+ 	vp_dev->msix_vectors = nvectors;
+ 	vp_dev->msix_names = kmalloc(nvectors * sizeof *vp_dev->msix_names,
+ 				     GFP_KERNEL);
+@@ -129,11 +141,6 @@ static int vp_setup_msix_vectors(struct virtio_device *vdev, int nvectors)
+ 					GFP_KERNEL))
+ 			goto error;
+ 
+-	err = pci_alloc_irq_vectors(vp_dev->pci_dev, nvectors, nvectors,
+-			PCI_IRQ_MSIX);
+-	if (err < 0)
+-		goto error;
+-
  	/* Set the vector used for configuration */
  	snprintf(vp_dev->msix_names[0], sizeof(*vp_dev->msix_names),
-@@ -225,12 +224,10 @@ void vp_del_vqs(struct virtio_device *vdev)
- 		if (vp_dev->msix_affinity_masks[i])
- 			free_cpumask_var(vp_dev->msix_affinity_masks[i]);
- 
--	if (vp_dev->msix_enabled) {
-+	if (vp_dev->pci_dev->msix_enabled) {
- 		/* Disable the vector used for configuration */
- 		vp_dev->config_vector(vp_dev, VIRTIO_MSI_NO_VECTOR);
--
- 		pci_free_irq_vectors(vp_dev->pci_dev);
--		vp_dev->msix_enabled = 0;
+ 		 "%s-config", name);
+@@ -149,7 +156,7 @@ static int vp_setup_msix_vectors(struct virtio_device *vdev, int nvectors)
+ 		goto error;
  	}
  
- 	vp_dev->msix_vectors = 0;
-@@ -391,7 +388,7 @@ int vp_set_vq_affinity(struct virtqueue *vq, int cpu)
- 	if (!vq->callback)
- 		return -EINVAL;
+-	return 0;
++	return nvectors;
+ error:
+ 	return err;
+ }
+@@ -242,8 +249,7 @@ void vp_del_vqs(struct virtio_device *vdev)
+ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
+ 			      struct virtqueue *vqs[],
+ 			      vq_callback_t *callbacks[],
+-			      const char * const names[],
+-			      bool per_vq_vectors)
++			      const char * const names[])
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 	u16 msix_vec;
+@@ -253,20 +259,16 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
+ 	if (!vp_dev->vqs)
+ 		return -ENOMEM;
  
--	if (vp_dev->msix_enabled) {
-+	if (vp_dev->pci_dev->msix_enabled) {
- 		mask = vp_dev->msix_affinity_masks[info->msix_vector];
- 		irq = pci_irq_vector(vp_dev->pci_dev, info->msix_vector);
- 		if (cpu == -1)
-diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-index 93f3e4f..d041cce 100644
---- a/drivers/virtio/virtio_pci_common.h
-+++ b/drivers/virtio/virtio_pci_common.h
-@@ -82,8 +82,6 @@ struct virtio_pci_device {
- 	/* array of all queues for house-keeping */
- 	struct virtio_pci_vq_info **vqs;
+-	if (per_vq_vectors) {
+-		/* Best option: one for change interrupt, one per vq. */
+-		nvectors = 1;
+-		for (i = 0; i < nvqs; ++i)
+-			if (callbacks[i])
+-				++nvectors;
+-	} else {
+-		/* Second best: one for change, shared for all vqs. */
+-		nvectors = 2;
++	nvectors = 1;
++	for (i = 0; i < nvqs; i++) {
++		if (callbacks[i])
++			nvectors++;
+ 	}
  
--	/* MSI-X support */
--	int msix_enabled;
- 	cpumask_var_t *msix_affinity_masks;
- 	/* Name strings for interrupts. This size should be enough,
- 	 * and I'm too lazy to allocate each name separately. */
-diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
-index 6d9e517..f83829f 100644
---- a/drivers/virtio/virtio_pci_legacy.c
-+++ b/drivers/virtio/virtio_pci_legacy.c
-@@ -169,7 +169,7 @@ static void del_vq(struct virtio_pci_vq_info *info)
+ 	err = vp_setup_msix_vectors(vdev, nvectors);
+-	if (err)
++	if (err < 0)
+ 		goto error_find;
++	nvectors = err;
  
- 	iowrite16(vq->index, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_SEL);
+ 	allocated_vectors = 1; /* vector 0 is the config interrupt */
+ 	for (i = 0; i < nvqs; ++i) {
+@@ -300,7 +302,11 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
+ 			goto error_find;
+ 		}
  
--	if (vp_dev->msix_enabled) {
-+	if (vp_dev->pci_dev->msix_enabled) {
- 		iowrite16(VIRTIO_MSI_NO_VECTOR,
- 			  vp_dev->ioaddr + VIRTIO_MSI_QUEUE_VECTOR);
- 		/* Flush the write out to device */
-diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index e76bd91..e18d0b0 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -416,7 +416,7 @@ static void del_vq(struct virtio_pci_vq_info *info)
+-		if (per_vq_vectors)
++		/*
++		 * Use a different vector for each queue if they are available,
++		 * else share the same vector for all VQs.
++		 */
++		if (nvectors == nvqs + 1)
+ 			allocated_vectors++;
+ 	}
+ 	return 0;
+@@ -353,15 +359,9 @@ int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ {
+ 	int err;
  
- 	vp_iowrite16(vq->index, &vp_dev->common->queue_select);
+-	/* Try MSI-X with one vector per queue. */
+-	err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names, true);
+-	if (!err)
+-		return 0;
+-	/* Fallback: MSI-X with one vector for config, one shared for queues. */
+-	err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names, false);
++	err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names);
+ 	if (!err)
+ 		return 0;
+-	/* Finally fall back to regular interrupts. */
+ 	return vp_find_vqs_intx(vdev, nvqs, vqs, callbacks, names);
+ }
  
--	if (vp_dev->msix_enabled) {
-+	if (vp_dev->pci_dev->msix_enabled) {
- 		vp_iowrite16(VIRTIO_MSI_NO_VECTOR,
- 			     &vp_dev->common->queue_msix_vector);
- 		/* Flush the write out to device */
-diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
-index 90007a1..15b4385 100644
---- a/include/uapi/linux/virtio_pci.h
-+++ b/include/uapi/linux/virtio_pci.h
-@@ -79,7 +79,7 @@
-  * configuration space */
- #define VIRTIO_PCI_CONFIG_OFF(msix_enabled)	((msix_enabled) ? 24 : 20)
- /* Deprecated: please use VIRTIO_PCI_CONFIG_OFF instead */
--#define VIRTIO_PCI_CONFIG(dev)	VIRTIO_PCI_CONFIG_OFF((dev)->msix_enabled)
-+#define VIRTIO_PCI_CONFIG(dev)	VIRTIO_PCI_CONFIG_OFF((dev)->pci_dev->msix_enabled)
- 
- /* Virtio ABI version, this must match exactly */
- #define VIRTIO_PCI_ABI_VERSION		0
 -- 
 2.1.4
