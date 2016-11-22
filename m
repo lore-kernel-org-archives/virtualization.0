@@ -1,11 +1,15 @@
-From: Gonglei <arei.gonglei@huawei.com>
-Subject: [PATCH v2 0/2] virtio-crypto: add Linux driver
-Date: Tue, 22 Nov 2016 16:10:21 +0800
-Message-ID: <1479802223-121104-1-git-send-email-arei.gonglei__31027.8782308616$1479802485$gmane$org@huawei.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 2/2] virtio_ring: fix complaint by sparse
+Date: Tue, 22 Nov 2016 17:04:37 +0200
+Message-ID: <20161122170346-mutt-send-email-mst__49522.0533725389$1479827092$gmane$org@kernel.org>
+References: <1479793910-120188-1-git-send-email-arei.gonglei@huawei.com>
+	<1479793910-120188-3-git-send-email-arei.gonglei@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1479793910-120188-3-git-send-email-arei.gonglei@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,84 +19,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org
-Cc: weidong.huang@huawei.com, claudio.fontana@huawei.com, mst@redhat.com, luonengjun@huawei.com, hanweidong@huawei.com, xuquan8@huawei.com, salvatore.benedetto@intel.com, Gonglei <arei.gonglei@huawei.com>, stefanha@redhat.com, jianjay.zhou@huawei.com, longpeng2@huawei.com, arei.gonglei@hotmail.com, davem@davemloft.net, wu.wubin@huawei.com, herbert@gondor.apana.org.au
+To: Gonglei <arei.gonglei@huawei.com>
+Cc: thuth@redhat.com, david@gibson.dropbear.id.au, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The virtio crypto device is a virtual cryptography device
-as well as a kind of virtual hardware accelerator for
-virtual machines. The encryption anddecryption requests
-are placed in the data queue and are ultimately handled by
-thebackend crypto accelerators. The second queue is the
-control queue used to create or destroy sessions for
-symmetric algorithms and will control some advanced features
-in the future. The virtio crypto device provides the following
-cryptoservices: CIPHER, MAC, HASH, and AEAD.
+On Tue, Nov 22, 2016 at 01:51:50PM +0800, Gonglei wrote:
+>  # make C=2 CF="-D__CHECK_ENDIAN__" ./drivers/virtio/
+> 
+> drivers/virtio/virtio_ring.c:423:19: warning: incorrect type in assignment (different base types)
+> drivers/virtio/virtio_ring.c:423:19:    expected unsigned int [unsigned] [assigned] i
+> drivers/virtio/virtio_ring.c:423:19:    got restricted __virtio16 [usertype] next
+> drivers/virtio/virtio_ring.c:423:19: warning: incorrect type in assignment (different base types)
+> drivers/virtio/virtio_ring.c:423:19:    expected unsigned int [unsigned] [assigned] i
+> drivers/virtio/virtio_ring.c:423:19:    got restricted __virtio16 [usertype] next
+> drivers/virtio/virtio_ring.c:423:19: warning: incorrect type in assignment (different base types)
+> drivers/virtio/virtio_ring.c:423:19:    expected unsigned int [unsigned] [assigned] i
+> drivers/virtio/virtio_ring.c:423:19:    got restricted __virtio16 [usertype] next
+> drivers/virtio/virtio_ring.c:604:39: warning: incorrect type in initializer (different base types)
+> drivers/virtio/virtio_ring.c:604:39:    expected unsigned short [unsigned] [usertype] nextflag
+> drivers/virtio/virtio_ring.c:604:39:    got restricted __virtio16
+> drivers/virtio/virtio_ring.c:612:33: warning: restricted __virtio16 degrades to integer
+> 
+> Signed-off-by: Gonglei <arei.gonglei@huawei.com>
+> ---
+>  drivers/virtio/virtio_ring.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 489bfc6..d2863c3 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -420,7 +420,7 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+>  		if (i == err_idx)
+>  			break;
+>  		vring_unmap_one(vq, &desc[i]);
+> -		i = vq->vring.desc[i].next;
+> +		i = virtio16_to_cpu(_vq->vdev, vq->vring.desc[i].next);
+>  	}
+>  
+>  	vq->vq.num_free += total_sg;
+> @@ -601,7 +601,7 @@ bool virtqueue_kick(struct virtqueue *vq)
+>  static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
+>  {
+>  	unsigned int i, j;
+> -	u16 nextflag = cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT);
+> +	__virtio16 nextflag = cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT);
+>  
+>  	/* Clear data ptr. */
+>  	vq->desc_state[head].data = NULL;
+> -- 
+> 1.8.3.1
+> 
 
-For more information about virtio-crypto device, please see:
-  http://qemu-project.org/Features/VirtioCrypto
-
-For better reviewing:
-
-Patch 1 introduces the little edian functions for VIRTIO_1 
-devices.
-
-Patch 2 mainly includes five files:
- 1) virtio_crypto.h is the header file for virtio-crypto device,
-which is based on the virtio-crypto specification. 
- 2) virtio_crypto.c is the entry of the driver module,
-which is similar with other virtio devices, such as virtio-net,
-virtio-input etc. 
- 3) virtio_crypto_mgr.c is used to manage the virtio
-crypto devices in the system. We support up to 32 virtio-crypto
-devices currently. I use a global list to store the virtio crypto
-devices which refer to Intel QAT driver. Meanwhile, the file
-includs the functions of add/del/search/start/stop for virtio
-crypto devices.
- 4) virtio_crypto_common.h is a private header file for virtio
-crypto driver, includes structure definations, and function declarations.
- 5) virtio_crypto_algs.c is the realization of algs based on Linux Crypto Framwork,
-which can register different crypto algorithms. Currently it's only support AES-CBC.
-The Crypto guys can mainly focus to this file. 
-
-Actually I have no idea the virtio-crypto driver should be gone in whose
-tree, Michael's or Herbert's?
-
-Would you give me a feedback? Thanks a lot!
-
-
-v2:
- - stop doing DMA from the stack, CONFIG_VMAP_STACK=y [Salvatore]
- - convert __virtio32/64 to __le32/64 in virtio_crypto.h
- - remove VIRTIO_CRYPTO_S_STARTED based on the lastest virtio crypto spec.
- - introduces the little edian functions for VIRTIO_1 devices in patch 1.
-
-Gonglei (2):
-  virtio: introduce little edian functions for virtio_cread/write#
-    family
-  crypto: add virtio-crypto driver
-
- MAINTAINERS                                  |   8 +
- drivers/crypto/Kconfig                       |   2 +
- drivers/crypto/Makefile                      |   1 +
- drivers/crypto/virtio/Kconfig                |  10 +
- drivers/crypto/virtio/Makefile               |   5 +
- drivers/crypto/virtio/virtio_crypto.c        | 444 +++++++++++++++++++++++
- drivers/crypto/virtio/virtio_crypto_algs.c   | 524 +++++++++++++++++++++++++++
- drivers/crypto/virtio/virtio_crypto_common.h | 124 +++++++
- drivers/crypto/virtio/virtio_crypto_mgr.c    | 258 +++++++++++++
- include/linux/virtio_config.h                |  45 +++
- include/uapi/linux/Kbuild                    |   1 +
- include/uapi/linux/virtio_crypto.h           | 435 ++++++++++++++++++++++
- include/uapi/linux/virtio_ids.h              |   1 +
- 13 files changed, 1858 insertions(+)
- create mode 100644 drivers/crypto/virtio/Kconfig
- create mode 100644 drivers/crypto/virtio/Makefile
- create mode 100644 drivers/crypto/virtio/virtio_crypto.c
- create mode 100644 drivers/crypto/virtio/virtio_crypto_algs.c
- create mode 100644 drivers/crypto/virtio/virtio_crypto_common.h
- create mode 100644 drivers/crypto/virtio/virtio_crypto_mgr.c
- create mode 100644 include/uapi/linux/virtio_crypto.h
+Wow are you saying endian-ness is all wrong for the next field?
+How do things ever work then?
 
 -- 
-1.8.3.1
+MST
