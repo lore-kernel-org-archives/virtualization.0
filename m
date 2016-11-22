@@ -1,14 +1,13 @@
-From: Wendy Liang <wendy.liang@xilinx.com>
-Subject: [RFC LINUX PATCH 1/2] virtio_ring: Do not call dma_map_page if sg is
-	already mapped.
-Date: Mon, 21 Nov 2016 16:32:42 -0800
-Message-ID: <1479774763-28188-2-git-send-email-jliang@xilinx.com>
-References: <1479774763-28188-1-git-send-email-jliang@xilinx.com>
+From: Gonglei <arei.gonglei@huawei.com>
+Subject: [PATCH 2/2] virtio_ring: fix complaint by sparse
+Date: Tue, 22 Nov 2016 13:51:50 +0800
+Message-ID: <1479793910-120188-3-git-send-email-arei.gonglei@huawei.com>
+References: <1479793910-120188-1-git-send-email-arei.gonglei@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1479774763-28188-1-git-send-email-jliang@xilinx.com>
+In-Reply-To: <1479793910-120188-1-git-send-email-arei.gonglei@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,45 +17,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, edgari@xilinx.com, cyrilc@xilinx.com
-Cc: Wendy Liang <jliang@xilinx.com>
+To: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: Gonglei <arei.gonglei@huawei.com>, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-If sg is already dma mapped, do not call dma_map_page() in
-vring_map_one_sg().
+ # make C=2 CF="-D__CHECK_ENDIAN__" ./drivers/virtio/
 
-In case of rpmsg, rpmsg uses dma_alloc_coherent() to allocate
-memory to share with the remote. There is no pages setup
-in dma_alloc_coherent().
+drivers/virtio/virtio_ring.c:423:19: warning: incorrect type in assignment (different base types)
+drivers/virtio/virtio_ring.c:423:19:    expected unsigned int [unsigned] [assigned] i
+drivers/virtio/virtio_ring.c:423:19:    got restricted __virtio16 [usertype] next
+drivers/virtio/virtio_ring.c:423:19: warning: incorrect type in assignment (different base types)
+drivers/virtio/virtio_ring.c:423:19:    expected unsigned int [unsigned] [assigned] i
+drivers/virtio/virtio_ring.c:423:19:    got restricted __virtio16 [usertype] next
+drivers/virtio/virtio_ring.c:423:19: warning: incorrect type in assignment (different base types)
+drivers/virtio/virtio_ring.c:423:19:    expected unsigned int [unsigned] [assigned] i
+drivers/virtio/virtio_ring.c:423:19:    got restricted __virtio16 [usertype] next
+drivers/virtio/virtio_ring.c:604:39: warning: incorrect type in initializer (different base types)
+drivers/virtio/virtio_ring.c:604:39:    expected unsigned short [unsigned] [usertype] nextflag
+drivers/virtio/virtio_ring.c:604:39:    got restricted __virtio16
+drivers/virtio/virtio_ring.c:612:33: warning: restricted __virtio16 degrades to integer
 
-In this case, we cannot convert the virtual address back to the
-physical address. In this case, we can setup the sg_dma_addr to
-store the DMA address, and also mark the sg is already mapped.
-
-In the vring, we can detect if the address is already mapped
-by checking the sg_dma_addr. If yes, do not call dma_map_page().
-
-Signed-off-by: Wendy Liang <jliang@xilinx.com>
+Signed-off-by: Gonglei <arei.gonglei@huawei.com>
 ---
- drivers/virtio/virtio_ring.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/virtio/virtio_ring.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 489bfc6..9793e1f 100644
+index 489bfc6..d2863c3 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -180,6 +180,12 @@ static dma_addr_t vring_map_one_sg(const struct vring_virtqueue *vq,
- 	if (!vring_use_dma_api(vq->vq.vdev))
- 		return (dma_addr_t)sg_phys(sg);
+@@ -420,7 +420,7 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+ 		if (i == err_idx)
+ 			break;
+ 		vring_unmap_one(vq, &desc[i]);
+-		i = vq->vring.desc[i].next;
++		i = virtio16_to_cpu(_vq->vdev, vq->vring.desc[i].next);
+ 	}
  
-+	/* If the sg is already mapped, return the DMA address */
-+	if (sg_dma_address(sg)) {
-+		sg->length = sg_dma_len(sg);
-+		return sg_dma_address(sg);
-+	}
-+
- 	/*
- 	 * We can't use dma_map_sg, because we don't use scatterlists in
- 	 * the way it expects (we don't guarantee that the scatterlist
+ 	vq->vq.num_free += total_sg;
+@@ -601,7 +601,7 @@ bool virtqueue_kick(struct virtqueue *vq)
+ static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
+ {
+ 	unsigned int i, j;
+-	u16 nextflag = cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT);
++	__virtio16 nextflag = cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT);
+ 
+ 	/* Clear data ptr. */
+ 	vq->desc_state[head].data = NULL;
 -- 
-1.9.1
+1.8.3.1
