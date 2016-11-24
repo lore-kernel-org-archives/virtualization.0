@@ -1,7 +1,7 @@
-From: Yuan Liu <liuy139@gmail.com>
-Subject: [PATCH] virtio_mmio: Set dev.release() to avoid warning
-Date: Wed, 23 Nov 2016 16:31:00 -0800
-Message-ID: <1479947460-9379-1-git-send-email-liuy139@gmail.com>
+From: Mark Rutland <mark.rutland@arm.com>
+Subject: [PATCH 0/3] virtio/vringh: kill off ACCESS_ONCE()
+Date: Thu, 24 Nov 2016 10:25:11 +0000
+Message-ID: <1479983114-17190-1-git-send-email-mark.rutland__34569.8911151432$1480112002$gmane$org@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,42 +15,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com
-Cc: Yuan Liu <liuyuan@google.com>, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: mark.rutland@arm.com, dave@stgolabs.net, kvm@vger.kernel.org, dbueso@suse.de, netdev@vger.kernel.org, mst@redhat.com, virtualization@lists.linux-foundation.org, paulmck@linux.vnet.ibm.com, dvyukov@google.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Yuan Liu <liuyuan@google.com>
+For several reasons, it would be beneficial to kill off ACCESS_ONCE()
+tree-wide, in favour of {READ,WRITE}_ONCE(). These work with aggregate types,
+more obviously document their intended behaviour, and are necessary for tools
+like KTSAN to work correctly (as otherwise reads and writes cannot be
+instrumented separately).
 
-Fix a warning thrown from virtio_mmio_remove():
-Device 'virtio0' does not have a release() function
+While it's possible to script the bulk of this tree-wide conversion, some cases
+such as the virtio code, require some manual intervention. This series moves
+the virtio and vringh code over to {READ,WRITE}_ONCE(), in the process fixing a
+bug in the virtio headers.
 
-The fix is according to virtio_pci_probe() of
-drivers/virtio/virtio_pci_common.c
+Thanks,
+Mark.
 
-Signed-off-by: Yuan Liu <liuyuan@google.com>
----
- drivers/virtio/virtio_mmio.c | 2 ++
- 1 file changed, 2 insertions(+)
+Mark Rutland (3):
+  tools/virtio: fix READ_ONCE()
+  vringh: kill off ACCESS_ONCE()
+  tools/virtio: use {READ,WRITE}_ONCE() in uaccess.h
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 48bfea9..d47a2fc 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -489,6 +489,7 @@ static const struct virtio_config_ops virtio_mmio_config_ops = {
- };
- 
- 
-+static void virtio_mmio_release_dev_empty(struct device *_d) {}
- 
- /* Platform device */
- 
-@@ -511,6 +512,7 @@ static int virtio_mmio_probe(struct platform_device *pdev)
- 		return  -ENOMEM;
- 
- 	vm_dev->vdev.dev.parent = &pdev->dev;
-+	vm_dev->vdev.dev.release = virtio_mmio_release_dev_empty;
- 	vm_dev->vdev.config = &virtio_mmio_config_ops;
- 	vm_dev->pdev = pdev;
- 	INIT_LIST_HEAD(&vm_dev->virtqueues);
+ drivers/vhost/vringh.c        | 5 +++--
+ tools/virtio/linux/compiler.h | 2 +-
+ tools/virtio/linux/uaccess.h  | 9 +++++----
+ 3 files changed, 9 insertions(+), 7 deletions(-)
+
 -- 
-2.8.0.rc3.226.g39d4020
+2.7.4
