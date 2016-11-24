@@ -1,14 +1,18 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH 2/2] virtio_ring: fix complaint by sparse
-Date: Tue, 22 Nov 2016 18:50:43 +0100
-Message-ID: <20161122185043.25638147.cornelia.huck@de.ibm.com>
-References: <1479793910-120188-1-git-send-email-arei.gonglei@huawei.com>
-	<1479793910-120188-3-git-send-email-arei.gonglei@huawei.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: virtio gpu sparse warning
+Date: Thu, 24 Nov 2016 04:57:11 +0200
+Message-ID: <20161124045101-mutt-send-email-mst@kernel.org>
+References: <bfe29853-694b-6cb5-02e7-6986a9927438@suse.cz>
+	<20161108223153-mutt-send-email-mst@kernel.org>
+	<1478678517.2078.12.camel@redhat.com>
+	<f006e3a6-51d2-4092-57b6-eea7ff64f58f@suse.cz>
+	<1479301975.25611.23.camel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1479793910-120188-3-git-send-email-arei.gonglei@huawei.com>
+Content-Disposition: inline
+In-Reply-To: <1479301975.25611.23.camel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,32 +22,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gonglei <arei.gonglei@huawei.com>
-Cc: mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, Jiri Slaby <jslaby@suse.cz>, Linux kernel mailing list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 22 Nov 2016 13:51:50 +0800
-Gonglei <arei.gonglei@huawei.com> wrote:
+sparse produces these warnings:
 
->  # make C=2 CF="-D__CHECK_ENDIAN__" ./drivers/virtio/
-> 
-> drivers/virtio/virtio_ring.c:423:19: warning: incorrect type in assignment (different base types)
-> drivers/virtio/virtio_ring.c:423:19:    expected unsigned int [unsigned] [assigned] i
-> drivers/virtio/virtio_ring.c:423:19:    got restricted __virtio16 [usertype] next
-> drivers/virtio/virtio_ring.c:423:19: warning: incorrect type in assignment (different base types)
-> drivers/virtio/virtio_ring.c:423:19:    expected unsigned int [unsigned] [assigned] i
-> drivers/virtio/virtio_ring.c:423:19:    got restricted __virtio16 [usertype] next
-> drivers/virtio/virtio_ring.c:423:19: warning: incorrect type in assignment (different base types)
-> drivers/virtio/virtio_ring.c:423:19:    expected unsigned int [unsigned] [assigned] i
-> drivers/virtio/virtio_ring.c:423:19:    got restricted __virtio16 [usertype] next
-> drivers/virtio/virtio_ring.c:604:39: warning: incorrect type in initializer (different base types)
-> drivers/virtio/virtio_ring.c:604:39:    expected unsigned short [unsigned] [usertype] nextflag
-> drivers/virtio/virtio_ring.c:604:39:    got restricted __virtio16
-> drivers/virtio/virtio_ring.c:612:33: warning: restricted __virtio16 degrades to integer
-> 
-> Signed-off-by: Gonglei <arei.gonglei@huawei.com>
-> ---
->  drivers/virtio/virtio_ring.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+drivers/gpu/drm/virtio/virtgpu_fb.c:340:27: warning: incorrect type in
+assignment (different address spaces)
+drivers/gpu/drm/virtio/virtgpu_fb.c:340:27:    expected char [noderef]
+<asn:2>*screen_base
+drivers/gpu/drm/virtio/virtgpu_fb.c:340:27:    got void *vmap
 
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+This is because the expected type is void __iomem *, while
+virtio gpu object is void *vmap.
+
+We could just cast the warning away but I'm not sure this
+is not a symptom of an actual problem. For example, might
+some code call iounmap on this address?
+
+-- 
+MST
