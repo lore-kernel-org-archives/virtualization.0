@@ -1,15 +1,11 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] virtio_mmio: Set dev.release() to avoid warning
-Date: Fri, 25 Nov 2016 10:51:34 +0800
-Message-ID: <1f6abe46-80b1-0337-f2a2-669e013efd44@redhat.com>
-References: <1479947460-9379-1-git-send-email-liuy139@gmail.com>
-	<9eba9d6a-e70b-56ca-834f-83d99822fe0c@redhat.com>
-	<CAOE4wo1qSeikjAyH-kFW2oZdZ1w2m1pbigjSr+jDx3E3V3tgrQ@mail.gmail.com>
+Subject: [PATCH net-next] virtio-net: enable multiqueue by default
+Date: Fri, 25 Nov 2016 12:37:26 +0800
+Message-ID: <1480048646-17536-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAOE4wo1qSeikjAyH-kFW2oZdZ1w2m1pbigjSr+jDx3E3V3tgrQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,45 +15,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yuan Liu <liuy139@gmail.com>
-Cc: virtualization@lists.linux-foundation.org, Yuan Liu <liuyuan@google.com>, mst@redhat.com
+To: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Neil Horman <nhorman@redhat.com>, Jeremy Eder <jeder@redhat.com>, "Michael S . Tsirkin" <mst@redhat.com>, Hannes Frederic Sowa <hannes@redhat.com>, Marko Myllynen <myllynen@redhat.com>, Maxime Coquelin <maxime.coquelin@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE25bm0MTHmnIgyNeaXpSAxMDo0NywgWXVhbiBMaXUgd3JvdGU6Cj4gSSB0aGluayBu
-b3QuIEluIHZpcnRpb19wY2lfY29tbW9uLCB2cF9kZXYgaXMgYWxsb2NhdGVkIGJ5IGt6YWxsb2Mg
-c28gYSAKPiBrZnJlZSBpcyBuZWVkZWQuIEhlcmUgdm1fZGV2IGlzIGFsbG9jYXRlZCBieSBkZXZt
-X2ttYWxsb2Mgd2hpY2ggaXMgCj4gImF1dG9tYXRpY2FsbHkgZnJlZWQgb24gZHJpdmVyIGRldGFj
-aCIgZnJvbSB0aGUgY29tbWVudCAKPiAoZHJpdmVycy9iYXNlL2RldnJlcy5jOjc2OSkuCgpJIHNl
-ZSwgdGhhbmtzLgoKUmV2aWV3ZWQtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+
-Cgo+Cj4gT24gVGh1LCBOb3YgMjQsIDIwMTYgYXQgNjozNyBQTSwgSmFzb24gV2FuZyA8amFzb3dh
-bmdAcmVkaGF0LmNvbSAKPiA8bWFpbHRvOmphc293YW5nQHJlZGhhdC5jb20+PiB3cm90ZToKPgo+
-Cj4KPiAgICAgT24gMjAxNuW5tDEx5pyIMjTml6UgMDg6MzEsIFl1YW4gTGl1IHdyb3RlOgo+Cj4g
-ICAgICAgICBGcm9tOiBZdWFuIExpdSA8bGl1eXVhbkBnb29nbGUuY29tIDxtYWlsdG86bGl1eXVh
-bkBnb29nbGUuY29tPj4KPgo+ICAgICAgICAgRml4IGEgd2FybmluZyB0aHJvd24gZnJvbSB2aXJ0
-aW9fbW1pb19yZW1vdmUoKToKPiAgICAgICAgIERldmljZSAndmlydGlvMCcgZG9lcyBub3QgaGF2
-ZSBhIHJlbGVhc2UoKSBmdW5jdGlvbgo+Cj4gICAgICAgICBUaGUgZml4IGlzIGFjY29yZGluZyB0
-byB2aXJ0aW9fcGNpX3Byb2JlKCkgb2YKPiAgICAgICAgIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19w
-Y2lfY29tbW9uLmMKPgo+ICAgICAgICAgU2lnbmVkLW9mZi1ieTogWXVhbiBMaXUgPGxpdXl1YW5A
-Z29vZ2xlLmNvbQo+ICAgICAgICAgPG1haWx0bzpsaXV5dWFuQGdvb2dsZS5jb20+Pgo+ICAgICAg
-ICAgLS0tCj4gICAgICAgICAgIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19tbWlvLmMgfCAyICsrCj4g
-ICAgICAgICAgIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKykKPgo+ICAgICAgICAgZGlm
-ZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19tbWlvLmMKPiAgICAgICAgIGIvZHJpdmVy
-cy92aXJ0aW8vdmlydGlvX21taW8uYwo+ICAgICAgICAgaW5kZXggNDhiZmVhOS4uZDQ3YTJmYyAx
-MDA2NDQKPiAgICAgICAgIC0tLSBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19tbWlvLmMKPiAgICAg
-ICAgICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19tbWlvLmMKPiAgICAgICAgIEBAIC00ODks
-NiArNDg5LDcgQEAgc3RhdGljIGNvbnN0IHN0cnVjdCB2aXJ0aW9fY29uZmlnX29wcwo+ICAgICAg
-ICAgdmlydGlvX21taW9fY29uZmlnX29wcyA9IHsKPiAgICAgICAgICAgfTsKPiAgICAgICAgICAg
-ICArc3RhdGljIHZvaWQgdmlydGlvX21taW9fcmVsZWFzZV9kZXZfZW1wdHkoc3RydWN0IGRldmlj
-ZQo+ICAgICAgICAgKl9kKSB7fQo+Cj4KPiAgICAgRG8gd2UgbmVlZCB0byBmcmVlIHZtX2RldiBo
-ZXJlPwo+Cj4KPiAgICAgICAgICAgICAvKiBQbGF0Zm9ybSBkZXZpY2UgKi8KPiAgICAgICAgICAg
-QEAgLTUxMSw2ICs1MTIsNyBAQCBzdGF0aWMgaW50IHZpcnRpb19tbWlvX3Byb2JlKHN0cnVjdAo+
-ICAgICAgICAgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQo+ICAgICAgICAgICAgICAgICAgICAgICAg
-IHJldHVybiAgLUVOT01FTTsKPiAgICAgICAgICAgICAgICAgdm1fZGV2LT52ZGV2LmRldi5wYXJl
-bnQgPSAmcGRldi0+ZGV2Owo+ICAgICAgICAgKyAgICAgICB2bV9kZXYtPnZkZXYuZGV2LnJlbGVh
-c2UgPSB2aXJ0aW9fbW1pb19yZWxlYXNlX2Rldl9lbXB0eTsKPiAgICAgICAgICAgICAgICAgdm1f
-ZGV2LT52ZGV2LmNvbmZpZyA9ICZ2aXJ0aW9fbW1pb19jb25maWdfb3BzOwo+ICAgICAgICAgICAg
-ICAgICB2bV9kZXYtPnBkZXYgPSBwZGV2Owo+ICAgICAgICAgICAgICAgICBJTklUX0xJU1RfSEVB
-RCgmdm1fZGV2LT52aXJ0cXVldWVzKTsKPgo+Cj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
-aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
-bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+We use single queue even if multiqueue is enabled and let admin to
+enable it through ethtool later. This is used to avoid possible
+regression (small packet TCP stream transmission). But looks like an
+overkill since:
+
+- single queue user can disable multiqueue when launching qemu
+- brings extra troubles for the management since it needs extra admin
+  tool in guest to enable multiqueue
+- multiqueue performs much better than single queue in most of the
+  cases
+
+So this patch enables multiqueue by default: if #queues is less than or
+equal to #vcpu, enable as much as queue pairs; if #queues is greater
+than #vcpu, enable #vcpu queue pairs.
+
+Cc: Hannes Frederic Sowa <hannes@redhat.com>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Neil Horman <nhorman@redhat.com>
+Cc: Jeremy Eder <jeder@redhat.com>
+Cc: Marko Myllynen <myllynen@redhat.com>
+Cc: Maxime Coquelin <maxime.coquelin@redhat.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/virtio_net.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index d4ac7a6..a21d93a 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1886,8 +1886,11 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	if (vi->any_header_sg)
+ 		dev->needed_headroom = vi->hdr_len;
+ 
+-	/* Use single tx/rx queue pair as default */
+-	vi->curr_queue_pairs = 1;
++	/* Enable multiqueue by default */
++	if (num_online_cpus() >= max_queue_pairs)
++		vi->curr_queue_pairs = max_queue_pairs;
++	else
++		vi->curr_queue_pairs = num_online_cpus();
+ 	vi->max_queue_pairs = max_queue_pairs;
+ 
+ 	/* Allocate/initialize the rx/tx queues, and invoke find_vqs */
+@@ -1918,6 +1921,8 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 		goto free_unregister_netdev;
+ 	}
+ 
++	virtnet_set_affinity(vi);
++
+ 	/* Assume link up if device can't report link status,
+ 	   otherwise get link status from config. */
+ 	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
+-- 
+2.7.4
