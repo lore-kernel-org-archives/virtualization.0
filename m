@@ -1,7 +1,7 @@
-From: Peter Zijlstra <peterz@infradead.org>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: [PATCH 0/3] virtio/vringh: kill off ACCESS_ONCE()
-Date: Fri, 25 Nov 2016 17:17:09 +0100
-Message-ID: <20161125161709.GQ3092@twins.programming.kicks-ass.net>
+Date: Fri, 25 Nov 2016 17:49:45 +0100
+Message-ID: <d7f3740b-e343-68fc-4996-f712dd8c07f3@de.ibm.com>
 References: <1479983114-17190-1-git-send-email-mark.rutland@arm.com>
 	<20161124222357-mutt-send-email-mst@kernel.org>
 	<20161125112203.GA26611@leverpostej>
@@ -12,12 +12,12 @@ References: <1479983114-17190-1-git-send-email-mark.rutland@arm.com>
 	<20161125145512.GA4014@Boquns-MacBook-Pro.local>
 	<CACT4Y+ZpzFhmSqOG+dG7QHSNObWatLOjPjNK2BznnRLeRQpF8A@mail.gmail.com>
 	<20161125161004.GA30181@leverpostej>
+	<20161125161709.GQ3092@twins.programming.kicks-ass.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20161125161004.GA30181@leverpostej>
+In-Reply-To: <20161125161709.GQ3092@twins.programming.kicks-ass.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,25 +27,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, netdev <netdev@vger.kernel.org>, Boqun Feng <boqun.feng@gmail.com>, dbueso@suse.de, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Paul McKenney <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Dmitry Vyukov <dvyukov@google.com>
+To: Peter Zijlstra <peterz@infradead.org>, Mark Rutland <mark.rutland@arm.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>, KVM list <kvm@vger.kernel.org>, dbueso@suse.de, netdev <netdev@vger.kernel.org>, Boqun Feng <boqun.feng@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Paul McKenney <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Dmitry Vyukov <dvyukov@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Nov 25, 2016 at 04:10:04PM +0000, Mark Rutland wrote:
-> On Fri, Nov 25, 2016 at 04:21:39PM +0100, Dmitry Vyukov wrote:
-
-> > What are use cases for such primitive that won't be OK with "read once
-> > _and_ atomically"?
+On 11/25/2016 05:17 PM, Peter Zijlstra wrote:
+> On Fri, Nov 25, 2016 at 04:10:04PM +0000, Mark Rutland wrote:
+>> On Fri, Nov 25, 2016 at 04:21:39PM +0100, Dmitry Vyukov wrote:
 > 
-> I have none to hand.
+>>> What are use cases for such primitive that won't be OK with "read once
+>>> _and_ atomically"?
+>>
+>> I have none to hand.
+> 
+> Whatever triggers the __builtin_memcpy() paths, and even the size==8
+> paths on 32bit.
+> 
+> You could put a WARN in there to easily find them.
 
-Whatever triggers the __builtin_memcpy() paths, and even the size==8
-paths on 32bit.
+There were several cases that I found during writing the *ONCE stuff.
+For example there are some 32bit ppc variants with 64bit PTEs. Some for
+others (I think sparc). And the mm/ code is perfectly fine with these
+PTE accesses being done NOT atomic.
 
-You could put a WARN in there to easily find them.
 
-The advantage of introducing the SINGLE_{LOAD,STORE}() helpers is that
-they compiletime validate this the size is 'right' and can runtime check
-alignment constraints.
-
-IE, they are strictly stronger than {READ,WRITE}_ONCE().
+> 
+> The advantage of introducing the SINGLE_{LOAD,STORE}() helpers is that
+> they compiletime validate this the size is 'right' and can runtime check
+> alignment constraints.
+> 
+> IE, they are strictly stronger than {READ,WRITE}_ONCE().
+> 
