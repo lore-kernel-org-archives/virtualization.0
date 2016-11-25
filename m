@@ -1,14 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next] virtio-net: enable multiqueue by default
-Date: Fri, 25 Nov 2016 13:36:42 +0800
-Message-ID: <8e2080e3-a299-10e5-aca3-7c9d723d313c@redhat.com>
-References: <1480048646-17536-1-git-send-email-jasowang@redhat.com>
-	<20161125064201-mutt-send-email-mst@kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: automatic IRQ affinity for virtio
+Date: Fri, 25 Nov 2016 08:25:38 +0100
+Message-ID: <20161125072538.GA732__15188.2136161023$1480059146$gmane$org@lst.de>
+References: <1479379403-27880-1-git-send-email-hch@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161125064201-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1479379403-27880-1-git-send-email-hch@lst.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,39 +18,10 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Neil Horman <nhorman@redhat.com>, Jeremy Eder <jeder@redhat.com>, Hannes Frederic Sowa <hannes@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Marko Myllynen <myllynen@redhat.com>, Maxime Coquelin <maxime.coquelin@redhat.com>
+To: mst@redhat.com
+Cc: axboe@kernel.dk, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE25bm0MTHmnIgyNeaXpSAxMjo0MywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIEZyaSwgTm92IDI1LCAyMDE2IGF0IDEyOjM3OjI2UE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+ID5XZSB1c2Ugc2luZ2xlIHF1ZXVlIGV2ZW4gaWYgbXVsdGlxdWV1ZSBpcyBlbmFibGVk
-IGFuZCBsZXQgYWRtaW4gdG8KPj4gPmVuYWJsZSBpdCB0aHJvdWdoIGV0aHRvb2wgbGF0ZXIuIFRo
-aXMgaXMgdXNlZCB0byBhdm9pZCBwb3NzaWJsZQo+PiA+cmVncmVzc2lvbiAoc21hbGwgcGFja2V0
-IFRDUCBzdHJlYW0gdHJhbnNtaXNzaW9uKS4gQnV0IGxvb2tzIGxpa2UgYW4KPj4gPm92ZXJraWxs
-IHNpbmNlOgo+PiA+Cj4+ID4tIHNpbmdsZSBxdWV1ZSB1c2VyIGNhbiBkaXNhYmxlIG11bHRpcXVl
-dWUgd2hlbiBsYXVuY2hpbmcgcWVtdQo+PiA+LSBicmluZ3MgZXh0cmEgdHJvdWJsZXMgZm9yIHRo
-ZSBtYW5hZ2VtZW50IHNpbmNlIGl0IG5lZWRzIGV4dHJhIGFkbWluCj4+ID4gICB0b29sIGluIGd1
-ZXN0IHRvIGVuYWJsZSBtdWx0aXF1ZXVlCj4+ID4tIG11bHRpcXVldWUgcGVyZm9ybXMgbXVjaCBi
-ZXR0ZXIgdGhhbiBzaW5nbGUgcXVldWUgaW4gbW9zdCBvZiB0aGUKPj4gPiAgIGNhc2VzCj4+ID4K
-Pj4gPlNvIHRoaXMgcGF0Y2ggZW5hYmxlcyBtdWx0aXF1ZXVlIGJ5IGRlZmF1bHQ6IGlmICNxdWV1
-ZXMgaXMgbGVzcyB0aGFuIG9yCj4+ID5lcXVhbCB0byAjdmNwdSwgZW5hYmxlIGFzIG11Y2ggYXMg
-cXVldWUgcGFpcnM7IGlmICNxdWV1ZXMgaXMgZ3JlYXRlcgo+PiA+dGhhbiAjdmNwdSwgZW5hYmxl
-ICN2Y3B1IHF1ZXVlIHBhaXJzLgo+PiA+Cj4+ID5DYzogSGFubmVzIEZyZWRlcmljIFNvd2E8aGFu
-bmVzQHJlZGhhdC5jb20+Cj4+ID5DYzogTWljaGFlbCBTLiBUc2lya2luPG1zdEByZWRoYXQuY29t
-Pgo+PiA+Q2M6IE5laWwgSG9ybWFuPG5ob3JtYW5AcmVkaGF0LmNvbT4KPj4gPkNjOiBKZXJlbXkg
-RWRlcjxqZWRlckByZWRoYXQuY29tPgo+PiA+Q2M6IE1hcmtvIE15bGx5bmVuPG15bGx5bmVuQHJl
-ZGhhdC5jb20+Cj4+ID5DYzogTWF4aW1lIENvcXVlbGluPG1heGltZS5jb3F1ZWxpbkByZWRoYXQu
-Y29tPgo+PiA+U2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZzxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+
-IE9LIGF0IHNvbWUgbGV2ZWwgYnV0IGFsbCB1c2VzIG9mIG51bV9vbmxpbmVfY3B1cygpCj4gbGlr
-ZSB0aGlzIGFyZSByYWN5IHZlcnN1cyBob3RwbHVnLgo+IEkga25vdyB3ZSBhbHJlYWR5IGhhdmUg
-dGhpcyBidWcgYnV0IHNob3VsZG4ndCB3ZSBmaXggaXQKPiBiZWZvcmUgd2UgYWRkIG1vcmU/CgpO
-b3Qgc3VyZSBJIGdldCB0aGUgcG9pbnQsIGRvIHlvdSBtZWFuIGFkZGluZyBnZXQvcHV0X29ubGlu
-ZV9jcHVzKCk/IEJ1dCAKaXMgaXQgYSByZWFsIGJ1Zz8gV2UgZG9uJ3QgZG8gYW55IGNwdSBzcGVj
-aWZpYyB0aGluZ3Mgc28gSSBiZWxpZXZlIGl0J3MgCm5vdCBuZWNlc3NhcnkgKHVubGVzcyB3ZSB3
-YW50IHRvIGtlZXAgI3F1ZXVlcyA9PSAjdmNwdXMgbWFnaWNhbGx5IGJ1dCBJIApkb24ndCB0aGlu
-ayBzbykuIEFkbWluIG5lZWQgdG8gcmUtY29uZmlndXJlICNxdWV1ZXMgYWZ0ZXIgY3B1IGhvdHBs
-dWcgaWYgCnRoZXkgd2lzaC4KClRoYW5rcwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
-b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Btw, what's the best way to get any response to this series?
+But this and the predecessor seem to have completly fallen on deaf
+ears.
