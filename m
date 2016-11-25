@@ -1,11 +1,8 @@
-From: Dmitry Vyukov via Virtualization
-	<virtualization@lists.linux-foundation.org>
+From: Mark Rutland <mark.rutland@arm.com>
 Subject: Re: [PATCH 0/3] virtio/vringh: kill off ACCESS_ONCE()
-Date: Fri, 25 Nov 2016 18:28:53 +0100
-Message-ID: <CACT4Y+YJUUjU_FCR1FOcF2DmkkcjiRFpnU7Q4=yzbgvKv0VhyQ__46720.8638824106$1480112160$gmane$org@mail.gmail.com>
-References: <1479983114-17190-1-git-send-email-mark.rutland@arm.com>
-	<20161124222357-mutt-send-email-mst@kernel.org>
-	<20161125112203.GA26611@leverpostej>
+Date: Fri, 25 Nov 2016 17:43:00 +0000
+Message-ID: <20161125174259.GB30811__37167.5253184096$1480112170$gmane$org@leverpostej>
+References: <20161125112203.GA26611@leverpostej>
 	<32dfca07-59f3-b75a-3154-cf6b6c8538f0@de.ibm.com>
 	<20161125122356.GB26611@leverpostej>
 	<20161125124044.GN3092@twins.programming.kicks-ass.net>
@@ -14,12 +11,13 @@ References: <1479983114-17190-1-git-send-email-mark.rutland@arm.com>
 	<CACT4Y+ZpzFhmSqOG+dG7QHSNObWatLOjPjNK2BznnRLeRQpF8A@mail.gmail.com>
 	<20161125161004.GA30181@leverpostej>
 	<20161125161709.GQ3092@twins.programming.kicks-ass.net>
-Reply-To: Dmitry Vyukov <dvyukov@google.com>
+	<CACT4Y+YJUUjU_FCR1FOcF2DmkkcjiRFpnU7Q4=yzbgvKv0VhyQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161125161709.GQ3092@twins.programming.kicks-ass.net>
+Content-Disposition: inline
+In-Reply-To: <CACT4Y+YJUUjU_FCR1FOcF2DmkkcjiRFpnU7Q4=yzbgvKv0VhyQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,79 +27,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, Davidlohr Bueso <dave@stgolabs.net>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, netdev <netdev@vger.kernel.org>, Boqun Feng <boqun.feng@gmail.com>, dbueso@suse.de, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Paul McKenney <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>
+To: Dmitry Vyukov <dvyukov@google.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, netdev <netdev@vger.kernel.org>, Boqun Feng <boqun.feng@gmail.com>, dbueso@suse.de, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Paul McKenney <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCBOb3YgMjUsIDIwMTYgYXQgNToxNyBQTSwgUGV0ZXIgWmlqbHN0cmEgPHBldGVyekBp
-bmZyYWRlYWQub3JnPiB3cm90ZToKPj4gPiBXaGF0IGFyZSB1c2UgY2FzZXMgZm9yIHN1Y2ggcHJp
-bWl0aXZlIHRoYXQgd29uJ3QgYmUgT0sgd2l0aCAicmVhZCBvbmNlCj4+ID4gX2FuZF8gYXRvbWlj
-YWxseSI/Cj4+Cj4+IEkgaGF2ZSBub25lIHRvIGhhbmQuCj4KPiBXaGF0ZXZlciB0cmlnZ2VycyB0
-aGUgX19idWlsdGluX21lbWNweSgpIHBhdGhzLCBhbmQgZXZlbiB0aGUgc2l6ZT09OAo+IHBhdGhz
-IG9uIDMyYml0Lgo+Cj4gWW91IGNvdWxkIHB1dCBhIFdBUk4gaW4gdGhlcmUgdG8gZWFzaWx5IGZp
-bmQgdGhlbS4KPgo+IFRoZSBhZHZhbnRhZ2Ugb2YgaW50cm9kdWNpbmcgdGhlIFNJTkdMRV97TE9B
-RCxTVE9SRX0oKSBoZWxwZXJzIGlzIHRoYXQKPiB0aGV5IGNvbXBpbGV0aW1lIHZhbGlkYXRlIHRo
-aXMgdGhlIHNpemUgaXMgJ3JpZ2h0JyBhbmQgY2FuIHJ1bnRpbWUgY2hlY2sKPiBhbGlnbm1lbnQg
-Y29uc3RyYWludHMuCj4KPiBJRSwgdGhleSBhcmUgc3RyaWN0bHkgc3Ryb25nZXIgdGhhbiB7UkVB
-RCxXUklURX1fT05DRSgpLgoKClVoLCBzbywgUkVBRC9XUklURV9PTkNFIGFyZSBub24tYXRvbWlj
-IG5vdy4gSSBtaXNzZWQgdGhhdC4KCklmIFJFQUQvV1JJVEVfT05DRSBhcmUgbm9uLWF0b21pYywg
-aGFsZiBvZiBrZXJuZWwgaXMgYnJva2VuLiBBbGwgdGhlc2UKbG9hZHMgb2YgZmxhZ3MsIHJpbmdi
-dWZmZXIgcG9zaXRpb25zLCBwb2ludGVycywgZXRjIGFyZSBicm9rZW4uCgpXaGF0IGFib3V0IHJl
-c3RvcmluZyBSRUFEL1dSSVRFX09OQ0UgYXMgYXRvbWljLCBhbmQgaW50cm9kdWNpbmcKc2VwYXJh
-dGUgcHJpbWl0aXZlcyBmb3IgX25vbl8gYXRvbWljIGxvYWRzL3N0b3Jlcz8KSXQgc2VlbXMgdG8g
-bWUgdGhhdCB0aGVyZSBpcyBqdXN0IGEgZG96ZW4gb2YgY2FzZXMgdGhhdCBkb24ndCBuZWVkCmF0
-b21pY2l0eSBhbmQgd2hlcmUgcGVyZm9ybWFuY2UgaXMgYW55IGltcG9ydGFudCAodGhvdWdoLCBz
-b21lIG9mCnRoZXNlIHNob3VsZCBwcm9iYWJseSB0cnkgdG8gd3JpdGUgdG8gc2hhcmVkIG1lbW9y
-eSBsZXNzIGZyZXF1ZW50bHkKYW5kIHNhdmUgaHVuZHJlZHMgb2YgY3ljbGVzLCByYXRoZXIgdGhh
-biB0cnkgdG8gc2F2ZSBmZXcgY3ljbGVzIG9uCmxvY2FsIGluc3RydWN0aW9ucykuCgpJJ3ZlIGNv
-bXBpbGVkIGtlcm5lbCB3aXRoIHJlc3RvcmVkIHNpemUgY2hlY2tzIGluClJFQUQvV1JJVEUvQUND
-RVNTX09OQ0UgYW5kIHRoZSBmb2xsb3dpbmcgcGxhY2VzIHNlZW0gdG8gZXhwZWN0IHRoYXQKYWNj
-ZXNzIGlzIGFjdHVhbGx5IGF0b21pYyAod2hpbGUgaXQgaXMgbm90KS4KQnV0IGlmIHdlIGRvbid0
-IGd1YXJhbnRlZSB0aGF0IHdvcmQtc2l6ZWQgUkVBRC9XUklURV9PTkNFIGFyZSBhdG9taWMsCnRo
-ZW4gSSBhbSBzdXJlIHdlIGNhbiBmaW5kIGEgaHVuZHJlZCBtb3JlIG9mIGJyb2tlbiBwbGFjZXMu
-CgoKYXJjaC94ODYvZW50cnkvdmRzby92ZHNvMzIvLi4vdmNsb2NrX2dldHRpbWUuYzoyOTc6MTg6
-IG5vdGU6IGluCmV4cGFuc2lvbiBvZiBtYWNybyDigJhBQ0NFU1NfT05DReKAmQogIHRpbWVfdCBy
-ZXN1bHQgPSBBQ0NFU1NfT05DRShndG9kLT53YWxsX3RpbWVfc2VjKTsKCmtlcm5lbC9ldmVudHMv
-cmluZ19idWZmZXIuYzoxNjA6MTA6IGVycm9yOiBjYWxsIHRvCuKAmF9fY29tcGlsZXRpbWVfYXNz
-ZXJ0XzE2MOKAmSBkZWNsYXJlZCB3aXRoIGF0dHJpYnV0ZSBlcnJvcjogTmVlZCBuYXRpdmUKd29y
-ZCBzaXplZCBzdG9yZXMvbG9hZHMgZm9yIGF0b21pY2l0eS4KICAgdGFpbCA9IFJFQURfT05DRShy
-Yi0+dXNlcl9wYWdlLT5kYXRhX3RhaWwpOwoKa2VybmVsL2V2ZW50cy9jb3JlLmM6NTE0NToxNjog
-ZXJyb3I6IGNhbGwgdG8K4oCYX19jb21waWxldGltZV9hc3NlcnRfNTE0NeKAmSBkZWNsYXJlZCB3
-aXRoIGF0dHJpYnV0ZSBlcnJvcjogTmVlZCBuYXRpdmUKd29yZCBzaXplZCBzdG9yZXMvbG9hZHMg
-Zm9yIGF0b21pY2l0eS4KICAgYXV4X29mZnNldCA9IEFDQ0VTU19PTkNFKHJiLT51c2VyX3BhZ2Ut
-PmF1eF9vZmZzZXQpOwogICAgICAgICAgICAgICAgXgprZXJuZWwvZXZlbnRzL2NvcmUuYzo1MTQ2
-OjE0OiBlcnJvcjogY2FsbCB0bwrigJhfX2NvbXBpbGV0aW1lX2Fzc2VydF81MTQ24oCZIGRlY2xh
-cmVkIHdpdGggYXR0cmlidXRlIGVycm9yOiBOZWVkIG5hdGl2ZQp3b3JkIHNpemVkIHN0b3Jlcy9s
-b2FkcyBmb3IgYXRvbWljaXR5LgogICBhdXhfc2l6ZSA9IEFDQ0VTU19PTkNFKHJiLT51c2VyX3Bh
-Z2UtPmF1eF9zaXplKTsKCmRyaXZlcnMvY3B1ZnJlcS9jcHVmcmVxX2dvdmVybm9yLmM6MjgzOjg6
-IGVycm9yOiBjYWxsIHRvCuKAmF9fY29tcGlsZXRpbWVfYXNzZXJ0XzI4M+KAmSBkZWNsYXJlZCB3
-aXRoIGF0dHJpYnV0ZSBlcnJvcjogTmVlZCBuYXRpdmUKd29yZCBzaXplZCBzdG9yZXMvbG9hZHMg
-Zm9yIGF0b21pY2l0eS4KICBsc3QgPSBSRUFEX09OQ0UocG9saWN5X2Ricy0+bGFzdF9zYW1wbGVf
-dGltZSk7CiAgICAgICAgXgpkcml2ZXJzL2NwdWZyZXEvY3B1ZnJlcV9nb3Zlcm5vci5jOjMwMTo3
-OiBlcnJvcjogY2FsbCB0bwrigJhfX2NvbXBpbGV0aW1lX2Fzc2VydF8zMDHigJkgZGVjbGFyZWQg
-d2l0aCBhdHRyaWJ1dGUgZXJyb3I6IE5lZWQgbmF0aXZlCndvcmQgc2l6ZWQgc3RvcmVzL2xvYWRz
-IGZvciBhdG9taWNpdHkuCiAgIGlmICh1bmxpa2VseShsc3QgIT0gUkVBRF9PTkNFKHBvbGljeV9k
-YnMtPmxhc3Rfc2FtcGxlX3RpbWUpKSkgewoKbmV0L2NvcmUvZ2VuX2VzdGltYXRvci5jOjEzNjoz
-OiBlcnJvcjogY2FsbCB0bwrigJhfX2NvbXBpbGV0aW1lX2Fzc2VydF8xMzbigJkgZGVjbGFyZWQg
-d2l0aCBhdHRyaWJ1dGUgZXJyb3I6IE5lZWQgbmF0aXZlCndvcmQgc2l6ZWQgc3RvcmVzL2xvYWRz
-IGZvciBhdG9taWNpdHkuCiAgIFdSSVRFX09OQ0UoZS0+cmF0ZV9lc3QtPmJwcywgKGUtPmF2YnBz
-ICsgMHhGKSA+PiA1KTsKICAgXgpuZXQvY29yZS9nZW5fZXN0aW1hdG9yLmM6MTQyOjM6IGVycm9y
-OiBjYWxsIHRvCuKAmF9fY29tcGlsZXRpbWVfYXNzZXJ0XzE0MuKAmSBkZWNsYXJlZCB3aXRoIGF0
-dHJpYnV0ZSBlcnJvcjogTmVlZCBuYXRpdmUKd29yZCBzaXplZCBzdG9yZXMvbG9hZHMgZm9yIGF0
-b21pY2l0eS4KICAgV1JJVEVfT05DRShlLT5yYXRlX2VzdC0+cHBzLCAoZS0+YXZwcHMgKyAweEYp
-ID4+IDUpOwoKZnMvcHJvY19uYW1lc3BhY2UuYzoyODoxMDogZXJyb3I6IGNhbGwgdG8g4oCYX19j
-b21waWxldGltZV9hc3NlcnRfMjjigJkKZGVjbGFyZWQgd2l0aCBhdHRyaWJ1dGUgZXJyb3I6IE5l
-ZWQgbmF0aXZlIHdvcmQgc2l6ZWQgc3RvcmVzL2xvYWRzIGZvcgphdG9taWNpdHkuCiAgZXZlbnQg
-PSBBQ0NFU1NfT05DRShucy0+ZXZlbnQpOwoKZHJpdmVycy9tZC9kbS1zdGF0cy5jOjcwMDozMjog
-ZXJyb3I6IGNhbGwgdG8K4oCYX19jb21waWxldGltZV9hc3NlcnRfNzAw4oCZIGRlY2xhcmVkIHdp
-dGggYXR0cmlidXRlIGVycm9yOiBOZWVkIG5hdGl2ZQp3b3JkIHNpemVkIHN0b3Jlcy9sb2FkcyBm
-b3IgYXRvbWljaXR5LgogICBzaGFyZWQtPnRtcC5zZWN0b3JzW1JFQURdICs9IEFDQ0VTU19PTkNF
-KHAtPnNlY3RvcnNbUkVBRF0pOwogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIF4KZHJp
-dmVycy9tZC9kbS1zdGF0cy5jOjcwMTozMzogZXJyb3I6IGNhbGwgdG8K4oCYX19jb21waWxldGlt
-ZV9hc3NlcnRfNzAx4oCZIGRlY2xhcmVkIHdpdGggYXR0cmlidXRlIGVycm9yOiBOZWVkIG5hdGl2
-ZQp3b3JkIHNpemVkIHN0b3Jlcy9sb2FkcyBmb3IgYXRvbWljaXR5LgogICBzaGFyZWQtPnRtcC5z
-ZWN0b3JzW1dSSVRFXSArPSBBQ0NFU1NfT05DRShwLT5zZWN0b3JzW1dSSVRFXSk7CiAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgIF4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
-aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
-aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Fri, Nov 25, 2016 at 06:28:53PM +0100, Dmitry Vyukov wrote:
+> On Fri, Nov 25, 2016 at 5:17 PM, Peter Zijlstra <peterz@infradead.org> wrote:
+> >> > What are use cases for such primitive that won't be OK with "read once
+> >> > _and_ atomically"?
+> >>
+> >> I have none to hand.
+> >
+> > Whatever triggers the __builtin_memcpy() paths, and even the size==8
+> > paths on 32bit.
+> >
+> > You could put a WARN in there to easily find them.
+> >
+> > The advantage of introducing the SINGLE_{LOAD,STORE}() helpers is that
+> > they compiletime validate this the size is 'right' and can runtime check
+> > alignment constraints.
+> >
+> > IE, they are strictly stronger than {READ,WRITE}_ONCE().
+> 
+> Uh, so, READ/WRITE_ONCE are non-atomic now. I missed that.
+
+Yes, but *only* for types larger than word size. That has *always* been
+the case.
+
+It's still assumed that *_ONCE are single-copy-atomic for word size (or
+smaller). Some architectures may also provide that guarnatee for
+accesses larger than word size (e.g. 32-bit ARM w/ LPAE).
+
+... It's just that as things stand we can't put checks in *_ONCE() for
+the access size, since they're *also* used for larger accesses that
+don't need atomicity.
+
+> If READ/WRITE_ONCE are non-atomic, half of kernel is broken. All these
+> loads of flags, ringbuffer positions, pointers, etc are broken.
+
+Most of these will be fine, as above.
+
+> What about restoring READ/WRITE_ONCE as atomic, and introducing
+> separate primitives for _non_ atomic loads/stores?
+
+Having a separate *_ONCE_TEARABLE() would certainly limit the number of
+things we have to fix up, and would also make it clear that atomicity is
+not expected.
+
+... but we might have to go with SINGLE_*() if we can't convince Linus.
+
+Thanks,
+Mark.
