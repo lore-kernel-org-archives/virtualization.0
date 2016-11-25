@@ -1,10 +1,8 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: [PATCH 0/3] virtio/vringh: kill off ACCESS_ONCE()
-Date: Fri, 25 Nov 2016 09:52:50 -0800
-Message-ID: <CA+55aFwpUxwdgKdbwfSW59VzPCJojNg7aqBdWio5MM6RJnG5Uw@mail.gmail.com>
-References: <1479983114-17190-1-git-send-email-mark.rutland@arm.com>
-	<20161124222357-mutt-send-email-mst@kernel.org>
-	<20161125112203.GA26611@leverpostej>
+Date: Fri, 25 Nov 2016 19:46:28 +0100
+Message-ID: <f637aad6-284f-6d3f-0eed-e108bbfa08a7@de.ibm.com>
+References: <20161125112203.GA26611@leverpostej>
 	<32dfca07-59f3-b75a-3154-cf6b6c8538f0@de.ibm.com>
 	<20161125122356.GB26611@leverpostej>
 	<20161125124044.GN3092@twins.programming.kicks-ass.net>
@@ -13,12 +11,13 @@ References: <1479983114-17190-1-git-send-email-mark.rutland@arm.com>
 	<CACT4Y+ZpzFhmSqOG+dG7QHSNObWatLOjPjNK2BznnRLeRQpF8A@mail.gmail.com>
 	<20161125161004.GA30181@leverpostej>
 	<20161125161709.GQ3092@twins.programming.kicks-ass.net>
-	<CACT4Y+YJUUjU_FCR1FOcF2DmkkcjiRFpnU7Q4=yzbgvKv0VhyQ@mail.gmail.com>
+	<d7f3740b-e343-68fc-4996-f712dd8c07f3@de.ibm.com>
+	<20161125172624.GA30811@leverpostej>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CACT4Y+YJUUjU_FCR1FOcF2DmkkcjiRFpnU7Q4=yzbgvKv0VhyQ@mail.gmail.com>
+In-Reply-To: <20161125172624.GA30811@leverpostej>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,48 +27,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dmitry Vyukov <dvyukov@google.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, Davidlohr Bueso <dave@stgolabs.net>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, netdev <netdev@vger.kernel.org>, Boqun Feng <boqun.feng@gmail.com>, Davidlohr Bueso <dbueso@suse.de>, LKML <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Paul McKenney <paulmck@linux.vnet.ibm.com>
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, netdev <netdev@vger.kernel.org>, Boqun Feng <boqun.feng@gmail.com>, dbueso@suse.de, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Paul McKenney <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Dmitry Vyukov <dvyukov@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Nov 25, 2016 at 9:28 AM, Dmitry Vyukov <dvyukov@google.com> wrote:
-On Fri, Nov 25, 2016 at 5:17 PM, Peter Zijlstra <peterz@infradead.org> wrote:
+On 11/25/2016 06:28 PM, Mark Rutland wrote:
+> On Fri, Nov 25, 2016 at 05:49:45PM +0100, Christian Borntraeger wrote:
+>> On 11/25/2016 05:17 PM, Peter Zijlstra wrote:
+>>> On Fri, Nov 25, 2016 at 04:10:04PM +0000, Mark Rutland wrote:
+>>>> On Fri, Nov 25, 2016 at 04:21:39PM +0100, Dmitry Vyukov wrote:
+>>>
+>>>>> What are use cases for such primitive that won't be OK with "read once
+>>>>> _and_ atomically"?
+>>>>
+>>>> I have none to hand.
+>>>
+>>> Whatever triggers the __builtin_memcpy() paths, and even the size==8
+>>> paths on 32bit.
+>>>
+>>> You could put a WARN in there to easily find them.
 >>
->> IE, they are strictly stronger than {READ,WRITE}_ONCE().
+>> There were several cases that I found during writing the *ONCE stuff.
+>> For example there are some 32bit ppc variants with 64bit PTEs. Some for
+>> others (I think sparc).
+> 
+> We have similar on 32-bit ARM w/ LPAE. LPAE implies that a naturally
+> aligned 64-bit access is single-copy atomic, which is what makes that
+> ok.
+> 
+>> And the mm/ code is perfectly fine with these PTE accesses being done
+>> NOT atomic.
+> 
+> That strikes me as surprising. Is there some mutual exclusion that
+> prevents writes from occuring wherever a READ_ONCE() happens to a PTE?
 
-No, they are strictly bullshit.
+See for example mm/memory.c handle_pte_fault.
 
-Stop this idiocy. We went through this once already.
+---snip----
 
-> Uh, so, READ/WRITE_ONCE are non-atomic now. I missed that.
+                /*
+                 * some architectures can have larger ptes than wordsize,
+                 * e.g.ppc44x-defconfig has CONFIG_PTE_64BIT=y and
+                 * CONFIG_32BIT=y, so READ_ONCE or ACCESS_ONCE cannot guarantee
+                 * atomic accesses.  The code below just needs a consistent
+                 * view for the ifs and we later double check anyway with the
+                 * ptl lock held. So here a barrier will do.
+                 */
+---snip---
 
-No.
-
-READ/WRITE_ONCE() are atomic *WHEN*THAT*IS*POSSIBLE*. So for something
-that fits in a register, it will read it in one atomic access. For
-something that fits in a register and is _possible_ to write
-atomically, it will do so.
-
-But sometimes it's not going to be atomic. We do not for a moment try
-to make multi-word accesses be atomic. Not even if you could try to
-use some magic cmpxchg16b thing. It's not "atomic" in that sense: it
-will be doing multiple accesses.
-
-Similarly, if you try to write a 8- or 16-bit word on alpha with
-WRITE_ONCE() or you try to do other things, you have what's coming to
-you.
-
-And they just force some "copy to stable storage" when it isn't (ie a
-"memcpy()" is not necessarily a single access and might be done as
-multiple overlapping reads, but the end result is stable).
-
-So trying to make anything else out of them is f*cking stupid.
-
-READ_ONCE() and friends do the right thing. Trying to limit them is
-*wrong*, because the restrictions would simply make them less useful.
-And trying to make up something new is pointless and stupid.
-
-So leave this code alone. Don't add some stupid "SINGLE_LOAD()" crap.
-That's just moronic. READ_ONCE() is that, and so much more.
-
-               Linus
+The trick is that the code only does a specific check, but all other accesses are under
+the pte lock.
