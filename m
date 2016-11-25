@@ -1,14 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 0/3] virtio/vringh: kill off ACCESS_ONCE()
-Date: Thu, 24 Nov 2016 22:36:58 +0200
-Message-ID: <20161124222357-mutt-send-email-mst@kernel.org>
-References: <1479983114-17190-1-git-send-email-mark.rutland@arm.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] virtio_mmio: Set dev.release() to avoid warning
+Date: Fri, 25 Nov 2016 10:37:51 +0800
+Message-ID: <9eba9d6a-e70b-56ca-834f-83d99822fe0c@redhat.com>
+References: <1479947460-9379-1-git-send-email-liuy139@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1479983114-17190-1-git-send-email-mark.rutland@arm.com>
+In-Reply-To: <1479947460-9379-1-git-send-email-liuy139@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,45 +17,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: dave@stgolabs.net, kvm@vger.kernel.org, dbueso@suse.de, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, paulmck@linux.vnet.ibm.com, dvyukov@google.com
+To: Yuan Liu <liuy139@gmail.com>, mst@redhat.com
+Cc: Yuan Liu <liuyuan@google.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Nov 24, 2016 at 10:25:11AM +0000, Mark Rutland wrote:
-> For several reasons, it would be beneficial to kill off ACCESS_ONCE()
-> tree-wide, in favour of {READ,WRITE}_ONCE(). These work with aggregate types,
-> more obviously document their intended behaviour, and are necessary for tools
-> like KTSAN to work correctly (as otherwise reads and writes cannot be
-> instrumented separately).
-> 
-> While it's possible to script the bulk of this tree-wide conversion, some cases
-> such as the virtio code, require some manual intervention. This series moves
-> the virtio and vringh code over to {READ,WRITE}_ONCE(), in the process fixing a
-> bug in the virtio headers.
-> 
-> Thanks,
-> Mark.
-
-I don't have a problem with this specific patchset.
-
-Though I really question the whole _ONCE APIs esp with
-aggregate types - these seem to generate a memcpy and
-an 8-byte read/writes sometimes, and I'm pretty sure this simply
-can't be read/written at once on all architectures.
-
-So I worry it's kind of like volatile in this respect,
-too easy to overuse.
-
-
-> Mark Rutland (3):
->   tools/virtio: fix READ_ONCE()
->   vringh: kill off ACCESS_ONCE()
->   tools/virtio: use {READ,WRITE}_ONCE() in uaccess.h
-> 
->  drivers/vhost/vringh.c        | 5 +++--
->  tools/virtio/linux/compiler.h | 2 +-
->  tools/virtio/linux/uaccess.h  | 9 +++++----
->  3 files changed, 9 insertions(+), 7 deletions(-)
-> 
-> -- 
-> 2.7.4
+CgpPbiAyMDE25bm0MTHmnIgyNOaXpSAwODozMSwgWXVhbiBMaXUgd3JvdGU6Cj4gRnJvbTogWXVh
+biBMaXUgPGxpdXl1YW5AZ29vZ2xlLmNvbT4KPgo+IEZpeCBhIHdhcm5pbmcgdGhyb3duIGZyb20g
+dmlydGlvX21taW9fcmVtb3ZlKCk6Cj4gRGV2aWNlICd2aXJ0aW8wJyBkb2VzIG5vdCBoYXZlIGEg
+cmVsZWFzZSgpIGZ1bmN0aW9uCj4KPiBUaGUgZml4IGlzIGFjY29yZGluZyB0byB2aXJ0aW9fcGNp
+X3Byb2JlKCkgb2YKPiBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX2NvbW1vbi5jCj4KPiBTaWdu
+ZWQtb2ZmLWJ5OiBZdWFuIExpdSA8bGl1eXVhbkBnb29nbGUuY29tPgo+IC0tLQo+ICAgZHJpdmVy
+cy92aXJ0aW8vdmlydGlvX21taW8uYyB8IDIgKysKPiAgIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2Vy
+dGlvbnMoKykKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fbW1pby5jIGIv
+ZHJpdmVycy92aXJ0aW8vdmlydGlvX21taW8uYwo+IGluZGV4IDQ4YmZlYTkuLmQ0N2EyZmMgMTAw
+NjQ0Cj4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX21taW8uYwo+ICsrKyBiL2RyaXZlcnMv
+dmlydGlvL3ZpcnRpb19tbWlvLmMKPiBAQCAtNDg5LDYgKzQ4OSw3IEBAIHN0YXRpYyBjb25zdCBz
+dHJ1Y3QgdmlydGlvX2NvbmZpZ19vcHMgdmlydGlvX21taW9fY29uZmlnX29wcyA9IHsKPiAgIH07
+Cj4gICAKPiAgIAo+ICtzdGF0aWMgdm9pZCB2aXJ0aW9fbW1pb19yZWxlYXNlX2Rldl9lbXB0eShz
+dHJ1Y3QgZGV2aWNlICpfZCkge30KCkRvIHdlIG5lZWQgdG8gZnJlZSB2bV9kZXYgaGVyZT8KCj4g
+ICAKPiAgIC8qIFBsYXRmb3JtIGRldmljZSAqLwo+ICAgCj4gQEAgLTUxMSw2ICs1MTIsNyBAQCBz
+dGF0aWMgaW50IHZpcnRpb19tbWlvX3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYp
+Cj4gICAJCXJldHVybiAgLUVOT01FTTsKPiAgIAo+ICAgCXZtX2Rldi0+dmRldi5kZXYucGFyZW50
+ID0gJnBkZXYtPmRldjsKPiArCXZtX2Rldi0+dmRldi5kZXYucmVsZWFzZSA9IHZpcnRpb19tbWlv
+X3JlbGVhc2VfZGV2X2VtcHR5Owo+ICAgCXZtX2Rldi0+dmRldi5jb25maWcgPSAmdmlydGlvX21t
+aW9fY29uZmlnX29wczsKPiAgIAl2bV9kZXYtPnBkZXYgPSBwZGV2Owo+ICAgCUlOSVRfTElTVF9I
+RUFEKCZ2bV9kZXYtPnZpcnRxdWV1ZXMpOwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
+aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
+aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
