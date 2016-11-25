@@ -1,11 +1,8 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Peter Zijlstra <peterz@infradead.org>
 Subject: Re: [PATCH 0/3] virtio/vringh: kill off ACCESS_ONCE()
-Date: Fri, 25 Nov 2016 17:49:45 +0100
-Message-ID: <d7f3740b-e343-68fc-4996-f712dd8c07f3@de.ibm.com>
-References: <1479983114-17190-1-git-send-email-mark.rutland@arm.com>
-	<20161124222357-mutt-send-email-mst@kernel.org>
-	<20161125112203.GA26611@leverpostej>
-	<32dfca07-59f3-b75a-3154-cf6b6c8538f0@de.ibm.com>
+Date: Fri, 25 Nov 2016 18:42:23 +0100
+Message-ID: <20161125174223.GS3092@twins.programming.kicks-ass.net>
+References: <32dfca07-59f3-b75a-3154-cf6b6c8538f0@de.ibm.com>
 	<20161125122356.GB26611@leverpostej>
 	<20161125124044.GN3092@twins.programming.kicks-ass.net>
 	<20161125124404.GI3174@twins.programming.kicks-ass.net>
@@ -13,11 +10,14 @@ References: <1479983114-17190-1-git-send-email-mark.rutland@arm.com>
 	<CACT4Y+ZpzFhmSqOG+dG7QHSNObWatLOjPjNK2BznnRLeRQpF8A@mail.gmail.com>
 	<20161125161004.GA30181@leverpostej>
 	<20161125161709.GQ3092@twins.programming.kicks-ass.net>
+	<d7f3740b-e343-68fc-4996-f712dd8c07f3@de.ibm.com>
+	<20161125172624.GA30811@leverpostej>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161125161709.GQ3092@twins.programming.kicks-ass.net>
+Content-Disposition: inline
+In-Reply-To: <20161125172624.GA30811@leverpostej>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,34 +27,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>, Mark Rutland <mark.rutland@arm.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>, KVM list <kvm@vger.kernel.org>, dbueso@suse.de, netdev <netdev@vger.kernel.org>, Boqun Feng <boqun.feng@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Paul McKenney <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Dmitry Vyukov <dvyukov@google.com>
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, netdev <netdev@vger.kernel.org>, Boqun Feng <boqun.feng@gmail.com>, dbueso@suse.de, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Paul McKenney <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Dmitry Vyukov <dvyukov@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/25/2016 05:17 PM, Peter Zijlstra wrote:
-> On Fri, Nov 25, 2016 at 04:10:04PM +0000, Mark Rutland wrote:
->> On Fri, Nov 25, 2016 at 04:21:39PM +0100, Dmitry Vyukov wrote:
-> 
->>> What are use cases for such primitive that won't be OK with "read once
->>> _and_ atomically"?
->>
->> I have none to hand.
-> 
-> Whatever triggers the __builtin_memcpy() paths, and even the size==8
-> paths on 32bit.
-> 
-> You could put a WARN in there to easily find them.
+On Fri, Nov 25, 2016 at 05:28:01PM +0000, Mark Rutland wrote:
+> On Fri, Nov 25, 2016 at 05:49:45PM +0100, Christian Borntraeger wrote:
+> > On 11/25/2016 05:17 PM, Peter Zijlstra wrote:
 
-There were several cases that I found during writing the *ONCE stuff.
-For example there are some 32bit ppc variants with 64bit PTEs. Some for
-others (I think sparc). And the mm/ code is perfectly fine with these
-PTE accesses being done NOT atomic.
+> > There were several cases that I found during writing the *ONCE stuff.
+> > For example there are some 32bit ppc variants with 64bit PTEs. Some for
+> > others (I think sparc).
+> 
+> We have similar on 32-bit ARM w/ LPAE. LPAE implies that a naturally
+> aligned 64-bit access is single-copy atomic, which is what makes that
+> ok.
+> 
+> > And the mm/ code is perfectly fine with these PTE accesses being done
+> > NOT atomic.
+> 
+> That strikes me as surprising. Is there some mutual exclusion that
+> prevents writes from occuring wherever a READ_ONCE() happens to a PTE?
+> 
+> Otherwise, how is tearing not a problem? Does it have some pattern like
+> the lockref cmpxchg?
 
+On x86 PAE we play silly games, see arch/x86/mm/gup.c:gup_get_ptr().
 
-> 
-> The advantage of introducing the SINGLE_{LOAD,STORE}() helpers is that
-> they compiletime validate this the size is 'right' and can runtime check
-> alignment constraints.
-> 
-> IE, they are strictly stronger than {READ,WRITE}_ONCE().
-> 
+Those two loads really should be READ_ONCE()/LOAD_SINGLE().
