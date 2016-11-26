@@ -1,14 +1,10 @@
-From: "Gonglei (Arei)" <arei.gonglei@huawei.com>
-Subject: RE: [PATCH v2 0/2] virtio-crypto: add Linux driver
-Date: Sat, 26 Nov 2016 09:38:16 +0000
-Message-ID: <33183CC9F5247A488A2544077AF19020D979FA2E__41313.3441623815$1480153149$gmane$org@SZXEMA503-MBS.china.huawei.com>
-References: <1479802223-121104-1-git-send-email-arei.gonglei@huawei.com>
+From: "ML" <marialemos72@gmail.com>
+Subject: WorldCIST'2017 - Submission deadline: November 30
+Date: Sat, 26 Nov 2016 11:51:03 +0000
+Message-ID: <201611261151.uAQBp5Ym017962@smtp2.dei.uc.pt>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============6608793046207959778=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1479802223-121104-1-git-send-email-arei.gonglei@huawei.com>
-Content-Language: zh-CN
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,108 +14,211 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Gonglei (Arei)" <arei.gonglei@huawei.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>
-Cc: "Huangweidong (C)" <weidong.huang@huawei.com>, Claudio Fontana <Claudio.Fontana@huawei.com>, "mst@redhat.com" <mst@redhat.com>, Luonengjun <luonengjun@huawei.com>, "Hanweidong (Randy)" <hanweidong@huawei.com>, "Xuquan (Quan Xu)" <xuquan8@huawei.com>, "salvatore.benedetto@intel.com" <salvatore.benedetto@intel.com>, "stefanha@redhat.com" <stefanha@redhat.com>, "Zhoujian (jay,
-	Euler)" <jianjay.zhou@huawei.com>, longpeng <longpeng2@huawei.com>, "arei.gonglei@hotmail.com" <arei.gonglei@hotmail.com>, "davem@davemloft.net" <davem@davemloft.net>, "Wubin (H)" <wu.wubin@huawei.com>, "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+--===============6608793046207959778==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> -----Original Message-----
-> From: Gonglei (Arei)
-> Sent: Tuesday, November 22, 2016 4:10 PM
-> To: linux-kernel@vger.kernel.org; qemu-devel@nongnu.org;
-> virtio-dev@lists.oasis-open.org; virtualization@lists.linux-foundation.org;
-> linux-crypto@vger.kernel.org
-> Subject: [PATCH v2 0/2] virtio-crypto: add Linux driver
-> 
-> The virtio crypto device is a virtual cryptography device
-> as well as a kind of virtual hardware accelerator for
-> virtual machines. The encryption anddecryption requests
-> are placed in the data queue and are ultimately handled by
-> thebackend crypto accelerators. The second queue is the
-> control queue used to create or destroy sessions for
-> symmetric algorithms and will control some advanced features
-> in the future. The virtio crypto device provides the following
-> cryptoservices: CIPHER, MAC, HASH, and AEAD.
-> 
-> For more information about virtio-crypto device, please see:
->   http://qemu-project.org/Features/VirtioCrypto
-> 
-> For better reviewing:
-> 
-> Patch 1 introduces the little edian functions for VIRTIO_1
-> devices.
-> 
-> Patch 2 mainly includes five files:
->  1) virtio_crypto.h is the header file for virtio-crypto device,
-> which is based on the virtio-crypto specification.
->  2) virtio_crypto.c is the entry of the driver module,
-> which is similar with other virtio devices, such as virtio-net,
-> virtio-input etc.
->  3) virtio_crypto_mgr.c is used to manage the virtio
-> crypto devices in the system. We support up to 32 virtio-crypto
-> devices currently. I use a global list to store the virtio crypto
-> devices which refer to Intel QAT driver. Meanwhile, the file
-> includs the functions of add/del/search/start/stop for virtio
-> crypto devices.
->  4) virtio_crypto_common.h is a private header file for virtio
-> crypto driver, includes structure definations, and function declarations.
->  5) virtio_crypto_algs.c is the realization of algs based on Linux Crypto
-> Framwork,
-> which can register different crypto algorithms. Currently it's only support
-> AES-CBC.
-> The Crypto guys can mainly focus to this file.
-> 
-> Actually I have no idea the virtio-crypto driver should be gone in whose
-> tree, Michael's or Herbert's?
-> 
-> Would you give me a feedback? Thanks a lot!
-> 
-Ping?
+* Best papers published in several SCI/SSCI-indexed journals
+** Proceedings by Springer, indexed by ISI, Scopus, DBLP, EI-Compendex=
+, etc.
 
-Any ideas? Thanks.
+----------------------------------------------------------------------=
+-----------
+WorldCIST'17 - 5th World Conference on Information Systems and Technol=
+ogies=20
+Porto Santo Island, Madeira, Portugal
+11th-13th of April 2017
+http://www.worldcist.org/
+-------------------------------------------------------------------------
 
-Regards,
--Gonglei
 
-> 
-> v2:
->  - stop doing DMA from the stack, CONFIG_VMAP_STACK=y [Salvatore]
->  - convert __virtio32/64 to __le32/64 in virtio_crypto.h
->  - remove VIRTIO_CRYPTO_S_STARTED based on the lastest virtio crypto spec.
->  - introduces the little edian functions for VIRTIO_1 devices in patch 1.
-> 
-> Gonglei (2):
->   virtio: introduce little edian functions for virtio_cread/write#
->     family
->   crypto: add virtio-crypto driver
-> 
->  MAINTAINERS                                  |   8 +
->  drivers/crypto/Kconfig                       |   2 +
->  drivers/crypto/Makefile                      |   1 +
->  drivers/crypto/virtio/Kconfig                |  10 +
->  drivers/crypto/virtio/Makefile               |   5 +
->  drivers/crypto/virtio/virtio_crypto.c        | 444
-> +++++++++++++++++++++++
->  drivers/crypto/virtio/virtio_crypto_algs.c   | 524
-> +++++++++++++++++++++++++++
->  drivers/crypto/virtio/virtio_crypto_common.h | 124 +++++++
->  drivers/crypto/virtio/virtio_crypto_mgr.c    | 258 +++++++++++++
->  include/linux/virtio_config.h                |  45 +++
->  include/uapi/linux/Kbuild                    |   1 +
->  include/uapi/linux/virtio_crypto.h           | 435
-> ++++++++++++++++++++++
->  include/uapi/linux/virtio_ids.h              |   1 +
->  13 files changed, 1858 insertions(+)
->  create mode 100644 drivers/crypto/virtio/Kconfig
->  create mode 100644 drivers/crypto/virtio/Makefile
->  create mode 100644 drivers/crypto/virtio/virtio_crypto.c
->  create mode 100644 drivers/crypto/virtio/virtio_crypto_algs.c
->  create mode 100644 drivers/crypto/virtio/virtio_crypto_common.h
->  create mode 100644 drivers/crypto/virtio/virtio_crypto_mgr.c
->  create mode 100644 include/uapi/linux/virtio_crypto.h
-> 
-> --
-> 1.8.3.1
-> 
+SCOPE
+
+The WorldCist'17 - 5th World Conference on Information Systems and Tec=
+hnologies, to be held at Porto Santo Island, Madeira, Portugal, 11 - 1=
+3 April 2017, is a global forum for researchers and practitioners to p=
+resent and discuss the most recent innovations, trends, results, exper=
+iences and concerns in the several perspectives of Information Systems=
+ and Technologies.
+
+We are pleased to invite you to submit your papers to WorldCist'17 (ht=
+tp://www.worldcist.org/). All submissions will be reviewed on the basi=
+s of relevance, originality, importance and clarity.
+
+
+THEMES
+
+Submitted papers should be related with one or more of the main themes=
+ proposed for the Conference:
+
+A) Information and Knowledge Management (IKM);
+B) Organizational Models and Information Systems (OMIS);
+C) Software and Systems Modeling (SSM);
+D) Software Systems, Architectures, Applications and Tools (SSAAT);
+E) Multimedia Systems and Applications (MSA);
+F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
+G) Intelligent and Decision Support Systems (IDSS);
+H) Big Data Analytics and Applications (BDAA);
+I) Human-Computer Interaction (HCI);
+J) Ethics, Computers and Security (ECS)
+K) Health Informatics (HIS);
+L) Information Technologies in Education (ITE);
+M) Information Technologies in Radiocommunications (ITR).
+
+
+TYPES of SUBMISSIONS AND DECISIONS
+
+Four types of papers can be submitted:
+
+- Full paper: Finished or consolidated R&D works, to be included in on=
+e of the Conference themes. These papers are assigned a 10-page limit.
+
+- Short paper: Ongoing works with relevant preliminary results, open t=
+o discussion. These papers are assigned a 7-page limit.
+
+- Poster paper: Initial work with relevant ideas, open to discussion. =
+These papers are assigned to a 4-page limit.
+
+- Company paper: Companies' papers that show practical experience, R &=
+ D, tools, etc., focused on some topics of the conference. These paper=
+s are assigned to a 4-page limit.
+
+Submitted papers must comply with the format of Advances in Intelligen=
+t Systems and Computing Series (see Instructions for Authors at Spring=
+er Website or download a DOC example) be written in English, must not =
+have been published before, not be under review for any other conferen=
+ce or publication and not include any information leading to the autho=
+rs=92 identification. Therefore, the authors=92 names, affiliations an=
+d bibliographic references should not be included in the version for e=
+valuation by the Program Committee. This information should only be in=
+cluded in the camera-ready version, saved in Word or Latex format and =
+also in PDF format. These files must be accompanied by the Consent to =
+Publication form filled out, in a ZIP file, and uploaded at the confer=
+ence management system.
+
+All papers will be subjected to a =93double-blind review=94 by at leas=
+t two members of the Program Committee.
+
+Based on Program Committee evaluation, a paper can be rejected or acce=
+pted by the Conference Chairs. In the later case, it can be accepted a=
+s the type originally submitted or as another type. Thus, full papers =
+can be accepted as short papers or poster papers only. Similarly, shor=
+t papers can be accepted as poster papers only. In these cases, the au=
+thors will be allowed to maintain the original number of pages in the =
+camera-ready version.
+
+The authors of accepted poster papers must also build and print a post=
+er to be exhibited during the Conference. This poster must follow an A=
+1 or A2 vertical format. The Conference can includes Work Sessions whe=
+re these posters are presented and orally discussed, with a 5 minute l=
+imit per poster.
+
+The authors of accepted full papers will have 15 minutes to present th=
+eir work in a Conference Work Session; approximately 5 minutes of disc=
+ussion will follow each presentation. The authors of accepted short pa=
+pers and company papers will have 11 minutes to present their work in =
+a Conference Work Session; approximately 4 minutes of discussion will =
+follow each presentation.
+
+
+PUBLICATION & INDEXING
+
+To ensure that a full paper, short paper, poster paper or company pape=
+r is published in the Proceedings, at least one of the authors must be=
+ fully registered by the 8th of January 2017, and the paper must compl=
+y with the suggested layout and page-limit. Additionally, all recommen=
+ded changes must be addressed by the authors before they submit the ca=
+mera-ready version.
+
+No more than one paper per registration will be published in the Confe=
+rence Proceedings. An extra fee must be paid for publication of additi=
+onal papers, with a maximum of one additional paper per registration. =
+One registration permits only the participation of one author in the c=
+onference.
+
+Full and short papers will be published in Proceedings by Springer, in=
+ Advances in Intelligent Systems and Computing Series. Poster and comp=
+any papers will be published by AISTI.
+
+Published full and short papers will be submitted for indexation by IS=
+I, EI-Compendex, SCOPUS, DBLP and Google Scholar, among others, and wi=
+ll be available in the SpringerLink Digital Library.
+
+The authors of the best selected papers will be invited to extend them=
+ for publication in international journals indexed by ISI/SCI, SCOPUS =
+and DBLP, among others, such as:
+
+- International Journal of Neural Systems (IF: 6.085 / Q1)
+- Integrated Computer-Aided Engineering (IF: 4.981 / Q1)
+- International Journal of Information Management (IF: 2.692 / Q1)
+- Telematics & Informatics (IF: 2.261 / Q1) - Special Issue on "Disrup=
+tion of Higher Education in the 21st Century due to ICTs"
+- Electronic Commerce Research and Applications (IF: 2.139 / Q1)
+- Computers, Environment and Urban Systems (IF: 2.092 / Q1)
+- Data Mining and Knowledge Discovery (IF: 1.759 / Q1)
+- Journal of Medical Systems (IF: 2.213 / Q2)
+- Journal of Business Research (IF: 2.129 / Q2) - Special Issue on "St=
+rategic Knowledge Management in the Digital Age"
+- Pervasive and Mobile Computing (IF: 1.719 / Q2)
+- Knowledge and Information Systems (IF: 1.702 / Q2)
+- Journal of Grid Computing (IF: 1.561 / Q2) - Special Issue on "Big D=
+ata"
+- Cluster Computing (IF:1.514 / Q2) - Special Issue on "Advanced Machi=
+ne Learning in Parallel and Distributed Knowledge Discovery"
+- International Journal of Critical Infrastructure Protection (IF: 1.3=
+51 / Q2)
+- Expert Systems - Journal of Knowledge Engineering (IF: 0.947 / Q3)
+- Concurrency and Computation: Practice and Experience (IF: 0.942 / Q3)
+- Ethics and Information Technology (IF: 0.739 / Q3)
+- Annals of Telecommunications (IF: 0.722 / Q3)
+- Engineering Computations (IF: 0.691 / Q3)
+- Advances in Complex Systems (IF: 0.461 / Q3)
+- Computing and Informatics (IF: 0.504 / Q4)
+- AI Communications (IF: 0.364 / Q4)
+- Journal of Hospitality and Tourism Technology (SR: 0.672 / Q2)
+- Transforming Government: People, Process and Policy (SR: 0.642 / Q2)
+- TEM Journal - Technology, Education, Management, Informatics (ISI - =
+Emerging Sources Citation Index)
+- Computer Methods in Biomechanics and Biomedical Engineering - Imagin=
+g & Visualization (ISI - Emerging Sources Citation Index)
+- Journal of Information Systems Engineering & Management
+
+
+IMPORTANT DATES
+
+Paper Submission: November 27, 2016
+
+Notification of Acceptance: December 25, 20156
+
+Payment of Registration, to ensure the inclusion of an accepted paper =
+in the conference proceedings: January 8, 2017.
+
+Camera-ready Submission: January 8, 2017
+
+
+-
+
+Website of the WorldCIST'17
+http://www.worldcist.org/
+
+
+
+
+
+
+
+
+--===============6608793046207959778==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6608793046207959778==--
