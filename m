@@ -1,7 +1,7 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH] drm/virtio: fix framebuffer sparse warning
-Date: Mon, 28 Nov 2016 09:05:21 +0100
-Message-ID: <1480320322-23362-1-git-send-email-kraxel@redhat.com>
+From: Gonglei <arei.gonglei@huawei.com>
+Subject: [PATCH v3] virtio-crypto: add Linux driver
+Date: Mon, 28 Nov 2016 20:08:22 +0800
+Message-ID: <1480334903-6672-1-git-send-email-arei.gonglei__7575.99404682896$1480335188$gmane$org@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,32 +15,90 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org
+Cc: weidong.huang@huawei.com, claudio.fontana@huawei.com, mst@redhat.com, luonengjun@huawei.com, hanweidong@huawei.com, xuquan8@huawei.com, salvatore.benedetto@intel.com, Gonglei <arei.gonglei@huawei.com>, stefanha@redhat.com, jianjay.zhou@huawei.com, longpeng2@huawei.com, arei.gonglei@hotmail.com, davem@davemloft.net, wu.wubin@huawei.com, herbert@gondor.apana.org.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio uses normal ram as backing storage for the framebuffer, so we
-should assign the address to new screen_buffer (added by commit
-17a7b0b4d9749f80d365d7baff5dec2f54b0e992) instead of screen_base.
+v3:
+ - set cpu affinity when data queues are not equal to the number of online cpus. [Michael]
+ - add TODO comments for cpu hotplug (changing the relationship of binding virtqueue and cpu)
+ - use __u32/64 in the config space since the virtio->get() doesn't support byte-swap yet. [Michael]
+ - drop the whole patch 1 of v2 because the above reason.
+ - add VERSION_1 check at the beginning of virtcrypto_probe()
+ - s/-1/EPERM/g in virtcrypto_update_status(), don't change err to EFAULT then. [Michael]
+ - add reset operation before delete the virtqueus. [Micheal]
+ - drop an unnecessiry spin_lock calling in virtcrypto_freeze(), avoid possible dead lock. [Micheal]
+ - redefine parameter alg's type in order to use a cast for it. [Michael]
+ - pad all structures to have the same size in one union, and add a member to
+   show the union's size in virtio_crypto.h. [Michael]
+ - update MAINTAINER file to add virtio-crypto stuff to Michael's entry so that
+   the corresponding patches can be CC'ed to you too because the virtio-crypto
+   doesn't lay in driver/virtio directory. 
 
-Reported-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/virtio/virtgpu_fb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+The virtio crypto device is a virtual cryptography device
+as well as a kind of virtual hardware accelerator for
+virtual machines. The encryption anddecryption requests
+are placed in the data queue and are ultimately handled by
+thebackend crypto accelerators. The second queue is the
+control queue used to create or destroy sessions for
+symmetric algorithms and will control some advanced features
+in the future. The virtio crypto device provides the following
+cryptoservices: CIPHER, MAC, HASH, and AEAD.
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_fb.c b/drivers/gpu/drm/virtio/virtgpu_fb.c
-index 2242a80..dc2976c 100644
---- a/drivers/gpu/drm/virtio/virtgpu_fb.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_fb.c
-@@ -337,7 +337,7 @@ static int virtio_gpufb_create(struct drm_fb_helper *helper,
- 	info->fbops = &virtio_gpufb_ops;
- 	info->pixmap.flags = FB_PIXMAP_SYSTEM;
- 
--	info->screen_base = obj->vmap;
-+	info->screen_buffer = obj->vmap;
- 	info->screen_size = obj->gem_base.size;
- 	drm_fb_helper_fill_fix(info, fb->pitches[0], fb->depth);
- 	drm_fb_helper_fill_var(info, &vfbdev->helper,
+For more information about virtio-crypto device, please see:
+  http://qemu-project.org/Features/VirtioCrypto
+
+For better reviewing:
+
+The patch mainly includes five files:
+ 1) virtio_crypto.h is the header file for virtio-crypto device,
+which is based on the virtio-crypto specification. 
+ 2) virtio_crypto.c is the entry of the driver module,
+which is similar with other virtio devices, such as virtio-net,
+virtio-input etc. 
+ 3) virtio_crypto_mgr.c is used to manage the virtio
+crypto devices in the system. We support up to 32 virtio-crypto
+devices currently. I use a global list to store the virtio crypto
+devices which refer to Intel QAT driver. Meanwhile, the file
+includs the functions of add/del/search/start/stop for virtio
+crypto devices.
+ 4) virtio_crypto_common.h is a private header file for virtio
+crypto driver, includes structure definations, and function declarations.
+ 5) virtio_crypto_algs.c is the realization of algs based on Linux Crypto Framwork,
+which can register different crypto algorithms. Currently it's only support AES-CBC.
+The Crypto guys can mainly focus on this file. 
+
+
+v2:
+ - stop doing DMA from the stack, CONFIG_VMAP_STACK=y [Salvatore]
+ - convert __virtio32/64 to __le32/64 in virtio_crypto.h
+ - remove VIRTIO_CRYPTO_S_STARTED based on the lastest virtio crypto spec.
+ - introduces the little edian functions for VIRTIO_1 devices in patch 1.
+
+
+Gonglei (1):
+  crypto: add virtio-crypto driver
+
+ MAINTAINERS                                  |   9 +
+ drivers/crypto/Kconfig                       |   2 +
+ drivers/crypto/Makefile                      |   1 +
+ drivers/crypto/virtio/Kconfig                |  10 +
+ drivers/crypto/virtio/Makefile               |   5 +
+ drivers/crypto/virtio/virtio_crypto.c        | 451 +++++++++++++++++++++++
+ drivers/crypto/virtio/virtio_crypto_algs.c   | 525 +++++++++++++++++++++++++++
+ drivers/crypto/virtio/virtio_crypto_common.h | 124 +++++++
+ drivers/crypto/virtio/virtio_crypto_mgr.c    | 258 +++++++++++++
+ include/uapi/linux/Kbuild                    |   1 +
+ include/uapi/linux/virtio_crypto.h           | 450 +++++++++++++++++++++++
+ include/uapi/linux/virtio_ids.h              |   1 +
+ 12 files changed, 1837 insertions(+)
+ create mode 100644 drivers/crypto/virtio/Kconfig
+ create mode 100644 drivers/crypto/virtio/Makefile
+ create mode 100644 drivers/crypto/virtio/virtio_crypto.c
+ create mode 100644 drivers/crypto/virtio/virtio_crypto_algs.c
+ create mode 100644 drivers/crypto/virtio/virtio_crypto_common.h
+ create mode 100644 drivers/crypto/virtio/virtio_crypto_mgr.c
+ create mode 100644 include/uapi/linux/virtio_crypto.h
+
 -- 
 1.8.3.1
