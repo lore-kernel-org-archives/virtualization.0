@@ -1,14 +1,14 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v3] crypto: add virtio-crypto driver
-Date: Mon, 28 Nov 2016 14:12:44 +0100
-Message-ID: <20161128141244.4defcfa1.cornelia.huck__48437.8977249891$1480338791$gmane$org@de.ibm.com>
-References: <1480334903-6672-1-git-send-email-arei.gonglei@huawei.com>
-	<1480334903-6672-2-git-send-email-arei.gonglei@huawei.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] drm/virtio: fix framebuffer sparse warning
+Date: Mon, 28 Nov 2016 17:28:24 +0200
+Message-ID: <20161128172814-mutt-send-email-mst__34905.2356243648$1480346912$gmane$org@kernel.org>
+References: <1480320322-23362-1-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1480334903-6672-2-git-send-email-arei.gonglei@huawei.com>
+Content-Disposition: inline
+In-Reply-To: <1480320322-23362-1-git-send-email-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,54 +18,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gonglei <arei.gonglei@huawei.com>
-Cc: virtio-dev@lists.oasis-open.org, weidong.huang@huawei.com, claudio.fontana@huawei.com, mst@redhat.com, qemu-devel@nongnu.org, hanweidong@huawei.com, luonengjun@huawei.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, salvatore.benedetto@intel.com, xuquan8@huawei.com, linux-crypto@vger.kernel.org, stefanha@redhat.com, jianjay.zhou@huawei.com, longpeng2@huawei.com, arei.gonglei@hotmail.com, davem@davemloft.net, wu.wubin@huawei.com, herbert@gondor.apana.org.au
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 28 Nov 2016 20:08:23 +0800
-Gonglei <arei.gonglei@huawei.com> wrote:
+On Mon, Nov 28, 2016 at 09:05:21AM +0100, Gerd Hoffmann wrote:
+> virtio uses normal ram as backing storage for the framebuffer, so we
+> should assign the address to new screen_buffer (added by commit
+> 17a7b0b4d9749f80d365d7baff5dec2f54b0e992) instead of screen_base.
+> 
+> Reported-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 
-> +static int virtcrypto_update_status(struct virtio_crypto *vcrypto)
-> +{
-> +	u32 status;
-> +	int err;
-> +
-> +	virtio_cread(vcrypto->vdev,
-> +	    struct virtio_crypto_config, status, &status);
-> +
-> +	/* Ignore unknown (future) status bits */
-> +	status &= VIRTIO_CRYPTO_S_HW_READY;
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-I'm wondering what the driver really should do if it encounters unknown
-status bits.
-
-I'd expect that new status bits are guarded by a feature bit and that
-the device should not set status bits if the respective feature bit has
-not been negotiated. Therefore, unknown status bits would be a host
-error and the driver should consider the device to be broken.
-
-Thoughts?
-
-> +
-> +	if (vcrypto->status == status)
-> +		return 0;
-> +
-> +	vcrypto->status = status;
-> +
-> +	if (vcrypto->status & VIRTIO_CRYPTO_S_HW_READY) {
-> +		err = virtcrypto_dev_start(vcrypto);
-> +		if (err) {
-> +			dev_err(&vcrypto->vdev->dev,
-> +				"Failed to start virtio crypto device.\n");
-> +			virtcrypto_dev_stop(vcrypto);
-> +			return -EPERM;
-> +		}
-> +		dev_info(&vcrypto->vdev->dev, "Accelerator is ready\n");
-> +	} else {
-> +		virtcrypto_dev_stop(vcrypto);
-> +		dev_info(&vcrypto->vdev->dev, "Accelerator is not ready\n");
-> +	}
-> +
-> +	return 0;
-> +}
-> +
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_fb.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_fb.c b/drivers/gpu/drm/virtio/virtgpu_fb.c
+> index 2242a80..dc2976c 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_fb.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_fb.c
+> @@ -337,7 +337,7 @@ static int virtio_gpufb_create(struct drm_fb_helper *helper,
+>  	info->fbops = &virtio_gpufb_ops;
+>  	info->pixmap.flags = FB_PIXMAP_SYSTEM;
+>  
+> -	info->screen_base = obj->vmap;
+> +	info->screen_buffer = obj->vmap;
+>  	info->screen_size = obj->gem_base.size;
+>  	drm_fb_helper_fill_fix(info, fb->pitches[0], fb->depth);
+>  	drm_fb_helper_fill_var(info, &vfbdev->helper,
+> -- 
+> 1.8.3.1
