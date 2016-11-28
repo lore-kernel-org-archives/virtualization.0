@@ -1,14 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] drm/virtio: fix framebuffer sparse warning
-Date: Mon, 28 Nov 2016 17:28:24 +0200
-Message-ID: <20161128172814-mutt-send-email-mst__34905.2356243648$1480346912$gmane$org@kernel.org>
-References: <1480320322-23362-1-git-send-email-kraxel@redhat.com>
+From: Neil Horman <nhorman@redhat.com>
+Subject: Re: [PATCH net-next] virtio-net: enable multiqueue by default
+Date: Mon, 28 Nov 2016 10:25:07 -0500
+Message-ID: <20161128152507.GB14706__38357.4329120622$1480347439$gmane$org@hmsreliant.think-freely.org>
+References: <1480048646-17536-1-git-send-email-jasowang@redhat.com>
+	<20161125064201-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1480320322-23362-1-git-send-email-kraxel@redhat.com>
+In-Reply-To: <20161125064201-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,36 +19,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jeremy Eder <jeder@redhat.com>, Hannes Frederic Sowa <hannes@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Marko Myllynen <myllynen@redhat.com>, Maxime Coquelin <maxime.coquelin@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Nov 28, 2016 at 09:05:21AM +0100, Gerd Hoffmann wrote:
-> virtio uses normal ram as backing storage for the framebuffer, so we
-> should assign the address to new screen_buffer (added by commit
-> 17a7b0b4d9749f80d365d7baff5dec2f54b0e992) instead of screen_base.
+On Fri, Nov 25, 2016 at 06:43:08AM +0200, Michael S. Tsirkin wrote:
+> On Fri, Nov 25, 2016 at 12:37:26PM +0800, Jason Wang wrote:
+> > We use single queue even if multiqueue is enabled and let admin to
+> > enable it through ethtool later. This is used to avoid possible
+> > regression (small packet TCP stream transmission). But looks like an
+> > overkill since:
+> > 
+> > - single queue user can disable multiqueue when launching qemu
+> > - brings extra troubles for the management since it needs extra admin
+> >   tool in guest to enable multiqueue
+> > - multiqueue performs much better than single queue in most of the
+> >   cases
+> > 
+> > So this patch enables multiqueue by default: if #queues is less than or
+> > equal to #vcpu, enable as much as queue pairs; if #queues is greater
+> > than #vcpu, enable #vcpu queue pairs.
+> > 
+> > Cc: Hannes Frederic Sowa <hannes@redhat.com>
+> > Cc: Michael S. Tsirkin <mst@redhat.com>
+> > Cc: Neil Horman <nhorman@redhat.com>
+> > Cc: Jeremy Eder <jeder@redhat.com>
+> > Cc: Marko Myllynen <myllynen@redhat.com>
+> > Cc: Maxime Coquelin <maxime.coquelin@redhat.com>
+> > Signed-off-by: Jason Wang <jasowang@redhat.com>
 > 
-> Reported-by: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-> ---
->  drivers/gpu/drm/virtio/virtgpu_fb.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> OK at some level but all uses of num_online_cpus()
+> like this are racy versus hotplug.
+> I know we already have this bug but shouldn't we fix it
+> before we add more?
 > 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_fb.c b/drivers/gpu/drm/virtio/virtgpu_fb.c
-> index 2242a80..dc2976c 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_fb.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_fb.c
-> @@ -337,7 +337,7 @@ static int virtio_gpufb_create(struct drm_fb_helper *helper,
->  	info->fbops = &virtio_gpufb_ops;
->  	info->pixmap.flags = FB_PIXMAP_SYSTEM;
->  
-> -	info->screen_base = obj->vmap;
-> +	info->screen_buffer = obj->vmap;
->  	info->screen_size = obj->gem_base.size;
->  	drm_fb_helper_fill_fix(info, fb->pitches[0], fb->depth);
->  	drm_fb_helper_fill_var(info, &vfbdev->helper,
-> -- 
-> 1.8.3.1
+Isn't the fix orthogonal to this use though?  That is to say, you shoudl
+register a hotplug notifier first, and use the handler to adjust the number of
+queues on hotplug add/remove?
+
+Neil
+
+> 
+> > ---
+> >  drivers/net/virtio_net.c | 9 +++++++--
+> >  1 file changed, 7 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index d4ac7a6..a21d93a 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -1886,8 +1886,11 @@ static int virtnet_probe(struct virtio_device *vdev)
+> >  	if (vi->any_header_sg)
+> >  		dev->needed_headroom = vi->hdr_len;
+> >  
+> > -	/* Use single tx/rx queue pair as default */
+> > -	vi->curr_queue_pairs = 1;
+> > +	/* Enable multiqueue by default */
+> > +	if (num_online_cpus() >= max_queue_pairs)
+> > +		vi->curr_queue_pairs = max_queue_pairs;
+> > +	else
+> > +		vi->curr_queue_pairs = num_online_cpus();
+> >  	vi->max_queue_pairs = max_queue_pairs;
+> >  
+> >  	/* Allocate/initialize the rx/tx queues, and invoke find_vqs */
+> > @@ -1918,6 +1921,8 @@ static int virtnet_probe(struct virtio_device *vdev)
+> >  		goto free_unregister_netdev;
+> >  	}
+> >  
+> > +	virtnet_set_affinity(vi);
+> > +
+> >  	/* Assume link up if device can't report link status,
+> >  	   otherwise get link status from config. */
+> >  	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
+> > -- 
+> > 2.7.4
