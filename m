@@ -1,18 +1,11 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: virtio gpu sparse warning
-Date: Mon, 28 Nov 2016 08:50:44 +0100
-Message-ID: <1480319444.20061.4.camel__13110.7701141902$1480319453$gmane$org@redhat.com>
-References: <bfe29853-694b-6cb5-02e7-6986a9927438@suse.cz>
-	<20161108223153-mutt-send-email-mst@kernel.org>
-	<1478678517.2078.12.camel@redhat.com>
-	<f006e3a6-51d2-4092-57b6-eea7ff64f58f@suse.cz>
-	<1479301975.25611.23.camel@redhat.com>
-	<20161124045101-mutt-send-email-mst@kernel.org>
+Subject: [PATCH] drm/virtio: fix framebuffer sparse warning
+Date: Mon, 28 Nov 2016 09:05:21 +0100
+Message-ID: <1480320322-23362-1-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161124045101-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,39 +15,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, Jiri Slaby <jslaby@suse.cz>, Linux kernel mailing list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Do, 2016-11-24 at 04:57 +0200, Michael S. Tsirkin wrote:
-> sparse produces these warnings:
-> 
-> drivers/gpu/drm/virtio/virtgpu_fb.c:340:27: warning: incorrect type in
-> assignment (different address spaces)
-> drivers/gpu/drm/virtio/virtgpu_fb.c:340:27:    expected char [noderef]
-> <asn:2>*screen_base
-> drivers/gpu/drm/virtio/virtgpu_fb.c:340:27:    got void *vmap
-> 
-> This is because the expected type is void __iomem *, while
-> virtio gpu object is void *vmap.
-> 
-> We could just cast the warning away but I'm not sure this
-> is not a symptom of an actual problem. For example, might
-> some code call iounmap on this address?
+virtio uses normal ram as backing storage for the framebuffer, so we
+should assign the address to new screen_buffer (added by commit
+17a7b0b4d9749f80d365d7baff5dec2f54b0e992) instead of screen_base.
 
-Nobody is ever going to unmap that, the kernel will simply use given
-address to access the framebuffer.
+Reported-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_fb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Actually it looks like this (in include/linux/fb.h):
-
-        union {
-                char __iomem *screen_base;      /* Virtual address */
-                char *screen_buffer;
-        };
-
-and given that the virtio always uses normal ram as backing storage for
-the framebuffer we should simply s/screen_base/screen_buffer/.  I'll go
-prepare a patch.
-
-cheers,
-  Gerd
+diff --git a/drivers/gpu/drm/virtio/virtgpu_fb.c b/drivers/gpu/drm/virtio/virtgpu_fb.c
+index 2242a80..dc2976c 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_fb.c
++++ b/drivers/gpu/drm/virtio/virtgpu_fb.c
+@@ -337,7 +337,7 @@ static int virtio_gpufb_create(struct drm_fb_helper *helper,
+ 	info->fbops = &virtio_gpufb_ops;
+ 	info->pixmap.flags = FB_PIXMAP_SYSTEM;
+ 
+-	info->screen_base = obj->vmap;
++	info->screen_buffer = obj->vmap;
+ 	info->screen_size = obj->gem_base.size;
+ 	drm_fb_helper_fill_fix(info, fb->pitches[0], fb->depth);
+ 	drm_fb_helper_fill_var(info, &vfbdev->helper,
+-- 
+1.8.3.1
