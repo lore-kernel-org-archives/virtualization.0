@@ -1,19 +1,17 @@
 From: "Gonglei (Arei)" <arei.gonglei@huawei.com>
-Subject: RE: [PATCH v3] crypto: add virtio-crypto driver
-Date: Tue, 29 Nov 2016 11:46:57 +0000
-Message-ID: <33183CC9F5247A488A2544077AF19020DA14AA07__40341.5461922579$1480420099$gmane$org@DGGEMA505-MBX.china.huawei.com>
+Subject: RE: [virtio-dev] Re: [PATCH v3] crypto: add virtio-crypto driver
+Date: Tue, 29 Nov 2016 11:50:31 +0000
+Message-ID: <33183CC9F5247A488A2544077AF19020DA14AA1C__47122.4683140919$1480420765$gmane$org@DGGEMA505-MBX.china.huawei.com>
 References: <1480334903-6672-1-git-send-email-arei.gonglei@huawei.com>
 	<1480334903-6672-2-git-send-email-arei.gonglei@huawei.com>
-	<20161128162055.GB11196@stefanha-x1.localdomain>
-	<20161128185747-mutt-send-email-mst@kernel.org>
-	<33183CC9F5247A488A2544077AF19020DA14A7A9@DGGEMA505-MBX.china.huawei.com>
-	<20161129092549.GC5152@stefanha-x1.localdomain>
-	<20161129102935.405892bd.cornelia.huck@de.ibm.com>
+	<20161128141244.4defcfa1.cornelia.huck@de.ibm.com>
+	<33183CC9F5247A488A2544077AF19020DA14A53D@DGGEMA505-MBX.china.huawei.com>
+	<20161129104406.6c110ae0.cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161129102935.405892bd.cornelia.huck@de.ibm.com>
+In-Reply-To: <20161129104406.6c110ae0.cornelia.huck@de.ibm.com>
 Content-Language: zh-CN
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,71 +22,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>, Stefan Hajnoczi <stefanha@redhat.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Huangweidong (C)" <weidong.huang@huawei.com>, Claudio Fontana <Claudio.Fontana@huawei.com>, "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Hanweidong (Randy)" <hanweidong@huawei.com>, Luonengjun <luonengjun@huawei.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "salvatore.benedetto@intel.com" <salvatore.benedetto@intel.com>, "Xuquan (Quan Xu)" <xuquan8@huawei.com>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "Zhoujian (jay, Euler)" <jianjay.zhou@huawei.com>, longpeng <longpeng2@huawei.com>, "arei.gonglei@hotmail.com" <arei.gonglei@hotmail.com>, "davem@davemloft.net" <davem@davemloft.net>, "Wubin (H)" <wu.wubin@huawei.com>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Huangweidong (C)" <weidong.huang@huawei.com>, Claudio Fontana <Claudio.Fontana@huawei.com>, "mst@redhat.com" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "Hanweidong (Randy)" <hanweidong@huawei.com>, Luonengjun <luonengjun@huawei.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "salvatore.benedetto@intel.com" <salvatore.benedetto@intel.com>, "Xuquan (Quan Xu)" <xuquan8@huawei.com>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "stefanha@redhat.com" <stefanha@redhat.com>, "Zhoujian (jay,
+	Euler)" <jianjay.zhou@huawei.com>, longpeng <longpeng2@huawei.com>, "arei.gonglei@hotmail.com" <arei.gonglei@hotmail.com>, "davem@davemloft.net" <davem@davemloft.>
 List-Id: virtualization@lists.linuxfoundation.org
 
+>
+> Subject: Re: [virtio-dev] Re: [PATCH v3] crypto: add virtio-crypto driver
 > 
-> > On Tue, Nov 29, 2016 at 08:22:58AM +0000, Gonglei (Arei) wrote:
-> > > Hi,
+> On Tue, 29 Nov 2016 01:37:44 +0000
+> "Gonglei (Arei)" <arei.gonglei@huawei.com> wrote:
+> 
+> > > On Mon, 28 Nov 2016 20:08:23 +0800
+> > > Gonglei <arei.gonglei@huawei.com> wrote:
 > > >
-> > > > > > > +source "drivers/crypto/virtio/Kconfig"
-> > > > > > > +
-> > > > > > >  endif # CRYPTO_HW
-> > > > > > > diff --git a/drivers/crypto/Makefile b/drivers/crypto/Makefile
-> > > > > > > index ad7250f..bc53cb8 100644
-> > > > > > > --- a/drivers/crypto/Makefile
-> > > > > > > +++ b/drivers/crypto/Makefile
-> > > > > > > @@ -32,3 +32,4 @@ obj-$(CONFIG_CRYPTO_DEV_VMX) += vmx/
-> > > > > > >  obj-$(CONFIG_CRYPTO_DEV_SUN4I_SS) += sunxi-ss/
-> > > > > > >  obj-$(CONFIG_CRYPTO_DEV_ROCKCHIP) += rockchip/
-> > > > > > >  obj-$(CONFIG_CRYPTO_DEV_CHELSIO) += chelsio/
-> > > > > > > +obj-$(CONFIG_CRYPTO_DEV_VIRTIO) += virtio/
-> > > > > > > diff --git a/drivers/crypto/virtio/Kconfig
-> b/drivers/crypto/virtio/Kconfig
-> > > > > > > new file mode 100644
-> > > > > > > index 0000000..ceae88c
-> > > > > > > --- /dev/null
-> > > > > > > +++ b/drivers/crypto/virtio/Kconfig
-> > > > > > > @@ -0,0 +1,10 @@
-> > > > > > > +config CRYPTO_DEV_VIRTIO
-> > > > > > > +	tristate "VirtIO crypto driver"
-> > > > > > > +	depends on VIRTIO
-> > > > > > > +    select CRYPTO_AEAD
-> > > > > > > +    select CRYPTO_AUTHENC
-> > > > > > > +    select CRYPTO_BLKCIPHER
-> > > > > >
-> > > > > > Inconsistent tab vs space whitespace usage.
-> > > > > >
-> > > > Will fix.
-> > > >
-> > > > > > > +	default m
-> > > > > > > +	help
-> > > > > > > +	  This driver provides support for virtio crypto device. If you
-> > > > > > > +	  choose 'M' here, this module will be called virtio-crypto.
-> > > > > >
-> > > > > > All the other virtio drivers use underscore ('_') instead of hyphen
-> > > > > > ('-').
-> > > > >
-> > > > > Except virtio-rng.
-> > > > >
-> > > > > >  I suggest calling it virtio_crypto for consistency.
-> > > > > >
-> > > > OK, I will change the Makefile to fix it.
-> > > >
+> > > > +static int virtcrypto_update_status(struct virtio_crypto *vcrypto)
+> > > > +{
+> > > > +	u32 status;
+> > > > +	int err;
+> > > > +
+> > > > +	virtio_cread(vcrypto->vdev,
+> > > > +	    struct virtio_crypto_config, status, &status);
+> > > > +
+> > > > +	/* Ignore unknown (future) status bits */
+> > > > +	status &= VIRTIO_CRYPTO_S_HW_READY;
 > > >
-> > > I tried to do this, but I failed. Because virtio_crypto.ko
-> > > consists of more than one source file which include tree files currently,
-> > > and virtio_crypto.ko matchs the name of virtio_crypto.c.
-> > > That's different with all other virtio drivers.
+> > > I'm wondering what the driver really should do if it encounters unknown
+> > > status bits.
+> > >
+> > > I'd expect that new status bits are guarded by a feature bit and that
+> > > the device should not set status bits if the respective feature bit has
+> > > not been negotiated. Therefore, unknown status bits would be a host
+> > > error and the driver should consider the device to be broken.
+> > >
+> > > Thoughts?
+> > >
+> > I agree with you.
 > >
-> > Can you rename virtio_crypto.c to virtio_crypto_core.c?
+> > The reasonable way is reset the device if the driver
+> > receive an unknown status IMO.
 > 
-> +1
+> What about setting FAILED in the generic virtio status? This indicates
+> to the host that the driver 'has given up on the device', as the spec
+> puts it. If the driver simply resets it, chances are that we will end
+> up in the same situation again (after all, that's a host bug).
 > 
-> I think that's the way to go.
+> Or/additionally use virtio_break_device(), as a quick grep revealed
+> that qemu, for one, does not do anything with FAILED. That way at least
+> the driver will stop mucking with the device.
+> 
+I prefer to the second way. The device set the incorrect status,
+then the driver prevent the device from being used and print some
+error message to notice that.
 
-Cool, here we go.
+Patch will go.
 
 Regards,
 -Gonglei
+> 
+> ---------------------------------------------------------------------
+> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
+> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
