@@ -1,16 +1,16 @@
-From: "Gonglei (Arei)" <arei.gonglei@huawei.com>
-Subject: RE: [PATCH v3] crypto: add virtio-crypto driver
-Date: Tue, 29 Nov 2016 08:22:58 +0000
-Message-ID: <33183CC9F5247A488A2544077AF19020DA14A7A9__2689.24526540122$1480407841$gmane$org@DGGEMA505-MBX.china.huawei.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH v3] crypto: add virtio-crypto driver
+Date: Tue, 29 Nov 2016 09:25:49 +0000
+Message-ID: <20161129092549.GC5152__3282.18412255428$1480411564$gmane$org@stefanha-x1.localdomain>
 References: <1480334903-6672-1-git-send-email-arei.gonglei@huawei.com>
 	<1480334903-6672-2-git-send-email-arei.gonglei@huawei.com>
 	<20161128162055.GB11196@stefanha-x1.localdomain>
 	<20161128185747-mutt-send-email-mst@kernel.org>
+	<33183CC9F5247A488A2544077AF19020DA14A7A9@DGGEMA505-MBX.china.huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============6774473600516900915=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Language: zh-CN
+In-Reply-To: <33183CC9F5247A488A2544077AF19020DA14A7A9@DGGEMA505-MBX.china.huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,87 +20,106 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Gonglei (Arei)" <arei.gonglei@huawei.com>, "Michael S. Tsirkin" <mst@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Huangweidong (C)" <weidong.huang@huawei.com>, Claudio Fontana <Claudio.Fontana@huawei.com>, "Hanweidong (Randy)" <hanweidong@huawei.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, Luonengjun <luonengjun@huawei.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "salvatore.benedetto@intel.com" <salvatore.benedetto@intel.com>, "Xuquan (Quan Xu)" <xuquan8@huawei.com>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "Zhoujian (jay, Euler)" <jianjay.zhou@huawei.com>, longpeng <longpeng2@huawei.com>, "arei.gonglei@hotmail.com" <arei.gonglei@hotmail.com>, "davem@davemloft.net" <davem@davemloft.net>, "Wubin (H)" <wu.wubin@huawei.com>, "herbert@gondor.apana.org.au" <herbe>
+To: "Gonglei (Arei)" <arei.gonglei@huawei.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Huangweidong (C)" <weidong.huang@huawei.com>, Claudio Fontana <Claudio.Fontana@huawei.com>, "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Hanweidong (Randy)" <hanweidong@huawei.com>, Luonengjun <luonengjun@huawei.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "salvatore.benedetto@intel.com" <salvatore.benedetto@intel.com>, "Xuquan (Quan Xu)" <xuquan8@huawei.com>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "Zhoujian (jay, Euler)" <jianjay.zhou@huawei.com>, longpeng <longpeng2@huawei.com>, "arei.gonglei@hotmail.com" <arei.gonglei@hotmail.com>, "davem@davemloft.net" <davem@davemloft.net>, "Wubin (H)" <wu.wubin@huawei.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
 
-> > > > +source "drivers/crypto/virtio/Kconfig"
-> > > > +
-> > > >  endif # CRYPTO_HW
-> > > > diff --git a/drivers/crypto/Makefile b/drivers/crypto/Makefile
-> > > > index ad7250f..bc53cb8 100644
-> > > > --- a/drivers/crypto/Makefile
-> > > > +++ b/drivers/crypto/Makefile
-> > > > @@ -32,3 +32,4 @@ obj-$(CONFIG_CRYPTO_DEV_VMX) += vmx/
-> > > >  obj-$(CONFIG_CRYPTO_DEV_SUN4I_SS) += sunxi-ss/
-> > > >  obj-$(CONFIG_CRYPTO_DEV_ROCKCHIP) += rockchip/
-> > > >  obj-$(CONFIG_CRYPTO_DEV_CHELSIO) += chelsio/
-> > > > +obj-$(CONFIG_CRYPTO_DEV_VIRTIO) += virtio/
-> > > > diff --git a/drivers/crypto/virtio/Kconfig b/drivers/crypto/virtio/Kconfig
-> > > > new file mode 100644
-> > > > index 0000000..ceae88c
-> > > > --- /dev/null
-> > > > +++ b/drivers/crypto/virtio/Kconfig
-> > > > @@ -0,0 +1,10 @@
-> > > > +config CRYPTO_DEV_VIRTIO
-> > > > +	tristate "VirtIO crypto driver"
-> > > > +	depends on VIRTIO
-> > > > +    select CRYPTO_AEAD
-> > > > +    select CRYPTO_AUTHENC
-> > > > +    select CRYPTO_BLKCIPHER
+--===============6774473600516900915==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="f0KYrhQ4vYSV2aJu"
+Content-Disposition: inline
+
+
+--f0KYrhQ4vYSV2aJu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Nov 29, 2016 at 08:22:58AM +0000, Gonglei (Arei) wrote:
+> Hi,
+>=20
+> > > > > +source "drivers/crypto/virtio/Kconfig"
+> > > > > +
+> > > > >  endif # CRYPTO_HW
+> > > > > diff --git a/drivers/crypto/Makefile b/drivers/crypto/Makefile
+> > > > > index ad7250f..bc53cb8 100644
+> > > > > --- a/drivers/crypto/Makefile
+> > > > > +++ b/drivers/crypto/Makefile
+> > > > > @@ -32,3 +32,4 @@ obj-$(CONFIG_CRYPTO_DEV_VMX) +=3D vmx/
+> > > > >  obj-$(CONFIG_CRYPTO_DEV_SUN4I_SS) +=3D sunxi-ss/
+> > > > >  obj-$(CONFIG_CRYPTO_DEV_ROCKCHIP) +=3D rockchip/
+> > > > >  obj-$(CONFIG_CRYPTO_DEV_CHELSIO) +=3D chelsio/
+> > > > > +obj-$(CONFIG_CRYPTO_DEV_VIRTIO) +=3D virtio/
+> > > > > diff --git a/drivers/crypto/virtio/Kconfig b/drivers/crypto/virti=
+o/Kconfig
+> > > > > new file mode 100644
+> > > > > index 0000000..ceae88c
+> > > > > --- /dev/null
+> > > > > +++ b/drivers/crypto/virtio/Kconfig
+> > > > > @@ -0,0 +1,10 @@
+> > > > > +config CRYPTO_DEV_VIRTIO
+> > > > > +	tristate "VirtIO crypto driver"
+> > > > > +	depends on VIRTIO
+> > > > > +    select CRYPTO_AEAD
+> > > > > +    select CRYPTO_AUTHENC
+> > > > > +    select CRYPTO_BLKCIPHER
+> > > >
+> > > > Inconsistent tab vs space whitespace usage.
+> > > >
+> > Will fix.
+> >=20
+> > > > > +	default m
+> > > > > +	help
+> > > > > +	  This driver provides support for virtio crypto device. If you
+> > > > > +	  choose 'M' here, this module will be called virtio-crypto.
+> > > >
+> > > > All the other virtio drivers use underscore ('_') instead of hyphen
+> > > > ('-').
 > > >
-> > > Inconsistent tab vs space whitespace usage.
+> > > Except virtio-rng.
 > > >
-> Will fix.
-> 
-> > > > +	default m
-> > > > +	help
-> > > > +	  This driver provides support for virtio crypto device. If you
-> > > > +	  choose 'M' here, this module will be called virtio-crypto.
-> > >
-> > > All the other virtio drivers use underscore ('_') instead of hyphen
-> > > ('-').
-> >
-> > Except virtio-rng.
-> >
-> > >  I suggest calling it virtio_crypto for consistency.
-> > >
-> OK, I will change the Makefile to fix it.
-> 
+> > > >  I suggest calling it virtio_crypto for consistency.
+> > > >
+> > OK, I will change the Makefile to fix it.
+> >=20
+>=20
+> I tried to do this, but I failed. Because virtio_crypto.ko
+> consists of more than one source file which include tree files currently,
+> and virtio_crypto.ko matchs the name of virtio_crypto.c.
+> That's different with all other virtio drivers.
 
-I tried to do this, but I failed. Because virtio_crypto.ko
-consists of more than one source file which include tree files currently,
-and virtio_crypto.ko matchs the name of virtio_crypto.c.
-That's different with all other virtio drivers.
+Can you rename virtio_crypto.c to virtio_crypto_core.c?
 
-The Makefile can't address this situation well, I googled it, and I find a way in
- http://stackoverflow.com/questions/13606075/building-a-kernel-module-from-several-source-files-which-one-of-them-has-the-sam
+I'm not very familiar with the kernel Makefile infrastructure so maybe
+there's a better way of doing it.
 
- Proper way to fix in kernel make file would be as:
+Stefan
 
-# 
-obj-m += module.o
+--f0KYrhQ4vYSV2aJu
+Content-Type: application/pgp-signature; name="signature.asc"
 
-#append other source files except module.c which would be include by default
-module-objs += src1.o src2.o
+-----BEGIN PGP SIGNATURE-----
 
-Unfortunately it doesn't work because virtio_crypto.c isn't compiled.
+iQEcBAEBAgAGBQJYPUmdAAoJEJykq7OBq3PINpkIALZJ1Cd5MP0FQGllnWiFlOHN
+U77S9fDnvb/p6HE6G4RdygJMUDRbTIbR95S147WcTAQ1mB6OT5jAq4mN14TweGK7
+NQ6NCq+hpFQfQo75h3I2jOFaf4hOBHNhn8TqXmD0OAVFXRm+8pGXO7Ehu62Kwkqw
+dosS2yKmgyI5cNyHGmn5kGZUvm6fLQdR0ve31IMXJrXmBv/73qeyWHkGJEoXLRVJ
+BReZrHLrsIHBnDkmprNysbNPpQr/NSZ1wUE2v3aayPu3OquUyaktZePDJVyrSKJI
+YA0CdbdhLUxfCbc9WSmUjgBZ2SYtqQBo3J88ZSEYg8dlVdeeiBCVO8TdyXMZOWI=
+=za4n
+-----END PGP SIGNATURE-----
 
-# insmod virtio_crypto.ko 
-insmod: ERROR: could not insert module virtio_crypto.ko: Unknown symbol in module
+--f0KYrhQ4vYSV2aJu--
 
-# dmesg
-[74339.311801] virtio_crypto: Unknown symbol virtqueue_is_broken (err 0)
-[74339.311816] virtio_crypto: Unknown symbol crypto_register_algs (err 0)
-[74339.311833] virtio_crypto: Unknown symbol virtqueue_add_sgs (err 0)
-[74339.311839] virtio_crypto: Unknown symbol virtqueue_get_buf (err 0)
-[74339.311844] virtio_crypto: Unknown symbol virtqueue_kick (err 0)
-[74339.311854] virtio_crypto: Unknown symbol crypto_ablkcipher_type (err 0)
-[74339.311860] virtio_crypto: Unknown symbol crypto_unregister_algs (err 0)
+--===============6774473600516900915==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-It seems that I have no choice but to name the module to 'virtio-crypto' for simplicity.
-
-Regards,
--Gonglei
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6774473600516900915==--
