@@ -1,17 +1,15 @@
 From: "Gonglei (Arei)" <arei.gonglei@huawei.com>
 Subject: RE: [PATCH v3] crypto: add virtio-crypto driver
-Date: Tue, 29 Nov 2016 03:40:11 +0000
-Message-ID: <33183CC9F5247A488A2544077AF19020DA14A5F4__18642.4654363238$1480390874$gmane$org@DGGEMA505-MBX.china.huawei.com>
+Date: Tue, 29 Nov 2016 06:47:52 +0000
+Message-ID: <33183CC9F5247A488A2544077AF19020DA14A720__45555.1553088755$1480402129$gmane$org@DGGEMA505-MBX.china.huawei.com>
 References: <1480334903-6672-1-git-send-email-arei.gonglei@huawei.com>
 	<1480334903-6672-2-git-send-email-arei.gonglei@huawei.com>
 	<20161128162055.GB11196@stefanha-x1.localdomain>
 	<20161128185747-mutt-send-email-mst@kernel.org>
-	<e49c3cba-2d34-d2d2-28f1-6e192d4ad6b1@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <e49c3cba-2d34-d2d2-28f1-6e192d4ad6b1@linux.vnet.ibm.com>
 Content-Language: zh-CN
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,165 +20,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.vnet.ibm.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Xuquan (Quan Xu)" <xuquan8@huawei.com>, "Huangweidong (C)" <weidong.huang@huawei.com>, Claudio Fontana <Claudio.Fontana@huawei.com>, "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Hanweidong (Randy)" <hanweidong@huawei.com>, Luonengjun <luonengjun@huawei.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "salvatore.benedetto@intel.com" <salvatore.benedetto@intel.com>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, "Zhoujian (jay,
-	Euler)" <jianjay.zhou@huawei.com>, longpeng <longpeng2@huawei.com>, "arei.gonglei@hotmail.com" <arei.gonglei@hotmail.com>, "davem@davemloft.net" <davem@davemloft.ne>
+To: "Gonglei (Arei)" <arei.gonglei@huawei.com>, "Michael S. Tsirkin" <mst@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Huangweidong (C)" <weidong.huang@huawei.com>, Claudio Fontana <Claudio.Fontana@huawei.com>, "Hanweidong (Randy)" <hanweidong@huawei.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, Luonengjun <luonengjun@huawei.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "salvatore.benedetto@intel.com" <salvatore.benedetto@intel.com>, "Xuquan (Quan Xu)" <xuquan8@huawei.com>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "Zhoujian (jay, Euler)" <jianjay.zhou@huawei.com>, longpeng <longpeng2@huawei.com>, "arei.gonglei@hotmail.com" <arei.gonglei@hotmail.com>, "davem@davemloft.net" <davem@davemloft.net>, "Wubin (H)" <wu.wubin@huawei.com>, "herbert@gondor.apana.org.au" <herbe>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Halil,
-
-> 
-> On 11/28/2016 06:19 PM, Michael S. Tsirkin wrote:
-> >>> +static int virtio_crypto_alg_ablkcipher_init_session(
-> >>> > > +		struct virtio_crypto_ablkcipher_ctx *ctx,
-> >>> > > +		uint32_t alg, const uint8_t *key,
-> >>> > > +		unsigned int keylen,
-> >>> > > +		int encrypt)
-> >>> > > +{
-> >>> > > +	struct scatterlist outhdr, key_sg, inhdr, *sgs[3];
-> >>> > > +	unsigned int tmp;
-> >>> > > +	struct virtio_crypto *vcrypto = ctx->vcrypto;
-> >>> > > +	int op = encrypt ? VIRTIO_CRYPTO_OP_ENCRYPT :
-> VIRTIO_CRYPTO_OP_DECRYPT;
-> >>> > > +	int err;
-> >>> > > +	unsigned int num_out = 0, num_in = 0;
-> >>> > > +
-> >>> > > +	/*
-> >>> > > +	 * Avoid to do DMA from the stack, switch to using
-> >>> > > +	 * dynamically-allocated for the key
-> >>> > > +	 */
-> >>> > > +	uint8_t *cipher_key = kmalloc(keylen, GFP_ATOMIC);
-> >>> > > +
-> >>> > > +	if (!cipher_key)
-> >>> > > +		return -ENOMEM;
-> >>> > > +
-> >>> > > +	memcpy(cipher_key, key, keylen);
-> >>> > > +
-> >>> > > +	spin_lock(&vcrypto->ctrl_lock);
-> >>> > > +	/* Pad ctrl header */
-> >>> > > +	vcrypto->ctrl.header.opcode =
-> >>> > > +		cpu_to_le32(VIRTIO_CRYPTO_CIPHER_CREATE_SESSION);
-> >>> > > +	vcrypto->ctrl.header.algo = cpu_to_le32(alg);
-> >>> > > +	/* Set the default dataqueue id to 0 */
-> >>> > > +	vcrypto->ctrl.header.queue_id = 0;
-> >>> > > +
-> >>> > > +	vcrypto->input.status = cpu_to_le32(VIRTIO_CRYPTO_ERR);
-> >>> > > +	/* Pad cipher's parameters */
-> >>> > > +	vcrypto->ctrl.u.sym_create_session.op_type =
-> >>> > > +		cpu_to_le32(VIRTIO_CRYPTO_SYM_OP_CIPHER);
-> >>> > > +	vcrypto->ctrl.u.sym_create_session.u.cipher.para.algo =
-> >>> > > +		vcrypto->ctrl.header.algo;
-> >>> > > +	vcrypto->ctrl.u.sym_create_session.u.cipher.para.keylen =
-> >>> > > +		cpu_to_le32(keylen);
-> >>> > > +	vcrypto->ctrl.u.sym_create_session.u.cipher.para.op =
-> >>> > > +		cpu_to_le32(op);
-> >>> > > +
-> >>> > > +	sg_init_one(&outhdr, &vcrypto->ctrl, sizeof(vcrypto->ctrl));
-> >>> > > +	sgs[num_out++] = &outhdr;
-> >>> > > +
-> >>> > > +	/* Set key */
-> >>> > > +	sg_init_one(&key_sg, cipher_key, keylen);
-> >>> > > +	sgs[num_out++] = &key_sg;
-> >>> > > +
-> >>> > > +	/* Return status and session id back */
-> >>> > > +	sg_init_one(&inhdr, &vcrypto->input, sizeof(vcrypto->input));
-> >>> > > +	sgs[num_out + num_in++] = &inhdr;
-> >>> > > +
-> >>> > > +	err = virtqueue_add_sgs(vcrypto->ctrl_vq, sgs, num_out,
-> >>> > > +				num_in, vcrypto, GFP_ATOMIC);
-> >>> > > +	if (err < 0) {
-> >>> > > +		spin_unlock(&vcrypto->ctrl_lock);
-> >>> > > +		kfree(cipher_key);
-> >>> > > +		return err;
-> >>> > > +	}
-> >>> > > +	virtqueue_kick(vcrypto->ctrl_vq);
-> >>> > > +
-> >>> > > +	/*
-> >>> > > +	 * Spin for a response, the kick causes an ioport write, trapping
-> >>> > > +	 * into the hypervisor, so the request should be handled immediately.
-> >>> > > +	 */
-> 
-> I have my doubts about this comment (and about the code below too). Is
-> 'kick causes an ioport write' true for every transport/architecture?
-> If we relay on this property maybe the documentation of notify should
-> mention it.
-> 
-Actually it isn't true for every transport, see the call trace:
- /**
- * virtqueue_kick - update after add_buf
- * @vq: the struct virtqueue
- *
- * After one or more virtqueue_add_* calls, invoke this to kick
- * the other side.
- *
- * Caller must ensure we don't call this with other virtqueue
- * operations at the same time (except where noted).
- *
- * Returns false if kick failed, otherwise true.
- */
-bool virtqueue_kick(struct virtqueue *vq)
-{
-	if (virtqueue_kick_prepare(vq))
-		return virtqueue_notify(vq);
-	return true;
-}
-
-If virtqueue_kick_prepare return ture, then notify which causes an ioport write.
-
-Let me remove the comments avoid confusions. 
- 	
-> I know we have the same message in virtio-net.
-> 
-Yes, I just migrated it from virtio-net. ;)
-
-> >>> > > +	while (!virtqueue_get_buf(vcrypto->ctrl_vq, &tmp) &&
-> >>> > > +	       !virtqueue_is_broken(vcrypto->ctrl_vq))
-> >>> > > +		cpu_relax();
-> > this spin under lock is kind of ugly.
-> > Why do we need to hold it while spinning?
-> > to prevent submitting more than one request?
-> > Isn't there a way to control this within crypto core?
+>
+> > > > +
+> > > > +/* Note: kernel crypto API realization */
+> > > > +static int virtio_crypto_ablkcipher_setkey(struct crypto_ablkcipher *tfm,
+> > > > +					 const uint8_t *key,
+> > > > +					 unsigned int keylen)
+> > > > +{
+> > > > +	struct virtio_crypto_ablkcipher_ctx *ctx =
+> > crypto_ablkcipher_ctx(tfm);
+> > > > +	int ret;
+> > > > +
+> > > > +	spin_lock(&ctx->lock);
+> > > > +
+> > > > +	if (!ctx->vcrypto) {
+> > > > +		/* New key */
+> > > > +		int node = virtio_crypto_get_current_node();
+> > > > +		struct virtio_crypto *vcrypto =
+> > > > +				      virtcrypto_get_dev_node(node);
+> > > > +		if (!vcrypto) {
+> > > > +			vcrypto = virtcrypto_devmgr_get_first();
 > >
-> > unlock
-> > relax
-> > lock
+> > Is this the standard way to do this? How does this work with
+> > multiple crypto devices (e.g. with different capabilities)?
 > >
-> > would be better.
-> >
-> >>> > > +
-> >>> > > +	if (le32_to_cpu(vcrypto->input.status) != VIRTIO_CRYPTO_OK) {
-> >>> > > +		spin_unlock(&vcrypto->ctrl_lock);
-> >>> > > +		pr_err("virtio_crypto: Create session failed status: %u\n",
-> >>> > > +			le32_to_cpu(vcrypto->input.status));
-> >>> > > +		kfree(cipher_key);
-> >>> > > +		return -EINVAL;
-> >>> > > +	}
-> >>> > > +	spin_unlock(&vcrypto->ctrl_lock);
-> >>> > > +
-> > You drop lock here. If someone is trying to submit multiple
-> > requests, then the below will be racy as it might overwrite
-> > new result with previous data.
-> >
+> Actually there is a simple schedule algorithms in virtcrypto_get_dev_node(),
+> which return the device used fewest on the node.
 > 
-> Was going to object on this too but Michael was faster.
+> If we don't find a device in the node, select the first on as default.
+> But I forgot to check the first devices whether the device has started here.
 > 
-Will fix.
+Oh, the virtcrypto_get_dev_node() had done this work, the calling of
+virtcrypto_devmgr_get_first() here is superfluous. Will remove it.
 
-Thanks,
+Regards,
 -Gonglei
-
-> Halil
-> 
-> >>> > > +	spin_lock(&ctx->lock);
-> >>> > > +	if (encrypt)
-> >>> > > +		ctx->enc_sess_info.session_id =
-> >>> > > +			le64_to_cpu(vcrypto->input.session_id);
-> >>> > > +	else
-> >>> > > +		ctx->dec_sess_info.session_id =
-> >>> > > +			le64_to_cpu(vcrypto->input.session_id);
-> >>> > > +	spin_unlock(&ctx->lock);
-> >>> > > +
-> >>> > > +	kfree(cipher_key);
-> >>> > > +	return 0;
-> >>> > > +}
-> >>> > > +
