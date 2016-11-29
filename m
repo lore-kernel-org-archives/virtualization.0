@@ -1,7 +1,7 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v3] crypto: add virtio-crypto driver
-Date: Tue, 29 Nov 2016 10:29:35 +0100
-Message-ID: <20161129102935.405892bd.cornelia.huck__22997.6917071783$1480411799$gmane$org@de.ibm.com>
+From: "Gonglei (Arei)" <arei.gonglei@huawei.com>
+Subject: RE: [PATCH v3] crypto: add virtio-crypto driver
+Date: Tue, 29 Nov 2016 09:31:32 +0000
+Message-ID: <33183CC9F5247A488A2544077AF19020DA14A82C__4551.03916251591$1480411944$gmane$org@DGGEMA505-MBX.china.huawei.com>
 References: <1480334903-6672-1-git-send-email-arei.gonglei@huawei.com>
 	<1480334903-6672-2-git-send-email-arei.gonglei@huawei.com>
 	<20161128162055.GB11196@stefanha-x1.localdomain>
@@ -13,6 +13,7 @@ Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20161129092549.GC5152@stefanha-x1.localdomain>
+Content-Language: zh-CN
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,15 +24,13 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Huangweidong (C)" <weidong.huang@huawei.com>, Claudio Fontana <Claudio.Fontana@huawei.com>, "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Hanweidong (Randy)" <hanweidong@huawei.com>, Luonengjun <luonengjun@huawei.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "salvatore.benedetto@intel.com" <salvatore.benedetto@intel.com>, "Xuquan (Quan Xu)" <xuquan8@huawei.com>, "Gonglei (Arei)" <arei.gonglei@huawei.com>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "Zhoujian (jay, Euler)" <jianjay.zhou@huawei.com>, longpeng <longpeng2@huawei.com>, "arei.gonglei@hotmail.com" <arei.gonglei@hotmail.com>, "davem@davemloft.net" <davem@dave>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Huangweidong (C)" <weidong.huang@huawei.com>, Claudio Fontana <Claudio.Fontana@huawei.com>, "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Hanweidong (Randy)" <hanweidong@huawei.com>, Luonengjun <luonengjun@huawei.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "salvatore.benedetto@intel.com" <salvatore.benedetto@intel.com>, "Xuquan (Quan Xu)" <xuquan8@huawei.com>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "Zhoujian (jay, Euler)" <jianjay.zhou@huawei.com>, longpeng <longpeng2@huawei.com>, "arei.gonglei@hotmail.com" <arei.gonglei@hotmail.com>, "davem@davemloft.net" <davem@davemloft.net>, "Wubin (H)" <wu.wubin@huawei.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 29 Nov 2016 09:25:49 +0000
-Stefan Hajnoczi <stefanha@redhat.com> wrote:
-
+> 
 > On Tue, Nov 29, 2016 at 08:22:58AM +0000, Gonglei (Arei) wrote:
 > > Hi,
-> > 
+> >
 > > > > > > +source "drivers/crypto/virtio/Kconfig"
 > > > > > > +
 > > > > > >  endif # CRYPTO_HW
@@ -60,7 +59,7 @@ Stefan Hajnoczi <stefanha@redhat.com> wrote:
 > > > > > Inconsistent tab vs space whitespace usage.
 > > > > >
 > > > Will fix.
-> > > 
+> > >
 > > > > > > +	default m
 > > > > > > +	help
 > > > > > > +	  This driver provides support for virtio crypto device. If you
@@ -74,15 +73,21 @@ Stefan Hajnoczi <stefanha@redhat.com> wrote:
 > > > > >  I suggest calling it virtio_crypto for consistency.
 > > > > >
 > > > OK, I will change the Makefile to fix it.
-> > > 
-> > 
+> > >
+> >
 > > I tried to do this, but I failed. Because virtio_crypto.ko
 > > consists of more than one source file which include tree files currently,
 > > and virtio_crypto.ko matchs the name of virtio_crypto.c.
 > > That's different with all other virtio drivers.
 > 
 > Can you rename virtio_crypto.c to virtio_crypto_core.c?
+> 
+I'm fine with virtio_crypto_core.c. What about you? Michael?
 
-+1
+Regards,
+-Gonglei
 
-I think that's the way to go.
+> I'm not very familiar with the kernel Makefile infrastructure so maybe
+> there's a better way of doing it.
+> 
+> Stefan
