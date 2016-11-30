@@ -1,13 +1,10 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH v4 1/1] crypto: add virtio-crypto driver
-Date: Wed, 30 Nov 2016 11:09:32 +0000
-Message-ID: <20161130110932.GC2497@stefanha-x1.localdomain>
-References: <1480423694-41736-1-git-send-email-arei.gonglei@huawei.com>
-	<1480423694-41736-2-git-send-email-arei.gonglei@huawei.com>
+From: "ML" <marialemos72@gmail.com>
+Subject: WorldCIST'2017 - Workshops submission deadline - December 8
+Date: Wed, 30 Nov 2016 12:26:22 +0000
+Message-ID: <201611301226.uAUCPVID022700@smtp.dei.uc.pt>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0485022168443710780=="
+Content-Type: multipart/mixed; boundary="===============3689837805741254624=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1480423694-41736-2-git-send-email-arei.gonglei@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,121 +14,123 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gonglei <arei.gonglei@huawei.com>
-Cc: virtio-dev@lists.oasis-open.org, weidong.huang@huawei.com, claudio.fontana@huawei.com, mst@redhat.com, qemu-devel@nongnu.org, hanweidong@huawei.com, luonengjun@huawei.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, salvatore.benedetto@intel.com, xuquan8@huawei.com, linux-crypto@vger.kernel.org, jianjay.zhou@huawei.com, longpeng2@huawei.com, arei.gonglei@hotmail.com, davem@davemloft.net, wu.wubin@huawei.com, herbert@gondor.apana.org.au
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+--===============3689837805741254624==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
---===============0485022168443710780==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bAmEntskrkuBymla"
-Content-Disposition: inline
+----------------------------------------------------------------------=
+-----------
+WORKSHOPS
+WorldCIST'17 - 5th World Conference on Information Systems and Technol=
+ogies=20
+Porto Santo Island, Madeira, Portugal
+11th-13th of April 2017
+http://www.worldcist.org/
+-------------------------------------------------------------------------
+
+WorldCIST 2017 will feature a total of 18 Workshops. Paper submission =
+for all Workshops must be performed at https://easychair.org/conferenc=
+es/?conf=3Dworldcist_workshops2017 selecting the desired Workshop. Wor=
+kshop papers (Full =96 10 Pages and Short =96 7 Pages) will be publish=
+ed by Springer AISC series and the authors of the best Workshop paper =
+will be invited to extend their work for publication at top Internatio=
+nal Journals (indexed by ISI Web of Knowledge and SCOPUS). Paper submi=
+ssion is open until December 8th for all Workshops.
+
+WORKSHOPS
+=95    BIO - Business Intelligence in Organizations
+=95    CMAIPA - Computational Methods and Applications for Image Proce=
+ssing and Analysis
+=95    CSQA - Computer Supported Qualitative Analysis
+=95    ESG - Educational and Serious Games
+=95    ETCBPM - Emerging Trends and Challenges in Business Process Man=
+agement
+=95    HISISE - Workshop on Healthcare Information Systems Interoperab=
+ility, Security and Efficiency
+=95    HMInARMM - Human-Machine Interfaces in Automation, Robotics, Me=
+chanics and Mechatronics
+=95    ICDSS - Intelligent and Collaborative Decision Support Systems =
+for Improving Manufacturing Processes
+=95    ICTwithUAV - ICT solutions with Unmanned Aerial Vehicles
+=95    IoT4Health - Workshop on Internet of Things for Health
+=95    ISM - Intelligent Systems and Machines
+=95    ISTA - Information Systems and Technologies Adoption
+=95    MAMM&MJ - Managing Audiovisual Mass Media (governance, funding =
+and innovation) and Mobile Journalism
+=95    NPAT - New Pedagogical Approaches with Technologies
+=95    PIS - Workshop on Pervasive Information Systems
+=95    RSPPI - Resources Sharing between Private and Public Institutions
+=95    SIdEWayS - Social Media World Sensors
+=95    TinW - Technologies in the Workplace - Use and Impact on Workers
+
+IMPORTANT DATES
+=95 Deadline for paper submission: December 8th
+=95 Notification of paper acceptance: December 28th, 2016
+=95 Deadline for final versions and conference registration: January 8=
+th, 2017
+=95 Conference dates: April 11 -13, 2017
+
+SUBMISSION AND PAPER FORMAT
+Please Submit your paper at: https://easychair.org/conferences/?conf=
+=3Dworldcist_workshops2017
+Two types of papers can be submitted to workshops (both will be publis=
+hed at the Springer AISC proceedings):
+- Full papers: Finished or consolidated R&D works. These papers are as=
+signed a 10-page limit.
+- Short papers: Finished or consolidated R&D works and also Ongoing wo=
+rk but with relevant preliminary results, open to discussion. These pa=
+pers are assigned a 7-page limit.
+Submitted papers must comply with the format of Advances in Intelligen=
+t Systems and Computing Series (see Instructions for Authors at Spring=
+er Website or download a DOC example) be written in English, must not =
+have been published before, not be under review for any other conferen=
+ce, workshop or publication.
+Paper should not include any information leading to the authors=92 ide=
+ntification (in order to enable double blind review). Therefore, the a=
+uthors=92 names, affiliations and bibliographic references should not =
+be included in the version for evaluation by the Program Committee. Th=
+is information should only be included in the camera-ready version, sa=
+ved in Word or Latex format and also in PDF format. These files must b=
+e accompanied by the Publication form filled out, in a ZIP file, and u=
+ploaded at the conference management system.
+All papers will be subjected to a =93double-blind review=94 by at leas=
+t two/three members of the Program Committee. Based on Program Committ=
+ee evaluation, a paper can be rejected or accepted by the Conference C=
+hairs. In the latter case, it can be accepted as the type originally s=
+ubmitted or as another type. Thus, full papers can be accepted as shor=
+t papers.
+
+PUBLICATION AND INDEXING
+Workshop papers will be published in the AISC Springer Conference Proc=
+eedings. To ensure that a paper is published in the Proceedings, at le=
+ast one of the authors must be fully registered by 11th of January 201=
+7, and the paper must comply with the suggested layout and page-limit.=
+ Additionally, all recommended changes must be addressed by the author=
+s before they submit the camera-ready version. No more than one paper =
+per registration will be published in the Conference Proceedings. An e=
+xtra fee must be paid for publication of additional papers, with a max=
+imum of one additional paper per registration. Full and short papers w=
+ill be published in the Conference Proceedings by Springer, in Advance=
+s in Intelligent Systems and Computing. Published full and short paper=
+s will be submitted for indexation by ISI, EI-Compendex, SCOPUS and DB=
+LP, among others, and will be available in the SpringerLink Digital Li=
+brary. The authors of the best selected papers will be invited to exte=
+nd them for publication in renowned international journals indexed by =
+ISI, SCOPUS and DBLP (see the information available at the main confer=
+ence CFP for more details).
 
 
---bAmEntskrkuBymla
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Kind regards,
 
-On Tue, Nov 29, 2016 at 08:48:14PM +0800, Gonglei wrote:
-> diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c b/drivers/crypto/virtio/virtio_crypto_algs.c
-> new file mode 100644
-> index 0000000..08b077f
-> --- /dev/null
-> +++ b/drivers/crypto/virtio/virtio_crypto_algs.c
-> @@ -0,0 +1,518 @@
-> + /* Algorithms supported by virtio crypto device
-> +  *
-> +  * Authors: Gonglei <arei.gonglei@huawei.com>
-> +  *
-> +  * Copyright 2016 HUAWEI TECHNOLOGIES CO., LTD.
-> +  *
-> +  * This program is free software; you can redistribute it and/or modify
-> +  * it under the terms of the GNU General Public License as published by
-> +  * the Free Software Foundation; either version 2 of the License, or
-> +  * (at your option) any later version.
-> +  *
-> +  * This program is distributed in the hope that it will be useful,
-> +  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> +  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> +  * GNU General Public License for more details.
-> +  *
-> +  * You should have received a copy of the GNU General Public License
-> +  * along with this program; if not, see <http://www.gnu.org/licenses/>.
-> +  */
-> +
-> +#include <linux/scatterlist.h>
-> +#include <crypto/algapi.h>
-> +#include <linux/err.h>
-> +#include <crypto/scatterwalk.h>
-> +#include <linux/atomic.h>
-> +
-> +#include <uapi/linux/virtio_crypto.h>
-> +#include "virtio_crypto_common.h"
-> +
-> +static DEFINE_MUTEX(algs_lock);
+WorldCIST'2017
+http://www.worldcist.org/
 
-Did you run checkpatch.pl?  I think it encourages you to document what
-the lock protects.
 
-> +static int virtio_crypto_alg_ablkcipher_init_session(
-> +		struct virtio_crypto_ablkcipher_ctx *ctx,
-> +		uint32_t alg, const uint8_t *key,
-> +		unsigned int keylen,
-> +		int encrypt)
-> +{
-> +	struct scatterlist outhdr, key_sg, inhdr, *sgs[3];
-> +	unsigned int tmp;
-> +	struct virtio_crypto *vcrypto = ctx->vcrypto;
-> +	int op = encrypt ? VIRTIO_CRYPTO_OP_ENCRYPT : VIRTIO_CRYPTO_OP_DECRYPT;
-> +	int err;
-> +	unsigned int num_out = 0, num_in = 0;
-> +
-> +	/*
-> +	 * Avoid to do DMA from the stack, switch to using
-> +	 * dynamically-allocated for the key
-> +	 */
-> +	uint8_t *cipher_key = kmalloc(keylen, GFP_ATOMIC);
-> +
-> +	if (!cipher_key)
-> +		return -ENOMEM;
-> +
-> +	memcpy(cipher_key, key, keylen);
 
-Are there any rules on handling key material in the kernel?  This buffer
-is just kfreed later.  Do you need to zero it out before freeing it?
-
-> +
-> +	spin_lock(&vcrypto->ctrl_lock);
-
-The QAT accelerator driver doesn't spin while talking to the device in
-virtio_crypto_alg_ablkcipher_init_session().  I didn't find any other
-driver examples in the kernel tree, but this function seems like a
-weakness in the virtio-crypto device.
-
-While QEMU is servicing the create session command this vcpu is blocked.
-The QEMU global mutex is held so no other vcpu can enter QEMU and the
-QMP monitor is also blocked.
-
-This is a scalability and performance problem.  Can you look at how QAT
-avoids this synchronous session setup?
-
---bAmEntskrkuBymla
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAEBAgAGBQJYPrNrAAoJEJykq7OBq3PIpTYIAJ+dE1sD0cRA8ULdgETvQ2OR
-rxjdwu6KlAzqnh51ntqwMpEOB1zrMwNFsHpxF20Kgq2KHqGqsW53h3g6eBMqQ8zo
-8yIinj0TZc921WAvdYcqp//+gcczU4n3gQcnIGk3ZQmO9ql3yF13wYNpt3qGda4k
-HoJSOjdNI+p+sx4uFWjc5rOJkBoIDKL/P8jf229PdwpmsCfmGsNd3ZPMgFpQpfYl
-OCFvEzJqbnKgBtAtp8UCxDmZTLe6N/KW6cN/nBuTeCX19CQg1zFqrT9c44fF0E+J
-bO7lEfZWErh+fa2UPs4jN3STMzHB2Cfj6UUGJIERP+ck9XdhgoQduK4YHMEQ2aQ=
-=a9Y4
------END PGP SIGNATURE-----
-
---bAmEntskrkuBymla--
-
---===============0485022168443710780==
+--===============3689837805741254624==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -141,4 +140,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0485022168443710780==--
+--===============3689837805741254624==--
