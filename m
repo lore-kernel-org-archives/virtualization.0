@@ -1,7 +1,8 @@
-From: Gonglei <arei.gonglei@huawei.com>
-Subject: [PATCH v4 0/1] virtio-crypto: add Linux driver
-Date: Tue, 29 Nov 2016 20:48:13 +0800
-Message-ID: <1480423694-41736-1-git-send-email-arei.gonglei__13080.9865812354$1480423988$gmane$org@huawei.com>
+From: Liang Li <liang.z.li@intel.com>
+Subject: [PATCH kernel v5 0/5] Extend virtio-balloon for fast (de)inflating &
+	fast live migration
+Date: Wed, 30 Nov 2016 16:43:12 +0800
+Message-ID: <1480495397-23225-1-git-send-email-liang.z.li__33316.4313961335$1480496294$gmane$org@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,108 +16,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org
-Cc: weidong.huang@huawei.com, claudio.fontana@huawei.com, mst@redhat.com, luonengjun@huawei.com, hanweidong@huawei.com, xuquan8@huawei.com, salvatore.benedetto@intel.com, Gonglei <arei.gonglei@huawei.com>, stefanha@redhat.com, jianjay.zhou@huawei.com, longpeng2@huawei.com, arei.gonglei@hotmail.com, davem@davemloft.net, wu.wubin@huawei.com, herbert@gondor.apana.org.au
+To: kvm@vger.kernel.org
+Cc: virtio-dev@lists.oasis-open.org, mhocko@suse.com, mst@redhat.com, dave.hansen@intel.com, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, kirill.shutemov@linux.intel.com, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, Liang Li <liang.z.li@intel.com>, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-v4:
- - rework unknow status bit handler by calling virtio_break_device(). [Cornelia]
- - convert space to tab in Kconfig. [Stefan]
- - rename virtio_crypto.c to virtio_crypto_core.c and then make the
-   moudle named virtio_crypto.ko for consistency. [Stefan]
- - don't call virtcrypto_dev_stop() on failure path. [Stefan]
- - don't add two empty lines. [Michael]
- - fix possible race by add spin_lock in virtio_crypto_alg_ablkcipher_init_session() [Michael and Halil]
- - drop virtcrypto_devmgr_get_first() calling in virtio_crypto_ablkcipher_setkey. [Michael]
- - drop superfluous assigned value for virtio_crypto_algs[i].cra_flags
-   in virtio_crypto_algs_register(). [Stefan]
- - decrease virtio_crypto_active_devs if calling crypto_register_algs() failed. [Stefan]
- - fix some typos here and there. [Stefan]
- - fix missing table_lock usage in virtio_crypto_mgr.c. [Stefan]
- - drop confused comments in virtio_crypto_alg_ablkcipher_init_session()
-   for virtqueue_kick(). [Halil]
+This patch set contains two parts of changes to the virtio-balloon.
+ 
+One is the change for speeding up the inflating & deflating process,
+the main idea of this optimization is to use bitmap to send the page
+information to host instead of the PFNs, to reduce the overhead of
+virtio data transmission, address translation and madvise(). This can
+help to improve the performance by about 85%.
+ 
+Another change is for speeding up live migration. By skipping process
+guest's unused pages in the first round of data copy, to reduce needless
+data processing, this can help to save quite a lot of CPU cycles and
+network bandwidth. We put guest's unused page information in a bitmap
+and send it to host with the virt queue of virtio-balloon. For an idle
+guest with 8GB RAM, this can help to shorten the total live migration
+time from 2Sec to about 500ms in 10Gbps network environment.
+ 
+Changes from v4 to v5:
+    * Drop the code to get the max_pfn, use another way instead.
+    * Simplify the API to get the unused page information from mm. 
 
-v3:
- - set cpu affinity when data queues are not equal to the number of online cpus. [Michael]
- - add TODO comments for cpu hotplug (changing the relationship of binding virtqueue and cpu)
- - use __u32/64 in the config space since the virtio->get() doesn't support byte-swap yet. [Michael]
- - drop the whole patch 1 of v2 because the above reason.
- - add VERSION_1 check at the beginning of virtcrypto_probe()
- - s/-1/EPERM/g in virtcrypto_update_status(), don't change err to EFAULT then. [Michael]
- - add reset operation before delete the virtqueus. [Micheal]
- - drop an unnecessiry spin_lock calling in virtcrypto_freeze(), avoid possible dead lock. [Micheal]
- - redefine parameter alg's type in order to use a cast for it. [Michael]
- - pad all structures to have the same size in one union, and add a member to
-   show the union's size in virtio_crypto.h. [Michael]
- - update MAINTAINER file to add virtio-crypto stuff to Michael's entry so that
-   the corresponding patches can be CC'ed to Michael as well because the virtio-crypto
-   doesn't lay in driver/virtio directory. 
+Changes from v3 to v4:
+    * Use the new scheme suggested by Dave Hansen to encode the bitmap.
+    * Add code which is missed in v3 to handle migrate page. 
+    * Free the memory for bitmap intime once the operation is done.
+    * Address some of the comments in v3.
 
-The virtio crypto device is a virtual cryptography device
-as well as a kind of virtual hardware accelerator for
-virtual machines. The encryption anddecryption requests
-are placed in the data queue and are ultimately handled by
-thebackend crypto accelerators. The second queue is the
-control queue used to create or destroy sessions for
-symmetric algorithms and will control some advanced features
-in the future. The virtio crypto device provides the following
-cryptoservices: CIPHER, MAC, HASH, and AEAD.
+Changes from v2 to v3:
+    * Change the name of 'free page' to 'unused page'.
+    * Use the scatter & gather bitmap instead of a 1MB page bitmap.
+    * Fix overwriting the page bitmap after kicking.
+    * Some of MST's comments for v2.
+ 
+Changes from v1 to v2:
+    * Abandon the patch for dropping page cache.
+    * Put some structures to uapi head file.
+    * Use a new way to determine the page bitmap size.
+    * Use a unified way to send the free page information with the bitmap
+    * Address the issues referred in MST's comments
 
-For more information about virtio-crypto device, please see:
-  http://qemu-project.org/Features/VirtioCrypto
+Liang Li (5):
+  virtio-balloon: rework deflate to add page to a list
+  virtio-balloon: define new feature bit and head struct
+  virtio-balloon: speed up inflate/deflate process
+  virtio-balloon: define flags and head for host request vq
+  virtio-balloon: tell host vm's unused page info
 
-For better reviewing, pls see below explaination.
-
-The patch mainly includes five files:
-
- 1) virtio_crypto.h is the header file for virtio-crypto device,
-which is based on the virtio-crypto specification. 
- 2) virtio_crypto_core.c is the entry of the driver module,
-which is similar with other virtio devices, such as virtio-net,
-virtio-input etc. 
- 3) virtio_crypto_mgr.c is used to manage the virtio
-crypto devices in the system. We support up to 32 virtio-crypto
-devices currently. I use a global list to store the virtio crypto
-devices which refer to Intel QAT driver. Meanwhile, the file
-includs the functions of add/del/search/start/stop for virtio
-crypto devices.
- 4) virtio_crypto_common.h is a private header file for virtio
-crypto driver, includes structure definations, and function declarations.
- 5) virtio_crypto_algs.c is the realization of algs based on Linux Crypto Framwork,
-which can register different crypto algorithms. Currently it's only support AES-CBC.
-The Crypto guys can mainly focus on this file. 
-
-
-v2:
- - stop doing DMA from the stack, CONFIG_VMAP_STACK=y [Salvatore]
- - convert __virtio32/64 to __le32/64 in virtio_crypto.h
- - remove VIRTIO_CRYPTO_S_STARTED based on the lastest virtio crypto spec.
- - introduces the little edian functions for VIRTIO_1 devices in patch 1.
-
-
-Gonglei (1):
-  crypto: add virtio-crypto driver
-
- MAINTAINERS                                  |   9 +
- drivers/crypto/Kconfig                       |   2 +
- drivers/crypto/Makefile                      |   1 +
- drivers/crypto/virtio/Kconfig                |  10 +
- drivers/crypto/virtio/Makefile               |   5 +
- drivers/crypto/virtio/virtio_crypto_algs.c   | 518 +++++++++++++++++++++++++++
- drivers/crypto/virtio/virtio_crypto_common.h | 124 +++++++
- drivers/crypto/virtio/virtio_crypto_core.c   | 460 ++++++++++++++++++++++++
- drivers/crypto/virtio/virtio_crypto_mgr.c    | 262 ++++++++++++++
- include/uapi/linux/Kbuild                    |   1 +
- include/uapi/linux/virtio_crypto.h           | 450 +++++++++++++++++++++++
- include/uapi/linux/virtio_ids.h              |   1 +
- 12 files changed, 1843 insertions(+)
- create mode 100644 drivers/crypto/virtio/Kconfig
- create mode 100644 drivers/crypto/virtio/Makefile
- create mode 100644 drivers/crypto/virtio/virtio_crypto_algs.c
- create mode 100644 drivers/crypto/virtio/virtio_crypto_common.h
- create mode 100644 drivers/crypto/virtio/virtio_crypto_core.c
- create mode 100644 drivers/crypto/virtio/virtio_crypto_mgr.c
- create mode 100644 include/uapi/linux/virtio_crypto.h
+ drivers/virtio/virtio_balloon.c     | 539 ++++++++++++++++++++++++++++++++----
+ include/linux/mm.h                  |   3 +-
+ include/uapi/linux/virtio_balloon.h |  41 +++
+ mm/page_alloc.c                     |  72 +++++
+ 4 files changed, 607 insertions(+), 48 deletions(-)
 
 -- 
 1.8.3.1
