@@ -1,13 +1,13 @@
 From: Stefan Hajnoczi <stefanha@redhat.com>
 Subject: Re: [PATCH v4 1/1] crypto: add virtio-crypto driver
-Date: Thu, 1 Dec 2016 11:53:27 +0000
-Message-ID: <20161201115327.GB10441__1249.62730701572$1480593219$gmane$org@stefanha-x1.localdomain>
+Date: Thu, 1 Dec 2016 11:58:10 +0000
+Message-ID: <20161201115810.GC10441__7641.64021607048$1480593500$gmane$org@stefanha-x1.localdomain>
 References: <1480423694-41736-1-git-send-email-arei.gonglei@huawei.com>
 	<1480423694-41736-2-git-send-email-arei.gonglei@huawei.com>
 	<20161130110932.GC2497@stefanha-x1.localdomain>
 	<33183CC9F5247A488A2544077AF19020DA14EC02@DGGEMA505-MBX.china.huawei.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2452894348246305316=="
+Content-Type: multipart/mixed; boundary="===============1418977403788196868=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <33183CC9F5247A488A2544077AF19020DA14EC02@DGGEMA505-MBX.china.huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
@@ -19,113 +19,115 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: "Xuquan (Quan Xu)" <xuquan8@huawei.com>, "Huangweidong (C)" <weidong.huang@huawei.com>, "mst@redhat.com" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Zhoujian (jay,
-	Euler)" <jianjay.zhou@huawei.com>, "arei.gonglei@hotmail.com" <arei.gonglei@hotmail.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>, "Hanweidong (Randy)" <hanweidong@huawei.com>, "Gonglei (Arei)" <arei.gonglei@huawei.com>, longpeng <longpeng2@huawei.com>, Luonengjun <luonengjun@huawei.com>, Claudio Fontana <Claudio.Fontana@huawei.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "salvatore.benedetto@intel.com" <salvatore.benedetto@intel.com>, "linux-crypto@vger.kernel.org" <linux-cr>
+To: "Gonglei (Arei)" <arei.gonglei@huawei.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Huangweidong (C)" <weidong.huang@huawei.com>, Claudio Fontana <Claudio.Fontana@huawei.com>, "mst@redhat.com" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "Hanweidong (Randy)" <hanweidong@huawei.com>, Luonengjun <luonengjun@huawei.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "salvatore.benedetto@intel.com" <salvatore.benedetto@intel.com>, "Xuquan (Quan Xu)" <xuquan8@huawei.com>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "Zhoujian (jay, Euler)" <jianjay.zhou@huawei.com>, longpeng <longpeng2@huawei.com>, "arei.gonglei@hotmail.com" <arei.gonglei@hotmail.com>, "davem@davemloft.net" <davem@davemloft.net>, "Wubin (H)" <wu.wubin@huawei.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============2452894348246305316==
+--===============1418977403788196868==
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JP+T4n/bALQSJXh8"
+	protocol="application/pgp-signature"; boundary="Bu8it7iiRSEf40bY"
 Content-Disposition: inline
 
 
---JP+T4n/bALQSJXh8
+--Bu8it7iiRSEf40bY
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 On Thu, Dec 01, 2016 at 02:27:19AM +0000, Gonglei (Arei) wrote:
 > > On Tue, Nov 29, 2016 at 08:48:14PM +0800, Gonglei wrote:
-> > > diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c
-> > b/drivers/crypto/virtio/virtio_crypto_algs.c
-> > > new file mode 100644
-> > > index 0000000..08b077f
-> > > --- /dev/null
-> > > +++ b/drivers/crypto/virtio/virtio_crypto_algs.c
-> > > @@ -0,0 +1,518 @@
-> > > + /* Algorithms supported by virtio crypto device
-> > > +  *
-> > > +  * Authors: Gonglei <arei.gonglei@huawei.com>
-> > > +  *
-> > > +  * Copyright 2016 HUAWEI TECHNOLOGIES CO., LTD.
-> > > +  *
-> > > +  * This program is free software; you can redistribute it and/or mo=
-dify
-> > > +  * it under the terms of the GNU General Public License as publishe=
-d by
-> > > +  * the Free Software Foundation; either version 2 of the License, or
-> > > +  * (at your option) any later version.
-> > > +  *
-> > > +  * This program is distributed in the hope that it will be useful,
-> > > +  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> > > +  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> > > +  * GNU General Public License for more details.
-> > > +  *
-> > > +  * You should have received a copy of the GNU General Public License
-> > > +  * along with this program; if not, see <http://www.gnu.org/license=
-s/>.
-> > > +  */
+> > > +static int virtio_crypto_alg_ablkcipher_init_session(
+> > > +		struct virtio_crypto_ablkcipher_ctx *ctx,
+> > > +		uint32_t alg, const uint8_t *key,
+> > > +		unsigned int keylen,
+> > > +		int encrypt)
+> > > +{
+> > > +	struct scatterlist outhdr, key_sg, inhdr, *sgs[3];
+> > > +	unsigned int tmp;
+> > > +	struct virtio_crypto *vcrypto =3D ctx->vcrypto;
+> > > +	int op =3D encrypt ? VIRTIO_CRYPTO_OP_ENCRYPT :
+> > VIRTIO_CRYPTO_OP_DECRYPT;
+> > > +	int err;
+> > > +	unsigned int num_out =3D 0, num_in =3D 0;
 > > > +
-> > > +#include <linux/scatterlist.h>
-> > > +#include <crypto/algapi.h>
-> > > +#include <linux/err.h>
-> > > +#include <crypto/scatterwalk.h>
-> > > +#include <linux/atomic.h>
+> > > +	/*
+> > > +	 * Avoid to do DMA from the stack, switch to using
+> > > +	 * dynamically-allocated for the key
+> > > +	 */
+> > > +	uint8_t *cipher_key =3D kmalloc(keylen, GFP_ATOMIC);
 > > > +
-> > > +#include <uapi/linux/virtio_crypto.h>
-> > > +#include "virtio_crypto_common.h"
+> > > +	if (!cipher_key)
+> > > +		return -ENOMEM;
 > > > +
-> > > +static DEFINE_MUTEX(algs_lock);
+> > > +	memcpy(cipher_key, key, keylen);
 > >=20
-> > Did you run checkpatch.pl?  I think it encourages you to document what
-> > the lock protects.
+> > Are there any rules on handling key material in the kernel?  This buffer
+> > is just kfreed later.  Do you need to zero it out before freeing it?
 > >=20
-> Sure. Basically I run checkpatch.py each time. :)
+> Good questions. For kernel crypto core, each cipher request should be fre=
+ed
+> by skcipher_request_free(): zeroize and free request data structure.
 >=20
-> # ./scripts/checkpatch.pl 0001-crypto-add-virtio-crypto-driver.patch=20
-> total: 0 errors, 0 warnings, 1873 lines checked
+> I need to use kzfree() for key as well. I'll also check other stuffs. Tha=
+nks.=20
 >=20
-> 0001-crypto-add-virtio-crypto-driver.patch has no obvious style problems =
-and is ready for submission.
+> > > +
+> > > +	spin_lock(&vcrypto->ctrl_lock);
+> >=20
+> > The QAT accelerator driver doesn't spin while talking to the device in
+> > virtio_crypto_alg_ablkcipher_init_session().  I didn't find any other
+> > driver examples in the kernel tree, but this function seems like a
+> > weakness in the virtio-crypto device.
+> >=20
+> The control queues of virtio-net and virtio-console are also be locked
+> Please see:
+>  __send_control_msg() in virtio_console.c and virtio-net's control queue
+> protected by rtnl lock.
+>=20
+> I didn't want to protect session creations but the virtqueue's operations
+> like what other virtio devices do.
+>=20
+> > While QEMU is servicing the create session command this vcpu is blocked.
+> > The QEMU global mutex is held so no other vcpu can enter QEMU and the
+> > QMP monitor is also blocked.
+> >=20
+> > This is a scalability and performance problem.  Can you look at how QAT
+> > avoids this synchronous session setup?
+>=20
+> For QAT driver, the session creation is synchronous as well because it's a
+> plain software operation which can be completed ASAP.
 
-Looks like a bug in checkpatch.pl:
+I'm mentioning the vmexit and wait for request completion in a spinlock
+because the same type of issue has been a performance bottleneck with
+virtio guest driver in the past.
 
-# check for spinlock_t definitions without a comment.
-if ($line =3D~ /^.\s*(struct\s+mutex|spinlock_t)\s+\S+;/ ||
-    $line =3D~ /^.\s*(DEFINE_MUTEX)\s*\(/) {
-        my $which =3D $1;
-        if (!ctx_has_comment($first_line, $linenr)) {
-                CHK("UNCOMMENTED_DEFINITION",
-                    "$1 definition without comment\n" . $herecurr);
-        }
-}
+If there is a way to avoid spinning then that would be preferred.  It's
+basically a known anti-pattern for virtio guest drivers.
 
-Since your mutex definition has the 'static' keyword in front of it
-checkpatch.pl misses it!
-
-Andy: Is this checkpatch.pl behavior intentional?
+Could you initialize the session on the host side when the first
+asynchronous data is submitted for encryption/decryption instead of
+during init_session()?
 
 Stefan
 
---JP+T4n/bALQSJXh8
+--Bu8it7iiRSEf40bY
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEcBAEBAgAGBQJYQA83AAoJEJykq7OBq3PIQZsH/ish/4hOJcmnuT0Jbdcq1FMg
-KcMygjlZYDuXeswDEdcIdpW7L6uycDQJfQC56KczAtkjL8jp8YAsuuU27ax5wAGw
-8xlqiTD52eKYOvF+BU33BYmp5gKyUCiN6B+IAOQMaFPt7EZgdloJCXtcL/PsaB40
-aflSamRTjWUv4vIT7exmGp5mz7IP+w0RqjHV/p42nriwc1YUSZ8igCRJxZxfv0/x
-3QMypbD7GHZ4pDW94J14977pwO/uUu8Au8zqT7s5xBzLhRafCr0zRMxn+wY9Yyzn
-8EwdydYAM0qoPsQrYXIrWBR2gS82Vy7XcTKXNfIFooVUNjlGy5/PrRcdg33uql4=
-=g+O6
+iQEcBAEBAgAGBQJYQBBSAAoJEJykq7OBq3PIVcUH/2uQbjFXwHo3kDAeJW9IOL24
+JbJ1xUPeQQJ6ATQK4JyLVext6aTD7W3Cun0E+MM5P4DsKkWrIB0yH3L7eREVokIJ
+1AN1G5mfqgWD5pbLIlUwGdHnmTZZUeWsCpvWDgGypHiHOAXX2SfuPRYh35ozu0+R
+62HcqZstZlxi8TdffOHWg1ruKDU5UlSRYJDveHN7Awtb3hcjSdylP0oUVVwvHtK/
+75SmfWHG2NZJhS5wBQJ+GeY6HMcAz4T6/ixAw+UwzF91U/U3ByLTVvx9nl4iQ9Ct
+P4W0gEgx4jItl8U1NzgdiAly79Fe5ZjmYl1KiNWCc6gVd5z4Wzw+XwunPRZDpPM=
+=V+Ck
 -----END PGP SIGNATURE-----
 
---JP+T4n/bALQSJXh8--
+--Bu8it7iiRSEf40bY--
 
---===============2452894348246305316==
+--===============1418977403788196868==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -135,4 +137,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2452894348246305316==--
+--===============1418977403788196868==--
