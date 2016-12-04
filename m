@@ -1,13 +1,13 @@
-From: Gonglei <arei.gonglei@huawei.com>
-Subject: [PATCH v5 1/1] crypto: add virtio-crypto driver
-Date: Thu, 1 Dec 2016 20:39:05 +0800
-Message-ID: <1480595945-63656-2-git-send-email-arei.gonglei__9153.8870161914$1480597516$gmane$org@huawei.com>
-References: <1480595945-63656-1-git-send-email-arei.gonglei@huawei.com>
+From: kbuild test robot <lkp@intel.com>
+Subject: Re: [PATCH v5 1/1] crypto: add virtio-crypto driver
+Date: Sun, 4 Dec 2016 10:39:38 +0800
+Message-ID: <201612041032.loAEWLIy%fengguang.wu@intel.com>
+References: <1480595945-63656-2-git-send-email-arei.gonglei@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="/9DWx/yDrRhgMJTb"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1480595945-63656-1-git-send-email-arei.gonglei@huawei.com>
+Content-Disposition: inline
+In-Reply-To: <1480595945-63656-2-git-send-email-arei.gonglei@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,2018 +17,994 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org
-Cc: weidong.huang@huawei.com, claudio.fontana@huawei.com, mst@redhat.com, luonengjun@huawei.com, hanweidong@huawei.com, xuquan8@huawei.com, wanzongshun@huawei.com, Gonglei <arei.gonglei@huawei.com>, stefanha@redhat.com, jianjay.zhou@huawei.com, longpeng2@huawei.com, arei.gonglei@hotmail.com, davem@davemloft.net, wu.wubin@huawei.com, herbert@gondor.apana.org.au
+Cc: xuquan8@huawei.com, weidong.huang@huawei.com, mst@redhat.com, qemu-devel@nongnu.org, wanzongshun@huawei.com, virtualization@lists.linux-foundation.org, jianjay.zhou@huawei.com, arei.gonglei@hotmail.com, virtio-dev@lists.oasis-open.org, herbert@gondor.apana.org.au, hanweidong@huawei.com, Gonglei <arei.gonglei@huawei.com>, longpeng2@huawei.com, kbuild-all@01.org, luonengjun@huawei.com, stefanha@redhat.com, claudio.fontana@huawei.com, linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, davem@davemloft.net, wu.wubin@huawei.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch introduces virtio-crypto driver for Linux Kernel.
 
-The virtio crypto device is a virtual cryptography device
-as well as a kind of virtual hardware accelerator for
-virtual machines. The encryption anddecryption requests
-are placed in the data queue and are ultimately handled by
-thebackend crypto accelerators. The second queue is the
-control queue used to create or destroy sessions for
-symmetric algorithms and will control some advanced features
-in the future. The virtio crypto device provides the following
-cryptoservices: CIPHER, MAC, HASH, and AEAD.
+--/9DWx/yDrRhgMJTb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-For more information about virtio-crypto device, please see:
-  http://qemu-project.org/Features/VirtioCrypto
+Hi Gonglei,
 
-CC: Michael S. Tsirkin <mst@redhat.com>
-CC: Cornelia Huck <cornelia.huck@de.ibm.com>
-CC: Stefan Hajnoczi <stefanha@redhat.com>
-CC: Herbert Xu <herbert@gondor.apana.org.au>
-CC: Halil Pasic <pasic@linux.vnet.ibm.com>
-CC: David S. Miller <davem@davemloft.net>
-CC: Zeng Xin <xin.zeng@intel.com>
-Signed-off-by: Gonglei <arei.gonglei@huawei.com>
+[auto build test ERROR on cryptodev/master]
+[also build test ERROR on v4.9-rc7 next-20161202]
+[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
+
+url:    https://github.com/0day-ci/linux/commits/Gonglei/crypto-add-virtio-crypto-driver/20161202-190424
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/herbert/cryptodev-2.6.git master
+config: sparc64-allyesconfig (attached as .config)
+compiler: sparc64-linux-gnu-gcc (Debian 6.1.1-9) 6.1.1 20160705
+reproduce:
+        wget https://git.kernel.org/cgit/linux/kernel/git/wfg/lkp-tests.git/plain/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # save the attached .config to linux build tree
+        make.cross ARCH=sparc64 
+
+All errors (new ones prefixed by >>):
+
+   In file included from arch/sparc/include/asm/topology.h:4:0,
+                    from include/linux/topology.h:35,
+                    from include/linux/gfp.h:8,
+                    from include/linux/kmod.h:22,
+                    from include/linux/module.h:13,
+                    from drivers/crypto/virtio/virtio_crypto_mgr.c:21:
+   drivers/crypto/virtio/virtio_crypto_common.h: In function 'virtio_crypto_get_current_node':
+>> arch/sparc/include/asm/topology_64.h:44:44: error: implicit declaration of function 'cpu_data' [-Werror=implicit-function-declaration]
+    #define topology_physical_package_id(cpu) (cpu_data(cpu).proc_id)
+                                               ^
+   drivers/crypto/virtio/virtio_crypto_common.h:116:9: note: in expansion of macro 'topology_physical_package_id'
+     return topology_physical_package_id(smp_processor_id());
+            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>> arch/sparc/include/asm/topology_64.h:44:57: error: request for member 'proc_id' in something not a structure or union
+    #define topology_physical_package_id(cpu) (cpu_data(cpu).proc_id)
+                                                            ^
+   drivers/crypto/virtio/virtio_crypto_common.h:116:9: note: in expansion of macro 'topology_physical_package_id'
+     return topology_physical_package_id(smp_processor_id());
+            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   cc1: some warnings being treated as errors
+
+vim +/cpu_data +44 arch/sparc/include/asm/topology_64.h
+
+f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg        2008-07-17  28  
+9d079337 arch/sparc/include/asm/topology_64.h David Miller        2009-01-11  29  #define cpumask_of_pcibus(bus)	\
+9d079337 arch/sparc/include/asm/topology_64.h David Miller        2009-01-11  30  	(pcibus_to_node(bus) == -1 ? \
+e9b37512 arch/sparc/include/asm/topology_64.h Rusty Russell       2009-03-16  31  	 cpu_all_mask : \
+9d079337 arch/sparc/include/asm/topology_64.h David Miller        2009-01-11  32  	 cpumask_of_node(pcibus_to_node(bus)))
+f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg        2008-07-17  33  
+52708d69 arch/sparc/include/asm/topology_64.h Nitin Gupta         2015-11-02  34  int __node_distance(int, int);
+52708d69 arch/sparc/include/asm/topology_64.h Nitin Gupta         2015-11-02  35  #define node_distance(a, b) __node_distance(a, b)
+52708d69 arch/sparc/include/asm/topology_64.h Nitin Gupta         2015-11-02  36  
+f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg        2008-07-17  37  #else /* CONFIG_NUMA */
+f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg        2008-07-17  38  
+f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg        2008-07-17  39  #include <asm-generic/topology.h>
+f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg        2008-07-17  40  
+f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg        2008-07-17  41  #endif /* !(CONFIG_NUMA) */
+f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg        2008-07-17  42  
+f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg        2008-07-17  43  #ifdef CONFIG_SMP
+f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg        2008-07-17 @44  #define topology_physical_package_id(cpu)	(cpu_data(cpu).proc_id)
+f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg        2008-07-17  45  #define topology_core_id(cpu)			(cpu_data(cpu).core_id)
+acc455cf arch/sparc/include/asm/topology_64.h chris hyser         2015-04-22  46  #define topology_core_cpumask(cpu)		(&cpu_core_sib_map[cpu])
+06931e62 arch/sparc/include/asm/topology_64.h Bartosz Golaszewski 2015-05-26  47  #define topology_sibling_cpumask(cpu)		(&per_cpu(cpu_sibling_map, cpu))
+f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg        2008-07-17  48  #endif /* CONFIG_SMP */
+f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg        2008-07-17  49  
+3905c54f arch/sparc/include/asm/topology_64.h Stephen Rothwell    2011-04-12  50  extern cpumask_t cpu_core_map[NR_CPUS];
+acc455cf arch/sparc/include/asm/topology_64.h chris hyser         2015-04-22  51  extern cpumask_t cpu_core_sib_map[NR_CPUS];
+3905c54f arch/sparc/include/asm/topology_64.h Stephen Rothwell    2011-04-12  52  static inline const struct cpumask *cpu_coregroup_mask(int cpu)
+
+:::::: The code at line 44 was first introduced by commit
+:::::: f5e706ad886b6a5eb59637830110b09ccebf01c5 sparc: join the remaining header files
+
+:::::: TO: Sam Ravnborg <sam@ravnborg.org>
+:::::: CC: David S. Miller <davem@davemloft.net>
+
 ---
- MAINTAINERS                                  |   9 +
- drivers/crypto/Kconfig                       |   2 +
- drivers/crypto/Makefile                      |   1 +
- drivers/crypto/virtio/Kconfig                |  10 +
- drivers/crypto/virtio/Makefile               |   5 +
- drivers/crypto/virtio/virtio_crypto_algs.c   | 537 +++++++++++++++++++++++++++
- drivers/crypto/virtio/virtio_crypto_common.h | 122 ++++++
- drivers/crypto/virtio/virtio_crypto_core.c   | 464 +++++++++++++++++++++++
- drivers/crypto/virtio/virtio_crypto_mgr.c    | 264 +++++++++++++
- include/uapi/linux/Kbuild                    |   1 +
- include/uapi/linux/virtio_crypto.h           | 450 ++++++++++++++++++++++
- include/uapi/linux/virtio_ids.h              |   1 +
- 12 files changed, 1866 insertions(+)
- create mode 100644 drivers/crypto/virtio/Kconfig
- create mode 100644 drivers/crypto/virtio/Makefile
- create mode 100644 drivers/crypto/virtio/virtio_crypto_algs.c
- create mode 100644 drivers/crypto/virtio/virtio_crypto_common.h
- create mode 100644 drivers/crypto/virtio/virtio_crypto_core.c
- create mode 100644 drivers/crypto/virtio/virtio_crypto_mgr.c
- create mode 100644 include/uapi/linux/virtio_crypto.h
+0-DAY kernel test infrastructure                Open Source Technology Center
+https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index ad9b965..cccaaf0 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -12810,6 +12810,7 @@ F:	drivers/net/virtio_net.c
- F:	drivers/block/virtio_blk.c
- F:	include/linux/virtio_*.h
- F:	include/uapi/linux/virtio_*.h
-+F:	drivers/crypto/virtio/
- 
- VIRTIO DRIVERS FOR S390
- M:	Christian Borntraeger <borntraeger@de.ibm.com>
-@@ -12846,6 +12847,14 @@ S:	Maintained
- F:	drivers/virtio/virtio_input.c
- F:	include/uapi/linux/virtio_input.h
- 
-+VIRTIO CRYPTO DRIVER
-+M:  Gonglei <arei.gonglei@huawei.com>
-+L:  virtualization@lists.linux-foundation.org
-+L:  linux-crypto@vger.kernel.org
-+S:  Maintained
-+F:  drivers/crypto/virtio/
-+F:  include/uapi/linux/virtio_crypto.h
-+
- VIA RHINE NETWORK DRIVER
- S:	Orphan
- F:	drivers/net/ethernet/via/via-rhine.c
-diff --git a/drivers/crypto/Kconfig b/drivers/crypto/Kconfig
-index 4d2b81f..7956478 100644
---- a/drivers/crypto/Kconfig
-+++ b/drivers/crypto/Kconfig
-@@ -555,4 +555,6 @@ config CRYPTO_DEV_ROCKCHIP
- 
- source "drivers/crypto/chelsio/Kconfig"
- 
-+source "drivers/crypto/virtio/Kconfig"
-+
- endif # CRYPTO_HW
-diff --git a/drivers/crypto/Makefile b/drivers/crypto/Makefile
-index ad7250f..bc53cb8 100644
---- a/drivers/crypto/Makefile
-+++ b/drivers/crypto/Makefile
-@@ -32,3 +32,4 @@ obj-$(CONFIG_CRYPTO_DEV_VMX) += vmx/
- obj-$(CONFIG_CRYPTO_DEV_SUN4I_SS) += sunxi-ss/
- obj-$(CONFIG_CRYPTO_DEV_ROCKCHIP) += rockchip/
- obj-$(CONFIG_CRYPTO_DEV_CHELSIO) += chelsio/
-+obj-$(CONFIG_CRYPTO_DEV_VIRTIO) += virtio/
-diff --git a/drivers/crypto/virtio/Kconfig b/drivers/crypto/virtio/Kconfig
-new file mode 100644
-index 0000000..d80f733
---- /dev/null
-+++ b/drivers/crypto/virtio/Kconfig
-@@ -0,0 +1,10 @@
-+config CRYPTO_DEV_VIRTIO
-+	tristate "VirtIO crypto driver"
-+	depends on VIRTIO
-+	select CRYPTO_AEAD
-+	select CRYPTO_AUTHENC
-+	select CRYPTO_BLKCIPHER
-+	default m
-+	help
-+	  This driver provides support for virtio crypto device. If you
-+	  choose 'M' here, this module will be called virtio_crypto.
-diff --git a/drivers/crypto/virtio/Makefile b/drivers/crypto/virtio/Makefile
-new file mode 100644
-index 0000000..dd342c9
---- /dev/null
-+++ b/drivers/crypto/virtio/Makefile
-@@ -0,0 +1,5 @@
-+obj-$(CONFIG_CRYPTO_DEV_VIRTIO) += virtio_crypto.o
-+virtio_crypto-objs := \
-+	virtio_crypto_algs.o \
-+	virtio_crypto_mgr.o \
-+	virtio_crypto_core.o
-diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c b/drivers/crypto/virtio/virtio_crypto_algs.c
-new file mode 100644
-index 0000000..5100056
---- /dev/null
-+++ b/drivers/crypto/virtio/virtio_crypto_algs.c
-@@ -0,0 +1,537 @@
-+ /* Algorithms supported by virtio crypto device
-+  *
-+  * Authors: Gonglei <arei.gonglei@huawei.com>
-+  *
-+  * Copyright 2016 HUAWEI TECHNOLOGIES CO., LTD.
-+  *
-+  * This program is free software; you can redistribute it and/or modify
-+  * it under the terms of the GNU General Public License as published by
-+  * the Free Software Foundation; either version 2 of the License, or
-+  * (at your option) any later version.
-+  *
-+  * This program is distributed in the hope that it will be useful,
-+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+  * GNU General Public License for more details.
-+  *
-+  * You should have received a copy of the GNU General Public License
-+  * along with this program; if not, see <http://www.gnu.org/licenses/>.
-+  */
-+
-+#include <linux/scatterlist.h>
-+#include <crypto/algapi.h>
-+#include <linux/err.h>
-+#include <crypto/scatterwalk.h>
-+#include <linux/atomic.h>
-+
-+#include <uapi/linux/virtio_crypto.h>
-+#include "virtio_crypto_common.h"
-+
-+/*
-+ * The algs_lock protects the below global virtio_crypto_active_devs
-+ * and crypto algorithms registion.
-+ */
-+static DEFINE_MUTEX(algs_lock);
-+static unsigned int virtio_crypto_active_devs;
-+
-+static u64 virtio_crypto_alg_sg_nents_length(struct scatterlist *sg)
-+{
-+	u64 total = 0;
-+
-+	for (total = 0; sg; sg = sg_next(sg))
-+		total += sg->length;
-+
-+	return total;
-+}
-+
-+static int
-+virtio_crypto_alg_validate_key(int key_len, uint32_t *alg)
-+{
-+	switch (key_len) {
-+	case AES_KEYSIZE_128:
-+	case AES_KEYSIZE_192:
-+	case AES_KEYSIZE_256:
-+		*alg = VIRTIO_CRYPTO_CIPHER_AES_CBC;
-+		break;
-+	default:
-+		pr_err("virtio_crypto: Unsupported key length: %d\n",
-+			key_len);
-+		return -EINVAL;
-+	}
-+	return 0;
-+}
-+
-+static int virtio_crypto_alg_ablkcipher_init_session(
-+		struct virtio_crypto_ablkcipher_ctx *ctx,
-+		uint32_t alg, const uint8_t *key,
-+		unsigned int keylen,
-+		int encrypt)
-+{
-+	struct scatterlist outhdr, key_sg, inhdr, *sgs[3];
-+	unsigned int tmp;
-+	struct virtio_crypto *vcrypto = ctx->vcrypto;
-+	int op = encrypt ? VIRTIO_CRYPTO_OP_ENCRYPT : VIRTIO_CRYPTO_OP_DECRYPT;
-+	int err;
-+	unsigned int num_out = 0, num_in = 0;
-+
-+	/*
-+	 * Avoid to do DMA from the stack, switch to using
-+	 * dynamically-allocated for the key
-+	 */
-+	uint8_t *cipher_key = kmalloc(keylen, GFP_ATOMIC);
-+
-+	if (!cipher_key)
-+		return -ENOMEM;
-+
-+	memcpy(cipher_key, key, keylen);
-+
-+	spin_lock(&vcrypto->ctrl_lock);
-+	/* Pad ctrl header */
-+	vcrypto->ctrl.header.opcode =
-+		cpu_to_le32(VIRTIO_CRYPTO_CIPHER_CREATE_SESSION);
-+	vcrypto->ctrl.header.algo = cpu_to_le32(alg);
-+	/* Set the default dataqueue id to 0 */
-+	vcrypto->ctrl.header.queue_id = 0;
-+
-+	vcrypto->input.status = cpu_to_le32(VIRTIO_CRYPTO_ERR);
-+	/* Pad cipher's parameters */
-+	vcrypto->ctrl.u.sym_create_session.op_type =
-+		cpu_to_le32(VIRTIO_CRYPTO_SYM_OP_CIPHER);
-+	vcrypto->ctrl.u.sym_create_session.u.cipher.para.algo =
-+		vcrypto->ctrl.header.algo;
-+	vcrypto->ctrl.u.sym_create_session.u.cipher.para.keylen =
-+		cpu_to_le32(keylen);
-+	vcrypto->ctrl.u.sym_create_session.u.cipher.para.op =
-+		cpu_to_le32(op);
-+
-+	sg_init_one(&outhdr, &vcrypto->ctrl, sizeof(vcrypto->ctrl));
-+	sgs[num_out++] = &outhdr;
-+
-+	/* Set key */
-+	sg_init_one(&key_sg, cipher_key, keylen);
-+	sgs[num_out++] = &key_sg;
-+
-+	/* Return status and session id back */
-+	sg_init_one(&inhdr, &vcrypto->input, sizeof(vcrypto->input));
-+	sgs[num_out + num_in++] = &inhdr;
-+
-+	err = virtqueue_add_sgs(vcrypto->ctrl_vq, sgs, num_out,
-+				num_in, vcrypto, GFP_ATOMIC);
-+	if (err < 0) {
-+		spin_unlock(&vcrypto->ctrl_lock);
-+		kzfree(cipher_key);
-+		return err;
-+	}
-+	virtqueue_kick(vcrypto->ctrl_vq);
-+
-+	/*
-+	 * Trapping into the hypervisor, so the request should be
-+	 * handled immediately.
-+	 */
-+	while (!virtqueue_get_buf(vcrypto->ctrl_vq, &tmp) &&
-+	       !virtqueue_is_broken(vcrypto->ctrl_vq))
-+		cpu_relax();
-+
-+	if (le32_to_cpu(vcrypto->input.status) != VIRTIO_CRYPTO_OK) {
-+		spin_unlock(&vcrypto->ctrl_lock);
-+		pr_err("virtio_crypto: Create session failed status: %u\n",
-+			le32_to_cpu(vcrypto->input.status));
-+		kzfree(cipher_key);
-+		return -EINVAL;
-+	}
-+
-+	if (encrypt)
-+		ctx->enc_sess_info.session_id =
-+			le64_to_cpu(vcrypto->input.session_id);
-+	else
-+		ctx->dec_sess_info.session_id =
-+			le64_to_cpu(vcrypto->input.session_id);
-+
-+	spin_unlock(&vcrypto->ctrl_lock);
-+
-+	kzfree(cipher_key);
-+	return 0;
-+}
-+
-+static int virtio_crypto_alg_ablkcipher_close_session(
-+		struct virtio_crypto_ablkcipher_ctx *ctx,
-+		int encrypt)
-+{
-+	struct scatterlist outhdr, status_sg, *sgs[2];
-+	unsigned int tmp;
-+	struct virtio_crypto_destroy_session_req *destroy_session;
-+	struct virtio_crypto *vcrypto = ctx->vcrypto;
-+	int err;
-+	unsigned int num_out = 0, num_in = 0;
-+
-+	spin_lock(&vcrypto->ctrl_lock);
-+	vcrypto->ctrl_status.status = VIRTIO_CRYPTO_ERR;
-+	/* Pad ctrl header */
-+	vcrypto->ctrl.header.opcode =
-+		cpu_to_le32(VIRTIO_CRYPTO_CIPHER_DESTROY_SESSION);
-+	/* Set the default virtqueue id to 0 */
-+	vcrypto->ctrl.header.queue_id = 0;
-+
-+	destroy_session = &vcrypto->ctrl.u.destroy_session;
-+
-+	if (encrypt)
-+		destroy_session->session_id =
-+			cpu_to_le64(ctx->enc_sess_info.session_id);
-+	else
-+		destroy_session->session_id =
-+			cpu_to_le64(ctx->dec_sess_info.session_id);
-+
-+	sg_init_one(&outhdr, &vcrypto->ctrl, sizeof(vcrypto->ctrl));
-+	sgs[num_out++] = &outhdr;
-+
-+	/* Return status and session id back */
-+	sg_init_one(&status_sg, &vcrypto->ctrl_status.status,
-+		sizeof(vcrypto->ctrl_status.status));
-+	sgs[num_out + num_in++] = &status_sg;
-+
-+	err = virtqueue_add_sgs(vcrypto->ctrl_vq, sgs, num_out,
-+			num_in, vcrypto, GFP_ATOMIC);
-+	if (err < 0) {
-+		spin_unlock(&vcrypto->ctrl_lock);
-+		return err;
-+	}
-+	virtqueue_kick(vcrypto->ctrl_vq);
-+
-+	while (!virtqueue_get_buf(vcrypto->ctrl_vq, &tmp) &&
-+	       !virtqueue_is_broken(vcrypto->ctrl_vq))
-+		cpu_relax();
-+
-+	if (vcrypto->ctrl_status.status != VIRTIO_CRYPTO_OK) {
-+		spin_unlock(&vcrypto->ctrl_lock);
-+		pr_err("virtio_crypto: Close session failed status: %u, session_id: 0x%llx\n",
-+			vcrypto->ctrl_status.status,
-+			destroy_session->session_id);
-+
-+		return -EINVAL;
-+	}
-+	spin_unlock(&vcrypto->ctrl_lock);
-+
-+	return 0;
-+}
-+
-+static int virtio_crypto_alg_ablkcipher_init_sessions(
-+		struct virtio_crypto_ablkcipher_ctx *ctx,
-+		const uint8_t *key, unsigned int keylen)
-+{
-+	uint32_t alg;
-+	int ret;
-+	struct virtio_crypto *vcrypto = ctx->vcrypto;
-+
-+	if (keylen > vcrypto->max_cipher_key_len) {
-+		pr_err("virtio_crypto: the key is too long\n");
-+		goto bad_key;
-+	}
-+
-+	if (virtio_crypto_alg_validate_key(keylen, &alg))
-+		goto bad_key;
-+
-+	/* Create encryption session */
-+	ret = virtio_crypto_alg_ablkcipher_init_session(ctx,
-+			alg, key, keylen, 1);
-+	if (ret)
-+		return ret;
-+	/* Create decryption session */
-+	ret = virtio_crypto_alg_ablkcipher_init_session(ctx,
-+			alg, key, keylen, 0);
-+	if (ret) {
-+		virtio_crypto_alg_ablkcipher_close_session(ctx, 1);
-+		return ret;
-+	}
-+	return 0;
-+
-+bad_key:
-+	crypto_tfm_set_flags(ctx->tfm, CRYPTO_TFM_RES_BAD_KEY_LEN);
-+	return -EINVAL;
-+}
-+
-+/* Note: kernel crypto API realization */
-+static int virtio_crypto_ablkcipher_setkey(struct crypto_ablkcipher *tfm,
-+					 const uint8_t *key,
-+					 unsigned int keylen)
-+{
-+	struct virtio_crypto_ablkcipher_ctx *ctx = crypto_ablkcipher_ctx(tfm);
-+	int ret;
-+
-+	if (!ctx->vcrypto) {
-+		/* New key */
-+		int node = virtio_crypto_get_current_node();
-+		struct virtio_crypto *vcrypto =
-+				      virtcrypto_get_dev_node(node);
-+		if (!vcrypto) {
-+			pr_err("virtio_crypto: Could not find a virtio device in the system");
-+			return -ENODEV;
-+		}
-+
-+		ctx->vcrypto = vcrypto;
-+	}
-+
-+	ret = virtio_crypto_alg_ablkcipher_init_sessions(ctx, key, keylen);
-+	if (ret) {
-+		virtcrypto_dev_put(ctx->vcrypto);
-+		ctx->vcrypto = NULL;
-+
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static int
-+__virtio_crypto_ablkcipher_do_req(struct virtio_crypto_request *vc_req,
-+		struct ablkcipher_request *req,
-+		struct data_queue *data_vq,
-+		__u8 op)
-+{
-+	struct crypto_ablkcipher *tfm = crypto_ablkcipher_reqtfm(req);
-+	unsigned int ivsize = crypto_ablkcipher_ivsize(tfm);
-+	struct virtio_crypto_ablkcipher_ctx *ctx = vc_req->ablkcipher_ctx;
-+	struct virtio_crypto *vcrypto = ctx->vcrypto;
-+	struct virtio_crypto_op_data_req *req_data;
-+	int src_nents, dst_nents;
-+	int err;
-+	unsigned long flags;
-+	struct scatterlist outhdr, iv_sg, status_sg, **sgs;
-+	int i;
-+	u64 dst_len;
-+	unsigned int num_out = 0, num_in = 0;
-+	int sg_total;
-+	uint8_t *iv;
-+
-+	src_nents = sg_nents_for_len(req->src, req->nbytes);
-+	dst_nents = sg_nents(req->dst);
-+
-+	pr_debug("virtio_crypto: Number of sgs (src_nents: %d, dst_nents: %d)\n",
-+			src_nents, dst_nents);
-+
-+	/* Why 3?  outhdr + iv + inhdr */
-+	sg_total = src_nents + dst_nents + 3;
-+	sgs = kzalloc_node(sg_total * sizeof(*sgs), GFP_ATOMIC,
-+				dev_to_node(&vcrypto->vdev->dev));
-+	if (!sgs)
-+		return -ENOMEM;
-+
-+	req_data = kzalloc_node(sizeof(*req_data), GFP_ATOMIC,
-+				dev_to_node(&vcrypto->vdev->dev));
-+	if (!req_data) {
-+		kfree(sgs);
-+		return -ENOMEM;
-+	}
-+
-+	vc_req->req_data = req_data;
-+	vc_req->type = VIRTIO_CRYPTO_SYM_OP_CIPHER;
-+	/* Head of operation */
-+	if (op) {
-+		req_data->header.session_id =
-+			cpu_to_le64(ctx->enc_sess_info.session_id);
-+		req_data->header.opcode =
-+			cpu_to_le32(VIRTIO_CRYPTO_CIPHER_ENCRYPT);
-+	} else {
-+		req_data->header.session_id =
-+			cpu_to_le64(ctx->dec_sess_info.session_id);
-+	    req_data->header.opcode =
-+			cpu_to_le32(VIRTIO_CRYPTO_CIPHER_DECRYPT);
-+	}
-+	req_data->u.sym_req.op_type = cpu_to_le32(VIRTIO_CRYPTO_SYM_OP_CIPHER);
-+	req_data->u.sym_req.u.cipher.para.iv_len = cpu_to_le32(ivsize);
-+	req_data->u.sym_req.u.cipher.para.src_data_len =
-+			cpu_to_le32(req->nbytes);
-+
-+	dst_len = virtio_crypto_alg_sg_nents_length(req->dst);
-+	if (unlikely(dst_len > U32_MAX)) {
-+		pr_err("virtio_crypto: The dst_len is beyond U32_MAX\n");
-+		err = -EINVAL;
-+		goto free;
-+	}
-+
-+	pr_debug("virtio_crypto: src_len: %u, dst_len: %llu\n",
-+			req->nbytes, dst_len);
-+
-+	if (unlikely(req->nbytes + dst_len + ivsize +
-+		sizeof(vc_req->status) > vcrypto->max_size)) {
-+		pr_err("virtio_crypto: The length is too big\n");
-+		err = -EINVAL;
-+		goto free;
-+	}
-+
-+	req_data->u.sym_req.u.cipher.para.dst_data_len =
-+			cpu_to_le32((uint32_t)dst_len);
-+
-+	/* Outhdr */
-+	sg_init_one(&outhdr, req_data, sizeof(*req_data));
-+	sgs[num_out++] = &outhdr;
-+
-+	/* IV */
-+
-+	/*
-+	 * Avoid to do DMA from the stack, switch to using
-+	 * dynamically-allocated for the IV
-+	 */
-+	iv = kzalloc_node(ivsize, GFP_ATOMIC,
-+				dev_to_node(&vcrypto->vdev->dev));
-+	if (!iv) {
-+		err = -ENOMEM;
-+		goto free;
-+	}
-+	memcpy(iv, req->info, ivsize);
-+	sg_init_one(&iv_sg, iv, ivsize);
-+	sgs[num_out++] = &iv_sg;
-+	vc_req->iv = iv;
-+
-+	/* Source data */
-+	for (i = 0; i < src_nents; i++)
-+		sgs[num_out++] = &req->src[i];
-+
-+	/* Destination data */
-+	for (i = 0; i < dst_nents; i++)
-+		sgs[num_out + num_in++] = &req->dst[i];
-+
-+	/* Status */
-+	sg_init_one(&status_sg, &vc_req->status, sizeof(vc_req->status));
-+	sgs[num_out + num_in++] = &status_sg;
-+
-+	vc_req->sgs = sgs;
-+
-+	spin_lock_irqsave(&vcrypto->lock, flags);
-+	err = virtqueue_add_sgs(data_vq->vq, sgs, num_out,
-+				num_in, vc_req, GFP_ATOMIC);
-+	spin_unlock_irqrestore(&vcrypto->lock, flags);
-+	if (unlikely(err < 0))
-+		goto free_iv;
-+
-+	return 0;
-+
-+free_iv:
-+	kzfree(iv);
-+free:
-+	kzfree(req_data);
-+	kfree(sgs);
-+	return err;
-+}
-+
-+static int virtio_crypto_ablkcipher_encrypt(struct ablkcipher_request *req)
-+{
-+	struct crypto_ablkcipher *atfm = crypto_ablkcipher_reqtfm(req);
-+	struct virtio_crypto_ablkcipher_ctx *ctx = crypto_ablkcipher_ctx(atfm);
-+	struct virtio_crypto_request *vc_req = ablkcipher_request_ctx(req);
-+	struct virtio_crypto *vcrypto = ctx->vcrypto;
-+	int ret;
-+	/* Use the first data virtqueue as default */
-+	struct data_queue *data_vq = &vcrypto->data_vq[0];
-+
-+	vc_req->ablkcipher_ctx = ctx;
-+	vc_req->ablkcipher_req = req;
-+	ret = __virtio_crypto_ablkcipher_do_req(vc_req, req, data_vq, 1);
-+	if (ret < 0) {
-+		pr_err("virtio_crypto: Encryption failed!\n");
-+		return ret;
-+	}
-+	virtqueue_kick(data_vq->vq);
-+
-+	return -EINPROGRESS;
-+}
-+
-+static int virtio_crypto_ablkcipher_decrypt(struct ablkcipher_request *req)
-+{
-+	struct crypto_ablkcipher *atfm = crypto_ablkcipher_reqtfm(req);
-+	struct virtio_crypto_ablkcipher_ctx *ctx = crypto_ablkcipher_ctx(atfm);
-+	struct virtio_crypto_request *vc_req = ablkcipher_request_ctx(req);
-+	struct virtio_crypto *vcrypto = ctx->vcrypto;
-+	int ret;
-+	/* Use the first data virtqueue as default */
-+	struct data_queue *data_vq = &vcrypto->data_vq[0];
-+
-+	vc_req->ablkcipher_ctx = ctx;
-+	vc_req->ablkcipher_req = req;
-+
-+	ret = __virtio_crypto_ablkcipher_do_req(vc_req, req, data_vq, 0);
-+	if (ret < 0) {
-+		pr_err("virtio_crypto: Decryption failed!\n");
-+		return ret;
-+	}
-+	virtqueue_kick(data_vq->vq);
-+
-+	return -EINPROGRESS;
-+}
-+
-+static int virtio_crypto_ablkcipher_init(struct crypto_tfm *tfm)
-+{
-+	struct virtio_crypto_ablkcipher_ctx *ctx = crypto_tfm_ctx(tfm);
-+
-+	tfm->crt_ablkcipher.reqsize = sizeof(struct virtio_crypto_request);
-+	ctx->tfm = tfm;
-+
-+	return 0;
-+}
-+
-+static void virtio_crypto_ablkcipher_exit(struct crypto_tfm *tfm)
-+{
-+	struct virtio_crypto_ablkcipher_ctx *ctx = crypto_tfm_ctx(tfm);
-+
-+	if (!ctx->vcrypto)
-+		return;
-+
-+	virtio_crypto_alg_ablkcipher_close_session(ctx, 1);
-+	virtio_crypto_alg_ablkcipher_close_session(ctx, 0);
-+	virtcrypto_dev_put(ctx->vcrypto);
-+	ctx->vcrypto = NULL;
-+}
-+
-+static struct crypto_alg virtio_crypto_algs[] = { {
-+	.cra_name = "cbc(aes)",
-+	.cra_driver_name = "virtio_crypto_aes_cbc",
-+	.cra_priority = 4001,
-+	.cra_flags = CRYPTO_ALG_TYPE_ABLKCIPHER | CRYPTO_ALG_ASYNC,
-+	.cra_blocksize = AES_BLOCK_SIZE,
-+	.cra_ctxsize  = sizeof(struct virtio_crypto_ablkcipher_ctx),
-+	.cra_alignmask = 0,
-+	.cra_module = THIS_MODULE,
-+	.cra_type = &crypto_ablkcipher_type,
-+	.cra_init = virtio_crypto_ablkcipher_init,
-+	.cra_exit = virtio_crypto_ablkcipher_exit,
-+	.cra_u = {
-+	   .ablkcipher = {
-+			.setkey = virtio_crypto_ablkcipher_setkey,
-+			.decrypt = virtio_crypto_ablkcipher_decrypt,
-+			.encrypt = virtio_crypto_ablkcipher_encrypt,
-+			.min_keysize = AES_MIN_KEY_SIZE,
-+			.max_keysize = AES_MAX_KEY_SIZE,
-+			.ivsize = AES_BLOCK_SIZE,
-+		},
-+	},
-+} };
-+
-+int virtio_crypto_algs_register(void)
-+{
-+	int ret = 0;
-+
-+	mutex_lock(&algs_lock);
-+	if (++virtio_crypto_active_devs != 1)
-+		goto unlock;
-+
-+	ret = crypto_register_algs(virtio_crypto_algs,
-+			ARRAY_SIZE(virtio_crypto_algs));
-+	if (ret)
-+		virtio_crypto_active_devs--;
-+
-+unlock:
-+	mutex_unlock(&algs_lock);
-+	return ret;
-+}
-+
-+void virtio_crypto_algs_unregister(void)
-+{
-+	mutex_lock(&algs_lock);
-+	if (--virtio_crypto_active_devs != 0)
-+		goto unlock;
-+
-+	crypto_unregister_algs(virtio_crypto_algs,
-+			ARRAY_SIZE(virtio_crypto_algs));
-+
-+unlock:
-+	mutex_unlock(&algs_lock);
-+}
-diff --git a/drivers/crypto/virtio/virtio_crypto_common.h b/drivers/crypto/virtio/virtio_crypto_common.h
-new file mode 100644
-index 0000000..975404b
---- /dev/null
-+++ b/drivers/crypto/virtio/virtio_crypto_common.h
-@@ -0,0 +1,122 @@
-+/* Common header for Virtio crypto device.
-+ *
-+ * Copyright 2016 HUAWEI TECHNOLOGIES CO., LTD.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
-+ */
-+
-+#ifndef _VIRTIO_CRYPTO_COMMON_H
-+#define _VIRTIO_CRYPTO_COMMON_H
-+
-+#include <linux/virtio.h>
-+#include <linux/crypto.h>
-+#include <linux/spinlock.h>
-+#include <crypto/aead.h>
-+#include <crypto/aes.h>
-+#include <crypto/authenc.h>
-+
-+
-+/* Internal representation of a data virtqueue */
-+struct data_queue {
-+	/* Virtqueue associated with this send _queue */
-+	struct virtqueue *vq;
-+
-+	/* Name of the tx queue: dataq.$index */
-+	char name[32];
-+};
-+
-+struct virtio_crypto {
-+	struct virtio_device *vdev;
-+	struct virtqueue *ctrl_vq;
-+	struct data_queue *data_vq;
-+
-+	/* To protect the vq operations for the dataq */
-+	spinlock_t lock;
-+
-+	/* To protect the vq operations for the controlq */
-+	spinlock_t ctrl_lock;
-+
-+	/* Maximum of data queues supported by the device */
-+	u32 max_data_queues;
-+
-+	/* Number of queue currently used by the driver */
-+	u32 curr_queue;
-+
-+	/* Maximum length of cipher key */
-+	u32 max_cipher_key_len;
-+	/* Maximum length of authenticated key */
-+	u32 max_auth_key_len;
-+	/* Maximum size of per request */
-+	u64 max_size;
-+
-+	/* Control VQ buffers: protected by the ctrl_lock */
-+	struct virtio_crypto_op_ctrl_req ctrl;
-+	struct virtio_crypto_session_input input;
-+	struct virtio_crypto_inhdr ctrl_status;
-+
-+	unsigned long status;
-+	atomic_t ref_count;
-+	struct list_head list;
-+	struct module *owner;
-+	uint8_t dev_id;
-+
-+	/* Does the affinity hint is set for virtqueues? */
-+	bool affinity_hint_set;
-+};
-+
-+struct virtio_crypto_sym_session_info {
-+	/* Backend session id, which come from the host side */
-+	__u64 session_id;
-+};
-+
-+struct virtio_crypto_ablkcipher_ctx {
-+	struct virtio_crypto *vcrypto;
-+	struct crypto_tfm *tfm;
-+
-+	struct virtio_crypto_sym_session_info enc_sess_info;
-+	struct virtio_crypto_sym_session_info dec_sess_info;
-+};
-+
-+struct virtio_crypto_request {
-+	/* Cipher or aead */
-+	uint32_t type;
-+	uint8_t status;
-+	struct virtio_crypto_ablkcipher_ctx *ablkcipher_ctx;
-+	struct ablkcipher_request *ablkcipher_req;
-+	struct virtio_crypto_op_data_req *req_data;
-+	struct scatterlist **sgs;
-+	uint8_t *iv;
-+};
-+
-+int virtcrypto_devmgr_add_dev(struct virtio_crypto *vcrypto_dev);
-+struct list_head *virtcrypto_devmgr_get_head(void);
-+void virtcrypto_devmgr_rm_dev(struct virtio_crypto *vcrypto_dev);
-+struct virtio_crypto *virtcrypto_devmgr_get_first(void);
-+int virtcrypto_dev_in_use(struct virtio_crypto *vcrypto_dev);
-+int virtcrypto_dev_get(struct virtio_crypto *vcrypto_dev);
-+void virtcrypto_dev_put(struct virtio_crypto *vcrypto_dev);
-+int virtcrypto_dev_started(struct virtio_crypto *vcrypto_dev);
-+struct virtio_crypto *virtcrypto_get_dev_node(int node);
-+int virtcrypto_dev_start(struct virtio_crypto *vcrypto);
-+void virtcrypto_dev_stop(struct virtio_crypto *vcrypto);
-+
-+static inline int virtio_crypto_get_current_node(void)
-+{
-+	return topology_physical_package_id(smp_processor_id());
-+}
-+
-+int virtio_crypto_algs_register(void);
-+void virtio_crypto_algs_unregister(void);
-+
-+#endif /* _VIRTIO_CRYPTO_COMMON_H */
-diff --git a/drivers/crypto/virtio/virtio_crypto_core.c b/drivers/crypto/virtio/virtio_crypto_core.c
-new file mode 100644
-index 0000000..286d829
---- /dev/null
-+++ b/drivers/crypto/virtio/virtio_crypto_core.c
-@@ -0,0 +1,464 @@
-+ /* Driver for Virtio crypto device.
-+  *
-+  * Copyright 2016 HUAWEI TECHNOLOGIES CO., LTD.
-+  *
-+  * This program is free software; you can redistribute it and/or modify
-+  * it under the terms of the GNU General Public License as published by
-+  * the Free Software Foundation; either version 2 of the License, or
-+  * (at your option) any later version.
-+  *
-+  * This program is distributed in the hope that it will be useful,
-+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+  * GNU General Public License for more details.
-+  *
-+  * You should have received a copy of the GNU General Public License
-+  * along with this program; if not, see <http://www.gnu.org/licenses/>.
-+  */
-+
-+#include <linux/err.h>
-+#include <linux/module.h>
-+#include <linux/virtio_config.h>
-+#include <linux/cpu.h>
-+
-+#include <uapi/linux/virtio_crypto.h>
-+#include "virtio_crypto_common.h"
-+
-+
-+static void virtcrypto_dataq_callback(struct virtqueue *vq)
-+{
-+	struct virtio_crypto *vcrypto = vq->vdev->priv;
-+	struct virtio_crypto_request *vc_req;
-+	unsigned long flags;
-+	unsigned int len;
-+	struct ablkcipher_request *ablk_req;
-+	int error;
-+
-+	spin_lock_irqsave(&vcrypto->lock, flags);
-+	do {
-+		virtqueue_disable_cb(vq);
-+		while ((vc_req = virtqueue_get_buf(vq, &len)) != NULL) {
-+			if (vc_req->type == VIRTIO_CRYPTO_SYM_OP_CIPHER) {
-+				switch (vc_req->status) {
-+				case VIRTIO_CRYPTO_OK:
-+					error = 0;
-+					break;
-+				case VIRTIO_CRYPTO_INVSESS:
-+				case VIRTIO_CRYPTO_ERR:
-+					error = -EINVAL;
-+					break;
-+				case VIRTIO_CRYPTO_BADMSG:
-+					error = -EBADMSG;
-+					break;
-+				default:
-+					error = -EIO;
-+					break;
-+				}
-+				ablk_req = vc_req->ablkcipher_req;
-+				/* Finish the encrypt or decrypt process */
-+				ablk_req->base.complete(&ablk_req->base, error);
-+			}
-+
-+			kzfree(vc_req->iv);
-+			kzfree(vc_req->req_data);
-+			kfree(vc_req->sgs);
-+		}
-+	} while (!virtqueue_enable_cb(vq));
-+	spin_unlock_irqrestore(&vcrypto->lock, flags);
-+}
-+
-+static int virtcrypto_find_vqs(struct virtio_crypto *vi)
-+{
-+	vq_callback_t **callbacks;
-+	struct virtqueue **vqs;
-+	int ret = -ENOMEM;
-+	int i, total_vqs;
-+	const char **names;
-+
-+	/*
-+	 * We expect 1 data virtqueue, followed by
-+	 * possible N-1 data queues used in multiqueue mode,
-+	 * followed by control vq.
-+	 */
-+	total_vqs = vi->max_data_queues + 1;
-+
-+	/* Allocate space for find_vqs parameters */
-+	vqs = kcalloc(total_vqs, sizeof(*vqs), GFP_KERNEL);
-+	if (!vqs)
-+		goto err_vq;
-+	callbacks = kcalloc(total_vqs, sizeof(*callbacks), GFP_KERNEL);
-+	if (!callbacks)
-+		goto err_callback;
-+	names = kcalloc(total_vqs, sizeof(*names), GFP_KERNEL);
-+	if (!names)
-+		goto err_names;
-+
-+	/* Parameters for control virtqueue */
-+	callbacks[total_vqs - 1] = NULL;
-+	names[total_vqs - 1] = "controlq";
-+
-+	/* Allocate/initialize parameters for data virtqueues */
-+	for (i = 0; i < vi->max_data_queues; i++) {
-+		callbacks[i] = virtcrypto_dataq_callback;
-+		snprintf(vi->data_vq[i].name, sizeof(vi->data_vq[i].name),
-+				"dataq.%d", i);
-+		names[i] = vi->data_vq[i].name;
-+	}
-+
-+	ret = vi->vdev->config->find_vqs(vi->vdev, total_vqs, vqs, callbacks,
-+					 names);
-+	if (ret)
-+		goto err_find;
-+
-+	vi->ctrl_vq = vqs[total_vqs - 1];
-+
-+	for (i = 0; i < vi->max_data_queues; i++)
-+		vi->data_vq[i].vq = vqs[i];
-+
-+	kfree(names);
-+	kfree(callbacks);
-+	kfree(vqs);
-+
-+	return 0;
-+
-+err_find:
-+	kfree(names);
-+err_names:
-+	kfree(callbacks);
-+err_callback:
-+	kfree(vqs);
-+err_vq:
-+	return ret;
-+}
-+
-+static int virtcrypto_alloc_queues(struct virtio_crypto *vi)
-+{
-+	vi->data_vq = kcalloc(vi->max_data_queues, sizeof(*vi->data_vq),
-+				GFP_KERNEL);
-+	if (!vi->data_vq)
-+		return -ENOMEM;
-+
-+	return 0;
-+}
-+
-+static void virtcrypto_clean_affinity(struct virtio_crypto *vi, long hcpu)
-+{
-+	int i;
-+
-+	if (vi->affinity_hint_set) {
-+		for (i = 0; i < vi->max_data_queues; i++)
-+			virtqueue_set_affinity(vi->data_vq[i].vq, -1);
-+
-+		vi->affinity_hint_set = false;
-+	}
-+}
-+
-+static void virtcrypto_set_affinity(struct virtio_crypto *vcrypto)
-+{
-+	int i = 0;
-+	int cpu;
-+
-+	/*
-+	 * In single queue mode, we don't set the cpu affinity.
-+	 */
-+	if (vcrypto->curr_queue == 1 || vcrypto->max_data_queues == 1) {
-+		virtcrypto_clean_affinity(vcrypto, -1);
-+		return;
-+	}
-+
-+	/*
-+	 * In multiqueue mode, we let the queue to be private to one cpu
-+	 * by setting the affinity hint to eliminate the contention.
-+	 *
-+	 * TODO: adds cpu hotplug support by register cpu notifier.
-+	 *
-+	 */
-+	for_each_online_cpu(cpu) {
-+		virtqueue_set_affinity(vcrypto->data_vq[i].vq, cpu);
-+		if (++i >= vcrypto->max_data_queues)
-+			break;
-+	}
-+
-+	vcrypto->affinity_hint_set = true;
-+}
-+
-+static void virtcrypto_free_queues(struct virtio_crypto *vi)
-+{
-+	kfree(vi->data_vq);
-+}
-+
-+static int virtcrypto_init_vqs(struct virtio_crypto *vi)
-+{
-+	int ret;
-+
-+	/* Allocate send & receive queues */
-+	ret = virtcrypto_alloc_queues(vi);
-+	if (ret)
-+		goto err;
-+
-+	ret = virtcrypto_find_vqs(vi);
-+	if (ret)
-+		goto err_free;
-+
-+	get_online_cpus();
-+	virtcrypto_set_affinity(vi);
-+	put_online_cpus();
-+
-+	return 0;
-+
-+err_free:
-+	virtcrypto_free_queues(vi);
-+err:
-+	return ret;
-+}
-+
-+static int virtcrypto_update_status(struct virtio_crypto *vcrypto)
-+{
-+	u32 status;
-+	int err;
-+	unsigned long flags;
-+
-+	virtio_cread(vcrypto->vdev,
-+	    struct virtio_crypto_config, status, &status);
-+
-+	/*
-+	 * Unknown status bits would be a host error and the driver
-+	 * should consider the device to be broken.
-+	 */
-+	if (status & (~VIRTIO_CRYPTO_S_HW_READY)) {
-+		dev_warn(&vcrypto->vdev->dev,
-+				"Unknown status bits: 0x%x\n", status);
-+
-+		spin_lock_irqsave(&vcrypto->lock, flags);
-+		virtio_break_device(vcrypto->vdev);
-+		spin_unlock_irqrestore(&vcrypto->lock, flags);
-+		return -EPERM;
-+	}
-+
-+	if (vcrypto->status == status)
-+		return 0;
-+
-+	vcrypto->status = status;
-+
-+	if (vcrypto->status & VIRTIO_CRYPTO_S_HW_READY) {
-+		err = virtcrypto_dev_start(vcrypto);
-+		if (err) {
-+			dev_err(&vcrypto->vdev->dev,
-+				"Failed to start virtio crypto device.\n");
-+
-+			return -EPERM;
-+		}
-+		dev_info(&vcrypto->vdev->dev, "Accelerator is ready\n");
-+	} else {
-+		virtcrypto_dev_stop(vcrypto);
-+		dev_info(&vcrypto->vdev->dev, "Accelerator is not ready\n");
-+	}
-+
-+	return 0;
-+}
-+
-+static void virtcrypto_del_vqs(struct virtio_crypto *vcrypto)
-+{
-+	struct virtio_device *vdev = vcrypto->vdev;
-+
-+	virtcrypto_clean_affinity(vcrypto, -1);
-+
-+	vdev->config->del_vqs(vdev);
-+
-+	virtcrypto_free_queues(vcrypto);
-+}
-+
-+static int virtcrypto_probe(struct virtio_device *vdev)
-+{
-+	int err = -EFAULT;
-+	struct virtio_crypto *vcrypto;
-+	u32 max_data_queues = 0, max_cipher_key_len = 0;
-+	u32 max_auth_key_len = 0;
-+	u64 max_size = 0;
-+
-+	if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
-+		return -ENODEV;
-+
-+	if (!vdev->config->get) {
-+		dev_err(&vdev->dev, "%s failure: config access disabled\n",
-+			__func__);
-+		return -EINVAL;
-+	}
-+
-+	if (num_possible_nodes() > 1 && dev_to_node(&vdev->dev) < 0) {
-+		/*
-+		 * If the accelerator is connected to a node with no memory
-+		 * there is no point in using the accelerator since the remote
-+		 * memory transaction will be very slow.
-+		 */
-+		dev_err(&vdev->dev, "Invalid NUMA configuration.\n");
-+		return -EINVAL;
-+	}
-+
-+	vcrypto = kzalloc_node(sizeof(*vcrypto), GFP_KERNEL,
-+					dev_to_node(&vdev->dev));
-+	if (!vcrypto)
-+		return -ENOMEM;
-+
-+	virtio_cread(vdev, struct virtio_crypto_config,
-+			max_dataqueues, &max_data_queues);
-+	if (max_data_queues < 1)
-+		max_data_queues = 1;
-+
-+	virtio_cread(vdev, struct virtio_crypto_config,
-+		max_cipher_key_len, &max_cipher_key_len);
-+	virtio_cread(vdev, struct virtio_crypto_config,
-+		max_auth_key_len, &max_auth_key_len);
-+	virtio_cread(vdev, struct virtio_crypto_config,
-+		max_size, &max_size);
-+
-+	/* Add virtio crypto device to global table */
-+	err = virtcrypto_devmgr_add_dev(vcrypto);
-+	if (err) {
-+		dev_err(&vdev->dev, "Failed to add new virtio crypto device.\n");
-+		goto free;
-+	}
-+	vcrypto->owner = THIS_MODULE;
-+	vcrypto = vdev->priv = vcrypto;
-+	vcrypto->vdev = vdev;
-+	spin_lock_init(&vcrypto->lock);
-+	spin_lock_init(&vcrypto->ctrl_lock);
-+
-+	/* Use single data queue as default */
-+	vcrypto->curr_queue = 1;
-+	vcrypto->max_data_queues = max_data_queues;
-+	vcrypto->max_cipher_key_len = max_cipher_key_len;
-+	vcrypto->max_auth_key_len = max_auth_key_len;
-+	vcrypto->max_size = max_size;
-+
-+	dev_info(&vdev->dev,
-+		"max_queues: %u, max_cipher_key_len: %u, max_auth_key_len: %u, max_size 0x%llx\n",
-+		vcrypto->max_data_queues,
-+		vcrypto->max_cipher_key_len,
-+		vcrypto->max_auth_key_len,
-+		vcrypto->max_size);
-+
-+	err = virtcrypto_init_vqs(vcrypto);
-+	if (err) {
-+		dev_err(&vdev->dev, "Failed to initialize vqs.\n");
-+		goto free_dev;
-+	}
-+	virtio_device_ready(vdev);
-+
-+	err = virtcrypto_update_status(vcrypto);
-+	if (err)
-+		goto free_vqs;
-+
-+	return 0;
-+
-+free_vqs:
-+	vcrypto->vdev->config->reset(vdev);
-+	virtcrypto_del_vqs(vcrypto);
-+free_dev:
-+	virtcrypto_devmgr_rm_dev(vcrypto);
-+free:
-+	kfree(vcrypto);
-+	return err;
-+}
-+
-+static void virtcrypto_free_unused_reqs(struct virtio_crypto *vcrypto)
-+{
-+	struct virtio_crypto_request *vc_req;
-+	int i;
-+	struct virtqueue *vq;
-+
-+	for (i = 0; i < vcrypto->max_data_queues; i++) {
-+		vq = vcrypto->data_vq[i].vq;
-+		while ((vc_req = virtqueue_detach_unused_buf(vq)) != NULL) {
-+			kfree(vc_req->req_data);
-+			kfree(vc_req->sgs);
-+		}
-+	}
-+}
-+
-+static void virtcrypto_remove(struct virtio_device *vdev)
-+{
-+	struct virtio_crypto *vcrypto = vdev->priv;
-+
-+	dev_info(&vdev->dev, "Start virtcrypto_remove.\n");
-+
-+	if (virtcrypto_dev_started(vcrypto))
-+		virtcrypto_dev_stop(vcrypto);
-+	vdev->config->reset(vdev);
-+	virtcrypto_free_unused_reqs(vcrypto);
-+	virtcrypto_del_vqs(vcrypto);
-+	virtcrypto_devmgr_rm_dev(vcrypto);
-+	kfree(vcrypto);
-+}
-+
-+static void virtcrypto_config_changed(struct virtio_device *vdev)
-+{
-+	struct virtio_crypto *vcrypto = vdev->priv;
-+
-+	virtcrypto_update_status(vcrypto);
-+}
-+
-+#ifdef CONFIG_PM_SLEEP
-+static int virtcrypto_freeze(struct virtio_device *vdev)
-+{
-+	struct virtio_crypto *vcrypto = vdev->priv;
-+
-+	vdev->config->reset(vdev);
-+	virtcrypto_free_unused_reqs(vcrypto);
-+	if (virtcrypto_dev_started(vcrypto))
-+		virtcrypto_dev_stop(vcrypto);
-+
-+	virtcrypto_del_vqs(vcrypto);
-+	return 0;
-+}
-+
-+static int virtcrypto_restore(struct virtio_device *vdev)
-+{
-+	struct virtio_crypto *vcrypto = vdev->priv;
-+	int err;
-+
-+	err = virtcrypto_init_vqs(vcrypto);
-+	if (err)
-+		return err;
-+
-+	virtio_device_ready(vdev);
-+	err = virtcrypto_dev_start(vcrypto);
-+	if (err) {
-+		dev_err(&vdev->dev, "Failed to start virtio crypto device.\n");
-+		return -EFAULT;
-+	}
-+
-+	return 0;
-+}
-+#endif
-+
-+static unsigned int features[] = {
-+	/* none */
-+};
-+
-+static struct virtio_device_id id_table[] = {
-+	{ VIRTIO_ID_CRYPTO, VIRTIO_DEV_ANY_ID },
-+	{ 0 },
-+};
-+
-+static struct virtio_driver virtio_crypto_driver = {
-+	.driver.name         = KBUILD_MODNAME,
-+	.driver.owner        = THIS_MODULE,
-+	.feature_table       = features,
-+	.feature_table_size  = ARRAY_SIZE(features),
-+	.id_table            = id_table,
-+	.probe               = virtcrypto_probe,
-+	.remove              = virtcrypto_remove,
-+	.config_changed = virtcrypto_config_changed,
-+#ifdef CONFIG_PM_SLEEP
-+	.freeze = virtcrypto_freeze,
-+	.restore = virtcrypto_restore,
-+#endif
-+};
-+
-+module_virtio_driver(virtio_crypto_driver);
-+
-+MODULE_DEVICE_TABLE(virtio, id_table);
-+MODULE_DESCRIPTION("virtio crypto device driver");
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Gonglei <arei.gonglei@huawei.com>");
-diff --git a/drivers/crypto/virtio/virtio_crypto_mgr.c b/drivers/crypto/virtio/virtio_crypto_mgr.c
-new file mode 100644
-index 0000000..a69ff71
---- /dev/null
-+++ b/drivers/crypto/virtio/virtio_crypto_mgr.c
-@@ -0,0 +1,264 @@
-+ /* Management for virtio crypto devices (refer to adf_dev_mgr.c)
-+  *
-+  * Copyright 2016 HUAWEI TECHNOLOGIES CO., LTD.
-+  *
-+  * This program is free software; you can redistribute it and/or modify
-+  * it under the terms of the GNU General Public License as published by
-+  * the Free Software Foundation; either version 2 of the License, or
-+  * (at your option) any later version.
-+  *
-+  * This program is distributed in the hope that it will be useful,
-+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+  * GNU General Public License for more details.
-+  *
-+  * You should have received a copy of the GNU General Public License
-+  * along with this program; if not, see <http://www.gnu.org/licenses/>.
-+  */
-+
-+#include <linux/mutex.h>
-+#include <linux/list.h>
-+#include <linux/module.h>
-+
-+#include <uapi/linux/virtio_crypto.h>
-+#include "virtio_crypto_common.h"
-+
-+static LIST_HEAD(virtio_crypto_table);
-+static uint32_t num_devices;
-+
-+/* The table_lock protects the above global list and num_devices */
-+static DEFINE_MUTEX(table_lock);
-+
-+#define VIRTIO_CRYPTO_MAX_DEVICES 32
-+
-+
-+/*
-+ * virtcrypto_devmgr_add_dev() - Add vcrypto_dev to the acceleration
-+ * framework.
-+ * @vcrypto_dev:  Pointer to virtio crypto device.
-+ *
-+ * Function adds virtio crypto device to the global list.
-+ * To be used by virtio crypto device specific drivers.
-+ *
-+ * Return: 0 on success, error code othewise.
-+ */
-+int virtcrypto_devmgr_add_dev(struct virtio_crypto *vcrypto_dev)
-+{
-+	struct list_head *itr;
-+
-+	mutex_lock(&table_lock);
-+	if (num_devices == VIRTIO_CRYPTO_MAX_DEVICES) {
-+		pr_info("virtio_crypto: only support up to %d devices\n",
-+			    VIRTIO_CRYPTO_MAX_DEVICES);
-+		mutex_unlock(&table_lock);
-+		return -EFAULT;
-+	}
-+
-+	list_for_each(itr, &virtio_crypto_table) {
-+		struct virtio_crypto *ptr =
-+				list_entry(itr, struct virtio_crypto, list);
-+
-+		if (ptr == vcrypto_dev) {
-+			mutex_unlock(&table_lock);
-+			return -EEXIST;
-+		}
-+	}
-+	atomic_set(&vcrypto_dev->ref_count, 0);
-+	list_add_tail(&vcrypto_dev->list, &virtio_crypto_table);
-+	vcrypto_dev->dev_id = num_devices++;
-+	mutex_unlock(&table_lock);
-+	return 0;
-+}
-+
-+struct list_head *virtcrypto_devmgr_get_head(void)
-+{
-+	return &virtio_crypto_table;
-+}
-+
-+/*
-+ * virtcrypto_devmgr_rm_dev() - Remove vcrypto_dev from the acceleration
-+ * framework.
-+ * @vcrypto_dev:  Pointer to virtio crypto device.
-+ *
-+ * Function removes virtio crypto device from the acceleration framework.
-+ * To be used by virtio crypto device specific drivers.
-+ *
-+ * Return: void
-+ */
-+void virtcrypto_devmgr_rm_dev(struct virtio_crypto *vcrypto_dev)
-+{
-+	mutex_lock(&table_lock);
-+	list_del(&vcrypto_dev->list);
-+	num_devices--;
-+	mutex_unlock(&table_lock);
-+}
-+
-+/*
-+ * virtcrypto_devmgr_get_first()
-+ *
-+ * Function returns the first virtio crypto device from the acceleration
-+ * framework.
-+ *
-+ * To be used by virtio crypto device specific drivers.
-+ *
-+ * Return: pointer to vcrypto_dev or NULL if not found.
-+ */
-+struct virtio_crypto *virtcrypto_devmgr_get_first(void)
-+{
-+	struct virtio_crypto *dev = NULL;
-+
-+	mutex_lock(&table_lock);
-+	if (!list_empty(&virtio_crypto_table))
-+		dev = list_first_entry(&virtio_crypto_table,
-+					struct virtio_crypto,
-+				    list);
-+	mutex_unlock(&table_lock);
-+	return dev;
-+}
-+
-+/*
-+ * virtcrypto_dev_in_use() - Check whether vcrypto_dev is currently in use
-+ * @vcrypto_dev: Pointer to virtio crypto device.
-+ *
-+ * To be used by virtio crypto device specific drivers.
-+ *
-+ * Return: 1 when device is in use, 0 otherwise.
-+ */
-+int virtcrypto_dev_in_use(struct virtio_crypto *vcrypto_dev)
-+{
-+	return atomic_read(&vcrypto_dev->ref_count) != 0;
-+}
-+
-+/*
-+ * virtcrypto_dev_get() - Increment vcrypto_dev reference count
-+ * @vcrypto_dev: Pointer to virtio crypto device.
-+ *
-+ * Increment the vcrypto_dev refcount and if this is the first time
-+ * incrementing it during this period the vcrypto_dev is in use,
-+ * increment the module refcount too.
-+ * To be used by virtio crypto device specific drivers.
-+ *
-+ * Return: 0 when successful, EFAULT when fail to bump module refcount
-+ */
-+int virtcrypto_dev_get(struct virtio_crypto *vcrypto_dev)
-+{
-+	if (atomic_add_return(1, &vcrypto_dev->ref_count) == 1)
-+		if (!try_module_get(vcrypto_dev->owner))
-+			return -EFAULT;
-+	return 0;
-+}
-+
-+/*
-+ * virtcrypto_dev_put() - Decrement vcrypto_dev reference count
-+ * @vcrypto_dev: Pointer to virtio crypto device.
-+ *
-+ * Decrement the vcrypto_dev refcount and if this is the last time
-+ * decrementing it during this period the vcrypto_dev is in use,
-+ * decrement the module refcount too.
-+ * To be used by virtio crypto device specific drivers.
-+ *
-+ * Return: void
-+ */
-+void virtcrypto_dev_put(struct virtio_crypto *vcrypto_dev)
-+{
-+	if (atomic_sub_return(1, &vcrypto_dev->ref_count) == 0)
-+		module_put(vcrypto_dev->owner);
-+}
-+
-+/*
-+ * virtcrypto_dev_started() - Check whether device has started
-+ * @vcrypto_dev: Pointer to virtio crypto device.
-+ *
-+ * To be used by virtio crypto device specific drivers.
-+ *
-+ * Return: 1 when the device has started, 0 otherwise
-+ */
-+int virtcrypto_dev_started(struct virtio_crypto *vcrypto_dev)
-+{
-+	return (vcrypto_dev->status & VIRTIO_CRYPTO_S_HW_READY);
-+}
-+
-+/*
-+ * virtcrypto_get_dev_node() - Get vcrypto_dev on the node.
-+ * @node:  Node id the driver works.
-+ *
-+ * Function returns the virtio crypto device used fewest on the node.
-+ *
-+ * To be used by virtio crypto device specific drivers.
-+ *
-+ * Return: pointer to vcrypto_dev or NULL if not found.
-+ */
-+struct virtio_crypto *virtcrypto_get_dev_node(int node)
-+{
-+	struct virtio_crypto *vcrypto_dev = NULL, *tmp_dev;
-+	unsigned long best = ~0;
-+	unsigned long ctr;
-+
-+	mutex_lock(&table_lock);
-+	list_for_each_entry(tmp_dev, virtcrypto_devmgr_get_head(), list) {
-+
-+		if ((node == dev_to_node(&tmp_dev->vdev->dev) ||
-+		     dev_to_node(&tmp_dev->vdev->dev) < 0) &&
-+		    virtcrypto_dev_started(tmp_dev)) {
-+			ctr = atomic_read(&tmp_dev->ref_count);
-+			if (best > ctr) {
-+				vcrypto_dev = tmp_dev;
-+				best = ctr;
-+			}
-+		}
-+	}
-+
-+	if (!vcrypto_dev) {
-+		pr_info("virtio_crypto: Could not find a device on node %d\n",
-+				node);
-+		/* Get any started device */
-+		list_for_each_entry(tmp_dev,
-+				virtcrypto_devmgr_get_head(), list) {
-+			if (virtcrypto_dev_started(tmp_dev)) {
-+				vcrypto_dev = tmp_dev;
-+				break;
-+			}
-+		}
-+	}
-+	mutex_unlock(&table_lock);
-+	if (!vcrypto_dev)
-+		return NULL;
-+
-+	virtcrypto_dev_get(vcrypto_dev);
-+	return vcrypto_dev;
-+}
-+
-+/*
-+ * virtcrypto_dev_start() - Start virtio crypto device
-+ * @vcrypto:    Pointer to virtio crypto device.
-+ *
-+ * Function notifies all the registered services that the virtio crypto device
-+ * is ready to be used.
-+ * To be used by virtio crypto device specific drivers.
-+ *
-+ * Return: 0 on success, EFAULT when fail to register algorithms
-+ */
-+int virtcrypto_dev_start(struct virtio_crypto *vcrypto)
-+{
-+	if (virtio_crypto_algs_register()) {
-+		pr_err("virtio_crypto: Failed to register crypto algs\n");
-+		return -EFAULT;
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * virtcrypto_dev_stop() - Stop virtio crypto device
-+ * @vcrypto:    Pointer to virtio crypto device.
-+ *
-+ * Function notifies all the registered services that the virtio crypto device
-+ * is ready to be used.
-+ * To be used by virtio crypto device specific drivers.
-+ *
-+ * Return: void
-+ */
-+void virtcrypto_dev_stop(struct virtio_crypto *vcrypto)
-+{
-+	virtio_crypto_algs_unregister();
-+}
-diff --git a/include/uapi/linux/Kbuild b/include/uapi/linux/Kbuild
-index cd2be1c..4bdb84c 100644
---- a/include/uapi/linux/Kbuild
-+++ b/include/uapi/linux/Kbuild
-@@ -460,6 +460,7 @@ header-y += virtio_rng.h
- header-y += virtio_scsi.h
- header-y += virtio_types.h
- header-y += virtio_vsock.h
-+header-y += virtio_crypto.h
- header-y += vm_sockets.h
- header-y += vt.h
- header-y += vtpm_proxy.h
-diff --git a/include/uapi/linux/virtio_crypto.h b/include/uapi/linux/virtio_crypto.h
-new file mode 100644
-index 0000000..50cdc8a
---- /dev/null
-+++ b/include/uapi/linux/virtio_crypto.h
-@@ -0,0 +1,450 @@
-+#ifndef _VIRTIO_CRYPTO_H
-+#define _VIRTIO_CRYPTO_H
-+/* This header is BSD licensed so anyone can use the definitions to implement
-+ * compatible drivers/servers.
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions
-+ * are met:
-+ * 1. Redistributions of source code must retain the above copyright
-+ *    notice, this list of conditions and the following disclaimer.
-+ * 2. Redistributions in binary form must reproduce the above copyright
-+ *    notice, this list of conditions and the following disclaimer in the
-+ *    documentation and/or other materials provided with the distribution.
-+ * 3. Neither the name of IBM nor the names of its contributors
-+ *    may be used to endorse or promote products derived from this software
-+ *    without specific prior written permission.
-+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL IBM OR
-+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
-+ * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
-+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-+ * SUCH DAMAGE.
-+ */
-+#include <linux/types.h>
-+#include <linux/virtio_types.h>
-+#include <linux/virtio_ids.h>
-+#include <linux/virtio_config.h>
-+
-+
-+#define VIRTIO_CRYPTO_SERVICE_CIPHER 0
-+#define VIRTIO_CRYPTO_SERVICE_HASH   1
-+#define VIRTIO_CRYPTO_SERVICE_MAC    2
-+#define VIRTIO_CRYPTO_SERVICE_AEAD   3
-+
-+#define VIRTIO_CRYPTO_OPCODE(service, op)   (((service) << 8) | (op))
-+
-+struct virtio_crypto_ctrl_header {
-+#define VIRTIO_CRYPTO_CIPHER_CREATE_SESSION \
-+	   VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_CIPHER, 0x02)
-+#define VIRTIO_CRYPTO_CIPHER_DESTROY_SESSION \
-+	   VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_CIPHER, 0x03)
-+#define VIRTIO_CRYPTO_HASH_CREATE_SESSION \
-+	   VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_HASH, 0x02)
-+#define VIRTIO_CRYPTO_HASH_DESTROY_SESSION \
-+	   VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_HASH, 0x03)
-+#define VIRTIO_CRYPTO_MAC_CREATE_SESSION \
-+	   VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_MAC, 0x02)
-+#define VIRTIO_CRYPTO_MAC_DESTROY_SESSION \
-+	   VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_MAC, 0x03)
-+#define VIRTIO_CRYPTO_AEAD_CREATE_SESSION \
-+	   VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AEAD, 0x02)
-+#define VIRTIO_CRYPTO_AEAD_DESTROY_SESSION \
-+	   VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AEAD, 0x03)
-+	__le32 opcode;
-+	__le32 algo;
-+	__le32 flag;
-+	/* data virtqueue id */
-+	__le32 queue_id;
-+};
-+
-+struct virtio_crypto_cipher_session_para {
-+#define VIRTIO_CRYPTO_NO_CIPHER                 0
-+#define VIRTIO_CRYPTO_CIPHER_ARC4               1
-+#define VIRTIO_CRYPTO_CIPHER_AES_ECB            2
-+#define VIRTIO_CRYPTO_CIPHER_AES_CBC            3
-+#define VIRTIO_CRYPTO_CIPHER_AES_CTR            4
-+#define VIRTIO_CRYPTO_CIPHER_DES_ECB            5
-+#define VIRTIO_CRYPTO_CIPHER_DES_CBC            6
-+#define VIRTIO_CRYPTO_CIPHER_3DES_ECB           7
-+#define VIRTIO_CRYPTO_CIPHER_3DES_CBC           8
-+#define VIRTIO_CRYPTO_CIPHER_3DES_CTR           9
-+#define VIRTIO_CRYPTO_CIPHER_KASUMI_F8          10
-+#define VIRTIO_CRYPTO_CIPHER_SNOW3G_UEA2        11
-+#define VIRTIO_CRYPTO_CIPHER_AES_F8             12
-+#define VIRTIO_CRYPTO_CIPHER_AES_XTS            13
-+#define VIRTIO_CRYPTO_CIPHER_ZUC_EEA3           14
-+	__le32 algo;
-+	/* length of key */
-+	__le32 keylen;
-+
-+#define VIRTIO_CRYPTO_OP_ENCRYPT  1
-+#define VIRTIO_CRYPTO_OP_DECRYPT  2
-+	/* encrypt or decrypt */
-+	__le32 op;
-+	__le32 padding;
-+};
-+
-+struct virtio_crypto_session_input {
-+	/* Device-writable part */
-+	__le64 session_id;
-+	__le32 status;
-+	__le32 padding;
-+};
-+
-+struct virtio_crypto_cipher_session_req {
-+	struct virtio_crypto_cipher_session_para para;
-+	__u8 padding[32];
-+};
-+
-+struct virtio_crypto_hash_session_para {
-+#define VIRTIO_CRYPTO_NO_HASH            0
-+#define VIRTIO_CRYPTO_HASH_MD5           1
-+#define VIRTIO_CRYPTO_HASH_SHA1          2
-+#define VIRTIO_CRYPTO_HASH_SHA_224       3
-+#define VIRTIO_CRYPTO_HASH_SHA_256       4
-+#define VIRTIO_CRYPTO_HASH_SHA_384       5
-+#define VIRTIO_CRYPTO_HASH_SHA_512       6
-+#define VIRTIO_CRYPTO_HASH_SHA3_224      7
-+#define VIRTIO_CRYPTO_HASH_SHA3_256      8
-+#define VIRTIO_CRYPTO_HASH_SHA3_384      9
-+#define VIRTIO_CRYPTO_HASH_SHA3_512      10
-+#define VIRTIO_CRYPTO_HASH_SHA3_SHAKE128      11
-+#define VIRTIO_CRYPTO_HASH_SHA3_SHAKE256      12
-+	__le32 algo;
-+	/* hash result length */
-+	__le32 hash_result_len;
-+	__u8 padding[8];
-+};
-+
-+struct virtio_crypto_hash_create_session_req {
-+	struct virtio_crypto_hash_session_para para;
-+	__u8 padding[40];
-+};
-+
-+struct virtio_crypto_mac_session_para {
-+#define VIRTIO_CRYPTO_NO_MAC                       0
-+#define VIRTIO_CRYPTO_MAC_HMAC_MD5                 1
-+#define VIRTIO_CRYPTO_MAC_HMAC_SHA1                2
-+#define VIRTIO_CRYPTO_MAC_HMAC_SHA_224             3
-+#define VIRTIO_CRYPTO_MAC_HMAC_SHA_256             4
-+#define VIRTIO_CRYPTO_MAC_HMAC_SHA_384             5
-+#define VIRTIO_CRYPTO_MAC_HMAC_SHA_512             6
-+#define VIRTIO_CRYPTO_MAC_CMAC_3DES                25
-+#define VIRTIO_CRYPTO_MAC_CMAC_AES                 26
-+#define VIRTIO_CRYPTO_MAC_KASUMI_F9                27
-+#define VIRTIO_CRYPTO_MAC_SNOW3G_UIA2              28
-+#define VIRTIO_CRYPTO_MAC_GMAC_AES                 41
-+#define VIRTIO_CRYPTO_MAC_GMAC_TWOFISH             42
-+#define VIRTIO_CRYPTO_MAC_CBCMAC_AES               49
-+#define VIRTIO_CRYPTO_MAC_CBCMAC_KASUMI_F9         50
-+#define VIRTIO_CRYPTO_MAC_XCBC_AES                 53
-+	__le32 algo;
-+	/* hash result length */
-+	__le32 hash_result_len;
-+	/* length of authenticated key */
-+	__le32 auth_key_len;
-+	__le32 padding;
-+};
-+
-+struct virtio_crypto_mac_create_session_req {
-+	struct virtio_crypto_mac_session_para para;
-+	__u8 padding[40];
-+};
-+
-+struct virtio_crypto_aead_session_para {
-+#define VIRTIO_CRYPTO_NO_AEAD     0
-+#define VIRTIO_CRYPTO_AEAD_GCM    1
-+#define VIRTIO_CRYPTO_AEAD_CCM    2
-+#define VIRTIO_CRYPTO_AEAD_CHACHA20_POLY1305  3
-+	__le32 algo;
-+	/* length of key */
-+	__le32 key_len;
-+	/* hash result length */
-+	__le32 hash_result_len;
-+	/* length of the additional authenticated data (AAD) in bytes */
-+	__le32 aad_len;
-+	/* encrypt or decrypt, See above VIRTIO_CRYPTO_OP_* */
-+	__le32 op;
-+	__le32 padding;
-+};
-+
-+struct virtio_crypto_aead_create_session_req {
-+	struct virtio_crypto_aead_session_para para;
-+	__u8 padding[32];
-+};
-+
-+struct virtio_crypto_alg_chain_session_para {
-+#define VIRTIO_CRYPTO_SYM_ALG_CHAIN_ORDER_HASH_THEN_CIPHER  1
-+#define VIRTIO_CRYPTO_SYM_ALG_CHAIN_ORDER_CIPHER_THEN_HASH  2
-+	__le32 alg_chain_order;
-+/* Plain hash */
-+#define VIRTIO_CRYPTO_SYM_HASH_MODE_PLAIN    1
-+/* Authenticated hash (mac) */
-+#define VIRTIO_CRYPTO_SYM_HASH_MODE_AUTH     2
-+/* Nested hash */
-+#define VIRTIO_CRYPTO_SYM_HASH_MODE_NESTED   3
-+	__le32 hash_mode;
-+	struct virtio_crypto_cipher_session_para cipher_param;
-+	union {
-+		struct virtio_crypto_hash_session_para hash_param;
-+		struct virtio_crypto_mac_session_para mac_param;
-+		__u8 padding[16];
-+	} u;
-+	/* length of the additional authenticated data (AAD) in bytes */
-+	__le32 aad_len;
-+	__le32 padding;
-+};
-+
-+struct virtio_crypto_alg_chain_session_req {
-+	struct virtio_crypto_alg_chain_session_para para;
-+};
-+
-+struct virtio_crypto_sym_create_session_req {
-+	union {
-+		struct virtio_crypto_cipher_session_req cipher;
-+		struct virtio_crypto_alg_chain_session_req chain;
-+		__u8 padding[48];
-+	} u;
-+
-+	/* Device-readable part */
-+
-+/* No operation */
-+#define VIRTIO_CRYPTO_SYM_OP_NONE  0
-+/* Cipher only operation on the data */
-+#define VIRTIO_CRYPTO_SYM_OP_CIPHER  1
-+/*
-+ * Chain any cipher with any hash or mac operation. The order
-+ * depends on the value of alg_chain_order param
-+ */
-+#define VIRTIO_CRYPTO_SYM_OP_ALGORITHM_CHAINING  2
-+	__le32 op_type;
-+	__le32 padding;
-+};
-+
-+struct virtio_crypto_destroy_session_req {
-+	/* Device-readable part */
-+	__le64  session_id;
-+	__u8 padding[48];
-+};
-+
-+/* The request of the control virtqueue's packet */
-+struct virtio_crypto_op_ctrl_req {
-+	struct virtio_crypto_ctrl_header header;
-+
-+	union {
-+		struct virtio_crypto_sym_create_session_req
-+			sym_create_session;
-+		struct virtio_crypto_hash_create_session_req
-+			hash_create_session;
-+		struct virtio_crypto_mac_create_session_req
-+			mac_create_session;
-+		struct virtio_crypto_aead_create_session_req
-+			aead_create_session;
-+		struct virtio_crypto_destroy_session_req
-+			destroy_session;
-+		__u8 padding[56];
-+	} u;
-+};
-+
-+struct virtio_crypto_op_header {
-+#define VIRTIO_CRYPTO_CIPHER_ENCRYPT \
-+	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_CIPHER, 0x00)
-+#define VIRTIO_CRYPTO_CIPHER_DECRYPT \
-+	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_CIPHER, 0x01)
-+#define VIRTIO_CRYPTO_HASH \
-+	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_HASH, 0x00)
-+#define VIRTIO_CRYPTO_MAC \
-+	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_MAC, 0x00)
-+#define VIRTIO_CRYPTO_AEAD_ENCRYPT \
-+	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AEAD, 0x00)
-+#define VIRTIO_CRYPTO_AEAD_DECRYPT \
-+	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AEAD, 0x01)
-+	__le32 opcode;
-+	/* algo should be service-specific algorithms */
-+	__le32 algo;
-+	/* session_id should be service-specific algorithms */
-+	__le64 session_id;
-+	/* control flag to control the request */
-+	__le32 flag;
-+	__le32 padding;
-+};
-+
-+struct virtio_crypto_cipher_para {
-+	/*
-+	 * Byte Length of valid IV/Counter
-+	 *
-+	 * For block ciphers in CBC or F8 mode, or for Kasumi in F8 mode, or for
-+	 *   SNOW3G in UEA2 mode, this is the length of the IV (which
-+	 *   must be the same as the block length of the cipher).
-+	 * For block ciphers in CTR mode, this is the length of the counter
-+	 *   (which must be the same as the block length of the cipher).
-+	 * For AES-XTS, this is the 128bit tweak, i, from IEEE Std 1619-2007.
-+	 *
-+	 * The IV/Counter will be updated after every partial cryptographic
-+	 * operation.
-+	 */
-+	__le32 iv_len;
-+	/* length of source data */
-+	__le32 src_data_len;
-+	/* length of dst data */
-+	__le32 dst_data_len;
-+	__le32 padding;
-+};
-+
-+struct virtio_crypto_hash_para {
-+	/* length of source data */
-+	__le32 src_data_len;
-+	/* hash result length */
-+	__le32 hash_result_len;
-+};
-+
-+struct virtio_crypto_mac_para {
-+	struct virtio_crypto_hash_para hash;
-+};
-+
-+struct virtio_crypto_aead_para {
-+	/*
-+	 * Byte Length of valid IV data pointed to by the below iv_addr
-+	 * parameter.
-+	 *
-+	 * For GCM mode, this is either 12 (for 96-bit IVs) or 16, in which
-+	 *   case iv_addr points to J0.
-+	 * For CCM mode, this is the length of the nonce, which can be in the
-+	 *   range 7 to 13 inclusive.
-+	 */
-+	__le32 iv_len;
-+	/* length of additional auth data */
-+	__le32 aad_len;
-+	/* length of source data */
-+	__le32 src_data_len;
-+	/* length of dst data */
-+	__le32 dst_data_len;
-+};
-+
-+struct virtio_crypto_cipher_data_req {
-+	/* Device-readable part */
-+	struct virtio_crypto_cipher_para para;
-+	__u8 padding[24];
-+};
-+
-+struct virtio_crypto_hash_data_req {
-+	/* Device-readable part */
-+	struct virtio_crypto_hash_para para;
-+	__u8 padding[40];
-+};
-+
-+struct virtio_crypto_mac_data_req {
-+	/* Device-readable part */
-+	struct virtio_crypto_mac_para para;
-+	__u8 padding[40];
-+};
-+
-+struct virtio_crypto_alg_chain_data_para {
-+	__le32 iv_len;
-+	/* Length of source data */
-+	__le32 src_data_len;
-+	/* Length of destination data */
-+	__le32 dst_data_len;
-+	/* Starting point for cipher processing in source data */
-+	__le32 cipher_start_src_offset;
-+	/* Length of the source data that the cipher will be computed on */
-+	__le32 len_to_cipher;
-+	/* Starting point for hash processing in source data */
-+	__le32 hash_start_src_offset;
-+	/* Length of the source data that the hash will be computed on */
-+	__le32 len_to_hash;
-+	/* Length of the additional auth data */
-+	__le32 aad_len;
-+	/* Length of the hash result */
-+	__le32 hash_result_len;
-+	__le32 reserved;
-+};
-+
-+struct virtio_crypto_alg_chain_data_req {
-+	/* Device-readable part */
-+	struct virtio_crypto_alg_chain_data_para para;
-+};
-+
-+struct virtio_crypto_sym_data_req {
-+	union {
-+		struct virtio_crypto_cipher_data_req cipher;
-+		struct virtio_crypto_alg_chain_data_req chain;
-+		__u8 padding[40];
-+	} u;
-+
-+	/* See above VIRTIO_CRYPTO_SYM_OP_* */
-+	__le32 op_type;
-+	__le32 padding;
-+};
-+
-+struct virtio_crypto_aead_data_req {
-+	/* Device-readable part */
-+	struct virtio_crypto_aead_para para;
-+	__u8 padding[32];
-+};
-+
-+/* The request of the data virtqueue's packet */
-+struct virtio_crypto_op_data_req {
-+	struct virtio_crypto_op_header header;
-+
-+	union {
-+		struct virtio_crypto_sym_data_req  sym_req;
-+		struct virtio_crypto_hash_data_req hash_req;
-+		struct virtio_crypto_mac_data_req mac_req;
-+		struct virtio_crypto_aead_data_req aead_req;
-+		__u8 padding[48];
-+	} u;
-+};
-+
-+#define VIRTIO_CRYPTO_OK        0
-+#define VIRTIO_CRYPTO_ERR       1
-+#define VIRTIO_CRYPTO_BADMSG    2
-+#define VIRTIO_CRYPTO_NOTSUPP   3
-+#define VIRTIO_CRYPTO_INVSESS   4 /* Invalid session id */
-+
-+/* The accelerator hardware is ready */
-+#define VIRTIO_CRYPTO_S_HW_READY  (1 << 0)
-+
-+struct virtio_crypto_config {
-+	/* See VIRTIO_CRYPTO_OP_* above */
-+	__u32  status;
-+
-+	/*
-+	 * Maximum number of data queue
-+	 */
-+	__u32  max_dataqueues;
-+
-+	/*
-+	 * Specifies the services mask which the device support,
-+	 * see VIRTIO_CRYPTO_SERVICE_* above
-+	 */
-+	__u32 crypto_services;
-+
-+	/* Detailed algorithms mask */
-+	__u32 cipher_algo_l;
-+	__u32 cipher_algo_h;
-+	__u32 hash_algo;
-+	__u32 mac_algo_l;
-+	__u32 mac_algo_h;
-+	__u32 aead_algo;
-+	/* Maximum length of cipher key */
-+	__u32 max_cipher_key_len;
-+	/* Maximum length of authenticated key */
-+	__u32 max_auth_key_len;
-+	__u32 reserve;
-+	/* Maximum size of each crypto request's content */
-+	__u64 max_size;
-+};
-+
-+struct virtio_crypto_inhdr {
-+	/* See VIRTIO_CRYPTO_* above */
-+	__u8 status;
-+};
-+#endif
-diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
-index 3228d58..6d5c3b2 100644
---- a/include/uapi/linux/virtio_ids.h
-+++ b/include/uapi/linux/virtio_ids.h
-@@ -42,5 +42,6 @@
- #define VIRTIO_ID_GPU          16 /* virtio GPU */
- #define VIRTIO_ID_INPUT        18 /* virtio input */
- #define VIRTIO_ID_VSOCK        19 /* virtio vsock transport */
-+#define VIRTIO_ID_CRYPTO       20 /* virtio crypto */
- 
- #endif /* _LINUX_VIRTIO_IDS_H */
--- 
-1.8.3.1
+--/9DWx/yDrRhgMJTb
+Content-Type: application/gzip
+Content-Disposition: attachment; filename=".config.gz"
+Content-Transfer-Encoding: base64
+
+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
+
+--/9DWx/yDrRhgMJTb
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--/9DWx/yDrRhgMJTb--
