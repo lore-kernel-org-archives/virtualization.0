@@ -1,17 +1,15 @@
-From: "Li, Liang Z" <liang.z.li@intel.com>
-Subject: RE: [PATCH kernel v5 5/5] virtio-balloon: tell host vm's unused
-	page info
-Date: Sun, 4 Dec 2016 13:13:23 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E3A12D814__23728.6894386218$1480857213$gmane$org@shsmsx102.ccr.corp.intel.com>
-References: <1480495397-23225-1-git-send-email-liang.z.li@intel.com>
-	<1480495397-23225-6-git-send-email-liang.z.li@intel.com>
-	<438dd41a-fdf1-2a77-ef9c-8c103f492b2f@intel.com>
+From: "Gonglei (Arei)" <arei.gonglei@huawei.com>
+Subject: RE: [PATCH v5 1/1] crypto: add virtio-crypto driver
+Date: Mon, 5 Dec 2016 03:12:52 +0000
+Message-ID: <33183CC9F5247A488A2544077AF19020DA1528DE__21911.8155110211$1480907669$gmane$org@DGGEMA505-MBX.china.huawei.com>
+References: <1480595945-63656-2-git-send-email-arei.gonglei@huawei.com>
+	<201612041032.loAEWLIy%fengguang.wu@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <438dd41a-fdf1-2a77-ef9c-8c103f492b2f@intel.com>
-Content-Language: en-US
+In-Reply-To: <201612041032.loAEWLIy%fengguang.wu@intel.com>
+Content-Language: zh-CN
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,113 +19,142 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Hansen, Dave" <dave.hansen@intel.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "mhocko@suse.com" <mhocko@suse.com>, Amit Shah <amit.shah@redhat.com>, "mst@redhat.com" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Mel Gorman <mgorman@techsingularity.net>, "dgilbert@redhat.com" <dgilbert@redhat.com>
+To: kbuild test robot <lkp@intel.com>, "sam@ravnborg.org" <sam@ravnborg.org>, "davem@davemloft.net" <davem@davemloft.net>
+Cc: "Xuquan (Quan Xu)" <xuquan8@huawei.com>, "Huangweidong (C)" <weidong.huang@huawei.com>, "mst@redhat.com" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "Wanzongshun (Vincent)" <wanzongshun@huawei.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Zhoujian (jay,
+	Euler)" <jianjay.zhou@huawei.com>, "arei.gonglei@hotmail.com" <arei.gonglei@hotmail.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>, "Hanweidong (Randy)" <hanweidong@huawei.com>, longpeng <longpeng2@huawei.com>, "kbuild-all@01.org" <kbuild-all@01.org>, Luonengjun <luonengjun@huawei.com>, "stefanha@redhat.com" <stefanha@redhat.com>, Claudio Fontana <Claudio.Fontana@huawei.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-crypt
 List-Id: virtualization@lists.linuxfoundation.org
 
-> On 11/30/2016 12:43 AM, Liang Li wrote:
-> > +static void send_unused_pages_info(struct virtio_balloon *vb,
-> > +				unsigned long req_id)
-> > +{
-> > +	struct scatterlist sg_in;
-> > +	unsigned long pos = 0;
-> > +	struct virtqueue *vq = vb->req_vq;
-> > +	struct virtio_balloon_resp_hdr *hdr = vb->resp_hdr;
-> > +	int ret, order;
-> > +
-> > +	mutex_lock(&vb->balloon_lock);
-> > +
-> > +	for (order = MAX_ORDER - 1; order >= 0; order--) {
+I don't think the root cause of those warnings are introduced by virtio-crypto driver.
+
+What's your opinion? Sam and David?
+
+Thanks,
+-Gonglei
+
+
+> -----Original Message-----
+> From: kbuild test robot [mailto:lkp@intel.com]
+> Sent: Sunday, December 04, 2016 10:40 AM
+> Subject: Re: [PATCH v5 1/1] crypto: add virtio-crypto driver
 > 
-> I scratched my head for a bit on this one.  Why are you walking over orders,
-> *then* zones.  I *think* you're doing it because you can efficiently fill the
-> bitmaps at a given order for all zones, then move to a new bitmap.  But, it
-> would be interesting to document this.
+> Hi Gonglei,
 > 
-
-Yes, use the order is somewhat strange, but it's helpful to keep the API simple. 
-Do you think it's acceptable?
-
-> > +		pos = 0;
-> > +		ret = get_unused_pages(vb->resp_data,
-> > +			 vb->resp_buf_size / sizeof(unsigned long),
-> > +			 order, &pos);
+> [auto build test ERROR on cryptodev/master]
+> [also build test ERROR on v4.9-rc7 next-20161202]
+> [if your patch is applied to the wrong git tree, please drop us a note to help
+> improve the system]
 > 
-> FWIW, get_unsued_pages() is a pretty bad name.  "get" usually implies
-> bumping reference counts or consuming something.  You're just "recording"
-> or "marking" them.
+> url:
+> https://github.com/0day-ci/linux/commits/Gonglei/crypto-add-virtio-crypto-dri
+> ver/20161202-190424
+> base:
+> https://git.kernel.org/pub/scm/linux/kernel/git/herbert/cryptodev-2.6.git
+> master
+> config: sparc64-allyesconfig (attached as .config)
+> compiler: sparc64-linux-gnu-gcc (Debian 6.1.1-9) 6.1.1 20160705
+> reproduce:
+>         wget
+> https://git.kernel.org/cgit/linux/kernel/git/wfg/lkp-tests.git/plain/sbin/make.cr
+> oss -O ~/bin/make.cross
+>         chmod +x ~/bin/make.cross
+>         # save the attached .config to linux build tree
+>         make.cross ARCH=sparc64
 > 
-
-Will change to mark_unused_pages().
-
-> > +		if (ret == -ENOSPC) {
-> > +			void *new_resp_data;
-> > +
-> > +			new_resp_data = kmalloc(2 * vb->resp_buf_size,
-> > +						GFP_KERNEL);
-> > +			if (new_resp_data) {
-> > +				kfree(vb->resp_data);
-> > +				vb->resp_data = new_resp_data;
-> > +				vb->resp_buf_size *= 2;
+> All errors (new ones prefixed by >>):
 > 
-> What happens to the data in ->resp_data at this point?  Doesn't this just
-> throw it away?
+>    In file included from arch/sparc/include/asm/topology.h:4:0,
+>                     from include/linux/topology.h:35,
+>                     from include/linux/gfp.h:8,
+>                     from include/linux/kmod.h:22,
+>                     from include/linux/module.h:13,
+>                     from drivers/crypto/virtio/virtio_crypto_mgr.c:21:
+>    drivers/crypto/virtio/virtio_crypto_common.h: In function
+> 'virtio_crypto_get_current_node':
+> >> arch/sparc/include/asm/topology_64.h:44:44: error: implicit declaration of
+> function 'cpu_data' [-Werror=implicit-function-declaration]
+>     #define topology_physical_package_id(cpu) (cpu_data(cpu).proc_id)
+>                                                ^
+>    drivers/crypto/virtio/virtio_crypto_common.h:116:9: note: in expansion of
+> macro 'topology_physical_package_id'
+>      return topology_physical_package_id(smp_processor_id());
+>             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> >> arch/sparc/include/asm/topology_64.h:44:57: error: request for member
+> 'proc_id' in something not a structure or union
+>     #define topology_physical_package_id(cpu) (cpu_data(cpu).proc_id)
+>                                                             ^
+>    drivers/crypto/virtio/virtio_crypto_common.h:116:9: note: in expansion of
+> macro 'topology_physical_package_id'
+>      return topology_physical_package_id(smp_processor_id());
+>             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>    cc1: some warnings being treated as errors
 > 
-
-Yes, so we should make sure the data in resp_data is not inuse.
-
-> ...
-> > +struct page_info_item {
-> > +	__le64 start_pfn : 52; /* start pfn for the bitmap */
-> > +	__le64 page_shift : 6; /* page shift width, in bytes */
-> > +	__le64 bmap_len : 6;  /* bitmap length, in bytes */ };
+> vim +/cpu_data +44 arch/sparc/include/asm/topology_64.h
 > 
-> Is 'bmap_len' too short?  a 64-byte buffer is a bit tiny.  Right?
+> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
+> 2008-07-17  28
+> 9d079337 arch/sparc/include/asm/topology_64.h David Miller
+> 2009-01-11  29  #define cpumask_of_pcibus(bus)	\
+> 9d079337 arch/sparc/include/asm/topology_64.h David Miller
+> 2009-01-11  30  	(pcibus_to_node(bus) == -1 ? \
+> e9b37512 arch/sparc/include/asm/topology_64.h Rusty Russell
+> 2009-03-16  31  	 cpu_all_mask : \
+> 9d079337 arch/sparc/include/asm/topology_64.h David Miller
+> 2009-01-11  32  	 cpumask_of_node(pcibus_to_node(bus)))
+> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
+> 2008-07-17  33
+> 52708d69 arch/sparc/include/asm/topology_64.h Nitin Gupta
+> 2015-11-02  34  int __node_distance(int, int);
+> 52708d69 arch/sparc/include/asm/topology_64.h Nitin Gupta
+> 2015-11-02  35  #define node_distance(a, b) __node_distance(a, b)
+> 52708d69 arch/sparc/include/asm/topology_64.h Nitin Gupta
+> 2015-11-02  36
+> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
+> 2008-07-17  37  #else /* CONFIG_NUMA */
+> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
+> 2008-07-17  38
+> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
+> 2008-07-17  39  #include <asm-generic/topology.h>
+> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
+> 2008-07-17  40
+> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
+> 2008-07-17  41  #endif /* !(CONFIG_NUMA) */
+> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
+> 2008-07-17  42
+> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
+> 2008-07-17  43  #ifdef CONFIG_SMP
+> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
+> 2008-07-17 @44  #define topology_physical_package_id(cpu)
+> 	(cpu_data(cpu).proc_id)
+> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
+> 2008-07-17  45  #define topology_core_id(cpu)
+> 	(cpu_data(cpu).core_id)
+> acc455cf arch/sparc/include/asm/topology_64.h chris hyser
+> 2015-04-22  46  #define topology_core_cpumask(cpu)
+> 	(&cpu_core_sib_map[cpu])
+> 06931e62 arch/sparc/include/asm/topology_64.h Bartosz Golaszewski
+> 2015-05-26  47  #define topology_sibling_cpumask(cpu)
+> 	(&per_cpu(cpu_sibling_map, cpu))
+> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
+> 2008-07-17  48  #endif /* CONFIG_SMP */
+> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
+> 2008-07-17  49
+> 3905c54f arch/sparc/include/asm/topology_64.h Stephen Rothwell
+> 2011-04-12  50  extern cpumask_t cpu_core_map[NR_CPUS];
+> acc455cf arch/sparc/include/asm/topology_64.h chris hyser
+> 2015-04-22  51  extern cpumask_t cpu_core_sib_map[NR_CPUS];
+> 3905c54f arch/sparc/include/asm/topology_64.h Stephen Rothwell
+> 2011-04-12  52  static inline const struct cpumask *cpu_coregroup_mask(int
+> cpu)
 > 
-
-Currently, we just use the 8 bytes and 0 bytes bitmap, should we support more than 64 bytes?
-
-> > +static int  mark_unused_pages(struct zone *zone,
-> > +		unsigned long *unused_pages, unsigned long size,
-> > +		int order, unsigned long *pos)
-> > +{
-> > +	unsigned long pfn, flags;
-> > +	unsigned int t;
-> > +	struct list_head *curr;
-> > +	struct page_info_item *info;
-> > +
-> > +	if (zone_is_empty(zone))
-> > +		return 0;
-> > +
-> > +	spin_lock_irqsave(&zone->lock, flags);
-> > +
-> > +	if (*pos + zone->free_area[order].nr_free > size)
-> > +		return -ENOSPC;
+> :::::: The code at line 44 was first introduced by commit
+> :::::: f5e706ad886b6a5eb59637830110b09ccebf01c5 sparc: join the remaining
+> header files
 > 
-> Urg, so this won't partially fill?  So, what the nr_free pages limit where we no
-> longer fit in the kmalloc()'d buffer where this simply won't work?
+> :::::: TO: Sam Ravnborg <sam@ravnborg.org>
+> :::::: CC: David S. Miller <davem@davemloft.net>
 > 
-
-Yes.  My initial implementation is partially fill, it's better for the worst case.
-I thought the above code is more efficient for most case ...
-Do you think partially fill the bitmap is better?
- 
-> > +	for (t = 0; t < MIGRATE_TYPES; t++) {
-> > +		list_for_each(curr, &zone->free_area[order].free_list[t]) {
-> > +			pfn = page_to_pfn(list_entry(curr, struct page, lru));
-> > +			info = (struct page_info_item *)(unused_pages +
-> *pos);
-> > +			info->start_pfn = pfn;
-> > +			info->page_shift = order + PAGE_SHIFT;
-> > +			*pos += 1;
-> > +		}
-> > +	}
-> 
-> Do we need to fill in ->bmap_len here?
-
-For integrity, the bmap_len should be filled, will add.
-Omit this step just because QEMU assume the ->bmp_len is 0 and ignore this field.
-
-Thanks for your comment!
-
-Liang
+> ---
+> 0-DAY kernel test infrastructure                Open Source Technology
+> Center
+> https://lists.01.org/pipermail/kbuild-all                   Intel
+> Corporation
