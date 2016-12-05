@@ -1,15 +1,11 @@
-From: "Gonglei (Arei)" <arei.gonglei@huawei.com>
-Subject: RE: [PATCH v5 1/1] crypto: add virtio-crypto driver
-Date: Mon, 5 Dec 2016 03:12:52 +0000
-Message-ID: <33183CC9F5247A488A2544077AF19020DA1528DE__21911.8155110211$1480907669$gmane$org@DGGEMA505-MBX.china.huawei.com>
-References: <1480595945-63656-2-git-send-email-arei.gonglei@huawei.com>
-	<201612041032.loAEWLIy%fengguang.wu@intel.com>
+From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v8 0/6] Implement qspinlock/pv-qspinlock on ppc
+Date: Mon,  5 Dec 2016 10:19:20 -0500
+Message-ID: <1480951166-44830-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201612041032.loAEWLIy%fengguang.wu@intel.com>
-Content-Language: zh-CN
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,142 +15,126 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kbuild test robot <lkp@intel.com>, "sam@ravnborg.org" <sam@ravnborg.org>, "davem@davemloft.net" <davem@davemloft.net>
-Cc: "Xuquan (Quan Xu)" <xuquan8@huawei.com>, "Huangweidong (C)" <weidong.huang@huawei.com>, "mst@redhat.com" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "Wanzongshun (Vincent)" <wanzongshun@huawei.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Zhoujian (jay,
-	Euler)" <jianjay.zhou@huawei.com>, "arei.gonglei@hotmail.com" <arei.gonglei@hotmail.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>, "Hanweidong (Randy)" <hanweidong@huawei.com>, longpeng <longpeng2@huawei.com>, "kbuild-all@01.org" <kbuild-all@01.org>, Luonengjun <luonengjun@huawei.com>, "stefanha@redhat.com" <stefanha@redhat.com>, Claudio Fontana <Claudio.Fontana@huawei.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-crypt
+To: linux-kernel@vger.kernel.org
+Cc: xinhui.pan@linux.vnet.ibm.com, peterz@infradead.org, benh@kernel.crashing.org, boqun.feng@gmail.com, waiman.long@hpe.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-I don't think the root cause of those warnings are introduced by virtio-crypto driver.
+Hi All,
+  this is the fairlock patchset. You can apply them and build successfully.
+patches are based on linux-next
+  qspinlock can avoid waiter starved issue. It has about the same speed in
+single-thread and it can be much faster in high contention situations
+especially when the spinlock is embedded within the data structure to be
+protected.
 
-What's your opinion? Sam and David?
+v7 -> v8:
+	add one patch to drop a function call under native qspinlock unlock.
+	Enabling qspinlock or not is a complier option now.
+	rebase onto linux-next(4.9-rc7)
+v6 -> v7:
+	rebase onto 4.8-rc4
+v1 -> v6:
+	too many details. snip. 
 
-Thanks,
--Gonglei
+some benchmark result below
 
+perf bench
+these numbers are ops per sec, So the higher the better.
+*******************************************
+on pSeries with 32 vcpus, 32Gb memory, pHyp.
+------------------------------------------------------------------------------------
+	test case		| pv-qspinlock  |  qspinlock 	| current-spinlock
+------------------------------------------------------------------------------------
+futex hash			| 618572	| 552332	| 553788
+futex lock-pi			| 364		| 364		| 364
+sched pipe			| 78984		| 76060		| 81454
+------------------------------------------------------------------------------------
 
-> -----Original Message-----
-> From: kbuild test robot [mailto:lkp@intel.com]
-> Sent: Sunday, December 04, 2016 10:40 AM
-> Subject: Re: [PATCH v5 1/1] crypto: add virtio-crypto driver
-> 
-> Hi Gonglei,
-> 
-> [auto build test ERROR on cryptodev/master]
-> [also build test ERROR on v4.9-rc7 next-20161202]
-> [if your patch is applied to the wrong git tree, please drop us a note to help
-> improve the system]
-> 
-> url:
-> https://github.com/0day-ci/linux/commits/Gonglei/crypto-add-virtio-crypto-dri
-> ver/20161202-190424
-> base:
-> https://git.kernel.org/pub/scm/linux/kernel/git/herbert/cryptodev-2.6.git
-> master
-> config: sparc64-allyesconfig (attached as .config)
-> compiler: sparc64-linux-gnu-gcc (Debian 6.1.1-9) 6.1.1 20160705
-> reproduce:
->         wget
-> https://git.kernel.org/cgit/linux/kernel/git/wfg/lkp-tests.git/plain/sbin/make.cr
-> oss -O ~/bin/make.cross
->         chmod +x ~/bin/make.cross
->         # save the attached .config to linux build tree
->         make.cross ARCH=sparc64
-> 
-> All errors (new ones prefixed by >>):
-> 
->    In file included from arch/sparc/include/asm/topology.h:4:0,
->                     from include/linux/topology.h:35,
->                     from include/linux/gfp.h:8,
->                     from include/linux/kmod.h:22,
->                     from include/linux/module.h:13,
->                     from drivers/crypto/virtio/virtio_crypto_mgr.c:21:
->    drivers/crypto/virtio/virtio_crypto_common.h: In function
-> 'virtio_crypto_get_current_node':
-> >> arch/sparc/include/asm/topology_64.h:44:44: error: implicit declaration of
-> function 'cpu_data' [-Werror=implicit-function-declaration]
->     #define topology_physical_package_id(cpu) (cpu_data(cpu).proc_id)
->                                                ^
->    drivers/crypto/virtio/virtio_crypto_common.h:116:9: note: in expansion of
-> macro 'topology_physical_package_id'
->      return topology_physical_package_id(smp_processor_id());
->             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> >> arch/sparc/include/asm/topology_64.h:44:57: error: request for member
-> 'proc_id' in something not a structure or union
->     #define topology_physical_package_id(cpu) (cpu_data(cpu).proc_id)
->                                                             ^
->    drivers/crypto/virtio/virtio_crypto_common.h:116:9: note: in expansion of
-> macro 'topology_physical_package_id'
->      return topology_physical_package_id(smp_processor_id());
->             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
->    cc1: some warnings being treated as errors
-> 
-> vim +/cpu_data +44 arch/sparc/include/asm/topology_64.h
-> 
-> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
-> 2008-07-17  28
-> 9d079337 arch/sparc/include/asm/topology_64.h David Miller
-> 2009-01-11  29  #define cpumask_of_pcibus(bus)	\
-> 9d079337 arch/sparc/include/asm/topology_64.h David Miller
-> 2009-01-11  30  	(pcibus_to_node(bus) == -1 ? \
-> e9b37512 arch/sparc/include/asm/topology_64.h Rusty Russell
-> 2009-03-16  31  	 cpu_all_mask : \
-> 9d079337 arch/sparc/include/asm/topology_64.h David Miller
-> 2009-01-11  32  	 cpumask_of_node(pcibus_to_node(bus)))
-> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
-> 2008-07-17  33
-> 52708d69 arch/sparc/include/asm/topology_64.h Nitin Gupta
-> 2015-11-02  34  int __node_distance(int, int);
-> 52708d69 arch/sparc/include/asm/topology_64.h Nitin Gupta
-> 2015-11-02  35  #define node_distance(a, b) __node_distance(a, b)
-> 52708d69 arch/sparc/include/asm/topology_64.h Nitin Gupta
-> 2015-11-02  36
-> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
-> 2008-07-17  37  #else /* CONFIG_NUMA */
-> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
-> 2008-07-17  38
-> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
-> 2008-07-17  39  #include <asm-generic/topology.h>
-> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
-> 2008-07-17  40
-> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
-> 2008-07-17  41  #endif /* !(CONFIG_NUMA) */
-> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
-> 2008-07-17  42
-> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
-> 2008-07-17  43  #ifdef CONFIG_SMP
-> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
-> 2008-07-17 @44  #define topology_physical_package_id(cpu)
-> 	(cpu_data(cpu).proc_id)
-> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
-> 2008-07-17  45  #define topology_core_id(cpu)
-> 	(cpu_data(cpu).core_id)
-> acc455cf arch/sparc/include/asm/topology_64.h chris hyser
-> 2015-04-22  46  #define topology_core_cpumask(cpu)
-> 	(&cpu_core_sib_map[cpu])
-> 06931e62 arch/sparc/include/asm/topology_64.h Bartosz Golaszewski
-> 2015-05-26  47  #define topology_sibling_cpumask(cpu)
-> 	(&per_cpu(cpu_sibling_map, cpu))
-> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
-> 2008-07-17  48  #endif /* CONFIG_SMP */
-> f5e706ad include/asm-sparc/topology_64.h      Sam Ravnborg
-> 2008-07-17  49
-> 3905c54f arch/sparc/include/asm/topology_64.h Stephen Rothwell
-> 2011-04-12  50  extern cpumask_t cpu_core_map[NR_CPUS];
-> acc455cf arch/sparc/include/asm/topology_64.h chris hyser
-> 2015-04-22  51  extern cpumask_t cpu_core_sib_map[NR_CPUS];
-> 3905c54f arch/sparc/include/asm/topology_64.h Stephen Rothwell
-> 2011-04-12  52  static inline const struct cpumask *cpu_coregroup_mask(int
-> cpu)
-> 
-> :::::: The code at line 44 was first introduced by commit
-> :::::: f5e706ad886b6a5eb59637830110b09ccebf01c5 sparc: join the remaining
-> header files
-> 
-> :::::: TO: Sam Ravnborg <sam@ravnborg.org>
-> :::::: CC: David S. Miller <davem@davemloft.net>
-> 
-> ---
-> 0-DAY kernel test infrastructure                Open Source Technology
-> Center
-> https://lists.01.org/pipermail/kbuild-all                   Intel
-> Corporation
+unix bench:
+these numbers are scores, So the higher the better.
+************************************************
+on PowerNV with 16 cores(cpus) (smt off), 32Gb memory:
+-------------
+pv-qspinlock and qspinlock have very similar results because pv-qspinlock use native version
+which is only having one callback overhead
+------------------------------------------------------------------------------------
+	test case		| pv-qspinlock and qspinlock | current-spinlock
+------------------------------------------------------------------------------------
+Execl Throughput                               761.1             761.4
+File Copy 1024 bufsize 2000 maxblocks         1259.8            1286.6
+File Copy 256 bufsize 500 maxblocks            782.2             790.3
+File Copy 4096 bufsize 8000 maxblocks         2741.5            2817.4
+Pipe Throughput                               1063.2            1036.7
+Pipe-based Context Switching                   284.7             281.1
+Process Creation                               679.6             649.1
+Shell Scripts (1 concurrent)                  1933.2            1922.9
+Shell Scripts (8 concurrent)                  5003.3            4899.8
+System Call Overhead                           900.6             896.8
+                                             ==========================
+System Benchmarks Index Score                 1139.3 	 	 1133.0
+--------------------------------------------------------------------------- ---------
+
+*******************************************
+on pSeries with 32 vcpus, 32Gb memory, pHyp.
+------------------------------------------------------------------------------------
+	test case		|	pv-qspinlock |	qspinlock | current-spinlock
+------------------------------------------------------------------------------------
+Execl Throughput                             877.1         891.2         872.8
+File Copy 1024 bufsize 2000 maxblocks       1390.4        1399.2        1395.0
+File Copy 256 bufsize 500 maxblocks          882.4         889.5         881.8
+File Copy 4096 bufsize 8000 maxblocks       3112.3        3113.4        3121.7
+Pipe Throughput                             1095.8        1162.6        1158.5
+Pipe-based Context Switching                 194.9         192.7         200.7
+Process Creation                             518.4         526.4         509.1
+Shell Scripts (1 concurrent)                1401.9        1413.9        1402.2
+Shell Scripts (8 concurrent)                3215.6        3246.6        3229.1
+System Call Overhead                         833.2         892.4         888.1
+                                          ====================================
+System Benchmarks Index Score               1033.7        1052.5        1047.8
+------------------------------------------------------------------------------------
+
+******************************************
+on pSeries with 32 vcpus, 16Gb memory, KVM.
+------------------------------------------------------------------------------------
+	test case		|	pv-qspinlock |	qspinlock | current-spinlock
+------------------------------------------------------------------------------------
+Execl Throughput                             497.4        518.7         497.8
+File Copy 1024 bufsize 2000 maxblocks       1368.8       1390.1        1343.3
+File Copy 256 bufsize 500 maxblocks          857.7        859.8         831.4
+File Copy 4096 bufsize 8000 maxblocks       2851.7       2838.1        2785.5
+Pipe Throughput                             1221.9       1265.3        1250.4
+Pipe-based Context Switching                 529.8        578.1         564.2
+Process Creation                             408.4        421.6         287.6
+Shell Scripts (1 concurrent)                1201.8       1215.3        1185.8
+Shell Scripts (8 concurrent)                3758.4       3799.3        3878.9
+System Call Overhead                        1008.3       1122.6        1134.2
+                                          =====================================
+System Benchmarks Index Score               1072.0       1108.9        1050.6
+------------------------------------------------------------------------------------
+
+Pan Xinhui (6):
+  powerpc/qspinlock: powerpc support qspinlock
+  powerpc: pSeries/Kconfig: Add qspinlock build config
+  powerpc: lib/locks.c: Add cpu yield/wake helper function
+  powerpc/pv-qspinlock: powerpc support pv-qspinlock
+  powerpc: pSeries: Add pv-qspinlock build config/make
+  powerpc/pv-qspinlock: Optimise native unlock path
+
+ arch/powerpc/include/asm/qspinlock.h               |  93 ++++++++++++
+ arch/powerpc/include/asm/qspinlock_paravirt.h      |  52 +++++++
+ .../powerpc/include/asm/qspinlock_paravirt_types.h |  13 ++
+ arch/powerpc/include/asm/spinlock.h                |  35 +++--
+ arch/powerpc/include/asm/spinlock_types.h          |   4 +
+ arch/powerpc/kernel/Makefile                       |   1 +
+ arch/powerpc/kernel/paravirt.c                     | 157 +++++++++++++++++++++
+ arch/powerpc/lib/locks.c                           | 122 ++++++++++++++++
+ arch/powerpc/platforms/pseries/Kconfig             |  16 +++
+ arch/powerpc/platforms/pseries/setup.c             |   5 +
+ 10 files changed, 485 insertions(+), 13 deletions(-)
+ create mode 100644 arch/powerpc/include/asm/qspinlock.h
+ create mode 100644 arch/powerpc/include/asm/qspinlock_paravirt.h
+ create mode 100644 arch/powerpc/include/asm/qspinlock_paravirt_types.h
+ create mode 100644 arch/powerpc/kernel/paravirt.c
+
+-- 
+2.4.11
