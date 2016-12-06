@@ -1,13 +1,12 @@
-From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v9 6/6] powerpc/pv-qspinlock: Optimise native unlock path
-Date: Tue,  6 Dec 2016 13:09:27 -0500
-Message-ID: <1481047767-60255-7-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-References: <1481047767-60255-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 00/10] virtio: sparse fixes
+Date: Tue, 6 Dec 2016 17:40:28 +0200
+Message-ID: <1481038106-24899-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1481047767-60255-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,85 +16,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Cc: xinhui.pan@linux.vnet.ibm.com, peterz@infradead.org, benh@kernel.crashing.org, boqun.feng@gmail.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, longman@redhat.com, paulmck@linux.vnet.ibm.com
+To: linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, kvm@vger.kernel.org, linux-kbuild@vger.kernel.org, netdev@vger.kernel.org, linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Michal Marek <mmarek@suse.com>, linux-crypto@vger.kernel.org, v9fs-developer@lists.sourceforge.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Avoid a function call under native version of qspinlock. On powerNV,
-bafore applying this patch, every unlock is expensive. This small
-optimizes enhance the performance.
+I run latest sparse from git on virtio drivers
+(turns out the version I had was rather outdated).
+This patchset fixes a couple of bugs this uncovered,
+and adds some annotations to make it sparse-clean.
+In particular, endian-ness is often tricky,
+so this patchset enabled endian-ness checks for sparse
+builds.
 
-We use static_key with jump_lable which removes unnecessary loads of
-lppaca and its stuff.
+Michael S. Tsirkin (10):
+  virtio_console: drop unused config fields
+  drm/virtio: fix endianness in primary_plane_update
+  drm/virtio: fix lock context imbalance
+  drm/virtio: annotate virtio_gpu_queue_ctrl_buffer_locked
+  vhost: make interval tree static inline
+  vhost: add missing __user annotations
+  vsock/virtio: add a missing __le annotation
+  vsock/virtio: mark an internal function static
+  vsock/virtio: fix src/dst cid format
+  virtio: enable endian checks for sparse builds
 
-Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
----
- arch/powerpc/include/asm/qspinlock_paravirt.h | 18 +++++++++++++++++-
- arch/powerpc/kernel/paravirt.c                |  4 ++++
- 2 files changed, 21 insertions(+), 1 deletion(-)
+ drivers/char/virtio_console.c           | 14 +++++++-------
+ drivers/gpu/drm/virtio/virtgpu_plane.c  |  4 ++--
+ drivers/gpu/drm/virtio/virtgpu_vq.c     |  6 +++++-
+ drivers/vhost/vhost.c                   | 12 ++++++------
+ net/vmw_vsock/virtio_transport.c        |  2 +-
+ net/vmw_vsock/virtio_transport_common.c | 16 ++++++++--------
+ drivers/block/Makefile                  |  1 +
+ drivers/char/Makefile                   |  1 +
+ drivers/char/hw_random/Makefile         |  2 ++
+ drivers/gpu/drm/virtio/Makefile         |  1 +
+ drivers/net/Makefile                    |  3 +++
+ drivers/net/caif/Makefile               |  1 +
+ drivers/rpmsg/Makefile                  |  1 +
+ drivers/s390/virtio/Makefile            |  2 ++
+ drivers/scsi/Makefile                   |  1 +
+ drivers/vhost/Makefile                  |  1 +
+ drivers/virtio/Makefile                 |  3 +++
+ net/9p/Makefile                         |  1 +
+ net/packet/Makefile                     |  1 +
+ net/vmw_vsock/Makefile                  |  2 ++
+ 20 files changed, 50 insertions(+), 25 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/qspinlock_paravirt.h b/arch/powerpc/include/asm/qspinlock_paravirt.h
-index d87cda0..8d39446 100644
---- a/arch/powerpc/include/asm/qspinlock_paravirt.h
-+++ b/arch/powerpc/include/asm/qspinlock_paravirt.h
-@@ -6,12 +6,14 @@
- #define _ASM_QSPINLOCK_PARAVIRT_H
- 
- #include  <asm/qspinlock_paravirt_types.h>
-+#include  <linux/jump_label.h>
- 
- extern void pv_lock_init(void);
- extern void native_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
- extern void __pv_init_lock_hash(void);
- extern void __pv_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
- extern void __pv_queued_spin_unlock(struct qspinlock *lock);
-+extern struct static_key_true sharedprocessor_key;
- 
- static inline void pv_queued_spin_lock(struct qspinlock *lock, u32 val)
- {
-@@ -20,7 +22,21 @@ static inline void pv_queued_spin_lock(struct qspinlock *lock, u32 val)
- 
- static inline void pv_queued_spin_unlock(struct qspinlock *lock)
- {
--	pv_lock_op.unlock(lock);
-+	/*
-+	 * on powerNV and pSeries with jump_label, code will be
-+	 *	PowerNV:		pSeries:
-+	 *	nop;			b 2f;
-+	 *	native unlock		2:
-+	 *				pv unlock;
-+	 * In this way, we can do unlock quick in native case.
-+	 *
-+	 * IF jump_label is not enabled, we fall back into
-+	 * if condition, IOW, ld && cmp && bne.
-+	 */
-+	if (static_branch_likely(&sharedprocessor_key))
-+		native_queued_spin_unlock(lock);
-+	else
-+		pv_lock_op.unlock(lock);
- }
- 
- static inline void pv_wait(u8 *ptr, u8 val)
-diff --git a/arch/powerpc/kernel/paravirt.c b/arch/powerpc/kernel/paravirt.c
-index e697b17..a0a000e 100644
---- a/arch/powerpc/kernel/paravirt.c
-+++ b/arch/powerpc/kernel/paravirt.c
-@@ -140,6 +140,9 @@ struct pv_lock_ops pv_lock_op = {
- };
- EXPORT_SYMBOL(pv_lock_op);
- 
-+struct static_key_true sharedprocessor_key = STATIC_KEY_TRUE_INIT;
-+EXPORT_SYMBOL(sharedprocessor_key);
-+
- void __init pv_lock_init(void)
- {
- 	if (SHARED_PROCESSOR) {
-@@ -149,5 +152,6 @@ void __init pv_lock_init(void)
- 		pv_lock_op.unlock = __pv_queued_spin_unlock;
- 		pv_lock_op.wait = __pv_wait;
- 		pv_lock_op.kick = __pv_kick;
-+		static_branch_disable(&sharedprocessor_key);
- 	}
- }
 -- 
-2.4.11
+MST
