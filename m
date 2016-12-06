@@ -1,12 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 00/10] virtio: sparse fixes
-Date: Tue, 6 Dec 2016 17:40:28 +0200
-Message-ID: <1481038106-24899-1-git-send-email-mst@redhat.com>
+Subject: [PATCH 01/10] virtio_console: drop unused config fields
+Date: Tue, 6 Dec 2016 17:40:32 +0200
+Message-ID: <1481038106-24899-2-git-send-email-mst@redhat.com>
+References: <1481038106-24899-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <1481038106-24899-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,50 +19,73 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, kvm@vger.kernel.org, linux-kbuild@vger.kernel.org, netdev@vger.kernel.org, linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Michal Marek <mmarek@suse.com>, linux-crypto@vger.kernel.org, v9fs-developer@lists.sourceforge.net
+Cc: Amit Shah <amit.shah@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-I run latest sparse from git on virtio drivers
-(turns out the version I had was rather outdated).
-This patchset fixes a couple of bugs this uncovered,
-and adds some annotations to make it sparse-clean.
-In particular, endian-ness is often tricky,
-so this patchset enabled endian-ness checks for sparse
-builds.
+struct ports_device includes a config field including the whole
+virtio_console_config, but only max_nr_ports in there is ever updated or
+used. The rest is unused and in fact does not even mirror the
+device config. Drop everything except max_nr_ports,
+saving some memory.
 
-Michael S. Tsirkin (10):
-  virtio_console: drop unused config fields
-  drm/virtio: fix endianness in primary_plane_update
-  drm/virtio: fix lock context imbalance
-  drm/virtio: annotate virtio_gpu_queue_ctrl_buffer_locked
-  vhost: make interval tree static inline
-  vhost: add missing __user annotations
-  vsock/virtio: add a missing __le annotation
-  vsock/virtio: mark an internal function static
-  vsock/virtio: fix src/dst cid format
-  virtio: enable endian checks for sparse builds
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/char/virtio_console.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
- drivers/char/virtio_console.c           | 14 +++++++-------
- drivers/gpu/drm/virtio/virtgpu_plane.c  |  4 ++--
- drivers/gpu/drm/virtio/virtgpu_vq.c     |  6 +++++-
- drivers/vhost/vhost.c                   | 12 ++++++------
- net/vmw_vsock/virtio_transport.c        |  2 +-
- net/vmw_vsock/virtio_transport_common.c | 16 ++++++++--------
- drivers/block/Makefile                  |  1 +
- drivers/char/Makefile                   |  1 +
- drivers/char/hw_random/Makefile         |  2 ++
- drivers/gpu/drm/virtio/Makefile         |  1 +
- drivers/net/Makefile                    |  3 +++
- drivers/net/caif/Makefile               |  1 +
- drivers/rpmsg/Makefile                  |  1 +
- drivers/s390/virtio/Makefile            |  2 ++
- drivers/scsi/Makefile                   |  1 +
- drivers/vhost/Makefile                  |  1 +
- drivers/virtio/Makefile                 |  3 +++
- net/9p/Makefile                         |  1 +
- net/packet/Makefile                     |  1 +
- net/vmw_vsock/Makefile                  |  2 ++
- 20 files changed, 50 insertions(+), 25 deletions(-)
-
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 5649234..8b00e79 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -152,8 +152,8 @@ struct ports_device {
+ 	spinlock_t c_ivq_lock;
+ 	spinlock_t c_ovq_lock;
+ 
+-	/* The current config space is stored here */
+-	struct virtio_console_config config;
++	/* max. number of ports this device can hold */
++	u32 max_nr_ports;
+ 
+ 	/* The virtio device we're associated with */
+ 	struct virtio_device *vdev;
+@@ -1649,11 +1649,11 @@ static void handle_control_message(struct virtio_device *vdev,
+ 			break;
+ 		}
+ 		if (virtio32_to_cpu(vdev, cpkt->id) >=
+-		    portdev->config.max_nr_ports) {
++		    portdev->max_nr_ports) {
+ 			dev_warn(&portdev->vdev->dev,
+ 				"Request for adding port with "
+ 				"out-of-bound id %u, max. supported id: %u\n",
+-				cpkt->id, portdev->config.max_nr_ports - 1);
++				cpkt->id, portdev->max_nr_ports - 1);
+ 			break;
+ 		}
+ 		add_port(portdev, virtio32_to_cpu(vdev, cpkt->id));
+@@ -1894,7 +1894,7 @@ static int init_vqs(struct ports_device *portdev)
+ 	u32 i, j, nr_ports, nr_queues;
+ 	int err;
+ 
+-	nr_ports = portdev->config.max_nr_ports;
++	nr_ports = portdev->max_nr_ports;
+ 	nr_queues = use_multiport(portdev) ? (nr_ports + 1) * 2 : 2;
+ 
+ 	vqs = kmalloc(nr_queues * sizeof(struct virtqueue *), GFP_KERNEL);
+@@ -2047,13 +2047,13 @@ static int virtcons_probe(struct virtio_device *vdev)
+ 	}
+ 
+ 	multiport = false;
+-	portdev->config.max_nr_ports = 1;
++	portdev->max_nr_ports = 1;
+ 
+ 	/* Don't test MULTIPORT at all if we're rproc: not a valid feature! */
+ 	if (!is_rproc_serial(vdev) &&
+ 	    virtio_cread_feature(vdev, VIRTIO_CONSOLE_F_MULTIPORT,
+ 				 struct virtio_console_config, max_nr_ports,
+-				 &portdev->config.max_nr_ports) == 0) {
++				 &portdev->max_nr_ports) == 0) {
+ 		multiport = true;
+ 	}
+ 
 -- 
 MST
