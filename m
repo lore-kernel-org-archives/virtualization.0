@@ -1,16 +1,12 @@
-From: Pan Xinhui <xinhui@linux.vnet.ibm.com>
-Subject: Re: [PATCH v8 3/6] powerpc: lib/locks.c: Add cpu yield/wake helper
-	function
-Date: Tue, 6 Dec 2016 09:30:02 +0800
-Message-ID: <f37d62a6-f745-8f21-d5ea-ceeb5aef64dc@linux.vnet.ibm.com>
-References: <1480951166-44830-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<1480951166-44830-4-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<20161206012315.GD18164@tardis.cn.ibm.com>
+From: Andy Lutomirski <luto@kernel.org>
+Subject: [PATCH] virtio-net: Fix DMA-from-the-stack in
+	virtnet_set_mac_address()
+Date: Mon,  5 Dec 2016 18:10:58 -0800
+Message-ID: <fe889e578d5dffa9ae0834b449a35fcfd1e10694.1480990173.git.luto@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161206012315.GD18164@tardis.cn.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,87 +16,73 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Boqun Feng <boqun.feng@gmail.com>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Cc: peterz@infradead.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org, waiman.long@hpe.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
+To: netdev@vger.kernel.org
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Andy Lutomirski <luto@kernel.org>, Laura Abbott <labbott@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgrlnKggMjAxNi8xMi82IDA5OjIzLCBCb3F1biBGZW5nIOWGmemBkzoKPiBPbiBNb24sIERlYyAw
-NSwgMjAxNiBhdCAxMDoxOToyM0FNIC0wNTAwLCBQYW4gWGluaHVpIHdyb3RlOgo+PiBBZGQgdHdv
-IGNvcnJlc3BvbmRpbmcgaGVscGVyIGZ1bmN0aW9ucyB0byBzdXBwb3J0IHB2LXFzcGlubG9jay4K
-Pj4KPj4gRm9yIG5vcm1hbCB1c2UsIF9fc3Bpbl95aWVsZF9jcHUgd2lsbCBjb25mZXIgY3VycmVu
-dCB2Y3B1IHNsaWNlcyB0byB0aGUKPj4gdGFyZ2V0IHZjcHUoc2F5LCBhIGxvY2sgaG9sZGVyKS4g
-SWYgdGFyZ2V0IHZjcHUgaXMgbm90IHNwZWNpZmllZCBvciBpdAo+PiBpcyBpbiBydW5uaW5nIHN0
-YXRlLCBzdWNoIGNvbmZlcmdpbmcgdG8gbHBhciBoYXBwZW5zIG9yIG5vdCBkZXBlbmRzLgo+Pgo+
-PiBCZWNhdXNlIGhjYWxsIGl0c2VsZiB3aWxsIGludHJvZHVjZSBsYXRlbmN5IGFuZCBhIGxpdHRs
-ZSBvdmVyaGVhZC4gQW5kIHdlCj4+IGRvIE5PVCB3YW50IHRvIHN1ZmZlciBhbnkgbGF0ZW5jeSBv
-biBzb21lIGNhc2VzLCBlLmcuIGluIGludGVycnVwdCBoYW5kbGVyLgo+PiBUaGUgc2Vjb25kIHBh
-cmFtZXRlciAqY29uZmVyKiBjYW4gaW5kaWNhdGUgc3VjaCBjYXNlLgo+Pgo+PiBfX3NwaW5fd2Fr
-ZV9jcHUgaXMgc2ltcGlsZXIsIGl0IHdpbGwgd2FrZSB1cCBvbmUgdmNwdSByZWdhcmRsZXNzIG9m
-IGl0cwo+PiBjdXJyZW50IHZjcHUgc3RhdGUuCj4+Cj4+IFNpZ25lZC1vZmYtYnk6IFBhbiBYaW5o
-dWkgPHhpbmh1aS5wYW5AbGludXgudm5ldC5pYm0uY29tPgo+PiAtLS0KPj4gIGFyY2gvcG93ZXJw
-Yy9pbmNsdWRlL2FzbS9zcGlubG9jay5oIHwgIDQgKysrCj4+ICBhcmNoL3Bvd2VycGMvbGliL2xv
-Y2tzLmMgICAgICAgICAgICB8IDU5ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysKPj4gIDIgZmlsZXMgY2hhbmdlZCwgNjMgaW5zZXJ0aW9ucygrKQo+Pgo+PiBkaWZmIC0tZ2l0
-IGEvYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3NwaW5sb2NrLmggYi9hcmNoL3Bvd2VycGMvaW5j
-bHVkZS9hc20vc3BpbmxvY2suaAo+PiBpbmRleCA5NTQwOTllLi42NDI2YmQ1IDEwMDY0NAo+PiAt
-LS0gYS9hcmNoL3Bvd2VycGMvaW5jbHVkZS9hc20vc3BpbmxvY2suaAo+PiArKysgYi9hcmNoL3Bv
-d2VycGMvaW5jbHVkZS9hc20vc3BpbmxvY2suaAo+PiBAQCAtNjQsOSArNjQsMTMgQEAgc3RhdGlj
-IGlubGluZSBib29sIHZjcHVfaXNfcHJlZW1wdGVkKGludCBjcHUpCj4+ICAvKiBXZSBvbmx5IHlp
-ZWxkIHRvIHRoZSBoeXBlcnZpc29yIGlmIHdlIGFyZSBpbiBzaGFyZWQgcHJvY2Vzc29yIG1vZGUg
-Ki8KPj4gICNkZWZpbmUgU0hBUkVEX1BST0NFU1NPUiAobHBwYWNhX3NoYXJlZF9wcm9jKGxvY2Fs
-X3BhY2EtPmxwcGFjYV9wdHIpKQo+PiAgZXh0ZXJuIHZvaWQgX19zcGluX3lpZWxkKGFyY2hfc3Bp
-bmxvY2tfdCAqbG9jayk7Cj4+ICtleHRlcm4gdm9pZCBfX3NwaW5feWllbGRfY3B1KGludCBjcHUs
-IGludCBjb25mZXIpOwo+PiArZXh0ZXJuIHZvaWQgX19zcGluX3dha2VfY3B1KGludCBjcHUpOwo+
-PiAgZXh0ZXJuIHZvaWQgX19yd195aWVsZChhcmNoX3J3bG9ja190ICpsb2NrKTsKPj4gICNlbHNl
-IC8qIFNQTFBBUiAqLwo+PiAgI2RlZmluZSBfX3NwaW5feWllbGQoeCkgICAgICAgIGJhcnJpZXIo
-KQo+PiArI2RlZmluZSBfX3NwaW5feWllbGRfY3B1KHgsIHkpIGJhcnJpZXIoKQo+PiArI2RlZmlu
-ZSBfX3NwaW5fd2FrZV9jcHUoeCkgYmFycmllcigpCj4+ICAjZGVmaW5lIF9fcndfeWllbGQoeCkg
-IGJhcnJpZXIoKQo+PiAgI2RlZmluZSBTSEFSRURfUFJPQ0VTU09SICAgICAgIDAKPj4gICNlbmRp
-Zgo+PiBkaWZmIC0tZ2l0IGEvYXJjaC9wb3dlcnBjL2xpYi9sb2Nrcy5jIGIvYXJjaC9wb3dlcnBj
-L2xpYi9sb2Nrcy5jCj4+IGluZGV4IDY1NzQ2MjYuLmJkODcyYzkgMTAwNjQ0Cj4+IC0tLSBhL2Fy
-Y2gvcG93ZXJwYy9saWIvbG9ja3MuYwo+PiArKysgYi9hcmNoL3Bvd2VycGMvbGliL2xvY2tzLmMK
-Pj4gQEAgLTIzLDYgKzIzLDY1IEBACj4+ICAjaW5jbHVkZSA8YXNtL2h2Y2FsbC5oPgo+PiAgI2lu
-Y2x1ZGUgPGFzbS9zbXAuaD4KPj4KPj4gKy8qCj4+ICsgKiBjb25mZXIgb3VyIHNsaWNlcyB0byBh
-IHNwZWNpZmllZCBjcHUgYW5kIHJldHVybi4gSWYgaXQgaXMgaW4gcnVubmluZyBzdGF0ZQo+PiAr
-ICogb3IgY3B1IGlzIC0xLCB0aGVuIHdlIHdpbGwgY2hlY2sgY29uZmVyLiBJZiBjb25mZXIgaXMg
-TlVMTCwgd2Ugd2lsbCByZXR1cm4KPj4gKyAqIG90aGVyd2lzZSB3ZSBjb25mZXIgb3VyIHNsaWNl
-cyB0byBscGFyLgo+PiArICovCj4+ICt2b2lkIF9fc3Bpbl95aWVsZF9jcHUoaW50IGNwdSwgaW50
-IGNvbmZlcikKPj4gK3sKPj4gKwl1bnNpZ25lZCBpbnQgaG9sZGVyX2NwdSA9IGNwdSwgeWllbGRf
-Y291bnQ7Cj4KPiBBcyBJIHNhaWQgYXQ6Cj4KPiBodHRwczovL21hcmMuaW5mby8/bD1saW51eC1r
-ZXJuZWwmbT0xNDc0NTU3NDg2MTkzNDMmdz0yCj4KPiBAaG9sZGVyX2NwdSBpcyBub3QgbmVjZXNz
-YXJ5IGFuZCBkb2Vzbid0IGhlbHAgYW55dGhpbmcuCj4KPj4gKwo+PiArCWlmIChjcHUgPT0gLTEp
-Cj4+ICsJCWdvdG8geWllbGRfdG9fbHBhcjsKPj4gKwo+PiArCUJVR19PTihob2xkZXJfY3B1ID49
-IG5yX2NwdV9pZHMpOwo+PiArCXlpZWxkX2NvdW50ID0gYmUzMl90b19jcHUobHBwYWNhX29mKGhv
-bGRlcl9jcHUpLnlpZWxkX2NvdW50KTsKPj4gKwo+PiArCS8qIGlmIGNwdSBpcyBydW5uaW5nLCBj
-b25mZXIgc2xpY2VzIHRvIGxwYXIgY29uZGl0aW9uYWxseSovCj4+ICsJaWYgKCh5aWVsZF9jb3Vu
-dCAmIDEpID09IDApCj4+ICsJCWdvdG8geWllbGRfdG9fbHBhcjsKPj4gKwo+PiArCXBscGFyX2hj
-YWxsX25vcmV0cyhIX0NPTkZFUiwKPj4gKwkJZ2V0X2hhcmRfc21wX3Byb2Nlc3Nvcl9pZChob2xk
-ZXJfY3B1KSwgeWllbGRfY291bnQpOwo+PiArCXJldHVybjsKPj4gKwo+PiAreWllbGRfdG9fbHBh
-cjoKPj4gKwlpZiAoY29uZmVyKQo+PiArCQlwbHBhcl9oY2FsbF9ub3JldHMoSF9DT05GRVIsIC0x
-LCAwKTsKPj4gK30KPj4gK0VYUE9SVF9TWU1CT0xfR1BMKF9fc3Bpbl95aWVsZF9jcHUpOwo+PiAr
-Cj4+ICt2b2lkIF9fc3Bpbl93YWtlX2NwdShpbnQgY3B1KQo+PiArewo+PiArCXVuc2lnbmVkIGlu
-dCBob2xkZXJfY3B1ID0gY3B1Owo+Cj4gQW5kIGl0J3MgZXZlbiB3cm9uZyB0byBjYWxsIHRoZSBw
-YXJhbWV0ZXIgb2YgX3dha2VfY3B1KCkgYSBob2xkZXJfY3B1LAo+IGJlY2F1c2UgaXQncyBub3Qg
-dGhlIGN1cnJlbnQgbG9jayBob2xkZXIuCj4Kb2gsIGl0cyBuYW1lIGlzIHJlYWxseSBtaXNsZWFk
-aW5nLgoKdGhhbmtzCgo+IFJlZ2FyZHMsCj4gQm9xdW4KPgo+PiArCj4+ICsJQlVHX09OKGhvbGRl
-cl9jcHUgPj0gbnJfY3B1X2lkcyk7Cj4+ICsJLyoKPj4gKwkgKiBOT1RFOiB3ZSBzaG91bGQgYWx3
-YXlzIGRvIHRoaXMgaGNhbGwgcmVnYXJkbGVzcyBvZgo+PiArCSAqIHRoZSB5aWVsZF9jb3VudCBv
-ZiB0aGUgaG9sZGVyX2NwdS4KPj4gKwkgKiBhcyB0aGVycyBtaWdodCBiZSBhIGNhc2UgbGlrZSBi
-ZWxvdzsKPj4gKwkgKglDUFUgMQkJCUNQVSAyCj4+ICsJICoJCQkJeWllbGRlZCA9IHRydWUKPj4g
-KwkgKiBpZiAoeWllbGRlZCkKPj4gKwkgKglfX3NwaW5fd2FrZV9jcHUoKQo+PiArCSAqCQkJCV9f
-c3Bpbl95aWVsZF9jcHUoKQo+PiArCSAqCj4+ICsJICogU28gd2UgbWlnaHQgbG9zZSBhIHdha2Ug
-aWYgd2UgY2hlY2sgdGhlIHlpZWxkX2NvdW50IGFuZAo+PiArCSAqIHJldHVybiBkaXJlY3RseSBp
-ZiB0aGUgaG9sZGVyX2NwdSBpcyBydW5uaW5nLgo+PiArCSAqIElPVy4gZG8gTk9UIGNvZGUgbGlr
-ZSBiZWxvdy4KPj4gKwkgKgl5aWVsZF9jb3VudCA9IGJlMzJfdG9fY3B1KGxwcGFjYV9vZihob2xk
-ZXJfY3B1KS55aWVsZF9jb3VudCk7Cj4+ICsJICoJaWYgKCh5aWVsZF9jb3VudCAmIDEpID09IDAp
-Cj4+ICsJICoJCXJldHVybjsKPj4gKwkgKgo+PiArCSAqIGEgUFJPRCBoY2FsbCBtYXJrcyB0aGUg
-dGFyZ2V0X2NwdSBwcm9kZWQsIHdoaWNoIGNhdXNlIHRoZSBuZXh0IGNlZGUKPj4gKwkgKiBvciBj
-b25mZXIgY2FsbGVkIG9uIHRoZSB0YXJnZXRfY3B1IGludmFsaWQuCj4+ICsJICovCj4+ICsJcGxw
-YXJfaGNhbGxfbm9yZXRzKEhfUFJPRCwKPj4gKwkJZ2V0X2hhcmRfc21wX3Byb2Nlc3Nvcl9pZCho
-b2xkZXJfY3B1KSk7Cj4+ICt9Cj4+ICtFWFBPUlRfU1lNQk9MX0dQTChfX3NwaW5fd2FrZV9jcHUp
-Owo+PiArCj4+ICAjaWZuZGVmIENPTkZJR19RVUVVRURfU1BJTkxPQ0tTCj4+ICB2b2lkIF9fc3Bp
-bl95aWVsZChhcmNoX3NwaW5sb2NrX3QgKmxvY2spCj4+ICB7Cj4+IC0tCj4+IDIuNC4xMQo+PgoK
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6
-YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24u
-b3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3Zp
-cnR1YWxpemF0aW9u
+With CONFIG_VMAP_STACK=y, virtnet_set_mac_address() can be passed a
+pointer to the stack and it will OOPS.  Copy the address to the heap
+to prevent the crash.
+
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Laura Abbott <labbott@redhat.com>
+Reported-by: zbyszek@in.waw.pl
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+---
+
+Very lightly tested.
+
+ drivers/net/virtio_net.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 7276d5a95bd0..cbf1c613c67a 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -969,12 +969,17 @@ static int virtnet_set_mac_address(struct net_device *dev, void *p)
+ 	struct virtnet_info *vi = netdev_priv(dev);
+ 	struct virtio_device *vdev = vi->vdev;
+ 	int ret;
+-	struct sockaddr *addr = p;
++	struct sockaddr *addr;
+ 	struct scatterlist sg;
+ 
+-	ret = eth_prepare_mac_addr_change(dev, p);
++	addr = kmalloc(sizeof(*addr), GFP_KERNEL);
++	if (!addr)
++		return -ENOMEM;
++	memcpy(addr, p, sizeof(*addr));
++
++	ret = eth_prepare_mac_addr_change(dev, addr);
+ 	if (ret)
+-		return ret;
++		goto out;
+ 
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_MAC_ADDR)) {
+ 		sg_init_one(&sg, addr->sa_data, dev->addr_len);
+@@ -982,7 +987,8 @@ static int virtnet_set_mac_address(struct net_device *dev, void *p)
+ 					  VIRTIO_NET_CTRL_MAC_ADDR_SET, &sg)) {
+ 			dev_warn(&vdev->dev,
+ 				 "Failed to set mac address by vq command.\n");
+-			return -EINVAL;
++			ret = -EINVAL;
++			goto out;
+ 		}
+ 	} else if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC) &&
+ 		   !virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
+@@ -996,8 +1002,11 @@ static int virtnet_set_mac_address(struct net_device *dev, void *p)
+ 	}
+ 
+ 	eth_commit_mac_addr_change(dev, p);
++	ret = 0;
+ 
+-	return 0;
++out:
++	kfree(addr);
++	return ret;
+ }
+ 
+ static struct rtnl_link_stats64 *virtnet_stats(struct net_device *dev,
+-- 
+2.9.3
