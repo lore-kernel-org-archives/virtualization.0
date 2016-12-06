@@ -1,15 +1,14 @@
-From: Pan Xinhui <xinhui@linux.vnet.ibm.com>
-Subject: Re: [PATCH v8 1/6] powerpc/qspinlock: powerpc support qspinlock
-Date: Tue, 6 Dec 2016 09:16:20 +0800
-Message-ID: <1700eef8-415c-59d3-d6a1-61314f8be1af@linux.vnet.ibm.com>
+From: Boqun Feng <boqun.feng@gmail.com>
+Subject: Re: [PATCH v8 3/6] powerpc: lib/locks.c: Add cpu yield/wake helper
+	function
+Date: Tue, 6 Dec 2016 09:23:15 +0800
+Message-ID: <20161206012315.GD18164@tardis.cn.ibm.com>
 References: <1480951166-44830-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<1480951166-44830-2-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<20161206004747.GB18164@tardis.cn.ibm.com>
+	<1480951166-44830-4-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============8194229706457599174=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161206004747.GB18164@tardis.cn.ibm.com>
+In-Reply-To: <1480951166-44830-4-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,173 +18,177 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Boqun Feng <boqun.feng@gmail.com>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Cc: peterz@infradead.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, Waiman Long <longman@redhat.com>, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
+To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Cc: peterz@infradead.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org, waiman.long@hpe.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Y29ycmVjdCB3YWltYW4ncyBhZGRyZXNzLgoK5ZyoIDIwMTYvMTIvNiAwODo0NywgQm9xdW4gRmVu
-ZyDlhpnpgZM6Cj4gT24gTW9uLCBEZWMgMDUsIDIwMTYgYXQgMTA6MTk6MjFBTSAtMDUwMCwgUGFu
-IFhpbmh1aSB3cm90ZToKPj4gVGhpcyBwYXRjaCBhZGQgYmFzaWMgY29kZSB0byBlbmFibGUgcXNw
-aW5sb2NrIG9uIHBvd2VycGMuIHFzcGlubG9jayBpcwo+PiBvbmUga2luZCBvZiBmYWlybG9jayBp
-bXBsZW1lbnRhdGlvbi4gQW5kIHNlZW4gc29tZSBwZXJmb3JtYW5jZSBpbXByb3ZlbWVudAo+PiB1
-bmRlciBzb21lIHNjZW5hcmlvcy4KPj4KPj4gcXVldWVkX3NwaW5fdW5sb2NrKCkgcmVsZWFzZSB0
-aGUgbG9jayBieSBqdXN0IG9uZSB3cml0ZSBvZiBOVUxMIHRvIHRoZQo+PiA6OmxvY2tlZCBmaWVs
-ZCB3aGljaCBzaXRzIGF0IGRpZmZlcmVudCBwbGFjZXMgaW4gdGhlIHR3byBlbmRpYW5uZXNzCj4+
-IHN5c3RlbS4KPj4KPj4gV2Ugb3ZlcnJpZGUgc29tZSBhcmNoX3NwaW5fWFhYIGFzIHBvd2VycGMg
-aGFzIGlvX3N5bmMgc3R1ZmYgd2hpY2ggbWFrZXMKPj4gc3VyZSB0aGUgaW8gb3BlcmF0aW9ucyBh
-cmUgcHJvdGVjdGVkIGJ5IHRoZSBsb2NrIGNvcnJlY3RseS4KPj4KPj4gVGhlcmUgaXMgYW5vdGhl
-ciBzcGVjaWFsIGNhc2UsIHNlZSBjb21taXQKPj4gMmM2MTAwMjI3MTEgKCJsb2NraW5nL3FzcGlu
-bG9jazogRml4IHNwaW5fdW5sb2NrX3dhaXQoKSBzb21lIG1vcmUiKQo+Pgo+PiBTaWduZWQtb2Zm
-LWJ5OiBQYW4gWGluaHVpIDx4aW5odWkucGFuQGxpbnV4LnZuZXQuaWJtLmNvbT4KPj4gLS0tCj4+
-ICBhcmNoL3Bvd2VycGMvaW5jbHVkZS9hc20vcXNwaW5sb2NrLmggICAgICB8IDY2ICsrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysKPj4gIGFyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9zcGlu
-bG9jay5oICAgICAgIHwgMzEgKysrKysrKysrLS0tLS0tCj4+ICBhcmNoL3Bvd2VycGMvaW5jbHVk
-ZS9hc20vc3BpbmxvY2tfdHlwZXMuaCB8ICA0ICsrCj4+ICBhcmNoL3Bvd2VycGMvbGliL2xvY2tz
-LmMgICAgICAgICAgICAgICAgICB8IDU5ICsrKysrKysrKysrKysrKysrKysrKysrKysrKwo+PiAg
-NCBmaWxlcyBjaGFuZ2VkLCAxNDcgaW5zZXJ0aW9ucygrKSwgMTMgZGVsZXRpb25zKC0pCj4+ICBj
-cmVhdGUgbW9kZSAxMDA2NDQgYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3FzcGlubG9jay5oCj4+
-Cj4+IGRpZmYgLS1naXQgYS9hcmNoL3Bvd2VycGMvaW5jbHVkZS9hc20vcXNwaW5sb2NrLmggYi9h
-cmNoL3Bvd2VycGMvaW5jbHVkZS9hc20vcXNwaW5sb2NrLmgKPj4gbmV3IGZpbGUgbW9kZSAxMDA2
-NDQKPj4gaW5kZXggMDAwMDAwMC4uNGM4OTI1Ngo+PiAtLS0gL2Rldi9udWxsCj4+ICsrKyBiL2Fy
-Y2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9xc3BpbmxvY2suaAo+PiBAQCAtMCwwICsxLDY2IEBACj4+
-ICsjaWZuZGVmIF9BU01fUE9XRVJQQ19RU1BJTkxPQ0tfSAo+PiArI2RlZmluZSBfQVNNX1BPV0VS
-UENfUVNQSU5MT0NLX0gKPj4gKwo+PiArI2luY2x1ZGUgPGFzbS1nZW5lcmljL3FzcGlubG9ja190
-eXBlcy5oPgo+PiArCj4+ICsjZGVmaW5lIFNQSU5fVEhSRVNIT0xEICgxIDw8IDE1KQo+PiArI2Rl
-ZmluZSBxdWV1ZWRfc3Bpbl91bmxvY2sgcXVldWVkX3NwaW5fdW5sb2NrCj4+ICsjZGVmaW5lIHF1
-ZXVlZF9zcGluX2lzX2xvY2tlZCBxdWV1ZWRfc3Bpbl9pc19sb2NrZWQKPj4gKyNkZWZpbmUgcXVl
-dWVkX3NwaW5fdW5sb2NrX3dhaXQgcXVldWVkX3NwaW5fdW5sb2NrX3dhaXQKPj4gKwo+PiArZXh0
-ZXJuIHZvaWQgcXVldWVkX3NwaW5fdW5sb2NrX3dhaXQoc3RydWN0IHFzcGlubG9jayAqbG9jayk7
-Cj4+ICsKPj4gK3N0YXRpYyBpbmxpbmUgdTggKl9fcXNwaW5sb2NrX2xvY2tfYnl0ZShzdHJ1Y3Qg
-cXNwaW5sb2NrICpsb2NrKQo+PiArewo+PiArCXJldHVybiAodTggKilsb2NrICsgMyAqIElTX0JV
-SUxUSU4oQ09ORklHX0NQVV9CSUdfRU5ESUFOKTsKPj4gK30KPj4gKwo+PiArc3RhdGljIGlubGlu
-ZSB2b2lkIHF1ZXVlZF9zcGluX3VubG9jayhzdHJ1Y3QgcXNwaW5sb2NrICpsb2NrKQo+PiArewo+
-PiArCS8qIHJlbGVhc2Ugc2VtYW50aWNzIGlzIHJlcXVpcmVkICovCj4+ICsJc21wX3N0b3JlX3Jl
-bGVhc2UoX19xc3BpbmxvY2tfbG9ja19ieXRlKGxvY2spLCAwKTsKPj4gK30KPj4gKwo+PiArc3Rh
-dGljIGlubGluZSBpbnQgcXVldWVkX3NwaW5faXNfbG9ja2VkKHN0cnVjdCBxc3BpbmxvY2sgKmxv
-Y2spCj4+ICt7Cj4+ICsJc21wX21iKCk7Cj4+ICsJcmV0dXJuIGF0b21pY19yZWFkKCZsb2NrLT52
-YWwpOwo+PiArfQo+PiArCj4+ICsjaW5jbHVkZSA8YXNtLWdlbmVyaWMvcXNwaW5sb2NrLmg+Cj4+
-ICsKPj4gKy8qIHdlIG5lZWQgb3ZlcnJpZGUgaXQgYXMgcHBjIGhhcyBpb19zeW5jIHN0dWZmICov
-Cj4+ICsjdW5kZWYgYXJjaF9zcGluX3RyeWxvY2sKPj4gKyN1bmRlZiBhcmNoX3NwaW5fbG9jawo+
-PiArI3VuZGVmIGFyY2hfc3Bpbl9sb2NrX2ZsYWdzCj4+ICsjdW5kZWYgYXJjaF9zcGluX3VubG9j
-awo+PiArI2RlZmluZSBhcmNoX3NwaW5fdHJ5bG9jayBhcmNoX3NwaW5fdHJ5bG9jawo+PiArI2Rl
-ZmluZSBhcmNoX3NwaW5fbG9jayBhcmNoX3NwaW5fbG9jawo+PiArI2RlZmluZSBhcmNoX3NwaW5f
-bG9ja19mbGFncyBhcmNoX3NwaW5fbG9ja19mbGFncwo+PiArI2RlZmluZSBhcmNoX3NwaW5fdW5s
-b2NrIGFyY2hfc3Bpbl91bmxvY2sKPj4gKwo+PiArc3RhdGljIGlubGluZSBpbnQgYXJjaF9zcGlu
-X3RyeWxvY2soYXJjaF9zcGlubG9ja190ICpsb2NrKQo+PiArewo+PiArCUNMRUFSX0lPX1NZTkM7
-Cj4+ICsJcmV0dXJuIHF1ZXVlZF9zcGluX3RyeWxvY2sobG9jayk7Cj4+ICt9Cj4+ICsKPj4gK3N0
-YXRpYyBpbmxpbmUgdm9pZCBhcmNoX3NwaW5fbG9jayhhcmNoX3NwaW5sb2NrX3QgKmxvY2spCj4+
-ICt7Cj4+ICsJQ0xFQVJfSU9fU1lOQzsKPj4gKwlxdWV1ZWRfc3Bpbl9sb2NrKGxvY2spOwo+PiAr
-fQo+PiArCj4+ICtzdGF0aWMgaW5saW5lCj4+ICt2b2lkIGFyY2hfc3Bpbl9sb2NrX2ZsYWdzKGFy
-Y2hfc3BpbmxvY2tfdCAqbG9jaywgdW5zaWduZWQgbG9uZyBmbGFncykKPj4gK3sKPj4gKwlDTEVB
-Ul9JT19TWU5DOwo+PiArCXF1ZXVlZF9zcGluX2xvY2sobG9jayk7Cj4+ICt9Cj4+ICsKPj4gK3N0
-YXRpYyBpbmxpbmUgdm9pZCBhcmNoX3NwaW5fdW5sb2NrKGFyY2hfc3BpbmxvY2tfdCAqbG9jaykK
-Pj4gK3sKPj4gKwlTWU5DX0lPOwo+PiArCXF1ZXVlZF9zcGluX3VubG9jayhsb2NrKTsKPj4gK30K
-Pj4gKyNlbmRpZiAvKiBfQVNNX1BPV0VSUENfUVNQSU5MT0NLX0ggKi8KPj4gZGlmZiAtLWdpdCBh
-L2FyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9zcGlubG9jay5oIGIvYXJjaC9wb3dlcnBjL2luY2x1
-ZGUvYXNtL3NwaW5sb2NrLmgKPj4gaW5kZXggOGMxYjkxMy4uOTU0MDk5ZSAxMDA2NDQKPj4gLS0t
-IGEvYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3NwaW5sb2NrLmgKPj4gKysrIGIvYXJjaC9wb3dl
-cnBjL2luY2x1ZGUvYXNtL3NwaW5sb2NrLmgKPj4gQEAgLTYwLDYgKzYwLDIzIEBAIHN0YXRpYyBp
-bmxpbmUgYm9vbCB2Y3B1X2lzX3ByZWVtcHRlZChpbnQgY3B1KQo+PiAgfQo+PiAgI2VuZGlmCj4+
-Cj4+ICsjaWYgZGVmaW5lZChDT05GSUdfUFBDX1NQTFBBUikKPj4gKy8qIFdlIG9ubHkgeWllbGQg
-dG8gdGhlIGh5cGVydmlzb3IgaWYgd2UgYXJlIGluIHNoYXJlZCBwcm9jZXNzb3IgbW9kZSAqLwo+
-PiArI2RlZmluZSBTSEFSRURfUFJPQ0VTU09SIChscHBhY2Ffc2hhcmVkX3Byb2MobG9jYWxfcGFj
-YS0+bHBwYWNhX3B0cikpCj4+ICtleHRlcm4gdm9pZCBfX3NwaW5feWllbGQoYXJjaF9zcGlubG9j
-a190ICpsb2NrKTsKPj4gK2V4dGVybiB2b2lkIF9fcndfeWllbGQoYXJjaF9yd2xvY2tfdCAqbG9j
-ayk7Cj4+ICsjZWxzZSAvKiBTUExQQVIgKi8KPj4gKyNkZWZpbmUgX19zcGluX3lpZWxkKHgpICAg
-ICAgICBiYXJyaWVyKCkKPj4gKyNkZWZpbmUgX19yd195aWVsZCh4KSAgYmFycmllcigpCj4+ICsj
-ZGVmaW5lIFNIQVJFRF9QUk9DRVNTT1IgICAgICAgMAo+PiArI2VuZGlmCj4+ICsKPj4gKyNpZmRl
-ZiBDT05GSUdfUVVFVUVEX1NQSU5MT0NLUwo+PiArI2luY2x1ZGUgPGFzbS9xc3BpbmxvY2suaD4K
-Pj4gKyNlbHNlCj4+ICsKPj4gKyNkZWZpbmUgYXJjaF9zcGluX3JlbGF4KGxvY2spICBfX3NwaW5f
-eWllbGQobG9jaykKPj4gKwo+PiAgc3RhdGljIF9fYWx3YXlzX2lubGluZSBpbnQgYXJjaF9zcGlu
-X3ZhbHVlX3VubG9ja2VkKGFyY2hfc3BpbmxvY2tfdCBsb2NrKQo+PiAgewo+PiAgCXJldHVybiBs
-b2NrLnNsb2NrID09IDA7Cj4+IEBAIC0xMTQsMTggKzEzMSw2IEBAIHN0YXRpYyBpbmxpbmUgaW50
-IGFyY2hfc3Bpbl90cnlsb2NrKGFyY2hfc3BpbmxvY2tfdCAqbG9jaykKPj4gICAqIGhlbGQuICBD
-b252ZW5pZW50bHksIHdlIGhhdmUgYSB3b3JkIGluIHRoZSBwYWNhIHRoYXQgaG9sZHMgdGhpcwo+
-PiAgICogdmFsdWUuCj4+ICAgKi8KPj4gLQo+PiAtI2lmIGRlZmluZWQoQ09ORklHX1BQQ19TUExQ
-QVIpCj4+IC0vKiBXZSBvbmx5IHlpZWxkIHRvIHRoZSBoeXBlcnZpc29yIGlmIHdlIGFyZSBpbiBz
-aGFyZWQgcHJvY2Vzc29yIG1vZGUgKi8KPj4gLSNkZWZpbmUgU0hBUkVEX1BST0NFU1NPUiAobHBw
-YWNhX3NoYXJlZF9wcm9jKGxvY2FsX3BhY2EtPmxwcGFjYV9wdHIpKQo+PiAtZXh0ZXJuIHZvaWQg
-X19zcGluX3lpZWxkKGFyY2hfc3BpbmxvY2tfdCAqbG9jayk7Cj4+IC1leHRlcm4gdm9pZCBfX3J3
-X3lpZWxkKGFyY2hfcndsb2NrX3QgKmxvY2spOwo+PiAtI2Vsc2UgLyogU1BMUEFSICovCj4+IC0j
-ZGVmaW5lIF9fc3Bpbl95aWVsZCh4KQliYXJyaWVyKCkKPj4gLSNkZWZpbmUgX19yd195aWVsZCh4
-KQliYXJyaWVyKCkKPj4gLSNkZWZpbmUgU0hBUkVEX1BST0NFU1NPUgkwCj4+IC0jZW5kaWYKPj4g
-LQo+PiAgc3RhdGljIGlubGluZSB2b2lkIGFyY2hfc3Bpbl9sb2NrKGFyY2hfc3BpbmxvY2tfdCAq
-bG9jaykKPj4gIHsKPj4gIAlDTEVBUl9JT19TWU5DOwo+PiBAQCAtMjAzLDYgKzIwOCw3IEBAIHN0
-YXRpYyBpbmxpbmUgdm9pZCBhcmNoX3NwaW5fdW5sb2NrX3dhaXQoYXJjaF9zcGlubG9ja190ICps
-b2NrKQo+PiAgCXNtcF9tYigpOwo+PiAgfQo+Pgo+PiArI2VuZGlmIC8qICFDT05GSUdfUVVFVUVE
-X1NQSU5MT0NLUyAqLwo+PiAgLyoKPj4gICAqIFJlYWQtd3JpdGUgc3BpbmxvY2tzLCBhbGxvd2lu
-ZyBtdWx0aXBsZSByZWFkZXJzCj4+ICAgKiBidXQgb25seSBvbmUgd3JpdGVyLgo+PiBAQCAtMzM4
-LDcgKzM0NCw2IEBAIHN0YXRpYyBpbmxpbmUgdm9pZCBhcmNoX3dyaXRlX3VubG9jayhhcmNoX3J3
-bG9ja190ICpydykKPj4gICNkZWZpbmUgYXJjaF9yZWFkX2xvY2tfZmxhZ3MobG9jaywgZmxhZ3Mp
-IGFyY2hfcmVhZF9sb2NrKGxvY2spCj4+ICAjZGVmaW5lIGFyY2hfd3JpdGVfbG9ja19mbGFncyhs
-b2NrLCBmbGFncykgYXJjaF93cml0ZV9sb2NrKGxvY2spCj4+Cj4+IC0jZGVmaW5lIGFyY2hfc3Bp
-bl9yZWxheChsb2NrKQlfX3NwaW5feWllbGQobG9jaykKPj4gICNkZWZpbmUgYXJjaF9yZWFkX3Jl
-bGF4KGxvY2spCV9fcndfeWllbGQobG9jaykKPj4gICNkZWZpbmUgYXJjaF93cml0ZV9yZWxheChs
-b2NrKQlfX3J3X3lpZWxkKGxvY2spCj4+Cj4+IGRpZmYgLS1naXQgYS9hcmNoL3Bvd2VycGMvaW5j
-bHVkZS9hc20vc3BpbmxvY2tfdHlwZXMuaCBiL2FyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9zcGlu
-bG9ja190eXBlcy5oCj4+IGluZGV4IDIzNTFhZGMuLmJkNzE0NGUgMTAwNjQ0Cj4+IC0tLSBhL2Fy
-Y2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9zcGlubG9ja190eXBlcy5oCj4+ICsrKyBiL2FyY2gvcG93
-ZXJwYy9pbmNsdWRlL2FzbS9zcGlubG9ja190eXBlcy5oCj4+IEBAIC01LDExICs1LDE1IEBACj4+
-ICAjIGVycm9yICJwbGVhc2UgZG9uJ3QgaW5jbHVkZSB0aGlzIGZpbGUgZGlyZWN0bHkiCj4+ICAj
-ZW5kaWYKPj4KPj4gKyNpZmRlZiBDT05GSUdfUVVFVUVEX1NQSU5MT0NLUwo+PiArI2luY2x1ZGUg
-PGFzbS1nZW5lcmljL3FzcGlubG9ja190eXBlcy5oPgo+PiArI2Vsc2UKPj4gIHR5cGVkZWYgc3Ry
-dWN0IHsKPj4gIAl2b2xhdGlsZSB1bnNpZ25lZCBpbnQgc2xvY2s7Cj4+ICB9IGFyY2hfc3Bpbmxv
-Y2tfdDsKPj4KPj4gICNkZWZpbmUgX19BUkNIX1NQSU5fTE9DS19VTkxPQ0tFRAl7IDAgfQo+PiAr
-I2VuZGlmCj4+Cj4+ICB0eXBlZGVmIHN0cnVjdCB7Cj4+ICAJdm9sYXRpbGUgc2lnbmVkIGludCBs
-b2NrOwo+PiBkaWZmIC0tZ2l0IGEvYXJjaC9wb3dlcnBjL2xpYi9sb2Nrcy5jIGIvYXJjaC9wb3dl
-cnBjL2xpYi9sb2Nrcy5jCj4+IGluZGV4IGI3YjEyMzcuLjY1NzQ2MjYgMTAwNjQ0Cj4+IC0tLSBh
-L2FyY2gvcG93ZXJwYy9saWIvbG9ja3MuYwo+PiArKysgYi9hcmNoL3Bvd2VycGMvbGliL2xvY2tz
-LmMKPj4gQEAgLTIzLDYgKzIzLDcgQEAKPj4gICNpbmNsdWRlIDxhc20vaHZjYWxsLmg+Cj4+ICAj
-aW5jbHVkZSA8YXNtL3NtcC5oPgo+Pgo+PiArI2lmbmRlZiBDT05GSUdfUVVFVUVEX1NQSU5MT0NL
-Uwo+PiAgdm9pZCBfX3NwaW5feWllbGQoYXJjaF9zcGlubG9ja190ICpsb2NrKQo+PiAgewo+PiAg
-CXVuc2lnbmVkIGludCBsb2NrX3ZhbHVlLCBob2xkZXJfY3B1LCB5aWVsZF9jb3VudDsKPj4gQEAg
-LTQyLDYgKzQzLDcgQEAgdm9pZCBfX3NwaW5feWllbGQoYXJjaF9zcGlubG9ja190ICpsb2NrKQo+
-PiAgCQlnZXRfaGFyZF9zbXBfcHJvY2Vzc29yX2lkKGhvbGRlcl9jcHUpLCB5aWVsZF9jb3VudCk7
-Cj4+ICB9Cj4+ICBFWFBPUlRfU1lNQk9MX0dQTChfX3NwaW5feWllbGQpOwo+PiArI2VuZGlmCj4+
-Cj4+ICAvKgo+PiAgICogV2FpdGluZyBmb3IgYSByZWFkIGxvY2sgb3IgYSB3cml0ZSBsb2NrIG9u
-IGEgcndsb2NrLi4uCj4+IEBAIC02OCwzICs3MCw2MCBAQCB2b2lkIF9fcndfeWllbGQoYXJjaF9y
-d2xvY2tfdCAqcncpCj4+ICAJCWdldF9oYXJkX3NtcF9wcm9jZXNzb3JfaWQoaG9sZGVyX2NwdSks
-IHlpZWxkX2NvdW50KTsKPj4gIH0KPj4gICNlbmRpZgo+PiArCj4+ICsjaWZkZWYgQ09ORklHX1FV
-RVVFRF9TUElOTE9DS1MKPj4gKy8qCj4+ICsgKiBUaGlzIGZvcmJpZCB3ZSBsb2FkIGFuIG9sZCB2
-YWx1ZSBpbiBhbm90aGVyIExML1NDLiBCZWNhdXNlIHRoZSBTQyBoZXJlIGZvcmNlCj4+ICsgKiBh
-bm90aGVyIExML1NDIHJlcGVhdC4gU28gd2UgZ3VhcmFudGVlIGFsbCBsb2FkcyBpbiBhbm90aGVy
-IExMIGFuZCBTQyB3aWxsCj4+ICsgKiByZWFkIGNvcnJlY3QgdmFsdWUuCj4+ICsgKi8KPj4gK3N0
-YXRpYyBpbmxpbmUgdTMyIGF0b21pY19yZWFkX3N5bmMoYXRvbWljX3QgKnYpCj4+ICt7Cj4+ICsJ
-dTMyIHZhbDsKPj4gKwo+PiArCV9fYXNtX18gX192b2xhdGlsZV9fKAo+PiArIjE6CSIgUFBDX0xX
-QVJYKCUwLCAwLCAlMiwgMCkgIlxuIgo+PiArIglzdHdjeC4gJTAsIDAsICUyXG4iCj4+ICsiCWJu
-ZS0gMWJcbiIKPj4gKwk6ICI9JnIiICh2YWwpLCAiK20iICgqdikKPj4gKwk6ICJyIiAodikKPj4g
-Kwk6ICJjcjAiLCAieGVyIik7Cj4+ICsKPj4gKwlyZXR1cm4gdmFsOwo+PiArfQo+PiArCj4+ICt2
-b2lkIHF1ZXVlZF9zcGluX3VubG9ja193YWl0KHN0cnVjdCBxc3BpbmxvY2sgKmxvY2spCj4+ICt7
-Cj4+ICsKPj4gKwl1MzIgdmFsOwo+PiArCj4+ICsJc21wX21iKCk7Cj4+ICsKPj4gKwkvKgo+PiAr
-CSAqIGNvcGllZCBmcm9tIGdlbmVyaWMgcXVldWVfc3Bpbl91bmxvY2tfd2FpdCB3aXRoIGxpdHRs
-ZSBtb2RpZmljYXRpb24KPj4gKwkgKi8KPj4gKwlmb3IgKDs7KSB7Cj4+ICsJCS8qIG5lZWQgX3N5
-bmMsIGFzIHdlIG1pZ2h0IHJhY2Ugd2l0aCBhbm90aGVyIExML1NDIGluIGxvY2soKSovCj4+ICsJ
-CXZhbCA9IGF0b21pY19yZWFkX3N5bmMoJmxvY2stPnZhbCk7Cj4+ICsKPj4gKwkJaWYgKCF2YWwp
-IC8qIG5vdCBsb2NrZWQsIHdlJ3JlIGRvbmUgKi8KPj4gKwkJCWdvdG8gZG9uZTsKPj4gKwo+PiAr
-CQlpZiAodmFsICYgX1FfTE9DS0VEX01BU0spIC8qIGxvY2tlZCwgZ28gd2FpdCBmb3IgdW5sb2Nr
-ICovCj4+ICsJCQlicmVhazsKPj4gKwo+PiArCQkvKiBub3QgbG9ja2VkLCBidXQgcGVuZGluZywg
-d2FpdCB1bnRpbCB3ZSBvYnNlcnZlIHRoZSBsb2NrICovCj4+ICsJCWNwdV9yZWxheCgpOwo+PiAr
-CX0KPj4gKwo+PiArCS8qCj4+ICsJICogYW55IHVubG9jayBpcyBnb29kLiBBbmQgbmVlZCBub3Qg
-X3N5bmMsIGFzIC0+dmFsIGlzIHNldCBieSB0aGUgU0MgaW4KPj4gKwkgKiB1bmxvY2soKSwgYW55
-IGxvYWRzIGluIGxvY2soKSBtdXN0IHNlZSB0aGUgY29ycmVjdCB2YWx1ZS4KPj4gKwkgKi8KPgo+
-IEkgZG9uJ3QgdGhpbmsgdGhlIGNvbW1lbnQgaGVyZSBhYm91dCBfc3luYyBpcyBjb3JyZWN0LiBG
-aXJzdCwgbm90IGFsbAo+IHVubG9jaygpIGhhcyBhIFNDIHBhcnQsIGFuZCBmb3IgdW5sb2NrX3dh
-aXQoKSBjYXNlIHRoZXJlIGlzIG5vdGhpbmcgdG8KeWVzLCBub3QgYWxsIHVubG9jayBoYXMgc2Ms
-IGJ1dCB3ZSBhcmUganVzdCBkZWFsaW5nIHdpdGggc2MgcGFydCBvciB1bmxvY2suCgo+IGRvIHdp
-dGggd2hldGhlciBsb2NrKCkgc2VlIHRoZSBjb3JyZWN0IHZhbHVlIG9yIG5vdC4gVGhlIHJlYXNv
-biB3aXRoCnllcCwgYnV0IGxvYWRzIGNhbiBiZSByZW9yZGVkLCBzbyB0aGUgdW5sb2NrX3dhaXQo
-U0MpIHZzIGxvY2soU0MpIGNhbiBmb3JiaWQKYW55IGxvYWRzIGJldHdlZW4gbG9jayhMTCkgYW5k
-IGxvY2soU0MpIHJlYWRpbmcgYW55IHRvbyBuZXcgdmFsdWVzLgo+IF9zeW5jIGlzIG5vdCBuZWVk
-ZWQgaGVyZSBpczoKPgo+IC8qCj4gICogX3N5bmMoKSBpcyBub3QgbmVlZGVkIGhlcmUsIGJlY2F1
-c2Ugb25jZSB3ZSBnb3QgaGVyZSwgd2UgbXVzdCBhbHJlYWR5Cj4gICogcmVhZCB0aGUgLT52YWwg
-YXMgTE9DS0VEIHZpYSBhIF9zeW5jKCkuIENvbWJpbmluZyB0aGUgc21wX21iKCkKPiAgKiBiZWZv
-cmUsIHdlIGd1YXJhbnRlZSB0aGF0IGFsbCB0aGUgbWVtb3J5IGFjY2Vzc2VzIGJlZm9yZQo+ICAq
-IHVubG9ja193YWl0KCkgbXVzdCBiZSBvYnNlcnZlZCBieSB0aGUgbmV4dCBsb2NrIGNyaXRpY2Fs
-IHNlY3Rpb24uCj4gICovCj4KZ29vZCwgbW9yZSBjbGVhcmx5LiB0aGFua3MKCnhpbmh1aQoKPiBS
-ZWdhcmRzLAo+IEJvcXVuCj4KPj4gKwl3aGlsZSAoYXRvbWljX3JlYWQoJmxvY2stPnZhbCkgJiBf
-UV9MT0NLRURfTUFTSykKPj4gKwkJY3B1X3JlbGF4KCk7Cj4+ICtkb25lOgo+PiArCXNtcF9tYigp
-Owo+PiArfQo+PiArRVhQT1JUX1NZTUJPTChxdWV1ZWRfc3Bpbl91bmxvY2tfd2FpdCk7Cj4+ICsj
-ZW5kaWYKPj4gLS0KPj4gMi40LjExCj4+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
-b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+
+--===============8194229706457599174==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="9ADF8FXzFeE7X4jE"
+Content-Disposition: inline
+
+
+--9ADF8FXzFeE7X4jE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Dec 05, 2016 at 10:19:23AM -0500, Pan Xinhui wrote:
+> Add two corresponding helper functions to support pv-qspinlock.
+>=20
+> For normal use, __spin_yield_cpu will confer current vcpu slices to the
+> target vcpu(say, a lock holder). If target vcpu is not specified or it
+> is in running state, such conferging to lpar happens or not depends.
+>=20
+> Because hcall itself will introduce latency and a little overhead. And we
+> do NOT want to suffer any latency on some cases, e.g. in interrupt handle=
+r.
+> The second parameter *confer* can indicate such case.
+>=20
+> __spin_wake_cpu is simpiler, it will wake up one vcpu regardless of its
+> current vcpu state.
+>=20
+> Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+> ---
+>  arch/powerpc/include/asm/spinlock.h |  4 +++
+>  arch/powerpc/lib/locks.c            | 59 +++++++++++++++++++++++++++++++=
+++++++
+>  2 files changed, 63 insertions(+)
+>=20
+> diff --git a/arch/powerpc/include/asm/spinlock.h b/arch/powerpc/include/a=
+sm/spinlock.h
+> index 954099e..6426bd5 100644
+> --- a/arch/powerpc/include/asm/spinlock.h
+> +++ b/arch/powerpc/include/asm/spinlock.h
+> @@ -64,9 +64,13 @@ static inline bool vcpu_is_preempted(int cpu)
+>  /* We only yield to the hypervisor if we are in shared processor mode */
+>  #define SHARED_PROCESSOR (lppaca_shared_proc(local_paca->lppaca_ptr))
+>  extern void __spin_yield(arch_spinlock_t *lock);
+> +extern void __spin_yield_cpu(int cpu, int confer);
+> +extern void __spin_wake_cpu(int cpu);
+>  extern void __rw_yield(arch_rwlock_t *lock);
+>  #else /* SPLPAR */
+>  #define __spin_yield(x)        barrier()
+> +#define __spin_yield_cpu(x, y) barrier()
+> +#define __spin_wake_cpu(x) barrier()
+>  #define __rw_yield(x)  barrier()
+>  #define SHARED_PROCESSOR       0
+>  #endif
+> diff --git a/arch/powerpc/lib/locks.c b/arch/powerpc/lib/locks.c
+> index 6574626..bd872c9 100644
+> --- a/arch/powerpc/lib/locks.c
+> +++ b/arch/powerpc/lib/locks.c
+> @@ -23,6 +23,65 @@
+>  #include <asm/hvcall.h>
+>  #include <asm/smp.h>
+> =20
+> +/*
+> + * confer our slices to a specified cpu and return. If it is in running =
+state
+> + * or cpu is -1, then we will check confer. If confer is NULL, we will r=
+eturn
+> + * otherwise we confer our slices to lpar.
+> + */
+> +void __spin_yield_cpu(int cpu, int confer)
+> +{
+> +	unsigned int holder_cpu =3D cpu, yield_count;
+
+As I said at:
+
+https://marc.info/?l=3Dlinux-kernel&m=3D147455748619343&w=3D2
+
+@holder_cpu is not necessary and doesn't help anything.
+
+> +
+> +	if (cpu =3D=3D -1)
+> +		goto yield_to_lpar;
+> +
+> +	BUG_ON(holder_cpu >=3D nr_cpu_ids);
+> +	yield_count =3D be32_to_cpu(lppaca_of(holder_cpu).yield_count);
+> +
+> +	/* if cpu is running, confer slices to lpar conditionally*/
+> +	if ((yield_count & 1) =3D=3D 0)
+> +		goto yield_to_lpar;
+> +
+> +	plpar_hcall_norets(H_CONFER,
+> +		get_hard_smp_processor_id(holder_cpu), yield_count);
+> +	return;
+> +
+> +yield_to_lpar:
+> +	if (confer)
+> +		plpar_hcall_norets(H_CONFER, -1, 0);
+> +}
+> +EXPORT_SYMBOL_GPL(__spin_yield_cpu);
+> +
+> +void __spin_wake_cpu(int cpu)
+> +{
+> +	unsigned int holder_cpu =3D cpu;
+
+And it's even wrong to call the parameter of _wake_cpu() a holder_cpu,
+because it's not the current lock holder.
+
+Regards,
+Boqun
+
+> +
+> +	BUG_ON(holder_cpu >=3D nr_cpu_ids);
+> +	/*
+> +	 * NOTE: we should always do this hcall regardless of
+> +	 * the yield_count of the holder_cpu.
+> +	 * as thers might be a case like below;
+> +	 *	CPU 1			CPU 2
+> +	 *				yielded =3D true
+> +	 * if (yielded)
+> +	 *	__spin_wake_cpu()
+> +	 *				__spin_yield_cpu()
+> +	 *
+> +	 * So we might lose a wake if we check the yield_count and
+> +	 * return directly if the holder_cpu is running.
+> +	 * IOW. do NOT code like below.
+> +	 *	yield_count =3D be32_to_cpu(lppaca_of(holder_cpu).yield_count);
+> +	 *	if ((yield_count & 1) =3D=3D 0)
+> +	 *		return;
+> +	 *
+> +	 * a PROD hcall marks the target_cpu proded, which cause the next cede
+> +	 * or confer called on the target_cpu invalid.
+> +	 */
+> +	plpar_hcall_norets(H_PROD,
+> +		get_hard_smp_processor_id(holder_cpu));
+> +}
+> +EXPORT_SYMBOL_GPL(__spin_wake_cpu);
+> +
+>  #ifndef CONFIG_QUEUED_SPINLOCKS
+>  void __spin_yield(arch_spinlock_t *lock)
+>  {
+> --=20
+> 2.4.11
+>=20
+
+--9ADF8FXzFeE7X4jE
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAABCAAGBQJYRhL/AAoJEEl56MO1B/q45moH/0tssWctDVQsjVy5WuNi/hvA
+L4e/ZuV15whPP7skv2LdFPtYlgTiffVowBZzesZhRxhtgII493XtKBYBn6fANw0h
+6SL43kqYjiAqNQOrctyXTUjZyNpkVH8xDqXVMU+t0A3+sjbNfy34KicR8DxBwuPO
+UWtdxSFlR8yixVjtYdBCWlsRIMCOU1/iD7/Xa89S6utJYQ49QQN4knQZgJI4aPh5
+PoddXsUQPK/0iGUBEaSyVhICmYropOHZnvBjQP+1QWmk9g6lnzri7HbTFtTuTKHR
+djgXWL7f0h+z5Cg2ZQPJakXbEwztucINAesRyp8WEofmaHMa6PSEfcWDIvD+p7g=
+=PcEx
+-----END PGP SIGNATURE-----
+
+--9ADF8FXzFeE7X4jE--
+
+--===============8194229706457599174==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8194229706457599174==--
