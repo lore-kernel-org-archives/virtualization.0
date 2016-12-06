@@ -1,17 +1,13 @@
-From: Dave Hansen <dave.hansen@intel.com>
-Subject: Re: [PATCH kernel v5 5/5] virtio-balloon: tell host vm's unused page
-	info
-Date: Mon, 5 Dec 2016 09:22:25 -0800
-Message-ID: <70ece7a5-348b-2eb9-c40a-f21b08df042c@intel.com>
-References: <1480495397-23225-1-git-send-email-liang.z.li@intel.com>
-	<1480495397-23225-6-git-send-email-liang.z.li@intel.com>
-	<438dd41a-fdf1-2a77-ef9c-8c103f492b2f@intel.com>
-	<F2CBF3009FA73547804AE4C663CAB28E3A12D814@shsmsx102.ccr.corp.intel.com>
+From: Boqun Feng <boqun.feng@gmail.com>
+Subject: Re: [PATCH v8 1/6] powerpc/qspinlock: powerpc support qspinlock
+Date: Tue, 6 Dec 2016 08:47:47 +0800
+Message-ID: <20161206004747.GB18164__22601.1762897999$1480985333$gmane$org@tardis.cn.ibm.com>
+References: <1480951166-44830-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+	<1480951166-44830-2-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============4460803326478195535=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <F2CBF3009FA73547804AE4C663CAB28E3A12D814@shsmsx102.ccr.corp.intel.com>
+In-Reply-To: <1480951166-44830-2-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,108 +17,336 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Li, Liang Z" <liang.z.li@intel.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "mhocko@suse.com" <mhocko@suse.com>, Amit Shah <amit.shah@redhat.com>, "mst@redhat.com" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Mel Gorman <mgorman@techsingularity.net>, "dgilbert@redhat.com" <dgilbert@redhat.com>
+To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Cc: peterz@infradead.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org, waiman.long@hpe.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/04/2016 05:13 AM, Li, Liang Z wrote:
->> On 11/30/2016 12:43 AM, Liang Li wrote:
->>> +static void send_unused_pages_info(struct virtio_balloon *vb,
->>> +				unsigned long req_id)
->>> +{
->>> +	struct scatterlist sg_in;
->>> +	unsigned long pos = 0;
->>> +	struct virtqueue *vq = vb->req_vq;
->>> +	struct virtio_balloon_resp_hdr *hdr = vb->resp_hdr;
->>> +	int ret, order;
->>> +
->>> +	mutex_lock(&vb->balloon_lock);
->>> +
->>> +	for (order = MAX_ORDER - 1; order >= 0; order--) {
->>
->> I scratched my head for a bit on this one.  Why are you walking over orders,
->> *then* zones.  I *think* you're doing it because you can efficiently fill the
->> bitmaps at a given order for all zones, then move to a new bitmap.  But, it
->> would be interesting to document this.
-> 
-> Yes, use the order is somewhat strange, but it's helpful to keep the API simple. 
-> Do you think it's acceptable?
 
-Yeah, it's fine.  Just comment it, please.
+--===============4460803326478195535==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="KdquIMZPjGJQvRdI"
+Content-Disposition: inline
 
->>> +		if (ret == -ENOSPC) {
->>> +			void *new_resp_data;
->>> +
->>> +			new_resp_data = kmalloc(2 * vb->resp_buf_size,
->>> +						GFP_KERNEL);
->>> +			if (new_resp_data) {
->>> +				kfree(vb->resp_data);
->>> +				vb->resp_data = new_resp_data;
->>> +				vb->resp_buf_size *= 2;
->>
->> What happens to the data in ->resp_data at this point?  Doesn't this just
->> throw it away?
-> 
-> Yes, so we should make sure the data in resp_data is not inuse.
 
-But doesn't it have valid data that we just collected and haven't told
-the hypervisor about yet?  Aren't we throwing away good data that cost
-us something to collect?
+--KdquIMZPjGJQvRdI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->> ...
->>> +struct page_info_item {
->>> +	__le64 start_pfn : 52; /* start pfn for the bitmap */
->>> +	__le64 page_shift : 6; /* page shift width, in bytes */
+On Mon, Dec 05, 2016 at 10:19:21AM -0500, Pan Xinhui wrote:
+> This patch add basic code to enable qspinlock on powerpc. qspinlock is
+> one kind of fairlock implementation. And seen some performance improvement
+> under some scenarios.
+>=20
+> queued_spin_unlock() release the lock by just one write of NULL to the
+> ::locked field which sits at different places in the two endianness
+> system.
+>=20
+> We override some arch_spin_XXX as powerpc has io_sync stuff which makes
+> sure the io operations are protected by the lock correctly.
+>=20
+> There is another special case, see commit
+> 2c610022711 ("locking/qspinlock: Fix spin_unlock_wait() some more")
+>=20
+> Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+> ---
+>  arch/powerpc/include/asm/qspinlock.h      | 66 +++++++++++++++++++++++++=
+++++++
+>  arch/powerpc/include/asm/spinlock.h       | 31 +++++++++------
+>  arch/powerpc/include/asm/spinlock_types.h |  4 ++
+>  arch/powerpc/lib/locks.c                  | 59 +++++++++++++++++++++++++=
+++
+>  4 files changed, 147 insertions(+), 13 deletions(-)
+>  create mode 100644 arch/powerpc/include/asm/qspinlock.h
+>=20
+> diff --git a/arch/powerpc/include/asm/qspinlock.h b/arch/powerpc/include/=
+asm/qspinlock.h
+> new file mode 100644
+> index 0000000..4c89256
+> --- /dev/null
+> +++ b/arch/powerpc/include/asm/qspinlock.h
+> @@ -0,0 +1,66 @@
+> +#ifndef _ASM_POWERPC_QSPINLOCK_H
+> +#define _ASM_POWERPC_QSPINLOCK_H
+> +
+> +#include <asm-generic/qspinlock_types.h>
+> +
+> +#define SPIN_THRESHOLD (1 << 15)
+> +#define queued_spin_unlock queued_spin_unlock
+> +#define queued_spin_is_locked queued_spin_is_locked
+> +#define queued_spin_unlock_wait queued_spin_unlock_wait
+> +
+> +extern void queued_spin_unlock_wait(struct qspinlock *lock);
+> +
+> +static inline u8 *__qspinlock_lock_byte(struct qspinlock *lock)
+> +{
+> +	return (u8 *)lock + 3 * IS_BUILTIN(CONFIG_CPU_BIG_ENDIAN);
+> +}
+> +
+> +static inline void queued_spin_unlock(struct qspinlock *lock)
+> +{
+> +	/* release semantics is required */
+> +	smp_store_release(__qspinlock_lock_byte(lock), 0);
+> +}
+> +
+> +static inline int queued_spin_is_locked(struct qspinlock *lock)
+> +{
+> +	smp_mb();
+> +	return atomic_read(&lock->val);
+> +}
+> +
+> +#include <asm-generic/qspinlock.h>
+> +
+> +/* we need override it as ppc has io_sync stuff */
+> +#undef arch_spin_trylock
+> +#undef arch_spin_lock
+> +#undef arch_spin_lock_flags
+> +#undef arch_spin_unlock
+> +#define arch_spin_trylock arch_spin_trylock
+> +#define arch_spin_lock arch_spin_lock
+> +#define arch_spin_lock_flags arch_spin_lock_flags
+> +#define arch_spin_unlock arch_spin_unlock
+> +
+> +static inline int arch_spin_trylock(arch_spinlock_t *lock)
+> +{
+> +	CLEAR_IO_SYNC;
+> +	return queued_spin_trylock(lock);
+> +}
+> +
+> +static inline void arch_spin_lock(arch_spinlock_t *lock)
+> +{
+> +	CLEAR_IO_SYNC;
+> +	queued_spin_lock(lock);
+> +}
+> +
+> +static inline
+> +void arch_spin_lock_flags(arch_spinlock_t *lock, unsigned long flags)
+> +{
+> +	CLEAR_IO_SYNC;
+> +	queued_spin_lock(lock);
+> +}
+> +
+> +static inline void arch_spin_unlock(arch_spinlock_t *lock)
+> +{
+> +	SYNC_IO;
+> +	queued_spin_unlock(lock);
+> +}
+> +#endif /* _ASM_POWERPC_QSPINLOCK_H */
+> diff --git a/arch/powerpc/include/asm/spinlock.h b/arch/powerpc/include/a=
+sm/spinlock.h
+> index 8c1b913..954099e 100644
+> --- a/arch/powerpc/include/asm/spinlock.h
+> +++ b/arch/powerpc/include/asm/spinlock.h
+> @@ -60,6 +60,23 @@ static inline bool vcpu_is_preempted(int cpu)
+>  }
+>  #endif
+> =20
+> +#if defined(CONFIG_PPC_SPLPAR)
+> +/* We only yield to the hypervisor if we are in shared processor mode */
+> +#define SHARED_PROCESSOR (lppaca_shared_proc(local_paca->lppaca_ptr))
+> +extern void __spin_yield(arch_spinlock_t *lock);
+> +extern void __rw_yield(arch_rwlock_t *lock);
+> +#else /* SPLPAR */
+> +#define __spin_yield(x)        barrier()
+> +#define __rw_yield(x)  barrier()
+> +#define SHARED_PROCESSOR       0
+> +#endif
+> +
+> +#ifdef CONFIG_QUEUED_SPINLOCKS
+> +#include <asm/qspinlock.h>
+> +#else
+> +
+> +#define arch_spin_relax(lock)  __spin_yield(lock)
+> +
+>  static __always_inline int arch_spin_value_unlocked(arch_spinlock_t lock)
+>  {
+>  	return lock.slock =3D=3D 0;
+> @@ -114,18 +131,6 @@ static inline int arch_spin_trylock(arch_spinlock_t =
+*lock)
+>   * held.  Conveniently, we have a word in the paca that holds this
+>   * value.
+>   */
+> -
+> -#if defined(CONFIG_PPC_SPLPAR)
+> -/* We only yield to the hypervisor if we are in shared processor mode */
+> -#define SHARED_PROCESSOR (lppaca_shared_proc(local_paca->lppaca_ptr))
+> -extern void __spin_yield(arch_spinlock_t *lock);
+> -extern void __rw_yield(arch_rwlock_t *lock);
+> -#else /* SPLPAR */
+> -#define __spin_yield(x)	barrier()
+> -#define __rw_yield(x)	barrier()
+> -#define SHARED_PROCESSOR	0
+> -#endif
+> -
+>  static inline void arch_spin_lock(arch_spinlock_t *lock)
+>  {
+>  	CLEAR_IO_SYNC;
+> @@ -203,6 +208,7 @@ static inline void arch_spin_unlock_wait(arch_spinloc=
+k_t *lock)
+>  	smp_mb();
+>  }
+> =20
+> +#endif /* !CONFIG_QUEUED_SPINLOCKS */
+>  /*
+>   * Read-write spinlocks, allowing multiple readers
+>   * but only one writer.
+> @@ -338,7 +344,6 @@ static inline void arch_write_unlock(arch_rwlock_t *r=
+w)
+>  #define arch_read_lock_flags(lock, flags) arch_read_lock(lock)
+>  #define arch_write_lock_flags(lock, flags) arch_write_lock(lock)
+> =20
+> -#define arch_spin_relax(lock)	__spin_yield(lock)
+>  #define arch_read_relax(lock)	__rw_yield(lock)
+>  #define arch_write_relax(lock)	__rw_yield(lock)
+> =20
+> diff --git a/arch/powerpc/include/asm/spinlock_types.h b/arch/powerpc/inc=
+lude/asm/spinlock_types.h
+> index 2351adc..bd7144e 100644
+> --- a/arch/powerpc/include/asm/spinlock_types.h
+> +++ b/arch/powerpc/include/asm/spinlock_types.h
+> @@ -5,11 +5,15 @@
+>  # error "please don't include this file directly"
+>  #endif
+> =20
+> +#ifdef CONFIG_QUEUED_SPINLOCKS
+> +#include <asm-generic/qspinlock_types.h>
+> +#else
+>  typedef struct {
+>  	volatile unsigned int slock;
+>  } arch_spinlock_t;
+> =20
+>  #define __ARCH_SPIN_LOCK_UNLOCKED	{ 0 }
+> +#endif
+> =20
+>  typedef struct {
+>  	volatile signed int lock;
+> diff --git a/arch/powerpc/lib/locks.c b/arch/powerpc/lib/locks.c
+> index b7b1237..6574626 100644
+> --- a/arch/powerpc/lib/locks.c
+> +++ b/arch/powerpc/lib/locks.c
+> @@ -23,6 +23,7 @@
+>  #include <asm/hvcall.h>
+>  #include <asm/smp.h>
+> =20
+> +#ifndef CONFIG_QUEUED_SPINLOCKS
+>  void __spin_yield(arch_spinlock_t *lock)
+>  {
+>  	unsigned int lock_value, holder_cpu, yield_count;
+> @@ -42,6 +43,7 @@ void __spin_yield(arch_spinlock_t *lock)
+>  		get_hard_smp_processor_id(holder_cpu), yield_count);
+>  }
+>  EXPORT_SYMBOL_GPL(__spin_yield);
+> +#endif
+> =20
+>  /*
+>   * Waiting for a read lock or a write lock on a rwlock...
+> @@ -68,3 +70,60 @@ void __rw_yield(arch_rwlock_t *rw)
+>  		get_hard_smp_processor_id(holder_cpu), yield_count);
+>  }
+>  #endif
+> +
+> +#ifdef CONFIG_QUEUED_SPINLOCKS
+> +/*
+> + * This forbid we load an old value in another LL/SC. Because the SC her=
+e force
+> + * another LL/SC repeat. So we guarantee all loads in another LL and SC =
+will
+> + * read correct value.
+> + */
+> +static inline u32 atomic_read_sync(atomic_t *v)
+> +{
+> +	u32 val;
+> +
+> +	__asm__ __volatile__(
+> +"1:	" PPC_LWARX(%0, 0, %2, 0) "\n"
+> +"	stwcx. %0, 0, %2\n"
+> +"	bne- 1b\n"
+> +	: "=3D&r" (val), "+m" (*v)
+> +	: "r" (v)
+> +	: "cr0", "xer");
+> +
+> +	return val;
+> +}
+> +
+> +void queued_spin_unlock_wait(struct qspinlock *lock)
+> +{
+> +
+> +	u32 val;
+> +
+> +	smp_mb();
+> +
+> +	/*
+> +	 * copied from generic queue_spin_unlock_wait with little modification
+> +	 */
+> +	for (;;) {
+> +		/* need _sync, as we might race with another LL/SC in lock()*/
+> +		val =3D atomic_read_sync(&lock->val);
+> +
+> +		if (!val) /* not locked, we're done */
+> +			goto done;
+> +
+> +		if (val & _Q_LOCKED_MASK) /* locked, go wait for unlock */
+> +			break;
+> +
+> +		/* not locked, but pending, wait until we observe the lock */
+> +		cpu_relax();
+> +	}
+> +
+> +	/*
+> +	 * any unlock is good. And need not _sync, as ->val is set by the SC in
+> +	 * unlock(), any loads in lock() must see the correct value.
+> +	 */
 
-What does a page_shift "in bytes" mean? :)
+I don't think the comment here about _sync is correct. First, not all
+unlock() has a SC part, and for unlock_wait() case there is nothing to
+do with whether lock() see the correct value or not. The reason with
+_sync is not needed here is:
 
->>> +	__le64 bmap_len : 6;  /* bitmap length, in bytes */ };
->>
->> Is 'bmap_len' too short?  a 64-byte buffer is a bit tiny.  Right?
-> 
-> Currently, we just use the 8 bytes and 0 bytes bitmap, should we support more than 64 bytes?
+/*
+ * _sync() is not needed here, because once we got here, we must already
+ * read the ->val as LOCKED via a _sync(). Combining the smp_mb()
+ * before, we guarantee that all the memory accesses before
+ * unlock_wait() must be observed by the next lock critical section.
+ */
 
-It just means that with this format, you end up wasting at least ~1/8th
-of the space with metadata.  That's a bit unfortunate, but I guess it's
-not fatal.
+Regards,
+Boqun
 
-I'd definitely call it out in the patch description and make sure other
-folks take a look at it.
+> +	while (atomic_read(&lock->val) & _Q_LOCKED_MASK)
+> +		cpu_relax();
+> +done:
+> +	smp_mb();
+> +}
+> +EXPORT_SYMBOL(queued_spin_unlock_wait);
+> +#endif
+> --=20
+> 2.4.11
+>=20
 
-There's a somewhat easy fix, but that would make the qemu implementation
-more complicated: You could just have bmap_len==0x3f imply that there's
-another field that contains an extended bitmap length for when you need
-long bitmaps.
+--KdquIMZPjGJQvRdI
+Content-Type: application/pgp-signature; name="signature.asc"
 
-But, as you note, there's no need for it, so it's a matter of trading
-the extra complexity versus the desire to not habing to change the ABI
-again for longer (hopefully).
+-----BEGIN PGP SIGNATURE-----
 
->>> +static int  mark_unused_pages(struct zone *zone,
->>> +		unsigned long *unused_pages, unsigned long size,
->>> +		int order, unsigned long *pos)
->>> +{
->>> +	unsigned long pfn, flags;
->>> +	unsigned int t;
->>> +	struct list_head *curr;
->>> +	struct page_info_item *info;
->>> +
->>> +	if (zone_is_empty(zone))
->>> +		return 0;
->>> +
->>> +	spin_lock_irqsave(&zone->lock, flags);
->>> +
->>> +	if (*pos + zone->free_area[order].nr_free > size)
->>> +		return -ENOSPC;
->>
->> Urg, so this won't partially fill?  So, what the nr_free pages limit where we no
->> longer fit in the kmalloc()'d buffer where this simply won't work?
-> 
-> Yes.  My initial implementation is partially fill, it's better for the worst case.
-> I thought the above code is more efficient for most case ...
-> Do you think partially fill the bitmap is better?
+iQEcBAABCAAGBQJYRgqtAAoJEEl56MO1B/q4zsIH/2DFp++QFlWdX+oiE03bWKB+
+kHFGooQKf+BPDcfesroSG1u8qvxv2aFr/xhY4P5BdqOZ4UKo7pAFAhqIfBH5VsCD
+SFeSeq/WkRpa+7GFIzh2SIMGVbgV+TtfZHPwm7E0EFIW1vMC6HQB51ToHBltLWYj
+6UlJ1Ei2SAs2bwgVkUfDoKH36eQGUspsQ4d/Gx6YqU5oGwiQLLmjnMvcHGdlYZi8
+JWSHB+HZ1JAWIDo+dO7LG/tl9pl8PSHN4U9e9f1F0CM4THg8KBsBODoZGu5FuLDN
+IPU+MscmgZesY7rITp0fdM362ZVMsZEo+wBymx3Hm8cIJ5ViTdrqpYOwdHPI42U=
+=QjSx
+-----END PGP SIGNATURE-----
 
-Could you please answer the question I asked?
+--KdquIMZPjGJQvRdI--
 
-Because if you don't get this right, it could mean that there are system
-that simply *fail* here.
+--===============4460803326478195535==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============4460803326478195535==--
