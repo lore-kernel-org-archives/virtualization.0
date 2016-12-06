@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 03/10] drm/virtio: fix lock context imbalance
-Date: Tue, 6 Dec 2016 17:40:42 +0200
-Message-ID: <1481038106-24899-4-git-send-email-mst__46647.1320404255$1481038872$gmane$org@redhat.com>
+Subject: [PATCH 04/10] drm/virtio: annotate virtio_gpu_queue_ctrl_buffer_locked
+Date: Tue, 6 Dec 2016 17:40:45 +0200
+Message-ID: <1481038106-24899-5-git-send-email-mst__31196.221712935$1481038886$gmane$org@redhat.com>
 References: <1481038106-24899-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,31 +22,27 @@ To: linux-kernel@vger.kernel.org
 Cc: David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-When virtio_gpu_free_vbufs exits due to list empty, it does not
-drop the free_vbufs lock that it took.
-list empty is not expected to happen anyway, but it can't hurt to fix
-this and drop the lock.
+virtio_gpu_queue_ctrl_buffer_locked is called with ctrlq.qlock taken, it
+releases and acquires this lock.  This causes a sparse warning.  Add
+appropriate annotations for sparse context checking.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_vq.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/virtio/virtgpu_vq.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 5a0f8a7..2f0c2f9 100644
+index 2f0c2f9..a6e2ce4 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -109,8 +109,10 @@ void virtio_gpu_free_vbufs(struct virtio_gpu_device *vgdev)
+@@ -297,6 +297,8 @@ void virtio_gpu_dequeue_cursor_func(struct work_struct *work)
  
- 	spin_lock(&vgdev->free_vbufs_lock);
- 	for (i = 0; i < count; i++) {
--		if (WARN_ON(list_empty(&vgdev->free_vbufs)))
-+		if (WARN_ON(list_empty(&vgdev->free_vbufs))) {
-+			spin_unlock(&vgdev->free_vbufs_lock);
- 			return;
-+		}
- 		vbuf = list_first_entry(&vgdev->free_vbufs,
- 					struct virtio_gpu_vbuffer, list);
- 		list_del(&vbuf->list);
+ static int virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
+ 					       struct virtio_gpu_vbuffer *vbuf)
++		__releases(&vgdev->ctrlq.qlock)
++		__acquires(&vgdev->ctrlq.qlock)
+ {
+ 	struct virtqueue *vq = vgdev->ctrlq.vq;
+ 	struct scatterlist *sgs[3], vcmd, vout, vresp;
 -- 
 MST
