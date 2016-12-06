@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 04/10] drm/virtio: annotate virtio_gpu_queue_ctrl_buffer_locked
-Date: Tue, 6 Dec 2016 17:40:45 +0200
-Message-ID: <1481038106-24899-5-git-send-email-mst__31196.221712935$1481038886$gmane$org@redhat.com>
+Subject: [PATCH 05/10] vhost: make interval tree static inline
+Date: Tue, 6 Dec 2016 17:40:52 +0200
+Message-ID: <1481038106-24899-6-git-send-email-mst@redhat.com>
 References: <1481038106-24899-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,30 +19,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio_gpu_queue_ctrl_buffer_locked is called with ctrlq.qlock taken, it
-releases and acquires this lock.  This causes a sparse warning.  Add
-appropriate annotations for sparse context checking.
+vhost_umem_interval_tree is only used locally within vhost.c, mark it
+static. As some functions generated go unused, this triggers warnings
+unless we also mark it inline.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_vq.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/vhost/vhost.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 2f0c2f9..a6e2ce4 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -297,6 +297,8 @@ void virtio_gpu_dequeue_cursor_func(struct work_struct *work)
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index c6f2d89..7331ef3 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -49,7 +49,7 @@ enum {
  
- static int virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
- 					       struct virtio_gpu_vbuffer *vbuf)
-+		__releases(&vgdev->ctrlq.qlock)
-+		__acquires(&vgdev->ctrlq.qlock)
- {
- 	struct virtqueue *vq = vgdev->ctrlq.vq;
- 	struct scatterlist *sgs[3], vcmd, vout, vresp;
+ INTERVAL_TREE_DEFINE(struct vhost_umem_node,
+ 		     rb, __u64, __subtree_last,
+-		     START, LAST, , vhost_umem_interval_tree);
++		     START, LAST, static inline, vhost_umem_interval_tree);
+ 
+ #ifdef CONFIG_VHOST_CROSS_ENDIAN_LEGACY
+ static void vhost_disable_cross_endian(struct vhost_virtqueue *vq)
 -- 
 MST
