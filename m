@@ -1,14 +1,11 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] virtio-net: Fix DMA-from-the-stack in
-	virtnet_set_mac_address()
-Date: Tue, 06 Dec 2016 11:39:01 -0500 (EST)
-Message-ID: <20161206.113901.1729006808840379027.davem__24740.9878801138$1481042355$gmane$org@davemloft.net>
-References: <fe889e578d5dffa9ae0834b449a35fcfd1e10694.1480990173.git.luto@kernel.org>
+From: Wendy Liang <wendy.liang@xilinx.com>
+Subject: [RFC LINUX PATCH 0/2] Virtio ring works with DMA coherent memory
+Date: Tue, 6 Dec 2016 10:08:47 -0800
+Message-ID: <1481047729-518-1-git-send-email-jliang@xilinx.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <fe889e578d5dffa9ae0834b449a35fcfd1e10694.1480990173.git.luto@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,21 +15,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: luto@kernel.org
-Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, labbott@redhat.com
+To: ohad@wizery.com, bjorn.andersson@linaro.org, linux-remoteproc@vger.kernel.org, mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org
+Cc: Wendy Liang <jliang@xilinx.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Andy Lutomirski <luto@kernel.org>
-Date: Mon,  5 Dec 2016 18:10:58 -0800
+RPMsg uses dma_alloc_coherent() to allocate memory to shared with the remote.
+In this case, as there is no pages setup in the dma_alloc_coherent(),
+we cannot get the physical address back from the virtual address, and thus,
+we can set the sg_dma_addr to store the DMA address and mark it already DMA
+mapped.
 
-> With CONFIG_VMAP_STACK=y, virtnet_set_mac_address() can be passed a
-> pointer to the stack and it will OOPS.  Copy the address to the heap
-> to prevent the crash.
-> 
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: Laura Abbott <labbott@redhat.com>
-> Reported-by: zbyszek@in.waw.pl
-> Signed-off-by: Andy Lutomirski <luto@kernel.org>
+When virtio vring sees the sg_dma_addr is ready set, do not call dma_map_page().
 
-Applied, thanks.
+The issue was once discussed here:
+http://virtualization.linux-foundation.narkive.com/CfVP32Vy/rfc-0-4-rpmsg-fix-init-of-dma-able-virtqueues
+
+Edgar E. Iglesias (1):
+  rpmsg: DMA map sgs passed to virtio
+
+Wendy Liang (1):
+  virtio_ring: Do not call dma_map_page if sg is already mapped.
+
+ drivers/rpmsg/virtio_rpmsg_bus.c | 22 +++++++++++++++++++---
+ drivers/virtio/virtio_ring.c     |  6 ++++++
+ 2 files changed, 25 insertions(+), 3 deletions(-)
+
+-- 
+1.9.1
