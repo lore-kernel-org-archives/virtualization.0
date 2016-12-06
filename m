@@ -1,12 +1,17 @@
-From: Andy Lutomirski <luto@kernel.org>
-Subject: [PATCH] virtio-net: Fix DMA-from-the-stack in
-	virtnet_set_mac_address()
-Date: Mon,  5 Dec 2016 18:10:58 -0800
-Message-ID: <fe889e578d5dffa9ae0834b449a35fcfd1e10694.1480990173.git.luto@kernel.org>
+From: Pan Xinhui <xinhui@linux.vnet.ibm.com>
+Subject: Re: [PATCH v8 2/6] powerpc: pSeries/Kconfig: Add qspinlock build
+	config
+Date: Tue, 6 Dec 2016 10:12:56 +0800
+Message-ID: <945a9698-e02e-e004-f1df-cabded4d8398@linux.vnet.ibm.com>
+References: <1480951166-44830-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+	<1480951166-44830-3-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+	<20161206005834.GC18164@tardis.cn.ibm.com>
+	<2d4eb891-e999-b7f8-52ff-31ef7bb8af6b@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <2d4eb891-e999-b7f8-52ff-31ef7bb8af6b@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,73 +21,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Andy Lutomirski <luto@kernel.org>, Laura Abbott <labbott@redhat.com>
+To: Boqun Feng <boqun.feng@gmail.com>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Cc: peterz@infradead.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org, waiman.long@hpe.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-With CONFIG_VMAP_STACK=y, virtnet_set_mac_address() can be passed a
-pointer to the stack and it will OOPS.  Copy the address to the heap
-to prevent the crash.
-
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Laura Abbott <labbott@redhat.com>
-Reported-by: zbyszek@in.waw.pl
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
----
-
-Very lightly tested.
-
- drivers/net/virtio_net.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 7276d5a95bd0..cbf1c613c67a 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -969,12 +969,17 @@ static int virtnet_set_mac_address(struct net_device *dev, void *p)
- 	struct virtnet_info *vi = netdev_priv(dev);
- 	struct virtio_device *vdev = vi->vdev;
- 	int ret;
--	struct sockaddr *addr = p;
-+	struct sockaddr *addr;
- 	struct scatterlist sg;
- 
--	ret = eth_prepare_mac_addr_change(dev, p);
-+	addr = kmalloc(sizeof(*addr), GFP_KERNEL);
-+	if (!addr)
-+		return -ENOMEM;
-+	memcpy(addr, p, sizeof(*addr));
-+
-+	ret = eth_prepare_mac_addr_change(dev, addr);
- 	if (ret)
--		return ret;
-+		goto out;
- 
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_MAC_ADDR)) {
- 		sg_init_one(&sg, addr->sa_data, dev->addr_len);
-@@ -982,7 +987,8 @@ static int virtnet_set_mac_address(struct net_device *dev, void *p)
- 					  VIRTIO_NET_CTRL_MAC_ADDR_SET, &sg)) {
- 			dev_warn(&vdev->dev,
- 				 "Failed to set mac address by vq command.\n");
--			return -EINVAL;
-+			ret = -EINVAL;
-+			goto out;
- 		}
- 	} else if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC) &&
- 		   !virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
-@@ -996,8 +1002,11 @@ static int virtnet_set_mac_address(struct net_device *dev, void *p)
- 	}
- 
- 	eth_commit_mac_addr_change(dev, p);
-+	ret = 0;
- 
--	return 0;
-+out:
-+	kfree(addr);
-+	return ret;
- }
- 
- static struct rtnl_link_stats64 *virtnet_stats(struct net_device *dev,
--- 
-2.9.3
+CgrlnKggMjAxNi8xMi82IDA5OjI0LCBQYW4gWGluaHVpIOWGmemBkzoKPgo+Cj4g5ZyoIDIwMTYv
+MTIvNiAwODo1OCwgQm9xdW4gRmVuZyDlhpnpgZM6Cj4+IE9uIE1vbiwgRGVjIDA1LCAyMDE2IGF0
+IDEwOjE5OjIyQU0gLTA1MDAsIFBhbiBYaW5odWkgd3JvdGU6Cj4+PiBwU2VyaWVzL3Bvd2VyTlYg
+d2lsbCB1c2UgcXNwaW5sb2NrIGZyb20gbm93IG9uLgo+Pj4KPj4+IFNpZ25lZC1vZmYtYnk6IFBh
+biBYaW5odWkgPHhpbmh1aS5wYW5AbGludXgudm5ldC5pYm0uY29tPgo+Pj4gLS0tCj4+PiAgYXJj
+aC9wb3dlcnBjL3BsYXRmb3Jtcy9wc2VyaWVzL0tjb25maWcgfCA4ICsrKysrKysrCj4+PiAgMSBm
+aWxlIGNoYW5nZWQsIDggaW5zZXJ0aW9ucygrKQo+Pj4KPj4+IGRpZmYgLS1naXQgYS9hcmNoL3Bv
+d2VycGMvcGxhdGZvcm1zL3BzZXJpZXMvS2NvbmZpZyBiL2FyY2gvcG93ZXJwYy9wbGF0Zm9ybXMv
+cHNlcmllcy9LY29uZmlnCj4+PiBpbmRleCBiZWM5MGZiLi44YTg3ZDA2IDEwMDY0NAo+Pj4gLS0t
+IGEvYXJjaC9wb3dlcnBjL3BsYXRmb3Jtcy9wc2VyaWVzL0tjb25maWcKPj4+ICsrKyBiL2FyY2gv
+cG93ZXJwYy9wbGF0Zm9ybXMvcHNlcmllcy9LY29uZmlnCj4+Cj4+IFdoeSBoZXJlPyBOb3QgYXJj
+aC9wb3dlcnBjL3BsYXRmb3Jtcy9LY29uZmlnPwo+Pgo+Pj4gQEAgLTIzLDYgKzIzLDE0IEBAIGNv
+bmZpZyBQUENfUFNFUklFUwo+Pj4gICAgICBzZWxlY3QgUFBDX0RPT1JCRUxMCj4+PiAgICAgIGRl
+ZmF1bHQgeQo+Pj4KPj4+ICtjb25maWcgQVJDSF9VU0VfUVVFVUVEX1NQSU5MT0NLUwo+Pj4gKyAg
+ICBkZWZhdWx0IHkKPj4+ICsgICAgYm9vbCAiRW5hYmxlIHFzcGlubG9jayIKPj4KPj4gSSB0aGlu
+ayB5b3UganVzdCBlbmFibGUgcXNwaW5sb2NrIGJ5IGRlZmF1bHQgZm9yIGFsbCBQUEMgcGxhdGZv
+cm1zLiBJCj4+IGd1ZXNzIHlvdSBuZWVkIHRvIHB1dAo+Pgo+PiAgICAgZGVwZW5kcyBvbiBQUENf
+UFNFUklFUyB8fCBQUENfUE9XRVJOVgo+Pgo+PiBoZXJlIHRvIGFjaGlldmUgd2hhdCB5b3UgbWVh
+biBpbiB5b3UgY29tbWl0IG1lc3NhZ2UuCj4+Cm9oLCB5ZXMsIG5lZWQgZGVwZW5kcyBvbiBQUENf
+UFNFUklFUyB8fCBQUENfUE9XRVJOVi4KCj4geWVzLCBhbm90aGVyIGdvb2Qgd2F5Lgo+IEkgcHJl
+ZmVyIHRvIHB1dCBpdCBpbiBwc2VyaWVzL0tjb25maWcgYXMgc2FtZSBhcyBwdi1xc3BpbmxvY2tz
+IGNvbmZpZy4KPiB3aGVuIHdlIGJ1aWxkIG52LCBpdCBzdGlsbCBpbmNsdWRlIHBTZXJpZXMncyBj
+b25maWcgYW55d2F5Lgo+Cj4gdGhhbmtzCj4geGluaHVpCj4KPj4gUmVnYXJkcywKPj4gQm9xdW4K
+Pj4KPj4+ICsgICAgaGVscAo+Pj4gKyAgICAgIEVuYWJsaW5nIHRoaXMgb3B0aW9uIHdpbGwgbGV0
+IGtlcm5lbCB1c2UgcXNwaW5sb2NrIHdoaWNoIGlzIGEga2luZCBvZgo+Pj4gKyAgICAgIGZhaXJs
+b2NrLiAgSXQgaGFzIHNob3duIGEgZ29vZCBwZXJmb3JtYW5jZSBpbXByb3ZlbWVudCBvbiB4ODYg
+YW5kIGFsc28gcHBjCj4+PiArICAgICAgZXNwZWNpYWxseSBpbiBoaWdoIGNvbnRlbnRpb24gY2Fz
+ZXMuCj4+PiArCj4+PiAgY29uZmlnIFBQQ19TUExQQVIKPj4+ICAgICAgZGVwZW5kcyBvbiBQUENf
+UFNFUklFUwo+Pj4gICAgICBib29sICJTdXBwb3J0IGZvciBzaGFyZWQtcHJvY2Vzc29yIGxvZ2lj
+YWwgcGFydGl0aW9ucyIKPj4+IC0tCj4+PiAyLjQuMTEKPj4+CgpfX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
+VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
+aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
