@@ -1,8 +1,8 @@
 From: Andrea Arcangeli <aarcange@redhat.com>
 Subject: Re: [Qemu-devel] [PATCH kernel v5 0/5] Extend virtio-balloon for
 	fast (de)inflating & fast live migration
-Date: Wed, 7 Dec 2016 19:38:17 +0100
-Message-ID: <20161207183817.GE28786__5904.88189268417$1481136798$gmane$org@redhat.com>
+Date: Wed, 7 Dec 2016 19:58:50 +0100
+Message-ID: <20161207185850.GF28786__16750.0576972545$1481137141$gmane$org@redhat.com>
 References: <1480495397-23225-1-git-send-email-liang.z.li@intel.com>
 	<f67ca79c-ad34-59dd-835f-e7bc9dcaef58@redhat.com>
 	<F2CBF3009FA73547804AE4C663CAB28E3A130C01@shsmsx102.ccr.corp.intel.com>
@@ -10,12 +10,14 @@ References: <1480495397-23225-1-git-send-email-liang.z.li@intel.com>
 	<0b83db29-ebad-2a70-8d61-756d33e33a48@intel.com>
 	<2171e091-46ee-decd-7348-772555d3a5e3@redhat.com>
 	<d3ff453c-56fa-19de-317c-1c82456f2831@intel.com>
+	<20161207183817.GE28786@redhat.com>
+	<3954fe69-15ac-43eb-e14b-e2bfe976be33@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <d3ff453c-56fa-19de-317c-1c82456f2831@intel.com>
+In-Reply-To: <3954fe69-15ac-43eb-e14b-e2bfe976be33@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,64 +31,35 @@ To: Dave Hansen <dave.hansen@intel.com>
 Cc: "mhocko@suse.com" <mhocko@suse.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "Li, Liang Z" <liang.z.li@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello,
+On Wed, Dec 07, 2016 at 10:44:31AM -0800, Dave Hansen wrote:
+> On 12/07/2016 10:38 AM, Andrea Arcangeli wrote:
+> >> > and leaves room for the bitmap size to be encoded as well, if we decide
+> >> > we need a bitmap in the future.
+> > How would a bitmap ever be useful with very large page-order?
+> 
+> Please, guys.  Read the patches.  *Please*.
 
-On Wed, Dec 07, 2016 at 08:57:01AM -0800, Dave Hansen wrote:
-> It is more space-efficient.  We're fitting the order into 6 bits, which
-> would allows the full 2^64 address space to be represented in one entry,
+I did read the code but you didn't answer my question.
 
-Very large order is the same as very large len, 6 bits of order or 8
-bytes of len won't really move the needle here, simpler code is
-preferable.
+Why should a feature exist in the code that will never be useful. Why
+do you think we could ever decide we'll need the bitmap in the future
+for high order pages?
 
-The main benefit of "len" is that it can be more granular, plus it's
-simpler than the bitmap too. Eventually all this stuff has to end up
-into a madvisev (not yet upstream but somebody posted it for jemalloc
-and should get merged eventually).
+> The current code doesn't even _use_ a bitmap.
 
-So the bitmap shall be demuxed to a addr,len array anyway, the bitmap
-won't ever be sent to the madvise syscall, which makes the
-intermediate representation with the bitmap a complication with
-basically no benefits compared to a (N, [addr1,len1], .., [addrN,
-lenN]) representation.
+It's not using it right now, my question is exactly when it will ever
+use it?
 
-If you prefer 1 byte of order (not just 6 bits) instead 8bytes of len
-that's possible too, I wouldn't be against that, the conversion before
-calling madvise would be pretty efficient too.
+Leaving the bitmap only for order 0 allocations when you already wiped
+all high pages orders from the buddy, doesn't seem very good idea
+overall as the chance you got order 0 pages with close physical
+address doesn't seem very high. It would be high if the loop that eat
+into every possible higher order didn't run first, but such loop just
+run and already wiped everything.
 
-> and leaves room for the bitmap size to be encoded as well, if we decide
-> we need a bitmap in the future.
-
-How would a bitmap ever be useful with very large page-order?
-
-> If that was purely a length, we'd be limited to 64*4k pages per entry,
-> which isn't even a full large page.
-
-I don't follow here.
-
-What we suggest is to send the data down represented as (N,
-[addr1,len1], ..., [addrN, lenN]) which allows infinite ranges each
-one of maximum length 2^64, so 2^64 multiplied infinite times if you
-wish. Simplifying the code and not having any bitmap at all and no :6
-:6 bits either.
-
-The high order to low order loop of allocations is the interesting part
-here, not the bitmap, and the fact of doing a single vmexit to send
-the large ranges.
-
-Once we pull out the largest order regions, we just add them to the
-array as [addr,1UL<<order], when the array reaches a maximum N number
-of entries or we fail a order 0 allocation, we flush all those entries
-down to qemu. Qemu then builds the iov for madvisev and it's pretty
-much a 1:1 conversion, not a decoding operation converting the bitmap
-in the (N, [addr1,len1], ..., [addrN, lenN]) for madvisev (or a flood
-of madvise MADV_DONTNEED with current kernels).
-
-Considering the loop that allocates starting from MAX_ORDER..1, the
-chance the bitmap is actually getting filled with more than one bit at
-page_shift of PAGE_SHIFT should be very low after some uptime.
-
-By the very nature of this loop, if we already exacerbates all high
-order buddies, the page-order 0 pages obtained are going to be fairly
-fragmented reducing the usefulness of the bitmap and potentially only
-wasting CPU/memory.
+Also note, we need to call compaction very aggressive before falling
+back from order 9 down to order 8. Ideally we should never use the
+page_shift = PAGE_SHIFT case at all! Which leaves the bitmap as best
+as an optimization for something that is suboptimal case already. If
+the bitmap starts to payoff it means the admin did a mistake and
+shrunk the guest too much.
