@@ -1,13 +1,21 @@
-From: Peng Tao <bergwolf@gmail.com>
-Subject: [PATCH v2 4/4] vsock: cancel packets when failing to connect
-Date: Wed,  7 Dec 2016 23:14:12 +0800
-Message-ID: <1481123652-80603-5-git-send-email-bergwolf__31050.5300913521$1481136785$gmane$org@gmail.com>
-References: <1481123652-80603-1-git-send-email-bergwolf@gmail.com>
+From: Andrea Arcangeli <aarcange@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH kernel v5 0/5] Extend virtio-balloon for
+	fast (de)inflating & fast live migration
+Date: Wed, 7 Dec 2016 19:38:17 +0100
+Message-ID: <20161207183817.GE28786__5904.88189268417$1481136798$gmane$org@redhat.com>
+References: <1480495397-23225-1-git-send-email-liang.z.li@intel.com>
+	<f67ca79c-ad34-59dd-835f-e7bc9dcaef58@redhat.com>
+	<F2CBF3009FA73547804AE4C663CAB28E3A130C01@shsmsx102.ccr.corp.intel.com>
+	<0b18c636-ee67-cbb4-1ba3-81a06150db76@redhat.com>
+	<0b83db29-ebad-2a70-8d61-756d33e33a48@intel.com>
+	<2171e091-46ee-decd-7348-772555d3a5e3@redhat.com>
+	<d3ff453c-56fa-19de-317c-1c82456f2831@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1481123652-80603-1-git-send-email-bergwolf@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <d3ff453c-56fa-19de-317c-1c82456f2831@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,101 +25,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: netdev@vger.kernel.org, Peng Tao <bergwolf@gmail.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Dave Hansen <dave.hansen@intel.com>
+Cc: "mhocko@suse.com" <mhocko@suse.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "Li, Liang Z" <liang.z.li@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Otherwise we'll leave the packets queued until releasing vsock device.
-E.g., if guest is slow to start up, resulting ETIMEDOUT on connect, guest
-will get the connect requests from failed host sockets.
+Hello,
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: Peng Tao <bergwolf@gmail.com>
----
- include/linux/virtio_vsock.h            | 7 +++++++
- net/vmw_vsock/af_vsock.c                | 7 +++++++
- net/vmw_vsock/virtio_transport_common.c | 7 -------
- 3 files changed, 14 insertions(+), 7 deletions(-)
+On Wed, Dec 07, 2016 at 08:57:01AM -0800, Dave Hansen wrote:
+> It is more space-efficient.  We're fitting the order into 6 bits, which
+> would allows the full 2^64 address space to be represented in one entry,
 
-diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
-index b92e88d..ff6850a 100644
---- a/include/linux/virtio_vsock.h
-+++ b/include/linux/virtio_vsock.h
-@@ -156,4 +156,11 @@ void virtio_transport_inc_tx_pkt(struct virtio_vsock_sock *vvs, struct virtio_vs
- u32 virtio_transport_get_credit(struct virtio_vsock_sock *vvs, u32 wanted);
- void virtio_transport_put_credit(struct virtio_vsock_sock *vvs, u32 credit);
- 
-+static inline const struct virtio_transport *virtio_transport_get_ops(void)
-+{
-+	const struct vsock_transport *t = vsock_core_get_transport();
-+
-+	return container_of(t, struct virtio_transport, transport);
-+}
-+
- #endif /* _LINUX_VIRTIO_VSOCK_H */
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 8a398b3..ebb50d6 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -104,6 +104,7 @@
- #include <linux/unistd.h>
- #include <linux/wait.h>
- #include <linux/workqueue.h>
-+#include <linux/virtio_vsock.h>
- #include <net/sock.h>
- #include <net/af_vsock.h>
- 
-@@ -1105,6 +1106,7 @@ static void vsock_connect_timeout(struct work_struct *work)
- {
- 	struct sock *sk;
- 	struct vsock_sock *vsk;
-+	int cancel = 0;
- 
- 	vsk = container_of(work, struct vsock_sock, dwork.work);
- 	sk = sk_vsock(vsk);
-@@ -1115,8 +1117,11 @@ static void vsock_connect_timeout(struct work_struct *work)
- 		sk->sk_state = SS_UNCONNECTED;
- 		sk->sk_err = ETIMEDOUT;
- 		sk->sk_error_report(sk);
-+		cancel = 1;
- 	}
- 	release_sock(sk);
-+	if (cancel)
-+		virtio_transport_get_ops()->cancel_pkt(vsk);
- 
- 	sock_put(sk);
- }
-@@ -1223,11 +1228,13 @@ static int vsock_stream_connect(struct socket *sock, struct sockaddr *addr,
- 			err = sock_intr_errno(timeout);
- 			sk->sk_state = SS_UNCONNECTED;
- 			sock->state = SS_UNCONNECTED;
-+			virtio_transport_get_ops()->cancel_pkt(vsk);
- 			goto out_wait;
- 		} else if (timeout == 0) {
- 			err = -ETIMEDOUT;
- 			sk->sk_state = SS_UNCONNECTED;
- 			sock->state = SS_UNCONNECTED;
-+			virtio_transport_get_ops()->cancel_pkt(vsk);
- 			goto out_wait;
- 		}
- 
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index cc1eeb5..72c5dff 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -25,13 +25,6 @@
- /* How long to wait for graceful shutdown of a connection */
- #define VSOCK_CLOSE_TIMEOUT (8 * HZ)
- 
--static const struct virtio_transport *virtio_transport_get_ops(void)
--{
--	const struct vsock_transport *t = vsock_core_get_transport();
--
--	return container_of(t, struct virtio_transport, transport);
--}
--
- struct virtio_vsock_pkt *
- virtio_transport_alloc_pkt(struct virtio_vsock_pkt_info *info,
- 			   size_t len,
--- 
-2.7.4
+Very large order is the same as very large len, 6 bits of order or 8
+bytes of len won't really move the needle here, simpler code is
+preferable.
+
+The main benefit of "len" is that it can be more granular, plus it's
+simpler than the bitmap too. Eventually all this stuff has to end up
+into a madvisev (not yet upstream but somebody posted it for jemalloc
+and should get merged eventually).
+
+So the bitmap shall be demuxed to a addr,len array anyway, the bitmap
+won't ever be sent to the madvise syscall, which makes the
+intermediate representation with the bitmap a complication with
+basically no benefits compared to a (N, [addr1,len1], .., [addrN,
+lenN]) representation.
+
+If you prefer 1 byte of order (not just 6 bits) instead 8bytes of len
+that's possible too, I wouldn't be against that, the conversion before
+calling madvise would be pretty efficient too.
+
+> and leaves room for the bitmap size to be encoded as well, if we decide
+> we need a bitmap in the future.
+
+How would a bitmap ever be useful with very large page-order?
+
+> If that was purely a length, we'd be limited to 64*4k pages per entry,
+> which isn't even a full large page.
+
+I don't follow here.
+
+What we suggest is to send the data down represented as (N,
+[addr1,len1], ..., [addrN, lenN]) which allows infinite ranges each
+one of maximum length 2^64, so 2^64 multiplied infinite times if you
+wish. Simplifying the code and not having any bitmap at all and no :6
+:6 bits either.
+
+The high order to low order loop of allocations is the interesting part
+here, not the bitmap, and the fact of doing a single vmexit to send
+the large ranges.
+
+Once we pull out the largest order regions, we just add them to the
+array as [addr,1UL<<order], when the array reaches a maximum N number
+of entries or we fail a order 0 allocation, we flush all those entries
+down to qemu. Qemu then builds the iov for madvisev and it's pretty
+much a 1:1 conversion, not a decoding operation converting the bitmap
+in the (N, [addr1,len1], ..., [addrN, lenN]) for madvisev (or a flood
+of madvise MADV_DONTNEED with current kernels).
+
+Considering the loop that allocates starting from MAX_ORDER..1, the
+chance the bitmap is actually getting filled with more than one bit at
+page_shift of PAGE_SHIFT should be very low after some uptime.
+
+By the very nature of this loop, if we already exacerbates all high
+order buddies, the page-order 0 pages obtained are going to be fairly
+fragmented reducing the usefulness of the bitmap and potentially only
+wasting CPU/memory.
