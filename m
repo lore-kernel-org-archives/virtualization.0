@@ -1,8 +1,8 @@
-From: Dave Hansen <dave.hansen@intel.com>
-Subject: Re: [Qemu-devel] [PATCH kernel v5 0/5] Extend virtio-balloon for fast
-	(de)inflating & fast live migration
-Date: Wed, 7 Dec 2016 11:54:34 -0800
-Message-ID: <b58fd9f6-d9dd-dd56-d476-dd342174dac5@intel.com>
+From: Andrea Arcangeli <aarcange@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH kernel v5 0/5] Extend virtio-balloon for
+	fast (de)inflating & fast live migration
+Date: Wed, 7 Dec 2016 21:28:24 +0100
+Message-ID: <20161207202824.GH28786__5311.16490387848$1481142515$gmane$org@redhat.com>
 References: <1480495397-23225-1-git-send-email-liang.z.li@intel.com>
 	<f67ca79c-ad34-59dd-835f-e7bc9dcaef58@redhat.com>
 	<F2CBF3009FA73547804AE4C663CAB28E3A130C01@shsmsx102.ccr.corp.intel.com>
@@ -11,11 +11,13 @@ References: <1480495397-23225-1-git-send-email-liang.z.li@intel.com>
 	<2171e091-46ee-decd-7348-772555d3a5e3@redhat.com>
 	<d3ff453c-56fa-19de-317c-1c82456f2831@intel.com>
 	<20161207183817.GE28786@redhat.com>
+	<b58fd9f6-d9dd-dd56-d476-dd342174dac5@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161207183817.GE28786@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <b58fd9f6-d9dd-dd56-d476-dd342174dac5@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,107 +27,93 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrea Arcangeli <aarcange@redhat.com>
+To: Dave Hansen <dave.hansen@intel.com>
 Cc: "mhocko@suse.com" <mhocko@suse.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "Li, Liang Z" <liang.z.li@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We're talking about a bunch of different stuff which is all being
-conflated.  There are 3 issues here that I can see.  I'll attempt to
-summarize what I think is going on:
-
-1. Current patches do a hypercall for each order in the allocator.
-   This is inefficient, but independent from the underlying data
-   structure in the ABI, unless bitmaps are in play, which they aren't.
-2. Should we have bitmaps in the ABI, even if they are not in use by the
-   guest implementation today?  Andrea says they have zero benefits
-   over a pfn/len scheme.  Dave doesn't think they have zero benefits
-   but isn't that attached to them.  QEMU's handling gets more
-   complicated when using a bitmap.
-3. Should the ABI contain records each with a pfn/len pair or a
-   pfn/order pair?
-   3a. 'len' is more flexible, but will always be a power-of-two anyway
-	for high-order pages (the common case)
-   3b. if we decide not to have a bitmap, then we basically have plenty
-	of space for 'len' and should just do it
-   3c. It's easiest for the hypervisor to turn pfn/len into the
-       madvise() calls that it needs.
-
-Did I miss anything?
-
-On 12/07/2016 10:38 AM, Andrea Arcangeli wrote:
-> On Wed, Dec 07, 2016 at 08:57:01AM -0800, Dave Hansen wrote:
->> It is more space-efficient.  We're fitting the order into 6 bits, which
->> would allows the full 2^64 address space to be represented in one entry,
+On Wed, Dec 07, 2016 at 11:54:34AM -0800, Dave Hansen wrote:
+> We're talking about a bunch of different stuff which is all being
+> conflated.  There are 3 issues here that I can see.  I'll attempt to
+> summarize what I think is going on:
 > 
-> Very large order is the same as very large len, 6 bits of order or 8
-> bytes of len won't really move the needle here, simpler code is
-> preferable.
+> 1. Current patches do a hypercall for each order in the allocator.
+>    This is inefficient, but independent from the underlying data
+>    structure in the ABI, unless bitmaps are in play, which they aren't.
+> 2. Should we have bitmaps in the ABI, even if they are not in use by the
+>    guest implementation today?  Andrea says they have zero benefits
+>    over a pfn/len scheme.  Dave doesn't think they have zero benefits
+>    but isn't that attached to them.  QEMU's handling gets more
+>    complicated when using a bitmap.
+> 3. Should the ABI contain records each with a pfn/len pair or a
+>    pfn/order pair?
+>    3a. 'len' is more flexible, but will always be a power-of-two anyway
+> 	for high-order pages (the common case)
 
-Agreed.  But without seeing them side-by-side I'm not sure we can say
-which is simpler.
+Len wouldn't be a power of two practically only if we detect adjacent
+pages of smaller order that may merge into larger orders we already
+allocated (or the other way around).
 
-> The main benefit of "len" is that it can be more granular, plus it's
-> simpler than the bitmap too. Eventually all this stuff has to end up
-> into a madvisev (not yet upstream but somebody posted it for jemalloc
-> and should get merged eventually).
+[addr=2M, len=2M] allocated at order 9 pass
+[addr=4M, len=1M] allocated at order 8 pass -> merge as [addr=2M, len=3M]
+
+Not sure if it would be worth it, but that unless we do this, page-order or
+len won't make much difference.
+
+>    3b. if we decide not to have a bitmap, then we basically have plenty
+> 	of space for 'len' and should just do it
+>    3c. It's easiest for the hypervisor to turn pfn/len into the
+>        madvise() calls that it needs.
 > 
-> So the bitmap shall be demuxed to a addr,len array anyway, the bitmap
-> won't ever be sent to the madvise syscall, which makes the
-> intermediate representation with the bitmap a complication with
-> basically no benefits compared to a (N, [addr1,len1], .., [addrN,
-> lenN]) representation.
+> Did I miss anything?
 
-FWIW, I don't feel that strongly about the bitmap.  Li had one
-originally, but I think the code thus far has demonstrated a huge
-benefit without even having a bitmap.
+I think you summarized fine all my arguments in your summary.
 
-I've got no objections to ripping the bitmap out of the ABI.
-
->> and leaves room for the bitmap size to be encoded as well, if we decide
->> we need a bitmap in the future.
+> FWIW, I don't feel that strongly about the bitmap.  Li had one
+> originally, but I think the code thus far has demonstrated a huge
+> benefit without even having a bitmap.
 > 
-> How would a bitmap ever be useful with very large page-order?
+> I've got no objections to ripping the bitmap out of the ABI.
 
-Surely we can think of a few ways...
+I think we need to see a statistic showing the number of bits set in
+each bitmap in average, after some uptime and lru churn, like running
+stresstest app for a while with I/O and then inflate the balloon and
+count:
 
-A bitmap is 64x more dense if the lists are unordered.  It means being
-able to store ~32k*2M=64G worth of 2M pages in one data page vs. ~1G.
-That's 64x fewer cachelines to touch, 64x fewer pages to move to the
-hypervisor and lets us allocate 1/64th the memory.  Given a maximum
-allocation that we're allowed, it lets us do 64x more per-pass.
+1) how many bits were set vs total number of bits used in bitmaps
 
-Now, are those benefits worth it?  Maybe not, but let's not pretend they
-don't exist. ;)
+2) how many times bitmaps were used vs bitmap_len = 0 case of single
+   page
 
->> If that was purely a length, we'd be limited to 64*4k pages per entry,
->> which isn't even a full large page.
+My guess would be like very low percentage for both points.
+
+> Surely we can think of a few ways...
 > 
-> I don't follow here.
+> A bitmap is 64x more dense if the lists are unordered.  It means being
+> able to store ~32k*2M=64G worth of 2M pages in one data page vs. ~1G.
+> That's 64x fewer cachelines to touch, 64x fewer pages to move to the
+> hypervisor and lets us allocate 1/64th the memory.  Given a maximum
+> allocation that we're allowed, it lets us do 64x more per-pass.
 > 
-> What we suggest is to send the data down represented as (N,
-> [addr1,len1], ..., [addrN, lenN]) which allows infinite ranges each
-> one of maximum length 2^64, so 2^64 multiplied infinite times if you
-> wish. Simplifying the code and not having any bitmap at all and no :6
-> :6 bits either.
+> Now, are those benefits worth it?  Maybe not, but let's not pretend they
+> don't exist. ;)
+
+In the best case there are benefits obviously, the question is how
+common the best case is.
+
+The best case if I understand correctly is all high order not
+available, but plenty of order 0 pages available at phys address X,
+X+8k, X+16k, X+(8k*nr_bits_in_bitmap). How common is that 0 pages
+exist but they're not at an address < X or > X+(8k*nr_bits_in_bitmap)?
+
+> Yes, the current code sends one batch of pages up to the hypervisor per
+> order.  But, this has nothing to do with the underlying data structure,
+> or the choice to have an order vs. len in the ABI.
 > 
-> The high order to low order loop of allocations is the interesting part
-> here, not the bitmap, and the fact of doing a single vmexit to send
-> the large ranges.
+> What you describe here is obviously more efficient.
 
-Yes, the current code sends one batch of pages up to the hypervisor per
-order.  But, this has nothing to do with the underlying data structure,
-or the choice to have an order vs. len in the ABI.
+And it isn't possible with the current ABI.
 
-What you describe here is obviously more efficient.
-
-> Considering the loop that allocates starting from MAX_ORDER..1, the
-> chance the bitmap is actually getting filled with more than one bit at
-> page_shift of PAGE_SHIFT should be very low after some uptime.
-
-Yes, if bitmaps were in use, this is true.  I think a guest populating
-bitmaps would probably not use the same algorithm.
-
-> By the very nature of this loop, if we already exacerbates all high
-> order buddies, the page-order 0 pages obtained are going to be fairly
-> fragmented reducing the usefulness of the bitmap and potentially only
-> wasting CPU/memory.
+So there is a connection with the MAX_ORDER..0 allocation loop and the
+ABI change, but I agree any of the ABI proposed would still allow for
+it this logic to be used. Bitmap or not bitmap, the loop would still
+work.
