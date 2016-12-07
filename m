@@ -1,13 +1,16 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH 4/4] vsock: cancel packets when failing to connect
-Date: Wed, 7 Dec 2016 13:25:40 +0000
-Message-ID: <20161207132540.GB31953__25588.5669067085$1481117148$gmane$org@stefanha-x1.localdomain>
-References: <1481104821-77294-1-git-send-email-bergwolf@gmail.com>
-	<1481104821-77294-5-git-send-email-bergwolf@gmail.com>
+From: "Li, Liang Z" <liang.z.li@intel.com>
+Subject: RE: [PATCH kernel v5 0/5] Extend virtio-balloon for fast
+	(de)inflating & fast live migration
+Date: Wed, 7 Dec 2016 13:35:26 +0000
+Message-ID: <F2CBF3009FA73547804AE4C663CAB28E3A130C01__47858.4567354575$1481117752$gmane$org@shsmsx102.ccr.corp.intel.com>
+References: <1480495397-23225-1-git-send-email-liang.z.li@intel.com>
+	<f67ca79c-ad34-59dd-835f-e7bc9dcaef58@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4924760689080827004=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1481104821-77294-5-git-send-email-bergwolf@gmail.com>
+In-Reply-To: <f67ca79c-ad34-59dd-835f-e7bc9dcaef58@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,60 +20,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peng Tao <bergwolf@gmail.com>
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org
+To: David Hildenbrand <david@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "mhocko@suse.com" <mhocko@suse.com>, "mst@redhat.com" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "Hansen,
+	Dave" <dave.hansen@intel.com>, "dgilbert@redhat.com" <dgilbert@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+> Am 30.11.2016 um 09:43 schrieb Liang Li:
+> > This patch set contains two parts of changes to the virtio-balloon.
+> >
+> > One is the change for speeding up the inflating & deflating process,
+> > the main idea of this optimization is to use bitmap to send the page
+> > information to host instead of the PFNs, to reduce the overhead of
+> > virtio data transmission, address translation and madvise(). This can
+> > help to improve the performance by about 85%.
+> 
+> Do you have some statistics/some rough feeling how many consecutive bits are
+> usually set in the bitmaps? Is it really just purely random or is there some
+> granularity that is usually consecutive?
+> 
 
---===============4924760689080827004==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="H1spWtNR+x+ondvy"
-Content-Disposition: inline
+I did something similar. Filled the balloon with 15GB for a 16GB idle guest, by
+using bitmap, the madvise count was reduced to 605. when using the PFNs, the madvise count
+was 3932160. It means there are quite a lot consecutive bits in the bitmap.
+I didn't test for a guest with heavy memory workload. 
 
+> IOW in real examples, do we have really large consecutive areas or are all
+> pages just completely distributed over our memory?
+> 
 
---H1spWtNR+x+ondvy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The buddy system of Linux kernel memory management shows there should be quite a lot of
+ consecutive pages as long as there are a portion of free memory in the guest.
+If all pages just completely distributed over our memory, it means the memory 
+fragmentation is very serious, the kernel has the mechanism to avoid this happened.
+In the other hand, the inflating should not happen at this time because the guest is almost
+'out of memory'.
 
-On Wed, Dec 07, 2016 at 06:00:21PM +0800, Peng Tao wrote:
-> Otherwise we'll leave the packets queued until releasing vsock device.
-> E.g., if guest is slow to start up, resulting ETIMEDOUT on connect, guest
-> will get the connect requests from failed host sockets.
->=20
-> Signed-off-by: Peng Tao <bergwolf@gmail.com>
-> ---
->  include/linux/virtio_vsock.h            | 7 +++++++
->  net/vmw_vsock/af_vsock.c                | 7 +++++++
->  net/vmw_vsock/virtio_transport_common.c | 7 -------
->  3 files changed, 14 insertions(+), 7 deletions(-)
+Liang
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---H1spWtNR+x+ondvy
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAEBAgAGBQJYSA3UAAoJEJykq7OBq3PIfLYIAK/NHdsh3l5nj0Ws2rJGXO/D
-/+rUwcg21PoUrxoBPFVYXp369Z3v+sEB7livRL71Zrjt0h3kWLkU3EXG3wWF+Gbq
-KZpuDbhJ/xgATSJTl9n6mje2V294YtJXss5IZJTBValQdPgZFemN9cgNr+7oeVLS
-AkIZk8Zu+xV5J7XrOzj95gIoXq+qldrlTVe/6KI/jRSrLWvc/DmC8YQtovAFNZ4r
-A690F4t57PyRM9qHD6TUyWyEbRbm2CQHj21c7pzN63wwzwjPLsh34UBKogOW/dMf
-SeoNYqm9ffX13nQoDi3qB7xK09MNJyUkEaCL4S3JQRTToTc3NYTLBBIaWxFpK3M=
-=I/iu
------END PGP SIGNATURE-----
-
---H1spWtNR+x+ondvy--
-
---===============4924760689080827004==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4924760689080827004==--
+> Thanks!
+> 
+> --
+> 
+> David
