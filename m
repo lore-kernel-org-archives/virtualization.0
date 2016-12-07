@@ -1,7 +1,7 @@
 From: Peng Tao <bergwolf@gmail.com>
-Subject: [PATCH] vhost-vsock: fix orphan connection reset
-Date: Wed,  7 Dec 2016 17:45:47 +0800
-Message-ID: <1481103947-76771-1-git-send-email-bergwolf@gmail.com>
+Subject: [PATCH 1/2] vhost-vsock: remove unused vq variable
+Date: Wed,  7 Dec 2016 17:52:18 +0800
+Message-ID: <1481104340-77035-1-git-send-email-bergwolf__37008.3416150466$1481136621$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,31 +16,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: netdev@vger.kernel.org, stable@vger.kernel.org#4.8+, Peng Tao <bergwolf@gmail.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, Peng Tao <bergwolf@gmail.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-local_addr.svm_cid is host cid. We should check guest cid instead,
-which is remote_addr.svm_cid.
-
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: stable@vger.kernel.org #4.8+
 Signed-off-by: Peng Tao <bergwolf@gmail.com>
 ---
- drivers/vhost/vsock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/vhost/vsock.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
 diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index e3b30ea..a504e2e0 100644
+index 0c23b55..3e01d58 100644
 --- a/drivers/vhost/vsock.c
 +++ b/drivers/vhost/vsock.c
-@@ -506,7 +506,7 @@ static void vhost_vsock_reset_orphans(struct sock *sk)
- 	 * executing.
- 	 */
+@@ -195,7 +195,6 @@ static int
+ vhost_transport_send_pkt(struct virtio_vsock_pkt *pkt)
+ {
+ 	struct vhost_vsock *vsock;
+-	struct vhost_virtqueue *vq;
+ 	int len = pkt->len;
  
--	if (!vhost_vsock_get(vsk->local_addr.svm_cid)) {
-+	if (!vhost_vsock_get(vsk->remote_addr.svm_cid)) {
- 		sock_set_flag(sk, SOCK_DONE);
- 		vsk->peer_shutdown = SHUTDOWN_MASK;
- 		sk->sk_state = SS_UNCONNECTED;
+ 	/* Find the vhost_vsock according to guest context id  */
+@@ -205,8 +204,6 @@ vhost_transport_send_pkt(struct virtio_vsock_pkt *pkt)
+ 		return -ENODEV;
+ 	}
+ 
+-	vq = &vsock->vqs[VSOCK_VQ_RX];
+-
+ 	if (pkt->reply)
+ 		atomic_inc(&vsock->queued_replies);
+ 
 -- 
 2.7.4
