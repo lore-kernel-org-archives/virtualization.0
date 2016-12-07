@@ -1,13 +1,11 @@
 From: Peng Tao <bergwolf@gmail.com>
-Subject: [PATCH 2/2] vhost: remove unnecessary smp_mb from vhost_work_queue
-Date: Wed,  7 Dec 2016 17:52:19 +0800
-Message-ID: <1481104340-77035-2-git-send-email-bergwolf__36127.9251556427$1481136644$gmane$org@gmail.com>
-References: <1481104340-77035-1-git-send-email-bergwolf@gmail.com>
+Subject: [PATCH 0/4] vsock: cancel connect packets when failing to connect
+Date: Wed,  7 Dec 2016 18:00:17 +0800
+Message-ID: <1481104821-77294-1-git-send-email-bergwolf__19175.2740568065$1481136648$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1481104340-77035-1-git-send-email-bergwolf@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,26 +19,26 @@ To: Stefan Hajnoczi <stefanha@redhat.com>
 Cc: netdev@vger.kernel.org, Peng Tao <bergwolf@gmail.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-test_and_set_bit() already implies a memory barrier.
+Currently, if a connect call fails on a signal or timeout (e.g., guest is still
+in the process of starting up), we'll just return to caller and leave the connect
+packet queued and they are sent even though the connection is considered a failure,
+which can confuse applications with unwanted false connect attempt.
 
-Signed-off-by: Peng Tao <bergwolf@gmail.com>
----
- drivers/vhost/vhost.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+The patchset enables vsock (both host and guest) to cancel queued packets when
+a connect attempt is considered to fail.
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index c6f2d89..2663543 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -261,8 +261,8 @@ void vhost_work_queue(struct vhost_dev *dev, struct vhost_work *work)
- 	if (!test_and_set_bit(VHOST_WORK_QUEUED, &work->flags)) {
- 		/* We can only add the work to the list after we're
- 		 * sure it was not in the list.
-+		 * test_and_set_bit() implies a memory barrier.
- 		 */
--		smp_mb();
- 		llist_add(&work->node, &dev->work_list);
- 		wake_up_process(dev->worker);
- 	}
+Peng Tao (4):
+  vsock: track pkt owner vsock
+  vhost-vsock: add pkt cancel capability
+  vsock: add pkt cancel capability
+  vsock: cancel packets when failing to connect
+
+ drivers/vhost/vsock.c                   | 29 ++++++++++++++++++++++++++
+ include/linux/virtio_vsock.h            | 12 +++++++++++
+ net/vmw_vsock/af_vsock.c                |  7 +++++++
+ net/vmw_vsock/virtio_transport.c        | 36 +++++++++++++++++++++++++++++++++
+ net/vmw_vsock/virtio_transport_common.c | 14 ++++++-------
+ 5 files changed, 91 insertions(+), 7 deletions(-)
+
 -- 
 2.7.4
