@@ -1,13 +1,16 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH 10/10] virtio: enable endian checks for sparse builds
-Date: Wed, 7 Dec 2016 14:09:33 +0000
-Message-ID: <20161207140933.GF32099@stefanha-x1.localdomain>
-References: <1481038106-24899-1-git-send-email-mst@redhat.com>
-	<1481038106-24899-11-git-send-email-mst@redhat.com>
+From: Dave Hansen <dave.hansen@intel.com>
+Subject: Re: [PATCH kernel v5 0/5] Extend virtio-balloon for fast
+	(de)inflating & fast live migration
+Date: Wed, 7 Dec 2016 07:34:23 -0800
+Message-ID: <f7b47cc4-ee94-bacb-5a17-d049b402263e__122.197977225547$1481124890$gmane$org@intel.com>
+References: <1480495397-23225-1-git-send-email-liang.z.li@intel.com>
+	<f67ca79c-ad34-59dd-835f-e7bc9dcaef58@redhat.com>
+	<F2CBF3009FA73547804AE4C663CAB28E3A130C01@shsmsx102.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7466233140133078509=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1481038106-24899-11-git-send-email-mst@redhat.com>
+In-Reply-To: <F2CBF3009FA73547804AE4C663CAB28E3A130C01@shsmsx102.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,77 +20,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>, David Airlie <airlied@linux.ie>, linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-scsi@vger.kernel.org, v9fs-developer@lists.sourceforge.net, Asias He <asias@redhat.com>, Arnd Bergmann <arnd@arndb.de>, linux-kbuild@vger.kernel.org, Jens Axboe <axboe@fb.com>, Michal Marek <mmarek@suse.com>, Matt Mackall <mpm@selenic.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+To: "Li, Liang Z" <liang.z.li@intel.com>, David Hildenbrand <david@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "mhocko@suse.com" <mhocko@suse.com>, "mst@redhat.com" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On 12/07/2016 05:35 AM, Li, Liang Z wrote:
+>> Am 30.11.2016 um 09:43 schrieb Liang Li:
+>> IOW in real examples, do we have really large consecutive areas or are all
+>> pages just completely distributed over our memory?
+> 
+> The buddy system of Linux kernel memory management shows there should
+> be quite a lot of consecutive pages as long as there are a portion of
+> free memory in the guest.
+...
+> If all pages just completely distributed over our memory, it means
+> the memory fragmentation is very serious, the kernel has the
+> mechanism to avoid this happened.
 
---===============7466233140133078509==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GLp9dJVi+aaipsRk"
-Content-Disposition: inline
+While it is correct that the kernel has anti-fragmentation mechanisms, I
+don't think it invalidates the question as to whether a bitmap would be
+too sparse to be effective.
 
+> In the other hand, the inflating should not happen at this time because the guest is almost
+> 'out of memory'.
 
---GLp9dJVi+aaipsRk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I don't think this is correct.  Most systems try to run with relatively
+little free memory all the time, using the bulk of it as page cache.  We
+have no reason to expect that ballooning will only occur when there is
+lots of actual free memory and that it will not occur when that same
+memory is in use as page cache.
 
-On Tue, Dec 06, 2016 at 05:41:05PM +0200, Michael S. Tsirkin wrote:
-> __CHECK_ENDIAN__ isn't on by default presumably because
-> it triggers too many sparse warnings for correct code.
-> But virtio is now clean of these warnings, and
-> we want to keep it this way - enable this for
-> sparse builds.
->=20
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->=20
-> It seems that there should be a better way to do it,
-> but this works too.
->=20
->  drivers/block/Makefile          | 1 +
->  drivers/char/Makefile           | 1 +
->  drivers/char/hw_random/Makefile | 2 ++
->  drivers/gpu/drm/virtio/Makefile | 1 +
->  drivers/net/Makefile            | 3 +++
->  drivers/net/caif/Makefile       | 1 +
->  drivers/rpmsg/Makefile          | 1 +
->  drivers/s390/virtio/Makefile    | 2 ++
->  drivers/scsi/Makefile           | 1 +
->  drivers/vhost/Makefile          | 1 +
->  drivers/virtio/Makefile         | 3 +++
->  net/9p/Makefile                 | 1 +
->  net/packet/Makefile             | 1 +
->  net/vmw_vsock/Makefile          | 2 ++
->  14 files changed, 21 insertions(+)
+In these patches, you're effectively still sending pfns.  You're just
+sending one pfn per high-order page which is giving a really nice
+speedup.  IMNHO, you're avoiding doing a real bitmap because creating a
+bitmap means either have a really big bitmap, or you would have to do
+some sorting (or multiple passes) of the free lists before populating a
+smaller bitmap.
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---GLp9dJVi+aaipsRk
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAEBAgAGBQJYSBgdAAoJEJykq7OBq3PIErIIALcfuXKP5HgamgpQoZkN0Uc0
-2n2uVTdzArmnFB44EWnkmW+iYjCl3HfmHgtoWPwsUKoY/RDBuL8x9wNSrOfDzSMf
-ymjii6GPxe3fJ4xlvzAmueh0F4wfFeKl+jrO7jm3B1vIhJh6NzEgQZJgGxmpNYvE
-X0o9IKPe5pr+x3ZAec1LMzsv9CvtJObwO3bVgAtQQlA7hlvewrbZkxgmKAojibGG
-Mdv+oNGtpp8ePXN9c0EdhLFbPF3MY9YHf0DbirN5CXp7KP1GH9FgWaOKx0n0v8IB
-3KqF7wUADa/eIWrIW1FaSy9DeGfihiwwrWaEcg/c0LoweS6OLwGhCJTXfp45GJk=
-=SL7g
------END PGP SIGNATURE-----
-
---GLp9dJVi+aaipsRk--
-
---===============7466233140133078509==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7466233140133078509==--
+Like David, I would still like to see some data on whether the choice
+between bitmaps and pfn lists is ever clearly in favor of bitmaps.  You
+haven't convinced me, at least, that the data isn't even worth collecting.
