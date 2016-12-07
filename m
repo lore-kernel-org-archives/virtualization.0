@@ -1,16 +1,13 @@
-From: "Li, Liang Z" <liang.z.li@intel.com>
-Subject: RE: [PATCH kernel v5 0/5] Extend virtio-balloon for fast
-	(de)inflating & fast live migration
-Date: Wed, 7 Dec 2016 13:35:26 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E3A130C01__47858.4567354575$1481117752$gmane$org@shsmsx102.ccr.corp.intel.com>
-References: <1480495397-23225-1-git-send-email-liang.z.li@intel.com>
-	<f67ca79c-ad34-59dd-835f-e7bc9dcaef58@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH 07/10] vsock/virtio: add a missing __le annotation
+Date: Wed, 7 Dec 2016 14:09:07 +0000
+Message-ID: <20161207140907.GC32099@stefanha-x1.localdomain>
+References: <1481038106-24899-1-git-send-email-mst@redhat.com>
+	<1481038106-24899-8-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============4711672217056365269=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <f67ca79c-ad34-59dd-835f-e7bc9dcaef58@redhat.com>
-Content-Language: en-US
+In-Reply-To: <1481038106-24899-8-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,45 +17,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Hildenbrand <david@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "mhocko@suse.com" <mhocko@suse.com>, "mst@redhat.com" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "Hansen,
-	Dave" <dave.hansen@intel.com>, "dgilbert@redhat.com" <dgilbert@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Am 30.11.2016 um 09:43 schrieb Liang Li:
-> > This patch set contains two parts of changes to the virtio-balloon.
-> >
-> > One is the change for speeding up the inflating & deflating process,
-> > the main idea of this optimization is to use bitmap to send the page
-> > information to host instead of the PFNs, to reduce the overhead of
-> > virtio data transmission, address translation and madvise(). This can
-> > help to improve the performance by about 85%.
-> 
-> Do you have some statistics/some rough feeling how many consecutive bits are
-> usually set in the bitmaps? Is it really just purely random or is there some
-> granularity that is usually consecutive?
-> 
 
-I did something similar. Filled the balloon with 15GB for a 16GB idle guest, by
-using bitmap, the madvise count was reduced to 605. when using the PFNs, the madvise count
-was 3932160. It means there are quite a lot consecutive bits in the bitmap.
-I didn't test for a guest with heavy memory workload. 
+--===============4711672217056365269==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0lnxQi9hkpPO77W3"
+Content-Disposition: inline
 
-> IOW in real examples, do we have really large consecutive areas or are all
-> pages just completely distributed over our memory?
-> 
 
-The buddy system of Linux kernel memory management shows there should be quite a lot of
- consecutive pages as long as there are a portion of free memory in the guest.
-If all pages just completely distributed over our memory, it means the memory 
-fragmentation is very serious, the kernel has the mechanism to avoid this happened.
-In the other hand, the inflating should not happen at this time because the guest is almost
-'out of memory'.
+--0lnxQi9hkpPO77W3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Liang
+On Tue, Dec 06, 2016 at 05:40:57PM +0200, Michael S. Tsirkin wrote:
+> guest cid is read from config space, therefore it's in little endian
+> format and is treated as such, annotate it accordingly.
+>=20
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  net/vmw_vsock/virtio_transport.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-> Thanks!
-> 
-> --
-> 
-> David
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--0lnxQi9hkpPO77W3
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJYSBgDAAoJEJykq7OBq3PIeTIH/i6BbER4AD5fvn58S6AD1pfh
+Pmv4QDzy3XQyDkA4mbWW4bOYF9OcrtXDdR3k3MX5YON7QLnpapM29QzFOd7fOKe/
+nq4kAP+fnuG5idYu8RCuTHMTdL+k4GxUpTAPoxTeH4prhJIeM5v0d0cbjQ/PjOIa
+VsfjUgBDNcaFqSCRrcpTZQBZ1wri4Sj2f3k3ijyXgal0/M7teh8N8nDdn+Xjlqso
+z23pZaXiiWzW8rpQ9bGMP0pDjAovkMhFU+vIm8XIUPByPjj1+WumZCvEKUxF/Fsy
+erZ/IieJi+xUSL5z4JbLnGc6utYI3QbRcBtommB1Hq6Fs5y2EK+PcA+UF1wS44w=
+=pxMV
+-----END PGP SIGNATURE-----
+
+--0lnxQi9hkpPO77W3--
+
+--===============4711672217056365269==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============4711672217056365269==--
