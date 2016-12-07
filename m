@@ -1,11 +1,14 @@
-From: Wendy Liang <wendy.liang@xilinx.com>
-Subject: [RFC LINUX PATCH 0/2] Virtio ring works with DMA coherent memory
-Date: Tue, 6 Dec 2016 10:21:28 -0800
-Message-ID: <1481048488-1026-1-git-send-email-jliang@xilinx.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 01/10] virtio_console: drop unused config fields
+Date: Wed, 7 Dec 2016 12:12:49 +0800
+Message-ID: <ae2107ec-9c4e-3638-fabb-4edc73896ccf@redhat.com>
+References: <1481038106-24899-1-git-send-email-mst@redhat.com>
+	<1481038106-24899-2-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1481038106-24899-2-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,30 +18,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: ohad@wizery.com, bjorn.andersson@linaro.org, linux-remoteproc@vger.kernel.org, mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org
-Cc: Wendy Liang <jliang@xilinx.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Amit Shah <amit.shah@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-RPMsg uses dma_alloc_coherent() to allocate memory to shared with the remote.
-In this case, as there is no pages setup in the dma_alloc_coherent(),
-we cannot get the physical address back from the virtual address, and thus,
-we can set the sg_dma_addr to store the DMA address and mark it already DMA
-mapped.
-
-When virtio vring sees the sg_dma_addr is ready set, do not call dma_map_page().
-
-The issue was once discussed here:
-http://virtualization.linux-foundation.narkive.com/CfVP32Vy/rfc-0-4-rpmsg-fix-init-of-dma-able-virtqueues
-
-Edgar E. Iglesias (1):
-  rpmsg: DMA map sgs passed to virtio
-
-Wendy Liang (1):
-  virtio_ring: Do not call dma_map_page if sg is already mapped.
-
- drivers/rpmsg/virtio_rpmsg_bus.c | 22 +++++++++++++++++++---
- drivers/virtio/virtio_ring.c     |  6 ++++++
- 2 files changed, 25 insertions(+), 3 deletions(-)
-
--- 
-1.9.1
+CgpPbiAyMDE25bm0MTLmnIgwNuaXpSAyMzo0MCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IHN0cnVjdCBwb3J0c19kZXZpY2UgaW5jbHVkZXMgYSBjb25maWcgZmllbGQgaW5jbHVkaW5nIHRo
+ZSB3aG9sZQo+IHZpcnRpb19jb25zb2xlX2NvbmZpZywgYnV0IG9ubHkgbWF4X25yX3BvcnRzIGlu
+IHRoZXJlIGlzIGV2ZXIgdXBkYXRlZCBvcgo+IHVzZWQuIFRoZSByZXN0IGlzIHVudXNlZCBhbmQg
+aW4gZmFjdCBkb2VzIG5vdCBldmVuIG1pcnJvciB0aGUKPiBkZXZpY2UgY29uZmlnLiBEcm9wIGV2
+ZXJ5dGhpbmcgZXhjZXB0IG1heF9ucl9wb3J0cywKPiBzYXZpbmcgc29tZSBtZW1vcnkuCj4KPiBT
+aWduZWQtb2ZmLWJ5OiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgo+IC0tLQo+
+ICAgZHJpdmVycy9jaGFyL3ZpcnRpb19jb25zb2xlLmMgfCAxNCArKysrKysrLS0tLS0tLQo+ICAg
+MSBmaWxlIGNoYW5nZWQsIDcgaW5zZXJ0aW9ucygrKSwgNyBkZWxldGlvbnMoLSkKClJldmlld2Vk
+LWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgoKPgo+IGRpZmYgLS1naXQgYS9k
+cml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYyBiL2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29s
+ZS5jCj4gaW5kZXggNTY0OTIzNC4uOGIwMGU3OSAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL2NoYXIv
+dmlydGlvX2NvbnNvbGUuYwo+ICsrKyBiL2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jCj4g
+QEAgLTE1Miw4ICsxNTIsOCBAQCBzdHJ1Y3QgcG9ydHNfZGV2aWNlIHsKPiAgIAlzcGlubG9ja190
+IGNfaXZxX2xvY2s7Cj4gICAJc3BpbmxvY2tfdCBjX292cV9sb2NrOwo+ICAgCj4gLQkvKiBUaGUg
+Y3VycmVudCBjb25maWcgc3BhY2UgaXMgc3RvcmVkIGhlcmUgKi8KPiAtCXN0cnVjdCB2aXJ0aW9f
+Y29uc29sZV9jb25maWcgY29uZmlnOwo+ICsJLyogbWF4LiBudW1iZXIgb2YgcG9ydHMgdGhpcyBk
+ZXZpY2UgY2FuIGhvbGQgKi8KPiArCXUzMiBtYXhfbnJfcG9ydHM7Cj4gICAKPiAgIAkvKiBUaGUg
+dmlydGlvIGRldmljZSB3ZSdyZSBhc3NvY2lhdGVkIHdpdGggKi8KPiAgIAlzdHJ1Y3QgdmlydGlv
+X2RldmljZSAqdmRldjsKPiBAQCAtMTY0OSwxMSArMTY0OSwxMSBAQCBzdGF0aWMgdm9pZCBoYW5k
+bGVfY29udHJvbF9tZXNzYWdlKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2LAo+ICAgCQkJYnJl
+YWs7Cj4gICAJCX0KPiAgIAkJaWYgKHZpcnRpbzMyX3RvX2NwdSh2ZGV2LCBjcGt0LT5pZCkgPj0K
+PiAtCQkgICAgcG9ydGRldi0+Y29uZmlnLm1heF9ucl9wb3J0cykgewo+ICsJCSAgICBwb3J0ZGV2
+LT5tYXhfbnJfcG9ydHMpIHsKPiAgIAkJCWRldl93YXJuKCZwb3J0ZGV2LT52ZGV2LT5kZXYsCj4g
+ICAJCQkJIlJlcXVlc3QgZm9yIGFkZGluZyBwb3J0IHdpdGggIgo+ICAgCQkJCSJvdXQtb2YtYm91
+bmQgaWQgJXUsIG1heC4gc3VwcG9ydGVkIGlkOiAldVxuIiwKPiAtCQkJCWNwa3QtPmlkLCBwb3J0
+ZGV2LT5jb25maWcubWF4X25yX3BvcnRzIC0gMSk7Cj4gKwkJCQljcGt0LT5pZCwgcG9ydGRldi0+
+bWF4X25yX3BvcnRzIC0gMSk7Cj4gICAJCQlicmVhazsKPiAgIAkJfQo+ICAgCQlhZGRfcG9ydChw
+b3J0ZGV2LCB2aXJ0aW8zMl90b19jcHUodmRldiwgY3BrdC0+aWQpKTsKPiBAQCAtMTg5NCw3ICsx
+ODk0LDcgQEAgc3RhdGljIGludCBpbml0X3ZxcyhzdHJ1Y3QgcG9ydHNfZGV2aWNlICpwb3J0ZGV2
+KQo+ICAgCXUzMiBpLCBqLCBucl9wb3J0cywgbnJfcXVldWVzOwo+ICAgCWludCBlcnI7Cj4gICAK
+PiAtCW5yX3BvcnRzID0gcG9ydGRldi0+Y29uZmlnLm1heF9ucl9wb3J0czsKPiArCW5yX3BvcnRz
+ID0gcG9ydGRldi0+bWF4X25yX3BvcnRzOwo+ICAgCW5yX3F1ZXVlcyA9IHVzZV9tdWx0aXBvcnQo
+cG9ydGRldikgPyAobnJfcG9ydHMgKyAxKSAqIDIgOiAyOwo+ICAgCj4gICAJdnFzID0ga21hbGxv
+Yyhucl9xdWV1ZXMgKiBzaXplb2Yoc3RydWN0IHZpcnRxdWV1ZSAqKSwgR0ZQX0tFUk5FTCk7Cj4g
+QEAgLTIwNDcsMTMgKzIwNDcsMTMgQEAgc3RhdGljIGludCB2aXJ0Y29uc19wcm9iZShzdHJ1Y3Qg
+dmlydGlvX2RldmljZSAqdmRldikKPiAgIAl9Cj4gICAKPiAgIAltdWx0aXBvcnQgPSBmYWxzZTsK
+PiAtCXBvcnRkZXYtPmNvbmZpZy5tYXhfbnJfcG9ydHMgPSAxOwo+ICsJcG9ydGRldi0+bWF4X25y
+X3BvcnRzID0gMTsKPiAgIAo+ICAgCS8qIERvbid0IHRlc3QgTVVMVElQT1JUIGF0IGFsbCBpZiB3
+ZSdyZSBycHJvYzogbm90IGEgdmFsaWQgZmVhdHVyZSEgKi8KPiAgIAlpZiAoIWlzX3Jwcm9jX3Nl
+cmlhbCh2ZGV2KSAmJgo+ICAgCSAgICB2aXJ0aW9fY3JlYWRfZmVhdHVyZSh2ZGV2LCBWSVJUSU9f
+Q09OU09MRV9GX01VTFRJUE9SVCwKPiAgIAkJCQkgc3RydWN0IHZpcnRpb19jb25zb2xlX2NvbmZp
+ZywgbWF4X25yX3BvcnRzLAo+IC0JCQkJICZwb3J0ZGV2LT5jb25maWcubWF4X25yX3BvcnRzKSA9
+PSAwKSB7Cj4gKwkJCQkgJnBvcnRkZXYtPm1heF9ucl9wb3J0cykgPT0gMCkgewo+ICAgCQltdWx0
+aXBvcnQgPSB0cnVlOwo+ICAgCX0KPiAgIAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
+aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
+aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
