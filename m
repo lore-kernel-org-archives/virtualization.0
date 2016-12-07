@@ -1,11 +1,13 @@
 From: Peng Tao <bergwolf@gmail.com>
-Subject: [PATCH 1/2] vhost-vsock: remove unused vq variable
-Date: Wed,  7 Dec 2016 17:52:18 +0800
-Message-ID: <1481104340-77035-1-git-send-email-bergwolf__37008.3416150466$1481136621$gmane$org@gmail.com>
+Subject: [PATCH 2/2] vhost: remove unnecessary smp_mb from vhost_work_queue
+Date: Wed,  7 Dec 2016 17:52:19 +0800
+Message-ID: <1481104340-77035-2-git-send-email-bergwolf__36127.9251556427$1481136644$gmane$org@gmail.com>
+References: <1481104340-77035-1-git-send-email-bergwolf@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1481104340-77035-1-git-send-email-bergwolf@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,31 +21,26 @@ To: Stefan Hajnoczi <stefanha@redhat.com>
 Cc: netdev@vger.kernel.org, Peng Tao <bergwolf@gmail.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+test_and_set_bit() already implies a memory barrier.
+
 Signed-off-by: Peng Tao <bergwolf@gmail.com>
 ---
- drivers/vhost/vsock.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/vhost/vhost.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index 0c23b55..3e01d58 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -195,7 +195,6 @@ static int
- vhost_transport_send_pkt(struct virtio_vsock_pkt *pkt)
- {
- 	struct vhost_vsock *vsock;
--	struct vhost_virtqueue *vq;
- 	int len = pkt->len;
- 
- 	/* Find the vhost_vsock according to guest context id  */
-@@ -205,8 +204,6 @@ vhost_transport_send_pkt(struct virtio_vsock_pkt *pkt)
- 		return -ENODEV;
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index c6f2d89..2663543 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -261,8 +261,8 @@ void vhost_work_queue(struct vhost_dev *dev, struct vhost_work *work)
+ 	if (!test_and_set_bit(VHOST_WORK_QUEUED, &work->flags)) {
+ 		/* We can only add the work to the list after we're
+ 		 * sure it was not in the list.
++		 * test_and_set_bit() implies a memory barrier.
+ 		 */
+-		smp_mb();
+ 		llist_add(&work->node, &dev->work_list);
+ 		wake_up_process(dev->worker);
  	}
- 
--	vq = &vsock->vqs[VSOCK_VQ_RX];
--
- 	if (pkt->reply)
- 		atomic_inc(&vsock->queued_replies);
- 
 -- 
 2.7.4
