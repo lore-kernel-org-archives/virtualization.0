@@ -1,12 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] linux/types.h: enable endian checks for all sparse builds
-Date: Thu, 8 Dec 2016 04:29:39 +0200
-Message-ID: <1481164052-28036-1-git-send-email-mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC LINUX PATCH 0/2] Virtio ring works with DMA coherent memory
+Date: Thu, 8 Dec 2016 11:18:19 +0800
+Message-ID: <67f94c52-853d-3182-5f39-9affcfe89fd1@redhat.com>
+References: <1481048488-1026-1-git-send-email-jliang@xilinx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <1481048488-1026-1-git-send-email-jliang@xilinx.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,47 +17,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>, Christoph Hellwig <hch@infradead.org>
-Cc: kvm@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>, David Airlie <airlied@linux.ie>, linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, "James E.J.  Bottomley" <jejb@linux.vnet.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-scsi@vger.kernel.org, v9fs-developer@lists.sourceforge.net, Asias He <asias@redhat.com>, Arnd Bergmann <arnd@arndb.de>, linux-kbuild@vger.kernel.org, Jens Axboe <axboe@fb.com>, Michal Marek <mmarek@suse.com>, Stefan Hajnoczi <stefanha@redhat.com>, Matt Mackall <mpm@selenic.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+To: Wendy Liang <wendy.liang@xilinx.com>, ohad@wizery.com, bjorn.andersson@linaro.org, linux-remoteproc@vger.kernel.org, mst@redhat.com, virtualization@lists.linux-foundation.org
+Cc: Wendy Liang <jliang@xilinx.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-By now, linux is mostly endian-clean. Enabling endian-ness
-checks for everyone produces about 200 new sparse warnings for me -
-less than 10% over the 2000 sparse warnings already there.
-
-Not a big deal, OTOH enabling this helps people notice
-they are introducing new bugs.
-
-So let's just drop __CHECK_ENDIAN__. Follow-up patches
-can drop distinction between __bitwise and __bitwise__.
-
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Suggested-by: Christoph Hellwig <hch@infradead.org>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
-
-Linus, could you ack this for upstream? If yes I'll
-merge through my tree as a replacement for enabling
-this just for virtio.
-
- include/uapi/linux/types.h | 4 ----
- 1 file changed, 4 deletions(-)
-
-diff --git a/include/uapi/linux/types.h b/include/uapi/linux/types.h
-index acf0979..41e5914 100644
---- a/include/uapi/linux/types.h
-+++ b/include/uapi/linux/types.h
-@@ -23,11 +23,7 @@
- #else
- #define __bitwise__
- #endif
--#ifdef __CHECK_ENDIAN__
- #define __bitwise __bitwise__
--#else
--#define __bitwise
--#endif
- 
- typedef __u16 __bitwise __le16;
- typedef __u16 __bitwise __be16;
--- 
-MST
+CgpPbiAyMDE25bm0MTLmnIgwN+aXpSAwMjoyMSwgV2VuZHkgTGlhbmcgd3JvdGU6Cj4gUlBNc2cg
+dXNlcyBkbWFfYWxsb2NfY29oZXJlbnQoKSB0byBhbGxvY2F0ZSBtZW1vcnkgdG8gc2hhcmVkIHdp
+dGggdGhlIHJlbW90ZS4KPiBJbiB0aGlzIGNhc2UsIGFzIHRoZXJlIGlzIG5vIHBhZ2VzIHNldHVw
+IGluIHRoZSBkbWFfYWxsb2NfY29oZXJlbnQoKSwKPiB3ZSBjYW5ub3QgZ2V0IHRoZSBwaHlzaWNh
+bCBhZGRyZXNzIGJhY2sgZnJvbSB0aGUgdmlydHVhbCBhZGRyZXNzLCBhbmQgdGh1cywKPiB3ZSBj
+YW4gc2V0IHRoZSBzZ19kbWFfYWRkciB0byBzdG9yZSB0aGUgRE1BIGFkZHJlc3MgYW5kIG1hcmsg
+aXQgYWxyZWFkeSBETUEKPiBtYXBwZWQuCj4KPiBXaGVuIHZpcnRpbyB2cmluZyBzZWVzIHRoZSBz
+Z19kbWFfYWRkciBpcyByZWFkeSBzZXQsIGRvIG5vdCBjYWxsIGRtYV9tYXBfcGFnZSgpLgo+Cj4g
+VGhlIGlzc3VlIHdhcyBvbmNlIGRpc2N1c3NlZCBoZXJlOgo+IGh0dHA6Ly92aXJ0dWFsaXphdGlv
+bi5saW51eC1mb3VuZGF0aW9uLm5hcmtpdmUuY29tL0NmVlAzMlZ5L3JmYy0wLTQtcnBtc2ctZml4
+LWluaXQtb2YtZG1hLWFibGUtdmlydHF1ZXVlcwo+Cj4gRWRnYXIgRS4gSWdsZXNpYXMgKDEpOgo+
+ICAgIHJwbXNnOiBETUEgbWFwIHNncyBwYXNzZWQgdG8gdmlydGlvCj4KPiBXZW5keSBMaWFuZyAo
+MSk6Cj4gICAgdmlydGlvX3Jpbmc6IERvIG5vdCBjYWxsIGRtYV9tYXBfcGFnZSBpZiBzZyBpcyBh
+bHJlYWR5IG1hcHBlZC4KPgo+ICAgZHJpdmVycy9ycG1zZy92aXJ0aW9fcnBtc2dfYnVzLmMgfCAy
+MiArKysrKysrKysrKysrKysrKysrLS0tCj4gICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5j
+ICAgICB8ICA2ICsrKysrKwo+ICAgMiBmaWxlcyBjaGFuZ2VkLCAyNSBpbnNlcnRpb25zKCspLCAz
+IGRlbGV0aW9ucygtKQo+CgpMb29rcyBnb29kIHRvIG1lLgoKSSB0aGluayB5b3UgY2FuIHNlbmQg
+YSBmb3JtYWwgcGF0Y2ggKHdpdGhvdXQgUkZDIHByZWZpeCkuCgpUaGFua3MKX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
+ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
+bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
