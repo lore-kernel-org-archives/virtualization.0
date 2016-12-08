@@ -1,12 +1,13 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH] vhost-vsock: fix orphan connection reset
-Date: Thu, 8 Dec 2016 09:19:33 +0000
-Message-ID: <20161208091933.GA10780__17320.0358789929$1481195859$gmane$org@stefanha-x1.localdomain>
-References: <1481103947-76771-1-git-send-email-bergwolf@gmail.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH] linux/types.h: enable endian checks for all sparse builds
+Date: Thu, 8 Dec 2016 12:25:53 +0100
+Message-ID: <20161208122553.5fa5a09c.cornelia.huck@de.ibm.com>
+References: <1481164052-28036-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5285753329070152789=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1481103947-76771-1-git-send-email-bergwolf@gmail.com>
+In-Reply-To: <1481164052-28036-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,59 +17,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peng Tao <bergwolf@gmail.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, stable@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>, David Airlie <airlied@linux.ie>, linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, "James E.J.  Bottomley" <jejb@linux.vnet.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-scsi@vger.kernel.org, Christoph Hellwig <hch@infradead.org>, v9fs-developer@lists.sourceforge.net, Asias He <asias@redhat.com>, Arnd Bergmann <arnd@arndb.de>, linux-kbuild@vger.kernel.org, Jens Axboe <axboe@fb.com>, Michal Marek <mmarek@suse.com>, Stefan Hajnoczi <stefanha@redhat.com>, Matt Mackall <mpm@selenic.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, netdev@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Thu, 8 Dec 2016 04:29:39 +0200
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
---===============5285753329070152789==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="huq684BweRXVnRxX"
-Content-Disposition: inline
+> By now, linux is mostly endian-clean. Enabling endian-ness
+> checks for everyone produces about 200 new sparse warnings for me -
+> less than 10% over the 2000 sparse warnings already there.
 
+Out of curiousity: Where do most of those warnings show up?
 
---huq684BweRXVnRxX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, Dec 07, 2016 at 05:45:47PM +0800, Peng Tao wrote:
-> local_addr.svm_cid is host cid. We should check guest cid instead,
-> which is remote_addr.svm_cid.
->=20
-> Cc: Stefan Hajnoczi <stefanha@redhat.com>
-> Cc: stable@vger.kernel.org #4.8+
-> Signed-off-by: Peng Tao <bergwolf@gmail.com>
+> 
+> Not a big deal, OTOH enabling this helps people notice
+> they are introducing new bugs.
+> 
+> So let's just drop __CHECK_ENDIAN__. Follow-up patches
+> can drop distinction between __bitwise and __bitwise__.
+> 
+> Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> Suggested-by: Christoph Hellwig <hch@infradead.org>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > ---
->  drivers/vhost/vsock.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> Linus, could you ack this for upstream? If yes I'll
+> merge through my tree as a replacement for enabling
+> this just for virtio.
+> 
+>  include/uapi/linux/types.h | 4 ----
+>  1 file changed, 4 deletions(-)
+> 
+> diff --git a/include/uapi/linux/types.h b/include/uapi/linux/types.h
+> index acf0979..41e5914 100644
+> --- a/include/uapi/linux/types.h
+> +++ b/include/uapi/linux/types.h
+> @@ -23,11 +23,7 @@
+>  #else
+>  #define __bitwise__
+>  #endif
+> -#ifdef __CHECK_ENDIAN__
+>  #define __bitwise __bitwise__
+> -#else
+> -#define __bitwise
+> -#endif
+> 
+>  typedef __u16 __bitwise __le16;
+>  typedef __u16 __bitwise __be16;
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---huq684BweRXVnRxX
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAEBAgAGBQJYSSWkAAoJEJykq7OBq3PI0rsH+wcuZhkfOgsQeZ/7sFHdqM4d
-jeBW9nE4zWbihMIfospEg+5dZbLVRLq+mZfls99gyhqezNFNwbNnIPzAjFG5IEbA
-E8a7ueMXV47VMafiusGiGFnUlHAjTFZOSthVY4S1V7fBZg6Fm6zQpLDZRKAk/0bN
-Oi7HAhmGFxPL83OG42MiJaWivxm+ce/t9UiCZDDx6hG9oyQ2F0Y5mq5EZosCWtfX
-FJcYANumA/guHZGzuerOTPPpcwLHO7LJMisw3ypMrOWLnDri2ReexfnVd49HXRBL
-FkBlXKk1YCjd5wvl6gom8k1LKWTV0BmWYJgowJrYN1EcXtEEWukk+ltKqV03MQo=
-=jmP8
------END PGP SIGNATURE-----
-
---huq684BweRXVnRxX--
-
---===============5285753329070152789==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5285753329070152789==--
+FWIW, I like this better than just enabling it for the virtio code.
