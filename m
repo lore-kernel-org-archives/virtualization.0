@@ -1,16 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 08/10] vsock/virtio: mark an internal function static
-Date: Thu, 8 Dec 2016 16:25:55 +0200
-Message-ID: <20161208162458-mutt-send-email-mst@kernel.org>
-References: <1481038106-24899-1-git-send-email-mst@redhat.com>
-	<1481038106-24899-9-git-send-email-mst@redhat.com>
-	<487d3d4a-7a53-cb45-2cfd-5eb68d9b73f0@redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH 1/2] x86,paravirt: Fix native_patch()
+Date: Thu, 08 Dec 2016 16:42:14 +0100
+Message-ID: <20161208154349.270616999@infradead.org>
+References: <20161208154213.952687487@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <487d3d4a-7a53-cb45-2cfd-5eb68d9b73f0@redhat.com>
+Content-Disposition: inline;
+	filename=peter_zijlstra-fd6f48529f-_aim7_jobs-per-min_-26_1__regression.patch
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,30 +18,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: linux-kernel@vger.kernel.org, x86@kernel.org
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, Alok Kataria <akataria@vmware.com>, kernel test robot <xiaolong.ye@intel.com>, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, Borislav Petkov <bp@alien8.de>, Peter Anvin <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBEZWMgMDcsIDIwMTYgYXQgMTI6MjE6MjJQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE25bm0MTLmnIgwNuaXpSAyMzo0MSwgTWljaGFlbCBTLiBUc2lya2lu
-IHdyb3RlOgo+ID4gdmlydGlvX3RyYW5zcG9ydF9hbGxvY19wa3QgaXMgb25seSB1c2VkIGxvY2Fs
-bHksIG1ha2UgaXQgc3RhdGljLgo+ID4gCj4gPiBTaWduZWQtb2ZmLWJ5OiBNaWNoYWVsIFMuIFRz
-aXJraW4gPG1zdEByZWRoYXQuY29tPgo+ID4gLS0tCj4gPiAgIG5ldC92bXdfdnNvY2svdmlydGlv
-X3RyYW5zcG9ydF9jb21tb24uYyB8IDIgKy0KPiA+ICAgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0
-aW9uKCspLCAxIGRlbGV0aW9uKC0pCj4gPiAKPiA+IGRpZmYgLS1naXQgYS9uZXQvdm13X3Zzb2Nr
-L3ZpcnRpb190cmFuc3BvcnRfY29tbW9uLmMgYi9uZXQvdm13X3Zzb2NrL3ZpcnRpb190cmFuc3Bv
-cnRfY29tbW9uLmMKPiA+IGluZGV4IGE1M2IzYTEuLjYxMjAzODQgMTAwNjQ0Cj4gPiAtLS0gYS9u
-ZXQvdm13X3Zzb2NrL3ZpcnRpb190cmFuc3BvcnRfY29tbW9uLmMKPiA+ICsrKyBiL25ldC92bXdf
-dnNvY2svdmlydGlvX3RyYW5zcG9ydF9jb21tb24uYwo+ID4gQEAgLTMyLDcgKzMyLDcgQEAgc3Rh
-dGljIGNvbnN0IHN0cnVjdCB2aXJ0aW9fdHJhbnNwb3J0ICp2aXJ0aW9fdHJhbnNwb3J0X2dldF9v
-cHModm9pZCkKPiA+ICAgCXJldHVybiBjb250YWluZXJfb2YodCwgc3RydWN0IHZpcnRpb190cmFu
-c3BvcnQsIHRyYW5zcG9ydCk7Cj4gPiAgIH0KPiA+IC1zdHJ1Y3QgdmlydGlvX3Zzb2NrX3BrdCAq
-Cj4gPiArc3RhdGljIHN0cnVjdCB2aXJ0aW9fdnNvY2tfcGt0ICoKPiA+ICAgdmlydGlvX3RyYW5z
-cG9ydF9hbGxvY19wa3Qoc3RydWN0IHZpcnRpb192c29ja19wa3RfaW5mbyAqaW5mbywKPiA+ICAg
-CQkJICAgc2l6ZV90IGxlbiwKPiA+ICAgCQkJICAgdTMyIHNyY19jaWQsCj4gCj4gR2l0IGdyZXAg
-c2hvd3MgaXQgd2FzIHVzZWQgYnkgdHJhY2luZy4KClRydWUgYnV0IHRyYWNlX3ZpcnRpb190cmFu
-c3BvcnRfYWxsb2NfcGt0IGlzIGFsc28gbG9jYWwgdG8KdmlydGlvX3RyYW5zcG9ydF9jb21tb24u
-YwoKLS0gCk1TVApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-XwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
-Zm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4v
-bGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+While chasing a regression I noticed we potentially patch the wrong
+code in native_patch().
+
+If we do not select the native code sequence, we must use the default
+patcher, not fall-through the switch case.
+
+Fixes: 3cded4179481 ("x86/paravirt: Optimize native pv_lock_ops.vcpu_is_preempted()")
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+---
+ arch/x86/kernel/paravirt_patch_32.c |    4 ++++
+ arch/x86/kernel/paravirt_patch_64.c |    4 ++++
+ 2 files changed, 8 insertions(+)
+
+--- a/arch/x86/kernel/paravirt_patch_32.c
++++ b/arch/x86/kernel/paravirt_patch_32.c
+@@ -56,15 +56,19 @@ unsigned native_patch(u8 type, u16 clobb
+ 				end   = end_pv_lock_ops_queued_spin_unlock;
+ 				goto patch_site;
+ 			}
++			goto patch_default;
++
+ 		case PARAVIRT_PATCH(pv_lock_ops.vcpu_is_preempted):
+ 			if (pv_is_native_vcpu_is_preempted()) {
+ 				start = start_pv_lock_ops_vcpu_is_preempted;
+ 				end   = end_pv_lock_ops_vcpu_is_preempted;
+ 				goto patch_site;
+ 			}
++			goto patch_default;
+ #endif
+ 
+ 	default:
++patch_default:
+ 		ret = paravirt_patch_default(type, clobbers, ibuf, addr, len);
+ 		break;
+ 
+--- a/arch/x86/kernel/paravirt_patch_64.c
++++ b/arch/x86/kernel/paravirt_patch_64.c
+@@ -68,15 +68,19 @@ unsigned native_patch(u8 type, u16 clobb
+ 				end   = end_pv_lock_ops_queued_spin_unlock;
+ 				goto patch_site;
+ 			}
++			goto patch_default;
++
+ 		case PARAVIRT_PATCH(pv_lock_ops.vcpu_is_preempted):
+ 			if (pv_is_native_vcpu_is_preempted()) {
+ 				start = start_pv_lock_ops_vcpu_is_preempted;
+ 				end   = end_pv_lock_ops_vcpu_is_preempted;
+ 				goto patch_site;
+ 			}
++			goto patch_default;
+ #endif
+ 
+ 	default:
++patch_default:
+ 		ret = paravirt_patch_default(type, clobbers, ibuf, addr, len);
+ 		break;
