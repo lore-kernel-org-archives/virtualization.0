@@ -1,13 +1,13 @@
 From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH v2 1/4] vsock: track pkt owner vsock
-Date: Thu, 8 Dec 2016 09:30:10 +0000
-Message-ID: <20161208093010.GC10780@stefanha-x1.localdomain>
+Subject: Re: [PATCH v2 2/4] vhost-vsock: add pkt cancel capability
+Date: Thu, 8 Dec 2016 09:51:49 +0000
+Message-ID: <20161208095149.GD10780@stefanha-x1.localdomain>
 References: <1481123652-80603-1-git-send-email-bergwolf@gmail.com>
-	<1481123652-80603-2-git-send-email-bergwolf@gmail.com>
+	<1481123652-80603-3-git-send-email-bergwolf@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============9017287539538149145=="
+Content-Type: multipart/mixed; boundary="===============0156785480539978965=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1481123652-80603-2-git-send-email-bergwolf@gmail.com>
+In-Reply-To: <1481123652-80603-3-git-send-email-bergwolf@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,61 +22,46 @@ Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, Stefan Hajnoczi <stefanha@redha
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============9017287539538149145==
+--===============0156785480539978965==
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vOmOzSkFvhd7u8Ms"
+	protocol="application/pgp-signature"; boundary="uxuisgdDHaNETlh8"
 Content-Disposition: inline
 
 
---vOmOzSkFvhd7u8Ms
+--uxuisgdDHaNETlh8
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 07, 2016 at 11:14:09PM +0800, Peng Tao wrote:
-> So that we can cancel a queued pkt later if necessary.
+On Wed, Dec 07, 2016 at 11:14:10PM +0800, Peng Tao wrote:
+> To allow canceling all packets of a connection.
 >=20
 > Signed-off-by: Peng Tao <bergwolf@gmail.com>
 > ---
->  include/linux/virtio_vsock.h            | 2 ++
->  net/vmw_vsock/virtio_transport_common.c | 7 +++++++
->  2 files changed, 9 insertions(+)
->=20
-> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
-> index 9638bfe..6dd3242 100644
-> --- a/include/linux/virtio_vsock.h
-> +++ b/include/linux/virtio_vsock.h
-> @@ -48,6 +48,7 @@ struct virtio_vsock_pkt {
->  	struct virtio_vsock_hdr	hdr;
->  	struct work_struct work;
->  	struct list_head list;
-> +	struct vsock_sock *vsk;
+>  drivers/vhost/vsock.c        | 41 ++++++++++++++++++++++++++++++++++++++=
++++
+>  include/linux/virtio_vsock.h |  3 +++
+>  2 files changed, 44 insertions(+)
 
-To prevent future bugs, please add a comment here:
-/* socket refcnt not held, only use for cancellation */
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
-This field is just an opaque token used for cancellation rather than a
-struct vsock_sock pointer that we are allowed to dereference.  You could
-change this field to void *cancel_token to make the code harder to
-misuse.
-
---vOmOzSkFvhd7u8Ms
+--uxuisgdDHaNETlh8
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEcBAEBAgAGBQJYSSgiAAoJEJykq7OBq3PIl08H/1ahhqxx76VBWoFPU4Ry0UMD
-aY2pex/imfzJIhC3J3YfyRwS9UHDpSj7SQdsGqlJbibJ2vevOvbTs69PoL5/v4Yv
-8l3AEB0XbE/cZQu5PwbIx7a7wKTICt6QJNh9TXL9oUNCL3Zi+eAaKJ9VA6/QDguU
-6zeGLPmXHhatfGYAp88JrQ9P2Yr5/COiWTCJdGFHEWF1Tm9yhjZubxpEMGv2Ce3X
-/MGNQkHg9nb9j38CllACeG3GLVJPOYBCM/1orqPM+QmP7gzb6UzpT7QefUvY5GxQ
-RIJZIXOF5cKBe2yLCnG+8kpaVlX7CMmfV1H2yX6xXUSY0RgnFITgMaAOllBm01U=
-=OUDL
+iQEcBAEBAgAGBQJYSS00AAoJEJykq7OBq3PI10UIAKZproe+6OSKMJK+W/Y0+MUj
+Jy+aMI1SCen5fd8mIzfa+t1qe9HPLagw2Lwcekuzf0kHNnXxoJSm+QILGJ3NBjji
+S8ipgfi5ypEG4pn3N1A+WPPdyWQjlZYbvsEY5u8iltvjBPNsjwPO5gBO6QiSAB3g
+vfLcDVs96GAFvFPOuHzOiORnnVNN5Nn2FhCb0gZQpkDGjhoOKHJ6LlRw1P1zamwN
+Wb/eVNCV64IGrRmNAUXxUsCeXItP9AWBSxPYUUOEWNBhAzguwchKTHNT929VZVIX
+cCgQ/KXI2YjnPpO2vpgEsS+NNP1nxeEExzuxn4erBSJfEsAFe62Fi2yEhbx5hTY=
+=e3br
 -----END PGP SIGNATURE-----
 
---vOmOzSkFvhd7u8Ms--
+--uxuisgdDHaNETlh8--
 
---===============9017287539538149145==
+--===============0156785480539978965==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -86,4 +71,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============9017287539538149145==--
+--===============0156785480539978965==--
