@@ -1,15 +1,11 @@
-From: Jiaying Liang <wendy.liang@xilinx.com>
-Subject: RE: [RFC LINUX PATCH 0/2] Virtio ring works with DMA coherent memory
-Date: Thu, 8 Dec 2016 05:57:52 +0000
-Message-ID: <DC2968D6352D1841BA729D8C06CC9DBB944235B9@XSJ-PSEXMBX01.xlnx.xilinx.com>
-References: <1481048488-1026-1-git-send-email-jliang@xilinx.com>
-	<67f94c52-853d-3182-5f39-9affcfe89fd1@redhat.com>
+From: Wendy Liang <wendy.liang@xilinx.com>
+Subject: [PATCH 0/2] Virtio ring works with DMA coherent memory
+Date: Wed, 7 Dec 2016 22:59:11 -0800
+Message-ID: <1481180353-11139-1-git-send-email-jliang@xilinx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <67f94c52-853d-3182-5f39-9affcfe89fd1@redhat.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,44 +15,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, "ohad@wizery.com" <ohad@wizery.com>, "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>, "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: jasowang@redhat.com, mst@redhat.com, virtualization@lists.linux-foundation.org, ohad@wizery.com, bjorn.andersson@linaro.org, linux-remoteproc@vger.kernel.org
+Cc: Wendy Liang <jliang@xilinx.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-VGhhbmtzIEphc29uLCBJIHdpbGwgcmVzZW5kIGl0IGFzIGEgZm9ybWFsIHBhdGNoLg0KDQpXZW5k
-eQ0KDQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IEphc29uIFdhbmcgW21h
-aWx0bzpqYXNvd2FuZ0ByZWRoYXQuY29tXQ0KPiBTZW50OiBXZWRuZXNkYXksIERlY2VtYmVyIDA3
-LCAyMDE2IDc6MTggUE0NCj4gVG86IEppYXlpbmcgTGlhbmc7IG9oYWRAd2l6ZXJ5LmNvbTsgYmpv
-cm4uYW5kZXJzc29uQGxpbmFyby5vcmc7IGxpbnV4LQ0KPiByZW1vdGVwcm9jQHZnZXIua2VybmVs
-Lm9yZzsgbXN0QHJlZGhhdC5jb207IHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LQ0KPiBmb3Vu
-ZGF0aW9uLm9yZw0KPiBDYzogSmlheWluZyBMaWFuZw0KPiBTdWJqZWN0OiBSZTogW1JGQyBMSU5V
-WCBQQVRDSCAwLzJdIFZpcnRpbyByaW5nIHdvcmtzIHdpdGggRE1BIGNvaGVyZW50DQo+IG1lbW9y
-eQ0KPg0KPg0KPg0KPiBPbiAyMDE25bm0MTLmnIgwN+aXpSAwMjoyMSwgV2VuZHkgTGlhbmcgd3Jv
-dGU6DQo+ID4gUlBNc2cgdXNlcyBkbWFfYWxsb2NfY29oZXJlbnQoKSB0byBhbGxvY2F0ZSBtZW1v
-cnkgdG8gc2hhcmVkIHdpdGggdGhlDQo+IHJlbW90ZS4NCj4gPiBJbiB0aGlzIGNhc2UsIGFzIHRo
-ZXJlIGlzIG5vIHBhZ2VzIHNldHVwIGluIHRoZSBkbWFfYWxsb2NfY29oZXJlbnQoKSwNCj4gPiB3
-ZSBjYW5ub3QgZ2V0IHRoZSBwaHlzaWNhbCBhZGRyZXNzIGJhY2sgZnJvbSB0aGUgdmlydHVhbCBh
-ZGRyZXNzLCBhbmQNCj4gPiB0aHVzLCB3ZSBjYW4gc2V0IHRoZSBzZ19kbWFfYWRkciB0byBzdG9y
-ZSB0aGUgRE1BIGFkZHJlc3MgYW5kIG1hcmsgaXQNCj4gPiBhbHJlYWR5IERNQSBtYXBwZWQuDQo+
-ID4NCj4gPiBXaGVuIHZpcnRpbyB2cmluZyBzZWVzIHRoZSBzZ19kbWFfYWRkciBpcyByZWFkeSBz
-ZXQsIGRvIG5vdCBjYWxsDQo+IGRtYV9tYXBfcGFnZSgpLg0KPiA+DQo+ID4gVGhlIGlzc3VlIHdh
-cyBvbmNlIGRpc2N1c3NlZCBoZXJlOg0KPiA+IGh0dHA6Ly92aXJ0dWFsaXphdGlvbi5saW51eC1m
-b3VuZGF0aW9uLm5hcmtpdmUuY29tL0NmVlAzMlZ5L3JmYy0wLTQtcnANCj4gPiBtc2ctZml4LWlu
-aXQtb2YtZG1hLWFibGUtdmlydHF1ZXVlcw0KPiA+DQo+ID4gRWRnYXIgRS4gSWdsZXNpYXMgKDEp
-Og0KPiA+ICAgIHJwbXNnOiBETUEgbWFwIHNncyBwYXNzZWQgdG8gdmlydGlvDQo+ID4NCj4gPiBX
-ZW5keSBMaWFuZyAoMSk6DQo+ID4gICAgdmlydGlvX3Jpbmc6IERvIG5vdCBjYWxsIGRtYV9tYXBf
-cGFnZSBpZiBzZyBpcyBhbHJlYWR5IG1hcHBlZC4NCj4gPg0KPiA+ICAgZHJpdmVycy9ycG1zZy92
-aXJ0aW9fcnBtc2dfYnVzLmMgfCAyMiArKysrKysrKysrKysrKysrKysrLS0tDQo+ID4gICBkcml2
-ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jICAgICB8ICA2ICsrKysrKw0KPiA+ICAgMiBmaWxlcyBj
-aGFuZ2VkLCAyNSBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQ0KPiA+DQo+DQo+IExvb2tz
-IGdvb2QgdG8gbWUuDQo+DQo+IEkgdGhpbmsgeW91IGNhbiBzZW5kIGEgZm9ybWFsIHBhdGNoICh3
-aXRob3V0IFJGQyBwcmVmaXgpLg0KPg0KPiBUaGFua3MNCg0KDQpUaGlzIGVtYWlsIGFuZCBhbnkg
-YXR0YWNobWVudHMgYXJlIGludGVuZGVkIGZvciB0aGUgc29sZSB1c2Ugb2YgdGhlIG5hbWVkIHJl
-Y2lwaWVudChzKSBhbmQgY29udGFpbihzKSBjb25maWRlbnRpYWwgaW5mb3JtYXRpb24gdGhhdCBt
-YXkgYmUgcHJvcHJpZXRhcnksIHByaXZpbGVnZWQgb3IgY29weXJpZ2h0ZWQgdW5kZXIgYXBwbGlj
-YWJsZSBsYXcuIElmIHlvdSBhcmUgbm90IHRoZSBpbnRlbmRlZCByZWNpcGllbnQsIGRvIG5vdCBy
-ZWFkLCBjb3B5LCBvciBmb3J3YXJkIHRoaXMgZW1haWwgbWVzc2FnZSBvciBhbnkgYXR0YWNobWVu
-dHMuIERlbGV0ZSB0aGlzIGVtYWlsIG1lc3NhZ2UgYW5kIGFueSBhdHRhY2htZW50cyBpbW1lZGlh
-dGVseS4NCg0KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
-VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
-dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL3ZpcnR1YWxpemF0aW9u
+RPMsg uses dma_alloc_coherent() to allocate memory to shared with the remote.
+In this case, as there is no pages setup in the dma_alloc_coherent(),
+we cannot get the physical address back from the virtual address, and thus,
+we can set the sg_dma_addr to store the DMA address and mark it already DMA
+mapped.
+
+When virtio vring sees the sg_dma_addr is ready set, do not call dma_map_page().
+
+The issue was once discussed here:
+http://virtualization.linux-foundation.narkive.com/CfVP32Vy/rfc-0-4-rpmsg-fix-init-of-dma-able-virtqueues
+
+Edgar E. Iglesias (1):
+  rpmsg: DMA map sgs passed to virtio
+
+Wendy Liang (1):
+  virtio_ring: Do not call dma_map_page if sg is already mapped.
+
+ drivers/rpmsg/virtio_rpmsg_bus.c | 22 +++++++++++++++++++---
+ drivers/virtio/virtio_ring.c     |  6 ++++++
+ 2 files changed, 25 insertions(+), 3 deletions(-)
+
+-- 
+1.9.1
