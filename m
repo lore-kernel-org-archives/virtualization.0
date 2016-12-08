@@ -1,17 +1,12 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH] linux/types.h: enable endian checks for all sparse builds
-Date: Thu, 8 Dec 2016 12:13:25 +0100
-Message-ID: <20161208111325.GB29138@kroah.com>
-References: <1481164052-28036-1-git-send-email-mst@redhat.com>
-	<BLUPR02MB168374E98A6C86E43DF0BCFE81840@BLUPR02MB1683.namprd02.prod.outlook.com>
-	<20161208075152-mutt-send-email-mst@kernel.org>
-	<BLUPR02MB168304F8FBA50C916A6A4E6081840@BLUPR02MB1683.namprd02.prod.outlook.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH] vhost-vsock: fix orphan connection reset
+Date: Thu, 8 Dec 2016 09:19:33 +0000
+Message-ID: <20161208091933.GA10780__17320.0358789929$1481195859$gmane$org@stefanha-x1.localdomain>
+References: <1481103947-76771-1-git-send-email-bergwolf@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============5285753329070152789=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <BLUPR02MB168304F8FBA50C916A6A4E6081840@BLUPR02MB1683.namprd02.prod.outlook.com>
+In-Reply-To: <1481103947-76771-1-git-send-email-bergwolf@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,42 +16,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bart Van Assche <Bart.VanAssche@sandisk.com>
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, Neil Armstrong <narmstrong@baylibre.com>, Christoph Hellwig <hch@infradead.org>, "v9fs-developer@lists.sourceforge.net" <v9fs-developer@lists.sourceforge.net>, Asias He <asias@redhat.com>, Arnd Bergmann <arnd@arndb.de>, "linux-kbuild@vger.kernel.org" <linux-kbuild@vger.kernel.org>, Jens Axboe <axboe@fb.com>
+To: Peng Tao <bergwolf@gmail.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, stable@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 08, 2016 at 06:38:11AM +0000, Bart Van Assche wrote:
-> On 12/07/16 21:54, Michael S. Tsirkin wrote:
-> > On Thu, Dec 08, 2016 at 05:21:47AM +0000, Bart Van Assche wrote:
-> >> Additionally, there are notable exceptions to the rule that most drivers
-> >> are endian-clean, e.g. drivers/scsi/qla2xxx. I would appreciate it if it
-> >> would remain possible to check such drivers with sparse without enabling
-> >> endianness checks. Have you considered to change #ifdef __CHECK_ENDIAN__
-> >> into e.g. #ifndef __DONT_CHECK_ENDIAN__?
-> >
-> > The right thing is probably just to fix these, isn't it?
-> > Until then, why not just ignore the warnings?
-> 
-> Neither option is realistic. With endian-checking enabled the qla2xxx 
-> driver triggers so many warnings that it becomes a real challenge to 
-> filter the non-endian warnings out manually:
-> 
-> $ for f in "" CF=-D__CHECK_ENDIAN__; do make M=drivers/scsi/qla2xxx C=2\
->      $f | &grep -c ': warning:'; done
-> 4
-> 752
-> 
-> If you think it would be easy to fix the endian warnings triggered by 
-> the qla2xxx driver, you are welcome to try to fix these.
 
-Please don't let one crappy, obviously broken, driver prevent this good
-change from happening which will help ensure that the rest of the kernel
-(i.e. 99% of it) can be easily tested and fixed for endian issues.
+--===============5285753329070152789==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="huq684BweRXVnRxX"
+Content-Disposition: inline
 
-Sounds like you should just fix the driver up if it has so many
-problems, and it annoys you so much that you have to filter out some
-warnings to see the others :)
 
-thanks,
+--huq684BweRXVnRxX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-greg k-h
+On Wed, Dec 07, 2016 at 05:45:47PM +0800, Peng Tao wrote:
+> local_addr.svm_cid is host cid. We should check guest cid instead,
+> which is remote_addr.svm_cid.
+>=20
+> Cc: Stefan Hajnoczi <stefanha@redhat.com>
+> Cc: stable@vger.kernel.org #4.8+
+> Signed-off-by: Peng Tao <bergwolf@gmail.com>
+> ---
+>  drivers/vhost/vsock.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--huq684BweRXVnRxX
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJYSSWkAAoJEJykq7OBq3PI0rsH+wcuZhkfOgsQeZ/7sFHdqM4d
+jeBW9nE4zWbihMIfospEg+5dZbLVRLq+mZfls99gyhqezNFNwbNnIPzAjFG5IEbA
+E8a7ueMXV47VMafiusGiGFnUlHAjTFZOSthVY4S1V7fBZg6Fm6zQpLDZRKAk/0bN
+Oi7HAhmGFxPL83OG42MiJaWivxm+ce/t9UiCZDDx6hG9oyQ2F0Y5mq5EZosCWtfX
+FJcYANumA/guHZGzuerOTPPpcwLHO7LJMisw3ypMrOWLnDri2ReexfnVd49HXRBL
+FkBlXKk1YCjd5wvl6gom8k1LKWTV0BmWYJgowJrYN1EcXtEEWukk+ltKqV03MQo=
+=jmP8
+-----END PGP SIGNATURE-----
+
+--huq684BweRXVnRxX--
+
+--===============5285753329070152789==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5285753329070152789==--
