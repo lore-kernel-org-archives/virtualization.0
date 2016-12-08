@@ -1,13 +1,13 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Bart Van Assche <Bart.VanAssche@sandisk.com>
 Subject: Re: [PATCH] linux/types.h: enable endian checks for all sparse builds
-Date: Thu, 8 Dec 2016 12:25:53 +0100
-Message-ID: <20161208122553.5fa5a09c.cornelia.huck@de.ibm.com>
+Date: Thu, 8 Dec 2016 05:21:47 +0000
+Message-ID: <BLUPR02MB168374E98A6C86E43DF0BCFE81840__23029.9648283564$1481205553$gmane$org@BLUPR02MB1683.namprd02.prod.outlook.com>
 References: <1481164052-28036-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1481164052-28036-1-git-send-email-mst@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,53 +17,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>, David Airlie <airlied@linux.ie>, linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, "James E.J.  Bottomley" <jejb@linux.vnet.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-scsi@vger.kernel.org, Christoph Hellwig <hch@infradead.org>, v9fs-developer@lists.sourceforge.net, Asias He <asias@redhat.com>, Arnd Bergmann <arnd@arndb.de>, linux-kbuild@vger.kernel.org, Jens Axboe <axboe@fb.com>, Michal Marek <mmarek@suse.com>, Stefan Hajnoczi <stefanha@redhat.com>, Matt Mackall <mpm@selenic.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, netdev@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Christoph Hellwig <hch@infradead.org>
+Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Neil Armstrong <narmstrong@baylibre.com>, David Airlie <airlied@linux.ie>, "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "v9fs-developer@lists.sourceforge.net" <v9fs-developer@lists.sourceforge.net>, Asias He <asias@redhat.com>, Arnd Bergmann <arnd@arndb.de>, "linux-kbuild@vger.kernel.org" <linux-kbuild@vger.kernel.org>, Jens Axboe <axboe@fb.com>, Michal Marek <mmarek@suse.com>, Stefan Hajnoczi <stefanha@redhat.com>, Matt Mackall <mpm@sele>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 8 Dec 2016 04:29:39 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
+On 12/07/16 18:29, Michael S. Tsirkin wrote:
 > By now, linux is mostly endian-clean. Enabling endian-ness
 > checks for everyone produces about 200 new sparse warnings for me -
 > less than 10% over the 2000 sparse warnings already there.
-
-Out of curiousity: Where do most of those warnings show up?
-
-> 
+>
 > Not a big deal, OTOH enabling this helps people notice
 > they are introducing new bugs.
-> 
+>
 > So let's just drop __CHECK_ENDIAN__. Follow-up patches
 > can drop distinction between __bitwise and __bitwise__.
-> 
-> Cc: Linus Torvalds <torvalds@linux-foundation.org>
-> Suggested-by: Christoph Hellwig <hch@infradead.org>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
-> 
-> Linus, could you ack this for upstream? If yes I'll
-> merge through my tree as a replacement for enabling
-> this just for virtio.
-> 
->  include/uapi/linux/types.h | 4 ----
->  1 file changed, 4 deletions(-)
-> 
-> diff --git a/include/uapi/linux/types.h b/include/uapi/linux/types.h
-> index acf0979..41e5914 100644
-> --- a/include/uapi/linux/types.h
-> +++ b/include/uapi/linux/types.h
-> @@ -23,11 +23,7 @@
->  #else
->  #define __bitwise__
->  #endif
-> -#ifdef __CHECK_ENDIAN__
->  #define __bitwise __bitwise__
-> -#else
-> -#define __bitwise
-> -#endif
-> 
->  typedef __u16 __bitwise __le16;
->  typedef __u16 __bitwise __be16;
 
-FWIW, I like this better than just enabling it for the virtio code.
+Hello Michael,
+
+This patch makes a whole bunch of ccflags-y += -D__CHECK_ENDIAN__ 
+statements obsolete. Have you considered to remove these statements?
+
+Additionally, there are notable exceptions to the rule that most drivers 
+are endian-clean, e.g. drivers/scsi/qla2xxx. I would appreciate it if it 
+would remain possible to check such drivers with sparse without enabling 
+endianness checks. Have you considered to change #ifdef __CHECK_ENDIAN__ 
+into e.g. #ifndef __DONT_CHECK_ENDIAN__?
+
+Thanks,
+
+Bart.
