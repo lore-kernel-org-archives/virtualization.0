@@ -1,14 +1,15 @@
 From: Peng Tao <bergwolf@gmail.com>
-Subject: [PATCH v3 2/4] vhost-vsock: add pkt cancel capability
-Date: Fri,  9 Dec 2016 01:12:34 +0800
-Message-ID: <1481217156-7160-3-git-send-email-bergwolf__3833.6219186478$1481217249$gmane$org@gmail.com>
+Subject: [PATCH v3 3/4] vsock: add pkt cancel capability
+Date: Fri,  9 Dec 2016 01:12:35 +0800
+Message-ID: <1481217156-7160-4-git-send-email-bergwolf__30058.3858312622$1481217262$gmane$org@gmail.com>
 References: <1481217156-7160-1-git-send-email-bergwolf@gmail.com>
 	<1481217156-7160-2-git-send-email-bergwolf@gmail.com>
+	<1481217156-7160-3-git-send-email-bergwolf@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1481217156-7160-2-git-send-email-bergwolf@gmail.com>
+In-Reply-To: <1481217156-7160-3-git-send-email-bergwolf@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,35 +23,32 @@ To: Stefan Hajnoczi <stefanha@redhat.com>
 Cc: netdev@vger.kernel.org, Jorgen Hansen <jhansen@vmware.com>, David Miller <davem@davemloft.net>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-To allow canceling all packets of a connection.
-
 Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 Signed-off-by: Peng Tao <bergwolf@gmail.com>
 ---
- drivers/vhost/vsock.c  | 41 +++++++++++++++++++++++++++++++++++++++++
- include/net/af_vsock.h |  3 +++
- 2 files changed, 44 insertions(+)
+ net/vmw_vsock/virtio_transport.c | 42 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index a504e2e0..db64d51 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -218,6 +218,46 @@ vhost_transport_send_pkt(struct virtio_vsock_pkt *pkt)
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index 936d7ee..95c1162 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -170,6 +170,47 @@ virtio_transport_send_pkt(struct virtio_vsock_pkt *pkt)
  	return len;
  }
  
 +static int
-+vhost_transport_cancel_pkt(struct vsock_sock *vsk)
++virtio_transport_cancel_pkt(struct vsock_sock *vsk)
 +{
-+	struct vhost_vsock *vsock;
++	struct virtio_vsock *vsock;
 +	struct virtio_vsock_pkt *pkt, *n;
 +	int cnt = 0;
 +	LIST_HEAD(freeme);
 +
-+	/* Find the vhost_vsock according to guest context id  */
-+	vsock = vhost_vsock_get(vsk->remote_addr.svm_cid);
-+	if (!vsock)
++	vsock = virtio_vsock_get();
++	if (!vsock) {
 +		return -ENODEV;
++	}
 +
 +	spin_lock_bh(&vsock->send_pkt_list_lock);
 +	list_for_each_entry_safe(pkt, n, &vsock->send_pkt_list, list) {
@@ -68,41 +66,28 @@ index a504e2e0..db64d51 100644
 +	}
 +
 +	if (cnt) {
-+		struct vhost_virtqueue *tx_vq = &vsock->vqs[VSOCK_VQ_TX];
++		struct virtqueue *rx_vq = vsock->vqs[VSOCK_VQ_RX];
 +		int new_cnt;
 +
 +		new_cnt = atomic_sub_return(cnt, &vsock->queued_replies);
-+		if (new_cnt + cnt >= tx_vq->num && new_cnt < tx_vq->num)
-+			vhost_poll_queue(&tx_vq->poll);
++		if (new_cnt + cnt >= virtqueue_get_vring_size(rx_vq) &&
++		    new_cnt < virtqueue_get_vring_size(rx_vq))
++			queue_work(virtio_vsock_workqueue, &vsock->rx_work);
 +	}
 +
 +	return 0;
 +}
 +
- static struct virtio_vsock_pkt *
- vhost_vsock_alloc_pkt(struct vhost_virtqueue *vq,
- 		      unsigned int out, unsigned int in)
-@@ -664,6 +704,7 @@ static struct virtio_transport vhost_transport = {
+ static void virtio_vsock_rx_fill(struct virtio_vsock *vsock)
+ {
+ 	int buf_len = VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE;
+@@ -419,6 +460,7 @@ static struct virtio_transport virtio_transport = {
  		.release                  = virtio_transport_release,
  		.connect                  = virtio_transport_connect,
  		.shutdown                 = virtio_transport_shutdown,
-+		.cancel_pkt               = vhost_transport_cancel_pkt,
++		.cancel_pkt               = virtio_transport_cancel_pkt,
  
- 		.dgram_enqueue            = virtio_transport_dgram_enqueue,
+ 		.dgram_bind               = virtio_transport_dgram_bind,
  		.dgram_dequeue            = virtio_transport_dgram_dequeue,
-diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-index f275896..ce5f100 100644
---- a/include/net/af_vsock.h
-+++ b/include/net/af_vsock.h
-@@ -100,6 +100,9 @@ struct vsock_transport {
- 	void (*destruct)(struct vsock_sock *);
- 	void (*release)(struct vsock_sock *);
- 
-+	/* Cancel packets belonging the same vsock */
-+	int (*cancel_pkt)(struct vsock_sock *vsk);
-+
- 	/* Connections. */
- 	int (*connect)(struct vsock_sock *);
- 
 -- 
 2.7.4
