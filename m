@@ -1,13 +1,13 @@
 From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH v2 2/4] vhost-vsock: add pkt cancel capability
-Date: Thu, 8 Dec 2016 09:51:49 +0000
-Message-ID: <20161208095149.GD10780@stefanha-x1.localdomain>
+Subject: Re: [PATCH v2 3/4] vsock: add pkt cancel capability
+Date: Thu, 8 Dec 2016 09:54:25 +0000
+Message-ID: <20161208095425.GE10780@stefanha-x1.localdomain>
 References: <1481123652-80603-1-git-send-email-bergwolf@gmail.com>
-	<1481123652-80603-3-git-send-email-bergwolf@gmail.com>
+	<1481123652-80603-4-git-send-email-bergwolf@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0156785480539978965=="
+Content-Type: multipart/mixed; boundary="===============6913403136612007002=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1481123652-80603-3-git-send-email-bergwolf@gmail.com>
+In-Reply-To: <1481123652-80603-4-git-send-email-bergwolf@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,46 +22,41 @@ Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, Stefan Hajnoczi <stefanha@redha
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============0156785480539978965==
+--===============6913403136612007002==
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="uxuisgdDHaNETlh8"
+	protocol="application/pgp-signature"; boundary="9crTWz/Z+Zyzu20v"
 Content-Disposition: inline
 
 
---uxuisgdDHaNETlh8
+--9crTWz/Z+Zyzu20v
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 07, 2016 at 11:14:10PM +0800, Peng Tao wrote:
-> To allow canceling all packets of a connection.
->=20
+On Wed, Dec 07, 2016 at 11:14:11PM +0800, Peng Tao wrote:
 > Signed-off-by: Peng Tao <bergwolf@gmail.com>
 > ---
->  drivers/vhost/vsock.c        | 41 ++++++++++++++++++++++++++++++++++++++=
-+++
->  include/linux/virtio_vsock.h |  3 +++
->  2 files changed, 44 insertions(+)
+>  net/vmw_vsock/virtio_transport.c | 42 ++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 42 insertions(+)
 
 Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
---uxuisgdDHaNETlh8
+--9crTWz/Z+Zyzu20v
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEcBAEBAgAGBQJYSS00AAoJEJykq7OBq3PI10UIAKZproe+6OSKMJK+W/Y0+MUj
-Jy+aMI1SCen5fd8mIzfa+t1qe9HPLagw2Lwcekuzf0kHNnXxoJSm+QILGJ3NBjji
-S8ipgfi5ypEG4pn3N1A+WPPdyWQjlZYbvsEY5u8iltvjBPNsjwPO5gBO6QiSAB3g
-vfLcDVs96GAFvFPOuHzOiORnnVNN5Nn2FhCb0gZQpkDGjhoOKHJ6LlRw1P1zamwN
-Wb/eVNCV64IGrRmNAUXxUsCeXItP9AWBSxPYUUOEWNBhAzguwchKTHNT929VZVIX
-cCgQ/KXI2YjnPpO2vpgEsS+NNP1nxeEExzuxn4erBSJfEsAFe62Fi2yEhbx5hTY=
-=e3br
+iQEcBAEBAgAGBQJYSS3RAAoJEJykq7OBq3PIIGgH/jxCmDUyLfkIAKpIg12l9yNI
+ahzZC2vmP0o/M+2GjCgjGiROAaTUTDX/ybfGoS63COVlR0ToH9xYWFxkOk5Mbf7c
+HlHUTVUyBdfWAGG+hzNfmFjskhYNeN8eXqoCHifZxAqRyJJFqJW40voKavi0/aLK
+ETyLWw7uOlw51n6/c+2D0gKYcDHKAlXIIDeOBCiZKj29mx1dBqBrccsPrlXRGONb
+767E3rU34jBq7gg+MDoITOea1xEJhYIoL9ZbbEn6zDktB4KN94elkfrvkS7j8aIo
+zJHYzZolrWKcWl+NAWXkpTYQFZb2pzUzRY+G9eurbQ+jOo8S1TMeyf1GVv6gGhQ=
+=ZRXm
 -----END PGP SIGNATURE-----
 
---uxuisgdDHaNETlh8--
+--9crTWz/Z+Zyzu20v--
 
---===============0156785480539978965==
+--===============6913403136612007002==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -71,4 +66,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0156785480539978965==--
+--===============6913403136612007002==--
