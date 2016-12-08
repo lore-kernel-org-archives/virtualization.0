@@ -1,13 +1,13 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC LINUX PATCH 0/2] Virtio ring works with DMA coherent memory
-Date: Thu, 8 Dec 2016 11:18:19 +0800
-Message-ID: <67f94c52-853d-3182-5f39-9affcfe89fd1@redhat.com>
-References: <1481048488-1026-1-git-send-email-jliang@xilinx.com>
+From: Gonglei <arei.gonglei@huawei.com>
+Subject: [PATCH v6 1/2] sparc: fix a building error reported by kbuild
+Date: Thu, 8 Dec 2016 12:37:08 +0800
+Message-ID: <1481171829-116496-2-git-send-email-arei.gonglei__20676.0261361071$1481171925$gmane$org@huawei.com>
+References: <1481171829-116496-1-git-send-email-arei.gonglei@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1481048488-1026-1-git-send-email-jliang@xilinx.com>
+In-Reply-To: <1481171829-116496-1-git-send-email-arei.gonglei@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,28 +17,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wendy Liang <wendy.liang@xilinx.com>, ohad@wizery.com, bjorn.andersson@linaro.org, linux-remoteproc@vger.kernel.org, mst@redhat.com, virtualization@lists.linux-foundation.org
-Cc: Wendy Liang <jliang@xilinx.com>
+To: linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org
+Cc: weidong.huang@huawei.com, claudio.fontana@huawei.com, mst@redhat.com, luonengjun@huawei.com, hanweidong@huawei.com, xuquan8@huawei.com, wanzongshun@huawei.com, sparclinux@vger.kernel.org, Gonglei <arei.gonglei@huawei.com>, stefanha@redhat.com, jianjay.zhou@huawei.com, longpeng2@huawei.com, arei.gonglei@hotmail.com, Sam Ravnborg <sam@ravnborg.org>, davem@davemloft.net, wu.wubin@huawei.com, herbert@gondor.apana.org.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE25bm0MTLmnIgwN+aXpSAwMjoyMSwgV2VuZHkgTGlhbmcgd3JvdGU6Cj4gUlBNc2cg
-dXNlcyBkbWFfYWxsb2NfY29oZXJlbnQoKSB0byBhbGxvY2F0ZSBtZW1vcnkgdG8gc2hhcmVkIHdp
-dGggdGhlIHJlbW90ZS4KPiBJbiB0aGlzIGNhc2UsIGFzIHRoZXJlIGlzIG5vIHBhZ2VzIHNldHVw
-IGluIHRoZSBkbWFfYWxsb2NfY29oZXJlbnQoKSwKPiB3ZSBjYW5ub3QgZ2V0IHRoZSBwaHlzaWNh
-bCBhZGRyZXNzIGJhY2sgZnJvbSB0aGUgdmlydHVhbCBhZGRyZXNzLCBhbmQgdGh1cywKPiB3ZSBj
-YW4gc2V0IHRoZSBzZ19kbWFfYWRkciB0byBzdG9yZSB0aGUgRE1BIGFkZHJlc3MgYW5kIG1hcmsg
-aXQgYWxyZWFkeSBETUEKPiBtYXBwZWQuCj4KPiBXaGVuIHZpcnRpbyB2cmluZyBzZWVzIHRoZSBz
-Z19kbWFfYWRkciBpcyByZWFkeSBzZXQsIGRvIG5vdCBjYWxsIGRtYV9tYXBfcGFnZSgpLgo+Cj4g
-VGhlIGlzc3VlIHdhcyBvbmNlIGRpc2N1c3NlZCBoZXJlOgo+IGh0dHA6Ly92aXJ0dWFsaXphdGlv
-bi5saW51eC1mb3VuZGF0aW9uLm5hcmtpdmUuY29tL0NmVlAzMlZ5L3JmYy0wLTQtcnBtc2ctZml4
-LWluaXQtb2YtZG1hLWFibGUtdmlydHF1ZXVlcwo+Cj4gRWRnYXIgRS4gSWdsZXNpYXMgKDEpOgo+
-ICAgIHJwbXNnOiBETUEgbWFwIHNncyBwYXNzZWQgdG8gdmlydGlvCj4KPiBXZW5keSBMaWFuZyAo
-MSk6Cj4gICAgdmlydGlvX3Jpbmc6IERvIG5vdCBjYWxsIGRtYV9tYXBfcGFnZSBpZiBzZyBpcyBh
-bHJlYWR5IG1hcHBlZC4KPgo+ICAgZHJpdmVycy9ycG1zZy92aXJ0aW9fcnBtc2dfYnVzLmMgfCAy
-MiArKysrKysrKysrKysrKysrKysrLS0tCj4gICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5j
-ICAgICB8ICA2ICsrKysrKwo+ICAgMiBmaWxlcyBjaGFuZ2VkLCAyNSBpbnNlcnRpb25zKCspLCAz
-IGRlbGV0aW9ucygtKQo+CgpMb29rcyBnb29kIHRvIG1lLgoKSSB0aGluayB5b3UgY2FuIHNlbmQg
-YSBmb3JtYWwgcGF0Y2ggKHdpdGhvdXQgUkZDIHByZWZpeCkuCgpUaGFua3MKX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
-ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
-bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+>> arch/sparc/include/asm/topology_64.h:44:44:
+error: implicit declaration of function 'cpu_data'
+[-Werror=implicit-function-declaration]
+
+ #define topology_physical_package_id(cpu) (cpu_data(cpu).proc_id)
+                                               ^
+Let's include cpudata.h in topology_64.h.
+
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: sparclinux@vger.kernel.org
+Suggested-by: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Gonglei <arei.gonglei@huawei.com>
+---
+ arch/sparc/include/asm/topology_64.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/sparc/include/asm/topology_64.h b/arch/sparc/include/asm/topology_64.h
+index 7b4898a..2255430 100644
+--- a/arch/sparc/include/asm/topology_64.h
++++ b/arch/sparc/include/asm/topology_64.h
+@@ -4,6 +4,7 @@
+ #ifdef CONFIG_NUMA
+ 
+ #include <asm/mmzone.h>
++#include <asm/cpudata.h>
+ 
+ static inline int cpu_to_node(int cpu)
+ {
+-- 
+1.8.3.1
