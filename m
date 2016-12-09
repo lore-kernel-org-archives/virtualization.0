@@ -1,8 +1,8 @@
-From: Dave Hansen <dave.hansen@intel.com>
-Subject: Re: [Qemu-devel] [PATCH kernel v5 0/5] Extend virtio-balloon for fast
-	(de)inflating & fast live migration
-Date: Thu, 8 Dec 2016 20:53:00 -0800
-Message-ID: <060287c7-d1af-45d5-70ea-ad35d4bbeb84@intel.com>
+From: "Li, Liang Z" <liang.z.li@intel.com>
+Subject: RE: [Qemu-devel] [PATCH kernel v5 0/5] Extend virtio-balloon for
+	fast (de)inflating & fast live migration
+Date: Fri, 9 Dec 2016 05:35:45 +0000
+Message-ID: <F2CBF3009FA73547804AE4C663CAB28E3A14E339@SHSMSX104.ccr.corp.intel.com>
 References: <1480495397-23225-1-git-send-email-liang.z.li@intel.com>
 	<f67ca79c-ad34-59dd-835f-e7bc9dcaef58@redhat.com>
 	<F2CBF3009FA73547804AE4C663CAB28E3A130C01@shsmsx102.ccr.corp.intel.com>
@@ -14,11 +14,13 @@ References: <1480495397-23225-1-git-send-email-liang.z.li@intel.com>
 	<b58fd9f6-d9dd-dd56-d476-dd342174dac5@intel.com>
 	<20161207202824.GH28786@redhat.com>
 	<F2CBF3009FA73547804AE4C663CAB28E3A14E2AD@SHSMSX104.ccr.corp.intel.com>
+	<060287c7-d1af-45d5-70ea-ad35d4bbeb84@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <F2CBF3009FA73547804AE4C663CAB28E3A14E2AD@SHSMSX104.ccr.corp.intel.com>
+In-Reply-To: <060287c7-d1af-45d5-70ea-ad35d4bbeb84@intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,20 +30,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Li, Liang Z" <liang.z.li@intel.com>, Andrea Arcangeli <aarcange@redhat.com>
+To: "Hansen, Dave" <dave.hansen@intel.com>, Andrea Arcangeli <aarcange@redhat.com>
 Cc: "mhocko@suse.com" <mhocko@suse.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/08/2016 08:45 PM, Li, Liang Z wrote:
-> What's the conclusion of your discussion? It seems you want some
-> statistic before deciding whether to  ripping the bitmap from the
-> ABI, am I right?
+> On 12/08/2016 08:45 PM, Li, Liang Z wrote:
+> > What's the conclusion of your discussion? It seems you want some
+> > statistic before deciding whether to  ripping the bitmap from the ABI,
+> > am I right?
+> 
+> I think Andrea and David feel pretty strongly that we should remove the
+> bitmap, unless we have some data to support keeping it.  I don't feel as
+> strongly about it, but I think their critique of it is pretty valid.  I think the
+> consensus is that the bitmap needs to go.
+> 
 
-I think Andrea and David feel pretty strongly that we should remove the
-bitmap, unless we have some data to support keeping it.  I don't feel as
-strongly about it, but I think their critique of it is pretty valid.  I
-think the consensus is that the bitmap needs to go.
+Thanks for you clarification.
 
-The only real question IMNHO is whether we should do a power-of-2 or a
-length.  But, if we have 12 bits, then the argument for doing length is
-pretty strong.  We don't need anywhere near 12 bits if doing power-of-2.
+> The only real question IMNHO is whether we should do a power-of-2 or a
+> length.  But, if we have 12 bits, then the argument for doing length is pretty
+> strong.  We don't need anywhere near 12 bits if doing power-of-2.
+> 
+So each item can max represent 16MB Bytes, seems not big enough,
+but enough for most case.
+Things became much more simple without the bitmap, and I like simple solution too. :)
+
+I will prepare the v6 and remove all the bitmap related stuffs. Thank you all!
+
+Liang
