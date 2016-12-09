@@ -1,26 +1,14 @@
-From: "Li, Liang Z" <liang.z.li@intel.com>
-Subject: RE: [Qemu-devel] [PATCH kernel v5 0/5] Extend virtio-balloon for
-	fast (de)inflating & fast live migration
-Date: Fri, 9 Dec 2016 05:35:45 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E3A14E339@SHSMSX104.ccr.corp.intel.com>
-References: <1480495397-23225-1-git-send-email-liang.z.li@intel.com>
-	<f67ca79c-ad34-59dd-835f-e7bc9dcaef58@redhat.com>
-	<F2CBF3009FA73547804AE4C663CAB28E3A130C01@shsmsx102.ccr.corp.intel.com>
-	<0b18c636-ee67-cbb4-1ba3-81a06150db76@redhat.com>
-	<0b83db29-ebad-2a70-8d61-756d33e33a48@intel.com>
-	<2171e091-46ee-decd-7348-772555d3a5e3@redhat.com>
-	<d3ff453c-56fa-19de-317c-1c82456f2831@intel.com>
-	<20161207183817.GE28786@redhat.com>
-	<b58fd9f6-d9dd-dd56-d476-dd342174dac5@intel.com>
-	<20161207202824.GH28786@redhat.com>
-	<F2CBF3009FA73547804AE4C663CAB28E3A14E2AD@SHSMSX104.ccr.corp.intel.com>
-	<060287c7-d1af-45d5-70ea-ad35d4bbeb84@intel.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH v3 2/4] vhost-vsock: add pkt cancel capability
+Date: Fri, 9 Dec 2016 10:15:40 +0000
+Message-ID: <20161209101540.GA18260__5297.86318443275$1481278556$gmane$org@stefanha-x1.localdomain>
+References: <1481217156-7160-1-git-send-email-bergwolf@gmail.com>
+	<1481217156-7160-2-git-send-email-bergwolf@gmail.com>
+	<1481217156-7160-3-git-send-email-bergwolf@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============6284547678837366378=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <060287c7-d1af-45d5-70ea-ad35d4bbeb84@intel.com>
-Content-Language: en-US
+In-Reply-To: <1481217156-7160-3-git-send-email-bergwolf@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -30,31 +18,86 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Hansen, Dave" <dave.hansen@intel.com>, Andrea Arcangeli <aarcange@redhat.com>
-Cc: "mhocko@suse.com" <mhocko@suse.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>
+To: Peng Tao <bergwolf@gmail.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, David Miller <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> On 12/08/2016 08:45 PM, Li, Liang Z wrote:
-> > What's the conclusion of your discussion? It seems you want some
-> > statistic before deciding whether to  ripping the bitmap from the ABI,
-> > am I right?
-> 
-> I think Andrea and David feel pretty strongly that we should remove the
-> bitmap, unless we have some data to support keeping it.  I don't feel as
-> strongly about it, but I think their critique of it is pretty valid.  I think the
-> consensus is that the bitmap needs to go.
-> 
 
-Thanks for you clarification.
+--===============6284547678837366378==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="M9NhX3UHpAaciwkO"
+Content-Disposition: inline
 
-> The only real question IMNHO is whether we should do a power-of-2 or a
-> length.  But, if we have 12 bits, then the argument for doing length is pretty
-> strong.  We don't need anywhere near 12 bits if doing power-of-2.
-> 
-So each item can max represent 16MB Bytes, seems not big enough,
-but enough for most case.
-Things became much more simple without the bitmap, and I like simple solution too. :)
 
-I will prepare the v6 and remove all the bitmap related stuffs. Thank you all!
+--M9NhX3UHpAaciwkO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Liang
+On Fri, Dec 09, 2016 at 01:12:34AM +0800, Peng Tao wrote:
+> To allow canceling all packets of a connection.
+>=20
+> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+> Signed-off-by: Peng Tao <bergwolf@gmail.com>
+> ---
+>  drivers/vhost/vsock.c  | 41 +++++++++++++++++++++++++++++++++++++++++
+>  include/net/af_vsock.h |  3 +++
+>  2 files changed, 44 insertions(+)
+>=20
+> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+> index a504e2e0..db64d51 100644
+> --- a/drivers/vhost/vsock.c
+> +++ b/drivers/vhost/vsock.c
+> @@ -218,6 +218,46 @@ vhost_transport_send_pkt(struct virtio_vsock_pkt *pk=
+t)
+>  	return len;
+>  }
+> =20
+> +static int
+> +vhost_transport_cancel_pkt(struct vsock_sock *vsk)
+> +{
+> +	struct vhost_vsock *vsock;
+> +	struct virtio_vsock_pkt *pkt, *n;
+> +	int cnt =3D 0;
+> +	LIST_HEAD(freeme);
+> +
+> +	/* Find the vhost_vsock according to guest context id  */
+> +	vsock =3D vhost_vsock_get(vsk->remote_addr.svm_cid);
+> +	if (!vsock)
+> +		return -ENODEV;
+> +
+> +	spin_lock_bh(&vsock->send_pkt_list_lock);
+> +	list_for_each_entry_safe(pkt, n, &vsock->send_pkt_list, list) {
+> +		if (pkt->cancel_token !=3D (void *)vsk)
+
+It's not necessary to cast to void* in C.  All pointers cast to void*
+automatically without compiler warnings.  The warnings and explicit
+casts are a C++ thing.
+
+--M9NhX3UHpAaciwkO
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJYSoRMAAoJEJykq7OBq3PIxG8H/iBbUKbQcwvnjrU4QwZfX4zL
+rl7gzJDKjE/ptLMcp62VM8RDymS/qKTp0xA2hpLablZvDYi92dJPiARpfBslBXIP
+2jmwd3RJrbK+v3X8l3m18wKsWKNMYx53PPZ7P7QnqWsdglmQ6XVWj0SyZxphd87K
+4EgXoKBcA4RoU1Hi4Do6t6LqgGZj55ig6RgF8YI5IK9RJnCt9Y8Wviuwcf5dPLnL
+eltllvvXNDkF+mz9HMjHJiOe+HBqpsUSKLKo8QTyRh/qKaJwxU29FBuGJFnqGP/N
+FtsHI1wkTgQDdjclMHw4QToVBeeLjDm34uqbAxTxn3GvoP4pajumyGPnYAZTIj0=
+=+NC2
+-----END PGP SIGNATURE-----
+
+--M9NhX3UHpAaciwkO--
+
+--===============6284547678837366378==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6284547678837366378==--
