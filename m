@@ -1,19 +1,16 @@
-From: "Madhani, Himanshu" <Himanshu.Madhani@cavium.com>
-Subject: Re: [PATCH] linux/types.h: enable endian checks for all sparse builds
-Date: Fri, 9 Dec 2016 06:40:53 +0000
-Message-ID: <6199215E-2AA4-4705-9552-5D61FE03F866__46568.2270740674$1481829959$gmane$org@cavium.com>
-References: <1481164052-28036-1-git-send-email-mst@redhat.com>
-	<BLUPR02MB168374E98A6C86E43DF0BCFE81840@BLUPR02MB1683.namprd02.prod.outlook.com>
-	<20161208075152-mutt-send-email-mst@kernel.org>
-	<BLUPR02MB168304F8FBA50C916A6A4E6081840@BLUPR02MB1683.namprd02.prod.outlook.com>
-	<20161208163658-mutt-send-email-mst@kernel.org>
+From: Wendy Liang <sunnyliangjy@gmail.com>
+Subject: Re: [PATCH 1/2] virtio_ring: Do not call dma_map_page if sg is
+	already mapped.
+Date: Fri, 9 Dec 2016 10:19:05 -0800
+Message-ID: <CAA07jV8C6FqN8o2_Os7RK3BWn6Ld0ccFJ7Cj1evV8Bw-EA5P6A@mail.gmail.com>
+References: <1481180353-11139-1-git-send-email-jliang@xilinx.com>
+	<1481180353-11139-2-git-send-email-jliang@xilinx.com>
+	<20161208184441-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161208163658-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-Content-ID: <CC052759A2A98246AAADC005BD2ECE5C@namprd07.prod.outlook.com>
+In-Reply-To: <20161208184441-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,99 +20,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Bart Van Assche <Bart.VanAssche@sandisk.com>
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Neil Armstrong <narmstrong@baylibre.com>, David Airlie <airlied@linux.ie>, "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, Christoph Hellwig <hch@infradead.org>, "v9fs-developer@lists.sourceforge.net" <v9fs-developer@lists.sourceforge.net>, Asias He <asias@redhat.com>, Arnd Bergmann <arnd@arndb.de>, "linux-kbuild@vger.kernel.org" <linux-kbuild@vger.kernel.org>, Jens Axboe <axboe@fb.com>, Michal Marek <mmarek@suse.com>, Stefan Hajnoczi <stef>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-remoteproc@vger.kernel.org, Wendy Liang <jliang@xilinx.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Wendy Liang <wendy.liang@xilinx.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGkgTWlrZS9CYXJ0LCANCg0KDQoNCg0KDQoNCg0KT24gMTIvOC8xNiwgODoxNyBBTSwgInZpcnR1
-YWxpemF0aW9uLWJvdW5jZXNAbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcgb24gYmVoYWxmIG9m
-IE1pY2hhZWwgUy4gVHNpcmtpbiIgPHZpcnR1YWxpemF0aW9uLWJvdW5jZXNAbGlzdHMubGludXgt
-Zm91bmRhdGlvbi5vcmcgb24gYmVoYWxmIG9mIG1zdEByZWRoYXQuY29tPiB3cm90ZToNCg0KPk9u
-IFRodSwgRGVjIDA4LCAyMDE2IGF0IDA2OjM4OjExQU0gKzAwMDAsIEJhcnQgVmFuIEFzc2NoZSB3
-cm90ZToNCj4+IE9uIDEyLzA3LzE2IDIxOjU0LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6DQo+
-PiA+IE9uIFRodSwgRGVjIDA4LCAyMDE2IGF0IDA1OjIxOjQ3QU0gKzAwMDAsIEJhcnQgVmFuIEFz
-c2NoZSB3cm90ZToNCj4+ID4+IEFkZGl0aW9uYWxseSwgdGhlcmUgYXJlIG5vdGFibGUgZXhjZXB0
-aW9ucyB0byB0aGUgcnVsZSB0aGF0IG1vc3QgZHJpdmVycw0KPj4gPj4gYXJlIGVuZGlhbi1jbGVh
-biwgZS5nLiBkcml2ZXJzL3Njc2kvcWxhMnh4eC4gSSB3b3VsZCBhcHByZWNpYXRlIGl0IGlmIGl0
-DQo+PiA+PiB3b3VsZCByZW1haW4gcG9zc2libGUgdG8gY2hlY2sgc3VjaCBkcml2ZXJzIHdpdGgg
-c3BhcnNlIHdpdGhvdXQgZW5hYmxpbmcNCj4+ID4+IGVuZGlhbm5lc3MgY2hlY2tzLiBIYXZlIHlv
-dSBjb25zaWRlcmVkIHRvIGNoYW5nZSAjaWZkZWYgX19DSEVDS19FTkRJQU5fXw0KPj4gPj4gaW50
-byBlLmcuICNpZm5kZWYgX19ET05UX0NIRUNLX0VORElBTl9fPw0KPj4gPg0KPj4gPiBUaGUgcmln
-aHQgdGhpbmcgaXMgcHJvYmFibHkganVzdCB0byBmaXggdGhlc2UsIGlzbid0IGl0Pw0KPj4gPiBV
-bnRpbCB0aGVuLCB3aHkgbm90IGp1c3QgaWdub3JlIHRoZSB3YXJuaW5ncz8NCj4+IA0KPj4gTmVp
-dGhlciBvcHRpb24gaXMgcmVhbGlzdGljLiBXaXRoIGVuZGlhbi1jaGVja2luZyBlbmFibGVkIHRo
-ZSBxbGEyeHh4IA0KPj4gZHJpdmVyIHRyaWdnZXJzIHNvIG1hbnkgd2FybmluZ3MgdGhhdCBpdCBi
-ZWNvbWVzIGEgcmVhbCBjaGFsbGVuZ2UgdG8gDQo+PiBmaWx0ZXIgdGhlIG5vbi1lbmRpYW4gd2Fy
-bmluZ3Mgb3V0IG1hbnVhbGx5Og0KPj4gDQo+PiAkIGZvciBmIGluICIiIENGPS1EX19DSEVDS19F
-TkRJQU5fXzsgZG8gbWFrZSBNPWRyaXZlcnMvc2NzaS9xbGEyeHh4IEM9MlwNCj4+ICAgICAgJGYg
-fCAmZ3JlcCAtYyAnOiB3YXJuaW5nOic7IGRvbmUNCj4+IDQNCj4+IDc1Mg0KPg0KPllvdSBjYW4g
-YWx3YXlzIHJldmVydCB0aGlzIHBhdGNoIGluIHlvdXIgdHJlZSwgb3Igd2hhdGV2ZXIuICBJdCBk
-b2VzIG5vdA0KPmxvb2sgbGlrZSB0aGlzIHdpbGwgZ2V0IGZpeGVkIG90aGVyd2lzZS4NCj4NCj4+
-IElmIHlvdSB0aGluayBpdCB3b3VsZCBiZSBlYXN5IHRvIGZpeCB0aGUgZW5kaWFuIHdhcm5pbmdz
-IHRyaWdnZXJlZCBieSANCj4+IHRoZSBxbGEyeHh4IGRyaXZlciwgeW91IGFyZSB3ZWxjb21lIHRv
-IHRyeSB0byBmaXggdGhlc2UuDQo+PiANCj4+IEJhcnQuDQo+DQo+WWVhLCB0aGlzIGhhcmR3YXJl
-IHdhcyBkZXNpZ25lZCBieSBzb21lb25lIHdobyB0aG91Z2h0IG1peGluZw0KPkxFIGFuZCBCRSBh
-bGwgb3ZlciB0aGUgcGxhY2UgaXMgYSBnb29kIGlkZWEuDQo+QnV0IHdobyBzYWlkIGl0IHNob3Vs
-ZCBiZSBlYXN5Pw0KPg0KPk1heWJlIHRoaXMgY2hhbmdlIHdpbGwgYmUgZW5vdWdoIHRvIG1vdGl2
-YXRlIHRoZSBtYWludGFpbmVycy4NCj4NCj5IZXJlJ3MgYSBtaW5vciBidWdsZXQgZm9yIHlvdSBh
-cyBhIG1vdGl2YXRvcjoNCj4NCj4gICAgICAgICAgICAgICAgICAgICAgICBpZiAoY3RfcnNwLT5o
-ZWFkZXIucmVzcG9uc2UgIT0NCj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgY3B1X3RvX2Jl
-MTYoQ1RfQUNDRVBUX1JFU1BPTlNFKSkgew0KPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgcWxfZGJnKHFsX2RiZ19kaXNjICsgcWxfZGJnX2J1ZmZlciwgdmhhLCAweDIwNzcsDQo+ICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIiVzIGZhaWxlZCByZWplY3RlZCByZXF1
-ZXN0IG9uIHBvcnRfaWQ6ICUwMnglMDJ4JTAyeCBDb21wZWx0aW9uIHN0YXR1cyAweCV4LCByZXNw
-b25zZSAweCV4XG4iLA0KPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHJvdXRp
-bmUsIHZoYS0+ZF9pZC5iLmRvbWFpbiwNCj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICB2aGEtPmRfaWQuYi5hcmVhLCB2aGEtPmRfaWQuYi5hbF9wYSwgY29tcF9zdGF0dXMsIGN0
-X3JzcC0+aGVhZGVyLnJlc3BvbnNlKTsNCj4NCj4NCj5yZXNwb25zZSBpcyBCRSBhbmQgaXNuJ3Qg
-cHJpbnRlZCBjb3JyZWN0bHkuDQo+DQo+YW5vdGhlcjoNCj4NCj4gICAgICAgIGVpdGVyLT5hLm1h
-eF9mcmFtZV9zaXplID0gY3B1X3RvX2JlMzIoZWl0ZXItPmEubWF4X2ZyYW1lX3NpemUpOw0KPiAg
-ICAgICAgc2l6ZSArPSA0ICsgNDsNCj4NCj4gICAgICAgIHFsX2RiZyhxbF9kYmdfZGlzYywgdmhh
-LCAweDIwYmMsDQo+ICAgICAgICAgICAgIk1heF9GcmFtZV9TaXplID0gJXguXG4iLCBlaXRlci0+
-YS5tYXhfZnJhbWVfc2l6ZSk7DQo+DQo+cHJpbnRlZCB0b28gbGF0ZSwgaXQncyBiZSBieSB0aGF0
-IHRpbWUuDQo+DQo+SGVyZSdzIGFub3RoZXIgc3VzcGljaW91cyBsaW5lDQo+DQo+ICAgICAgICBj
-dGlvMjQtPnUuc3RhdHVzMS5mbGFncyA9IChhdGlvLT51LmlzcDI0LmF0dHIgPDwgOSkgfA0KPiAg
-ICAgICAgICAgIGNwdV90b19sZTE2KENUSU83X0ZMQUdTX1NUQVRVU19NT0RFXzEgfA0KPiAgICAg
-ICAgICAgICAgICBDVElPN19GTEFHU19URVJNSU5BVEUpOw0KPg0KPnNoaWZ0aW5nIGF0dHIgYnkg
-OSBiaXRzIGdpdmVzIGRpZmZlcmVudCByZXN1bHRzIG9uIEJFIGFuZCBMRSwNCj5taXhpbmcgaXQg
-d2l0aCBsZTE2IGxvb2tzIHJhdGhlciBzdHJhbmdlLg0KPg0KPkFub3RoZXI6DQo+DQo+ICAgICAg
-ICAgICAgICAgIGhhLT5mbGFncy5kcG9ydF9lbmFibGVkID0NCj4gICAgICAgICAgICAgICAgICAg
-IChtaWRfaW5pdF9jYi0+aW5pdF9jYi5maXJtd2FyZV9vcHRpb25zXzEgJiBCSVRfNykgIT0gMDsN
-Cj4NCj5CSVRfNyBpcyBuYXRpdmUgZW5kaWFuLCBmaXJtd2FyZV9vcHRpb25zXzEgaXMgTEUgSSB0
-aGluay4NCj4NCj4NCj4NCj5Mb29rIGF0IHFsYTI3eHhfZmluZF92YWxpZF9pbWFnZSBhcyB3ZWxs
-Lg0KPg0KPiAgICAgICAgaWYgKHByaV9pbWFnZV9zdGF0dXMuc2lnbmF0dXJlICE9IFFMQTI3WFhf
-SU1HX1NUQVRVU19TSUdOKQ0KPg0KPnFsYTI3eHhfaW1hZ2Vfc3RhdHVzIHNlZW1zIHRvIGJlIGRh
-dGEgY29taW5nIGZyb20gZmxhc2gsIGJ1dCBpcw0KPnNvbWVob3cgbmF0aXZlLWVuZGlhbj8gTWF5
-YmUgLi4uDQo+DQo+DQo+ICAgICAgICBsdW4gPSBhLT51LmlzcDI0LmZjcF9jbW5kLmx1bjsNCj4N
-Cj5JIHRoaW5rIGx1biBoZXJlIGlzIGluIGhhcmR3YXJlIGZvcm1hdCAobGU/KSwgY29kZSB0cmVh
-dHMgaXQNCj5hcyBuYXRpdmUuDQo+DQo+DQo+Tm90IHRvIHNwZWFrIGFib3V0IGludGVyZmFjZSBh
-YnVzZSBhbGwgb3ZlciB0aGUgcGxhY2UuDQo+SG93IGFib3V0IHRoaXM6DQo+DQo+dWludDMyX3Qg
-Kg0KPnFsYTI0eHhfcmVhZF9mbGFzaF9kYXRhKHNjc2lfcWxhX2hvc3RfdCAqdmhhLCB1aW50MzJf
-dCAqZHdwdHIsIHVpbnQzMl90DQo+ZmFkZHIsDQo+ICAgIHVpbnQzMl90IGR3b3JkcykgICAgICAg
-ICAgICAgICAgICAgICANCj57DQo+ICAgICAgICB1aW50MzJfdCBpOyAgICAgICAgICAgICAgICAg
-ICAgIA0KPiAgICAgICAgc3RydWN0IHFsYV9od19kYXRhICpoYSA9IHZoYS0+aHc7DQo+ICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA0KPiAgICAgICAgLyogRHdvcmQgcmVh
-ZHMgdG8gZmxhc2guICovDQo+ICAgICAgICBmb3IgKGkgPSAwOyBpIDwgZHdvcmRzOyBpKyssIGZh
-ZGRyKyspDQo+ICAgICAgICAgICAgICAgIGR3cHRyW2ldID0gY3B1X3RvX2xlMzIocWxhMjR4eF9y
-ZWFkX2ZsYXNoX2R3b3JkKGhhLA0KPiAgICAgICAgICAgICAgICAgICAgZmxhc2hfZGF0YV9hZGRy
-KGhhLCBmYWRkcikpKTsNCj4NCj4gICAgICAgIHJldHVybiBkd3B0cjsgICAgICAgICAgICAgICAg
-ICAgDQo+fQ0KPg0KPk9LIHNvIHdlIGNvbnZlcnQgdG8gTEUgLi4uDQo+DQo+ICAgICAgICAgICAg
-ICAgIHFsYTI0eHhfcmVhZF9mbGFzaF9kYXRhKHZoYSwgZGNvZGUsIGZhZGRyLCA0KTsgDQo+ICAg
-IA0KPiAgICAgICAgICAgICAgICByaXNjX2FkZHIgPSBiZTMyX3RvX2NwdShkY29kZVsyXSk7DQo+
-ICAgICAgICAgICAgICAgICpzcmlzY19hZGRyID0gKnNyaXNjX2FkZHIgPT0gMCA/IHJpc2NfYWRk
-ciA6ICpzcmlzY19hZGRyOw0KPiAgICAgICAgICAgICAgICByaXNjX3NpemUgPSBiZTMyX3RvX2Nw
-dShkY29kZVszXSk7DQo+DQo+dGhlbiBoYXBwaWx5IGFzc3VtZSBpdCdzIEJFLg0KPg0KPkFuZCBh
-Z2FpbiwgY29taW5nIGZyb20gZmxhc2gsIGl0J3MgdW5saWtlbHkgdG8gYWN0dWFsbHkgYmUgaW4g
-dGhlIG5hdGl2ZQ0KPmVuZGlhbi1uZXNzIGFzIGNhbGxlcnMgc2VlbSB0byBhc3N1bWUuIEknbSBn
-dWVzc2luZyBpdCdzIGFsbCBCRS4NCj4NCj5JIHBva2VkIGF0IGl0IGEgYml0IGFuZCB3YXMgYWJs
-ZSB0byBjdXQgZG93biAjIG9mIHdhcm5pbmdzDQo+ZnJvbSAxNzAwIHRvIDE0MDAgaW4gYW4gaG91
-ci4gU29tZW9uZSBmYW1pbGlhciB3aXRoIHRoZSBjb2RlDQo+c2hvdWxkIGxvb2sgYXQgaXQuDQoN
-Cldl4oCZbGwgdGFrZSBhIGxvb2sgYW5kIHNlbmQgcGF0Y2hlcyB0byByZXNvbHZlIHRoZXNlIHdh
-cm5pbmdzLiANCg0KPg0KPi0tIA0KPk1TVA0KPl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fDQo+VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0DQo+VmlydHVh
-bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcNCj5odHRwczovL2xpc3RzLmxpbnV4
-Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg0KX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
-bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
-Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
-aW9u
+HI Michael,
+
+On Thu, Dec 8, 2016 at 8:46 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Wed, Dec 07, 2016 at 10:59:12PM -0800, Wendy Liang wrote:
+>> If sg is already dma mapped, do not call dma_map_page() in
+>> vring_map_one_sg().
+>>
+>> In case of rpmsg, rpmsg uses dma_alloc_coherent() to allocate
+>> memory to share with the remote. There is no pages setup
+>> in dma_alloc_coherent().
+>>
+>> In this case, we cannot convert the virtual address back to the
+>> physical address. In this case, we can setup the sg_dma_addr to
+>> store the DMA address, and also mark the sg is already mapped.
+>>
+>> In the vring, we can detect if the address is already mapped
+>> by checking the sg_dma_addr. If yes, do not call dma_map_page().
+>>
+>> Signed-off-by: Wendy Liang <jliang@xilinx.com>
+>> ---
+>>  drivers/virtio/virtio_ring.c | 6 ++++++
+>>  1 file changed, 6 insertions(+)
+>>
+>> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+>> index 489bfc6..9793e1f 100644
+>> --- a/drivers/virtio/virtio_ring.c
+>> +++ b/drivers/virtio/virtio_ring.c
+>> @@ -180,6 +180,12 @@ static dma_addr_t vring_map_one_sg(const struct vring_virtqueue *vq,
+>>       if (!vring_use_dma_api(vq->vq.vdev))
+>>               return (dma_addr_t)sg_phys(sg);
+>>
+>> +     /* If the sg is already mapped, return the DMA address */
+>
+> How come we even reach this code for rpmsg?
+> Does vring_use_dma_api return true for rpmsg?
+I used vdev feature bit VIRTIO_F_IOMMU_PLATFORM.
+
+>
+>> +     if (sg_dma_address(sg)) {
+>> +             sg->length = sg_dma_len(sg);
+>> +             return sg_dma_address(sg);
+>> +     }
+>> +
+>
+> Is there a rule that says 0 is not a valid address?
+OK, i see. Is it better to check the sg_dma_len() instead?
+
+However, I just noticed yesterday, there is another patch to
+virtio_rpmsg_bus posted to linux-remoteproc mailing list trying to
+solve the same issue:
+[PATCH v1 2/6] rpmsg: virtio_rpmsg_bus: fix sg_set_buf() when addr is
+not a valid kernel address. he didn't use sg_dma_address. And doesn't
+require to update the virtio_ring implementation.
+
+
+>
+>>       /*
+>>        * We can't use dma_map_sg, because we don't use scatterlists in
+>>        * the way it expects (we don't guarantee that the scatterlist
+>> --
+>> 1.9.1
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-remoteproc" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
