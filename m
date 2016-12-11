@@ -1,16 +1,16 @@
-From: "Gonglei (Arei)" <arei.gonglei@huawei.com>
-Subject: RE: [PATCH v6 1/2] sparc: fix a building error reported by kbuild
-Date: Sat, 10 Dec 2016 08:40:02 +0000
-Message-ID: <33183CC9F5247A488A2544077AF19020DA159386__10665.9184246839$1481359271$gmane$org@DGGEMA505-MBX.china.huawei.com>
-References: <1481171829-116496-1-git-send-email-arei.gonglei@huawei.com>
-	<1481171829-116496-2-git-send-email-arei.gonglei@huawei.com>
-	<20161209215851.GA7717@ravnborg.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 09/10] vsock/virtio: fix src/dst cid format
+Date: Sun, 11 Dec 2016 04:54:46 +0200
+Message-ID: <20161211045205-mutt-send-email-mst__12542.1769953848$1481424898$gmane$org@kernel.org>
+References: <1481038106-24899-1-git-send-email-mst@redhat.com>
+	<1481038106-24899-10-git-send-email-mst@redhat.com>
+	<a0dcb733-ab1c-ac66-2300-fcb90fbacea2@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161209215851.GA7717@ravnborg.org>
-Content-Language: zh-CN
+Content-Disposition: inline
+In-Reply-To: <a0dcb733-ab1c-ac66-2300-fcb90fbacea2@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,83 +20,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: "Xuquan (Quan Xu)" <xuquan8@huawei.com>, "Huangweidong (C)" <weidong.huang@huawei.com>, "mst@redhat.com" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "Wanzongshun (Vincent)" <wanzongshun@huawei.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Zhoujian (jay,
-	Euler)" <jianjay.zhou@huawei.com>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "arei.gonglei@hotmail.com" <arei.gonglei@hotmail.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>, "Hanweidong (Randy)" <hanweidong@huawei.com>, longpeng <longpeng2@huawei.com>, Luonengjun <luonengjun@huawei.com>, "stefanha@redhat.com" <stefanha@redhat.com>, Claudio Fontana <Claudio.Fontana@huawei.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.o>
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-
-
-Regards,
--Gonglei
-
-
-> -----Original Message-----
-> From: linux-crypto-owner@vger.kernel.org
-> [mailto:linux-crypto-owner@vger.kernel.org] On Behalf Of Sam Ravnborg
-> Sent: Saturday, December 10, 2016 5:59 AM
-> To: Gonglei (Arei)
-> Cc: linux-kernel@vger.kernel.org; qemu-devel@nongnu.org;
-> virtio-dev@lists.oasis-open.org; virtualization@lists.linux-foundation.org;
-> linux-crypto@vger.kernel.org; Luonengjun; mst@redhat.com;
-> stefanha@redhat.com; Huangweidong (C); Wubin (H); xin.zeng@intel.com;
-> Claudio Fontana; herbert@gondor.apana.org.au; pasic@linux.vnet.ibm.com;
-> davem@davemloft.net; Zhoujian (jay, Euler); Hanweidong (Randy);
-> arei.gonglei@hotmail.com; cornelia.huck@de.ibm.com; Xuquan (Quan Xu);
-> longpeng; Wanzongshun (Vincent); sparclinux@vger.kernel.org
-> Subject: Re: [PATCH v6 1/2] sparc: fix a building error reported by kbuild
-> 
-> Hi Gonglei.
-> 
-> On Thu, Dec 08, 2016 at 12:37:08PM +0800, Gonglei wrote:
-> > >> arch/sparc/include/asm/topology_64.h:44:44:
-> > error: implicit declaration of function 'cpu_data'
-> > [-Werror=implicit-function-declaration]
-> >
-> >  #define topology_physical_package_id(cpu) (cpu_data(cpu).proc_id)
-> >                                                ^
-> > Let's include cpudata.h in topology_64.h.
-> >
-> > Cc: Sam Ravnborg <sam@ravnborg.org>
-> > Cc: David S. Miller <davem@davemloft.net>
-> > Cc: sparclinux@vger.kernel.org
-> > Suggested-by: Sam Ravnborg <sam@ravnborg.org>
-> > Signed-off-by: Gonglei <arei.gonglei@huawei.com>
-> Acked-by: Sam Ravnborg <sam@ravnborg.org>
-> 
-Thanks.
-
-> > ---
-> >  arch/sparc/include/asm/topology_64.h | 1 +
-> >  1 file changed, 1 insertion(+)
-> >
-> > diff --git a/arch/sparc/include/asm/topology_64.h
-> b/arch/sparc/include/asm/topology_64.h
-> > index 7b4898a..2255430 100644
-> > --- a/arch/sparc/include/asm/topology_64.h
-> > +++ b/arch/sparc/include/asm/topology_64.h
-> > @@ -4,6 +4,7 @@
-> >  #ifdef CONFIG_NUMA
-> >
-> >  #include <asm/mmzone.h>
-> > +#include <asm/cpudata.h>
-> 
-> Nitpick - if you are going to resend this patch, 
-
-It depends on the maintainer's thought. :)
-
-> then please order the two includes in alphabetic order.
-> 
-> For two includes this looks like bikeshedding, but when we add
-> more having them in a defined arder prevents merge conflicts.
-> And makes it readable too.
-> 
-> We also sometimes order the includes with the longest lines topmost,
-> and lines with the ame length are ordered alphabetically.
-> But this is not seen so often.
-> 
-
-Regards,
--Gonglei
+T24gV2VkLCBEZWMgMDcsIDIwMTYgYXQgMTI6MzE6NTZQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiAKPiBPbiAyMDE25bm0MTLmnIgwNuaXpSAyMzo0MSwgTWljaGFlbCBTLiBUc2lya2lu
+IHdyb3RlOgo+ID4gVGhlc2UgZmllbGRzIGFyZSA2NCBiaXQsIHVzaW5nIGxlMzJfdG9fY3B1IGFu
+ZCBmcmllbmRzCj4gPiBvbiB0aGVzZSB3aWxsIG5vdCBkbyB0aGUgcmlnaHQgdGhpbmcuCj4gPiBG
+aXggdGhpcyB1cC4KPiA+IAo+ID4gQ2M6IHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmcKPiA+IFNpZ25l
+ZC1vZmYtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+Cj4gPiAtLS0KPiA+
+ICAgbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNwb3J0X2NvbW1vbi5jIHwgMTQgKysrKysrKy0t
+LS0tLS0KPiA+ICAgMSBmaWxlIGNoYW5nZWQsIDcgaW5zZXJ0aW9ucygrKSwgNyBkZWxldGlvbnMo
+LSkKPiA+IAo+ID4gZGlmZiAtLWdpdCBhL25ldC92bXdfdnNvY2svdmlydGlvX3RyYW5zcG9ydF9j
+b21tb24uYyBiL25ldC92bXdfdnNvY2svdmlydGlvX3RyYW5zcG9ydF9jb21tb24uYwo+ID4gaW5k
+ZXggNjEyMDM4NC4uMjJlOTljNCAxMDA2NDQKPiA+IC0tLSBhL25ldC92bXdfdnNvY2svdmlydGlv
+X3RyYW5zcG9ydF9jb21tb24uYwo+ID4gKysrIGIvbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNw
+b3J0X2NvbW1vbi5jCj4gPiBAQCAtNjA2LDkgKzYwNiw5IEBAIHN0YXRpYyBpbnQgdmlydGlvX3Ry
+YW5zcG9ydF9yZXNldF9ub19zb2NrKHN0cnVjdCB2aXJ0aW9fdnNvY2tfcGt0ICpwa3QpCj4gPiAg
+IAkJcmV0dXJuIDA7Cj4gPiAgIAlwa3QgPSB2aXJ0aW9fdHJhbnNwb3J0X2FsbG9jX3BrdCgmaW5m
+bywgMCwKPiA+IC0JCQkJCSBsZTMyX3RvX2NwdShwa3QtPmhkci5kc3RfY2lkKSwKPiA+ICsJCQkJ
+CSBsZTY0X3RvX2NwdShwa3QtPmhkci5kc3RfY2lkKSwKPiA+ICAgCQkJCQkgbGUzMl90b19jcHUo
+cGt0LT5oZHIuZHN0X3BvcnQpLAo+ID4gLQkJCQkJIGxlMzJfdG9fY3B1KHBrdC0+aGRyLnNyY19j
+aWQpLAo+ID4gKwkJCQkJIGxlNjRfdG9fY3B1KHBrdC0+aGRyLnNyY19jaWQpLAo+ID4gICAJCQkJ
+CSBsZTMyX3RvX2NwdShwa3QtPmhkci5zcmNfcG9ydCkpOwo+IAo+IExvb2tpbmcgYXQgc29ja2Fk
+ZHJfdm0sIHN2bV9jaWQgaXMgInVuc2lnbmVkIGludCIsIGRvIHdlIHJlYWxseSB3YW50IDY0IGJp
+dAo+IGhlcmU/CgpDYW4ndCBjaGFuZ2UgdGhlIHByb3RvY29sIGF0IHRoaXMgcG9pbnQuCgoKPiA+
+ICAgCWlmICghcGt0KQo+ID4gICAJCXJldHVybiAtRU5PTUVNOwo+ID4gQEAgLTgyMyw3ICs4MjMs
+NyBAQCB2aXJ0aW9fdHJhbnNwb3J0X3NlbmRfcmVzcG9uc2Uoc3RydWN0IHZzb2NrX3NvY2sgKnZz
+aywKPiA+ICAgCXN0cnVjdCB2aXJ0aW9fdnNvY2tfcGt0X2luZm8gaW5mbyA9IHsKPiA+ICAgCQku
+b3AgPSBWSVJUSU9fVlNPQ0tfT1BfUkVTUE9OU0UsCj4gPiAgIAkJLnR5cGUgPSBWSVJUSU9fVlNP
+Q0tfVFlQRV9TVFJFQU0sCj4gPiAtCQkucmVtb3RlX2NpZCA9IGxlMzJfdG9fY3B1KHBrdC0+aGRy
+LnNyY19jaWQpLAo+ID4gKwkJLnJlbW90ZV9jaWQgPSBsZTY0X3RvX2NwdShwa3QtPmhkci5zcmNf
+Y2lkKSwKPiA+ICAgCQkucmVtb3RlX3BvcnQgPSBsZTMyX3RvX2NwdShwa3QtPmhkci5zcmNfcG9y
+dCksCj4gPiAgIAkJLnJlcGx5ID0gdHJ1ZSwKPiA+ICAgCX07Cj4gPiBAQCAtODYzLDkgKzg2Myw5
+IEBAIHZpcnRpb190cmFuc3BvcnRfcmVjdl9saXN0ZW4oc3RydWN0IHNvY2sgKnNrLCBzdHJ1Y3Qg
+dmlydGlvX3Zzb2NrX3BrdCAqcGt0KQo+ID4gICAJY2hpbGQtPnNrX3N0YXRlID0gU1NfQ09OTkVD
+VEVEOwo+ID4gICAJdmNoaWxkID0gdnNvY2tfc2soY2hpbGQpOwo+ID4gLQl2c29ja19hZGRyX2lu
+aXQoJnZjaGlsZC0+bG9jYWxfYWRkciwgbGUzMl90b19jcHUocGt0LT5oZHIuZHN0X2NpZCksCj4g
+PiArCXZzb2NrX2FkZHJfaW5pdCgmdmNoaWxkLT5sb2NhbF9hZGRyLCBsZTY0X3RvX2NwdShwa3Qt
+Pmhkci5kc3RfY2lkKSwKPiA+ICAgCQkJbGUzMl90b19jcHUocGt0LT5oZHIuZHN0X3BvcnQpKTsK
+PiA+IC0JdnNvY2tfYWRkcl9pbml0KCZ2Y2hpbGQtPnJlbW90ZV9hZGRyLCBsZTMyX3RvX2NwdShw
+a3QtPmhkci5zcmNfY2lkKSwKPiA+ICsJdnNvY2tfYWRkcl9pbml0KCZ2Y2hpbGQtPnJlbW90ZV9h
+ZGRyLCBsZTY0X3RvX2NwdShwa3QtPmhkci5zcmNfY2lkKSwKPiA+ICAgCQkJbGUzMl90b19jcHUo
+cGt0LT5oZHIuc3JjX3BvcnQpKTsKPiA+ICAgCXZzb2NrX2luc2VydF9jb25uZWN0ZWQodmNoaWxk
+KTsKPiA+IEBAIC05MDQsOSArOTA0LDkgQEAgdm9pZCB2aXJ0aW9fdHJhbnNwb3J0X3JlY3ZfcGt0
+KHN0cnVjdCB2aXJ0aW9fdnNvY2tfcGt0ICpwa3QpCj4gPiAgIAlzdHJ1Y3Qgc29jayAqc2s7Cj4g
+PiAgIAlib29sIHNwYWNlX2F2YWlsYWJsZTsKPiA+IC0JdnNvY2tfYWRkcl9pbml0KCZzcmMsIGxl
+MzJfdG9fY3B1KHBrdC0+aGRyLnNyY19jaWQpLAo+ID4gKwl2c29ja19hZGRyX2luaXQoJnNyYywg
+bGU2NF90b19jcHUocGt0LT5oZHIuc3JjX2NpZCksCj4gPiAgIAkJCWxlMzJfdG9fY3B1KHBrdC0+
+aGRyLnNyY19wb3J0KSk7Cj4gPiAtCXZzb2NrX2FkZHJfaW5pdCgmZHN0LCBsZTMyX3RvX2NwdShw
+a3QtPmhkci5kc3RfY2lkKSwKPiA+ICsJdnNvY2tfYWRkcl9pbml0KCZkc3QsIGxlNjRfdG9fY3B1
+KHBrdC0+aGRyLmRzdF9jaWQpLAo+ID4gICAJCQlsZTMyX3RvX2NwdShwa3QtPmhkci5kc3RfcG9y
+dCkpOwo+ID4gICAJdHJhY2VfdmlydGlvX3RyYW5zcG9ydF9yZWN2X3BrdChzcmMuc3ZtX2NpZCwg
+c3JjLnN2bV9wb3J0LApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
+dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
+YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
