@@ -1,16 +1,16 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH v6 2/2] crypto: add virtio-crypto driver
-Date: Mon, 12 Dec 2016 18:54:07 +0800
-Message-ID: <20161212105407.GA3033@gondor.apana.org.au>
-References: <1481171829-116496-1-git-send-email-arei.gonglei@huawei.com>
-	<1481171829-116496-3-git-send-email-arei.gonglei@huawei.com>
-	<33183CC9F5247A488A2544077AF19020DA15A07C@DGGEMA505-MBX.china.huawei.com>
+From: Peng Tao <bergwolf@gmail.com>
+Subject: Re: [PATCH v3 2/4] vhost-vsock: add pkt cancel capability
+Date: Mon, 12 Dec 2016 19:56:25 +0800
+Message-ID: <CA+a=Yy7HXvg1=Jgn-a3y7QZbAW5Ss3EN5Ds6m_9=qn=EE9qtjw@mail.gmail.com>
+References: <1481217156-7160-1-git-send-email-bergwolf@gmail.com>
+	<1481217156-7160-2-git-send-email-bergwolf@gmail.com>
+	<1481217156-7160-3-git-send-email-bergwolf@gmail.com>
+	<426F96AC-2E7C-4BEC-A3D3-7D8A97FDD51D@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <33183CC9F5247A488A2544077AF19020DA15A07C@DGGEMA505-MBX.china.huawei.com>
+In-Reply-To: <426F96AC-2E7C-4BEC-A3D3-7D8A97FDD51D@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,29 +20,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Gonglei (Arei)" <arei.gonglei@huawei.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Huangweidong (C)" <weidong.huang@huawei.com>, Claudio Fontana <Claudio.Fontana@huawei.com>, "mst@redhat.com" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "Hanweidong (Randy)" <hanweidong@huawei.com>, Luonengjun <luonengjun@huawei.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Wanzongshun (Vincent)" <wanzongshun@huawei.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Xuquan (Quan Xu)" <xuquan8@huawei.com>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "stefanha@redhat.com" <stefanha@redhat.com>, "Zhoujian (jay,
-	Euler)" <jianjay.zhou@huawei.com>, longpeng <longpeng2@huawei.com>, "davem@davemloft.net" <davem@davemloft.net>, "Wubin (H)" <wu.wubin@huawei.com>, arei.gonglei@hotmail.co
+To: "Jorgen S. Hansen" <jhansen@vmware.com>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, David Miller <davem@davemloft.net>, Stefan Hajnoczi <stefanha@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Dec 12, 2016 at 06:25:12AM +0000, Gonglei (Arei) wrote:
-> Hi, Michael & Herbert
-> 
-> Because the virtio-crypto device emulation had been in QEMU 2.8,
-> would you please merge the virtio-crypto driver for 4.10 if no other
-> comments? If so, Miachel pls ack and/or review the patch, then
-> Herbert will take it (I asked him last week). Thank you!
-> 
-> Ps: Note on 4.10 merge window timing from Linus
->  https://lkml.org/lkml/2016/12/7/506
-> 
-> Dec 23rd is the deadline for 4.10 merge window.
-
-Sorry but it's too late for 4.10.  It needed to have been in my
-tree before the merge window opened to make it for this cycle.
-
-Cheers,
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+T24gTW9uLCBEZWMgMTIsIDIwMTYgYXQgNjozNyBQTSwgSm9yZ2VuIFMuIEhhbnNlbiA8amhhbnNl
+bkB2bXdhcmUuY29tPiB3cm90ZToKPgo+PiBPbiBEZWMgOCwgMjAxNiwgYXQgNjoxMiBQTSwgUGVu
+ZyBUYW8gPGJlcmd3b2xmQGdtYWlsLmNvbT4gd3JvdGU6Cj4+Cj4+IC0tLSBhL2luY2x1ZGUvbmV0
+L2FmX3Zzb2NrLmgKPj4gKysrIGIvaW5jbHVkZS9uZXQvYWZfdnNvY2suaAo+PiBAQCAtMTAwLDYg
+KzEwMCw5IEBAIHN0cnVjdCB2c29ja190cmFuc3BvcnQgewo+PiAgICAgICB2b2lkICgqZGVzdHJ1
+Y3QpKHN0cnVjdCB2c29ja19zb2NrICopOwo+PiAgICAgICB2b2lkICgqcmVsZWFzZSkoc3RydWN0
+IHZzb2NrX3NvY2sgKik7Cj4+Cj4+ICsgICAgIC8qIENhbmNlbCBwYWNrZXRzIGJlbG9uZ2luZyB0
+aGUgc2FtZSB2c29jayAqLwo+Cj4gSG93IGFib3V0IOKAnC8qIENhbmNlbCBhbGwgcGVuZGluZyBw
+YWNrZXRzIHNlbnQgb24gdnNvY2suICov4oCcID8KPgpTdXJlLiBJJ2xsIHVwZGF0ZSBpdC4KClRo
+YW5rcywKVGFvCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
+b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
+aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
