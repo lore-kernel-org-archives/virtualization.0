@@ -1,14 +1,17 @@
-From: Gustavo Padovan <gustavo@padovan.org>
-Subject: [RFC 5/5] drm/virtio: bump driver version after explicit
-	synchronization addition
-Date: Mon, 12 Dec 2016 18:48:29 -0200
-Message-ID: <1481575710-12535-5-git-send-email-gustavo__9776.82967572964$1481575770$gmane$org@padovan.org>
-References: <1481575710-12535-1-git-send-email-gustavo@padovan.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v6 2/2] crypto: add virtio-crypto driver
+Date: Tue, 13 Dec 2016 00:05:19 +0200
+Message-ID: <20161212234941-mutt-send-email-mst__40627.2126631395$1481580331$gmane$org@kernel.org>
+References: <1481171829-116496-1-git-send-email-arei.gonglei@huawei.com>
+	<1481171829-116496-3-git-send-email-arei.gonglei@huawei.com>
+	<33183CC9F5247A488A2544077AF19020DA15A07C@DGGEMA505-MBX.china.huawei.com>
+	<20161212105407.GA3033@gondor.apana.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1481575710-12535-1-git-send-email-gustavo@padovan.org>
+Content-Disposition: inline
+In-Reply-To: <20161212105407.GA3033@gondor.apana.org.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,34 +21,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, robdclark@gmail.com, Gustavo Padovan <gustavo.padovan@collabora.co.uk>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Huangweidong (C)" <weidong.huang@huawei.com>, Claudio Fontana <Claudio.Fontana@huawei.com>, "Hanweidong (Randy)" <hanweidong@huawei.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, Luonengjun <luonengjun@huawei.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Wanzongshun (Vincent)" <wanzongshun@huawei.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Xuquan (Quan Xu)" <xuquan8@huawei.com>, "Gonglei (Arei)" <arei.gonglei@huawei.com>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "stefanha@redhat.com" <stefanha@redhat.com>, "Zhoujian (jay,
+	Euler)" <jianjay.zhou@huawei.com>, longpeng <longpeng2@huawei.com>, "davem@davemloft.net" <davem@davemloft.net>, "Wubin (H)" <wu.wubin@huawei.com>arei.gonglei
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
+On Mon, Dec 12, 2016 at 06:54:07PM +0800, Herbert Xu wrote:
+> On Mon, Dec 12, 2016 at 06:25:12AM +0000, Gonglei (Arei) wrote:
+> > Hi, Michael & Herbert
+> > 
+> > Because the virtio-crypto device emulation had been in QEMU 2.8,
+> > would you please merge the virtio-crypto driver for 4.10 if no other
+> > comments? If so, Miachel pls ack and/or review the patch, then
+> > Herbert will take it (I asked him last week). Thank you!
+> > 
+> > Ps: Note on 4.10 merge window timing from Linus
+> >  https://lkml.org/lkml/2016/12/7/506
+> > 
+> > Dec 23rd is the deadline for 4.10 merge window.
+> 
+> Sorry but it's too late for 4.10.  It needed to have been in my
+> tree before the merge window opened to make it for this cycle.
+> 
+> Cheers,
 
-To reflect the (backward compatible) changes in the uabi we are bumping
-the driver's version.
 
-Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
----
- drivers/gpu/drm/virtio/virtgpu_drv.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Objections to me merging this? I'm preparing my tree right now.
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 806c98b..b9ab010 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -45,8 +45,8 @@
- #define DRIVER_DATE "0"
- 
- #define DRIVER_MAJOR 0
--#define DRIVER_MINOR 0
--#define DRIVER_PATCHLEVEL 1
-+#define DRIVER_MINOR 1
-+#define DRIVER_PATCHLEVEL 0
- 
- /* virtgpu_drm_bus.c */
- int drm_virtio_init(struct drm_driver *driver, struct virtio_device *vdev);
--- 
-2.5.5
+> -- 
+> Email: Herbert Xu <herbert@gondor.apana.org.au>
+> Home Page: http://gondor.apana.org.au/~herbert/
+> PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
