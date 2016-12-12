@@ -1,16 +1,11 @@
 From: Peng Tao <bergwolf@gmail.com>
-Subject: Re: [PATCH v3 2/4] vhost-vsock: add pkt cancel capability
-Date: Mon, 12 Dec 2016 19:56:25 +0800
-Message-ID: <CA+a=Yy7HXvg1=Jgn-a3y7QZbAW5Ss3EN5Ds6m_9=qn=EE9qtjw@mail.gmail.com>
-References: <1481217156-7160-1-git-send-email-bergwolf@gmail.com>
-	<1481217156-7160-2-git-send-email-bergwolf@gmail.com>
-	<1481217156-7160-3-git-send-email-bergwolf@gmail.com>
-	<426F96AC-2E7C-4BEC-A3D3-7D8A97FDD51D@vmware.com>
+Subject: [PATCH v4 0/4] vsock: cancel connect packets when failing to connect
+Date: Mon, 12 Dec 2016 20:21:05 +0800
+Message-ID: <1481545269-18104-1-git-send-email-bergwolf@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <426F96AC-2E7C-4BEC-A3D3-7D8A97FDD51D@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,20 +15,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Jorgen S. Hansen" <jhansen@vmware.com>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, David Miller <davem@davemloft.net>, Stefan Hajnoczi <stefanha@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>
+To: netdev@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, David Miller <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBEZWMgMTIsIDIwMTYgYXQgNjozNyBQTSwgSm9yZ2VuIFMuIEhhbnNlbiA8amhhbnNl
-bkB2bXdhcmUuY29tPiB3cm90ZToKPgo+PiBPbiBEZWMgOCwgMjAxNiwgYXQgNjoxMiBQTSwgUGVu
-ZyBUYW8gPGJlcmd3b2xmQGdtYWlsLmNvbT4gd3JvdGU6Cj4+Cj4+IC0tLSBhL2luY2x1ZGUvbmV0
-L2FmX3Zzb2NrLmgKPj4gKysrIGIvaW5jbHVkZS9uZXQvYWZfdnNvY2suaAo+PiBAQCAtMTAwLDYg
-KzEwMCw5IEBAIHN0cnVjdCB2c29ja190cmFuc3BvcnQgewo+PiAgICAgICB2b2lkICgqZGVzdHJ1
-Y3QpKHN0cnVjdCB2c29ja19zb2NrICopOwo+PiAgICAgICB2b2lkICgqcmVsZWFzZSkoc3RydWN0
-IHZzb2NrX3NvY2sgKik7Cj4+Cj4+ICsgICAgIC8qIENhbmNlbCBwYWNrZXRzIGJlbG9uZ2luZyB0
-aGUgc2FtZSB2c29jayAqLwo+Cj4gSG93IGFib3V0IOKAnC8qIENhbmNlbCBhbGwgcGVuZGluZyBw
-YWNrZXRzIHNlbnQgb24gdnNvY2suICov4oCcID8KPgpTdXJlLiBJJ2xsIHVwZGF0ZSBpdC4KClRo
-YW5rcywKVGFvCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
-b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
-aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Currently, if a connect call fails on a signal or timeout (e.g., guest is still
+in the process of starting up), we'll just return to caller and leave the connect
+packet queued and they are sent even though the connection is considered a failure,
+which can confuse applications with unwanted false connect attempt.
+
+The patchset enables vsock (both host and guest) to cancel queued packets when
+a connect attempt is considered to fail.
+
+v4 changelog:
+  - drop two unnecessary void * cast
+  - update new callback commnet
+v3 changelog:
+  - define cancel_pkt callback in struct vsock_transport rather than struct virtio_transport
+  - rename virtio_vsock_pkt->vsk to virtio_vsock_pkt->cancel_token
+v2 changelog:
+  - fix queued_replies counting and resume tx/rx when necessary
+
+Cheers,
+Tao
+
+Peng Tao (4):
+  vsock: track pkt owner vsock
+  vhost-vsock: add pkt cancel capability
+  vsock: add pkt cancel capability
+  vsock: cancel packets when failing to connect
+
+ drivers/vhost/vsock.c                   | 41 ++++++++++++++++++++++++++++++++
+ include/linux/virtio_vsock.h            |  2 ++
+ include/net/af_vsock.h                  |  3 +++
+ net/vmw_vsock/af_vsock.c                | 14 +++++++++++
+ net/vmw_vsock/virtio_transport.c        | 42 +++++++++++++++++++++++++++++++++
+ net/vmw_vsock/virtio_transport_common.c |  7 ++++++
+ 6 files changed, 109 insertions(+)
+
+-- 
+2.7.4
