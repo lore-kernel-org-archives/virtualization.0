@@ -1,13 +1,17 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH v4 0/4] vsock: cancel connect packets when failing to
-	connect
-Date: Tue, 13 Dec 2016 09:50:10 +0000
-Message-ID: <20161213095010.GA3103@stefanha-x1.localdomain>
+From: "Jorgen S. Hansen" <jhansen@vmware.com>
+Subject: Re: [PATCH v4 2/4] vhost-vsock: add pkt cancel capability
+Date: Tue, 13 Dec 2016 10:04:28 +0000
+Message-ID: <C0DEBEBD-1649-443D-B167-0CB3892D714D@vmware.com>
 References: <1481545269-18104-1-git-send-email-bergwolf@gmail.com>
+	<1481545269-18104-2-git-send-email-bergwolf@gmail.com>
+	<1481545269-18104-3-git-send-email-bergwolf@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3983649470925062634=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1481545269-18104-1-git-send-email-bergwolf@gmail.com>
+In-Reply-To: <1481545269-18104-3-git-send-email-bergwolf@gmail.com>
+Content-Language: en-US
+Content-ID: <8274779326FD54498C795964549C8A11@namprd05.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,97 +22,96 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Peng Tao <bergwolf@gmail.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, David Miller <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, David Miller <davem@davemloft.net>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============3983649470925062634==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
-Content-Disposition: inline
-
-
---Dxnq1zWXvFF0Q93v
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Dec 12, 2016 at 08:21:05PM +0800, Peng Tao wrote:
-> Currently, if a connect call fails on a signal or timeout (e.g., guest is=
- still
-> in the process of starting up), we'll just return to caller and leave the=
- connect
-> packet queued and they are sent even though the connection is considered =
-a failure,
-> which can confuse applications with unwanted false connect attempt.
->=20
-> The patchset enables vsock (both host and guest) to cancel queued packets=
- when
-> a connect attempt is considered to fail.
->=20
-> v4 changelog:
->   - drop two unnecessary void * cast
->   - update new callback commnet
-> v3 changelog:
->   - define cancel_pkt callback in struct vsock_transport rather than stru=
-ct virtio_transport
->   - rename virtio_vsock_pkt->vsk to virtio_vsock_pkt->cancel_token
-> v2 changelog:
->   - fix queued_replies counting and resume tx/rx when necessary
->=20
-> Cheers,
-> Tao
->=20
-> Peng Tao (4):
->   vsock: track pkt owner vsock
->   vhost-vsock: add pkt cancel capability
->   vsock: add pkt cancel capability
->   vsock: cancel packets when failing to connect
->=20
->  drivers/vhost/vsock.c                   | 41 +++++++++++++++++++++++++++=
-+++++
->  include/linux/virtio_vsock.h            |  2 ++
->  include/net/af_vsock.h                  |  3 +++
->  net/vmw_vsock/af_vsock.c                | 14 +++++++++++
->  net/vmw_vsock/virtio_transport.c        | 42 +++++++++++++++++++++++++++=
-++++++
->  net/vmw_vsock/virtio_transport_common.c |  7 ++++++
->  6 files changed, 109 insertions(+)
->=20
-> --=20
+> On Dec 12, 2016, at 1:21 PM, Peng Tao <bergwolf@gmail.com> wrote:
+> 
+> To allow canceling all packets of a connection.
+> 
+> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+> Signed-off-by: Peng Tao <bergwolf@gmail.com>
+> ---
+> drivers/vhost/vsock.c  | 41 +++++++++++++++++++++++++++++++++++++++++
+> include/net/af_vsock.h |  3 +++
+> 2 files changed, 44 insertions(+)
+> 
+> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+> index a504e2e0..fef8808 100644
+> --- a/drivers/vhost/vsock.c
+> +++ b/drivers/vhost/vsock.c
+> @@ -218,6 +218,46 @@ vhost_transport_send_pkt(struct virtio_vsock_pkt *pkt)
+> 	return len;
+> }
+> 
+> +static int
+> +vhost_transport_cancel_pkt(struct vsock_sock *vsk)
+> +{
+> +	struct vhost_vsock *vsock;
+> +	struct virtio_vsock_pkt *pkt, *n;
+> +	int cnt = 0;
+> +	LIST_HEAD(freeme);
+> +
+> +	/* Find the vhost_vsock according to guest context id  */
+> +	vsock = vhost_vsock_get(vsk->remote_addr.svm_cid);
+> +	if (!vsock)
+> +		return -ENODEV;
+> +
+> +	spin_lock_bh(&vsock->send_pkt_list_lock);
+> +	list_for_each_entry_safe(pkt, n, &vsock->send_pkt_list, list) {
+> +		if (pkt->cancel_token != vsk)
+> +			continue;
+> +		list_move(&pkt->list, &freeme);
+> +	}
+> +	spin_unlock_bh(&vsock->send_pkt_list_lock);
+> +
+> +	list_for_each_entry_safe(pkt, n, &freeme, list) {
+> +		if (pkt->reply)
+> +			cnt++;
+> +		list_del(&pkt->list);
+> +		virtio_transport_free_pkt(pkt);
+> +	}
+> +
+> +	if (cnt) {
+> +		struct vhost_virtqueue *tx_vq = &vsock->vqs[VSOCK_VQ_TX];
+> +		int new_cnt;
+> +
+> +		new_cnt = atomic_sub_return(cnt, &vsock->queued_replies);
+> +		if (new_cnt + cnt >= tx_vq->num && new_cnt < tx_vq->num)
+> +			vhost_poll_queue(&tx_vq->poll);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> static struct virtio_vsock_pkt *
+> vhost_vsock_alloc_pkt(struct vhost_virtqueue *vq,
+> 		      unsigned int out, unsigned int in)
+> @@ -664,6 +704,7 @@ static struct virtio_transport vhost_transport = {
+> 		.release                  = virtio_transport_release,
+> 		.connect                  = virtio_transport_connect,
+> 		.shutdown                 = virtio_transport_shutdown,
+> +		.cancel_pkt               = vhost_transport_cancel_pkt,
+> 
+> 		.dgram_enqueue            = virtio_transport_dgram_enqueue,
+> 		.dgram_dequeue            = virtio_transport_dgram_dequeue,
+> diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+> index f275896..f32ed9a 100644
+> --- a/include/net/af_vsock.h
+> +++ b/include/net/af_vsock.h
+> @@ -100,6 +100,9 @@ struct vsock_transport {
+> 	void (*destruct)(struct vsock_sock *);
+> 	void (*release)(struct vsock_sock *);
+> 
+> +	/* Cancel all pending packets sent on vsock. */
+> +	int (*cancel_pkt)(struct vsock_sock *vsk);
+> +
+> 	/* Connections. */
+> 	int (*connect)(struct vsock_sock *);
+> 
+> -- 
 > 2.7.4
->=20
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+> 
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---Dxnq1zWXvFF0Q93v
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAEBAgAGBQJYT8RSAAoJEJykq7OBq3PIGBkIALwKOTYa7ExTUKH0qBR/Bg4j
-RHuw8kol8NjwAhPe/q53pNAg9TUTYSsQzEKcDS8kvtMP7aMvf1Xfq6qRVVxTPbtj
-oiQTakVbMKXxciuQ4IWPrxbIP0taSonUWJsT1+2W4WOgVjxn2U5d7N0R3sWaawj5
-g/t7YVp/80YWtn+FK0kXFfS7B33ySWHtLns5CA9rw+L0aFWVJZ+3izus7OxF0WRJ
-TaCPoxmPIdbeOEwHxxTIYuu6dAzU+pULPO8HU3u9CxH3qg0Kb0Sm6OWllIXy753b
-8sy3ce+z0G4uk6eYtIEvXd0WKN/BIbko7g5ymJ25wByG5dubQGAOvcuzWbuRo2Q=
-=Q2Uv
------END PGP SIGNATURE-----
-
---Dxnq1zWXvFF0Q93v--
-
---===============3983649470925062634==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3983649470925062634==--
+Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
