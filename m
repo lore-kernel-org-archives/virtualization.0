@@ -1,17 +1,15 @@
-From: "Jorgen S. Hansen" <jhansen@vmware.com>
-Subject: Re: [PATCH v4 2/4] vhost-vsock: add pkt cancel capability
-Date: Tue, 13 Dec 2016 10:04:28 +0000
-Message-ID: <C0DEBEBD-1649-443D-B167-0CB3892D714D@vmware.com>
-References: <1481545269-18104-1-git-send-email-bergwolf@gmail.com>
-	<1481545269-18104-2-git-send-email-bergwolf@gmail.com>
-	<1481545269-18104-3-git-send-email-bergwolf@gmail.com>
+From: Gustavo Padovan <gustavo@padovan.org>
+Subject: Re: [RFC 1/5] drm/virtio: add virtio_gpu_alloc_fence()
+Date: Tue, 13 Dec 2016 09:53:09 -0200
+Message-ID: <20161213115309.GC17187@joana>
+References: <1481575710-12535-1-git-send-email-gustavo@padovan.org>
+	<1481611645.27088.56.camel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1481545269-18104-3-git-send-email-bergwolf@gmail.com>
-Content-Language: en-US
-Content-ID: <8274779326FD54498C795964549C8A11@namprd05.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <1481611645.27088.56.camel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,97 +19,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peng Tao <bergwolf@gmail.com>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, David Miller <davem@davemloft.net>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, robdclark@gmail.com, Gustavo Padovan <gustavo.padovan@collabora.co.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
+2016-12-13 Gerd Hoffmann <kraxel@redhat.com>:
 
-> On Dec 12, 2016, at 1:21 PM, Peng Tao <bergwolf@gmail.com> wrote:
+>   Hi,
 > 
-> To allow canceling all packets of a connection.
+> > +struct virtio_gpu_fence *virtio_gpu_fence_alloc(struct virtio_gpu_device *vgdev)
+> > +{
+> > +	struct virtio_gpu_fence_driver *drv = &vgdev->fence_drv;
+> > +	struct virtio_gpu_fence *fence;
+> > +	unsigned long irq_flags;
+> > +
+> > +	fence = kmalloc(sizeof(struct virtio_gpu_fence), GFP_ATOMIC);
+> > +	if (!fence)
+> > +		return NULL;
+> > +
 > 
-> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-> Signed-off-by: Peng Tao <bergwolf@gmail.com>
-> ---
-> drivers/vhost/vsock.c  | 41 +++++++++++++++++++++++++++++++++++++++++
-> include/net/af_vsock.h |  3 +++
-> 2 files changed, 44 insertions(+)
+> > +	spin_lock_irqsave(&drv->lock, irq_flags);
+> > +	fence->drv = drv;
+> > +	fence->seq = ++drv->sync_seq;
+> > +	dma_fence_init(&fence->f, &virtio_fence_ops, &drv->lock,
+> > +		       drv->context, fence->seq);
+> > +	spin_unlock_irqrestore(&drv->lock, irq_flags);
 > 
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> index a504e2e0..fef8808 100644
-> --- a/drivers/vhost/vsock.c
-> +++ b/drivers/vhost/vsock.c
-> @@ -218,6 +218,46 @@ vhost_transport_send_pkt(struct virtio_vsock_pkt *pkt)
-> 	return len;
-> }
+> seq assignment ...
 > 
-> +static int
-> +vhost_transport_cancel_pkt(struct vsock_sock *vsk)
-> +{
-> +	struct vhost_vsock *vsock;
-> +	struct virtio_vsock_pkt *pkt, *n;
-> +	int cnt = 0;
-> +	LIST_HEAD(freeme);
-> +
-> +	/* Find the vhost_vsock according to guest context id  */
-> +	vsock = vhost_vsock_get(vsk->remote_addr.svm_cid);
-> +	if (!vsock)
-> +		return -ENODEV;
-> +
-> +	spin_lock_bh(&vsock->send_pkt_list_lock);
-> +	list_for_each_entry_safe(pkt, n, &vsock->send_pkt_list, list) {
-> +		if (pkt->cancel_token != vsk)
-> +			continue;
-> +		list_move(&pkt->list, &freeme);
-> +	}
-> +	spin_unlock_bh(&vsock->send_pkt_list_lock);
-> +
-> +	list_for_each_entry_safe(pkt, n, &freeme, list) {
-> +		if (pkt->reply)
-> +			cnt++;
-> +		list_del(&pkt->list);
-> +		virtio_transport_free_pkt(pkt);
-> +	}
-> +
-> +	if (cnt) {
-> +		struct vhost_virtqueue *tx_vq = &vsock->vqs[VSOCK_VQ_TX];
-> +		int new_cnt;
-> +
-> +		new_cnt = atomic_sub_return(cnt, &vsock->queued_replies);
-> +		if (new_cnt + cnt >= tx_vq->num && new_cnt < tx_vq->num)
-> +			vhost_poll_queue(&tx_vq->poll);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> static struct virtio_vsock_pkt *
-> vhost_vsock_alloc_pkt(struct vhost_virtqueue *vq,
-> 		      unsigned int out, unsigned int in)
-> @@ -664,6 +704,7 @@ static struct virtio_transport vhost_transport = {
-> 		.release                  = virtio_transport_release,
-> 		.connect                  = virtio_transport_connect,
-> 		.shutdown                 = virtio_transport_shutdown,
-> +		.cancel_pkt               = vhost_transport_cancel_pkt,
+> > +
+> > +	return fence;
+> > +}
+> > +
+> >  int virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
+> >  			  struct virtio_gpu_ctrl_hdr *cmd_hdr,
+> > -			  struct virtio_gpu_fence **fence)
+> > +			  struct virtio_gpu_fence *fence)
+> >  {
+> >  	struct virtio_gpu_fence_driver *drv = &vgdev->fence_drv;
+> >  	unsigned long irq_flags;
+> >  
+> > -	*fence = kmalloc(sizeof(struct virtio_gpu_fence), GFP_ATOMIC);
+> > -	if ((*fence) == NULL)
+> > -		return -ENOMEM;
+> > -
+> >  	spin_lock_irqsave(&drv->lock, irq_flags);
+> > -	(*fence)->drv = drv;
+> > -	(*fence)->seq = ++drv->sync_seq;
+> > -	dma_fence_init(&(*fence)->f, &virtio_fence_ops, &drv->lock,
+> > -		       drv->context, (*fence)->seq);
 > 
-> 		.dgram_enqueue            = virtio_transport_dgram_enqueue,
-> 		.dgram_dequeue            = virtio_transport_dgram_dequeue,
-> diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-> index f275896..f32ed9a 100644
-> --- a/include/net/af_vsock.h
-> +++ b/include/net/af_vsock.h
-> @@ -100,6 +100,9 @@ struct vsock_transport {
-> 	void (*destruct)(struct vsock_sock *);
-> 	void (*release)(struct vsock_sock *);
-> 
-> +	/* Cancel all pending packets sent on vsock. */
-> +	int (*cancel_pkt)(struct vsock_sock *vsk);
-> +
-> 	/* Connections. */
-> 	int (*connect)(struct vsock_sock *);
-> 
-> -- 
-> 2.7.4
-> 
+> ... must stay here.  Otherwise requests can be submitted to the virt
+> queue with fence sequence numbers out of order.
 
-Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
+Yes, makes sense. So I'll just leave the kmalloc in there.
+
+Gustavo
