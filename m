@@ -1,18 +1,11 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH v6 2/2] crypto: add virtio-crypto driver
-Date: Tue, 13 Dec 2016 11:33:22 +0800
-Message-ID: <20161213033322.GA5601@gondor.apana.org.au>
-References: <1481171829-116496-1-git-send-email-arei.gonglei@huawei.com>
-	<1481171829-116496-3-git-send-email-arei.gonglei@huawei.com>
-	<33183CC9F5247A488A2544077AF19020DA15A07C@DGGEMA505-MBX.china.huawei.com>
-	<20161212105407.GA3033@gondor.apana.org.au>
-	<20161212234941-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net] virtio-net: correctly enable multiqueue
+Date: Tue, 13 Dec 2016 14:23:05 +0800
+Message-ID: <1481610185-12183-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20161212234941-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,22 +15,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Huangweidong (C)" <weidong.huang@huawei.com>, Claudio Fontana <Claudio.Fontana@huawei.com>, "Hanweidong (Randy)" <hanweidong@huawei.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, Luonengjun <luonengjun@huawei.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Wanzongshun (Vincent)" <wanzongshun@huawei.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Xuquan (Quan Xu)" <xuquan8@huawei.com>, "Gonglei (Arei)" <arei.gonglei@huawei.com>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "stefanha@redhat.com" <stefanha@redhat.com>, "Zhoujian (jay,
-	Euler)" <jianjay.zhou@huawei.com>, longpeng <longpeng2@huawei.com>, "davem@davemloft.net" <davem@davemloft.net>, "Wubin (H)" <wu.wubin@huawei.com>arei.gonglei
+To: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: tytso@mit.edu, Neil Horman <nhorman@tuxdriver.com>, "Michael S . Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 13, 2016 at 12:05:19AM +0200, Michael S. Tsirkin wrote:
->
-> > Sorry but it's too late for 4.10.  It needed to have been in my
-> > tree before the merge window opened to make it for this cycle.
-> 
-> Objections to me merging this? I'm preparing my tree right now.
+Commit 4490001029012539937ff02778fe6180613fa949 ("virtio-net: enable
+multiqueue by default") blindly set the affinity instead of queues
+during probe which can cause a mismatch of #queues between guest and
+host. This patch fixes it by setting queues.
 
-Sure feel free to merge it through your tree.
+Reported-by: Theodore Ts'o <tytso@mit.edu>
+Tested-by: Theodore Ts'o <tytso@mit.edu>
+Cc: Neil Horman <nhorman@tuxdriver.com>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Fixes: 49000102901 ("virtio-net: enable multiqueue by default")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/virtio_net.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-Cheers,
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index b425fa1..fe9f772 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1930,7 +1930,9 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 		goto free_unregister_netdev;
+ 	}
+ 
+-	virtnet_set_affinity(vi);
++	rtnl_lock();
++	virtnet_set_queues(vi, vi->curr_queue_pairs);
++	rtnl_unlock();
+ 
+ 	/* Assume link up if device can't report link status,
+ 	   otherwise get link status from config. */
 -- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+2.7.4
