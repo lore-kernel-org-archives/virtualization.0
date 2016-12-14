@@ -1,14 +1,14 @@
-From: Halil Pasic <pasic@linux.vnet.ibm.com>
-Subject: Re: [Qemu-devel] [PATCH v7 1/1] crypto: add virtio-crypto driver
-Date: Wed, 14 Dec 2016 16:38:33 +0100
-Message-ID: <bcf62fa0-8fc9-daaf-ea7b-e09eb83b593a__49952.5833446116$1481729936$gmane$org@linux.vnet.ibm.com>
-References: <1481716249-185392-1-git-send-email-arei.gonglei@huawei.com>
-	<1481716249-185392-2-git-send-email-arei.gonglei@huawei.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH] arch: x86: kernel: fixed unused label issue
+Date: Wed, 14 Dec 2016 18:06:19 +0100
+Message-ID: <20161214170619.GQ3124@twins.programming.kicks-ass.net>
+References: <20161214111510.GA23861@westernst>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1481716249-185392-2-git-send-email-arei.gonglei@huawei.com>
+Content-Disposition: inline
+In-Reply-To: <20161214111510.GA23861@westernst>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,65 +18,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gonglei <arei.gonglei@huawei.com>, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org
-Cc: xuquan8@huawei.com, weidong.huang@huawei.com, herbert@gondor.apana.org.au, hanweidong@huawei.com, claudio.fontana@huawei.com, mst@redhat.com, luonengjun@huawei.com, wanzongshun@huawei.com, stefanha@redhat.com, jianjay.zhou@huawei.com, longpeng2@huawei.com, davem@davemloft.net, wu.wubin@huawei.com, arei.gonglei@hotmail.com
+To: Piotr Gregor <piotrgregor@rsyncme.org>
+Cc: jeremy@goop.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, hpa@zytor.com, tglx@linutronix.de, akataria@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, Dec 14, 2016 at 11:15:13AM +0000, Piotr Gregor wrote:
+> The patch_default label is only used from within
+> 	case PARAVIRT_PATCH(pv_lock_ops.queued_spin_unlock)
+> and
+> 	case PARAVIRT_PATCH(pv_lock_ops.vcpu_is_preempted)
+> i.e. when #if defined(CONFIG_PARAVIRT_SPINLOCKS) is true.
+> Therefore no code jumps to this label in case CONFIG_PARAVIRT_SPINLOCKS
+> is not defined and label should be removed in that case.
+> Moving #endif directive just after that label fixes the issue.
+> 
+> In addition,there are three errors reported by checkpatch script
+> on this file. This commit fixes two of them. The last one is
+> 	ERROR: Macros with multiple statements should be enclosed
+> 	in a do - while loop
+> which probably is a false alarm here as PATCH_SITE macro defines
+> a case in switch local to native_patch function not meant to be used
+> in other places.
+> 
+> Signed-off-by: Piotr Gregor <piotrgregor@rsyncme.org>
+> ---
+>  arch/x86/kernel/paravirt_patch_64.c | 67 +++++++++++++++++++------------------
+>  1 file changed, 34 insertions(+), 33 deletions(-)
 
+*urgh*
 
-On 12/14/2016 12:50 PM, Gonglei wrote:
-> diff --git a/drivers/crypto/virtio/virtio_crypto_core.c b/drivers/crypto/virtio/virtio_crypto_core.c
-> new file mode 100644
-> index 0000000..c0854a1
-> --- /dev/null
-> +++ b/drivers/crypto/virtio/virtio_crypto_core.c
-> @@ -0,0 +1,474 @@
-[..]
-> +
-> +static void virtcrypto_dataq_callback(struct virtqueue *vq)
-> +{
-> +	struct virtio_crypto *vcrypto = vq->vdev->priv;
-> +	struct virtio_crypto_request *vc_req;
-> +	unsigned long flags;
-> +	unsigned int len;
-> +	struct ablkcipher_request *ablk_req;
-> +	int error;
-> +
-> +	spin_lock_irqsave(&vcrypto->lock, flags);
+So you forgot to look up the patch that caused it, which made you fail
+to Cc the author of the patch that caused it (me).
 
-Would it make sense to use a per virtqueue lock
-like in virtio_blk for example instead of locking on the whole
-device? OK, it seems you use only one dataqueue, so it
-may not be that relevant.
+That also made you miss the fact that you're only fixing half the
+problem, namely you failed to touch arch/x86/kernel/paravirt_patch_32.c
+which has identical code in.
 
-> +	do {
-> +		virtqueue_disable_cb(vq);
-> +		while ((vc_req = virtqueue_get_buf(vq, &len)) != NULL) {
-> +			if (vc_req->type == VIRTIO_CRYPTO_SYM_OP_CIPHER) {
-> +				switch (vc_req->status) {
-> +				case VIRTIO_CRYPTO_OK:
-> +					error = 0;
-> +					break;
-> +				case VIRTIO_CRYPTO_INVSESS:
-> +				case VIRTIO_CRYPTO_ERR:
-> +					error = -EINVAL;
-> +					break;
-> +				case VIRTIO_CRYPTO_BADMSG:
-> +					error = -EBADMSG;
-> +					break;
-> +				default:
-> +					error = -EIO;
-> +					break;
-> +				}
-> +				ablk_req = vc_req->ablkcipher_req;
-> +				virtcrypto_clear_request(vc_req);
-> +
-> +				spin_unlock_irqrestore(&vcrypto->lock, flags);
-> +				/* Finish the encrypt or decrypt process */
-> +				ablk_req->base.complete(&ablk_req->base, error);
-> +				spin_lock_irqsave(&vcrypto->lock, flags);
-> +			}
-> +		}
-> +	} while (!virtqueue_enable_cb(vq));
-> +	spin_unlock_irqrestore(&vcrypto->lock, flags);
-> +}
+Thirdly you used checkpatch and moved muck about creating a trainwreck
+of a patch.
+
+Anyway, you can use __maybe_unused on a label, I'm not sure which I
+prefer, this way you jump into the previous case block and use
+fall-through, while with the variant I did you jump into the right case.
+
+Its a shame you cannot jump to the default label itself.
