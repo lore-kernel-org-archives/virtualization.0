@@ -1,16 +1,12 @@
-From: Wendy Liang <sunnyliangjy@gmail.com>
-Subject: Re: [PATCH 1/2] virtio_ring: Do not call dma_map_page if sg is
-	already mapped.
-Date: Fri, 9 Dec 2016 10:19:05 -0800
-Message-ID: <CAA07jV8C6FqN8o2_Os7RK3BWn6Ld0ccFJ7Cj1evV8Bw-EA5P6A@mail.gmail.com>
-References: <1481180353-11139-1-git-send-email-jliang@xilinx.com>
-	<1481180353-11139-2-git-send-email-jliang@xilinx.com>
-	<20161208184441-mutt-send-email-mst@kernel.org>
+From: Piotr Gregor <piotrgregor@rsyncme.org>
+Subject: [PATCH] arch: x86: kernel: fixed unused label issue
+Date: Wed, 14 Dec 2016 11:15:13 +0000
+Message-ID: <20161214111510.GA23861__33450.0052188106$1481829978$gmane$org@westernst>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161208184441-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,72 +16,113 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-remoteproc@vger.kernel.org, Wendy Liang <jliang@xilinx.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Wendy Liang <wendy.liang@xilinx.com>, virtualization@lists.linux-foundation.org
+To: tglx@linutronix.de
+Cc: jeremy@goop.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, hpa@zytor.com, akataria@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-HI Michael,
+The patch_default label is only used from within
+	case PARAVIRT_PATCH(pv_lock_ops.queued_spin_unlock)
+and
+	case PARAVIRT_PATCH(pv_lock_ops.vcpu_is_preempted)
+i.e. when #if defined(CONFIG_PARAVIRT_SPINLOCKS) is true.
+Therefore no code jumps to this label in case CONFIG_PARAVIRT_SPINLOCKS
+is not defined and label should be removed in that case.
+Moving #endif directive just after that label fixes the issue.
 
-On Thu, Dec 8, 2016 at 8:46 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Wed, Dec 07, 2016 at 10:59:12PM -0800, Wendy Liang wrote:
->> If sg is already dma mapped, do not call dma_map_page() in
->> vring_map_one_sg().
->>
->> In case of rpmsg, rpmsg uses dma_alloc_coherent() to allocate
->> memory to share with the remote. There is no pages setup
->> in dma_alloc_coherent().
->>
->> In this case, we cannot convert the virtual address back to the
->> physical address. In this case, we can setup the sg_dma_addr to
->> store the DMA address, and also mark the sg is already mapped.
->>
->> In the vring, we can detect if the address is already mapped
->> by checking the sg_dma_addr. If yes, do not call dma_map_page().
->>
->> Signed-off-by: Wendy Liang <jliang@xilinx.com>
->> ---
->>  drivers/virtio/virtio_ring.c | 6 ++++++
->>  1 file changed, 6 insertions(+)
->>
->> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
->> index 489bfc6..9793e1f 100644
->> --- a/drivers/virtio/virtio_ring.c
->> +++ b/drivers/virtio/virtio_ring.c
->> @@ -180,6 +180,12 @@ static dma_addr_t vring_map_one_sg(const struct vring_virtqueue *vq,
->>       if (!vring_use_dma_api(vq->vq.vdev))
->>               return (dma_addr_t)sg_phys(sg);
->>
->> +     /* If the sg is already mapped, return the DMA address */
->
-> How come we even reach this code for rpmsg?
-> Does vring_use_dma_api return true for rpmsg?
-I used vdev feature bit VIRTIO_F_IOMMU_PLATFORM.
+In addition,there are three errors reported by checkpatch script
+on this file. This commit fixes two of them. The last one is
+	ERROR: Macros with multiple statements should be enclosed
+	in a do - while loop
+which probably is a false alarm here as PATCH_SITE macro defines
+a case in switch local to native_patch function not meant to be used
+in other places.
 
->
->> +     if (sg_dma_address(sg)) {
->> +             sg->length = sg_dma_len(sg);
->> +             return sg_dma_address(sg);
->> +     }
->> +
->
-> Is there a rule that says 0 is not a valid address?
-OK, i see. Is it better to check the sg_dma_len() instead?
+Signed-off-by: Piotr Gregor <piotrgregor@rsyncme.org>
+---
+ arch/x86/kernel/paravirt_patch_64.c | 67 +++++++++++++++++++------------------
+ 1 file changed, 34 insertions(+), 33 deletions(-)
 
-However, I just noticed yesterday, there is another patch to
-virtio_rpmsg_bus posted to linux-remoteproc mailing list trying to
-solve the same issue:
-[PATCH v1 2/6] rpmsg: virtio_rpmsg_bus: fix sg_set_buf() when addr is
-not a valid kernel address. he didn't use sg_dma_address. And doesn't
-require to update the virtio_ring implementation.
-
-
->
->>       /*
->>        * We can't use dma_map_sg, because we don't use scatterlists in
->>        * the way it expects (we don't guarantee that the scatterlist
->> --
->> 1.9.1
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-remoteproc" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/arch/x86/kernel/paravirt_patch_64.c b/arch/x86/kernel/paravirt_patch_64.c
+index f4fcf26..7ce2848 100644
+--- a/arch/x86/kernel/paravirt_patch_64.c
++++ b/arch/x86/kernel/paravirt_patch_64.c
+@@ -44,43 +44,44 @@ unsigned native_patch(u8 type, u16 clobbers, void *ibuf,
+ 	const unsigned char *start, *end;
+ 	unsigned ret;
+ 
+-#define PATCH_SITE(ops, x)					\
+-		case PARAVIRT_PATCH(ops.x):			\
+-			start = start_##ops##_##x;		\
+-			end = end_##ops##_##x;			\
+-			goto patch_site
+-	switch(type) {
+-		PATCH_SITE(pv_irq_ops, restore_fl);
+-		PATCH_SITE(pv_irq_ops, save_fl);
+-		PATCH_SITE(pv_irq_ops, irq_enable);
+-		PATCH_SITE(pv_irq_ops, irq_disable);
+-		PATCH_SITE(pv_cpu_ops, usergs_sysret64);
+-		PATCH_SITE(pv_cpu_ops, swapgs);
+-		PATCH_SITE(pv_mmu_ops, read_cr2);
+-		PATCH_SITE(pv_mmu_ops, read_cr3);
+-		PATCH_SITE(pv_mmu_ops, write_cr3);
+-		PATCH_SITE(pv_mmu_ops, flush_tlb_single);
+-		PATCH_SITE(pv_cpu_ops, wbinvd);
++#define PATCH_SITE(ops, x)				\
++	case PARAVIRT_PATCH(ops.x):			\
++		start = start_##ops##_##x;		\
++		end = end_##ops##_##x;			\
++		goto patch_site
++
++	switch (type) {
++	PATCH_SITE(pv_irq_ops, restore_fl);
++	PATCH_SITE(pv_irq_ops, save_fl);
++	PATCH_SITE(pv_irq_ops, irq_enable);
++	PATCH_SITE(pv_irq_ops, irq_disable);
++	PATCH_SITE(pv_cpu_ops, usergs_sysret64);
++	PATCH_SITE(pv_cpu_ops, swapgs);
++	PATCH_SITE(pv_mmu_ops, read_cr2);
++	PATCH_SITE(pv_mmu_ops, read_cr3);
++	PATCH_SITE(pv_mmu_ops, write_cr3);
++	PATCH_SITE(pv_mmu_ops, flush_tlb_single);
++	PATCH_SITE(pv_cpu_ops, wbinvd);
+ #if defined(CONFIG_PARAVIRT_SPINLOCKS)
+-		case PARAVIRT_PATCH(pv_lock_ops.queued_spin_unlock):
+-			if (pv_is_native_spin_unlock()) {
+-				start = start_pv_lock_ops_queued_spin_unlock;
+-				end   = end_pv_lock_ops_queued_spin_unlock;
+-				goto patch_site;
+-			}
+-			goto patch_default;
++	case PARAVIRT_PATCH(pv_lock_ops.queued_spin_unlock):
++		if (pv_is_native_spin_unlock()) {
++			start = start_pv_lock_ops_queued_spin_unlock;
++			end   = end_pv_lock_ops_queued_spin_unlock;
++			goto patch_site;
++		}
++		goto patch_default;
+ 
+-		case PARAVIRT_PATCH(pv_lock_ops.vcpu_is_preempted):
+-			if (pv_is_native_vcpu_is_preempted()) {
+-				start = start_pv_lock_ops_vcpu_is_preempted;
+-				end   = end_pv_lock_ops_vcpu_is_preempted;
+-				goto patch_site;
+-			}
+-			goto patch_default;
+-#endif
++	case PARAVIRT_PATCH(pv_lock_ops.vcpu_is_preempted):
++		if (pv_is_native_vcpu_is_preempted()) {
++			start = start_pv_lock_ops_vcpu_is_preempted;
++			end   = end_pv_lock_ops_vcpu_is_preempted;
++			goto patch_site;
++		}
++		goto patch_default;
+ 
+-	default:
+ patch_default:
++#endif
++	default:
+ 		ret = paravirt_patch_default(type, clobbers, ibuf, addr, len);
+ 		break;
+ 
+-- 
+2.1.4
