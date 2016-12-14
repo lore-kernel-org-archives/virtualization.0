@@ -1,11 +1,19 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V2] vhost: introduce O(1) vq metadata cache
-Date: Wed, 14 Dec 2016 17:53:57 +0800
-Message-ID: <1481709237-19827-1-git-send-email-jasowang@redhat.com>
+From: "Gonglei (Arei)" <arei.gonglei@huawei.com>
+Subject: RE: [PATCH v6 2/2] crypto: add virtio-crypto driver
+Date: Wed, 14 Dec 2016 11:32:12 +0000
+Message-ID: <33183CC9F5247A488A2544077AF19020DA15FB3F__46644.6278653622$1481715227$gmane$org@DGGEMA505-MBX.china.huawei.com>
+References: <1481171829-116496-1-git-send-email-arei.gonglei@huawei.com>
+	<1481171829-116496-3-git-send-email-arei.gonglei@huawei.com>
+	<33183CC9F5247A488A2544077AF19020DA15A07C@DGGEMA505-MBX.china.huawei.com>
+	<20161212105407.GA3033@gondor.apana.org.au>
+	<20161212234941-mutt-send-email-mst@kernel.org>
+	<b55a4666-d71a-352c-8be3-286eef6c5bc0@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <b55a4666-d71a-352c-8be3-286eef6c5bc0@linux.vnet.ibm.com>
+Content-Language: zh-CN
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,375 +23,108 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: vkaplans@redhat.com, maxime.coquelin@redhat.com, wexu@redhat.com, peterx@redhat.com
+To: Halil Pasic <pasic@linux.vnet.ibm.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Xuquan (Quan Xu)" <xuquan8@huawei.com>, "Huangweidong (C)" <weidong.huang@huawei.com>, Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, Claudio Fontana <Claudio.Fontana@huawei.com>, "Hanweidong (Randy)" <hanweidong@huawei.com>, Luonengjun <luonengjun@huawei.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "Wanzongshun (Vincent)" <wanzongshun@huawei.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "stefanha@redhat.com" <stefanha@redhat.com>, "Zhoujian (jay,
+	Euler)" <jianjay.zhou@huawei.com>, longpeng <longpeng2@huawei.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When device IOTLB is enabled, all address translations were stored in
-interval tree. O(lgN) searching time could be slow for virtqueue
-metadata (avail, used and descriptors) since they were accessed much
-often than other addresses. So this patch introduces an O(1) array
-which points to the interval tree nodes that store the translations of
-vq metadata. Those array were update during vq IOTLB prefetching and
-were reset during each invalidation and tlb update. Each time we want
-to access vq metadata, this small array were queried before interval
-tree. This would be sufficient for static mappings but not dynamic
-mappings, we could do optimizations on top.
+Hi,
 
-Test were done with l2fwd in guest (2M hugepage):
+>
+> Subject: Re: [PATCH v6 2/2] crypto: add virtio-crypto driver
+> 
+> 
+> 
+> On 12/12/2016 11:05 PM, Michael S. Tsirkin wrote:
+> > On Mon, Dec 12, 2016 at 06:54:07PM +0800, Herbert Xu wrote:
+> >> On Mon, Dec 12, 2016 at 06:25:12AM +0000, Gonglei (Arei) wrote:
+> >>> Hi, Michael & Herbert
+> >>>
+> >>> Because the virtio-crypto device emulation had been in QEMU 2.8,
+> >>> would you please merge the virtio-crypto driver for 4.10 if no other
+> >>> comments? If so, Miachel pls ack and/or review the patch, then
+> >>> Herbert will take it (I asked him last week). Thank you!
+> >>>
+> >>> Ps: Note on 4.10 merge window timing from Linus
+> >>>  https://lkml.org/lkml/2016/12/7/506
+> >>>
+> >>> Dec 23rd is the deadline for 4.10 merge window.
+> >>
+> >> Sorry but it's too late for 4.10.  It needed to have been in my
+> >> tree before the merge window opened to make it for this cycle.
+> >>
+> >> Cheers,
+> >
+> >
+> > Objections to me merging this? I'm preparing my tree right now.
+> 
+> Got this when testing the most recent version on s390x
+> 
+> [   20.391074] test 0 (128 bit key, 16 byte blocks): [   20.391078] BUG: using
+> smp_processor_id() in preemptible [00000000] code: insmod/97
+> [   20.391082] caller is virtio_crypto_ablkcipher_setkey+0x44/0x198
+> [   20.391085] CPU: 0 PID: 97 Comm: insmod Not tainted
+> 4.9.0-02683-gb62a1ab #46
+> [   20.391088] Hardware name: IBM              2964 NC9
+> 704              (KVM)
+> [   20.391405] Stack:
+> [   20.391407]        000000000c0eb6d0 000000000c0eb760
+> 0000000000000003 0000000000000000
+> [   20.391414]        000000000c0eb800 000000000c0eb778
+> 000000000c0eb778 0000000000000020
+> [   20.391420]        0000000000000000 000000000000000a
+> 0000000000000020 000003ff0000000a
+> [   20.391426]        000003ff0000000c 000000000c0eb7c8
+> 0000000000000000 0000000000000000
+> [   20.391432]        0700000000c173c8 00000000001126ba
+> 000000000c0eb760 000000000c0eb7b8
+> [   20.391439] Call Trace:
+> [   20.391442] ([<000000000011259e>] show_trace+0x8e/0xe0)
+> [   20.391446]  [<0000000000112670>] show_stack+0x80/0xd8
+> [   20.391449]  [<0000000000753ab6>] dump_stack+0x96/0xd8
+> [   20.391453]  [<00000000007872e6>]
+> check_preemption_disabled+0xfe/0x128
+> [   20.391456]  [<0000000000839cc4>]
+> virtio_crypto_ablkcipher_setkey+0x44/0x198
+> [   20.391459]  [<0000000000705a40>]
+> skcipher_setkey_ablkcipher+0x50/0x70
+> [   20.391476]  [<000003ff80002a48>] test_skcipher_speed+0x328/0xb98
+> [tcrypt]
+> [   20.391492]  [<000003ff800063dc>] do_test+0x1c24/0x28e0 [tcrypt]
+> [   20.391509]  [<000003ff8001006a>] tcrypt_mod_init+0x6a/0x1000
+> [tcrypt]
+> [   20.391512]  [<00000000001002cc>] do_one_initcall+0xb4/0x148
+> [   20.391515]  [<0000000000298632>] do_init_module+0x7a/0x228
+> [   20.391519]  [<00000000001fd380>] load_module+0x2428/0x2de0
+> [   20.391522]  [<00000000001fde8a>] SyS_init_module+0x152/0x160
+> [   20.391526]  [<00000000009f1306>] system_call+0xd6/0x270
+> [   20.391528] no locks held by insmod/97.
+> 
+> Gonglei, any idea? Did not look into it myself yet.
+> 
+Thanks for report. You must open CONFIG_DEBUG_PREEMPT,
+but I didn't do that before. I open some kernel hacking debug switches to test it as well today,
+and the following patch can fix it.
 
-   noiommu  | before        | after
-tx 1.32Mpps | 1.06Mpps(82%) | 1.30Mpps(98%)
-rx 2.33Mpps | 1.46Mpps(63%) | 2.29Mpps(98%)
+diff --git a/drivers/crypto/virtio/virtio_crypto_common.h b/drivers/crypto/virtio/virtio_crypto_common.h
+index 975404b..518dc7ad 100644
+--- a/drivers/crypto/virtio/virtio_crypto_common.h
++++ b/drivers/crypto/virtio/virtio_crypto_common.h
+@@ -113,7 +113,13 @@ struct virtio_crypto_request {
 
-We can almost reach the same performance as noiommu mode.
-
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
-Changes from V1:
-- silent 32bit build warning
----
- drivers/vhost/vhost.c | 136 ++++++++++++++++++++++++++++++++++++++++----------
- drivers/vhost/vhost.h |   8 +++
- 2 files changed, 118 insertions(+), 26 deletions(-)
-
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index c6f2d89..50ed625 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -282,6 +282,22 @@ void vhost_poll_queue(struct vhost_poll *poll)
- }
- EXPORT_SYMBOL_GPL(vhost_poll_queue);
- 
-+static void __vhost_vq_meta_reset(struct vhost_virtqueue *vq)
-+{
-+	int j;
-+
-+	for (j = 0; j < VHOST_NUM_ADDRS; j++)
-+		vq->meta_iotlb[j] = NULL;
-+}
-+
-+static void vhost_vq_meta_reset(struct vhost_dev *d)
-+{
-+	int i;
-+
-+	for (i = 0; i < d->nvqs; ++i)
-+		__vhost_vq_meta_reset(d->vqs[i]);
-+}
-+
- static void vhost_vq_reset(struct vhost_dev *dev,
- 			   struct vhost_virtqueue *vq)
+ static inline int virtio_crypto_get_current_node(void)
  {
-@@ -311,6 +327,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
- 	vq->busyloop_timeout = 0;
- 	vq->umem = NULL;
- 	vq->iotlb = NULL;
-+	__vhost_vq_meta_reset(vq);
+-   return topology_physical_package_id(smp_processor_id());
++   int cpu, node;
++
++   cpu = get_cpu();
++   node = topology_physical_package_id(cpu);
++   put_cpu();
++
++   return node;
  }
- 
- static int vhost_worker(void *data)
-@@ -690,6 +707,18 @@ static int vq_memory_access_ok(void __user *log_base, struct vhost_umem *umem,
- 	return 1;
- }
- 
-+static inline void __user *vhost_vq_meta_fetch(struct vhost_virtqueue *vq,
-+					       u64 addr, unsigned int size,
-+					       int type)
-+{
-+	const struct vhost_umem_node *node = vq->meta_iotlb[type];
-+
-+	if (!node)
-+		return NULL;
-+
-+	return (void *)(uintptr_t)(node->userspace_addr + addr - node->start);
-+}
-+
- /* Can we switch to this memory table? */
- /* Caller should have device mutex but not vq mutex */
- static int memory_access_ok(struct vhost_dev *d, struct vhost_umem *umem,
-@@ -732,8 +761,14 @@ static int vhost_copy_to_user(struct vhost_virtqueue *vq, void *to,
- 		 * could be access through iotlb. So -EAGAIN should
- 		 * not happen in this case.
- 		 */
--		/* TODO: more fast path */
- 		struct iov_iter t;
-+		void __user *uaddr = vhost_vq_meta_fetch(vq,
-+				     (u64)(uintptr_t)to, size,
-+				     VHOST_ADDR_DESC);
-+
-+		if (uaddr)
-+			return __copy_to_user(uaddr, from, size);
-+
- 		ret = translate_desc(vq, (u64)(uintptr_t)to, size, vq->iotlb_iov,
- 				     ARRAY_SIZE(vq->iotlb_iov),
- 				     VHOST_ACCESS_WO);
-@@ -761,8 +796,14 @@ static int vhost_copy_from_user(struct vhost_virtqueue *vq, void *to,
- 		 * could be access through iotlb. So -EAGAIN should
- 		 * not happen in this case.
- 		 */
--		/* TODO: more fast path */
-+		void __user *uaddr = vhost_vq_meta_fetch(vq,
-+				     (u64)(uintptr_t)from, size,
-+				     VHOST_ADDR_DESC);
- 		struct iov_iter f;
-+
-+		if (uaddr)
-+			return __copy_from_user(to, uaddr, size);
-+
- 		ret = translate_desc(vq, (u64)(uintptr_t)from, size, vq->iotlb_iov,
- 				     ARRAY_SIZE(vq->iotlb_iov),
- 				     VHOST_ACCESS_RO);
-@@ -782,17 +823,12 @@ static int vhost_copy_from_user(struct vhost_virtqueue *vq, void *to,
- 	return ret;
- }
- 
--static void __user *__vhost_get_user(struct vhost_virtqueue *vq,
--				     void *addr, unsigned size)
-+static void __user *__vhost_get_user_slow(struct vhost_virtqueue *vq,
-+					  void *addr, unsigned int size,
-+					  int type)
- {
- 	int ret;
- 
--	/* This function should be called after iotlb
--	 * prefetch, which means we're sure that vq
--	 * could be access through iotlb. So -EAGAIN should
--	 * not happen in this case.
--	 */
--	/* TODO: more fast path */
- 	ret = translate_desc(vq, (u64)(uintptr_t)addr, size, vq->iotlb_iov,
- 			     ARRAY_SIZE(vq->iotlb_iov),
- 			     VHOST_ACCESS_RO);
-@@ -813,14 +849,32 @@ static void __user *__vhost_get_user(struct vhost_virtqueue *vq,
- 	return vq->iotlb_iov[0].iov_base;
- }
- 
--#define vhost_put_user(vq, x, ptr) \
-+/* This function should be called after iotlb
-+ * prefetch, which means we're sure that vq
-+ * could be access through iotlb. So -EAGAIN should
-+ * not happen in this case.
-+ */
-+static inline void __user *__vhost_get_user(struct vhost_virtqueue *vq,
-+					    void *addr, unsigned int size,
-+					    int type)
-+{
-+	void __user *uaddr = vhost_vq_meta_fetch(vq,
-+			     (u64)(uintptr_t)addr, size, type);
-+	if (uaddr)
-+		return uaddr;
-+
-+	return __vhost_get_user_slow(vq, addr, size, type);
-+}
-+
-+#define vhost_put_user(vq, x, ptr)		\
- ({ \
- 	int ret = -EFAULT; \
- 	if (!vq->iotlb) { \
- 		ret = __put_user(x, ptr); \
- 	} else { \
- 		__typeof__(ptr) to = \
--			(__typeof__(ptr)) __vhost_get_user(vq, ptr, sizeof(*ptr)); \
-+			(__typeof__(ptr)) __vhost_get_user(vq, ptr,	\
-+					  sizeof(*ptr), VHOST_ADDR_USED); \
- 		if (to != NULL) \
- 			ret = __put_user(x, to); \
- 		else \
-@@ -829,14 +883,16 @@ static void __user *__vhost_get_user(struct vhost_virtqueue *vq,
- 	ret; \
- })
- 
--#define vhost_get_user(vq, x, ptr) \
-+#define vhost_get_user(vq, x, ptr, type)		\
- ({ \
- 	int ret; \
- 	if (!vq->iotlb) { \
- 		ret = __get_user(x, ptr); \
- 	} else { \
- 		__typeof__(ptr) from = \
--			(__typeof__(ptr)) __vhost_get_user(vq, ptr, sizeof(*ptr)); \
-+			(__typeof__(ptr)) __vhost_get_user(vq, ptr, \
-+							   sizeof(*ptr), \
-+							   type); \
- 		if (from != NULL) \
- 			ret = __get_user(x, from); \
- 		else \
-@@ -845,6 +901,12 @@ static void __user *__vhost_get_user(struct vhost_virtqueue *vq,
- 	ret; \
- })
- 
-+#define vhost_get_avail(vq, x, ptr) \
-+	vhost_get_user(vq, x, ptr, VHOST_ADDR_AVAIL)
-+
-+#define vhost_get_used(vq, x, ptr) \
-+	vhost_get_user(vq, x, ptr, VHOST_ADDR_USED)
-+
- static void vhost_dev_lock_vqs(struct vhost_dev *d)
- {
- 	int i = 0;
-@@ -950,6 +1012,7 @@ int vhost_process_iotlb_msg(struct vhost_dev *dev,
- 			ret = -EFAULT;
- 			break;
- 		}
-+		vhost_vq_meta_reset(dev);
- 		if (vhost_new_umem_range(dev->iotlb, msg->iova, msg->size,
- 					 msg->iova + msg->size - 1,
- 					 msg->uaddr, msg->perm)) {
-@@ -959,6 +1022,7 @@ int vhost_process_iotlb_msg(struct vhost_dev *dev,
- 		vhost_iotlb_notify_vq(dev, msg);
- 		break;
- 	case VHOST_IOTLB_INVALIDATE:
-+		vhost_vq_meta_reset(dev);
- 		vhost_del_umem_range(dev->iotlb, msg->iova,
- 				     msg->iova + msg->size - 1);
- 		break;
-@@ -1102,12 +1166,26 @@ static int vq_access_ok(struct vhost_virtqueue *vq, unsigned int num,
- 			sizeof *used + num * sizeof *used->ring + s);
- }
- 
-+static void vhost_vq_meta_update(struct vhost_virtqueue *vq,
-+				 const struct vhost_umem_node *node,
-+				 int type)
-+{
-+	int access = (type == VHOST_ADDR_USED) ?
-+		     VHOST_ACCESS_WO : VHOST_ACCESS_RO;
-+
-+	if (likely(node->perm & access))
-+		vq->meta_iotlb[type] = node;
-+}
-+
- static int iotlb_access_ok(struct vhost_virtqueue *vq,
--			   int access, u64 addr, u64 len)
-+			   int access, u64 addr, u64 len, int type)
- {
- 	const struct vhost_umem_node *node;
- 	struct vhost_umem *umem = vq->iotlb;
--	u64 s = 0, size;
-+	u64 s = 0, size, orig_addr = addr;
-+
-+	if (vhost_vq_meta_fetch(vq, addr, len, type))
-+		return true;
- 
- 	while (len > s) {
- 		node = vhost_umem_interval_tree_iter_first(&umem->umem_tree,
-@@ -1124,6 +1202,10 @@ static int iotlb_access_ok(struct vhost_virtqueue *vq,
- 		}
- 
- 		size = node->size - addr + node->start;
-+
-+		if (orig_addr == addr && size >= len)
-+			vhost_vq_meta_update(vq, node, type);
-+
- 		s += size;
- 		addr += size;
- 	}
-@@ -1140,13 +1222,15 @@ int vq_iotlb_prefetch(struct vhost_virtqueue *vq)
- 		return 1;
- 
- 	return iotlb_access_ok(vq, VHOST_ACCESS_RO, (u64)(uintptr_t)vq->desc,
--			       num * sizeof *vq->desc) &&
-+			       num * sizeof(*vq->desc), VHOST_ADDR_DESC) &&
- 	       iotlb_access_ok(vq, VHOST_ACCESS_RO, (u64)(uintptr_t)vq->avail,
- 			       sizeof *vq->avail +
--			       num * sizeof *vq->avail->ring + s) &&
-+			       num * sizeof(*vq->avail->ring) + s,
-+			       VHOST_ADDR_AVAIL) &&
- 	       iotlb_access_ok(vq, VHOST_ACCESS_WO, (u64)(uintptr_t)vq->used,
- 			       sizeof *vq->used +
--			       num * sizeof *vq->used->ring + s);
-+			       num * sizeof(*vq->used->ring) + s,
-+			       VHOST_ADDR_USED);
- }
- EXPORT_SYMBOL_GPL(vq_iotlb_prefetch);
- 
-@@ -1729,7 +1813,7 @@ int vhost_vq_init_access(struct vhost_virtqueue *vq)
- 		r = -EFAULT;
- 		goto err;
- 	}
--	r = vhost_get_user(vq, last_used_idx, &vq->used->idx);
-+	r = vhost_get_used(vq, last_used_idx, &vq->used->idx);
- 	if (r) {
- 		vq_err(vq, "Can't access used idx at %p\n",
- 		       &vq->used->idx);
-@@ -1932,7 +2016,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
- 
- 	/* Check it isn't doing very strange things with descriptor numbers. */
- 	last_avail_idx = vq->last_avail_idx;
--	if (unlikely(vhost_get_user(vq, avail_idx, &vq->avail->idx))) {
-+	if (unlikely(vhost_get_avail(vq, avail_idx, &vq->avail->idx))) {
- 		vq_err(vq, "Failed to access avail idx at %p\n",
- 		       &vq->avail->idx);
- 		return -EFAULT;
-@@ -1954,7 +2038,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
- 
- 	/* Grab the next descriptor number they're advertising, and increment
- 	 * the index we've seen. */
--	if (unlikely(vhost_get_user(vq, ring_head,
-+	if (unlikely(vhost_get_avail(vq, ring_head,
- 		     &vq->avail->ring[last_avail_idx & (vq->num - 1)]))) {
- 		vq_err(vq, "Failed to read head: idx %d address %p\n",
- 		       last_avail_idx,
-@@ -2170,7 +2254,7 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- 
- 	if (!vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX)) {
- 		__virtio16 flags;
--		if (vhost_get_user(vq, flags, &vq->avail->flags)) {
-+		if (vhost_get_avail(vq, flags, &vq->avail->flags)) {
- 			vq_err(vq, "Failed to get flags");
- 			return true;
- 		}
-@@ -2184,7 +2268,7 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- 	if (unlikely(!v))
- 		return true;
- 
--	if (vhost_get_user(vq, event, vhost_used_event(vq))) {
-+	if (vhost_get_avail(vq, event, vhost_used_event(vq))) {
- 		vq_err(vq, "Failed to get used event idx");
- 		return true;
- 	}
-@@ -2226,7 +2310,7 @@ bool vhost_vq_avail_empty(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- 	__virtio16 avail_idx;
- 	int r;
- 
--	r = vhost_get_user(vq, avail_idx, &vq->avail->idx);
-+	r = vhost_get_avail(vq, avail_idx, &vq->avail->idx);
- 	if (r)
- 		return false;
- 
-@@ -2261,7 +2345,7 @@ bool vhost_enable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- 	/* They could have slipped one in as we were doing that: make
- 	 * sure it's written, then check again. */
- 	smp_mb();
--	r = vhost_get_user(vq, avail_idx, &vq->avail->idx);
-+	r = vhost_get_avail(vq, avail_idx, &vq->avail->idx);
- 	if (r) {
- 		vq_err(vq, "Failed to check avail idx at %p: %d\n",
- 		       &vq->avail->idx, r);
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 78f3c5f..034ea18 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -76,6 +76,13 @@ struct vhost_umem {
- 	int numem;
- };
- 
-+enum vhost_uaddr_type {
-+	VHOST_ADDR_DESC = 0,
-+	VHOST_ADDR_AVAIL = 1,
-+	VHOST_ADDR_USED = 2,
-+	VHOST_NUM_ADDRS = 3,
-+};
-+
- /* The virtqueue structure describes a queue attached to a device. */
- struct vhost_virtqueue {
- 	struct vhost_dev *dev;
-@@ -86,6 +93,7 @@ struct vhost_virtqueue {
- 	struct vring_desc __user *desc;
- 	struct vring_avail __user *avail;
- 	struct vring_used __user *used;
-+	const struct vhost_umem_node *meta_iotlb[VHOST_NUM_ADDRS];
- 	struct file *kick;
- 	struct file *call;
- 	struct file *error;
--- 
-2.7.4
+
+Meanwhile I find aother problem, will fix it in the following V7.
+
+Regards,
+-Gonglei
