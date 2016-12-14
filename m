@@ -1,26 +1,13 @@
-From: "Li, Liang Z" <liang.z.li@intel.com>
-Subject: RE: [Qemu-devel] [PATCH kernel v5 0/5] Extend virtio-balloon for
-	fast (de)inflating & fast live migration
-Date: Wed, 14 Dec 2016 08:59:47 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E3C31D0E6@SHSMSX104.ccr.corp.intel.com>
-References: <1480495397-23225-1-git-send-email-liang.z.li@intel.com>
-	<f67ca79c-ad34-59dd-835f-e7bc9dcaef58@redhat.com>
-	<F2CBF3009FA73547804AE4C663CAB28E3A130C01@shsmsx102.ccr.corp.intel.com>
-	<0b18c636-ee67-cbb4-1ba3-81a06150db76@redhat.com>
-	<0b83db29-ebad-2a70-8d61-756d33e33a48@intel.com>
-	<2171e091-46ee-decd-7348-772555d3a5e3@redhat.com>
-	<d3ff453c-56fa-19de-317c-1c82456f2831@intel.com>
-	<20161207183817.GE28786@redhat.com>
-	<b58fd9f6-d9dd-dd56-d476-dd342174dac5@intel.com>
-	<20161207202824.GH28786@redhat.com>
-	<F2CBF3009FA73547804AE4C663CAB28E3A14E2AD@SHSMSX104.ccr.corp.intel.com>
-	<060287c7-d1af-45d5-70ea-ad35d4bbeb84@intel.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] vhost: introduce O(1) vq metadata cache
+Date: Wed, 14 Dec 2016 17:33:40 +0800
+Message-ID: <cb9d4dbe-0688-4ec9-dacd-bf569713a295@redhat.com>
+References: <201612141605.QJowNf4i%fengguang.wu@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <060287c7-d1af-45d5-70ea-ad35d4bbeb84@intel.com>
-Content-Language: en-US
+In-Reply-To: <201612141605.QJowNf4i%fengguang.wu@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -30,40 +17,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Hansen, Dave" <dave.hansen@intel.com>, Andrea Arcangeli <aarcange@redhat.com>
-Cc: "mhocko@suse.com" <mhocko@suse.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>
+To: kbuild test robot <lkp@intel.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, peterx@redhat.com, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, kbuild-all@01.org, vkaplans@redhat.com, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Subject: Re: [Qemu-devel] [PATCH kernel v5 0/5] Extend virtio-balloon for
-> fast (de)inflating & fast live migration
-> 
-> On 12/08/2016 08:45 PM, Li, Liang Z wrote:
-> > What's the conclusion of your discussion? It seems you want some
-> > statistic before deciding whether to  ripping the bitmap from the ABI,
-> > am I right?
-> 
-> I think Andrea and David feel pretty strongly that we should remove the
-> bitmap, unless we have some data to support keeping it.  I don't feel as
-> strongly about it, but I think their critique of it is pretty valid.  I think the
-> consensus is that the bitmap needs to go.
-> 
-> The only real question IMNHO is whether we should do a power-of-2 or a
-> length.  But, if we have 12 bits, then the argument for doing length is pretty
-> strong.  We don't need anywhere near 12 bits if doing power-of-2.
-
-Just found the MAX_ORDER should be limited to 12 if use length instead of order,
-If the MAX_ORDER is configured to a value bigger than 12, it will make things more
-complex to handle this case. 
-
-If use order, we need to break a large memory range whose length is not the power of 2 into several
-small ranges, it also make the code complex.
-
-It seems we leave too many bit  for the pfn, and the bits leave for length is not enough,
-How about keep 45 bits for the pfn and 19 bits for length, 45 bits for pfn can cover 57 bits
-physical address, that should be enough in the near feature. 
-
-What's your opinion?
-
-
-thanks!
-Liang
+CgpPbiAyMDE25bm0MTLmnIgxNOaXpSAxNjoxNCwga2J1aWxkIHRlc3Qgcm9ib3Qgd3JvdGU6Cj4g
+SGkgSmFzb24sCj4KPiBbYXV0byBidWlsZCB0ZXN0IFdBUk5JTkcgb24gdmhvc3QvbGludXgtbmV4
+dF0KPiBbYWxzbyBidWlsZCB0ZXN0IFdBUk5JTkcgb24gdjQuOSBuZXh0LTIwMTYxMjE0XQo+IFtp
+ZiB5b3VyIHBhdGNoIGlzIGFwcGxpZWQgdG8gdGhlIHdyb25nIGdpdCB0cmVlLCBwbGVhc2UgZHJv
+cCB1cyBhIG5vdGUgdG8gaGVscCBpbXByb3ZlIHRoZSBzeXN0ZW1dCj4KPiB1cmw6ICAgIGh0dHBz
+Oi8vZ2l0aHViLmNvbS8wZGF5LWNpL2xpbnV4L2NvbW1pdHMvSmFzb24tV2FuZy92aG9zdC1pbnRy
+b2R1Y2UtTy0xLXZxLW1ldGFkYXRhLWNhY2hlLzIwMTYxMjE0LTE2MDE1Mwo+IGJhc2U6ICAgaHR0
+cHM6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQvbXN0L3Zob3N0Lmdp
+dCBsaW51eC1uZXh0Cj4gY29uZmlnOiBpMzg2LXJhbmRjb25maWcteDAwNS0yMDE2NTAgKGF0dGFj
+aGVkIGFzIC5jb25maWcpCj4gY29tcGlsZXI6IGdjYy02IChEZWJpYW4gNi4yLjAtMykgNi4yLjAg
+MjAxNjA5MDEKPiByZXByb2R1Y2U6Cj4gICAgICAgICAgIyBzYXZlIHRoZSBhdHRhY2hlZCAuY29u
+ZmlnIHRvIGxpbnV4IGJ1aWxkIHRyZWUKClRoYW5rcywgVjIgd2lsbCBiZSBwb3N0ZWQgc29vbi4K
+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxp
+emF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
+Lm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
+aXJ0dWFsaXphdGlvbg==
