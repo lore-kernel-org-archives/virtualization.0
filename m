@@ -1,24 +1,19 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH kernel v5 0/5] Extend virtio-balloon for
-	fast (de)inflating & fast live migration
-Date: Thu, 15 Dec 2016 17:54:50 +0200
-Message-ID: <20161215173901-mutt-send-email-mst__11761.2261361957$1481817335$gmane$org@kernel.org>
-References: <0b83db29-ebad-2a70-8d61-756d33e33a48@intel.com>
-	<2171e091-46ee-decd-7348-772555d3a5e3@redhat.com>
-	<d3ff453c-56fa-19de-317c-1c82456f2831@intel.com>
-	<20161207183817.GE28786@redhat.com>
-	<b58fd9f6-d9dd-dd56-d476-dd342174dac5@intel.com>
-	<20161207202824.GH28786@redhat.com>
-	<F2CBF3009FA73547804AE4C663CAB28E3A14E2AD@SHSMSX104.ccr.corp.intel.com>
-	<060287c7-d1af-45d5-70ea-ad35d4bbeb84@intel.com>
-	<F2CBF3009FA73547804AE4C663CAB28E3C31D0E6@SHSMSX104.ccr.corp.intel.com>
-	<01886693-c73e-3696-860b-086417d695e1@intel.com>
+Subject: Re: [Qemu-devel] [PATCH v7 1/1] crypto: add virtio-crypto driver
+Date: Thu, 15 Dec 2016 18:42:31 +0200
+Message-ID: <20161215184153-mutt-send-email-mst@kernel.org>
+References: <1481716249-185392-1-git-send-email-arei.gonglei@huawei.com>
+	<1481716249-185392-2-git-send-email-arei.gonglei@huawei.com>
+	<bcf62fa0-8fc9-daaf-ea7b-e09eb83b593a@linux.vnet.ibm.com>
+	<33183CC9F5247A488A2544077AF19020DA163033@DGGEMA505-MBX.china.huawei.com>
+	<82063967A54EF84C8AFCD6BD7F6AD93310C14374@SHSMSX103.ccr.corp.intel.com>
+	<33183CC9F5247A488A2544077AF19020DA16320F@DGGEMA505-MBX.china.huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <01886693-c73e-3696-860b-086417d695e1@intel.com>
+In-Reply-To: <33183CC9F5247A488A2544077AF19020DA16320F@DGGEMA505-MBX.china.huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,71 +23,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dave Hansen <dave.hansen@intel.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, "mhocko@suse.com" <mhocko@suse.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Li,
-	Liang Z" <liang.z.li@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>
+To: "Gonglei (Arei)" <arei.gonglei@huawei.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Huangweidong (C)" <weidong.huang@huawei.com>, "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>, "Hanweidong (Randy)" <hanweidong@huawei.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, Claudio Fontana <Claudio.Fontana@huawei.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Wanzongshun (Vincent)" <wanzongshun@huawei.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Xuquan (Quan Xu)" <xuquan8@huawei.com>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "stefanha@redhat.com" <stefanha@redhat.com>, "Zhoujian (jay,
+	Euler)" <jianjay.zhou@huawei.com>, Luonengjun <luonengjun@huawei.com>, longpeng <longpeng2@huawei.com>, "davem@davemloft.net" <davem@davemloft.net>, "Wubin (H)" <wu.wubin@huawei.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 15, 2016 at 07:34:33AM -0800, Dave Hansen wrote:
-> On 12/14/2016 12:59 AM, Li, Liang Z wrote:
-> >> Subject: Re: [Qemu-devel] [PATCH kernel v5 0/5] Extend virtio-balloon for
-> >> fast (de)inflating & fast live migration
-> >>
-> >> On 12/08/2016 08:45 PM, Li, Liang Z wrote:
-> >>> What's the conclusion of your discussion? It seems you want some
-> >>> statistic before deciding whether to  ripping the bitmap from the ABI,
-> >>> am I right?
-> >>
-> >> I think Andrea and David feel pretty strongly that we should remove the
-> >> bitmap, unless we have some data to support keeping it.  I don't feel as
-> >> strongly about it, but I think their critique of it is pretty valid.  I think the
-> >> consensus is that the bitmap needs to go.
-> >>
-> >> The only real question IMNHO is whether we should do a power-of-2 or a
-> >> length.  But, if we have 12 bits, then the argument for doing length is pretty
-> >> strong.  We don't need anywhere near 12 bits if doing power-of-2.
-> > 
-> > Just found the MAX_ORDER should be limited to 12 if use length instead of order,
-> > If the MAX_ORDER is configured to a value bigger than 12, it will make things more
-> > complex to handle this case. 
-> > 
-> > If use order, we need to break a large memory range whose length is not the power of 2 into several
-> > small ranges, it also make the code complex.
+On Thu, Dec 15, 2016 at 01:08:51AM +0000, Gonglei (Arei) wrote:
 > 
-> I can't imagine it makes the code that much more complex.  It adds a for
-> loop.  Right?
 > 
-> > It seems we leave too many bit  for the pfn, and the bits leave for length is not enough,
-> > How about keep 45 bits for the pfn and 19 bits for length, 45 bits for pfn can cover 57 bits
-> > physical address, that should be enough in the near feature. 
+> 
+> 
+> Regards,
+> -Gonglei
+> 
+> 
+> > -----Original Message-----
+> > From: Zeng, Xin [mailto:xin.zeng@intel.com]
+> > Sent: Thursday, December 15, 2016 8:59 AM
+> > To: Gonglei (Arei); Halil Pasic; linux-kernel@vger.kernel.org;
+> > qemu-devel@nongnu.org; virtio-dev@lists.oasis-open.org;
+> > virtualization@lists.linux-foundation.org; linux-crypto@vger.kernel.org
+> > Cc: Huangweidong (C); Claudio Fontana; mst@redhat.com; Luonengjun;
+> > Hanweidong (Randy); Xuquan (Quan Xu); Wanzongshun (Vincent);
+> > stefanha@redhat.com; Zhoujian (jay, Euler); cornelia.huck@de.ibm.com;
+> > longpeng; arei.gonglei@hotmail.com; davem@davemloft.net; Wubin (H);
+> > herbert@gondor.apana.org.au
+> > Subject: RE: [Qemu-devel] [PATCH v7 1/1] crypto: add virtio-crypto driver
 > > 
-> > What's your opinion?
+> > On Thursday, December 15, 2016 8:45 AM, Gonglei (Arei) Wrote:
+> > < > > diff --git a/drivers/crypto/virtio/virtio_crypto_core.c
+> > < > b/drivers/crypto/virtio/virtio_crypto_core.c
+> > < > > new file mode 100644
+> > < > > index 0000000..c0854a1
+> > < > > --- /dev/null
+> > < > > +++ b/drivers/crypto/virtio/virtio_crypto_core.c
+> > < > > @@ -0,0 +1,474 @@
+> > < > [..]
+> > < > > +
+> > < > > +static void virtcrypto_dataq_callback(struct virtqueue *vq)
+> > < > > +{
+> > < > > +	struct virtio_crypto *vcrypto = vq->vdev->priv;
+> > < > > +	struct virtio_crypto_request *vc_req;
+> > < > > +	unsigned long flags;
+> > < > > +	unsigned int len;
+> > < > > +	struct ablkcipher_request *ablk_req;
+> > < > > +	int error;
+> > < > > +
+> > < > > +	spin_lock_irqsave(&vcrypto->lock, flags);
+> > < >
+> > < > Would it make sense to use a per virtqueue lock
+> > < > like in virtio_blk for example instead of locking on the whole
+> > < > device? OK, it seems you use only one dataqueue, so it
+> > < > may not be that relevant.
+> > < >
+> > < Currently yes, both the backend device (cryptodev-backend-builtin)
+> > < and the frontend driver use one dataqueue.
+> > <
+> > 
+> > I think it makes sense to use per virtqueue lock here though it only uses one
+> > queue so far,
+> > but in the spec we already have multi queues support.
+> > 
+> Yes, I agree. Will do that in V8 soon. 
+> Hope to catch up with Michael's pull request for 4.10.
 > 
-> I still think 'order' makes a lot of sense.  But, as you say, 57 bits is
-> enough for x86 for a while.  Other architectures.... who knows?
+> Regards,
+> -Gonglei
 
-I think you can probably assume page size >= 4K. But I would not want
-to make any other assumptions. E.g. there are systems that absolutely
-require you to set high bits for DMA.
-
-I think we really want both length and order.
-
-I understand how you are trying to pack them as tightly as possible.
-
-However, I thought of a trick, we don't need to encode all
-possible orders. For example, with 2 bits of order,
-we can make them mean:
-00 - 4K pages
-01 - 2M pages
-02 - 1G pages
-
-guest can program the sizes for each order through config space.
-
-We will have 10 bits left for legth.
-
-It might make sense to also allow guest to program the number of bits
-used for order, this will make it easy to extend without
-host changes.
-
--- 
-MST
+I merged v7, this change will have to wait. Sorry.
