@@ -1,15 +1,17 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 5/8] linux: drop __bitwise__ everywhere
-Date: Thu, 15 Dec 2016 03:51:46 -0800
-Message-ID: <20161215115146.GB22750__40039.263937115$1481802706$gmane$org@kroah.com>
-References: <1481778865-27667-1-git-send-email-mst@redhat.com>
-	<1481778865-27667-6-git-send-email-mst@redhat.com>
+From: Jiri Slaby <jslaby@suse.cz>
+Subject: Re: BUG: 'list_empty(&vgdev->free_vbufs)' is true!
+Date: Thu, 15 Dec 2016 14:01:12 +0100
+Message-ID: <a03bbf47-f08a-e54c-a5f4-e639c40f7cee@suse.cz>
+References: <bfe29853-694b-6cb5-02e7-6986a9927438@suse.cz>
+	<20161108223153-mutt-send-email-mst@kernel.org>
+	<1478678517.2078.12.camel@redhat.com>
+	<f006e3a6-51d2-4092-57b6-eea7ff64f58f@suse.cz>
+	<1479301975.25611.23.camel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1481778865-27667-6-git-send-email-mst@redhat.com>
+In-Reply-To: <1479301975.25611.23.camel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,32 +21,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Emmanuel Grumbach <emmanuel.grumbach@intel.com>, Mike Snitzer <snitzer@redhat.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, dm-devel@redhat.com, target-devel@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>, Alasdair Kergon <agk@redhat.com>, linux-samsung-soc@vger.kernel.org, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, linux-scsi@vger.kernel.org, Stefan Schmidt <stefan@osg.samsung.com>, Russell King <linux@armlinux.org.uk>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Kukjin Kim <kgene@kernel.org>, linux-arm-kernel@lists.infradead.org, Jiri Slaby <jslaby@suse.com>, open-iscsi@googlegroups.com, Shaohua Li <shli@kernel.org>, Johannes Berg <johannes.berg@intel.com>, Intel Linux Wireless <linuxwifi@intel.com>, Alexander Aring <aar@pengutronix.de>, linux-raid@vger.kernel.org, Kalle Valo <kvalo>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, virtualization@lists.linux-foundation.org, Linux kernel mailing list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 15, 2016 at 07:15:20AM +0200, Michael S. Tsirkin wrote:
-> __bitwise__ used to mean "yes, please enable sparse checks
-> unconditionally", but now that we dropped __CHECK_ENDIAN__
-> __bitwise is exactly the same.
-> There aren't many users, replace it by __bitwise everywhere.
+On 11/16/2016, 02:12 PM, Gerd Hoffmann wrote:
+> On Fr, 2016-11-11 at 17:28 +0100, Jiri Slaby wrote:
+>> On 11/09/2016, 09:01 AM, Gerd Hoffmann wrote:
+>>> On Di, 2016-11-08 at 22:37 +0200, Michael S. Tsirkin wrote:
+>>>> On Mon, Nov 07, 2016 at 09:43:24AM +0100, Jiri Slaby wrote:
+>>>>> Hi,
+>>>>>
+>>>>> I can relatively easily reproduce this bug:
+>>>
+>>> How?
+>>
+>> Run dmesg -w in the qemu window (virtio_gpu) to see a lot of output.
+>> Run pps [1] without exit(0); on e.g. serial console.
+>> Wait a bit. The lot of output causes the BUG.
+>>
+>> [1] https://github.com/jirislaby/collected_sources/blob/master/pps.c
 > 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  arch/arm/plat-samsung/include/plat/gpio-cfg.h    | 2 +-
->  drivers/md/dm-cache-block-types.h                | 6 +++---
->  drivers/net/ethernet/sun/sunhme.h                | 2 +-
->  drivers/net/wireless/intel/iwlwifi/iwl-fw-file.h | 4 ++--
->  include/linux/mmzone.h                           | 2 +-
->  include/linux/serial_core.h                      | 4 ++--
->  include/linux/types.h                            | 4 ++--
->  include/scsi/iscsi_proto.h                       | 2 +-
->  include/target/target_core_base.h                | 2 +-
->  include/uapi/linux/virtio_types.h                | 6 +++---
->  net/ieee802154/6lowpan/6lowpan_i.h               | 2 +-
->  net/mac80211/ieee80211_i.h                       | 4 ++--
->  12 files changed, 20 insertions(+), 20 deletions(-)
+> Doesn't reproduce here.
+> 
+> Running "while true; do dmesg; done" on the virtio-gpu fbcon.
+> Running the pps fork bomb on the serial console.
+> 
+> Can watch dmesg printing the kernel messages over and over, until the
+> shell can't spawn dmesg any more due to the fork bomb hitting the
+> process limit.  No BUG() triggered.
+> 
+> Tried spice, gtk and sdl.
+> 
+> Hmm.
+> 
+> Any ideas what else might be needed to reproduce it?
 
-for include/linux/serial_core.h:
+I can reproduce even with count = 32 :(. And without the fork bomb (i.e.
+with the code from the repository).
 
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This is how I start qemu:
+/usr/bin/qemu-system-x86_64 -machine accel=kvm -k en-us -smp 4 -m 2371
+-usb -device virtio-rng-pci -drive
+file=/home/new/suse-fact.img,format=raw,discard=unmap,if=none,id=hd
+-device virtio-scsi-pci,id=scsi -device scsi-hd,drive=hd -soundhw hda
+-net
+user,tftp=/home/xslaby/tftp,bootfile=/pxelinux.0,hostfwd=tcp::2222-:22,hostfwd=tcp::3632-:3632
+-net nic,model=virtio -serial pty -balloon virtio -device
+virtio-tablet-pci -vga virtio -kernel
+/home/latest/my/arch/x86/boot/bzImage -append root=/dev/sda1
+console=ttyS0,115200 loglevel=debug -snapshot
+
+I do
+  dmesg -w # on the console
+and on serial console:
+  while :; do for aa in `seq 1 10`; do ./pps & done; wait; done
+
+Note the latter can cause interrupt "storm" (~ 700 irqs per second) as
+much output is generated. This can lead to some race condition. serial
+is on IRQ4 and virtio gpu on IRQ10 which has lower priority AFAIK.
+
+thanks,
+-- 
+js
+suse labs
