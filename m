@@ -1,14 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost/vsock: Remove unused but set variable
-Date: Thu, 15 Dec 2016 06:54:58 +0200
-Message-ID: <20161215065447-mutt-send-email-mst@kernel.org>
-References: <20161111132631.25708-1-tklauser@distanz.ch>
+Subject: [PATCH 0/8] enable endian checks for all sparse builds
+Date: Thu, 15 Dec 2016 07:15:06 +0200
+Message-ID: <1481778865-27667-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20161111132631.25708-1-tklauser@distanz.ch>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,30 +16,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tobias Klauser <tklauser@distanz.ch>
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>, David Airlie <airlied@linux.ie>, linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Matthias Brugger <matthias.bgg@gmail.com>, linux-s390@vger.kernel.org, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-scsi@vger.kernel.org, Christoph Hellwig <hch@infradead.org>, v9fs-developer@lists.sourceforge.net, Asias He <asias@redhat.com>, Arnd Bergmann <arnd@arndb.de>, linux-kbuild@vger.kernel.org, Jens Axboe <axboe@fb.com>, Michal Marek <mmarek@suse.com>, linux-mediatek@lists.infradead.org, Stefan Hajnoczi <stefanha@redhat.com>, Matt Mackall <mpm@selenic.com>, linux-arm-kernel@lists.infradead.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-crypto@vger.kernel.org, netdev@vger.kernel.org, Linus
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCBOb3YgMTEsIDIwMTYgYXQgMDI6MjY6MzFQTSArMDEwMCwgVG9iaWFzIEtsYXVzZXIg
-d3JvdGU6Cj4gUmVtb3ZlIHRoZSB1bnVzZWQgYnV0IHNldCB2YXJpYWJsZSB2cSBpbiB2aG9zdF90
-cmFuc3BvcnRfc2VuZF9wa3QoKSB0bwo+IGZpeCB0aGUgZm9sbG93aW5nIEdDQyB3YXJuaW5nIHdo
-ZW4gYnVpbGRpbmcgd2l0aCAnVz0xJzoKPiAKPiAgIGRyaXZlcnMvdmhvc3QvdnNvY2suYzoxOTg6
-MjY6IHdhcm5pbmc6IHZhcmlhYmxlIOKAmHZx4oCZIHNldCBidXQgbm90IHVzZWQKPiAKPiBTaWdu
-ZWQtb2ZmLWJ5OiBUb2JpYXMgS2xhdXNlciA8dGtsYXVzZXJAZGlzdGFuei5jaD4KCmRvZXNuJ3Qg
-YXBwbHkgYW55bW9yZS4KCj4gLS0tCj4gIGRyaXZlcnMvdmhvc3QvdnNvY2suYyB8IDMgLS0tCj4g
-IDEgZmlsZSBjaGFuZ2VkLCAzIGRlbGV0aW9ucygtKQo+IAo+IGRpZmYgLS1naXQgYS9kcml2ZXJz
-L3Zob3N0L3Zzb2NrLmMgYi9kcml2ZXJzL3Zob3N0L3Zzb2NrLmMKPiBpbmRleCBlM2IzMGVhOWVj
-ZTUuLjljM2M2OGI5YTQ5ZSAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3Zob3N0L3Zzb2NrLmMKPiAr
-KysgYi9kcml2ZXJzL3Zob3N0L3Zzb2NrLmMKPiBAQCAtMTk1LDcgKzE5NSw2IEBAIHN0YXRpYyBp
-bnQKPiAgdmhvc3RfdHJhbnNwb3J0X3NlbmRfcGt0KHN0cnVjdCB2aXJ0aW9fdnNvY2tfcGt0ICpw
-a3QpCj4gIHsKPiAgCXN0cnVjdCB2aG9zdF92c29jayAqdnNvY2s7Cj4gLQlzdHJ1Y3Qgdmhvc3Rf
-dmlydHF1ZXVlICp2cTsKPiAgCWludCBsZW4gPSBwa3QtPmxlbjsKPiAgCj4gIAkvKiBGaW5kIHRo
-ZSB2aG9zdF92c29jayBhY2NvcmRpbmcgdG8gZ3Vlc3QgY29udGV4dCBpZCAgKi8KPiBAQCAtMjA1
-LDggKzIwNCw2IEBAIHZob3N0X3RyYW5zcG9ydF9zZW5kX3BrdChzdHJ1Y3QgdmlydGlvX3Zzb2Nr
-X3BrdCAqcGt0KQo+ICAJCXJldHVybiAtRU5PREVWOwo+ICAJfQo+ICAKPiAtCXZxID0gJnZzb2Nr
-LT52cXNbVlNPQ0tfVlFfUlhdOwo+IC0KPiAgCWlmIChwa3QtPnJlcGx5KQo+ICAJCWF0b21pY19p
-bmMoJnZzb2NrLT5xdWV1ZWRfcmVwbGllcyk7Cj4gIAo+IC0tIAo+IDIuMTEuMC5yYzAuNy5nYmU1
-YTc1MAo+IApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
-aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
-bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
-dGluZm8vdmlydHVhbGl6YXRpb24=
+This is just a reposting of the patch that enables endian checks, with addition
+of trivial patches that drop __bitwise__ and __CHECK_ENDIAN__ everywhere.
+
+I plan to include this in my pull request unless I hear otherwise.
+
+Michael S. Tsirkin (8):
+  linux/types.h: enable endian checks for all sparse builds
+  tools: enable endian checks for all sparse builds
+  Documentation/sparse: drop __bitwise__
+  checkpatch: replace __bitwise__ with __bitwise
+  linux: drop __bitwise__ everywhere
+  Documentation/sparse: drop __CHECK_ENDIAN__
+  fs/logfs: drop __CHECK_ENDIAN__
+  Makefile: drop -D__CHECK_ENDIAN__ from cflags
+
+ Documentation/translations/zh_CN/sparse.txt               |  7 +------
+ arch/arm/plat-samsung/include/plat/gpio-cfg.h             |  2 +-
+ drivers/md/dm-cache-block-types.h                         |  6 +++---
+ drivers/net/ethernet/sun/sunhme.h                         |  2 +-
+ drivers/net/wireless/intel/iwlwifi/iwl-fw-file.h          |  4 ++--
+ fs/logfs/logfs.h                                          |  4 +---
+ include/linux/mmzone.h                                    |  2 +-
+ include/linux/serial_core.h                               |  4 ++--
+ include/linux/types.h                                     |  4 ++--
+ include/scsi/iscsi_proto.h                                |  2 +-
+ include/target/target_core_base.h                         |  2 +-
+ include/uapi/linux/types.h                                |  4 ----
+ include/uapi/linux/virtio_types.h                         |  6 +++---
+ net/ieee802154/6lowpan/6lowpan_i.h                        |  2 +-
+ net/mac80211/ieee80211_i.h                                |  4 ++--
+ tools/include/linux/types.h                               |  4 ----
+ Documentation/dev-tools/sparse.rst                        | 14 +-------------
+ drivers/bluetooth/Makefile                                |  2 --
+ drivers/net/can/Makefile                                  |  1 -
+ drivers/net/ethernet/altera/Makefile                      |  1 -
+ drivers/net/ethernet/atheros/alx/Makefile                 |  1 -
+ drivers/net/ethernet/freescale/Makefile                   |  2 --
+ drivers/net/wireless/ath/Makefile                         |  2 --
+ drivers/net/wireless/ath/wil6210/Makefile                 |  2 --
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/Makefile |  2 --
+ drivers/net/wireless/broadcom/brcm80211/brcmsmac/Makefile |  1 -
+ drivers/net/wireless/intel/iwlegacy/Makefile              |  2 --
+ drivers/net/wireless/intel/iwlwifi/Makefile               |  2 +-
+ drivers/net/wireless/intel/iwlwifi/dvm/Makefile           |  2 +-
+ drivers/net/wireless/intel/iwlwifi/mvm/Makefile           |  2 +-
+ drivers/net/wireless/intersil/orinoco/Makefile            |  3 ---
+ drivers/net/wireless/mediatek/mt7601u/Makefile            |  2 --
+ drivers/net/wireless/realtek/rtlwifi/Makefile             |  2 --
+ drivers/net/wireless/realtek/rtlwifi/btcoexist/Makefile   |  2 --
+ drivers/net/wireless/realtek/rtlwifi/rtl8188ee/Makefile   |  2 --
+ drivers/net/wireless/realtek/rtlwifi/rtl8192c/Makefile    |  2 --
+ drivers/net/wireless/realtek/rtlwifi/rtl8192ce/Makefile   |  2 --
+ drivers/net/wireless/realtek/rtlwifi/rtl8192cu/Makefile   |  2 --
+ drivers/net/wireless/realtek/rtlwifi/rtl8192de/Makefile   |  2 --
+ drivers/net/wireless/realtek/rtlwifi/rtl8192ee/Makefile   |  2 --
+ drivers/net/wireless/realtek/rtlwifi/rtl8192se/Makefile   |  2 --
+ drivers/net/wireless/realtek/rtlwifi/rtl8723ae/Makefile   |  2 --
+ drivers/net/wireless/realtek/rtlwifi/rtl8723be/Makefile   |  2 --
+ drivers/net/wireless/realtek/rtlwifi/rtl8723com/Makefile  |  2 --
+ drivers/net/wireless/realtek/rtlwifi/rtl8821ae/Makefile   |  2 --
+ drivers/net/wireless/ti/wl1251/Makefile                   |  2 --
+ drivers/net/wireless/ti/wlcore/Makefile                   |  2 --
+ drivers/staging/rtl8188eu/Makefile                        |  2 +-
+ drivers/staging/rtl8192e/Makefile                         |  2 --
+ drivers/staging/rtl8192e/rtl8192e/Makefile                |  2 --
+ net/bluetooth/Makefile                                    |  2 --
+ net/ieee802154/Makefile                                   |  2 --
+ net/mac80211/Makefile                                     |  2 +-
+ net/mac802154/Makefile                                    |  2 --
+ net/wireless/Makefile                                     |  2 --
+ scripts/checkpatch.pl                                     |  4 ++--
+ 56 files changed, 30 insertions(+), 120 deletions(-)
+
+-- 
+MST
