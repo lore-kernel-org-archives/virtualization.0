@@ -1,15 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 Subject: Re: [PULL] virtio, vhost: new device, fixes, speedups
-Date: Fri, 16 Dec 2016 19:09:20 +0200
-Message-ID: <20161216184123-mutt-send-email-mst@kernel.org>
+Date: Fri, 16 Dec 2016 09:32:36 -0800
+Message-ID: <CA+55aFwob3KKmHn6G5QxrynXqTu2Es9_RUSdNrJssjHyqoW5NQ@mail.gmail.com>
 References: <20161216010507-mutt-send-email-mst@kernel.org>
 	<CA+55aFxwG=jj6=2fKjNkHCOnbKr-mNvNucbA=CSdPvb4kzW3FA@mail.gmail.com>
+	<20161216184123-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CA+55aFxwG=jj6=2fKjNkHCOnbKr-mNvNucbA=CSdPvb4kzW3FA@mail.gmail.com>
+In-Reply-To: <20161216184123-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,44 +19,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: arend.vanspriel@broadcom.com, KVM list <kvm@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 15, 2016 at 06:20:40PM -0800, Linus Torvalds wrote:
-> On Thu, Dec 15, 2016 at 3:05 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> >   git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-> 
-> Pulled, but I wonder...
-> 
-> >  Documentation/translations/zh_CN/sparse.txt        |   7 +-
-> >  arch/arm/plat-samsung/include/plat/gpio-cfg.h      |   2 +-
-> >  drivers/crypto/virtio/virtio_crypto_common.h       | 128 +++++
-> [...]
-> 
-> what are you generating these diffstats with? Because they are pretty bogus..
-> 
-> The end result is correct:
-> 
-> >  86 files changed, 2106 insertions(+), 280 deletions(-)
-> 
-> but the file order in the diffstat is completely random, which makes
-> it very hard to compare with what I get. It also makes it hard to see
-> what you changed, because it's not alphabetical like it should be
-> (strictly speaking the git pathname ordering isnt' really
-> alphabetical, since the '/' sorts as the NUL character, but close
-> enough).
-> 
-> I can't see the logic to the re-ordering of the lines, so I'm
-> intrigued how you even generated it.
-> 
->             Linus
+On Fri, Dec 16, 2016 at 9:09 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> Oh, that's because I set orderfile globally rather than
+> just for the qemu project which wants it.
+> Fixed, sorry about that.
 
+That explains it. I should have remembered, I think this came up once
+before with somebody else.
 
-Oh, that's because I set orderfile globally rather than
-just for the qemu project which wants it.
-Fixed, sorry about that.
+Yeah, for the kernel it makes things much easier (at least for me) to
+have everything just the default alphabetical ordering, particularly
+because we use directory structure for maintenance areas.
 
--- 
-MST
+So ordering the diffs by type ends up breaking my mental model for "is
+this pull request touching the right files", which is why I reacted.
+
+             Linus
