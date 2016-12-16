@@ -1,21 +1,28 @@
-From: "Gonglei (Arei)" <arei.gonglei@huawei.com>
-Subject: RE: [virtio-dev] Re: [Qemu-devel] [PATCH v7 1/1] crypto: add
-	virtio-crypto driver
-Date: Fri, 16 Dec 2016 00:40:14 +0000
-Message-ID: <33183CC9F5247A488A2544077AF19020DA166351__14756.1892787509$1481848916$gmane$org@DGGEMA505-MBX.china.huawei.com>
-References: <1481716249-185392-1-git-send-email-arei.gonglei@huawei.com>
-	<1481716249-185392-2-git-send-email-arei.gonglei@huawei.com>
-	<bcf62fa0-8fc9-daaf-ea7b-e09eb83b593a@linux.vnet.ibm.com>
-	<33183CC9F5247A488A2544077AF19020DA163033@DGGEMA505-MBX.china.huawei.com>
-	<82063967A54EF84C8AFCD6BD7F6AD93310C14374@SHSMSX103.ccr.corp.intel.com>
-	<33183CC9F5247A488A2544077AF19020DA16320F@DGGEMA505-MBX.china.huawei.com>
-	<20161215184153-mutt-send-email-mst@kernel.org>
+From: "Li, Liang Z" <liang.z.li@intel.com>
+Subject: RE: [Qemu-devel] [PATCH kernel v5 0/5] Extend virtio-balloon for
+	fast (de)inflating & fast live migration
+Date: Fri, 16 Dec 2016 00:48:07 +0000
+Message-ID: <F2CBF3009FA73547804AE4C663CAB28E3C32985A@shsmsx102.ccr.corp.intel.com>
+References: <1480495397-23225-1-git-send-email-liang.z.li@intel.com>
+	<f67ca79c-ad34-59dd-835f-e7bc9dcaef58@redhat.com>
+	<F2CBF3009FA73547804AE4C663CAB28E3A130C01@shsmsx102.ccr.corp.intel.com>
+	<0b18c636-ee67-cbb4-1ba3-81a06150db76@redhat.com>
+	<0b83db29-ebad-2a70-8d61-756d33e33a48@intel.com>
+	<2171e091-46ee-decd-7348-772555d3a5e3@redhat.com>
+	<d3ff453c-56fa-19de-317c-1c82456f2831@intel.com>
+	<20161207183817.GE28786@redhat.com>
+	<b58fd9f6-d9dd-dd56-d476-dd342174dac5@intel.com>
+	<20161207202824.GH28786@redhat.com>
+	<F2CBF3009FA73547804AE4C663CAB28E3A14E2AD@SHSMSX104.ccr.corp.intel.com>
+	<060287c7-d1af-45d5-70ea-ad35d4bbeb84@intel.com>
+	<F2CBF3009FA73547804AE4C663CAB28E3C31D0E6@SHSMSX104.ccr.corp.intel.com>
+	<01886693-c73e-3696-860b-086417d695e1@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161215184153-mutt-send-email-mst@kernel.org>
-Content-Language: zh-CN
+In-Reply-To: <01886693-c73e-3696-860b-086417d695e1@intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,63 +32,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Huangweidong (C)" <weidong.huang@huawei.com>, "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>, "Hanweidong (Randy)" <hanweidong@huawei.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, Claudio Fontana <Claudio.Fontana@huawei.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Wanzongshun (Vincent)" <wanzongshun@huawei.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Xuquan (Quan Xu)" <xuquan8@huawei.com>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "stefanha@redhat.com" <stefanha@redhat.com>, "Zhoujian (jay,
-	Euler)" <jianjay.zhou@huawei.com>, Luonengjun <luonengjun@huawei.com>, longpeng <longpeng2@huawei.com>, "davem@davemloft.net" <davem@davemloft.net>, "Wubin (H)" <wu.wubin@huawei.com>
+To: "Hansen, Dave" <dave.hansen@intel.com>, Andrea Arcangeli <aarcange@redhat.com>
+Cc: "mhocko@suse.com" <mhocko@suse.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Michael,
-
->
-> >
-> >
-> > > Subject: RE: [Qemu-devel] [PATCH v7 1/1] crypto: add virtio-crypto driver
-> > >
-> > > On Thursday, December 15, 2016 8:45 AM, Gonglei (Arei) Wrote:
-> > > < > > diff --git a/drivers/crypto/virtio/virtio_crypto_core.c
-> > > < > b/drivers/crypto/virtio/virtio_crypto_core.c
-> > > < > > new file mode 100644
-> > > < > > index 0000000..c0854a1
-> > > < > > --- /dev/null
-> > > < > > +++ b/drivers/crypto/virtio/virtio_crypto_core.c
-> > > < > > @@ -0,0 +1,474 @@
-> > > < > [..]
-> > > < > > +
-> > > < > > +static void virtcrypto_dataq_callback(struct virtqueue *vq)
-> > > < > > +{
-> > > < > > +	struct virtio_crypto *vcrypto = vq->vdev->priv;
-> > > < > > +	struct virtio_crypto_request *vc_req;
-> > > < > > +	unsigned long flags;
-> > > < > > +	unsigned int len;
-> > > < > > +	struct ablkcipher_request *ablk_req;
-> > > < > > +	int error;
-> > > < > > +
-> > > < > > +	spin_lock_irqsave(&vcrypto->lock, flags);
-> > > < >
-> > > < > Would it make sense to use a per virtqueue lock
-> > > < > like in virtio_blk for example instead of locking on the whole
-> > > < > device? OK, it seems you use only one dataqueue, so it
-> > > < > may not be that relevant.
-> > > < >
-> > > < Currently yes, both the backend device (cryptodev-backend-builtin)
-> > > < and the frontend driver use one dataqueue.
-> > > <
-> > >
-> > > I think it makes sense to use per virtqueue lock here though it only uses one
-> > > queue so far,
-> > > but in the spec we already have multi queues support.
-> > >
-> > Yes, I agree. Will do that in V8 soon.
-> > Hope to catch up with Michael's pull request for 4.10.
-> >
-> > Regards,
-> > -Gonglei
+> Subject: Re: [Qemu-devel] [PATCH kernel v5 0/5] Extend virtio-balloon for
+> fast (de)inflating & fast live migration
 > 
-> I merged v7, this change will have to wait. Sorry.
+> On 12/14/2016 12:59 AM, Li, Liang Z wrote:
+> >> Subject: Re: [Qemu-devel] [PATCH kernel v5 0/5] Extend virtio-balloon
+> >> for fast (de)inflating & fast live migration
+> >>
+> >> On 12/08/2016 08:45 PM, Li, Liang Z wrote:
+> >>> What's the conclusion of your discussion? It seems you want some
+> >>> statistic before deciding whether to  ripping the bitmap from the
+> >>> ABI, am I right?
+> >>
+> >> I think Andrea and David feel pretty strongly that we should remove
+> >> the bitmap, unless we have some data to support keeping it.  I don't
+> >> feel as strongly about it, but I think their critique of it is pretty
+> >> valid.  I think the consensus is that the bitmap needs to go.
+> >>
+> >> The only real question IMNHO is whether we should do a power-of-2 or
+> >> a length.  But, if we have 12 bits, then the argument for doing
+> >> length is pretty strong.  We don't need anywhere near 12 bits if doing
+> power-of-2.
+> >
+> > Just found the MAX_ORDER should be limited to 12 if use length instead
+> > of order, If the MAX_ORDER is configured to a value bigger than 12, it
+> > will make things more complex to handle this case.
+> >
+> > If use order, we need to break a large memory range whose length is
+> > not the power of 2 into several small ranges, it also make the code complex.
 > 
-That's OK. Thanks!
+> I can't imagine it makes the code that much more complex.  It adds a for loop.
+> Right?
+> 
 
-I can post a separate patch after this pull request. 
+Yes, just a little. :)
 
-Regards,
--Gonglei
+> > It seems we leave too many bit  for the pfn, and the bits leave for
+> > length is not enough, How about keep 45 bits for the pfn and 19 bits
+> > for length, 45 bits for pfn can cover 57 bits physical address, that should be
+> enough in the near feature.
+> >
+> > What's your opinion?
+> 
+> I still think 'order' makes a lot of sense.  But, as you say, 57 bits is enough for
+> x86 for a while.  Other architectures.... who knows?
+
+Yes. 
