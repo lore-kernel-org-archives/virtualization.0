@@ -1,13 +1,11 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PULL] virtio, vhost: new device, fixes, speedups
-Date: Thu, 15 Dec 2016 18:20:40 -0800
-Message-ID: <CA+55aFxwG=jj6=2fKjNkHCOnbKr-mNvNucbA=CSdPvb4kzW3FA@mail.gmail.com>
-References: <20161216010507-mutt-send-email-mst@kernel.org>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH] x86/paravirt: hide unused patch_default label
+Date: Fri, 16 Dec 2016 10:16:35 +0100
+Message-ID: <20161216091700.2499520-1-arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161216010507-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,35 +15,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: arend.vanspriel@broadcom.com, KVM list <kvm@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+To: Ingo Molnar <mingo@redhat.com>, x86@kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 15, 2016 at 3:05 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
->
->   git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+A bugfix introduced a harmless warning:
 
-Pulled, but I wonder...
+arch/x86/kernel/paravirt_patch_32.c: In function 'native_patch':
+arch/x86/kernel/paravirt_patch_32.c:71:1: error: label 'patch_default' defined but not used [-Werror=unused-label]
 
->  Documentation/translations/zh_CN/sparse.txt        |   7 +-
->  arch/arm/plat-samsung/include/plat/gpio-cfg.h      |   2 +-
->  drivers/crypto/virtio/virtio_crypto_common.h       | 128 +++++
-[...]
+This puts it in the same #ifdef as its caller.
 
-what are you generating these diffstats with? Because they are pretty bogus..
+Fixes: 45dbea5f55c0 ("x86/paravirt: Fix native_patch()")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ arch/x86/kernel/paravirt_patch_32.c | 2 ++
+ arch/x86/kernel/paravirt_patch_64.c | 2 ++
+ 2 files changed, 4 insertions(+)
 
-The end result is correct:
-
->  86 files changed, 2106 insertions(+), 280 deletions(-)
-
-but the file order in the diffstat is completely random, which makes
-it very hard to compare with what I get. It also makes it hard to see
-what you changed, because it's not alphabetical like it should be
-(strictly speaking the git pathname ordering isnt' really
-alphabetical, since the '/' sorts as the NUL character, but close
-enough).
-
-I can't see the logic to the re-ordering of the lines, so I'm
-intrigued how you even generated it.
-
-            Linus
+diff --git a/arch/x86/kernel/paravirt_patch_32.c b/arch/x86/kernel/paravirt_patch_32.c
+index d33ef165b1f8..2b729b1df391 100644
+--- a/arch/x86/kernel/paravirt_patch_32.c
++++ b/arch/x86/kernel/paravirt_patch_32.c
+@@ -68,7 +68,9 @@ unsigned native_patch(u8 type, u16 clobbers, void *ibuf,
+ #endif
+ 
+ 	default:
++#if defined(CONFIG_PARAVIRT_SPINLOCKS)
+ patch_default:
++#endif
+ 		ret = paravirt_patch_default(type, clobbers, ibuf, addr, len);
+ 		break;
+ 
+diff --git a/arch/x86/kernel/paravirt_patch_64.c b/arch/x86/kernel/paravirt_patch_64.c
+index f4fcf26c9fce..b5bff128949a 100644
+--- a/arch/x86/kernel/paravirt_patch_64.c
++++ b/arch/x86/kernel/paravirt_patch_64.c
+@@ -80,7 +80,9 @@ unsigned native_patch(u8 type, u16 clobbers, void *ibuf,
+ #endif
+ 
+ 	default:
++#if defined(CONFIG_PARAVIRT_SPINLOCKS)
+ patch_default:
++#endif
+ 		ret = paravirt_patch_default(type, clobbers, ibuf, addr, len);
+ 		break;
+ 
+-- 
+2.9.0
