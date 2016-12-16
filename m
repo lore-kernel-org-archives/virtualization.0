@@ -1,24 +1,15 @@
-From: Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH kernel v5 0/5] Extend virtio-balloon for
-	fast (de)inflating & fast live migration
-Date: Fri, 16 Dec 2016 17:01:12 +0100
-Message-ID: <20161216160112.GC6168@redhat.com>
-References: <b58fd9f6-d9dd-dd56-d476-dd342174dac5@intel.com>
-	<20161207202824.GH28786@redhat.com>
-	<F2CBF3009FA73547804AE4C663CAB28E3A14E2AD@SHSMSX104.ccr.corp.intel.com>
-	<060287c7-d1af-45d5-70ea-ad35d4bbeb84@intel.com>
-	<F2CBF3009FA73547804AE4C663CAB28E3C31D0E6@SHSMSX104.ccr.corp.intel.com>
-	<01886693-c73e-3696-860b-086417d695e1@intel.com>
-	<F2CBF3009FA73547804AE4C663CAB28E3C32985A@shsmsx102.ccr.corp.intel.com>
-	<f517bfbe-18b8-6962-5c57-545f6ef47ad0@intel.com>
-	<F2CBF3009FA73547804AE4C663CAB28E3C32A8D6@shsmsx102.ccr.corp.intel.com>
-	<84ac9822-880d-b998-52ca-6aa87e0f7a43@intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PULL] virtio, vhost: new device, fixes, speedups
+Date: Fri, 16 Dec 2016 19:09:20 +0200
+Message-ID: <20161216184123-mutt-send-email-mst@kernel.org>
+References: <20161216010507-mutt-send-email-mst@kernel.org>
+	<CA+55aFxwG=jj6=2fKjNkHCOnbKr-mNvNucbA=CSdPvb4kzW3FA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <84ac9822-880d-b998-52ca-6aa87e0f7a43@intel.com>
+In-Reply-To: <CA+55aFxwG=jj6=2fKjNkHCOnbKr-mNvNucbA=CSdPvb4kzW3FA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,39 +19,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dave Hansen <dave.hansen@intel.com>
-Cc: "mhocko@suse.com" <mhocko@suse.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "Li, Liang Z" <liang.z.li@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: arend.vanspriel@broadcom.com, KVM list <kvm@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 15, 2016 at 05:40:45PM -0800, Dave Hansen wrote:
-> On 12/15/2016 05:38 PM, Li, Liang Z wrote:
-> > 
-> > Use 52 bits for 'pfn', 12 bits for 'length', when the 12 bits is not long enough for the 'length'
-> > Set the 'length' to a special value to indicate the "actual length in next 8 bytes".
-> > 
-> > That will be much more simple. Right?
+On Thu, Dec 15, 2016 at 06:20:40PM -0800, Linus Torvalds wrote:
+> On Thu, Dec 15, 2016 at 3:05 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> >   git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 > 
-> Sounds fine to me.
+> Pulled, but I wonder...
 > 
+> >  Documentation/translations/zh_CN/sparse.txt        |   7 +-
+> >  arch/arm/plat-samsung/include/plat/gpio-cfg.h      |   2 +-
+> >  drivers/crypto/virtio/virtio_crypto_common.h       | 128 +++++
+> [...]
+> 
+> what are you generating these diffstats with? Because they are pretty bogus..
+> 
+> The end result is correct:
+> 
+> >  86 files changed, 2106 insertions(+), 280 deletions(-)
+> 
+> but the file order in the diffstat is completely random, which makes
+> it very hard to compare with what I get. It also makes it hard to see
+> what you changed, because it's not alphabetical like it should be
+> (strictly speaking the git pathname ordering isnt' really
+> alphabetical, since the '/' sorts as the NUL character, but close
+> enough).
+> 
+> I can't see the logic to the re-ordering of the lines, so I'm
+> intrigued how you even generated it.
+> 
+>             Linus
 
-Sounds fine to me too indeed.
 
-I'm only wondering what is the major point for compressing gpfn+len in
-8 bytes in the common case, you already use sg_init_table to send down
-two pages, we could send three as well and avoid all math and bit
-shifts and ors, or not?
+Oh, that's because I set orderfile globally rather than
+just for the qemu project which wants it.
+Fixed, sorry about that.
 
-I agree with the above because from a performance prospective I tend
-to think the above proposal will run at least theoretically faster
-because the other way is to waste double amount of CPU cache, and bit
-mangling in the encoding and the later decoding on qemu side should be
-faster than accessing an array of double size, but then I'm not sure
-if it's measurable optimization. So I'd be curious to know the exact
-motivation and if it is to reduce the CPU cache usage or if there's
-some other fundamental reason to compress it.
-
-The header already tells qemu how big is the array payload, couldn't
-we just add more pages if one isn't enough?
-
-Thanks,
-Andrea
+-- 
+MST
