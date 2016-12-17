@@ -1,15 +1,12 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PULL] virtio, vhost: new device, fixes, speedups
-Date: Fri, 16 Dec 2016 09:32:36 -0800
-Message-ID: <CA+55aFwob3KKmHn6G5QxrynXqTu2Es9_RUSdNrJssjHyqoW5NQ@mail.gmail.com>
-References: <20161216010507-mutt-send-email-mst@kernel.org>
-	<CA+55aFxwG=jj6=2fKjNkHCOnbKr-mNvNucbA=CSdPvb4kzW3FA@mail.gmail.com>
-	<20161216184123-mutt-send-email-mst@kernel.org>
+From: Kees Cook <keescook@chromium.org>
+Subject: [PATCH] drm/ttm: use designated initializers
+Date: Fri, 16 Dec 2016 16:59:29 -0800
+Message-ID: <20161217005929.GA140260@beast>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161216184123-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,24 +16,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: arend.vanspriel@broadcom.com, KVM list <kvm@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+To: linux-kernel@vger.kernel.org
+Cc: David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Dec 16, 2016 at 9:09 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> Oh, that's because I set orderfile globally rather than
-> just for the qemu project which wants it.
-> Fixed, sorry about that.
+Prepare to mark sensitive kernel structures for randomization by making
+sure they're using designated initializers. These were identified during
+allyesconfig builds of x86, arm, and arm64, with most initializer fixes
+extracted from grsecurity.
 
-That explains it. I should have remembered, I think this came up once
-before with somebody else.
+Signed-off-by: Kees Cook <keescook@chromium.org>
+---
+ drivers/gpu/drm/virtio/virtgpu_ttm.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-Yeah, for the kernel it makes things much easier (at least for me) to
-have everything just the default alphabetical ordering, particularly
-because we use directory structure for maintenance areas.
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ttm.c b/drivers/gpu/drm/virtio/virtgpu_ttm.c
+index 4a1de9f81193..63b3d5d35cf6 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ttm.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ttm.c
+@@ -198,11 +198,11 @@ static void ttm_bo_man_debug(struct ttm_mem_type_manager *man,
+ }
+ 
+ static const struct ttm_mem_type_manager_func virtio_gpu_bo_manager_func = {
+-	ttm_bo_man_init,
+-	ttm_bo_man_takedown,
+-	ttm_bo_man_get_node,
+-	ttm_bo_man_put_node,
+-	ttm_bo_man_debug
++	.init = ttm_bo_man_init,
++	.takedown = ttm_bo_man_takedown,
++	.get_node = ttm_bo_man_get_node,
++	.put_node = ttm_bo_man_put_node,
++	.debug = ttm_bo_man_debug
+ };
+ 
+ static int virtio_gpu_init_mem_type(struct ttm_bo_device *bdev, uint32_t type,
+-- 
+2.7.4
 
-So ordering the diffs by type ends up breaking my mental model for "is
-this pull request touching the right files", which is why I reacted.
 
-             Linus
+-- 
+Kees Cook
+Nexus Security
