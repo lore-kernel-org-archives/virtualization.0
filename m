@@ -1,15 +1,15 @@
-From: Andrea Arcangeli <aarcange@redhat.com>
+From: Pan Xinhui <xinhui@linux.vnet.ibm.com>
 Subject: Re: [PATCH v7 08/11] x86, kvm/x86.c: support vcpu preempted check
-Date: Mon, 19 Dec 2016 12:42:41 +0100
-Message-ID: <20161219114241.GD4927@redhat.com>
+Date: Mon, 19 Dec 2016 21:56:58 +0800
+Message-ID: <91437232-cb48-18e1-672f-d2d04a780169@linux.vnet.ibm.com>
 References: <1478077718-37424-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 	<1478077718-37424-9-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+	<20161219114241.GD4927@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1478077718-37424-9-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+In-Reply-To: <20161219114241.GD4927@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,157 +19,121 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+To: Andrea Arcangeli <aarcange@redhat.com>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 Cc: kvm@vger.kernel.org, rkrcmar@redhat.com, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, "Dr. David Alan Gilbert" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello,
-
-On Wed, Nov 02, 2016 at 05:08:35AM -0400, Pan Xinhui wrote:
-> Support the vcpu_is_preempted() functionality under KVM. This will
-> enhance lock performance on overcommitted hosts (more runnable vcpus
-> than physical cpus in the system) as doing busy waits for preempted
-> vcpus will hurt system performance far worse than early yielding.
-> 
-> Use one field of struct kvm_steal_time ::preempted to indicate that if
-> one vcpu is running or not.
-> 
-> Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-> Acked-by: Paolo Bonzini <pbonzini@redhat.com>
-> ---
->  arch/x86/include/uapi/asm/kvm_para.h |  4 +++-
->  arch/x86/kvm/x86.c                   | 16 ++++++++++++++++
->  2 files changed, 19 insertions(+), 1 deletion(-)
-> 
-[..]
-> +static void kvm_steal_time_set_preempted(struct kvm_vcpu *vcpu)
-> +{
-> +	if (!(vcpu->arch.st.msr_val & KVM_MSR_ENABLED))
-> +		return;
-> +
-> +	vcpu->arch.st.steal.preempted = 1;
-> +
-> +	kvm_write_guest_offset_cached(vcpu->kvm, &vcpu->arch.st.stime,
-> +			&vcpu->arch.st.steal.preempted,
-> +			offsetof(struct kvm_steal_time, preempted),
-> +			sizeof(vcpu->arch.st.steal.preempted));
-> +}
-> +
->  void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
->  {
-> +	kvm_steal_time_set_preempted(vcpu);
->  	kvm_x86_ops->vcpu_put(vcpu);
->  	kvm_put_guest_fpu(vcpu);
->  	vcpu->arch.last_host_tsc = rdtsc();
-
-You can't call kvm_steal_time_set_preempted in atomic context (neither
-in sched_out notifier nor in vcpu_put() after
-preempt_disable)). __copy_to_user in kvm_write_guest_offset_cached
-schedules and locks up the host.
-
-kvm->srcu (or kvm->slots_lock) is also not taken and
-kvm_write_guest_offset_cached needs to call kvm_memslots which
-requires it.
-
-This I think is why postcopy live migration locks up with current
-upstream, and it doesn't seem related to userfaultfd at all (initially
-I suspected the vmf conversion but it wasn't that) and in theory it
-can happen with heavy swapping or page migration too.
-
-Just the page is written so frequently it's unlikely to be swapped
-out. The page being written so frequently also means it's very likely
-found as re-dirtied when postcopy starts and that pretty much
-guarantees an userfault will trigger a scheduling event in
-kvm_steal_time_set_preempted in destination. There are opposite
-probabilities of reproducing this with swapping vs postcopy live
-migration.
-
-For now I applied the below two patches, but this just will skip the
-write and only prevent the host instability as nobody checks the
-retval of __copy_to_user (what happens to guest after the write is
-skipped is not as clear and should be investigated, but at least the
-host will survive and not all guests will care about this flag being
-updated). For this to be fully safe the preempted information should
-be just an hint and not fundamental for correct functionality of the
-guest pv spinlock code.
-
-This bug was introduced in commit
-0b9f6c4615c993d2b552e0d2bd1ade49b56e5beb in v4.9-rc7.
-
-From 458897fd44aa9b91459a006caa4051a7d1628a23 Mon Sep 17 00:00:00 2001
-From: Andrea Arcangeli <aarcange@redhat.com>
-Date: Sat, 17 Dec 2016 18:43:52 +0100
-Subject: [PATCH 1/2] kvm: fix schedule in atomic in
- kvm_steal_time_set_preempted()
-
-kvm_steal_time_set_preempted() isn't disabling the pagefaults before
-calling __copy_to_user and the kernel debug notices.
-
-Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
----
- arch/x86/kvm/x86.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
-
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 1f0d238..2dabaeb 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -2844,7 +2844,17 @@ static void kvm_steal_time_set_preempted(struct kvm_vcpu *vcpu)
- 
- void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
- {
-+	/*
-+	 * Disable page faults because we're in atomic context here.
-+	 * kvm_write_guest_offset_cached() would call might_fault()
-+	 * that relies on pagefault_disable() to tell if there's a
-+	 * bug. NOTE: the write to guest memory may not go through if
-+	 * during postcopy live migration or if there's heavy guest
-+	 * paging.
-+	 */
-+	pagefault_disable();
- 	kvm_steal_time_set_preempted(vcpu);
-+	pagefault_enable();
- 	kvm_x86_ops->vcpu_put(vcpu);
- 	kvm_put_guest_fpu(vcpu);
- 	vcpu->arch.last_host_tsc = rdtsc();
-
-
-From 2845eba22ac74c5e313e3b590f9dac33e1b3cfef Mon Sep 17 00:00:00 2001
-From: Andrea Arcangeli <aarcange@redhat.com>
-Date: Sat, 17 Dec 2016 19:13:32 +0100
-Subject: [PATCH 2/2] kvm: take srcu lock around kvm_steal_time_set_preempted()
-
-kvm_memslots() will be called by kvm_write_guest_offset_cached() so
-take the srcu lock.
-
-Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
----
- arch/x86/kvm/x86.c | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 2dabaeb..02e6ab4 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -2844,6 +2844,7 @@ static void kvm_steal_time_set_preempted(struct kvm_vcpu *vcpu)
- 
- void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
- {
-+	int idx;
- 	/*
- 	 * Disable page faults because we're in atomic context here.
- 	 * kvm_write_guest_offset_cached() would call might_fault()
-@@ -2853,7 +2854,13 @@ void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
- 	 * paging.
- 	 */
- 	pagefault_disable();
-+	/*
-+	 * kvm_memslots() will be called by
-+	 * kvm_write_guest_offset_cached() so take the srcu lock.
-+	 */
-+	idx = srcu_read_lock(&vcpu->kvm->srcu);
- 	kvm_steal_time_set_preempted(vcpu);
-+	srcu_read_unlock(&vcpu->kvm->srcu, idx);
- 	pagefault_enable();
- 	kvm_x86_ops->vcpu_put(vcpu);
- 	kvm_put_guest_fpu(vcpu);
+aGksIEFuZHJlYQoJdGhhbmtzIGZvciB5b3VyIHJlcGx5LiA6KQoK5ZyoIDIwMTYvMTIvMTkgMTk6
+NDIsIEFuZHJlYSBBcmNhbmdlbGkg5YaZ6YGTOgo+IEhlbGxvLAo+Cj4gT24gV2VkLCBOb3YgMDIs
+IDIwMTYgYXQgMDU6MDg6MzVBTSAtMDQwMCwgUGFuIFhpbmh1aSB3cm90ZToKPj4gU3VwcG9ydCB0
+aGUgdmNwdV9pc19wcmVlbXB0ZWQoKSBmdW5jdGlvbmFsaXR5IHVuZGVyIEtWTS4gVGhpcyB3aWxs
+Cj4+IGVuaGFuY2UgbG9jayBwZXJmb3JtYW5jZSBvbiBvdmVyY29tbWl0dGVkIGhvc3RzIChtb3Jl
+IHJ1bm5hYmxlIHZjcHVzCj4+IHRoYW4gcGh5c2ljYWwgY3B1cyBpbiB0aGUgc3lzdGVtKSBhcyBk
+b2luZyBidXN5IHdhaXRzIGZvciBwcmVlbXB0ZWQKPj4gdmNwdXMgd2lsbCBodXJ0IHN5c3RlbSBw
+ZXJmb3JtYW5jZSBmYXIgd29yc2UgdGhhbiBlYXJseSB5aWVsZGluZy4KPj4KPj4gVXNlIG9uZSBm
+aWVsZCBvZiBzdHJ1Y3Qga3ZtX3N0ZWFsX3RpbWUgOjpwcmVlbXB0ZWQgdG8gaW5kaWNhdGUgdGhh
+dCBpZgo+PiBvbmUgdmNwdSBpcyBydW5uaW5nIG9yIG5vdC4KPj4KPj4gU2lnbmVkLW9mZi1ieTog
+UGFuIFhpbmh1aSA8eGluaHVpLnBhbkBsaW51eC52bmV0LmlibS5jb20+Cj4+IEFja2VkLWJ5OiBQ
+YW9sbyBCb256aW5pIDxwYm9uemluaUByZWRoYXQuY29tPgo+PiAtLS0KPj4gIGFyY2gveDg2L2lu
+Y2x1ZGUvdWFwaS9hc20va3ZtX3BhcmEuaCB8ICA0ICsrKy0KPj4gIGFyY2gveDg2L2t2bS94ODYu
+YyAgICAgICAgICAgICAgICAgICB8IDE2ICsrKysrKysrKysrKysrKysKPj4gIDIgZmlsZXMgY2hh
+bmdlZCwgMTkgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQo+Pgo+IFsuLl0KPj4gK3N0YXRp
+YyB2b2lkIGt2bV9zdGVhbF90aW1lX3NldF9wcmVlbXB0ZWQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1
+KQo+PiArewo+PiArCWlmICghKHZjcHUtPmFyY2guc3QubXNyX3ZhbCAmIEtWTV9NU1JfRU5BQkxF
+RCkpCj4+ICsJCXJldHVybjsKPj4gKwo+PiArCXZjcHUtPmFyY2guc3Quc3RlYWwucHJlZW1wdGVk
+ID0gMTsKPj4gKwo+PiArCWt2bV93cml0ZV9ndWVzdF9vZmZzZXRfY2FjaGVkKHZjcHUtPmt2bSwg
+JnZjcHUtPmFyY2guc3Quc3RpbWUsCj4+ICsJCQkmdmNwdS0+YXJjaC5zdC5zdGVhbC5wcmVlbXB0
+ZWQsCj4+ICsJCQlvZmZzZXRvZihzdHJ1Y3Qga3ZtX3N0ZWFsX3RpbWUsIHByZWVtcHRlZCksCj4+
+ICsJCQlzaXplb2YodmNwdS0+YXJjaC5zdC5zdGVhbC5wcmVlbXB0ZWQpKTsKPj4gK30KPj4gKwo+
+PiAgdm9pZCBrdm1fYXJjaF92Y3B1X3B1dChzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpCj4+ICB7Cj4+
+ICsJa3ZtX3N0ZWFsX3RpbWVfc2V0X3ByZWVtcHRlZCh2Y3B1KTsKPj4gIAlrdm1feDg2X29wcy0+
+dmNwdV9wdXQodmNwdSk7Cj4+ICAJa3ZtX3B1dF9ndWVzdF9mcHUodmNwdSk7Cj4+ICAJdmNwdS0+
+YXJjaC5sYXN0X2hvc3RfdHNjID0gcmR0c2MoKTsKPgo+IFlvdSBjYW4ndCBjYWxsIGt2bV9zdGVh
+bF90aW1lX3NldF9wcmVlbXB0ZWQgaW4gYXRvbWljIGNvbnRleHQgKG5laXRoZXIKPiBpbiBzY2hl
+ZF9vdXQgbm90aWZpZXIgbm9yIGluIHZjcHVfcHV0KCkgYWZ0ZXIKPiBwcmVlbXB0X2Rpc2FibGUp
+KS4gX19jb3B5X3RvX3VzZXIgaW4ga3ZtX3dyaXRlX2d1ZXN0X29mZnNldF9jYWNoZWQKPiBzY2hl
+ZHVsZXMgYW5kIGxvY2tzIHVwIHRoZSBob3N0Lgo+CnllcywgeW91IGFyZSByaWdodCEgOikgd2Ug
+aGF2ZSBrbm93biB0aGUgcHJvYmxlbXMuCkkgYW0gZ29pbmcgdG8gaW50cm9kdWNlIHNvbWV0aGlu
+ZyBsaWtlIGt2bV93cml0ZV9ndWVzdF9YWFhfYXRvbWljIGFuZCB1c2UgdGhlbSBpbnN0ZWFkIG9m
+IGt2bV93cml0ZV9ndWVzdF9vZmZzZXRfY2FjaGVkLgp3aXRoaW4gcGFnZWZhdWx0X2Rpc2FibGUo
+KS9lbmFibGUoKSwgd2UgY2FuIG5vdCBjYWxsIF9fY29weV90b191c2VyIEkgdGhpbmsuCgo+IGt2
+bS0+c3JjdSAob3Iga3ZtLT5zbG90c19sb2NrKSBpcyBhbHNvIG5vdCB0YWtlbiBhbmQKPiBrdm1f
+d3JpdGVfZ3Vlc3Rfb2Zmc2V0X2NhY2hlZCBuZWVkcyB0byBjYWxsIGt2bV9tZW1zbG90cyB3aGlj
+aAo+IHJlcXVpcmVzIGl0Lgo+CmxldCBtZSBjaGVjayB0aGUgZGV0YWlscyBsYXRlci4gdGhhbmtz
+IGZvciBwb2ludGluZyBpdCBvdXQuCgo+IFRoaXMgSSB0aGluayBpcyB3aHkgcG9zdGNvcHkgbGl2
+ZSBtaWdyYXRpb24gbG9ja3MgdXAgd2l0aCBjdXJyZW50Cj4gdXBzdHJlYW0sIGFuZCBpdCBkb2Vz
+bid0IHNlZW0gcmVsYXRlZCB0byB1c2VyZmF1bHRmZCBhdCBhbGwgKGluaXRpYWxseQo+IEkgc3Vz
+cGVjdGVkIHRoZSB2bWYgY29udmVyc2lvbiBidXQgaXQgd2Fzbid0IHRoYXQpIGFuZCBpbiB0aGVv
+cnkgaXQKPiBjYW4gaGFwcGVuIHdpdGggaGVhdnkgc3dhcHBpbmcgb3IgcGFnZSBtaWdyYXRpb24g
+dG9vLgo+Cj4gSnVzdCB0aGUgcGFnZSBpcyB3cml0dGVuIHNvIGZyZXF1ZW50bHkgaXQncyB1bmxp
+a2VseSB0byBiZSBzd2FwcGVkCj4gb3V0LiBUaGUgcGFnZSBiZWluZyB3cml0dGVuIHNvIGZyZXF1
+ZW50bHkgYWxzbyBtZWFucyBpdCdzIHZlcnkgbGlrZWx5Cj4gZm91bmQgYXMgcmUtZGlydGllZCB3
+aGVuIHBvc3Rjb3B5IHN0YXJ0cyBhbmQgdGhhdCBwcmV0dHkgbXVjaAo+IGd1YXJhbnRlZXMgYW4g
+dXNlcmZhdWx0IHdpbGwgdHJpZ2dlciBhIHNjaGVkdWxpbmcgZXZlbnQgaW4KPiBrdm1fc3RlYWxf
+dGltZV9zZXRfcHJlZW1wdGVkIGluIGRlc3RpbmF0aW9uLiBUaGVyZSBhcmUgb3Bwb3NpdGUKPiBw
+cm9iYWJpbGl0aWVzIG9mIHJlcHJvZHVjaW5nIHRoaXMgd2l0aCBzd2FwcGluZyB2cyBwb3N0Y29w
+eSBsaXZlCj4gbWlncmF0aW9uLgo+CgpHb29kIGFuYWx5emUuIDopCgo+IEZvciBub3cgSSBhcHBs
+aWVkIHRoZSBiZWxvdyB0d28gcGF0Y2hlcywgYnV0IHRoaXMganVzdCB3aWxsIHNraXAgdGhlCj4g
+d3JpdGUgYW5kIG9ubHkgcHJldmVudCB0aGUgaG9zdCBpbnN0YWJpbGl0eSBhcyBub2JvZHkgY2hl
+Y2tzIHRoZQo+IHJldHZhbCBvZiBfX2NvcHlfdG9fdXNlciAod2hhdCBoYXBwZW5zIHRvIGd1ZXN0
+IGFmdGVyIHRoZSB3cml0ZSBpcwo+IHNraXBwZWQgaXMgbm90IGFzIGNsZWFyIGFuZCBzaG91bGQg
+YmUgaW52ZXN0aWdhdGVkLCBidXQgYXQgbGVhc3QgdGhlCj4gaG9zdCB3aWxsIHN1cnZpdmUgYW5k
+IG5vdCBhbGwgZ3Vlc3RzIHdpbGwgY2FyZSBhYm91dCB0aGlzIGZsYWcgYmVpbmcKPiB1cGRhdGVk
+KS4gRm9yIHRoaXMgdG8gYmUgZnVsbHkgc2FmZSB0aGUgcHJlZW1wdGVkIGluZm9ybWF0aW9uIHNo
+b3VsZAo+IGJlIGp1c3QgYW4gaGludCBhbmQgbm90IGZ1bmRhbWVudGFsIGZvciBjb3JyZWN0IGZ1
+bmN0aW9uYWxpdHkgb2YgdGhlCj4gZ3Vlc3QgcHYgc3BpbmxvY2sgY29kZS4KPgo+IFRoaXMgYnVn
+IHdhcyBpbnRyb2R1Y2VkIGluIGNvbW1pdAo+IDBiOWY2YzQ2MTVjOTkzZDJiNTUyZTBkMmJkMWFk
+ZTQ5YjU2ZTViZWIgaW4gdjQuOS1yYzcuCj4KPiBGcm9tIDQ1ODg5N2ZkNDRhYTliOTE0NTlhMDA2
+Y2FhNDA1MWE3ZDE2MjhhMjMgTW9uIFNlcCAxNyAwMDowMDowMCAyMDAxCj4gRnJvbTogQW5kcmVh
+IEFyY2FuZ2VsaSA8YWFyY2FuZ2VAcmVkaGF0LmNvbT4KPiBEYXRlOiBTYXQsIDE3IERlYyAyMDE2
+IDE4OjQzOjUyICswMTAwCj4gU3ViamVjdDogW1BBVENIIDEvMl0ga3ZtOiBmaXggc2NoZWR1bGUg
+aW4gYXRvbWljIGluCj4gIGt2bV9zdGVhbF90aW1lX3NldF9wcmVlbXB0ZWQoKQo+Cj4ga3ZtX3N0
+ZWFsX3RpbWVfc2V0X3ByZWVtcHRlZCgpIGlzbid0IGRpc2FibGluZyB0aGUgcGFnZWZhdWx0cyBi
+ZWZvcmUKPiBjYWxsaW5nIF9fY29weV90b191c2VyIGFuZCB0aGUga2VybmVsIGRlYnVnIG5vdGlj
+ZXMuCj4KPiBTaWduZWQtb2ZmLWJ5OiBBbmRyZWEgQXJjYW5nZWxpIDxhYXJjYW5nZUByZWRoYXQu
+Y29tPgo+IC0tLQo+ICBhcmNoL3g4Ni9rdm0veDg2LmMgfCAxMCArKysrKysrKysrCj4gIDEgZmls
+ZSBjaGFuZ2VkLCAxMCBpbnNlcnRpb25zKCspCj4KPiBkaWZmIC0tZ2l0IGEvYXJjaC94ODYva3Zt
+L3g4Ni5jIGIvYXJjaC94ODYva3ZtL3g4Ni5jCj4gaW5kZXggMWYwZDIzOC4uMmRhYmFlYiAxMDA2
+NDQKPiAtLS0gYS9hcmNoL3g4Ni9rdm0veDg2LmMKPiArKysgYi9hcmNoL3g4Ni9rdm0veDg2LmMK
+PiBAQCAtMjg0NCw3ICsyODQ0LDE3IEBAIHN0YXRpYyB2b2lkIGt2bV9zdGVhbF90aW1lX3NldF9w
+cmVlbXB0ZWQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1KQo+Cj4gIHZvaWQga3ZtX2FyY2hfdmNwdV9w
+dXQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1KQo+ICB7Cj4gKwkvKgo+ICsJICogRGlzYWJsZSBwYWdl
+IGZhdWx0cyBiZWNhdXNlIHdlJ3JlIGluIGF0b21pYyBjb250ZXh0IGhlcmUuCj4gKwkgKiBrdm1f
+d3JpdGVfZ3Vlc3Rfb2Zmc2V0X2NhY2hlZCgpIHdvdWxkIGNhbGwgbWlnaHRfZmF1bHQoKQo+ICsJ
+ICogdGhhdCByZWxpZXMgb24gcGFnZWZhdWx0X2Rpc2FibGUoKSB0byB0ZWxsIGlmIHRoZXJlJ3Mg
+YQo+ICsJICogYnVnLiBOT1RFOiB0aGUgd3JpdGUgdG8gZ3Vlc3QgbWVtb3J5IG1heSBub3QgZ28g
+dGhyb3VnaCBpZgo+ICsJICogZHVyaW5nIHBvc3Rjb3B5IGxpdmUgbWlncmF0aW9uIG9yIGlmIHRo
+ZXJlJ3MgaGVhdnkgZ3Vlc3QKPiArCSAqIHBhZ2luZy4KPiArCSAqLwo+ICsJcGFnZWZhdWx0X2Rp
+c2FibGUoKTsKPiAgCWt2bV9zdGVhbF90aW1lX3NldF9wcmVlbXB0ZWQodmNwdSk7Cj4gKwlwYWdl
+ZmF1bHRfZW5hYmxlKCk7CmNhbiB3ZSBqdXN0IGFkZCB0aGlzPwpJIHRoaW5rIGl0IGlzIGJldHRl
+ciB0byBtb2RpZnkga3ZtX3N0ZWFsX3RpbWVfc2V0X3ByZWVtcHRlZCgpIGFuZCBsZXQgaXQgcnVu
+IGNvcnJlY3RseSBpbiBhdG9taWMgY29udGV4dC4KCnRoYW5rcwp4aW5odWkKCj4gIAlrdm1feDg2
+X29wcy0+dmNwdV9wdXQodmNwdSk7Cj4gIAlrdm1fcHV0X2d1ZXN0X2ZwdSh2Y3B1KTsKPiAgCXZj
+cHUtPmFyY2gubGFzdF9ob3N0X3RzYyA9IHJkdHNjKCk7Cj4KPgo+IEZyb20gMjg0NWViYTIyYWM3
+NGM1ZTMxM2UzYjU5MGY5ZGFjMzNlMWIzY2ZlZiBNb24gU2VwIDE3IDAwOjAwOjAwIDIwMDEKPiBG
+cm9tOiBBbmRyZWEgQXJjYW5nZWxpIDxhYXJjYW5nZUByZWRoYXQuY29tPgo+IERhdGU6IFNhdCwg
+MTcgRGVjIDIwMTYgMTk6MTM6MzIgKzAxMDAKPiBTdWJqZWN0OiBbUEFUQ0ggMi8yXSBrdm06IHRh
+a2Ugc3JjdSBsb2NrIGFyb3VuZCBrdm1fc3RlYWxfdGltZV9zZXRfcHJlZW1wdGVkKCkKPgo+IGt2
+bV9tZW1zbG90cygpIHdpbGwgYmUgY2FsbGVkIGJ5IGt2bV93cml0ZV9ndWVzdF9vZmZzZXRfY2Fj
+aGVkKCkgc28KPiB0YWtlIHRoZSBzcmN1IGxvY2suCj4KPiBTaWduZWQtb2ZmLWJ5OiBBbmRyZWEg
+QXJjYW5nZWxpIDxhYXJjYW5nZUByZWRoYXQuY29tPgo+IC0tLQo+ICBhcmNoL3g4Ni9rdm0veDg2
+LmMgfCA3ICsrKysrKysKPiAgMSBmaWxlIGNoYW5nZWQsIDcgaW5zZXJ0aW9ucygrKQo+Cj4gZGlm
+ZiAtLWdpdCBhL2FyY2gveDg2L2t2bS94ODYuYyBiL2FyY2gveDg2L2t2bS94ODYuYwo+IGluZGV4
+IDJkYWJhZWIuLjAyZTZhYjQgMTAwNjQ0Cj4gLS0tIGEvYXJjaC94ODYva3ZtL3g4Ni5jCj4gKysr
+IGIvYXJjaC94ODYva3ZtL3g4Ni5jCj4gQEAgLTI4NDQsNiArMjg0NCw3IEBAIHN0YXRpYyB2b2lk
+IGt2bV9zdGVhbF90aW1lX3NldF9wcmVlbXB0ZWQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1KQo+Cj4g
+IHZvaWQga3ZtX2FyY2hfdmNwdV9wdXQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1KQo+ICB7Cj4gKwlp
+bnQgaWR4Owo+ICAJLyoKPiAgCSAqIERpc2FibGUgcGFnZSBmYXVsdHMgYmVjYXVzZSB3ZSdyZSBp
+biBhdG9taWMgY29udGV4dCBoZXJlLgo+ICAJICoga3ZtX3dyaXRlX2d1ZXN0X29mZnNldF9jYWNo
+ZWQoKSB3b3VsZCBjYWxsIG1pZ2h0X2ZhdWx0KCkKPiBAQCAtMjg1Myw3ICsyODU0LDEzIEBAIHZv
+aWQga3ZtX2FyY2hfdmNwdV9wdXQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1KQo+ICAJICogcGFnaW5n
+Lgo+ICAJICovCj4gIAlwYWdlZmF1bHRfZGlzYWJsZSgpOwo+ICsJLyoKPiArCSAqIGt2bV9tZW1z
+bG90cygpIHdpbGwgYmUgY2FsbGVkIGJ5Cj4gKwkgKiBrdm1fd3JpdGVfZ3Vlc3Rfb2Zmc2V0X2Nh
+Y2hlZCgpIHNvIHRha2UgdGhlIHNyY3UgbG9jay4KPiArCSAqLwo+ICsJaWR4ID0gc3JjdV9yZWFk
+X2xvY2soJnZjcHUtPmt2bS0+c3JjdSk7Cj4gIAlrdm1fc3RlYWxfdGltZV9zZXRfcHJlZW1wdGVk
+KHZjcHUpOwo+ICsJc3JjdV9yZWFkX3VubG9jaygmdmNwdS0+a3ZtLT5zcmN1LCBpZHgpOwo+ICAJ
+cGFnZWZhdWx0X2VuYWJsZSgpOwo+ICAJa3ZtX3g4Nl9vcHMtPnZjcHVfcHV0KHZjcHUpOwo+ICAJ
+a3ZtX3B1dF9ndWVzdF9mcHUodmNwdSk7Cj4KPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxp
+emF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3Vu
+ZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
