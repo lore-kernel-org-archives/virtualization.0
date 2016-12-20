@@ -1,16 +1,11 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH v7 08/11] x86, kvm/x86.c: support vcpu preempted check
-Date: Mon, 19 Dec 2016 15:39:29 +0100
-Message-ID: <1dbf5452-49c2-a2cb-c71f-b11b13c4f7da@redhat.com>
-References: <1478077718-37424-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<1478077718-37424-9-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<20161219114241.GD4927@redhat.com>
-	<91437232-cb48-18e1-672f-d2d04a780169@linux.vnet.ibm.com>
+From: Will Deacon <will.deacon@arm.com>
+Subject: [RFC PATCH] vring: Force use of DMA API for ARM-based systems
+Date: Tue, 20 Dec 2016 15:14:24 +0000
+Message-ID: <1482246864-16399-1-git-send-email-will.deacon@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <91437232-cb48-18e1-672f-d2d04a780169@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,131 +15,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pan Xinhui <xinhui@linux.vnet.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Cc: kvm@vger.kernel.org, rkrcmar@redhat.com, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: Andy Lutomirski <luto@kernel.org>, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAxOS8xMi8yMDE2IDE0OjU2LCBQYW4gWGluaHVpIHdyb3RlOgo+IGhpLCBBbmRyZWEKPiAg
-ICAgdGhhbmtzIGZvciB5b3VyIHJlcGx5LiA6KQo+IAo+IOWcqCAyMDE2LzEyLzE5IDE5OjQyLCBB
-bmRyZWEgQXJjYW5nZWxpIOWGmemBkzoKPj4gSGVsbG8sCj4+Cj4+IE9uIFdlZCwgTm92IDAyLCAy
-MDE2IGF0IDA1OjA4OjM1QU0gLTA0MDAsIFBhbiBYaW5odWkgd3JvdGU6Cj4+PiBTdXBwb3J0IHRo
-ZSB2Y3B1X2lzX3ByZWVtcHRlZCgpIGZ1bmN0aW9uYWxpdHkgdW5kZXIgS1ZNLiBUaGlzIHdpbGwK
-Pj4+IGVuaGFuY2UgbG9jayBwZXJmb3JtYW5jZSBvbiBvdmVyY29tbWl0dGVkIGhvc3RzIChtb3Jl
-IHJ1bm5hYmxlIHZjcHVzCj4+PiB0aGFuIHBoeXNpY2FsIGNwdXMgaW4gdGhlIHN5c3RlbSkgYXMg
-ZG9pbmcgYnVzeSB3YWl0cyBmb3IgcHJlZW1wdGVkCj4+PiB2Y3B1cyB3aWxsIGh1cnQgc3lzdGVt
-IHBlcmZvcm1hbmNlIGZhciB3b3JzZSB0aGFuIGVhcmx5IHlpZWxkaW5nLgo+Pj4KPj4+IFVzZSBv
-bmUgZmllbGQgb2Ygc3RydWN0IGt2bV9zdGVhbF90aW1lIDo6cHJlZW1wdGVkIHRvIGluZGljYXRl
-IHRoYXQgaWYKPj4+IG9uZSB2Y3B1IGlzIHJ1bm5pbmcgb3Igbm90Lgo+Pj4KPj4+IFNpZ25lZC1v
-ZmYtYnk6IFBhbiBYaW5odWkgPHhpbmh1aS5wYW5AbGludXgudm5ldC5pYm0uY29tPgo+Pj4gQWNr
-ZWQtYnk6IFBhb2xvIEJvbnppbmkgPHBib256aW5pQHJlZGhhdC5jb20+Cj4+PiAtLS0KPj4+ICBh
-cmNoL3g4Ni9pbmNsdWRlL3VhcGkvYXNtL2t2bV9wYXJhLmggfCAgNCArKystCj4+PiAgYXJjaC94
-ODYva3ZtL3g4Ni5jICAgICAgICAgICAgICAgICAgIHwgMTYgKysrKysrKysrKysrKysrKwo+Pj4g
-IDIgZmlsZXMgY2hhbmdlZCwgMTkgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQo+Pj4KPj4g
-Wy4uXQo+Pj4gK3N0YXRpYyB2b2lkIGt2bV9zdGVhbF90aW1lX3NldF9wcmVlbXB0ZWQoc3RydWN0
-IGt2bV92Y3B1ICp2Y3B1KQo+Pj4gK3sKPj4+ICsgICAgaWYgKCEodmNwdS0+YXJjaC5zdC5tc3Jf
-dmFsICYgS1ZNX01TUl9FTkFCTEVEKSkKPj4+ICsgICAgICAgIHJldHVybjsKPj4+ICsKPj4+ICsg
-ICAgdmNwdS0+YXJjaC5zdC5zdGVhbC5wcmVlbXB0ZWQgPSAxOwo+Pj4gKwo+Pj4gKyAgICBrdm1f
-d3JpdGVfZ3Vlc3Rfb2Zmc2V0X2NhY2hlZCh2Y3B1LT5rdm0sICZ2Y3B1LT5hcmNoLnN0LnN0aW1l
-LAo+Pj4gKyAgICAgICAgICAgICZ2Y3B1LT5hcmNoLnN0LnN0ZWFsLnByZWVtcHRlZCwKPj4+ICsg
-ICAgICAgICAgICBvZmZzZXRvZihzdHJ1Y3Qga3ZtX3N0ZWFsX3RpbWUsIHByZWVtcHRlZCksCj4+
-PiArICAgICAgICAgICAgc2l6ZW9mKHZjcHUtPmFyY2guc3Quc3RlYWwucHJlZW1wdGVkKSk7Cj4+
-PiArfQo+Pj4gKwo+Pj4gIHZvaWQga3ZtX2FyY2hfdmNwdV9wdXQoc3RydWN0IGt2bV92Y3B1ICp2
-Y3B1KQo+Pj4gIHsKPj4+ICsgICAga3ZtX3N0ZWFsX3RpbWVfc2V0X3ByZWVtcHRlZCh2Y3B1KTsK
-Pj4+ICAgICAga3ZtX3g4Nl9vcHMtPnZjcHVfcHV0KHZjcHUpOwo+Pj4gICAgICBrdm1fcHV0X2d1
-ZXN0X2ZwdSh2Y3B1KTsKPj4+ICAgICAgdmNwdS0+YXJjaC5sYXN0X2hvc3RfdHNjID0gcmR0c2Mo
-KTsKPj4KPj4gWW91IGNhbid0IGNhbGwga3ZtX3N0ZWFsX3RpbWVfc2V0X3ByZWVtcHRlZCBpbiBh
-dG9taWMgY29udGV4dCAobmVpdGhlcgo+PiBpbiBzY2hlZF9vdXQgbm90aWZpZXIgbm9yIGluIHZj
-cHVfcHV0KCkgYWZ0ZXIKPj4gcHJlZW1wdF9kaXNhYmxlKSkuIF9fY29weV90b191c2VyIGluIGt2
-bV93cml0ZV9ndWVzdF9vZmZzZXRfY2FjaGVkCj4+IHNjaGVkdWxlcyBhbmQgbG9ja3MgdXAgdGhl
-IGhvc3QuCj4+Cj4geWVzLCB5b3UgYXJlIHJpZ2h0ISA6KSB3ZSBoYXZlIGtub3duIHRoZSBwcm9i
-bGVtcy4KPiBJIGFtIGdvaW5nIHRvIGludHJvZHVjZSBzb21ldGhpbmcgbGlrZSBrdm1fd3JpdGVf
-Z3Vlc3RfWFhYX2F0b21pYyBhbmQKPiB1c2UgdGhlbSBpbnN0ZWFkIG9mIGt2bV93cml0ZV9ndWVz
-dF9vZmZzZXRfY2FjaGVkLgo+IHdpdGhpbiBwYWdlZmF1bHRfZGlzYWJsZSgpL2VuYWJsZSgpLCB3
-ZSBjYW4gbm90IGNhbGwgX19jb3B5X3RvX3VzZXIgSQo+IHRoaW5rLgoKU2luY2UgSSBoYXZlIGFs
-cmVhZHkgYm90Y2hlZCB0aGUgcmV2ZXJ0IGFuZCBuZWVkIHRvIHJlc2VuZCB0aGUgZml4LCBJJ20K
-Z29pbmcgdG8gYXBwbHkgQW5kcmVhJ3MgcGF0Y2hlcy4gIFRoZSBwcmVlbXB0ZWQgZmxhZyBpcyBv
-bmx5IGFkdmlzb3J5CmFueXdheS4KClRoYW5rcywKClBhb2xvCgo+PiBrdm0tPnNyY3UgKG9yIGt2
-bS0+c2xvdHNfbG9jaykgaXMgYWxzbyBub3QgdGFrZW4gYW5kCj4+IGt2bV93cml0ZV9ndWVzdF9v
-ZmZzZXRfY2FjaGVkIG5lZWRzIHRvIGNhbGwga3ZtX21lbXNsb3RzIHdoaWNoCj4+IHJlcXVpcmVz
-IGl0Lgo+Pgo+IGxldCBtZSBjaGVjayB0aGUgZGV0YWlscyBsYXRlci4gdGhhbmtzIGZvciBwb2lu
-dGluZyBpdCBvdXQuCj4gCj4+IFRoaXMgSSB0aGluayBpcyB3aHkgcG9zdGNvcHkgbGl2ZSBtaWdy
-YXRpb24gbG9ja3MgdXAgd2l0aCBjdXJyZW50Cj4+IHVwc3RyZWFtLCBhbmQgaXQgZG9lc24ndCBz
-ZWVtIHJlbGF0ZWQgdG8gdXNlcmZhdWx0ZmQgYXQgYWxsIChpbml0aWFsbHkKPj4gSSBzdXNwZWN0
-ZWQgdGhlIHZtZiBjb252ZXJzaW9uIGJ1dCBpdCB3YXNuJ3QgdGhhdCkgYW5kIGluIHRoZW9yeSBp
-dAo+PiBjYW4gaGFwcGVuIHdpdGggaGVhdnkgc3dhcHBpbmcgb3IgcGFnZSBtaWdyYXRpb24gdG9v
-Lgo+Pgo+PiBKdXN0IHRoZSBwYWdlIGlzIHdyaXR0ZW4gc28gZnJlcXVlbnRseSBpdCdzIHVubGlr
-ZWx5IHRvIGJlIHN3YXBwZWQKPj4gb3V0LiBUaGUgcGFnZSBiZWluZyB3cml0dGVuIHNvIGZyZXF1
-ZW50bHkgYWxzbyBtZWFucyBpdCdzIHZlcnkgbGlrZWx5Cj4+IGZvdW5kIGFzIHJlLWRpcnRpZWQg
-d2hlbiBwb3N0Y29weSBzdGFydHMgYW5kIHRoYXQgcHJldHR5IG11Y2gKPj4gZ3VhcmFudGVlcyBh
-biB1c2VyZmF1bHQgd2lsbCB0cmlnZ2VyIGEgc2NoZWR1bGluZyBldmVudCBpbgo+PiBrdm1fc3Rl
-YWxfdGltZV9zZXRfcHJlZW1wdGVkIGluIGRlc3RpbmF0aW9uLiBUaGVyZSBhcmUgb3Bwb3NpdGUK
-Pj4gcHJvYmFiaWxpdGllcyBvZiByZXByb2R1Y2luZyB0aGlzIHdpdGggc3dhcHBpbmcgdnMgcG9z
-dGNvcHkgbGl2ZQo+PiBtaWdyYXRpb24uCj4+Cj4gCj4gR29vZCBhbmFseXplLiA6KQo+IAo+PiBG
-b3Igbm93IEkgYXBwbGllZCB0aGUgYmVsb3cgdHdvIHBhdGNoZXMsIGJ1dCB0aGlzIGp1c3Qgd2ls
-bCBza2lwIHRoZQo+PiB3cml0ZSBhbmQgb25seSBwcmV2ZW50IHRoZSBob3N0IGluc3RhYmlsaXR5
-IGFzIG5vYm9keSBjaGVja3MgdGhlCj4+IHJldHZhbCBvZiBfX2NvcHlfdG9fdXNlciAod2hhdCBo
-YXBwZW5zIHRvIGd1ZXN0IGFmdGVyIHRoZSB3cml0ZSBpcwo+PiBza2lwcGVkIGlzIG5vdCBhcyBj
-bGVhciBhbmQgc2hvdWxkIGJlIGludmVzdGlnYXRlZCwgYnV0IGF0IGxlYXN0IHRoZQo+PiBob3N0
-IHdpbGwgc3Vydml2ZSBhbmQgbm90IGFsbCBndWVzdHMgd2lsbCBjYXJlIGFib3V0IHRoaXMgZmxh
-ZyBiZWluZwo+PiB1cGRhdGVkKS4gRm9yIHRoaXMgdG8gYmUgZnVsbHkgc2FmZSB0aGUgcHJlZW1w
-dGVkIGluZm9ybWF0aW9uIHNob3VsZAo+PiBiZSBqdXN0IGFuIGhpbnQgYW5kIG5vdCBmdW5kYW1l
-bnRhbCBmb3IgY29ycmVjdCBmdW5jdGlvbmFsaXR5IG9mIHRoZQo+PiBndWVzdCBwdiBzcGlubG9j
-ayBjb2RlLgo+Pgo+PiBUaGlzIGJ1ZyB3YXMgaW50cm9kdWNlZCBpbiBjb21taXQKPj4gMGI5ZjZj
-NDYxNWM5OTNkMmI1NTJlMGQyYmQxYWRlNDliNTZlNWJlYiBpbiB2NC45LXJjNy4KPj4KPj4gRnJv
-bSA0NTg4OTdmZDQ0YWE5YjkxNDU5YTAwNmNhYTQwNTFhN2QxNjI4YTIzIE1vbiBTZXAgMTcgMDA6
-MDA6MDAgMjAwMQo+PiBGcm9tOiBBbmRyZWEgQXJjYW5nZWxpIDxhYXJjYW5nZUByZWRoYXQuY29t
-Pgo+PiBEYXRlOiBTYXQsIDE3IERlYyAyMDE2IDE4OjQzOjUyICswMTAwCj4+IFN1YmplY3Q6IFtQ
-QVRDSCAxLzJdIGt2bTogZml4IHNjaGVkdWxlIGluIGF0b21pYyBpbgo+PiAga3ZtX3N0ZWFsX3Rp
-bWVfc2V0X3ByZWVtcHRlZCgpCj4+Cj4+IGt2bV9zdGVhbF90aW1lX3NldF9wcmVlbXB0ZWQoKSBp
-c24ndCBkaXNhYmxpbmcgdGhlIHBhZ2VmYXVsdHMgYmVmb3JlCj4+IGNhbGxpbmcgX19jb3B5X3Rv
-X3VzZXIgYW5kIHRoZSBrZXJuZWwgZGVidWcgbm90aWNlcy4KPj4KPj4gU2lnbmVkLW9mZi1ieTog
-QW5kcmVhIEFyY2FuZ2VsaSA8YWFyY2FuZ2VAcmVkaGF0LmNvbT4KPj4gLS0tCj4+ICBhcmNoL3g4
-Ni9rdm0veDg2LmMgfCAxMCArKysrKysrKysrCj4+ICAxIGZpbGUgY2hhbmdlZCwgMTAgaW5zZXJ0
-aW9ucygrKQo+Pgo+PiBkaWZmIC0tZ2l0IGEvYXJjaC94ODYva3ZtL3g4Ni5jIGIvYXJjaC94ODYv
-a3ZtL3g4Ni5jCj4+IGluZGV4IDFmMGQyMzguLjJkYWJhZWIgMTAwNjQ0Cj4+IC0tLSBhL2FyY2gv
-eDg2L2t2bS94ODYuYwo+PiArKysgYi9hcmNoL3g4Ni9rdm0veDg2LmMKPj4gQEAgLTI4NDQsNyAr
-Mjg0NCwxNyBAQCBzdGF0aWMgdm9pZCBrdm1fc3RlYWxfdGltZV9zZXRfcHJlZW1wdGVkKHN0cnVj
-dAo+PiBrdm1fdmNwdSAqdmNwdSkKPj4KPj4gIHZvaWQga3ZtX2FyY2hfdmNwdV9wdXQoc3RydWN0
-IGt2bV92Y3B1ICp2Y3B1KQo+PiAgewo+PiArICAgIC8qCj4+ICsgICAgICogRGlzYWJsZSBwYWdl
-IGZhdWx0cyBiZWNhdXNlIHdlJ3JlIGluIGF0b21pYyBjb250ZXh0IGhlcmUuCj4+ICsgICAgICog
-a3ZtX3dyaXRlX2d1ZXN0X29mZnNldF9jYWNoZWQoKSB3b3VsZCBjYWxsIG1pZ2h0X2ZhdWx0KCkK
-Pj4gKyAgICAgKiB0aGF0IHJlbGllcyBvbiBwYWdlZmF1bHRfZGlzYWJsZSgpIHRvIHRlbGwgaWYg
-dGhlcmUncyBhCj4+ICsgICAgICogYnVnLiBOT1RFOiB0aGUgd3JpdGUgdG8gZ3Vlc3QgbWVtb3J5
-IG1heSBub3QgZ28gdGhyb3VnaCBpZgo+PiArICAgICAqIGR1cmluZyBwb3N0Y29weSBsaXZlIG1p
-Z3JhdGlvbiBvciBpZiB0aGVyZSdzIGhlYXZ5IGd1ZXN0Cj4+ICsgICAgICogcGFnaW5nLgo+PiAr
-ICAgICAqLwo+PiArICAgIHBhZ2VmYXVsdF9kaXNhYmxlKCk7Cj4+ICAgICAga3ZtX3N0ZWFsX3Rp
-bWVfc2V0X3ByZWVtcHRlZCh2Y3B1KTsKPj4gKyAgICBwYWdlZmF1bHRfZW5hYmxlKCk7Cj4gY2Fu
-IHdlIGp1c3QgYWRkIHRoaXM/Cj4gSSB0aGluayBpdCBpcyBiZXR0ZXIgdG8gbW9kaWZ5IGt2bV9z
-dGVhbF90aW1lX3NldF9wcmVlbXB0ZWQoKSBhbmQgbGV0IGl0Cj4gcnVuIGNvcnJlY3RseSBpbiBh
-dG9taWMgY29udGV4dC4KPiAKPiB0aGFua3MKPiB4aW5odWkKPiAKPj4gICAgICBrdm1feDg2X29w
-cy0+dmNwdV9wdXQodmNwdSk7Cj4+ICAgICAga3ZtX3B1dF9ndWVzdF9mcHUodmNwdSk7Cj4+ICAg
-ICAgdmNwdS0+YXJjaC5sYXN0X2hvc3RfdHNjID0gcmR0c2MoKTsKPj4KPj4KPj4gRnJvbSAyODQ1
-ZWJhMjJhYzc0YzVlMzEzZTNiNTkwZjlkYWMzM2UxYjNjZmVmIE1vbiBTZXAgMTcgMDA6MDA6MDAg
-MjAwMQo+PiBGcm9tOiBBbmRyZWEgQXJjYW5nZWxpIDxhYXJjYW5nZUByZWRoYXQuY29tPgo+PiBE
-YXRlOiBTYXQsIDE3IERlYyAyMDE2IDE5OjEzOjMyICswMTAwCj4+IFN1YmplY3Q6IFtQQVRDSCAy
-LzJdIGt2bTogdGFrZSBzcmN1IGxvY2sgYXJvdW5kCj4+IGt2bV9zdGVhbF90aW1lX3NldF9wcmVl
-bXB0ZWQoKQo+Pgo+PiBrdm1fbWVtc2xvdHMoKSB3aWxsIGJlIGNhbGxlZCBieSBrdm1fd3JpdGVf
-Z3Vlc3Rfb2Zmc2V0X2NhY2hlZCgpIHNvCj4+IHRha2UgdGhlIHNyY3UgbG9jay4KPj4KPj4gU2ln
-bmVkLW9mZi1ieTogQW5kcmVhIEFyY2FuZ2VsaSA8YWFyY2FuZ2VAcmVkaGF0LmNvbT4KPj4gLS0t
-Cj4+ICBhcmNoL3g4Ni9rdm0veDg2LmMgfCA3ICsrKysrKysKPj4gIDEgZmlsZSBjaGFuZ2VkLCA3
-IGluc2VydGlvbnMoKykKPj4KPj4gZGlmZiAtLWdpdCBhL2FyY2gveDg2L2t2bS94ODYuYyBiL2Fy
-Y2gveDg2L2t2bS94ODYuYwo+PiBpbmRleCAyZGFiYWViLi4wMmU2YWI0IDEwMDY0NAo+PiAtLS0g
-YS9hcmNoL3g4Ni9rdm0veDg2LmMKPj4gKysrIGIvYXJjaC94ODYva3ZtL3g4Ni5jCj4+IEBAIC0y
-ODQ0LDYgKzI4NDQsNyBAQCBzdGF0aWMgdm9pZCBrdm1fc3RlYWxfdGltZV9zZXRfcHJlZW1wdGVk
-KHN0cnVjdAo+PiBrdm1fdmNwdSAqdmNwdSkKPj4KPj4gIHZvaWQga3ZtX2FyY2hfdmNwdV9wdXQo
-c3RydWN0IGt2bV92Y3B1ICp2Y3B1KQo+PiAgewo+PiArICAgIGludCBpZHg7Cj4+ICAgICAgLyoK
-Pj4gICAgICAgKiBEaXNhYmxlIHBhZ2UgZmF1bHRzIGJlY2F1c2Ugd2UncmUgaW4gYXRvbWljIGNv
-bnRleHQgaGVyZS4KPj4gICAgICAgKiBrdm1fd3JpdGVfZ3Vlc3Rfb2Zmc2V0X2NhY2hlZCgpIHdv
-dWxkIGNhbGwgbWlnaHRfZmF1bHQoKQo+PiBAQCAtMjg1Myw3ICsyODU0LDEzIEBAIHZvaWQga3Zt
-X2FyY2hfdmNwdV9wdXQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1KQo+PiAgICAgICAqIHBhZ2luZy4K
-Pj4gICAgICAgKi8KPj4gICAgICBwYWdlZmF1bHRfZGlzYWJsZSgpOwo+PiArICAgIC8qCj4+ICsg
-ICAgICoga3ZtX21lbXNsb3RzKCkgd2lsbCBiZSBjYWxsZWQgYnkKPj4gKyAgICAgKiBrdm1fd3Jp
-dGVfZ3Vlc3Rfb2Zmc2V0X2NhY2hlZCgpIHNvIHRha2UgdGhlIHNyY3UgbG9jay4KPj4gKyAgICAg
-Ki8KPj4gKyAgICBpZHggPSBzcmN1X3JlYWRfbG9jaygmdmNwdS0+a3ZtLT5zcmN1KTsKPj4gICAg
-ICBrdm1fc3RlYWxfdGltZV9zZXRfcHJlZW1wdGVkKHZjcHUpOwo+PiArICAgIHNyY3VfcmVhZF91
-bmxvY2soJnZjcHUtPmt2bS0+c3JjdSwgaWR4KTsKPj4gICAgICBwYWdlZmF1bHRfZW5hYmxlKCk7
-Cj4+ICAgICAga3ZtX3g4Nl9vcHMtPnZjcHVfcHV0KHZjcHUpOwo+PiAgICAgIGt2bV9wdXRfZ3Vl
-c3RfZnB1KHZjcHUpOwo+Pgo+Pgo+IApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
-bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
-b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Booting Linux on an ARM fastmodel containing an SMMU emulation results
+in an unexpected I/O page fault from the legacy virtio-blk PCI device:
+
+[    1.211721] arm-smmu-v3 2b400000.smmu: event 0x10 received:
+[    1.211800] arm-smmu-v3 2b400000.smmu:	0x00000000fffff010
+[    1.211880] arm-smmu-v3 2b400000.smmu:	0x0000020800000000
+[    1.211959] arm-smmu-v3 2b400000.smmu:	0x00000008fa081002
+[    1.212075] arm-smmu-v3 2b400000.smmu:	0x0000000000000000
+[    1.212155] arm-smmu-v3 2b400000.smmu: event 0x10 received:
+[    1.212234] arm-smmu-v3 2b400000.smmu:	0x00000000fffff010
+[    1.212314] arm-smmu-v3 2b400000.smmu:	0x0000020800000000
+[    1.212394] arm-smmu-v3 2b400000.smmu:	0x00000008fa081000
+[    1.212471] arm-smmu-v3 2b400000.smmu:	0x0000000000000000
+
+<system hangs failing to read partition table>
+
+This is because the virtio-blk is behind an SMMU, so we have consequently
+swizzled its DMA ops and configured the SMMU to translate accesses. This
+then requires the vring code to use the DMA API to establish translations,
+otherwise all transactions will result in fatal faults and termination.
+
+Given that ARM-based systems only see an SMMU if one is really present
+(the topology is all described by firmware tables such as device-tree or
+IORT), then we can safely use the DMA API for all virtio devices.
+
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+---
+ drivers/virtio/virtio_ring.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index ed9c9eeedfe5..06b91e29d1b7 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -159,6 +159,10 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
+ 	if (xen_domain())
+ 		return true;
+ 
++	/* On ARM-based machines, the DMA ops will do the right thing */
++	if (IS_ENABLED(CONFIG_ARM) || IS_ENABLED(CONFIG_ARM64))
++		return true;
++
+ 	return false;
+ }
+ 
+-- 
+2.1.4
