@@ -1,7 +1,7 @@
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+From: Marc Zyngier <marc.zyngier@arm.com>
 Subject: Re: [RFC PATCH] vring: Force use of DMA API for ARM-based systems
-Date: Fri, 6 Jan 2017 17:48:33 +0000
-Message-ID: <0b9a1f70-58fe-69c2-87db-d7773cb6a68c@arm.com>
+Date: Tue, 20 Dec 2016 16:50:22 +0000
+Message-ID: <ed400fb2-6f92-a343-8b7b-0cb4254802c3__39600.2958449118$1483728374$gmane$org@arm.com>
 References: <1482246864-16399-1-git-send-email-will.deacon@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,8 +20,6 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org
 Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Andy Lutomirski <luto@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
-
-Hi Will,
 
 On 20/12/16 15:14, Will Deacon wrote:
 > Booting Linux on an ARM fastmodel containing an SMMU emulation results
@@ -48,41 +46,7 @@ On 20/12/16 15:14, Will Deacon wrote:
 > Given that ARM-based systems only see an SMMU if one is really present
 > (the topology is all described by firmware tables such as device-tree or
 > IORT), then we can safely use the DMA API for all virtio devices.
-
-There is a problem with the platform block device on that same model.
-Since it's not behind the SMMU, the DMA ops fall back to swiotlb, which
-limits the number of mappings.
-
-It used to work with 4.9, but since 9491ae4 ("mm: don't cap request size
-based on read-ahead setting") unlocked read-ahead, we quickly run into
-the limit of swiotlb and panic:
-
-[    5.382359] virtio-mmio 1c130000.virtio_block: swiotlb buffer is full
-(sz: 491520 bytes)
-[    5.382452] virtio-mmio 1c130000.virtio_block: DMA: Out of SW-IOMMU
-space for 491520 bytes
-[    5.382531] Kernel panic - not syncing: DMA: Random memory could be
-DMA written
-...
-[    5.383148] [<ffff0000083ad754>] swiotlb_map_page+0x194/0x1a0
-[    5.383226] [<ffff000008096bb8>] __swiotlb_map_page+0x20/0x88
-[    5.383320] [<ffff0000084bf738>] vring_map_one_sg.isra.1+0x70/0x88
-[    5.383417] [<ffff0000084c04fc>] virtqueue_add_sgs+0x2ec/0x4e8
-[    5.383505] [<ffff00000856d99c>] __virtblk_add_req+0x9c/0x1a8
-...
-[    5.384449] [<ffff0000081829c4>] ondemand_readahead+0xfc/0x2b8
-
-Commit 9491ae4 caps the read-ahead request to a limit set by the backing
-device. For virtio-blk, it is infinite (as set by the call to
-blk_queue_max_hw_sectors in virtblk_probe).
-
-I'm not sure how to fix this. Setting an arbitrary sector limit in the
-virtio-blk driver seems unfair to other users. Maybe we should check if
-the device is behind a hardware IOMMU before using the DMA API?
-
-Thanks,
-Jean-Philippe
-
+> 
 > Cc: Andy Lutomirski <luto@kernel.org>
 > Cc: Michael S. Tsirkin <mst@redhat.com>
 > Signed-off-by: Will Deacon <will.deacon@arm.com>
@@ -106,3 +70,11 @@ Jean-Philippe
 >  }
 >  
 > 
+
+This patch makes my model usable again, so FWIW:
+
+Acked-by: Marc Zyngier <marc.zyngier@arm.com>
+
+	M.
+-- 
+Jazz is not dead. It just smells funny...
