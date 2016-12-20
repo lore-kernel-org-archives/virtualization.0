@@ -1,11 +1,13 @@
-From: Will Deacon <will.deacon@arm.com>
-Subject: [RFC PATCH] vring: Force use of DMA API for ARM-based systems
-Date: Tue, 20 Dec 2016 15:14:24 +0000
-Message-ID: <1482246864-16399-1-git-send-email-will.deacon@arm.com>
+From: Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH] drm/ttm: use designated initializers
+Date: Tue, 20 Dec 2016 11:55:38 -0800
+Message-ID: <CAGXu5jKdVnho0vEgLHOCCoQZAKu4fm600ZzuSSyyiDLsuvgc2A@mail.gmail.com>
+References: <20161217005929.GA140260@beast>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20161217005929.GA140260@beast>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,56 +17,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: Andy Lutomirski <luto@kernel.org>, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Alexander Stein <alexander.stein@systec-electronic.com>
+Cc: David Airlie <airlied@linux.ie>, LKML <linux-kernel@vger.kernel.org>, Maling list - DRI developers <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Booting Linux on an ARM fastmodel containing an SMMU emulation results
-in an unexpected I/O page fault from the legacy virtio-blk PCI device:
+On Sun, Dec 18, 2016 at 10:53 PM, Alexander Stein
+<alexander.stein@systec-electronic.com> wrote:
+> Hello Kees,
+>
+> While understanding what your patches (I've seen the other ones as well) do
+> themself, I still don't get what your intention is, e.g. why you need this?
+> Apart from a better readability.
+>
+> On Friday 16 December 2016 16:59:29, Kees Cook wrote:
+>> Prepare to mark sensitive kernel structures for randomization by making
+>> sure they're using designated initializers.
+>
+> Can you please elaborate what you mean with that sentence?
 
-[    1.211721] arm-smmu-v3 2b400000.smmu: event 0x10 received:
-[    1.211800] arm-smmu-v3 2b400000.smmu:	0x00000000fffff010
-[    1.211880] arm-smmu-v3 2b400000.smmu:	0x0000020800000000
-[    1.211959] arm-smmu-v3 2b400000.smmu:	0x00000008fa081002
-[    1.212075] arm-smmu-v3 2b400000.smmu:	0x0000000000000000
-[    1.212155] arm-smmu-v3 2b400000.smmu: event 0x10 received:
-[    1.212234] arm-smmu-v3 2b400000.smmu:	0x00000000fffff010
-[    1.212314] arm-smmu-v3 2b400000.smmu:	0x0000020800000000
-[    1.212394] arm-smmu-v3 2b400000.smmu:	0x00000008fa081000
-[    1.212471] arm-smmu-v3 2b400000.smmu:	0x0000000000000000
+Hi! Sure: the coming (and optional) gcc plugin "randstruct" performs
+structure layout randomization, which means that static initializers
+cannot be "ordered" (they must be "designated"), since the place were
+layout randomization occurs happens separate from how static
+initializers are applied.
 
-<system hangs failing to read partition table>
+This change from ordered to designated is just to help the compiler do
+the right thing.
 
-This is because the virtio-blk is behind an SMMU, so we have consequently
-swizzled its DMA ops and configured the SMMU to translate accesses. This
-then requires the vring code to use the DMA API to establish translations,
-otherwise all transactions will result in fatal faults and termination.
+-Kees
 
-Given that ARM-based systems only see an SMMU if one is really present
-(the topology is all described by firmware tables such as device-tree or
-IORT), then we can safely use the DMA API for all virtio devices.
-
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
----
- drivers/virtio/virtio_ring.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index ed9c9eeedfe5..06b91e29d1b7 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -159,6 +159,10 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
- 	if (xen_domain())
- 		return true;
- 
-+	/* On ARM-based machines, the DMA ops will do the right thing */
-+	if (IS_ENABLED(CONFIG_ARM) || IS_ENABLED(CONFIG_ARM64))
-+		return true;
-+
- 	return false;
- }
- 
 -- 
-2.1.4
+Kees Cook
+Nexus Security
