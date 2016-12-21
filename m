@@ -1,13 +1,12 @@
-From: Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH] drm/ttm: use designated initializers
-Date: Tue, 20 Dec 2016 11:55:38 -0800
-Message-ID: <CAGXu5jKdVnho0vEgLHOCCoQZAKu4fm600ZzuSSyyiDLsuvgc2A@mail.gmail.com>
-References: <20161217005929.GA140260@beast>
+From: Liang Li <liang.z.li@intel.com>
+Subject: [PATCH v6 kernel 0/5] Extend virtio-balloon for fast (de)inflating &
+	fast live migration
+Date: Wed, 21 Dec 2016 14:52:23 +0800
+Message-ID: <1482303148-22059-1-git-send-email-liang.z.li@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161217005929.GA140260@beast>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,35 +16,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alexander Stein <alexander.stein@systec-electronic.com>
-Cc: David Airlie <airlied@linux.ie>, LKML <linux-kernel@vger.kernel.org>, Maling list - DRI developers <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: kvm@vger.kernel.org
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, dave.hansen@intel.com, linux-kernel@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, amit.shah@redhat.com, pbonzini@redhat.com, Liang Li <liang.z.li@intel.com>, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Dec 18, 2016 at 10:53 PM, Alexander Stein
-<alexander.stein@systec-electronic.com> wrote:
-> Hello Kees,
->
-> While understanding what your patches (I've seen the other ones as well) do
-> themself, I still don't get what your intention is, e.g. why you need this?
-> Apart from a better readability.
->
-> On Friday 16 December 2016 16:59:29, Kees Cook wrote:
->> Prepare to mark sensitive kernel structures for randomization by making
->> sure they're using designated initializers.
->
-> Can you please elaborate what you mean with that sentence?
+This patch set contains two parts of changes to the virtio-balloon.
+ 
+One is the change for speeding up the inflating & deflating process,
+the main idea of this optimization is to use {pfn|length} to present
+the page information instead of the PFNs, to reduce the overhead of
+virtio data transmission, address translation and madvise(). This can
+help to improve the performance by about 85%.
+ 
+Another change is for speeding up live migration. By skipping process
+guest's unused pages in the first round of data copy, to reduce needless
+data processing, this can help to save quite a lot of CPU cycles and
+network bandwidth. We put guest's unused page information in a
+{pfn|length} array and send it to host with the virt queue of
+virtio-balloon. For an idle guest with 8GB RAM, this can help to shorten
+the total live migration time from 2Sec to about 500ms in 10Gbps network
+environment. For an guest with quite a lot of page cache and with little
+unused pages, it's possible to let the guest drop it's page cache before
+live migration, this case can benefit from this new feature too.
+ 
+Changes from v5 to v6:
+    * Drop the bitmap from the virtio ABI, use {pfn|length} only.
+    * Enhance the API to get the unused page information from mm. 
 
-Hi! Sure: the coming (and optional) gcc plugin "randstruct" performs
-structure layout randomization, which means that static initializers
-cannot be "ordered" (they must be "designated"), since the place were
-layout randomization occurs happens separate from how static
-initializers are applied.
+Changes from v4 to v5:
+    * Drop the code to get the max_pfn, use another way instead.
+    * Simplify the API to get the unused page information from mm. 
 
-This change from ordered to designated is just to help the compiler do
-the right thing.
+Changes from v3 to v4:
+    * Use the new scheme suggested by Dave Hansen to encode the bitmap.
+    * Add code which is missed in v3 to handle migrate page. 
+    * Free the memory for bitmap intime once the operation is done.
+    * Address some of the comments in v3.
 
--Kees
+Changes from v2 to v3:
+    * Change the name of 'free page' to 'unused page'.
+    * Use the scatter & gather bitmap instead of a 1MB page bitmap.
+    * Fix overwriting the page bitmap after kicking.
+    * Some of MST's comments for v2.
+ 
+Changes from v1 to v2:
+    * Abandon the patch for dropping page cache.
+    * Put some structures to uapi head file.
+    * Use a new way to determine the page bitmap size.
+    * Use a unified way to send the free page information with the bitmap
+    * Address the issues referred in MST's comments
+
+Liang Li (5):
+  virtio-balloon: rework deflate to add page to a list
+  virtio-balloon: define new feature bit and head struct
+  virtio-balloon: speed up inflate/deflate process
+  virtio-balloon: define flags and head for host request vq
+  virtio-balloon: tell host vm's unused page info
+
+ drivers/virtio/virtio_balloon.c     | 510 ++++++++++++++++++++++++++++++++----
+ include/linux/mm.h                  |   3 +
+ include/uapi/linux/virtio_balloon.h |  34 +++
+ mm/page_alloc.c                     | 120 +++++++++
+ 4 files changed, 621 insertions(+), 46 deletions(-)
 
 -- 
-Kees Cook
-Nexus Security
+1.9.1
