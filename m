@@ -1,13 +1,13 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net 0/9] several fixups for virtio-net XDP
-Date: Fri, 23 Dec 2016 13:49:11 -0500 (EST)
-Message-ID: <20161223.134911.389678142108691826.davem@davemloft.net>
-References: <1482503852-12438-1-git-send-email-jasowang@redhat.com>
+From: John Fastabend <john.fastabend@gmail.com>
+Subject: Re: [RFC PATCH] virtio_net: XDP support for adjust_head
+Date: Fri, 23 Dec 2016 13:46:54 -0800
+Message-ID: <585D9B4E.8080209@gmail.com>
+References: <20161223184301.26974.68383.stgit@john-Precision-Tower-5810>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1482503852-12438-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20161223184301.26974.68383.stgit@john-Precision-Tower-5810>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,25 +17,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: john.r.fastabend@intel.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
+To: jasowang@redhat.com, jakub.kicinski@netronome.com, mst@redhat.com
+Cc: john.r.fastabend@intel.com, netdev@vger.kernel.org, alexei.starovoitov@gmail.com, daniel@iogearbox.net, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 23 Dec 2016 22:37:23 +0800
+On 16-12-23 10:43 AM, John Fastabend wrote:
+> Add support for XDP adjust head by allocating a 256B header region
+> that XDP programs can grow into. This is only enabled when a XDP
+> program is loaded.
+> 
+> In order to ensure that we do not have to unwind queue headroom push
+> queue setup below bpf_prog_add. It reads better to do a prog ref
+> unwind vs another queue setup call.
+> 
+> TBD merge with Jason Wang's fixes, do a bit more testing, note
+>     big_packet support is removed by Jason as well.
+> 
+> Signed-off-by: John Fastabend <john.r.fastabend@intel.com>
+> ---
+>  drivers/net/virtio_net.c |   53 +++++++++++++++++++++++++++++++---------------
+>  1 file changed, 36 insertions(+), 17 deletions(-)
+> 
 
-> Merry Xmas and a Happy New year to all:
-> 
-> This series tries to fixes several issues for virtio-net XDP which
-> could be categorized into several parts:
-> 
-> - fix several issues during XDP linearizing
-> - allow csumed packet to work for XDP_PASS
-> - make EWMA rxbuf size estimation works for XDP
-> - forbid XDP when GUEST_UFO is support
-> - remove big packet XDP support
-> - add XDP support or small buffer
-> 
-> Please see individual patches for details.
+ah dang, I sent this from the wrong tree so it was missing a fix sorry
+for the noise. I'll send an update on top of net shortly.
 
-Series applied, thanks Jason.
+.John
