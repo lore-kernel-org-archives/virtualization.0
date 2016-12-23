@@ -1,11 +1,15 @@
-From: Shyam Saini <mayhs11saini@gmail.com>
-Subject: [PATCH] net: Use kmemdup instead of kmalloc and memcpy
-Date: Sat, 24 Dec 2016 00:44:58 +0530
-Message-ID: <1482520498-28259-1-git-send-email-mayhs11saini__6679.73044696755$1483728387$gmane$org@gmail.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
+Subject: Re: [PATCH net 1/9] virtio-net: remove the warning before XDP
+	linearizing
+Date: Fri, 23 Dec 2016 20:31:53 +0100
+Message-ID: <585D7BA9.50509__39949.710496194$1483728398$gmane$org@iogearbox.net>
+References: <1482503852-12438-1-git-send-email-jasowang@redhat.com>
+	<1482503852-12438-2-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1482503852-12438-2-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,34 +19,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: netdev@vger.kernel.org, Shyam Saini <mayhs11saini@gmail.com>, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: john.r.fastabend@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-when some other buffer is immediately copied into allocated region.
-Replace calls to kmalloc followed by a memcpy with a direct
-call to kmemdup.
+Hi Jason,
 
-Signed-off-by: Shyam Saini <mayhs11saini@gmail.com>
----
- drivers/net/virtio_net.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+On 12/23/2016 03:37 PM, Jason Wang wrote:
+> Since we use EWMA to estimate the size of rx buffer. When rx buffer
+> size is underestimated, it's usual to have a packet with more than one
+> buffers. Consider this is not a bug, remove the warning and correct
+> the comment before XDP linearizing.
+>
+> Cc: John Fastabend <john.r.fastabend@intel.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>   drivers/net/virtio_net.c | 8 +-------
+>   1 file changed, 1 insertion(+), 7 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 08327e0..1067253 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -552,14 +552,8 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+>   		struct page *xdp_page;
+>   		u32 act;
+>
+> -		/* No known backend devices should send packets with
+> -		 * more than a single buffer when XDP conditions are
+> -		 * met. However it is not strictly illegal so the case
+> -		 * is handled as an exception and a warning is thrown.
+> -		 */
+> +		/* This happens when rx buffer size is underestimated */
+>   		if (unlikely(num_buf > 1)) {
+> -			bpf_warn_invalid_xdp_buffer();
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index ba1aa24..dde4bc4 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1206,10 +1206,9 @@ static int virtnet_set_mac_address(struct net_device *dev, void *p)
- 	struct sockaddr *addr;
- 	struct scatterlist sg;
- 
--	addr = kmalloc(sizeof(*addr), GFP_KERNEL);
-+	addr = kmemdup(p, sizeof(*addr), GFP_KERNEL);
- 	if (!addr)
- 		return -ENOMEM;
--	memcpy(addr, p, sizeof(*addr));
- 
- 	ret = eth_prepare_mac_addr_change(dev, addr);
- 	if (ret)
--- 
-2.7.4
+Could you also remove the bpf_warn_invalid_xdp_buffer(), which got added
+just for this?
+
+Thanks.
+
+>   			/* linearize data for XDP */
+>   			xdp_page = xdp_linearize_page(rq, num_buf,
+>   						      page, offset, &len);
+>
