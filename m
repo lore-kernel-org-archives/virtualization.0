@@ -1,14 +1,11 @@
-From: Luca Coelho <luca@coelho.fi>
-Subject: Re: [PATCH 5/8] linux: drop __bitwise__ everywhere
-Date: Mon, 19 Dec 2016 11:09:28 +0200
-Message-ID: <1482138568.26174.8.camel__44886.9113497951$1483728378$gmane$org@coelho.fi>
-References: <1481778865-27667-1-git-send-email-mst@redhat.com>
-	<1481778865-27667-6-git-send-email-mst@redhat.com>
+From: Shyam Saini <mayhs11saini@gmail.com>
+Subject: [PATCH] net: Use kmemdup instead of kmalloc and memcpy
+Date: Sat, 24 Dec 2016 00:44:58 +0530
+Message-ID: <1482520498-28259-1-git-send-email-mayhs11saini__6679.73044696755$1483728387$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1481778865-27667-6-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,27 +15,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Emmanuel Grumbach <emmanuel.grumbach@intel.com>, Mike Snitzer <snitzer@redhat.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, dm-devel@redhat.com, target-devel@vger.kernel.org, Alasdair Kergon <agk@redhat.com>, linux-samsung-soc@vger.kernel.org, "James E.J.
-	Bottomley" <jejb@linux.vnet.ibm.com>, linux-scsi@vger.kernel.org, Stefan Schmidt <stefan@osg.samsung.com>, Russell King <linux@armlinux.org.uk>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Kukjin Kim <kgene@kernel.org>, linux-arm-kernel@lists.infradead.org, Jiri Slaby <jslaby@suse.com>, open-iscsi@googlegroups.com, Shaohua Li <shli@kernel.org>, Johannes Berg <johannes.berg@intel.com>, Intel Linux Wireless <linuxwifi@intel.com>, Alexander Aring <aar@pengutronix.de>, linux-raid@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>, Chris Leech <cleech@re>
+To: mst@redhat.com
+Cc: netdev@vger.kernel.org, Shyam Saini <mayhs11saini@gmail.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2016-12-15 at 07:15 +0200, Michael S. Tsirkin wrote:
-> __bitwise__ used to mean "yes, please enable sparse checks
-> unconditionally", but now that we dropped __CHECK_ENDIAN__
-> __bitwise is exactly the same.
-> There aren't many users, replace it by __bitwise everywhere.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  arch/arm/plat-samsung/include/plat/gpio-cfg.h    | 2 +-
->  drivers/md/dm-cache-block-types.h                | 6 +++---
->  drivers/net/ethernet/sun/sunhme.h                | 2 +-
->  drivers/net/wireless/intel/iwlwifi/iwl-fw-file.h | 4 ++--
+when some other buffer is immediately copied into allocated region.
+Replace calls to kmalloc followed by a memcpy with a direct
+call to kmemdup.
 
-For drivers/net/wireless/intel/iwlwifi/iwl-fw-file.h:
+Signed-off-by: Shyam Saini <mayhs11saini@gmail.com>
+---
+ drivers/net/virtio_net.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Acked-by: Luca Coelho <luciano.coelho@intel.com>
-
---
-Luca.
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index ba1aa24..dde4bc4 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1206,10 +1206,9 @@ static int virtnet_set_mac_address(struct net_device *dev, void *p)
+ 	struct sockaddr *addr;
+ 	struct scatterlist sg;
+ 
+-	addr = kmalloc(sizeof(*addr), GFP_KERNEL);
++	addr = kmemdup(p, sizeof(*addr), GFP_KERNEL);
+ 	if (!addr)
+ 		return -ENOMEM;
+-	memcpy(addr, p, sizeof(*addr));
+ 
+ 	ret = eth_prepare_mac_addr_change(dev, addr);
+ 	if (ret)
+-- 
+2.7.4
