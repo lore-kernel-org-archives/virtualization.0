@@ -1,15 +1,11 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next V2 3/3] tun: rx batching
-Date: Fri, 30 Dec 2016 13:14:33 +0800
-Message-ID: <d7d1378d-2051-d962-8001-d63085c3e1bc__15894.840428564$1483074893$gmane$org@redhat.com>
-References: <1482912571-3157-1-git-send-email-jasowang@redhat.com>
-	<1482912571-3157-4-git-send-email-jasowang@redhat.com>
-	<20161229.113506.1833529555874695164.davem@davemloft.net>
+Subject: [PATCH net-next V3 0/3] vhost_net tx batching
+Date: Fri, 30 Dec 2016 13:20:48 +0800
+Message-ID: <1483075251-6889-1-git-send-email-jasowang__6823.91531668163$1483075270$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161229.113506.1833529555874695164.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,22 +15,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE25bm0MTLmnIgzMOaXpSAwMDozNSwgRGF2aWQgTWlsbGVyIHdyb3RlOgo+IEZyb206
-IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4gRGF0ZTogV2VkLCAyOCBEZWMgMjAx
-NiAxNjowOTozMSArMDgwMAo+Cj4+ICsJc3Bpbl9sb2NrKCZxdWV1ZS0+bG9jayk7Cj4+ICsJcWxl
-biA9IHNrYl9xdWV1ZV9sZW4ocXVldWUpOwo+PiArCWlmIChxbGVuID4gcnhfYmF0Y2hlZCkKPj4g
-KwkJZ290byBkcm9wOwo+PiArCV9fc2tiX3F1ZXVlX3RhaWwocXVldWUsIHNrYik7Cj4+ICsJaWYg
-KCFtb3JlIHx8IHFsZW4gKyAxID4gcnhfYmF0Y2hlZCkgewo+PiArCQlfX3NrYl9xdWV1ZV9oZWFk
-X2luaXQoJnByb2Nlc3NfcXVldWUpOwo+PiArCQlza2JfcXVldWVfc3BsaWNlX3RhaWxfaW5pdChx
-dWV1ZSwgJnByb2Nlc3NfcXVldWUpOwo+PiArCQlyY3YgPSB0cnVlOwo+PiArCX0KPj4gKwlzcGlu
-X3VubG9jaygmcXVldWUtPmxvY2spOwo+IFNpbmNlIHlvdSBhbHdheXMgY2xlYXIgdGhlICdxdWV1
-ZScgd2hlbiB5b3UgaW5zZXJ0IHRoZSBza2IgdGhhdCBoaXRzCj4gdGhlIGxpbWl0LCBJIGRvbid0
-IHNlZSBob3cgdGhlICJnb3RvIGRyb3AiIHBhdGggY2FuIGJlIHBvc3NpYmx5IHRha2VuLgoKVHJ1
-ZSwgd2lsbCBmaXggdGhpcy4KClRoYW5rcwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
-b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Hi:
+
+This series tries to implement tx batching support for vhost. This was
+done by using MSG_MORE as a hint for under layer socket. The backend
+(e.g tap) can then batch the packets temporarily in a list and
+submit it all once the number of bacthed exceeds a limitation.
+
+Tests shows obvious improvement on guest pktgen over over
+mlx4(noqueue) on host:
+
+                    Mpps  -+%
+        rx_batched=0  0.90  +0%
+        rx_batched=4  0.97  +7.8%
+        rx_batched=8  0.97  +7.8%
+        rx_batched=16 0.98  +8.9%
+        rx_batched=32 1.03  +14.4%
+        rx_batched=48 1.09  +21.1%
+        rx_batched=64 1.02  +13.3%
+
+Changes from V2:
+- remove uselss queue limitation check (and we don't drop any packet now)
+
+Changes from V1:
+- drop NAPI handler since we don't use NAPI now
+- fix the issues that may exceeds max pending of zerocopy
+- more improvement on available buffer detection
+- move the limitation of batched pacekts from vhost to tuntap
+
+Please review.
+
+Thanks
+
+Jason Wang (3):
+  vhost: better detection of available buffers
+  vhost_net: tx batching
+  tun: rx batching
+
+ drivers/net/tun.c     | 50 ++++++++++++++++++++++++++++++++++++++++++++------
+ drivers/vhost/net.c   | 23 ++++++++++++++++++++---
+ drivers/vhost/vhost.c |  8 ++++++--
+ 3 files changed, 70 insertions(+), 11 deletions(-)
+
+-- 
+2.7.4
