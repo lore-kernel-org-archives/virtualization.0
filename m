@@ -1,7 +1,7 @@
-From: David Miller <davem@davemloft.net>
+From: Stephen Hemminger <stephen@networkplumber.org>
 Subject: Re: [PATCH net-next V3 3/3] tun: rx batching
-Date: Sat, 31 Dec 2016 12:31:47 -0500 (EST)
-Message-ID: <20161231.123147.1116351209865273335.davem@davemloft.net>
+Date: Sat, 31 Dec 2016 13:03:32 -0800
+Message-ID: <20161231130333.347cb8f3@xeon-e3>
 References: <1483075251-6889-1-git-send-email-jasowang@redhat.com>
 	<1483075251-6889-4-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
@@ -18,41 +18,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
+To: Jason Wang <jasowang@redhat.com>
 Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 30 Dec 2016 13:20:51 +0800
+On Fri, 30 Dec 2016 13:20:51 +0800
+Jason Wang <jasowang@redhat.com> wrote:
 
-> @@ -1283,10 +1314,15 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
->  	skb_probe_transport_header(skb, 0);
+> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> index cd8e02c..a268ed9 100644
+> --- a/drivers/net/tun.c
+> +++ b/drivers/net/tun.c
+> @@ -75,6 +75,10 @@
 >  
->  	rxhash = skb_get_hash(skb);
+>  #include <linux/uaccess.h>
+>  
+> +static int rx_batched;
+> +module_param(rx_batched, int, 0444);
+> +MODULE_PARM_DESC(rx_batched, "Number of packets batched in rx");
 > +
->  #ifndef CONFIG_4KSTACKS
-> -	local_bh_disable();
-> -	netif_receive_skb(skb);
-> -	local_bh_enable();
-> +	if (!rx_batched) {
-> +		local_bh_disable();
-> +		netif_receive_skb(skb);
-> +		local_bh_enable();
-> +	} else {
-> +		tun_rx_batched(tfile, skb, more);
-> +	}
->  #else
->  	netif_rx_ni(skb);
->  #endif
+>  /* Uncomment to enable debugging */
 
-If rx_batched has been set, and we are talking to clients not using
-this new MSG_MORE facility (or such clients don't have multiple TX
-packets to send to you, thus MSG_MORE is often clear), you are doing a
-lot more work per-packet than the existing code.
+I like the concept or rx batching. But controlling it via a module parameter
+is one of the worst API choices.  Ethtool would be better to use because that is
+how other network devices control batching.
 
-You take the queue lock, you test state, you splice into a local queue
-on the stack, then you walk that local stack queue to submit just one
-SKB to netif_receive_skb().
-
-I think you want to streamline this sequence in such cases so that the
-cost before and after is similar if not equivalent.
+If you do ethtool, you could even extend it to have an number of packets
+and max latency value.
