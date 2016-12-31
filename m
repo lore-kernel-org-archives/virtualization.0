@@ -1,14 +1,14 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH] virtio-crypto: support crypto engine framework
-Date: Fri, 30 Dec 2016 20:20:52 +0800
-Message-ID: <20161230122052.GH15832__41584.4190087684$1483100494$gmane$org@gondor.apana.org.au>
-References: <1482821347-47664-1-git-send-email-arei.gonglei@huawei.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next V3 3/3] tun: rx batching
+Date: Sat, 31 Dec 2016 12:31:47 -0500 (EST)
+Message-ID: <20161231.123147.1116351209865273335.davem@davemloft.net>
+References: <1483075251-6889-1-git-send-email-jasowang@redhat.com>
+	<1483075251-6889-4-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1482821347-47664-1-git-send-email-arei.gonglei@huawei.com>
+In-Reply-To: <1483075251-6889-4-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,26 +18,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gonglei <arei.gonglei@huawei.com>
-Cc: Baolin Wang <baolin.wang@linaro.org>, "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org, longpeng2@huawei.com, wu.wubin@huawei.com
+To: jasowang@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 27, 2016 at 02:49:07PM +0800, Gonglei wrote:
-> crypto engine was introduced since 'commit 735d37b5424b ("crypto: engine
-> - Introduce the block request crypto engine framework")' which uses work
-> queue to realize the asynchronous processing for ablk_cipher and ahash.
-> 
-> For virtio-crypto device, I register an engine for each
-> data virtqueue so that we can use the capability of
-> multiple data queues in future.
-> 
-> Cc: Baolin Wang <baolin.wang@linaro.org>
-> Cc: Herbert Xu <herbert@gondor.apana.org.au>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Gonglei <arei.gonglei@huawei.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 30 Dec 2016 13:20:51 +0800
 
-Patch applied.  Thanks.
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+> @@ -1283,10 +1314,15 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+>  	skb_probe_transport_header(skb, 0);
+>  
+>  	rxhash = skb_get_hash(skb);
+> +
+>  #ifndef CONFIG_4KSTACKS
+> -	local_bh_disable();
+> -	netif_receive_skb(skb);
+> -	local_bh_enable();
+> +	if (!rx_batched) {
+> +		local_bh_disable();
+> +		netif_receive_skb(skb);
+> +		local_bh_enable();
+> +	} else {
+> +		tun_rx_batched(tfile, skb, more);
+> +	}
+>  #else
+>  	netif_rx_ni(skb);
+>  #endif
+
+If rx_batched has been set, and we are talking to clients not using
+this new MSG_MORE facility (or such clients don't have multiple TX
+packets to send to you, thus MSG_MORE is often clear), you are doing a
+lot more work per-packet than the existing code.
+
+You take the queue lock, you test state, you splice into a local queue
+on the stack, then you walk that local stack queue to submit just one
+SKB to netif_receive_skb().
+
+I think you want to streamline this sequence in such cases so that the
+cost before and after is similar if not equivalent.
