@@ -1,13 +1,13 @@
 From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH net-next V2 2/3] vhost_net: tx batching
-Date: Tue, 3 Jan 2017 13:16:30 +0000
-Message-ID: <20170103131630.GB14707@stefanha-x1.localdomain>
+Subject: Re: [PATCH net-next V2 3/3] tun: rx batching
+Date: Tue, 3 Jan 2017 13:33:03 +0000
+Message-ID: <20170103133303.GC14707@stefanha-x1.localdomain>
 References: <1482912571-3157-1-git-send-email-jasowang@redhat.com>
-	<1482912571-3157-3-git-send-email-jasowang@redhat.com>
+	<1482912571-3157-4-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7336991909795372643=="
+Content-Type: multipart/mixed; boundary="===============6580428924105863863=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1482912571-3157-3-git-send-email-jasowang@redhat.com>
+In-Reply-To: <1482912571-3157-4-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,47 +22,48 @@ Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-ker
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============7336991909795372643==
+--===============6580428924105863863==
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LpQ9ahxlCli8rRTG"
+	protocol="application/pgp-signature"; boundary="DIOMP1UsTsWJauNi"
 Content-Disposition: inline
 
 
---LpQ9ahxlCli8rRTG
+--DIOMP1UsTsWJauNi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 28, 2016 at 04:09:30PM +0800, Jason Wang wrote:
-> This patch tries to utilize tuntap rx batching by peeking the tx
-> virtqueue during transmission, if there's more available buffers in
-> the virtqueue, set MSG_MORE flag for a hint for backend (e.g tuntap)
-> to batch the packets.
->=20
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/vhost/net.c | 23 ++++++++++++++++++++---
->  1 file changed, 20 insertions(+), 3 deletions(-)
+On Wed, Dec 28, 2016 at 04:09:31PM +0800, Jason Wang wrote:
+> +static int tun_rx_batched(struct tun_file *tfile, struct sk_buff *skb,
+> +			  int more)
+> +{
+> +	struct sk_buff_head *queue = &tfile->sk.sk_write_queue;
+> +	struct sk_buff_head process_queue;
+> +	int qlen;
+> +	bool rcv = false;
+> +
+> +	spin_lock(&queue->lock);
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Should this be spin_lock_bh()?  Below and in tun_get_user() there are
+explicit local_bh_disable() calls so I guess BHs can interrupt us here
+and this would deadlock.
 
---LpQ9ahxlCli8rRTG
+--DIOMP1UsTsWJauNi
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEcBAEBAgAGBQJYa6QuAAoJEJykq7OBq3PItbkH/jo+NKDhV0qrUx7lBvRPBveW
-8ojg5zXdLHyP3ydXi3LDFcwGKoL5VhStwL4BAaqXUYTgiFC5BBwABnIyQ1Iod0Jj
-3BNw3QmuFTpo2s2E4Th4ClBIsgDv4l80ukJTjiy35rdaZg1qtLiFhz7L6e8Bgbsz
-eT6dEzHWvb8iEq+CBFO589KBKxnQE17T0KNUTTzXtgUXKvwIVWZQlE+keDN9W8Kx
-3eTr2QYUhkPCxVZysYjNTpX4EfxzRd1pgRDQQjHEfFdybMIHpym1nFzlKBRPOnoZ
-CecPpfoNwIHO6pST5Q9oyZtuqPKM8IIHQ0v09bFM1yo/OwA+4oW644gqxJXF1ig=
-=O5e4
+iQEcBAEBAgAGBQJYa6gPAAoJEJykq7OBq3PIZ2sH/0VYpR4DPRyzYO7z6UMBZwGC
+gbOV4hIqlfKg3e9MWqF4ekaRGek/WuV3goEUOhXBY1gwI2NGWoowb4/wPfjCTQR0
+6r6Vt78rgAsl4McgXJ6fQdH1pGgLVNZQ+/iXINjRjpFN1vYPj+vXFk0GuhDZV5ke
+gNmUFs2kJ2HysCJtLjB2Fuwmspmbd6jhRNmQET5ADsiZsbi9+Lm8jYME/CESkE8h
+gLaW1G3ECOkKDza9TkXx5wlq1GRUllpe0zqw6tGKQEPZLF0wu+PKHTru0vkKddX1
+pmE9ukXVAJqxoP2XwWU8qXfNBjpPyZS9JAMzA3R5HuWJCQ+z3ASpGkIQMqRbs/Q=
+=kLi7
 -----END PGP SIGNATURE-----
 
---LpQ9ahxlCli8rRTG--
+--DIOMP1UsTsWJauNi--
 
---===============7336991909795372643==
+--===============6580428924105863863==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -72,4 +73,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7336991909795372643==--
+--===============6580428924105863863==--
