@@ -1,15 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net 9/9] virtio-net: XDP support for small buffers
-Date: Tue, 3 Jan 2017 14:16:31 +0800
-Message-ID: <8c896c40-fd25-4b92-fe80-5be18c13dd48@redhat.com>
-References: <1482503852-12438-1-git-send-email-jasowang@redhat.com>
-	<1482503852-12438-10-git-send-email-jasowang@redhat.com>
-	<586AD79B.2070203@gmail.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH net-next V2 1/3] vhost: better detection of available
+	buffers
+Date: Tue, 3 Jan 2017 13:08:30 +0000
+Message-ID: <20170103130830.GA14707@stefanha-x1.localdomain>
+References: <1482912571-3157-1-git-send-email-jasowang@redhat.com>
+	<1482912571-3157-2-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============5593131570211619521=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <586AD79B.2070203@gmail.com>
+In-Reply-To: <1482912571-3157-2-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,42 +18,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: John Fastabend <john.fastabend@gmail.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: john.r.fastabend@intel.com
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDHmnIgwM+aXpSAwNjo0MywgSm9obiBGYXN0YWJlbmQgd3JvdGU6Cj4gT24g
-MTYtMTItMjMgMDY6MzcgQU0sIEphc29uIFdhbmcgd3JvdGU6Cj4+IENvbW1pdCBmNjAwYjY5MDUw
-MTUgKCJ2aXJ0aW9fbmV0OiBBZGQgWERQIHN1cHBvcnQiKSBsZWF2ZXMgdGhlIGNhc2Ugb2YKPj4g
-c21hbGwgcmVjZWl2ZSBidWZmZXIgdW50b3VjaGVkLiBUaGlzIHdpbGwgY29uZnVzZSB0aGUgdXNl
-ciB3aG8gd2FudCB0bwo+PiBzZXQgWERQIGJ1dCB1c2Ugc21hbGwgYnVmZmVycy4gT3RoZXIgdGhh
-biBmb3JiaWQgWERQIGluIHNtYWxsIGJ1ZmZlcgo+PiBtb2RlLCBsZXQncyBtYWtlIGl0IHdvcmsu
-IFhEUCB0aGVuIGNhbiBvbmx5IHdvcmsgYXQgc2tiLT5kYXRhIHNpbmNlCj4+IHZpcnRpby1uZXQg
-Y3JlYXRlIHNrYnMgZHVyaW5nIHJlZmlsbCwgdGhpcyBpcyBzdWIgb3B0aW1hbCB3aGljaCBjb3Vs
-ZAo+PiBiZSBvcHRpbWl6ZWQgaW4gdGhlIGZ1dHVyZS4KPj4KPj4gQ2M6IEpvaG4gRmFzdGFiZW5k
-IDxqb2huLnIuZmFzdGFiZW5kQGludGVsLmNvbT4KPj4gU2lnbmVkLW9mZi1ieTogSmFzb24gV2Fu
-ZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KPj4gLS0tCj4+ICAgZHJpdmVycy9uZXQvdmlydGlvX25l
-dC5jIHwgMTEyICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0t
-Cj4+ICAgMSBmaWxlIGNoYW5nZWQsIDg3IGluc2VydGlvbnMoKyksIDI1IGRlbGV0aW9ucygtKQo+
-Pgo+IEhpIEphc29uLAo+Cj4gSSB3YXMgZG9pbmcgc29tZSBtb3JlIHRlc3Rpbmcgb24gdGhpcyB3
-aGF0IGRvIHlvdSB0aGluayBhYm91dCBkb2luZyB0aGlzCj4gc28gdGhhdCBmcmVlX3VudXNlZF9i
-dWZzKCkgaGFuZGxlcyB0aGUgYnVmZmVyIGZyZWUgd2l0aCBkZXZfa2ZyZWVfc2tiKCkKPiBpbnN0
-ZWFkIG9mIHB1dF9wYWdlIGluIHNtYWxsIHJlY2VpdmUgbW9kZS4gU2VlbXMgbW9yZSBjb3JyZWN0
-IHRvIG1lLgo+Cj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIGIvZHJp
-dmVycy9uZXQvdmlydGlvX25ldC5jCj4gaW5kZXggNzgzZTg0Mi4uMjdmZjc2YyAxMDA2NDQKPiAt
-LS0gYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiArKysgYi9kcml2ZXJzL25ldC92aXJ0aW9f
-bmV0LmMKPiBAQCAtMTg5OCw2ICsxODk4LDEwIEBAIHN0YXRpYyB2b2lkIGZyZWVfcmVjZWl2ZV9w
-YWdlX2ZyYWdzKHN0cnVjdCB2aXJ0bmV0X2luZm8gKnZpKQo+Cj4gICBzdGF0aWMgYm9vbCBpc194
-ZHBfcXVldWUoc3RydWN0IHZpcnRuZXRfaW5mbyAqdmksIGludCBxKQo+ICAgewo+ICsgICAgICAg
-LyogRm9yIHNtYWxsIHJlY2VpdmUgbW9kZSBhbHdheXMgdXNlIGtmcmVlX3NrYiB2YXJpYW50cyAq
-Lwo+ICsgICAgICAgaWYgKCF2aS0+bWVyZ2VhYmxlX3J4X2J1ZnMpCj4gKyAgICAgICAgICAgICAg
-IHJldHVybiBmYWxzZTsKPiArCj4gICAgICAgICAgaWYgKHEgPCAodmktPmN1cnJfcXVldWVfcGFp
-cnMgLSB2aS0+eGRwX3F1ZXVlX3BhaXJzKSkKPiAgICAgICAgICAgICAgICAgIHJldHVybiBmYWxz
-ZTsKPiAgICAgICAgICBlbHNlIGlmIChxIDwgdmktPmN1cnJfcXVldWVfcGFpcnMpCj4KPgo+IHBh
-dGNoIGlzIHVudGVzdGVkIGp1c3Qgc3BvdHRlZCBkb2luZyBjb2RlIHJldmlldy4KPgo+IFRoYW5r
-cywKPiBKb2huCgpXZSBwcm9iYWJseSBuZWVkIGEgYmV0dGVyIG5hbWUgZm9yIHRoaXMgZnVuY3Rp
-b24uCgpBY2tlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KCl9fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
-aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
-czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
-dGlvbg==
+
+--===============5593131570211619521==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
+Content-Disposition: inline
+
+
+--2oS5YaxWCcQjTEyO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Dec 28, 2016 at 04:09:29PM +0800, Jason Wang wrote:
+> This patch tries to do several tweaks on vhost_vq_avail_empty() for a
+> better performance:
+>=20
+> - check cached avail index first which could avoid userspace memory acces=
+s.
+> - using unlikely() for the failure of userspace access
+> - check vq->last_avail_idx instead of cached avail index as the last
+>   step.
+>=20
+> This patch is need for batching supports which needs to peek whether
+> or not there's still available buffers in the ring.
+>=20
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/vhost/vhost.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
+
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--2oS5YaxWCcQjTEyO
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJYa6JOAAoJEJykq7OBq3PIDqIIALlfkoB88iYF8bb4Zf7u+uyA
+vtuy/uIAv4ENa2gPdr8aVH5vCGkbKN430AkZrXCkXFF/Im50I/59u0RJJ1B2EAOA
+tTr27am3shyGl03f8svSDlE3wtaWm/2oReWtLBWWNuyd8sz4S5TU+MJRD24vsiP+
+h8nAbg7dmSavfIKbiKcJnn3XgZfxcrOp6I8aGstfhTI2szqYY3t2zomIcSr+l3fP
+OkTzsoC9GmWqQi43N0jHNjioh3gEaPNxMISJxqaJoP33hVk2NpK6w7hVFr9pEcgB
+y8sQ23con2Hdbxt3xx7vHi4LzCj0lH5QhuAz0b6TFQ3dyhWDTB06tQReE4IW1kQ=
+=3bfK
+-----END PGP SIGNATURE-----
+
+--2oS5YaxWCcQjTEyO--
+
+--===============5593131570211619521==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5593131570211619521==--
