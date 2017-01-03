@@ -1,13 +1,16 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH net-next V2 3/3] tun: rx batching
-Date: Tue, 3 Jan 2017 13:33:03 +0000
-Message-ID: <20170103133303.GC14707@stefanha-x1.localdomain>
-References: <1482912571-3157-1-git-send-email-jasowang@redhat.com>
-	<1482912571-3157-4-git-send-email-jasowang@redhat.com>
+From: John Fastabend <john.fastabend@gmail.com>
+Subject: Re: [PATCH net 9/9] virtio-net: XDP support for small buffers
+Date: Tue, 3 Jan 2017 08:40:40 -0800
+Message-ID: <586BD408.9030009@gmail.com>
+References: <1482503852-12438-1-git-send-email-jasowang@redhat.com>
+	<1482503852-12438-10-git-send-email-jasowang@redhat.com>
+	<586AD79B.2070203@gmail.com>
+	<8c896c40-fd25-4b92-fe80-5be18c13dd48@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6580428924105863863=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1482912571-3157-4-git-send-email-jasowang@redhat.com>
+In-Reply-To: <8c896c40-fd25-4b92-fe80-5be18c13dd48@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,60 +20,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: john.r.fastabend@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-
---===============6580428924105863863==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DIOMP1UsTsWJauNi"
-Content-Disposition: inline
-
-
---DIOMP1UsTsWJauNi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Wed, Dec 28, 2016 at 04:09:31PM +0800, Jason Wang wrote:
-> +static int tun_rx_batched(struct tun_file *tfile, struct sk_buff *skb,
-> +			  int more)
-> +{
-> +	struct sk_buff_head *queue = &tfile->sk.sk_write_queue;
-> +	struct sk_buff_head process_queue;
-> +	int qlen;
-> +	bool rcv = false;
-> +
-> +	spin_lock(&queue->lock);
-
-Should this be spin_lock_bh()?  Below and in tun_get_user() there are
-explicit local_bh_disable() calls so I guess BHs can interrupt us here
-and this would deadlock.
-
---DIOMP1UsTsWJauNi
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAEBAgAGBQJYa6gPAAoJEJykq7OBq3PIZ2sH/0VYpR4DPRyzYO7z6UMBZwGC
-gbOV4hIqlfKg3e9MWqF4ekaRGek/WuV3goEUOhXBY1gwI2NGWoowb4/wPfjCTQR0
-6r6Vt78rgAsl4McgXJ6fQdH1pGgLVNZQ+/iXINjRjpFN1vYPj+vXFk0GuhDZV5ke
-gNmUFs2kJ2HysCJtLjB2Fuwmspmbd6jhRNmQET5ADsiZsbi9+Lm8jYME/CESkE8h
-gLaW1G3ECOkKDza9TkXx5wlq1GRUllpe0zqw6tGKQEPZLF0wu+PKHTru0vkKddX1
-pmE9ukXVAJqxoP2XwWU8qXfNBjpPyZS9JAMzA3R5HuWJCQ+z3ASpGkIQMqRbs/Q=
-=kLi7
------END PGP SIGNATURE-----
-
---DIOMP1UsTsWJauNi--
-
---===============6580428924105863863==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6580428924105863863==--
+T24gMTctMDEtMDIgMTA6MTYgUE0sIEphc29uIFdhbmcgd3JvdGU6Cj4gCj4gCj4gT24gMjAxN+W5
+tDAx5pyIMDPml6UgMDY6NDMsIEpvaG4gRmFzdGFiZW5kIHdyb3RlOgo+PiBPbiAxNi0xMi0yMyAw
+NjozNyBBTSwgSmFzb24gV2FuZyB3cm90ZToKPj4+IENvbW1pdCBmNjAwYjY5MDUwMTUgKCJ2aXJ0
+aW9fbmV0OiBBZGQgWERQIHN1cHBvcnQiKSBsZWF2ZXMgdGhlIGNhc2Ugb2YKPj4+IHNtYWxsIHJl
+Y2VpdmUgYnVmZmVyIHVudG91Y2hlZC4gVGhpcyB3aWxsIGNvbmZ1c2UgdGhlIHVzZXIgd2hvIHdh
+bnQgdG8KPj4+IHNldCBYRFAgYnV0IHVzZSBzbWFsbCBidWZmZXJzLiBPdGhlciB0aGFuIGZvcmJp
+ZCBYRFAgaW4gc21hbGwgYnVmZmVyCj4+PiBtb2RlLCBsZXQncyBtYWtlIGl0IHdvcmsuIFhEUCB0
+aGVuIGNhbiBvbmx5IHdvcmsgYXQgc2tiLT5kYXRhIHNpbmNlCj4+PiB2aXJ0aW8tbmV0IGNyZWF0
+ZSBza2JzIGR1cmluZyByZWZpbGwsIHRoaXMgaXMgc3ViIG9wdGltYWwgd2hpY2ggY291bGQKPj4+
+IGJlIG9wdGltaXplZCBpbiB0aGUgZnV0dXJlLgo+Pj4KPj4+IENjOiBKb2huIEZhc3RhYmVuZCA8
+am9obi5yLmZhc3RhYmVuZEBpbnRlbC5jb20+Cj4+PiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBXYW5n
+IDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+Pj4gLS0tCj4+PiAgIGRyaXZlcnMvbmV0L3ZpcnRpb19u
+ZXQuYyB8IDExMiArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0tLS0t
+LQo+Pj4gICAxIGZpbGUgY2hhbmdlZCwgODcgaW5zZXJ0aW9ucygrKSwgMjUgZGVsZXRpb25zKC0p
+Cj4+Pgo+PiBIaSBKYXNvbiwKPj4KPj4gSSB3YXMgZG9pbmcgc29tZSBtb3JlIHRlc3Rpbmcgb24g
+dGhpcyB3aGF0IGRvIHlvdSB0aGluayBhYm91dCBkb2luZyB0aGlzCj4+IHNvIHRoYXQgZnJlZV91
+bnVzZWRfYnVmcygpIGhhbmRsZXMgdGhlIGJ1ZmZlciBmcmVlIHdpdGggZGV2X2tmcmVlX3NrYigp
+Cj4+IGluc3RlYWQgb2YgcHV0X3BhZ2UgaW4gc21hbGwgcmVjZWl2ZSBtb2RlLiBTZWVtcyBtb3Jl
+IGNvcnJlY3QgdG8gbWUuCj4+Cj4+Cj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL25ldC92aXJ0aW9f
+bmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPj4gaW5kZXggNzgzZTg0Mi4uMjdmZjc2
+YyAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4+ICsrKyBiL2RyaXZl
+cnMvbmV0L3ZpcnRpb19uZXQuYwo+PiBAQCAtMTg5OCw2ICsxODk4LDEwIEBAIHN0YXRpYyB2b2lk
+IGZyZWVfcmVjZWl2ZV9wYWdlX2ZyYWdzKHN0cnVjdCB2aXJ0bmV0X2luZm8KPj4gKnZpKQo+Pgo+
+PiAgIHN0YXRpYyBib29sIGlzX3hkcF9xdWV1ZShzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSwgaW50
+IHEpCj4+ICAgewo+PiArICAgICAgIC8qIEZvciBzbWFsbCByZWNlaXZlIG1vZGUgYWx3YXlzIHVz
+ZSBrZnJlZV9za2IgdmFyaWFudHMgKi8KPj4gKyAgICAgICBpZiAoIXZpLT5tZXJnZWFibGVfcnhf
+YnVmcykKPj4gKyAgICAgICAgICAgICAgIHJldHVybiBmYWxzZTsKPj4gKwo+PiAgICAgICAgICBp
+ZiAocSA8ICh2aS0+Y3Vycl9xdWV1ZV9wYWlycyAtIHZpLT54ZHBfcXVldWVfcGFpcnMpKQo+PiAg
+ICAgICAgICAgICAgICAgIHJldHVybiBmYWxzZTsKPj4gICAgICAgICAgZWxzZSBpZiAocSA8IHZp
+LT5jdXJyX3F1ZXVlX3BhaXJzKQo+Pgo+Pgo+PiBwYXRjaCBpcyB1bnRlc3RlZCBqdXN0IHNwb3R0
+ZWQgZG9pbmcgY29kZSByZXZpZXcuCj4+Cj4+IFRoYW5rcywKPj4gSm9obgo+IAo+IFdlIHByb2Jh
+Ymx5IG5lZWQgYSBiZXR0ZXIgbmFtZSBmb3IgdGhpcyBmdW5jdGlvbi4KPiAKPiBBY2tlZC1ieTog
+SmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KPiAKCkhvdyBhYm91dCBpc194ZHBfcmF3
+X2J1ZmZlcl9xdWV1ZSgpPwoKSSdsbCBzdWJtaXQgYSBwcm9wZXIgcGF0Y2ggdG9kYXkuCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
+IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
+dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
+aXphdGlvbg==
