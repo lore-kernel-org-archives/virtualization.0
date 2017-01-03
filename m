@@ -1,14 +1,15 @@
-From: John Fastabend <john.fastabend@gmail.com>
-Subject: Re: [PATCH net 9/9] virtio-net: XDP support for small buffers
-Date: Mon, 2 Jan 2017 14:43:39 -0800
-Message-ID: <586AD79B.2070203@gmail.com>
-References: <1482503852-12438-1-git-send-email-jasowang@redhat.com>
-	<1482503852-12438-10-git-send-email-jasowang@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next V3 3/3] tun: rx batching
+Date: Tue, 3 Jan 2017 11:12:22 +0800
+Message-ID: <47860492-d254-86b5-c36c-29b51b0c00ab@redhat.com>
+References: <1483075251-6889-1-git-send-email-jasowang@redhat.com>
+	<1483075251-6889-4-git-send-email-jasowang@redhat.com>
+	<20161231.123147.1116351209865273335.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1482503852-12438-10-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20161231.123147.1116351209865273335.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,50 +19,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: john.r.fastabend@intel.com
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 16-12-23 06:37 AM, Jason Wang wrote:
-> Commit f600b6905015 ("virtio_net: Add XDP support") leaves the case of
-> small receive buffer untouched. This will confuse the user who want to
-> set XDP but use small buffers. Other than forbid XDP in small buffer
-> mode, let's make it work. XDP then can only work at skb->data since
-> virtio-net create skbs during refill, this is sub optimal which could
-> be optimized in the future.
-> 
-> Cc: John Fastabend <john.r.fastabend@intel.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/net/virtio_net.c | 112 ++++++++++++++++++++++++++++++++++++-----------
->  1 file changed, 87 insertions(+), 25 deletions(-)
-> 
-
-Hi Jason,
-
-I was doing some more testing on this what do you think about doing this
-so that free_unused_bufs() handles the buffer free with dev_kfree_skb()
-instead of put_page in small receive mode. Seems more correct to me.
-
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 783e842..27ff76c 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1898,6 +1898,10 @@ static void free_receive_page_frags(struct virtnet_info *vi)
-
- static bool is_xdp_queue(struct virtnet_info *vi, int q)
- {
-+       /* For small receive mode always use kfree_skb variants */
-+       if (!vi->mergeable_rx_bufs)
-+               return false;
-+
-        if (q < (vi->curr_queue_pairs - vi->xdp_queue_pairs))
-                return false;
-        else if (q < vi->curr_queue_pairs)
-
-
-patch is untested just spotted doing code review.
-
-Thanks,
-John
+CgpPbiAyMDE35bm0MDHmnIgwMeaXpSAwMTozMSwgRGF2aWQgTWlsbGVyIHdyb3RlOgo+IEZyb206
+IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4gRGF0ZTogRnJpLCAzMCBEZWMgMjAx
+NiAxMzoyMDo1MSArMDgwMAo+Cj4+IEBAIC0xMjgzLDEwICsxMzE0LDE1IEBAIHN0YXRpYyBzc2l6
+ZV90IHR1bl9nZXRfdXNlcihzdHJ1Y3QgdHVuX3N0cnVjdCAqdHVuLCBzdHJ1Y3QgdHVuX2ZpbGUg
+KnRmaWxlLAo+PiAgIAlza2JfcHJvYmVfdHJhbnNwb3J0X2hlYWRlcihza2IsIDApOwo+PiAgIAo+
+PiAgIAlyeGhhc2ggPSBza2JfZ2V0X2hhc2goc2tiKTsKPj4gKwo+PiAgICNpZm5kZWYgQ09ORklH
+XzRLU1RBQ0tTCj4+IC0JbG9jYWxfYmhfZGlzYWJsZSgpOwo+PiAtCW5ldGlmX3JlY2VpdmVfc2ti
+KHNrYik7Cj4+IC0JbG9jYWxfYmhfZW5hYmxlKCk7Cj4+ICsJaWYgKCFyeF9iYXRjaGVkKSB7Cj4+
+ICsJCWxvY2FsX2JoX2Rpc2FibGUoKTsKPj4gKwkJbmV0aWZfcmVjZWl2ZV9za2Ioc2tiKTsKPj4g
+KwkJbG9jYWxfYmhfZW5hYmxlKCk7Cj4+ICsJfSBlbHNlIHsKPj4gKwkJdHVuX3J4X2JhdGNoZWQo
+dGZpbGUsIHNrYiwgbW9yZSk7Cj4+ICsJfQo+PiAgICNlbHNlCj4+ICAgCW5ldGlmX3J4X25pKHNr
+Yik7Cj4+ICAgI2VuZGlmCj4gSWYgcnhfYmF0Y2hlZCBoYXMgYmVlbiBzZXQsIGFuZCB3ZSBhcmUg
+dGFsa2luZyB0byBjbGllbnRzIG5vdCB1c2luZwo+IHRoaXMgbmV3IE1TR19NT1JFIGZhY2lsaXR5
+IChvciBzdWNoIGNsaWVudHMgZG9uJ3QgaGF2ZSBtdWx0aXBsZSBUWAo+IHBhY2tldHMgdG8gc2Vu
+ZCB0byB5b3UsIHRodXMgTVNHX01PUkUgaXMgb2Z0ZW4gY2xlYXIpLCB5b3UgYXJlIGRvaW5nIGEK
+PiBsb3QgbW9yZSB3b3JrIHBlci1wYWNrZXQgdGhhbiB0aGUgZXhpc3RpbmcgY29kZS4KPgo+IFlv
+dSB0YWtlIHRoZSBxdWV1ZSBsb2NrLCB5b3UgdGVzdCBzdGF0ZSwgeW91IHNwbGljZSBpbnRvIGEg
+bG9jYWwgcXVldWUKPiBvbiB0aGUgc3RhY2ssIHRoZW4geW91IHdhbGsgdGhhdCBsb2NhbCBzdGFj
+ayBxdWV1ZSB0byBzdWJtaXQganVzdCBvbmUKPiBTS0IgdG8gbmV0aWZfcmVjZWl2ZV9za2IoKS4K
+Pgo+IEkgdGhpbmsgeW91IHdhbnQgdG8gc3RyZWFtbGluZSB0aGlzIHNlcXVlbmNlIGluIHN1Y2gg
+Y2FzZXMgc28gdGhhdCB0aGUKPiBjb3N0IGJlZm9yZSBhbmQgYWZ0ZXIgaXMgc2ltaWxhciBpZiBu
+b3QgZXF1aXZhbGVudC4KClllcywgc28gSSB3aWxsIGRvIGEgc2tiX3F1ZXVlX2VtcHR5KCkgY2hl
+Y2sgaWYgIU1TR19NT1JFIGFuZCBjYWxsIApuZXRpZl9yZWNlaXZlX3NrYigpIGltbWVkaWF0ZWx5
+IGluIHRoaXMgY2FzZS4gVGhpcyBjYW4gc2F2ZSB0aGUgd2FzdGVkIAplZmZvcnRzLgoKVGhhbmtz
+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxp
+emF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
+Lm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
+aXJ0dWFsaXphdGlvbg==
