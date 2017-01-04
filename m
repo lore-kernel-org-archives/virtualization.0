@@ -1,15 +1,14 @@
-From: Daniel Borkmann <daniel@iogearbox.net>
-Subject: Re: [PATCH net 1/9] virtio-net: remove the warning before XDP
-	linearizing
-Date: Fri, 23 Dec 2016 20:31:53 +0100
-Message-ID: <585D7BA9.50509__39949.710496194$1483728398$gmane$org@iogearbox.net>
-References: <1482503852-12438-1-git-send-email-jasowang@redhat.com>
-	<1482503852-12438-2-git-send-email-jasowang@redhat.com>
+From: =?UTF-8?B?546L6YeR5rWm?= <jinpuwang@gmail.com>
+Subject: Re: [PATCH] virtio_blk: avoid DMA to stack for the sense buffer
+Date: Wed, 4 Jan 2017 16:47:03 +0100
+Message-ID: <CAD9gYJKe5wbQkMGvVhZ0MUbLAAFumubk+k-nVhMDiha9FEQNTg__21377.3938514807$1483728417$gmane$org@mail.gmail.com>
+References: <1483507505-26797-1-git-send-email-hch@lst.de>
+	<1483507505-26797-2-git-send-email-hch@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1482503852-12438-2-git-send-email-jasowang@redhat.com>
+In-Reply-To: <1483507505-26797-2-git-send-email-hch@lst.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,47 +18,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: john.r.fastabend@intel.com
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, mst@redhat.com, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Jason,
+Hi Christoph,
 
-On 12/23/2016 03:37 PM, Jason Wang wrote:
-> Since we use EWMA to estimate the size of rx buffer. When rx buffer
-> size is underestimated, it's usual to have a packet with more than one
-> buffers. Consider this is not a bug, remove the warning and correct
-> the comment before XDP linearizing.
+2017-01-04 6:25 GMT+01:00 Christoph Hellwig <hch@lst.de>:
+> Most users of BLOCK_PC requests allocate the sense buffer on the stack,
+> so to avoid DMA to the stack copy them to a field in the heap allocated
+> virtblk_req structure.  Without that any attempt at SCSI passthrough I/O,
+> including the SG_IO ioctl from userspace will crash the kernel.  Note that
+> this includes running tools like hdparm even when the host does not have
+> SCSI passthrough enabled.
+
+This sounds scary.
+Could you share how to reproduce it, this should go into stable if
+it's the case.
+
+Thanks,
+Jinpu
+
 >
-> Cc: John Fastabend <john.r.fastabend@intel.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 > ---
->   drivers/net/virtio_net.c | 8 +-------
->   1 file changed, 1 insertion(+), 7 deletions(-)
+>  drivers/block/virtio_blk.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
 >
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 08327e0..1067253 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -552,14 +552,8 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
->   		struct page *xdp_page;
->   		u32 act;
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 5545a67..3c3b8f6 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -56,6 +56,7 @@ struct virtblk_req {
+>         struct virtio_blk_outhdr out_hdr;
+>         struct virtio_scsi_inhdr in_hdr;
+>         u8 status;
+> +       u8 sense[SCSI_SENSE_BUFFERSIZE];
+>         struct scatterlist sg[];
+>  };
 >
-> -		/* No known backend devices should send packets with
-> -		 * more than a single buffer when XDP conditions are
-> -		 * met. However it is not strictly illegal so the case
-> -		 * is handled as an exception and a warning is thrown.
-> -		 */
-> +		/* This happens when rx buffer size is underestimated */
->   		if (unlikely(num_buf > 1)) {
-> -			bpf_warn_invalid_xdp_buffer();
-
-Could you also remove the bpf_warn_invalid_xdp_buffer(), which got added
-just for this?
-
-Thanks.
-
->   			/* linearize data for XDP */
->   			xdp_page = xdp_linearize_page(rq, num_buf,
->   						      page, offset, &len);
+> @@ -102,7 +103,8 @@ static int __virtblk_add_req(struct virtqueue *vq,
+>         }
+>
+>         if (type == cpu_to_virtio32(vq->vdev, VIRTIO_BLK_T_SCSI_CMD)) {
+> -               sg_init_one(&sense, vbr->req->sense, SCSI_SENSE_BUFFERSIZE);
+> +               memcpy(vbr->sense, vbr->req->sense, SCSI_SENSE_BUFFERSIZE);
+> +               sg_init_one(&sense, vbr->sense, SCSI_SENSE_BUFFERSIZE);
+>                 sgs[num_out + num_in++] = &sense;
+>                 sg_init_one(&inhdr, &vbr->in_hdr, sizeof(vbr->in_hdr));
+>                 sgs[num_out + num_in++] = &inhdr;
+> --
+> 2.1.4
 >
