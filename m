@@ -1,13 +1,14 @@
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH] virtio_blk: avoid DMA to stack for the sense buffer
-Date: Wed,  4 Jan 2017 08:25:05 +0300
-Message-ID: <1483507505-26797-2-git-send-email-hch@lst.de>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] virtio_blk: avoid DMA to stack for the sense buffer
+Date: Wed, 4 Jan 2017 15:44:40 +0800
+Message-ID: <9e69ed20-aa30-4a9a-7137-a123fab033ff@redhat.com>
 References: <1483507505-26797-1-git-send-email-hch@lst.de>
+	<1483507505-26797-2-git-send-email-hch@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1483507505-26797-1-git-send-email-hch@lst.de>
+In-Reply-To: <1483507505-26797-2-git-send-email-hch@lst.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,43 +18,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: axboe@kernel.dk, mst@redhat.com, jasowang@redhat.com
+To: Christoph Hellwig <hch@lst.de>, axboe@kernel.dk, mst@redhat.com
 Cc: linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Most users of BLOCK_PC requests allocate the sense buffer on the stack,
-so to avoid DMA to the stack copy them to a field in the heap allocated
-virtblk_req structure.  Without that any attempt at SCSI passthrough I/O,
-including the SG_IO ioctl from userspace will crash the kernel.  Note that
-this includes running tools like hdparm even when the host does not have
-SCSI passthrough enabled.
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/block/virtio_blk.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 5545a67..3c3b8f6 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -56,6 +56,7 @@ struct virtblk_req {
- 	struct virtio_blk_outhdr out_hdr;
- 	struct virtio_scsi_inhdr in_hdr;
- 	u8 status;
-+	u8 sense[SCSI_SENSE_BUFFERSIZE];
- 	struct scatterlist sg[];
- };
- 
-@@ -102,7 +103,8 @@ static int __virtblk_add_req(struct virtqueue *vq,
- 	}
- 
- 	if (type == cpu_to_virtio32(vq->vdev, VIRTIO_BLK_T_SCSI_CMD)) {
--		sg_init_one(&sense, vbr->req->sense, SCSI_SENSE_BUFFERSIZE);
-+		memcpy(vbr->sense, vbr->req->sense, SCSI_SENSE_BUFFERSIZE);
-+		sg_init_one(&sense, vbr->sense, SCSI_SENSE_BUFFERSIZE);
- 		sgs[num_out + num_in++] = &sense;
- 		sg_init_one(&inhdr, &vbr->in_hdr, sizeof(vbr->in_hdr));
- 		sgs[num_out + num_in++] = &inhdr;
--- 
-2.1.4
+CgpPbiAyMDE35bm0MDHmnIgwNOaXpSAxMzoyNSwgQ2hyaXN0b3BoIEhlbGx3aWcgd3JvdGU6Cj4g
+TW9zdCB1c2VycyBvZiBCTE9DS19QQyByZXF1ZXN0cyBhbGxvY2F0ZSB0aGUgc2Vuc2UgYnVmZmVy
+IG9uIHRoZSBzdGFjaywKPiBzbyB0byBhdm9pZCBETUEgdG8gdGhlIHN0YWNrIGNvcHkgdGhlbSB0
+byBhIGZpZWxkIGluIHRoZSBoZWFwIGFsbG9jYXRlZAo+IHZpcnRibGtfcmVxIHN0cnVjdHVyZS4g
+IFdpdGhvdXQgdGhhdCBhbnkgYXR0ZW1wdCBhdCBTQ1NJIHBhc3N0aHJvdWdoIEkvTywKPiBpbmNs
+dWRpbmcgdGhlIFNHX0lPIGlvY3RsIGZyb20gdXNlcnNwYWNlIHdpbGwgY3Jhc2ggdGhlIGtlcm5l
+bC4gIE5vdGUgdGhhdAo+IHRoaXMgaW5jbHVkZXMgcnVubmluZyB0b29scyBsaWtlIGhkcGFybSBl
+dmVuIHdoZW4gdGhlIGhvc3QgZG9lcyBub3QgaGF2ZQo+IFNDU0kgcGFzc3Rocm91Z2ggZW5hYmxl
+ZC4KPgo+IFNpZ25lZC1vZmYtYnk6IENocmlzdG9waCBIZWxsd2lnIDxoY2hAbHN0LmRlPgo+IC0t
+LQo+ICAgZHJpdmVycy9ibG9jay92aXJ0aW9fYmxrLmMgfCA0ICsrKy0KPiAgIDEgZmlsZSBjaGFu
+Z2VkLCAzIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2
+ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYyBiL2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jCj4gaW5k
+ZXggNTU0NWE2Ny4uM2MzYjhmNiAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL2Jsb2NrL3ZpcnRpb19i
+bGsuYwo+ICsrKyBiL2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jCj4gQEAgLTU2LDYgKzU2LDcg
+QEAgc3RydWN0IHZpcnRibGtfcmVxIHsKPiAgIAlzdHJ1Y3QgdmlydGlvX2Jsa19vdXRoZHIgb3V0
+X2hkcjsKPiAgIAlzdHJ1Y3QgdmlydGlvX3Njc2lfaW5oZHIgaW5faGRyOwo+ICAgCXU4IHN0YXR1
+czsKPiArCXU4IHNlbnNlW1NDU0lfU0VOU0VfQlVGRkVSU0laRV07Cj4gICAJc3RydWN0IHNjYXR0
+ZXJsaXN0IHNnW107Cj4gICB9Owo+ICAgCj4gQEAgLTEwMiw3ICsxMDMsOCBAQCBzdGF0aWMgaW50
+IF9fdmlydGJsa19hZGRfcmVxKHN0cnVjdCB2aXJ0cXVldWUgKnZxLAo+ICAgCX0KPiAgIAo+ICAg
+CWlmICh0eXBlID09IGNwdV90b192aXJ0aW8zMih2cS0+dmRldiwgVklSVElPX0JMS19UX1NDU0lf
+Q01EKSkgewo+IC0JCXNnX2luaXRfb25lKCZzZW5zZSwgdmJyLT5yZXEtPnNlbnNlLCBTQ1NJX1NF
+TlNFX0JVRkZFUlNJWkUpOwo+ICsJCW1lbWNweSh2YnItPnNlbnNlLCB2YnItPnJlcS0+c2Vuc2Us
+IFNDU0lfU0VOU0VfQlVGRkVSU0laRSk7Cj4gKwkJc2dfaW5pdF9vbmUoJnNlbnNlLCB2YnItPnNl
+bnNlLCBTQ1NJX1NFTlNFX0JVRkZFUlNJWkUpOwo+ICAgCQlzZ3NbbnVtX291dCArIG51bV9pbisr
+XSA9ICZzZW5zZTsKPiAgIAkJc2dfaW5pdF9vbmUoJmluaGRyLCAmdmJyLT5pbl9oZHIsIHNpemVv
+Zih2YnItPmluX2hkcikpOwo+ICAgCQlzZ3NbbnVtX291dCArIG51bV9pbisrXSA9ICZpbmhkcjsK
+CkFja2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgpfX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
+IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
+aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
