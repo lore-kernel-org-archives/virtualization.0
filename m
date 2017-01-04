@@ -1,17 +1,11 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net 9/9] virtio-net: XDP support for small buffers
-Date: Wed, 4 Jan 2017 11:05:48 +0800
-Message-ID: <52a3a959-ff39-8d97-4d68-937dbcb2e5a7@redhat.com>
-References: <1482503852-12438-1-git-send-email-jasowang@redhat.com>
-	<1482503852-12438-10-git-send-email-jasowang@redhat.com>
-	<586AD79B.2070203@gmail.com>
-	<8c896c40-fd25-4b92-fe80-5be18c13dd48@redhat.com>
-	<586BD408.9030009@gmail.com>
+From: Christoph Hellwig <hch@lst.de>
+Subject: 4.10 and -stable fix for virtio_blk and virtually mapped stacks
+Date: Wed,  4 Jan 2017 08:25:04 +0300
+Message-ID: <1483507505-26797-1-git-send-email-hch@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <586BD408.9030009@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,47 +15,10 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: John Fastabend <john.fastabend@gmail.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: john.r.fastabend@intel.com
+To: axboe@kernel.dk, mst@redhat.com, jasowang@redhat.com
+Cc: linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDHmnIgwNOaXpSAwMDo0MCwgSm9obiBGYXN0YWJlbmQgd3JvdGU6Cj4gT24g
-MTctMDEtMDIgMTA6MTYgUE0sIEphc29uIFdhbmcgd3JvdGU6Cj4+Cj4+IE9uIDIwMTflubQwMeac
-iDAz5pelIDA2OjQzLCBKb2huIEZhc3RhYmVuZCB3cm90ZToKPj4+IE9uIDE2LTEyLTIzIDA2OjM3
-IEFNLCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4+IENvbW1pdCBmNjAwYjY5MDUwMTUgKCJ2aXJ0aW9f
-bmV0OiBBZGQgWERQIHN1cHBvcnQiKSBsZWF2ZXMgdGhlIGNhc2Ugb2YKPj4+PiBzbWFsbCByZWNl
-aXZlIGJ1ZmZlciB1bnRvdWNoZWQuIFRoaXMgd2lsbCBjb25mdXNlIHRoZSB1c2VyIHdobyB3YW50
-IHRvCj4+Pj4gc2V0IFhEUCBidXQgdXNlIHNtYWxsIGJ1ZmZlcnMuIE90aGVyIHRoYW4gZm9yYmlk
-IFhEUCBpbiBzbWFsbCBidWZmZXIKPj4+PiBtb2RlLCBsZXQncyBtYWtlIGl0IHdvcmsuIFhEUCB0
-aGVuIGNhbiBvbmx5IHdvcmsgYXQgc2tiLT5kYXRhIHNpbmNlCj4+Pj4gdmlydGlvLW5ldCBjcmVh
-dGUgc2ticyBkdXJpbmcgcmVmaWxsLCB0aGlzIGlzIHN1YiBvcHRpbWFsIHdoaWNoIGNvdWxkCj4+
-Pj4gYmUgb3B0aW1pemVkIGluIHRoZSBmdXR1cmUuCj4+Pj4KPj4+PiBDYzogSm9obiBGYXN0YWJl
-bmQgPGpvaG4uci5mYXN0YWJlbmRAaW50ZWwuY29tPgo+Pj4+IFNpZ25lZC1vZmYtYnk6IEphc29u
-IFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4+Pj4gLS0tCj4+Pj4gICAgZHJpdmVycy9uZXQv
-dmlydGlvX25ldC5jIHwgMTEyICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0t
-LS0tLS0tLS0tCj4+Pj4gICAgMSBmaWxlIGNoYW5nZWQsIDg3IGluc2VydGlvbnMoKyksIDI1IGRl
-bGV0aW9ucygtKQo+Pj4+Cj4+PiBIaSBKYXNvbiwKPj4+Cj4+PiBJIHdhcyBkb2luZyBzb21lIG1v
-cmUgdGVzdGluZyBvbiB0aGlzIHdoYXQgZG8geW91IHRoaW5rIGFib3V0IGRvaW5nIHRoaXMKPj4+
-IHNvIHRoYXQgZnJlZV91bnVzZWRfYnVmcygpIGhhbmRsZXMgdGhlIGJ1ZmZlciBmcmVlIHdpdGgg
-ZGV2X2tmcmVlX3NrYigpCj4+PiBpbnN0ZWFkIG9mIHB1dF9wYWdlIGluIHNtYWxsIHJlY2VpdmUg
-bW9kZS4gU2VlbXMgbW9yZSBjb3JyZWN0IHRvIG1lLgo+Pj4KPj4+Cj4+PiBkaWZmIC0tZ2l0IGEv
-ZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4+PiBp
-bmRleCA3ODNlODQyLi4yN2ZmNzZjIDEwMDY0NAo+Pj4gLS0tIGEvZHJpdmVycy9uZXQvdmlydGlv
-X25ldC5jCj4+PiArKysgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPj4+IEBAIC0xODk4LDYg
-KzE4OTgsMTAgQEAgc3RhdGljIHZvaWQgZnJlZV9yZWNlaXZlX3BhZ2VfZnJhZ3Moc3RydWN0IHZp
-cnRuZXRfaW5mbwo+Pj4gKnZpKQo+Pj4KPj4+ICAgIHN0YXRpYyBib29sIGlzX3hkcF9xdWV1ZShz
-dHJ1Y3QgdmlydG5ldF9pbmZvICp2aSwgaW50IHEpCj4+PiAgICB7Cj4+PiArICAgICAgIC8qIEZv
-ciBzbWFsbCByZWNlaXZlIG1vZGUgYWx3YXlzIHVzZSBrZnJlZV9za2IgdmFyaWFudHMgKi8KPj4+
-ICsgICAgICAgaWYgKCF2aS0+bWVyZ2VhYmxlX3J4X2J1ZnMpCj4+PiArICAgICAgICAgICAgICAg
-cmV0dXJuIGZhbHNlOwo+Pj4gKwo+Pj4gICAgICAgICAgIGlmIChxIDwgKHZpLT5jdXJyX3F1ZXVl
-X3BhaXJzIC0gdmktPnhkcF9xdWV1ZV9wYWlycykpCj4+PiAgICAgICAgICAgICAgICAgICByZXR1
-cm4gZmFsc2U7Cj4+PiAgICAgICAgICAgZWxzZSBpZiAocSA8IHZpLT5jdXJyX3F1ZXVlX3BhaXJz
-KQo+Pj4KPj4+Cj4+PiBwYXRjaCBpcyB1bnRlc3RlZCBqdXN0IHNwb3R0ZWQgZG9pbmcgY29kZSBy
-ZXZpZXcuCj4+Pgo+Pj4gVGhhbmtzLAo+Pj4gSm9obgo+PiBXZSBwcm9iYWJseSBuZWVkIGEgYmV0
-dGVyIG5hbWUgZm9yIHRoaXMgZnVuY3Rpb24uCj4+Cj4+IEFja2VkLWJ5OiBKYXNvbiBXYW5nIDxq
-YXNvd2FuZ0ByZWRoYXQuY29tPgo+Pgo+IEhvdyBhYm91dCBpc194ZHBfcmF3X2J1ZmZlcl9xdWV1
-ZSgpPwo+Cj4gSSdsbCBzdWJtaXQgYSBwcm9wZXIgcGF0Y2ggdG9kYXkuCgpTb3VuZHMgZ29vZCwg
-dGhhbmtzLgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
-VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
-dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Without this fix attempts to do scsi passthrough on virtio_blk will crash
+the system on virtually mapped stacks, which is something happening during
+boot with many distros.
