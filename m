@@ -1,14 +1,12 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] virtio_blk: avoid DMA to stack for the sense buffer
-Date: Wed, 4 Jan 2017 15:44:40 +0800
-Message-ID: <9e69ed20-aa30-4a9a-7137-a123fab033ff@redhat.com>
-References: <1483507505-26797-1-git-send-email-hch@lst.de>
-	<1483507505-26797-2-git-send-email-hch@lst.de>
+From: Michal Hocko <mhocko@kernel.org>
+Subject: GFP_REPEAT usage in vhost_net_open resp. vhost_vsock_dev_open
+Date: Wed, 4 Jan 2017 16:08:00 +0100
+Message-ID: <20170104150800.GO25453@dhcp22.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1483507505-26797-2-git-send-email-hch@lst.de>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,37 +16,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@lst.de>, axboe@kernel.dk, mst@redhat.com
-Cc: linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-mm@kvack.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDHmnIgwNOaXpSAxMzoyNSwgQ2hyaXN0b3BoIEhlbGx3aWcgd3JvdGU6Cj4g
-TW9zdCB1c2VycyBvZiBCTE9DS19QQyByZXF1ZXN0cyBhbGxvY2F0ZSB0aGUgc2Vuc2UgYnVmZmVy
-IG9uIHRoZSBzdGFjaywKPiBzbyB0byBhdm9pZCBETUEgdG8gdGhlIHN0YWNrIGNvcHkgdGhlbSB0
-byBhIGZpZWxkIGluIHRoZSBoZWFwIGFsbG9jYXRlZAo+IHZpcnRibGtfcmVxIHN0cnVjdHVyZS4g
-IFdpdGhvdXQgdGhhdCBhbnkgYXR0ZW1wdCBhdCBTQ1NJIHBhc3N0aHJvdWdoIEkvTywKPiBpbmNs
-dWRpbmcgdGhlIFNHX0lPIGlvY3RsIGZyb20gdXNlcnNwYWNlIHdpbGwgY3Jhc2ggdGhlIGtlcm5l
-bC4gIE5vdGUgdGhhdAo+IHRoaXMgaW5jbHVkZXMgcnVubmluZyB0b29scyBsaWtlIGhkcGFybSBl
-dmVuIHdoZW4gdGhlIGhvc3QgZG9lcyBub3QgaGF2ZQo+IFNDU0kgcGFzc3Rocm91Z2ggZW5hYmxl
-ZC4KPgo+IFNpZ25lZC1vZmYtYnk6IENocmlzdG9waCBIZWxsd2lnIDxoY2hAbHN0LmRlPgo+IC0t
-LQo+ICAgZHJpdmVycy9ibG9jay92aXJ0aW9fYmxrLmMgfCA0ICsrKy0KPiAgIDEgZmlsZSBjaGFu
-Z2VkLCAzIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2
-ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYyBiL2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jCj4gaW5k
-ZXggNTU0NWE2Ny4uM2MzYjhmNiAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL2Jsb2NrL3ZpcnRpb19i
-bGsuYwo+ICsrKyBiL2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jCj4gQEAgLTU2LDYgKzU2LDcg
-QEAgc3RydWN0IHZpcnRibGtfcmVxIHsKPiAgIAlzdHJ1Y3QgdmlydGlvX2Jsa19vdXRoZHIgb3V0
-X2hkcjsKPiAgIAlzdHJ1Y3QgdmlydGlvX3Njc2lfaW5oZHIgaW5faGRyOwo+ICAgCXU4IHN0YXR1
-czsKPiArCXU4IHNlbnNlW1NDU0lfU0VOU0VfQlVGRkVSU0laRV07Cj4gICAJc3RydWN0IHNjYXR0
-ZXJsaXN0IHNnW107Cj4gICB9Owo+ICAgCj4gQEAgLTEwMiw3ICsxMDMsOCBAQCBzdGF0aWMgaW50
-IF9fdmlydGJsa19hZGRfcmVxKHN0cnVjdCB2aXJ0cXVldWUgKnZxLAo+ICAgCX0KPiAgIAo+ICAg
-CWlmICh0eXBlID09IGNwdV90b192aXJ0aW8zMih2cS0+dmRldiwgVklSVElPX0JMS19UX1NDU0lf
-Q01EKSkgewo+IC0JCXNnX2luaXRfb25lKCZzZW5zZSwgdmJyLT5yZXEtPnNlbnNlLCBTQ1NJX1NF
-TlNFX0JVRkZFUlNJWkUpOwo+ICsJCW1lbWNweSh2YnItPnNlbnNlLCB2YnItPnJlcS0+c2Vuc2Us
-IFNDU0lfU0VOU0VfQlVGRkVSU0laRSk7Cj4gKwkJc2dfaW5pdF9vbmUoJnNlbnNlLCB2YnItPnNl
-bnNlLCBTQ1NJX1NFTlNFX0JVRkZFUlNJWkUpOwo+ICAgCQlzZ3NbbnVtX291dCArIG51bV9pbisr
-XSA9ICZzZW5zZTsKPiAgIAkJc2dfaW5pdF9vbmUoJmluaGRyLCAmdmJyLT5pbl9oZHIsIHNpemVv
-Zih2YnItPmluX2hkcikpOwo+ICAgCQlzZ3NbbnVtX291dCArIG51bV9pbisrXSA9ICZpbmhkcjsK
-CkFja2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
-IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
-aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Hi Michael,
+I am currently cleaning up opencoded kmalloc with vmalloc fallback users
+[1] and my current kvmalloc_node helper doesn't support GFP_REPEAT
+because there are no users which would need it. At least that's what I
+thought until I've encountered vhost_vsock_dev_open resp.
+vhost_vsock_dev_open which are trying to use GFP_REPEAT for kmalloc.
+23cc5a991c7a ("vhost-net: extend device allocation to vmalloc") explains
+the motivation as follows:
+"
+As vmalloc() adds overhead on a critical network path, add __GFP_REPEAT
+to kzalloc() flags to do this fallback only when really needed.
+"
+
+I am wondering whether vmalloc adds more overhead than GFP_REPEAT which
+can get pretty costly for order-4 allocation which will be used here as
+struct vhost_net seems to be 36104 (at least in with my config). Have
+you ever measured the difference?
+
+So I am just trying to understand whether we should teach kvmalloc_node
+to understand GFP_REPEAT or there is no strong reason to keep the repeat
+flag.
+
+[1] http://lkml.kernel.org/r/20170102133700.1734-1-mhocko@kernel.org
+-- 
+Michal Hocko
+SUSE Labs
