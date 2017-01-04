@@ -1,16 +1,15 @@
-From: John Fastabend <john.fastabend@gmail.com>
-Subject: Re: [PATCH net 9/9] virtio-net: XDP support for small buffers
-Date: Tue, 3 Jan 2017 08:40:40 -0800
-Message-ID: <586BD408.9030009@gmail.com>
-References: <1482503852-12438-1-git-send-email-jasowang@redhat.com>
-	<1482503852-12438-10-git-send-email-jasowang@redhat.com>
-	<586AD79B.2070203@gmail.com>
-	<8c896c40-fd25-4b92-fe80-5be18c13dd48@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next V2 3/3] tun: rx batching
+Date: Wed, 4 Jan 2017 11:03:32 +0800
+Message-ID: <73da2ef8-2454-5614-d637-0ce7c5287433@redhat.com>
+References: <1482912571-3157-1-git-send-email-jasowang@redhat.com>
+	<1482912571-3157-4-git-send-email-jasowang@redhat.com>
+	<20170103133303.GC14707@stefanha-x1.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <8c896c40-fd25-4b92-fe80-5be18c13dd48@redhat.com>
+In-Reply-To: <20170103133303.GC14707@stefanha-x1.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,45 +19,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: john.r.fastabend@intel.com
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMTctMDEtMDIgMTA6MTYgUE0sIEphc29uIFdhbmcgd3JvdGU6Cj4gCj4gCj4gT24gMjAxN+W5
-tDAx5pyIMDPml6UgMDY6NDMsIEpvaG4gRmFzdGFiZW5kIHdyb3RlOgo+PiBPbiAxNi0xMi0yMyAw
-NjozNyBBTSwgSmFzb24gV2FuZyB3cm90ZToKPj4+IENvbW1pdCBmNjAwYjY5MDUwMTUgKCJ2aXJ0
-aW9fbmV0OiBBZGQgWERQIHN1cHBvcnQiKSBsZWF2ZXMgdGhlIGNhc2Ugb2YKPj4+IHNtYWxsIHJl
-Y2VpdmUgYnVmZmVyIHVudG91Y2hlZC4gVGhpcyB3aWxsIGNvbmZ1c2UgdGhlIHVzZXIgd2hvIHdh
-bnQgdG8KPj4+IHNldCBYRFAgYnV0IHVzZSBzbWFsbCBidWZmZXJzLiBPdGhlciB0aGFuIGZvcmJp
-ZCBYRFAgaW4gc21hbGwgYnVmZmVyCj4+PiBtb2RlLCBsZXQncyBtYWtlIGl0IHdvcmsuIFhEUCB0
-aGVuIGNhbiBvbmx5IHdvcmsgYXQgc2tiLT5kYXRhIHNpbmNlCj4+PiB2aXJ0aW8tbmV0IGNyZWF0
-ZSBza2JzIGR1cmluZyByZWZpbGwsIHRoaXMgaXMgc3ViIG9wdGltYWwgd2hpY2ggY291bGQKPj4+
-IGJlIG9wdGltaXplZCBpbiB0aGUgZnV0dXJlLgo+Pj4KPj4+IENjOiBKb2huIEZhc3RhYmVuZCA8
-am9obi5yLmZhc3RhYmVuZEBpbnRlbC5jb20+Cj4+PiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBXYW5n
-IDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+Pj4gLS0tCj4+PiAgIGRyaXZlcnMvbmV0L3ZpcnRpb19u
-ZXQuYyB8IDExMiArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0tLS0t
-LQo+Pj4gICAxIGZpbGUgY2hhbmdlZCwgODcgaW5zZXJ0aW9ucygrKSwgMjUgZGVsZXRpb25zKC0p
-Cj4+Pgo+PiBIaSBKYXNvbiwKPj4KPj4gSSB3YXMgZG9pbmcgc29tZSBtb3JlIHRlc3Rpbmcgb24g
-dGhpcyB3aGF0IGRvIHlvdSB0aGluayBhYm91dCBkb2luZyB0aGlzCj4+IHNvIHRoYXQgZnJlZV91
-bnVzZWRfYnVmcygpIGhhbmRsZXMgdGhlIGJ1ZmZlciBmcmVlIHdpdGggZGV2X2tmcmVlX3NrYigp
-Cj4+IGluc3RlYWQgb2YgcHV0X3BhZ2UgaW4gc21hbGwgcmVjZWl2ZSBtb2RlLiBTZWVtcyBtb3Jl
-IGNvcnJlY3QgdG8gbWUuCj4+Cj4+Cj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL25ldC92aXJ0aW9f
-bmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPj4gaW5kZXggNzgzZTg0Mi4uMjdmZjc2
-YyAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4+ICsrKyBiL2RyaXZl
-cnMvbmV0L3ZpcnRpb19uZXQuYwo+PiBAQCAtMTg5OCw2ICsxODk4LDEwIEBAIHN0YXRpYyB2b2lk
-IGZyZWVfcmVjZWl2ZV9wYWdlX2ZyYWdzKHN0cnVjdCB2aXJ0bmV0X2luZm8KPj4gKnZpKQo+Pgo+
-PiAgIHN0YXRpYyBib29sIGlzX3hkcF9xdWV1ZShzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSwgaW50
-IHEpCj4+ICAgewo+PiArICAgICAgIC8qIEZvciBzbWFsbCByZWNlaXZlIG1vZGUgYWx3YXlzIHVz
-ZSBrZnJlZV9za2IgdmFyaWFudHMgKi8KPj4gKyAgICAgICBpZiAoIXZpLT5tZXJnZWFibGVfcnhf
-YnVmcykKPj4gKyAgICAgICAgICAgICAgIHJldHVybiBmYWxzZTsKPj4gKwo+PiAgICAgICAgICBp
-ZiAocSA8ICh2aS0+Y3Vycl9xdWV1ZV9wYWlycyAtIHZpLT54ZHBfcXVldWVfcGFpcnMpKQo+PiAg
-ICAgICAgICAgICAgICAgIHJldHVybiBmYWxzZTsKPj4gICAgICAgICAgZWxzZSBpZiAocSA8IHZp
-LT5jdXJyX3F1ZXVlX3BhaXJzKQo+Pgo+Pgo+PiBwYXRjaCBpcyB1bnRlc3RlZCBqdXN0IHNwb3R0
-ZWQgZG9pbmcgY29kZSByZXZpZXcuCj4+Cj4+IFRoYW5rcywKPj4gSm9obgo+IAo+IFdlIHByb2Jh
-Ymx5IG5lZWQgYSBiZXR0ZXIgbmFtZSBmb3IgdGhpcyBmdW5jdGlvbi4KPiAKPiBBY2tlZC1ieTog
-SmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KPiAKCkhvdyBhYm91dCBpc194ZHBfcmF3
-X2J1ZmZlcl9xdWV1ZSgpPwoKSSdsbCBzdWJtaXQgYSBwcm9wZXIgcGF0Y2ggdG9kYXkuCl9fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
-IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
-dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
-aXphdGlvbg==
+CgpPbiAyMDE35bm0MDHmnIgwM+aXpSAyMTozMywgU3RlZmFuIEhham5vY3ppIHdyb3RlOgo+IE9u
+IFdlZCwgRGVjIDI4LCAyMDE2IGF0IDA0OjA5OjMxUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6
+Cj4+ICtzdGF0aWMgaW50IHR1bl9yeF9iYXRjaGVkKHN0cnVjdCB0dW5fZmlsZSAqdGZpbGUsIHN0
+cnVjdCBza19idWZmICpza2IsCj4+ICsJCQkgIGludCBtb3JlKQo+PiArewo+PiArCXN0cnVjdCBz
+a19idWZmX2hlYWQgKnF1ZXVlID0gJnRmaWxlLT5zay5za193cml0ZV9xdWV1ZTsKPj4gKwlzdHJ1
+Y3Qgc2tfYnVmZl9oZWFkIHByb2Nlc3NfcXVldWU7Cj4+ICsJaW50IHFsZW47Cj4+ICsJYm9vbCBy
+Y3YgPSBmYWxzZTsKPj4gKwo+PiArCXNwaW5fbG9jaygmcXVldWUtPmxvY2spOwo+IFNob3VsZCB0
+aGlzIGJlIHNwaW5fbG9ja19iaCgpPyAgQmVsb3cgYW5kIGluIHR1bl9nZXRfdXNlcigpIHRoZXJl
+IGFyZQo+IGV4cGxpY2l0IGxvY2FsX2JoX2Rpc2FibGUoKSBjYWxscyBzbyBJIGd1ZXNzIEJIcyBj
+YW4gaW50ZXJydXB0IHVzIGhlcmUKPiBhbmQgdGhpcyB3b3VsZCBkZWFkbG9jay4KCnNrX3dyaXRl
+X3F1ZXVlIHdlcmUgYWNjZXNzZWQgb25seSBpbiB0aGlzIGZ1bmN0aW9uIHdoaWNoIHJ1bnMgdW5k
+ZXIgCnByb2Nlc3MgY29udGV4dCwgc28gbm8gbmVlZCBmb3Igc3Bpbl9sb2NrX2JoKCkgaGVyZS4K
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6
+YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24u
+b3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3Zp
+cnR1YWxpemF0aW9u
