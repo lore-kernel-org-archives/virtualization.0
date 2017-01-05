@@ -1,15 +1,15 @@
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: GFP_REPEAT usage in vhost_net_open resp. vhost_vsock_dev_open
-Date: Wed, 4 Jan 2017 19:06:24 +0100
-Message-ID: <20170104180624.GA10183__29027.6694148362$1483553202$gmane$org@dhcp22.suse.cz>
-References: <20170104150800.GO25453@dhcp22.suse.cz>
-	<20170104195521-mutt-send-email-mst@kernel.org>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH net-next V2 3/3] tun: rx batching
+Date: Thu, 5 Jan 2017 09:27:50 +0000
+Message-ID: <20170105092750.GA25138@stefanha-x1.localdomain>
+References: <1482912571-3157-1-git-send-email-jasowang@redhat.com>
+	<1482912571-3157-4-git-send-email-jasowang@redhat.com>
+	<20170103133303.GC14707@stefanha-x1.localdomain>
+	<73da2ef8-2454-5614-d637-0ce7c5287433@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============4147202618657407161=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20170104195521-mutt-send-email-mst@kernel.org>
+In-Reply-To: <73da2ef8-2454-5614-d637-0ce7c5287433@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,38 +19,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-mm@kvack.org, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed 04-01-17 19:56:42, Michael S. Tsirkin wrote:
-> On Wed, Jan 04, 2017 at 04:08:00PM +0100, Michal Hocko wrote:
-> > Hi Michael,
-> > I am currently cleaning up opencoded kmalloc with vmalloc fallback users
-> > [1] and my current kvmalloc_node helper doesn't support GFP_REPEAT
-> > because there are no users which would need it. At least that's what I
-> > thought until I've encountered vhost_vsock_dev_open resp.
-> > vhost_vsock_dev_open which are trying to use GFP_REPEAT for kmalloc.
-> > 23cc5a991c7a ("vhost-net: extend device allocation to vmalloc") explains
-> > the motivation as follows:
-> > "
-> > As vmalloc() adds overhead on a critical network path, add __GFP_REPEAT
-> > to kzalloc() flags to do this fallback only when really needed.
-> > "
-> > 
-> > I am wondering whether vmalloc adds more overhead than GFP_REPEAT
-> 
-> Yes but the GFP_REPEAT overhead is during allocation time.
-> Using vmalloc means all accesses are slowed down.
-> Allocation is not on data path, accesses are.
 
-OK, that wasn't clear to me. Thanks for the clarification. If the access
-path can compensate the allocation cost then I agree that GFP_REPEAT
-makes a lot of sense. I will cook up a patch to allow GFP_REPEAT in the
-current kvmalloc_node and convert vhost users to it.
+--===============4147202618657407161==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
+Content-Disposition: inline
 
-Thanks!
 
--- 
-Michal Hocko
-SUSE Labs
+--bg08WKrSYDhXBjb5
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Jan 04, 2017 at 11:03:32AM +0800, Jason Wang wrote:
+> On 2017=E5=B9=B401=E6=9C=8803=E6=97=A5 21:33, Stefan Hajnoczi wrote:
+> > On Wed, Dec 28, 2016 at 04:09:31PM +0800, Jason Wang wrote:
+> > > +static int tun_rx_batched(struct tun_file *tfile, struct sk_buff *sk=
+b,
+> > > +			  int more)
+> > > +{
+> > > +	struct sk_buff_head *queue =3D &tfile->sk.sk_write_queue;
+> > > +	struct sk_buff_head process_queue;
+> > > +	int qlen;
+> > > +	bool rcv =3D false;
+> > > +
+> > > +	spin_lock(&queue->lock);
+> > Should this be spin_lock_bh()?  Below and in tun_get_user() there are
+> > explicit local_bh_disable() calls so I guess BHs can interrupt us here
+> > and this would deadlock.
+>=20
+> sk_write_queue were accessed only in this function which runs under proce=
+ss
+> context, so no need for spin_lock_bh() here.
+
+I see, thanks!
+
+Stefan
+
+--bg08WKrSYDhXBjb5
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJYbhGWAAoJEJykq7OBq3PIhG0IALW5Lv51eiq1ln6fZD/4/SAF
+hjH/I8yCmJeWTEFcjRqWnUr/UwQx2m6+3xk5kH2Uh6PeTEHtdtB5igaUoJ0CTvgt
+q2RILeiPbLg4/WNIb7vECRsCteeGlYKteirQ9Ftz2Mls8/GHdCW1QlK8+YB3rUln
+8s72z5R9S2QnYcSqRu+DzhihB3iCpeLVaJbTtCdT/C155NH0qDqvEfPUUbaap5oS
+TruYfTNX8sYOdvJ1vRfLOvhwZg98W44cN+Co9kY7/97RH2qhZutQXtu8TG+val+K
+eC5jTgPcmIAn2Q6ruF8Fbd2FP7NWBXk01+QyWmRoYnuYTCr7VxvtT/7t7fE3Jvg=
+=W9PW
+-----END PGP SIGNATURE-----
+
+--bg08WKrSYDhXBjb5--
+
+--===============4147202618657407161==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============4147202618657407161==--
