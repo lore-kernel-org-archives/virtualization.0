@@ -1,14 +1,15 @@
-From: Robin Murphy <robin.murphy@arm.com>
-Subject: Re: [RFC PATCH] vring: Force use of DMA API for ARM-based systems
-Date: Fri, 6 Jan 2017 18:32:58 +0000
-Message-ID: <cb98e455-bdee-19ab-8896-9123c6d12a26__12322.0532470897$1483728444$gmane$org@arm.com>
-References: <1482246864-16399-1-git-send-email-will.deacon@arm.com>
-	<0b9a1f70-58fe-69c2-87db-d7773cb6a68c@arm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH V4 net-next 3/3] tun: rx batching
+Date: Fri, 6 Jan 2017 21:47:34 +0200
+Message-ID: <20170106214323-mutt-send-email-mst@kernel.org>
+References: <1483668797-24112-1-git-send-email-jasowang@redhat.com>
+	<1483668797-24112-4-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <0b9a1f70-58fe-69c2-87db-d7773cb6a68c@arm.com>
+Content-Disposition: inline
+In-Reply-To: <1483668797-24112-4-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,107 +19,189 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org
-Cc: Andy Lutomirski <luto@kernel.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com, stefanha@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/01/17 17:48, Jean-Philippe Brucker wrote:
-> Hi Will,
+On Fri, Jan 06, 2017 at 10:13:17AM +0800, Jason Wang wrote:
+> We can only process 1 packet at one time during sendmsg(). This often
+> lead bad cache utilization under heavy load. So this patch tries to do
+> some batching during rx before submitting them to host network
+> stack. This is done through accepting MSG_MORE as a hint from
+> sendmsg() caller, if it was set, batch the packet temporarily in a
+> linked list and submit them all once MSG_MORE were cleared.
 > 
-> On 20/12/16 15:14, Will Deacon wrote:
->> Booting Linux on an ARM fastmodel containing an SMMU emulation results
->> in an unexpected I/O page fault from the legacy virtio-blk PCI device:
->>
->> [    1.211721] arm-smmu-v3 2b400000.smmu: event 0x10 received:
->> [    1.211800] arm-smmu-v3 2b400000.smmu:	0x00000000fffff010
->> [    1.211880] arm-smmu-v3 2b400000.smmu:	0x0000020800000000
->> [    1.211959] arm-smmu-v3 2b400000.smmu:	0x00000008fa081002
->> [    1.212075] arm-smmu-v3 2b400000.smmu:	0x0000000000000000
->> [    1.212155] arm-smmu-v3 2b400000.smmu: event 0x10 received:
->> [    1.212234] arm-smmu-v3 2b400000.smmu:	0x00000000fffff010
->> [    1.212314] arm-smmu-v3 2b400000.smmu:	0x0000020800000000
->> [    1.212394] arm-smmu-v3 2b400000.smmu:	0x00000008fa081000
->> [    1.212471] arm-smmu-v3 2b400000.smmu:	0x0000000000000000
->>
->> <system hangs failing to read partition table>
->>
->> This is because the virtio-blk is behind an SMMU, so we have consequently
->> swizzled its DMA ops and configured the SMMU to translate accesses. This
->> then requires the vring code to use the DMA API to establish translations,
->> otherwise all transactions will result in fatal faults and termination.
->>
->> Given that ARM-based systems only see an SMMU if one is really present
->> (the topology is all described by firmware tables such as device-tree or
->> IORT), then we can safely use the DMA API for all virtio devices.
+> Tests were done by pktgen (burst=128) in guest over mlx4(noqueue) on host:
 > 
-> There is a problem with the platform block device on that same model.
-> Since it's not behind the SMMU, the DMA ops fall back to swiotlb, which
-> limits the number of mappings.
+>                                  Mpps  -+%
+>     rx-frames = 0                0.91  +0%
+>     rx-frames = 4                1.00  +9.8%
+>     rx-frames = 8                1.00  +9.8%
+>     rx-frames = 16               1.01  +10.9%
+>     rx-frames = 32               1.07  +17.5%
+>     rx-frames = 48               1.07  +17.5%
+>     rx-frames = 64               1.08  +18.6%
+>     rx-frames = 64 (no MSG_MORE) 0.91  +0%
 > 
-> It used to work with 4.9, but since 9491ae4 ("mm: don't cap request size
-> based on read-ahead setting") unlocked read-ahead, we quickly run into
-> the limit of swiotlb and panic:
+> User were allowed to change per device batched packets through
+> ethtool -C rx-frames. NAPI_POLL_WEIGHT were used as upper limitation
+> to prevent bh from being disabled too long.
 > 
-> [    5.382359] virtio-mmio 1c130000.virtio_block: swiotlb buffer is full
-> (sz: 491520 bytes)
-> [    5.382452] virtio-mmio 1c130000.virtio_block: DMA: Out of SW-IOMMU
-> space for 491520 bytes
-> [    5.382531] Kernel panic - not syncing: DMA: Random memory could be
-> DMA written
-> ...
-> [    5.383148] [<ffff0000083ad754>] swiotlb_map_page+0x194/0x1a0
-> [    5.383226] [<ffff000008096bb8>] __swiotlb_map_page+0x20/0x88
-> [    5.383320] [<ffff0000084bf738>] vring_map_one_sg.isra.1+0x70/0x88
-> [    5.383417] [<ffff0000084c04fc>] virtqueue_add_sgs+0x2ec/0x4e8
-> [    5.383505] [<ffff00000856d99c>] __virtblk_add_req+0x9c/0x1a8
-> ...
-> [    5.384449] [<ffff0000081829c4>] ondemand_readahead+0xfc/0x2b8
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/net/tun.c | 76 ++++++++++++++++++++++++++++++++++++++++++++++++++-----
+>  1 file changed, 70 insertions(+), 6 deletions(-)
 > 
-> Commit 9491ae4 caps the read-ahead request to a limit set by the backing
-> device. For virtio-blk, it is infinite (as set by the call to
-> blk_queue_max_hw_sectors in virtblk_probe).
-> 
-> I'm not sure how to fix this. Setting an arbitrary sector limit in the
-> virtio-blk driver seems unfair to other users. Maybe we should check if
-> the device is behind a hardware IOMMU before using the DMA API?
+> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> index cd8e02c..6c93926 100644
+> --- a/drivers/net/tun.c
+> +++ b/drivers/net/tun.c
+> @@ -218,6 +218,7 @@ struct tun_struct {
+>  	struct list_head disabled;
+>  	void *security;
+>  	u32 flow_count;
+> +	u32 rx_batched;
+>  	struct tun_pcpu_stats __percpu *pcpu_stats;
+>  };
+>  
+> @@ -522,6 +523,7 @@ static void tun_queue_purge(struct tun_file *tfile)
+>  	while ((skb = skb_array_consume(&tfile->tx_array)) != NULL)
+>  		kfree_skb(skb);
+>  
+> +	skb_queue_purge(&tfile->sk.sk_write_queue);
+>  	skb_queue_purge(&tfile->sk.sk_error_queue);
+>  }
+>  
+> @@ -1140,10 +1142,45 @@ static struct sk_buff *tun_alloc_skb(struct tun_file *tfile,
+>  	return skb;
+>  }
+>  
+> +static void tun_rx_batched(struct tun_struct *tun, struct tun_file *tfile,
+> +			   struct sk_buff *skb, int more)
+> +{
+> +	struct sk_buff_head *queue = &tfile->sk.sk_write_queue;
+> +	struct sk_buff_head process_queue;
+> +	u32 rx_batched = tun->rx_batched;
+> +	bool rcv = false;
+> +
+> +	if (!rx_batched || (!more && skb_queue_empty(queue))) {
+> +		local_bh_disable();
+> +		netif_receive_skb(skb);
+> +		local_bh_enable();
+> +		return;
+> +	}
+> +
+> +	spin_lock(&queue->lock);
+> +	if (!more || skb_queue_len(queue) == rx_batched) {
+> +		__skb_queue_head_init(&process_queue);
+> +		skb_queue_splice_tail_init(queue, &process_queue);
+> +		rcv = true;
+> +	} else {
+> +		__skb_queue_tail(queue, skb);
+> +	}
+> +	spin_unlock(&queue->lock);
+> +
+> +	if (rcv) {
+> +		struct sk_buff *nskb;
+> +		local_bh_disable();
+> +		while ((nskb = __skb_dequeue(&process_queue)))
+> +			netif_receive_skb(nskb);
+> +		netif_receive_skb(skb);
+> +		local_bh_enable();
+> +	}
+> +}
+> +
+>  /* Get packet from user space buffer */
+>  static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+>  			    void *msg_control, struct iov_iter *from,
+> -			    int noblock)
+> +			    int noblock, bool more)
+>  {
+>  	struct tun_pi pi = { 0, cpu_to_be16(ETH_P_IP) };
+>  	struct sk_buff *skb;
+> @@ -1283,10 +1320,9 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+>  	skb_probe_transport_header(skb, 0);
+>  
+>  	rxhash = skb_get_hash(skb);
+> +
+>  #ifndef CONFIG_4KSTACKS
+> -	local_bh_disable();
+> -	netif_receive_skb(skb);
+> -	local_bh_enable();
+> +	tun_rx_batched(tun, tfile, skb, more);
+>  #else
+>  	netif_rx_ni(skb);
+>  #endif
+> @@ -1312,7 +1348,8 @@ static ssize_t tun_chr_write_iter(struct kiocb *iocb, struct iov_iter *from)
+>  	if (!tun)
+>  		return -EBADFD;
+>  
+> -	result = tun_get_user(tun, tfile, NULL, from, file->f_flags & O_NONBLOCK);
+> +	result = tun_get_user(tun, tfile, NULL, from,
+> +			      file->f_flags & O_NONBLOCK, false);
+>  
+>  	tun_put(tun);
+>  	return result;
+> @@ -1570,7 +1607,8 @@ static int tun_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
+>  		return -EBADFD;
+>  
+>  	ret = tun_get_user(tun, tfile, m->msg_control, &m->msg_iter,
+> -			   m->msg_flags & MSG_DONTWAIT);
+> +			   m->msg_flags & MSG_DONTWAIT,
+> +			   m->msg_flags & MSG_MORE);
+>  	tun_put(tun);
+>  	return ret;
+>  }
+> @@ -1771,6 +1809,7 @@ static int tun_set_iff(struct net *net, struct file *file, struct ifreq *ifr)
+>  		tun->align = NET_SKB_PAD;
+>  		tun->filter_attached = false;
+>  		tun->sndbuf = tfile->socket.sk->sk_sndbuf;
+> +		tun->rx_batched = 0;
+>  
+>  		tun->pcpu_stats = netdev_alloc_pcpu_stats(struct tun_pcpu_stats);
+>  		if (!tun->pcpu_stats) {
+> @@ -2439,6 +2478,29 @@ static void tun_set_msglevel(struct net_device *dev, u32 value)
+>  #endif
+>  }
+>  
+> +static int tun_get_coalesce(struct net_device *dev,
+> +			    struct ethtool_coalesce *ec)
+> +{
+> +	struct tun_struct *tun = netdev_priv(dev);
+> +
+> +	ec->rx_max_coalesced_frames = tun->rx_batched;
+> +
+> +	return 0;
+> +}
+> +
+> +static int tun_set_coalesce(struct net_device *dev,
+> +			    struct ethtool_coalesce *ec)
+> +{
+> +	struct tun_struct *tun = netdev_priv(dev);
+> +
+> +	if (ec->rx_max_coalesced_frames > NAPI_POLL_WEIGHT)
+> +		return -EINVAL;
 
-Hmm, this looks more like the virtio_block device simply has the wrong
-DMA mask to begin with. For virtio-pci we set the streaming DMA mask to
-64 bits - should a platform device not be similarly capable?
+So what should userspace do? Keep trying until it succeeds?
+I think it's better to just use NAPI_POLL_WEIGHT instead and DTRT here.
 
-Robin.
-
-> 
-> Thanks,
-> Jean-Philippe
-> 
->> Cc: Andy Lutomirski <luto@kernel.org>
->> Cc: Michael S. Tsirkin <mst@redhat.com>
->> Signed-off-by: Will Deacon <will.deacon@arm.com>
->> ---
->>  drivers/virtio/virtio_ring.c | 4 ++++
->>  1 file changed, 4 insertions(+)
->>
->> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
->> index ed9c9eeedfe5..06b91e29d1b7 100644
->> --- a/drivers/virtio/virtio_ring.c
->> +++ b/drivers/virtio/virtio_ring.c
->> @@ -159,6 +159,10 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
->>  	if (xen_domain())
->>  		return true;
->>  
->> +	/* On ARM-based machines, the DMA ops will do the right thing */
->> +	if (IS_ENABLED(CONFIG_ARM) || IS_ENABLED(CONFIG_ARM64))
->> +		return true;
->> +
->>  	return false;
->>  }
->>  
->>
-> 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-> 
+> +
+> +	tun->rx_batched = ec->rx_max_coalesced_frames;
+> +
+> +	return 0;
+> +}
+> +
+>  static const struct ethtool_ops tun_ethtool_ops = {
+>  	.get_settings	= tun_get_settings,
+>  	.get_drvinfo	= tun_get_drvinfo,
+> @@ -2446,6 +2508,8 @@ static const struct ethtool_ops tun_ethtool_ops = {
+>  	.set_msglevel	= tun_set_msglevel,
+>  	.get_link	= ethtool_op_get_link,
+>  	.get_ts_info	= ethtool_op_get_ts_info,
+> +	.get_coalesce   = tun_get_coalesce,
+> +	.set_coalesce   = tun_set_coalesce,
+>  };
+>  
+>  static int tun_queue_resize(struct tun_struct *tun)
+> -- 
+> 2.7.4
