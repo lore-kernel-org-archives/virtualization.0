@@ -1,16 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH V4 net-next 1/3] vhost: better detection of available
-	buffers
-Date: Fri, 6 Jan 2017 21:55:24 +0200
-Message-ID: <20170106214903-mutt-send-email-mst@kernel.org>
-References: <1483668797-24112-1-git-send-email-jasowang@redhat.com>
-	<1483668797-24112-2-git-send-email-jasowang@redhat.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [RFC PATCH] vring: Force use of DMA API for ARM-based systems
+Date: Fri, 6 Jan 2017 13:51:19 -0800
+Message-ID: <CALCETrXMFHPxAx=ZTYLe9iKPNGfTPEEdis3mn3pphHYpD2h9+A@mail.gmail.com>
+References: <1482246864-16399-1-git-send-email-will.deacon@arm.com>
+	<0b9a1f70-58fe-69c2-87db-d7773cb6a68c@arm.com>
+	<cb98e455-bdee-19ab-8896-9123c6d12a26@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1483668797-24112-2-git-send-email-jasowang@redhat.com>
+In-Reply-To: <cb98e455-bdee-19ab-8896-9123c6d12a26@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,62 +19,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com, stefanha@redhat.com
+To: Robin Murphy <robin.murphy@arm.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Will Deacon <will.deacon@arm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 06, 2017 at 10:13:15AM +0800, Jason Wang wrote:
-> This patch tries to do several tweaks on vhost_vq_avail_empty() for a
-> better performance:
-> 
-> - check cached avail index first which could avoid userspace memory access.
-> - using unlikely() for the failure of userspace access
-> - check vq->last_avail_idx instead of cached avail index as the last
->   step.
-> 
-> This patch is need for batching supports which needs to peek whether
-> or not there's still available buffers in the ring.
-> 
-> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/vhost/vhost.c | 8 ++++++--
->  1 file changed, 6 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index d643260..9f11838 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -2241,11 +2241,15 @@ bool vhost_vq_avail_empty(struct vhost_dev *dev, struct vhost_virtqueue *vq)
->  	__virtio16 avail_idx;
->  	int r;
->  
-> +	if (vq->avail_idx != vq->last_avail_idx)
-> +		return false;
-> +
->  	r = vhost_get_user(vq, avail_idx, &vq->avail->idx);
-> -	if (r)
-> +	if (unlikely(r))
->  		return false;
-> +	vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
->  
-> -	return vhost16_to_cpu(vq, avail_idx) == vq->avail_idx;
-> +	return vq->avail_idx == vq->last_avail_idx;
->  }
->  EXPORT_SYMBOL_GPL(vhost_vq_avail_empty);
+On Fri, Jan 6, 2017 at 10:32 AM, Robin Murphy <robin.murphy@arm.com> wrote:
+> On 06/01/17 17:48, Jean-Philippe Brucker wrote:
+>> Hi Will,
+>>
+>> On 20/12/16 15:14, Will Deacon wrote:
+>>> Booting Linux on an ARM fastmodel containing an SMMU emulation results
+>>> in an unexpected I/O page fault from the legacy virtio-blk PCI device:
+>>>
+>>> [    1.211721] arm-smmu-v3 2b400000.smmu: event 0x10 received:
+>>> [    1.211800] arm-smmu-v3 2b400000.smmu:    0x00000000fffff010
+>>> [    1.211880] arm-smmu-v3 2b400000.smmu:    0x0000020800000000
+>>> [    1.211959] arm-smmu-v3 2b400000.smmu:    0x00000008fa081002
+>>> [    1.212075] arm-smmu-v3 2b400000.smmu:    0x0000000000000000
+>>> [    1.212155] arm-smmu-v3 2b400000.smmu: event 0x10 received:
+>>> [    1.212234] arm-smmu-v3 2b400000.smmu:    0x00000000fffff010
+>>> [    1.212314] arm-smmu-v3 2b400000.smmu:    0x0000020800000000
+>>> [    1.212394] arm-smmu-v3 2b400000.smmu:    0x00000008fa081000
+>>> [    1.212471] arm-smmu-v3 2b400000.smmu:    0x0000000000000000
+>>>
+>>> <system hangs failing to read partition table>
+>>>
+>>> This is because the virtio-blk is behind an SMMU, so we have consequently
+>>> swizzled its DMA ops and configured the SMMU to translate accesses. This
+>>> then requires the vring code to use the DMA API to establish translations,
+>>> otherwise all transactions will result in fatal faults and termination.
+>>>
+>>> Given that ARM-based systems only see an SMMU if one is really present
+>>> (the topology is all described by firmware tables such as device-tree or
+>>> IORT), then we can safely use the DMA API for all virtio devices.
+>>
+>> There is a problem with the platform block device on that same model.
+>> Since it's not behind the SMMU, the DMA ops fall back to swiotlb, which
+>> limits the number of mappings.
+>>
+>> It used to work with 4.9, but since 9491ae4 ("mm: don't cap request size
+>> based on read-ahead setting") unlocked read-ahead, we quickly run into
+>> the limit of swiotlb and panic:
+>>
+>> [    5.382359] virtio-mmio 1c130000.virtio_block: swiotlb buffer is full
+>> (sz: 491520 bytes)
+>> [    5.382452] virtio-mmio 1c130000.virtio_block: DMA: Out of SW-IOMMU
+>> space for 491520 bytes
+>> [    5.382531] Kernel panic - not syncing: DMA: Random memory could be
+>> DMA written
+>> ...
+>> [    5.383148] [<ffff0000083ad754>] swiotlb_map_page+0x194/0x1a0
+>> [    5.383226] [<ffff000008096bb8>] __swiotlb_map_page+0x20/0x88
+>> [    5.383320] [<ffff0000084bf738>] vring_map_one_sg.isra.1+0x70/0x88
+>> [    5.383417] [<ffff0000084c04fc>] virtqueue_add_sgs+0x2ec/0x4e8
+>> [    5.383505] [<ffff00000856d99c>] __virtblk_add_req+0x9c/0x1a8
+>> ...
+>> [    5.384449] [<ffff0000081829c4>] ondemand_readahead+0xfc/0x2b8
+>>
+>> Commit 9491ae4 caps the read-ahead request to a limit set by the backing
+>> device. For virtio-blk, it is infinite (as set by the call to
+>> blk_queue_max_hw_sectors in virtblk_probe).
+>>
+>> I'm not sure how to fix this. Setting an arbitrary sector limit in the
+>> virtio-blk driver seems unfair to other users. Maybe we should check if
+>> the device is behind a hardware IOMMU before using the DMA API?
+>
+> Hmm, this looks more like the virtio_block device simply has the wrong
+> DMA mask to begin with. For virtio-pci we set the streaming DMA mask to
+> 64 bits - should a platform device not be similarly capable?
 
-So again, this did not address the issue I pointed out in v1:
-if we have 1 buffer in RX queue and
-that is not enough to store the whole packet,
-vhost_vq_avail_empty returns false, then we re-read
-the descriptors again and again.
+If it's not, then turning off DMA API will cause random corruption.
+ISTM one way or another the bug is in either the DMA ops or in the
+driver initialization.
 
-You have saved a single index access but not the more expensive
-descriptor access.
-
-I think that a way to address this could be to have this
-return current index for the caller. Then as long as that
-index isn't changed, you don't poke at descriptor ring.
-
-> -- 
-> 2.7.4
+--Andy
