@@ -1,13 +1,11 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next] net: make ndo_get_stats64 a void function
-Date: Thu, 05 Jan 2017 13:18:45 -0500 (EST)
-Message-ID: <20170105.131845.1605952043383659916.davem__16767.8494508893$1483640362$gmane$org@davemloft.net>
-References: <20170105173136.2817-1-sthemmin@microsoft.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH V4 net-next 0/3] vhost_net tx batching
+Date: Fri,  6 Jan 2017 10:13:14 +0800
+Message-ID: <1483668797-24112-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-7"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170105173136.2817-1-sthemmin@microsoft.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,24 +15,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: stephen@networkplumber.org
-Cc: devel@driverdev.osuosl.org, dev@openvswitch.org, sthemmin@microsoft.com, linux-rdma@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, oss-drivers@netronome.com, linux-ppp@vger.kernel.org, devel@linuxdriverproject.org
+To: mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, kvm@vger.kernel.org
+Cc: wexu@redhat.com, stefanha@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogU3RlcGhlbiBIZW1taW5nZXIgPHN0ZXBoZW5AbmV0d29ya3BsdW1iZXIub3JnPg0KRGF0
-ZTogVGh1LCAgNSBKYW4gMjAxNyAwOTozMTozNiAtMDgwMA0KDQo+IFRoZSBuZXR3b3JrIGRldmlj
-ZSBvcGVyYXRpb24gZm9yIHJlYWRpbmcgc3RhdGlzdGljcyBpcyBvbmx5IGNhbGxlZA0KPiBpbiBv
-bmUgcGxhY2UsIGFuZCBpdCBpZ25vcmVzIHRoZSByZXR1cm4gdmFsdWUuIEhhdmluZyBhIHN0cnVj
-dHVyZQ0KPiByZXR1cm4gdmFsdWUgaXMgcG90ZW50aWFsbHkgY29uZnVzaW5nIGJlY2F1c2Ugc29t
-ZSBmdXR1cmUgZHJpdmVyIGNvdWxkDQo+IGluY29ycmVjdGx5IGFzc3VtZSB0aGF0IHRoZSByZXR1
-cm4gdmFsdWUgd2FzIHVzZWQuDQo+IA0KPiBGaXggYWxsIGRyaXZlcnMgd2l0aCBuZG9fZ2V0X3N0
-YXRzNjQgdG8gaGF2ZSBhIHZvaWQgZnVuY3Rpb24uDQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBTdGVw
-aGVuIEhlbW1pbmdlciA8c3RoZW1taW5AbWljcm9zb2Z0LmNvbT4NCg0KWW91IG1pc3NlZCBhdCBs
-ZWFzdCBvbmUgbmV3IHdhcm5pbmcsIHBsZWFzZSBkbyBhIGZyZXNoIGFsbG1vZGNvbmZpZyBidWls
-ZA0KYW5kIHdhdGNoIHRoZSBsb2dzLg0KDQpkcml2ZXJzL25ldC9ldGhlcm5ldC9icm9hZGNvbS9i
-bngyLmM6IEluIGZ1bmN0aW9uIKFibngyX2dldF9zdGF0czY0ojoNCmRyaXZlcnMvbmV0L2V0aGVy
-bmV0L2Jyb2FkY29tL2JueDIuYzo2ODMwOjEwOiB3YXJuaW5nOiChcmV0dXJuoiB3aXRoIGEgdmFs
-dWUsIGluIGZ1bmN0aW9uIHJldHVybmluZyB2b2lkDQoNClRoYW5rcy4NCl9fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
-bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
-c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Hi:
+
+This series tries to implement tx batching support for vhost. This was
+done by using MSG_MORE as a hint for under layer socket. The backend
+(e.g tap) can then batch the packets temporarily in a list and
+submit it all once the number of bacthed exceeds a limitation.
+
+Tests shows obvious improvement on guest pktgen over over
+mlx4(noqueue) on host:
+
+                                     Mpps  -+%
+        rx-frames = 0                0.91  +0%
+        rx-frames = 4                1.00  +9.8%
+        rx-frames = 8                1.00  +9.8%
+        rx-frames = 16               1.01  +10.9%
+        rx-frames = 32               1.07  +17.5%
+        rx-frames = 48               1.07  +17.5%
+        rx-frames = 64               1.08  +18.6%
+        rx-frames = 64 (no MSG_MORE) 0.91  +0%
+
+Changes from V3:
+- use ethtool instead of module parameter to control the maximum
+  number of batched packets
+- avoid overhead when MSG_MORE were not set and no packet queued
+
+Changes from V2:
+- remove uselss queue limitation check (and we don't drop any packet now)
+
+Changes from V1:
+- drop NAPI handler since we don't use NAPI now
+- fix the issues that may exceeds max pending of zerocopy
+- more improvement on available buffer detection
+- move the limitation of batched pacekts from vhost to tuntap
+
+Please review.
+
+Thanks
+
+Jason Wang (3):
+  vhost: better detection of available buffers
+  vhost_net: tx batching
+  tun: rx batching
+
+ drivers/net/tun.c     | 76 +++++++++++++++++++++++++++++++++++++++++++++++----
+ drivers/vhost/net.c   | 23 ++++++++++++++--
+ drivers/vhost/vhost.c |  8 ++++--
+ 3 files changed, 96 insertions(+), 11 deletions(-)
+
+-- 
+2.7.4
