@@ -1,15 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 2/2] vring: Force use of DMA API for ARM-based systems
-Date: Wed, 11 Jan 2017 01:33:31 +0200
-Message-ID: <20170111013046-mutt-send-email-mst@kernel.org>
-References: <85015f1653eb7e36f992708362b75d1f4391b783.1484070340.git.robin.murphy@arm.com>
-	<4833e705fb6841fbfdbee3b1a21a7bc917292410.1484070340.git.robin.murphy@arm.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH v4 0/4] vsock: cancel connect packets when failing to
+	connect
+Date: Mon, 9 Jan 2017 10:06:07 +0000
+Message-ID: <20170109100607.GA30228@stefanha-x1.localdomain>
+References: <1481545269-18104-1-git-send-email-bergwolf@gmail.com>
+	<20161213095010.GA3103@stefanha-x1.localdomain>
+	<CA+a=Yy7d940_OfNL=b_qZjnpRVL5pywKFpubtS_h6OtB7c2Dmg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============6980452452719759876=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4833e705fb6841fbfdbee3b1a21a7bc917292410.1484070340.git.robin.murphy@arm.com>
+In-Reply-To: <CA+a=Yy7d940_OfNL=b_qZjnpRVL5pywKFpubtS_h6OtB7c2Dmg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,67 +19,111 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Robin Murphy <robin.murphy@arm.com>
-Cc: will.deacon@arm.com, linux-arm-kernel@lists.infradead.org, luto@kernel.org, virtualization@lists.linux-foundation.org
+To: Peng Tao <bergwolf@gmail.com>
+Cc: kvm@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, David Miller <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 10, 2017 at 05:51:18PM +0000, Robin Murphy wrote:
-> From: Will Deacon <will.deacon@arm.com>
-> 
-> Booting Linux on an ARM fastmodel containing an SMMU emulation results
-> in an unexpected I/O page fault from the legacy virtio-blk PCI device:
-> 
-> [    1.211721] arm-smmu-v3 2b400000.smmu: event 0x10 received:
-> [    1.211800] arm-smmu-v3 2b400000.smmu:	0x00000000fffff010
-> [    1.211880] arm-smmu-v3 2b400000.smmu:	0x0000020800000000
-> [    1.211959] arm-smmu-v3 2b400000.smmu:	0x00000008fa081002
-> [    1.212075] arm-smmu-v3 2b400000.smmu:	0x0000000000000000
-> [    1.212155] arm-smmu-v3 2b400000.smmu: event 0x10 received:
-> [    1.212234] arm-smmu-v3 2b400000.smmu:	0x00000000fffff010
-> [    1.212314] arm-smmu-v3 2b400000.smmu:	0x0000020800000000
-> [    1.212394] arm-smmu-v3 2b400000.smmu:	0x00000008fa081000
-> [    1.212471] arm-smmu-v3 2b400000.smmu:	0x0000000000000000
-> 
-> <system hangs failing to read partition table>
-> 
-> This is because the virtio-blk is behind an SMMU, so we have consequently
-> swizzled its DMA ops and configured the SMMU to translate accesses. This
-> then requires the vring code to use the DMA API to establish translations,
-> otherwise all transactions will result in fatal faults and termination.
-> 
-> Given that ARM-based systems only see an SMMU if one is really present
-> (the topology is all described by firmware tables such as device-tree or
-> IORT), then we can safely use the DMA API for all virtio devices.
-> 
-> Cc: Andy Lutomirski <luto@kernel.org>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Will Deacon <will.deacon@arm.com>
 
-I'd like to better understand then need for this one.
-Can't the device in question just set VIRTIO_F_IOMMU_PLATFORM ?
-
-I'd rather we avoided need for more hacks and just
-have everyone switch to that.
+--===============6980452452719759876==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gBBFr7Ir9EOA20Yy"
+Content-Disposition: inline
 
 
-> ---
->  drivers/virtio/virtio_ring.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 409aeaa49246..447245f2c813 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -159,6 +159,10 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
->  	if (xen_domain())
->  		return true;
->  
-> +	/* On ARM-based machines, the DMA ops will do the right thing */
-> +	if (IS_ENABLED(CONFIG_ARM) || IS_ENABLED(CONFIG_ARM64))
-> +		return true;
-> +
->  	return false;
->  }
->  
-> -- 
-> 2.10.2.dirty
+--gBBFr7Ir9EOA20Yy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Jan 06, 2017 at 10:22:56AM +0800, Peng Tao wrote:
+> On Tue, Dec 13, 2016 at 5:50 PM, Stefan Hajnoczi <stefanha@gmail.com> wro=
+te:
+> > On Mon, Dec 12, 2016 at 08:21:05PM +0800, Peng Tao wrote:
+> >> Currently, if a connect call fails on a signal or timeout (e.g., guest=
+ is still
+> >> in the process of starting up), we'll just return to caller and leave =
+the connect
+> >> packet queued and they are sent even though the connection is consider=
+ed a failure,
+> >> which can confuse applications with unwanted false connect attempt.
+> >>
+> >> The patchset enables vsock (both host and guest) to cancel queued pack=
+ets when
+> >> a connect attempt is considered to fail.
+> >>
+> >> v4 changelog:
+> >>   - drop two unnecessary void * cast
+> >>   - update new callback commnet
+> >> v3 changelog:
+> >>   - define cancel_pkt callback in struct vsock_transport rather than s=
+truct virtio_transport
+> >>   - rename virtio_vsock_pkt->vsk to virtio_vsock_pkt->cancel_token
+> >> v2 changelog:
+> >>   - fix queued_replies counting and resume tx/rx when necessary
+> >>
+> >> Cheers,
+> >> Tao
+> >>
+> >> Peng Tao (4):
+> >>   vsock: track pkt owner vsock
+> >>   vhost-vsock: add pkt cancel capability
+> >>   vsock: add pkt cancel capability
+> >>   vsock: cancel packets when failing to connect
+> >>
+> >>  drivers/vhost/vsock.c                   | 41 ++++++++++++++++++++++++=
+++++++++
+> >>  include/linux/virtio_vsock.h            |  2 ++
+> >>  include/net/af_vsock.h                  |  3 +++
+> >>  net/vmw_vsock/af_vsock.c                | 14 +++++++++++
+> >>  net/vmw_vsock/virtio_transport.c        | 42 ++++++++++++++++++++++++=
++++++++++
+> >>  net/vmw_vsock/virtio_transport_common.c |  7 ++++++
+> >>  6 files changed, 109 insertions(+)
+> >>
+> >> --
+> >> 2.7.4
+> >>
+> >> _______________________________________________
+> >> Virtualization mailing list
+> >> Virtualization@lists.linux-foundation.org
+> >> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+> >
+> > Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+> ping~
+>=20
+> It looks like the patchsets are reviewed but not merged. Is there any blo=
+cker?
+
+If Jorgen is sending pull requests then it should go through him.
+
+Otherwise David Miller could apply it.
+
+Stefan
+
+--gBBFr7Ir9EOA20Yy
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJYc2COAAoJEJykq7OBq3PInE8H/0OEbRqcrkt/4/k5h9sDuQN+
+qj0iF2vPuVTPmP6cje/q6DG99e4sbwyU1OocRtGjilncNOguiUUH12QWw7VXrUFK
+K3jHHz4IWb++z+euhyRFBXz9m8WDb+XKk0zk14T7uz6xoR1TXuCHkqsWrGU5TK9P
+CadR0LXNzTV3J2S+4LfMBOMzp/mPEiugbjcTL166XsjAnF+KFmQj8eX/BoOD8pwY
+NQ2/zojz8Kk8NgqbX4XCb8VNX9zzhsBOTChnCpgYVAFmI+KbdIN0qm5LeWHS2aAM
+M48j7vDqY0SFb3uAQQWcY+r0sEQ2Fiylbp7fpn8l9VF3ZWsPwBmi2Knp5w9JHZ0=
+=cZK8
+-----END PGP SIGNATURE-----
+
+--gBBFr7Ir9EOA20Yy--
+
+--===============6980452452719759876==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6980452452719759876==--
