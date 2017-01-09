@@ -1,15 +1,15 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [RFC PATCH] vring: Force use of DMA API for ARM-based systems
-Date: Fri, 6 Jan 2017 13:51:19 -0800
-Message-ID: <CALCETrXMFHPxAx=ZTYLe9iKPNGfTPEEdis3mn3pphHYpD2h9+A@mail.gmail.com>
-References: <1482246864-16399-1-git-send-email-will.deacon@arm.com>
-	<0b9a1f70-58fe-69c2-87db-d7773cb6a68c@arm.com>
-	<cb98e455-bdee-19ab-8896-9123c6d12a26@arm.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V4 net-next 3/3] tun: rx batching
+Date: Mon, 9 Jan 2017 10:39:55 +0800
+Message-ID: <bff99f2f-8293-0dda-1db1-881e555f3623@redhat.com>
+References: <1483668797-24112-1-git-send-email-jasowang@redhat.com>
+	<1483668797-24112-4-git-send-email-jasowang@redhat.com>
+	<20170106214323-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cb98e455-bdee-19ab-8896-9123c6d12a26@arm.com>
+In-Reply-To: <20170106214323-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,77 +19,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Robin Murphy <robin.murphy@arm.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Will Deacon <will.deacon@arm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com, stefanha@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 6, 2017 at 10:32 AM, Robin Murphy <robin.murphy@arm.com> wrote:
-> On 06/01/17 17:48, Jean-Philippe Brucker wrote:
->> Hi Will,
->>
->> On 20/12/16 15:14, Will Deacon wrote:
->>> Booting Linux on an ARM fastmodel containing an SMMU emulation results
->>> in an unexpected I/O page fault from the legacy virtio-blk PCI device:
->>>
->>> [    1.211721] arm-smmu-v3 2b400000.smmu: event 0x10 received:
->>> [    1.211800] arm-smmu-v3 2b400000.smmu:    0x00000000fffff010
->>> [    1.211880] arm-smmu-v3 2b400000.smmu:    0x0000020800000000
->>> [    1.211959] arm-smmu-v3 2b400000.smmu:    0x00000008fa081002
->>> [    1.212075] arm-smmu-v3 2b400000.smmu:    0x0000000000000000
->>> [    1.212155] arm-smmu-v3 2b400000.smmu: event 0x10 received:
->>> [    1.212234] arm-smmu-v3 2b400000.smmu:    0x00000000fffff010
->>> [    1.212314] arm-smmu-v3 2b400000.smmu:    0x0000020800000000
->>> [    1.212394] arm-smmu-v3 2b400000.smmu:    0x00000008fa081000
->>> [    1.212471] arm-smmu-v3 2b400000.smmu:    0x0000000000000000
->>>
->>> <system hangs failing to read partition table>
->>>
->>> This is because the virtio-blk is behind an SMMU, so we have consequently
->>> swizzled its DMA ops and configured the SMMU to translate accesses. This
->>> then requires the vring code to use the DMA API to establish translations,
->>> otherwise all transactions will result in fatal faults and termination.
->>>
->>> Given that ARM-based systems only see an SMMU if one is really present
->>> (the topology is all described by firmware tables such as device-tree or
->>> IORT), then we can safely use the DMA API for all virtio devices.
->>
->> There is a problem with the platform block device on that same model.
->> Since it's not behind the SMMU, the DMA ops fall back to swiotlb, which
->> limits the number of mappings.
->>
->> It used to work with 4.9, but since 9491ae4 ("mm: don't cap request size
->> based on read-ahead setting") unlocked read-ahead, we quickly run into
->> the limit of swiotlb and panic:
->>
->> [    5.382359] virtio-mmio 1c130000.virtio_block: swiotlb buffer is full
->> (sz: 491520 bytes)
->> [    5.382452] virtio-mmio 1c130000.virtio_block: DMA: Out of SW-IOMMU
->> space for 491520 bytes
->> [    5.382531] Kernel panic - not syncing: DMA: Random memory could be
->> DMA written
->> ...
->> [    5.383148] [<ffff0000083ad754>] swiotlb_map_page+0x194/0x1a0
->> [    5.383226] [<ffff000008096bb8>] __swiotlb_map_page+0x20/0x88
->> [    5.383320] [<ffff0000084bf738>] vring_map_one_sg.isra.1+0x70/0x88
->> [    5.383417] [<ffff0000084c04fc>] virtqueue_add_sgs+0x2ec/0x4e8
->> [    5.383505] [<ffff00000856d99c>] __virtblk_add_req+0x9c/0x1a8
->> ...
->> [    5.384449] [<ffff0000081829c4>] ondemand_readahead+0xfc/0x2b8
->>
->> Commit 9491ae4 caps the read-ahead request to a limit set by the backing
->> device. For virtio-blk, it is infinite (as set by the call to
->> blk_queue_max_hw_sectors in virtblk_probe).
->>
->> I'm not sure how to fix this. Setting an arbitrary sector limit in the
->> virtio-blk driver seems unfair to other users. Maybe we should check if
->> the device is behind a hardware IOMMU before using the DMA API?
->
-> Hmm, this looks more like the virtio_block device simply has the wrong
-> DMA mask to begin with. For virtio-pci we set the streaming DMA mask to
-> 64 bits - should a platform device not be similarly capable?
-
-If it's not, then turning off DMA API will cause random corruption.
-ISTM one way or another the bug is in either the DMA ops or in the
-driver initialization.
-
---Andy
+CgpPbiAyMDE35bm0MDHmnIgwN+aXpSAwMzo0NywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+PiArc3RhdGljIGludCB0dW5fZ2V0X2NvYWxlc2NlKHN0cnVjdCBuZXRfZGV2aWNlICpkZXYsCj4+
+ICsJCQkgICAgc3RydWN0IGV0aHRvb2xfY29hbGVzY2UgKmVjKQo+PiArewo+PiArCXN0cnVjdCB0
+dW5fc3RydWN0ICp0dW4gPSBuZXRkZXZfcHJpdihkZXYpOwo+PiArCj4+ICsJZWMtPnJ4X21heF9j
+b2FsZXNjZWRfZnJhbWVzID0gdHVuLT5yeF9iYXRjaGVkOwo+PiArCj4+ICsJcmV0dXJuIDA7Cj4+
+ICt9Cj4+ICsKPj4gK3N0YXRpYyBpbnQgdHVuX3NldF9jb2FsZXNjZShzdHJ1Y3QgbmV0X2Rldmlj
+ZSAqZGV2LAo+PiArCQkJICAgIHN0cnVjdCBldGh0b29sX2NvYWxlc2NlICplYykKPj4gK3sKPj4g
+KwlzdHJ1Y3QgdHVuX3N0cnVjdCAqdHVuID0gbmV0ZGV2X3ByaXYoZGV2KTsKPj4gKwo+PiArCWlm
+IChlYy0+cnhfbWF4X2NvYWxlc2NlZF9mcmFtZXMgPiBOQVBJX1BPTExfV0VJR0hUKQo+PiArCQly
+ZXR1cm4gLUVJTlZBTDsKPiBTbyB3aGF0IHNob3VsZCB1c2Vyc3BhY2UgZG8/IEtlZXAgdHJ5aW5n
+IHVudGlsIGl0IHN1Y2NlZWRzPwo+IEkgdGhpbmsgaXQncyBiZXR0ZXIgdG8ganVzdCB1c2UgTkFQ
+SV9QT0xMX1dFSUdIVCBpbnN0ZWFkIGFuZCBEVFJUIGhlcmUuCj4KCldlbGwsIGxvb2tpbmcgYXQg
+aG93IHNldF9jb2FsZXNjZSBpcyBpbXBsZW1lbnRlZCBpbiBvdGhlciBkcml2ZXJzLCAKLUVJTlZB
+TCBpcyB1c3VhbGx5IHVzZWQgd2hlbiB1c2VyIGdpdmUgYSB2YWx1ZSB0aGF0IGV4Y2VlZHMgdGhl
+IApsaW1pdGF0aW9uLiBGb3IgdHVudGFwLCB3aGF0IG1pc3NlZCBoZXJlIGlzIHByb2JhYmx5IGp1
+c3QgYSAKZG9jdW1lbnRhdGlvbiBmb3IgY29hbGVzY2luZyBpbiB0dW50YXAudHh0LiAoT3IgZXh0
+ZW5kIGV0aHRvb2wgdG8gcmV0dXJuIAp0aGUgbWF4IHZhbHVlKS4gVGhpcyBzZWVtcyBtdWNoIGJl
+dHRlciB0aGFuIHNpbGVudGx5IHJlZHVjZSB0aGUgdmFsdWUgdG8gCnRoZSBsaW1pdGF0aW9uLgoK
+VGhhbmtzCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
+cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
+ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
+aW5mby92aXJ0dWFsaXphdGlvbg==
