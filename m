@@ -1,11 +1,18 @@
-From: Omar Sandoval <osandov@osandov.com>
-Subject: [PATCH] virtio_blk: fix panic in initialization error path
-Date: Mon,  9 Jan 2017 11:44:12 -0800
-Message-ID: <4bc0f759ce198dc36e9b678a3c8f69bfef5cb728.1483990999.git.osandov@fb.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH V4 net-next 1/3] vhost: better detection of available
+	buffers
+Date: Tue, 10 Jan 2017 01:10:41 +0200
+Message-ID: <20170110010957-mutt-send-email-mst@kernel.org>
+References: <1483668797-24112-1-git-send-email-jasowang@redhat.com>
+	<1483668797-24112-2-git-send-email-jasowang@redhat.com>
+	<20170106214903-mutt-send-email-mst@kernel.org>
+	<e09ccb6a-87b8-d2b1-f64d-79ea7ea89954@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <e09ccb6a-87b8-d2b1-f64d-79ea7ea89954@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,39 +22,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org
-Cc: kernel-team@fb.com
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com, stefanha@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Omar Sandoval <osandov@fb.com>
-
-If blk_mq_init_queue() returns an error, it gets assigned to
-vblk->disk->queue. Then, when we call put_disk(), we end up calling
-blk_put_queue() with the ERR_PTR, causing a bad dereference. Fix it by
-only assigning to vblk->disk->queue on success.
-
-Signed-off-by: Omar Sandoval <osandov@fb.com>
----
- drivers/block/virtio_blk.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 5545a679abd8..8587361e5356 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -628,11 +628,12 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	if (err)
- 		goto out_put_disk;
- 
--	q = vblk->disk->queue = blk_mq_init_queue(&vblk->tag_set);
-+	q = blk_mq_init_queue(&vblk->tag_set);
- 	if (IS_ERR(q)) {
- 		err = -ENOMEM;
- 		goto out_free_tags;
- 	}
-+	vblk->disk->queue = q;
- 
- 	q->queuedata = vblk;
- 
--- 
-2.11.0
+T24gTW9uLCBKYW4gMDksIDIwMTcgYXQgMTA6NTk6MTZBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiAKPiBPbiAyMDE35bm0MDHmnIgwN+aXpSAwMzo1NSwgTWljaGFlbCBTLiBUc2lya2lu
+IHdyb3RlOgo+ID4gT24gRnJpLCBKYW4gMDYsIDIwMTcgYXQgMTA6MTM6MTVBTSArMDgwMCwgSmFz
+b24gV2FuZyB3cm90ZToKPiA+ID4gVGhpcyBwYXRjaCB0cmllcyB0byBkbyBzZXZlcmFsIHR3ZWFr
+cyBvbiB2aG9zdF92cV9hdmFpbF9lbXB0eSgpIGZvciBhCj4gPiA+IGJldHRlciBwZXJmb3JtYW5j
+ZToKPiA+ID4gCj4gPiA+IC0gY2hlY2sgY2FjaGVkIGF2YWlsIGluZGV4IGZpcnN0IHdoaWNoIGNv
+dWxkIGF2b2lkIHVzZXJzcGFjZSBtZW1vcnkgYWNjZXNzLgo+ID4gPiAtIHVzaW5nIHVubGlrZWx5
+KCkgZm9yIHRoZSBmYWlsdXJlIG9mIHVzZXJzcGFjZSBhY2Nlc3MKPiA+ID4gLSBjaGVjayB2cS0+
+bGFzdF9hdmFpbF9pZHggaW5zdGVhZCBvZiBjYWNoZWQgYXZhaWwgaW5kZXggYXMgdGhlIGxhc3QK
+PiA+ID4gICAgc3RlcC4KPiA+ID4gCj4gPiA+IFRoaXMgcGF0Y2ggaXMgbmVlZCBmb3IgYmF0Y2hp
+bmcgc3VwcG9ydHMgd2hpY2ggbmVlZHMgdG8gcGVlayB3aGV0aGVyCj4gPiA+IG9yIG5vdCB0aGVy
+ZSdzIHN0aWxsIGF2YWlsYWJsZSBidWZmZXJzIGluIHRoZSByaW5nLgo+ID4gPiAKPiA+ID4gUmV2
+aWV3ZWQtYnk6IFN0ZWZhbiBIYWpub2N6aSA8c3RlZmFuaGFAcmVkaGF0LmNvbT4KPiA+ID4gU2ln
+bmVkLW9mZi1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KPiA+ID4gLS0tCj4g
+PiA+ICAgZHJpdmVycy92aG9zdC92aG9zdC5jIHwgOCArKysrKystLQo+ID4gPiAgIDEgZmlsZSBj
+aGFuZ2VkLCA2IGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCj4gPiA+IAo+ID4gPiBkaWZm
+IC0tZ2l0IGEvZHJpdmVycy92aG9zdC92aG9zdC5jIGIvZHJpdmVycy92aG9zdC92aG9zdC5jCj4g
+PiA+IGluZGV4IGQ2NDMyNjAuLjlmMTE4MzggMTAwNjQ0Cj4gPiA+IC0tLSBhL2RyaXZlcnMvdmhv
+c3Qvdmhvc3QuYwo+ID4gPiArKysgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPiA+ID4gQEAgLTIy
+NDEsMTEgKzIyNDEsMTUgQEAgYm9vbCB2aG9zdF92cV9hdmFpbF9lbXB0eShzdHJ1Y3Qgdmhvc3Rf
+ZGV2ICpkZXYsIHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxKQo+ID4gPiAgIAlfX3ZpcnRpbzE2
+IGF2YWlsX2lkeDsKPiA+ID4gICAJaW50IHI7Cj4gPiA+ICsJaWYgKHZxLT5hdmFpbF9pZHggIT0g
+dnEtPmxhc3RfYXZhaWxfaWR4KQo+ID4gPiArCQlyZXR1cm4gZmFsc2U7Cj4gPiA+ICsKPiA+ID4g
+ICAJciA9IHZob3N0X2dldF91c2VyKHZxLCBhdmFpbF9pZHgsICZ2cS0+YXZhaWwtPmlkeCk7Cj4g
+PiA+IC0JaWYgKHIpCj4gPiA+ICsJaWYgKHVubGlrZWx5KHIpKQo+ID4gPiAgIAkJcmV0dXJuIGZh
+bHNlOwo+ID4gPiArCXZxLT5hdmFpbF9pZHggPSB2aG9zdDE2X3RvX2NwdSh2cSwgYXZhaWxfaWR4
+KTsKPiA+ID4gLQlyZXR1cm4gdmhvc3QxNl90b19jcHUodnEsIGF2YWlsX2lkeCkgPT0gdnEtPmF2
+YWlsX2lkeDsKPiA+ID4gKwlyZXR1cm4gdnEtPmF2YWlsX2lkeCA9PSB2cS0+bGFzdF9hdmFpbF9p
+ZHg7Cj4gPiA+ICAgfQo+ID4gPiAgIEVYUE9SVF9TWU1CT0xfR1BMKHZob3N0X3ZxX2F2YWlsX2Vt
+cHR5KTsKPiA+IFNvIGFnYWluLCB0aGlzIGRpZCBub3QgYWRkcmVzcyB0aGUgaXNzdWUgSSBwb2lu
+dGVkIG91dCBpbiB2MToKPiA+IGlmIHdlIGhhdmUgMSBidWZmZXIgaW4gUlggcXVldWUgYW5kCj4g
+PiB0aGF0IGlzIG5vdCBlbm91Z2ggdG8gc3RvcmUgdGhlIHdob2xlIHBhY2tldCwKPiA+IHZob3N0
+X3ZxX2F2YWlsX2VtcHR5IHJldHVybnMgZmFsc2UsIHRoZW4gd2UgcmUtcmVhZAo+ID4gdGhlIGRl
+c2NyaXB0b3JzIGFnYWluIGFuZCBhZ2Fpbi4KPiA+IAo+ID4gWW91IGhhdmUgc2F2ZWQgYSBzaW5n
+bGUgaW5kZXggYWNjZXNzIGJ1dCBub3QgdGhlIG1vcmUgZXhwZW5zaXZlCj4gPiBkZXNjcmlwdG9y
+IGFjY2Vzcy4KPiAKPiBMb29rcyBub3QsIGlmIEkgdW5kZXJzdGFuZCB0aGUgY29kZSBjb3JyZWN0
+bHksIGluIHRoaXMgY2FzZSwgZ2V0X3J4X2J1ZnMoKQo+IHdpbGwgcmV0dXJuIHplcm8sIGFuZCB3
+ZSB3aWxsIHRyeSB0byBlbmFibGUgcngga2ljayBhbmQgZXhpdCB0aGUgbG9vcC4KPiAKPiBUaGFu
+a3MKCkkgbWVhbiB0aGlzOgoKICAgICAgICAgICAgICAgIHdoaWxlICh2aG9zdF9jYW5fYnVzeV9w
+b2xsKHZxLT5kZXYsIGVuZHRpbWUpICYmCiAgICAgICAgICAgICAgICAgICAgICAgdmhvc3RfdnFf
+YXZhaWxfZW1wdHkodnEtPmRldiwgdnEpKQogICAgICAgICAgICAgICAgICAgICAgICBjcHVfcmVs
+YXgoKTsKICAgICAgICAgICAgICAgIHByZWVtcHRfZW5hYmxlKCk7CiAgICAgICAgICAgICAgICBy
+ID0gdmhvc3RfZ2V0X3ZxX2Rlc2ModnEsIHZxLT5pb3YsIEFSUkFZX1NJWkUodnEtPmlvdiksCiAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgb3V0X251bSwgaW5fbnVtLCBOVUxM
+LCBOVUxMKTsKCgp2aG9zdF92cV9hdmFpbF9lbXB0eSByZXR1cm5zIGZhbHNlIHNvIHdlIGJyZWFr
+IG91dCBvZiB0aGUgbG9vcAphbmQgY2FsbCB2aG9zdF9nZXRfdnFfZGVzYy4KCgotLSAKTVNUCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
+aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
+ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
+dWFsaXphdGlvbg==
