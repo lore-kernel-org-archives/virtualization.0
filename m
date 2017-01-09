@@ -1,11 +1,14 @@
-From: Bhumika Goyal <bhumirks@gmail.com>
-Subject: [PATCH] vhost: scsi: constify target_core_fabric_ops structures
-Date: Mon,  9 Jan 2017 20:51:02 +0530
-Message-ID: <1483975262-1260-1-git-send-email-bhumirks__45290.1226039559$1484064047$gmane$org@gmail.com>
+From: Jeff Moyer <jmoyer@redhat.com>
+Subject: Re: [PATCH] virtio_blk: fix panic in initialization error path
+Date: Mon, 09 Jan 2017 14:55:56 -0500
+Message-ID: <x49zij0gg8j.fsf__24487.3984055177$1484064050$gmane$org@segfault.boston.devel.redhat.com>
+References: <4bc0f759ce198dc36e9b678a3c8f69bfef5cb728.1483990999.git.osandov@fb.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4bc0f759ce198dc36e9b678a3c8f69bfef5cb728.1483990999.git.osandov@fb.com>
+	(Omar Sandoval's message of "Mon, 9 Jan 2017 11:44:12 -0800")
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,69 +18,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: julia.lawall@lip6.fr, mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Bhumika Goyal <bhumirks@gmail.com>
+To: Omar Sandoval <osandov@osandov.com>
+Cc: linux-block@vger.kernel.org, virtualization@lists.linux-foundation.org, kernel-team@fb.com, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Declare target_core_fabric_ops strucrues as const as they are only
-passed as an argument to the functions target_register_template and 
-target_unregister_template. The arguments are of type const struct 
-target_core_fabric_ops *, so target_core_fabric_ops structures having 
-this property can be declared const.
-Done using Coccinelle:
+Omar Sandoval <osandov@osandov.com> writes:
 
-@r disable optional_qualifier@
-identifier i;
-position p;
-@@
-static struct target_core_fabric_ops i@p={...};
+> From: Omar Sandoval <osandov@fb.com>
+>
+> If blk_mq_init_queue() returns an error, it gets assigned to
+> vblk->disk->queue. Then, when we call put_disk(), we end up calling
+> blk_put_queue() with the ERR_PTR, causing a bad dereference. Fix it by
+> only assigning to vblk->disk->queue on success.
+>
+> Signed-off-by: Omar Sandoval <osandov@fb.com>
 
-@ok@
-position p;
-identifier r.i;
-@@
-(
-target_register_template(&i@p)
-|
-target_unregister_template(&i@p)
-)
-@bad@
-position p!={r.p,ok.p};
-identifier r.i;
-@@
-i@p
-
-@depends on !bad disable optional_qualifier@
-identifier r.i;
-@@
-+const
-struct target_core_fabric_ops i;
-
-File size before: drivers/vhost/scsi.o
-   text	   data	    bss	    dec	    hex	filename
-  18063	   2985	     40	  21088	   5260	drivers/vhost/scsi.o
-
-File size after: drivers/vhost/scsi.o
-   text	   data	    bss	    dec	    hex	filename
-  18479	   2601	     40	  21120	   5280	drivers/vhost/scsi.o
-
-Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
----
- drivers/vhost/scsi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index 253310c..620366d 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -2087,7 +2087,7 @@ static void vhost_scsi_drop_tport(struct se_wwn *wwn)
- 	NULL,
- };
- 
--static struct target_core_fabric_ops vhost_scsi_ops = {
-+static const struct target_core_fabric_ops vhost_scsi_ops = {
- 	.module				= THIS_MODULE,
- 	.name				= "vhost",
- 	.get_fabric_name		= vhost_scsi_get_fabric_name,
--- 
-1.9.1
+Reviewed-by: Jeff Moyer <jmoyer@redhat.com>
