@@ -1,13 +1,11 @@
 From: Robin Murphy <robin.murphy@arm.com>
-Subject: [PATCH v2 2/2] vring: Force use of DMA API for ARM-based systems
-Date: Tue, 10 Jan 2017 17:51:18 +0000
-Message-ID: <4833e705fb6841fbfdbee3b1a21a7bc917292410.1484070340.git.robin.murphy@arm.com>
-References: <85015f1653eb7e36f992708362b75d1f4391b783.1484070340.git.robin.murphy@arm.com>
+Subject: [PATCH v2 1/2] virtio_mmio: Set DMA masks appropriately
+Date: Tue, 10 Jan 2017 17:51:17 +0000
+Message-ID: <85015f1653eb7e36f992708362b75d1f4391b783.1484070340.git.robin.murphy@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <85015f1653eb7e36f992708362b75d1f4391b783.1484070340.git.robin.murphy@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,54 +19,70 @@ To: virtualization@lists.linux-foundation.org
 Cc: will.deacon@arm.com, linux-arm-kernel@lists.infradead.org, luto@kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Will Deacon <will.deacon@arm.com>
+Once DMA API usage is enabled, it becomes apparent that virtio-mmio is
+inadvertently relying on the default 32-bit DMA mask, which leads to
+problems like rapidly exhausting SWIOTLB bounce buffers.
 
-Booting Linux on an ARM fastmodel containing an SMMU emulation results
-in an unexpected I/O page fault from the legacy virtio-blk PCI device:
-
-[    1.211721] arm-smmu-v3 2b400000.smmu: event 0x10 received:
-[    1.211800] arm-smmu-v3 2b400000.smmu:	0x00000000fffff010
-[    1.211880] arm-smmu-v3 2b400000.smmu:	0x0000020800000000
-[    1.211959] arm-smmu-v3 2b400000.smmu:	0x00000008fa081002
-[    1.212075] arm-smmu-v3 2b400000.smmu:	0x0000000000000000
-[    1.212155] arm-smmu-v3 2b400000.smmu: event 0x10 received:
-[    1.212234] arm-smmu-v3 2b400000.smmu:	0x00000000fffff010
-[    1.212314] arm-smmu-v3 2b400000.smmu:	0x0000020800000000
-[    1.212394] arm-smmu-v3 2b400000.smmu:	0x00000008fa081000
-[    1.212471] arm-smmu-v3 2b400000.smmu:	0x0000000000000000
-
-<system hangs failing to read partition table>
-
-This is because the virtio-blk is behind an SMMU, so we have consequently
-swizzled its DMA ops and configured the SMMU to translate accesses. This
-then requires the vring code to use the DMA API to establish translations,
-otherwise all transactions will result in fatal faults and termination.
-
-Given that ARM-based systems only see an SMMU if one is really present
-(the topology is all described by firmware tables such as device-tree or
-IORT), then we can safely use the DMA API for all virtio devices.
+Ensure that we set the appropriate 64-bit DMA mask whenever possible,
+with the coherent mask suitably limited for the legacy vring as per
+a0be1db4304f ("virtio_pci: Limit DMA mask to 44 bits for legacy virtio
+devices").
 
 Cc: Andy Lutomirski <luto@kernel.org>
 Cc: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+Reported-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Fixes: b42111382f0e ("virtio_mmio: Use the DMA API if enabled")
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
 ---
- drivers/virtio/virtio_ring.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/virtio/virtio_mmio.c | 20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 409aeaa49246..447245f2c813 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -159,6 +159,10 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
- 	if (xen_domain())
- 		return true;
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index d47a2fcef818..c71fde5fe835 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -59,6 +59,7 @@
+ #define pr_fmt(fmt) "virtio-mmio: " fmt
  
-+	/* On ARM-based machines, the DMA ops will do the right thing */
-+	if (IS_ENABLED(CONFIG_ARM) || IS_ENABLED(CONFIG_ARM64))
-+		return true;
+ #include <linux/acpi.h>
++#include <linux/dma-mapping.h>
+ #include <linux/highmem.h>
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
+@@ -498,6 +499,7 @@ static int virtio_mmio_probe(struct platform_device *pdev)
+ 	struct virtio_mmio_device *vm_dev;
+ 	struct resource *mem;
+ 	unsigned long magic;
++	int rc;
+ 
+ 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	if (!mem)
+@@ -547,9 +549,25 @@ static int virtio_mmio_probe(struct platform_device *pdev)
+ 	}
+ 	vm_dev->vdev.id.vendor = readl(vm_dev->base + VIRTIO_MMIO_VENDOR_ID);
+ 
+-	if (vm_dev->version == 1)
++	if (vm_dev->version == 1) {
+ 		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
+ 
++		rc = dma_set_mask(&pdev->dev, DMA_BIT_MASK(64));
++		/*
++		 * In the legacy case, ensure our coherently-allocated virtio
++		 * ring will be at an address expressable as a 32-bit PFN.
++		 */
++		if (!rc)
++			dma_set_coherent_mask(&pdev->dev,
++					      DMA_BIT_MASK(32 + PAGE_SHIFT));
++	} else {
++		rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
++	}
++	if (rc)
++		rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
++	if (rc)
++		dev_warn(&pdev->dev, "Failed to enable 64-bit or 32-bit DMA.  Trying to continue, but this might not work.\n");
 +
- 	return false;
- }
+ 	platform_set_drvdata(pdev, vm_dev);
  
+ 	return register_virtio_device(&vm_dev->vdev);
 -- 
 2.10.2.dirty
