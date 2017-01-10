@@ -1,15 +1,18 @@
-From: "Li, Liang Z" <liang.z.li@intel.com>
-Subject: RE: [PATCH v6 kernel 0/5] Extend virtio-balloon for fast
-	(de)inflating & fast live migration
-Date: Tue, 10 Jan 2017 06:43:23 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E3C34EE1E@shsmsx102.ccr.corp.intel.com>
-References: <1482303148-22059-1-git-send-email-liang.z.li@intel.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [RFC PATCH] vring: Force use of DMA API for ARM-based systems
+Date: Tue, 10 Jan 2017 10:50:55 +0000
+Message-ID: <8cb155ba-243d-80f6-4298-1c43266b3a5c__4520.30646051771$1484045341$gmane$org@arm.com>
+References: <1482246864-16399-1-git-send-email-will.deacon@arm.com>
+	<0b9a1f70-58fe-69c2-87db-d7773cb6a68c@arm.com>
+	<cb98e455-bdee-19ab-8896-9123c6d12a26@arm.com>
+	<CALCETrXMFHPxAx=ZTYLe9iKPNGfTPEEdis3mn3pphHYpD2h9+A@mail.gmail.com>
+	<fbf1a09a-bdb2-504a-f4a7-56fa54b6292b@arm.com>
+	<20170109145437.GF21398@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1482303148-22059-1-git-send-email-liang.z.li@intel.com>
-Content-Language: en-US
+In-Reply-To: <20170109145437.GF21398@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,89 +22,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "kvm@vger.kernel.org" <kvm@vger.kernel.org>
-Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Hansen, Dave" <dave.hansen@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "dgilbert@redhat.com" <dgilbert@redhat.com>
+To: Will Deacon <will.deacon@arm.com>, Robin Murphy <robin.murphy@arm.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, Andy Lutomirski <luto@amacapital.net>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi guys,
+On 09/01/17 14:54, Will Deacon wrote:
+> On Mon, Jan 09, 2017 at 11:24:04AM +0000, Robin Murphy wrote:
+>> On 06/01/17 21:51, Andy Lutomirski wrote:
+>>> On Fri, Jan 6, 2017 at 10:32 AM, Robin Murphy <robin.murphy@arm.com> wrote:
+>>>> On 06/01/17 17:48, Jean-Philippe Brucker wrote:
+>>>>> It used to work with 4.9, but since 9491ae4 ("mm: don't cap request size
+>>>>> based on read-ahead setting") unlocked read-ahead, we quickly run into
+>>>>> the limit of swiotlb and panic:
+>>>>>
+>>>>> [    5.382359] virtio-mmio 1c130000.virtio_block: swiotlb buffer is full
+>>>>> (sz: 491520 bytes)
+>>>>> [    5.382452] virtio-mmio 1c130000.virtio_block: DMA: Out of SW-IOMMU
+>>>>> space for 491520 bytes
+>>>>> [    5.382531] Kernel panic - not syncing: DMA: Random memory could be
+>>>>> DMA written
+>>>>> ...
+>>>>> [    5.383148] [<ffff0000083ad754>] swiotlb_map_page+0x194/0x1a0
+>>>>> [    5.383226] [<ffff000008096bb8>] __swiotlb_map_page+0x20/0x88
+>>>>> [    5.383320] [<ffff0000084bf738>] vring_map_one_sg.isra.1+0x70/0x88
+>>>>> [    5.383417] [<ffff0000084c04fc>] virtqueue_add_sgs+0x2ec/0x4e8
+>>>>> [    5.383505] [<ffff00000856d99c>] __virtblk_add_req+0x9c/0x1a8
+>>>>> ...
+>>>>> [    5.384449] [<ffff0000081829c4>] ondemand_readahead+0xfc/0x2b8
+>>>>>
+>>>>> Commit 9491ae4 caps the read-ahead request to a limit set by the backing
+>>>>> device. For virtio-blk, it is infinite (as set by the call to
+>>>>> blk_queue_max_hw_sectors in virtblk_probe).
+>>>>>
+>>>>> I'm not sure how to fix this. Setting an arbitrary sector limit in the
+>>>>> virtio-blk driver seems unfair to other users. Maybe we should check if
+>>>>> the device is behind a hardware IOMMU before using the DMA API?
+>>>>
+>>>> Hmm, this looks more like the virtio_block device simply has the wrong
+>>>> DMA mask to begin with. For virtio-pci we set the streaming DMA mask to
+>>>> 64 bits - should a platform device not be similarly capable?
+>>>
+>>> If it's not, then turning off DMA API will cause random corruption.
+>>> ISTM one way or another the bug is in either the DMA ops or in the
+>>> driver initialization.
+>>
+>> OK, having looked a little deeper, I reckon virtio_mmio_probe() is
+>> indeed missing a dma_set_mask() call compared to its PCI friends. The
+>> only question then is where does virtio-mmio stand with respect to
+>> legacy/modern/44-bit/64-bit etc.?
+> 
+> Legacy virtio-mmio has a variable page granule (GuestPageSize), so the
+> 44-bit limitation shouldn't apply. The legacy spec doesn't actually
+> initialise GuestPageSize in the example initialisation sequence, but
+> Linux does. Non-legacy uses absolute, 64-bit addresses regardless of
+> transport, so yes, it might be as simple as adding:
+> 
+> 	dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+> 
+> to virtio_mmio_probe. Jean-Philippe -- does that fix things for you?
 
-Could you help to review this patch set?
+Yes, setting the DMA mask to 64 bits seems to fix my issue.
 
-Thanks!
-Liang
-
-> -----Original Message-----
-> From: Li, Liang Z
-> Sent: Wednesday, December 21, 2016 2:52 PM
-> To: kvm@vger.kernel.org
-> Cc: virtio-dev@lists.oasis-open.org; qemu-devel@nongnu.org; linux-
-> mm@kvack.org; linux-kernel@vger.kernel.org; virtualization@lists.linux-
-> foundation.org; amit.shah@redhat.com; Hansen, Dave;
-> cornelia.huck@de.ibm.com; pbonzini@redhat.com; mst@redhat.com;
-> david@redhat.com; aarcange@redhat.com; dgilbert@redhat.com;
-> quintela@redhat.com; Li, Liang Z
-> Subject: [PATCH v6 kernel 0/5] Extend virtio-balloon for fast (de)inflating &
-> fast live migration
-> 
-> This patch set contains two parts of changes to the virtio-balloon.
-> 
-> One is the change for speeding up the inflating & deflating process, the main
-> idea of this optimization is to use {pfn|length} to present the page
-> information instead of the PFNs, to reduce the overhead of virtio data
-> transmission, address translation and madvise(). This can help to improve the
-> performance by about 85%.
-> 
-> Another change is for speeding up live migration. By skipping process guest's
-> unused pages in the first round of data copy, to reduce needless data
-> processing, this can help to save quite a lot of CPU cycles and network
-> bandwidth. We put guest's unused page information in a {pfn|length} array
-> and send it to host with the virt queue of virtio-balloon. For an idle guest with
-> 8GB RAM, this can help to shorten the total live migration time from 2Sec to
-> about 500ms in 10Gbps network environment. For an guest with quite a lot
-> of page cache and with little unused pages, it's possible to let the guest drop
-> it's page cache before live migration, this case can benefit from this new
-> feature too.
-> 
-> Changes from v5 to v6:
->     * Drop the bitmap from the virtio ABI, use {pfn|length} only.
->     * Enhance the API to get the unused page information from mm.
-> 
-> Changes from v4 to v5:
->     * Drop the code to get the max_pfn, use another way instead.
->     * Simplify the API to get the unused page information from mm.
-> 
-> Changes from v3 to v4:
->     * Use the new scheme suggested by Dave Hansen to encode the bitmap.
->     * Add code which is missed in v3 to handle migrate page.
->     * Free the memory for bitmap intime once the operation is done.
->     * Address some of the comments in v3.
-> 
-> Changes from v2 to v3:
->     * Change the name of 'free page' to 'unused page'.
->     * Use the scatter & gather bitmap instead of a 1MB page bitmap.
->     * Fix overwriting the page bitmap after kicking.
->     * Some of MST's comments for v2.
-> 
-> Changes from v1 to v2:
->     * Abandon the patch for dropping page cache.
->     * Put some structures to uapi head file.
->     * Use a new way to determine the page bitmap size.
->     * Use a unified way to send the free page information with the bitmap
->     * Address the issues referred in MST's comments
-> 
-> Liang Li (5):
->   virtio-balloon: rework deflate to add page to a list
->   virtio-balloon: define new feature bit and head struct
->   virtio-balloon: speed up inflate/deflate process
->   virtio-balloon: define flags and head for host request vq
->   virtio-balloon: tell host vm's unused page info
-> 
->  drivers/virtio/virtio_balloon.c     | 510
-> ++++++++++++++++++++++++++++++++----
->  include/linux/mm.h                  |   3 +
->  include/uapi/linux/virtio_balloon.h |  34 +++
->  mm/page_alloc.c                     | 120 +++++++++
->  4 files changed, 621 insertions(+), 46 deletions(-)
-> 
-> --
-> 1.9.1
+Thank,
+Jean-Philippe
