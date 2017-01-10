@@ -1,14 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost: scsi: constify target_core_fabric_ops structures
-Date: Tue, 10 Jan 2017 07:11:40 +0200
-Message-ID: <20170110071054-mutt-send-email-mst@kernel.org>
-References: <1483975262-1260-1-git-send-email-bhumirks@gmail.com>
+From: "Li, Liang Z" <liang.z.li@intel.com>
+Subject: RE: [PATCH v6 kernel 0/5] Extend virtio-balloon for fast
+	(de)inflating & fast live migration
+Date: Tue, 10 Jan 2017 06:43:23 +0000
+Message-ID: <F2CBF3009FA73547804AE4C663CAB28E3C34EE1E@shsmsx102.ccr.corp.intel.com>
+References: <1482303148-22059-1-git-send-email-liang.z.li@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1483975262-1260-1-git-send-email-bhumirks@gmail.com>
+In-Reply-To: <1482303148-22059-1-git-send-email-liang.z.li@intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,76 +19,89 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bhumika Goyal <bhumirks@gmail.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, julia.lawall@lip6.fr
+To: "kvm@vger.kernel.org" <kvm@vger.kernel.org>
+Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Hansen, Dave" <dave.hansen@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "dgilbert@redhat.com" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 09, 2017 at 08:51:02PM +0530, Bhumika Goyal wrote:
-> Declare target_core_fabric_ops strucrues as const as they are only
-> passed as an argument to the functions target_register_template and 
-> target_unregister_template. The arguments are of type const struct 
-> target_core_fabric_ops *, so target_core_fabric_ops structures having 
-> this property can be declared const.
-> Done using Coccinelle:
-> 
-> @r disable optional_qualifier@
-> identifier i;
-> position p;
-> @@
-> static struct target_core_fabric_ops i@p={...};
-> 
-> @ok@
-> position p;
-> identifier r.i;
-> @@
-> (
-> target_register_template(&i@p)
-> |
-> target_unregister_template(&i@p)
-> )
-> @bad@
-> position p!={r.p,ok.p};
-> identifier r.i;
-> @@
-> i@p
-> 
-> @depends on !bad disable optional_qualifier@
-> identifier r.i;
-> @@
-> +const
-> struct target_core_fabric_ops i;
-> 
-> File size before: drivers/vhost/scsi.o
->    text	   data	    bss	    dec	    hex	filename
->   18063	   2985	     40	  21088	   5260	drivers/vhost/scsi.o
-> 
-> File size after: drivers/vhost/scsi.o
->    text	   data	    bss	    dec	    hex	filename
->   18479	   2601	     40	  21120	   5280	drivers/vhost/scsi.o
+Hi guys,
 
-What are these numbers trying to prove?
+Could you help to review this patch set?
 
+Thanks!
+Liang
 
-> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
-> ---
->  drivers/vhost/scsi.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> -----Original Message-----
+> From: Li, Liang Z
+> Sent: Wednesday, December 21, 2016 2:52 PM
+> To: kvm@vger.kernel.org
+> Cc: virtio-dev@lists.oasis-open.org; qemu-devel@nongnu.org; linux-
+> mm@kvack.org; linux-kernel@vger.kernel.org; virtualization@lists.linux-
+> foundation.org; amit.shah@redhat.com; Hansen, Dave;
+> cornelia.huck@de.ibm.com; pbonzini@redhat.com; mst@redhat.com;
+> david@redhat.com; aarcange@redhat.com; dgilbert@redhat.com;
+> quintela@redhat.com; Li, Liang Z
+> Subject: [PATCH v6 kernel 0/5] Extend virtio-balloon for fast (de)inflating &
+> fast live migration
 > 
-> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-> index 253310c..620366d 100644
-> --- a/drivers/vhost/scsi.c
-> +++ b/drivers/vhost/scsi.c
-> @@ -2087,7 +2087,7 @@ static void vhost_scsi_drop_tport(struct se_wwn *wwn)
->  	NULL,
->  };
->  
-> -static struct target_core_fabric_ops vhost_scsi_ops = {
-> +static const struct target_core_fabric_ops vhost_scsi_ops = {
->  	.module				= THIS_MODULE,
->  	.name				= "vhost",
->  	.get_fabric_name		= vhost_scsi_get_fabric_name,
-
-If it can be const it probably should ...
-
-> -- 
+> This patch set contains two parts of changes to the virtio-balloon.
+> 
+> One is the change for speeding up the inflating & deflating process, the main
+> idea of this optimization is to use {pfn|length} to present the page
+> information instead of the PFNs, to reduce the overhead of virtio data
+> transmission, address translation and madvise(). This can help to improve the
+> performance by about 85%.
+> 
+> Another change is for speeding up live migration. By skipping process guest's
+> unused pages in the first round of data copy, to reduce needless data
+> processing, this can help to save quite a lot of CPU cycles and network
+> bandwidth. We put guest's unused page information in a {pfn|length} array
+> and send it to host with the virt queue of virtio-balloon. For an idle guest with
+> 8GB RAM, this can help to shorten the total live migration time from 2Sec to
+> about 500ms in 10Gbps network environment. For an guest with quite a lot
+> of page cache and with little unused pages, it's possible to let the guest drop
+> it's page cache before live migration, this case can benefit from this new
+> feature too.
+> 
+> Changes from v5 to v6:
+>     * Drop the bitmap from the virtio ABI, use {pfn|length} only.
+>     * Enhance the API to get the unused page information from mm.
+> 
+> Changes from v4 to v5:
+>     * Drop the code to get the max_pfn, use another way instead.
+>     * Simplify the API to get the unused page information from mm.
+> 
+> Changes from v3 to v4:
+>     * Use the new scheme suggested by Dave Hansen to encode the bitmap.
+>     * Add code which is missed in v3 to handle migrate page.
+>     * Free the memory for bitmap intime once the operation is done.
+>     * Address some of the comments in v3.
+> 
+> Changes from v2 to v3:
+>     * Change the name of 'free page' to 'unused page'.
+>     * Use the scatter & gather bitmap instead of a 1MB page bitmap.
+>     * Fix overwriting the page bitmap after kicking.
+>     * Some of MST's comments for v2.
+> 
+> Changes from v1 to v2:
+>     * Abandon the patch for dropping page cache.
+>     * Put some structures to uapi head file.
+>     * Use a new way to determine the page bitmap size.
+>     * Use a unified way to send the free page information with the bitmap
+>     * Address the issues referred in MST's comments
+> 
+> Liang Li (5):
+>   virtio-balloon: rework deflate to add page to a list
+>   virtio-balloon: define new feature bit and head struct
+>   virtio-balloon: speed up inflate/deflate process
+>   virtio-balloon: define flags and head for host request vq
+>   virtio-balloon: tell host vm's unused page info
+> 
+>  drivers/virtio/virtio_balloon.c     | 510
+> ++++++++++++++++++++++++++++++++----
+>  include/linux/mm.h                  |   3 +
+>  include/uapi/linux/virtio_balloon.h |  34 +++
+>  mm/page_alloc.c                     | 120 +++++++++
+>  4 files changed, 621 insertions(+), 46 deletions(-)
+> 
+> --
 > 1.9.1
