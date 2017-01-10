@@ -1,20 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH V4 net-next 1/3] vhost: better detection of available
-	buffers
-Date: Tue, 10 Jan 2017 04:57:39 +0200
-Message-ID: <20170110045213-mutt-send-email-mst__24070.5746844926$1484017072$gmane$org@kernel.org>
-References: <1483668797-24112-1-git-send-email-jasowang@redhat.com>
-	<1483668797-24112-2-git-send-email-jasowang@redhat.com>
-	<20170106214903-mutt-send-email-mst@kernel.org>
-	<e09ccb6a-87b8-d2b1-f64d-79ea7ea89954@redhat.com>
-	<20170110010957-mutt-send-email-mst@kernel.org>
-	<5eb3b349-bbae-6438-d8ea-7df82a7babb4@redhat.com>
+Subject: Re: [PATCH] virtio_blk: fix panic in initialization error path
+Date: Tue, 10 Jan 2017 06:10:20 +0200
+Message-ID: <20170110060937-mutt-send-email-mst@kernel.org>
+References: <4bc0f759ce198dc36e9b678a3c8f69bfef5cb728.1483990999.git.osandov@fb.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <5eb3b349-bbae-6438-d8ea-7df82a7babb4@redhat.com>
+In-Reply-To: <4bc0f759ce198dc36e9b678a3c8f69bfef5cb728.1483990999.git.osandov@fb.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,65 +18,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com, stefanha@redhat.com
+To: Omar Sandoval <osandov@osandov.com>
+Cc: linux-block@vger.kernel.org, Jens Axboe <axboe@kernel.dk>, kernel-team@fb.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBKYW4gMTAsIDIwMTcgYXQgMTA6MjI6NDJBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE35bm0MDHmnIgxMOaXpSAwNzoxMCwgTWljaGFlbCBTLiBUc2lya2lu
-IHdyb3RlOgo+ID4gT24gTW9uLCBKYW4gMDksIDIwMTcgYXQgMTA6NTk6MTZBTSArMDgwMCwgSmFz
-b24gV2FuZyB3cm90ZToKPiA+ID4gCj4gPiA+IE9uIDIwMTflubQwMeaciDA35pelIDAzOjU1LCBN
-aWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPiA+ID4gT24gRnJpLCBKYW4gMDYsIDIwMTcgYXQg
-MTA6MTM6MTVBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiA+IFRoaXMgcGF0Y2gg
-dHJpZXMgdG8gZG8gc2V2ZXJhbCB0d2Vha3Mgb24gdmhvc3RfdnFfYXZhaWxfZW1wdHkoKSBmb3Ig
-YQo+ID4gPiA+ID4gYmV0dGVyIHBlcmZvcm1hbmNlOgo+ID4gPiA+ID4gCj4gPiA+ID4gPiAtIGNo
-ZWNrIGNhY2hlZCBhdmFpbCBpbmRleCBmaXJzdCB3aGljaCBjb3VsZCBhdm9pZCB1c2Vyc3BhY2Ug
-bWVtb3J5IGFjY2Vzcy4KPiA+ID4gPiA+IC0gdXNpbmcgdW5saWtlbHkoKSBmb3IgdGhlIGZhaWx1
-cmUgb2YgdXNlcnNwYWNlIGFjY2Vzcwo+ID4gPiA+ID4gLSBjaGVjayB2cS0+bGFzdF9hdmFpbF9p
-ZHggaW5zdGVhZCBvZiBjYWNoZWQgYXZhaWwgaW5kZXggYXMgdGhlIGxhc3QKPiA+ID4gPiA+ICAg
-ICBzdGVwLgo+ID4gPiA+ID4gCj4gPiA+ID4gPiBUaGlzIHBhdGNoIGlzIG5lZWQgZm9yIGJhdGNo
-aW5nIHN1cHBvcnRzIHdoaWNoIG5lZWRzIHRvIHBlZWsgd2hldGhlcgo+ID4gPiA+ID4gb3Igbm90
-IHRoZXJlJ3Mgc3RpbGwgYXZhaWxhYmxlIGJ1ZmZlcnMgaW4gdGhlIHJpbmcuCj4gPiA+ID4gPiAK
-PiA+ID4gPiA+IFJldmlld2VkLWJ5OiBTdGVmYW4gSGFqbm9jemkgPHN0ZWZhbmhhQHJlZGhhdC5j
-b20+Cj4gPiA+ID4gPiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQu
-Y29tPgo+ID4gPiA+ID4gLS0tCj4gPiA+ID4gPiAgICBkcml2ZXJzL3Zob3N0L3Zob3N0LmMgfCA4
-ICsrKysrKy0tCj4gPiA+ID4gPiAgICAxIGZpbGUgY2hhbmdlZCwgNiBpbnNlcnRpb25zKCspLCAy
-IGRlbGV0aW9ucygtKQo+ID4gPiA+ID4gCj4gPiA+ID4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92
-aG9zdC92aG9zdC5jIGIvZHJpdmVycy92aG9zdC92aG9zdC5jCj4gPiA+ID4gPiBpbmRleCBkNjQz
-MjYwLi45ZjExODM4IDEwMDY0NAo+ID4gPiA+ID4gLS0tIGEvZHJpdmVycy92aG9zdC92aG9zdC5j
-Cj4gPiA+ID4gPiArKysgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPiA+ID4gPiA+IEBAIC0yMjQx
-LDExICsyMjQxLDE1IEBAIGJvb2wgdmhvc3RfdnFfYXZhaWxfZW1wdHkoc3RydWN0IHZob3N0X2Rl
-diAqZGV2LCBzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSkKPiA+ID4gPiA+ICAgIAlfX3ZpcnRp
-bzE2IGF2YWlsX2lkeDsKPiA+ID4gPiA+ICAgIAlpbnQgcjsKPiA+ID4gPiA+ICsJaWYgKHZxLT5h
-dmFpbF9pZHggIT0gdnEtPmxhc3RfYXZhaWxfaWR4KQo+ID4gPiA+ID4gKwkJcmV0dXJuIGZhbHNl
-Owo+ID4gPiA+ID4gKwo+ID4gPiA+ID4gICAgCXIgPSB2aG9zdF9nZXRfdXNlcih2cSwgYXZhaWxf
-aWR4LCAmdnEtPmF2YWlsLT5pZHgpOwo+ID4gPiA+ID4gLQlpZiAocikKPiA+ID4gPiA+ICsJaWYg
-KHVubGlrZWx5KHIpKQo+ID4gPiA+ID4gICAgCQlyZXR1cm4gZmFsc2U7Cj4gPiA+ID4gPiArCXZx
-LT5hdmFpbF9pZHggPSB2aG9zdDE2X3RvX2NwdSh2cSwgYXZhaWxfaWR4KTsKPiA+ID4gPiA+IC0J
-cmV0dXJuIHZob3N0MTZfdG9fY3B1KHZxLCBhdmFpbF9pZHgpID09IHZxLT5hdmFpbF9pZHg7Cj4g
-PiA+ID4gPiArCXJldHVybiB2cS0+YXZhaWxfaWR4ID09IHZxLT5sYXN0X2F2YWlsX2lkeDsKPiA+
-ID4gPiA+ICAgIH0KPiA+ID4gPiA+ICAgIEVYUE9SVF9TWU1CT0xfR1BMKHZob3N0X3ZxX2F2YWls
-X2VtcHR5KTsKPiA+ID4gPiBTbyBhZ2FpbiwgdGhpcyBkaWQgbm90IGFkZHJlc3MgdGhlIGlzc3Vl
-IEkgcG9pbnRlZCBvdXQgaW4gdjE6Cj4gPiA+ID4gaWYgd2UgaGF2ZSAxIGJ1ZmZlciBpbiBSWCBx
-dWV1ZSBhbmQKPiA+ID4gPiB0aGF0IGlzIG5vdCBlbm91Z2ggdG8gc3RvcmUgdGhlIHdob2xlIHBh
-Y2tldCwKPiA+ID4gPiB2aG9zdF92cV9hdmFpbF9lbXB0eSByZXR1cm5zIGZhbHNlLCB0aGVuIHdl
-IHJlLXJlYWQKPiA+ID4gPiB0aGUgZGVzY3JpcHRvcnMgYWdhaW4gYW5kIGFnYWluLgo+ID4gPiA+
-IAo+ID4gPiA+IFlvdSBoYXZlIHNhdmVkIGEgc2luZ2xlIGluZGV4IGFjY2VzcyBidXQgbm90IHRo
-ZSBtb3JlIGV4cGVuc2l2ZQo+ID4gPiA+IGRlc2NyaXB0b3IgYWNjZXNzLgo+ID4gPiBMb29rcyBu
-b3QsIGlmIEkgdW5kZXJzdGFuZCB0aGUgY29kZSBjb3JyZWN0bHksIGluIHRoaXMgY2FzZSwgZ2V0
-X3J4X2J1ZnMoKQo+ID4gPiB3aWxsIHJldHVybiB6ZXJvLCBhbmQgd2Ugd2lsbCB0cnkgdG8gZW5h
-YmxlIHJ4IGtpY2sgYW5kIGV4aXQgdGhlIGxvb3AuCj4gPiA+IAo+ID4gPiBUaGFua3MKPiA+IEkg
-bWVhbiB0aGlzOgo+ID4gCj4gPiAgICAgICAgICAgICAgICAgIHdoaWxlICh2aG9zdF9jYW5fYnVz
-eV9wb2xsKHZxLT5kZXYsIGVuZHRpbWUpICYmCj4gPiAgICAgICAgICAgICAgICAgICAgICAgICB2
-aG9zdF92cV9hdmFpbF9lbXB0eSh2cS0+ZGV2LCB2cSkpCj4gPiAgICAgICAgICAgICAgICAgICAg
-ICAgICAgY3B1X3JlbGF4KCk7Cj4gPiAgICAgICAgICAgICAgICAgIHByZWVtcHRfZW5hYmxlKCk7
-Cj4gPiAgICAgICAgICAgICAgICAgIHIgPSB2aG9zdF9nZXRfdnFfZGVzYyh2cSwgdnEtPmlvdiwg
-QVJSQVlfU0laRSh2cS0+aW92KSwKPiA+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgIG91dF9udW0sIGluX251bSwgTlVMTCwgTlVMTCk7Cj4gPiAKPiA+IAo+ID4gdmhvc3Rf
-dnFfYXZhaWxfZW1wdHkgcmV0dXJucyBmYWxzZSBzbyB3ZSBicmVhayBvdXQgb2YgdGhlIGxvb3AK
-PiA+IGFuZCBjYWxsIHZob3N0X2dldF92cV9kZXNjLgo+ID4gCj4gPiAKPiAKPiBCdXQgdGhpcyBp
-cyB0aGUgY29kZSBmb3IgcG9sbGluZyB0eCB2cSBub3QgcnggSSB0aGluaz8KPiAKPiBUaGFua3MK
-Ck9oLCByaWdodC4KSSdsbCByZS1yZWFkIHRoaXMuCgoKLS0gCk1TVApfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
-c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
-cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Mon, Jan 09, 2017 at 11:44:12AM -0800, Omar Sandoval wrote:
+> From: Omar Sandoval <osandov@fb.com>
+> 
+> If blk_mq_init_queue() returns an error, it gets assigned to
+> vblk->disk->queue. Then, when we call put_disk(), we end up calling
+> blk_put_queue() with the ERR_PTR, causing a bad dereference. Fix it by
+> only assigning to vblk->disk->queue on success.
+> 
+> Signed-off-by: Omar Sandoval <osandov@fb.com>
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+Jens, do you mind picking this one up as well, since
+you have one virtio-blk patch already?
+
+
+> ---
+>  drivers/block/virtio_blk.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 5545a679abd8..8587361e5356 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -628,11 +628,12 @@ static int virtblk_probe(struct virtio_device *vdev)
+>  	if (err)
+>  		goto out_put_disk;
+>  
+> -	q = vblk->disk->queue = blk_mq_init_queue(&vblk->tag_set);
+> +	q = blk_mq_init_queue(&vblk->tag_set);
+>  	if (IS_ERR(q)) {
+>  		err = -ENOMEM;
+>  		goto out_free_tags;
+>  	}
+> +	vblk->disk->queue = q;
+>  
+>  	q->queuedata = vblk;
+>  
+> -- 
+> 2.11.0
