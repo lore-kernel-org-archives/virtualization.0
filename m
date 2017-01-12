@@ -1,23 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 2/2] vring: Force use of DMA API for ARM-based systems
-Date: Thu, 19 Jan 2017 23:51:06 +0200
-Message-ID: <20170119234852-mutt-send-email-mst@kernel.org>
-References: <20170112232931-mutt-send-email-mst@kernel.org>
-	<20170113092522.GB22538@arm.com>
-	<20170113183222-mutt-send-email-mst@kernel.org>
-	<20170113172154.GL3253@arm.com>
-	<20170113201933-mutt-send-email-mst@kernel.org>
-	<20170116104028.GA1510@arm.com>
-	<20170116161639-mutt-send-email-mst@kernel.org>
-	<20170116142103.GF1510@arm.com>
-	<20170116162225-mutt-send-email-mst@kernel.org>
-	<20170116143408.GG1510@arm.com>
+From: Waiman Long <longman@redhat.com>
+Subject: [PATCH v2] x86, locking/spinlocks: Remove paravirt_ticketlocks_enabled
+Date: Thu, 12 Jan 2017 15:27:58 -0500
+Message-ID: <1484252878-1962-1-git-send-email-longman__46214.6138110713$1484863793$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20170116143408.GG1510@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,83 +15,107 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Will Deacon <will.deacon@arm.com>
-Cc: Robin Murphy <robin.murphy@arm.com>, linux-arm-kernel@lists.infradead.org, luto@kernel.org, virtualization@lists.linux-foundation.org
+To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-arch@vger.kernel.org, Juergen Gross <jgross@suse.com>, Jeremy Fitzhardinge <jeremy@goop.org>, kvm@vger.kernel.org, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, Waiman Long <longman@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, xen-devel@lists.xenproject.org, Alok Kataria <akataria@vmware.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 16, 2017 at 02:34:08PM +0000, Will Deacon wrote:
-> On Mon, Jan 16, 2017 at 04:27:28PM +0200, Michael S. Tsirkin wrote:
-> > On Mon, Jan 16, 2017 at 02:21:03PM +0000, Will Deacon wrote:
-> > > On Mon, Jan 16, 2017 at 04:18:03PM +0200, Michael S. Tsirkin wrote:
-> > > > On Mon, Jan 16, 2017 at 10:40:28AM +0000, Will Deacon wrote:
-> > > > > On Fri, Jan 13, 2017 at 08:23:35PM +0200, Michael S. Tsirkin wrote:
-> > > > > > On Fri, Jan 13, 2017 at 05:21:54PM +0000, Will Deacon wrote:
-> > > > > > > On Fri, Jan 13, 2017 at 06:46:32PM +0200, Michael S. Tsirkin wrote:
-> > > > > > > > On Fri, Jan 13, 2017 at 09:25:22AM +0000, Will Deacon wrote:
-> > > > > > > > > On Fri, Jan 13, 2017 at 12:12:56AM +0200, Michael S. Tsirkin wrote:
-> > > > > > > > > > I'd rather people didn't use SMMU with legacy devices.
-> > > > > > > > > 
-> > > > > > > > > I'm afraid we've been doing that for two years and the model already
-> > > > > > > > > exists in a mature state, being actively used for development and
-> > > > > > > > > validation by ARM and our partners. One of the big things its used for
-> > > > > > > > > is to develop SMMU and GIC (our interrupt controller) code with PCI, so
-> > > > > > > > > dropping the SMMU from the picture isn't an option.
-> > > > > > > > 
-> > > > > > > > Oh so this fixes a regression?  This is something I didn't realize.
-> > > > > > > 
-> > > > > > > Yes, thanks. The regression came about because we implemented SMMU-backed
-> > > > > > > DMA ops and only then was it apparent that the virtio stuff was bypassing
-> > > > > > > even with translation enabled (because it wasn't using the DMA API).
-> > > > > > 
-> > > > > > Could you point out a commit ID?
-> > > > > 
-> > > > > There has been a fair amount of work in this area recently, but you're
-> > > > > probably after something like 876945dbf649 ("arm64: Hook up IOMMU dma_ops")
-> > > > > as the culprit, which is the point at which we started to swizzle DMA
-> > > > > ops for devices upstream of an SMMU automatically.
-> > > > > 
-> > > > > > > > A "Fixes:" tag can't hurt here.  I then wonder
-> > > > > > > > might DMA ops ever use a DMA address which isn't a physical address
-> > > > > > > > from QEMU point of view? If that happens, this hack breaks
-> > > > > > > > because in legacy mode QEMU still uses the GPA.
-> > > > > > > 
-> > > > > > > If QEMU doesn't advertise an SMMU, then it will work fine with the GPA,
-> > > > > > > because we won't swizzle the DMA ops for the master device. If QEMU does
-> > > > > > > advertise an SMMU, then we'll allocate DMA addresses to fit within the
-> > > > > > > the intersection of the SMMU aperture and device's DMA mask.
-> > > > > > 
-> > > > > > 
-> > > > > > Right but doesn't just poking from qemu into phys addresses work
-> > > > > > anymore? It used to ...
-> > > > > 
-> > > > > Provided that there's no SMMU, then it will continue to work. and my
-> > > > > understanding (from talking to Peter Maydell) is that qemu doesn't model
-> > > > > an SMMU for ARM-based machines.
-> > > > > 
-> > > > 
-> > > > So how come people report failures due to presence of SMMU?
-> > > > Using some other hypervisor?
-> > > 
-> > > The failures are reported on the ARM fastmodel (a complete system
-> > > emulation that runs on an x86 box), where an SMMU *is* present
-> > > downstream of the virtio-pci masters. There's no qemu involved there.
-> > > 
-> > I see. And this hypervisor actually coded up looking up
-> > translations in the SMMU unconditionally for legacy devices,
-> > and this worked as long as guest didn't touch the SMMU?
-> 
-> Well, the fastmodel isn't a hypervisor really. It's a full system emulation,
-> so it's better to think of it like a piece of hardware. For example, you
-> could run KVM on the fastmodel. But yes, when Linux didn't swizzle the
-> DMA ops to point at the SMMU, then everything defaults to bypass (because
-> that's the default behaviour of the SMMU driver -- this is configurable
-> on the command line) which is why things used to work.
-> 
-> Will
+This is a follow-up of commit cfd8983f03c7b2 ("x86, locking/spinlocks:
+Remove ticket (spin)lock implementation"). The static_key structure
+paravirt_ticketlocks_enabled is now removed as it is no longer used.
+As a result, the init functions kvm_spinlock_init_jump() and
+xen_init_spinlocks_jump() are also removed.
 
-I would be a bit happier if Linux checked virtio iommu quirk and skipped
-the DMA ops thing then. It's a bit ugly but at least it's consistently
-ugly.  To get clean emulation you would then use a modern device.
+A simple build and boot test was done to verify it.
 
+Signed-off-by: Waiman Long <longman@redhat.com>
+---
+ v1->v2:
+  - Remove init functions kvm_spinlock_init_jump() and
+    xen_init_spinlocks_jump().
+
+ arch/x86/include/asm/spinlock.h      |  3 ---
+ arch/x86/kernel/kvm.c                | 14 --------------
+ arch/x86/kernel/paravirt-spinlocks.c |  3 ---
+ arch/x86/xen/spinlock.c              | 19 -------------------
+ 4 files changed, 39 deletions(-)
+
+diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
+index 921bea7..6d39190 100644
+--- a/arch/x86/include/asm/spinlock.h
++++ b/arch/x86/include/asm/spinlock.h
+@@ -23,9 +23,6 @@
+ /* How long a lock should spin before we consider blocking */
+ #define SPIN_THRESHOLD	(1 << 15)
+ 
+-extern struct static_key paravirt_ticketlocks_enabled;
+-static __always_inline bool static_key_false(struct static_key *key);
+-
+ #include <asm/qspinlock.h>
+ 
+ /*
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index 36bc664..099fcba 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -620,18 +620,4 @@ void __init kvm_spinlock_init(void)
+ 	}
+ }
+ 
+-static __init int kvm_spinlock_init_jump(void)
+-{
+-	if (!kvm_para_available())
+-		return 0;
+-	if (!kvm_para_has_feature(KVM_FEATURE_PV_UNHALT))
+-		return 0;
+-
+-	static_key_slow_inc(&paravirt_ticketlocks_enabled);
+-	printk(KERN_INFO "KVM setup paravirtual spinlock\n");
+-
+-	return 0;
+-}
+-early_initcall(kvm_spinlock_init_jump);
+-
+ #endif	/* CONFIG_PARAVIRT_SPINLOCKS */
+diff --git a/arch/x86/kernel/paravirt-spinlocks.c b/arch/x86/kernel/paravirt-spinlocks.c
+index 6d4bf81..6259327 100644
+--- a/arch/x86/kernel/paravirt-spinlocks.c
++++ b/arch/x86/kernel/paravirt-spinlocks.c
+@@ -42,6 +42,3 @@ struct pv_lock_ops pv_lock_ops = {
+ #endif /* SMP */
+ };
+ EXPORT_SYMBOL(pv_lock_ops);
+-
+-struct static_key paravirt_ticketlocks_enabled = STATIC_KEY_INIT_FALSE;
+-EXPORT_SYMBOL(paravirt_ticketlocks_enabled);
+diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
+index e8a9ea7..25a7c43 100644
+--- a/arch/x86/xen/spinlock.c
++++ b/arch/x86/xen/spinlock.c
+@@ -141,25 +141,6 @@ void __init xen_init_spinlocks(void)
+ 	pv_lock_ops.vcpu_is_preempted = PV_CALLEE_SAVE(xen_vcpu_stolen);
+ }
+ 
+-/*
+- * While the jump_label init code needs to happend _after_ the jump labels are
+- * enabled and before SMP is started. Hence we use pre-SMP initcall level
+- * init. We cannot do it in xen_init_spinlocks as that is done before
+- * jump labels are activated.
+- */
+-static __init int xen_init_spinlocks_jump(void)
+-{
+-	if (!xen_pvspin)
+-		return 0;
+-
+-	if (!xen_domain())
+-		return 0;
+-
+-	static_key_slow_inc(&paravirt_ticketlocks_enabled);
+-	return 0;
+-}
+-early_initcall(xen_init_spinlocks_jump);
+-
+ static __init int xen_parse_nopvspin(char *arg)
+ {
+ 	xen_pvspin = false;
 -- 
-MST
+1.8.3.1
