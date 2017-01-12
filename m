@@ -1,14 +1,12 @@
-From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: Re: [PATCH] x86, locking/spinlocks: Remove
-	paravirt_ticketlocks_enabled
-Date: Thu, 12 Jan 2017 15:03:39 -0500
-Message-ID: <a8aecbb1-edb8-fb31-885d-1a84ff134934@oracle.com>
-References: <1484234236-12976-1-git-send-email-longman@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] virtio_mmio: expose header to userspace
+Date: Thu, 12 Jan 2017 23:37:22 +0200
+Message-ID: <1484257033-11032-1-git-send-email-mst__9434.06250230527$1484257065$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1484234236-12976-1-git-send-email-longman@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,26 +16,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Waiman Long <longman@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-arch@vger.kernel.org, Juergen Gross <jgross@suse.com>, Jeremy Fitzhardinge <jeremy@goop.org>, kvm@vger.kernel.org, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, Paolo Bonzini <pbonzini@redhat.com>, xen-devel@lists.xenproject.org, Alok Kataria <akataria@vmware.com>
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+It's handy for userspace emulators like QEMU.
 
-> diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
-> index e8a9ea7..a822606 100644
-> --- a/arch/x86/xen/spinlock.c
-> +++ b/arch/x86/xen/spinlock.c
-> @@ -155,7 +155,6 @@ static __init int xen_init_spinlocks_jump(void)
->  	if (!xen_domain())
->  		return 0;
->  
-> -	static_key_slow_inc(&paravirt_ticketlocks_enabled);
->  	return 0;
->  }
->  early_initcall(xen_init_spinlocks_jump);
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/virtio/virtio_mmio.c           | 2 +-
+ include/{ => uapi}/linux/virtio_mmio.h | 0
+ 2 files changed, 1 insertion(+), 1 deletion(-)
+ rename include/{ => uapi}/linux/virtio_mmio.h (100%)
 
-
-Looks that with this change there is not much left of
-xen_init_spinlocks_jump() and so it can be removed.
-
--boris
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index d47a2fc..7a10aa2 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -69,7 +69,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/virtio.h>
+ #include <linux/virtio_config.h>
+-#include <linux/virtio_mmio.h>
++#include <uapi/linux/virtio_mmio.h>
+ #include <linux/virtio_ring.h>
+ 
+ 
+diff --git a/include/linux/virtio_mmio.h b/include/uapi/linux/virtio_mmio.h
+similarity index 100%
+rename from include/linux/virtio_mmio.h
+rename to include/uapi/linux/virtio_mmio.h
+-- 
+MST
