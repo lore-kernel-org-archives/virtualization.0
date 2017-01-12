@@ -1,7 +1,7 @@
 From: Waiman Long <longman@redhat.com>
-Subject: [PATCH v2] x86, locking/spinlocks: Remove paravirt_ticketlocks_enabled
-Date: Thu, 12 Jan 2017 15:27:58 -0500
-Message-ID: <1484252878-1962-1-git-send-email-longman__46214.6138110713$1484863793$gmane$org@redhat.com>
+Subject: [PATCH] x86, locking/spinlocks: Remove paravirt_ticketlocks_enabled
+Date: Thu, 12 Jan 2017 10:17:16 -0500
+Message-ID: <1484234236-12976-1-git-send-email-longman__43137.3690641069$1484863796$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -22,22 +22,16 @@ List-Id: virtualization@lists.linuxfoundation.org
 This is a follow-up of commit cfd8983f03c7b2 ("x86, locking/spinlocks:
 Remove ticket (spin)lock implementation"). The static_key structure
 paravirt_ticketlocks_enabled is now removed as it is no longer used.
-As a result, the init functions kvm_spinlock_init_jump() and
-xen_init_spinlocks_jump() are also removed.
 
 A simple build and boot test was done to verify it.
 
 Signed-off-by: Waiman Long <longman@redhat.com>
 ---
- v1->v2:
-  - Remove init functions kvm_spinlock_init_jump() and
-    xen_init_spinlocks_jump().
-
- arch/x86/include/asm/spinlock.h      |  3 ---
- arch/x86/kernel/kvm.c                | 14 --------------
- arch/x86/kernel/paravirt-spinlocks.c |  3 ---
- arch/x86/xen/spinlock.c              | 19 -------------------
- 4 files changed, 39 deletions(-)
+ arch/x86/include/asm/spinlock.h      | 3 ---
+ arch/x86/kernel/kvm.c                | 1 -
+ arch/x86/kernel/paravirt-spinlocks.c | 3 ---
+ arch/x86/xen/spinlock.c              | 1 -
+ 4 files changed, 8 deletions(-)
 
 diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
 index 921bea7..6d39190 100644
@@ -54,28 +48,17 @@ index 921bea7..6d39190 100644
  
  /*
 diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index 36bc664..099fcba 100644
+index 36bc664..6750fdc 100644
 --- a/arch/x86/kernel/kvm.c
 +++ b/arch/x86/kernel/kvm.c
-@@ -620,18 +620,4 @@ void __init kvm_spinlock_init(void)
- 	}
- }
+@@ -627,7 +627,6 @@ static __init int kvm_spinlock_init_jump(void)
+ 	if (!kvm_para_has_feature(KVM_FEATURE_PV_UNHALT))
+ 		return 0;
  
--static __init int kvm_spinlock_init_jump(void)
--{
--	if (!kvm_para_available())
--		return 0;
--	if (!kvm_para_has_feature(KVM_FEATURE_PV_UNHALT))
--		return 0;
--
 -	static_key_slow_inc(&paravirt_ticketlocks_enabled);
--	printk(KERN_INFO "KVM setup paravirtual spinlock\n");
--
--	return 0;
--}
--early_initcall(kvm_spinlock_init_jump);
--
- #endif	/* CONFIG_PARAVIRT_SPINLOCKS */
+ 	printk(KERN_INFO "KVM setup paravirtual spinlock\n");
+ 
+ 	return 0;
 diff --git a/arch/x86/kernel/paravirt-spinlocks.c b/arch/x86/kernel/paravirt-spinlocks.c
 index 6d4bf81..6259327 100644
 --- a/arch/x86/kernel/paravirt-spinlocks.c
@@ -88,34 +71,16 @@ index 6d4bf81..6259327 100644
 -struct static_key paravirt_ticketlocks_enabled = STATIC_KEY_INIT_FALSE;
 -EXPORT_SYMBOL(paravirt_ticketlocks_enabled);
 diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
-index e8a9ea7..25a7c43 100644
+index e8a9ea7..a822606 100644
 --- a/arch/x86/xen/spinlock.c
 +++ b/arch/x86/xen/spinlock.c
-@@ -141,25 +141,6 @@ void __init xen_init_spinlocks(void)
- 	pv_lock_ops.vcpu_is_preempted = PV_CALLEE_SAVE(xen_vcpu_stolen);
- }
+@@ -155,7 +155,6 @@ static __init int xen_init_spinlocks_jump(void)
+ 	if (!xen_domain())
+ 		return 0;
  
--/*
-- * While the jump_label init code needs to happend _after_ the jump labels are
-- * enabled and before SMP is started. Hence we use pre-SMP initcall level
-- * init. We cannot do it in xen_init_spinlocks as that is done before
-- * jump labels are activated.
-- */
--static __init int xen_init_spinlocks_jump(void)
--{
--	if (!xen_pvspin)
--		return 0;
--
--	if (!xen_domain())
--		return 0;
--
 -	static_key_slow_inc(&paravirt_ticketlocks_enabled);
--	return 0;
--}
--early_initcall(xen_init_spinlocks_jump);
--
- static __init int xen_parse_nopvspin(char *arg)
- {
- 	xen_pvspin = false;
+ 	return 0;
+ }
+ early_initcall(xen_init_spinlocks_jump);
 -- 
 1.8.3.1
