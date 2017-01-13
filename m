@@ -1,15 +1,18 @@
-From: "Gonglei (Arei)" <arei.gonglei@huawei.com>
-Subject: RE: [PATCH] virtio-crypto: adjust priority of algorithm
-Date: Fri, 13 Jan 2017 09:24:43 +0000
-Message-ID: <33183CC9F5247A488A2544077AF19020DA18FD9A@DGGEMA505-MBX.china.huawei.com>
-References: <1484288741-31100-1-git-send-email-arei.gonglei@huawei.com>
-	<874ee338-4dd6-8a2c-fb95-59bd784de026@de.ibm.com>
+From: Will Deacon <will.deacon@arm.com>
+Subject: Re: [PATCH v2 2/2] vring: Force use of DMA API for ARM-based systems
+Date: Fri, 13 Jan 2017 09:25:22 +0000
+Message-ID: <20170113092522.GB22538@arm.com>
+References: <85015f1653eb7e36f992708362b75d1f4391b783.1484070340.git.robin.murphy@arm.com>
+	<4833e705fb6841fbfdbee3b1a21a7bc917292410.1484070340.git.robin.murphy@arm.com>
+	<20170111013046-mutt-send-email-mst@kernel.org>
+	<20170111100139.GC12388@arm.com>
+	<20170112232931-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <874ee338-4dd6-8a2c-fb95-59bd784de026@de.ibm.com>
-Content-Language: zh-CN
+Content-Disposition: inline
+In-Reply-To: <20170112232931-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,55 +22,88 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>, "mst@redhat.com" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Robin Murphy <robin.murphy@arm.com>, linux-arm-kernel@lists.infradead.org, luto@kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
->
-> From: Christian Borntraeger [mailto:borntraeger@de.ibm.com]
-> Sent: Friday, January 13, 2017 4:28 PM
-> To: Gonglei (Arei); virtualization@lists.linux-foundation.org;
-> linux-crypto@vger.kernel.org; linux-kernel@vger.kernel.org
-> Cc: mst@redhat.com; herbert@gondor.apana.org.au
-> Subject: Re: [PATCH] virtio-crypto: adjust priority of algorithm
+On Fri, Jan 13, 2017 at 12:12:56AM +0200, Michael S. Tsirkin wrote:
+> On Wed, Jan 11, 2017 at 10:01:39AM +0000, Will Deacon wrote:
+> > On Wed, Jan 11, 2017 at 01:33:31AM +0200, Michael S. Tsirkin wrote:
+> > > On Tue, Jan 10, 2017 at 05:51:18PM +0000, Robin Murphy wrote:
+> > > > From: Will Deacon <will.deacon@arm.com>
+> > > > 
+> > > > Booting Linux on an ARM fastmodel containing an SMMU emulation results
+> > > > in an unexpected I/O page fault from the legacy virtio-blk PCI device:
+> > > > 
+> > > > [    1.211721] arm-smmu-v3 2b400000.smmu: event 0x10 received:
+> > > > [    1.211800] arm-smmu-v3 2b400000.smmu:	0x00000000fffff010
+> > > > [    1.211880] arm-smmu-v3 2b400000.smmu:	0x0000020800000000
+> > > > [    1.211959] arm-smmu-v3 2b400000.smmu:	0x00000008fa081002
+> > > > [    1.212075] arm-smmu-v3 2b400000.smmu:	0x0000000000000000
+> > > > [    1.212155] arm-smmu-v3 2b400000.smmu: event 0x10 received:
+> > > > [    1.212234] arm-smmu-v3 2b400000.smmu:	0x00000000fffff010
+> > > > [    1.212314] arm-smmu-v3 2b400000.smmu:	0x0000020800000000
+> > > > [    1.212394] arm-smmu-v3 2b400000.smmu:	0x00000008fa081000
+> > > > [    1.212471] arm-smmu-v3 2b400000.smmu:	0x0000000000000000
+> > > > 
+> > > > <system hangs failing to read partition table>
+> > > > 
+> > > > This is because the virtio-blk is behind an SMMU, so we have consequently
+> > > > swizzled its DMA ops and configured the SMMU to translate accesses. This
+> > > > then requires the vring code to use the DMA API to establish translations,
+> > > > otherwise all transactions will result in fatal faults and termination.
+> > > > 
+> > > > Given that ARM-based systems only see an SMMU if one is really present
+> > > > (the topology is all described by firmware tables such as device-tree or
+> > > > IORT), then we can safely use the DMA API for all virtio devices.
+> > > > 
+> > > > Cc: Andy Lutomirski <luto@kernel.org>
+> > > > Cc: Michael S. Tsirkin <mst@redhat.com>
+> > > > Signed-off-by: Will Deacon <will.deacon@arm.com>
+> > > 
+> > > I'd like to better understand then need for this one.
+> > > Can't the device in question just set VIRTIO_F_IOMMU_PLATFORM ?
+> > > 
+> > > I'd rather we avoided need for more hacks and just
+> > > have everyone switch to that.
+> > 
+> > There are a couple of problems with VIRTIO_F_IOMMU_PLATFORM:
+> > 
+> > 1. It doesn't exist for legacy devices, which are all we have on the
+> >    platform in question.
+> > 
+> > 2. It's not documented in the virtio sp^H^HSTOP PRESS. I see you applied
+> >    my patch ;). Thanks.
+> > 
+> > In which case, for non-legacy devices we should definitely be using
+> > VIRTIO_F_IOMMU_PLATFORM, but since this platform hasn't yet moved to the
+> > world of flying cars, could we unconditionally set the DMA ops on ARM
+> > for legacy devices? The alternative is disabling the SMMU altogether,
+> > but that's less than ideal because there are non-virtio devices on the
+> > same PCI bus.
+> > 
 > 
-> ACK. Whoever takes this patch might want to fixup 3 typos.
-> 
-Thanks, I'd better send v2 IMHO.  :)
+> I'd rather people didn't use SMMU with legacy devices.
 
-Regards,
--Gonglei
+I'm afraid we've been doing that for two years and the model already
+exists in a mature state, being actively used for development and
+validation by ARM and our partners. One of the big things its used for
+is to develop SMMU and GIC (our interrupt controller) code with PCI, so
+dropping the SMMU from the picture isn't an option.
 
-> On 01/13/2017 07:25 AM, Gonglei wrote:
-> 
-> > Some hardware accelerators (like intel aseni or the s390
-> 					aesni
-> > cpacf functions) have lower priorities than virtio
-> > crypto, and those drivers are faster than the same in
-> > the host via virtio. So let's lower the priority of
-> > virtio-crypto's algorithm, make it's higher than sofeware
->                                                    software
-> > implimentations but lower than the hardware ones.
->   implementations
-> >
-> > Suggested-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> > Signed-off-by: Gonglei <arei.gonglei@huawei.com>
-> > ---
-> >  drivers/crypto/virtio/virtio_crypto_algs.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c
-> b/drivers/crypto/virtio/virtio_crypto_algs.c
-> > index 6f40a42..4de4740 100644
-> > --- a/drivers/crypto/virtio/virtio_crypto_algs.c
-> > +++ b/drivers/crypto/virtio/virtio_crypto_algs.c
-> > @@ -498,7 +498,7 @@ void virtio_crypto_ablkcipher_finalize_req(
-> >  static struct crypto_alg virtio_crypto_algs[] = { {
-> >  	.cra_name = "cbc(aes)",
-> >  	.cra_driver_name = "virtio_crypto_aes_cbc",
-> > -	.cra_priority = 501,
-> > +	.cra_priority = 150,
-> >  	.cra_flags = CRYPTO_ALG_TYPE_ABLKCIPHER | CRYPTO_ALG_ASYNC,
-> >  	.cra_blocksize = AES_BLOCK_SIZE,
-> >  	.cra_ctxsize  = sizeof(struct virtio_crypto_ablkcipher_ctx),
-> >
+> Can't you guys just code up the virtio 1 layout in QEMU?
+> I took a look and it's not a big deal now that two other
+> transports converted, except mmio code in QEMU doesn't
+> use linux header to it's a bit messy.
+> I'll send a patch to clean that up.
+
+If the model ever changes in this area (which isn't planned atm), the
+right thing to do would be to move to modern virtio. However, we're stuck
+with what we have for the forseeable future and it works just fine if we
+use the DMA API. If we don't use it, Linux no longer boots because it
+installs the SMMU-backed DMA ops for the virtio devices and everything
+faults.
+
+I really don't understand why this is controversial.
+
+Will
