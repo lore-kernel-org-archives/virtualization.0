@@ -1,13 +1,11 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [patch] vhost/scsi: silence uninitialized variable warning
-Date: Fri, 13 Jan 2017 11:12:08 +0800
-Message-ID: <a25058f8-80c7-1174-29fe-b80adb64b0bf__47574.6052143679$1484277152$gmane$org@redhat.com>
-References: <20170112184504.GA12088@mwanda>
+From: Gonglei <arei.gonglei@huawei.com>
+Subject: [PATCH] virtio-crypto: adjust priority of algorithm
+Date: Fri, 13 Jan 2017 14:25:41 +0800
+Message-ID: <1484288741-31100-1-git-send-email-arei.gonglei__23310.0488353104$1484288805$gmane$org@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170112184504.GA12088@mwanda>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,32 +15,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dan Carpenter <dan.carpenter@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kernel-janitors@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: herbert@gondor.apana.org.au, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDHmnIgxM+aXpSAwMjo0NSwgRGFuIENhcnBlbnRlciB3cm90ZToKPiBUaGlz
-IGlzIHRvIHNpbGVuY2UgYW4gdW5pbml0aWFsaXplZCB2YXJpYWJsZSB3YXJuaW5nIGluIGRlYnVn
-IG91dHB1dC4KPiBUaGUgcHJvYmxlbSBpcyB0aGlzIGxpbmU6Cj4KPiAJcHJfZGVidWcoInZob3N0
-X2dldF92cV9kZXNjOiBoZWFkOiAlZCwgb3V0OiAldSBpbjogJXVcbiIsCj4gCQkgaGVhZCwgb3V0
-LCBpbik7Cj4KPiBJZiAiaGVhZCA9PSB2cS0+bnVtIiBpcyB0cnVlIG9uIHRoZSBmaXJzdCBpdGVy
-YXRpb24gdGhlbiAib3V0IiBhbmQgImluIgo+IGFyZW4ndCBpbml0aWFsaXplZC4gIFdlIGhhbmRs
-ZSB0aGF0IGEgZmV3IGxpbmVzIGFmdGVyIHRoZSBwcmludGsuICBJIHdhcwo+IHRlbXB0ZWQgdG8g
-anVzdCBkZWxldGUgdGhlIHByX2RlYnVnKCkgYnV0IEkgZGVjaWRlZCB0byBqdXN0IGluaXRpYWxp
-emUKPiB0aGVtIHRvIHplcm8gaW5zdGVhZC4KPgo+IEFsc28gY2hlY2twYXRjaC5wbCBjb21wbGFp
-bnMgaWYgdmFyaWFibGVzIGFyZSBkZWNsYXJlZCBhcyBqdXN0Cj4gInVuc2lnbmVkIiB3aXRob3V0
-IHRoZSAiaW50Ii4KPgo+IFNpZ25lZC1vZmYtYnk6IERhbiBDYXJwZW50ZXIgPGRhbi5jYXJwZW50
-ZXJAb3JhY2xlLmNvbT4KPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Njc2kuYyBiL2Ry
-aXZlcnMvdmhvc3Qvc2NzaS5jCj4gaW5kZXggMjUzMzEwYy4uYjk4ZGFjMSAxMDA2NDQKPiAtLS0g
-YS9kcml2ZXJzL3Zob3N0L3Njc2kuYwo+ICsrKyBiL2RyaXZlcnMvdmhvc3Qvc2NzaS5jCj4gQEAg
-LTg0Myw3ICs4NDMsNyBAQCB2aG9zdF9zY3NpX2hhbmRsZV92cShzdHJ1Y3Qgdmhvc3Rfc2NzaSAq
-dnMsIHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxKQo+ICAgCXN0cnVjdCBpb3ZfaXRlciBvdXRf
-aXRlciwgaW5faXRlciwgcHJvdF9pdGVyLCBkYXRhX2l0ZXI7Cj4gICAJdTY0IHRhZzsKPiAgIAl1
-MzIgZXhwX2RhdGFfbGVuLCBkYXRhX2RpcmVjdGlvbjsKPiAtCXVuc2lnbmVkIG91dCwgaW47Cj4g
-Kwl1bnNpZ25lZCBpbnQgb3V0ID0gMCwgaW4gPSAwOwo+ICAgCWludCBoZWFkLCByZXQsIHByb3Rf
-Ynl0ZXM7Cj4gICAJc2l6ZV90IHJlcV9zaXplLCByc3Bfc2l6ZSA9IHNpemVvZihzdHJ1Y3Qgdmly
-dGlvX3Njc2lfY21kX3Jlc3ApOwo+ICAgCXNpemVfdCBvdXRfc2l6ZSwgaW5fc2l6ZTsKCkFja2Vk
-LWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgpfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
-VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
-aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Some hardware accelerators (like intel aseni or the s390
+cpacf functions) have lower priorities than virtio
+crypto, and those drivers are faster than the same in
+the host via virtio. So let's lower the priority of
+virtio-crypto's algorithm, make it's higher than sofeware
+implimentations but lower than the hardware ones.
+
+Suggested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Gonglei <arei.gonglei@huawei.com>
+---
+ drivers/crypto/virtio/virtio_crypto_algs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c b/drivers/crypto/virtio/virtio_crypto_algs.c
+index 6f40a42..4de4740 100644
+--- a/drivers/crypto/virtio/virtio_crypto_algs.c
++++ b/drivers/crypto/virtio/virtio_crypto_algs.c
+@@ -498,7 +498,7 @@ void virtio_crypto_ablkcipher_finalize_req(
+ static struct crypto_alg virtio_crypto_algs[] = { {
+ 	.cra_name = "cbc(aes)",
+ 	.cra_driver_name = "virtio_crypto_aes_cbc",
+-	.cra_priority = 501,
++	.cra_priority = 150,
+ 	.cra_flags = CRYPTO_ALG_TYPE_ABLKCIPHER | CRYPTO_ALG_ASYNC,
+ 	.cra_blocksize = AES_BLOCK_SIZE,
+ 	.cra_ctxsize  = sizeof(struct virtio_crypto_ablkcipher_ctx),
+-- 
+1.8.3.1
