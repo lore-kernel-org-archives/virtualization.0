@@ -1,12 +1,20 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 1/2] virtio_mmio: add standard header file
-Date: Fri, 13 Jan 2017 00:17:25 +0200
-Message-ID: <1484259433-18188-1-git-send-email-mst@redhat.com>
+From: "Gonglei (Arei)" <arei.gonglei@huawei.com>
+Subject: RE: [PATCH v8 1/1] crypto: add virtio-crypto driver
+Date: Fri, 13 Jan 2017 01:56:03 +0000
+Message-ID: <33183CC9F5247A488A2544077AF19020DA18F954__19.2718500786171$1484272779$gmane$org@DGGEMA505-MBX.china.huawei.com>
+References: <1481767396-187748-1-git-send-email-arei.gonglei@huawei.com>
+	<1481767396-187748-2-git-send-email-arei.gonglei@huawei.com>
+	<e235caf4-f51c-dccf-4eb7-548d3fa71644@de.ibm.com>
+	<33183CC9F5247A488A2544077AF19020DA182B83@DGGEMA505-MBX.china.huawei.com>
+	<c4282723-2afb-1764-2431-ef41f7126371@de.ibm.com>
+	<a8384ff8-ff65-c578-c338-e6d8ebf498c4@de.ibm.com>
+	<20170112161729-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20170112161729-mutt-send-email-mst@kernel.org>
+Content-Language: zh-CN
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,162 +24,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: qemu-devel@nongnu.org
-Cc: Will Deacon <will.deacon@arm.com>, luto@kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Xuquan (Quan Xu)" <xuquan8@huawei.com>, "Huangweidong
+	(C)" <weidong.huang@huawei.com>, "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>, "Hanweidong (Randy)" <hanweidong@huawei.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, Luonengjun <luonengjun@huawei.com>, Claudio Fontana <Claudio.Fontana@huawei.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Wanzongshun (Vincent)" <wanzongshun@huawei.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "stefanha@redhat.com" <stefanha@redhat.com>, "Zhoujian (jay,
+	Euler)" <jianjay.zhou@huawei.com>, longpeng <longpeng2@huawei.com>, "davem@davemloft.net" <davem@davemloft.net>, "Wubin (H)" <wu.wubin@huawei.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- include/standard-headers/linux/virtio_mmio.h | 141 +++++++++++++++++++++++++++
- 1 file changed, 141 insertions(+)
- create mode 100644 include/standard-headers/linux/virtio_mmio.h
+> 
+> On Thu, Jan 12, 2017 at 03:10:25PM +0100, Christian Borntraeger wrote:
+> > On 01/10/2017 01:56 PM, Christian Borntraeger wrote:
+> > > On 01/10/2017 01:36 PM, Gonglei (Arei) wrote:
+> > >> Hi,
+> > >>
+> > >>>
+> > >>> On 12/15/2016 03:03 AM, Gonglei wrote:
+> > >>> [...]
+> > >>>> +
+> > >>>> +static struct crypto_alg virtio_crypto_algs[] = { {
+> > >>>> +	.cra_name = "cbc(aes)",
+> > >>>> +	.cra_driver_name = "virtio_crypto_aes_cbc",
+> > >>>> +	.cra_priority = 501,
+> > >>>
+> > >>>
+> > >>> This is still higher than the hardware-accelerators (like intel aesni or the
+> > >>> s390 cpacf functions or the arm hw). aesni and s390/cpacf are supported
+> by the
+> > >>> hardware virtualization and available to the guests. I do not see a way
+> how
+> > >>> virtio
+> > >>> crypto can be faster than that (in the end it might be cpacf/aesni +
+> overhead)
+> > >>> instead it will very likely be slower.
+> > >>> So we should use a number that is higher than software implementations
+> but
+> > >>> lower than the hw ones.
+> > >>>
+> > >>> Just grepping around, the software ones seem be be around 100 and the
+> > >>> hardware
+> > >>> ones around 200-400. So why was 150 not enough?
+> > >>>
+> > >> I didn't find a documentation about how we use the priority, and I assumed
+> > >> people use virtio-crypto will configure hardware accelerators in the
+> > >> host. So I choosed the number which bigger than aesni's priority.
+> > >
+> > > Yes, but the aesni driver will only bind if there is HW support in the guest.
+> > > And if aesni is available in the guest (or the s390 aes function from cpacf)
+> > > it will always be faster than the same in the host via virtio.So your priority
+> > > should be smaller.
+> >
+> >
+> > any opinion on this?
+> 
+> Going forward, we might add an emulated aesni device and that might
+> become slower than virtio. OTOH if or when this happens, we can solve it
+> by adding a priority or a feature flag to virtio to raise its priority.
+> 
+> So I think I agree with Christian here, let's lower the priority.
+> Gonglei, could you send a patch like this?
+> 
+OK, will do.
 
-diff --git a/include/standard-headers/linux/virtio_mmio.h b/include/standard-headers/linux/virtio_mmio.h
-new file mode 100644
-index 0000000..c4b0968
---- /dev/null
-+++ b/include/standard-headers/linux/virtio_mmio.h
-@@ -0,0 +1,141 @@
-+/*
-+ * Virtio platform device driver
-+ *
-+ * Copyright 2011, ARM Ltd.
-+ *
-+ * Based on Virtio PCI driver by Anthony Liguori, copyright IBM Corp. 2007
-+ *
-+ * This header is BSD licensed so anyone can use the definitions to implement
-+ * compatible drivers/servers.
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions
-+ * are met:
-+ * 1. Redistributions of source code must retain the above copyright
-+ *    notice, this list of conditions and the following disclaimer.
-+ * 2. Redistributions in binary form must reproduce the above copyright
-+ *    notice, this list of conditions and the following disclaimer in the
-+ *    documentation and/or other materials provided with the distribution.
-+ * 3. Neither the name of IBM nor the names of its contributors
-+ *    may be used to endorse or promote products derived from this software
-+ *    without specific prior written permission.
-+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS'' AND
-+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-+ * ARE DISCLAIMED.  IN NO EVENT SHALL IBM OR CONTRIBUTORS BE LIABLE
-+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-+ * SUCH DAMAGE.
-+ */
-+
-+#ifndef _LINUX_VIRTIO_MMIO_H
-+#define _LINUX_VIRTIO_MMIO_H
-+
-+/*
-+ * Control registers
-+ */
-+
-+/* Magic value ("virt" string) - Read Only */
-+#define VIRTIO_MMIO_MAGIC_VALUE		0x000
-+
-+/* Virtio device version - Read Only */
-+#define VIRTIO_MMIO_VERSION		0x004
-+
-+/* Virtio device ID - Read Only */
-+#define VIRTIO_MMIO_DEVICE_ID		0x008
-+
-+/* Virtio vendor ID - Read Only */
-+#define VIRTIO_MMIO_VENDOR_ID		0x00c
-+
-+/* Bitmask of the features supported by the device (host)
-+ * (32 bits per set) - Read Only */
-+#define VIRTIO_MMIO_DEVICE_FEATURES	0x010
-+
-+/* Device (host) features set selector - Write Only */
-+#define VIRTIO_MMIO_DEVICE_FEATURES_SEL	0x014
-+
-+/* Bitmask of features activated by the driver (guest)
-+ * (32 bits per set) - Write Only */
-+#define VIRTIO_MMIO_DRIVER_FEATURES	0x020
-+
-+/* Activated features set selector - Write Only */
-+#define VIRTIO_MMIO_DRIVER_FEATURES_SEL	0x024
-+
-+
-+#ifndef VIRTIO_MMIO_NO_LEGACY /* LEGACY DEVICES ONLY! */
-+
-+/* Guest's memory page size in bytes - Write Only */
-+#define VIRTIO_MMIO_GUEST_PAGE_SIZE	0x028
-+
-+#endif
-+
-+
-+/* Queue selector - Write Only */
-+#define VIRTIO_MMIO_QUEUE_SEL		0x030
-+
-+/* Maximum size of the currently selected queue - Read Only */
-+#define VIRTIO_MMIO_QUEUE_NUM_MAX	0x034
-+
-+/* Queue size for the currently selected queue - Write Only */
-+#define VIRTIO_MMIO_QUEUE_NUM		0x038
-+
-+
-+#ifndef VIRTIO_MMIO_NO_LEGACY /* LEGACY DEVICES ONLY! */
-+
-+/* Used Ring alignment for the currently selected queue - Write Only */
-+#define VIRTIO_MMIO_QUEUE_ALIGN		0x03c
-+
-+/* Guest's PFN for the currently selected queue - Read Write */
-+#define VIRTIO_MMIO_QUEUE_PFN		0x040
-+
-+#endif
-+
-+
-+/* Ready bit for the currently selected queue - Read Write */
-+#define VIRTIO_MMIO_QUEUE_READY		0x044
-+
-+/* Queue notifier - Write Only */
-+#define VIRTIO_MMIO_QUEUE_NOTIFY	0x050
-+
-+/* Interrupt status - Read Only */
-+#define VIRTIO_MMIO_INTERRUPT_STATUS	0x060
-+
-+/* Interrupt acknowledge - Write Only */
-+#define VIRTIO_MMIO_INTERRUPT_ACK	0x064
-+
-+/* Device status register - Read Write */
-+#define VIRTIO_MMIO_STATUS		0x070
-+
-+/* Selected queue's Descriptor Table address, 64 bits in two halves */
-+#define VIRTIO_MMIO_QUEUE_DESC_LOW	0x080
-+#define VIRTIO_MMIO_QUEUE_DESC_HIGH	0x084
-+
-+/* Selected queue's Available Ring address, 64 bits in two halves */
-+#define VIRTIO_MMIO_QUEUE_AVAIL_LOW	0x090
-+#define VIRTIO_MMIO_QUEUE_AVAIL_HIGH	0x094
-+
-+/* Selected queue's Used Ring address, 64 bits in two halves */
-+#define VIRTIO_MMIO_QUEUE_USED_LOW	0x0a0
-+#define VIRTIO_MMIO_QUEUE_USED_HIGH	0x0a4
-+
-+/* Configuration atomicity value */
-+#define VIRTIO_MMIO_CONFIG_GENERATION	0x0fc
-+
-+/* The config space is defined by each driver as
-+ * the per-driver configuration space - Read Write */
-+#define VIRTIO_MMIO_CONFIG		0x100
-+
-+
-+
-+/*
-+ * Interrupt flags (re: interrupt status & acknowledge registers)
-+ */
-+
-+#define VIRTIO_MMIO_INT_VRING		(1 << 0)
-+#define VIRTIO_MMIO_INT_CONFIG		(1 << 1)
-+
-+#endif
--- 
-MST
+Thanks,
+-Gonglei
