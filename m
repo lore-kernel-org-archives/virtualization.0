@@ -1,13 +1,15 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH] s390: virtio: constify virtio_config_ops structures
-Date: Mon, 16 Jan 2017 10:08:27 +0100
-Message-ID: <d5917ef7-9346-7db4-3e7d-5ef375acf95e@de.ibm.com>
-References: <1484333336-13443-1-git-send-email-bhumirks@gmail.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH v2] virtio_console: fix a crash in config_work_handler
+Date: Mon, 16 Jan 2017 15:57:23 +0530
+Message-ID: <20170116102723.GM16209__14688.7011862875$1484562463$gmane$org@amit-lp.rh>
+References: <20170116033550.GK16209@amit-lp.rh>
+	<1484559902-5346-1-git-send-email-gcampana@quarkslab.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1484333336-13443-1-git-send-email-bhumirks@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <1484559902-5346-1-git-send-email-gcampana@quarkslab.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,63 +19,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bhumika Goyal <bhumirks@gmail.com>, julia.lawall@lip6.fr, heiko.carstens@de.ibm.com, cornelia.huck@de.ibm.com, schwidefsky@de.ibm.com, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "G. Campana" <gcampana@quarkslab.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/13/2017 07:48 PM, Bhumika Goyal wrote:
-> Declare virtio_config_ops structure as const as it is only stored in the
-> config field of a virtio_device structure. This field is of type const, so
-> virtio_config_ops structures having this property can be declared const.
-> Done using Coccinelle:
+On (Mon) 16 Jan 2017 [10:45:02], G. Campana wrote:
+> Using control_work instead of config_work as the 3rd argument to
+> container_of results in an invalid portdev pointer. Indeed, the work
+> structure is initialized as below:
 > 
-> @r1 disable optional_qualifier@
-> identifier i;
-> position p;
-> @@
-> static struct virtio_config_ops i@p={...};
+>     INIT_WORK(&portdev->config_work, &config_work_handler);
 > 
-> @ok1@
-> identifier r1.i;
-> position p;
-> struct virtio_ccw_device x;
-> @@
-> x.vdev.config=&i@p
+> It leads to a crash when portdev->vdev is dereferenced later. This bug
+> is triggered when the guest uses a virtio-console without multiport
+> feature and receives a config_changed virtio interrupt.
 > 
-> @bad@
-> position p!={r1.p,ok1.p};
-> identifier r1.i;
-> @@
-> i@p
-> 
-> @depends on !bad disable optional_qualifier@
-> identifier r1.i;
-> @@
-> +const
-> struct virtio_config_ops i;
-> 
-> File size before and after applying the patch remains the same.
-> text	data	bss	dec	hex   filename
-> 9235	296	32928	42459	a5db  drivers/s390/virtio/virtio_ccw.o
-> 
-> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
+> Signed-off-by: G. Campana <gcampana@quarkslab.com>
 
-thanks applied.
+Reviewed-by: Amit Shah <amit.shah@redhat.com>
 
-> ---
->  drivers/s390/virtio/virtio_ccw.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index 639ed4e..6508bf4 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -920,7 +920,7 @@ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
->  	kfree(ccw);
->  }
-> 
-> -static struct virtio_config_ops virtio_ccw_config_ops = {
-> +static const struct virtio_config_ops virtio_ccw_config_ops = {
->  	.get_features = virtio_ccw_get_features,
->  	.finalize_features = virtio_ccw_finalize_features,
->  	.get = virtio_ccw_get_config,
-> 
+Michael, can you please pick this up?
+
+		Amit
