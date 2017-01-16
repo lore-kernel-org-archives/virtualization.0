@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PULL 2/5] tools/virtio/ringtest: tweaks for s390
-Date: Mon, 16 Jan 2017 15:04:30 +0100
-Message-ID: <20170116140433.21301-3-cornelia.huck@de.ibm.com>
+Subject: [PULL 1/5] tools/virtio/ringtest: fix run-on-all.sh for offline cpus
+Date: Mon, 16 Jan 2017 15:04:29 +0100
+Message-ID: <20170116140433.21301-2-cornelia.huck@de.ibm.com>
 References: <20170116140433.21301-1-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,44 +23,43 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Halil Pasic <pasic@linux.vnet.ibm.com>
 
-Make ringtest work on s390 too.
+Since ef1b144d ("tools/virtio/ringtest: fix run-on-all.sh to work
+without /dev/cpu") run-on-all.sh uses seq 0 $HOST_AFFINITY as the list
+of ids of the CPUs to run the command on (assuming ids of online CPUs
+are consecutive and start from 0), where $HOST_AFFINITY is the highest
+CPU id in the system previously determined using lscpu.  This can fail
+on systems with offline CPUs.
+
+Instead let's use lscpu to determine the list of online CPUs.
 
 Signed-off-by: Halil Pasic <pasic@linux.vnet.ibm.com>
-Acked-by: Sascha Silbe <silbe@linux.vnet.ibm.com>
+Fixes: ef1b144d ("tools/virtio/ringtest: fix run-on-all.sh to work without
+/dev/cpu")
+Reviewed-by: Sascha Silbe <silbe@linux.vnet.ibm.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- tools/virtio/ringtest/main.h | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ tools/virtio/ringtest/run-on-all.sh | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/tools/virtio/ringtest/main.h b/tools/virtio/ringtest/main.h
-index 34e63cc4c572..14142faf040b 100644
---- a/tools/virtio/ringtest/main.h
-+++ b/tools/virtio/ringtest/main.h
-@@ -26,6 +26,16 @@ static inline void wait_cycles(unsigned long long cycles)
- #define VMEXIT_CYCLES 500
- #define VMENTRY_CYCLES 500
+diff --git a/tools/virtio/ringtest/run-on-all.sh b/tools/virtio/ringtest/run-on-all.sh
+index 2e69ca812b4c..29b0d3920bfc 100755
+--- a/tools/virtio/ringtest/run-on-all.sh
++++ b/tools/virtio/ringtest/run-on-all.sh
+@@ -1,12 +1,13 @@
+ #!/bin/sh
  
-+#elif defined(__s390x__)
-+static inline void wait_cycles(unsigned long long cycles)
-+{
-+	asm volatile("0: brctg %0,0b" : : "d" (cycles));
-+}
-+
-+/* tweak me */
-+#define VMEXIT_CYCLES 200
-+#define VMENTRY_CYCLES 200
-+
- #else
- static inline void wait_cycles(unsigned long long cycles)
- {
-@@ -81,6 +91,8 @@ extern unsigned ring_size;
- /* Is there a portable way to do this? */
- #if defined(__x86_64__) || defined(__i386__)
- #define cpu_relax() asm ("rep; nop" ::: "memory")
-+#elif defined(__s390x__)
-+#define cpu_relax() barrier()
- #else
- #define cpu_relax() assert(0)
- #endif
++CPUS_ONLINE=$(lscpu --online -p=cpu|grep -v -e '#')
+ #use last CPU for host. Why not the first?
+ #many devices tend to use cpu0 by default so
+ #it tends to be busier
+-HOST_AFFINITY=$(lscpu -p=cpu | tail -1)
++HOST_AFFINITY=$(echo "${CPUS_ONLINE}"|tail -n 1)
+ 
+ #run command on all cpus
+-for cpu in $(seq 0 $HOST_AFFINITY)
++for cpu in $CPUS_ONLINE
+ do
+ 	#Don't run guest and host on same CPU
+ 	#It actually works ok if using signalling
 -- 
 2.11.0
