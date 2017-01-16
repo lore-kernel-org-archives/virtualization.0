@@ -1,22 +1,16 @@
-From: Will Deacon <will.deacon@arm.com>
-Subject: Re: [PATCH v2 2/2] vring: Force use of DMA API for ARM-based systems
-Date: Mon, 16 Jan 2017 10:40:28 +0000
-Message-ID: <20170116104028.GA1510@arm.com>
-References: <85015f1653eb7e36f992708362b75d1f4391b783.1484070340.git.robin.murphy@arm.com>
-	<4833e705fb6841fbfdbee3b1a21a7bc917292410.1484070340.git.robin.murphy@arm.com>
-	<20170111013046-mutt-send-email-mst@kernel.org>
-	<20170111100139.GC12388@arm.com>
-	<20170112232931-mutt-send-email-mst@kernel.org>
-	<20170113092522.GB22538@arm.com>
-	<20170113183222-mutt-send-email-mst@kernel.org>
-	<20170113172154.GL3253@arm.com>
-	<20170113201933-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2] virtio_console: fix a crash in config_work_handler
+Date: Mon, 16 Jan 2017 15:30:42 +0200
+Message-ID: <20170116153032-mutt-send-email-mst@kernel.org>
+References: <20170116033550.GK16209@amit-lp.rh>
+	<1484559902-5346-1-git-send-email-gcampana@quarkslab.com>
+	<20170116102723.GM16209@amit-lp.rh>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20170113201933-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20170116102723.GM16209@amit-lp.rh>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,52 +20,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Robin Murphy <robin.murphy@arm.com>, linux-arm-kernel@lists.infradead.org, luto@kernel.org, virtualization@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>
+Cc: "G. Campana" <gcampana@quarkslab.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 13, 2017 at 08:23:35PM +0200, Michael S. Tsirkin wrote:
-> On Fri, Jan 13, 2017 at 05:21:54PM +0000, Will Deacon wrote:
-> > On Fri, Jan 13, 2017 at 06:46:32PM +0200, Michael S. Tsirkin wrote:
-> > > On Fri, Jan 13, 2017 at 09:25:22AM +0000, Will Deacon wrote:
-> > > > On Fri, Jan 13, 2017 at 12:12:56AM +0200, Michael S. Tsirkin wrote:
-> > > > > I'd rather people didn't use SMMU with legacy devices.
-> > > > 
-> > > > I'm afraid we've been doing that for two years and the model already
-> > > > exists in a mature state, being actively used for development and
-> > > > validation by ARM and our partners. One of the big things its used for
-> > > > is to develop SMMU and GIC (our interrupt controller) code with PCI, so
-> > > > dropping the SMMU from the picture isn't an option.
-> > > 
-> > > Oh so this fixes a regression?  This is something I didn't realize.
+On Mon, Jan 16, 2017 at 03:57:23PM +0530, Amit Shah wrote:
+> On (Mon) 16 Jan 2017 [10:45:02], G. Campana wrote:
+> > Using control_work instead of config_work as the 3rd argument to
+> > container_of results in an invalid portdev pointer. Indeed, the work
+> > structure is initialized as below:
 > > 
-> > Yes, thanks. The regression came about because we implemented SMMU-backed
-> > DMA ops and only then was it apparent that the virtio stuff was bypassing
-> > even with translation enabled (because it wasn't using the DMA API).
-> 
-> Could you point out a commit ID?
-
-There has been a fair amount of work in this area recently, but you're
-probably after something like 876945dbf649 ("arm64: Hook up IOMMU dma_ops")
-as the culprit, which is the point at which we started to swizzle DMA
-ops for devices upstream of an SMMU automatically.
-
-> > > A "Fixes:" tag can't hurt here.  I then wonder
-> > > might DMA ops ever use a DMA address which isn't a physical address
-> > > from QEMU point of view? If that happens, this hack breaks
-> > > because in legacy mode QEMU still uses the GPA.
+> >     INIT_WORK(&portdev->config_work, &config_work_handler);
 > > 
-> > If QEMU doesn't advertise an SMMU, then it will work fine with the GPA,
-> > because we won't swizzle the DMA ops for the master device. If QEMU does
-> > advertise an SMMU, then we'll allocate DMA addresses to fit within the
-> > the intersection of the SMMU aperture and device's DMA mask.
+> > It leads to a crash when portdev->vdev is dereferenced later. This bug
+> > is triggered when the guest uses a virtio-console without multiport
+> > feature and receives a config_changed virtio interrupt.
+> > 
+> > Signed-off-by: G. Campana <gcampana@quarkslab.com>
 > 
+> Reviewed-by: Amit Shah <amit.shah@redhat.com>
 > 
-> Right but doesn't just poking from qemu into phys addresses work
-> anymore? It used to ...
+> Michael, can you please pick this up?
+> 
+> 		Amit
 
-Provided that there's no SMMU, then it will continue to work. and my
-understanding (from talking to Peter Maydell) is that qemu doesn't model
-an SMMU for ARM-based machines.
-
-Will
+Sure.
