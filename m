@@ -1,11 +1,13 @@
-From: Waiman Long <longman@redhat.com>
-Subject: [PATCH] x86, locking/spinlocks: Remove paravirt_ticketlocks_enabled
-Date: Thu, 12 Jan 2017 10:17:16 -0500
-Message-ID: <1484234236-12976-1-git-send-email-longman__43137.3690641069$1484863796$gmane$org@redhat.com>
+From: "G. Campana" <gcampana@quarkslab.com>
+Subject: [PATCH v2] virtio_console: fix a crash in config_work_handler
+Date: Mon, 16 Jan 2017 10:45:02 +0100
+Message-ID: <1484559902-5346-1-git-send-email-gcampana__15203.6755964675$1484863801$gmane$org@quarkslab.com>
+References: <20170116033550.GK16209@amit-lp.rh>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20170116033550.GK16209@amit-lp.rh>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,72 +17,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-arch@vger.kernel.org, Juergen Gross <jgross@suse.com>, Jeremy Fitzhardinge <jeremy@goop.org>, kvm@vger.kernel.org, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, Waiman Long <longman@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, xen-devel@lists.xenproject.org, Alok Kataria <akataria@vmware.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: "G. Campana" <gcampana@quarkslab.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a follow-up of commit cfd8983f03c7b2 ("x86, locking/spinlocks:
-Remove ticket (spin)lock implementation"). The static_key structure
-paravirt_ticketlocks_enabled is now removed as it is no longer used.
+Using control_work instead of config_work as the 3rd argument to
+container_of results in an invalid portdev pointer. Indeed, the work
+structure is initialized as below:
 
-A simple build and boot test was done to verify it.
+    INIT_WORK(&portdev->config_work, &config_work_handler);
 
-Signed-off-by: Waiman Long <longman@redhat.com>
+It leads to a crash when portdev->vdev is dereferenced later. This bug
+is triggered when the guest uses a virtio-console without multiport
+feature and receives a config_changed virtio interrupt.
+
+Signed-off-by: G. Campana <gcampana@quarkslab.com>
 ---
- arch/x86/include/asm/spinlock.h      | 3 ---
- arch/x86/kernel/kvm.c                | 1 -
- arch/x86/kernel/paravirt-spinlocks.c | 3 ---
- arch/x86/xen/spinlock.c              | 1 -
- 4 files changed, 8 deletions(-)
+ drivers/char/virtio_console.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
-index 921bea7..6d39190 100644
---- a/arch/x86/include/asm/spinlock.h
-+++ b/arch/x86/include/asm/spinlock.h
-@@ -23,9 +23,6 @@
- /* How long a lock should spin before we consider blocking */
- #define SPIN_THRESHOLD	(1 << 15)
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 8b00e79..17857be 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1862,7 +1862,7 @@ static void config_work_handler(struct work_struct *work)
+ {
+ 	struct ports_device *portdev;
  
--extern struct static_key paravirt_ticketlocks_enabled;
--static __always_inline bool static_key_false(struct static_key *key);
--
- #include <asm/qspinlock.h>
- 
- /*
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index 36bc664..6750fdc 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -627,7 +627,6 @@ static __init int kvm_spinlock_init_jump(void)
- 	if (!kvm_para_has_feature(KVM_FEATURE_PV_UNHALT))
- 		return 0;
- 
--	static_key_slow_inc(&paravirt_ticketlocks_enabled);
- 	printk(KERN_INFO "KVM setup paravirtual spinlock\n");
- 
- 	return 0;
-diff --git a/arch/x86/kernel/paravirt-spinlocks.c b/arch/x86/kernel/paravirt-spinlocks.c
-index 6d4bf81..6259327 100644
---- a/arch/x86/kernel/paravirt-spinlocks.c
-+++ b/arch/x86/kernel/paravirt-spinlocks.c
-@@ -42,6 +42,3 @@ struct pv_lock_ops pv_lock_ops = {
- #endif /* SMP */
- };
- EXPORT_SYMBOL(pv_lock_ops);
--
--struct static_key paravirt_ticketlocks_enabled = STATIC_KEY_INIT_FALSE;
--EXPORT_SYMBOL(paravirt_ticketlocks_enabled);
-diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
-index e8a9ea7..a822606 100644
---- a/arch/x86/xen/spinlock.c
-+++ b/arch/x86/xen/spinlock.c
-@@ -155,7 +155,6 @@ static __init int xen_init_spinlocks_jump(void)
- 	if (!xen_domain())
- 		return 0;
- 
--	static_key_slow_inc(&paravirt_ticketlocks_enabled);
- 	return 0;
- }
- early_initcall(xen_init_spinlocks_jump);
+-	portdev = container_of(work, struct ports_device, control_work);
++	portdev = container_of(work, struct ports_device, config_work);
+ 	if (!use_multiport(portdev)) {
+ 		struct virtio_device *vdev;
+ 		struct port *port;
 -- 
-1.8.3.1
+2.7.4
