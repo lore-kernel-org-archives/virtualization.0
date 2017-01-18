@@ -1,19 +1,15 @@
-From: "Jorgen S. Hansen" <jhansen@vmware.com>
-Subject: Re: [PATCH v4 0/4] vsock: cancel connect packets when failing to
-	connect
-Date: Tue, 17 Jan 2017 09:25:26 +0000
-Message-ID: <6B56D346-5976-4E40-8946-A6EA7B4D071F__19003.0958191075$1496079642$gmane$org@vmware.com>
-References: <1481545269-18104-1-git-send-email-bergwolf@gmail.com>
-	<20161213095010.GA3103@stefanha-x1.localdomain>
-	<CA+a=Yy7d940_OfNL=b_qZjnpRVL5pywKFpubtS_h6OtB7c2Dmg@mail.gmail.com>
-	<20170109100607.GA30228@stefanha-x1.localdomain>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next V5 2/3] vhost_net: tx batching
+Date: Wed, 18 Jan 2017 19:03:16 +0200
+Message-ID: <20170118190312-mutt-send-email-mst__25106.3633630567$1496082100$gmane$org@kernel.org>
+References: <1484722923-7698-1-git-send-email-jasowang@redhat.com>
+	<1484722923-7698-3-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170109100607.GA30228@stefanha-x1.localdomain>
-Content-Language: en-US
-Content-ID: <E0352A9B87BD6142B0C1CF0759C859D8@namprd05.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <1484722923-7698-3-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,54 +19,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Peng Tao <bergwolf@gmail.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Stefan Hajnoczi <stefanha@redhat.com>, David Miller <davem@davemloft.net>
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com, stefanha@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-DQo+IE9uIEphbiA5LCAyMDE3LCBhdCAxMTowNiBBTSwgU3RlZmFuIEhham5vY3ppIDxzdGVmYW5o
-YUBnbWFpbC5jb20+IHdyb3RlOg0KPiANCj4gT24gRnJpLCBKYW4gMDYsIDIwMTcgYXQgMTA6MjI6
-NTZBTSArMDgwMCwgUGVuZyBUYW8gd3JvdGU6DQo+PiBPbiBUdWUsIERlYyAxMywgMjAxNiBhdCA1
-OjUwIFBNLCBTdGVmYW4gSGFqbm9jemkgPHN0ZWZhbmhhQGdtYWlsLmNvbT4gd3JvdGU6DQo+Pj4g
-T24gTW9uLCBEZWMgMTIsIDIwMTYgYXQgMDg6MjE6MDVQTSArMDgwMCwgUGVuZyBUYW8gd3JvdGU6
-DQo+Pj4+IEN1cnJlbnRseSwgaWYgYSBjb25uZWN0IGNhbGwgZmFpbHMgb24gYSBzaWduYWwgb3Ig
-dGltZW91dCAoZS5nLiwgZ3Vlc3QgaXMgc3RpbGwNCj4+Pj4gaW4gdGhlIHByb2Nlc3Mgb2Ygc3Rh
-cnRpbmcgdXApLCB3ZSdsbCBqdXN0IHJldHVybiB0byBjYWxsZXIgYW5kIGxlYXZlIHRoZSBjb25u
-ZWN0DQo+Pj4+IHBhY2tldCBxdWV1ZWQgYW5kIHRoZXkgYXJlIHNlbnQgZXZlbiB0aG91Z2ggdGhl
-IGNvbm5lY3Rpb24gaXMgY29uc2lkZXJlZCBhIGZhaWx1cmUsDQo+Pj4+IHdoaWNoIGNhbiBjb25m
-dXNlIGFwcGxpY2F0aW9ucyB3aXRoIHVud2FudGVkIGZhbHNlIGNvbm5lY3QgYXR0ZW1wdC4NCj4+
-Pj4gDQo+Pj4+IFRoZSBwYXRjaHNldCBlbmFibGVzIHZzb2NrIChib3RoIGhvc3QgYW5kIGd1ZXN0
-KSB0byBjYW5jZWwgcXVldWVkIHBhY2tldHMgd2hlbg0KPj4+PiBhIGNvbm5lY3QgYXR0ZW1wdCBp
-cyBjb25zaWRlcmVkIHRvIGZhaWwuDQo+Pj4+IA0KPj4+PiB2NCBjaGFuZ2Vsb2c6DQo+Pj4+ICAt
-IGRyb3AgdHdvIHVubmVjZXNzYXJ5IHZvaWQgKiBjYXN0DQo+Pj4+ICAtIHVwZGF0ZSBuZXcgY2Fs
-bGJhY2sgY29tbW5ldA0KPj4+PiB2MyBjaGFuZ2Vsb2c6DQo+Pj4+ICAtIGRlZmluZSBjYW5jZWxf
-cGt0IGNhbGxiYWNrIGluIHN0cnVjdCB2c29ja190cmFuc3BvcnQgcmF0aGVyIHRoYW4gc3RydWN0
-IHZpcnRpb190cmFuc3BvcnQNCj4+Pj4gIC0gcmVuYW1lIHZpcnRpb192c29ja19wa3QtPnZzayB0
-byB2aXJ0aW9fdnNvY2tfcGt0LT5jYW5jZWxfdG9rZW4NCj4+Pj4gdjIgY2hhbmdlbG9nOg0KPj4+
-PiAgLSBmaXggcXVldWVkX3JlcGxpZXMgY291bnRpbmcgYW5kIHJlc3VtZSB0eC9yeCB3aGVuIG5l
-Y2Vzc2FyeQ0KPj4+PiANCj4+Pj4gQ2hlZXJzLA0KPj4+PiBUYW8NCj4+Pj4gDQo+Pj4+IFBlbmcg
-VGFvICg0KToNCj4+Pj4gIHZzb2NrOiB0cmFjayBwa3Qgb3duZXIgdnNvY2sNCj4+Pj4gIHZob3N0
-LXZzb2NrOiBhZGQgcGt0IGNhbmNlbCBjYXBhYmlsaXR5DQo+Pj4+ICB2c29jazogYWRkIHBrdCBj
-YW5jZWwgY2FwYWJpbGl0eQ0KPj4+PiAgdnNvY2s6IGNhbmNlbCBwYWNrZXRzIHdoZW4gZmFpbGlu
-ZyB0byBjb25uZWN0DQo+Pj4+IA0KPj4+PiBkcml2ZXJzL3Zob3N0L3Zzb2NrLmMgICAgICAgICAg
-ICAgICAgICAgfCA0MSArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKw0KPj4+PiBpbmNs
-dWRlL2xpbnV4L3ZpcnRpb192c29jay5oICAgICAgICAgICAgfCAgMiArKw0KPj4+PiBpbmNsdWRl
-L25ldC9hZl92c29jay5oICAgICAgICAgICAgICAgICAgfCAgMyArKysNCj4+Pj4gbmV0L3Ztd192
-c29jay9hZl92c29jay5jICAgICAgICAgICAgICAgIHwgMTQgKysrKysrKysrKysNCj4+Pj4gbmV0
-L3Ztd192c29jay92aXJ0aW9fdHJhbnNwb3J0LmMgICAgICAgIHwgNDIgKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrKysrDQo+Pj4+IG5ldC92bXdfdnNvY2svdmlydGlvX3RyYW5zcG9ydF9j
-b21tb24uYyB8ICA3ICsrKysrKw0KPj4+PiA2IGZpbGVzIGNoYW5nZWQsIDEwOSBpbnNlcnRpb25z
-KCspDQo+Pj4+IA0KPj4+PiAtLQ0KPj4+PiAyLjcuNA0KPj4+PiANCj4+Pj4gX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18NCj4+Pj4gVmlydHVhbGl6YXRpb24g
-bWFpbGluZyBsaXN0DQo+Pj4+IFZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24u
-b3JnDQo+Pj4+IGh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL3ZpcnR1YWxpemF0aW9uDQo+Pj4gDQo+Pj4gUmV2aWV3ZWQtYnk6IFN0ZWZhbiBIYWpub2N6
-aSA8c3RlZmFuaGFAcmVkaGF0LmNvbT4NCj4+IHBpbmd+DQo+PiANCj4+IEl0IGxvb2tzIGxpa2Ug
-dGhlIHBhdGNoc2V0cyBhcmUgcmV2aWV3ZWQgYnV0IG5vdCBtZXJnZWQuIElzIHRoZXJlIGFueSBi
-bG9ja2VyPw0KPiANCj4gSWYgSm9yZ2VuIGlzIHNlbmRpbmcgcHVsbCByZXF1ZXN0cyB0aGVuIGl0
-IHNob3VsZCBnbyB0aHJvdWdoIGhpbS4NCj4gDQo+IE90aGVyd2lzZSBEYXZpZCBNaWxsZXIgY291
-bGQgYXBwbHkgaXQuDQoNCldlIGFyZSB1c3VhbGx5IG5vdCBpbnZvbHZlZCBpbiBhcHBseWluZyBj
-aGFuZ2VzIGZyb20gb3V0c2lkZSBWTXdhcmU7IHRob3NlIGFyZSBhcHBsaWVkIGJ5IERhdmlkIE1p
-bGxlci4NCg0KVGhhbmtzLA0KSsO4cmdlbgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
-b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Wed, Jan 18, 2017 at 03:02:02PM +0800, Jason Wang wrote:
+> This patch tries to utilize tuntap rx batching by peeking the tx
+> virtqueue during transmission, if there's more available buffers in
+> the virtqueue, set MSG_MORE flag for a hint for backend (e.g tuntap)
+> to batch the packets.
+> 
+> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+> ---
+>  drivers/vhost/net.c | 23 ++++++++++++++++++++---
+>  1 file changed, 20 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index 5dc3465..c42e9c3 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -351,6 +351,15 @@ static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
+>  	return r;
+>  }
+>  
+> +static bool vhost_exceeds_maxpend(struct vhost_net *net)
+> +{
+> +	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
+> +	struct vhost_virtqueue *vq = &nvq->vq;
+> +
+> +	return (nvq->upend_idx + vq->num - VHOST_MAX_PEND) % UIO_MAXIOV
+> +		== nvq->done_idx;
+> +}
+> +
+>  /* Expects to be always run from workqueue - which acts as
+>   * read-size critical section for our kind of RCU. */
+>  static void handle_tx(struct vhost_net *net)
+> @@ -394,8 +403,7 @@ static void handle_tx(struct vhost_net *net)
+>  		/* If more outstanding DMAs, queue the work.
+>  		 * Handle upend_idx wrap around
+>  		 */
+> -		if (unlikely((nvq->upend_idx + vq->num - VHOST_MAX_PEND)
+> -			      % UIO_MAXIOV == nvq->done_idx))
+> +		if (unlikely(vhost_exceeds_maxpend(net)))
+>  			break;
+>  
+>  		head = vhost_net_tx_get_vq_desc(net, vq, vq->iov,
+> @@ -454,6 +462,16 @@ static void handle_tx(struct vhost_net *net)
+>  			msg.msg_control = NULL;
+>  			ubufs = NULL;
+>  		}
+> +
+> +		total_len += len;
+> +		if (total_len < VHOST_NET_WEIGHT &&
+> +		    !vhost_vq_avail_empty(&net->dev, vq) &&
+> +		    likely(!vhost_exceeds_maxpend(net))) {
+> +			msg.msg_flags |= MSG_MORE;
+> +		} else {
+> +			msg.msg_flags &= ~MSG_MORE;
+> +		}
+> +
+>  		/* TODO: Check specific error and bomb out unless ENOBUFS? */
+>  		err = sock->ops->sendmsg(sock, &msg, len);
+>  		if (unlikely(err < 0)) {
+> @@ -472,7 +490,6 @@ static void handle_tx(struct vhost_net *net)
+>  			vhost_add_used_and_signal(&net->dev, vq, head, 0);
+>  		else
+>  			vhost_zerocopy_signal_used(net, vq);
+> -		total_len += len;
+>  		vhost_net_tx_packet(net);
+>  		if (unlikely(total_len >= VHOST_NET_WEIGHT)) {
+>  			vhost_poll_queue(&vq->poll);
+> -- 
+> 2.7.4
