@@ -1,17 +1,11 @@
-From: "Li, Liang Z" <liang.z.li@intel.com>
-Subject: RE: [PATCH v6 kernel 3/5] virtio-balloon: speed up inflate/deflate
-	process
-Date: Wed, 18 Jan 2017 04:56:58 +0000
-Message-ID: <F2CBF3009FA73547804AE4C663CAB28E3C355672__6161.35171517289$1484715433$gmane$org@shsmsx102.ccr.corp.intel.com>
-References: <1482303148-22059-1-git-send-email-liang.z.li@intel.com>
-	<1482303148-22059-4-git-send-email-liang.z.li@intel.com>
-	<20170117211131-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net-next V5 0/3] vhost_net tx batching
+Date: Wed, 18 Jan 2017 15:02:00 +0800
+Message-ID: <1484722923-7698-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170117211131-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,57 +15,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Hansen,
-	Dave" <dave.hansen@intel.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "dgilbert@redhat.com" <dgilbert@redhat.com>
+To: mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, kvm@vger.kernel.org
+Cc: wexu@redhat.com, stefanha@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-> > -	virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
-> > -	virtqueue_kick(vq);
-> > +static void do_set_resp_bitmap(struct virtio_balloon *vb,
-> > +		unsigned long base_pfn, int pages)
-> >
-> > -	/* When host has read buffer, this completes via balloon_ack */
-> > -	wait_event(vb->acked, virtqueue_get_buf(vq, &len));
-> > +{
-> > +	__le64 *range = vb->resp_data + vb->resp_pos;
-> >
-> > +	if (pages > (1 << VIRTIO_BALLOON_NR_PFN_BITS)) {
-> > +		/* when the length field can't contain pages, set it to 0 to
-> 
-> /*
->  * Multi-line
->  * comments
->  * should look like this.
->  */
-> 
-> Also, pls start sentences with an upper-case letter.
-> 
+Hi:
 
-Sorry for that.
+This series tries to implement tx batching support for vhost. This was
+done by using MSG_MORE as a hint for under layer socket. The backend
+(e.g tap) can then batch the packets temporarily in a list and
+submit it all once the number of bacthed exceeds a limitation.
 
-> > +		 * indicate the actual length is in the next __le64;
-> > +		 */
-> 
-> This is part of the interface so should be documented as such.
-> 
-> > +		*range = cpu_to_le64((base_pfn <<
-> > +				VIRTIO_BALLOON_NR_PFN_BITS) | 0);
-> > +		*(range + 1) = cpu_to_le64(pages);
-> > +		vb->resp_pos += 2;
-> 
-> Pls use structs for this kind of stuff.
+Tests shows obvious improvement on guest pktgen over over
+mlx4(noqueue) on host:
 
-I am not sure if you mean to use 
+                                     Mpps  -+%
+        rx-frames = 0                0.91  +0%
+        rx-frames = 4                1.00  +9.8%
+        rx-frames = 8                1.00  +9.8%
+        rx-frames = 16               1.01  +10.9%
+        rx-frames = 32               1.07  +17.5%
+        rx-frames = 48               1.07  +17.5%
+        rx-frames = 64               1.08  +18.6%
+        rx-frames = 64 (no MSG_MORE) 0.91  +0%
 
-struct  range {
- 	__le64 pfn: 52;
-	__le64 nr_page: 12
-}
-Instead of the shift operation?
+Changes from V4:
+- stick to NAPI_POLL_WEIGHT for rx-frames is user specify a value
+  greater than it.
+Changes from V3:
+- use ethtool instead of module parameter to control the maximum
+  number of batched packets
+- avoid overhead when MSG_MORE were not set and no packet queued
+Changes from V2:
+- remove uselss queue limitation check (and we don't drop any packet now)
+Changes from V1:
+- drop NAPI handler since we don't use NAPI now
+- fix the issues that may exceeds max pending of zerocopy
+- more improvement on available buffer detection
+- move the limitation of batched pacekts from vhost to tuntap
 
-I didn't use this way because I don't want to include 'virtio-balloon.h' in page_alloc.c,
-or copy the define of this struct in page_alloc.c
+Please review.
 
-Thanks!
-Liang
+Thanks
+
+Jason Wang (3):
+  vhost: better detection of available buffers
+  vhost_net: tx batching
+  tun: rx batching
+
+ drivers/net/tun.c     | 76 +++++++++++++++++++++++++++++++++++++++++++++++----
+ drivers/vhost/net.c   | 23 ++++++++++++++--
+ drivers/vhost/vhost.c |  8 ++++--
+ 3 files changed, 96 insertions(+), 11 deletions(-)
+
+-- 
+2.7.4
