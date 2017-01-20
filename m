@@ -1,20 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v6 kernel 3/5] virtio-balloon: speed up inflate/deflate
-	process
-Date: Fri, 20 Jan 2017 18:34:34 +0200
-Message-ID: <20170120183215-mutt-send-email-mst__9359.57142287425$1484930086$gmane$org@kernel.org>
-References: <1482303148-22059-1-git-send-email-liang.z.li@intel.com>
-	<1482303148-22059-4-git-send-email-liang.z.li@intel.com>
-	<20170117211131-mutt-send-email-mst@kernel.org>
-	<F2CBF3009FA73547804AE4C663CAB28E3C355672@shsmsx102.ccr.corp.intel.com>
-	<20170118172401-mutt-send-email-mst@kernel.org>
-	<F2CBF3009FA73547804AE4C663CAB28E3C3578BF@shsmsx102.ccr.corp.intel.com>
+Subject: Re: [PATCH net] virtio-net: restore VIRTIO_HDR_F_DATA_VALID on
+	receiving
+Date: Fri, 20 Jan 2017 18:45:11 +0200
+Message-ID: <20170120184220-mutt-send-email-mst@kernel.org>
+References: <1484893962-7614-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <F2CBF3009FA73547804AE4C663CAB28E3C3578BF@shsmsx102.ccr.corp.intel.com>
+In-Reply-To: <1484893962-7614-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,53 +19,116 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Li, Liang Z" <liang.z.li@intel.com>
-Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Hansen,
-	Dave" <dave.hansen@intel.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "dgilbert@redhat.com" <dgilbert@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, Rolf Neugebauer <rolf.neugebauer@docker.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 19, 2017 at 01:44:36AM +0000, Li, Liang Z wrote:
-> > > > > +		*range = cpu_to_le64((base_pfn <<
-> > > > > +				VIRTIO_BALLOON_NR_PFN_BITS) | 0);
-> > > > > +		*(range + 1) = cpu_to_le64(pages);
-> > > > > +		vb->resp_pos += 2;
-> > > >
-> > > > Pls use structs for this kind of stuff.
-> > >
-> > > I am not sure if you mean to use
-> > >
-> > > struct  range {
-> > >  	__le64 pfn: 52;
-> > > 	__le64 nr_page: 12
-> > > }
-> > > Instead of the shift operation?
-> > 
-> > Not just that. You want to add a pages field as well.
-> > 
+On Fri, Jan 20, 2017 at 02:32:42PM +0800, Jason Wang wrote:
+> Commit 501db511397f ("virtio: don't set VIRTIO_NET_HDR_F_DATA_VALID on
+> xmit") in fact disables VIRTIO_HDR_F_DATA_VALID on receiving path too,
+> fixing this by adding a hint (has_data_valid) and set it only on the
+> receiving path.
 > 
-> pages field? Could you give more hints?
-
-Well look how you are formatting it manually above.
-There is clearly a structure with two 64 bit fields.
-First one includes pfn and 0 (no idea why does | 0 make
-sense but that's a separate issue).
-Second one includes the pages value.
-
-
-> > Generally describe the format in the header in some way so host and guest
-> > can easily stay in sync.
+> Cc: Rolf Neugebauer <rolf.neugebauer@docker.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/net/macvtap.c      | 2 +-
+>  drivers/net/tun.c          | 2 +-
+>  drivers/net/virtio_net.c   | 2 +-
+>  include/linux/virtio_net.h | 6 +++++-
+>  net/packet/af_packet.c     | 4 ++--
+>  5 files changed, 10 insertions(+), 6 deletions(-)
 > 
-> 'VIRTIO_BALLOON_NR_PFN_BITS' is for this purpose and it will be passed to the
-> related function in page_alloc.c as a parameter.
-> 
-> Thanks!
-> Liang
-> > All the pointer math and void * means we get zero type safety and I'm not
-> > happy about it.
-> > 
-> > It's not good that virtio format seeps out to page_alloc anyway.
-> > If unavoidable it is not a good idea to try to hide this fact, people will assume
-> > they can change the format at will.
-> > 
-> > --
-> > MST
+> diff --git a/drivers/net/macvtap.c b/drivers/net/macvtap.c
+> index 5c26653..4026185 100644
+> --- a/drivers/net/macvtap.c
+> +++ b/drivers/net/macvtap.c
+> @@ -825,7 +825,7 @@ static ssize_t macvtap_put_user(struct macvtap_queue *q,
+>  			return -EINVAL;
+>  
+>  		if (virtio_net_hdr_from_skb(skb, &vnet_hdr,
+> -					    macvtap_is_little_endian(q)))
+> +					    macvtap_is_little_endian(q), true))
+>  			BUG();
+>  
+>  		if (copy_to_iter(&vnet_hdr, sizeof(vnet_hdr), iter) !=
+> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> index cd8e02c..2cd10b2 100644
+> --- a/drivers/net/tun.c
+> +++ b/drivers/net/tun.c
+> @@ -1360,7 +1360,7 @@ static ssize_t tun_put_user(struct tun_struct *tun,
+>  			return -EINVAL;
+>  
+>  		if (virtio_net_hdr_from_skb(skb, &gso,
+> -					    tun_is_little_endian(tun))) {
+> +					    tun_is_little_endian(tun), true)) {
+>  			struct skb_shared_info *sinfo = skb_shinfo(skb);
+>  			pr_err("unexpected GSO type: "
+>  			       "0x%x, gso_size %d, hdr_len %d\n",
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 4a10500..3474243 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -1104,7 +1104,7 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
+>  		hdr = skb_vnet_hdr(skb);
+>  
+>  	if (virtio_net_hdr_from_skb(skb, &hdr->hdr,
+> -				    virtio_is_little_endian(vi->vdev)))
+> +				    virtio_is_little_endian(vi->vdev), false))
+>  		BUG();
+>  
+>  	if (vi->mergeable_rx_bufs)
+> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> index 5643647..5209b5e 100644
+> --- a/include/linux/virtio_net.h
+> +++ b/include/linux/virtio_net.h
+> @@ -56,7 +56,8 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+>  
+>  static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
+>  					  struct virtio_net_hdr *hdr,
+> -					  bool little_endian)
+> +					  bool little_endian,
+> +					  bool has_data_valid)
+>  {
+>  	memset(hdr, 0, sizeof(*hdr));   /* no info leak */
+>  
+
+I would prefer naming it is_rx. Callers should not know about
+internal details like data valid, the issue we are trying to fix
+here is that tx and tx headers are slightly different.
+
+
+> @@ -91,6 +92,9 @@ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
+>  				skb_checksum_start_offset(skb));
+>  		hdr->csum_offset = __cpu_to_virtio16(little_endian,
+>  				skb->csum_offset);
+> +	} else if (has_data_valid &&
+> +		   skb->ip_summed == CHECKSUM_UNNECESSARY) {
+> +		hdr->flags = VIRTIO_NET_HDR_F_DATA_VALID;
+>  	} /* else everything is zero */
+>  
+>  	return 0;
+> diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
+> index b9e1a13..3d555c7 100644
+> --- a/net/packet/af_packet.c
+> +++ b/net/packet/af_packet.c
+> @@ -1976,7 +1976,7 @@ static int packet_rcv_vnet(struct msghdr *msg, const struct sk_buff *skb,
+>  		return -EINVAL;
+>  	*len -= sizeof(vnet_hdr);
+>  
+> -	if (virtio_net_hdr_from_skb(skb, &vnet_hdr, vio_le()))
+> +	if (virtio_net_hdr_from_skb(skb, &vnet_hdr, vio_le(), true))
+>  		return -EINVAL;
+>  
+>  	return memcpy_to_msg(msg, (void *)&vnet_hdr, sizeof(vnet_hdr));
+> @@ -2237,7 +2237,7 @@ static int tpacket_rcv(struct sk_buff *skb, struct net_device *dev,
+>  	if (po->has_vnet_hdr) {
+>  		if (virtio_net_hdr_from_skb(skb, h.raw + macoff -
+>  					    sizeof(struct virtio_net_hdr),
+> -					    vio_le())) {
+> +					    vio_le(), true)) {
+>  			spin_lock(&sk->sk_receive_queue.lock);
+>  			goto drop_n_account;
+>  		}
+> -- 
+> 2.7.4
