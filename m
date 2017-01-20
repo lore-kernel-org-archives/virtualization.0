@@ -1,14 +1,20 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net] virtio-net: restore VIRTIO_HDR_F_DATA_VALID on
-	receiving
-Date: Fri, 20 Jan 2017 11:03:57 -0500 (EST)
-Message-ID: <20170120.110357.940788880370139025.davem@davemloft.net>
-References: <1484893962-7614-1-git-send-email-jasowang@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v6 kernel 3/5] virtio-balloon: speed up inflate/deflate
+	process
+Date: Fri, 20 Jan 2017 18:34:34 +0200
+Message-ID: <20170120183215-mutt-send-email-mst__9359.57142287425$1484930086$gmane$org@kernel.org>
+References: <1482303148-22059-1-git-send-email-liang.z.li@intel.com>
+	<1482303148-22059-4-git-send-email-liang.z.li@intel.com>
+	<20170117211131-mutt-send-email-mst@kernel.org>
+	<F2CBF3009FA73547804AE4C663CAB28E3C355672@shsmsx102.ccr.corp.intel.com>
+	<20170118172401-mutt-send-email-mst@kernel.org>
+	<F2CBF3009FA73547804AE4C663CAB28E3C3578BF@shsmsx102.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1484893962-7614-1-git-send-email-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <F2CBF3009FA73547804AE4C663CAB28E3C3578BF@shsmsx102.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,19 +24,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: rolf.neugebauer@docker.com, netdev@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Li, Liang Z" <liang.z.li@intel.com>
+Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Hansen,
+	Dave" <dave.hansen@intel.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "dgilbert@redhat.com" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 20 Jan 2017 14:32:42 +0800
-
-> Commit 501db511397f ("virtio: don't set VIRTIO_NET_HDR_F_DATA_VALID on
-> xmit") in fact disables VIRTIO_HDR_F_DATA_VALID on receiving path too,
-> fixing this by adding a hint (has_data_valid) and set it only on the
-> receiving path.
+On Thu, Jan 19, 2017 at 01:44:36AM +0000, Li, Liang Z wrote:
+> > > > > +		*range = cpu_to_le64((base_pfn <<
+> > > > > +				VIRTIO_BALLOON_NR_PFN_BITS) | 0);
+> > > > > +		*(range + 1) = cpu_to_le64(pages);
+> > > > > +		vb->resp_pos += 2;
+> > > >
+> > > > Pls use structs for this kind of stuff.
+> > >
+> > > I am not sure if you mean to use
+> > >
+> > > struct  range {
+> > >  	__le64 pfn: 52;
+> > > 	__le64 nr_page: 12
+> > > }
+> > > Instead of the shift operation?
+> > 
+> > Not just that. You want to add a pages field as well.
+> > 
 > 
-> Cc: Rolf Neugebauer <rolf.neugebauer@docker.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> pages field? Could you give more hints?
 
-Applied, thanks Jason.
+Well look how you are formatting it manually above.
+There is clearly a structure with two 64 bit fields.
+First one includes pfn and 0 (no idea why does | 0 make
+sense but that's a separate issue).
+Second one includes the pages value.
+
+
+> > Generally describe the format in the header in some way so host and guest
+> > can easily stay in sync.
+> 
+> 'VIRTIO_BALLOON_NR_PFN_BITS' is for this purpose and it will be passed to the
+> related function in page_alloc.c as a parameter.
+> 
+> Thanks!
+> Liang
+> > All the pointer math and void * means we get zero type safety and I'm not
+> > happy about it.
+> > 
+> > It's not good that virtio format seeps out to page_alloc anyway.
+> > If unavoidable it is not a good idea to try to hide this fact, people will assume
+> > they can change the format at will.
+> > 
+> > --
+> > MST
