@@ -1,10 +1,7 @@
-From: Rolf Neugebauer via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: virtio: Subtle changes to virtio_net flags breaks VXLAN on Google
-	Cloud
-Date: Tue, 17 Jan 2017 16:20:49 +0000
-Message-ID: <CA+pO-2dnYX2OguTXPP_UV8hKwubNJ6Umxiux4vc+9yO0Ff0orw__767.025553114031$1484863810$gmane$org@mail.gmail.com>
-Reply-To: Rolf Neugebauer <rolf.neugebauer@docker.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net] virtio-net: restore VIRTIO_HDR_F_DATA_VALID on receiving
+Date: Fri, 20 Jan 2017 14:32:42 +0800
+Message-ID: <1484893962-7614-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -18,108 +15,109 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linux Kernel Network Developers <netdev@vger.kernel.org>
-Cc: virtio-dev@lists.oasis-open.org, mst@redhat.com, Rolf Neugebauer <rolf.neugebauer@docker.com>, virtualization@lists.linux-foundation.org, Mike Rapoport <rppt@linux.vnet.ibm.com>, David Miller <davem@davemloft.net>
+To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com
+Cc: Rolf Neugebauer <rolf.neugebauer@docker.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Commits:
+Commit 501db511397f ("virtio: don't set VIRTIO_NET_HDR_F_DATA_VALID on
+xmit") in fact disables VIRTIO_HDR_F_DATA_VALID on receiving path too,
+fixing this by adding a hint (has_data_valid) and set it only on the
+receiving path.
 
-fd2a0437dc33 virtio_net: introduce virtio_net_hdr_{from,to}_skb
-e858fae2b0b8 virtio_net: use common code for virtio_net_hdr and skb
-GSO conversion
+Cc: Rolf Neugebauer <rolf.neugebauer@docker.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/macvtap.c      | 2 +-
+ drivers/net/tun.c          | 2 +-
+ drivers/net/virtio_net.c   | 2 +-
+ include/linux/virtio_net.h | 6 +++++-
+ net/packet/af_packet.c     | 4 ++--
+ 5 files changed, 10 insertions(+), 6 deletions(-)
 
-introduced a subtle (but unexplained) difference in how virtio_net
-flags are derived from skb->ip_summed fields on transmit from the
-guest to the host/backend. Prior to the patches the flags would be set
-to VIRTIO_NET_HDR_F_NEEDS_CSUM if ip_summed was CHECKSUM_PARTIAL,
-otherwise the flags would be set to 0.
-
-After the commits, virtio_net flags would still be set to
-VIRTIO_NET_HDR_F_NEEDS_CSUM if ip_summed == CHECKSUM_PARTIAL but it
-now sets the virtio_net flags to VIRTIO_NET_HDR_F_DATA_VALID if
-ip_summed == CHECKSUM_UNNECESSARY. Otherwise the virtio_net flags are set to 0.
-
-skbuff.h says that for transmitting CHECKSUM_NONE and
-CHECKSUM_UNNECESSARY have the same meaning, yet the above changes
-treat them different.
-
-Version 1.0 of the virtio spec [1] says in Section 5.1.6.2.1 Driver
-Requirements: Packet Transmission: "The driver MUST NOT set the
-VIRTIO_NET_HDR_F_DATA_VALID bit in flags." The above changes clearly
-do that, but maybe I'm mis-reading the spec here.
-
-The changes break VXLAN in some setups (we discovered it on Google
-Could Engine, see below). We are trying to establish if this is an
-issue with the GCE backend implementation, or if the above commit
-should be amended to revert to the old behaviour (set
-VIRTIO_NET_HDR_F_NEEDS_CSUM if ip_summed==CHECKSUM_PARTIAL, otherwise
-set flags to 0).
-
-Reverting back to the old behaviour (see strawman patch below) fixes
-the issue we were seeing. While we tested with a 4.9.3 kernel, the
-code in question has not been changed since.
-
-Thanks
-Rolf
-
-Background:
-On Google cloud, we have a setup with a manager node using a 4.9.3
-kernel, two worker nodes (one with a 4.9.3 and the other with a 4.4.41
-based kernel). Requests from a client node to the manager node are
-either handled by the manager node or one of the two worker nodes. If
-requests are handled by a worker node, the request (including the
-SYN/SYN,ACK handshake) are encapsulated in VXLAN before being sent to
-the worker and responses are decapsulate by the manager and forwarded
-back to the client.
-If a request is handled by either the manager or the 4.4 based worker,
-everything works as expected. For requests handled by the 4.9 based
-worker we see the response packet being sent to the client node by the
-manager node (tcpdump on eth0), but it never arrives at the client
-node.
-
-Looking at the packets in a bit more detail, we noticed that the VXLAN
-encapsulated responses from a 4.4 based worker have a zero UDP
-checksum in the outer header while the responses from the 4.9 based
-worker have a correct UDP checksum. Both packets have correct
-checksums in the inner packet.
-
-We instrumented the virtio_net driver and looked at the values of
-ip_summed and virtio_net flags for the last hop of the SYN,ACK from
-the manager back to the client.
-
-- Requests handled directly by the manager have ip_summed =
-  CHECKSUM_PARTIAL and flags
-  VIRTIO_NET_HDR_F_NEEDS_CSUM (checksum offload).
-- Requests originally originated from the 4.4 based worker
-  (where the outer UDP checksum was zero) have ip_summed =
-  CHECKSUM_NONE and flags = VIRTIO_NET_F_CSUM
-  (no checksum offload)
-- Requests originally originated from the 4.9 based worker
-  (where the outer UDP checksum was filled in) have ip_summed =
-  CHECKSUM_UNNECESSARY and flags =
-  VIRTIO_NET_HDR_F_DATA_VALID. These packets get dropped
-  before they reach the client.
-
-The VXLAN code seems to set ip_summed to either CHECKSUM_NONE or
-CHECKSUM_UNNECESSARY depending on the presence of the UDP checksum in
-the outer header.
-
-As a strawman, we reverted to the old behaviour on the xmit path with:
+diff --git a/drivers/net/macvtap.c b/drivers/net/macvtap.c
+index 5c26653..4026185 100644
+--- a/drivers/net/macvtap.c
++++ b/drivers/net/macvtap.c
+@@ -825,7 +825,7 @@ static ssize_t macvtap_put_user(struct macvtap_queue *q,
+ 			return -EINVAL;
+ 
+ 		if (virtio_net_hdr_from_skb(skb, &vnet_hdr,
+-					    macvtap_is_little_endian(q)))
++					    macvtap_is_little_endian(q), true))
+ 			BUG();
+ 
+ 		if (copy_to_iter(&vnet_hdr, sizeof(vnet_hdr), iter) !=
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index cd8e02c..2cd10b2 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -1360,7 +1360,7 @@ static ssize_t tun_put_user(struct tun_struct *tun,
+ 			return -EINVAL;
+ 
+ 		if (virtio_net_hdr_from_skb(skb, &gso,
+-					    tun_is_little_endian(tun))) {
++					    tun_is_little_endian(tun), true)) {
+ 			struct skb_shared_info *sinfo = skb_shinfo(skb);
+ 			pr_err("unexpected GSO type: "
+ 			       "0x%x, gso_size %d, hdr_len %d\n",
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 4a10500..3474243 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1104,7 +1104,7 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
+ 		hdr = skb_vnet_hdr(skb);
+ 
+ 	if (virtio_net_hdr_from_skb(skb, &hdr->hdr,
+-				    virtio_is_little_endian(vi->vdev)))
++				    virtio_is_little_endian(vi->vdev), false))
+ 		BUG();
+ 
+ 	if (vi->mergeable_rx_bufs)
+diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+index 5643647..5209b5e 100644
 --- a/include/linux/virtio_net.h
 +++ b/include/linux/virtio_net.h
-@@ -91,9 +91,7 @@ static inline int virtio_net_hdr_from_skb(const
-struct sk_buff *skb,
-                                skb_checksum_start_offset(skb));
-                hdr->csum_offset = __cpu_to_virtio16(little_endian,
-                                skb->csum_offset);
--       } else if (skb->ip_summed == CHECKSUM_UNNECESSARY) {
--               hdr->flags = VIRTIO_NET_HDR_F_DATA_VALID;
--       } /* else everything is zero */
-+       }
-
-        return 0;
- }
-and it fixes the issue.
-
-
-[1] http://docs.oasis-open.org/virtio/virtio/v1.0/cs04/virtio-v1.0-cs04.pdf
+@@ -56,7 +56,8 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+ 
+ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
+ 					  struct virtio_net_hdr *hdr,
+-					  bool little_endian)
++					  bool little_endian,
++					  bool has_data_valid)
+ {
+ 	memset(hdr, 0, sizeof(*hdr));   /* no info leak */
+ 
+@@ -91,6 +92,9 @@ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
+ 				skb_checksum_start_offset(skb));
+ 		hdr->csum_offset = __cpu_to_virtio16(little_endian,
+ 				skb->csum_offset);
++	} else if (has_data_valid &&
++		   skb->ip_summed == CHECKSUM_UNNECESSARY) {
++		hdr->flags = VIRTIO_NET_HDR_F_DATA_VALID;
+ 	} /* else everything is zero */
+ 
+ 	return 0;
+diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
+index b9e1a13..3d555c7 100644
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -1976,7 +1976,7 @@ static int packet_rcv_vnet(struct msghdr *msg, const struct sk_buff *skb,
+ 		return -EINVAL;
+ 	*len -= sizeof(vnet_hdr);
+ 
+-	if (virtio_net_hdr_from_skb(skb, &vnet_hdr, vio_le()))
++	if (virtio_net_hdr_from_skb(skb, &vnet_hdr, vio_le(), true))
+ 		return -EINVAL;
+ 
+ 	return memcpy_to_msg(msg, (void *)&vnet_hdr, sizeof(vnet_hdr));
+@@ -2237,7 +2237,7 @@ static int tpacket_rcv(struct sk_buff *skb, struct net_device *dev,
+ 	if (po->has_vnet_hdr) {
+ 		if (virtio_net_hdr_from_skb(skb, h.raw + macoff -
+ 					    sizeof(struct virtio_net_hdr),
+-					    vio_le())) {
++					    vio_le(), true)) {
+ 			spin_lock(&sk->sk_receive_queue.lock);
+ 			goto drop_n_account;
+ 		}
+-- 
+2.7.4
