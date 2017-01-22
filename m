@@ -1,17 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net] virtio-net: restore VIRTIO_HDR_F_DATA_VALID on
-	receiving
-Date: Sun, 22 Jan 2017 06:22:33 +0200
-Message-ID: <20170122061838-mutt-send-email-mst__15512.4395773329$1485058983$gmane$org@kernel.org>
-References: <1484893962-7614-1-git-send-email-jasowang@redhat.com>
-	<20170120184220-mutt-send-email-mst@kernel.org>
-	<268cadeb-433c-7960-5fe6-a06f849493a8@redhat.com>
+Subject: [PATCH v2] vfio error recovery: kernel support
+Date: Sun, 22 Jan 2017 07:25:49 +0200
+Message-ID: <1485062615-21367-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <268cadeb-433c-7960-5fe6-a06f849493a8@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,74 +16,228 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, Rolf Neugebauer <rolf.neugebauer@docker.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: caoj.fnst@cn.fujitsu.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gU3VuLCBKYW4gMjIsIDIwMTcgYXQgMTA6NDE6MjJBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE35bm0MDHmnIgyMeaXpSAwMDo0NSwgTWljaGFlbCBTLiBUc2lya2lu
-IHdyb3RlOgo+ID4gT24gRnJpLCBKYW4gMjAsIDIwMTcgYXQgMDI6MzI6NDJQTSArMDgwMCwgSmFz
-b24gV2FuZyB3cm90ZToKPiA+ID4gQ29tbWl0IDUwMWRiNTExMzk3ZiAoInZpcnRpbzogZG9uJ3Qg
-c2V0IFZJUlRJT19ORVRfSERSX0ZfREFUQV9WQUxJRCBvbgo+ID4gPiB4bWl0IikgaW4gZmFjdCBk
-aXNhYmxlcyBWSVJUSU9fSERSX0ZfREFUQV9WQUxJRCBvbiByZWNlaXZpbmcgcGF0aCB0b28sCj4g
-PiA+IGZpeGluZyB0aGlzIGJ5IGFkZGluZyBhIGhpbnQgKGhhc19kYXRhX3ZhbGlkKSBhbmQgc2V0
-IGl0IG9ubHkgb24gdGhlCj4gPiA+IHJlY2VpdmluZyBwYXRoLgo+ID4gPiAKPiA+ID4gQ2M6IFJv
-bGYgTmV1Z2ViYXVlcjxyb2xmLm5ldWdlYmF1ZXJAZG9ja2VyLmNvbT4KPiA+ID4gU2lnbmVkLW9m
-Zi1ieTogSmFzb24gV2FuZzxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+ID4gPiAtLS0KPiA+ID4gICBk
-cml2ZXJzL25ldC9tYWN2dGFwLmMgICAgICB8IDIgKy0KPiA+ID4gICBkcml2ZXJzL25ldC90dW4u
-YyAgICAgICAgICB8IDIgKy0KPiA+ID4gICBkcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgICB8IDIg
-Ky0KPiA+ID4gICBpbmNsdWRlL2xpbnV4L3ZpcnRpb19uZXQuaCB8IDYgKysrKystCj4gPiA+ICAg
-bmV0L3BhY2tldC9hZl9wYWNrZXQuYyAgICAgfCA0ICsrLS0KPiA+ID4gICA1IGZpbGVzIGNoYW5n
-ZWQsIDEwIGluc2VydGlvbnMoKyksIDYgZGVsZXRpb25zKC0pCj4gPiA+IAo+ID4gPiBkaWZmIC0t
-Z2l0IGEvZHJpdmVycy9uZXQvbWFjdnRhcC5jIGIvZHJpdmVycy9uZXQvbWFjdnRhcC5jCj4gPiA+
-IGluZGV4IDVjMjY2NTMuLjQwMjYxODUgMTAwNjQ0Cj4gPiA+IC0tLSBhL2RyaXZlcnMvbmV0L21h
-Y3Z0YXAuYwo+ID4gPiArKysgYi9kcml2ZXJzL25ldC9tYWN2dGFwLmMKPiA+ID4gQEAgLTgyNSw3
-ICs4MjUsNyBAQCBzdGF0aWMgc3NpemVfdCBtYWN2dGFwX3B1dF91c2VyKHN0cnVjdCBtYWN2dGFw
-X3F1ZXVlICpxLAo+ID4gPiAgIAkJCXJldHVybiAtRUlOVkFMOwo+ID4gPiAgIAkJaWYgKHZpcnRp
-b19uZXRfaGRyX2Zyb21fc2tiKHNrYiwgJnZuZXRfaGRyLAo+ID4gPiAtCQkJCQkgICAgbWFjdnRh
-cF9pc19saXR0bGVfZW5kaWFuKHEpKSkKPiA+ID4gKwkJCQkJICAgIG1hY3Z0YXBfaXNfbGl0dGxl
-X2VuZGlhbihxKSwgdHJ1ZSkpCj4gPiA+ICAgCQkJQlVHKCk7Cj4gPiA+ICAgCQlpZiAoY29weV90
-b19pdGVyKCZ2bmV0X2hkciwgc2l6ZW9mKHZuZXRfaGRyKSwgaXRlcikgIT0KPiA+ID4gZGlmZiAt
-LWdpdCBhL2RyaXZlcnMvbmV0L3R1bi5jIGIvZHJpdmVycy9uZXQvdHVuLmMKPiA+ID4gaW5kZXgg
-Y2Q4ZTAyYy4uMmNkMTBiMiAxMDA2NDQKPiA+ID4gLS0tIGEvZHJpdmVycy9uZXQvdHVuLmMKPiA+
-ID4gKysrIGIvZHJpdmVycy9uZXQvdHVuLmMKPiA+ID4gQEAgLTEzNjAsNyArMTM2MCw3IEBAIHN0
-YXRpYyBzc2l6ZV90IHR1bl9wdXRfdXNlcihzdHJ1Y3QgdHVuX3N0cnVjdCAqdHVuLAo+ID4gPiAg
-IAkJCXJldHVybiAtRUlOVkFMOwo+ID4gPiAgIAkJaWYgKHZpcnRpb19uZXRfaGRyX2Zyb21fc2ti
-KHNrYiwgJmdzbywKPiA+ID4gLQkJCQkJICAgIHR1bl9pc19saXR0bGVfZW5kaWFuKHR1bikpKSB7
-Cj4gPiA+ICsJCQkJCSAgICB0dW5faXNfbGl0dGxlX2VuZGlhbih0dW4pLCB0cnVlKSkgewo+ID4g
-PiAgIAkJCXN0cnVjdCBza2Jfc2hhcmVkX2luZm8gKnNpbmZvID0gc2tiX3NoaW5mbyhza2IpOwo+
-ID4gPiAgIAkJCXByX2VycigidW5leHBlY3RlZCBHU08gdHlwZTogIgo+ID4gPiAgIAkJCSAgICAg
-ICAiMHgleCwgZ3NvX3NpemUgJWQsIGhkcl9sZW4gJWRcbiIsCj4gPiA+IGRpZmYgLS1naXQgYS9k
-cml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiA+ID4g
-aW5kZXggNGExMDUwMC4uMzQ3NDI0MyAxMDA2NDQKPiA+ID4gLS0tIGEvZHJpdmVycy9uZXQvdmly
-dGlvX25ldC5jCj4gPiA+ICsrKyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ID4gPiBAQCAt
-MTEwNCw3ICsxMTA0LDcgQEAgc3RhdGljIGludCB4bWl0X3NrYihzdHJ1Y3Qgc2VuZF9xdWV1ZSAq
-c3EsIHN0cnVjdCBza19idWZmICpza2IpCj4gPiA+ICAgCQloZHIgPSBza2Jfdm5ldF9oZHIoc2ti
-KTsKPiA+ID4gICAJaWYgKHZpcnRpb19uZXRfaGRyX2Zyb21fc2tiKHNrYiwgJmhkci0+aGRyLAo+
-ID4gPiAtCQkJCSAgICB2aXJ0aW9faXNfbGl0dGxlX2VuZGlhbih2aS0+dmRldikpKQo+ID4gPiAr
-CQkJCSAgICB2aXJ0aW9faXNfbGl0dGxlX2VuZGlhbih2aS0+dmRldiksIGZhbHNlKSkKPiA+ID4g
-ICAJCUJVRygpOwo+ID4gPiAgIAlpZiAodmktPm1lcmdlYWJsZV9yeF9idWZzKQo+ID4gPiBkaWZm
-IC0tZ2l0IGEvaW5jbHVkZS9saW51eC92aXJ0aW9fbmV0LmggYi9pbmNsdWRlL2xpbnV4L3ZpcnRp
-b19uZXQuaAo+ID4gPiBpbmRleCA1NjQzNjQ3Li41MjA5YjVlIDEwMDY0NAo+ID4gPiAtLS0gYS9p
-bmNsdWRlL2xpbnV4L3ZpcnRpb19uZXQuaAo+ID4gPiArKysgYi9pbmNsdWRlL2xpbnV4L3ZpcnRp
-b19uZXQuaAo+ID4gPiBAQCAtNTYsNyArNTYsOCBAQCBzdGF0aWMgaW5saW5lIGludCB2aXJ0aW9f
-bmV0X2hkcl90b19za2Ioc3RydWN0IHNrX2J1ZmYgKnNrYiwKPiA+ID4gICBzdGF0aWMgaW5saW5l
-IGludCB2aXJ0aW9fbmV0X2hkcl9mcm9tX3NrYihjb25zdCBzdHJ1Y3Qgc2tfYnVmZiAqc2tiLAo+
-ID4gPiAgIAkJCQkJICBzdHJ1Y3QgdmlydGlvX25ldF9oZHIgKmhkciwKPiA+ID4gLQkJCQkJICBi
-b29sIGxpdHRsZV9lbmRpYW4pCj4gPiA+ICsJCQkJCSAgYm9vbCBsaXR0bGVfZW5kaWFuLAo+ID4g
-PiArCQkJCQkgIGJvb2wgaGFzX2RhdGFfdmFsaWQpCj4gPiA+ICAgewo+ID4gPiAgIAltZW1zZXQo
-aGRyLCAwLCBzaXplb2YoKmhkcikpOyAgIC8qIG5vIGluZm8gbGVhayAqLwo+ID4gSSB3b3VsZCBw
-cmVmZXIgbmFtaW5nIGl0IGlzX3J4LiBDYWxsZXJzIHNob3VsZCBub3Qga25vdyBhYm91dAo+ID4g
-aW50ZXJuYWwgZGV0YWlscyBsaWtlIGRhdGEgdmFsaWQsIHRoZSBpc3N1ZSB3ZSBhcmUgdHJ5aW5n
-IHRvIGZpeAo+ID4gaGVyZSBpcyB0aGF0IHR4IGFuZCB0eCBoZWFkZXJzIGFyZSBzbGlnaHRseSBk
-aWZmZXJlbnQuCj4gPiAKPiAKPiBBY3R1YWxseSwgSSd2ZSBjb25zaWRlcmVkIHNvbWV0aGluZyBs
-aWtlIHRoaXMsIGJ1dCB0aGUgcHJvYmxlbSBpczoKPiAKPiAtIHR1biB1c2UgdGhpcyBvbiB4bWl0
-LCBzbyBpc19yeCA9IHRydWUgbWF5IGNhdXNlIHNvbWUgY29uZnVzaW9uIGhlcmUKCnR1biBpcyBn
-ZW5lcmFsbHkgd2VpcmQsIHllcy4gaG93IGFib3V0IHJ4X2Zvcm1hdD8KCj4gLSBJIGJlbGlldmUg
-d2UgbWF5IHdhbnQgdG8gc3VwcG9ydCBEQVRBX1ZBTElEIChsaWtlIHhlbi1uZXRiYWNrKSBvbiB0
-eAo+IChwcm9iYWJseSB3aXRoIGEgZmVhdHVyZSkgaW4gdGhlIGZ1dHVyZS4KPiAKPiBUaGFua3MK
-CldlJ2xsIHB1dCB0aGF0IGtub3dsZWRnZSB3aXRoaW4gdmlydGlvX25ldF9oZHJfZnJvbV9za2Ig
-bm90CmluIHRoZSBjYWxsZXJzIEkgdGhpbmsuCgotLSAKTVNUCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
-aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
-bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+This is a design and an initial patch for kernel side for AER
+support in VFIO.
+
+0. What happens now (PCIE AER only)
+   Fatal errors cause a link reset.
+   Non fatal errors don't.
+   All errors stop the VM eventually, but not immediately
+   because it's detected and reported asynchronously.
+   Interrupts are forwarded as usual.
+   Correctable errors are not reported to guest at all.
+   Note: PPC EEH is different. This focuses on AER.
+
+1. Correctable errors
+   I don't see a need to report these to guest. So let's not.
+
+2. Fatal errors
+   It's not easy to handle them gracefully since link reset
+   is needed. As a first step, let's use the existing mechanism
+   in that case.
+
+2. Non-fatal errors
+   Here we could make progress by reporting them to guest
+   and have guest handle them.
+   Issues:
+    a. this behaviour should only be enabled with new userspace
+       old userspace should work without changes
+    Suggestion: One way to address this would be to add a new eventfd
+    non_fatal_err_trigger. If not set, invoke err_trigger.
+
+    b. drivers are supposed to stop MMIO when error is reported
+    if vm keeps going, we will keep doing MMIO/config
+    Suggestion 1: ignore this. vm stop happens much later when
+    userspace runs anyway, so we are not making things much worse
+    Suggestion 2: try to stop MMIO/config, resume on resume call
+
+    Patch below implements Suggestion 1.
+
+Note that although this is really against the documentation, which states
+error_detected() is the point at which the driver should quiesce the
+device and not touch it further (until diagnostic poking at
+mmio_enabled or full access at resume callback).
+Fixing this won't be easy.
+However, this is not a regression.
+
+Also note this does nothing about interrupts, documentation
+suggests returning IRQ_NONE until reset.
+Again, not a regression.
+
+c. PF driver might detect that function is completely broken,
+if vm keeps going, we will keep doing MMIO/config
+Suggestion 1: ignore this. vm stop happens much later when
+userspace runs anyway, so we are not making things much worse
+Suggestion 2: detect this and invoke err_trigger to stop VM
+
+Patch below implements Suggestion 2.
+
+Aside: what should we return if driver is e.g. being unbound?
+For slot_reset, this implements Alex's suggestion to
+return PCI_ERS_RESULT_NONE. It's worth considering whether
+same should happen in error_report.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+
+changes from v1:
+	- more detailed commit log
+	- fixed a couple of bugs
+
+Alex, pls review but don't apply until we get
+	- userspace updated to use the new interface
+	- testing reports
+
+
+ drivers/vfio/pci/vfio_pci.c         | 35 ++++++++++++++++++++++++++++++++++-
+ drivers/vfio/pci/vfio_pci_intrs.c   | 19 +++++++++++++++++++
+ drivers/vfio/pci/vfio_pci_private.h |  1 +
+ include/linux/virtio_config.h       | 12 +++++++++++-
+ include/uapi/linux/vfio.h           |  1 +
+ 5 files changed, 66 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index 0e33278..5d489b5 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -1296,7 +1296,9 @@ static pci_ers_result_t vfio_pci_aer_err_detected(struct pci_dev *pdev,
+ 
+ 	mutex_lock(&vdev->igate);
+ 
+-	if (vdev->err_trigger)
++	if (state == pci_channel_io_normal && vdev->non_fatal_err_trigger)
++		eventfd_signal(vdev->non_fatal_err_trigger, 1);
++	else if (vdev->err_trigger)
+ 		eventfd_signal(vdev->err_trigger, 1);
+ 
+ 	mutex_unlock(&vdev->igate);
+@@ -1306,8 +1308,39 @@ static pci_ers_result_t vfio_pci_aer_err_detected(struct pci_dev *pdev,
+ 	return PCI_ERS_RESULT_CAN_RECOVER;
+ }
+ 
++static pci_ers_result_t vfio_pci_aer_slot_reset(struct pci_dev *pdev,
++						pci_channel_state_t state)
++{
++	struct vfio_pci_device *vdev;
++	struct vfio_device *device;
++	static pci_ers_result_t err = PCI_ERS_RESULT_NONE;
++
++	device = vfio_device_get_from_dev(&pdev->dev);
++	if (!device)
++		goto err_dev;
++
++	vdev = vfio_device_data(device);
++	if (!vdev)
++		goto err_data;
++
++	mutex_lock(&vdev->igate);
++
++	if (vdev->err_trigger)
++		eventfd_signal(vdev->err_trigger, 1);
++
++	mutex_unlock(&vdev->igate);
++
++	err = PCI_ERS_RESULT_RECOVERED;
++
++err_data:
++	vfio_device_put(device);
++err_dev:
++	return err;
++}
++
+ static const struct pci_error_handlers vfio_err_handlers = {
+ 	.error_detected = vfio_pci_aer_err_detected,
++	.slot_reset = vfio_pci_aer_slot_reset,
+ };
+ 
+ static struct pci_driver vfio_pci_driver = {
+diff --git a/drivers/vfio/pci/vfio_pci_intrs.c b/drivers/vfio/pci/vfio_pci_intrs.c
+index 1c46045..e883db5 100644
+--- a/drivers/vfio/pci/vfio_pci_intrs.c
++++ b/drivers/vfio/pci/vfio_pci_intrs.c
+@@ -611,6 +611,17 @@ static int vfio_pci_set_err_trigger(struct vfio_pci_device *vdev,
+ 					       count, flags, data);
+ }
+ 
++static int vfio_pci_set_non_fatal_err_trigger(struct vfio_pci_device *vdev,
++				    unsigned index, unsigned start,
++				    unsigned count, uint32_t flags, void *data)
++{
++	if (index != VFIO_PCI_NON_FATAL_ERR_IRQ_INDEX || start != 0 || count > 1)
++		return -EINVAL;
++
++	return vfio_pci_set_ctx_trigger_single(&vdev->non_fatal_err_trigger,
++					       count, flags, data);
++}
++
+ static int vfio_pci_set_req_trigger(struct vfio_pci_device *vdev,
+ 				    unsigned index, unsigned start,
+ 				    unsigned count, uint32_t flags, void *data)
+@@ -664,6 +675,14 @@ int vfio_pci_set_irqs_ioctl(struct vfio_pci_device *vdev, uint32_t flags,
+ 			break;
+ 		}
+ 		break;
++	case VFIO_PCI_NON_FATAL_ERR_IRQ_INDEX:
++		switch (flags & VFIO_IRQ_SET_ACTION_TYPE_MASK) {
++		case VFIO_IRQ_SET_ACTION_TRIGGER:
++			if (pci_is_pcie(vdev->pdev))
++				func = vfio_pci_set_err_trigger;
++			break;
++		}
++		break;
+ 	case VFIO_PCI_REQ_IRQ_INDEX:
+ 		switch (flags & VFIO_IRQ_SET_ACTION_TYPE_MASK) {
+ 		case VFIO_IRQ_SET_ACTION_TRIGGER:
+diff --git a/drivers/vfio/pci/vfio_pci_private.h b/drivers/vfio/pci/vfio_pci_private.h
+index f37c73b..c27a507 100644
+--- a/drivers/vfio/pci/vfio_pci_private.h
++++ b/drivers/vfio/pci/vfio_pci_private.h
+@@ -93,6 +93,7 @@ struct vfio_pci_device {
+ 	struct pci_saved_state	*pci_saved_state;
+ 	int			refcnt;
+ 	struct eventfd_ctx	*err_trigger;
++	struct eventfd_ctx	*non_fatal_err_trigger;
+ 	struct eventfd_ctx	*req_trigger;
+ 	struct list_head	dummy_resources_list;
+ };
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index 26c155b..6b0f416 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -159,7 +159,17 @@ static inline bool virtio_has_iommu_quirk(const struct virtio_device *vdev)
+ 	 * Note the reverse polarity of the quirk feature (compared to most
+ 	 * other features), this is for compatibility with legacy systems.
+ 	 */
+-	return !virtio_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM);
++	if (virtio_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM))
++		return false;
++
++	/*
++	 * fastboot emulator for ARM puts virtio devices behind an SMMU
++	 * and never bypasses it for legacy devices.
++	 */
++	if (IS_ENABLED(CONFIG_ARM) || IS_ENABLED(CONFIG_ARM64))
++		return virtio_has_feature(vdev, VIRTIO_F_VERSION_1);
++
++	return true;
+ }
+ 
+ static inline
+diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+index 519eff3..affa973 100644
+--- a/include/uapi/linux/vfio.h
++++ b/include/uapi/linux/vfio.h
+@@ -443,6 +443,7 @@ enum {
+ 	VFIO_PCI_MSIX_IRQ_INDEX,
+ 	VFIO_PCI_ERR_IRQ_INDEX,
+ 	VFIO_PCI_REQ_IRQ_INDEX,
++	VFIO_PCI_NON_FATAL_ERR_IRQ_INDEX,
+ 	VFIO_PCI_NUM_IRQS
+ };
+ 
+-- 
+MST
