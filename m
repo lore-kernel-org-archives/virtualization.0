@@ -1,15 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH net] virtio-net: restore VIRTIO_HDR_F_DATA_VALID on
 	receiving
-Date: Fri, 20 Jan 2017 18:45:11 +0200
-Message-ID: <20170120184220-mutt-send-email-mst@kernel.org>
+Date: Sun, 22 Jan 2017 10:41:22 +0800
+Message-ID: <268cadeb-433c-7960-5fe6-a06f849493a8@redhat.com>
 References: <1484893962-7614-1-git-send-email-jasowang@redhat.com>
+	<20170120184220-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1484893962-7614-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20170120184220-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,116 +19,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: netdev@vger.kernel.org, Rolf Neugebauer <rolf.neugebauer@docker.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 20, 2017 at 02:32:42PM +0800, Jason Wang wrote:
-> Commit 501db511397f ("virtio: don't set VIRTIO_NET_HDR_F_DATA_VALID on
-> xmit") in fact disables VIRTIO_HDR_F_DATA_VALID on receiving path too,
-> fixing this by adding a hint (has_data_valid) and set it only on the
-> receiving path.
-> 
-> Cc: Rolf Neugebauer <rolf.neugebauer@docker.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/net/macvtap.c      | 2 +-
->  drivers/net/tun.c          | 2 +-
->  drivers/net/virtio_net.c   | 2 +-
->  include/linux/virtio_net.h | 6 +++++-
->  net/packet/af_packet.c     | 4 ++--
->  5 files changed, 10 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/net/macvtap.c b/drivers/net/macvtap.c
-> index 5c26653..4026185 100644
-> --- a/drivers/net/macvtap.c
-> +++ b/drivers/net/macvtap.c
-> @@ -825,7 +825,7 @@ static ssize_t macvtap_put_user(struct macvtap_queue *q,
->  			return -EINVAL;
->  
->  		if (virtio_net_hdr_from_skb(skb, &vnet_hdr,
-> -					    macvtap_is_little_endian(q)))
-> +					    macvtap_is_little_endian(q), true))
->  			BUG();
->  
->  		if (copy_to_iter(&vnet_hdr, sizeof(vnet_hdr), iter) !=
-> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> index cd8e02c..2cd10b2 100644
-> --- a/drivers/net/tun.c
-> +++ b/drivers/net/tun.c
-> @@ -1360,7 +1360,7 @@ static ssize_t tun_put_user(struct tun_struct *tun,
->  			return -EINVAL;
->  
->  		if (virtio_net_hdr_from_skb(skb, &gso,
-> -					    tun_is_little_endian(tun))) {
-> +					    tun_is_little_endian(tun), true)) {
->  			struct skb_shared_info *sinfo = skb_shinfo(skb);
->  			pr_err("unexpected GSO type: "
->  			       "0x%x, gso_size %d, hdr_len %d\n",
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 4a10500..3474243 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -1104,7 +1104,7 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
->  		hdr = skb_vnet_hdr(skb);
->  
->  	if (virtio_net_hdr_from_skb(skb, &hdr->hdr,
-> -				    virtio_is_little_endian(vi->vdev)))
-> +				    virtio_is_little_endian(vi->vdev), false))
->  		BUG();
->  
->  	if (vi->mergeable_rx_bufs)
-> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> index 5643647..5209b5e 100644
-> --- a/include/linux/virtio_net.h
-> +++ b/include/linux/virtio_net.h
-> @@ -56,7 +56,8 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
->  
->  static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
->  					  struct virtio_net_hdr *hdr,
-> -					  bool little_endian)
-> +					  bool little_endian,
-> +					  bool has_data_valid)
->  {
->  	memset(hdr, 0, sizeof(*hdr));   /* no info leak */
->  
-
-I would prefer naming it is_rx. Callers should not know about
-internal details like data valid, the issue we are trying to fix
-here is that tx and tx headers are slightly different.
-
-
-> @@ -91,6 +92,9 @@ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
->  				skb_checksum_start_offset(skb));
->  		hdr->csum_offset = __cpu_to_virtio16(little_endian,
->  				skb->csum_offset);
-> +	} else if (has_data_valid &&
-> +		   skb->ip_summed == CHECKSUM_UNNECESSARY) {
-> +		hdr->flags = VIRTIO_NET_HDR_F_DATA_VALID;
->  	} /* else everything is zero */
->  
->  	return 0;
-> diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-> index b9e1a13..3d555c7 100644
-> --- a/net/packet/af_packet.c
-> +++ b/net/packet/af_packet.c
-> @@ -1976,7 +1976,7 @@ static int packet_rcv_vnet(struct msghdr *msg, const struct sk_buff *skb,
->  		return -EINVAL;
->  	*len -= sizeof(vnet_hdr);
->  
-> -	if (virtio_net_hdr_from_skb(skb, &vnet_hdr, vio_le()))
-> +	if (virtio_net_hdr_from_skb(skb, &vnet_hdr, vio_le(), true))
->  		return -EINVAL;
->  
->  	return memcpy_to_msg(msg, (void *)&vnet_hdr, sizeof(vnet_hdr));
-> @@ -2237,7 +2237,7 @@ static int tpacket_rcv(struct sk_buff *skb, struct net_device *dev,
->  	if (po->has_vnet_hdr) {
->  		if (virtio_net_hdr_from_skb(skb, h.raw + macoff -
->  					    sizeof(struct virtio_net_hdr),
-> -					    vio_le())) {
-> +					    vio_le(), true)) {
->  			spin_lock(&sk->sk_receive_queue.lock);
->  			goto drop_n_account;
->  		}
-> -- 
-> 2.7.4
+CgpPbiAyMDE35bm0MDHmnIgyMeaXpSAwMDo0NSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIEZyaSwgSmFuIDIwLCAyMDE3IGF0IDAyOjMyOjQyUE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4+IENvbW1pdCA1MDFkYjUxMTM5N2YgKCJ2aXJ0aW86IGRvbid0IHNldCBWSVJUSU9fTkVU
+X0hEUl9GX0RBVEFfVkFMSUQgb24KPj4geG1pdCIpIGluIGZhY3QgZGlzYWJsZXMgVklSVElPX0hE
+Ul9GX0RBVEFfVkFMSUQgb24gcmVjZWl2aW5nIHBhdGggdG9vLAo+PiBmaXhpbmcgdGhpcyBieSBh
+ZGRpbmcgYSBoaW50IChoYXNfZGF0YV92YWxpZCkgYW5kIHNldCBpdCBvbmx5IG9uIHRoZQo+PiBy
+ZWNlaXZpbmcgcGF0aC4KPj4KPj4gQ2M6IFJvbGYgTmV1Z2ViYXVlcjxyb2xmLm5ldWdlYmF1ZXJA
+ZG9ja2VyLmNvbT4KPj4gU2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZzxqYXNvd2FuZ0ByZWRoYXQu
+Y29tPgo+PiAtLS0KPj4gICBkcml2ZXJzL25ldC9tYWN2dGFwLmMgICAgICB8IDIgKy0KPj4gICBk
+cml2ZXJzL25ldC90dW4uYyAgICAgICAgICB8IDIgKy0KPj4gICBkcml2ZXJzL25ldC92aXJ0aW9f
+bmV0LmMgICB8IDIgKy0KPj4gICBpbmNsdWRlL2xpbnV4L3ZpcnRpb19uZXQuaCB8IDYgKysrKyst
+Cj4+ICAgbmV0L3BhY2tldC9hZl9wYWNrZXQuYyAgICAgfCA0ICsrLS0KPj4gICA1IGZpbGVzIGNo
+YW5nZWQsIDEwIGluc2VydGlvbnMoKyksIDYgZGVsZXRpb25zKC0pCj4+Cj4+IGRpZmYgLS1naXQg
+YS9kcml2ZXJzL25ldC9tYWN2dGFwLmMgYi9kcml2ZXJzL25ldC9tYWN2dGFwLmMKPj4gaW5kZXgg
+NWMyNjY1My4uNDAyNjE4NSAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy9uZXQvbWFjdnRhcC5jCj4+
+ICsrKyBiL2RyaXZlcnMvbmV0L21hY3Z0YXAuYwo+PiBAQCAtODI1LDcgKzgyNSw3IEBAIHN0YXRp
+YyBzc2l6ZV90IG1hY3Z0YXBfcHV0X3VzZXIoc3RydWN0IG1hY3Z0YXBfcXVldWUgKnEsCj4+ICAg
+CQkJcmV0dXJuIC1FSU5WQUw7Cj4+ICAgCj4+ICAgCQlpZiAodmlydGlvX25ldF9oZHJfZnJvbV9z
+a2Ioc2tiLCAmdm5ldF9oZHIsCj4+IC0JCQkJCSAgICBtYWN2dGFwX2lzX2xpdHRsZV9lbmRpYW4o
+cSkpKQo+PiArCQkJCQkgICAgbWFjdnRhcF9pc19saXR0bGVfZW5kaWFuKHEpLCB0cnVlKSkKPj4g
+ICAJCQlCVUcoKTsKPj4gICAKPj4gICAJCWlmIChjb3B5X3RvX2l0ZXIoJnZuZXRfaGRyLCBzaXpl
+b2Yodm5ldF9oZHIpLCBpdGVyKSAhPQo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvdHVuLmMg
+Yi9kcml2ZXJzL25ldC90dW4uYwo+PiBpbmRleCBjZDhlMDJjLi4yY2QxMGIyIDEwMDY0NAo+PiAt
+LS0gYS9kcml2ZXJzL25ldC90dW4uYwo+PiArKysgYi9kcml2ZXJzL25ldC90dW4uYwo+PiBAQCAt
+MTM2MCw3ICsxMzYwLDcgQEAgc3RhdGljIHNzaXplX3QgdHVuX3B1dF91c2VyKHN0cnVjdCB0dW5f
+c3RydWN0ICp0dW4sCj4+ICAgCQkJcmV0dXJuIC1FSU5WQUw7Cj4+ICAgCj4+ICAgCQlpZiAodmly
+dGlvX25ldF9oZHJfZnJvbV9za2Ioc2tiLCAmZ3NvLAo+PiAtCQkJCQkgICAgdHVuX2lzX2xpdHRs
+ZV9lbmRpYW4odHVuKSkpIHsKPj4gKwkJCQkJICAgIHR1bl9pc19saXR0bGVfZW5kaWFuKHR1biks
+IHRydWUpKSB7Cj4+ICAgCQkJc3RydWN0IHNrYl9zaGFyZWRfaW5mbyAqc2luZm8gPSBza2Jfc2hp
+bmZvKHNrYik7Cj4+ICAgCQkJcHJfZXJyKCJ1bmV4cGVjdGVkIEdTTyB0eXBlOiAiCj4+ICAgCQkJ
+ICAgICAgICIweCV4LCBnc29fc2l6ZSAlZCwgaGRyX2xlbiAlZFxuIiwKPj4gZGlmZiAtLWdpdCBh
+L2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+PiBp
+bmRleCA0YTEwNTAwLi4zNDc0MjQzIDEwMDY0NAo+PiAtLS0gYS9kcml2ZXJzL25ldC92aXJ0aW9f
+bmV0LmMKPj4gKysrIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4+IEBAIC0xMTA0LDcgKzEx
+MDQsNyBAQCBzdGF0aWMgaW50IHhtaXRfc2tiKHN0cnVjdCBzZW5kX3F1ZXVlICpzcSwgc3RydWN0
+IHNrX2J1ZmYgKnNrYikKPj4gICAJCWhkciA9IHNrYl92bmV0X2hkcihza2IpOwo+PiAgIAo+PiAg
+IAlpZiAodmlydGlvX25ldF9oZHJfZnJvbV9za2Ioc2tiLCAmaGRyLT5oZHIsCj4+IC0JCQkJICAg
+IHZpcnRpb19pc19saXR0bGVfZW5kaWFuKHZpLT52ZGV2KSkpCj4+ICsJCQkJICAgIHZpcnRpb19p
+c19saXR0bGVfZW5kaWFuKHZpLT52ZGV2KSwgZmFsc2UpKQo+PiAgIAkJQlVHKCk7Cj4+ICAgCj4+
+ICAgCWlmICh2aS0+bWVyZ2VhYmxlX3J4X2J1ZnMpCj4+IGRpZmYgLS1naXQgYS9pbmNsdWRlL2xp
+bnV4L3ZpcnRpb19uZXQuaCBiL2luY2x1ZGUvbGludXgvdmlydGlvX25ldC5oCj4+IGluZGV4IDU2
+NDM2NDcuLjUyMDliNWUgMTAwNjQ0Cj4+IC0tLSBhL2luY2x1ZGUvbGludXgvdmlydGlvX25ldC5o
+Cj4+ICsrKyBiL2luY2x1ZGUvbGludXgvdmlydGlvX25ldC5oCj4+IEBAIC01Niw3ICs1Niw4IEBA
+IHN0YXRpYyBpbmxpbmUgaW50IHZpcnRpb19uZXRfaGRyX3RvX3NrYihzdHJ1Y3Qgc2tfYnVmZiAq
+c2tiLAo+PiAgIAo+PiAgIHN0YXRpYyBpbmxpbmUgaW50IHZpcnRpb19uZXRfaGRyX2Zyb21fc2ti
+KGNvbnN0IHN0cnVjdCBza19idWZmICpza2IsCj4+ICAgCQkJCQkgIHN0cnVjdCB2aXJ0aW9fbmV0
+X2hkciAqaGRyLAo+PiAtCQkJCQkgIGJvb2wgbGl0dGxlX2VuZGlhbikKPj4gKwkJCQkJICBib29s
+IGxpdHRsZV9lbmRpYW4sCj4+ICsJCQkJCSAgYm9vbCBoYXNfZGF0YV92YWxpZCkKPj4gICB7Cj4+
+ICAgCW1lbXNldChoZHIsIDAsIHNpemVvZigqaGRyKSk7ICAgLyogbm8gaW5mbyBsZWFrICovCj4+
+ICAgCj4gSSB3b3VsZCBwcmVmZXIgbmFtaW5nIGl0IGlzX3J4LiBDYWxsZXJzIHNob3VsZCBub3Qg
+a25vdyBhYm91dAo+IGludGVybmFsIGRldGFpbHMgbGlrZSBkYXRhIHZhbGlkLCB0aGUgaXNzdWUg
+d2UgYXJlIHRyeWluZyB0byBmaXgKPiBoZXJlIGlzIHRoYXQgdHggYW5kIHR4IGhlYWRlcnMgYXJl
+IHNsaWdodGx5IGRpZmZlcmVudC4KPgoKQWN0dWFsbHksIEkndmUgY29uc2lkZXJlZCBzb21ldGhp
+bmcgbGlrZSB0aGlzLCBidXQgdGhlIHByb2JsZW0gaXM6CgotIHR1biB1c2UgdGhpcyBvbiB4bWl0
+LCBzbyBpc19yeCA9IHRydWUgbWF5IGNhdXNlIHNvbWUgY29uZnVzaW9uIGhlcmUKLSBJIGJlbGll
+dmUgd2UgbWF5IHdhbnQgdG8gc3VwcG9ydCBEQVRBX1ZBTElEIChsaWtlIHhlbi1uZXRiYWNrKSBv
+biB0eCAKKHByb2JhYmx5IHdpdGggYSBmZWF0dXJlKSBpbiB0aGUgZnV0dXJlLgoKVGhhbmtzCgpf
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
+dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
+cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
+dHVhbGl6YXRpb24=
