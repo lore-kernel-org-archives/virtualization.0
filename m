@@ -1,13 +1,13 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next V5 0/3] vhost_net tx batching
-Date: Wed, 18 Jan 2017 16:35:51 -0500 (EST)
-Message-ID: <20170118.163551.1438116039860355723.davem__36715.3875450187$1496083262$gmane$org@davemloft.net>
-References: <1484722923-7698-1-git-send-email-jasowang@redhat.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PULL] vhost: cleanups and fixes
+Date: Mon, 23 Jan 2017 13:50:32 -0800
+Message-ID: <CA+55aFypi-Vg6CGtDX7tv_DfuN5ztrtSoQxexZiPKxDtmo9ZmQ__35684.2889370911$1496096464$gmane$org@mail.gmail.com>
+References: <20170123170530-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1484722923-7698-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20170123170530-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,20 +17,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com, stefanha@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: gcampana@quarkslab.com, KVM list <kvm@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, pmorel@linux.vnet.ibm.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Dan Carpenter <dan.carpenter@oracle.com>, Colin Ian King <colin.king@canonical.com>, bhumirks@gmail.com, silbe@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 18 Jan 2017 15:02:00 +0800
+On Mon, Jan 23, 2017 at 7:05 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> virtio, vhost: fixes, cleanups
 
-> This series tries to implement tx batching support for vhost. This was
-> done by using MSG_MORE as a hint for under layer socket. The backend
-> (e.g tap) can then batch the packets temporarily in a list and
-> submit it all once the number of bacthed exceeds a limitation.
-> 
-> Tests shows obvious improvement on guest pktgen over over
-> mlx4(noqueue) on host:
- ...
+Was there a reason why you sent this twice?
 
-Series applied, thanks Jason.
+Or was this *supposed* to be the ARM DMA fix pull request? Because it wasn't.
+
+                  Linus
