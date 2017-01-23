@@ -1,15 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3] vfio error recovery: kernel support
-Date: Mon, 23 Jan 2017 01:01:12 +0200
-Message-ID: <20170123010102-mutt-send-email-mst@kernel.org>
-References: <1485070594-27713-1-git-send-email-mst@redhat.com>
-	<d7e5bb6f-0af8-442d-c68a-364f6067048d@redhat.com>
+Subject: [PULL] vhost: cleanups and fixes
+Date: Mon, 23 Jan 2017 17:05:30 +0200
+Message-ID: <20170123170530-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <d7e5bb6f-0af8-442d-c68a-364f6067048d@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,30 +16,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: gcampana@quarkslab.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, pmorel@linux.vnet.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dan.carpenter@oracle.com, colin.king@canonical.com, bhumirks@gmail.com, silbe@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gU3VuLCBKYW4gMjIsIDIwMTcgYXQgMDQ6MDE6MjhQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE35bm0MDHmnIgyMuaXpSAxNTozOCwgTWljaGFlbCBTLiBUc2lya2lu
-IHdyb3RlOgo+ID4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvdmlydGlvX2NvbmZpZy5oIGIv
-aW5jbHVkZS9saW51eC92aXJ0aW9fY29uZmlnLmgKPiA+IGluZGV4IDI2YzE1NWIuLjZiMGY0MTYg
-MTAwNjQ0Cj4gPiAtLS0gYS9pbmNsdWRlL2xpbnV4L3ZpcnRpb19jb25maWcuaAo+ID4gKysrIGIv
-aW5jbHVkZS9saW51eC92aXJ0aW9fY29uZmlnLmgKPiA+IEBAIC0xNTksNyArMTU5LDE3IEBAIHN0
-YXRpYyBpbmxpbmUgYm9vbCB2aXJ0aW9faGFzX2lvbW11X3F1aXJrKGNvbnN0IHN0cnVjdCB2aXJ0
-aW9fZGV2aWNlICp2ZGV2KQo+ID4gICAJICogTm90ZSB0aGUgcmV2ZXJzZSBwb2xhcml0eSBvZiB0
-aGUgcXVpcmsgZmVhdHVyZSAoY29tcGFyZWQgdG8gbW9zdAo+ID4gICAJICogb3RoZXIgZmVhdHVy
-ZXMpLCB0aGlzIGlzIGZvciBjb21wYXRpYmlsaXR5IHdpdGggbGVnYWN5IHN5c3RlbXMuCj4gPiAg
-IAkgKi8KPiA+IC0JcmV0dXJuICF2aXJ0aW9faGFzX2ZlYXR1cmUodmRldiwgVklSVElPX0ZfSU9N
-TVVfUExBVEZPUk0pOwo+ID4gKwlpZiAodmlydGlvX2hhc19mZWF0dXJlKHZkZXYsIFZJUlRJT19G
-X0lPTU1VX1BMQVRGT1JNKSkKPiA+ICsJCXJldHVybiBmYWxzZTsKPiA+ICsKPiA+ICsJLyoKPiA+
-ICsJICogZmFzdGJvb3QgZW11bGF0b3IgZm9yIEFSTSBwdXRzIHZpcnRpbyBkZXZpY2VzIGJlaGlu
-ZCBhbiBTTU1VCj4gPiArCSAqIGFuZCBuZXZlciBieXBhc3NlcyBpdCBmb3IgbGVnYWN5IGRldmlj
-ZXMuCj4gPiArCSAqLwo+ID4gKwlpZiAoSVNfRU5BQkxFRChDT05GSUdfQVJNKSB8fCBJU19FTkFC
-TEVEKENPTkZJR19BUk02NCkpCj4gPiArCQlyZXR1cm4gdmlydGlvX2hhc19mZWF0dXJlKHZkZXYs
-IFZJUlRJT19GX1ZFUlNJT05fMSk7Cj4gPiArCj4gPiArCXJldHVybiB0cnVlOwo+ID4gICB9Cj4g
-Cj4gSGkgTWljaGFlbDoKPiAKPiBUaGlzIHBhcnQgb2YgY29kZXMgc2VlbXMgdW5yZWxhdGVkLgo+
-IAo+IFRoYW5rcwoKT2YgY291cnNlIGl0IGlzLCB0aGFua3MhCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
-aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
-bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+The following changes since commit 49def1853334396f948dcb4cedb9347abb318df5:
+
+  Linux 4.10-rc4 (2017-01-15 16:21:59 -0800)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to 0db1dba5dfaf70fb3baf07973996db2078528cde:
+
+  virtio/s390: virtio: constify virtio_config_ops structures (2017-01-19 23:46:34 +0200)
+
+Note: ARM DMA fixes missed this pull, will be in the next one.
+
+----------------------------------------------------------------
+virtio, vhost: fixes, cleanups
+
+Random fixes and cleanups that accumulated over the time.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Bhumika Goyal (2):
+      vhost: scsi: constify target_core_fabric_ops structures
+      virtio/s390: virtio: constify virtio_config_ops structures
+
+Colin Ian King (1):
+      virtio/s390: add missing \n to end of dev_err message
+
+Dan Carpenter (1):
+      vhost/scsi: silence uninitialized variable warning
+
+G. Campana (1):
+      virtio_console: fix a crash in config_work_handler
+
+Halil Pasic (2):
+      tools/virtio/ringtest: fix run-on-all.sh for offline cpus
+      tools/virtio/ringtest: tweaks for s390
+
+Pierre Morel (1):
+      virtio/s390: support READ_STATUS command for virtio-ccw
+
+ drivers/char/virtio_console.c       |  2 +-
+ drivers/s390/virtio/virtio_ccw.c    | 29 +++++++++++++++++++++++++++--
+ drivers/vhost/scsi.c                |  4 ++--
+ tools/virtio/ringtest/main.h        | 12 ++++++++++++
+ tools/virtio/ringtest/run-on-all.sh |  5 +++--
+ 5 files changed, 45 insertions(+), 7 deletions(-)
