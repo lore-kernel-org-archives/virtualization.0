@@ -1,15 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PULL] vhost: cleanups and fixes
-Date: Tue, 24 Jan 2017 04:45:07 +0200
-Message-ID: <20170124044351-mutt-send-email-mst@kernel.org>
-References: <20170123170530-mutt-send-email-mst@kernel.org>
-	<CA+55aFypi-Vg6CGtDX7tv_DfuN5ztrtSoQxexZiPKxDtmo9ZmQ@mail.gmail.com>
+From: Laurent Vivier <lvivier@redhat.com>
+Subject: [PATCH] virtio-gpu: disable VIRGL with BE kernel
+Date: Tue, 24 Jan 2017 14:12:29 +0100
+Message-ID: <1485263549-28743-1-git-send-email-lvivier@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CA+55aFypi-Vg6CGtDX7tv_DfuN5ztrtSoQxexZiPKxDtmo9ZmQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,23 +15,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: gcampana@quarkslab.com, KVM list <kvm@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, pmorel@linux.vnet.ibm.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Dan Carpenter <dan.carpenter@oracle.com>, Colin Ian King <colin.king@canonical.com>, bhumirks@gmail.com, silbe@linux.vnet.ibm.com
+To: linux-kernel@vger.kernel.org
+Cc: David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 23, 2017 at 01:50:32PM -0800, Linus Torvalds wrote:
-> On Mon, Jan 23, 2017 at 7:05 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > virtio, vhost: fixes, cleanups
-> 
-> Was there a reason why you sent this twice?
-> 
-> Or was this *supposed* to be the ARM DMA fix pull request? Because it wasn't.
-> 
->                   Linus
+VIRTIO_GPU_F_VIRGL is added in features list only
+for LE kernel, so we must check for it only on LE kernel,
+otherwise virtio_has_feature() calls BUG() and
+crashes the kernel.
 
-Ouch sorry. Was tired and forgot I already sent it.  Should have
-checked.
+Suggested-by: Gerd Hoffmann <kraxel@redhat.com>
+Signed-off-by: Laurent Vivier <lvivier@redhat.com>
+---
+Note: this patch has been actually written by Gerd,
+but to post it I don't know if "Suggested-by" is enough
+or if I should change the "author" field.
 
+ drivers/gpu/drm/virtio/virtgpu_kms.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index 1235519..87915d5 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -166,10 +166,14 @@ int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
+ 	INIT_WORK(&vgdev->config_changed_work,
+ 		  virtio_gpu_config_changed_work_func);
+ 
++#ifdef __LITTLE_ENDIAN
+ 	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_VIRGL))
+ 		vgdev->has_virgl_3d = true;
+ 	DRM_INFO("virgl 3d acceleration %s\n",
+-		 vgdev->has_virgl_3d ? "enabled" : "not available");
++		 vgdev->has_virgl_3d ? "enabled" : "not supported by host");
++#else
++	DRM_INFO("virgl 3d acceleration not supported by guest\n");
++#endif
+ 
+ 	ret = vgdev->vdev->config->find_vqs(vgdev->vdev, 2, vqs,
+ 					    callbacks, names);
 -- 
-MST
+2.7.4
