@@ -1,17 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: David Miller <davem@davemloft.net>
 Subject: Re: [PATCH v2] virtio_net: fix PAGE_SIZE > 64k
-Date: Tue, 24 Jan 2017 22:45:37 +0200
-Message-ID: <20170124221114-mutt-send-email-mst__28931.6070186489$1485290763$gmane$org@kernel.org>
-References: <1485197869-11350-1-git-send-email-mst@redhat.com>
-	<20170124.144227.2017106704873029028.davem@davemloft.net>
-	<20170124215214-mutt-send-email-mst@kernel.org>
+Date: Tue, 24 Jan 2017 15:53:31 -0500 (EST)
+Message-ID: <20170124.155331.1409241818867862249.davem@davemloft.net>
+References: <20170124215214-mutt-send-email-mst@kernel.org>
 	<20170124.150959.1708982899683381291.davem@davemloft.net>
+	<20170124221114-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20170124.150959.1708982899683381291.davem@davemloft.net>
+In-Reply-To: <20170124221114-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,42 +19,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
+To: mst@redhat.com
 Cc: netdev@vger.kernel.org, john.fastabend@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 24, 2017 at 03:09:59PM -0500, David Miller wrote:
-> From: "Michael S. Tsirkin" <mst@redhat.com>
-> Date: Tue, 24 Jan 2017 21:53:13 +0200
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Tue, 24 Jan 2017 22:45:37 +0200
+
+> On Tue, Jan 24, 2017 at 03:09:59PM -0500, David Miller wrote:
+>> From: "Michael S. Tsirkin" <mst@redhat.com>
+>> Date: Tue, 24 Jan 2017 21:53:13 +0200
+>> 
+>> > I didn't realise. Why can't we? I thought that adjust_header is an
+>> > optional feature that userspace can test for, so no rush.
+>> 
+>> No, we want the base set of XDP features to be present in all drivers
+>> supporting XDP.
 > 
-> > I didn't realise. Why can't we? I thought that adjust_header is an
-> > optional feature that userspace can test for, so no rush.
-> 
-> No, we want the base set of XDP features to be present in all drivers
-> supporting XDP.
+> I see, I didn't realize this. In light of this, is there any
+> guidance *how much* head room is required to be considered
+> valid? We already have 12 bytes of headroom.
 
-I see, I didn't realize this. In light of this, is there any
-guidance *how much* head room is required to be considered
-valid? We already have 12 bytes of headroom.
+The idea is to allow programs to implement arbitrary kinds of
+encapsulation, so we need to be able to allow them to push headers for
+all kinds of software tunnels, with allowance for a few depths in some
+extreme cases.
 
+In that light, a nice round power of 2 number such as 256 seems quite
+reasonable to me.
 
-I'm generally sorry it's taking long, a large part of that is difficulty
-figuring out the requirements: when we discussed this on LPC my
-take-away was that one of the first users will be fighting DDOS attacks.
-
-In light of this, I assumed that
-- supporting just DROP (or DROP+TX) would already be useful
-- XDP_PASS shouldn't be too slow as some people will run all
-  their traffic with XDP enabled
-- people actually want this in virtio because they run in a vm
-
-Since then I heard opinions that seem to imply that
-- you must support all features, not just DROP, otherwise it's useless
-- XDP_PASS is a slow path fallback as people are not expected to mix XDP
-  with regular sockets
-- DDOS protection and by extension XDP in virtio is a developer's toy anyway
-
-Thus, expect some slowness while I figure it all out.
-
--- 
-MST
+This seems to be what other XDP implementations in drivers use at the
+moment as well.
