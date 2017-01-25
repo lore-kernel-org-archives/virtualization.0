@@ -1,14 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2] virtio_net: fix PAGE_SIZE > 64k
-Date: Wed, 25 Jan 2017 16:23:03 +0200
-Message-ID: <20170125162039-mutt-send-email-mst@kernel.org>
-References: <CAADnVQ+ioJ7kgsFeFoSV9Nqnq9CkRGMmqS5QM66gsJG01-Rojw@mail.gmail.com>
+Subject: [PULL] virtio, vhost: fixes
+Date: Wed, 25 Jan 2017 18:21:18 +0200
+Message-ID: <20170125182118-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAADnVQ+ioJ7kgsFeFoSV9Nqnq9CkRGMmqS5QM66gsJG01-Rojw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,31 +16,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, John Fastabend <john.fastabend@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stefanha@redhat.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, will.deacon@arm.com, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, marc.zyngier@arm.com, luto@kernel.org, robin.murphy@arm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 24, 2017 at 08:07:40PM -0800, Alexei Starovoitov wrote:
-> On Tue, Jan 24, 2017 at 7:48 PM, John Fastabend
-> <john.fastabend@gmail.com> wrote:
-> >
-> > It is a concern on my side. I want XDP and Linux stack to work
-> > reasonably well together.
-> 
-> btw the micro benchmarks showed that page per packet approach
-> that xdp took in mlx4 should be 10% slower vs normal operation
-> for tcp/ip stack.
+The following changes since commit 7a308bb3016f57e5be11a677d15b821536419d36:
 
-Interesting. TCP only or UDP too? What's the packet size? Are you tuning
-your rmem limits at all?  The slowdown would be more noticeable with
-UDP with default values and small packet sizes.
+  Linux 4.10-rc5 (2017-01-22 12:54:15 -0800)
 
-> We thought that for our LB use case
-> it will be an acceptable slowdown, but turned out that overall we
-> got a performance boost, since xdp model simplified user space
-> and got data path faster, so we magically got extra free cpu
-> that is used for other apps on the same host and overall
-> perf win despite extra overhead in tcp/ip.
-> Not all use cases are the same and not everyone will be as lucky,
-> so I'd like to see performance of xdp_pass improving too, though
-> it turned out to be not as high priority as I initially estimated.
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to c7070619f3408d9a0dffbed9149e6f00479cf43b:
+
+  vring: Force use of DMA API for ARM-based systems with legacy devices (2017-01-25 00:33:11 +0200)
+
+----------------------------------------------------------------
+virtio, vhost: fixes
+
+ARM DMA fixes
+vhost vsock bugfix
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Robin Murphy (1):
+      virtio_mmio: Set DMA masks appropriately
+
+Stefan Hajnoczi (1):
+      vhost/vsock: handle vhost_vq_init_access() error
+
+Will Deacon (1):
+      vring: Force use of DMA API for ARM-based systems with legacy devices
+
+ drivers/vhost/vsock.c        | 13 +++++++++----
+ drivers/virtio/virtio_mmio.c | 20 +++++++++++++++++++-
+ drivers/virtio/virtio_ring.c |  7 +++++++
+ 3 files changed, 35 insertions(+), 5 deletions(-)
