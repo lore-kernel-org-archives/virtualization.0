@@ -1,7 +1,7 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 3/3] virtio_ring: Use kmalloc_array() in alloc_indirect()
-Date: Thu, 26 Jan 2017 22:47:59 +0100
-Message-ID: <a460744a-0fec-4a47-c98a-42b88ddada64__28514.9530893706$1485467668$gmane$org@users.sourceforge.net>
+Subject: [PATCH 1/3] virtio_pci: Use kcalloc() in vp_request_msix_vectors()
+Date: Thu, 26 Jan 2017 22:46:00 +0100
+Message-ID: <57a18132-3b9d-0e5b-5372-efe525f83100__46899.70321856$1485467845$gmane$org@users.sourceforge.net>
 References: <61829748-a13d-42e4-8f6c-103ee5ca2c88@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,36 +22,31 @@ Cc: kernel-janitors@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Thu, 26 Jan 2017 22:30:45 +0100
+Date: Thu, 26 Jan 2017 22:10:18 +0100
 
-* A multiplication for the size determination of a memory allocation
-  indicated that an array data structure should be processed.
-  Thus use the corresponding function "kmalloc_array".
+A multiplication for the size determination of a memory allocation
+indicated that an array data structure should be processed.
+Thus reuse the corresponding function "kcalloc".
 
-  This issue was detected by using the Coccinelle software.
-
-* Replace the specification of a data structure by a pointer dereference
-  to make the corresponding size determination a bit safer according to
-  the Linux coding style convention.
+This issue was detected by using the Coccinelle software.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- drivers/virtio/virtio_ring.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/virtio/virtio_pci_common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 409aeaa49246..34b6b694298c 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -247,8 +247,7 @@ static struct vring_desc *alloc_indirect(struct virtqueue *_vq,
- 	 * virtqueue.
- 	 */
- 	gfp &= ~__GFP_HIGHMEM;
--
--	desc = kmalloc(total_sg * sizeof(struct vring_desc), gfp);
-+	desc = kmalloc_array(total_sg, sizeof(*desc), gfp);
- 	if (!desc)
- 		return NULL;
- 
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index 186cbab327b8..559a2b706093 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -117,7 +117,7 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
+ 	if (!vp_dev->msix_names)
+ 		goto error;
+ 	vp_dev->msix_affinity_masks
+-		= kzalloc(nvectors * sizeof *vp_dev->msix_affinity_masks,
++		= kcalloc(nvectors, sizeof(*vp_dev->msix_affinity_masks),
+ 			  GFP_KERNEL);
+ 	if (!vp_dev->msix_affinity_masks)
+ 		goto error;
 -- 
 2.11.0
