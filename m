@@ -1,12 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] virtio, vhost: fixes
-Date: Wed, 25 Jan 2017 18:21:18 +0200
-Message-ID: <20170125182118-mutt-send-email-mst@kernel.org>
+From: Fam Zheng <famz@redhat.com>
+Subject: [PATCH v2 0/2] virtio-scsi: Implement FC_HOST feature
+Date: Thu, 26 Jan 2017 11:41:07 +0800
+Message-ID: <20170126034109.16144-1-famz@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,41 +15,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: stefanha@redhat.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, will.deacon@arm.com, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, marc.zyngier@arm.com, luto@kernel.org, robin.murphy@arm.com
+To: linux-kernel@vger.kernel.org
+Cc: "Martin K. Petersen" <martin.petersen@oracle.com>, linux-scsi@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, stefanha@redhat.com, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 7a308bb3016f57e5be11a677d15b821536419d36:
+v2: Fix endianness of WWNN/WWPN. [Paolo]
 
-  Linux 4.10-rc5 (2017-01-22 12:54:15 -0800)
+This series implements the proposed fc_host feature of virtio-scsi.
 
-are available in the git repository at:
+The first patch updates the data structure changes according to the spec
+proposal; the second patch actually implements the operations.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+Fam Zheng (2):
+  virtio_scsi: Add fc_host definitions
+  virtio_scsi: Implement fc_host
 
-for you to fetch changes up to c7070619f3408d9a0dffbed9149e6f00479cf43b:
+ drivers/scsi/virtio_scsi.c       | 60 +++++++++++++++++++++++++++++++++++++++-
+ include/uapi/linux/virtio_scsi.h |  6 ++++
+ 2 files changed, 65 insertions(+), 1 deletion(-)
 
-  vring: Force use of DMA API for ARM-based systems with legacy devices (2017-01-25 00:33:11 +0200)
-
-----------------------------------------------------------------
-virtio, vhost: fixes
-
-ARM DMA fixes
-vhost vsock bugfix
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Robin Murphy (1):
-      virtio_mmio: Set DMA masks appropriately
-
-Stefan Hajnoczi (1):
-      vhost/vsock: handle vhost_vq_init_access() error
-
-Will Deacon (1):
-      vring: Force use of DMA API for ARM-based systems with legacy devices
-
- drivers/vhost/vsock.c        | 13 +++++++++----
- drivers/virtio/virtio_mmio.c | 20 +++++++++++++++++++-
- drivers/virtio/virtio_ring.c |  7 +++++++
- 3 files changed, 35 insertions(+), 5 deletions(-)
+-- 
+2.9.3
