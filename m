@@ -1,8 +1,7 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 6/9] virtio: provide a method to get the IRQ affinity mask for
-	a virtqueue
-Date: Fri, 27 Jan 2017 09:16:34 +0100
-Message-ID: <1485504997-17584-7-git-send-email-hch@lst.de>
+Subject: [PATCH 7/9] blk-mq: provide a default queue mapping for virtio device
+Date: Fri, 27 Jan 2017 09:16:35 +0100
+Message-ID: <1485504997-17584-8-git-send-email-hch@lst.de>
 References: <1485504997-17584-1-git-send-email-hch@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,106 +21,118 @@ To: mst@redhat.com, jasowang@redhat.com
 Cc: axboe@kernel.dk, pbonzini@redhat.com, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This basically passed up the pci_irq_get_affinity information through
-virtio through an optional get_vq_affinity method.  It is only implemented
-by the PCI backend for now, and only when we use per-virtqueue IRQs.
+Similar to the PCI version, just calling into virtio instead.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/virtio/virtio_pci_common.c | 11 +++++++++++
- drivers/virtio/virtio_pci_common.h |  2 ++
- drivers/virtio/virtio_pci_legacy.c |  1 +
- drivers/virtio/virtio_pci_modern.c |  2 ++
- include/linux/virtio_config.h      |  3 +++
- 5 files changed, 19 insertions(+)
+ block/Kconfig                 |  5 ++++
+ block/Makefile                |  1 +
+ block/blk-mq-virtio.c         | 54 +++++++++++++++++++++++++++++++++++++++++++
+ include/linux/blk-mq-virtio.h | 10 ++++++++
+ 4 files changed, 70 insertions(+)
+ create mode 100644 block/blk-mq-virtio.c
+ create mode 100644 include/linux/blk-mq-virtio.h
 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index c244212..31ba259 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -361,6 +361,17 @@ int vp_set_vq_affinity(struct virtqueue *vq, int cpu)
- 	return 0;
- }
+diff --git a/block/Kconfig b/block/Kconfig
+index 8bf114a..3523b4f 100644
+--- a/block/Kconfig
++++ b/block/Kconfig
+@@ -165,4 +165,9 @@ config BLK_MQ_PCI
+ 	depends on BLOCK && PCI
+ 	default y
  
-+const struct cpumask *vp_get_vq_affinity(struct virtio_device *vdev, int index)
++config BLK_MQ_VIRTIO
++	bool
++	depends on BLOCK && VIRTIO
++	default y
++
+ source block/Kconfig.iosched
+diff --git a/block/Makefile b/block/Makefile
+index a827f98..6069194 100644
+--- a/block/Makefile
++++ b/block/Makefile
+@@ -23,5 +23,6 @@ obj-$(CONFIG_BLOCK_COMPAT)	+= compat_ioctl.o
+ obj-$(CONFIG_BLK_CMDLINE_PARSER)	+= cmdline-parser.o
+ obj-$(CONFIG_BLK_DEV_INTEGRITY) += bio-integrity.o blk-integrity.o t10-pi.o
+ obj-$(CONFIG_BLK_MQ_PCI)	+= blk-mq-pci.o
++obj-$(CONFIG_BLK_MQ_VIRTIO)	+= blk-mq-virtio.o
+ obj-$(CONFIG_BLK_DEV_ZONED)	+= blk-zoned.o
+ obj-$(CONFIG_BLK_WBT)		+= blk-wbt.o
+diff --git a/block/blk-mq-virtio.c b/block/blk-mq-virtio.c
+new file mode 100644
+index 0000000..c3afbca
+--- /dev/null
++++ b/block/blk-mq-virtio.c
+@@ -0,0 +1,54 @@
++/*
++ * Copyright (c) 2016 Christoph Hellwig.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
++ */
++#include <linux/device.h>
++#include <linux/blk-mq.h>
++#include <linux/blk-mq-virtio.h>
++#include <linux/virtio_config.h>
++#include <linux/module.h>
++#include "blk-mq.h"
++
++/**
++ * blk_mq_virtio_map_queues - provide a default queue mapping for virtio device
++ * @set:	tagset to provide the mapping for
++ * @vdev:	virtio device associated with @set.
++ * @first_vec:	first interrupt vectors to use for queues (usually 0)
++ *
++ * This function assumes the virtio device @vdev has at least as many available
++ * interrupt vetors as @set has queues.  It will then queuery the vector
++ * corresponding to each queue for it's affinity mask and built queue mapping
++ * that maps a queue to the CPUs that have irq affinity for the corresponding
++ * vector.
++ */
++int blk_mq_virtio_map_queues(struct blk_mq_tag_set *set,
++		struct virtio_device *vdev, int first_vec)
 +{
-+	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-+	unsigned int *map = vp_dev->msix_vector_map;
++	const struct cpumask *mask;
++	unsigned int queue, cpu;
 +
-+	if (!map || map[index] == VIRTIO_MSI_NO_VECTOR)
-+		return NULL;
++	if (!vdev->config->get_vq_affinity)
++		goto fallback;
 +
-+	return pci_irq_get_affinity(vp_dev->pci_dev, map[index]);
++	for (queue = 0; queue < set->nr_hw_queues; queue++) {
++		mask = vdev->config->get_vq_affinity(vdev, first_vec + queue);
++		if (!mask)
++			goto fallback;
++
++		for_each_cpu(cpu, mask)
++			set->mq_map[cpu] = queue;
++	}
++
++	return 0;
++fallback:
++	return blk_mq_map_queues(set);
 +}
++EXPORT_SYMBOL_GPL(blk_mq_virtio_map_queues);
+diff --git a/include/linux/blk-mq-virtio.h b/include/linux/blk-mq-virtio.h
+new file mode 100644
+index 0000000..b1ef6e1
+--- /dev/null
++++ b/include/linux/blk-mq-virtio.h
+@@ -0,0 +1,10 @@
++#ifndef _LINUX_BLK_MQ_VIRTIO_H
++#define _LINUX_BLK_MQ_VIRTIO_H
 +
- #ifdef CONFIG_PM_SLEEP
- static int virtio_pci_freeze(struct device *dev)
- {
-diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-index a6ad9ec..ac8c9d7 100644
---- a/drivers/virtio/virtio_pci_common.h
-+++ b/drivers/virtio/virtio_pci_common.h
-@@ -108,6 +108,8 @@ const char *vp_bus_name(struct virtio_device *vdev);
-  */
- int vp_set_vq_affinity(struct virtqueue *vq, int cpu);
- 
-+const struct cpumask *vp_get_vq_affinity(struct virtio_device *vdev, int index);
++struct blk_mq_tag_set;
++struct virtio_device;
 +
- #if IS_ENABLED(CONFIG_VIRTIO_PCI_LEGACY)
- int virtio_pci_legacy_probe(struct virtio_pci_device *);
- void virtio_pci_legacy_remove(struct virtio_pci_device *);
-diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
-index 2ab6aee..f7362c5 100644
---- a/drivers/virtio/virtio_pci_legacy.c
-+++ b/drivers/virtio/virtio_pci_legacy.c
-@@ -190,6 +190,7 @@ static const struct virtio_config_ops virtio_pci_config_ops = {
- 	.finalize_features = vp_finalize_features,
- 	.bus_name	= vp_bus_name,
- 	.set_vq_affinity = vp_set_vq_affinity,
-+	.get_vq_affinity = vp_get_vq_affinity,
- };
- 
- /* the PCI probing function */
-diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index a7a0981..7bc3004 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -437,6 +437,7 @@ static const struct virtio_config_ops virtio_pci_config_nodev_ops = {
- 	.finalize_features = vp_finalize_features,
- 	.bus_name	= vp_bus_name,
- 	.set_vq_affinity = vp_set_vq_affinity,
-+	.get_vq_affinity = vp_get_vq_affinity,
- };
- 
- static const struct virtio_config_ops virtio_pci_config_ops = {
-@@ -452,6 +453,7 @@ static const struct virtio_config_ops virtio_pci_config_ops = {
- 	.finalize_features = vp_finalize_features,
- 	.bus_name	= vp_bus_name,
- 	.set_vq_affinity = vp_set_vq_affinity,
-+	.get_vq_affinity = vp_get_vq_affinity,
- };
- 
- /**
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index 2ebe506..8355bab 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -58,6 +58,7 @@ struct irq_affinity;
-  *      This returns a pointer to the bus name a la pci_name from which
-  *      the caller can then copy.
-  * @set_vq_affinity: set the affinity for a virtqueue.
-+ * @get_vq_affinity: get the affinity for a virtqueue (optional).
-  */
- typedef void vq_callback_t(struct virtqueue *);
- struct virtio_config_ops {
-@@ -77,6 +78,8 @@ struct virtio_config_ops {
- 	int (*finalize_features)(struct virtio_device *vdev);
- 	const char *(*bus_name)(struct virtio_device *vdev);
- 	int (*set_vq_affinity)(struct virtqueue *vq, int cpu);
-+	const struct cpumask *(*get_vq_affinity)(struct virtio_device *vdev,
-+			int index);
- };
- 
- /* If driver didn't advertise the feature, it will never appear. */
++int blk_mq_virtio_map_queues(struct blk_mq_tag_set *set,
++		struct virtio_device *vdev, int first_vec);
++
++#endif /* _LINUX_BLK_MQ_VIRTIO_H */
 -- 
 2.1.4
