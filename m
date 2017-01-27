@@ -1,13 +1,15 @@
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 9/9] virtio_scsi: use virtio IRQ affinity
-Date: Fri, 27 Jan 2017 09:16:37 +0100
-Message-ID: <1485504997-17584-10-git-send-email-hch@lst.de>
-References: <1485504997-17584-1-git-send-email-hch@lst.de>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH v2 2/2] virtio_scsi: Implement fc_host
+Date: Fri, 27 Jan 2017 03:43:57 -0500 (EST)
+Message-ID: <395840854.13088421.1485506637639.JavaMail.zimbra@redhat.com>
+References: <20170126034109.16144-1-famz@redhat.com>
+	<20170126034109.16144-3-famz@redhat.com>
+	<20170126234257-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1485504997-17584-1-git-send-email-hch@lst.de>
+In-Reply-To: <20170126234257-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,280 +19,200 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com
-Cc: axboe@kernel.dk, pbonzini@redhat.com, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use automatic IRQ affinity assignment in the virtio layer if available,
-and build the blk-mq queues based on it.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/scsi/virtio_scsi.c | 126 +++++----------------------------------------
- include/linux/cpuhotplug.h |   1 -
- 2 files changed, 12 insertions(+), 115 deletions(-)
 
-diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-index 32a1629..5582c8b 100644
---- a/drivers/scsi/virtio_scsi.c
-+++ b/drivers/scsi/virtio_scsi.c
-@@ -18,6 +18,7 @@
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/mempool.h>
-+#include <linux/interrupt.h>
- #include <linux/virtio.h>
- #include <linux/virtio_ids.h>
- #include <linux/virtio_config.h>
-@@ -29,6 +30,7 @@
- #include <scsi/scsi_cmnd.h>
- #include <scsi/scsi_tcq.h>
- #include <linux/seqlock.h>
-+#include <linux/blk-mq-virtio.h>
- 
- #define VIRTIO_SCSI_MEMPOOL_SZ 64
- #define VIRTIO_SCSI_EVENT_LEN 8
-@@ -108,7 +110,6 @@ struct virtio_scsi {
- 	bool affinity_hint_set;
- 
- 	struct hlist_node node;
--	struct hlist_node node_dead;
- 
- 	/* Protected by event_vq lock */
- 	bool stop_events;
-@@ -118,7 +119,6 @@ struct virtio_scsi {
- 	struct virtio_scsi_vq req_vqs[];
- };
- 
--static enum cpuhp_state virtioscsi_online;
- static struct kmem_cache *virtscsi_cmd_cache;
- static mempool_t *virtscsi_cmd_pool;
- 
-@@ -757,6 +757,13 @@ static void virtscsi_target_destroy(struct scsi_target *starget)
- 	kfree(tgt);
- }
- 
-+static int virtscsi_map_queues(struct Scsi_Host *shost)
-+{
-+	struct virtio_scsi *vscsi = shost_priv(shost);
-+
-+	return blk_mq_virtio_map_queues(&shost->tag_set, vscsi->vdev, 2);
-+}
-+
- static struct scsi_host_template virtscsi_host_template_single = {
- 	.module = THIS_MODULE,
- 	.name = "Virtio SCSI HBA",
-@@ -792,6 +799,7 @@ static struct scsi_host_template virtscsi_host_template_multi = {
- 	.use_clustering = ENABLE_CLUSTERING,
- 	.target_alloc = virtscsi_target_alloc,
- 	.target_destroy = virtscsi_target_destroy,
-+	.map_queues = virtscsi_map_queues,
- 	.track_queue_depth = 1,
- };
- 
-@@ -808,80 +816,6 @@ static struct scsi_host_template virtscsi_host_template_multi = {
- 		virtio_cwrite(vdev, struct virtio_scsi_config, fld, &__val); \
- 	} while(0)
- 
--static void __virtscsi_set_affinity(struct virtio_scsi *vscsi, bool affinity)
--{
--	int i;
--	int cpu;
--
--	/* In multiqueue mode, when the number of cpu is equal
--	 * to the number of request queues, we let the qeueues
--	 * to be private to one cpu by setting the affinity hint
--	 * to eliminate the contention.
--	 */
--	if ((vscsi->num_queues == 1 ||
--	     vscsi->num_queues != num_online_cpus()) && affinity) {
--		if (vscsi->affinity_hint_set)
--			affinity = false;
--		else
--			return;
--	}
--
--	if (affinity) {
--		i = 0;
--		for_each_online_cpu(cpu) {
--			virtqueue_set_affinity(vscsi->req_vqs[i].vq, cpu);
--			i++;
--		}
--
--		vscsi->affinity_hint_set = true;
--	} else {
--		for (i = 0; i < vscsi->num_queues; i++) {
--			if (!vscsi->req_vqs[i].vq)
--				continue;
--
--			virtqueue_set_affinity(vscsi->req_vqs[i].vq, -1);
--		}
--
--		vscsi->affinity_hint_set = false;
--	}
--}
--
--static void virtscsi_set_affinity(struct virtio_scsi *vscsi, bool affinity)
--{
--	get_online_cpus();
--	__virtscsi_set_affinity(vscsi, affinity);
--	put_online_cpus();
--}
--
--static int virtscsi_cpu_online(unsigned int cpu, struct hlist_node *node)
--{
--	struct virtio_scsi *vscsi = hlist_entry_safe(node, struct virtio_scsi,
--						     node);
--	__virtscsi_set_affinity(vscsi, true);
--	return 0;
--}
--
--static int virtscsi_cpu_notif_add(struct virtio_scsi *vi)
--{
--	int ret;
--
--	ret = cpuhp_state_add_instance(virtioscsi_online, &vi->node);
--	if (ret)
--		return ret;
--
--	ret = cpuhp_state_add_instance(CPUHP_VIRT_SCSI_DEAD, &vi->node_dead);
--	if (ret)
--		cpuhp_state_remove_instance(virtioscsi_online, &vi->node);
--	return ret;
--}
--
--static void virtscsi_cpu_notif_remove(struct virtio_scsi *vi)
--{
--	cpuhp_state_remove_instance_nocalls(virtioscsi_online, &vi->node);
--	cpuhp_state_remove_instance_nocalls(CPUHP_VIRT_SCSI_DEAD,
--					    &vi->node_dead);
--}
--
- static void virtscsi_init_vq(struct virtio_scsi_vq *virtscsi_vq,
- 			     struct virtqueue *vq)
- {
-@@ -891,14 +825,8 @@ static void virtscsi_init_vq(struct virtio_scsi_vq *virtscsi_vq,
- 
- static void virtscsi_remove_vqs(struct virtio_device *vdev)
- {
--	struct Scsi_Host *sh = virtio_scsi_host(vdev);
--	struct virtio_scsi *vscsi = shost_priv(sh);
--
--	virtscsi_set_affinity(vscsi, false);
--
- 	/* Stop all the virtqueues. */
- 	vdev->config->reset(vdev);
--
- 	vdev->config->del_vqs(vdev);
- }
- 
-@@ -911,6 +839,7 @@ static int virtscsi_init(struct virtio_device *vdev,
- 	vq_callback_t **callbacks;
- 	const char **names;
- 	struct virtqueue **vqs;
-+	struct irq_affinity desc = { .pre_vectors = 2 };
- 
- 	num_vqs = vscsi->num_queues + VIRTIO_SCSI_VQ_BASE;
- 	vqs = kmalloc(num_vqs * sizeof(struct virtqueue *), GFP_KERNEL);
-@@ -933,7 +862,7 @@ static int virtscsi_init(struct virtio_device *vdev,
- 
- 	/* Discover virtqueues and write information to configuration.  */
- 	err = vdev->config->find_vqs(vdev, num_vqs, vqs, callbacks, names,
--			NULL);
-+			&desc);
- 	if (err)
- 		goto out;
- 
-@@ -999,10 +928,6 @@ static int virtscsi_probe(struct virtio_device *vdev)
- 	if (err)
- 		goto virtscsi_init_failed;
- 
--	err = virtscsi_cpu_notif_add(vscsi);
--	if (err)
--		goto scsi_add_host_failed;
--
- 	cmd_per_lun = virtscsi_config_get(vdev, cmd_per_lun) ?: 1;
- 	shost->cmd_per_lun = min_t(u32, cmd_per_lun, shost->can_queue);
- 	shost->max_sectors = virtscsi_config_get(vdev, max_sectors) ?: 0xFFFF;
-@@ -1057,9 +982,6 @@ static void virtscsi_remove(struct virtio_device *vdev)
- 		virtscsi_cancel_event_work(vscsi);
- 
- 	scsi_remove_host(shost);
--
--	virtscsi_cpu_notif_remove(vscsi);
--
- 	virtscsi_remove_vqs(vdev);
- 	scsi_host_put(shost);
- }
-@@ -1067,10 +989,6 @@ static void virtscsi_remove(struct virtio_device *vdev)
- #ifdef CONFIG_PM_SLEEP
- static int virtscsi_freeze(struct virtio_device *vdev)
- {
--	struct Scsi_Host *sh = virtio_scsi_host(vdev);
--	struct virtio_scsi *vscsi = shost_priv(sh);
--
--	virtscsi_cpu_notif_remove(vscsi);
- 	virtscsi_remove_vqs(vdev);
- 	return 0;
- }
-@@ -1085,11 +1003,6 @@ static int virtscsi_restore(struct virtio_device *vdev)
- 	if (err)
- 		return err;
- 
--	err = virtscsi_cpu_notif_add(vscsi);
--	if (err) {
--		vdev->config->del_vqs(vdev);
--		return err;
--	}
- 	virtio_device_ready(vdev);
- 
- 	if (virtio_has_feature(vdev, VIRTIO_SCSI_F_HOTPLUG))
-@@ -1144,16 +1057,6 @@ static int __init init(void)
- 		pr_err("mempool_create() for virtscsi_cmd_pool failed\n");
- 		goto error;
- 	}
--	ret = cpuhp_setup_state_multi(CPUHP_AP_ONLINE_DYN,
--				      "scsi/virtio:online",
--				      virtscsi_cpu_online, NULL);
--	if (ret < 0)
--		goto error;
--	virtioscsi_online = ret;
--	ret = cpuhp_setup_state_multi(CPUHP_VIRT_SCSI_DEAD, "scsi/virtio:dead",
--				      NULL, virtscsi_cpu_online);
--	if (ret)
--		goto error;
- 	ret = register_virtio_driver(&virtio_scsi_driver);
- 	if (ret < 0)
- 		goto error;
-@@ -1169,17 +1072,12 @@ static int __init init(void)
- 		kmem_cache_destroy(virtscsi_cmd_cache);
- 		virtscsi_cmd_cache = NULL;
- 	}
--	if (virtioscsi_online)
--		cpuhp_remove_multi_state(virtioscsi_online);
--	cpuhp_remove_multi_state(CPUHP_VIRT_SCSI_DEAD);
- 	return ret;
- }
- 
- static void __exit fini(void)
- {
- 	unregister_virtio_driver(&virtio_scsi_driver);
--	cpuhp_remove_multi_state(virtioscsi_online);
--	cpuhp_remove_multi_state(CPUHP_VIRT_SCSI_DEAD);
- 	mempool_destroy(virtscsi_cmd_pool);
- 	kmem_cache_destroy(virtscsi_cmd_cache);
- }
-diff --git a/include/linux/cpuhotplug.h b/include/linux/cpuhotplug.h
-index d936a00..16d8bb9 100644
---- a/include/linux/cpuhotplug.h
-+++ b/include/linux/cpuhotplug.h
-@@ -28,7 +28,6 @@ enum cpuhp_state {
- 	CPUHP_ARM_OMAP_WAKE_DEAD,
- 	CPUHP_IRQ_POLL_DEAD,
- 	CPUHP_BLOCK_SOFTIRQ_DEAD,
--	CPUHP_VIRT_SCSI_DEAD,
- 	CPUHP_ACPI_CPUDRV_DEAD,
- 	CPUHP_S390_PFAULT_DEAD,
- 	CPUHP_BLK_MQ_DEAD,
--- 
-2.1.4
+----- Original Message -----
+> From: "Michael S. Tsirkin" <mst@redhat.com>
+> To: "Fam Zheng" <famz@redhat.com>
+> Cc: linux-kernel@vger.kernel.org, "Paolo Bonzini" <pbonzini@redhat.com>, linux-scsi@vger.kernel.org, "James E.J.
+> Bottomley" <jejb@linux.vnet.ibm.com>, "Jason Wang" <jasowang@redhat.com>, "Martin K. Petersen"
+> <martin.petersen@oracle.com>, stefanha@redhat.com, virtualization@lists.linux-foundation.org
+> Sent: Thursday, January 26, 2017 11:06:27 PM
+> Subject: Re: [PATCH v2 2/2] virtio_scsi: Implement fc_host
+> 
+> On Thu, Jan 26, 2017 at 11:41:09AM +0800, Fam Zheng wrote:
+> > This implements the VIRTIO_SCSI_F_FC_HOST feature by reading the config
+> > fields and presenting them as sysfs fc_host attributes. The config
+> > change handler is added here because primary_active will toggle during
+> > migration.
+> 
+> Looks like there's active discussion on virtio tc mailing list.
+> It's ok to post patches meanwhile but best as RFC,
+> and repost after controversy is resolved.
+
+Discussion on the TC mailing list was not about the merit of the feature,
+only about the timing of the vote.
+
+Paolo
+
+> 
+> > 
+> > Signed-off-by: Fam Zheng <famz@redhat.com>
+> > ---
+> >  drivers/scsi/virtio_scsi.c | 60
+> >  +++++++++++++++++++++++++++++++++++++++++++++-
+> >  1 file changed, 59 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+> > index ec91bd0..1bb330c 100644
+> > --- a/drivers/scsi/virtio_scsi.c
+> > +++ b/drivers/scsi/virtio_scsi.c
+> > @@ -28,6 +28,7 @@
+> >  #include <scsi/scsi_device.h>
+> >  #include <scsi/scsi_cmnd.h>
+> >  #include <scsi/scsi_tcq.h>
+> > +#include <scsi/scsi_transport_fc.h>
+> >  #include <linux/seqlock.h>
+> >  
+> >  #define VIRTIO_SCSI_MEMPOOL_SZ 64
+> > @@ -795,6 +796,15 @@ static struct scsi_host_template
+> > virtscsi_host_template_multi = {
+> >  	.track_queue_depth = 1,
+> >  };
+> >  
+> > +static struct fc_function_template virtscsi_fc_template = {
+> > +	.show_host_node_name = 1,
+> > +	.show_host_port_name = 1,
+> > +	.show_host_port_type = 1,
+> > +	.show_host_port_state = 1,
+> > +};
+> > +
+> > +static struct scsi_transport_template *virtscsi_fc_transport_template;
+> > +
+> >  #define virtscsi_config_get(vdev, fld) \
+> >  	({ \
+> >  		typeof(((struct virtio_scsi_config *)0)->fld) __val; \
+> > @@ -956,15 +966,42 @@ static int virtscsi_init(struct virtio_device *vdev,
+> >  	return err;
+> >  }
+> >  
+> > +static void virtscsi_update_fc_host_attrs(struct virtio_device *vdev)
+> > +{
+> > +	struct Scsi_Host *shost = vdev->priv;
+> > +	u8 node_name[8], port_name[8];
+> > +
+> > +	if (virtscsi_config_get(vdev, primary_active)) {
+> > +		virtio_cread_bytes(vdev,
+> > +			offsetof(struct virtio_scsi_config, primary_wwnn),
+> > +			&node_name, 8);
+> > +		virtio_cread_bytes(vdev,
+> > +			offsetof(struct virtio_scsi_config, primary_wwpn),
+> > +			&port_name, 8);
+> > +	} else {
+> > +		virtio_cread_bytes(vdev,
+> > +			offsetof(struct virtio_scsi_config, secondary_wwnn),
+> > +			&node_name, 8);
+> > +		virtio_cread_bytes(vdev,
+> > +			offsetof(struct virtio_scsi_config, secondary_wwpn),
+> > +			&port_name, 8);
+> > +	}
+> 
+> This is racy, isn't it? You need to wrap this in a generation check
+> otherwise read can race with primary_active changing.
+> And you might want a wrapper to virtio_cread_bytes that does not
+> include generation check.
+> 
+> > +	fc_host_node_name(shost) = wwn_to_u64(node_name);
+> > +	fc_host_port_name(shost) = wwn_to_u64(port_name);
+> > +	fc_host_port_type(shost) = FC_PORTTYPE_NPORT;
+> > +	fc_host_port_state(shost) = FC_PORTSTATE_ONLINE;
+> > +}
+> > +
+> >  static int virtscsi_probe(struct virtio_device *vdev)
+> >  {
+> > -	struct Scsi_Host *shost;
+> > +	struct Scsi_Host *shost = NULL;
+> >  	struct virtio_scsi *vscsi;
+> >  	int err;
+> >  	u32 sg_elems, num_targets;
+> >  	u32 cmd_per_lun;
+> >  	u32 num_queues;
+> >  	struct scsi_host_template *hostt;
+> > +	bool fc_host_enabled;
+> >  
+> >  	if (!vdev->config->get) {
+> >  		dev_err(&vdev->dev, "%s failure: config access disabled\n",
+> > @@ -987,6 +1024,9 @@ static int virtscsi_probe(struct virtio_device *vdev)
+> >  	if (!shost)
+> >  		return -ENOMEM;
+> >  
+> > +	fc_host_enabled = virtio_has_feature(vdev, VIRTIO_SCSI_F_FC_HOST);
+> > +	if (fc_host_enabled)
+> > +		shost->transportt = virtscsi_fc_transport_template;
+> >  	sg_elems = virtscsi_config_get(vdev, seg_max) ?: 1;
+> >  	shost->sg_tablesize = sg_elems;
+> >  	vscsi = shost_priv(shost);
+> > @@ -1032,6 +1072,9 @@ static int virtscsi_probe(struct virtio_device *vdev)
+> >  	if (err)
+> >  		goto scsi_add_host_failed;
+> >  
+> > +	if (fc_host_enabled)
+> > +		virtscsi_update_fc_host_attrs(vdev);
+> > +
+> >  	virtio_device_ready(vdev);
+> >  
+> >  	if (virtio_has_feature(vdev, VIRTIO_SCSI_F_HOTPLUG))
+> > @@ -1098,6 +1141,11 @@ static int virtscsi_restore(struct virtio_device
+> > *vdev)
+> >  }
+> >  #endif
+> >  
+> > +static void virtscsi_config_changed(struct virtio_device *vdev)
+> > +{
+> 
+> This is called unconditionally here, will access
+> invalid config fields if feature is off.
+> In fact this is wasting an MSIX vector when feature is not
+> negotiated. No easy way not to, but best document this
+> in a code comment.
+> 
+> > +	virtscsi_update_fc_host_attrs(vdev);
+> > +}
+> > +
+> >  static struct virtio_device_id id_table[] = {
+> >  	{ VIRTIO_ID_SCSI, VIRTIO_DEV_ANY_ID },
+> >  	{ 0 },
+> > @@ -1109,6 +1157,7 @@ static unsigned int features[] = {
+> >  #ifdef CONFIG_BLK_DEV_INTEGRITY
+> >  	VIRTIO_SCSI_F_T10_PI,
+> >  #endif
+> > +	VIRTIO_SCSI_F_FC_HOST,
+> >  };
+> >  
+> >  static struct virtio_driver virtio_scsi_driver = {
+> > @@ -1123,12 +1172,20 @@ static struct virtio_driver virtio_scsi_driver = {
+> >  	.restore = virtscsi_restore,
+> >  #endif
+> >  	.remove = virtscsi_remove,
+> > +	.config_changed = virtscsi_config_changed,
+> >  };
+> >  
+> >  static int __init init(void)
+> >  {
+> >  	int ret = -ENOMEM;
+> >  
+> > +	virtscsi_fc_transport_template =
+> > +		fc_attach_transport(&virtscsi_fc_template);
+> > +	if (!virtscsi_fc_transport_template) {
+> > +		pr_err("fc_attach_transport() failed\n");
+> > +		goto error;
+> > +	}
+> > +
+> >  	virtscsi_cmd_cache = KMEM_CACHE(virtio_scsi_cmd, 0);
+> >  	if (!virtscsi_cmd_cache) {
+> >  		pr_err("kmem_cache_create() for virtscsi_cmd_cache failed\n");
+> > @@ -1176,6 +1233,7 @@ static int __init init(void)
+> >  
+> >  static void __exit fini(void)
+> >  {
+> > +	fc_release_transport(virtscsi_fc_transport_template);
+> >  	unregister_virtio_driver(&virtio_scsi_driver);
+> >  	cpuhp_remove_multi_state(virtioscsi_online);
+> >  	cpuhp_remove_multi_state(CPUHP_VIRT_SCSI_DEAD);
+> > --
+> > 2.9.3
+> 
