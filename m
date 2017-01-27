@@ -1,13 +1,11 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] virtio-gpu: disable VIRGL with BE kernel
-Date: Fri, 27 Jan 2017 09:15:26 +0100
-Message-ID: <1485504926.19754.23.camel@redhat.com>
-References: <1485263549-28743-1-git-send-email-lvivier@redhat.com>
+From: Christoph Hellwig <hch@lst.de>
+Subject: automatic IRQ affinity for virtio V2
+Date: Fri, 27 Jan 2017 09:16:28 +0100
+Message-ID: <1485504997-17584-1-git-send-email-hch@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1485263549-28743-1-git-send-email-lvivier@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,20 +15,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Laurent Vivier <lvivier@redhat.com>
-Cc: linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: mst@redhat.com, jasowang@redhat.com
+Cc: axboe@kernel.dk, pbonzini@redhat.com, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Di, 2017-01-24 at 14:12 +0100, Laurent Vivier wrote:
-> VIRTIO_GPU_F_VIRGL is added in features list only
-> for LE kernel, so we must check for it only on LE kernel,
-> otherwise virtio_has_feature() calls BUG() and
-> crashes the kernel.
-> 
-> Suggested-by: Gerd Hoffmann <kraxel@redhat.com>
-> Signed-off-by: Laurent Vivier <lvivier@redhat.com>
+Hi Michael, hi Jason,
 
-Added to drm-qemu branch.
+This patches applies a few cleanups to the virtio PCI interrupt handling
+code, and then converts the virtio PCI code to use the automatic MSI-X
+vectors spreading, as well as using the information in virtio-blk
+and virtio-scsi to automatically align the blk-mq queues to the MSI-X
+vectors.
 
-thanks,
-  Gerd
+Changes since V1:
+ - dropped the patches already merged for 4.10-rc
+ - new patch to remove struct virtio_pci_vq_info
+ - improve probe error handling by unwinding step by step
+ - new patch to convert virtio-scsi
