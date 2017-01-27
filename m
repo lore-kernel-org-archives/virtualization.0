@@ -1,7 +1,7 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 7/9] blk-mq: provide a default queue mapping for virtio device
-Date: Fri, 27 Jan 2017 09:16:35 +0100
-Message-ID: <1485504997-17584-8-git-send-email-hch@lst.de>
+Subject: [PATCH 8/9] virtio_blk: use virtio IRQ affinity
+Date: Fri, 27 Jan 2017 09:16:36 +0100
+Message-ID: <1485504997-17584-9-git-send-email-hch@lst.de>
 References: <1485504997-17584-1-git-send-email-hch@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,118 +21,69 @@ To: mst@redhat.com, jasowang@redhat.com
 Cc: axboe@kernel.dk, pbonzini@redhat.com, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Similar to the PCI version, just calling into virtio instead.
+Use automatic IRQ affinity assignment in the virtio layer if available,
+and build the blk-mq queues based on it.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- block/Kconfig                 |  5 ++++
- block/Makefile                |  1 +
- block/blk-mq-virtio.c         | 54 +++++++++++++++++++++++++++++++++++++++++++
- include/linux/blk-mq-virtio.h | 10 ++++++++
- 4 files changed, 70 insertions(+)
- create mode 100644 block/blk-mq-virtio.c
- create mode 100644 include/linux/blk-mq-virtio.h
+ drivers/block/virtio_blk.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/block/Kconfig b/block/Kconfig
-index 8bf114a..3523b4f 100644
---- a/block/Kconfig
-+++ b/block/Kconfig
-@@ -165,4 +165,9 @@ config BLK_MQ_PCI
- 	depends on BLOCK && PCI
- 	default y
- 
-+config BLK_MQ_VIRTIO
-+	bool
-+	depends on BLOCK && VIRTIO
-+	default y
-+
- source block/Kconfig.iosched
-diff --git a/block/Makefile b/block/Makefile
-index a827f98..6069194 100644
---- a/block/Makefile
-+++ b/block/Makefile
-@@ -23,5 +23,6 @@ obj-$(CONFIG_BLOCK_COMPAT)	+= compat_ioctl.o
- obj-$(CONFIG_BLK_CMDLINE_PARSER)	+= cmdline-parser.o
- obj-$(CONFIG_BLK_DEV_INTEGRITY) += bio-integrity.o blk-integrity.o t10-pi.o
- obj-$(CONFIG_BLK_MQ_PCI)	+= blk-mq-pci.o
-+obj-$(CONFIG_BLK_MQ_VIRTIO)	+= blk-mq-virtio.o
- obj-$(CONFIG_BLK_DEV_ZONED)	+= blk-zoned.o
- obj-$(CONFIG_BLK_WBT)		+= blk-wbt.o
-diff --git a/block/blk-mq-virtio.c b/block/blk-mq-virtio.c
-new file mode 100644
-index 0000000..c3afbca
---- /dev/null
-+++ b/block/blk-mq-virtio.c
-@@ -0,0 +1,54 @@
-+/*
-+ * Copyright (c) 2016 Christoph Hellwig.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ */
-+#include <linux/device.h>
-+#include <linux/blk-mq.h>
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index c54118b..1028dfe 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -5,6 +5,7 @@
+ #include <linux/hdreg.h>
+ #include <linux/module.h>
+ #include <linux/mutex.h>
++#include <linux/interrupt.h>
+ #include <linux/virtio.h>
+ #include <linux/virtio_blk.h>
+ #include <linux/scatterlist.h>
+@@ -12,6 +13,7 @@
+ #include <scsi/scsi_cmnd.h>
+ #include <linux/idr.h>
+ #include <linux/blk-mq.h>
 +#include <linux/blk-mq-virtio.h>
-+#include <linux/virtio_config.h>
-+#include <linux/module.h>
-+#include "blk-mq.h"
-+
-+/**
-+ * blk_mq_virtio_map_queues - provide a default queue mapping for virtio device
-+ * @set:	tagset to provide the mapping for
-+ * @vdev:	virtio device associated with @set.
-+ * @first_vec:	first interrupt vectors to use for queues (usually 0)
-+ *
-+ * This function assumes the virtio device @vdev has at least as many available
-+ * interrupt vetors as @set has queues.  It will then queuery the vector
-+ * corresponding to each queue for it's affinity mask and built queue mapping
-+ * that maps a queue to the CPUs that have irq affinity for the corresponding
-+ * vector.
-+ */
-+int blk_mq_virtio_map_queues(struct blk_mq_tag_set *set,
-+		struct virtio_device *vdev, int first_vec)
+ #include <linux/numa.h>
+ 
+ #define PART_BITS 4
+@@ -385,6 +387,7 @@ static int init_vq(struct virtio_blk *vblk)
+ 	struct virtqueue **vqs;
+ 	unsigned short num_vqs;
+ 	struct virtio_device *vdev = vblk->vdev;
++	struct irq_affinity desc = { 0, };
+ 
+ 	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_MQ,
+ 				   struct virtio_blk_config, num_queues,
+@@ -412,7 +415,7 @@ static int init_vq(struct virtio_blk *vblk)
+ 
+ 	/* Discover virtqueues and write information to configuration.  */
+ 	err = vdev->config->find_vqs(vdev, num_vqs, vqs, callbacks, names,
+-			NULL);
++			&desc);
+ 	if (err)
+ 		goto out;
+ 
+@@ -543,10 +546,18 @@ static int virtblk_init_request(void *data, struct request *rq,
+ 	return 0;
+ }
+ 
++static int virtblk_map_queues(struct blk_mq_tag_set *set)
 +{
-+	const struct cpumask *mask;
-+	unsigned int queue, cpu;
++	struct virtio_blk *vblk = set->driver_data;
 +
-+	if (!vdev->config->get_vq_affinity)
-+		goto fallback;
-+
-+	for (queue = 0; queue < set->nr_hw_queues; queue++) {
-+		mask = vdev->config->get_vq_affinity(vdev, first_vec + queue);
-+		if (!mask)
-+			goto fallback;
-+
-+		for_each_cpu(cpu, mask)
-+			set->mq_map[cpu] = queue;
-+	}
-+
-+	return 0;
-+fallback:
-+	return blk_mq_map_queues(set);
++	return blk_mq_virtio_map_queues(set, vblk->vdev, 0);
 +}
-+EXPORT_SYMBOL_GPL(blk_mq_virtio_map_queues);
-diff --git a/include/linux/blk-mq-virtio.h b/include/linux/blk-mq-virtio.h
-new file mode 100644
-index 0000000..b1ef6e1
---- /dev/null
-+++ b/include/linux/blk-mq-virtio.h
-@@ -0,0 +1,10 @@
-+#ifndef _LINUX_BLK_MQ_VIRTIO_H
-+#define _LINUX_BLK_MQ_VIRTIO_H
 +
-+struct blk_mq_tag_set;
-+struct virtio_device;
-+
-+int blk_mq_virtio_map_queues(struct blk_mq_tag_set *set,
-+		struct virtio_device *vdev, int first_vec);
-+
-+#endif /* _LINUX_BLK_MQ_VIRTIO_H */
+ static struct blk_mq_ops virtio_mq_ops = {
+ 	.queue_rq	= virtio_queue_rq,
+ 	.complete	= virtblk_request_done,
+ 	.init_request	= virtblk_init_request,
++	.map_queues	= virtblk_map_queues,
+ };
+ 
+ static unsigned int virtblk_queue_depth;
 -- 
 2.1.4
