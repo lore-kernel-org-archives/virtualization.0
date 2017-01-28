@@ -1,7 +1,8 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 3/5] block: make scsi_request and scsi ioctl support optional
-Date: Sat, 28 Jan 2017 09:32:51 +0100
-Message-ID: <1485592373-29837-4-git-send-email-hch@lst.de>
+Subject: [PATCH 4/5] virtio_blk: remove struct request backpointer from
+	virtblk_req
+Date: Sat, 28 Jan 2017 09:32:52 +0100
+Message-ID: <1485592373-29837-5-git-send-email-hch@lst.de>
 References: <1485592373-29837-1-git-send-email-hch@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,163 +22,81 @@ To: Jens Axboe <axboe@fb.com>, mst@redhat.com, jasowang@redhat.com
 Cc: linux-block@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We only need this code to support scsi, ide, cciss and virtio.  And at
-least for virtio it's a deprecated feature to start with.
-
-This should shrink the kernel size for embedded device that only use,
-say eMMC a bit.
+We can simply use blk_mq_rq_from_pdu to get back at the request at
+I/O completion time.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- block/Kconfig                | 5 +++++
- block/Makefile               | 5 +++--
- drivers/block/Kconfig        | 4 ++++
- drivers/block/paride/Kconfig | 1 +
- drivers/ide/Kconfig          | 1 +
- drivers/scsi/Kconfig         | 1 +
- drivers/target/Kconfig       | 1 +
- fs/nfsd/Kconfig              | 1 +
- 8 files changed, 17 insertions(+), 2 deletions(-)
+ drivers/block/virtio_blk.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/block/Kconfig b/block/Kconfig
-index 8bf114a..9791bb8 100644
---- a/block/Kconfig
-+++ b/block/Kconfig
-@@ -49,9 +49,13 @@ config LBDAF
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 3027d2e..7c730e2 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -53,7 +53,6 @@ struct virtio_blk {
  
- 	  If unsure, say Y.
- 
-+config BLK_SCSI_REQUEST
-+	bool
+ struct virtblk_req {
+ 	struct scsi_request sreq;	/* for SCSI passthrough */
+-	struct request *req;
+ 	struct virtio_blk_outhdr out_hdr;
+ 	struct virtio_scsi_inhdr in_hdr;
+ 	u8 status;
+@@ -148,7 +147,9 @@ static void virtblk_done(struct virtqueue *vq)
+ 	do {
+ 		virtqueue_disable_cb(vq);
+ 		while ((vbr = virtqueue_get_buf(vblk->vqs[qid].vq, &len)) != NULL) {
+-			blk_mq_complete_request(vbr->req, vbr->req->errors);
++			struct request *req = blk_mq_rq_from_pdu(vbr);
 +
- config BLK_DEV_BSG
- 	bool "Block layer SG support v4"
- 	default y
-+	select BLK_SCSI_REQUEST
- 	help
- 	  Saying Y here will enable generic SG (SCSI generic) v4 support
- 	  for any block device.
-@@ -71,6 +75,7 @@ config BLK_DEV_BSGLIB
- 	bool "Block layer SG support v4 helper lib"
- 	default n
- 	select BLK_DEV_BSG
-+	select BLK_SCSI_REQUEST
- 	help
- 	  Subsystems will normally enable this if needed. Users will not
- 	  normally need to manually enable this.
-diff --git a/block/Makefile b/block/Makefile
-index 6cabe6b..6d7de29 100644
---- a/block/Makefile
-+++ b/block/Makefile
-@@ -7,10 +7,11 @@ obj-$(CONFIG_BLOCK) := bio.o elevator.o blk-core.o blk-tag.o blk-sysfs.o \
- 			blk-exec.o blk-merge.o blk-softirq.o blk-timeout.o \
- 			blk-lib.o blk-mq.o blk-mq-tag.o blk-stat.o \
- 			blk-mq-sysfs.o blk-mq-cpumap.o blk-mq-sched.o ioctl.o \
--			genhd.o scsi_ioctl.o partition-generic.o ioprio.o \
-+			genhd.o partition-generic.o ioprio.o \
- 			badblocks.o partitions/
++			blk_mq_complete_request(req, req->errors);
+ 			req_done = true;
+ 		}
+ 		if (unlikely(virtqueue_is_broken(vq)))
+@@ -175,27 +176,26 @@ static int virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
  
--obj-$(CONFIG_BOUNCE)	+= bounce.o
-+obj-$(CONFIG_BOUNCE)		+= bounce.o
-+obj-$(CONFIG_BLK_SCSI_REQUEST)	+= scsi_ioctl.o
- obj-$(CONFIG_BLK_DEV_BSG)	+= bsg.o
- obj-$(CONFIG_BLK_DEV_BSGLIB)	+= bsg-lib.o
- obj-$(CONFIG_BLK_CGROUP)	+= blk-cgroup.o
-diff --git a/drivers/block/Kconfig b/drivers/block/Kconfig
-index 223ff2f..7a4c787 100644
---- a/drivers/block/Kconfig
-+++ b/drivers/block/Kconfig
-@@ -69,6 +69,7 @@ config AMIGA_Z2RAM
- config GDROM
- 	tristate "SEGA Dreamcast GD-ROM drive"
- 	depends on SH_DREAMCAST
-+	select BLK_SCSI_REQUEST # only for the generic cdrom code
- 	help
- 	  A standard SEGA Dreamcast comes with a modified CD ROM drive called a
- 	  "GD-ROM" by SEGA to signify it is capable of reading special disks
-@@ -114,6 +115,7 @@ config BLK_CPQ_CISS_DA
- 	tristate "Compaq Smart Array 5xxx support"
- 	depends on PCI
- 	select CHECK_SIGNATURE
-+	select BLK_SCSI_REQUEST
- 	help
- 	  This is the driver for Compaq Smart Array 5xxx controllers.
- 	  Everyone using these boards should say Y here.
-@@ -386,6 +388,7 @@ config BLK_DEV_RAM_DAX
- config CDROM_PKTCDVD
- 	tristate "Packet writing on CD/DVD media (DEPRECATED)"
- 	depends on !UML
-+	select BLK_SCSI_REQUEST
- 	help
- 	  Note: This driver is deprecated and will be removed from the
- 	  kernel in the near future!
-@@ -497,6 +500,7 @@ config XEN_BLKDEV_BACKEND
- config VIRTIO_BLK
- 	tristate "Virtio block driver"
- 	depends on VIRTIO
-+	select BLK_SCSI_REQUEST
- 	---help---
- 	  This is the virtual block driver for virtio.  It can be used with
-           lguest or QEMU based VMMs (like KVM or Xen).  Say Y or M.
-diff --git a/drivers/block/paride/Kconfig b/drivers/block/paride/Kconfig
-index efefb5a..3a15247 100644
---- a/drivers/block/paride/Kconfig
-+++ b/drivers/block/paride/Kconfig
-@@ -25,6 +25,7 @@ config PARIDE_PD
- config PARIDE_PCD
- 	tristate "Parallel port ATAPI CD-ROMs"
- 	depends on PARIDE
-+	select BLK_SCSI_REQUEST # only for the generic cdrom code
- 	---help---
- 	  This option enables the high-level driver for ATAPI CD-ROM devices
- 	  connected through a parallel port. If you chose to build PARIDE
-diff --git a/drivers/ide/Kconfig b/drivers/ide/Kconfig
-index 39ea67f..c99a25c 100644
---- a/drivers/ide/Kconfig
-+++ b/drivers/ide/Kconfig
-@@ -10,6 +10,7 @@ menuconfig IDE
- 	tristate "ATA/ATAPI/MFM/RLL support (DEPRECATED)"
- 	depends on HAVE_IDE
- 	depends on BLOCK
-+	select BLK_SCSI_REQUEST
- 	---help---
- 	  If you say Y here, your kernel will be able to manage ATA/(E)IDE and
- 	  ATAPI units. The most common cases are IDE hard drives and ATAPI
-diff --git a/drivers/scsi/Kconfig b/drivers/scsi/Kconfig
-index a4f6b0d..d4023bf 100644
---- a/drivers/scsi/Kconfig
-+++ b/drivers/scsi/Kconfig
-@@ -18,6 +18,7 @@ config SCSI
- 	depends on BLOCK
- 	select SCSI_DMA if HAS_DMA
- 	select SG_POOL
-+	select BLK_SCSI_REQUEST
- 	---help---
- 	  If you want to use a SCSI hard disk, SCSI tape drive, SCSI CD-ROM or
- 	  any other SCSI device under Linux, say Y and make sure that you know
-diff --git a/drivers/target/Kconfig b/drivers/target/Kconfig
-index 2573612..e2bc999 100644
---- a/drivers/target/Kconfig
-+++ b/drivers/target/Kconfig
-@@ -4,6 +4,7 @@ menuconfig TARGET_CORE
- 	depends on SCSI && BLOCK
- 	select CONFIGFS_FS
- 	select CRC_T10DIF
-+	select BLK_SCSI_REQUEST # only for scsi_command_size_tbl..
- 	default n
- 	help
- 	Say Y or M here to enable the TCM Storage Engine and ConfigFS enabled
-diff --git a/fs/nfsd/Kconfig b/fs/nfsd/Kconfig
-index 47febcf..20b1c17 100644
---- a/fs/nfsd/Kconfig
-+++ b/fs/nfsd/Kconfig
-@@ -104,6 +104,7 @@ config NFSD_SCSILAYOUT
- 	depends on NFSD_V4 && BLOCK
- 	select NFSD_PNFS
- 	select EXPORTFS_BLOCK_OPS
-+	select BLK_SCSI_REQUEST
- 	help
- 	  This option enables support for the exporting pNFS SCSI layouts
- 	  in the kernel's NFS server. The pNFS SCSI layout enables NFS
+ 	BUG_ON(req->nr_phys_segments + 2 > vblk->sg_elems);
+ 
+-	vbr->req = req;
+ 	if (req_op(req) == REQ_OP_FLUSH) {
+ 		vbr->out_hdr.type = cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_FLUSH);
+ 		vbr->out_hdr.sector = 0;
+-		vbr->out_hdr.ioprio = cpu_to_virtio32(vblk->vdev, req_get_ioprio(vbr->req));
++		vbr->out_hdr.ioprio = cpu_to_virtio32(vblk->vdev, req_get_ioprio(req));
+ 	} else {
+ 		switch (req->cmd_type) {
+ 		case REQ_TYPE_FS:
+ 			vbr->out_hdr.type = 0;
+-			vbr->out_hdr.sector = cpu_to_virtio64(vblk->vdev, blk_rq_pos(vbr->req));
+-			vbr->out_hdr.ioprio = cpu_to_virtio32(vblk->vdev, req_get_ioprio(vbr->req));
++			vbr->out_hdr.sector = cpu_to_virtio64(vblk->vdev, blk_rq_pos(req));
++			vbr->out_hdr.ioprio = cpu_to_virtio32(vblk->vdev, req_get_ioprio(req));
+ 			break;
+ 		case REQ_TYPE_BLOCK_PC:
+ 			vbr->out_hdr.type = cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_SCSI_CMD);
+ 			vbr->out_hdr.sector = 0;
+-			vbr->out_hdr.ioprio = cpu_to_virtio32(vblk->vdev, req_get_ioprio(vbr->req));
++			vbr->out_hdr.ioprio = cpu_to_virtio32(vblk->vdev, req_get_ioprio(req));
+ 			break;
+ 		case REQ_TYPE_DRV_PRIV:
+ 			vbr->out_hdr.type = cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_GET_ID);
+ 			vbr->out_hdr.sector = 0;
+-			vbr->out_hdr.ioprio = cpu_to_virtio32(vblk->vdev, req_get_ioprio(vbr->req));
++			vbr->out_hdr.ioprio = cpu_to_virtio32(vblk->vdev, req_get_ioprio(req));
+ 			break;
+ 		default:
+ 			/* We don't put anything else in the queue. */
+@@ -205,9 +205,9 @@ static int virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 
+ 	blk_mq_start_request(req);
+ 
+-	num = blk_rq_map_sg(hctx->queue, vbr->req, vbr->sg);
++	num = blk_rq_map_sg(hctx->queue, req, vbr->sg);
+ 	if (num) {
+-		if (rq_data_dir(vbr->req) == WRITE)
++		if (rq_data_dir(req) == WRITE)
+ 			vbr->out_hdr.type |= cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_OUT);
+ 		else
+ 			vbr->out_hdr.type |= cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_IN);
 -- 
 2.1.4
