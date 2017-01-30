@@ -1,11 +1,17 @@
 From: Halil Pasic <pasic@linux.vnet.ibm.com>
-Subject: [PATCH] vhost: fix initialization for vq->is_le
-Date: Mon, 30 Jan 2017 11:09:36 +0100
-Message-ID: <20170130100936.17065-1-pasic@linux.vnet.ibm.com>
+Subject: Re: [BUG/RFC] vhost: net: big endian viring access despite virtio 1
+Date: Mon, 30 Jan 2017 12:25:34 +0100
+Message-ID: <80141541-dfd4-1a0e-d8e7-e631ca273d26@linux.vnet.ibm.com>
+References: <a08f491a-1320-607e-f450-d32ce2c9e2f5@linux.vnet.ibm.com>
+	<20170126211511-mutt-send-email-mst@kernel.org>
+	<f5c0779f-f7b0-0e0c-5f20-4161b5c70394@linux.vnet.ibm.com>
+	<20170127143747.1313d9ee@bahia.lan>
+	<20170129023459-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20170129023459-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,74 +21,148 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: "Michael A. Tebolt" <miket@us.ibm.com>, kvm@vger.kernel.org, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, Greg Kurz <groug@kaod.org>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Greg Kurz <groug@kaod.org>
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Currently, under certain circumstances vhost_init_is_le does just a part
-of the initialization job, and depends on vhost_reset_is_le being called
-too. For this reason vhost_vq_init_access used to call vhost_reset_is_le
-when vq->private_data is NULL. This is not only counter intuitive, but
-also real a problem because it breaks vhost_net. The bug was introduced to
-vhost_net with commit 2751c9882b94 ("vhost: cross-endian support for
-legacy devices"). The symptom is corruption of the vq's used.idx field
-(virtio) after VHOST_NET_SET_BACKEND was issued as a part of the vhost
-shutdown on a vq with pending descriptors.
 
-Let us make sure the outcome of vhost_init_is_le never depend on the state
-it is actually supposed to initialize, and fix virtio_net by removing the
-reset from vhost_vq_init_access.
 
-With the above, there is no reason for vhost_reset_is_le to do just half
-of the job. Let us make vhost_reset_is_le reinitialize is_le.
+On 01/29/2017 01:35 AM, Michael S. Tsirkin wrote:
+> On Fri, Jan 27, 2017 at 02:37:47PM +0100, Greg Kurz wrote:
+>> On Fri, 27 Jan 2017 13:24:13 +0100
+>> Halil Pasic <pasic@linux.vnet.ibm.com> wrote:
+>>
+>>> On 01/26/2017 08:20 PM, Michael S. Tsirkin wrote:
+>>>> On Thu, Jan 26, 2017 at 06:39:14PM +0100, Halil Pasic wrote:  
+>>>>>
+>>>>> Hi!
+>>>>>
+>>>>> Recently I have been investigating some strange migration problems on
+>>>>> s390x.
+>>>>>
+>>>>> It turned out under certain circumstances vhost_net corrupts avail.idx by
+>>>>> using wrong endianness.  
+>>>
+>>> [..]
+>>>
+>>>>> -------------------------8<--------------  
+>>>>> >From b26e2bbdc03832a0204ee2b42967a1b49a277dc8 Mon Sep 17 00:00:00 2001  
+>>>>> From: Halil Pasic <pasic@linux.vnet.ibm.com>
+>>>>> Date: Thu, 26 Jan 2017 00:06:15 +0100
+>>>>> Subject: [PATCH] vhost: remove useless/dangerous reset of is_le
+>>>>>
+>>>>> The reset of is_le does no good, but it contributes its fair share to a
+>>>>> bug in vhost_net, which occurs if we have some oldubufs when stopping and
+>>>>> setting a fd = -1 as a backend. Instead of doing something convoluted in
+>>>>> vhost_net, let's just get rid of the reset.
+>>>>>
+>>>>> Signed-off-by: Halil Pasic <pasic@linux.vnet.ibm.com>
+>>>>> Fixes: commit 2751c9882b94 
+>>>>> ---
+>>>>>  drivers/vhost/vhost.c | 4 +---
+>>>>>  1 file changed, 1 insertion(+), 3 deletions(-)
+>>>>>
+>>>>> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+>>>>> index d643260..08072a2 100644
+>>>>> --- a/drivers/vhost/vhost.c
+>>>>> +++ b/drivers/vhost/vhost.c
+>>>>> @@ -1714,10 +1714,8 @@ int vhost_vq_init_access(struct vhost_virtqueue *vq)
+>>>>>         int r;
+>>>>>         bool is_le = vq->is_le;
+>>>>>
+>>>>> -       if (!vq->private_data) {
+>>>>> -               vhost_reset_is_le(vq);
+>>>>> +       if (!vq->private_data)
+>>>>>                 return 0;
+>>>>> -       }
+>>>>>
+>>>>>         vhost_init_is_le(vq);  
+>>>>
+>>>>
+>>>> I think you do need to reset it, just maybe within vhost_init_is_le.
+>>>>
+>>>>         if (vhost_has_feature(vq, VIRTIO_F_VERSION_1))
+>>>>                 vq->is_le = true;
+>>>> 	else
+>>>> 		vhost_reset_is_le(vq);
+>>>>
+>>>>   
+>>>
+>>> That is a very good point! I have overlooked that while the 
+>>> CONFIG_VHOST_CROSS_ENDIAN_LEGACY variant
+>>>
+>>> static void vhost_init_is_le(struct vhost_virtqueue *vq)
+>>> {
+>>>         /* Note for legacy virtio: user_be is initialized at reset time
+>>>          * according to the host endianness. If userspace does not set an
+>>>          * explicit endianness, the default behavior is native endian, as
+>>>          * expected by legacy virtio.
+>>>          */
+>>>         vq->is_le = vhost_has_feature(vq, VIRTIO_F_VERSION_1) || !vq->user_be;
+>>> }
+>>>
+>>> is fine the other variant 
+>>>
+>>> static void vhost_init_is_le(struct vhost_virtqueue *vq)
+>>> {
+>>>         if (vhost_has_feature(vq, VIRTIO_F_VERSION_1))
+>>>                 vq->is_le = true;
+>>> }
+>>> is a very strange initializer (makes assumptions about the state
+>>> to be initialized).
+>>>
+>>> I agree, setting native endianness there sounds very reasonable.
+>>>
+>>> I have a question regarding readability. IMHO the relationship
+>>> of reset_is_le and int_is_le is a bit confusing, and I'm afraid
+>>> it could become even more confusing with using reset in one of
+>>> the init_is_le's.
+>>>
+>>> How about we do the following?
+>>>
+>>> static void vhost_init_is_le(struct vhost_virtqueue *vq)
+>>> {
+>>>         if (vhost_has_feature(vq, VIRTIO_F_VERSION_1))
+>>>                 vq->is_le = true;
+>>> +       else
+>>> +               vq->is_le = virtio_legacy_is_little_endian();
+>>>
+>>> }
+>>>
+>>> static void vhost_reset_is_le(struct vhost_virtqueue *vq)
+>>> {
+>>> -       vq->is_le = virtio_legacy_is_little_endian();
+>>> +       vhost_init_is_le(vq);
+>>> }
+>>>
+>>> That way we would have correct endianness both after reset
+>>> and after init, I think :).
+>>>
+>>
+>> Yes, I think this is what we need.
+>>
+>> Cheers.
+> 
+> OK, pls test this patch.
+> 
 
-Signed-off-by: Halil Pasic <pasic@linux.vnet.ibm.com>
-Reported-by: Michael A. Tebolt <miket@us.ibm.com>
-Reported-by: Dr. David Alan Gilbert <dgilbert@redhat.com>
-Fixes: commit 2751c9882b94 ("vhost: cross-endian support for legacy devices")
----
+Have submitted a slightly modified version of the above patch
+with the subject "[PATCH] vhost: fix initialization for vq->is_le".
 
-The bug was already discussed here: 
-http://www.spinics.net/lists/kvm/msg144365.html
-This is a follow up patch.
+I wrote to our tester guys to give it some good testing. Will
+post an update on the result of the testing there ASAP (or the
+someone from testing will).
 
----
- drivers/vhost/vhost.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+Regards,
+Halil
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index d643260..8f99fe0 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -130,14 +130,14 @@ static long vhost_get_vring_endian(struct vhost_virtqueue *vq, u32 idx,
- 
- static void vhost_init_is_le(struct vhost_virtqueue *vq)
- {
--	if (vhost_has_feature(vq, VIRTIO_F_VERSION_1))
--		vq->is_le = true;
-+	vq->is_le = vhost_has_feature(vq, VIRTIO_F_VERSION_1)
-+		|| virtio_legacy_is_little_endian();
- }
- #endif /* CONFIG_VHOST_CROSS_ENDIAN_LEGACY */
- 
- static void vhost_reset_is_le(struct vhost_virtqueue *vq)
- {
--	vq->is_le = virtio_legacy_is_little_endian();
-+	vhost_init_is_le(vq);
- }
- 
- struct vhost_flush_struct {
-@@ -1714,10 +1714,8 @@ int vhost_vq_init_access(struct vhost_virtqueue *vq)
- 	int r;
- 	bool is_le = vq->is_le;
- 
--	if (!vq->private_data) {
--		vhost_reset_is_le(vq);
-+	if (!vq->private_data)
- 		return 0;
--	}
- 
- 	vhost_init_is_le(vq);
- 
--- 
-2.8.4
+
+>> --
+>> Greg
+>>
+>>> Thank you very much!
+>>>
+>>> Halil
+>>>
+>>>
+> 
