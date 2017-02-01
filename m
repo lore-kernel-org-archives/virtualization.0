@@ -1,16 +1,14 @@
-From: Halil Pasic <pasic@linux.vnet.ibm.com>
-Subject: Re: [PATCH] vhost: fix initialization for vq->is_le
-Date: Wed, 1 Feb 2017 15:29:01 +0100
-Message-ID: <598f775b-8b4c-fba2-0d77-a2b8a86e0347@linux.vnet.ibm.com>
-References: <20170130100936.17065-1-pasic@linux.vnet.ibm.com>
-	<20170130200658.73f8dab6@bahia.lan>
-	<277ab88f-d073-cf29-e79f-f048d0c4f42b@linux.vnet.ibm.com>
-	<20170131202817-mutt-send-email-mst@kernel.org>
+From: Will Deacon <will.deacon@arm.com>
+Subject: Re: [PATCH] virtio: Try to untangle DMA coherency
+Date: Wed, 1 Feb 2017 14:57:11 +0000
+Message-ID: <20170201145711.GC8177@arm.com>
+References: <8a6494f6409c20b4609cd6bdcdd751f68b5c0564.1485951731.git.robin.murphy@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170131202817-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <8a6494f6409c20b4609cd6bdcdd751f68b5c0564.1485951731.git.robin.murphy@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,61 +18,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "Michael A. Tebolt" <miket@us.ibm.com>, kvm@vger.kernel.org, Greg Kurz <groug@kaod.org>, virtualization@lists.linux-foundation.org, "Dr. David Alan Gilbert" <dgilbert@redhat.com>
+To: Robin Murphy <robin.murphy@arm.com>
+Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, pawel.moll@arm.com, mst@redhat.com, virtualization@lists.linux-foundation.org, robh+dt@kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 01/31/2017 07:28 PM, Michael S. Tsirkin wrote:
-> On Tue, Jan 31, 2017 at 04:56:13PM +0100, Halil Pasic wrote:
->>
->>
->> On 01/30/2017 08:06 PM, Greg Kurz wrote:
->>>> Currently, under certain circumstances vhost_init_is_le does just a part
->>>> of the initialization job, and depends on vhost_reset_is_le being called
->>>> too. For this reason vhost_vq_init_access used to call vhost_reset_is_le
->>>> when vq->private_data is NULL. This is not only counter intuitive, but
->>>> also real a problem because it breaks vhost_net. The bug was introduced to
->>>> vhost_net with commit 2751c9882b94 ("vhost: cross-endian support for
->>>> legacy devices"). The symptom is corruption of the vq's used.idx field
->>>> (virtio) after VHOST_NET_SET_BACKEND was issued as a part of the vhost
->>>> shutdown on a vq with pending descriptors.
->>>>
->>>> Let us make sure the outcome of vhost_init_is_le never depend on the state
->>>> it is actually supposed to initialize, and fix virtio_net by removing the
->>>> reset from vhost_vq_init_access.
->>>>
->>>> With the above, there is no reason for vhost_reset_is_le to do just half
->>>> of the job. Let us make vhost_reset_is_le reinitialize is_le.
->>>>
->>>> Signed-off-by: Halil Pasic <pasic@linux.vnet.ibm.com>
->>>> Reported-by: Michael A. Tebolt <miket@us.ibm.com>
->>>> Reported-by: Dr. David Alan Gilbert <dgilbert@redhat.com>
->>>> Fixes: commit 2751c9882b94 ("vhost: cross-endian support for legacy devices")
->>>> ---
->>> Reviewed-by: Greg Kurz <groug@kaod.org>
->>>
->>
->> Thanks! 
->>
->> We have some tests on s390x (that is BE) running, but I won't be able to
->> test the change with cross endian and legacy. 
->>
->> What do you think, should I/we RFT or are we fine without?
->>
->> Regards,
->> Halil
+On Wed, Feb 01, 2017 at 12:25:57PM +0000, Robin Murphy wrote:
+> By forcing on DMA API usage for ARM systems, we have inadvertently
+> kicked open a hornets' nest in terms of cache-coherency. Namely that
+> unless the virtio device is explicitly described as capable of coherent
+> DMA by firmware, the DMA APIs on ARM and other DT-based platforms will
+> assume it is non-coherent. This turns out to cause a big problem for the
+> likes of QEMU and kvmtool, which generate virtio-mmio devices in their
+> guest DTs but neglect to add the often-overlooked "dma-coherent"
+> property; as a result, we end up with the guest making non-cacheable
+> accesses to the vring, the host doing so cacheably, both talking past
+> each other and things going horribly wrong.
 > 
-> More testing can't hurt. I can merge this meanwhile.
+> To prevent regressing those existing use cases relying on implicit
+> coherency, but still fixing the original problem of (coherent PCI)
+> legacy devices behind IOMMUs, take the more conservative approach of
+> only hitting the DMA API switch for coherent devices, where we can be
+> sure it is safe, and preserving the old non-DMA behaviour otherwise.
+> This does not affect devices setting the VIRTIO_F_IOMMU_PLATFORM flag,
+> which as before are still at the mercy of architecture code correctly
+> knowing their coherency, so explicitly call this out in the virtio-mmio
+> DT binding in the hope of heading off any further workarounds for future
+> firmware mishaps.
 > 
+> Fixes: c7070619f340 ("vring: Force use of DMA API for ARM-based systems with legacy devices")
+> Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+> ---
+>  Documentation/devicetree/bindings/virtio/mmio.txt |  3 +++
+>  drivers/virtio/virtio_ring.c                      | 11 ++++++++---
+>  2 files changed, 11 insertions(+), 3 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/virtio/mmio.txt b/Documentation/devicetree/bindings/virtio/mmio.txt
+> index 5069c1b8e193..8f2a981e1010 100644
+> --- a/Documentation/devicetree/bindings/virtio/mmio.txt
+> +++ b/Documentation/devicetree/bindings/virtio/mmio.txt
+> @@ -7,6 +7,8 @@ Required properties:
+>  - compatible:	"virtio,mmio" compatibility string
+>  - reg:		control registers base address and size including configuration space
+>  - interrupts:	interrupt generated by the device
+> +- dma-coherent:	required if the device (or host emulation) accesses memory
+> +		cache-coherently, absent otherwise
 
-I received a word from our test team. No problems discovered with
- a mix of legacy and virtio 1 guests on s390x (was reliably
-reproducible without this patch with the same setup).
-Could you please add:
+So QEMU is getting with not providing this property at the moment and this
+patch continues to ensure that works coherently, which is the right thing
+to do. However, if QEMU ever emulates devices with VIRTIO_F_IOMMU_PLATFORM,
+then it will need to provide this property for coherent virtio-mmio
+devices upstream of the IOMMU otherwise things won't work.
 
-Tested-by: Michael A. Tebolt <miket@us.ibm.com>
+I think that's acceptable given that VIRTIO_F_IOMMU_PLATFORM has never
+done the right thing with respect to coherency if "dma-coherent" is not
+present, but it would be nice to call that out somewhere so that QEMU
+developers can be aware of this pitfall.
 
-Regards,
-Halil
+Could we add something like:
+
+
+  Linux implementation note:
+
+  virtio-mmio devices that do not advertise the VIRTIO_F_IOMMU_PLATFORM
+  feature are treated as cache-coherent irrespective of the "dma-coherent"
+  property.  If VIRTIO_F_IOMMU_PLATFORM is advertised, then the
+  "dma-coherent" property must accurately reflect the coherency of the
+  device.
+
+
+?
+
+I know that the binding documentation needs to be OS agnostic, but I think
+it's useful to describe the Linux behaviour here given that QEMU is
+technically in violation of the binding after this patch is applied.
+
+Will
