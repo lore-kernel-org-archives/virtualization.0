@@ -1,7 +1,7 @@
 From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: [PATCH 07/14] vmbus: callback is in softirq not workqueue
-Date: Wed,  1 Feb 2017 08:28:54 -0800
-Message-ID: <20170201162901.3894-8-sthemmin__3924.99124068326$1485966620$gmane$org@microsoft.com>
+Subject: [PATCH 06/14] vmbus: remove per channel state
+Date: Wed,  1 Feb 2017 08:28:53 -0800
+Message-ID: <20170201162901.3894-7-sthemmin__5513.89378165386$1485966632$gmane$org@microsoft.com>
 References: <20170201162901.3894-1-sthemmin@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,35 +21,44 @@ To: kys@microsoft.com, gregkh@linuxfoundation.org
 Cc: devel@linuxdriverproject.org, Stephen Hemminger <sthemmin@microsoft.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The callback is done via tasklet not workqueue.
+The netvsc no longer needs per channel state hook to track receive buffer.
 
 Signed-off-by: Stephen Hemminger <sthemmin@microsoft.com>
 ---
- include/linux/hyperv.h | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ include/linux/hyperv.h | 14 --------------
+ 1 file changed, 14 deletions(-)
 
 diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
-index 39d493ce550d..b30808f740f9 100644
+index 8c6a1505b876..39d493ce550d 100644
 --- a/include/linux/hyperv.h
 +++ b/include/linux/hyperv.h
-@@ -32,7 +32,6 @@
- #include <linux/scatterlist.h>
- #include <linux/list.h>
- #include <linux/timer.h>
--#include <linux/workqueue.h>
- #include <linux/completion.h>
- #include <linux/device.h>
- #include <linux/mod_devicetable.h>
-@@ -729,9 +728,7 @@ struct vmbus_channel {
+@@ -823,10 +823,6 @@ struct vmbus_channel {
+ 	 */
+ 	struct vmbus_channel *primary_channel;
+ 	/*
+-	 * Support per-channel state for use by vmbus drivers.
+-	 */
+-	void *per_channel_state;
+-	/*
+ 	 * To support per-cpu lookup mapping of relid to channel,
+ 	 * link up channels based on their CPU affinity.
+ 	 */
+@@ -903,16 +899,6 @@ static inline void set_channel_read_state(struct vmbus_channel *c, bool state)
+ 	c->batched_reading = state;
+ }
  
- 	struct vmbus_close_msg close_msg;
- 
--	/* Channel callback are invoked in this workqueue context */
--	/* HANDLE dataWorkQueue; */
+-static inline void set_per_channel_state(struct vmbus_channel *c, void *s)
+-{
+-	c->per_channel_state = s;
+-}
 -
-+	/* Channel callback's invoked in softirq context */
- 	void (*onchannel_callback)(void *context);
- 	void *channel_callback_context;
- 
+-static inline void *get_per_channel_state(struct vmbus_channel *c)
+-{
+-	return c->per_channel_state;
+-}
+-
+ static inline void set_channel_pending_send_size(struct vmbus_channel *c,
+ 						 u32 size)
+ {
 -- 
 2.11.0
