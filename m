@@ -1,7 +1,7 @@
 From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: [PATCH 04/14] vmbus: remove unused kickq argument to sendpacket
-Date: Wed,  1 Feb 2017 08:28:51 -0800
-Message-ID: <20170201162901.3894-5-sthemmin__18257.9259424985$1485966596$gmane$org@microsoft.com>
+Subject: [PATCH 05/14] netvsc: remove no longer needed receive staging buffers
+Date: Wed,  1 Feb 2017 08:28:52 -0800
+Message-ID: <20170201162901.3894-6-sthemmin@microsoft.com>
 References: <20170201162901.3894-1-sthemmin@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,156 +21,197 @@ To: kys@microsoft.com, gregkh@linuxfoundation.org
 Cc: devel@linuxdriverproject.org, Stephen Hemminger <sthemmin@microsoft.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Since sendpacket no longer uses kickq argument remove it.
-Remove it no longer used xmit_more in sendpacket in netvsc as well.
+Since commit aed8c164ca5199 ("Drivers: hv: ring_buffer: count on wrap
+around mappings") it is no longer necessary to handle ring wrapping
+by having a special receive buffer.
 
 Signed-off-by: Stephen Hemminger <sthemmin@microsoft.com>
 ---
- drivers/hv/channel.c        | 19 +++++++++----------
- drivers/net/hyperv/netvsc.c | 21 +++------------------
- include/linux/hyperv.h      |  6 ++----
- 3 files changed, 14 insertions(+), 32 deletions(-)
+ drivers/net/hyperv/hyperv_net.h   |  5 ---
+ drivers/net/hyperv/netvsc.c       | 83 ++++++---------------------------------
+ drivers/net/hyperv/rndis_filter.c | 11 ------
+ 3 files changed, 11 insertions(+), 88 deletions(-)
 
-diff --git a/drivers/hv/channel.c b/drivers/hv/channel.c
-index e26285cde8e0..789c75f6df26 100644
---- a/drivers/hv/channel.c
-+++ b/drivers/hv/channel.c
-@@ -643,8 +643,8 @@ void vmbus_close(struct vmbus_channel *channel)
- EXPORT_SYMBOL_GPL(vmbus_close);
+diff --git a/drivers/net/hyperv/hyperv_net.h b/drivers/net/hyperv/hyperv_net.h
+index 3958adade7eb..cce70ceba6d5 100644
+--- a/drivers/net/hyperv/hyperv_net.h
++++ b/drivers/net/hyperv/hyperv_net.h
+@@ -748,11 +748,6 @@ struct netvsc_device {
  
- int vmbus_sendpacket_ctl(struct vmbus_channel *channel, void *buffer,
--			   u32 bufferlen, u64 requestid,
--			   enum vmbus_packet_type type, u32 flags, bool kick_q)
-+			 u32 bufferlen, u64 requestid,
-+			 enum vmbus_packet_type type, u32 flags)
- {
- 	struct vmpacket_descriptor desc;
- 	u32 packetlen = sizeof(struct vmpacket_descriptor) + bufferlen;
-@@ -693,7 +693,7 @@ int vmbus_sendpacket(struct vmbus_channel *channel, void *buffer,
- 			   enum vmbus_packet_type type, u32 flags)
- {
- 	return vmbus_sendpacket_ctl(channel, buffer, bufferlen, requestid,
--				    type, flags, true);
-+				    type, flags);
- }
- EXPORT_SYMBOL(vmbus_sendpacket);
+ 	int ring_size;
  
-@@ -705,11 +705,9 @@ EXPORT_SYMBOL(vmbus_sendpacket);
-  * explicitly.
-  */
- int vmbus_sendpacket_pagebuffer_ctl(struct vmbus_channel *channel,
--				     struct hv_page_buffer pagebuffers[],
--				     u32 pagecount, void *buffer, u32 bufferlen,
--				     u64 requestid,
--				     u32 flags,
--				     bool kick_q)
-+				    struct hv_page_buffer pagebuffers[],
-+				    u32 pagecount, void *buffer, u32 bufferlen,
-+				    u64 requestid, u32 flags)
- {
- 	int i;
- 	struct vmbus_channel_packet_page_buffer desc;
-@@ -769,9 +767,10 @@ int vmbus_sendpacket_pagebuffer(struct vmbus_channel *channel,
- 				     u64 requestid)
- {
- 	u32 flags = VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED;
-+
- 	return vmbus_sendpacket_pagebuffer_ctl(channel, pagebuffers, pagecount,
--					       buffer, bufferlen, requestid,
--					       flags, true);
-+					       buffer, bufferlen,
-+					       requestid, flags);
- 
- }
- EXPORT_SYMBOL_GPL(vmbus_sendpacket_pagebuffer);
+-	/* The primary channel callback buffer */
+-	unsigned char *cb_buffer;
+-	/* The sub channel callback buffer */
+-	unsigned char *sub_cb_buf;
+-
+ 	struct multi_send_data msd[VRSS_CHANNEL_MAX];
+ 	u32 max_pkt; /* max number of pkt in one send, e.g. 8 */
+ 	u32 pkt_align; /* alignment bytes, e.g. 8 */
 diff --git a/drivers/net/hyperv/netvsc.c b/drivers/net/hyperv/netvsc.c
-index 5a1cc089acb7..e326e68f9f6d 100644
+index e326e68f9f6d..7487498b663c 100644
 --- a/drivers/net/hyperv/netvsc.c
 +++ b/drivers/net/hyperv/netvsc.c
-@@ -723,8 +723,6 @@ static u32 netvsc_copy_to_send_buf(struct netvsc_device *net_device,
- 	char *dest = start + (section_index * net_device->send_section_size)
- 		     + pend_size;
- 	int i;
--	bool is_data_pkt = (skb != NULL) ? true : false;
--	bool xmit_more = (skb != NULL) ? skb->xmit_more : false;
- 	u32 msg_size = 0;
- 	u32 padding = 0;
- 	u32 remain = packet->total_data_buflen % net_device->pkt_align;
-@@ -732,7 +730,7 @@ static u32 netvsc_copy_to_send_buf(struct netvsc_device *net_device,
- 		packet->page_buf_cnt;
+@@ -67,12 +67,6 @@ static struct netvsc_device *alloc_net_device(void)
+ 	if (!net_device)
+ 		return NULL;
  
- 	/* Add padding */
--	if (is_data_pkt && xmit_more && remain &&
-+	if (skb && skb->xmit_more && remain &&
- 	    !packet->cp_partial) {
- 		padding = net_device->pkt_align - remain;
- 		rndis_msg->msg_len += padding;
-@@ -772,7 +770,6 @@ static inline int netvsc_send_pkt(
- 	int ret;
- 	struct hv_page_buffer *pgbuf;
- 	u32 ring_avail = hv_ringbuf_avail_percent(&out_channel->outbound);
--	bool xmit_more = (skb != NULL) ? skb->xmit_more : false;
- 
- 	nvmsg.hdr.msg_type = NVSP_MSG1_TYPE_SEND_RNDIS_PKT;
- 	if (skb != NULL) {
-@@ -796,16 +793,6 @@ static inline int netvsc_send_pkt(
- 	if (out_channel->rescind)
- 		return -ENODEV;
- 
--	/*
--	 * It is possible that once we successfully place this packet
--	 * on the ringbuffer, we may stop the queue. In that case, we want
--	 * to notify the host independent of the xmit_more flag. We don't
--	 * need to be precise here; in the worst case we may signal the host
--	 * unnecessarily.
--	 */
--	if (ring_avail < (RING_AVAIL_PERCENT_LOWATER + 1))
--		xmit_more = false;
+-	net_device->cb_buffer = kzalloc(NETVSC_PACKET_SIZE, GFP_KERNEL);
+-	if (!net_device->cb_buffer) {
+-		kfree(net_device);
+-		return NULL;
+-	}
 -
- 	if (packet->page_buf_cnt) {
- 		pgbuf = packet->cp_partial ? (*pb) +
- 			packet->rmsg_pgcnt : (*pb);
-@@ -815,15 +802,13 @@ static inline int netvsc_send_pkt(
- 						      &nvmsg,
- 						      sizeof(struct nvsp_message),
- 						      req_id,
--						      VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED,
--						      !xmit_more);
-+						      VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
- 	} else {
- 		ret = vmbus_sendpacket_ctl(out_channel, &nvmsg,
- 					   sizeof(struct nvsp_message),
- 					   req_id,
- 					   VM_PKT_DATA_INBAND,
--					   VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED,
--					   !xmit_more);
-+					   VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
- 	}
+ 	net_device->mrc[0].buf = vzalloc(NETVSC_RECVSLOT_MAX *
+ 					 sizeof(struct recv_comp_data));
  
- 	if (ret == 0) {
-diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
-index 423fc96cc26a..8c6a1505b876 100644
---- a/include/linux/hyperv.h
-+++ b/include/linux/hyperv.h
-@@ -1023,8 +1023,7 @@ extern int vmbus_sendpacket_ctl(struct vmbus_channel *channel,
- 				  u32 bufferLen,
- 				  u64 requestid,
- 				  enum vmbus_packet_type type,
--				  u32 flags,
--				  bool kick_q);
-+				  u32 flags);
+@@ -93,7 +87,6 @@ static void free_netvsc_device(struct netvsc_device *nvdev)
+ 	for (i = 0; i < VRSS_CHANNEL_MAX; i++)
+ 		vfree(nvdev->mrc[i].buf);
  
- extern int vmbus_sendpacket_pagebuffer(struct vmbus_channel *channel,
- 					    struct hv_page_buffer pagebuffers[],
-@@ -1039,8 +1038,7 @@ extern int vmbus_sendpacket_pagebuffer_ctl(struct vmbus_channel *channel,
- 					   void *buffer,
- 					   u32 bufferlen,
- 					   u64 requestid,
--					   u32 flags,
--					   bool kick_q);
-+					   u32 flags);
+-	kfree(nvdev->cb_buffer);
+ 	kfree(nvdev);
+ }
  
- extern int vmbus_sendpacket_multipagebuffer(struct vmbus_channel *channel,
- 					struct hv_multipage_buffer *mpb,
+@@ -584,7 +577,6 @@ void netvsc_device_remove(struct hv_device *device)
+ 	vmbus_close(device->channel);
+ 
+ 	/* Release all resources */
+-	vfree(net_device->sub_cb_buf);
+ 	free_netvsc_device(net_device);
+ }
+ 
+@@ -1256,16 +1248,11 @@ static void netvsc_process_raw_pkt(struct hv_device *device,
+ 
+ void netvsc_channel_cb(void *context)
+ {
+-	int ret;
+-	struct vmbus_channel *channel = (struct vmbus_channel *)context;
++	struct vmbus_channel *channel = context;
+ 	u16 q_idx = channel->offermsg.offer.sub_channel_index;
+ 	struct hv_device *device;
+ 	struct netvsc_device *net_device;
+-	u32 bytes_recvd;
+-	u64 request_id;
+ 	struct vmpacket_descriptor *desc;
+-	unsigned char *buffer;
+-	int bufferlen = NETVSC_PACKET_SIZE;
+ 	struct net_device *ndev;
+ 	bool need_to_commit = false;
+ 
+@@ -1277,65 +1264,19 @@ void netvsc_channel_cb(void *context)
+ 	net_device = get_inbound_net_device(device);
+ 	if (!net_device)
+ 		return;
++
+ 	ndev = hv_get_drvdata(device);
+-	buffer = get_per_channel_state(channel);
+-
+-	do {
+-		desc = get_next_pkt_raw(channel);
+-		if (desc != NULL) {
+-			netvsc_process_raw_pkt(device,
+-					       channel,
+-					       net_device,
+-					       ndev,
+-					       desc->trans_id,
+-					       desc);
+-
+-			put_pkt_raw(channel, desc);
+-			need_to_commit = true;
+-			continue;
+-		}
+-		if (need_to_commit) {
+-			need_to_commit = false;
+-			commit_rd_index(channel);
+-		}
+ 
+-		ret = vmbus_recvpacket_raw(channel, buffer, bufferlen,
+-					   &bytes_recvd, &request_id);
+-		if (ret == 0) {
+-			if (bytes_recvd > 0) {
+-				desc = (struct vmpacket_descriptor *)buffer;
+-				netvsc_process_raw_pkt(device,
+-						       channel,
+-						       net_device,
+-						       ndev,
+-						       request_id,
+-						       desc);
+-			} else {
+-				/*
+-				 * We are done for this pass.
+-				 */
+-				break;
+-			}
+-
+-		} else if (ret == -ENOBUFS) {
+-			if (bufferlen > NETVSC_PACKET_SIZE)
+-				kfree(buffer);
+-			/* Handle large packet */
+-			buffer = kmalloc(bytes_recvd, GFP_ATOMIC);
+-			if (buffer == NULL) {
+-				/* Try again next time around */
+-				netdev_err(ndev,
+-					   "unable to allocate buffer of size "
+-					   "(%d)!!\n", bytes_recvd);
+-				break;
+-			}
+-
+-			bufferlen = bytes_recvd;
+-		}
+-	} while (1);
++	while ((desc = get_next_pkt_raw(channel)) != NULL) {
++		netvsc_process_raw_pkt(device, channel, net_device,
++				       ndev, desc->trans_id, desc);
+ 
+-	if (bufferlen > NETVSC_PACKET_SIZE)
+-		kfree(buffer);
++		put_pkt_raw(channel, desc);
++		need_to_commit = true;
++	}
++
++	if (need_to_commit)
++		commit_rd_index(channel);
+ 
+ 	netvsc_chk_recv_comp(net_device, channel, q_idx);
+ }
+@@ -1359,8 +1300,6 @@ int netvsc_device_add(struct hv_device *device, void *additional_info)
+ 
+ 	net_device->ring_size = ring_size;
+ 
+-	set_per_channel_state(device->channel, net_device->cb_buffer);
+-
+ 	/* Open the channel */
+ 	ret = vmbus_open(device->channel, ring_size * PAGE_SIZE,
+ 			 ring_size * PAGE_SIZE, NULL, 0,
+diff --git a/drivers/net/hyperv/rndis_filter.c b/drivers/net/hyperv/rndis_filter.c
+index 8d90904e0e49..113c7f4d1590 100644
+--- a/drivers/net/hyperv/rndis_filter.c
++++ b/drivers/net/hyperv/rndis_filter.c
+@@ -948,9 +948,6 @@ static void netvsc_sc_open(struct vmbus_channel *new_sc)
+ 	if (chn_index >= nvscdev->num_chn)
+ 		return;
+ 
+-	set_per_channel_state(new_sc, nvscdev->sub_cb_buf + (chn_index - 1) *
+-			      NETVSC_PACKET_SIZE);
+-
+ 	nvscdev->mrc[chn_index].buf = vzalloc(NETVSC_RECVSLOT_MAX *
+ 					      sizeof(struct recv_comp_data));
+ 
+@@ -1099,14 +1096,6 @@ int rndis_filter_device_add(struct hv_device *dev,
+ 	if (net_device->num_chn == 1)
+ 		goto out;
+ 
+-	net_device->sub_cb_buf = vzalloc((net_device->num_chn - 1) *
+-					 NETVSC_PACKET_SIZE);
+-	if (!net_device->sub_cb_buf) {
+-		net_device->num_chn = 1;
+-		dev_info(&dev->device, "No memory for subchannels.\n");
+-		goto out;
+-	}
+-
+ 	vmbus_set_sc_create_callback(dev->channel, netvsc_sc_open);
+ 
+ 	init_packet = &net_device->channel_init_pkt;
 -- 
 2.11.0
