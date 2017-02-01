@@ -1,7 +1,7 @@
 From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: [PATCH 08/14] vmbus: put related per-cpu variable together
-Date: Wed,  1 Feb 2017 08:28:55 -0800
-Message-ID: <20170201162901.3894-9-sthemmin@microsoft.com>
+Subject: [PATCH 13/14] vmbus: constify parameters where possible
+Date: Wed,  1 Feb 2017 08:29:00 -0800
+Message-ID: <20170201162901.3894-14-sthemmin__46372.569006826$1485966702$gmane$org@microsoft.com>
 References: <20170201162901.3894-1-sthemmin@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,582 +21,158 @@ To: kys@microsoft.com, gregkh@linuxfoundation.org
 Cc: devel@linuxdriverproject.org, Stephen Hemminger <sthemmin@microsoft.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The hv_context structure had several arrays which were per-cpu
-and was allocating small structures (tasklet_struct). Instead use
-a single per-cpu array.
+Functions that just query state of ring buffer can have parameters
+marked const.
 
 Signed-off-by: Stephen Hemminger <sthemmin@microsoft.com>
 ---
- drivers/hv/channel_mgmt.c |  35 ++++++++-----
- drivers/hv/connection.c   |  20 ++++---
- drivers/hv/hv.c           | 130 ++++++++++++++++++++--------------------------
- drivers/hv/hyperv_vmbus.h |  53 +++++++++++--------
- drivers/hv/vmbus_drv.c    |  39 ++++++++------
- 5 files changed, 143 insertions(+), 134 deletions(-)
+ drivers/hv/hyperv_vmbus.h |  6 +++---
+ drivers/hv/ring_buffer.c  | 22 ++++++++++------------
+ include/linux/hyperv.h    | 12 ++++++------
+ 3 files changed, 19 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/hv/channel_mgmt.c b/drivers/hv/channel_mgmt.c
-index de90a9900fee..579ad2560a39 100644
---- a/drivers/hv/channel_mgmt.c
-+++ b/drivers/hv/channel_mgmt.c
-@@ -353,9 +353,10 @@ static void free_channel(struct vmbus_channel *channel)
- static void percpu_channel_enq(void *arg)
- {
- 	struct vmbus_channel *channel = arg;
--	int cpu = smp_processor_id();
-+	struct hv_per_cpu_context *hv_cpu
-+		= this_cpu_ptr(hv_context.cpu_context);
- 
--	list_add_tail(&channel->percpu_list, &hv_context.percpu_list[cpu]);
-+	list_add_tail(&channel->percpu_list, &hv_cpu->chan_list);
- }
- 
- static void percpu_channel_deq(void *arg)
-@@ -379,19 +380,21 @@ static void vmbus_release_relid(u32 relid)
- 
- void hv_event_tasklet_disable(struct vmbus_channel *channel)
- {
--	struct tasklet_struct *tasklet;
--	tasklet = hv_context.event_dpc[channel->target_cpu];
--	tasklet_disable(tasklet);
-+	struct hv_per_cpu_context *hv_cpu;
-+
-+	hv_cpu = per_cpu_ptr(hv_context.cpu_context, channel->target_cpu);
-+	tasklet_disable(&hv_cpu->event_dpc);
- }
- 
- void hv_event_tasklet_enable(struct vmbus_channel *channel)
- {
--	struct tasklet_struct *tasklet;
--	tasklet = hv_context.event_dpc[channel->target_cpu];
--	tasklet_enable(tasklet);
-+	struct hv_per_cpu_context *hv_cpu;
-+
-+	hv_cpu = per_cpu_ptr(hv_context.cpu_context, channel->target_cpu);
-+	tasklet_enable(&hv_cpu->event_dpc);
- 
- 	/* In case there is any pending event */
--	tasklet_schedule(tasklet);
-+	tasklet_schedule(&hv_cpu->event_dpc);
- }
- 
- void hv_process_channel_removal(struct vmbus_channel *channel, u32 relid)
-@@ -726,9 +729,12 @@ static void vmbus_wait_for_unload(void)
- 			break;
- 
- 		for_each_online_cpu(cpu) {
--			page_addr = hv_context.synic_message_page[cpu];
--			msg = (struct hv_message *)page_addr +
--				VMBUS_MESSAGE_SINT;
-+			struct hv_per_cpu_context *hv_cpu
-+				= per_cpu_ptr(hv_context.cpu_context, cpu);
-+
-+			page_addr = hv_cpu->synic_message_page;
-+			msg = (struct hv_message *)page_addr
-+				+ VMBUS_MESSAGE_SINT;
- 
- 			message_type = READ_ONCE(msg->header.message_type);
- 			if (message_type == HVMSG_NONE)
-@@ -752,7 +758,10 @@ static void vmbus_wait_for_unload(void)
- 	 * messages after we reconnect.
- 	 */
- 	for_each_online_cpu(cpu) {
--		page_addr = hv_context.synic_message_page[cpu];
-+		struct hv_per_cpu_context *hv_cpu
-+			= per_cpu_ptr(hv_context.cpu_context, cpu);
-+
-+		page_addr = hv_cpu->synic_message_page;
- 		msg = (struct hv_message *)page_addr + VMBUS_MESSAGE_SINT;
- 		msg->header.message_type = HVMSG_NONE;
- 	}
-diff --git a/drivers/hv/connection.c b/drivers/hv/connection.c
-index 1766ef03e78d..158f12823baf 100644
---- a/drivers/hv/connection.c
-+++ b/drivers/hv/connection.c
-@@ -93,12 +93,10 @@ static int vmbus_negotiate_version(struct vmbus_channel_msginfo *msginfo,
- 	 * all the CPUs. This is needed for kexec to work correctly where
- 	 * the CPU attempting to connect may not be CPU 0.
- 	 */
--	if (version >= VERSION_WIN8_1) {
--		msg->target_vcpu = hv_context.vp_index[get_cpu()];
--		put_cpu();
--	} else {
-+	if (version >= VERSION_WIN8_1)
-+		msg->target_vcpu = hv_context.vp_index[smp_processor_id()];
-+	else
- 		msg->target_vcpu = 0;
--	}
- 
- 	/*
- 	 * Add to list before we send the request since we may
-@@ -269,12 +267,12 @@ void vmbus_disconnect(void)
-  */
- static struct vmbus_channel *pcpu_relid2channel(u32 relid)
- {
-+	struct hv_per_cpu_context *hv_cpu
-+		= this_cpu_ptr(hv_context.cpu_context);
-+	struct vmbus_channel *found_channel = NULL;
- 	struct vmbus_channel *channel;
--	struct vmbus_channel *found_channel  = NULL;
--	int cpu = smp_processor_id();
--	struct list_head *pcpu_head = &hv_context.percpu_list[cpu];
- 
--	list_for_each_entry(channel, pcpu_head, percpu_list) {
-+	list_for_each_entry(channel, &hv_cpu->chan_list, percpu_list) {
- 		if (channel->offermsg.child_relid == relid) {
- 			found_channel = channel;
- 			break;
-@@ -379,6 +377,7 @@ static void process_chn_event(u32 relid)
-  */
- void vmbus_on_event(unsigned long data)
- {
-+	struct hv_per_cpu_context *hv_cpu = (void *)data;
- 	unsigned long *recv_int_page;
- 	u32 maxbits, relid;
- 
-@@ -391,8 +390,7 @@ void vmbus_on_event(unsigned long data)
- 		 * can be directly checked to get the id of the channel
- 		 * that has the interrupt pending.
- 		 */
--		int cpu = smp_processor_id();
--		void *page_addr = hv_context.synic_event_page[cpu];
-+		void *page_addr = hv_cpu->synic_event_page;
- 		union hv_synic_event_flags *event
- 			= (union hv_synic_event_flags *)page_addr +
- 						 VMBUS_MESSAGE_SINT;
-diff --git a/drivers/hv/hv.c b/drivers/hv/hv.c
-index 0f73237bed0a..9fc2355a60ea 100644
---- a/drivers/hv/hv.c
-+++ b/drivers/hv/hv.c
-@@ -49,24 +49,13 @@ struct hv_context hv_context = {
-  */
- int hv_init(void)
- {
--
--	memset(hv_context.synic_event_page, 0, sizeof(void *) * NR_CPUS);
--	memset(hv_context.synic_message_page, 0,
--	       sizeof(void *) * NR_CPUS);
--	memset(hv_context.post_msg_page, 0,
--	       sizeof(void *) * NR_CPUS);
--	memset(hv_context.vp_index, 0,
--	       sizeof(int) * NR_CPUS);
--	memset(hv_context.event_dpc, 0,
--	       sizeof(void *) * NR_CPUS);
--	memset(hv_context.msg_dpc, 0,
--	       sizeof(void *) * NR_CPUS);
--	memset(hv_context.clk_evt, 0,
--	       sizeof(void *) * NR_CPUS);
--
- 	if (!hv_is_hypercall_page_setup())
- 		return -ENOTSUPP;
- 
-+	hv_context.cpu_context = alloc_percpu(struct hv_per_cpu_context);
-+	if (!hv_context.cpu_context)
-+		return -ENOMEM;
-+
- 	return 0;
- }
- 
-@@ -79,25 +68,24 @@ int hv_post_message(union hv_connection_id connection_id,
- 		  enum hv_message_type message_type,
- 		  void *payload, size_t payload_size)
- {
--
- 	struct hv_input_post_message *aligned_msg;
-+	struct hv_per_cpu_context *hv_cpu;
- 	u64 status;
- 
- 	if (payload_size > HV_MESSAGE_PAYLOAD_BYTE_COUNT)
- 		return -EMSGSIZE;
- 
--	aligned_msg = (struct hv_input_post_message *)
--			hv_context.post_msg_page[get_cpu()];
--
-+	hv_cpu = get_cpu_ptr(hv_context.cpu_context);
-+	aligned_msg = hv_cpu->post_msg_page;
- 	aligned_msg->connectionid = connection_id;
- 	aligned_msg->reserved = 0;
- 	aligned_msg->message_type = message_type;
- 	aligned_msg->payload_size = payload_size;
- 	memcpy((void *)aligned_msg->payload, payload, payload_size);
-+	put_cpu_ptr(hv_cpu);
- 
- 	status = hv_do_hypercall(HVCALL_POST_MESSAGE, aligned_msg, NULL);
- 
--	put_cpu();
- 	return status & 0xFFFF;
- }
- 
-@@ -154,8 +142,6 @@ static void hv_init_clockevent_device(struct clock_event_device *dev, int cpu)
- 
- int hv_synic_alloc(void)
- {
--	size_t size = sizeof(struct tasklet_struct);
--	size_t ced_size = sizeof(struct clock_event_device);
- 	int cpu;
- 
- 	hv_context.hv_numa_map = kzalloc(sizeof(struct cpumask) * nr_node_ids,
-@@ -166,53 +152,43 @@ int hv_synic_alloc(void)
- 	}
- 
- 	for_each_present_cpu(cpu) {
--		hv_context.event_dpc[cpu] = kmalloc(size, GFP_ATOMIC);
--		if (hv_context.event_dpc[cpu] == NULL) {
--			pr_err("Unable to allocate event dpc\n");
--			goto err;
--		}
--		tasklet_init(hv_context.event_dpc[cpu], vmbus_on_event, cpu);
--
--		hv_context.msg_dpc[cpu] = kmalloc(size, GFP_ATOMIC);
--		if (hv_context.msg_dpc[cpu] == NULL) {
--			pr_err("Unable to allocate event dpc\n");
--			goto err;
--		}
--		tasklet_init(hv_context.msg_dpc[cpu], vmbus_on_msg_dpc, cpu);
--
--		hv_context.clk_evt[cpu] = kzalloc(ced_size, GFP_ATOMIC);
--		if (hv_context.clk_evt[cpu] == NULL) {
-+		struct hv_per_cpu_context *hv_cpu
-+			= per_cpu_ptr(hv_context.cpu_context, cpu);
-+
-+		memset(hv_cpu, 0, sizeof(*hv_cpu));
-+		tasklet_init(&hv_cpu->event_dpc,
-+			     vmbus_on_event, (unsigned long) hv_cpu);
-+		tasklet_init(&hv_cpu->msg_dpc,
-+			     vmbus_on_msg_dpc, (unsigned long) hv_cpu);
-+
-+		hv_cpu->clk_evt = kzalloc(sizeof(struct clock_event_device),
-+					  GFP_KERNEL);
-+		if (hv_cpu->clk_evt == NULL) {
- 			pr_err("Unable to allocate clock event device\n");
- 			goto err;
- 		}
-+		hv_init_clockevent_device(hv_cpu->clk_evt, cpu);
- 
--		hv_init_clockevent_device(hv_context.clk_evt[cpu], cpu);
--
--		hv_context.synic_message_page[cpu] =
-+		hv_cpu->synic_message_page =
- 			(void *)get_zeroed_page(GFP_ATOMIC);
--
--		if (hv_context.synic_message_page[cpu] == NULL) {
-+		if (hv_cpu->synic_message_page == NULL) {
- 			pr_err("Unable to allocate SYNIC message page\n");
- 			goto err;
- 		}
- 
--		hv_context.synic_event_page[cpu] =
--			(void *)get_zeroed_page(GFP_ATOMIC);
--
--		if (hv_context.synic_event_page[cpu] == NULL) {
-+		hv_cpu->synic_event_page = (void *)get_zeroed_page(GFP_ATOMIC);
-+		if (hv_cpu->synic_event_page == NULL) {
- 			pr_err("Unable to allocate SYNIC event page\n");
- 			goto err;
- 		}
- 
--		hv_context.post_msg_page[cpu] =
--			(void *)get_zeroed_page(GFP_ATOMIC);
--
--		if (hv_context.post_msg_page[cpu] == NULL) {
-+		hv_cpu->post_msg_page = (void *)get_zeroed_page(GFP_ATOMIC);
-+		if (hv_cpu->post_msg_page == NULL) {
- 			pr_err("Unable to allocate post msg page\n");
- 			goto err;
- 		}
- 
--		INIT_LIST_HEAD(&hv_context.percpu_list[cpu]);
-+		INIT_LIST_HEAD(&hv_cpu->chan_list);
- 	}
- 
- 	return 0;
-@@ -220,26 +196,24 @@ int hv_synic_alloc(void)
- 	return -ENOMEM;
- }
- 
--static void hv_synic_free_cpu(int cpu)
--{
--	kfree(hv_context.event_dpc[cpu]);
--	kfree(hv_context.msg_dpc[cpu]);
--	kfree(hv_context.clk_evt[cpu]);
--	if (hv_context.synic_event_page[cpu])
--		free_page((unsigned long)hv_context.synic_event_page[cpu]);
--	if (hv_context.synic_message_page[cpu])
--		free_page((unsigned long)hv_context.synic_message_page[cpu]);
--	if (hv_context.post_msg_page[cpu])
--		free_page((unsigned long)hv_context.post_msg_page[cpu]);
--}
- 
- void hv_synic_free(void)
- {
- 	int cpu;
- 
-+	for_each_present_cpu(cpu) {
-+		struct hv_per_cpu_context *hv_cpu
-+			= per_cpu_ptr(hv_context.cpu_context, cpu);
-+
-+		if (hv_cpu->synic_event_page)
-+			free_page((unsigned long)hv_cpu->synic_event_page);
-+		if (hv_cpu->synic_message_page)
-+			free_page((unsigned long)hv_cpu->synic_message_page);
-+		if (hv_cpu->post_msg_page)
-+			free_page((unsigned long)hv_cpu->post_msg_page);
-+	}
-+
- 	kfree(hv_context.hv_numa_map);
--	for_each_present_cpu(cpu)
--		hv_synic_free_cpu(cpu);
- }
- 
- /*
-@@ -251,6 +225,8 @@ void hv_synic_free(void)
-  */
- int hv_synic_init(unsigned int cpu)
- {
-+	struct hv_per_cpu_context *hv_cpu
-+		= per_cpu_ptr(hv_context.cpu_context, cpu);
- 	union hv_synic_simp simp;
- 	union hv_synic_siefp siefp;
- 	union hv_synic_sint shared_sint;
-@@ -260,7 +236,7 @@ int hv_synic_init(unsigned int cpu)
- 	/* Setup the Synic's message page */
- 	hv_get_simp(simp.as_uint64);
- 	simp.simp_enabled = 1;
--	simp.base_simp_gpa = virt_to_phys(hv_context.synic_message_page[cpu])
-+	simp.base_simp_gpa = virt_to_phys(hv_cpu->synic_message_page)
- 		>> PAGE_SHIFT;
- 
- 	hv_set_simp(simp.as_uint64);
-@@ -268,7 +244,7 @@ int hv_synic_init(unsigned int cpu)
- 	/* Setup the Synic's event page */
- 	hv_get_siefp(siefp.as_uint64);
- 	siefp.siefp_enabled = 1;
--	siefp.base_siefp_gpa = virt_to_phys(hv_context.synic_event_page[cpu])
-+	siefp.base_siefp_gpa = virt_to_phys(hv_cpu->synic_event_page)
- 		>> PAGE_SHIFT;
- 
- 	hv_set_siefp(siefp.as_uint64);
-@@ -305,7 +281,7 @@ int hv_synic_init(unsigned int cpu)
- 	 * Register the per-cpu clockevent source.
- 	 */
- 	if (ms_hyperv.features & HV_X64_MSR_SYNTIMER_AVAILABLE)
--		clockevents_config_and_register(hv_context.clk_evt[cpu],
-+		clockevents_config_and_register(hv_cpu->clk_evt,
- 						HV_TIMER_FREQUENCY,
- 						HV_MIN_DELTA_TICKS,
- 						HV_MAX_MAX_DELTA_TICKS);
-@@ -322,8 +298,12 @@ void hv_synic_clockevents_cleanup(void)
- 	if (!(ms_hyperv.features & HV_X64_MSR_SYNTIMER_AVAILABLE))
- 		return;
- 
--	for_each_present_cpu(cpu)
--		clockevents_unbind_device(hv_context.clk_evt[cpu], cpu);
-+	for_each_present_cpu(cpu) {
-+		struct hv_per_cpu_context *hv_cpu
-+			= per_cpu_ptr(hv_context.cpu_context, cpu);
-+
-+		clockevents_unbind_device(hv_cpu->clk_evt, cpu);
-+	}
- }
- 
- /*
-@@ -372,8 +352,12 @@ int hv_synic_cleanup(unsigned int cpu)
- 
- 	/* Turn off clockevent device */
- 	if (ms_hyperv.features & HV_X64_MSR_SYNTIMER_AVAILABLE) {
--		clockevents_unbind_device(hv_context.clk_evt[cpu], cpu);
--		hv_ce_shutdown(hv_context.clk_evt[cpu]);
-+		struct hv_per_cpu_context *hv_cpu
-+			= this_cpu_ptr(hv_context.cpu_context);
-+
-+		clockevents_unbind_device(hv_cpu->clk_evt, cpu);
-+		hv_ce_shutdown(hv_cpu->clk_evt);
-+		put_cpu_ptr(hv_cpu);
- 	}
- 
- 	hv_get_synint_state(HV_X64_MSR_SINT0 + VMBUS_MESSAGE_SINT,
 diff --git a/drivers/hv/hyperv_vmbus.h b/drivers/hv/hyperv_vmbus.h
-index c375ec89db6f..c8ce9ab2e16a 100644
+index e15a130de3c9..884f83bba1ab 100644
 --- a/drivers/hv/hyperv_vmbus.h
 +++ b/drivers/hv/hyperv_vmbus.h
-@@ -29,6 +29,7 @@
- #include <asm/sync_bitops.h>
- #include <linux/atomic.h>
- #include <linux/hyperv.h>
-+#include <linux/interrupt.h>
+@@ -283,14 +283,14 @@ int hv_ringbuffer_init(struct hv_ring_buffer_info *ring_info,
+ void hv_ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info);
+ 
+ int hv_ringbuffer_write(struct vmbus_channel *channel,
+-			struct kvec *kv_list, u32 kv_count);
++			const struct kvec *kv_list, u32 kv_count);
+ 
+ int hv_ringbuffer_read(struct vmbus_channel *channel,
+ 		       void *buffer, u32 buflen, u32 *buffer_actual_len,
+ 		       u64 *requestid, bool raw);
+ 
+-void hv_ringbuffer_get_debuginfo(struct hv_ring_buffer_info *ring_info,
+-			    struct hv_ring_buffer_debug_info *debug_info);
++void hv_ringbuffer_get_debuginfo(const struct hv_ring_buffer_info *ring_info,
++				 struct hv_ring_buffer_debug_info *debug_info);
  
  /*
-  * Timeout for services such as KVP and fcopy.
-@@ -189,6 +190,33 @@ enum {
- 	VMBUS_MESSAGE_SINT		= 2,
- };
+  * Maximum channels is determined by the size of the interrupt page
+diff --git a/drivers/hv/ring_buffer.c b/drivers/hv/ring_buffer.c
+index 47ab69089115..ee3e488d9dee 100644
+--- a/drivers/hv/ring_buffer.c
++++ b/drivers/hv/ring_buffer.c
+@@ -96,11 +96,9 @@ hv_set_next_write_location(struct hv_ring_buffer_info *ring_info,
  
-+/*
-+ * Per cpu state for channel handling
-+ */
-+struct hv_per_cpu_context {
-+	void *synic_message_page;
-+	void *synic_event_page;
-+	/*
-+	 * buffer to post messages to the host.
-+	 */
-+	void *post_msg_page;
-+
-+	/*
-+	 * Starting with win8, we can take channel interrupts on any CPU;
-+	 * we will manage the tasklet that handles events messages on a per CPU
-+	 * basis.
-+	 */
-+	struct tasklet_struct event_dpc;
-+	struct tasklet_struct msg_dpc;
-+
-+	/*
-+	 * To optimize the mapping of relid to channel, maintain
-+	 * per-cpu list of the channels based on their CPU affinity.
-+	 */
-+	struct list_head chan_list;
-+	struct clock_event_device *clk_evt;
-+};
-+
- struct hv_context {
- 	/* We only support running on top of Hyper-V
- 	* So at this point this really can only contain the Hyper-V ID
-@@ -199,8 +227,8 @@ struct hv_context {
- 
- 	bool synic_initialized;
- 
--	void *synic_message_page[NR_CPUS];
--	void *synic_event_page[NR_CPUS];
-+	struct hv_per_cpu_context __percpu *cpu_context;
-+
- 	/*
- 	 * Hypervisor's notion of virtual processor ID is different from
- 	 * Linux' notion of CPU ID. This information can only be retrieved
-@@ -211,26 +239,7 @@ struct hv_context {
- 	 * Linux cpuid 'a'.
- 	 */
- 	u32 vp_index[NR_CPUS];
--	/*
--	 * Starting with win8, we can take channel interrupts on any CPU;
--	 * we will manage the tasklet that handles events messages on a per CPU
--	 * basis.
--	 */
--	struct tasklet_struct *event_dpc[NR_CPUS];
--	struct tasklet_struct *msg_dpc[NR_CPUS];
--	/*
--	 * To optimize the mapping of relid to channel, maintain
--	 * per-cpu list of the channels based on their CPU affinity.
--	 */
--	struct list_head percpu_list[NR_CPUS];
--	/*
--	 * buffer to post messages to the host.
--	 */
--	void *post_msg_page[NR_CPUS];
--	/*
--	 * Support PV clockevent device.
--	 */
--	struct clock_event_device *clk_evt[NR_CPUS];
-+
- 	/*
- 	 * To manage allocations in a NUMA node.
- 	 * Array indexed by numa node ID.
-diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-index c1b27026f744..cf8540c1df4a 100644
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -835,9 +835,10 @@ static void vmbus_onmessage_work(struct work_struct *work)
- 	kfree(ctx);
+ /* Get the next read location for the specified ring buffer. */
+ static inline u32
+-hv_get_next_read_location(struct hv_ring_buffer_info *ring_info)
++hv_get_next_read_location(const struct hv_ring_buffer_info *ring_info)
+ {
+-	u32 next = ring_info->ring_buffer->read_index;
+-
+-	return next;
++	return ring_info->ring_buffer->read_index;
  }
  
--static void hv_process_timer_expiration(struct hv_message *msg, int cpu)
-+static void hv_process_timer_expiration(struct hv_message *msg,
-+					struct hv_per_cpu_context *hv_cpu)
+ /*
+@@ -108,8 +106,8 @@ hv_get_next_read_location(struct hv_ring_buffer_info *ring_info)
+  * This allows the caller to skip.
+  */
+ static inline u32
+-hv_get_next_readlocation_withoffset(struct hv_ring_buffer_info *ring_info,
+-				 u32 offset)
++hv_get_next_readlocation_withoffset(const struct hv_ring_buffer_info *ring_info,
++				    u32 offset)
  {
--	struct clock_event_device *dev = hv_context.clk_evt[cpu];
-+	struct clock_event_device *dev = hv_cpu->clk_evt;
+ 	u32 next = ring_info->ring_buffer->read_index;
  
- 	if (dev->event_handler)
- 		dev->event_handler(dev);
-@@ -847,8 +848,8 @@ static void hv_process_timer_expiration(struct hv_message *msg, int cpu)
+@@ -130,7 +128,7 @@ hv_set_next_read_location(struct hv_ring_buffer_info *ring_info,
  
- void vmbus_on_msg_dpc(unsigned long data)
+ /* Get the size of the ring buffer. */
+ static inline u32
+-hv_get_ring_buffersize(struct hv_ring_buffer_info *ring_info)
++hv_get_ring_buffersize(const struct hv_ring_buffer_info *ring_info)
  {
--	int cpu = smp_processor_id();
--	void *page_addr = hv_context.synic_message_page[cpu];
-+	struct hv_per_cpu_context *hv_cpu = (void *)data;
-+	void *page_addr = hv_cpu->synic_message_page;
- 	struct hv_message *msg = (struct hv_message *)page_addr +
- 				  VMBUS_MESSAGE_SINT;
- 	struct vmbus_channel_message_header *hdr;
-@@ -886,14 +887,14 @@ void vmbus_on_msg_dpc(unsigned long data)
- 
- static void vmbus_isr(void)
+ 	return ring_info->ring_datasize;
+ }
+@@ -147,7 +145,7 @@ hv_get_ring_bufferindices(struct hv_ring_buffer_info *ring_info)
+  * Assume there is enough room. Handles wrap-around in src case only!!
+  */
+ static u32 hv_copyfrom_ringbuffer(
+-	struct hv_ring_buffer_info	*ring_info,
++	const struct hv_ring_buffer_info *ring_info,
+ 	void				*dest,
+ 	u32				destlen,
+ 	u32				start_read_offset)
+@@ -171,7 +169,7 @@ static u32 hv_copyfrom_ringbuffer(
+ static u32 hv_copyto_ringbuffer(
+ 	struct hv_ring_buffer_info	*ring_info,
+ 	u32				start_write_offset,
+-	void				*src,
++	const void			*src,
+ 	u32				srclen)
  {
--	int cpu = smp_processor_id();
--	void *page_addr;
-+	struct hv_per_cpu_context *hv_cpu
-+		= this_cpu_ptr(hv_context.cpu_context);
-+	void *page_addr = hv_cpu->synic_event_page;
- 	struct hv_message *msg;
- 	union hv_synic_event_flags *event;
- 	bool handled = false;
+ 	void *ring_buffer = hv_get_ring_buffer(ring_info);
+@@ -186,8 +184,8 @@ static u32 hv_copyto_ringbuffer(
+ }
  
--	page_addr = hv_context.synic_event_page[cpu];
--	if (page_addr == NULL)
-+	if (unlikely(page_addr == NULL))
- 		return;
+ /* Get various debug metrics for the specified ring buffer. */
+-void hv_ringbuffer_get_debuginfo(struct hv_ring_buffer_info *ring_info,
+-			    struct hv_ring_buffer_debug_info *debug_info)
++void hv_ringbuffer_get_debuginfo(const struct hv_ring_buffer_info *ring_info,
++				 struct hv_ring_buffer_debug_info *debug_info)
+ {
+ 	u32 bytes_avail_towrite;
+ 	u32 bytes_avail_toread;
+@@ -264,7 +262,7 @@ void hv_ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info)
  
- 	event = (union hv_synic_event_flags *)page_addr +
-@@ -921,18 +922,18 @@ static void vmbus_isr(void)
- 	}
+ /* Write to the ring buffer. */
+ int hv_ringbuffer_write(struct vmbus_channel *channel,
+-			struct kvec *kv_list, u32 kv_count)
++			const struct kvec *kv_list, u32 kv_count)
+ {
+ 	int i = 0;
+ 	u32 bytes_avail_towrite;
+diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
+index dc50997a3fba..32a9cbc66b65 100644
+--- a/include/linux/hyperv.h
++++ b/include/linux/hyperv.h
+@@ -137,8 +137,8 @@ struct hv_ring_buffer_info {
+  * for the specified ring buffer
+  */
+ static inline void
+-hv_get_ringbuffer_availbytes(struct hv_ring_buffer_info *rbi,
+-			  u32 *read, u32 *write)
++hv_get_ringbuffer_availbytes(const struct hv_ring_buffer_info *rbi,
++			     u32 *read, u32 *write)
+ {
+ 	u32 read_loc, write_loc, dsize;
  
- 	if (handled)
--		tasklet_schedule(hv_context.event_dpc[cpu]);
-+		tasklet_schedule(&hv_cpu->event_dpc);
+@@ -152,7 +152,7 @@ hv_get_ringbuffer_availbytes(struct hv_ring_buffer_info *rbi,
+ 	*read = dsize - *write;
+ }
  
+-static inline u32 hv_get_bytes_to_read(struct hv_ring_buffer_info *rbi)
++static inline u32 hv_get_bytes_to_read(const struct hv_ring_buffer_info *rbi)
+ {
+ 	u32 read_loc, write_loc, dsize, read;
  
--	page_addr = hv_context.synic_message_page[cpu];
-+	page_addr = hv_cpu->synic_message_page;
- 	msg = (struct hv_message *)page_addr + VMBUS_MESSAGE_SINT;
+@@ -166,7 +166,7 @@ static inline u32 hv_get_bytes_to_read(struct hv_ring_buffer_info *rbi)
+ 	return read;
+ }
  
- 	/* Check if there are actual msgs to be processed */
- 	if (msg->header.message_type != HVMSG_NONE) {
- 		if (msg->header.message_type == HVMSG_TIMER_EXPIRED)
--			hv_process_timer_expiration(msg, cpu);
-+			hv_process_timer_expiration(msg, hv_cpu);
- 		else
--			tasklet_schedule(hv_context.msg_dpc[cpu]);
-+			tasklet_schedule(&hv_cpu->msg_dpc);
- 	}
+-static inline u32 hv_get_bytes_to_write(struct hv_ring_buffer_info *rbi)
++static inline u32 hv_get_bytes_to_write(const struct hv_ring_buffer_info *rbi)
+ {
+ 	u32 read_loc, write_loc, dsize, write;
  
- 	add_interrupt_randomness(HYPERVISOR_CALLBACK_VECTOR, 0);
-@@ -1521,9 +1522,14 @@ static void __exit vmbus_exit(void)
- 	hv_synic_clockevents_cleanup();
- 	vmbus_disconnect();
- 	hv_remove_vmbus_irq();
--	for_each_online_cpu(cpu)
--		tasklet_kill(hv_context.msg_dpc[cpu]);
-+	for_each_online_cpu(cpu) {
-+		struct hv_per_cpu_context *hv_cpu
-+			= per_cpu_ptr(hv_context.cpu_context, cpu);
-+
-+		tasklet_kill(&hv_cpu->msg_dpc);
-+	}
- 	vmbus_free_channels();
-+
- 	if (ms_hyperv.misc_features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE) {
- 		unregister_die_notifier(&hyperv_die_block);
- 		atomic_notifier_chain_unregister(&panic_notifier_list,
-@@ -1531,7 +1537,10 @@ static void __exit vmbus_exit(void)
- 	}
- 	bus_unregister(&hv_bus);
- 	for_each_online_cpu(cpu) {
--		tasklet_kill(hv_context.event_dpc[cpu]);
-+		struct hv_per_cpu_context *hv_cpu
-+			= per_cpu_ptr(hv_context.cpu_context, cpu);
-+
-+		tasklet_kill(&hv_cpu->event_dpc);
- 	}
- 	cpuhp_remove_state(hyperv_cpuhp_online);
- 	hv_synic_free();
+@@ -1420,9 +1420,9 @@ void vmbus_set_event(struct vmbus_channel *channel);
+ 
+ /* Get the start of the ring buffer. */
+ static inline void *
+-hv_get_ring_buffer(struct hv_ring_buffer_info *ring_info)
++hv_get_ring_buffer(const struct hv_ring_buffer_info *ring_info)
+ {
+-	return (void *)ring_info->ring_buffer->buffer;
++	return ring_info->ring_buffer->buffer;
+ }
+ 
+ /*
 -- 
 2.11.0
