@@ -1,7 +1,7 @@
 From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: [PATCH 01/14] vmbus: use kernel bitops for traversing interrupt mask
-Date: Wed,  1 Feb 2017 08:28:48 -0800
-Message-ID: <20170201162901.3894-2-sthemmin@microsoft.com>
+Subject: [PATCH 03/14] vmbus: remove no longer used signal_policy
+Date: Wed,  1 Feb 2017 08:28:50 -0800
+Message-ID: <20170201162901.3894-4-sthemmin__6296.62669166482$1485966586$gmane$org@microsoft.com>
 References: <20170201162901.3894-1-sthemmin@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,181 +21,56 @@ To: kys@microsoft.com, gregkh@linuxfoundation.org
 Cc: devel@linuxdriverproject.org, Stephen Hemminger <sthemmin@microsoft.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use standard kernel operations for find first set bit to traverse
-the channel bit array. This has added benefit of speeding up
-lookup on 64 bit and because it uses find first set instruction.
+The explicit signal policy is no longer used. A different mechanism
+will be added later when xmit_more is supported.
 
 Signed-off-by: Stephen Hemminger <sthemmin@microsoft.com>
 ---
- drivers/hv/channel.c      |  8 ++-----
- drivers/hv/connection.c   | 55 +++++++++++++++--------------------------------
- drivers/hv/hyperv_vmbus.h | 16 ++++++++------
- drivers/hv/vmbus_drv.c    |  4 +---
- 4 files changed, 29 insertions(+), 54 deletions(-)
+ include/linux/hyperv.h | 18 ------------------
+ 1 file changed, 18 deletions(-)
 
-diff --git a/drivers/hv/channel.c b/drivers/hv/channel.c
-index be34547cdb68..a016c5c0e472 100644
---- a/drivers/hv/channel.c
-+++ b/drivers/hv/channel.c
-@@ -47,12 +47,8 @@ void vmbus_setevent(struct vmbus_channel *channel)
- 	 * For channels marked as in "low latency" mode
- 	 * bypass the monitor page mechanism.
- 	 */
--	if ((channel->offermsg.monitor_allocated) &&
--	    (!channel->low_latency)) {
--		/* Each u32 represents 32 channels */
--		sync_set_bit(channel->offermsg.child_relid & 31,
--			(unsigned long *) vmbus_connection.send_int_page +
--			(channel->offermsg.child_relid >> 5));
-+	if (channel->offermsg.monitor_allocated && !channel->low_latency) {
-+		vmbus_send_interrupt(channel->offermsg.child_relid);
- 
- 		/* Get the child to parent monitor page */
- 		monitorpage = vmbus_connection.monitor_pages[1];
-diff --git a/drivers/hv/connection.c b/drivers/hv/connection.c
-index 307a5a8937f6..1766ef03e78d 100644
---- a/drivers/hv/connection.c
-+++ b/drivers/hv/connection.c
-@@ -379,17 +379,11 @@ static void process_chn_event(u32 relid)
-  */
- void vmbus_on_event(unsigned long data)
- {
--	u32 dword;
--	u32 maxdword;
--	int bit;
--	u32 relid;
--	u32 *recv_int_page = NULL;
--	void *page_addr;
--	int cpu = smp_processor_id();
--	union hv_synic_event_flags *event;
-+	unsigned long *recv_int_page;
-+	u32 maxbits, relid;
- 
- 	if (vmbus_proto_version < VERSION_WIN8) {
--		maxdword = MAX_NUM_CHANNELS_SUPPORTED >> 5;
-+		maxbits = MAX_NUM_CHANNELS_SUPPORTED;
- 		recv_int_page = vmbus_connection.recv_int_page;
- 	} else {
- 		/*
-@@ -397,35 +391,24 @@ void vmbus_on_event(unsigned long data)
- 		 * can be directly checked to get the id of the channel
- 		 * that has the interrupt pending.
- 		 */
--		maxdword = HV_EVENT_FLAGS_DWORD_COUNT;
--		page_addr = hv_context.synic_event_page[cpu];
--		event = (union hv_synic_event_flags *)page_addr +
-+		int cpu = smp_processor_id();
-+		void *page_addr = hv_context.synic_event_page[cpu];
-+		union hv_synic_event_flags *event
-+			= (union hv_synic_event_flags *)page_addr +
- 						 VMBUS_MESSAGE_SINT;
--		recv_int_page = event->flags32;
--	}
--
- 
-+		maxbits = HV_EVENT_FLAGS_COUNT;
-+		recv_int_page = event->flags;
-+	}
- 
--	/* Check events */
--	if (!recv_int_page)
-+	if (unlikely(!recv_int_page))
- 		return;
--	for (dword = 0; dword < maxdword; dword++) {
--		if (!recv_int_page[dword])
--			continue;
--		for (bit = 0; bit < 32; bit++) {
--			if (sync_test_and_clear_bit(bit,
--				(unsigned long *)&recv_int_page[dword])) {
--				relid = (dword << 5) + bit;
--
--				if (relid == 0)
--					/*
--					 * Special case - vmbus
--					 * channel protocol msg
--					 */
--					continue;
- 
-+	for_each_set_bit(relid, recv_int_page, maxbits) {
-+		if (sync_test_and_clear_bit(relid, recv_int_page)) {
-+			/* Special case - vmbus channel protocol msg */
-+			if (relid != 0)
- 				process_chn_event(relid);
--			}
- 		}
- 	}
- }
-@@ -491,12 +474,8 @@ void vmbus_set_event(struct vmbus_channel *channel)
- {
- 	u32 child_relid = channel->offermsg.child_relid;
- 
--	if (!channel->is_dedicated_interrupt) {
--		/* Each u32 represents 32 channels */
--		sync_set_bit(child_relid & 31,
--			(unsigned long *)vmbus_connection.send_int_page +
--			(child_relid >> 5));
--	}
-+	if (!channel->is_dedicated_interrupt)
-+		vmbus_send_interrupt(child_relid);
- 
- 	hv_do_hypercall(HVCALL_SIGNAL_EVENT, channel->sig_event, NULL);
- }
-diff --git a/drivers/hv/hyperv_vmbus.h b/drivers/hv/hyperv_vmbus.h
-index 86b56b677dc3..2749a4142889 100644
---- a/drivers/hv/hyperv_vmbus.h
-+++ b/drivers/hv/hyperv_vmbus.h
-@@ -40,11 +40,9 @@
-  */
- #define HV_UTIL_NEGO_TIMEOUT 55
- 
--
--
--
--#define HV_EVENT_FLAGS_BYTE_COUNT	(256)
--#define HV_EVENT_FLAGS_DWORD_COUNT	(256 / sizeof(u32))
-+/* Define synthetic interrupt controller flag constants. */
-+#define HV_EVENT_FLAGS_COUNT		(256 * 8)
-+#define HV_EVENT_FLAGS_LONG_COUNT	(256 / sizeof(unsigned long))
- 
- /*
-  * Timer configuration register.
-@@ -65,8 +63,7 @@ union hv_timer_config {
- 
- /* Define the synthetic interrupt controller event flags format. */
- union hv_synic_event_flags {
--	u8 flags8[HV_EVENT_FLAGS_BYTE_COUNT];
--	u32 flags32[HV_EVENT_FLAGS_DWORD_COUNT];
-+	unsigned long flags[HV_EVENT_FLAGS_LONG_COUNT];
+diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
+index 85b26f06e172..423fc96cc26a 100644
+--- a/include/linux/hyperv.h
++++ b/include/linux/hyperv.h
+@@ -670,11 +670,6 @@ struct hv_input_signal_event_buffer {
+ 	struct hv_input_signal_event event;
  };
  
- /* Define SynIC control register. */
-@@ -358,6 +355,11 @@ struct vmbus_msginfo {
+-enum hv_signal_policy {
+-	HV_SIGNAL_POLICY_DEFAULT = 0,
+-	HV_SIGNAL_POLICY_EXPLICIT,
+-};
+-
+ enum hv_numa_policy {
+ 	HV_BALANCED = 0,
+ 	HV_LOCALIZED,
+@@ -837,13 +832,6 @@ struct vmbus_channel {
+ 	 */
+ 	struct list_head percpu_list;
+ 	/*
+-	 * Host signaling policy: The default policy will be
+-	 * based on the ring buffer state. We will also support
+-	 * a policy where the client driver can have explicit
+-	 * signaling control.
+-	 */
+-	enum hv_signal_policy  signal_policy;
+-	/*
+ 	 * On the channel send side, many of the VMBUS
+ 	 * device drivers explicity serialize access to the
+ 	 * outgoing ring buffer. Give more control to the
+@@ -904,12 +892,6 @@ static inline bool is_hvsock_channel(const struct vmbus_channel *c)
+ 		  VMBUS_CHANNEL_TLNPI_PROVIDER_OFFER);
+ }
  
- extern struct vmbus_connection vmbus_connection;
- 
-+static inline void vmbus_send_interrupt(u32 relid)
-+{
-+	sync_set_bit(relid, vmbus_connection.send_int_page);
-+}
-+
- enum vmbus_message_handler_type {
- 	/* The related handler can sleep. */
- 	VMHT_BLOCKING = 0,
-diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-index f8ebe13cf251..c1b27026f744 100644
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -908,10 +908,8 @@ static void vmbus_isr(void)
- 		(vmbus_proto_version == VERSION_WIN7)) {
- 
- 		/* Since we are a child, we only need to check bit 0 */
--		if (sync_test_and_clear_bit(0,
--			(unsigned long *) &event->flags32[0])) {
-+		if (sync_test_and_clear_bit(0, event->flags))
- 			handled = true;
--		}
- 	} else {
- 		/*
- 		 * Our host is win8 or above. The signaling mechanism
+-static inline void set_channel_signal_state(struct vmbus_channel *c,
+-					    enum hv_signal_policy policy)
+-{
+-	c->signal_policy = policy;
+-}
+-
+ static inline void set_channel_affinity_state(struct vmbus_channel *c,
+ 					      enum hv_numa_policy policy)
+ {
 -- 
 2.11.0
