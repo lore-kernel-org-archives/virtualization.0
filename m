@@ -1,15 +1,14 @@
-From: Greg Kurz <groug@kaod.org>
-Subject: Re: [PATCH] vhost: fix initialization for vq->is_le
-Date: Wed, 1 Feb 2017 15:19:24 +0100
-Message-ID: <20170201151924.3e2fdf9d__37546.1000171073$1485967559$gmane$org@bahia.lan>
-References: <20170130100936.17065-1-pasic@linux.vnet.ibm.com>
-	<20170130200658.73f8dab6@bahia.lan>
-	<277ab88f-d073-cf29-e79f-f048d0c4f42b@linux.vnet.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio: Try to untangle DMA coherency
+Date: Wed, 1 Feb 2017 20:09:21 +0200
+Message-ID: <20170201195732-mutt-send-email-mst__12089.9476264187$1485972568$gmane$org@kernel.org>
+References: <8a6494f6409c20b4609cd6bdcdd751f68b5c0564.1485951731.git.robin.murphy@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <277ab88f-d073-cf29-e79f-f048d0c4f42b@linux.vnet.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <8a6494f6409c20b4609cd6bdcdd751f68b5c0564.1485951731.git.robin.murphy@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,54 +18,98 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.vnet.ibm.com>
-Cc: "Michael A. Tebolt" <miket@us.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, virtualization@lists.linux-foundation.org
+To: Robin Murphy <robin.murphy@arm.com>
+Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, pawel.moll@arm.com, will.deacon@arm.com, virtualization@lists.linux-foundation.org, robh+dt@kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 31 Jan 2017 16:56:13 +0100
-Halil Pasic <pasic@linux.vnet.ibm.com> wrote:
-
-> On 01/30/2017 08:06 PM, Greg Kurz wrote:
-> >> Currently, under certain circumstances vhost_init_is_le does just a part
-> >> of the initialization job, and depends on vhost_reset_is_le being called
-> >> too. For this reason vhost_vq_init_access used to call vhost_reset_is_le
-> >> when vq->private_data is NULL. This is not only counter intuitive, but
-> >> also real a problem because it breaks vhost_net. The bug was introduced to
-> >> vhost_net with commit 2751c9882b94 ("vhost: cross-endian support for
-> >> legacy devices"). The symptom is corruption of the vq's used.idx field
-> >> (virtio) after VHOST_NET_SET_BACKEND was issued as a part of the vhost
-> >> shutdown on a vq with pending descriptors.
-> >>
-> >> Let us make sure the outcome of vhost_init_is_le never depend on the state
-> >> it is actually supposed to initialize, and fix virtio_net by removing the
-> >> reset from vhost_vq_init_access.
-> >>
-> >> With the above, there is no reason for vhost_reset_is_le to do just half
-> >> of the job. Let us make vhost_reset_is_le reinitialize is_le.
-> >>
-> >> Signed-off-by: Halil Pasic <pasic@linux.vnet.ibm.com>
-> >> Reported-by: Michael A. Tebolt <miket@us.ibm.com>
-> >> Reported-by: Dr. David Alan Gilbert <dgilbert@redhat.com>
-> >> Fixes: commit 2751c9882b94 ("vhost: cross-endian support for legacy devices")
-> >> ---  
-> > Reviewed-by: Greg Kurz <groug@kaod.org>
-> >   
+On Wed, Feb 01, 2017 at 12:25:57PM +0000, Robin Murphy wrote:
+> By forcing on DMA API usage for ARM systems, we have inadvertently
+> kicked open a hornets' nest in terms of cache-coherency. Namely that
+> unless the virtio device is explicitly described as capable of coherent
+> DMA by firmware, the DMA APIs on ARM and other DT-based platforms will
+> assume it is non-coherent. This turns out to cause a big problem for the
+> likes of QEMU and kvmtool, which generate virtio-mmio devices in their
+> guest DTs but neglect to add the often-overlooked "dma-coherent"
+> property; as a result, we end up with the guest making non-cacheable
+> accesses to the vring, the host doing so cacheably, both talking past
+> each other and things going horribly wrong.
 > 
-> Thanks! 
+> To prevent regressing those existing use cases relying on implicit
+> coherency, but still fixing the original problem of (coherent PCI)
+> legacy devices behind IOMMUs, take the more conservative approach of
+> only hitting the DMA API switch for coherent devices, where we can be
+> sure it is safe, and preserving the old non-DMA behaviour otherwise.
+> This does not affect devices setting the VIRTIO_F_IOMMU_PLATFORM flag,
+> which as before are still at the mercy of architecture code correctly
+> knowing their coherency, so explicitly call this out in the virtio-mmio
+> DT binding in the hope of heading off any further workarounds for future
+> firmware mishaps.
 > 
-> We have some tests on s390x (that is BE) running, but I won't be able to
-> test the change with cross endian and legacy. 
+> Fixes: c7070619f340 ("vring: Force use of DMA API for ARM-based systems with legacy devices")
+> Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+> ---
+>  Documentation/devicetree/bindings/virtio/mmio.txt |  3 +++
+>  drivers/virtio/virtio_ring.c                      | 11 ++++++++---
+>  2 files changed, 11 insertions(+), 3 deletions(-)
 > 
+> diff --git a/Documentation/devicetree/bindings/virtio/mmio.txt b/Documentation/devicetree/bindings/virtio/mmio.txt
+> index 5069c1b8e193..8f2a981e1010 100644
+> --- a/Documentation/devicetree/bindings/virtio/mmio.txt
+> +++ b/Documentation/devicetree/bindings/virtio/mmio.txt
+> @@ -7,6 +7,8 @@ Required properties:
+>  - compatible:	"virtio,mmio" compatibility string
+>  - reg:		control registers base address and size including configuration space
+>  - interrupts:	interrupt generated by the device
+> +- dma-coherent:	required if the device (or host emulation) accesses memory
+> +		cache-coherently, absent otherwise
+>  
+>  Example:
+>  
+> @@ -14,4 +16,5 @@ Example:
+>  		compatible = "virtio,mmio";
+>  		reg = <0x3000 0x100>;
+>  		interrupts = <41>;
+> +		dma-coherent;
+>  	}
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 7e38ed79c3fc..961af25b385c 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -20,6 +20,7 @@
+>  #include <linux/virtio_ring.h>
+>  #include <linux/virtio_config.h>
+>  #include <linux/device.h>
+> +#include <linux/property.h>
+>  #include <linux/slab.h>
+>  #include <linux/module.h>
+>  #include <linux/hrtimer.h>
+> @@ -160,10 +161,14 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
+>  		return true;
+>  
+>  	/*
+> -	 * On ARM-based machines, the DMA ops will do the right thing,
+> -	 * so always use them with legacy devices.
+> +	 * On ARM-based machines, the coherent DMA ops will do the right
+> +	 * thing, so always use them with legacy devices. However, using
+> +	 * non-coherent DMA when the host *is* actually coherent, but has
+> +	 * forgotten to tell us, is going to break badly; since this situation
+> +	 * already exists in the wild, maintain the old behaviour there.
+>  	 */
+> -	if (IS_ENABLED(CONFIG_ARM) || IS_ENABLED(CONFIG_ARM64))
+> +	if ((IS_ENABLED(CONFIG_ARM) || IS_ENABLED(CONFIG_ARM64)) &&
+> +	    device_get_dma_attr(&vdev->dev) == DEV_DMA_COHERENT)
+>  		return !virtio_has_feature(vdev, VIRTIO_F_VERSION_1);
+>  
+>  	return false;
 
-I'll try to find some time to run such tests on ppc.
+This is exactly what I feared.
 
-Cheers.
+Could we identify fastboot and do the special dance just for it?
 
---
-Greg
+I'd like to do that instead. It's fastboot doing the unreasonable thing
+here and deviating from what every other legacy device without exception
+did for years. If this means fastboot will need to update to virtio 1,
+all the better.
 
-> What do you think, should I/we RFT or are we fine without?
-> 
-> Regards,
-> Halil
-> 
+> -- 
+> 2.11.0.dirty
