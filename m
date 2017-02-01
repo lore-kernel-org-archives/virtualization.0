@@ -1,7 +1,7 @@
 From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: [PATCH 13/14] vmbus: constify parameters where possible
-Date: Wed,  1 Feb 2017 08:29:00 -0800
-Message-ID: <20170201162901.3894-14-sthemmin__46372.569006826$1485966702$gmane$org@microsoft.com>
+Subject: [PATCH 09/14] vmbus: change to per channel tasklet
+Date: Wed,  1 Feb 2017 08:28:56 -0800
+Message-ID: <20170201162901.3894-10-sthemmin__47959.2047901407$1485966703$gmane$org@microsoft.com>
 References: <20170201162901.3894-1-sthemmin@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,158 +21,327 @@ To: kys@microsoft.com, gregkh@linuxfoundation.org
 Cc: devel@linuxdriverproject.org, Stephen Hemminger <sthemmin@microsoft.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Functions that just query state of ring buffer can have parameters
-marked const.
+Make the event handling tasklet per channel rather than per-cpu.
+This allows for better fairness when getting lots of data on the same
+cpu.
 
 Signed-off-by: Stephen Hemminger <sthemmin@microsoft.com>
 ---
- drivers/hv/hyperv_vmbus.h |  6 +++---
- drivers/hv/ring_buffer.c  | 22 ++++++++++------------
- include/linux/hyperv.h    | 12 ++++++------
- 3 files changed, 19 insertions(+), 21 deletions(-)
+ drivers/hv/channel.c      |  2 +-
+ drivers/hv/channel_mgmt.c | 16 +++++-----
+ drivers/hv/connection.c   | 78 ++---------------------------------------------
+ drivers/hv/hv.c           |  2 --
+ drivers/hv/hyperv_vmbus.h |  1 -
+ drivers/hv/vmbus_drv.c    | 58 ++++++++++++++++++++++++++++++-----
+ include/linux/hyperv.h    |  3 +-
+ 7 files changed, 64 insertions(+), 96 deletions(-)
 
+diff --git a/drivers/hv/channel.c b/drivers/hv/channel.c
+index 789c75f6df26..18cc1c78260d 100644
+--- a/drivers/hv/channel.c
++++ b/drivers/hv/channel.c
+@@ -530,7 +530,7 @@ static int vmbus_close_internal(struct vmbus_channel *channel)
+ 	int ret;
+ 
+ 	/*
+-	 * process_chn_event(), running in the tasklet, can race
++	 * vmbus_on_event(), running in the tasklet, can race
+ 	 * with vmbus_close_internal() in the case of SMP guest, e.g., when
+ 	 * the former is accessing channel->inbound.ring_buffer, the latter
+ 	 * could be freeing the ring_buffer pages.
+diff --git a/drivers/hv/channel_mgmt.c b/drivers/hv/channel_mgmt.c
+index 579ad2560a39..2f6270d76b79 100644
+--- a/drivers/hv/channel_mgmt.c
++++ b/drivers/hv/channel_mgmt.c
+@@ -339,6 +339,9 @@ static struct vmbus_channel *alloc_channel(void)
+ 	INIT_LIST_HEAD(&channel->sc_list);
+ 	INIT_LIST_HEAD(&channel->percpu_list);
+ 
++	tasklet_init(&channel->callback_event,
++		     vmbus_on_event, (unsigned long)channel);
++
+ 	return channel;
+ }
+ 
+@@ -347,6 +350,7 @@ static struct vmbus_channel *alloc_channel(void)
+  */
+ static void free_channel(struct vmbus_channel *channel)
+ {
++	tasklet_kill(&channel->callback_event);
+ 	kfree(channel);
+ }
+ 
+@@ -380,21 +384,15 @@ static void vmbus_release_relid(u32 relid)
+ 
+ void hv_event_tasklet_disable(struct vmbus_channel *channel)
+ {
+-	struct hv_per_cpu_context *hv_cpu;
+-
+-	hv_cpu = per_cpu_ptr(hv_context.cpu_context, channel->target_cpu);
+-	tasklet_disable(&hv_cpu->event_dpc);
++	tasklet_disable(&channel->callback_event);
+ }
+ 
+ void hv_event_tasklet_enable(struct vmbus_channel *channel)
+ {
+-	struct hv_per_cpu_context *hv_cpu;
+-
+-	hv_cpu = per_cpu_ptr(hv_context.cpu_context, channel->target_cpu);
+-	tasklet_enable(&hv_cpu->event_dpc);
++	tasklet_enable(&channel->callback_event);
+ 
+ 	/* In case there is any pending event */
+-	tasklet_schedule(&hv_cpu->event_dpc);
++	tasklet_schedule(&channel->callback_event);
+ }
+ 
+ void hv_process_channel_removal(struct vmbus_channel *channel, u32 relid)
+diff --git a/drivers/hv/connection.c b/drivers/hv/connection.c
+index 158f12823baf..27e72dc07e12 100644
+--- a/drivers/hv/connection.c
++++ b/drivers/hv/connection.c
+@@ -260,29 +260,6 @@ void vmbus_disconnect(void)
+ }
+ 
+ /*
+- * Map the given relid to the corresponding channel based on the
+- * per-cpu list of channels that have been affinitized to this CPU.
+- * This will be used in the channel callback path as we can do this
+- * mapping in a lock-free fashion.
+- */
+-static struct vmbus_channel *pcpu_relid2channel(u32 relid)
+-{
+-	struct hv_per_cpu_context *hv_cpu
+-		= this_cpu_ptr(hv_context.cpu_context);
+-	struct vmbus_channel *found_channel = NULL;
+-	struct vmbus_channel *channel;
+-
+-	list_for_each_entry(channel, &hv_cpu->chan_list, percpu_list) {
+-		if (channel->offermsg.child_relid == relid) {
+-			found_channel = channel;
+-			break;
+-		}
+-	}
+-
+-	return found_channel;
+-}
+-
+-/*
+  * relid2channel - Get the channel object given its
+  * child relative id (ie channel id)
+  */
+@@ -318,25 +295,16 @@ struct vmbus_channel *relid2channel(u32 relid)
+ }
+ 
+ /*
+- * process_chn_event - Process a channel event notification
++ * vmbus_on_event - Process a channel event notification
+  */
+-static void process_chn_event(u32 relid)
++void vmbus_on_event(unsigned long data)
+ {
+-	struct vmbus_channel *channel;
++	struct vmbus_channel *channel = (void *) data;
+ 	void *arg;
+ 	bool read_state;
+ 	u32 bytes_to_read;
+ 
+ 	/*
+-	 * Find the channel based on this relid and invokes the
+-	 * channel callback to process the event
+-	 */
+-	channel = pcpu_relid2channel(relid);
+-
+-	if (!channel)
+-		return;
+-
+-	/*
+ 	 * A channel once created is persistent even when there
+ 	 * is no driver handling the device. An unloading driver
+ 	 * sets the onchannel_callback to NULL on the same CPU
+@@ -344,7 +312,6 @@ static void process_chn_event(u32 relid)
+ 	 * Thus, checking and invoking the driver specific callback takes
+ 	 * care of orderly unloading of the driver.
+ 	 */
+-
+ 	if (channel->onchannel_callback != NULL) {
+ 		arg = channel->channel_callback_context;
+ 		read_state = channel->batched_reading;
+@@ -373,45 +340,6 @@ static void process_chn_event(u32 relid)
+ }
+ 
+ /*
+- * vmbus_on_event - Handler for events
+- */
+-void vmbus_on_event(unsigned long data)
+-{
+-	struct hv_per_cpu_context *hv_cpu = (void *)data;
+-	unsigned long *recv_int_page;
+-	u32 maxbits, relid;
+-
+-	if (vmbus_proto_version < VERSION_WIN8) {
+-		maxbits = MAX_NUM_CHANNELS_SUPPORTED;
+-		recv_int_page = vmbus_connection.recv_int_page;
+-	} else {
+-		/*
+-		 * When the host is win8 and beyond, the event page
+-		 * can be directly checked to get the id of the channel
+-		 * that has the interrupt pending.
+-		 */
+-		void *page_addr = hv_cpu->synic_event_page;
+-		union hv_synic_event_flags *event
+-			= (union hv_synic_event_flags *)page_addr +
+-						 VMBUS_MESSAGE_SINT;
+-
+-		maxbits = HV_EVENT_FLAGS_COUNT;
+-		recv_int_page = event->flags;
+-	}
+-
+-	if (unlikely(!recv_int_page))
+-		return;
+-
+-	for_each_set_bit(relid, recv_int_page, maxbits) {
+-		if (sync_test_and_clear_bit(relid, recv_int_page)) {
+-			/* Special case - vmbus channel protocol msg */
+-			if (relid != 0)
+-				process_chn_event(relid);
+-		}
+-	}
+-}
+-
+-/*
+  * vmbus_post_msg - Send a msg on the vmbus's message connection
+  */
+ int vmbus_post_msg(void *buffer, size_t buflen, bool can_sleep)
+diff --git a/drivers/hv/hv.c b/drivers/hv/hv.c
+index 9fc2355a60ea..665a64f1611e 100644
+--- a/drivers/hv/hv.c
++++ b/drivers/hv/hv.c
+@@ -156,8 +156,6 @@ int hv_synic_alloc(void)
+ 			= per_cpu_ptr(hv_context.cpu_context, cpu);
+ 
+ 		memset(hv_cpu, 0, sizeof(*hv_cpu));
+-		tasklet_init(&hv_cpu->event_dpc,
+-			     vmbus_on_event, (unsigned long) hv_cpu);
+ 		tasklet_init(&hv_cpu->msg_dpc,
+ 			     vmbus_on_msg_dpc, (unsigned long) hv_cpu);
+ 
 diff --git a/drivers/hv/hyperv_vmbus.h b/drivers/hv/hyperv_vmbus.h
-index e15a130de3c9..884f83bba1ab 100644
+index c8ce9ab2e16a..558a798c407c 100644
 --- a/drivers/hv/hyperv_vmbus.h
 +++ b/drivers/hv/hyperv_vmbus.h
-@@ -283,14 +283,14 @@ int hv_ringbuffer_init(struct hv_ring_buffer_info *ring_info,
- void hv_ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info);
+@@ -206,7 +206,6 @@ struct hv_per_cpu_context {
+ 	 * we will manage the tasklet that handles events messages on a per CPU
+ 	 * basis.
+ 	 */
+-	struct tasklet_struct event_dpc;
+ 	struct tasklet_struct msg_dpc;
  
- int hv_ringbuffer_write(struct vmbus_channel *channel,
--			struct kvec *kv_list, u32 kv_count);
-+			const struct kvec *kv_list, u32 kv_count);
+ 	/*
+diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+index cf8540c1df4a..eaf1a10b0245 100644
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -885,6 +885,56 @@ void vmbus_on_msg_dpc(unsigned long data)
+ 	vmbus_signal_eom(msg, message_type);
+ }
  
- int hv_ringbuffer_read(struct vmbus_channel *channel,
- 		       void *buffer, u32 buflen, u32 *buffer_actual_len,
- 		       u64 *requestid, bool raw);
- 
--void hv_ringbuffer_get_debuginfo(struct hv_ring_buffer_info *ring_info,
--			    struct hv_ring_buffer_debug_info *debug_info);
-+void hv_ringbuffer_get_debuginfo(const struct hv_ring_buffer_info *ring_info,
-+				 struct hv_ring_buffer_debug_info *debug_info);
- 
- /*
-  * Maximum channels is determined by the size of the interrupt page
-diff --git a/drivers/hv/ring_buffer.c b/drivers/hv/ring_buffer.c
-index 47ab69089115..ee3e488d9dee 100644
---- a/drivers/hv/ring_buffer.c
-+++ b/drivers/hv/ring_buffer.c
-@@ -96,11 +96,9 @@ hv_set_next_write_location(struct hv_ring_buffer_info *ring_info,
- 
- /* Get the next read location for the specified ring buffer. */
- static inline u32
--hv_get_next_read_location(struct hv_ring_buffer_info *ring_info)
-+hv_get_next_read_location(const struct hv_ring_buffer_info *ring_info)
++
++/*
++ * Schedule all channels with events pending
++ */
++static void vmbus_chan_sched(struct hv_per_cpu_context *hv_cpu)
++{
++	unsigned long *recv_int_page;
++	u32 maxbits, relid;
++
++	if (vmbus_proto_version < VERSION_WIN8) {
++		maxbits = MAX_NUM_CHANNELS_SUPPORTED;
++		recv_int_page = vmbus_connection.recv_int_page;
++	} else {
++		/*
++		 * When the host is win8 and beyond, the event page
++		 * can be directly checked to get the id of the channel
++		 * that has the interrupt pending.
++		 */
++		void *page_addr = hv_cpu->synic_event_page;
++		union hv_synic_event_flags *event
++			= (union hv_synic_event_flags *)page_addr +
++						 VMBUS_MESSAGE_SINT;
++
++		maxbits = HV_EVENT_FLAGS_COUNT;
++		recv_int_page = event->flags;
++	}
++
++	if (unlikely(!recv_int_page))
++		return;
++
++	for_each_set_bit(relid, recv_int_page, maxbits) {
++		struct vmbus_channel *channel;
++
++		if (!sync_test_and_clear_bit(relid, recv_int_page))
++			continue;
++
++		/* Special case - vmbus channel protocol msg */
++		if (relid == 0)
++			continue;
++
++		/* Find channel based on relid */
++		list_for_each_entry(channel, &hv_cpu->chan_list, percpu_list) {
++			if (channel->offermsg.child_relid == relid) {
++				tasklet_schedule(&channel->callback_event);
++				break;
++			}
++		}
++	}
++}
++
+ static void vmbus_isr(void)
  {
--	u32 next = ring_info->ring_buffer->read_index;
+ 	struct hv_per_cpu_context *hv_cpu
+@@ -922,8 +972,7 @@ static void vmbus_isr(void)
+ 	}
+ 
+ 	if (handled)
+-		tasklet_schedule(&hv_cpu->event_dpc);
 -
--	return next;
-+	return ring_info->ring_buffer->read_index;
- }
++		vmbus_chan_sched(hv_cpu);
  
- /*
-@@ -108,8 +106,8 @@ hv_get_next_read_location(struct hv_ring_buffer_info *ring_info)
-  * This allows the caller to skip.
-  */
- static inline u32
--hv_get_next_readlocation_withoffset(struct hv_ring_buffer_info *ring_info,
--				 u32 offset)
-+hv_get_next_readlocation_withoffset(const struct hv_ring_buffer_info *ring_info,
-+				    u32 offset)
- {
- 	u32 next = ring_info->ring_buffer->read_index;
+ 	page_addr = hv_cpu->synic_message_page;
+ 	msg = (struct hv_message *)page_addr + VMBUS_MESSAGE_SINT;
+@@ -1536,12 +1585,7 @@ static void __exit vmbus_exit(void)
+ 						 &hyperv_panic_block);
+ 	}
+ 	bus_unregister(&hv_bus);
+-	for_each_online_cpu(cpu) {
+-		struct hv_per_cpu_context *hv_cpu
+-			= per_cpu_ptr(hv_context.cpu_context, cpu);
  
-@@ -130,7 +128,7 @@ hv_set_next_read_location(struct hv_ring_buffer_info *ring_info,
- 
- /* Get the size of the ring buffer. */
- static inline u32
--hv_get_ring_buffersize(struct hv_ring_buffer_info *ring_info)
-+hv_get_ring_buffersize(const struct hv_ring_buffer_info *ring_info)
- {
- 	return ring_info->ring_datasize;
- }
-@@ -147,7 +145,7 @@ hv_get_ring_bufferindices(struct hv_ring_buffer_info *ring_info)
-  * Assume there is enough room. Handles wrap-around in src case only!!
-  */
- static u32 hv_copyfrom_ringbuffer(
--	struct hv_ring_buffer_info	*ring_info,
-+	const struct hv_ring_buffer_info *ring_info,
- 	void				*dest,
- 	u32				destlen,
- 	u32				start_read_offset)
-@@ -171,7 +169,7 @@ static u32 hv_copyfrom_ringbuffer(
- static u32 hv_copyto_ringbuffer(
- 	struct hv_ring_buffer_info	*ring_info,
- 	u32				start_write_offset,
--	void				*src,
-+	const void			*src,
- 	u32				srclen)
- {
- 	void *ring_buffer = hv_get_ring_buffer(ring_info);
-@@ -186,8 +184,8 @@ static u32 hv_copyto_ringbuffer(
- }
- 
- /* Get various debug metrics for the specified ring buffer. */
--void hv_ringbuffer_get_debuginfo(struct hv_ring_buffer_info *ring_info,
--			    struct hv_ring_buffer_debug_info *debug_info)
-+void hv_ringbuffer_get_debuginfo(const struct hv_ring_buffer_info *ring_info,
-+				 struct hv_ring_buffer_debug_info *debug_info)
- {
- 	u32 bytes_avail_towrite;
- 	u32 bytes_avail_toread;
-@@ -264,7 +262,7 @@ void hv_ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info)
- 
- /* Write to the ring buffer. */
- int hv_ringbuffer_write(struct vmbus_channel *channel,
--			struct kvec *kv_list, u32 kv_count)
-+			const struct kvec *kv_list, u32 kv_count)
- {
- 	int i = 0;
- 	u32 bytes_avail_towrite;
+-		tasklet_kill(&hv_cpu->event_dpc);
+-	}
+ 	cpuhp_remove_state(hyperv_cpuhp_online);
+ 	hv_synic_free();
+ 	acpi_bus_unregister_driver(&vmbus_acpi_driver);
 diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
-index dc50997a3fba..32a9cbc66b65 100644
+index b30808f740f9..dce5aa6751b4 100644
 --- a/include/linux/hyperv.h
 +++ b/include/linux/hyperv.h
-@@ -137,8 +137,8 @@ struct hv_ring_buffer_info {
-  * for the specified ring buffer
-  */
- static inline void
--hv_get_ringbuffer_availbytes(struct hv_ring_buffer_info *rbi,
--			  u32 *read, u32 *write)
-+hv_get_ringbuffer_availbytes(const struct hv_ring_buffer_info *rbi,
-+			     u32 *read, u32 *write)
- {
- 	u32 read_loc, write_loc, dsize;
+@@ -35,7 +35,7 @@
+ #include <linux/completion.h>
+ #include <linux/device.h>
+ #include <linux/mod_devicetable.h>
+-
++#include <linux/interrupt.h>
  
-@@ -152,7 +152,7 @@ hv_get_ringbuffer_availbytes(struct hv_ring_buffer_info *rbi,
- 	*read = dsize - *write;
- }
+ #define MAX_PAGE_BUFFER_COUNT				32
+ #define MAX_MULTIPAGE_BUFFER_COUNT			32 /* 128K */
+@@ -729,6 +729,7 @@ struct vmbus_channel {
+ 	struct vmbus_close_msg close_msg;
  
--static inline u32 hv_get_bytes_to_read(struct hv_ring_buffer_info *rbi)
-+static inline u32 hv_get_bytes_to_read(const struct hv_ring_buffer_info *rbi)
- {
- 	u32 read_loc, write_loc, dsize, read;
+ 	/* Channel callback's invoked in softirq context */
++	struct tasklet_struct callback_event;
+ 	void (*onchannel_callback)(void *context);
+ 	void *channel_callback_context;
  
-@@ -166,7 +166,7 @@ static inline u32 hv_get_bytes_to_read(struct hv_ring_buffer_info *rbi)
- 	return read;
- }
- 
--static inline u32 hv_get_bytes_to_write(struct hv_ring_buffer_info *rbi)
-+static inline u32 hv_get_bytes_to_write(const struct hv_ring_buffer_info *rbi)
- {
- 	u32 read_loc, write_loc, dsize, write;
- 
-@@ -1420,9 +1420,9 @@ void vmbus_set_event(struct vmbus_channel *channel);
- 
- /* Get the start of the ring buffer. */
- static inline void *
--hv_get_ring_buffer(struct hv_ring_buffer_info *ring_info)
-+hv_get_ring_buffer(const struct hv_ring_buffer_info *ring_info)
- {
--	return (void *)ring_info->ring_buffer->buffer;
-+	return ring_info->ring_buffer->buffer;
- }
- 
- /*
 -- 
 2.11.0
