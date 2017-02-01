@@ -1,7 +1,7 @@
 From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: [PATCH 10/14] vmbus: add direct isr callback mode
-Date: Wed,  1 Feb 2017 08:28:57 -0800
-Message-ID: <20170201162901.3894-11-sthemmin__15364.5133869306$1485966707$gmane$org@microsoft.com>
+Subject: [PATCH 11/14] vmbus: remove conditional locking of vmbus_write
+Date: Wed,  1 Feb 2017 08:28:58 -0800
+Message-ID: <20170201162901.3894-12-sthemmin@microsoft.com>
 References: <20170201162901.3894-1-sthemmin@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,217 +21,197 @@ To: kys@microsoft.com, gregkh@linuxfoundation.org
 Cc: devel@linuxdriverproject.org, Stephen Hemminger <sthemmin@microsoft.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Change the simple boolean batched_reading into a tri-value.
-For future NAPI support in netvsc driver, the callback needs to
-occur directly in interrupt handler.
-
-Batched mode is also changed to disable host interrupts immediately
-in interrupt routine (to avoid unnecessary host signals), and the
-tasklet is rescheduled if more data is detected.
+All current usage of vmbus write uses the acquire_lock flag, therefore
+having it be optional is unnecessary. This also fixes a sparse warning
+since sparse doesn't like when a function has conditional locking.
 
 Signed-off-by: Stephen Hemminger <sthemmin@microsoft.com>
 ---
- drivers/hv/channel_mgmt.c    |  7 -------
- drivers/hv/connection.c      | 27 ++++++++++++---------------
- drivers/hv/hv_util.c         |  3 +--
- drivers/hv/vmbus_drv.c       | 26 ++++++++++++++++++++++++--
- drivers/uio/uio_hv_generic.c |  2 +-
- include/linux/hyperv.h       | 31 +++++++++++++++++--------------
- 6 files changed, 55 insertions(+), 41 deletions(-)
+ drivers/hv/channel.c      | 13 ++++---------
+ drivers/hv/channel_mgmt.c |  1 -
+ drivers/hv/hyperv_vmbus.h |  3 +--
+ drivers/hv/ring_buffer.c  | 11 ++++-------
+ include/linux/hyperv.h    | 15 ---------------
+ 5 files changed, 9 insertions(+), 34 deletions(-)
 
+diff --git a/drivers/hv/channel.c b/drivers/hv/channel.c
+index 18cc1c78260d..81a80c82f1bd 100644
+--- a/drivers/hv/channel.c
++++ b/drivers/hv/channel.c
+@@ -651,7 +651,6 @@ int vmbus_sendpacket_ctl(struct vmbus_channel *channel, void *buffer,
+ 	u32 packetlen_aligned = ALIGN(packetlen, sizeof(u64));
+ 	struct kvec bufferlist[3];
+ 	u64 aligned_data = 0;
+-	bool lock = channel->acquire_ring_lock;
+ 	int num_vecs = ((bufferlen != 0) ? 3 : 1);
+ 
+ 
+@@ -670,7 +669,7 @@ int vmbus_sendpacket_ctl(struct vmbus_channel *channel, void *buffer,
+ 	bufferlist[2].iov_base = &aligned_data;
+ 	bufferlist[2].iov_len = (packetlen_aligned - packetlen);
+ 
+-	return hv_ringbuffer_write(channel, bufferlist, num_vecs, lock);
++	return hv_ringbuffer_write(channel, bufferlist, num_vecs);
+ }
+ EXPORT_SYMBOL(vmbus_sendpacket_ctl);
+ 
+@@ -716,12 +715,10 @@ int vmbus_sendpacket_pagebuffer_ctl(struct vmbus_channel *channel,
+ 	u32 packetlen_aligned;
+ 	struct kvec bufferlist[3];
+ 	u64 aligned_data = 0;
+-	bool lock = channel->acquire_ring_lock;
+ 
+ 	if (pagecount > MAX_PAGE_BUFFER_COUNT)
+ 		return -EINVAL;
+ 
+-
+ 	/*
+ 	 * Adjust the size down since vmbus_channel_packet_page_buffer is the
+ 	 * largest size we support
+@@ -753,7 +750,7 @@ int vmbus_sendpacket_pagebuffer_ctl(struct vmbus_channel *channel,
+ 	bufferlist[2].iov_base = &aligned_data;
+ 	bufferlist[2].iov_len = (packetlen_aligned - packetlen);
+ 
+-	return hv_ringbuffer_write(channel, bufferlist, 3, lock);
++	return hv_ringbuffer_write(channel, bufferlist, 3);
+ }
+ EXPORT_SYMBOL_GPL(vmbus_sendpacket_pagebuffer_ctl);
+ 
+@@ -789,7 +786,6 @@ int vmbus_sendpacket_mpb_desc(struct vmbus_channel *channel,
+ 	u32 packetlen_aligned;
+ 	struct kvec bufferlist[3];
+ 	u64 aligned_data = 0;
+-	bool lock = channel->acquire_ring_lock;
+ 
+ 	packetlen = desc_size + bufferlen;
+ 	packetlen_aligned = ALIGN(packetlen, sizeof(u64));
+@@ -809,7 +805,7 @@ int vmbus_sendpacket_mpb_desc(struct vmbus_channel *channel,
+ 	bufferlist[2].iov_base = &aligned_data;
+ 	bufferlist[2].iov_len = (packetlen_aligned - packetlen);
+ 
+-	return hv_ringbuffer_write(channel, bufferlist, 3, lock);
++	return hv_ringbuffer_write(channel, bufferlist, 3);
+ }
+ EXPORT_SYMBOL_GPL(vmbus_sendpacket_mpb_desc);
+ 
+@@ -827,7 +823,6 @@ int vmbus_sendpacket_multipagebuffer(struct vmbus_channel *channel,
+ 	u32 packetlen_aligned;
+ 	struct kvec bufferlist[3];
+ 	u64 aligned_data = 0;
+-	bool lock = channel->acquire_ring_lock;
+ 	u32 pfncount = NUM_PAGES_SPANNED(multi_pagebuffer->offset,
+ 					 multi_pagebuffer->len);
+ 
+@@ -866,7 +861,7 @@ int vmbus_sendpacket_multipagebuffer(struct vmbus_channel *channel,
+ 	bufferlist[2].iov_base = &aligned_data;
+ 	bufferlist[2].iov_len = (packetlen_aligned - packetlen);
+ 
+-	return hv_ringbuffer_write(channel, bufferlist, 3, lock);
++	return hv_ringbuffer_write(channel, bufferlist, 3);
+ }
+ EXPORT_SYMBOL_GPL(vmbus_sendpacket_multipagebuffer);
+ 
 diff --git a/drivers/hv/channel_mgmt.c b/drivers/hv/channel_mgmt.c
-index 2f6270d76b79..b2bb5aafaa2f 100644
+index b2bb5aafaa2f..f33465d78a02 100644
 --- a/drivers/hv/channel_mgmt.c
 +++ b/drivers/hv/channel_mgmt.c
-@@ -820,13 +820,6 @@ static void vmbus_onoffer(struct vmbus_channel_message_header *hdr)
- 	}
+@@ -332,7 +332,6 @@ static struct vmbus_channel *alloc_channel(void)
+ 	if (!channel)
+ 		return NULL;
  
- 	/*
--	 * By default we setup state to enable batched
--	 * reading. A specific service can choose to
--	 * disable this prior to opening the channel.
--	 */
--	newchannel->batched_reading = true;
--
--	/*
- 	 * Setup state for signalling the host.
- 	 */
- 	newchannel->sig_event = (struct hv_input_signal_event *)
-diff --git a/drivers/hv/connection.c b/drivers/hv/connection.c
-index 27e72dc07e12..a8366fec1458 100644
---- a/drivers/hv/connection.c
-+++ b/drivers/hv/connection.c
-@@ -300,9 +300,7 @@ struct vmbus_channel *relid2channel(u32 relid)
- void vmbus_on_event(unsigned long data)
+-	channel->acquire_ring_lock = true;
+ 	spin_lock_init(&channel->inbound_lock);
+ 	spin_lock_init(&channel->lock);
+ 
+diff --git a/drivers/hv/hyperv_vmbus.h b/drivers/hv/hyperv_vmbus.h
+index 558a798c407c..6a9b54677218 100644
+--- a/drivers/hv/hyperv_vmbus.h
++++ b/drivers/hv/hyperv_vmbus.h
+@@ -283,8 +283,7 @@ int hv_ringbuffer_init(struct hv_ring_buffer_info *ring_info,
+ void hv_ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info);
+ 
+ int hv_ringbuffer_write(struct vmbus_channel *channel,
+-			struct kvec *kv_list,
+-			u32 kv_count, bool lock);
++			struct kvec *kv_list, u32 kv_count);
+ 
+ int hv_ringbuffer_read(struct vmbus_channel *channel,
+ 		       void *buffer, u32 buflen, u32 *buffer_actual_len,
+diff --git a/drivers/hv/ring_buffer.c b/drivers/hv/ring_buffer.c
+index 30ca55aefd24..146fd8ab2a2a 100644
+--- a/drivers/hv/ring_buffer.c
++++ b/drivers/hv/ring_buffer.c
+@@ -284,7 +284,7 @@ void hv_ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info)
+ 
+ /* Write to the ring buffer. */
+ int hv_ringbuffer_write(struct vmbus_channel *channel,
+-			struct kvec *kv_list, u32 kv_count, bool lock)
++			struct kvec *kv_list, u32 kv_count)
  {
- 	struct vmbus_channel *channel = (void *) data;
--	void *arg;
--	bool read_state;
--	u32 bytes_to_read;
-+	void (*callback_fn)(void *);
+ 	int i = 0;
+ 	u32 bytes_avail_towrite;
+@@ -304,8 +304,7 @@ int hv_ringbuffer_write(struct vmbus_channel *channel,
  
- 	/*
- 	 * A channel once created is persistent even when there
-@@ -312,9 +310,13 @@ void vmbus_on_event(unsigned long data)
- 	 * Thus, checking and invoking the driver specific callback takes
- 	 * care of orderly unloading of the driver.
+ 	totalbytes_towrite += sizeof(u64);
+ 
+-	if (lock)
+-		spin_lock_irqsave(&outring_info->ring_lock, flags);
++	spin_lock_irqsave(&outring_info->ring_lock, flags);
+ 
+ 	bytes_avail_towrite = hv_get_bytes_to_write(outring_info);
+ 
+@@ -315,8 +314,7 @@ int hv_ringbuffer_write(struct vmbus_channel *channel,
+ 	 * is empty since the read index == write index.
  	 */
--	if (channel->onchannel_callback != NULL) {
--		arg = channel->channel_callback_context;
--		read_state = channel->batched_reading;
-+	callback_fn = READ_ONCE(channel->onchannel_callback);
-+	if (unlikely(callback_fn == NULL))
-+		return;
-+
-+	(*callback_fn)(channel->channel_callback_context);
-+
-+	if (channel->callback_mode == HV_CALL_BATCHED) {
- 		/*
- 		 * This callback reads the messages sent by the host.
- 		 * We can optimize host to guest signaling by ensuring:
-@@ -326,16 +328,11 @@ void vmbus_on_event(unsigned long data)
- 		 *    state is set we check to see if additional packets are
- 		 *    available to read. In this case we repeat the process.
- 		 */
-+		if (hv_end_read(&channel->inbound) != 0) {
-+			hv_begin_read(&channel->inbound);
- 
--		do {
--			if (read_state)
--				hv_begin_read(&channel->inbound);
--			channel->onchannel_callback(arg);
--			if (read_state)
--				bytes_to_read = hv_end_read(&channel->inbound);
--			else
--				bytes_to_read = 0;
--		} while (read_state && (bytes_to_read != 0));
-+			tasklet_schedule(&channel->callback_event);
-+		}
+ 	if (bytes_avail_towrite <= totalbytes_towrite) {
+-		if (lock)
+-			spin_unlock_irqrestore(&outring_info->ring_lock, flags);
++		spin_unlock_irqrestore(&outring_info->ring_lock, flags);
+ 		return -EAGAIN;
  	}
- }
  
-diff --git a/drivers/hv/hv_util.c b/drivers/hv/hv_util.c
-index d42ede78a9dd..8410191b4992 100644
---- a/drivers/hv/hv_util.c
-+++ b/drivers/hv/hv_util.c
-@@ -409,8 +409,7 @@ static int util_probe(struct hv_device *dev,
- 	 * Turn off batched reading for all util drivers before we open the
- 	 * channel.
- 	 */
--
--	set_channel_read_state(dev->channel, false);
-+	set_channel_read_mode(dev->channel, HV_CALL_DIRECT);
- 
- 	hv_set_drvdata(dev, srv);
- 
-diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-index eaf1a10b0245..f7f6b9144b07 100644
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -887,6 +887,18 @@ void vmbus_on_msg_dpc(unsigned long data)
+@@ -347,8 +345,7 @@ int hv_ringbuffer_write(struct vmbus_channel *channel,
+ 	hv_set_next_write_location(outring_info, next_write_location);
  
  
- /*
-+ * Direct callback for channels using other deferred processing
-+ */
-+static void vmbus_channel_isr(struct vmbus_channel *channel)
-+{
-+	void (*callback_fn)(void *);
-+
-+	callback_fn = READ_ONCE(channel->onchannel_callback);
-+	if (likely(callback_fn != NULL))
-+		(*callback_fn)(channel->channel_callback_context);
-+}
-+
-+/*
-  * Schedule all channels with events pending
-  */
- static void vmbus_chan_sched(struct hv_per_cpu_context *hv_cpu)
-@@ -927,9 +939,19 @@ static void vmbus_chan_sched(struct hv_per_cpu_context *hv_cpu)
+-	if (lock)
+-		spin_unlock_irqrestore(&outring_info->ring_lock, flags);
++	spin_unlock_irqrestore(&outring_info->ring_lock, flags);
  
- 		/* Find channel based on relid */
- 		list_for_each_entry(channel, &hv_cpu->chan_list, percpu_list) {
--			if (channel->offermsg.child_relid == relid) {
--				tasklet_schedule(&channel->callback_event);
-+			if (channel->offermsg.child_relid != relid)
-+				continue;
-+
-+			switch (channel->callback_mode) {
-+			case HV_CALL_ISR:
-+				vmbus_channel_isr(channel);
- 				break;
-+
-+			case HV_CALL_BATCHED:
-+				hv_begin_read(&channel->inbound);
-+				/* fallthrough */
-+			case HV_CALL_DIRECT:
-+				tasklet_schedule(&channel->callback_event);
- 			}
- 		}
- 	}
-diff --git a/drivers/uio/uio_hv_generic.c b/drivers/uio/uio_hv_generic.c
-index 50958f167305..48d5327d38d4 100644
---- a/drivers/uio/uio_hv_generic.c
-+++ b/drivers/uio/uio_hv_generic.c
-@@ -125,7 +125,7 @@ hv_uio_probe(struct hv_device *dev,
- 		goto fail;
+ 	hv_signal_on_write(old_write, channel);
  
- 	dev->channel->inbound.ring_buffer->interrupt_mask = 1;
--	dev->channel->batched_reading = false;
-+	set_channel_read_mode(dev->channel, HV_CALL_DIRECT);
- 
- 	/* Fill general uio info */
- 	pdata->info.name = "uio_hv_generic";
 diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
-index dce5aa6751b4..936e6b9d1fe4 100644
+index 936e6b9d1fe4..9b0165b11c5c 100644
 --- a/include/linux/hyperv.h
 +++ b/include/linux/hyperv.h
-@@ -734,19 +734,21 @@ struct vmbus_channel {
- 	void *channel_callback_context;
- 
- 	/*
--	 * A channel can be marked for efficient (batched)
--	 * reading:
--	 * If batched_reading is set to "true", we read until the
--	 * channel is empty and hold off interrupts from the host
--	 * during the entire read process.
--	 * If batched_reading is set to "false", the client is not
--	 * going to perform batched reading.
--	 *
--	 * By default we will enable batched reading; specific
--	 * drivers that don't want this behavior can turn it off.
-+	 * A channel can be marked for one of three modes of reading:
-+	 *   BUFFERED - callback called from taslket and should read
-+	 *            channel until empty. Interrupts from the host
-+	 *            are masked while read is in process (default).
-+	 *   DIRECT - callback called from tasklet (softirq).
-+	 *   ISR - callback called in interrupt context and must
-+	 *         invoke its own deferred processing.
-+	 *         Host interrupts are disabled and must be re-enabled
-+	 *         when ring is empty.
+@@ -828,16 +828,6 @@ struct vmbus_channel {
  	 */
+ 	struct list_head percpu_list;
+ 	/*
+-	 * On the channel send side, many of the VMBUS
+-	 * device drivers explicity serialize access to the
+-	 * outgoing ring buffer. Give more control to the
+-	 * VMBUS device drivers in terms how to serialize
+-	 * accesss to the outgoing ring buffer.
+-	 * The default behavior will be to aquire the
+-	 * ring lock to preserve the current behavior.
+-	 */
+-	bool acquire_ring_lock;
+-	/*
+ 	 * For performance critical channels (storage, networking
+ 	 * etc,), Hyper-V has a mechanism to enhance the throughput
+ 	 * at the expense of latency:
+@@ -877,11 +867,6 @@ struct vmbus_channel {
+ 
+ };
+ 
+-static inline void set_channel_lock_state(struct vmbus_channel *c, bool state)
+-{
+-	c->acquire_ring_lock = state;
+-}
 -
--	bool batched_reading;
-+	enum hv_callback_mode {
-+		HV_CALL_BATCHED,
-+		HV_CALL_DIRECT,
-+		HV_CALL_ISR
-+	} callback_mode;
- 
- 	bool is_dedicated_interrupt;
- 	struct hv_input_signal_event_buffer sig_buf;
-@@ -892,9 +894,10 @@ static inline void set_channel_affinity_state(struct vmbus_channel *c,
- 	c->affinity_policy = policy;
- }
- 
--static inline void set_channel_read_state(struct vmbus_channel *c, bool state)
-+static inline void set_channel_read_mode(struct vmbus_channel *c,
-+					 enum hv_callback_mode mode)
+ static inline bool is_hvsock_channel(const struct vmbus_channel *c)
  {
--	c->batched_reading = state;
-+	c->callback_mode = mode;
- }
- 
- static inline void set_channel_pending_send_size(struct vmbus_channel *c,
+ 	return !!(c->offermsg.offer.chn_flags &
 -- 
 2.11.0
