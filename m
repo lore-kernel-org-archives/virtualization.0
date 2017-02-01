@@ -1,11 +1,13 @@
 From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: [PATCH 00/14] hyperv: vmbus related patches
-Date: Wed,  1 Feb 2017 08:28:47 -0800
-Message-ID: <20170201162901.3894-1-sthemmin@microsoft.com>
+Subject: [PATCH 02/14] vmbus: drop no longer used kick_q argument
+Date: Wed,  1 Feb 2017 08:28:49 -0800
+Message-ID: <20170201162901.3894-3-sthemmin@microsoft.com>
+References: <20170201162901.3894-1-sthemmin@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20170201162901.3894-1-sthemmin@microsoft.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,44 +21,111 @@ To: kys@microsoft.com, gregkh@linuxfoundation.org
 Cc: devel@linuxdriverproject.org, Stephen Hemminger <sthemmin@microsoft.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a rebase/resend of earlier patches. I skipped the pure
-cosmetic patches for now.  Mostly this is consolidation earlier
-changes, removing dead code etc.  The important part is the
-change for allowing a vmbus channel to get callback directly
-in interrupt mode; this is necessary for NAPI support.
+The flag to cause notification of host is unused after
+commit a01a291a282f7c2e ("Drivers: hv: vmbus: Base host signaling
+strictly on the ring state"). Therefore remove it from the ring
+buffer internal API.
 
-Stephen Hemminger (14):
-  vmbus: use kernel bitops for traversing interrupt mask
-  vmbus: drop no longer used kick_q argument
-  vmbus: remove no longer used signal_policy
-  vmbus: remove unused kickq argument to sendpacket
-  netvsc: remove no longer needed receive staging buffers
-  vmbus: remove per channel state
-  vmbus: callback is in softirq not workqueue
-  vmbus: put related per-cpu variable together
-  vmbus: change to per channel tasklet
-  vmbus: add direct isr callback mode
-  vmbus: remove conditional locking of vmbus_write
-  vmbus: expose hv_begin/end_read
-  vmbus: constify parameters where possible
-  vmbus: replace modulus operation with subtraction
+Signed-off-by: Stephen Hemminger <sthemmin@microsoft.com>
+---
+ drivers/hv/channel.c      | 13 ++++---------
+ drivers/hv/hyperv_vmbus.h |  5 ++---
+ drivers/hv/ring_buffer.c  |  8 +++-----
+ 3 files changed, 9 insertions(+), 17 deletions(-)
 
-Starting point was top of current char-misc-next branch.
-
- drivers/hv/channel.c              |  47 +++++--------
- drivers/hv/channel_mgmt.c         |  41 ++++++------
- drivers/hv/connection.c           | 134 +++++---------------------------------
- drivers/hv/hv.c                   | 124 +++++++++++++++--------------------
- drivers/hv/hv_util.c              |   3 +-
- drivers/hv/hyperv_vmbus.h         |  80 ++++++++++++-----------
- drivers/hv/ring_buffer.c          |  66 ++++++-------------
- drivers/hv/vmbus_drv.c            | 115 ++++++++++++++++++++++++++------
- drivers/net/hyperv/hyperv_net.h   |   5 --
- drivers/net/hyperv/netvsc.c       | 104 ++++-------------------------
- drivers/net/hyperv/rndis_filter.c |  11 ----
- drivers/uio/uio_hv_generic.c      |   2 +-
- include/linux/hyperv.h            | 134 +++++++++++++++++---------------------
- 13 files changed, 338 insertions(+), 528 deletions(-)
-
+diff --git a/drivers/hv/channel.c b/drivers/hv/channel.c
+index a016c5c0e472..e26285cde8e0 100644
+--- a/drivers/hv/channel.c
++++ b/drivers/hv/channel.c
+@@ -670,9 +670,7 @@ int vmbus_sendpacket_ctl(struct vmbus_channel *channel, void *buffer,
+ 	bufferlist[2].iov_base = &aligned_data;
+ 	bufferlist[2].iov_len = (packetlen_aligned - packetlen);
+ 
+-	return hv_ringbuffer_write(channel, bufferlist, num_vecs,
+-				   lock, kick_q);
+-
++	return hv_ringbuffer_write(channel, bufferlist, num_vecs, lock);
+ }
+ EXPORT_SYMBOL(vmbus_sendpacket_ctl);
+ 
+@@ -757,8 +755,7 @@ int vmbus_sendpacket_pagebuffer_ctl(struct vmbus_channel *channel,
+ 	bufferlist[2].iov_base = &aligned_data;
+ 	bufferlist[2].iov_len = (packetlen_aligned - packetlen);
+ 
+-	return hv_ringbuffer_write(channel, bufferlist, 3,
+-				   lock, kick_q);
++	return hv_ringbuffer_write(channel, bufferlist, 3, lock);
+ }
+ EXPORT_SYMBOL_GPL(vmbus_sendpacket_pagebuffer_ctl);
+ 
+@@ -813,8 +810,7 @@ int vmbus_sendpacket_mpb_desc(struct vmbus_channel *channel,
+ 	bufferlist[2].iov_base = &aligned_data;
+ 	bufferlist[2].iov_len = (packetlen_aligned - packetlen);
+ 
+-	return hv_ringbuffer_write(channel, bufferlist, 3,
+-				   lock, true);
++	return hv_ringbuffer_write(channel, bufferlist, 3, lock);
+ }
+ EXPORT_SYMBOL_GPL(vmbus_sendpacket_mpb_desc);
+ 
+@@ -871,8 +867,7 @@ int vmbus_sendpacket_multipagebuffer(struct vmbus_channel *channel,
+ 	bufferlist[2].iov_base = &aligned_data;
+ 	bufferlist[2].iov_len = (packetlen_aligned - packetlen);
+ 
+-	return hv_ringbuffer_write(channel, bufferlist, 3,
+-				   lock, true);
++	return hv_ringbuffer_write(channel, bufferlist, 3, lock);
+ }
+ EXPORT_SYMBOL_GPL(vmbus_sendpacket_multipagebuffer);
+ 
+diff --git a/drivers/hv/hyperv_vmbus.h b/drivers/hv/hyperv_vmbus.h
+index 2749a4142889..c375ec89db6f 100644
+--- a/drivers/hv/hyperv_vmbus.h
++++ b/drivers/hv/hyperv_vmbus.h
+@@ -275,9 +275,8 @@ int hv_ringbuffer_init(struct hv_ring_buffer_info *ring_info,
+ void hv_ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info);
+ 
+ int hv_ringbuffer_write(struct vmbus_channel *channel,
+-		    struct kvec *kv_list,
+-		    u32 kv_count, bool lock,
+-		    bool kick_q);
++			struct kvec *kv_list,
++			u32 kv_count, bool lock);
+ 
+ int hv_ringbuffer_read(struct vmbus_channel *channel,
+ 		       void *buffer, u32 buflen, u32 *buffer_actual_len,
+diff --git a/drivers/hv/ring_buffer.c b/drivers/hv/ring_buffer.c
+index 2cd402986858..30ca55aefd24 100644
+--- a/drivers/hv/ring_buffer.c
++++ b/drivers/hv/ring_buffer.c
+@@ -77,8 +77,7 @@ u32 hv_end_read(struct hv_ring_buffer_info *rbi)
+  * host logic is fixed.
+  */
+ 
+-static void hv_signal_on_write(u32 old_write, struct vmbus_channel *channel,
+-			       bool kick_q)
++static void hv_signal_on_write(u32 old_write, struct vmbus_channel *channel)
+ {
+ 	struct hv_ring_buffer_info *rbi = &channel->outbound;
+ 
+@@ -285,8 +284,7 @@ void hv_ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info)
+ 
+ /* Write to the ring buffer. */
+ int hv_ringbuffer_write(struct vmbus_channel *channel,
+-		    struct kvec *kv_list, u32 kv_count, bool lock,
+-		    bool kick_q)
++			struct kvec *kv_list, u32 kv_count, bool lock)
+ {
+ 	int i = 0;
+ 	u32 bytes_avail_towrite;
+@@ -352,7 +350,7 @@ int hv_ringbuffer_write(struct vmbus_channel *channel,
+ 	if (lock)
+ 		spin_unlock_irqrestore(&outring_info->ring_lock, flags);
+ 
+-	hv_signal_on_write(old_write, channel, kick_q);
++	hv_signal_on_write(old_write, channel);
+ 
+ 	if (channel->rescind)
+ 		return -ENODEV;
 -- 
 2.11.0
