@@ -1,13 +1,11 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PULL] vhost: cleanups and fixes
-Date: Mon, 23 Jan 2017 13:50:32 -0800
-Message-ID: <CA+55aFypi-Vg6CGtDX7tv_DfuN5ztrtSoQxexZiPKxDtmo9ZmQ__35684.2889370911$1496096464$gmane$org@mail.gmail.com>
-References: <20170123170530-mutt-send-email-mst@kernel.org>
+From: Omar Sandoval <osandov@osandov.com>
+Subject: [PATCH] virtio-console: avoid DMA from stack
+Date: Wed,  1 Feb 2017 00:02:27 -0800
+Message-ID: <075115ddd99246ffc4228a3e050ba68eb36c6a8c.1485935920.git.osandov@fb.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170123170530-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,16 +15,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: gcampana@quarkslab.com, KVM list <kvm@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, pmorel@linux.vnet.ibm.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Dan Carpenter <dan.carpenter@oracle.com>, Colin Ian King <colin.king@canonical.com>, bhumirks@gmail.com, silbe@linux.vnet.ibm.com
+To: Amit Shah <amit.shah@redhat.com>
+Cc: kernel-team@fb.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 23, 2017 at 7:05 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> virtio, vhost: fixes, cleanups
+From: Omar Sandoval <osandov@fb.com>
 
-Was there a reason why you sent this twice?
+put_chars() stuffs the buffer it gets into an sg, but that buffer may be
+on the stack. This breaks with CONFIG_VMAP_STACK=y (for me, it
+manifested as printks getting turned into NUL bytes).
 
-Or was this *supposed* to be the ARM DMA fix pull request? Because it wasn't.
+Signed-off-by: Omar Sandoval <osandov@fb.com>
+---
+Patch based on v4.10-rc6.
 
-                  Linus
+ drivers/char/virtio_console.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 17857beb4892..3cbf4c95e446 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1136,6 +1136,8 @@ static int put_chars(u32 vtermno, const char *buf, int count)
+ {
+ 	struct port *port;
+ 	struct scatterlist sg[1];
++	void *data;
++	int ret;
+ 
+ 	if (unlikely(early_put_chars))
+ 		return early_put_chars(vtermno, buf, count);
+@@ -1144,8 +1146,14 @@ static int put_chars(u32 vtermno, const char *buf, int count)
+ 	if (!port)
+ 		return -EPIPE;
+ 
+-	sg_init_one(sg, buf, count);
+-	return __send_to_port(port, sg, 1, count, (void *)buf, false);
++	data = kmemdup(buf, count, GFP_ATOMIC);
++	if (!data)
++		return -ENOMEM;
++
++	sg_init_one(sg, data, count);
++	ret = __send_to_port(port, sg, 1, count, data, false);
++	kfree(data);
++	return ret;
+ }
+ 
+ /*
+-- 
+2.11.0
