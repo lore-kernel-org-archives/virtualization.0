@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] virtio: Try to untangle DMA coherency
-Date: Thu, 2 Feb 2017 18:16:38 +0200
-Message-ID: <20170202181357-mutt-send-email-mst__19343.2489330464$1486052201$gmane$org@kernel.org>
+Date: Thu, 2 Feb 2017 18:30:28 +0200
+Message-ID: <20170202182224-mutt-send-email-mst__17623.4070946977$1486053052$gmane$org@kernel.org>
 References: <8a6494f6409c20b4609cd6bdcdd751f68b5c0564.1485951731.git.robin.murphy@arm.com>
 	<20170201195732-mutt-send-email-mst@kernel.org>
 	<20170201182659.GM8177@arm.com>
@@ -90,16 +90,17 @@ On Thu, Feb 02, 2017 at 01:34:03PM +0000, Robin Murphy wrote:
 > (hopefully) sort the regression out ASAP.
 > 
 > Robin.
-> 
+
+I am inclined to say, for 4.10 let's revert
+c7070619f3408d9a0dffbed9149e6f00479cf43b since what it fixes is not a
+regression in 4.10.  So I think we can defer the fix to 4.11.
+I think we still want f7f6634d23830ff74335734fbdb28ea109c1f349
+for hosts with virtio 1 support.
+
+All this will hopefully push hosts to just implement virtio 1.
+For mmio the changes are very small: several new registers,
+that's all. You want this for proper 64 bit dma mask anyway.
+
 > > 
 > > Will
 > > 
-
-I still think the right thing to do for this platform is to add an API
-for driver to say "disable protection for this device and allow
-this device 1:1 access to all memory".  This
-would make both platforms which bypass the iommu and platforms that
-don't happy as PA == dma address.
-
--- 
-MST
