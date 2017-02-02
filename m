@@ -1,13 +1,19 @@
-From: Robin Murphy <robin.murphy@arm.com>
-Subject: [PATCH v2 2/2] virtio: Document DMA coherency
-Date: Thu,  2 Feb 2017 16:36:21 +0000
-Message-ID: <6cc1be2a3ace621293157a9828c9f1d3f47147c8.1486053223.git.robin.murphy__25737.0441723198$1486053408$gmane$org@arm.com>
-References: <89fb6454e6e4b4e7ac7df2e00b96271c0045f8b9.1486053223.git.robin.murphy@arm.com>
+From: Marc Zyngier <marc.zyngier@arm.com>
+Subject: Re: [PATCH] virtio: Try to untangle DMA coherency
+Date: Thu, 2 Feb 2017 16:39:35 +0000
+Message-ID: <d9732885-7cd2-461c-6812-37581294b47f__23717.4894813963$1486053586$gmane$org@arm.com>
+References: <8a6494f6409c20b4609cd6bdcdd751f68b5c0564.1485951731.git.robin.murphy@arm.com>
+	<20170201195732-mutt-send-email-mst@kernel.org>
+	<20170201182659.GM8177@arm.com>
+	<20170201210648-mutt-send-email-mst@kernel.org>
+	<20170202112614.GB30577@arm.com>
+	<bb041fbe-3fde-0dc1-ae28-cca5acfe9dc5@arm.com>
+	<20170202181357-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <89fb6454e6e4b4e7ac7df2e00b96271c0045f8b9.1486053223.git.robin.murphy@arm.com>
+In-Reply-To: <20170202181357-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,47 +23,103 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com
-Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, pawel.moll@arm.com, will.deacon@arm.com, virtualization@lists.linux-foundation.org, robh+dt@kernel.org, linux-arm-kernel@lists.infradead.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Robin Murphy <robin.murphy@arm.com>
+Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, pawel.moll@arm.com, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, robh+dt@kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Since making use of the DMA API will require the architecture code to
-have the correct notion of device cache-coherency on architectures like
-ARM, explicitly call this out in the virtio-mmio DT binding. The ship
-has sailed for legacy virtio, but let's hope that we can head off any
-future firmware mishaps.
+On 02/02/17 16:16, Michael S. Tsirkin wrote:
+> On Thu, Feb 02, 2017 at 01:34:03PM +0000, Robin Murphy wrote:
+>> On 02/02/17 11:26, Will Deacon wrote:
+>>> On Wed, Feb 01, 2017 at 09:19:22PM +0200, Michael S. Tsirkin wrote:
+>>>> On Wed, Feb 01, 2017 at 06:27:09PM +0000, Will Deacon wrote:
+>>>>> On Wed, Feb 01, 2017 at 08:09:21PM +0200, Michael S. Tsirkin wrote:
+>>>>>> I'd like to do that instead. It's fastboot doing the unreasonable thing
+>>>>>> here and deviating from what every other legacy device without exception
+>>>>>> did for years. If this means fastboot will need to update to virtio 1,
+>>>>>> all the better.
+>>>>>
+>>>>> The problem still exists with virtio 1, unless we require that the
+>>>>> "dma-coherent" property is set/unset correctly when VIRTIO_F_IOMMU_PLATFORM
+>>>>> is advertised by the device (which is what I suggested in my reply).
+>>>>
+>>>> I'm not ignoring that, but I need to understand that part a bit better.
+>>>> I'll reply to that patch in a day or two after looking at how _CCA is
+>>>> supposed to work.
+>>>
+>>> Thanks. I do think that whatever solution we come up with for virtio 1
+>>> should influence what we do for legacy.
+>>>
+>>>>> We can't detect the fastmodel,
+>>>>
+>>>> Surely, it puts a hardware id somewhere? I think you mean
+>>>> fastmodel isn't always affected, right?
+>>>
+>>> I don't think there's a hardware ID. The thing is, the fastmodel is a
+>>> toolkit for building all sorts of platforms: you can chop and change
+>>> the CPUs, the peripherals, the memory, the interrupt controller, the
+>>> interconnect etc. Pretty much everything can be customised. So, for
+>>> any fastmodel configuration that places virtio upstream of the SMMU
+>>> (which is common, because virtio is one of the few DMA-capable peripherals
+>>> that the fastmodel supports), we need to do something special.
+>>>
+>>>> I'd like to see basically
+>>>>
+>>>> if (fastmodel)
+>>>> 	a pile of special work-arounds
+>>>> else
+>>>> 	not less hacky but more common virtio work-arounds
+>>>>
+>>>> :)
+>>>>
+>>>> And then I can apply whatever comes from @arm.com and not
+>>>> worry about breaking actual hardware.
+>>>
+>>> What we could do is call iommu_group_get(&vdev->dev) for legacy
+>>
+>> Actually, that should be vdev->dev.parent - I'm now not sure quite what
+>> I managed to successfully test yesterday, but apparently it wasn't this
+>> patch :(
+>>
+>>> devices if CONFIG_ARM64. If that returns non-NULL, then we know that
+>>> the device is upstream of an SMMU, which means it must be the fastmodel.
+>>
+>> We can boot 32-bit kernels on models, so I'd be inclined to keep
+>> CONFIG_ARM included, but I do tend to agree that explicitly checking for
+>> an IOMMU is probably the cleanest approach if we reposition this as a
+>> more specific quirk. I'll split apart the "Fast Models are wacky" vs.
+>> "uh-oh device coherency" aspects and spin a v2 so that we can
+>> (hopefully) sort the regression out ASAP.
+>>
+>> Robin.
+>>
+>>>
+>>> Will
+>>>
+> 
+> I still think the right thing to do for this platform is to add an API
+> for driver to say "disable protection for this device and allow
+> this device 1:1 access to all memory".  This
+> would make both platforms which bypass the iommu and platforms that
+> don't happy as PA == dma address.
 
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
----
- Documentation/devicetree/bindings/virtio/mmio.txt | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+Hi Michael,
 
-diff --git a/Documentation/devicetree/bindings/virtio/mmio.txt b/Documentation/devicetree/bindings/virtio/mmio.txt
-index 5069c1b8e193..999a93faa67c 100644
---- a/Documentation/devicetree/bindings/virtio/mmio.txt
-+++ b/Documentation/devicetree/bindings/virtio/mmio.txt
-@@ -7,6 +7,16 @@ Required properties:
- - compatible:	"virtio,mmio" compatibility string
- - reg:		control registers base address and size including configuration space
- - interrupts:	interrupt generated by the device
-+- dma-coherent:	required if the device (or host emulation) accesses memory
-+		cache-coherently, absent otherwise
-+
-+Linux implementation note:
-+
-+virtio devices not advertising the VIRTIO_F_IOMMU_PLATFORM flag have been
-+implicitly assumed to be cache-coherent by Linux, and for legacy reasons this
-+behaviour is likely to remain.  If VIRTIO_F_IOMMU_PLATFORM is advertised, then
-+such assumptions cannot be relied upon and the "dma-coherent" property must
-+accurately reflect the coherency of the device.
- 
- Example:
- 
-@@ -14,4 +24,5 @@ Example:
- 		compatible = "virtio,mmio";
- 		reg = <0x3000 0x100>;
- 		interrupts = <41>;
-+		dma-coherent;
- 	}
+What would this API be? A command-line option? A magic DT property? Yet
+another ACPI bodge? Given the type of HW platform we're looking at,
+changing the firmware to expose a new property is unlikely to be practical.
+
+My point is: we have all the required information in the kernel to do
+the right thing without asking the user to change anything in their
+existing setup. With this (admittedly unpleasant) change, we can make
+things work for both IOMMU and non-IOMMU setups, dma-coherent or not.
+And frankly, it doesn't look much worse than the Xen thing that sits a
+few lines above.
+
+Am I missing something more obvious than "you should use a flying car
+instead"? ;-)
+
+Thanks,
+
+	M.
 -- 
-2.11.0.dirty
+Jazz is not dead. It just smells funny...
