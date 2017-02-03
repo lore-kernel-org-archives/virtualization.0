@@ -1,21 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio: Try to untangle DMA coherency
-Date: Thu, 2 Feb 2017 18:45:41 +0200
-Message-ID: <20170202184443-mutt-send-email-mst__46544.4857175045$1486053969$gmane$org@kernel.org>
-References: <8a6494f6409c20b4609cd6bdcdd751f68b5c0564.1485951731.git.robin.murphy@arm.com>
-	<20170201195732-mutt-send-email-mst@kernel.org>
-	<20170201182659.GM8177@arm.com>
-	<20170201210648-mutt-send-email-mst@kernel.org>
-	<20170202112614.GB30577@arm.com>
-	<bb041fbe-3fde-0dc1-ae28-cca5acfe9dc5@arm.com>
-	<20170202182224-mutt-send-email-mst@kernel.org>
-	<20170202164049.GI13839@arm.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 0/3] Virtio: Fine-tuning for two function implementations
+Date: Fri, 3 Feb 2017 10:57:29 +0800
+Message-ID: <02d56f89-263e-3bda-9543-90e4c82df75b@redhat.com>
+References: <61829748-a13d-42e4-8f6c-103ee5ca2c88@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20170202164049.GI13839@arm.com>
+In-Reply-To: <61829748-a13d-42e4-8f6c-103ee5ca2c88@users.sourceforge.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,34 +17,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Will Deacon <will.deacon@arm.com>
-Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, pawel.moll@arm.com, virtualization@lists.linux-foundation.org, robh+dt@kernel.org, Robin Murphy <robin.murphy@arm.com>, linux-arm-kernel@lists.infradead.org
+To: SF Markus Elfring <elfring@users.sourceforge.net>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kernel-janitors@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 02, 2017 at 04:40:49PM +0000, Will Deacon wrote:
-> On Thu, Feb 02, 2017 at 06:30:28PM +0200, Michael S. Tsirkin wrote:
-> > I am inclined to say, for 4.10 let's revert
-> > c7070619f3408d9a0dffbed9149e6f00479cf43b since what it fixes is not a
-> > regression in 4.10.
-> 
-> No complaints there, as long as we can keep working to fix this for 4.11
-> and onwards. You'll also need to cc stable on the revert.
-> 
-> > So I think we can defer the fix to 4.11.
-> > I think we still want f7f6634d23830ff74335734fbdb28ea109c1f349
-> > for hosts with virtio 1 support.
-> > 
-> > All this will hopefully push hosts to just implement virtio 1.
-> > For mmio the changes are very small: several new registers,
-> > that's all. You want this for proper 64 bit dma mask anyway.
-> 
-> As I've said, virtio 1 will have exactly the same issue unless we start
-> requiring firmware to advertise dma-coherent/_CCA for virtio-mmio
-> devices correctly.
-> 
-> Will
-
-I mostly agree with that, just didn't have time to read up on _CCA yet.
-
--- 
-MST
+CgpPbiAyMDE35bm0MDHmnIgyN+aXpSAwNTo0NCwgU0YgTWFya3VzIEVsZnJpbmcgd3JvdGU6Cj4g
+RnJvbTogTWFya3VzIEVsZnJpbmcgPGVsZnJpbmdAdXNlcnMuc291cmNlZm9yZ2UubmV0Pgo+IERh
+dGU6IFRodSwgMjYgSmFuIDIwMTcgMjI6NDA6MDIgKzAxMDAKPgo+IEEgZmV3IHVwZGF0ZSBzdWdn
+ZXN0aW9ucyB3ZXJlIHRha2VuIGludG8gYWNjb3VudAo+IGZyb20gc3RhdGljIHNvdXJjZSBjb2Rl
+IGFuYWx5c2lzLgo+Cj4gTWFya3VzIEVsZnJpbmcgKDMpOgo+ICAgIHZpcnRpb19wY2k6IFVzZSBr
+Y2FsbG9jKCkgaW4gdnBfcmVxdWVzdF9tc2l4X3ZlY3RvcnMoKQo+ICAgIHZpcnRpb19wY2k6IFVz
+ZSBrbWFsbG9jX2FycmF5KCkgaW4gdnBfcmVxdWVzdF9tc2l4X3ZlY3RvcnMoKQo+ICAgIHZpcnRp
+b19yaW5nOiBVc2Uga21hbGxvY19hcnJheSgpIGluIGFsbG9jX2luZGlyZWN0KCkKPgo+ICAgZHJp
+dmVycy92aXJ0aW8vdmlydGlvX3BjaV9jb21tb24uYyB8IDggKysrKy0tLS0KPiAgIGRyaXZlcnMv
+dmlydGlvL3ZpcnRpb19yaW5nLmMgICAgICAgfCAzICstLQo+ICAgMiBmaWxlcyBjaGFuZ2VkLCA1
+IGluc2VydGlvbnMoKyksIDYgZGVsZXRpb25zKC0pCj4KCkFja2VkLWJ5OiBKYXNvbiBXYW5nIDxq
+YXNvd2FuZ0ByZWRoYXQuY29tPgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
+dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
+L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
