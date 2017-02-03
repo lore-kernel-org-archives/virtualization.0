@@ -1,14 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Amit Shah <amit.shah@redhat.com>
 Subject: Re: [PATCH] MAINTAINERS: update my email address
-Date: Fri, 3 Feb 2017 17:11:49 +0200
-Message-ID: <20170203171050-mutt-send-email-mst@kernel.org>
+Date: Fri, 3 Feb 2017 21:04:03 +0530
+Message-ID: <20170203153403.GA12373@amit-lp.rh>
 References: <1486120694-12004-1-git-send-email-amit.shah@redhat.com>
+	<20170203171050-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1486120694-12004-1-git-send-email-amit.shah@redhat.com>
+In-Reply-To: <20170203171050-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,38 +19,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Feb 03, 2017 at 04:48:14PM +0530, Amit Shah wrote:
-> I'm leaving my job at Red Hat, this email address will stop working next week.
-> Update it to one that I will have access to later.
+On (Fri) 03 Feb 2017 [17:11:49], Michael S. Tsirkin wrote:
+> On Fri, Feb 03, 2017 at 04:48:14PM +0530, Amit Shah wrote:
+> > I'm leaving my job at Red Hat, this email address will stop working next week.
+> > Update it to one that I will have access to later.
+> > 
+> > Signed-off-by: Amit Shah <amit.shah@redhat.com>
 > 
-> Signed-off-by: Amit Shah <amit.shah@redhat.com>
+> It's great that we'll still have you around!  Do you want to send a pull
+> request with this patch? Or want me to merge it?
 
-It's great that we'll still have you around!  Do you want to send a pull
-request with this patch? Or want me to merge it?
+Yes, I expect to be around :)
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Please merge it via your tree, thanks.
 
 
-> ---
->  MAINTAINERS | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 3960e7f..187b961 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -13065,7 +13065,7 @@ F:	drivers/input/serio/userio.c
->  F:	include/uapi/linux/userio.h
->  
->  VIRTIO CONSOLE DRIVER
-> -M:	Amit Shah <amit.shah@redhat.com>
-> +M:	Amit Shah <amit@kernel.org>
->  L:	virtualization@lists.linux-foundation.org
->  S:	Maintained
->  F:	drivers/char/virtio_console.c
-> -- 
-> 1.8.3.1
+		Amit
