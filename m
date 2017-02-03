@@ -1,13 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] Revert "vring: Force use of DMA API for ARM-based systems
-	with legacy devices"
-Date: Fri, 3 Feb 2017 05:49:11 +0200
-Message-ID: <1486093716-17120-1-git-send-email-mst__8453.53388363055$1486093766$gmane$org@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 1/9] virtio_pci: remove struct virtio_pci_vq_info
+Date: Fri, 3 Feb 2017 15:54:36 +0800
+Message-ID: <a5568074-d92e-8322-6955-19c640006fda__48094.7314099923$1486108485$gmane$org@redhat.com>
+References: <1485504997-17584-1-git-send-email-hch@lst.de>
+	<1485504997-17584-2-git-send-email-hch@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <1485504997-17584-2-git-send-email-hch@lst.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,57 +18,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Marc Zyngier <marc.zyngier@arm.com>, Will Deacon <will.deacon@arm.com>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Robin Murphy <robin.murphy@arm.com>
+To: Christoph Hellwig <hch@lst.de>, mst@redhat.com
+Cc: axboe@kernel.dk, pbonzini@redhat.com, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This reverts commit c7070619f3408d9a0dffbed9149e6f00479cf43b.
-
-This has been shown to regress on some ARM systems:
-
-by forcing on DMA API usage for ARM systems, we have inadvertently
-kicked open a hornets' nest in terms of cache-coherency. Namely that
-unless the virtio device is explicitly described as capable of coherent
-DMA by firmware, the DMA APIs on ARM and other DT-based platforms will
-assume it is non-coherent. This turns out to cause a big problem for the
-likes of QEMU and kvmtool, which generate virtio-mmio devices in their
-guest DTs but neglect to add the often-overlooked "dma-coherent"
-property; as a result, we end up with the guest making non-cacheable
-accesses to the vring, the host doing so cacheably, both talking past
-each other and things going horribly wrong.
-
-We are working on a safer work-around.
-
-Fixes: c7070619f340 ("vring: Force use of DMA API for ARM-based systems with legacy devices")
-Reported-by: Robin Murphy <robin.murphy@arm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Marc Zyngier <marc.zyngier@arm.com>
----
-
-I'll merge this for 4.10. Let's fix it properly for 4.11.
-
- drivers/virtio/virtio_ring.c | 7 -------
- 1 file changed, 7 deletions(-)
-
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 7e38ed7..409aeaa 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -159,13 +159,6 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
- 	if (xen_domain())
- 		return true;
- 
--	/*
--	 * On ARM-based machines, the DMA ops will do the right thing,
--	 * so always use them with legacy devices.
--	 */
--	if (IS_ENABLED(CONFIG_ARM) || IS_ENABLED(CONFIG_ARM64))
--		return !virtio_has_feature(vdev, VIRTIO_F_VERSION_1);
--
- 	return false;
- }
- 
--- 
-MST
+CgpPbiAyMDE35bm0MDHmnIgyN+aXpSAxNjoxNiwgQ2hyaXN0b3BoIEhlbGx3aWcgd3JvdGU6Cj4g
+V2UgZG9uJ3QgcmVhbGx5IG5lZWQgc3RydWN0IHZpcnRpb19wY2lfdnFfaW5mbywgYXMgbW9zdCBm
+aWVsZCBpbiB0aGVyZQo+IGFyZSByZWR1bmRhbnQ6Cj4KPiAgIC0gdGhlIHZxIGJhY2twb2ludGVy
+IGlzIG5vdCBzdHJpY3RseSBuZWVkZSB0byBzdGFydCB3aXRoCj4gICAtIHRoZSBlbnRyeSBpbiB0
+aGUgdnFzIGxpc3QgaXMgbm90IG5lZWRlZCAtIHRoZSBnZW5lcmljIHZpcnRxdWV1ZSBhbHJlYWR5
+Cj4gICAgIGhhcyBsaXN0LCB3ZSBvbmx5IG5lZWQgdG8gY2hlY2sgaWYgaXQgaGFzIGEgY2FsbGJh
+Y2sgdG8gZ2V0IHRoZSBzYW1lCj4gICAgIHNlbWFudGljcwo+ICAgLSB3ZSBjYW4gdXNlIGEgc2lt
+cGxlIGFycmF5IHRvIGxvb2sgdXAgdGhlIE1TSS1YIHZlYyBpZiBuZWVkZWQuCj4gICAtIFRoYXQg
+c2ltcGxlIGFycmF5IG5vdyBhbHNvIGR1b2JsZSBzZXJ2ZXMgdG8gcmVwbGFjZSB0aGUgcGVyX3Zx
+X3ZlY3RvcnMKPiAgICAgZmxhZwo+Cj4gU2lnbmVkLW9mZi1ieTogQ2hyaXN0b3BoIEhlbGx3aWcg
+PGhjaEBsc3QuZGU+Cj4gLS0tCj4gICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX2NvbW1vbi5j
+IHwgMTE3ICsrKysrKysrKysrLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KPiAgIGRyaXZlcnMv
+dmlydGlvL3ZpcnRpb19wY2lfY29tbW9uLmggfCAgMjUgKy0tLS0tLS0KPiAgIGRyaXZlcnMvdmly
+dGlvL3ZpcnRpb19wY2lfbGVnYWN5LmMgfCAgIDYgKy0KPiAgIGRyaXZlcnMvdmlydGlvL3ZpcnRp
+b19wY2lfbW9kZXJuLmMgfCAgIDYgKy0KPiAgIDQgZmlsZXMgY2hhbmdlZCwgMzkgaW5zZXJ0aW9u
+cygrKSwgMTE1IGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3Zp
+cnRpb19wY2lfY29tbW9uLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX2NvbW1vbi5jCj4g
+aW5kZXggMTg2Y2JhYi4uYTMzNzY3MzEgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmly
+dGlvX3BjaV9jb21tb24uYwo+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfY29tbW9u
+LmMKPiBAQCAtNjIsMTYgKzYyLDEzIEBAIHN0YXRpYyBpcnFyZXR1cm5fdCB2cF9jb25maWdfY2hh
+bmdlZChpbnQgaXJxLCB2b2lkICpvcGFxdWUpCj4gICBzdGF0aWMgaXJxcmV0dXJuX3QgdnBfdnJp
+bmdfaW50ZXJydXB0KGludCBpcnEsIHZvaWQgKm9wYXF1ZSkKPiAgIHsKPiAgIAlzdHJ1Y3Qgdmly
+dGlvX3BjaV9kZXZpY2UgKnZwX2RldiA9IG9wYXF1ZTsKPiAtCXN0cnVjdCB2aXJ0aW9fcGNpX3Zx
+X2luZm8gKmluZm87Cj4gICAJaXJxcmV0dXJuX3QgcmV0ID0gSVJRX05PTkU7Cj4gLQl1bnNpZ25l
+ZCBsb25nIGZsYWdzOwo+ICsJc3RydWN0IHZpcnRxdWV1ZSAqdnE7Cj4gICAKPiAtCXNwaW5fbG9j
+a19pcnFzYXZlKCZ2cF9kZXYtPmxvY2ssIGZsYWdzKTsKPiAtCWxpc3RfZm9yX2VhY2hfZW50cnko
+aW5mbywgJnZwX2Rldi0+dmlydHF1ZXVlcywgbm9kZSkgewo+IC0JCWlmICh2cmluZ19pbnRlcnJ1
+cHQoaXJxLCBpbmZvLT52cSkgPT0gSVJRX0hBTkRMRUQpCj4gKwlsaXN0X2Zvcl9lYWNoX2VudHJ5
+KHZxLCAmdnBfZGV2LT52ZGV2LnZxcywgbGlzdCkgewo+ICsJCWlmICh2cS0+Y2FsbGJhY2sgJiYg
+dnJpbmdfaW50ZXJydXB0KGlycSwgdnEpID09IElSUV9IQU5ETEVEKQoKVGhlIGNoZWNrIG9mIHZx
+LT5jYWxsYmFjayBzZWVtcyByZWR1bmRhbnQsIHdlIHdpbGwgY2hlY2sgaXQgc29vbiBpbiAKdnJp
+bmdfaW50ZXJydXB0KCkuCgpUaGFua3MKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
+QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
+Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
