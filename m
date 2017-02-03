@@ -1,15 +1,12 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH] MAINTAINERS: update my email address
-Date: Fri, 3 Feb 2017 21:04:03 +0530
-Message-ID: <20170203153403.GA12373@amit-lp.rh>
-References: <1486120694-12004-1-git-send-email-amit.shah@redhat.com>
-	<20170203171050-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL] vhost: cleanups and fixes
+Date: Fri, 3 Feb 2017 23:43:09 +0200
+Message-ID: <20170203234309-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20170203171050-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,23 +16,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: miket@us.ibm.com, kvm@vger.kernel.org, mst@redhat.com, marc.zyngier@arm.com, netdev@vger.kernel.org, will.deacon@arm.com, dgilbert@redhat.com, stable@vger.kernel.org, linux-kernel@vger.kernel.org, amit.shah@redhat.com, virtualization@lists.linux-foundation.org, robin.murphy@arm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Fri) 03 Feb 2017 [17:11:49], Michael S. Tsirkin wrote:
-> On Fri, Feb 03, 2017 at 04:48:14PM +0530, Amit Shah wrote:
-> > I'm leaving my job at Red Hat, this email address will stop working next week.
-> > Update it to one that I will have access to later.
-> > 
-> > Signed-off-by: Amit Shah <amit.shah@redhat.com>
-> 
-> It's great that we'll still have you around!  Do you want to send a pull
-> request with this patch? Or want me to merge it?
+The following changes since commit 566cf877a1fcb6d6dc0126b076aad062054c2637:
 
-Yes, I expect to be around :)
+  Linux 4.10-rc6 (2017-01-29 14:25:17 -0800)
 
-Please merge it via your tree, thanks.
+are available in the git repository at:
 
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-		Amit
+for you to fetch changes up to 79134d11d030b886106bf45a5638c1ccb1f0856c:
+
+  MAINTAINERS: update email address for Amit Shah (2017-02-03 23:40:36 +0200)
+
+----------------------------------------------------------------
+virtio, vhost: last minute fixes
+
+ARM DMA fix revert
+vhost endian-ness fix
+MAINTAINERS: email address change for Amit
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Amit Shah (1):
+      MAINTAINERS: update email address for Amit Shah
+
+Halil Pasic (1):
+      vhost: fix initialization for vq->is_le
+
+Michael S. Tsirkin (1):
+      Revert "vring: Force use of DMA API for ARM-based systems with legacy devices"
+
+ MAINTAINERS                  |  2 +-
+ drivers/vhost/vhost.c        | 10 ++++------
+ drivers/virtio/virtio_ring.c |  7 -------
+ 3 files changed, 5 insertions(+), 14 deletions(-)
