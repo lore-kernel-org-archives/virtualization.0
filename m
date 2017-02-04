@@ -1,13 +1,17 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] vhost: fix initialization for vq->is_le
-Date: Sat, 4 Feb 2017 10:27:19 +0800
-Message-ID: <99d369a3-b392-685c-2d3e-475a1ee60d73@redhat.com>
-References: <20170130100936.17065-1-pasic@linux.vnet.ibm.com>
+From: "Li, Liang Z" <liang.z.li@intel.com>
+Subject: RE: [PATCH v6 kernel 3/5] virtio-balloon: speed up inflate/deflate
+	process
+Date: Sat, 4 Feb 2017 04:35:41 +0000
+Message-ID: <F2CBF3009FA73547804AE4C663CAB28E3C363988@shsmsx102.ccr.corp.intel.com>
+References: <1482303148-22059-1-git-send-email-liang.z.li@intel.com>
+	<1482303148-22059-4-git-send-email-liang.z.li@intel.com>
+	<20170120114809.GH2658@work-vm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170130100936.17065-1-pasic@linux.vnet.ibm.com>
+In-Reply-To: <20170120114809.GH2658@work-vm>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,57 +21,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.vnet.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "Michael A. Tebolt" <miket@us.ibm.com>, kvm@vger.kernel.org, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, Greg Kurz <groug@kaod.org>, virtualization@lists.linux-foundation.org
+To: "Dr. David Alan Gilbert" <dgilbert@redhat.com>
+Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Hansen,
+	Dave" <dave.hansen@intel.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDHmnIgzMOaXpSAxODowOSwgSGFsaWwgUGFzaWMgd3JvdGU6Cj4gQ3VycmVu
-dGx5LCB1bmRlciBjZXJ0YWluIGNpcmN1bXN0YW5jZXMgdmhvc3RfaW5pdF9pc19sZSBkb2VzIGp1
-c3QgYSBwYXJ0Cj4gb2YgdGhlIGluaXRpYWxpemF0aW9uIGpvYiwgYW5kIGRlcGVuZHMgb24gdmhv
-c3RfcmVzZXRfaXNfbGUgYmVpbmcgY2FsbGVkCj4gdG9vLiBGb3IgdGhpcyByZWFzb24gdmhvc3Rf
-dnFfaW5pdF9hY2Nlc3MgdXNlZCB0byBjYWxsIHZob3N0X3Jlc2V0X2lzX2xlCj4gd2hlbiB2cS0+
-cHJpdmF0ZV9kYXRhIGlzIE5VTEwuIFRoaXMgaXMgbm90IG9ubHkgY291bnRlciBpbnR1aXRpdmUs
-IGJ1dAo+IGFsc28gcmVhbCBhIHByb2JsZW0gYmVjYXVzZSBpdCBicmVha3Mgdmhvc3RfbmV0LiBU
-aGUgYnVnIHdhcyBpbnRyb2R1Y2VkIHRvCj4gdmhvc3RfbmV0IHdpdGggY29tbWl0IDI3NTFjOTg4
-MmI5NCAoInZob3N0OiBjcm9zcy1lbmRpYW4gc3VwcG9ydCBmb3IKPiBsZWdhY3kgZGV2aWNlcyIp
-LiBUaGUgc3ltcHRvbSBpcyBjb3JydXB0aW9uIG9mIHRoZSB2cSdzIHVzZWQuaWR4IGZpZWxkCj4g
-KHZpcnRpbykgYWZ0ZXIgVkhPU1RfTkVUX1NFVF9CQUNLRU5EIHdhcyBpc3N1ZWQgYXMgYSBwYXJ0
-IG9mIHRoZSB2aG9zdAo+IHNodXRkb3duIG9uIGEgdnEgd2l0aCBwZW5kaW5nIGRlc2NyaXB0b3Jz
-Lgo+Cj4gTGV0IHVzIG1ha2Ugc3VyZSB0aGUgb3V0Y29tZSBvZiB2aG9zdF9pbml0X2lzX2xlIG5l
-dmVyIGRlcGVuZCBvbiB0aGUgc3RhdGUKPiBpdCBpcyBhY3R1YWxseSBzdXBwb3NlZCB0byBpbml0
-aWFsaXplLCBhbmQgZml4IHZpcnRpb19uZXQgYnkgcmVtb3ZpbmcgdGhlCj4gcmVzZXQgZnJvbSB2
-aG9zdF92cV9pbml0X2FjY2Vzcy4KPgo+IFdpdGggdGhlIGFib3ZlLCB0aGVyZSBpcyBubyByZWFz
-b24gZm9yIHZob3N0X3Jlc2V0X2lzX2xlIHRvIGRvIGp1c3QgaGFsZgo+IG9mIHRoZSBqb2IuIExl
-dCB1cyBtYWtlIHZob3N0X3Jlc2V0X2lzX2xlIHJlaW5pdGlhbGl6ZSBpc19sZS4KPgo+IFNpZ25l
-ZC1vZmYtYnk6IEhhbGlsIFBhc2ljIDxwYXNpY0BsaW51eC52bmV0LmlibS5jb20+Cj4gUmVwb3J0
-ZWQtYnk6IE1pY2hhZWwgQS4gVGVib2x0IDxtaWtldEB1cy5pYm0uY29tPgo+IFJlcG9ydGVkLWJ5
-OiBEci4gRGF2aWQgQWxhbiBHaWxiZXJ0IDxkZ2lsYmVydEByZWRoYXQuY29tPgo+IEZpeGVzOiBj
-b21taXQgMjc1MWM5ODgyYjk0ICgidmhvc3Q6IGNyb3NzLWVuZGlhbiBzdXBwb3J0IGZvciBsZWdh
-Y3kgZGV2aWNlcyIpCj4gLS0tCj4KPiBUaGUgYnVnIHdhcyBhbHJlYWR5IGRpc2N1c3NlZCBoZXJl
-Ogo+IGh0dHA6Ly93d3cuc3Bpbmljcy5uZXQvbGlzdHMva3ZtL21zZzE0NDM2NS5odG1sCj4gVGhp
-cyBpcyBhIGZvbGxvdyB1cCBwYXRjaC4KPgo+IC0tLQo+ICAgZHJpdmVycy92aG9zdC92aG9zdC5j
-IHwgMTAgKysrKy0tLS0tLQo+ICAgMSBmaWxlIGNoYW5nZWQsIDQgaW5zZXJ0aW9ucygrKSwgNiBk
-ZWxldGlvbnMoLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMgYi9kcml2
-ZXJzL3Zob3N0L3Zob3N0LmMKPiBpbmRleCBkNjQzMjYwLi44Zjk5ZmUwIDEwMDY0NAo+IC0tLSBh
-L2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+ICsrKyBiL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+IEBA
-IC0xMzAsMTQgKzEzMCwxNCBAQCBzdGF0aWMgbG9uZyB2aG9zdF9nZXRfdnJpbmdfZW5kaWFuKHN0
-cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxLCB1MzIgaWR4LAo+ICAgCj4gICBzdGF0aWMgdm9pZCB2
-aG9zdF9pbml0X2lzX2xlKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxKQo+ICAgewo+IC0JaWYg
-KHZob3N0X2hhc19mZWF0dXJlKHZxLCBWSVJUSU9fRl9WRVJTSU9OXzEpKQo+IC0JCXZxLT5pc19s
-ZSA9IHRydWU7Cj4gKwl2cS0+aXNfbGUgPSB2aG9zdF9oYXNfZmVhdHVyZSh2cSwgVklSVElPX0Zf
-VkVSU0lPTl8xKQo+ICsJCXx8IHZpcnRpb19sZWdhY3lfaXNfbGl0dGxlX2VuZGlhbigpOwo+ICAg
-fQo+ICAgI2VuZGlmIC8qIENPTkZJR19WSE9TVF9DUk9TU19FTkRJQU5fTEVHQUNZICovCj4gICAK
-PiAgIHN0YXRpYyB2b2lkIHZob3N0X3Jlc2V0X2lzX2xlKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUg
-KnZxKQo+ICAgewo+IC0JdnEtPmlzX2xlID0gdmlydGlvX2xlZ2FjeV9pc19saXR0bGVfZW5kaWFu
-KCk7Cj4gKwl2aG9zdF9pbml0X2lzX2xlKHZxKTsKPiAgIH0KPiAgIAo+ICAgc3RydWN0IHZob3N0
-X2ZsdXNoX3N0cnVjdCB7Cj4gQEAgLTE3MTQsMTAgKzE3MTQsOCBAQCBpbnQgdmhvc3RfdnFfaW5p
-dF9hY2Nlc3Moc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEpCj4gICAJaW50IHI7Cj4gICAJYm9v
-bCBpc19sZSA9IHZxLT5pc19sZTsKPiAgIAo+IC0JaWYgKCF2cS0+cHJpdmF0ZV9kYXRhKSB7Cj4g
-LQkJdmhvc3RfcmVzZXRfaXNfbGUodnEpOwo+ICsJaWYgKCF2cS0+cHJpdmF0ZV9kYXRhKQo+ICAg
-CQlyZXR1cm4gMDsKPiAtCX0KPiAgIAo+ICAgCXZob3N0X2luaXRfaXNfbGUodnEpOwo+ICAgCgpB
-Y2tlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KCldlIGNhbiBwcm9iYWJs
-eSBqdXN0IGRyb3Agdmhvc3RfcmVzZXRfaXNfbGUoKSBhbmQganVzdCB1c2UgCnZob3N0X2luaXRf
-aXNfbGUoKSBpbnN0ZWFkLgoKVGhhbmtzCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
-bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
-bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+> <snip>
+> 
+> > +static void free_extended_page_bitmap(struct virtio_balloon *vb) {
+> > +	int i, bmap_count = vb->nr_page_bmap;
+> > +
+> > +	for (i = 1; i < bmap_count; i++) {
+> > +		kfree(vb->page_bitmap[i]);
+> > +		vb->page_bitmap[i] = NULL;
+> > +		vb->nr_page_bmap--;
+> > +	}
+> > +}
+> > +
+> > +static void kfree_page_bitmap(struct virtio_balloon *vb) {
+> > +	int i;
+> > +
+> > +	for (i = 0; i < vb->nr_page_bmap; i++)
+> > +		kfree(vb->page_bitmap[i]);
+> > +}
+> 
+> It might be worth commenting that pair of functions to make it clear why
+> they are so different; I guess the kfree_page_bitmap is used just before you
+> free the structure above it so you don't need to keep the count/pointers
+> updated?
+> 
+
+Yes. I will add some comments for that. Thanks!
+
+Liang
+ 
+> Dave
+> --
+> Dr. David Alan Gilbert / dgilbert@redhat.com / Manchester, UK
