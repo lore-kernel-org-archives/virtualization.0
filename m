@@ -1,13 +1,18 @@
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 9/9] virtio_scsi: use virtio IRQ affinity
-Date: Sun,  5 Feb 2017 18:15:26 +0100
-Message-ID: <20170205171526.6224-10-hch__32233.5731740624$1486315028$gmane$org@lst.de>
-References: <20170205171526.6224-1-hch@lst.de>
+From: KY Srinivasan via Virtualization
+	<virtualization@lists.linux-foundation.org>
+Subject: RE: [PATCH 05/14] netvsc: remove no longer needed receive staging
+	buffers
+Date: Sun, 5 Feb 2017 23:40:56 +0000
+Message-ID: <DM5PR03MB24909873E83748C02E22AD7CA0410@DM5PR03MB2490.namprd03.prod.outlook.com>
+References: <20170201162901.3894-1-sthemmin@microsoft.com>
+	<20170201162901.3894-6-sthemmin@microsoft.com>
+Reply-To: KY Srinivasan <kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170205171526.6224-1-hch@lst.de>
+In-Reply-To: <20170201162901.3894-6-sthemmin@microsoft.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,280 +22,230 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com
-Cc: axboe@kernel.dk, pbonzini@redhat.com, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Stephen Hemminger <stephen@networkplumber.org>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+Cc: "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, Stephen Hemminger <sthemmin@microsoft.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use automatic IRQ affinity assignment in the virtio layer if available,
-and build the blk-mq queues based on it.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/scsi/virtio_scsi.c | 126 +++++----------------------------------------
- include/linux/cpuhotplug.h |   1 -
- 2 files changed, 12 insertions(+), 115 deletions(-)
 
-diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-index 32a16293436b..5582c8baeabb 100644
---- a/drivers/scsi/virtio_scsi.c
-+++ b/drivers/scsi/virtio_scsi.c
-@@ -18,6 +18,7 @@
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/mempool.h>
-+#include <linux/interrupt.h>
- #include <linux/virtio.h>
- #include <linux/virtio_ids.h>
- #include <linux/virtio_config.h>
-@@ -29,6 +30,7 @@
- #include <scsi/scsi_cmnd.h>
- #include <scsi/scsi_tcq.h>
- #include <linux/seqlock.h>
-+#include <linux/blk-mq-virtio.h>
- 
- #define VIRTIO_SCSI_MEMPOOL_SZ 64
- #define VIRTIO_SCSI_EVENT_LEN 8
-@@ -108,7 +110,6 @@ struct virtio_scsi {
- 	bool affinity_hint_set;
- 
- 	struct hlist_node node;
--	struct hlist_node node_dead;
- 
- 	/* Protected by event_vq lock */
- 	bool stop_events;
-@@ -118,7 +119,6 @@ struct virtio_scsi {
- 	struct virtio_scsi_vq req_vqs[];
- };
- 
--static enum cpuhp_state virtioscsi_online;
- static struct kmem_cache *virtscsi_cmd_cache;
- static mempool_t *virtscsi_cmd_pool;
- 
-@@ -757,6 +757,13 @@ static void virtscsi_target_destroy(struct scsi_target *starget)
- 	kfree(tgt);
- }
- 
-+static int virtscsi_map_queues(struct Scsi_Host *shost)
-+{
-+	struct virtio_scsi *vscsi = shost_priv(shost);
-+
-+	return blk_mq_virtio_map_queues(&shost->tag_set, vscsi->vdev, 2);
-+}
-+
- static struct scsi_host_template virtscsi_host_template_single = {
- 	.module = THIS_MODULE,
- 	.name = "Virtio SCSI HBA",
-@@ -792,6 +799,7 @@ static struct scsi_host_template virtscsi_host_template_multi = {
- 	.use_clustering = ENABLE_CLUSTERING,
- 	.target_alloc = virtscsi_target_alloc,
- 	.target_destroy = virtscsi_target_destroy,
-+	.map_queues = virtscsi_map_queues,
- 	.track_queue_depth = 1,
- };
- 
-@@ -808,80 +816,6 @@ static struct scsi_host_template virtscsi_host_template_multi = {
- 		virtio_cwrite(vdev, struct virtio_scsi_config, fld, &__val); \
- 	} while(0)
- 
--static void __virtscsi_set_affinity(struct virtio_scsi *vscsi, bool affinity)
--{
--	int i;
--	int cpu;
--
--	/* In multiqueue mode, when the number of cpu is equal
--	 * to the number of request queues, we let the qeueues
--	 * to be private to one cpu by setting the affinity hint
--	 * to eliminate the contention.
--	 */
--	if ((vscsi->num_queues == 1 ||
--	     vscsi->num_queues != num_online_cpus()) && affinity) {
--		if (vscsi->affinity_hint_set)
--			affinity = false;
--		else
--			return;
--	}
--
--	if (affinity) {
--		i = 0;
--		for_each_online_cpu(cpu) {
--			virtqueue_set_affinity(vscsi->req_vqs[i].vq, cpu);
--			i++;
--		}
--
--		vscsi->affinity_hint_set = true;
--	} else {
--		for (i = 0; i < vscsi->num_queues; i++) {
--			if (!vscsi->req_vqs[i].vq)
--				continue;
--
--			virtqueue_set_affinity(vscsi->req_vqs[i].vq, -1);
--		}
--
--		vscsi->affinity_hint_set = false;
--	}
--}
--
--static void virtscsi_set_affinity(struct virtio_scsi *vscsi, bool affinity)
--{
--	get_online_cpus();
--	__virtscsi_set_affinity(vscsi, affinity);
--	put_online_cpus();
--}
--
--static int virtscsi_cpu_online(unsigned int cpu, struct hlist_node *node)
--{
--	struct virtio_scsi *vscsi = hlist_entry_safe(node, struct virtio_scsi,
--						     node);
--	__virtscsi_set_affinity(vscsi, true);
--	return 0;
--}
--
--static int virtscsi_cpu_notif_add(struct virtio_scsi *vi)
--{
--	int ret;
--
--	ret = cpuhp_state_add_instance(virtioscsi_online, &vi->node);
--	if (ret)
--		return ret;
--
--	ret = cpuhp_state_add_instance(CPUHP_VIRT_SCSI_DEAD, &vi->node_dead);
--	if (ret)
--		cpuhp_state_remove_instance(virtioscsi_online, &vi->node);
--	return ret;
--}
--
--static void virtscsi_cpu_notif_remove(struct virtio_scsi *vi)
--{
--	cpuhp_state_remove_instance_nocalls(virtioscsi_online, &vi->node);
--	cpuhp_state_remove_instance_nocalls(CPUHP_VIRT_SCSI_DEAD,
--					    &vi->node_dead);
--}
--
- static void virtscsi_init_vq(struct virtio_scsi_vq *virtscsi_vq,
- 			     struct virtqueue *vq)
- {
-@@ -891,14 +825,8 @@ static void virtscsi_init_vq(struct virtio_scsi_vq *virtscsi_vq,
- 
- static void virtscsi_remove_vqs(struct virtio_device *vdev)
- {
--	struct Scsi_Host *sh = virtio_scsi_host(vdev);
--	struct virtio_scsi *vscsi = shost_priv(sh);
--
--	virtscsi_set_affinity(vscsi, false);
--
- 	/* Stop all the virtqueues. */
- 	vdev->config->reset(vdev);
--
- 	vdev->config->del_vqs(vdev);
- }
- 
-@@ -911,6 +839,7 @@ static int virtscsi_init(struct virtio_device *vdev,
- 	vq_callback_t **callbacks;
- 	const char **names;
- 	struct virtqueue **vqs;
-+	struct irq_affinity desc = { .pre_vectors = 2 };
- 
- 	num_vqs = vscsi->num_queues + VIRTIO_SCSI_VQ_BASE;
- 	vqs = kmalloc(num_vqs * sizeof(struct virtqueue *), GFP_KERNEL);
-@@ -933,7 +862,7 @@ static int virtscsi_init(struct virtio_device *vdev,
- 
- 	/* Discover virtqueues and write information to configuration.  */
- 	err = vdev->config->find_vqs(vdev, num_vqs, vqs, callbacks, names,
--			NULL);
-+			&desc);
- 	if (err)
- 		goto out;
- 
-@@ -999,10 +928,6 @@ static int virtscsi_probe(struct virtio_device *vdev)
- 	if (err)
- 		goto virtscsi_init_failed;
- 
--	err = virtscsi_cpu_notif_add(vscsi);
--	if (err)
--		goto scsi_add_host_failed;
--
- 	cmd_per_lun = virtscsi_config_get(vdev, cmd_per_lun) ?: 1;
- 	shost->cmd_per_lun = min_t(u32, cmd_per_lun, shost->can_queue);
- 	shost->max_sectors = virtscsi_config_get(vdev, max_sectors) ?: 0xFFFF;
-@@ -1057,9 +982,6 @@ static void virtscsi_remove(struct virtio_device *vdev)
- 		virtscsi_cancel_event_work(vscsi);
- 
- 	scsi_remove_host(shost);
--
--	virtscsi_cpu_notif_remove(vscsi);
--
- 	virtscsi_remove_vqs(vdev);
- 	scsi_host_put(shost);
- }
-@@ -1067,10 +989,6 @@ static void virtscsi_remove(struct virtio_device *vdev)
- #ifdef CONFIG_PM_SLEEP
- static int virtscsi_freeze(struct virtio_device *vdev)
- {
--	struct Scsi_Host *sh = virtio_scsi_host(vdev);
--	struct virtio_scsi *vscsi = shost_priv(sh);
--
--	virtscsi_cpu_notif_remove(vscsi);
- 	virtscsi_remove_vqs(vdev);
- 	return 0;
- }
-@@ -1085,11 +1003,6 @@ static int virtscsi_restore(struct virtio_device *vdev)
- 	if (err)
- 		return err;
- 
--	err = virtscsi_cpu_notif_add(vscsi);
--	if (err) {
--		vdev->config->del_vqs(vdev);
--		return err;
--	}
- 	virtio_device_ready(vdev);
- 
- 	if (virtio_has_feature(vdev, VIRTIO_SCSI_F_HOTPLUG))
-@@ -1144,16 +1057,6 @@ static int __init init(void)
- 		pr_err("mempool_create() for virtscsi_cmd_pool failed\n");
- 		goto error;
- 	}
--	ret = cpuhp_setup_state_multi(CPUHP_AP_ONLINE_DYN,
--				      "scsi/virtio:online",
--				      virtscsi_cpu_online, NULL);
--	if (ret < 0)
--		goto error;
--	virtioscsi_online = ret;
--	ret = cpuhp_setup_state_multi(CPUHP_VIRT_SCSI_DEAD, "scsi/virtio:dead",
--				      NULL, virtscsi_cpu_online);
--	if (ret)
--		goto error;
- 	ret = register_virtio_driver(&virtio_scsi_driver);
- 	if (ret < 0)
- 		goto error;
-@@ -1169,17 +1072,12 @@ static int __init init(void)
- 		kmem_cache_destroy(virtscsi_cmd_cache);
- 		virtscsi_cmd_cache = NULL;
- 	}
--	if (virtioscsi_online)
--		cpuhp_remove_multi_state(virtioscsi_online);
--	cpuhp_remove_multi_state(CPUHP_VIRT_SCSI_DEAD);
- 	return ret;
- }
- 
- static void __exit fini(void)
- {
- 	unregister_virtio_driver(&virtio_scsi_driver);
--	cpuhp_remove_multi_state(virtioscsi_online);
--	cpuhp_remove_multi_state(CPUHP_VIRT_SCSI_DEAD);
- 	mempool_destroy(virtscsi_cmd_pool);
- 	kmem_cache_destroy(virtscsi_cmd_cache);
- }
-diff --git a/include/linux/cpuhotplug.h b/include/linux/cpuhotplug.h
-index 921acaaa1601..01aea80a503e 100644
---- a/include/linux/cpuhotplug.h
-+++ b/include/linux/cpuhotplug.h
-@@ -26,7 +26,6 @@ enum cpuhp_state {
- 	CPUHP_ARM_OMAP_WAKE_DEAD,
- 	CPUHP_IRQ_POLL_DEAD,
- 	CPUHP_BLOCK_SOFTIRQ_DEAD,
--	CPUHP_VIRT_SCSI_DEAD,
- 	CPUHP_ACPI_CPUDRV_DEAD,
- 	CPUHP_S390_PFAULT_DEAD,
- 	CPUHP_BLK_MQ_DEAD,
--- 
-2.11.0
+> -----Original Message-----
+> From: Stephen Hemminger [mailto:stephen@networkplumber.org]
+> Sent: Wednesday, February 1, 2017 8:29 AM
+> To: KY Srinivasan <kys@microsoft.com>; gregkh@linuxfoundation.org
+> Cc: devel@linuxdriverproject.org; virtualization@lists.linux-foundation.org;
+> Stephen Hemminger <sthemmin@microsoft.com>
+> Subject: [PATCH 05/14] netvsc: remove no longer needed receive staging
+> buffers
+> 
+> Since commit aed8c164ca5199 ("Drivers: hv: ring_buffer: count on wrap
+> around mappings") it is no longer necessary to handle ring wrapping
+> by having a special receive buffer.
+> 
+> Signed-off-by: Stephen Hemminger <sthemmin@microsoft.com>
+> ---
+>  drivers/net/hyperv/hyperv_net.h   |  5 ---
+>  drivers/net/hyperv/netvsc.c       | 83 ++++++---------------------------------
+>  drivers/net/hyperv/rndis_filter.c | 11 ------
+>  3 files changed, 11 insertions(+), 88 deletions(-)
+> 
+> diff --git a/drivers/net/hyperv/hyperv_net.h
+> b/drivers/net/hyperv/hyperv_net.h
+> index 3958adade7eb..cce70ceba6d5 100644
+> --- a/drivers/net/hyperv/hyperv_net.h
+> +++ b/drivers/net/hyperv/hyperv_net.h
+> @@ -748,11 +748,6 @@ struct netvsc_device {
+> 
+>  	int ring_size;
+> 
+> -	/* The primary channel callback buffer */
+> -	unsigned char *cb_buffer;
+> -	/* The sub channel callback buffer */
+> -	unsigned char *sub_cb_buf;
+> -
+>  	struct multi_send_data msd[VRSS_CHANNEL_MAX];
+>  	u32 max_pkt; /* max number of pkt in one send, e.g. 8 */
+>  	u32 pkt_align; /* alignment bytes, e.g. 8 */
+> diff --git a/drivers/net/hyperv/netvsc.c b/drivers/net/hyperv/netvsc.c
+> index e326e68f9f6d..7487498b663c 100644
+> --- a/drivers/net/hyperv/netvsc.c
+> +++ b/drivers/net/hyperv/netvsc.c
+> @@ -67,12 +67,6 @@ static struct netvsc_device *alloc_net_device(void)
+>  	if (!net_device)
+>  		return NULL;
+> 
+> -	net_device->cb_buffer = kzalloc(NETVSC_PACKET_SIZE,
+> GFP_KERNEL);
+> -	if (!net_device->cb_buffer) {
+> -		kfree(net_device);
+> -		return NULL;
+> -	}
+> -
+>  	net_device->mrc[0].buf = vzalloc(NETVSC_RECVSLOT_MAX *
+>  					 sizeof(struct recv_comp_data));
+> 
+> @@ -93,7 +87,6 @@ static void free_netvsc_device(struct netvsc_device
+> *nvdev)
+>  	for (i = 0; i < VRSS_CHANNEL_MAX; i++)
+>  		vfree(nvdev->mrc[i].buf);
+> 
+> -	kfree(nvdev->cb_buffer);
+>  	kfree(nvdev);
+>  }
+> 
+> @@ -584,7 +577,6 @@ void netvsc_device_remove(struct hv_device
+> *device)
+>  	vmbus_close(device->channel);
+> 
+>  	/* Release all resources */
+> -	vfree(net_device->sub_cb_buf);
+>  	free_netvsc_device(net_device);
+>  }
+> 
+> @@ -1256,16 +1248,11 @@ static void netvsc_process_raw_pkt(struct
+> hv_device *device,
+> 
+>  void netvsc_channel_cb(void *context)
+>  {
+> -	int ret;
+> -	struct vmbus_channel *channel = (struct vmbus_channel *)context;
+> +	struct vmbus_channel *channel = context;
+>  	u16 q_idx = channel->offermsg.offer.sub_channel_index;
+>  	struct hv_device *device;
+>  	struct netvsc_device *net_device;
+> -	u32 bytes_recvd;
+> -	u64 request_id;
+>  	struct vmpacket_descriptor *desc;
+> -	unsigned char *buffer;
+> -	int bufferlen = NETVSC_PACKET_SIZE;
+>  	struct net_device *ndev;
+>  	bool need_to_commit = false;
+> 
+> @@ -1277,65 +1264,19 @@ void netvsc_channel_cb(void *context)
+>  	net_device = get_inbound_net_device(device);
+>  	if (!net_device)
+>  		return;
+> +
+>  	ndev = hv_get_drvdata(device);
+> -	buffer = get_per_channel_state(channel);
+> -
+> -	do {
+> -		desc = get_next_pkt_raw(channel);
+> -		if (desc != NULL) {
+> -			netvsc_process_raw_pkt(device,
+> -					       channel,
+> -					       net_device,
+> -					       ndev,
+> -					       desc->trans_id,
+> -					       desc);
+> -
+> -			put_pkt_raw(channel, desc);
+> -			need_to_commit = true;
+> -			continue;
+> -		}
+> -		if (need_to_commit) {
+> -			need_to_commit = false;
+> -			commit_rd_index(channel);
+> -		}
+> 
+> -		ret = vmbus_recvpacket_raw(channel, buffer, bufferlen,
+> -					   &bytes_recvd, &request_id);
+> -		if (ret == 0) {
+> -			if (bytes_recvd > 0) {
+> -				desc = (struct vmpacket_descriptor *)buffer;
+> -				netvsc_process_raw_pkt(device,
+> -						       channel,
+> -						       net_device,
+> -						       ndev,
+> -						       request_id,
+> -						       desc);
+> -			} else {
+> -				/*
+> -				 * We are done for this pass.
+> -				 */
+> -				break;
+> -			}
+> -
+> -		} else if (ret == -ENOBUFS) {
+> -			if (bufferlen > NETVSC_PACKET_SIZE)
+> -				kfree(buffer);
+> -			/* Handle large packet */
+> -			buffer = kmalloc(bytes_recvd, GFP_ATOMIC);
+> -			if (buffer == NULL) {
+> -				/* Try again next time around */
+> -				netdev_err(ndev,
+> -					   "unable to allocate buffer of size "
+> -					   "(%d)!!\n", bytes_recvd);
+> -				break;
+> -			}
+> -
+> -			bufferlen = bytes_recvd;
+> -		}
+> -	} while (1);
+> +	while ((desc = get_next_pkt_raw(channel)) != NULL) {
+> +		netvsc_process_raw_pkt(device, channel, net_device,
+> +				       ndev, desc->trans_id, desc);
+> 
+> -	if (bufferlen > NETVSC_PACKET_SIZE)
+> -		kfree(buffer);
+> +		put_pkt_raw(channel, desc);
+> +		need_to_commit = true;
+> +	}
+> +
+> +	if (need_to_commit)
+> +		commit_rd_index(channel);
+> 
+>  	netvsc_chk_recv_comp(net_device, channel, q_idx);
+>  }
+> @@ -1359,8 +1300,6 @@ int netvsc_device_add(struct hv_device *device,
+> void *additional_info)
+> 
+>  	net_device->ring_size = ring_size;
+> 
+> -	set_per_channel_state(device->channel, net_device->cb_buffer);
+> -
+>  	/* Open the channel */
+>  	ret = vmbus_open(device->channel, ring_size * PAGE_SIZE,
+>  			 ring_size * PAGE_SIZE, NULL, 0,
+> diff --git a/drivers/net/hyperv/rndis_filter.c
+> b/drivers/net/hyperv/rndis_filter.c
+> index 8d90904e0e49..113c7f4d1590 100644
+> --- a/drivers/net/hyperv/rndis_filter.c
+> +++ b/drivers/net/hyperv/rndis_filter.c
+> @@ -948,9 +948,6 @@ static void netvsc_sc_open(struct vmbus_channel
+> *new_sc)
+>  	if (chn_index >= nvscdev->num_chn)
+>  		return;
+> 
+> -	set_per_channel_state(new_sc, nvscdev->sub_cb_buf + (chn_index
+> - 1) *
+> -			      NETVSC_PACKET_SIZE);
+> -
+>  	nvscdev->mrc[chn_index].buf = vzalloc(NETVSC_RECVSLOT_MAX *
+>  					      sizeof(struct recv_comp_data));
+> 
+> @@ -1099,14 +1096,6 @@ int rndis_filter_device_add(struct hv_device
+> *dev,
+>  	if (net_device->num_chn == 1)
+>  		goto out;
+> 
+> -	net_device->sub_cb_buf = vzalloc((net_device->num_chn - 1) *
+> -					 NETVSC_PACKET_SIZE);
+> -	if (!net_device->sub_cb_buf) {
+> -		net_device->num_chn = 1;
+> -		dev_info(&dev->device, "No memory for subchannels.\n");
+> -		goto out;
+> -	}
+> -
+>  	vmbus_set_sc_create_callback(dev->channel, netvsc_sc_open);
+> 
+>  	init_packet = &net_device->channel_init_pkt;
+
+Stephen,
+
+This patch can go to the net-next tree and does not need to be part of this patch set.
+
+Thanks,
+
+K. Y
+> --
+> 2.11.0
