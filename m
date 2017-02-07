@@ -1,19 +1,14 @@
-From: Stephen Hemminger via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: RE: [PATCH 05/14] netvsc: remove no longer needed receive staging
-	buffers
-Date: Tue, 7 Feb 2017 00:32:12 +0000
-Message-ID: <BLUPR0301MB209810C0172361C40F9ABDCBCC430__7684.33044800094$1486432154$gmane$org@BLUPR0301MB2098.namprd03.prod.outlook.com>
-References: <20170201162901.3894-1-sthemmin@microsoft.com>
-	<20170201162901.3894-6-sthemmin@microsoft.com>
-	<DM5PR03MB24909873E83748C02E22AD7CA0410@DM5PR03MB2490.namprd03.prod.outlook.com>
-Reply-To: Stephen Hemminger <sthemmin@microsoft.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 1/9] virtio_pci: remove struct virtio_pci_vq_info
+Date: Tue, 7 Feb 2017 15:17:02 +0800
+Message-ID: <c9ce2425-aabb-6b05-2d00-d92ede6b18bf@redhat.com>
+References: <20170205171526.6224-1-hch@lst.de>
+	<20170205171526.6224-2-hch@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <DM5PR03MB24909873E83748C02E22AD7CA0410@DM5PR03MB2490.namprd03.prod.outlook.com>
-Content-Language: en-US
+In-Reply-To: <20170205171526.6224-2-hch@lst.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,9 +18,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: KY Srinivasan <kys@microsoft.com>, Stephen Hemminger <stephen@networkplumber.org>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-Cc: "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Christoph Hellwig <hch@lst.de>, mst@redhat.com
+Cc: axboe@kernel.dk, pbonzini@redhat.com, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The netvsc part is already in net-next.  This patch is not needed.
-The part that removes the per-channel state can be in another patch.
+CgpPbiAyMDE35bm0MDLmnIgwNuaXpSAwMToxNSwgQ2hyaXN0b3BoIEhlbGx3aWcgd3JvdGU6Cj4g
+V2UgZG9uJ3QgcmVhbGx5IG5lZWQgc3RydWN0IHZpcnRpb19wY2lfdnFfaW5mbywgYXMgbW9zdCBm
+aWVsZCBpbiB0aGVyZQo+IGFyZSByZWR1bmRhbnQ6Cj4KPiAgIC0gdGhlIHZxIGJhY2twb2ludGVy
+IGlzIG5vdCBzdHJpY3RseSBuZWVkZSB0byBzdGFydCB3aXRoCj4gICAtIHRoZSBlbnRyeSBpbiB0
+aGUgdnFzIGxpc3QgaXMgbm90IG5lZWRlZCAtIHRoZSBnZW5lcmljIHZpcnRxdWV1ZSBhbHJlYWR5
+Cj4gICAgIGhhcyBsaXN0LCB3ZSBvbmx5IG5lZWQgdG8gY2hlY2sgaWYgaXQgaGFzIGEgY2FsbGJh
+Y2sgdG8gZ2V0IHRoZSBzYW1lCj4gICAgIHNlbWFudGljcwo+ICAgLSB3ZSBjYW4gdXNlIGEgc2lt
+cGxlIGFycmF5IHRvIGxvb2sgdXAgdGhlIE1TSS1YIHZlYyBpZiBuZWVkZWQuCj4gICAtIFRoYXQg
+c2ltcGxlIGFycmF5IG5vdyBhbHNvIGR1b2JsZSBzZXJ2ZXMgdG8gcmVwbGFjZSB0aGUgcGVyX3Zx
+X3ZlY3RvcnMKPiAgICAgZmxhZwo+Cj4gU2lnbmVkLW9mZi1ieTogQ2hyaXN0b3BoIEhlbGx3aWc8
+aGNoQGxzdC5kZT4KPiAtLS0KPiAgIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfY29tbW9uLmMg
+fCAxMTcgKysrKysrKysrKystLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQo+ICAgZHJpdmVycy92
+aXJ0aW8vdmlydGlvX3BjaV9jb21tb24uaCB8ICAyNSArLS0tLS0tLQo+ICAgZHJpdmVycy92aXJ0
+aW8vdmlydGlvX3BjaV9sZWdhY3kuYyB8ICAgNiArLQo+ICAgZHJpdmVycy92aXJ0aW8vdmlydGlv
+X3BjaV9tb2Rlcm4uYyB8ICAgNiArLQo+ICAgNCBmaWxlcyBjaGFuZ2VkLCAzOSBpbnNlcnRpb25z
+KCspLCAxMTUgZGVsZXRpb25zKC0pCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmly
+dGlvX3BjaV9jb21tb24uYyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfY29tbW9uLmMKPiBp
+bmRleCAxODZjYmFiMzI3YjguLmEzMzc2NzMxOGNiZiAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3Zp
+cnRpby92aXJ0aW9fcGNpX2NvbW1vbi5jCj4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3Bj
+aV9jb21tb24uYwo+IEBAIC02MiwxNiArNjIsMTMgQEAgc3RhdGljIGlycXJldHVybl90IHZwX2Nv
+bmZpZ19jaGFuZ2VkKGludCBpcnEsIHZvaWQgKm9wYXF1ZSkKPiAgIHN0YXRpYyBpcnFyZXR1cm5f
+dCB2cF92cmluZ19pbnRlcnJ1cHQoaW50IGlycSwgdm9pZCAqb3BhcXVlKQo+ICAgewo+ICAgCXN0
+cnVjdCB2aXJ0aW9fcGNpX2RldmljZSAqdnBfZGV2ID0gb3BhcXVlOwo+IC0Jc3RydWN0IHZpcnRp
+b19wY2lfdnFfaW5mbyAqaW5mbzsKPiAgIAlpcnFyZXR1cm5fdCByZXQgPSBJUlFfTk9ORTsKPiAt
+CXVuc2lnbmVkIGxvbmcgZmxhZ3M7Cj4gKwlzdHJ1Y3QgdmlydHF1ZXVlICp2cTsKPiAgIAo+IC0J
+c3Bpbl9sb2NrX2lycXNhdmUoJnZwX2Rldi0+bG9jaywgZmxhZ3MpOwo+IC0JbGlzdF9mb3JfZWFj
+aF9lbnRyeShpbmZvLCAmdnBfZGV2LT52aXJ0cXVldWVzLCBub2RlKSB7Cj4gLQkJaWYgKHZyaW5n
+X2ludGVycnVwdChpcnEsIGluZm8tPnZxKSA9PSBJUlFfSEFORExFRCkKPiArCWxpc3RfZm9yX2Vh
+Y2hfZW50cnkodnEsICZ2cF9kZXYtPnZkZXYudnFzLCBsaXN0KSB7Cj4gKwkJaWYgKHZxLT5jYWxs
+YmFjayAmJiB2cmluZ19pbnRlcnJ1cHQoaXJxLCB2cSkgPT0gSVJRX0hBTkRMRUQpCj4gICAJCQly
+ZXQgPSBJUlFfSEFORExFRDsKPiAgIAl9CgpUaGUgY2hlY2sgaXMgc3RpbGwgdGhlcmUuCgpUaGFu
+a3MKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
+bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
+b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
+L3ZpcnR1YWxpemF0aW9u
