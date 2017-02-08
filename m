@@ -1,13 +1,11 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: packed ring layout proposal v2
-Date: Wed, 8 Feb 2017 14:37:57 +0100
-Message-ID: <39240395-0266-c2ac-0b99-de74ba10b510@de.ibm.com>
-References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
+Subject: [PATCH RFC 0/2] x86/vdso: Add Hyper-V TSC page clocksource support
+Date: Wed,  8 Feb 2017 18:07:42 +0100
+Message-ID: <20170208170744.7632-1-vkuznets@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,38 +15,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, virtio-dev@lists.oasis-open.org
-Cc: virtualization@lists.linux-foundation.org
+To: x86@kernel.org, Andy Lutomirski <luto@amacapital.net>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, devel@linuxdriverproject.org, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/08/2017 04:20 AM, Michael S. Tsirkin wrote:
-[...]
-> * Prototype
-> 
-> A partial prototype can be found under
-> tools/virtio/ringtest/ring.c
-> 
-> Test run:
-> [mst@tuck ringtest]$ time ./ring 
-> real    0m0.399s
-> user    0m0.791s
-> sys     0m0.000s
-> [mst@tuck ringtest]$ time ./virtio_ring_0_9
-> real    0m0.503s
-> user    0m0.999s
-> sys     0m0.000s
+Hi,
 
-I see similar improvements on s390, so I think this would be a very nice 
-improvement.
+Hyper-V TSC page clocksource is suitable for vDSO, however, the protocol
+defined by the hypervisor is different from VCLOCK_PVCLOCK. I implemented
+the required support re-using pvclock_page VVAR. Simple sysbench test shows
+the following results:
 
-[...] 
-> Note: should this proposal be accepted and approved, one or more
->       claims disclosed to the TC admin and listed on the Virtio TC
->       IPR page https://www.oasis-open.org/committees/virtio/ipr.php
->       might become Essential Claims.
-> 
+Before:
+# time sysbench --test=memory --max-requests=500000 run
+...
+real    1m22.618s
+user    0m50.193s
+sys     0m32.268s
 
-I have trouble parsing that legal stuff. Do I read that right, that
-these claims can be implemented as part of a virtio implementation without
-any worries (e.g. non open source HW implementation or non open source
-hypervisor)?
+
+After:
+# time sysbench --test=memory --max-requests=500000 run
+...
+real    0m50.218s
+user    0m50.171s
+sys     0m0.016s
+
+So it seems it is worth it. What do you think?
+
+Vitaly Kuznetsov (2):
+  hyperv: implement hv_get_tsc_page()
+  x86/vdso: Add VCLOCK_HVCLOCK vDSO clock read method
+
+ arch/x86/entry/vdso/vclock_gettime.c | 48 ++++++++++++++++++++++++++++++++++++
+ arch/x86/entry/vdso/vma.c            | 26 +++++++++++++------
+ arch/x86/hyperv/hv_init.c            |  8 ++++++
+ arch/x86/include/asm/clocksource.h   |  3 ++-
+ arch/x86/include/asm/mshyperv.h      |  8 ++++++
+ drivers/hv/Kconfig                   |  5 ++++
+ 6 files changed, 90 insertions(+), 8 deletions(-)
+
+-- 
+2.9.3
