@@ -1,16 +1,12 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 1/9] virtio_pci: remove struct virtio_pci_vq_info
-Date: Wed, 8 Feb 2017 10:52:17 +0800
-Message-ID: <78b23fe0-f3c7-f669-a9c5-5110f4a8daaf@redhat.com>
-References: <20170205171526.6224-1-hch@lst.de>
-	<20170205171526.6224-2-hch@lst.de>
-	<c9ce2425-aabb-6b05-2d00-d92ede6b18bf@redhat.com>
-	<20170207093851.GA15267@lst.de>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: packed ring layout proposal v2
+Date: Wed, 8 Feb 2017 05:20:14 +0200
+Message-ID: <20160915223915.qjlnlvf2w7u37bu3__41302.8486575515$1486524020$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170207093851.GA15267@lst.de>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,245 +16,231 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@lst.de>
-Cc: axboe@kernel.dk, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, pbonzini@redhat.com
+To: virtio-dev@lists.oasis-open.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDLmnIgwN+aXpSAxNzozOCwgQ2hyaXN0b3BoIEhlbGx3aWcgd3JvdGU6Cj4g
-T24gVHVlLCBGZWIgMDcsIDIwMTcgYXQgMDM6MTc6MDJQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPj4gVGhlIGNoZWNrIGlzIHN0aWxsIHRoZXJlLgo+IE1laCwgSSBjb3VsZCBzd2VhciBJIGZp
-eGVkIGl0IHVwLiAgSGVyZSBpcyBhbiB1cGRhdGVkIHZlcnNpb246Cj4KPiAtLS0KPiAgRnJvbSBi
-ZjVlM2I3ZmQyNzJhZWEzMjM4ODU3MDUwM2YwMGQwYWI1OTJmYzJhIE1vbiBTZXAgMTcgMDA6MDA6
-MDAgMjAwMQo+IEZyb206IENocmlzdG9waCBIZWxsd2lnIDxoY2hAbHN0LmRlPgo+IERhdGU6IFdl
-ZCwgMjUgSmFuIDIwMTcgMTM6NDA6MjEgKzAxMDAKPiBTdWJqZWN0OiB2aXJ0aW9fcGNpOiByZW1v
-dmUgc3RydWN0IHZpcnRpb19wY2lfdnFfaW5mbwo+Cj4gV2UgZG9uJ3QgcmVhbGx5IG5lZWQgc3Ry
-dWN0IHZpcnRpb19wY2lfdnFfaW5mbywgYXMgbW9zdCBmaWVsZCBpbiB0aGVyZQo+IGFyZSByZWR1
-bmRhbnQ6Cj4KPiAgIC0gdGhlIHZxIGJhY2twb2ludGVyIGlzIG5vdCBzdHJpY3RseSBuZWVkZSB0
-byBzdGFydCB3aXRoCj4gICAtIHRoZSBlbnRyeSBpbiB0aGUgdnFzIGxpc3QgaXMgbm90IG5lZWRl
-ZCAtIHRoZSBnZW5lcmljIHZpcnRxdWV1ZSBhbHJlYWR5Cj4gICAgIGhhcyBsaXN0LCB3ZSBvbmx5
-IG5lZWQgdG8gY2hlY2sgaWYgaXQgaGFzIGEgY2FsbGJhY2sgdG8gZ2V0IHRoZSBzYW1lCj4gICAg
-IHNlbWFudGljcwo+ICAgLSB3ZSBjYW4gdXNlIGEgc2ltcGxlIGFycmF5IHRvIGxvb2sgdXAgdGhl
-IE1TSS1YIHZlYyBpZiBuZWVkZWQuCj4gICAtIFRoYXQgc2ltcGxlIGFycmF5IG5vdyBhbHNvIGR1
-b2JsZSBzZXJ2ZXMgdG8gcmVwbGFjZSB0aGUgcGVyX3ZxX3ZlY3RvcnMKPiAgICAgZmxhZwo+Cj4g
-U2lnbmVkLW9mZi1ieTogQ2hyaXN0b3BoIEhlbGx3aWcgPGhjaEBsc3QuZGU+CgpSZXZpZXdlZC1i
-eTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KCj4gLS0tCj4gICBkcml2ZXJzL3Zp
-cnRpby92aXJ0aW9fcGNpX2NvbW1vbi5jIHwgMTE3ICsrKysrKysrKysrLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0KPiAgIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfY29tbW9uLmggfCAgMjUg
-Ky0tLS0tLS0KPiAgIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfbGVnYWN5LmMgfCAgIDYgKy0K
-PiAgIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfbW9kZXJuLmMgfCAgIDYgKy0KPiAgIDQgZmls
-ZXMgY2hhbmdlZCwgMzkgaW5zZXJ0aW9ucygrKSwgMTE1IGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAt
-LWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfY29tbW9uLmMgYi9kcml2ZXJzL3ZpcnRp
-by92aXJ0aW9fcGNpX2NvbW1vbi5jCj4gaW5kZXggMTg2Y2JhYjMyN2I4Li4xZjlmYWM3ZGFkNjEg
-MTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3BjaV9jb21tb24uYwo+ICsrKyBi
-L2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfY29tbW9uLmMKPiBAQCAtNjIsMTYgKzYyLDEzIEBA
-IHN0YXRpYyBpcnFyZXR1cm5fdCB2cF9jb25maWdfY2hhbmdlZChpbnQgaXJxLCB2b2lkICpvcGFx
-dWUpCj4gICBzdGF0aWMgaXJxcmV0dXJuX3QgdnBfdnJpbmdfaW50ZXJydXB0KGludCBpcnEsIHZv
-aWQgKm9wYXF1ZSkKPiAgIHsKPiAgIAlzdHJ1Y3QgdmlydGlvX3BjaV9kZXZpY2UgKnZwX2RldiA9
-IG9wYXF1ZTsKPiAtCXN0cnVjdCB2aXJ0aW9fcGNpX3ZxX2luZm8gKmluZm87Cj4gICAJaXJxcmV0
-dXJuX3QgcmV0ID0gSVJRX05PTkU7Cj4gLQl1bnNpZ25lZCBsb25nIGZsYWdzOwo+ICsJc3RydWN0
-IHZpcnRxdWV1ZSAqdnE7Cj4gICAKPiAtCXNwaW5fbG9ja19pcnFzYXZlKCZ2cF9kZXYtPmxvY2ss
-IGZsYWdzKTsKPiAtCWxpc3RfZm9yX2VhY2hfZW50cnkoaW5mbywgJnZwX2Rldi0+dmlydHF1ZXVl
-cywgbm9kZSkgewo+IC0JCWlmICh2cmluZ19pbnRlcnJ1cHQoaXJxLCBpbmZvLT52cSkgPT0gSVJR
-X0hBTkRMRUQpCj4gKwlsaXN0X2Zvcl9lYWNoX2VudHJ5KHZxLCAmdnBfZGV2LT52ZGV2LnZxcywg
-bGlzdCkgewo+ICsJCWlmICh2cmluZ19pbnRlcnJ1cHQoaXJxLCB2cSkgPT0gSVJRX0hBTkRMRUQp
-Cj4gICAJCQlyZXQgPSBJUlFfSEFORExFRDsKPiAgIAl9Cj4gLQlzcGluX3VubG9ja19pcnFyZXN0
-b3JlKCZ2cF9kZXYtPmxvY2ssIGZsYWdzKTsKPiAgIAo+ICAgCXJldHVybiByZXQ7Cj4gICB9Cj4g
-QEAgLTE2Nyw1NSArMTY0LDYgQEAgc3RhdGljIGludCB2cF9yZXF1ZXN0X21zaXhfdmVjdG9ycyhz
-dHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldiwgaW50IG52ZWN0b3JzLAo+ICAgCXJldHVybiBlcnI7
-Cj4gICB9Cj4gICAKPiAtc3RhdGljIHN0cnVjdCB2aXJ0cXVldWUgKnZwX3NldHVwX3ZxKHN0cnVj
-dCB2aXJ0aW9fZGV2aWNlICp2ZGV2LCB1bnNpZ25lZCBpbmRleCwKPiAtCQkJCSAgICAgdm9pZCAo
-KmNhbGxiYWNrKShzdHJ1Y3QgdmlydHF1ZXVlICp2cSksCj4gLQkJCQkgICAgIGNvbnN0IGNoYXIg
-Km5hbWUsCj4gLQkJCQkgICAgIHUxNiBtc2l4X3ZlYykKPiAtewo+IC0Jc3RydWN0IHZpcnRpb19w
-Y2lfZGV2aWNlICp2cF9kZXYgPSB0b192cF9kZXZpY2UodmRldik7Cj4gLQlzdHJ1Y3QgdmlydGlv
-X3BjaV92cV9pbmZvICppbmZvID0ga21hbGxvYyhzaXplb2YgKmluZm8sIEdGUF9LRVJORUwpOwo+
-IC0Jc3RydWN0IHZpcnRxdWV1ZSAqdnE7Cj4gLQl1bnNpZ25lZCBsb25nIGZsYWdzOwo+IC0KPiAt
-CS8qIGZpbGwgb3V0IG91ciBzdHJ1Y3R1cmUgdGhhdCByZXByZXNlbnRzIGFuIGFjdGl2ZSBxdWV1
-ZSAqLwo+IC0JaWYgKCFpbmZvKQo+IC0JCXJldHVybiBFUlJfUFRSKC1FTk9NRU0pOwo+IC0KPiAt
-CXZxID0gdnBfZGV2LT5zZXR1cF92cSh2cF9kZXYsIGluZm8sIGluZGV4LCBjYWxsYmFjaywgbmFt
-ZSwgbXNpeF92ZWMpOwo+IC0JaWYgKElTX0VSUih2cSkpCj4gLQkJZ290byBvdXRfaW5mbzsKPiAt
-Cj4gLQlpbmZvLT52cSA9IHZxOwo+IC0JaWYgKGNhbGxiYWNrKSB7Cj4gLQkJc3Bpbl9sb2NrX2ly
-cXNhdmUoJnZwX2Rldi0+bG9jaywgZmxhZ3MpOwo+IC0JCWxpc3RfYWRkKCZpbmZvLT5ub2RlLCAm
-dnBfZGV2LT52aXJ0cXVldWVzKTsKPiAtCQlzcGluX3VubG9ja19pcnFyZXN0b3JlKCZ2cF9kZXYt
-PmxvY2ssIGZsYWdzKTsKPiAtCX0gZWxzZSB7Cj4gLQkJSU5JVF9MSVNUX0hFQUQoJmluZm8tPm5v
-ZGUpOwo+IC0JfQo+IC0KPiAtCXZwX2Rldi0+dnFzW2luZGV4XSA9IGluZm87Cj4gLQlyZXR1cm4g
-dnE7Cj4gLQo+IC1vdXRfaW5mbzoKPiAtCWtmcmVlKGluZm8pOwo+IC0JcmV0dXJuIHZxOwo+IC19
-Cj4gLQo+IC1zdGF0aWMgdm9pZCB2cF9kZWxfdnEoc3RydWN0IHZpcnRxdWV1ZSAqdnEpCj4gLXsK
-PiAtCXN0cnVjdCB2aXJ0aW9fcGNpX2RldmljZSAqdnBfZGV2ID0gdG9fdnBfZGV2aWNlKHZxLT52
-ZGV2KTsKPiAtCXN0cnVjdCB2aXJ0aW9fcGNpX3ZxX2luZm8gKmluZm8gPSB2cF9kZXYtPnZxc1t2
-cS0+aW5kZXhdOwo+IC0JdW5zaWduZWQgbG9uZyBmbGFnczsKPiAtCj4gLQlzcGluX2xvY2tfaXJx
-c2F2ZSgmdnBfZGV2LT5sb2NrLCBmbGFncyk7Cj4gLQlsaXN0X2RlbCgmaW5mby0+bm9kZSk7Cj4g
-LQlzcGluX3VubG9ja19pcnFyZXN0b3JlKCZ2cF9kZXYtPmxvY2ssIGZsYWdzKTsKPiAtCj4gLQl2
-cF9kZXYtPmRlbF92cShpbmZvKTsKPiAtCWtmcmVlKGluZm8pOwo+IC19Cj4gLQo+ICAgLyogdGhl
-IGNvbmZpZy0+ZGVsX3ZxcygpIGltcGxlbWVudGF0aW9uICovCj4gICB2b2lkIHZwX2RlbF92cXMo
-c3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4gICB7Cj4gQEAgLTIyNCwxNiArMTcyLDE1IEBA
-IHZvaWQgdnBfZGVsX3ZxcyhzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldikKPiAgIAlpbnQgaTsK
-PiAgIAo+ICAgCWxpc3RfZm9yX2VhY2hfZW50cnlfc2FmZSh2cSwgbiwgJnZkZXYtPnZxcywgbGlz
-dCkgewo+IC0JCWlmICh2cF9kZXYtPnBlcl92cV92ZWN0b3JzKSB7Cj4gLQkJCWludCB2ID0gdnBf
-ZGV2LT52cXNbdnEtPmluZGV4XS0+bXNpeF92ZWN0b3I7Cj4gKwkJaWYgKHZwX2Rldi0+bXNpeF92
-ZWN0b3JfbWFwKSB7Cj4gKwkJCWludCB2ID0gdnBfZGV2LT5tc2l4X3ZlY3Rvcl9tYXBbdnEtPmlu
-ZGV4XTsKPiAgIAo+ICAgCQkJaWYgKHYgIT0gVklSVElPX01TSV9OT19WRUNUT1IpCj4gICAJCQkJ
-ZnJlZV9pcnEocGNpX2lycV92ZWN0b3IodnBfZGV2LT5wY2lfZGV2LCB2KSwKPiAgIAkJCQkJdnEp
-Owo+ICAgCQl9Cj4gLQkJdnBfZGVsX3ZxKHZxKTsKPiArCQl2cF9kZXYtPmRlbF92cSh2cSk7Cj4g
-ICAJfQo+IC0JdnBfZGV2LT5wZXJfdnFfdmVjdG9ycyA9IGZhbHNlOwo+ICAgCj4gICAJaWYgKHZw
-X2Rldi0+aW50eF9lbmFibGVkKSB7Cj4gICAJCWZyZWVfaXJxKHZwX2Rldi0+cGNpX2Rldi0+aXJx
-LCB2cF9kZXYpOwo+IEBAIC0yNjEsOCArMjA4LDggQEAgdm9pZCB2cF9kZWxfdnFzKHN0cnVjdCB2
-aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ICAgCXZwX2Rldi0+bXNpeF9uYW1lcyA9IE5VTEw7Cj4gICAJ
-a2ZyZWUodnBfZGV2LT5tc2l4X2FmZmluaXR5X21hc2tzKTsKPiAgIAl2cF9kZXYtPm1zaXhfYWZm
-aW5pdHlfbWFza3MgPSBOVUxMOwo+IC0Ja2ZyZWUodnBfZGV2LT52cXMpOwo+IC0JdnBfZGV2LT52
-cXMgPSBOVUxMOwo+ICsJa2ZyZWUodnBfZGV2LT5tc2l4X3ZlY3Rvcl9tYXApOwo+ICsJdnBfZGV2
-LT5tc2l4X3ZlY3Rvcl9tYXAgPSBOVUxMOwo+ICAgfQo+ICAgCj4gICBzdGF0aWMgaW50IHZwX2Zp
-bmRfdnFzX21zaXgoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYsIHVuc2lnbmVkIG52cXMsCj4g
-QEAgLTI3NSwxMCArMjIyLDYgQEAgc3RhdGljIGludCB2cF9maW5kX3Zxc19tc2l4KHN0cnVjdCB2
-aXJ0aW9fZGV2aWNlICp2ZGV2LCB1bnNpZ25lZCBudnFzLAo+ICAgCXUxNiBtc2l4X3ZlYzsKPiAg
-IAlpbnQgaSwgZXJyLCBudmVjdG9ycywgYWxsb2NhdGVkX3ZlY3RvcnM7Cj4gICAKPiAtCXZwX2Rl
-di0+dnFzID0ga2NhbGxvYyhudnFzLCBzaXplb2YoKnZwX2Rldi0+dnFzKSwgR0ZQX0tFUk5FTCk7
-Cj4gLQlpZiAoIXZwX2Rldi0+dnFzKQo+IC0JCXJldHVybiAtRU5PTUVNOwo+IC0KPiAgIAlpZiAo
-cGVyX3ZxX3ZlY3RvcnMpIHsKPiAgIAkJLyogQmVzdCBvcHRpb246IG9uZSBmb3IgY2hhbmdlIGlu
-dGVycnVwdCwgb25lIHBlciB2cS4gKi8KPiAgIAkJbnZlY3RvcnMgPSAxOwo+IEBAIC0yOTQsNyAr
-MjM3LDEzIEBAIHN0YXRpYyBpbnQgdnBfZmluZF92cXNfbXNpeChzdHJ1Y3QgdmlydGlvX2Rldmlj
-ZSAqdmRldiwgdW5zaWduZWQgbnZxcywKPiAgIAlpZiAoZXJyKQo+ICAgCQlnb3RvIGVycm9yX2Zp
-bmQ7Cj4gICAKPiAtCXZwX2Rldi0+cGVyX3ZxX3ZlY3RvcnMgPSBwZXJfdnFfdmVjdG9yczsKPiAr
-CWlmIChwZXJfdnFfdmVjdG9ycykgewo+ICsJCXZwX2Rldi0+bXNpeF92ZWN0b3JfbWFwID0ga21h
-bGxvY19hcnJheShudnFzLAo+ICsJCQkJc2l6ZW9mKCp2cF9kZXYtPm1zaXhfdmVjdG9yX21hcCks
-IEdGUF9LRVJORUwpOwo+ICsJCWlmICghdnBfZGV2LT5tc2l4X3ZlY3Rvcl9tYXApCj4gKwkJCWdv
-dG8gZXJyb3JfZmluZDsKPiArCX0KPiArCj4gICAJYWxsb2NhdGVkX3ZlY3RvcnMgPSB2cF9kZXYt
-Pm1zaXhfdXNlZF92ZWN0b3JzOwo+ICAgCWZvciAoaSA9IDA7IGkgPCBudnFzOyArK2kpIHsKPiAg
-IAkJaWYgKCFuYW1lc1tpXSkgewo+IEBAIC0zMDQsMTkgKzI1MywyNSBAQCBzdGF0aWMgaW50IHZw
-X2ZpbmRfdnFzX21zaXgoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYsIHVuc2lnbmVkIG52cXMs
-Cj4gICAKPiAgIAkJaWYgKCFjYWxsYmFja3NbaV0pCj4gICAJCQltc2l4X3ZlYyA9IFZJUlRJT19N
-U0lfTk9fVkVDVE9SOwo+IC0JCWVsc2UgaWYgKHZwX2Rldi0+cGVyX3ZxX3ZlY3RvcnMpCj4gKwkJ
-ZWxzZSBpZiAocGVyX3ZxX3ZlY3RvcnMpCj4gICAJCQltc2l4X3ZlYyA9IGFsbG9jYXRlZF92ZWN0
-b3JzKys7Cj4gICAJCWVsc2UKPiAgIAkJCW1zaXhfdmVjID0gVlBfTVNJWF9WUV9WRUNUT1I7Cj4g
-LQkJdnFzW2ldID0gdnBfc2V0dXBfdnEodmRldiwgaSwgY2FsbGJhY2tzW2ldLCBuYW1lc1tpXSwg
-bXNpeF92ZWMpOwo+ICsJCXZxc1tpXSA9IHZwX2Rldi0+c2V0dXBfdnEodnBfZGV2LCBpLCBjYWxs
-YmFja3NbaV0sIG5hbWVzW2ldLAo+ICsJCQkJbXNpeF92ZWMpOwo+ICAgCQlpZiAoSVNfRVJSKHZx
-c1tpXSkpIHsKPiAgIAkJCWVyciA9IFBUUl9FUlIodnFzW2ldKTsKPiAgIAkJCWdvdG8gZXJyb3Jf
-ZmluZDsKPiAgIAkJfQo+ICAgCj4gLQkJaWYgKCF2cF9kZXYtPnBlcl92cV92ZWN0b3JzIHx8IG1z
-aXhfdmVjID09IFZJUlRJT19NU0lfTk9fVkVDVE9SKQo+ICsJCWlmICghcGVyX3ZxX3ZlY3RvcnMp
-Cj4gICAJCQljb250aW51ZTsKPiAgIAo+ICsJCWlmIChtc2l4X3ZlYyA9PSBWSVJUSU9fTVNJX05P
-X1ZFQ1RPUikgewo+ICsJCQl2cF9kZXYtPm1zaXhfdmVjdG9yX21hcFtpXSA9IFZJUlRJT19NU0lf
-Tk9fVkVDVE9SOwo+ICsJCQljb250aW51ZTsKPiArCQl9Cj4gKwo+ICAgCQkvKiBhbGxvY2F0ZSBw
-ZXItdnEgaXJxIGlmIGF2YWlsYWJsZSBhbmQgbmVjZXNzYXJ5ICovCj4gICAJCXNucHJpbnRmKHZw
-X2Rldi0+bXNpeF9uYW1lc1ttc2l4X3ZlY10sCj4gICAJCQkgc2l6ZW9mICp2cF9kZXYtPm1zaXhf
-bmFtZXMsCj4gQEAgLTMyNiw4ICsyODEsMTIgQEAgc3RhdGljIGludCB2cF9maW5kX3Zxc19tc2l4
-KHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2LCB1bnNpZ25lZCBudnFzLAo+ICAgCQkJCSAgdnJp
-bmdfaW50ZXJydXB0LCAwLAo+ICAgCQkJCSAgdnBfZGV2LT5tc2l4X25hbWVzW21zaXhfdmVjXSwK
-PiAgIAkJCQkgIHZxc1tpXSk7Cj4gLQkJaWYgKGVycikKPiArCQlpZiAoZXJyKSB7Cj4gKwkJCS8q
-IGRvbid0IGZyZWUgdGhpcyBpcnEgb24gZXJyb3IgKi8KPiArCQkJdnBfZGV2LT5tc2l4X3ZlY3Rv
-cl9tYXBbaV0gPSBWSVJUSU9fTVNJX05PX1ZFQ1RPUjsKPiAgIAkJCWdvdG8gZXJyb3JfZmluZDsK
-PiArCQl9Cj4gKwkJdnBfZGV2LT5tc2l4X3ZlY3Rvcl9tYXBbaV0gPSBtc2l4X3ZlYzsKPiAgIAl9
-Cj4gICAJcmV0dXJuIDA7Cj4gICAKPiBAQCAtMzQzLDIzICszMDIsMTggQEAgc3RhdGljIGludCB2
-cF9maW5kX3Zxc19pbnR4KHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2LCB1bnNpZ25lZCBudnFz
-LAo+ICAgCXN0cnVjdCB2aXJ0aW9fcGNpX2RldmljZSAqdnBfZGV2ID0gdG9fdnBfZGV2aWNlKHZk
-ZXYpOwo+ICAgCWludCBpLCBlcnI7Cj4gICAKPiAtCXZwX2Rldi0+dnFzID0ga2NhbGxvYyhudnFz
-LCBzaXplb2YoKnZwX2Rldi0+dnFzKSwgR0ZQX0tFUk5FTCk7Cj4gLQlpZiAoIXZwX2Rldi0+dnFz
-KQo+IC0JCXJldHVybiAtRU5PTUVNOwo+IC0KPiAgIAllcnIgPSByZXF1ZXN0X2lycSh2cF9kZXYt
-PnBjaV9kZXYtPmlycSwgdnBfaW50ZXJydXB0LCBJUlFGX1NIQVJFRCwKPiAgIAkJCWRldl9uYW1l
-KCZ2ZGV2LT5kZXYpLCB2cF9kZXYpOwo+ICAgCWlmIChlcnIpCj4gICAJCWdvdG8gb3V0X2RlbF92
-cXM7Cj4gICAKPiAgIAl2cF9kZXYtPmludHhfZW5hYmxlZCA9IDE7Cj4gLQl2cF9kZXYtPnBlcl92
-cV92ZWN0b3JzID0gZmFsc2U7Cj4gICAJZm9yIChpID0gMDsgaSA8IG52cXM7ICsraSkgewo+ICAg
-CQlpZiAoIW5hbWVzW2ldKSB7Cj4gICAJCQl2cXNbaV0gPSBOVUxMOwo+ICAgCQkJY29udGludWU7
-Cj4gICAJCX0KPiAtCQl2cXNbaV0gPSB2cF9zZXR1cF92cSh2ZGV2LCBpLCBjYWxsYmFja3NbaV0s
-IG5hbWVzW2ldLAo+ICsJCXZxc1tpXSA9IHZwX2Rldi0+c2V0dXBfdnEodnBfZGV2LCBpLCBjYWxs
-YmFja3NbaV0sIG5hbWVzW2ldLAo+ICAgCQkJCVZJUlRJT19NU0lfTk9fVkVDVE9SKTsKPiAgIAkJ
-aWYgKElTX0VSUih2cXNbaV0pKSB7Cj4gICAJCQllcnIgPSBQVFJfRVJSKHZxc1tpXSk7Cj4gQEAg
-LTQwOSwxNiArMzYzLDE1IEBAIGludCB2cF9zZXRfdnFfYWZmaW5pdHkoc3RydWN0IHZpcnRxdWV1
-ZSAqdnEsIGludCBjcHUpCj4gICB7Cj4gICAJc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYgPSB2
-cS0+dmRldjsKPiAgIAlzdHJ1Y3QgdmlydGlvX3BjaV9kZXZpY2UgKnZwX2RldiA9IHRvX3ZwX2Rl
-dmljZSh2ZGV2KTsKPiAtCXN0cnVjdCB2aXJ0aW9fcGNpX3ZxX2luZm8gKmluZm8gPSB2cF9kZXYt
-PnZxc1t2cS0+aW5kZXhdOwo+IC0Jc3RydWN0IGNwdW1hc2sgKm1hc2s7Cj4gLQl1bnNpZ25lZCBp
-bnQgaXJxOwo+ICAgCj4gICAJaWYgKCF2cS0+Y2FsbGJhY2spCj4gICAJCXJldHVybiAtRUlOVkFM
-Owo+ICAgCj4gICAJaWYgKHZwX2Rldi0+bXNpeF9lbmFibGVkKSB7Cj4gLQkJbWFzayA9IHZwX2Rl
-di0+bXNpeF9hZmZpbml0eV9tYXNrc1tpbmZvLT5tc2l4X3ZlY3Rvcl07Cj4gLQkJaXJxID0gcGNp
-X2lycV92ZWN0b3IodnBfZGV2LT5wY2lfZGV2LCBpbmZvLT5tc2l4X3ZlY3Rvcik7Cj4gKwkJaW50
-IHZlYyA9IHZwX2Rldi0+bXNpeF92ZWN0b3JfbWFwW3ZxLT5pbmRleF07Cj4gKwkJc3RydWN0IGNw
-dW1hc2sgKm1hc2sgPSB2cF9kZXYtPm1zaXhfYWZmaW5pdHlfbWFza3NbdmVjXTsKPiArCQl1bnNp
-Z25lZCBpbnQgaXJxID0gcGNpX2lycV92ZWN0b3IodnBfZGV2LT5wY2lfZGV2LCB2ZWMpOwo+ICsK
-PiAgIAkJaWYgKGNwdSA9PSAtMSkKPiAgIAkJCWlycV9zZXRfYWZmaW5pdHlfaGludChpcnEsIE5V
-TEwpOwo+ICAgCQllbHNlIHsKPiBAQCAtNDk4LDggKzQ1MSw2IEBAIHN0YXRpYyBpbnQgdmlydGlv
-X3BjaV9wcm9iZShzdHJ1Y3QgcGNpX2RldiAqcGNpX2RldiwKPiAgIAl2cF9kZXYtPnZkZXYuZGV2
-LnBhcmVudCA9ICZwY2lfZGV2LT5kZXY7Cj4gICAJdnBfZGV2LT52ZGV2LmRldi5yZWxlYXNlID0g
-dmlydGlvX3BjaV9yZWxlYXNlX2RldjsKPiAgIAl2cF9kZXYtPnBjaV9kZXYgPSBwY2lfZGV2Owo+
-IC0JSU5JVF9MSVNUX0hFQUQoJnZwX2Rldi0+dmlydHF1ZXVlcyk7Cj4gLQlzcGluX2xvY2tfaW5p
-dCgmdnBfZGV2LT5sb2NrKTsKPiAgIAo+ICAgCS8qIGVuYWJsZSB0aGUgZGV2aWNlICovCj4gICAJ
-cmMgPSBwY2lfZW5hYmxlX2RldmljZShwY2lfZGV2KTsKPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92
-aXJ0aW8vdmlydGlvX3BjaV9jb21tb24uaCBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfY29t
-bW9uLmgKPiBpbmRleCBiMmY2NjYyNTBhZTAuLjIwMzg4ODdiZGYyMyAxMDA2NDQKPiAtLS0gYS9k
-cml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX2NvbW1vbi5oCj4gKysrIGIvZHJpdmVycy92aXJ0aW8v
-dmlydGlvX3BjaV9jb21tb24uaAo+IEBAIC0zMSwxNyArMzEsNiBAQAo+ICAgI2luY2x1ZGUgPGxp
-bnV4L2hpZ2htZW0uaD4KPiAgICNpbmNsdWRlIDxsaW51eC9zcGlubG9jay5oPgo+ICAgCj4gLXN0
-cnVjdCB2aXJ0aW9fcGNpX3ZxX2luZm8gewo+IC0JLyogdGhlIGFjdHVhbCB2aXJ0cXVldWUgKi8K
-PiAtCXN0cnVjdCB2aXJ0cXVldWUgKnZxOwo+IC0KPiAtCS8qIHRoZSBsaXN0IG5vZGUgZm9yIHRo
-ZSB2aXJ0cXVldWVzIGxpc3QgKi8KPiAtCXN0cnVjdCBsaXN0X2hlYWQgbm9kZTsKPiAtCj4gLQkv
-KiBNU0ktWCB2ZWN0b3IgKG9yIG5vbmUpICovCj4gLQl1bnNpZ25lZCBtc2l4X3ZlY3RvcjsKPiAt
-fTsKPiAtCj4gICAvKiBPdXIgZGV2aWNlIHN0cnVjdHVyZSAqLwo+ICAgc3RydWN0IHZpcnRpb19w
-Y2lfZGV2aWNlIHsKPiAgIAlzdHJ1Y3QgdmlydGlvX2RldmljZSB2ZGV2Owo+IEBAIC03NSwxMyAr
-NjQsNiBAQCBzdHJ1Y3QgdmlydGlvX3BjaV9kZXZpY2Ugewo+ICAgCS8qIHRoZSBJTyBtYXBwaW5n
-IGZvciB0aGUgUENJIGNvbmZpZyBzcGFjZSAqLwo+ICAgCXZvaWQgX19pb21lbSAqaW9hZGRyOwo+
-ICAgCj4gLQkvKiBhIGxpc3Qgb2YgcXVldWVzIHNvIHdlIGNhbiBkaXNwYXRjaCBJUlFzICovCj4g
-LQlzcGlubG9ja190IGxvY2s7Cj4gLQlzdHJ1Y3QgbGlzdF9oZWFkIHZpcnRxdWV1ZXM7Cj4gLQo+
-IC0JLyogYXJyYXkgb2YgYWxsIHF1ZXVlcyBmb3IgaG91c2Uta2VlcGluZyAqLwo+IC0Jc3RydWN0
-IHZpcnRpb19wY2lfdnFfaW5mbyAqKnZxczsKPiAtCj4gICAJLyogTVNJLVggc3VwcG9ydCAqLwo+
-ICAgCWludCBtc2l4X2VuYWJsZWQ7Cj4gICAJaW50IGludHhfZW5hYmxlZDsKPiBAQCAtOTQsMTYg
-Kzc2LDE1IEBAIHN0cnVjdCB2aXJ0aW9fcGNpX2RldmljZSB7Cj4gICAJLyogVmVjdG9ycyBhbGxv
-Y2F0ZWQsIGV4Y2x1ZGluZyBwZXItdnEgdmVjdG9ycyBpZiBhbnkgKi8KPiAgIAl1bnNpZ25lZCBt
-c2l4X3VzZWRfdmVjdG9yczsKPiAgIAo+IC0JLyogV2hldGhlciB3ZSBoYXZlIHZlY3RvciBwZXIg
-dnEgKi8KPiAtCWJvb2wgcGVyX3ZxX3ZlY3RvcnM7Cj4gKwkvKiBNYXAgb2YgcGVyLVZRIE1TSS1Y
-IHZlY3RvcnMsIG1heSBiZSBOVUxMICovCj4gKwl1bnNpZ25lZCAqbXNpeF92ZWN0b3JfbWFwOwo+
-ICAgCj4gICAJc3RydWN0IHZpcnRxdWV1ZSAqKCpzZXR1cF92cSkoc3RydWN0IHZpcnRpb19wY2lf
-ZGV2aWNlICp2cF9kZXYsCj4gLQkJCQkgICAgICBzdHJ1Y3QgdmlydGlvX3BjaV92cV9pbmZvICpp
-bmZvLAo+ICAgCQkJCSAgICAgIHVuc2lnbmVkIGlkeCwKPiAgIAkJCQkgICAgICB2b2lkICgqY2Fs
-bGJhY2spKHN0cnVjdCB2aXJ0cXVldWUgKnZxKSwKPiAgIAkJCQkgICAgICBjb25zdCBjaGFyICpu
-YW1lLAo+ICAgCQkJCSAgICAgIHUxNiBtc2l4X3ZlYyk7Cj4gLQl2b2lkICgqZGVsX3ZxKShzdHJ1
-Y3QgdmlydGlvX3BjaV92cV9pbmZvICppbmZvKTsKPiArCXZvaWQgKCpkZWxfdnEpKHN0cnVjdCB2
-aXJ0cXVldWUgKnZxKTsKPiAgIAo+ICAgCXUxNiAoKmNvbmZpZ192ZWN0b3IpKHN0cnVjdCB2aXJ0
-aW9fcGNpX2RldmljZSAqdnBfZGV2LCB1MTYgdmVjdG9yKTsKPiAgIH07Cj4gZGlmZiAtLWdpdCBh
-L2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfbGVnYWN5LmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0
-aW9fcGNpX2xlZ2FjeS5jCj4gaW5kZXggNmQ5ZTUxNzNkNWZhLi40NzI5MmRhZDBmZjkgMTAwNjQ0
-Cj4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3BjaV9sZWdhY3kuYwo+ICsrKyBiL2RyaXZl
-cnMvdmlydGlvL3ZpcnRpb19wY2lfbGVnYWN5LmMKPiBAQCAtMTEyLDcgKzExMiw2IEBAIHN0YXRp
-YyB1MTYgdnBfY29uZmlnX3ZlY3RvcihzdHJ1Y3QgdmlydGlvX3BjaV9kZXZpY2UgKnZwX2Rldiwg
-dTE2IHZlY3RvcikKPiAgIH0KPiAgIAo+ICAgc3RhdGljIHN0cnVjdCB2aXJ0cXVldWUgKnNldHVw
-X3ZxKHN0cnVjdCB2aXJ0aW9fcGNpX2RldmljZSAqdnBfZGV2LAo+IC0JCQkJICBzdHJ1Y3Qgdmly
-dGlvX3BjaV92cV9pbmZvICppbmZvLAo+ICAgCQkJCSAgdW5zaWduZWQgaW5kZXgsCj4gICAJCQkJ
-ICB2b2lkICgqY2FsbGJhY2spKHN0cnVjdCB2aXJ0cXVldWUgKnZxKSwKPiAgIAkJCQkgIGNvbnN0
-IGNoYXIgKm5hbWUsCj4gQEAgLTEzMCw4ICsxMjksNiBAQCBzdGF0aWMgc3RydWN0IHZpcnRxdWV1
-ZSAqc2V0dXBfdnEoc3RydWN0IHZpcnRpb19wY2lfZGV2aWNlICp2cF9kZXYsCj4gICAJaWYgKCFu
-dW0gfHwgaW9yZWFkMzIodnBfZGV2LT5pb2FkZHIgKyBWSVJUSU9fUENJX1FVRVVFX1BGTikpCj4g
-ICAJCXJldHVybiBFUlJfUFRSKC1FTk9FTlQpOwo+ICAgCj4gLQlpbmZvLT5tc2l4X3ZlY3RvciA9
-IG1zaXhfdmVjOwo+IC0KPiAgIAkvKiBjcmVhdGUgdGhlIHZyaW5nICovCj4gICAJdnEgPSB2cmlu
-Z19jcmVhdGVfdmlydHF1ZXVlKGluZGV4LCBudW0sCj4gICAJCQkJICAgIFZJUlRJT19QQ0lfVlJJ
-TkdfQUxJR04sICZ2cF9kZXYtPnZkZXYsCj4gQEAgLTE2Miw5ICsxNTksOCBAQCBzdGF0aWMgc3Ry
-dWN0IHZpcnRxdWV1ZSAqc2V0dXBfdnEoc3RydWN0IHZpcnRpb19wY2lfZGV2aWNlICp2cF9kZXYs
-Cj4gICAJcmV0dXJuIEVSUl9QVFIoZXJyKTsKPiAgIH0KPiAgIAo+IC1zdGF0aWMgdm9pZCBkZWxf
-dnEoc3RydWN0IHZpcnRpb19wY2lfdnFfaW5mbyAqaW5mbykKPiArc3RhdGljIHZvaWQgZGVsX3Zx
-KHN0cnVjdCB2aXJ0cXVldWUgKnZxKQo+ICAgewo+IC0Jc3RydWN0IHZpcnRxdWV1ZSAqdnEgPSBp
-bmZvLT52cTsKPiAgIAlzdHJ1Y3QgdmlydGlvX3BjaV9kZXZpY2UgKnZwX2RldiA9IHRvX3ZwX2Rl
-dmljZSh2cS0+dmRldik7Cj4gICAKPiAgIAlpb3dyaXRlMTYodnEtPmluZGV4LCB2cF9kZXYtPmlv
-YWRkciArIFZJUlRJT19QQ0lfUVVFVUVfU0VMKTsKPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0
-aW8vdmlydGlvX3BjaV9tb2Rlcm4uYyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfbW9kZXJu
-LmMKPiBpbmRleCA0YmY3YWIzNzU4OTQuLjAwZTZmYzFkZjQwNyAxMDA2NDQKPiAtLS0gYS9kcml2
-ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX21vZGVybi5jCj4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmly
-dGlvX3BjaV9tb2Rlcm4uYwo+IEBAIC0yOTMsNyArMjkzLDYgQEAgc3RhdGljIHUxNiB2cF9jb25m
-aWdfdmVjdG9yKHN0cnVjdCB2aXJ0aW9fcGNpX2RldmljZSAqdnBfZGV2LCB1MTYgdmVjdG9yKQo+
-ICAgfQo+ICAgCj4gICBzdGF0aWMgc3RydWN0IHZpcnRxdWV1ZSAqc2V0dXBfdnEoc3RydWN0IHZp
-cnRpb19wY2lfZGV2aWNlICp2cF9kZXYsCj4gLQkJCQkgIHN0cnVjdCB2aXJ0aW9fcGNpX3ZxX2lu
-Zm8gKmluZm8sCj4gICAJCQkJICB1bnNpZ25lZCBpbmRleCwKPiAgIAkJCQkgIHZvaWQgKCpjYWxs
-YmFjaykoc3RydWN0IHZpcnRxdWV1ZSAqdnEpLAo+ICAgCQkJCSAgY29uc3QgY2hhciAqbmFtZSwK
-PiBAQCAtMzIzLDggKzMyMiw2IEBAIHN0YXRpYyBzdHJ1Y3QgdmlydHF1ZXVlICpzZXR1cF92cShz
-dHJ1Y3QgdmlydGlvX3BjaV9kZXZpY2UgKnZwX2RldiwKPiAgIAkvKiBnZXQgb2Zmc2V0IG9mIG5v
-dGlmaWNhdGlvbiB3b3JkIGZvciB0aGlzIHZxICovCj4gICAJb2ZmID0gdnBfaW9yZWFkMTYoJmNm
-Zy0+cXVldWVfbm90aWZ5X29mZik7Cj4gICAKPiAtCWluZm8tPm1zaXhfdmVjdG9yID0gbXNpeF92
-ZWM7Cj4gLQo+ICAgCS8qIGNyZWF0ZSB0aGUgdnJpbmcgKi8KPiAgIAl2cSA9IHZyaW5nX2NyZWF0
-ZV92aXJ0cXVldWUoaW5kZXgsIG51bSwKPiAgIAkJCQkgICAgU01QX0NBQ0hFX0JZVEVTLCAmdnBf
-ZGV2LT52ZGV2LAo+IEBAIC00MDksOSArNDA2LDggQEAgc3RhdGljIGludCB2cF9tb2Rlcm5fZmlu
-ZF92cXMoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYsIHVuc2lnbmVkIG52cXMsCj4gICAJcmV0
-dXJuIDA7Cj4gICB9Cj4gICAKPiAtc3RhdGljIHZvaWQgZGVsX3ZxKHN0cnVjdCB2aXJ0aW9fcGNp
-X3ZxX2luZm8gKmluZm8pCj4gK3N0YXRpYyB2b2lkIGRlbF92cShzdHJ1Y3QgdmlydHF1ZXVlICp2
-cSkKPiAgIHsKPiAtCXN0cnVjdCB2aXJ0cXVldWUgKnZxID0gaW5mby0+dnE7Cj4gICAJc3RydWN0
-IHZpcnRpb19wY2lfZGV2aWNlICp2cF9kZXYgPSB0b192cF9kZXZpY2UodnEtPnZkZXYpOwo+ICAg
-Cj4gICAJdnBfaW93cml0ZTE2KHZxLT5pbmRleCwgJnZwX2Rldi0+Y29tbW9uLT5xdWV1ZV9zZWxl
-Y3QpOwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
-dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
-YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL3ZpcnR1YWxpemF0aW9u
+This is an update from v1 version.
+Changes:
+- update event suppression mechanism
+- separate options for indirect and direct s/g
+- lots of new features
+
+---
+
+Performance analysis of this is in my kvm forum 2016 presentation.
+The idea is to have a r/w descriptor in a ring structure,
+replacing the used and available ring, index and descriptor
+buffer.
+
+* Descriptor ring:
+
+Guest adds descriptors with unique index values and DESC_HW set in flags.
+Host overwrites used descriptors with correct len, index, and DESC_HW
+clear.  Flags are always set/cleared last.
+
+#define DESC_HW 0x0080
+
+struct desc {
+        __le64 addr;
+        __le32 len;
+        __le16 index;
+        __le16 flags;
+};
+
+When DESC_HW is set, descriptor belongs to device. When it is clear,
+it belongs to the driver.
+
+We can use 1 bit to set direction
+/* This marks a buffer as write-only (otherwise read-only). */
+#define VRING_DESC_F_WRITE      2
+
+* Scatter/gather support
+
+We can use 1 bit to chain s/g entries in a request, same as virtio 1.0:
+
+/* This marks a buffer as continuing via the next field. */
+#define VRING_DESC_F_NEXT       1
+
+Unlike virtio 1.0, all descriptors must have distinct ID values.
+
+Also unlike virtio 1.0, use of this flag will be an optional feature
+(e.g. VIRTIO_F_DESC_NEXT) so both devices and drivers can opt out of it.
+
+* Indirect buffers
+
+Can be marked like in virtio 1.0:
+
+/* This means the buffer contains a table of buffer descriptors. */
+#define VRING_DESC_F_INDIRECT   4
+
+Unlike virtio 1.0, this is a table, not a list:
+struct indirect_descriptor_table {
+        /* The actual descriptors (16 bytes each) */
+        struct virtq_desc desc[len / 16];
+};
+
+The first descriptor is located at start of the indirect descriptor
+table, additional indirect descriptors come immediately afterwards.
+DESC_F_WRITE is the only valid flag for descriptors in the indirect
+table. Others should be set to 0 and are ignored.  id is also set to 0
+and should be ignored.
+
+virtio 1.0 seems to allow a s/g entry followed by
+an indirect descriptor. This does not seem useful,
+so we do not allow that anymore.
+
+This support would be an optional feature, same as in virtio 1.0
+
+* Batching descriptors:
+
+virtio 1.0 allows passing a batch of descriptors in both directions, by
+incrementing the used/avail index by values > 1.  We can support this by
+chaining a list of descriptors through a bit the flags field.
+To allow use together with s/g, a different bit will be used.
+
+#define VRING_DESC_F_BATCH_NEXT 0x0010
+
+Batching works for both driver and device descriptors.
+
+
+
+* Processing descriptors in and out of order
+
+Device processing all descriptors in order can simply flip
+the DESC_HW bit as it is done with descriptors.
+
+Device can write descriptors out in order as they are used, overwriting
+descriptors that are there.
+
+Device must not use a descriptor until DESC_HW is set.
+It is only required to look at the first descriptor
+submitted.
+
+Driver must not overwrite a descriptor until DESC_HW is clear.
+It is only required to look at the first descriptor
+submitted.
+
+* Device specific descriptor flags
+We have a lot of unused space in the descriptor.  This can be put to
+good use by reserving some flag bits for device use.
+For example, network device can set a bit to request
+that header in the descriptor is suppressed
+(in case it's all 0s anyway). This reduces cache utilization.
+
+Note: this feature can be supported in virtio 1.0 as well,
+as we have unused bits in both descriptor and used ring there.
+
+* Descriptor length in device descriptors
+
+virtio 1.0 places strict requirements on descriptor length. For example
+it must be 0 in used ring of TX VQ of a network device since nothing is
+written.  In practice guests do not seem to use this, so we can simplify
+devices a bit by removing this requirement - if length is unused it
+should be ignored by driver.
+
+Some devices use identically-sized buffers in all descriptors.
+Ignoring length for driver descriptors there could be an option too.
+
+* Writing at an offset
+
+Some devices might want to write into some descriptors
+at an offset, the offset would be in config space,
+and a descriptor flag could indicate this:
+
+#define VRING_DESC_F_OFFSET 0x0020
+
+How exactly to use the offset would be device specific,
+for example it can be used to align beginning of packet
+in the 1st buffer for mergeable buffers to cache line boundary
+while also aligning rest of buffers.
+
+* Non power-of-2 ring sizes
+
+As the ring simply wraps around, there's no reason to
+require ring size to be power of two.
+It can be made a separate feature though.
+
+
+* Interrupt/event suppression
+
+virtio 1.0 has two mechanisms for suppression but only
+one can be used at a time. we pack them together
+in a structure - one for interrupts, one for notifications:
+
+struct event {
+	__le16 idx;
+	__le16 flags;
+}
+
+Both fields would be optional, with a feature bit:
+VIRTIO_F_EVENT_IDX
+VIRTIO_F_EVENT_FLAGS
+
+* Flags can be used like in virtio 1.0, by storing a special
+value there:
+
+#define VRING_F_EVENT_ENABLE  0x0
+
+#define VRING_F_EVENT_DISABLE 0x1
+
+* Event index would be in the range 0 to 2 * Queue Size
+(to detect wrap arounds) and wrap to 0 after that.
+
+The assumption is that each side maintains an internal
+descriptor counter 0 to 2 * Queue Size that wraps to 0.
+In that case, interrupt triggers when counter reaches
+the given value.
+
+* If both features are negotiated, a special flags value
+can be used to switch to event idx:
+
+#define VRING_F_EVENT_IDX     0x2
+
+
+* Prototype
+
+A partial prototype can be found under
+tools/virtio/ringtest/ring.c
+
+Test run:
+[mst@tuck ringtest]$ time ./ring 
+real    0m0.399s
+user    0m0.791s
+sys     0m0.000s
+[mst@tuck ringtest]$ time ./virtio_ring_0_9
+real    0m0.503s
+user    0m0.999s
+sys     0m0.000s
+
+It is planned to update it to this interface. Future changes and
+enhancements can (and should) be tested against this prototype.
+
+* Feature sets
+In particular are we going overboard with feature bits?  It becomes hard
+to support all combinations in drivers and devices.  Maybe we should
+document reasonable feature sets to be supported for each device.
+
+* Known issues/ideas
+
+This layout is optimized for host/guest communication,
+in a sense even more aggressively than virtio 1.0.
+It might be suboptimal for PCI hardware implementations.
+However, one notes that current virtio pci drivers are
+unlikely to work with PCI hardware implementations anyway
+(e.g. due to use of SMP barriers for ordering).
+
+Suggestions for improving this are welcome but need to be tested to make
+sure our main use case does not regress.  Of course some improvements
+might be made optional, but if we add too many of these driver becomes
+unmanageable.
+
+---
+
+Note: should this proposal be accepted and approved, one or more
+      claims disclosed to the TC admin and listed on the Virtio TC
+      IPR page https://www.oasis-open.org/committees/virtio/ipr.php
+      might become Essential Claims.
+
+-- 
+MST
