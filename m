@@ -1,11 +1,16 @@
-From: Yisheng Xie <xieyisheng1@huawei.com>
-Subject: [PATCH] mm balloon: umount balloon_mnt when remove vb device
-Date: Wed, 8 Feb 2017 13:21:58 +0800
-Message-ID: <1486531318-35189-1-git-send-email-xieyisheng1__47667.0506330722$1486532453$gmane$org@huawei.com>
+From: Alexander Graf <agraf@suse.de>
+Subject: Re: [PATCH] virtio: Try to untangle DMA coherency
+Date: Wed, 8 Feb 2017 13:58:10 +0100
+Message-ID: <d6ded13e-aa48-023b-3a71-1c40aa5fced0@suse.de>
+References: <8a6494f6409c20b4609cd6bdcdd751f68b5c0564.1485951731.git.robin.murphy@arm.com>
+	<20170201195732-mutt-send-email-mst@kernel.org>
+	<20170201182659.GM8177@arm.com>
+	<20170201210648-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20170201210648-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,36 +20,100 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: akpm@linux-foundation.org
-Cc: liubo95@huawei.com, aquini@redhat.com, minchan@kernel.org, vbabka@suse.cz, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, gi-oh.kim@profitbricks.com, guohanjun@huawei.com, qiuxishi@huawei.com, mhocko@kernel.org, koct9i@gmail.com
+To: Michael Tsirkin <mst@redhat.com>, Will Deacon <Will.Deacon@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, rob.herring@linaro.org, devicetree@vger.kernel.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-With CONFIG_BALLOON_COMPACTION=y, it will mount balloon_mnt for
-balloon page migration when probe a virtio_balloon device, however
-do not unmount it when remove the device, fix it.
+On 02/01/2017 08:19 PM, Michael S. Tsirkin wrote:
+> On Wed, Feb 01, 2017 at 06:27:09PM +0000, Will Deacon wrote:
+>> On Wed, Feb 01, 2017 at 08:09:21PM +0200, Michael S. Tsirkin wrote:
+>>> On Wed, Feb 01, 2017 at 12:25:57PM +0000, Robin Murphy wrote:
+>>>> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+>>>> index 7e38ed79c3fc..961af25b385c 100644
+>>>> --- a/drivers/virtio/virtio_ring.c
+>>>> +++ b/drivers/virtio/virtio_ring.c
+>>>> @@ -20,6 +20,7 @@
+>>>>  #include <linux/virtio_ring.h>
+>>>>  #include <linux/virtio_config.h>
+>>>>  #include <linux/device.h>
+>>>> +#include <linux/property.h>
+>>>>  #include <linux/slab.h>
+>>>>  #include <linux/module.h>
+>>>>  #include <linux/hrtimer.h>
+>>>> @@ -160,10 +161,14 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
+>>>>  		return true;
+>>>>
+>>>>  	/*
+>>>> -	 * On ARM-based machines, the DMA ops will do the right thing,
+>>>> -	 * so always use them with legacy devices.
+>>>> +	 * On ARM-based machines, the coherent DMA ops will do the right
+>>>> +	 * thing, so always use them with legacy devices. However, using
+>>>> +	 * non-coherent DMA when the host *is* actually coherent, but has
+>>>> +	 * forgotten to tell us, is going to break badly; since this situation
+>>>> +	 * already exists in the wild, maintain the old behaviour there.
+>>>>  	 */
+>>>> -	if (IS_ENABLED(CONFIG_ARM) || IS_ENABLED(CONFIG_ARM64))
+>>>> +	if ((IS_ENABLED(CONFIG_ARM) || IS_ENABLED(CONFIG_ARM64)) &&
+>>>> +	    device_get_dma_attr(&vdev->dev) == DEV_DMA_COHERENT)
+>>>>  		return !virtio_has_feature(vdev, VIRTIO_F_VERSION_1);
+>>>>
+>>>>  	return false;
+>>>
+>>> This is exactly what I feared.
+>>
+>> Yes, sorry about this. It works fine for virtio-pci (where "dma-coherent"
+>> is used) and it also works on the fastmodel if you disable cache-modelling
+>> (which is needed to make the thing run at a usable pace) so we didn't spot
+>> this in testing.
+>>
+>>> Could we identify fastboot and do the special dance just for it?
+>>
+>> [assuming you mean fastmodel instead of fastboot]
+>>
+>>> I'd like to do that instead. It's fastboot doing the unreasonable thing
+>>> here and deviating from what every other legacy device without exception
+>>> did for years. If this means fastboot will need to update to virtio 1,
+>>> all the better.
+>>
+>> The problem still exists with virtio 1, unless we require that the
+>> "dma-coherent" property is set/unset correctly when VIRTIO_F_IOMMU_PLATFORM
+>> is advertised by the device (which is what I suggested in my reply).
+>
+> I'm not ignoring that, but I need to understand that part a bit better.
+> I'll reply to that patch in a day or two after looking at how _CCA is
+> supposed to work.
+>
+>> We can't detect the fastmodel,
+>
+> Surely, it puts a hardware id somewhere? I think you mean
+> fastmodel isn't always affected, right?
+>
+>> but we could implicitly treat virtio-mmio
+>> devices as cache-coherent regardless of the "dma-coherent" flag. I already
+>> prototyped this, but I suspect the devicetree people will push back (and
+>> there's a similar patch needed for ACPI).
+>>
+>> See below. Do you prefer this approach?
+>>
+>> Will
+>>
+>> --->8
+>
+> I'd like to see basically
+>
+> if (fastmodel)
+> 	a pile of special work-arounds
+> else
+> 	not less hacky but more common virtio work-arounds
+>
+> :)
+>
+> And then I can apply whatever comes from @arm.com and not
+> worry about breaking actual hardware.
 
-Fixes: b1123ea6d3b3 ("mm: balloon: use general non-lru movable page feature")
-Signed-off-by: Yisheng Xie <xieyisheng1@huawei.com>
----
- drivers/virtio/virtio_balloon.c | 4 ++++
- 1 file changed, 4 insertions(+)
+I'm actually seeing the exact same breakage in QEMU right now, so it's 
+not fast model related at all. In QEMU we also don't properly set the 
+dma-coherent flag, so we run into cache coherency problems.
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 181793f..9d2738e 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -615,8 +615,12 @@ static void virtballoon_remove(struct virtio_device *vdev)
- 	cancel_work_sync(&vb->update_balloon_stats_work);
- 
- 	remove_common(vb);
-+#ifdef CONFIG_BALLOON_COMPACTION
- 	if (vb->vb_dev_info.inode)
- 		iput(vb->vb_dev_info.inode);
-+
-+	kern_unmount(balloon_mnt);
-+#endif
- 	kfree(vb);
- }
- 
--- 
-1.7.12.4
+
+Alex
