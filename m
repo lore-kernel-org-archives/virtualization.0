@@ -1,17 +1,13 @@
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
-Subject: Re: [PATCH RFC 2/2] x86/vdso: Add VCLOCK_HVCLOCK vDSO clock read
-	method
-Date: Wed, 08 Feb 2017 18:27:17 +0100
-Message-ID: <87y3xgr3t6.fsf@vitty.brq.redhat.com>
-References: <20170208170744.7632-1-vkuznets@redhat.com>
-	<20170208170744.7632-3-vkuznets@redhat.com>
-	<CALCETrU48en_Zki88eXZEcU7QFf0u9sVAT_qgY0TyzoWkP2-6g@mail.gmail.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [virtio-dev] packed ring layout proposal v2
+Date: Wed, 8 Feb 2017 18:41:40 +0100
+Message-ID: <240c623b-2d8f-28d9-d349-d01e2c24b93a@redhat.com>
+References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CALCETrU48en_Zki88eXZEcU7QFf0u9sVAT_qgY0TyzoWkP2-6g@mail.gmail.com>
-	(Andy Lutomirski's message of "Wed, 8 Feb 2017 09:12:48 -0800")
+In-Reply-To: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,178 +17,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: Stephen Hemminger <sthemmin@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, X86 ML <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, devel@linuxdriverproject.org, Thomas Gleixner <tglx@linutronix.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>, virtio-dev@lists.oasis-open.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andy Lutomirski <luto@amacapital.net> writes:
 
-> On Wed, Feb 8, 2017 at 9:07 AM, Vitaly Kuznetsov <vkuznets@redhat.com> wrote:
->> Hyper-V TSC page clocksource is suitable for vDSO, however, the protocol
->> defined by the hypervisor is different from VCLOCK_PVCLOCK. Implement the
->> required support re-using pvclock_page VVAR as VCLOCK_PVCLOCK is mutually
->> exclusive with VCLOCK_HVCLOCK at run time.
->>
->> Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
->> ---
->>  arch/x86/entry/vdso/vclock_gettime.c | 48 ++++++++++++++++++++++++++++++++++++
->>  arch/x86/entry/vdso/vma.c            | 26 +++++++++++++------
->>  arch/x86/hyperv/hv_init.c            |  3 +++
->>  arch/x86/include/asm/clocksource.h   |  3 ++-
->>  4 files changed, 72 insertions(+), 8 deletions(-)
->>
->> diff --git a/arch/x86/entry/vdso/vclock_gettime.c b/arch/x86/entry/vdso/vclock_gettime.c
->> index 9d4d6e1..93e9dcd 100644
->> --- a/arch/x86/entry/vdso/vclock_gettime.c
->> +++ b/arch/x86/entry/vdso/vclock_gettime.c
->> @@ -17,6 +17,7 @@
->>  #include <asm/unistd.h>
->>  #include <asm/msr.h>
->>  #include <asm/pvclock.h>
->> +#include <asm/mshyperv.h>
->>  #include <linux/math64.h>
->>  #include <linux/time.h>
->>  #include <linux/kernel.h>
->> @@ -141,6 +142,49 @@ static notrace u64 vread_pvclock(int *mode)
->>         return last;
->>  }
->>  #endif
->> +#ifdef CONFIG_HYPERV_CLOCK
->> +/* (a * b) >> 64 implementation */
->> +static inline u64 mul64x64_hi(u64 a, u64 b)
->> +{
->> +       u64 a_lo, a_hi, b_lo, b_hi, p1, p2;
->> +
->> +       a_lo = (u32)a;
->> +       a_hi = a >> 32;
->> +       b_lo = (u32)b;
->> +       b_hi = b >> 32;
->> +       p1 = a_lo * b_hi;
->> +       p2 = a_hi * b_lo;
->> +
->> +       return a_hi * b_hi + (p1 >> 32) + (p2 >> 32) +
->> +               ((((a_lo * b_lo) >> 32) + (u32)p1 + (u32)p2) >> 32);
->> +
->> +}
->
-> Unless GCC is waaay more clever than I think, this is hugely
-> suboptimal on 64-bit.  x86 can do this in a single instruction, and
-> gcc can express it cleanly using __uint128_t.  I wouldn't be terribly
-> surprised if the 32-bit generated code was fine, too.
->
 
-Yes, this is a 'quick-and-dirty' mulq implementation suitable for 32
-bit. I'll try making it better.
+On 08/02/2017 04:20, Michael S. Tsirkin wrote:
+> * Scatter/gather support
+> 
+> We can use 1 bit to chain s/g entries in a request, same as virtio 1.0:
+> 
+> /* This marks a buffer as continuing via the next field. */
+> #define VRING_DESC_F_NEXT       1
+> 
+> Unlike virtio 1.0, all descriptors must have distinct ID values.
+> 
+> Also unlike virtio 1.0, use of this flag will be an optional feature
+> (e.g. VIRTIO_F_DESC_NEXT) so both devices and drivers can opt out of it.
 
->> +
->> +static notrace u64 vread_hvclock(int *mode)
->> +{
->> +       const struct ms_hyperv_tsc_page *tsc_pg =
->> +               (const struct ms_hyperv_tsc_page *)&pvclock_page;
->> +       u64 sequence, scale, offset, current_tick, cur_tsc;
->> +
->> +       while (1) {
->> +               sequence = READ_ONCE(tsc_pg->tsc_sequence);
->> +               if (!sequence)
->> +                       break;
->> +
->> +               scale = READ_ONCE(tsc_pg->tsc_scale);
->> +               offset = READ_ONCE(tsc_pg->tsc_offset);
->> +               rdtscll(cur_tsc);
->> +
->> +               current_tick = mul64x64_hi(cur_tsc, scale) + offset;
->> +
->> +               if (READ_ONCE(tsc_pg->tsc_sequence) == sequence)
->> +                       return current_tick;
->> +       }
->
-> Can you explain better what's going on here?  What protocol does the
-> hypervisor use to update this bizarro seqlock?  What exactly does
-> sequence==0 mean?
+I would still prefer that we had  _either_ single-direct or
+multiple-indirect descriptors, i.e. no VRING_DESC_F_NEXT.  I can propose
+my idea for this in a separate message.
 
-I basically copied the code from arch/x86/hyperv/hv_init.c (in
-linux-next). The protocol is:
+> * Batching descriptors:
+> 
+> virtio 1.0 allows passing a batch of descriptors in both directions, by
+> incrementing the used/avail index by values > 1.  We can support this by
+> chaining a list of descriptors through a bit the flags field.
+> To allow use together with s/g, a different bit will be used.
+> 
+> #define VRING_DESC_F_BATCH_NEXT 0x0010
+> 
+> Batching works for both driver and device descriptors.
 
-tsc_sequence == 0 means we should not be using this clocksource. This
-happens during migration, for example.
+I'm still not sure how this would be useful.  It cannot be mandatory to
+set the bit, I think, because you don't know when the host/guest is
+going to read descriptors.  So both host and guest always have to look
+ahead one element in any case.
 
-When tsc_sequence != 0 we calculate 
+> * Non power-of-2 ring sizes
+> 
+> As the ring simply wraps around, there's no reason to
+> require ring size to be power of two.
+> It can be made a separate feature though.
 
-current_tick = rdtsc() * tsc_pg->tsc_scale + tsc_pg->tsc_offset
+Power of 2 ring sizes are required in order to ignore the high bits of
+the indices.  With non-power-of-2 sizes you are forced to keep the
+indices less than the ring size.  Alternatively you can do this:
 
-and then we check tsc_sequence again. If it changed it means that the
-hypervisor was updating the data at this moment and we need to discard
-the result and try again. If the sequence number is the same we're good
-to go.
+> * Event index would be in the range 0 to 2 * Queue Size
+> (to detect wrap arounds) and wrap to 0 after that.
+> 
+> The assumption is that each side maintains an internal
+> descriptor counter 0 to 2 * Queue Size that wraps to 0.
+> In that case, interrupt triggers when counter reaches
+> the given value.
 
->
->> +
->> +       *mode = VCLOCK_NONE;
->> +       return 0;
->> +}
->> +#endif
->>
->>  notrace static u64 vread_tsc(void)
->>  {
->> @@ -173,6 +217,10 @@ notrace static inline u64 vgetsns(int *mode)
->>         else if (gtod->vclock_mode == VCLOCK_PVCLOCK)
->>                 cycles = vread_pvclock(mode);
->>  #endif
->> +#ifdef CONFIG_HYPERV_CLOCK
->> +       else if (gtod->vclock_mode == VCLOCK_HVCLOCK)
->> +               cycles = vread_hvclock(mode);
->> +#endif
->>         else
->>                 return 0;
->>         v = (cycles - gtod->cycle_last) & gtod->mask;
->> diff --git a/arch/x86/entry/vdso/vma.c b/arch/x86/entry/vdso/vma.c
->> index 10820f6..4b9d90c 100644
->> --- a/arch/x86/entry/vdso/vma.c
->> +++ b/arch/x86/entry/vdso/vma.c
->> @@ -21,6 +21,7 @@
->>  #include <asm/page.h>
->>  #include <asm/desc.h>
->>  #include <asm/cpufeature.h>
->> +#include <asm/mshyperv.h>
->>
->>  #if defined(CONFIG_X86_64)
->>  unsigned int __read_mostly vdso64_enabled = 1;
->> @@ -112,13 +113,24 @@ static int vvar_fault(const struct vm_special_mapping *sm,
->>                 ret = vm_insert_pfn(vma, vmf->address,
->>                                     __pa_symbol(&__vvar_page) >> PAGE_SHIFT);
->>         } else if (sym_offset == image->sym_pvclock_page) {
->> -               struct pvclock_vsyscall_time_info *pvti =
->> -                       pvclock_pvti_cpu0_va();
->> -               if (pvti && vclock_was_used(VCLOCK_PVCLOCK)) {
->> -                       ret = vm_insert_pfn(
->> -                               vma,
->> -                               vmf->address,
->> -                               __pa(pvti) >> PAGE_SHIFT);
->> +               if (vclock_was_used(VCLOCK_PVCLOCK)) {
->> +                       struct pvclock_vsyscall_time_info *pvti =
->> +                               pvclock_pvti_cpu0_va();
->> +                       if (pvti) {
->> +                               ret = vm_insert_pfn(
->> +                                       vma,
->> +                                       vmf->address,
->> +                                       __pa(pvti) >> PAGE_SHIFT);
->> +                       }
->> +               } else if (vclock_was_used(VCLOCK_HVCLOCK)) {
->> +                       struct ms_hyperv_tsc_page *tsc_pg =
->> +                               hv_get_tsc_page();
->> +                       if (tsc_pg) {
->> +                               ret = vm_insert_pfn(
->> +                                       vma,
->> +                                       vmf->address,
->> +                                       vmalloc_to_pfn(tsc_pg));
->> +                       }
->
-> This is IMO just too weird and fragile.  Why not allocate another page
-> and avoid this strange aliasing?
+but it seems more complicated than just forcing power-of-2 and ignoring
+the high bits.
 
-My idea was that as we can't be in both VCLOCK_PVCLOCK (KVM, Xen) and
-VCLOCK_HVCLOCK (Hyper-V) modes simultaneously. But let's make it
-different to avoid confusion.
+Thanks,
 
--- 
-  Vitaly
+Paolo
