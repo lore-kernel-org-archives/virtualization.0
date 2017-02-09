@@ -1,18 +1,15 @@
-From: Stephen Hemminger via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: RE: [PATCH 2/2] x86/vdso: Add VCLOCK_HVCLOCK vDSO clock read method
-Date: Thu, 9 Feb 2017 18:27:27 +0000
-Message-ID: <BLUPR0301MB20986D17696C3E658D511FACCC450@BLUPR0301MB2098.namprd03.prod.outlook.com>
-References: <20170209141052.18694-1-vkuznets@redhat.com>
-	<20170209141052.18694-3-vkuznets@redhat.com>
-	<alpine.DEB.2.20.1702091806400.3604@nanos>
-Reply-To: Stephen Hemminger <sthemmin@microsoft.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: packed ring layout proposal v2
+Date: Thu, 9 Feb 2017 19:27:39 +0100
+Message-ID: <81a3028f-3b8b-dfc7-60de-0adf28306f33__18469.3541298204$1486664867$gmane$org@de.ibm.com>
+References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
+	<39240395-0266-c2ac-0b99-de74ba10b510@de.ibm.com>
+	<20170209181955-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.DEB.2.20.1702091806400.3604@nanos>
-Content-Language: en-US
+In-Reply-To: <20170209181955-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,42 +19,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Gleixner <tglx@linutronix.de>, Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, "x86@kernel.org" <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Why not use existing seqlock's?
+On 02/09/2017 06:43 PM, Michael S. Tsirkin wrote:
+[...]
+>> [...] 
+>>> Note: should this proposal be accepted and approved, one or more
+>>>       claims disclosed to the TC admin and listed on the Virtio TC
+>>>       IPR page https://www.oasis-open.org/committees/virtio/ipr.php
+>>>       might become Essential Claims.
+>>>
+>>
+>> I have trouble parsing that legal stuff. Do I read that right, that
+>> these claims can be implemented as part of a virtio implementation without
+>> any worries (e.g. non open source HW implementation or non open source
+>> hypervisor)?
+> 
+> By that legal stuff do you mean the IPR or the Note?
 
------Original Message-----
-From: Thomas Gleixner [mailto:tglx@linutronix.de] 
-Sent: Thursday, February 9, 2017 9:08 AM
-To: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: x86@kernel.org; Andy Lutomirski <luto@amacapital.net>; Ingo Molnar <mingo@redhat.com>; H. Peter Anvin <hpa@zytor.com>; KY Srinivasan <kys@microsoft.com>; Haiyang Zhang <haiyangz@microsoft.com>; Stephen Hemminger <sthemmin@microsoft.com>; Dexuan Cui <decui@microsoft.com>; linux-kernel@vger.kernel.org; devel@linuxdriverproject.org; virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH 2/2] x86/vdso: Add VCLOCK_HVCLOCK vDSO clock read method
+Both in combination.
+ 
+> Not representing Red Hat here, and definitely not legal advice, below is
+> just my personal understanding of the IPR requirements.
+> 
+> Virtio TC operates under the Non-Assertion Mode of the OASIS IPR Policy:
+> https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode
+> 
+> As far as I can tell, the hardware and software question is covered
+> by that policy, since it states:
+> 
+> 	Covered Product - includes only those specific portions of a
+> 	product (hardware, software or combinations thereof)
+> 
+> Also as far as I can tell IPR does not mention source at all, so I think
+> virtio IPR would apply to open and closed source software equally.
+> 
+> The Note is included to satisfy the disclosure requirements.
+> 
+> Does this answer the question?
 
-On Thu, 9 Feb 2017, Vitaly Kuznetsov wrote:
-> +#ifdef CONFIG_HYPERV_TSCPAGE
-> +static notrace u64 vread_hvclock(int *mode) {
-> +	const struct ms_hyperv_tsc_page *tsc_pg =
-> +		(const struct ms_hyperv_tsc_page *)&hvclock_page;
-> +	u64 sequence, scale, offset, current_tick, cur_tsc;
-> +
-> +	while (1) {
-> +		sequence = READ_ONCE(tsc_pg->tsc_sequence);
-> +		if (!sequence)
-> +			break;
-> +
-> +		scale = READ_ONCE(tsc_pg->tsc_scale);
-> +		offset = READ_ONCE(tsc_pg->tsc_offset);
-> +		rdtscll(cur_tsc);
-> +
-> +		current_tick = mul_u64_u64_shr(cur_tsc, scale, 64) + offset;
-> +
-> +		if (READ_ONCE(tsc_pg->tsc_sequence) == sequence)
-> +			return current_tick;
-
-That sequence stuff lacks still a sensible explanation. It's fundamentally different from the sequence counting we do in the kernel, so documentation for it is really required.
-
-Thanks,
-
-	tglx
+Yes, thanks.
