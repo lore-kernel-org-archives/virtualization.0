@@ -1,17 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] packed ring layout proposal v2
-Date: Thu, 9 Feb 2017 20:24:06 +0200
-Message-ID: <20170209202203-mutt-send-email-mst__32275.7965805524$1486664656$gmane$org@kernel.org>
-References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
-	<240c623b-2d8f-28d9-d349-d01e2c24b93a@redhat.com>
-	<20170208214435-mutt-send-email-mst@kernel.org>
-	<cc075b18-0913-ef89-96a8-a29869abd73e@redhat.com>
+From: Stephen Hemminger via Virtualization
+	<virtualization@lists.linux-foundation.org>
+Subject: RE: [PATCH 1/2] hyperv: implement hv_get_tsc_page()
+Date: Thu, 9 Feb 2017 18:24:53 +0000
+Message-ID: <BLUPR0301MB20981399653ED5166E0C4435CC450@BLUPR0301MB2098.namprd03.prod.outlook.com>
+References: <20170209141052.18694-1-vkuznets@redhat.com>
+	<20170209141052.18694-2-vkuznets@redhat.com>
+Reply-To: Stephen Hemminger <sthemmin@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <cc075b18-0913-ef89-96a8-a29869abd73e@redhat.com>
+In-Reply-To: <20170209141052.18694-2-vkuznets@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,54 +21,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+To: Vitaly Kuznetsov <vkuznets@redhat.com>, "x86@kernel.org" <x86@kernel.org>, Andy Lutomirski <luto@amacapital.net>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 09, 2017 at 04:48:53PM +0100, Paolo Bonzini wrote:
-> 
-> 
-> On 08/02/2017 20:59, Michael S. Tsirkin wrote:
-> > We couldn't decide what's better for everyone in 1.0 days and I doubt
-> > we'll be able to now, but yes, benchmarking is needed to make
-> > sire it's required. Very easy to remove or not to use/support in
-> > drivers/devices though.
-> 
-> Fair enough, but of course then we must specify that devices MUST
-> support either VRING_DESC_F_NEXT or VRING_DESC_F_INDIRECT, and drivers
-> SHOULD support both (or use neither).
-> 
-> The drivers' part adds to the implementation burden, which is why I
-> wanted to remove it.  Alternatively we can say that indirect is
-> mandatory for both devices and drivers (and save a feature bit), while
-> VRING_DESC_F_NEXT is optional.
-> 
-> >>> * Non power-of-2 ring sizes
-> >>>
-> >>> As the ring simply wraps around, there's no reason to
-> >>> require ring size to be power of two.
-> >>> It can be made a separate feature though.
-> >>
-> >> Power of 2 ring sizes are required in order to ignore the high bits of
-> >> the indices.  With non-power-of-2 sizes you are forced to keep the
-> >> indices less than the ring size.
-> > 
-> > Right. So
-> > 
-> > 	if (unlikely(idx++ > size))
-> > 		idx = 0;
-> > 
-> > OTOH ring size that's twice larger than necessary
-> > because of power of two requirements wastes cache.
-> 
-> I don't know.  Power of 2 ring size is pretty standard, I'd rather avoid
-> the complication and the gratuitous difference with 1.0.
+The actual code looks fine, but the style police will not like you.
+{ should be at start of line on functions.
+And #else should be at start of line,
 
-I thought originally there's a reason 1.0 rings had to be powers of two
-but now I don't see why. OK, we can make it a feature flag later if we
-want to.
+But maybe this was just more of exchange mangling the mail.
 
-> If batching is mostly advisory (with exceptions such as mrg-rxbuf) I
-> don't have any problem with it.
-> 
-> Paolo
+-----Original Message-----
+From: Vitaly Kuznetsov [mailto:vkuznets@redhat.com] 
+Sent: Thursday, February 9, 2017 6:11 AM
+To: x86@kernel.org; Andy Lutomirski <luto@amacapital.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>; Ingo Molnar <mingo@redhat.com>; H. Peter Anvin <hpa@zytor.com>; KY Srinivasan <kys@microsoft.com>; Haiyang Zhang <haiyangz@microsoft.com>; Stephen Hemminger <sthemmin@microsoft.com>; Dexuan Cui <decui@microsoft.com>; linux-kernel@vger.kernel.org; devel@linuxdriverproject.org; virtualization@lists.linux-foundation.org
+Subject: [PATCH 1/2] hyperv: implement hv_get_tsc_page()
+
+To use Hyper-V TSC page clocksource from vDSO we need to make tsc_pg available. Implement hv_get_tsc_page() and add CONFIG_HYPERV_TSCPAGE to make #ifdef-s simple.
+
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+---
+ arch/x86/hyperv/hv_init.c       | 9 +++++++--
+ arch/x86/include/asm/mshyperv.h | 8 ++++++++
+ drivers/hv/Kconfig              | 3 +++
+ 3 files changed, 18 insertions(+), 2 deletions(-)
+
+diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c index b371d0e..0ce8485 100644
+--- a/arch/x86/hyperv/hv_init.c
++++ b/arch/x86/hyperv/hv_init.c
+@@ -27,10 +27,15 @@
+ #include <linux/clockchips.h>
+ 
+ 
+-#ifdef CONFIG_X86_64
++#ifdef CONFIG_HYPERV_TSCPAGE
+ 
+ static struct ms_hyperv_tsc_page *tsc_pg;
+ 
++struct ms_hyperv_tsc_page *hv_get_tsc_page(void) {
++	return tsc_pg;
++}
++
+ static u64 read_hv_clock_tsc(struct clocksource *arg)  {
+ 	u64 current_tick;
+@@ -136,7 +141,7 @@ void hyperv_init(void)
+ 	/*
+ 	 * Register Hyper-V specific clocksource.
+ 	 */
+-#ifdef CONFIG_X86_64
++#ifdef CONFIG_HYPERV_TSCPAGE
+ 	if (ms_hyperv.features & HV_X64_MSR_REFERENCE_TSC_AVAILABLE) {
+ 		union hv_x64_msr_hypercall_contents tsc_msr;
+ 
+diff --git a/arch/x86/include/asm/mshyperv.h b/arch/x86/include/asm/mshyperv.h index f8dc370..14dd92c 100644
+--- a/arch/x86/include/asm/mshyperv.h
++++ b/arch/x86/include/asm/mshyperv.h
+@@ -173,4 +173,12 @@ void hyperv_report_panic(struct pt_regs *regs);  bool hv_is_hypercall_page_setup(void);  void hyperv_cleanup(void);  #endif
++#ifdef CONFIG_HYPERV_TSCPAGE
++struct ms_hyperv_tsc_page *hv_get_tsc_page(void); #else static inline 
++struct ms_hyperv_tsc_page *hv_get_tsc_page(void) {
++	return NULL;
++}
++#endif
+ #endif
+diff --git a/drivers/hv/Kconfig b/drivers/hv/Kconfig index 0403b51..c29cd53 100644
+--- a/drivers/hv/Kconfig
++++ b/drivers/hv/Kconfig
+@@ -7,6 +7,9 @@ config HYPERV
+ 	  Select this option to run Linux as a Hyper-V client operating
+ 	  system.
+ 
++config HYPERV_TSCPAGE
++       def_bool HYPERV && X86_64
++
+ config HYPERV_UTILS
+ 	tristate "Microsoft Hyper-V Utilities driver"
+ 	depends on HYPERV && CONNECTOR && NLS
+--
+2.9.3
