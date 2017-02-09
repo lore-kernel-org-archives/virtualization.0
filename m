@@ -1,15 +1,15 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [virtio-dev] packed ring layout proposal v2
-Date: Thu, 9 Feb 2017 16:48:53 +0100
-Message-ID: <cc075b18-0913-ef89-96a8-a29869abd73e@redhat.com>
-References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
-	<240c623b-2d8f-28d9-d349-d01e2c24b93a@redhat.com>
-	<20170208214435-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: automatic IRQ affinity for virtio V3
+Date: Thu, 9 Feb 2017 18:01:57 +0200
+Message-ID: <20170209180130-mutt-send-email-mst@kernel.org>
+References: <20170205171526.6224-1-hch@lst.de>
+	<20170209135031.GA5771@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170208214435-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170209135031.GA5771@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,49 +19,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+To: Christoph Hellwig <hch@infradead.org>
+Cc: axboe@kernel.dk, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, pbonzini@redhat.com, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 08/02/2017 20:59, Michael S. Tsirkin wrote:
-> We couldn't decide what's better for everyone in 1.0 days and I doubt
-> we'll be able to now, but yes, benchmarking is needed to make
-> sire it's required. Very easy to remove or not to use/support in
-> drivers/devices though.
-
-Fair enough, but of course then we must specify that devices MUST
-support either VRING_DESC_F_NEXT or VRING_DESC_F_INDIRECT, and drivers
-SHOULD support both (or use neither).
-
-The drivers' part adds to the implementation burden, which is why I
-wanted to remove it.  Alternatively we can say that indirect is
-mandatory for both devices and drivers (and save a feature bit), while
-VRING_DESC_F_NEXT is optional.
-
->>> * Non power-of-2 ring sizes
->>>
->>> As the ring simply wraps around, there's no reason to
->>> require ring size to be power of two.
->>> It can be made a separate feature though.
->>
->> Power of 2 ring sizes are required in order to ignore the high bits of
->> the indices.  With non-power-of-2 sizes you are forced to keep the
->> indices less than the ring size.
+On Thu, Feb 09, 2017 at 05:50:31AM -0800, Christoph Hellwig wrote:
+> On Sun, Feb 05, 2017 at 06:15:17PM +0100, Christoph Hellwig wrote:
+> > Hi Michael, hi Jason,
+> > 
+> > This patches applies a few cleanups to the virtio PCI interrupt handling
+> > code, and then converts the virtio PCI code to use the automatic MSI-X
+> > vectors spreading, as well as using the information in virtio-blk
+> > and virtio-scsi to automatically align the blk-mq queues to the MSI-X
+> > vectors.
 > 
-> Right. So
-> 
-> 	if (unlikely(idx++ > size))
-> 		idx = 0;
-> 
-> OTOH ring size that's twice larger than necessary
-> because of power of two requirements wastes cache.
+> Any chance to get this in for 4.11 after I got reviews from Jason
+> for most of the patches?
 
-I don't know.  Power of 2 ring size is pretty standard, I'd rather avoid
-the complication and the gratuitous difference with 1.0.
+Absolutely, I intend to merge it.
 
-If batching is mostly advisory (with exceptions such as mrg-rxbuf) I
-don't have any problem with it.
-
-Paolo
+-- 
+MST
