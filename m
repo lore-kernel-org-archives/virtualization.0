@@ -1,15 +1,18 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: RE: [PATCH 1/2] hyperv: implement hv_get_tsc_page()
-Date: Thu, 9 Feb 2017 21:14:25 +0100 (CET)
-Message-ID: <alpine.DEB.2.20.1702092112340.4500@nanos>
+From: KY Srinivasan via Virtualization
+	<virtualization@lists.linux-foundation.org>
+Subject: RE: [PATCH 2/2] x86/vdso: Add VCLOCK_HVCLOCK vDSO clock read method
+Date: Thu, 9 Feb 2017 20:45:52 +0000
+Message-ID: <DM5PR03MB24903D71121176FFAED30E33A0450__38231.0217981741$1486673165$gmane$org@DM5PR03MB2490.namprd03.prod.outlook.com>
 References: <20170209141052.18694-1-vkuznets@redhat.com>
-	<20170209141052.18694-2-vkuznets@redhat.com>
-	<BLUPR0301MB20981399653ED5166E0C4435CC450@BLUPR0301MB2098.namprd03.prod.outlook.com>
+	<20170209141052.18694-3-vkuznets@redhat.com>
+	<alpine.DEB.2.20.1702091806400.3604@nanos>
+Reply-To: KY Srinivasan <kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <BLUPR0301MB20981399653ED5166E0C4435CC450@BLUPR0301MB2098.namprd03.prod.outlook.com>
+In-Reply-To: <alpine.DEB.2.20.1702091806400.3604@nanos>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,31 +22,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <sthemmin@microsoft.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>, "x86@kernel.org" <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Thomas Gleixner <tglx@linutronix.de>, Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, "x86@kernel.org" <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 9 Feb 2017, Stephen Hemminger wrote:
 
-> The actual code looks fine, but the style police will not like you.
-> { should be at start of line on functions.
-> And #else should be at start of line,
+
+> -----Original Message-----
+> From: Thomas Gleixner [mailto:tglx@linutronix.de]
+> Sent: Thursday, February 9, 2017 9:08 AM
+> To: Vitaly Kuznetsov <vkuznets@redhat.com>
+> Cc: x86@kernel.org; Andy Lutomirski <luto@amacapital.net>; Ingo Molnar
+> <mingo@redhat.com>; H. Peter Anvin <hpa@zytor.com>; KY Srinivasan
+> <kys@microsoft.com>; Haiyang Zhang <haiyangz@microsoft.com>; Stephen
+> Hemminger <sthemmin@microsoft.com>; Dexuan Cui
+> <decui@microsoft.com>; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.linux-foundation.org
+> Subject: Re: [PATCH 2/2] x86/vdso: Add VCLOCK_HVCLOCK vDSO clock read
+> method
 > 
-> But maybe this was just more of exchange mangling the mail.
+> On Thu, 9 Feb 2017, Vitaly Kuznetsov wrote:
+> > +#ifdef CONFIG_HYPERV_TSCPAGE
+> > +static notrace u64 vread_hvclock(int *mode)
+> > +{
+> > +	const struct ms_hyperv_tsc_page *tsc_pg =
+> > +		(const struct ms_hyperv_tsc_page *)&hvclock_page;
+> > +	u64 sequence, scale, offset, current_tick, cur_tsc;
+> > +
+> > +	while (1) {
+> > +		sequence = READ_ONCE(tsc_pg->tsc_sequence);
+> > +		if (!sequence)
+> > +			break;
+> > +
+> > +		scale = READ_ONCE(tsc_pg->tsc_scale);
+> > +		offset = READ_ONCE(tsc_pg->tsc_offset);
+> > +		rdtscll(cur_tsc);
+> > +
+> > +		current_tick = mul_u64_u64_shr(cur_tsc, scale, 64) + offset;
+> > +
+> > +		if (READ_ONCE(tsc_pg->tsc_sequence) == sequence)
+> > +			return current_tick;
+> 
+> That sequence stuff lacks still a sensible explanation. It's fundamentally
+> different from the sequence counting we do in the kernel, so documentation
+> for it is really required.
 
-Looks like.
+The host is updating multiple fields in this shared TSC page and the sequence number is
+used to ensure that the guest sees a consistent set values published. If I remember
+correctly, Xen has a similar mechanism.
 
-> +struct ms_hyperv_tsc_page *hv_get_tsc_page(void) {
-> +	return tsc_pg;
-> +}
-> +
-
-That's how it reads in a proper mail client connected to a proper mail
-server:
-
-> +struct ms_hyperv_tsc_page *hv_get_tsc_page(void)
-> +{
-> +       return tsc_pg;
-> +}
-
-:)
+K. Y
+> 
+> Thanks,
+> 
+> 	tglx
