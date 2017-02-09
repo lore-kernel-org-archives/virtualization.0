@@ -1,16 +1,15 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [virtio-dev] packed ring layout proposal v2
-Date: Thu, 9 Feb 2017 17:11:05 +0100
-Message-ID: <20170209171105.075a9d9c.cornelia.huck__32240.5013874688$1486656679$gmane$org@de.ibm.com>
-References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
-	<240c623b-2d8f-28d9-d349-d01e2c24b93a@redhat.com>
-	<20170208214435-mutt-send-email-mst@kernel.org>
-	<cc075b18-0913-ef89-96a8-a29869abd73e@redhat.com>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH 2/2] x86/vdso: Add VCLOCK_HVCLOCK vDSO clock read
+ method
+Date: Thu, 9 Feb 2017 18:08:22 +0100 (CET)
+Message-ID: <alpine.DEB.2.20.1702091806400.3604__5262.76133391566$1486660197$gmane$org@nanos>
+References: <20170209141052.18694-1-vkuznets@redhat.com>
+	<20170209141052.18694-3-vkuznets@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cc075b18-0913-ef89-96a8-a29869abd73e@redhat.com>
+In-Reply-To: <20170209141052.18694-3-vkuznets@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,52 +19,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, x86@kernel.org, linux-kernel@vger.kernel.org, Andy Lutomirski <luto@amacapital.net>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, devel@linuxdriverproject.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 9 Feb 2017 16:48:53 +0100
-Paolo Bonzini <pbonzini@redhat.com> wrote:
+On Thu, 9 Feb 2017, Vitaly Kuznetsov wrote:
+> +#ifdef CONFIG_HYPERV_TSCPAGE
+> +static notrace u64 vread_hvclock(int *mode)
+> +{
+> +	const struct ms_hyperv_tsc_page *tsc_pg =
+> +		(const struct ms_hyperv_tsc_page *)&hvclock_page;
+> +	u64 sequence, scale, offset, current_tick, cur_tsc;
+> +
+> +	while (1) {
+> +		sequence = READ_ONCE(tsc_pg->tsc_sequence);
+> +		if (!sequence)
+> +			break;
+> +
+> +		scale = READ_ONCE(tsc_pg->tsc_scale);
+> +		offset = READ_ONCE(tsc_pg->tsc_offset);
+> +		rdtscll(cur_tsc);
+> +
+> +		current_tick = mul_u64_u64_shr(cur_tsc, scale, 64) + offset;
+> +
+> +		if (READ_ONCE(tsc_pg->tsc_sequence) == sequence)
+> +			return current_tick;
 
-> On 08/02/2017 20:59, Michael S. Tsirkin wrote:
-> > We couldn't decide what's better for everyone in 1.0 days and I doubt
-> > we'll be able to now, but yes, benchmarking is needed to make
-> > sire it's required. Very easy to remove or not to use/support in
-> > drivers/devices though.
-> 
-> Fair enough, but of course then we must specify that devices MUST
-> support either VRING_DESC_F_NEXT or VRING_DESC_F_INDIRECT, and drivers
-> SHOULD support both (or use neither).
-> 
-> The drivers' part adds to the implementation burden, which is why I
-> wanted to remove it.  Alternatively we can say that indirect is
-> mandatory for both devices and drivers (and save a feature bit), while
-> VRING_DESC_F_NEXT is optional.
+That sequence stuff lacks still a sensible explanation. It's fundamentally
+different from the sequence counting we do in the kernel, so documentation
+for it is really required.
 
-I think this (INDIRECT mandatory, NEXT optional) makes sense. But we
-really need some benchmarking.
+Thanks,
 
-> 
-> >>> * Non power-of-2 ring sizes
-> >>>
-> >>> As the ring simply wraps around, there's no reason to
-> >>> require ring size to be power of two.
-> >>> It can be made a separate feature though.
-> >>
-> >> Power of 2 ring sizes are required in order to ignore the high bits of
-> >> the indices.  With non-power-of-2 sizes you are forced to keep the
-> >> indices less than the ring size.
-> > 
-> > Right. So
-> > 
-> > 	if (unlikely(idx++ > size))
-> > 		idx = 0;
-> > 
-> > OTOH ring size that's twice larger than necessary
-> > because of power of two requirements wastes cache.
-> 
-> I don't know.  Power of 2 ring size is pretty standard, I'd rather avoid
-> the complication and the gratuitous difference with 1.0.
-
-I agree. I don't think dropping the power of 2 requirement buys us so
-much that it makes up for the added complexity.
+	tglx
