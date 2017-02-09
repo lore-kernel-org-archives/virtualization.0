@@ -1,21 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio: Try to untangle DMA coherency
-Date: Thu, 9 Feb 2017 20:17:16 +0200
-Message-ID: <20170209201341-mutt-send-email-mst@kernel.org>
-References: <8a6494f6409c20b4609cd6bdcdd751f68b5c0564.1485951731.git.robin.murphy@arm.com>
-	<20170201195732-mutt-send-email-mst@kernel.org>
-	<20170201182659.GM8177@arm.com>
-	<20170201210648-mutt-send-email-mst@kernel.org>
-	<20170202112614.GB30577@arm.com>
-	<bb041fbe-3fde-0dc1-ae28-cca5acfe9dc5@arm.com>
-	<20170202182224-mutt-send-email-mst@kernel.org>
-	<20170202164049.GI13839@arm.com>
+Subject: Re: [virtio-dev] packed ring layout proposal v2
+Date: Thu, 9 Feb 2017 20:24:06 +0200
+Message-ID: <20170209202203-mutt-send-email-mst__32275.7965805524$1486664656$gmane$org@kernel.org>
+References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
+	<240c623b-2d8f-28d9-d349-d01e2c24b93a@redhat.com>
+	<20170208214435-mutt-send-email-mst@kernel.org>
+	<cc075b18-0913-ef89-96a8-a29869abd73e@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20170202164049.GI13839@arm.com>
+In-Reply-To: <cc075b18-0913-ef89-96a8-a29869abd73e@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,41 +21,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Will Deacon <will.deacon@arm.com>
-Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, pawel.moll@arm.com, virtualization@lists.linux-foundation.org, robh+dt@kernel.org, Robin Murphy <robin.murphy@arm.com>, linux-arm-kernel@lists.infradead.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 02, 2017 at 04:40:49PM +0000, Will Deacon wrote:
-> On Thu, Feb 02, 2017 at 06:30:28PM +0200, Michael S. Tsirkin wrote:
-> > I am inclined to say, for 4.10 let's revert
-> > c7070619f3408d9a0dffbed9149e6f00479cf43b since what it fixes is not a
-> > regression in 4.10.
+On Thu, Feb 09, 2017 at 04:48:53PM +0100, Paolo Bonzini wrote:
 > 
-> No complaints there, as long as we can keep working to fix this for 4.11
-> and onwards. You'll also need to cc stable on the revert.
 > 
-> > So I think we can defer the fix to 4.11.
-> > I think we still want f7f6634d23830ff74335734fbdb28ea109c1f349
-> > for hosts with virtio 1 support.
+> On 08/02/2017 20:59, Michael S. Tsirkin wrote:
+> > We couldn't decide what's better for everyone in 1.0 days and I doubt
+> > we'll be able to now, but yes, benchmarking is needed to make
+> > sire it's required. Very easy to remove or not to use/support in
+> > drivers/devices though.
+> 
+> Fair enough, but of course then we must specify that devices MUST
+> support either VRING_DESC_F_NEXT or VRING_DESC_F_INDIRECT, and drivers
+> SHOULD support both (or use neither).
+> 
+> The drivers' part adds to the implementation burden, which is why I
+> wanted to remove it.  Alternatively we can say that indirect is
+> mandatory for both devices and drivers (and save a feature bit), while
+> VRING_DESC_F_NEXT is optional.
+> 
+> >>> * Non power-of-2 ring sizes
+> >>>
+> >>> As the ring simply wraps around, there's no reason to
+> >>> require ring size to be power of two.
+> >>> It can be made a separate feature though.
+> >>
+> >> Power of 2 ring sizes are required in order to ignore the high bits of
+> >> the indices.  With non-power-of-2 sizes you are forced to keep the
+> >> indices less than the ring size.
 > > 
-> > All this will hopefully push hosts to just implement virtio 1.
-> > For mmio the changes are very small: several new registers,
-> > that's all. You want this for proper 64 bit dma mask anyway.
+> > Right. So
+> > 
+> > 	if (unlikely(idx++ > size))
+> > 		idx = 0;
+> > 
+> > OTOH ring size that's twice larger than necessary
+> > because of power of two requirements wastes cache.
 > 
-> As I've said, virtio 1 will have exactly the same issue unless we start
-> requiring firmware to advertise dma-coherent/_CCA for virtio-mmio
-> devices correctly.
+> I don't know.  Power of 2 ring size is pretty standard, I'd rather avoid
+> the complication and the gratuitous difference with 1.0.
+
+I thought originally there's a reason 1.0 rings had to be powers of two
+but now I don't see why. OK, we can make it a feature flag later if we
+want to.
+
+> If batching is mostly advisory (with exceptions such as mrg-rxbuf) I
+> don't have any problem with it.
 > 
-> Will
-
-OK I read up on _CCA in ACPI spec. It says:
-The _CCA object returns whether or not a bus-master device supports
-hardware managed cache coherency. Expected values are 0 to indicate it
-is not supported, and 1 to indicate that it is supported.
-
-So if host is cache coherent, and guest thinks it isn't, we incur
-unnecessary overhead by wasting coherent memory.
-I get that but you said it actually breaks - why does it?
-
--- 
-MST
+> Paolo
