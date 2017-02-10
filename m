@@ -1,18 +1,19 @@
-From: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 05/14] netvsc: remove no longer needed receive staging
-	buffers
-Date: Fri, 10 Feb 2017 15:55:33 +0100
-Message-ID: <20170210145533.GE24594@kroah.com>
-References: <20170201162901.3894-1-sthemmin@microsoft.com>
-	<20170201162901.3894-6-sthemmin@microsoft.com>
-	<DM5PR03MB24909873E83748C02E22AD7CA0410@DM5PR03MB2490.namprd03.prod.outlook.com>
-	<BLUPR0301MB209810C0172361C40F9ABDCBCC430@BLUPR0301MB2098.namprd03.prod.outlook.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [virtio-dev] packed ring layout proposal v2
+Date: Fri, 10 Feb 2017 17:20:17 +0200
+Message-ID: <20170210170548-mutt-send-email-mst@kernel.org>
+References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
+	<240c623b-2d8f-28d9-d349-d01e2c24b93a@redhat.com>
+	<20170208214435-mutt-send-email-mst@kernel.org>
+	<cc075b18-0913-ef89-96a8-a29869abd73e@redhat.com>
+	<20170209202203-mutt-send-email-mst@kernel.org>
+	<c229269b-1702-ffec-62e8-002c7c142904@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <BLUPR0301MB209810C0172361C40F9ABDCBCC430@BLUPR0301MB2098.namprd03.prod.outlook.com>
+In-Reply-To: <c229269b-1702-ffec-62e8-002c7c142904@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,17 +23,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <sthemmin@microsoft.com>
-Cc: "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 07, 2017 at 12:32:12AM +0000, Stephen Hemminger wrote:
-> The netvsc part is already in net-next.  This patch is not needed.
-> The part that removes the per-channel state can be in another patch.
+On Fri, Feb 10, 2017 at 12:32:49PM +0100, Paolo Bonzini wrote:
+> 
+> 
+> On 09/02/2017 19:24, Michael S. Tsirkin wrote:
+> >> I don't know.  Power of 2 ring size is pretty standard, I'd rather avoid
+> >> the complication and the gratuitous difference with 1.0.
+> >
+> > I thought originally there's a reason 1.0 rings had to be powers of two
+> > but now I don't see why. OK, we can make it a feature flag later if we
+> > want to.
+> 
+> The reason is that it allows indices to be free running.
 
-I have no idea what that means to me here, nor what I need to do, so I'm
-just deleting this email :)
+Well what I meant is that with qsize not a power of 2 you can still do
+this but have to do everything mod N*qsize as opposed to mod 2^16. So
+you need a branch there - easiest to do if you do signed math.
 
-thanks,
+int nheads = avail - last_avail;
+/*Check and handle index wrap-around */
+if (unlikely(nheads < 0)) {
+	nheads += N_qsize;
+}
 
-greg k-h
+if (nheads < 0 || nheads > vdev->vq[i].vring.num) {
+	error_report(...);
+	return -1;
+}
+
+This can only catch bugs if N > 1
+
+>  This is an 
+> example of QEMU code that requires that:
+> 
+>             nheads = vring_avail_idx(&vdev->vq[i]) - vdev->vq[i].last_avail_idx;
+>             /* Check it isn't doing strange things with descriptor numbers. */
+>             if (nheads > vdev->vq[i].vring.num) {
+>                 error_report("VQ %d size 0x%x Guest index 0x%x "
+>                              "inconsistent with Host index 0x%x: delta 0x%x",
+>                              i, vdev->vq[i].vring.num,
+>                              vring_avail_idx(&vdev->vq[i]),
+>                              vdev->vq[i].last_avail_idx, nheads);
+>                 return -1;
+>             }
+> 
+> Paolo
+
+Same thing here, this never triggers if vring.num == 2^16
+
+-- 
+MST
