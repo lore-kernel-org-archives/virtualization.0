@@ -1,18 +1,18 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH 2/2] x86/vdso: Add VCLOCK_HVCLOCK vDSO clock read
- method
-Date: Fri, 10 Feb 2017 13:28:25 +0100 (CET)
-Message-ID: <alpine.DEB.2.20.1702101326520.4036@nanos>
-References: <20170209141052.18694-1-vkuznets@redhat.com>
-	<20170209141052.18694-3-vkuznets@redhat.com>
-	<alpine.DEB.2.20.1702091806400.3604@nanos>
-	<BLUPR0301MB20986D17696C3E658D511FACCC450@BLUPR0301MB2098.namprd03.prod.outlook.com>
-	<87d1eqqlkv.fsf@vitty.brq.redhat.com>
+From: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 05/14] netvsc: remove no longer needed receive staging
+	buffers
+Date: Fri, 10 Feb 2017 15:55:33 +0100
+Message-ID: <20170210145533.GE24594@kroah.com>
+References: <20170201162901.3894-1-sthemmin@microsoft.com>
+	<20170201162901.3894-6-sthemmin@microsoft.com>
+	<DM5PR03MB24909873E83748C02E22AD7CA0410@DM5PR03MB2490.namprd03.prod.outlook.com>
+	<BLUPR0301MB209810C0172361C40F9ABDCBCC430@BLUPR0301MB2098.namprd03.prod.outlook.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87d1eqqlkv.fsf@vitty.brq.redhat.com>
+Content-Disposition: inline
+In-Reply-To: <BLUPR0301MB209810C0172361C40F9ABDCBCC430@BLUPR0301MB2098.namprd03.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,26 +22,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: Stephen Hemminger <sthemmin@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, "x86@kernel.org" <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Stephen Hemminger <sthemmin@microsoft.com>
+Cc: "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 10 Feb 2017, Vitaly Kuznetsov wrote:
+On Tue, Feb 07, 2017 at 12:32:12AM +0000, Stephen Hemminger wrote:
+> The netvsc part is already in net-next.  This patch is not needed.
+> The part that removes the per-channel state can be in another patch.
 
-> Stephen Hemminger <sthemmin@microsoft.com> writes:
-> 
-> > Why not use existing seqlock's?
-> >
-> 
-> To be honest I don't quite understand how we could use it -- the
-> sequence locking here is done against the page updated by the
-> hypersior, we're not creating new structures (so I don't understand how
-> we could use struct seqcount which we don't have) but I may be
-> misunderstanding something.
+I have no idea what that means to me here, nor what I need to do, so I'm
+just deleting this email :)
 
-You can't use seqlock, but you might be able to use seqcount. Though I
-doubt it given the 0 check ....
+thanks,
 
-Thanks,
-
-	tglx
+greg k-h
