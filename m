@@ -1,19 +1,15 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [virtio-dev] packed ring layout proposal v2
-Date: Fri, 10 Feb 2017 11:17:30 -0500 (EST)
-Message-ID: <150348311.20329795.1486743450189.JavaMail.zimbra@redhat.com>
-References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
-	<240c623b-2d8f-28d9-d349-d01e2c24b93a@redhat.com>
-	<20170208214435-mutt-send-email-mst@kernel.org>
-	<cc075b18-0913-ef89-96a8-a29869abd73e@redhat.com>
-	<20170209202203-mutt-send-email-mst@kernel.org>
-	<c229269b-1702-ffec-62e8-002c7c142904@redhat.com>
-	<20170210170548-mutt-send-email-mst@kernel.org>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v2] x86/paravirt: Don't make vcpu_is_preempted() a
+	callee-save function
+Date: Fri, 10 Feb 2017 17:19:28 +0100
+Message-ID: <20170210161928.GI6515@twins.programming.kicks-ass.net>
+References: <1486741389-8513-1-git-send-email-longman@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170210170548-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1486741389-8513-1-git-send-email-longman@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,57 +19,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+To: Waiman Long <longman@redhat.com>
+Cc: linux-arch@vger.kernel.org, Juergen Gross <jgross@suse.com>, Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, kvm@vger.kernel.org, Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Fri, Feb 10, 2017 at 10:43:09AM -0500, Waiman Long wrote:
+> It was found when running fio sequential write test with a XFS ramdisk
+> on a VM running on a 2-socket x86-64 system, the %CPU times as reported
+> by perf were as follows:
+> 
+>  69.75%  0.59%  fio  [k] down_write
+>  69.15%  0.01%  fio  [k] call_rwsem_down_write_failed
+>  67.12%  1.12%  fio  [k] rwsem_down_write_failed
+>  63.48% 52.77%  fio  [k] osq_lock
+>   9.46%  7.88%  fio  [k] __raw_callee_save___kvm_vcpu_is_preempt
+>   3.93%  3.93%  fio  [k] __kvm_vcpu_is_preempted
+> 
+
+Thinking about this again, wouldn't something like the below also work?
 
 
------ Original Message -----
-> From: "Michael S. Tsirkin" <mst@redhat.com>
-> To: "Paolo Bonzini" <pbonzini@redhat.com>
-> Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
-> Sent: Friday, February 10, 2017 4:20:17 PM
-> Subject: Re: [virtio-dev] packed ring layout proposal v2
-> 
-> On Fri, Feb 10, 2017 at 12:32:49PM +0100, Paolo Bonzini wrote:
-> > 
-> > 
-> > On 09/02/2017 19:24, Michael S. Tsirkin wrote:
-> > >> I don't know.  Power of 2 ring size is pretty standard, I'd rather avoid
-> > >> the complication and the gratuitous difference with 1.0.
-> > >
-> > > I thought originally there's a reason 1.0 rings had to be powers of two
-> > > but now I don't see why. OK, we can make it a feature flag later if we
-> > > want to.
-> > 
-> > The reason is that it allows indices to be free running.
-> 
-> Well what I meant is that with qsize not a power of 2 you can still do
-> this but have to do everything mod N*qsize as opposed to mod 2^16. So
-> you need a branch there - easiest to do if you do signed math.
-> 
-> int nheads = avail - last_avail;
-> /*Check and handle index wrap-around */
-> if (unlikely(nheads < 0)) {
-> 	nheads += N_qsize;
-> }
-> 
-> if (nheads < 0 || nheads > vdev->vq[i].vring.num) {
-> 	error_report(...);
-> 	return -1;
-> }
-> 
-> This can only catch bugs if N > 1
-
-Agreed.
-
-> > This is an example of QEMU code that requires that:
-> 
-> Same thing here, this never triggers if vring.num == 2^16
-
-Free running indices require the counter range to be bigger than the
-size of the vring (otherwise you confuse an empty vring with a full
-one), so the maximum size of the vring in virtio <=1.0 is 2^15.
-
-Paolo
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index 099fcba4981d..6aa33702c15c 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -589,6 +589,7 @@ static void kvm_wait(u8 *ptr, u8 val)
+ 	local_irq_restore(flags);
+ }
+ 
++#ifdef CONFIG_X86_32
+ __visible bool __kvm_vcpu_is_preempted(int cpu)
+ {
+ 	struct kvm_steal_time *src = &per_cpu(steal_time, cpu);
+@@ -597,6 +598,31 @@ __visible bool __kvm_vcpu_is_preempted(int cpu)
+ }
+ PV_CALLEE_SAVE_REGS_THUNK(__kvm_vcpu_is_preempted);
+ 
++#else
++
++extern bool __raw_callee_save___kvm_vcpu_is_preempted(int);
++
++asm(
++".pushsection .text;"
++".global __raw_callee_save___kvm_vcpu_is_preempted;"
++".type __raw_callee_save___kvm_vcpu_is_preempted, @function;"
++"__raw_callee_save___kvm_vcpu_is_preempted:"
++FRAME_BEGIN
++"push %rdi;"
++"push %rdx;"
++"movslq  %edi, %rdi;"
++"movq    $steal_time+16, %rax;"
++"movq    __per_cpu_offset(,%rdi,8), %rdx;"
++"cmpb    $0, (%rdx,%rax);"
++"setne   %al;"
++"pop %rdx;"
++"pop %rdi;"
++FRAME_END
++"ret;"
++".popsection");
++
++#endif
++
+ /*
+  * Setup pv_lock_ops to exploit KVM_FEATURE_PV_UNHALT if present.
+  */
