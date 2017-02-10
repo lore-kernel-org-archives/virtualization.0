@@ -1,23 +1,20 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio: Try to untangle DMA coherency
-Date: Fri, 10 Feb 2017 19:16:10 +0200
-Message-ID: <20170210191409-mutt-send-email-mst@kernel.org>
-References: <8a6494f6409c20b4609cd6bdcdd751f68b5c0564.1485951731.git.robin.murphy@arm.com>
-	<20170201195732-mutt-send-email-mst@kernel.org>
-	<20170201182659.GM8177@arm.com>
-	<20170201210648-mutt-send-email-mst@kernel.org>
-	<20170202112614.GB30577@arm.com>
-	<bb041fbe-3fde-0dc1-ae28-cca5acfe9dc5@arm.com>
-	<20170202182224-mutt-send-email-mst@kernel.org>
-	<20170202164049.GI13839@arm.com>
-	<20170209201341-mutt-send-email-mst@kernel.org>
-	<20170209183118.GI19397@arm.com>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: RE: [PATCH 2/2] x86/vdso: Add VCLOCK_HVCLOCK vDSO clock read
+ method
+Date: Fri, 10 Feb 2017 19:01:52 +0100 (CET)
+Message-ID: <alpine.DEB.2.20.1702101852000.4036@nanos>
+References: <20170209141052.18694-1-vkuznets@redhat.com>
+	<20170209141052.18694-3-vkuznets@redhat.com>
+	<alpine.DEB.2.20.1702091806400.3604@nanos>
+	<BLUPR0301MB20986D17696C3E658D511FACCC450@BLUPR0301MB2098.namprd03.prod.outlook.com>
+	<87d1eqqlkv.fsf@vitty.brq.redhat.com>
+	<alpine.DEB.2.20.1702101326520.4036@nanos>
+	<BLUPR0301MB2098E1283D42BD2C3772D839CC440@BLUPR0301MB2098.namprd03.prod.outlook.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20170209183118.GI19397@arm.com>
+In-Reply-To: <BLUPR0301MB2098E1283D42BD2C3772D839CC440@BLUPR0301MB2098.namprd03.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,18 +24,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Will Deacon <will.deacon@arm.com>
-Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, pawel.moll@arm.com, virtualization@lists.linux-foundation.org, robh+dt@kernel.org, Robin Murphy <robin.murphy@arm.com>, linux-arm-kernel@lists.infradead.org
+To: Stephen Hemminger <sthemmin@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>, "x86@kernel.org" <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 09, 2017 at 06:31:18PM +0000, Will Deacon wrote:
-> On ARM (and other archs such as
-> Power), having a mismatch between a cacheable and a non-cacheable mapping
-> can result in a loss of coherency between the two (for example, if the
-> non-cacheable gues accesses bypass the cache, but the cacheable host
-> accesses allocate in the cache).
+On Fri, 10 Feb 2017, Stephen Hemminger wrote:
 
-I guess it's an optimization to avoid cache snoops for non-cacheable accesses?
+> Since sequence count algorithm is done by hypervisor, better to not reuse seqcount.
+> Still concerned that the code is racy.
 
--- 
-MST
+That's a different question and can only be answered by the hypervisor
+folks. Dunno, whether they have barrier requirements. The seqcount stuff
+relies on:
+
+do {
+	seq = READ_ONCE(s->sequence);
+
+	smp_rmb();
+
+	sample_data();
+  
+	smp_rmb();
+} while (s->sequence != seq);
+
+which pairs with the writer side:
+
+       s->sequence++;
+       
+       smp_wmb();
+
+       update_data();
+
+       smp_wmb();
+
+       s->sequence++;
+
+That's important if the stuff happens cross CPU. If the update happens on
+the same CPU then this is a different story and as there are VMexits
+involved they might provide the required ordering already. But I can't tell
+as I have no idea how that host side thing is done.
+
+Thanks,
+
+	tglx
