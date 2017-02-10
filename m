@@ -1,17 +1,17 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH 2/2] x86/vdso: Add VCLOCK_HVCLOCK vDSO clock read
- method
-Date: Fri, 10 Feb 2017 12:15:03 +0100 (CET)
-Message-ID: <alpine.DEB.2.20.1702101214540.4036@nanos>
-References: <20170209141052.18694-1-vkuznets@redhat.com>
-	<20170209141052.18694-3-vkuznets@redhat.com>
-	<alpine.DEB.2.20.1702091806400.3604@nanos>
-	<87lgteqp88.fsf@vitty.brq.redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [virtio-dev] packed ring layout proposal v2
+Date: Fri, 10 Feb 2017 12:32:49 +0100
+Message-ID: <c229269b-1702-ffec-62e8-002c7c142904__47144.085498485$1486726376$gmane$org@redhat.com>
+References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
+	<240c623b-2d8f-28d9-d349-d01e2c24b93a@redhat.com>
+	<20170208214435-mutt-send-email-mst@kernel.org>
+	<cc075b18-0913-ef89-96a8-a29869abd73e@redhat.com>
+	<20170209202203-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87lgteqp88.fsf@vitty.brq.redhat.com>
+In-Reply-To: <20170209202203-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,71 +21,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: Stephen Hemminger <sthemmin@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, x86@kernel.org, linux-kernel@vger.kernel.org, Andy Lutomirski <luto@amacapital.net>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, devel@linuxdriverproject.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 10 Feb 2017, Vitaly Kuznetsov wrote:
-> Thomas Gleixner <tglx@linutronix.de> writes:
-> 
-> > On Thu, 9 Feb 2017, Vitaly Kuznetsov wrote:
-> >> +#ifdef CONFIG_HYPERV_TSCPAGE
-> >> +static notrace u64 vread_hvclock(int *mode)
-> >> +{
-> >> +	const struct ms_hyperv_tsc_page *tsc_pg =
-> >> +		(const struct ms_hyperv_tsc_page *)&hvclock_page;
-> >> +	u64 sequence, scale, offset, current_tick, cur_tsc;
-> >> +
-> >> +	while (1) {
-> >> +		sequence = READ_ONCE(tsc_pg->tsc_sequence);
-> >> +		if (!sequence)
-> >> +			break;
-> >> +
-> >> +		scale = READ_ONCE(tsc_pg->tsc_scale);
-> >> +		offset = READ_ONCE(tsc_pg->tsc_offset);
-> >> +		rdtscll(cur_tsc);
-> >> +
-> >> +		current_tick = mul_u64_u64_shr(cur_tsc, scale, 64) + offset;
-> >> +
-> >> +		if (READ_ONCE(tsc_pg->tsc_sequence) == sequence)
-> >> +			return current_tick;
-> >
-> > That sequence stuff lacks still a sensible explanation. It's fundamentally
-> > different from the sequence counting we do in the kernel, so documentation
-> > for it is really required.
-> 
-> Sure, do you think the following would do?
 
-Yes
 
-> diff --git a/arch/x86/entry/vdso/vclock_gettime.c b/arch/x86/entry/vdso/vclock_gettime.c
-> index 4af10b4..886b600 100644
-> --- a/arch/x86/entry/vdso/vclock_gettime.c
-> +++ b/arch/x86/entry/vdso/vclock_gettime.c
-> @@ -154,6 +154,22 @@ static notrace u64 vread_hvclock(int *mode)
->                 (const struct ms_hyperv_tsc_page *)&hvclock_page;
->         u64 sequence, scale, offset, current_tick, cur_tsc;
->  
-> +       /*
-> +        * The protocol for reading Hyper-V TSC page is specified in Hypervisor
-> +        * Top-Level Functional Specification ver. 3.0 and above. To get the
-> +        * reference time we must do the following:
-> +        * - READ ReferenceTscSequence
-> +        *   A special '0' value indicates the time source is unreliable and we
-> +        *   need to use something else. The currently published specification
-> +        *   versions (up to 4.0b) contain a mistake and wrongly claim '-1'
-> +        *   instead of '0' as the special value, see commit c35b82ef0294.
-> +        * - ReferenceTime =
-> +        *        ((RDTSC() * ReferenceTscScale) >> 64) + ReferenceTscOffset
-> +        * - READ ReferenceTscSequence again. In case its value has changed
-> +        *   since our first reading we need to discard ReferenceTime and repeat
-> +        *   the whole sequence as the hypervisor was updating the page in
-> +        *   between.
-> +        */
->         while (1) {
->                 sequence = READ_ONCE(tsc_pg->tsc_sequence);
->                 if (!sequence)
-> 
-> -- 
->   Vitaly
-> 
+On 09/02/2017 19:24, Michael S. Tsirkin wrote:
+>> I don't know.  Power of 2 ring size is pretty standard, I'd rather avoid
+>> the complication and the gratuitous difference with 1.0.
+>
+> I thought originally there's a reason 1.0 rings had to be powers of two
+> but now I don't see why. OK, we can make it a feature flag later if we
+> want to.
+
+The reason is that it allows indices to be free running.  This is an 
+example of QEMU code that requires that:
+
+            nheads = vring_avail_idx(&vdev->vq[i]) - vdev->vq[i].last_avail_idx;
+            /* Check it isn't doing strange things with descriptor numbers. */
+            if (nheads > vdev->vq[i].vring.num) {
+                error_report("VQ %d size 0x%x Guest index 0x%x "
+                             "inconsistent with Host index 0x%x: delta 0x%x",
+                             i, vdev->vq[i].vring.num,
+                             vring_avail_idx(&vdev->vq[i]),
+                             vdev->vq[i].last_avail_idx, nheads);
+                return -1;
+            }
+
+Paolo
