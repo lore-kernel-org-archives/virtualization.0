@@ -1,19 +1,23 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v2] x86/paravirt: Don't make vcpu_is_preempted() a
-	callee-save function
-Date: Mon, 13 Feb 2017 11:53:43 +0100
-Message-ID: <20170213105343.GJ6536@twins.programming.kicks-ass.net>
-References: <1486741389-8513-1-git-send-email-longman@redhat.com>
-	<20170210161928.GI6515@twins.programming.kicks-ass.net>
-	<1c949ed0-1b88-ae6e-4e6c-426502bfab5f@redhat.com>
-	<14854496-0baa-1bf6-c819-f3d7fae13c2c@redhat.com>
-	<20170213104716.GM6515@twins.programming.kicks-ass.net>
+From: Will Deacon <will.deacon@arm.com>
+Subject: Re: [PATCH] virtio: Try to untangle DMA coherency
+Date: Mon, 13 Feb 2017 11:57:59 +0000
+Message-ID: <20170213115758.GK1512@arm.com>
+References: <20170201195732-mutt-send-email-mst@kernel.org>
+	<20170201182659.GM8177@arm.com>
+	<20170201210648-mutt-send-email-mst@kernel.org>
+	<20170202112614.GB30577@arm.com>
+	<bb041fbe-3fde-0dc1-ae28-cca5acfe9dc5@arm.com>
+	<20170202182224-mutt-send-email-mst@kernel.org>
+	<20170202164049.GI13839@arm.com>
+	<20170209201341-mutt-send-email-mst@kernel.org>
+	<20170209183118.GI19397@arm.com>
+	<20170210191409-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20170213104716.GM6515@twins.programming.kicks-ass.net>
+In-Reply-To: <20170210191409-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,31 +27,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Waiman Long <longman@redhat.com>
-Cc: linux-arch@vger.kernel.org, Juergen Gross <jgross@suse.com>, Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, kvm@vger.kernel.org, Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, pawel.moll@arm.com, virtualization@lists.linux-foundation.org, robh+dt@kernel.org, Robin Murphy <robin.murphy@arm.com>, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Feb 13, 2017 at 11:47:16AM +0100, Peter Zijlstra wrote:
-> That way we'd end up with something like:
+On Fri, Feb 10, 2017 at 07:16:10PM +0200, Michael S. Tsirkin wrote:
+> On Thu, Feb 09, 2017 at 06:31:18PM +0000, Will Deacon wrote:
+> > On ARM (and other archs such as
+> > Power), having a mismatch between a cacheable and a non-cacheable mapping
+> > can result in a loss of coherency between the two (for example, if the
+> > non-cacheable gues accesses bypass the cache, but the cacheable host
+> > accesses allocate in the cache).
 > 
-> asm("
-> push %rdi;
-> movslq %edi, %rdi;
-> movq __per_cpu_offset(,%rdi,8), %rax;
-> cmpb $0, %[offset](%rax);
-> setne %al;
-> pop %rdi;
-> " : : [offset] "i" (((unsigned long)&steal_time) + offsetof(struct steal_time, preempted)));
-> 
-> And if we could get rid of the sign extend on edi we could avoid all the
-> push-pop nonsense, but I'm not sure I see how to do that (then again,
-> this asm foo isn't my strongest point).
+> I guess it's an optimization to avoid cache snoops for non-cacheable accesses?
 
-Maybe:
+The architecture doesn't rationalise the decision, but a micro-architecture
+could indeed implement the optimisation you suggest (and we do observe the
+loss of coherency in practice).
 
-movsql %edi, %rax;
-movq __per_cpu_offset(,%rax,8), %rax;
-cmpb $0, %[offset](%rax);
-setne %al;
-
-?
+Will
