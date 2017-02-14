@@ -1,24 +1,11 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v2] x86/paravirt: Don't make vcpu_is_preempted() a
-	callee-save function
-Date: Tue, 14 Feb 2017 10:39:46 +0100
-Message-ID: <20170214093946.GM6500@twins.programming.kicks-ass.net>
-References: <1486741389-8513-1-git-send-email-longman@redhat.com>
-	<20170210161928.GI6515@twins.programming.kicks-ass.net>
-	<1c949ed0-1b88-ae6e-4e6c-426502bfab5f@redhat.com>
-	<14854496-0baa-1bf6-c819-f3d7fae13c2c@redhat.com>
-	<20170213104716.GM6515@twins.programming.kicks-ass.net>
-	<20170213105343.GJ6536@twins.programming.kicks-ass.net>
-	<3dc50409-60dd-ad47-f971-448191e66038@redhat.com>
-	<6f69b112-7ae4-bf8f-b767-29a68fd48632@redhat.com>
-	<20170213215220.GN25813@worktop.programming.kicks-ass.net>
-	<933ba8c6-4ebe-63e2-3c3a-2e5afef9269a@redhat.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
+Subject: [PATCH v2 0/3] x86/vdso: Add Hyper-V TSC page clocksource support
+Date: Tue, 14 Feb 2017 13:44:05 +0100
+Message-ID: <20170214124408.25931-1-vkuznets@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <933ba8c6-4ebe-63e2-3c3a-2e5afef9269a@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,12 +15,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Waiman Long <longman@redhat.com>
-Cc: linux-arch@vger.kernel.org, Juergen Gross <jgross@suse.com>, Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, kvm@vger.kernel.org, Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>
+To: x86@kernel.org, Andy Lutomirski <luto@amacapital.net>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, devel@linuxdriverproject.org, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Feb 13, 2017 at 05:34:01PM -0500, Waiman Long wrote:
-> It is the address of &steal_time that will exceed the 32-bit limit.
+Hi,
 
-That seems extremely unlikely. That would mean we have more than 4G
-worth of per-cpu variables declared in the kernel.
+while we're still waiting for a definitive ACK from Microsoft that the
+algorithm is good for SMP case (as we can't prevent the code in vdso from
+migrating between CPUs) I'd like to send v2 with some modifications to keep
+the discussion going.
+
+Changes since v1:
+- Document the TSC page reading protocol [Thomas Gleixner].
+
+- Separate the TSC page reading code from read_hv_clock_tsc() and put it to
+  asm/mshyperv.h to use from both hv_init.c and vdso.
+
+- Add explicit barriers [Thomas Gleixner]
+
+Original description:
+
+Hyper-V TSC page clocksource is suitable for vDSO, however, the protocol
+defined by the hypervisor is different from VCLOCK_PVCLOCK. Implemented the
+required support. Simple sysbench test shows the following results:
+
+Before:
+# time sysbench --test=memory --max-requests=500000 run
+...
+real    1m22.618s
+user    0m50.193s
+sys     0m32.268s
+
+After:
+# time sysbench --test=memory --max-requests=500000 run
+...
+real	0m47.241s
+user	0m47.117s
+sys	0m0.008s
+
+Patches 1 and 2 are made on top of K. Y.'s code refactoring which moved tsc
+page clocksource to arch/x86/hyperv/hv_init.c, this is currently present in
+Greg's char-misc-next tree.
+
+Vitaly Kuznetsov (3):
+  x86/hyperv: implement hv_get_tsc_page()
+  x86/hyperv: move TSC reading method to asm/mshyperv.h
+  x86/vdso: Add VCLOCK_HVCLOCK vDSO clock read method
+
+ arch/x86/entry/vdso/vclock_gettime.c  | 24 +++++++++++++++
+ arch/x86/entry/vdso/vdso-layout.lds.S |  3 +-
+ arch/x86/entry/vdso/vdso2c.c          |  3 ++
+ arch/x86/entry/vdso/vma.c             |  7 +++++
+ arch/x86/hyperv/hv_init.c             | 48 +++++++++--------------------
+ arch/x86/include/asm/clocksource.h    |  3 +-
+ arch/x86/include/asm/mshyperv.h       | 58 +++++++++++++++++++++++++++++++++++
+ arch/x86/include/asm/vdso.h           |  1 +
+ drivers/hv/Kconfig                    |  3 ++
+ 9 files changed, 114 insertions(+), 36 deletions(-)
+
+-- 
+2.9.3
