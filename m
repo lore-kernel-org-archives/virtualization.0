@@ -1,7 +1,7 @@
 From: Vitaly Kuznetsov <vkuznets@redhat.com>
-Subject: [PATCH v2 1/3] x86/hyperv: implement hv_get_tsc_page()
-Date: Tue, 14 Feb 2017 13:44:06 +0100
-Message-ID: <20170214124408.25931-2-vkuznets@redhat.com>
+Subject: [PATCH v2 2/3] x86/hyperv: move TSC reading method to asm/mshyperv.h
+Date: Tue, 14 Feb 2017 13:44:07 +0100
+Message-ID: <20170214124408.25931-3-vkuznets@redhat.com>
 References: <20170214124408.25931-1-vkuznets@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,77 +21,130 @@ To: x86@kernel.org, Andy Lutomirski <luto@amacapital.net>
 Cc: Stephen Hemminger <sthemmin@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, devel@linuxdriverproject.org, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-To use Hyper-V TSC page clocksource from vDSO we need to make tsc_pg
-available. Implement hv_get_tsc_page() and add CONFIG_HYPERV_TSCPAGE to
-make #ifdef-s simple.
+As a preparation to making Hyper-V TSC page suitable for vDSO move
+the TSC page reading logic to asm/mshyperv.h. While on it, do the
+following
+- Document the reading algorithm.
+- Simplify the code a bit.
+- Add explicit barriers to prevent re-ordering (we need to read sequence
+  stricktly before and after)
+- Use mul_u64_u64_shr() instead of assembly. I checked and on x86_64
+  gcc generates a single 'mul' instruction.
 
 Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
 ---
- arch/x86/hyperv/hv_init.c       | 9 +++++++--
- arch/x86/include/asm/mshyperv.h | 8 ++++++++
- drivers/hv/Kconfig              | 3 +++
- 3 files changed, 18 insertions(+), 2 deletions(-)
+ arch/x86/hyperv/hv_init.c       | 36 ++++-------------------------
+ arch/x86/include/asm/mshyperv.h | 50 +++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 54 insertions(+), 32 deletions(-)
 
 diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
-index b371d0e..0ce8485 100644
+index 0ce8485..77fec0c 100644
 --- a/arch/x86/hyperv/hv_init.c
 +++ b/arch/x86/hyperv/hv_init.c
-@@ -27,10 +27,15 @@
- #include <linux/clockchips.h>
+@@ -38,39 +38,11 @@ struct ms_hyperv_tsc_page *hv_get_tsc_page(void)
  
- 
--#ifdef CONFIG_X86_64
-+#ifdef CONFIG_HYPERV_TSCPAGE
- 
- static struct ms_hyperv_tsc_page *tsc_pg;
- 
-+struct ms_hyperv_tsc_page *hv_get_tsc_page(void)
-+{
-+	return tsc_pg;
-+}
-+
  static u64 read_hv_clock_tsc(struct clocksource *arg)
  {
- 	u64 current_tick;
-@@ -136,7 +141,7 @@ void hyperv_init(void)
- 	/*
- 	 * Register Hyper-V specific clocksource.
- 	 */
--#ifdef CONFIG_X86_64
-+#ifdef CONFIG_HYPERV_TSCPAGE
- 	if (ms_hyperv.features & HV_X64_MSR_REFERENCE_TSC_AVAILABLE) {
- 		union hv_x64_msr_hypercall_contents tsc_msr;
+-	u64 current_tick;
++	u64 current_tick = hv_read_tsc_page(tsc_pg);
++
++	if (current_tick == U64_MAX)
++		rdmsrl(HV_X64_MSR_TIME_REF_COUNT, current_tick);
+ 
+-	if (tsc_pg->tsc_sequence != 0) {
+-		/*
+-		 * Use the tsc page to compute the value.
+-		 */
+-
+-		while (1) {
+-			u64 tmp;
+-			u32 sequence = tsc_pg->tsc_sequence;
+-			u64 cur_tsc;
+-			u64 scale = tsc_pg->tsc_scale;
+-			s64 offset = tsc_pg->tsc_offset;
+-
+-			rdtscll(cur_tsc);
+-			/* current_tick = ((cur_tsc *scale) >> 64) + offset */
+-			asm("mulq %3"
+-				: "=d" (current_tick), "=a" (tmp)
+-				: "a" (cur_tsc), "r" (scale));
+-
+-			current_tick += offset;
+-			if (tsc_pg->tsc_sequence == sequence)
+-				return current_tick;
+-
+-			if (tsc_pg->tsc_sequence != 0)
+-				continue;
+-			/*
+-			 * Fallback using MSR method.
+-			 */
+-			break;
+-		}
+-	}
+-	rdmsrl(HV_X64_MSR_TIME_REF_COUNT, current_tick);
+ 	return current_tick;
+ }
  
 diff --git a/arch/x86/include/asm/mshyperv.h b/arch/x86/include/asm/mshyperv.h
-index f8dc370..14dd92c 100644
+index 14dd92c..ddd071c 100644
 --- a/arch/x86/include/asm/mshyperv.h
 +++ b/arch/x86/include/asm/mshyperv.h
-@@ -173,4 +173,12 @@ void hyperv_report_panic(struct pt_regs *regs);
- bool hv_is_hypercall_page_setup(void);
- void hyperv_cleanup(void);
+@@ -175,6 +175,56 @@ void hyperv_cleanup(void);
  #endif
-+#ifdef CONFIG_HYPERV_TSCPAGE
-+struct ms_hyperv_tsc_page *hv_get_tsc_page(void);
-+#else
-+static inline struct ms_hyperv_tsc_page *hv_get_tsc_page(void)
+ #ifdef CONFIG_HYPERV_TSCPAGE
+ struct ms_hyperv_tsc_page *hv_get_tsc_page(void);
++static inline u64 hv_read_tsc_page(const struct ms_hyperv_tsc_page *tsc_pg)
 +{
-+	return NULL;
-+}
-+#endif
- #endif
-diff --git a/drivers/hv/Kconfig b/drivers/hv/Kconfig
-index 0403b51..c29cd53 100644
---- a/drivers/hv/Kconfig
-+++ b/drivers/hv/Kconfig
-@@ -7,6 +7,9 @@ config HYPERV
- 	  Select this option to run Linux as a Hyper-V client operating
- 	  system.
- 
-+config HYPERV_TSCPAGE
-+       def_bool HYPERV && X86_64
++	u64 scale, offset, current_tick, cur_tsc;
++	u32 sequence;
 +
- config HYPERV_UTILS
- 	tristate "Microsoft Hyper-V Utilities driver"
- 	depends on HYPERV && CONNECTOR && NLS
++	/*
++	 * The protocol for reading Hyper-V TSC page is specified in Hypervisor
++	 * Top-Level Functional Specification ver. 3.0 and above. To get the
++	 * reference time we must do the following:
++	 * - READ ReferenceTscSequence
++	 *   A special '0' value indicates the time source is unreliable and we
++	 *   need to use something else. The currently published specification
++	 *   versions (up to 4.0b) contain a mistake and wrongly claim '-1'
++	 *   instead of '0' as the special value, see commit c35b82ef0294.
++	 * - ReferenceTime =
++	 *        ((RDTSC() * ReferenceTscScale) >> 64) + ReferenceTscOffset
++	 * - READ ReferenceTscSequence again. In case its value has changed
++	 *   since our first reading we need to discard ReferenceTime and repeat
++	 *   the whole sequence as the hypervisor was updating the page in
++	 *   between.
++	 */
++	while (1) {
++		sequence = tsc_pg->tsc_sequence;
++		if (!sequence)
++			break;
++		/*
++		 * Make sure we read sequence before we read other values from
++		 * TSC page.
++		 */
++		virt_rmb();
++
++		scale = tsc_pg->tsc_scale;
++		offset = tsc_pg->tsc_offset;
++		rdtscll(cur_tsc);
++
++		current_tick = mul_u64_u64_shr(cur_tsc, scale, 64) + offset;
++
++		/*
++		 * Make sure we read sequence after we read all other values
++		 * from TSC page.
++		 */
++		virt_rmb();
++
++		if (tsc_pg->tsc_sequence == sequence)
++			return current_tick;
++	}
++
++	return U64_MAX;
++}
++
+ #else
+ static inline struct ms_hyperv_tsc_page *hv_get_tsc_page(void)
+ {
 -- 
 2.9.3
