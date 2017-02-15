@@ -1,13 +1,11 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] average: change to declare precision, not factor
-Date: Wed, 15 Feb 2017 12:54:03 -0500 (EST)
-Message-ID: <20170215.125403.419777696065228170.davem__27301.2846512303$1487181274$gmane$org@davemloft.net>
-References: <20170215084926.29482-1-johannes@sipsolutions.net>
+From: Gustavo Padovan <gustavo@padovan.org>
+Subject: [PATCH] drm/virtio: call drm_plane_cleanup() at destroy phase
+Date: Wed, 15 Feb 2017 16:00:08 -0200
+Message-ID: <20170215180009.7091-1-gustavo__24898.5491497026$1487181621$gmane$org@padovan.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170215084926.29482-1-johannes@sipsolutions.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,25 +15,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: johannes@sipsolutions.net
-Cc: sgruszka@redhat.com, mareklindner@neomailbox.ch, johannes.berg@intel.com, mst@redhat.com, netdev@vger.kernel.org, sw@simonwunderlich.de, linux-wireless@vger.kernel.org, virtualization@lists.linux-foundation.org, a@unstable.cc
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Gustavo Padovan <gustavo.padovan@collabora.co.uk>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Johannes Berg <johannes@sipsolutions.net>
-Date: Wed, 15 Feb 2017 09:49:26 +0100
+From: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
 
-> From: Johannes Berg <johannes.berg@intel.com>
-> 
-> Declaring the factor is counter-intuitive, and people are prone
-> to using small(-ish) values even when that makes no sense.
-> 
-> Change the DECLARE_EWMA() macro to take the fractional precision,
-> in bits, rather than a factor, and update all users.
-> 
-> While at it, add some more documentation.
-> 
-> Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-> ---
-> Unless I hear any objections, I will take this through my tree.
+virtio was missing this call to clean up core plane usage.
 
-Acked-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
+---
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index 11288ff..1ff9c64 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -44,6 +44,7 @@ static const uint32_t virtio_gpu_cursor_formats[] = {
+ 
+ static void virtio_gpu_plane_destroy(struct drm_plane *plane)
+ {
++	drm_plane_cleanup(plane);
+ 	kfree(plane);
+ }
+ 
+-- 
+2.9.3
