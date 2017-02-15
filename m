@@ -1,7 +1,7 @@
-From: Johannes Berg <johannes@sipsolutions.net>
-Subject: [PATCH] average: change to declare precision, not factor
-Date: Wed, 15 Feb 2017 09:49:26 +0100
-Message-ID: <20170215084926.29482-1-johannes__34626.7495574013$1487148585$gmane$org@sipsolutions.net>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net-next] virito-net: set queues after reset during xdp_set
+Date: Wed, 15 Feb 2017 17:08:09 +0800
+Message-ID: <1487149689-28957-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,212 +15,158 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-wireless@vger.kernel.org
-Cc: Stanislaw Gruszka <sgruszka@redhat.com>, Marek Lindner <mareklindner@neomailbox.ch>, Johannes Berg <johannes.berg@intel.com>, Simon Wunderlich <sw@simonwunderlich.de>, netdev@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, Antonio Quartulli <a@unstable.cc>, virtualization@lists.linux-foundation.org
+To: mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: John Fastabend <john.fastabend@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+We set queues before reset which will cause a crash[1]. This is
+because is_xdp_raw_buffer_queue() depends on the old xdp queue pairs
+number to do the correct detection. So fix this by:
 
-Declaring the factor is counter-intuitive, and people are prone
-to using small(-ish) values even when that makes no sense.
+- set queues after reset, to keep the old vi->curr_queue_pairs. (in
+  fact setting queues before reset does not works since after feature
+  set, all queue pairs were enabled by default during reset).
+- change xdp_queue_pairs only after virtnet_reset() is succeed.
 
-Change the DECLARE_EWMA() macro to take the fractional precision,
-in bits, rather than a factor, and update all users.
+[1]
 
-While at it, add some more documentation.
+[   74.328168] general protection fault: 0000 [#1] SMP
+[   74.328625] Modules linked in: nfsd xfs libcrc32c virtio_net virtio_pci
+[   74.329117] CPU: 0 PID: 2849 Comm: xdp2 Not tainted 4.10.0-rc7+ #499
+[   74.329577] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.10.1-0-g8891697-prebuilt.qemu-project.org 04/01/2014
+[   74.330424] task: ffff88007a894000 task.stack: ffffc90004388000
+[   74.330844] RIP: 0010:skb_release_head_state+0x28/0x80
+[   74.331298] RSP: 0018:ffffc9000438b8d0 EFLAGS: 00010206
+[   74.331676] RAX: 0000000000000000 RBX: ffff88007ad96300 RCX: 0000000000000000
+[   74.332217] RDX: ffff88007fc137a8 RSI: ffff88007fc0db28 RDI: 0001bf00000001be
+[   74.332758] RBP: ffffc9000438b8d8 R08: 000000000005008f R09: 00000000000005f9
+[   74.333274] R10: ffff88007d001700 R11: ffffffff820a8a4d R12: ffff88007ad96300
+[   74.333787] R13: 0000000000000002 R14: ffff880036604000 R15: 000077ff80000000
+[   74.334308] FS:  00007fc70d8a7b40(0000) GS:ffff88007fc00000(0000) knlGS:0000000000000000
+[   74.334891] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   74.335314] CR2: 00007fff4144a710 CR3: 000000007ab56000 CR4: 00000000003406f0
+[   74.335830] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   74.336373] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   74.336895] Call Trace:
+[   74.337086]  skb_release_all+0xd/0x30
+[   74.337356]  consume_skb+0x2c/0x90
+[   74.337607]  free_unused_bufs+0x1ff/0x270 [virtio_net]
+[   74.337988]  ? vp_synchronize_vectors+0x3b/0x60 [virtio_pci]
+[   74.338398]  virtnet_xdp+0x21e/0x440 [virtio_net]
+[   74.338741]  dev_change_xdp_fd+0x101/0x140
+[   74.339048]  do_setlink+0xcf4/0xd20
+[   74.339304]  ? symcmp+0xf/0x20
+[   74.339529]  ? mls_level_isvalid+0x52/0x60
+[   74.339828]  ? mls_range_isvalid+0x43/0x50
+[   74.340135]  ? nla_parse+0xa0/0x100
+[   74.340400]  rtnl_setlink+0xd4/0x120
+[   74.340664]  ? cpumask_next_and+0x30/0x50
+[   74.340966]  rtnetlink_rcv_msg+0x7f/0x1f0
+[   74.341259]  ? sock_has_perm+0x59/0x60
+[   74.341586]  ? napi_consume_skb+0xe2/0x100
+[   74.342010]  ? rtnl_newlink+0x890/0x890
+[   74.342435]  netlink_rcv_skb+0x92/0xb0
+[   74.342846]  rtnetlink_rcv+0x23/0x30
+[   74.343277]  netlink_unicast+0x162/0x210
+[   74.343677]  netlink_sendmsg+0x2db/0x390
+[   74.343968]  sock_sendmsg+0x33/0x40
+[   74.344233]  SYSC_sendto+0xee/0x160
+[   74.344482]  ? SYSC_bind+0xb0/0xe0
+[   74.344806]  ? sock_alloc_file+0x92/0x110
+[   74.345106]  ? fd_install+0x20/0x30
+[   74.345360]  ? sock_map_fd+0x3f/0x60
+[   74.345586]  SyS_sendto+0x9/0x10
+[   74.345790]  entry_SYSCALL_64_fastpath+0x1a/0xa9
+[   74.346086] RIP: 0033:0x7fc70d1b8f6d
+[   74.346312] RSP: 002b:00007fff4144a708 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+[   74.346785] RAX: ffffffffffffffda RBX: 00000000ffffffff RCX: 00007fc70d1b8f6d
+[   74.347244] RDX: 000000000000002c RSI: 00007fff4144a720 RDI: 0000000000000003
+[   74.347683] RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000000
+[   74.348544] R10: 0000000000000000 R11: 0000000000000246 R12: 00007fff4144bd90
+[   74.349082] R13: 0000000000000002 R14: 0000000000000002 R15: 00007fff4144cda0
+[   74.349607] Code: 00 00 00 55 48 89 e5 53 48 89 fb 48 8b 7f 58 48 85 ff 74 0e 40 f6 c7 01 74 3d 48 c7 43 58 00 00 00 00 48 8b 7b 68 48 85 ff 74 05 <f0> ff 0f 74 20 48 8b 43 60 48 85 c0 74 14 65 8b 15 f3 ab 8d 7e
+[   74.351008] RIP: skb_release_head_state+0x28/0x80 RSP: ffffc9000438b8d0
+[   74.351625] ---[ end trace fe6e19fd11cfc80b ]---
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 2de2f7f40ef9 ("virtio_net: XDP support for adjust_head")
+Cc: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
-Unless I hear any objections, I will take this through my tree.
----
- drivers/net/virtio_net.c                    |  2 +-
- drivers/net/wireless/ath/ath5k/ath5k.h      |  2 +-
- drivers/net/wireless/ralink/rt2x00/rt2x00.h |  2 +-
- include/linux/average.h                     | 61 +++++++++++++++++++----------
- net/batman-adv/types.h                      |  2 +-
- net/mac80211/ieee80211_i.h                  |  2 +-
- net/mac80211/sta_info.h                     |  6 +--
- 7 files changed, 49 insertions(+), 28 deletions(-)
+ drivers/net/virtio_net.c | 35 ++++++++++++++++++-----------------
+ 1 file changed, 18 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 11e28530c83c..5e0cc9ec0f81 100644
+index 11e2853..9ff959c 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -49,7 +49,7 @@ module_param(gso, bool, 0444);
-  * at once, the weight is chosen so that the EWMA will be insensitive to short-
-  * term, transient changes in packet size.
-  */
--DECLARE_EWMA(pkt_len, 1, 64)
-+DECLARE_EWMA(pkt_len, 0, 64)
+@@ -1775,7 +1775,7 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog)
+ 	unsigned long int max_sz = PAGE_SIZE - sizeof(struct padded_vnet_hdr);
+ 	struct virtnet_info *vi = netdev_priv(dev);
+ 	struct bpf_prog *old_prog;
+-	u16 oxdp_qp, xdp_qp = 0, curr_qp;
++	u16 xdp_qp = 0, curr_qp;
+ 	int i, err;
  
- /* With mergeable buffers we align buffer address and use the low bits to
-  * encode its true size. Buffer size is up to 1 page so we need to align to
-diff --git a/drivers/net/wireless/ath/ath5k/ath5k.h b/drivers/net/wireless/ath/ath5k/ath5k.h
-index 67fedb61fcc0..979800c6f57f 100644
---- a/drivers/net/wireless/ath/ath5k/ath5k.h
-+++ b/drivers/net/wireless/ath/ath5k/ath5k.h
-@@ -1252,7 +1252,7 @@ struct ath5k_statistics {
- #define ATH5K_TXQ_LEN_MAX	(ATH_TXBUF / 4)		/* bufs per queue */
- #define ATH5K_TXQ_LEN_LOW	(ATH5K_TXQ_LEN_MAX / 2)	/* low mark */
- 
--DECLARE_EWMA(beacon_rssi, 1024, 8)
-+DECLARE_EWMA(beacon_rssi, 10, 8)
- 
- /* Driver state associated with an instance of a device */
- struct ath5k_hw {
-diff --git a/drivers/net/wireless/ralink/rt2x00/rt2x00.h b/drivers/net/wireless/ralink/rt2x00/rt2x00.h
-index 26869b3bef45..340787894c69 100644
---- a/drivers/net/wireless/ralink/rt2x00/rt2x00.h
-+++ b/drivers/net/wireless/ralink/rt2x00/rt2x00.h
-@@ -257,7 +257,7 @@ struct link_qual {
- 	int tx_failed;
- };
- 
--DECLARE_EWMA(rssi, 1024, 8)
-+DECLARE_EWMA(rssi, 10, 8)
- 
- /*
-  * Antenna settings about the currently active link.
-diff --git a/include/linux/average.h b/include/linux/average.h
-index d04aa58280de..7ddaf340d2ac 100644
---- a/include/linux/average.h
-+++ b/include/linux/average.h
-@@ -1,45 +1,66 @@
- #ifndef _LINUX_AVERAGE_H
- #define _LINUX_AVERAGE_H
- 
--/* Exponentially weighted moving average (EWMA) */
-+/*
-+ * Exponentially weighted moving average (EWMA)
-+ *
-+ * This implements a fixed-precision EWMA algorithm, with both the
-+ * precision and fall-off coefficient determined at compile-time
-+ * and built into the generated helper funtions.
-+ *
-+ * The first argument to the macro is the name that will be used
-+ * for the struct and helper functions.
-+ *
-+ * The second argument, the precision, expresses how many bits are
-+ * used for the fractional part of the fixed-precision values.
-+ *
-+ * The third argument, the weight reciprocal, determines how the
-+ * new values will be weighed vs. the old state, new values will
-+ * get weight 1/weight_rcp and old values 1-1/weight_rcp. Note
-+ * that this parameter must be a power of two for efficiency.
-+ */
- 
--#define DECLARE_EWMA(name, _factor, _weight)				\
-+#define DECLARE_EWMA(name, _precision, _weight_rcp)			\
- 	struct ewma_##name {						\
- 		unsigned long internal;					\
- 	};								\
- 	static inline void ewma_##name##_init(struct ewma_##name *e)	\
- 	{								\
--		BUILD_BUG_ON(!__builtin_constant_p(_factor));		\
--		BUILD_BUG_ON(!__builtin_constant_p(_weight));		\
--		BUILD_BUG_ON_NOT_POWER_OF_2(_factor);			\
--		BUILD_BUG_ON_NOT_POWER_OF_2(_weight);			\
-+		BUILD_BUG_ON(!__builtin_constant_p(_precision));	\
-+		BUILD_BUG_ON(!__builtin_constant_p(_weight_rcp));	\
-+		/*							\
-+		 * Even if you want to feed it just 0/1 you should have	\
-+		 * some bits for the non-fractional part...		\
-+		 */							\
-+		BUILD_BUG_ON((_precision) > 30);			\
-+		BUILD_BUG_ON_NOT_POWER_OF_2(_weight_rcp);		\
- 		e->internal = 0;					\
- 	}								\
- 	static inline unsigned long					\
- 	ewma_##name##_read(struct ewma_##name *e)			\
- 	{								\
--		BUILD_BUG_ON(!__builtin_constant_p(_factor));		\
--		BUILD_BUG_ON(!__builtin_constant_p(_weight));		\
--		BUILD_BUG_ON_NOT_POWER_OF_2(_factor);			\
--		BUILD_BUG_ON_NOT_POWER_OF_2(_weight);			\
--		return e->internal >> ilog2(_factor);			\
-+		BUILD_BUG_ON(!__builtin_constant_p(_precision));	\
-+		BUILD_BUG_ON(!__builtin_constant_p(_weight_rcp));	\
-+		BUILD_BUG_ON((_precision) > 30);			\
-+		BUILD_BUG_ON_NOT_POWER_OF_2(_weight_rcp);		\
-+		return e->internal >> (_precision);			\
- 	}								\
- 	static inline void ewma_##name##_add(struct ewma_##name *e,	\
- 					     unsigned long val)		\
- 	{								\
- 		unsigned long internal = ACCESS_ONCE(e->internal);	\
--		unsigned long weight = ilog2(_weight);			\
--		unsigned long factor = ilog2(_factor);			\
-+		unsigned long weight_rcp = ilog2(_weight_rcp);		\
-+		unsigned long precision = _precision;			\
- 									\
--		BUILD_BUG_ON(!__builtin_constant_p(_factor));		\
--		BUILD_BUG_ON(!__builtin_constant_p(_weight));		\
--		BUILD_BUG_ON_NOT_POWER_OF_2(_factor);			\
--		BUILD_BUG_ON_NOT_POWER_OF_2(_weight);			\
-+		BUILD_BUG_ON(!__builtin_constant_p(_precision));	\
-+		BUILD_BUG_ON(!__builtin_constant_p(_weight_rcp));	\
-+		BUILD_BUG_ON((_precision) > 30);			\
-+		BUILD_BUG_ON_NOT_POWER_OF_2(_weight_rcp);		\
- 									\
- 		ACCESS_ONCE(e->internal) = internal ?			\
--			(((internal << weight) - internal) +		\
--				(val << factor)) >> weight :		\
--			(val << factor);				\
-+			(((internal << weight_rcp) - internal) +	\
-+				(val << precision)) >> weight_rcp :	\
-+			(val << precision);				\
+ 	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO4) ||
+@@ -1813,24 +1813,24 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog)
+ 			return PTR_ERR(prog);
  	}
  
- #endif /* _LINUX_AVERAGE_H */
-diff --git a/net/batman-adv/types.h b/net/batman-adv/types.h
-index 8f64a5c01345..66b25e410a41 100644
---- a/net/batman-adv/types.h
-+++ b/net/batman-adv/types.h
-@@ -402,7 +402,7 @@ struct batadv_gw_node {
- 	struct rcu_head rcu;
- };
+-	err = _virtnet_set_queues(vi, curr_qp + xdp_qp);
+-	if (err) {
+-		dev_warn(&dev->dev, "XDP Device queue allocation failure.\n");
+-		goto virtio_queue_err;
+-	}
+-
+-	oxdp_qp = vi->xdp_queue_pairs;
+-
+ 	/* Changing the headroom in buffers is a disruptive operation because
+ 	 * existing buffers must be flushed and reallocated. This will happen
+ 	 * when a xdp program is initially added or xdp is disabled by removing
+ 	 * the xdp program resulting in number of XDP queues changing.
+ 	 */
+ 	if (vi->xdp_queue_pairs != xdp_qp) {
+-		vi->xdp_queue_pairs = xdp_qp;
+ 		err = virtnet_reset(vi);
+-		if (err)
++		if (err) {
++			dev_warn(&dev->dev, "XDP reset failure.\n");
+ 			goto virtio_reset_err;
++		}
++		vi->xdp_queue_pairs = xdp_qp;
++	}
++
++	err = _virtnet_set_queues(vi, curr_qp + xdp_qp);
++	if (err) {
++		dev_warn(&dev->dev, "XDP Device queue allocation failure.\n");
++		goto virtio_queue_err;
+ 	}
  
--DECLARE_EWMA(throughput, 1024, 8)
-+DECLARE_EWMA(throughput, 10, 8)
+ 	netif_set_real_num_rx_queues(dev, curr_qp + xdp_qp);
+@@ -1844,17 +1844,18 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog)
  
- /**
-  * struct batadv_hardif_neigh_node_bat_v - B.A.T.M.A.N. V private neighbor
-diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
-index 159a1a733725..0e718437d080 100644
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -428,7 +428,7 @@ struct ieee80211_sta_tx_tspec {
- 	bool downgraded;
- };
+ 	return 0;
  
--DECLARE_EWMA(beacon_signal, 16, 4)
-+DECLARE_EWMA(beacon_signal, 4, 4)
- 
- struct ieee80211_if_managed {
- 	struct timer_list timer;
-diff --git a/net/mac80211/sta_info.h b/net/mac80211/sta_info.h
-index 71fa41a1368a..90a2c4deb00c 100644
---- a/net/mac80211/sta_info.h
-+++ b/net/mac80211/sta_info.h
-@@ -322,8 +322,8 @@ struct ieee80211_fast_rx {
- 	struct rcu_head rcu_head;
- };
- 
--/* we use only values in the range 0-100, so pick a large factor */
--DECLARE_EWMA(mesh_fail_avg, 1048576, 8)
-+/* we use only values in the range 0-100, so pick a large precision */
-+DECLARE_EWMA(mesh_fail_avg, 20, 8)
- 
- /**
-  * struct mesh_sta - mesh STA information
-@@ -373,7 +373,7 @@ struct mesh_sta {
- 	struct ewma_mesh_fail_avg fail_avg;
- };
- 
--DECLARE_EWMA(signal, 1024, 8)
-+DECLARE_EWMA(signal, 10, 8)
- 
- struct ieee80211_sta_rx_stats {
- 	unsigned long packets;
++virtio_queue_err:
++	/* Should not happen, after reset, all queue pairs were
++	 * enabled by default.
++	 */
++	vi->curr_queue_pairs = vi->max_queue_pairs;
++	netif_set_real_num_tx_queues(dev, vi->curr_queue_pairs);
++	netif_set_real_num_rx_queues(dev, vi->curr_queue_pairs);
+ virtio_reset_err:
+ 	/* On reset error do our best to unwind XDP changes inflight and return
+ 	 * error up to user space for resolution. The underlying reset hung on
+ 	 * us so not much we can do here.
+ 	 */
+-	dev_warn(&dev->dev, "XDP reset failure and queues unstable\n");
+-	vi->xdp_queue_pairs = oxdp_qp;
+-virtio_queue_err:
+-	/* On queue set error we can unwind bpf ref count and user space can
+-	 * retry this is most likely an allocation failure.
+-	 */
+ 	if (prog)
+ 		bpf_prog_sub(prog, vi->max_queue_pairs - 1);
+ 	return err;
 -- 
-2.9.3
+2.7.4
