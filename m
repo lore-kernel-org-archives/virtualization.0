@@ -1,13 +1,16 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] drm/virtio: call drm_plane_cleanup() at destroy phase
-Date: Thu, 16 Feb 2017 16:39:29 +0100
-Message-ID: <1487259569.32455.5.camel@redhat.com>
-References: <20170215180009.7091-1-gustavo@padovan.org>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v4 1/2] x86/paravirt: Change vcp_is_preempted() arg type
+	to long
+Date: Thu, 16 Feb 2017 17:09:30 +0100
+Message-ID: <20170216160930.GC6515@twins.programming.kicks-ass.net>
+References: <1487194670-6319-1-git-send-email-longman@redhat.com>
+	<1487194670-6319-2-git-send-email-longman@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170215180009.7091-1-gustavo@padovan.org>
+Content-Disposition: inline
+In-Reply-To: <1487194670-6319-2-git-send-email-longman@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,35 +20,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gustavo Padovan <gustavo@padovan.org>
-Cc: David Airlie <airlied@linux.ie>, Gustavo Padovan <gustavo.padovan@collabora.co.uk>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open
-	list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: Waiman Long <longman@redhat.com>
+Cc: linux-arch@vger.kernel.org, Juergen Gross <jgross@suse.com>, Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, kvm@vger.kernel.org, Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mi, 2017-02-15 at 16:00 -0200, Gustavo Padovan wrote:
-> From: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
+On Wed, Feb 15, 2017 at 04:37:49PM -0500, Waiman Long wrote:
+> The cpu argument in the function prototype of vcpu_is_preempted()
+> is changed from int to long. That makes it easier to provide a better
+> optimized assembly version of that function.
 > 
-> virtio was missing this call to clean up core plane usage.
+> For Xen, vcpu_is_preempted(long) calls xen_vcpu_stolen(int), the
+> downcast from long to int is not a problem as vCPU number won't exceed
+> 32 bits.
 > 
-> Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
-> ---
->  drivers/gpu/drm/virtio/virtgpu_plane.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-> index 11288ff..1ff9c64 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-> @@ -44,6 +44,7 @@ static const uint32_t virtio_gpu_cursor_formats[] = {
->  
->  static void virtio_gpu_plane_destroy(struct drm_plane *plane)
->  {
-> +	drm_plane_cleanup(plane);
->  	kfree(plane);
->  }
->  
 
-Applied to drm-misc-next
+Note that because of the cast in PVOP_CALL_ARG1() this patch is
+pointless.
 
-thanks,
-  Gerd
+Then again, it doesn't seem to affect code generation, so why not. Takes
+away the reliance on that weird cast.
