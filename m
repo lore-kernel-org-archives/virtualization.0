@@ -1,17 +1,16 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH v2 0/3] x86/vdso: Add Hyper-V TSC page clocksource support
-Date: Thu, 16 Feb 2017 18:50:58 +0100 (CET)
-Message-ID: <alpine.DEB.2.20.1702161832020.3543@nanos>
-References: <20170214124408.25931-1-vkuznets@redhat.com>
-	<alpine.DEB.2.20.1702141552360.3635@nanos>
-	<87a89o22ml.fsf@vitty.brq.redhat.com>
-	<CALCETrUNdemXG7GnehNus-EW2FDuTzB8HKW_3HUjhPt9ZNf45w@mail.gmail.com>
-	<87y3x7zh6h.fsf@vitty.brq.redhat.com>
+From: Waiman Long <longman@redhat.com>
+Subject: Re: [PATCH v4 2/2] x86/kvm: Provide optimized version of
+	vcpu_is_preempted() for x86-64
+Date: Thu, 16 Feb 2017 16:00:10 -0500
+Message-ID: <9c101df4-7320-556a-ca41-e024629e9a67@redhat.com>
+References: <1487194670-6319-1-git-send-email-longman@redhat.com>
+	<1487194670-6319-3-git-send-email-longman@redhat.com>
+	<20170216164815.GD6515@twins.programming.kicks-ass.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87y3x7zh6h.fsf@vitty.brq.redhat.com>
+In-Reply-To: <20170216164815.GD6515@twins.programming.kicks-ass.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,88 +20,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: Stephen Hemminger <sthemmin@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, X86 ML <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, devel@linuxdriverproject.org, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: linux-arch@vger.kernel.org, Juergen Gross <jgross@suse.com>, Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, kvm@vger.kernel.org, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, Ingo Molnar <mingo@redhat.com>, andrew.cooper3@citrix.com, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 15 Feb 2017, Vitaly Kuznetsov wrote:
-> Actually, we already have an implementation of TSC page update in KVM
-> (see arch/x86/kvm/hyperv.c, kvm_hv_setup_tsc_page()) and the update does
-> the following:
-> 
-> 0) stash seq into seq_prev
-> 1) seq = 0 making all reads from the page invalid
-> 2) smp_wmb()
-> 3) update tsc_scale, tsc_offset
-> 4) smp_wmb()
-> 5) set seq = seq_prev + 1
+On 02/16/2017 11:48 AM, Peter Zijlstra wrote:
+> On Wed, Feb 15, 2017 at 04:37:50PM -0500, Waiman Long wrote:
+>> +/*
+>> + * Hand-optimize version for x86-64 to avoid 8 64-bit register saving and
+>> + * restoring to/from the stack. It is assumed that the preempted value
+>> + * is at an offset of 16 from the beginning of the kvm_steal_time structure
+>> + * which is verified by the BUILD_BUG_ON() macro below.
+>> + */
+>> +#define PREEMPTED_OFFSET	16
+> As per Andrew's suggestion, the 'right' way is something like so.
 
-I hope they handle the case where seq_prev overflows and becomes 0 :)
- 
-> As far as I understand this helps with situations you described above as
-> guest will notice either invalid value of 0 or seq change. In case the
-> implementation in real Hyper-V is the same we're safe with compile
-> barriers only.
+Thanks for the tip. I was not aware of the asm-offsets stuff. I will
+update the patch to use it.
 
-On x86 that's correct. smp_rmb() resolves to barrier(), but you certainly
-need the smp_wmb() on the writer side.
-
-Now looking at the above your reader side code is bogus:
-
-+       while (1) {
-+               sequence = tsc_pg->tsc_sequence;
-+               if (!sequence)
-+                       break;
-
-Why would you break out of the loop when seq is 0? The 0 is just telling
-you that there is an update in progress.
-
-The Linux seqcount writer side is:
-
-    seq++;
-    smp_wmb();
-    
-    update...
-    
-    smp_wmb();
-    seq++;
-
-and it's defined that an odd sequence count, i.e. bit 0 set means update in
-progress. Which is nice, because you don't have to treat 0 special on the
-writer side and you don't need extra storage to stash seq away :)
-
-So the reader side does:
-
-    do {
-    	  while (1) {
-    	     s = READ_ONCE(seq);
-	     if (!(s & 0x01))
-	        break;
-     	     cpu_relax();
-         }
-	 smp_rmb();
-
-	 read data ...
-
-	 smp_rmb();
-   } while (s != seq)
-
-So for that hyperv thing you want:
-
-    do {
-    	  while (1) {
-    	     s = READ_ONCE(seq);
-	     if (s)
-	        break;
-     	     cpu_relax();
-         }
-	 smp_rmb();
-
-	 read data ...
-
-	 smp_rmb();
-   } while (s != seq)
-
-Thanks,
-
-	tglx
+Cheers,
+Longman
