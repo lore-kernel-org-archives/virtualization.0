@@ -1,11 +1,13 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next] virtio-net: batch stats updating
-Date: Fri, 17 Feb 2017 11:33:09 +0800
-Message-ID: <1487302389-28538-1-git-send-email-jasowang@redhat.com>
+From: John Fastabend <john.fastabend@gmail.com>
+Subject: Re: [PATCH net-next] virito-net: set queues after reset during xdp_set
+Date: Thu, 16 Feb 2017 20:53:59 -0800
+Message-ID: <58A681E7.80907@gmail.com>
+References: <1487149689-28957-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1487149689-28957-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,145 +17,145 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Willem de Bruijn <willemb@google.com>
+To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We already have counters for sent/recv packets and sent/recv bytes.
-Doing a batched update to reduce the number of
-u64_stats_update_begin/end().
+On 17-02-15 01:08 AM, Jason Wang wrote:
+> We set queues before reset which will cause a crash[1]. This is
+> because is_xdp_raw_buffer_queue() depends on the old xdp queue pairs
+> number to do the correct detection. So fix this by:
+> 
+> - set queues after reset, to keep the old vi->curr_queue_pairs. (in
+>   fact setting queues before reset does not works since after feature
+>   set, all queue pairs were enabled by default during reset).
+> - change xdp_queue_pairs only after virtnet_reset() is succeed.
+> 
+> [1]
 
-Take care not to bother with stats update when called
-speculatively.
+I'm guessing this occurs when enabling XDP while receiving lots of traffic?
 
-Cc: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/net/virtio_net.c | 47 +++++++++++++++++++++++++++++++----------------
- 1 file changed, 31 insertions(+), 16 deletions(-)
+> 
+> [   74.328168] general protection fault: 0000 [#1] SMP
+> [   74.328625] Modules linked in: nfsd xfs libcrc32c virtio_net virtio_pci
+> [   74.329117] CPU: 0 PID: 2849 Comm: xdp2 Not tainted 4.10.0-rc7+ #499
+> [   74.329577] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.10.1-0-g8891697-prebuilt.qemu-project.org 04/01/2014
+> [   74.330424] task: ffff88007a894000 task.stack: ffffc90004388000
+> [   74.330844] RIP: 0010:skb_release_head_state+0x28/0x80
+> [   74.331298] RSP: 0018:ffffc9000438b8d0 EFLAGS: 00010206
+> [   74.331676] RAX: 0000000000000000 RBX: ffff88007ad96300 RCX: 0000000000000000
+> [   74.332217] RDX: ffff88007fc137a8 RSI: ffff88007fc0db28 RDI: 0001bf00000001be
+> [   74.332758] RBP: ffffc9000438b8d8 R08: 000000000005008f R09: 00000000000005f9
+> [   74.333274] R10: ffff88007d001700 R11: ffffffff820a8a4d R12: ffff88007ad96300
+> [   74.333787] R13: 0000000000000002 R14: ffff880036604000 R15: 000077ff80000000
+> [   74.334308] FS:  00007fc70d8a7b40(0000) GS:ffff88007fc00000(0000) knlGS:0000000000000000
+> [   74.334891] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [   74.335314] CR2: 00007fff4144a710 CR3: 000000007ab56000 CR4: 00000000003406f0
+> [   74.335830] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> [   74.336373] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> [   74.336895] Call Trace:
+> [   74.337086]  skb_release_all+0xd/0x30
+> [   74.337356]  consume_skb+0x2c/0x90
+> [   74.337607]  free_unused_bufs+0x1ff/0x270 [virtio_net]
+> [   74.337988]  ? vp_synchronize_vectors+0x3b/0x60 [virtio_pci]
+> [   74.338398]  virtnet_xdp+0x21e/0x440 [virtio_net]
+> [   74.338741]  dev_change_xdp_fd+0x101/0x140
+> [   74.339048]  do_setlink+0xcf4/0xd20
+> [   74.339304]  ? symcmp+0xf/0x20
+> [   74.339529]  ? mls_level_isvalid+0x52/0x60
+> [   74.339828]  ? mls_range_isvalid+0x43/0x50
+> [   74.340135]  ? nla_parse+0xa0/0x100
+> [   74.340400]  rtnl_setlink+0xd4/0x120
+> [   74.340664]  ? cpumask_next_and+0x30/0x50
+> [   74.340966]  rtnetlink_rcv_msg+0x7f/0x1f0
+> [   74.341259]  ? sock_has_perm+0x59/0x60
+> [   74.341586]  ? napi_consume_skb+0xe2/0x100
+> [   74.342010]  ? rtnl_newlink+0x890/0x890
+> [   74.342435]  netlink_rcv_skb+0x92/0xb0
+> [   74.342846]  rtnetlink_rcv+0x23/0x30
+> [   74.343277]  netlink_unicast+0x162/0x210
+> [   74.343677]  netlink_sendmsg+0x2db/0x390
+> [   74.343968]  sock_sendmsg+0x33/0x40
+> [   74.344233]  SYSC_sendto+0xee/0x160
+> [   74.344482]  ? SYSC_bind+0xb0/0xe0
+> [   74.344806]  ? sock_alloc_file+0x92/0x110
+> [   74.345106]  ? fd_install+0x20/0x30
+> [   74.345360]  ? sock_map_fd+0x3f/0x60
+> [   74.345586]  SyS_sendto+0x9/0x10
+> [   74.345790]  entry_SYSCALL_64_fastpath+0x1a/0xa9
+> [   74.346086] RIP: 0033:0x7fc70d1b8f6d
+> [   74.346312] RSP: 002b:00007fff4144a708 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+> [   74.346785] RAX: ffffffffffffffda RBX: 00000000ffffffff RCX: 00007fc70d1b8f6d
+> [   74.347244] RDX: 000000000000002c RSI: 00007fff4144a720 RDI: 0000000000000003
+> [   74.347683] RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000000
+> [   74.348544] R10: 0000000000000000 R11: 0000000000000246 R12: 00007fff4144bd90
+> [   74.349082] R13: 0000000000000002 R14: 0000000000000002 R15: 00007fff4144cda0
+> [   74.349607] Code: 00 00 00 55 48 89 e5 53 48 89 fb 48 8b 7f 58 48 85 ff 74 0e 40 f6 c7 01 74 3d 48 c7 43 58 00 00 00 00 48 8b 7b 68 48 85 ff 74 05 <f0> ff 0f 74 20 48 8b 43 60 48 85 c0 74 14 65 8b 15 f3 ab 8d 7e
+> [   74.351008] RIP: skb_release_head_state+0x28/0x80 RSP: ffffc9000438b8d0
+> [   74.351625] ---[ end trace fe6e19fd11cfc80b ]---
+> 
+> Fixes: 2de2f7f40ef9 ("virtio_net: XDP support for adjust_head")
+> Cc: John Fastabend <john.fastabend@gmail.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/net/virtio_net.c | 35 ++++++++++++++++++-----------------
+>  1 file changed, 18 insertions(+), 17 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 11e2853..9ff959c 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -1775,7 +1775,7 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog)
+>  	unsigned long int max_sz = PAGE_SIZE - sizeof(struct padded_vnet_hdr);
+>  	struct virtnet_info *vi = netdev_priv(dev);
+>  	struct bpf_prog *old_prog;
+> -	u16 oxdp_qp, xdp_qp = 0, curr_qp;
+> +	u16 xdp_qp = 0, curr_qp;
+>  	int i, err;
+>  
+>  	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO4) ||
+> @@ -1813,24 +1813,24 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog)
+>  			return PTR_ERR(prog);
+>  	}
+>  
+> -	err = _virtnet_set_queues(vi, curr_qp + xdp_qp);
+> -	if (err) {
+> -		dev_warn(&dev->dev, "XDP Device queue allocation failure.\n");
+> -		goto virtio_queue_err;
+> -	}
+> -
+> -	oxdp_qp = vi->xdp_queue_pairs;
+> -
+>  	/* Changing the headroom in buffers is a disruptive operation because
+>  	 * existing buffers must be flushed and reallocated. This will happen
+>  	 * when a xdp program is initially added or xdp is disabled by removing
+>  	 * the xdp program resulting in number of XDP queues changing.
+>  	 */
+>  	if (vi->xdp_queue_pairs != xdp_qp) {
+> -		vi->xdp_queue_pairs = xdp_qp;
+>  		err = virtnet_reset(vi);
+> -		if (err)
+> +		if (err) {
+> +			dev_warn(&dev->dev, "XDP reset failure.\n");
+>  			goto virtio_reset_err;
+> +		}
+> +		vi->xdp_queue_pairs = xdp_qp;
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 11e2853..05a83db 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -719,13 +719,13 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
- 	return NULL;
- }
- 
--static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
--			void *buf, unsigned int len)
-+static int receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
-+		       void *buf, unsigned int len)
- {
- 	struct net_device *dev = vi->dev;
--	struct virtnet_stats *stats = this_cpu_ptr(vi->stats);
- 	struct sk_buff *skb;
- 	struct virtio_net_hdr_mrg_rxbuf *hdr;
-+	int ret;
- 
- 	if (unlikely(len < vi->hdr_len + ETH_HLEN)) {
- 		pr_debug("%s: short packet %i\n", dev->name, len);
-@@ -739,7 +739,7 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
- 		} else {
- 			dev_kfree_skb(buf);
- 		}
--		return;
-+		return 0;
- 	}
- 
- 	if (vi->mergeable_rx_bufs)
-@@ -750,14 +750,11 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
- 		skb = receive_small(dev, vi, rq, buf, len);
- 
- 	if (unlikely(!skb))
--		return;
-+		return 0;
- 
- 	hdr = skb_vnet_hdr(skb);
- 
--	u64_stats_update_begin(&stats->rx_syncp);
--	stats->rx_bytes += skb->len;
--	stats->rx_packets++;
--	u64_stats_update_end(&stats->rx_syncp);
-+	ret = skb->len;
- 
- 	if (hdr->hdr.flags & VIRTIO_NET_HDR_F_DATA_VALID)
- 		skb->ip_summed = CHECKSUM_UNNECESSARY;
-@@ -775,11 +772,12 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
- 		 ntohs(skb->protocol), skb->len, skb->pkt_type);
- 
- 	napi_gro_receive(&rq->napi, skb);
--	return;
-+	return ret;
- 
- frame_err:
- 	dev->stats.rx_frame_errors++;
- 	dev_kfree_skb(skb);
-+	return 0;
- }
- 
- static unsigned int virtnet_get_headroom(struct virtnet_info *vi)
-@@ -994,12 +992,13 @@ static void refill_work(struct work_struct *work)
- static int virtnet_receive(struct receive_queue *rq, int budget)
- {
- 	struct virtnet_info *vi = rq->vq->vdev->priv;
--	unsigned int len, received = 0;
-+	unsigned int len, received = 0, bytes = 0;
- 	void *buf;
-+	struct virtnet_stats *stats = this_cpu_ptr(vi->stats);
- 
- 	while (received < budget &&
- 	       (buf = virtqueue_get_buf(rq->vq, &len)) != NULL) {
--		receive_buf(vi, rq, buf, len);
-+		bytes += receive_buf(vi, rq, buf, len);
- 		received++;
- 	}
- 
-@@ -1008,6 +1007,11 @@ static int virtnet_receive(struct receive_queue *rq, int budget)
- 			schedule_delayed_work(&vi->refill, 0);
- 	}
- 
-+	u64_stats_update_begin(&stats->rx_syncp);
-+	stats->rx_bytes += bytes;
-+	stats->rx_packets += received;
-+	u64_stats_update_end(&stats->rx_syncp);
-+
- 	return received;
- }
- 
-@@ -1056,17 +1060,28 @@ static void free_old_xmit_skbs(struct send_queue *sq)
- 	unsigned int len;
- 	struct virtnet_info *vi = sq->vq->vdev->priv;
- 	struct virtnet_stats *stats = this_cpu_ptr(vi->stats);
-+	unsigned int packets = 0;
-+	unsigned int bytes = 0;
- 
- 	while ((skb = virtqueue_get_buf(sq->vq, &len)) != NULL) {
- 		pr_debug("Sent skb %p\n", skb);
- 
--		u64_stats_update_begin(&stats->tx_syncp);
--		stats->tx_bytes += skb->len;
--		stats->tx_packets++;
--		u64_stats_update_end(&stats->tx_syncp);
-+		bytes += skb->len;
-+		packets++;
- 
- 		dev_kfree_skb_any(skb);
- 	}
-+
-+	/* Avoid overhead when no packets have been processed
-+	 * happens when called speculatively from start_xmit.
-+	 */
-+	if (!packets)
-+		return;
-+
-+	u64_stats_update_begin(&stats->tx_syncp);
-+	stats->tx_bytes += bytes;
-+	stats->tx_packets += packets;
-+	u64_stats_update_end(&stats->tx_syncp);
- }
- 
- static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
--- 
-2.7.4
+But xdp_queue_pairs is being used to detect if we should allocate the XDP
+headroom. If we move it here do we have a set of buffers in the ring without
+the proper headroom when we assign the xdp program below?
+
+> +	}
+> +
+> +	err = _virtnet_set_queues(vi, curr_qp + xdp_qp);
+> +	if (err) {
+> +		dev_warn(&dev->dev, "XDP Device queue allocation failure.\n");
+> +		goto virtio_queue_err;
+>  	}
+>  
+>  	netif_set_real_num_rx_queues(dev, curr_qp + xdp_qp);
+> @@ -1844,17 +1844,18 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog)
+>  
+>  	return 0;
+
+Thanks,
+John
