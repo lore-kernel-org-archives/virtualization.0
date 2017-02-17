@@ -1,14 +1,15 @@
-From: Joe Perches <joe@perches.com>
-Subject: [PATCH 13/35] drivers/char: Convert remaining use of pr_warning to
-	pr_warn
-Date: Thu, 16 Feb 2017 23:11:26 -0800
-Message-ID: <12cea829f0c93182e8775e453e411a236d529b58.1487314667.git.joe__21333.1899991774$1487370727$gmane$org@perches.com>
-References: <cover.1487314666.git.joe@perches.com>
+From: John Fastabend <john.fastabend@gmail.com>
+Subject: Re: [PATCH net-next] virito-net: set queues after reset during xdp_set
+Date: Fri, 17 Feb 2017 15:30:51 -0800
+Message-ID: <58A787AB.6000201@gmail.com>
+References: <1487149689-28957-1-git-send-email-jasowang@redhat.com>
+	<58A681E7.80907@gmail.com>
+	<cff818ec-d5cc-1d71-fa3e-95fd690d10ff@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1487314666.git.joe@perches.com>
+In-Reply-To: <cff818ec-d5cc-1d71-fa3e-95fd690d10ff@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,34 +19,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-To enable eventual removal of pr_warning
-
-This makes pr_warn use consistent for drivers/char
-
-Prior to this patch, there were 1 use of pr_warning and
-40 uses of pr_warn in drivers/char
-
-Signed-off-by: Joe Perches <joe@perches.com>
----
- drivers/char/virtio_console.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 17857beb4892..96002610b845 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -2294,7 +2294,7 @@ static int __init init(void)
- 
- 	pdrvdata.debugfs_dir = debugfs_create_dir("virtio-ports", NULL);
- 	if (!pdrvdata.debugfs_dir)
--		pr_warning("Error creating debugfs dir for virtio-ports\n");
-+		pr_warn("Error creating debugfs dir for virtio-ports\n");
- 	INIT_LIST_HEAD(&pdrvdata.consoles);
- 	INIT_LIST_HEAD(&pdrvdata.portdevs);
- 
--- 
-2.10.0.rc2.1.g053435c
+T24gMTctMDItMTYgMDk6MTAgUE0sIEphc29uIFdhbmcgd3JvdGU6Cj4gCj4gCj4gT24gMjAxN+W5
+tDAy5pyIMTfml6UgMTI6NTMsIEpvaG4gRmFzdGFiZW5kIHdyb3RlOgo+PiBPbiAxNy0wMi0xNSAw
+MTowOCBBTSwgSmFzb24gV2FuZyB3cm90ZToKPj4+IFdlIHNldCBxdWV1ZXMgYmVmb3JlIHJlc2V0
+IHdoaWNoIHdpbGwgY2F1c2UgYSBjcmFzaFsxXS4gVGhpcyBpcwo+Pj4gYmVjYXVzZSBpc194ZHBf
+cmF3X2J1ZmZlcl9xdWV1ZSgpIGRlcGVuZHMgb24gdGhlIG9sZCB4ZHAgcXVldWUgcGFpcnMKPj4+
+IG51bWJlciB0byBkbyB0aGUgY29ycmVjdCBkZXRlY3Rpb24uIFNvIGZpeCB0aGlzIGJ5Ogo+Pj4K
+Pj4+IC0gc2V0IHF1ZXVlcyBhZnRlciByZXNldCwgdG8ga2VlcCB0aGUgb2xkIHZpLT5jdXJyX3F1
+ZXVlX3BhaXJzLiAoaW4KPj4+ICAgIGZhY3Qgc2V0dGluZyBxdWV1ZXMgYmVmb3JlIHJlc2V0IGRv
+ZXMgbm90IHdvcmtzIHNpbmNlIGFmdGVyIGZlYXR1cmUKPj4+ICAgIHNldCwgYWxsIHF1ZXVlIHBh
+aXJzIHdlcmUgZW5hYmxlZCBieSBkZWZhdWx0IGR1cmluZyByZXNldCkuCj4+PiAtIGNoYW5nZSB4
+ZHBfcXVldWVfcGFpcnMgb25seSBhZnRlciB2aXJ0bmV0X3Jlc2V0KCkgaXMgc3VjY2VlZC4KPj4+
+Cj4+PiBbMV0KPj4gSSdtIGd1ZXNzaW5nIHRoaXMgb2NjdXJzIHdoZW4gZW5hYmxpbmcgWERQIHdo
+aWxlIHJlY2VpdmluZyBsb3RzIG9mIHRyYWZmaWM/Cj4gCj4gSSBoaXQgdGhpcyB0aGVuIGRpc2Fi
+bGluZyBYRFAgd2hpbGUgcmVjZWl2aW5nIGxvdHMgb2YgdHJhZmZpYy4KPiAKClsuLi5dCgo+Pj4g
+KyAgICAgICAgdmktPnhkcF9xdWV1ZV9wYWlycyA9IHhkcF9xcDsKPj4gQnV0IHhkcF9xdWV1ZV9w
+YWlycyBpcyBiZWluZyB1c2VkIHRvIGRldGVjdCBpZiB3ZSBzaG91bGQgYWxsb2NhdGUgdGhlIFhE
+UAo+PiBoZWFkcm9vbS4gSWYgd2UgbW92ZSBpdCBoZXJlIGRvIHdlIGhhdmUgYSBzZXQgb2YgYnVm
+ZmVycyBpbiB0aGUgcmluZyB3aXRob3V0Cj4+IHRoZSBwcm9wZXIgaGVhZHJvb20gd2hlbiB3ZSBh
+c3NpZ24gdGhlIHhkcCBwcm9ncmFtIGJlbG93Pwo+IAo+IFJpZ2h0LCBzbyBob3cgYWJvdXQgcGFz
+c2luZyB4ZHBfcXVldWVfcGFpcnMgYXMgYSBwYXJhbWV0ZXIgdG8gdmlydG5ldF9yZXNldCgpLgo+
+IFRoZW4gdmlydG5ldF9yZXNldCgpIGNhbiBzZXQgaXQgYWZ0ZXIgX3JlbW92ZV92cV9jb21tb24o
+KSBidXQgYmVmb3JlCj4gdmlydG5ldF9yZXN0b3JlX3VwKCk/Cj4gCj4gVGhhbmtzCj4gCgpTb3Vu
+ZHMgbGlrZSBhIHJlYXNvbmFibGUgZml4IHRvIG1lLgoKPj4KPj4+ICsgICAgfQo+Pj4gKwo+Pj4g
+KyAgICBlcnIgPSBfdmlydG5ldF9zZXRfcXVldWVzKHZpLCBjdXJyX3FwICsgeGRwX3FwKTsKPj4+
+ICsgICAgaWYgKGVycikgewo+Pj4gKyAgICAgICAgZGV2X3dhcm4oJmRldi0+ZGV2LCAiWERQIERl
+dmljZSBxdWV1ZSBhbGxvY2F0aW9uIGZhaWx1cmUuXG4iKTsKPj4+ICsgICAgICAgIGdvdG8gdmly
+dGlvX3F1ZXVlX2VycjsKPj4+ICAgICAgIH0KPj4+ICAgICAgICAgbmV0aWZfc2V0X3JlYWxfbnVt
+X3J4X3F1ZXVlcyhkZXYsIGN1cnJfcXAgKyB4ZHBfcXApOwo+Pj4gQEAgLTE4NDQsMTcgKzE4NDQs
+MTggQEAgc3RhdGljIGludCB2aXJ0bmV0X3hkcF9zZXQoc3RydWN0IG5ldF9kZXZpY2UgKmRldiwK
+Pj4+IHN0cnVjdCBicGZfcHJvZyAqcHJvZykKPj4+ICAgICAgICAgcmV0dXJuIDA7Cj4+IFRoYW5r
+cywKPj4gSm9obgo+Pgo+IAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3Rz
+LmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9t
+YWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
