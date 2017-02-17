@@ -1,18 +1,19 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v4 1/2] x86/paravirt: Change vcp_is_preempted() arg type
-	to long
-Date: Fri, 17 Feb 2017 10:42:39 +0100
-Message-ID: <20170217094239.GA6500@twins.programming.kicks-ass.net>
-References: <1487194670-6319-1-git-send-email-longman@redhat.com>
-	<1487194670-6319-2-git-send-email-longman@redhat.com>
-	<20170216160930.GC6515@twins.programming.kicks-ass.net>
-	<ac84bb22-6211-50e2-5b53-2f95c9142d76@redhat.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
+Subject: Re: [PATCH v2 0/3] x86/vdso: Add Hyper-V TSC page clocksource support
+Date: Fri, 17 Feb 2017 11:14:42 +0100
+Message-ID: <87tw7txgx9.fsf__25163.0959487104$1487326491$gmane$org@vitty.brq.redhat.com>
+References: <20170214124408.25931-1-vkuznets@redhat.com>
+	<alpine.DEB.2.20.1702141552360.3635@nanos>
+	<87a89o22ml.fsf@vitty.brq.redhat.com>
+	<CALCETrUNdemXG7GnehNus-EW2FDuTzB8HKW_3HUjhPt9ZNf45w@mail.gmail.com>
+	<87y3x7zh6h.fsf@vitty.brq.redhat.com>
+	<alpine.DEB.2.20.1702161832020.3543@nanos>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <ac84bb22-6211-50e2-5b53-2f95c9142d76@redhat.com>
+In-Reply-To: <alpine.DEB.2.20.1702161832020.3543@nanos> (Thomas Gleixner's
+	message of "Thu, 16 Feb 2017 18:50:58 +0100 (CET)")
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,31 +23,100 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Waiman Long <longman@redhat.com>
-Cc: linux-arch@vger.kernel.org, Juergen Gross <jgross@suse.com>, Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, kvm@vger.kernel.org, Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, X86 ML <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, devel@linuxdriverproject.org, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 16, 2017 at 04:02:57PM -0500, Waiman Long wrote:
-> On 02/16/2017 11:09 AM, Peter Zijlstra wrote:
-> > On Wed, Feb 15, 2017 at 04:37:49PM -0500, Waiman Long wrote:
-> >> The cpu argument in the function prototype of vcpu_is_preempted()
-> >> is changed from int to long. That makes it easier to provide a better
-> >> optimized assembly version of that function.
-> >>
-> >> For Xen, vcpu_is_preempted(long) calls xen_vcpu_stolen(int), the
-> >> downcast from long to int is not a problem as vCPU number won't exceed
-> >> 32 bits.
-> >>
-> > Note that because of the cast in PVOP_CALL_ARG1() this patch is
-> > pointless.
-> >
-> > Then again, it doesn't seem to affect code generation, so why not. Takes
-> > away the reliance on that weird cast.
-> 
-> I add this patch because I am a bit uneasy about clearing the upper 32
-> bits of rdi and assuming that the compiler won't have a previous use of
-> those bits. It gives me peace of mind.
+Thomas Gleixner <tglx@linutronix.de> writes:
 
-So currently the PVOP_CALL_ARG#() macros force cast everything to
-(unsigned long) anyway, but it would be good not to rely on that I
-think, so yes.
+> On Wed, 15 Feb 2017, Vitaly Kuznetsov wrote:
+>> Actually, we already have an implementation of TSC page update in KVM
+>> (see arch/x86/kvm/hyperv.c, kvm_hv_setup_tsc_page()) and the update does
+>> the following:
+>> 
+>> 0) stash seq into seq_prev
+>> 1) seq = 0 making all reads from the page invalid
+>> 2) smp_wmb()
+>> 3) update tsc_scale, tsc_offset
+>> 4) smp_wmb()
+>> 5) set seq = seq_prev + 1
+>
+> I hope they handle the case where seq_prev overflows and becomes 0 :)
+>
+>> As far as I understand this helps with situations you described above as
+>> guest will notice either invalid value of 0 or seq change. In case the
+>> implementation in real Hyper-V is the same we're safe with compile
+>> barriers only.
+>
+> On x86 that's correct. smp_rmb() resolves to barrier(), but you certainly
+> need the smp_wmb() on the writer side.
+>
+> Now looking at the above your reader side code is bogus:
+>
+> +       while (1) {
+> +               sequence = tsc_pg->tsc_sequence;
+> +               if (!sequence)
+> +                       break;
+>
+> Why would you break out of the loop when seq is 0? The 0 is just telling
+> you that there is an update in progress.
+
+Not only. As far as I understand (and I *think* K. Y. pointed this out)
+when VM is migrating to another host TSC page clocksource is disabled for
+extended period of time so we're better off reading from MSR than
+looping here. With regards to VDSO this means reverting to doing normal
+syscall.
+
+>
+> The Linux seqcount writer side is:
+>
+>     seq++;
+>     smp_wmb();
+>
+>     update...
+>
+>     smp_wmb();
+>     seq++;
+>
+> and it's defined that an odd sequence count, i.e. bit 0 set means update in
+> progress. Which is nice, because you don't have to treat 0 special on the
+> writer side and you don't need extra storage to stash seq away :)
+>
+> So the reader side does:
+>
+>     do {
+>     	  while (1) {
+>     	     s = READ_ONCE(seq);
+> 	     if (!(s & 0x01))
+> 	        break;
+>      	     cpu_relax();
+>          }
+> 	 smp_rmb();
+>
+> 	 read data ...
+>
+> 	 smp_rmb();
+>    } while (s != seq)
+>
+> So for that hyperv thing you want:
+>
+>     do {
+>     	  while (1) {
+>     	     s = READ_ONCE(seq);
+> 	     if (s)
+> 	        break;
+>      	     cpu_relax();
+>          }
+> 	 smp_rmb();
+>
+> 	 read data ...
+>
+> 	 smp_rmb();
+>    } while (s != seq)
+>
+> Thanks,
+>
+> 	tglx
+
+-- 
+  Vitaly
