@@ -1,14 +1,11 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH 00/35] treewide trivial patches converting pr_warning to
-	pr_warn
-Date: Fri, 17 Feb 2017 13:27:00 +0100
-Message-ID: <CAJZ5v0gNcGtnXpE1n6LSq7ey+UDKx+oQfmTg0_PgFwzB0Dd_5A__38551.1045264595$1487967484$gmane$org@mail.gmail.com>
-References: <cover.1487314666.git.joe@perches.com>
+From: Jan Dakinevich <jan.dakinevich@gmail.com>
+Subject: [PATCH] tty: hvc: don't allocate a buffer for console print on stack
+Date: Fri, 17 Feb 2017 23:42:45 +0300
+Message-ID: <1487364165-21882-1-git-send-email-jan.dakinevich__36886.0624534593$1487967492$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1487314666.git.joe@perches.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,26 +15,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Joe Perches <joe@perches.com>
-Cc: "open list:FRAMEBUFFER LAYER" <linux-fbdev@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, nouveau@lists.freedesktop.org, "moderated list:SOUND - SOC LAYER / DYNAMIC AUDIO POWER MANAGEM..." <alsa-devel@alsa-project.org>, dri-devel <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, linux-ide@vger.kernel.org, linux-mtd@lists.infradead.org, sparclinux@vger.kernel.org, drbd-dev@lists.linbit.com, "open list:TARGET SUBSYSTEM" <linux-scsi@vger.kernel.org>, Richard Weinberger <richard@nod.at>, sfi-devel@simplefirmware.org, amd-gfx@lists.freedesktop.org, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, tboot-devel@lists.sourceforge.net, oprofile-list@lists.sf.net, linux-input@vger.kernel.org, xen-devel@lists.xenproject.or
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, Jan Dakinevich <jan.dakinevich@gmail.com>, Peter Hurley <peter@hurleysoftware.com>, Dan Carpenter <dan.carpenter@oracle.com>, Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Feb 17, 2017 at 8:11 AM, Joe Perches <joe@perches.com> wrote:
-> There are ~4300 uses of pr_warn and ~250 uses of the older
-> pr_warning in the kernel source tree.
->
-> Make the use of pr_warn consistent across all kernel files.
->
-> This excludes all files in tools/ as there is a separate
-> define pr_warning for that directory tree and pr_warn is
-> not used in tools/.
->
-> Done with 'sed s/\bpr_warning\b/pr_warn/' and some emacsing.
+The buffer is used by virtio console driver as DMA buffer. Since v4.9
+(if VMAP_STACK is enabled) we shouldn't use the stack for DMA.
 
-Sorry about asking if that has been asked already.
+Signed-off-by: Jan Dakinevich <jan.dakinevich@gmail.com>
+---
+ drivers/tty/hvc/hvc_console.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-Wouldn't it be slightly less intrusive to simply redefined
-pr_warning() as a synonym for pr_warn()?
-
-Thanks,
-Rafael
+diff --git a/drivers/tty/hvc/hvc_console.c b/drivers/tty/hvc/hvc_console.c
+index 9b5c0fb..1ce6aaf 100644
+--- a/drivers/tty/hvc/hvc_console.c
++++ b/drivers/tty/hvc/hvc_console.c
+@@ -143,10 +143,15 @@ static struct hvc_struct *hvc_get_by_index(int index)
+ static void hvc_console_print(struct console *co, const char *b,
+ 			      unsigned count)
+ {
+-	char c[N_OUTBUF] __ALIGNED__;
+ 	unsigned i = 0, n = 0;
+ 	int r, donecr = 0, index = co->index;
+ 
++	/*
++	 * Access to the buffer is serialized by console_sem in caller code from
++	 * kernel/printk/printk.c
++	 */
++	static char c[N_OUTBUF] __ALIGNED__;
++
+ 	/* Console access attempt outside of acceptable console range. */
+ 	if (index >= MAX_NR_HVC_CONSOLES)
+ 		return;
+-- 
+1.9.1
