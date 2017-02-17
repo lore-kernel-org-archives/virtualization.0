@@ -1,15 +1,19 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 00/35] treewide trivial patches converting pr_warning to
-	pr_warn
-Date: Fri, 17 Feb 2017 13:37:33 +0100
-Message-ID: <CAMuHMdWsG0DboaLqXag53Vejwvc5PPY2k2gy9PSdHWbNEx6nRQ@mail.gmail.com>
-References: <cover.1487314666.git.joe@perches.com>
-	<CAJZ5v0gNcGtnXpE1n6LSq7ey+UDKx+oQfmTg0_PgFwzB0Dd_5A@mail.gmail.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [PATCH v2 0/3] x86/vdso: Add Hyper-V TSC page clocksource support
+Date: Fri, 17 Feb 2017 09:02:16 -0800
+Message-ID: <CALCETrXB8CufQujLAg6bbq=DGAMUE293CF7L4Kp+mCSoNWyuBg__5595.05727510459$1487350994$gmane$org@mail.gmail.com>
+References: <20170214124408.25931-1-vkuznets@redhat.com>
+	<alpine.DEB.2.20.1702141552360.3635@nanos>
+	<87a89o22ml.fsf@vitty.brq.redhat.com>
+	<CALCETrUNdemXG7GnehNus-EW2FDuTzB8HKW_3HUjhPt9ZNf45w@mail.gmail.com>
+	<87y3x7zh6h.fsf@vitty.brq.redhat.com>
+	<alpine.DEB.2.20.1702161832020.3543@nanos>
+	<87tw7txgx9.fsf@vitty.brq.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJZ5v0gNcGtnXpE1n6LSq7ey+UDKx+oQfmTg0_PgFwzB0Dd_5A@mail.gmail.com>
+In-Reply-To: <87tw7txgx9.fsf@vitty.brq.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,42 +23,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: "open list:FRAMEBUFFER LAYER" <linux-fbdev@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, nouveau@lists.freedesktop.org, "moderated list:SOUND - SOC LAYER / DYNAMIC AUDIO POWER MANAGEM..." <alsa-devel@alsa-project.org>, dri-devel <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>, MTD Maling List <linux-mtd@lists.infradead.org>, sparclinux <sparclinux@vger.kernel.org>, Lars Ellenberg <drbd-dev@lists.linbit.com>, "open list:TARGET SUBSYSTEM" <linux-scsi@vger.kernel.org>, Richard Weinberger <richard@nod.at>, sfi-devel@simplefirmware.org, amd-gfx@lists.freedesktop.org, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, tboot-devel@lists.sourceforge.net, oprofil
+To: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, X86 ML <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, devel@linuxdriverproject.org, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Rafael,
-
-On Fri, Feb 17, 2017 at 1:27 PM, Rafael J. Wysocki <rafael@kernel.org> wrote:
-> On Fri, Feb 17, 2017 at 8:11 AM, Joe Perches <joe@perches.com> wrote:
->> There are ~4300 uses of pr_warn and ~250 uses of the older
->> pr_warning in the kernel source tree.
->>
->> Make the use of pr_warn consistent across all kernel files.
->>
->> This excludes all files in tools/ as there is a separate
->> define pr_warning for that directory tree and pr_warn is
->> not used in tools/.
->>
->> Done with 'sed s/\bpr_warning\b/pr_warn/' and some emacsing.
+On Fri, Feb 17, 2017 at 2:14 AM, Vitaly Kuznetsov <vkuznets@redhat.com> wrote:
+> Thomas Gleixner <tglx@linutronix.de> writes:
 >
-> Sorry about asking if that has been asked already.
+>> On Wed, 15 Feb 2017, Vitaly Kuznetsov wrote:
+>>> Actually, we already have an implementation of TSC page update in KVM
+>>> (see arch/x86/kvm/hyperv.c, kvm_hv_setup_tsc_page()) and the update does
+>>> the following:
+>>>
+>>> 0) stash seq into seq_prev
+>>> 1) seq = 0 making all reads from the page invalid
+>>> 2) smp_wmb()
+>>> 3) update tsc_scale, tsc_offset
+>>> 4) smp_wmb()
+>>> 5) set seq = seq_prev + 1
+>>
+>> I hope they handle the case where seq_prev overflows and becomes 0 :)
+>>
+>>> As far as I understand this helps with situations you described above as
+>>> guest will notice either invalid value of 0 or seq change. In case the
+>>> implementation in real Hyper-V is the same we're safe with compile
+>>> barriers only.
+>>
+>> On x86 that's correct. smp_rmb() resolves to barrier(), but you certainly
+>> need the smp_wmb() on the writer side.
+>>
+>> Now looking at the above your reader side code is bogus:
+>>
+>> +       while (1) {
+>> +               sequence = tsc_pg->tsc_sequence;
+>> +               if (!sequence)
+>> +                       break;
+>>
+>> Why would you break out of the loop when seq is 0? The 0 is just telling
+>> you that there is an update in progress.
 >
-> Wouldn't it be slightly less intrusive to simply redefined
-> pr_warning() as a synonym for pr_warn()?
+> Not only. As far as I understand (and I *think* K. Y. pointed this out)
+> when VM is migrating to another host TSC page clocksource is disabled for
+> extended period of time so we're better off reading from MSR than
+> looping here. With regards to VDSO this means reverting to doing normal
+> syscall.
 
-That's already the case.
+That's a crappy design.  The guest really ought to be able to
+distinguish "busy, try again" from "bail and use MSR".
 
-This series cleans up the cruft, so we can catch all users with
-"git grep -w pr_warn".
+Thomas, I can see valid reasons why the hypervisor might want to
+temporarily disable shared page-based timing, but I think it's silly
+that it's conflated with indicating "retry".
 
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+But if this is indeed the ABI, we're stuck with it.
