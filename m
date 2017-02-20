@@ -1,11 +1,13 @@
-From: Viktor Mihajlovski <mihajlov@linux.vnet.ibm.com>
-Subject: udev virtio by-path naming
-Date: Mon, 20 Feb 2017 15:34:49 +0100
-Message-ID: <de55b0f4-4582-cf06-4b0d-12c2282406a8__11037.4276097447$1487601301$gmane$org@linux.vnet.ibm.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: udev virtio by-path naming
+Date: Mon, 20 Feb 2017 17:00:41 +0100
+Message-ID: <20170220170041.68c9bf4f.cornelia.huck@de.ibm.com>
+References: <de55b0f4-4582-cf06-4b0d-12c2282406a8@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <de55b0f4-4582-cf06-4b0d-12c2282406a8@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,42 +17,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, systemd-devel@lists.freedesktop.org
+To: Viktor Mihajlovski <mihajlov@linux.vnet.ibm.com>
+Cc: systemd-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGksCgp3aXRoIHN5c3RlbWQgPiB2MjI5IGFsbCB2aXJ0aW8gYmxvY2sgZGV2aWNlcyB3aWxsIHJl
-Y2VpdmUgcGVyc2lzdGVudApkZXZpY2UgbmFtZXMgaW4gdGhlIGZvcm1hdCAvZGV2L2Rpc2stYnkv
-dmlydGlvLXBjaS08YnVzaWQ+LCB0aGUKbGFzdCBjb21wb25lbnQgYmVpbmcgdGhlIHVkZXYgYnVp
-bHQtaW4gcGF0aF9pZC4KClRoaXMgbmFtaW5nIGludHJvZHVjZXMgc29tZSBpc3N1ZXMuCgpGaXJz
-dCBhbmQgb2J2aW91cywgdGhlcmUgYXJlIHZpcnRpbyBpbXBsZW1lbnRhdGlvbnMgbm90IGJhc2Vk
-Cm9uIFBDSSwgbGlrZSB2aXJ0aW8tY2N3IChjdXJyZW50bHkgb25seSBvbiBzMzkwKSBhbmQgdmly
-dGlvLW1taW8KKGZvciB3aGljaCBJIGNhbid0IHNwZWFrKS4gVGhpcyByZXN1bHRzIGluIHBlcnNp
-c3RlbnQgbmFtZXMgbGlrZQovZGV2L2Rpc2stYnkvdmlydGlvLXBjaS0wLjAuMDAwMSwgd2hlcmUg
-dGhlIGJ1cyBpZCBpcyBhIENDVyBpZC4KT25lIHNlZW1pbmdseSBvYnZpb3VzIHJlbWVkeSB3b3Vs
-ZCBiZSB0byBtYWtlIHRoZSBwYXRoX2lkIHJldHVybgp2aXJ0aW8tY2N3LTxidXNpZD4gb3IgbW9y
-ZSBnZW5lcmFsbHkgdmlydGlvLTxzdWJzeXN0ZW0+LTxidXNpZD4sCmJvdGggZWFzaWx5IGRvbmUg
-d2l0aCBzbWFsbCBwYXRjaGVzIHRvIHN5c3RlbWQtdWRldi4KCkJ1dCB0aGVuLCBJIGZpbmQgdGhp
-cyBuYW1pbmcgc2NoZW1lIHNvbWV3aGF0IHdlaXJkLgpBIHZpcnRpbyBkaXNrIHNob3dzIHVwIGFz
-IGEgcmVndWxhciBQQ0kgZnVuY3Rpb24gb24gdGhlIFBDSQpidXMgc2lkZSBieSBzaWRlIHdpdGgg
-b3RoZXIgKG5vbi12aXJ0aW8pIGRldmljZXMuIFRoZSBuYW1pbmcgb3RvaApzdWdnZXN0cyB0aGF0
-IHZpcnRpby1wY2kgaXMgYSBzdWJzeXN0ZW0gb2YgaXRzIG93biwgd2hpY2ggaXMgc2ltcGx5Cmlu
-Y29ycmVjdCBmcm9tIGEgYnktcGF0aCBwZXJzcGVjdGl2ZS4KClVzaW5nIGp1c3QgdGhlIHBsYWlu
-IFBDSSBwYXRoIGlkIGlzIGFjdHVhbGx5IHN1ZmZpY2llbnQgdG8gaWRlbnRpZnkKYSB2aXJ0aW8g
-ZGlzayBieSBpdHMgcGF0aC4gVGhpcyB3b3VsZCBiZSBpbiBsaW5lIHdpdGggdmlydGlvCm5ldHdv
-cmsgaW50ZXJmYWNlIHBhdGggbmFtZXMgd2hpY2ggdXNlIHRoZSBwbGFpbiBQQ0kgbmFtaW5nLgoK
-T25lIGNvdWxkIGFyZ3VlIGFib3V0IGJhY2stbGV2ZWwgY29tcGF0aWJpbGl0eSwgYnV0IHZpcnRp
-byBieS1wYXRoCm5hbWluZyBoYXMgY2hhbmdlZCBtdWx0aXBsZSB0aW1lcy4gV2UgaGF2ZSBzZWVu
-IHZpcnRpby1wY2ktdmlydGlvPG4+Cihub3QgcHJlZGljdGFibGUpLCBwY2ktPGJ1c2lkPiBhbmQg
-dmlydGlvLXBjaS08YnVzaWQ+IGFscmVhZHkuIEl0Cm1pZ2h0IGJlIGEgZ29vZCB0aW1lIG5vdyB0
-byBzZXR0bGUgb24gYSBjb21tb24gYXBwcm9hY2ggZm9yIGFsbAp2aXJ0aW8gdHlwZXMuCgpGb3Ig
-dGhlIHJlYXNvbnMgYWJvdmUsIEknZCB2b3RlIGZvciA8c3Vic3lzdGVtPi08YnVzaWQ+LCB3aGlj
-aAp3b3VsZCB3b3JrIGZvciBQQ0kgYW5kIENDVywgbm90IHN1cmUgYWJvdXQgQVJNIE1NSU8gdGhv
-dWdoLgpPcGluaW9ucz8KCi0tIAoKTWl0IGZyZXVuZGxpY2hlbiBHcsO8w59lbi9LaW5kIFJlZ2Fy
-ZHMKICAgVmlrdG9yIE1paGFqbG92c2tpCgpJQk0gRGV1dHNjaGxhbmQgUmVzZWFyY2ggJiBEZXZl
-bG9wbWVudCBHbWJIClZvcnNpdHplbmRlciBkZXMgQXVmc2ljaHRzcmF0czogTWFydGluYSBLw7Zk
-ZXJpdHoKR2VzY2jDpGZ0c2bDvGhydW5nOiBEaXJrIFdpdHRrb3BwClNpdHogZGVyIEdlc2VsbHNj
-aGFmdDogQsO2YmxpbmdlbgpSZWdpc3RlcmdlcmljaHQ6IEFtdHNnZXJpY2h0IFN0dXR0Z2FydCwg
-SFJCIDI0MzI5NAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
-LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Mon, 20 Feb 2017 15:34:49 +0100
+Viktor Mihajlovski <mihajlov@linux.vnet.ibm.com> wrote:
+
+> Hi,
+> 
+> with systemd > v229 all virtio block devices will receive persistent
+> device names in the format /dev/disk-by/virtio-pci-<busid>, the
+> last component being the udev built-in path_id.
+> 
+> This naming introduces some issues.
+> 
+> First and obvious, there are virtio implementations not based
+> on PCI, like virtio-ccw (currently only on s390) and virtio-mmio
+> (for which I can't speak). This results in persistent names like
+> /dev/disk-by/virtio-pci-0.0.0001, where the bus id is a CCW id.
+> One seemingly obvious remedy would be to make the path_id return
+> virtio-ccw-<busid> or more generally virtio-<subsystem>-<busid>,
+> both easily done with small patches to systemd-udev.
+> 
+> But then, I find this naming scheme somewhat weird.
+> A virtio disk shows up as a regular PCI function on the PCI
+> bus side by side with other (non-virtio) devices. The naming otoh
+> suggests that virtio-pci is a subsystem of its own, which is simply
+> incorrect from a by-path perspective.
+
+From the ccw perspective, this is quite similar: The virtio proxy
+device shows up on the ccw bus, just like e.g. a dasd device shows up
+on the ccw bus.
+
+> 
+> Using just the plain PCI path id is actually sufficient to identify
+> a virtio disk by its path. This would be in line with virtio
+> network interface path names which use the plain PCI naming.
+
+Same for ccw: The id on the ccw bus (devno) is already unique and
+persistent.
+
+> 
+> One could argue about back-level compatibility, but virtio by-path
+> naming has changed multiple times. We have seen virtio-pci-virtio<n>
+> (not predictable), pci-<busid> and virtio-pci-<busid> already. It
+> might be a good time now to settle on a common approach for all
+> virtio types.
+> 
+> For the reasons above, I'd vote for <subsystem>-<busid>, which
+> would work for PCI and CCW, not sure about ARM MMIO though.
+> Opinions?
+
+I'm not sure whether there is any reason to make virtio special,
+although this depends upon what virtio-mmio looks like in the Linux
+device model (any arm folks here?)
+
+In the end, I'd be happy with any naming scheme that does not include
+'pci' for non-pci devices.
