@@ -1,16 +1,18 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] packed ring layout proposal - todo list
-Date: Wed, 22 Feb 2017 17:13:19 +0200
-Message-ID: <20170222170056-mutt-send-email-mst__49973.6959733584$1487776407$gmane$org@kernel.org>
+Subject: Re: [virtio-dev] packed ring layout proposal v2
+Date: Wed, 22 Feb 2017 18:43:05 +0200
+Message-ID: <20170222181333-mutt-send-email-mst__39833.4456993782$1487781794$gmane$org@kernel.org>
 References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
-	<20170222054336-mutt-send-email-mst@kernel.org>
-	<738D45BC1F695740A983F43CFE1B7EA94E93CA7E@IRSMSX108.ger.corp.intel.com>
+	<240c623b-2d8f-28d9-d349-d01e2c24b93a@redhat.com>
+	<20170208214435-mutt-send-email-mst@kernel.org>
+	<cc075b18-0913-ef89-96a8-a29869abd73e@redhat.com>
+	<20170209171105.075a9d9c.cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <738D45BC1F695740A983F43CFE1B7EA94E93CA7E@IRSMSX108.ger.corp.intel.com>
+In-Reply-To: <20170209171105.075a9d9c.cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,124 +22,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Gray, Mark D" <mark.d.gray@intel.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 22, 2017 at 09:19:41AM +0000, Gray, Mark D wrote:
-> > From: virtio-dev@lists.oasis-open.org [mailto:virtio-dev@lists.oasis-
-> > open.org] On Behalf Of Michael S. Tsirkin
+On Thu, Feb 09, 2017 at 05:11:05PM +0100, Cornelia Huck wrote:
+> > >>> * Non power-of-2 ring sizes
+> > >>>
+> > >>> As the ring simply wraps around, there's no reason to
+> > >>> require ring size to be power of two.
+> > >>> It can be made a separate feature though.
+> > >>
+> > >> Power of 2 ring sizes are required in order to ignore the high bits of
+> > >> the indices.  With non-power-of-2 sizes you are forced to keep the
+> > >> indices less than the ring size.
+> > > 
+> > > Right. So
+> > > 
+> > > 	if (unlikely(idx++ > size))
+> > > 		idx = 0;
+> > > 
+> > > OTOH ring size that's twice larger than necessary
+> > > because of power of two requirements wastes cache.
 > > 
-> > Here is an attempt to summarise the list of things we need to do with respect
-> > to this proposal.
+> > I don't know.  Power of 2 ring size is pretty standard, I'd rather avoid
+> > the complication and the gratuitous difference with 1.0.
 > 
-> Thanks for outlining this, it makes it a lot clearer.
-> 
-> > 
-> > 
-> > Stage 1: update prototype and finalize proposal
-> > 
-> > At this stage we need to update the prototype under
-> > tools/virtio/ringtest/ring.c to make it match latest proposal, adding in verious
-> 
-> Would a DPDK based prototype be good aswell or would you rather 
-> everything be prototyped here?
+> I agree. I don't think dropping the power of 2 requirement buys us so
+> much that it makes up for the added complexity.
 
-DPDK is good.
+I recalled why I came up with this. The issue is cache associativity.
+Recall that besides the ring we have event suppression
+structures - if we are lucky and things run at the same speed
+everything can work by polling keeping events disabled, then
+event suppression structures are never written to, they are read-only.
 
-You would then
-- code up current proposal
-- code up an alternative you are suggesting
-- compare
+However if ring and event suppression share a cache line ring accesses
+have a chance to push the event suppression out of cache, causing
+misses on read.
 
-tools/virtio/ringtest/ is only there to make prototyping
-easier. I like keeping it alive for this purpose but it
-is not a must.
+This can happen if they are at the same offset in the set.
+E.g. with L1 cache 4Kbyte sets are common, so same offset
+within a 4K page.
+
+We can fix this by making event suppression adjacent in memory, e.g.:
 
 
+[interrupt suppress]
+[descriptor ring]
+[kick suppress]
 
-> > options under discussion.
-> > Then we will measure performance. While more ideas are welcome there
-> > won't be useful without ability to test!
-> > 
-> > Tasks:
-> > 
-> > - update tools/virtio/ringtest/ring.c to proposal, adding
-> >   options as listed below.
-> > - compare performance with and without indirect buffers
-> >   issue: how to estimate cost of memory allocations?
-> > - batching descriptors - is it worth it?
-> > - three ways to suppress interrupts/exits
-> >   which works better?
-> >   issue: how to estimate cost of interrupts/exits?
-> > 
-> > 
-> 
-> We need to ensure we have a proposal that is suitable for
-> implementation in hardware.
+If this whole structure fits in a single set, ring accesses will
+not push kick or interrupt suppress out of cache.
+Specific layout can be left for drivers, but as set size is
+a power of two this might require a non-power of two ring size.
 
-Right. Obviously the system has to work well as a whole though, e.g. if
-you save express bandwidth speeding up hardware but pay cache misses
-slowing down software it's not clear you have won anything at all.
+I conclude that this is an optimization that needs to be
+benchmarked.
+
+I also note that the generic description does not have to force
+powers of two *even if devices actually require it*.
+I would be inclined to word the text in a way that makes
+relaxing the restriction easier.
+
+For example, we can say "free running 16 bit index" and this forces a
+power of two, but we can also say "free running index wrapping to 0
+after (N*queue-size - 1) with N chosen such that the value fits in 16
+bit" and this is exactly the same if queue size is a power of 2.
+
+So we can add text saying "ring size MUST be a power of two"
+and later it will be easy to relax just by adding a feature bit.
 
 
-> > More ideas:
-> > 
-> > - current tests all indicate cache synchronizations due to r/w descriptors
-> >   cost as much as read-only/write-only descriptors,
-> >   and there are less of these synchronizations.
-> >   Disagree? Write a patch and benchmark.
-> > - some devices could use smaller descriptors. For example,
-> >   if you don't need length, id (e.g. using in-order, fixed length) or flags, you
-> > can
-> >   use a single 64 bit pointer as a descriptor. This can sometimes work
-> >   e.g. for networking rx rings.
-> >   Not clear whether this gains/costs us anything. Disagree? Write a patch and
-> > benchmark.
-> > 
-> > Stage 2: prototype guest/host drivers
-> > 
-> > At this stage we need real guest and host drivers to be able to test real life
-> > performance.
-> > I suggest dpdk drivers + munimal hack in qemu to pass features around.
-> > 
-> > Tasks:
-> > 
-> > - implement vhost-user support in dpdk
-> > - implement virtio support in dpdk
-> > - implement minimal stub in qemu
-> > - test performance. Possibly revisit questions from stage 2
-> >   if any are left open
-> > 
-> > 
-> > Stage 3: complete guest/host drivers
-> > 
-> > At this stage we need to add linux support in virtio and vhost, and complete
-> > qemu support.
-> > 
-> > Tasks:
-> > 
-> > - implement vhost support in kernel
-> > - implement virtio support in kernel
-> > - complete virtio support in qemu
-> > - test performance. Possibly revisit questions from stage 2
-> >   if any are left open
-> > 
-> > 
-> > 
-> > Stage X: Finalizing the spec
-> > 
-> > When are we ready to put out a spec draft? Surely not before Stage 1 is
-> > done. Surely no later than stage 3.  A driver could be wish for some party to
-> > productize an implementation.
-> > 
-> > Interested? Join TC and start discussion on timing and which features should
-> > be included.
-> > 
-> > 
-> > --
-> > MST
-> > 
-> > ---------------------------------------------------------------------
-> > To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
-> > For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
+
+-- 
+MST
