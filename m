@@ -1,14 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: packed ring layout proposal - todo list
-Date: Wed, 22 Feb 2017 06:27:11 +0200
-Message-ID: <20170222054336-mutt-send-email-mst__10563.732047058$1487737659$gmane$org@kernel.org>
-References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next] virtio-net: switch to use build_skb() for small
+	buffer
+Date: Wed, 22 Feb 2017 18:36:05 +0800
+Message-ID: <d30578ba-5796-fe61-6db3-189a652b390c@redhat.com>
+References: <1487666788-9658-1-git-send-email-jasowang@redhat.com>
+	<20170221162849-mutt-send-email-mst@kernel.org>
+	<35244d06-2d0d-3f2e-0cd1-43137988c869@redhat.com>
+	<20170222050601-mutt-send-email-mst@kernel.org>
+	<49577dad-3f6f-e6b3-4f93-2b919b066068@redhat.com>
+	<20170222053753-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
+In-Reply-To: <20170222053753-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,86 +23,112 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org
-Cc: virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Here is an attempt to summarise the list of things
-we need to do with respect to this proposal.
-
-
-Stage 1: update prototype and finalize proposal
-
-At this stage we need to update the prototype under
-tools/virtio/ringtest/ring.c to make it match
-latest proposal, adding in verious options under discussion.
-Then we will measure performance. While more ideas are welcome
-there won't be useful without ability to test!
-
-Tasks:
-
-- update tools/virtio/ringtest/ring.c to proposal, adding
-  options as listed below.
-- compare performance with and without indirect buffers
-  issue: how to estimate cost of memory allocations?
-- batching descriptors - is it worth it?
-- three ways to suppress interrupts/exits
-  which works better?
-  issue: how to estimate cost of interrupts/exits?
-
-
-More ideas:
-
-- current tests all indicate cache synchronizations due to r/w descriptors
-  cost as much as read-only/write-only descriptors,
-  and there are less of these synchronizations.
-  Disagree? Write a patch and benchmark.
-- some devices could use smaller descriptors. For example,
-  if you don't need length, id (e.g. using in-order, fixed length) or flags, you can
-  use a single 64 bit pointer as a descriptor. This can sometimes work
-  e.g. for networking rx rings.
-  Not clear whether this gains/costs us anything. Disagree? Write a patch and benchmark.
-
-Stage 2: prototype guest/host drivers
-
-At this stage we need real guest and host drivers
-to be able to test real life performance.
-I suggest dpdk drivers + munimal hack in qemu to
-pass features around.
-
-Tasks:
-
-- implement vhost-user support in dpdk
-- implement virtio support in dpdk
-- implement minimal stub in qemu
-- test performance. Possibly revisit questions from stage 2
-  if any are left open
-
-
-Stage 3: complete guest/host drivers
-
-At this stage we need to add linux support in virtio and vhost,
-and complete qemu support.
-
-Tasks:
-
-- implement vhost support in kernel
-- implement virtio support in kernel
-- complete virtio support in qemu
-- test performance. Possibly revisit questions from stage 2
-  if any are left open
-
-
-
-Stage X: Finalizing the spec
-
-When are we ready to put out a spec draft? Surely not before Stage 1 is
-done. Surely no later than stage 3.  A driver could be wish for some
-party to productize an implementation.
-
-Interested? Join TC and start discussion on timing and which
-features should be included.
-
-
--- 
-MST
+CgpPbiAyMDE35bm0MDLmnIgyMuaXpSAxMTo0MiwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIFdlZCwgRmViIDIyLCAyMDE3IGF0IDExOjE3OjUwQU0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4+Cj4+IE9uIDIwMTflubQwMuaciDIy5pelIDExOjA2LCBNaWNoYWVsIFMuIFRzaXJraW4g
+d3JvdGU6Cj4+PiBPbiBXZWQsIEZlYiAyMiwgMjAxNyBhdCAxMDo1ODowOEFNICswODAwLCBKYXNv
+biBXYW5nIHdyb3RlOgo+Pj4+IE9uIDIwMTflubQwMuaciDIx5pelIDIyOjM3LCBNaWNoYWVsIFMu
+IFRzaXJraW4gd3JvdGU6Cj4+Pj4+IE9uIFR1ZSwgRmViIDIxLCAyMDE3IGF0IDA0OjQ2OjI4UE0g
+KzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+Pj4+PiBUaGlzIHBhdGNoIHN3aXRjaCB0byB1c2Ug
+YnVpbGRfc2tiKCkgZm9yIHNtYWxsIGJ1ZmZlciB3aGljaCBjYW4gaGF2ZQo+Pj4+Pj4gYmV0dGVy
+IHBlcmZvcm1hbmNlIGZvciBib3RoIFRDUCBhbmQgWERQIChzaW5jZSB3ZSBjYW4gd29yayBhdCBw
+YWdlCj4+Pj4+PiBiZWZvcmUgc2tiIGNyZWF0aW9uKS4gSXQgYWxzbyByZW1vdmUgbG90cyBvZiBY
+RFAgY29kZXMgc2luY2UgYm90aAo+Pj4+Pj4gbWVyZ2VhYmxlIGFuZCBzbWFsbCBidWZmZXIgdXNl
+IHBhZ2UgZnJhZyBkdXJpbmcgcmVmaWxsIG5vdy4KPj4+Pj4+Cj4+Pj4+PiAgICAgICAgICAgICAg
+ICAgICAgICAgICAgIEJlZm9yZSAgIHwgQWZ0ZXIKPj4+Pj4+IFhEUF9EUk9QKHhkcDEpIDY0QiAg
+OiAgMTEuMU1wcHMgfCAxNC40TXBwcwo+Pj4+Pj4KPj4+Pj4+IFRlc3RlZCB3aXRoIHhkcDEveGRw
+Mi94ZHBfaXBfdHhfdHVubmVsIGFuZCBuZXRwZXJmLgo+Pj4+Pj4KPj4+Pj4+IFNpZ25lZC1vZmYt
+Ynk6IEphc29uIFdhbmc8amFzb3dhbmdAcmVkaGF0LmNvbT4KPj4+Pj4gVGhhbmtzIQo+Pj4+PiBJ
+IGhhZCBhIHNpbWlsYXIgcGF0Y2ggZm9yIG1lcmdlYWJsZSB0b28sIHRob3VnaCBpdCdzIHRyaWNr
+aWVyIHRoZXJlCj4+Pj4+IGFzIGhvc3QgaGFzIGEgbG90IG9mIGZsZXhpYmlsaXR5IGluIHNpemlu
+ZyBidWZmZXJzLgo+Pj4+PiBMb29rcyBsaWtlIGEgZ29vZCBpbnRlcm1lZGlhdGUgc3RlcCB0byBt
+ZS4KPj4+PiBZZXMsIEkgdGhpbmsgaXQncyBtb3JlIHRyaWNreSBmb3IgdGhlIGNhc2Ugb2YgbWVy
+Z2VhYmxlIGJ1ZmZlcjoKPj4+Pgo+Pj4+IDEpIHdlIG5lZWQgcmVzZXJ2ZSBORVRfU0tCX1BBRCAr
+IE5FVF9JUF9BTElHTiBmb3IgZWFjaCBidWZmZXIsIHRoaXMgd2lsbAo+Pj4+IGJyZWFrIHJ4IGZy
+YWcgY29hbGVzY2luZwo+Pj4+IDIpIG5lZWQgdGFpbHJvb20gZm9yIHNrYl9zaGluZm8sIHNvIGl0
+IHdvbid0IHdvcmsgZm9yIGFsbCBzaXplIG9mIHBhY2tldAo+Pj4+Cj4+Pj4gVGhhbmtzCj4+PiBI
+YXZlIHlvdSBzZWVuIG15IHByb3RvdHlwZT8KPj4gTm90IHlldCwgcGxlYXNlIGdpdmUgbWUgYSBw
+b2ludGVyLgo+Pgo+Pj4gICAgSXQgd29ya3Mgd2l0aCBxZW11IGluIHByYWN0aWNlLAo+Pj4ganVz
+dCBuZWVkcyB0byBjb3ZlciBhIGJ1bmNoIG9mIGNvcm5lciBjYXNlcy4KPj4gU291bmRzIGdvb2Qs
+IGlmIHlvdSB3aXNoIEkgY2FuIGhlbHAgdG8gZmluYWxpemUgaXQuCj4+Cj4+IFRoYW5rcwo+Pgo+
+Pj4+PiBBY2tlZC1ieTogTWljaGFlbCBTLiBUc2lya2luPG1zdEByZWRoYXQuY29tPgo+Pj4+Pgo+
+Cj4gR3JlYXQhIEhlcmUgaXQgaXMgSSB0aGluayBpdCdzIG9uIHRvcCBvZiA0Ljkgb3Igc28uIElz
+c3VlcyB0byBhZGRyZXNzOgo+IC0gd2hlbiByaW5nIGlzIHZlcnkgc21hbGwgdGhpcyBtaWdodCBj
+YXVzZSB1cyBub3QgdG8KPiAgICBiZSBhYmxlIHRvIGZpdCBldmVuIGEgc2luZ2xlIHBhY2tldCBp
+biB0aGUgd2hvbGUgcXVldWUuCj4gICAgTGltaXQgbG9naWMgdG8gd2hlbiByaW5nIGlzIGJpZyBl
+bm91Z2g/Cj4gLSBJZiBlLmcuIGhlYWRlciBpcyBzcGxpdCBhY3Jvc3MgbWFueSBidWZmZXJzLCB0
+aGlzIHdvbid0IHdvcmsKPiAgICBjb3JyZWN0bHkuIERldGVjdCBhbmQgY29weT8KPgo+IENvdWxk
+IGJlIG1vcmUgaXNzdWVzIHRoYXQgSSBmb3Jnb3QuIEl0IG1pZ2h0IGJlIGEgZ29vZCBpZGVhIHRv
+Cj4gZmlyc3QgZmluaXNoIG15IGJ1ZmZlciBjdHggaGFjay4gV2lsbCBzaW1wbGlmeSB0aGUgbG9n
+aWMuCj4KPgo+IGNvbW1pdCA3N2MxNzcwOTFhN2M4NDczZTNmMGVkMTQ4YWZhMmI0NzY1YjhiMGY3
+Cj4gQXV0aG9yOiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgo+IERhdGU6ICAg
+U3VuIEZlYiAyMSAyMDoyMjozMSAyMDE2ICswMjAwCj4KPiAgICAgIHZpcnRpb19uZXQ6IHN3aXRj
+aCB0byBidWlsZF9za2IgZm9yIG1yZ19yeGJ1Zgo+ICAgICAgCj4gICAgICBGb3Igc21hbGwgcGFj
+a2V0cyBkYXRhIGNvcHkgd2FzIG9ic2VydmVkIHRvCj4gICAgICB0YWtlIHVwIGFib3V0IDE1JSBD
+UFUgdGltZS4gU3dpdGNoIHRvIGJ1aWxkX3NrYgo+ICAgICAgYW5kIGF2b2lkIHRoZSBjb3B5IHdo
+ZW4gdXNpbmcgbWVyZ2VhYmxlIHJ4IGJ1ZmZlcnMuCj4gICAgICAKPiAgICAgIEFzIGEgYm9udXMs
+IG1lZGl1bS1zaXplIHNrYnMgdGhhdCBmaXQgaW4gYSBwYWdlIHdpbGwgYmUKPiAgICAgIGNvbXBs
+ZXRlbHkgbGluZWFyLgo+ICAgICAgCj4gICAgICBPZiBjb3Vyc2UsIHdlIG5vdyBuZWVkIHRvIGxv
+d2VyIHRoZSBsb3dlciBib3VuZCBvbiBwYWNrZXQgc2l6ZSwKPiAgICAgIHRvIG1ha2Ugc3VyZSBh
+IHNhbmUgbnVtYmVyIG9mIHNrYnMgZml0cyBpbiByeCBzb2NrZXQgYnVmZmVyLgo+ICAgICAgQnkg
+aG93IG11Y2g/IEkgZG9uJ3Qga25vdyB5ZXQuCj4gICAgICAKPiAgICAgIEl0IG1pZ2h0IGFsc28g
+YmUgdXNlZnVsIHRvIHByZWZldGNoIHRoZSBwYWNrZXQgYnVmZmVyIHNpbmNlCj4gICAgICBuZXQg
+c3RhY2sgd2lsbCBsaWtlbHkgdXNlIGl0IHNvb24uCj4KPiAgICAgIFRPRE86IGl0IGFwcGVhcnMg
+dGhhdCBMaW51eCB3b24ndCBoYW5kbGUgY29ycmVjdGx5IHRoZSBjYXNlIG9mIGZpcnN0Cj4gICAg
+ICBidWZmZXIgYmVpbmcgdmVyeSBzbWFsbCAob3IgY29uc2lzdGluZyBleGNsdXNpdmVseSBvZiB2
+aXJ0aW8gaGVhZGVyKS4KPiAgICAgIFRoaXMgaXMgYWxyZWFkeSB0aGUgY2FzZSBmb3IgY3VycmVu
+dCBjb2RlLCBzbyBkb24ndCBib3RoZXIKPiAgICAgIHRlc3RpbmcgeWV0Lgo+ICAgICAgVE9ETzog
+bWlnaHQgYmUgdW5mYWlyIHRvIHRoZSBsYXN0IHBhY2tldCBpbiBhIGZyYWdtZW50IGFzIHdlIGlu
+Y2x1ZGUKPiAgICAgIHJlbWFpbmluZyBzcGFjZSBpZiBhbnkgaW4gaXRzIHRydWVzaXplLgo+ICAg
+ICAgCj4gICAgICBTaWduZWQtb2ZmLWJ5OiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQu
+Y29tPgo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyBiL2RyaXZlcnMv
+bmV0L3ZpcnRpb19uZXQuYwo+IGluZGV4IGI0MjVmYTEuLmE2Yjk5NmYgMTAwNjQ0Cj4gLS0tIGEv
+ZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gKysrIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5j
+Cj4gQEAgLTM4LDYgKzM4LDggQEAgbW9kdWxlX3BhcmFtKGdzbywgYm9vbCwgMDQ0NCk7Cj4gICAK
+ClsuLi5dCgo+IC0JaWYgKHVubGlrZWx5KCFza2IpKQo+IC0JCXJldHVybjsKPiAtCj4gLQloZHIg
+PSBza2Jfdm5ldF9oZHIoc2tiKTsKPiAgIAo+ICAgCXU2NF9zdGF0c191cGRhdGVfYmVnaW4oJnN0
+YXRzLT5yeF9zeW5jcCk7Cj4gICAJc3RhdHMtPnJ4X2J5dGVzICs9IHNrYi0+bGVuOwo+IEBAIC01
+ODEsMTEgKzYyNCwxNCBAQCBzdGF0aWMgaW50IGFkZF9yZWN2YnVmX2JpZyhzdHJ1Y3QgdmlydG5l
+dF9pbmZvICp2aSwgc3RydWN0IHJlY2VpdmVfcXVldWUgKnJxLAo+ICAgCj4gICBzdGF0aWMgdW5z
+aWduZWQgaW50IGdldF9tZXJnZWFibGVfYnVmX2xlbihzdHJ1Y3QgZXdtYV9wa3RfbGVuICphdmdf
+cGt0X2xlbikKPiAgIHsKPiAtCWNvbnN0IHNpemVfdCBoZHJfbGVuID0gc2l6ZW9mKHN0cnVjdCB2
+aXJ0aW9fbmV0X2hkcl9tcmdfcnhidWYpOwo+ICsJdW5zaWduZWQgaW50IGhkcjsKPiAgIAl1bnNp
+Z25lZCBpbnQgbGVuOwo+ICAgCj4gLQlsZW4gPSBoZHJfbGVuICsgY2xhbXBfdCh1bnNpZ25lZCBp
+bnQsIGV3bWFfcGt0X2xlbl9yZWFkKGF2Z19wa3RfbGVuKSwKPiAtCQkJR09PRF9QQUNLRVRfTEVO
+LCBQQUdFX1NJWkUgLSBoZHJfbGVuKTsKPiArCWhkciA9IEFMSUdOKFZORVRfU0tCX1BBRCArIFNL
+Ql9EQVRBX0FMSUdOKHNpemVvZihzdHJ1Y3Qgc2tiX3NoYXJlZF9pbmZvKSksCj4gKwkJICAgIE1F
+UkdFQUJMRV9CVUZGRVJfQUxJR04pOwoKU28gd2UgbmVlZCB0byByZXNlcnZlIHNpemVvZihzdHJ1
+Y3Qgc2tiX3NoYXJlZF9pbmZvKSBmb3IgZWFjaCBidWZmZXIuIElmIAp3ZSBoYXZlIHNldmVyYWwg
+NEsgYnVmZmVycyBmb3IgYSBzaW5nbGUgbGFyZ2UgcGFja2V0LCBhYm91dCA4JSB0cnVlc2l6ZSAK
+d2VyZSB3YXN0ZWQ/Cgo+ICsKPiArCWxlbiA9IGhkciArIGNsYW1wX3QodW5zaWduZWQgaW50LCBl
+d21hX3BrdF9sZW5fcmVhZChhdmdfcGt0X2xlbiksCj4gKwkJCSAgICBNSU5fUEFDS0VUX0FMTE9D
+LCBQQUdFX1NJWkUgLSBoZHIpOwo+ICAgCXJldHVybiBBTElHTihsZW4sIE1FUkdFQUJMRV9CVUZG
+RVJfQUxJR04pOwo+ICAgfQo+ICAgCj4gQEAgLTYwMSw4ICs2NDcsMTEgQEAgc3RhdGljIGludCBh
+ZGRfcmVjdmJ1Zl9tZXJnZWFibGUoc3RydWN0IHJlY2VpdmVfcXVldWUgKnJxLCBnZnBfdCBnZnAp
+Cj4gICAJaWYgKHVubGlrZWx5KCFza2JfcGFnZV9mcmFnX3JlZmlsbChsZW4sIGFsbG9jX2ZyYWcs
+IGdmcCkpKQo+ICAgCQlyZXR1cm4gLUVOT01FTTsKPiAgIAo+IC0JYnVmID0gKGNoYXIgKilwYWdl
+X2FkZHJlc3MoYWxsb2NfZnJhZy0+cGFnZSkgKyBhbGxvY19mcmFnLT5vZmZzZXQ7Cj4gLQljdHgg
+PSBtZXJnZWFibGVfYnVmX3RvX2N0eChidWYsIGxlbik7Cj4gKwlCVUlMRF9CVUdfT04oVk5FVF9T
+S0JfQlVHKTsKPiArCj4gKwlidWYgPSAoY2hhciAqKXBhZ2VfYWRkcmVzcyhhbGxvY19mcmFnLT5w
+YWdlKSArIGFsbG9jX2ZyYWctPm9mZnNldCArCj4gKwkJVk5FVF9TS0JfT0ZGOwoKUnggZnJhZyBj
+b2FsZXNjaW5nIHdvbid0IHdvcmsgYW55IG1vcmUgYW5kIHdlIHdpbGwgZW5kIHVwIHdpdGggbW9y
+ZSAKZnJhZ2xpc3QgZm9yIGxhcmdlIHBhY2tldHMuCgpUaGFua3MKCj4gKwkvL2N0eCA9IG1lcmdl
+YWJsZV9idWZfdG9fY3R4KGJ1ZiAtIFZORVRfU0tCX09GRiwgbGVuKTsKPiAgIAlnZXRfcGFnZShh
+bGxvY19mcmFnLT5wYWdlKTsKPiAgIAlhbGxvY19mcmFnLT5vZmZzZXQgKz0gbGVuOwo+ICAgCWhv
+bGUgPSBhbGxvY19mcmFnLT5zaXplIC0gYWxsb2NfZnJhZy0+b2Zmc2V0Owo+IEBAIC02MTUsOCAr
+NjY0LDEwIEBAIHN0YXRpYyBpbnQgYWRkX3JlY3ZidWZfbWVyZ2VhYmxlKHN0cnVjdCByZWNlaXZl
+X3F1ZXVlICpycSwgZ2ZwX3QgZ2ZwKQo+ICAgCQlsZW4gKz0gaG9sZTsKPiAgIAkJYWxsb2NfZnJh
+Zy0+b2Zmc2V0ICs9IGhvbGU7Cj4gICAJfQo+ICsJY3R4ID0gbWVyZ2VhYmxlX2J1Zl90b19jdHgo
+YnVmIC0gVk5FVF9TS0JfT0ZGLCBsZW4pOwo+ICAgCj4gLQlzZ19pbml0X29uZShycS0+c2csIGJ1
+ZiwgbGVuKTsKPiArCXNnX2luaXRfb25lKHJxLT5zZywgYnVmLAo+ICsJCSAgICBsZW4gLSBWTkVU
+X1NLQl9PRkYgLSBTS0JfREFUQV9BTElHTihzaXplb2Yoc3RydWN0IHNrYl9zaGFyZWRfaW5mbykp
+KTsKPiAgIAllcnIgPSB2aXJ0cXVldWVfYWRkX2luYnVmKHJxLT52cSwgcnEtPnNnLCAxLCAodm9p
+ZCAqKWN0eCwgZ2ZwKTsKPiAgIAlpZiAoZXJyIDwgMCkKPiAgIAkJcHV0X3BhZ2UodmlydF90b19o
+ZWFkX3BhZ2UoYnVmKSk7CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
+bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
+aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
