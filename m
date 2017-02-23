@@ -1,14 +1,15 @@
-From: John Fastabend <john.fastabend@gmail.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH net-next] virtio-net: switch to use build_skb() for small
 	buffer
-Date: Wed, 22 Feb 2017 09:17:04 -0800
-Message-ID: <58ADC790.8000805__36553.0111281716$1487783842$gmane$org@gmail.com>
+Date: Thu, 23 Feb 2017 10:44:27 +0800
+Message-ID: <f282bbae-7399-6d46-21e1-429310f7b0e4@redhat.com>
 References: <1487666788-9658-1-git-send-email-jasowang@redhat.com>
+	<58ADC790.8000805@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1487666788-9658-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <58ADC790.8000805@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,69 +19,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: John Fastabend <john.fastabend@gmail.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 17-02-21 12:46 AM, Jason Wang wrote:
-> This patch switch to use build_skb() for small buffer which can have
-> better performance for both TCP and XDP (since we can work at page
-> before skb creation). It also remove lots of XDP codes since both
-> mergeable and small buffer use page frag during refill now.
-> 
->                        Before   | After
-> XDP_DROP(xdp1) 64B  :  11.1Mpps | 14.4Mpps
-> 
-> Tested with xdp1/xdp2/xdp_ip_tx_tunnel and netperf.
-
-When you do the xdp tests are you generating packets with pktgen on the
-corresponding tap devices?
-
-Also another thought, have you looked at using some of the buffer recycling
-techniques used in the hardware drivers such as ixgbe and with Eric's latest
-patches mlx? I have seen significant performance increases for some
-workloads doing this. I wanted to try something like this out on virtio
-but haven't had time yet.
-
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
-
-[...]
-
->  static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
->  			     gfp_t gfp)
->  {
-> -	int headroom = GOOD_PACKET_LEN + virtnet_get_headroom(vi);
-> +	struct page_frag *alloc_frag = &rq->alloc_frag;
-> +	char *buf;
->  	unsigned int xdp_headroom = virtnet_get_headroom(vi);
-> -	struct sk_buff *skb;
-> -	struct virtio_net_hdr_mrg_rxbuf *hdr;
-> +	int len = vi->hdr_len + VIRTNET_RX_PAD + GOOD_PACKET_LEN + xdp_headroom;
->  	int err;
->  
-> -	skb = __netdev_alloc_skb_ip_align(vi->dev, headroom, gfp);
-> -	if (unlikely(!skb))
-> +	len = SKB_DATA_ALIGN(len) +
-> +	      SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
-> +	if (unlikely(!skb_page_frag_refill(len, alloc_frag, gfp)))
->  		return -ENOMEM;
->  
-> -	skb_put(skb, headroom);
-> -
-> -	hdr = skb_vnet_hdr(skb);
-> -	sg_init_table(rq->sg, 2);
-> -	sg_set_buf(rq->sg, hdr, vi->hdr_len);
-> -	skb_to_sgvec(skb, rq->sg + 1, xdp_headroom, skb->len - xdp_headroom);
-> -
-> -	err = virtqueue_add_inbuf(rq->vq, rq->sg, 2, skb, gfp);
-> +	buf = (char *)page_address(alloc_frag->page) + alloc_frag->offset;
-> +	get_page(alloc_frag->page);
-> +	alloc_frag->offset += len;
-> +	sg_init_one(rq->sg, buf + VIRTNET_RX_PAD + xdp_headroom,
-> +		    vi->hdr_len + GOOD_PACKET_LEN);
-> +	err = virtqueue_add_inbuf(rq->vq, rq->sg, 1, buf, gfp);
-
-Nice this cleans up a lot of the branching code. Thanks.
-
-Acked-by: John Fastabend <john.r.fastabend@intel.com>
+CgpPbiAyMDE35bm0MDLmnIgyM+aXpSAwMToxNywgSm9obiBGYXN0YWJlbmQgd3JvdGU6Cj4gT24g
+MTctMDItMjEgMTI6NDYgQU0sIEphc29uIFdhbmcgd3JvdGU6Cj4+IFRoaXMgcGF0Y2ggc3dpdGNo
+IHRvIHVzZSBidWlsZF9za2IoKSBmb3Igc21hbGwgYnVmZmVyIHdoaWNoIGNhbiBoYXZlCj4+IGJl
+dHRlciBwZXJmb3JtYW5jZSBmb3IgYm90aCBUQ1AgYW5kIFhEUCAoc2luY2Ugd2UgY2FuIHdvcmsg
+YXQgcGFnZQo+PiBiZWZvcmUgc2tiIGNyZWF0aW9uKS4gSXQgYWxzbyByZW1vdmUgbG90cyBvZiBY
+RFAgY29kZXMgc2luY2UgYm90aAo+PiBtZXJnZWFibGUgYW5kIHNtYWxsIGJ1ZmZlciB1c2UgcGFn
+ZSBmcmFnIGR1cmluZyByZWZpbGwgbm93Lgo+Pgo+PiAgICAgICAgICAgICAgICAgICAgICAgICBC
+ZWZvcmUgICB8IEFmdGVyCj4+IFhEUF9EUk9QKHhkcDEpIDY0QiAgOiAgMTEuMU1wcHMgfCAxNC40
+TXBwcwo+Pgo+PiBUZXN0ZWQgd2l0aCB4ZHAxL3hkcDIveGRwX2lwX3R4X3R1bm5lbCBhbmQgbmV0
+cGVyZi4KPiBXaGVuIHlvdSBkbyB0aGUgeGRwIHRlc3RzIGFyZSB5b3UgZ2VuZXJhdGluZyBwYWNr
+ZXRzIHdpdGggcGt0Z2VuIG9uIHRoZQo+IGNvcnJlc3BvbmRpbmcgdGFwIGRldmljZXM/CgpZZXMs
+IHBrdGdlbiBvbiB0aGUgdGFwIGRpcmVjdGx5LgoKPgo+IEFsc28gYW5vdGhlciB0aG91Z2h0LCBo
+YXZlIHlvdSBsb29rZWQgYXQgdXNpbmcgc29tZSBvZiB0aGUgYnVmZmVyIHJlY3ljbGluZwo+IHRl
+Y2huaXF1ZXMgdXNlZCBpbiB0aGUgaGFyZHdhcmUgZHJpdmVycyBzdWNoIGFzIGl4Z2JlIGFuZCB3
+aXRoIEVyaWMncyBsYXRlc3QKPiBwYXRjaGVzIG1seD8gSSBoYXZlIHNlZW4gc2lnbmlmaWNhbnQg
+cGVyZm9ybWFuY2UgaW5jcmVhc2VzIGZvciBzb21lCj4gd29ya2xvYWRzIGRvaW5nIHRoaXMuIEkg
+d2FudGVkIHRvIHRyeSBzb21ldGhpbmcgbGlrZSB0aGlzIG91dCBvbiB2aXJ0aW8KPiBidXQgaGF2
+ZW4ndCBoYWQgdGltZSB5ZXQuCgpZZXMsIHRoaXMgaXMgaW4gVE9ETyBsaXN0LiBXaWxsIHBpY2sg
+c29tZSB0aW1lIHRvIGRvIHRoaXMuCgpUaGFua3MKCj4KPj4gU2lnbmVkLW9mZi1ieTogSmFzb24g
+V2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KPj4gLS0tCj4gWy4uLl0KPgo+PiAgIHN0YXRpYyBp
+bnQgYWRkX3JlY3ZidWZfc21hbGwoc3RydWN0IHZpcnRuZXRfaW5mbyAqdmksIHN0cnVjdCByZWNl
+aXZlX3F1ZXVlICpycSwKPj4gICAJCQkgICAgIGdmcF90IGdmcCkKPj4gICB7Cj4+IC0JaW50IGhl
+YWRyb29tID0gR09PRF9QQUNLRVRfTEVOICsgdmlydG5ldF9nZXRfaGVhZHJvb20odmkpOwo+PiAr
+CXN0cnVjdCBwYWdlX2ZyYWcgKmFsbG9jX2ZyYWcgPSAmcnEtPmFsbG9jX2ZyYWc7Cj4+ICsJY2hh
+ciAqYnVmOwo+PiAgIAl1bnNpZ25lZCBpbnQgeGRwX2hlYWRyb29tID0gdmlydG5ldF9nZXRfaGVh
+ZHJvb20odmkpOwo+PiAtCXN0cnVjdCBza19idWZmICpza2I7Cj4+IC0Jc3RydWN0IHZpcnRpb19u
+ZXRfaGRyX21yZ19yeGJ1ZiAqaGRyOwo+PiArCWludCBsZW4gPSB2aS0+aGRyX2xlbiArIFZJUlRO
+RVRfUlhfUEFEICsgR09PRF9QQUNLRVRfTEVOICsgeGRwX2hlYWRyb29tOwo+PiAgIAlpbnQgZXJy
+Owo+PiAgIAo+PiAtCXNrYiA9IF9fbmV0ZGV2X2FsbG9jX3NrYl9pcF9hbGlnbih2aS0+ZGV2LCBo
+ZWFkcm9vbSwgZ2ZwKTsKPj4gLQlpZiAodW5saWtlbHkoIXNrYikpCj4+ICsJbGVuID0gU0tCX0RB
+VEFfQUxJR04obGVuKSArCj4+ICsJICAgICAgU0tCX0RBVEFfQUxJR04oc2l6ZW9mKHN0cnVjdCBz
+a2Jfc2hhcmVkX2luZm8pKTsKPj4gKwlpZiAodW5saWtlbHkoIXNrYl9wYWdlX2ZyYWdfcmVmaWxs
+KGxlbiwgYWxsb2NfZnJhZywgZ2ZwKSkpCj4+ICAgCQlyZXR1cm4gLUVOT01FTTsKPj4gICAKPj4g
+LQlza2JfcHV0KHNrYiwgaGVhZHJvb20pOwo+PiAtCj4+IC0JaGRyID0gc2tiX3ZuZXRfaGRyKHNr
+Yik7Cj4+IC0Jc2dfaW5pdF90YWJsZShycS0+c2csIDIpOwo+PiAtCXNnX3NldF9idWYocnEtPnNn
+LCBoZHIsIHZpLT5oZHJfbGVuKTsKPj4gLQlza2JfdG9fc2d2ZWMoc2tiLCBycS0+c2cgKyAxLCB4
+ZHBfaGVhZHJvb20sIHNrYi0+bGVuIC0geGRwX2hlYWRyb29tKTsKPj4gLQo+PiAtCWVyciA9IHZp
+cnRxdWV1ZV9hZGRfaW5idWYocnEtPnZxLCBycS0+c2csIDIsIHNrYiwgZ2ZwKTsKPj4gKwlidWYg
+PSAoY2hhciAqKXBhZ2VfYWRkcmVzcyhhbGxvY19mcmFnLT5wYWdlKSArIGFsbG9jX2ZyYWctPm9m
+ZnNldDsKPj4gKwlnZXRfcGFnZShhbGxvY19mcmFnLT5wYWdlKTsKPj4gKwlhbGxvY19mcmFnLT5v
+ZmZzZXQgKz0gbGVuOwo+PiArCXNnX2luaXRfb25lKHJxLT5zZywgYnVmICsgVklSVE5FVF9SWF9Q
+QUQgKyB4ZHBfaGVhZHJvb20sCj4+ICsJCSAgICB2aS0+aGRyX2xlbiArIEdPT0RfUEFDS0VUX0xF
+Tik7Cj4+ICsJZXJyID0gdmlydHF1ZXVlX2FkZF9pbmJ1ZihycS0+dnEsIHJxLT5zZywgMSwgYnVm
+LCBnZnApOwo+IE5pY2UgdGhpcyBjbGVhbnMgdXAgYSBsb3Qgb2YgdGhlIGJyYW5jaGluZyBjb2Rl
+LiBUaGFua3MuCj4KPiBBY2tlZC1ieTogSm9obiBGYXN0YWJlbmQgPGpvaG4uci5mYXN0YWJlbmRA
+aW50ZWwuY29tPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
+LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
