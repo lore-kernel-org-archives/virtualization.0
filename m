@@ -1,17 +1,14 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 00/35] treewide trivial patches converting pr_warning to
-	pr_warn
-Date: Thu, 23 Feb 2017 09:53:41 -0800
-Message-ID: <1487872421.14159.38.camel__10353.1771376312$1487893970$gmane$org@perches.com>
-References: <cover.1487314666.git.joe@perches.com>
-	<CAL_JsqLTaq-QLTqfyDO8EVJYpgeUx1e4J0Fo2NvfFWqVoiVedQ@mail.gmail.com>
-	<1487870304.14159.29.camel@perches.com>
-	<CACvgo50LUm5VSn_F=Dh8kL5zCPpCQDoCyUEL=Z+=1+6hJpfTaw@mail.gmail.com>
+From: Viktor Mihajlovski <mihajlov@linux.vnet.ibm.com>
+Subject: Re: udev virtio by-path naming
+Date: Fri, 24 Feb 2017 10:56:28 +0100
+Message-ID: <9cb1f5ff-0a5b-4d0a-16f6-887c7658795a@linux.vnet.ibm.com>
+References: <de55b0f4-4582-cf06-4b0d-12c2282406a8@linux.vnet.ibm.com>
+	<20170220170041.68c9bf4f.cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CACvgo50LUm5VSn_F=Dh8kL5zCPpCQDoCyUEL=Z+=1+6hJpfTaw@mail.gmail.com>
+In-Reply-To: <20170220170041.68c9bf4f.cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,41 +18,87 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Emil Velikov <emil.l.velikov@gmail.com>
-Cc: "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, linux-ia64@vger.kernel.org, SH-Linux <linux-sh@vger.kernel.org>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, ML nouveau <nouveau@lists.freedesktop.org>, Linux-ALSA <alsa-devel@alsa-project.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>, "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>, sparclinux@vger.kernel.org, drbd-dev@lists.linbit.com, Rob Herring <robh@kernel.org>, linux-omap <linux-omap@vger.kernel.org>, linux-scsi@vger.kernel.org, Richard Weinberger <richard@nod.at>, tboot-devel@lists.sourceforge.net, amd-gfx mailing list <amd-gfx@lists.freedesktop.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, sfi-devel@simplefirmware.org
+To: Michal Sekletar <msekleta@redhat.com>
+Cc: systemd-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2017-02-23 at 17:41 +0000, Emil Velikov wrote:
-> On 23 February 2017 at 17:18, Joe Perches <joe@perches.com> wrote:
-> > On Thu, 2017-02-23 at 09:28 -0600, Rob Herring wrote:
-> > > On Fri, Feb 17, 2017 at 1:11 AM, Joe Perches <joe@perches.com> wrote:
-> > > > There are ~4300 uses of pr_warn and ~250 uses of the older
-> > > > pr_warning in the kernel source tree.
-> > > > 
-> > > > Make the use of pr_warn consistent across all kernel files.
-> > > > 
-> > > > This excludes all files in tools/ as there is a separate
-> > > > define pr_warning for that directory tree and pr_warn is
-> > > > not used in tools/.
-> > > > 
-> > > > Done with 'sed s/\bpr_warning\b/pr_warn/' and some emacsing.
-> > 
-> > []
-> > > Where's the removal of pr_warning so we don't have more sneak in?
-> > 
-> > After all of these actually get applied,
-> > and maybe a cycle or two later, one would
-> > get sent.
-> > 
-> 
-> By which point you'll get a few reincarnation of it. So you'll have to
-> do the same exercise again :-(
+On 20.02.2017 17:00, Cornelia Huck wrote:
+> On Mon, 20 Feb 2017 15:34:49 +0100
+> Viktor Mihajlovski <mihajlov@linux.vnet.ibm.com> wrote:
+> =
 
-Maybe to one or two files.  Not a big deal.
+>> Hi,
+>>
+>> with systemd > v229 all virtio block devices will receive persistent
+>> device names in the format /dev/disk-by/virtio-pci-<busid>, the
+>> last component being the udev built-in path_id.
+>>
+>> This naming introduces some issues.
+>>
+>> First and obvious, there are virtio implementations not based
+>> on PCI, like virtio-ccw (currently only on s390) and virtio-mmio
+>> (for which I can't speak). This results in persistent names like
+>> /dev/disk-by/virtio-pci-0.0.0001, where the bus id is a CCW id.
+>> One seemingly obvious remedy would be to make the path_id return
+>> virtio-ccw-<busid> or more generally virtio-<subsystem>-<busid>,
+>> both easily done with small patches to systemd-udev.
+>>
+>> But then, I find this naming scheme somewhat weird.
+>> A virtio disk shows up as a regular PCI function on the PCI
+>> bus side by side with other (non-virtio) devices. The naming otoh
+>> suggests that virtio-pci is a subsystem of its own, which is simply
+>> incorrect from a by-path perspective.
+> =
 
-> I guess the question is - are you expecting to get the series merged
-> all together/via one tree ?
+> From the ccw perspective, this is quite similar: The virtio proxy
+> device shows up on the ccw bus, just like e.g. a dasd device shows up
+> on the ccw bus.
+> =
 
-No.  The only person that could do that effectively is Linus.
+>>
+>> Using just the plain PCI path id is actually sufficient to identify
+>> a virtio disk by its path. This would be in line with virtio
+>> network interface path names which use the plain PCI naming.
+> =
 
-> If not, your plan is perfectly reasonable.
+> Same for ccw: The id on the ccw bus (devno) is already unique and
+> persistent.
+> =
+
+>>
+>> One could argue about back-level compatibility, but virtio by-path
+>> naming has changed multiple times. We have seen virtio-pci-virtio<n>
+>> (not predictable), pci-<busid> and virtio-pci-<busid> already. It
+>> might be a good time now to settle on a common approach for all
+>> virtio types.
+>>
+>> For the reasons above, I'd vote for <subsystem>-<busid>, which
+>> would work for PCI and CCW, not sure about ARM MMIO though.
+>> Opinions?
+> =
+
+> I'm not sure whether there is any reason to make virtio special,
+> although this depends upon what virtio-mmio looks like in the Linux
+> device model (any arm folks here?)
+> =
+
+> In the end, I'd be happy with any naming scheme that does not include
+> 'pci' for non-pci devices.
+> =
+
+Michal, as author of commit f073b1b3c0f4f0df1b0bd61042ce85fb5d27d407
+that introduced this behavior: can you comment on the reasoning for
+prepending virtio- to the bus, i.e. why would pci-<busid> not
+sufficiently identify the device?
+
+-- =
+
+
+Mit freundlichen Gr=FC=DFen/Kind Regards
+   Viktor Mihajlovski
+
+IBM Deutschland Research & Development GmbH
+Vorsitzender des Aufsichtsrats: Martina K=F6deritz
+Gesch=E4ftsf=FChrung: Dirk Wittkopp
+Sitz der Gesellschaft: B=F6blingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
