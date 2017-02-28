@@ -1,15 +1,14 @@
-From: Michal Sekletar <msekleta@redhat.com>
-Subject: Re: udev virtio by-path naming
-Date: Mon, 27 Feb 2017 12:22:35 +0100
-Message-ID: <CALVzVJZhZTNbZp1EB9cT82YxUnbUZZ+ZPo7Od8CWz5C3faN1AA__17587.9872790121$1488675796$gmane$org@mail.gmail.com>
-References: <de55b0f4-4582-cf06-4b0d-12c2282406a8@linux.vnet.ibm.com>
-	<20170220170041.68c9bf4f.cornelia.huck@de.ibm.com>
-	<9cb1f5ff-0a5b-4d0a-16f6-887c7658795a@linux.vnet.ibm.com>
+From: Yuanhan Liu <yuanhan.liu@linux.intel.com>
+Subject: [RFC] packed (virtio-net) headers
+Date: Tue, 28 Feb 2017 13:47:19 +0800
+Message-ID: <20170228054719.GJ18844__46444.9029569097$1488675806$gmane$org@yliu-dev.sh.intel.com>
+References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <9cb1f5ff-0a5b-4d0a-16f6-887c7658795a@linux.vnet.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,79 +18,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Viktor Mihajlovski <mihajlov@linux.vnet.ibm.com>
-Cc: systemd-devel <systemd-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCBGZWIgMjQsIDIwMTcgYXQgMTA6NTYgQU0sIFZpa3RvciBNaWhhamxvdnNraQo8bWlo
-YWpsb3ZAbGludXgudm5ldC5pYm0uY29tPiB3cm90ZToKPiBPbiAyMC4wMi4yMDE3IDE3OjAwLCBD
-b3JuZWxpYSBIdWNrIHdyb3RlOgo+PiBPbiBNb24sIDIwIEZlYiAyMDE3IDE1OjM0OjQ5ICswMTAw
-Cj4+IFZpa3RvciBNaWhhamxvdnNraSA8bWloYWpsb3ZAbGludXgudm5ldC5pYm0uY29tPiB3cm90
-ZToKPj4KPj4+IEhpLAo+Pj4KPj4+IHdpdGggc3lzdGVtZCA+IHYyMjkgYWxsIHZpcnRpbyBibG9j
-ayBkZXZpY2VzIHdpbGwgcmVjZWl2ZSBwZXJzaXN0ZW50Cj4+PiBkZXZpY2UgbmFtZXMgaW4gdGhl
-IGZvcm1hdCAvZGV2L2Rpc2stYnkvdmlydGlvLXBjaS08YnVzaWQ+LCB0aGUKPj4+IGxhc3QgY29t
-cG9uZW50IGJlaW5nIHRoZSB1ZGV2IGJ1aWx0LWluIHBhdGhfaWQuCj4+Pgo+Pj4gVGhpcyBuYW1p
-bmcgaW50cm9kdWNlcyBzb21lIGlzc3Vlcy4KPj4+Cj4+PiBGaXJzdCBhbmQgb2J2aW91cywgdGhl
-cmUgYXJlIHZpcnRpbyBpbXBsZW1lbnRhdGlvbnMgbm90IGJhc2VkCj4+PiBvbiBQQ0ksIGxpa2Ug
-dmlydGlvLWNjdyAoY3VycmVudGx5IG9ubHkgb24gczM5MCkgYW5kIHZpcnRpby1tbWlvCj4+PiAo
-Zm9yIHdoaWNoIEkgY2FuJ3Qgc3BlYWspLiBUaGlzIHJlc3VsdHMgaW4gcGVyc2lzdGVudCBuYW1l
-cyBsaWtlCj4+PiAvZGV2L2Rpc2stYnkvdmlydGlvLXBjaS0wLjAuMDAwMSwgd2hlcmUgdGhlIGJ1
-cyBpZCBpcyBhIENDVyBpZC4KPj4+IE9uZSBzZWVtaW5nbHkgb2J2aW91cyByZW1lZHkgd291bGQg
-YmUgdG8gbWFrZSB0aGUgcGF0aF9pZCByZXR1cm4KPj4+IHZpcnRpby1jY3ctPGJ1c2lkPiBvciBt
-b3JlIGdlbmVyYWxseSB2aXJ0aW8tPHN1YnN5c3RlbT4tPGJ1c2lkPiwKPj4+IGJvdGggZWFzaWx5
-IGRvbmUgd2l0aCBzbWFsbCBwYXRjaGVzIHRvIHN5c3RlbWQtdWRldi4KPj4+Cj4+PiBCdXQgdGhl
-biwgSSBmaW5kIHRoaXMgbmFtaW5nIHNjaGVtZSBzb21ld2hhdCB3ZWlyZC4KPj4+IEEgdmlydGlv
-IGRpc2sgc2hvd3MgdXAgYXMgYSByZWd1bGFyIFBDSSBmdW5jdGlvbiBvbiB0aGUgUENJCj4+PiBi
-dXMgc2lkZSBieSBzaWRlIHdpdGggb3RoZXIgKG5vbi12aXJ0aW8pIGRldmljZXMuIFRoZSBuYW1p
-bmcgb3RvaAo+Pj4gc3VnZ2VzdHMgdGhhdCB2aXJ0aW8tcGNpIGlzIGEgc3Vic3lzdGVtIG9mIGl0
-cyBvd24sIHdoaWNoIGlzIHNpbXBseQo+Pj4gaW5jb3JyZWN0IGZyb20gYSBieS1wYXRoIHBlcnNw
-ZWN0aXZlLgo+Pgo+PiBGcm9tIHRoZSBjY3cgcGVyc3BlY3RpdmUsIHRoaXMgaXMgcXVpdGUgc2lt
-aWxhcjogVGhlIHZpcnRpbyBwcm94eQo+PiBkZXZpY2Ugc2hvd3MgdXAgb24gdGhlIGNjdyBidXMs
-IGp1c3QgbGlrZSBlLmcuIGEgZGFzZCBkZXZpY2Ugc2hvd3MgdXAKPj4gb24gdGhlIGNjdyBidXMu
-Cj4+Cj4+Pgo+Pj4gVXNpbmcganVzdCB0aGUgcGxhaW4gUENJIHBhdGggaWQgaXMgYWN0dWFsbHkg
-c3VmZmljaWVudCB0byBpZGVudGlmeQo+Pj4gYSB2aXJ0aW8gZGlzayBieSBpdHMgcGF0aC4gVGhp
-cyB3b3VsZCBiZSBpbiBsaW5lIHdpdGggdmlydGlvCj4+PiBuZXR3b3JrIGludGVyZmFjZSBwYXRo
-IG5hbWVzIHdoaWNoIHVzZSB0aGUgcGxhaW4gUENJIG5hbWluZy4KPj4KPj4gU2FtZSBmb3IgY2N3
-OiBUaGUgaWQgb24gdGhlIGNjdyBidXMgKGRldm5vKSBpcyBhbHJlYWR5IHVuaXF1ZSBhbmQKPj4g
-cGVyc2lzdGVudC4KPj4KPj4+Cj4+PiBPbmUgY291bGQgYXJndWUgYWJvdXQgYmFjay1sZXZlbCBj
-b21wYXRpYmlsaXR5LCBidXQgdmlydGlvIGJ5LXBhdGgKPj4+IG5hbWluZyBoYXMgY2hhbmdlZCBt
-dWx0aXBsZSB0aW1lcy4gV2UgaGF2ZSBzZWVuIHZpcnRpby1wY2ktdmlydGlvPG4+Cj4+PiAobm90
-IHByZWRpY3RhYmxlKSwgcGNpLTxidXNpZD4gYW5kIHZpcnRpby1wY2ktPGJ1c2lkPiBhbHJlYWR5
-LiBJdAo+Pj4gbWlnaHQgYmUgYSBnb29kIHRpbWUgbm93IHRvIHNldHRsZSBvbiBhIGNvbW1vbiBh
-cHByb2FjaCBmb3IgYWxsCj4+PiB2aXJ0aW8gdHlwZXMuCj4+Pgo+Pj4gRm9yIHRoZSByZWFzb25z
-IGFib3ZlLCBJJ2Qgdm90ZSBmb3IgPHN1YnN5c3RlbT4tPGJ1c2lkPiwgd2hpY2gKPj4+IHdvdWxk
-IHdvcmsgZm9yIFBDSSBhbmQgQ0NXLCBub3Qgc3VyZSBhYm91dCBBUk0gTU1JTyB0aG91Z2guCj4+
-PiBPcGluaW9ucz8KPj4KPj4gSSdtIG5vdCBzdXJlIHdoZXRoZXIgdGhlcmUgaXMgYW55IHJlYXNv
-biB0byBtYWtlIHZpcnRpbyBzcGVjaWFsLAo+PiBhbHRob3VnaCB0aGlzIGRlcGVuZHMgdXBvbiB3
-aGF0IHZpcnRpby1tbWlvIGxvb2tzIGxpa2UgaW4gdGhlIExpbnV4Cj4+IGRldmljZSBtb2RlbCAo
-YW55IGFybSBmb2xrcyBoZXJlPykKPj4KPj4gSW4gdGhlIGVuZCwgSSdkIGJlIGhhcHB5IHdpdGgg
-YW55IG5hbWluZyBzY2hlbWUgdGhhdCBkb2VzIG5vdCBpbmNsdWRlCj4+ICdwY2knIGZvciBub24t
-cGNpIGRldmljZXMuCj4+Cj4gTWljaGFsLCBhcyBhdXRob3Igb2YgY29tbWl0IGYwNzNiMWIzYzBm
-NGYwZGYxYjBiZDYxMDQyY2U4NWZiNWQyN2Q0MDcKPiB0aGF0IGludHJvZHVjZWQgdGhpcyBiZWhh
-dmlvcjogY2FuIHlvdSBjb21tZW50IG9uIHRoZSByZWFzb25pbmcgZm9yCj4gcHJlcGVuZGluZyB2
-aXJ0aW8tIHRvIHRoZSBidXMsIGkuZS4gd2h5IHdvdWxkIHBjaS08YnVzaWQ+IG5vdAo+IHN1ZmZp
-Y2llbnRseSBpZGVudGlmeSB0aGUgZGV2aWNlPwoKQXMgd2l0aCBtYW55IHRoaW5ncywgaXQgbG9v
-a2VkIGxpa2UgYSBnb29kIGlkZWEgYXQgdGhlIHRpbWUuIEluIGNvbW1pdAptZXNzYWdlIEkgcmVm
-ZXJlbmNlZCBkaXNjdXNzaW9uIG9uIHVwc3RyZWFtIG1haWxpbmcgbGlzdC4gSW4gdGhhdAp0aHJl
-YWQgd2UgZ290IHJlYXNzdXJlZCB0aGF0IHRoZXJlIGlzIG9uZS10by1vbmUgY29ycmVzcG9uZGVu
-Y2UKYmV0d2VlbiB2aXJ0aW8gYW5kIHBjaSBkZXZpY2VzLiBJSVJDLCB3ZSBoYWQgYnVncyBmb3Ig
-UkhFTCBhbmQgQ2VudE9TCjcgd2VyZSB1c2VycyByZXF1ZXN0ZWQgdGhlc2Ugc3ltbGlua3MuIEhl
-bmNlIHdlIHdlbnQgYWhlYWQgd2l0aCBhYm92ZQpuYW1pbmcgc2NoZW1lLgoKWW91ciBhcmd1bWVu
-dCBhYm91dCB2aXJ0aW8gYmVpbmcgZmlyc3QgY29tcG9uZW50IG9mIHRoZSBwYXRoIG1ha2VzCnNl
-bnNlIHRvIG1lLCBidXQgdGhlbiBhZ2Fpbiwgd2Ugd2FudGVkIHRvIGRpc3Rpbmd1aXNoIHRoZXNl
-IGRldmljZXMKKGJlY2F1c2Ugb2YgdXNlciBkZW1hbmRzKS4KCkluIHJldHJvc3BlY3Qgd2hhdCB3
-ZSBkaWQgd2Fzbid0IHByb2JhYmx5IHRoZSBiZXN0IHdlIGNvdWxkLgpOZXZlcnRoZWxlc3MsIEkn
-ZCBub3QgY2hhbmdlIHRoZSBuYW1pbmcuIEFmdGVyIGFsbCwgdGhlc2Ugc3ltbGlua3MgYXJlCmZv
-ciB1c2VycyBhbmQgc2luY2UgdGhlbiBJIGRpZG4ndCBoZWFyIGNvbXBsYWlucyBhYm91dCB0aGVt
-LiBJJ2Qgb25seQphZGp1c3QgdGhlIGNvZGUgc28gdGhhdCB3ZSBwcm9kdWNlIGNvcnJlY3RseSBu
-YW1lZCBzeW1saW5rcyBmb3IKZGlmZmVyZW50IHBhcmVudCBidXNlcyAocGNpLCBjY3csIG1taW8p
-LiBJT1cgd2Ugd291bGQgcmVtb3ZlIGhhcmRjb2RlZAoicGNpIiBzdHJpbmcuCgpNaWNoYWwKPgo+
-IC0tCj4KPiBNaXQgZnJldW5kbGljaGVuIEdyw7zDn2VuL0tpbmQgUmVnYXJkcwo+ICAgIFZpa3Rv
-ciBNaWhhamxvdnNraQo+Cj4gSUJNIERldXRzY2hsYW5kIFJlc2VhcmNoICYgRGV2ZWxvcG1lbnQg
-R21iSAo+IFZvcnNpdHplbmRlciBkZXMgQXVmc2ljaHRzcmF0czogTWFydGluYSBLw7ZkZXJpdHoK
-PiBHZXNjaMOkZnRzZsO8aHJ1bmc6IERpcmsgV2l0dGtvcHAKPiBTaXR6IGRlciBHZXNlbGxzY2hh
-ZnQ6IELDtmJsaW5nZW4KPiBSZWdpc3RlcmdlcmljaHQ6IEFtdHNnZXJpY2h0IFN0dXR0Z2FydCwg
-SFJCIDI0MzI5NAo+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
-eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
-bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Hi,
+
+For virtio-net, we use 2 descs for representing a (small) pkt. One for
+virtio-net header and another one for the pkt data. And it has two issues:
+
+- the desc buffer for storing pkt data is halfed
+
+  Though we later introduced 2 more options to overcome this: ANYLAY_OUT
+  and indirect desc. The indirect desc has another issue: it introdues
+  an extra cache line visit.
+
+- virtio-net header could be scattered
+
+  Assume the ANYLAY_OUT case, whereas the headered is prepened before
+  each mbuf (or skb in kernel). In DPDK, a burst recevice in vhost pmd
+  means 32 different cache visit for virtio header.
+
+  For the legacy layout and indirect desc, the cache issue could somehone
+  diminished a bit: we could arrange the virtio header in a same memory
+  block and let the header desc point to the right one.
+
+  But it's still not good enough: the virtio-net headers aren't accessed
+  in batch: they have to be accessed one by one (by reading the desc).
+  That said, it's still not that good for cache utilization.
+
+
+And I'm proposing packed header:
+
+- put all virtio-net header in a memory block.
+
+  A burst size of 32 pkts need only access (32 * 12) / 64 = 6 cache lines.
+  While before, it could be 32 cache lines.
+
+- introduce a header desc to reference above memory block.
+
+  desc->addr = starting addr of net headers mem block
+  desc->len  = size of all net virtio net headers (burst size * header size)
+
+Thus, in a burst size of 32, we only need 33 descs: one for headers and
+others for store corresponding pkt data. More importantly, we could use
+the "len" field for computing the batch size. We then could load the
+virtio net headers at once; we could also prefetch all the descs at once.
+
+Note it could also be adapted to virtio 0.95 and 1.0. I also made a simple
+prototype with DPDK (yet again, it's Tx path only), I saw an impressive
+boost (about 30%) in a mirco benchmark.
+
+I think such proposal may should also help other devices, too, if they
+also have a small header for each data.
+
+Thoughts?
+
+	--yliu
