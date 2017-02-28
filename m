@@ -1,11 +1,16 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V3] vhost: introduce O(1) vq metadata cache
-Date: Tue, 28 Feb 2017 17:56:02 +0800
-Message-ID: <1488275762-4726-1-git-send-email-jasowang@redhat.com>
+From: "Daniel P. Berrange" <berrange@redhat.com>
+Subject: Re: [systemd-devel] udev virtio by-path naming
+Date: Tue, 28 Feb 2017 19:28:51 +0000
+Message-ID: <20170228192851.GC10067__21170.0470456437$1488310145$gmane$org@redhat.com>
+References: <de55b0f4-4582-cf06-4b0d-12c2282406a8@linux.vnet.ibm.com>
+	<20170220151432.GA15888@gardel-login>
+Reply-To: "Daniel P. Berrange" <berrange@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20170220151432.GA15888@gardel-login>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,372 +20,87 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, wexu@redhat.com, vkaplans@redhat.com
+To: Lennart Poettering <lennart@poettering.net>
+Cc: virtualization@lists.linux-foundation.org, systemd-devel@lists.freedesktop.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-When device IOTLB is enabled, all address translations were stored in
-interval tree. O(lgN) searching time could be slow for virtqueue
-metadata (avail, used and descriptors) since they were accessed much
-often than other addresses. So this patch introduces an O(1) array
-which points to the interval tree nodes that store the translations of
-vq metadata. Those array were update during vq IOTLB prefetching and
-were reset during each invalidation and tlb update. Each time we want
-to access vq metadata, this small array were queried before interval
-tree. This would be sufficient for static mappings but not dynamic
-mappings, we could do optimizations on top.
+On Mon, Feb 20, 2017 at 04:14:32PM +0100, Lennart Poettering wrote:
+> On Mon, 20.02.17 15:34, Viktor Mihajlovski (mihajlov@linux.vnet.ibm.com) wrote:
+> 
+> > But then, I find this naming scheme somewhat weird.
+> > A virtio disk shows up as a regular PCI function on the PCI
+> > bus side by side with other (non-virtio) devices. The naming otoh
+> > suggests that virtio-pci is a subsystem of its own, which is simply
+> > incorrect from a by-path perspective.
+> > 
+> > Using just the plain PCI path id is actually sufficient to identify
+> > a virtio disk by its path. This would be in line with virtio
+> > network interface path names which use the plain PCI naming.
+> > 
+> > One could argue about back-level compatibility, but virtio by-path
+> > naming has changed multiple times. We have seen virtio-pci-virtio<n>
+> > (not predictable), pci-<busid> and virtio-pci-<busid> already. It
+> > might be a good time now to settle on a common approach for all
+> > virtio types.
+> > 
+> > For the reasons above, I'd vote for <subsystem>-<busid>, which
+> > would work for PCI and CCW, not sure about ARM MMIO though.
+> > Opinions?
 
-Test were done with l2fwd in guest (2M hugepage):
+Virtio MMIO devices are identified by a unique control register
+base address. eg 0x3000. So I think <subsystem>-<busid> would
+work fine to all cases PCI, CCW & MMIO.  Certainly it is moire
+correct than hardcoding virtio-pci as a prefix - that's just
+plain broken for non-PCI transports.
 
-   noiommu  | before        | after
-tx 1.32Mpps | 1.06Mpps(82%) | 1.30Mpps(98%)
-rx 2.33Mpps | 1.46Mpps(63%) | 2.29Mpps(98%)
+> So, to make this clear, we in systemd are kinda interested in
+> splitting out these virtio helpers into some external project
+> maintained by virtio peopl. We as systemd/udev maintainers have very
+> little understanding of the underlying technology, so we can't really
+> be any good maintainers of this, and we can't really comment on this
+> stuff, in particular when it gets more exotic, like the CCW stuff.
+> 
+> Even better would be if the kernel would do the naming on its own, and
+> maybe just provide us with a sysattr on the relevant devices that we
+> can read to determine the path from, so that we don#t have to maintain
+> this at all in userspace. That way, the driver folks on the kernel
+> side can use any naming they like without ever having to patch this
+> into systemd or udev.
+> 
+> This is similar to SCSI stuff and all things like that: the more
+> exotic it gets the less place this really has in systemd, we are not
+> the right maintainers for this. And given that this is all nicely
+> pluggable (you can ship your own udev extensions externally very
+> easily), there's really no reason for this to be in systemd/udev.
 
-We can almost reach the same performance as noiommu mode.
+The other post about ptp-kvm rules reminded me that I wanted to
+respond to this mail too.
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/vhost.c | 136 ++++++++++++++++++++++++++++++++++++++++----------
- drivers/vhost/vhost.h |   8 +++
- 2 files changed, 118 insertions(+), 26 deletions(-)
+The problem with splitting these rules out into a separate project
+is that there's no other existing place that they would live. The
+"virtio people" as a group merely write specifications. The actual
+implementation of those specs is done by multiple other independant
+groups - QEMU (for host side, though other host side impls exist
+too) and Linux (for guest side). The udev rules are Linux guest
+support pieces, but of course Linux itself doesn't distribute udev
+rules - it delegated that job to the udev package hence why they
+are here currently. So I don't see that pushing the rules out of
+the udev repo would be beneficial to people building VMs.
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 1f7e4e4..998bed5 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -282,6 +282,22 @@ void vhost_poll_queue(struct vhost_poll *poll)
- }
- EXPORT_SYMBOL_GPL(vhost_poll_queue);
- 
-+static void __vhost_vq_meta_reset(struct vhost_virtqueue *vq)
-+{
-+	int j;
-+
-+	for (j = 0; j < VHOST_NUM_ADDRS; j++)
-+		vq->meta_iotlb[j] = NULL;
-+}
-+
-+static void vhost_vq_meta_reset(struct vhost_dev *d)
-+{
-+	int i;
-+
-+	for (i = 0; i < d->nvqs; ++i)
-+		__vhost_vq_meta_reset(d->vqs[i]);
-+}
-+
- static void vhost_vq_reset(struct vhost_dev *dev,
- 			   struct vhost_virtqueue *vq)
- {
-@@ -312,6 +328,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
- 	vq->busyloop_timeout = 0;
- 	vq->umem = NULL;
- 	vq->iotlb = NULL;
-+	__vhost_vq_meta_reset(vq);
- }
- 
- static int vhost_worker(void *data)
-@@ -691,6 +708,18 @@ static int vq_memory_access_ok(void __user *log_base, struct vhost_umem *umem,
- 	return 1;
- }
- 
-+static inline void __user *vhost_vq_meta_fetch(struct vhost_virtqueue *vq,
-+					       u64 addr, unsigned int size,
-+					       int type)
-+{
-+	const struct vhost_umem_node *node = vq->meta_iotlb[type];
-+
-+	if (!node)
-+		return NULL;
-+
-+	return (void *)(uintptr_t)(node->userspace_addr + addr - node->start);
-+}
-+
- /* Can we switch to this memory table? */
- /* Caller should have device mutex but not vq mutex */
- static int memory_access_ok(struct vhost_dev *d, struct vhost_umem *umem,
-@@ -733,8 +762,14 @@ static int vhost_copy_to_user(struct vhost_virtqueue *vq, void __user *to,
- 		 * could be access through iotlb. So -EAGAIN should
- 		 * not happen in this case.
- 		 */
--		/* TODO: more fast path */
- 		struct iov_iter t;
-+		void __user *uaddr = vhost_vq_meta_fetch(vq,
-+				     (u64)(uintptr_t)to, size,
-+				     VHOST_ADDR_DESC);
-+
-+		if (uaddr)
-+			return __copy_to_user(uaddr, from, size);
-+
- 		ret = translate_desc(vq, (u64)(uintptr_t)to, size, vq->iotlb_iov,
- 				     ARRAY_SIZE(vq->iotlb_iov),
- 				     VHOST_ACCESS_WO);
-@@ -762,8 +797,14 @@ static int vhost_copy_from_user(struct vhost_virtqueue *vq, void *to,
- 		 * could be access through iotlb. So -EAGAIN should
- 		 * not happen in this case.
- 		 */
--		/* TODO: more fast path */
-+		void __user *uaddr = vhost_vq_meta_fetch(vq,
-+				     (u64)(uintptr_t)from, size,
-+				     VHOST_ADDR_DESC);
- 		struct iov_iter f;
-+
-+		if (uaddr)
-+			return __copy_from_user(to, uaddr, size);
-+
- 		ret = translate_desc(vq, (u64)(uintptr_t)from, size, vq->iotlb_iov,
- 				     ARRAY_SIZE(vq->iotlb_iov),
- 				     VHOST_ACCESS_RO);
-@@ -783,17 +824,12 @@ static int vhost_copy_from_user(struct vhost_virtqueue *vq, void *to,
- 	return ret;
- }
- 
--static void __user *__vhost_get_user(struct vhost_virtqueue *vq,
--				     void __user *addr, unsigned size)
-+static void __user *__vhost_get_user_slow(struct vhost_virtqueue *vq,
-+					  void __user *addr, unsigned int size,
-+					  int type)
- {
- 	int ret;
- 
--	/* This function should be called after iotlb
--	 * prefetch, which means we're sure that vq
--	 * could be access through iotlb. So -EAGAIN should
--	 * not happen in this case.
--	 */
--	/* TODO: more fast path */
- 	ret = translate_desc(vq, (u64)(uintptr_t)addr, size, vq->iotlb_iov,
- 			     ARRAY_SIZE(vq->iotlb_iov),
- 			     VHOST_ACCESS_RO);
-@@ -814,14 +850,32 @@ static void __user *__vhost_get_user(struct vhost_virtqueue *vq,
- 	return vq->iotlb_iov[0].iov_base;
- }
- 
--#define vhost_put_user(vq, x, ptr) \
-+/* This function should be called after iotlb
-+ * prefetch, which means we're sure that vq
-+ * could be access through iotlb. So -EAGAIN should
-+ * not happen in this case.
-+ */
-+static inline void __user *__vhost_get_user(struct vhost_virtqueue *vq,
-+					    void *addr, unsigned int size,
-+					    int type)
-+{
-+	void __user *uaddr = vhost_vq_meta_fetch(vq,
-+			     (u64)(uintptr_t)addr, size, type);
-+	if (uaddr)
-+		return uaddr;
-+
-+	return __vhost_get_user_slow(vq, addr, size, type);
-+}
-+
-+#define vhost_put_user(vq, x, ptr)		\
- ({ \
- 	int ret = -EFAULT; \
- 	if (!vq->iotlb) { \
- 		ret = __put_user(x, ptr); \
- 	} else { \
- 		__typeof__(ptr) to = \
--			(__typeof__(ptr)) __vhost_get_user(vq, ptr, sizeof(*ptr)); \
-+			(__typeof__(ptr)) __vhost_get_user(vq, ptr,	\
-+					  sizeof(*ptr), VHOST_ADDR_USED); \
- 		if (to != NULL) \
- 			ret = __put_user(x, to); \
- 		else \
-@@ -830,14 +884,16 @@ static void __user *__vhost_get_user(struct vhost_virtqueue *vq,
- 	ret; \
- })
- 
--#define vhost_get_user(vq, x, ptr) \
-+#define vhost_get_user(vq, x, ptr, type)		\
- ({ \
- 	int ret; \
- 	if (!vq->iotlb) { \
- 		ret = __get_user(x, ptr); \
- 	} else { \
- 		__typeof__(ptr) from = \
--			(__typeof__(ptr)) __vhost_get_user(vq, ptr, sizeof(*ptr)); \
-+			(__typeof__(ptr)) __vhost_get_user(vq, ptr, \
-+							   sizeof(*ptr), \
-+							   type); \
- 		if (from != NULL) \
- 			ret = __get_user(x, from); \
- 		else \
-@@ -846,6 +902,12 @@ static void __user *__vhost_get_user(struct vhost_virtqueue *vq,
- 	ret; \
- })
- 
-+#define vhost_get_avail(vq, x, ptr) \
-+	vhost_get_user(vq, x, ptr, VHOST_ADDR_AVAIL)
-+
-+#define vhost_get_used(vq, x, ptr) \
-+	vhost_get_user(vq, x, ptr, VHOST_ADDR_USED)
-+
- static void vhost_dev_lock_vqs(struct vhost_dev *d)
- {
- 	int i = 0;
-@@ -951,6 +1013,7 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
- 			ret = -EFAULT;
- 			break;
- 		}
-+		vhost_vq_meta_reset(dev);
- 		if (vhost_new_umem_range(dev->iotlb, msg->iova, msg->size,
- 					 msg->iova + msg->size - 1,
- 					 msg->uaddr, msg->perm)) {
-@@ -960,6 +1023,7 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
- 		vhost_iotlb_notify_vq(dev, msg);
- 		break;
- 	case VHOST_IOTLB_INVALIDATE:
-+		vhost_vq_meta_reset(dev);
- 		vhost_del_umem_range(dev->iotlb, msg->iova,
- 				     msg->iova + msg->size - 1);
- 		break;
-@@ -1103,12 +1167,26 @@ static int vq_access_ok(struct vhost_virtqueue *vq, unsigned int num,
- 			sizeof *used + num * sizeof *used->ring + s);
- }
- 
-+static void vhost_vq_meta_update(struct vhost_virtqueue *vq,
-+				 const struct vhost_umem_node *node,
-+				 int type)
-+{
-+	int access = (type == VHOST_ADDR_USED) ?
-+		     VHOST_ACCESS_WO : VHOST_ACCESS_RO;
-+
-+	if (likely(node->perm & access))
-+		vq->meta_iotlb[type] = node;
-+}
-+
- static int iotlb_access_ok(struct vhost_virtqueue *vq,
--			   int access, u64 addr, u64 len)
-+			   int access, u64 addr, u64 len, int type)
- {
- 	const struct vhost_umem_node *node;
- 	struct vhost_umem *umem = vq->iotlb;
--	u64 s = 0, size;
-+	u64 s = 0, size, orig_addr = addr;
-+
-+	if (vhost_vq_meta_fetch(vq, addr, len, type))
-+		return true;
- 
- 	while (len > s) {
- 		node = vhost_umem_interval_tree_iter_first(&umem->umem_tree,
-@@ -1125,6 +1203,10 @@ static int iotlb_access_ok(struct vhost_virtqueue *vq,
- 		}
- 
- 		size = node->size - addr + node->start;
-+
-+		if (orig_addr == addr && size >= len)
-+			vhost_vq_meta_update(vq, node, type);
-+
- 		s += size;
- 		addr += size;
- 	}
-@@ -1141,13 +1223,15 @@ int vq_iotlb_prefetch(struct vhost_virtqueue *vq)
- 		return 1;
- 
- 	return iotlb_access_ok(vq, VHOST_ACCESS_RO, (u64)(uintptr_t)vq->desc,
--			       num * sizeof *vq->desc) &&
-+			       num * sizeof(*vq->desc), VHOST_ADDR_DESC) &&
- 	       iotlb_access_ok(vq, VHOST_ACCESS_RO, (u64)(uintptr_t)vq->avail,
- 			       sizeof *vq->avail +
--			       num * sizeof *vq->avail->ring + s) &&
-+			       num * sizeof(*vq->avail->ring) + s,
-+			       VHOST_ADDR_AVAIL) &&
- 	       iotlb_access_ok(vq, VHOST_ACCESS_WO, (u64)(uintptr_t)vq->used,
- 			       sizeof *vq->used +
--			       num * sizeof *vq->used->ring + s);
-+			       num * sizeof(*vq->used->ring) + s,
-+			       VHOST_ADDR_USED);
- }
- EXPORT_SYMBOL_GPL(vq_iotlb_prefetch);
- 
-@@ -1728,7 +1812,7 @@ int vhost_vq_init_access(struct vhost_virtqueue *vq)
- 		r = -EFAULT;
- 		goto err;
- 	}
--	r = vhost_get_user(vq, last_used_idx, &vq->used->idx);
-+	r = vhost_get_used(vq, last_used_idx, &vq->used->idx);
- 	if (r) {
- 		vq_err(vq, "Can't access used idx at %p\n",
- 		       &vq->used->idx);
-@@ -1932,7 +2016,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
- 	last_avail_idx = vq->last_avail_idx;
- 
- 	if (vq->avail_idx == vq->last_avail_idx) {
--		if (unlikely(vhost_get_user(vq, avail_idx, &vq->avail->idx))) {
-+		if (unlikely(vhost_get_avail(vq, avail_idx, &vq->avail->idx))) {
- 			vq_err(vq, "Failed to access avail idx at %p\n",
- 				&vq->avail->idx);
- 			return -EFAULT;
-@@ -1959,7 +2043,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
- 
- 	/* Grab the next descriptor number they're advertising, and increment
- 	 * the index we've seen. */
--	if (unlikely(vhost_get_user(vq, ring_head,
-+	if (unlikely(vhost_get_avail(vq, ring_head,
- 		     &vq->avail->ring[last_avail_idx & (vq->num - 1)]))) {
- 		vq_err(vq, "Failed to read head: idx %d address %p\n",
- 		       last_avail_idx,
-@@ -2175,7 +2259,7 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- 		 * with the barrier that the Guest executes when enabling
- 		 * interrupts. */
- 		smp_mb();
--		if (vhost_get_user(vq, flags, &vq->avail->flags)) {
-+		if (vhost_get_avail(vq, flags, &vq->avail->flags)) {
- 			vq_err(vq, "Failed to get flags");
- 			return true;
- 		}
-@@ -2202,7 +2286,7 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- 	 * interrupts. */
- 	smp_mb();
- 
--	if (vhost_get_user(vq, event, vhost_used_event(vq))) {
-+	if (vhost_get_avail(vq, event, vhost_used_event(vq))) {
- 		vq_err(vq, "Failed to get used event idx");
- 		return true;
- 	}
-@@ -2246,7 +2330,7 @@ bool vhost_vq_avail_empty(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- 	__virtio16 avail_idx;
- 	int r;
- 
--	r = vhost_get_user(vq, avail_idx, &vq->avail->idx);
-+	r = vhost_get_avail(vq, avail_idx, &vq->avail->idx);
- 	if (r)
- 		return false;
- 
-@@ -2281,7 +2365,7 @@ bool vhost_enable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- 	/* They could have slipped one in as we were doing that: make
- 	 * sure it's written, then check again. */
- 	smp_mb();
--	r = vhost_get_user(vq, avail_idx, &vq->avail->idx);
-+	r = vhost_get_avail(vq, avail_idx, &vq->avail->idx);
- 	if (r) {
- 		vq_err(vq, "Failed to check avail idx at %p: %d\n",
- 		       &vq->avail->idx, r);
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index a9cbbb1..f55671d 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -76,6 +76,13 @@ struct vhost_umem {
- 	int numem;
- };
- 
-+enum vhost_uaddr_type {
-+	VHOST_ADDR_DESC = 0,
-+	VHOST_ADDR_AVAIL = 1,
-+	VHOST_ADDR_USED = 2,
-+	VHOST_NUM_ADDRS = 3,
-+};
-+
- /* The virtqueue structure describes a queue attached to a device. */
- struct vhost_virtqueue {
- 	struct vhost_dev *dev;
-@@ -86,6 +93,7 @@ struct vhost_virtqueue {
- 	struct vring_desc __user *desc;
- 	struct vring_avail __user *avail;
- 	struct vring_used __user *used;
-+	const struct vhost_umem_node *meta_iotlb[VHOST_NUM_ADDRS];
- 	struct file *kick;
- 	struct file *call;
- 	struct file *error;
+> Anyway, I fear you're going to have a hard time involving us in a
+> technical discussions about the issue you are raising, since quite
+> frankly we have no clue about virtio...
+
+Could it be as simple as having a couple of people nominated as the
+technical point of contact for the virtio rules, who can be CC'd
+to get answers any questions that may need answering ? I don't have
+time to actively monitor systemd pull requests for changes affecting
+virtio, but I'd be ok with being pinged if issues come up that need
+assistance & can pull in other virt experts where needed.
+
+Regards,
+Daniel
 -- 
-2.7.4
+|: http://berrange.com      -o-    http://www.flickr.com/photos/dberrange/ :|
+|: http://libvirt.org              -o-             http://virt-manager.org :|
+|: http://entangle-photo.org       -o-    http://search.cpan.org/~danberr/ :|
