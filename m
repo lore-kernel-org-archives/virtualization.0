@@ -1,16 +1,11 @@
-From: Viktor Mihajlovski <mihajlov@linux.vnet.ibm.com>
-Subject: Re: udev virtio by-path naming
-Date: Tue, 28 Feb 2017 09:47:42 +0100
-Message-ID: <14ac3e2c-180b-cb18-fd68-268dc5d85f8b@linux.vnet.ibm.com>
-References: <de55b0f4-4582-cf06-4b0d-12c2282406a8@linux.vnet.ibm.com>
-	<20170220170041.68c9bf4f.cornelia.huck@de.ibm.com>
-	<9cb1f5ff-0a5b-4d0a-16f6-887c7658795a@linux.vnet.ibm.com>
-	<CALVzVJZhZTNbZp1EB9cT82YxUnbUZZ+ZPo7Od8CWz5C3faN1AA@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH V3] vhost: introduce O(1) vq metadata cache
+Date: Tue, 28 Feb 2017 17:56:02 +0800
+Message-ID: <1488275762-4726-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CALVzVJZhZTNbZp1EB9cT82YxUnbUZZ+ZPo7Od8CWz5C3faN1AA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,110 +15,372 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michal Sekletar <msekleta@redhat.com>
-Cc: systemd-devel <systemd-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org
+To: mst@redhat.com
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, wexu@redhat.com, vkaplans@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjcuMDIuMjAxNyAxMjoyMiwgTWljaGFsIFNla2xldGFyIHdyb3RlOgo+IE9uIEZyaSwgRmVi
-IDI0LCAyMDE3IGF0IDEwOjU2IEFNLCBWaWt0b3IgTWloYWpsb3Zza2kKPiA8bWloYWpsb3ZAbGlu
-dXgudm5ldC5pYm0uY29tPiB3cm90ZToKPj4gT24gMjAuMDIuMjAxNyAxNzowMCwgQ29ybmVsaWEg
-SHVjayB3cm90ZToKPj4+IE9uIE1vbiwgMjAgRmViIDIwMTcgMTU6MzQ6NDkgKzAxMDAKPj4+IFZp
-a3RvciBNaWhhamxvdnNraSA8bWloYWpsb3ZAbGludXgudm5ldC5pYm0uY29tPiB3cm90ZToKPj4+
-Cj4+Pj4gSGksCj4+Pj4KPj4+PiB3aXRoIHN5c3RlbWQgPiB2MjI5IGFsbCB2aXJ0aW8gYmxvY2sg
-ZGV2aWNlcyB3aWxsIHJlY2VpdmUgcGVyc2lzdGVudAo+Pj4+IGRldmljZSBuYW1lcyBpbiB0aGUg
-Zm9ybWF0IC9kZXYvZGlzay1ieS92aXJ0aW8tcGNpLTxidXNpZD4sIHRoZQo+Pj4+IGxhc3QgY29t
-cG9uZW50IGJlaW5nIHRoZSB1ZGV2IGJ1aWx0LWluIHBhdGhfaWQuCj4+Pj4KPj4+PiBUaGlzIG5h
-bWluZyBpbnRyb2R1Y2VzIHNvbWUgaXNzdWVzLgo+Pj4+Cj4+Pj4gRmlyc3QgYW5kIG9idmlvdXMs
-IHRoZXJlIGFyZSB2aXJ0aW8gaW1wbGVtZW50YXRpb25zIG5vdCBiYXNlZAo+Pj4+IG9uIFBDSSwg
-bGlrZSB2aXJ0aW8tY2N3IChjdXJyZW50bHkgb25seSBvbiBzMzkwKSBhbmQgdmlydGlvLW1taW8K
-Pj4+PiAoZm9yIHdoaWNoIEkgY2FuJ3Qgc3BlYWspLiBUaGlzIHJlc3VsdHMgaW4gcGVyc2lzdGVu
-dCBuYW1lcyBsaWtlCj4+Pj4gL2Rldi9kaXNrLWJ5L3ZpcnRpby1wY2ktMC4wLjAwMDEsIHdoZXJl
-IHRoZSBidXMgaWQgaXMgYSBDQ1cgaWQuCj4+Pj4gT25lIHNlZW1pbmdseSBvYnZpb3VzIHJlbWVk
-eSB3b3VsZCBiZSB0byBtYWtlIHRoZSBwYXRoX2lkIHJldHVybgo+Pj4+IHZpcnRpby1jY3ctPGJ1
-c2lkPiBvciBtb3JlIGdlbmVyYWxseSB2aXJ0aW8tPHN1YnN5c3RlbT4tPGJ1c2lkPiwKPj4+PiBi
-b3RoIGVhc2lseSBkb25lIHdpdGggc21hbGwgcGF0Y2hlcyB0byBzeXN0ZW1kLXVkZXYuCj4+Pj4K
-Pj4+PiBCdXQgdGhlbiwgSSBmaW5kIHRoaXMgbmFtaW5nIHNjaGVtZSBzb21ld2hhdCB3ZWlyZC4K
-Pj4+PiBBIHZpcnRpbyBkaXNrIHNob3dzIHVwIGFzIGEgcmVndWxhciBQQ0kgZnVuY3Rpb24gb24g
-dGhlIFBDSQo+Pj4+IGJ1cyBzaWRlIGJ5IHNpZGUgd2l0aCBvdGhlciAobm9uLXZpcnRpbykgZGV2
-aWNlcy4gVGhlIG5hbWluZyBvdG9oCj4+Pj4gc3VnZ2VzdHMgdGhhdCB2aXJ0aW8tcGNpIGlzIGEg
-c3Vic3lzdGVtIG9mIGl0cyBvd24sIHdoaWNoIGlzIHNpbXBseQo+Pj4+IGluY29ycmVjdCBmcm9t
-IGEgYnktcGF0aCBwZXJzcGVjdGl2ZS4KPj4+Cj4+PiBGcm9tIHRoZSBjY3cgcGVyc3BlY3RpdmUs
-IHRoaXMgaXMgcXVpdGUgc2ltaWxhcjogVGhlIHZpcnRpbyBwcm94eQo+Pj4gZGV2aWNlIHNob3dz
-IHVwIG9uIHRoZSBjY3cgYnVzLCBqdXN0IGxpa2UgZS5nLiBhIGRhc2QgZGV2aWNlIHNob3dzIHVw
-Cj4+PiBvbiB0aGUgY2N3IGJ1cy4KPj4+Cj4+Pj4KPj4+PiBVc2luZyBqdXN0IHRoZSBwbGFpbiBQ
-Q0kgcGF0aCBpZCBpcyBhY3R1YWxseSBzdWZmaWNpZW50IHRvIGlkZW50aWZ5Cj4+Pj4gYSB2aXJ0
-aW8gZGlzayBieSBpdHMgcGF0aC4gVGhpcyB3b3VsZCBiZSBpbiBsaW5lIHdpdGggdmlydGlvCj4+
-Pj4gbmV0d29yayBpbnRlcmZhY2UgcGF0aCBuYW1lcyB3aGljaCB1c2UgdGhlIHBsYWluIFBDSSBu
-YW1pbmcuCj4+Pgo+Pj4gU2FtZSBmb3IgY2N3OiBUaGUgaWQgb24gdGhlIGNjdyBidXMgKGRldm5v
-KSBpcyBhbHJlYWR5IHVuaXF1ZSBhbmQKPj4+IHBlcnNpc3RlbnQuCj4+Pgo+Pj4+Cj4+Pj4gT25l
-IGNvdWxkIGFyZ3VlIGFib3V0IGJhY2stbGV2ZWwgY29tcGF0aWJpbGl0eSwgYnV0IHZpcnRpbyBi
-eS1wYXRoCj4+Pj4gbmFtaW5nIGhhcyBjaGFuZ2VkIG11bHRpcGxlIHRpbWVzLiBXZSBoYXZlIHNl
-ZW4gdmlydGlvLXBjaS12aXJ0aW88bj4KPj4+PiAobm90IHByZWRpY3RhYmxlKSwgcGNpLTxidXNp
-ZD4gYW5kIHZpcnRpby1wY2ktPGJ1c2lkPiBhbHJlYWR5LiBJdAo+Pj4+IG1pZ2h0IGJlIGEgZ29v
-ZCB0aW1lIG5vdyB0byBzZXR0bGUgb24gYSBjb21tb24gYXBwcm9hY2ggZm9yIGFsbAo+Pj4+IHZp
-cnRpbyB0eXBlcy4KPj4+Pgo+Pj4+IEZvciB0aGUgcmVhc29ucyBhYm92ZSwgSSdkIHZvdGUgZm9y
-IDxzdWJzeXN0ZW0+LTxidXNpZD4sIHdoaWNoCj4+Pj4gd291bGQgd29yayBmb3IgUENJIGFuZCBD
-Q1csIG5vdCBzdXJlIGFib3V0IEFSTSBNTUlPIHRob3VnaC4KPj4+PiBPcGluaW9ucz8KPj4+Cj4+
-PiBJJ20gbm90IHN1cmUgd2hldGhlciB0aGVyZSBpcyBhbnkgcmVhc29uIHRvIG1ha2UgdmlydGlv
-IHNwZWNpYWwsCj4+PiBhbHRob3VnaCB0aGlzIGRlcGVuZHMgdXBvbiB3aGF0IHZpcnRpby1tbWlv
-IGxvb2tzIGxpa2UgaW4gdGhlIExpbnV4Cj4+PiBkZXZpY2UgbW9kZWwgKGFueSBhcm0gZm9sa3Mg
-aGVyZT8pCj4+Pgo+Pj4gSW4gdGhlIGVuZCwgSSdkIGJlIGhhcHB5IHdpdGggYW55IG5hbWluZyBz
-Y2hlbWUgdGhhdCBkb2VzIG5vdCBpbmNsdWRlCj4+PiAncGNpJyBmb3Igbm9uLXBjaSBkZXZpY2Vz
-Lgo+Pj4KPj4gTWljaGFsLCBhcyBhdXRob3Igb2YgY29tbWl0IGYwNzNiMWIzYzBmNGYwZGYxYjBi
-ZDYxMDQyY2U4NWZiNWQyN2Q0MDcKPj4gdGhhdCBpbnRyb2R1Y2VkIHRoaXMgYmVoYXZpb3I6IGNh
-biB5b3UgY29tbWVudCBvbiB0aGUgcmVhc29uaW5nIGZvcgo+PiBwcmVwZW5kaW5nIHZpcnRpby0g
-dG8gdGhlIGJ1cywgaS5lLiB3aHkgd291bGQgcGNpLTxidXNpZD4gbm90Cj4+IHN1ZmZpY2llbnRs
-eSBpZGVudGlmeSB0aGUgZGV2aWNlPwo+IAo+IEFzIHdpdGggbWFueSB0aGluZ3MsIGl0IGxvb2tl
-ZCBsaWtlIGEgZ29vZCBpZGVhIGF0IHRoZSB0aW1lLiBJbiBjb21taXQKPiBtZXNzYWdlIEkgcmVm
-ZXJlbmNlZCBkaXNjdXNzaW9uIG9uIHVwc3RyZWFtIG1haWxpbmcgbGlzdC4gSW4gdGhhdAo+IHRo
-cmVhZCB3ZSBnb3QgcmVhc3N1cmVkIHRoYXQgdGhlcmUgaXMgb25lLXRvLW9uZSBjb3JyZXNwb25k
-ZW5jZQo+IGJldHdlZW4gdmlydGlvIGFuZCBwY2kgZGV2aWNlcy4gSUlSQywgd2UgaGFkIGJ1Z3Mg
-Zm9yIFJIRUwgYW5kIENlbnRPUwo+IDcgd2VyZSB1c2VycyByZXF1ZXN0ZWQgdGhlc2Ugc3ltbGlu
-a3MuIEhlbmNlIHdlIHdlbnQgYWhlYWQgd2l0aCBhYm92ZQo+IG5hbWluZyBzY2hlbWUuCj4gCj4g
-WW91ciBhcmd1bWVudCBhYm91dCB2aXJ0aW8gYmVpbmcgZmlyc3QgY29tcG9uZW50IG9mIHRoZSBw
-YXRoIG1ha2VzCj4gc2Vuc2UgdG8gbWUsIGJ1dCB0aGVuIGFnYWluLCB3ZSB3YW50ZWQgdG8gZGlz
-dGluZ3Vpc2ggdGhlc2UgZGV2aWNlcwo+IChiZWNhdXNlIG9mIHVzZXIgZGVtYW5kcykuCj4gCj4g
-SW4gcmV0cm9zcGVjdCB3aGF0IHdlIGRpZCB3YXNuJ3QgcHJvYmFibHkgdGhlIGJlc3Qgd2UgY291
-bGQuCj4gTmV2ZXJ0aGVsZXNzLCBJJ2Qgbm90IGNoYW5nZSB0aGUgbmFtaW5nLiBBZnRlciBhbGws
-IHRoZXNlIHN5bWxpbmtzIGFyZQo+IGZvciB1c2VycyBhbmQgc2luY2UgdGhlbiBJIGRpZG4ndCBo
-ZWFyIGNvbXBsYWlucyBhYm91dCB0aGVtLiBJJ2Qgb25seQo+IGFkanVzdCB0aGUgY29kZSBzbyB0
-aGF0IHdlIHByb2R1Y2UgY29ycmVjdGx5IG5hbWVkIHN5bWxpbmtzIGZvcgo+IGRpZmZlcmVudCBw
-YXJlbnQgYnVzZXMgKHBjaSwgY2N3LCBtbWlvKS4gSU9XIHdlIHdvdWxkIHJlbW92ZSBoYXJkY29k
-ZWQKPiAicGNpIiBzdHJpbmcuClRoYW5rcyBmb3IgdGFraW5nIHRoZSB0aW1lIHRvIGV4cGxhaW4g
-dGhlIGJhY2tncm91bmQuIEFzIGl0IGhhcHBlbnMsIEkKaGF2ZSBhIGxvY2FsIHBhdGNoIHRvIHBy
-b2R1Y2UgdmlydGlvLTxzdWJzeXN0ZW0+LTxzeXN0ZW1pZD4gc3ltbGlua3MgYXMKeW91IHN1Z2dl
-c3RlZC4gSG93ZXZlciwgSSB3YXNuJ3QgcmVhbGx5IGhhcHB5IGFib3V0IHRoYXQgZm9yIHR3byBy
-ZWFzb25zOgoKMS4gVGhlIHMzOTB4IGFyY2hpdGVjdHVyZSBoYXMgbmF0aXZlIGRpc2tzIHRoYXQg
-c2hvdyB1cCBhcyBkZXZpY2VzIG9uCnRoZSBidXMsIHNvIGl0IGlzIHBvc3NpYmxlIHRvIGNyZWF0
-ZSBwZXJzaXN0ZW50IHN5bWxpbmtzIGJhc2VkIHNvbGVseSBvbgp0aGUgYnVzIGlkLCBpcnJlc3Bl
-Y3RpdmUgb2YgdGhlIGRpc2sgdHlwZSAodmlydGlvIG9yIGRhc2QpLiBUaGlzIGhlbHBzCmluIGRl
-ZmluaW5nIE9TIGltYWdlcyB0aGF0IGNhbiBydW4gb24gbmF0aXZlIGFuZCBwYXJhdmlydHVhbGl6
-ZWQgZGlzawpzZXR1cHMuIFdoaWNoIGlzIGJyb2tlbiBub3cuCgpUaGlzIG1pZ2h0IGJlIGNvbnNp
-ZGVyZWQgYW4gYXJjaGl0ZWN0dXJlIG9uZS1vZmYsIGJ1dAoKMi4gU0NTSSBkaXNrIHBhdGhpZHMg
-YXJlIGdlbmVyYWxseSByZXByZXNlbnRlZCBhcyA8aGJhLWJ1c2lkPi08c2NzaS1sdW4+Cih0aGUg
-bHVuIGluIGhiYSBzcGVjaWZpYyBub3RhdGlvbikuIEZvciBhIGdlbmVyaWMvcGFyYWxsZWwgU0NT
-SSBIQkEgdGhlCnBhdGggaWQgd2lsbCBhbHdheXMgYmUgaW4gYSBmb3JtYXQgbGlrZQogcGNpLTAw
-MDA6MDA6MDMuMC1zY3NpLTA6MDowOjAKZXhjZXB0IGZvciB0aGUgdmlydGlvIEhCQSwgd2hpY2gg
-d291bGQgbG9vayBsaWtlIHRoaXMKIHZpcnRpby1wY2ktMDAwMDowMDowMy4wLXNjc2ktMDowOjA6
-MApUaGlzIG1ha2VzIGV2ZW4gbGVzcyBzZW5zZSB0byBtZSAoZXZlbiBpZiB0aGVyZSBhcmUgcHJv
-YmFibHkgbm8gbW9yZQpnZW5lcmljIFNDU0kgYWRhcHRlcnMgdG8gYmUgZm91bmQgaW4gdGhlIHdp
-bGQpLgoKTXkgZmVhciBpcyB0aGF0IGJ5IGRvZGdpbmcgYSBwb3RlbnRpYWwgaW5jb252ZW5pZW5j
-ZSBmb3IgdGhlIHVzZXJzIG11Y2gKbW9yZSBwYWluIHdpbGwgYXJpc2UgZnVydGhlciBkb3duIHRo
-ZSByb2FkIHdoZW5ldmVyIGEgbmV3IHZpcnRpbyBkZXZpY2UKdHlwZSBzaG93cyB1cC4gTXkgdGFr
-ZSB3b3VsZCByYXRoZXIgYmUgdG8gcHJvZHVjZSBzZW1hbnRpY2FsbHkgY29ycmVjdApidWlsdGlu
-IHBhdGggaWRzIGFuZCBoYXZlIHRoZSBkaXN0cmlidXRpb25zIGFkZCB0aGVpciBjdXN0b20gcnVs
-ZXMgZm9yCnZpcnRpby1ibGsgaWYgdGhleSBhcmUgd2FudGVkLgo+IAo+IE1pY2hhbAo+Pgo+PiAt
-LQo+Pgo+PiBNaXQgZnJldW5kbGljaGVuIEdyw7zDn2VuL0tpbmQgUmVnYXJkcwo+PiAgICBWaWt0
-b3IgTWloYWpsb3Zza2kKPj4KPj4gSUJNIERldXRzY2hsYW5kIFJlc2VhcmNoICYgRGV2ZWxvcG1l
-bnQgR21iSAo+PiBWb3JzaXR6ZW5kZXIgZGVzIEF1ZnNpY2h0c3JhdHM6IE1hcnRpbmEgS8O2ZGVy
-aXR6Cj4+IEdlc2Now6RmdHNmw7xocnVuZzogRGlyayBXaXR0a29wcAo+PiBTaXR6IGRlciBHZXNl
-bGxzY2hhZnQ6IELDtmJsaW5nZW4KPj4gUmVnaXN0ZXJnZXJpY2h0OiBBbXRzZ2VyaWNodCBTdHV0
-dGdhcnQsIEhSQiAyNDMyOTQKPj4KPiAKCgotLSAKCk1pdCBmcmV1bmRsaWNoZW4gR3LDvMOfZW4v
-S2luZCBSZWdhcmRzCiAgIFZpa3RvciBNaWhhamxvdnNraQoKSUJNIERldXRzY2hsYW5kIFJlc2Vh
-cmNoICYgRGV2ZWxvcG1lbnQgR21iSApWb3JzaXR6ZW5kZXIgZGVzIEF1ZnNpY2h0c3JhdHM6IE1h
-cnRpbmEgS8O2ZGVyaXR6Ckdlc2Now6RmdHNmw7xocnVuZzogRGlyayBXaXR0a29wcApTaXR6IGRl
-ciBHZXNlbGxzY2hhZnQ6IELDtmJsaW5nZW4KUmVnaXN0ZXJnZXJpY2h0OiBBbXRzZ2VyaWNodCBT
-dHV0dGdhcnQsIEhSQiAyNDMyOTQKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
-cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+When device IOTLB is enabled, all address translations were stored in
+interval tree. O(lgN) searching time could be slow for virtqueue
+metadata (avail, used and descriptors) since they were accessed much
+often than other addresses. So this patch introduces an O(1) array
+which points to the interval tree nodes that store the translations of
+vq metadata. Those array were update during vq IOTLB prefetching and
+were reset during each invalidation and tlb update. Each time we want
+to access vq metadata, this small array were queried before interval
+tree. This would be sufficient for static mappings but not dynamic
+mappings, we could do optimizations on top.
+
+Test were done with l2fwd in guest (2M hugepage):
+
+   noiommu  | before        | after
+tx 1.32Mpps | 1.06Mpps(82%) | 1.30Mpps(98%)
+rx 2.33Mpps | 1.46Mpps(63%) | 2.29Mpps(98%)
+
+We can almost reach the same performance as noiommu mode.
+
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vhost/vhost.c | 136 ++++++++++++++++++++++++++++++++++++++++----------
+ drivers/vhost/vhost.h |   8 +++
+ 2 files changed, 118 insertions(+), 26 deletions(-)
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 1f7e4e4..998bed5 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -282,6 +282,22 @@ void vhost_poll_queue(struct vhost_poll *poll)
+ }
+ EXPORT_SYMBOL_GPL(vhost_poll_queue);
+ 
++static void __vhost_vq_meta_reset(struct vhost_virtqueue *vq)
++{
++	int j;
++
++	for (j = 0; j < VHOST_NUM_ADDRS; j++)
++		vq->meta_iotlb[j] = NULL;
++}
++
++static void vhost_vq_meta_reset(struct vhost_dev *d)
++{
++	int i;
++
++	for (i = 0; i < d->nvqs; ++i)
++		__vhost_vq_meta_reset(d->vqs[i]);
++}
++
+ static void vhost_vq_reset(struct vhost_dev *dev,
+ 			   struct vhost_virtqueue *vq)
+ {
+@@ -312,6 +328,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
+ 	vq->busyloop_timeout = 0;
+ 	vq->umem = NULL;
+ 	vq->iotlb = NULL;
++	__vhost_vq_meta_reset(vq);
+ }
+ 
+ static int vhost_worker(void *data)
+@@ -691,6 +708,18 @@ static int vq_memory_access_ok(void __user *log_base, struct vhost_umem *umem,
+ 	return 1;
+ }
+ 
++static inline void __user *vhost_vq_meta_fetch(struct vhost_virtqueue *vq,
++					       u64 addr, unsigned int size,
++					       int type)
++{
++	const struct vhost_umem_node *node = vq->meta_iotlb[type];
++
++	if (!node)
++		return NULL;
++
++	return (void *)(uintptr_t)(node->userspace_addr + addr - node->start);
++}
++
+ /* Can we switch to this memory table? */
+ /* Caller should have device mutex but not vq mutex */
+ static int memory_access_ok(struct vhost_dev *d, struct vhost_umem *umem,
+@@ -733,8 +762,14 @@ static int vhost_copy_to_user(struct vhost_virtqueue *vq, void __user *to,
+ 		 * could be access through iotlb. So -EAGAIN should
+ 		 * not happen in this case.
+ 		 */
+-		/* TODO: more fast path */
+ 		struct iov_iter t;
++		void __user *uaddr = vhost_vq_meta_fetch(vq,
++				     (u64)(uintptr_t)to, size,
++				     VHOST_ADDR_DESC);
++
++		if (uaddr)
++			return __copy_to_user(uaddr, from, size);
++
+ 		ret = translate_desc(vq, (u64)(uintptr_t)to, size, vq->iotlb_iov,
+ 				     ARRAY_SIZE(vq->iotlb_iov),
+ 				     VHOST_ACCESS_WO);
+@@ -762,8 +797,14 @@ static int vhost_copy_from_user(struct vhost_virtqueue *vq, void *to,
+ 		 * could be access through iotlb. So -EAGAIN should
+ 		 * not happen in this case.
+ 		 */
+-		/* TODO: more fast path */
++		void __user *uaddr = vhost_vq_meta_fetch(vq,
++				     (u64)(uintptr_t)from, size,
++				     VHOST_ADDR_DESC);
+ 		struct iov_iter f;
++
++		if (uaddr)
++			return __copy_from_user(to, uaddr, size);
++
+ 		ret = translate_desc(vq, (u64)(uintptr_t)from, size, vq->iotlb_iov,
+ 				     ARRAY_SIZE(vq->iotlb_iov),
+ 				     VHOST_ACCESS_RO);
+@@ -783,17 +824,12 @@ static int vhost_copy_from_user(struct vhost_virtqueue *vq, void *to,
+ 	return ret;
+ }
+ 
+-static void __user *__vhost_get_user(struct vhost_virtqueue *vq,
+-				     void __user *addr, unsigned size)
++static void __user *__vhost_get_user_slow(struct vhost_virtqueue *vq,
++					  void __user *addr, unsigned int size,
++					  int type)
+ {
+ 	int ret;
+ 
+-	/* This function should be called after iotlb
+-	 * prefetch, which means we're sure that vq
+-	 * could be access through iotlb. So -EAGAIN should
+-	 * not happen in this case.
+-	 */
+-	/* TODO: more fast path */
+ 	ret = translate_desc(vq, (u64)(uintptr_t)addr, size, vq->iotlb_iov,
+ 			     ARRAY_SIZE(vq->iotlb_iov),
+ 			     VHOST_ACCESS_RO);
+@@ -814,14 +850,32 @@ static void __user *__vhost_get_user(struct vhost_virtqueue *vq,
+ 	return vq->iotlb_iov[0].iov_base;
+ }
+ 
+-#define vhost_put_user(vq, x, ptr) \
++/* This function should be called after iotlb
++ * prefetch, which means we're sure that vq
++ * could be access through iotlb. So -EAGAIN should
++ * not happen in this case.
++ */
++static inline void __user *__vhost_get_user(struct vhost_virtqueue *vq,
++					    void *addr, unsigned int size,
++					    int type)
++{
++	void __user *uaddr = vhost_vq_meta_fetch(vq,
++			     (u64)(uintptr_t)addr, size, type);
++	if (uaddr)
++		return uaddr;
++
++	return __vhost_get_user_slow(vq, addr, size, type);
++}
++
++#define vhost_put_user(vq, x, ptr)		\
+ ({ \
+ 	int ret = -EFAULT; \
+ 	if (!vq->iotlb) { \
+ 		ret = __put_user(x, ptr); \
+ 	} else { \
+ 		__typeof__(ptr) to = \
+-			(__typeof__(ptr)) __vhost_get_user(vq, ptr, sizeof(*ptr)); \
++			(__typeof__(ptr)) __vhost_get_user(vq, ptr,	\
++					  sizeof(*ptr), VHOST_ADDR_USED); \
+ 		if (to != NULL) \
+ 			ret = __put_user(x, to); \
+ 		else \
+@@ -830,14 +884,16 @@ static void __user *__vhost_get_user(struct vhost_virtqueue *vq,
+ 	ret; \
+ })
+ 
+-#define vhost_get_user(vq, x, ptr) \
++#define vhost_get_user(vq, x, ptr, type)		\
+ ({ \
+ 	int ret; \
+ 	if (!vq->iotlb) { \
+ 		ret = __get_user(x, ptr); \
+ 	} else { \
+ 		__typeof__(ptr) from = \
+-			(__typeof__(ptr)) __vhost_get_user(vq, ptr, sizeof(*ptr)); \
++			(__typeof__(ptr)) __vhost_get_user(vq, ptr, \
++							   sizeof(*ptr), \
++							   type); \
+ 		if (from != NULL) \
+ 			ret = __get_user(x, from); \
+ 		else \
+@@ -846,6 +902,12 @@ static void __user *__vhost_get_user(struct vhost_virtqueue *vq,
+ 	ret; \
+ })
+ 
++#define vhost_get_avail(vq, x, ptr) \
++	vhost_get_user(vq, x, ptr, VHOST_ADDR_AVAIL)
++
++#define vhost_get_used(vq, x, ptr) \
++	vhost_get_user(vq, x, ptr, VHOST_ADDR_USED)
++
+ static void vhost_dev_lock_vqs(struct vhost_dev *d)
+ {
+ 	int i = 0;
+@@ -951,6 +1013,7 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
+ 			ret = -EFAULT;
+ 			break;
+ 		}
++		vhost_vq_meta_reset(dev);
+ 		if (vhost_new_umem_range(dev->iotlb, msg->iova, msg->size,
+ 					 msg->iova + msg->size - 1,
+ 					 msg->uaddr, msg->perm)) {
+@@ -960,6 +1023,7 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
+ 		vhost_iotlb_notify_vq(dev, msg);
+ 		break;
+ 	case VHOST_IOTLB_INVALIDATE:
++		vhost_vq_meta_reset(dev);
+ 		vhost_del_umem_range(dev->iotlb, msg->iova,
+ 				     msg->iova + msg->size - 1);
+ 		break;
+@@ -1103,12 +1167,26 @@ static int vq_access_ok(struct vhost_virtqueue *vq, unsigned int num,
+ 			sizeof *used + num * sizeof *used->ring + s);
+ }
+ 
++static void vhost_vq_meta_update(struct vhost_virtqueue *vq,
++				 const struct vhost_umem_node *node,
++				 int type)
++{
++	int access = (type == VHOST_ADDR_USED) ?
++		     VHOST_ACCESS_WO : VHOST_ACCESS_RO;
++
++	if (likely(node->perm & access))
++		vq->meta_iotlb[type] = node;
++}
++
+ static int iotlb_access_ok(struct vhost_virtqueue *vq,
+-			   int access, u64 addr, u64 len)
++			   int access, u64 addr, u64 len, int type)
+ {
+ 	const struct vhost_umem_node *node;
+ 	struct vhost_umem *umem = vq->iotlb;
+-	u64 s = 0, size;
++	u64 s = 0, size, orig_addr = addr;
++
++	if (vhost_vq_meta_fetch(vq, addr, len, type))
++		return true;
+ 
+ 	while (len > s) {
+ 		node = vhost_umem_interval_tree_iter_first(&umem->umem_tree,
+@@ -1125,6 +1203,10 @@ static int iotlb_access_ok(struct vhost_virtqueue *vq,
+ 		}
+ 
+ 		size = node->size - addr + node->start;
++
++		if (orig_addr == addr && size >= len)
++			vhost_vq_meta_update(vq, node, type);
++
+ 		s += size;
+ 		addr += size;
+ 	}
+@@ -1141,13 +1223,15 @@ int vq_iotlb_prefetch(struct vhost_virtqueue *vq)
+ 		return 1;
+ 
+ 	return iotlb_access_ok(vq, VHOST_ACCESS_RO, (u64)(uintptr_t)vq->desc,
+-			       num * sizeof *vq->desc) &&
++			       num * sizeof(*vq->desc), VHOST_ADDR_DESC) &&
+ 	       iotlb_access_ok(vq, VHOST_ACCESS_RO, (u64)(uintptr_t)vq->avail,
+ 			       sizeof *vq->avail +
+-			       num * sizeof *vq->avail->ring + s) &&
++			       num * sizeof(*vq->avail->ring) + s,
++			       VHOST_ADDR_AVAIL) &&
+ 	       iotlb_access_ok(vq, VHOST_ACCESS_WO, (u64)(uintptr_t)vq->used,
+ 			       sizeof *vq->used +
+-			       num * sizeof *vq->used->ring + s);
++			       num * sizeof(*vq->used->ring) + s,
++			       VHOST_ADDR_USED);
+ }
+ EXPORT_SYMBOL_GPL(vq_iotlb_prefetch);
+ 
+@@ -1728,7 +1812,7 @@ int vhost_vq_init_access(struct vhost_virtqueue *vq)
+ 		r = -EFAULT;
+ 		goto err;
+ 	}
+-	r = vhost_get_user(vq, last_used_idx, &vq->used->idx);
++	r = vhost_get_used(vq, last_used_idx, &vq->used->idx);
+ 	if (r) {
+ 		vq_err(vq, "Can't access used idx at %p\n",
+ 		       &vq->used->idx);
+@@ -1932,7 +2016,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+ 	last_avail_idx = vq->last_avail_idx;
+ 
+ 	if (vq->avail_idx == vq->last_avail_idx) {
+-		if (unlikely(vhost_get_user(vq, avail_idx, &vq->avail->idx))) {
++		if (unlikely(vhost_get_avail(vq, avail_idx, &vq->avail->idx))) {
+ 			vq_err(vq, "Failed to access avail idx at %p\n",
+ 				&vq->avail->idx);
+ 			return -EFAULT;
+@@ -1959,7 +2043,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+ 
+ 	/* Grab the next descriptor number they're advertising, and increment
+ 	 * the index we've seen. */
+-	if (unlikely(vhost_get_user(vq, ring_head,
++	if (unlikely(vhost_get_avail(vq, ring_head,
+ 		     &vq->avail->ring[last_avail_idx & (vq->num - 1)]))) {
+ 		vq_err(vq, "Failed to read head: idx %d address %p\n",
+ 		       last_avail_idx,
+@@ -2175,7 +2259,7 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+ 		 * with the barrier that the Guest executes when enabling
+ 		 * interrupts. */
+ 		smp_mb();
+-		if (vhost_get_user(vq, flags, &vq->avail->flags)) {
++		if (vhost_get_avail(vq, flags, &vq->avail->flags)) {
+ 			vq_err(vq, "Failed to get flags");
+ 			return true;
+ 		}
+@@ -2202,7 +2286,7 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+ 	 * interrupts. */
+ 	smp_mb();
+ 
+-	if (vhost_get_user(vq, event, vhost_used_event(vq))) {
++	if (vhost_get_avail(vq, event, vhost_used_event(vq))) {
+ 		vq_err(vq, "Failed to get used event idx");
+ 		return true;
+ 	}
+@@ -2246,7 +2330,7 @@ bool vhost_vq_avail_empty(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+ 	__virtio16 avail_idx;
+ 	int r;
+ 
+-	r = vhost_get_user(vq, avail_idx, &vq->avail->idx);
++	r = vhost_get_avail(vq, avail_idx, &vq->avail->idx);
+ 	if (r)
+ 		return false;
+ 
+@@ -2281,7 +2365,7 @@ bool vhost_enable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+ 	/* They could have slipped one in as we were doing that: make
+ 	 * sure it's written, then check again. */
+ 	smp_mb();
+-	r = vhost_get_user(vq, avail_idx, &vq->avail->idx);
++	r = vhost_get_avail(vq, avail_idx, &vq->avail->idx);
+ 	if (r) {
+ 		vq_err(vq, "Failed to check avail idx at %p: %d\n",
+ 		       &vq->avail->idx, r);
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index a9cbbb1..f55671d 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -76,6 +76,13 @@ struct vhost_umem {
+ 	int numem;
+ };
+ 
++enum vhost_uaddr_type {
++	VHOST_ADDR_DESC = 0,
++	VHOST_ADDR_AVAIL = 1,
++	VHOST_ADDR_USED = 2,
++	VHOST_NUM_ADDRS = 3,
++};
++
+ /* The virtqueue structure describes a queue attached to a device. */
+ struct vhost_virtqueue {
+ 	struct vhost_dev *dev;
+@@ -86,6 +93,7 @@ struct vhost_virtqueue {
+ 	struct vring_desc __user *desc;
+ 	struct vring_avail __user *avail;
+ 	struct vring_used __user *used;
++	const struct vhost_umem_node *meta_iotlb[VHOST_NUM_ADDRS];
+ 	struct file *kick;
+ 	struct file *call;
+ 	struct file *error;
+-- 
+2.7.4
