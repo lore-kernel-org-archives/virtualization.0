@@ -1,18 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: automatic IRQ affinity for virtio V3
-Date: Mon, 27 Feb 2017 20:49:48 +0200
-Message-ID: <20170227204931-mutt-send-email-mst@kernel.org>
-References: <20170205171526.6224-1-hch@lst.de>
-	<20170209135031.GA5771@infradead.org>
-	<20170209180130-mutt-send-email-mst@kernel.org>
-	<20170227084832.GA22373@lst.de>
-	<20170227204456-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V2] vhost: introduce O(1) vq metadata cache
+Date: Tue, 28 Feb 2017 11:23:34 +0800
+Message-ID: <3cb12bbd-922d-e7be-18bb-a48e559346c7@redhat.com>
+References: <1481709237-19827-1-git-send-email-jasowang@redhat.com>
+	<ab222583-17ac-a4fb-0547-487caa8b866d@redhat.com>
+	<20170227203529-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20170227204456-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20170227203529-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,23 +19,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@lst.de>
-Cc: axboe@kernel.dk, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, pbonzini@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, wexu@redhat.com, vkaplans@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Feb 27, 2017 at 08:45:25PM +0200, Michael S. Tsirkin wrote:
-> On Mon, Feb 27, 2017 at 09:48:32AM +0100, Christoph Hellwig wrote:
-> > On Thu, Feb 09, 2017 at 06:01:57PM +0200, Michael S. Tsirkin wrote:
-> > > > Any chance to get this in for 4.11 after I got reviews from Jason
-> > > > for most of the patches?
-> > > 
-> > > Absolutely, I intend to merge it.
-> > 
-> > So, what is the plan for virtio this merge window?  No changes seem
-> > to have made it into linux-next before the merge window, never mind
-> > a week into it.
-> 
-> Sorry I've been a bit busy. Any chance you could rebase?
-> This conflicts with your patch removing vq info.
-
-Actually it doesn't, my bad. Applied now, thanks!
+CgpPbiAyMDE35bm0MDLmnIgyOOaXpSAwMjozNSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIFdlZCwgRmViIDE1LCAyMDE3IGF0IDAxOjM3OjE3UE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4+Cj4+IE9uIDIwMTblubQxMuaciDE05pelIDE3OjUzLCBKYXNvbiBXYW5nIHdyb3RlOgo+
+Pj4gV2hlbiBkZXZpY2UgSU9UTEIgaXMgZW5hYmxlZCwgYWxsIGFkZHJlc3MgdHJhbnNsYXRpb25z
+IHdlcmUgc3RvcmVkIGluCj4+PiBpbnRlcnZhbCB0cmVlLiBPKGxnTikgc2VhcmNoaW5nIHRpbWUg
+Y291bGQgYmUgc2xvdyBmb3IgdmlydHF1ZXVlCj4+PiBtZXRhZGF0YSAoYXZhaWwsIHVzZWQgYW5k
+IGRlc2NyaXB0b3JzKSBzaW5jZSB0aGV5IHdlcmUgYWNjZXNzZWQgbXVjaAo+Pj4gb2Z0ZW4gdGhh
+biBvdGhlciBhZGRyZXNzZXMuIFNvIHRoaXMgcGF0Y2ggaW50cm9kdWNlcyBhbiBPKDEpIGFycmF5
+Cj4+PiB3aGljaCBwb2ludHMgdG8gdGhlIGludGVydmFsIHRyZWUgbm9kZXMgdGhhdCBzdG9yZSB0
+aGUgdHJhbnNsYXRpb25zIG9mCj4+PiB2cSBtZXRhZGF0YS4gVGhvc2UgYXJyYXkgd2VyZSB1cGRh
+dGUgZHVyaW5nIHZxIElPVExCIHByZWZldGNoaW5nIGFuZAo+Pj4gd2VyZSByZXNldCBkdXJpbmcg
+ZWFjaCBpbnZhbGlkYXRpb24gYW5kIHRsYiB1cGRhdGUuIEVhY2ggdGltZSB3ZSB3YW50Cj4+PiB0
+byBhY2Nlc3MgdnEgbWV0YWRhdGEsIHRoaXMgc21hbGwgYXJyYXkgd2VyZSBxdWVyaWVkIGJlZm9y
+ZSBpbnRlcnZhbAo+Pj4gdHJlZS4gVGhpcyB3b3VsZCBiZSBzdWZmaWNpZW50IGZvciBzdGF0aWMg
+bWFwcGluZ3MgYnV0IG5vdCBkeW5hbWljCj4+PiBtYXBwaW5ncywgd2UgY291bGQgZG8gb3B0aW1p
+emF0aW9ucyBvbiB0b3AuCj4+Pgo+Pj4gVGVzdCB3ZXJlIGRvbmUgd2l0aCBsMmZ3ZCBpbiBndWVz
+dCAoMk0gaHVnZXBhZ2UpOgo+Pj4KPj4+ICAgICAgbm9pb21tdSAgfCBiZWZvcmUgICAgICAgIHwg
+YWZ0ZXIKPj4+IHR4IDEuMzJNcHBzIHwgMS4wNk1wcHMoODIlKSB8IDEuMzBNcHBzKDk4JSkKPj4+
+IHJ4IDIuMzNNcHBzIHwgMS40Nk1wcHMoNjMlKSB8IDIuMjlNcHBzKDk4JSkKPj4+Cj4+PiBXZSBj
+YW4gYWxtb3N0IHJlYWNoIHRoZSBzYW1lIHBlcmZvcm1hbmNlIGFzIG5vaW9tbXUgbW9kZS4KPj4+
+Cj4+PiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBXYW5nPGphc293YW5nQHJlZGhhdC5jb20+Cj4+PiAt
+LS0KPj4+IENoYW5nZXMgZnJvbSBWMToKPj4+IC0gc2lsZW50IDMyYml0IGJ1aWxkIHdhcm5pbmcK
+Pj4gcGluZwo+IENvdWxkIHlvdSByZWJhc2UgcGxzPwo+IEkgcHVzaGVkIG15IHRyZWUgaW50byBs
+aW51eCBuZXh0Lgo+CgpPaywgd2lsbCBkby4KClRoYW5rcwpfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
+dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
+eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
