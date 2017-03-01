@@ -1,22 +1,15 @@
-From: Viktor Mihajlovski <mihajlov@linux.vnet.ibm.com>
-Subject: Re: [systemd-devel] udev virtio by-path naming
-Date: Wed, 1 Mar 2017 20:23:42 +0100
-Message-ID: <79e0b5c0-0860-81b2-cd4d-6efaca924bcc__48306.712616659$1488396241$gmane$org@linux.vnet.ibm.com>
-References: <de55b0f4-4582-cf06-4b0d-12c2282406a8@linux.vnet.ibm.com>
-	<20170220170041.68c9bf4f.cornelia.huck@de.ibm.com>
-	<9cb1f5ff-0a5b-4d0a-16f6-887c7658795a@linux.vnet.ibm.com>
-	<CALVzVJZhZTNbZp1EB9cT82YxUnbUZZ+ZPo7Od8CWz5C3faN1AA@mail.gmail.com>
-	<14ac3e2c-180b-cb18-fd68-268dc5d85f8b@linux.vnet.ibm.com>
-	<20170301033007.GG29552@in.waw.pl>
-	<7de4f313-d3a6-b50d-4e53-3b01d6f0f2a0@linux.vnet.ibm.com>
-	<20170301155812.GG10160@redhat.com>
-	<f6dfe52a-4332-90fc-a426-712453a8c382@linux.vnet.ibm.com>
-	<20170301184439.GS10160@redhat.com>
+From: Omar Sandoval <osandov@osandov.com>
+Subject: Re: [PATCH] virtio-console: avoid DMA from stack
+Date: Wed, 1 Mar 2017 12:01:10 -0800
+Message-ID: <20170301200110.GA24754@vader.dhcp.thefacebook.com>
+References: <075115ddd99246ffc4228a3e050ba68eb36c6a8c.1485935920.git.osandov@fb.com>
+	<20170201134712.GA7935@amit-lp.rh>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170301184439.GS10160@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20170201134712.GA7935@amit-lp.rh>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,50 +19,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Daniel P. Berrange" <berrange@redhat.com>
-Cc: systemd-devel <systemd-devel@lists.freedesktop.org>, =?UTF-8?Q?Zbigniew_J=c4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>, Michal Sekletar <msekleta@redhat.com>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Amit Shah <amit@kernel.org>
+Cc: kernel-team@fb.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMDEuMDMuMjAxNyAxOTo0NCwgRGFuaWVsIFAuIEJlcnJhbmdlIHdyb3RlOgpbLi4uXQpyZXBs
-eWluZyBvbiB0aGUgbGlzdCwgYSBiaXQgbGVuZ3RoeQo+IAo+IE9rLCBteSBndWVzdCBoYXMgNCBk
-aXNrcwo+IAo+ICAtIHNkYSAtIHZpcnRpby1zY3NpLCBvdmVyIHZpcnRpby1wY2kgdHJhbnNwb3J0
-Cj4gIC0gc2RiIC0gdmlydGlvLXNjc2ksIG92ZXIgdmlydGlvLW1taW8gdHJhbnNwb3J0Cj4gIC0g
-dmRhIC0gdmlydGlvLXNjc2ksIG92ZXIgdmlydGlvLXBjaSB0cmFuc3BvcnQKPiAgLSB2ZGIgLSB2
-aXJ0aW8tc2NzaSwgb3ZlciB2aXJ0aW8tbW1pbyB0cmFuc3BvcnQKPiAKPiB3aXRoIHN5c3RlbWQg
-MjMxIEkgZ2V0IHRoZXNlIGxpbmtzCj4gCj4gICBwbGF0Zm9ybS0zZjAwMDAwMC5wY2llLXBjaS0w
-MDAwOjAwOjAxLjEtdmlydGlvLXBjaS0wMDAwOjAyOjAwLjAtc2NzaS0wOjA6MDowIC0+IC4uLy4u
-L3NkYQo+ICAgcGxhdGZvcm0tM2YwMDAwMDAucGNpZS1wY2ktMDAwMDowMDowMS4zLXZpcnRpby1w
-Y2ktMDAwMDowNDowMC4wIC0+IC4uLy4uL3ZkYQp0aGlzIGlzIHNvbWV3aGF0IHN1cHJpc2luZyAo
-dGhlIHBjaWUtcGNpLXh4eHggcGFydCksIGNvdWxkIHlvdSBvbmNlIG1vcmUKZG8gbWUgYSBmYXZv
-ciBhbmQgcnVuCiB1ZGV2YWRtIGluZm8gLWEgL2Rldi92ZGEKYW5kIHBhc3RlIHRoZSBvdXRwdXQ/
-Cj4gICB2aXJ0aW8tcGNpLWEwMDNjMDAudmlydGlvX21taW8gLT4gLi4vLi4vdmRiCj4gICB2aXJ0
-aW8tcGNpLWEwMDNlMDAudmlydGlvX21taW8tc2NzaS0wOjA6MDowIC0+IC4uLy4uL3NkYgo+IAo+
-IGFmdGVyIGFwcGx5aW5nIHlvdXIgcGF0Y2ggSSBnZXQgdGhlc2UgbGlua3M6Cj4gCj4gIHBsYXRm
-b3JtLTNmMDAwMDAwLnBjaWUtcGNpLTAwMDA6MDA6MDEuMS12aXJ0aW8tcGNpLTAwMDA6MDI6MDAu
-MC1zY3NpLTA6MDowOjAgLT4gLi4vLi4vc2RhCj4gIHBsYXRmb3JtLTNmMDAwMDAwLnBjaWUtcGNp
-LTAwMDA6MDA6MDEuMy12aXJ0aW8tcGNpLTAwMDA6MDQ6MDAuMCAtPiAuLi8uLi92ZGEKd2VsbCwg
-dGhlc2UgYXJlIHByb2JhYmx5IHN0YWxlIGxpbmtzIGZyb20gdGhlIG9sZCBzeXN0ZW1kIGJha2Vk
-IGludG8KeW91ciBpbml0cmQKPiAgcGxhdGZvcm0tM2YwMDAwMDAucGNpZS1wY2ktMDAwMDowMjow
-MC4wLXNjc2ktMDowOjA6MCAtPiAuLi8uLi9zZGEKPiAgcGxhdGZvcm0tM2YwMDAwMDAucGNpZS1w
-Y2ktMDAwMDowNDowMC4wIC0+IC4uLy4uL3ZkYQpJIGRvbid0IHlldCB1bmRlcnN0YW5kIHRoZXNl
-LCBlc3BlY2lhbGx5IHdoeSB0aGUgaW50ZXJtZWRpYXRlIHBjaS14eHh4CmlkIGhhcyB2YW5pc2hl
-ZAo+ICBwbGF0Zm9ybS1hMDAzYzAwLnZpcnRpb19tbWlvIC0+IC4uLy4uL3ZkYgo+ICBwbGF0Zm9y
-bS1hMDAzZTAwLnZpcnRpb19tbWlvLXNjc2ktMDowOjA6MCAtPiAuLi8uLi9zZGIKdGhlc2UgbG9v
-ayBhcyBleHBlY3RlZAo+ICB2aXJ0aW8tcGNpLWEwMDNjMDAudmlydGlvX21taW8gLT4gLi4vLi4v
-dmRiCj4gIHZpcnRpby1wY2ktYTAwM2UwMC52aXJ0aW9fbW1pby1zY3NpLTA6MDowOjAgLT4gLi4v
-Li4vc2RiCnN0YWxlCj4gCj4gU28gdGhhdCBhcHBlYXJzIHRvIGJlIHdvcmtpbmcgYXMgZGVzaWdu
-ZWQgLSB0aGUgNCBiYWNrY29tcGF0IHN5bWxpbmtzIGFyZQo+IHN0aWxsIHRoZXJlLCBhbmQgdGhl
-IG5ldyBzeW1saW5rcyBhbGwgbGl2ZSB1bmRlciB0aGUgcGxhdGZvcm0tIHByZWZpeAo+IGFuZCBk
-b24ndCBoYXZlIGEgYm9ndXMgJ3BjaScgaW4gdGhlIG5hbWUgZm9yIG1taW8gbGlua3MKdGhlIHBh
-dGNoIG9ubHkgcHJvdmlkZSBjb21wYXQgc3ltbGlua3MgZm9yIHRoZSBwY2kgcGF0aCBpZHMKdHJh
-ZGl0aW9uYWxseSBzZWVuIG9uIHg4NiBzeXN0ZW1zLCBidXQgSSB0aGluayB3ZSBkb24ndCB3YW50
-IHRob3NlIGZvcgpwbGF0Zm9ybXMgb3RoZXIgdGhhbiB4ODYsIHJpZ2h0Pwo+IAo+IFJlZ2FyZHMs
-Cj4gRGFuaWVsCj4gCgoKLS0gCgpNaXQgZnJldW5kbGljaGVuIEdyw7zDn2VuL0tpbmQgUmVnYXJk
-cwogICBWaWt0b3IgTWloYWpsb3Zza2kKCklCTSBEZXV0c2NobGFuZCBSZXNlYXJjaCAmIERldmVs
-b3BtZW50IEdtYkgKVm9yc2l0emVuZGVyIGRlcyBBdWZzaWNodHNyYXRzOiBNYXJ0aW5hIEvDtmRl
-cml0egpHZXNjaMOkZnRzZsO8aHJ1bmc6IERpcmsgV2l0dGtvcHAKU2l0eiBkZXIgR2VzZWxsc2No
-YWZ0OiBCw7ZibGluZ2VuClJlZ2lzdGVyZ2VyaWNodDogQW10c2dlcmljaHQgU3R1dHRnYXJ0LCBI
-UkIgMjQzMjk0CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-XwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
-Zm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4v
-bGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Wed, Feb 01, 2017 at 07:17:12PM +0530, Amit Shah wrote:
+> On (Wed) 01 Feb 2017 [00:02:27], Omar Sandoval wrote:
+> > From: Omar Sandoval <osandov@fb.com>
+> > 
+> > put_chars() stuffs the buffer it gets into an sg, but that buffer may be
+> > on the stack. This breaks with CONFIG_VMAP_STACK=y (for me, it
+> > manifested as printks getting turned into NUL bytes).
+> 
+> Seems reasonable.  I wonder since all implementations of hvc do a
+> memcpy, if we can abstract it - but that'll need some work.
+> 
+> Reviewed-by: Amit Shah <amit.shah@redhat.com>
+> 
+> Michael, please add to the virtio queue.
+> 
+> 		Amit
+
+Hi, Michael,
+
+I don't see this in Linus' master or in your git tree, is it going to go
+in for -rc1?
+
+Thanks.
