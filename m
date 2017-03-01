@@ -1,15 +1,23 @@
-From: Omar Sandoval <osandov@osandov.com>
-Subject: Re: [PATCH] virtio-console: avoid DMA from stack
-Date: Wed, 1 Mar 2017 12:01:10 -0800
-Message-ID: <20170301200110.GA24754@vader.dhcp.thefacebook.com>
-References: <075115ddd99246ffc4228a3e050ba68eb36c6a8c.1485935920.git.osandov@fb.com>
-	<20170201134712.GA7935@amit-lp.rh>
+From: Viktor Mihajlovski <mihajlov@linux.vnet.ibm.com>
+Subject: Re: [systemd-devel] udev virtio by-path naming
+Date: Wed, 1 Mar 2017 21:02:19 +0100
+Message-ID: <da35f2c0-a2d7-5b1c-5185-b582ec8a8e5d@linux.vnet.ibm.com>
+References: <de55b0f4-4582-cf06-4b0d-12c2282406a8@linux.vnet.ibm.com>
+	<20170220170041.68c9bf4f.cornelia.huck@de.ibm.com>
+	<9cb1f5ff-0a5b-4d0a-16f6-887c7658795a@linux.vnet.ibm.com>
+	<CALVzVJZhZTNbZp1EB9cT82YxUnbUZZ+ZPo7Od8CWz5C3faN1AA@mail.gmail.com>
+	<14ac3e2c-180b-cb18-fd68-268dc5d85f8b@linux.vnet.ibm.com>
+	<20170301033007.GG29552@in.waw.pl>
+	<7de4f313-d3a6-b50d-4e53-3b01d6f0f2a0@linux.vnet.ibm.com>
+	<20170301155812.GG10160@redhat.com>
+	<f6dfe52a-4332-90fc-a426-712453a8c382@linux.vnet.ibm.com>
+	<20170301184439.GS10160@redhat.com>
+	<79e0b5c0-0860-81b2-cd4d-6efaca924bcc@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20170201134712.GA7935@amit-lp.rh>
+In-Reply-To: <79e0b5c0-0860-81b2-cd4d-6efaca924bcc@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,30 +27,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Amit Shah <amit@kernel.org>
-Cc: kernel-team@fb.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Daniel P. Berrange" <berrange@redhat.com>
+Cc: systemd-devel <systemd-devel@lists.freedesktop.org>, =?UTF-8?Q?Zbigniew_J=c4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>, Michal Sekletar <msekleta@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 01, 2017 at 07:17:12PM +0530, Amit Shah wrote:
-> On (Wed) 01 Feb 2017 [00:02:27], Omar Sandoval wrote:
-> > From: Omar Sandoval <osandov@fb.com>
-> > 
-> > put_chars() stuffs the buffer it gets into an sg, but that buffer may be
-> > on the stack. This breaks with CONFIG_VMAP_STACK=y (for me, it
-> > manifested as printks getting turned into NUL bytes).
-> 
-> Seems reasonable.  I wonder since all implementations of hvc do a
-> memcpy, if we can abstract it - but that'll need some work.
-> 
-> Reviewed-by: Amit Shah <amit.shah@redhat.com>
-> 
-> Michael, please add to the virtio queue.
-> 
-> 		Amit
-
-Hi, Michael,
-
-I don't see this in Linus' master or in your git tree, is it going to go
-in for -rc1?
-
-Thanks.
+T24gMDEuMDMuMjAxNyAyMDoyMywgVmlrdG9yIE1paGFqbG92c2tpIHdyb3RlOgo+IE9uIDAxLjAz
+LjIwMTcgMTk6NDQsIERhbmllbCBQLiBCZXJyYW5nZSB3cm90ZToKPiBbLi4uXQo+IHJlcGx5aW5n
+IG9uIHRoZSBsaXN0LCBhIGJpdCBsZW5ndGh5Cj4+Cj4+IE9rLCBteSBndWVzdCBoYXMgNCBkaXNr
+cwo+Pgo+PiAgLSBzZGEgLSB2aXJ0aW8tc2NzaSwgb3ZlciB2aXJ0aW8tcGNpIHRyYW5zcG9ydAo+
+PiAgLSBzZGIgLSB2aXJ0aW8tc2NzaSwgb3ZlciB2aXJ0aW8tbW1pbyB0cmFuc3BvcnQKPj4gIC0g
+dmRhIC0gdmlydGlvLXNjc2ksIG92ZXIgdmlydGlvLXBjaSB0cmFuc3BvcnQKPj4gIC0gdmRiIC0g
+dmlydGlvLXNjc2ksIG92ZXIgdmlydGlvLW1taW8gdHJhbnNwb3J0Cj4+Cj4+IHdpdGggc3lzdGVt
+ZCAyMzEgSSBnZXQgdGhlc2UgbGlua3MKPj4KPj4gICBwbGF0Zm9ybS0zZjAwMDAwMC5wY2llLXBj
+aS0wMDAwOjAwOjAxLjEtdmlydGlvLXBjaS0wMDAwOjAyOjAwLjAtc2NzaS0wOjA6MDowIC0+IC4u
+Ly4uL3NkYQo+PiAgIHBsYXRmb3JtLTNmMDAwMDAwLnBjaWUtcGNpLTAwMDA6MDA6MDEuMy12aXJ0
+aW8tcGNpLTAwMDA6MDQ6MDAuMCAtPiAuLi8uLi92ZGEKPiB0aGlzIGlzIHNvbWV3aGF0IHN1cHJp
+c2luZyAodGhlIHBjaWUtcGNpLXh4eHggcGFydCksIGNvdWxkIHlvdSBvbmNlIG1vcmUKPiBkbyBt
+ZSBhIGZhdm9yIGFuZCBydW4KPiAgdWRldmFkbSBpbmZvIC1hIC9kZXYvdmRhCj4gYW5kIHBhc3Rl
+IHRoZSBvdXRwdXQ/Cm5ldmVybWluZCwgSSB0aGluayBJIGdldCBpdCBub3csIHRoZSBQQ0kgYnVz
+IGlzIGEgY2hpbGQgdG8gdGhlIHBsYXRmb3JtCmJ1cywgYW5kIHRoZSB2aXJ0aW8gUENJIGZ1bmN0
+aW9ucyBhcmUgY29ubmVjdGVkIHZpYSBQQ0kgYnJpZGdlcwowMDAwOjAwOjAxLjEgYW5kIDAwMDA6
+MDA6MDEuMwo+PiAgIHZpcnRpby1wY2ktYTAwM2MwMC52aXJ0aW9fbW1pbyAtPiAuLi8uLi92ZGIK
+Pj4gICB2aXJ0aW8tcGNpLWEwMDNlMDAudmlydGlvX21taW8tc2NzaS0wOjA6MDowIC0+IC4uLy4u
+L3NkYgo+Pgo+PiBhZnRlciBhcHBseWluZyB5b3VyIHBhdGNoIEkgZ2V0IHRoZXNlIGxpbmtzOgo+
+Pgo+PiAgcGxhdGZvcm0tM2YwMDAwMDAucGNpZS1wY2ktMDAwMDowMDowMS4xLXZpcnRpby1wY2kt
+MDAwMDowMjowMC4wLXNjc2ktMDowOjA6MCAtPiAuLi8uLi9zZGEKPj4gIHBsYXRmb3JtLTNmMDAw
+MDAwLnBjaWUtcGNpLTAwMDA6MDA6MDEuMy12aXJ0aW8tcGNpLTAwMDA6MDQ6MDAuMCAtPiAuLi8u
+Li92ZGEKPiB3ZWxsLCB0aGVzZSBhcmUgcHJvYmFibHkgc3RhbGUgbGlua3MgZnJvbSB0aGUgb2xk
+IHN5c3RlbWQgYmFrZWQgaW50bwo+IHlvdXIgaW5pdHJkCj4+ICBwbGF0Zm9ybS0zZjAwMDAwMC5w
+Y2llLXBjaS0wMDAwOjAyOjAwLjAtc2NzaS0wOjA6MDowIC0+IC4uLy4uL3NkYQo+PiAgcGxhdGZv
+cm0tM2YwMDAwMDAucGNpZS1wY2ktMDAwMDowNDowMC4wIC0+IC4uLy4uL3ZkYQo+IEkgZG9uJ3Qg
+eWV0IHVuZGVyc3RhbmQgdGhlc2UsIGVzcGVjaWFsbHkgd2h5IHRoZSBpbnRlcm1lZGlhdGUgcGNp
+LXh4eHgKPiBpZCBoYXMgdmFuaXNoZWQKdGhhdCBpcyB0aGVuIGNvcnJlY3QgYXMgd2VsbCwgYmVj
+YXVzZSB0aGUgUENJIGJyaWRnZXMgZG9uJ3QgY29udHJpYnV0ZQp0byB0aGUgcGF0aCBpZCwgd2hp
+Y2ggaXMgYSBib251cyBlZmZlY3Qgb2YgcmVtb3ZpbmcgdGhlIHNwZWNpYWwgdmlydGlvCmhhbmRs
+aW5nCkkgdGhpbmsgd2UncmUgZ29vZCB3aXRoIHRoZSBwYXRjaCBhcyBpcy4KWy4uLl0KLS0gCgpN
+aXQgZnJldW5kbGljaGVuIEdyw7zDn2VuL0tpbmQgUmVnYXJkcwogICBWaWt0b3IgTWloYWpsb3Zz
+a2kKCklCTSBEZXV0c2NobGFuZCBSZXNlYXJjaCAmIERldmVsb3BtZW50IEdtYkgKVm9yc2l0emVu
+ZGVyIGRlcyBBdWZzaWNodHNyYXRzOiBNYXJ0aW5hIEvDtmRlcml0egpHZXNjaMOkZnRzZsO8aHJ1
+bmc6IERpcmsgV2l0dGtvcHAKU2l0eiBkZXIgR2VzZWxsc2NoYWZ0OiBCw7ZibGluZ2VuClJlZ2lz
+dGVyZ2VyaWNodDogQW10c2dlcmljaHQgU3R1dHRnYXJ0LCBIUkIgMjQzMjk0CgpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
+aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
+Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
+b24=
