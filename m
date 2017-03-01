@@ -1,7 +1,7 @@
-From: Viktor Mihajlovski <mihajlov@linux.vnet.ibm.com>
+From: "Daniel P. Berrange" <berrange@redhat.com>
 Subject: Re: [systemd-devel] udev virtio by-path naming
-Date: Wed, 1 Mar 2017 19:28:46 +0100
-Message-ID: <f6dfe52a-4332-90fc-a426-712453a8c382__11846.2583552629$1488392951$gmane$org@linux.vnet.ibm.com>
+Date: Wed, 1 Mar 2017 18:44:39 +0000
+Message-ID: <20170301184439.GS10160__27306.5820373178$1488393897$gmane$org@redhat.com>
 References: <de55b0f4-4582-cf06-4b0d-12c2282406a8@linux.vnet.ibm.com>
 	<20170220170041.68c9bf4f.cornelia.huck@de.ibm.com>
 	<9cb1f5ff-0a5b-4d0a-16f6-887c7658795a@linux.vnet.ibm.com>
@@ -10,11 +10,14 @@ References: <de55b0f4-4582-cf06-4b0d-12c2282406a8@linux.vnet.ibm.com>
 	<20170301033007.GG29552@in.waw.pl>
 	<7de4f313-d3a6-b50d-4e53-3b01d6f0f2a0@linux.vnet.ibm.com>
 	<20170301155812.GG10160@redhat.com>
+	<f6dfe52a-4332-90fc-a426-712453a8c382@linux.vnet.ibm.com>
+Reply-To: "Daniel P. Berrange" <berrange@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170301155812.GG10160@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <f6dfe52a-4332-90fc-a426-712453a8c382@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,89 +27,89 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Daniel P. Berrange" <berrange@redhat.com>
-Cc: systemd-devel <systemd-devel@lists.freedesktop.org>, =?UTF-8?Q?Zbigniew_J=c4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>, Michal Sekletar <msekleta@redhat.com>, virtualization@lists.linux-foundation.org
+To: Viktor Mihajlovski <mihajlov@linux.vnet.ibm.com>
+Cc: systemd-devel <systemd-devel@lists.freedesktop.org>, Zbigniew =?utf-8?Q?J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>, Michal Sekletar <msekleta@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMDEuMDMuMjAxNyAxNjo1OCwgRGFuaWVsIFAuIEJlcnJhbmdlIHdyb3RlOgo+IE9uIFdlZCwg
-TWFyIDAxLCAyMDE3IGF0IDA0OjAyOjUzUE0gKzAxMDAsIFZpa3RvciBNaWhhamxvdnNraSB3cm90
-ZToKPj4gT24gMDEuMDMuMjAxNyAwNDozMCwgWmJpZ25pZXcgSsSZZHJ6ZWpld3NraS1Tem1layB3
-cm90ZToKPj4+IE9uIFR1ZSwgRmViIDI4LCAyMDE3IGF0IDA5OjQ3OjQyQU0gKzAxMDAsIFZpa3Rv
-ciBNaWhhamxvdnNraSB3cm90ZToKPj4+Pj4+Pj4gT25lIGNvdWxkIGFyZ3VlIGFib3V0IGJhY2st
-bGV2ZWwgY29tcGF0aWJpbGl0eSwgYnV0IHZpcnRpbyBieS1wYXRoCj4+Pj4+Pj4+IG5hbWluZyBo
-YXMgY2hhbmdlZCBtdWx0aXBsZSB0aW1lcy4gV2UgaGF2ZSBzZWVuIHZpcnRpby1wY2ktdmlydGlv
-PG4+Cj4+Pj4+Pj4+IChub3QgcHJlZGljdGFibGUpLCBwY2ktPGJ1c2lkPiBhbmQgdmlydGlvLXBj
-aS08YnVzaWQ+IGFscmVhZHkuIEl0Cj4+Pj4+Pj4+IG1pZ2h0IGJlIGEgZ29vZCB0aW1lIG5vdyB0
-byBzZXR0bGUgb24gYSBjb21tb24gYXBwcm9hY2ggZm9yIGFsbAo+Pj4+Pj4+PiB2aXJ0aW8gdHlw
-ZXMuCj4+Pj4+Pj4+Cj4+Pj4+Pj4+IEZvciB0aGUgcmVhc29ucyBhYm92ZSwgSSdkIHZvdGUgZm9y
-IDxzdWJzeXN0ZW0+LTxidXNpZD4sIHdoaWNoCj4+Pj4+Pj4+IHdvdWxkIHdvcmsgZm9yIFBDSSBh
-bmQgQ0NXLCBub3Qgc3VyZSBhYm91dCBBUk0gTU1JTyB0aG91Z2guCj4+Pgo+Pj4gSXQgc2VlbXMg
-dGhhdCB0aGVyZSdzIGFncmVlbWVudCB0aGF0IDxzdWJzeXN0ZW0+LTxidXNpZD4gaXMgdGhlIHJp
-Z2h0Cj4+PiBhcHByb2FjaC4KPj4+Cj4+PiBJZGVhbGx5IHdlIHdvdWxkIGtlZXAgdGhlIHZpcnRp
-by1wY2ktPGJ1c2lkPiBsaW5rcyBhcyB0aGV5IGFwcGVhcgo+Pj4gcmlnaHQgbm93LCBmb3IgYmFj
-a3dhcmRzIGNvbXBhdGliaWxpdHksIGp1c3QgZm9yIHRoZSBwY2kgZGV2aWNlcywgYW5kCj4+PiBt
-YXJrIHRoZW0gYXMgZGVwcmVjYXRlZCAoZHVubm8gd2hlcmUsIG1heWJlIGp1c3QgaW4gTkVXUyks
-IGFuZCBhZGQgdGhlCj4+PiBjb2RlIHRvIG1ha2UgdGhlIGxpbmtzLgo+Pj4KPj4+IEkgaGF2ZW4n
-dCBsb29rZWQgYXQgdGhlIGNvZGUsIG1heWJlIHdlIGp1c3QgZG8gdGhpcyB3aXRoIHRoZSByaWdo
-dAo+Pj4gdWRldiBydWxlLCBhbmQgYWxzbyBzdGljayB0aGUgZGVwcmVjYXRpb24gY29tbWVudCB0
-aGVyZT8KPj4+Cj4+PiBaYnlzemVrCj4+Pgo+PiBJJ3ZlIHBvc3RlZCBhIGdpdGh1YiBwdWxsIHJl
-cXVlc3QgWzFdLCBhbmQgd291bGQgYXBwcmVjaWF0ZSByZXZpZXcKPj4gZmVlZGJhY2suIEFzIEkg
-YW0gbGFja2luZyBhbiBBUk0gc2V0dXAsIGl0IHdvdWxkIGFsc28gYmUgbmljZSBpZiBzb21lb25l
-Cj4+IHdpdGggQVJNIHNraWxscyBjb3VsZCBoYXZlIGEgbG9vayBhcyB3ZWxsLgo+IAo+IEZZSSB5
-b3UgY2FuIGluc3RhbGwgQVJNNyBndWVzdHMgb24gYW4geDg2XzY0IGhvc3QsIHVzaW5nIHByZS1i
-dWlsdCBGZWRvcmEKPiBpbWFnZXMKPiAKPiAgIGh0dHBzOi8vZmVkb3JhcHJvamVjdC5vcmcvd2lr
-aS9RQTpUZXN0Y2FzZV9WaXJ0X0FSTV9vbl94ODYKPiAKPiBOQiwgdGhpcyB3aWxsIGluc3RhbGwg
-dGhlIGd1ZXN0IHVzaW5nIHZpcnRpby1wY2kuIFNvIGlmIHlvdSB3YW50IHRvCj4gc2VlIHZpcnRp
-by1tbWlvIGluIGFjdGlvbiwgeW91J2xsIG5lZWQgdG8gZWRpdCB0aGUgbGlidmlydCBYTUwgY29u
-ZmlnCj4gYWZ0ZXJ3YXJkcyB0byBhZGQgYW5vdGhlciBkaXNrLCBlZwo+IAo+ICAgICA8ZGlzayB0
-eXBlPSdmaWxlJyBkZXZpY2U9J2Rpc2snPgo+ICAgICAgIDxkcml2ZXIgbmFtZT0ncWVtdScgdHlw
-ZT0ncWNvdzInLz4KPiAgICAgICA8c291cmNlIGZpbGU9Jy92YXIvbGliL2xpYnZpcnQvaW1hZ2Vz
-L2RhdGEucWNvdzInLz4KPiAgICAgICA8dGFyZ2V0IGRldj0ndmRhJyBidXM9J3ZpcnRpbycvPgo+
-ICAgICAgIDxhZGRyZXNzIHR5cGU9J3ZpcnRpby1tbWlvJy8+Cj4gICAgIDwvZGlzaz4KPiAKPiAK
-SSBtaWdodCBiZSBzdHVjayB3aXRoIGEgdG9vIG9sZCBRRU1VIGJpbmFyeSwgdGhlIGd1ZXN0IHBh
-bmljcyBhcyBzb29uIGFzCnRoZSB2aXJ0aW8tbW1pbyBtb2R1bGUgaXMgbG9hZGVkLiBJZiBJIGRy
-b3AgdG8gdGhlIGRyYWN1dCBkZWJ1ZyBzaGVsbCBJCmNhbiBzZWUgYXQgbGVhc3QgYSBudW1iZXIg
-b2YgbW1pbyBhZGRyZXNzIHNsb3RzKD8pCnJhbmdpbmcgZnJvbSBhMDAwMDAwLnZpcnRpb19tbWlv
-IHRvIGEwMDNlMDAudmlydGlvX21taW8uCj4+IElmIHdhbnRlZCwgSSBjYW4gdGFrZSBhIHN0YWIg
-YXQgdmlydGlvLW1taW8sIGJ1dCB3b3VsZCBuZWVkIHRoZSBvdXRwdXQKPj4gb2YgdWRldmFkbSAt
-YSAvZGV2L3ZkYSBmcm9tIGEgdmlydGlvLW1taW8gc3lzdGVtLgo+IAo+IFByZXN1bWFibHkgeW91
-IG1lYW4gJ3VkZXZhZG0gaW5mbyAtYSAvZGV2L3ZkYScgPyAgVGhhdCByZXBvcnRzIHRoZSBmb2xs
-b3dpbmcsCnllcywgSSBhbHdheXMgaGF2ZSB0byB0eXBlIHRoZSBjb21tYW5kIHR3aWNlIDotKAo+
-IGdpdmVuIGEgYmFzaWMgRmVkb3JhIDI1IGd1ZXN0LCB3aXRoIGEgdmlydGlvLW1taW8gZGlzayBh
-ZGRlZCBhcyBwZXIgdGhlCj4gZ3VpZGUgYWJvdmUuLi4KPiAKPiAgIGxvb2tpbmcgYXQgZGV2aWNl
-ICcvZGV2aWNlcy9wbGF0Zm9ybS9hMDAzZTAwLnZpcnRpb19tbWlvL3ZpcnRpbzMvYmxvY2svdmRh
-JzoKPiAgICAgS0VSTkVMPT0idmRhIgo+ICAgICBTVUJTWVNURU09PSJibG9jayIKPiAgICAgRFJJ
-VkVSPT0iIgo+ICAgICBBVFRSe2FsaWdubWVudF9vZmZzZXR9PT0iMCIKPiAgICAgQVRUUntiYWRi
-bG9ja3N9PT0iIgo+ICAgICBBVFRSe2NhY2hlX3R5cGV9PT0id3JpdGUgYmFjayIKPiAgICAgQVRU
-UntjYXBhYmlsaXR5fT09IjUwIgo+ICAgICBBVFRSe2Rpc2NhcmRfYWxpZ25tZW50fT09IjAiCj4g
-ICAgIEFUVFJ7ZXh0X3JhbmdlfT09IjI1NiIKPiAgICAgQVRUUntpbmZsaWdodH09PSIgICAgICAg
-MCAgICAgICAgMCIKPiAgICAgQVRUUntyYW5nZX09PSIxNiIKPiAgICAgQVRUUntyZW1vdmFibGV9
-PT0iMCIKPiAgICAgQVRUUntyb309PSIwIgo+ICAgICBBVFRSe3NlcmlhbH09PSIiCj4gICAgIEFU
-VFJ7c2l6ZX09PSIyMDk3MTUyIgo+ICAgICBBVFRSe3N0YXR9PT0iICAgICAgOTQgICAgICAgIDAg
-ICAgIDQyMDggICAgICAyODUgICAgICAgIDAgICAgICAgIDAgICAgICAgIDAgCj4gICAgICAgIDAg
-ICAgICAgIDAgICAgICAxMDAgICAgICAyODAiCj4gCj4gICBsb29raW5nIGF0IHBhcmVudCBkZXZp
-Y2UgJy9kZXZpY2VzL3BsYXRmb3JtL2EwMDNlMDAudmlydGlvX21taW8vdmlydGlvMyc6Cj4gICAg
-IEtFUk5FTFM9PSJ2aXJ0aW8zIgo+ICAgICBTVUJTWVNURU1TPT0idmlydGlvIgo+ICAgICBEUklW
-RVJTPT0idmlydGlvX2JsayIKPiAgICAgQVRUUlN7ZGV2aWNlfT09IjB4MDAwMiIKPiAgICAgQVRU
-UlN7ZmVhdHVyZXN9PT0iMDAxMDEwMTEwMTExMDAwMDAwMDAwMDAwMDAwMDExMDAwMDAwMDAwMDAw
-MDAwMDAwMDAwMDAwMDAwMAo+IDAwMDAwMCIKPiAgICAgQVRUUlN7c3RhdHVzfT09IjB4MDAwMDAw
-MDciCj4gICAgIEFUVFJTe3ZlbmRvcn09PSIweDU1NGQ0NTUxIgo+IAo+ICAgbG9va2luZyBhdCBw
-YXJlbnQgZGV2aWNlICcvZGV2aWNlcy9wbGF0Zm9ybS9hMDAzZTAwLnZpcnRpb19tbWlvJzoKPiAg
-ICAgS0VSTkVMUz09ImEwMDNlMDAudmlydGlvX21taW8iCj4gICAgIFNVQlNZU1RFTVM9PSJwbGF0
-Zm9ybSIKPiAgICAgRFJJVkVSUz09InZpcnRpby1tbWlvIgo+ICAgICBBVFRSU3tkcml2ZXJfb3Zl
-cnJpZGV9PT0iKG51bGwpIgpTaW5jZSBJIGNhbid0IGRvIHRoYXQgb24gbXkgYm94LCB3b3VsZCB5
-b3UgYmUgc28ga2luZCB0byBydW4KIGxzIC1sIC9kZXYvZGlzay9ieS1wYXRoCklmIGl0IHJldHVy
-bnMgaWRzIGxpa2UKICB2aXJ0aW8tcGNpLWEwMDNlMDAudmlydGlvX21taW9bLXBhcnRuXQpteSBz
-dWdnZXN0ZWQgcGF0Y2ggc2hvdWxkIGJlIE9LIGZvciBBUk0gaW4gdGhhdCBpdCB3aWxsIHByb2R1
-Y2UgaWRzIGluCnRoZSBmb3JtYXQKICBwbGF0Zm9ybS1hMDAzZTAwLnZpcnRpb19tbWlvWy1wYXJ0
-bl0KPiAKPiAgIGxvb2tpbmcgYXQgcGFyZW50IGRldmljZSAnL2RldmljZXMvcGxhdGZvcm0nOgo+
-ICAgICBLRVJORUxTPT0icGxhdGZvcm0iCj4gICAgIFNVQlNZU1RFTVM9PSIiCj4gICAgIERSSVZF
-UlM9PSIiCj4gCj4gCj4gCj4gUmVnYXJkcywKPiBEYW5pZWwKPiAKCgotLSAKCk1pdCBmcmV1bmRs
-aWNoZW4gR3LDvMOfZW4vS2luZCBSZWdhcmRzCiAgIFZpa3RvciBNaWhhamxvdnNraQoKSUJNIERl
-dXRzY2hsYW5kIFJlc2VhcmNoICYgRGV2ZWxvcG1lbnQgR21iSApWb3JzaXR6ZW5kZXIgZGVzIEF1
-ZnNpY2h0c3JhdHM6IE1hcnRpbmEgS8O2ZGVyaXR6Ckdlc2Now6RmdHNmw7xocnVuZzogRGlyayBX
-aXR0a29wcApTaXR6IGRlciBHZXNlbGxzY2hhZnQ6IELDtmJsaW5nZW4KUmVnaXN0ZXJnZXJpY2h0
-OiBBbXRzZ2VyaWNodCBTdHV0dGdhcnQsIEhSQiAyNDMyOTQKCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
-aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
-bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Wed, Mar 01, 2017 at 07:28:46PM +0100, Viktor Mihajlovski wrote:
+> On 01.03.2017 16:58, Daniel P. Berrange wrote:
+> > given a basic Fedora 25 guest, with a virtio-mmio disk added as per the
+> > guide above...
+> > 
+> >   looking at device '/devices/platform/a003e00.virtio_mmio/virtio3/block/vda':
+> >     KERNEL=="vda"
+> >     SUBSYSTEM=="block"
+> >     DRIVER==""
+> >     ATTR{alignment_offset}=="0"
+> >     ATTR{badblocks}==""
+> >     ATTR{cache_type}=="write back"
+> >     ATTR{capability}=="50"
+> >     ATTR{discard_alignment}=="0"
+> >     ATTR{ext_range}=="256"
+> >     ATTR{inflight}=="       0        0"
+> >     ATTR{range}=="16"
+> >     ATTR{removable}=="0"
+> >     ATTR{ro}=="0"
+> >     ATTR{serial}==""
+> >     ATTR{size}=="2097152"
+> >     ATTR{stat}=="      94        0     4208      285        0        0        0 
+> >        0        0      100      280"
+> > 
+> >   looking at parent device '/devices/platform/a003e00.virtio_mmio/virtio3':
+> >     KERNELS=="virtio3"
+> >     SUBSYSTEMS=="virtio"
+> >     DRIVERS=="virtio_blk"
+> >     ATTRS{device}=="0x0002"
+> >     ATTRS{features}=="0010101101110000000000000000110000000000000000000000000000
+> > 000000"
+> >     ATTRS{status}=="0x00000007"
+> >     ATTRS{vendor}=="0x554d4551"
+> > 
+> >   looking at parent device '/devices/platform/a003e00.virtio_mmio':
+> >     KERNELS=="a003e00.virtio_mmio"
+> >     SUBSYSTEMS=="platform"
+> >     DRIVERS=="virtio-mmio"
+> >     ATTRS{driver_override}=="(null)"
+> Since I can't do that on my box, would you be so kind to run
+>  ls -l /dev/disk/by-path
+> If it returns ids like
+>   virtio-pci-a003e00.virtio_mmio[-partn]
+> my suggested patch should be OK for ARM in that it will produce ids in
+> the format
+>   platform-a003e00.virtio_mmio[-partn]
+
+Ok, my guest has 4 disks
+
+ - sda - virtio-scsi, over virtio-pci transport
+ - sdb - virtio-scsi, over virtio-mmio transport
+ - vda - virtio-scsi, over virtio-pci transport
+ - vdb - virtio-scsi, over virtio-mmio transport
+
+with systemd 231 I get these links
+
+  platform-3f000000.pcie-pci-0000:00:01.1-virtio-pci-0000:02:00.0-scsi-0:0:0:0 -> ../../sda
+  platform-3f000000.pcie-pci-0000:00:01.3-virtio-pci-0000:04:00.0 -> ../../vda
+  virtio-pci-a003c00.virtio_mmio -> ../../vdb
+  virtio-pci-a003e00.virtio_mmio-scsi-0:0:0:0 -> ../../sdb
+
+after applying your patch I get these links:
+
+ platform-3f000000.pcie-pci-0000:00:01.1-virtio-pci-0000:02:00.0-scsi-0:0:0:0 -> ../../sda
+ platform-3f000000.pcie-pci-0000:00:01.3-virtio-pci-0000:04:00.0 -> ../../vda
+ platform-3f000000.pcie-pci-0000:02:00.0-scsi-0:0:0:0 -> ../../sda
+ platform-3f000000.pcie-pci-0000:04:00.0 -> ../../vda
+ platform-a003c00.virtio_mmio -> ../../vdb
+ platform-a003e00.virtio_mmio-scsi-0:0:0:0 -> ../../sdb
+ virtio-pci-a003c00.virtio_mmio -> ../../vdb
+ virtio-pci-a003e00.virtio_mmio-scsi-0:0:0:0 -> ../../sdb
+
+So that appears to be working as designed - the 4 backcompat symlinks are
+still there, and the new symlinks all live under the platform- prefix
+and don't have a bogus 'pci' in the name for mmio links
+
+Regards,
+Daniel
+-- 
+|: http://berrange.com      -o-    http://www.flickr.com/photos/dberrange/ :|
+|: http://libvirt.org              -o-             http://virt-manager.org :|
+|: http://entangle-photo.org       -o-    http://search.cpan.org/~danberr/ :|
