@@ -1,17 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] packed ring layout proposal v2
-Date: Wed, 1 Mar 2017 06:14:21 +0200
-Message-ID: <20170301060913-mutt-send-email-mst@kernel.org>
-References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
-	<20170228050218.GI18844@yliu-dev.sh.intel.com>
-	<20170301024951-mutt-send-email-mst@kernel.org>
-	<20170301035715.GP18844@yliu-dev.sh.intel.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 1/4] qxl: drop mode_info.modes & related code.
+Date: Wed,  1 Mar 2017 11:12:31 +0100
+Message-ID: <1488363154-6889-2-git-send-email-kraxel@redhat.com>
+References: <1488363154-6889-1-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20170301035715.GP18844@yliu-dev.sh.intel.com>
+In-Reply-To: <1488363154-6889-1-git-send-email-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,159 +17,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yuanhan Liu <yuanhan.liu@linux.intel.com>
-Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, Dave Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 01, 2017 at 11:57:15AM +0800, Yuanhan Liu wrote:
-> On Wed, Mar 01, 2017 at 03:02:29AM +0200, Michael S. Tsirkin wrote:
-> > > > * Descriptor ring:
-> > > > 
-> > > > Guest adds descriptors with unique index values and DESC_HW set in flags.
-> > > > Host overwrites used descriptors with correct len, index, and DESC_HW
-> > > > clear.  Flags are always set/cleared last.
-> > > 
-> > > May I know what's the index intended for? Back referencing a pkt buffer?
-> > 
-> > Yes and generally identify which descriptor completed. Recall that
-> > even though vhost net completes in order at the moment,
-> > virtio rings serve devices (e.g. storage) that complete out of order.
-> 
-> I see, and thanks.
-> 
-> > > That said, if it's "16: 16" and if we use only 8 bits for batch, we
-> > > could still have another 8 bit for anything else, say the number of
-> > > desc for a single pkt. With that, the num_buffers of mergeable Rx
-> > > header could be replaced.  More importantly, we could reduce a cache
-> > > line write if non offload are supported in mergeable Rx path. 
-> > 
-> > Why do you bother with mergeable Rx without offloads?
-> 
-> Oh, my bad. I actually meant "without offloads __being used__". Just
-> assume the pkt size is 64B and no offloads are used. When mergeable
-> Rx is negotiated (which is the default case), num_buffers has to be
-> set 1. That means an extra cache line write. For the case of non
-> mergeable, the cache line write could be avoid by a trick like what
-> the following patch did:
-> 
->    http://dpdk.org/browse/dpdk/commit/?id=c9ea670c1dc7e3f111d8139f915082b60c9c1ffe
-> 
-> It basically tries to avoid writing 0 if the value is already 0:
-> the case when no offloads are used.
-> So while writing this email, I was thinking maybe we could not set
-> num_buffers to 1 when there is only one desc (let it be 0 and let
-> num_buffers == 0 imply num_buffers = 1). I'm not quite sure we can
-> do that now, thus I checked the DPDK code and found it's Okay.
-> 
->     896                 seg_num = header->num_buffers;
->     897
->     898                 if (seg_num == 0)
->     899                         seg_num = 1;
-> 
-> 
-> I then also checked linux kernel code, and found it's not okay as
-> the code depends on the value being set correctly:
-> 
-> ==> 365         u16 num_buf = virtio16_to_cpu(vi->vdev, hdr->num_buffers);
->     366         struct page *page = virt_to_head_page(buf);
->     367         int offset = buf - page_address(page);
->     368         unsigned int truesize = max(len, mergeable_ctx_to_buf_truesize(ctx));
->     369
->     370         struct sk_buff *head_skb = page_to_skb(vi, rq, page, offset, len,
->     371                                                truesize);
->     372         struct sk_buff *curr_skb = head_skb;
->     373
->     374         if (unlikely(!curr_skb))
->     375                 goto err_skb;
-> ==> 376         while (--num_buf) {
-> 
-> That means, if we want to do that, it needs an extra feature flag
-> (either a global feature flag or a desc flag), something like
-> ALLOW_ZERO_NUM_BUFFERS. Or even, make it allowable in virtio 1.1
-> (virtio 0.95/1.0 won't benifit from it though).
-> 
-> Does it make sense to you?
+very old qxl hardware revisions (predating qxl ksm support by a few
+years) supported a fixed list of video modes only.  The list is still
+provided by the virtual hardware, for backward compatibility reasons.
 
-Right and then we could use a descriptor flag "header is all 0s".
-For virtio 1.0 we could put these in the used ring instead.
+The qxl kms driver never ever looks at it, except for dumping it to
+the kernel log at load time in case debug logging is enabled.  Drop
+that pointless code.
 
-> 
-> > Make each buffer
-> > MTU sized and it'll fit without merging.  Linux used not to, it only
-> > started doing this to save memory aggressively. I don't think
-> > DPDK cares about this.
-> > 
-> > > 
-> > > 	struct desc {
-> > > 	        __le64 addr;
-> > > 	        __le16 len;
-> > > 	        __le8  batch;
-> > > 	        __le8  num_buffers;
-> > > 	        __le16 index;
-> > > 	        __le16 flags;
-> > > 	};
-> > 
-> > Interesting. How about a benchmark for these ideas?
-> 
-> Sure, I would like to benchmark it. It won't take long to me. But
-> currently, I was still focusing on analysising the performance behaviour
-> of virtio 0.95/1.0 (when I get some time), to see what's not good for
-> performance and what's can be improved.
-> 
-> Besides that, as said, I often got interrupted. Moreoever, DPDK v17.05
-> code freeze deadline is coming. So it's just a remind that I may don't
-> have time for it recently. Sorry for that.
-> 
-> > > > * Device specific descriptor flags
-> > > > We have a lot of unused space in the descriptor.  This can be put to
-> > > > good use by reserving some flag bits for device use.
-> > > > For example, network device can set a bit to request
-> > > > that header in the descriptor is suppressed
-> > > > (in case it's all 0s anyway). This reduces cache utilization.
-> > > 
-> > > Good proposal. But I think it could only work with Tx, where the driver
-> > > knows whether the headers are all 0s while filling the desc. But for
-> > > Rx, whereas the driver has to pre-fill the desc, it doesn't know. Thus
-> > > it still requires filling an header desc for storing it.
-> > 
-> > I don't see why - I don't think drivers pre-fill buffers in header for RX
-> > right now. Why would they start?
-> 
-> Again, my bad, I meant "prepare" but not "pre-fill". Let me try to explain
-> it again. I'm thinking:
-> 
-> - For Tx, when the header is all 0s, the header could be discarded. We
->   could use one desc for transfering a packet (with a flag NO_HEADER
->   or HEADER_ALL_ZERO bit set)
-> 
-> - For Rx, the header is filled in the device (or vhost) side. And the
->   driver has to prepare the header desc for each pkt, because the Rx
->   driver has no idea whether it will be all 0s.
-> 
->   That means, the header could not be discarded.
-> 
-> If such a global feature is negotiated, we could also discard the header
-> desc as well.
-> 
-> 	--yliu
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/qxl/qxl_drv.h |  2 --
+ drivers/gpu/drm/qxl/qxl_kms.c | 22 ----------------------
+ 2 files changed, 24 deletions(-)
 
-Right and again, flags could be added to the used ring to pass extra
-info.
-
-> > > Maybe we could introduce a global feature? When that's negotiated, no
-> > > header desc need filled and processed? I'm thinking this could also
-> > > help the vector implementation I mentioned in another email.
-> > 
-> > It's possible of course - it's a subset of what I said.
-> > Though it makes it less useful in the general case.
-> > 
-> > > > Note: this feature can be supported in virtio 1.0 as well,
-> > > > as we have unused bits in both descriptor and used ring there.
-> > > 
-> > > Agreed.
-> > > 
-> > > 	--yliu
-> > 
-> > ---------------------------------------------------------------------
-> > To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
-> > For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
+index 0c313e5..fe90b36 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.h
++++ b/drivers/gpu/drm/qxl/qxl_drv.h
+@@ -160,8 +160,6 @@ struct qxl_mman {
+ };
+ 
+ struct qxl_mode_info {
+-	int num_modes;
+-	struct qxl_mode *modes;
+ 	bool mode_config_initialized;
+ 
+ 	/* pointer to fbdev info structure */
+diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_kms.c
+index 2b1e1f3..a9a741c 100644
+--- a/drivers/gpu/drm/qxl/qxl_kms.c
++++ b/drivers/gpu/drm/qxl/qxl_kms.c
+@@ -31,19 +31,9 @@
+ 
+ int qxl_log_level;
+ 
+-static void qxl_dump_mode(struct qxl_device *qdev, void *p)
+-{
+-	struct qxl_mode *m = p;
+-	DRM_DEBUG_KMS("%d: %dx%d %d bits, stride %d, %dmm x %dmm, orientation %d\n",
+-		      m->id, m->x_res, m->y_res, m->bits, m->stride, m->x_mili,
+-		      m->y_mili, m->orientation);
+-}
+-
+ static bool qxl_check_device(struct qxl_device *qdev)
+ {
+ 	struct qxl_rom *rom = qdev->rom;
+-	int mode_offset;
+-	int i;
+ 
+ 	if (rom->magic != 0x4f525851) {
+ 		DRM_ERROR("bad rom signature %x\n", rom->magic);
+@@ -53,8 +43,6 @@ static bool qxl_check_device(struct qxl_device *qdev)
+ 	DRM_INFO("Device Version %d.%d\n", rom->id, rom->update_id);
+ 	DRM_INFO("Compression level %d log level %d\n", rom->compression_level,
+ 		 rom->log_level);
+-	DRM_INFO("Currently using mode #%d, list at 0x%x\n",
+-		 rom->mode, rom->modes_offset);
+ 	DRM_INFO("%d io pages at offset 0x%x\n",
+ 		 rom->num_io_pages, rom->pages_offset);
+ 	DRM_INFO("%d byte draw area at offset 0x%x\n",
+@@ -62,14 +50,6 @@ static bool qxl_check_device(struct qxl_device *qdev)
+ 
+ 	qdev->vram_size = rom->surface0_area_size;
+ 	DRM_INFO("RAM header offset: 0x%x\n", rom->ram_header_offset);
+-
+-	mode_offset = rom->modes_offset / 4;
+-	qdev->mode_info.num_modes = ((u32 *)rom)[mode_offset];
+-	DRM_INFO("rom modes offset 0x%x for %d modes\n", rom->modes_offset,
+-		 qdev->mode_info.num_modes);
+-	qdev->mode_info.modes = (void *)((uint32_t *)rom + mode_offset + 1);
+-	for (i = 0; i < qdev->mode_info.num_modes; i++)
+-		qxl_dump_mode(qdev, qdev->mode_info.modes + i);
+ 	return true;
+ }
+ 
+@@ -282,7 +262,5 @@ void qxl_device_fini(struct qxl_device *qdev)
+ 	iounmap(qdev->ram_header);
+ 	iounmap(qdev->rom);
+ 	qdev->rom = NULL;
+-	qdev->mode_info.modes = NULL;
+-	qdev->mode_info.num_modes = 0;
+ 	qxl_debugfs_remove_files(qdev);
+ }
+-- 
+1.8.3.1
