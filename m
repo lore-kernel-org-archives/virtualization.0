@@ -1,7 +1,7 @@
 From: "Daniel P. Berrange" <berrange@redhat.com>
 Subject: Re: [systemd-devel] udev virtio by-path naming
-Date: Wed, 1 Mar 2017 15:58:12 +0000
-Message-ID: <20170301155812.GG10160@redhat.com>
+Date: Wed, 1 Mar 2017 16:24:55 +0000
+Message-ID: <20170301162455.GI10160__36003.8503692069$1488385506$gmane$org@redhat.com>
 References: <de55b0f4-4582-cf06-4b0d-12c2282406a8@linux.vnet.ibm.com>
 	<20170220170041.68c9bf4f.cornelia.huck@de.ibm.com>
 	<9cb1f5ff-0a5b-4d0a-16f6-887c7658795a@linux.vnet.ibm.com>
@@ -9,13 +9,14 @@ References: <de55b0f4-4582-cf06-4b0d-12c2282406a8@linux.vnet.ibm.com>
 	<14ac3e2c-180b-cb18-fd68-268dc5d85f8b@linux.vnet.ibm.com>
 	<20170301033007.GG29552@in.waw.pl>
 	<7de4f313-d3a6-b50d-4e53-3b01d6f0f2a0@linux.vnet.ibm.com>
+	<20170301155812.GG10160@redhat.com>
 Reply-To: "Daniel P. Berrange" <berrange@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <7de4f313-d3a6-b50d-4e53-3b01d6f0f2a0@linux.vnet.ibm.com>
+In-Reply-To: <20170301155812.GG10160@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,74 +27,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Viktor Mihajlovski <mihajlov@linux.vnet.ibm.com>
-Cc: systemd-devel <systemd-devel@lists.freedesktop.org>, Zbigniew =?utf-8?Q?J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>, Michal Sekletar <msekleta@redhat.com>, virtualization@lists.linux-foundation.org
+Cc: systemd-devel <systemd-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBNYXIgMDEsIDIwMTcgYXQgMDQ6MDI6NTNQTSArMDEwMCwgVmlrdG9yIE1paGFqbG92
-c2tpIHdyb3RlOgo+IE9uIDAxLjAzLjIwMTcgMDQ6MzAsIFpiaWduaWV3IErEmWRyemVqZXdza2kt
-U3ptZWsgd3JvdGU6Cj4gPiBPbiBUdWUsIEZlYiAyOCwgMjAxNyBhdCAwOTo0Nzo0MkFNICswMTAw
-LCBWaWt0b3IgTWloYWpsb3Zza2kgd3JvdGU6Cj4gPj4+Pj4+IE9uZSBjb3VsZCBhcmd1ZSBhYm91
-dCBiYWNrLWxldmVsIGNvbXBhdGliaWxpdHksIGJ1dCB2aXJ0aW8gYnktcGF0aAo+ID4+Pj4+PiBu
-YW1pbmcgaGFzIGNoYW5nZWQgbXVsdGlwbGUgdGltZXMuIFdlIGhhdmUgc2VlbiB2aXJ0aW8tcGNp
-LXZpcnRpbzxuPgo+ID4+Pj4+PiAobm90IHByZWRpY3RhYmxlKSwgcGNpLTxidXNpZD4gYW5kIHZp
-cnRpby1wY2ktPGJ1c2lkPiBhbHJlYWR5LiBJdAo+ID4+Pj4+PiBtaWdodCBiZSBhIGdvb2QgdGlt
-ZSBub3cgdG8gc2V0dGxlIG9uIGEgY29tbW9uIGFwcHJvYWNoIGZvciBhbGwKPiA+Pj4+Pj4gdmly
-dGlvIHR5cGVzLgo+ID4+Pj4+Pgo+ID4+Pj4+PiBGb3IgdGhlIHJlYXNvbnMgYWJvdmUsIEknZCB2
-b3RlIGZvciA8c3Vic3lzdGVtPi08YnVzaWQ+LCB3aGljaAo+ID4+Pj4+PiB3b3VsZCB3b3JrIGZv
-ciBQQ0kgYW5kIENDVywgbm90IHN1cmUgYWJvdXQgQVJNIE1NSU8gdGhvdWdoLgo+ID4gCj4gPiBJ
-dCBzZWVtcyB0aGF0IHRoZXJlJ3MgYWdyZWVtZW50IHRoYXQgPHN1YnN5c3RlbT4tPGJ1c2lkPiBp
-cyB0aGUgcmlnaHQKPiA+IGFwcHJvYWNoLgo+ID4gCj4gPiBJZGVhbGx5IHdlIHdvdWxkIGtlZXAg
-dGhlIHZpcnRpby1wY2ktPGJ1c2lkPiBsaW5rcyBhcyB0aGV5IGFwcGVhcgo+ID4gcmlnaHQgbm93
-LCBmb3IgYmFja3dhcmRzIGNvbXBhdGliaWxpdHksIGp1c3QgZm9yIHRoZSBwY2kgZGV2aWNlcywg
-YW5kCj4gPiBtYXJrIHRoZW0gYXMgZGVwcmVjYXRlZCAoZHVubm8gd2hlcmUsIG1heWJlIGp1c3Qg
-aW4gTkVXUyksIGFuZCBhZGQgdGhlCj4gPiBjb2RlIHRvIG1ha2UgdGhlIGxpbmtzLgo+ID4gCj4g
-PiBJIGhhdmVuJ3QgbG9va2VkIGF0IHRoZSBjb2RlLCBtYXliZSB3ZSBqdXN0IGRvIHRoaXMgd2l0
-aCB0aGUgcmlnaHQKPiA+IHVkZXYgcnVsZSwgYW5kIGFsc28gc3RpY2sgdGhlIGRlcHJlY2F0aW9u
-IGNvbW1lbnQgdGhlcmU/Cj4gPiAKPiA+IFpieXN6ZWsKPiA+IAo+IEkndmUgcG9zdGVkIGEgZ2l0
-aHViIHB1bGwgcmVxdWVzdCBbMV0sIGFuZCB3b3VsZCBhcHByZWNpYXRlIHJldmlldwo+IGZlZWRi
-YWNrLiBBcyBJIGFtIGxhY2tpbmcgYW4gQVJNIHNldHVwLCBpdCB3b3VsZCBhbHNvIGJlIG5pY2Ug
-aWYgc29tZW9uZQo+IHdpdGggQVJNIHNraWxscyBjb3VsZCBoYXZlIGEgbG9vayBhcyB3ZWxsLgoK
-RllJIHlvdSBjYW4gaW5zdGFsbCBBUk03IGd1ZXN0cyBvbiBhbiB4ODZfNjQgaG9zdCwgdXNpbmcg
-cHJlLWJ1aWx0IEZlZG9yYQppbWFnZXMKCiAgaHR0cHM6Ly9mZWRvcmFwcm9qZWN0Lm9yZy93aWtp
-L1FBOlRlc3RjYXNlX1ZpcnRfQVJNX29uX3g4NgoKTkIsIHRoaXMgd2lsbCBpbnN0YWxsIHRoZSBn
-dWVzdCB1c2luZyB2aXJ0aW8tcGNpLiBTbyBpZiB5b3Ugd2FudCB0bwpzZWUgdmlydGlvLW1taW8g
-aW4gYWN0aW9uLCB5b3UnbGwgbmVlZCB0byBlZGl0IHRoZSBsaWJ2aXJ0IFhNTCBjb25maWcKYWZ0
-ZXJ3YXJkcyB0byBhZGQgYW5vdGhlciBkaXNrLCBlZwoKICAgIDxkaXNrIHR5cGU9J2ZpbGUnIGRl
-dmljZT0nZGlzayc+CiAgICAgIDxkcml2ZXIgbmFtZT0ncWVtdScgdHlwZT0ncWNvdzInLz4KICAg
-ICAgPHNvdXJjZSBmaWxlPScvdmFyL2xpYi9saWJ2aXJ0L2ltYWdlcy9kYXRhLnFjb3cyJy8+CiAg
-ICAgIDx0YXJnZXQgZGV2PSd2ZGEnIGJ1cz0ndmlydGlvJy8+CiAgICAgIDxhZGRyZXNzIHR5cGU9
-J3ZpcnRpby1tbWlvJy8+CiAgICA8L2Rpc2s+CgoKPiBJZiB3YW50ZWQsIEkgY2FuIHRha2UgYSBz
-dGFiIGF0IHZpcnRpby1tbWlvLCBidXQgd291bGQgbmVlZCB0aGUgb3V0cHV0Cj4gb2YgdWRldmFk
-bSAtYSAvZGV2L3ZkYSBmcm9tIGEgdmlydGlvLW1taW8gc3lzdGVtLgoKUHJlc3VtYWJseSB5b3Ug
-bWVhbiAndWRldmFkbSBpbmZvIC1hIC9kZXYvdmRhJyA/ICBUaGF0IHJlcG9ydHMgdGhlIGZvbGxv
-d2luZywKZ2l2ZW4gYSBiYXNpYyBGZWRvcmEgMjUgZ3Vlc3QsIHdpdGggYSB2aXJ0aW8tbW1pbyBk
-aXNrIGFkZGVkIGFzIHBlciB0aGUKZ3VpZGUgYWJvdmUuLi4KCiAgbG9va2luZyBhdCBkZXZpY2Ug
-Jy9kZXZpY2VzL3BsYXRmb3JtL2EwMDNlMDAudmlydGlvX21taW8vdmlydGlvMy9ibG9jay92ZGEn
-OgogICAgS0VSTkVMPT0idmRhIgogICAgU1VCU1lTVEVNPT0iYmxvY2siCiAgICBEUklWRVI9PSIi
-CiAgICBBVFRSe2FsaWdubWVudF9vZmZzZXR9PT0iMCIKICAgIEFUVFJ7YmFkYmxvY2tzfT09IiIK
-ICAgIEFUVFJ7Y2FjaGVfdHlwZX09PSJ3cml0ZSBiYWNrIgogICAgQVRUUntjYXBhYmlsaXR5fT09
-IjUwIgogICAgQVRUUntkaXNjYXJkX2FsaWdubWVudH09PSIwIgogICAgQVRUUntleHRfcmFuZ2V9
-PT0iMjU2IgogICAgQVRUUntpbmZsaWdodH09PSIgICAgICAgMCAgICAgICAgMCIKICAgIEFUVFJ7
-cmFuZ2V9PT0iMTYiCiAgICBBVFRSe3JlbW92YWJsZX09PSIwIgogICAgQVRUUntyb309PSIwIgog
-ICAgQVRUUntzZXJpYWx9PT0iIgogICAgQVRUUntzaXplfT09IjIwOTcxNTIiCiAgICBBVFRSe3N0
-YXR9PT0iICAgICAgOTQgICAgICAgIDAgICAgIDQyMDggICAgICAyODUgICAgICAgIDAgICAgICAg
-IDAgICAgICAgIDAgCiAgICAgICAwICAgICAgICAwICAgICAgMTAwICAgICAgMjgwIgoKICBsb29r
-aW5nIGF0IHBhcmVudCBkZXZpY2UgJy9kZXZpY2VzL3BsYXRmb3JtL2EwMDNlMDAudmlydGlvX21t
-aW8vdmlydGlvMyc6CiAgICBLRVJORUxTPT0idmlydGlvMyIKICAgIFNVQlNZU1RFTVM9PSJ2aXJ0
-aW8iCiAgICBEUklWRVJTPT0idmlydGlvX2JsayIKICAgIEFUVFJTe2RldmljZX09PSIweDAwMDIi
-CiAgICBBVFRSU3tmZWF0dXJlc309PSIwMDEwMTAxMTAxMTEwMDAwMDAwMDAwMDAwMDAwMTEwMDAw
-MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwCjAwMDAwMCIKICAgIEFUVFJTe3N0YXR1c309PSIweDAw
-MDAwMDA3IgogICAgQVRUUlN7dmVuZG9yfT09IjB4NTU0ZDQ1NTEiCgogIGxvb2tpbmcgYXQgcGFy
-ZW50IGRldmljZSAnL2RldmljZXMvcGxhdGZvcm0vYTAwM2UwMC52aXJ0aW9fbW1pbyc6CiAgICBL
-RVJORUxTPT0iYTAwM2UwMC52aXJ0aW9fbW1pbyIKICAgIFNVQlNZU1RFTVM9PSJwbGF0Zm9ybSIK
-ICAgIERSSVZFUlM9PSJ2aXJ0aW8tbW1pbyIKICAgIEFUVFJTe2RyaXZlcl9vdmVycmlkZX09PSIo
-bnVsbCkiCgogIGxvb2tpbmcgYXQgcGFyZW50IGRldmljZSAnL2RldmljZXMvcGxhdGZvcm0nOgog
-ICAgS0VSTkVMUz09InBsYXRmb3JtIgogICAgU1VCU1lTVEVNUz09IiIKICAgIERSSVZFUlM9PSIi
-CgoKClJlZ2FyZHMsCkRhbmllbAotLSAKfDogaHR0cDovL2JlcnJhbmdlLmNvbSAgICAgIC1vLSAg
-ICBodHRwOi8vd3d3LmZsaWNrci5jb20vcGhvdG9zL2RiZXJyYW5nZS8gOnwKfDogaHR0cDovL2xp
-YnZpcnQub3JnICAgICAgICAgICAgICAtby0gICAgICAgICAgICAgaHR0cDovL3ZpcnQtbWFuYWdl
-ci5vcmcgOnwKfDogaHR0cDovL2VudGFuZ2xlLXBob3RvLm9yZyAgICAgICAtby0gICAgaHR0cDov
-L3NlYXJjaC5jcGFuLm9yZy9+ZGFuYmVyci8gOnwKX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxp
-emF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3Vu
-ZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Wed, Mar 01, 2017 at 03:58:12PM +0000, Daniel P. Berrange wrote:
+> On Wed, Mar 01, 2017 at 04:02:53PM +0100, Viktor Mihajlovski wrote:
+> > If wanted, I can take a stab at virtio-mmio, but would need the output
+> > of udevadm -a /dev/vda from a virtio-mmio system.
+> 
+> Presumably you mean 'udevadm info -a /dev/vda' ?  That reports the following,
+> given a basic Fedora 25 guest, with a virtio-mmio disk added as per the
+> guide above...
+> 
+>   looking at device '/devices/platform/a003e00.virtio_mmio/virtio3/block/vda':
+
+BTW, the hex digits in here are the virtio mmio address which changes per
+device eg if i have 3 virtio-mmio backed disks, I get
+
+  looking at device '/devices/platform/a003a00.virtio_mmio/virtio3/block/vda':
+  looking at device '/devices/platform/a003c00.virtio_mmio/virtio4/block/vdb':
+  looking at device '/devices/platform/a003e00.virtio_mmio/virtio5/block/vdc':
+
+
+Regards,
+Daniel
+-- 
+|: http://berrange.com      -o-    http://www.flickr.com/photos/dberrange/ :|
+|: http://libvirt.org              -o-             http://virt-manager.org :|
+|: http://entangle-photo.org       -o-    http://search.cpan.org/~danberr/ :|
