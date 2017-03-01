@@ -1,16 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] packed ring layout proposal - todo list
-Date: Wed, 1 Mar 2017 03:07:29 +0200
-Message-ID: <20170301030235-mutt-send-email-mst@kernel.org>
+Subject: Re: [RFC] packed (virtio-net) headers
+Date: Wed, 1 Mar 2017 03:28:25 +0200
+Message-ID: <20170301030815-mutt-send-email-mst__15905.2242445343$1488332020$gmane$org@kernel.org>
 References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
-	<20170222054336-mutt-send-email-mst@kernel.org>
-	<20170228042943.GH18844@yliu-dev.sh.intel.com>
+	<20170228054719.GJ18844@yliu-dev.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20170228042943.GH18844@yliu-dev.sh.intel.com>
+In-Reply-To: <20170228054719.GJ18844@yliu-dev.sh.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,73 +23,81 @@ To: Yuanhan Liu <yuanhan.liu@linux.intel.com>
 Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 28, 2017 at 12:29:43PM +0800, Yuanhan Liu wrote:
-> Hi Michael,
+On Tue, Feb 28, 2017 at 01:47:19PM +0800, Yuanhan Liu wrote:
+> Hi,
 > 
-> Again, as usual, sorry for being late :/
+> For virtio-net, we use 2 descs for representing a (small) pkt. One for
+> virtio-net header and another one for the pkt data. And it has two issues:
 > 
-> On Wed, Feb 22, 2017 at 06:27:11AM +0200, Michael S. Tsirkin wrote:
-> > Stage 2: prototype guest/host drivers
-> > 
-> > At this stage we need real guest and host drivers
-> > to be able to test real life performance.
-> > I suggest dpdk drivers + munimal hack in qemu to
-> > pass features around.
-> > 
+> - the desc buffer for storing pkt data is halfed
 > 
-> I have already done that in last Nov. I made a very rough (yet hacky)
-> version (only with Tx path) in one day while companying my wife in
-> hospital.
+>   Though we later introduced 2 more options to overcome this: ANYLAY_OUT
+>   and indirect desc. The indirect desc has another issue: it introdues
+>   an extra cache line visit.
 
-Any performance data?
+So if we don't care about this part, we could maybe just add
+a descriptor flag that puts the whole header in the descriptor.
 
-> If someone are interested in, I could share the code soon. I could
-> even cleanup the code a bit if necessary.
-
-Especially if you don't have time to benchmark, I think sharing it
-might help.
-
-> > Tasks:
-> > 
-> > - implement vhost-user support in dpdk
-> > - implement virtio support in dpdk
-> > - implement minimal stub in qemu
+> - virtio-net header could be scattered
 > 
-> I didn't hack the QEMU, instead, I hacked the DPDK virtio-user, yet
-> another virtio-net emulation. It's simpler and quicker for me.
-
-Sure, I merely meant a stub for negotiating new feature bits
-between host and guest. But I guess an environment set
-the same way in host and guest would serve too.
-
-> And here is my plan on virtio 1.1:
+>   Assume the ANYLAY_OUT case, whereas the headered is prepened before
+>   each mbuf (or skb in kernel). In DPDK, a burst recevice in vhost pmd
+>   means 32 different cache visit for virtio header.
 > 
-> - Look deeper inside the virtio net performance issues (WIP)
+>   For the legacy layout and indirect desc, the cache issue could somehone
+>   diminished a bit: we could arrange the virtio header in a same memory
+>   block and let the header desc point to the right one.
 > 
->   It's basically a job about digging the DPDK vhost/virtio code
->   deeper, something like how exactly the cache acts while Tx/Rx
->   pkts, what can be optimized by implementation, and what could
->   be improved with the help of spec extension.
-> 
->   Please note that I often got interrupted on this task: it didn't
->   go smooth as I would have expected.
+>   But it's still not good enough: the virtio-net headers aren't accessed
+>   in batch: they have to be accessed one by one (by reading the desc).
+>   That said, it's still not that good for cache utilization.
 > 
 > 
-> - Try to accelerate vhost/virtio with vector instructions.
-
-That's interesting. What kind of optimizations would you say
-do vector instructions enable, and why?
-
-
->   Something I will look into when above item is done. Currently,
->   I thought of two items may help the vector implementation:
+> And I'm proposing packed header:
 > 
->   * what kind of vring and desc layout could make the vector
->     implementation easier.
+> - put all virtio-net header in a memory block.
 > 
->   * what kind of hint we need from virtio spec for (dynamically)
->     enabling the vector path.
+>   A burst size of 32 pkts need only access (32 * 12) / 64 = 6 cache lines.
+>   While before, it could be 32 cache lines.
 > 
->   Besides that, I don't have too much clue yet.
+> - introduce a header desc to reference above memory block.
+> 
+>   desc->addr = starting addr of net headers mem block
+>   desc->len  = size of all net virtio net headers (burst size * header size)
+> 
+> Thus, in a burst size of 32, we only need 33 descs: one for headers and
+> others for store corresponding pkt data. More importantly, we could use
+> the "len" field for computing the batch size. We then could load the
+> virtio net headers at once; we could also prefetch all the descs at once.
+> 
+> Note it could also be adapted to virtio 0.95 and 1.0. I also made a simple
+> prototype with DPDK (yet again, it's Tx path only), I saw an impressive
+> boost (about 30%) in a mirco benchmark.
+> 
+> I think such proposal may should also help other devices, too, if they
+> also have a small header for each data.
+> 
+> Thoughts?
 > 
 > 	--yliu
+
+That's great. An alternative might be to add an array of headers parallel
+to array of descriptors and indexed by head. A bit in the descriptor
+would then be enough to mark such a header as valid.
+
+It's also an alternative way to pass in batches for virtio 1.1.
+
+This has an advantage that it helps non-batched workloads as well
+if enough packets end up in the ring, but maybe this
+predicts on the CPU in a worse way. Worth benchmarking?
+
+I hope above thoughts are helpful, but -
+
+code walks - if you can show real gains I'd be inclined
+to say let's go with it. You don't necessarily need to implement and
+benchmark all possible ideas others can come up with :)
+(though that's just me not speaking for anyone else -
+ we'll have to put it on the TC ballot of course)
+
+--  
+MST
