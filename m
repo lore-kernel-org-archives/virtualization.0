@@ -1,7 +1,7 @@
-From: "Daniel P. Berrange" <berrange@redhat.com>
+From: Viktor Mihajlovski <mihajlov@linux.vnet.ibm.com>
 Subject: Re: [systemd-devel] udev virtio by-path naming
-Date: Wed, 1 Mar 2017 18:44:39 +0000
-Message-ID: <20170301184439.GS10160__27306.5820373178$1488393897$gmane$org@redhat.com>
+Date: Wed, 1 Mar 2017 20:23:42 +0100
+Message-ID: <79e0b5c0-0860-81b2-cd4d-6efaca924bcc__48306.712616659$1488396241$gmane$org@linux.vnet.ibm.com>
 References: <de55b0f4-4582-cf06-4b0d-12c2282406a8@linux.vnet.ibm.com>
 	<20170220170041.68c9bf4f.cornelia.huck@de.ibm.com>
 	<9cb1f5ff-0a5b-4d0a-16f6-887c7658795a@linux.vnet.ibm.com>
@@ -11,13 +11,12 @@ References: <de55b0f4-4582-cf06-4b0d-12c2282406a8@linux.vnet.ibm.com>
 	<7de4f313-d3a6-b50d-4e53-3b01d6f0f2a0@linux.vnet.ibm.com>
 	<20170301155812.GG10160@redhat.com>
 	<f6dfe52a-4332-90fc-a426-712453a8c382@linux.vnet.ibm.com>
-Reply-To: "Daniel P. Berrange" <berrange@redhat.com>
+	<20170301184439.GS10160@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <f6dfe52a-4332-90fc-a426-712453a8c382@linux.vnet.ibm.com>
+In-Reply-To: <20170301184439.GS10160@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,89 +26,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Viktor Mihajlovski <mihajlov@linux.vnet.ibm.com>
-Cc: systemd-devel <systemd-devel@lists.freedesktop.org>, Zbigniew =?utf-8?Q?J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>, Michal Sekletar <msekleta@redhat.com>, virtualization@lists.linux-foundation.org
+To: "Daniel P. Berrange" <berrange@redhat.com>
+Cc: systemd-devel <systemd-devel@lists.freedesktop.org>, =?UTF-8?Q?Zbigniew_J=c4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>, Michal Sekletar <msekleta@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 01, 2017 at 07:28:46PM +0100, Viktor Mihajlovski wrote:
-> On 01.03.2017 16:58, Daniel P. Berrange wrote:
-> > given a basic Fedora 25 guest, with a virtio-mmio disk added as per the
-> > guide above...
-> > 
-> >   looking at device '/devices/platform/a003e00.virtio_mmio/virtio3/block/vda':
-> >     KERNEL=="vda"
-> >     SUBSYSTEM=="block"
-> >     DRIVER==""
-> >     ATTR{alignment_offset}=="0"
-> >     ATTR{badblocks}==""
-> >     ATTR{cache_type}=="write back"
-> >     ATTR{capability}=="50"
-> >     ATTR{discard_alignment}=="0"
-> >     ATTR{ext_range}=="256"
-> >     ATTR{inflight}=="       0        0"
-> >     ATTR{range}=="16"
-> >     ATTR{removable}=="0"
-> >     ATTR{ro}=="0"
-> >     ATTR{serial}==""
-> >     ATTR{size}=="2097152"
-> >     ATTR{stat}=="      94        0     4208      285        0        0        0 
-> >        0        0      100      280"
-> > 
-> >   looking at parent device '/devices/platform/a003e00.virtio_mmio/virtio3':
-> >     KERNELS=="virtio3"
-> >     SUBSYSTEMS=="virtio"
-> >     DRIVERS=="virtio_blk"
-> >     ATTRS{device}=="0x0002"
-> >     ATTRS{features}=="0010101101110000000000000000110000000000000000000000000000
-> > 000000"
-> >     ATTRS{status}=="0x00000007"
-> >     ATTRS{vendor}=="0x554d4551"
-> > 
-> >   looking at parent device '/devices/platform/a003e00.virtio_mmio':
-> >     KERNELS=="a003e00.virtio_mmio"
-> >     SUBSYSTEMS=="platform"
-> >     DRIVERS=="virtio-mmio"
-> >     ATTRS{driver_override}=="(null)"
-> Since I can't do that on my box, would you be so kind to run
->  ls -l /dev/disk/by-path
-> If it returns ids like
->   virtio-pci-a003e00.virtio_mmio[-partn]
-> my suggested patch should be OK for ARM in that it will produce ids in
-> the format
->   platform-a003e00.virtio_mmio[-partn]
-
-Ok, my guest has 4 disks
-
- - sda - virtio-scsi, over virtio-pci transport
- - sdb - virtio-scsi, over virtio-mmio transport
- - vda - virtio-scsi, over virtio-pci transport
- - vdb - virtio-scsi, over virtio-mmio transport
-
-with systemd 231 I get these links
-
-  platform-3f000000.pcie-pci-0000:00:01.1-virtio-pci-0000:02:00.0-scsi-0:0:0:0 -> ../../sda
-  platform-3f000000.pcie-pci-0000:00:01.3-virtio-pci-0000:04:00.0 -> ../../vda
-  virtio-pci-a003c00.virtio_mmio -> ../../vdb
-  virtio-pci-a003e00.virtio_mmio-scsi-0:0:0:0 -> ../../sdb
-
-after applying your patch I get these links:
-
- platform-3f000000.pcie-pci-0000:00:01.1-virtio-pci-0000:02:00.0-scsi-0:0:0:0 -> ../../sda
- platform-3f000000.pcie-pci-0000:00:01.3-virtio-pci-0000:04:00.0 -> ../../vda
- platform-3f000000.pcie-pci-0000:02:00.0-scsi-0:0:0:0 -> ../../sda
- platform-3f000000.pcie-pci-0000:04:00.0 -> ../../vda
- platform-a003c00.virtio_mmio -> ../../vdb
- platform-a003e00.virtio_mmio-scsi-0:0:0:0 -> ../../sdb
- virtio-pci-a003c00.virtio_mmio -> ../../vdb
- virtio-pci-a003e00.virtio_mmio-scsi-0:0:0:0 -> ../../sdb
-
-So that appears to be working as designed - the 4 backcompat symlinks are
-still there, and the new symlinks all live under the platform- prefix
-and don't have a bogus 'pci' in the name for mmio links
-
-Regards,
-Daniel
--- 
-|: http://berrange.com      -o-    http://www.flickr.com/photos/dberrange/ :|
-|: http://libvirt.org              -o-             http://virt-manager.org :|
-|: http://entangle-photo.org       -o-    http://search.cpan.org/~danberr/ :|
+T24gMDEuMDMuMjAxNyAxOTo0NCwgRGFuaWVsIFAuIEJlcnJhbmdlIHdyb3RlOgpbLi4uXQpyZXBs
+eWluZyBvbiB0aGUgbGlzdCwgYSBiaXQgbGVuZ3RoeQo+IAo+IE9rLCBteSBndWVzdCBoYXMgNCBk
+aXNrcwo+IAo+ICAtIHNkYSAtIHZpcnRpby1zY3NpLCBvdmVyIHZpcnRpby1wY2kgdHJhbnNwb3J0
+Cj4gIC0gc2RiIC0gdmlydGlvLXNjc2ksIG92ZXIgdmlydGlvLW1taW8gdHJhbnNwb3J0Cj4gIC0g
+dmRhIC0gdmlydGlvLXNjc2ksIG92ZXIgdmlydGlvLXBjaSB0cmFuc3BvcnQKPiAgLSB2ZGIgLSB2
+aXJ0aW8tc2NzaSwgb3ZlciB2aXJ0aW8tbW1pbyB0cmFuc3BvcnQKPiAKPiB3aXRoIHN5c3RlbWQg
+MjMxIEkgZ2V0IHRoZXNlIGxpbmtzCj4gCj4gICBwbGF0Zm9ybS0zZjAwMDAwMC5wY2llLXBjaS0w
+MDAwOjAwOjAxLjEtdmlydGlvLXBjaS0wMDAwOjAyOjAwLjAtc2NzaS0wOjA6MDowIC0+IC4uLy4u
+L3NkYQo+ICAgcGxhdGZvcm0tM2YwMDAwMDAucGNpZS1wY2ktMDAwMDowMDowMS4zLXZpcnRpby1w
+Y2ktMDAwMDowNDowMC4wIC0+IC4uLy4uL3ZkYQp0aGlzIGlzIHNvbWV3aGF0IHN1cHJpc2luZyAo
+dGhlIHBjaWUtcGNpLXh4eHggcGFydCksIGNvdWxkIHlvdSBvbmNlIG1vcmUKZG8gbWUgYSBmYXZv
+ciBhbmQgcnVuCiB1ZGV2YWRtIGluZm8gLWEgL2Rldi92ZGEKYW5kIHBhc3RlIHRoZSBvdXRwdXQ/
+Cj4gICB2aXJ0aW8tcGNpLWEwMDNjMDAudmlydGlvX21taW8gLT4gLi4vLi4vdmRiCj4gICB2aXJ0
+aW8tcGNpLWEwMDNlMDAudmlydGlvX21taW8tc2NzaS0wOjA6MDowIC0+IC4uLy4uL3NkYgo+IAo+
+IGFmdGVyIGFwcGx5aW5nIHlvdXIgcGF0Y2ggSSBnZXQgdGhlc2UgbGlua3M6Cj4gCj4gIHBsYXRm
+b3JtLTNmMDAwMDAwLnBjaWUtcGNpLTAwMDA6MDA6MDEuMS12aXJ0aW8tcGNpLTAwMDA6MDI6MDAu
+MC1zY3NpLTA6MDowOjAgLT4gLi4vLi4vc2RhCj4gIHBsYXRmb3JtLTNmMDAwMDAwLnBjaWUtcGNp
+LTAwMDA6MDA6MDEuMy12aXJ0aW8tcGNpLTAwMDA6MDQ6MDAuMCAtPiAuLi8uLi92ZGEKd2VsbCwg
+dGhlc2UgYXJlIHByb2JhYmx5IHN0YWxlIGxpbmtzIGZyb20gdGhlIG9sZCBzeXN0ZW1kIGJha2Vk
+IGludG8KeW91ciBpbml0cmQKPiAgcGxhdGZvcm0tM2YwMDAwMDAucGNpZS1wY2ktMDAwMDowMjow
+MC4wLXNjc2ktMDowOjA6MCAtPiAuLi8uLi9zZGEKPiAgcGxhdGZvcm0tM2YwMDAwMDAucGNpZS1w
+Y2ktMDAwMDowNDowMC4wIC0+IC4uLy4uL3ZkYQpJIGRvbid0IHlldCB1bmRlcnN0YW5kIHRoZXNl
+LCBlc3BlY2lhbGx5IHdoeSB0aGUgaW50ZXJtZWRpYXRlIHBjaS14eHh4CmlkIGhhcyB2YW5pc2hl
+ZAo+ICBwbGF0Zm9ybS1hMDAzYzAwLnZpcnRpb19tbWlvIC0+IC4uLy4uL3ZkYgo+ICBwbGF0Zm9y
+bS1hMDAzZTAwLnZpcnRpb19tbWlvLXNjc2ktMDowOjA6MCAtPiAuLi8uLi9zZGIKdGhlc2UgbG9v
+ayBhcyBleHBlY3RlZAo+ICB2aXJ0aW8tcGNpLWEwMDNjMDAudmlydGlvX21taW8gLT4gLi4vLi4v
+dmRiCj4gIHZpcnRpby1wY2ktYTAwM2UwMC52aXJ0aW9fbW1pby1zY3NpLTA6MDowOjAgLT4gLi4v
+Li4vc2RiCnN0YWxlCj4gCj4gU28gdGhhdCBhcHBlYXJzIHRvIGJlIHdvcmtpbmcgYXMgZGVzaWdu
+ZWQgLSB0aGUgNCBiYWNrY29tcGF0IHN5bWxpbmtzIGFyZQo+IHN0aWxsIHRoZXJlLCBhbmQgdGhl
+IG5ldyBzeW1saW5rcyBhbGwgbGl2ZSB1bmRlciB0aGUgcGxhdGZvcm0tIHByZWZpeAo+IGFuZCBk
+b24ndCBoYXZlIGEgYm9ndXMgJ3BjaScgaW4gdGhlIG5hbWUgZm9yIG1taW8gbGlua3MKdGhlIHBh
+dGNoIG9ubHkgcHJvdmlkZSBjb21wYXQgc3ltbGlua3MgZm9yIHRoZSBwY2kgcGF0aCBpZHMKdHJh
+ZGl0aW9uYWxseSBzZWVuIG9uIHg4NiBzeXN0ZW1zLCBidXQgSSB0aGluayB3ZSBkb24ndCB3YW50
+IHRob3NlIGZvcgpwbGF0Zm9ybXMgb3RoZXIgdGhhbiB4ODYsIHJpZ2h0Pwo+IAo+IFJlZ2FyZHMs
+Cj4gRGFuaWVsCj4gCgoKLS0gCgpNaXQgZnJldW5kbGljaGVuIEdyw7zDn2VuL0tpbmQgUmVnYXJk
+cwogICBWaWt0b3IgTWloYWpsb3Zza2kKCklCTSBEZXV0c2NobGFuZCBSZXNlYXJjaCAmIERldmVs
+b3BtZW50IEdtYkgKVm9yc2l0emVuZGVyIGRlcyBBdWZzaWNodHNyYXRzOiBNYXJ0aW5hIEvDtmRl
+cml0egpHZXNjaMOkZnRzZsO8aHJ1bmc6IERpcmsgV2l0dGtvcHAKU2l0eiBkZXIgR2VzZWxsc2No
+YWZ0OiBCw7ZibGluZ2VuClJlZ2lzdGVyZ2VyaWNodDogQW10c2dlcmljaHQgU3R1dHRnYXJ0LCBI
+UkIgMjQzMjk0CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+XwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
+Zm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4v
+bGlzdGluZm8vdmlydHVhbGl6YXRpb24=
