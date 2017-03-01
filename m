@@ -1,14 +1,18 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH] drm: virtio: use kmem_cache
-Date: Wed, 1 Mar 2017 16:00:27 +0100
-Message-ID: <20170301150027.6nbakw5frva7tbqv__17901.336894329$1488380442$gmane$org@phenom.ffwll.local>
-References: <1488377348-5006-1-git-send-email-kraxel@redhat.com>
+From: Viktor Mihajlovski <mihajlov@linux.vnet.ibm.com>
+Subject: Re: [systemd-devel] udev virtio by-path naming
+Date: Wed, 1 Mar 2017 16:02:53 +0100
+Message-ID: <7de4f313-d3a6-b50d-4e53-3b01d6f0f2a0__11801.1859166019$1488380596$gmane$org@linux.vnet.ibm.com>
+References: <de55b0f4-4582-cf06-4b0d-12c2282406a8@linux.vnet.ibm.com>
+	<20170220170041.68c9bf4f.cornelia.huck@de.ibm.com>
+	<9cb1f5ff-0a5b-4d0a-16f6-887c7658795a@linux.vnet.ibm.com>
+	<CALVzVJZhZTNbZp1EB9cT82YxUnbUZZ+ZPo7Od8CWz5C3faN1AA@mail.gmail.com>
+	<14ac3e2c-180b-cb18-fd68-268dc5d85f8b@linux.vnet.ibm.com>
+	<20170301033007.GG29552@in.waw.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1488377348-5006-1-git-send-email-kraxel@redhat.com>
+In-Reply-To: <20170301033007.GG29552@in.waw.pl>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,138 +22,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: =?UTF-8?Q?Zbigniew_J=c4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Cc: "Daniel P. Berrange" <berrange@redhat.com>, systemd-devel <systemd-devel@lists.freedesktop.org>, Michal Sekletar <msekleta@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 01, 2017 at 03:09:08PM +0100, Gerd Hoffmann wrote:
-> Just use kmem_cache instead of rolling
-> our own, limited implementation.
-> 
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-
-Looks very reasonable.
-
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-
-> ---
->  drivers/gpu/drm/virtio/virtgpu_drv.h |  4 +--
->  drivers/gpu/drm/virtio/virtgpu_vq.c  | 57 +++++++-----------------------------
->  2 files changed, 11 insertions(+), 50 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> index 2f76673..4e66e35 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> @@ -178,9 +178,7 @@ struct virtio_gpu_device {
->  
->  	struct virtio_gpu_queue ctrlq;
->  	struct virtio_gpu_queue cursorq;
-> -	struct list_head free_vbufs;
-> -	spinlock_t free_vbufs_lock;
-> -	void *vbufs;
-> +	struct kmem_cache *vbufs;
->  	bool vqs_ready;
->  
->  	struct idr	resource_idr;
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> index 43ea0dc..472e349 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> @@ -74,51 +74,19 @@ void virtio_gpu_cursor_ack(struct virtqueue *vq)
->  
->  int virtio_gpu_alloc_vbufs(struct virtio_gpu_device *vgdev)
->  {
-> -	struct virtio_gpu_vbuffer *vbuf;
-> -	int i, size, count = 16;
-> -	void *ptr;
-> -
-> -	INIT_LIST_HEAD(&vgdev->free_vbufs);
-> -	spin_lock_init(&vgdev->free_vbufs_lock);
-> -	count += virtqueue_get_vring_size(vgdev->ctrlq.vq);
-> -	count += virtqueue_get_vring_size(vgdev->cursorq.vq);
-> -	size = count * VBUFFER_SIZE;
-> -	DRM_INFO("virtio vbuffers: %d bufs, %zdB each, %dkB total.\n",
-> -		 count, VBUFFER_SIZE, size / 1024);
-> -
-> -	vgdev->vbufs = kzalloc(size, GFP_KERNEL);
-> +	vgdev->vbufs = kmem_cache_create("virtio-gpu-vbufs",
-> +					 VBUFFER_SIZE,
-> +					 __alignof__(struct virtio_gpu_vbuffer),
-> +					 0, NULL);
->  	if (!vgdev->vbufs)
->  		return -ENOMEM;
-> -
-> -	for (i = 0, ptr = vgdev->vbufs;
-> -	     i < count;
-> -	     i++, ptr += VBUFFER_SIZE) {
-> -		vbuf = ptr;
-> -		list_add(&vbuf->list, &vgdev->free_vbufs);
-> -	}
->  	return 0;
->  }
->  
->  void virtio_gpu_free_vbufs(struct virtio_gpu_device *vgdev)
->  {
-> -	struct virtio_gpu_vbuffer *vbuf;
-> -	int i, count = 0;
-> -
-> -	count += virtqueue_get_vring_size(vgdev->ctrlq.vq);
-> -	count += virtqueue_get_vring_size(vgdev->cursorq.vq);
-> -
-> -	spin_lock(&vgdev->free_vbufs_lock);
-> -	for (i = 0; i < count; i++) {
-> -		if (WARN_ON(list_empty(&vgdev->free_vbufs))) {
-> -			spin_unlock(&vgdev->free_vbufs_lock);
-> -			return;
-> -		}
-> -		vbuf = list_first_entry(&vgdev->free_vbufs,
-> -					struct virtio_gpu_vbuffer, list);
-> -		list_del(&vbuf->list);
-> -	}
-> -	spin_unlock(&vgdev->free_vbufs_lock);
-> -	kfree(vgdev->vbufs);
-> +	kmem_cache_destroy(vgdev->vbufs);
-> +	vgdev->vbufs = NULL;
->  }
->  
->  static struct virtio_gpu_vbuffer*
-> @@ -128,12 +96,9 @@ void virtio_gpu_free_vbufs(struct virtio_gpu_device *vgdev)
->  {
->  	struct virtio_gpu_vbuffer *vbuf;
->  
-> -	spin_lock(&vgdev->free_vbufs_lock);
-> -	BUG_ON(list_empty(&vgdev->free_vbufs));
-> -	vbuf = list_first_entry(&vgdev->free_vbufs,
-> -				struct virtio_gpu_vbuffer, list);
-> -	list_del(&vbuf->list);
-> -	spin_unlock(&vgdev->free_vbufs_lock);
-> +	vbuf = kmem_cache_alloc(vgdev->vbufs, GFP_KERNEL);
-> +	if (IS_ERR(vbuf))
-> +		return ERR_CAST(vbuf);
->  	memset(vbuf, 0, VBUFFER_SIZE);
->  
->  	BUG_ON(size > MAX_INLINE_CMD_SIZE);
-> @@ -208,9 +173,7 @@ static void free_vbuf(struct virtio_gpu_device *vgdev,
->  	if (vbuf->resp_size > MAX_INLINE_RESP_SIZE)
->  		kfree(vbuf->resp_buf);
->  	kfree(vbuf->data_buf);
-> -	spin_lock(&vgdev->free_vbufs_lock);
-> -	list_add(&vbuf->list, &vgdev->free_vbufs);
-> -	spin_unlock(&vgdev->free_vbufs_lock);
-> +	kmem_cache_free(vgdev->vbufs, vbuf);
->  }
->  
->  static void reclaim_vbufs(struct virtqueue *vq, struct list_head *reclaim_list)
-> -- 
-> 1.8.3.1
-> 
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
-
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+T24gMDEuMDMuMjAxNyAwNDozMCwgWmJpZ25pZXcgSsSZZHJ6ZWpld3NraS1Tem1layB3cm90ZToK
+PiBPbiBUdWUsIEZlYiAyOCwgMjAxNyBhdCAwOTo0Nzo0MkFNICswMTAwLCBWaWt0b3IgTWloYWps
+b3Zza2kgd3JvdGU6Cj4+Pj4+PiBPbmUgY291bGQgYXJndWUgYWJvdXQgYmFjay1sZXZlbCBjb21w
+YXRpYmlsaXR5LCBidXQgdmlydGlvIGJ5LXBhdGgKPj4+Pj4+IG5hbWluZyBoYXMgY2hhbmdlZCBt
+dWx0aXBsZSB0aW1lcy4gV2UgaGF2ZSBzZWVuIHZpcnRpby1wY2ktdmlydGlvPG4+Cj4+Pj4+PiAo
+bm90IHByZWRpY3RhYmxlKSwgcGNpLTxidXNpZD4gYW5kIHZpcnRpby1wY2ktPGJ1c2lkPiBhbHJl
+YWR5LiBJdAo+Pj4+Pj4gbWlnaHQgYmUgYSBnb29kIHRpbWUgbm93IHRvIHNldHRsZSBvbiBhIGNv
+bW1vbiBhcHByb2FjaCBmb3IgYWxsCj4+Pj4+PiB2aXJ0aW8gdHlwZXMuCj4+Pj4+Pgo+Pj4+Pj4g
+Rm9yIHRoZSByZWFzb25zIGFib3ZlLCBJJ2Qgdm90ZSBmb3IgPHN1YnN5c3RlbT4tPGJ1c2lkPiwg
+d2hpY2gKPj4+Pj4+IHdvdWxkIHdvcmsgZm9yIFBDSSBhbmQgQ0NXLCBub3Qgc3VyZSBhYm91dCBB
+Uk0gTU1JTyB0aG91Z2guCj4gCj4gSXQgc2VlbXMgdGhhdCB0aGVyZSdzIGFncmVlbWVudCB0aGF0
+IDxzdWJzeXN0ZW0+LTxidXNpZD4gaXMgdGhlIHJpZ2h0Cj4gYXBwcm9hY2guCj4gCj4gSWRlYWxs
+eSB3ZSB3b3VsZCBrZWVwIHRoZSB2aXJ0aW8tcGNpLTxidXNpZD4gbGlua3MgYXMgdGhleSBhcHBl
+YXIKPiByaWdodCBub3csIGZvciBiYWNrd2FyZHMgY29tcGF0aWJpbGl0eSwganVzdCBmb3IgdGhl
+IHBjaSBkZXZpY2VzLCBhbmQKPiBtYXJrIHRoZW0gYXMgZGVwcmVjYXRlZCAoZHVubm8gd2hlcmUs
+IG1heWJlIGp1c3QgaW4gTkVXUyksIGFuZCBhZGQgdGhlCj4gY29kZSB0byBtYWtlIHRoZSBsaW5r
+cy4KPiAKPiBJIGhhdmVuJ3QgbG9va2VkIGF0IHRoZSBjb2RlLCBtYXliZSB3ZSBqdXN0IGRvIHRo
+aXMgd2l0aCB0aGUgcmlnaHQKPiB1ZGV2IHJ1bGUsIGFuZCBhbHNvIHN0aWNrIHRoZSBkZXByZWNh
+dGlvbiBjb21tZW50IHRoZXJlPwo+IAo+IFpieXN6ZWsKPiAKSSd2ZSBwb3N0ZWQgYSBnaXRodWIg
+cHVsbCByZXF1ZXN0IFsxXSwgYW5kIHdvdWxkIGFwcHJlY2lhdGUgcmV2aWV3CmZlZWRiYWNrLiBB
+cyBJIGFtIGxhY2tpbmcgYW4gQVJNIHNldHVwLCBpdCB3b3VsZCBhbHNvIGJlIG5pY2UgaWYgc29t
+ZW9uZQp3aXRoIEFSTSBza2lsbHMgY291bGQgaGF2ZSBhIGxvb2sgYXMgd2VsbC4KSWYgd2FudGVk
+LCBJIGNhbiB0YWtlIGEgc3RhYiBhdCB2aXJ0aW8tbW1pbywgYnV0IHdvdWxkIG5lZWQgdGhlIG91
+dHB1dApvZiB1ZGV2YWRtIC1hIC9kZXYvdmRhIGZyb20gYSB2aXJ0aW8tbW1pbyBzeXN0ZW0uCgpb
+MV0gaHR0cHM6Ly9naXRodWIuY29tL3N5c3RlbWQvc3lzdGVtZC9wdWxsLzU1MDAKCi0tIAoKTWl0
+IGZyZXVuZGxpY2hlbiBHcsO8w59lbi9LaW5kIFJlZ2FyZHMKICAgVmlrdG9yIE1paGFqbG92c2tp
+CgpJQk0gRGV1dHNjaGxhbmQgUmVzZWFyY2ggJiBEZXZlbG9wbWVudCBHbWJIClZvcnNpdHplbmRl
+ciBkZXMgQXVmc2ljaHRzcmF0czogTWFydGluYSBLw7ZkZXJpdHoKR2VzY2jDpGZ0c2bDvGhydW5n
+OiBEaXJrIFdpdHRrb3BwClNpdHogZGVyIEdlc2VsbHNjaGFmdDogQsO2YmxpbmdlbgpSZWdpc3Rl
+cmdlcmljaHQ6IEFtdHNnZXJpY2h0IFN0dXR0Z2FydCwgSFJCIDI0MzI5NAoKX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
+ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
+bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
