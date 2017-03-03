@@ -1,11 +1,13 @@
 From: Vitaly Kuznetsov <vkuznets@redhat.com>
-Subject: [PATCH v3 0/3] x86/vdso: Add Hyper-V TSC page clocksource support
-Date: Fri,  3 Mar 2017 14:21:39 +0100
-Message-ID: <20170303132142.25595-1-vkuznets@redhat.com>
+Subject: [PATCH v3 1/3] x86/hyperv: implement hv_get_tsc_page()
+Date: Fri,  3 Mar 2017 14:21:40 +0100
+Message-ID: <20170303132142.25595-2-vkuznets__16418.0557047532$1488547320$gmane$org@redhat.com>
+References: <20170303132142.25595-1-vkuznets@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20170303132142.25595-1-vkuznets@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,69 +21,77 @@ To: x86@kernel.org, Andy Lutomirski <luto@amacapital.net>, Thomas Gleixner <tglx
 Cc: Stephen Hemminger <sthemmin@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, devel@linuxdriverproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+To use Hyper-V TSC page clocksource from vDSO we need to make tsc_pg
+available. Implement hv_get_tsc_page() and add CONFIG_HYPERV_TSCPAGE to
+make #ifdef-s simple.
 
-merge window is about to close so I hope it's OK to make another try here.
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+---
+ arch/x86/hyperv/hv_init.c       | 9 +++++++--
+ arch/x86/include/asm/mshyperv.h | 8 ++++++++
+ drivers/hv/Kconfig              | 3 +++
+ 3 files changed, 18 insertions(+), 2 deletions(-)
 
-Changes since v2:
-- Add explicit READ_ONCE() to not rely on 'volatile' [Andy Lutomirski]
-- rdtsc() -> rdtsc_ordered() [Andy Lutomirski]
-- virt_rmb() -> smp_rmb() [Thomas Gleixner, Andy Lutomirski]
-
-Thomas, Andy, it seems the only blocker for the series was the ambiguity with
-TSC page read algorithm. I contacted Microsoft (through K. Y.) and asked what
-we should do when we see 'seq=0'. The answer is:
-
-"I have confirmed that the only invalid value is 0 (notwithstanding what the
-spec says). I have asked the Spec to be updated and the current code we have
-is correct - it treats 0 as the only invalid value. The invalid value indicates
-that the TSC page cannot be used as a time source and a different source is to
-be used and this state is going to persist and so looping is not an option."
-
-I agree it would be wiser to have two invalid values - one for 'try again' and
-another for permanent failure in case it is needed. But this is not the case.
-
-So I keep my algorithm untouched.
-
-I can see two more reasons for us to keep it:
-1) It is what we already have in kernel.
-2) It is what Windows does (see the disassembly in c35b82ef0294.
-
-Original description:
-
-Hyper-V TSC page clocksource is suitable for vDSO, however, the protocol
-defined by the hypervisor is different from VCLOCK_PVCLOCK. Implemented the
-required support. Simple sysbench test shows the following results:
-
-Before:
-# time sysbench --test=memory --max-requests=500000 run
-...
-real    1m22.618s
-user    0m50.193s
-sys     0m32.268s
-
-After:
-# time sysbench --test=memory --max-requests=500000 run
-...
-real	0m47.241s
-user	0m47.117s
-sys	0m0.008s
-
-Vitaly Kuznetsov (3):
-  x86/hyperv: implement hv_get_tsc_page()
-  x86/hyperv: move TSC reading method to asm/mshyperv.h
-  x86/vdso: Add VCLOCK_HVCLOCK vDSO clock read method
-
- arch/x86/entry/vdso/vclock_gettime.c  | 24 +++++++++++++++
- arch/x86/entry/vdso/vdso-layout.lds.S |  3 +-
- arch/x86/entry/vdso/vdso2c.c          |  3 ++
- arch/x86/entry/vdso/vma.c             |  7 +++++
- arch/x86/hyperv/hv_init.c             | 48 +++++++++--------------------
- arch/x86/include/asm/clocksource.h    |  3 +-
- arch/x86/include/asm/mshyperv.h       | 58 +++++++++++++++++++++++++++++++++++
- arch/x86/include/asm/vdso.h           |  1 +
- drivers/hv/Kconfig                    |  3 ++
- 9 files changed, 114 insertions(+), 36 deletions(-)
-
+diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
+index db64baf0..6b64cae 100644
+--- a/arch/x86/hyperv/hv_init.c
++++ b/arch/x86/hyperv/hv_init.c
+@@ -27,10 +27,15 @@
+ #include <linux/clockchips.h>
+ 
+ 
+-#ifdef CONFIG_X86_64
++#ifdef CONFIG_HYPERV_TSCPAGE
+ 
+ static struct ms_hyperv_tsc_page *tsc_pg;
+ 
++struct ms_hyperv_tsc_page *hv_get_tsc_page(void)
++{
++	return tsc_pg;
++}
++
+ static u64 read_hv_clock_tsc(struct clocksource *arg)
+ {
+ 	u64 current_tick;
+@@ -139,7 +144,7 @@ void hyperv_init(void)
+ 	/*
+ 	 * Register Hyper-V specific clocksource.
+ 	 */
+-#ifdef CONFIG_X86_64
++#ifdef CONFIG_HYPERV_TSCPAGE
+ 	if (ms_hyperv.features & HV_X64_MSR_REFERENCE_TSC_AVAILABLE) {
+ 		union hv_x64_msr_hypercall_contents tsc_msr;
+ 
+diff --git a/arch/x86/include/asm/mshyperv.h b/arch/x86/include/asm/mshyperv.h
+index 7c9c895..d324dce 100644
+--- a/arch/x86/include/asm/mshyperv.h
++++ b/arch/x86/include/asm/mshyperv.h
+@@ -176,4 +176,12 @@ void hyperv_report_panic(struct pt_regs *regs);
+ bool hv_is_hypercall_page_setup(void);
+ void hyperv_cleanup(void);
+ #endif
++#ifdef CONFIG_HYPERV_TSCPAGE
++struct ms_hyperv_tsc_page *hv_get_tsc_page(void);
++#else
++static inline struct ms_hyperv_tsc_page *hv_get_tsc_page(void)
++{
++	return NULL;
++}
++#endif
+ #endif
+diff --git a/drivers/hv/Kconfig b/drivers/hv/Kconfig
+index 0403b51..c29cd53 100644
+--- a/drivers/hv/Kconfig
++++ b/drivers/hv/Kconfig
+@@ -7,6 +7,9 @@ config HYPERV
+ 	  Select this option to run Linux as a Hyper-V client operating
+ 	  system.
+ 
++config HYPERV_TSCPAGE
++       def_bool HYPERV && X86_64
++
+ config HYPERV_UTILS
+ 	tristate "Microsoft Hyper-V Utilities driver"
+ 	depends on HYPERV && CONNECTOR && NLS
 -- 
 2.9.3
