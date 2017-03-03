@@ -1,14 +1,13 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH-v4-RESEND 1/4] vsock: track pkt owner vsock
-Date: Thu, 02 Mar 2017 13:13:03 -0800 (PST)
-Message-ID: <20170302.131303.703202861280343181.davem@davemloft.net>
-References: <1488340587-32416-1-git-send-email-bergwolf@gmail.com>
-	<1488340587-32416-2-git-send-email-bergwolf@gmail.com>
+From: Jan Dakinevich <jan.dakinevich@gmail.com>
+Subject: Re: [PATCH] virtio-console: avoid DMA from stack
+Date: Fri, 3 Mar 2017 03:58:53 +0300
+Message-ID: <440dcce4-c3df-1ff5-1297-e901311c98a9@gmail.com>
+References: <075115ddd99246ffc4228a3e050ba68eb36c6a8c.1485935920.git.osandov@fb.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1488340587-32416-2-git-send-email-bergwolf@gmail.com>
+In-Reply-To: <075115ddd99246ffc4228a3e050ba68eb36c6a8c.1485935920.git.osandov@fb.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,31 +17,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: bergwolf@gmail.com
-Cc: netdev@vger.kernel.org, jhansen@vmware.com, stefanha@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Omar Sandoval <osandov@osandov.com>, Amit Shah <amit.shah@redhat.com>
+Cc: kernel-team@fb.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Peng Tao <bergwolf@gmail.com>
-Date: Wed,  1 Mar 2017 11:56:24 +0800
+I also faced with the same issue. Could you clarify it for me whether it
+is safe to allocate memory inside console driver handler? For example,
+what would happen if put_chars was triggered by fail in another memory
+allocation?
 
-> So that we can cancel a queued pkt later if necessary.
+On 02/01/2017 11:02 AM, Omar Sandoval wrote:
+> From: Omar Sandoval <osandov@fb.com>
 > 
-> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-> Signed-off-by: Peng Tao <bergwolf@gmail.com>
+> put_chars() stuffs the buffer it gets into an sg, but that buffer may be
+> on the stack. This breaks with CONFIG_VMAP_STACK=y (for me, it
+> manifested as printks getting turned into NUL bytes).
+> 
+> Signed-off-by: Omar Sandoval <osandov@fb.com>
 > ---
->  include/linux/virtio_vsock.h            | 2 ++
->  net/vmw_vsock/virtio_transport_common.c | 7 +++++++
->  2 files changed, 9 insertions(+)
+> Patch based on v4.10-rc6.
 > 
-> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
-> index 9638bfe..193ad3a 100644
-> --- a/include/linux/virtio_vsock.h
-> +++ b/include/linux/virtio_vsock.h
-> @@ -48,6 +48,7 @@ struct virtio_vsock_pkt {
->  	struct virtio_vsock_hdr	hdr;
->  	struct work_struct work;
->  	struct list_head list;
-> +	void *cancel_token; /* only used for cancellation */
+>  drivers/char/virtio_console.c | 12 ++++++++++--
+>  1 file changed, 10 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> index 17857beb4892..3cbf4c95e446 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -1136,6 +1136,8 @@ static int put_chars(u32 vtermno, const char *buf, int count)
+>  {
+>  	struct port *port;
+>  	struct scatterlist sg[1];
+> +	void *data;
+> +	int ret;
+>  
+>  	if (unlikely(early_put_chars))
+>  		return early_put_chars(vtermno, buf, count);
+> @@ -1144,8 +1146,14 @@ static int put_chars(u32 vtermno, const char *buf, int count)
+>  	if (!port)
+>  		return -EPIPE;
+>  
+> -	sg_init_one(sg, buf, count);
+> -	return __send_to_port(port, sg, 1, count, (void *)buf, false);
+> +	data = kmemdup(buf, count, GFP_ATOMIC);
+> +	if (!data)
+> +		return -ENOMEM;
+> +
+> +	sg_init_one(sg, data, count);
+> +	ret = __send_to_port(port, sg, 1, count, data, false);
+> +	kfree(data);
+> +	return ret;
+>  }
+>  
+>  /*
+> 
 
-The type here is fixed, you only store vhost_sock object pointers
-here, so don't use "void *" please.
+-- 
+Best regards,
+Jan Dakinevich
