@@ -1,7 +1,7 @@
 From: Vitaly Kuznetsov <vkuznets@redhat.com>
-Subject: [PATCH v3 2/3] x86/hyperv: move TSC reading method to asm/mshyperv.h
-Date: Fri,  3 Mar 2017 14:21:41 +0100
-Message-ID: <20170303132142.25595-3-vkuznets__32477.5781519294$1488547328$gmane$org@redhat.com>
+Subject: [PATCH v3 3/3] x86/vdso: Add VCLOCK_HVCLOCK vDSO clock read method
+Date: Fri,  3 Mar 2017 14:21:42 +0100
+Message-ID: <20170303132142.25595-4-vkuznets__9252.41836016557$1488547337$gmane$org@redhat.com>
 References: <20170303132142.25595-1-vkuznets@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,131 +21,190 @@ To: x86@kernel.org, Andy Lutomirski <luto@amacapital.net>, Thomas Gleixner <tglx
 Cc: Stephen Hemminger <sthemmin@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, devel@linuxdriverproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-As a preparation to making Hyper-V TSC page suitable for vDSO move
-the TSC page reading logic to asm/mshyperv.h. While on it, do the
-following
-- Document the reading algorithm.
-- Simplify the code a bit.
-- Add explicit READ_ONCE() to not rely on 'volatile'.
-- Add explicit barriers to prevent re-ordering (we need to read sequence
-  strictly before and after)
-- Use mul_u64_u64_shr() instead of assembly, gcc generates a single 'mul'
-  instruction on x86_64 anyway.
+Hyper-V TSC page clocksource is suitable for vDSO, however, the protocol
+defined by the hypervisor is different from VCLOCK_PVCLOCK. Implement the
+required support by adding hvclock_page VVAR.
 
 Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
 ---
- arch/x86/hyperv/hv_init.c       | 36 ++++-------------------------
- arch/x86/include/asm/mshyperv.h | 50 +++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 54 insertions(+), 32 deletions(-)
+ arch/x86/entry/vdso/vclock_gettime.c  | 24 ++++++++++++++++++++++++
+ arch/x86/entry/vdso/vdso-layout.lds.S |  3 ++-
+ arch/x86/entry/vdso/vdso2c.c          |  3 +++
+ arch/x86/entry/vdso/vma.c             |  7 +++++++
+ arch/x86/hyperv/hv_init.c             |  3 +++
+ arch/x86/include/asm/clocksource.h    |  3 ++-
+ arch/x86/include/asm/vdso.h           |  1 +
+ 7 files changed, 42 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
-index 6b64cae..63dd00e 100644
---- a/arch/x86/hyperv/hv_init.c
-+++ b/arch/x86/hyperv/hv_init.c
-@@ -38,39 +38,11 @@ struct ms_hyperv_tsc_page *hv_get_tsc_page(void)
+diff --git a/arch/x86/entry/vdso/vclock_gettime.c b/arch/x86/entry/vdso/vclock_gettime.c
+index 9d4d6e1..fa8dbfc 100644
+--- a/arch/x86/entry/vdso/vclock_gettime.c
++++ b/arch/x86/entry/vdso/vclock_gettime.c
+@@ -17,6 +17,7 @@
+ #include <asm/unistd.h>
+ #include <asm/msr.h>
+ #include <asm/pvclock.h>
++#include <asm/mshyperv.h>
+ #include <linux/math64.h>
+ #include <linux/time.h>
+ #include <linux/kernel.h>
+@@ -32,6 +33,11 @@ extern u8 pvclock_page
+ 	__attribute__((visibility("hidden")));
+ #endif
  
- static u64 read_hv_clock_tsc(struct clocksource *arg)
- {
--	u64 current_tick;
++#ifdef CONFIG_HYPERV_TSCPAGE
++extern u8 hvclock_page
++	__attribute__((visibility("hidden")));
++#endif
++
+ #ifndef BUILD_VDSO32
+ 
+ notrace static long vdso_fallback_gettime(long clock, struct timespec *ts)
+@@ -141,6 +147,20 @@ static notrace u64 vread_pvclock(int *mode)
+ 	return last;
+ }
+ #endif
++#ifdef CONFIG_HYPERV_TSCPAGE
++static notrace u64 vread_hvclock(int *mode)
++{
++	const struct ms_hyperv_tsc_page *tsc_pg =
++		(const struct ms_hyperv_tsc_page *)&hvclock_page;
 +	u64 current_tick = hv_read_tsc_page(tsc_pg);
 +
-+	if (current_tick == U64_MAX)
-+		rdmsrl(HV_X64_MSR_TIME_REF_COUNT, current_tick);
- 
--	if (tsc_pg->tsc_sequence != 0) {
--		/*
--		 * Use the tsc page to compute the value.
--		 */
--
--		while (1) {
--			u64 tmp;
--			u32 sequence = tsc_pg->tsc_sequence;
--			u64 cur_tsc;
--			u64 scale = tsc_pg->tsc_scale;
--			s64 offset = tsc_pg->tsc_offset;
--
--			rdtscll(cur_tsc);
--			/* current_tick = ((cur_tsc *scale) >> 64) + offset */
--			asm("mulq %3"
--				: "=d" (current_tick), "=a" (tmp)
--				: "a" (cur_tsc), "r" (scale));
--
--			current_tick += offset;
--			if (tsc_pg->tsc_sequence == sequence)
--				return current_tick;
--
--			if (tsc_pg->tsc_sequence != 0)
--				continue;
--			/*
--			 * Fallback using MSR method.
--			 */
--			break;
--		}
--	}
--	rdmsrl(HV_X64_MSR_TIME_REF_COUNT, current_tick);
- 	return current_tick;
- }
- 
-diff --git a/arch/x86/include/asm/mshyperv.h b/arch/x86/include/asm/mshyperv.h
-index d324dce..4ff25436 100644
---- a/arch/x86/include/asm/mshyperv.h
-+++ b/arch/x86/include/asm/mshyperv.h
-@@ -178,6 +178,56 @@ void hyperv_cleanup(void);
- #endif
- #ifdef CONFIG_HYPERV_TSCPAGE
- struct ms_hyperv_tsc_page *hv_get_tsc_page(void);
-+static inline u64 hv_read_tsc_page(const struct ms_hyperv_tsc_page *tsc_pg)
-+{
-+	u64 scale, offset, current_tick, cur_tsc;
-+	u32 sequence;
++	if (current_tick != U64_MAX)
++		return current_tick;
 +
-+	/*
-+	 * The protocol for reading Hyper-V TSC page is specified in Hypervisor
-+	 * Top-Level Functional Specification ver. 3.0 and above. To get the
-+	 * reference time we must do the following:
-+	 * - READ ReferenceTscSequence
-+	 *   A special '0' value indicates the time source is unreliable and we
-+	 *   need to use something else. The currently published specification
-+	 *   versions (up to 4.0b) contain a mistake and wrongly claim '-1'
-+	 *   instead of '0' as the special value, see commit c35b82ef0294.
-+	 * - ReferenceTime =
-+	 *        ((RDTSC() * ReferenceTscScale) >> 64) + ReferenceTscOffset
-+	 * - READ ReferenceTscSequence again. In case its value has changed
-+	 *   since our first reading we need to discard ReferenceTime and repeat
-+	 *   the whole sequence as the hypervisor was updating the page in
-+	 *   between.
-+	 */
-+	while (1) {
-+		sequence = READ_ONCE(tsc_pg->tsc_sequence);
-+		if (!sequence)
-+			break;
-+		/*
-+		 * Make sure we read sequence before we read other values from
-+		 * TSC page.
-+		 */
-+		smp_rmb();
-+
-+		scale = READ_ONCE(tsc_pg->tsc_scale);
-+		offset = READ_ONCE(tsc_pg->tsc_offset);
-+		cur_tsc = rdtsc_ordered();
-+
-+		current_tick = mul_u64_u64_shr(cur_tsc, scale, 64) + offset;
-+
-+		/*
-+		 * Make sure we read sequence after we read all other values
-+		 * from TSC page.
-+		 */
-+		smp_rmb();
-+
-+		if (READ_ONCE(tsc_pg->tsc_sequence) == sequence)
-+			return current_tick;
-+	}
-+
-+	return U64_MAX;
++	*mode = VCLOCK_NONE;
++	return 0;
 +}
-+
- #else
- static inline struct ms_hyperv_tsc_page *hv_get_tsc_page(void)
++#endif
+ 
+ notrace static u64 vread_tsc(void)
  {
+@@ -173,6 +193,10 @@ notrace static inline u64 vgetsns(int *mode)
+ 	else if (gtod->vclock_mode == VCLOCK_PVCLOCK)
+ 		cycles = vread_pvclock(mode);
+ #endif
++#ifdef CONFIG_HYPERV_TSCPAGE
++	else if (gtod->vclock_mode == VCLOCK_HVCLOCK)
++		cycles = vread_hvclock(mode);
++#endif
+ 	else
+ 		return 0;
+ 	v = (cycles - gtod->cycle_last) & gtod->mask;
+diff --git a/arch/x86/entry/vdso/vdso-layout.lds.S b/arch/x86/entry/vdso/vdso-layout.lds.S
+index a708aa9..8ebb4b6 100644
+--- a/arch/x86/entry/vdso/vdso-layout.lds.S
++++ b/arch/x86/entry/vdso/vdso-layout.lds.S
+@@ -25,7 +25,7 @@ SECTIONS
+ 	 * segment.
+ 	 */
+ 
+-	vvar_start = . - 2 * PAGE_SIZE;
++	vvar_start = . - 3 * PAGE_SIZE;
+ 	vvar_page = vvar_start;
+ 
+ 	/* Place all vvars at the offsets in asm/vvar.h. */
+@@ -36,6 +36,7 @@ SECTIONS
+ #undef EMIT_VVAR
+ 
+ 	pvclock_page = vvar_start + PAGE_SIZE;
++	hvclock_page = vvar_start + 2 * PAGE_SIZE;
+ 
+ 	. = SIZEOF_HEADERS;
+ 
+diff --git a/arch/x86/entry/vdso/vdso2c.c b/arch/x86/entry/vdso/vdso2c.c
+index 491020b..0780a44 100644
+--- a/arch/x86/entry/vdso/vdso2c.c
++++ b/arch/x86/entry/vdso/vdso2c.c
+@@ -74,6 +74,7 @@ enum {
+ 	sym_vvar_page,
+ 	sym_hpet_page,
+ 	sym_pvclock_page,
++	sym_hvclock_page,
+ 	sym_VDSO_FAKE_SECTION_TABLE_START,
+ 	sym_VDSO_FAKE_SECTION_TABLE_END,
+ };
+@@ -82,6 +83,7 @@ const int special_pages[] = {
+ 	sym_vvar_page,
+ 	sym_hpet_page,
+ 	sym_pvclock_page,
++	sym_hvclock_page,
+ };
+ 
+ struct vdso_sym {
+@@ -94,6 +96,7 @@ struct vdso_sym required_syms[] = {
+ 	[sym_vvar_page] = {"vvar_page", true},
+ 	[sym_hpet_page] = {"hpet_page", true},
+ 	[sym_pvclock_page] = {"pvclock_page", true},
++	[sym_hvclock_page] = {"hvclock_page", true},
+ 	[sym_VDSO_FAKE_SECTION_TABLE_START] = {
+ 		"VDSO_FAKE_SECTION_TABLE_START", false
+ 	},
+diff --git a/arch/x86/entry/vdso/vma.c b/arch/x86/entry/vdso/vma.c
+index 572cee3..71f5d3a 100644
+--- a/arch/x86/entry/vdso/vma.c
++++ b/arch/x86/entry/vdso/vma.c
+@@ -21,6 +21,7 @@
+ #include <asm/page.h>
+ #include <asm/desc.h>
+ #include <asm/cpufeature.h>
++#include <asm/mshyperv.h>
+ 
+ #if defined(CONFIG_X86_64)
+ unsigned int __read_mostly vdso64_enabled = 1;
+@@ -120,6 +121,12 @@ static int vvar_fault(const struct vm_special_mapping *sm,
+ 				vmf->address,
+ 				__pa(pvti) >> PAGE_SHIFT);
+ 		}
++	} else if (sym_offset == image->sym_hvclock_page) {
++		struct ms_hyperv_tsc_page *tsc_pg = hv_get_tsc_page();
++
++		if (tsc_pg && vclock_was_used(VCLOCK_HVCLOCK))
++			ret = vm_insert_pfn(vma, vmf->address,
++					    vmalloc_to_pfn(tsc_pg));
+ 	}
+ 
+ 	if (ret == 0 || ret == -EBUSY)
+diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
+index 63dd00e..d08ac5e 100644
+--- a/arch/x86/hyperv/hv_init.c
++++ b/arch/x86/hyperv/hv_init.c
+@@ -132,6 +132,9 @@ void hyperv_init(void)
+ 		tsc_msr.guest_physical_address = vmalloc_to_pfn(tsc_pg);
+ 
+ 		wrmsrl(HV_X64_MSR_REFERENCE_TSC, tsc_msr.as_uint64);
++
++		hyperv_cs_tsc.archdata.vclock_mode = VCLOCK_HVCLOCK;
++
+ 		clocksource_register_hz(&hyperv_cs_tsc, NSEC_PER_SEC/100);
+ 		return;
+ 	}
+diff --git a/arch/x86/include/asm/clocksource.h b/arch/x86/include/asm/clocksource.h
+index eae33c7..47bea8c 100644
+--- a/arch/x86/include/asm/clocksource.h
++++ b/arch/x86/include/asm/clocksource.h
+@@ -6,7 +6,8 @@
+ #define VCLOCK_NONE	0	/* No vDSO clock available.		*/
+ #define VCLOCK_TSC	1	/* vDSO should use vread_tsc.		*/
+ #define VCLOCK_PVCLOCK	2	/* vDSO should use vread_pvclock.	*/
+-#define VCLOCK_MAX	2
++#define VCLOCK_HVCLOCK	3	/* vDSO should use vread_hvclock.	*/
++#define VCLOCK_MAX	3
+ 
+ struct arch_clocksource_data {
+ 	int vclock_mode;
+diff --git a/arch/x86/include/asm/vdso.h b/arch/x86/include/asm/vdso.h
+index 2444189..bccdf49 100644
+--- a/arch/x86/include/asm/vdso.h
++++ b/arch/x86/include/asm/vdso.h
+@@ -20,6 +20,7 @@ struct vdso_image {
+ 	long sym_vvar_page;
+ 	long sym_hpet_page;
+ 	long sym_pvclock_page;
++	long sym_hvclock_page;
+ 	long sym_VDSO32_NOTE_MASK;
+ 	long sym___kernel_sigreturn;
+ 	long sym___kernel_rt_sigreturn;
 -- 
 2.9.3
