@@ -1,11 +1,18 @@
-From: Colin King <colin.king@canonical.com>
-Subject: [PATCH] virtio: remove redundant check on error return err
-Date: Tue,  7 Mar 2017 14:08:21 +0000
-Message-ID: <20170307140821.29689-1-colin.king@canonical.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [virtio-dev] packed ring layout proposal v2
+Date: Tue, 7 Mar 2017 16:53:53 +0100
+Message-ID: <20170307165353.00ff80d9.cornelia.huck@de.ibm.com>
+References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
+	<240c623b-2d8f-28d9-d349-d01e2c24b93a@redhat.com>
+	<20170208214435-mutt-send-email-mst@kernel.org>
+	<cc075b18-0913-ef89-96a8-a29869abd73e@redhat.com>
+	<20170209171105.075a9d9c.cornelia.huck@de.ibm.com>
+	<20170222181333-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20170222181333-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,34 +22,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Colin Ian King <colin.king@canonical.com>
+On Wed, 22 Feb 2017 18:43:05 +0200
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-err has previously been checked for a -ve error return so this
-redundant check can be removed.
+> On Thu, Feb 09, 2017 at 05:11:05PM +0100, Cornelia Huck wrote:
+> > > >>> * Non power-of-2 ring sizes
+> > > >>>
+> > > >>> As the ring simply wraps around, there's no reason to
+> > > >>> require ring size to be power of two.
+> > > >>> It can be made a separate feature though.
+> > > >>
+> > > >> Power of 2 ring sizes are required in order to ignore the high bits of
+> > > >> the indices.  With non-power-of-2 sizes you are forced to keep the
+> > > >> indices less than the ring size.
+> > > > 
+> > > > Right. So
+> > > > 
+> > > > 	if (unlikely(idx++ > size))
+> > > > 		idx = 0;
+> > > > 
+> > > > OTOH ring size that's twice larger than necessary
+> > > > because of power of two requirements wastes cache.
+> > > 
+> > > I don't know.  Power of 2 ring size is pretty standard, I'd rather avoid
+> > > the complication and the gratuitous difference with 1.0.
+> > 
+> > I agree. I don't think dropping the power of 2 requirement buys us so
+> > much that it makes up for the added complexity.
+> 
+> I recalled why I came up with this. The issue is cache associativity.
+> Recall that besides the ring we have event suppression
+> structures - if we are lucky and things run at the same speed
+> everything can work by polling keeping events disabled, then
+> event suppression structures are never written to, they are read-only.
+> 
+> However if ring and event suppression share a cache line ring accesses
+> have a chance to push the event suppression out of cache, causing
+> misses on read.
+> 
+> This can happen if they are at the same offset in the set.
+> E.g. with L1 cache 4Kbyte sets are common, so same offset
+> within a 4K page.
+> 
+> We can fix this by making event suppression adjacent in memory, e.g.:
+> 
+> 
+> [interrupt suppress]
+> [descriptor ring]
+> [kick suppress]
+> 
+> If this whole structure fits in a single set, ring accesses will
+> not push kick or interrupt suppress out of cache.
+> Specific layout can be left for drivers, but as set size is
+> a power of two this might require a non-power of two ring size.
+> 
+> I conclude that this is an optimization that needs to be
+> benchmarked.
 
-Detected by CoverityScan, CID#1415271 ("Logically Dead Code")
+This makes sense. But wouldn't the optimum layout not depend on the
+platform?
 
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- drivers/virtio/virtio_pci_common.c | 2 --
- 1 file changed, 2 deletions(-)
+> 
+> I also note that the generic description does not have to force
+> powers of two *even if devices actually require it*.
+> I would be inclined to word the text in a way that makes
+> relaxing the restriction easier.
+> 
+> For example, we can say "free running 16 bit index" and this forces a
+> power of two, but we can also say "free running index wrapping to 0
+> after (N*queue-size - 1) with N chosen such that the value fits in 16
+> bit" and this is exactly the same if queue size is a power of 2.
+> 
+> So we can add text saying "ring size MUST be a power of two"
+> and later it will be easy to relax just by adding a feature bit.
 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index df548a6..ceb4395 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -173,8 +173,6 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
- 		if (err < 0)
- 			return err;
- 	}
--	if (err < 0)
--		return err;
- 
- 	vp_dev->msix_vectors = nvectors;
- 	vp_dev->msix_names = kmalloc_array(nvectors,
--- 
-2.10.2
+A later feature bit sounds good.
