@@ -1,16 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v7 kernel 4/5] virtio-balloon: define flags and head for
-	host request vq
-Date: Wed, 8 Mar 2017 06:02:26 +0200
-Message-ID: <20170308060158-mutt-send-email-mst__43256.2821115882$1488945756$gmane$org@kernel.org>
-References: <1488519630-89058-1-git-send-email-wei.w.wang@intel.com>
-	<1488519630-89058-5-git-send-email-wei.w.wang@intel.com>
+From: Yuanhan Liu <yuanhan.liu@linux.intel.com>
+Subject: Re: [virtio-dev] packed ring layout proposal - todo list
+Date: Wed, 8 Mar 2017 15:09:48 +0800
+Message-ID: <20170308070948.GC18844__41152.7453143664$1488957081$gmane$org@yliu-dev.sh.intel.com>
+References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
+	<20170222054336-mutt-send-email-mst@kernel.org>
+	<20170228042943.GH18844@yliu-dev.sh.intel.com>
+	<20170301030235-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1488519630-89058-5-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <20170301030235-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,80 +21,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, virtio-dev@lists.oasis-open.org, Amit Shah <amit.shah@redhat.com>, kvm@vger.kernel.org, Dave Hansen <dave.hansen@intel.com>, linux-kernel@vger.kernel.org, Liang Li <liang.z.li@intel.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Liang Li <liliang324@gmail.com>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Mel Gorman <mgorman@techsingularity.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, Maxime Coquelin <maxime.coquelin@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Mar 03, 2017 at 01:40:29PM +0800, Wei Wang wrote:
-> From: Liang Li <liang.z.li@intel.com>
+On Wed, Mar 01, 2017 at 03:07:29AM +0200, Michael S. Tsirkin wrote:
+> On Tue, Feb 28, 2017 at 12:29:43PM +0800, Yuanhan Liu wrote:
+> > Hi Michael,
+> > 
+> > Again, as usual, sorry for being late :/
+> > 
+> > On Wed, Feb 22, 2017 at 06:27:11AM +0200, Michael S. Tsirkin wrote:
+> > > Stage 2: prototype guest/host drivers
+> > > 
+> > > At this stage we need real guest and host drivers
+> > > to be able to test real life performance.
+> > > I suggest dpdk drivers + munimal hack in qemu to
+> > > pass features around.
+> > > 
+> > 
+> > I have already done that in last Nov. I made a very rough (yet hacky)
+> > version (only with Tx path) in one day while companying my wife in
+> > hospital.
 > 
-> Define the flags and head struct for a new host request virtual
-> queue. Guest can get requests from host and then responds to
-> them on this new virtual queue.
-> Host can make use of this virtqueue to request the guest to do
-> some operations, e.g. drop page cache, synchronize file system,
-> etc. The hypervisor can get some of guest's runtime information
-> through this virtual queue too, e.g. the guest's unused page
-> information, which can be used for live migration optimization.
+> Any performance data?
+
+A straightfoward implementation only brings 10% performance boost in a
+txonly micro benchmarking. But I'm sure there are still plenty of room
+for improvement.
+
+> > If someone are interested in, I could share the code soon. I could
+> > even cleanup the code a bit if necessary.
 > 
-> Signed-off-by: Liang Li <liang.z.li@intel.com>
-> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Mel Gorman <mgorman@techsingularity.net>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Cc: Paolo Bonzini <pbonzini@redhat.com>
-> Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
-> Cc: Amit Shah <amit.shah@redhat.com>
-> Cc: Dave Hansen <dave.hansen@intel.com>
-> Cc: Andrea Arcangeli <aarcange@redhat.com>
-> Cc: David Hildenbrand <david@redhat.com>
-> Cc: Liang Li <liliang324@gmail.com>
-> Cc: Wei Wang <wei.w.wang@intel.com>
+> Especially if you don't have time to benchmark, I think sharing it
+> might help.
 
-I prefer this squashed into next patch makes review easier.
+Here it is (check the README-virtio-1.1 for howto):
 
+    git://fridaybit.com/git/dpdk.git  virtio-1.1-v0.1
 
-> ---
->  include/uapi/linux/virtio_balloon.h | 22 ++++++++++++++++++++++
->  1 file changed, 22 insertions(+)
+> > - Try to accelerate vhost/virtio with vector instructions.
 > 
-> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-> index ed627b2..630b0ef 100644
-> --- a/include/uapi/linux/virtio_balloon.h
-> +++ b/include/uapi/linux/virtio_balloon.h
-> @@ -35,6 +35,7 @@
->  #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
->  #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
->  #define VIRTIO_BALLOON_F_CHUNK_TRANSFER	3 /* Transfer pages in chunks */
-> +#define VIRTIO_BALLOON_F_HOST_REQ_VQ	4 /* Host request virtqueue */
->  
->  /* Size of a PFN in the balloon interface. */
->  #define VIRTIO_BALLOON_PFN_SHIFT 12
-> @@ -94,4 +95,25 @@ struct virtio_balloon_resp_hdr {
->  	__le32 data_len; /* Payload len in bytes */
->  };
->  
-> +enum virtio_balloon_req_id {
-> +	/* Get unused page information */
-> +	BALLOON_GET_UNUSED_PAGES,
-> +};
-> +
-> +enum virtio_balloon_flag {
-> +	/* Have more data for a request */
-> +	BALLOON_FLAG_CONT,
-> +	/* No more data for a request */
-> +	BALLOON_FLAG_DONE,
-> +};
-> +
-> +struct virtio_balloon_req_hdr {
-> +	/* Used to distinguish different requests */
-> +	__le16 cmd;
-> +	/* Reserved */
-> +	__le16 reserved[3];
-> +	/* Request parameter */
-> +	__le64 param;
-> +};
-> +
->  #endif /* _LINUX_VIRTIO_BALLOON_H */
-> -- 
-> 2.7.4
+> That's interesting. What kind of optimizations would you say
+> do vector instructions enable, and why?
+
+If we have made the cache impact being minimum, the left thing could
+be optimized is the instruction cycles. SIMD instructions (like AVX)
+then should help on this.
+
+	--yliu
+
+> >   Something I will look into when above item is done. Currently,
+> >   I thought of two items may help the vector implementation:
+> > 
+> >   * what kind of vring and desc layout could make the vector
+> >     implementation easier.
+> > 
+> >   * what kind of hint we need from virtio spec for (dynamically)
+> >     enabling the vector path.
+> > 
+> >   Besides that, I don't have too much clue yet.
+> > 
+> > 	--yliu
