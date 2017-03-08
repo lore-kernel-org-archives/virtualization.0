@@ -1,13 +1,14 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 3/4] qxl: read monitors config at boot
-Date: Wed,  8 Mar 2017 10:19:06 +0100
-Message-ID: <1488964751-22763-7-git-send-email-kraxel__909.798386465077$1488964832$gmane$org@redhat.com>
-References: <1488964751-22763-1-git-send-email-kraxel@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] virtio-pci: Remove affinity hint before freeing the
+	interrupt
+Date: Wed, 8 Mar 2017 18:16:22 +0800
+Message-ID: <f153babe-8ee6-ca56-f12b-393897253fc7@redhat.com>
+References: <20170308080927.4493-1-marc.zyngier@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1488964751-22763-1-git-send-email-kraxel@redhat.com>
+In-Reply-To: <20170308080927.4493-1-marc.zyngier@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,46 +18,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-rpi-kernel@lists.infradead.org
-Cc: mark.rutland@arm.com, David Airlie <airlied@linux.ie>, catalin.marinas@arm.com, will.deacon@arm.com, "open list:DRM DRIVERS" <dri-devel@lists.freedesktop.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, eric@anholt.net, stefan.wahren@i2se.com, f.fainelli@gmail.com, lee@kernel.org, linux@armlinux.org.uk, bcm-kernel-feedback-list@broadcom.com, Dave Airlie <airlied@redhat.com>, devicetree@vger.kernel.org, rjui@broadcom.com, robh+dt@kernel.org, linux-arm-kernel@lists.infradead.org, sbranden@broadcom.com, linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Marc Zyngier <marc.zyngier@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Try to read the client monitors config at driver load time, even without
-explicit notification.  So in case that info was filled before the driver
-loaded and we've missed the notifications because of that the settings
-will still be used.
-
-With that place we now have to take care to properly handle a empty client
-monitors config, so we don't trip over an uninitialized client monitors
-config.
-
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/qxl/qxl_display.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index 2b99496..cf99ace 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -81,6 +81,10 @@ static int qxl_display_copy_rom_client_monitors_config(struct qxl_device *qdev)
- 			   qdev->rom->client_monitors_config_crc);
- 		return MONITORS_CONFIG_BAD_CRC;
- 	}
-+	if (!num_monitors) {
-+		DRM_DEBUG_KMS("no client monitors configured\n");
-+		return status;
-+	}
- 	if (num_monitors > qdev->monitors_config->max_allowed) {
- 		DRM_DEBUG_KMS("client monitors list will be truncated: %d < %d\n",
- 			      qdev->monitors_config->max_allowed, num_monitors);
-@@ -1192,6 +1196,7 @@ int qxl_modeset_init(struct qxl_device *qdev)
- 		qdev_output_init(&qdev->ddev, i);
- 	}
- 
-+	qxl_display_read_client_monitors_config(qdev);
- 	qdev->mode_info.mode_config_initialized = true;
- 
- 	drm_mode_config_reset(&qdev->ddev);
--- 
-1.8.3.1
+CgpPbiAyMDE35bm0MDPmnIgwOOaXpSAxNjowOSwgTWFyYyBaeW5naWVyIHdyb3RlOgo+IHZpcnRp
+by1wY2kgcmVnaXN0ZXJzIGEgcGVyLXZxIGFmZmluaXR5IGhpbnQgd2hlbiB1c2luZyBNU0lYLAo+
+IGJ1dCBmYWlscyB0byByZW1vdmUgaXQgd2hlbiBmcmVlaW5nIHRoZSBpbnRlcnJ1cHQsIHJlc3Vs
+dGluZwo+IGluIHRoaXMgdHlwZSBvZiBzcGxhdDoKPgo+IFsgICAzMS4xMTEyMDJdIFdBUk5JTkc6
+IENQVTogMCBQSUQ6IDI4MjMgYXQga2VybmVsL2lycS9tYW5hZ2UuYzoxNTAzIF9fZnJlZV9pcnEr
+MHgyYzQvMHgyYzgKPiBbICAgMzEuMTE0Njg5XSBNb2R1bGVzIGxpbmtlZCBpbjoKPiBbICAgMzEu
+MTE2MTAxXSBDUFU6IDAgUElEOiAyODIzIENvbW06IGtleGVjIE5vdCB0YWludGVkIDQuMTAuMCsg
+IzY5NDEKPiBbICAgMzEuMTE4OTExXSBIYXJkd2FyZSBuYW1lOiBHZW5lcmljIERUIGJhc2VkIHN5
+c3RlbQo+IFsgICAzMS4xMjEzMTldIFs8YzAyMmZiNzg+XSAodW53aW5kX2JhY2t0cmFjZSkgZnJv
+bSBbPGMwMjI5ZDhjPl0gKHNob3dfc3RhY2srMHgxOC8weDFjKQo+IFsgICAzMS4xMjUwMTddIFs8
+YzAyMjlkOGM+XSAoc2hvd19zdGFjaykgZnJvbSBbPGMwNTE5MmY0Pl0gKGR1bXBfc3RhY2srMHg4
+NC8weDk4KQo+IFsgICAzMS4xMjg0MjddIFs8YzA1MTkyZjQ+XSAoZHVtcF9zdGFjaykgZnJvbSBb
+PGMwMjNkOTQwPl0gKF9fd2FybisweGY0LzB4MTBjKQo+IFsgICAzMS4xMzE5MTBdIFs8YzAyM2Q5
+NDA+XSAoX193YXJuKSBmcm9tIFs8YzAyM2RhMjA+XSAod2Fybl9zbG93cGF0aF9udWxsKzB4Mjgv
+MHgzMCkKPiBbICAgMzEuMTM1NTQzXSBbPGMwMjNkYTIwPl0gKHdhcm5fc2xvd3BhdGhfbnVsbCkg
+ZnJvbSBbPGMwMjkwMjM4Pl0gKF9fZnJlZV9pcnErMHgyYzQvMHgyYzgpCj4gWyAgIDMxLjEzOTM1
+NV0gWzxjMDI5MDIzOD5dIChfX2ZyZWVfaXJxKSBmcm9tIFs8YzAyOTAyZDA+XSAoZnJlZV9pcnEr
+MHg0NC8weDc4KQo+IFsgICAzMS4xNDI5MDldIFs8YzAyOTAyZDA+XSAoZnJlZV9pcnEpIGZyb20g
+WzxjMDU5ZDNhOD5dICh2cF9kZWxfdnFzKzB4NjgvMHgxYzApCj4gWyAgIDMxLjE0NjI5OV0gWzxj
+MDU5ZDNhOD5dICh2cF9kZWxfdnFzKSBmcm9tIFs8YzA1NmNhNGM+XSAocGNpX2RldmljZV9zaHV0
+ZG93bisweDNjLzB4NzgpCj4KPiBUaGUgb2J2aW91cyBmaXggaXMgdG8gZHJvcCB0aGUgYWZmaW5p
+dHkgaGludCBiZWZvcmUgZnJlZWluZyB0aGUKPiBpbnRlcnJ1cHQuCj4KPiBTaWduZWQtb2ZmLWJ5
+OiBNYXJjIFp5bmdpZXIgPG1hcmMuenluZ2llckBhcm0uY29tPgo+IC0tLQo+ICAgZHJpdmVycy92
+aXJ0aW8vdmlydGlvX3BjaV9jb21tb24uYyB8IDkgKysrKysrLS0tCj4gICAxIGZpbGUgY2hhbmdl
+ZCwgNiBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZl
+cnMvdmlydGlvL3ZpcnRpb19wY2lfY29tbW9uLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNp
+X2NvbW1vbi5jCj4gaW5kZXggZGY1NDhhNmZiODQ0Li41YTg0ZjgyMDdjMDIgMTAwNjQ0Cj4gLS0t
+IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3BjaV9jb21tb24uYwo+ICsrKyBiL2RyaXZlcnMvdmly
+dGlvL3ZpcnRpb19wY2lfY29tbW9uLmMKPiBAQCAtMTA2LDkgKzEwNiwxMiBAQCBzdGF0aWMgdm9p
+ZCB2cF9yZW1vdmVfdnFzKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ICAgCQlpZiAodnBf
+ZGV2LT5tc2l4X3ZlY3Rvcl9tYXApIHsKPiAgIAkJCWludCB2ID0gdnBfZGV2LT5tc2l4X3ZlY3Rv
+cl9tYXBbdnEtPmluZGV4XTsKPiAgIAo+IC0JCQlpZiAodiAhPSBWSVJUSU9fTVNJX05PX1ZFQ1RP
+UikKPiAtCQkJCWZyZWVfaXJxKHBjaV9pcnFfdmVjdG9yKHZwX2Rldi0+cGNpX2RldiwgdiksCj4g
+LQkJCQkJdnEpOwo+ICsJCQlpZiAodiAhPSBWSVJUSU9fTVNJX05PX1ZFQ1RPUikgewo+ICsJCQkJ
+dW5zaWduZWQgaW50IGlycTsKPiArCQkJCWlycSA9IHBjaV9pcnFfdmVjdG9yKHZwX2Rldi0+cGNp
+X2Rldiwgdik7Cj4gKwkJCQlpcnFfc2V0X2FmZmluaXR5X2hpbnQoaXJxLCBOVUxMKTsKPiArCQkJ
+CWZyZWVfaXJxKGlycSwgdnEpOwo+ICsJCQl9Cj4gICAJCX0KPiAgIAkJdnBfZGV2LT5kZWxfdnEo
+dnEpOwo+ICAgCX0KCkFja2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgpf
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
+dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
+cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
+dHVhbGl6YXRpb24=
