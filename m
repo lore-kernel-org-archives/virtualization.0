@@ -1,18 +1,11 @@
-From: Yuanhan Liu <yuanhan.liu@linux.intel.com>
-Subject: Re: [virtio-dev] packed ring layout proposal - todo list
-Date: Wed, 8 Mar 2017 15:56:24 +0800
-Message-ID: <20170308075624.GF18844__35515.6522630297$1488959880$gmane$org@yliu-dev.sh.intel.com>
-References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
-	<20170222054336-mutt-send-email-mst@kernel.org>
-	<20170228042943.GH18844@yliu-dev.sh.intel.com>
-	<20170301030235-mutt-send-email-mst@kernel.org>
-	<20170308070948.GC18844@yliu-dev.sh.intel.com>
+From: Marc Zyngier <marc.zyngier@arm.com>
+Subject: [PATCH] virtio-pci: Remove affinity hint before freeing the interrupt
+Date: Wed,  8 Mar 2017 08:09:27 +0000
+Message-ID: <20170308080927.4493-1-marc.zyngier@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20170308070948.GC18844@yliu-dev.sh.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,48 +15,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, Maxime Coquelin <maxime.coquelin@redhat.com>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 08, 2017 at 03:09:48PM +0800, Yuanhan Liu wrote:
-> On Wed, Mar 01, 2017 at 03:07:29AM +0200, Michael S. Tsirkin wrote:
-> > On Tue, Feb 28, 2017 at 12:29:43PM +0800, Yuanhan Liu wrote:
-> > > Hi Michael,
-> > > 
-> > > Again, as usual, sorry for being late :/
-> > > 
-> > > On Wed, Feb 22, 2017 at 06:27:11AM +0200, Michael S. Tsirkin wrote:
-> > > > Stage 2: prototype guest/host drivers
-> > > > 
-> > > > At this stage we need real guest and host drivers
-> > > > to be able to test real life performance.
-> > > > I suggest dpdk drivers + munimal hack in qemu to
-> > > > pass features around.
-> > > > 
-> > > 
-> > > I have already done that in last Nov. I made a very rough (yet hacky)
-> > > version (only with Tx path) in one day while companying my wife in
-> > > hospital.
-> > 
-> > Any performance data?
-> 
-> A straightfoward implementation only brings 10% performance boost in a
-> txonly micro benchmarking. But I'm sure there are still plenty of room
-> for improvement.
-> 
-> > > If someone are interested in, I could share the code soon. I could
-> > > even cleanup the code a bit if necessary.
-> > 
-> > Especially if you don't have time to benchmark, I think sharing it
-> > might help.
-> 
-> Here it is (check the README-virtio-1.1 for howto):
-> 
->     git://fridaybit.com/git/dpdk.git  virtio-1.1-v0.1
+virtio-pci registers a per-vq affinity hint when using MSIX,
+but fails to remove it when freeing the interrupt, resulting
+in this type of splat:
 
-Well, I was told it maybe not proper to share code like this way. So
-this channel is closed. I will check how to find a proper way. Sorry
-for the inconvenience!
+[   31.111202] WARNING: CPU: 0 PID: 2823 at kernel/irq/manage.c:1503 __free_irq+0x2c4/0x2c8
+[   31.114689] Modules linked in:
+[   31.116101] CPU: 0 PID: 2823 Comm: kexec Not tainted 4.10.0+ #6941
+[   31.118911] Hardware name: Generic DT based system
+[   31.121319] [<c022fb78>] (unwind_backtrace) from [<c0229d8c>] (show_stack+0x18/0x1c)
+[   31.125017] [<c0229d8c>] (show_stack) from [<c05192f4>] (dump_stack+0x84/0x98)
+[   31.128427] [<c05192f4>] (dump_stack) from [<c023d940>] (__warn+0xf4/0x10c)
+[   31.131910] [<c023d940>] (__warn) from [<c023da20>] (warn_slowpath_null+0x28/0x30)
+[   31.135543] [<c023da20>] (warn_slowpath_null) from [<c0290238>] (__free_irq+0x2c4/0x2c8)
+[   31.139355] [<c0290238>] (__free_irq) from [<c02902d0>] (free_irq+0x44/0x78)
+[   31.142909] [<c02902d0>] (free_irq) from [<c059d3a8>] (vp_del_vqs+0x68/0x1c0)
+[   31.146299] [<c059d3a8>] (vp_del_vqs) from [<c056ca4c>] (pci_device_shutdown+0x3c/0x78)
 
-	--yliu
+The obvious fix is to drop the affinity hint before freeing the
+interrupt.
+
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+---
+ drivers/virtio/virtio_pci_common.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index df548a6fb844..5a84f8207c02 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -106,9 +106,12 @@ static void vp_remove_vqs(struct virtio_device *vdev)
+ 		if (vp_dev->msix_vector_map) {
+ 			int v = vp_dev->msix_vector_map[vq->index];
+ 
+-			if (v != VIRTIO_MSI_NO_VECTOR)
+-				free_irq(pci_irq_vector(vp_dev->pci_dev, v),
+-					vq);
++			if (v != VIRTIO_MSI_NO_VECTOR) {
++				unsigned int irq;
++				irq = pci_irq_vector(vp_dev->pci_dev, v);
++				irq_set_affinity_hint(irq, NULL);
++				free_irq(irq, vq);
++			}
+ 		}
+ 		vp_dev->del_vq(vq);
+ 	}
+-- 
+2.11.0
