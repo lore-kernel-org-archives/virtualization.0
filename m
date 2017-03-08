@@ -1,11 +1,13 @@
-From: Marc Zyngier <marc.zyngier@arm.com>
-Subject: [PATCH] virtio-pci: Remove affinity hint before freeing the interrupt
-Date: Wed,  8 Mar 2017 08:09:27 +0000
-Message-ID: <20170308080927.4493-1-marc.zyngier@arm.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 1/4] qxl: drop mode_info.modes & related code.
+Date: Wed,  8 Mar 2017 10:19:02 +0100
+Message-ID: <1488964751-22763-3-git-send-email-kraxel__16872.7549644702$1488964812$gmane$org@redhat.com>
+References: <1488964751-22763-1-git-send-email-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1488964751-22763-1-git-send-email-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,54 +17,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-rpi-kernel@lists.infradead.org
+Cc: mark.rutland@arm.com, David Airlie <airlied@linux.ie>, catalin.marinas@arm.com, will.deacon@arm.com, "open list:DRM DRIVERS" <dri-devel@lists.freedesktop.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, eric@anholt.net, stefan.wahren@i2se.com, f.fainelli@gmail.com, lee@kernel.org, linux@armlinux.org.uk, bcm-kernel-feedback-list@broadcom.com, Dave Airlie <airlied@redhat.com>, devicetree@vger.kernel.org, rjui@broadcom.com, robh+dt@kernel.org, linux-arm-kernel@lists.infradead.org, sbranden@broadcom.com, linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio-pci registers a per-vq affinity hint when using MSIX,
-but fails to remove it when freeing the interrupt, resulting
-in this type of splat:
+very old qxl hardware revisions (predating qxl ksm support by a few
+years) supported a fixed list of video modes only.  The list is still
+provided by the virtual hardware, for backward compatibility reasons.
 
-[   31.111202] WARNING: CPU: 0 PID: 2823 at kernel/irq/manage.c:1503 __free_irq+0x2c4/0x2c8
-[   31.114689] Modules linked in:
-[   31.116101] CPU: 0 PID: 2823 Comm: kexec Not tainted 4.10.0+ #6941
-[   31.118911] Hardware name: Generic DT based system
-[   31.121319] [<c022fb78>] (unwind_backtrace) from [<c0229d8c>] (show_stack+0x18/0x1c)
-[   31.125017] [<c0229d8c>] (show_stack) from [<c05192f4>] (dump_stack+0x84/0x98)
-[   31.128427] [<c05192f4>] (dump_stack) from [<c023d940>] (__warn+0xf4/0x10c)
-[   31.131910] [<c023d940>] (__warn) from [<c023da20>] (warn_slowpath_null+0x28/0x30)
-[   31.135543] [<c023da20>] (warn_slowpath_null) from [<c0290238>] (__free_irq+0x2c4/0x2c8)
-[   31.139355] [<c0290238>] (__free_irq) from [<c02902d0>] (free_irq+0x44/0x78)
-[   31.142909] [<c02902d0>] (free_irq) from [<c059d3a8>] (vp_del_vqs+0x68/0x1c0)
-[   31.146299] [<c059d3a8>] (vp_del_vqs) from [<c056ca4c>] (pci_device_shutdown+0x3c/0x78)
+The qxl kms driver never ever looks at it, except for dumping it to
+the kernel log at load time in case debug logging is enabled.  Drop
+that pointless code.
 
-The obvious fix is to drop the affinity hint before freeing the
-interrupt.
-
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/virtio/virtio_pci_common.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/qxl/qxl_drv.h |  2 --
+ drivers/gpu/drm/qxl/qxl_kms.c | 22 ----------------------
+ 2 files changed, 24 deletions(-)
 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index df548a6fb844..5a84f8207c02 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -106,9 +106,12 @@ static void vp_remove_vqs(struct virtio_device *vdev)
- 		if (vp_dev->msix_vector_map) {
- 			int v = vp_dev->msix_vector_map[vq->index];
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
+index 0c313e5..fe90b36 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.h
++++ b/drivers/gpu/drm/qxl/qxl_drv.h
+@@ -160,8 +160,6 @@ struct qxl_mman {
+ };
  
--			if (v != VIRTIO_MSI_NO_VECTOR)
--				free_irq(pci_irq_vector(vp_dev->pci_dev, v),
--					vq);
-+			if (v != VIRTIO_MSI_NO_VECTOR) {
-+				unsigned int irq;
-+				irq = pci_irq_vector(vp_dev->pci_dev, v);
-+				irq_set_affinity_hint(irq, NULL);
-+				free_irq(irq, vq);
-+			}
- 		}
- 		vp_dev->del_vq(vq);
- 	}
+ struct qxl_mode_info {
+-	int num_modes;
+-	struct qxl_mode *modes;
+ 	bool mode_config_initialized;
+ 
+ 	/* pointer to fbdev info structure */
+diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_kms.c
+index 2b1e1f3..a9a741c 100644
+--- a/drivers/gpu/drm/qxl/qxl_kms.c
++++ b/drivers/gpu/drm/qxl/qxl_kms.c
+@@ -31,19 +31,9 @@
+ 
+ int qxl_log_level;
+ 
+-static void qxl_dump_mode(struct qxl_device *qdev, void *p)
+-{
+-	struct qxl_mode *m = p;
+-	DRM_DEBUG_KMS("%d: %dx%d %d bits, stride %d, %dmm x %dmm, orientation %d\n",
+-		      m->id, m->x_res, m->y_res, m->bits, m->stride, m->x_mili,
+-		      m->y_mili, m->orientation);
+-}
+-
+ static bool qxl_check_device(struct qxl_device *qdev)
+ {
+ 	struct qxl_rom *rom = qdev->rom;
+-	int mode_offset;
+-	int i;
+ 
+ 	if (rom->magic != 0x4f525851) {
+ 		DRM_ERROR("bad rom signature %x\n", rom->magic);
+@@ -53,8 +43,6 @@ static bool qxl_check_device(struct qxl_device *qdev)
+ 	DRM_INFO("Device Version %d.%d\n", rom->id, rom->update_id);
+ 	DRM_INFO("Compression level %d log level %d\n", rom->compression_level,
+ 		 rom->log_level);
+-	DRM_INFO("Currently using mode #%d, list at 0x%x\n",
+-		 rom->mode, rom->modes_offset);
+ 	DRM_INFO("%d io pages at offset 0x%x\n",
+ 		 rom->num_io_pages, rom->pages_offset);
+ 	DRM_INFO("%d byte draw area at offset 0x%x\n",
+@@ -62,14 +50,6 @@ static bool qxl_check_device(struct qxl_device *qdev)
+ 
+ 	qdev->vram_size = rom->surface0_area_size;
+ 	DRM_INFO("RAM header offset: 0x%x\n", rom->ram_header_offset);
+-
+-	mode_offset = rom->modes_offset / 4;
+-	qdev->mode_info.num_modes = ((u32 *)rom)[mode_offset];
+-	DRM_INFO("rom modes offset 0x%x for %d modes\n", rom->modes_offset,
+-		 qdev->mode_info.num_modes);
+-	qdev->mode_info.modes = (void *)((uint32_t *)rom + mode_offset + 1);
+-	for (i = 0; i < qdev->mode_info.num_modes; i++)
+-		qxl_dump_mode(qdev, qdev->mode_info.modes + i);
+ 	return true;
+ }
+ 
+@@ -282,7 +262,5 @@ void qxl_device_fini(struct qxl_device *qdev)
+ 	iounmap(qdev->ram_header);
+ 	iounmap(qdev->rom);
+ 	qdev->rom = NULL;
+-	qdev->mode_info.modes = NULL;
+-	qdev->mode_info.num_modes = 0;
+ 	qxl_debugfs_remove_files(qdev);
+ }
 -- 
-2.11.0
+1.8.3.1
