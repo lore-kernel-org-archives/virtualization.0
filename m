@@ -1,15 +1,13 @@
 From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH-v4-RESEND 1/4] vsock: track pkt owner vsock
-Date: Fri, 10 Mar 2017 09:48:49 +0800
-Message-ID: <20170310014849.GA3213__35020.8549564288$1489110541$gmane$org@stefanha-x1.localdomain>
-References: <1488340587-32416-1-git-send-email-bergwolf@gmail.com>
-	<1488340587-32416-2-git-send-email-bergwolf@gmail.com>
-	<20170302.131303.703202861280343181.davem@davemloft.net>
-	<CA+a=Yy4T1WRZoYM3WPD0et7QzF0RYUtRerDS_X-dU5uABixTJw@mail.gmail.com>
+Subject: Re: [PATCH] virtio: remove redundant check on error return err
+Date: Fri, 10 Mar 2017 11:36:52 +0800
+Message-ID: <CAJSP0QUEUgxKD51nLt6vEAbGP5Hq1KJ4UPU1Re72-6tR5FsPAw@mail.gmail.com>
+References: <20170307140821.29689-1-colin.king@canonical.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2076041060256339195=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CA+a=Yy4T1WRZoYM3WPD0et7QzF0RYUtRerDS_X-dU5uABixTJw@mail.gmail.com>
+In-Reply-To: <20170307140821.29689-1-colin.king@canonical.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,92 +17,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peng Tao <bergwolf@gmail.com>
-Cc: kvm@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, David Miller <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
+To: Colin King <colin.king@canonical.com>
+Cc: Linux Virtualization <virtualization@lists.linux-foundation.org>, kernel-janitors@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, "Michael S . Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, Mar 7, 2017 at 10:08 PM, Colin King <colin.king@canonical.com> wrote:
+> From: Colin Ian King <colin.king@canonical.com>
+>
+> err has previously been checked for a -ve error return so this
+> redundant check can be removed.
+>
+> Detected by CoverityScan, CID#1415271 ("Logically Dead Code")
+>
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> ---
+>  drivers/virtio/virtio_pci_common.c | 2 --
+>  1 file changed, 2 deletions(-)
+>
+> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+> index df548a6..ceb4395 100644
+> --- a/drivers/virtio/virtio_pci_common.c
+> +++ b/drivers/virtio/virtio_pci_common.c
+> @@ -173,8 +173,6 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
+>                 if (err < 0)
+>                         return err;
+>         }
+> -       if (err < 0)
+> -               return err;
+>
+>         vp_dev->msix_vectors = nvectors;
+>         vp_dev->msix_names = kmalloc_array(nvectors,
 
---===============2076041060256339195==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
-Content-Disposition: inline
-
-
---uAKRQypu60I7Lcqm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Mar 03, 2017 at 09:25:54AM +0800, Peng Tao wrote:
-> On Fri, Mar 3, 2017 at 5:13 AM, David Miller <davem@davemloft.net> wrote:
-> > From: Peng Tao <bergwolf@gmail.com>
-> > Date: Wed,  1 Mar 2017 11:56:24 +0800
-> >
-> >> So that we can cancel a queued pkt later if necessary.
-> >>
-> >> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-> >> Signed-off-by: Peng Tao <bergwolf@gmail.com>
-> >> ---
-> >>  include/linux/virtio_vsock.h            | 2 ++
-> >>  net/vmw_vsock/virtio_transport_common.c | 7 +++++++
-> >>  2 files changed, 9 insertions(+)
-> >>
-> >> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock=
-=2Eh
-> >> index 9638bfe..193ad3a 100644
-> >> --- a/include/linux/virtio_vsock.h
-> >> +++ b/include/linux/virtio_vsock.h
-> >> @@ -48,6 +48,7 @@ struct virtio_vsock_pkt {
-> >>       struct virtio_vsock_hdr hdr;
-> >>       struct work_struct work;
-> >>       struct list_head list;
-> >> +     void *cancel_token; /* only used for cancellation */
-> >
-> > The type here is fixed, you only store vhost_sock object pointers
-> > here, so don't use "void *" please.
-> It used to be "struct vhost_sock *" but no refcount is held. Stefan
-> suggested to use "void *cancel_token" to make the code harder to
-> misuse.
->=20
-> Quoting Stefan:
-> "This field is just an opaque token used for cancellation rather than
-> a struct vsock_sock pointer that we are allowed to dereference.  You
-> could change this field to void *cancel_token to make the code harder
-> to misuse."
->=20
-> Ref:
-> https://www.mail-archive.com/netdev@vger.kernel.org/msg142550.html
-
-Yes, the key point is that it shouldn't be used as a struct vsock_sock
-since we don't hold a reference.  It's purely a token so the queued
-packet can be found later for cancellation.
-
-Stefan
-
---uAKRQypu60I7Lcqm
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAEBAgAGBQJYwgXjAAoJEJykq7OBq3PIAagH/jlhF0cxZftOpV775VFhc+Ra
-hwUKuKRurMeFEoa8K+zVnbpTc06IJgCCtIxKMo8MHoB9qsyWZgwm7K2NACaKRCsX
-kto1uuPnQTxlLnI4wiWxAfKPktHiQ0LIVfPga5vgGWjDIU/r0O5eKU0XwdVfQogi
-R8JtSrjUoDLVoEq7tZHAQF7aZVeHbFIhBwZAVWEiJyDB01DbLUVKLHVm3lgrYysS
-hwoFNLIzmGlDH5imPT1Pd+zxjJ9lV4MRLzH08WRifUy/Oglyspf8AWzERXwWIpCi
-VO+Jl/0A3JaN5vmWpbj/CC54CUvWjoCewnSV3i2s8pMX8bDCTHmvbZB/xbphF4E=
-=5siv
------END PGP SIGNATURE-----
-
---uAKRQypu60I7Lcqm--
-
---===============2076041060256339195==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2076041060256339195==--
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
