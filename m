@@ -1,8 +1,8 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v7 kernel 3/5] virtio-balloon: implementation of
 	VIRTIO_BALLOON_F_CHUNK_TRANSFER
-Date: Fri, 10 Mar 2017 21:10:53 +0200
-Message-ID: <20170310211037-mutt-send-email-mst__35548.4680542306$1489173065$gmane$org@kernel.org>
+Date: Fri, 10 Mar 2017 21:35:21 +0200
+Message-ID: <20170310211102-mutt-send-email-mst__41776.5151746154$1489174552$gmane$org@kernel.org>
 References: <1488519630-89058-1-git-send-email-wei.w.wang@intel.com>
 	<1488519630-89058-4-git-send-email-wei.w.wang@intel.com>
 	<20170309141411.GZ16328@bombadil.infradead.org>
@@ -47,9 +47,6 @@ On Fri, Mar 10, 2017 at 09:11:44AM -0800, Matthew Wilcox wrote:
 > bits 0+1 set, bit 2 clear => bits 3-13 for page count, bits 14-63 for PFN, page size 16k.
 > bits 0-2 set, bit 3 clear => bits 4-14 for page count, bits 15-63 for PFN, page size 32k
 > bits 0-3 set, bit 4 clear => bits 5-15 for page count, bits 16-63 for PFN, page size 64k
-
-huge page sizes go up to gigabytes.
-
 > That means we can always pass 2048 pages (of whatever page size) in a single chunk.  And
 > we support arbitrary power of two page sizes.  I suggest something like this:
 > 
@@ -58,6 +55,9 @@ huge page sizes go up to gigabytes.
 > 	u64 chunk = page_to_pfn(page) << PAGE_SHIFT;
 > 	chunk |= (1UL << compound_order(page)) - 1;
 > }
+
+You need to fill in the size, do you not?
+
 > 
 > (note this is a single page of order N, so we leave the page count bits
 > set to 0, meaning one page).
@@ -68,7 +68,15 @@ huge page sizes go up to gigabytes.
 > 
 > With this encoding scheme, I don't think we need to do this?  As long as
 > it's *at least* 12 bit, then we're fine.
-> 
+
+I think we will still need something like this down the road.  The point
+is that not all hosts are able to use 4k pages in a balloon.
+So it's pointless for guest to pass 4k pages to such a host,
+and we need host to tell guest the page size it needs.
+
+However that's a separate feature that can wait until
+another day.
+
 > > - guest should pass full huge pages to host
 > >   this should be done correctly to avoid breaking up huge pages
 > >   I would say yes let's use a single format but drop the "normal chunk"
@@ -77,3 +85,10 @@ huge page sizes go up to gigabytes.
 > >   are reserved, they will be handy as e.g. flags.
 > 
 > What per-chunk flags are you thinking would be useful?
+
+Not entirely sure but I think would have been prudent to leave some free
+if possible. Your encoding seems to use them all up, so be it.
+
+
+-- 
+MST
