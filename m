@@ -1,16 +1,15 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v7 kernel 2/5] virtio-balloon:
-	VIRTIO_BALLOON_F_CHUNK_TRANSFER
-Date: Thu, 09 Mar 2017 15:12:47 +0800
-Message-ID: <58C1006F.6080206__13303.3552360304$1489043497$gmane$org@intel.com>
-References: <1488519630-89058-1-git-send-email-wei.w.wang@intel.com>
-	<1488519630-89058-3-git-send-email-wei.w.wang@intel.com>
-	<20170308060131-mutt-send-email-mst@kernel.org>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH-v4-RESEND 1/4] vsock: track pkt owner vsock
+Date: Fri, 10 Mar 2017 09:48:49 +0800
+Message-ID: <20170310014849.GA3213__35020.8549564288$1489110541$gmane$org@stefanha-x1.localdomain>
+References: <1488340587-32416-1-git-send-email-bergwolf@gmail.com>
+	<1488340587-32416-2-git-send-email-bergwolf@gmail.com>
+	<20170302.131303.703202861280343181.davem@davemloft.net>
+	<CA+a=Yy4T1WRZoYM3WPD0et7QzF0RYUtRerDS_X-dU5uABixTJw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============2076041060256339195=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170308060131-mutt-send-email-mst@kernel.org>
+In-Reply-To: <CA+a=Yy4T1WRZoYM3WPD0et7QzF0RYUtRerDS_X-dU5uABixTJw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,21 +19,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, Amit Shah <amit.shah@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Hansen,
-	Dave" <dave.hansen@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Liang Li <liliang.opensource@gmail.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Peng Tao <bergwolf@gmail.com>
+Cc: kvm@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, David Miller <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/08/2017 12:01 PM, Michael S. Tsirkin wrote:
-> On Fri, Mar 03, 2017 at 01:40:27PM +0800, Wei Wang wrote:
->> From: Liang Li <liang.z.li@intel.com>
->>
->> Add a new feature bit, VIRTIO_BALLOON_F_CHUNK_TRANSFER. Please check
->> the implementation patch commit for details about this feature.
->
-> better squash into next patch.
 
-OK, will do.
+--===============2076041060256339195==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
+Content-Disposition: inline
 
-Best,
-Wei
+
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Mar 03, 2017 at 09:25:54AM +0800, Peng Tao wrote:
+> On Fri, Mar 3, 2017 at 5:13 AM, David Miller <davem@davemloft.net> wrote:
+> > From: Peng Tao <bergwolf@gmail.com>
+> > Date: Wed,  1 Mar 2017 11:56:24 +0800
+> >
+> >> So that we can cancel a queued pkt later if necessary.
+> >>
+> >> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+> >> Signed-off-by: Peng Tao <bergwolf@gmail.com>
+> >> ---
+> >>  include/linux/virtio_vsock.h            | 2 ++
+> >>  net/vmw_vsock/virtio_transport_common.c | 7 +++++++
+> >>  2 files changed, 9 insertions(+)
+> >>
+> >> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock=
+=2Eh
+> >> index 9638bfe..193ad3a 100644
+> >> --- a/include/linux/virtio_vsock.h
+> >> +++ b/include/linux/virtio_vsock.h
+> >> @@ -48,6 +48,7 @@ struct virtio_vsock_pkt {
+> >>       struct virtio_vsock_hdr hdr;
+> >>       struct work_struct work;
+> >>       struct list_head list;
+> >> +     void *cancel_token; /* only used for cancellation */
+> >
+> > The type here is fixed, you only store vhost_sock object pointers
+> > here, so don't use "void *" please.
+> It used to be "struct vhost_sock *" but no refcount is held. Stefan
+> suggested to use "void *cancel_token" to make the code harder to
+> misuse.
+>=20
+> Quoting Stefan:
+> "This field is just an opaque token used for cancellation rather than
+> a struct vsock_sock pointer that we are allowed to dereference.  You
+> could change this field to void *cancel_token to make the code harder
+> to misuse."
+>=20
+> Ref:
+> https://www.mail-archive.com/netdev@vger.kernel.org/msg142550.html
+
+Yes, the key point is that it shouldn't be used as a struct vsock_sock
+since we don't hold a reference.  It's purely a token so the queued
+packet can be found later for cancellation.
+
+Stefan
+
+--uAKRQypu60I7Lcqm
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJYwgXjAAoJEJykq7OBq3PIAagH/jlhF0cxZftOpV775VFhc+Ra
+hwUKuKRurMeFEoa8K+zVnbpTc06IJgCCtIxKMo8MHoB9qsyWZgwm7K2NACaKRCsX
+kto1uuPnQTxlLnI4wiWxAfKPktHiQ0LIVfPga5vgGWjDIU/r0O5eKU0XwdVfQogi
+R8JtSrjUoDLVoEq7tZHAQF7aZVeHbFIhBwZAVWEiJyDB01DbLUVKLHVm3lgrYysS
+hwoFNLIzmGlDH5imPT1Pd+zxjJ9lV4MRLzH08WRifUy/Oglyspf8AWzERXwWIpCi
+VO+Jl/0A3JaN5vmWpbj/CC54CUvWjoCewnSV3i2s8pMX8bDCTHmvbZB/xbphF4E=
+=5siv
+-----END PGP SIGNATURE-----
+
+--uAKRQypu60I7Lcqm--
+
+--===============2076041060256339195==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============2076041060256339195==--
