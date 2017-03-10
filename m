@@ -1,21 +1,21 @@
 From: Matthew Wilcox <willy@infradead.org>
 Subject: Re: [PATCH v7 kernel 3/5] virtio-balloon: implementation of
 	VIRTIO_BALLOON_F_CHUNK_TRANSFER
-Date: Fri, 10 Mar 2017 13:18:25 -0800
-Message-ID: <20170310211825.GB16328__42068.8452585184$1490017498$gmane$org@bombadil.infradead.org>
+Date: Fri, 10 Mar 2017 13:25:41 -0800
+Message-ID: <20170310212541.GC16328__8371.594901155$1490017514$gmane$org@bombadil.infradead.org>
 References: <1488519630-89058-1-git-send-email-wei.w.wang@intel.com>
 	<1488519630-89058-4-git-send-email-wei.w.wang@intel.com>
 	<20170309141411.GZ16328@bombadil.infradead.org>
 	<58C28FF8.5040403@intel.com>
 	<20170310175349-mutt-send-email-mst@kernel.org>
 	<20170310171143.GA16328@bombadil.infradead.org>
-	<20170310211037-mutt-send-email-mst@kernel.org>
+	<20170310211102-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20170310211037-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20170310211102-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,21 +29,50 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Andrea Arcangeli <aarcange@redhat.com>, virtio-dev@lists.oasis-open.org, Amit Shah <amit.shah@redhat.com>, kvm@vger.kernel.org, Dave Hansen <dave.hansen@intel.com>, linux-kernel@vger.kernel.org, Liang Li <liang.z.li@intel.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Liang Li <liliang324@gmail.com>, linux-mm@kvack.org, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Mar 10, 2017 at 09:10:53PM +0200, Michael S. Tsirkin wrote:
-> > I completely agree with you that we should be able to pass a hugepage
-> > as a single chunk.  Also we shouldn't assume that host and guest have
-> > the same page size.  I think we can come up with a scheme that actually
-> > lets us encode that into a 64-bit word, something like this:
-> > 
+On Fri, Mar 10, 2017 at 09:35:21PM +0200, Michael S. Tsirkin wrote:
 > > bit 0 clear => bits 1-11 encode a page count, bits 12-63 encode a PFN, page size 4k.
 > > bit 0 set, bit 1 clear => bits 2-12 encode a page count, bits 13-63 encode a PFN, page size 8k
 > > bits 0+1 set, bit 2 clear => bits 3-13 for page count, bits 14-63 for PFN, page size 16k.
 > > bits 0-2 set, bit 3 clear => bits 4-14 for page count, bits 15-63 for PFN, page size 32k
 > > bits 0-3 set, bit 4 clear => bits 5-15 for page count, bits 16-63 for PFN, page size 64k
+> > That means we can always pass 2048 pages (of whatever page size) in a single chunk.  And
+> > we support arbitrary power of two page sizes.  I suggest something like this:
+> > 
+> > u64 page_to_chunk(struct page *page)
+> > {
+> > 	u64 chunk = page_to_pfn(page) << PAGE_SHIFT;
+> > 	chunk |= (1UL << compound_order(page)) - 1;
+> > }
 > 
-> huge page sizes go up to gigabytes.
+> You need to fill in the size, do you not?
 
-There was supposed to be a '...' there.  For a 16GB hugepage (largest
-size I know of today), that'd be:
+I think I did ... (1UL << compound_order(page)) - 1 sets the bottom
+N bits.  Bit N+1 will already be clear.  What am I missing?
 
-bits 0-21 set, 22 clear, 23-33 page count, 34-63 PFN, page size 16G
+> > > - host should pass its base page size to guest
+> > >   this can be a separate patch and for now we can fall back on 12 bit if not there
+> > 
+> > With this encoding scheme, I don't think we need to do this?  As long as
+> > it's *at least* 12 bit, then we're fine.
+> 
+> I think we will still need something like this down the road.  The point
+> is that not all hosts are able to use 4k pages in a balloon.
+> So it's pointless for guest to pass 4k pages to such a host,
+> and we need host to tell guest the page size it needs.
+> 
+> However that's a separate feature that can wait until
+> another day.
+
+Ah, the TRIM/DISCARD debate all over again ... should the guest batch
+up or should the host do that work ... probably easier to account it in
+the guest.  Might be better to frame it as 'balloon chunk size' rather than
+host page size as it might have nothing to do with the host page size.
+
+> > What per-chunk flags are you thinking would be useful?
+> 
+> Not entirely sure but I think would have been prudent to leave some free
+> if possible. Your encoding seems to use them all up, so be it.
+
+We don't necessarily have to support 2048 pages in a single chunk.
+If it's worth reserving some bits, we can do that at the expense of
+reducing the maximum number of pages per chunk.
