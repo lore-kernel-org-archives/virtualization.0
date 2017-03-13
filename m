@@ -1,23 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v7 kernel 3/5] virtio-balloon: implementation of
-	VIRTIO_BALLOON_F_CHUNK_TRANSFER
-Date: Sun, 12 Mar 2017 06:04:10 +0200
-Message-ID: <20170312055658-mutt-send-email-mst__41710.1138191812$1489291468$gmane$org@kernel.org>
-References: <1488519630-89058-1-git-send-email-wei.w.wang@intel.com>
-	<1488519630-89058-4-git-send-email-wei.w.wang@intel.com>
-	<20170309141411.GZ16328@bombadil.infradead.org>
-	<58C28FF8.5040403@intel.com>
-	<20170310175349-mutt-send-email-mst@kernel.org>
-	<20170310171143.GA16328@bombadil.infradead.org>
-	<58C3E6A3.1000000@intel.com>
-	<20170311140946.GA1860@bombadil.infradead.org>
-	<286AC319A985734F985F78AFA26841F73919E524@shsmsx102.ccr.corp.intel.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH] drm: virtio: fix kmem_cache_alloc error check
+Date: Mon, 13 Mar 2017 09:22:26 +0100
+Message-ID: <1489393346-13874-1-git-send-email-kraxel__23764.3693261363$1489393367$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <286AC319A985734F985F78AFA26841F73919E524@shsmsx102.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,33 +15,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Wang, Wei W" <wei.w.wang@intel.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Hansen,
-	Dave" <dave.hansen@intel.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, Amit Shah <amit.shah@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Matthew Wilcox <willy@infradead.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Liang Li <liliang324@gmail.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Mar 12, 2017 at 01:59:54AM +0000, Wang, Wei W wrote:
-> On 03/11/2017 10:10 PM, Matthew Wilcox wrote:
-> > On Sat, Mar 11, 2017 at 07:59:31PM +0800, Wei Wang wrote:
-> > > I'm thinking what if the guest needs to transfer these much physically
-> > > continuous memory to host: 1GB+2MB+64KB+32KB+16KB+4KB.
-> > > Is it going to use Six 64-bit chunks? Would it be simpler if we just
-> > > use the 128-bit chunk format (we can drop the previous normal 64-bit
-> > > format)?
-> > 
-> > Is that a likely thing for the guest to need to do though?  Freeing a 1GB page is
-> > much more liikely, IMO.
-> 
-> Yes, I think it's very possible. The host can ask for any number of pages (e.g. 1.5GB) that the guest can afford.  Also, the ballooned 1.5G memory is not guaranteed to be continuous in any pattern like 1GB+512MB. That's why we need to use a bitmap to draw the whole picture first, and then seek for continuous bits to chunk.
-> 
-> Best,
-> Wei
+kmem_cache_alloc returns NULL on error, not ERR_PTR.
 
-While I like the clever format that Matthew came up with, I'm also
-inclined to say let's keep things simple.
-the simplest thing seems to be to use the ext format all the time.
-Except let's reserve the low 12 bits in both address and size,
-since they are already 0, we might be able to use them for flags down the road.
+Fixes: f5985bf9cadd4e3ed8d5d9a9cbbb2e39cdb81cd9
+Reported-by: Jiri Slaby <jslaby@suse.cz>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_vq.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 472e349..9eb96fb2 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -97,8 +97,8 @@ void virtio_gpu_free_vbufs(struct virtio_gpu_device *vgdev)
+ 	struct virtio_gpu_vbuffer *vbuf;
+ 
+ 	vbuf = kmem_cache_alloc(vgdev->vbufs, GFP_KERNEL);
+-	if (IS_ERR(vbuf))
+-		return ERR_CAST(vbuf);
++	if (!vbuf)
++		return ERR_PTR(-ENOMEM);
+ 	memset(vbuf, 0, VBUFFER_SIZE);
+ 
+ 	BUG_ON(size > MAX_INLINE_CMD_SIZE);
 -- 
-MST
+1.8.3.1
