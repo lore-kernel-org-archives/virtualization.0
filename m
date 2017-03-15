@@ -1,14 +1,11 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] drm: virtio: fix eno.cocci warnings
-Date: Tue, 14 Mar 2017 14:44:55 +0100
-Message-ID: <1489499095.27633.5.camel__2908.14009863443$1489499112$gmane$org@redhat.com>
-References: <201703142048.yRK7v1yg%fengguang.wu@intel.com>
-	<20170314123451.GA51889@lkp-sb04.lkp.intel.com>
+From: Peng Tao <bergwolf@gmail.com>
+Subject: [PATCH-v5 0/4] vsock: cancel connect packets when failing to connect
+Date: Wed, 15 Mar 2017 09:32:13 +0800
+Message-ID: <1489541537-130429-1-git-send-email-bergwolf@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170314123451.GA51889@lkp-sb04.lkp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,21 +15,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kbuild test robot <fengguang.wu@intel.com>
-Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, kbuild-all@01.org
+To: David Miller <davem@davemloft.net>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, Peng Tao <bergwolf@gmail.com>, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
+Currently, if a connect call fails on a signal or timeout (e.g., guest is still
+in the process of starting up), we'll just return to caller and leave the connect
+packet queued and they are sent even though the connection is considered a failure,
+which can confuse applications with unwanted false connect attempt.
 
->  	vbuf = kmem_cache_alloc(vgdev->vbufs, GFP_KERNEL);
-> -	if (IS_ERR(vbuf))
-> +	if (!vbuf)
->  		return ERR_CAST(vbuf);
+The patchset enables vsock (both host and guest) to cancel queued packets when
+a connect attempt is considered to fail.
 
-Well, ERR_CAST(vbuf) isn't correct either ...
+v5 changelog:
+  - change virtio_vsock_pkt->cancel_token back to virtio_vsock_pkt->vsk
+v4 changelog:
+  - drop two unnecessary void * cast
+  - update new callback comment
+v3 changelog:
+  - define cancel_pkt callback in struct vsock_transport rather than struct virtio_transport
+  - rename virtio_vsock_pkt->vsk to virtio_vsock_pkt->cancel_token
+v2 changelog:
+  - fix queued_replies counting and resume tx/rx when necessary
 
-correct fix has been committed to drm-misc-next today and should show up
-in linux-next shortly.
+Cheers,
+Tao
 
-cheers,
-  Gerd
+Peng Tao (4):
+  vsock: track pkt owner vsock
+  vhost-vsock: add pkt cancel capability
+  vsock: add pkt cancel capability
+  vsock: cancel packets when failing to connect
+
+ drivers/vhost/vsock.c                   | 41 ++++++++++++++++++++++++++++++++
+ include/linux/virtio_vsock.h            |  3 +++
+ include/net/af_vsock.h                  |  3 +++
+ net/vmw_vsock/af_vsock.c                | 14 +++++++++++
+ net/vmw_vsock/virtio_transport.c        | 42 +++++++++++++++++++++++++++++++++
+ net/vmw_vsock/virtio_transport_common.c |  7 ++++++
+ 6 files changed, 110 insertions(+)
+
+-- 
+2.7.4
