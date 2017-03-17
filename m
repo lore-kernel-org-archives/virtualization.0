@@ -1,15 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH kernel v8 4/4] virtio-balloon: VIRTIO_BALLOON_F_HOST_REQ_VQ
-Date: Fri, 17 Mar 2017 03:39:36 +0200
-Message-ID: <20170317013936.GA2148__15291.9956519783$1489714790$gmane$org@redhat.com>
-References: <1489648127-37282-1-git-send-email-wei.w.wang@intel.com>
-	<1489648127-37282-5-git-send-email-wei.w.wang@intel.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH] tty: hvc: don't allocate a buffer for console print on
+	stack
+Date: Fri, 17 Mar 2017 14:09:30 +0900
+Message-ID: <20170317050930.GB28075@kroah.com>
+References: <1487364165-21882-1-git-send-email-jan.dakinevich@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1489648127-37282-5-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <1487364165-21882-1-git-send-email-jan.dakinevich@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,319 +19,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, dave.hansen@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
+To: Jan Dakinevich <jan.dakinevich@gmail.com>
+Cc: Peter Hurley <peter@hurleysoftware.com>, Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Jiri Slaby <jslaby@suse.com>, linuxppc-dev@lists.ozlabs.org, Dan Carpenter <dan.carpenter@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 16, 2017 at 03:08:47PM +0800, Wei Wang wrote:
-> From: Liang Li <liang.z.li@intel.com>
+On Fri, Feb 17, 2017 at 11:42:45PM +0300, Jan Dakinevich wrote:
+> The buffer is used by virtio console driver as DMA buffer. Since v4.9
+> (if VMAP_STACK is enabled) we shouldn't use the stack for DMA.
+
+You shouldn't use 'static' data either, that's not always guaranteed to
+be DMA-able, right?
+
 > 
-> Add a new vq, host request vq. The host uses the vq to send
-> requests to the guest. Upon getting a request, the guest responds
-> what the host needs via this vq.
-> 
-> The patch implements the request of getting the unsed pages from the guest.
-> The unused guest pages are avoided to migrate in live migration. For an
-> idle guest with 8GB RAM, this optimization shorterns the total migration
-> time to 1/4.
-> 
-> Furthermore, it's also possible to drop the guest's page cache before
-> live migration. This optimization will be implemented on top of this
-> new feature in the future.
-> 
-> Signed-off-by: Liang Li <liang.z.li@intel.com>
-> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+> Signed-off-by: Jan Dakinevich <jan.dakinevich@gmail.com>
 > ---
->  drivers/virtio/virtio_balloon.c     | 140 ++++++++++++++++++++++++++++++++++--
->  include/uapi/linux/virtio_balloon.h |  22 ++++++
->  2 files changed, 157 insertions(+), 5 deletions(-)
+>  drivers/tty/hvc/hvc_console.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 3f4a161..bcf2baa 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -64,7 +64,7 @@ struct balloon_page_chunk {
->  typedef __le64 resp_data_t;
->  struct virtio_balloon {
->  	struct virtio_device *vdev;
-> -	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq;
-> +	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq, *host_req_vq;
->  
->  	/* The balloon servicing is delegated to a freezable workqueue. */
->  	struct work_struct update_balloon_stats_work;
-> @@ -104,6 +104,8 @@ struct virtio_balloon {
->  	 * pfn_start & pfn_stop: records the start and stop pfn in each cover
->  	 */
->  	unsigned long pfn_min, pfn_max, pfn_start, pfn_stop;
-> +	/* Request header */
-> +	struct virtio_balloon_req_hdr req_hdr;
->  	/*
->  	 * The pages we've told the Host we're not using are enqueued
->  	 * at vb_dev_info->pages list.
-> @@ -568,6 +570,81 @@ static void stats_handle_request(struct virtio_balloon *vb)
->  	virtqueue_kick(vq);
->  }
->  
-> +static void __send_unused_pages(struct virtio_balloon *vb,
-> +				unsigned long req_id, unsigned int pos,
-> +				bool done)
-> +{
-> +	struct virtio_balloon_resp_hdr *hdr = vb->resp_hdr;
-> +	struct virtqueue *vq = vb->host_req_vq;
-> +
-> +	vb->resp_pos = pos;
-> +	hdr->cmd = BALLOON_GET_UNUSED_PAGES;
-> +	hdr->id = cpu_to_le16(req_id);
-> +	if (!done)
-> +		hdr->flag = BALLOON_FLAG_CONT;
-> +	else
-> +		hdr->flag = BALLOON_FLAG_DONE;
-> +
-> +	if (pos > 0 || done)
-> +		send_resp_data(vb, vq, true);
-> +
-> +}
-> +
-> +static void send_unused_pages(struct virtio_balloon *vb,
-> +			      unsigned long req_id)
-> +{
-> +	struct scatterlist sg_in;
-> +	unsigned int pos = 0;
-> +	struct virtqueue *vq = vb->host_req_vq;
-> +	int ret, order;
-> +	struct zone *zone = NULL;
-> +	bool part_fill = false;
-> +
-> +	mutex_lock(&vb->balloon_lock);
-> +
-> +	for (order = MAX_ORDER - 1; order >= 0; order--) {
-> +		ret = record_unused_pages(&zone, order, vb->resp_data,
-> +					  vb->resp_buf_size / sizeof(__le64),
-> +					  &pos, part_fill);
-> +		if (ret == -ENOSPC) {
-> +			if (pos == 0) {
-> +				void *new_resp_data;
-> +
-> +				new_resp_data = kmalloc(2 * vb->resp_buf_size,
-> +							GFP_KERNEL);
-> +				if (new_resp_data) {
-> +					kfree(vb->resp_data);
-> +					vb->resp_data = new_resp_data;
-> +					vb->resp_buf_size *= 2;
-> +				} else {
-> +					part_fill = true;
-> +					dev_warn(&vb->vdev->dev,
-> +						 "%s: part fill order: %d\n",
-> +						 __func__, order);
-> +				}
-> +			} else {
-> +				__send_unused_pages(vb, req_id, pos, false);
-> +				pos = 0;
-> +			}
-> +
-> +			if (!part_fill) {
-> +				order++;
-> +				continue;
-> +			}
-> +		} else
-> +			zone = NULL;
-> +
-> +		if (order == 0)
-> +			__send_unused_pages(vb, req_id, pos, true);
-> +
-> +	}
-> +
-> +	mutex_unlock(&vb->balloon_lock);
-> +	sg_init_one(&sg_in, &vb->req_hdr, sizeof(vb->req_hdr));
-> +	virtqueue_add_inbuf(vq, &sg_in, 1, &vb->req_hdr, GFP_KERNEL);
-
-I note you ignore errors here. WARN_ON or something?
-And why not handle same call during probe in the same way as here?
-
-> +	virtqueue_kick(vq);
-> +}
-> +
->  static void virtballoon_changed(struct virtio_device *vdev)
+> diff --git a/drivers/tty/hvc/hvc_console.c b/drivers/tty/hvc/hvc_console.c
+> index 9b5c0fb..1ce6aaf 100644
+> --- a/drivers/tty/hvc/hvc_console.c
+> +++ b/drivers/tty/hvc/hvc_console.c
+> @@ -143,10 +143,15 @@ static struct hvc_struct *hvc_get_by_index(int index)
+>  static void hvc_console_print(struct console *co, const char *b,
+>  			      unsigned count)
 >  {
->  	struct virtio_balloon *vb = vdev->priv;
-> @@ -667,18 +744,53 @@ static void update_balloon_size_func(struct work_struct *work)
->  		queue_work(system_freezable_wq, work);
->  }
+> -	char c[N_OUTBUF] __ALIGNED__;
+>  	unsigned i = 0, n = 0;
+>  	int r, donecr = 0, index = co->index;
 >  
-> +static void handle_host_request(struct virtqueue *vq)
-> +{
-> +	struct virtio_balloon *vb = vq->vdev->priv;
-> +	struct virtio_balloon_req_hdr *hdr;
-> +	unsigned long req_id;
-> +	unsigned int len;
-> +
-> +	hdr = virtqueue_get_buf(vb->host_req_vq, &len);
-> +	if (!hdr || len != sizeof(vb->req_hdr))
-> +		return;
-> +
-> +	switch (hdr->cmd) {
-> +	case BALLOON_GET_UNUSED_PAGES:
-> +		req_id = le64_to_cpu(hdr->param);
+> +	/*
+> +	 * Access to the buffer is serialized by console_sem in caller code from
+> +	 * kernel/printk/printk.c
+> +	 */
+> +	static char c[N_OUTBUF] __ALIGNED__;
 
-Will not fit in a long.
+What about allocating it dynamically?  That's the correct thing to do.
 
-> +		send_unused_pages(vb, req_id);
-> +		break;
-> +	default:
-> +		dev_warn(&vb->vdev->dev, "%s: host request %d not supported\n",
-> +			 __func__, hdr->cmd);
+thanks,
 
-why warn here but not above where length is wrong?
-
-> +	}
-
-
-All errors never re-add buffers so balloon will stop
-working.
-
-> +}
-> +
->  static int init_vqs(struct virtio_balloon *vb)
->  {
-> -	struct virtqueue *vqs[3];
-> -	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_request };
-> -	static const char * const names[] = { "inflate", "deflate", "stats" };
-> +	struct virtqueue *vqs[4];
-> +	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack,
-> +				       stats_request, handle_host_request };
-> +	static const char * const names[] = { "inflate", "deflate",
-> +					      "stats", "host_request" };
-
-Pls use {} according to coding style now they don't fit on one line.
-
->  	int err, nvqs;
->  
->  	/*
->  	 * We expect two virtqueues: inflate and deflate, and
->  	 * optionally stat.
->  	 */
-> -	nvqs = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ) ? 3 : 2;
-> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_HOST_REQ_VQ))
-> +		nvqs = 4;
-> +	else if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ))
-> +		nvqs = 3;
-> +	else
-> +		nvqs = 2;
-> +
-
-You assume REQ VQ implies STATS VQ. Why?
-
-
-> +	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
-> +		__virtio_clear_bit(vb->vdev, VIRTIO_BALLOON_F_CHUNK_TRANSFER);
-> +		__virtio_clear_bit(vb->vdev, VIRTIO_BALLOON_F_HOST_REQ_VQ);
-> +	}
-> +
->  	err = vb->vdev->config->find_vqs(vb->vdev, nvqs, vqs, callbacks, names);
->  	if (err)
->  		return err;
-> @@ -699,6 +811,20 @@ static int init_vqs(struct virtio_balloon *vb)
->  			BUG();
->  		virtqueue_kick(vb->stats_vq);
->  	}
-> +
-> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_HOST_REQ_VQ)) {
-> +		struct scatterlist sg_in;
-> +
-> +		vb->host_req_vq = vqs[3];
-> +		sg_init_one(&sg_in, &vb->req_hdr, sizeof(vb->req_hdr));
-> +		if (virtqueue_add_inbuf(vb->host_req_vq, &sg_in, 1,
-> +					&vb->req_hdr, GFP_KERNEL) < 0)
-> +			__virtio_clear_bit(vb->vdev,
-> +					   VIRTIO_BALLOON_F_HOST_REQ_VQ);
-> +		else
-> +			virtqueue_kick(vb->host_req_vq);
-
-> +	}
-> +
->  	return 0;
->  }
->  
-> @@ -829,6 +955,7 @@ static int virtballoon_probe(struct virtio_device *vdev)
->  	vb->page_bmap[0] = kmalloc(PAGE_BMAP_SIZE, GFP_KERNEL);
->  	if (!vb->page_bmap[0]) {
->  		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_CHUNK_TRANSFER);
-> +		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_HOST_REQ_VQ);
->  	} else {
->  		vb->page_bmaps = 1;
->  		vb->resp_hdr =
-> @@ -837,6 +964,8 @@ static int virtballoon_probe(struct virtio_device *vdev)
->  		if (!vb->resp_hdr) {
->  			__virtio_clear_bit(vdev,
->  					   VIRTIO_BALLOON_F_CHUNK_TRANSFER);
-> +			__virtio_clear_bit(vdev,
-> +					   VIRTIO_BALLOON_F_HOST_REQ_VQ);
->  			kfree(vb->page_bmap[0]);
->  		} else {
->  			vb->resp_data = (void *)vb->resp_hdr +
-> @@ -966,6 +1095,7 @@ static unsigned int features[] = {
->  	VIRTIO_BALLOON_F_STATS_VQ,
->  	VIRTIO_BALLOON_F_DEFLATE_ON_OOM,
->  	VIRTIO_BALLOON_F_CHUNK_TRANSFER,
-> +	VIRTIO_BALLOON_F_HOST_REQ_VQ,
->  };
->  
->  static struct virtio_driver virtio_balloon_driver = {
-> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-> index aa0e5f0..1f75bee 100644
-> --- a/include/uapi/linux/virtio_balloon.h
-> +++ b/include/uapi/linux/virtio_balloon.h
-> @@ -35,6 +35,7 @@
->  #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
->  #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
->  #define VIRTIO_BALLOON_F_CHUNK_TRANSFER	3 /* Transfer pages in chunks */
-> +#define VIRTIO_BALLOON_F_HOST_REQ_VQ	4 /* Host request virtqueue */
->  
->  /* Size of a PFN in the balloon interface. */
->  #define VIRTIO_BALLOON_PFN_SHIFT 12
-> @@ -91,4 +92,25 @@ struct virtio_balloon_resp_hdr {
->  	__le32 data_len; /* Payload len in bytes */
->  };
->  
-> +enum virtio_balloon_req_id {
-> +	/* Get unused page information */
-> +	BALLOON_GET_UNUSED_PAGES,
-> +};
-
-
-This is cmd, this is not req id.
-
-
-
-> +
-> +enum virtio_balloon_flag {
-> +	/* Have more data for a request */
-> +	BALLOON_FLAG_CONT,
-> +	/* No more data for a request */
-> +	BALLOON_FLAG_DONE,
-> +};
-th
-Define values for these, this is good practice for an ABI.
-And I think I would make DONE be 0 and CONT be 1.
-
-> +
-> +struct virtio_balloon_req_hdr {
-> +	/* Used to distinguish different requests */
-> +	__le16 cmd;
-> +	/* Reserved */
-> +	__le16 reserved[3];
-> +	/* Request parameter */
-> +	__le64 param;
-
-Comments above are not informative.
-Which enums refer to which field?
-What is param and what happens to it?
-
-Can't you reuse the same header for request and response?
-That would be cleaner.
-
-> +};
-> +
->  #endif /* _LINUX_VIRTIO_BALLOON_H */
-> -- 
-> 2.7.4
+greg k-h
