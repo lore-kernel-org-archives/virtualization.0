@@ -1,16 +1,11 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH kernel v8 3/4] mm: add inerface to offer info about unused
-	pages
-Date: Fri, 17 Mar 2017 14:55:33 +0800
-Message-ID: <58CB8865.5030707__11507.8729381368$1489733664$gmane$org@intel.com>
-References: <1489648127-37282-1-git-send-email-wei.w.wang@intel.com>
-	<1489648127-37282-4-git-send-email-wei.w.wang@intel.com>
-	<20170316142842.69770813b98df70277431b1e@linux-foundation.org>
+From: James Hogan <james.hogan@imgtec.com>
+Subject: [BUG] virtio-net linux driver fails to probe on MIPS Malta since
+	'hw/virtio-pci: fix virtio behaviour'
+Date: Fri, 17 Mar 2017 21:57:25 +0000
+Message-ID: <20170317215725.GJ996@jhogan-linux.le.imgtec.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============4761584495463777756=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170316142842.69770813b98df70277431b1e@linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,134 +15,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, dave.hansen@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, cornelia.huck@de.ibm.com, pbonzini@redhat.com, mgorman@techsingularity.net
+To: qemu-devel@nongnu.org, "Michael S. Tsirkin" <mst@redhat.com>, Marcel Apfelbaum <marcel@redhat.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/17/2017 05:28 AM, Andrew Morton wrote:
-> On Thu, 16 Mar 2017 15:08:46 +0800 Wei Wang <wei.w.wang@intel.com> wrote:
->
->> From: Liang Li <liang.z.li@intel.com>
->>
->> This patch adds a function to provides a snapshot of the present system
->> unused pages. An important usage of this function is to provide the
->> unsused pages to the Live migration thread, which skips the transfer of
->> thoses unused pages. Newly used pages can be re-tracked by the dirty
->> page logging mechanisms.
-> I don't think this will be useful for anything other than
-> virtio-balloon.  I guess it would be better to keep this code in the
-> virtio-balloon driver if possible, even though that's rather a layering
-> violation :( What would have to be done to make that possible?  Perhaps
-> we can put some *small* helpers into page_alloc.c to prevent things
-> from becoming too ugly.
+--===============4761584495463777756==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="b2kq0H0UHH9HR3v2"
+Content-Disposition: inline
 
-The patch description was too narrowed and may have caused some
-confusion, sorry about that. This function is aimed to be generic. I
-agree with the description suggested by Michael.
+--b2kq0H0UHH9HR3v2
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 
-Since the main body of the function is related to operating on the
-free_list. I think it is better to have them located here.
-Small helpers may be less efficient and thereby causing some
-performance loss as well.
-I think one improvement we can make is to remove the "chunk format"
-related things from this function. The function can generally offer the
-base pfn to the caller's recording buffer. Then it will be the caller's
-responsibility to format the pfn if they need.
+Hi,
 
->> --- a/mm/page_alloc.c
->> +++ b/mm/page_alloc.c
->> @@ -4498,6 +4498,120 @@ void show_free_areas(unsigned int filter)
->>   	show_swap_cache_info();
->>   }
->>   
->> +static int __record_unused_pages(struct zone *zone, int order,
->> +				 __le64 *buf, unsigned int size,
->> +				 unsigned int *offset, bool part_fill)
->> +{
->> +	unsigned long pfn, flags;
->> +	int t, ret = 0;
->> +	struct list_head *curr;
->> +	__le64 *chunk;
->> +
->> +	if (zone_is_empty(zone))
->> +		return 0;
->> +
->> +	spin_lock_irqsave(&zone->lock, flags);
->> +
->> +	if (*offset + zone->free_area[order].nr_free > size && !part_fill) {
->> +		ret = -ENOSPC;
->> +		goto out;
->> +	}
->> +	for (t = 0; t < MIGRATE_TYPES; t++) {
->> +		list_for_each(curr, &zone->free_area[order].free_list[t]) {
->> +			pfn = page_to_pfn(list_entry(curr, struct page, lru));
->> +			chunk = buf + *offset;
->> +			if (*offset + 2 > size) {
->> +				ret = -ENOSPC;
->> +				goto out;
->> +			}
->> +			/* Align to the chunk format used in virtio-balloon */
->> +			*chunk = cpu_to_le64(pfn << 12);
->> +			*(chunk + 1) = cpu_to_le64((1 << order) << 12);
->> +			*offset += 2;
->> +		}
->> +	}
->> +
->> +out:
->> +	spin_unlock_irqrestore(&zone->lock, flags);
->> +
->> +	return ret;
->> +}
-> This looks like it could disable interrupts for a long time.  Too long?
+I've bisected the following failure of the virtio_net linux v4.10 driver
+to probe in QEMU v2.9.0-rc1 emulating a MIPS Malta machine:
 
-What do you think if we give "budgets" to the above function?
-For example, budget=1000, and there are 2000 nodes on the list.
-record() returns with "incomplete" status in the first round, along with the
-status info, "*continue_node".
+virtio_net virtio0: virtio: device uses modern interface but does not have VIRTIO_F_VERSION_1
+virtio_net: probe of virtio0 failed with error -22
 
-*continue_node: pointer to the starting node of the leftover. If 
-*continue_node
-has been used at the time of the second call (i.e. continue_node->next 
-== NULL),
-which implies that the previous 1000 nodes have been used, then the record()
-function can simply start from the head of the list.
+To QEMU commit 9a4c0e220d8a ("hw/virtio-pci: fix virtio behaviour").
 
-It is up to the caller whether it needs to continue the second round
-when getting "incomplete".
+It appears that adding ",disable-modern=on,disable-legacy=off" to the
+virtio-net -device makes it work again.
 
->
->> +/*
->> + * The record_unused_pages() function is used to record the system unused
->> + * pages. The unused pages can be skipped to transfer during live migration.
->> + * Though the unused pages are dynamically changing, dirty page logging
->> + * mechanisms are able to capture the newly used pages though they were
->> + * recorded as unused pages via this function.
->> + *
->> + * This function scans the free page list of the specified order to record
->> + * the unused pages, and chunks those continuous pages following the chunk
->> + * format below:
->> + * --------------------------------------
->> + * |	Base (52-bit)	| Rsvd (12-bit) |
->> + * --------------------------------------
->> + * --------------------------------------
->> + * |	Size (52-bit)	| Rsvd (12-bit) |
->> + * --------------------------------------
->> + *
->> + * @start_zone: zone to start the record operation.
->> + * @order: order of the free page list to record.
->> + * @buf: buffer to record the unused page info in chunks.
->> + * @size: size of the buffer in __le64 to record
->> + * @offset: offset in the buffer to record.
->> + * @part_fill: indicate if partial fill is used.
->> + *
->> + * return -EINVAL if parameter is invalid
->> + * return -ENOSPC when the buffer is too small to record all the unsed pages
->> + * return 0 when sccess
->> + */
-> It's a strange thing - it returns information which will instantly
-> become incorrect.
+I presume this should really just work out of the box. Any ideas why it
+isn't?
 
-I didn't get the point, could you please explain more? Thanks.
+Cheers
+James
 
-Best,
-Wei
+--b2kq0H0UHH9HR3v2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIcBAEBCAAGBQJYzFu+AAoJEGwLaZPeOHZ6IWIQAK3U2bObQkB4OIciXq5H0esi
+bewn7ECE2gsVk0VLmbw612zQAwwjwj2frU43+nz2W3tQ8LDyDeCyfz1f4PqQawt6
+e0WiqOcPwjF7N8nw790AsRc0xK/N2Kjkg+aoipq9hNTJxETaChTso5KeilWHKxM6
+/RWXcyCy7sA2gYK2brnxmqMoJNY1+x4Fko3qMveSaWBm1t7Ia60c3p8AUuscU/H+
+Av9WIzurEkaN6RMaas014osea290fC169JzUAUMwzlfibxy5FmA4J/8lSDMeB/F3
+hp8XhV2OAgWqzSXSdB2n2SIwUJgBju6qTZQmjiWw+vOUIXGNO24OrsBm0pKiVHfX
+VJzCyeaTg6I0Pjs0GD6WUJJFf8IEP+e4WHOlBsbPtkPBDt8CXoKnXxdnPiQVK/11
+dom9ihXN4bGOlJBenrVhfydVe2kdIL0X9HPny9CXVdljjKm6JmzjAqXqou9NqK1J
+XikEUZTgzGw8THkTzyktKYwctl1++7W9oJsVdRGNR+v+XVkEsKNx+dIPwToPRnTU
+0PSF+TRAAOqDgVu9Jd8ZVBr/3N1bg/VataPWuKOeGuOIuaB+HRb9YxydjtBFqoeX
+AquU+PHVBaB9Nt1OzhYkuTXfXIgD5URp8dWUiNPOTgXQhzpFLTbRWokazHWw1E/H
+r8kZB0+T9RewbIOTvAOg
+=bkeO
+-----END PGP SIGNATURE-----
+
+--b2kq0H0UHH9HR3v2--
+
+--===============4761584495463777756==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============4761584495463777756==--
