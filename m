@@ -1,14 +1,15 @@
-From: Andrew Morton <akpm@linux-foundation.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH kernel v8 3/4] mm: add inerface to offer info about
 	unused pages
-Date: Thu, 16 Mar 2017 14:28:42 -0700
-Message-ID: <20170316142842.69770813b98df70277431b1e@linux-foundation.org>
+Date: Fri, 17 Mar 2017 03:21:21 +0200
+Message-ID: <20170317023556-mutt-send-email-mst__1678.35333054445$1489713698$gmane$org@kernel.org>
 References: <1489648127-37282-1-git-send-email-wei.w.wang@intel.com>
 	<1489648127-37282-4-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <1489648127-37282-4-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,148 +21,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Wei Wang <wei.w.wang@intel.com>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, dave.hansen@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, cornelia.huck@de.ibm.com, pbonzini@redhat.com, mgorman@techsingularity.net
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, dave.hansen@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 16 Mar 2017 15:08:46 +0800 Wei Wang <wei.w.wang@intel.com> wrote:
-
-> From: Liang Li <liang.z.li@intel.com>
-> 
-> This patch adds a function to provides a snapshot of the present system
-> unused pages. An important usage of this function is to provide the
-> unsused pages to the Live migration thread, which skips the transfer of
-> thoses unused pages. Newly used pages can be re-tracked by the dirty
-> page logging mechanisms.
-
-I don't think this will be useful for anything other than
-virtio-balloon.  I guess it would be better to keep this code in the
-virtio-balloon driver if possible, even though that's rather a layering
-violation :( What would have to be done to make that possible?  Perhaps
-we can put some *small* helpers into page_alloc.c to prevent things
-from becoming too ugly.
-
-> --- a/mm/page_alloc.c
-> +++ b/mm/page_alloc.c
-> @@ -4498,6 +4498,120 @@ void show_free_areas(unsigned int filter)
->  	show_swap_cache_info();
->  }
->  
-> +static int __record_unused_pages(struct zone *zone, int order,
-> +				 __le64 *buf, unsigned int size,
-> +				 unsigned int *offset, bool part_fill)
-> +{
-> +	unsigned long pfn, flags;
-> +	int t, ret = 0;
-> +	struct list_head *curr;
-> +	__le64 *chunk;
-> +
-> +	if (zone_is_empty(zone))
-> +		return 0;
-> +
-> +	spin_lock_irqsave(&zone->lock, flags);
-> +
-> +	if (*offset + zone->free_area[order].nr_free > size && !part_fill) {
-> +		ret = -ENOSPC;
-> +		goto out;
-> +	}
-> +	for (t = 0; t < MIGRATE_TYPES; t++) {
-> +		list_for_each(curr, &zone->free_area[order].free_list[t]) {
-> +			pfn = page_to_pfn(list_entry(curr, struct page, lru));
-> +			chunk = buf + *offset;
-> +			if (*offset + 2 > size) {
-> +				ret = -ENOSPC;
-> +				goto out;
-> +			}
-> +			/* Align to the chunk format used in virtio-balloon */
-> +			*chunk = cpu_to_le64(pfn << 12);
-> +			*(chunk + 1) = cpu_to_le64((1 << order) << 12);
-> +			*offset += 2;
-> +		}
-> +	}
-> +
-> +out:
-> +	spin_unlock_irqrestore(&zone->lock, flags);
-> +
-> +	return ret;
-> +}
-
-This looks like it could disable interrupts for a long time.  Too long?
-
+On Thu, Mar 16, 2017 at 03:08:46PM +0800, Wei Wang wrote:
 > +/*
 > + * The record_unused_pages() function is used to record the system unused
 > + * pages. The unused pages can be skipped to transfer during live migration.
 > + * Though the unused pages are dynamically changing, dirty page logging
 > + * mechanisms are able to capture the newly used pages though they were
 > + * recorded as unused pages via this function.
-> + *
-> + * This function scans the free page list of the specified order to record
-> + * the unused pages, and chunks those continuous pages following the chunk
-> + * format below:
-> + * --------------------------------------
-> + * |	Base (52-bit)	| Rsvd (12-bit) |
-> + * --------------------------------------
-> + * --------------------------------------
-> + * |	Size (52-bit)	| Rsvd (12-bit) |
-> + * --------------------------------------
-> + *
-> + * @start_zone: zone to start the record operation.
-> + * @order: order of the free page list to record.
-> + * @buf: buffer to record the unused page info in chunks.
-> + * @size: size of the buffer in __le64 to record
-> + * @offset: offset in the buffer to record.
-> + * @part_fill: indicate if partial fill is used.
-> + *
-> + * return -EINVAL if parameter is invalid
-> + * return -ENOSPC when the buffer is too small to record all the unsed pages
-> + * return 0 when sccess
-> + */
 
-It's a strange thing - it returns information which will instantly
-become incorrect.
+You will keep confusing people as long as you keep using
+this terminology which only makes sense in a very specific
+use and a very specific implementation.
 
-> +int record_unused_pages(struct zone **start_zone, int order,
-> +			__le64 *buf, unsigned int size,
-> +			unsigned int *offset, bool part_fill)
-> +{
-> +	struct zone *zone;
-> +	int ret = 0;
-> +	bool skip_check = false;
-> +
-> +	/* Make sure all the parameters are valid */
-> +	if (buf == NULL || offset == NULL || order >= MAX_ORDER)
-> +		return -EINVAL;
-> +
-> +	if (*start_zone != NULL) {
-> +		bool found = false;
-> +
-> +		for_each_populated_zone(zone) {
-> +			if (zone != *start_zone)
-> +				continue;
-> +			found = true;
-> +			break;
-> +		}
-> +		if (!found)
-> +			return -EINVAL;
-> +	} else
-> +		skip_check = true;
-> +
-> +	for_each_populated_zone(zone) {
-> +		/* Start from *start_zone if it's not NULL */
-> +		if (!skip_check) {
-> +			if (*start_zone != zone)
-> +				continue;
-> +			else
-> +				skip_check = true;
-> +		}
-> +		ret = __record_unused_pages(zone, order, buf, size,
-> +					    offset, part_fill);
-> +		if (ret < 0) {
-> +			/* record the failed zone */
-> +			*start_zone = zone;
-> +			break;
-> +		}
-> +	}
-> +
-> +	return ret;
-> +}
-> +EXPORT_SYMBOL(record_unused_pages);
+How does guest developer know this does the right thing wrt locking etc?
+Look at hypervisor spec and try to figure it all out together?
+
+So stop saying what caller should do, describe what does the *API* does.
+
+You want something like this:
+
+	Get a list of pages in the system that are unused at some point between
+	record_unused_pages is called and before it returns, implying that any
+	data that was present in these pages before record_unused_pages was
+	called is safe to discard. Pages can be used immediately after
+	this point and any data written after this point is not safe to discard,
+	it is caller's responsibility to either prevent the use or
+	detect such pages.
+
+-- 
+MST
