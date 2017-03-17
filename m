@@ -1,15 +1,16 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH] tty: hvc: don't allocate a buffer for console print on
-	stack
-Date: Fri, 17 Mar 2017 14:09:30 +0900
-Message-ID: <20170317050930.GB28075@kroah.com>
-References: <1487364165-21882-1-git-send-email-jan.dakinevich@gmail.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH kernel v8 3/4] mm: add inerface to offer info about unused
+	pages
+Date: Fri, 17 Mar 2017 14:55:33 +0800
+Message-ID: <58CB8865.5030707__11507.8729381368$1489733664$gmane$org@intel.com>
+References: <1489648127-37282-1-git-send-email-wei.w.wang@intel.com>
+	<1489648127-37282-4-git-send-email-wei.w.wang@intel.com>
+	<20170316142842.69770813b98df70277431b1e@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1487364165-21882-1-git-send-email-jan.dakinevich@gmail.com>
+In-Reply-To: <20170316142842.69770813b98df70277431b1e@linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,43 +20,134 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jan Dakinevich <jan.dakinevich@gmail.com>
-Cc: Peter Hurley <peter@hurleysoftware.com>, Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Jiri Slaby <jslaby@suse.com>, linuxppc-dev@lists.ozlabs.org, Dan Carpenter <dan.carpenter@oracle.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, dave.hansen@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, cornelia.huck@de.ibm.com, pbonzini@redhat.com, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Feb 17, 2017 at 11:42:45PM +0300, Jan Dakinevich wrote:
-> The buffer is used by virtio console driver as DMA buffer. Since v4.9
-> (if VMAP_STACK is enabled) we shouldn't use the stack for DMA.
+On 03/17/2017 05:28 AM, Andrew Morton wrote:
+> On Thu, 16 Mar 2017 15:08:46 +0800 Wei Wang <wei.w.wang@intel.com> wrote:
+>
+>> From: Liang Li <liang.z.li@intel.com>
+>>
+>> This patch adds a function to provides a snapshot of the present system
+>> unused pages. An important usage of this function is to provide the
+>> unsused pages to the Live migration thread, which skips the transfer of
+>> thoses unused pages. Newly used pages can be re-tracked by the dirty
+>> page logging mechanisms.
+> I don't think this will be useful for anything other than
+> virtio-balloon.  I guess it would be better to keep this code in the
+> virtio-balloon driver if possible, even though that's rather a layering
+> violation :( What would have to be done to make that possible?  Perhaps
+> we can put some *small* helpers into page_alloc.c to prevent things
+> from becoming too ugly.
 
-You shouldn't use 'static' data either, that's not always guaranteed to
-be DMA-able, right?
+The patch description was too narrowed and may have caused some
+confusion, sorry about that. This function is aimed to be generic. I
+agree with the description suggested by Michael.
 
-> 
-> Signed-off-by: Jan Dakinevich <jan.dakinevich@gmail.com>
-> ---
->  drivers/tty/hvc/hvc_console.c | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/tty/hvc/hvc_console.c b/drivers/tty/hvc/hvc_console.c
-> index 9b5c0fb..1ce6aaf 100644
-> --- a/drivers/tty/hvc/hvc_console.c
-> +++ b/drivers/tty/hvc/hvc_console.c
-> @@ -143,10 +143,15 @@ static struct hvc_struct *hvc_get_by_index(int index)
->  static void hvc_console_print(struct console *co, const char *b,
->  			      unsigned count)
->  {
-> -	char c[N_OUTBUF] __ALIGNED__;
->  	unsigned i = 0, n = 0;
->  	int r, donecr = 0, index = co->index;
->  
-> +	/*
-> +	 * Access to the buffer is serialized by console_sem in caller code from
-> +	 * kernel/printk/printk.c
-> +	 */
-> +	static char c[N_OUTBUF] __ALIGNED__;
+Since the main body of the function is related to operating on the
+free_list. I think it is better to have them located here.
+Small helpers may be less efficient and thereby causing some
+performance loss as well.
+I think one improvement we can make is to remove the "chunk format"
+related things from this function. The function can generally offer the
+base pfn to the caller's recording buffer. Then it will be the caller's
+responsibility to format the pfn if they need.
 
-What about allocating it dynamically?  That's the correct thing to do.
+>> --- a/mm/page_alloc.c
+>> +++ b/mm/page_alloc.c
+>> @@ -4498,6 +4498,120 @@ void show_free_areas(unsigned int filter)
+>>   	show_swap_cache_info();
+>>   }
+>>   
+>> +static int __record_unused_pages(struct zone *zone, int order,
+>> +				 __le64 *buf, unsigned int size,
+>> +				 unsigned int *offset, bool part_fill)
+>> +{
+>> +	unsigned long pfn, flags;
+>> +	int t, ret = 0;
+>> +	struct list_head *curr;
+>> +	__le64 *chunk;
+>> +
+>> +	if (zone_is_empty(zone))
+>> +		return 0;
+>> +
+>> +	spin_lock_irqsave(&zone->lock, flags);
+>> +
+>> +	if (*offset + zone->free_area[order].nr_free > size && !part_fill) {
+>> +		ret = -ENOSPC;
+>> +		goto out;
+>> +	}
+>> +	for (t = 0; t < MIGRATE_TYPES; t++) {
+>> +		list_for_each(curr, &zone->free_area[order].free_list[t]) {
+>> +			pfn = page_to_pfn(list_entry(curr, struct page, lru));
+>> +			chunk = buf + *offset;
+>> +			if (*offset + 2 > size) {
+>> +				ret = -ENOSPC;
+>> +				goto out;
+>> +			}
+>> +			/* Align to the chunk format used in virtio-balloon */
+>> +			*chunk = cpu_to_le64(pfn << 12);
+>> +			*(chunk + 1) = cpu_to_le64((1 << order) << 12);
+>> +			*offset += 2;
+>> +		}
+>> +	}
+>> +
+>> +out:
+>> +	spin_unlock_irqrestore(&zone->lock, flags);
+>> +
+>> +	return ret;
+>> +}
+> This looks like it could disable interrupts for a long time.  Too long?
 
-thanks,
+What do you think if we give "budgets" to the above function?
+For example, budget=1000, and there are 2000 nodes on the list.
+record() returns with "incomplete" status in the first round, along with the
+status info, "*continue_node".
 
-greg k-h
+*continue_node: pointer to the starting node of the leftover. If 
+*continue_node
+has been used at the time of the second call (i.e. continue_node->next 
+== NULL),
+which implies that the previous 1000 nodes have been used, then the record()
+function can simply start from the head of the list.
+
+It is up to the caller whether it needs to continue the second round
+when getting "incomplete".
+
+>
+>> +/*
+>> + * The record_unused_pages() function is used to record the system unused
+>> + * pages. The unused pages can be skipped to transfer during live migration.
+>> + * Though the unused pages are dynamically changing, dirty page logging
+>> + * mechanisms are able to capture the newly used pages though they were
+>> + * recorded as unused pages via this function.
+>> + *
+>> + * This function scans the free page list of the specified order to record
+>> + * the unused pages, and chunks those continuous pages following the chunk
+>> + * format below:
+>> + * --------------------------------------
+>> + * |	Base (52-bit)	| Rsvd (12-bit) |
+>> + * --------------------------------------
+>> + * --------------------------------------
+>> + * |	Size (52-bit)	| Rsvd (12-bit) |
+>> + * --------------------------------------
+>> + *
+>> + * @start_zone: zone to start the record operation.
+>> + * @order: order of the free page list to record.
+>> + * @buf: buffer to record the unused page info in chunks.
+>> + * @size: size of the buffer in __le64 to record
+>> + * @offset: offset in the buffer to record.
+>> + * @part_fill: indicate if partial fill is used.
+>> + *
+>> + * return -EINVAL if parameter is invalid
+>> + * return -ENOSPC when the buffer is too small to record all the unsed pages
+>> + * return 0 when sccess
+>> + */
+> It's a strange thing - it returns information which will instantly
+> become incorrect.
+
+I didn't get the point, could you please explain more? Thanks.
+
+Best,
+Wei
