@@ -1,15 +1,16 @@
-From: Jan Dakinevich <jan.dakinevich@gmail.com>
-Subject: Re: [PATCH] tty: hvc: don't allocate a buffer for console print on
-	stack
-Date: Mon, 20 Mar 2017 18:55:15 +0300
-Message-ID: <18f113d4-9c37-0114-d637-3720ad093722@gmail.com>
-References: <1487364165-21882-1-git-send-email-jan.dakinevich@gmail.com>
-	<20170317050930.GB28075@kroah.com>
+From: Marcel Apfelbaum <marcel@redhat.com>
+Subject: Re: [BUG] virtio-net linux driver fails to probe on MIPS Malta since
+	'hw/virtio-pci: fix virtio behaviour'
+Date: Mon, 20 Mar 2017 18:02:26 +0200
+Message-ID: <8934b5c0-14ee-4396-4101-cbeb22144b11@redhat.com>
+References: <20170317215725.GJ996@jhogan-linux.le.imgtec.org>
+	<6b3ec98b-55e2-ecc8-d962-dc9d13866319@redhat.com>
+	<20170320174101-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170317050930.GB28075@kroah.com>
+In-Reply-To: <20170320174101-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,60 +20,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Peter Hurley <peter@hurleysoftware.com>, Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Jiri Slaby <jslaby@suse.com>, linuxppc-dev@lists.ozlabs.org, Dan Carpenter <dan.carpenter@oracle.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: James Hogan <james.hogan@imgtec.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> You shouldn't use 'static' data either, that's not always guaranteed to
-> be DMA-able, right?
-
-I naively thought all 'static' data was linked into .data and the
-section was always kmapped.
-
-> What about allocating it dynamically?  That's the correct thing to do.
-
-Yep, the solution was more welcomed and happened earlier:
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=c4baad50297d84bde1a7ad45e50c73adae4a2192
-
-On 03/17/2017 08:09 AM, Greg Kroah-Hartman wrote:
-> On Fri, Feb 17, 2017 at 11:42:45PM +0300, Jan Dakinevich wrote:
->> The buffer is used by virtio console driver as DMA buffer. Since v4.9
->> (if VMAP_STACK is enabled) we shouldn't use the stack for DMA.
-> 
-> You shouldn't use 'static' data either, that's not always guaranteed to
-> be DMA-able, right?
-> 
+On 03/20/2017 05:43 PM, Michael S. Tsirkin wrote:
+> On Mon, Mar 20, 2017 at 05:21:22PM +0200, Marcel Apfelbaum wrote:
+>> On 03/17/2017 11:57 PM, James Hogan wrote:
+>>> Hi,
+>>>
+>>> I've bisected the following failure of the virtio_net linux v4.10 driver
+>>> to probe in QEMU v2.9.0-rc1 emulating a MIPS Malta machine:
+>>>
+>>> virtio_net virtio0: virtio: device uses modern interface but does not have VIRTIO_F_VERSION_1
+>>> virtio_net: probe of virtio0 failed with error -22
+>>>
+>>> To QEMU commit 9a4c0e220d8a ("hw/virtio-pci: fix virtio behaviour").
+>>>
+>>> It appears that adding ",disable-modern=on,disable-legacy=off" to the
+>>> virtio-net -device makes it work again.
+>>>
+>>> I presume this should really just work out of the box. Any ideas why it
+>>> isn't?
+>>>
 >>
->> Signed-off-by: Jan Dakinevich <jan.dakinevich@gmail.com>
->> ---
->>  drivers/tty/hvc/hvc_console.c | 7 ++++++-
->>  1 file changed, 6 insertions(+), 1 deletion(-)
+>> Hi,
 >>
->> diff --git a/drivers/tty/hvc/hvc_console.c b/drivers/tty/hvc/hvc_console.c
->> index 9b5c0fb..1ce6aaf 100644
->> --- a/drivers/tty/hvc/hvc_console.c
->> +++ b/drivers/tty/hvc/hvc_console.c
->> @@ -143,10 +143,15 @@ static struct hvc_struct *hvc_get_by_index(int index)
->>  static void hvc_console_print(struct console *co, const char *b,
->>  			      unsigned count)
->>  {
->> -	char c[N_OUTBUF] __ALIGNED__;
->>  	unsigned i = 0, n = 0;
->>  	int r, donecr = 0, index = co->index;
->>  
->> +	/*
->> +	 * Access to the buffer is serialized by console_sem in caller code from
->> +	 * kernel/printk/printk.c
->> +	 */
->> +	static char c[N_OUTBUF] __ALIGNED__;
-> 
-> What about allocating it dynamically?  That's the correct thing to do.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+>>
+>> This is strange. This commit changes virtio devices from legacy to virtio "transitional".
+>> (your command line changes it to legacy)
+>> Linux 4.10 supports virtio modern/transitional (as far as I know) and on QEMU side
+>> there is nothing new.
+>>
+>> Michael, do you have any idea?
+>>
+>> Thanks,
+>> Marcel
+>
+> My guess would be firmware mishandling 64 bit BARs - we saw such
+> a case on sparc previously. As a result you are probably reading
+> all zeroes from features register or something like that.
+> Marcel, could you send a patch making the bar 32 bit?
+> If that helps we know what the issue is.
+>
 
--- 
-Best regards
-Jan Dakinevich
+Sure,
+
+Thanks,
+Marcel
+
+>>> Cheers
+>>> James
+>>>
