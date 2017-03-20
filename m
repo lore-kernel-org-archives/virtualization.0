@@ -1,11 +1,14 @@
-From: Changpeng Liu <changpeng.liu@intel.com>
-Subject: [RFC] virtio_blk: add DISCARD support to virtio_blk driver
-Date: Fri, 17 Mar 2017 09:34:39 +0800
-Message-ID: <1489714479-4002-1-git-send-email-changpeng.liu@intel.com>
+From: Marcel Apfelbaum <marcel@redhat.com>
+Subject: Re: [BUG] virtio-net linux driver fails to probe on MIPS Malta since
+	'hw/virtio-pci: fix virtio behaviour'
+Date: Mon, 20 Mar 2017 17:21:22 +0200
+Message-ID: <6b3ec98b-55e2-ecc8-d962-dc9d13866319@redhat.com>
+References: <20170317215725.GJ996@jhogan-linux.le.imgtec.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20170317215725.GJ996@jhogan-linux.le.imgtec.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,19 +18,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: changpeng.liu@intel.com, mst@redhat.com
+To: James Hogan <james.hogan@imgtec.com>, qemu-devel@nongnu.org, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Currently virtio_blk driver does not provide discard feature
-flag, so the filesystems which built on top of the block device
-will not send discard command. This is okay for HDD backend, but
-it will impact the performance for SSD backend.
+On 03/17/2017 11:57 PM, James Hogan wrote:
+> Hi,
+>
+> I've bisected the following failure of the virtio_net linux v4.10 driver
+> to probe in QEMU v2.9.0-rc1 emulating a MIPS Malta machine:
+>
+> virtio_net virtio0: virtio: device uses modern interface but does not have VIRTIO_F_VERSION_1
+> virtio_net: probe of virtio0 failed with error -22
+>
+> To QEMU commit 9a4c0e220d8a ("hw/virtio-pci: fix virtio behaviour").
+>
+> It appears that adding ",disable-modern=on,disable-legacy=off" to the
+> virtio-net -device makes it work again.
+>
+> I presume this should really just work out of the box. Any ideas why it
+> isn't?
+>
 
-Add a feature flag such as VIRTIO_BLK_F_DISCARD to virtio_blk driver
-is very straightforward, but it will extend the exist virtio_blk
-protocol, I'm preparing to add this feature, before that, I'd like
-to get comments or suggestions from community.
+Hi,
 
----
-1.9.3
+
+This is strange. This commit changes virtio devices from legacy to virtio "transitional".
+(your command line changes it to legacy)
+Linux 4.10 supports virtio modern/transitional (as far as I know) and on QEMU side
+there is nothing new.
+
+Michael, do you have any idea?
+
+Thanks,
+Marcel
+
+> Cheers
+> James
+>
