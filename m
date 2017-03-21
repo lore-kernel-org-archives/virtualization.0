@@ -1,14 +1,16 @@
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Subject: Re: [PATCH net-next 1/8] ptr_ring: introduce batch dequeuing
-Date: Tue, 21 Mar 2017 13:25:10 +0300
-Message-ID: <9ecd2a27-4f93-2b3f-cb91-c558976973a2@cogentembedded.com>
-References: <1490069087-4783-1-git-send-email-jasowang@redhat.com>
-	<1490069087-4783-2-git-send-email-jasowang@redhat.com>
+From: Marcel Apfelbaum <marcel@redhat.com>
+Subject: Re: [BUG] virtio-net linux driver fails to probe on MIPS Malta since
+	'hw/virtio-pci: fix virtio behaviour'
+Date: Tue, 21 Mar 2017 16:16:58 +0200
+Message-ID: <c92a77f3-7ddc-c0b8-7046-6d8f1c56aec7@redhat.com>
+References: <20170317215725.GJ996@jhogan-linux.le.imgtec.org>
+	<6b3ec98b-55e2-ecc8-d962-dc9d13866319@redhat.com>
+	<20170320174101-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1490069087-4783-2-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20170320174101-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,49 +20,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: James Hogan <james.hogan@imgtec.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello!
-
-On 3/21/2017 7:04 AM, Jason Wang wrote:
-
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  include/linux/ptr_ring.h | 65 ++++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 65 insertions(+)
+On 03/20/2017 05:43 PM, Michael S. Tsirkin wrote:
+> On Mon, Mar 20, 2017 at 05:21:22PM +0200, Marcel Apfelbaum wrote:
+>> On 03/17/2017 11:57 PM, James Hogan wrote:
+>>> Hi,
+>>>
+>>> I've bisected the following failure of the virtio_net linux v4.10 driver
+>>> to probe in QEMU v2.9.0-rc1 emulating a MIPS Malta machine:
+>>>
+>>> virtio_net virtio0: virtio: device uses modern interface but does not have VIRTIO_F_VERSION_1
+>>> virtio_net: probe of virtio0 failed with error -22
+>>>
+>>> To QEMU commit 9a4c0e220d8a ("hw/virtio-pci: fix virtio behaviour").
+>>>
+>>> It appears that adding ",disable-modern=on,disable-legacy=off" to the
+>>> virtio-net -device makes it work again.
+>>>
+>>> I presume this should really just work out of the box. Any ideas why it
+>>> isn't?
+>>>
+>>
+>> Hi,
+>>
+>>
+>> This is strange. This commit changes virtio devices from legacy to virtio "transitional".
+>> (your command line changes it to legacy)
+>> Linux 4.10 supports virtio modern/transitional (as far as I know) and on QEMU side
+>> there is nothing new.
+>>
+>> Michael, do you have any idea?
+>>
+>> Thanks,
+>> Marcel
 >
-> diff --git a/include/linux/ptr_ring.h b/include/linux/ptr_ring.h
-> index 6c70444..4771ded 100644
-> --- a/include/linux/ptr_ring.h
-> +++ b/include/linux/ptr_ring.h
-> @@ -247,6 +247,22 @@ static inline void *__ptr_ring_consume(struct ptr_ring *r)
->  	return ptr;
->  }
+> My guess would be firmware mishandling 64 bit BARs - we saw such
+> a case on sparc previously. As a result you are probably reading
+> all zeroes from features register or something like that.
+> Marcel, could you send a patch making the bar 32 bit?
+> If that helps we know what the issue is.
 >
-> +static inline int __ptr_ring_consume_batched(struct ptr_ring *r,
-> +					     void **array, int n)
-> +{
-> +	void *ptr;
-> +	int i = 0;
-> +
-> +	while (i < n) {
 
-    Hm, why not *for*?
+Hi James,
 
-> +		ptr = __ptr_ring_consume(r);
-> +		if (!ptr)
-> +			break;
-> +		array[i++] = ptr;
-> +	}
-> +
-> +	return i;
-> +}
-> +
->  /*
->   * Note: resize (below) nests producer lock within consumer lock, so if you
->   * call this in interrupt or BH context, you must disable interrupts/BH when
-> @@ -297,6 +313,55 @@ static inline void *ptr_ring_consume_bh(struct ptr_ring *r)
-[...]
+Can you please check if the below patch fixes the problem?
+Please note it is not a solution.
 
-MBR, Sergei
+diff --git a/hw/virtio/virtio-pci.c b/hw/virtio/virtio-pci.c
+index f9b7244..5b4d429 100644
+--- a/hw/virtio/virtio-pci.c
++++ b/hw/virtio/virtio-pci.c
+@@ -1671,9 +1671,7 @@ static void virtio_pci_device_plugged(DeviceState *d, Error **errp)
+          }
+
+          pci_register_bar(&proxy->pci_dev, proxy->modern_mem_bar_idx,
+-                         PCI_BASE_ADDRESS_SPACE_MEMORY |
+-                         PCI_BASE_ADDRESS_MEM_PREFETCH |
+-                         PCI_BASE_ADDRESS_MEM_TYPE_64,
++                         PCI_BASE_ADDRESS_SPACE_MEMORY,
+                           &proxy->modern_bar);
+
+          proxy->config_cap = virtio_pci_add_mem_cap(proxy, &cfg.cap);
+
+
+Thanks,
+Marcel
