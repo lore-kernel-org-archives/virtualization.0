@@ -1,16 +1,11 @@
-From: Marcel Apfelbaum <marcel@redhat.com>
-Subject: Re: [BUG] virtio-net linux driver fails to probe on MIPS Malta since
-	'hw/virtio-pci: fix virtio behaviour'
-Date: Mon, 20 Mar 2017 18:02:26 +0200
-Message-ID: <8934b5c0-14ee-4396-4101-cbeb22144b11@redhat.com>
-References: <20170317215725.GJ996@jhogan-linux.le.imgtec.org>
-	<6b3ec98b-55e2-ecc8-d962-dc9d13866319@redhat.com>
-	<20170320174101-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net-next 0/8] vhost-net rx batching
+Date: Tue, 21 Mar 2017 12:04:39 +0800
+Message-ID: <1490069087-4783-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170320174101-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,55 +15,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: James Hogan <james.hogan@imgtec.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/20/2017 05:43 PM, Michael S. Tsirkin wrote:
-> On Mon, Mar 20, 2017 at 05:21:22PM +0200, Marcel Apfelbaum wrote:
->> On 03/17/2017 11:57 PM, James Hogan wrote:
->>> Hi,
->>>
->>> I've bisected the following failure of the virtio_net linux v4.10 driver
->>> to probe in QEMU v2.9.0-rc1 emulating a MIPS Malta machine:
->>>
->>> virtio_net virtio0: virtio: device uses modern interface but does not have VIRTIO_F_VERSION_1
->>> virtio_net: probe of virtio0 failed with error -22
->>>
->>> To QEMU commit 9a4c0e220d8a ("hw/virtio-pci: fix virtio behaviour").
->>>
->>> It appears that adding ",disable-modern=on,disable-legacy=off" to the
->>> virtio-net -device makes it work again.
->>>
->>> I presume this should really just work out of the box. Any ideas why it
->>> isn't?
->>>
->>
->> Hi,
->>
->>
->> This is strange. This commit changes virtio devices from legacy to virtio "transitional".
->> (your command line changes it to legacy)
->> Linux 4.10 supports virtio modern/transitional (as far as I know) and on QEMU side
->> there is nothing new.
->>
->> Michael, do you have any idea?
->>
->> Thanks,
->> Marcel
->
-> My guess would be firmware mishandling 64 bit BARs - we saw such
-> a case on sparc previously. As a result you are probably reading
-> all zeroes from features register or something like that.
-> Marcel, could you send a patch making the bar 32 bit?
-> If that helps we know what the issue is.
->
+Hi all:
 
-Sure,
+This series tries to implement rx batching for vhost-net. This is done
+by batching the dequeuing from skb_array which was exported by
+underlayer socket and pass the sbk back through msg_control to finish
+userspace copying.
 
-Thanks,
-Marcel
+Tests shows at most 19% improvment on rx pps.
 
->>> Cheers
->>> James
->>>
+Please review.
+
+Thanks
+
+Jason Wang (8):
+  ptr_ring: introduce batch dequeuing
+  skb_array: introduce batch dequeuing
+  tun: export skb_array
+  tap: export skb_array
+  tun: support receiving skb through msg_control
+  tap: support receiving skb from msg_control
+  vhost_net: try batch dequing from skb array
+  vhost_net: use lockless peeking for skb array during busy polling
+
+ drivers/net/tap.c         | 25 ++++++++++++++---
+ drivers/net/tun.c         | 31 +++++++++++++++------
+ drivers/vhost/net.c       | 71 +++++++++++++++++++++++++++++++++++++++++++----
+ include/linux/if_tap.h    |  5 ++++
+ include/linux/if_tun.h    |  5 ++++
+ include/linux/ptr_ring.h  | 65 +++++++++++++++++++++++++++++++++++++++++++
+ include/linux/skb_array.h | 25 +++++++++++++++++
+ 7 files changed, 209 insertions(+), 18 deletions(-)
+
+-- 
+2.7.4
