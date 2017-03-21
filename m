@@ -1,17 +1,11 @@
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Subject: Re: [PATCH net-next v2 2/5] virtio-net: transmit napi
-Date: Fri, 21 Apr 2017 10:50:12 -0400
-Message-ID: <CAF=yD-KdtvXV+=ZROcLPHJxB55wbnJOmV0MJn2AJPHugoofR0g__46495.0497415431$1493077097$gmane$org@mail.gmail.com>
-References: <20170418202108.61920-1-willemdebruijn.kernel@gmail.com>
-	<20170418202108.61920-3-willemdebruijn.kernel@gmail.com>
-	<2ae5889b-69d4-3041-d7fd-a7ea38e8c4e2@redhat.com>
-	<CAF=yD-K0Cwwcob+0nWXWTY_07_zwcae1GRHwdagF2pGrv8HwtA@mail.gmail.com>
-	<118c5f96-6151-c012-7a31-16d24a835878@redhat.com>
+From: Philippe Reynes <tremyfr@gmail.com>
+Subject: [PATCH] net: virtio_net: use new api ethtool_{get|set}_link_ksettings
+Date: Tue, 21 Mar 2017 23:02:48 +0100
+Message-ID: <1490133768-12257-1-git-send-email-tremyfr__18313.8116299689$1493077114$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <118c5f96-6151-c012-7a31-16d24a835878@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,74 +15,110 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Network Development <netdev@vger.kernel.org>, Willem de Bruijn <willemb@google.com>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.com>
+To: mst@redhat.com, jasowang@redhat.com, davem@davemloft.net
+Cc: netdev@vger.kernel.org, Philippe Reynes <tremyfr@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
->>> Maybe I was wrong, but according to Michael's comment it looks like he
->>> want
->>> check affinity_hint_set just for speculative tx polling on rx napi
->>> instead
->>> of disabling it at all.
->>>
->>> And I'm not convinced this is really needed, driver only provide affinity
->>> hint instead of affinity, so it's not guaranteed that tx and rx interrupt
->>> are in the same vcpus.
->>
->> You're right. I made the restriction broader than the request, to really
->> err
->> on the side of caution for the initial merge of napi tx. And enabling
->> the optimization is always a win over keeping it off, even without irq
->> affinity.
->>
->> The cycle cost is significant without affinity regardless of whether the
->> optimization is used.
->
->
-> Yes, I noticed this in the past too.
->
->> Though this is not limited to napi-tx, it is more
->> pronounced in that mode than without napi.
->>
->> 1x TCP_RR for affinity configuration {process, rx_irq, tx_irq}:
->>
->> upstream:
->>
->> 1,1,1: 28985 Mbps, 278 Gcyc
->> 1,0,2: 30067 Mbps, 402 Gcyc
->>
->> napi tx:
->>
->> 1,1,1: 34492 Mbps, 269 Gcyc
->> 1,0,2: 36527 Mbps, 537 Gcyc (!)
->> 1,0,1: 36269 Mbps, 394 Gcyc
->> 1,0,0: 34674 Mbps, 402 Gcyc
->>
->> This is a particularly strong example. It is also representative
->> of most RR tests. It is less pronounced in other streaming tests.
->> 10x TCP_RR, for instance:
->>
->> upstream:
->>
->> 1,1,1: 42267 Mbps, 301 Gcyc
->> 1,0,2: 40663 Mbps, 445 Gcyc
->>
->> napi tx:
->>
->> 1,1,1: 42420 Mbps, 303 Gcyc
->> 1,0,2:  42267 Mbps, 431 Gcyc
->>
->> These numbers were obtained with the virtqueue_enable_cb_delayed
->> optimization after xmit_skb, btw. It turns out that moving that before
->> increases 1x TCP_RR further to ~39 Gbps, at the cost of reducing
->> 100x TCP_RR a bit.
->
->
-> I see, so I think we can leave the affinity hint optimization/check for
-> future investigation:
->
-> - to avoid endless optimization (e.g we may want to share a single
-> vector/napi for tx/rx queue pairs in the future) for this series.
-> - tx napi is disabled by default which means we can do optimization on top.
+The ethtool api {get|set}_settings is deprecated.
+We move this driver to new api {get|set}_link_ksettings.
 
-Okay. I'll drop the vi->affinity_hint_set from the patch set for now.
+As I don't have the hardware, I'd be very pleased if
+someone may test this patch.
+
+Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
+---
+ drivers/net/virtio_net.c |   50 +++++++++++++++++++++++++++------------------
+ 1 files changed, 30 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index ea9890d..b0d241d 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1636,47 +1636,57 @@ static void virtnet_get_channels(struct net_device *dev,
+ }
+ 
+ /* Check if the user is trying to change anything besides speed/duplex */
+-static bool virtnet_validate_ethtool_cmd(const struct ethtool_cmd *cmd)
++static bool
++virtnet_validate_ethtool_cmd(const struct ethtool_link_ksettings *cmd)
+ {
+-	struct ethtool_cmd diff1 = *cmd;
+-	struct ethtool_cmd diff2 = {};
++	struct ethtool_link_ksettings diff1 = *cmd;
++	struct ethtool_link_ksettings diff2 = {};
+ 
+ 	/* cmd is always set so we need to clear it, validate the port type
+ 	 * and also without autonegotiation we can ignore advertising
+ 	 */
+-	ethtool_cmd_speed_set(&diff1, 0);
+-	diff2.port = PORT_OTHER;
+-	diff1.advertising = 0;
+-	diff1.duplex = 0;
+-	diff1.cmd = 0;
++	diff1.base.speed = 0;
++	diff2.base.port = PORT_OTHER;
++	ethtool_link_ksettings_zero_link_mode(&diff1, advertising);
++	diff1.base.duplex = 0;
++	diff1.base.cmd = 0;
++	diff1.base.link_mode_masks_nwords = 0;
+ 
+-	return !memcmp(&diff1, &diff2, sizeof(diff1));
++	return !memcmp(&diff1.base, &diff2.base, sizeof(diff1.base)) &&
++		bitmap_empty(diff1.link_modes.supported,
++			     __ETHTOOL_LINK_MODE_MASK_NBITS) &&
++		bitmap_empty(diff1.link_modes.advertising,
++			     __ETHTOOL_LINK_MODE_MASK_NBITS) &&
++		bitmap_empty(diff1.link_modes.lp_advertising,
++			     __ETHTOOL_LINK_MODE_MASK_NBITS);
+ }
+ 
+-static int virtnet_set_settings(struct net_device *dev, struct ethtool_cmd *cmd)
++static int virtnet_set_link_ksettings(struct net_device *dev,
++				      const struct ethtool_link_ksettings *cmd)
+ {
+ 	struct virtnet_info *vi = netdev_priv(dev);
+ 	u32 speed;
+ 
+-	speed = ethtool_cmd_speed(cmd);
++	speed = cmd->base.speed;
+ 	/* don't allow custom speed and duplex */
+ 	if (!ethtool_validate_speed(speed) ||
+-	    !ethtool_validate_duplex(cmd->duplex) ||
++	    !ethtool_validate_duplex(cmd->base.duplex) ||
+ 	    !virtnet_validate_ethtool_cmd(cmd))
+ 		return -EINVAL;
+ 	vi->speed = speed;
+-	vi->duplex = cmd->duplex;
++	vi->duplex = cmd->base.duplex;
+ 
+ 	return 0;
+ }
+ 
+-static int virtnet_get_settings(struct net_device *dev, struct ethtool_cmd *cmd)
++static int virtnet_get_link_ksettings(struct net_device *dev,
++				      struct ethtool_link_ksettings *cmd)
+ {
+ 	struct virtnet_info *vi = netdev_priv(dev);
+ 
+-	ethtool_cmd_speed_set(cmd, vi->speed);
+-	cmd->duplex = vi->duplex;
+-	cmd->port = PORT_OTHER;
++	cmd->base.speed = vi->speed;
++	cmd->base.duplex = vi->duplex;
++	cmd->base.port = PORT_OTHER;
+ 
+ 	return 0;
+ }
+@@ -1696,8 +1706,8 @@ static void virtnet_init_settings(struct net_device *dev)
+ 	.set_channels = virtnet_set_channels,
+ 	.get_channels = virtnet_get_channels,
+ 	.get_ts_info = ethtool_op_get_ts_info,
+-	.get_settings = virtnet_get_settings,
+-	.set_settings = virtnet_set_settings,
++	.get_link_ksettings = virtnet_get_link_ksettings,
++	.set_link_ksettings = virtnet_set_link_ksettings,
+ };
+ 
+ static void virtnet_freeze_down(struct virtio_device *vdev)
+-- 
+1.7.4.4
