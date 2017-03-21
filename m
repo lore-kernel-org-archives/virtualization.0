@@ -1,7 +1,8 @@
 From: Philippe Reynes <tremyfr@gmail.com>
-Subject: [PATCH] net: virtio_net: use new api ethtool_{get|set}_link_ksettings
-Date: Tue, 21 Mar 2017 23:02:48 +0100
-Message-ID: <1490133768-12257-1-git-send-email-tremyfr__18313.8116299689$1493077114$gmane$org@gmail.com>
+Subject: [PATCH 2] net: virtio_net: use new api
+	ethtool_{get|set}_link_ksettings
+Date: Tue, 21 Mar 2017 23:24:24 +0100
+Message-ID: <1490135064-23411-1-git-send-email-tremyfr__10591.6905020878$1493077126$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -22,11 +23,13 @@ List-Id: virtualization@lists.linuxfoundation.org
 The ethtool api {get|set}_settings is deprecated.
 We move this driver to new api {get|set}_link_ksettings.
 
-As I don't have the hardware, I'd be very pleased if
-someone may test this patch.
-
 Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
 ---
+Changelog:
+v2:
+- remove comment about the missing hardware,
+  I've tested this change with qemu
+
  drivers/net/virtio_net.c |   50 +++++++++++++++++++++++++++------------------
  1 files changed, 30 insertions(+), 20 deletions(-)
 
