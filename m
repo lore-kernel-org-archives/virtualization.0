@@ -1,15 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next 7/8] vhost_net: try batch dequing from skb array
-Date: Wed, 22 Mar 2017 16:16:10 +0200
-Message-ID: <20170322155111-mutt-send-email-mst@kernel.org>
-References: <1490069087-4783-1-git-send-email-jasowang@redhat.com>
-	<1490069087-4783-8-git-send-email-jasowang@redhat.com>
+From: Ladi Prosek <lprosek@redhat.com>
+Subject: [PATCH] virtio_balloon: don't push uninitialized buffers to stats
+	virtqueue
+Date: Wed, 22 Mar 2017 16:10:27 +0100
+Message-ID: <1490195427-25085-1-git-send-email-lprosek@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1490069087-4783-8-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,203 +16,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 21, 2017 at 12:04:46PM +0800, Jason Wang wrote:
-> We used to dequeue one skb during recvmsg() from skb_array, this could
-> be inefficient because of the bad cache utilization and spinlock
-> touching for each packet. This patch tries to batch them by calling
-> batch dequeuing helpers explicitly on the exported skb array and pass
-> the skb back through msg_control for underlayer socket to finish the
-> userspace copying.
-> 
-> Tests were done by XDP1:
-> - small buffer:
->   Before: 1.88Mpps
->   After : 2.25Mpps (+19.6%)
-> - mergeable buffer:
->   Before: 1.83Mpps
->   After : 2.10Mpps (+14.7%)
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/vhost/net.c | 64 +++++++++++++++++++++++++++++++++++++++++++++++++----
->  1 file changed, 60 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 9b51989..53f09f2 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -28,6 +28,8 @@
->  #include <linux/if_macvlan.h>
->  #include <linux/if_tap.h>
->  #include <linux/if_vlan.h>
-> +#include <linux/skb_array.h>
-> +#include <linux/skbuff.h>
->  
->  #include <net/sock.h>
->  
-> @@ -85,6 +87,7 @@ struct vhost_net_ubuf_ref {
->  	struct vhost_virtqueue *vq;
->  };
->  
-> +#define VHOST_RX_BATCH 64
->  struct vhost_net_virtqueue {
->  	struct vhost_virtqueue vq;
->  	size_t vhost_hlen;
-> @@ -99,6 +102,10 @@ struct vhost_net_virtqueue {
->  	/* Reference counting for outstanding ubufs.
->  	 * Protected by vq mutex. Writers must also take device mutex. */
->  	struct vhost_net_ubuf_ref *ubufs;
-> +	struct skb_array *rx_array;
-> +	void *rxq[VHOST_RX_BATCH];
-> +	int rt;
-> +	int rh;
->  };
->  
->  struct vhost_net {
-> @@ -201,6 +208,8 @@ static void vhost_net_vq_reset(struct vhost_net *n)
->  		n->vqs[i].ubufs = NULL;
->  		n->vqs[i].vhost_hlen = 0;
->  		n->vqs[i].sock_hlen = 0;
-> +		n->vqs[i].rt = 0;
-> +		n->vqs[i].rh = 0;
->  	}
->  
->  }
-> @@ -503,13 +512,30 @@ static void handle_tx(struct vhost_net *net)
->  	mutex_unlock(&vq->mutex);
->  }
->  
-> -static int peek_head_len(struct sock *sk)
-> +static int peek_head_len_batched(struct vhost_net_virtqueue *rvq)
+When init_vqs runs, virtio_balloon.stats is either uninitialized or
+contains stale values. The host updates its state with garbage data
+because it has no way of knowing that this is just a marker buffer
+used for signaling.
 
-Pls rename to say what it actually does: fetch skbs
+This patch initializes all tags with U16_MAX which is guaranteed to
+be ignored by the host.
 
-> +{
-> +	if (rvq->rh != rvq->rt)
-> +		goto out;
-> +
-> +	rvq->rh = rvq->rt = 0;
-> +	rvq->rt = skb_array_consume_batched_bh(rvq->rx_array, rvq->rxq,
-> +						VHOST_RX_BATCH);
+The alternative fix would be to push an empty buffer in init_vqs but
+that's not easily done with the current virtio implementation and
+would still not eliminate the invariant that update_balloon_stats
+has to update all VIRTIO_BALLOON_S_NR fields.
 
-A comment explaining why is is -bh would be helpful.
+Signed-off-by: Ladi Prosek <lprosek@redhat.com>
+---
+ drivers/virtio/virtio_balloon.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-> +	if (!rvq->rt)
-> +		return 0;
-> +out:
-> +	return __skb_array_len_with_tag(rvq->rxq[rvq->rh]);
-> +}
-> +
-> +static int peek_head_len(struct vhost_net_virtqueue *rvq, struct sock *sk)
->  {
->  	struct socket *sock = sk->sk_socket;
->  	struct sk_buff *head;
->  	int len = 0;
->  	unsigned long flags;
->  
-> +	if (rvq->rx_array)
-> +		return peek_head_len_batched(rvq);
-> +
->  	if (sock->ops->peek_len)
->  		return sock->ops->peek_len(sock);
->  
-> @@ -535,12 +561,14 @@ static int sk_has_rx_data(struct sock *sk)
->  	return skb_queue_empty(&sk->sk_receive_queue);
->  }
->  
-> -static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk)
-> +static int vhost_net_rx_peek_head_len(struct vhost_net *net,
-> +				      struct sock *sk)
->  {
-> +	struct vhost_net_virtqueue *rvq = &net->vqs[VHOST_NET_VQ_RX];
->  	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
->  	struct vhost_virtqueue *vq = &nvq->vq;
->  	unsigned long uninitialized_var(endtime);
-> -	int len = peek_head_len(sk);
-> +	int len = peek_head_len(rvq, sk);
->  
->  	if (!len && vq->busyloop_timeout) {
->  		/* Both tx vq and rx socket were polled here */
-> @@ -561,7 +589,7 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk)
->  			vhost_poll_queue(&vq->poll);
->  		mutex_unlock(&vq->mutex);
->  
-> -		len = peek_head_len(sk);
-> +		len = peek_head_len(rvq, sk);
->  	}
->  
->  	return len;
-> @@ -699,6 +727,8 @@ static void handle_rx(struct vhost_net *net)
->  		/* On error, stop handling until the next kick. */
->  		if (unlikely(headcount < 0))
->  			goto out;
-> +		if (nvq->rx_array)
-> +			msg.msg_control = nvq->rxq[nvq->rh++];
->  		/* On overrun, truncate and discard */
->  		if (unlikely(headcount > UIO_MAXIOV)) {
->  			iov_iter_init(&msg.msg_iter, READ, vq->iov, 1, 1);
-> @@ -841,6 +871,8 @@ static int vhost_net_open(struct inode *inode, struct file *f)
->  		n->vqs[i].done_idx = 0;
->  		n->vqs[i].vhost_hlen = 0;
->  		n->vqs[i].sock_hlen = 0;
-> +		n->vqs[i].rt = 0;
-> +		n->vqs[i].rh = 0;
->  	}
->  	vhost_dev_init(dev, vqs, VHOST_NET_VQ_MAX);
->  
-> @@ -856,11 +888,15 @@ static struct socket *vhost_net_stop_vq(struct vhost_net *n,
->  					struct vhost_virtqueue *vq)
->  {
->  	struct socket *sock;
-> +	struct vhost_net_virtqueue *nvq =
-> +		container_of(vq, struct vhost_net_virtqueue, vq);
->  
->  	mutex_lock(&vq->mutex);
->  	sock = vq->private_data;
->  	vhost_net_disable_vq(n, vq);
->  	vq->private_data = NULL;
-> +	while (nvq->rh != nvq->rt)
-> +		kfree_skb(nvq->rxq[nvq->rh++]);
->  	mutex_unlock(&vq->mutex);
->  	return sock;
->  }
-> @@ -953,6 +989,25 @@ static struct socket *get_raw_socket(int fd)
->  	return ERR_PTR(r);
->  }
->  
-> +static struct skb_array *get_tap_skb_array(int fd)
-> +{
-> +	struct skb_array *array;
-> +	struct file *file = fget(fd);
-> +
-> +	if (!file)
-> +		return NULL;
-> +	array = tun_get_skb_array(file);
-> +	if (!IS_ERR(array))
-> +		goto out;
-> +	array = tap_get_skb_array(file);
-> +	if (!IS_ERR(array))
-> +		goto out;
-> +	array = NULL;
-> +out:
-> +	fput(file);
-> +	return array;
-> +}
-> +
->  static struct socket *get_tap_socket(int fd)
->  {
->  	struct file *file = fget(fd);
-> @@ -1029,6 +1084,7 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
->  
->  		vhost_net_disable_vq(n, vq);
->  		vq->private_data = sock;
-> +		nvq->rx_array = get_tap_skb_array(fd);
->  		r = vhost_vq_init_access(vq);
->  		if (r)
->  			goto err_used;
-> -- 
-> 2.7.4
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 4e11915..d34f56f 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -423,12 +423,16 @@ static int init_vqs(struct virtio_balloon *vb)
+ 	vb->deflate_vq = vqs[1];
+ 	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
+ 		struct scatterlist sg;
++		int idx;
+ 		vb->stats_vq = vqs[2];
+ 
+ 		/*
+ 		 * Prime this virtqueue with one buffer so the hypervisor can
+ 		 * use it to signal us later (it can't be broken yet!).
+ 		 */
++		for (idx = 0; idx < VIRTIO_BALLOON_S_NR; idx++)
++			update_stat(vb, idx, U16_MAX, 0);
++
+ 		sg_init_one(&sg, vb->stats, sizeof vb->stats);
+ 		if (virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb, GFP_KERNEL)
+ 		    < 0)
+-- 
+2.7.4
