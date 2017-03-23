@@ -1,13 +1,15 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [REGRESSION] 07ec51480b5e ("virtio_pci: use shared interrupts for
-	virtqueues") causes crashes in guest
-Date: Thu, 23 Mar 2017 13:13:50 +0800
-Message-ID: <e042635f-e30e-45e8-f4a5-b03b9228eec2@redhat.com>
-References: <43ffa887-a20d-f836-cba8-11196924d82d@redhat.com>
+Subject: Re: [PATCH net-next 1/8] ptr_ring: introduce batch dequeuing
+Date: Thu, 23 Mar 2017 13:33:28 +0800
+Message-ID: <516ec084-6d68-fba7-eea1-65d6746bb957@redhat.com>
+References: <1490069087-4783-1-git-send-email-jasowang@redhat.com>
+	<1490069087-4783-2-git-send-email-jasowang@redhat.com>
+	<20170322153638-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="------------F6912386D4376D92DD7F5C55"
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <43ffa887-a20d-f836-cba8-11196924d82d@redhat.com>
+In-Reply-To: <20170322153638-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,149 +19,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Laura Abbott <labbott@redhat.com>, Christoph Hellwig <hch@lst.de>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format.
---------------F6912386D4376D92DD7F5C55
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-
-
-
-On 2017年03月23日 08:30, Laura Abbott wrote:
-> Hi,
->
-> Fedora has received multiple reports of crashes when running
-> 4.11 as a guest
->
-> https://bugzilla.redhat.com/show_bug.cgi?id=1430297
-> https://bugzilla.redhat.com/show_bug.cgi?id=1434462
-> https://bugzilla.kernel.org/show_bug.cgi?id=194911
-> https://bugzilla.redhat.com/show_bug.cgi?id=1433899
->
-> The crashes are not always consistent but they are generally
-> some flavor of oops or GPF in virtio related code. Multiple people
-> have done bisections (Thank you Thorsten Leemhuis and
-> Richard W.M. Jones) and found this commit to be at fault
->
-> 07ec51480b5eb1233f8c1b0f5d7a7c8d1247c507 is the first bad commit
-> commit 07ec51480b5eb1233f8c1b0f5d7a7c8d1247c507
-> Author: Christoph Hellwig <hch@lst.de>
-> Date:   Sun Feb 5 18:15:19 2017 +0100
->
->      virtio_pci: use shared interrupts for virtqueues
->      
->      This lets IRQ layer handle dispatching IRQs to separate handlers for the
->      case where we don't have per-VQ MSI-X vectors, and allows us to greatly
->      simplify the code based on the assumption that we always have interrupt
->      vector 0 (legacy INTx or config interrupt for MSI-X) available, and
->      any other interrupt is request/freed throught the VQ, even if the
->      actual interrupt line might be shared in some cases.
->      
->      This allows removing a great deal of variables keeping track of the
->      interrupt state in struct virtio_pci_device, as we can now simply walk the
->      list of VQs and deal with per-VQ interrupt handlers there, and only treat
->      vector 0 special.
->      
->      Additionally clean up the VQ allocation code to properly unwind on error
->      instead of having a single global cleanup label, which is error prone,
->      and in this case also leads to more code.
->      
->      Signed-off-by: Christoph Hellwig <hch@lst.de>
->      Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->
-> :040000 040000 79a8267ffb73f9d244267c5f68365305bddd4696 8832a160b978710bbd24ba6966f462b3faa27fcc M	drivers
->
-> It doesn't revert cleanly so we haven't been able to do a clean
-> test. Any ideas?
->
-> Thanks,
-> Laura
-
-Hello:
-
-Can you try the attached patch to see if it solves the problem? (At 
-least it silent KASan warnings for me).
-
-Thanks
-
-
-
---------------F6912386D4376D92DD7F5C55
-Content-Type: text/x-patch;
- name="0001-virtio_pci-fix-out-of-bound-access-for-msix_names.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename*0="0001-virtio_pci-fix-out-of-bound-access-for-msix_names.patch"
-
-From 312859b596e83a2164a8430343d31fce2a5ad808 Mon Sep 17 00:00:00 2001
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 23 Mar 2017 13:07:16 +0800
-Subject: [PATCH] virtio_pci: fix out of bound access for msix_names
-
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/virtio/virtio_pci_common.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index df548a6..5905349 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -147,7 +147,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	const char *name = dev_name(&vp_dev->vdev.dev);
--	int i, err = -ENOMEM, allocated_vectors, nvectors;
-+	int i, j, err = -ENOMEM, allocated_vectors, nvectors;
- 	unsigned flags = PCI_IRQ_MSIX;
- 	bool shared = false;
- 	u16 msix_vec;
-@@ -212,7 +212,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
- 	if (!vp_dev->msix_vector_map)
- 		goto out_disable_config_irq;
- 
--	allocated_vectors = 1; /* vector 0 is the config interrupt */
-+	allocated_vectors = j = 1; /* vector 0 is the config interrupt */
- 	for (i = 0; i < nvqs; ++i) {
- 		if (!names[i]) {
- 			vqs[i] = NULL;
-@@ -236,18 +236,19 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
- 			continue;
- 		}
- 
--		snprintf(vp_dev->msix_names[i + 1],
-+		snprintf(vp_dev->msix_names[j],
- 			 sizeof(*vp_dev->msix_names), "%s-%s",
- 			 dev_name(&vp_dev->vdev.dev), names[i]);
- 		err = request_irq(pci_irq_vector(vp_dev->pci_dev, msix_vec),
- 				  vring_interrupt, IRQF_SHARED,
--				  vp_dev->msix_names[i + 1], vqs[i]);
-+				  vp_dev->msix_names[j], vqs[i]);
- 		if (err) {
- 			/* don't free this irq on error */
- 			vp_dev->msix_vector_map[i] = VIRTIO_MSI_NO_VECTOR;
- 			goto out_remove_vqs;
- 		}
- 		vp_dev->msix_vector_map[i] = msix_vec;
-+		j++;
- 
- 		/*
- 		 * Use a different vector for each queue if they are available,
--- 
-2.7.4
-
-
---------------F6912386D4376D92DD7F5C55
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---------------F6912386D4376D92DD7F5C55--
+CgpPbiAyMDE35bm0MDPmnIgyMuaXpSAyMTo0MywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIFR1ZSwgTWFyIDIxLCAyMDE3IGF0IDEyOjA0OjQwUE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4+
+IC0tLQo+PiAgIGluY2x1ZGUvbGludXgvcHRyX3JpbmcuaCB8IDY1ICsrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKwo+PiAgIDEgZmlsZSBjaGFuZ2VkLCA2NSBp
+bnNlcnRpb25zKCspCj4+Cj4+IGRpZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4L3B0cl9yaW5nLmgg
+Yi9pbmNsdWRlL2xpbnV4L3B0cl9yaW5nLmgKPj4gaW5kZXggNmM3MDQ0NC4uNDc3MWRlZCAxMDA2
+NDQKPj4gLS0tIGEvaW5jbHVkZS9saW51eC9wdHJfcmluZy5oCj4+ICsrKyBiL2luY2x1ZGUvbGlu
+dXgvcHRyX3JpbmcuaAo+PiBAQCAtMjQ3LDYgKzI0NywyMiBAQCBzdGF0aWMgaW5saW5lIHZvaWQg
+Kl9fcHRyX3JpbmdfY29uc3VtZShzdHJ1Y3QgcHRyX3JpbmcgKnIpCj4+ICAgCXJldHVybiBwdHI7
+Cj4+ICAgfQo+PiAgIAo+PiArc3RhdGljIGlubGluZSBpbnQgX19wdHJfcmluZ19jb25zdW1lX2Jh
+dGNoZWQoc3RydWN0IHB0cl9yaW5nICpyLAo+PiArCQkJCQkgICAgIHZvaWQgKiphcnJheSwgaW50
+IG4pCj4+ICt7Cj4+ICsJdm9pZCAqcHRyOwo+PiArCWludCBpID0gMDsKPj4gKwo+PiArCXdoaWxl
+IChpIDwgbikgewo+PiArCQlwdHIgPSBfX3B0cl9yaW5nX2NvbnN1bWUocik7Cj4+ICsJCWlmICgh
+cHRyKQo+PiArCQkJYnJlYWs7Cj4+ICsJCWFycmF5W2krK10gPSBwdHI7Cj4+ICsJfQo+PiArCj4+
+ICsJcmV0dXJuIGk7Cj4+ICt9Cj4+ICsKPj4gICAvKgo+PiAgICAqIE5vdGU6IHJlc2l6ZSAoYmVs
+b3cpIG5lc3RzIHByb2R1Y2VyIGxvY2sgd2l0aGluIGNvbnN1bWVyIGxvY2ssIHNvIGlmIHlvdQo+
+PiAgICAqIGNhbGwgdGhpcyBpbiBpbnRlcnJ1cHQgb3IgQkggY29udGV4dCwgeW91IG11c3QgZGlz
+YWJsZSBpbnRlcnJ1cHRzL0JIIHdoZW4KPgo+IFRoaXMgaWdub3JlcyB0aGUgY29tbWVudCBhYm92
+ZSB0aGF0IGZ1bmN0aW9uOgo+Cj4gLyogTm90ZTogY2FsbGVycyBpbnZva2luZyB0aGlzIGluIGEg
+bG9vcCBtdXN0IHVzZSBhIGNvbXBpbGVyIGJhcnJpZXIsCj4gICAqIGZvciBleGFtcGxlIGNwdV9y
+ZWxheCgpLgo+ICAgKi8KClllcywgX19wdHJfcmluZ19zd2FwX3F1ZXVlKCkgaWdub3JlcyB0aGlz
+IHRvby4KCj4KPiBBbHNvIC0gaXQgbG9va3MgbGlrZSBpdCBzaG91bGRuJ3QgbWF0dGVyIGlmIHJl
+YWRzIGFyZSByZW9yZGVyZWQgYnV0IEkgd29uZGVyLgo+IFRob3VnaHRzPyBJbmNsdWRpbmcgc29t
+ZSByZWFzb25pbmcgYWJvdXQgaXQgaW4gY29tbWl0IGxvZyB3b3VsZCBiZSBuaWNlLgoKWWVzLCBJ
+IHRoaW5rIGl0IGRvZXNuJ3QgbWF0dGVyIGluIHRoaXMgY2FzZSwgaXQgbWF0dGVycyBvbmx5IGZv
+ciBiYXRjaGVkIApwcm9kdWNpbmcuCgpUaGFua3MKCj4KPj4gQEAgLTI5Nyw2ICszMTMsNTUgQEAg
+c3RhdGljIGlubGluZSB2b2lkICpwdHJfcmluZ19jb25zdW1lX2JoKHN0cnVjdCBwdHJfcmluZyAq
+cikKPj4gICAJcmV0dXJuIHB0cjsKPj4gICB9Cj4+ICAgCj4+ICtzdGF0aWMgaW5saW5lIGludCBw
+dHJfcmluZ19jb25zdW1lX2JhdGNoZWQoc3RydWN0IHB0cl9yaW5nICpyLAo+PiArCQkJCQkgICB2
+b2lkICoqYXJyYXksIGludCBuKQo+PiArewo+PiArCWludCByZXQ7Cj4+ICsKPj4gKwlzcGluX2xv
+Y2soJnItPmNvbnN1bWVyX2xvY2spOwo+PiArCXJldCA9IF9fcHRyX3JpbmdfY29uc3VtZV9iYXRj
+aGVkKHIsIGFycmF5LCBuKTsKPj4gKwlzcGluX3VubG9jaygmci0+Y29uc3VtZXJfbG9jayk7Cj4+
+ICsKPj4gKwlyZXR1cm4gcmV0Owo+PiArfQo+PiArCj4+ICtzdGF0aWMgaW5saW5lIGludCBwdHJf
+cmluZ19jb25zdW1lX2JhdGNoZWRfaXJxKHN0cnVjdCBwdHJfcmluZyAqciwKPj4gKwkJCQkJICAg
+ICAgIHZvaWQgKiphcnJheSwgaW50IG4pCj4+ICt7Cj4+ICsJaW50IHJldDsKPj4gKwo+PiArCXNw
+aW5fbG9ja19pcnEoJnItPmNvbnN1bWVyX2xvY2spOwo+PiArCXJldCA9IF9fcHRyX3JpbmdfY29u
+c3VtZV9iYXRjaGVkKHIsIGFycmF5LCBuKTsKPj4gKwlzcGluX3VubG9ja19pcnEoJnItPmNvbnN1
+bWVyX2xvY2spOwo+PiArCj4+ICsJcmV0dXJuIHJldDsKPj4gK30KPj4gKwo+PiArc3RhdGljIGlu
+bGluZSBpbnQgcHRyX3JpbmdfY29uc3VtZV9iYXRjaGVkX2FueShzdHJ1Y3QgcHRyX3JpbmcgKnIs
+Cj4+ICsJCQkJCSAgICAgICB2b2lkICoqYXJyYXksIGludCBuKQo+PiArewo+PiArCXVuc2lnbmVk
+IGxvbmcgZmxhZ3M7Cj4+ICsJaW50IHJldDsKPj4gKwo+PiArCXNwaW5fbG9ja19pcnFzYXZlKCZy
+LT5jb25zdW1lcl9sb2NrLCBmbGFncyk7Cj4+ICsJcmV0ID0gX19wdHJfcmluZ19jb25zdW1lX2Jh
+dGNoZWQociwgYXJyYXksIG4pOwo+PiArCXNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJnItPmNvbnN1
+bWVyX2xvY2ssIGZsYWdzKTsKPj4gKwo+PiArCXJldHVybiByZXQ7Cj4+ICt9Cj4+ICsKPj4gK3N0
+YXRpYyBpbmxpbmUgaW50IHB0cl9yaW5nX2NvbnN1bWVfYmF0Y2hlZF9iaChzdHJ1Y3QgcHRyX3Jp
+bmcgKnIsCj4+ICsJCQkJCSAgICAgIHZvaWQgKiphcnJheSwgaW50IG4pCj4+ICt7Cj4+ICsJaW50
+IHJldDsKPj4gKwo+PiArCXNwaW5fbG9ja19iaCgmci0+Y29uc3VtZXJfbG9jayk7Cj4+ICsJcmV0
+ID0gX19wdHJfcmluZ19jb25zdW1lX2JhdGNoZWQociwgYXJyYXksIG4pOwo+PiArCXNwaW5fdW5s
+b2NrX2JoKCZyLT5jb25zdW1lcl9sb2NrKTsKPj4gKwo+PiArCXJldHVybiByZXQ7Cj4+ICt9Cj4+
+ICsKPj4gICAvKiBDYXN0IHRvIHN0cnVjdHVyZSB0eXBlIGFuZCBjYWxsIGEgZnVuY3Rpb24gd2l0
+aG91dCBkaXNjYXJkaW5nIGZyb20gRklGTy4KPj4gICAgKiBGdW5jdGlvbiBtdXN0IHJldHVybiBh
+IHZhbHVlLgo+PiAgICAqIENhbGxlcnMgbXVzdCB0YWtlIGNvbnN1bWVyX2xvY2suCj4+IC0tIAo+
+PiAyLjcuNAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
+VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
+dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL3ZpcnR1YWxpemF0aW9u
