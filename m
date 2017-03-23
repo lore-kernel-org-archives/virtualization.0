@@ -1,13 +1,17 @@
-From: "Denis V. Lunev" <den@openvz.org>
-Subject: Re: [PATCH] virtio_balloon: prevent uninitialized variable use
-Date: Thu, 23 Mar 2017 18:31:40 +0300
-Message-ID: <5da3f4ca-4812-18d4-8c89-b8e324dc9519@openvz.org>
-References: <20170323151728.679684-1-arnd@arndb.de>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [REGRESSION] 07ec51480b5e ("virtio_pci: use shared interrupts
+	for virtqueues") causes crashes in guest
+Date: Thu, 23 Mar 2017 18:41:56 +0200
+Message-ID: <20170323184143-mutt-send-email-mst@kernel.org>
+References: <43ffa887-a20d-f836-cba8-11196924d82d@redhat.com>
+	<e042635f-e30e-45e8-f4a5-b03b9228eec2@redhat.com>
+	<20170323151906.GA19376@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170323151728.679684-1-arnd@arndb.de>
+Content-Disposition: inline
+In-Reply-To: <20170323151906.GA19376@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,50 +21,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: Yisheng Xie <xieyisheng1@huawei.com>, Konstantin Neumoin <kneumoin@virtuozzo.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
+To: "Richard W.M. Jones" <rjones@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Thorsten Leemhuis <linux@leemhuis.info>, virtualization@lists.linux-foundation.org, Laura Abbott <labbott@redhat.com>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/23/2017 06:17 PM, Arnd Bergmann wrote:
-> The latest gcc-7.0.1 snapshot reports a new warning:
->
-> virtio/virtio_balloon.c: In function 'update_balloon_stats':
-> virtio/virtio_balloon.c:258:26: error: 'events[2]' is used uninitialized in this function [-Werror=uninitialized]
-> virtio/virtio_balloon.c:260:26: error: 'events[3]' is used uninitialized in this function [-Werror=uninitialized]
-> virtio/virtio_balloon.c:261:56: error: 'events[18]' is used uninitialized in this function [-Werror=uninitialized]
-> virtio/virtio_balloon.c:262:56: error: 'events[17]' is used uninitialized in this function [-Werror=uninitialized]
->
-> This seems absolutely right, so we should add an extra check to
-> prevent copying uninitialized stack data into the statistics.
-> From all I can tell, this has been broken since the statistics code
-> was originally added in 2.6.34.
->
-> Fixes: 9564e138b1f6 ("virtio: Add memory statistics reporting to the balloon driver (V4)")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Denis V. Lunev <den@openvz.org>
+On Thu, Mar 23, 2017 at 03:19:07PM +0000, Richard W.M. Jones wrote:
+> On Thu, Mar 23, 2017 at 01:13:50PM +0800, Jason Wang wrote:
+> > >From 312859b596e83a2164a8430343d31fce2a5ad808 Mon Sep 17 00:00:00 2001
+> > From: Jason Wang <jasowang@redhat.com>
+> > Date: Thu, 23 Mar 2017 13:07:16 +0800
+> > Subject: [PATCH] virtio_pci: fix out of bound access for msix_names
+> > 
+> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> 
+> I tested this, and it does appear to fix the crashes in
+> vp_modern_find_vqs.  Therefore:
+> 
+> Tested-by: Richard W.M. Jones <rjones@redhat.com>
+> 
+> Thanks,
+> 
+> Rich.
 
+I've queued the fix, thanks everyone!
 
-
-> ---
->  drivers/virtio/virtio_balloon.c | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 4e1191508228..cd5c54e2003d 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -254,12 +254,14 @@ static void update_balloon_stats(struct virtio_balloon *vb)
->  
->  	available = si_mem_available();
->  
-> +#ifdef CONFIG_VM_EVENT_COUNTERS
->  	update_stat(vb, idx++, VIRTIO_BALLOON_S_SWAP_IN,
->  				pages_to_bytes(events[PSWPIN]));
->  	update_stat(vb, idx++, VIRTIO_BALLOON_S_SWAP_OUT,
->  				pages_to_bytes(events[PSWPOUT]));
->  	update_stat(vb, idx++, VIRTIO_BALLOON_S_MAJFLT, events[PGMAJFAULT]);
->  	update_stat(vb, idx++, VIRTIO_BALLOON_S_MINFLT, events[PGFAULT]);
-> +#endif
->  	update_stat(vb, idx++, VIRTIO_BALLOON_S_MEMFREE,
->  				pages_to_bytes(i.freeram));
->  	update_stat(vb, idx++, VIRTIO_BALLOON_S_MEMTOT,
+> >  drivers/virtio/virtio_pci_common.c | 9 +++++----
+> >  1 file changed, 5 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+> > index df548a6..5905349 100644
+> > --- a/drivers/virtio/virtio_pci_common.c
+> > +++ b/drivers/virtio/virtio_pci_common.c
+> > @@ -147,7 +147,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
+> >  {
+> >  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+> >  	const char *name = dev_name(&vp_dev->vdev.dev);
+> > -	int i, err = -ENOMEM, allocated_vectors, nvectors;
+> > +	int i, j, err = -ENOMEM, allocated_vectors, nvectors;
+> >  	unsigned flags = PCI_IRQ_MSIX;
+> >  	bool shared = false;
+> >  	u16 msix_vec;
+> > @@ -212,7 +212,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
+> >  	if (!vp_dev->msix_vector_map)
+> >  		goto out_disable_config_irq;
+> >  
+> > -	allocated_vectors = 1; /* vector 0 is the config interrupt */
+> > +	allocated_vectors = j = 1; /* vector 0 is the config interrupt */
+> >  	for (i = 0; i < nvqs; ++i) {
+> >  		if (!names[i]) {
+> >  			vqs[i] = NULL;
+> > @@ -236,18 +236,19 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
+> >  			continue;
+> >  		}
+> >  
+> > -		snprintf(vp_dev->msix_names[i + 1],
+> > +		snprintf(vp_dev->msix_names[j],
+> >  			 sizeof(*vp_dev->msix_names), "%s-%s",
+> >  			 dev_name(&vp_dev->vdev.dev), names[i]);
+> >  		err = request_irq(pci_irq_vector(vp_dev->pci_dev, msix_vec),
+> >  				  vring_interrupt, IRQF_SHARED,
+> > -				  vp_dev->msix_names[i + 1], vqs[i]);
+> > +				  vp_dev->msix_names[j], vqs[i]);
+> >  		if (err) {
+> >  			/* don't free this irq on error */
+> >  			vp_dev->msix_vector_map[i] = VIRTIO_MSI_NO_VECTOR;
+> >  			goto out_remove_vqs;
+> >  		}
+> >  		vp_dev->msix_vector_map[i] = msix_vec;
+> > +		j++;
+> >  
+> >  		/*
+> >  		 * Use a different vector for each queue if they are available,
+> > -- 
+> > 2.7.4
+> > 
+> 
+> 
+> -- 
+> Richard Jones, Virtualization Group, Red Hat http://people.redhat.com/~rjones
+> Read my programming and virtualization blog: http://rwmj.wordpress.com
+> virt-builder quickly builds VMs from scratch
+> http://libguestfs.org/virt-builder.1.html
