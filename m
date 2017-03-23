@@ -1,17 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [REGRESSION] 07ec51480b5e ("virtio_pci: use shared interrupts
-	for virtqueues") causes crashes in guest
-Date: Thu, 23 Mar 2017 18:41:56 +0200
-Message-ID: <20170323184143-mutt-send-email-mst@kernel.org>
-References: <43ffa887-a20d-f836-cba8-11196924d82d@redhat.com>
-	<e042635f-e30e-45e8-f4a5-b03b9228eec2@redhat.com>
-	<20170323151906.GA19376@redhat.com>
+Subject: Re: [PATCH v2] virtio_balloon: don't push uninitialized buffers to
+	stats virtqueue
+Date: Thu, 23 Mar 2017 18:51:46 +0200
+Message-ID: <20170323185033-mutt-send-email-mst@kernel.org>
+References: <1490252658-17893-1-git-send-email-lprosek@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20170323151906.GA19376@redhat.com>
+In-Reply-To: <1490252658-17893-1-git-send-email-lprosek@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,84 +19,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Richard W.M. Jones" <rjones@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Thorsten Leemhuis <linux@leemhuis.info>, virtualization@lists.linux-foundation.org, Laura Abbott <labbott@redhat.com>, Christoph Hellwig <hch@lst.de>
+To: Ladi Prosek <lprosek@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 23, 2017 at 03:19:07PM +0000, Richard W.M. Jones wrote:
-> On Thu, Mar 23, 2017 at 01:13:50PM +0800, Jason Wang wrote:
-> > >From 312859b596e83a2164a8430343d31fce2a5ad808 Mon Sep 17 00:00:00 2001
-> > From: Jason Wang <jasowang@redhat.com>
-> > Date: Thu, 23 Mar 2017 13:07:16 +0800
-> > Subject: [PATCH] virtio_pci: fix out of bound access for msix_names
-> > 
-> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+On Thu, Mar 23, 2017 at 08:04:18AM +0100, Ladi Prosek wrote:
+> When init_vqs runs, virtio_balloon.stats is either uninitialized or
+> contains stale values. The host updates its state with garbage data
+> because it has no way of knowing that this is just a marker buffer
+> used for signaling.
 > 
-> I tested this, and it does appear to fix the crashes in
-> vp_modern_find_vqs.  Therefore:
+> This patch updates the stats before pushing the initial buffer.
+> An assertion is also added to update_balloon_stats to make sure
+> that all stats fields are initialized.
 > 
-> Tested-by: Richard W.M. Jones <rjones@redhat.com>
+> Alternative fixes:
+> * Push an empty buffer in init_vqs. Not easily done with the current
+>   virtio implementation and violates the spec "Driver MUST supply the
+>   same subset of statistics in all buffers submitted to the statsq".
+> * Push a buffer with invalid tags in init_vqs. Violates the same
+>   spec clause, plus "invalid tag" is not really defined.
 > 
-> Thanks,
+> Signed-off-by: Ladi Prosek <lprosek@redhat.com>
+> ---
 > 
-> Rich.
+> v1->v2:
+> 
+> * Call update_balloon_stats instead of filling the buffer with
+>   invalid tags.
+> * Add BUG_ON to update_balloon_stats to formalize the invariant that
+>   all slots in the buffer must be initialized.
+> 
+> 
+> Also, I just noticed this paragraph in the spec:
+> 
+> "When using the legacy interface, the device SHOULD ignore all values in
+> the first buffer in the statsq supplied by the driver after device
+> initialization. Note: Historically, drivers supplied an uninitialized
+> buffer in the first buffer."
+> 
+> So someone knew about this bug but didn't fix the Linux driver and also
+> didn't implement the SHOULD in QEMU. Makes me wonder if I'm missing
+> something here.
+> 
+> Thanks!
 
-I've queued the fix, thanks everyone!
+I would say let's fix QEMU as well.
 
-> >  drivers/virtio/virtio_pci_common.c | 9 +++++----
-> >  1 file changed, 5 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-> > index df548a6..5905349 100644
-> > --- a/drivers/virtio/virtio_pci_common.c
-> > +++ b/drivers/virtio/virtio_pci_common.c
-> > @@ -147,7 +147,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
-> >  {
-> >  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> >  	const char *name = dev_name(&vp_dev->vdev.dev);
-> > -	int i, err = -ENOMEM, allocated_vectors, nvectors;
-> > +	int i, j, err = -ENOMEM, allocated_vectors, nvectors;
-> >  	unsigned flags = PCI_IRQ_MSIX;
-> >  	bool shared = false;
-> >  	u16 msix_vec;
-> > @@ -212,7 +212,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
-> >  	if (!vp_dev->msix_vector_map)
-> >  		goto out_disable_config_irq;
-> >  
-> > -	allocated_vectors = 1; /* vector 0 is the config interrupt */
-> > +	allocated_vectors = j = 1; /* vector 0 is the config interrupt */
-> >  	for (i = 0; i < nvqs; ++i) {
-> >  		if (!names[i]) {
-> >  			vqs[i] = NULL;
-> > @@ -236,18 +236,19 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
-> >  			continue;
-> >  		}
-> >  
-> > -		snprintf(vp_dev->msix_names[i + 1],
-> > +		snprintf(vp_dev->msix_names[j],
-> >  			 sizeof(*vp_dev->msix_names), "%s-%s",
-> >  			 dev_name(&vp_dev->vdev.dev), names[i]);
-> >  		err = request_irq(pci_irq_vector(vp_dev->pci_dev, msix_vec),
-> >  				  vring_interrupt, IRQF_SHARED,
-> > -				  vp_dev->msix_names[i + 1], vqs[i]);
-> > +				  vp_dev->msix_names[j], vqs[i]);
-> >  		if (err) {
-> >  			/* don't free this irq on error */
-> >  			vp_dev->msix_vector_map[i] = VIRTIO_MSI_NO_VECTOR;
-> >  			goto out_remove_vqs;
-> >  		}
-> >  		vp_dev->msix_vector_map[i] = msix_vec;
-> > +		j++;
-> >  
-> >  		/*
-> >  		 * Use a different vector for each queue if they are available,
-> > -- 
-> > 2.7.4
-> > 
 > 
+>  drivers/virtio/virtio_balloon.c | 4 ++++
+>  1 file changed, 4 insertions(+)
 > 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 4e11915..42dc35f 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -266,6 +266,8 @@ static void update_balloon_stats(struct virtio_balloon *vb)
+>  				pages_to_bytes(i.totalram));
+>  	update_stat(vb, idx++, VIRTIO_BALLOON_S_AVAIL,
+>  				pages_to_bytes(available));
+> +
+> +	BUG_ON(idx < VIRTIO_BALLOON_S_NR);
+>  }
+>  
+>  /*
+> @@ -429,6 +431,8 @@ static int init_vqs(struct virtio_balloon *vb)
+>  		 * Prime this virtqueue with one buffer so the hypervisor can
+>  		 * use it to signal us later (it can't be broken yet!).
+>  		 */
+> +		update_balloon_stats(vb);
+> +
+>  		sg_init_one(&sg, vb->stats, sizeof vb->stats);
+>  		if (virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb, GFP_KERNEL)
+>  		    < 0)
 > -- 
-> Richard Jones, Virtualization Group, Red Hat http://people.redhat.com/~rjones
-> Read my programming and virtualization blog: http://rwmj.wordpress.com
-> virt-builder quickly builds VMs from scratch
-> http://libguestfs.org/virt-builder.1.html
+> 2.7.4
