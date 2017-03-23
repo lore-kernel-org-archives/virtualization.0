@@ -1,12 +1,16 @@
-From: Ladi Prosek <lprosek@redhat.com>
-Subject: [PATCH v2] virtio_balloon: don't push uninitialized buffers to stats
-	virtqueue
-Date: Thu, 23 Mar 2017 08:04:18 +0100
-Message-ID: <1490252658-17893-1-git-send-email-lprosek@redhat.com>
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [REGRESSION] 07ec51480b5e ("virtio_pci: use shared interrupts
+	for virtqueues") causes crashes in guest
+Date: Thu, 23 Mar 2017 15:22:15 +0100
+Message-ID: <20170323142215.GA30988@lst.de>
+References: <43ffa887-a20d-f836-cba8-11196924d82d@redhat.com>
+	<e042635f-e30e-45e8-f4a5-b03b9228eec2@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <e042635f-e30e-45e8-f4a5-b03b9228eec2@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,75 +20,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: mst@redhat.com
+To: Jason Wang <jasowang@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Laura Abbott <labbott@redhat.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When init_vqs runs, virtio_balloon.stats is either uninitialized or
-contains stale values. The host updates its state with garbage data
-because it has no way of knowing that this is just a marker buffer
-used for signaling.
-
-This patch updates the stats before pushing the initial buffer.
-An assertion is also added to update_balloon_stats to make sure
-that all stats fields are initialized.
-
-Alternative fixes:
-* Push an empty buffer in init_vqs. Not easily done with the current
-  virtio implementation and violates the spec "Driver MUST supply the
-  same subset of statistics in all buffers submitted to the statsq".
-* Push a buffer with invalid tags in init_vqs. Violates the same
-  spec clause, plus "invalid tag" is not really defined.
-
-Signed-off-by: Ladi Prosek <lprosek@redhat.com>
----
-
-v1->v2:
-
-* Call update_balloon_stats instead of filling the buffer with
-  invalid tags.
-* Add BUG_ON to update_balloon_stats to formalize the invariant that
-  all slots in the buffer must be initialized.
-
-
-Also, I just noticed this paragraph in the spec:
-
-"When using the legacy interface, the device SHOULD ignore all values in
-the first buffer in the statsq supplied by the driver after device
-initialization. Note: Historically, drivers supplied an uninitialized
-buffer in the first buffer."
-
-So someone knew about this bug but didn't fix the Linux driver and also
-didn't implement the SHOULD in QEMU. Makes me wonder if I'm missing
-something here.
-
-Thanks!
-
-
- drivers/virtio/virtio_balloon.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 4e11915..42dc35f 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -266,6 +266,8 @@ static void update_balloon_stats(struct virtio_balloon *vb)
- 				pages_to_bytes(i.totalram));
- 	update_stat(vb, idx++, VIRTIO_BALLOON_S_AVAIL,
- 				pages_to_bytes(available));
-+
-+	BUG_ON(idx < VIRTIO_BALLOON_S_NR);
- }
- 
- /*
-@@ -429,6 +431,8 @@ static int init_vqs(struct virtio_balloon *vb)
- 		 * Prime this virtqueue with one buffer so the hypervisor can
- 		 * use it to signal us later (it can't be broken yet!).
- 		 */
-+		update_balloon_stats(vb);
-+
- 		sg_init_one(&sg, vb->stats, sizeof vb->stats);
- 		if (virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb, GFP_KERNEL)
- 		    < 0)
--- 
-2.7.4
+T24gVGh1LCBNYXIgMjMsIDIwMTcgYXQgMDE6MTM6NTBQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPgo+Cj4gT24gMjAxN+W5tDAz5pyIMjPml6UgMDg6MzAsIExhdXJhIEFiYm90dCB3cm90ZToK
+Pj4gSGksCj4+Cj4+IEZlZG9yYSBoYXMgcmVjZWl2ZWQgbXVsdGlwbGUgcmVwb3J0cyBvZiBjcmFz
+aGVzIHdoZW4gcnVubmluZwo+PiA0LjExIGFzIGEgZ3Vlc3QKPj4KPj4gaHR0cHM6Ly9idWd6aWxs
+YS5yZWRoYXQuY29tL3Nob3dfYnVnLmNnaT9pZD0xNDMwMjk3Cj4+IGh0dHBzOi8vYnVnemlsbGEu
+cmVkaGF0LmNvbS9zaG93X2J1Zy5jZ2k/aWQ9MTQzNDQ2Mgo+PiBodHRwczovL2J1Z3ppbGxhLmtl
+cm5lbC5vcmcvc2hvd19idWcuY2dpP2lkPTE5NDkxMQo+PiBodHRwczovL2J1Z3ppbGxhLnJlZGhh
+dC5jb20vc2hvd19idWcuY2dpP2lkPTE0MzM4OTkKPj4KPj4gVGhlIGNyYXNoZXMgYXJlIG5vdCBh
+bHdheXMgY29uc2lzdGVudCBidXQgdGhleSBhcmUgZ2VuZXJhbGx5Cj4+IHNvbWUgZmxhdm9yIG9m
+IG9vcHMgb3IgR1BGIGluIHZpcnRpbyByZWxhdGVkIGNvZGUuIE11bHRpcGxlIHBlb3BsZQo+PiBo
+YXZlIGRvbmUgYmlzZWN0aW9ucyAoVGhhbmsgeW91IFRob3JzdGVuIExlZW1odWlzIGFuZAo+PiBS
+aWNoYXJkIFcuTS4gSm9uZXMpIGFuZCBmb3VuZCB0aGlzIGNvbW1pdCB0byBiZSBhdCBmYXVsdAo+
+Pgo+PiAwN2VjNTE0ODBiNWViMTIzM2Y4YzFiMGY1ZDdhN2M4ZDEyNDdjNTA3IGlzIHRoZSBmaXJz
+dCBiYWQgY29tbWl0Cj4+IGNvbW1pdCAwN2VjNTE0ODBiNWViMTIzM2Y4YzFiMGY1ZDdhN2M4ZDEy
+NDdjNTA3Cj4+IEF1dGhvcjogQ2hyaXN0b3BoIEhlbGx3aWcgPGhjaEBsc3QuZGU+Cj4+IERhdGU6
+ICAgU3VuIEZlYiA1IDE4OjE1OjE5IDIwMTcgKzAxMDAKPj4KPj4gICAgICB2aXJ0aW9fcGNpOiB1
+c2Ugc2hhcmVkIGludGVycnVwdHMgZm9yIHZpcnRxdWV1ZXMKPj4gICAgICAgICAgIFRoaXMgbGV0
+cyBJUlEgbGF5ZXIgaGFuZGxlIGRpc3BhdGNoaW5nIElSUXMgdG8gc2VwYXJhdGUgaGFuZGxlcnMg
+Cj4+IGZvciB0aGUKPj4gICAgICBjYXNlIHdoZXJlIHdlIGRvbid0IGhhdmUgcGVyLVZRIE1TSS1Y
+IHZlY3RvcnMsIGFuZCBhbGxvd3MgdXMgdG8gZ3JlYXRseQo+PiAgICAgIHNpbXBsaWZ5IHRoZSBj
+b2RlIGJhc2VkIG9uIHRoZSBhc3N1bXB0aW9uIHRoYXQgd2UgYWx3YXlzIGhhdmUgaW50ZXJydXB0
+Cj4+ICAgICAgdmVjdG9yIDAgKGxlZ2FjeSBJTlR4IG9yIGNvbmZpZyBpbnRlcnJ1cHQgZm9yIE1T
+SS1YKSBhdmFpbGFibGUsIGFuZAo+PiAgICAgIGFueSBvdGhlciBpbnRlcnJ1cHQgaXMgcmVxdWVz
+dC9mcmVlZCB0aHJvdWdodCB0aGUgVlEsIGV2ZW4gaWYgdGhlCj4+ICAgICAgYWN0dWFsIGludGVy
+cnVwdCBsaW5lIG1pZ2h0IGJlIHNoYXJlZCBpbiBzb21lIGNhc2VzLgo+PiAgICAgICAgICAgVGhp
+cyBhbGxvd3MgcmVtb3ZpbmcgYSBncmVhdCBkZWFsIG9mIHZhcmlhYmxlcyBrZWVwaW5nIHRyYWNr
+IG9mIAo+PiB0aGUKPj4gICAgICBpbnRlcnJ1cHQgc3RhdGUgaW4gc3RydWN0IHZpcnRpb19wY2lf
+ZGV2aWNlLCBhcyB3ZSBjYW4gbm93IHNpbXBseSB3YWxrIHRoZQo+PiAgICAgIGxpc3Qgb2YgVlFz
+IGFuZCBkZWFsIHdpdGggcGVyLVZRIGludGVycnVwdCBoYW5kbGVycyB0aGVyZSwgYW5kIG9ubHkg
+dHJlYXQKPj4gICAgICB2ZWN0b3IgMCBzcGVjaWFsLgo+PiAgICAgICAgICAgQWRkaXRpb25hbGx5
+IGNsZWFuIHVwIHRoZSBWUSBhbGxvY2F0aW9uIGNvZGUgdG8gcHJvcGVybHkgdW53aW5kIAo+PiBv
+biBlcnJvcgo+PiAgICAgIGluc3RlYWQgb2YgaGF2aW5nIGEgc2luZ2xlIGdsb2JhbCBjbGVhbnVw
+IGxhYmVsLCB3aGljaCBpcyBlcnJvciBwcm9uZSwKPj4gICAgICBhbmQgaW4gdGhpcyBjYXNlIGFs
+c28gbGVhZHMgdG8gbW9yZSBjb2RlLgo+PiAgICAgICAgICAgU2lnbmVkLW9mZi1ieTogQ2hyaXN0
+b3BoIEhlbGx3aWcgPGhjaEBsc3QuZGU+Cj4+ICAgICAgU2lnbmVkLW9mZi1ieTogTWljaGFlbCBT
+LiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4KPj4KPj4gOjA0MDAwMCAwNDAwMDAgNzlhODI2N2Zm
+YjczZjlkMjQ0MjY3YzVmNjgzNjUzMDViZGRkNDY5NiA4ODMyYTE2MGI5Nzg3MTBiYmQyNGJhNjk2
+NmY0NjJiM2ZhYTI3ZmNjIE0JZHJpdmVycwo+Pgo+PiBJdCBkb2Vzbid0IHJldmVydCBjbGVhbmx5
+IHNvIHdlIGhhdmVuJ3QgYmVlbiBhYmxlIHRvIGRvIGEgY2xlYW4KPj4gdGVzdC4gQW55IGlkZWFz
+Pwo+Pgo+PiBUaGFua3MsCj4+IExhdXJhCj4KPiBIZWxsbzoKPgo+IENhbiB5b3UgdHJ5IHRoZSBh
+dHRhY2hlZCBwYXRjaCB0byBzZWUgaWYgaXQgc29sdmVzIHRoZSBwcm9ibGVtPyAoQXQgbGVhc3Qg
+Cj4gaXQgc2lsZW50IEtBU2FuIHdhcm5pbmdzIGZvciBtZSkuCgpUaGlzIGxvb2tzIGxpa2UgYSBj
+b3JyZWN0IGZpeCB0byBtZSwgaW5kZXBlbmRlbnQgb2YgZml4aW5nIHRoZSBvcmlnaW5hbApidWcg
+b3Igbm90OgoKUmV2aWV3ZWQtYnk6IENocmlzdG9waCBIZWxsd2lnIDxoY2hAbHN0LmRlPgpfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
+biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
+aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
+bGl6YXRpb24=
