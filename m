@@ -1,17 +1,12 @@
-From: Ladi Prosek <lprosek@redhat.com>
-Subject: Re: [PATCH] virtio_balloon: don't push uninitialized buffers to stats
-	virtqueue
-Date: Wed, 22 Mar 2017 21:20:36 +0100
-Message-ID: <CABdb736HFvbcBfsqc8YYhK2yyU6DdmE2Kfy1WQCtNKhSTNmaGg@mail.gmail.com>
-References: <1490195427-25085-1-git-send-email-lprosek@redhat.com>
-	<20170322181424-mutt-send-email-mst@kernel.org>
-	<CABdb737CkqiJXDVU5J2S+Kbg2zht2XB-1ETsxZ_e95ViRfyDpA@mail.gmail.com>
-	<20170322190803-mutt-send-email-mst@kernel.org>
+From: Laura Abbott <labbott@redhat.com>
+Subject: [REGRESSION] 07ec51480b5e ("virtio_pci: use shared interrupts for
+	virtqueues") causes crashes in guest
+Date: Wed, 22 Mar 2017 17:30:27 -0700
+Message-ID: <43ffa887-a20d-f836-cba8-11196924d82d@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170322190803-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,85 +16,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Christoph Hellwig <hch@lst.de>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 22, 2017 at 6:15 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Wed, Mar 22, 2017 at 06:05:39PM +0100, Ladi Prosek wrote:
->> On Wed, Mar 22, 2017 at 5:14 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
->> > On Wed, Mar 22, 2017 at 04:10:27PM +0100, Ladi Prosek wrote:
->> >> When init_vqs runs, virtio_balloon.stats is either uninitialized or
->> >> contains stale values. The host updates its state with garbage data
->> >> because it has no way of knowing that this is just a marker buffer
->> >> used for signaling.
->> >>
->> >> This patch initializes all tags with U16_MAX which is guaranteed to
->> >> be ignored by the host.
->> >>
->> >> The alternative fix would be to push an empty buffer in init_vqs but
->> >> that's not easily done with the current virtio implementation and
->> >> would still not eliminate the invariant that update_balloon_stats
->> >> has to update all VIRTIO_BALLOON_S_NR fields.
->> >>
->> >> Signed-off-by: Ladi Prosek <lprosek@redhat.com>
->> >> ---
->> >>  drivers/virtio/virtio_balloon.c | 4 ++++
->> >>  1 file changed, 4 insertions(+)
->> >>
->> >> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
->> >> index 4e11915..d34f56f 100644
->> >> --- a/drivers/virtio/virtio_balloon.c
->> >> +++ b/drivers/virtio/virtio_balloon.c
->> >> @@ -423,12 +423,16 @@ static int init_vqs(struct virtio_balloon *vb)
->> >>       vb->deflate_vq = vqs[1];
->> >>       if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
->> >>               struct scatterlist sg;
->> >> +             int idx;
->> >>               vb->stats_vq = vqs[2];
->> >>
->> >>               /*
->> >>                * Prime this virtqueue with one buffer so the hypervisor can
->> >>                * use it to signal us later (it can't be broken yet!).
->> >>                */
->> >> +             for (idx = 0; idx < VIRTIO_BALLOON_S_NR; idx++)
->> >> +                     update_stat(vb, idx, U16_MAX, 0);
->> >> +
->> >
->> > Can't we fill in actual values?
->>
->> We can if we're fine with the unsolicited update.
->>
->> In QEMU, this would mean that you'll see valid stats in
->> /machine/peripheral/balloon0/guest-stats without setting the
->> guest-stats-polling-interval. And they would be updated on driver
->> (re-)load, so kind of arbitrarily from host pov.
->
-> IUC the only issue would be that someone might come to
-> depend on this. Doesn't look like a big deal to me.
+Hi,
 
-Ok, I'll post v2 of the patch to use actual values when sending the
-initial buffer.
+Fedora has received multiple reports of crashes when running
+4.11 as a guest
 
-Btw, I checked the Windows driver and it's been sending all FF's in
-the first stats buffer since about 2011. Just for completeness,
-probably won't change your mind :)
+https://bugzilla.redhat.com/show_bug.cgi?id=1430297
+https://bugzilla.redhat.com/show_bug.cgi?id=1434462
+https://bugzilla.kernel.org/show_bug.cgi?id=194911
+https://bugzilla.redhat.com/show_bug.cgi?id=1433899
 
-Thanks!
-Ladi
+The crashes are not always consistent but they are generally
+some flavor of oops or GPF in virtio related code. Multiple people
+have done bisections (Thank you Thorsten Leemhuis and 
+Richard W.M. Jones) and found this commit to be at fault
 
->> On the other hand, this patch does not really comply with (5.5.6.3.1
->> Driver Requirements: Memory Statistics):
->>
->> "Driver MUST supply the same subset of statistics in all buffers
->> submitted to the statsq."
->>
->> So going by the letter of the law, we should fill in actual values.
->> Going by the (the purpose of the initial buffer is to wait for the
->> host to request stats), we should push an empty buffer or invalid
->> values.
->> >>               sg_init_one(&sg, vb->stats, sizeof vb->stats);
->> >>               if (virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb, GFP_KERNEL)
->> >>                   < 0)
->> >> --
->> >> 2.7.4
+07ec51480b5eb1233f8c1b0f5d7a7c8d1247c507 is the first bad commit
+commit 07ec51480b5eb1233f8c1b0f5d7a7c8d1247c507
+Author: Christoph Hellwig <hch@lst.de>
+Date:   Sun Feb 5 18:15:19 2017 +0100
+
+    virtio_pci: use shared interrupts for virtqueues
+    
+    This lets IRQ layer handle dispatching IRQs to separate handlers for the
+    case where we don't have per-VQ MSI-X vectors, and allows us to greatly
+    simplify the code based on the assumption that we always have interrupt
+    vector 0 (legacy INTx or config interrupt for MSI-X) available, and
+    any other interrupt is request/freed throught the VQ, even if the
+    actual interrupt line might be shared in some cases.
+    
+    This allows removing a great deal of variables keeping track of the
+    interrupt state in struct virtio_pci_device, as we can now simply walk the
+    list of VQs and deal with per-VQ interrupt handlers there, and only treat
+    vector 0 special.
+    
+    Additionally clean up the VQ allocation code to properly unwind on error
+    instead of having a single global cleanup label, which is error prone,
+    and in this case also leads to more code.
+    
+    Signed-off-by: Christoph Hellwig <hch@lst.de>
+    Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+:040000 040000 79a8267ffb73f9d244267c5f68365305bddd4696 8832a160b978710bbd24ba6966f462b3faa27fcc M	drivers
+
+It doesn't revert cleanly so we haven't been able to do a clean
+test. Any ideas?
+
+Thanks,
+Laura
