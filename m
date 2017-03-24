@@ -1,15 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2] virtio_balloon: don't push uninitialized buffers to
-	stats virtqueue
-Date: Thu, 23 Mar 2017 18:51:46 +0200
-Message-ID: <20170323185033-mutt-send-email-mst@kernel.org>
-References: <1490252658-17893-1-git-send-email-lprosek@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH] virtio_balloon: prevent uninitialized variable use
+Date: Fri, 24 Mar 2017 19:38:46 +0100
+Message-ID: <de7e1bac-d5e9-a984-499f-6e7e0a48b78e@redhat.com>
+References: <20170323151728.679684-1-arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1490252658-17893-1-git-send-email-lprosek@redhat.com>
+In-Reply-To: <20170323151728.679684-1-arnd@arndb.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,78 +17,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ladi Prosek <lprosek@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: Yisheng Xie <xieyisheng1@huawei.com>, Konstantin Neumoin <kneumoin@virtuozzo.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Minchan Kim <minchan@kernel.org>, "Denis V. Lunev" <den@openvz.org>, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 23, 2017 at 08:04:18AM +0100, Ladi Prosek wrote:
-> When init_vqs runs, virtio_balloon.stats is either uninitialized or
-> contains stale values. The host updates its state with garbage data
-> because it has no way of knowing that this is just a marker buffer
-> used for signaling.
+On 23.03.2017 16:17, Arnd Bergmann wrote:
+> The latest gcc-7.0.1 snapshot reports a new warning:
 > 
-> This patch updates the stats before pushing the initial buffer.
-> An assertion is also added to update_balloon_stats to make sure
-> that all stats fields are initialized.
+> virtio/virtio_balloon.c: In function 'update_balloon_stats':
+> virtio/virtio_balloon.c:258:26: error: 'events[2]' is used uninitialized in this function [-Werror=uninitialized]
+> virtio/virtio_balloon.c:260:26: error: 'events[3]' is used uninitialized in this function [-Werror=uninitialized]
+> virtio/virtio_balloon.c:261:56: error: 'events[18]' is used uninitialized in this function [-Werror=uninitialized]
+> virtio/virtio_balloon.c:262:56: error: 'events[17]' is used uninitialized in this function [-Werror=uninitialized]
 > 
-> Alternative fixes:
-> * Push an empty buffer in init_vqs. Not easily done with the current
->   virtio implementation and violates the spec "Driver MUST supply the
->   same subset of statistics in all buffers submitted to the statsq".
-> * Push a buffer with invalid tags in init_vqs. Violates the same
->   spec clause, plus "invalid tag" is not really defined.
+> This seems absolutely right, so we should add an extra check to
+> prevent copying uninitialized stack data into the statistics.
+> From all I can tell, this has been broken since the statistics code
+> was originally added in 2.6.34.
 > 
-> Signed-off-by: Ladi Prosek <lprosek@redhat.com>
+> Fixes: 9564e138b1f6 ("virtio: Add memory statistics reporting to the balloon driver (V4)")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 > ---
-> 
-> v1->v2:
-> 
-> * Call update_balloon_stats instead of filling the buffer with
->   invalid tags.
-> * Add BUG_ON to update_balloon_stats to formalize the invariant that
->   all slots in the buffer must be initialized.
-> 
-> 
-> Also, I just noticed this paragraph in the spec:
-> 
-> "When using the legacy interface, the device SHOULD ignore all values in
-> the first buffer in the statsq supplied by the driver after device
-> initialization. Note: Historically, drivers supplied an uninitialized
-> buffer in the first buffer."
-> 
-> So someone knew about this bug but didn't fix the Linux driver and also
-> didn't implement the SHOULD in QEMU. Makes me wonder if I'm missing
-> something here.
-> 
-> Thanks!
-
-I would say let's fix QEMU as well.
-
-> 
->  drivers/virtio/virtio_balloon.c | 4 ++++
->  1 file changed, 4 insertions(+)
+>  drivers/virtio/virtio_balloon.c | 2 ++
+>  1 file changed, 2 insertions(+)
 > 
 > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 4e11915..42dc35f 100644
+> index 4e1191508228..cd5c54e2003d 100644
 > --- a/drivers/virtio/virtio_balloon.c
 > +++ b/drivers/virtio/virtio_balloon.c
-> @@ -266,6 +266,8 @@ static void update_balloon_stats(struct virtio_balloon *vb)
->  				pages_to_bytes(i.totalram));
->  	update_stat(vb, idx++, VIRTIO_BALLOON_S_AVAIL,
->  				pages_to_bytes(available));
-> +
-> +	BUG_ON(idx < VIRTIO_BALLOON_S_NR);
->  }
+> @@ -254,12 +254,14 @@ static void update_balloon_stats(struct virtio_balloon *vb)
 >  
->  /*
-> @@ -429,6 +431,8 @@ static int init_vqs(struct virtio_balloon *vb)
->  		 * Prime this virtqueue with one buffer so the hypervisor can
->  		 * use it to signal us later (it can't be broken yet!).
->  		 */
-> +		update_balloon_stats(vb);
-> +
->  		sg_init_one(&sg, vb->stats, sizeof vb->stats);
->  		if (virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb, GFP_KERNEL)
->  		    < 0)
-> -- 
-> 2.7.4
+>  	available = si_mem_available();
+>  
+> +#ifdef CONFIG_VM_EVENT_COUNTERS
+>  	update_stat(vb, idx++, VIRTIO_BALLOON_S_SWAP_IN,
+>  				pages_to_bytes(events[PSWPIN]));
+>  	update_stat(vb, idx++, VIRTIO_BALLOON_S_SWAP_OUT,
+>  				pages_to_bytes(events[PSWPOUT]));
+>  	update_stat(vb, idx++, VIRTIO_BALLOON_S_MAJFLT, events[PGMAJFAULT]);
+>  	update_stat(vb, idx++, VIRTIO_BALLOON_S_MINFLT, events[PGFAULT]);
+> +#endif
+>  	update_stat(vb, idx++, VIRTIO_BALLOON_S_MEMFREE,
+>  				pages_to_bytes(i.freeram));
+>  	update_stat(vb, idx++, VIRTIO_BALLOON_S_MEMTOT,
+> 
+
+CC'ing Ladi
+
+-- 
+
+Thanks,
+
+David
