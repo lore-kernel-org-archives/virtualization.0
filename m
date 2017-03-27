@@ -1,12 +1,17 @@
-From: Changpeng Liu <changpeng.liu@intel.com>
-Subject: [PATCH] virtio-blk: add DISCARD support to virtio-blk driver
-Date: Mon, 27 Mar 2017 08:24:42 +0000 (UTC)
-Message-ID: <1490690365-21109-1-git-send-email-changpeng.liu@intel.com>
+From: Ladi Prosek <lprosek@redhat.com>
+Subject: Re: [PATCH] virtio_balloon: prevent uninitialized variable use
+Date: Mon, 27 Mar 2017 12:02:33 +0200
+Message-ID: <CABdb735cQ4KdW=4SuG+wZzcF7ApGbfO+vnFss2Vogp0X=g+PJA@mail.gmail.com>
+References: <20170323151728.679684-1-arnd@arndb.de>
+	<de7e1bac-d5e9-a984-499f-6e7e0a48b78e@redhat.com>
+	<CABdb737ghQYPjc3qNXwfcfcsin=j1BaRGyQTM7XwftCTsXbz9A@mail.gmail.com>
+	<CAK8P3a3v8P4p3QYOVPkKK+XT1-ivRhzoJw-=VFvFaFW1Fa2Asg@mail.gmail.com>
+	<20170324235900-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Date: Tue, 28 Mar 2017 16:39:25 +0800
+In-Reply-To: <20170324235900-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,142 +21,131 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, hch@lst.de
-Cc: qemu-devel@nongnu.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Yisheng Xie <xieyisheng1@huawei.com>, Arnd Bergmann <arnd@arndb.de>, Konstantin Neumoin <kneumoin@virtuozzo.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Minchan Kim <minchan@kernel.org>, "Denis V. Lunev" <den@openvz.org>, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Currently virtio-blk driver does not provide discard feature flag, so the
-filesystems which built on top of the block device will not send discard
-command. This is okay for HDD backend, but it will impact the performance
-for SSD backend.
+On Fri, Mar 24, 2017 at 9:59 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Fri, Mar 24, 2017 at 09:40:07PM +0100, Arnd Bergmann wrote:
+>> On Fri, Mar 24, 2017 at 9:11 PM, Ladi Prosek <lprosek@redhat.com> wrote:
+>> > On Fri, Mar 24, 2017 at 7:38 PM, David Hildenbrand <david@redhat.com> wrote:
+>> >> On 23.03.2017 16:17, Arnd Bergmann wrote:
+>> >>> The latest gcc-7.0.1 snapshot reports a new warning:
+>> >>>
+>> >>> virtio/virtio_balloon.c: In function 'update_balloon_stats':
+>> >>> virtio/virtio_balloon.c:258:26: error: 'events[2]' is used uninitialized in this function [-Werror=uninitialized]
+>> >>> virtio/virtio_balloon.c:260:26: error: 'events[3]' is used uninitialized in this function [-Werror=uninitialized]
+>> >>> virtio/virtio_balloon.c:261:56: error: 'events[18]' is used uninitialized in this function [-Werror=uninitialized]
+>> >>> virtio/virtio_balloon.c:262:56: error: 'events[17]' is used uninitialized in this function [-Werror=uninitialized]
+>> >>>
+>> >>> This seems absolutely right, so we should add an extra check to
+>> >>> prevent copying uninitialized stack data into the statistics.
+>> >>> From all I can tell, this has been broken since the statistics code
+>> >>> was originally added in 2.6.34.
+>> >>>
+>> >>> Fixes: 9564e138b1f6 ("virtio: Add memory statistics reporting to the balloon driver (V4)")
+>> >>> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+>> >>> ---
+>> >>>  drivers/virtio/virtio_balloon.c | 2 ++
+>> >>>  1 file changed, 2 insertions(+)
+>> >>>
+>> >>> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+>> >>> index 4e1191508228..cd5c54e2003d 100644
+>> >>> --- a/drivers/virtio/virtio_balloon.c
+>> >>> +++ b/drivers/virtio/virtio_balloon.c
+>> >>> @@ -254,12 +254,14 @@ static void update_balloon_stats(struct virtio_balloon *vb)
+>> >>>
+>> >>>       available = si_mem_available();
+>> >>>
+>> >>> +#ifdef CONFIG_VM_EVENT_COUNTERS
+>> >>>       update_stat(vb, idx++, VIRTIO_BALLOON_S_SWAP_IN,
+>> >>>                               pages_to_bytes(events[PSWPIN]));
+>> >>>       update_stat(vb, idx++, VIRTIO_BALLOON_S_SWAP_OUT,
+>> >>>                               pages_to_bytes(events[PSWPOUT]));
+>> >>>       update_stat(vb, idx++, VIRTIO_BALLOON_S_MAJFLT, events[PGMAJFAULT]);
+>> >>>       update_stat(vb, idx++, VIRTIO_BALLOON_S_MINFLT, events[PGFAULT]);
+>> >>> +#endif
+>> >>>       update_stat(vb, idx++, VIRTIO_BALLOON_S_MEMFREE,
+>> >>>                               pages_to_bytes(i.freeram));
+>> >>>       update_stat(vb, idx++, VIRTIO_BALLOON_S_MEMTOT,
+>> >
+>> > This will leave four uninitialized slots in vb->stats if
+>> > CONFIG_VM_EVENT_COUNTERS is not defined. update_balloon_stats should
+>> > have
+>> >
+>> >   BUG_ON(idx < VIRTIO_BALLOON_S_NR);
+>> >
+>> > at the end.
+>> >
+>> > You need to make sure that vb->stats is smaller, either by using
+>> > something else than VIRTIO_BALLOON_S_NR for its size or something else
+>> > than sizeof(vb->stats) as the last argument to sg_init_one in this
+>> > file.
+>>
+>> Ah, got it. Would one of you create a fixed patch for this, or should I?
 
-Add a feature flag VIRTIO_BLK_F_DISCARD and command VIRTIO_BLK_T_DISCARD
-to extend exist virtio-blk protocol. virtio-blk protocol uses a single
-8 bytes descriptor containing type,reserved and sector, currently Linux
-uses the reserved field as IO priority, here we also re-use the reserved
-field as number of discard sectors.
+I will do it. If we go the route of returning 'idx' from
+update_balloon_stats, my patch
 
-Signed-off-by: Changpeng Liu <changpeng.liu@intel.com>
----
- drivers/block/virtio_blk.c      | 38 +++++++++++++++++++++++++++++---------
- include/uapi/linux/virtio_blk.h | 12 ++++++++++--
- 2 files changed, 39 insertions(+), 11 deletions(-)
+   virtio_balloon: don't push uninitialized buffers to stats virtqueue
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 1d4c9f8..550cfe7 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -241,6 +241,9 @@ static int virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
- 	case REQ_OP_FLUSH:
- 		type = VIRTIO_BLK_T_FLUSH;
- 		break;
-+	case REQ_OP_DISCARD:
-+		type = VIRTIO_BLK_T_DISCARD;
-+		break;
- 	case REQ_OP_SCSI_IN:
- 	case REQ_OP_SCSI_OUT:
- 		type = VIRTIO_BLK_T_SCSI_CMD;
-@@ -256,16 +259,24 @@ static int virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
- 	vbr->out_hdr.type = cpu_to_virtio32(vblk->vdev, type);
- 	vbr->out_hdr.sector = type ?
- 		0 : cpu_to_virtio64(vblk->vdev, blk_rq_pos(req));
--	vbr->out_hdr.ioprio = cpu_to_virtio32(vblk->vdev, req_get_ioprio(req));
-+	vbr->out_hdr.u.ioprio = cpu_to_virtio32(vblk->vdev, req_get_ioprio(req));
- 
- 	blk_mq_start_request(req);
- 
--	num = blk_rq_map_sg(hctx->queue, req, vbr->sg);
--	if (num) {
--		if (rq_data_dir(req) == WRITE)
--			vbr->out_hdr.type |= cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_OUT);
--		else
--			vbr->out_hdr.type |= cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_IN);
-+	if (type == VIRTIO_BLK_T_DISCARD) {
-+		vbr->out_hdr.u.discard_nr_sectors = cpu_to_virtio32(vblk->vdev,
-+								    blk_rq_sectors(req));
-+		num = 0;
-+	} else {
-+		num = blk_rq_map_sg(hctx->queue, req, vbr->sg);
-+		if (num) {
-+			if (rq_data_dir(req) == WRITE)
-+				vbr->out_hdr.type |= cpu_to_virtio32(vblk->vdev,
-+								     VIRTIO_BLK_T_OUT);
-+			else
-+				vbr->out_hdr.type |= cpu_to_virtio32(vblk->vdev,
-+								     VIRTIO_BLK_T_IN);
-+		}
- 	}
- 
- 	spin_lock_irqsave(&vblk->vqs[qid].lock, flags);
-@@ -775,6 +786,15 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	if (!err && opt_io_size)
- 		blk_queue_io_opt(q, blk_size * opt_io_size);
- 
-+	if (virtio_has_feature(vdev, VIRTIO_BLK_F_DISCARD)) {
-+		q->limits.discard_zeroes_data = 0;
-+		q->limits.discard_alignment = blk_size;
-+		q->limits.discard_granularity = blk_size;
-+		blk_queue_max_discard_sectors(q, UINT_MAX);
-+		blk_queue_max_discard_segments(q, 1);
-+		queue_flag_set_unlocked(QUEUE_FLAG_DISCARD, q);
-+	}
-+
- 	virtio_device_ready(vdev);
- 
- 	device_add_disk(&vdev->dev, vblk->disk);
-@@ -882,14 +902,14 @@ static int virtblk_restore(struct virtio_device *vdev)
- 	VIRTIO_BLK_F_SCSI,
- #endif
- 	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
--	VIRTIO_BLK_F_MQ,
-+	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD,
- }
- ;
- static unsigned int features[] = {
- 	VIRTIO_BLK_F_SEG_MAX, VIRTIO_BLK_F_SIZE_MAX, VIRTIO_BLK_F_GEOMETRY,
- 	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
- 	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
--	VIRTIO_BLK_F_MQ,
-+	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD,
- };
- 
- static struct virtio_driver virtio_blk = {
-diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux/virtio_blk.h
-index 9ebe4d9..d608649 100644
---- a/include/uapi/linux/virtio_blk.h
-+++ b/include/uapi/linux/virtio_blk.h
-@@ -38,6 +38,7 @@
- #define VIRTIO_BLK_F_BLK_SIZE	6	/* Block size of disk is available*/
- #define VIRTIO_BLK_F_TOPOLOGY	10	/* Topology information is available */
- #define VIRTIO_BLK_F_MQ		12	/* support more than one vq */
-+#define VIRTIO_BLK_F_DISCARD	13	/* DISCARD command is supported */
- 
- /* Legacy feature bits */
- #ifndef VIRTIO_BLK_NO_LEGACY
-@@ -114,6 +115,9 @@ struct virtio_blk_config {
- /* Get device ID command */
- #define VIRTIO_BLK_T_GET_ID    8
- 
-+/* Discard command */
-+#define VIRTIO_BLK_T_DISCARD	16
-+
- #ifndef VIRTIO_BLK_NO_LEGACY
- /* Barrier before this op. */
- #define VIRTIO_BLK_T_BARRIER	0x80000000
-@@ -127,8 +131,12 @@ struct virtio_blk_config {
- struct virtio_blk_outhdr {
- 	/* VIRTIO_BLK_T* */
- 	__virtio32 type;
--	/* io priority. */
--	__virtio32 ioprio;
-+	union {
-+		/* io priority. */
-+		__virtio32 ioprio;
-+		/* discard number of sectors */
-+		__virtio32 discard_nr_sectors;
-+	} u;
- 	/* Sector (ie. 512 byte offset) */
- 	__virtio64 sector;
- };
--- 
-1.9.3
+needs to be redone anyway. Thanks!
+
+>> An easy way to solve it would be to preinitialize the events array
+>> and return zeroes to the host, but I don't know if that's the right
+>> solution.
+>
+>
+> I think that's out of spec.
+>
+>> Another option would be to return 'idx' from update_balloon_stats,
+>> and use that for the size:
+>>
+>> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+>> index cd5c54e2003d..bea3cfb88e53 100644
+>> --- a/drivers/virtio/virtio_balloon.c
+>> +++ b/drivers/virtio/virtio_balloon.c
+>> @@ -242,7 +242,7 @@ static inline void update_stat(struct
+>> virtio_balloon *vb, int idx,
+>>
+>>  #define pages_to_bytes(x) ((u64)(x) << PAGE_SHIFT)
+>>
+>> -static void update_balloon_stats(struct virtio_balloon *vb)
+>> +static unsigned int update_balloon_stats(struct virtio_balloon *vb)
+>>  {
+>>   unsigned long events[NR_VM_EVENT_ITEMS];
+>>   struct sysinfo i;
+>> @@ -268,6 +268,8 @@ static void update_balloon_stats(struct virtio_balloon *vb)
+>>   pages_to_bytes(i.totalram));
+>>   update_stat(vb, idx++, VIRTIO_BALLOON_S_AVAIL,
+>>   pages_to_bytes(available));
+>> +
+>> + return idx;
+>>  }
+>>
+>>  /*
+>> @@ -294,13 +296,14 @@ static void stats_handle_request(struct
+>> virtio_balloon *vb)
+>>   struct virtqueue *vq;
+>>   struct scatterlist sg;
+>>   unsigned int len;
+>> + unsigned int num_stats;
+>>
+>> - update_balloon_stats(vb);
+>> + num_stats = update_balloon_stats(vb);
+>>
+>>   vq = vb->stats_vq;
+>>   if (!virtqueue_get_buf(vq, &len))
+>>   return;
+>> - sg_init_one(&sg, vb->stats, sizeof(vb->stats));
+>> + sg_init_one(&sg, vb->stats, sizeof(vb->stats[0] * num_stats));
+>>   virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+>>   virtqueue_kick(vq);
+>>  }
+>>
+>>      Arnd
+>
+> Sounds reasonable.
+>
+> --
+> MST
