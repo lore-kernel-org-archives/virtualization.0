@@ -1,12 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] vhost: fixes
-Date: Tue, 28 Mar 2017 21:32:50 +0300
-Message-ID: <20170328213250-mutt-send-email-mst@kernel.org>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v3 2/3] virtio-balloon: use actual number of stats for
+	stats queue buffers
+Date: Tue, 28 Mar 2017 22:33:55 +0200
+Message-ID: <CAK8P3a1RWU2un3AKDJkiSUZfk0n9e8SEz48RSxEb+6X5MVFWYQ@mail.gmail.com>
+References: <20170328164659.4311-1-lprosek@redhat.com>
+	<20170328164659.4311-3-lprosek@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20170328164659.4311-3-lprosek@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,42 +19,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, arnd@arndb.de, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, linux@leemhuis.info, labbott@redhat.com
+To: Ladi Prosek <lprosek@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit c02ed2e75ef4c74e41e421acb4ef1494671585e8:
+On Tue, Mar 28, 2017 at 6:46 PM, Ladi Prosek <lprosek@redhat.com> wrote:
+> The virtio balloon driver contained a not-so-obvious invariant that
+> update_balloon_stats has to update exactly VIRTIO_BALLOON_S_NR counters
+> in order to send valid stats to the host. This commit fixes it by having
+> update_balloon_stats return the actual number of counters, and its
+> callers use it when pushing buffers to the stats virtqueue.
+>
+> Note that it is still out of spec to change the number of counters
+> at run-time. "Driver MUST supply the same subset of statistics in all
+> buffers submitted to the statsq."
+>
+> Suggested-by: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: Ladi Prosek <lprosek@redhat.com>
 
-  Linux 4.11-rc4 (2017-03-26 14:15:16 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-
-for you to fetch changes up to f0bb2d50dfcc519f06f901aac88502be6ff1df2c:
-
-  virtio_balloon: prevent uninitialized variable use (2017-03-28 20:41:28 +0300)
-
-----------------------------------------------------------------
-virtio: fixes
-
-Fixes to multiple issues in virtio. Most notably
-a regression fix for crashes reported by Fedora users.
-Hybernate is still reportedly broken, working on it.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Arnd Bergmann (1):
-      virtio_balloon: prevent uninitialized variable use
-
-Jason Wang (1):
-      virtio_pci: fix out of bound access for msix_names
-
-Ladi Prosek (2):
-      virtio_balloon: init 1st buffer in stats vq
-      virtio-balloon: use actual number of stats for stats queue buffers
-
- drivers/virtio/virtio_balloon.c    | 19 +++++++++++++------
- drivers/virtio/virtio_pci_common.c |  9 +++++----
- 2 files changed, 18 insertions(+), 10 deletions(-)
+>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
