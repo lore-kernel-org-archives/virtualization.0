@@ -1,15 +1,16 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v3 2/3] virtio-balloon: use actual number of stats for
-	stats queue buffers
-Date: Tue, 28 Mar 2017 22:33:55 +0200
-Message-ID: <CAK8P3a1RWU2un3AKDJkiSUZfk0n9e8SEz48RSxEb+6X5MVFWYQ@mail.gmail.com>
-References: <20170328164659.4311-1-lprosek@redhat.com>
-	<20170328164659.4311-3-lprosek@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next 7/8] vhost_net: try batch dequing from skb array
+Date: Wed, 29 Mar 2017 17:58:23 +0800
+Message-ID: <bf511f4a-b1d0-d732-a01e-9cd4b8ae6817__15389.788701623$1490781533$gmane$org@redhat.com>
+References: <1490069087-4783-1-git-send-email-jasowang@redhat.com>
+	<1490069087-4783-8-git-send-email-jasowang@redhat.com>
+	<20170322155111-mutt-send-email-mst@kernel.org>
+	<f41bb12f-10d6-9fb2-1cd2-76e3e9460aff@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170328164659.4311-3-lprosek@redhat.com>
+In-Reply-To: <f41bb12f-10d6-9fb2-1cd2-76e3e9460aff@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,23 +20,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ladi Prosek <lprosek@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 28, 2017 at 6:46 PM, Ladi Prosek <lprosek@redhat.com> wrote:
-> The virtio balloon driver contained a not-so-obvious invariant that
-> update_balloon_stats has to update exactly VIRTIO_BALLOON_S_NR counters
-> in order to send valid stats to the host. This commit fixes it by having
-> update_balloon_stats return the actual number of counters, and its
-> callers use it when pushing buffers to the stats virtqueue.
->
-> Note that it is still out of spec to change the number of counters
-> at run-time. "Driver MUST supply the same subset of statistics in all
-> buffers submitted to the statsq."
->
-> Suggested-by: Arnd Bergmann <arnd@arndb.de>
-> Signed-off-by: Ladi Prosek <lprosek@redhat.com>
-
->
-Acked-by: Arnd Bergmann <arnd@arndb.de>
+CgpPbiAyMDE35bm0MDPmnIgyM+aXpSAxMzozNCwgSmFzb24gV2FuZyB3cm90ZToKPgo+Cj4+Cj4+
+PiArewo+Pj4gKyAgICBpZiAocnZxLT5yaCAhPSBydnEtPnJ0KQo+Pj4gKyAgICAgICAgZ290byBv
+dXQ7Cj4+PiArCj4+PiArICAgIHJ2cS0+cmggPSBydnEtPnJ0ID0gMDsKPj4+ICsgICAgcnZxLT5y
+dCA9IHNrYl9hcnJheV9jb25zdW1lX2JhdGNoZWRfYmgocnZxLT5yeF9hcnJheSwgcnZxLT5yeHEs
+Cj4+PiArICAgICAgICAgICAgICAgICAgICAgICAgVkhPU1RfUlhfQkFUQ0gpOwo+PiBBIGNvbW1l
+bnQgZXhwbGFpbmluZyB3aHkgaXMgaXMgLWJoIHdvdWxkIGJlIGhlbHBmdWwuCj4KPiBPay4KPgo+
+IFRoYW5rcyAKClJldGhpbmsgYWJvdXQgdGhpcy4gSXQgbG9va3MgbGlrZSAtYmggaXMgbm90IG5l
+ZWRlZCBpbiB0aGlzIGNhc2Ugc2luY2UgCm5vIGNvbnN1bWVyIHJ1biBpbiBiaC4KClRoYW5rcwpf
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
+dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
+cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
+dHVhbGl6YXRpb24=
