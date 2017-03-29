@@ -1,18 +1,16 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next 7/8] vhost_net: try batch dequing from skb array
-Date: Wed, 29 Mar 2017 18:53:27 +0800
-Message-ID: <cea3d380-389e-d258-915a-3d4f60232535@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next 8/8] vhost_net: use lockless peeking for skb
+	array during busy polling
+Date: Wed, 29 Mar 2017 15:07:10 +0300
+Message-ID: <20170329150538-mutt-send-email-mst@kernel.org>
 References: <1490069087-4783-1-git-send-email-jasowang@redhat.com>
-	<1490069087-4783-8-git-send-email-jasowang@redhat.com>
-	<20170322155111-mutt-send-email-mst@kernel.org>
-	<f41bb12f-10d6-9fb2-1cd2-76e3e9460aff@redhat.com>
-	<bf511f4a-b1d0-d732-a01e-9cd4b8ae6817@redhat.com>
-	<674632255.8752546.1490784387956.JavaMail.zimbra@redhat.com>
+	<1490069087-4783-9-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <674632255.8752546.1490784387956.JavaMail.zimbra@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1490069087-4783-9-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,26 +20,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pankaj Gupta <pagupta@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDPmnIgyOeaXpSAxODo0NiwgUGFua2FqIEd1cHRhIHdyb3RlOgo+IEhpIEph
-c29uLAo+Cj4+IE9uIDIwMTflubQwM+aciDIz5pelIDEzOjM0LCBKYXNvbiBXYW5nIHdyb3RlOgo+
-Pj4KPj4+Pj4gK3sKPj4+Pj4gKyAgICBpZiAocnZxLT5yaCAhPSBydnEtPnJ0KQo+Pj4+PiArICAg
-ICAgICBnb3RvIG91dDsKPj4+Pj4gKwo+Pj4+PiArICAgIHJ2cS0+cmggPSBydnEtPnJ0ID0gMDsK
-Pj4+Pj4gKyAgICBydnEtPnJ0ID0gc2tiX2FycmF5X2NvbnN1bWVfYmF0Y2hlZF9iaChydnEtPnJ4
-X2FycmF5LCBydnEtPnJ4cSwKPj4+Pj4gKyAgICAgICAgICAgICAgICAgICAgICAgIFZIT1NUX1JY
-X0JBVENIKTsKPj4+PiBBIGNvbW1lbnQgZXhwbGFpbmluZyB3aHkgaXMgaXMgLWJoIHdvdWxkIGJl
-IGhlbHBmdWwuCj4+PiBPay4KPj4+Cj4+PiBUaGFua3MKPj4gUmV0aGluayBhYm91dCB0aGlzLiBJ
-dCBsb29rcyBsaWtlIC1iaCBpcyBub3QgbmVlZGVkIGluIHRoaXMgY2FzZSBzaW5jZQo+PiBubyBj
-b25zdW1lciBydW4gaW4gYmguCj4gSW4gdGhhdCBjYXNlIGRvIHdlIG5lZWQgb3RoZXIgdmFyaWFu
-dHMgb2YgInB0cl9yaW5nX2NvbnN1bWVfYmF0Y2hlZF8qKCkiIGZ1bmN0aW9ucy4KPiBBcmUgd2Ug
-cGxhbm5pbmcgdG8gdXNlIHRoZW0gaW4gZnV0dXJlPwoKSSB0aGluayB3ZSdkIGJldHRlciBrZWVw
-IHRoZW0sIHNpbmNlIGl0IHNlcnZlcyBhcyBoZWxwZXJzLiBZb3UgY2FuIHNlZSAKdGhhdCBub3Qg
-YWxsIHRoZSBoZWxwZXJzIGluIHB0cl9yaW5nIGhhcyByZWFsIHVzZXJzLCBidXQgdGhleSB3ZXJl
-IApwcmVwYXJlZCBmb3IgdGhlIGZ1dHVyZSB1c2UuCgpUaGFua3MKCj4KPj4gVGhhbmtzCj4+Cgpf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
-dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
-cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
-dHVhbGl6YXRpb24=
+On Tue, Mar 21, 2017 at 12:04:47PM +0800, Jason Wang wrote:
+> For the socket that exports its skb array, we can use lockless polling
+> to avoid touching spinlock during busy polling.
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/vhost/net.c | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index 53f09f2..41153a3 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -551,10 +551,13 @@ static int peek_head_len(struct vhost_net_virtqueue *rvq, struct sock *sk)
+>  	return len;
+>  }
+>  
+> -static int sk_has_rx_data(struct sock *sk)
+> +static int sk_has_rx_data(struct vhost_net_virtqueue *rvq, struct sock *sk)
+>  {
+>  	struct socket *sock = sk->sk_socket;
+>  
+> +	if (rvq->rx_array)
+> +		return !__skb_array_empty(rvq->rx_array);
+> +
+>  	if (sock->ops->peek_len)
+>  		return sock->ops->peek_len(sock);
+>  
+
+I don't see which patch adds __skb_array_empty.
+
+> @@ -579,7 +582,7 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net,
+>  		endtime = busy_clock() + vq->busyloop_timeout;
+>  
+>  		while (vhost_can_busy_poll(&net->dev, endtime) &&
+> -		       !sk_has_rx_data(sk) &&
+> +		       !sk_has_rx_data(rvq, sk) &&
+>  		       vhost_vq_avail_empty(&net->dev, vq))
+>  			cpu_relax();
+>  
+> -- 
+> 2.7.4
