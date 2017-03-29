@@ -1,16 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next 8/8] vhost_net: use lockless peeking for skb
-	array during busy polling
-Date: Wed, 29 Mar 2017 15:07:10 +0300
-Message-ID: <20170329150538-mutt-send-email-mst@kernel.org>
-References: <1490069087-4783-1-git-send-email-jasowang@redhat.com>
-	<1490069087-4783-9-git-send-email-jasowang@redhat.com>
+Subject: [PATCH] virtio_net: fix mergeable bufs error handling
+Date: Wed, 29 Mar 2017 15:37:37 +0300
+Message-ID: <1490791050-22046-1-git-send-email-mst__17157.7130946845$1490791071$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1490069087-4783-9-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,49 +16,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 21, 2017 at 12:04:47PM +0800, Jason Wang wrote:
-> For the socket that exports its skb array, we can use lockless polling
-> to avoid touching spinlock during busy polling.
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/vhost/net.c | 7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 53f09f2..41153a3 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -551,10 +551,13 @@ static int peek_head_len(struct vhost_net_virtqueue *rvq, struct sock *sk)
->  	return len;
->  }
->  
-> -static int sk_has_rx_data(struct sock *sk)
-> +static int sk_has_rx_data(struct vhost_net_virtqueue *rvq, struct sock *sk)
->  {
->  	struct socket *sock = sk->sk_socket;
->  
-> +	if (rvq->rx_array)
-> +		return !__skb_array_empty(rvq->rx_array);
-> +
->  	if (sock->ops->peek_len)
->  		return sock->ops->peek_len(sock);
->  
+On xdp error we try to free head_skb without having
+initialized it, that's clearly bogus.
 
-I don't see which patch adds __skb_array_empty.
+Fixes: f600b6905015 ("virtio_net: Add XDP support")
+Cc: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/net/virtio_net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> @@ -579,7 +582,7 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net,
->  		endtime = busy_clock() + vq->busyloop_timeout;
->  
->  		while (vhost_can_busy_poll(&net->dev, endtime) &&
-> -		       !sk_has_rx_data(sk) &&
-> +		       !sk_has_rx_data(rvq, sk) &&
->  		       vhost_vq_avail_empty(&net->dev, vq))
->  			cpu_relax();
->  
-> -- 
-> 2.7.4
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 11773d6..e0fb3707 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -570,7 +570,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 	u16 num_buf;
+ 	struct page *page;
+ 	int offset;
+-	struct sk_buff *head_skb, *curr_skb;
++	struct sk_buff *head_skb = NULL, *curr_skb;
+ 	struct bpf_prog *xdp_prog;
+ 	unsigned int truesize;
+ 
+-- 
+MST
