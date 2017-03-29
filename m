@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 2/6] virtio: add context flag to find vqs
-Date: Wed, 29 Mar 2017 23:48:51 +0300
-Message-ID: <1490820507-8005-3-git-send-email-mst@redhat.com>
+Subject: [PATCH 3/6] virtio: allow extra context per descriptor
+Date: Wed, 29 Mar 2017 23:48:53 +0300
+Message-ID: <1490820507-8005-4-git-send-email-mst@redhat.com>
 References: <1490820507-8005-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,440 +19,223 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, John Fastabend <john.fastabend@gmail.com>, Sudeep Dutt <sudeep.dutt@intel.com>, virtualization@lists.linux-foundation.org, Ashutosh Dixit <ashutosh.dixit@intel.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: John Fastabend <john.fastabend@gmail.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Allows maintaining extra context per vq.  For ease of use, passing in
-NULL is legal and disables the feature for all vqs.
+Allow extra context per descriptor. To avoid slow down for data path,
+this disables use of indirect descriptors for this vq.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/misc/mic/vop/vop_main.c    |  9 ++++++---
- drivers/s390/virtio/kvm_virtio.c   |  6 ++++--
- drivers/s390/virtio/virtio_ccw.c   |  7 ++++---
- drivers/virtio/virtio_mmio.c       |  8 +++++---
- drivers/virtio/virtio_pci_common.c | 18 +++++++++++-------
- drivers/virtio/virtio_pci_common.h |  4 +++-
- drivers/virtio/virtio_pci_legacy.c |  4 +++-
- drivers/virtio/virtio_pci_modern.c | 12 ++++++++----
- drivers/virtio/virtio_ring.c       |  7 +++++--
- include/linux/virtio_config.h      | 18 +++++++++++++++---
- include/linux/virtio_ring.h        |  3 +++
- 11 files changed, 67 insertions(+), 29 deletions(-)
+ drivers/virtio/virtio_ring.c | 70 ++++++++++++++++++++++++++++++++++++--------
+ include/linux/virtio.h       |  9 ++++++
+ 2 files changed, 66 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/misc/mic/vop/vop_main.c b/drivers/misc/mic/vop/vop_main.c
-index c2e29d7..a341938 100644
---- a/drivers/misc/mic/vop/vop_main.c
-+++ b/drivers/misc/mic/vop/vop_main.c
-@@ -278,7 +278,7 @@ static void vop_del_vqs(struct virtio_device *dev)
- static struct virtqueue *vop_find_vq(struct virtio_device *dev,
- 				     unsigned index,
- 				     void (*callback)(struct virtqueue *vq),
--				     const char *name)
-+				     const char *name, bool ctx)
- {
- 	struct _vop_vdev *vdev = to_vopvdev(dev);
- 	struct vop_device *vpdev = vdev->vpdev;
-@@ -314,6 +314,7 @@ static struct virtqueue *vop_find_vq(struct virtio_device *dev,
- 				le16_to_cpu(config.num), MIC_VIRTIO_RING_ALIGN,
- 				dev,
- 				false,
-+				ctx,
- 				(void __force *)va, vop_notify, callback, name);
- 	if (!vq) {
- 		err = -ENOMEM;
-@@ -374,7 +375,8 @@ static struct virtqueue *vop_find_vq(struct virtio_device *dev,
- static int vop_find_vqs(struct virtio_device *dev, unsigned nvqs,
- 			struct virtqueue *vqs[],
- 			vq_callback_t *callbacks[],
--			const char * const names[], struct irq_affinity *desc)
-+			const char * const names[], const bool *ctx,
-+			struct irq_affinity *desc)
- {
- 	struct _vop_vdev *vdev = to_vopvdev(dev);
- 	struct vop_device *vpdev = vdev->vpdev;
-@@ -388,7 +390,8 @@ static int vop_find_vqs(struct virtio_device *dev, unsigned nvqs,
- 	for (i = 0; i < nvqs; ++i) {
- 		dev_dbg(_vop_dev(vdev), "%s: %d: %s\n",
- 			__func__, i, names[i]);
--		vqs[i] = vop_find_vq(dev, i, callbacks[i], names[i]);
-+		vqs[i] = vop_find_vq(dev, i, callbacks[i], names[i],
-+				     ctx ? ctx[i] : false);
- 		if (IS_ERR(vqs[i])) {
- 			err = PTR_ERR(vqs[i]);
- 			goto error;
-diff --git a/drivers/s390/virtio/kvm_virtio.c b/drivers/s390/virtio/kvm_virtio.c
-index 2ce0b3e..81b33aa 100644
---- a/drivers/s390/virtio/kvm_virtio.c
-+++ b/drivers/s390/virtio/kvm_virtio.c
-@@ -189,7 +189,7 @@ static bool kvm_notify(struct virtqueue *vq)
- static struct virtqueue *kvm_find_vq(struct virtio_device *vdev,
- 				     unsigned index,
- 				     void (*callback)(struct virtqueue *vq),
--				     const char *name)
-+				     const char *name, bool ctx)
- {
- 	struct kvm_device *kdev = to_kvmdev(vdev);
- 	struct kvm_vqconfig *config;
-@@ -256,6 +256,7 @@ static int kvm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 			struct virtqueue *vqs[],
- 			vq_callback_t *callbacks[],
- 			const char * const names[],
-+			const bool *ctx,
- 			struct irq_affinity *desc)
- {
- 	struct kvm_device *kdev = to_kvmdev(vdev);
-@@ -266,7 +267,8 @@ static int kvm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 		return -ENOENT;
- 
- 	for (i = 0; i < nvqs; ++i) {
--		vqs[i] = kvm_find_vq(vdev, i, callbacks[i], names[i]);
-+		vqs[i] = kvm_find_vq(vdev, i, callbacks[i], names[i],
-+				     ctx ? ctx[i] : false);
- 		if (IS_ERR(vqs[i]))
- 			goto error;
- 	}
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 0ed209f..2a76ea7 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -484,7 +484,7 @@ static void virtio_ccw_del_vqs(struct virtio_device *vdev)
- 
- static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
- 					     int i, vq_callback_t *callback,
--					     const char *name,
-+					     const char *name, bool ctx,
- 					     struct ccw1 *ccw)
- {
- 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
-@@ -522,7 +522,7 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
- 	}
- 
- 	vq = vring_new_virtqueue(i, info->num, KVM_VIRTIO_CCW_RING_ALIGN, vdev,
--				 true, info->queue, virtio_ccw_kvm_notify,
-+				 true, ctx, info->queue, virtio_ccw_kvm_notify,
- 				 callback, name);
- 	if (!vq) {
- 		/* For now, we fail if we can't get the requested size. */
-@@ -629,6 +629,7 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 			       struct virtqueue *vqs[],
- 			       vq_callback_t *callbacks[],
- 			       const char * const names[],
-+			       const bool *ctx,
- 			       struct irq_affinity *desc)
- {
- 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
-@@ -642,7 +643,7 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 
- 	for (i = 0; i < nvqs; ++i) {
- 		vqs[i] = virtio_ccw_setup_vq(vdev, i, callbacks[i], names[i],
--					     ccw);
-+					     ctx ? ctx[i] : false, ccw);
- 		if (IS_ERR(vqs[i])) {
- 			ret = PTR_ERR(vqs[i]);
- 			vqs[i] = NULL;
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 78343b8..74dc717 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -351,7 +351,7 @@ static void vm_del_vqs(struct virtio_device *vdev)
- 
- static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
- 				  void (*callback)(struct virtqueue *vq),
--				  const char *name)
-+				  const char *name, bool ctx)
- {
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
- 	struct virtio_mmio_vq_info *info;
-@@ -388,7 +388,7 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
- 
- 	/* Create the vring */
- 	vq = vring_create_virtqueue(index, num, VIRTIO_MMIO_VRING_ALIGN, vdev,
--				 true, true, vm_notify, callback, name);
-+				 true, true, ctx, vm_notify, callback, name);
- 	if (!vq) {
- 		err = -ENOMEM;
- 		goto error_new_virtqueue;
-@@ -447,6 +447,7 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 		       struct virtqueue *vqs[],
- 		       vq_callback_t *callbacks[],
- 		       const char * const names[],
-+		       const bool *ctx,
- 		       struct irq_affinity *desc)
- {
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-@@ -459,7 +460,8 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 		return err;
- 
- 	for (i = 0; i < nvqs; ++i) {
--		vqs[i] = vm_setup_vq(vdev, i, callbacks[i], names[i]);
-+		vqs[i] = vm_setup_vq(vdev, i, callbacks[i], names[i],
-+				     ctx ? ctx[i] : false);
- 		if (IS_ERR(vqs[i])) {
- 			vm_del_vqs(vdev);
- 			return PTR_ERR(vqs[i]);
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 5905349..18e74c8 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -143,7 +143,8 @@ void vp_del_vqs(struct virtio_device *vdev)
- 
- static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
- 		struct virtqueue *vqs[], vq_callback_t *callbacks[],
--		const char * const names[], struct irq_affinity *desc)
-+		const char * const names[], const bool *ctx,
-+		struct irq_affinity *desc)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	const char *name = dev_name(&vp_dev->vdev.dev);
-@@ -225,7 +226,8 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
- 			msix_vec = VIRTIO_MSI_NO_VECTOR;
- 
- 		vqs[i] = vp_dev->setup_vq(vp_dev, i, callbacks[i], names[i],
--				msix_vec);
-+					  ctx ? ctx[i] : false,
-+					  msix_vec);
- 		if (IS_ERR(vqs[i])) {
- 			err = PTR_ERR(vqs[i]);
- 			goto out_remove_vqs;
-@@ -282,7 +284,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
- 
- static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned nvqs,
- 		struct virtqueue *vqs[], vq_callback_t *callbacks[],
--		const char * const names[])
-+		const char * const names[], const bool *ctx)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	int i, err;
-@@ -298,7 +300,8 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned nvqs,
- 			continue;
- 		}
- 		vqs[i] = vp_dev->setup_vq(vp_dev, i, callbacks[i], names[i],
--				VIRTIO_MSI_NO_VECTOR);
-+					  ctx ? ctx[i] : false,
-+					  VIRTIO_MSI_NO_VECTOR);
- 		if (IS_ERR(vqs[i])) {
- 			err = PTR_ERR(vqs[i]);
- 			goto out_remove_vqs;
-@@ -316,14 +319,15 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned nvqs,
- /* the config->find_vqs() implementation */
- int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 		struct virtqueue *vqs[], vq_callback_t *callbacks[],
--		const char * const names[], struct irq_affinity *desc)
-+		const char * const names[], const bool *ctx,
-+		struct irq_affinity *desc)
- {
- 	int err;
- 
--	err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names, desc);
-+	err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names, ctx, desc);
- 	if (!err)
- 		return 0;
--	return vp_find_vqs_intx(vdev, nvqs, vqs, callbacks, names);
-+	return vp_find_vqs_intx(vdev, nvqs, vqs, callbacks, names, ctx);
- }
- 
- const char *vp_bus_name(struct virtio_device *vdev)
-diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-index ac8c9d7..8149dd3 100644
---- a/drivers/virtio/virtio_pci_common.h
-+++ b/drivers/virtio/virtio_pci_common.h
-@@ -77,6 +77,7 @@ struct virtio_pci_device {
- 				      unsigned idx,
- 				      void (*callback)(struct virtqueue *vq),
- 				      const char *name,
-+				      bool ctx,
- 				      u16 msix_vec);
- 	void (*del_vq)(struct virtqueue *vq);
- 
-@@ -98,7 +99,8 @@ void vp_del_vqs(struct virtio_device *vdev);
- /* the config->find_vqs() implementation */
- int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 		struct virtqueue *vqs[], vq_callback_t *callbacks[],
--		const char * const names[], struct irq_affinity *desc);
-+		const char * const names[], const bool *ctx,
-+		struct irq_affinity *desc);
- const char *vp_bus_name(struct virtio_device *vdev);
- 
- /* Setup the affinity for a virtqueue:
-diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
-index f7362c5..a976452 100644
---- a/drivers/virtio/virtio_pci_legacy.c
-+++ b/drivers/virtio/virtio_pci_legacy.c
-@@ -115,6 +115,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 				  unsigned index,
- 				  void (*callback)(struct virtqueue *vq),
- 				  const char *name,
-+				  bool ctx,
- 				  u16 msix_vec)
- {
- 	struct virtqueue *vq;
-@@ -132,7 +133,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 	/* create the vring */
- 	vq = vring_create_virtqueue(index, num,
- 				    VIRTIO_PCI_VRING_ALIGN, &vp_dev->vdev,
--				    true, false, vp_notify, callback, name);
-+				    true, false, ctx,
-+				    vp_notify, callback, name);
- 	if (!vq)
- 		return ERR_PTR(-ENOMEM);
- 
-diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index 7bc3004..709f7e2 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -296,6 +296,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 				  unsigned index,
- 				  void (*callback)(struct virtqueue *vq),
- 				  const char *name,
-+				  bool ctx,
- 				  u16 msix_vec)
- {
- 	struct virtio_pci_common_cfg __iomem *cfg = vp_dev->common;
-@@ -325,7 +326,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 	/* create the vring */
- 	vq = vring_create_virtqueue(index, num,
- 				    SMP_CACHE_BYTES, &vp_dev->vdev,
--				    true, true, vp_notify, callback, name);
-+				    true, true, ctx,
-+				    vp_notify, callback, name);
- 	if (!vq)
- 		return ERR_PTR(-ENOMEM);
- 
-@@ -384,12 +386,14 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- }
- 
- static int vp_modern_find_vqs(struct virtio_device *vdev, unsigned nvqs,
--		struct virtqueue *vqs[], vq_callback_t *callbacks[],
--		const char * const names[], struct irq_affinity *desc)
-+			      struct virtqueue *vqs[],
-+			      vq_callback_t *callbacks[],
-+			      const char * const names[], const bool *ctx,
-+			      struct irq_affinity *desc)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	struct virtqueue *vq;
--	int rc = vp_find_vqs(vdev, nvqs, vqs, callbacks, names, desc);
-+	int rc = vp_find_vqs(vdev, nvqs, vqs, callbacks, names, ctx, desc);
- 
- 	if (rc)
- 		return rc;
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 409aeaa..b23b5fa 100644
+index b23b5fa..5e1b548 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -916,6 +916,7 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
- 					struct vring vring,
- 					struct virtio_device *vdev,
- 					bool weak_barriers,
-+					bool context,
- 					bool (*notify)(struct virtqueue *),
- 					void (*callback)(struct virtqueue *),
- 					const char *name)
-@@ -1019,6 +1020,7 @@ struct virtqueue *vring_create_virtqueue(
- 	struct virtio_device *vdev,
- 	bool weak_barriers,
- 	bool may_reduce_num,
-+	bool context,
- 	bool (*notify)(struct virtqueue *),
- 	void (*callback)(struct virtqueue *),
- 	const char *name)
-@@ -1058,7 +1060,7 @@ struct virtqueue *vring_create_virtqueue(
- 	queue_size_in_bytes = vring_size(num, vring_align);
- 	vring_init(&vring, num, queue, vring_align);
+@@ -263,6 +263,7 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+ 				unsigned int out_sgs,
+ 				unsigned int in_sgs,
+ 				void *data,
++				void *ctx,
+ 				gfp_t gfp)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+@@ -275,6 +276,7 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+ 	START_USE(vq);
  
--	vq = __vring_new_virtqueue(index, vring, vdev, weak_barriers,
-+	vq = __vring_new_virtqueue(index, vring, vdev, weak_barriers, context,
- 				   notify, callback, name);
- 	if (!vq) {
- 		vring_free_queue(vdev, queue_size_in_bytes, queue,
-@@ -1079,6 +1081,7 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
- 				      unsigned int vring_align,
- 				      struct virtio_device *vdev,
- 				      bool weak_barriers,
-+				      bool context,
- 				      void *pages,
- 				      bool (*notify)(struct virtqueue *vq),
- 				      void (*callback)(struct virtqueue *vq),
-@@ -1086,7 +1089,7 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
- {
- 	struct vring vring;
- 	vring_init(&vring, num, pages, vring_align);
--	return __vring_new_virtqueue(index, vring, vdev, weak_barriers,
-+	return __vring_new_virtqueue(index, vring, vdev, weak_barriers, context,
- 				     notify, callback, name);
+ 	BUG_ON(data == NULL);
++	BUG_ON(ctx && vq->indirect);
+ 
+ 	if (unlikely(vq->broken)) {
+ 		END_USE(vq);
+@@ -389,6 +391,8 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+ 	vq->desc_state[head].data = data;
+ 	if (indirect)
+ 		vq->desc_state[head].indir_desc = desc;
++	if (ctx)
++		vq->desc_state[head].indir_desc = ctx;
+ 
+ 	/* Put entry in available array (but don't update avail->idx until they
+ 	 * do sync). */
+@@ -461,7 +465,8 @@ int virtqueue_add_sgs(struct virtqueue *_vq,
+ 		for (sg = sgs[i]; sg; sg = sg_next(sg))
+ 			total_sg++;
+ 	}
+-	return virtqueue_add(_vq, sgs, total_sg, out_sgs, in_sgs, data, gfp);
++	return virtqueue_add(_vq, sgs, total_sg, out_sgs, in_sgs,
++			     data, NULL, gfp);
  }
- EXPORT_SYMBOL_GPL(vring_new_virtqueue);
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index 47f3d80..0133d8a 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -72,7 +72,8 @@ struct virtio_config_ops {
- 	void (*reset)(struct virtio_device *vdev);
- 	int (*find_vqs)(struct virtio_device *, unsigned nvqs,
- 			struct virtqueue *vqs[], vq_callback_t *callbacks[],
--			const char * const names[], struct irq_affinity *desc);
-+			const char * const names[], const bool *ctx,
-+			struct irq_affinity *desc);
- 	void (*del_vqs)(struct virtio_device *);
- 	u64 (*get_features)(struct virtio_device *vdev);
- 	int (*finalize_features)(struct virtio_device *vdev);
-@@ -173,7 +174,8 @@ struct virtqueue *virtio_find_single_vq(struct virtio_device *vdev,
- 	vq_callback_t *callbacks[] = { c };
- 	const char *names[] = { n };
- 	struct virtqueue *vq;
--	int err = vdev->config->find_vqs(vdev, 1, &vq, callbacks, names, NULL);
-+	int err = vdev->config->find_vqs(vdev, 1, &vq, callbacks, names, NULL,
-+					 NULL);
- 	if (err < 0)
- 		return ERR_PTR(err);
- 	return vq;
-@@ -185,7 +187,17 @@ int virtio_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 			const char * const names[],
- 			struct irq_affinity *desc)
+ EXPORT_SYMBOL_GPL(virtqueue_add_sgs);
+ 
+@@ -483,7 +488,7 @@ int virtqueue_add_outbuf(struct virtqueue *vq,
+ 			 void *data,
+ 			 gfp_t gfp)
  {
--	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, desc);
-+	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, NULL, desc);
-+}
-+
-+static inline
-+int virtio_find_vqs_ctx(struct virtio_device *vdev, unsigned nvqs,
-+			struct virtqueue *vqs[], vq_callback_t *callbacks[],
-+			const char * const names[], const bool *ctx,
-+			struct irq_affinity *desc)
-+{
-+	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, ctx,
-+				      desc);
+-	return virtqueue_add(vq, &sg, num, 1, 0, data, gfp);
++	return virtqueue_add(vq, &sg, num, 1, 0, data, NULL, gfp);
  }
+ EXPORT_SYMBOL_GPL(virtqueue_add_outbuf);
+ 
+@@ -505,11 +510,35 @@ int virtqueue_add_inbuf(struct virtqueue *vq,
+ 			void *data,
+ 			gfp_t gfp)
+ {
+-	return virtqueue_add(vq, &sg, num, 0, 1, data, gfp);
++	return virtqueue_add(vq, &sg, num, 0, 1, data, NULL, gfp);
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_add_inbuf);
  
  /**
-diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-index e8d3693..270cfa8 100644
---- a/include/linux/virtio_ring.h
-+++ b/include/linux/virtio_ring.h
-@@ -71,6 +71,7 @@ struct virtqueue *vring_create_virtqueue(unsigned int index,
- 					 struct virtio_device *vdev,
- 					 bool weak_barriers,
- 					 bool may_reduce_num,
-+					 bool ctx,
- 					 bool (*notify)(struct virtqueue *vq),
- 					 void (*callback)(struct virtqueue *vq),
- 					 const char *name);
-@@ -80,6 +81,7 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
- 					struct vring vring,
- 					struct virtio_device *vdev,
- 					bool weak_barriers,
-+					bool ctx,
- 					bool (*notify)(struct virtqueue *),
- 					void (*callback)(struct virtqueue *),
- 					const char *name);
-@@ -93,6 +95,7 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
- 				      unsigned int vring_align,
- 				      struct virtio_device *vdev,
- 				      bool weak_barriers,
-+				      bool ctx,
- 				      void *pages,
- 				      bool (*notify)(struct virtqueue *vq),
- 				      void (*callback)(struct virtqueue *vq),
++ * virtqueue_add_inbuf_ctx - expose input buffers to other end
++ * @vq: the struct virtqueue we're talking about.
++ * @sg: scatterlist (must be well-formed and terminated!)
++ * @num: the number of entries in @sg writable by other side
++ * @data: the token identifying the buffer.
++ * @ctx: extra context for the token
++ * @gfp: how to do memory allocations (if necessary).
++ *
++ * Caller must ensure we don't call this with other virtqueue operations
++ * at the same time (except where noted).
++ *
++ * Returns zero or a negative error (ie. ENOSPC, ENOMEM, EIO).
++ */
++int virtqueue_add_inbuf_ctx(struct virtqueue *vq,
++			struct scatterlist *sg, unsigned int num,
++			void *data,
++			void *ctx,
++			gfp_t gfp)
++{
++	return virtqueue_add(vq, &sg, num, 0, 1, data, ctx, gfp);
++}
++EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_ctx);
++
++/**
+  * virtqueue_kick_prepare - first half of split virtqueue_kick call.
+  * @vq: the struct virtqueue
+  *
+@@ -598,7 +627,8 @@ bool virtqueue_kick(struct virtqueue *vq)
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_kick);
+ 
+-static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
++static void detach_buf(struct vring_virtqueue *vq, unsigned int head,
++		       void **ctx)
+ {
+ 	unsigned int i, j;
+ 	__virtio16 nextflag = cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT);
+@@ -622,10 +652,15 @@ static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
+ 	/* Plus final descriptor */
+ 	vq->vq.num_free++;
+ 
+-	/* Free the indirect table, if any, now that it's unmapped. */
+-	if (vq->desc_state[head].indir_desc) {
++	if (vq->indirect) {
+ 		struct vring_desc *indir_desc = vq->desc_state[head].indir_desc;
+-		u32 len = virtio32_to_cpu(vq->vq.vdev, vq->vring.desc[head].len);
++		u32 len;
++
++		/* Free the indirect table, if any, now that it's unmapped. */
++		if (!indir_desc)
++			return;
++
++		len = virtio32_to_cpu(vq->vq.vdev, vq->vring.desc[head].len);
+ 
+ 		BUG_ON(!(vq->vring.desc[head].flags &
+ 			 cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_INDIRECT)));
+@@ -634,8 +669,10 @@ static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
+ 		for (j = 0; j < len / sizeof(struct vring_desc); j++)
+ 			vring_unmap_one(vq, &indir_desc[j]);
+ 
+-		kfree(vq->desc_state[head].indir_desc);
++		kfree(indir_desc);
+ 		vq->desc_state[head].indir_desc = NULL;
++	} else if (ctx) {
++		*ctx = vq->desc_state[head].indir_desc;
+ 	}
+ }
+ 
+@@ -660,7 +697,8 @@ static inline bool more_used(const struct vring_virtqueue *vq)
+  * Returns NULL if there are no used buffers, or the "data" token
+  * handed to virtqueue_add_*().
+  */
+-void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
++void *virtqueue_get_buf_ctx(struct virtqueue *_vq, unsigned int *len,
++			    void **ctx)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 	void *ret;
+@@ -698,7 +736,7 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
+ 
+ 	/* detach_buf clears data, so grab it now. */
+ 	ret = vq->desc_state[i].data;
+-	detach_buf(vq, i);
++	detach_buf(vq, i, ctx);
+ 	vq->last_used_idx++;
+ 	/* If we expect an interrupt for the next entry, tell host
+ 	 * by writing event index and flush out the write before
+@@ -715,8 +753,13 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
+ 	END_USE(vq);
+ 	return ret;
+ }
+-EXPORT_SYMBOL_GPL(virtqueue_get_buf);
++EXPORT_SYMBOL_GPL(virtqueue_get_buf_ctx);
+ 
++void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
++{
++	return virtqueue_get_buf_ctx(_vq, len, NULL);
++}
++EXPORT_SYMBOL_GPL(virtqueue_get_buf);
+ /**
+  * virtqueue_disable_cb - disable callbacks
+  * @vq: the struct virtqueue we're talking about.
+@@ -878,7 +921,7 @@ void *virtqueue_detach_unused_buf(struct virtqueue *_vq)
+ 			continue;
+ 		/* detach_buf clears data, so grab it now. */
+ 		buf = vq->desc_state[i].data;
+-		detach_buf(vq, i);
++		detach_buf(vq, i, NULL);
+ 		vq->avail_idx_shadow--;
+ 		vq->vring.avail->idx = cpu_to_virtio16(_vq->vdev, vq->avail_idx_shadow);
+ 		END_USE(vq);
+@@ -951,7 +994,8 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
+ 	vq->last_add_time_valid = false;
+ #endif
+ 
+-	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC);
++	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
++		!context;
+ 	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
+ 
+ 	/* No callback?  Tell other side not to bother us. */
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 04b0d3f9..193fea9 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -44,6 +44,12 @@ int virtqueue_add_inbuf(struct virtqueue *vq,
+ 			void *data,
+ 			gfp_t gfp);
+ 
++int virtqueue_add_inbuf_ctx(struct virtqueue *vq,
++			    struct scatterlist sg[], unsigned int num,
++			    void *data,
++			    void *ctx,
++			    gfp_t gfp);
++
+ int virtqueue_add_sgs(struct virtqueue *vq,
+ 		      struct scatterlist *sgs[],
+ 		      unsigned int out_sgs,
+@@ -59,6 +65,9 @@ bool virtqueue_notify(struct virtqueue *vq);
+ 
+ void *virtqueue_get_buf(struct virtqueue *vq, unsigned int *len);
+ 
++void *virtqueue_get_buf_ctx(struct virtqueue *vq, unsigned int *len,
++			    void **ctx);
++
+ void virtqueue_disable_cb(struct virtqueue *vq);
+ 
+ bool virtqueue_enable_cb(struct virtqueue *vq);
 -- 
 MST
