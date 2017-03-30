@@ -1,14 +1,16 @@
-From: kbuild test robot <fengguang.wu@intel.com>
-Subject: [vhost:linux-next 6/19]
-	drivers/remoteproc/remoteproc_virtio.c:106:33: sparse: not enough
-	arguments for function vring_new_virtqueue
-Date: Thu, 30 Mar 2017 10:08:10 +0800
-Message-ID: <201703301006.UmKjTRhG%fengguang.wu__964.833147782151$1490839705$gmane$org@intel.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next 8/8] vhost_net: use lockless peeking for skb
+	array during busy polling
+Date: Thu, 30 Mar 2017 10:16:15 +0800
+Message-ID: <104c0c1f-e2fd-f5d0-0aae-c308d1f1373c__28454.7180789106$1490840197$gmane$org@redhat.com>
+References: <1490069087-4783-1-git-send-email-jasowang@redhat.com>
+	<1490069087-4783-9-git-send-email-jasowang@redhat.com>
+	<20170329150538-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20170329150538-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,86 +21,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, kbuild-all@01.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
-head:   8ab881d0e8136390da79aa0902fe03d2f6c65e32
-commit: 281310d52c1d63630f54b1ac5cca6e9eb8715b3a [6/19] virtio: add context flag to find vqs
-reproduce:
-        # apt-get install sparse
-        git checkout 281310d52c1d63630f54b1ac5cca6e9eb8715b3a
-        make ARCH=x86_64 allmodconfig
-        make C=1 CF=-D__CHECK_ENDIAN__
-
-
-sparse warnings: (new ones prefixed by >>)
-
-   include/linux/compiler.h:264:8: sparse: attribute 'no_sanitize_address': unknown attribute
->> drivers/remoteproc/remoteproc_virtio.c:106:33: sparse: not enough arguments for function vring_new_virtqueue
-   drivers/remoteproc/remoteproc_virtio.c: In function 'rp_find_vq':
-   drivers/remoteproc/remoteproc_virtio.c:107:27: error: passing argument 8 of 'vring_new_virtqueue' from incompatible pointer type [-Werror=incompatible-pointer-types]
-         rproc_virtio_notify, callback, name);
-                              ^~~~~~~~
-   In file included from drivers/remoteproc/remoteproc_virtio.c:25:0:
-   include/linux/virtio_ring.h:93:19: note: expected 'bool (*)(struct virtqueue *) {aka _Bool (*)(struct virtqueue *)}' but argument is of type 'void (*)(struct virtqueue *)'
-    struct virtqueue *vring_new_virtqueue(unsigned int index,
-                      ^~~~~~~~~~~~~~~~~~~
-   drivers/remoteproc/remoteproc_virtio.c:107:37: error: passing argument 9 of 'vring_new_virtqueue' from incompatible pointer type [-Werror=incompatible-pointer-types]
-         rproc_virtio_notify, callback, name);
-                                        ^~~~
-   In file included from drivers/remoteproc/remoteproc_virtio.c:25:0:
-   include/linux/virtio_ring.h:93:19: note: expected 'void (*)(struct virtqueue *)' but argument is of type 'const char *'
-    struct virtqueue *vring_new_virtqueue(unsigned int index,
-                      ^~~~~~~~~~~~~~~~~~~
-   drivers/remoteproc/remoteproc_virtio.c:106:7: error: too few arguments to function 'vring_new_virtqueue'
-     vq = vring_new_virtqueue(id, len, rvring->align, vdev, false, addr,
-          ^~~~~~~~~~~~~~~~~~~
-   In file included from drivers/remoteproc/remoteproc_virtio.c:25:0:
-   include/linux/virtio_ring.h:93:19: note: declared here
-    struct virtqueue *vring_new_virtqueue(unsigned int index,
-                      ^~~~~~~~~~~~~~~~~~~
-   drivers/remoteproc/remoteproc_virtio.c: At top level:
-   drivers/remoteproc/remoteproc_virtio.c:264:14: error: initialization from incompatible pointer type [-Werror=incompatible-pointer-types]
-     .find_vqs = rproc_virtio_find_vqs,
-                 ^~~~~~~~~~~~~~~~~~~~~
-   drivers/remoteproc/remoteproc_virtio.c:264:14: note: (near initialization for 'rproc_virtio_config_ops.find_vqs')
-   cc1: some warnings being treated as errors
-
-vim +106 drivers/remoteproc/remoteproc_virtio.c
-
-6457f126c drivers/remoteproc/remoteproc_virtio.c Michael S. Tsirkin 2012-09-05   90  
-6db20ea8d drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-05-17   91  	rvring = &rvdev->vring[id];
-7a1869416 drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-02-13   92  	addr = rvring->va;
-7a1869416 drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-02-13   93  	len = rvring->len;
-ac8954a41 drivers/remoteproc/remoteproc_rpmsg.c  Ohad Ben-Cohen     2011-10-20   94  
-7a1869416 drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-02-13   95  	/* zero vring */
-7a1869416 drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-02-13   96  	size = vring_size(len, rvring->align);
-7a1869416 drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-02-13   97  	memset(addr, 0, size);
-ac8954a41 drivers/remoteproc/remoteproc_rpmsg.c  Ohad Ben-Cohen     2011-10-20   98  
-b5ab5e24e drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-05-30   99  	dev_dbg(dev, "vring%d: va %p qsz %d notifyid %d\n",
-7a1869416 drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-02-13  100  		id, addr, len, rvring->notifyid);
-ac8954a41 drivers/remoteproc/remoteproc_rpmsg.c  Ohad Ben-Cohen     2011-10-20  101  
-dd6da1c5e drivers/remoteproc/remoteproc_rpmsg.c  Ohad Ben-Cohen     2012-01-12  102  	/*
-dd6da1c5e drivers/remoteproc/remoteproc_rpmsg.c  Ohad Ben-Cohen     2012-01-12  103  	 * Create the new vq, and tell virtio we're not interested in
-dd6da1c5e drivers/remoteproc/remoteproc_rpmsg.c  Ohad Ben-Cohen     2012-01-12  104  	 * the 'weak' smp barriers, since we're talking with a real device.
-dd6da1c5e drivers/remoteproc/remoteproc_rpmsg.c  Ohad Ben-Cohen     2012-01-12  105  	 */
-17bb6d408 drivers/remoteproc/remoteproc_virtio.c Jason Wang         2012-08-28 @106  	vq = vring_new_virtqueue(id, len, rvring->align, vdev, false, addr,
-ac8954a41 drivers/remoteproc/remoteproc_rpmsg.c  Ohad Ben-Cohen     2011-10-20  107  				 rproc_virtio_notify, callback, name);
-ac8954a41 drivers/remoteproc/remoteproc_rpmsg.c  Ohad Ben-Cohen     2011-10-20  108  	if (!vq) {
-b5ab5e24e drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-05-30  109  		dev_err(dev, "vring_new_virtqueue %s failed\n", name);
-6db20ea8d drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-05-17  110  		rproc_free_vring(rvring);
-7a1869416 drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-02-13  111  		return ERR_PTR(-ENOMEM);
-ac8954a41 drivers/remoteproc/remoteproc_rpmsg.c  Ohad Ben-Cohen     2011-10-20  112  	}
-ac8954a41 drivers/remoteproc/remoteproc_rpmsg.c  Ohad Ben-Cohen     2011-10-20  113  
-7a1869416 drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-02-13  114  	rvring->vq = vq;
-
-:::::: The code at line 106 was first introduced by commit
-:::::: 17bb6d40880d4178f5f8a75900ed8c9ff47d3fb2 virtio-ring: move queue_index to vring_virtqueue
-
-:::::: TO: Jason Wang <jasowang@redhat.com>
-:::::: CC: Rusty Russell <rusty@rustcorp.com.au>
-
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+CgpPbiAyMDE35bm0MDPmnIgyOeaXpSAyMDowNywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIFR1ZSwgTWFyIDIxLCAyMDE3IGF0IDEyOjA0OjQ3UE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4+IEZvciB0aGUgc29ja2V0IHRoYXQgZXhwb3J0cyBpdHMgc2tiIGFycmF5LCB3ZSBjYW4g
+dXNlIGxvY2tsZXNzIHBvbGxpbmcKPj4gdG8gYXZvaWQgdG91Y2hpbmcgc3BpbmxvY2sgZHVyaW5n
+IGJ1c3kgcG9sbGluZy4KPj4KPj4gU2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdA
+cmVkaGF0LmNvbT4KPj4gLS0tCj4+ICAgZHJpdmVycy92aG9zdC9uZXQuYyB8IDcgKysrKystLQo+
+PiAgIDEgZmlsZSBjaGFuZ2VkLCA1IGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCj4+Cj4+
+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L25ldC5jIGIvZHJpdmVycy92aG9zdC9uZXQuYwo+
+PiBpbmRleCA1M2YwOWYyLi40MTE1M2EzIDEwMDY0NAo+PiAtLS0gYS9kcml2ZXJzL3Zob3N0L25l
+dC5jCj4+ICsrKyBiL2RyaXZlcnMvdmhvc3QvbmV0LmMKPj4gQEAgLTU1MSwxMCArNTUxLDEzIEBA
+IHN0YXRpYyBpbnQgcGVla19oZWFkX2xlbihzdHJ1Y3Qgdmhvc3RfbmV0X3ZpcnRxdWV1ZSAqcnZx
+LCBzdHJ1Y3Qgc29jayAqc2spCj4+ICAgCXJldHVybiBsZW47Cj4+ICAgfQo+PiAgIAo+PiAtc3Rh
+dGljIGludCBza19oYXNfcnhfZGF0YShzdHJ1Y3Qgc29jayAqc2spCj4+ICtzdGF0aWMgaW50IHNr
+X2hhc19yeF9kYXRhKHN0cnVjdCB2aG9zdF9uZXRfdmlydHF1ZXVlICpydnEsIHN0cnVjdCBzb2Nr
+ICpzaykKPj4gICB7Cj4+ICAgCXN0cnVjdCBzb2NrZXQgKnNvY2sgPSBzay0+c2tfc29ja2V0Owo+
+PiAgIAo+PiArCWlmIChydnEtPnJ4X2FycmF5KQo+PiArCQlyZXR1cm4gIV9fc2tiX2FycmF5X2Vt
+cHR5KHJ2cS0+cnhfYXJyYXkpOwo+PiArCj4+ICAgCWlmIChzb2NrLT5vcHMtPnBlZWtfbGVuKQo+
+PiAgIAkJcmV0dXJuIHNvY2stPm9wcy0+cGVla19sZW4oc29jayk7Cj4+ICAgCj4gSSBkb24ndCBz
+ZWUgd2hpY2ggcGF0Y2ggYWRkcyBfX3NrYl9hcnJheV9lbXB0eS4KClRoaXMgaXMgbm90IHNvbWV0
+aGluZyBuZXcsIGl0IHdhcyBpbnRyb2R1Y2VkIGJ5IGFkNjlmMzVkMWRjMGEgCigic2tiX2FycmF5
+OiBhcnJheSBiYXNlZCBGSUZPIGZvciBza2JzIikuCgpUaGFua3MKCj4KPj4gQEAgLTU3OSw3ICs1
+ODIsNyBAQCBzdGF0aWMgaW50IHZob3N0X25ldF9yeF9wZWVrX2hlYWRfbGVuKHN0cnVjdCB2aG9z
+dF9uZXQgKm5ldCwKPj4gICAJCWVuZHRpbWUgPSBidXN5X2Nsb2NrKCkgKyB2cS0+YnVzeWxvb3Bf
+dGltZW91dDsKPj4gICAKPj4gICAJCXdoaWxlICh2aG9zdF9jYW5fYnVzeV9wb2xsKCZuZXQtPmRl
+diwgZW5kdGltZSkgJiYKPj4gLQkJICAgICAgICFza19oYXNfcnhfZGF0YShzaykgJiYKPj4gKwkJ
+ICAgICAgICFza19oYXNfcnhfZGF0YShydnEsIHNrKSAmJgo+PiAgIAkJICAgICAgIHZob3N0X3Zx
+X2F2YWlsX2VtcHR5KCZuZXQtPmRldiwgdnEpKQo+PiAgIAkJCWNwdV9yZWxheCgpOwo+PiAgIAo+
+PiAtLSAKPj4gMi43LjQKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5s
+aW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFp
+bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
