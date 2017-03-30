@@ -1,15 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH 0/6] virtio-net: Add support for virtio-net header
-	extensions
-Date: Thu, 30 Mar 2017 19:06:03 +0300
-Message-ID: <20170330160412.GA32094__14024.4658723988$1490889990$gmane$org@redhat.com>
-References: <1489896397-2275-1-git-send-email-vyasevic@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] virtio_net: fix mergeable bufs error handling
+Date: Thu, 30 Mar 2017 10:57:06 -0700 (PDT)
+Message-ID: <20170330.105706.320793115840611639.davem@davemloft.net>
+References: <1490791050-22046-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1489896397-2275-1-git-send-email-vyasevic@redhat.com>
+In-Reply-To: <1490791050-22046-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,91 +17,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vladislav Yasevich <vyasevich@gmail.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: mst@redhat.com
+Cc: netdev@vger.kernel.org, john.fastabend@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Mar 19, 2017 at 12:06:31AM -0400, Vladislav Yasevich wrote:
-> Curreclty virtion net header is fixed size and adding things to it is rather
-> difficult to do.  This series attempt to add the infrastructure as well as some
-> extensions that try to resolve some deficiencies we currently have.
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Wed, 29 Mar 2017 15:37:37 +0300
 
-Pls copy virtio TC ML as with any interface change proposals.
+> @@ -570,7 +570,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+>  	u16 num_buf;
+>  	struct page *page;
+>  	int offset;
+> -	struct sk_buff *head_skb, *curr_skb;
+> +	struct sk_buff *head_skb = NULL, *curr_skb;
+>  	struct bpf_prog *xdp_prog;
+>  	unsigned int truesize;
+>  
 
-Also pls use the correct list for virtio: that's
-virtualization@lists.linux-foundation.org, not
-virtualization@list.linux-foundation.org
+Like Jason, I see the very next line is:
 
-And pls copy more relevant people directly.
-virtio dpdk and qemu maintainers and qemu ml come to mind.
+	head_skb = NULL;
 
-> First, vnet header only has space for 16 flags.  This may not be enough
-> in the future.  The extensions will provide space for 32 possbile extension
-> flags and 32 possible extensions.   These flags will be carried in the
-> first pseudo extension header, the presense of which will be determined by
-> the flag in the virtio net header.
-> 
-> The extensions themselves will immidiately follow the extension header itself.
-> They will be added to the packet in the same order as they appear in the
-> extension flags.  No padding is placed between the extensions and any
-> extensions negotiated, but not used need by a given packet will convert to
-> trailing padding.
-> 
-> For example:
->  | vnet mrg hdr | ext hdr | ext 1 | ext 2 | ext 5 | .. pad .. | packet data |
-> 
-
-I'll try to look into interface detail later, but there's some
-detail missing here on when are these extensions helpful.
-
-> Extensions proposed in this series are:
->  - IPv6 fragment id extension
->    * Currently, the guest generated fragment id is discarded and the host
->      generates an IPv6 fragment id if the packet has to be fragmented.  This
->      results in slightly less random id genration that might be potentially
->      easier to guess.  We can pass the fragment id from guest to host to
->      remove the need for the host to generate ids.
-
-Well it's harder for guest to get hold of random-ness.
-why does doing it in host result in less randomness?
-
->  - VLAN header acceleration
->    * Currently virtio doesn't not do vlan header acceleration and instead
->      uses software tagging.  The extension allows us to pass vlan id and
->      protocol to the host and take advantage of host HW vlan acceleration.
-
-Consider vlan acceleration: it's normally done in hardware
-but in our case isn't it just moving work over to
-the hypervisor?
-
-Some kind of performance improvement would have to be shown.
-
-
-> 
->  - UDP tunnel offload
->    * Similar to vlan acceleration, with this extension we can pass additional
->      data to host for support GSO with udp tunnel and possible other
->      encapsulations.
-
-Sounds interesting. Again, is there a performance improvement to be
-had from this?
-
-> This series only takes care of virtio net.  I have addition patches for the
-> host side (vhost and tap/macvtap as well as qemu), but wanted to get feedback
-> on the general approach first.
-> Vladislav Yasevich (6):
->   virtio-net: Remove the use the padded vnet_header structure
->   virtio-net: make header length handling uniform
->   virtio_net: Add basic skeleton for handling vnet header extensions.
->   virtio-net: Add support for IPv6 fragment id vnet header extension.
->   virtio-net: Add support for vlan acceleration vnet header extension.
->   virtio-net: Add support for UDP tunnel offload and extension.
-> 
->  drivers/net/virtio_net.c        | 132 +++++++++++++++++++++++++++++++++-------
->  include/linux/skbuff.h          |   5 ++
->  include/linux/virtio_net.h      |  91 ++++++++++++++++++++++++++-
->  include/uapi/linux/virtio_net.h |  38 ++++++++++++
->  4 files changed, 242 insertions(+), 24 deletions(-)
-> 
-> -- 
-> 2.7.4
+so I don't think this is necessary.
