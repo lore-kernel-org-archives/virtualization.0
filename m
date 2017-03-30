@@ -1,16 +1,15 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH 4/6] virtio_net: allow specifying context for rx
-Date: Thu, 30 Mar 2017 16:46:06 +0200
-Message-ID: <20170330164606.1887c0f0.cornelia.huck@de.ibm.com>
-References: <1490820507-8005-1-git-send-email-mst@redhat.com>
-	<1490820507-8005-5-git-send-email-mst@redhat.com>
-	<20170330092651.7767dfac.cornelia.huck@de.ibm.com>
-	<20170330173031-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 1/2] virtio: allow drivers to validate features
+Date: Thu, 30 Mar 2017 17:57:11 +0300
+Message-ID: <20170330175457-mutt-send-email-mst@kernel.org>
+References: <1490807652-27889-1-git-send-email-mst@redhat.com>
+	<20170330110627.01713921.cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170330173031-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170330110627.01713921.cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,68 +19,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 30 Mar 2017 17:31:37 +0300
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> On Thu, Mar 30, 2017 at 09:26:51AM +0200, Cornelia Huck wrote:
-> > On Wed, 29 Mar 2017 23:48:54 +0300
-> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > 
-> > > With mergeable buffers we never use s/g for rx,
-> > > so allow specifying context in that case.
-> > > 
-> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > ---
-> > >  drivers/net/virtio_net.c | 15 ++++++++++++++-
-> > >  1 file changed, 14 insertions(+), 1 deletion(-)
-> > > 
-> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > index 6802169..340f737 100644
-> > > --- a/drivers/net/virtio_net.c
-> > > +++ b/drivers/net/virtio_net.c
-> > > @@ -2044,6 +2044,7 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
-> > >  	int ret = -ENOMEM;
-> > >  	int i, total_vqs;
-> > >  	const char **names;
-> > > +	const bool *ctx;
-> > >  
-> > >  	/* We expect 1 RX virtqueue followed by 1 TX virtqueue, followed by
-> > >  	 * possible N-1 RX/TX queue pairs used in multiqueue mode, followed by
-> > > @@ -2062,6 +2063,13 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
-> > >  	names = kmalloc(total_vqs * sizeof(*names), GFP_KERNEL);
-> > >  	if (!names)
-> > >  		goto err_names;
-> > > +	if (vi->mergeable_rx_bufs) {
-> > > +		ctx = kzalloc(total_vqs * sizeof(*ctx), GFP_KERNEL);
-> > > +		if (!ctx)
-> > > +			goto err_ctx;
-> > > +	} else {
-> > > +		ctx = NULL;
-> > > +	}
-> > >  
-> > >  	/* Parameters for control virtqueue, if any */
-> > >  	if (vi->has_cvq) {
-> > > @@ -2077,9 +2085,12 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
-> > >  		sprintf(vi->sq[i].name, "output.%d", i);
-> > >  		names[rxq2vq(i)] = vi->rq[i].name;
-> > >  		names[txq2vq(i)] = vi->sq[i].name;
-> > > +		if (ctx)
-> > > +			ctx[rxq2vq(i)] = true;
-> > >  	}
-> > >  
-> > > -	ret = virtio_find_vqs(vi->vdev, total_vqs, vqs, callbacks, names, NULL);
-> > > +	ret = vi->vdev->config->find_vqs(vi->vdev, total_vqs, vqs, callbacks,
-> > > +					 names, ctx, NULL);
-> > 
-> > virtio_find_vqs_ctx()? (Needs to be exported, obviously.)
+On Thu, Mar 30, 2017 at 11:06:27AM +0200, Cornelia Huck wrote:
+> On Wed, 29 Mar 2017 20:14:44 +0300
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
 > 
-> I guess I can do that but there's a single user ATM.
-> Do you think it's worth doing right now, or wait until
-> it gets more users?
+> > Some drivers can't support all features in all configurations.  At the
+> > moment we blindly set FEATURES_OK and later FAILED.  Support this better
+> > by adding a callback drivers can use to do some early checks.
+> 
+> Looks reasonable. Do we need to document that the driver must not do
+> anything beyond dealing with features and reading the config space that
+> early?
 
-Given that you introduce it in patch 2, I'd just make it an exported
-function from the start. (It also looks nicer IMO.)
+It's up to the driver - we probably should document that on failure
+neither probe nor remove will be called. On success we proceed
+to probe.
+
+> > 
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> >  drivers/virtio/virtio.c | 6 ++++++
+> >  include/linux/virtio.h  | 1 +
+> >  2 files changed, 7 insertions(+)
+> > 
+> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> > index 400d70b..48230a5 100644
+> > --- a/drivers/virtio/virtio.c
+> > +++ b/drivers/virtio/virtio.c
+> > @@ -232,6 +232,12 @@ static int virtio_dev_probe(struct device *_d)
+> >  		if (device_features & (1ULL << i))
+> >  			__virtio_set_bit(dev, i);
+> >  
+> > +	if (drv->validate) {
+> > +		err = drv->validate(dev);
+> > +		if (err)
+> > +			goto err;
+> > +	}
+> > +
+> >  	err = virtio_finalize_features(dev);
+> >  	if (err)
+> >  		goto err;
+> > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> > index 193fea9..ed04753 100644
+> > --- a/include/linux/virtio.h
+> > +++ b/include/linux/virtio.h
+> > @@ -176,6 +176,7 @@ struct virtio_driver {
+> >  	unsigned int feature_table_size;
+> >  	const unsigned int *feature_table_legacy;
+> >  	unsigned int feature_table_size_legacy;
+> > +	int (*validate)(struct virtio_device *dev);
+> >  	int (*probe)(struct virtio_device *dev);
+> >  	void (*scan)(struct virtio_device *dev);
+> >  	void (*remove)(struct virtio_device *dev);
+> 
+> Would be good to add some doc; but other members are undocumented here
+> already...
+
+True. Patches welcome.
