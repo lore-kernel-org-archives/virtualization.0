@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 1/2] MAINTAINERS: fix virtio file pattern
-Date: Thu, 30 Mar 2017 13:13:32 +0200
-Message-ID: <20170330111333.47725-2-cornelia.huck@de.ibm.com>
+Subject: [PATCH 2/2] virtio: virtio_driver doc
+Date: Thu, 30 Mar 2017 13:13:33 +0200
+Message-ID: <20170330111333.47725-3-cornelia.huck__36926.9773051657$1490872448$gmane$org@de.ibm.com>
 References: <20170330111333.47725-1-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,25 +21,30 @@ To: mst@redhat.com
 Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The pattern did not catch include/linux/virtio.h.
+Add comments for the virtio_driver members that were not documented.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- MAINTAINERS | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/virtio.h | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index a9ae6c1..f96b3f9 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -10902,7 +10902,7 @@ F:	drivers/virtio/
- F:	tools/virtio/
- F:	drivers/net/virtio_net.c
- F:	drivers/block/virtio_blk.c
--F:	include/linux/virtio_*.h
-+F:	include/linux/virtio*.h
- F:	include/uapi/linux/virtio_*.h
- 
- VIRTIO DRIVERS FOR S390
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 8f4d4bf..e80adf2 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -133,9 +133,13 @@ int virtio_device_restore(struct virtio_device *dev);
+  * @feature_table_legacy: same as feature_table but when working in legacy mode.
+  * @feature_table_size_legacy: number of entries in feature table legacy array.
+  * @probe: the function to call when a device is found.  Returns 0 or -errno.
++ * @scan: optional function to call after successful probe; intended
++ *    for virtio-scsi to invoke a scan.
+  * @remove: the function to call when a device is removed.
+  * @config_changed: optional function to call when the device configuration
+  *    changes; may be called in interrupt context.
++ * @freeze: optional function to call during suspend/hibernation.
++ * @restore: optional function to call on resume.
+  */
+ struct virtio_driver {
+ 	struct device_driver driver;
 -- 
 2.8.4
